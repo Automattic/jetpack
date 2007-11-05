@@ -62,7 +62,7 @@ function wp_cache_add_pages() {
 }
 
 function wp_cache_manager() {
-	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression;
+	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -105,27 +105,28 @@ function wp_cache_manager() {
 					wp_cache_disable();
 					break;
 				case 'wpcache':
+					wp_cache_enable();
 					wp_super_cache_disable();
 					break;
 			}
 		}
-
-		if( $_POST[ 'cache_compression' ] != $cache_compression ) {
-			$cache_compression = $_POST[ 'cache_compression' ];
-			wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = " . $_POST[ 'cache_compression' ] . ";", $wp_cache_config_file);
+		if( isset( $_POST[ 'cache_compression' ] ) && $_POST[ 'cache_compression' ] != $cache_compression ) {
+			$cache_compression = intval( $_POST[ 'cache_compression' ] );
+			wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = " . $cache_compression . ";", $wp_cache_config_file);
 			prune_super_cache( $cache_path, true );
+			delete_option( 'super_cache_meta' );
 		}
 	}
 
 	echo '<form name="wp_manager" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	?>
-	<input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && is_dir( $supercachedir ) ) { echo 'checked=checked'; } ?>> Enabled<br />
-	<input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> Disabled<br />
-	<input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && is_dir( $supercachedir . ".disabled" ) ) { echo 'checked=checked'; } ?>> Only using WP Cache<br />
+	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> Enabled</label><br />
+	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> Disabled</label><br />
+	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> Super Cache Disabled</label><br />
 	<p><strong>Super Cache compression:</strong>
-	<input type="radio" name="cache_compression" value="1" <?php if( $cache_compression ) { echo "checked=checked"; } ?>> Enabled
-	<input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> Disabled
-	<p>Compression is disabled by default because some hosts have problems with compressed files.</p>
+	<label><input type="radio" name="cache_compression" value="1" <?php if( $cache_compression ) { echo "checked=checked"; } ?>> Enabled</label>
+	<label><input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> Disabled</label>
+	<p>Compression is disabled by default because some hosts have problems with compressed files. Switching this on and off clears the cache.</p>
 	<?php
 	echo '<div class="submit"><input type="submit"value="Update" /></div>';
 	wp_nonce_field('wp-cache');
