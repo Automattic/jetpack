@@ -111,6 +111,7 @@ function wp_cache_manager() {
 			}
 		}
 		if( isset( $_POST[ 'cache_compression' ] ) && $_POST[ 'cache_compression' ] != $cache_compression ) {
+			$cache_compression_changed = true;
 			$cache_compression = intval( $_POST[ 'cache_compression' ] );
 			wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = " . $cache_compression . ";", $wp_cache_config_file);
 			prune_super_cache( $cache_path, true );
@@ -128,7 +129,7 @@ function wp_cache_manager() {
 	<label><input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> Disabled</label>
 	<p>Compression is disabled by default because some hosts have problems with compressed files. Switching this on and off clears the cache.</p>
 	<?php
-	if( isset( $_POST[ 'cache_compression' ] ) && !$cache_compression ) {
+	if( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && !$cache_compression ) {
 		?><p><strong>Super Cache compression is now disabled. You should remove or comment out the following rules in your .htaccess file:</strong></p>
 	<blockquote style='background-color: #ff6'><code>RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$<br />
 	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$<br />
@@ -137,7 +138,7 @@ function wp_cache_manager() {
 	RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz -f<br />
 	RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]</code>
 		</blockquote><?php
-	} elseif( isset( $_POST[ 'cache_compression' ] ) && $cache_compression ) {
+	} elseif( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && $cache_compression ) {
 		?><p><strong>Super Cache compression is now enabled. You must add or uncomment the following rules in your .htaccess file:</strong></p>
 	<blockquote style='background-color: #ff6'><code>RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$<br />
 	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$<br />
