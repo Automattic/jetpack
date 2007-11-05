@@ -9,6 +9,7 @@ define( 'WPCACHEHOME', ABSPATH . 'wp-content/plugins/wp-super-cache/' );
 
 $cache_compression = 0; // Super cache compression
 $cache_enabled = false;
+$super_cache_enabled = false;
 $cache_max_time = 3600; //in seconds
 //$use_flock = true; // Set it true or false if you know what to use
 $super_cache_max_time = 21600; // in seconds

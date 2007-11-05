@@ -8,6 +8,7 @@ Author: Donncha O Caoimh
 Author URI: http://ocaoimh.ie/
 */
 /*  Copyright 2005-2006  Ricardo Galli Granada  (email : gallir@uib.es)
+    Some code copyright 2007 Donncha O Caoimh (http://ocaoimh.ie/)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,149 +23,6 @@ Author URI: http://ocaoimh.ie/
     You should have received a copy of the GNU General Public License
     along with this program; if not, write to the Free Software
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-*/
-
-/* Changelog
-	2007-09-21
-		- Version 2.1.2:
-			- Add "Content-type" to "known header" because WP uses both (?).
-			- Removed quotes from charset http headers, some clients get confused.
-
-	2007-03-23
-		- Version 2.1.1: Patch from Alex Concha: add control in admin pages to avoid 
-		                possible XSS derived from CSRF attacks, if the users store
-						the form with the "injected" bad values.
-	2007-01-31
-		- Version 2.1: modified and tested with WP 2.1, WP 2.0, WP 1.5 and PHP 4.3 and PHP 5.2.
-
-	2007-01-14: 2.0.22
-		- Corrected bug with meta object not marked as dynamic (introduce in 2.0.20 by http://dev.wp-plugins.org/ticket/517
-
-	2006-12-31: 2.0.21
-		- Added global definitien missing from http://dev.wp-plugins.org/ticket/517
-
-	2006-12-31: 2.0.20
-		- See http://mnm.uib.es/gallir/posts/2006/12/31/930/
-
-	2006-11-06: 2.0.19
-		- Added control of blog_id to delete only those cache files belonging to the same
-		  virtual blog. $blog_id is tricky business, because the variable is not assigned yet
-		  when wp-cache-phase1.php is called, so it cannot be used as part of the key.
-
-	2006-11-04: 2.0.18 (beta)
-		- Changed the use of REQUEST_URI to SCRIPT_URI for key generation. This
-		  would solve problems in WP-MU.
-		- Clean URI string in MetaCache object to avoid XSS attacks in the admin page.
-		- Do not cache 404 pages.
-	2005-10-23: 2.0.17
-		- Commented out Content-Lenght negotiation, some site have strange problems with
-		  ob_content_lenght and buffer length at OB shutdown. WP does not send it anyway.
-
-	2005-10-20: 2.0.16
-		- strlen($buffer) is a bug the that function, it's really not defined.
-		
-	2005-10-16: 2.0.15
-		- Changed "Content-Size" to "Content-Length". Obvious bug.
-
-	2005-09-12: 2.0.14
-		- Add array() to headers to avoid PHP warnings
-
-	2005-09-08: 2.0.13
-			- Move request for Apache response headers to the shutdown callback
-			  It seems some plugins do dirty things with headers... or php config?
-
-	2005-07-26: 2.0.12
-			- Patch from James (http://shreddies.org/) to delete individual cache files
-
-	2005-07-21: 2.0.11
-			- Check also for Last-Modified headers. Last WP version (1.5.3) does not 
-			  it.
-			- Move the previous check to the ob_callback, so the aditional headers 
-			  can be sent also when cache still does not exist.
-
-	2005-07-19: 2.0.10
-			- Check also for feeds' closing tags
-			  (patch from Daniel Westermann-Clark <dwc at ufl dot edu>)
-
-	2005-07-19: 2.0.9
-			- Better control of post_id and comment_id by refactoring the code
-			  (inspired by a Brian Dupuis patch).
-			- Avoid cleaning cache twice due to WP bugs that wrongly calls two actions.
-			
-	2005-07-12: 2.0.8
-			- Add paranoic control to make sure it only caches files with
-			  closing "body" and "html" tags.
-
-	2005-06-23: 2.0.7
-			- Add an extra control to make sure meta_mtime >= content_mtime
-			  (it could serves incomplete html because other process is re-generating
-			   content file and the meta file is the previous one).
-
-	2005-06-23: 2.0.6
-			- Delect cache _selectively_. If post_id is known
-			  it deletes only that cache and the general (indexes) ones.
-			  See: http://mnm.uib.es/gallir/wp-cache-2/#comment-4194
-			- Delete cache files (all) also after moderation.
-
-	2005-06-19: 2.0.5
-			- Added "#anchors" to refresh cache files' list
-			  (http://mnm.uib.es/gallir/wp-cache-2/#comment-4116)
-
-	2005-06-09: 2.0.4
-			- Avoid "fwrite() thrashing" at the begining of a connections storm
-			- Send Content-Size header when generated dynamically too
-			- Clean stats cache before deleting expired files
-			- Optimized phase1, EVEN MORE! :-): 
-				removed random and extrachecks that were not useful in the context 
-				move checking for .meta at the begining
-
-	2005-05-27: 2.0.3
-			- Check for zero length of user agent and uri strings
-
-	2005-05-24: 2.0.2a
-			- As a workaround for buggy apache installations, create
-			  Content-Type header if is not retrieved from Apache headers.
-	2005-05-23: 2.0.2
-			- Added mfunc sintax as in Staticize Reloaded 2.5,
-			  also keep tags but take out function calls
-			- Check of numbers are really numbers in web forms.
-			- Remove header_list function verification, its result are not
-			  the same.
-			- wp-cache now verifies if gzipcompression is enabled
-			
-	2005-05-08: 2.0.1
-			sanitize function names to aovid namespace collisions
-
-	2005-05-08: 2.0-beta6
-			ignore URI after #, it's sent by buggy clients
-			print in red expired files's cache time
-			if phase2 was compiled, reuse its function to remove files,
-				it avoids race-conditions
-			check html _and_ meta exist when listing/accesing files in cache
-
-	2005-05-06: 2.0-beta5
-			remove all expired files when one has expired
-			POSTs are completely ignored
-			only wordpress specific cookies are used for the md5 key
-
-	2005-05-06: 2.0-beta4
-			move wp_cache_microtime_diff to phase 2
-			normalize functions' name in phase2
-			workaround for nasty bug un PHP4(.3) that hits when cache fallbacks to flock()
-
-	2005-05-06:	2.0-beta3
-			include sample configuration file if the final one does not exist
-			more verbose in errors
-			change order of initial configuration to give better information
-			stop if global cache is not enabled
-			wp-cache-phase1 returns silently if no wp-cache-config.php is found
-				
-	2005-05-06:	2.0-beta2
-			removed paranoic chmod's
-			check for cache file consistency in Phase1 several times
-			addded option to prevent cache based on user-agents
-			added size in KB to every listed file in "cache listing"
-
 */
 
 $wp_cache_config_file = ABSPATH . 'wp-content/wp-cache-config.php';
@@ -435,8 +293,8 @@ function wp_cache_enable() {
 	}
 	if( wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = true;', $wp_cache_config_file) ) {
 		$cache_enabled = true;
-		wp_super_cache_enable();
 	}
+	wp_super_cache_enable();
 }
 
 function wp_cache_disable() {
@@ -444,23 +302,25 @@ function wp_cache_disable() {
 
 	if (wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file)) {
 		$cache_enabled = false;
-		wp_super_cache_disable();
 	}
+	wp_super_cache_disable();
 }
 function wp_super_cache_enable() {
-	global $supercachedir;
+	global $supercachedir, $wp_cache_config_file, $super_cache_enabled;
 
-	if( is_dir( $supercachedir . ".disabled" ) ) {
+	if( is_dir( $supercachedir . ".disabled" ) )
 		rename( $supercachedir . ".disabled", $supercachedir );
-	}
+	wp_cache_replace_line('^ *\$super_cache_enabled', '$super_cache_enabled = true;', $wp_cache_config_file);
+	$super_cache_enabled = true;
 }
 
 function wp_super_cache_disable() {
-	global $supercachedir;
+	global $supercachedir, $wp_cache_config_file, $super_cache_enabled;
 
-	if( is_dir( $supercachedir ) ) {
+	if( is_dir( $supercachedir ) )
 		rename( $supercachedir, $supercachedir . ".disabled" );
-	}
+	wp_cache_replace_line('^ *\$super_cache_enabled', '$super_cache_enabled = false;', $wp_cache_config_file);
+	$super_cache_enabled = false;
 }
 
 function wp_cache_is_enabled() {
