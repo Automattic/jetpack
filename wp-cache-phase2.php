@@ -312,7 +312,30 @@ function wp_cache_shutdown_callback() {
 		array_push($wp_cache_meta_object->headers, "Last-Modified: $value");
 	}
 	if (!$response{'Content-Type'} && !$response{'Content-type'}) {
-		$value =  "text/html; charset=" . get_settings('blog_charset'); 
+		// On some systems, headers set by PHP can't be fetched from
+		// the output buffer. This is a last ditch effort to set the
+		// correct Content-Type header for feeds, if we didn't see
+		// it in the response headers already. -- dougal
+		if (is_feed()) {
+			$type = get_query_var('feed');
+			$type = str_replace('/','',$type);
+			switch ($type) {
+				case 'atom':
+					$value = "application/atom+xml";
+					break;
+				case 'rdf':
+					$value = "application/rdf+xml";
+					break;
+				case 'rss':
+				case 'rss2':
+				default:
+					$value = "application/rss+xml";
+			}
+		} else { // not a feed
+			$value = 'text/html';
+		}
+		$value .=  "; charset=\"" . get_settings('blog_charset')  . "\"";
+
 		@header("Content-Type: $value");
 		array_push($wp_cache_meta_object->headers, "Content-Type: $value");
 	}
