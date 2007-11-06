@@ -30,7 +30,20 @@ $file_expired = false;
 $cache_filename = '';
 $meta_file = '';
 
-$key = $blogcacheid . md5($_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', $_SERVER['REQUEST_URI']).wp_cache_get_cookies_values());
+$wp_cache_gzip_encoding = '';
+
+function gzip_accepted(){
+	if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') === false) return false;
+	if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'x-gzip') === false) return 'gzip';
+	return 'x-gzip';
+}
+
+if ($cache_compression) {
+	$wp_cache_gzip_encoding = gzip_accepted();
+}
+
+$key = $blogcacheid . md5($_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', $_SERVER['REQUEST_URI']).$wp_cache_gzip_encoding.wp_cache_get_cookies_values());
+
 $cache_filename = $file_prefix . $key . '.html';
 $meta_file = $file_prefix . $key . '.meta';
 $cache_file = $cache_path . $cache_filename;
@@ -45,7 +58,6 @@ if( ($mtime = @filemtime($meta_pathname)) ) {
 		foreach ($meta->headers as $header) {
 			header($header);
 		}
-		$log = "<!-- Cached page served by WP-Cache -->\n";
 		if ( !($content_size = @filesize($cache_file)) > 0 || $mtime < @filemtime($cache_file))
 			return;
 		if ($meta->dynamic) {
@@ -58,7 +70,6 @@ if( ($mtime = @filemtime($meta_pathname)) ) {
 			if(!@readfile ($cache_file)) 
 				return;
 		}
-		echo $log;
 		die;
 	}
 	$file_expired = true; // To signal this file was expired

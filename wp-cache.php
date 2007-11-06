@@ -114,7 +114,8 @@ function wp_cache_manager() {
 			$cache_compression_changed = true;
 			$cache_compression = intval( $_POST[ 'cache_compression' ] );
 			wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = " . $cache_compression . ";", $wp_cache_config_file);
-			prune_super_cache( $cache_path, true );
+			if( function_exists( 'prune_super_cache' ) )
+				prune_super_cache ($cache_path, true);
 			delete_option( 'super_cache_meta' );
 		}
 	}
@@ -130,7 +131,7 @@ function wp_cache_manager() {
 	<p>Compression is disabled by default because some hosts have problems with compressed files. Switching this on and off clears the cache.</p>
 	<?php
 	if( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && !$cache_compression ) {
-		?><p><strong>Super Cache compression is now disabled. You should remove or comment out the following rules in your .htaccess file:</strong></p>
+		?><p><strong>Super Cache compression is now disabled. For maximum performance you should remove or comment out the following rules in your .htaccess file:</strong></p>
 	<blockquote style='background-color: #ff6'><code>RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$<br />
 	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$<br />
 	RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$<br />
@@ -645,13 +646,15 @@ function wp_cache_clean_cache($file_prefix) {
 
 	// If phase2 was compiled, use its function to avoid race-conditions
 	if(function_exists('wp_cache_phase2_clean_cache')) {
-		if( is_dir( $supercachedir ) ) {
-			prune_super_cache( $supercachedir, true );
-		} elseif( is_dir( $supercachedir . '.disabled' ) ) {
-			prune_super_cache( $supercachedir . '.disabled', true );
+		if (function_exists ('prune_super_cache')) {
+			if( is_dir( $supercachedir ) ) {
+				prune_super_cache( $supercachedir, true );
+			} elseif( is_dir( $supercachedir . '.disabled' ) ) {
+				prune_super_cache( $supercachedir . '.disabled', true );
+			}
+			prune_super_cache( $cache_path, true );
+			$_POST[ 'super_cache_stats' ] = 1; // regenerate super cache stats;
 		}
-		prune_super_cache( $cache_path, true );
-		$_POST[ 'super_cache_stats' ] = 1; // regenerate super cache stats;
 		return wp_cache_phase2_clean_cache($file_prefix);
 	}
 
@@ -672,13 +675,15 @@ function wp_cache_clean_expired($file_prefix) {
 
 	// If phase2 was compiled, use its function to avoid race-conditions
 	if(function_exists('wp_cache_phase2_clean_expired')) {
-		$dir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]);
-		if( is_dir( $dir ) ) {
-			prune_super_cache( $dir );
-		} elseif( is_dir( $dir . '.disabled' ) ) {
-			prune_super_cache( $dir . '.disabled' );
+		if (function_exists ('prune_super_cache')) {
+			$dir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]);
+			if( is_dir( $dir ) ) {
+				prune_super_cache( $dir );
+			} elseif( is_dir( $dir . '.disabled' ) ) {
+				prune_super_cache( $dir . '.disabled' );
+			}
+			$_POST[ 'super_cache_stats' ] = 1; // regenerate super cache stats;
 		}
-		$_POST[ 'super_cache_stats' ] = 1; // regenerate super cache stats;
 		return wp_cache_phase2_clean_expired($file_prefix);
 	}
 

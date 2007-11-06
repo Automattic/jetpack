@@ -1,7 +1,9 @@
-﻿=== WP Super Cache ===
+=== WP Super Cache ===
 Contributors: donncha
+Donate link: http://ocaoimh.ie/
 Tags: performance,caching,wp-cache
 Tested up to: 2.3.1
+Stable Tag: 0.2
 
 A modification of WP-Cache that produces static html files.
 
@@ -43,7 +45,8 @@ WP Super Cache by Donncha O Caoimh, http://ocaoimh.ie/
 1.  You must have fancy permalinks enabled for this to work.
 2.  If you have WP-Cache installed already, please disable it. Edit wp-config.php
     and make sure the WP_CACHE define is deleted, and remove the file
-    wp-content/advanced-cache.php.
+    wp-content/advanced-cache.php. These will be recreated when you install this
+    plugin.
 3.  Upload this directory to your plugins directory. It will create a 
     'wp-content/plugins/wp-super-cache/' directory.
 4.  If you are using WordPress MU you will need to install this in
