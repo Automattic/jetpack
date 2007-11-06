@@ -171,7 +171,11 @@ function wp_cache_manager() {
 	wp_cache_restore();
 
 	ob_start();
-	do_cacheaction( 'cache_admin_page' );
+	if( !function_exists( 'do_cacheaction' ) ) {
+		die( 'Install is not complete. Please delete wp-content/advanced-cache.php' );
+	} else {
+		do_cacheaction( 'cache_admin_page' );
+	}
 	$out = ob_get_contents();
 	ob_end_clean();
 	if( $out != '' ) {
@@ -467,10 +471,18 @@ function wp_cache_check_link() {
 
 	if ( basename(@readlink($wp_cache_link)) != basename($wp_cache_file)) {
 		@unlink($wp_cache_link);
+		if( function_exists( 'symlink' ) ) {
 		if (!@symlink ($wp_cache_file, $wp_cache_link)) {
 			echo "<code>advanced-cache.php</code> link does not exist<br />";
 			echo "Create it by executing: <br /><code>ln -s $wp_cache_file $wp_cache_link</code><br /> in your server<br />";
 			return false;
+		} else {
+			if( !@copy( $wp_cache_file, $wp_cache_link ) ) {
+				echo "<code>advanced-cache.php</code> does not exist<br />";
+				echo "Create it by copying $wp_cache_file to $wp_cache_link<br /> in your server<br />";
+				return false;
+			}
+		}
 		}
 	}
 	return true;
