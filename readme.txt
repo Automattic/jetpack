@@ -3,7 +3,7 @@ Contributors: donncha
 Donate link: http://ocaoimh.ie/
 Tags: performance,caching,wp-cache
 Tested up to: 2.3.1
-Stable Tag: 0.2
+Stable tag: 0.2
 
 A modification of WP-Cache that produces static html files.
 
