@@ -54,11 +54,13 @@ function get_wpcachehome() {
 }
 
 function wp_cache_add_pages() {
-	if( function_exists( 'is_site_admin' ) )
-		if( !is_site_admin() )
-			return;
-
-	add_options_page('WP Super Cache Manager', 'WP Super Cache', 'administrator', __FILE__, 'wp_cache_manager');
+	if( function_exists( 'is_site_admin' ) ) {
+		if( is_site_admin() ) {
+			add_submenu_page('wpmu-admin.php', __('WP Super Cache'), __('WP Super Cache'), 'administrator', __FILE__, 'wp_cache_manager');
+		}
+	} else {
+		add_options_page('WP Super Cache', 'WP Super Cache', 'administrator', __FILE__, 'wp_cache_manager');
+	}
 }
 
 function wp_cache_manager() {
