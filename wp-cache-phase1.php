@@ -33,6 +33,9 @@ $meta_file = '';
 $wp_cache_gzip_encoding = '';
 
 function gzip_accepted(){
+	if( ini_get( 'zlib.output_compression' ) ) // don't compress WP-Cache data files when PHP is already doing it
+		return false;
+
 	if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') === false) return false;
 	if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'x-gzip') === false) return 'gzip';
 	return 'x-gzip';
