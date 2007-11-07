@@ -62,9 +62,9 @@ function wp_cache_is_rejected($uri) {
 	global $cache_rejected_uri;
 
 	if (strstr($uri, '/wp-admin/'))
-		return true; //we don't allow cacheing wp-admin for security
+		return true; // we don't allow caching of wp-admin for security reasons
 	foreach ($cache_rejected_uri as $expr) {
-		if (strlen($expr) > 0 && substr( $uri, 1, strlen($expr) ) == $expr && strpos( $uri, '.php' ) )
+		if( preg_match( "/$expr/", $uri ) )
 			return true;
 	}
 	return false;
