@@ -1,0 +1,114 @@
+2007-11-07 15:27  donncha
+
+	* readme.txt: Bump version to 0.3.1 (getting to 1.0 far too
+	  quickly!)
+	  Change formatting again
+
+2007-11-07 15:26  donncha
+
+	* wp-cache.php: Bump version to 0.3.1
+
+2007-11-07 15:26  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase2.php: Use preg_match()
+	  to match rejected URIs.
+	  Change "wp-" to "wp-.*.php" to match files and paths starting
+	  with "wp-" and ending in "php"
+
+2007-11-07 11:56  donncha
+
+	* wp-cache.php: Bump the version number
+
+2007-11-06 22:50  donncha
+
+	* readme.txt: Bump version
+
+2007-11-06 22:18  donncha
+
+	* wp-cache-phase2.php: Fix feed content-type, props Dougal,
+	  (http://dougal.gunters.org/blog/2007/06/19/wp-cache-fix-for-content-type-in-feeds)
+
+2007-11-06 22:15  donncha
+
+	* wp-cache.php: Check the do_cacheaction() exists
+	  Copy file if symlink is not found
+
+2007-11-06 21:44  donncha
+
+	* wp-cache.php: Move WP Super Cache to "Site Admin" menu on
+	  WordPress MU,
+	  http://www.darcynorman.net/2007/11/06/wordpress-super-cache/
+
+2007-11-06 21:19  donncha
+
+	* wp-cache-phase1.php: Don't compress WP-Cache data files is PHP is
+	  already doing it
+
+2007-11-06 10:29  donncha
+
+	* readme.txt: Minor typo in tag
+
+2007-11-06 10:06  donncha
+
+	* readme.txt, wp-cache-phase1.php, wp-cache-phase2.php,
+	  wp-cache.php: Bump the version to 0.2
+	  Enable gzip support in WP-Cache data files, fix feed content
+	  type, props tummbler:
+	  http://www.tummblr.com/wordpress/improving-wp-super-cache-gzip-for-logged-in-users/
+	  http://elliottback.com/wp/archives/2005/07/12/getting-wp-cache-to-work/
+	  http://blog.saddey.net/2007/02/18/how-to-prevent-wpcache-from-changing-a-feeds-content-type-to-text-html/
+	  When Super Cache is disabled, still write to WP-Cache files
+	  Check that prune_super_cache() exists before calling it in
+	  wp-cache.php, props Dougal
+
+2007-11-06 09:06  donncha
+
+	* readme.txt: Fix line endings
+
+2007-11-05 18:41  donncha
+
+	* wp-cache.php: Fixed display of "compression changed" message
+
+2007-11-05 18:06  donncha
+
+	* readme.txt: Convert to DOS mode
+	  reformat lists for display on wporg
+
+2007-11-05 17:25  donncha
+
+	* readme.txt: Minor updates to the readme
+
+2007-11-05 15:21  donncha
+
+	* wp-cache.php: When disabling or enabling compression make sure
+	  the user knows about .htaccess
+
+2007-11-05 15:11  donncha
+
+	* wp-cache-phase2.php: Rejected URIs must have .php in them now so
+	  pages starting with "wp-" will be cached
+
+2007-11-05 15:10  donncha
+
+	* wp-cache.php: When disabling supercache, make sure wpcache is
+	  enabled.
+	  Avoid resetting cache_compression when submitting other forms
+	  Reset supercache meta cache when compression modified
+
+2007-11-05 14:54  donncha
+
+	* wp-cache-config-sample.php, wp-cache.php: Fix weirdness with
+	  radio buttons on admin page
+
+2007-11-05 11:35  donncha
+
+	* plugins, plugins/searchengine.php, readme.txt, wp-cache-base.php,
+	  wp-cache-config-sample.php, wp-cache-phase1.php,
+	  wp-cache-phase2.php, wp-cache.php: Initial import of WP Super
+	  Cache
+
+2007-10-23 20:02  plugin-master
+
+	* wp-super-cache, wp-super-cache/branches, wp-super-cache/tags, .:
+	  adding wp-super-cache by donncha
+
