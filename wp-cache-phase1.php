@@ -25,11 +25,8 @@ if (!$cache_enabled || $_SERVER["REQUEST_METHOD"] == 'POST')
 	return;
 
 $file_expired = false;
-
-
 $cache_filename = '';
 $meta_file = '';
-
 $wp_cache_gzip_encoding = '';
 
 function gzip_accepted(){
@@ -49,8 +46,8 @@ $key = $blogcacheid . md5($_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', $_SER
 
 $cache_filename = $file_prefix . $key . '.html';
 $meta_file = $file_prefix . $key . '.meta';
-$cache_file = $cache_path . $cache_filename;
-$meta_pathname = $cache_path . 'meta/' . $meta_file;
+$cache_file = realpath( $cache_path . $cache_filename );
+$meta_pathname = realpath( $cache_path . 'meta/' . $meta_file );
 
 $wp_start_time = microtime();
 if( ($mtime = @filemtime($meta_pathname)) ) {
