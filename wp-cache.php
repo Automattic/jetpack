@@ -452,9 +452,9 @@ function wp_cache_verify_config_file() {
 		}
 		copy($wp_cache_config_file_sample, $wp_cache_config_file);
 		if( is_file( dirname(__FILE__) . '/wp-cache-config-sample.php' ) ) {
-			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', " . str_replace( ABSPATH, 'ABSPATH . "', dirname(__FILE__) ) . "/\" );", $wp_cache_config_file);
+			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', " . str_replace( 'ABSPATH', 'ABSPATH . "', dirname(__FILE__) ) . "/\" );", $wp_cache_config_file);
 		} elseif( is_file( dirname(__FILE__) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
-			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', " . str_replace( ABSPATH, 'ABSPATH . "', dirname(__FILE__) ) . "/wp-super-cache/\" );", $wp_cache_config_file);
+			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', " . str_replace( 'ABSPATH', 'ABSPATH . "', dirname(__FILE__) ) . "/wp-super-cache/\" );", $wp_cache_config_file);
 		}
 		$new = true;
 	}
@@ -468,21 +468,32 @@ function wp_cache_verify_config_file() {
 
 function wp_cache_check_link() {
 	global $wp_cache_link, $wp_cache_file;
+ 
+	if( file_exists($wp_cache_link) ) {
+		if( strpos( join( "\n", file( $wp_cache_link ) ), 'WPCACHEHOME' ) ) {
+			// read the file and verify it's a super-cache file and not the wp-cache one.
+			return true;
+		} else {
+			// remove the old version
+			@unlink($wp_cache_link);
+		}
+	}
 
+	$ret = true;
 	if ( basename(@readlink($wp_cache_link)) != basename($wp_cache_file)) {
 		@unlink($wp_cache_link);
 		if( function_exists( 'symlink' ) ) {
-		if (!@symlink ($wp_cache_file, $wp_cache_link)) {
-			echo "<code>advanced-cache.php</code> link does not exist<br />";
-			echo "Create it by executing: <br /><code>ln -s $wp_cache_file $wp_cache_link</code><br /> in your server<br />";
-			return false;
-		} else {
-			if( !@copy( $wp_cache_file, $wp_cache_link ) ) {
-				echo "<code>advanced-cache.php</code> does not exist<br />";
-				echo "Create it by copying $wp_cache_file to $wp_cache_link<br /> in your server<br />";
-				return false;
+			if( !@symlink ($wp_cache_file, $wp_cache_link) ) {
+				$ret = false;
 			}
+		} elseif( !@copy( $wp_cache_file, $wp_cache_link ) ) {
+			$ret = false;
 		}
+		if( !$ret ) {
+			echo "<code>advanced-cache.php</code> does not exist<br />";
+			echo "Create it by executing: <br /><code>ln -s $wp_cache_file $wp_cache_link</code><br /> in your server<br />";
+			echo "Or by copying $wp_cache_file to $wp_cache_link.<br />";
+			return false;
 		}
 	}
 	return true;
