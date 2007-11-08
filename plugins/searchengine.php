@@ -22,7 +22,7 @@ function wp_supercache_searchengine( $string ) {
 				}
 				if( $se ) {
 					$string = 'searchengine';
-					setcookie( '7a1254cba80da02d5478d91cfd0a873a', 1, time()+3600, '/' );
+					@setcookie( '7a1254cba80da02d5478d91cfd0a873a', 1, time()+3600, '/' );
 				}
 			}
 		}
@@ -38,7 +38,7 @@ function searchenginesupercache( $user_info ) {
 	} else {
 		return false;
 	}
-	return $string;
+	return $user_info;
 }
 
 function searchengine_phase2_actions() {
