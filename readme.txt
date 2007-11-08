@@ -77,7 +77,7 @@ to the rules. For example, if your blog is in the directory "/blog/":
 	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$
 	RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$
 	RewriteCond %{DOCUMENT_ROOT}/blog/wp-content/cache/supercache/%{HTTP_HOST}/blog/$1index.html -f
-	RewriteRule ^(.*) /blog/wp-content/cache/supercache/%{HTTP_HOST}/$1/blog/index.html [L]
+	RewriteRule ^(.*) /blog/wp-content/cache/supercache/%{HTTP_HOST}/blog/$1index.html [L]
 
 Your .htaccess should look similar to this:
 
