@@ -96,7 +96,11 @@ function wp_cache_manager() {
 		return;
 	}
 
-	echo "<h4>WP Super Cache is:</h4>";
+	if( !got_mod_rewrite() ) {
+		?><h4>Mod rewrite is not installed! Super Cache will not fully work!</h4>
+		<p>mod_rewrite is required for serving Super Cache static files. You will still be able to use WP-Cache.</p><?php
+	}
+
 	if ( $valid_nonce ) {
 		if( isset( $_POST[ 'wp_cache_status' ] ) ) {
 			switch( $_POST[ 'wp_cache_status' ] ) {
@@ -122,6 +126,7 @@ function wp_cache_manager() {
 		}
 	}
 
+	echo "<h4>WP Super Cache is:</h4>";
 	echo '<form name="wp_manager" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	?>
 	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> Enabled</label><br />
@@ -132,24 +137,41 @@ function wp_cache_manager() {
 	<label><input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> Disabled</label>
 	<p>Compression is disabled by default because some hosts have problems with compressed files. Switching this on and off clears the cache.</p>
 	<?php
+	$home_path = get_home_path();
+	$home_root = parse_url(get_option('home'));
+	$home_root = trailingslashit($home_root['path']);
+	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
+	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
+	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
+	if( strpos( $wprules, 'supercache' ) == false ) { // only write the rules once
+		$rules = "<IfModule mod_rewrite.c>\n";
+		$rules .= "RewriteEngine On\n";
+		$rules .= "RewriteBase $home_root\n"; // props Chris Messina
+		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
+		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
+		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
+		$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
+		$rules .= "RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz -f\n";
+		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]\n";
+		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
+		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
+		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
+		$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
+		$rules .= "RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz -f\n";
+		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]\n";
+		$rules .= $wprules . "\n";
+		$rules .= "</IfModule>";
+		echo insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $rules ) );
+	}
+	// http://allmybrain.com/2007/11/08/making-wp-super-cache-gzip-compression-work/
+	$gziprules = "AddEncoding x-gzip .gz\n";
+	$gziprules .= "AddType text/html .gz";
+	$gziprules = insert_with_markers( $cache_path . '.htaccess', 'supercache', explode( "\n", $gziprules ) );
+
 	if( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && !$cache_compression ) {
-		?><p><strong>Super Cache compression is now disabled. For maximum performance you should remove or comment out the following rules in your .htaccess file:</strong></p>
-	<blockquote style='background-color: #ff6'><code>RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$<br />
-	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$<br />
-	RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$<br />
-	RewriteCond %{HTTP:Accept-Encoding} gzip<br />
-	RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz -f<br />
-	RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]</code>
-		</blockquote><?php
+		?><p><strong>Super Cache compression is now disabled.</strong></p> <?php
 	} elseif( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && $cache_compression ) {
-		?><p><strong>Super Cache compression is now enabled. You must add or uncomment the following rules in your .htaccess file:</strong></p>
-	<blockquote style='background-color: #ff6'><code>RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$<br />
-	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$<br />
-	RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$<br />
-	RewriteCond %{HTTP:Accept-Encoding} gzip<br />
-	RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz -f<br />
-	RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]</code>
-		</blockquote><?php
+		?><p><strong>Super Cache compression is now enabled.</strong></p><?php
 	}
 	echo '<div class="submit"><input type="submit"value="Update" /></div>';
 	wp_nonce_field('wp-cache');
@@ -452,9 +474,9 @@ function wp_cache_verify_config_file() {
 		}
 		copy($wp_cache_config_file_sample, $wp_cache_config_file);
 		if( is_file( dirname(__FILE__) . '/wp-cache-config-sample.php' ) ) {
-			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', " . str_replace( 'ABSPATH', 'ABSPATH . "', dirname(__FILE__) ) . "/\" );", $wp_cache_config_file);
+			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', " . str_replace( '\\', '/', str_replace( 'ABSPATH', 'ABSPATH . "', dirname(__FILE__) ) ) . "/\" );", $wp_cache_config_file);
 		} elseif( is_file( dirname(__FILE__) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
-			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', " . str_replace( 'ABSPATH', 'ABSPATH . "', dirname(__FILE__) ) . "/wp-super-cache/\" );", $wp_cache_config_file);
+			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', " . str_replace( '\\', '/', str_replace( 'ABSPATH', 'ABSPATH . "', dirname(__FILE__) ) ) . "/wp-super-cache/\" );", $wp_cache_config_file);
 		}
 		$new = true;
 	}
