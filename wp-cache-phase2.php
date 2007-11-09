@@ -146,7 +146,7 @@ function wp_cache_ob_callback($buffer) {
 		$dir = strtolower(preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"])).preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '..', '', $_SERVER['REQUEST_URI']) ); // To avoid XSS attacs
 		$dir = trailingslashit( $cache_path . 'supercache/' . $dir );
 		$supercachedir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]);
-		if( $super_cache_enabled == true && is_dir( substr( $supercachedir, 0, -1 ) . '.disabled' ) ) {
+		if( is_feed() || ( $super_cache_enabled == true && is_dir( substr( $supercachedir, 0, -1 ) . '.disabled' ) ) ) {
 			$super_cache_enabled = false;
 		}
 
@@ -160,11 +160,9 @@ function wp_cache_ob_callback($buffer) {
 			$user_info = wp_cache_get_cookies_values();
 			$do_cache = apply_filters( 'do_createsupercache', $user_info );
 			if( $user_info == '' || $do_cache === true ) {
-				if( !is_feed() ) { // don't super cache feeds
-					$fr2 = @fopen("{$dir}index.html", 'w');
-					if( $cache_compression )
-						$gz = @gzopen("{$dir}index.html.gz", 'w3');
-				}
+				$fr2 = @fopen("{$dir}index.html", 'w');
+				if( $cache_compression )
+					$gz = @gzopen("{$dir}index.html.gz", 'w3');
 			}
 		}
 
@@ -447,6 +445,12 @@ function wp_cache_post_id() {
 
 if( !function_exists( 'mkpath' ) ) {
 function mkpath($path) {
+	global $cache_path;
+	$real_base = realpath( $cache_path . 'supercache' );
+	$real_path = realpath($path);
+	if( $real_path && 0 !== strpos( $real_path, $real_base ) )
+		return false;
+
 	if(@mkdir($path, 0777) or file_exists($path)) return true;
 	return (mkpath(dirname($path)) and mkdir($path, 0777));
 }
