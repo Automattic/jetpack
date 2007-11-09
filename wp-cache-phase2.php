@@ -146,7 +146,7 @@ function wp_cache_ob_callback($buffer) {
 		$dir = strtolower(preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"])).preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '..', '', $_SERVER['REQUEST_URI']) ); // To avoid XSS attacs
 		$dir = trailingslashit( $cache_path . 'supercache/' . $dir );
 		$supercachedir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]);
-		if( is_feed() || ( $super_cache_enabled == true && is_dir( substr( $supercachedir, 0, -1 ) . '.disabled' ) ) ) {
+		if( isset( $_GET[ 's' ] ) || is_feed() || ( $super_cache_enabled == true && is_dir( substr( $supercachedir, 0, -1 ) . '.disabled' ) ) ) {
 			$super_cache_enabled = false;
 		}
 
