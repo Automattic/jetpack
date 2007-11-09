@@ -474,9 +474,9 @@ function wp_cache_verify_config_file() {
 		}
 		copy($wp_cache_config_file_sample, $wp_cache_config_file);
 		if( is_file( dirname(__FILE__) . '/wp-cache-config-sample.php' ) ) {
-			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', " . str_replace( '\\', '/', str_replace( 'ABSPATH', 'ABSPATH . "', dirname(__FILE__) ) ) . "/\" );", $wp_cache_config_file);
+			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', ABSPATH . " . str_replace( '\\', '/', str_replace( ABSPATH, ' "', dirname(__FILE__) ) ) . "/\" );", $wp_cache_config_file);
 		} elseif( is_file( dirname(__FILE__) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
-			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', " . str_replace( '\\', '/', str_replace( 'ABSPATH', 'ABSPATH . "', dirname(__FILE__) ) ) . "/wp-super-cache/\" );", $wp_cache_config_file);
+			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', ABSPATH . " . str_replace( '\\', '/', str_replace( ABSPATH, ' "', dirname(__FILE__) ) ) . "/wp-super-cache/\" );", $wp_cache_config_file);
 		}
 		$new = true;
 	}
