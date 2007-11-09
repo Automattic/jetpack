@@ -10,11 +10,18 @@ A modification of WP-Cache that produces static html files.
 A modification of WP-Cache that produces static html files. After a html file
 is generated your webserver will serve that file instead of processing the
 comparatively heavier and more expensive WordPress PHP scripts.
-It will only cache and serve files to users who are not logged in, who
-have not left a comment on your blog, or who have viewed a password protected
-post. That still probably leave 90% of your visitors who will benefit. The users
-mentioned above will also benefit because your server won't be as busy as before.
-This script should help your server cope with a front page appearance on digg.com
+
+However, because a user's details are displayed in the comment form after 
+they leave a comment, the plugin will only serve static html files to:
+
+1. Users who are not logged in.
+2. Users who have not left a comment on your blog.
+3. Or users who have not viewed a password protected post. 
+
+That probably applies to more than 99% of your visitors! Those users who
+done't see the static files will still benefit because they will see 
+regular WP-Cache cached files and your server won't be as busy as before.
+This plugin should help your server cope with a front page appearance on digg.com
 or other social networking site.
 
 This plugin is a modified version of the WP-Cache 2 plugin by Ricardo Galli Granada. 
@@ -25,61 +32,16 @@ See the following URLs for more info on WP-Cache 2
 1. http://mnm.uib.es/gallir/wp-cache-2/
 2. http://wordpress.org/extend/plugins/wp-cache/
 
-A classic method of preparing an underpowered site for a Digg frontpage appearance
-or a Slashdotting has been to manually save copies of dynamically generated pages,
-and place them in directories that match the permalinks structure.
-
-This method of performance enhancement does help servers handle a higher load 
-without crashing, but is only effective when an oncoming rush of traffic can be
-anticipated.
-
-WP-Cache alone, while helpful, is not adequate in many cases, so this modification
-was created to effectively mimic the manual page caching method, but to handle it 
-in an automated fashion.
-
-Original WP-Cache by Ricardo Galli Granada, http://mnm.uib.es/gallir/
-WP Super Cache by Donncha O Caoimh, http://ocaoimh.ie/
+Download: http://wordpress.org/extend/plugins/wp-super-cache/download/
 
 == Installation ==
-1. You must have fancy permalinks enabled for this to work.
-2. If you have WP-Cache installed already, please disable it. Edit wp-config.php and make sure the WP_CACHE define is deleted, and remove the file wp-content/advanced-cache.php. These will be recreated when you install this plugin.
+1. You must have mod_mime, mod_rewrite and fancy permalinks enabled for this plugin to work.
+2. If you have WP-Cache installed already, please disable it. Edit wp-config.php and make sure the WP_CACHE define is deleted, and remove the files wp-content/wp-cache-config.php and wp-content/advanced-cache.php. These will be recreated when you install this plugin.
 3. Upload this directory to your plugins directory. It will create a 'wp-content/plugins/wp-super-cache/' directory.
 4. If you are using WordPress MU you will need to install this in 'wp-content/mu-plugins/wp-super-cache/' and the file wp-cache.php must be copied into the mu-plugins directory.
 5. WordPress users should go to their Plugins page and activate "WP Super Cache".
 6. Now go to Options->WP Super Cache and enable caching. If you see an error message or a blank screen you may need to fix it. See the "FAQ" section later in this readme for instructions.
-7. Edit the .htaccess file in your root directory and add the following code:
-
-	RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$
-	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$
-	RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$
-	RewriteCond %{HTTP:Accept-Encoding} gzip
-	RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz -f
-	RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]
-	
-	RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$
-	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$
-	RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$
-	RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1index.html -f
-	RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html [L]
-
-That code must be inserted above the standard WordPress rewrite rules.
-If your blog isn't located at the root of your server, you must add that directory
-to the rules. For example, if your blog is in the directory "/blog/":
-
-	RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$
-	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$
-	RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$
-	RewriteCond %{HTTP:Accept-Encoding} gzip
-	RewriteCond %{DOCUMENT_ROOT}/blog/wp-content/cache/supercache/%{HTTP_HOST}/blog/$1index.html.gz -f
-	RewriteRule ^(.*) /blog/wp-content/cache/supercache/%{HTTP_HOST}/blog/$1index.html.gz [L]
-	
-	RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$
-	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$
-	RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$
-	RewriteCond %{DOCUMENT_ROOT}/blog/wp-content/cache/supercache/%{HTTP_HOST}/blog/$1index.html -f
-	RewriteRule ^(.*) /blog/wp-content/cache/supercache/%{HTTP_HOST}/blog/$1index.html [L]
-
-Your .htaccess should look similar to this:
+7. mod_rewrite rules will be inserted into your .htaccess file. Look in your web root directory for this file. It should look similar to this:
 
 	-----------------.htaccess-----------------
 	RewriteEngine On
@@ -102,6 +64,9 @@ Your .htaccess should look similar to this:
 	RewriteCond %{REQUEST_FILENAME} !-d
 	RewriteRule . /index.php [L]
 	-----------------.htaccess-----------------
+8. After you have enabled the plugin, look for "wp-content/cache/.htaccess". If it's not there you must create it. It should read:
+	AddEncoding x-gzip .gz
+	AddType text/html .gz
 
 == Frequently Asked Questions ==
 If things don't work when you installed the plugin here are a few things to check:
