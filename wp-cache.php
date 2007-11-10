@@ -193,10 +193,12 @@ function wp_cache_manager() {
 	wp_cache_restore();
 
 	ob_start();
-	if( !function_exists( 'do_cacheaction' ) ) {
-		die( 'Install is not complete. Please delete wp-content/advanced-cache.php' );
-	} else {
-		do_cacheaction( 'cache_admin_page' );
+	if( defined( 'WP_CACHE' ) ) {
+		if( !function_exists( 'do_cacheaction' ) ) {
+			die( 'Install is not complete. Please verify that:<ul><li> wp-content/advanced-cache.php is a symlink or a copy of ' . WPCACHEHOME . '/wp-cache-phase1.php</li><li> ' . ABSPATH . 'wp-config.php includes the line "<code>define( "WP_CACHE", true );</code>"</li></ul>' );
+		} else {
+			do_cacheaction( 'cache_admin_page' );
+		}
 	}
 	$out = ob_get_contents();
 	ob_end_clean();
