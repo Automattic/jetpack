@@ -365,12 +365,17 @@ function wp_cache_no_postid($id) {
 }
 
 function wp_cache_get_postid_from_comment($comment_id) {
+	global $super_cache_enabled;
 	$comment = get_commentdata($comment_id, 1, true);
 	$postid = $comment['comment_post_ID'];
 	// Do nothing if comment is not moderated
 	// http://ocaoimh.ie/2006/12/05/caching-wordpress-with-wp-cache-in-a-spam-filled-world
-	if( !preg_match('/wp-admin\//', $_SERVER['REQUEST_URI']) && $comment['comment_approved'] == 'spam' ) // changed from 1 to "spam"
-		return $post_id;
+	if( !preg_match('/wp-admin\//', $_SERVER['REQUEST_URI']) ) 
+		if( $comment['comment_approved'] == 'spam' ) { // changed from 1 to "spam"
+			return $post_id;
+		} elseif( $comment['comment_approved'] == '0' ) {
+			$super_cache_enabled = 0; // don't remove the super cache static file until comment is approved
+		}
 	// We must check it up again due to WP bugs calling two different actions
 	// for delete, for example both wp_set_comment_status and delete_comment 
 	// are called when deleting a comment
@@ -381,22 +386,22 @@ function wp_cache_get_postid_from_comment($comment_id) {
 }
 
 function wp_cache_post_change($post_id) {
-	global $file_prefix;
-	global $cache_path;
-	global $blog_id;
-	global $blogcacheid;
+	global $file_prefix, $cache_path, $blog_id, $blogcacheid, $super_cache_enabled;
 	static $last_processed = -1;
 
 	// Avoid cleaning twice the same pages
 	if ($post_id == $last_processed) return $post_id;
 	$last_processed = $post_id;
 	$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
-	$siteurl = str_replace( 'http://', '', get_option( 'siteurl' ) );
-	$dir = $cache_path . 'supercache/' . strtolower(preg_replace('/:.*$/', '', $siteurl ) );
-	$files_to_delete = array( $dir . '/index.html', $dir . '/feed/index.html', $dir . $permalink . 'index.html', $dir . $permalink . 'feed/index.html' );
-	foreach( $files_to_delete as $cache_file ) {
-		@unlink( $cache_file );
-		@unlink( $cache_file . '.gz' );
+	if( $super_cache_enabled ) {
+		$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
+		$siteurl = str_replace( 'http://', '', get_option( 'siteurl' ) );
+		$dir = $cache_path . 'supercache/' . strtolower(preg_replace('/:.*$/', '', $siteurl ) );
+		$files_to_delete = array( $dir . '/index.html', $dir . '/feed/index.html', $dir . $permalink . 'index.html', $dir . $permalink . 'feed/index.html' );
+		foreach( $files_to_delete as $cache_file ) {
+			@unlink( $cache_file );
+			@unlink( $cache_file . '.gz' );
+		}
 	}
 
 	$meta = new CacheMeta;
