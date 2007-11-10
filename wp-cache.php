@@ -129,8 +129,8 @@ function wp_cache_manager() {
 	echo "<h4>WP Super Cache is:</h4>";
 	echo '<form name="wp_manager" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	?>
-	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> Enabled</label><br />
-	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> Disabled</label><br />
+	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> WP Cache and Super Cache enabled</label><br />
+	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> WP Cache and Super Cache disabled</label><br />
 	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> Super Cache Disabled</label><br />
 	<p><strong>Super Cache compression:</strong>
 	<label><input type="radio" name="cache_compression" value="1" <?php if( $cache_compression ) { echo "checked=checked"; } ?>> Enabled</label>
@@ -147,12 +147,15 @@ function wp_cache_manager() {
 		$rules = "<IfModule mod_rewrite.c>\n";
 		$rules .= "RewriteEngine On\n";
 		$rules .= "RewriteBase $home_root\n"; // props Chris Messina
+		$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
 		$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 		$rules .= "RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz -f\n";
-		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]\n";
+		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]\n\n";
+
+		$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
@@ -161,7 +164,10 @@ function wp_cache_manager() {
 		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]\n";
 		$rules .= $wprules . "\n";
 		$rules .= "</IfModule>";
-		echo insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $rules ) );
+		insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $rules ) );
+		echo "<h4>Mod Rewrite rules updated!</h4>";
+		echo "<p><strong>" . ABSPATH . ".htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. The file should look like this:</strong></p>\n";
+		echo "<p><pre># BEGIN WordPress\n{$rules}# END WordPress</pre></p>\n";
 	}
 	// http://allmybrain.com/2007/11/08/making-wp-super-cache-gzip-compression-work/
 	$gziprules = "AddEncoding x-gzip .gz\n";
@@ -251,8 +257,6 @@ function wp_cache_edit_max_time () {
 	echo '<div class="submit"><input type="submit" value="Change expiration" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
-
-
 }
 
 function wp_cache_sanitize_value($text, & $array) {
@@ -369,10 +373,14 @@ function wp_super_cache_enable() {
 function wp_super_cache_disable() {
 	global $supercachedir, $wp_cache_config_file, $super_cache_enabled;
 
+	wp_cache_replace_line('^ *\$super_cache_enabled', '$super_cache_enabled = false;', $wp_cache_config_file);
 	if( is_dir( $supercachedir ) )
 		rename( $supercachedir, $supercachedir . ".disabled" );
-	wp_cache_replace_line('^ *\$super_cache_enabled', '$super_cache_enabled = false;', $wp_cache_config_file);
 	$super_cache_enabled = false;
+	sleep( 1 ); // allow existing processes to write to the supercachedir and then delete it
+	if (function_exists ('prune_super_cache') && is_dir( $supercachedir ) ) {
+		prune_super_cache( $supercachedir, true );
+	}
 }
 
 function wp_cache_is_enabled() {
