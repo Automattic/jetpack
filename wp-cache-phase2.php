@@ -247,8 +247,10 @@ function prune_super_cache($directory, $force = false) {
 			}
 		}
 	} else {
-		if( $force || is_file($directory) && filemtime( $directory ) + $super_cache_max_time <= $now )
-			unlink($directory);
+		if( $force || is_file($directory) && filemtime( $directory ) + $super_cache_max_time <= $now ) {
+			if( substr( $directory, -9 ) != '.htaccess' )
+				unlink($directory);
+		}
 	}
 }
 
@@ -267,8 +269,9 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 				continue;
 			}
 			if($file != '.' && $file != '..') {
-				if ( is_dir( $cache_path . $file ) == false && (filemtime($cache_path . $file) + $cache_max_time) <= $now  ) {
-					@unlink($cache_path . $file);
+				if( is_dir( $cache_path . $file ) == false && (filemtime($cache_path . $file) + $cache_max_time) <= $now  ) {
+					if( substr( $file, -9 ) != '.htaccess' )
+						@unlink($cache_path . $file);
 				} elseif( is_dir( $cache_path . $file ) ) {
 					prune_super_cache( $cache_path . $file );
 				}
