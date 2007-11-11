@@ -56,10 +56,10 @@ function get_wpcachehome() {
 function wp_cache_add_pages() {
 	if( function_exists( 'is_site_admin' ) ) {
 		if( is_site_admin() ) {
-			add_submenu_page('wpmu-admin.php', __('WP Super Cache'), __('WP Super Cache'), 'administrator', __FILE__, 'wp_cache_manager');
+			add_submenu_page('wpmu-admin.php', __('WP Super Cache'), __('WP Super Cache'), 'manage_options', __FILE__, 'wp_cache_manager');
 		}
 	} else {
-		add_options_page('WP Super Cache', 'WP Super Cache', 'administrator', __FILE__, 'wp_cache_manager');
+		add_options_page('WP Super Cache', 'WP Super Cache', 'manage_options', __FILE__, 'wp_cache_manager');
 	}
 }
 
@@ -82,17 +82,16 @@ function wp_cache_manager() {
 		echo '<strong>Configuration file changed, some values might be wrong. Load the page again from the "Options" menu to reset them.</strong>';
 	}
 
-	echo '<a name="main"></a><fieldset class="options"><legend>Main options</legend>';
 	if ( !wp_cache_check_link() ||
 		!wp_cache_verify_config_file() ||
 		!wp_cache_verify_cache_dir() ) {
 		echo "<br>Cannot continue... fix previous problems and retry.<br />";
-		echo "</fieldset></div>\n";
+		echo "</div>\n";
 		return;
 	}
 
 	if (!wp_cache_check_global_config()) {
-		echo "</fieldset></div>\n";
+		echo "</div>\n";
 		return;
 	}
 
@@ -194,7 +193,6 @@ function wp_cache_manager() {
 	wp_lock_down();
 
 	wp_cache_edit_max_time();
-	echo '</fieldset>';
 
 	echo '<a name="files"></a><fieldset class="options"><legend>Accepted filenames, rejected URIs</legend>';
 	wp_cache_edit_rejected();
@@ -238,6 +236,12 @@ function wp_cache_restore() {
 	echo '</fieldset>';
 
 }
+
+function comment_form_lockdown_message() {
+	?><p><?php _e( "Comment moderation is enabled. Your comment may take some time to appear." ); ?></p><?php
+}
+if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) )
+	add_action( 'comment_form', 'comment_form_lockdown_message' );
 
 function wp_lock_down() {
 	global $cache_path, $wp_cache_config_file, $valid_nonce;
@@ -297,10 +301,10 @@ function wp_cache_edit_max_time () {
 	?><fieldset class="options"> 
 	<legend>Expiry Time</legend><?php
 	echo '<form name="wp_edit_max_time" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
-	echo '<label for="wp_max_time">Expire time (in seconds)</label>';
-	echo "<input type=\"text\" name=\"wp_max_time\" value=\"$cache_max_time\" /><br />";
-	echo '<label for="super_cache_max_time">Super Cache Expire time (in seconds)</label>';
-	echo "<input type=\"text\" name=\"super_cache_max_time\" value=\"$super_cache_max_time\" />";
+	echo '<label for="wp_max_time">Expire time:</label> ';
+	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> seconds<br />";
+	echo '<label for="super_cache_max_time">Super Cache Expire time:</label> ';
+	echo "<input type=\"text\" size=6 name=\"super_cache_max_time\" value=\"$super_cache_max_time\" /> seconds";
 	echo '<div class="submit"><input type="submit" value="Change expiration" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
@@ -718,7 +722,6 @@ function wp_cache_files() {
 	echo '<div class="submit"><input type="submit" value="Regenerate Super Cache Stats" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
-
 	echo '</fieldset>';
 }
 
