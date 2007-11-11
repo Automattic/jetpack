@@ -12,7 +12,7 @@ function wp_cache_phase2() {
 	global $wp_cache_gzip_encoding;
 
 	wp_cache_mutex_init();
-	if(function_exists('add_action')) {
+	if(function_exists('add_action') && ( !defined( 'WPLOCKDOWN' ) || ( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) == '0' ) ) ) {
 		// Post ID is received
 		add_action('publish_post', 'wp_cache_post_change', 0);
 		add_action('edit_post', 'wp_cache_post_change', 0);
@@ -154,7 +154,7 @@ function wp_cache_ob_callback($buffer) {
 		if (!$fr)
 			$buffer = "Couldn't write to: " . $cache_path . $cache_filename . "\n";
 		if( $super_cache_enabled ) {
-			if( is_dir( $dir ) == false )
+			if( @is_dir( $dir ) == false )
 				@mkpath( $dir );
 
 			$user_info = wp_cache_get_cookies_values();
@@ -335,7 +335,7 @@ function wp_cache_shutdown_callback() {
 		} else { // not a feed
 			$value = 'text/html';
 		}
-		$value .=  "; charset=\"" . get_settings('blog_charset')  . "\"";
+		$value .=  "; charset=\"" . get_option('blog_charset')  . "\"";
 
 		@header("Content-Type: $value");
 		array_push($wp_cache_meta_object->headers, "Content-Type: $value");

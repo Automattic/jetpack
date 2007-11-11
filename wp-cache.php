@@ -126,13 +126,17 @@ function wp_cache_manager() {
 		}
 	}
 
-	echo "<h4>WP Super Cache is:</h4>";
+	?><fieldset class="options"> 
+	<legend>WP Super Cache Status</legend><?php
 	echo '<form name="wp_manager" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	?>
 	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> WP Cache and Super Cache enabled</label><br />
 	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> WP Cache and Super Cache disabled</label><br />
 	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> Super Cache Disabled</label><br />
-	<p><strong>Super Cache compression:</strong>
+	</fieldset>
+
+	<fieldset class="options"> 
+	<legend>Super Cache Compression</legend>
 	<label><input type="radio" name="cache_compression" value="1" <?php if( $cache_compression ) { echo "checked=checked"; } ?>> Enabled</label>
 	<label><input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> Disabled</label>
 	<p>Compression is disabled by default because some hosts have problems with compressed files. Switching this on and off clears the cache.</p>
@@ -182,6 +186,8 @@ function wp_cache_manager() {
 	echo '<div class="submit"><input type="submit"value="Update" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
+	?></fieldset><?php
+	wp_lock_down();
 
 	wp_cache_edit_max_time();
 	echo '</fieldset>';
@@ -229,6 +235,41 @@ function wp_cache_restore() {
 
 }
 
+function wp_lock_down() {
+	global $cache_path, $wp_cache_config_file, $valid_nonce;
+
+	if(isset($_POST['wp_lock_down']) && $valid_nonce) {
+		$wp_lock_down = $_POST['wp_lock_down'] == '1' ? '1' : '0';
+		wp_cache_replace_line('^.*WPLOCKDOWN', "define( 'WPLOCKDOWN', '$wp_lock_down' );", $wp_cache_config_file);
+		if( $wp_lock_down == '0' && function_exists( 'prune_super_cache' ) )
+			prune_super_cache( $cache_path, true ); // clear the cache after lockdown
+
+	}
+	if( !isset( $wp_lock_down ) ) {
+		if( defined( 'WPLOCKDOWN' ) ) {
+			$wp_lock_down = constant( 'WPLOCKDOWN' );
+		} else {
+			$wp_lock_down = '0';
+		}
+	}
+	?><fieldset class="options"> 
+	<legend>Lock Down: <span style='color: #f00'><?php echo $wp_lock_down == '0' ? 'disabled' : 'enabled'; ?></span></legend>
+	<p>Prepare your server for an expected spike in traffic by enabling the lock down. When this is enabled, new comments on a post will not refresh the cached static files.</p><?php
+	if( $wp_lock_down == '1' ) {
+		?><strong>WordPress is locked down. Super Cache static files will not be deleted when new comments are made.</strong><?php
+	} else {
+		?><strong>WordPress is not locked down. New comments will refresh Super Cache static files.</strong><?php
+	}
+	$new_lockdown =  $wp_lock_down == '1' ? '0' : '1';
+	$new_lockdown_desc =  $wp_lock_down == '1' ? 'Disable' : 'Enable';
+	echo '<form name="wp_lock_down" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
+	echo "<input type='hidden' name='wp_lock_down' value='{$new_lockdown}' />";
+	echo "<div class='submit'><input type='submit' value='{$new_lockdown_desc} Lock Down' /></div>";
+	wp_nonce_field('wp-cache');
+	echo "</form>\n";
+	?></fieldset><?php
+}
+
 function wp_cache_edit_max_time () {
 	global $super_cache_max_time, $cache_max_time, $wp_cache_config_file, $valid_nonce;
 
@@ -249,6 +290,8 @@ function wp_cache_edit_max_time () {
 			wp_cache_replace_line('^ *\$super_cache_max_time', "\$super_cache_max_time = $super_cache_max_time;", $wp_cache_config_file);
 		}
 	}
+	?><fieldset class="options"> 
+	<legend>Expiry Time</legend><?php
 	echo '<form name="wp_edit_max_time" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<label for="wp_max_time">Expire time (in seconds)</label>';
 	echo "<input type=\"text\" name=\"wp_max_time\" value=\"$cache_max_time\" /><br />";
@@ -257,6 +300,7 @@ function wp_cache_edit_max_time () {
 	echo '<div class="submit"><input type="submit" value="Change expiration" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
+	?></fieldset><?php
 }
 
 function wp_cache_sanitize_value($text, & $array) {
@@ -343,7 +387,7 @@ function wp_cache_edit_accepted() {
 function wp_cache_enable() {
 	global $wp_cache_config_file, $cache_enabled, $supercachedir;
 
-	if(get_settings('gzipcompression')) {
+	if(get_option('gzipcompression')) {
 		echo "<b>Error: GZIP compression is enabled, disable it if you want to enable wp-cache.</b><br /><br />";
 		return false;
 	}
@@ -386,7 +430,7 @@ function wp_super_cache_disable() {
 function wp_cache_is_enabled() {
 	global $wp_cache_config_file;
 
-	if(get_settings('gzipcompression')) {
+	if(get_option('gzipcompression')) {
 		echo "<b>Warning</b>: GZIP compression is enabled in Wordpress, wp-cache will be bypassed until you disable gzip compression.<br />";
 		return false;
 	}
