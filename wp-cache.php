@@ -168,9 +168,13 @@ function wp_cache_manager() {
 		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]\n";
 		$rules .= $wprules . "\n";
 		$rules .= "</IfModule>";
-		insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $rules ) );
-		echo "<h4>Mod Rewrite rules updated!</h4>";
-		echo "<p><strong>" . ABSPATH . ".htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. The file should look like this:</strong></p>\n";
+		if( insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $rules ) ) ) {
+			echo "<h4>Mod Rewrite rules updated!</h4>";
+			echo "<p><strong>" . ABSPATH . ".htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. The file should look like this:</strong></p>\n";
+		} else {
+			echo "<h4>Mod Rewrite rules must be updated!</h4>";
+			echo "<p><strong> Your " . ABSPATH . ".htaccess is not writable by the webserver and must be updated with the necessary mod_rewrite rules. The new rules go above the regular WordPress rules as shown in the code below:</strong></p>\n";
+		}
 		echo "<p><pre># BEGIN WordPress\n{$rules}# END WordPress</pre></p>\n";
 	}
 	// http://allmybrain.com/2007/11/08/making-wp-super-cache-gzip-compression-work/
@@ -258,7 +262,7 @@ function wp_lock_down() {
 	if( $wp_lock_down == '1' ) {
 		?><strong>WordPress is locked down. Super Cache static files will not be deleted when new comments are made.</strong><?php
 	} else {
-		?><strong>WordPress is not locked down. New comments will refresh Super Cache static files.</strong><?php
+		?><strong>WordPress is not locked down. New comments will refresh Super Cache static files as normal.</strong><?php
 	}
 	$new_lockdown =  $wp_lock_down == '1' ? '0' : '1';
 	$new_lockdown_desc =  $wp_lock_down == '1' ? 'Disable' : 'Enable';
