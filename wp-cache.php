@@ -528,6 +528,18 @@ function wp_cache_verify_config_file() {
 			echo "<b>Error:</b> wp-content directory (<b>$dir</b>) is not writable by the Web server.<br />Check its permissions.";
 			return false;
 	}
+	if ( file_exists($wp_cache_config_file) ) {
+		$lines = join( ' ', file( $wp_cache_config_file ) );
+		if( strpos( $lines, 'WPCACHEHOME' ) === false ) {
+			if( is_writable( $wp_cache_config_file ) ) {
+				@unlink( $wp_cache_config_file );
+			} else {
+				echo "<b>Error:</b> Your WP-Cache config file (<b>$wp_cache_config_file</b>) is out of date and not writable by the Web server.<br />Please delete it and refresh this page.";
+				return false;
+			}
+		}
+	}
+
 	if ( !file_exists($wp_cache_config_file) ) {
 		if ( !file_exists($wp_cache_config_file_sample) ) {
 			echo "<b>Error:</b> Sample WP-Cache config file (<b>$wp_cache_config_file_sample</b>) does not exist.<br />Verify you installation.";
