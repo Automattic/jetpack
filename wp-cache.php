@@ -634,7 +634,7 @@ function wp_cache_files() {
 	$count = 0;
 	$expired = 0;
 	$now = time();
-	if ( ($handle = opendir( $cache_path . 'meta/' )) ) { 
+	if ( ($handle = @opendir( $cache_path . 'meta/' )) ) { 
 		if ($list_files) echo "<table cellspacing=\"0\" cellpadding=\"5\">";
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^$file_prefix.*\.meta/", $file) ) {
