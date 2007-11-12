@@ -2,7 +2,7 @@
 Contributors: donncha
 Tags: performance,caching,wp-cache
 Tested up to: 2.3.1
-Stable tag: 0.3.1
+Stable tag: 0.4
 
 A modification of WP-Cache that produces static html files.
 
@@ -18,11 +18,11 @@ they leave a comment, the plugin will only serve static html files to:
 2. Users who have not left a comment on your blog.
 3. Or users who have not viewed a password protected post. 
 
-That probably applies to more than 99% of your visitors! Those users who
-done't see the static files will still benefit because they will see 
-regular WP-Cache cached files and your server won't be as busy as before.
-This plugin should help your server cope with a front page appearance on digg.com
-or other social networking site.
+The good news is that probably more than 99% of your visitors don't do any of
+the above! Those users who don't see the static files will still benefit 
+because they will see regular WP-Cache cached files and your server won't be
+as busy as before.  This plugin should help your server cope with a front page
+appearance on digg.com or other social networking site.
 
 This plugin is a modified version of the WP-Cache 2 plugin by Ricardo Galli Granada. 
 His plugin is still available. We're standing on the shoulders of giants and benefiting
@@ -47,6 +47,7 @@ Download: http://wordpress.org/extend/plugins/wp-super-cache/download/
 	RewriteEngine On
 	RewriteBase /
 	
+	RewriteCond %{QUERY_STRING} !.*s=.*
 	RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$
 	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$
 	RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$
@@ -54,6 +55,7 @@ Download: http://wordpress.org/extend/plugins/wp-super-cache/download/
 	RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz -f
 	RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]
 	
+	RewriteCond %{QUERY_STRING} !.*s=.*
 	RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$
 	RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$
 	RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$
