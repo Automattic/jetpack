@@ -1,3 +1,127 @@
+2007-11-12 15:23  donncha
+
+	* readme.txt, wp-cache.php: Bump version
+	  Update readme docs
+	  Add options page for wpmu site admins
+
+2007-11-12 11:32  donncha
+
+	* wp-cache.php: Check if cache config file is out of date
+
+2007-11-12 11:14  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Hide some warning messages
+	  Don't super cache $_GET requests
+	  Use wp_mkdir_p() instead of mkpath()
+	  Don't delete meta, supercache or .htaccess
+
+2007-11-11 10:05  donncha
+
+	* wp-cache.php: Don't want to check for .gz files twice!
+
+2007-11-11 08:06  donncha
+
+	* wp-cache.php: Added 'comment moderation' message when blog locked
+	  down.
+	  Formatting changes
+	  Use 'manage_options' instead of administrator because viper
+	  changed his role names :)
+
+2007-11-11 01:13  donncha
+
+	* wp-cache.php: If .htaccess updating fails, inform the user
+
+2007-11-11 00:20  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Added "Lockdown" function so
+	  static files won't be deleted by comments
+	  Minor changes to admin page formatting
+	  get_settings to get_option
+
+2007-11-10 21:06  donncha
+
+	* wp-cache.php: Spell out radio boxes a bit more.
+	  Modified .htaccess rules so search pages aren't served from super
+	  cache
+	  Actually insert_with_markers instead of echoing the command!
+	  Tell user rules have been updated
+	  Disable super cache *before* renaming directory. Sleep for a
+	  second before
+	  deleting to allow other processes to finish
+
+2007-11-10 20:03  donncha
+
+	* wp-cache-phase2.php: Make sure the .htaccess isn't deleted
+
+2007-11-10 09:28  donncha
+
+	* wp-cache-phase2.php: Don't remove super-cache file until comment
+	  is approved
+
+2007-11-10 07:19  donncha
+
+	* wp-cache.php: Check that WP_CACHE is defined before checking for
+	  do_cacheaction.
+	  Better instructions for verifying a new install
+
+2007-11-09 21:33  donncha
+
+	* wp-cache.php: Define WPCACHEHOME properly, thanks tummbler for
+	  testing!
+
+2007-11-09 17:09  donncha
+
+	* wp-cache-phase2.php: Don't super-cache WordPress searches. May
+	  need to extend that to any GET activity
+
+2007-11-09 15:01  donncha
+
+	* wp-cache-phase2.php: Change preg_match delimiter so slashes work
+	  again
+
+2007-11-09 14:41  donncha
+
+	* readme.txt: Updated documentation
+
+2007-11-09 14:27  donncha
+
+	* wp-cache.php: Use get_mod_rewrite() to detect if that module is
+	  loaded
+	  Automatically populate the .htaccess file if it's writable
+	  Add gzip encoding rules to the cache dir, props Dennis @
+	  http://allmybrain.com/2007/11/08/making-wp-super-cache-gzip-compression-work/
+	  Replace Windows folder deliminator, "\" with "/" in WPCACHEHOME,
+	  props Computer Guru @
+	  http://neosmart.net/blog/2007/getting-wordpress-super-cache-to-run-on-a-windows-iis-or-apache-server/
+
+2007-11-09 01:19  donncha
+
+	* wp-cache-phase2.php: Move is_feed() check earlier.
+	  Check that mkpath() path is in $cache_path
+
+2007-11-08 21:57  donncha
+
+	* wp-cache.php: Single quote ABSPATH
+	  Check advanced-cache.php for version, remove if necessary, fixed
+	  create conditions
+
+2007-11-08 21:55  donncha
+
+	* wp-cache-phase1.php: realpath() two filenames
+
+2007-11-08 21:53  donncha
+
+	* readme.txt: Fix subdirectory .htaccess rules, props Computer Guru
+
+2007-11-08 21:51  donncha
+
+	* plugins/searchengine.php: Hide setcookie errors
+	  Return correct string
+
+2007-11-07 15:38  donncha
+
+	* Changelog.txt: Added Changelog.txt
+
 2007-11-07 15:27  donncha
 
 	* readme.txt: Bump version to 0.3.1 (getting to 1.0 far too
