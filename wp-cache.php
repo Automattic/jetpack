@@ -514,7 +514,7 @@ function wp_cache_verify_cache_dir() {
 		$cache_path .= '/';
 	}
 
-	@mkdir( $cache_path . 'meta/' );
+	@mkdir( $cache_path . 'meta' );
 
 	return true;
 }

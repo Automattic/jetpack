@@ -354,7 +354,7 @@ function wp_cache_shutdown_callback() {
 		wp_cache_writers_entry();
 		$fr = @fopen($cache_path . 'meta/' . $meta_file, 'w');
 		if( !$fr )
-			@mkdir( $cache_path . 'meta/' );
+			@mkdir( $cache_path . 'meta' );
 		$fr = fopen($cache_path . 'meta/' . $meta_file, 'w');
 		fputs($fr, $serial);
 		fclose($fr);
