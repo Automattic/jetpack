@@ -85,7 +85,6 @@ function wp_cache_postload() {
 }
 
 function wp_cache_get_cookies_values() {
-	global $wp_supercache_actions, $passingthrough, $nevershowads;
 	$string = '';
 	while ($key = key($_COOKIE)) {
 		if (preg_match("/^wp-postpass|^wordpress|^comment_author_email_/", $key)) {

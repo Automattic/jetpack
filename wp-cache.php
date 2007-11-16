@@ -126,17 +126,23 @@ function wp_cache_manager() {
 		}
 	}
 
-	?><fieldset class="options"> 
+	?><fieldset style='border: 1px solid #aaa' class="options"> 
 	<legend>WP Super Cache Status</legend><?php
 	echo '<form name="wp_manager" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	?>
 	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> WP Cache and Super Cache enabled</label><br />
 	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> WP Cache and Super Cache disabled</label><br />
 	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> Super Cache Disabled</label><br />
-	</fieldset>
+	<?php
+	echo '<div class="submit"><input type="submit"value="Update Status &raquo;" /></div>';
+	wp_nonce_field('wp-cache');
+	?>
+	</form>
+	</fieldset><br />
 
-	<fieldset class="options"> 
+	<fieldset style='border: 1px solid #aaa' class="options"> 
 	<legend>Super Cache Compression</legend>
+	<form name="wp_manager" action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post">
 	<label><input type="radio" name="cache_compression" value="1" <?php if( $cache_compression ) { echo "checked=checked"; } ?>> Enabled</label>
 	<label><input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> Disabled</label>
 	<p>Compression is disabled by default because some hosts have problems with compressed files. Switching this on and off clears the cache.</p>
@@ -186,21 +192,22 @@ function wp_cache_manager() {
 	} elseif( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && $cache_compression ) {
 		?><p><strong>Super Cache compression is now enabled.</strong></p><?php
 	}
-	echo '<div class="submit"><input type="submit"value="Update" /></div>';
+	echo '<div class="submit"><input type="submit"value="Update Compression &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	?></fieldset><?php
-	wp_lock_down();
 
 	wp_cache_edit_max_time();
 
-	echo '<a name="files"></a><fieldset class="options"><legend>Accepted filenames, rejected URIs</legend>';
+	echo '<br /><a name="files"></a><fieldset style="border: 1px solid #aaa" class="options"><legend>Accepted filenames, rejected URIs</legend>';
 	wp_cache_edit_rejected();
 	echo "<br />\n";
 	wp_cache_edit_accepted();
 	echo '</fieldset>';
 
 	wp_cache_edit_rejected_ua();
+
+	wp_lock_down();
 
 	wp_cache_files();
 
@@ -227,10 +234,10 @@ function wp_cache_manager() {
 }
 
 function wp_cache_restore() {
-	echo '<fieldset class="options"><legend>Configuration messed up?</legend>';
+	echo '<br /><fieldset style="border: 1px solid #aaa" class="options"><legend>Configuration messed up?</legend>';
 	echo '<form name="wp_restore" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<input type="hidden" name="wp_restore_config" />';
-	echo '<div class="submit"><input type="submit" id="deletepost" value="Restore default configuration" /></div>';
+	echo '<div class="submit"><input type="submit" id="deletepost" value="Restore default configuration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	echo '</fieldset>';
@@ -244,7 +251,7 @@ if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) )
 	add_action( 'comment_form', 'comment_form_lockdown_message' );
 
 function wp_lock_down() {
-	global $cache_path, $wp_cache_config_file, $valid_nonce;
+	global $wpdb, $cache_path, $wp_cache_config_file, $valid_nonce, $cached_direct_pages;
 
 	if(isset($_POST['wp_lock_down']) && $valid_nonce) {
 		$wp_lock_down = $_POST['wp_lock_down'] == '1' ? '1' : '0';
@@ -260,7 +267,7 @@ function wp_lock_down() {
 			$wp_lock_down = '0';
 		}
 	}
-	?><fieldset class="options"> 
+	?><br /><fieldset style='border: 1px solid #aaa' class="options"> 
 	<legend>Lock Down: <span style='color: #f00'><?php echo $wp_lock_down == '0' ? 'disabled' : 'enabled'; ?></span></legend>
 	<p>Prepare your server for an expected spike in traffic by enabling the lock down. When this is enabled, new comments on a post will not refresh the cached static files.</p><?php
 	if( $wp_lock_down == '1' ) {
@@ -272,10 +279,118 @@ function wp_lock_down() {
 	$new_lockdown_desc =  $wp_lock_down == '1' ? 'Disable' : 'Enable';
 	echo '<form name="wp_lock_down" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo "<input type='hidden' name='wp_lock_down' value='{$new_lockdown}' />";
-	echo "<div class='submit'><input type='submit' value='{$new_lockdown_desc} Lock Down' /></div>";
+	echo "<div class='submit'><input type='submit' value='{$new_lockdown_desc} Lock Down &raquo;' /></div>";
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
+
+	?></fieldset><br /><?php
+	?><fieldset style='border: 1px solid #aaa' class="options"> 
+	<legend>Directly Cached Files</legend><?php
+
+	$out = '';
+	if( $valid_nonce && is_array( $_POST[ 'direct_pages' ] ) && !empty( $_POST[ 'direct_pages' ] ) ) {
+		$expiredfiles = array_diff( $cached_direct_pages, $_POST[ 'direct_pages' ] );
+		unset( $cached_direct_pages );
+		foreach( $_POST[ 'direct_pages' ] as $page ) {
+			$page = $wpdb->escape( $page );
+			if( $page != '' ) {
+				$cached_direct_pages[] = $page;
+				$out .= "'$page', ";
+			}
+		}
+		if( $out == '' ) {
+			$out = "'', ";
+		}
+	}
+	if( $valid_nonce && $_POST[ 'new_direct_page' ] && '' != $_POST[ 'new_direct_page' ] ) {
+		$page = str_replace( get_option( 'siteurl' ), '', $_POST[ 'new_direct_page' ] );
+		$page = $wpdb->escape( $page );
+		if( in_array( $page, $cached_direct_pages ) == false ) {
+			$cached_direct_pages[] = $page;
+			$out .= "'$page', ";
+		}
+	}
+
+	if( $out != '' ) {
+		$out = substr( $out, 0, -2 );
+		$out = '$cached_direct_pages = array( ' . $out . ' );';
+		wp_cache_replace_line('^ *\$cached_direct_pages', "$out", $wp_cache_config_file);
+		prune_super_cache( $cache_path, true );
+	}
+
+	if( !empty( $expiredfiles ) ) {
+		foreach( $expiredfiles as $file ) {
+			if( $file != '' ) {
+				$firstfolder = explode( '/', $file );
+				$firstfolder = ABSPATH . $firstfolder[1];
+				$file = ABSPATH . $file;
+				unlink( trailingslashit( $file ) . 'index.html' );
+				RecursiveFolderDelete( trailingslashit( $firstfolder ) );
+			}
+		}
+	}
+
+	if( $valid_nonce && $_POST[ 'deletepage' ] ) {
+		$page = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '..', '', $_POST['deletepage']) );
+		$pagefile = ABSPATH . $page . 'index.html';
+		$firstfolder = explode( '/', $page );
+		$firstfolder = ABSPATH . $firstfolder[1];
+		$page = ABSPATH . $page;
+		if( is_file( $pagefile ) && is_writable( $pagefile ) && is_writable( $firstfolder ) ) {
+			unlink( $pagefile );
+			RecursiveFolderDelete( $firstfolder );
+			echo "<strong>$pagefile removed!</strong><br />";
+			prune_super_cache( $cache_path, true );
+		}
+	}
+
+	?><p>Warning! This is an experimental advanced feature. If you do not expect a spike in traffic do not use it.</p><?php
+	$readonly = '';
+	if( !is_writeable( ABSPATH ) ) {
+		$readonly = 'READONLY';
+		?><p><strong>You must make <?php echo ABSPATH ?> writable to enable this feature. As this is a security risk please make it readonly after your page is generated.</strong><p><?php
+	}
+	echo '<form name="direct_page" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
+	if( is_array( $cached_direct_pages ) ) {
+		$out = '';
+		foreach( $cached_direct_pages as $page ) {
+			if( $page == '' )
+				continue;
+			$generated = '';
+			if( is_file( ABSPATH . $page . '/index.html' ) )
+				$generated = '<input type="Submit" name="deletepage" value="' . $page . '">';
+			$out .= "<tr><td><input type='text' $readonly name='direct_pages[]' size='30' value='$page' /></td><td>$generated</td></tr>";
+		}
+		if( $out != '' ) {
+			?><table><tr><th>Existing direct page</th><th>Delete cached file</th></tr><?php
+			echo "$out</table>";
+		}
+	}
+	echo "Add direct page: <input type='text' $readonly name='new_direct_page' size='30' value='' /><br />";
+	echo "<p>Direct cached files are files created directly off " . ABSPATH . ", where your blog lives. If you are expecting a major Digg or Slashdot level of traffic to one post or page, enter the url in the text box above.</p>";
+	echo "<p>For example: to cache <em>'" . trailingslashit( get_option( 'siteurl' ) ) . "about/'</em>, enter '" . trailingslashit( get_option( 'siteurl' ) ) . "about/' or '/about/' in the box above. The cached file will be generated the next time an anonymous user visits that page.</p>";
+	echo "<p>Make the textbox blank to remove it from the list of direct pages and delete the cached file.</p>";
+	wp_nonce_field('wp-cache');
+	echo "<div class='submit'><input type='submit' value='Update direct pages &raquo;' /></div>";
+	echo "</form>\n";
 	?></fieldset><?php
+}
+
+function RecursiveFolderDelete ( $folderPath ) { // from http://www.php.net/manual/en/function.rmdir.php
+	if ( is_dir ( $folderPath ) ) {
+		$dh  = opendir($folderPath);
+		while (false !== ($value = readdir($dh))) {
+			if ( $value != "." && $value != ".." ) {
+				$value = $folderPath . "/" . $value; 
+				if ( is_dir ( $value ) ) {
+					RecursiveFolderDelete ( $value );
+				}
+			}
+		}
+		return rmdir ( $folderPath );
+	} else {
+		return FALSE;
+	}
 }
 
 function wp_cache_edit_max_time () {
@@ -298,14 +413,14 @@ function wp_cache_edit_max_time () {
 			wp_cache_replace_line('^ *\$super_cache_max_time', "\$super_cache_max_time = $super_cache_max_time;", $wp_cache_config_file);
 		}
 	}
-	?><fieldset class="options"> 
+	?><br /><fieldset style='border: 1px solid #aaa' class="options"> 
 	<legend>Expiry Time</legend><?php
 	echo '<form name="wp_edit_max_time" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<label for="wp_max_time">Expire time:</label> ';
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> seconds<br />";
 	echo '<label for="super_cache_max_time">Super Cache Expire time:</label> ';
 	echo "<input type=\"text\" size=6 name=\"super_cache_max_time\" value=\"$super_cache_max_time\" /> seconds";
-	echo '<div class="submit"><input type="submit" value="Change expiration" /></div>';
+	echo '<div class="submit"><input type="submit" value="Change expiration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	?></fieldset><?php
@@ -330,7 +445,7 @@ function wp_cache_edit_rejected_ua() {
 	}
 
 
-	echo '<a name="user-agents"></a><fieldset class="options"><legend>Rejected User Agents</legend>';
+	echo '<br /><a name="user-agents"></a><fieldset style="border: 1px solid #aaa" class="options"><legend>Rejected User Agents</legend>';
 	echo "<p>Strings in the HTTP 'User Agent' header that prevent WP-Cache from 
 		caching bot, spiders, and crawlers' requests.
 		Note that cached files are still sent to these request if they already exists.</p>\n";
@@ -341,7 +456,7 @@ function wp_cache_edit_rejected_ua() {
 		echo wp_specialchars($ua) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" value="Save UA strings" /></div>';
+	echo '<div class="submit"><input type="submit" value="Save UA strings &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo '</form>';
 	echo "</fieldset>\n";
@@ -365,7 +480,7 @@ function wp_cache_edit_rejected() {
 		echo wp_specialchars($file) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" value="Save strings" /></div>';
+	echo '<div class="submit"><input type="submit" value="Save strings &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 }
@@ -387,7 +502,7 @@ function wp_cache_edit_accepted() {
 		echo wp_specialchars($file) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" value="Save files" /></div>';
+	echo '<div class="submit"><input type="submit" value=" &raquo;Save files &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 }
@@ -638,10 +753,10 @@ function wp_cache_files() {
 	} else 
 		$list_mess = "List files";
 
-	echo '<a name="list"></a><fieldset class="options"><legend>Cache contents</legend>';
+	echo '<br /><a name="list"></a><fieldset style="border: 1px solid #aaa" class="options"><legend>Cache contents</legend>';
 	echo '<form name="wp_cache_content_list" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_list_cache" />';
-	echo '<div class="submit"><input type="submit" value="'.$list_mess.'" /></div>';
+	echo '<div class="submit"><input type="submit" value="'.$list_mess.' &raquo;" /></div>';
 	echo "</form>\n";
 
 	$count = 0;
@@ -717,21 +832,21 @@ function wp_cache_files() {
 
 	echo '<form name="wp_cache_content_expired" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_delete_expired" />';
-	echo '<div class="submit"><input type="submit" value="Delete expired" /></div>';
+	echo '<div class="submit"><input type="submit" value="Delete expired &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
 
 	echo '<form name="wp_cache_content_delete" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_delete_cache" />';
-	echo '<div class="submit"><input id="deletepost" type="submit" value="Delete cache" /></div>';
+	echo '<div class="submit"><input id="deletepost" type="submit" value="Delete cache &raquo;" /></div>';
 
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
 	echo '<form name="wp_super_cache_stats" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<input type="hidden" name="super_cache_stats" value="1" />';
-	echo '<div class="submit"><input type="submit" value="Regenerate Super Cache Stats" /></div>';
+	echo '<div class="submit"><input type="submit" value="Regenerate Super Cache Stats &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	echo '</fieldset>';

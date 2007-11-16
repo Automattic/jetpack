@@ -121,7 +121,7 @@ function wp_cache_writers_exit() {
 function wp_cache_ob_callback($buffer) {
 	global $cache_path, $cache_filename, $meta_file, $wp_start_time, $supercachedir;
 	global $new_cache, $wp_cache_meta_object, $file_expired, $blog_id, $cache_compression;
-	global $wp_cache_gzip_encoding, $super_cache_enabled;
+	global $wp_cache_gzip_encoding, $super_cache_enabled, $cached_direct_pages;
 
 	/* Mode paranoic, check for closing tags 
 	 * we avoid caching incomplete files */
@@ -142,8 +142,12 @@ function wp_cache_ob_callback($buffer) {
 		the file was expired and its mtime is less than 5 seconds
 	*/
 	if( !((!$file_expired && $mtime) || ($mtime && $file_expired && (time() - $mtime) < 5)) ) {
-		$dir = strtolower(preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"])).preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '..', '', $_SERVER['REQUEST_URI']) ); // To avoid XSS attacs
+		$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '..', '', $_SERVER['REQUEST_URI']) );
+		$dir = strtolower(preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"])) . $uri; // To avoid XSS attacs
 		$dir = trailingslashit( $cache_path . 'supercache/' . $dir );
+		if( is_array( $cached_direct_pages ) && in_array( $_SERVER[ 'REQUEST_URI' ], $cached_direct_pages ) ) {
+			$dir = trailingslashit( ABSPATH . $uri );
+		}
 		$supercachedir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]);
 		if( !empty( $_GET ) || is_feed() || ( $super_cache_enabled == true && is_dir( substr( $supercachedir, 0, -1 ) . '.disabled' ) ) )
 			$super_cache_enabled = false;
