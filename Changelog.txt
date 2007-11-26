@@ -1,3 +1,16 @@
+2007-11-26 11:30  donncha
+
+	* readme.txt, wp-cache.php: Bump the version number
+	  Docs for lockdown
+
+2007-11-26 11:17  donncha
+
+	* wp-cache.php: Bumpy bumpy
+
+2007-11-26 11:12  donncha
+
+	* Changelog.txt: Updated Changelog
+
 2007-11-26 11:11  donncha
 
 	* readme.txt: Bump version
