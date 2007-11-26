@@ -24,18 +24,8 @@ because they will see regular WP-Cache cached files and your server won't be
 as busy as before.  This plugin should help your server cope with a front page
 appearance on digg.com or other social networking site.
 
-This plugin is a modified version of the WP-Cache 2 plugin by Ricardo Galli Granada. 
-His plugin is still available. We're standing on the shoulders of giants and benefiting
-from the power of the GPL here. Thanks Ricardo for creating such a great plugin!
-See the following URLs for more info on WP-Cache 2
-
-1. http://mnm.uib.es/gallir/wp-cache-2/
-2. http://wordpress.org/extend/plugins/wp-cache/
-
-Download: http://wordpress.org/extend/plugins/wp-super-cache/download/
-
 == Installation ==
-1. You must have mod_mime, mod_rewrite and fancy permalinks enabled for this plugin to work.
+1. You must have mod mime, mod rewrite and fancy permalinks enabled. PHP safe mode should be disabled.
 2. If you have WP-Cache installed already, please disable it. Edit wp-config.php and make sure the WP_CACHE define is deleted, and remove the files wp-content/wp-cache-config.php and wp-content/advanced-cache.php. These will be recreated when you install this plugin.
 3. Upload this directory to your plugins directory. It will create a 'wp-content/plugins/wp-super-cache/' directory.
 4. If you are using WordPress MU you will need to install this in 'wp-content/mu-plugins/wp-super-cache/' and the file wp-cache.php must be copied into the mu-plugins directory.
@@ -81,6 +71,7 @@ If things don't work when you installed the plugin here are a few things to chec
 6.  Look in wp-content/cache/supercache/. Are there directories and files there?
 7.  Anything in your php error_log?
 8.  If your browser keeps asking you to save the file after the super cache is installed you must disable Super Cache compression. Go to the Options->WP Super Cache page and disable it there.
+9.  The plugin does not work very well when PHP's safe mode is active. This must be disabled by your administrator.
 
 == Custom Caching ==
 It is now possible to hook into the caching process using the add_cacheacton() function.
