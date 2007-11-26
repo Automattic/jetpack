@@ -1,3 +1,36 @@
+2007-11-26 11:11  donncha
+
+	* readme.txt: Bump version
+
+2007-11-26 11:07  donncha
+
+	* readme.txt: Warn about safe mode
+
+2007-11-26 10:56  donncha
+
+	* wp-cache.php: Print a warning message if PHP safe mode is
+	  enabled.
+	  Super Cache plugins will fail silently if advanced-cache.php is
+	  not loaded
+	  Updated "Directly Cached Files" text
+
+2007-11-16 21:56  donncha
+
+	* plugins/searchengine.php, wp-cache-phase1.php,
+	  wp-cache-phase2.php, wp-cache.php: Added &raquo;
+	  Updated formatting of admin backend
+	  Added "direct caching" of pages.
+
+2007-11-12 21:23  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: PHP 5's mkdir() doesn't like
+	  slashes, http://ie2.php.net/manual/en/function.mkdir.php#73848 -
+	  props Tummmbler
+
+2007-11-12 15:26  donncha
+
+	* Changelog.txt: Updated changelog
+
 2007-11-12 15:23  donncha
 
 	* readme.txt, wp-cache.php: Bump version
