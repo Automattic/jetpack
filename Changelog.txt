@@ -1,3 +1,11 @@
+2007-11-26 11:32  donncha
+
+	* wp-cache.php: It's WPLOCKDOWN
+
+2007-11-26 11:31  donncha
+
+	* Changelog.txt: Updated Changelog
+
 2007-11-26 11:30  donncha
 
 	* readme.txt, wp-cache.php: Bump the version number
