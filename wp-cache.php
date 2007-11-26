@@ -277,7 +277,7 @@ function wp_lock_down() {
 	?><br /><fieldset style='border: 1px solid #aaa' class="options"> 
 	<legend>Lock Down: <span style='color: #f00'><?php echo $wp_lock_down == '0' ? 'disabled' : 'enabled'; ?></span></legend>
 	<p>Prepare your server for an expected spike in traffic by enabling the lock down. When this is enabled, new comments on a post will not refresh the cached static files.</p>
-	<p>Developers: Make your plugin lock down compatible by checking the 'LOCKDOWN' constant. The following code will make sure your plugin respects the LOCKDOWN setting.
+	<p>Developers: Make your plugin lock down compatible by checking the 'WPLOCKDOWN' constant. The following code will make sure your plugin respects the WPLOCKDOWN setting.
 	<blockquote><code>if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) ) { <br />
 		&nbsp;&nbsp;&nbsp;&nbsp;echo "Sorry. My blog is locked down. Updates will appear shortly";<br />
 		}</code></blockquote>
