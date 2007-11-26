@@ -78,6 +78,15 @@ function wp_cache_manager() {
 	
  	echo '<div class="wrap">';
 	echo "<h2>WP Super Cache Manager</h2>\n";
+	if( ini_get( 'safe_mode' ) ) {
+		?><h3>Warning! PHP safe mode enabled!</h3>
+		<p>You may experience problems running this plugin because SAFE MODE is enabled. <?php
+		if( !ini_get( 'safe_mode_gid' ) ) {
+			?>Your server is set up to check the owner of PHP scripts before allowing them to read and write files.</p><p>You or an administrator may be able to make it work by changing the group owner of the plugin scripts to match that of the web server user. The group owner of the wp-content/cache/ directory must also be changed. See the <a href='http://php.net/features.safe-mode'>safe mode manual page</a> for further details.</p><?php
+		} else {
+			?>You or an administrator must disable this. See the <a href='http://php.net/features.safe-mode'>safe mode manual page</a> for further details. This cannot be disabled in a .htaccess file unfortunately. It must be done in the php.ini config file.</p><?php
+		}
+	}
 	if(isset($_REQUEST['wp_restore_config']) && $valid_nonce) {
 		unlink($wp_cache_config_file);
 		echo '<strong>Configuration file changed, some values might be wrong. Load the page again from the "Options" menu to reset them.</strong>';
@@ -215,9 +224,7 @@ function wp_cache_manager() {
 
 	ob_start();
 	if( defined( 'WP_CACHE' ) ) {
-		if( !function_exists( 'do_cacheaction' ) ) {
-			die( 'Install is not complete. Please verify that:<ul><li> wp-content/advanced-cache.php is a symlink or a copy of ' . WPCACHEHOME . '/wp-cache-phase1.php</li><li> ' . ABSPATH . 'wp-config.php includes the line "<code>define( "WP_CACHE", true );</code>"</li></ul>' );
-		} else {
+		if( function_exists( 'do_cacheaction' ) ) {
 			do_cacheaction( 'cache_admin_page' );
 		}
 	}
@@ -285,7 +292,7 @@ function wp_lock_down() {
 
 	?></fieldset><br /><?php
 	?><fieldset style='border: 1px solid #aaa' class="options"> 
-	<legend>Directly Cached Files</legend><?php
+	<legend>Directly Cached Files (advanced use only)</legend><?php
 
 	$out = '';
 	if( $valid_nonce && is_array( $_POST[ 'direct_pages' ] ) && !empty( $_POST[ 'direct_pages' ] ) ) {
@@ -344,11 +351,12 @@ function wp_lock_down() {
 		}
 	}
 
-	?><p>Warning! This is an experimental advanced feature. If you do not expect a spike in traffic do not use it.</p><?php
 	$readonly = '';
 	if( !is_writeable( ABSPATH ) ) {
 		$readonly = 'READONLY';
-		?><p><strong>You must make <?php echo ABSPATH ?> writable to enable this feature. As this is a security risk please make it readonly after your page is generated.</strong><p><?php
+		?><p><strong style='color: #a00'>WARNING! You must make <?php echo ABSPATH ?> writable to enable this feature. As this is a security risk please make it readonly after your page is generated.</strong></p><?php
+	} else {
+		?><p><strong style='color: #a00'>WARNING! <?php echo ABSPATH ?> is writable. Please make it readonly after your page is generated as this is a security risk.</strong></p><?php
 	}
 	echo '<form name="direct_page" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	if( is_array( $cached_direct_pages ) ) {
@@ -366,12 +374,18 @@ function wp_lock_down() {
 			echo "$out</table>";
 		}
 	}
-	echo "Add direct page: <input type='text' $readonly name='new_direct_page' size='30' value='' /><br />";
-	echo "<p>Direct cached files are files created directly off " . ABSPATH . ", where your blog lives. If you are expecting a major Digg or Slashdot level of traffic to one post or page, enter the url in the text box above.</p>";
-	echo "<p>For example: to cache <em>'" . trailingslashit( get_option( 'siteurl' ) ) . "about/'</em>, enter '" . trailingslashit( get_option( 'siteurl' ) ) . "about/' or '/about/' in the box above. The cached file will be generated the next time an anonymous user visits that page.</p>";
-	echo "<p>Make the textbox blank to remove it from the list of direct pages and delete the cached file.</p>";
+	if( $readonly != 'READONLY' )
+		echo "Add direct page: <input type='text' $readonly name='new_direct_page' size='30' value='' /><br />";
+
+	echo "<p>Directly cached files are files created directly off " . ABSPATH . " where your blog lives. This feature is only useful if you are expecting a major Digg or Slashdot level of traffic to one post or page.</p>";
+	if( $readonly != 'READONLY' ) {
+		echo "<p>For example: to cache <em>'" . trailingslashit( get_option( 'siteurl' ) ) . "about/'</em>, you would enter '" . trailingslashit( get_option( 'siteurl' ) ) . "about/' or '/about/'. The cached file will be generated the next time an anonymous user visits that page.</p>";
+		echo "<p>Make the textbox blank to remove it from the list of direct pages and delete the cached file.</p>";
+	}
+
 	wp_nonce_field('wp-cache');
-	echo "<div class='submit'><input type='submit' value='Update direct pages &raquo;' /></div>";
+	if( $readonly != 'READONLY' )
+		echo "<div class='submit'><input type='submit' value='Update direct pages &raquo;' /></div>";
 	echo "</form>\n";
 	?></fieldset><?php
 }
