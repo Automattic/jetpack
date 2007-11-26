@@ -2,27 +2,20 @@
 Contributors: donncha
 Tags: performance,caching,wp-cache
 Tested up to: 2.3.1
-Stable tag: 0.4
+Stable tag: 0.5
 
 A modification of WP-Cache that produces static html files.
 
 == Description ==
-A modification of WP-Cache that produces static html files. After a html file
-is generated your webserver will serve that file instead of processing the
-comparatively heavier and more expensive WordPress PHP scripts.
+This plugin generates static html files from your dynamic WordPress blog.  After a html file is generated your webserver will serve that file instead of processing the comparatively heavier and more expensive WordPress PHP scripts.
 
-However, because a user's details are displayed in the comment form after 
-they leave a comment, the plugin will only serve static html files to:
+However, because a user's details are displayed in the comment form after they leave a comment, the plugin will only serve static html files to:
 
 1. Users who are not logged in.
 2. Users who have not left a comment on your blog.
 3. Or users who have not viewed a password protected post. 
 
-The good news is that probably more than 99% of your visitors don't do any of
-the above! Those users who don't see the static files will still benefit 
-because they will see regular WP-Cache cached files and your server won't be
-as busy as before.  This plugin should help your server cope with a front page
-appearance on digg.com or other social networking site.
+The good news is that probably more than 99% of your visitors don't do any of the above! Those users who don't see the static files will still benefit because they will see regular WP-Cache cached files and your server won't be as busy as before.  This plugin should help your server cope with a front page appearance on digg.com or other social networking site.
 
 == Installation ==
 1. You must have mod mime, mod rewrite and fancy permalinks enabled. PHP safe mode should be disabled.
