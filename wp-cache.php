@@ -3,7 +3,7 @@
 Plugin Name: WP Super Cache
 Plugin URI: http://ocaoimh.ie/wp-super-cache/
 Description: Very fast caching module for WordPress. Once enabled, you must <a href="options-general.php?page=wp-super-cache/wp-cache.php">enable the cache</a>. Based on WP-Cache by <a href="http://mnm.uib.es/gallir/">Ricardo Galli Granada</a>.
-Version: 0.5
+Version: 0.5.1
 Author: Donncha O Caoimh
 Author URI: http://ocaoimh.ie/
 */
@@ -276,7 +276,12 @@ function wp_lock_down() {
 	}
 	?><br /><fieldset style='border: 1px solid #aaa' class="options"> 
 	<legend>Lock Down: <span style='color: #f00'><?php echo $wp_lock_down == '0' ? 'disabled' : 'enabled'; ?></span></legend>
-	<p>Prepare your server for an expected spike in traffic by enabling the lock down. When this is enabled, new comments on a post will not refresh the cached static files.</p><?php
+	<p>Prepare your server for an expected spike in traffic by enabling the lock down. When this is enabled, new comments on a post will not refresh the cached static files.</p>
+	<p>Developers: Make your plugin lock down compatible by checking the 'LOCKDOWN' constant. The following code will make sure your plugin respects the LOCKDOWN setting.
+	<blockquote><code>if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) ) { <br />
+		&nbsp;&nbsp;&nbsp;&nbsp;echo "Sorry. My blog is locked down. Updates will appear shortly";<br />
+		}</code></blockquote>
+	<?php
 	if( $wp_lock_down == '1' ) {
 		?><strong>WordPress is locked down. Super Cache static files will not be deleted when new comments are made.</strong><?php
 	} else {
