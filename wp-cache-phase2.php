@@ -239,10 +239,11 @@ function prune_super_cache($directory, $force = false) {
 
 	$protected_directories = array( $cache_path . '.htaccess', $cache_path . 'meta', $cache_path . 'supercache' );
 
+	$oktodelete = false;
 	if (is_dir($directory)) {
 		$directory = trailingslashit( $directory );
 		$entries = glob($directory. '*');
-		foreach ($entries as $entry) {
+		if( is_array( $entries ) && !empty( $entries ) ) foreach ($entries as $entry) {
 			if ($entry != '.' && $entry != '..') {
 				prune_super_cache($entry, $force);
 				if( is_dir( $entry ) && ( $force || @filemtime( $entry ) + $super_cache_max_time <= $now ) ) {

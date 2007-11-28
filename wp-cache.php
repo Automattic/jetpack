@@ -316,6 +316,8 @@ function wp_lock_down() {
 	}
 	if( $valid_nonce && $_POST[ 'new_direct_page' ] && '' != $_POST[ 'new_direct_page' ] ) {
 		$page = str_replace( get_option( 'siteurl' ), '', $_POST[ 'new_direct_page' ] );
+		if( substr( $page, 0, 1 ) != '/' )
+			$page = '/' . $page;
 		$page = $wpdb->escape( $page );
 		if( in_array( $page, $cached_direct_pages ) == false ) {
 			$cached_direct_pages[] = $page;
@@ -396,17 +398,19 @@ function wp_lock_down() {
 }
 
 function RecursiveFolderDelete ( $folderPath ) { // from http://www.php.net/manual/en/function.rmdir.php
-	if ( is_dir ( $folderPath ) ) {
-		$dh  = opendir($folderPath);
-		while (false !== ($value = readdir($dh))) {
+	if( trailingslashit( constant( 'ABSPATH' ) ) == trailingslashit( $folderPath ) )
+		return false;
+	if ( @is_dir ( $folderPath ) ) {
+		$dh  = @opendir($folderPath);
+		while (false !== ($value = @readdir($dh))) {
 			if ( $value != "." && $value != ".." ) {
 				$value = $folderPath . "/" . $value; 
-				if ( is_dir ( $value ) ) {
+				if ( @is_dir ( $value ) ) {
 					RecursiveFolderDelete ( $value );
 				}
 			}
 		}
-		return rmdir ( $folderPath );
+		return @rmdir ( $folderPath );
 	} else {
 		return FALSE;
 	}
@@ -877,7 +881,7 @@ function wpsc_dirsize($directory, $sizes) {
 
 	if (is_dir($directory)) {
 		$entries = glob($directory. '/*');
-		foreach ($entries as $entry) {
+		if( is_array( $entries ) && !empty( $entries ) ) foreach ($entries as $entry) {
 			if ($entry != '.' && $entry != '..') {
 				$sizes = wpsc_dirsize($entry, $sizes);
 			}
