@@ -94,23 +94,32 @@ function wp_cache_mutex_init() {
 			$use_flock = true;
 	}
 
+	$mutex = false;
 	if ($use_flock) 
-		$mutex = fopen($cache_path . $mutex_filename, 'w');
+		$mutex = @fopen($cache_path . $mutex_filename, 'w');
 	else
-		$mutex = sem_get($sem_id, 1, 0644 | IPC_CREAT, 1);
+		$mutex = @sem_get($sem_id, 1, 0644 | IPC_CREAT, 1);
 }
 
 function wp_cache_writers_entry() {
 	global $use_flock, $mutex, $cache_path, $mutex_filename;
 
+	if( !$mutex )
+		return false;
+
 	if ($use_flock)
 		flock($mutex,  LOCK_EX);
 	else
 		sem_acquire($mutex);
+
+	return true;
 }
 
 function wp_cache_writers_exit() {
 	global $use_flock, $mutex, $cache_path, $mutex_filename;
+
+	if( !$mutex )
+		return false;
 
 	if ($use_flock)
 		flock($mutex,  LOCK_UN);
@@ -134,7 +143,8 @@ function wp_cache_ob_callback($buffer) {
 	$duration = sprintf("%0.3f", $duration);
 	$buffer .= "\n<!-- Dynamic Page Served (once) in $duration seconds -->\n";
 
-	wp_cache_writers_entry();
+	if( !wp_cache_writers_entry() )
+		return false;
 	$mtime = @filemtime($cache_path . $cache_filename);
 	/* Return if:
 		the file didn't exist before but it does exist now (another connection created)
@@ -217,7 +227,8 @@ function wp_cache_ob_callback($buffer) {
 function wp_cache_phase2_clean_cache($file_prefix) {
 	global $cache_path;
 
-	wp_cache_writers_entry();
+	if( !wp_cache_writers_entry() )
+		return false;
 	if ( ($handle = opendir( $cache_path )) ) { 
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^$file_prefix/", $file) ) {
@@ -270,7 +281,8 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 	global $cache_path, $cache_max_time;
 
 	clearstatcache();
-	wp_cache_writers_entry();
+	if( !wp_cache_writers_entry() )
+		return false;
 	$now = time();
 	if ( ($handle = opendir( $cache_path )) ) { 
 		while ( false !== ($file = readdir($handle))) {
@@ -356,7 +368,8 @@ function wp_cache_shutdown_callback() {
 	ob_end_flush();
 	if ($new_cache) {
 		$serial = serialize($wp_cache_meta_object);
-		wp_cache_writers_entry();
+		if( !wp_cache_writers_entry() )
+			return false;
 		$fr = @fopen($cache_path . 'meta/' . $meta_file, 'w');
 		if( !$fr )
 			@mkdir( $cache_path . 'meta' );
@@ -421,7 +434,8 @@ function wp_cache_post_change($post_id) {
 
 	$meta = new CacheMeta;
 	$matches = array();
-	wp_cache_writers_entry();
+	if( !wp_cache_writers_entry() )
+		return $post_id;
 	if ( ($handle = opendir( $cache_path . 'meta/' )) ) { 
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^({$file_prefix}{$blogcacheid}.*)\.meta/", $file, $matches) ) {
