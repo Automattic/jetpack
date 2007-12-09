@@ -232,7 +232,7 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 	if ( ($handle = opendir( $cache_path )) ) { 
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^$file_prefix/", $file) ) {
-				unlink($cache_path . $file);
+				@unlink($cache_path . $file);
 			}
 		}
 		closedir($handle);
@@ -444,12 +444,12 @@ function wp_cache_post_change($post_id) {
 				$meta = unserialize(@file_get_contents($meta_pathname));
 				if ($post_id > 0 && $meta) {
 					if ($meta->blog_id == $blog_id  && (!$meta->post || $meta->post == $post_id) ) {
-						unlink($meta_pathname);
-						unlink($content_pathname);
+						@unlink($meta_pathname);
+						@unlink($content_pathname);
 					}
 				} elseif ($meta->blog_id == $blog_id) {
-					unlink($meta_pathname);
-					unlink($content_pathname);
+					@unlink($meta_pathname);
+					@unlink($content_pathname);
 				}
 
 			}
