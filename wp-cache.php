@@ -106,8 +106,13 @@ function wp_cache_manager() {
 	}
 
 	if( !got_mod_rewrite() ) {
-		?><h4>Mod rewrite is not installed! Super Cache will not fully work!</h4>
-		<p>mod_rewrite is required for serving Super Cache static files. You will still be able to use WP-Cache.</p><?php
+		?><h4 style='color: #a00'>Mod rewrite may not be installed!</h4>
+		<p>It appears that mod_rewrite is not installed. Sometimes this check isn't 100% reliable, especially if you are not using Apache. Please verify that the mod_rewrite module is loaded. It is required for serving Super Cache static files. You will still be able to use WP-Cache.</p><?php
+	}
+
+	if( is_writeable( ABSPATH ) ) {
+		?><h4 style='color: #a00'>Warning! <?php echo ABSPATH; ?> is writeable!</h4>
+		<p>Your blog root directory is writeable by the webserver. Unless you are creating direct cached files it is recommended that this be changed to read-only.</p><?php
 	}
 
 	if ( $valid_nonce ) {
@@ -162,7 +167,17 @@ function wp_cache_manager() {
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
 	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
 	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
-	if( strpos( $wprules, 'supercache' ) == false ) { // only write the rules once
+
+	$dohtaccess = false;
+	if( !$wprules || $wprules == '' ) {
+		echo "<h4 style='color: #a00'>Mod Rewrite rules not updated!</h4>";
+		echo "<p>You must have <strong>BEGIN</strong> and <strong>END</strong> markers in {$home_path}.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:
+		<blockquote><code><em># BEGIN WordPress</em><br /> RewriteCond %{REQUEST_FILENAME} !-f<br /> RewriteCond %{REQUEST_FILENAME} !-d<br /> RewriteRule . /index.php [L]<br /> <em># END WordPress</em></code></blockquote>
+		Refresh this page when you have updated your .htaccess file to add the Super Cache rules.";
+	} elseif( strpos( $wprules, 'supercache' ) == false ) { // only write the rules once
+		$dohtaccess = true;
+	}
+	if( $dohtaccess ) {
 		$rules = "<IfModule mod_rewrite.c>\n";
 		$rules .= "RewriteEngine On\n";
 		$rules .= "RewriteBase $home_root\n"; // props Chris Messina
@@ -171,15 +186,15 @@ function wp_cache_manager() {
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
 		$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
-		$rules .= "RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz -f\n";
-		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html.gz [L]\n\n";
+		$rules .= "RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz -f\n";
+		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz [L]\n\n";
 
 		$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
-		$rules .= "RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1index.html -f\n";
-		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1index.html [L]\n";
+		$rules .= "RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html -f\n";
+		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html [L]\n";
 		$rules .= $wprules . "\n";
 		$rules .= "</IfModule>";
 		if( insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $rules ) ) ) {
