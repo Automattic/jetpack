@@ -186,15 +186,15 @@ function wp_cache_manager() {
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
 		$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
-		$rules .= "RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz -f\n";
-		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz [L]\n\n";
+		$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz -f\n";
+		$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz [L]\n\n";
 
 		$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
 		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
-		$rules .= "RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html -f\n";
-		$rules .= "RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html [L]\n";
+		$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html -f\n";
+		$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html [L]\n";
 		$rules .= $wprules . "\n";
 		$rules .= "</IfModule>";
 		if( insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $rules ) ) ) {
