@@ -169,6 +169,18 @@ function wp_cache_manager() {
 	<label><input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> Disabled</label>
 	<p>Compression is disabled by default because some hosts have problems with compressed files. Switching this on and off clears the cache.</p>
 	<?php
+	if( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && !$cache_compression ) {
+		?><p><strong>Super Cache compression is now disabled.</strong></p> <?php
+	} elseif( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && $cache_compression ) {
+		?><p><strong>Super Cache compression is now enabled.</strong></p><?php
+	}
+	echo '<div class="submit"><input type="submit"value="Update Compression &raquo;" /></div>';
+	wp_nonce_field('wp-cache');
+	echo "</form>\n";
+	?></fieldset><br />
+
+	<fieldset style='border: 1px solid #aaa' class="options"> 
+	<legend>Mod Rewrite Rules</legend><?php
 	$home_path = get_home_path();
 	$home_root = parse_url(get_option('home'));
 	$home_root = trailingslashit($home_root['path']);
@@ -185,26 +197,27 @@ function wp_cache_manager() {
 	} elseif( strpos( $wprules, 'supercache' ) == false ) { // only write the rules once
 		$dohtaccess = true;
 	}
-	if( $dohtaccess ) {
-		$rules = "<IfModule mod_rewrite.c>\n";
-		$rules .= "RewriteEngine On\n";
-		$rules .= "RewriteBase $home_root\n"; // props Chris Messina
-		$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
-		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
-		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
-		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
-		$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
-		$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz -f\n";
-		$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz [L]\n\n";
+	$rules = "<IfModule mod_rewrite.c>\n";
+	$rules .= "RewriteEngine On\n";
+	$rules .= "RewriteBase $home_root\n"; // props Chris Messina
+	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
+	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
+	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
+	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
+	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
+	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz [L]\n\n";
 
-		$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
-		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
-		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
-		$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
-		$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html -f\n";
-		$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html [L]\n";
-		$rules .= $wprules . "\n";
-		$rules .= "</IfModule>";
+	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
+	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
+	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
+	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
+	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html -f\n";
+	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html [L]\n";
+	$rules .= "WPRULES\n";
+	$rules .= "</IfModule>";
+	if( $dohtaccess ) {
+		$rules = str_replace( 'WPRULES', $wprules, $rules );
 		if( insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $rules ) ) ) {
 			echo "<h4>Mod Rewrite rules updated!</h4>";
 			echo "<p><strong>" . ABSPATH . ".htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. The file should look like this:</strong></p>\n";
@@ -213,20 +226,42 @@ function wp_cache_manager() {
 			echo "<p><strong> Your " . ABSPATH . ".htaccess is not writable by the webserver and must be updated with the necessary mod_rewrite rules. The new rules go above the regular WordPress rules as shown in the code below:</strong></p>\n";
 		}
 		echo "<p><pre># BEGIN WordPress\n{$rules}# END WordPress</pre></p>\n";
+	} else {
+		$rules = str_replace( 'WPRULES', '', $rules );
+		/* http://www.netlobo.com/div_hiding.html */
+		?>
+<script type='text/javascript'>
+<!--
+function toggleLayer( whichLayer ) {
+  var elem, vis;
+  if( document.getElementById ) // this is the way the standards work
+    elem = document.getElementById( whichLayer );
+  else if( document.all ) // this is the way old msie versions work
+      elem = document.all[whichLayer];
+  else if( document.layers ) // this is the way nn4 works
+    elem = document.layers[whichLayer];
+  vis = elem.style;
+  // if the style.display value is blank we try to figure it out here
+  if(vis.display==''&&elem.offsetWidth!=undefined&&elem.offsetHeight!=undefined)
+    vis.display = (elem.offsetWidth!=0&&elem.offsetHeight!=0)?'block':'none';
+  vis.display = (vis.display==''||vis.display=='block')?'none':'block';
+}
+// -->
+</script>
+		<p>WP Super Cache has modified your <?php echo ABSPATH ?>.htaccess file. Click the following link to see the lines added. If you have upgraded the plugin make sure these rules match. <a href="javascript:toggleLayer('rewriterules');" title="See your mod_rewrite rules">View mod_rewrite rules</a>
+		<div id='rewriterules' style='display: none;'>
+		<?php echo "<p><pre># BEGIN WordPress\n{$rules}# END WordPress</pre></p>\n"; ?>
+		</div>
+		<?php
 	}
 	// http://allmybrain.com/2007/11/08/making-wp-super-cache-gzip-compression-work/
-	$gziprules = "AddEncoding x-gzip .gz\n";
-	$gziprules .= "AddType text/html .gz";
-	$gziprules = insert_with_markers( $cache_path . '.htaccess', 'supercache', explode( "\n", $gziprules ) );
-
-	if( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && !$cache_compression ) {
-		?><p><strong>Super Cache compression is now disabled.</strong></p> <?php
-	} elseif( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && $cache_compression ) {
-		?><p><strong>Super Cache compression is now enabled.</strong></p><?php
+	if( !is_file( $cache_path . '.htaccess' ) ) {
+		$gziprules = "AddEncoding x-gzip .gz\n";
+		$gziprules .= "AddType text/html .gz";
+		$gziprules = insert_with_markers( $cache_path . '.htaccess', 'supercache', explode( "\n", $gziprules ) );
+		echo "<h4>Gzip encoding rules in {$cache_path}.htaccess created.</h4>";
 	}
-	echo '<div class="submit"><input type="submit"value="Update Compression &raquo;" /></div>';
-	wp_nonce_field('wp-cache');
-	echo "</form>\n";
+
 	?></fieldset><?php
 
 	wp_cache_edit_max_time();
