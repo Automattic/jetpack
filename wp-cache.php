@@ -65,7 +65,7 @@ function wp_cache_add_pages() {
 }
 
 function wp_cache_manager() {
-	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled;
+	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -116,6 +116,13 @@ function wp_cache_manager() {
 	}
 
 	if ( $valid_nonce ) {
+		if( isset( $_POST[ 'wp_cache_hello_world' ] ) ) {
+			$wp_cache_hello_world = (int)$_POST[ 'wp_cache_hello_world' ];
+		} else {
+			$wp_cache_hello_world = 0;
+		}
+		wp_cache_replace_line('^ *\$wp_cache_hello_world', '$wp_cache_hello_world = ' . (int)$wp_cache_hello_world . ";", $wp_cache_config_file);
+
 		if( isset( $_POST[ 'wp_cache_status' ] ) ) {
 			switch( $_POST[ 'wp_cache_status' ] ) {
 				case 'all':
@@ -147,6 +154,7 @@ function wp_cache_manager() {
 	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> WP Cache and Super Cache enabled</label><br />
 	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> WP Cache and Super Cache disabled</label><br />
 	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> Super Cache Disabled</label><br />
+	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> Proudly tell the world your server is Digg proof! (places a message in your blog's footer)</label></p>
 	<?php
 	echo '<div class="submit"><input type="submit"value="Update Status &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
@@ -975,6 +983,12 @@ function wp_cache_clean_expired($file_prefix) {
 }
 
 add_action('admin_menu', 'wp_cache_add_pages');
+
+function wp_super_cache_footer() {
+	?><p><?php bloginfo('name'); ?> is Digg proof thanks to caching by <a href="http://ocaoimh.ie/wp-super-cache/">WP Super Cache</a>!</p><?php
+}
+if( isset( $wp_cache_hello_world ) && $wp_cache_hello_world )
+	add_action( 'wp_footer', 'wp_super_cache_footer' );
 
 if( get_option( 'gzipcompression' ) )
 	update_option( 'gzipcompression', 0 );
