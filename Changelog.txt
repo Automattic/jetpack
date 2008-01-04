@@ -1,3 +1,52 @@
+2008-01-04 11:22  donncha
+
+	* wp-cache.php: Only update the hello_world option when updating
+	  the right form
+
+2008-01-04 10:41  donncha
+
+	* readme.txt, wp-cache.php: Bump version number
+
+2008-01-04 10:40  donncha
+
+	* wp-cache.php: Rearrange .htaccess generator.
+	  Allow mod_rewrite rules to be viewed later
+	  Only create wp-content/cache/.htaccess if it doesn't exist
+
+2008-01-04 10:16  donncha
+
+	* wp-cache.php: Added Super Cache footer message
+
+2008-01-03 22:29  donncha
+
+	* wp-cache.php: More fixes for sub directory blogs, props Otto42 -
+	  http://wordpress.org/support/topic/146443?replies=9#post-664254
+
+2007-12-16 11:07  donncha
+
+	* wp-cache.php: Warn if ABSPATH is writeable
+	  Add $home_root to cached files path in rewrite rules
+	  make mod_rewrite module warning more verbose
+
+2007-12-09 07:39  donncha
+
+	* wp-cache-phase2.php: Hide unlink errors
+
+2007-12-04 10:18  donncha
+
+	* wp-cache-phase2.php: Check that mutex is set,
+	  http://wordpress.org/support/topic/146052?replies=4
+
+2007-11-28 11:29  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Check that $entries is not
+	  empty
+	  Don't ever recurse from ABSPATH up
+
+2007-11-26 11:33  donncha
+
+	* Changelog.txt: Updated changelog
+
 2007-11-26 11:32  donncha
 
 	* wp-cache.php: It's WPLOCKDOWN
