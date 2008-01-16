@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha
 Tags: performance,caching,wp-cache
-Tested up to: 2.3.1
-Stable tag: 0.5.3
+Tested up to: 2.3.2
+Stable tag: 0.5.4
 
 A modification of WP-Cache that produces static html files.
 
@@ -16,6 +16,8 @@ However, because a user's details are displayed in the comment form after they l
 3. Or users who have not viewed a password protected post. 
 
 The good news is that probably more than 99% of your visitors don't do any of the above! Those users who don't see the static files will still benefit because they will see regular WP-Cache cached files and your server won't be as busy as before.  This plugin should help your server cope with a front page appearance on digg.com or other social networking site.
+
+See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further information.
 
 == Installation ==
 1. You must have mod mime, mod rewrite and fancy permalinks enabled. PHP safe mode should be disabled.

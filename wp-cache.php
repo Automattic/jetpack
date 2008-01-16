@@ -3,12 +3,12 @@
 Plugin Name: WP Super Cache
 Plugin URI: http://ocaoimh.ie/wp-super-cache/
 Description: Very fast caching module for WordPress. Once enabled, you must <a href="options-general.php?page=wp-super-cache/wp-cache.php">enable the cache</a>. Based on WP-Cache by <a href="http://mnm.uib.es/gallir/">Ricardo Galli Granada</a>.
-Version: 0.5.3
+Version: 0.5.4
 Author: Donncha O Caoimh
 Author URI: http://ocaoimh.ie/
 */
 /*  Copyright 2005-2006  Ricardo Galli Granada  (email : gallir@uib.es)
-    Some code copyright 2007 Donncha O Caoimh (http://ocaoimh.ie/)
+    Some code copyright 2008 Donncha O Caoimh (http://ocaoimh.ie/)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -110,9 +110,17 @@ function wp_cache_manager() {
 		<p>It appears that mod_rewrite is not installed. Sometimes this check isn't 100% reliable, especially if you are not using Apache. Please verify that the mod_rewrite module is loaded. It is required for serving Super Cache static files. You will still be able to use WP-Cache.</p><?php
 	}
 
-	if( is_writeable( ABSPATH ) ) {
-		?><h4 style='color: #a00'>Warning! <?php echo ABSPATH; ?> is writeable!</h4>
-		<p>Your blog root directory is writeable by the webserver. Unless you are creating direct cached files it is recommended that this be changed to read-only.</p><?php
+	if( !is_writeable( ABSPATH . 'wp-content/' ) || !is_writable($wp_cache_config_file) ) {
+		define( "SUBMITDISABLED", 'disabled style="color: #aaa" ' );
+		?><h4 style='color: #a00'>Read Only Mode. Configuration cannot be changed. <a href="javascript:toggleLayer('readonlywarning');" title="Why your configuration may not be changed">Why</a></h4>
+		<div id='readonlywarning' style='border: 1px solid #aaa; margin: 2px; padding: 2px; display: none;'>
+		<p>The WP Super Cache configuration file is <code><?php echo ABSPATH ?>wp-content/wp-cache-config.php</code> and cannot be modified. The wp-content directory and wp-cache-config.php file must be writeable by the webserver to make any changes.<br />
+		A simple way of doing that is by changing the permissions temporarily using the CHMOD command or through your ftp client. Make sure it's globally writeable and it should be fine.<br />
+		Writeable: <code>chmod 777 wp-content; chmod 666 wp-content/wp-cache-config.php</code><br />
+		Readonly: <code>chmod 755 wp-content; chmod 644 wp-content/wp-cache-config.php</code></p>
+		</div><?php
+	} else {
+		define( "SUBMITDISABLED", ' ' );
 	}
 
 	if ( $valid_nonce ) {
@@ -155,7 +163,7 @@ function wp_cache_manager() {
 	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> Super Cache Disabled</label><br />
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> Proudly tell the world your server is Digg proof! (places a message in your blog's footer)</label></p>
 	<?php
-	echo '<div class="submit"><input type="submit"value="Update Status &raquo;" /></div>';
+	echo "<div class='submit'><input " . SUBMITDISABLED . "type='submit' value='Update Status &raquo;' /></div>";
 	wp_nonce_field('wp-cache');
 	?>
 	</form>
@@ -173,7 +181,7 @@ function wp_cache_manager() {
 	} elseif( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && $cache_compression ) {
 		?><p><strong>Super Cache compression is now enabled.</strong></p><?php
 	}
-	echo '<div class="submit"><input type="submit"value="Update Compression &raquo;" /></div>';
+	echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="Update Compression &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	?></fieldset><br />
@@ -287,7 +295,7 @@ function toggleLayer( whichLayer ) {
 	}
 	$out = ob_get_contents();
 	ob_end_clean();
-	if( $out != '' ) {
+	if( SUBMITDISABLED == ' ' && $out != '' ) {
 		echo '<fieldset class="options"><legend>Cache Plugins</legend>';
 		echo $out;
 		echo '</fieldset>';
@@ -301,7 +309,7 @@ function wp_cache_restore() {
 	echo '<br /><fieldset style="border: 1px solid #aaa" class="options"><legend>Configuration messed up?</legend>';
 	echo '<form name="wp_restore" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<input type="hidden" name="wp_restore_config" />';
-	echo '<div class="submit"><input type="submit" id="deletepost" value="Restore default configuration &raquo;" /></div>';
+	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="deletepost" value="Restore default configuration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	echo '</fieldset>';
@@ -348,7 +356,7 @@ function wp_lock_down() {
 	$new_lockdown_desc =  $wp_lock_down == '1' ? 'Disable' : 'Enable';
 	echo '<form name="wp_lock_down" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo "<input type='hidden' name='wp_lock_down' value='{$new_lockdown}' />";
-	echo "<div class='submit'><input type='submit' value='{$new_lockdown_desc} Lock Down &raquo;' /></div>";
+	echo "<div class='submit'><input type='submit' " . SUBMITDISABLED . "value='{$new_lockdown_desc} Lock Down &raquo;' /></div>";
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
@@ -449,7 +457,7 @@ function wp_lock_down() {
 
 	wp_nonce_field('wp-cache');
 	if( $readonly != 'READONLY' )
-		echo "<div class='submit'><input type='submit' value='Update direct pages &raquo;' /></div>";
+		echo "<div class='submit'><input type='submit' ' . SUBMITDISABLED . 'value='Update direct pages &raquo;' /></div>";
 	echo "</form>\n";
 	?></fieldset><?php
 }
@@ -500,7 +508,7 @@ function wp_cache_edit_max_time () {
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> seconds<br />";
 	echo '<label for="super_cache_max_time">Super Cache Expire time:</label> ';
 	echo "<input type=\"text\" size=6 name=\"super_cache_max_time\" value=\"$super_cache_max_time\" /> seconds";
-	echo '<div class="submit"><input type="submit" value="Change expiration &raquo;" /></div>';
+	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Change expiration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	?></fieldset><?php
@@ -536,7 +544,7 @@ function wp_cache_edit_rejected_ua() {
 		echo wp_specialchars($ua) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" value="Save UA strings &raquo;" /></div>';
+	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save UA strings &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo '</form>';
 	echo "</fieldset>\n";
@@ -560,7 +568,7 @@ function wp_cache_edit_rejected() {
 		echo wp_specialchars($file) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" value="Save strings &raquo;" /></div>';
+	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save strings &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 }
@@ -582,7 +590,7 @@ function wp_cache_edit_accepted() {
 		echo wp_specialchars($file) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" value=" &raquo;Save files &raquo;" /></div>';
+	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save files &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 }
@@ -720,10 +728,6 @@ function wp_cache_verify_config_file() {
 	$new = false;
 	$dir = dirname($wp_cache_config_file);
 
-	if ( !is_writable($dir)) {
-			echo "<b>Error:</b> wp-content directory (<b>$dir</b>) is not writable by the Web server.<br />Check its permissions.";
-			return false;
-	}
 	if ( file_exists($wp_cache_config_file) ) {
 		$lines = join( ' ', file( $wp_cache_config_file ) );
 		if( strpos( $lines, 'WPCACHEHOME' ) === false ) {
@@ -734,6 +738,9 @@ function wp_cache_verify_config_file() {
 				return false;
 			}
 		}
+	} elseif( !is_writable($dir)) {
+		echo "<b>Error:</b> Configuration file missing and wp-content directory (<b>$dir</b>) is not writable by the Web server.<br />Check its permissions.";
+		return false;
 	}
 
 	if ( !file_exists($wp_cache_config_file) ) {
@@ -748,10 +755,6 @@ function wp_cache_verify_config_file() {
 			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', ABSPATH . " . str_replace( '\\', '/', str_replace( ABSPATH, ' "', dirname(__FILE__) ) ) . "/wp-super-cache/\" );", $wp_cache_config_file);
 		}
 		$new = true;
-	}
-	if ( !is_writable($wp_cache_config_file)) {
-		echo "<b>Error:</b> Your WP-Cache config file (<b>$wp_cache_config_file</b>) is not writable by the Web server.<br />Check its permissions.";
-		return false;
 	}
 	require($wp_cache_config_file);
 	return true;
@@ -836,7 +839,7 @@ function wp_cache_files() {
 	echo '<br /><a name="list"></a><fieldset style="border: 1px solid #aaa" class="options"><legend>Cache contents</legend>';
 	echo '<form name="wp_cache_content_list" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_list_cache" />';
-	echo '<div class="submit"><input type="submit" value="'.$list_mess.' &raquo;" /></div>';
+	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="'.$list_mess.' &raquo;" /></div>';
 	echo "</form>\n";
 
 	$count = 0;
@@ -871,7 +874,7 @@ function wp_cache_files() {
 					echo '<td><form name="wp_delete_cache_file" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 					echo '<input type="hidden" name="wp_list_cache" />';
 					echo '<input type="hidden" name="wp_delete_cache_file" value="'.preg_replace("/^(.*)\.meta$/", "$1", $file).'" />';
-					echo '<div class="submit"><input id="deletepost" type="submit" value="Remove" /></div>';
+					echo '<div class="submit"><input id="deletepost" ' . SUBMITDISABLED . 'type="submit" value="Remove" /></div>';
 					wp_nonce_field('wp-cache');
 					echo "</form></td></tr>\n";
 				}
@@ -912,21 +915,21 @@ function wp_cache_files() {
 
 	echo '<form name="wp_cache_content_expired" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_delete_expired" />';
-	echo '<div class="submit"><input type="submit" value="Delete expired &raquo;" /></div>';
+	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Delete expired &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
 
 	echo '<form name="wp_cache_content_delete" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_delete_cache" />';
-	echo '<div class="submit"><input id="deletepost" type="submit" value="Delete cache &raquo;" /></div>';
+	echo '<div class="submit"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="Delete cache &raquo;" /></div>';
 
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
 	echo '<form name="wp_super_cache_stats" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<input type="hidden" name="super_cache_stats" value="1" />';
-	echo '<div class="submit"><input type="submit" value="Regenerate Super Cache Stats &raquo;" /></div>';
+	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Regenerate Super Cache Stats &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	echo '</fieldset>';
