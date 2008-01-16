@@ -1,3 +1,14 @@
+2008-01-16 12:13  donncha
+
+	* readme.txt, wp-cache.php: Bump version number
+	  Make admin page readonly if configuration page cannot be written
+	  to
+
+2008-01-04 11:23  donncha
+
+	* Changelog.txt, readme.txt, wp-cache.php: Bump version and update
+	  changelog
+
 2008-01-04 11:22  donncha
 
 	* wp-cache.php: Only update the hello_world option when updating
