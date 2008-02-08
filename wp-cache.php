@@ -403,7 +403,8 @@ function wp_lock_down() {
 				$firstfolder = explode( '/', $file );
 				$firstfolder = ABSPATH . $firstfolder[1];
 				$file = ABSPATH . $file;
-				unlink( trailingslashit( $file ) . 'index.html' );
+				@unlink( trailingslashit( $file ) . 'index.html' );
+				@unlink( trailingslashit( $file ) . 'index.html.gz' );
 				RecursiveFolderDelete( trailingslashit( $firstfolder ) );
 			}
 		}
@@ -416,7 +417,8 @@ function wp_lock_down() {
 		$firstfolder = ABSPATH . $firstfolder[1];
 		$page = ABSPATH . $page;
 		if( is_file( $pagefile ) && is_writable( $pagefile ) && is_writable( $firstfolder ) ) {
-			unlink( $pagefile );
+			@unlink( $pagefile );
+			@unlink( $pagefile . '.gz' );
 			RecursiveFolderDelete( $firstfolder );
 			echo "<strong>$pagefile removed!</strong><br />";
 			prune_super_cache( $cache_path, true );
