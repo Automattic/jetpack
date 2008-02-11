@@ -61,7 +61,7 @@ If things don't work when you installed the plugin here are a few things to chec
 1.  Is wp-content writable by the web server?
 2.  Is there a wp-content/wp-cache-config.php ? If not, copy the file wp-super-cache/wp-cache-config-sample.php to wp-content/wp-cache-config.php and make sure WPCACHEHOME points at the right place. "plugins" should be "mu-plugins" if you're using WordPress MU.
 3.  Is there a wp-content/advanced-cache.php ? If not, then you must symlink wp-super-cache/wp-cache-phase1.php to it with the command while in the wp-content folder. `ln -s plugins/wp-super-cache/wp-cache-phase1.php advanced-cache.php` If you can't do that, then copy the file. That will work too.
-4.  Make sure the following line is in wp-config.php : `define( 'WP_CACHE', true );`
+4.  Make sure the following line is in wp-config.php and it is ABOVE the "require_once(ABSPATH.'wp-settings.php');" line: `define( 'WP_CACHE', true );`
 5.  Try the Options->WP Super Cache page again and enable cache.
 6.  Look in wp-content/cache/supercache/. Are there directories and files there?
 7.  Anything in your php error_log?
