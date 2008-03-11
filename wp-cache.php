@@ -197,10 +197,10 @@ function wp_cache_manager() {
 
 	$dohtaccess = false;
 	if( !$wprules || $wprules == '' ) {
-		echo "<h4 style='color: #a00'>Mod Rewrite rules not updated!</h4>";
+		echo "<h4 style='color: #a00'>Mod Rewrite rules cannot be updated!</h4>";
 		echo "<p>You must have <strong>BEGIN</strong> and <strong>END</strong> markers in {$home_path}.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:
 		<blockquote><code><em># BEGIN WordPress</em><br /> RewriteCond %{REQUEST_FILENAME} !-f<br /> RewriteCond %{REQUEST_FILENAME} !-d<br /> RewriteRule . /index.php [L]<br /> <em># END WordPress</em></code></blockquote>
-		Refresh this page when you have updated your .htaccess file to add the Super Cache rules.";
+		Refresh this page when you have updated your .htaccess file.";
 	} elseif( strpos( $wprules, 'supercache' ) == false ) { // only write the rules once
 		$dohtaccess = true;
 	}
@@ -223,7 +223,15 @@ function wp_cache_manager() {
 	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html [L]\n";
 	$rules .= "WPRULES\n";
 	$rules .= "</IfModule>";
-	if( $dohtaccess ) {
+	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
+		echo "<p>In order to serve static html files your server must have the correct mod_rewrite rules added to a file called <code>" . ABSPATH . ".htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules:";
+		echo "<pre>" . str_replace( "WPRULES", "", $rules ) . "</pre></p>";
+		echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
+		echo '<input type="hidden" name="updatehtaccess" value="1" />';
+		echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="Update mod_rewrite rules &raquo;" /></div>';
+		wp_nonce_field('wp-cache');
+		echo "</form>\n";
+	} elseif( $dohtaccess && $valid_nonce && $_POST[ 'updatehtaccess' ] ) {
 		$rules = str_replace( 'WPRULES', $wprules, $rules );
 		if( insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $rules ) ) ) {
 			echo "<h4>Mod Rewrite rules updated!</h4>";
@@ -281,9 +289,10 @@ function toggleLayer( whichLayer ) {
 
 	wp_cache_edit_rejected_ua();
 
-	wp_lock_down();
 
 	wp_cache_files();
+
+	wp_lock_down();
 
 	wp_cache_restore();
 
@@ -339,8 +348,8 @@ function wp_lock_down() {
 			$wp_lock_down = '0';
 		}
 	}
-	?><br /><fieldset style='border: 1px solid #aaa' class="options"> 
-	<legend>Lock Down: <span style='color: #f00'><?php echo $wp_lock_down == '0' ? 'disabled' : 'enabled'; ?></span></legend>
+	?><br /><br /><fieldset style='border: 1px solid #aaa' class="options"> 
+	<legend>Lock Down: <span style='color: #f00'><?php echo $wp_lock_down == '0' ? 'disabled' : 'enabled'; ?></span> (advanced use only)</legend>
 	<p>Prepare your server for an expected spike in traffic by enabling the lock down. When this is enabled, new comments on a post will not refresh the cached static files.</p>
 	<p>Developers: Make your plugin lock down compatible by checking the 'WPLOCKDOWN' constant. The following code will make sure your plugin respects the WPLOCKDOWN setting.
 	<blockquote><code>if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) ) { <br />
@@ -808,7 +817,7 @@ function wp_cache_check_global_config() {
 	$line = 'define(\'WP_CACHE\', true);';
 	if (!is_writable($global) || !wp_cache_replace_line('define *\( *\'WP_CACHE\'', $line, $global) ) {
 			echo "<b>Error: WP_CACHE is not enabled</b> in your <code>wp-config.php</code> file and I couldn't modified it.<br />";
-			echo "Edit <code>$global</code> and add the following line: <br /><code>define('WP_CACHE', true);</code><br />It <em>must</em> appear before the <code>require_once(ABSPATH.'wp-settings.php');</code> line. Otherwise, <b>WP-Cache will not be executed</b> by Wordpress core. <br />";
+			echo "Edit <code>$global</code> and add the following line: <br /><code>define('WP_CACHE', true);</code><br />Otherwise, <b>WP-Cache will not be executed</b> by Wordpress core. <br />";
 			return false;
 	} 
 	return true;
@@ -839,11 +848,14 @@ function wp_cache_files() {
 		$list_mess = "List files";
 
 	echo '<br /><a name="list"></a><fieldset style="border: 1px solid #aaa" class="options"><legend>Cache contents</legend>';
+	/*
 	echo '<form name="wp_cache_content_list" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_list_cache" />';
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="'.$list_mess.' &raquo;" /></div>';
 	echo "</form>\n";
+	*/
 
+	$list_files = false; // it doesn't list supercached files, and removing single pages is buggy
 	$count = 0;
 	$expired = 0;
 	$now = time();
@@ -885,28 +897,21 @@ function wp_cache_files() {
 		closedir($handle);
 		if ($list_files) echo "</table>";
 	}
-	$sizes = get_option( 'super_cache_meta' );
-	if( !$sizes )
-		$sizes = array( 'expired' => 0, 'cached' => 0, 'ts' => 0 );
-
 	$now = time();
-	if( $_POST[ 'super_cache_stats' ] == 1 || $sizes[ 'cached' ] == 0 || $sizes[ 'ts' ] + 3600 <= $now ) {
-		$sizes = array( 'expired' => 0, 'cached' => 0, 'ts' => 0 );
+	$sizes = array( 'expired' => 0, 'cached' => 0, 'ts' => 0 );
 
-		if (is_dir($supercachedir)) {
-			$entries = glob($supercachedir. '/*');
-			foreach ($entries as $entry) {
-				if ($entry != '.' && $entry != '..') {
-					$sizes = wpsc_dirsize( $entry, $sizes );
-				}
+	if (is_dir($supercachedir)) {
+		$entries = glob($supercachedir. '/*');
+		foreach ($entries as $entry) {
+			if ($entry != '.' && $entry != '..') {
+				$sizes = wpsc_dirsize( $entry, $sizes );
 			}
-		} else {
-			if(is_file($supercachedir) && filemtime( $supercachedir ) + $super_cache_max_time <= $now )
-				$sizes[ 'expired' ] ++;
 		}
-		$sizes[ 'ts' ] = time();
-		update_option( 'super_cache_meta', $sizes );
+	} else {
+		if(is_file($supercachedir) && filemtime( $supercachedir ) + $super_cache_max_time <= $now )
+			$sizes[ 'expired' ] ++;
 	}
+	$sizes[ 'ts' ] = time();
 	echo "<p><strong>WP-Cache</strong></p>";
 	echo "<ul><li>$count cached pages</li>";
 	echo "<li>$expired expired pages</li></ul>";
@@ -925,15 +930,9 @@ function wp_cache_files() {
 	echo '<form name="wp_cache_content_delete" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_delete_cache" />';
 	echo '<div class="submit"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="Delete cache &raquo;" /></div>';
-
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
-	echo '<form name="wp_super_cache_stats" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
-	echo '<input type="hidden" name="super_cache_stats" value="1" />';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Regenerate Super Cache Stats &raquo;" /></div>';
-	wp_nonce_field('wp-cache');
-	echo "</form>\n";
 	echo '</fieldset>';
 }
 
