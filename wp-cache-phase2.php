@@ -166,6 +166,7 @@ function wp_cache_ob_callback($buffer) {
 		if (!$fr)
 			$buffer = "Couldn't write to: " . $cache_path . $cache_filename . "\n";
 		if( $super_cache_enabled ) {
+			$dir = str_replace( '//', '/', $dir );
 			if( @is_dir( $dir ) == false )
 				@wp_mkdir_p( $dir );
 
