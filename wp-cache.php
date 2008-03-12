@@ -918,7 +918,7 @@ function wp_cache_files() {
 	echo "<p><strong>WP-Super-Cache</strong></p>";
 	echo "<ul><li>" . intval($sizes['cached']/2) . " cached pages</li>";
 	$age = intval(($now - $sizes['ts'])/60);
-	echo "<li>" . intval($sizes['expired']/2) . " expired pages. (Generated $age minutes ago. Refresh in " . (60 - $age) . " minutes. )</li></ul>";
+	echo "<li>" . intval($sizes['expired']/2) . " expired pages.</li></ul>";
 
 	echo '<form name="wp_cache_content_expired" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_delete_expired" />';
