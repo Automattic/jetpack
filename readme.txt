@@ -74,6 +74,10 @@ Comments will show as soon as they are moderated, depending on the comment polic
 
 WP Super Cache stores it's cached files in a different way to WP Cache that lets it work better even when there are very many cached files. That is why the Super Cache expiry time is so much longer by default.
 
+= Will the Super Cache compression slow down my server? =
+
+No, it will do the opposite in fact. Super Cache files are compressed and stored that way so the heavy compression is done only once. These files are generally much smaller and are sent to a visitor's browser much more quickly than uncompressed html. As a result, your server spends less time talking over the network which saves CPU time and bandwidth, and can also serve the next request much more quickly.
+
 = How do I uninstall WP Super Cache? =
 
 1. Clear the cache in the backend page and then deactivate it on the plugins page.
