@@ -105,7 +105,7 @@ function wp_cache_manager() {
 		return;
 	}
 
-	if( !got_mod_rewrite() ) {
+	if( $cache_enabled == true && $super_cache_enabled == true && !got_mod_rewrite() ) {
 		?><h4 style='color: #a00'>Mod rewrite may not be installed!</h4>
 		<p>It appears that mod_rewrite is not installed. Sometimes this check isn't 100% reliable, especially if you are not using Apache. Please verify that the mod_rewrite module is loaded. It is required for serving Super Cache static files. You will still be able to use WP-Cache.</p><?php
 	}
@@ -167,9 +167,10 @@ function wp_cache_manager() {
 	wp_nonce_field('wp-cache');
 	?>
 	</form>
-	</fieldset><br />
+	</fieldset>
 
-	<fieldset style='border: 1px solid #aaa' class="options"> 
+	<?php if( $cache_enabled == true && $super_cache_enabled == true ) { ?>
+	<br /><fieldset style='border: 1px solid #aaa' class="options"> 
 	<legend>Super Cache Compression</legend>
 	<form name="wp_manager" action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post">
 	<label><input type="radio" name="cache_compression" value="1" <?php if( $cache_compression ) { echo "checked=checked"; } ?>> Enabled</label>
@@ -212,15 +213,15 @@ function wp_cache_manager() {
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
-	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz -f\n";
-	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html.gz [L]\n\n";
+	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz [L]\n\n";
 
 	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
-	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html -f\n";
-	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1index.html [L]\n";
+	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
+	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
 	$rules .= "WPRULES\n";
 	$rules .= "</IfModule>";
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
@@ -279,6 +280,8 @@ function toggleLayer( whichLayer ) {
 
 	?></fieldset><?php
 
+	} // if $super_cache_enabled
+
 	wp_cache_edit_max_time();
 
 	echo '<br /><a name="files"></a><fieldset style="border: 1px solid #aaa" class="options"><legend>Accepted filenames, rejected URIs</legend>';
@@ -332,7 +335,7 @@ if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) )
 	add_action( 'comment_form', 'comment_form_lockdown_message' );
 
 function wp_lock_down() {
-	global $wpdb, $cache_path, $wp_cache_config_file, $valid_nonce, $cached_direct_pages;
+	global $wpdb, $cache_path, $wp_cache_config_file, $valid_nonce, $cached_direct_pages, $cache_enabled, $super_cache_enabled;
 
 	if(isset($_POST['wp_lock_down']) && $valid_nonce) {
 		$wp_lock_down = $_POST['wp_lock_down'] == '1' ? '1' : '0';
@@ -370,6 +373,7 @@ function wp_lock_down() {
 	echo "</form>\n";
 
 	?></fieldset><br /><?php
+	if( $cache_enabled == true && $super_cache_enabled == true ) {
 	?><fieldset style='border: 1px solid #aaa' class="options"> 
 	<legend>Directly Cached Files (advanced use only)</legend><?php
 
@@ -471,6 +475,7 @@ function wp_lock_down() {
 		echo "<div class='submit'><input type='submit' ' . SUBMITDISABLED . 'value='Update direct pages &raquo;' /></div>";
 	echo "</form>\n";
 	?></fieldset><?php
+	} // if $super_cache_enabled
 }
 
 function RecursiveFolderDelete ( $folderPath ) { // from http://www.php.net/manual/en/function.rmdir.php
@@ -493,7 +498,7 @@ function RecursiveFolderDelete ( $folderPath ) { // from http://www.php.net/manu
 }
 
 function wp_cache_edit_max_time () {
-	global $super_cache_max_time, $cache_max_time, $wp_cache_config_file, $valid_nonce;
+	global $super_cache_max_time, $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled;
 
 	if( !isset( $super_cache_max_time ) )
 		$super_cache_max_time = 21600;
@@ -517,8 +522,10 @@ function wp_cache_edit_max_time () {
 	echo '<form name="wp_edit_max_time" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<label for="wp_max_time">Expire time:</label> ';
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> seconds<br />";
-	echo '<label for="super_cache_max_time">Super Cache Expire time:</label> ';
-	echo "<input type=\"text\" size=6 name=\"super_cache_max_time\" value=\"$super_cache_max_time\" /> seconds";
+	if( $cache_enabled == true && $super_cache_enabled == true ) {
+		echo '<label for="super_cache_max_time">Super Cache Expire time:</label> ';
+		echo "<input type=\"text\" size=6 name=\"super_cache_max_time\" value=\"$super_cache_max_time\" /> seconds";
+	}
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Change expiration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
@@ -824,7 +831,7 @@ function wp_cache_check_global_config() {
 }
 
 function wp_cache_files() {
-	global $cache_path, $file_prefix, $cache_max_time, $super_cache_max_time, $valid_nonce, $supercachedir;
+	global $cache_path, $file_prefix, $cache_max_time, $super_cache_max_time, $valid_nonce, $supercachedir, $cache_enabled, $super_cache_enabled;
 
 	if ( '/' != substr($cache_path, -1)) {
 		$cache_path .= '/';
@@ -897,28 +904,33 @@ function wp_cache_files() {
 		closedir($handle);
 		if ($list_files) echo "</table>";
 	}
-	$now = time();
-	$sizes = array( 'expired' => 0, 'cached' => 0, 'ts' => 0 );
+	if( $cache_enabled == true && $super_cache_enabled == true ) {
+		$now = time();
+		$sizes = array( 'expired' => 0, 'cached' => 0, 'ts' => 0 );
 
-	if (is_dir($supercachedir)) {
-		$entries = glob($supercachedir. '/*');
-		foreach ($entries as $entry) {
-			if ($entry != '.' && $entry != '..') {
-				$sizes = wpsc_dirsize( $entry, $sizes );
+		if (is_dir($supercachedir)) {
+			$entries = glob($supercachedir. '/*');
+			foreach ($entries as $entry) {
+				if ($entry != '.' && $entry != '..') {
+					$sizes = wpsc_dirsize( $entry, $sizes );
+				}
 			}
+		} else {
+			if(is_file($supercachedir) && filemtime( $supercachedir ) + $super_cache_max_time <= $now )
+				$sizes[ 'expired' ] ++;
 		}
-	} else {
-		if(is_file($supercachedir) && filemtime( $supercachedir ) + $super_cache_max_time <= $now )
-			$sizes[ 'expired' ] ++;
+		$sizes[ 'ts' ] = time();
 	}
-	$sizes[ 'ts' ] = time();
+
 	echo "<p><strong>WP-Cache</strong></p>";
 	echo "<ul><li>$count cached pages</li>";
 	echo "<li>$expired expired pages</li></ul>";
-	echo "<p><strong>WP-Super-Cache</strong></p>";
-	echo "<ul><li>" . intval($sizes['cached']/2) . " cached pages</li>";
-	$age = intval(($now - $sizes['ts'])/60);
-	echo "<li>" . intval($sizes['expired']/2) . " expired pages.</li></ul>";
+	if( $cache_enabled == true && $super_cache_enabled == true ) {
+		echo "<p><strong>WP-Super-Cache</strong></p>";
+		echo "<ul><li>" . intval($sizes['cached']/2) . " cached pages</li>";
+		$age = intval(($now - $sizes['ts'])/60);
+		echo "<li>" . intval($sizes['expired']/2) . " expired pages.</li></ul>";
+	}
 
 	echo '<form name="wp_cache_content_expired" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_delete_expired" />';
