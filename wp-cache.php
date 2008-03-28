@@ -230,7 +230,7 @@ function toggleLayer( whichLayer ) {
 	$rules .= "RewriteBase $home_root\n"; // props Chris Messina
 	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
-	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
+	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpress.*$\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
@@ -238,7 +238,7 @@ function toggleLayer( whichLayer ) {
 
 	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
-	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$\n";
+	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpress.*$\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
 	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
 	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
