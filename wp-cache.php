@@ -75,7 +75,27 @@ function wp_cache_manager() {
 	if( get_option( 'gzipcompression' ) == 1 )
 		update_option( 'gzipcompression', 0 );
 	$valid_nonce = wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache');
-	
+	/* http://www.netlobo.com/div_hiding.html */
+	?>
+<script type='text/javascript'>
+<!--
+function toggleLayer( whichLayer ) {
+  var elem, vis;
+  if( document.getElementById ) // this is the way the standards work
+    elem = document.getElementById( whichLayer );
+  else if( document.all ) // this is the way old msie versions work
+      elem = document.all[whichLayer];
+  else if( document.layers ) // this is the way nn4 works
+    elem = document.layers[whichLayer];
+  vis = elem.style;
+  // if the style.display value is blank we try to figure it out here
+  if(vis.display==''&&elem.offsetWidth!=undefined&&elem.offsetHeight!=undefined)
+    vis.display = (elem.offsetWidth!=0&&elem.offsetHeight!=0)?'block':'none';
+  vis.display = (vis.display==''||vis.display=='block')?'none':'block';
+}
+// -->
+</script>
+<?php
  	echo '<div class="wrap">';
 	echo "<h2>WP Super Cache Manager</h2>\n";
 	if( ini_get( 'safe_mode' ) ) {
@@ -244,26 +264,7 @@ function wp_cache_manager() {
 		echo "<p><pre># BEGIN WordPress\n{$rules}# END WordPress</pre></p>\n";
 	} else {
 		$rules = str_replace( 'WPRULES', '', $rules );
-		/* http://www.netlobo.com/div_hiding.html */
 		?>
-<script type='text/javascript'>
-<!--
-function toggleLayer( whichLayer ) {
-  var elem, vis;
-  if( document.getElementById ) // this is the way the standards work
-    elem = document.getElementById( whichLayer );
-  else if( document.all ) // this is the way old msie versions work
-      elem = document.all[whichLayer];
-  else if( document.layers ) // this is the way nn4 works
-    elem = document.layers[whichLayer];
-  vis = elem.style;
-  // if the style.display value is blank we try to figure it out here
-  if(vis.display==''&&elem.offsetWidth!=undefined&&elem.offsetHeight!=undefined)
-    vis.display = (elem.offsetWidth!=0&&elem.offsetHeight!=0)?'block':'none';
-  vis.display = (vis.display==''||vis.display=='block')?'none':'block';
-}
-// -->
-</script>
 		<p>WP Super Cache has modified your <?php echo ABSPATH ?>.htaccess file. Click the following link to see the lines added. If you have upgraded the plugin make sure these rules match. <a href="javascript:toggleLayer('rewriterules');" title="See your mod_rewrite rules">View mod_rewrite rules</a>
 		<div id='rewriterules' style='display: none;'>
 		<?php echo "<p><pre># BEGIN WordPress\n{$rules}# END WordPress</pre></p>\n"; ?>
