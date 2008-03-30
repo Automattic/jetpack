@@ -222,6 +222,11 @@ function toggleLayer( whichLayer ) {
 		echo "<p>You must have <strong>BEGIN</strong> and <strong>END</strong> markers in {$home_path}.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:
 		<blockquote><code><em># BEGIN WordPress</em><br /> RewriteCond %{REQUEST_FILENAME} !-f<br /> RewriteCond %{REQUEST_FILENAME} !-d<br /> RewriteRule . /index.php [L]<br /> <em># END WordPress</em></code></blockquote>
 		Refresh this page when you have updated your .htaccess file.";
+	} elseif( strpos( $wprules, 'wordpressuser' ) ) { // Need to clear out old mod_rewrite rules
+		echo "<p><strong>Thank you for upgrading.</strong> The mod_rewrite rules changed since you last installed this plugin. Unfortunately you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: <blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*\$</code></blockquote> so it looks like this: <blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpress.*\$</code></blockquote> The only change is 'wordpressuser' becomes 'wordpress'. This is a WordPress 2.5 change but it's backwards compatible with older versions if you're brave enough to use them.</p>";
+		echo "</fieldset>";
+		echo "</div>\n";
+		return;
 	} elseif( strpos( $wprules, 'supercache' ) == false ) { // only write the rules once
 		$dohtaccess = true;
 	}
@@ -245,7 +250,7 @@ function toggleLayer( whichLayer ) {
 	$rules .= "WPRULES\n";
 	$rules .= "</IfModule>";
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
-		echo "<p>In order to serve static html files your server must have the correct mod_rewrite rules added to a file called <code>" . ABSPATH . ".htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules:";
+		echo "<p>In order to serve static html files your server must have the correct mod_rewrite rules added to a file called <code>" . ABSPATH . ".htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules.";
 		echo "<pre>" . str_replace( "WPRULES", "", $rules ) . "</pre></p>";
 		echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 		echo '<input type="hidden" name="updatehtaccess" value="1" />';
