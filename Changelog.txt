@@ -1,3 +1,12 @@
+2008-03-30 10:41  donncha
+
+	* wp-cache.php: Warn if mod_rewrite rules are out of date and
+	  encourage user to remove or update them manually
+
+2008-03-30 10:26  donncha
+
+	* Changelog.txt: Updated changelog
+
 2008-03-28 17:37  donncha
 
 	* wp-cache.php: Login cookie got shortened to "wordpress" in 2.5,
