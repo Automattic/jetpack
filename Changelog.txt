@@ -1,3 +1,63 @@
+2008-03-28 17:37  donncha
+
+	* wp-cache.php: Login cookie got shortened to "wordpress" in 2.5,
+	  still backwards compatible
+
+2008-03-28 17:22  donncha
+
+	* wp-cache.php: Move toggleLayer js around
+
+2008-03-13 11:37  donncha
+
+	* readme.txt, wp-cache.php: Bump to 0.6
+
+2008-03-13 11:34  donncha
+
+	* readme.txt: Added compression FAQ
+
+2008-03-13 11:28  donncha
+
+	* wp-cache.php: Only require mod_rewrite if super cache is enabled
+	  Hide super cache parts of page when not activated
+	  Add "/" to mod_rewrite rules for URLs not ending in a /, props
+	  Michael R Aulia @ http://www.michaelaulia.com/blogs/
+
+2008-03-13 11:25  donncha
+
+	* readme.txt: Updated documentation
+
+2008-03-12 18:55  donncha
+
+	* wp-cache-phase2.php: This somehow stops PHP creating directories
+	  in the root folder, thanks to Cherie and Jennifer for their
+	  invaluable help!
+
+2008-03-12 17:00  donncha
+
+	* wp-cache.php: No need for this message any more
+
+2008-03-11 13:04  donncha
+
+	* wp-cache.php: Don't auto update .htaccess until user wants to.
+	  Hide listing of cached files, it's wrong anyway.
+	  Move advanced features to the end of backend page.
+
+2008-02-11 20:52  donncha
+
+	* readme.txt, wp-cache.php: You must define things before loading
+	  WordPress! (props s2j @
+	  http://wordpress.org/support/topic/154996?replies=12#post-691402
+	  )
+
+2008-02-08 10:27  donncha
+
+	* wp-cache.php: Remember to delete compressed files from directly
+	  cached folders, props John Pozadzides
+
+2008-01-16 12:14  donncha
+
+	* Changelog.txt: Update changelog
+
 2008-01-16 12:13  donncha
 
 	* readme.txt, wp-cache.php: Bump version number
