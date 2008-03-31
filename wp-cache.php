@@ -248,10 +248,10 @@ function toggleLayer( whichLayer ) {
 	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
 	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
 	$rules .= "WPRULES\n";
-	$rules .= "</IfModule>";
+	$rules .= "</IfModule>\n";
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
 		echo "<p>In order to serve static html files your server must have the correct mod_rewrite rules added to a file called <code>" . ABSPATH . ".htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules.";
-		echo "<pre>" . str_replace( "WPRULES", "", $rules ) . "</pre></p>";
+		echo "<pre>" . wp_specialchars( str_replace( "WPRULES", "", $rules ) ) . "</pre></p>";
 		echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 		echo '<input type="hidden" name="updatehtaccess" value="1" />';
 		echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="Update mod_rewrite rules &raquo;" /></div>';
@@ -272,7 +272,7 @@ function toggleLayer( whichLayer ) {
 		?>
 		<p>WP Super Cache has modified your <?php echo ABSPATH ?>.htaccess file. Click the following link to see the lines added. If you have upgraded the plugin make sure these rules match. <a href="javascript:toggleLayer('rewriterules');" title="See your mod_rewrite rules">View mod_rewrite rules</a>
 		<div id='rewriterules' style='display: none;'>
-		<?php echo "<p><pre># BEGIN WordPress\n{$rules}# END WordPress</pre></p>\n"; ?>
+		<?php echo "<p><pre># BEGIN WordPress\n" . wp_specialchars( $rules ) . "# END WordPress</pre></p>\n"; ?>
 		</div>
 		<?php
 	}
