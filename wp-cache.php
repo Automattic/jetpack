@@ -215,8 +215,9 @@ function toggleLayer( whichLayer ) {
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
 	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
 	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
+	$scrules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WPSuperCache' ) );
 
-	$dohtaccess = false;
+	$dohtaccess = true;
 	if( !$wprules || $wprules == '' ) {
 		echo "<h4 style='color: #a00'>Mod Rewrite rules cannot be updated!</h4>";
 		echo "<p>You must have <strong>BEGIN</strong> and <strong>END</strong> markers in {$home_path}.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:
@@ -227,52 +228,46 @@ function toggleLayer( whichLayer ) {
 		echo "</fieldset>";
 		echo "</div>\n";
 		return;
-	} elseif( strpos( $wprules, 'supercache' ) == false ) { // only write the rules once
-		$dohtaccess = true;
+	} elseif( strpos( $scrules, 'supercache' ) || strpos( $wprules, 'supercache' ) ) { // only write the rules once
+		$dohtaccess = false;
 	}
 	$rules = "<IfModule mod_rewrite.c>\n";
 	$rules .= "RewriteEngine On\n";
 	$rules .= "RewriteBase $home_root\n"; // props Chris Messina
 	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
-	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
-	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpress.*$\n";
-	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
+	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
 	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz [L]\n\n";
 
 	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
-	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$\n";
-	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wordpress.*$\n";
-	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$\n";
+	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
 	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
 	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
-	$rules .= "WPRULES\n";
 	$rules .= "</IfModule>\n";
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
 		echo "<p>In order to serve static html files your server must have the correct mod_rewrite rules added to a file called <code>" . ABSPATH . ".htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules.";
-		echo "<pre>" . wp_specialchars( str_replace( "WPRULES", "", $rules ) ) . "</pre></p>";
+		echo "<pre>$rules</pre></p>";
 		echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 		echo '<input type="hidden" name="updatehtaccess" value="1" />';
 		echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="Update mod_rewrite rules &raquo;" /></div>';
 		wp_nonce_field('wp-cache');
 		echo "</form>\n";
 	} elseif( $dohtaccess && $valid_nonce && $_POST[ 'updatehtaccess' ] ) {
-		$rules = str_replace( 'WPRULES', $wprules, $rules );
-		if( insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $rules ) ) ) {
+		wpsc_remove_marker( $home_path.'.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
+		if( insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $wprules ) ) ) {
 			echo "<h4>Mod Rewrite rules updated!</h4>";
-			echo "<p><strong>" . ABSPATH . ".htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. The file should look like this:</strong></p>\n";
+			echo "<p><strong>" . ABSPATH . ".htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. They should look like this:</strong></p>\n";
 		} else {
 			echo "<h4>Mod Rewrite rules must be updated!</h4>";
 			echo "<p><strong> Your " . ABSPATH . ".htaccess is not writable by the webserver and must be updated with the necessary mod_rewrite rules. The new rules go above the regular WordPress rules as shown in the code below:</strong></p>\n";
 		}
-		echo "<p><pre># BEGIN WordPress\n{$rules}# END WordPress</pre></p>\n";
+		echo "<p><pre>" . wp_specialchars( $rules ) . "</pre></p>\n";
 	} else {
-		$rules = str_replace( 'WPRULES', '', $rules );
 		?>
 		<p>WP Super Cache has modified your <?php echo ABSPATH ?>.htaccess file. Click the following link to see the lines added. If you have upgraded the plugin make sure these rules match. <a href="javascript:toggleLayer('rewriterules');" title="See your mod_rewrite rules">View mod_rewrite rules</a>
 		<div id='rewriterules' style='display: none;'>
-		<?php echo "<p><pre># BEGIN WordPress\n" . wp_specialchars( $rules ) . "# END WordPress</pre></p>\n"; ?>
+		<?php echo "<p><pre>" . wp_specialchars( $rules ) . "</pre></p>\n"; ?>
 		</div>
 		<?php
 	}
@@ -1039,6 +1034,38 @@ function wp_cache_clean_expired($file_prefix) {
 }
 
 add_action('admin_menu', 'wp_cache_add_pages');
+
+function wpsc_remove_marker( $filename, $marker ) {
+	if (!file_exists( $filename ) || is_writeable( $filename ) ) {
+		if (!file_exists( $filename ) ) {
+			return '';
+		} else {
+			$markerdata = explode( "\n", implode( '', file( $filename ) ) );
+		}
+
+		$f = fopen( $filename, 'w' );
+		$foundit = false;
+		if ( $markerdata ) {
+			$state = true;
+			foreach ( $markerdata as $n => $markerline ) {
+				if (strpos($markerline, '# BEGIN ' . $marker) !== false)
+					$state = false;
+				if ( $state ) {
+					if ( $n + 1 < count( $markerdata ) )
+						fwrite( $f, "{$markerline}\n" );
+					else
+						fwrite( $f, "{$markerline}" );
+				}
+				if (strpos($markerline, '# END ' . $marker) !== false) {
+					$state = true;
+				}
+			}
+		}
+		return true;
+	} else {
+		return false;
+	}
+}
 
 function wp_super_cache_footer() {
 	?><p><?php bloginfo('name'); ?> is Digg proof thanks to caching by <a href="http://ocaoimh.ie/wp-super-cache/">WP Super Cache</a>!</p><?php
