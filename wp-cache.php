@@ -247,7 +247,7 @@ function toggleLayer( whichLayer ) {
 	$rules .= "</IfModule>\n";
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
 		echo "<p>In order to serve static html files your server must have the correct mod_rewrite rules added to a file called <code>" . ABSPATH . ".htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules.";
-		echo "<pre>$rules</pre></p>";
+		echo "<pre>" . wp_specialchars( $rules ) . "</pre></p>";
 		echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 		echo '<input type="hidden" name="updatehtaccess" value="1" />';
 		echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="Update mod_rewrite rules &raquo;" /></div>';
