@@ -178,9 +178,9 @@ function toggleLayer( whichLayer ) {
 	<legend>WP Super Cache Status</legend><?php
 	echo '<form name="wp_manager" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	?>
-	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> WP Cache and Super Cache enabled</label><br />
-	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> WP Cache and Super Cache disabled</label><br />
-	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> Super Cache Disabled</label><br />
+	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> <strong>ON</strong> (WP Cache and Super Cache enabled)</label><br />
+	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong>OFF</strong> (WP Cache and Super Cache disabled)</label><br />
+	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong>HALF ON</strong> (Super Cache Disabled)</label><br />
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> Proudly tell the world your server is Digg proof! (places a message in your blog's footer)</label></p>
 	<?php
 	echo "<div class='submit'><input " . SUBMITDISABLED . "type='submit' value='Update Status &raquo;' /></div>";
@@ -628,12 +628,16 @@ function wp_cache_enable() {
 }
 
 function wp_cache_disable() {
-	global $wp_cache_config_file, $cache_enabled, $supercachedir, $cache_path;
+	global $cache_path, $wp_cache_config_file, $cache_enabled, $supercachedir, $cache_path;
 
 	if (wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file)) {
 		$cache_enabled = false;
 	}
 	wp_super_cache_disable();
+	sleep( 1 ); // allow existing processes to write to the supercachedir and then delete it
+	if (function_exists ('prune_super_cache') && is_dir( $supercachedir ) ) {
+		prune_super_cache( $cache_path, true );
+	}
 }
 function wp_super_cache_enable() {
 	global $supercachedir, $wp_cache_config_file, $super_cache_enabled;
@@ -651,10 +655,6 @@ function wp_super_cache_disable() {
 	if( is_dir( $supercachedir ) )
 		rename( $supercachedir, $supercachedir . ".disabled" );
 	$super_cache_enabled = false;
-	sleep( 1 ); // allow existing processes to write to the supercachedir and then delete it
-	if (function_exists ('prune_super_cache') && is_dir( $supercachedir ) ) {
-		prune_super_cache( $supercachedir, true );
-	}
 }
 
 function wp_cache_is_enabled() {
