@@ -152,7 +152,7 @@ function wp_cache_ob_callback($buffer) {
 		the file was expired and its mtime is less than 5 seconds
 	*/
 	if( !((!$file_expired && $mtime) || ($mtime && $file_expired && (time() - $mtime) < 5)) ) {
-		$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '..', '', $_SERVER['REQUEST_URI']) );
+		$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', $_SERVER['REQUEST_URI']) ) );
 		$dir = strtolower(preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"])) . $uri; // To avoid XSS attacs
 		$dir = trailingslashit( $cache_path . 'supercache/' . $dir );
 		if( is_array( $cached_direct_pages ) && in_array( $_SERVER[ 'REQUEST_URI' ], $cached_direct_pages ) ) {
