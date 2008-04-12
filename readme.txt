@@ -2,10 +2,10 @@
 Contributors: donncha
 Tags: performance,caching,wp-cache
 Tested up to: 2.5
-Stable tag: 0.6.1
+Stable tag: 0.6.2
 Requires at least: 2.2
 
-A very fast WordPress caching engine that produces static html files.
+A very fast caching engine for WordPress that produces static html files.
 
 == Description ==
 This plugin generates static html files from your dynamic WordPress blog.  After a html file is generated your webserver will serve that file instead of processing the comparatively heavier and more expensive WordPress PHP scripts.
@@ -37,17 +37,13 @@ See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further
 	`RewriteBase /`
 	
 	`RewriteCond %{QUERY_STRING} !.*s=.*`
-	`RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$`
-	`RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$`
-	`RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$`
+	`RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$`
 	`RewriteCond %{HTTP:Accept-Encoding} gzip`
 	`RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html.gz -f`
 	`RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html.gz [L]`
 	
 	`RewriteCond %{QUERY_STRING} !.*s=.*`
-	`RewriteCond %{HTTP_COOKIE} !^.*comment_author_.*$`
-	`RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$`
-	`RewriteCond %{HTTP_COOKIE} !^.*wp-postpass_.*$`
+	`RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$`
 	`RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html -f`
 	`RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html [L]`
 	
