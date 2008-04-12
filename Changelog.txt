@@ -1,3 +1,48 @@
+2008-04-12 07:05  donncha
+
+	* readme.txt, wp-cache.php: Bump version number and update
+	  .htaccess example code
+
+2008-04-11 23:30  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Remove "index.php" from
+	  cached file paths
+
+2008-04-11 23:17  donncha
+
+	* wp-cache-config-sample.php, wp-cache.php: Add index.php to list
+	  of not to be cached pages
+	  Minor typo fix
+
+2008-04-08 09:51  donncha
+
+	* wp-cache.php: Delete all contents of cache dir, not just
+	  supercachedir when caching disabled.
+
+2008-04-04 11:59  donncha
+
+	* wp-cache.php: wp_specialchars the rules
+
+2008-04-01 11:31  donncha
+
+	* wp-cache.php: Added wpsc_remove_marker() to remove WordPress
+	  rewrite rules
+	  Super Cache rules now go in the WPSuperCache marker
+	  Check for comment cookie in one line, props askapache
+
+2008-03-31 08:42  donncha
+
+	* wp-cache.php: wp_specialchars() the mod_rewrite rules, props
+	  Viper007Bond
+
+2008-03-30 10:42  donncha
+
+	* readme.txt, wp-cache.php: Bump the version numbers
+
+2008-03-30 10:41  donncha
+
+	* Changelog.txt: Updated changelog
+
 2008-03-30 10:41  donncha
 
 	* wp-cache.php: Warn if mod_rewrite rules are out of date and
