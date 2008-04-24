@@ -163,8 +163,10 @@ function wp_cache_ob_callback($buffer) {
 			$super_cache_enabled = false;
 
 		$fr = @fopen($cache_path . $cache_filename, 'w');
-		if (!$fr)
-			$buffer = "Couldn't write to: " . $cache_path . $cache_filename . "\n";
+		if (!$fr) {
+			$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $cache_path ) . $cache_filename . " -->\n";
+			return $buffer;
+		}
 		if( $super_cache_enabled ) {
 			$dir = str_replace( '//', '/', $dir );
 			if( @is_dir( $dir ) == false )
