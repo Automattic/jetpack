@@ -23,6 +23,8 @@ Super Cached html files will be server more quickly than PHP generated cached fi
 
 See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further information.
 
+The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is a good place to start if you want to know what has changed since you last downloaded the plugin.
+
 == Installation ==
 1. You should have mod mime, mod rewrite and fancy permalinks enabled. PHP safe mode should be disabled. If any of those are missing or off you can still use the slower WP-Cache part of the plugin.
 2. If you have WP-Cache installed already, please disable it. Edit wp-config.php and make sure the WP_CACHE define is deleted, and remove the files wp-content/wp-cache-config.php and wp-content/advanced-cache.php. These will be recreated when you install this plugin.
@@ -37,12 +39,14 @@ See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further
 	`RewriteBase /`
 	
 	`RewriteCond %{QUERY_STRING} !.*s=.*`
+	`RewriteCond %{QUERY_STRING} !.*attachment_id=.*`
 	`RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$`
 	`RewriteCond %{HTTP:Accept-Encoding} gzip`
 	`RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html.gz -f`
 	`RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html.gz [L]`
 	
 	`RewriteCond %{QUERY_STRING} !.*s=.*`
+	`RewriteCond %{QUERY_STRING} !.*attachment_id=.*`
 	`RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$`
 	`RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html -f`
 	`RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html [L]`
