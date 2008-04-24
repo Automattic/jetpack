@@ -1,3 +1,27 @@
+2008-04-24 19:09  donncha
+
+	* readme.txt, wp-cache.php: Bump the version number
+
+2008-04-24 15:45  donncha
+
+	* wp-cache-phase2.php: Put "could not write" message in a HTML
+	  comment at the end of the current page.
+
+2008-04-20 07:48  donncha
+
+	* wp-cache.php: Use blog charset for encoding.
+	  Don't supercache attachment pages, props Callum
+
+2008-04-17 09:23  donncha
+
+	* wp-cache.php: Make sure files are served as UTF-8, props
+	  tanguillo and nikolayb
+	  http://wordpress.org/support/topic/169540?replies=3
+
+2008-04-12 07:06  donncha
+
+	* Changelog.txt: Updated changelog
+
 2008-04-12 07:05  donncha
 
 	* readme.txt, wp-cache.php: Bump version number and update
