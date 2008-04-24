@@ -2,7 +2,7 @@
 Contributors: donncha
 Tags: performance,caching,wp-cache
 Tested up to: 2.5
-Stable tag: 0.6.2
+Stable tag: 0.6.3
 Requires at least: 2.2
 
 A very fast caching engine for WordPress that produces static html files.
