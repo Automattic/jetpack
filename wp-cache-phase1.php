@@ -56,7 +56,9 @@ if( ($mtime = @filemtime($meta_pathname)) ) {
 		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
 			return;
 		foreach ($meta->headers as $header) {
-			header($header);
+			// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
+			if( strpos( $header, 'Last-Modified:' ) === false ) 
+				header($header);
 		}
 		if ( !($content_size = @filesize($cache_file)) > 0 || $mtime < @filemtime($cache_file))
 			return;
