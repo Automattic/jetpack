@@ -96,7 +96,7 @@ function toggleLayer( whichLayer ) {
 // -->
 </script>
 <?php
- 	echo '<div class="wrap">';
+	echo '<div class="wrap">';
 	echo "<h2>WP Super Cache Manager</h2>\n";
 	if( ini_get( 'safe_mode' ) ) {
 		?><h3>Warning! PHP safe mode enabled!</h3>
@@ -1074,7 +1074,7 @@ function wpsc_remove_marker( $filename, $marker ) {
 }
 
 function wp_super_cache_footer() {
-	?><p><?php bloginfo('name'); ?> is Digg proof thanks to caching by <a href="http://ocaoimh.ie/wp-super-cache/">WP Super Cache</a>!</p><?php
+	?><p id='supercache'><?php bloginfo('name'); ?> is Digg proof thanks to caching by <a href="http://ocaoimh.ie/wp-super-cache/">WP Super Cache</a>!</p><?php
 }
 if( isset( $wp_cache_hello_world ) && $wp_cache_hello_world )
 	add_action( 'wp_footer', 'wp_super_cache_footer' );
