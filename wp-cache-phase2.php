@@ -299,12 +299,11 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 				if( is_dir( $cache_path . $file ) == false && (filemtime($cache_path . $file) + $cache_max_time) <= $now  ) {
 					if( substr( $file, -9 ) != '.htaccess' )
 						@unlink($cache_path . $file);
-				} elseif( is_dir( $cache_path . $file ) ) {
-					prune_super_cache( $cache_path . $file );
 				}
 			}
 		}
 		closedir($handle);
+		prune_super_cache( $cache_path . 'supercache' );
 	}
 
 	wp_cache_writers_exit();
@@ -382,9 +381,8 @@ function wp_cache_shutdown_callback() {
 		wp_cache_writers_exit();
 	}
 
-	if ($file_expired == false) {
+	if( mt_rand( 0, 500 ) != 1 )
 		return;
-	}
 
 	// we delete expired files
 	flush(); //Ensure we send data to the client
