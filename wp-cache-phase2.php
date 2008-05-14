@@ -418,7 +418,6 @@ function wp_cache_post_change($post_id) {
 	global $file_prefix, $cache_path, $blog_id, $blogcacheid, $super_cache_enabled;
 	static $last_processed = -1;
 
-	// Avoid cleaning twice the same pages
 	if ($post_id == $last_processed) return $post_id;
 	$last_processed = $post_id;
 	$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
