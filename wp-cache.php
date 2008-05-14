@@ -63,6 +63,7 @@ function wp_cache_add_pages() {
 		add_options_page('WP Super Cache', 'WP Super Cache', 'manage_options', __FILE__, 'wp_cache_manager');
 	}
 }
+add_action('admin_menu', 'wp_cache_add_pages');
 
 function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
@@ -1038,8 +1039,6 @@ function wp_cache_clean_expired($file_prefix) {
 		closedir($handle);
 	}
 }
-
-add_action('admin_menu', 'wp_cache_add_pages');
 
 function wpsc_remove_marker( $filename, $marker ) {
 	if (!file_exists( $filename ) || is_writeable( $filename ) ) {
