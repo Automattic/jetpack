@@ -1,3 +1,38 @@
+2008-05-14 12:21  donncha
+
+	* wp-cache-phase2.php: Clean up the supercache if no post_id is
+	  defined
+
+2008-05-14 12:11  donncha
+
+	* wp-cache.php: Move menu code up
+
+2008-05-13 14:57  donncha
+
+	* wp-cache-phase2.php: Only prune files in the supercache directory
+	  Remove expired files 1/500's of the time
+
+2008-05-11 08:51  donncha
+
+	* wp-cache.php: Allow the "digg proof" message to be styled
+	  Removed whitespace
+
+2008-05-05 09:49  donncha
+
+	* wp-cache-phase1.php: Removed Last-Modified header so plugin works
+	  on godaddy servers. props Brad @
+	  http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
+
+2008-05-05 09:44  donncha
+
+	* readme.txt, wp-cache.php: Added rewrite rules to stop POST
+	  requests to html static files. props eharris @
+	  http://wordpress.org/support/topic/173972?replies=2
+
+2008-04-24 19:14  donncha
+
+	* Changelog.txt: Update Changelog
+
 2008-04-24 19:14  donncha
 
 	* readme.txt: Added changelog link
