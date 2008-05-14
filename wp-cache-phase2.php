@@ -423,13 +423,17 @@ function wp_cache_post_change($post_id) {
 	$last_processed = $post_id;
 	$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
 	if( $super_cache_enabled ) {
-		$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
-		$siteurl = str_replace( 'http://', '', get_option( 'siteurl' ) );
-		$dir = $cache_path . 'supercache/' . strtolower(preg_replace('/:.*$/', '', $siteurl ) );
-		$files_to_delete = array( $dir . '/index.html', $dir . '/feed/index.html', $dir . $permalink . 'index.html', $dir . $permalink . 'feed/index.html' );
-		foreach( $files_to_delete as $cache_file ) {
-			@unlink( $cache_file );
-			@unlink( $cache_file . '.gz' );
+		$siteurl = strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', get_option( 'siteurl' ) ) ) );
+		if( $post_id == 0 ) {
+			prune_super_cache( $cache_path . 'supercache/' . $siteurl );
+		} else {
+			$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
+			$dir = $cache_path . 'supercache/' . $siteurl;
+			$files_to_delete = array( $dir . '/index.html', $dir . '/feed/index.html', $dir . $permalink . 'index.html', $dir . $permalink . 'feed/index.html' );
+			foreach( $files_to_delete as $cache_file ) {
+				@unlink( $cache_file );
+				@unlink( $cache_file . '.gz' );
+			}
 		}
 	}
 
