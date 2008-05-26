@@ -319,8 +319,8 @@ function wp_cache_shutdown_callback() {
 
 	$response = wp_cache_get_response_headers();
 	foreach ($known_headers as $key) {
-		if(isset($response{$key})) {
-			array_push($wp_cache_meta_object->headers, "$key: " . $response{$key});
+		if(isset($response[$key])) {
+			array_push($wp_cache_meta_object->headers, "$key: " . $response[$key]);
 		}
 	}
 	/* Not used because it gives problems with some
@@ -332,13 +332,13 @@ function wp_cache_shutdown_callback() {
 		array_push($wp_cache_meta_object->headers, "Content-Length: $content_size");
 	}
 	*/
-	if (!$response{'Last-Modified'}) {
+	if (!isset( $response['Last-Modified'] )) {
 		$value = gmdate('D, d M Y H:i:s') . ' GMT';
 		/* Dont send this the first time */
 		/* @header('Last-Modified: ' . $value); */
 		array_push($wp_cache_meta_object->headers, "Last-Modified: $value");
 	}
-	if (!$response{'Content-Type'} && !$response{'Content-type'}) {
+	if (!$response['Content-Type'] && !$response['Content-type']) {
 		// On some systems, headers set by PHP can't be fetched from
 		// the output buffer. This is a last ditch effort to set the
 		// correct Content-Type header for feeds, if we didn't see
@@ -367,7 +367,7 @@ function wp_cache_shutdown_callback() {
 		array_push($wp_cache_meta_object->headers, "Content-Type: $value");
 	}
 
-	ob_end_flush();
+	@ob_end_flush();
 	if ($new_cache) {
 		$serial = serialize($wp_cache_meta_object);
 		if( !wp_cache_writers_entry() )
@@ -476,8 +476,8 @@ function wp_cache_post_id() {
 	if ($post_ID > 0 ) return $post_ID;
 	if ($comment_post_ID > 0 )  return $comment_post_ID;
 	if (is_single() || is_page()) return $posts[0]->ID;
-	if ($_GET['p'] > 0) return $_GET['p'];
-	if ($_POST['p'] > 0) return $_POST['p'];
+	if (isset( $_GET[ 'p' ] ) && $_GET['p'] > 0) return $_GET['p'];
+	if (isset( $_POST[ 'p' ] ) && $_POST['p'] > 0) return $_POST['p'];
 	return 0;
 }
 ?>
