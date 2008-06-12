@@ -83,11 +83,11 @@ No, it will do the opposite in fact. Super Cache files are compressed and stored
 = How do I uninstall WP Super Cache? =
 
 1. Clear the cache in the backend page and then deactivate it on the plugins page.
-1. Remove the Super Cache mod_rewrite rules from your .htaccess file.
-1. Remove the WP_CACHE define from wp-config.php
-1. Remove the files wp-content/advanced-cache.php and wp-content/wp-cache-config.php
-1. Remove the directory wp-content/cache/
-1. Remove the directory wp-super-cache from your plugins directory.
+2. Remove the Super Cache mod_rewrite rules from your .htaccess file.
+3. Remove the WP_CACHE define from wp-config.php
+4. Remove the files wp-content/advanced-cache.php and wp-content/wp-cache-config.php
+5. Remove the directory wp-content/cache/
+6. Remove the directory wp-super-cache from your plugins directory.
 
 = Troubleshooting =
 
@@ -108,6 +108,7 @@ If you can't do that, then copy the file. That will work too.
 8.  If your browser keeps asking you to save the file after the super cache is installed you must disable Super Cache compression. Go to the Options->WP Super Cache page and disable it there.
 9.  The plugin does not work very well when PHP's safe mode is active. This must be disabled by your administrator.
 10. If pages are randomly super cached and sometimes not, your blog can probably be viewed with and without the "www" prefix on the URL. You should choose one way and install the [Enforce www preference](http://txfx.net/code/wordpress/enforce-www-preference/) plugin.
+11. Private Server users at Dreamhost should edit wp-content/wp-cache-config.php and set the cache dir to "/tmp/" if they are getting errors about increasing CPU usage. See this [discussion](http://wordpress.org/support/topic/145895?replies=42) for more.
 
 == Custom Caching ==
 It is now possible to hook into the caching process using the add_cacheacton() function.
