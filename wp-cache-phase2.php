@@ -384,7 +384,7 @@ function wp_cache_shutdown_callback() {
 		wp_cache_writers_exit();
 	}
 
-	if( mt_rand( 0, 500 ) != 1 )
+	if( mt_rand( 0, 100 ) != 1 )
 		return;
 
 	// we delete expired files
