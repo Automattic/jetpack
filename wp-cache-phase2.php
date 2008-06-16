@@ -1,12 +1,5 @@
 <?php
 
-/** Diable here because PHP4.3 does not make the global
- Serious bug?
-
-$mutex_filename = 'wp_cache_mutex.lock';
-$new_cache = false;
-*/
-
 function wp_cache_phase2() {
 	global $cache_filename, $cache_acceptable_files, $wp_cache_meta_object;
 	global $wp_cache_gzip_encoding;
@@ -132,12 +125,22 @@ function wp_cache_ob_callback($buffer) {
 	global $new_cache, $wp_cache_meta_object, $file_expired, $blog_id, $cache_compression;
 	global $wp_cache_gzip_encoding, $super_cache_enabled, $cached_direct_pages;
 
+	$new_cache = true;
+
 	/* Mode paranoic, check for closing tags 
 	 * we avoid caching incomplete files */
-	if (is_404() || !preg_match('/(<\/html>|<\/rss>|<\/feed>)/i',$buffer) ) {
+	if (is_404()) {
 		$new_cache = false;
-		return $buffer;
+		$buffer .= "\n<!-- Page not cached by WP Super Cache. 404. -->\n";
 	}
+
+	if (!preg_match('/(<\/html>|<\/rss>|<\/feed>)/i',$buffer) ) {
+		$new_cache = false;
+		$buffer .= "\n<!-- Page not cached by WP Super Cache. No closing HTML tag. Check your theme. -->\n";
+	}
+	
+	if( !$new_cache )
+		return $buffer;
 
 	$duration = wp_cache_microtime_diff($wp_start_time, microtime());
 	$duration = sprintf("%0.3f", $duration);
