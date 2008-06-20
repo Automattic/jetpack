@@ -131,7 +131,7 @@ function toggleLayer( whichLayer ) {
 		<p>It appears that mod_rewrite is not installed. Sometimes this check isn't 100% reliable, especially if you are not using Apache. Please verify that the mod_rewrite module is loaded. It is required for serving Super Cache static files. You will still be able to use WP-Cache.</p><?php
 	}
 
-	if( !is_writeable( ABSPATH . 'wp-content/' ) || !is_writable($wp_cache_config_file) ) {
+	if( !is_writable($wp_cache_config_file) ) {
 		define( "SUBMITDISABLED", 'disabled style="color: #aaa" ' );
 		?><h4 style='color: #a00'>Read Only Mode. Configuration cannot be changed. <a href="javascript:toggleLayer('readonlywarning');" title="Why your configuration may not be changed">Why</a></h4>
 		<div id='readonlywarning' style='border: 1px solid #aaa; margin: 2px; padding: 2px; display: none;'>
