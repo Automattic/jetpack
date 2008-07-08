@@ -436,6 +436,7 @@ function wp_cache_post_change($post_id) {
 				@unlink( $cache_file );
 				@unlink( $cache_file . '.gz' );
 			}
+			prune_super_cache( $dir . $permalink, true ); // remove pages under permalink.
 		}
 	}
 
