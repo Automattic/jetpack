@@ -246,6 +246,7 @@ function toggleLayer( whichLayer ) {
 	$rules .= "RewriteCond %{REQUEST_METHOD} !=POST\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*attachment_id=.*\n";
+	$rules .= "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
@@ -254,6 +255,7 @@ function toggleLayer( whichLayer ) {
 	$rules .= "RewriteCond %{REQUEST_METHOD} !=POST\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*attachment_id=.*\n";
+	$rules .= "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
 	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
 	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
