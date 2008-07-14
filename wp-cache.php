@@ -133,15 +133,21 @@ function toggleLayer( whichLayer ) {
 
 	if( !is_writable($wp_cache_config_file) ) {
 		define( "SUBMITDISABLED", 'disabled style="color: #aaa" ' );
-		?><h4 style='color: #a00'>Read Only Mode. Configuration cannot be changed. <a href="javascript:toggleLayer('readonlywarning');" title="Why your configuration may not be changed">Why</a></h4>
+		?><h4 style='text-align:center; color: #a00'>Read Only Mode. Configuration cannot be changed. <a href="javascript:toggleLayer('readonlywarning');" title="Why your configuration may not be changed">Why</a></h4>
 		<div id='readonlywarning' style='border: 1px solid #aaa; margin: 2px; padding: 2px; display: none;'>
-		<p>The WP Super Cache configuration file is <code><?php echo ABSPATH ?>wp-content/wp-cache-config.php</code> and cannot be modified. The wp-content directory and wp-cache-config.php file must be writeable by the webserver to make any changes.<br />
+		<p>The WP Super Cache configuration file is <code><?php echo ABSPATH ?>wp-content/wp-cache-config.php</code> and cannot be modified. The file wp-content/wp-cache-config.php must be writeable by the webserver to make any changes.<br />
 		A simple way of doing that is by changing the permissions temporarily using the CHMOD command or through your ftp client. Make sure it's globally writeable and it should be fine.<br />
-		Writeable: <code>chmod 777 wp-content; chmod 666 wp-content/wp-cache-config.php</code><br />
-		Readonly: <code>chmod 755 wp-content; chmod 644 wp-content/wp-cache-config.php</code></p>
+		Writeable: <code>chmod 666 wp-content/wp-cache-config.php</code><br />
+		Readonly: <code>chmod 644 wp-content/wp-cache-config.php</code></p>
 		</div><?php
 	} else {
 		define( "SUBMITDISABLED", ' ' );
+	}
+
+	if( is_writable( ABSPATH . 'wp-content/' ) ) {
+		?><h4 style='text-align:center; color: #a00'>Warning! wp-content is writeable!</h4>
+		<p>You should change the permissions on <?php echo ABSPATH; ?>wp-content/ and make it more restrictive. Use your ftp client, or the following command to fix things:<br /><code>chmod 755 <?php echo ABSPATH; ?>wp-content/</code></p><?php
+
 	}
 
 	if ( $valid_nonce ) {
