@@ -313,8 +313,7 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 }
 
 function wp_cache_shutdown_callback() {
-	global $cache_path, $cache_max_time, $file_expired, $file_prefix, $meta_file, $new_cache;
-	global $wp_cache_meta_object, $known_headers, $blog_id;
+	global $cache_path, $cache_max_time, $file_expired, $file_prefix, $meta_file, $new_cache, $wp_cache_meta_object, $known_headers, $blog_id, $wp_cache_gc;
 
 	$wp_cache_meta_object->uri = $_SERVER["SERVER_NAME"].preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $_SERVER['REQUEST_URI']); // To avoid XSS attacs
 	$wp_cache_meta_object->blog_id=$blog_id;
@@ -384,7 +383,9 @@ function wp_cache_shutdown_callback() {
 		wp_cache_writers_exit();
 	}
 
-	if( mt_rand( 0, 100 ) != 1 )
+	if( !isset( $wp_cache_gc ) )
+		$wp_cache_gc = 100;
+	if( mt_rand( 0, $wp_cache_gc ) != 1 )
 		return;
 
 	// we delete expired files

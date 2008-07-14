@@ -514,7 +514,7 @@ function RecursiveFolderDelete ( $folderPath ) { // from http://www.php.net/manu
 }
 
 function wp_cache_edit_max_time () {
-	global $super_cache_max_time, $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled;
+	global $super_cache_max_time, $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled, $wp_cache_gc;
 
 	if( !isset( $super_cache_max_time ) )
 		$super_cache_max_time = 21600;
@@ -533,6 +533,10 @@ function wp_cache_edit_max_time () {
 			wp_cache_replace_line('^ *\$super_cache_max_time', "\$super_cache_max_time = $super_cache_max_time;", $wp_cache_config_file);
 		}
 	}
+	if(isset($_POST['wp_cache_gc']) && $valid_nonce) {
+		$wp_cache_gc = (int)$_POST['wp_cache_gc'];
+		wp_cache_replace_line('^ *\$wp_cache_gc', "\$wp_cache_gc = $wp_cache_gc;", $wp_cache_config_file);
+	}
 	?><br /><fieldset style='border: 1px solid #aaa' class="options"> 
 	<legend>Expiry Time</legend><?php
 	echo '<form name="wp_edit_max_time" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
@@ -542,6 +546,15 @@ function wp_cache_edit_max_time () {
 		echo '<label for="super_cache_max_time">Super Cache Expire time:</label> ';
 		echo "<input type=\"text\" size=6 name=\"super_cache_max_time\" value=\"$super_cache_max_time\" /> seconds";
 	}
+	if( !isset( $wp_cache_gc ) )
+		$wp_cache_gc = 100;
+	echo "<h4>Garbage Collection</h4><p>How often should expired files be deleted? Once every:</p>";
+	echo "<ul><li><input type='radio' name='wp_cache_gc' value='100'" . ( $wp_cache_gc == 100 ? ' checked' : '' ) . " /> 100 requests (very often)</li>\n";
+	echo "<li><input type='radio' name='wp_cache_gc' value='500'" . ( $wp_cache_gc == 500 ? ' checked' : '' ) . " /> 500 requests</li>\n";
+	echo "<li><input type='radio' name='wp_cache_gc' value='1000'" . ( $wp_cache_gc == 1000 ? ' checked' : '' ) . " /> 1000 requests</li>\n";
+	echo "<li><input type='radio' name='wp_cache_gc' value='2000'" . ( $wp_cache_gc == 2000 ? ' checked' : '' ) . " /> 2000 requests</li>\n";
+	echo "<li><input type='radio' name='wp_cache_gc' value='5000'" . ( $wp_cache_gc == 5000 ? ' checked' : '' ) . " /> 5000 requests (very seldom)</li></ul>\n";
+	echo "<p>Checking for and deleting expired files is expensive, but it's expensive leaving them there too. On a very busy site you can leave this fairly high. Experiment with different values and visit this page to see how many expired files remain at different times during the day.</p><p>Simple rule of thumb: divide your number of daily page views by 5 and pick the closest number above.</p>";
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Change expiration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
