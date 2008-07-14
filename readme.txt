@@ -99,16 +99,17 @@ If things don't work when you installed the plugin here are a few things to chec
 
     `ln -s plugins/wp-super-cache/wp-cache-phase1.php advanced-cache.php`
 If you can't do that, then copy the file. That will work too.
-4.  Make sure the following line is in wp-config.php and it is ABOVE the "require_once(ABSPATH.'wp-settings.php');" line:
+4.  If pages are not cached at all, remove wp-content/advanced-cache.php and recreate it, following the advice above.
+5.  Make sure the following line is in wp-config.php and it is ABOVE the "require_once(ABSPATH.'wp-settings.php');" line:
 
     `define( 'WP_CACHE', true );`
-5.  Try the Options->WP Super Cache page again and enable cache.
-6.  Look in wp-content/cache/supercache/. Are there directories and files there?
-7.  Anything in your php error_log?
-8.  If your browser keeps asking you to save the file after the super cache is installed you must disable Super Cache compression. Go to the Options->WP Super Cache page and disable it there.
-9.  The plugin does not work very well when PHP's safe mode is active. This must be disabled by your administrator.
-10. If pages are randomly super cached and sometimes not, your blog can probably be viewed with and without the "www" prefix on the URL. You should choose one way and install the [Enforce www preference](http://txfx.net/code/wordpress/enforce-www-preference/) plugin.
-11. Private Server users at Dreamhost should edit wp-content/wp-cache-config.php and set the cache dir to "/tmp/" if they are getting errors about increasing CPU usage. See this [discussion](http://wordpress.org/support/topic/145895?replies=42) for more.
+6.  Try the Options->WP Super Cache page again and enable cache.
+7.  Look in wp-content/cache/supercache/. Are there directories and files there?
+8.  Anything in your php error_log?
+9.  If your browser keeps asking you to save the file after the super cache is installed you must disable Super Cache compression. Go to the Options->WP Super Cache page and disable it there.
+10.  The plugin does not work very well when PHP's safe mode is active. This must be disabled by your administrator.
+11. If pages are randomly super cached and sometimes not, your blog can probably be viewed with and without the "www" prefix on the URL. You should choose one way and install the [Enforce www preference](http://txfx.net/code/wordpress/enforce-www-preference/) plugin.
+12. Private Server users at Dreamhost should edit wp-content/wp-cache-config.php and set the cache dir to "/tmp/" if they are getting errors about increasing CPU usage. See this [discussion](http://wordpress.org/support/topic/145895?replies=42) for more.
 
 == Custom Caching ==
 It is now possible to hook into the caching process using the add_cacheacton() function.
