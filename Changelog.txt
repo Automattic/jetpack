@@ -1,3 +1,72 @@
+2008-07-15 10:15  donncha
+
+	* readme.txt, wp-cache.php: Bump the version number to 0.6.5
+
+2008-07-15 10:14  donncha
+
+	* readme.txt: Add "Subscribe to comments" rule to readme
+
+2008-07-15 10:11  donncha
+
+	* wp-cache-phase1.php: Use comment_author instead of email in case
+	  email isn't mandatory. props rhapsodyv @
+	  http://wordpress.org/support/topic/188775
+
+2008-07-14 10:42  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Added "wp_cache_gc" option
+	  Allow chance of garbage collection to be configurable.
+
+2008-07-14 10:06  donncha
+
+	* readme.txt: If caching doesn't work, it could be
+	  advanced-cache.php
+
+2008-07-14 09:53  donncha
+
+	* wp-cache.php: Added Subscribe To Comments exclusion rewrite rule
+
+2008-07-14 09:52  donncha
+
+	* wp-cache.php: Warn if wp-content is writable, props alexleonard,
+	  http://wordpress.org/support/topic/188530
+
+2008-07-08 10:41  donncha
+
+	* wp-cache-phase2.php: Remove extra pages generated at the current
+	  permalink. ie. paged comments.
+
+2008-06-20 16:16  donncha
+
+	* wp-cache.php: Only need the config file writable to change it
+
+2008-06-16 09:08  donncha
+
+	* wp-cache-phase2.php: Increase the chance of expired file cleanup
+
+2008-06-16 09:07  donncha
+
+	* wp-cache-phase2.php: Warn if page is a 404 or not complete and
+	  won't be cached
+
+2008-06-12 09:53  donncha
+
+	* readme.txt: Add troubleshooting message for Dreamhost users
+
+2008-05-26 09:12  donncha
+
+	* wp-cache-phase2.php: Use [] instead of {} for array indexes
+	  Fix warning notices
+
+2008-05-14 16:22  donncha
+
+	* Changelog.txt: Updated changelog
+
+2008-05-14 16:19  donncha
+
+	* readme.txt, wp-cache-phase2.php, wp-cache.php: Remove comment.
+	  Bump version number
+
 2008-05-14 12:21  donncha
 
 	* wp-cache-phase2.php: Clean up the supercache if no post_id is
