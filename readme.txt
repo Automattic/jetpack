@@ -41,6 +41,7 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 	`RewriteCond %{REQUEST_METHOD} !=POST`
 	`RewriteCond %{QUERY_STRING} !.*s=.*`
 	`RewriteCond %{QUERY_STRING} !.*attachment_id=.*`
+	`RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*`
 	`RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$`
 	`RewriteCond %{HTTP:Accept-Encoding} gzip`
 	`RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html.gz -f`
@@ -48,6 +49,7 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 	
 	`RewriteCond %{REQUEST_METHOD} !=POST`
 	`RewriteCond %{QUERY_STRING} !.*s=.*`
+	`RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*`
 	`RewriteCond %{QUERY_STRING} !.*attachment_id=.*`
 	`RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$`
 	`RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html -f`
