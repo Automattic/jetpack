@@ -144,10 +144,15 @@ function toggleLayer( whichLayer ) {
 		define( "SUBMITDISABLED", ' ' );
 	}
 
+	// Server could be running as the owner of the wp-content directory.  Therefore, if it's
+	// writable, issue a warning only if the permissions aren't 755.
 	if( is_writable( ABSPATH . 'wp-content/' ) ) {
-		?><h4 style='text-align:center; color: #a00'>Warning! wp-content is writeable!</h4>
-		<p>You should change the permissions on <?php echo ABSPATH; ?>wp-content/ and make it more restrictive. Use your ftp client, or the following command to fix things:<br /><code>chmod 755 <?php echo ABSPATH; ?>wp-content/</code></p><?php
-
+		$wp_content_stat = stat(ABSPATH . 'wp-content/');
+		$wp_content_mode = ($wp_content_stat['mode'] & 0777);
+		if( $wp_content_mode != 0755 ) {
+			?><h4 style='text-align:center; color: #a00'>Warning! wp-content is writeable!</h4>
+			<p>You should change the permissions on <?php echo ABSPATH; ?>wp-content/ and make it more restrictive. Use your ftp client, or the following command to fix things:<br /><code>chmod 755 <?php echo ABSPATH; ?>wp-content/</code></p><?php
+		}
 	}
 
 	if ( $valid_nonce ) {
@@ -217,8 +222,11 @@ function toggleLayer( whichLayer ) {
 	<fieldset style='border: 1px solid #aaa' class="options"> 
 	<legend>Mod Rewrite Rules</legend><?php
 	$home_path = get_home_path();
-	$home_root = parse_url(get_option('home'));
+	$home_root = parse_url(get_bloginfo('url'));
 	$home_root = trailingslashit($home_root['path']);
+	$inst_root = parse_url(get_bloginfo('wpurl'));
+	$inst_root = trailingslashit($inst_root['path']);
+	error_log( $inst_root );
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
 	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
 	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
@@ -249,19 +257,19 @@ function toggleLayer( whichLayer ) {
 	$rules .= "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
-	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
-	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz [L]\n\n";
+	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) {$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz [L]\n\n";
 
 	$rules .= "RewriteCond %{REQUEST_METHOD} !=POST\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*attachment_id=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
-	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
-	$rules .= "RewriteRule ^(.*) {$home_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
+	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
+	$rules .= "RewriteRule ^(.*) {$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
 	$rules .= "</IfModule>\n";
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
-		echo "<p>In order to serve static html files your server must have the correct mod_rewrite rules added to a file called <code>" . ABSPATH . ".htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules.";
+		echo "<p>In order to serve static html files your server must have the correct mod_rewrite rules added to a file called <code> {$home_path}.htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules.";
 		echo "<pre>" . wp_specialchars( $rules ) . "</pre></p>";
 		echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 		echo '<input type="hidden" name="updatehtaccess" value="1" />';
@@ -272,15 +280,15 @@ function toggleLayer( whichLayer ) {
 		wpsc_remove_marker( $home_path.'.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
 		if( insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $wprules ) ) ) {
 			echo "<h4>Mod Rewrite rules updated!</h4>";
-			echo "<p><strong>" . ABSPATH . ".htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. They should look like this:</strong></p>\n";
+			echo "<p><strong>{$home_path}.htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. They should look like this:</strong></p>\n";
 		} else {
 			echo "<h4>Mod Rewrite rules must be updated!</h4>";
-			echo "<p><strong> Your " . ABSPATH . ".htaccess is not writable by the webserver and must be updated with the necessary mod_rewrite rules. The new rules go above the regular WordPress rules as shown in the code below:</strong></p>\n";
+			echo "<p><strong> Your {$home_path}.htaccess is not writable by the webserver and must be updated with the necessary mod_rewrite rules. The new rules go above the regular WordPress rules as shown in the code below:</strong></p>\n";
 		}
 		echo "<p><pre>" . wp_specialchars( $rules ) . "</pre></p>\n";
 	} else {
 		?>
-		<p>WP Super Cache has modified your <?php echo ABSPATH ?>.htaccess file. Click the following link to see the lines added. If you have upgraded the plugin make sure these rules match. <a href="javascript:toggleLayer('rewriterules');" title="See your mod_rewrite rules">View mod_rewrite rules</a>
+		<p>WP Super Cache has modified your <?php echo $home_path ?>.htaccess file. Click the following link to see the lines added. If you have upgraded the plugin make sure these rules match. <a href="javascript:toggleLayer('rewriterules');" title="See your mod_rewrite rules">View mod_rewrite rules</a>
 		<div id='rewriterules' style='display: none;'>
 		<?php echo "<p><pre>" . wp_specialchars( $rules ) . "</pre></p>\n"; ?>
 		</div>
