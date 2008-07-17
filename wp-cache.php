@@ -850,7 +850,11 @@ function wp_cache_check_link() {
 
 function wp_cache_check_global_config() {
 
-	$global = ABSPATH . 'wp-config.php';
+	if ( file_exists( ABSPATH . 'wp-config.php') ) {
+		$global = ABSPATH . 'wp-config.php';
+	} else {
+		$global = dirname(ABSPATH) . '/wp-config.php';
+	}
 
 	$lines = file($global);
 	foreach($lines as $line) {
