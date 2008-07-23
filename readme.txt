@@ -78,7 +78,7 @@ Comments will show as soon as they are moderated, depending on the comment polic
 
 = Why are there two expiry times? =
 
-WP Super Cache stores it's cached files in a different way to WP Cache that lets it work better even when there are very many cached files. That is why the Super Cache expiry time is so much longer by default.
+WP Super Cache stores it's cached files in a different way to WP Cache that lets it work better even when there are very many cached files. That is why the Super Cache expiry time is so much longer by default. If your site starts to slow down and there are too many cached files reduce these times and change the garbage collection number too.
 
 = Will the Super Cache compression slow down my server? =
 
