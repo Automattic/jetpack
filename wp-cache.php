@@ -253,6 +253,7 @@ function toggleLayer( whichLayer ) {
 	$rules .= "AddDefaultCharset {$charset}\n";
 	$rules .= "RewriteCond %{REQUEST_METHOD} !=POST\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
+	$rules .= "RewriteCond %{QUERY_STRING} !.*p=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*attachment_id=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
@@ -262,6 +263,7 @@ function toggleLayer( whichLayer ) {
 
 	$rules .= "RewriteCond %{REQUEST_METHOD} !=POST\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
+	$rules .= "RewriteCond %{QUERY_STRING} !.*p=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*attachment_id=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*\n";
 	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
