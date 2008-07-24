@@ -226,7 +226,6 @@ function toggleLayer( whichLayer ) {
 	$home_root = trailingslashit($home_root['path']);
 	$inst_root = parse_url(get_bloginfo('wpurl'));
 	$inst_root = trailingslashit($inst_root['path']);
-	error_log( $inst_root );
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
 	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
 	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
@@ -1115,5 +1114,14 @@ if( isset( $wp_cache_hello_world ) && $wp_cache_hello_world )
 
 if( get_option( 'gzipcompression' ) )
 	update_option( 'gzipcompression', 0 );
+
+// Catch 404 requests. Themes that use query_posts() destroy $wp_query->is_404
+function wp_cache_catch_404() {
+	global $wp_cache_404;
+	$wp_cache_404 = false;
+	if( is_404() )
+		$wp_cache_404 = true;
+}
+add_action( 'template_redirect', 'wp_cache_catch_404' );
 
 ?>
