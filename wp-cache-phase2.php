@@ -146,8 +146,11 @@ function wp_cache_ob_callback($buffer) {
 	$duration = sprintf("%0.3f", $duration);
 	$buffer .= "\n<!-- Dynamic Page Served (once) in $duration seconds -->\n";
 
-	if( !wp_cache_writers_entry() )
-		return false;
+	if( !wp_cache_writers_entry() ) {
+		$buffer .= "\n<!-- Page not cached by WP Super Cache. Could not get mutex lock. -->\n";
+		return $buffer;
+	}
+
 	$mtime = @filemtime($cache_path . $cache_filename);
 	/* Return if:
 		the file didn't exist before but it does exist now (another connection created)
