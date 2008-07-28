@@ -192,7 +192,7 @@ function toggleLayer( whichLayer ) {
 	?>
 	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> <strong>ON</strong> (WP Cache and Super Cache enabled)</label><br />
 	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong>OFF</strong> (WP Cache and Super Cache disabled)</label><br />
-	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong>HALF ON</strong> (Super Cache Disabled)</label><br />
+	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong>HALF ON</strong> (Super Cache Disabled, only legacy WP-Cache caching.)</label><br />
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> Proudly tell the world your server is Digg proof! (places a message in your blog's footer)</label></p>
 	<?php
 	echo "<div class='submit'><input " . SUBMITDISABLED . "type='submit' value='Update Status &raquo;' /></div>";
@@ -526,7 +526,7 @@ function wp_cache_edit_max_time () {
 	global $super_cache_max_time, $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled, $wp_cache_gc;
 
 	if( !isset( $super_cache_max_time ) )
-		$super_cache_max_time = 21600;
+		$super_cache_max_time = 3600;
 
 	if(isset($_POST['wp_max_time']) && $valid_nonce) {
 		$max_time = (int)$_POST['wp_max_time'];
@@ -952,7 +952,7 @@ function wp_cache_files() {
 
 		if (is_dir($supercachedir)) {
 			$entries = glob($supercachedir. '/*');
-			foreach ($entries as $entry) {
+			foreach( (array) $entries as $entry) {
 				if ($entry != '.' && $entry != '..') {
 					$sizes = wpsc_dirsize( $entry, $sizes );
 				}
