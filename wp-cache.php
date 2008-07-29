@@ -25,7 +25,13 @@ Author URI: http://ocaoimh.ie/
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-$wp_cache_config_file = ABSPATH . 'wp-content/wp-cache-config.php';
+// Pre-2.6 compatibility
+if( !defined('WP_CONTENT_URL') )
+	define( 'WP_CONTENT_URL', get_option('siteurl') . '/wp-content');
+if( !defined('WP_CONTENT_DIR') )
+	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
+
+$wp_cache_config_file = WP_CONTENT_DIR . '/wp-cache-config.php';
 
 if( !@include($wp_cache_config_file) ) {
 	get_wpcachehome();
@@ -36,7 +42,7 @@ if( !@include($wp_cache_config_file) ) {
 }
 
 $wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
-$wp_cache_link = ABSPATH . 'wp-content/advanced-cache.php';
+$wp_cache_link = WP_CONTENT_DIR . '/advanced-cache.php';
 $wp_cache_file = WPCACHEHOME . 'wp-cache-phase1.php';
 
 include(WPCACHEHOME . 'wp-cache-base.php');
@@ -48,7 +54,7 @@ function get_wpcachehome() {
 		} elseif( is_file( dirname(__FILE__) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
 			define( 'WPCACHEHOME', dirname(__FILE__) . '/wp-super-cache/' );
 		} else {
-			die( 'Please create wp-content/wp-cache-config.php from wp-super-cache/wp-cache-config-sample.php' );
+			die( 'Please create ' . WP_CONTENT_DIR . '/wp-cache-config.php from wp-super-cache/wp-cache-config-sample.php' );
 		}
 	}
 }
@@ -103,7 +109,7 @@ function toggleLayer( whichLayer ) {
 		?><h3>Warning! PHP safe mode enabled!</h3>
 		<p>You may experience problems running this plugin because SAFE MODE is enabled. <?php
 		if( !ini_get( 'safe_mode_gid' ) ) {
-			?>Your server is set up to check the owner of PHP scripts before allowing them to read and write files.</p><p>You or an administrator may be able to make it work by changing the group owner of the plugin scripts to match that of the web server user. The group owner of the wp-content/cache/ directory must also be changed. See the <a href='http://php.net/features.safe-mode'>safe mode manual page</a> for further details.</p><?php
+			?>Your server is set up to check the owner of PHP scripts before allowing them to read and write files.</p><p>You or an administrator may be able to make it work by changing the group owner of the plugin scripts to match that of the web server user. The group owner of the <?php echo WP_CONTENT_DIR; ?>/cache/ directory must also be changed. See the <a href='http://php.net/features.safe-mode'>safe mode manual page</a> for further details.</p><?php
 		} else {
 			?>You or an administrator must disable this. See the <a href='http://php.net/features.safe-mode'>safe mode manual page</a> for further details. This cannot be disabled in a .htaccess file unfortunately. It must be done in the php.ini config file.</p><?php
 		}
@@ -135,10 +141,10 @@ function toggleLayer( whichLayer ) {
 		define( "SUBMITDISABLED", 'disabled style="color: #aaa" ' );
 		?><h4 style='text-align:center; color: #a00'>Read Only Mode. Configuration cannot be changed. <a href="javascript:toggleLayer('readonlywarning');" title="Why your configuration may not be changed">Why</a></h4>
 		<div id='readonlywarning' style='border: 1px solid #aaa; margin: 2px; padding: 2px; display: none;'>
-		<p>The WP Super Cache configuration file is <code><?php echo ABSPATH ?>wp-content/wp-cache-config.php</code> and cannot be modified. The file wp-content/wp-cache-config.php must be writeable by the webserver to make any changes.<br />
+		<p>The WP Super Cache configuration file is <code><?php echo WP_CONTENT_DIR; ?>/wp-cache-config.php</code> and cannot be modified. The file <?php echo WP_CONTENT_DIR; ?>/wp-cache-config.php must be writeable by the webserver to make any changes.<br />
 		A simple way of doing that is by changing the permissions temporarily using the CHMOD command or through your ftp client. Make sure it's globally writeable and it should be fine.<br />
-		Writeable: <code>chmod 666 wp-content/wp-cache-config.php</code><br />
-		Readonly: <code>chmod 644 wp-content/wp-cache-config.php</code></p>
+		Writeable: <code>chmod 666 <?php echo WP_CONTENT_DIR; ?>/wp-cache-config.php</code><br />
+		Readonly: <code>chmod 644 <?php echo WP_CONTENT_DIR; ?>/wp-cache-config.php</code></p>
 		</div><?php
 	} else {
 		define( "SUBMITDISABLED", ' ' );
@@ -146,12 +152,12 @@ function toggleLayer( whichLayer ) {
 
 	// Server could be running as the owner of the wp-content directory.  Therefore, if it's
 	// writable, issue a warning only if the permissions aren't 755.
-	if( is_writable( ABSPATH . 'wp-content/' ) ) {
-		$wp_content_stat = stat(ABSPATH . 'wp-content/');
+	if( is_writable( WP_CONTENT_DIR . '/' ) ) {
+		$wp_content_stat = stat(WP_CONTENT_DIR . '/');
 		$wp_content_mode = ($wp_content_stat['mode'] & 0777);
 		if( $wp_content_mode != 0755 ) {
-			?><h4 style='text-align:center; color: #a00'>Warning! wp-content is writeable!</h4>
-			<p>You should change the permissions on <?php echo ABSPATH; ?>wp-content/ and make it more restrictive. Use your ftp client, or the following command to fix things:<br /><code>chmod 755 <?php echo ABSPATH; ?>wp-content/</code></p><?php
+			?><h4 style='text-align:center; color: #a00'>Warning! <?php echo WP_CONTENT_DIR; ?> is writeable!</h4>
+			<p>You should change the permissions on <?php echo WP_CONTENT_DIR; ?> and make it more restrictive. Use your ftp client, or the following command to fix things:<br /><code>chmod 755 <?php echo WP_CONTENT_DIR; ?>/</code></p><?php
 		}
 	}
 
@@ -795,7 +801,7 @@ function wp_cache_verify_config_file() {
 			}
 		}
 	} elseif( !is_writable($dir)) {
-		echo "<b>Error:</b> Configuration file missing and wp-content directory (<b>$dir</b>) is not writable by the Web server.<br />Check its permissions.";
+		echo "<b>Error:</b> Configuration file missing and " . WP_CONTENT_DIR . "  directory (<b>$dir</b>) is not writable by the Web server.<br />Check its permissions.";
 		return false;
 	}
 

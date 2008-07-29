@@ -5,7 +5,7 @@ WP-Cache Config Sample File
 See wp-cache.php for author details.
 */
 
-define( 'WPCACHEHOME', ABSPATH . 'wp-content/plugins/wp-super-cache/' );
+define( 'WPCACHEHOME', WP_CONTENT_DIR . '/plugins/wp-super-cache/' );
 
 $cache_compression = 0; // Super cache compression
 $cache_enabled = false;
@@ -13,7 +13,7 @@ $super_cache_enabled = false;
 $cache_max_time = 3600; //in seconds
 //$use_flock = true; // Set it true or false if you know what to use
 $super_cache_max_time = 21600; // in seconds
-$cache_path = ABSPATH . 'wp-content/cache/';
+$cache_path = WP_CONTENT_DIR . '/cache/';
 $file_prefix = 'wp-cache-';
 
 // We want to be able to identify each blog in a WordPress MU install

@@ -1,7 +1,10 @@
 <?php
-if( !@include(ABSPATH . 'wp-content/wp-cache-config.php') ) {
+// Pre-2.6 compatibility
+if( !defined('WP_CONTENT_DIR') )
+	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
+
+if( !include( WP_CONTENT_DIR . '/wp-cache-config.php' ) )
 	return;
-}
 if( !defined( 'WPCACHEHOME' ) )
 	define('WPCACHEHOME', dirname(__FILE__).'/');
 
