@@ -1,3 +1,56 @@
+2008-07-31 10:47  donncha
+
+	* readme.txt, wp-cache.php: Bump version numbers
+
+2008-07-29 19:52  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase1.php, wp-cache.php: WP
+	  2.6 fixes. Use WP_CONTENT_DIR. Have not added to .htaccess rules
+	  yet
+
+2008-07-28 09:37  donncha
+
+	* readme.txt, wp-cache.php: Change wp-super-cache expiry to 3600
+	  seconds.
+	  Avoid foreach error on empty directories
+	  Minor change to status message
+
+2008-07-24 16:26  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Removed debug error log
+	  Catch 404 file not found requests when themes use query_posts()
+
+2008-07-24 13:17  donncha
+
+	* wp-cache-phase2.php: If we can't get a file lock, warn user.
+
+2008-07-23 18:30  donncha
+
+	* readme.txt: Update FAQ on cache times.
+
+2008-07-23 18:27  donncha
+
+	* readme.txt, wp-cache.php: Added p= parameter to htacess rules so
+	  they'll be served by wp-cache only,
+	  http://wordpress.org/support/topic/191275?replies=3
+
+2008-07-17 09:48  donncha
+
+	* wp-cache.php: Handle if wp-config.php has been moved ../ in
+	  WordPress 2.6
+
+2008-07-16 11:12  donncha
+
+	* wp-cache.php: Don't warn the user wp-content is writable if
+	  webserver is running as user.
+	  Create correct .htaccess rules when WordPress is installed in a
+	  different location. Both fixes props Allan Bazinet @
+	  http://sneezingfrog.com/blog/
+
+2008-07-15 10:17  donncha
+
+	* Changelog.txt: Update changelog
+
 2008-07-15 10:15  donncha
 
 	* readme.txt, wp-cache.php: Bump the version number to 0.6.5
