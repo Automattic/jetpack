@@ -403,7 +403,7 @@ function wp_cache_no_postid($id) {
 
 function wp_cache_get_postid_from_comment($comment_id) {
 	global $super_cache_enabled;
-	$comment = get_commentdata($comment_id, 1, true);
+	$comment = get_comment($comment_ID, ARRAY_A);
 	$postid = $comment['comment_post_ID'];
 	// Do nothing if comment is not moderated
 	// http://ocaoimh.ie/2006/12/05/caching-wordpress-with-wp-cache-in-a-spam-filled-world
