@@ -47,6 +47,27 @@ $wp_cache_file = WPCACHEHOME . 'wp-cache-phase1.php';
 
 include(WPCACHEHOME . 'wp-cache-base.php');
 
+
+// from legolas558 d0t users dot sf dot net at http://www.php.net/is_writable
+function is_writeable_ACLSafe($path) {
+
+	// PHP's is_writable does not work with Win32 NTFS
+		 
+	if ($path{strlen($path)-1}=='/') // recursively return a temporary file path
+		return is_writeable_ACLSafe($path.uniqid(mt_rand()).'.tmp');
+	else if (is_dir($path))
+		return is_writeable_ACLSafe($path.'/'.uniqid(mt_rand()).'.tmp');
+	// check tmp file for read/write capabilities
+	$rm = file_exists($path);
+	$f = @fopen($path, 'a');
+	if ($f===false)
+		return false;
+	fclose($f);
+	if (!$rm)
+		unlink($path);
+	return true;
+}
+
 function get_wpcachehome() {
 	if( defined( 'WPCACHEHOME' ) == false ) {
 		if( is_file( dirname(__FILE__) . '/wp-cache-config-sample.php' ) ) {
@@ -137,7 +158,7 @@ function toggleLayer( whichLayer ) {
 		<p>It appears that mod_rewrite is not installed. Sometimes this check isn't 100% reliable, especially if you are not using Apache. Please verify that the mod_rewrite module is loaded. It is required for serving Super Cache static files. You will still be able to use WP-Cache.</p><?php
 	}
 
-	if( !is_writable($wp_cache_config_file) ) {
+	if( !is_writeable_ACLSafe($wp_cache_config_file) ) {
 		define( "SUBMITDISABLED", 'disabled style="color: #aaa" ' );
 		?><h4 style='text-align:center; color: #a00'>Read Only Mode. Configuration cannot be changed. <a href="javascript:toggleLayer('readonlywarning');" title="Why your configuration may not be changed">Why</a></h4>
 		<div id='readonlywarning' style='border: 1px solid #aaa; margin: 2px; padding: 2px; display: none;'>
@@ -152,7 +173,7 @@ function toggleLayer( whichLayer ) {
 
 	// Server could be running as the owner of the wp-content directory.  Therefore, if it's
 	// writable, issue a warning only if the permissions aren't 755.
-	if( is_writable( WP_CONTENT_DIR . '/' ) ) {
+	if( is_writeable_ACLSafe( WP_CONTENT_DIR . '/' ) ) {
 		$wp_content_stat = stat(WP_CONTENT_DIR . '/');
 		$wp_content_mode = ($wp_content_stat['mode'] & 0777);
 		if( $wp_content_mode != 0755 ) {
@@ -244,7 +265,7 @@ function toggleLayer( whichLayer ) {
 		<blockquote><code><em># BEGIN WordPress</em><br /> RewriteCond %{REQUEST_FILENAME} !-f<br /> RewriteCond %{REQUEST_FILENAME} !-d<br /> RewriteRule . /index.php [L]<br /> <em># END WordPress</em></code></blockquote>
 		Refresh this page when you have updated your .htaccess file.";
 	} elseif( strpos( $wprules, 'wordpressuser' ) ) { // Need to clear out old mod_rewrite rules
-		echo "<p><strong>Thank you for upgrading.</strong> The mod_rewrite rules changed since you last installed this plugin. Unfortunately you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: <blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*\$</code></blockquote> so it looks like this: <blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpress.*\$</code></blockquote> The only change is 'wordpressuser' becomes 'wordpress'. This is a WordPress 2.5 change but it's backwards compatible with older versions if you're brave enough to use them.</p>";
+		echo "<p><strong>Thank you for upgrading.</strong> The mod_rewrite rules changed since you last installed this plugin. Unfortunately you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: <blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*\$</code></blockquote> so it looks like this: <blockquote><code>RewriteCond %{HTTP:Cookie} !^.*wordpress.*\$</code></blockquote> The only changes are 'HTTP_COOKIE' becomes 'HTTP:Cookie' and 'wordpressuser' becomes 'wordpress'. This is a WordPress 2.5 change but it's backwards compatible with older versions if you're brave enough to use them.</p>";
 		echo "</fieldset>";
 		echo "</div>\n";
 		return;
@@ -261,7 +282,7 @@ function toggleLayer( whichLayer ) {
 	$rules .= "RewriteCond %{QUERY_STRING} !.*p=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*attachment_id=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*\n";
-	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
+	$rules .= "RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
 	$rules .= "RewriteRule ^(.*) {$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz [L]\n\n";
@@ -271,7 +292,7 @@ function toggleLayer( whichLayer ) {
 	$rules .= "RewriteCond %{QUERY_STRING} !.*p=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*attachment_id=.*\n";
 	$rules .= "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*\n";
-	$rules .= "RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
+	$rules .= "RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
 	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
 	$rules .= "RewriteRule ^(.*) {$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
 	$rules .= "</IfModule>\n";
@@ -305,6 +326,9 @@ function toggleLayer( whichLayer ) {
 	if( !is_file( $cache_path . '.htaccess' ) ) {
 		$gziprules = "AddEncoding x-gzip .gz\n";
 		$gziprules .= "AddType text/html .gz";
+		$gziprules .= "<IfModule mod_deflate.c>";
+		$gziprules .= "  SetEnvIfNoCase Request_URI \.gz$ no-gzip";
+		$gziprules .= "</IfModule>";
 		$gziprules = insert_with_markers( $cache_path . '.htaccess', 'supercache', explode( "\n", $gziprules ) );
 		echo "<h4>Gzip encoding rules in {$cache_path}.htaccess created.</h4>";
 	}
@@ -460,7 +484,7 @@ function wp_lock_down() {
 		$firstfolder = explode( '/', $page );
 		$firstfolder = ABSPATH . $firstfolder[1];
 		$page = ABSPATH . $page;
-		if( is_file( $pagefile ) && is_writable( $pagefile ) && is_writable( $firstfolder ) ) {
+		if( is_file( $pagefile ) && is_writeable_ACLSafe( $pagefile ) && is_writeable_ACLSafe( $firstfolder ) ) {
 			@unlink( $pagefile );
 			@unlink( $pagefile . '.gz' );
 			RecursiveFolderDelete( $firstfolder );
@@ -470,7 +494,7 @@ function wp_lock_down() {
 	}
 
 	$readonly = '';
-	if( !is_writeable( ABSPATH ) ) {
+	if( !is_writeable_ACLSafe( ABSPATH ) ) {
 		$readonly = 'READONLY';
 		?><p><strong style='color: #a00'>WARNING! You must make <?php echo ABSPATH ?> writable to enable this feature. As this is a security risk please make it readonly after your page is generated.</strong></p><?php
 	} else {
@@ -717,7 +741,7 @@ function wp_cache_is_enabled() {
 
 
 function wp_cache_replace_line($old, $new, $my_file) {
-	if (!is_writable($my_file)) {
+	if (!is_writeable_ACLSafe($my_file)) {
 		echo "Error: file $my_file is not writable.<br />\n";
 		return false;
 	}
@@ -765,12 +789,12 @@ function wp_cache_verify_cache_dir() {
 
 	$dir = dirname($cache_path);
 	if ( !file_exists($cache_path) ) {
-		if ( !is_writable( $dir ) || !($dir = mkdir( $cache_path ) ) ) {
+		if ( !is_writeable_ACLSafe( $dir ) || !($dir = mkdir( $cache_path ) ) ) {
 				echo "<b>Error:</b> Your cache directory (<b>$cache_path</b>) did not exist and couldn't be created by the web server. <br /> Check  $dir permissions.";
 				return false;
 		}
 	}
-	if ( !is_writable($cache_path)) {
+	if ( !is_writeable_ACLSafe($cache_path)) {
 		echo "<b>Error:</b> Your cache directory (<b>$cache_path</b>) or <b>$dir</b> need to be writable for this plugin to work. <br /> Double-check it.";
 		return false;
 	}
@@ -793,14 +817,14 @@ function wp_cache_verify_config_file() {
 	if ( file_exists($wp_cache_config_file) ) {
 		$lines = join( ' ', file( $wp_cache_config_file ) );
 		if( strpos( $lines, 'WPCACHEHOME' ) === false ) {
-			if( is_writable( $wp_cache_config_file ) ) {
+			if( is_writeable_ACLSafe( $wp_cache_config_file ) ) {
 				@unlink( $wp_cache_config_file );
 			} else {
 				echo "<b>Error:</b> Your WP-Cache config file (<b>$wp_cache_config_file</b>) is out of date and not writable by the Web server.<br />Please delete it and refresh this page.";
 				return false;
 			}
 		}
-	} elseif( !is_writable($dir)) {
+	} elseif( !is_writeable_ACLSafe($dir)) {
 		echo "<b>Error:</b> Configuration file missing and " . WP_CONTENT_DIR . "  directory (<b>$dir</b>) is not writable by the Web server.<br />Check its permissions.";
 		return false;
 	}
@@ -870,7 +894,7 @@ function wp_cache_check_global_config() {
 		}
 	}
 	$line = 'define(\'WP_CACHE\', true);';
-	if (!is_writable($global) || !wp_cache_replace_line('define *\( *\'WP_CACHE\'', $line, $global) ) {
+	if (!is_writeable_ACLSafe($global) || !wp_cache_replace_line('define *\( *\'WP_CACHE\'', $line, $global) ) {
 			echo "<b>Error: WP_CACHE is not enabled</b> in your <code>wp-config.php</code> file and I couldn't modified it.<br />";
 			echo "Edit <code>$global</code> and add the following line: <br /><code>define('WP_CACHE', true);</code><br />Otherwise, <b>WP-Cache will not be executed</b> by Wordpress core. <br />";
 			return false;
@@ -1081,7 +1105,7 @@ function wp_cache_clean_expired($file_prefix) {
 }
 
 function wpsc_remove_marker( $filename, $marker ) {
-	if (!file_exists( $filename ) || is_writeable( $filename ) ) {
+	if (!file_exists( $filename ) || is_writeable_ACLSafe( $filename ) ) {
 		if (!file_exists( $filename ) ) {
 			return '';
 		} else {

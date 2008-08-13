@@ -31,6 +31,10 @@ function wp_cache_phase2() {
 		return;
 	if (wp_cache_user_agent_is_rejected()) return;
 	$wp_cache_meta_object = new CacheMeta;
+	if($wp_cache_gzip_encoding)
+		header('Vary: Accept-Encoding, Cookie');
+	else
+		header('Vary: Cookie');
 	ob_start('wp_cache_ob_callback'); 
 	register_shutdown_function('wp_cache_shutdown_callback');
 }
@@ -211,11 +215,12 @@ function wp_cache_ob_callback($buffer) {
 				$gzsize = strlen($gzdata);
 
 				array_push($wp_cache_meta_object->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
-				array_push($wp_cache_meta_object->headers, 'Vary: Accept-Encoding');
+				array_push($wp_cache_meta_object->headers, 'Vary: Accept-Encoding, Cookie');
 				array_push($wp_cache_meta_object->headers, 'Content-Length: ' . strlen($gzdata));
 				// Return uncompressed data & store compressed for later use
 				fputs($fr, $gzdata);
 			}else{ // no compression
+				array_push($wp_cache_meta_object->headers, 'Vary: Cookie');
 				fputs($fr, $buffer.$log);
 			}
 			if( $fr2 )
@@ -374,6 +379,7 @@ function wp_cache_shutdown_callback() {
 	}
 
 	@ob_end_flush();
+	flush(); //Ensure we send data to the client
 	if ($new_cache) {
 		$serial = serialize($wp_cache_meta_object);
 		if( !wp_cache_writers_entry() )
@@ -392,9 +398,9 @@ function wp_cache_shutdown_callback() {
 	if( mt_rand( 0, $wp_cache_gc ) != 1 )
 		return;
 
-	// we delete expired files
-	flush(); //Ensure we send data to the client
-	wp_cache_phase2_clean_expired($file_prefix);
+	// we delete expired files, using a wordpress cron event
+	// since flush() does not guarantee hand-off to client - problem on Win32 and suPHP
+	wp_schedule_single_event(time()+10, 'wp_eacc_cache_gc');
 }
 
 function wp_cache_no_postid($id) {
@@ -489,4 +495,11 @@ function wp_cache_post_id() {
 	if (isset( $_POST[ 'p' ] ) && $_POST['p'] > 0) return $_POST['p'];
 	return 0;
 }
+
+function wp_cache_gc_cron() {
+	global $file_prefix;
+	wp_cache_phase2_clean_expired($file_prefix);
+}
+add_action('wp_eacc_cache_gc','wp_cache_gc_cron');
+
 ?>
