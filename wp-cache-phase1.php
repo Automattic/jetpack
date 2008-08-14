@@ -10,6 +10,11 @@ if( !defined( 'WPCACHEHOME' ) )
 
 include( WPCACHEHOME . 'wp-cache-base.php');
 
+if(defined('DOING_CRON')) {
+	require( WPCACHEHOME . 'wp-cache-phase2.php');
+	return;
+}
+
 $mutex_filename = 'wp_cache_mutex.lock';
 $new_cache = false;
 

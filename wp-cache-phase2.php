@@ -21,6 +21,8 @@ function wp_cache_phase2() {
 		add_action('delete_comment', 'wp_cache_no_postid', 0);
 		add_action('switch_theme', 'wp_cache_no_postid', 0); 
 
+		add_action('wp_cache_gc','wp_cache_gc_cron');
+
 		do_cacheaction( 'add_cacheaction' );
 	}
 	if( $_SERVER["REQUEST_METHOD"] == 'POST' || get_option('gzipcompression')) 
@@ -400,7 +402,7 @@ function wp_cache_shutdown_callback() {
 
 	// we delete expired files, using a wordpress cron event
 	// since flush() does not guarantee hand-off to client - problem on Win32 and suPHP
-	wp_schedule_single_event(time()+10, 'wp_eacc_cache_gc');
+	if(!wp_next_scheduled('wp_cache_gc')) wp_schedule_single_event(time() + 10 , 'wp_cache_gc');
 }
 
 function wp_cache_no_postid($id) {
@@ -500,6 +502,5 @@ function wp_cache_gc_cron() {
 	global $file_prefix;
 	wp_cache_phase2_clean_expired($file_prefix);
 }
-add_action('wp_eacc_cache_gc','wp_cache_gc_cron');
 
 ?>
