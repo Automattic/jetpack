@@ -66,13 +66,13 @@ function wp_supercache_searchengine_admin() {
 	} else {
 		echo 'enabled';
 	}
-	echo '.</strong> (requires <a href="http://ocaoimh.ie/no-adverts-for-friends/">friendsadverts.php</a> too)<div class="submit">';
+	echo '.</strong> (requires <a href="http://ocaoimh.ie/no-adverts-for-friends/">friendsadverts.php</a> too) ';
 	if( $cache_no_adverts_for_friends == 'no' ) {
 		echo '<input type="submit" name="cache_no_adverts_for_friends" value="Enable &raquo;" />';
 	} else {
 		echo '<input type="submit" name="cache_no_adverts_for_friends" value="Disable &raquo;" />';
 	}
-	echo "</div></form>\n";
+	echo "</form>\n";
 
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_searchengine_admin' );

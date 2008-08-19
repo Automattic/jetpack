@@ -136,6 +136,10 @@ function toggleLayer( whichLayer ) {
 }
 // -->
 </script>
+<style type="text/css">
+/* Taken from http://sw-guide.de/wordpress/plugins/simple-trackback-validation/ */
+.wrap h3 { color: black; background-color: #e5f3ff; padding: 4px 8px; }
+</style>
 <?php
 	echo '<div class="wrap">';
 	echo "<h2>WP Super Cache Manager</h2>\n";
@@ -226,8 +230,8 @@ function toggleLayer( whichLayer ) {
 		}
 	}
 
-	?><fieldset style='border: 1px solid #aaa' class="options"> 
-	<legend>WP Super Cache Status</legend><?php
+	?><fieldset class="options"> 
+	<h3>WP Super Cache Status</h3><?php
 	echo '<form name="wp_manager" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	?>
 	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> <strong>ON</strong> (WP Cache and Super Cache enabled)</label><br />
@@ -236,15 +240,15 @@ function toggleLayer( whichLayer ) {
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> Proudly tell the world your server is Digg proof! (places a message in your blog's footer)</label></p>
 	<p>Note: if uninstalling this plugin, make sure the directory <em><?php echo WP_CONTENT_DIR; ?></em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)</p>
 	<?php
-	echo "<div class='submit'><input " . SUBMITDISABLED . "type='submit' value='Update Status &raquo;' /></div>";
+	echo "<div><input type='submit' " . SUBMITDISABLED . " value='Update Status &raquo;' /></div>";
 	wp_nonce_field('wp-cache');
 	?>
 	</form>
 	</fieldset>
 
 	<?php if( $cache_enabled == true && $super_cache_enabled == true ) { ?>
-	<br /><fieldset style='border: 1px solid #aaa' class="options"> 
-	<legend>Super Cache Compression</legend>
+	<br /><fieldset class="options"> 
+	<h3>Super Cache Compression</h3>
 	<form name="wp_manager" action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post">
 	<label><input type="radio" name="cache_compression" value="1" <?php if( $cache_compression ) { echo "checked=checked"; } ?>> Enabled</label>
 	<label><input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> Disabled</label>
@@ -255,13 +259,13 @@ function toggleLayer( whichLayer ) {
 	} elseif( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && $cache_compression ) {
 		?><p><strong>Super Cache compression is now enabled.</strong></p><?php
 	}
-	echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="Update Compression &raquo;" /></div>';
+	echo '<div><input ' . SUBMITDISABLED . 'type="submit" value="Update Compression &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	?></fieldset><br />
 
-	<fieldset style='border: 1px solid #aaa' class="options"> 
-	<legend>Mod Rewrite Rules</legend><?php
+	<fieldset class="options"> 
+	<h3>Mod Rewrite Rules</h3><?php
 	$home_path = get_home_path();
 	$home_root = parse_url(get_bloginfo('url'));
 	$home_root = trailingslashit($home_root['path']);
@@ -315,7 +319,7 @@ function toggleLayer( whichLayer ) {
 		echo "<pre>" . wp_specialchars( $rules ) . "</pre></p>";
 		echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 		echo '<input type="hidden" name="updatehtaccess" value="1" />';
-		echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="Update mod_rewrite rules &raquo;" /></div>';
+		echo '<div><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="Update mod_rewrite rules &raquo;" /></div>';
 		wp_nonce_field('wp-cache');
 		echo "</form>\n";
 	} elseif( $dohtaccess && $valid_nonce && $_POST[ 'updatehtaccess' ] ) {
@@ -353,7 +357,7 @@ function toggleLayer( whichLayer ) {
 
 	wp_cache_edit_max_time();
 
-	echo '<br /><a name="files"></a><fieldset style="border: 1px solid #aaa" class="options"><legend>Accepted filenames, rejected URIs</legend>';
+	echo '<br /><a name="files"></a><fieldset class="options"><h3>Accepted filenames, rejected URIs</h3>';
 	wp_cache_edit_rejected();
 	echo "<br />\n";
 	wp_cache_edit_accepted();
@@ -377,7 +381,7 @@ function toggleLayer( whichLayer ) {
 	$out = ob_get_contents();
 	ob_end_clean();
 	if( SUBMITDISABLED == ' ' && $out != '' ) {
-		echo '<fieldset class="options"><legend>Cache Plugins</legend>';
+		echo '<fieldset class="options"><h3>Cache Plugins</h3>';
 		echo $out;
 		echo '</fieldset>';
 	}
@@ -387,10 +391,10 @@ function toggleLayer( whichLayer ) {
 }
 
 function wp_cache_restore() {
-	echo '<br /><fieldset style="border: 1px solid #aaa" class="options"><legend>Configuration messed up?</legend>';
+	echo '<br /><fieldset class="options"><h3>Configuration messed up?</h3>';
 	echo '<form name="wp_restore" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<input type="hidden" name="wp_restore_config" />';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="deletepost" value="Restore default configuration &raquo;" /></div>';
+	echo '<div><input type="submit" ' . SUBMITDISABLED . 'id="deletepost" value="Restore default configuration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	echo '</fieldset>';
@@ -420,8 +424,8 @@ function wp_lock_down() {
 			$wp_lock_down = '0';
 		}
 	}
-	?><br /><br /><fieldset style='border: 1px solid #aaa' class="options"> 
-	<legend>Lock Down: <span style='color: #f00'><?php echo $wp_lock_down == '0' ? 'disabled' : 'enabled'; ?></span> (advanced use only)</legend>
+	?><br /><br /><fieldset class="options"> 
+	<h3>Lock Down: <span style='color: #f00'><?php echo $wp_lock_down == '0' ? 'disabled' : 'enabled'; ?></span> (advanced use only)</h3>
 	<p>Prepare your server for an expected spike in traffic by enabling the lock down. When this is enabled, new comments on a post will not refresh the cached static files.</p>
 	<p>Developers: Make your plugin lock down compatible by checking the 'WPLOCKDOWN' constant. The following code will make sure your plugin respects the WPLOCKDOWN setting.
 	<blockquote><code>if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) ) { <br />
@@ -437,14 +441,14 @@ function wp_lock_down() {
 	$new_lockdown_desc =  $wp_lock_down == '1' ? 'Disable' : 'Enable';
 	echo '<form name="wp_lock_down" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo "<input type='hidden' name='wp_lock_down' value='{$new_lockdown}' />";
-	echo "<div class='submit'><input type='submit' " . SUBMITDISABLED . "value='{$new_lockdown_desc} Lock Down &raquo;' /></div>";
+	echo "<div><input type='submit' " . SUBMITDISABLED . " value='{$new_lockdown_desc} Lock Down &raquo;' /></div>";
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
 	?></fieldset><br /><?php
 	if( $cache_enabled == true && $super_cache_enabled == true ) {
-	?><fieldset style='border: 1px solid #aaa' class="options"> 
-	<legend>Directly Cached Files (advanced use only)</legend><?php
+	?><fieldset class="options"> 
+	<h3>Directly Cached Files (advanced use only)</h3><?php
 
 	$out = '';
 	if( $valid_nonce && is_array( $_POST[ 'direct_pages' ] ) && !empty( $_POST[ 'direct_pages' ] ) ) {
@@ -590,8 +594,8 @@ function wp_cache_edit_max_time () {
 		$wp_cache_gc = (int)$_POST['wp_cache_gc'];
 		wp_cache_replace_line('^ *\$wp_cache_gc', "\$wp_cache_gc = $wp_cache_gc;", $wp_cache_config_file);
 	}
-	?><br /><fieldset style='border: 1px solid #aaa' class="options"> 
-	<legend>Expiry Time</legend><?php
+	?><br /><fieldset class="options"> 
+	<h3>Expiry Time and Garbage Collection</h3><?php
 	echo '<form name="wp_edit_max_time" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<label for="wp_max_time">Expire time:</label> ';
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> seconds<br />";
@@ -608,7 +612,7 @@ function wp_cache_edit_max_time () {
 	echo "<li><input type='radio' name='wp_cache_gc' value='2000'" . ( $wp_cache_gc == 2000 ? ' checked' : '' ) . " /> 2000 requests</li>\n";
 	echo "<li><input type='radio' name='wp_cache_gc' value='5000'" . ( $wp_cache_gc == 5000 ? ' checked' : '' ) . " /> 5000 requests (very seldom)</li></ul>\n";
 	echo "<p>Checking for and deleting expired files is expensive, but it's expensive leaving them there too. On a very busy site you can leave this fairly high. Experiment with different values and visit this page to see how many expired files remain at different times during the day.</p><p>Simple rule of thumb: divide your number of daily page views by 5 and pick the closest number above.</p>";
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Change expiration &raquo;" /></div>';
+	echo '<div><input type="submit" ' . SUBMITDISABLED . 'value="Change expiration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	?></fieldset><?php
@@ -633,18 +637,18 @@ function wp_cache_edit_rejected_ua() {
 	}
 
 
-	echo '<br /><a name="user-agents"></a><fieldset style="border: 1px solid #aaa" class="options"><legend>Rejected User Agents</legend>';
+	echo '<br /><a name="user-agents"></a><fieldset class="options"><h3>Rejected User Agents</h3>';
 	echo "<p>Strings in the HTTP 'User Agent' header that prevent WP-Cache from 
 		caching bot, spiders, and crawlers' requests.
 		Note that cached files are still sent to these request if they already exists.</p>\n";
 	echo '<form name="wp_edit_rejected_user_agent" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
-	echo '<label for="wp_rejected_user_agent">Rejected UA strings</label>';
-	echo '<textarea name="wp_rejected_user_agent" cols="40" rows="4" style="width: 70%; font-size: 12px;" class="code">';
+	echo '<label for="wp_rejected_user_agent"><h4>Rejected UA strings</h4></label>';
+	echo '<textarea name="wp_rejected_user_agent" cols="40" rows="4" style="width: 50%; font-size: 12px;" class="code">';
 	foreach ($cache_rejected_user_agent as $ua) {
 		echo wp_specialchars($ua) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save UA strings &raquo;" /></div>';
+	echo '<div><input type="submit" ' . SUBMITDISABLED . 'value="Save UA strings &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo '</form>';
 	echo "</fieldset>\n";
@@ -660,15 +664,15 @@ function wp_cache_edit_rejected() {
 	}
 
 
-	echo "<p>Add here strings (not a filename) that forces a page not to be cached. For example, if your URLs include year and you dont want to cache last year posts, it's enough to specify the year, i.e. '/2004/'. WP-Cache will search if that string is part of the URI and if so, it will not cache that page.</p>\n";
 	echo '<form name="wp_edit_rejected" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
-	echo '<label for="wp_rejected_uri">Rejected URIs</label>';
-	echo '<textarea name="wp_rejected_uri" cols="40" rows="4" style="width: 70%; font-size: 12px;" class="code">';
+	echo '<label for="wp_rejected_uri"><h4>Rejected URIs</h4></label>';
+	echo "<p>Add here strings (not a filename) that forces a page not to be cached. For example, if your URLs include year and you dont want to cache last year posts, it's enough to specify the year, i.e. '/2004/'. WP-Cache will search if that string is part of the URI and if so, it will not cache that page.</p>\n";
+	echo '<textarea name="wp_rejected_uri" cols="40" rows="4" style="width: 50%; font-size: 12px;" class="code">';
 	foreach ($cache_rejected_uri as $file) {
 		echo wp_specialchars($file) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save strings &raquo;" /></div>';
+	echo '<div><input type="submit" ' . SUBMITDISABLED . 'value="Save strings &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 }
@@ -682,15 +686,15 @@ function wp_cache_edit_accepted() {
 	}
 
 
+	echo '<br clear="all" /><form name="wp_edit_accepted" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
+	echo '<h4>Accepted files</h4>';
 	echo "<p>Add here those filenames that can be cached, even if they match one of the rejected substring specified above.</p>\n";
-	echo '<form name="wp_edit_accepted" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
-	echo '<label for="wp_accepted_files">Accepted files</label>';
-	echo '<textarea name="wp_accepted_files" cols="40" rows="8" style="width: 70%; font-size: 12px;" class="code">';
+	echo '<textarea name="wp_accepted_files" cols="40" rows="8" style="width: 50%; font-size: 12px;" class="code">';
 	foreach ($cache_acceptable_files as $file) {
 		echo wp_specialchars($file) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save files &raquo;" /></div>';
+	echo '<div><input type="submit" ' . SUBMITDISABLED . 'value="Save files &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 }
@@ -940,11 +944,11 @@ function wp_cache_files() {
 	} else 
 		$list_mess = "List files";
 
-	echo '<br /><a name="list"></a><fieldset style="border: 1px solid #aaa" class="options"><legend>Cache contents</legend>';
+	echo '<br /><a name="list"></a><fieldset class="options"><h3>Cache Contents</h3>';
 	/*
 	echo '<form name="wp_cache_content_list" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_list_cache" />';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="'.$list_mess.' &raquo;" /></div>';
+	echo '<div><input type="submit" ' . SUBMITDISABLED . 'value="'.$list_mess.' &raquo;" /></div>';
 	echo "</form>\n";
 	*/
 
@@ -981,7 +985,7 @@ function wp_cache_files() {
 					echo '<td><form name="wp_delete_cache_file" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 					echo '<input type="hidden" name="wp_list_cache" />';
 					echo '<input type="hidden" name="wp_delete_cache_file" value="'.preg_replace("/^(.*)\.meta$/", "$1", $file).'" />';
-					echo '<div class="submit"><input id="deletepost" ' . SUBMITDISABLED . 'type="submit" value="Remove" /></div>';
+					echo '<div><input id="deletepost" ' . SUBMITDISABLED . 'type="submit" value="Remove" /></div>';
 					wp_nonce_field('wp-cache');
 					echo "</form></td></tr>\n";
 				}
@@ -1008,11 +1012,11 @@ function wp_cache_files() {
 		$sizes[ 'ts' ] = time();
 	}
 
-	echo "<p><strong>WP-Cache</strong></p>";
+	echo "<p><h4>WP-Cache</h4></p>";
 	echo "<ul><li>$count cached pages</li>";
 	echo "<li>$expired expired pages</li></ul>";
 	if( $cache_enabled == true && $super_cache_enabled == true ) {
-		echo "<p><strong>WP-Super-Cache</strong></p>";
+		echo "<p><h4>WP-Super-Cache</h4></p>";
 		echo "<ul><li>" . intval($sizes['cached']/2) . " cached pages</li>";
 		$age = intval(($now - $sizes['ts'])/60);
 		echo "<li>" . intval($sizes['expired']/2) . " expired pages.</li></ul>";
@@ -1020,14 +1024,14 @@ function wp_cache_files() {
 
 	echo '<form name="wp_cache_content_expired" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_delete_expired" />';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Delete expired &raquo;" /></div>';
+	echo '<div><input type="submit" ' . SUBMITDISABLED . 'value="Delete expired &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
 
 	echo '<form name="wp_cache_content_delete" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
 	echo '<input type="hidden" name="wp_delete_cache" />';
-	echo '<div class="submit"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="Delete cache &raquo;" /></div>';
+	echo '<div><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="Delete cache &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
