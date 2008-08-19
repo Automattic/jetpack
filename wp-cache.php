@@ -80,6 +80,19 @@ function get_wpcachehome() {
 	}
 }
 
+function wpsupercache_deactivate() {
+	global $wp_cache_config_file, $wp_cache_link, $cache_path;
+	$files = array( $wp_cache_config_file, $wp_cache_link );
+	foreach( $files as $file ) {
+		if( file_exists( $file ) )
+			unlink( $file );
+	}
+	if( !function_exists( 'prune_super_cache' ) )
+		include_once( 'wp-cache-phase2.php' );
+	prune_super_cache ($cache_path, true);
+}
+register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
+
 function wp_cache_add_pages() {
 	if( function_exists( 'is_site_admin' ) ) {
 		if( is_site_admin() ) {
@@ -221,6 +234,7 @@ function toggleLayer( whichLayer ) {
 	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong>OFF</strong> (WP Cache and Super Cache disabled)</label><br />
 	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong>HALF ON</strong> (Super Cache Disabled, only legacy WP-Cache caching.)</label><br />
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> Proudly tell the world your server is Digg proof! (places a message in your blog's footer)</label></p>
+	<p>Note: if uninstalling this plugin, make sure the directory <em><?php echo WP_CONTENT_DIR; ?></em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)</p>
 	<?php
 	echo "<div class='submit'><input " . SUBMITDISABLED . "type='submit' value='Update Status &raquo;' /></div>";
 	wp_nonce_field('wp-cache');
