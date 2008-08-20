@@ -343,9 +343,9 @@ function toggleLayer( whichLayer ) {
 	// http://allmybrain.com/2007/11/08/making-wp-super-cache-gzip-compression-work/
 	if( !is_file( $cache_path . '.htaccess' ) ) {
 		$gziprules = "AddEncoding x-gzip .gz\n";
-		$gziprules .= "AddType text/html .gz";
-		$gziprules .= "<IfModule mod_deflate.c>";
-		$gziprules .= "  SetEnvIfNoCase Request_URI \.gz$ no-gzip";
+		$gziprules .= "AddType text/html .gz\n";
+		$gziprules .= "<IfModule mod_deflate.c>\n";
+		$gziprules .= "  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n";
 		$gziprules .= "</IfModule>";
 		$gziprules = insert_with_markers( $cache_path . '.htaccess', 'supercache', explode( "\n", $gziprules ) );
 		echo "<h4>Gzip encoding rules in {$cache_path}.htaccess created.</h4>";
