@@ -626,6 +626,21 @@ function wp_cache_sanitize_value($text, & $array) {
 	return $text;
 }
 
+// from tehjosh at gamingg dot net http://uk2.php.net/manual/en/function.apache-request-headers.php#73964
+// fixed bug in second substr()
+if( !function_exists('apache_request_headers') ) {
+	function apache_request_headers() {
+		$headers = array();
+		foreach(array_keys($_SERVER) as $skey) {
+			if(substr($skey, 0, 5) == "HTTP_") {
+				$headername = str_replace(" ", "-", ucwords(strtolower(str_replace("_", " ", substr($skey, 5)))));
+				$headers[$headername] = $_SERVER[$skey];
+			}
+		}
+		return $headers;
+	}
+}
+
 function wp_cache_edit_rejected_ua() {
 	global $cache_rejected_user_agent, $wp_cache_config_file, $valid_nonce;
 
