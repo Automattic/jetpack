@@ -2,8 +2,8 @@
 /*
 Plugin Name: WP Super Cache
 Plugin URI: http://ocaoimh.ie/wp-super-cache/
-Description: Very fast caching module for WordPress. Once enabled, you must <a href="options-general.php?page=wp-super-cache/wp-cache.php">enable the cache</a>. Based on WP-Cache by <a href="http://mnm.uib.es/gallir/">Ricardo Galli Granada</a>.
-Version: 0.6.8
+Description: Very fast caching module for WordPress. Once activated, you must <a href="options-general.php?page=wpsupercache">enable the cache</a>. Based on WP-Cache by <a href="http://mnm.uib.es/gallir/">Ricardo Galli Granada</a>.
+Version: 0.7
 Author: Donncha O Caoimh
 Author URI: http://ocaoimh.ie/
 */
