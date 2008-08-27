@@ -1,3 +1,11 @@
+2008-08-27 19:31  donncha
+
+	* readme.txt, wp-cache.php: Bump to 0.7, fix activation link
+
+2008-08-27 19:17  donncha
+
+	* Changelog.txt: Updated Changelog
+
 2008-08-27 19:16  donncha
 
 	* readme.txt, wp-cache.php: Bump the version number to 0.6.8
