@@ -1,3 +1,21 @@
+2008-08-27 19:16  donncha
+
+	* readme.txt, wp-cache.php: Bump the version number to 0.6.8
+
+2008-08-27 18:59  donncha
+
+	* wp-cache.php: Added rules to redirect to urls ending with a "/",
+	  props Andylav and definitelynot,
+	  http://wordpress.org/support/topic/199542?replies=6
+
+2008-08-21 16:41  donncha
+
+	* wp-cache.php: Change menu options url
+
+2008-08-20 11:47  donncha
+
+	* Changelog.txt: Update Changelog
+
 2008-08-20 10:49  donncha
 
 	* readme.txt, wp-cache.php: Bump version number to 0.6.7
