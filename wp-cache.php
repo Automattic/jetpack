@@ -282,38 +282,48 @@ function toggleLayer( whichLayer ) {
 		echo "<p>You must have <strong>BEGIN</strong> and <strong>END</strong> markers in {$home_path}.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:
 		<blockquote><code><em># BEGIN WordPress</em><br /> RewriteCond %{REQUEST_FILENAME} !-f<br /> RewriteCond %{REQUEST_FILENAME} !-d<br /> RewriteRule . /index.php [L]<br /> <em># END WordPress</em></code></blockquote>
 		Refresh this page when you have updated your .htaccess file.";
+		$dohtaccess = false;
 	} elseif( strpos( $wprules, 'wordpressuser' ) ) { // Need to clear out old mod_rewrite rules
 		echo "<p><strong>Thank you for upgrading.</strong> The mod_rewrite rules changed since you last installed this plugin. Unfortunately you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: <blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*\$</code></blockquote> so it looks like this: <blockquote><code>RewriteCond %{HTTP:Cookie} !^.*wordpress.*\$</code></blockquote> The only changes are 'HTTP_COOKIE' becomes 'HTTP:Cookie' and 'wordpressuser' becomes 'wordpress'. This is a WordPress 2.5 change but it's backwards compatible with older versions if you're brave enough to use them.</p>";
-		echo "</fieldset>";
-		echo "</div>\n";
-		return;
+		$dohtaccess = false;
+	} elseif( strpos( $scrules, '%{REQUEST_URI} !^.*[^/]$' ) === false && substr( get_option( 'permalink_structure' ), -1 ) == '/' ) { // permalink structure has a trailing slash, need slash check in rules.
+		echo "<div style='padding: 2px; background: #ff0'><h4>Trailing slash check required.</h4><p>It looks like your blog has URLs that end with a '/'. Unfortunately since you installed this plugin a duplicate content bug has been found where URLs not ending in a '/' end serve the same content as those with the '/' and do not redirect to the proper URL.<br />";
+		echo "To fix, you must edit your .htaccess file and add these two rules to the two groups of Super Cache rules:</p>";
+		echo "<blockquote><code>RewriteCond %{REQUEST_URI} !^.*[^/]$<br />RewriteCond %{REQUEST_URI} !^.*//.*$<br /></code></blockquote>";
+		echo "<p>You can see where the rules go and examine the complete rules by clicking the 'View mod_rewrite rules' link below.</p></div>";
+		$dohtaccess = false;
 	} elseif( strpos( $scrules, 'supercache' ) || strpos( $wprules, 'supercache' ) ) { // only write the rules once
 		$dohtaccess = false;
 	}
+	if( substr( get_option( 'permalink_structure' ), -1 ) == '/' ) {
+		$condition_rules[] = "RewriteCond %{REQUEST_URI} !^.*[^/]$";
+		$condition_rules[] = "RewriteCond %{REQUEST_URI} !^.*//.*$";
+	}
+	$condition_rules[] = "RewriteCond %{REQUEST_METHOD} !=POST";
+	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*s=.*";
+	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*p=.*";
+	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*attachment_id=.*";
+	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*";
+	$condition_rules[] = "RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$";
+	$condition_rules = apply_filters( 'supercacherewriteconditions', $condition_rules );
+
 	$rules = "<IfModule mod_rewrite.c>\n";
 	$rules .= "RewriteEngine On\n";
 	$rules .= "RewriteBase $home_root\n"; // props Chris Messina
 	$charset = get_option('blog_charset') == '' ? 'UTF-8' : get_option('blog_charset');
 	$rules .= "AddDefaultCharset {$charset}\n";
-	$rules .= "RewriteCond %{REQUEST_METHOD} !=POST\n";
-	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
-	$rules .= "RewriteCond %{QUERY_STRING} !.*p=.*\n";
-	$rules .= "RewriteCond %{QUERY_STRING} !.*attachment_id=.*\n";
-	$rules .= "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*\n";
-	$rules .= "RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
+	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
 	$rules .= "RewriteRule ^(.*) {$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz [L]\n\n";
 
-	$rules .= "RewriteCond %{REQUEST_METHOD} !=POST\n";
-	$rules .= "RewriteCond %{QUERY_STRING} !.*s=.*\n";
-	$rules .= "RewriteCond %{QUERY_STRING} !.*p=.*\n";
-	$rules .= "RewriteCond %{QUERY_STRING} !.*attachment_id=.*\n";
-	$rules .= "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*\n";
-	$rules .= "RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$\n";
+	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
 	$rules .= "RewriteRule ^(.*) {$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
 	$rules .= "</IfModule>\n";
+	$rules = apply_filters( 'supercacherewriterules', $rules );
+
+	$rules = str_replace( "CONDITION_RULES", implode( "\n", $condition_rules ) . "\n", $rules );
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
 		echo "<p>In order to serve static html files your server must have the correct mod_rewrite rules added to a file called <code> {$home_path}.htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules.";
 		echo "<pre>" . wp_specialchars( $rules ) . "</pre></p>";
@@ -545,7 +555,7 @@ function wp_lock_down() {
 
 	wp_nonce_field('wp-cache');
 	if( $readonly != 'READONLY' )
-		echo "<div class='submit'><input type='submit' ' . SUBMITDISABLED . 'value='Update direct pages &raquo;' /></div>";
+		echo "<div><input type='submit' ' . SUBMITDISABLED . 'value='Update direct pages &raquo;' /></div>";
 	echo "</form>\n";
 	?></fieldset><?php
 	} // if $super_cache_enabled
