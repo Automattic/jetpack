@@ -245,8 +245,48 @@ function toggleLayer( whichLayer ) {
 	?>
 	</form>
 	</fieldset>
+	<?php
 
-	<?php if( $cache_enabled == true && $super_cache_enabled == true ) { ?>
+	wsc_mod_rewrite();
+
+	wp_cache_edit_max_time();
+
+	echo '<br /><a name="files"></a><fieldset class="options"><h3>Accepted filenames, rejected URIs</h3>';
+	wp_cache_edit_rejected();
+	echo "<br />\n";
+	wp_cache_edit_accepted();
+	echo '</fieldset>';
+
+	wp_cache_edit_rejected_ua();
+
+	wp_cache_files();
+
+	wp_lock_down();
+
+	wp_cache_restore();
+
+	ob_start();
+	if( defined( 'WP_CACHE' ) ) {
+		if( function_exists( 'do_cacheaction' ) ) {
+			do_cacheaction( 'cache_admin_page' );
+		}
+	}
+	$out = ob_get_contents();
+	ob_end_clean();
+	if( SUBMITDISABLED == ' ' && $out != '' ) {
+		echo '<fieldset class="options"><h3>Cache Plugins</h3>';
+		echo $out;
+		echo '</fieldset>';
+	}
+
+	echo "</div>\n";
+}
+
+function wsc_mod_rewrite() {
+	global $super_cache_enabled, $cache_compression, $cache_compression_changed, $valid_nonce, $cache_path;
+	if( $super_cache_enabled == false )
+		return;
+	?>
 	<br /><fieldset class="options"> 
 	<h3>Super Cache Compression</h3>
 	<form name="wp_manager" action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post">
@@ -264,7 +304,7 @@ function toggleLayer( whichLayer ) {
 	echo "</form>\n";
 	?></fieldset><br />
 
-	<fieldset class="options"> 
+	<a name="modrewrite"></a><fieldset class="options"> 
 	<h3>Mod Rewrite Rules</h3><?php
 	$home_path = get_home_path();
 	$home_root = parse_url(get_bloginfo('url'));
@@ -282,11 +322,13 @@ function toggleLayer( whichLayer ) {
 		echo "<p>You must have <strong>BEGIN</strong> and <strong>END</strong> markers in {$home_path}.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:
 		<blockquote><code><em># BEGIN WordPress</em><br /> RewriteCond %{REQUEST_FILENAME} !-f<br /> RewriteCond %{REQUEST_FILENAME} !-d<br /> RewriteRule . /index.php [L]<br /> <em># END WordPress</em></code></blockquote>
 		Refresh this page when you have updated your .htaccess file.";
-		$dohtaccess = false;
+		echo "</fieldset></div>";
+		return;
 	} elseif( strpos( $wprules, 'wordpressuser' ) ) { // Need to clear out old mod_rewrite rules
 		echo "<p><strong>Thank you for upgrading.</strong> The mod_rewrite rules changed since you last installed this plugin. Unfortunately you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: <blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*\$</code></blockquote> so it looks like this: <blockquote><code>RewriteCond %{HTTP:Cookie} !^.*wordpress.*\$</code></blockquote> The only changes are 'HTTP_COOKIE' becomes 'HTTP:Cookie' and 'wordpressuser' becomes 'wordpress'. This is a WordPress 2.5 change but it's backwards compatible with older versions if you're brave enough to use them.</p>";
-		$dohtaccess = false;
-	} elseif( strpos( $scrules, '%{REQUEST_URI} !^.*[^/]$' ) === false && substr( get_option( 'permalink_structure' ), -1 ) == '/' ) { // permalink structure has a trailing slash, need slash check in rules.
+		echo "</fieldset></div>";
+		return;
+	} elseif( $scrules != '' && strpos( $scrules, '%{REQUEST_URI} !^.*[^/]$' ) === false && substr( get_option( 'permalink_structure' ), -1 ) == '/' ) { // permalink structure has a trailing slash, need slash check in rules.
 		echo "<div style='padding: 2px; background: #ff0'><h4>Trailing slash check required.</h4><p>It looks like your blog has URLs that end with a '/'. Unfortunately since you installed this plugin a duplicate content bug has been found where URLs not ending in a '/' end serve the same content as those with the '/' and do not redirect to the proper URL.<br />";
 		echo "To fix, you must edit your .htaccess file and add these two rules to the two groups of Super Cache rules:</p>";
 		echo "<blockquote><code>RewriteCond %{REQUEST_URI} !^.*[^/]$<br />RewriteCond %{REQUEST_URI} !^.*//.*$<br /></code></blockquote>";
@@ -325,15 +367,20 @@ function toggleLayer( whichLayer ) {
 
 	$rules = str_replace( "CONDITION_RULES", implode( "\n", $condition_rules ) . "\n", $rules );
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
-		echo "<p>In order to serve static html files your server must have the correct mod_rewrite rules added to a file called <code> {$home_path}.htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules.";
-		echo "<pre>" . wp_specialchars( $rules ) . "</pre></p>";
-		echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
-		echo '<input type="hidden" name="updatehtaccess" value="1" />';
-		echo '<div><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="Update mod_rewrite rules &raquo;" /></div>';
-		wp_nonce_field('wp-cache');
-		echo "</form>\n";
+		if( !is_writeable_ACLSafe( $home_path . ".htaccess" ) ) {
+			echo "<div style='padding: 2px; background: #ff0'><h4>Cannot update .htaccess</h4><p>The file <code>{$home_path}.htaccess</code> cannot be modified by the web server. Please correct this using the chmod command or your ftp client.</p><p>Refresh this page when the file permissions have been modified.</p></div>";
+		} else {
+			echo "<div style='padding: 2px; background: #ff0'><p>To serve static html files your server must have the correct mod_rewrite rules added to a file called <code>{$home_path}.htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules.";
+			echo "<pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>";
+			echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '#modrewrite" method="post">';
+			echo '<input type="hidden" name="updatehtaccess" value="1" />';
+			echo '<div><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="Update mod_rewrite rules &raquo;" /></div>';
+			wp_nonce_field('wp-cache');
+			echo "</form></div>\n";
+		}
 	} elseif( $dohtaccess && $valid_nonce && $_POST[ 'updatehtaccess' ] ) {
 		wpsc_remove_marker( $home_path.'.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
+		echo "<div style='padding: 2px; background: #ff0'>";
 		if( insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $wprules ) ) ) {
 			echo "<h4>Mod Rewrite rules updated!</h4>";
 			echo "<p><strong>{$home_path}.htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. They should look like this:</strong></p>\n";
@@ -341,12 +388,12 @@ function toggleLayer( whichLayer ) {
 			echo "<h4>Mod Rewrite rules must be updated!</h4>";
 			echo "<p><strong> Your {$home_path}.htaccess is not writable by the webserver and must be updated with the necessary mod_rewrite rules. The new rules go above the regular WordPress rules as shown in the code below:</strong></p>\n";
 		}
-		echo "<p><pre>" . wp_specialchars( $rules ) . "</pre></p>\n";
+		echo "<p><pre>" . wp_specialchars( $rules ) . "</pre></p>\n</div>";
 	} else {
 		?>
-		<p>WP Super Cache has modified your <?php echo $home_path ?>.htaccess file. Click the following link to see the lines added. If you have upgraded the plugin make sure these rules match. <a href="javascript:toggleLayer('rewriterules');" title="See your mod_rewrite rules">View mod_rewrite rules</a>
+		<p>WP Super Cache mod rewrite rules were detected in your <?php echo $home_path ?>.htaccess file. Click the following link to see the lines added to that file. If you have upgraded the plugin make sure these rules match. <a href="javascript:toggleLayer('rewriterules');" title="See your mod_rewrite rules">View mod_rewrite rules</a>
 		<div id='rewriterules' style='display: none;'>
-		<?php echo "<p><pre>" . wp_specialchars( $rules ) . "</pre></p>\n"; ?>
+		<?php echo "<p><pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>\n"; ?>
 		</div>
 		<?php
 	}
@@ -362,42 +409,6 @@ function toggleLayer( whichLayer ) {
 	}
 
 	?></fieldset><?php
-
-	} // if $super_cache_enabled
-
-	wp_cache_edit_max_time();
-
-	echo '<br /><a name="files"></a><fieldset class="options"><h3>Accepted filenames, rejected URIs</h3>';
-	wp_cache_edit_rejected();
-	echo "<br />\n";
-	wp_cache_edit_accepted();
-	echo '</fieldset>';
-
-	wp_cache_edit_rejected_ua();
-
-
-	wp_cache_files();
-
-	wp_lock_down();
-
-	wp_cache_restore();
-
-	ob_start();
-	if( defined( 'WP_CACHE' ) ) {
-		if( function_exists( 'do_cacheaction' ) ) {
-			do_cacheaction( 'cache_admin_page' );
-		}
-	}
-	$out = ob_get_contents();
-	ob_end_clean();
-	if( SUBMITDISABLED == ' ' && $out != '' ) {
-		echo '<fieldset class="options"><h3>Cache Plugins</h3>';
-		echo $out;
-		echo '</fieldset>';
-	}
-
-	echo "</div>\n";
-
 }
 
 function wp_cache_restore() {
