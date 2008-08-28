@@ -1,3 +1,20 @@
+2008-08-28 11:29  donncha
+
+	* readme.txt, wp-cache.php: Bump the version number to 0.7.1
+
+2008-08-28 11:00  donncha
+
+	* wp-cache.php: Updated .htaccess code:
+	  Check that file is writable (again?)
+	  Fix warnings about upgrades.
+	  Bright yellow backgrounds on items that need attention
+	  Thanks Matt @ http://twitter.com/mattfreedman/statuses/901325274
+	  for reporting.
+
+2008-08-27 19:32  donncha
+
+	* Changelog.txt: Updated changelog
+
 2008-08-27 19:31  donncha
 
 	* readme.txt, wp-cache.php: Bump to 0.7, fix activation link
