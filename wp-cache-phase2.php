@@ -188,9 +188,11 @@ function wp_cache_ob_callback($buffer) {
 			$user_info = wp_cache_get_cookies_values();
 			$do_cache = apply_filters( 'do_createsupercache', $user_info );
 			if( $user_info == '' || $do_cache === true ) {
-				$fr2 = @fopen("{$dir}index.html", 'w');
+				$cache_fname = "{$dir}index.html";
+				$tmp_cache_filename = tempnam( $dir, "wpsupercache");
+				$fr2 = @fopen( $tmp_cache_filename, 'w' );
 				if( $cache_compression )
-					$gz = @gzopen("{$dir}index.html.gz", 'w3');
+					$gz = @gzopen( $tmp_cache_filename . ".gz", 'w3');
 			}
 		}
 
@@ -232,10 +234,14 @@ function wp_cache_ob_callback($buffer) {
 		}
 		$new_cache = true;
 		fclose($fr);
-		if( $fr2 )
+		if( $fr2 ) {
 			fclose($fr2);
-		if( $gz )
+			rename( $tmp_cache_filename, $cache_fname );
+		}
+		if( $gz ) {
 			fclose($gz);
+			rename( $tmp_cache_filename . '.gz', $cache_fname . '.gz' );
+		}
 	}
 	wp_cache_writers_exit();
 	return $buffer;
