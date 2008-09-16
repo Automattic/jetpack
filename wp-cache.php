@@ -316,27 +316,6 @@ function wsc_mod_rewrite() {
 	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
 	$scrules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WPSuperCache' ) );
 
-	$dohtaccess = true;
-	if( !$wprules || $wprules == '' ) {
-		echo "<h4 style='color: #a00'>Mod Rewrite rules cannot be updated!</h4>";
-		echo "<p>You must have <strong>BEGIN</strong> and <strong>END</strong> markers in {$home_path}.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:
-		<blockquote><code><em># BEGIN WordPress</em><br /> RewriteCond %{REQUEST_FILENAME} !-f<br /> RewriteCond %{REQUEST_FILENAME} !-d<br /> RewriteRule . /index.php [L]<br /> <em># END WordPress</em></code></blockquote>
-		Refresh this page when you have updated your .htaccess file.";
-		echo "</fieldset></div>";
-		return;
-	} elseif( strpos( $wprules, 'wordpressuser' ) ) { // Need to clear out old mod_rewrite rules
-		echo "<p><strong>Thank you for upgrading.</strong> The mod_rewrite rules changed since you last installed this plugin. Unfortunately you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: <blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*\$</code></blockquote> so it looks like this: <blockquote><code>RewriteCond %{HTTP:Cookie} !^.*wordpress.*\$</code></blockquote> The only changes are 'HTTP_COOKIE' becomes 'HTTP:Cookie' and 'wordpressuser' becomes 'wordpress'. This is a WordPress 2.5 change but it's backwards compatible with older versions if you're brave enough to use them.</p>";
-		echo "</fieldset></div>";
-		return;
-	} elseif( $scrules != '' && strpos( $scrules, '%{REQUEST_URI} !^.*[^/]$' ) === false && substr( get_option( 'permalink_structure' ), -1 ) == '/' ) { // permalink structure has a trailing slash, need slash check in rules.
-		echo "<div style='padding: 2px; background: #ff0'><h4>Trailing slash check required.</h4><p>It looks like your blog has URLs that end with a '/'. Unfortunately since you installed this plugin a duplicate content bug has been found where URLs not ending in a '/' end serve the same content as those with the '/' and do not redirect to the proper URL.<br />";
-		echo "To fix, you must edit your .htaccess file and add these two rules to the two groups of Super Cache rules:</p>";
-		echo "<blockquote><code>RewriteCond %{REQUEST_URI} !^.*[^/]$<br />RewriteCond %{REQUEST_URI} !^.*//.*$<br /></code></blockquote>";
-		echo "<p>You can see where the rules go and examine the complete rules by clicking the 'View mod_rewrite rules' link below.</p></div>";
-		$dohtaccess = false;
-	} elseif( strpos( $scrules, 'supercache' ) || strpos( $wprules, 'supercache' ) ) { // only write the rules once
-		$dohtaccess = false;
-	}
 	if( substr( get_option( 'permalink_structure' ), -1 ) == '/' ) {
 		$condition_rules[] = "RewriteCond %{REQUEST_URI} !^.*[^/]$";
 		$condition_rules[] = "RewriteCond %{REQUEST_URI} !^.*//.*$";
@@ -366,6 +345,30 @@ function wsc_mod_rewrite() {
 	$rules = apply_filters( 'supercacherewriterules', $rules );
 
 	$rules = str_replace( "CONDITION_RULES", implode( "\n", $condition_rules ) . "\n", $rules );
+
+	$dohtaccess = true;
+	if( function_exists( 'is_site_admin' ) ) {
+		echo "<h4 style='color: #a00'>WordPress MU Detected</h4><p>Unfortunately the rewrite rules cannot be updated automatically when running WordPress MU. Please open your .htaccess and add the following mod_rewrite rules above any other rules in that file.</p>";
+	} elseif( !$wprules || $wprules == '' ) {
+		echo "<h4 style='color: #a00'>Mod Rewrite rules cannot be updated!</h4>";
+		echo "<p>You must have <strong>BEGIN</strong> and <strong>END</strong> markers in {$home_path}.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:
+		<blockquote><code><em># BEGIN WordPress</em><br /> RewriteCond %{REQUEST_FILENAME} !-f<br /> RewriteCond %{REQUEST_FILENAME} !-d<br /> RewriteRule . /index.php [L]<br /> <em># END WordPress</em></code></blockquote>
+		Refresh this page when you have updated your .htaccess file.";
+		echo "</fieldset></div>";
+		return;
+	} elseif( strpos( $wprules, 'wordpressuser' ) ) { // Need to clear out old mod_rewrite rules
+		echo "<p><strong>Thank you for upgrading.</strong> The mod_rewrite rules changed since you last installed this plugin. Unfortunately you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: <blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*\$</code></blockquote> so it looks like this: <blockquote><code>RewriteCond %{HTTP:Cookie} !^.*wordpress.*\$</code></blockquote> The only changes are 'HTTP_COOKIE' becomes 'HTTP:Cookie' and 'wordpressuser' becomes 'wordpress'. This is a WordPress 2.5 change but it's backwards compatible with older versions if you're brave enough to use them.</p>";
+		echo "</fieldset></div>";
+		return;
+	} elseif( $scrules != '' && strpos( $scrules, '%{REQUEST_URI} !^.*[^/]$' ) === false && substr( get_option( 'permalink_structure' ), -1 ) == '/' ) { // permalink structure has a trailing slash, need slash check in rules.
+		echo "<div style='padding: 2px; background: #ff0'><h4>Trailing slash check required.</h4><p>It looks like your blog has URLs that end with a '/'. Unfortunately since you installed this plugin a duplicate content bug has been found where URLs not ending in a '/' end serve the same content as those with the '/' and do not redirect to the proper URL.<br />";
+		echo "To fix, you must edit your .htaccess file and add these two rules to the two groups of Super Cache rules:</p>";
+		echo "<blockquote><code>RewriteCond %{REQUEST_URI} !^.*[^/]$<br />RewriteCond %{REQUEST_URI} !^.*//.*$<br /></code></blockquote>";
+		echo "<p>You can see where the rules go and examine the complete rules by clicking the 'View mod_rewrite rules' link below.</p></div>";
+		$dohtaccess = false;
+	} elseif( strpos( $scrules, 'supercache' ) || strpos( $wprules, 'supercache' ) ) { // only write the rules once
+		$dohtaccess = false;
+	}
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
 		if( !is_writeable_ACLSafe( $home_path . ".htaccess" ) ) {
 			echo "<div style='padding: 2px; background: #ff0'><h4>Cannot update .htaccess</h4><p>The file <code>{$home_path}.htaccess</code> cannot be modified by the web server. Please correct this using the chmod command or your ftp client.</p><p>Refresh this page when the file permissions have been modified.</p></div>";
@@ -399,11 +402,10 @@ function wsc_mod_rewrite() {
 	}
 	// http://allmybrain.com/2007/11/08/making-wp-super-cache-gzip-compression-work/
 	if( !is_file( $cache_path . '.htaccess' ) ) {
-		$gziprules = "AddEncoding x-gzip .gz\n";
-		$gziprules .= "AddType text/html .gz\n";
-		$gziprules .= "<IfModule mod_deflate.c>\n";
-		$gziprules .= "  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n";
-		$gziprules .= "</IfModule>";
+		$gziprules =  "<IfModule mod_mime.c>\n  AddEncoding x-gzip .gz\n  AddType text/html .gz\n</IfModule>\n";
+		$gziprules .= "<IfModule mod_deflate.c>\n  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n</IfModule>\n";
+		$gziprules .= "<IfModule mod_headers.c>\n  Header set Cache-Control 'max-age=300, must-revalidate'\n</IfModule>\n";
+		$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A300\n</IfModule>\n";
 		$gziprules = insert_with_markers( $cache_path . '.htaccess', 'supercache', explode( "\n", $gziprules ) );
 		echo "<h4>Gzip encoding rules in {$cache_path}.htaccess created.</h4>";
 	}
