@@ -402,7 +402,7 @@ function wp_cache_shutdown_callback() {
 	}
 
 	if( !isset( $wp_cache_gc ) )
-		$wp_cache_gc = 100;
+		$wp_cache_gc = 1000;
 	if( mt_rand( 0, $wp_cache_gc ) != 1 )
 		return;
 
