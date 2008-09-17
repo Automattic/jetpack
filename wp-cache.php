@@ -321,10 +321,7 @@ function wsc_mod_rewrite() {
 		$condition_rules[] = "RewriteCond %{REQUEST_URI} !^.*//.*$";
 	}
 	$condition_rules[] = "RewriteCond %{REQUEST_METHOD} !=POST";
-	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*s=.*";
-	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*p=.*";
-	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*attachment_id=.*";
-	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*";
+	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*=.*";
 	$condition_rules[] = "RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$";
 	$condition_rules = apply_filters( 'supercacherewriteconditions', $condition_rules );
 
