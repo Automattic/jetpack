@@ -448,7 +448,7 @@ function wp_cache_post_change($post_id) {
 		if( $post_id == 0 ) {
 			prune_super_cache( $cache_path . 'supercache/' . $siteurl );
 		} else {
-			$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
+			$permalink = trailingslashit( str_replace( get_option( 'home' ), '', post_permalink( $post_id ) ) );
 			$dir = $cache_path . 'supercache/' . $siteurl;
 			$files_to_delete = array( $dir . '/index.html', $dir . '/feed/index.html', $dir . $permalink . 'index.html', $dir . $permalink . 'feed/index.html' );
 			foreach( $files_to_delete as $cache_file ) {
