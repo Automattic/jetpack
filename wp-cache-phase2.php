@@ -264,7 +264,10 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 }
 
 function prune_super_cache($directory, $force = false) {
-	global $cache_max_time, $cache_path;
+	global $cache_max_time, $cache_path, $super_cache_enabled;
+
+	if( !is_admin() && $super_cache_enabled == 0 )
+		return false;
 
 	if( !isset( $cache_max_time ) )
 		$cache_max_time = 3600;
