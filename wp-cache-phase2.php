@@ -264,10 +264,10 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 }
 
 function prune_super_cache($directory, $force = false) {
-	global $super_cache_max_time, $cache_path;
+	global $cache_max_time, $cache_path;
 
-	if( !isset( $super_cache_max_time ) )
-		$super_cache_max_time = 21600;
+	if( !isset( $cache_max_time ) )
+		$cache_max_time = 3600;
 
 	$now = time();
 
@@ -280,7 +280,7 @@ function prune_super_cache($directory, $force = false) {
 		if( is_array( $entries ) && !empty( $entries ) ) foreach ($entries as $entry) {
 			if ($entry != '.' && $entry != '..') {
 				prune_super_cache($entry, $force);
-				if( is_dir( $entry ) && ( $force || @filemtime( $entry ) + $super_cache_max_time <= $now ) ) {
+				if( is_dir( $entry ) && ( $force || @filemtime( $entry ) + $cache_max_time <= $now ) ) {
 					$oktodelete = true;
 					if( in_array( $entry, $protected_directories ) )
 						$oktodelete = false;
@@ -290,7 +290,7 @@ function prune_super_cache($directory, $force = false) {
 			}
 		}
 	} else {
-		if( is_file($directory) && ($force || filemtime( $directory ) + $super_cache_max_time <= $now ) ) {
+		if( is_file($directory) && ($force || filemtime( $directory ) + $cache_max_time <= $now ) ) {
 			$oktodelete = true;
 			if( in_array( $directory, $protected_directories ) )
 				$oktodelete = false;

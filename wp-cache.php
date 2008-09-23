@@ -592,23 +592,16 @@ function RecursiveFolderDelete ( $folderPath ) { // from http://www.php.net/manu
 }
 
 function wp_cache_edit_max_time () {
-	global $super_cache_max_time, $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled, $wp_cache_gc;
+	global $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled, $wp_cache_gc;
 
-	if( !isset( $super_cache_max_time ) )
-		$super_cache_max_time = 3600;
+	if( !isset( $cache_max_time ) )
+		$cache_max_time = 3600;
 
 	if(isset($_POST['wp_max_time']) && $valid_nonce) {
 		$max_time = (int)$_POST['wp_max_time'];
 		if ($max_time > 0) {
 			$cache_max_time = $max_time;
 			wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = $cache_max_time;", $wp_cache_config_file);
-		}
-	}
-	if(isset($_POST['super_cache_max_time']) && $valid_nonce) {
-		$max_time = (int)$_POST['super_cache_max_time'];
-		if ($max_time > 0) {
-			$super_cache_max_time = $max_time;
-			wp_cache_replace_line('^ *\$super_cache_max_time', "\$super_cache_max_time = $super_cache_max_time;", $wp_cache_config_file);
 		}
 	}
 	if(isset($_POST['wp_cache_gc']) && $valid_nonce) {
@@ -620,10 +613,6 @@ function wp_cache_edit_max_time () {
 	echo '<form name="wp_edit_max_time" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<label for="wp_max_time">Expire time:</label> ';
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> seconds<br />";
-	if( $cache_enabled == true && $super_cache_enabled == true ) {
-		echo '<label for="super_cache_max_time">Super Cache Expire time:</label> ';
-		echo "<input type=\"text\" size=6 name=\"super_cache_max_time\" value=\"$super_cache_max_time\" /> seconds";
-	}
 	if( !isset( $wp_cache_gc ) )
 		$wp_cache_gc = 1000;
 	echo "<h4>Garbage Collection</h4><p>How often should expired files be deleted? Once every:</p>";
@@ -955,7 +944,7 @@ function wp_cache_check_global_config() {
 }
 
 function wp_cache_files() {
-	global $cache_path, $file_prefix, $cache_max_time, $super_cache_max_time, $valid_nonce, $supercachedir, $cache_enabled, $super_cache_enabled;
+	global $cache_path, $file_prefix, $cache_max_time, $valid_nonce, $supercachedir, $cache_enabled, $super_cache_enabled;
 
 	if ( '/' != substr($cache_path, -1)) {
 		$cache_path .= '/';
@@ -1040,7 +1029,7 @@ function wp_cache_files() {
 				}
 			}
 		} else {
-			if(is_file($supercachedir) && filemtime( $supercachedir ) + $super_cache_max_time <= $now )
+			if(is_file($supercachedir) && filemtime( $supercachedir ) + $cache_max_time <= $now )
 				$sizes[ 'expired' ] ++;
 		}
 		$sizes[ 'ts' ] = time();
@@ -1073,7 +1062,7 @@ function wp_cache_files() {
 }
 
 function wpsc_dirsize($directory, $sizes) {
-	global $super_cache_max_time;
+	global $cache_max_time;
 	$now = time();
 
 	if (is_dir($directory)) {
@@ -1085,7 +1074,7 @@ function wpsc_dirsize($directory, $sizes) {
 		}
 	} else {
 		if(is_file($directory) ) {
-			if( filemtime( $directory ) + $super_cache_max_time <= $now ) {
+			if( filemtime( $directory ) + $cache_max_time <= $now ) {
 				$sizes[ 'expired' ]+=1;
 			} else {
 				$sizes[ 'cached' ]+=1;

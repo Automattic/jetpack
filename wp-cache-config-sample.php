@@ -12,7 +12,6 @@ $cache_enabled = false;
 $super_cache_enabled = false;
 $cache_max_time = 3600; //in seconds
 //$use_flock = true; // Set it true or false if you know what to use
-$super_cache_max_time = 21600; // in seconds
 $cache_path = WP_CONTENT_DIR . '/cache/';
 $file_prefix = 'wp-cache-';
 
