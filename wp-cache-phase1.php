@@ -103,8 +103,6 @@ function wp_cache_get_cookies_values() {
 		next($_COOKIE);
 	}
 	reset($_COOKIE);
-	if( $string != '' )
-		return $string;
 
 	$string = do_cacheaction( 'wp_cache_get_cookies_values', $string );
 	return $string;
