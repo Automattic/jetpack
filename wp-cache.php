@@ -616,9 +616,9 @@ function wp_cache_edit_max_time () {
 	if( !isset( $wp_cache_gc ) )
 		$wp_cache_gc = 1000;
 	echo "<h4>Garbage Collection</h4><p>How often should expired files be deleted? Once every:</p>";
-	echo "<li><input type='radio' name='wp_cache_gc' value='1000'" . ( $wp_cache_gc == 1000 ? ' checked' : '' ) . " /> 1000 requests</li>\n";
-	echo "<li><input type='radio' name='wp_cache_gc' value='2000'" . ( $wp_cache_gc == 2000 ? ' checked' : '' ) . " /> 2000 requests</li>\n";
-	echo "<li><input type='radio' name='wp_cache_gc' value='5000'" . ( $wp_cache_gc == 5000 ? ' checked' : '' ) . " /> 5000 requests</li></ul>\n";
+	echo "<ul><li><input type='radio' name='wp_cache_gc' value='1000'" . ( $wp_cache_gc == 1000 ? ' checked=checked' : '' ) . " /> 1000 requests</li>\n";
+	echo "<li><input type='radio' name='wp_cache_gc' value='2000'" . ( $wp_cache_gc == 2000 ? ' checked=checked' : '' ) . " /> 2000 requests</li>\n";
+	echo "<li><input type='radio' name='wp_cache_gc' value='5000'" . ( $wp_cache_gc == 5000 ? ' checked=checked' : '' ) . " /> 5000 requests</li></ul>\n";
 	echo "<p>Checking for and deleting expired files is expensive, but it's expensive leaving them there too. On a very busy site you can leave this fairly high. Experiment with different values and visit this page to see how many expired files remain at different times during the day.</p><p>Simple rule of thumb: divide your number of daily page views by 5 and pick the closest number above.</p>";
 	echo '<div><input type="submit" ' . SUBMITDISABLED . 'value="Change expiration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
