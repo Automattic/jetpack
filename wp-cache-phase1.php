@@ -104,6 +104,7 @@ function wp_cache_get_cookies_values() {
 	}
 	reset($_COOKIE);
 
+	// If you use this hook, make sure you update your .htaccess rules with the same conditions
 	$string = do_cacheaction( 'wp_cache_get_cookies_values', $string );
 	return $string;
 }
