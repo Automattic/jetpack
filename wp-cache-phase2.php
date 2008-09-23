@@ -444,18 +444,15 @@ function wp_cache_post_change($post_id) {
 	$last_processed = $post_id;
 	$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
 	if( $super_cache_enabled ) {
-		$siteurl = strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', get_option( 'siteurl' ) ) ) );
+		$siteurl = trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', get_option( 'siteurl' ) ) ) ) );
 		if( $post_id == 0 ) {
 			prune_super_cache( $cache_path . 'supercache/' . $siteurl );
 		} else {
 			$permalink = trailingslashit( str_replace( get_option( 'home' ), '', post_permalink( $post_id ) ) );
 			$dir = $cache_path . 'supercache/' . $siteurl;
-			$files_to_delete = array( $dir . '/index.html', $dir . '/feed/index.html', $dir . $permalink . 'index.html', $dir . $permalink . 'feed/index.html' );
-			foreach( $files_to_delete as $cache_file ) {
-				@unlink( $cache_file );
-				@unlink( $cache_file . '.gz' );
-			}
-			prune_super_cache( $dir . $permalink, true ); // remove pages under permalink.
+			prune_super_cache( $dir . $permalink, true );
+			@rmdir( $dir . $permalink );
+			prune_super_cache( $dir . 'page/', true );
 		}
 	}
 
@@ -473,6 +470,8 @@ function wp_cache_post_change($post_id) {
 					if ($meta->blog_id == $blog_id  && (!$meta->post || $meta->post == $post_id) ) {
 						@unlink($meta_pathname);
 						@unlink($content_pathname);
+						@unlink( $cache_path . 'supercache/' . trailingslashit( $meta->uri ) . 'index.html' );
+						@unlink( $cache_path . 'supercache/' . trailingslashit( $meta->uri ) . 'index.html.gz' );
 					}
 				} elseif ($meta->blog_id == $blog_id) {
 					@unlink($meta_pathname);
