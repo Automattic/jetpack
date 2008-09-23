@@ -850,7 +850,7 @@ function wp_cache_verify_cache_dir() {
 }
 
 function wp_cache_verify_config_file() {
-	global $wp_cache_config_file, $wp_cache_config_file_sample;
+	global $wp_cache_config_file, $wp_cache_config_file_sample, $sem_id, $cache_path;
 
 	$new = false;
 	$dir = dirname($wp_cache_config_file);
@@ -882,6 +882,10 @@ function wp_cache_verify_config_file() {
 			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', ABSPATH . " . str_replace( '\\', '/', str_replace( ABSPATH, ' "', dirname(__FILE__) ) ) . "/wp-super-cache/\" );", $wp_cache_config_file);
 		}
 		$new = true;
+	}
+	if( $sem_id == 5419 && $cache_path != '' ) {
+		$sem_id = crc32( $_SERVER[ 'HTTP_HOST' ] . $cache_path ) & 0x7fffffff;
+		wp_cache_replace_line('sem_id', '$sem_id = ' . $sem_id . ';', $wp_cache_config_file);
 	}
 	require($wp_cache_config_file);
 	return true;
