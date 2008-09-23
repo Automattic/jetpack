@@ -1,3 +1,81 @@
+2008-09-23 13:05  donncha
+
+	* readme.txt, wp-cache.php: Bump the version to 0.8
+
+2008-09-23 13:01  donncha
+
+	* wp-cache-phase1.php: Comment: reminder to update .htaccess rules
+	  if get_cookie cacheaction is used.
+
+2008-09-23 12:58  donncha
+
+	* wp-cache-phase1.php: Don't return if the $string is not ''
+
+2008-09-23 12:50  donncha
+
+	* wp-cache.php: Generate a semaphore id based on hostname and cache
+	  path, props Tigertech
+	  http://wordpress.org/support/topic/205195?replies=4#post-857610
+
+2008-09-23 11:14  donncha
+
+	* wp-cache.php: Make the expiry cleanup list an unordered list
+
+2008-09-23 11:06  donncha
+
+	* wp-cache-phase2.php: siteurl -> home for those who run WP in a
+	  different place
+
+2008-09-23 10:44  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase2.php, wp-cache.php: No
+	  need for $super_cache_max_time
+
+2008-09-23 10:39  donncha
+
+	* wp-cache-phase2.php: On post change:
+	  1. Clear all files from permalink in supercache directory.
+	  2. Clear siteurl/page/ permalinks.
+	  3. Clear supercache files when corresponding php meta files are
+	  removed.
+
+2008-09-18 09:45  donncha
+
+	* wp-cache.php: Show mod_rewrite rules when .htaccess is RO, props
+	  Matt @ http://mattsblog.ca/
+
+2008-09-17 16:29  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Decrease the chance of
+	  cleanup.
+
+2008-09-17 11:01  donncha
+
+	* wp-cache.php: Don't server cached static files when url contains
+	  "=". Should avoid lots of problems with query strings
+
+2008-09-17 11:00  donncha
+
+	* wp-cache-phase2.php: Replace the siteurl correctly for those who
+	  have installed in a subdir, but access from the directory above.
+	  Thanks Viper007Bond.
+
+2008-09-16 13:01  donncha
+
+	* wp-cache.php: Check for WordPress MU because .htaccess can't be
+	  updated.
+	  Set cache control and expiry headers of supercached files. Cached
+	  for 5 minutes, but with "must-revalidate"
+
+2008-09-06 11:00  donncha
+
+	* wp-cache-phase2.php: Write cache files to a temporary file first,
+	  then rename. Rename should be atomic.
+
+2008-08-28 11:30  donncha
+
+	* Changelog.txt: Updated changelog
+
 2008-08-28 11:29  donncha
 
 	* readme.txt, wp-cache.php: Bump the version number to 0.7.1
