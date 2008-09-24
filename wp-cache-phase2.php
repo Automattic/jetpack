@@ -427,7 +427,7 @@ function wp_cache_no_postid($id) {
 
 function wp_cache_get_postid_from_comment($comment_id) {
 	global $super_cache_enabled;
-	$comment = get_comment($comment_ID, ARRAY_A);
+	$comment = get_comment($comment_id, ARRAY_A);
 	$postid = $comment['comment_post_ID'];
 	// Do nothing if comment is not moderated
 	// http://ocaoimh.ie/2006/12/05/caching-wordpress-with-wp-cache-in-a-spam-filled-world
@@ -480,8 +480,10 @@ function wp_cache_post_change($post_id) {
 					if ($meta->blog_id == $blog_id  && (!$meta->post || $meta->post == $post_id) ) {
 						@unlink($meta_pathname);
 						@unlink($content_pathname);
-						@unlink( $cache_path . 'supercache/' . trailingslashit( $meta->uri ) . 'index.html' );
-						@unlink( $cache_path . 'supercache/' . trailingslashit( $meta->uri ) . 'index.html.gz' );
+						if( $super_cache_enabled ) {
+							@unlink( $cache_path . 'supercache/' . trailingslashit( $meta->uri ) . 'index.html' );
+							@unlink( $cache_path . 'supercache/' . trailingslashit( $meta->uri ) . 'index.html.gz' );
+						}
 					}
 				} elseif ($meta->blog_id == $blog_id) {
 					@unlink($meta_pathname);
