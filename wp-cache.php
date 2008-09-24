@@ -87,6 +87,7 @@ function wpsupercache_deactivate() {
 		if( file_exists( $file ) )
 			unlink( $file );
 	}
+	@unlink( $cache_path . '.htaccess' );
 	if( !function_exists( 'prune_super_cache' ) )
 		include_once( 'wp-cache-phase2.php' );
 	prune_super_cache ($cache_path, true);
