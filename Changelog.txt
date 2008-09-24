@@ -1,3 +1,43 @@
+2008-09-24 13:03  donncha
+
+	* wp-cache-phase2.php: Added function to clear cache when a post is
+	  edited
+
+2008-09-24 13:02  donncha
+
+	* wp-cache.php: Added "Clear on edit" checkbox to clear all cache
+	  files when a post or page is edited
+
+2008-09-24 13:01  donncha
+
+	* wp-cache.php: Remove meta and supercache directories when
+	  deactivating
+
+2008-09-24 12:47  donncha
+
+	* wp-cache.php: Switch status messages around.
+
+2008-09-24 12:47  donncha
+
+	* wp-cache.php: Remove cache/.htaccess when uninstalling.
+
+2008-09-24 12:44  donncha
+
+	* readme.txt: Make mod mime and rewrite line clearer, hopefully
+
+2008-09-24 12:38  donncha
+
+	* wp-cache-phase2.php: comment_id typo
+	  Only clear supercache files if it's enabled
+
+2008-09-24 12:37  donncha
+
+	* readme.txt: Updated mod_rewrite rules and expiry/mime type rules
+
+2008-09-24 11:57  donncha
+
+	* Changelog.txt: Updated changelog for 0.8.1
+
 2008-09-24 11:57  donncha
 
 	* readme.txt, wp-cache.php: Bump the version number
