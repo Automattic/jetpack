@@ -236,6 +236,7 @@ function wp_cache_ob_callback($buffer) {
 		fclose($fr);
 		if( $fr2 ) {
 			fclose($fr2);
+			chmod( $tmp_cache_filename, 0666 & ~umask());
 			if( !rename( $tmp_cache_filename, $cache_fname ) ) {
 				unlink( $cache_fname );
 				rename( $tmp_cache_filename, $cache_fname );
