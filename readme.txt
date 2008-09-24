@@ -39,19 +39,14 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 	`RewriteBase /`
 	
 	`RewriteCond %{REQUEST_METHOD} !=POST`
-	`RewriteCond %{QUERY_STRING} !.*s=.*`
-	`RewriteCond %{QUERY_STRING} !.*p=.*`
-	`RewriteCond %{QUERY_STRING} !.*attachment_id=.*`
-	`RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*`
+	`RewriteCond %{QUERY_STRING} !.*=.*`
 	`RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$`
 	`RewriteCond %{HTTP:Accept-Encoding} gzip`
 	`RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html.gz -f`
 	`RewriteRule ^(.*) /wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html.gz [L]`
 	
 	`RewriteCond %{REQUEST_METHOD} !=POST`
-	`RewriteCond %{QUERY_STRING} !.*s=.*`
-	`RewriteCond %{QUERY_STRING} !.*p=.*`
-	`RewriteCond %{QUERY_STRING} !.*wp-subscription-manager=.*`
+	`RewriteCond %{QUERY_STRING} !.*=.*`
 	`RewriteCond %{QUERY_STRING} !.*attachment_id=.*`
 	`RewriteCond %{HTTP_COOKIE} !^.*(comment_author_|wordpress|wp-postpass_).*$`
 	`RewriteCond %{DOCUMENT_ROOT}/wp-content/cache/supercache/%{HTTP_HOST}/$1/index.html -f`
@@ -63,8 +58,23 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 	`-----------------.htaccess-----------------`
 8. After you have enabled the plugin, look for the file "wp-content/cache/.htaccess". If it's not there you must create it. It should read:
 
-	`AddEncoding x-gzip .gz`
-	`AddType text/html .gz`
+	`# BEGIN supercache`
+	`<IfModule mod_mime.c>`
+	`  AddEncoding x-gzip .gz`
+	`  AddType text/html .gz`
+	`</IfModule>`
+	`<IfModule mod_deflate.c>`
+	`  SetEnvIfNoCase Request_URI \.gz$ no-gzip`
+	`</IfModule>`
+	`<IfModule mod_headers.c>`
+	`  Header set Cache-Control 'max-age=300, must-revalidate'`
+	`</IfModule>`
+	`<IfModule mod_expires.c>`
+	`  ExpiresActive On`
+	`  ExpiresByType text/html A300`
+	`</IfModule>`
+	``
+	`# END supercache`
 
 == Frequently Asked Questions ==
 
