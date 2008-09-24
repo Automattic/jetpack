@@ -1,3 +1,27 @@
+2008-09-24 11:57  donncha
+
+	* readme.txt, wp-cache.php: Bump the version number
+
+2008-09-24 10:01  donncha
+
+	* wp-cache-phase2.php: Make the temporary filename world readable
+	  to avoid problems where Apache and PHP run as different users.
+	  Thanks Tigertech for the code.
+
+2008-09-24 09:57  donncha
+
+	* wp-cache-phase2.php: Check that rename worked, if not, remove
+	  cache file and rename again. Props tigertech
+
+2008-09-23 19:55  donncha
+
+	* wp-cache-phase2.php: Don't clear the supercache if it's not
+	  enabled (In blog context, when a moderated comment is made)
+
+2008-09-23 13:09  donncha
+
+	* Changelog.txt: Updated changelog
+
 2008-09-23 13:05  donncha
 
 	* readme.txt, wp-cache.php: Bump the version to 0.8
