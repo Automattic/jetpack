@@ -7,10 +7,10 @@ function wp_cache_phase2() {
 	wp_cache_mutex_init();
 	if(function_exists('add_action') && ( !defined( 'WPLOCKDOWN' ) || ( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) == '0' ) ) ) {
 		// Post ID is received
-		add_action('publish_post', 'wp_cache_post_change', 0);
-		add_action('edit_post', 'wp_cache_post_change', 0);
-		add_action('delete_post', 'wp_cache_post_change', 0);
-		add_action('publish_phone', 'wp_cache_post_change', 0);
+		add_action('publish_post', 'wp_cache_post_edit', 0);
+		add_action('edit_post', 'wp_cache_post_edit', 0);
+		add_action('delete_post', 'wp_cache_post_edit', 0);
+		add_action('publish_phone', 'wp_cache_post_edit', 0);
 		// Coment ID is received
 		add_action('trackback_post', 'wp_cache_get_postid_from_comment', 0);
 		add_action('pingback_post', 'wp_cache_get_postid_from_comment', 0);
@@ -444,6 +444,15 @@ function wp_cache_get_postid_from_comment($comment_id) {
 		return wp_cache_post_change($postid);
 	else 
 		return wp_cache_post_change(wp_cache_post_id());
+}
+
+function wp_cache_post_edit($post_id) {
+	global $wp_cache_clear_on_post_edit, $cache_path;
+	if( $wp_cache_clear_on_post_edit ) {
+		prune_super_cache( $cache_path, true );
+	} else {
+		wp_cache_post_change( $post_id );
+	}
 }
 
 function wp_cache_post_change($post_id) {
