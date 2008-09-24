@@ -236,11 +236,17 @@ function wp_cache_ob_callback($buffer) {
 		fclose($fr);
 		if( $fr2 ) {
 			fclose($fr2);
-			rename( $tmp_cache_filename, $cache_fname );
+			if( !rename( $tmp_cache_filename, $cache_fname ) ) {
+				unlink( $cache_fname );
+				rename( $tmp_cache_filename, $cache_fname );
+			}
 		}
 		if( $gz ) {
 			fclose($gz);
-			rename( $tmp_cache_filename . '.gz', $cache_fname . '.gz' );
+			if( !rename( $tmp_cache_filename . '.gz', $cache_fname . '.gz' ) ) {
+				unlink( $cache_fname . '.gz' );
+				rename( $tmp_cache_filename . '.gz', $cache_fname . '.gz' );
+			}
 		}
 	}
 	wp_cache_writers_exit();
