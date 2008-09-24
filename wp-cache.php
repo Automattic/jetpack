@@ -109,7 +109,7 @@ function wp_cache_add_pages() {
 add_action('admin_menu', 'wp_cache_add_pages');
 
 function wp_cache_manager() {
-	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
+	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world, $wp_cache_clear_on_post_edit;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -231,6 +231,10 @@ function toggleLayer( whichLayer ) {
 				prune_super_cache ($cache_path, true);
 			delete_option( 'super_cache_meta' );
 		}
+		if( isset( $_POST[ 'wp_cache_clear_on_post_edit' ] ) && $_POST[ 'wp_cache_clear_on_post_edit' ] != $wp_cache_clear_on_post_edit ) {
+			$wp_cache_clear_on_post_edit = intval( $_POST[ 'wp_cache_clear_on_post_edit' ] );
+			wp_cache_replace_line('^ *\$wp_cache_clear_on_post_edit', "\$wp_cache_clear_on_post_edit = " . $wp_cache_clear_on_post_edit . ";", $wp_cache_config_file);
+		}
 	}
 
 	?><fieldset class="options"> 
@@ -241,6 +245,7 @@ function toggleLayer( whichLayer ) {
 	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong>HALF ON</strong> (Super Cache Disabled, only legacy WP-Cache caching.)</label><br />
 	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong>OFF</strong> (WP Cache and Super Cache disabled)</label><br />
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> Proudly tell the world your server is Digg proof! (places a message in your blog's footer)</label></p>
+	<p><label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> Clear all cache files when a post or page is edited. (This may significantly slow down saving of posts.)</label></p>
 	<p>Note: if uninstalling this plugin, make sure the directory <em><?php echo WP_CONTENT_DIR; ?></em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)</p>
 	<?php
 	echo "<div><input type='submit' " . SUBMITDISABLED . " value='Update Status &raquo;' /></div>";
