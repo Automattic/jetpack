@@ -1073,6 +1073,11 @@ function wp_cache_files() {
 	echo '</fieldset>';
 }
 
+function delete_cache_dashboard() {
+	echo "<li><a href='" . wp_nonce_url( 'options-general.php?page=wpsupercache&wp_delete_cache=1#list', 'wp-cache' ) . "' target='_blank' title='Delete Super Cache cached files (opens in new window)'>Delete Cache</a></li>";
+}
+add_action( 'dashmenu', 'delete_cache_dashboard' );
+
 function wpsc_dirsize($directory, $sizes) {
 	global $cache_max_time;
 	$now = time();
