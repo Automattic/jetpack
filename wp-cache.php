@@ -231,10 +231,12 @@ function toggleLayer( whichLayer ) {
 				prune_super_cache ($cache_path, true);
 			delete_option( 'super_cache_meta' );
 		}
-		if( isset( $_POST[ 'wp_cache_clear_on_post_edit' ] ) && $_POST[ 'wp_cache_clear_on_post_edit' ] != $wp_cache_clear_on_post_edit ) {
-			$wp_cache_clear_on_post_edit = intval( $_POST[ 'wp_cache_clear_on_post_edit' ] );
-			wp_cache_replace_line('^ *\$wp_cache_clear_on_post_edit', "\$wp_cache_clear_on_post_edit = " . $wp_cache_clear_on_post_edit . ";", $wp_cache_config_file);
+		if( isset( $_POST[ 'wp_cache_clear_on_post_edit' ] ) ) {
+			$wp_cache_clear_on_post_edit = 1;
+		} else {
+			$wp_cache_clear_on_post_edit = 0;
 		}
+		wp_cache_replace_line('^ *\$wp_cache_clear_on_post_edit', "\$wp_cache_clear_on_post_edit = " . $wp_cache_clear_on_post_edit . ";", $wp_cache_config_file);
 	}
 
 	?><fieldset class="options"> 
