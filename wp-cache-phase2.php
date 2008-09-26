@@ -499,6 +499,9 @@ function wp_cache_post_change($post_id) {
 	$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
 	if( $super_cache_enabled ) {
 		$siteurl = trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', get_option( 'home' ) ) ) ) );
+		// make sure the front page has a rebuild file
+		prune_super_cache( $cache_path . 'supercache/' . $siteurl . 'index.html', true, true ); 
+		prune_super_cache( $cache_path . 'supercache/' . $siteurl . 'index.html.gz', true, true );
 		if( $post_id != 0 ) {
 			$permalink = trailingslashit( str_replace( get_option( 'home' ), '', post_permalink( $post_id ) ) );
 			$dir = $cache_path . 'supercache/' . $siteurl;
