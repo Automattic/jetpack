@@ -493,12 +493,13 @@ function wp_cache_post_change($post_id) {
 
 	if ($post_id == $last_processed) return $post_id;
 	$last_processed = $post_id;
+	if( !wp_cache_writers_entry() )
+		return $post_id;
+
 	$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
 	if( $super_cache_enabled ) {
 		$siteurl = trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', get_option( 'home' ) ) ) ) );
-		if( $post_id == 0 ) {
-			prune_super_cache( $cache_path . 'supercache/' . $siteurl );
-		} else {
+		if( $post_id != 0 ) {
 			$permalink = trailingslashit( str_replace( get_option( 'home' ), '', post_permalink( $post_id ) ) );
 			$dir = $cache_path . 'supercache/' . $siteurl;
 			prune_super_cache( $dir . $permalink, true, true );
@@ -509,8 +510,6 @@ function wp_cache_post_change($post_id) {
 
 	$meta = new CacheMeta;
 	$matches = array();
-	if( !wp_cache_writers_entry() )
-		return $post_id;
 	if ( ($handle = opendir( $cache_path . 'meta/' )) ) { 
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^({$file_prefix}{$blogcacheid}.*)\.meta/", $file, $matches) ) {
@@ -521,9 +520,6 @@ function wp_cache_post_change($post_id) {
 					if ($meta->blog_id == $blog_id  && (!$meta->post || $meta->post == $post_id) ) {
 						@unlink($meta_pathname);
 						@unlink($content_pathname);
-						if( $super_cache_enabled ) {
-							prune_super_cache( $cache_path . 'supercache/' . trailingslashit( $meta->uri ), true, true );
-						}
 					}
 				} elseif ($meta->blog_id == $blog_id) {
 					@unlink($meta_pathname);
