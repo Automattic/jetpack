@@ -1,3 +1,49 @@
+2008-09-26 23:15  donncha
+
+	* readme.txt, wp-cache.php: Bump the version number to 0.8.2
+
+2008-09-26 23:14  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase2.php, wp-cache.php:
+	  Added $cache_rebuild_files setting to switch off "need rebuild"
+	  functionality by default
+
+2008-09-26 16:00  donncha
+
+	* wp-cache-phase2.php: On post change clear the front page
+
+2008-09-26 12:04  donncha
+
+	* wp-cache-phase2.php: Move cache writers entry up above supercache
+	  cleaning.
+	  Only clean individual posts, don't clear cache when no post_id
+
+2008-09-26 09:49  donncha
+
+	* wp-cache.php: Only show "Delete Cache" link to MU site admins or
+	  admins on WP blogs
+
+2008-09-25 12:47  donncha
+
+	* wp-cache.php: Save "wp_cache_clear_on_post_edit" properly, thanks
+	  HarryRAR,
+	  http://wordpress.org/support/topic/206371?replies=2#post-861998
+
+2008-09-25 11:12  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Can't clear cache on edit_post
+	  because leaving a comment calls edit_post unfortunately
+	  Experimental code to preserve supercache version of a page while
+	  it's being regenerated.
+
+2008-09-24 14:21  donncha
+
+	* wp-cache.php: Added "Delete Cache" link at top of admin pages
+
+2008-09-24 13:57  donncha
+
+	* Changelog.txt: Updated changelog, still release 0.8.1
+
 2008-09-24 13:03  donncha
 
 	* wp-cache-phase2.php: Added function to clear cache when a post is
