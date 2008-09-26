@@ -1076,6 +1076,12 @@ function wp_cache_files() {
 }
 
 function delete_cache_dashboard() {
+	if( function_exists( 'is_site_admin' ) && !is_site_admin() )
+		return false;
+
+	if( function_exists('current_user_can') && !current_user_can('manage_options') )
+		return false;
+
 	echo "<li><a href='" . wp_nonce_url( 'options-general.php?page=wpsupercache&wp_delete_cache=1#list', 'wp-cache' ) . "' target='_blank' title='Delete Super Cache cached files (opens in new window)'>Delete Cache</a></li>";
 }
 add_action( 'dashmenu', 'delete_cache_dashboard' );
