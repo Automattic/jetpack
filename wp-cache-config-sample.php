@@ -42,6 +42,11 @@ $cache_acceptable_files = array( 'wp-comments-popup.php', 'wp-links-opml.php', '
 $cache_rejected_uri = array('wp-.*.php', 'index.php');
 $cache_rejected_user_agent = array ( 0 => 'bot', 1 => 'ia_archive', 2 => 'slurp', 3 => 'crawl', 4 => 'spider');
 
+// Change this to 1 to enable experimental code that tries to serve slightly
+// out of date content to anon users while a new supercache file is being
+// generated.
+$cache_rebuild_files = 0;
+
 // Just modify it if you have conflicts with semaphores
 $sem_id = 5419;
 

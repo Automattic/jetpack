@@ -109,7 +109,7 @@ function wp_cache_add_pages() {
 add_action('admin_menu', 'wp_cache_add_pages');
 
 function wp_cache_manager() {
-	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world, $wp_cache_clear_on_post_edit;
+	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -118,6 +118,9 @@ function wp_cache_manager() {
 	$supercachedir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]);
 	if( get_option( 'gzipcompression' ) == 1 )
 		update_option( 'gzipcompression', 0 );
+	if( !isset( $cache_rebuild_files ) )
+		$cache_rebuild_files = 0;
+
 	$valid_nonce = wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache');
 	/* http://www.netlobo.com/div_hiding.html */
 	?>

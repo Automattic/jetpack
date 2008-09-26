@@ -1,7 +1,7 @@
 <?php
 
 function wp_cache_phase2() {
-	global $cache_filename, $cache_acceptable_files, $wp_cache_meta_object, $wp_cache_gzip_encoding, $super_cache_enabled;
+	global $cache_filename, $cache_acceptable_files, $wp_cache_meta_object, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files;
 
 	wp_cache_mutex_init();
 	if(function_exists('add_action') && ( !defined( 'WPLOCKDOWN' ) || ( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) == '0' ) ) ) {
@@ -39,7 +39,7 @@ function wp_cache_phase2() {
 	ob_start('wp_cache_ob_callback'); 
 
 	// restore old supercache file temporarily
-	if( $super_cache_enabled ) {
+	if( $super_cache_enabled && $cache_rebuild_files ) {
 		$user_info = wp_cache_get_cookies_values();
 		$do_cache = apply_filters( 'do_createsupercache', $user_info );
 		if( $user_info == '' || $do_cache === true ) {
@@ -298,7 +298,7 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 }
 
 function prune_super_cache($directory, $force = false, $rename = false) {
-	global $cache_max_time, $cache_path, $super_cache_enabled;
+	global $cache_max_time, $cache_path, $super_cache_enabled, $cache_rebuild_files;
 
 	if( !is_admin() && $super_cache_enabled == 0 )
 		return false;
@@ -326,18 +326,20 @@ function prune_super_cache($directory, $force = false, $rename = false) {
 				}
 			}
 		}
-	} else {
-		if( is_file($directory) && ($force || filemtime( $directory ) + $cache_max_time <= $now ) ) {
-			$oktodelete = true;
-			if( in_array( $directory, $protected_directories ) )
-				$oktodelete = false;
-			if( $oktodelete && !$rename ) {
-				@unlink( addslashes( $directory ) );
-			} elseif( $oktodelete && $rename && substr( $directory, -14 ) != '.needs-rebuild' ) {
+	} elseif( is_file($directory) && ($force || filemtime( $directory ) + $cache_max_time <= $now ) ) {
+		$oktodelete = true;
+		if( in_array( $directory, $protected_directories ) )
+			$oktodelete = false;
+		if( $oktodelete && !$rename ) {
+			@unlink( addslashes( $directory ) );
+		} elseif( $oktodelete && $rename ) {
+			if( $cache_rebuild_files && substr( $directory, -14 ) != '.needs-rebuild' ) {
 				if( @rename($directory, $directory . '.needs-rebuild') )
 					@touch( $directory . '.needs-rebuild' );
-
+			} else {
+				@unlink( $directory );
 			}
+
 		}
 	}
 }
