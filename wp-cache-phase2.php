@@ -238,12 +238,11 @@ function wp_cache_ob_callback($buffer) {
 			if( $gz )
 				fputs($gz, $store . '<!-- super cache gz -->' );
 		} else {
-			$log = "<!-- Cached page served by WP-Cache -->\n";
+			$log = "<!-- Cached page served by WP-Super-Cache -->\n";
 
+			$gzdata = gzencode($buffer . $log . "<!-- Compression = gzip -->", 1, FORCE_GZIP);
+			$gzsize = strlen($gzdata);
 			if ($wp_cache_gzip_encoding) {
-				$log .= "<!-- Compression = " . $wp_cache_gzip_encoding ." -->";
-				$gzdata = gzencode($buffer . $log, 1, FORCE_GZIP);
-				$gzsize = strlen($gzdata);
 
 				array_push($wp_cache_meta_object->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
 				array_push($wp_cache_meta_object->headers, 'Vary: Accept-Encoding, Cookie');
@@ -257,7 +256,7 @@ function wp_cache_ob_callback($buffer) {
 			if( $fr2 )
 				fputs($fr2, $buffer . '<!-- super cache -->' );
 			if( $gz )
-				fwrite($gz, gzencode( $buffer . '<!-- super cache gz -->', 1, FORCE_GZIP ) );
+				fwrite($gz, $gzdata );
 		}
 		$new_cache = true;
 		fclose($fr);
