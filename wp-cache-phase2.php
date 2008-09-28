@@ -240,10 +240,11 @@ function wp_cache_ob_callback($buffer) {
 		} else {
 			$log = "<!-- Cached page served by WP-Super-Cache -->\n";
 
-			$gzdata = gzencode( $buffer . $log . "<!-- Compression = gzip -->", 1, FORCE_GZIP );
-			$gzsize = strlen($gzdata);
+			if( $gz || $wp_cache_gzip_encoding ) {
+				$gzdata = gzencode( $buffer . $log . "<!-- Compression = gzip -->", 1, FORCE_GZIP );
+				$gzsize = strlen($gzdata);
+			}
 			if ($wp_cache_gzip_encoding) {
-
 				array_push($wp_cache_meta_object->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
 				array_push($wp_cache_meta_object->headers, 'Vary: Accept-Encoding, Cookie');
 				array_push($wp_cache_meta_object->headers, 'Content-Length: ' . strlen($gzdata));
