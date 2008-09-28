@@ -236,11 +236,11 @@ function wp_cache_ob_callback($buffer) {
 			if( $fr2 )
 				fputs($fr2, $store . '<!-- super cache -->' );
 			if( $gz )
-				fputs($gz, $store . '<!-- super cache gz -->' );
+				fputs($gz, gzencode( $store . '<!-- super cache gz -->', 1, FORCE_GZIP ) );
 		} else {
 			$log = "<!-- Cached page served by WP-Super-Cache -->\n";
 
-			$gzdata = gzencode($buffer . $log . "<!-- Compression = gzip -->", 1, FORCE_GZIP);
+			$gzdata = gzencode( $buffer . $log . "<!-- Compression = gzip -->", 1, FORCE_GZIP );
 			$gzsize = strlen($gzdata);
 			if ($wp_cache_gzip_encoding) {
 
