@@ -220,11 +220,17 @@ function toggleLayer( whichLayer ) {
 					break;
 			}
 			if( isset( $_POST[ 'wp_cache_hello_world' ] ) ) {
-				$wp_cache_hello_world = (int)$_POST[ 'wp_cache_hello_world' ];
+				$wp_cache_hello_world = 1;
 			} else {
 				$wp_cache_hello_world = 0;
 			}
 			wp_cache_replace_line('^ *\$wp_cache_hello_world', '$wp_cache_hello_world = ' . (int)$wp_cache_hello_world . ";", $wp_cache_config_file);
+			if( isset( $_POST[ 'wp_cache_clear_on_post_edit' ] ) ) {
+				$wp_cache_clear_on_post_edit = 1;
+			} else {
+				$wp_cache_clear_on_post_edit = 0;
+			}
+			wp_cache_replace_line('^ *\$wp_cache_clear_on_post_edit', "\$wp_cache_clear_on_post_edit = " . $wp_cache_clear_on_post_edit . ";", $wp_cache_config_file);
 		}
 		if( isset( $_POST[ 'cache_compression' ] ) && $_POST[ 'cache_compression' ] != $cache_compression ) {
 			$cache_compression_changed = true;
@@ -234,12 +240,6 @@ function toggleLayer( whichLayer ) {
 				prune_super_cache ($cache_path, true);
 			delete_option( 'super_cache_meta' );
 		}
-		if( isset( $_POST[ 'wp_cache_clear_on_post_edit' ] ) ) {
-			$wp_cache_clear_on_post_edit = 1;
-		} else {
-			$wp_cache_clear_on_post_edit = 0;
-		}
-		wp_cache_replace_line('^ *\$wp_cache_clear_on_post_edit', "\$wp_cache_clear_on_post_edit = " . $wp_cache_clear_on_post_edit . ";", $wp_cache_config_file);
 	}
 
 	?><fieldset class="options"> 
