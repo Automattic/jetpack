@@ -160,7 +160,7 @@ function toggleLayer( whichLayer ) {
 	}
 	if(isset($_REQUEST['wp_restore_config']) && $valid_nonce) {
 		unlink($wp_cache_config_file);
-		echo '<strong>Configuration file changed, some values might be wrong. Load the page again from the "Options" menu to reset them.</strong>';
+		echo '<strong>Configuration file changed, some values might be wrong. Load the page again from the "Settings" menu to reset them.</strong>';
 	}
 
 	if ( !wp_cache_check_link() ||

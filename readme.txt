@@ -31,7 +31,7 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 3. Upload this directory to your plugins directory. It will create a 'wp-content/plugins/wp-super-cache/' directory.
 4. If you are using WordPress MU you will need to install this in 'wp-content/mu-plugins/wp-super-cache/' and the file wp-cache.php must be copied into the mu-plugins directory.
 5. WordPress users should go to their Plugins page and activate "WP Super Cache".
-6. Now go to Options->WP Super Cache and enable caching. If you see an error message or a blank screen you may need to fix it. See the "FAQ" section later in this readme for instructions.
+6. Now go to Settings->WP Super Cache and enable caching. If you see an error message or a blank screen you may need to fix it. See the "FAQ" section later in this readme for instructions.
 7. mod_rewrite rules will be inserted into your .htaccess file. Look in your web root directory for this file. It should look similar to this:
 
 	`-----------------.htaccess-----------------`
@@ -117,10 +117,10 @@ If you can't do that, then copy the file. That will work too.
 5.  Make sure the following line is in wp-config.php and it is ABOVE the "require_once(ABSPATH.'wp-settings.php');" line:
 
     `define( 'WP_CACHE', true );`
-6.  Try the Options->WP Super Cache page again and enable cache.
+6.  Try the Settings->WP Super Cache page again and enable cache.
 7.  Look in wp-content/cache/supercache/. Are there directories and files there?
 8.  Anything in your php error_log?
-9.  If your browser keeps asking you to save the file after the super cache is installed you must disable Super Cache compression. Go to the Options->WP Super Cache page and disable it there.
+9.  If your browser keeps asking you to save the file after the super cache is installed you must disable Super Cache compression. Go to the Settings->WP Super Cache page and disable it there.
 10.  The plugin does not work very well when PHP's safe mode is active. This must be disabled by your administrator.
 11. If pages are randomly super cached and sometimes not, your blog can probably be viewed with and without the "www" prefix on the URL. You should choose one way and install the [Enforce www preference](http://txfx.net/code/wordpress/enforce-www-preference/) plugin.
 12. Private Server users at Dreamhost should edit wp-content/wp-cache-config.php and set the cache dir to "/tmp/" if they are getting errors about increasing CPU usage. See this [discussion](http://wordpress.org/support/topic/145895?replies=42) for more.
