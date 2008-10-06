@@ -42,8 +42,7 @@ function gzip_accepted(){
 		return false;
 
 	if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') === false) return false;
-	if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'x-gzip') === false) return 'gzip';
-	return 'x-gzip';
+	return 'gzip';
 }
 
 if ($cache_compression) {

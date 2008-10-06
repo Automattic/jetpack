@@ -413,7 +413,7 @@ function wsc_mod_rewrite() {
 	}
 	// http://allmybrain.com/2007/11/08/making-wp-super-cache-gzip-compression-work/
 	if( !is_file( $cache_path . '.htaccess' ) ) {
-		$gziprules =  "<IfModule mod_mime.c>\n  AddEncoding x-gzip .gz\n  AddType text/html .gz\n</IfModule>\n";
+		$gziprules =  "<IfModule mod_mime.c>\n  AddEncoding gzip .gz\n  AddType text/html .gz\n</IfModule>\n";
 		$gziprules .= "<IfModule mod_deflate.c>\n  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n</IfModule>\n";
 		$gziprules .= "<IfModule mod_headers.c>\n  Header set Cache-Control 'max-age=300, must-revalidate'\n</IfModule>\n";
 		$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A300\n</IfModule>\n";
