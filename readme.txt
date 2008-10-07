@@ -60,7 +60,7 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 	`# BEGIN supercache`
 	`<IfModule mod_mime.c>`
-	`  AddEncoding x-gzip .gz`
+	`  AddEncoding gzip .gz`
 	`  AddType text/html .gz`
 	`</IfModule>`
 	`<IfModule mod_deflate.c>`
