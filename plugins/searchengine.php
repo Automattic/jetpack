@@ -5,6 +5,9 @@ function wp_supercache_searchengine( $string ) {
 	if( $cache_no_adverts_for_friends != 'yes' )
 		return $string;
 
+	if( $string != '' )
+		return $string;
+
 	if( $_COOKIE[ '7a1254cba80da02d5478d91cfd0a873a' ] == 1 ) {
 		$string = 'searchengine';
 	} elseif( $_SERVER[ 'HTTP_REFERER' ] != '' ) {
