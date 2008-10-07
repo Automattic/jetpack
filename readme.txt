@@ -127,7 +127,7 @@ If you can't do that, then copy the file. That will work too.
 13. sem_acquire() errors such as "failed to acquire key 0x152b: Permission denied in..." are a sign that you must use file locking. Edit wp-content/wp-cache-config.php and uncomment "$use_flock = true" or  set $sem_id to a different value.
 
 == Custom Caching ==
-It is now possible to hook into the caching process using the add_cacheacton() function.
+It is now possible to hook into the caching process using the add_cacheaction() function.
 
 Three hooks are available:
 
