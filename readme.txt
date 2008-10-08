@@ -2,7 +2,7 @@
 Contributors: donncha
 Tags: performance,caching,wp-cache
 Tested up to: 2.6.2
-Stable tag: 0.8.2
+Stable tag: 0.8.3
 Requires at least: 2.2
 
 A very fast caching engine for WordPress that produces static html files.
@@ -78,6 +78,10 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == Frequently Asked Questions ==
 
+= How do I know my blog is being cached? =
+
+View the source of any page on your site. When a page is first created, you'll see the text "Dynamic Page Served (once) in X.XXXXX seconds" at the end of the source code. On reload, a cached page displays, "Cached page served by WP-Super-Cache". Check your cache directory wp-content/cache/supercache/hostname/ for static cache files.
+
 = Why is WP-Super-Cache better than WP-Cache? =
 
 This plugin is based on the excellent WP-Cache plugin and therefore brings all the benefits of that plugin to WordPress. On top of that it creates copies of every page that is accessed on a blog in a form that is quickly served by the web server. It's almost as quick as if the you had saved a page in your browser and uploaded it to replace your homepage.
@@ -85,10 +89,6 @@ This plugin is based on the excellent WP-Cache plugin and therefore brings all t
 = Will comments and other dynamic parts of my blog update immediately? =
 
 Comments will show as soon as they are moderated, depending on the comment policy of the blog owner. Other dynamic elements on a page may not update unless they are written in Javascript, Flash, Java or another client side browser language. The plugin really produces static html pages. No PHP is executed when those pages are served. "Popularity Contest" is one such plugin that will not work.
-
-= Why are there two expiry times? =
-
-WP Super Cache stores it's cached files in a different way to WP Cache that lets it work better even when there are very many cached files. That is why the Super Cache expiry time is so much longer by default. If your site starts to slow down and there are too many cached files reduce these times and change the garbage collection number too.
 
 = Will the Super Cache compression slow down my server? =
 
@@ -121,7 +121,7 @@ If you can't do that, then copy the file. That will work too.
 7.  Look in wp-content/cache/supercache/. Are there directories and files there?
 8.  Anything in your php error_log?
 9.  If your browser keeps asking you to save the file after the super cache is installed you must disable Super Cache compression. Go to the Settings->WP Super Cache page and disable it there.
-10.  The plugin does not work very well when PHP's safe mode is active. This must be disabled by your administrator.
+10. The plugin does not work very well when PHP's safe mode is active. This must be disabled by your administrator.
 11. If pages are randomly super cached and sometimes not, your blog can probably be viewed with and without the "www" prefix on the URL. You should choose one way and install the [Enforce www preference](http://txfx.net/code/wordpress/enforce-www-preference/) plugin.
 12. Private Server users at Dreamhost should edit wp-content/wp-cache-config.php and set the cache dir to "/tmp/" if they are getting errors about increasing CPU usage. See this [discussion](http://wordpress.org/support/topic/145895?replies=42) for more.
 13. sem_acquire() errors such as "failed to acquire key 0x152b: Permission denied in..." are a sign that you must use file locking. Edit wp-content/wp-cache-config.php and uncomment "$use_flock = true" or  set $sem_id to a different value.
