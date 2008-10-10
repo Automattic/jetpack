@@ -626,13 +626,16 @@ function wp_cache_edit_max_time () {
 	echo '<form name="wp_edit_max_time" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<label for="wp_max_time">Expire time:</label> ';
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> seconds<br />";
-	if( !isset( $wp_cache_gc ) )
-		$wp_cache_gc = 1000;
-	echo "<h4>Garbage Collection</h4><p>How often should expired files be deleted? Once every:</p>";
-	echo "<ul><li><input type='radio' name='wp_cache_gc' value='1000'" . ( $wp_cache_gc == 1000 ? ' checked=checked' : '' ) . " /> 1000 requests</li>\n";
-	echo "<li><input type='radio' name='wp_cache_gc' value='2000'" . ( $wp_cache_gc == 2000 ? ' checked=checked' : '' ) . " /> 2000 requests</li>\n";
-	echo "<li><input type='radio' name='wp_cache_gc' value='5000'" . ( $wp_cache_gc == 5000 ? ' checked=checked' : '' ) . " /> 5000 requests</li></ul>\n";
-	echo "<p>Checking for and deleting expired files is expensive, but it's expensive leaving them there too. On a very busy site you can leave this fairly high. Experiment with different values and visit this page to see how many expired files remain at different times during the day.</p><p>Simple rule of thumb: divide your number of daily page views by 5 and pick the closest number above.</p>";
+	if( !isset( $wp_cache_gc ) ) {
+		$wp_cache_gc = 3600;
+	} elseif( $wp_cache_gc != '3600' && $wp_cache_gc != '21600' && $wp_cache_gc != '86400' ) {
+		$wp_cache_gc = '3600';
+	}
+	echo "<h4>Garbage Collection</h4><p>How often should expired files be deleted?</p>";
+	echo "<ul><li><input type='radio' name='wp_cache_gc' value='3600'" . ( $wp_cache_gc == 3600 ? ' checked=checked' : '' ) . " /> Once every hour.</li>\n";
+	echo "<li><input type='radio' name='wp_cache_gc' value='21600'" . ( $wp_cache_gc == 21600 ? ' checked=checked' : '' ) . " /> Once every 6 hours. </li>\n";
+	echo "<li><input type='radio' name='wp_cache_gc' value='86400'" . ( $wp_cache_gc == 86400 ? ' checked=checked' : '' ) . " /> Once every 24 hours.</li></ul>\n";
+	echo "<p>Checking for and deleting expired files is expensive, but it's expensive leaving them there too. On a very busy site you can leave this fairly high. Experiment with different values and visit this page to see how many expired files remain at different times during the day.</p>";
 	echo '<div><input type="submit" ' . SUBMITDISABLED . 'value="Change expiration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
