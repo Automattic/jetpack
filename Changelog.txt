@@ -1,3 +1,20 @@
+2008-10-22 15:55  donncha
+
+	* readme.txt, wp-cache.php: Bump version number to 0.8.4
+
+2008-10-11 22:10  donncha
+
+	* wp-cache-phase2.php: Update the time of last gc
+
+2008-10-10 11:54  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Change garbage collection
+	  parameters to time rather than hits
+
+2008-10-08 16:06  donncha
+
+	* Changelog.txt: Updated changelog
+
 2008-10-08 16:04  donncha
 
 	* readme.txt, wp-cache.php: Bump version numbers to 0.8.3
