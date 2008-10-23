@@ -941,6 +941,8 @@ function wp_cache_check_link() {
 }
 
 function wp_cache_check_global_config() {
+	if( WP_CACHE )
+		return true;
 
 	if ( file_exists( ABSPATH . 'wp-config.php') ) {
 		$global = ABSPATH . 'wp-config.php';
@@ -950,7 +952,7 @@ function wp_cache_check_global_config() {
 
 	$lines = file($global);
 	foreach($lines as $line) {
-	 	if (preg_match('/^ *define *\( *\'WP_CACHE\' *, *true *\) *;/', $line)) {
+		if (preg_match('/^\s*define\s*\(\s*\'WP_CACHE\'\s*,\s*(?i:TRUE|1)\s*\)\s*;/', $line)) {
 			return true;
 		}
 	}
