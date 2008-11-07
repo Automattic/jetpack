@@ -322,8 +322,9 @@ function wsc_mod_rewrite() {
 	$home_path = get_home_path();
 	$home_root = parse_url(get_bloginfo('url'));
 	$home_root = trailingslashit($home_root['path']);
-	$inst_root = parse_url(get_bloginfo('wpurl'));
-	$inst_root = trailingslashit($inst_root['path']);
+	//$inst_root = parse_url(get_bloginfo('wpurl'));
+	//$inst_root = trailingslashit($inst_root['path']);
+	$inst_root = trailingslashit( str_replace( get_option('siteurl'), '', WP_CONTENT_URL ) );
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
 	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
 	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
@@ -345,12 +346,12 @@ function wsc_mod_rewrite() {
 	$rules .= "AddDefaultCharset {$charset}\n";
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
-	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
-	$rules .= "RewriteRule ^(.*) {$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz [L]\n\n";
+	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) {$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
-	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
-	$rules .= "RewriteRule ^(.*) {$inst_root}wp-content/cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
+	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
+	$rules .= "RewriteRule ^(.*) {$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
 	$rules .= "</IfModule>\n";
 	$rules = apply_filters( 'supercacherewriterules', $rules );
 
@@ -892,10 +893,11 @@ function wp_cache_verify_config_file() {
 			return false;
 		}
 		copy($wp_cache_config_file_sample, $wp_cache_config_file);
+		$dir = str_replace( '\\', '/', str_replace( WP_CONTENT_DIR, '', dirname(__FILE__) ) );
 		if( is_file( dirname(__FILE__) . '/wp-cache-config-sample.php' ) ) {
-			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', ABSPATH . " . str_replace( '\\', '/', str_replace( ABSPATH, ' "', dirname(__FILE__) ) ) . "/\" );", $wp_cache_config_file);
+			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', WP_CONTENT_DIR . \"{$dir}/\" );", $wp_cache_config_file);
 		} elseif( is_file( dirname(__FILE__) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
-			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', ABSPATH . " . str_replace( '\\', '/', str_replace( ABSPATH, ' "', dirname(__FILE__) ) ) . "/wp-super-cache/\" );", $wp_cache_config_file);
+			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', WP_CONTENT_DIR . \"{$dir}/wp-super-cache/\" );", $wp_cache_config_file);
 		}
 		$new = true;
 	}
