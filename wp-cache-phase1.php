@@ -37,6 +37,9 @@ $cache_filename = '';
 $meta_file = '';
 $wp_cache_gzip_encoding = '';
 
+$gzipped = 0;
+$gzsize = 0;
+
 function gzip_accepted(){
 	if( ini_get( 'zlib.output_compression' ) ) // don't compress WP-Cache data files when PHP is already doing it
 		return false;
@@ -62,6 +65,12 @@ if( ($mtime = @filemtime($meta_pathname)) ) {
 		$meta = new CacheMeta;
 		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
 			return;
+		// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
+		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta->headers ) ) {
+			array_push($meta, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
+			array_push($meta, 'Vary: Accept-Encoding, Cookie');
+			array_push($meta, 'Content-Length: ' . filesize( $cache_file ) );
+		}
 		foreach ($meta->headers as $header) {
 			// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
 			if( strpos( $header, 'Last-Modified:' ) === false ) 
@@ -72,10 +81,6 @@ if( ($mtime = @filemtime($meta_pathname)) ) {
 		if ($meta->dynamic) {
 			include($cache_file);
 		} else {
-			/* No used to avoid problems with some PHP installations
-			$content_size += strlen($log);
-			header("Content-Length: $content_size");
-			*/
 			if(!@readfile ($cache_file)) 
 				return;
 		}
