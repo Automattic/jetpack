@@ -230,6 +230,7 @@ function wp_cache_ob_callback($buffer) {
 					"<!--mclude-->\n<?php include_once('" . ABSPATH . "$1'); ?>\n<!--/mclude-->", $buffer);
 			$store = preg_replace('|<!--mfunc (.*?)-->(.*?)<!--/mfunc-->|is', 
 					"<!--mfunc-->\n<?php $1 ;?>\n<!--/mfunc-->", $store);
+			$store = apply_filters( 'wpsupercache_buffer', $store );
 			$wp_cache_meta_object->dynamic = true;
 			/* Clean function calls in tag */
 			$buffer = preg_replace('|<!--mclude (.*?)-->|is', '<!--mclude-->', $buffer);
@@ -240,6 +241,7 @@ function wp_cache_ob_callback($buffer) {
 			if( $gz )
 				fputs($gz, gzencode( $store . '<!-- super cache gz -->', 1, FORCE_GZIP ) );
 		} else {
+			$buffer = apply_filters( 'wpsupercache_buffer', $buffer );
 			$log = "<!-- Cached page served by WP-Super-Cache -->\n";
 
 			if( $gz || $wp_cache_gzip_encoding ) {
