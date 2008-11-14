@@ -389,12 +389,6 @@ function wp_cache_shutdown_callback() {
 	$wp_cache_meta_object->blog_id=$blog_id;
 	$wp_cache_meta_object->post = wp_cache_post_id();
 
-	if( $gzipped && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $wp_cache_meta_object->headers ) ) {
-		array_push($wp_cache_meta_object->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
-		array_push($wp_cache_meta_object->headers, 'Vary: Accept-Encoding, Cookie');
-		array_push($wp_cache_meta_object->headers, 'Content-Length: ' . $gzsize);
-	}
-
 	$response = wp_cache_get_response_headers();
 	foreach ($known_headers as $key) {
 		if(isset($response[$key])) {
@@ -448,6 +442,12 @@ function wp_cache_shutdown_callback() {
 	@ob_end_flush();
 	flush(); //Ensure we send data to the client
 	if ($new_cache) {
+		if( $gzipped && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $wp_cache_meta_object->headers ) ) {
+			array_push($wp_cache_meta_object->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
+			array_push($wp_cache_meta_object->headers, 'Vary: Accept-Encoding, Cookie');
+			array_push($wp_cache_meta_object->headers, 'Content-Length: ' . $gzsize);
+		}
+
 		$serial = serialize($wp_cache_meta_object);
 		if( !wp_cache_writers_entry() )
 			return false;
