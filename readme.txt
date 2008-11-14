@@ -122,9 +122,10 @@ If you can't do that, then copy the file. That will work too.
 8.  Anything in your php error_log?
 9.  If your browser keeps asking you to save the file after the super cache is installed you must disable Super Cache compression. Go to the Settings->WP Super Cache page and disable it there.
 10. The plugin does not work very well when PHP's safe mode is active. This must be disabled by your administrator.
-11. If pages are randomly super cached and sometimes not, your blog can probably be viewed with and without the "www" prefix on the URL. You should choose one way and install the [Enforce www preference](http://txfx.net/code/wordpress/enforce-www-preference/) plugin.
+11. If pages are randomly super cached and sometimes not, your blog can probably be viewed with and without the "www" prefix on the URL. You should choose one way and install the [Enforce www preference](http://txfx.net/code/wordpress/enforce-www-preference/) plugin if you are using an old WordPress install. The latest versions redirect themselves (you should always be running the latest version of WordPress anyway!)
 12. Private Server users at Dreamhost should edit wp-content/wp-cache-config.php and set the cache dir to "/tmp/" if they are getting errors about increasing CPU usage. See this [discussion](http://wordpress.org/support/topic/145895?replies=42) for more.
-13. sem_acquire() errors such as "failed to acquire key 0x152b: Permission denied in..." are a sign that you must use file locking. Edit wp-content/wp-cache-config.php and uncomment "$use_flock = true" or  set $sem_id to a different value.
+13. File locking errors such as "failed to acquire key 0x152b: Permission denied in..." or "Page not cached by WP Super Cache. Could not get mutex lock." are a sign that you may have to use file locking. Edit wp-content/wp-cache-config.php and uncomment "$use_flock = true" or set $sem_id to a different value.
+14. Make sure cache/wp_cache_mutex.lock is writeable by the web server.
 
 == Custom Caching ==
 It is now possible to hook into the caching process using the add_cacheaction() function.
