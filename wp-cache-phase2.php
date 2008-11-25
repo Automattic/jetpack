@@ -151,6 +151,7 @@ function wp_cache_writers_exit() {
 function get_current_url_supercache_dir() {
 	global $cached_direct_pages, $cache_path;
 	$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $_SERVER['REQUEST_URI'] ) ) ) );
+	$uri = str_replace( '\\', '', $uri );
 	$dir = strtolower(preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"])) . $uri; // To avoid XSS attacs
 	$dir = trailingslashit( $cache_path . 'supercache/' . $dir );
 	if( is_array( $cached_direct_pages ) && in_array( $_SERVER[ 'REQUEST_URI' ], $cached_direct_pages ) ) {
