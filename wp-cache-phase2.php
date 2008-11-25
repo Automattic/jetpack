@@ -333,7 +333,7 @@ function prune_super_cache($directory, $force = false, $rename = false) {
 					if( in_array( $entry, $protected_directories ) )
 						$oktodelete = false;
 					if( $oktodelete && !$rename )
-						@rmdir( addslashes( $entry ) );
+						@rmdir( $entry );
 				}
 			}
 		}
@@ -342,7 +342,7 @@ function prune_super_cache($directory, $force = false, $rename = false) {
 		if( in_array( $directory, $protected_directories ) )
 			$oktodelete = false;
 		if( $oktodelete && !$rename ) {
-			@unlink( addslashes( $directory ) );
+			@unlink( $directory );
 		} elseif( $oktodelete && $rename ) {
 			if( $cache_rebuild_files && substr( $directory, -14 ) != '.needs-rebuild' ) {
 				if( @rename($directory, $directory . '.needs-rebuild') )
