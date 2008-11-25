@@ -257,6 +257,26 @@ function toggleLayer( whichLayer ) {
 	wp_nonce_field('wp-cache');
 	?>
 	</form>
+	<?php
+	if( function_exists( 'apache_get_modules' ) ) {
+		$mods = apache_get_modules();
+		$required_modules = array( 'mod_mime' => 'Required to serve compressed supercache files properly.', 'mod_headers' => 'Required to set caching information on supercache pages. IE7 users will see old pages without this module.', 'mod_expires' => 'Set the expiry date on supercached pages. Visitors may not see new pages when they refresh or leave comments without this module.' );
+		foreach( $required_modules as $req => $desc ) {
+			if( !in_array( $req, $mods ) ) {
+				$missing_mods[ $req ] = $desc;
+			}
+		}
+		if( is_array( $missing_mods ) ) {
+			echo "<h3>Missing Apache Modules</h3>";
+			echo "<p>The following Apache modules are missing. The plugin will work without them but your visitors may see corrupted pages or out of date content.</p>";
+			echo "<ul>";
+			foreach( $missing_mods as $req => $desc ) {
+				echo "<li> $req - $desc</li>";
+			}
+			echo "</ul>";
+		}
+	}
+	?>
 	</fieldset>
 	<?php
 
@@ -380,18 +400,33 @@ function wsc_mod_rewrite() {
 	} elseif( strpos( $scrules, 'supercache' ) || strpos( $wprules, 'supercache' ) ) { // only write the rules once
 		$dohtaccess = false;
 	}
+	// cache/.htaccess rules
+	$gziprules =  "<IfModule mod_mime.c>\n  AddEncoding gzip .gz\n  AddType text/html .gz\n</IfModule>\n";
+	$gziprules .= "<IfModule mod_deflate.c>\n  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n</IfModule>\n";
+	$gziprules .= "<IfModule mod_headers.c>\n  Header set Cache-Control 'max-age=300, must-revalidate'\n</IfModule>\n";
+	$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A300\n</IfModule>\n";
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
 		if( !is_writeable_ACLSafe( $home_path . ".htaccess" ) ) {
 			echo "<div style='padding: 2px; background: #ff0'><h4>Cannot update .htaccess</h4><p>The file <code>{$home_path}.htaccess</code> cannot be modified by the web server. Please correct this using the chmod command or your ftp client.</p><p>Refresh this page when the file permissions have been modified.</p><p>Alternatively, you can edit your <code>{$home_path}.htaccess</code> file manually and add the following code (before any WordPress rules):</p>";
 			echo "<p><pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p></div>";
 		} else {
-			echo "<div style='padding: 2px; background: #ff0'><p>To serve static html files your server must have the correct mod_rewrite rules added to a file called <code>{$home_path}.htaccess</code><br /> This can be done automatically by clicking the <em>'Update mod_rewrite rules &raquo;'</em> button or you can edit the file yourself and add the following rules. Make sure they appear before any existing WordPress rules.";
+			echo "<div style='padding: 2px; background: #ff0'><p>To serve static html files your server must have the correct mod_rewrite rules added to a file called <code>{$home_path}.htaccess</code><br /> ";
+			if( !function_exists( 'is_site_admin' ) ) {
+				echo "You must edit the file yourself add the following rules.";
+			} else {
+				echo "You can edit the file yourself add the following rules.";
+			}
+			echo " Make sure they appear before any existing WordPress rules.</p>";
 			echo "<pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>";
-			echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '#modrewrite" method="post">';
-			echo '<input type="hidden" name="updatehtaccess" value="1" />';
-			echo '<div><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="Update mod_rewrite rules &raquo;" /></div>';
-			wp_nonce_field('wp-cache');
-			echo "</form></div>\n";
+			echo "<p>Rules must be added to WP_CONTENT_DIR/cache/.htaccess too:</p>";
+			echo "<pre># BEGIN supercache\n" . wp_specialchars( $gziprules ) . "# END supercache</pre></p>";
+			if( !function_exists( 'is_site_admin' ) ) {
+				echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '#modrewrite" method="post">';
+				echo '<input type="hidden" name="updatehtaccess" value="1" />';
+				echo '<div><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="Update mod_rewrite rules &raquo;" /></div>';
+				wp_nonce_field('wp-cache');
+				echo "</form></div>\n";
+			}
 		}
 	} elseif( $dohtaccess && $valid_nonce && $_POST[ 'updatehtaccess' ] ) {
 		wpsc_remove_marker( $home_path.'.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
@@ -408,16 +443,14 @@ function wsc_mod_rewrite() {
 		?>
 		<p>WP Super Cache mod rewrite rules were detected in your <?php echo $home_path ?>.htaccess file. Click the following link to see the lines added to that file. If you have upgraded the plugin make sure these rules match. <a href="javascript:toggleLayer('rewriterules');" title="See your mod_rewrite rules">View mod_rewrite rules</a>
 		<div id='rewriterules' style='display: none;'>
-		<?php echo "<p><pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>\n"; ?>
+		<?php echo "<p><pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>\n"; 
+		echo "<p>Rules must be added to " . WP_CONTENT_DIR ."/cache/.htaccess too:</p>";
+		echo "<pre># BEGIN supercache\n" . wp_specialchars( $gziprules ) . "# END supercache</pre></p>"; ?>
 		</div>
 		<?php
 	}
 	// http://allmybrain.com/2007/11/08/making-wp-super-cache-gzip-compression-work/
 	if( !is_file( $cache_path . '.htaccess' ) ) {
-		$gziprules =  "<IfModule mod_mime.c>\n  AddEncoding gzip .gz\n  AddType text/html .gz\n</IfModule>\n";
-		$gziprules .= "<IfModule mod_deflate.c>\n  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n</IfModule>\n";
-		$gziprules .= "<IfModule mod_headers.c>\n  Header set Cache-Control 'max-age=300, must-revalidate'\n</IfModule>\n";
-		$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A300\n</IfModule>\n";
 		$gziprules = insert_with_markers( $cache_path . '.htaccess', 'supercache', explode( "\n", $gziprules ) );
 		echo "<h4>Gzip encoding rules in {$cache_path}.htaccess created.</h4>";
 	}
