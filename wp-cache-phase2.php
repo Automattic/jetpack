@@ -254,7 +254,7 @@ function wp_cache_ob_callback($buffer) {
 				array_push($wp_cache_meta_object->headers, 'Content-Length: ' . strlen($gzdata));
 				// Return uncompressed data & store compressed for later use
 				fputs($fr, $gzdata);
-			}else{ // no compression
+			} else { // no compression
 				array_push($wp_cache_meta_object->headers, 'Vary: Cookie');
 				fputs($fr, $buffer.$log);
 			}

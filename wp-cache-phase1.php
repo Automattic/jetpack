@@ -60,7 +60,7 @@ $cache_file = realpath( $cache_path . $cache_filename );
 $meta_pathname = realpath( $cache_path . 'meta/' . $meta_file );
 
 $wp_start_time = microtime();
-if( ($mtime = @filemtime($meta_pathname)) ) {
+if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 	if ($mtime + $cache_max_time > time() ) {
 		$meta = new CacheMeta;
 		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
