@@ -1,3 +1,89 @@
+2008-11-25 12:58  donncha
+
+	* readme.txt, wp-cache.php: Bump version number to 0.8.5
+
+2008-11-25 12:45  donncha
+
+	* wp-cache-phase2.php: Added "supercache_dir" filter so supercache
+	  directory can be modified.
+
+2008-11-25 12:40  donncha
+
+	* wp-cache-phase2.php: Removed backslashes from the supercache
+	  filename
+
+2008-11-25 12:27  donncha
+
+	* wp-cache.php: Warn if Apache modules are missing.
+	  Display gzip cache rewrite rules.
+	  Deal with WordPress MU better as it can't upgrade the .htaccess
+	  file.
+
+2008-11-25 12:24  donncha
+
+	* wp-cache-phase1.php: Added wp_cache_key cacheaction to modify
+	  cache key (ie. add user agent, IP, etc)
+
+2008-11-25 11:10  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Check that cache file
+	  exists before serving, it may have been removed without the meta
+	  file
+
+2008-11-25 11:01  donncha
+
+	* wp-cache-phase2.php: Removed $gzipped variable
+
+2008-11-25 10:54  donncha
+
+	* wp-cache-phase2.php: No need to addslashes() to file functions
+
+2008-11-14 13:20  donncha
+
+	* wp-cache-phase2.php: Added wpsupercache_buffer filter so buffer
+	  can be manipulated before writing to cache file
+
+2008-11-14 13:00  donncha
+
+	* wp-cache-phase2.php: Move gzip header detection down
+
+2008-11-14 10:09  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Add gzip headers back
+	  if they are missing. Should fix problems with users seeing
+	  corrupted pages.
+
+2008-11-14 10:00  donncha
+
+	* readme.txt: Updated docs on file locking
+
+2008-11-11 17:28  donncha
+
+	* wp-cache-phase2.php: Write wp-cache php cache files to temporary
+	  files before moving into place.
+	  Increase gzip compression to 3
+	  If cron job failed to get mutex lock, try again in 10 minutes
+
+2008-11-07 09:43  donncha
+
+	* wp-cache.php: Use WP_CONTENT_URL in mod_rewrite rules.
+	  Use WP_CONTENT_DIR in WPCACHEHOME definition.
+
+2008-10-27 13:21  donncha
+
+	* readme.txt: Added links section and link to WP Widget Cache,
+	  props to Ben @ http://www.binarymoon.co.uk/
+	  Minor troubleshooting update
+
+2008-10-23 08:14  donncha
+
+	* wp-cache.php: wp_cache_check_global_config() fixes by joelhardi,
+	  http://wordpress.org/support/topic/211477?replies=1#post-879591
+
+2008-10-22 15:57  donncha
+
+	* Changelog.txt: Updated changelog
+
 2008-10-22 15:55  donncha
 
 	* readme.txt, wp-cache.php: Bump version number to 0.8.4
