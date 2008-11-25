@@ -164,7 +164,7 @@ function wp_cache_ob_callback($buffer) {
 	global $cache_path, $cache_filename, $meta_file, $wp_start_time, $supercachedir;
 	global $new_cache, $wp_cache_meta_object, $file_expired, $blog_id, $cache_compression;
 	global $wp_cache_gzip_encoding, $super_cache_enabled, $cached_direct_pages;
-	global $wp_cache_404, $gzipped, $gzsize;
+	global $wp_cache_404, $gzsize;
 
 	$new_cache = true;
 
@@ -247,8 +247,6 @@ function wp_cache_ob_callback($buffer) {
 			if( $gz || $wp_cache_gzip_encoding ) {
 				$gzdata = gzencode( $buffer . $log . "<!-- Compression = gzip -->", 3, FORCE_GZIP );
 				$gzsize = strlen($gzdata);
-				if( $wp_cache_gzip_encoding )
-					$gzipped = 1;
 			}
 			if ($wp_cache_gzip_encoding) {
 				array_push($wp_cache_meta_object->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
@@ -385,7 +383,7 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 }
 
 function wp_cache_shutdown_callback() {
-	global $cache_path, $cache_max_time, $file_expired, $file_prefix, $meta_file, $new_cache, $wp_cache_meta_object, $known_headers, $blog_id, $wp_cache_gc, $wp_cache_gzip_encoding, $gzipped, $gzsize;
+	global $cache_path, $cache_max_time, $file_expired, $file_prefix, $meta_file, $new_cache, $wp_cache_meta_object, $known_headers, $blog_id, $wp_cache_gc, $wp_cache_gzip_encoding, $gzsize, $cache_filename;
 
 	$wp_cache_meta_object->uri = $_SERVER["SERVER_NAME"].preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $_SERVER['REQUEST_URI']); // To avoid XSS attacs
 	$wp_cache_meta_object->blog_id=$blog_id;
@@ -444,7 +442,7 @@ function wp_cache_shutdown_callback() {
 	@ob_end_flush();
 	flush(); //Ensure we send data to the client
 	if ($new_cache) {
-		if( $gzipped && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $wp_cache_meta_object->headers ) ) {
+		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $wp_cache_meta_object->headers ) ) {
 			array_push($wp_cache_meta_object->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
 			array_push($wp_cache_meta_object->headers, 'Vary: Accept-Encoding, Cookie');
 			array_push($wp_cache_meta_object->headers, 'Content-Length: ' . $gzsize);
