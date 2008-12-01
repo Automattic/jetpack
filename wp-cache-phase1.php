@@ -67,9 +67,9 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 			return;
 		// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
 		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta->headers ) ) {
-			array_push($meta, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
-			array_push($meta, 'Vary: Accept-Encoding, Cookie');
-			array_push($meta, 'Content-Length: ' . filesize( $cache_file ) );
+			array_push($meta->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
+			array_push($meta->headers, 'Vary: Accept-Encoding, Cookie');
+			array_push($meta->headers, 'Content-Length: ' . filesize( $cache_file ) );
 		}
 		foreach ($meta->headers as $header) {
 			// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
