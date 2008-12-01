@@ -222,8 +222,23 @@ function wp_cache_ob_callback($buffer) {
 				$cache_fname = "{$dir}index.html";
 				$tmp_cache_filename = tempnam( $dir, "wpsupercache");
 				$fr2 = @fopen( $tmp_cache_filename, 'w' );
-				if( $cache_compression )
+				if (!$fr2) {
+					$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $tmp_cache_filename ) . " -->\n";
+					fclose( $fp );
+					unlink( $tmp_wpcache_filename );
+					return $buffer;
+				}
+				if( $cache_compression ) {
 					$gz = @fopen( $tmp_cache_filename . ".gz", 'w');
+					if (!$gz) {
+						$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $tmp_cache_filename ) . ".gz -->\n";
+						fclose( $fp );
+						unlink( $tmp_wpcache_filename );
+						fclose( $fp2 );
+						unlink( $tmp_cache_filename );
+						return $buffer;
+					}
+				}
 			}
 		}
 
@@ -447,7 +462,7 @@ function wp_cache_shutdown_callback() {
 		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $wp_cache_meta_object->headers ) ) {
 			array_push($wp_cache_meta_object->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
 			array_push($wp_cache_meta_object->headers, 'Vary: Accept-Encoding, Cookie');
-			array_push($wp_cache_meta_object->headers, 'Content-Length: ' . $gzsize);
+			array_push($wp_cache_meta_object->headers, 'Content-Length: ' . filesize( $cache_path . $cache_filename ));
 		}
 
 		$serial = serialize($wp_cache_meta_object);
