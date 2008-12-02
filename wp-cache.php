@@ -976,7 +976,7 @@ function wp_cache_check_link() {
 }
 
 function wp_cache_check_global_config() {
-	if( WP_CACHE )
+	if( defined( 'WP_CACHE' ) )
 		return true;
 
 	if ( file_exists( ABSPATH . 'wp-config.php') ) {
@@ -985,16 +985,18 @@ function wp_cache_check_global_config() {
 		$global = dirname(ABSPATH) . '/wp-config.php';
 	}
 
+	$howtoenable = "Edit <code>$global</code> and add the following line: <br /><code>define('WP_CACHE', true);</code><br />Otherwise, <b>WP-Cache will not be executed</b> by Wordpress core. <br />";
 	$lines = file($global);
 	foreach($lines as $line) {
 		if (preg_match('/^\s*define\s*\(\s*\'WP_CACHE\'\s*,\s*(?i:TRUE|1)\s*\)\s*;/', $line)) {
-			return true;
+			echo $howtoenable;
+			return false;
 		}
 	}
 	$line = 'define(\'WP_CACHE\', true);';
 	if (!is_writeable_ACLSafe($global) || !wp_cache_replace_line('define *\( *\'WP_CACHE\'', $line, $global) ) {
-			echo "<b>Error: WP_CACHE is not enabled</b> in your <code>wp-config.php</code> file and I couldn't modified it.<br />";
-			echo "Edit <code>$global</code> and add the following line: <br /><code>define('WP_CACHE', true);</code><br />Otherwise, <b>WP-Cache will not be executed</b> by Wordpress core. <br />";
+			echo "<b>Error: WP_CACHE is not enabled</b> in your <code>wp-config.php</code> file and I couldn't modify it.<br />";
+			echo $howtoenable;
 			return false;
 	} 
 	return true;
