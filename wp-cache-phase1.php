@@ -76,6 +76,7 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 			if( strpos( $header, 'Last-Modified:' ) === false ) 
 				header($header);
 		}
+		header( 'WP-Super-Cache: WP-Cache' );
 		if ( !($content_size = @filesize($cache_file)) > 0 || $mtime < @filemtime($cache_file))
 			return;
 		if ($meta->dynamic) {
