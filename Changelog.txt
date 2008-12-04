@@ -1,3 +1,52 @@
+2008-12-04 18:12  donncha
+
+	* wp-cache-phase1.php: Added "WP-Super-Cache: WP-Cache" header for
+	  cached php files.
+
+2008-12-04 17:59  donncha
+
+	* readme.txt, wp-cache.php: Bump version numberb to 2.7
+
+2008-12-04 17:44  donncha
+
+	* wp-cache.php: Hide unlink errors
+
+2008-12-04 16:53  donncha
+
+	* wp-cache-phase2.php: Use uniqid() instead of tempnam() to
+	  generate temporary filenames.
+	  No need for chmod.
+	  Fixed minor typo
+
+2008-12-04 13:40  donncha
+
+	* wp-cache-phase2.php: Record time of cache generation
+
+2008-12-04 13:27  donncha
+
+	* readme.txt: Added Apache configuration docs on AllowOverride
+
+2008-12-02 11:00  donncha
+
+	* wp-cache.php: If WP_CACHE is not enabled, but the define() line
+	  is in wp-config.php, stop, because it's probably commented out.
+
+2008-12-01 11:38  donncha
+
+	* wp-cache-phase2.php: Abort caching if plugin can't write to any
+	  cache file, and report error
+	  $gzsize may not survive to shutdown callback. Get the filesize
+	  again
+
+2008-12-01 11:37  donncha
+
+	* wp-cache-phase1.php: Push the headers into the headers array, not
+	  the meta object
+
+2008-11-25 12:58  donncha
+
+	* Changelog.txt: Updated changelog
+
 2008-11-25 12:58  donncha
 
 	* readme.txt, wp-cache.php: Bump version number to 0.8.5
