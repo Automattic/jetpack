@@ -206,7 +206,7 @@ function wp_cache_ob_callback($buffer) {
 		if( !empty( $_GET ) || is_feed() || ( $super_cache_enabled == true && is_dir( substr( $supercachedir, 0, -1 ) . '.disabled' ) ) )
 			$super_cache_enabled = false;
 
-		$tmp_wpcache_filename = tempnam( $cache_path, "wp-cache");
+		$tmp_wpcache_filename = $cache_path . uniqid( mt_rand(), true ) . '.tmp';
 		$fr = @fopen($tmp_wpcache_filename, 'w');
 		if (!$fr) {
 			$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $cache_path ) . $cache_filename . " -->\n";
@@ -220,7 +220,7 @@ function wp_cache_ob_callback($buffer) {
 			$do_cache = apply_filters( 'do_createsupercache', $user_info );
 			if( $user_info == '' || $do_cache === true ) {
 				$cache_fname = "{$dir}index.html";
-				$tmp_cache_filename = tempnam( $dir, "wpsupercache");
+				$tmp_cache_filename = $dir . uniqid( mt_rand(), true ) . '.tmp';
 				$fr2 = @fopen( $tmp_cache_filename, 'w' );
 				if (!$fr2) {
 					$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $tmp_cache_filename ) . " -->\n";
@@ -283,14 +283,12 @@ function wp_cache_ob_callback($buffer) {
 		}
 		$new_cache = true;
 		fclose($fr);
-		@chmod( $tmp_wpcache_filename, 0666 & ~umask());
 		if( !@rename( $tmp_wpcache_filename, $cache_path . $cache_filename ) ) {
 			unlink( $cache_path . $cache_filename );
 			rename( $tmp_wpcache_filename, $cache_path . $cache_filename );
 		}
 		if( $fr2 ) {
 			fclose($fr2);
-			@chmod( $tmp_cache_filename, 0666 & ~umask());
 			if( !@rename( $tmp_cache_filename, $cache_fname ) ) {
 				unlink( $cache_fname );
 				rename( $tmp_cache_filename, $cache_fname );
@@ -469,7 +467,7 @@ function wp_cache_shutdown_callback() {
 		$serial = serialize($wp_cache_meta_object);
 		if( !wp_cache_writers_entry() )
 			return false;
-		$tmp_meta_filename = tempnam( $cache_path . 'meta/', "wp-cache" );
+		$tmp_meta_filename = $cache_path . 'meta/' . uniqid( mt_rand(), true ) . '.tmp';
 		$fr = @fopen( $tmp_meta_filename, 'w');
 		if( !$fr )
 			@mkdir( $cache_path . 'meta' );
@@ -479,7 +477,7 @@ function wp_cache_shutdown_callback() {
 		@chmod( $tmp_meta_filename, 0666 & ~umask());
 		if( !@rename( $tmp_meta_filename, $cache_path . 'meta/' . $meta_file ) ) {
 			unlink( $cache_path . 'meta/' . $meta_file );
-			rename( $tmp_metae_filename, $cache_path . 'meta/' . $meta_file );
+			rename( $tmp_meta_filename, $cache_path . 'meta/' . $meta_file );
 		}
 		wp_cache_writers_exit();
 	}
