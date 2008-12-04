@@ -1176,8 +1176,8 @@ function wp_cache_clean_cache($file_prefix) {
 	if ( ($handle = opendir( $cache_path )) ) { 
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match($expr, $file) ) {
-				unlink($cache_path . $file);
-				unlink($cache_path . 'meta/' . str_replace( '.html', '.term', $file ) );
+				@unlink($cache_path . $file);
+				@unlink($cache_path . 'meta/' . str_replace( '.html', '.term', $file ) );
 			}
 		}
 		closedir($handle);
