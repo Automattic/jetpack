@@ -1,7 +1,7 @@
 === WP Super Cache ===
 Contributors: donncha
 Tags: performance,caching,wp-cache
-Tested up to: 2.6.2
+Tested up to: 2.6.5
 Stable tag: 0.8.5
 Requires at least: 2.2
 
@@ -75,6 +75,11 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 	`</IfModule>`
 	``
 	`# END supercache`
+9. Apache must be configured to allow the modules above. If you receive a "500 internal error" when serving requests to anonymous users you need to dig into your Apache configuration. This configuration in my virtual host works for me:
+
+	`<Directory /home/www/>`
+	`AllowOverride All`
+	`</Directory>`
 
 == Frequently Asked Questions ==
 
