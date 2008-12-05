@@ -1177,7 +1177,7 @@ function wp_cache_clean_cache($file_prefix) {
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match($expr, $file) ) {
 				@unlink($cache_path . $file);
-				@unlink($cache_path . 'meta/' . str_replace( '.html', '.term', $file ) );
+				@unlink($cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
 			}
 		}
 		closedir($handle);
@@ -1208,7 +1208,7 @@ function wp_cache_clean_expired($file_prefix) {
 			if ( preg_match($expr, $file)  &&
 				(filemtime($cache_path . $file) + $cache_max_time) <= $now) {
 				unlink($cache_path . $file);
-				unlink($cache_path . 'meta/' . str_replace( '.html', '.term', $file ) );
+				unlink($cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
 			}
 		}
 		closedir($handle);
