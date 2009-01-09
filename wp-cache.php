@@ -661,15 +661,16 @@ function wp_cache_edit_max_time () {
 	echo '<label for="wp_max_time">Expire time:</label> ';
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> seconds<br />";
 	if( !isset( $wp_cache_gc ) ) {
-		$wp_cache_gc = 3600;
-	} elseif( $wp_cache_gc != '3600' && $wp_cache_gc != '21600' && $wp_cache_gc != '86400' ) {
-		$wp_cache_gc = '3600';
+		$wp_cache_gc = 600;
+	} elseif( $wp_cache_gc != 600 && $wp_cache_gc != '3600' && $wp_cache_gc != '21600' && $wp_cache_gc != '86400' ) {
+		$wp_cache_gc = '600';
 	}
 	echo "<h4>Garbage Collection</h4><p>How often should expired files be deleted?</p>";
-	echo "<ul><li><input type='radio' name='wp_cache_gc' value='3600'" . ( $wp_cache_gc == 3600 ? ' checked=checked' : '' ) . " /> Once every hour.</li>\n";
+	echo "<ul><li><input type='radio' name='wp_cache_gc' value='600'" . ( $wp_cache_gc == 600 ? ' checked=checked' : '' ) . " /> Once every 10 minutes.</li>\n";
+	echo "<li><input type='radio' name='wp_cache_gc' value='3600'" . ( $wp_cache_gc == 3600 ? ' checked=checked' : '' ) . " /> Once every hour.</li>\n";
 	echo "<li><input type='radio' name='wp_cache_gc' value='21600'" . ( $wp_cache_gc == 21600 ? ' checked=checked' : '' ) . " /> Once every 6 hours. </li>\n";
 	echo "<li><input type='radio' name='wp_cache_gc' value='86400'" . ( $wp_cache_gc == 86400 ? ' checked=checked' : '' ) . " /> Once every 24 hours.</li></ul>\n";
-	echo "<p>Checking for and deleting expired files is expensive, but it's expensive leaving them there too. On a very busy site you can leave this fairly high. Experiment with different values and visit this page to see how many expired files remain at different times during the day.</p>";
+	echo "<p>Checking for and deleting expired files is expensive, but it's expensive leaving them there too. On a very busy site you should set this to <em>10 minutes</em>. Experiment with different values and visit this page to see how many expired files remain at different times during the day.</p>";
 	echo '<div><input type="submit" ' . SUBMITDISABLED . 'value="Change expiration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
