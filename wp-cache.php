@@ -3,7 +3,7 @@
 Plugin Name: WP Super Cache
 Plugin URI: http://ocaoimh.ie/wp-super-cache/
 Description: Very fast caching module for WordPress. Once activated, you must <a href="options-general.php?page=wpsupercache">enable the cache</a>.
-Version: 0.8.6
+Version: 0.8.7
 Author: Donncha O Caoimh
 Author URI: http://ocaoimh.ie/
 */
