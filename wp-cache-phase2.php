@@ -537,7 +537,7 @@ function wp_cache_get_postid_from_comment($comment_id) {
 	// http://ocaoimh.ie/2006/12/05/caching-wordpress-with-wp-cache-in-a-spam-filled-world
 	if( !preg_match('/wp-admin\//', $_SERVER['REQUEST_URI']) ) 
 		if( $comment['comment_approved'] == 'spam' ) { // changed from 1 to "spam"
-			return $post_id;
+			return $postid;
 		} elseif( $comment['comment_approved'] == '0' ) {
 			$super_cache_enabled = 0; // don't remove the super cache static file until comment is approved
 		}
