@@ -1082,11 +1082,13 @@ function wp_cache_files() {
 		$sizes = array( 'expired' => 0, 'cached' => 0, 'ts' => 0 );
 
 		if (is_dir($supercachedir)) {
-			$entries = glob($supercachedir. '/*');
-			foreach( (array) $entries as $entry) {
-				if ($entry != '.' && $entry != '..') {
-					$sizes = wpsc_dirsize( $entry, $sizes );
+			if( $dh = opendir( $supercachedir ) ) {
+				while( ( $entry = readdir( $dh ) ) !== false ) {
+					if ($entry != '.' && $entry != '..') {
+						$sizes = wpsc_dirsize( trailingslashit( $supercachedir ) . $entry, $sizes );
+					}
 				}
+				closedir($dh);
 			}
 		} else {
 			if(is_file($supercachedir) && filemtime( $supercachedir ) + $cache_max_time <= $now )
@@ -1137,11 +1139,13 @@ function wpsc_dirsize($directory, $sizes) {
 	$now = time();
 
 	if (is_dir($directory)) {
-		$entries = glob($directory. '/*');
-		if( is_array( $entries ) && !empty( $entries ) ) foreach ($entries as $entry) {
-			if ($entry != '.' && $entry != '..') {
-				$sizes = wpsc_dirsize($entry, $sizes);
+		if( $dh = opendir( $directory ) ) {
+			while( ( $entry = readdir( $dh ) ) !== false ) {
+				if ($entry != '.' && $entry != '..') {
+					$sizes = wpsc_dirsize( trailingslashit( $directory ) . $entry, $sizes );
+				}
 			}
+			closedir($dh);
 		}
 	} else {
 		if(is_file($directory) ) {

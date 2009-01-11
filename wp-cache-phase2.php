@@ -350,27 +350,36 @@ function sc_garbage_collection( $directory, $force = false, $rename = false ) {
 
 	$oktodelete = false;
 	if (is_dir($directory)) {
-		$directory = trailingslashit( $directory );
-		$entries = glob($directory. '*');
-		if( is_array( $entries ) && !empty( $entries ) ) foreach ($entries as $entry) {
-			if ($entry != '.' && $entry != '..') {
+		if( $dh = opendir( $directory ) ) {
+			$directory = trailingslashit( $directory );
+			while( ( $entry = readdir( $dh ) ) !== false ) {
+				if ($entry == '.' || $entry == '..')
+					continue;
+				$entry = $directory . $entry;
 				if( $gc_file_counter < 100 ) {
 					sc_garbage_collection( $entry, $force, $rename );
 				}
 				// If entry is a directory, AND it's not a protected one, AND we're either forcing the delete, OR the file is out of date, 
-				if( is_dir( $entry ) && 
-				    !in_array( $entry, $protected_directories ) && 
-				    ( $force || @filemtime( $entry ) + $cache_max_time <= $now ) ) {
+				if( is_dir( $entry ) && !in_array( $entry, $protected_directories ) && ( $force || @filemtime( $entry ) + $cache_max_time <= $now ) ) {
 					// if the directory isn't empty can't delete it
-					if( is_array( glob($entry. '/*') ) ) {
-						continue;
+					if( $dh = opendir( $entry ) ) {
+						$donotdelete = false;
+						while( !$donotdelete && ( $file = readdir( $dh ) ) !== false ) {
+							if ($file == '.' || $file == '..')
+								continue;
+							$donotdelete = true;
+						}
+						closedir($dh);
 					}
+					if( $donotdelete )
+						continue;
 					if( !$rename ) {
 						@rmdir( $entry );
 						$gc_file_counter++;
 					}
 				}
 			}
+		closedir($dh);
 		}
 	} elseif( is_file($directory) && ($force || filemtime( $directory ) + $cache_max_time <= $now ) ) {
 		$oktodelete = true;
