@@ -311,13 +311,18 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 
 	if( !wp_cache_writers_entry() )
 		return false;
-	if ( ($handle = opendir( $cache_path )) ) { 
-		while ( false !== ($file = readdir($handle))) {
+	if ( ($handle = @opendir( $cache_path )) ) { 
+		while ( false !== ($file = @readdir($handle))) {
 			if ( preg_match("/^$file_prefix/", $file) ) {
-				@unlink($cache_path . $file);
+				$files[] = $file;
 			}
 		}
 		closedir($handle);
+		if( is_array( $files ) )
+			reset( $files );
+		foreach( (array)$files as $file ) {
+			@unlink($cache_path . $file);
+		}
 	}
 	wp_cache_writers_exit();
 }
@@ -350,11 +355,18 @@ function sc_garbage_collection( $directory, $force = false, $rename = false ) {
 
 	$oktodelete = false;
 	if (is_dir($directory)) {
-		if( $dh = opendir( $directory ) ) {
+		if( $dh = @opendir( $directory ) ) {
 			$directory = trailingslashit( $directory );
-			while( ( $entry = readdir( $dh ) ) !== false ) {
+			while( ( $entry = @readdir( $dh ) ) !== false ) {
 				if ($entry == '.' || $entry == '..')
 					continue;
+				if( $gc_file_counter < 100 )
+					$files[] = $entry;
+			}
+			closedir($dh);
+			if( is_array( $files ) )
+				reset( $files );
+			foreach( (array)$files as $entry ) {
 				$entry = $directory . $entry;
 				if( $gc_file_counter < 100 ) {
 					sc_garbage_collection( $entry, $force, $rename );
@@ -362,9 +374,9 @@ function sc_garbage_collection( $directory, $force = false, $rename = false ) {
 				// If entry is a directory, AND it's not a protected one, AND we're either forcing the delete, OR the file is out of date, 
 				if( is_dir( $entry ) && !in_array( $entry, $protected_directories ) && ( $force || @filemtime( $entry ) + $cache_max_time <= $now ) ) {
 					// if the directory isn't empty can't delete it
-					if( $dh = opendir( $entry ) ) {
+					if( $dh = @opendir( $entry ) ) {
 						$donotdelete = false;
-						while( !$donotdelete && ( $file = readdir( $dh ) ) !== false ) {
+						while( !$donotdelete && ( $file = @readdir( $dh ) ) !== false ) {
 							if ($file == '.' || $file == '..')
 								continue;
 							$donotdelete = true;
@@ -379,7 +391,6 @@ function sc_garbage_collection( $directory, $force = false, $rename = false ) {
 					}
 				}
 			}
-		closedir($dh);
 		}
 	} elseif( is_file($directory) && ($force || filemtime( $directory ) + $cache_max_time <= $now ) ) {
 		$oktodelete = true;
@@ -412,6 +423,12 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 	$now = time();
 	if ( ($handle = opendir( $cache_path )) ) { 
 		while ( false !== ($file = readdir($handle))) {
+			$files[] = $file;
+		}
+		closedir($handle);
+		if( is_array( $files ) )
+			reset( $files );
+		foreach( (array)$files as $file ) {
 			if ( preg_match("/^$file_prefix/", $file) && 
 				(filemtime($cache_path . $file) + $cache_max_time) <= $now  ) {
 				@unlink($cache_path . $file);
@@ -425,7 +442,6 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 				}
 			}
 		}
-		closedir($handle);
 		prune_super_cache( $cache_path . 'supercache' );
 	}
 
@@ -596,6 +612,12 @@ function wp_cache_post_change($post_id) {
 	$matches = array();
 	if ( ($handle = opendir( $cache_path . 'meta/' )) ) { 
 		while ( false !== ($file = readdir($handle))) {
+			$files[] = $file;
+		}
+		closedir($handle);
+		if( is_array( $files ) )
+			reset( $files );
+		foreach( (array)$files as $file ) {
 			if ( preg_match("/^({$file_prefix}{$blogcacheid}.*)\.meta/", $file, $matches) ) {
 				$meta_pathname = $cache_path . 'meta/' . $file;
 				$content_pathname = $cache_path . $matches[1] . ".html";
@@ -612,7 +634,6 @@ function wp_cache_post_change($post_id) {
 
 			}
 		}
-		closedir($handle);
 	}
 	wp_cache_writers_exit();
 	return $post_id;
