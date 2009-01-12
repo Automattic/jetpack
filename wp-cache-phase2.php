@@ -374,14 +374,14 @@ function sc_garbage_collection( $directory, $force = false, $rename = false ) {
 				// If entry is a directory, AND it's not a protected one, AND we're either forcing the delete, OR the file is out of date, 
 				if( is_dir( $entry ) && !in_array( $entry, $protected_directories ) && ( $force || @filemtime( $entry ) + $cache_max_time <= $now ) ) {
 					// if the directory isn't empty can't delete it
-					if( $dh = @opendir( $entry ) ) {
+					if( $handle = @opendir( $entry ) ) {
 						$donotdelete = false;
-						while( !$donotdelete && ( $file = @readdir( $dh ) ) !== false ) {
+						while( !$donotdelete && ( $file = @readdir( $handle ) ) !== false ) {
 							if ($file == '.' || $file == '..')
 								continue;
 							$donotdelete = true;
 						}
-						closedir($dh);
+						closedir($handle);
 					}
 					if( $donotdelete )
 						continue;
