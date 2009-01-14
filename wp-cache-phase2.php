@@ -125,8 +125,10 @@ function wp_cache_mutex_init() {
 function wp_cache_writers_entry() {
 	global $use_flock, $mutex, $cache_path, $mutex_filename;
 
-	if( !$mutex )
+	if( !$mutex ) {
+		wpcache_debug( "{$_SERVER[ 'REQUEST_URI' ]} not cached, mutex lock already set." );
 		return false;
+	}
 
 	if ($use_flock)
 		flock($mutex,  LOCK_EX);
@@ -209,6 +211,7 @@ function wp_cache_ob_callback($buffer) {
 		$tmp_wpcache_filename = $cache_path . uniqid( mt_rand(), true ) . '.tmp';
 		$fr = @fopen($tmp_wpcache_filename, 'w');
 		if (!$fr) {
+			wpcache_debug( "{$_SERVER[ 'REQUEST_URI' ]} not cached, 'fr' could not write to $tmp_wpcache_filename" );
 			$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $cache_path ) . $cache_filename . " -->\n";
 			return $buffer;
 		}
@@ -223,6 +226,7 @@ function wp_cache_ob_callback($buffer) {
 				$tmp_cache_filename = $dir . uniqid( mt_rand(), true ) . '.tmp';
 				$fr2 = @fopen( $tmp_cache_filename, 'w' );
 				if (!$fr2) {
+					wpcache_debug( "{$_SERVER[ 'REQUEST_URI' ]} not cached, 'fr2' could not write to $tmp_cache_filename" );
 					$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $tmp_cache_filename ) . " -->\n";
 					fclose( $fr );
 					unlink( $tmp_wpcache_filename );
@@ -231,6 +235,7 @@ function wp_cache_ob_callback($buffer) {
 				if( $cache_compression ) {
 					$gz = @fopen( $tmp_cache_filename . ".gz", 'w');
 					if (!$gz) {
+						wpcache_debug( "{$_SERVER[ 'REQUEST_URI' ]} not cached, 'gz' could not write to $tmp_cache_filename.gz" );
 						$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $tmp_cache_filename ) . ".gz -->\n";
 						fclose( $fr );
 						unlink( $tmp_wpcache_filename );
@@ -284,14 +289,20 @@ function wp_cache_ob_callback($buffer) {
 		$new_cache = true;
 		fclose($fr);
 		if( !@rename( $tmp_wpcache_filename, $cache_path . $cache_filename ) ) {
+			wpcache_debug( "{$_SERVER[ 'REQUEST_URI' ]}: Could not rename $tmp_wpcache_filename to " . $cache_path . $cache_filename );
 			unlink( $cache_path . $cache_filename );
+			wpcache_debug( "{$_SERVER[ 'REQUEST_URI' ]}: Deleting " . $cache_path . $cache_filename );
 			rename( $tmp_wpcache_filename, $cache_path . $cache_filename );
+			wpcache_debug( "{$_SERVER[ 'REQUEST_URI' ]}: Renaming $tmp_wpcache_filename to " . $cache_path . $cache_filename );
 		}
 		if( $fr2 ) {
 			fclose($fr2);
 			if( !@rename( $tmp_cache_filename, $cache_fname ) ) {
+				wpcache_debug( "{$_SERVER[ 'REQUEST_URI' ]}: Could not rename $tmp_cache_filename to " . $cache_path . $cache_fname );
 				unlink( $cache_fname );
+				wpcache_debug( "{$_SERVER[ 'REQUEST_URI' ]}: Deleting " . $cache_path . $cache_fname );
 				rename( $tmp_cache_filename, $cache_fname );
+				wpcache_debug( "{$_SERVER[ 'REQUEST_URI' ]}: Renaming $tmp_cache_filename to " . $cache_path . $cache_fname );
 			}
 		}
 		if( $gz ) {
@@ -321,7 +332,8 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 		if( is_array( $files ) )
 			reset( $files );
 		foreach( (array)$files as $file ) {
-			@unlink($cache_path . $file);
+			//@unlink($cache_path . $file);
+			wpcache_debug_function( 'unlink', $cache_path . $file, "Could not remove " . $cache_path . $file );
 		}
 	}
 	wp_cache_writers_exit();
@@ -386,18 +398,22 @@ function sc_garbage_collection( $directory, $force = false, $rename = false ) {
 					if( $donotdelete )
 						continue;
 					if( !$rename ) {
-						@rmdir( $entry );
+						//@rmdir( $entry );
+						wpcache_debug_function( "rmdir", $entry, "sc_garbage_collection Could not rmdir $entry" );
 						$gc_file_counter++;
 					}
 				}
 			}
+		} else {
+			wpcache_debug( "sc_garbage_collection could not opendir $directory" );
 		}
 	} elseif( is_file($directory) && ($force || filemtime( $directory ) + $cache_max_time <= $now ) ) {
 		$oktodelete = true;
 		if( in_array( $directory, $protected_directories ) )
 			$oktodelete = false;
 		if( $oktodelete && !$rename ) {
-			@unlink( $directory );
+			//@unlink( $directory );
+			wpcache_debug_function( "unlink", $directory, "2. sc_garbage_collection Could not remove $directory" );
 			$gc_file_counter++;
 		} elseif( $oktodelete && $rename ) {
 			if( $cache_rebuild_files && substr( $directory, -14 ) != '.needs-rebuild' ) {
@@ -407,6 +423,7 @@ function sc_garbage_collection( $directory, $force = false, $rename = false ) {
 				}
 			} else {
 				@unlink( $directory );
+				wpcache_debug_function( "unlink", $directory, "3. sc_garbage_collection Could not remove $directory" );
 				$gc_file_counter++;
 			}
 
@@ -431,14 +448,17 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 		foreach( (array)$files as $file ) {
 			if ( preg_match("/^$file_prefix/", $file) && 
 				(filemtime($cache_path . $file) + $cache_max_time) <= $now  ) {
-				@unlink($cache_path . $file);
-				@unlink($cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
+				//@unlink($cache_path . $file);
+				wpcache_debug_function( "unlink", $cache_path . $file, "wp_cache_phase2_clean_expired could not remove " . $cache_path . $file );
+				//@unlink($cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
+				wpcache_debug_function( "unlink", $cache_path . 'meta/' . str_replace( '.html', '.meta', $file ), "wp_cache_phase2_clean_expired could not remove " . $cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
 				continue;
 			}
 			if($file != '.' && $file != '..') {
 				if( is_dir( $cache_path . $file ) == false && (filemtime($cache_path . $file) + $cache_max_time) <= $now  ) {
 					if( substr( $file, -9 ) != '.htaccess' )
-						@unlink($cache_path . $file);
+						wpcache_debug_function( "unlink", $cache_path . $file, "wp_cache_phase2_clean_expired could not remove " . $cache_path . $file );
+						//@unlink($cache_path . $file);
 				}
 			}
 		}

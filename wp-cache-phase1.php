@@ -10,6 +10,36 @@ if( !defined( 'WPCACHEHOME' ) )
 
 include( WPCACHEHOME . 'wp-cache-base.php');
 
+if( $cache_debug ) {
+	$wpcache_logfile = constant( 'WPCACHEHOME' ) . 'wpcache.log';
+	if( @is_writeable( $wpcache_logfile ) ) {
+		define( 'CACHEDEBUG', 1 );
+		ini_set( 'track_errors', 1 );
+		ini_set( 'html_errors', 0 );
+		ini_set( 'error_log', $wpcache_logfile );
+	}
+}
+
+function wpcache_debug( $message = '' ) {
+	global $php_errormsg, $wpcache_logfile;
+	if( defined( 'CACHEDEBUG' ) == false )
+		return false;
+	$message .= '. php error: ' . $php_errormsg;
+	$php_errormsg = '';
+	error_log( date('Y-m-d H:i:s') . " " . $message . "\n", 3, $wpcache_logfile );
+	return true;
+}
+
+function wpcache_debug_function( $func, $arg, $message ) {
+	global $php_errormsg;
+	$php_errormsg = '';
+	@$$func( $arg );
+	if( defined( 'CACHEDEBUG' ) == false )
+		return false;
+	if( $php_errormsg != '' )
+		wpcache_debug( $message );
+}
+
 if(defined('DOING_CRON')) {
 	require_once( WPCACHEHOME . 'wp-cache-phase2.php');
 	return;
@@ -63,13 +93,17 @@ $wp_start_time = microtime();
 if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 	if ($mtime + $cache_max_time > time() ) {
 		$meta = new CacheMeta;
-		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
+		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) {
+			wpcache_debug( "Could not open or unserialize $meta_pathname on {$_SERVER[ 'REQUEST_URI' ]}" );
 			return;
+		}
 		// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
 		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta->headers ) ) {
 			array_push($meta->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
 			array_push($meta->headers, 'Vary: Accept-Encoding, Cookie');
 			array_push($meta->headers, 'Content-Length: ' . filesize( $cache_file ) );
+			wpcache_debug( "Added gzip headers to {$_SERVER[ 'REQUEST_URI' ]}" );
+
 		}
 		foreach ($meta->headers as $header) {
 			// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
@@ -82,8 +116,10 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 		if ($meta->dynamic) {
 			include($cache_file);
 		} else {
-			if(!@readfile ($cache_file)) 
+			if(!@readfile ($cache_file)) {
+				wpcache_debug( "Could not read $cache_file on {$_SERVER[ 'REQUEST_URI' ]}" );
 				return;
+			}
 		}
 		die;
 	}
