@@ -1,3 +1,61 @@
+2009-01-16 17:03  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase1.php,
+	  wp-cache-phase2.php: Added simple DEBUG mode. Activate by setting
+	  $wp_cache_debug to your email address in wp-cache-config.php
+	  Sends debug emails on: cron job, failed job, when gzip headers
+	  are missing from wp-cache meta file.
+
+2009-01-16 16:14  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 0.8.8
+
+2009-01-16 16:10  donncha
+
+	* wp-cache.php: Added "Delete Cache" link to Favourites menu
+
+2009-01-15 23:16  donncha
+
+	* wp-cache-phase2.php: We clean up files as well as directories.
+	  Should fix issue with non-updating blogs
+
+2009-01-14 22:47  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase1.php,
+	  wp-cache-phase2.php: Remove debugging code
+
+2009-01-14 18:51  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase1.php,
+	  wp-cache-phase2.php: Lots of debug code
+
+2009-01-14 14:33  donncha
+
+	* readme.txt: Updated the "How do I know my blog is being cached?"
+	  FAQ
+
+2009-01-12 17:51  donncha
+
+	* wp-cache-phase2.php: Don't overwrite $dh directory handler
+
+2009-01-12 17:38  donncha
+
+	* wp-cache-phase2.php: When reading large directories, create array
+	  of files. The opendir handle seems to die.
+
+2009-01-11 09:16  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Use opendir()/readdir()
+	  instead of glob()
+
+2009-01-09 21:16  donncha
+
+	* wp-cache-phase2.php: Minor typo
+
+2009-01-09 11:04  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-01-09 11:04  donncha
 
 	* readme.txt, wp-cache.php: Bump version to 0.8.7
