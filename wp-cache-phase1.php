@@ -18,7 +18,6 @@ if(defined('DOING_CRON')) {
 $mutex_filename = 'wp_cache_mutex.lock';
 $new_cache = false;
 
-
 // Don't change variables behind this point
 
 $plugins = glob( WPCACHEHOME . 'plugins/*.php' );
@@ -70,6 +69,7 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 			array_push($meta->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
 			array_push($meta->headers, 'Vary: Accept-Encoding, Cookie');
 			array_push($meta->headers, 'Content-Length: ' . filesize( $cache_file ) );
+			wp_cache_debug( "Had to add gzip headers to the page {$_SERVER[ 'REQUEST_URI' ]}." );
 		}
 		foreach ($meta->headers as $header) {
 			// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
@@ -129,6 +129,14 @@ function do_cacheaction( $action, $value = '' ) {
 	}
 
 	return $value;
+}
+
+function wp_cache_debug( $message ) {
+	global $wp_cache_debug;
+	if( !isset( $wp_cache_debug ) )
+		return;
+	$message .= "\n\nDisable these emails by commenting out or deleting the line containing\n\$wp_cache_debug in wp-content/wp-cache-config.php on your server.\n";
+	mail( $wp_cache_debug, '[' . addslashes( $_SERVER[ 'HTTP_HOST' ] ) . "] WP Super Cache Debug", $message );
 }
 
 ?>

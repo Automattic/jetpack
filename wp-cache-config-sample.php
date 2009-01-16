@@ -47,6 +47,10 @@ $cache_rejected_user_agent = array ( 0 => 'bot', 1 => 'ia_archive', 2 => 'slurp'
 // generated.
 $cache_rebuild_files = 0;
 
+// DEBUG mode. Change this to your email address to be sent debug emails.
+// Remove comment (//) to enable and add back to disable.
+//$wp_cache_debug = "you@example.com";
+
 // Just modify it if you have conflicts with semaphores
 $sem_id = 5419;
 
