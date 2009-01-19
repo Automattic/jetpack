@@ -1272,10 +1272,10 @@ add_action( 'template_redirect', 'wp_cache_catch_404' );
 
 function wp_cache_favorite_action( $actions ) {
 	if( function_exists( 'is_site_admin' ) && !is_site_admin() )
-		return false;
+		return $actions;
 
 	if( function_exists('current_user_can') && !current_user_can('manage_options') )
-		return false;
+		return $actions;
 
 	$actions[ wp_nonce_url( 'options-general.php?page=wpsupercache&wp_delete_cache=1#list', 'wp-cache' ) ] = array( __( 'Delete Cache' ), 'manage_options' );
 
