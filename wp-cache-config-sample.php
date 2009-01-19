@@ -51,6 +51,11 @@ $cache_rebuild_files = 0;
 // Remove comment (//) to enable and add back to disable.
 //$wp_cache_debug = "you@example.com";
 
+// Disable the file locking system.
+// If you are experiencing problems with clearing or creating cache files
+// uncommenting this may help.
+$wp_cache_mutex_disabled = 1;
+
 // Just modify it if you have conflicts with semaphores
 $sem_id = 5419;
 

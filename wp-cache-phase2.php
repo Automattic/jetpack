@@ -123,7 +123,10 @@ function wp_cache_mutex_init() {
 }
 
 function wp_cache_writers_entry() {
-	global $use_flock, $mutex, $cache_path, $mutex_filename;
+	global $use_flock, $mutex, $cache_path, $mutex_filename, $wp_cache_mutex_disabled;
+
+	if( isset( $wp_cache_mutex_disabled ) && $wp_cache_mutex_disabled )
+		return true;
 
 	if( !$mutex )
 		return false;
@@ -137,7 +140,10 @@ function wp_cache_writers_entry() {
 }
 
 function wp_cache_writers_exit() {
-	global $use_flock, $mutex, $cache_path, $mutex_filename;
+	global $use_flock, $mutex, $cache_path, $mutex_filename, $wp_cache_mutex_disabled;
+
+	if( isset( $wp_cache_mutex_disabled ) && $wp_cache_mutex_disabled )
+		return true;
 
 	if( !$mutex )
 		return false;
