@@ -669,7 +669,6 @@ function wp_cache_gc_cron() {
 	if( !isset( $wp_cache_gc ) )
 		$wp_cache_gc = 600;
 
-	wp_cache_debug( 'Cache Expiry cron job called.' );
 	if( !wp_cache_phase2_clean_expired($file_prefix ) ) {
 		wp_cache_debug( 'Cache Expiry cron job failed. Probably mutex locked.' );
 		update_option( 'wpsupercache_gc_time', time() - ( $wp_cache_gc - 300 ) ); // if GC failed then run it again in 5 minutes
