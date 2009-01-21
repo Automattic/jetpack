@@ -144,8 +144,6 @@ function toggleLayer( whichLayer ) {
 // -->
 //Clicking header opens fieldset options
 jQuery(document).ready(function(){
-	jQuery("fieldset p,fieldset form,fieldset ul,fieldset blockquote").hide()
-	jQuery("#show-this-fieldset p,#show-this-fieldset form,#show-this-fieldset ul,#show-this-fieldset").show()
 	jQuery("fieldset h3").css("cursor","pointer").click(function(){
 		jQuery(this).parent("fieldset").find("p,form,ul,blockquote").toggle("slow");
 	});
@@ -285,6 +283,8 @@ jQuery(document).ready(function(){
 	</fieldset>
 	<?php
 
+	wp_cache_files();
+
 	wsc_mod_rewrite();
 
 	wp_cache_edit_max_time();
@@ -297,7 +297,6 @@ jQuery(document).ready(function(){
 
 	wp_cache_edit_rejected_ua();
 
-	wp_cache_files();
 
 	wp_lock_down();
 
@@ -672,10 +671,10 @@ function wp_cache_edit_max_time () {
 		$wp_cache_gc = '600';
 	}
 	echo "<h4>Garbage Collection</h4><p>How often should expired files be deleted?</p>";
-	echo "<ul><li><input type='radio' name='wp_cache_gc' value='600'" . ( $wp_cache_gc == 600 ? ' checked=checked' : '' ) . " /> Once every 10 minutes.</li>\n";
-	echo "<li><input type='radio' name='wp_cache_gc' value='3600'" . ( $wp_cache_gc == 3600 ? ' checked=checked' : '' ) . " /> Once every hour.</li>\n";
-	echo "<li><input type='radio' name='wp_cache_gc' value='21600'" . ( $wp_cache_gc == 21600 ? ' checked=checked' : '' ) . " /> Once every 6 hours. </li>\n";
-	echo "<li><input type='radio' name='wp_cache_gc' value='86400'" . ( $wp_cache_gc == 86400 ? ' checked=checked' : '' ) . " /> Once every 24 hours.</li></ul>\n";
+	echo "<ul><li><label><input type='radio' name='wp_cache_gc' value='600'" . ( $wp_cache_gc == 600 ? ' checked=checked' : '' ) . " /> Once every 10 minutes.</label></li>\n";
+	echo "<li><label><input type='radio' name='wp_cache_gc' value='3600'" . ( $wp_cache_gc == 3600 ? ' checked=checked' : '' ) . " /> Once every hour.</label></li>\n";
+	echo "<li><label><input type='radio' name='wp_cache_gc' value='21600'" . ( $wp_cache_gc == 21600 ? ' checked=checked' : '' ) . " /> Once every 6 hours.</label></li>\n";
+	echo "<li><label><input type='radio' name='wp_cache_gc' value='86400'" . ( $wp_cache_gc == 86400 ? ' checked=checked' : '' ) . " /> Once every 24 hours.</label></li></ul>\n";
 	echo "<p>Checking for and deleting expired files is expensive, but it's expensive leaving them there too. On a very busy site you should set this to <em>10 minutes</em>. Experiment with different values and visit this page to see how many expired files remain at different times during the day.</p>";
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Change Expiration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
