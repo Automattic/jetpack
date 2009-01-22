@@ -336,12 +336,12 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 function prune_super_cache( $directory, $force = false, $rename = false ) {
 	global $gc_file_counter;
 	$c = 0;
-	while( $c < 20 )  {
+	while( $c < 200 )  {
 		$gc_file_counter = 0;
 		sc_garbage_collection( $directory, $force, $rename );
 		$c++;
 		if( $gc_file_counter == 0 )
-			$c = 20;
+			$c = 200;
 	}
 }
 
