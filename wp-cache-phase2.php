@@ -456,7 +456,7 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 }
 
 function wp_cache_shutdown_callback() {
-	global $cache_path, $cache_max_time, $file_expired, $file_prefix, $meta_file, $new_cache, $wp_cache_meta_object, $known_headers, $blog_id, $wp_cache_gc, $wp_cache_gzip_encoding, $gzsize, $cache_filename;
+	global $cache_path, $cache_max_time, $file_expired, $file_prefix, $meta_file, $new_cache, $wp_cache_meta_object, $known_headers, $blog_id, $wp_cache_gzip_encoding, $gzsize, $cache_filename;
 
 	$wp_cache_meta_object->uri = $_SERVER["SERVER_NAME"].preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $_SERVER['REQUEST_URI']); // To avoid XSS attacs
 	$wp_cache_meta_object->blog_id=$blog_id;
@@ -539,8 +539,8 @@ function wp_cache_shutdown_callback() {
 		wp_cache_writers_exit();
 	}
 
-	if( !isset( $wp_cache_gc ) )
-		$wp_cache_gc = 600;
+	if( !isset( $cache_max_time ) )
+		$cache_max_time = 600;
 	$last_gc = get_option( "wpsupercache_gc_time" );
 
 	if( !$last_gc ) {
@@ -548,7 +548,7 @@ function wp_cache_shutdown_callback() {
 		return;
 	}
 
-	if( $last_gc > ( time() - $wp_cache_gc ) ) // do garbage collection once every X hours.
+	if( $last_gc > ( time() - ( 10 + $cache_max_time ) ) )
 		return;
 	update_option( 'wpsupercache_gc_time', time() );
 
@@ -664,14 +664,15 @@ function wp_cache_post_id() {
 }
 
 function wp_cache_gc_cron() {
-	global $file_prefix, $wp_cache_gc;
+	global $file_prefix, $cache_max_time;
+	error_log( date( "H:i:s" ) . " wp_cache_gc_cron\n", 3, "/tmp/log.txt" );
 
-	if( !isset( $wp_cache_gc ) )
-		$wp_cache_gc = 600;
+	if( !isset( $cache_max_time ) )
+		$cache_max_time = 600;
 
 	if( !wp_cache_phase2_clean_expired($file_prefix ) ) {
 		wp_cache_debug( 'Cache Expiry cron job failed. Probably mutex locked.' );
-		update_option( 'wpsupercache_gc_time', time() - ( $wp_cache_gc - 300 ) ); // if GC failed then run it again in 5 minutes
+		update_option( 'wpsupercache_gc_time', time() - ( $cache_max_time - 10 ) ); // if GC failed then run it again in one minute
 	}
 }
 
