@@ -44,7 +44,7 @@ if( !@include($wp_cache_config_file) ) {
 
 $wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
 $wp_cache_link = WP_CONTENT_DIR . '/advanced-cache.php';
-$wp_cache_file = WPCACHEHOME . 'wp-cache-phase1.php';
+$wp_cache_file = WPCACHEHOME . 'advanced-cache.php';
 
 include(WPCACHEHOME . 'wp-cache-base.php');
 
@@ -234,6 +234,18 @@ jQuery(document).ready(function(){
 				$wp_cache_clear_on_post_edit = 0;
 			}
 			wp_cache_replace_line('^ *\$wp_cache_clear_on_post_edit', "\$wp_cache_clear_on_post_edit = " . $wp_cache_clear_on_post_edit . ";", $wp_cache_config_file);
+			if( isset( $_POST[ 'cache_rebuild_files' ] ) ) {
+				$cache_rebuild_files = 1;
+			} else {
+				$cache_rebuild_files = 0;
+			}
+			wp_cache_replace_line('^ *\$cache_rebuild_files', "\$cache_rebuild_files = " . $cache_rebuild_files . ";", $wp_cache_config_file);
+			if( isset( $_POST[ 'wp_cache_mutex_disabled' ] ) ) {
+				$wp_cache_mutex_disabled = 1;
+			} else {
+				$wp_cache_mutex_disabled = 0;
+			}
+			wp_cache_replace_line('^ *\$wp_cache_mutex_disabled', "\$wp_cache_mutex_disabled = " . $wp_cache_mutex_disabled . ";", $wp_cache_config_file);
 		}
 		if( isset( $_POST[ 'cache_compression' ] ) && $_POST[ 'cache_compression' ] != $cache_compression ) {
 			$cache_compression_changed = true;
@@ -254,6 +266,9 @@ jQuery(document).ready(function(){
 	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong>OFF</strong> <span class="setting-description">WP Cache and Super Cache disabled</span></label><br />
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> Proudly tell the world your server is Digg proof! (places a message in your blog's footer)</label></p>
 	<p><label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> Clear all cache files when a post or page is published. (This may significantly slow down saving of posts.)</label></p>
+	<h4>Experimental Features</h4>
+	<p><label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> Enable experimental "cache rebuild" feature. Serve a supercache file to anonymous while new file is being generated. Recommended for <em>very</em> busy websites with lots of comments.</label></p>
+	<p><label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( $wp_cache_mutex_disabled ) echo "checked"; ?> value='1'> Disable file locking. If you experience problems with mutex or file locks this may help.</label></p>
 	<p><strong>Note:</strong> If uninstalling this plugin, make sure the directory <em><?php echo WP_CONTENT_DIR; ?></em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)</p>
 	<?php
 	echo "<div class='submit'><input type='submit' " . SUBMITDISABLED . " value='Update Status &raquo;' /></div>";
@@ -947,32 +962,27 @@ function wp_cache_verify_config_file() {
 function wp_cache_check_link() {
 	global $wp_cache_link, $wp_cache_file;
  
+ 	$ret = true;
 	if( file_exists($wp_cache_link) ) {
-		if( strpos( join( "\n", file( $wp_cache_link ) ), 'WPCACHEHOME' ) ) {
-			// read the file and verify it's a super-cache file and not the wp-cache one.
+		$file = file_get_contents( $wp_cache_link );
+		if( strpos( $file, "WP SUPER CACHE 0.8.9" ) ) {
 			return true;
 		} else {
-			// remove the old version
-			@unlink($wp_cache_link);
-		}
-	}
-
-	$ret = true;
-	if ( basename(@readlink($wp_cache_link)) != basename($wp_cache_file)) {
-		@unlink($wp_cache_link);
-		if( function_exists( 'symlink' ) ) {
-			if( !@symlink ($wp_cache_file, $wp_cache_link) ) {
+			if( !@unlink($wp_cache_link) ) {
+				$ret = false;
+			} elseif( !@copy( $wp_cache_file, $wp_cache_link ) ) {
 				$ret = false;
 			}
-		} elseif( !@copy( $wp_cache_file, $wp_cache_link ) ) {
+		}
+	} elseif( !@copy( $wp_cache_file, $wp_cache_link ) ) {
 			$ret = false;
-		}
-		if( !$ret ) {
-			echo "<code>advanced-cache.php</code> does not exist";
-			echo "Create it by executing: <code>ln -s $wp_cache_file $wp_cache_link</code> in your server";
-			echo "Or by copying $wp_cache_file to $wp_cache_link.";
-			return false;
-		}
+	}
+
+	if( false == $ret ) {
+		echo "<p><code>wp-content/advanced-cache.php</code> does not exist or cannot be updated.<br />";
+		echo "Create or update it by executing: <code>cp $wp_cache_file $wp_cache_link</code> on your server<br />";
+		echo "or by copying $wp_cache_file to $wp_cache_link some other way.</p>";
+		return false;
 	}
 	return true;
 }
@@ -1028,9 +1038,9 @@ function wp_cache_files() {
 	} else 
 		$list_mess = "List files";
 
-	echo '<a name="list"></a><fieldset class="options"><h3>Cache Contents</h3>';
+	echo '<fieldset class="options" id="show-this-fieldset"><h3>Cache Contents</h3>';
 	/*
-	echo '<form name="wp_cache_content_list" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
+	echo '<form name="wp_cache_content_list" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<input type="hidden" name="wp_list_cache" />';
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="'.$list_mess.' &raquo;" /></div>';
 	echo "</form>\n";
@@ -1066,7 +1076,7 @@ function wp_cache_files() {
 					if ($this_expired) echo "<td><span style='color:red'>$age secs</span></td>";
 					else echo "<td>$age secs</td>";
 					echo "<td>$fsize KB</td>";
-					echo '<td><form name="wp_delete_cache_file" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
+					echo '<td><form name="wp_delete_cache_file" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 					echo '<input type="hidden" name="wp_list_cache" />';
 					echo '<input type="hidden" name="wp_delete_cache_file" value="'.preg_replace("/^(.*)\.meta$/", "$1", $file).'" />';
 					echo '<div class="submit"><input id="deletepost" ' . SUBMITDISABLED . 'type="submit" value="Remove" /></div>';
@@ -1108,13 +1118,13 @@ function wp_cache_files() {
 		echo "<li>" . intval($sizes['expired']/2) . " Expired Pages</li></ul>";
 	}
 
-	echo '<form name="wp_cache_content_expired" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
+	echo '<form name="wp_cache_content_expired" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<input type="hidden" name="wp_delete_expired" />';
 	echo '<div class="submit" style="float:left"><input type="submit" ' . SUBMITDISABLED . 'value="Delete Expired &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
-	echo '<form name="wp_cache_content_delete" action="'. $_SERVER["REQUEST_URI"] . '#list" method="post">';
+	echo '<form name="wp_cache_content_delete" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<input type="hidden" name="wp_delete_cache" />';
 	echo '<div class="submit" style="float:left;margin-left:10px"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="Delete Cache &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
@@ -1130,7 +1140,7 @@ function delete_cache_dashboard() {
 	if( function_exists('current_user_can') && !current_user_can('manage_options') )
 		return false;
 
-	echo "<li><a href='" . wp_nonce_url( 'options-general.php?page=wpsupercache&wp_delete_cache=1#list', 'wp-cache' ) . "' target='_blank' title='Delete Super Cache cached files (opens in new window)'>Delete Cache</a></li>";
+	echo "<li><a href='" . wp_nonce_url( 'options-general.php?page=wpsupercache&wp_delete_cache=1', 'wp-cache' ) . "' target='_blank' title='Delete Super Cache cached files (opens in new window)'>Delete Cache</a></li>";
 }
 add_action( 'dashmenu', 'delete_cache_dashboard' );
 
@@ -1277,7 +1287,7 @@ function wp_cache_favorite_action( $actions ) {
 	if( function_exists('current_user_can') && !current_user_can('manage_options') )
 		return $actions;
 
-	$actions[ wp_nonce_url( 'options-general.php?page=wpsupercache&wp_delete_cache=1#list', 'wp-cache' ) ] = array( __( 'Delete Cache' ), 'manage_options' );
+	$actions[ wp_nonce_url( 'options-general.php?page=wpsupercache&wp_delete_cache=1', 'wp-cache' ) ] = array( __( 'Delete Cache' ), 'manage_options' );
 
 	return $actions;
 }
