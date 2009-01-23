@@ -2,7 +2,7 @@
 Contributors: donncha
 Tags: performance,caching,wp-cache,wp-super-cache
 Tested up to: 2.7
-Stable tag: 0.8.8
+Stable tag: 0.8.9
 Requires at least: 2.2
 
 A very fast caching engine for WordPress that produces static html files.
@@ -114,10 +114,9 @@ If things don't work when you installed the plugin here are a few things to chec
 
 1.  Is wp-content writable by the web server?
 2.  Is there a wp-content/wp-cache-config.php ? If not, copy the file wp-super-cache/wp-cache-config-sample.php to wp-content/wp-cache-config.php and make sure WPCACHEHOME points at the right place. "plugins" should be "mu-plugins" if you're using WordPress MU.
-3.  Is there a wp-content/advanced-cache.php ? If not, then you must symlink wp-super-cache/wp-cache-phase1.php to it with this command while in the wp-content folder. (WordPress MU users should replace "plugins" with "mu-plugins".)
+3.  Is there a wp-content/advanced-cache.php ? If not, then you must copy wp-super-cache/advanced-cache.php to it with this command while in the wp-content folder. (WordPress MU users should replace "plugins" with "mu-plugins".)
 
-    `ln -s plugins/wp-super-cache/wp-cache-phase1.php advanced-cache.php`
-If you can't do that, then copy the file. That will work too.
+    `cp plugins/wp-super-cache/advanced-cache.php advanced-cache.php`
 4.  If pages are not cached at all, remove wp-content/advanced-cache.php and recreate it, following the advice above.
 5.  Make sure the following line is in wp-config.php and it is ABOVE the "require_once(ABSPATH.'wp-settings.php');" line:
 
@@ -129,7 +128,7 @@ If you can't do that, then copy the file. That will work too.
 10. The plugin does not work very well when PHP's safe mode is active. This must be disabled by your administrator.
 11. If pages are randomly super cached and sometimes not, your blog can probably be viewed with and without the "www" prefix on the URL. You should choose one way and install the [Enforce www preference](http://txfx.net/code/wordpress/enforce-www-preference/) plugin if you are using an old WordPress install. The latest versions redirect themselves (you should always be running the latest version of WordPress anyway!)
 12. Private Server users at Dreamhost should edit wp-content/wp-cache-config.php and set the cache dir to "/tmp/" if they are getting errors about increasing CPU usage. See this [discussion](http://wordpress.org/support/topic/145895?replies=42) for more.
-13. File locking errors such as "failed to acquire key 0x152b: Permission denied in..." or "Page not cached by WP Super Cache. Could not get mutex lock." are a sign that you may have to use file locking. Edit wp-content/wp-cache-config.php and uncomment "$use_flock = true" or set $sem_id to a different value.
+13. File locking errors such as "failed to acquire key 0x152b: Permission denied in..." or "Page not cached by WP Super Cache. Could not get mutex lock." are a sign that you may have to use file locking. Edit wp-content/wp-cache-config.php and uncomment "$use_flock = true" or set $sem_id to a different value. You can also disable file locking from the Admin screen as a last resort.
 14. Make sure cache/wp_cache_mutex.lock is writeable by the web server.
 
 == Custom Caching ==
