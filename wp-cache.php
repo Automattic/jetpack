@@ -267,8 +267,8 @@ jQuery(document).ready(function(){
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> Proudly tell the world your server is Digg proof! (places a message in your blog's footer)</label></p>
 	<p><label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> Clear all cache files when a post or page is published. (This may significantly slow down saving of posts.)</label></p>
 	<h4>Experimental Features</h4>
-	<p><label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> Enable experimental "cache rebuild" feature. Serve a supercache file to anonymous while new file is being generated. Recommended for <em>very</em> busy websites with lots of comments.</label></p>
-	<p><label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( $wp_cache_mutex_disabled ) echo "checked"; ?> value='1'> Disable file locking. If you experience problems with mutex or file locks this may help.</label></p>
+	<p><label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> Enable experimental "cache rebuild" feature. Serve a supercache file to anonymous users while a new file is being generated. Recommended for <em>very</em> busy websites with lots of comments.</label></p>
+	<p><label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( $wp_cache_mutex_disabled ) echo "checked"; ?> value='1'> Disable file locking. If you experience problems with mutex or file locks this may help but may cause increased server load.</label></p>
 	<p><strong>Note:</strong> If uninstalling this plugin, make sure the directory <em><?php echo WP_CONTENT_DIR; ?></em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)</p>
 	<?php
 	echo "<div class='submit'><input type='submit' " . SUBMITDISABLED . " value='Update Status &raquo;' /></div>";
