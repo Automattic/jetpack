@@ -1,3 +1,65 @@
+2009-01-23 19:09  donncha
+
+	* readme.txt, wp-cache.php: Bump version number to 0.8.9 and update
+	  documentation
+
+2009-01-23 18:34  donncha
+
+	* wp-cache.php: Updated text
+
+2009-01-23 12:43  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Set garbage collection to 10
+	  seconds after expiry
+
+2009-01-23 12:13  donncha
+
+	* wp-cache.php: mutext variable needs to be global
+
+2009-01-23 12:06  donncha
+
+	* advanced-cache.php, wp-cache.php: Added "advanced-cache.php"
+	  which will load wp-cache-phase1.php
+	  Copy that file to wp-content/ instead of symlinking
+	  Added checkboxes for "cache rebuild" and "disable file locking"
+	  remove #list anchor tag
+
+2009-01-22 11:26  donncha
+
+	* wp-cache-phase2.php: Delete lots more cache files in one go, for
+	  busy sites
+
+2009-01-21 13:42  donncha
+
+	* wp-cache-phase2.php: Removed "cron job called" debug message
+
+2009-01-21 13:05  donncha
+
+	* wp-cache.php: Show all sections of the admin page by default.
+	  Move cache contents up
+
+2009-01-20 11:23  donncha
+
+	* wp-cache.php: Admin page UI update, props Robert Wolf
+
+2009-01-19 18:29  donncha
+
+	* wp-cache-config-sample.php: Comment out $wp_cache_mutex_disabled
+	  by default
+
+2009-01-19 18:27  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase2.php: Allow mutex file
+	  locking to be disabled
+
+2009-01-19 18:18  donncha
+
+	* wp-cache.php: Fix the favourites if a non admin users logs in
+
+2009-01-16 17:04  donncha
+
+	* Changelog.txt: Updated Changelog
+
 2009-01-16 17:03  donncha
 
 	* wp-cache-config-sample.php, wp-cache-phase1.php,
