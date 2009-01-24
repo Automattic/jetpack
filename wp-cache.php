@@ -967,8 +967,9 @@ function wp_cache_check_link() {
 
 	if( false == $ret ) {
 		echo "<p><code>wp-content/advanced-cache.php</code> does not exist or cannot be updated.<br />";
-		echo "Create or update it by executing: <code>cp $wp_cache_file $wp_cache_link</code> on your server<br />";
-		echo "or by copying $wp_cache_file to $wp_cache_link some other way.</p>";
+		echo "Create or update it by executing: <code>rm $wp_cache_link; cp $wp_cache_file $wp_cache_link</code> on your server<br />";
+		echo "or by deleting $wp_cache_link and copying $wp_cache_file to $wp_cache_link some other way.</p>";
+		echo "<p>You can also try making wp-content writable and refreshing this page.</p>";
 		return false;
 	}
 	return true;
