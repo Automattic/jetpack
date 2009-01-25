@@ -946,30 +946,48 @@ function wp_cache_verify_config_file() {
 	return true;
 }
 
+function wp_cache_create_advanced_cache() {
+	global $wp_cache_link, $wp_cache_file;
+	$ret = true;
+
+	$file = file_get_contents( $wp_cache_file );
+	$file = str_replace( 'CACHEHOME', constant( 'WPCACHEHOME' ), $file );
+	$fp = @fopen( $wp_cache_link, 'w' );
+	if( $fp ) {
+		fputs( $fp, $file );
+		fclose( $fp );
+	} else {
+		$ret = false;
+	}
+	return $ret;
+}
+
 function wp_cache_check_link() {
 	global $wp_cache_link, $wp_cache_file;
  
  	$ret = true;
 	if( file_exists($wp_cache_link) ) {
 		$file = file_get_contents( $wp_cache_link );
-		if( strpos( $file, "WP SUPER CACHE 0.8.9" ) ) {
+		if( strpos( $file, "WP SUPER CACHE 0.8.9.1" ) ) {
 			return true;
 		} else {
 			if( !@unlink($wp_cache_link) ) {
 				$ret = false;
-			} elseif( !@copy( $wp_cache_file, $wp_cache_link ) ) {
-				$ret = false;
+			} else {
+				$ret = wp_cache_create_advanced_cache();
 			}
 		}
-	} elseif( !@copy( $wp_cache_file, $wp_cache_link ) ) {
-			$ret = false;
+	} else {
+		$ret = wp_cache_create_advanced_cache();
 	}
 
 	if( false == $ret ) {
-		echo "<p><code>wp-content/advanced-cache.php</code> does not exist or cannot be updated.<br />";
-		echo "Create or update it by executing: <code>rm $wp_cache_link; cp $wp_cache_file $wp_cache_link</code> on your server<br />";
-		echo "or by deleting $wp_cache_link and copying $wp_cache_file to $wp_cache_link some other way.</p>";
-		echo "<p>You can also try making wp-content writable and refreshing this page.</p>";
+		echo "<h3>Warning! <em>" . constant( 'WP_CONTENT_DIR' ) . "/advanced-cache.php</em> does not exist or cannot be updated.</h3>";
+		echo "<p><ul><li>1. If it already exists please delete the file first.</li>";
+		echo "<li>2. Make " . constant( 'WP_CONTENT_DIR' ) . " writable using the chmod command through your ftp or server software. (<em>chmod 777 " . constant( 'WP_CONTENT_DIR' ) . "</em>) and refresh this page. This is only a temporary measure and you'll have to make it read only afterwards again. (Change 777 to 755 in the previous command)</li>";
+		echo "<li>3. Refresh this page to update <em>" . constant( 'WP_CONTENT_DIR' ) . "/advanced-cache.php</em></li></ul>";
+		echo "If that doesn't work, make sure the file <em>" . constant( 'WP_CONTENT_DIR' ) . "/advanced-cache.php</em> doesn't exist:<ol>";
+		echo "<li>1. Open <em>$wp_cache_file</em> in a text editor.</li><li>2. Change the text <em>CACHEHOME</em> to <em>" . constant( 'WPCACHEHOME' ) . "</em></li><li>3. Save the file and copy it to <em>$wp_cache_link</em> and refresh this page.</li>";
 		return false;
 	}
 	return true;

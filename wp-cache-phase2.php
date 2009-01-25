@@ -665,7 +665,6 @@ function wp_cache_post_id() {
 
 function wp_cache_gc_cron() {
 	global $file_prefix, $cache_max_time;
-	error_log( date( "H:i:s" ) . " wp_cache_gc_cron\n", 3, "/tmp/log.txt" );
 
 	if( !isset( $cache_max_time ) )
 		$cache_max_time = 600;
