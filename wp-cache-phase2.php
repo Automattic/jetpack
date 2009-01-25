@@ -669,10 +669,13 @@ function wp_cache_gc_cron() {
 	if( !isset( $cache_max_time ) )
 		$cache_max_time = 600;
 
+	$start = time();
 	if( !wp_cache_phase2_clean_expired($file_prefix ) ) {
 		wp_cache_debug( 'Cache Expiry cron job failed. Probably mutex locked.' );
 		update_option( 'wpsupercache_gc_time', time() - ( $cache_max_time - 10 ) ); // if GC failed then run it again in one minute
 	}
+	if( time() - $start > 30 )
+		wp_cache_debug( "Cache Expiry cron job took more than 30 seconds to execute.\nYou should reduce the Expiry Time in the WP Super Cache admin page\nas you probably have more cache files than your server can handle efficiently." );
 }
 
 ?>
