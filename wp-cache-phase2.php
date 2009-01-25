@@ -562,7 +562,8 @@ function wp_cache_shutdown_callback() {
 		return;
 	}
 
-	if( $last_gc > ( time() - ( 10 + $cache_max_time ) ) )
+	$next_gc = $cache_max_time < 1800 ? $cache_max_time : 1800;
+	if( $last_gc > ( time() - $next_gc ) )
 		return;
 	update_option( 'wpsupercache_gc_time', time() );
 
