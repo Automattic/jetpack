@@ -51,6 +51,8 @@ if ($cache_compression) {
 	$wp_cache_gzip_encoding = gzip_accepted();
 }
 
+add_cacheaction( 'wp_cache_key', 'wp_cache_check_mobile' );
+
 $key = $blogcacheid . md5( do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $_SERVER['REQUEST_URI'] ) ).$wp_cache_gzip_encoding.wp_cache_get_cookies_values() ) );
 
 $cache_filename = $file_prefix . $key . '.html';
@@ -129,6 +131,31 @@ function do_cacheaction( $action, $value = '' ) {
 	}
 
 	return $value;
+}
+
+// From http://wordpress.org/extend/plugins/wordpress-mobile-edition/ by Alex King
+function wp_cache_check_mobile( $cache_key ) {
+	global $wp_cache_mobile, $wp_cache_mobile_browser, $wp_cache_mobile_browsers;
+	if( !isset( $wp_cache_mobile ) || false == $wp_cache_mobile )
+		return $cache_key;
+
+	if (!isset($_SERVER["HTTP_USER_AGENT"])) {
+		return $cache_key;
+	}
+	$whitelist = explode( ',', $wp_cache_mobile_whitelist );
+	foreach ($whitelist as $browser) {
+		if (strstr($_SERVER["HTTP_USER_AGENT"], $browser)) {
+			return $cache_key;
+		}
+	}
+
+	$browsers = explode( ',', $wp_cache_mobile_browsers );
+	foreach ($browsers as $browser) {
+		if (strstr($_SERVER["HTTP_USER_AGENT"], $browser)) {
+			return $cache_key . $browser;
+		}
+	}
+	return $cache_key;
 }
 
 function wp_cache_debug( $message ) {
