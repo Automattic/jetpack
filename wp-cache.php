@@ -1137,6 +1137,12 @@ function wp_cache_files() {
 		$age = intval(($now - $sizes['ts'])/60);
 		echo "<li>" . intval($sizes['expired']/2) . " Expired Pages</li></ul>";
 	}
+	$last_gc = get_option( "wpsupercache_gc_time" );
+	if( $last_gc ) {
+		$next_gc = $cache_max_time < 1800 ? $cache_max_time : 1800;
+		echo "<p><strong>Garbage Collection</strong><br />Last: " . date( "Y-m-d H:i:s", $last_gc ) . "<br />";
+		echo "Next: " . date( "Y-m-d H:i:s", $next_gc + $last_gc ) . "</p>";
+	}
 
 	echo "<p>Expired files are files older than $cache_max_time seconds. They are still used by the plugin and are deleted periodically.</p>";
 	echo '<form name="wp_cache_content_expired" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
