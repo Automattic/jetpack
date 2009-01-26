@@ -99,6 +99,18 @@ Comments will show as soon as they are moderated, depending on the comment polic
 
 No, it will do the opposite in fact. Super Cache files are compressed and stored that way so the heavy compression is done only once. These files are generally much smaller and are sent to a visitor's browser much more quickly than uncompressed html. As a result, your server spends less time talking over the network which saves CPU time and bandwidth, and can also serve the next request much more quickly.
 
+= Why doesn't Popularity Contest, WP Postratings or plugin X not work or update on my blog now? =
+
+This plugin caches entire pages and some plugins expect they can run PHP code every time a page loads. To fix this, the plugin needs to use Javascript or AJAX methods to update. If the plugin displays information on the page, that must be a Javascript request too.
+
+= Why doesn't the plugin cache requests by search engine bots by default? =
+
+Those bots usually only visit each page once and if the page is not popular there's no point creating a cache file that will sit idle on your server.
+
+= Why can't I create a cache file of every page on my site? =
+
+Like the previous question, there's no point caching pages that won't be visited. The large number of cache files will slow down the garbage collection system as it attempts to check each file. It also causes problems for hosting companies. In the event of a disk failure on your server it may take much longer to check the files. Remember how long a scandisk or a fsck took on a large drive?
+
 = How do I uninstall WP Super Cache? =
 
 1. Clear the cache in the backend page and then deactivate it on the plugins page.
