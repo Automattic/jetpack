@@ -110,7 +110,7 @@ function wp_cache_add_pages() {
 add_action('admin_menu', 'wp_cache_add_pages');
 
 function wp_cache_manager() {
-	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile, $wp_cache_mobile_whitelist, $wp_cache_mobile_browsers;
+	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_whitelist, $wp_cache_mobile_browsers;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -210,19 +210,19 @@ jQuery(document).ready(function(){
 
 	if ( $valid_nonce ) {
 		if( isset( $_POST[ 'wp_cache_status' ] ) ) {
-			if( isset( $_POST[ 'wp_cache_mobile' ] ) ) {
-				$wp_cache_mobile = 1;
+			if( isset( $_POST[ 'wp_cache_mobile_enabled' ] ) ) {
+				$wp_cache_mobile_enabled = 1;
 			} else {
-				$wp_cache_mobile = 0;
+				$wp_cache_mobile_enabled = 0;
 			}
-			if( $wp_cache_mobile == 1 ) {
-				if( false == isset( $wp_cache_mobile_whitelist ) )
+			if( $wp_cache_mobile_enabled == 1 ) {
+				if( !isset( $wp_cache_mobile_whitelist ) )
 					wp_cache_replace_line('^ *\$wp_cache_mobile_whitelist', "\$wp_cache_mobile_whitelist = 'Stand Alone/QNws';", $wp_cache_config_file);
 				if( false == isset( $wp_cache_mobile_browsers ) )
 					wp_cache_replace_line('^ *\$wp_cache_mobile_browsers', "\$wp_cache_mobile_browsers = '2.0 MMP, 240x320, AvantGo, BlackBerry, Blazer, Cellphone, Danger, DoCoMo, Elaine/3.0, EudoraWeb, hiptop, IEMobile, iPhone, iPod, KYOCERA/WX310K, LG/U990, MIDP-2.0, MMEF20, MOT-V, NetFront, Newt, Nintendo Wii, Nitro, Nokia, Opera Mini, Palm, Playstation Portable, portalmmm, Proxinet, ProxiNet, SHARP-TQ-GX10, Small, SonyEricsson, Symbian OS, SymbianOS, TS21i-10, UP.Browser, UP.Link, Windows CE, WinWAP';", $wp_cache_config_file);
 				$_POST[ 'wp_cache_status' ] = 'wpcache';
 			}
-			wp_cache_replace_line('^ *\$wp_cache_mobile', "\$wp_cache_mobile = " . $wp_cache_mobile . ";", $wp_cache_config_file);
+			wp_cache_replace_line('^ *\$wp_cache_mobile_enabled', "\$wp_cache_mobile_enabled = " . $wp_cache_mobile_enabled . ";", $wp_cache_config_file);
 			switch( $_POST[ 'wp_cache_status' ] ) {
 				case 'all':
 					wp_cache_enable();
@@ -282,7 +282,7 @@ jQuery(document).ready(function(){
 	<h4>Experimental Features</h4>
 	<p><label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> Enable experimental "cache rebuild" feature. Serve a supercache file to anonymous users while a new file is being generated. Recommended for <em>very</em> busy websites with lots of comments.</label></p>
 	<p><label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( $wp_cache_mutex_disabled ) echo "checked"; ?> value='1'> Disable file locking. If you experience problems with mutex or file locks this may help but may cause increased server load.</label></p>
-	<p><label><input type='checkbox' name='wp_cache_mobile' <?php if( $wp_cache_mobile ) echo "checked"; ?> value='1'> Mobile device support. Plugin will enter "Half-On" mode.</label></p>
+	<p><label><input type='checkbox' name='wp_cache_mobile_enabled' <?php if( $wp_cache_mobile_enabled ) echo "checked"; ?> value='1'> Mobile device support. Plugin will enter "Half-On" mode.</label></p>
 	<p><strong>Note:</strong> If uninstalling this plugin, make sure the directory <em><?php echo WP_CONTENT_DIR; ?></em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)</p>
 	<?php
 	echo "<div class='submit'><input type='submit' " . SUBMITDISABLED . " value='Update Status &raquo;' /></div>";
