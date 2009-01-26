@@ -451,7 +451,7 @@ function wsc_mod_rewrite() {
 			}
 			echo " Make sure they appear before any existing WordPress rules.</p>";
 			echo "<pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>";
-			echo "<p>Rules must be added to WP_CONTENT_DIR/cache/.htaccess too:</p>";
+			echo "<p>Rules must be added to " . WP_CONTENT_DIR . "/cache/.htaccess too:</p>";
 			echo "<pre># BEGIN supercache\n" . wp_specialchars( $gziprules ) . "# END supercache</pre></p>";
 			if( !function_exists( 'is_site_admin' ) ) {
 				echo '<form name="updatehtaccess" action="'. $_SERVER["REQUEST_URI"] . '#modrewrite" method="post">';
