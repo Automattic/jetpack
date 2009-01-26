@@ -304,7 +304,7 @@ function wp_cache_ob_callback($buffer) {
 		}
 	}
 	wp_cache_writers_exit();
-	if ( isset( $wp_cache_gzip_first ) && 1 == $wp_cache_gzip_first && $wp_cache_gzip_encoding && $gzdata) {
+	if ( !headers_sent() && isset( $wp_cache_gzip_first ) && 1 == $wp_cache_gzip_first && $wp_cache_gzip_encoding && $gzdata) {
 		header( 'Content-Encoding: ' . $wp_cache_gzip_encoding );
 		header( 'Vary: Accept-Encoding, Cookie' );
 		header( 'Content-Length: ' . $gzsize );
