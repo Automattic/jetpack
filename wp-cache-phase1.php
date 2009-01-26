@@ -135,8 +135,8 @@ function do_cacheaction( $action, $value = '' ) {
 
 // From http://wordpress.org/extend/plugins/wordpress-mobile-edition/ by Alex King
 function wp_cache_check_mobile( $cache_key ) {
-	global $wp_cache_mobile, $wp_cache_mobile_browser, $wp_cache_mobile_browsers;
-	if( !isset( $wp_cache_mobile ) || false == $wp_cache_mobile )
+	global $wp_cache_mobile_enabled, $wp_cache_mobile_browser, $wp_cache_mobile_browsers;
+	if( !isset( $wp_cache_mobile_enabled ) || false == $wp_cache_mobile_enabled )
 		return $cache_key;
 
 	if (!isset($_SERVER["HTTP_USER_AGENT"])) {
@@ -144,14 +144,14 @@ function wp_cache_check_mobile( $cache_key ) {
 	}
 	$whitelist = explode( ',', $wp_cache_mobile_whitelist );
 	foreach ($whitelist as $browser) {
-		if (strstr($_SERVER["HTTP_USER_AGENT"], $browser)) {
+		if (strstr($_SERVER["HTTP_USER_AGENT"], trim($browser))) {
 			return $cache_key;
 		}
 	}
 
 	$browsers = explode( ',', $wp_cache_mobile_browsers );
 	foreach ($browsers as $browser) {
-		if (strstr($_SERVER["HTTP_USER_AGENT"], $browser)) {
+		if (strstr($_SERVER["HTTP_USER_AGENT"], trim( $browser ))) {
 			return $cache_key . $browser;
 		}
 	}
