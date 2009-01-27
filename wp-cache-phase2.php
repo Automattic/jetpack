@@ -299,24 +299,25 @@ function wp_cache_ob_callback($buffer) {
 			$buffer .= $log;
 		}
 		$new_cache = true;
-		if( $fr )
+		if( $fr ) {
 			fclose($fr);
-		if( !@rename( $tmp_wpcache_filename, $cache_path . $cache_filename ) ) {
-			unlink( $cache_path . $cache_filename );
-			rename( $tmp_wpcache_filename, $cache_path . $cache_filename );
+			if( !@rename( $tmp_wpcache_filename, $cache_path . $cache_filename ) ) {
+				@unlink( $cache_path . $cache_filename );
+				@rename( $tmp_wpcache_filename, $cache_path . $cache_filename );
+			}
 		}
 		if( $fr2 ) {
 			fclose($fr2);
 			if( !@rename( $tmp_cache_filename, $cache_fname ) ) {
-				unlink( $cache_fname );
-				rename( $tmp_cache_filename, $cache_fname );
+				@unlink( $cache_fname );
+				@rename( $tmp_cache_filename, $cache_fname );
 			}
 		}
 		if( $gz ) {
 			fclose($gz);
 			if( !@rename( $tmp_cache_filename . '.gz', $cache_fname . '.gz' ) ) {
-				unlink( $cache_fname . '.gz' );
-				rename( $tmp_cache_filename . '.gz', $cache_fname . '.gz' );
+				@unlink( $cache_fname . '.gz' );
+				@rename( $tmp_cache_filename . '.gz', $cache_fname . '.gz' );
 			}
 		}
 	}
