@@ -1,3 +1,85 @@
+2009-01-27 06:17  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 0.9
+
+2009-01-27 06:17  donncha
+
+	* wp-cache-phase2.php: Bring back mfunc code
+
+2009-01-27 05:53  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Set GC to 10 minutes instead
+	  of 30.
+
+2009-01-26 20:08  donncha
+
+	* wp-cache.php: Show last and next garbage collection times
+
+2009-01-26 18:11  donncha
+
+	* wp-cache.php: Make sure constant value is displayed, props
+	  Jonathan Dingman
+
+2009-01-26 17:32  donncha
+
+	* wp-cache-phase1.php: Update mobile "enabled" variable
+
+2009-01-26 17:32  donncha
+
+	* wp-cache-phase2.php: Don't send gzip headers if headers already
+	  sent
+
+2009-01-26 13:00  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase2.php, wp-cache.php:
+	  Removed "dynamic caching" that isn't documented anywhere any more
+	  Fixed activate bugs with mobile device support
+
+2009-01-26 11:12  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase1.php, wp-cache.php:
+	  Mobile device support via
+	  http://wordpress.org/extend/plugins/wordpress-mobile-edition/ by
+	  Alex King
+
+2009-01-26 10:03  donncha
+
+	* readme.txt: Added extra FAQs
+
+2009-01-25 11:21  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Admin page updates
+	  If expiry time is over 30 minutes, set garbage collection to 30
+	  minutes, else expiry time
+
+2009-01-25 09:11  donncha
+
+	* wp-cache-phase2.php: If supercache enabled, Don't create wp-cache
+	  files for anonymous users. Should cut down cached files by half
+	  ore more.
+
+2009-01-25 07:56  donncha
+
+	* wp-cache-phase2.php: Warn if cache expiry cron job took longer
+	  than 30 seconds, props SiriusBuzz
+
+2009-01-25 07:49  donncha
+
+	* advanced-cache.php, wp-cache-phase2.php, wp-cache.php:
+	  advanced-cache.php will load the phase1.php even in relocated
+	  plugin folders now. (NOTE. Must be updated if plugin folder
+	  changes)
+	  Removed error_log()
+
+2009-01-24 06:03  donncha
+
+	* wp-cache.php: Update advanced-cache.php message, props Jonathan
+	  Dingman
+
+2009-01-23 19:10  donncha
+
+	* Changelog.txt: Updated Changelog for 0.8.9
+
 2009-01-23 19:09  donncha
 
 	* readme.txt, wp-cache.php: Bump version number to 0.8.9 and update
