@@ -690,7 +690,7 @@ function wp_cache_edit_max_time () {
 	echo '<form name="wp_edit_max_time" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<label for="wp_max_time">Expire time:</label> ';
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> seconds";
-	echo "<h4>Garbage Collection</h4><p>If expiry time is more than 1800 seconds (half an hour), garbage collection will be done every half hour, otherwise it will happen 10 seconds after the expiry time above.</p>";
+	echo "<h4>Garbage Collection</h4><p>If expiry time is more than 1800 seconds (half an hour), garbage collection will be done every 10 minutes, otherwise it will happen 10 seconds after the expiry time above.</p>";
 	echo "<p>Checking for and deleting expired files is expensive, but it's expensive leaving them there too. On a very busy site you should set the expiry time to <em>300 seconds</em>. Experiment with different values and visit this page to see how many expired files remain at different times during the day. Aim to have less than 500 cached files if possible.</p>";
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Change Expiration &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
@@ -1139,7 +1139,7 @@ function wp_cache_files() {
 	}
 	$last_gc = get_option( "wpsupercache_gc_time" );
 	if( $last_gc ) {
-		$next_gc = $cache_max_time < 1800 ? $cache_max_time : 1800;
+		$next_gc = $cache_max_time < 1800 ? $cache_max_time : 600;
 		echo "<p><strong>Garbage Collection</strong><br />Last: " . date( "Y-m-d H:i:s", $last_gc ) . "<br />";
 		echo "Next: " . date( "Y-m-d H:i:s", $next_gc + $last_gc ) . "</p>";
 	}
