@@ -339,16 +339,10 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 		return false;
 	if ( ($handle = @opendir( $cache_path )) ) { 
 		while ( false !== ($file = @readdir($handle))) {
-			if ( preg_match("/^$file_prefix/", $file) ) {
-				$files[] = $file;
-			}
+			if ( preg_match("/^$file_prefix/", $file) )
+				@unlink($cache_path . $file);
 		}
 		closedir($handle);
-		if( is_array( $files ) )
-			reset( $files );
-		foreach( (array)$files as $file ) {
-			@unlink($cache_path . $file);
-		}
 	}
 	wp_cache_writers_exit();
 }
@@ -373,12 +367,6 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 			while( ( $entry = @readdir( $dh ) ) !== false ) {
 				if ($entry == '.' || $entry == '..')
 					continue;
-				$files[] = $entry;
-			}
-			closedir($dh);
-			if( is_array( $files ) )
-				reset( $files );
-			foreach( (array)$files as $entry ) {
 				$entry = $directory . $entry;
 				prune_super_cache( $entry, $force, $rename );
 				// If entry is a directory, AND it's not a protected one, AND we're either forcing the delete, OR the file is out of date, 
@@ -399,6 +387,7 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 						@rmdir( $entry );
 				}
 			}
+			closedir($dh);
 		}
 	} elseif( is_file($directory) && ($force || filemtime( $directory ) + $cache_max_time <= $now ) ) {
 		$oktodelete = true;
@@ -428,12 +417,6 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 	$now = time();
 	if ( ($handle = opendir( $cache_path )) ) { 
 		while ( false !== ($file = readdir($handle))) {
-			$files[] = $file;
-		}
-		closedir($handle);
-		if( is_array( $files ) )
-			reset( $files );
-		foreach( (array)$files as $file ) {
 			if ( preg_match("/^$file_prefix/", $file) && 
 				(filemtime($cache_path . $file) + $cache_max_time) <= $now  ) {
 				@unlink($cache_path . $file);
@@ -447,6 +430,7 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 				}
 			}
 		}
+		closedir($handle);
 		prune_super_cache( $cache_path . 'supercache' );
 	}
 
@@ -621,12 +605,6 @@ function wp_cache_post_change($post_id) {
 	$matches = array();
 	if ( ($handle = opendir( $cache_path . 'meta/' )) ) { 
 		while ( false !== ($file = readdir($handle))) {
-			$files[] = $file;
-		}
-		closedir($handle);
-		if( is_array( $files ) )
-			reset( $files );
-		foreach( (array)$files as $file ) {
 			if ( preg_match("/^({$file_prefix}{$blogcacheid}.*)\.meta/", $file, $matches) ) {
 				$meta_pathname = $cache_path . 'meta/' . $file;
 				$content_pathname = $cache_path . $matches[1] . ".html";
@@ -643,6 +621,7 @@ function wp_cache_post_change($post_id) {
 
 			}
 		}
+		closedir($handle);
 	}
 	wp_cache_writers_exit();
 	return $post_id;
