@@ -60,7 +60,7 @@ function wp_cache_phase2() {
 			}
 		}
 	}
-	register_shutdown_function('wp_cache_shutdown_callback');
+	//register_shutdown_function('wp_cache_shutdown_callback');
 }
 
 function wp_cache_get_response_headers() {
@@ -168,7 +168,14 @@ function get_current_url_supercache_dir() {
 	return $dir;
 }
 
-function wp_cache_ob_callback($buffer) {
+function wp_cache_ob_callback( $buffer ) {
+	$buffer = wp_cache_get_ob( $buffer );
+	wp_cache_shutdown_callback();
+	return $buffer;
+}
+
+
+function wp_cache_get_ob($buffer) {
 	global $cache_path, $cache_filename, $meta_file, $wp_start_time, $supercachedir;
 	global $new_cache, $wp_cache_meta_object, $file_expired, $blog_id, $cache_compression;
 	global $wp_cache_gzip_encoding, $super_cache_enabled, $cached_direct_pages;
@@ -497,7 +504,7 @@ function wp_cache_shutdown_callback() {
 		array_push($wp_cache_meta_object->headers, "Content-Type: $value");
 	}
 
-	@ob_end_flush();
+	//@ob_end_flush();
 	flush(); //Ensure we send data to the client
 	if ( ! $supercacheonly && $new_cache ) {
 		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $wp_cache_meta_object->headers ) ) {
