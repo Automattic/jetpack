@@ -5,10 +5,14 @@ function wp_supercache_badbehaviour( $file ) {
 
 	if( $cache_badbehaviour != 1 )
 		return $file;
-	require_once( WP_CONTENT_DIR . '/plugins/Bad-Behavior/bad-behavior-generic.php' );
+	wp_supercache_badbehaviour_include();
 	return $file;
 }
 add_cacheaction( 'wp_cache_served_cache_file', 'wp_supercache_badbehaviour' );
+
+function wp_supercache_badbehaviour_include() {
+	require_once( WP_CONTENT_DIR . '/plugins/Bad-Behavior/bad-behavior-generic.php' );
+}
 
 function wp_supercache_badbehaviour_admin() {
 	global $cache_badbehaviour, $wp_cache_config_file, $valid_nonce;
