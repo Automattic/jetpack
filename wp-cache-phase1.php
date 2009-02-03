@@ -20,7 +20,9 @@ $new_cache = false;
 
 // Don't change variables behind this point
 
-$plugins = glob( WPCACHEHOME . 'plugins/*.php' );
+if( !isset( $wp_cache_plugins_dir ) )
+	$wp_cache_plugins_dir = WPCACHEHOME . 'plugins';
+$plugins = glob( $wp_cache_plugins_dir . '/*.php' );
 if( is_array( $plugins ) ) {
 	foreach ( $plugins as $plugin ) {
 	if( is_file( $plugin ) )
@@ -66,6 +68,7 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 		$meta = new CacheMeta;
 		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
 			return;
+		do_cacheaction( 'wp_cache_served_cache_file', $cache_file );
 		// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
 		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta->headers ) ) {
 			array_push($meta->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
@@ -84,10 +87,9 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 		if ($meta->dynamic) {
 			include($cache_file);
 		} else {
-			if(!@readfile ($cache_file)) 
-				return;
+			echo do_cacheaction( 'wp_cache_file_contents', file_get_contents( $cache_file ) );
 		}
-		die;
+		die();
 	}
 	$file_expired = true; // To signal this file was expired
 }
