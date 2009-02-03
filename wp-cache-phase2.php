@@ -1,7 +1,9 @@
 <?php
 
 function wp_cache_phase2() {
-	global $cache_filename, $cache_acceptable_files, $wp_cache_meta_object, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files;
+	global $cache_filename, $cache_acceptable_files, $wp_cache_meta_object, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_do_output;
+
+	$wp_cache_do_output = false;
 
 	wp_cache_mutex_init();
 	if(function_exists('add_action') && ( !defined( 'WPLOCKDOWN' ) || ( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) == '0' ) ) ) {
@@ -37,7 +39,8 @@ function wp_cache_phase2() {
 		header('Vary: Accept-Encoding, Cookie');
 	else
 		header('Vary: Cookie');
-	ob_start('wp_cache_ob_callback'); 
+	ob_start(); 
+	$wp_cache_do_output = true;
 
 	// restore old supercache file temporarily
 	if( $super_cache_enabled && $cache_rebuild_files ) {
