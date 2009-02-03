@@ -100,9 +100,10 @@ function wp_cache_do_output() {
 		return false;
 	}
 	$buffer = ob_get_contents();
+	ob_end_clean();
 	$buffer = wp_cache_get_ob( $buffer );
 	wp_cache_shutdown_callback();
-	return $buffer;
+	echo $buffer;
 }
 
 function wp_cache_postload() {
