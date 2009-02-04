@@ -549,9 +549,14 @@ function wp_cache_shutdown_callback() {
 		return;
 	update_option( 'wpsupercache_gc_time', time() );
 
-	// we delete expired files, using a wordpress cron event
-	// since flush() does not guarantee hand-off to client - problem on Win32 and suPHP
-	if(!wp_next_scheduled('wp_cache_gc')) wp_schedule_single_event(time() + 10 , 'wp_cache_gc');
+	global $wp_cache_shutdown_gc;
+	if( isset( $wp_cache_shutdown_gc ) && $wp_cache_shutdown_gc == 1 ) {
+		do_action( 'wp_cache_gc' );
+	} else {
+		// we delete expired files, using a wordpress cron event
+		// since flush() does not guarantee hand-off to client - problem on Win32 and suPHP
+		if(!wp_next_scheduled('wp_cache_gc')) wp_schedule_single_event(time() + 10 , 'wp_cache_gc');
+	}
 }
 
 function wp_cache_no_postid($id) {
