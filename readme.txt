@@ -126,9 +126,7 @@ If things don't work when you installed the plugin here are a few things to chec
 
 1.  Is wp-content writable by the web server?
 2.  Is there a wp-content/wp-cache-config.php ? If not, copy the file wp-super-cache/wp-cache-config-sample.php to wp-content/wp-cache-config.php and make sure WPCACHEHOME points at the right place. "plugins" should be "mu-plugins" if you're using WordPress MU.
-3.  Is there a wp-content/advanced-cache.php ? If not, then you must copy wp-super-cache/advanced-cache.php to it with this command while in the wp-content folder. (WordPress MU users should replace "plugins" with "mu-plugins".)
-
-    `cp plugins/wp-super-cache/advanced-cache.php advanced-cache.php`
+3.  Is there a wp-content/advanced-cache.php ? If not, then you must copy wp-super-cache/advanced-cache.php into wp-content/. You should edit the file and change the path so it points at the wp-super-cache folder.
 4.  If pages are not cached at all, remove wp-content/advanced-cache.php and recreate it, following the advice above.
 5.  Make sure the following line is in wp-config.php and it is ABOVE the "require_once(ABSPATH.'wp-settings.php');" line:
 
@@ -142,6 +140,7 @@ If things don't work when you installed the plugin here are a few things to chec
 12. Private Server users at Dreamhost should edit wp-content/wp-cache-config.php and set the cache dir to "/tmp/" if they are getting errors about increasing CPU usage. See this [discussion](http://wordpress.org/support/topic/145895?replies=42) for more.
 13. File locking errors such as "failed to acquire key 0x152b: Permission denied in..." or "Page not cached by WP Super Cache. Could not get mutex lock." are a sign that you may have to use file locking. Edit wp-content/wp-cache-config.php and uncomment "$use_flock = true" or set $sem_id to a different value. You can also disable file locking from the Admin screen as a last resort.
 14. Make sure cache/wp_cache_mutex.lock is writeable by the web server.
+15. The cache folder cannot be put on an NFS or Samba or NAS share. It has to be on a local disk. File locking and deleting expired files will not work properly unless the cache folder is on the local machine.
 
 == Custom Caching ==
 It is now possible to hook into the caching process using the add_cacheaction() function.
