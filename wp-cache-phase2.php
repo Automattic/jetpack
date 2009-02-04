@@ -237,12 +237,13 @@ function wp_cache_get_ob($buffer) {
 			}
 		}
 		if( $super_cache_enabled ) {
-			if( @is_dir( $dir ) == false )
-				@wp_mkdir_p( $dir );
-
 			$user_info = wp_cache_get_cookies_values();
 			$do_cache = apply_filters( 'do_createsupercache', $user_info );
 			if( $user_info == '' || $do_cache === true ) {
+
+				if( @is_dir( $dir ) == false )
+					@wp_mkdir_p( $dir );
+
 				$cache_fname = "{$dir}index.html";
 				$tmp_cache_filename = $dir . uniqid( mt_rand(), true ) . '.tmp';
 				$fr2 = @fopen( $tmp_cache_filename, 'w' );
