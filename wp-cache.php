@@ -942,7 +942,7 @@ function wp_cache_verify_config_file() {
 			return false;
 		}
 		copy($wp_cache_config_file_sample, $wp_cache_config_file);
-		$dir = str_replace( '\\', '/', str_replace( WP_CONTENT_DIR, '', dirname(__FILE__) ) );
+		$dir = str_replace( str_replace( '\\', '/', WP_CONTENT_DIR ), '', str_replace( '\\', '/', dirname(__FILE__) ) );
 		if( is_file( dirname(__FILE__) . '/wp-cache-config-sample.php' ) ) {
 			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', WP_CONTENT_DIR . \"{$dir}/\" );", $wp_cache_config_file);
 		} elseif( is_file( dirname(__FILE__) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
