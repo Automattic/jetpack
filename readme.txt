@@ -99,7 +99,7 @@ Comments will show as soon as they are moderated, depending on the comment polic
 
 No, it will do the opposite in fact. Super Cache files are compressed and stored that way so the heavy compression is done only once. These files are generally much smaller and are sent to a visitor's browser much more quickly than uncompressed html. As a result, your server spends less time talking over the network which saves CPU time and bandwidth, and can also serve the next request much more quickly.
 
-= Why doesn't Popularity Contest, WP Postratings or plugin X not work or update on my blog now? =
+= Why doesn't WP UserOnline, Popularity Contest, WP Postratings or plugin X not work or update on my blog now? =
 
 This plugin caches entire pages and some plugins expect they can run PHP code every time a page loads. To fix this, the plugin needs to use Javascript or AJAX methods to update. If the plugin displays information on the page, that must be a Javascript request too.
 
