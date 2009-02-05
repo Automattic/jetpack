@@ -375,7 +375,7 @@ function wsc_mod_rewrite() {
 	$home_path = get_home_path();
 	$home_root = parse_url(get_bloginfo('url'));
 	$home_root = trailingslashit($home_root['path']);
-	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $_SERVER[ 'DOCUMENT_ROOT' ], '', WP_CONTENT_DIR ) ) );
+	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $_SERVER[ 'DOCUMENT_ROOT' ], '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
 	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
 	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
