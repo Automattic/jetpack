@@ -33,6 +33,7 @@ if( defined( 'VHOST' ) ) {
 			if ( '/' == substr($blogcacheid, -1))
 				$blogcacheid = substr($blogcacheid, 0, -1);
 		}
+		$blogcacheid = str_replace( '/', '', $blogcacheid );
 	}
 }
 
