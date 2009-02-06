@@ -9,6 +9,7 @@ if( !defined( 'WPCACHEHOME' ) )
 	define('WPCACHEHOME', dirname(__FILE__).'/');
 
 include( WPCACHEHOME . 'wp-cache-base.php');
+$wp_cache_meta_object = new CacheMeta;
 
 if(defined('DOING_CRON')) {
 	require_once( WPCACHEHOME . 'wp-cache-phase2.php');
@@ -94,7 +95,7 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 	$file_expired = true; // To signal this file was expired
 }
 
-register_shutdown_function( 'wp_cache_do_output' );
+/*register_shutdown_function( 'wp_cache_do_output' );
 
 function wp_cache_do_output() {
 	global $wp_cache_do_output;
@@ -106,7 +107,7 @@ function wp_cache_do_output() {
 	$buffer = wp_cache_get_ob( $buffer );
 	wp_cache_shutdown_callback();
 	echo $buffer;
-}
+}*/
 
 function wp_cache_postload() {
 	global $cache_enabled;
