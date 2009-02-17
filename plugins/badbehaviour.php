@@ -36,8 +36,9 @@ function wp_supercache_badbehaviour_admin() {
 		echo 'disabled';
 	} else {
 		echo 'enabled';
+		wp_super_cache_disable();
 	}
-	echo '.</strong> (requires <a href="http://www.bad-behavior.ioerror.us/">Bad Behaviour</a> in "' . WP_CONTENT_DIR . '/plugins/Bad-Behaviour/") ';
+	echo '.</strong> (Only half-on caching supported and requires <a href="http://www.bad-behavior.ioerror.us/">Bad Behaviour</a> in "' . WP_CONTENT_DIR . '/plugins/Bad-Behaviour/") ';
 	if( $cache_badbehaviour == 0 ) {
 		echo '<input type="submit" name="cache_badbehaviour" value="Enable" />';
 	} else {
