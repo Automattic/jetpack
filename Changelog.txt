@@ -1,3 +1,143 @@
+2009-02-17 12:58  donncha
+
+	* wp-cache-phase2.php: Don't show no HTML tag warning for
+	  robots.txt, http://wordpress.org/support/topic/243904?replies=1
+
+2009-02-17 12:36  donncha
+
+	* wp-cache.php: Clear the supercache folder when it's disabled.
+	  Remove the .disabled folder if a supercache folder exists.
+	  Show Last and Next garbage collection times as UTC
+	  Added an admin notice on the plugins page if wp-super-cache
+	  caching is disabled
+	  Add plugin notice below plugin row if caching is disabled
+
+2009-02-17 12:34  donncha
+
+	* wp-cache-phase2.php: Hide some filemtime() warnings. Without a
+	  global file lock we'll get more of these.
+
+2009-02-17 12:33  donncha
+
+	* plugins/badbehaviour.php: Disable the supercache if Bad Behaviour
+	  support is enabled.
+
+2009-02-14 11:48  donncha
+
+	* readme.txt: Updated tag and added Donation link
+
+2009-02-06 10:48  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Just use the output
+	  buffer, no shutdown functions.
+
+2009-02-05 20:53  donncha
+
+	* wp-cache-phase2.php: No need to call this callback twice!
+
+2009-02-05 15:32  donncha
+
+	* wp-cache-config-sample.php: Remove any slashes left in the
+	  blogcacheid
+
+2009-02-05 13:36  donncha
+
+	* wp-cache.php: Replace blashslashes in WP_CONTENT_DIR here,
+	  possible Win32 fix
+
+2009-02-05 10:20  donncha
+
+	* readme.txt: Added "UserOnline" to the list of plugins that don't
+	  update when a page is cached
+
+2009-02-05 09:55  donncha
+
+	* wp-cache.php: Replace backslashes in WP_CONTENT_DIR too. Win32
+	  fix. props Chris (beerfan)
+
+2009-02-04 21:49  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase2.php: Added
+	  $wp_cache_shutdown_gc config option to use shutdown instead of
+	  wp-cron
+	  Added comments on config options
+
+2009-02-04 20:38  donncha
+
+	* wp-cache-phase2.php: Don't create empty supercache directories.
+
+2009-02-04 10:25  donncha
+
+	* readme.txt: Troubleshooting updates: advanced-cache.php, cache on
+	  NFS warning
+
+2009-02-03 21:53  donncha
+
+	* plugins/badbehaviour.php, wp-cache-phase1.php: Things act strange
+	  when a function has a require_once(), even if it's never reached
+
+2009-02-03 21:41  donncha
+
+	* plugins/badbehaviour.php, plugins/searchengine.php,
+	  wp-cache-config-sample.php, wp-cache-phase1.php: Added Bad
+	  Behaviour plugin
+	  Allow SuperCache plugin directory to be relocated. See
+	  $wp_cache_plugins_dir in config file.
+	  Fixed updating Active status of searchengine plugin
+	  Added new cacheactions:
+	  'wp_cache_served_cache_file' activated just before headers are
+	  sent for an existing cache file.
+	  'wp_cache_file_contents' filter that every wp-cache cache file is
+	  sent through. (ignoring mfunc)
+
+2009-02-03 12:11  donncha
+
+	* wp-cache-phase1.php: Clean and echo the buffer
+
+2009-02-03 11:49  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Register supercache
+	  shutdown function right at the start of the process so it's
+	  executed before WP objects are destroyed
+
+2009-02-02 15:48  donncha
+
+	* wp-cache-phase2.php: Don't register shutdown function, call it
+	  from the output buffer callback.
+
+2009-02-02 09:58  donncha
+
+	* wp-cache-phase2.php: Don't read files into an array, reverting
+	  [86134]
+
+2009-01-29 17:19  donncha
+
+	* wp-cache.php: Remove double slashes from inst_root
+
+2009-01-29 16:28  donncha
+
+	* wp-cache.php: Guess the install root properly
+
+2009-01-29 14:25  donncha
+
+	* wp-cache-phase2.php: Revert prune_super_cache and
+	  garbage_collection code.
+
+2009-01-29 06:41  donncha
+
+	* wp-cache.php: Fix caching for blogs installed in sub dirs. See
+	  http://wordpress.org/support/topic/238022?replies=6
+
+2009-01-27 19:57  donncha
+
+	* wp-cache-phase2.php: Only rename the tmp cache file when it's
+	  created.
+	  Hide warnings about renames and unlinks
+
+2009-01-27 06:18  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-01-27 06:17  donncha
 
 	* readme.txt, wp-cache.php: Bump version to 0.9
