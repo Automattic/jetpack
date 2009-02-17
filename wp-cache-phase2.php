@@ -191,7 +191,8 @@ function wp_cache_get_ob($buffer) {
 
 	if (!preg_match('/(<\/html>|<\/rss>|<\/feed>)/i',$buffer) ) {
 		$new_cache = false;
-		$buffer .= "\n<!-- Page not cached by WP Super Cache. No closing HTML tag. Check your theme. -->\n";
+		if( false === strpos( $_SERVER[ 'REQUEST_URI' ], 'robots.txt' ) )
+			$buffer .= "\n<!-- Page not cached by WP Super Cache. No closing HTML tag. Check your theme. -->\n";
 	}
 	
 	if( !$new_cache )
