@@ -396,7 +396,7 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 			}
 			closedir($dh);
 		}
-	} elseif( is_file($directory) && ($force || filemtime( $directory ) + $cache_max_time <= $now ) ) {
+	} elseif( is_file($directory) && ($force || @filemtime( $directory ) + $cache_max_time <= $now ) ) {
 		$oktodelete = true;
 		if( in_array( $directory, $protected_directories ) )
 			$oktodelete = false;
@@ -425,13 +425,13 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 	if ( ($handle = opendir( $cache_path )) ) { 
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^$file_prefix/", $file) && 
-				(filemtime($cache_path . $file) + $cache_max_time) <= $now  ) {
+				(@filemtime($cache_path . $file) + $cache_max_time) <= $now  ) {
 				@unlink($cache_path . $file);
 				@unlink($cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
 				continue;
 			}
 			if($file != '.' && $file != '..') {
-				if( is_dir( $cache_path . $file ) == false && (filemtime($cache_path . $file) + $cache_max_time) <= $now  ) {
+				if( is_dir( $cache_path . $file ) == false && (@filemtime($cache_path . $file) + $cache_max_time) <= $now  ) {
 					if( substr( $file, -9 ) != '.htaccess' )
 						@unlink($cache_path . $file);
 				}
