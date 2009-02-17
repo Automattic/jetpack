@@ -802,33 +802,38 @@ function wp_cache_enable() {
 }
 
 function wp_cache_disable() {
-	global $cache_path, $wp_cache_config_file, $cache_enabled, $supercachedir, $cache_path;
+	global $wp_cache_config_file, $cache_enabled;
 
 	if (wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file)) {
 		$cache_enabled = false;
 	}
 	wp_super_cache_disable();
-	sleep( 1 ); // allow existing processes to write to the supercachedir and then delete it
-	if (function_exists ('prune_super_cache') && is_dir( $supercachedir ) ) {
-		prune_super_cache( $cache_path, true );
-	}
 }
 function wp_super_cache_enable() {
 	global $supercachedir, $wp_cache_config_file, $super_cache_enabled;
 
 	if( is_dir( $supercachedir . ".disabled" ) )
-		rename( $supercachedir . ".disabled", $supercachedir );
+		if( is_dir( $supercachedir ) ) {
+			prune_super_cache( $supercachedir . ".disabled", true );
+			@unlink( $supercachedir . ".disabled" );
+		} else {
+			@rename( $supercachedir . ".disabled", $supercachedir );
+		}
 	wp_cache_replace_line('^ *\$super_cache_enabled', '$super_cache_enabled = true;', $wp_cache_config_file);
 	$super_cache_enabled = true;
 }
 
 function wp_super_cache_disable() {
-	global $supercachedir, $wp_cache_config_file, $super_cache_enabled;
+	global $cache_path, $supercachedir, $wp_cache_config_file, $super_cache_enabled;
 
 	wp_cache_replace_line('^ *\$super_cache_enabled', '$super_cache_enabled = false;', $wp_cache_config_file);
 	if( is_dir( $supercachedir ) )
 		rename( $supercachedir, $supercachedir . ".disabled" );
 	$super_cache_enabled = false;
+	sleep( 1 ); // allow existing processes to write to the supercachedir and then delete it
+	if (function_exists ('prune_super_cache') && is_dir( $supercachedir ) ) {
+		prune_super_cache( $cache_path, true );
+	}
 }
 
 function wp_cache_is_enabled() {
@@ -1138,8 +1143,8 @@ function wp_cache_files() {
 	$last_gc = get_option( "wpsupercache_gc_time" );
 	if( $last_gc ) {
 		$next_gc = $cache_max_time < 1800 ? $cache_max_time : 600;
-		echo "<p><strong>Garbage Collection</strong><br />Last: " . date( "Y-m-d H:i:s", $last_gc ) . "<br />";
-		echo "Next: " . date( "Y-m-d H:i:s", $next_gc + $last_gc ) . "</p>";
+		echo "<p><strong>Garbage Collection</strong><br />Last: " . date( "Y-m-d H:i:s", ( $last_gc + ( get_option( 'gmt_offset' ) * 3600 ) ) ) . "<br />";
+		echo "Next: " . date( "Y-m-d H:i:s", ( $next_gc + $last_gc + ( get_option( 'gmt_offset' ) * 3600 ) ) ) . "</p>";
 	}
 
 	echo "<p>Expired files are files older than $cache_max_time seconds. They are still used by the plugin and are deleted periodically.</p>";
@@ -1318,4 +1323,19 @@ function wp_cache_favorite_action( $actions ) {
 }
 add_filter( 'favorite_actions', 'wp_cache_favorite_action' );
 
+function wp_cache_plugin_notice( $plugin ) {
+	global $cache_enabled;
+ 	if( $plugin == 'wp-super-cache/wp-cache.php' ) {
+		if( !$cache_enabled )
+		echo '<td colspan="5" class="plugin-update">WP Super Cache must be configured. Go to <a href="' . admin_url( 'options-general.php?page=wpsupercache' ) . '">the admin page</a> to enable and configure the plugin.</td>';
+	}
+}
+add_action( 'after_plugin_row', 'wp_cache_plugin_notice' );
+
+function wp_cache_admin_notice() {
+	global $cache_enabled;
+	if( substr( $_SERVER["PHP_SELF"], -11 ) == 'plugins.php' && !$cache_enabled )
+		add_action('admin_notices', create_function('', 'echo \'<div class="error"><p><strong>\' . sprintf( __(\'WP Super Cache is disabled. Please go to the <a href="%s">plugin admin page</a> to enable caching.\', \'wpsupercache\') ,\'' . admin_url( 'options-general.php?page=wpsupercache' ) . '\') . \'</strong></p></div>\';') );
+}
+add_action( 'admin_init', 'wp_cache_admin_notice' );
 ?>
