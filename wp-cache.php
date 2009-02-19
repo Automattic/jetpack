@@ -828,7 +828,7 @@ function wp_super_cache_disable() {
 
 	wp_cache_replace_line('^ *\$super_cache_enabled', '$super_cache_enabled = false;', $wp_cache_config_file);
 	if( is_dir( $supercachedir ) )
-		rename( $supercachedir, $supercachedir . ".disabled" );
+		@rename( $supercachedir, $supercachedir . ".disabled" );
 	$super_cache_enabled = false;
 	sleep( 1 ); // allow existing processes to write to the supercachedir and then delete it
 	if (function_exists ('prune_super_cache') && is_dir( $supercachedir ) ) {
@@ -890,10 +890,6 @@ function wp_cache_replace_line($old, $new, $my_file) {
 	}
 	fclose($fd);
 	return true;
-/*
-	copy($my_file, $my_file . "-prev");
-	rename($my_file . '-new', $my_file);
-*/
 }
 
 function wp_cache_verify_cache_dir() {
