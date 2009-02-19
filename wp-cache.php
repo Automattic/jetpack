@@ -110,7 +110,7 @@ function wp_cache_add_pages() {
 add_action('admin_menu', 'wp_cache_add_pages');
 
 function wp_cache_manager() {
-	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_whitelist, $wp_cache_mobile_browsers;
+	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_whitelist, $wp_cache_mobile_browsers, $wp_cache_cron_check, $wp_cache_debug;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -177,6 +177,40 @@ jQuery(document).ready(function(){
 	if (!wp_cache_check_global_config()) {
 		echo "</div>\n";
 		return;
+	}
+	if( $wp_cache_debug || !$wp_cache_cron_check ) {
+	if( function_exists( "wp_remote_get" ) == false ) {
+		$hostname = str_replace( 'http://', '', str_replace( 'https://', '', get_option( 'siteurl' ) ) );
+		if( strpos( $hostname, '/' ) )
+			$hostname = substr( $hostname, 0, strpos( $hostname, '/' ) );
+		$ip = gethostbyname( $hostname );
+		$ip2 = substr( $ip, 0, 3 );
+		if( $ip2 == '127' || $ip2 == '192' ) {
+			?><h3>Warning! Your hostname "<?php echo $hostname; ?>" resolves to <?php echo $ip; ?></h3>
+			<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'>
+			<p>Your server thinks your hostname resolves to <?php echo $ip; ?>. Some services such as garbage collection by this plugin, and WordPress scheduled posts may not operate correctly.</p>
+			<p>Please see entry 16 in the <a href="http://wordpress.org/extend/plugins/wp-super-cache/faq/">Troubleshooting section</a> of the readme.txt</p>
+			</div>
+			<?php
+		} else {
+			wp_cache_replace_line('^ *\$wp_cache_cron_check', "\$wp_cache_cron_check = 1;", $wp_cache_config_file);
+		}
+	} else {
+		$cron_url = get_option( 'siteurl' ) . '/wp-cron.php?check=' . wp_hash('187425');
+		$cron = wp_remote_get($cron_url, array('timeout' => 0.01, 'blocking' => true));
+		if( is_array( $cron ) ) {
+			if( $cron[ 'response' ][ 'code' ] == '404' ) {
+				?><h3>Warning! wp-cron.php not found!</h3>
+				<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'>
+				<p>Unfortunately WordPress cannot find the file wp-cron.php. This script is required for the the correct operation of garbage collection by this plugin, WordPress scheduled posts as well as other critical activities.</p>
+				<p>Please see entry 16 in the <a href="http://wordpress.org/extend/plugins/wp-super-cache/faq/">Troubleshooting section</a> of the readme.txt</p>
+				</div>
+				<?php
+			} else {
+				wp_cache_replace_line('^ *\$wp_cache_cron_check', "\$wp_cache_cron_check = 1;", $wp_cache_config_file);
+			}
+		}
+	}
 	}
 
 	if( $cache_enabled == true && $super_cache_enabled == true && !got_mod_rewrite() ) {
