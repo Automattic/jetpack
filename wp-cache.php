@@ -110,7 +110,9 @@ function wp_cache_add_pages() {
 add_action('admin_menu', 'wp_cache_add_pages');
 
 function wp_cache_manager() {
-	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_whitelist, $wp_cache_mobile_browsers, $wp_cache_cron_check, $wp_cache_debug;
+	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
+	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_whitelist, $wp_cache_mobile_browsers;
+	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -301,9 +303,14 @@ jQuery(document).ready(function(){
 				prune_super_cache ($cache_path, true);
 			delete_option( 'super_cache_meta' );
 		}
+		if( isset( $_POST[ 'wp_cache_hide_donation' ] ) && $_POST[ 'wp_cache_hide_donation' ] != $wp_cache_hide_donation ) {
+			$wp_cache_hide_donation = intval( $_POST[ 'wp_cache_hide_donation' ] );
+			wp_cache_replace_line('^ *\$wp_cache_hide_donation', "\$wp_cache_hide_donation = " . $wp_cache_hide_donation . ";", $wp_cache_config_file);
+		}
 	}
 
-	?><table><td><fieldset class="options" id="show-this-fieldset"> 
+	?>
+	<table><td><fieldset class="options" id="show-this-fieldset"> 
 	<h3>WP Super Cache Status</h3><?php
 	echo '<form name="wp_manager" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	?>
@@ -344,6 +351,7 @@ jQuery(document).ready(function(){
 	?>
 	</fieldset>
 	</td><td valign='top'>
+	<?php if( $wp_cache_hide_donation != 1 ) { ?>
 	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
 	<h3>Makes WordPress Faster</h3>
 	<p>WP Super Cache makes your blog go faster. Think that's worth $5? Click the button below.</p>
@@ -355,8 +363,10 @@ jQuery(document).ready(function(){
 	<input type="image" src="https://www.paypal.com/en_GB/i/btn/btn_donate_SM.gif" border="0" name="submit" alt=""/>
 	<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1"/><br />
 	</form>
+	<p>Don't show me this again. I've already donated. <form action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post"><input type='hidden' name='wp_cache_hide_donation' value='1' /><input type='submit' value='Hide' /><?php wp_nonce_field('wp-cache'); ?></form></p>
 	</div>
 	</div>
+	<?php } ?>
 
 	</td></table>
 	<?php
