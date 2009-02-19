@@ -184,8 +184,7 @@ jQuery(document).ready(function(){
 		if( strpos( $hostname, '/' ) )
 			$hostname = substr( $hostname, 0, strpos( $hostname, '/' ) );
 		$ip = gethostbyname( $hostname );
-		$ip2 = substr( $ip, 0, 3 );
-		if( $ip2 == '127' || $ip2 == '192' ) {
+		if( substr( $ip, 0, 3 ) == '127' || substr( $ip, 0, 7 ) == '192.168' ) {
 			?><h3>Warning! Your hostname "<?php echo $hostname; ?>" resolves to <?php echo $ip; ?></h3>
 			<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'>
 			<p>Your server thinks your hostname resolves to <?php echo $ip; ?>. Some services such as garbage collection by this plugin, and WordPress scheduled posts may not operate correctly.</p>
