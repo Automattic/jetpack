@@ -303,7 +303,7 @@ jQuery(document).ready(function(){
 		}
 	}
 
-	?><fieldset class="options" id="show-this-fieldset"> 
+	?><table><td><fieldset class="options" id="show-this-fieldset"> 
 	<h3>WP Super Cache Status</h3><?php
 	echo '<form name="wp_manager" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	?>
@@ -343,6 +343,22 @@ jQuery(document).ready(function(){
 	}
 	?>
 	</fieldset>
+	</td><td valign='top'>
+	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
+	<h3>Makes WordPress Faster</h3>
+	<p>WP Super Cache makes your blog go faster. Think that's worth $5? Click the button below.</p>
+	<p>Thanks!<br />Donncha O Caoimh, Feb 2009.<br /></p>
+	<div align='center'>
+	<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+	<input type="hidden" name="cmd" value="_s-xclick"/>
+	<input type="hidden" name="hosted_button_id" value="3244504"/>
+	<input type="image" src="https://www.paypal.com/en_GB/i/btn/btn_donate_SM.gif" border="0" name="submit" alt=""/>
+	<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1"/><br />
+	</form>
+	</div>
+	</div>
+
+	</td></table>
 	<?php
 
 	wp_cache_files();
