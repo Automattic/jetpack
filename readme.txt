@@ -146,6 +146,7 @@ If things don't work when you installed the plugin here are a few things to chec
 
     `127.0.0.1 myhostname.com`
 A line like "127.0.0.1 localhost localhost.localdomain" is ok.
+17. If old pages are being served to your visitors via the supercache, you may be missing Apache modules (or their equivalents if you don't use Apache). 3 modules are required: mod_mime, mod_headers and mod_expires. The last two are especially important for making sure browsers load new versions of existing pages on your site.
 
 == Custom Caching ==
 It is now possible to hook into the caching process using the add_cacheaction() function.
