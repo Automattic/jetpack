@@ -69,7 +69,7 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 		$meta = new CacheMeta;
 		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
 			return;
-		$file = do_cacheaction( 'wp_cache_served_cache_file', $cache_file );
+		$cache_file = do_cacheaction( 'wp_cache_served_cache_file', $cache_file );
 		// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
 		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta->headers ) ) {
 			array_push($meta->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
