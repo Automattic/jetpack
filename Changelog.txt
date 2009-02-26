@@ -1,3 +1,11 @@
+2009-02-26 11:53  donncha
+
+	* Changelog.txt: Updated changelog
+
+2009-02-26 11:51  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 0.9.1
+
 2009-02-26 11:35  donncha
 
 	* readme.txt: Updated docs on "expired pages" and the required
