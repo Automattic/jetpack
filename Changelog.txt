@@ -1,3 +1,51 @@
+2009-02-26 11:35  donncha
+
+	* readme.txt: Updated docs on "expired pages" and the required
+	  modules needed to serve new data
+
+2009-02-26 11:23  donncha
+
+	* wp-cache.php: Remove "experimental" heading.
+
+2009-02-26 11:07  donncha
+
+	* wp-cache.php: Added "About the author" box to admin page.
+
+2009-02-19 16:07  donncha
+
+	* wp-cache.php: Make the donation box hidable.
+
+2009-02-19 15:46  donncha
+
+	* wp-cache.php: Added donation button, yes my html skills suck.
+
+2009-02-19 15:00  donncha
+
+	* wp-cache.php: Match IP against 192.168 instead of 192.
+
+2009-02-19 13:43  donncha
+
+	* readme.txt, wp-cache.php: Added checks for hostname = 127.x.x.x
+	  or 192.x.x.x or if available uses wp_remote_get() to load
+	  wp-cron.php
+	  Gives warning if checks fail
+	  Updated readme.txt with docs on how to resolve. Thanks to Joost
+	  de Valk for help debugging this. http://yoast.com/wp-cron-issues/
+
+2009-02-19 13:34  donncha
+
+	* wp-cache-phase2.php: Hide file op warning.
+	  Removed register_shutdown command that's not used any more
+
+2009-02-19 11:48  donncha
+
+	* wp-cache.php: Hide rename warning. Possibly related to no global
+	  lock.
+
+2009-02-17 13:04  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-02-17 12:58  donncha
 
 	* wp-cache-phase2.php: Don't show no HTML tag warning for
