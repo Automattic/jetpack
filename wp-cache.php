@@ -2,8 +2,8 @@
 /*
 Plugin Name: WP Super Cache
 Plugin URI: http://ocaoimh.ie/wp-super-cache/
-Description: Very fast caching module for WordPress.
-Version: 0.9
+Description: Very fast caching plugin for WordPress.
+Version: 0.9.1
 Author: Donncha O Caoimh
 Author URI: http://ocaoimh.ie/
 */
