@@ -351,11 +351,11 @@ jQuery(document).ready(function(){
 	?>
 	</fieldset>
 	</td><td valign='top'>
-	<?php if( $wp_cache_hide_donation != 1 ) { ?>
 	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
-	<h3>Makes WordPress Faster</h3>
-	<p>WP Super Cache makes your blog go faster. Think that's worth $5? Click the button below.</p>
-	<p>Thanks!<br />Donncha O Caoimh, Feb 2009.<br /></p>
+	<h3 align='center'>Makes WordPress Faster</h3>
+	<?php if( $wp_cache_hide_donation != 1 ) { ?>
+	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=wpsc">WP Super Cache</a> makes your blog go faster. Think that's worth $5? Click the "Donate" button below.</p>
+	<p>Thanks!<br />Donncha O Caoimh.<br /></p>
 	<div align='center'>
 	<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 	<input type="hidden" name="cmd" value="_s-xclick"/>
@@ -363,10 +363,13 @@ jQuery(document).ready(function(){
 	<input type="image" src="https://www.paypal.com/en_GB/i/btn/btn_donate_SM.gif" border="0" name="submit" alt=""/>
 	<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1"/><br />
 	</form>
-	<p>Don't show me this again. I've already donated. <form action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post"><input type='hidden' name='wp_cache_hide_donation' value='1' /><input type='submit' value='Hide' /><?php wp_nonce_field('wp-cache'); ?></form></p>
+	<p>Don't show me this again. <form action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post"><input type='hidden' name='wp_cache_hide_donation' value='1' /><input type='submit' value='Hide' /><?php wp_nonce_field('wp-cache'); ?></form></p>
 	</div>
-	</div>
+	<?php } else { ?>
+	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=supercache">WP Super Cache</a> is maintained and developed by <a href="http://ocaoimh.ie/?r=supercache">Donncha O Caoimh</a> with contributions from many others thanks to the GPL.</p>
+	<p>He blogs at <a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a> and posts photos at <a href="http://inphotos.org/?r=supercache">In Photos.org</a>. You can say hi to him on <a href="http://twitter.com/donncha/">Twitter</a> too!</p>
 	<?php } ?>
+	</div>
 
 	</td></table>
 	<?php
