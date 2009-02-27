@@ -11,7 +11,24 @@ function wp_supercache_badbehaviour( $file ) {
 add_cacheaction( 'wp_cache_served_cache_file', 'wp_supercache_badbehaviour' );
 
 function wp_supercache_badbehaviour_include() {
-	require_once( WP_CONTENT_DIR . '/plugins/Bad-Behavior/bad-behavior-generic.php' );
+	$bbfile = get_bb_file_loc();
+	if( !$bbfile )
+		require_once( $bbfile );
+}
+
+function get_bb_file_loc() {
+	global $cache_badbehaviour_file;
+	if( $cache_badbehaviour_file )
+		return $cache_badbehaviour_file;
+
+	if( file_exists( WP_CONTENT_DIR . '/plugins/bad-behavior/bad-behavior-generic.php' ) ) {
+		$bbfile = WP_CONTENT_DIR . '/plugins/bad-behavior/bad-behavior-generic.php';
+	} elseif( file_exists( WP_CONTENT_DIR . '/plugins/Bad-Behavior/bad-behavior-generic.php' ) ) {
+		$bbfile = WP_CONTENT_DIR . '/plugins/Bad-Behavior/bad-behavior-generic.php';
+	} else {
+		$bbfile = false;
+	}
+	return $bbfile;
 }
 
 function wp_supercache_badbehaviour_admin() {
@@ -22,12 +39,15 @@ function wp_supercache_badbehaviour_admin() {
 	$err = false;
 
 	if(isset($_POST['cache_badbehaviour']) && $valid_nonce) {
-		if( !file_exists( WP_CONTENT_DIR . '/plugins/Bad-Behavior/bad-behavior-generic.php' ) ) {
+		$bbfile = get_bb_file_loc();
+		if( !$bbfile ) {
 			$_POST[ 'cache_badbehaviour' ] = 'Disable';
 			$err = 'Bad Behaviour not found. Please check your install.';
 		}
 		$cache_badbehaviour = $_POST['cache_badbehaviour'] == 'Disable' ? 0 : 1;
+		wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = 0;", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$cache_badbehaviour', "\$cache_badbehaviour = $cache_badbehaviour;", $wp_cache_config_file);
+		wp_cache_replace_line('^ *\$cache_badbehaviour_file', "\$cache_badbehaviour_file = '$bbfile';", $wp_cache_config_file);
 	}
 	echo '<form name="wp_supercache_badbehaviour_admin" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	wp_nonce_field('wp-cache');
@@ -38,7 +58,7 @@ function wp_supercache_badbehaviour_admin() {
 		echo 'enabled';
 		wp_super_cache_disable();
 	}
-	echo '.</strong> (Only half-on caching supported and requires <a href="http://www.bad-behavior.ioerror.us/">Bad Behaviour</a> in "' . WP_CONTENT_DIR . '/plugins/Bad-Behaviour/") ';
+	echo '.</strong> (Only half-on caching supported and requires <a href="http://www.bad-behavior.ioerror.us/">Bad Behaviour</a> in "' . WP_CONTENT_DIR . '/plugins/bad-behavior/") ';
 	if( $cache_badbehaviour == 0 ) {
 		echo '<input type="submit" name="cache_badbehaviour" value="Enable" />';
 	} else {
