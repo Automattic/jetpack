@@ -329,7 +329,7 @@ jQuery(document).ready(function(){
 	?>
 	</form>
 	<?php
-	if( function_exists( 'apache_get_modules' ) ) {
+	if( $super_cache_enabled && function_exists( 'apache_get_modules' ) ) {
 		$mods = apache_get_modules();
 		$required_modules = array( 'mod_mime' => 'Required to serve compressed supercache files properly.', 'mod_headers' => 'Required to set caching information on supercache pages. IE7 users will see old pages without this module.', 'mod_expires' => 'Set the expiry date on supercached pages. Visitors may not see new pages when they refresh or leave comments without this module.' );
 		foreach( $required_modules as $req => $desc ) {
@@ -339,7 +339,7 @@ jQuery(document).ready(function(){
 		}
 		if( is_array( $missing_mods ) ) {
 			echo "<h3>Missing Apache Modules</h3>";
-			echo "<p>The following Apache modules are missing. The plugin will work without them but your visitors may see corrupted pages or out of date content.</p>";
+			echo "<p>The following Apache modules are missing. The plugin will work in half-on mode without them. In full Supercache mode, your visitors may see corrupted pages or out of date content however.</p>";
 			echo "<ul>";
 			foreach( $missing_mods as $req => $desc ) {
 				echo "<li> $req - $desc</li>";
