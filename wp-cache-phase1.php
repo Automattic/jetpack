@@ -9,7 +9,6 @@ if( !defined( 'WPCACHEHOME' ) )
 	define('WPCACHEHOME', dirname(__FILE__).'/');
 
 include( WPCACHEHOME . 'wp-cache-base.php');
-$wp_cache_meta_object = new CacheMeta;
 
 if(defined('DOING_CRON')) {
 	require_once( WPCACHEHOME . 'wp-cache-phase2.php');
@@ -36,7 +35,6 @@ if (!$cache_enabled || $_SERVER["REQUEST_METHOD"] == 'POST')
 
 $file_expired = false;
 $cache_filename = '';
-$meta_file = '';
 $wp_cache_gzip_encoding = '';
 
 $gzipped = 0;
@@ -59,37 +57,37 @@ add_cacheaction( 'wp_cache_key', 'wp_cache_check_mobile' );
 $key = $blogcacheid . md5( do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $_SERVER['REQUEST_URI'] ) ).$wp_cache_gzip_encoding.wp_cache_get_cookies_values() ) );
 
 $cache_filename = $file_prefix . $key . '.html';
-$meta_file = $file_prefix . $key . '.meta';
 $cache_file = realpath( $cache_path . $cache_filename );
-$meta_pathname = realpath( $cache_path . 'meta/' . $meta_file );
 
 $wp_start_time = microtime();
-if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
+if( file_exists( $cache_file ) && ($mtime = @filemtime($cache_file)) ) {
 	if ($mtime + $cache_max_time > time() ) {
-		$meta = new CacheMeta;
-		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
+		include( $cache_file );
+		
+		if (! ($meta = unserialize( $wpcache_meta )) ) 
 			return;
 		$cache_file = do_cacheaction( 'wp_cache_served_cache_file', $cache_file );
 		// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
-		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta->headers ) ) {
-			array_push($meta->headers, 'Content-Encoding: ' . $wp_cache_gzip_encoding);
-			array_push($meta->headers, 'Vary: Accept-Encoding, Cookie');
-			array_push($meta->headers, 'Content-Length: ' . filesize( $cache_file ) );
+		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta[ 'headers' ] ) ) {
+			array_push($meta[ 'headers' ], 'Content-Encoding: ' . $wp_cache_gzip_encoding);
+			array_push($meta[ 'headers' ], 'Vary: Accept-Encoding, Cookie');
+			array_push($meta[ 'headers' ], 'Content-Length: ' . filesize( $cache_file ) );
 			wp_cache_debug( "Had to add gzip headers to the page {$_SERVER[ 'REQUEST_URI' ]}." );
 		}
-		foreach ($meta->headers as $header) {
+		foreach ($meta[ 'headers' ] as $t => $header) {
+			error_log( "$t - $header" );
 			// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
 			if( strpos( $header, 'Last-Modified:' ) === false ) 
 				header($header);
 		}
 		header( 'WP-Super-Cache: WP-Cache' );
-		if ( !($content_size = @filesize($cache_file)) > 0 || $mtime < @filemtime($cache_file))
-			return;
-		if ($meta->dynamic) {
+		//if ( !($content_size = @filesize($cache_file)) > 0 || $mtime < @filemtime($cache_file))
+			//return;
+		/*if ($meta[ 'dynamic' ]) {
 			include($cache_file);
-		} else {
-			echo do_cacheaction( 'wp_cache_file_contents', file_get_contents( $cache_file ) );
-		}
+		} else {*/
+			echo do_cacheaction( 'wp_cache_file_contents', base64_decode( $wpcache_contents ) );
+		//}
 		die();
 	}
 	$file_expired = true; // To signal this file was expired

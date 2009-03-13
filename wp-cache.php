@@ -972,8 +972,6 @@ function wp_cache_verify_cache_dir() {
 		$cache_path .= '/';
 	}
 
-	@mkdir( $cache_path . 'meta' );
-
 	return true;
 }
 
@@ -1130,15 +1128,14 @@ function wp_cache_files() {
 	$count = 0;
 	$expired = 0;
 	$now = time();
-	if ( ($handle = @opendir( $cache_path . 'meta/' )) ) { 
+	if( $handle = @opendir( $cache_path ) ) { 
 		if ($list_files) echo "<table cellspacing=\"0\" cellpadding=\"5\">";
 		while ( false !== ($file = readdir($handle))) {
-			if ( preg_match("/^$file_prefix.*\.meta/", $file) ) {
+			if ( preg_match("/^$file_prefix.*\.html/", $file) ) {
 				$this_expired = false;
-				$content_file = preg_replace("/meta$/", "html", $file);
-				$mtime = filemtime($cache_path . 'meta/' . $file);
-				if ( ! ($fsize = @filesize($cache_path.$content_file)) ) 
-					continue; // .meta does not exists
+				$mtime = filemtime($cache_path . $file);
+				if( ! ($fsize = @filesize($cache_path . $file)) ) 
+					continue;
 				$fsize = intval($fsize/1024);
 				$age = $now - $mtime;
 				if ( $age > $cache_max_time) {
@@ -1146,6 +1143,7 @@ function wp_cache_files() {
 					$this_expired = true;
 				}
 				$count++;
+				/*
 				if ($list_files) {
 					$meta = new CacheMeta;
 					$meta = unserialize(file_get_contents($cache_path . 'meta/' . $file));
@@ -1163,6 +1161,7 @@ function wp_cache_files() {
 					wp_nonce_field('wp-cache');
 					echo "</form></td></tr>\n";
 				}
+				*/
 			}
 		}
 		closedir($handle);
@@ -1279,7 +1278,6 @@ function wp_cache_clean_cache($file_prefix) {
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match($expr, $file) ) {
 				@unlink($cache_path . $file);
-				@unlink($cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
 			}
 		}
 		closedir($handle);
@@ -1310,7 +1308,6 @@ function wp_cache_clean_expired($file_prefix) {
 			if ( preg_match($expr, $file)  &&
 				(filemtime($cache_path . $file) + $cache_max_time) <= $now) {
 				unlink($cache_path . $file);
-				unlink($cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
 			}
 		}
 		closedir($handle);
