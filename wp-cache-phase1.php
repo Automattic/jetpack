@@ -75,7 +75,6 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($cache_file)) ) {
 			wp_cache_debug( "Had to add gzip headers to the page {$_SERVER[ 'REQUEST_URI' ]}." );
 		}
 		foreach ($meta[ 'headers' ] as $t => $header) {
-			error_log( "$t - $header" );
 			// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
 			if( strpos( $header, 'Last-Modified:' ) === false ) 
 				header($header);
