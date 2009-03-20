@@ -13,14 +13,14 @@ function wp_cache_phase2() {
 		add_action('delete_post', 'wp_cache_post_edit', 0);
 		add_action('publish_phone', 'wp_cache_post_edit', 0);
 		// Coment ID is received
-		add_action('trackback_post', 'wp_cache_get_postid_from_comment', 0);
-		add_action('pingback_post', 'wp_cache_get_postid_from_comment', 0);
-		add_action('comment_post', 'wp_cache_get_postid_from_comment', 0);
-		add_action('edit_comment', 'wp_cache_get_postid_from_comment', 0);
-		add_action('wp_set_comment_status', 'wp_cache_get_postid_from_comment', 0);
+		add_action('trackback_post', 'wp_cache_get_postid_from_comment', 99);
+		add_action('pingback_post', 'wp_cache_get_postid_from_comment', 99);
+		add_action('comment_post', 'wp_cache_get_postid_from_comment', 99);
+		add_action('edit_comment', 'wp_cache_get_postid_from_comment', 99);
+		add_action('wp_set_comment_status', 'wp_cache_get_postid_from_comment', 99);
 		// No post_id is available
-		add_action('delete_comment', 'wp_cache_no_postid', 0);
-		add_action('switch_theme', 'wp_cache_no_postid', 0); 
+		add_action('delete_comment', 'wp_cache_no_postid', 99);
+		add_action('switch_theme', 'wp_cache_no_postid', 99); 
 
 		add_action('wp_cache_gc','wp_cache_gc_cron');
 
