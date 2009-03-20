@@ -575,9 +575,13 @@ function wp_cache_post_change($post_id) {
 				if ($post_id > 0 && $meta) {
 					if ($meta[ 'blog_id' ] == $blog_id  && (!$meta[ 'post' ] || $meta[ 'post' ] == $post_id) ) {
 						@unlink($meta_pathname);
+						@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
+						@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
 					}
 				} elseif ($meta[ 'blog_id' ] == $blog_id) {
 					@unlink($meta_pathname);
+					@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
+					@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
 				}
 
 			}
