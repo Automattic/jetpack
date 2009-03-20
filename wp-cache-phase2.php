@@ -256,7 +256,6 @@ function wp_cache_ob_callback( $buffer ) {
 				}
 			}
 		}
-		$supercacheonly = false;
 
 		$wp_cache_meta[ 'uri' ] = $_SERVER["SERVER_NAME"].preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $_SERVER['REQUEST_URI']); // To avoid XSS attacks
 		$wp_cache_meta[ 'blog_id' ] = $blog_id;
