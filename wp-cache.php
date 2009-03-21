@@ -320,7 +320,7 @@ jQuery(document).ready(function(){
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> Proudly tell the world your server is Digg proof! (places a message in your blog's footer)</label></p>
 	<p><label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> Clear all cache files when a post or page is published. (This may significantly slow down saving of posts.)</label></p>
 	<p><label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> Enable the "cache rebuild" feature. Serve a supercache file to anonymous users while a new file is being generated. Recommended for <em>very</em> busy websites with lots of comments. Makes "directly cached pages" and "Lockdown mode" obsolete.</label></p>
-	<p><label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( $wp_cache_mutex_disabled ) echo "checked"; ?> value='1'> Disable file locking. If you experience problems with mutex or file locks this may help but may cause increased server load.</label></p>
+	<p><label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( $wp_cache_mutex_disabled ) echo "checked"; ?> value='1'> Disable file locking. If you experience problems with mutex or file locks this will help but may cause increased server load.</label></p>
 	<p><label><input type='checkbox' name='wp_cache_mobile_enabled' <?php if( $wp_cache_mobile_enabled ) echo "checked"; ?> value='1'> Mobile device support. Plugin will enter "Half-On" mode.</label></p>
 	<p><strong>Note:</strong> If uninstalling this plugin, make sure the directory <em><?php echo WP_CONTENT_DIR; ?></em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)</p>
 	<?php
@@ -972,6 +972,8 @@ function wp_cache_verify_cache_dir() {
 		$cache_path .= '/';
 	}
 
+	@mkdir( $cache_path . 'meta' );
+
 	return true;
 }
 
@@ -1128,14 +1130,15 @@ function wp_cache_files() {
 	$count = 0;
 	$expired = 0;
 	$now = time();
-	if( $handle = @opendir( $cache_path ) ) { 
+	if ( ($handle = @opendir( $cache_path . 'meta/' )) ) { 
 		if ($list_files) echo "<table cellspacing=\"0\" cellpadding=\"5\">";
 		while ( false !== ($file = readdir($handle))) {
-			if ( preg_match("/^$file_prefix.*\.html/", $file) ) {
+			if ( preg_match("/^$file_prefix.*\.meta/", $file) ) {
 				$this_expired = false;
-				$mtime = filemtime($cache_path . $file);
-				if( ! ($fsize = @filesize($cache_path . $file)) ) 
-					continue;
+				$content_file = preg_replace("/meta$/", "html", $file);
+				$mtime = filemtime($cache_path . 'meta/' . $file);
+				if ( ! ($fsize = @filesize($cache_path.$content_file)) ) 
+					continue; // .meta does not exists
 				$fsize = intval($fsize/1024);
 				$age = $now - $mtime;
 				if ( $age > $cache_max_time) {
@@ -1278,6 +1281,7 @@ function wp_cache_clean_cache($file_prefix) {
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match($expr, $file) ) {
 				@unlink($cache_path . $file);
+				@unlink($cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
 			}
 		}
 		closedir($handle);
@@ -1307,7 +1311,8 @@ function wp_cache_clean_expired($file_prefix) {
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match($expr, $file)  &&
 				(filemtime($cache_path . $file) + $cache_max_time) <= $now) {
-				unlink($cache_path . $file);
+				@unlink($cache_path . $file);
+				@unlink($cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
 			}
 		}
 		closedir($handle);

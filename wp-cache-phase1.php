@@ -35,6 +35,7 @@ if (!$cache_enabled || $_SERVER["REQUEST_METHOD"] == 'POST')
 
 $file_expired = false;
 $cache_filename = '';
+$meta_file = '';
 $wp_cache_gzip_encoding = '';
 
 $gzipped = 0;
@@ -57,14 +58,15 @@ add_cacheaction( 'wp_cache_key', 'wp_cache_check_mobile' );
 $key = $blogcacheid . md5( do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $_SERVER['REQUEST_URI'] ) ).$wp_cache_gzip_encoding.wp_cache_get_cookies_values() ) );
 
 $cache_filename = $file_prefix . $key . '.html';
+$meta_file = $file_prefix . $key . '.meta';
 $cache_file = realpath( $cache_path . $cache_filename );
+$meta_pathname = realpath( $cache_path . 'meta/' . $meta_file );
 
 $wp_start_time = microtime();
-if( file_exists( $cache_file ) && ($mtime = @filemtime($cache_file)) ) {
+if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 	if ($mtime + $cache_max_time > time() ) {
-		include( $cache_file );
-		
-		if (! ($meta = unserialize( $wpcache_meta )) ) 
+
+		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
 			return;
 		$cache_file = do_cacheaction( 'wp_cache_served_cache_file', $cache_file );
 		// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
@@ -80,13 +82,13 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($cache_file)) ) {
 				header($header);
 		}
 		header( 'WP-Super-Cache: WP-Cache' );
-		//if ( !($content_size = @filesize($cache_file)) > 0 || $mtime < @filemtime($cache_file))
-			//return;
-		/*if ($meta[ 'dynamic' ]) {
+		if ( !($content_size = @filesize($cache_file)) > 0 || $mtime < @filemtime($cache_file))
+			return;
+		if ($meta->dynamic) {
 			include($cache_file);
-		} else {*/
-			echo do_cacheaction( 'wp_cache_file_contents', base64_decode( $wpcache_contents ) );
-		//}
+		} else {
+			echo do_cacheaction( 'wp_cache_file_contents', file_get_contents( $cache_file ) );
+		}
 		die();
 	}
 	$file_expired = true; // To signal this file was expired

@@ -313,7 +313,7 @@ function wp_cache_ob_callback( $buffer ) {
 			$buffer = preg_replace('|<!--mclude (.*?)-->|is', '<!--mclude-->', $buffer);
 			$buffer = preg_replace('|<!--mfunc (.*?)-->|is', '<!--mfunc-->', $buffer);
 			if( $fr )
-				fputs($fr, "<?php\n\$wpcache_contents = '" . base64_encode( $store . "\n<!-- wp-cache -->" ) . "';\n\$wpcache_meta = '" . serialize( $wp_cache_meta ) . "';\n?>" );
+				fputs($fr, $store);
 			if( $fr2 )
 				fputs($fr2, $store . '<!-- super cache -->' );
 			if( $gz )
@@ -331,11 +331,11 @@ function wp_cache_ob_callback( $buffer ) {
 				$wp_cache_meta[ 'headers' ][ 'Vary' ] = 'Vary: Accept-Encoding, Cookie';
 				// Return uncompressed data & store compressed for later use
 				if( $fr )
-					fputs($fr, "<?php\n\$wpcache_contents = '" . base64_encode( $gzdata ) . "';\n\$wpcache_meta = '" . serialize( $wp_cache_meta ) . "';\n?>" );
+					fputs($fr, $gzdata);
 			} else { // no compression
 				$wp_cache_meta[ 'headers' ][ 'Vary' ] = 'Vary: Cookie';
 				if( $fr )
-					fputs($fr, "<?php\n\$wpcache_contents = '" . base64_encode( $buffer ) . "';\n\$wpcache_meta = '" . serialize( $wp_cache_meta ) . "';\n?>" );
+					fputs($fr, $buffer);
 			}
 			if( $fr2 )
 				fputs($fr2, $buffer . '<!-- super cache -->' );
@@ -367,6 +367,25 @@ function wp_cache_ob_callback( $buffer ) {
 		}
 	}
 	wp_cache_writers_exit();
+
+	if ( ! $supercacheonly && $new_cache ) {
+		$serial = serialize($wp_cache_meta);
+		if( wp_cache_writers_entry() ) {
+			$tmp_meta_filename = $cache_path . 'meta/' . uniqid( mt_rand(), true ) . '.tmp';
+			$fr = @fopen( $tmp_meta_filename, 'w');
+			if( !$fr )
+				@mkdir( $cache_path . 'meta' );
+			$fr = fopen( $tmp_meta_filename, 'w');
+			fputs($fr, $serial);
+			fclose($fr);
+			@chmod( $tmp_meta_filename, 0666 & ~umask());
+			if( !@rename( $tmp_meta_filename, $cache_path . 'meta/' . $meta_file ) ) {
+				unlink( $cache_path . 'meta/' . $meta_file );
+				rename( $tmp_meta_filename, $cache_path . 'meta/' . $meta_file );
+			}
+			wp_cache_writers_exit();
+		}
+	}
 
 	if( !isset( $cache_max_time ) )
 		$cache_max_time = 600;
@@ -564,22 +583,24 @@ function wp_cache_post_change($post_id) {
 	}
 
 	$matches = array();
-	if ( ($handle = opendir( $cache_path )) ) { 
+	if ( ($handle = opendir( $cache_path . 'meta/' )) ) { 
 		while ( false !== ($file = readdir($handle))) {
-			if ( preg_match("/^({$file_prefix}{$blogcacheid}.*)/", $file, $matches) ) {
-				$meta_pathname = $cache_path . $file;
-				include( $meta_pathname );
-				unset( $wpcache_contents );
-				if(! ($meta = unserialize( $wpcache_meta )) ) 
+			if ( preg_match("/^({$file_prefix}{$blogcacheid}.*)\.meta/", $file, $matches) ) {
+				$meta_pathname = $cache_path . 'meta/' . $file;
+				$content_pathname = $cache_path . $matches[1] . ".html";
+				$meta = unserialize(@file_get_contents($meta_pathname));
+				if( false == is_array( $meta ) )
 					continue;
 				if ($post_id > 0 && $meta) {
 					if ($meta[ 'blog_id' ] == $blog_id  && (!$meta[ 'post' ] || $meta[ 'post' ] == $post_id) ) {
 						@unlink($meta_pathname);
+						@unlink($content_pathname);
 						@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
 						@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
 					}
 				} elseif ($meta[ 'blog_id' ] == $blog_id) {
 					@unlink($meta_pathname);
+					@unlink($content_pathname);
 					@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
 					@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
 				}
