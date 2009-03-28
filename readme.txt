@@ -82,6 +82,21 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 	`AllowOverride All`
 	`</Directory>`
 
+== How to uninstall WP Super Cache ==
+
+1. Remove the WP_CACHE define from wp-config.php. It looks like `define( 'WP_CACHE', true );`
+2. Clear the cache in the backend page and then deactivate the plugin on the plugins page.
+3. Remove the Super Cache mod_rewrite rules from your .htaccess file.
+4. Remove the files wp-content/advanced-cache.php and wp-content/wp-cache-config.php
+5. Remove the directory wp-content/cache/
+6. Remove the directory wp-super-cache from your plugins directory.
+
+If all else fails and your site is broken and you want to disable the plugin:
+1. Remove the WP_CACHE define from wp-config.php. It looks like `define( 'WP_CACHE', true );`
+2. Remove the rules (see above) that the plugin wrote to the .htaccess file in your root directory.
+3. Delete the wp-super-cache folder in the plugins folder.
+4. Optionally delete advanced-cache.php, wp-cache-config.php and the cache folder in wp-content/.
+
 == Frequently Asked Questions ==
 
 = How do I know my blog is being cached? =
@@ -111,15 +126,6 @@ Those bots usually only visit each page once and if the page is not popular ther
 = Why can't I create a cache file of every page on my site? =
 
 Like the previous question, there's no point caching pages that won't be visited. The large number of cache files will slow down the garbage collection system as it attempts to check each file. It also causes problems for hosting companies. In the event of a disk failure on your server it may take much longer to check the files. Remember how long a scandisk or a fsck took on a large drive?
-
-= How do I uninstall WP Super Cache? =
-
-1. Clear the cache in the backend page and then deactivate it on the plugins page.
-2. Remove the Super Cache mod_rewrite rules from your .htaccess file.
-3. Remove the WP_CACHE define from wp-config.php
-4. Remove the files wp-content/advanced-cache.php and wp-content/wp-cache-config.php
-5. Remove the directory wp-content/cache/
-6. Remove the directory wp-super-cache from your plugins directory.
 
 = Troubleshooting =
 
