@@ -1,3 +1,104 @@
+2009-03-28 13:02  donncha
+
+	* readme.txt, wp-cache.php: Bump version number to 0.9.2
+
+2009-03-28 12:58  donncha
+
+	* readme.txt: Added a troubleshooting entry for advanced-cache.php
+
+2009-03-28 12:54  donncha
+
+	* advanced-cache.php: Include once instead of require because it
+	  won't cause a FATAL error if the path is incorrect
+
+2009-03-28 12:39  donncha
+
+	* readme.txt: Minimum version is now 2.6, props tigertech,
+	  http://wordpress.org/support/topic/255628?replies=1
+
+2009-03-28 12:34  donncha
+
+	* wp-cache-phase2.php: Delete static "pages on front" when posts
+	  change.
+
+2009-03-28 12:30  donncha
+
+	* readme.txt: Move uninstall instructions up
+	  Added "If all else fails" instructions
+
+2009-03-21 21:15  donncha
+
+	* wp-cache.php: Added "Settings" link on plugins page.
+	  Simplified admin notice, may fix 500 internal errors
+
+2009-03-21 21:13  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php, wp-cache.php: Revert
+	  moving meta information into cache file. It took too long to scan
+	  the directory
+
+2009-03-20 15:34  donncha
+
+	* wp-cache-phase2.php: Unlink supercache cache files as well as
+	  wp-cache files
+
+2009-03-20 15:33  donncha
+
+	* wp-cache-phase2.php: No need for separate $log variable
+
+2009-03-20 15:31  donncha
+
+	* wp-cache-phase2.php: $supercacheonly is set further up
+
+2009-03-20 15:30  donncha
+
+	* wp-cache-phase2.php: Minor typos "attac"
+	  Removed unused function
+
+2009-03-20 15:28  donncha
+
+	* wp-cache-phase2.php: Make sure other actions have a chance to
+	  mark comments as spam
+
+2009-03-13 22:19  donncha
+
+	* wp-cache-phase1.php: Don't need that error_log
+
+2009-03-13 11:41  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php, wp-cache.php: Make meta
+	  an array rather than an object because of this change to PHP5:
+	  http://bugs.php.net/bug.php?id=40104
+	  Move meta file data into cache file.
+
+2009-03-13 09:06  donncha
+
+	* wp-cache-phase2.php: Move wp_cache_shutdown_callback() into the
+	  ob callback
+
+2009-03-09 09:52  donncha
+
+	* wp-cache.php: Only check for apache modules if in supercache
+	  mode.
+
+2009-02-27 09:55  donncha
+
+	* plugins/badbehaviour.php: Note that compression disabled when BB
+	  support enabled.
+
+2009-02-27 09:46  donncha
+
+	* plugins/badbehaviour.php: Bad-behavior fixes. Plugin will find
+	  the bb plugin folder now.
+
+2009-02-26 12:55  donncha
+
+	* wp-cache-phase1.php: set the right variable.
+
+2009-02-26 11:53  donncha
+
+	* Changelog.txt: Updated changelog, should have svnupped last time
+
 2009-02-26 11:53  donncha
 
 	* Changelog.txt: Updated changelog
