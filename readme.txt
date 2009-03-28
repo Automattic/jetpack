@@ -3,7 +3,7 @@ Contributors: donncha
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 2.7.1
 Stable tag: 0.9.1
-Requires at least: 2.2
+Requires at least: 2.6
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=3244504
 
 A very fast caching engine for WordPress that produces static html files.
