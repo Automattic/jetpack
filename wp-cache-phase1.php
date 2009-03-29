@@ -68,6 +68,8 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 
 		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
 			return;
+		if( is_array( $meta ) == false )
+			return;
 		$cache_file = do_cacheaction( 'wp_cache_served_cache_file', $cache_file );
 		// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
 		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta[ 'headers' ] ) ) {
@@ -84,7 +86,7 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 		header( 'WP-Super-Cache: WP-Cache' );
 		if ( !($content_size = @filesize($cache_file)) > 0 || $mtime < @filemtime($cache_file))
 			return;
-		if ($meta->dynamic) {
+		if ($meta[ 'dynamic' ]) {
 			include($cache_file);
 		} else {
 			echo do_cacheaction( 'wp_cache_file_contents', file_get_contents( $cache_file ) );
