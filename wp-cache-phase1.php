@@ -73,9 +73,8 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 		$cache_file = do_cacheaction( 'wp_cache_served_cache_file', $cache_file );
 		// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
 		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta[ 'headers' ] ) ) {
-			array_push($meta[ 'headers' ], 'Content-Encoding: ' . $wp_cache_gzip_encoding);
-			array_push($meta[ 'headers' ], 'Vary: Accept-Encoding, Cookie');
-			array_push($meta[ 'headers' ], 'Content-Length: ' . filesize( $cache_file ) );
+			$meta[ 'headers' ][ 'Content-Encoding' ] =  'Content-Encoding: ' . $wp_cache_gzip_encoding;
+			$meta[ 'headers' ][ 'Vary' ] = 'Vary: Accept-Encoding, Cookie';
 			wp_cache_debug( "Had to add gzip headers to the page {$_SERVER[ 'REQUEST_URI' ]}." );
 		}
 		foreach ($meta[ 'headers' ] as $t => $header) {
@@ -86,10 +85,10 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 		header( 'WP-Super-Cache: WP-Cache' );
 		if ( !($content_size = @filesize($cache_file)) > 0 || $mtime < @filemtime($cache_file))
 			return;
-		if ($meta[ 'dynamic' ]) {
+		if ( $meta[ 'dynamic' ] ) {
 			include($cache_file);
 		} else {
-			echo do_cacheaction( 'wp_cache_file_contents', file_get_contents( $cache_file ) );
+			readfile( $cache_file );
 		}
 		die();
 	}
