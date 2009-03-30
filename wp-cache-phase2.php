@@ -80,8 +80,11 @@ function wp_cache_get_response_headers() {
 function wp_cache_is_rejected($uri) {
 	global $cache_rejected_uri;
 
-	if (strstr($uri, '/wp-admin/'))
-		return true; // we don't allow caching of wp-admin for security reasons
+	$auto_rejected = array( '/wp-admin/', 'xmlrpc.php', 'wp-app.php' );
+	foreach( $auto_rejected as $u ) {
+		if( strstr( $uri, $u ) )
+			return true; // we don't allow caching of wp-admin for security reasons
+	}
 	foreach ($cache_rejected_uri as $expr) {
 		if( preg_match( "~$expr~", $uri ) )
 			return true;
