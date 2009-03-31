@@ -1,3 +1,29 @@
+2009-03-30 16:12  donncha
+
+	* wp-cache-phase2.php: Added an "auto reject" list of URIs
+
+2009-03-30 06:22  donncha
+
+	* wp-cache-phase1.php: Remove corrupted or obsolete meta file and
+	  cache file.
+
+2009-03-30 04:53  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Don't use array_push().
+	  Removed wp_cache_file_contents action as it may contribute to
+	  memory problems for some hosts.
+	  Pass buffer by reference to ob function.
+	  Revert merge of shutdown function and ob function
+	  Pass "siteurl" to post_id gc function
+
+2009-03-29 16:32  donncha
+
+	* wp-cache-phase1.php: Make sure $meta is an array
+
+2009-03-28 13:03  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-03-28 13:02  donncha
 
 	* readme.txt, wp-cache.php: Bump version number to 0.9.2
