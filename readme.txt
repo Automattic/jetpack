@@ -19,8 +19,8 @@ However, because a user's details are displayed in the comment form after they l
 
 The good news is that probably more than 99% of your visitors don't do any of the above! Those users who don't see the static files will still benefit because they will see regular WP-Cache cached files and your server won't be as busy as before.  This plugin should help your server cope with a front page appearance on digg.com or other social networking site.
 
-As this plugin is based on the older WP-Cache plugin you can switch off the Super Cache static html caching. Caching will still be performed, but every request will require loading the PHP engine. In normal circumstances this isn't that bad, but if your server is underpowered, or you're experiencing heavy traffic you may run into trouble. 
-Super Cached html files will be server more quickly than PHP generated cached files so there's very little reason not to use the Super Cache feature.
+If for some reason "supercaching" doesn't work on your server then don't worry. Caching will still be performed, but every request will require loading the PHP engine. In normal circumstances this isn't bad at all! Visitors to your site will notice no slowdown or difference. Supercache really comes into it's own if your server is underpowered, or you're experiencing heavy traffic.
+Super Cached html files will be served more quickly than PHP generated cached files but in every day use, the difference isn't noticeable.
 
 See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further information.
 
