@@ -622,8 +622,11 @@ function wp_cache_post_change($post_id) {
 				$meta_pathname = $cache_path . 'meta/' . $file;
 				$content_pathname = $cache_path . $matches[1] . ".html";
 				$meta = unserialize(@file_get_contents($meta_pathname));
-				if( false == is_array( $meta ) )
+				if( false == is_array( $meta ) ) {
+					@unlink($meta_pathname);
+					@unlink($content_pathname);
 					continue;
+				}
 				if ($post_id > 0 && $meta) {
 					if ($meta[ 'blog_id' ] == $blog_id  && (!$meta[ 'post' ] || $meta[ 'post' ] == $post_id) ) {
 						@unlink($meta_pathname);
