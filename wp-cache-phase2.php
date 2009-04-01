@@ -406,15 +406,24 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 		if( $oktodelete && !$rename ) {
 			@unlink( $directory );
 		} elseif( $oktodelete && $rename ) {
-			if( $cache_rebuild_files && substr( $directory, -14 ) != '.needs-rebuild' ) {
-				if( @rename($directory, $directory . '.needs-rebuild') ) {
-					@touch( $directory . '.needs-rebuild' );
-				}
-			} else {
-				@unlink( $directory );
-			}
-
+			wp_cache_rebuild_or_delete( $directory );
 		}
+	}
+}
+
+function wp_cache_rebuild_or_delete( $file ) {
+	global $cache_rebuild_files;
+	if( strpos( $file, '?' ) !== false )
+		$file = substr( $file, 0, strpos( $file, '?' ) );
+	errlog( "wp_cache_rebuild_or_delete: $file" );
+	if( $cache_rebuild_files && substr( $file, -14 ) != '.needs-rebuild' ) {
+		if( @rename($file, $file . '.needs-rebuild') ) {
+			@touch( $file . '.needs-rebuild' );
+		} else {
+			@unlink( $file );
+		}
+	} else {
+		@unlink( $file );
 	}
 }
 
@@ -631,14 +640,14 @@ function wp_cache_post_change($post_id) {
 					if ($meta[ 'blog_id' ] == $blog_id  && (!$meta[ 'post' ] || $meta[ 'post' ] == $post_id) ) {
 						@unlink($meta_pathname);
 						@unlink($content_pathname);
-						@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
-						@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
+						@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
+						@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
 					}
 				} elseif ($meta[ 'blog_id' ] == $blog_id) {
 					@unlink($meta_pathname);
 					@unlink($content_pathname);
-					@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
-					@unlink($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
+					@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
+					@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
 				}
 
 			}
