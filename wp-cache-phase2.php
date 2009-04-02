@@ -415,7 +415,6 @@ function wp_cache_rebuild_or_delete( $file ) {
 	global $cache_rebuild_files;
 	if( strpos( $file, '?' ) !== false )
 		$file = substr( $file, 0, strpos( $file, '?' ) );
-	errlog( "wp_cache_rebuild_or_delete: $file" );
 	if( $cache_rebuild_files && substr( $file, -14 ) != '.needs-rebuild' ) {
 		if( @rename($file, $file . '.needs-rebuild') ) {
 			@touch( $file . '.needs-rebuild' );
