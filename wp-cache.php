@@ -954,7 +954,7 @@ function wp_cache_replace_line($old, $new, $my_file) {
 }
 
 function wp_cache_verify_cache_dir() {
-	global $cache_path;
+	global $cache_path, $blog_cache_dir, $blogcacheid;
 
 	$dir = dirname($cache_path);
 	if ( !file_exists($cache_path) ) {
@@ -972,7 +972,14 @@ function wp_cache_verify_cache_dir() {
 		$cache_path .= '/';
 	}
 
-	@mkdir( $cache_path . 'meta' );
+	if( false == is_dir( $blog_cache_dir ) ) {
+		@mkdir( $cache_path . "blogs" );
+		if( $blog_cache_dir != $cache_path . "blogs/" )
+			@mkdir( $blog_cache_dir );
+	}
+
+	if( false == is_dir( $blog_cache_dir . 'meta' ) )
+		@mkdir( $blog_cache_dir . 'meta' );
 
 	return true;
 }
@@ -1095,7 +1102,7 @@ function wp_cache_check_global_config() {
 }
 
 function wp_cache_files() {
-	global $cache_path, $file_prefix, $cache_max_time, $valid_nonce, $supercachedir, $cache_enabled, $super_cache_enabled;
+	global $cache_path, $file_prefix, $cache_max_time, $valid_nonce, $supercachedir, $cache_enabled, $super_cache_enabled, $blog_cache_dir;
 
 	if ( '/' != substr($cache_path, -1)) {
 		$cache_path .= '/';
@@ -1130,18 +1137,18 @@ function wp_cache_files() {
 	$count = 0;
 	$expired = 0;
 	$now = time();
-	if ( ($handle = @opendir( $cache_path . 'meta/' )) ) { 
+	if ( ($handle = @opendir( $blog_cache_dir . 'meta/' )) ) { 
 		if ($list_files) echo "<table cellspacing=\"0\" cellpadding=\"5\">";
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^$file_prefix.*\.meta/", $file) ) {
 				$this_expired = false;
 				$content_file = preg_replace("/meta$/", "html", $file);
-				$mtime = filemtime($cache_path . 'meta/' . $file);
-				if ( ! ($fsize = @filesize($cache_path.$content_file)) ) 
+				$mtime = filemtime( $blog_cache_dir . 'meta/' . $file );
+				if ( ! ( $fsize = @filesize( $blog_cache_dir . $content_file ) ) ) 
 					continue; // .meta does not exists
 				$fsize = intval($fsize/1024);
 				$age = $now - $mtime;
-				if ( $age > $cache_max_time) {
+				if ( $age > $cache_max_time ) {
 					$expired++;
 					$this_expired = true;
 				}
@@ -1260,7 +1267,7 @@ function wpsc_dirsize($directory, $sizes) {
 
 
 function wp_cache_clean_cache($file_prefix) {
-	global $cache_path, $supercachedir;
+	global $cache_path, $supercachedir, $blog_cache_dir;
 
 	// If phase2 was compiled, use its function to avoid race-conditions
 	if(function_exists('wp_cache_phase2_clean_cache')) {
@@ -1277,11 +1284,11 @@ function wp_cache_clean_cache($file_prefix) {
 	}
 
 	$expr = "/^$file_prefix/";
-	if ( ($handle = opendir( $cache_path )) ) { 
+	if ( ($handle = @opendir( $blog_cache_dir )) ) { 
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match($expr, $file) ) {
-				@unlink($cache_path . $file);
-				@unlink($cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
+				@unlink( $blog_cache_dir . $file);
+				@unlink( $blog_cache_dir . 'meta/' . str_replace( '.html', '.meta', $file ) );
 			}
 		}
 		closedir($handle);
@@ -1289,7 +1296,7 @@ function wp_cache_clean_cache($file_prefix) {
 }
 
 function wp_cache_clean_expired($file_prefix) {
-	global $cache_path, $cache_max_time;
+	global $cache_path, $cache_max_time, $blog_cache_dir;
 
 	// If phase2 was compiled, use its function to avoid race-conditions
 	if(function_exists('wp_cache_phase2_clean_expired')) {
@@ -1307,12 +1314,12 @@ function wp_cache_clean_expired($file_prefix) {
 
 	$expr = "/^$file_prefix/";
 	$now = time();
-	if ( ($handle = opendir( $cache_path )) ) { 
+	if ( ($handle = @opendir( $blog_cache_dir )) ) { 
 		while ( false !== ($file = readdir($handle))) {
-			if ( preg_match($expr, $file)  &&
-				(filemtime($cache_path . $file) + $cache_max_time) <= $now) {
-				@unlink($cache_path . $file);
-				@unlink($cache_path . 'meta/' . str_replace( '.html', '.meta', $file ) );
+			if ( preg_match( $expr, $file )  &&
+				( filemtime( $blog_cache_dir . $file ) + $cache_max_time ) <= $now ) {
+				@unlink( $blog_cache_dir . $file );
+				@unlink( $blog_cache_dir . 'meta/' . str_replace( '.html', '.meta', $file ) );
 			}
 		}
 		closedir($handle);

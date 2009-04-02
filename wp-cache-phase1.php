@@ -10,6 +10,8 @@ if( !defined( 'WPCACHEHOME' ) )
 
 include( WPCACHEHOME . 'wp-cache-base.php');
 
+$blog_cache_dir = str_replace( '//', '/', $cache_path . "blogs/" . $blogcacheid . '/' );
+
 if(defined('DOING_CRON')) {
 	require_once( WPCACHEHOME . 'wp-cache-phase2.php');
 	return;
@@ -57,10 +59,19 @@ add_cacheaction( 'wp_cache_key', 'wp_cache_check_mobile' );
 
 $key = $blogcacheid . md5( do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $_SERVER['REQUEST_URI'] ) ).$wp_cache_gzip_encoding.wp_cache_get_cookies_values() ) );
 
+if( false == @is_dir( $blog_cache_dir ) ) {
+	@mkdir( $cache_path . "blogs" );
+	@mkdir( $blog_cache_dir );
+}
+
+if( false == @is_dir( $blog_cache_dir . 'meta' ) )
+	@mkdir( $blog_cache_dir . 'meta' );
+
+
 $cache_filename = $file_prefix . $key . '.html';
 $meta_file = $file_prefix . $key . '.meta';
-$cache_file = realpath( $cache_path . $cache_filename );
-$meta_pathname = realpath( $cache_path . 'meta/' . $meta_file );
+$cache_file = realpath( $blog_cache_dir . $cache_filename );
+$meta_pathname = realpath( $blog_cache_dir . 'meta/' . $meta_file );
 
 $wp_start_time = microtime();
 if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
