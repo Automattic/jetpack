@@ -1,9 +1,11 @@
 <?php
 
 function wp_cache_phase2() {
-	global $cache_filename, $cache_acceptable_files, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_gmt_offset;
+	global $cache_filename, $cache_acceptable_files, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_gmt_offset, $wp_cache_blog_charset, $wp_cache_last_gc;
+	global $cache_max_time;
 
-	$wp_cache_gmt_offset = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. http://wordpress.org/support/topic/224349
+	$wp_cache_gmt_offset   = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. http://wordpress.org/support/topic/224349
+	$wp_cache_blog_charset = get_option( 'blog_charset' );
 
 	wp_cache_mutex_init();
 	if(function_exists('add_action') && ( !defined( 'WPLOCKDOWN' ) || ( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) == '0' ) ) ) {
@@ -59,6 +61,27 @@ function wp_cache_phase2() {
 			}
 		}
 	}
+
+	if( !isset( $cache_max_time ) )
+		$cache_max_time = 600;
+	$last_gc = get_option( "wpsupercache_gc_time" );
+
+	if( !$last_gc ) {
+		update_option( 'wpsupercache_gc_time', time() );
+	}
+	$next_gc = $cache_max_time < 1800 ? $cache_max_time : 600;
+	if( $last_gc < ( time() - $next_gc ) ) {
+		update_option( 'wpsupercache_gc_time', time() );
+
+		global $wp_cache_shutdown_gc;
+		if( !isset( $wp_cache_shutdown_gc ) || $wp_cache_shutdown_gc == 0 ) {
+			if(!wp_next_scheduled('wp_cache_gc')) wp_schedule_single_event(time() + 10 , 'wp_cache_gc');
+		} else {
+			global $time_to_gc_cache;
+			$time_to_gc_cache = 1; // tell the "shutdown gc" to run!
+		}
+	}
+
 }
 
 function wp_cache_get_response_headers() {
@@ -460,6 +483,7 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 
 function wp_cache_shutdown_callback() {
 	global $cache_path, $cache_max_time, $file_expired, $file_prefix, $meta_file, $new_cache, $wp_cache_meta, $known_headers, $blog_id, $wp_cache_gzip_encoding, $gzsize, $cache_filename, $supercacheonly, $blog_cache_dir;
+	global $wp_cache_blog_charset;
 
 	$wp_cache_meta[ 'uri' ] = $_SERVER["SERVER_NAME"].preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $_SERVER['REQUEST_URI']); // To avoid XSS attacks
 	$wp_cache_meta[ 'blog_id' ] = $blog_id;
@@ -500,7 +524,7 @@ function wp_cache_shutdown_callback() {
 		} else { // not a feed
 			$value = 'text/html';
 		}
-		$value .=  "; charset=\"" . get_option('blog_charset')  . "\"";
+		$value .=  "; charset=\"" . $wp_cache_blog_charset . "\"";
 
 		@header("Content-Type: $value");
 		$wp_cache_meta[ 'headers' ][ 'Content-Type' ] = "Content-Type: $value";
@@ -529,28 +553,9 @@ function wp_cache_shutdown_callback() {
 			wp_cache_writers_exit();
 		}
 	}
-
-	if( !isset( $cache_max_time ) )
-		$cache_max_time = 600;
-	$last_gc = get_option( "wpsupercache_gc_time" );
-
-	if( !$last_gc ) {
-		update_option( 'wpsupercache_gc_time', time() );
-	}
-
-	$next_gc = $cache_max_time < 1800 ? $cache_max_time : 600;
-	if( $last_gc < ( time() - $next_gc ) ) {
-		update_option( 'wpsupercache_gc_time', time() );
-
-		global $wp_cache_shutdown_gc;
-		if( isset( $wp_cache_shutdown_gc ) && $wp_cache_shutdown_gc == 1 ) {
-			do_action( 'wp_cache_gc' );
-		} else {
-			// we delete expired files, using a wordpress cron event
-			// since flush() does not guarantee hand-off to client - problem on Win32 and suPHP
-			if(!wp_next_scheduled('wp_cache_gc')) wp_schedule_single_event(time() + 10 , 'wp_cache_gc');
-		}
-	}
+	global $time_to_gc_cache;
+	if( isset( $time_to_gc_cache ) && $time_to_gc_cache == 1 )
+		do_action( 'wp_cache_gc' );
 }
 
 function wp_cache_no_postid($id) {
