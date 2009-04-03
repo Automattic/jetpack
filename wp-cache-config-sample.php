@@ -43,10 +43,7 @@ $cache_acceptable_files = array( 'wp-comments-popup.php', 'wp-links-opml.php', '
 $cache_rejected_uri = array('wp-.*.php', 'index.php');
 $cache_rejected_user_agent = array ( 0 => 'bot', 1 => 'ia_archive', 2 => 'slurp', 3 => 'crawl', 4 => 'spider');
 
-// Change this to 1 to enable experimental code that tries to serve slightly
-// out of date content to anon users while a new supercache file is being
-// generated.
-$cache_rebuild_files = 0;
+$cache_rebuild_files = 1;
 
 // DEBUG mode. Change this to your email address to be sent debug emails.
 // Remove comment (//) to enable and add back to disable.
@@ -55,7 +52,7 @@ $cache_rebuild_files = 0;
 // Disable the file locking system.
 // If you are experiencing problems with clearing or creating cache files
 // uncommenting this may help.
-//$wp_cache_mutex_disabled = 1;
+$wp_cache_mutex_disabled = 1;
 
 // Just modify it if you have conflicts with semaphores
 $sem_id = 5419;
