@@ -1,3 +1,84 @@
+2009-04-04 11:40  donncha
+
+	* readme.txt, wp-cache.php: Bump version number to 0.9.3
+
+2009-04-04 11:23  donncha
+
+	* wp-cache.php: Minor change in cache rebuild and mutex option text
+
+2009-04-04 11:15  donncha
+
+	* wp-cache-phase1.php: Cache files for single blogs go in cache/,
+	  MU cache files go in cache/blogs/
+
+2009-04-03 15:01  donncha
+
+	* wp-cache-config-sample.php, wp-cache.php: "Cache rebuild" feature
+	  is now on by default
+	  File locks are off by default
+	  Change language on admin page to "Enable file locking" instead of
+	  "Disable..."
+
+2009-04-02 19:56  donncha
+
+	* wp-cache-phase2.php: Get rid of more get_option() calls in the
+	  shutdown function
+
+2009-04-02 13:42  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php, wp-cache.php: Added a
+	  blog cache dir. WordPress MU blogs will be cached into different
+	  directories.
+	  Regular WP will cache into cache/blogs/ instead of cache/
+
+2009-04-02 13:41  donncha
+
+	* readme.txt: Update docs:
+	  1. new signature on page.
+	  2. Minor text changes
+
+2009-04-02 11:49  donncha
+
+	* wp-cache-phase2.php: Removed errlog
+
+2009-04-02 11:09  donncha
+
+	* wp-cache-phase2.php: Check if rejected uri expr is a blank. See
+	  http://justinblanton.com/2009/03/broken-wp-super-cache
+
+2009-04-01 11:46  donncha
+
+	* wp-cache-phase2.php: Added "wp_cache_rebuild_or_delete()"
+	  function to delete or create rebuild cache files
+
+2009-03-31 10:56  donncha
+
+	* readme.txt: Minor docs update
+
+2009-03-31 10:53  donncha
+
+	* readme.txt: Updated docs to stress that wp-cached files are "good
+	  enough" for most people.
+
+2009-03-31 10:46  donncha
+
+	* advanced-cache.php, readme.txt: Added "wpcache_broken_message()"
+	  and code to catch when path in advanced-cache.php is broken.
+
+2009-03-31 10:32  donncha
+
+	* wp-cache.php: Check if admin_url exists. Not everyone updates
+	  WordPress.
+
+2009-03-31 10:31  donncha
+
+	* wp-cache-phase2.php: In post change, remove corrupted or obsolete
+	  meta and cache files
+
+2009-03-31 10:30  donncha
+
+	* Changelog.txt: Updated changelog.txt
+
 2009-03-30 16:12  donncha
 
 	* wp-cache-phase2.php: Added an "auto reject" list of URIs
