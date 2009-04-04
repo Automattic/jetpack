@@ -10,7 +10,11 @@ if( !defined( 'WPCACHEHOME' ) )
 
 include( WPCACHEHOME . 'wp-cache-base.php');
 
-$blog_cache_dir = str_replace( '//', '/', $cache_path . "blogs/" . $blogcacheid . '/' );
+if( $blogcacheid != '' ) {
+	$blog_cache_dir = str_replace( '//', '/', $cache_path . "blogs/" . $blogcacheid . '/' );
+} else {
+	$blog_cache_dir = $cache_path;
+}
 
 if(defined('DOING_CRON')) {
 	require_once( WPCACHEHOME . 'wp-cache-phase2.php');
