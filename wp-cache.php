@@ -3,7 +3,7 @@
 Plugin Name: WP Super Cache
 Plugin URI: http://ocaoimh.ie/wp-super-cache/
 Description: Very fast caching plugin for WordPress.
-Version: 0.9.2
+Version: 0.9.3
 Author: Donncha O Caoimh
 Author URI: http://ocaoimh.ie/
 */
@@ -351,9 +351,9 @@ jQuery(document).ready(function(){
 	</fieldset>
 	</td><td valign='top'>
 	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
-	<h3 align='center'>Makes WordPress Faster</h3>
+	<h3 align='center'>Make WordPress Faster</h3>
 	<?php if( $wp_cache_hide_donation != 1 ) { ?>
-	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=wpsc">WP Super Cache</a> makes your blog go faster. Think that's worth $5? Click the "Donate" button below.</p>
+	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=wpsc">WP Super Cache</a> makes your blog go faster. Think that's worth $10? Click the "Donate" button below.</p>
 	<p>Thanks!<br />Donncha O Caoimh.<br /></p>
 	<div align='center'>
 	<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
