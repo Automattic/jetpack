@@ -587,6 +587,7 @@ function wp_cache_post_edit($post_id) {
 	global $wp_cache_clear_on_post_edit, $cache_path, $blog_cache_dir;
 	if( $wp_cache_clear_on_post_edit ) {
 		prune_super_cache( $blog_cache_dir, true );
+		prune_super_cache( $cache_path . 'supercache/', true );
 	} else {
 		wp_cache_post_change( $post_id );
 	}
