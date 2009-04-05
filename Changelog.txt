@@ -1,3 +1,11 @@
+2009-04-05 08:25  donncha
+
+	* wp-cache-phase2.php: Hide any potential opendir warnings
+
+2009-04-04 11:40  donncha
+
+	* Changelog.txt: Updated Changelog to 0.9.3
+
 2009-04-04 11:40  donncha
 
 	* readme.txt, wp-cache.php: Bump version number to 0.9.3
