@@ -3,6 +3,6 @@
 function wpcache_broken_message() {
 	        echo "<!-- WP Super Cache is installed but broken. The path to wp-cache-phase1.php in wp-content/advanced-cache.php must be fixed! -->";
 }
-if( !include_once( 'CACHEHOME' . 'wp-cache-phase1.php' ) )
-	        register_shutdown_function( 'wpcache_broken_message' );
+if( !include_once( 'CACHEHOME' . 'wp-cache-phase1.php' ) ) 
+	register_shutdown_function( 'wpcache_broken_message' );
 ?>
