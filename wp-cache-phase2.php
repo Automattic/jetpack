@@ -629,7 +629,7 @@ function wp_cache_post_change($post_id) {
 	}
 
 	$matches = array();
-	if ( ($handle = opendir( $blog_cache_dir . 'meta/' )) ) { 
+	if ( ($handle = @opendir( $blog_cache_dir . 'meta/' )) ) { 
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^({$file_prefix}{$blogcacheid}.*)\.meta/", $file, $matches) ) {
 				$meta_pathname = $blog_cache_dir . 'meta/' . $file;
