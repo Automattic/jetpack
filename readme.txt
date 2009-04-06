@@ -11,15 +11,23 @@ A very fast caching engine for WordPress that produces static html files.
 == Description ==
 This plugin generates static html files from your dynamic WordPress blog.  After a html file is generated your webserver will serve that file instead of processing the comparatively heavier and more expensive WordPress PHP scripts.
 
-However, because a user's details are displayed in the comment form after they leave a comment, the plugin will only serve static html files to:
+= Recent Changes =
+
+1. Fix problem with saving posts in 0.9.3
+2. WordPress MU cache files will go in separate directories to scale better.
+3. Cache Rebuild on by default on new installs. File locking is off.
+4. More PHP5 `register_shutdown_function()` object destruction fixes.
+5. Warn user via html comment if path to wp-cache-phase1.php in advanced-cache.php is broken.
+
+The static html files will be served to the vast majority of your users, but because a user's details are displayed in the comment form after they leave a comment those requests are handled by PHP. Static files are served to:
 
 1. Users who are not logged in.
 2. Users who have not left a comment on your blog.
-3. Or users who have not viewed a password protected post. 
+3. Or users who have not viewed a password protected post.
 
-The good news is that probably more than 99% of your visitors don't do any of the above! Those users who don't see the static files will still benefit because they will see regular WP-Cache cached files and your server won't be as busy as before.  This plugin should help your server cope with a front page appearance on digg.com or other social networking site.
+99% of your visitors will be served static html files. Those users who don't see the static files will still benefit because they will see regular WP-Cache cached files and your server won't be as busy as before. This plugin will help your server cope with a front page appearance on digg.com or other social networking site.
 
-If for some reason "supercaching" doesn't work on your server then don't worry. Caching will still be performed, but every request will require loading the PHP engine. In normal circumstances this isn't bad at all! Visitors to your site will notice no slowdown or difference. Supercache really comes into it's own if your server is underpowered, or you're experiencing heavy traffic.
+If for some reason "supercaching" doesn't work on your server then don't worry. Caching will still be performed, but every request will require loading the PHP engine. In normal circumstances this isn't bad at all. Visitors to your site will notice no slowdown or difference. Supercache really comes into it's own if your server is underpowered, or you're experiencing heavy traffic.
 Super Cached html files will be served more quickly than PHP generated cached files but in every day use, the difference isn't noticeable.
 
 See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further information.
