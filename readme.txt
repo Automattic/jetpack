@@ -13,7 +13,7 @@ This plugin generates static html files from your dynamic WordPress blog.  After
 
 = Recent Changes =
 
-1. Fix problem with saving posts in 0.9.3
+1. Fix problem with saving posts in 0.9.3 [(more)](http://wordpress.org/support/topic/259636?replies=2)
 2. WordPress MU cache files will go in separate directories to scale better.
 3. Cache Rebuild on by default on new installs. File locking is off.
 4. More PHP5 `register_shutdown_function()` object destruction fixes.
