@@ -1,3 +1,40 @@
+2009-04-06 14:16  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 0.9.3.1
+
+2009-04-06 14:16  donncha
+
+	* readme.txt: Added link to forum thread on posting problems in
+	  0.9.3
+
+2009-04-06 14:11  donncha
+
+	* readme.txt: Added "Recent Changes" section to start of readme.txt
+	  to make life easier on those upgrading
+
+2009-04-05 22:15  donncha
+
+	* advanced-cache.php: Don't show broken path message in wp-admin.
+	  Check if file is missing before showing an error
+
+2009-04-05 21:51  donncha
+
+	* wp-cache-phase1.php: Return true so the include_once() returns
+	  true. Fixes problem with saving posts
+
+2009-04-05 18:53  donncha
+
+	* wp-cache-phase2.php: Clear the supercache when all cache is
+	  cleared on post edit.
+
+2009-04-05 18:53  donncha
+
+	* advanced-cache.php: whitespace cleanup
+
+2009-04-05 09:36  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-04-05 08:25  donncha
 
 	* wp-cache-phase2.php: Hide any potential opendir warnings
