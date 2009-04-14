@@ -40,7 +40,7 @@ if( defined( 'VHOST' ) ) {
 // Array of files that have 'wp-' but should still be cached 
 $cache_acceptable_files = array( 'wp-comments-popup.php', 'wp-links-opml.php', 'wp-locations.php' );
 
-$cache_rejected_uri = array('wp-.*.php', 'index.php');
+$cache_rejected_uri = array('wp-.*\\.php', 'index\\.php');
 $cache_rejected_user_agent = array ( 0 => 'bot', 1 => 'ia_archive', 2 => 'slurp', 3 => 'crawl', 4 => 'spider');
 
 $cache_rebuild_files = 1;

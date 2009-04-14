@@ -811,7 +811,7 @@ function wp_cache_edit_rejected() {
 	global $cache_acceptable_files, $cache_rejected_uri, $wp_cache_config_file, $valid_nonce;
 
 	if(isset($_REQUEST['wp_rejected_uri']) && $valid_nonce) {
-		$text = wp_cache_sanitize_value($_REQUEST['wp_rejected_uri'], $cache_rejected_uri);
+		$text = wp_cache_sanitize_value( str_replace( '\\\\', '\\', $_REQUEST['wp_rejected_uri'] ), $cache_rejected_uri );
 		wp_cache_replace_line('^ *\$cache_rejected_uri', "\$cache_rejected_uri = $text;", $wp_cache_config_file);
 	}
 
@@ -820,7 +820,7 @@ function wp_cache_edit_rejected() {
 	echo "<p>Add here strings (not a filename) that forces a page not to be cached. For example, if your URLs include year and you dont want to cache last year posts, it's enough to specify the year, i.e. '/2004/'. WP-Cache will search if that string is part of the URI and if so, it will not cache that page.</p>\n";
 	echo '<textarea name="wp_rejected_uri" cols="40" rows="4" style="width: 50%; font-size: 12px;" class="code">';
 	foreach ($cache_rejected_uri as $file) {
-		echo wp_specialchars($file) . "\n";
+		echo wp_specialchars( $file ) . "\n";
 	}
 	echo '</textarea> ';
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save Strings &raquo;" /></div>';
