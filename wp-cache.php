@@ -1139,6 +1139,7 @@ function wp_cache_files() {
 	$now = time();
 	if ( ($handle = @opendir( $blog_cache_dir . 'meta/' )) ) { 
 		if ($list_files) echo "<table cellspacing=\"0\" cellpadding=\"5\">";
+		$wp_cache_fsize = 0;
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^$file_prefix.*\.meta/", $file) ) {
 				$this_expired = false;
@@ -1146,6 +1147,7 @@ function wp_cache_files() {
 				$mtime = filemtime( $blog_cache_dir . 'meta/' . $file );
 				if ( ! ( $fsize = @filesize( $blog_cache_dir . $content_file ) ) ) 
 					continue; // .meta does not exists
+				$wp_cache_fsize += $fsize;
 				$fsize = intval($fsize/1024);
 				$age = $now - $mtime;
 				if ( $age > $cache_max_time ) {
@@ -1177,6 +1179,18 @@ function wp_cache_files() {
 		closedir($handle);
 		if ($list_files) echo "</table>";
 	}
+	if( $wp_cache_fsize != 0 ) {
+		$wp_cache_fsize = $wp_cache_fsize/1024;
+	} else {
+		$wp_cache_fsize = 0;
+	}
+	if( $wp_cache_fsize > 1024 ) {
+		$wp_cache_fsize = number_format( $wp_cache_fsize / 1024, 2 ) . "MB";
+	} elseif( $wp_cache_fsize != 0 ) {
+		$wp_cache_fsize = number_format( $wp_cache_fsize, 2 ) . "KB";
+	} else {
+		$wp_cache_fsize = '0KB';
+	}
 	if( $cache_enabled == true && $super_cache_enabled == true ) {
 		$now = time();
 		$sizes = array( 'expired' => 0, 'cached' => 0, 'ts' => 0 );
@@ -1197,11 +1211,19 @@ function wp_cache_files() {
 		$sizes[ 'ts' ] = time();
 	}
 
-	echo "<p><strong>WP-Cache</strong></p>";
+	echo "<p><strong>WP-Cache ({$wp_cache_fsize})</strong></p>";
 	echo "<ul><li>$count Cached Pages</li>";
 	echo "<li>$expired Expired Pages</li></ul>";
 	if( $cache_enabled == true && $super_cache_enabled == true ) {
-		echo "<p><strong>WP-Super-Cache</strong></p>";
+		$fsize = $sizes[ 'fsize' ] / 1024;
+		if( $fsize > 1024 ) {
+			$fsize = number_format( $fsize / 1024, 2 ) . "MB";
+		} elseif( $fsize != 0 ) {
+			$fsize = number_format( $fsize, 2 ) . "KB";
+		} else {
+			$fsize = "0KB";
+		}
+		echo "<p><strong>WP-Super-Cache ({$fsize})</strong></p>";
 		echo "<ul><li>" . intval($sizes['cached']/2) . " Cached Pages</li>";
 		$age = intval(($now - $sizes['ts'])/60);
 		echo "<li>" . intval($sizes['expired']/2) . " Expired Pages</li></ul>";
@@ -1260,6 +1282,7 @@ function wpsc_dirsize($directory, $sizes) {
 			} else {
 				$sizes[ 'cached' ]+=1;
 			}
+			$sizes[ 'fsize' ] += @filesize( $directory );
 		}
 	}
 	return $sizes;
