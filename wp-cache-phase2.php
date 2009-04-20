@@ -4,7 +4,7 @@ function wp_cache_phase2() {
 	global $cache_filename, $cache_acceptable_files, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_gmt_offset, $wp_cache_blog_charset, $wp_cache_last_gc;
 	global $cache_max_time, $wp_cache_not_logged_in;
 
-	if( $wp_cache_not_logged_in )
+	if( $wp_cache_not_logged_in && is_user_logged_in() )
 		return false;
 
 	$wp_cache_gmt_offset   = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. http://wordpress.org/support/topic/224349
