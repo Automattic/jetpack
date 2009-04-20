@@ -2,12 +2,14 @@
 
 function wp_cache_phase2() {
 	global $cache_filename, $cache_acceptable_files, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_gmt_offset, $wp_cache_blog_charset, $wp_cache_last_gc;
-	global $cache_max_time;
+	global $cache_max_time, $wp_cache_not_logged_in;
+
+	if( $wp_cache_not_logged_in )
+		return false;
 
 	$wp_cache_gmt_offset   = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. http://wordpress.org/support/topic/224349
 	$wp_cache_blog_charset = get_option( 'blog_charset' );
 
-	wp_cache_mutex_init();
 	if(function_exists('add_action') && ( !defined( 'WPLOCKDOWN' ) || ( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) == '0' ) ) ) {
 		// Post ID is received
 		add_action('publish_post', 'wp_cache_post_edit', 0);
@@ -39,6 +41,7 @@ function wp_cache_phase2() {
 		header('Vary: Accept-Encoding, Cookie');
 	else
 		header('Vary: Cookie');
+	wp_cache_mutex_init();
 	ob_start( 'wp_cache_ob_callback' ); 
 
 	// restore old supercache file temporarily
@@ -82,7 +85,6 @@ function wp_cache_phase2() {
 			$time_to_gc_cache = 1; // tell the "shutdown gc" to run!
 		}
 	}
-
 }
 
 function wp_cache_get_response_headers() {
