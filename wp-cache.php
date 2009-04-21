@@ -358,7 +358,7 @@ jQuery(document).ready(function(){
 	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
 	<h3 align='center'>Make WordPress Faster</h3>
 	<?php if( $wp_cache_hide_donation != 1 ) { ?>
-	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=wpsc">WP Super Cache</a> makes your blog go faster. Think that's worth $10? Click the "Donate" button below.</p>
+	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=wpsc">WP Super Cache</a> makes your blog go faster. That has to be worth $10 or a small gift. Click the "Donate" button below or take a quick peek at my <a href="http://ocaoimh.ie/wp-content/plugins/feed-statistics.php?url=aHR0cDovL3d3dy5hbWF6b24uY28udWsvZ3AvcmVnaXN0cnkvMzVaQ0dJVTJBSDROQg==">wishlist</a>.</p>
 	<p>Thanks!<br />Donncha O Caoimh.<br /></p>
 	<div align='center'>
 	<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
@@ -370,8 +370,8 @@ jQuery(document).ready(function(){
 	<p>Don't show me this again. <form action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post"><input type='hidden' name='wp_cache_hide_donation' value='1' /><input type='submit' value='Hide' /><?php wp_nonce_field('wp-cache'); ?></form></p>
 	</div>
 	<?php } else { ?>
-	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=supercache">WP Super Cache</a> is maintained and developed by <a href="http://ocaoimh.ie/?r=supercache">Donncha O Caoimh</a> with contributions from many others thanks to the GPL.</p>
-	<p>He blogs at <a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a> and posts photos at <a href="http://inphotos.org/?r=supercache">In Photos.org</a>. You can say hi to him on <a href="http://twitter.com/donncha/">Twitter</a> too!</p>
+	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=supercache">WP Super Cache</a> is maintained and developed by <a href="http://ocaoimh.ie/?r=supercache">Donncha O Caoimh</a> with contributions from many others.</p>
+	<p>He blogs at <a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a>, posts photos at <a href="http://inphotos.org/?r=supercache">In Photos.org</a> and <a href="http://ocaoimh.ie/wp-content/plugins/feed-statistics.php?url=aHR0cDovL3d3dy5hbWF6b24uY28udWsvZ3AvcmVnaXN0cnkvMzVaQ0dJVTJBSDROQg==">wishes</a> he had more time to read and relax.</p><p>Please say hi to him on <a href="http://twitter.com/donncha/">Twitter</a> too!</p>
 	<?php } ?>
 	</div>
 
