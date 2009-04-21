@@ -294,6 +294,14 @@ jQuery(document).ready(function(){
 				$wp_cache_mutex_disabled = 1;
 			}
 			wp_cache_replace_line('^ *\$wp_cache_mutex_disabled', "\$wp_cache_mutex_disabled = " . $wp_cache_mutex_disabled . ";", $wp_cache_config_file);
+			if( isset( $_POST[ 'wp_cache_not_logged_in' ] ) ) {
+				if( $wp_cache_not_logged_in == 0 && function_exists( 'prune_super_cache' ) )
+					prune_super_cache ($cache_path, true);
+				$wp_cache_not_logged_in = 1;
+			} else {
+				$wp_cache_not_logged_in = 0;
+			}
+			wp_cache_replace_line('^ *\$wp_cache_not_logged_in', "\$wp_cache_not_logged_in = " . $wp_cache_not_logged_in . ";", $wp_cache_config_file);
 		}
 		if( isset( $_POST[ 'cache_compression' ] ) && $_POST[ 'cache_compression' ] != $cache_compression ) {
 			$cache_compression_changed = true;
@@ -306,10 +314,6 @@ jQuery(document).ready(function(){
 		if( isset( $_POST[ 'wp_cache_hide_donation' ] ) && $_POST[ 'wp_cache_hide_donation' ] != $wp_cache_hide_donation ) {
 			$wp_cache_hide_donation = intval( $_POST[ 'wp_cache_hide_donation' ] );
 			wp_cache_replace_line('^ *\$wp_cache_hide_donation', "\$wp_cache_hide_donation = " . $wp_cache_hide_donation . ";", $wp_cache_config_file);
-		}
-		if( isset( $_POST[ 'wp_cache_not_logged_in' ] ) && $_POST[ 'wp_cache_not_logged_in' ] != $wp_cache_not_logged_in ) {
-			$wp_cache_not_logged_in = intval( $_POST[ 'wp_cache_not_logged_in' ] );
-			wp_cache_replace_line('^ *\$wp_cache_not_logged_in', "\$wp_cache_not_logged_in = " . $wp_cache_not_logged_in . ";", $wp_cache_config_file);
 		}
 	}
 
