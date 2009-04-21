@@ -1,3 +1,17 @@
+2009-04-21 19:53  donncha
+
+	* readme.txt, wp-cache.php: Bumped version to 0.9.4.1
+
+2009-04-21 19:52  donncha
+
+	* wp-cache.php: Oops, make sure the "don't cache if logged in"
+	  checkbox can be unchecked!
+	  Clear the cache when it's enabled
+
+2009-04-21 15:46  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-04-21 15:45  donncha
 
 	* readme.txt: Updated recent changes
