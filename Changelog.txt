@@ -1,3 +1,49 @@
+2009-04-21 15:43  donncha
+
+	* readme.txt, wp-cache.php: Bumped version number to 0.9.4
+
+2009-04-21 11:46  donncha
+
+	* wp-cache.php: Minor docs update
+
+2009-04-20 09:25  donncha
+
+	* wp-cache-phase2.php: Check that user is logged in before not
+	  caching
+
+2009-04-20 08:49  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Added "Don't cache for logged
+	  in users" option
+
+2009-04-18 22:03  donncha
+
+	* readme.txt: Updated donation link
+
+2009-04-15 16:38  donncha
+
+	* wp-cache.php: Display file size stats on admin page
+
+2009-04-15 15:27  donncha
+
+	* wp-cache-phase2.php: Clear the cache when the profile is updated.
+	  Props djquinn http://wordpress.org/support/topic/261504?replies=6
+	  http://www.dquinn.net/wp-super-cache-preview-draft-update-profile-wordpress/
+
+2009-04-15 15:25  donncha
+
+	* wp-cache-phase1.php: Don't cache post previews
+
+2009-04-14 14:10  donncha
+
+	* wp-cache-config-sample.php, wp-cache.php: Added backslashes to
+	  rejected URI. See
+	  http://wordpress.org/support/topic/260790?replies=10#post-1045412
+
+2009-04-06 14:17  donncha
+
+	* Changelog.txt: Updated changelog to 0.9.3.1
+
 2009-04-06 14:16  donncha
 
 	* readme.txt, wp-cache.php: Bump version to 0.9.3.1
