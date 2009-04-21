@@ -13,11 +13,11 @@ This plugin generates static html files from your dynamic WordPress blog.  After
 
 = Recent Changes =
 
-1. Fix problem with saving posts in 0.9.3 [(more)](http://wordpress.org/support/topic/259636?replies=2)
-2. WordPress MU cache files will go in separate directories to scale better.
-3. Cache Rebuild on by default on new installs. File locking is off.
-4. More PHP5 `register_shutdown_function()` object destruction fixes.
-5. Warn user via html comment if path to wp-cache-phase1.php in advanced-cache.php is broken.
+1. Added "Don't cache for logged in users" option.
+2. Display file size stats on admin page.
+3. Clear the cache when profile page is updated.
+4. Don't cache post previews.
+5. Added backslashes to rejected URI regex list
 
 The static html files will be served to the vast majority of your users, but because a user's details are displayed in the comment form after they leave a comment those requests are handled by PHP. Static files are served to:
 
