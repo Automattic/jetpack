@@ -1,3 +1,11 @@
+2009-04-21 15:45  donncha
+
+	* readme.txt: Updated recent changes
+
+2009-04-21 15:44  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-04-21 15:43  donncha
 
 	* readme.txt, wp-cache.php: Bumped version number to 0.9.4
