@@ -4,9 +4,6 @@ function wp_cache_phase2() {
 	global $cache_filename, $cache_acceptable_files, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_gmt_offset, $wp_cache_blog_charset, $wp_cache_last_gc;
 	global $cache_max_time, $wp_cache_not_logged_in;
 
-	if( $wp_cache_not_logged_in && is_user_logged_in() )
-		return false;
-
 	$wp_cache_gmt_offset   = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. http://wordpress.org/support/topic/224349
 	$wp_cache_blog_charset = get_option( 'blog_charset' );
 
@@ -31,11 +28,15 @@ function wp_cache_phase2() {
 
 		do_cacheaction( 'add_cacheaction' );
 	}
+
+	if( $wp_cache_not_logged_in && is_user_logged_in() )
+		return false;
+
 	if( $_SERVER["REQUEST_METHOD"] == 'POST' || get_option('gzipcompression')) 
-		return;
+		return false;
 	$script = basename($_SERVER['PHP_SELF']);
 	if (!in_array($script, $cache_acceptable_files) && wp_cache_is_rejected($_SERVER["REQUEST_URI"]))
-		return;
+		return false;
 	if (wp_cache_user_agent_is_rejected()) return;
 	if($wp_cache_gzip_encoding)
 		header('Vary: Accept-Encoding, Cookie');
