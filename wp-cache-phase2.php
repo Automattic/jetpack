@@ -7,6 +7,7 @@ function wp_cache_phase2() {
 	$wp_cache_gmt_offset   = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. http://wordpress.org/support/topic/224349
 	$wp_cache_blog_charset = get_option( 'blog_charset' );
 
+	wp_cache_mutex_init();
 	if(function_exists('add_action') && ( !defined( 'WPLOCKDOWN' ) || ( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) == '0' ) ) ) {
 		// Post ID is received
 		add_action('publish_post', 'wp_cache_post_edit', 0);
@@ -42,7 +43,6 @@ function wp_cache_phase2() {
 		header('Vary: Accept-Encoding, Cookie');
 	else
 		header('Vary: Cookie');
-	wp_cache_mutex_init();
 	ob_start( 'wp_cache_ob_callback' ); 
 
 	// restore old supercache file temporarily
