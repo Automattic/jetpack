@@ -2,7 +2,7 @@
 Contributors: donncha
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 2.7.1
-Stable tag: 0.9.4.2
+Stable tag: 0.9.4.3
 Requires at least: 2.6
 Donate link: http://ocaoimh.ie/wordpress-plugins/gifts-and-donations/
 
@@ -17,7 +17,8 @@ This plugin generates static html files from your dynamic WordPress blog.  After
 2. Display file size stats on admin page.
 3. Clear the cache when profile page is updated.
 4. Don't cache post previews.
-5. Added backslashes to rejected URI regex list
+5. Added backslashes to rejected URI regex list.
+6. Fixed problems with posts and comments not refreshing.
 
 The static html files will be served to the vast majority of your users, but because a user's details are displayed in the comment form after they leave a comment those requests are handled by PHP. Static files are served to:
 
