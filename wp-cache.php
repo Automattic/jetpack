@@ -442,10 +442,17 @@ function wsc_mod_rewrite() {
 
 	<a name="modrewrite"></a><fieldset class="options"> 
 	<h3>Mod Rewrite Rules</h3><?php
+	if ( $_SERVER[ "PHP_DOCUMENT_ROOT" ] ) {
+		$document_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
+		$apache_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
+	} else {
+		$document_root = $_SERVER[ "DOCUMENT_ROOT" ];
+		$apache_root = '%{DOCUMENT_ROOT}';
+	}
 	$home_path = get_home_path();
 	$home_root = parse_url(get_bloginfo('url'));
 	$home_root = trailingslashit($home_root['path']);
-	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $_SERVER[ 'DOCUMENT_ROOT' ], '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
+	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $document_root, '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
 	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
 	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
@@ -467,11 +474,11 @@ function wsc_mod_rewrite() {
 	$rules .= "AddDefaultCharset {$charset}\n";
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
-	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
 	$rules .= "RewriteRule ^(.*) {$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
-	$rules .= "RewriteCond %{DOCUMENT_ROOT}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
 	$rules .= "RewriteRule ^(.*) {$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
 	$rules .= "</IfModule>\n";
 	$rules = apply_filters( 'supercacherewriterules', $rules );
