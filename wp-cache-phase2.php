@@ -197,6 +197,8 @@ function get_current_url_supercache_dir() {
 }
 
 function wp_cache_ob_callback( $buffer ) {
+	if( defined( 'DONOTCACHEPAGE' ) )
+		return $buffer;
 	$buffer = &wp_cache_get_ob( $buffer );
 	wp_cache_shutdown_callback();
 	return $buffer;
