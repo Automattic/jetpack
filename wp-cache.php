@@ -293,7 +293,7 @@ jQuery(document).ready(function(){
 			} else {
 				$wp_cache_mutex_disabled = 1;
 			}
-			if( false == defined( 'WPSC_DISABLE_LOCKING' ) ) {
+			if( defined( 'WPSC_DISABLE_LOCKING' ) ) {
 				$wp_cache_mutex_disabled = 1;
 			}
 			wp_cache_replace_line('^ *\$wp_cache_mutex_disabled', "\$wp_cache_mutex_disabled = " . $wp_cache_mutex_disabled . ";", $wp_cache_config_file);
@@ -306,7 +306,11 @@ jQuery(document).ready(function(){
 			}
 			wp_cache_replace_line('^ *\$wp_cache_not_logged_in', "\$wp_cache_not_logged_in = " . $wp_cache_not_logged_in . ";", $wp_cache_config_file);
 		}
-		if( isset( $_POST[ 'cache_compression' ] ) && $_POST[ 'cache_compression' ] != $cache_compression ) {
+		if( defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
+			$cache_compression_changed = false;
+			$cache_compression = 0;
+			wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = " . $cache_compression . ";", $wp_cache_config_file);
+		} elseif( isset( $_POST[ 'cache_compression' ] ) && $_POST[ 'cache_compression' ] != $cache_compression ) {
 			$cache_compression_changed = true;
 			$cache_compression = intval( $_POST[ 'cache_compression' ] );
 			wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = " . $cache_compression . ";", $wp_cache_config_file);
@@ -427,6 +431,7 @@ function wsc_mod_rewrite() {
 	global $super_cache_enabled, $cache_compression, $cache_compression_changed, $valid_nonce, $cache_path;
 	if( $super_cache_enabled == false )
 		return;
+	if( false == defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
 	?>
 	<fieldset class="options"> 
 	<h3>Super Cache Compression</h3>
@@ -444,6 +449,7 @@ function wsc_mod_rewrite() {
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	?></fieldset>
+	<?php } ?>
 
 	<a name="modrewrite"></a><fieldset class="options"> 
 	<h3>Mod Rewrite Rules</h3><?php
