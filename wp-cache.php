@@ -293,6 +293,9 @@ jQuery(document).ready(function(){
 			} else {
 				$wp_cache_mutex_disabled = 1;
 			}
+			if( false == defined( 'WPSC_DISABLE_LOCKING' ) ) {
+				$wp_cache_mutex_disabled = 1;
+			}
 			wp_cache_replace_line('^ *\$wp_cache_mutex_disabled', "\$wp_cache_mutex_disabled = " . $wp_cache_mutex_disabled . ";", $wp_cache_config_file);
 			if( isset( $_POST[ 'wp_cache_not_logged_in' ] ) ) {
 				if( $wp_cache_not_logged_in == 0 && function_exists( 'prune_super_cache' ) )
@@ -329,7 +332,9 @@ jQuery(document).ready(function(){
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> Proudly tell the world your server is Digg proof! (places a message in your blog's footer)</label></p>
 	<p><label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> Clear all cache files when a post or page is published. (This may significantly slow down saving of posts.)</label></p>
 	<p><label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> Cache rebuild. Serve a supercache file to anonymous users while a new file is being generated. Recommended for <em>very</em> busy websites with lots of comments. Makes "directly cached pages" and "Lockdown mode" obsolete.</label></p>
-	<p><label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( !$wp_cache_mutex_disabled ) echo "checked"; ?> value='0'> Coarse file locking. You probably don't need this but it may help if your server is underpowered. Warning! <em>May cause your server to lock up in very rare cases!</em></label></p>
+	<?php if( false == defined( 'WPSC_DISABLE_LOCKING' ) ) { ?>
+		<p><label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( !$wp_cache_mutex_disabled ) echo "checked"; ?> value='0'> Coarse file locking. You probably don't need this but it may help if your server is underpowered. Warning! <em>May cause your server to lock up in very rare cases!</em></label></p>
+	<?php } ?>
 	<p><label><input type='checkbox' name='wp_cache_mobile_enabled' <?php if( $wp_cache_mobile_enabled ) echo "checked"; ?> value='1'> Mobile device support. Plugin will enter "Half-On" mode.</label></p>
 	<p><strong>Note:</strong> If uninstalling this plugin, make sure the directory <em><?php echo WP_CONTENT_DIR; ?></em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)</p>
 	<?php
