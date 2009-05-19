@@ -13,11 +13,11 @@ This plugin generates static html files from your dynamic WordPress blog.  After
 
 = Recent Changes =
 
-1. Added check for DONOTCACHEPAGE constant to avoid caching a page.
-2. Clear the cache when profile page is updated.
-3. Don't cache post previews.
-4. Added backslashes to rejected URI regex list.
-5. Fixed problems with posts and comments not refreshing.
+* Added checks for "WPSC_DISABLE_COMPRESSION" and "WPSC_DISABLE_LOCKING" constants to disable compression and file locking. For hosting companies primarily.
+* Added check for DONOTCACHEPAGE constant to avoid caching a page.
+* Use PHP_DOCUMENT_ROOT when creating .htaccess if necessary.
+* Clear the cache when profile page is updated.
+* Don't cache post previews.
 
 The static html files will be served to the vast majority of your users, but because a user's details are displayed in the comment form after they leave a comment those requests are handled by PHP. Static files are served to:
 
