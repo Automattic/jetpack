@@ -502,7 +502,7 @@ function wsc_mod_rewrite() {
 	} elseif( !$wprules || $wprules == '' ) {
 		echo "<h4 style='color: #a00'>Mod Rewrite rules cannot be updated!</h4>";
 		echo "<p>You must have <strong>BEGIN</strong> and <strong>END</strong> markers in {$home_path}.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:
-		<blockquote><code><em># BEGIN WordPress</em> RewriteCond %{REQUEST_FILENAME} !-f RewriteCond %{REQUEST_FILENAME} !-d RewriteRule . /index.php [L] <em># END WordPress</em></code></blockquote>
+		<blockquote><pre><em># BEGIN WordPress</em>\n RewriteCond %{REQUEST_FILENAME} !-f\n RewriteCond %{REQUEST_FILENAME} !-d\n RewriteRule . /index.php [L]\n <em># END WordPress</em></pre></blockquote>
 		Refresh this page when you have updated your .htaccess file.";
 		echo "</fieldset></div>";
 		return;
