@@ -61,7 +61,9 @@ if ($cache_compression) {
 
 add_cacheaction( 'wp_cache_key', 'wp_cache_check_mobile' );
 
-$key = $blogcacheid . md5( do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $_SERVER['REQUEST_URI'] ) ).$wp_cache_gzip_encoding.wp_cache_get_cookies_values() ) );
+$wp_cache_request_uri = $_SERVER[ 'REQUEST_URI' ]; // Cache this in case any plugin modifies it.
+
+$key = $blogcacheid . md5( do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $wp_cache_request_uri ) ).$wp_cache_gzip_encoding.wp_cache_get_cookies_values() ) );
 
 if( false == @is_dir( $blog_cache_dir ) ) {
 	@mkdir( $cache_path . "blogs" );

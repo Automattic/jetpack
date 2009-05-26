@@ -2,7 +2,7 @@
 
 function wp_cache_phase2() {
 	global $cache_filename, $cache_acceptable_files, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_gmt_offset, $wp_cache_blog_charset, $wp_cache_last_gc;
-	global $cache_max_time, $wp_cache_not_logged_in;
+	global $cache_max_time, $wp_cache_not_logged_in, $wp_cache_request_uri;
 
 	$wp_cache_gmt_offset   = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. http://wordpress.org/support/topic/224349
 	$wp_cache_blog_charset = get_option( 'blog_charset' );
@@ -36,7 +36,7 @@ function wp_cache_phase2() {
 	if( $_SERVER["REQUEST_METHOD"] == 'POST' || get_option('gzipcompression')) 
 		return false;
 	$script = basename($_SERVER['PHP_SELF']);
-	if (!in_array($script, $cache_acceptable_files) && wp_cache_is_rejected($_SERVER["REQUEST_URI"]))
+	if (!in_array($script, $cache_acceptable_files) && wp_cache_is_rejected($wp_cache_request_uri))
 		return false;
 	if (wp_cache_user_agent_is_rejected()) return;
 	if($wp_cache_gzip_encoding)
@@ -183,8 +183,8 @@ function wp_cache_writers_exit() {
 }
 
 function get_current_url_supercache_dir() {
-	global $cached_direct_pages, $cache_path;
-	$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $_SERVER['REQUEST_URI'] ) ) ) );
+	global $cached_direct_pages, $cache_path, $wp_cache_request_uri;
+	$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $wp_cache_request_uri ) ) ) );
 	$uri = str_replace( '\\', '', $uri );
 	$dir = strtolower(preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"])) . $uri; // To avoid XSS attacks
 	$dir = apply_filters( 'supercache_dir', $dir );
@@ -210,7 +210,7 @@ function wp_cache_get_ob(&$buffer) {
 	global $new_cache, $wp_cache_meta, $file_expired, $blog_id, $cache_compression;
 	global $wp_cache_gzip_encoding, $super_cache_enabled, $cached_direct_pages;
 	global $wp_cache_404, $gzsize, $supercacheonly, $wp_cache_gzip_first, $wp_cache_gmt_offset;
-	global $blog_cache_dir;
+	global $blog_cache_dir, $wp_cache_request_uri;
 
 	$new_cache = true;
 	$wp_cache_meta = '';
@@ -489,9 +489,9 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 
 function wp_cache_shutdown_callback() {
 	global $cache_path, $cache_max_time, $file_expired, $file_prefix, $meta_file, $new_cache, $wp_cache_meta, $known_headers, $blog_id, $wp_cache_gzip_encoding, $gzsize, $cache_filename, $supercacheonly, $blog_cache_dir;
-	global $wp_cache_blog_charset;
+	global $wp_cache_blog_charset, $wp_cache_request_uri;
 
-	$wp_cache_meta[ 'uri' ] = $_SERVER["SERVER_NAME"].preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $_SERVER['REQUEST_URI']); // To avoid XSS attacks
+	$wp_cache_meta[ 'uri' ] = $_SERVER["SERVER_NAME"].preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $wp_cache_request_uri); // To avoid XSS attacks
 	$wp_cache_meta[ 'blog_id' ] = $blog_id;
 	$wp_cache_meta[ 'post' ] = wp_cache_post_id();
 
@@ -569,12 +569,12 @@ function wp_cache_no_postid($id) {
 }
 
 function wp_cache_get_postid_from_comment($comment_id) {
-	global $super_cache_enabled;
+	global $super_cache_enabled, $wp_cache_request_uri;
 	$comment = get_comment($comment_id, ARRAY_A);
 	$postid = $comment['comment_post_ID'];
 	// Do nothing if comment is not moderated
 	// http://ocaoimh.ie/2006/12/05/caching-wordpress-with-wp-cache-in-a-spam-filled-world
-	if( !preg_match('/wp-admin\//', $_SERVER['REQUEST_URI']) ) 
+	if( !preg_match('/wp-admin\//', $wp_cache_request_uri) ) 
 		if( $comment['comment_approved'] == 'spam' ) { // changed from 1 to "spam"
 			return $postid;
 		} elseif( $comment['comment_approved'] == '0' ) {
