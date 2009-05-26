@@ -528,7 +528,9 @@ function wp_cache_shutdown_callback() {
 					$value = "application/rss+xml";
 			}
 		} else { // not a feed
-			$value = 'text/html';
+			$value = get_option( 'html_type' );
+			if( $value == '' )
+				$value = 'text/html';
 		}
 		$value .=  "; charset=\"" . $wp_cache_blog_charset . "\"";
 
