@@ -127,7 +127,7 @@ function wp_cache_postload() {
 function wp_cache_get_cookies_values() {
 	$string = '';
 	while ($key = key($_COOKIE)) {
-		if (preg_match("/^wp-postpass|^wordpress|^comment_author_/", $key)) {
+		if ( preg_match( "/^wp-postpass|^wordpress|^comment_author_/", $key ) && $_COOKIE[ $key ] != 'WP Cookie check' ) {
 			$string .= $_COOKIE[$key] . ",";
 		}
 		next($_COOKIE);
