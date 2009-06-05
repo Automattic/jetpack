@@ -59,7 +59,7 @@ if ($cache_compression) {
 	$wp_cache_gzip_encoding = gzip_accepted();
 }
 
-add_cacheaction( 'wp_cache_key', 'wp_cache_check_mobile' );
+add_cacheaction( 'wp_cache_get_cookies_values', 'wp_cache_check_mobile' );
 
 $wp_cache_request_uri = $_SERVER[ 'REQUEST_URI' ]; // Cache this in case any plugin modifies it.
 
