@@ -158,7 +158,7 @@ function do_cacheaction( $action, $value = '' ) {
 
 // From http://wordpress.org/extend/plugins/wordpress-mobile-edition/ by Alex King
 function wp_cache_check_mobile( $cache_key ) {
-	global $wp_cache_mobile_enabled, $wp_cache_mobile_browser, $wp_cache_mobile_browsers;
+	global $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_mobile_whitelist;
 	if( !isset( $wp_cache_mobile_enabled ) || false == $wp_cache_mobile_enabled )
 		return $cache_key;
 
