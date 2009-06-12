@@ -118,7 +118,7 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 function wp_cache_postload() {
 	global $cache_enabled;
 
-	if ( !$cache_enabled || $_GET[ 'preview' ] ) 
+	if ( !$cache_enabled || isset( $_GET[ 'preview' ] ) )
 		return true;
 	require_once( WPCACHEHOME . 'wp-cache-phase2.php');
 	wp_cache_phase2();

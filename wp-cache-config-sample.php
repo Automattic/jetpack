@@ -5,7 +5,8 @@ WP-Cache Config Sample File
 See wp-cache.php for author details.
 */
 
-define( 'WPCACHEHOME', WP_CONTENT_DIR . '/plugins/wp-super-cache/' );
+if ( ! defined('WPCACHEHOME') )
+	define( 'WPCACHEHOME', WP_CONTENT_DIR . '/plugins/wp-super-cache/' );
 
 $cache_compression = 0; // Super cache compression
 $cache_enabled = false;

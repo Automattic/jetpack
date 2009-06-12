@@ -124,7 +124,7 @@ function wp_cache_manager() {
 	if( !isset( $cache_rebuild_files ) )
 		$cache_rebuild_files = 0;
 
-	$valid_nonce = wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache');
+	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
 	/* http://www.netlobo.com/div_hiding.html */
 	?>
 <script type='text/javascript'>
@@ -364,7 +364,7 @@ jQuery(document).ready(function(){
 				$missing_mods[ $req ] = $desc;
 			}
 		}
-		if( is_array( $missing_mods ) ) {
+		if( isset( $missing_mods) && is_array( $missing_mods ) ) {
 			echo "<h3>Missing Apache Modules</h3>";
 			echo "<p>The following Apache modules are missing. The plugin will work in half-on mode without them. In full Supercache mode, your visitors may see corrupted pages or out of date content however.</p>";
 			echo "<ul>";
@@ -462,7 +462,7 @@ function wsc_mod_rewrite() {
 
 	<a name="modrewrite"></a><fieldset class="options"> 
 	<h3>Mod Rewrite Rules</h3><?php
-	if ( $_SERVER[ "PHP_DOCUMENT_ROOT" ] ) {
+	if ( isset( $_SERVER[ "PHP_DOCUMENT_ROOT" ] ) ) {
 		$document_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
 		$apache_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
 	} else {
@@ -472,6 +472,7 @@ function wsc_mod_rewrite() {
 	$home_path = get_home_path();
 	$home_root = parse_url(get_bloginfo('url'));
 	$home_root = trailingslashit($home_root['path']);
+	$home_root = isset( $home_root['path'] ) ? trailingslashit( $home_root['path'] ) : '/';
 	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $document_root, '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
 	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
@@ -978,9 +979,9 @@ function wp_cache_replace_line($old, $new, $my_file) {
 	$fd = fopen($my_file, 'w');
 	$done = false;
 	foreach($lines as $line) {
-		if ( $done || !preg_match('/^define|\$|\?>/', $line))
+		if ( $done || !preg_match('/^(if\ \(\ \!\ )?define|\$|\?>/', $line) ) {
 			fputs($fd, $line);
-		else {
+		} else {
 			fputs($fd, "$new //Added by WP-Cache Manager\n");
 			fputs($fd, $line);
 			$done = true;
@@ -1050,9 +1051,9 @@ function wp_cache_verify_config_file() {
 		copy($wp_cache_config_file_sample, $wp_cache_config_file);
 		$dir = str_replace( str_replace( '\\', '/', WP_CONTENT_DIR ), '', str_replace( '\\', '/', dirname(__FILE__) ) );
 		if( is_file( dirname(__FILE__) . '/wp-cache-config-sample.php' ) ) {
-			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', WP_CONTENT_DIR . \"{$dir}/\" );", $wp_cache_config_file);
+			wp_cache_replace_line('define\(\ \'WPCACHEHOME', "\tdefine( 'WPCACHEHOME', WP_CONTENT_DIR . \"{$dir}/\" );", $wp_cache_config_file);
 		} elseif( is_file( dirname(__FILE__) . '/wp-super-cache/wp-cache-config-sample.php' ) ) {
-			wp_cache_replace_line('WPCACHEHOME', "define( 'WPCACHEHOME', WP_CONTENT_DIR . \"{$dir}/wp-super-cache/\" );", $wp_cache_config_file);
+			wp_cache_replace_line('define\(\ \'WPCACHEHOME', "\tdefine( 'WPCACHEHOME', WP_CONTENT_DIR . \"{$dir}/wp-super-cache/\" );", $wp_cache_config_file);
 		}
 		$new = true;
 	}
@@ -1319,7 +1320,10 @@ function wpsc_dirsize($directory, $sizes) {
 			} else {
 				$sizes[ 'cached' ]+=1;
 			}
-			$sizes[ 'fsize' ] += @filesize( $directory );
+			if ( ! isset( $sizes[ 'fsize' ] ) )
+				$sizes[ 'fsize' ] = @filesize( $directory );
+			else
+				$sizes[ 'fsize' ] += @filesize( $directory );
 		}
 	}
 	return $sizes;
