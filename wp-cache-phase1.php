@@ -80,9 +80,7 @@ $cache_file = realpath( $blog_cache_dir . $cache_filename );
 $meta_pathname = realpath( $blog_cache_dir . 'meta/' . $meta_file );
 
 $wp_start_time = microtime();
-if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
-	if ($mtime + $cache_max_time > time() ) {
-
+if( file_exists( $cache_file ) ) {
 		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
 			return true;
 		if( is_array( $meta ) == false ) {
@@ -111,8 +109,6 @@ if( file_exists( $cache_file ) && ($mtime = @filemtime($meta_pathname)) ) {
 			readfile( $cache_file );
 		}
 		die();
-	}
-	$file_expired = true; // To signal this file was expired
 }
 
 function wp_cache_postload() {
