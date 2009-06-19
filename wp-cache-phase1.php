@@ -101,8 +101,6 @@ if( file_exists( $cache_file ) ) {
 				header($header);
 		}
 		header( 'WP-Super-Cache: WP-Cache' );
-		if ( !($content_size = @filesize($cache_file)) > 0 || $mtime < @filemtime($cache_file))
-			return true;
 		if ( $meta[ 'dynamic' ] ) {
 			include($cache_file);
 		} else {
