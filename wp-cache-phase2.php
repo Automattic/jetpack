@@ -254,12 +254,12 @@ function wp_cache_get_ob(&$buffer) {
 			$supercacheonly = true;
 
 		if( !$supercacheonly ) {
-			if ( file_exists( $blog_cache_dir . $cache_filename ) && ( time() - filemtime( $blog_cache_dir . $cache_filename ) ) < 3 )
-				continue;
-			$fr = @fopen($tmp_wpcache_filename, 'w');
-			if (!$fr) {
-				$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $cache_path ) . $cache_filename . " -->\n";
-				return $buffer;
+			if ( !@file_exists( $blog_cache_dir . $cache_filename ) || ( @file_exists( $blog_cache_dir . $cache_filename ) && ( time() - @filemtime( $blog_cache_dir . $cache_filename ) ) > 5 ) ) {
+				$fr = @fopen($tmp_wpcache_filename, 'w');
+				if (!$fr) {
+					$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $cache_path ) . $cache_filename . " -->\n";
+					return $buffer;
+				}
 			}
 		}
 		if( $super_cache_enabled ) {
@@ -272,7 +272,7 @@ function wp_cache_get_ob(&$buffer) {
 
 				$cache_fname = "{$dir}index.html";
 				$tmp_cache_filename = $dir . uniqid( mt_rand(), true ) . '.tmp';
-				if ( !@file_exists( $cache_fname ) || ( @file_exists( $cache_fname ) && ( time() - @filemtime( $blog_cache_dir . $cache_filename ) ) > 3 ) ) {
+				if ( !@file_exists( $cache_fname ) || ( @file_exists( $cache_fname ) && ( time() - @filemtime( $blog_cache_dir . $cache_filename ) ) > 5 ) ) {
 					$fr2 = @fopen( $tmp_cache_filename, 'w' );
 					if (!$fr2) {
 						$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $tmp_cache_filename ) . " -->\n";
