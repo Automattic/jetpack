@@ -11,14 +11,6 @@ A very fast caching engine for WordPress that produces static html files.
 == Description ==
 This plugin generates static html files from your dynamic WordPress blog.  After a html file is generated your webserver will serve that file instead of processing the comparatively heavier and more expensive WordPress PHP scripts.
 
-= Recent Changes =
-
-* If enabled, mobile support now serves php cached files to mobile clients and static cached files to everyone else.
-* Added checks for "WPSC_DISABLE_COMPRESSION" and "WPSC_DISABLE_LOCKING" constants to disable compression and file locking. For hosting companies primarily.
-* Added check for DONOTCACHEPAGE constant to avoid caching a page.
-* Use PHP_DOCUMENT_ROOT when creating .htaccess if necessary.
-* Clear the cache when profile page is updated.
-
 The static html files will be served to the vast majority of your users, but because a user's details are displayed in the comment form after they leave a comment those requests are handled by PHP. Static files are served to:
 
 1. Users who are not logged in.
@@ -33,6 +25,24 @@ Super Cached html files will be served more quickly than PHP generated cached fi
 See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further information.
 
 The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is a good place to start if you want to know what has changed since you last downloaded the plugin.
+
+== Changelog ==
+
+= 0.9.5 =
+* Show next and last GC times in minutes, not local time.
+* Don't serve wp_cache cache files to rejected user agents. Supercache files are still served to them.
+* If enabled, mobile support now serves php cached files to mobile clients and static cached files to everyone else.
+* Added checks for "WPSC_DISABLE_COMPRESSION" and "WPSC_DISABLE_LOCKING" constants to disable compression and file locking. For hosting companies primarily.
+* Added check for DONOTCACHEPAGE constant to avoid caching a page.
+* Use PHP_DOCUMENT_ROOT when creating .htaccess if necessary.
+
+= 0.9.4.3 =
+1. Added "Don't cache for logged in users" option.
+2. Display file size stats on admin page.
+3. Clear the cache when profile page is updated.
+4. Don't cache post previews.
+5. Added backslashes to rejected URI regex list.
+6. Fixed problems with posts and comments not refreshing.
 
 == Installation ==
 1. You should have the Apache mod mime and mod rewrite modules installed and WordPress fancy permalinks enabled. PHP safe mode should be disabled. If any of those are missing or off you can still use the slower WP-Cache part of the plugin.
