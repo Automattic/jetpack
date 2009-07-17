@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 2.8
-Stable tag: 0.9.4.3
+Tested up to: 2.8.1
+Stable tag: 0.9.5
 Requires at least: 2.6
 Donate link: http://ocaoimh.ie/wordpress-plugins/gifts-and-donations/
 
