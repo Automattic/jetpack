@@ -833,7 +833,7 @@ function wp_cache_edit_rejected_ua() {
 	echo '<a name="user-agents"></a><fieldset class="options"><h3>Rejected User Agents</h3>';
 	echo "<p>Strings in the HTTP 'User Agent' header that prevent WP-Cache from 
 		caching bot, spiders, and crawlers' requests.
-		Note that cached files are still sent to these request if they already exists.</p>\n";
+		Note that super cached files are still sent to these agents if they already exists.</p>\n";
 	echo '<form name="wp_edit_rejected_user_agent" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	echo '<textarea name="wp_rejected_user_agent" cols="40" rows="4" style="width: 50%; font-size: 12px;" class="code">';
 	foreach ($cache_rejected_user_agent as $ua) {
@@ -1473,7 +1473,7 @@ function wp_cache_plugin_actions( $links, $file ) {
 add_filter( 'plugin_action_links', 'wp_cache_plugin_actions', 10, 2 );
 
 function wpsc_author_url( $url ) {
-	return clearn_url( $url );
+	return clean_url( $url );
 }
 add_filter( 'get_comment_author_url' , 'wpsc_author_url' );
 

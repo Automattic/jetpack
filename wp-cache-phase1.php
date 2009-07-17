@@ -80,7 +80,7 @@ $cache_file = realpath( $blog_cache_dir . $cache_filename );
 $meta_pathname = realpath( $blog_cache_dir . 'meta/' . $meta_file );
 
 $wp_start_time = microtime();
-if( file_exists( $cache_file ) ) {
+if( file_exists( $cache_file ) && !wp_cache_user_agent_is_rejected() ) {
 		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
 			return true;
 		if( is_array( $meta ) == false ) {
@@ -181,6 +181,19 @@ function wp_cache_debug( $message ) {
 		return;
 	$message .= "\n\nDisable these emails by commenting out or deleting the line containing\n\$wp_cache_debug in wp-content/wp-cache-config.php on your server.\n";
 	mail( $wp_cache_debug, '[' . addslashes( $_SERVER[ 'HTTP_HOST' ] ) . "] WP Super Cache Debug", $message );
+}
+
+function wp_cache_user_agent_is_rejected() {
+	global $cache_rejected_user_agent;
+
+	if (!function_exists('apache_request_headers')) return false;
+	$headers = apache_request_headers();
+	if (!isset($headers["User-Agent"])) return false;
+	foreach ($cache_rejected_user_agent as $expr) {
+		if (strlen($expr) > 0 && stristr($headers["User-Agent"], $expr))
+			return true;
+	}
+	return false;
 }
 
 ?>

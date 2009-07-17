@@ -119,20 +119,6 @@ function wp_cache_is_rejected($uri) {
 	return false;
 }
 
-function wp_cache_user_agent_is_rejected() {
-	global $cache_rejected_user_agent;
-
-	if (!function_exists('apache_request_headers')) return false;
-	$headers = apache_request_headers();
-	if (!isset($headers["User-Agent"])) return false;
-	foreach ($cache_rejected_user_agent as $expr) {
-		if (strlen($expr) > 0 && stristr($headers["User-Agent"], $expr))
-			return true;
-	}
-	return false;
-}
-
-
 function wp_cache_mutex_init() {
 	global $use_flock, $mutex, $cache_path, $mutex_filename, $sem_id, $blog_cache_dir;
 
