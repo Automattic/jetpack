@@ -380,7 +380,7 @@ jQuery(document).ready(function(){
 	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
 	<h3 align='center'>Make WordPress Faster</h3>
 	<?php if( $wp_cache_hide_donation != 1 ) { ?>
-	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=wpsc">WP Super Cache</a> really makes your blog go faster. Make it go faster<sup>*</sup> by buying me an <a href="https://www.amazon.com/gp/gc/order-email/ref=g_gc-dp_lp_email">Amazon gift card</a>! Make it out to "donncha@ocaoimh.ie". A $10 card would be nice but it's up to you how much you think this plugin is worth to you.</p>
+	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=wpsc">WP Super Cache</a> really makes your blog go faster. Make it go faster<sup>*</sup> by buying me an <a href="https://www.amazon.co.uk/gp/gc/order-email/ref=g_gc-dp_lp_email">Amazon gift card</a>! Make it out to "donncha@ocaoimh.ie". A Â10 card would be nice but it's up to you how much you think this plugin is worth to you.</p>
 	<p>If Amazon isn't your thing, there's also PayPal. Click the "Donate" button below or take a quick peek at my <a href="http://ocaoimh.ie/wp-content/plugins/feed-statistics.php?url=aHR0cDovL3d3dy5hbWF6b24uY28udWsvZ3AvcmVnaXN0cnkvMzVaQ0dJVTJBSDROQg==">wishlist</a>.</p>
 	<p>Thanks in advance!<br />Donncha<br />
 	<small>* Ok, it won't go any faster but you'll make this plugin author very happy!</small></p>
