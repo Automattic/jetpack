@@ -1271,8 +1271,9 @@ function wp_cache_files() {
 	$last_gc = get_option( "wpsupercache_gc_time" );
 	if( $last_gc ) {
 		$next_gc = $cache_max_time < 1800 ? $cache_max_time : 600;
-		echo "<p><strong>Garbage Collection</strong><br />Last: " . date( "Y-m-d H:i:s", ( $last_gc + ( get_option( 'gmt_offset' ) * 3600 ) ) ) . "<br />";
-		echo "Next: " . date( "Y-m-d H:i:s", ( $next_gc + $last_gc + ( get_option( 'gmt_offset' ) * 3600 ) ) ) . "</p>";
+		$next_gc_mins = ( time() - $last_gc );
+		echo "<p><strong>Garbage Collection</strong><br />Last GC was <strong>" . date( 'i:s', $next_gc_mins ) . "</strong> minutes ago<br />";
+		echo "Next GC in <strong>" . date( 'i:s', $next_gc - $next_gc_mins ) . "</strong> minutes</p>";
 	}
 
 	echo "<p>Expired files are files older than $cache_max_time seconds. They are still used by the plugin and are deleted periodically.</p>";
@@ -1470,6 +1471,11 @@ function wp_cache_plugin_actions( $links, $file ) {
 	return $links;
 }
 add_filter( 'plugin_action_links', 'wp_cache_plugin_actions', 10, 2 );
+
+function wpsc_author_url( $url ) {
+	return clearn_url( $url );
+}
+add_filter( 'get_comment_author_url' , 'wpsc_author_url' );
 
 function wp_cache_admin_notice() {
 	global $cache_enabled;
