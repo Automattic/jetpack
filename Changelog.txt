@@ -1,3 +1,50 @@
+2009-07-17 15:30  donncha
+
+	* readme.txt: Added changelog to readme.txt
+
+2009-07-17 15:22  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 0.9.5
+	  Bump tested version to 2.8.1
+
+2009-07-17 15:19  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php, wp-cache.php: Don't
+	  serve wp_cached cache files to rejected USER AGENTs
+
+2009-07-17 15:08  donncha
+
+	* wp-cache.php: Show next and last GC times in minutes, not local
+	  times
+
+2009-07-02 17:21  donncha
+
+	* wp-cache-phase2.php: Rearrange checks for cache files.
+
+2009-06-25 21:01  donncha
+
+	* wp-cache-phase2.php: Hide filemtime warnings
+
+2009-06-19 15:07  donncha
+
+	* wp-cache-phase1.php: Don't check the filesize or mtime
+
+2009-06-19 13:02  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Don't check file age
+	  when serving cached content - it will be deleted by ordinary
+	  updates or by garbage collection
+	  Check file age of each cache file only when regenerating (and
+	  only to check if file was recently recreated)
+
+2009-06-19 09:03  donncha
+
+	* wp-cache.php: Updated blurb
+
+2009-06-19 09:01  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-06-18 12:34  donncha
 
 	* wp-cache-phase2.php: Typos in closing and unlink commands
