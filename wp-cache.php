@@ -1472,11 +1472,6 @@ function wp_cache_plugin_actions( $links, $file ) {
 }
 add_filter( 'plugin_action_links', 'wp_cache_plugin_actions', 10, 2 );
 
-function wpsc_author_url( $url ) {
-	return clean_url( $url );
-}
-add_filter( 'get_comment_author_url' , 'wpsc_author_url' );
-
 function wp_cache_admin_notice() {
 	global $cache_enabled;
 	if( substr( $_SERVER["PHP_SELF"], -11 ) == 'plugins.php' && !$cache_enabled && function_exists( "admin_url" ) )
