@@ -81,32 +81,32 @@ $meta_pathname = realpath( $blog_cache_dir . 'meta/' . $meta_file );
 
 $wp_start_time = microtime();
 if( file_exists( $cache_file ) && !wp_cache_user_agent_is_rejected() ) {
-		if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
-			return true;
-		if( is_array( $meta ) == false ) {
-			@unlink( $meta_pathname );
-			@unlink( $cache_file );
-			return true;
-		}
-		$cache_file = do_cacheaction( 'wp_cache_served_cache_file', $cache_file );
-		// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
-		if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta[ 'headers' ] ) ) {
-			$meta[ 'headers' ][ 'Content-Encoding' ] =  'Content-Encoding: ' . $wp_cache_gzip_encoding;
-			$meta[ 'headers' ][ 'Vary' ] = 'Vary: Accept-Encoding, Cookie';
-			wp_cache_debug( "Had to add gzip headers to the page {$_SERVER[ 'REQUEST_URI' ]}." );
-		}
-		foreach ($meta[ 'headers' ] as $t => $header) {
-			// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
-			if( strpos( $header, 'Last-Modified:' ) === false ) 
-				header($header);
-		}
-		header( 'WP-Super-Cache: WP-Cache' );
-		if ( $meta[ 'dynamic' ] ) {
-			include($cache_file);
-		} else {
-			readfile( $cache_file );
-		}
-		die();
+	if (! ($meta = unserialize(@file_get_contents($meta_pathname))) ) 
+		return true;
+	if( is_array( $meta ) == false ) {
+		@unlink( $meta_pathname );
+		@unlink( $cache_file );
+		return true;
+	}
+	$cache_file = do_cacheaction( 'wp_cache_served_cache_file', $cache_file );
+	// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
+	if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta[ 'headers' ] ) ) {
+		$meta[ 'headers' ][ 'Content-Encoding' ] =  'Content-Encoding: ' . $wp_cache_gzip_encoding;
+		$meta[ 'headers' ][ 'Vary' ] = 'Vary: Accept-Encoding, Cookie';
+		wp_cache_debug( "Had to add gzip headers to the page {$_SERVER[ 'REQUEST_URI' ]}." );
+	}
+	foreach ($meta[ 'headers' ] as $t => $header) {
+		// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
+		if( strpos( $header, 'Last-Modified:' ) === false ) 
+			header($header);
+	}
+	header( 'WP-Super-Cache: WP-Cache' );
+	if ( $meta[ 'dynamic' ] ) {
+		include($cache_file);
+	} else {
+		readfile( $cache_file );
+	}
+	die();
 }
 
 function wp_cache_postload() {
