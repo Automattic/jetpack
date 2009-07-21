@@ -258,7 +258,7 @@ function wp_cache_get_ob(&$buffer) {
 
 				$cache_fname = "{$dir}index.html";
 				$tmp_cache_filename = $dir . uniqid( mt_rand(), true ) . '.tmp';
-				if ( !@file_exists( $cache_fname ) || ( @file_exists( $cache_fname ) && ( time() - @filemtime( $blog_cache_dir . $cache_filename ) ) > 5 ) ) {
+				if ( !@file_exists( $cache_fname ) || ( @file_exists( $cache_fname ) && ( time() - @filemtime( $cache_fname ) ) > 5 ) ) {
 					$fr2 = @fopen( $tmp_cache_filename, 'w' );
 					if (!$fr2) {
 						$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $tmp_cache_filename ) . " -->\n";
