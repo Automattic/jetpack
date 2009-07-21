@@ -94,6 +94,21 @@ function wpcache_logged_in_message() {
 	echo '<!-- WP Super Cache did not cache this page because you are logged in and "Don\'t cache pages for logged in users" is enabled. -->';
 }
 
+if ( !function_exists( 'wp_cache_user_agent_is_rejected' ) ) {
+	function wp_cache_user_agent_is_rejected() {
+		global $cache_rejected_user_agent;
+
+		if (!function_exists('apache_request_headers')) return false;
+		$headers = apache_request_headers();
+		if (!isset($headers["User-Agent"])) return false;
+		foreach ($cache_rejected_user_agent as $expr) {
+			if (strlen($expr) > 0 && stristr($headers["User-Agent"], $expr))
+				return true;
+		}
+		return false;
+	}
+}
+
 function wp_cache_get_response_headers() {
 	if(function_exists('apache_response_headers')) {
 		flush();
