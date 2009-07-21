@@ -30,8 +30,10 @@ function wp_cache_phase2() {
 		do_cacheaction( 'add_cacheaction' );
 	}
 
-	if( $wp_cache_not_logged_in && is_user_logged_in() )
+	if( $wp_cache_not_logged_in && is_user_logged_in() ) {
+		register_shutdown_function( 'wpcache_logged_in_message' );
 		return false;
+	}
 
 	if( $_SERVER["REQUEST_METHOD"] == 'POST' || get_option('gzipcompression')) 
 		return false;
@@ -86,6 +88,10 @@ function wp_cache_phase2() {
 			$time_to_gc_cache = 1; // tell the "shutdown gc" to run!
 		}
 	}
+}
+
+function wpcache_logged_in_message() {
+	echo '<!-- WP Super Cache did not cache this page because you are logged in and "Don\'t cache pages for logged in users" is enabled. -->';
 }
 
 function wp_cache_get_response_headers() {
