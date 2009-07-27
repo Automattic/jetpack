@@ -8,7 +8,10 @@
 include( '../../../wp-load.php' );
 
 if ( !is_user_logged_in() )
-	wp_die( 'You must be logged in to run this script!' );
+	wp_die( 'You must be logged in to run this script.' );
+
+if ( !current_user_can( 'install_plugins' ) )
+	wp_die( 'You do not have permission to run this script.' );
 
 if ( defined( 'UNINSTALL_WPSUPERCACHE' ) )
 	wp_die( 'UNINSTALL_WPSUPERCACHE set somewhere else! It must only be set in uninstall.php' );
