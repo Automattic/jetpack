@@ -28,6 +28,14 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == Changelog ==
 
+= 0.9.6 =
+* Add uninstall.php uninstall script.
+* Updated cache/.htaccess rules (option to upgrade that)
+* Added FAQ about category and static homepage problem.
+* Add wp_cache_user_agent_is_rejected() back to wp-cache-phase2.php 
+* Show message for logged in users when caching disable for them.
+* Check filemtime on correct supercache file
+
 = 0.9.5 =
 * Show next and last GC times in minutes, not local time.
 * Don't serve wp_cache cache files to rejected user agents. Supercache files are still served to them.
