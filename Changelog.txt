@@ -1,3 +1,87 @@
+2009-07-27 11:46  donncha
+
+	* wp-cache.php: I prefer pretty links
+
+2009-07-27 11:43  donncha
+
+	* readme.txt: Added 0.9.6 changelog
+
+2009-07-27 11:38  donncha
+
+	* wp-cache-phase2.php: Only show "not cached" message to logged in
+	  users if not a feed.
+
+2009-07-27 11:34  donncha
+
+	* wp-cache.php: Add link to uninstall script to admin page
+
+2009-07-27 11:33  donncha
+
+	* readme.txt: Added filesmatch rules to docs
+
+2009-07-27 11:26  donncha
+
+	* readme.txt: Added docs for using uninstall script
+
+2009-07-27 11:25  donncha
+
+	* uninstall.php: Check if user can install plugins in uninstall
+	  script
+
+2009-07-27 11:17  donncha
+
+	* uninstall.php: Added uninstall script
+
+2009-07-27 10:42  donncha
+
+	* wp-cache-phase2.php: Removed check of filemtime that's not needed
+	  any more.
+
+2009-07-27 10:41  donncha
+
+	* wp-cache.php: Added "ForceType" in cache .htaccess to force
+	  supercache html.gz files to be served as html files.
+
+2009-07-27 10:39  donncha
+
+	* readme.txt: Added category page and static page problem to FAQ
+
+2009-07-21 11:57  donncha
+
+	* wp-cache-phase1.php: Fix indentation
+
+2009-07-21 11:55  donncha
+
+	* wp-cache-phase2.php: Add back in
+	  wp_cache_user_agent_is_rejected() if it doesn't exist (shouldn't
+	  happen but it does)
+
+2009-07-21 10:58  donncha
+
+	* wp-cache-phase2.php: Added message to show to logged in users
+	  when caching disabled for them.
+
+2009-07-21 10:34  donncha
+
+	* wp-cache-phase2.php: Check the filemtime on the right file, props
+	  Simone Marx
+
+2009-07-20 16:37  donncha
+
+	* wp-cache.php: Remove "get_comment_author_url" filter
+
+2009-07-17 15:42  donncha
+
+	* wp-cache.php: Silly typo
+
+2009-07-17 15:41  donncha
+
+	* wp-cache.php: Use Amazon UK link rather than US one
+
+2009-07-17 15:31  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-07-17 15:30  donncha
 
 	* readme.txt: Added changelog to readme.txt
