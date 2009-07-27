@@ -105,6 +105,18 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == How to uninstall WP Super Cache ==
 
+Edit the file uninstall.php in your plugins/wp-super-cache/ directory and set
+UNINSTALL_WPSUPERCACHE to a non blank value.
+
+	`define( 'UNINSTALL_WPSUPERCACHE', '1' );`
+
+Open your browser and load wp-content/plugins/wp-super-cache/uninstall.php directly.
+You must be logged in, and you must confirm the action. If you do not delete the plugin
+immediately, after the script runs, please comment out the define() above to stop 
+someone else running it.
+
+To manually uninstall:
+
 1. Remove the WP_CACHE define from wp-config.php. It looks like `define( 'WP_CACHE', true );`
 2. Clear the cache in the backend page and then deactivate the plugin on the plugins page.
 3. Remove the Super Cache mod_rewrite rules from your .htaccess file.
