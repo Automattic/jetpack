@@ -30,7 +30,7 @@ function wp_cache_phase2() {
 		do_cacheaction( 'add_cacheaction' );
 	}
 
-	if( $wp_cache_not_logged_in && is_user_logged_in() ) {
+	if( $wp_cache_not_logged_in && is_user_logged_in() && !is_feed() ) {
 		register_shutdown_function( 'wpcache_logged_in_message' );
 		return false;
 	}
