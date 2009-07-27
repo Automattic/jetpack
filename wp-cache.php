@@ -396,7 +396,7 @@ jQuery(document).ready(function(){
 	</div>
 	<?php } else { ?>
 	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=supercache">WP Super Cache</a> is maintained and developed by <a href="http://ocaoimh.ie/?r=supercache">Donncha O Caoimh</a> with contributions from many others.</p>
-	<p>He blogs at <a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a>, posts photos at <a href="http://inphotos.org/?r=supercache">In Photos.org</a> and <a href="http://ocaoimh.ie/wp-content/plugins/feed-statistics.php?url=aHR0cDovL3d3dy5hbWF6b24uY28udWsvZ3AvcmVnaXN0cnkvMzVaQ0dJVTJBSDROQg==">wishes</a> he had more time to read and relax.</p><p>Please say hi to him on <a href="http://twitter.com/donncha/">Twitter</a> too!</p>
+	<p>He blogs at <a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a>, posts photos at <a href="http://inphotos.org/?r=supercache">In Photos.org</a> and <a href="http://ocaoimh.ie/gad">wishes</a> he had more time to read and relax.</p><p>Please say hi to him on <a href="http://twitter.com/donncha/">Twitter</a> too!</p>
 	<?php } ?>
 	</div>
 
