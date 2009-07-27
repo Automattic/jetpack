@@ -350,6 +350,7 @@ jQuery(document).ready(function(){
 	<div style='border: 1px solid #333; width:400px; overflow: scroll'><pre>RewriteCond %{HTTP_user_agent} !^.*(Android|2.0\ MMP|240x320|AvantGo|BlackBerry|Blazer|Cellphone|Danger|DoCoMo|Elaine/3.0|EudoraWeb|hiptop|IEMobile|iPhone|iPod|KYOCERA/WX310K|LG/U990|MIDP-2.0|MMEF20|MOT-V|NetFront|Newt|Nintendo\ Wii|Nitro|Nokia|Opera\ Mini|Palm|Playstation\ Portable|portalmmm|Proxinet|ProxiNet|SHARP-TQ-GX10|Small|SonyEricsson|Symbian\ OS|SymbianOS|TS21i-10|UP.Browser|UP.Link|Windows\ CE|WinWAP).*</pre></div></li></ol></blockquote>
 	<?php }  ?>
 	<p><strong>Note:</strong> If uninstalling this plugin, make sure the directory <em><?php echo WP_CONTENT_DIR; ?></em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)</p>
+	<p>Uninstall using the <a href="<?php echo WP_PLUGIN_URL; ?>/wp-super-cache/uninstall.php">uninstall script</a> to remove files and directories created by the plugin. (Please see <a href="<?php echo WP_PLUGIN_URL; ?>/wp-super-cache/readme.txt">readme.txt</a> for instructions on uninstalling this script.)</p>
 	<?php
 	echo "<div class='submit'><input type='submit' " . SUBMITDISABLED . " value='Update Status &raquo;' /></div>";
 	wp_nonce_field('wp-cache');
