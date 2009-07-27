@@ -1,3 +1,11 @@
+2009-07-27 11:50  donncha
+
+	* readme.txt, wp-cache.php: Bumped version to 0.9.6
+
+2009-07-27 11:49  donncha
+
+	* Changelog.txt: Updated changelog.txt
+
 2009-07-27 11:46  donncha
 
 	* wp-cache.php: I prefer pretty links
