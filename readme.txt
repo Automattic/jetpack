@@ -148,6 +148,15 @@ Those bots usually only visit each page once and if the page is not popular ther
 
 Like the previous question, there's no point caching pages that won't be visited. The large number of cache files will slow down the garbage collection system as it attempts to check each file. It also causes problems for hosting companies. In the event of a disk failure on your server it may take much longer to check the files. Remember how long a scandisk or a fsck took on a large drive?
 
+= A category page is showing instead of my homepage =
+
+A tiny proportion of websites will have problems with the following configuration:
+
+1. Uses a static page for the front page.
+2. Uses /%category%/%postname%/ permalink structure.
+
+Sometimes a category page is cached as the homepage of the site instead of the static page. I can't [replicate the problem](http://wordpress.org/support/topic/237415/page/2?replies=38) but a simple solution is to switch the plugin to half-on mode. For normal traffic you will see no difference in the speed of your site.
+
 = Troubleshooting =
 
 If things don't work when you installed the plugin here are a few things to check:
