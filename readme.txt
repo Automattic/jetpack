@@ -81,6 +81,10 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 	`# BEGIN supercache`
 	`<IfModule mod_mime.c>`
+	`  <FilesMatch "\.html\.gz$">`
+	`    ForceType text/html`
+	`    FileETag None`
+	`  </FilesMatch>`
 	`  AddEncoding gzip .gz`
 	`  AddType text/html .gz`
 	`</IfModule>`
