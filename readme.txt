@@ -28,6 +28,11 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == Changelog ==
 
+= 0.9.6.1 =
+* Move "not logged in" message init below check for POST.
+* Add is_admin() check so plugin definitely can't cache the backend.
+* Add "do not cache" page type to admin page.
+
 = 0.9.6 =
 * Add uninstall.php uninstall script.
 * Updated cache/.htaccess rules (option to upgrade that)
