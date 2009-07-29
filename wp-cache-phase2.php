@@ -205,8 +205,25 @@ function get_current_url_supercache_dir() {
 }
 
 function wp_cache_ob_callback( $buffer ) {
+	global $wp_cache_pages;
 	if( defined( 'DONOTCACHEPAGE' ) )
 		return $buffer;
+
+	if ( isset( $wp_cache_pages[ 'single' ] ) && $wp_cache_pages[ 'single' ] == 1 && is_single() ) {
+		return $buffer;
+	} elseif ( isset( $wp_cache_pages[ 'pages' ] ) && $wp_cache_pages[ 'pages' ] == 1 && is_page() ) {
+		return $buffer;
+	} elseif ( isset( $wp_cache_pages[ 'archives' ] ) && $wp_cache_pages[ 'archives' ] == 1 && is_archive() ) {
+		return $buffer;
+	} elseif ( isset( $wp_cache_pages[ 'tag' ] ) && $wp_cache_pages[ 'tag' ] == 1 && is_tag() ) {
+		return $buffer;
+	} elseif ( isset( $wp_cache_pages[ 'category' ] ) && $wp_cache_pages[ 'category' ] == 1 && is_category() ) {
+		return $buffer;
+	} elseif ( isset( $wp_cache_pages[ 'frontpage' ] ) && $wp_cache_pages[ 'frontpage' ] == 1 && is_front_page() ) {
+		return $buffer;
+	} elseif ( isset( $wp_cache_pages[ 'home' ] ) && $wp_cache_pages[ 'home' ] == 1 && is_home() ) {
+		return $buffer;
+	}
 	$buffer = &wp_cache_get_ob( $buffer );
 	wp_cache_shutdown_callback();
 	return $buffer;

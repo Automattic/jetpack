@@ -852,10 +852,7 @@ function wp_cache_edit_rejected_ua() {
 function wp_cache_edit_rejected_pages() {
 	global $wp_cache_config_file, $valid_nonce, $wp_cache_pages;
 
-	if ( !isset( $_POST[ 'wp_cache_pages' ] ) )
-		$_POST[ 'wp_cache_pages' ] = array();
-
-	if ( $valid_nonce ) {
+	if ( isset( $_POST[ 'wp_edit_rejected_pages' ] ) && $valid_nonce ) {
 		$pages = array( 'single', 'pages', 'archives', 'tag', 'frontpage', 'home', 'category' );
 		foreach( $pages as $page ) {
 			if ( isset( $_POST[ 'wp_cache_pages' ][ $page ] ) ) {
@@ -870,6 +867,7 @@ function wp_cache_edit_rejected_pages() {
 
 	echo '<p>Do not cache the following page types. See the <a href="http://codex.wordpress.org/Conditional_Tags">Conditional Tags</a> documentation for a complete discussion on each type.</p>';
 	echo '<form name="wp_edit_rejected_pages" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
+	echo '<input type="hidden" name="wp_edit_rejected_pages" value="1" />';
 	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[single]" ' . checked( 1, $wp_cache_pages[ 'single' ], false ) . ' /> Single Posts (is_single)</label><br />';
 	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[pages]" ' . checked( 1, $wp_cache_pages[ 'pages' ], false ) . ' /> Pages (is_page)</label><br />';
 	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[frontpage]" ' . checked( 1, $wp_cache_pages[ 'frontpage' ], false ) . ' /> Front Page (is_front_page)</label><br />';
