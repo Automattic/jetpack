@@ -1,3 +1,30 @@
+2009-07-29 17:26  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 0.9.6.1
+
+2009-07-29 17:13  donncha
+
+	* readme.txt: Added changelog details for 0.9.6.1
+
+2009-07-29 11:43  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Apply "no caching" rules
+	  Record options properly
+
+2009-07-29 11:29  donncha
+
+	* wp-cache.php: Add page types to not cache to admin page
+
+2009-07-29 09:36  donncha
+
+	* wp-cache-phase2.php: Move logged in message below check for POST
+	  Add check for is_admin() too
+	  (http://wordpress.org/support/topic/294687)
+
+2009-07-27 11:51  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-07-27 11:50  donncha
 
 	* readme.txt, wp-cache.php: Bumped version to 0.9.6
