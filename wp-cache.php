@@ -410,6 +410,8 @@ jQuery(document).ready(function(){
 	wp_cache_edit_max_time();
 
 	echo '<a name="files"></a><fieldset class="options"><h3>Accepted Filenames &amp; Rejected URIs</h3>';
+	wp_cache_edit_rejected_pages();
+	echo "\n";
 	wp_cache_edit_rejected();
 	echo "\n";
 	wp_cache_edit_accepted();
@@ -847,6 +849,40 @@ function wp_cache_edit_rejected_ua() {
 	echo "</fieldset>\n";
 }
 
+function wp_cache_edit_rejected_pages() {
+	global $wp_cache_config_file, $valid_nonce, $wp_cache_pages;
+
+	if ( !isset( $_POST[ 'wp_cache_pages' ] ) )
+		$_POST[ 'wp_cache_pages' ] = array();
+
+	if ( $valid_nonce ) {
+		$pages = array( 'single', 'pages', 'archives', 'tag', 'frontpage', 'home', 'category' );
+		foreach( $pages as $page ) {
+			if ( isset( $_POST[ 'wp_cache_pages' ][ $page ] ) ) {
+				$value = 1;
+			} else {
+				$value = 0;
+			}
+			wp_cache_replace_line('^ *\$wp_cache_pages\[ "' . $page . '" \]', "\$wp_cache_pages[ \"{$page}\" ] = $value;", $wp_cache_config_file);
+			$wp_cache_pages[ $page ] = $value;
+		}
+	}
+
+	echo '<p>Do not cache the following page types. See the <a href="http://codex.wordpress.org/Conditional_Tags">Conditional Tags</a> documentation for a complete discussion on each type.</p>';
+	echo '<form name="wp_edit_rejected_pages" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
+	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[single]" ' . checked( 1, $wp_cache_pages[ 'single' ], false ) . ' /> Single Posts (is_single)</label><br />';
+	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[pages]" ' . checked( 1, $wp_cache_pages[ 'pages' ], false ) . ' /> Pages (is_page)</label><br />';
+	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[frontpage]" ' . checked( 1, $wp_cache_pages[ 'frontpage' ], false ) . ' /> Front Page (is_front_page)</label><br />';
+	echo '&nbsp;&nbsp;<label><input type="checkbox" value="1" name="wp_cache_pages[home]" ' . checked( 1, $wp_cache_pages[ 'home' ], false ) . ' /> Home (is_home)</label><br />';
+	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[archives]" ' . checked( 1, $wp_cache_pages[ 'archives' ], false ) . ' /> Archives (is_archive)</label><br />';
+	echo '&nbsp;&nbsp;<label><input type="checkbox" value="1" name="wp_cache_pages[tag]" ' . checked( 1, $wp_cache_pages[ 'tag' ], false ) . ' /> Tags (is_tag)</label><br />';
+	echo '&nbsp;&nbsp;<label><input type="checkbox" value="1" name="wp_cache_pages[category]" ' . checked( 1, $wp_cache_pages[ 'category' ], false ) . ' /> Category (is_category)</label><br />';
+
+	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save &raquo;" /></div>';
+	wp_nonce_field('wp-cache');
+	echo "</form>\n";
+
+}
 
 function wp_cache_edit_rejected() {
 	global $cache_acceptable_files, $cache_rejected_uri, $wp_cache_config_file, $valid_nonce;
