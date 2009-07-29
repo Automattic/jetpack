@@ -30,13 +30,14 @@ function wp_cache_phase2() {
 		do_cacheaction( 'add_cacheaction' );
 	}
 
-	if( $wp_cache_not_logged_in && is_user_logged_in() && !is_feed() ) {
+	if( $_SERVER["REQUEST_METHOD"] == 'POST' || !empty( $_POST ) || get_option('gzipcompression')) 
+		return false;
+
+	if ( $wp_cache_not_logged_in && is_user_logged_in() && !is_feed() && !is_admin() ) {
 		register_shutdown_function( 'wpcache_logged_in_message' );
 		return false;
 	}
 
-	if( $_SERVER["REQUEST_METHOD"] == 'POST' || get_option('gzipcompression')) 
-		return false;
 	$script = basename($_SERVER['PHP_SELF']);
 	if (!in_array($script, $cache_acceptable_files) && wp_cache_is_rejected($wp_cache_request_uri))
 		return false;
