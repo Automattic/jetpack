@@ -223,6 +223,10 @@ function wp_cache_ob_callback( $buffer ) {
 		return $buffer;
 	} elseif ( isset( $wp_cache_pages[ 'home' ] ) && $wp_cache_pages[ 'home' ] == 1 && is_home() ) {
 		return $buffer;
+	} elseif ( isset( $wp_cache_pages[ 'search' ] ) && $wp_cache_pages[ 'search' ] == 1 && is_search() ) {
+		return $buffer;
+	} elseif ( isset( $wp_cache_pages[ 'feed' ] ) && $wp_cache_pages[ 'feed' ] == 1 && is_feed() ) {
+		return $buffer;
 	}
 	$buffer = &wp_cache_get_ob( $buffer );
 	wp_cache_shutdown_callback();

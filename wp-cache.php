@@ -853,7 +853,7 @@ function wp_cache_edit_rejected_pages() {
 	global $wp_cache_config_file, $valid_nonce, $wp_cache_pages;
 
 	if ( isset( $_POST[ 'wp_edit_rejected_pages' ] ) && $valid_nonce ) {
-		$pages = array( 'single', 'pages', 'archives', 'tag', 'frontpage', 'home', 'category' );
+		$pages = array( 'single', 'pages', 'archives', 'tag', 'frontpage', 'home', 'category', 'feed', 'search' );
 		foreach( $pages as $page ) {
 			if ( isset( $_POST[ 'wp_cache_pages' ][ $page ] ) ) {
 				$value = 1;
@@ -875,6 +875,8 @@ function wp_cache_edit_rejected_pages() {
 	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[archives]" ' . checked( 1, $wp_cache_pages[ 'archives' ], false ) . ' /> Archives (is_archive)</label><br />';
 	echo '&nbsp;&nbsp;<label><input type="checkbox" value="1" name="wp_cache_pages[tag]" ' . checked( 1, $wp_cache_pages[ 'tag' ], false ) . ' /> Tags (is_tag)</label><br />';
 	echo '&nbsp;&nbsp;<label><input type="checkbox" value="1" name="wp_cache_pages[category]" ' . checked( 1, $wp_cache_pages[ 'category' ], false ) . ' /> Category (is_category)</label><br />';
+	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[feed]" ' . checked( 1, $wp_cache_pages[ 'feed' ], false ) . ' /> Feeds (is_feed)</label><br />';
+	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[search]" ' . checked( 1, $wp_cache_pages[ 'search' ], false ) . ' /> Search Pages (is_search)</label><br />';
 
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
