@@ -397,7 +397,15 @@ jQuery(document).ready(function(){
 	<?php } else { ?>
 	<p><a href="http://ocaoimh.ie/wp-super-cache/?r=supercache">WP Super Cache</a> is maintained and developed by <a href="http://ocaoimh.ie/?r=supercache">Donncha O Caoimh</a> with contributions from many others.</p>
 	<p>He blogs at <a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a>, posts photos at <a href="http://inphotos.org/?r=supercache">In Photos.org</a> and <a href="http://ocaoimh.ie/gad">wishes</a> he had more time to read and relax.</p><p>Please say hi to him on <a href="http://twitter.com/donncha/">Twitter</a> too!</p>
-	<?php } ?>
+	<?php 
+	}
+	$start_date = get_option( 'wpsupercache_start' );
+	if ( !$start_date ) {
+		$start_date = time();
+		update_option( 'wpsupercache_start', $start_date );
+	}
+	?>
+	<p>Cached pages since <?php echo date( 'M j, Y', $start_date ); ?> : <strong><?php echo number_format( get_option( 'wpsupercache_count' ) ); ?></strong></p>
 	</div>
 
 	</td></table>
