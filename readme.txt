@@ -213,6 +213,7 @@ If things don't work when you installed the plugin here are a few things to chec
 A line like "127.0.0.1 localhost localhost.localdomain" is ok.
 17. If old pages are being served to your visitors via the supercache, you may be missing Apache modules (or their equivalents if you don't use Apache). 3 modules are required: mod_mime, mod_headers and mod_expires. The last two are especially important for making sure browsers load new versions of existing pages on your site.
 18. The error message, "WP Super Cache is installed but broken. The path to wp-cache-phase1.php in wp-content/advanced-cache.php must be fixed!" appears at the end of every page. Open the file wp-content/advanced-cache.php in your favourite editor. Is the path to wp-cache-phase1.php correct? If it is not the caching engine will not load.
+19. Caching doesn't work. The timestamp on my blog keeps changing when I reload. Check that the path in your .htaccess rules matches where the supercache directory is. You may have to hardcode it. Or use the plugin in Half-On mode.
 
 == Custom Caching ==
 It is now possible to hook into the caching process using the add_cacheaction() function.
