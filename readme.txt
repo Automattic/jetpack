@@ -186,6 +186,15 @@ A tiny proportion of websites will have problems with the following configuratio
 
 Sometimes a category page is cached as the homepage of the site instead of the static page. I can't [replicate the problem](http://wordpress.org/support/topic/237415/page/2?replies=38) but a simple solution is to switch the plugin to half-on mode. For normal traffic you will see no difference in the speed of your site.
 
+= Why do I get warnings about caching from http://ismyblogworking.com/ =
+
+"Your blog doesn't support client caching (no 304 response to If-modified-since)."
+"Your feed doesn't support caching (no 304 response to If-modified-since)"
+
+Supercache doesn't support 304 header checks. This is a check your browser does to ask the server if an updated version of the current page is available. If not, it doesn't download the old version again.
+The page is still cached by your server, just not by the browsers of your visitors. WordPress doesn't support 304 caching either so you're not losing out.
+Try the Cacheability Engine at http://www.ircache.net/cgi-bin/cacheability.py for further analysis.
+
 = Troubleshooting =
 
 If things don't work when you installed the plugin here are a few things to check:
