@@ -193,7 +193,7 @@ Sometimes a category page is cached as the homepage of the site instead of the s
 
 Supercache doesn't support 304 header checks. This is a check your browser does to ask the server if an updated version of the current page is available. If not, it doesn't download the old version again.
 The page is still cached by your server, just not by the browsers of your visitors. WordPress doesn't support 304 caching either so you're not losing out.
-Try the Cacheability Engine at http://www.ircache.net/cgi-bin/cacheability.py for further analysis.
+Try the Cacheability Engine at http://www.ircache.net/cgi-bin/cacheability.py or http://redbot.org/ for further analysis.
 
 = Troubleshooting =
 
