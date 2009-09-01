@@ -450,9 +450,15 @@ jQuery(document).ready(function(){
 }
 
 function wsc_mod_rewrite() {
-	global $super_cache_enabled, $cache_compression, $cache_compression_changed, $valid_nonce, $cache_path;
-	if( $super_cache_enabled == false )
+	global $cache_enabled, $super_cache_enabled, $cache_compression, $cache_compression_changed, $valid_nonce, $cache_path;
+	if( $super_cache_enabled == false && $cache_enabled == true ) {
+		?><h3>Super Cache Compression</h3>
+		<p>Compression is enabled by default when in <em>HALF ON</em> mode.</p>
+		<?php
 		return;
+	} elseif ( $super_cache_enabled == false ) {
+		return;
+	}
 	if( false == defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
 	?>
 	<fieldset class="options"> 
