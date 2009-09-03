@@ -49,6 +49,10 @@ $cache_rebuild_files = 1;
 // DEBUG mode. Change this to your email address to be sent debug emails.
 // Remove comment (//) to enable and add back to disable.
 //$wp_cache_debug = "you@example.com";
+// Enable to log to log.txt in your cache directory.
+//$wp_cache_debug_log = 1;
+// How much to log? A level of 5 records lots of activity.
+//$wp_cache_debug_level = 1; // 1 = less, 5 = more
 
 // Disable the file locking system.
 // If you are experiencing problems with clearing or creating cache files
