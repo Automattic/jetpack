@@ -178,6 +178,9 @@ function wp_cache_check_mobile( $cache_key ) {
 function wp_cache_debug( $message, $level = 1 ) {
 	global $wp_cache_debug_level, $wp_cache_debug_log, $wp_cache_debug, $cache_path;
 
+	if ( isset( $wp_cache_debug ) == false && isset( $wp_cache_debug_log ) == false )
+		return false;
+
 	if ( isset( $wp_cache_debug_level ) == false )
 		$wp_cache_debug_level = 1;
 	if ( $wp_cache_debug_level < $level )
