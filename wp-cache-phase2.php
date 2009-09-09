@@ -283,7 +283,7 @@ function wp_cache_get_ob(&$buffer) {
 	if ( $buffer == '' ) {
 		$new_cache = false;
 		$buffer .= "\n<!-- Page not cached by WP Super Cache. Blank Page. Check output buffer usage by plugins. -->\n";
-		wp_cache_debug( $_SERVER[ 'REQUEST_URI' ] . " Buffer is blank. The output buffer has been corrupted, probably by another plugin.", 2 );
+		wp_cache_debug( $_SERVER[ 'REQUEST_URI' ] . " Buffer is blank. Output buffer may have been corrupted by another plugin or this is a redirected URL. Look for text 'ob_start' in the files of your plugins directory.", 2 );
 	}
 
 	if( $wp_cache_404 ) {
