@@ -154,7 +154,7 @@ jQuery(document).ready(function(){
 <?php
 	echo '<div class="wrap">';
 	echo "<h2>WP Super Cache Manager</h2>\n";
-	if( ini_get( 'safe_mode' ) ) {
+	if( 1 == ini_get( 'safe_mode' ) || "on" == strtolower( ini_get( 'safe_mode' ) ) ) {
 		?><h3>Warning! PHP Safe Mode Enabled!</h3>
 		<p>You may experience problems running this plugin because SAFE MODE is enabled. <?php
 		if( !ini_get( 'safe_mode_gid' ) ) {
