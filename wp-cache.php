@@ -1244,7 +1244,7 @@ function wp_cache_check_global_config() {
 }
 
 function wp_cache_files() {
-	global $cache_path, $file_prefix, $cache_max_time, $valid_nonce, $supercachedir, $cache_enabled, $super_cache_enabled, $blog_cache_dir;
+	global $cache_path, $file_prefix, $cache_max_time, $valid_nonce, $supercachedir, $cache_enabled, $super_cache_enabled, $blog_cache_dir, $cache_compression;
 
 	if ( '/' != substr($cache_path, -1)) {
 		$cache_path .= '/';
@@ -1365,10 +1365,11 @@ function wp_cache_files() {
 		} else {
 			$fsize = "0KB";
 		}
+		$divisor = $cache_compression == 1 ? 2 : 1;
 		echo "<p><strong>WP-Super-Cache ({$fsize})</strong></p>";
-		echo "<ul><li>" . intval($sizes['cached']/2) . " Cached Pages</li>";
+		echo "<ul><li>" . intval( $sizes[ 'cached' ] / $divisor ) . " Cached Pages</li>";
 		$age = intval(($now - $sizes['ts'])/60);
-		echo "<li>" . intval($sizes['expired']/2) . " Expired Pages</li></ul>";
+		echo "<li>" . intval( $sizes[ 'expired' ] / $divisor ) . " Expired Pages</li></ul>";
 	}
 	$last_gc = get_option( "wpsupercache_gc_time" );
 	if( $last_gc ) {
