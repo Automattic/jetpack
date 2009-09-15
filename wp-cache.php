@@ -941,14 +941,22 @@ function wp_cache_edit_accepted() {
 }
 
 function wp_cache_debug_settings() {
-	global $wp_cache_debug_email, $wp_cache_debug_log, $wp_cache_debug_level, $wp_cache_debug_ip, $cache_path, $valid_nonce, $wp_cache_config_file;
+	global $wp_super_cache_debug, $wp_cache_debug_email, $wp_cache_debug_log, $wp_cache_debug_level, $wp_cache_debug_ip, $cache_path, $valid_nonce, $wp_cache_config_file, $wp_cache_debug_to_file;
 
 	if ( !isset( $wp_cache_debug_level ) )
 		$wp_cache_debug_level = 1;
 	if ( isset( $_POST[ 'wp_cache_debug' ] ) && $valid_nonce ) {
+		$wp_super_cache_debug = intval( $_POST[ 'wp_super_cache_debug' ] );
+		wp_cache_replace_line('^ *\$wp_super_cache_debug', "\$wp_super_cache_debug = '$wp_super_cache_debug';", $wp_cache_config_file);
 		$wp_cache_debug_email = wp_specialchars( $_POST[ 'wp_cache_debug_email' ] );
 		wp_cache_replace_line('^ *\$wp_cache_debug_email', "\$wp_cache_debug_email = '$wp_cache_debug_email';", $wp_cache_config_file);
-		$wp_cache_debug_log = sanitize_file_name( $_POST[ 'wp_cache_debug_log' ] );
+		$wp_cache_debug_to_file = intval( $_POST[ 'wp_cache_debug_to_file' ] );
+		if ( $wp_cache_debug_to_file && ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log == '' ) || !isset( $wp_cache_debug_log ) ) ) {
+			$wp_cache_debug_log = md5( time() ) . ".txt";
+		} elseif( $wp_cache_debug_to_file == false ) {
+			$wp_cache_debug_log = "";
+		}
+		wp_cache_replace_line('^ *\$wp_cache_debug_to_file', "\$wp_cache_debug_to_file = '$wp_cache_debug_to_file';", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$wp_cache_debug_log', "\$wp_cache_debug_log = '$wp_cache_debug_log';", $wp_cache_config_file);
 		$wp_cache_debug_ip = wp_specialchars( $_POST[ 'wp_cache_debug_ip' ] );
 		wp_cache_replace_line('^ *\$wp_cache_debug_ip', "\$wp_cache_debug_ip = '$wp_cache_debug_ip';", $wp_cache_config_file);
@@ -958,11 +966,11 @@ function wp_cache_debug_settings() {
 
 	echo '<a name="debug"></a>';
 	echo "<h3>Debug Settings</h3>";
-	if ( isset( $wp_cache_debug_log ) || isset( $wp_cache_debug_email ) ) {
+	if ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) || ( isset( $wp_cache_debug_email ) && $wp_cache_debug_email != '' ) ) {
 		echo "<p>Currently logging to: ";
-		if ( isset( $wp_cache_debug_log ) ) {
-			$url = str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}.txt" );
-			echo "<a href='" . site_url( $url ) . "'>$cache_path{$wp_cache_debug_log}.txt</a> ";
+		if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) {
+			$url = str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}" );
+			echo "<a href='" . site_url( $url ) . "'>$cache_path{$wp_cache_debug_log}</a> ";
 
 		}
 		if ( isset( $wp_cache_debug_email ) )
@@ -973,18 +981,19 @@ function wp_cache_debug_settings() {
 	echo '<p>Logging to a file is easier but faces the problem that clearing the cache will clear the log file.</p>';
 	echo '<div style="clear:both"></div><form name="wp_cache_debug" action="'. $_SERVER["REQUEST_URI"] . '#debug" method="post">';
 	echo "<input type='hidden' name='wp_cache_debug' value='1' /><br />";
-	echo "Email: <input type='text' size='30' name='wp_cache_debug_email' value='{$wp_cache_debug_email}' /><br />";
-	echo "Log file: <input type='text' name='wp_cache_debug_log' value='{$wp_cache_debug_log}' />.txt (filename to log to, make it very random.)<br />";
-	echo "IP Address: <input type='text' size='20' name='wp_cache_debug_ip' value='{$wp_cache_debug_ip}' /> (only log requests from this IP address. Your IP is {$_SERVER[ 'REMOTE_ADDR' ]})<br />";
-	echo "Log level: ";
+	echo "<table class='form-table'>";
+	echo "<tr><td>Debugging</td><td><input type='checkbox' name='wp_super_cache_debug' value='1' " . checked( 1, $wp_super_cache_debug, false ) . " /> enabled </td></tr>";
+	echo "<tr><td valign='top' rowspan='2'>Logging Type</td><td> Email: <input type='text' size='30' name='wp_cache_debug_email' value='{$wp_cache_debug_email}' /></td></tr>";
+	echo "<tr><td><input type='checkbox' name='wp_cache_debug_to_file' value='1' " . checked( 1, $wp_cache_debug_to_file, false ) . " /> file</td></tr>";
+	echo "<tr><td>IP Address</td><td> <input type='text' size='20' name='wp_cache_debug_ip' value='{$wp_cache_debug_ip}' /> (only log requests from this IP address. Your IP is {$_SERVER[ 'REMOTE_ADDR' ]})</td></tr>";
+	echo "<tr><td>Log level</td><td> ";
 	for( $t = 1; $t <= 5; $t++ ) {
 		echo "<input type='radio' name='wp_cache_debug_level' value='$t' ";
 		echo $wp_cache_debug_level == $t ? "checked='checked' " : '';
 		echo "/> $t ";
 	}
-	echo " (1 = less, 5 = more, may cause severe server load.)<br />";
+	echo " (1 = less, 5 = more, may cause severe server load.)</td></tr></table>";
 	
-	echo '<p>Clear email and log file settings to disable.</p>';
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";

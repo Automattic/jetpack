@@ -81,13 +81,13 @@ $meta_pathname = realpath( $blog_cache_dir . 'meta/' . $meta_file );
 
 $wp_start_time = microtime();
 if( file_exists( $cache_file ) && !wp_cache_user_agent_is_rejected() ) {
-	wp_cache_debug( "{$_SERVER[ 'REQUEST_URI' ]} wp-cache file exists", 5 );
+	if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "wp-cache file exists", 5 );
 	if (! ($meta = unserialize(@file_get_contents($meta_pathname))) )  {
-		wp_cache_debug( "{$_SERVER[ 'REQUEST_URI' ]} couldn't load wp-cache meta file", 5 );
+		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "couldn't load wp-cache meta file", 5 );
 		return true;
 	}
 	if( is_array( $meta ) == false ) {
-		wp_cache_debug( "{$_SERVER[ 'REQUEST_URI' ]} meta array corrupt, deleting $meta_pathname and $cache_file", 1 );
+		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "meta array corrupt, deleting $meta_pathname and $cache_file", 1 );
 		@unlink( $meta_pathname );
 		@unlink( $cache_file );
 		return true;
@@ -97,7 +97,7 @@ if( file_exists( $cache_file ) && !wp_cache_user_agent_is_rejected() ) {
 	if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta[ 'headers' ] ) ) {
 		$meta[ 'headers' ][ 'Content-Encoding' ] =  'Content-Encoding: ' . $wp_cache_gzip_encoding;
 		$meta[ 'headers' ][ 'Vary' ] = 'Vary: Accept-Encoding, Cookie';
-		wp_cache_debug( "{$_SERVER[ 'REQUEST_URI' ]} added gzip headers before serving.", 1 );
+		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "added gzip headers before serving.", 1 );
 	}
 	foreach ($meta[ 'headers' ] as $t => $header) {
 		// godaddy fix, via http://blog.gneu.org/2008/05/wp-supercache-on-godaddy/ and http://www.littleredrails.com/blog/2007/09/08/using-wp-cache-on-godaddy-500-error/
@@ -106,16 +106,16 @@ if( file_exists( $cache_file ) && !wp_cache_user_agent_is_rejected() ) {
 	}
 	header( 'WP-Super-Cache: WP-Cache' );
 	if ( $meta[ 'dynamic' ] ) {
-		wp_cache_debug( "{$_SERVER[ 'REQUEST_URI' ]} Serving wp-cache dynamic file", 5 );
+		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Serving wp-cache dynamic file", 5 );
 		include($cache_file);
 	} else {
-		wp_cache_debug( "{$_SERVER[ 'REQUEST_URI' ]} Serving wp-cache static file", 5 );
+		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Serving wp-cache static file", 5 );
 		readfile( $cache_file );
 	}
-	wp_cache_debug( "{$_SERVER[ 'REQUEST_URI' ]} exit request", 5 );
+	if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "exit request", 5 );
 	die();
 } else {
-	wp_cache_debug( "{$_SERVER[ 'REQUEST_URI' ]} No wp-cache file exists or user agent rejected.", 5 );
+	if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "No wp-cache file exists or user agent rejected.", 5 );
 }
 
 function wp_cache_postload() {
@@ -131,7 +131,7 @@ function wp_cache_get_cookies_values() {
 	$string = '';
 	while ($key = key($_COOKIE)) {
 		if ( preg_match( "/^wp-postpass|^wordpress|^comment_author_/", $key ) && $_COOKIE[ $key ] != 'WP Cookie check' ) {
-			wp_cache_debug( "{$_SERVER[ 'REQUEST_URI' ]} cookie detected: " . $_COOKIE[ $key ], 5 );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Cookie detected: $key", 5 );
 			$string .= $_COOKIE[ $key ] . ",";
 		}
 		next($_COOKIE);
@@ -172,7 +172,7 @@ function wp_cache_check_mobile( $cache_key ) {
 	$whitelist = explode( ',', $wp_cache_mobile_whitelist );
 	foreach ($whitelist as $browser) {
 		if (strstr($_SERVER["HTTP_USER_AGENT"], trim($browser))) {
-			wp_cache_debug( "{$_SERVER[ 'REQUEST_URI' ]} whitelst mobile browser detected: " . $_SERVER[ "HTTP_USER_AGENT" ], 5 );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "whitelst mobile browser detected: " . $_SERVER[ "HTTP_USER_AGENT" ], 5 );
 			return $cache_key;
 		}
 	}
@@ -180,7 +180,7 @@ function wp_cache_check_mobile( $cache_key ) {
 	$browsers = explode( ',', $wp_cache_mobile_browsers );
 	foreach ($browsers as $browser) {
 		if (strstr($_SERVER["HTTP_USER_AGENT"], trim( $browser ))) {
-			wp_cache_debug( "{$_SERVER[ 'REQUEST_URI' ]} mobile browser detected: " . $_SERVER[ "HTTP_USER_AGENT" ], 5 );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "mobile browser detected: " . $_SERVER[ "HTTP_USER_AGENT" ], 5 );
 			return $cache_key . $browser;
 		}
 	}
@@ -188,7 +188,10 @@ function wp_cache_check_mobile( $cache_key ) {
 }
 
 function wp_cache_debug( $message, $level = 1 ) {
-	global $wp_cache_debug_level, $wp_cache_debug_log, $wp_cache_debug_email, $cache_path, $wp_cache_debug_ip;
+	global $wp_cache_debug_level, $wp_cache_debug_log, $wp_cache_debug_email, $cache_path, $wp_cache_debug_ip, $wp_super_cache_debug;
+
+	if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug == false )
+		return false;
 
 	if ( isset( $wp_cache_debug_email ) == false && isset( $wp_cache_debug_log ) == false )
 		return false;
@@ -202,7 +205,7 @@ function wp_cache_debug( $message, $level = 1 ) {
 		return false;
 
 	if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) {
-		error_log( date( 'H:i:s' ) . " " . $message . "\n", 3, $cache_path . str_replace( '/', '', str_replace( '..', '', $wp_cache_debug_log ) ) . ".txt" );
+		error_log( date( 'H:i:s' ) . " " . $_SERVER[ 'REQUEST_URI' ] . " " . $message . "\n", 3, $cache_path . str_replace( '/', '', str_replace( '..', '', $wp_cache_debug_log ) ) );
 	}
 
 	if ( isset( $wp_cache_debug_email ) && $wp_cache_debug_email != ''  ) {
