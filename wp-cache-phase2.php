@@ -286,7 +286,7 @@ function wp_cache_get_ob(&$buffer) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Buffer is blank. Output buffer may have been corrupted by another plugin or this is a redirected URL. Look for text 'ob_start' in the files of your plugins directory.", 2 );
 	}
 
-	if( $wp_cache_404 ) {
+	if ( $wp_cache_404 && false == apply_filters( 'wpsupercache_404', false ) ) {
 		$new_cache = false;
 		$buffer .= "\n<!-- Page not cached by WP Super Cache. 404. -->\n";
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "404 file not found not cached", 2 );
