@@ -273,7 +273,7 @@ function wp_cache_get_ob(&$buffer) {
 	global $new_cache, $wp_cache_meta, $file_expired, $blog_id, $cache_compression;
 	global $wp_cache_gzip_encoding, $super_cache_enabled, $cached_direct_pages;
 	global $wp_cache_404, $gzsize, $supercacheonly, $wp_cache_gzip_first, $wp_cache_gmt_offset;
-	global $blog_cache_dir, $wp_cache_request_uri;
+	global $blog_cache_dir, $wp_cache_request_uri, $wp_supercache_cache_list;
 
 	$new_cache = true;
 	$wp_cache_meta = '';
@@ -456,8 +456,14 @@ function wp_cache_get_ob(&$buffer) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Renamed temp supercache gz file to {$cache_fname}.gz", 5 );
 			$added_cache = 1;
 		}
-		if ( $added_cache )
-			update_option( 'wpsupercache_count', ( get_option( 'wpsupercache_count' ) + 1 ) );
+		if ( $added_cache && isset( $wp_supercache_cache_list ) && $wp_supercache_cache_list ) {
+				update_option( 'wpsupercache_count', ( get_option( 'wpsupercache_count' ) + 1 ) );
+				$last_urls = (array)get_option( 'supercache_last_cached' );
+				if ( count( $last_urls ) >= 10 )
+					$last_urls = array_slice( $last_urls, 1, 9 );
+				$last_urls[] = array( 'url' => $_SERVER[ 'REQUEST_URI' ], 'date' => date( 'Y-m-d H:i:s' ) );
+				update_option( 'supercache_last_cached', $last_urls );
+		}
 	wp_cache_writers_exit();
 	if ( !headers_sent() && isset( $wp_cache_gzip_first ) && 1 == $wp_cache_gzip_first && $wp_cache_gzip_encoding && $gzdata) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Writing gzip content headers. Sending buffer to browser", 5 );

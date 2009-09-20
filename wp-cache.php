@@ -112,7 +112,7 @@ add_action('admin_menu', 'wp_cache_add_pages');
 function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_whitelist, $wp_cache_mobile_browsers;
-	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation, $wp_cache_not_logged_in;
+	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation, $wp_cache_not_logged_in, $wp_supercache_cache_list;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -257,6 +257,10 @@ jQuery(document).ready(function(){
 					wp_cache_replace_line('^ *\$wp_cache_mobile_browsers', "\$wp_cache_mobile_browsers = 'Android, 2.0 MMP, 240x320, AvantGo, BlackBerry, Blazer, Cellphone, Danger, DoCoMo, Elaine/3.0, EudoraWeb, hiptop, IEMobile, iPhone, iPod, KYOCERA/WX310K, LG/U990, MIDP-2.0, MMEF20, MOT-V, NetFront, Newt, Nintendo Wii, Nitro, Nokia, Opera Mini, Palm, Playstation Portable, portalmmm, Proxinet, ProxiNet, SHARP-TQ-GX10, Small, SonyEricsson, Symbian OS, SymbianOS, TS21i-10, UP.Browser, UP.Link, Windows CE, WinWAP';", $wp_cache_config_file);
 			}
 			wp_cache_replace_line('^ *\$wp_cache_mobile_enabled', "\$wp_cache_mobile_enabled = " . $wp_cache_mobile_enabled . ";", $wp_cache_config_file);
+
+			$wp_supercache_cache_list = $_POST[ 'wp_supercache_cache_list' ] == 1 ? 1 : 0;
+			wp_cache_replace_line('^ *\$wp_supercache_cache_list', "\$wp_supercache_cache_list = " . $wp_supercache_cache_list . ";", $wp_cache_config_file);
+
 			switch( $_POST[ 'wp_cache_status' ] ) {
 				case 'all':
 					wp_cache_enable();
@@ -338,6 +342,7 @@ jQuery(document).ready(function(){
 	<?php if( false == defined( 'WPSC_DISABLE_LOCKING' ) ) { ?>
 		<p><label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( !$wp_cache_mutex_disabled ) echo "checked"; ?> value='0'> Coarse file locking. You probably don't need this but it may help if your server is underpowered. Warning! <em>May cause your server to lock up in very rare cases!</em></label></p>
 	<?php } ?>
+	<p><label><input type='checkbox' name='wp_supercache_cache_list' <?php if( $wp_supercache_cache_list ) echo "checked"; ?> value='1'> List the newest cached pages (may be expensive to run on busy sites, use with caution.)</label>
 	<p><label><input type='checkbox' name='wp_cache_mobile_enabled' <?php if( $wp_cache_mobile_enabled ) echo "checked"; ?> value='1'> Mobile device support.</label>
 	<?php
 	$home_path = trailingslashit( get_home_path() );
@@ -399,13 +404,30 @@ jQuery(document).ready(function(){
 	<p>He blogs at <a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a>, posts photos at <a href="http://inphotos.org/?r=supercache">In Photos.org</a> and <a href="http://ocaoimh.ie/gad">wishes</a> he had more time to read and relax.</p><p>Please say hi to him on <a href="http://twitter.com/donncha/">Twitter</a> too!</p>
 	<?php 
 	}
-	$start_date = get_option( 'wpsupercache_start' );
-	if ( !$start_date ) {
-		$start_date = time();
-		update_option( 'wpsupercache_start', $start_date );
+	if ( isset( $wp_supercache_cache_list ) && $wp_supercache_cache_list ) { 
+		$start_date = get_option( 'wpsupercache_start' );
+		if ( !$start_date ) {
+			$start_date = time();
+		}
+		?>
+		<p>Cached pages since <?php echo date( 'M j, Y', $start_date ); ?> : <strong><?php echo number_format( get_option( 'wpsupercache_count' ) ); ?></strong></p>
+		<p>Newest Cached Pages:<ol>
+		<?php
+		foreach( array_reverse( (array)get_option( 'supercache_last_cached' ) ) as $url ) {
+			$since = time() - strtotime( $url[ 'date' ] );
+			echo "<li><a title='Cached $since seconds ago' href='" . site_url( $url[ 'url' ] ) . "'>{$url[ 'url' ]}</a></li>\n";
+		}
+		?></ol>
+		<small>(may not always be accurate on busy sites)</small>
+		</p><?php 
+	} else {
+		$start_date = get_option( 'wpsupercache_start' );
+		if ( $start_date ) {
+			update_option( 'wpsupercache_start', $start_date );
+			update_option( 'wpsupercache_count', 0 );
+		}
 	}
 	?>
-	<p>Cached pages since <?php echo date( 'M j, Y', $start_date ); ?> : <strong><?php echo number_format( get_option( 'wpsupercache_count' ) ); ?></strong></p>
 	</div>
 
 	</td></table>
