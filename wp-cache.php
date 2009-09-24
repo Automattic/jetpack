@@ -994,6 +994,7 @@ function wp_cache_debug_settings() {
 	}
 
 	echo '<a name="debug"></a>';
+	echo '<fieldset class="options">';
 	echo "<h3>Debug Settings</h3>";
 	if ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) || ( isset( $wp_cache_debug_email ) && $wp_cache_debug_email != '' ) ) {
 		echo "<p>Currently logging to: ";
@@ -1026,6 +1027,7 @@ function wp_cache_debug_settings() {
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
+	echo '</fieldset>';
 }
 
 function wp_cache_enable() {
