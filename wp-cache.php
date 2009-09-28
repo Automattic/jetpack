@@ -471,7 +471,7 @@ jQuery(document).ready(function(){
 	$out = ob_get_contents();
 	ob_end_clean();
 	if( SUBMITDISABLED == ' ' && $out != '' ) {
-		echo '<fieldset class="options"><h3>Cache Plugins</h3>';
+		echo '<fieldset class="options"><h3>' . __( 'Cache Plugins', 'wp-super-cache' ) . '</h3>';
 		echo $out;
 		echo '</fieldset>';
 	}
@@ -482,8 +482,8 @@ jQuery(document).ready(function(){
 function wsc_mod_rewrite() {
 	global $cache_enabled, $super_cache_enabled, $cache_compression, $cache_compression_changed, $valid_nonce, $cache_path;
 	if( $super_cache_enabled == false && $cache_enabled == true ) {
-		?><h3>Super Cache Compression</h3>
-		<p>Compression is enabled by default when in <em>HALF ON</em> mode.</p>
+		?><h3><?php _e( 'Super Cache Compression', 'wp-super-cache' ); ?></h3>
+		<p><?php _e( 'Compression is enabled by default when in <em>HALF ON</em> mode.', 'wp-super-cache' ); ?></p>
 		<?php
 		return;
 	} elseif ( $super_cache_enabled == false ) {
@@ -492,18 +492,18 @@ function wsc_mod_rewrite() {
 	if( false == defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
 	?>
 	<fieldset class="options"> 
-	<h3>Super Cache Compression</h3>
+	<h3><php _e( 'Super Cache Compression', 'wp-super-cache' ); ?></h3>
 	<form name="wp_manager" action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post">
-	<label><input type="radio" name="cache_compression" value="1" <?php if( $cache_compression ) { echo "checked=checked"; } ?>> Enabled</label>
-	<label><input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> Disabled</label>
-	<p>Compression is disabled by default because some hosts have problems with compressed files. Switching this on and off clears the cache.</p>
+	<label><input type="radio" name="cache_compression" value="1" <?php if( $cache_compression ) { echo "checked=checked"; } ?>> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
+	<label><input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
+	<p><?php _e( 'Compression is disabled by default because some hosts have problems with compressed files. Switching this on and off clears the cache.', 'wp-super-cache' ); ?></p>
 	<?php
 	if( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && !$cache_compression ) {
-		?><p><strong>Super Cache compression is now disabled.</strong></p> <?php
+		?><p><strong><?php _e( 'Super Cache compression is now disabled.', 'wp-super-cache' ); ?></strong></p> <?php
 	} elseif( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && $cache_compression ) {
-		?><p><strong>Super Cache compression is now enabled.</strong></p><?php
+		?><p><strong><?php _e( 'Super Cache compression is now enabled.', 'wps-uper-cache' ); ?></strong></p><?php
 	}
-	echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="Update Compression &raquo;" /></div>';
+	echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update Compression', 'wp-super-cache' ); ?> &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	?></fieldset>
@@ -557,23 +557,22 @@ function wsc_mod_rewrite() {
 
 	$dohtaccess = true;
 	if( function_exists( 'is_site_admin' ) ) {
-		echo "<h4 style='color: #a00'>WordPress MU Detected</h4><p>Unfortunately the rewrite rules cannot be updated automatically when running WordPress MU. Please open your .htaccess and add the following mod_rewrite rules above any other rules in that file.</p>";
+		echo "<h4 style='color: #a00'>" . __( 'WordPress MU Detected', 'wp-super-cache' ) . "</h4><p>" . __( "Unfortunately the rewrite rules cannot be updated automatically when running WordPress MU. Please open your .htaccess and add the following mod_rewrite rules above any other rules in that file.", 'wp-super-cache' ) . "</p>";
 	} elseif( !$wprules || $wprules == '' ) {
-		echo "<h4 style='color: #a00'>Mod Rewrite rules cannot be updated!</h4>";
-		echo "<p>You must have <strong>BEGIN</strong> and <strong>END</strong> markers in {$home_path}.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:
-		<blockquote><pre><em># BEGIN WordPress</em>\n RewriteCond %{REQUEST_FILENAME} !-f\n RewriteCond %{REQUEST_FILENAME} !-d\n RewriteRule . /index.php [L]\n <em># END WordPress</em></pre></blockquote>
-		Refresh this page when you have updated your .htaccess file.";
+		echo "<h4 style='color: #a00'>" . __( 'Mod Rewrite rules cannot be updated!', 'wp-super-cache' ) . "</h4>";
+		echo "<p>" . sprintf( __( "You must have <strong>BEGIN</strong> and <strong>END</strong> markers in %s.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:", 'wp-super-cache' ), $home_path );
+		echo "<blockquote><pre><em># BEGIN WordPress</em>\n RewriteCond %{REQUEST_FILENAME} !-f\n RewriteCond %{REQUEST_FILENAME} !-d\n RewriteRule . /index.php [L]\n <em># END WordPress</em></pre></blockquote>";
+		_e( 'Refresh this page when you have updated your .htaccess file.', 'wp-super-cache' );
 		echo "</fieldset></div>";
 		return;
 	} elseif( strpos( $wprules, 'wordpressuser' ) ) { // Need to clear out old mod_rewrite rules
-		echo "<p><strong>Thank you for upgrading.</strong> The mod_rewrite rules changed since you last installed this plugin. Unfortunately you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: <blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*\$</code></blockquote> so it looks like this: <blockquote><code>RewriteCond %{HTTP:Cookie} !^.*wordpress.*\$</code></blockquote> The only changes are 'HTTP_COOKIE' becomes 'HTTP:Cookie' and 'wordpressuser' becomes 'wordpress'. This is a WordPress 2.5 change but it's backwards compatible with older versions if you're brave enough to use them.</p>";
+		echo "<p><strong>" . __( 'Thank you for upgrading.', 'wp-super-cache' ) . "</strong> " . sprintf( __( 'The mod_rewrite rules changed since you last installed this plugin. Unfortunately you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: %1$s so it looks like this: %2$s The only changes are "HTTP_COOKIE" becomes "HTTP:Cookie" and "wordpressuser" becomes "wordpress". This is a WordPress 2.5 change but it&#8217;s backwards compatible with older versions if you&#8217;re brave enough to use them.', 'wp-super-cache' ), '<blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$</code></blockquote>', '<blockquote><code>RewriteCond %{HTTP:Cookie} !^.*wordpress.*$</code></blockquote>' ) . "</p>";
 		echo "</fieldset></div>";
 		return;
 	} elseif( $scrules != '' && strpos( $scrules, '%{REQUEST_URI} !^.*[^/]$' ) === false && substr( get_option( 'permalink_structure' ), -1 ) == '/' ) { // permalink structure has a trailing slash, need slash check in rules.
-		echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><h4>Trailing slash check required.</h4><p>It looks like your blog has URLs that end with a '/'. Unfortunately since you installed this plugin a duplicate content bug has been found where URLs not ending in a '/' end serve the same content as those with the '/' and do not redirect to the proper URL.";
-		echo "To fix, you must edit your .htaccess file and add these two rules to the two groups of Super Cache rules:</p>";
+		echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><h4>" . __( 'Trailing slash check required.', 'wp-super-cache' ) . "</h4><p>" . __( 'It looks like your blog has URLs that end with a "/". Unfortunately since you installed this plugin a duplicate content bug has been found where URLs not ending in a "/" end serve the same content as those with the "/" and do not redirect to the proper URL. To fix, you must edit your .htaccess file and add these two rules to the two groups of Super Cache rules:', 'wp-super-cache' ) . "</p>";
 		echo "<blockquote><code>RewriteCond %{REQUEST_URI} !^.*[^/]$RewriteCond %{REQUEST_URI} !^.*//.*$</code></blockquote>";
-		echo "<p>You can see where the rules go and examine the complete rules by clicking the 'View mod_rewrite rules' link below.</p></div>";
+		echo "<p>" . __( 'You can see where the rules go and examine the complete rules by clicking the "View mod_rewrite rules" link below.', 'wp-super-cache' ) . "</p></div>";
 		$dohtaccess = false;
 	} elseif( strpos( $scrules, 'supercache' ) || strpos( $wprules, 'supercache' ) ) { // only write the rules once
 		$dohtaccess = false;
@@ -585,23 +584,23 @@ function wsc_mod_rewrite() {
 	$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A300\n</IfModule>\n";
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
 		if( !is_writeable_ACLSafe( $home_path . ".htaccess" ) ) {
-			echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><h4>Cannot update .htaccess</h4><p>The file <code>{$home_path}.htaccess</code> cannot be modified by the web server. Please correct this using the chmod command or your ftp client.</p><p>Refresh this page when the file permissions have been modified.</p><p>Alternatively, you can edit your <code>{$home_path}.htaccess</code> file manually and add the following code (before any WordPress rules):</p>";
+			echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><h4>" . __( 'Cannot update .htaccess', 'wp-super-cache' ) . "</h4><p>" . sprintf( __( 'The file <code>%s.htaccess</code> cannot be modified by the web server. Please correct this using the chmod command or your ftp client.', 'wp-super-cache' ), $home_path ) . "</p><p>" . __( 'Refresh this page when the file permissions have been modified.' ) . "</p><p>" . sprintf( __( 'Alternatively, you can edit your <code>%s.htaccess</code> file manually and add the following code (before any WordPress rules):', 'wp-super-cache' ), $home_path ) . "</p>";
 			echo "<p><pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p></div>";
 		} else {
-			echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><p>To serve static html files your server must have the correct mod_rewrite rules added to a file called <code>{$home_path}.htaccess</code> ";
+			echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><p>" . sprintf( __( 'To serve static html files your server must have the correct mod_rewrite rules added to a file called <code>%s.htaccess</code>', 'wp-super-cache' ), $home_path ) . " ";
 			if( !function_exists( 'is_site_admin' ) ) {
-				echo "You must edit the file yourself add the following rules.";
+				_e( "You must edit the file yourself add the following rules.", 'wp-super-cache' );
 			} else {
-				echo "You can edit the file yourself add the following rules.";
+				_e( "You can edit the file yourself add the following rules.", 'wp-super-cache' );
 			}
-			echo " Make sure they appear before any existing WordPress rules.</p>";
+			echo __( " Make sure they appear before any existing WordPress rules. ", 'wp-super-cache' ) . "</p>";
 			echo "<pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>";
-			echo "<p>Rules must be added to " . WP_CONTENT_DIR . "/cache/.htaccess too:</p>";
+			echo "<p>" . sprintf( __( 'Rules must be added to %s too:', 'wp-super-cache' ), WP_CONTENT_DIR . "/cache/.htaccess" ) . "</p>";
 			echo "<pre># BEGIN supercache\n" . wp_specialchars( $gziprules ) . "# END supercache</pre></p>";
 			if( !function_exists( 'is_site_admin' ) ) {
 				echo '<form name="updatehtaccess" action="#modrewrite" method="post">';
 				echo '<input type="hidden" name="updatehtaccess" value="1" />';
-				echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="Update Mod_Rewrite Rules &raquo;" /></div>';
+				echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="' . __( 'Update Mod_Rewrite Rules', 'wp-super-cache' ) . ' &raquo;" /></div>';
 				wp_nonce_field('wp-cache');
 				echo "</form></div>\n";
 			}
@@ -610,17 +609,17 @@ function wsc_mod_rewrite() {
 		wpsc_remove_marker( $home_path.'.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
 		echo "<div style='padding:0 8px;color:#4f8a10;background-color:#dff2bf;border:1px solid #4f8a10;'>";
 		if( insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $wprules ) ) ) {
-			echo "<h4>Mod Rewrite rules updated!</h4>";
-			echo "<p><strong>{$home_path}.htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. They should look like this:</strong></p>\n";
+			echo "<h4>" . __( 'Mod Rewrite rules updated!', 'wp-super-cache' ) . "</h4>";
+			echo "<p><strong>" . sprintf( __( '%s.htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. They should look like this:', 'wp-super-cache' ), $home_path ) . "</strong></p>\n";
 		} else {
-			echo "<h4>Mod Rewrite rules must be updated!</h4>";
-			echo "<p><strong> Your {$home_path}.htaccess is not writable by the webserver and must be updated with the necessary mod_rewrite rules. The new rules go above the regular WordPress rules as shown in the code below:</strong></p>\n";
+			echo "<h4>" . __( 'Mod Rewrite rules must be updated!', 'wp-super-cache' ) . "</h4>";
+			echo "<p><strong>" . sprintf( __( 'Your %s.htaccess is not writable by the webserver and must be updated with the necessary mod_rewrite rules. The new rules go above the regular WordPress rules as shown in the code below:', 'wp-super-cache' ), $home_path ) . "</strong></p>\n";
 		}
 		echo "<p><pre>" . wp_specialchars( $rules ) . "</pre></p>\n</div>";
 	} else {
 		?>
-		<p>WP Super Cache mod rewrite rules were detected in your <?php echo $home_path ?>.htaccess file.<br /> Click the following link to see the lines added to that file. If you have upgraded the plugin make sure these rules match.<br /><br />
-		<a href="javascript:toggleLayer('rewriterules');" class="button">View Mod_Rewrite Rules</a>
+		<p><?php printf( __( 'WP Super Cache mod rewrite rules were detected in your %s.htaccess file.<br /> Click the following link to see the lines added to that file. If you have upgraded the plugin make sure these rules match.', 'wp-super-cache' ), $home_path ); ?><br /><br />
+		<a href="javascript:toggleLayer('rewriterules');" class="button"><?php _e( 'View Mod_Rewrite Rules' ); ?></a>
 		<div id='rewriterules' style='display: none;'>
 		<?php echo "<p><pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>\n"; 
 		echo "<p>Rules must be added to " . WP_CONTENT_DIR ."/cache/.htaccess too:</p>";
@@ -631,17 +630,17 @@ function wsc_mod_rewrite() {
 	// http://allmybrain.com/2007/11/08/making-wp-super-cache-gzip-compression-work/
 	if( !is_file( $cache_path . '.htaccess' ) ) {
 		$gziprules = insert_with_markers( $cache_path . '.htaccess', 'supercache', explode( "\n", $gziprules ) );
-		echo "<h4>Gzip encoding rules in {$cache_path}.htaccess created.</h4>";
+		echo "<h4>" . sprintf( __( 'Gzip encoding rules in %s.htaccess created.', 'wp-super-cache' ), $cache_path ) . "</h4>";
 	}
 
 	?></fieldset><?php
 }
 
 function wp_cache_restore() {
-	echo '<fieldset class="options"><h3>Fix Configuration</h3>';
+	echo '<fieldset class="options"><h3>' . __( 'Fix Configuration', 'wp-super-cache' ) . '</h3>';
 	echo '<form name="wp_restore" action="" method="post">';
 	echo '<input type="hidden" name="wp_restore_config" />';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="deletepost" value="Restore Default Configuration &raquo;" /></div>';
+	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="deletepost" value="' . __( 'Restore Default Configuration', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	echo '</fieldset>';
@@ -649,7 +648,7 @@ function wp_cache_restore() {
 }
 
 function comment_form_lockdown_message() {
-	?><p><?php _e( "Comment moderation is enabled. Your comment may take some time to appear." ); ?></p><?php
+	?><p><?php _e( "Comment moderation is enabled. Your comment may take some time to appear.", 'wp-super-cache' ); ?></p><?php
 }
 if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) )
 	add_action( 'comment_form', 'comment_form_lockdown_message' );
@@ -672,23 +671,23 @@ function wp_lock_down() {
 		}
 	}
 	?><fieldset class="options"> 
-	<h3>Lock Down: <?php echo $wp_lock_down == '0' ? '<span style="color:red">Disabled</span>' : '<span style="color:green">Enabled</span>'; ?></h3>
-	<p>Prepare your server for an expected spike in traffic by enabling the lock down. When this is enabled, new comments on a post will not refresh the cached static files.</p>
-	<p>Developers: Make your plugin lock down compatible by checking the 'WPLOCKDOWN' constant. The following code will make sure your plugin respects the WPLOCKDOWN setting.
+	<h3><?php _e( 'Lock Down:', 'wp-super-cache' ); ?> <?php echo $wp_lock_down == '0' ? '<span style="color:red">' . __( 'Disabled', 'wp-super-cache' ) . '</span>' : '<span style="color:green">' . __( 'Enabled', 'wp-super-cache' ) . '</span>'; ?></h3>
+	<p><?php _e( 'Prepare your server for an expected spike in traffic by enabling the lock down. When this is enabled, new comments on a post will not refresh the cached static files.', 'wp-super-cache' ); ?></p>
+	<p><?php _e( 'Developers: Make your plugin lock down compatible by checking the "WPLOCKDOWN" constant. The following code will make sure your plugin respects the WPLOCKDOWN setting.', 'wp-super-cache' ); ?>
 	<blockquote><code>if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) ) { 
-		&nbsp;&nbsp;&nbsp;&nbsp;echo "Sorry. My blog is locked down. Updates will appear shortly";
+		&nbsp;&nbsp;&nbsp;&nbsp;echo "<?php _e( 'Sorry. My blog is locked down. Updates will appear shortly', 'wp-super-cache' ); ?>";
 		}</code></blockquote>
 	<?php
 	if( $wp_lock_down == '1' ) {
-		?><p>WordPress is locked down. Super Cache static files will not be deleted when new comments are made.</p><?php
+		?><p><?php _e( 'WordPress is locked down. Super Cache static files will not be deleted when new comments are made.', 'wp-super-cache' ); ?></p><?php
 	} else {
-		?><p>WordPress is not locked down. New comments will refresh Super Cache static files as normal.</p><?php
+		?><p><?php _e( 'WordPress is not locked down. New comments will refresh Super Cache static files as normal.', 'wp-super-cache' ); ?></p><?php
 	}
 	$new_lockdown =  $wp_lock_down == '1' ? '0' : '1';
-	$new_lockdown_desc =  $wp_lock_down == '1' ? 'Disable' : 'Enable';
+	$new_lockdown_desc =  $wp_lock_down == '1' ? __( 'Disable', 'wp-super-cache' ) : __( 'Enable', 'wp-super-cache' );
 	echo '<form name="wp_lock_down" action="" method="post">';
 	echo "<input type='hidden' name='wp_lock_down' value='{$new_lockdown}' />";
-	echo "<div class='submit'><input type='submit' " . SUBMITDISABLED . " value='{$new_lockdown_desc} Lock Down &raquo;' /></div>";
+	echo "<div class='submit'><input type='submit' " . SUBMITDISABLED . " value='{$new_lockdown_desc} " . __( 'Lock Down', 'wp-super-cache' ) . " &raquo;' /></div>";
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
