@@ -503,7 +503,7 @@ function wsc_mod_rewrite() {
 	} elseif( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && $cache_compression ) {
 		?><p><strong><?php _e( 'Super Cache compression is now enabled.', 'wps-uper-cache' ); ?></strong></p><?php
 	}
-	echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update Compression', 'wp-super-cache' ); ?> &raquo;" /></div>';
+	echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update Compression', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	?></fieldset>
@@ -694,7 +694,7 @@ function wp_lock_down() {
 	?></fieldset><?php
 	if( $cache_enabled == true && $super_cache_enabled == true ) {
 	?><fieldset class="options"> 
-	<h3>Directly Cached Files</h3><?php
+	<h3><?php _e( 'Directly Cached Files', 'wp-super-cache' ); ?></h3><?php
 
 	$out = '';
 	if( $valid_nonce && is_array( $_POST[ 'direct_pages' ] ) && !empty( $_POST[ 'direct_pages' ] ) ) {
@@ -752,7 +752,7 @@ function wp_lock_down() {
 			@unlink( $pagefile );
 			@unlink( $pagefile . '.gz' );
 			RecursiveFolderDelete( $firstfolder );
-			echo "<strong>$pagefile removed!</strong>";
+			echo "<strong>" . sprintf( __( '%s removed!', 'wp-super-cache' ), $pagefile ) . "</strong>";
 			prune_super_cache( $cache_path, true );
 		}
 	}
@@ -760,9 +760,9 @@ function wp_lock_down() {
 	$readonly = '';
 	if( !is_writeable_ACLSafe( ABSPATH ) ) {
 		$readonly = 'READONLY';
-		?><p style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><strong>Warning!</strong> You must make <?php echo ABSPATH ?> writable to enable this feature. As this is a security risk please make it readonly after your page is generated.</p><?php
+		?><p style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><strong><?php _e( 'Warning!', 'wp-super-cache' ); ?></strong> <?php printf( __( 'You must make %s writable to enable this feature. As this is a security risk please make it readonly after your page is generated.', 'wp-super-cache' ), ABSPATH ); ?></p><?php
 	} else {
-		?><p style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><strong>Warning!</strong> <?php echo ABSPATH ?> is writable. Please make it readonly after your page is generated as this is a security risk.</p><?php
+		?><p style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><strong><?php _e( 'Warning!', 'wp-super-cache' ); ?></strong> <?php printf( __( '%s is writable. Please make it readonly after your page is generated as this is a security risk.', 'wp-super-cache' ), ABSPATH ); ?></p><?php
 	}
 	echo '<form name="direct_page" action="" method="post">';
 	if( is_array( $cached_direct_pages ) ) {
@@ -776,12 +776,12 @@ function wp_lock_down() {
 			$out .= "<tr><td><input type='text' $readonly name='direct_pages[]' size='30' value='$page' /></td><td>$generated</td></tr>";
 		}
 		if( $out != '' ) {
-			?><table><tr><th>Existing direct page</th><th>Delete cached file</th></tr><?php
+			?><table><tr><th><?php _e( 'Existing direct page', 'wp-super-cache' ); ?></th><th><?php _e( 'Delete cached file', 'wp-super-cache' ); ?></th></tr><?php
 			echo "$out</table>";
 		}
 	}
 	if( $readonly != 'READONLY' )
-		echo "Add direct page: <input type='text' $readonly name='new_direct_page' size='30' value='' />";
+		echo __( "Add direct page:", 'wp-super-cache' ) . "<input type='text' $readonly name='new_direct_page' size='30' value='' />";
 
 	echo "<p>Directly cached files are files created directly off " . ABSPATH . " where your blog lives. This feature is only useful if you are expecting a major Digg or Slashdot level of traffic to one post or page.</p>";
 	if( $readonly != 'READONLY' ) {
@@ -1335,10 +1335,15 @@ function wp_cache_files() {
 					$this_expired = true;
 				}
 				$count++;
-				/*
-				if ($list_files) {
-					$meta = new CacheMeta;
-					$meta = unserialize(file_get_contents($cache_path . 'meta/' . $file));
+				if ( $valid_nonce && $_GET[ 'listfiles' ] ) {
+					$meta = unserialize( file_get_contents( $cache_path . 'meta/' . $file ) );
+					$meta[ 'age' ] = $age;
+					if ( $this_expired ) {
+						$expired_list[] = $meta;
+					} else {
+						$cached_list[] = $meta;
+					}
+					/*
 					echo $flip ? '<tr style="background: #EAEAEA;">' : '<tr>';
 					$flip = !$flip;
 					echo '<td><a href="http://' . $meta->uri . '" target="_blank" >';
@@ -1352,8 +1357,8 @@ function wp_cache_files() {
 					echo '<div class="submit"><input id="deletepost" ' . SUBMITDISABLED . 'type="submit" value="Remove" /></div>';
 					wp_nonce_field('wp-cache');
 					echo "</form></td></tr>\n";
+					*/
 				}
-				*/
 			}
 		}
 		closedir($handle);
@@ -1373,7 +1378,7 @@ function wp_cache_files() {
 	}
 	if( $cache_enabled == true && $super_cache_enabled == true ) {
 		$now = time();
-		$sizes = array( 'expired' => 0, 'cached' => 0, 'ts' => 0 );
+		$sizes = array( 'expired' => 0, 'expired_list' => array(), 'cached' => 0, 'cached_list' => array(), 'ts' => 0 );
 
 		if (is_dir($supercachedir)) {
 			if( $dh = opendir( $supercachedir ) ) {
@@ -1385,9 +1390,16 @@ function wp_cache_files() {
 				closedir($dh);
 			}
 		} else {
-			if(is_file($supercachedir) && filemtime( $supercachedir ) + $cache_max_time <= $now )
+			$filem = filemtime( $supercachedir );
+			if(is_file($supercachedir) && $filem + $cache_max_time <= $now ) {
 				$sizes[ 'expired' ] ++;
-		}
+				if ( $valid_nonce && $_GET[ 'listfiles' ] )
+					$sizes[ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
+			} else {
+				if ( $valid_nonce && $_GET[ 'listfiles' ] )
+					$sizes[ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
+			}
+		} 
 		$sizes[ 'ts' ] = time();
 	}
 
@@ -1408,6 +1420,45 @@ function wp_cache_files() {
 		echo "<ul><li>" . intval( $sizes[ 'cached' ] / $divisor ) . " Cached Pages</li>";
 		$age = intval(($now - $sizes['ts'])/60);
 		echo "<li>" . intval( $sizes[ 'expired' ] / $divisor ) . " Expired Pages</li></ul>";
+	}
+	if ( $valid_nonce && $_GET[ 'listfiles' ] ) {
+		echo "<div style='padding: 10px; border: 1px solid #333; height: 400px; width: 70%; overflow: auto'>";
+		if ( is_array( $cached_list ) && !empty( $cached_list ) ) {
+			echo "<h4>" . __( 'Fresh WP-Cached Files', 'wp-super-cache' ) . "</h4>";
+			echo "<ol>";
+			foreach( $cached_list as $cache_type => $details ) {
+				echo "<li> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a> ({$details[ 'age' ]})</li>\n";
+			}
+			echo "</ol>";
+		}
+		if ( is_array( $expired_list ) && !empty( $expired_list ) ) {
+			echo "<h4>" . __( 'Stale WP-Cached Files', 'wp-super-cache' ) . "</h4>";
+			echo "<ol>";
+			foreach( $expired_list as $cache_type => $details ) {
+				echo "<li> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a> ({$details[ 'age' ]})</li>\n";
+			}
+			echo "</ol>";
+		}
+		if ( is_array( $sizes[ 'cached_list' ] ) & !empty( $sizes[ 'cached_list' ] ) ) {
+			echo "<h4>" . __( 'Fresh Super Cached Files', 'wp-super-cache' ) . "</h4>";
+			echo "<ol>";
+			foreach( $sizes[ 'cached_list' ] as $uri => $t ) {
+				echo "<li> <a href='http://{$uri}'>" . $uri . "</a> ($t)</li>\n";
+			}
+			echo "</ol>";
+		}
+		if ( is_array( $sizes[ 'expired_list' ] ) && !empty( $sizes[ 'expired_list' ] ) ) {
+			echo "<h4>" . __( 'Stale Super Cached Files', 'wp-super-cache' ) . "</h4>";
+			echo "<ol>";
+			foreach( $sizes[ 'expired_list' ] as $uri => $t ) {
+				echo "<li> <a href='http://{$uri}'>" . $uri . "</a> ($t)</li>\n";
+			}
+			echo "</ol>";
+		}
+		echo "</div>";
+		echo "<p><a href='" . remove_query_arg( array( 'listfiles', '_wpnonce' ) ) . "'>" . __( 'Hide file list' ) . "</a></p>";
+	} else {
+		echo "<p><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'listfiles' => '1' ) ), 'wp-cache' ) . "'>" . __( 'List all cached files' ) . "</a></p>";
 	}
 	$last_gc = get_option( "wpsupercache_gc_time" );
 	if( $last_gc ) {
@@ -1445,7 +1496,7 @@ function delete_cache_dashboard() {
 add_action( 'dashmenu', 'delete_cache_dashboard' );
 
 function wpsc_dirsize($directory, $sizes) {
-	global $cache_max_time;
+	global $cache_max_time, $cache_path, $valid_nonce;
 	$now = time();
 
 	if (is_dir($directory)) {
@@ -1459,10 +1510,15 @@ function wpsc_dirsize($directory, $sizes) {
 		}
 	} else {
 		if(is_file($directory) ) {
-			if( filemtime( $directory ) + $cache_max_time <= $now ) {
+			$filem = filemtime( $directory );
+			if( $filem + $cache_max_time <= $now ) {
 				$sizes[ 'expired' ]+=1;
+				if ( $valid_nonce && $_GET[ 'listfiles' ] )
+					$sizes[ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', str_replace( 'index.html', '', str_replace( 'index.html.gz', '', $directory ) ) ) ] = $now - $filem;
 			} else {
 				$sizes[ 'cached' ]+=1;
+				if ( $valid_nonce && $_GET[ 'listfiles' ] )
+					$sizes[ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', str_replace( 'index.html', '', str_replace( 'index.html.gz', '', $directory ) ) ) ] = $now - $filem;
 			}
 			if ( ! isset( $sizes[ 'fsize' ] ) )
 				$sizes[ 'fsize' ] = @filesize( $directory );
