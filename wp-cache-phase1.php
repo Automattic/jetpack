@@ -16,11 +16,6 @@ if( $blogcacheid != '' ) {
 	$blog_cache_dir = $cache_path;
 }
 
-if(defined('DOING_CRON')) {
-	require_once( WPCACHEHOME . 'wp-cache-phase2.php');
-	return true;
-}
-
 $mutex_filename = 'wp_cache_mutex.lock';
 $new_cache = false;
 
@@ -130,6 +125,12 @@ function wp_cache_serve_cache_file() {
 	} else {
 		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "No wp-cache file exists or user agent rejected.", 5 );
 	}
+}
+
+if(defined('DOING_CRON')) {
+	extract( wp_super_cache_init() );
+	require_once( WPCACHEHOME . 'wp-cache-phase2.php');
+	return true;
 }
 
 if ( !isset( $wp_super_cache_late_init ) || ( isset( $wp_super_cache_late_init ) && false == $wp_super_cache_late_init ) ) {
