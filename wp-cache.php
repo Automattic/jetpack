@@ -1407,6 +1407,7 @@ function wp_cache_files() {
 		$sizes[ 'ts' ] = time();
 	}
 
+	echo "<a name='listfiles'></a>";
 	echo "<p><strong>WP-Cache ({$wp_cache_fsize})</strong></p>";
 	echo "<ul><li>$count Cached Pages</li>";
 	echo "<li>$expired Expired Pages</li></ul>";
@@ -1480,9 +1481,9 @@ function wp_cache_files() {
 			echo "</table>";
 		}
 		echo "</div>";
-		echo "<p><a href='" . remove_query_arg( array( 'listfiles', '_wpnonce' ) ) . "'>" . __( 'Hide file list' ) . "</a></p>";
+		echo "<p><a href='" . remove_query_arg( array( 'listfiles', '_wpnonce' ) ) . "'#top>" . __( 'Hide file list' ) . "</a></p>";
 	} else {
-		echo "<p><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'listfiles' => '1' ) ), 'wp-cache' ) . "'>" . __( 'List all cached files' ) . "</a></p>";
+		echo "<p><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'listfiles' => '1' ) ), 'wp-cache' ) . "#listfiles'>" . __( 'List all cached files' ) . "</a></p>";
 	}
 	$last_gc = get_option( "wpsupercache_gc_time" );
 	if( $last_gc ) {
