@@ -75,9 +75,11 @@ if( false == @is_dir( $blog_cache_dir . 'meta' ) )
 $wp_start_time = microtime();
 
 function wp_super_cache_init() {
-	global $key, $blogcacheid, $wp_cache_request_uri, $file_prefix, $blog_cache_dir, $meta_file, $cache_file, $cache_filename, $wp_super_cache_debug, $meta_pathname, $wp_cache_gzip_encoding, $meta;
+	global $wp_cache_key, $key, $blogcacheid, $wp_cache_request_uri, $file_prefix, $blog_cache_dir, $meta_file, $cache_file, $cache_filename, $wp_super_cache_debug, $meta_pathname, $wp_cache_gzip_encoding, $meta;
 
-	$key = $blogcacheid . md5( do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $wp_cache_request_uri ) ).$wp_cache_gzip_encoding.wp_cache_get_cookies_values() ) );
+	$wp_cache_key = do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $wp_cache_request_uri ) ).$wp_cache_gzip_encoding.wp_cache_get_cookies_values() );
+	$key = $blogcacheid . md5( $wp_cache_key );
+	$wp_cache_key = $blogcacheid . $wp_cache_key;
 
 	$cache_filename = $file_prefix . $key . '.html';
 	$meta_file = $file_prefix . $key . '.meta';

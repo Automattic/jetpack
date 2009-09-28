@@ -1429,19 +1429,19 @@ function wp_cache_files() {
 		echo "<div style='padding: 10px; border: 1px solid #333; height: 400px; width: 70%; overflow: auto'>";
 		if ( is_array( $cached_list ) && !empty( $cached_list ) ) {
 			echo "<h4>" . __( 'Fresh WP-Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<ol>";
+			echo "<table><tr><th>URI</th><th>Key</th><th>Age</th></tr>";
 			foreach( $cached_list as $cache_type => $details ) {
-				echo "<li> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a> ({$details[ 'age' ]})</li>\n";
+				echo "<tr><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> ({$details[ 'age' ]})</td></tr>\n";
 			}
-			echo "</ol>";
+			echo "</table>";
 		}
 		if ( is_array( $expired_list ) && !empty( $expired_list ) ) {
 			echo "<h4>" . __( 'Stale WP-Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<ol>";
+			echo "<table><tr><th>URI</th><th>Key</th><th>Age</th></tr>";
 			foreach( $expired_list as $cache_type => $details ) {
-				echo "<li> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a> ({$details[ 'age' ]})</li>\n";
+				echo "<tr><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> ({$details[ 'age' ]})</td></tr>\n";
 			}
-			echo "</ol>";
+			echo "</table>";
 		}
 		if ( is_array( $sizes[ 'cached_list' ] ) & !empty( $sizes[ 'cached_list' ] ) ) {
 			echo "<h4>" . __( 'Fresh Super Cached Files', 'wp-super-cache' ) . "</h4>";

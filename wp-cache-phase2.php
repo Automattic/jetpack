@@ -599,11 +599,13 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 
 function wp_cache_shutdown_callback() {
 	global $cache_path, $cache_max_time, $file_expired, $file_prefix, $meta_file, $new_cache, $wp_cache_meta, $known_headers, $blog_id, $wp_cache_gzip_encoding, $gzsize, $cache_filename, $supercacheonly, $blog_cache_dir;
-	global $wp_cache_blog_charset, $wp_cache_request_uri;
+	global $wp_cache_blog_charset, $wp_cache_request_uri, $wp_cache_key;
 
 	$wp_cache_meta[ 'uri' ] = $_SERVER["SERVER_NAME"].preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $wp_cache_request_uri); // To avoid XSS attacks
 	$wp_cache_meta[ 'blog_id' ] = $blog_id;
 	$wp_cache_meta[ 'post' ] = wp_cache_post_id();
+	$wp_cache_meta[ 'key' ] = $wp_cache_key;
+	$wp_cache_meta = apply_filters( 'wp_cache_meta', $wp_cache_meta );
 
 	$response = wp_cache_get_response_headers();
 	foreach ($known_headers as $key) {
