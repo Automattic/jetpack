@@ -1008,24 +1008,24 @@ function wp_cache_debug_settings() {
 			echo " $wp_cache_debug_email ";
 		echo "</p>";
 	}
-	echo '<p>Fix problems with the plugin by debugging it here. It can send you debug emails or log them to a file in your cache directory.</p>';
-	echo '<p>Logging to a file is easier but faces the problem that clearing the cache will clear the log file.</p>';
+	echo '<p>' . __( 'Fix problems with the plugin by debugging it here. It can send you debug emails or log them to a file in your cache directory.', 'wp-super-cache' ) . '</p>';
+	echo '<p>' . __( 'Logging to a file is easier but faces the problem that clearing the cache will clear the log file.', 'wp-super-cache' ) . '</p>';
 	echo '<div style="clear:both"></div><form name="wp_cache_debug" action="#debug" method="post">';
 	echo "<input type='hidden' name='wp_cache_debug' value='1' /><br />";
 	echo "<table class='form-table'>";
-	echo "<tr><td>Debugging</td><td><input type='checkbox' name='wp_super_cache_debug' value='1' " . checked( 1, $wp_super_cache_debug, false ) . " /> enabled </td></tr>";
-	echo "<tr><td valign='top' rowspan='2'>Logging Type</td><td> Email: <input type='text' size='30' name='wp_cache_debug_email' value='{$wp_cache_debug_email}' /></td></tr>";
-	echo "<tr><td><input type='checkbox' name='wp_cache_debug_to_file' value='1' " . checked( 1, $wp_cache_debug_to_file, false ) . " /> file</td></tr>";
-	echo "<tr><td>IP Address</td><td> <input type='text' size='20' name='wp_cache_debug_ip' value='{$wp_cache_debug_ip}' /> (only log requests from this IP address. Your IP is {$_SERVER[ 'REMOTE_ADDR' ]})</td></tr>";
+	echo "<tr><td>" . __( 'Debugging', 'wp-super-cache' ) . "</td><td><input type='checkbox' name='wp_super_cache_debug' value='1' " . checked( 1, $wp_super_cache_debug, false ) . " /> " . __( 'enabled', 'wp-super-cache' ) . "</td></tr>";
+	echo "<tr><td valign='top' rowspan='2'>Logging Type</td><td> " . __( 'Email', 'wp-super-cache' ) . ": <input type='text' size='30' name='wp_cache_debug_email' value='{$wp_cache_debug_email}' /></td></tr>";
+	echo "<tr><td><input type='checkbox' name='wp_cache_debug_to_file' value='1' " . checked( 1, $wp_cache_debug_to_file, false ) . " /> " . __( 'file', 'wp-super-cache' ) . "</td></tr>";
+	echo "<tr><td>" . __( 'IP Address', 'wp-super-cache' ) . "</td><td> <input type='text' size='20' name='wp_cache_debug_ip' value='{$wp_cache_debug_ip}' /> " . sprintf( __( '(only log requests from this IP address. Your IP is %s)', 'wp-super-cache' ), $_SERVER[ 'REMOTE_ADDR' ] ) . "</td></tr>";
 	echo "<tr><td>Log level</td><td> ";
 	for( $t = 1; $t <= 5; $t++ ) {
 		echo "<input type='radio' name='wp_cache_debug_level' value='$t' ";
 		echo $wp_cache_debug_level == $t ? "checked='checked' " : '';
 		echo "/> $t ";
 	}
-	echo " (1 = less, 5 = more, may cause severe server load.)</td></tr></table>";
+	echo " " . __( '(1 = less, 5 = more, may cause severe server load.)', 'wp-super-cache' ) . "</td></tr></table>";
 	
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="Save &raquo;" /></div>';
+	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	echo '</fieldset>';
@@ -1035,7 +1035,7 @@ function wp_cache_enable() {
 	global $wp_cache_config_file, $cache_enabled, $supercachedir;
 
 	if(get_option('gzipcompression')) {
-		echo "<strong>Error: GZIP compression is enabled, disable it if you want to enable wp-cache.</strong>";
+		echo "<strong>" . __( 'Error: GZIP compression is enabled, disable it if you want to enable wp-cache.', 'wp-super-cache' ) . "</strong>";
 		return false;
 	}
 	if( wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = true;', $wp_cache_config_file) ) {
@@ -1083,7 +1083,7 @@ function wp_cache_is_enabled() {
 	global $wp_cache_config_file;
 
 	if(get_option('gzipcompression')) {
-		echo "<strong>Warning</strong>: GZIP compression is enabled in Wordpress, wp-cache will be bypassed until you disable gzip compression.";
+		echo "<strong>" . __( 'Warning', 'wp-super-cache' ) . "</strong>: " . __( "GZIP compression is enabled in Wordpress, wp-cache will be bypassed until you disable gzip compression.", 'wp-super-cache' );
 		return false;
 	}
 	$lines = file($wp_cache_config_file);
@@ -1141,12 +1141,12 @@ function wp_cache_verify_cache_dir() {
 	$dir = dirname($cache_path);
 	if ( !file_exists($cache_path) ) {
 		if ( !is_writeable_ACLSafe( $dir ) || !($dir = mkdir( $cache_path ) ) ) {
-				echo "<strong>Error:</strong> Your cache directory (<strong>$cache_path</strong>) did not exist and couldn't be created by the web server.  Check  $dir permissions.";
+				echo "<strong>" . __( 'Error', 'wp-super-cache' ) . ":</strong> " . sprintf( __( 'Your cache directory (<strong>$cache_path</strong>) did not exist and couldn&#8217;t be created by the web server. Check %s permissions.', 'wp-super-cache' ), $dir );
 				return false;
 		}
 	}
 	if ( !is_writeable_ACLSafe($cache_path)) {
-		echo "<strong>Error:</strong> Your cache directory (<strong>$cache_path</strong>) or <strong>$dir</strong> need to be writable for this plugin to work.  Double-check it.";
+		echo "<strong>" . __( 'Error', 'wp-super-cache' ) . ":</strong> " . sprintf( __( 'Your cache directory (<strong>%1$s</strong>) or <strong>%2$s</strong> need to be writable for this plugin to work. Double-check it.', 'wp-super-cache' ), $cache_path, $dir );
 		return false;
 	}
 
@@ -1178,18 +1178,18 @@ function wp_cache_verify_config_file() {
 			if( is_writeable_ACLSafe( $wp_cache_config_file ) ) {
 				@unlink( $wp_cache_config_file );
 			} else {
-				echo "<strong>Error:</strong> Your WP-Cache config file (<strong>$wp_cache_config_file</strong>) is out of date and not writable by the Web server.Please delete it and refresh this page.";
+				echo "<strong>" . __( 'Error', 'wp-super-cache' ) . ":</strong> " . sprintf( __( 'Your WP-Cache config file (<strong>%s</strong>) is out of date and not writable by the Web server.Please delete it and refresh this page.', 'wp-super-cache' ), $wp_cache_config_file );
 				return false;
 			}
 		}
 	} elseif( !is_writeable_ACLSafe($dir)) {
-		echo "<strong>Error:</strong> Configuration file missing and " . WP_CONTENT_DIR . "  directory (<strong>$dir</strong>) is not writable by the Web server.Check its permissions.";
+		echo "<strong>" . __( 'Error', 'wp-super-cache' ) . ":</strong> " . sprintf( __( 'Configuration file missing and %1$s  directory (<strong>%2$s</strong>) is not writable by the Web server.Check its permissions.', 'wp-super-cache' ), WP_CONTENT_DIR, $dir );
 		return false;
 	}
 
 	if ( !file_exists($wp_cache_config_file) ) {
 		if ( !file_exists($wp_cache_config_file_sample) ) {
-			echo "<strong>Error:</strong> Sample WP-Cache config file (<strong>$wp_cache_config_file_sample</strong>) does not exist.Verify you installation.";
+			echo "<strong>" . __( 'Error', 'wp-super-cache' ) . ":</strong> " . sprintf( __( 'Sample WP-Cache config file (<strong>%s</strong>) does not exist.Verify you installation.', 'wp-super-cache' ), $wp_cache_config_file_sample );
 			return false;
 		}
 		copy($wp_cache_config_file_sample, $wp_cache_config_file);
@@ -1245,12 +1245,12 @@ function wp_cache_check_link() {
 	}
 
 	if( false == $ret ) {
-		echo "<h3>Warning! <em>" . constant( 'WP_CONTENT_DIR' ) . "/advanced-cache.php</em> does not exist or cannot be updated.</h3>";
-		echo "<p><ul><li>1. If it already exists please delete the file first.</li>";
-		echo "<li>2. Make " . constant( 'WP_CONTENT_DIR' ) . " writable using the chmod command through your ftp or server software. (<em>chmod 777 " . constant( 'WP_CONTENT_DIR' ) . "</em>) and refresh this page. This is only a temporary measure and you'll have to make it read only afterwards again. (Change 777 to 755 in the previous command)</li>";
-		echo "<li>3. Refresh this page to update <em>" . constant( 'WP_CONTENT_DIR' ) . "/advanced-cache.php</em></li></ul>";
-		echo "If that doesn't work, make sure the file <em>" . constant( 'WP_CONTENT_DIR' ) . "/advanced-cache.php</em> doesn't exist:<ol>";
-		echo "<li>1. Open <em>$wp_cache_file</em> in a text editor.</li><li>2. Change the text <em>CACHEHOME</em> to <em>" . constant( 'WPCACHEHOME' ) . "</em></li><li>3. Save the file and copy it to <em>$wp_cache_link</em> and refresh this page.</li>";
+		echo "<h3>" . __( 'Warning', 'wp-super-cache' ) . "! <em>" . sprintf( __( '%s/advanced-cache.php</em> does not exist or cannot be updated.', 'wp-super-cache' ), WP_CONTENT_DIR ) . "</h3>";
+		echo "<p><ul><li>" . __( '1. If it already exists please delete the file first.', 'wp-super-cache' ) . "</li>";
+		echo "<li>" . sprintf( __( '2. Make %1$s writable using the chmod command through your ftp or server software. (<em>chmod 777 %1$s</em>) and refresh this page. This is only a temporary measure and you&#8217;ll have to make it read only afterwards again. (Change 777 to 755 in the previous command)', 'wp-super-cache' ), WP_CONTENT_DIR ) . "</li>";
+		echo "<li>" . sprintf( __( '3. Refresh this page to update <em>%s/advanced-cache.php</em>', 'wp-super-cache' ), WP_CONTENT_DIR ) . "</li></ul>";
+		echo sprintf( __( 'If that doesn&#8217;t work, make sure the file <em>%s/advanced-cache.php</em> doesn&#8217;t exist:', 'wp-super-cache' ), WP_CONTENT_DIR ) . "<ol>";
+		printf( __( '<li>1. Open <em>%1$s$wp_cache_file</em> in a text editor.</li><li>2. Change the text <em>CACHEHOME</em> to <em>%2$s</em></li><li>3. Save the file and copy it to <em>%3$s</em> and refresh this page.</li>', 'wp-super-cache' ), $wp_cache_file, WPCACHEHOME, $wp_cache_link );
 		return false;
 	}
 	return true;
@@ -1276,7 +1276,7 @@ function wp_cache_check_global_config() {
 	}
 	$line = 'define(\'WP_CACHE\', true);';
 	if (!is_writeable_ACLSafe($global) || !wp_cache_replace_line('define *\( *\'WP_CACHE\'', $line, $global) ) {
-			_e( "<strong>Error: WP_CACHE is not enabled</strong> in your <code>wp-config.php</code> file and I couldn&#8217;t modify it." );
+			_e( "<strong>Error: WP_CACHE is not enabled</strong> in your <code>wp-config.php</code> file and I couldn&#8217;t modify it.", 'wp-super-cache' );
 			echo $howtoenable;
 			return false;
 	} 
