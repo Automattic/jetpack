@@ -1429,35 +1429,55 @@ function wp_cache_files() {
 		echo "<div style='padding: 10px; border: 1px solid #333; height: 400px; width: 70%; overflow: auto'>";
 		if ( is_array( $cached_list ) && !empty( $cached_list ) ) {
 			echo "<h4>" . __( 'Fresh WP-Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table><tr><th>URI</th><th>Key</th><th>Age</th></tr>";
-			foreach( $cached_list as $cache_type => $details ) {
-				echo "<tr><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> ({$details[ 'age' ]})</td></tr>\n";
+			echo "<table class='widefat'><tr><th>#</th><th>URI</th><th>Key</th><th>Age</th></tr>";
+			$c = 1;
+			$flip = 1;
+			foreach( array_reverse( $cached_list ) as $details ) {
+				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
+				echo "<tr $bg><td>$c</td><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> {$details[ 'age' ]}</td></tr>\n";
+				$flip = !$flip;
+				$c++;
 			}
 			echo "</table>";
 		}
 		if ( is_array( $expired_list ) && !empty( $expired_list ) ) {
 			echo "<h4>" . __( 'Stale WP-Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table><tr><th>URI</th><th>Key</th><th>Age</th></tr>";
-			foreach( $expired_list as $cache_type => $details ) {
-				echo "<tr><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> ({$details[ 'age' ]})</td></tr>\n";
+			echo "<table class='widefat'><tr><th>#</th><th>URI</th><th>Key</th><th>Age</th></tr>";
+			$c = 1;
+			$flip = 1;
+			foreach( array_reverse( $expired_list ) as $details ) {
+				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
+				echo "<tr $bg><td>$c</td><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> {$details[ 'age' ]}</td></tr>\n";
+				$flip = !$flip;
+				$c++;
 			}
 			echo "</table>";
 		}
 		if ( is_array( $sizes[ 'cached_list' ] ) & !empty( $sizes[ 'cached_list' ] ) ) {
 			echo "<h4>" . __( 'Fresh Super Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<ol>";
-			foreach( $sizes[ 'cached_list' ] as $uri => $t ) {
-				echo "<li> <a href='http://{$uri}'>" . $uri . "</a> ($t)</li>\n";
+			echo "<table class='widefat'><tr><th>#</th><th>URI</th><th>Age</th></tr>";
+			$c = 1;
+			$flip = 1;
+			foreach( array_reverse( $sizes[ 'cached_list' ] ) as $uri => $t ) {
+				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
+				echo "<tr $bg><td>$c</td><td> <a href='http://{$uri}'>" . $uri . "</a></td><td>$t</td></tr>\n";
+				$flip = !$flip;
+				$c++;
 			}
-			echo "</ol>";
+			echo "</table>";
 		}
 		if ( is_array( $sizes[ 'expired_list' ] ) && !empty( $sizes[ 'expired_list' ] ) ) {
 			echo "<h4>" . __( 'Stale Super Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<ol>";
-			foreach( $sizes[ 'expired_list' ] as $uri => $t ) {
-				echo "<li> <a href='http://{$uri}'>" . $uri . "</a> ($t)</li>\n";
+			echo "<table class='widefat'><tr><th>#</th><th>URI</th><th>Age</th></tr>";
+			$c = 1;
+			$flip = 1;
+			foreach( array_reverse( $sizes[ 'expired_list' ] ) as $uri => $t ) {
+				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
+				echo "<tr $bg><td>$c</td><td> <a href='http://{$uri}'>" . $uri . "</a></td><td>$t</td></tr>\n";
+				$flip = !$flip;
+				$c++;
 			}
-			echo "</ol>";
+			echo "</table>";
 		}
 		echo "</div>";
 		echo "<p><a href='" . remove_query_arg( array( 'listfiles', '_wpnonce' ) ) . "'>" . __( 'Hide file list' ) . "</a></p>";
