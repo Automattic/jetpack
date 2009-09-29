@@ -69,4 +69,5 @@ $wp_cache_gzip_first = 0;
 $wp_cache_plugins_dir = WPCACHEHOME . 'plugins';
 // set to 1 to do garbage collection during normal process shutdown instead of wp-cron
 $wp_cache_shutdown_gc = 0; 
+$wp_super_cache_late_init = 0;
 ?>
