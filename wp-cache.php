@@ -495,9 +495,10 @@ function wsc_mod_rewrite() {
 	}
 	if( false == defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
 	?>
+	<a name='rewrite'></a>
 	<fieldset class="options"> 
-	<h3><php _e( 'Super Cache Compression', 'wp-super-cache' ); ?></h3>
-	<form name="wp_manager" action="<?php echo $_SERVER["REQUEST_URI"]; ?>" method="post">
+	<h3><?php _e( 'Super Cache Compression', 'wp-super-cache' ); ?></h3>
+	<form name="wp_manager" action="#rewrite" method="post">
 	<label><input type="radio" name="cache_compression" value="1" <?php if( $cache_compression ) { echo "checked=checked"; } ?>> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
 	<label><input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
 	<p><?php _e( 'Compression is disabled by default because some hosts have problems with compressed files. Switching this on and off clears the cache.', 'wp-super-cache' ); ?></p>
@@ -642,7 +643,7 @@ function wsc_mod_rewrite() {
 
 function wp_cache_restore() {
 	echo '<fieldset class="options"><h3>' . __( 'Fix Configuration', 'wp-super-cache' ) . '</h3>';
-	echo '<form name="wp_restore" action="" method="post">';
+	echo '<form name="wp_restore" action="#top" method="post">';
 	echo '<input type="hidden" name="wp_restore_config" />';
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="deletepost" value="' . __( 'Restore Default Configuration', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
@@ -674,7 +675,8 @@ function wp_lock_down() {
 			$wp_lock_down = '0';
 		}
 	}
-	?><fieldset class="options"> 
+	?><a name='lockdown'></a>
+	<fieldset class="options"> 
 	<h3><?php _e( 'Lock Down:', 'wp-super-cache' ); ?> <?php echo $wp_lock_down == '0' ? '<span style="color:red">' . __( 'Disabled', 'wp-super-cache' ) . '</span>' : '<span style="color:green">' . __( 'Enabled', 'wp-super-cache' ) . '</span>'; ?></h3>
 	<p><?php _e( 'Prepare your server for an expected spike in traffic by enabling the lock down. When this is enabled, new comments on a post will not refresh the cached static files.', 'wp-super-cache' ); ?></p>
 	<p><?php _e( 'Developers: Make your plugin lock down compatible by checking the "WPLOCKDOWN" constant. The following code will make sure your plugin respects the WPLOCKDOWN setting.', 'wp-super-cache' ); ?>
@@ -689,7 +691,7 @@ function wp_lock_down() {
 	}
 	$new_lockdown =  $wp_lock_down == '1' ? '0' : '1';
 	$new_lockdown_desc =  $wp_lock_down == '1' ? __( 'Disable', 'wp-super-cache' ) : __( 'Enable', 'wp-super-cache' );
-	echo '<form name="wp_lock_down" action="" method="post">';
+	echo '<form name="wp_lock_down" action="#lockdown" method="post">';
 	echo "<input type='hidden' name='wp_lock_down' value='{$new_lockdown}' />";
 	echo "<div class='submit'><input type='submit' " . SUBMITDISABLED . " value='{$new_lockdown_desc} " . __( 'Lock Down', 'wp-super-cache' ) . " &raquo;' /></div>";
 	wp_nonce_field('wp-cache');
@@ -697,7 +699,8 @@ function wp_lock_down() {
 
 	?></fieldset><?php
 	if( $cache_enabled == true && $super_cache_enabled == true ) {
-	?><fieldset class="options"> 
+		?><a name='direct'></a>
+	<fieldset class="options"> 
 	<h3><?php _e( 'Directly Cached Files', 'wp-super-cache' ); ?></h3><?php
 
 	$out = '';
@@ -768,7 +771,7 @@ function wp_lock_down() {
 	} else {
 		?><p style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><strong><?php _e( 'Warning!', 'wp-super-cache' ); ?></strong> <?php printf( __( '%s is writable. Please make it readonly after your page is generated as this is a security risk.', 'wp-super-cache' ), ABSPATH ); ?></p><?php
 	}
-	echo '<form name="direct_page" action="" method="post">';
+	echo '<form name="direct_page" action="#direct" method="post">';
 	if( is_array( $cached_direct_pages ) ) {
 		$out = '';
 		foreach( $cached_direct_pages as $page ) {
@@ -834,8 +837,9 @@ function wp_cache_edit_max_time () {
 		}
 	}
 	?><fieldset class="options"> 
+	<a name='expirytime'></a>
 	<h3><?php _e( 'Expiry Time &amp; Garbage Collection', 'wp-super-cache' ); ?></h3><?php
-	echo '<form name="wp_edit_max_time" action="" method="post">';
+	echo '<form name="wp_edit_max_time" action="#expirytime" method="post">';
 	echo '<label for="wp_max_time">' . __( 'Expire time:', 'wp-super-cache' ) . '</label> ';
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> " . __( "seconds", 'wp-super-cache' );
 	echo "<h4>" . __( 'Garbage Collection', 'wp-super-cache' ) . "</h4><p>" . __( 'If expiry time is more than 1800 seconds (half an hour), garbage collection will be done every 10 minutes, otherwise it will happen 10 seconds after the expiry time above.' ) . "</p>";
@@ -879,9 +883,9 @@ function wp_cache_edit_rejected_ua() {
 		wp_cache_replace_line('^ *\$cache_rejected_user_agent', "\$cache_rejected_user_agent = $text;", $wp_cache_config_file);
 	}
 
-	echo '<a name="user-agents"></a><fieldset class="options"><h3>' . __( 'Rejected User Agents', 'wp-super-cache' ) . '</h3>';
+	echo '<a name="useragents"></a><fieldset class="options"><h3>' . __( 'Rejected User Agents', 'wp-super-cache' ) . '</h3>';
 	echo "<p>" . __( 'Strings in the HTTP &#8217;User Agent&#8217; header that prevent WP-Cache from caching bot, spiders, and crawlers&#8217; requests. Note that super cached files are still sent to these agents if they already exists.', 'wp-super-cache' ) . "</p>\n";
-	echo '<form name="wp_edit_rejected_user_agent" action="" method="post">';
+	echo '<form name="wp_edit_rejected_user_agent" action="#useragents" method="post">';
 	echo '<textarea name="wp_rejected_user_agent" cols="40" rows="4" style="width: 50%; font-size: 12px;" class="code">';
 	foreach ($cache_rejected_user_agent as $ua) {
 		echo wp_specialchars($ua) . "\n";
@@ -909,8 +913,9 @@ function wp_cache_edit_rejected_pages() {
 		}
 	}
 
+	echo '<a name="rejectpages"></a>';
 	echo '<p>' . __( 'Do not cache the following page types. See the <a href="http://codex.wordpress.org/Conditional_Tags">Conditional Tags</a> documentation for a complete discussion on each type.', 'wp-super-cache' ) . '</p>';
-	echo '<form name="wp_edit_rejected_pages" action="" method="post">';
+	echo '<form name="wp_edit_rejected_pages" action="#rejectpages" method="post">';
 	echo '<input type="hidden" name="wp_edit_rejected_pages" value="1" />';
 	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[single]" ' . checked( 1, $wp_cache_pages[ 'single' ], false ) . ' /> ' . __( 'Single Posts', 'wp-super-cache' ) . ' (is_single)</label><br />';
 	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[pages]" ' . checked( 1, $wp_cache_pages[ 'pages' ], false ) . ' /> ' . __( 'Pages', 'wp-super-cache' ) . ' (is_page)</label><br />';
@@ -937,7 +942,8 @@ function wp_cache_edit_rejected() {
 	}
 
 
-	echo '<form name="wp_edit_rejected" action="" method="post">';
+	echo '<a name="rejecturi"></a>';
+	echo '<form name="wp_edit_rejected" action="#rejecturi" method="post">';
 	echo "<p>" . __( 'Add here strings (not a filename) that forces a page not to be cached. For example, if your URLs include year and you dont want to cache last year posts, it&#8217;s enough to specify the year, i.e. &#8217;/2004/&#8217;. WP-Cache will search if that string is part of the URI and if so, it will not cache that page.', 'wp-super-cache' ) . "</p>\n";
 	echo '<textarea name="wp_rejected_uri" cols="40" rows="4" style="width: 50%; font-size: 12px;" class="code">';
 	foreach ($cache_rejected_uri as $file) {
@@ -958,7 +964,8 @@ function wp_cache_edit_accepted() {
 	}
 
 
-	echo '<div style="clear:both"></div><form name="wp_edit_accepted" action="" method="post">';
+	echo '<a name="cancache"></a>';
+	echo '<div style="clear:both"></div><form name="wp_edit_accepted" action="#cancache" method="post">';
 	echo "<p>" . __( 'Add here those filenames that can be cached, even if they match one of the rejected substring specified above.', 'wp-super-cache' ) . "</p>\n";
 	echo '<textarea name="wp_accepted_files" cols="40" rows="8" style="width: 50%; font-size: 12px;" class="code">';
 	foreach ($cache_acceptable_files as $file) {
@@ -1398,7 +1405,7 @@ function wp_cache_files() {
 				if ( $valid_nonce && $_GET[ 'listfiles' ] )
 					$sizes[ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
 			} else {
-				if ( $valid_nonce && $_GET[ 'listfiles' ] )
+				if ( $valid_nonce && $_GET[ 'listfiles' ] && $filem )
 					$sizes[ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
 			}
 		} 
@@ -1492,13 +1499,13 @@ function wp_cache_files() {
 	}
 
 	echo "<p>" . sprintf( __( 'Expired files are files older than %s seconds. They are still used by the plugin and are deleted periodically.', 'wp-super-cache' ), $cache_max_time ) . "</p>";
-	echo '<form name="wp_cache_content_expired" action="" method="post">';
+	echo '<form name="wp_cache_content_expired" action="#listfiles" method="post">';
 	echo '<input type="hidden" name="wp_delete_expired" />';
 	echo '<div class="submit" style="float:left"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Expired', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
-	echo '<form name="wp_cache_content_delete" action="" method="post">';
+	echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 	echo '<input type="hidden" name="wp_delete_cache" />';
 	echo '<div class="submit" style="float:left;margin-left:10px"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
