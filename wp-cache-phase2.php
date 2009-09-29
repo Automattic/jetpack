@@ -2,7 +2,7 @@
 
 function wp_cache_phase2() {
 	global $cache_filename, $cache_acceptable_files, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_gmt_offset, $wp_cache_blog_charset, $wp_cache_last_gc;
-	global $cache_max_time, $wp_cache_not_logged_in, $wp_cache_request_uri;
+	global $cache_max_time, $wp_cache_not_logged_in, $wp_cache_request_uri, $super_cache_enabled;
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'In WP Cache Phase 2', 5 );
 
 	$wp_cache_gmt_offset   = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. http://wordpress.org/support/topic/224349
@@ -32,9 +32,19 @@ function wp_cache_phase2() {
 		do_cacheaction( 'add_cacheaction' );
 	}
 
-	if( $_SERVER["REQUEST_METHOD"] == 'POST' || !empty( $_POST ) || !empty( $_GET ) || get_option( 'gzipcompression' ) ) {
-		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'not caching POST or non empty GET request.', 5 );
+	if ( $_SERVER["REQUEST_METHOD"] == 'POST' || !empty( $_POST ) || get_option( 'gzipcompression' ) ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Not caching POST request.', 5 );
 		return false;
+	}
+
+	if ( isset( $_GET[ 'preview' ] ) ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Not caching preview post.', 2 );
+		return false;
+	}
+
+	if ( !empty( $_GET ) ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Supercache caching disabled. Non empty GET request.', 5 );
+		$super_cache_enabled = false;
 	}
 
 	if ( $wp_cache_not_logged_in && is_user_logged_in() && !is_feed() && !is_admin() ) {
