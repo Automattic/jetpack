@@ -1301,26 +1301,12 @@ function wp_cache_files() {
 		if(isset($_REQUEST['wp_delete_cache'])) {
 			wp_cache_clean_cache($file_prefix);
 		}
-		if(isset($_REQUEST['wp_delete_cache_file'])) {
-			wp_cache_clean_cache($_REQUEST['wp_delete_cache_file']);
-		}
 		if(isset($_REQUEST['wp_delete_expired'])) {
 			wp_cache_clean_expired($file_prefix);
 		}
 	}
-	if(isset($_REQUEST['wp_list_cache'])) {
-		$list_files = true;
-		$list_mess = "Update list";
-	} else 
-		$list_mess = "List files";
-
+	echo "<a name='listfiles'></a>";
 	echo '<fieldset class="options" id="show-this-fieldset"><h3>Cache Contents</h3>';
-	/*
-	echo '<form name="wp_cache_content_list" action="" method="post">';
-	echo '<input type="hidden" name="wp_list_cache" />';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="'.$list_mess.' &raquo;" /></div>';
-	echo "</form>\n";
-	*/
 
 	$list_files = false; // it doesn't list supercached files, and removing single pages is buggy
 	$count = 0;
@@ -1329,13 +1315,46 @@ function wp_cache_files() {
 	if ( ($handle = @opendir( $blog_cache_dir . 'meta/' )) ) { 
 		if ($list_files) echo "<table cellspacing=\"0\" cellpadding=\"5\">";
 		$wp_cache_fsize = 0;
-		while ( false !== ($file = readdir($handle))) {
+		if ( $valid_nonce && isset( $_GET[ 'action' ] ) && $_GET[ 'action' ] == 'deletewpcache' ) {
+			$deleteuri = preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', base64_decode( $_GET[ 'uri' ] ) ) ) ) );
+			$deleteuri = str_replace( '\\', '', $deleteuri );
+		} else {
+			$deleteuri = '';
+		}
+
+		if ( $valid_nonce && isset( $_GET[ 'action' ] ) && $_GET[ 'action' ] == 'deletesupercache' ) {
+			$supercacheuri = preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', base64_decode( $_GET[ 'uri' ] ) ) ) ) );
+			$supercacheuri = trailingslashit( str_replace( '\\', '', $supercacheuri ) );
+			printf( __( "Deleting supercache file: %s<br />", 'wp-super-cache' ), $cache_path . 'supercache/' . $supercacheuri );
+			@unlink( $cache_path . 'supercache/' . $supercacheuri . 'index.html' );
+			@unlink( $cache_path . 'supercache/' . $supercacheuri . 'index.html.gz' );
+			prune_super_cache( $cache_path . 'supercache/' . $supercacheuri . 'page', true );
+			@rmdir( $cache_path . 'supercache/' . $supercacheuri );
+		}
+		while( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^$file_prefix.*\.meta/", $file) ) {
 				$this_expired = false;
 				$content_file = preg_replace("/meta$/", "html", $file);
 				$mtime = filemtime( $blog_cache_dir . 'meta/' . $file );
 				if ( ! ( $fsize = @filesize( $blog_cache_dir . $content_file ) ) ) 
 					continue; // .meta does not exists
+
+				if ( $valid_nonce && $_GET[ 'listfiles' ] ) {
+					$meta = unserialize( file_get_contents( $cache_path . 'meta/' . $file ) );
+					if ( $deleteuri != '' && $meta[ 'uri' ] == $deleteuri ) {
+						printf( __( "Deleting wp-cache file: %s<br />", 'wp-super-cache' ), $cache_path . $content_file );
+						@unlink( $cache_path . 'meta/' . $file );
+						@unlink( $cache_path . $content_file );
+						continue;
+					}
+					$meta[ 'age' ] = $age;
+					if ( $this_expired ) {
+						$expired_list[] = $meta;
+					} else {
+						$cached_list[] = $meta;
+					}
+				}
+
 				$wp_cache_fsize += $fsize;
 				$fsize = intval($fsize/1024);
 				$age = $now - $mtime;
@@ -1344,30 +1363,6 @@ function wp_cache_files() {
 					$this_expired = true;
 				} else {
 					$count++;
-				}
-				if ( $valid_nonce && $_GET[ 'listfiles' ] ) {
-					$meta = unserialize( file_get_contents( $cache_path . 'meta/' . $file ) );
-					$meta[ 'age' ] = $age;
-					if ( $this_expired ) {
-						$expired_list[] = $meta;
-					} else {
-						$cached_list[] = $meta;
-					}
-					/*
-					echo $flip ? '<tr style="background: #EAEAEA;">' : '<tr>';
-					$flip = !$flip;
-					echo '<td><a href="http://' . $meta->uri . '" target="_blank" >';
-					echo $meta->uri . "</a></td>";
-					if ($this_expired) echo "<td><span style='color:red'>$age secs</span></td>";
-					else echo "<td>$age secs</td>";
-					echo "<td>$fsize KB</td>";
-					echo '<td><form name="wp_delete_cache_file" action="" method="post">';
-					echo '<input type="hidden" name="wp_list_cache" />';
-					echo '<input type="hidden" name="wp_delete_cache_file" value="'.preg_replace("/^(.*)\.meta$/", "$1", $file).'" />';
-					echo '<div class="submit"><input id="deletepost" ' . SUBMITDISABLED . 'type="submit" value="Remove" /></div>';
-					wp_nonce_field('wp-cache');
-					echo "</form></td></tr>\n";
-					*/
 				}
 			}
 		}
@@ -1413,7 +1408,6 @@ function wp_cache_files() {
 		$sizes[ 'ts' ] = time();
 	}
 
-	echo "<a name='listfiles'></a>";
 	echo "<p><strong>" . __( 'WP-Cache', 'wp-super-cache' ) . " ({$wp_cache_fsize})</strong></p>";
 	echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), $count ) . "</li>";
 	echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ), $expired ) . "</li></ul>";
@@ -1436,12 +1430,12 @@ function wp_cache_files() {
 		echo "<div style='padding: 10px; border: 1px solid #333; height: 400px; width: 70%; overflow: auto'>";
 		if ( is_array( $cached_list ) && !empty( $cached_list ) ) {
 			echo "<h4>" . __( 'Fresh WP-Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Key' ) . "</th><th>" . __( 'Age' ) . "</th></tr>";
+			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Key' ) . "</th><th>" . __( 'Age' ) . "</th><th>" . __( 'Delete' ) . "</th></tr>";
 			$c = 1;
 			$flip = 1;
 			foreach( array_reverse( $cached_list ) as $details ) {
 				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
-				echo "<tr $bg><td>$c</td><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> {$details[ 'age' ]}</td></tr>\n";
+				echo "<tr $bg><td>$c</td><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> {$details[ 'age' ]}</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletewpcache', 'uri' => base64_encode( $details[ 'uri' ] ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
 				$flip = !$flip;
 				$c++;
 			}
@@ -1449,12 +1443,12 @@ function wp_cache_files() {
 		}
 		if ( is_array( $expired_list ) && !empty( $expired_list ) ) {
 			echo "<h4>" . __( 'Stale WP-Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Key' ) . "</th><th>" . __( 'Age' ) . "</th></tr>";
+			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Key' ) . "</th><th>" . __( 'Age' ) . "</th><th>" . __( 'Delete' ) . "</th></tr>";
 			$c = 1;
 			$flip = 1;
 			foreach( array_reverse( $expired_list ) as $details ) {
 				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
-				echo "<tr $bg><td>$c</td><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> {$details[ 'age' ]}</td></tr>\n";
+				echo "<tr $bg><td>$c</td><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> {$details[ 'age' ]}</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletewpcache', 'uri' => base64_encode( $details[ 'uri' ] ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
 				$flip = !$flip;
 				$c++;
 			}
@@ -1462,12 +1456,12 @@ function wp_cache_files() {
 		}
 		if ( is_array( $sizes[ 'cached_list' ] ) & !empty( $sizes[ 'cached_list' ] ) ) {
 			echo "<h4>" . __( 'Fresh Super Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Age' ) . "</th></tr>";
+			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Age' ) . "</th><th>" . __( 'Delete' ) . "</th></tr>";
 			$c = 1;
 			$flip = 1;
 			foreach( array_reverse( $sizes[ 'cached_list' ] ) as $uri => $t ) {
 				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
-				echo "<tr $bg><td>$c</td><td> <a href='http://{$uri}'>" . $uri . "</a></td><td>$t</td></tr>\n";
+				echo "<tr $bg><td>$c</td><td> <a href='http://{$uri}'>" . $uri . "</a></td><td>$t</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletesupercache', 'uri' => base64_encode( $uri ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
 				$flip = !$flip;
 				$c++;
 			}
@@ -1475,19 +1469,19 @@ function wp_cache_files() {
 		}
 		if ( is_array( $sizes[ 'expired_list' ] ) && !empty( $sizes[ 'expired_list' ] ) ) {
 			echo "<h4>" . __( 'Stale Super Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Age' ) . "</th></tr>";
+			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Age' ) . "</th><th>" . __( 'Delete' ) . "</th></tr>";
 			$c = 1;
 			$flip = 1;
 			foreach( array_reverse( $sizes[ 'expired_list' ] ) as $uri => $t ) {
 				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
-				echo "<tr $bg><td>$c</td><td> <a href='http://{$uri}'>" . $uri . "</a></td><td>$t</td></tr>\n";
+				echo "<tr $bg><td>$c</td><td> <a href='http://{$uri}'>" . $uri . "</a></td><td>$t</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletesupercache', 'uri' => base64_encode( $uri ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
 				$flip = !$flip;
 				$c++;
 			}
 			echo "</table>";
 		}
 		echo "</div>";
-		echo "<p><a href='" . remove_query_arg( array( 'listfiles', '_wpnonce' ) ) . "'#top>" . __( 'Hide file list', 'wp-super-cache' ) . "</a></p>";
+		echo "<p><a href='?page=wpsupercache#top'>" . __( 'Hide file list', 'wp-super-cache' ) . "</a></p>";
 	} else {
 		echo "<p><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'listfiles' => '1' ) ), 'wp-cache' ) . "#listfiles'>" . __( 'List all cached files', 'wp-super-cache' ) . "</a></p>";
 	}
