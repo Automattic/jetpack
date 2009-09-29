@@ -1342,8 +1342,9 @@ function wp_cache_files() {
 				if ( $age > $cache_max_time ) {
 					$expired++;
 					$this_expired = true;
+				} else {
+					$count++;
 				}
-				$count++;
 				if ( $valid_nonce && $_GET[ 'listfiles' ] ) {
 					$meta = unserialize( file_get_contents( $cache_path . 'meta/' . $file ) );
 					$meta[ 'age' ] = $age;
