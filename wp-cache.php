@@ -1325,7 +1325,7 @@ function wp_cache_files() {
 		if ( $valid_nonce && isset( $_GET[ 'action' ] ) && $_GET[ 'action' ] == 'deletesupercache' ) {
 			$supercacheuri = preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', base64_decode( $_GET[ 'uri' ] ) ) ) ) );
 			$supercacheuri = trailingslashit( str_replace( '\\', '', $supercacheuri ) );
-			printf( __( "Deleting supercache file: %s<br />", 'wp-super-cache' ), $cache_path . 'supercache/' . $supercacheuri );
+			printf( __( "Deleting supercache file: <strong>%s</strong><br />", 'wp-super-cache' ), $supercacheuri );
 			@unlink( $cache_path . 'supercache/' . $supercacheuri . 'index.html' );
 			@unlink( $cache_path . 'supercache/' . $supercacheuri . 'index.html.gz' );
 			prune_super_cache( $cache_path . 'supercache/' . $supercacheuri . 'page', true );
@@ -1333,37 +1333,35 @@ function wp_cache_files() {
 		}
 		while( false !== ($file = readdir($handle))) {
 			if ( preg_match("/^$file_prefix.*\.meta/", $file) ) {
-				$this_expired = false;
 				$content_file = preg_replace("/meta$/", "html", $file);
 				$mtime = filemtime( $blog_cache_dir . 'meta/' . $file );
 				if ( ! ( $fsize = @filesize( $blog_cache_dir . $content_file ) ) ) 
 					continue; // .meta does not exists
 
+				$age = $now - $mtime;
 				if ( $valid_nonce && $_GET[ 'listfiles' ] ) {
 					$meta = unserialize( file_get_contents( $cache_path . 'meta/' . $file ) );
 					if ( $deleteuri != '' && $meta[ 'uri' ] == $deleteuri ) {
-						printf( __( "Deleting wp-cache file: %s<br />", 'wp-super-cache' ), $cache_path . $content_file );
+						printf( __( "Deleting wp-cache file: <strong>%s</strong><br />", 'wp-super-cache' ), $deleteuri );
 						@unlink( $cache_path . 'meta/' . $file );
 						@unlink( $cache_path . $content_file );
 						continue;
 					}
 					$meta[ 'age' ] = $age;
-					if ( $this_expired ) {
+					if ( $age > $cache_max_time ) {
 						$expired_list[] = $meta;
 					} else {
 						$cached_list[] = $meta;
 					}
 				}
 
-				$wp_cache_fsize += $fsize;
-				$fsize = intval($fsize/1024);
-				$age = $now - $mtime;
 				if ( $age > $cache_max_time ) {
 					$expired++;
-					$this_expired = true;
 				} else {
 					$count++;
 				}
+				$wp_cache_fsize += $fsize;
+				$fsize = intval($fsize/1024);
 			}
 		}
 		closedir($handle);
