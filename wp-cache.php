@@ -1578,9 +1578,9 @@ function wp_cache_clean_cache($file_prefix) {
 			}
 			prune_super_cache( $cache_path, true );
 			$_POST[ 'super_cache_stats' ] = 1; // regenerate super cache stats;
-		}
+		} elseif ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Warning! prune_super_cache() not found in wp-cache.php', 1 );
 		return wp_cache_phase2_clean_cache($file_prefix);
-	}
+	} elseif ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Warning! wp_cache_phase2_clean_cache() not found in wp-cache.php', 1 );
 
 	$expr = "/^$file_prefix/";
 	if ( ($handle = @opendir( $blog_cache_dir )) ) { 

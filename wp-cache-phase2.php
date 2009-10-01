@@ -544,8 +544,10 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 					}
 					if( $donotdelete )
 						continue;
-					if( !$rename )
+					if( !$rename ) {
 						@rmdir( $entry );
+						if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "gc: deleted $entry", 2 );
+					}
 				}
 			}
 			closedir($dh);
@@ -569,11 +571,14 @@ function wp_cache_rebuild_or_delete( $file ) {
 	if( $cache_rebuild_files && substr( $file, -14 ) != '.needs-rebuild' ) {
 		if( @rename($file, $file . '.needs-rebuild') ) {
 			@touch( $file . '.needs-rebuild' );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "rebuild_or_gc: rename to {$file}.needs-rebuild", 2 );
 		} else {
 			@unlink( $file );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "rebuild_or_gc: deleted $file", 2 );
 		}
 	} else {
 		@unlink( $file );
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "rebuild_or_gc: deleted $file", 2 );
 	}
 }
 
