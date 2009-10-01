@@ -23,6 +23,9 @@ $new_cache = false;
 
 if( !isset( $wp_cache_plugins_dir ) )
 	$wp_cache_plugins_dir = WPCACHEHOME . 'plugins';
+
+require_once( WPCACHEHOME . 'wp-cache-phase2.php');
+
 $plugins = glob( $wp_cache_plugins_dir . '/*.php' );
 if( is_array( $plugins ) ) {
 	foreach ( $plugins as $plugin ) {
@@ -129,7 +132,6 @@ function wp_cache_serve_cache_file() {
 
 if(defined('DOING_CRON')) {
 	extract( wp_super_cache_init() );
-	require_once( WPCACHEHOME . 'wp-cache-phase2.php');
 	return true;
 }
 
@@ -148,7 +150,6 @@ function wp_cache_postload() {
 		add_action( 'init', 'wp_cache_late_loader', 9999 );
 	} else {
 		wp_super_cache_init();
-		require_once( WPCACHEHOME . 'wp-cache-phase2.php');
 		wp_cache_phase2();
 	}
 }
@@ -157,7 +158,6 @@ function wp_cache_late_loader() {
 	global $wp_super_cache_debug;
 	if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Supercache Late Loader running on init", 3 );
 	wp_cache_serve_cache_file();
-	require_once( WPCACHEHOME . 'wp-cache-phase2.php');
 	wp_cache_phase2();
 }
 
