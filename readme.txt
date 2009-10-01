@@ -166,9 +166,27 @@ Comments will show as soon as they are moderated, depending on the comment polic
 
 No, it will do the opposite in fact. Super Cache files are compressed and stored that way so the heavy compression is done only once. These files are generally much smaller and are sent to a visitor's browser much more quickly than uncompressed html. As a result, your server spends less time talking over the network which saves CPU time and bandwidth, and can also serve the next request much more quickly.
 
+= How do I make certain parts of the page stay dynamic? =
+
+WP Super Cache retains the dynamic loading code of WP Cache but only works in "half on" mode.
+
+There are two ways to do this, you can have functions that stay dynamic or you can include other files on every page load. To have a dynamic function in the cached PHP page use this syntax around the function:
+
+`<!--mfunc function_name( 'parameter', 'another_parameter' ) -->
+<?php function_name( 'parameter', 'another_parameter' ) ?>
+<!--/mfunc-->`
+
+The HTML comments around the mirrored PHP allow it to be executed in the static page. To include another file try this:
+
+`<!--mclude file.php-->
+<?php include_once( ABSPATH . 'file.php' ); ?>
+<!--/mclude-->`
+
+That will include file.php under the ABSPATH directory, which is the same as where your wp-config.php file is located.
+
 = Why doesn't WP UserOnline, Popularity Contest, WP Postratings or plugin X not work or update on my blog now? =
 
-This plugin caches entire pages and some plugins think they can run PHP code every time a page loads. To fix this, the plugin needs to use Javascript or AJAX methods to update. If the plugin displays information on the page, that must be a Javascript request too.
+This plugin caches entire pages but some plugins think they can run PHP code every time a page loads. To fix this, the plugin needs to use Javascript/AJAX methods or the mfunc/mclude code described in the previous answer to update or display dynamic information.
 
 = Why doesn't the plugin cache requests by search engine bots by default? =
 
@@ -192,7 +210,7 @@ Sometimes a category page is cached as the homepage of the site instead of the s
 "Your blog doesn't support client caching (no 304 response to If-modified-since)."
 "Your feed doesn't support caching (no 304 response to If-modified-since)"
 
-Supercache doesn't support 304 header checks. This is a check your browser does to ask the server if an updated version of the current page is available. If not, it doesn't download the old version again.
+Supercache doesn't support 304 header checks. This is caching done by your browser, not your server. It is a check your browser does to ask the server if an updated version of the current page is available. If not, it doesn't download the old version again.
 The page is still cached by your server, just not by the browsers of your visitors. WordPress doesn't support 304 caching either so you're not losing out.
 Try the Cacheability Engine at http://www.ircache.net/cgi-bin/cacheability.py or http://redbot.org/ for further analysis.
 
