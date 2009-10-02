@@ -1,3 +1,11 @@
+2009-10-02 21:40  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 0.9.7
+
+2009-10-02 21:39  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-10-02 21:34  donncha
 
 	* wp-cache-phase2.php: Don't show "blank page", "404 not cached" or
