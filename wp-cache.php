@@ -396,7 +396,7 @@ jQuery(document).ready(function(){
 	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
 	<h3 align='center'><?php _e( 'Make WordPress Faster', 'wp-super-cache' ); ?></h3>
 	<?php if( $wp_cache_hide_donation != 1 ) { ?>
-	<p><?php printf( __( '%1$s really makes your blog go faster. Make it go faster<sup>*</sup> by buying me an <a href="%2$s">Amazon gift card</a>! Make it out to "%3$s". A 10 Pound card would be nice but it&#8217;s up to you how much you think this plugin is worth to you.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/wp-super-cache/?r=wpsc">WP Super Cache</a>', 'http://ocaoimh.ie/agc', 'donncha@ocaoimh.ie' ) ?>;</p>
+	<p><?php printf( __( '%1$s really makes your blog go faster. Make it go faster<sup>*</sup> by buying me an <a href="%2$s">Amazon gift card</a>! Make it out to "%3$s" for whatever amount you want. Every penny helps!', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/wp-super-cache/?r=wpsc">WP Super Cache</a>', 'http://ocaoimh.ie/agc', 'donncha@ocaoimh.ie' ) ?>;</p>
 	<p><?php printf( __( 'If Amazon isn&#8217;t your thing, there&#8217;s also PayPal. Click the "Donate" button below or take a quick peek at my <a href="%s">wishlist</a>.', 'wp-super-cache' ), 'http://ocaoimh.ie/wish' ); ?></p>
 	<p><?php _e( 'Thanks in advance!', 'wp-super-cache' ); ?><br />Donncha<br />
 	<small>* <?php _e( 'Ok, it won&#8217;t go any faster but you&#8217;ll make this plugin author very happy!' ); ?></small></p>
