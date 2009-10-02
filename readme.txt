@@ -28,6 +28,23 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == Changelog ==
 
+= 0.9.7 =
+* Fixed problem with blogs in folders.
+* Added cache file listing and delete links to admin page.
+* Added "Newest Cached Pages" listing in sidebox.
+* Made admin page translatable. 
+* Added "How do I make certain parts of the page stay dynamic?" to FAQ.
+* Advanced: added "late init" feature so that plugin activates on "init". Set $wp_super_cache_late_init to true in config file to use.
+* Disable supercaching when GET parameters present instead of disabling all caching. Disable on POST (as normal) and preview.
+* Fixed problem with cron job and mutex filename.
+* Warn users they must enable mobile device support if rewrite rules detected. Better detection of when to warn that .htaccess rules must be updated (no need when rewrite rules not present)
+* Advanced: Added "wpsupercache_404" filter. Return true to cache 404 error pages.
+* Use the wordpress_test_cookie in the cache key.
+* Show correct number of cache files when compression off.
+* Fixed problem with PHP safe_mode detection.
+* Various bugfixes and documentation updates. See Changelog.txt
+
+
 = 0.9.6.1 =
 * Move "not logged in" message init below check for POST.
 * Add is_admin() check so plugin definitely can't cache the backend.

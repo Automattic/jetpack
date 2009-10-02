@@ -1,3 +1,252 @@
+2009-10-02 13:14  donncha
+
+	* wp-super-cache.pot: Updated POT file
+
+2009-10-02 13:09  donncha
+
+	* wp-cache.php: Minor text change to bio text
+
+2009-10-01 20:47  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Added more debugging, on cache
+	  cleanup
+
+2009-10-01 20:26  donncha
+
+	* wp-cache.php: Sort the file listing by newest first.
+	  Hide a filemtime warning, props @reverbstudios
+
+2009-10-01 19:57  donncha
+
+	* wp-cache-phase1.php: Load wp-cache-phase2.php all the time
+
+2009-10-01 17:50  donncha
+
+	* readme.txt: Added "How do I make certain parts of the page stay
+	  dynamic?" to FAQ
+
+2009-09-30 09:51  donncha
+
+	* wp-cache.php: Sort the stale from the fresh wp-cache files
+	  properly
+
+2009-09-29 22:21  donncha
+
+	* wp-cache-config-sample.php: Added $wp_super_cache_late_init to
+	  config page
+
+2009-09-29 10:17  donncha
+
+	* wp-cache.php: Add button to delete specific cache files.
+
+2009-09-29 09:14  donncha
+
+	* wp-cache.php: Count wp-cached cache files correctly
+
+2009-09-29 08:17  donncha
+
+	* wp-cache-config-sample.php: Added "Yandex" to list of rejected UA
+	  for not caching
+
+2009-09-29 08:08  donncha
+
+	* wp-cache.php: Add anchors to each section of the admin page
+
+2009-09-29 07:47  donncha
+
+	* wp-cache-phase2.php: Don't cache wp-admin requests
+
+2009-09-29 07:43  donncha
+
+	* wp-cache-phase2.php: Disable supercaching when GET parameters
+	  present instead of all caching. Disable on POST (as normal) and
+	  preview
+
+2009-09-28 21:59  donncha
+
+	* wp-cache-phase1.php: Move cron code down so that cache variables
+	  are set.
+
+2009-09-28 21:37  donncha
+
+	* wp-super-cache.pot: More translatable text
+
+2009-09-28 21:35  donncha
+
+	* wp-cache.php: More il8n mods
+
+2009-09-28 17:48  donncha
+
+	* wp-cache.php: More il8n mods
+
+2009-09-28 13:57  donncha
+
+	* wp-cache.php: Add positional anchors
+
+2009-09-28 13:52  donncha
+
+	* wp-cache.php: Improve listing of cache files
+
+2009-09-28 13:35  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php, wp-cache.php: Record
+	  the cache key in the wp-cache meta file. Show that key on the
+	  admin page file listings and add "wp_cache_meta" filter to modify
+	  the cache meta data
+
+2009-09-28 13:12  donncha
+
+	* wp-cache.php: Warn users they must enable mobile device support
+	  if rewrite rules detected. Better detect when to warn that
+	  .htaccess rules must be updated (no need when rewrite rules not
+	  present)
+
+2009-09-28 11:12  donncha
+
+	* wp-cache.php: Allow admin to list cached files.
+
+2009-09-28 09:43  donncha
+
+	* wp-cache.php: More il8n changes
+
+2009-09-24 20:45  donncha
+
+	* wp-cache.php: Forgot the fieldset, props thunderlounge!
+
+2009-09-24 11:43  donncha
+
+	* wp-cache.php, wp-super-cache.pot: Renamed text domain to
+	  wp-super-cache
+	  Added .pot file
+	  Load text domain as described in
+	  http://codex.wordpress.org/I18n_for_WordPress_Developers
+
+2009-09-24 11:27  donncha
+
+	* wp-cache.php: First stab at internationalising wp-super-cache
+
+2009-09-24 10:18  donncha
+
+	* wp-cache.php: Removed REQUEST_URI from form actions
+
+2009-09-20 21:13  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Added "Newest Cached Pages"
+	  option to list 10 newest pages cached by the plugin.
+
+2009-09-20 19:10  donncha
+
+	* wp-cache-phase2.php: Added "wpsupercache_404" filter. Return true
+	  to cache error 404 pages. Props simonwheatley, see
+	  http://wordpress.org/support/topic/312672
+
+2009-09-18 20:37  donncha
+
+	* wp-cache-phase1.php: Include the wordpress_test_cookie in the
+	  cache key for wp-cache files.
+
+2009-09-16 10:23  donncha
+
+	* wp-cache-phase1.php: Late Init. Don't do anything until "init"
+
+2009-09-16 10:21  donncha
+
+	* wp-cache-phase2.php: Better debug messages
+
+2009-09-15 10:58  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase1.php,
+	  wp-cache-phase2.php, wp-cache.php: Check if logging enabled
+	  before calling debug function (optimization)
+	  Improve debug admin screen
+
+2009-09-10 10:12  donncha
+
+	* wp-cache.php: Generate the correct rules for users ins
+	  directories
+
+2009-09-10 08:41  donncha
+
+	* wp-cache.php: When cache compression is off don't divide number
+	  of cached files by 2 as no .gz files are created. Props dpark,
+	  http://wordpress.org/support/topic/309443
+
+2009-09-09 16:29  donncha
+
+	* wp-cache-phase2.php: Improved output buffer error message
+
+2009-09-09 12:37  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php, wp-cache.php: Added
+	  debug settings section on admin page.
+
+2009-09-09 09:11  donncha
+
+	* wp-cache.php: Check if safe_mode is 1 or "on",
+	  http://wordpress.org/support/topic/239579?replies=9#post-1204927
+
+2009-09-03 11:06  donncha
+
+	* wp-cache-phase2.php: Don't cache GET requests earlier on before
+	  OB is set up.
+
+2009-09-03 11:05  donncha
+
+	* wp-cache-phase1.php: If debugging is not set then return
+	  immediately
+
+2009-09-03 11:02  donncha
+
+	* wp-cache-config-sample.php, wp-cache-phase1.php,
+	  wp-cache-phase2.php: Added logging to a file and configurable log
+	  level
+
+2009-09-01 09:31  donncha
+
+	* readme.txt: Updated description of "How to tell if a page is
+	  cached"
+
+2009-09-01 09:26  donncha
+
+	* wp-cache.php: Tell user that compression is enabled in half-on
+	  mode.
+
+2009-08-24 13:04  donncha
+
+	* readme.txt: Added http://redbot.org/ to FAQ (thanks Alex!)
+
+2009-08-24 12:14  donncha
+
+	* wp-cache.php: Send the Vary header to browsers
+
+2009-08-24 08:49  donncha
+
+	* readme.txt: Added FAQ about caching warnings at
+	  ismyblogworking.com
+
+2009-08-21 16:52  donncha
+
+	* wp-cache.php: Minor fixes for rewrite rules.
+	  http://wordpress.org/support/topic/301570?replies=14
+
+2009-08-19 08:44  donncha
+
+	* readme.txt: Added troubleshooting note to use half-on mode if
+	  timestamp keeps updating.
+
+2009-08-06 10:55  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Added "Cached Page" counter.
+
+2009-07-30 08:24  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Add support for not caching
+	  feeds and search pages.
+
+2009-07-29 17:28  donncha
+
+	* Changelog.txt: Updated changelog
+
 2009-07-29 17:26  donncha
 
 	* readme.txt, wp-cache.php: Bump version to 0.9.6.1
