@@ -1,3 +1,13 @@
+2009-10-02 21:34  donncha
+
+	* wp-cache-phase2.php: Don't show "blank page", "404 not cached" or
+	  "no html tag" warnings on output unless debugging enabled.
+
+2009-10-02 19:45  donncha
+
+	* Changelog.txt, readme.txt: Updated changelog and readme.txt
+	  changes
+
 2009-10-02 13:14  donncha
 
 	* wp-super-cache.pot: Updated POT file
