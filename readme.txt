@@ -1,10 +1,10 @@
 === WP Super Cache ===
 Contributors: donncha
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 2.8.2
-Stable tag: 0.9.6.1
+Tested up to: 2.8.4
+Stable tag: 0.9.7
 Requires at least: 2.6
-Donate link: http://ocaoimh.ie/wordpress-plugins/gifts-and-donations/
+Donate link: http://ocaoimh.ie/gad/
 
 A very fast caching engine for WordPress that produces static html files.
 
