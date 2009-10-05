@@ -103,10 +103,6 @@ function wpsupercache_deactivate() {
 register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
 
 function wpsupercache_activate() {
-	if ( !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
-		wp_schedule_single_event( time() + 60 , 'wp_cache_check_site_hook' );
-		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'scheduled wp_cache_check_site_hook for 60 seconds time.', 2 );
-	}
 }
 register_activation_hook( __FILE__, 'wpsupercache_activate' );
 
@@ -166,7 +162,7 @@ jQuery(document).ready(function(){
 </script>
 <?php
 	echo '<div class="wrap">';
-	echo "<h2>WP Super Cache Manager</h2>\n";
+	echo "<h2><a href='?page=wpsupercache'>WP Super Cache Manager</a></h2>\n";
 	if( 1 == ini_get( 'safe_mode' ) || "on" == strtolower( ini_get( 'safe_mode' ) ) ) {
 		?><h3><?php _e( 'Warning! PHP Safe Mode Enabled!', 'wp-super-cache' ); ?></h3>
 		<p><?php _e( 'You may experience problems running this plugin because SAFE MODE is enabled.', 'wp-super-cache' );
@@ -177,6 +173,12 @@ jQuery(document).ready(function(){
 			echo __( 'You or an administrator must disable this. See the <a href="http://php.net/features.safe-mode">safe mode manual page</a> for further details. This cannot be disabled in a .htaccess file unfortunately. It must be done in the php.ini config file.', 'wp-super-cache' ) . "</p>";
 		}
 	}
+
+	if ( !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
+		wp_schedule_single_event( time() + 60 , 'wp_cache_check_site_hook' );
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'scheduled wp_cache_check_site_hook for 60 seconds time.', 2 );
+	}
+
 	if(isset($_REQUEST['wp_restore_config']) && $valid_nonce) {
 		unlink($wp_cache_config_file);
 		echo '<strong>' . __( 'Configuration file changed, some values might be wrong. Load the page again from the "Settings" menu to reset them.', 'wp-super-cache' ) . '</strong>';
@@ -1726,12 +1728,13 @@ function wp_cache_check_site() {
 	}
 	$front_page = wp_remote_get( site_url(), array('timeout' => 60, 'blocking' => true ) );
 	if( is_array( $front_page ) ) {
+		wp_mail( 'donncha@gmail.com', 'front page headers', print_r( $front_page[ 'headers' ], 1 ) );
 		if( $front_page[ 'headers' ][ 'content-type' ] == 'application/x-gzip' ) {
 			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is gzipped! Please clear cache!', 'wp-super-cache' ), site_url() ), sprintf( __( "Please visit %s to clear the cache as the front page of your site s now downloading!", 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache" ) );
 		}
 	}
 
-	if ( !wp_next_scheduled( 'wp_cache_gc' ) ) {
+	if ( !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
 		wp_schedule_single_event( time() + 60 , 'wp_cache_check_site_hook' );
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'scheduled wp_cache_check_site_hook for 60 seconds time.', 2 );
 	}
