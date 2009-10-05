@@ -98,8 +98,17 @@ function wpsupercache_deactivate() {
 	@unlink( $cache_path . '.htaccess' );
 	@unlink( $cache_path . 'meta' );
 	@unlink( $cache_path . 'supercache' );
+	wp_clear_scheduled_hook( 'wp_cache_check_site_hook' );
 }
 register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
+
+function wpsupercache_activate() {
+	if ( !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
+		wp_schedule_single_event( time() + 60 , 'wp_cache_check_site_hook' );
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'scheduled wp_cache_check_site_hook for 60 seconds time.', 2 );
+	}
+}
+register_activation_hook( __FILE__, 'wpsupercache_activate' );
 
 function wp_cache_add_pages() {
 	if( function_exists( 'is_site_admin' ) ) {
@@ -1710,4 +1719,22 @@ function wp_cache_admin_notice() {
 		echo '<div class="error"><p><strong>' . sprintf( __('WP Super Cache is disabled. Please go to the <a href="%s">plugin admin page</a> to enable caching.', 'wp-super-cache' ), admin_url( 'options-general.php?page=wpsupercache' ) ) . '</strong></p></div>';
 }
 add_action( 'admin_notices', 'wp_cache_admin_notice' );
+
+function wp_cache_check_site() {
+	if( function_exists( "wp_remote_get" ) == false ) {
+		return;
+	}
+	$front_page = wp_remote_get( site_url(), array('timeout' => 60, 'blocking' => true ) );
+	if( is_array( $front_page ) ) {
+		if( $front_page[ 'headers' ][ 'content-type' ] == 'application/x-gzip' ) {
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is gzipped! Please clear cache!', 'wp-super-cache' ), site_url() ), sprintf( __( "Please visit %s to clear the cache as the front page of your site s now downloading!", 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache" ) );
+		}
+	}
+
+	if ( !wp_next_scheduled( 'wp_cache_gc' ) ) {
+		wp_schedule_single_event( time() + 60 , 'wp_cache_check_site_hook' );
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'scheduled wp_cache_check_site_hook for 60 seconds time.', 2 );
+	}
+}
+add_action( 'wp_cache_check_site_hook', 'wp_cache_check_site' );
 ?>
