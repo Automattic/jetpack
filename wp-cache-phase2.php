@@ -719,14 +719,20 @@ function wp_cache_get_postid_from_comment($comment_id) {
 	$postid = $comment['comment_post_ID'];
 	// Do nothing if comment is not moderated
 	// http://ocaoimh.ie/2006/12/05/caching-wordpress-with-wp-cache-in-a-spam-filled-world
-	if( !preg_match('/wp-admin\//', $wp_cache_request_uri) ) 
+	if ( !preg_match('/wp-admin\//', $wp_cache_request_uri) ) {
 		if( $comment['comment_approved'] == 'spam' ) { // changed from 1 to "spam"
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Spam comment. Don't delete any cache files.", 4 );
 			return $postid;
 		} elseif( $comment['comment_approved'] == '0' ) {
-			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Moderated comment. Don't delete supercache file until comment approved.", 4 );
-			$super_cache_enabled = 0; // don't remove the super cache static file until comment is approved
+			if ( $comment[ 'content_type' ] == '' ) {
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Moderated comment. Don't delete supercache file until comment approved.", 4 );
+				$super_cache_enabled = 0; // don't remove the super cache static file until comment is approved
+			} else {
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Moderated ping or trackback. Not deleting cache files..", 4 );
+				return $postid;
+			}
 		}
+	}
 	// We must check it up again due to WP bugs calling two different actions
 	// for delete, for example both wp_set_comment_status and delete_comment 
 	// are called when deleting a comment
