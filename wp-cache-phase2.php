@@ -21,7 +21,7 @@ function wp_cache_phase2() {
 		add_action('pingback_post', 'wp_cache_get_postid_from_comment', 99);
 		add_action('comment_post', 'wp_cache_get_postid_from_comment', 99);
 		add_action('edit_comment', 'wp_cache_get_postid_from_comment', 99);
-		add_action('wp_set_comment_status', 'wp_cache_get_postid_from_comment', 99);
+		add_action('wp_set_comment_status', 'wp_cache_get_postid_from_comment', 99, 2);
 		// No post_id is available
 		add_action('delete_comment', 'wp_cache_no_postid', 99);
 		add_action('switch_theme', 'wp_cache_no_postid', 99); 
@@ -713,9 +713,11 @@ function wp_cache_no_postid($id) {
 	return wp_cache_post_change(wp_cache_post_id());
 }
 
-function wp_cache_get_postid_from_comment($comment_id) {
+function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 	global $super_cache_enabled, $wp_cache_request_uri;
 	$comment = get_comment($comment_id, ARRAY_A);
+	if ( $status != 'NA' )
+		$comment[ 'comment_approved' ] = $status;
 	$postid = $comment['comment_post_ID'];
 	// Do nothing if comment is not moderated
 	// http://ocaoimh.ie/2006/12/05/caching-wordpress-with-wp-cache-in-a-spam-filled-world
