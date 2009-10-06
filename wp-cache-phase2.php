@@ -23,7 +23,6 @@ function wp_cache_phase2() {
 		add_action('edit_comment', 'wp_cache_get_postid_from_comment', 99);
 		add_action('wp_set_comment_status', 'wp_cache_get_postid_from_comment', 99, 2);
 		// No post_id is available
-		add_action('delete_comment', 'wp_cache_no_postid', 99);
 		add_action('switch_theme', 'wp_cache_no_postid', 99); 
 		add_action('edit_user_profile_update', 'wp_cache_no_postid', 99); 
 
@@ -716,13 +715,18 @@ function wp_cache_no_postid($id) {
 function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 	global $super_cache_enabled, $wp_cache_request_uri;
 	$comment = get_comment($comment_id, ARRAY_A);
-	if ( $status != 'NA' )
+	if ( $status != 'NA' ) {
+		$comment[ 'old_comment_approved' ] = $comment[ 'comment_approved' ];
 		$comment[ 'comment_approved' ] = $status;
+	}
 	$postid = $comment['comment_post_ID'];
 	// Do nothing if comment is not moderated
 	// http://ocaoimh.ie/2006/12/05/caching-wordpress-with-wp-cache-in-a-spam-filled-world
 	if ( !preg_match('/wp-admin\//', $wp_cache_request_uri) ) {
-		if( $comment['comment_approved'] == 'spam' ) { // changed from 1 to "spam"
+		if ( $comment['comment_approved'] == 'delete' && ( isset( $comment[ 'old_comment_approved' ] ) && $comment[ 'old_comment_approved' ] == 0 ) ) { // do nothing if moderated comments are deleted
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Moderated comment deleted. Don't delete any cache files.", 4 );
+			return $postid;
+		} elseif ( $comment['comment_approved'] == 'spam' ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Spam comment. Don't delete any cache files.", 4 );
 			return $postid;
 		} elseif( $comment['comment_approved'] == '0' ) {
