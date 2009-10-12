@@ -1351,11 +1351,11 @@ function wp_cache_files() {
 
 				$age = $now - $mtime;
 				if ( $valid_nonce && $_GET[ 'listfiles' ] ) {
-					$meta = unserialize( file_get_contents( $cache_path . 'meta/' . $file ) );
+					$meta = unserialize( file_get_contents( $blog_cache_dir . 'meta/' . $file ) );
 					if ( $deleteuri != '' && $meta[ 'uri' ] == $deleteuri ) {
 						printf( __( "Deleting wp-cache file: <strong>%s</strong><br />", 'wp-super-cache' ), $deleteuri );
-						@unlink( $cache_path . 'meta/' . $file );
-						@unlink( $cache_path . $content_file );
+						@unlink( $blog_cache_dir . 'meta/' . $file );
+						@unlink( $blog_cache_dir . $content_file );
 						continue;
 					}
 					$meta[ 'age' ] = $age;
