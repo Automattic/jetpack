@@ -1729,7 +1729,7 @@ function wp_cache_check_site() {
 	$front_page = wp_remote_get( site_url(), array('timeout' => 60, 'blocking' => true ) );
 	if( is_array( $front_page ) ) {
 		if( $front_page[ 'headers' ][ 'content-type' ] == 'application/x-gzip' ) {
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is gzipped! Please clear cache!', 'wp-super-cache' ), site_url() ), sprintf( __( "Please visit %s to clear the cache as the front page of your site s now downloading!", 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache" ) );
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is gzipped! Please clear cache!', 'wp-super-cache' ), site_url() ), sprintf( __( "Please visit %s to clear the cache as the front page of your site is now downloading!", 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache" ) );
 		}
 	}
 
