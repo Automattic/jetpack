@@ -753,6 +753,13 @@ function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 	}
 }
 
+/* Clear out the cache directory. */
+function wp_cache_clear_cache() {
+	global $cache_path;
+	prune_super_cache( $cache_path . 'supercache/', true );
+	prune_super_cache( $cache_path, true );
+}
+
 function wp_cache_post_edit($post_id) {
 	global $wp_cache_clear_on_post_edit, $cache_path, $blog_cache_dir;
 	if( $wp_cache_clear_on_post_edit ) {
