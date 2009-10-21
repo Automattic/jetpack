@@ -52,8 +52,10 @@ function wp_cache_phase2() {
 	}
 
 	if ( $wp_cache_not_logged_in && is_user_logged_in() && !is_feed() && !is_admin() ) {
-		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'not caching for logged in user', 5 );
-		register_shutdown_function( 'wpcache_logged_in_message' );
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) {
+			wp_cache_debug( 'not caching for logged in user', 5 ); 
+			register_shutdown_function( 'wpcache_logged_in_message' );
+		}
 		return false;
 	}
 
