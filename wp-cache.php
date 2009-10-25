@@ -46,6 +46,10 @@ $wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
 $wp_cache_link = WP_CONTENT_DIR . '/advanced-cache.php';
 $wp_cache_file = WPCACHEHOME . 'advanced-cache.php';
 
+if( !defined( 'WP_CACHE' ) ) {
+	$wp_cache_check_wp_config = true;
+}
+
 include(WPCACHEHOME . 'wp-cache-base.php');
 
 function wp_super_cache_text_domain() {
@@ -1275,7 +1279,9 @@ function wp_cache_check_link() {
 }
 
 function wp_cache_check_global_config() {
-	if( defined( 'WP_CACHE' ) )
+	global $wp_cache_check_wp_config;
+
+	if ( !isset( $wp_cache_check_wp_config ) )
 		return true;
 
 	if ( file_exists( ABSPATH . 'wp-config.php') ) {
@@ -1284,20 +1290,14 @@ function wp_cache_check_global_config() {
 		$global = dirname(ABSPATH) . '/wp-config.php';
 	}
 
-	$howtoenable = sprintf( __( "Edit <code>%s</code> and add the following line: <code>define('WP_CACHE', true);</code>Otherwise, <strong>WP-Cache will not be executed</strong> by Wordpress core. ", 'wp-super-cache' ), $global );
-	$lines = file($global);
-	foreach($lines as $line) {
-		if (preg_match('/^\s*define\s*\(\s*\'WP_CACHE\'\s*,\s*(?i:TRUE|1)\s*\)\s*;/', $line)) {
-			echo $howtoenable;
-			return false;
-		}
-	}
 	$line = 'define(\'WP_CACHE\', true);';
 	if (!is_writeable_ACLSafe($global) || !wp_cache_replace_line('define *\( *\'WP_CACHE\'', $line, $global) ) {
-			_e( "<strong>Error: WP_CACHE is not enabled</strong> in your <code>wp-config.php</code> file and I couldn&#8217;t modify it.", 'wp-super-cache' );
-			echo $howtoenable;
-			return false;
-	} 
+		echo "<p>" . __( "<strong>Error: WP_CACHE is not enabled</strong> in your <code>wp-config.php</code> file and I couldn&#8217;t modify it.", 'wp-super-cache' ) . "</p>";;
+		echo "<p>" . sprintf( __( "Edit <code>%s</code> and add the following line:<br /> <code>define('WP_CACHE', true);</code><br />Otherwise, <strong>WP-Cache will not be executed</strong> by Wordpress core. ", 'wp-super-cache' ), $global ) . "</p>";
+		return false;
+	}  else {
+		echo "<div style='border: 1px solid #333; background: #ffffaa; padding: 2px;'>" . __( '<h3>WP_CACHE constant added to wp-config.php</h3><p>If you continue to see this warning message please see point 5 of the <a href="http://wordpress.org/extend/plugins/wp-super-cache/faq/">FAQ</a>. The WP_CACHE line must be moved up.', 'wp-super-cache' ) . "</div>";
+	}
 	return true;
 }
 
