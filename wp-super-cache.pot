@@ -56,8 +56,8 @@ msgstr ""
 #: plugins/searchengine.php:71
 #, php-format
 msgid ""
-"a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for Friends</"
-"a> plugin is %s"
+"<a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for "
+"Friends</a> plugin is %s"
 msgstr ""
 
 #: plugins/searchengine.php:72
