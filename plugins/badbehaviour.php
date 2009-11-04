@@ -42,31 +42,32 @@ function wp_supercache_badbehaviour_admin() {
 		$bbfile = get_bb_file_loc();
 		if( !$bbfile ) {
 			$_POST[ 'cache_badbehaviour' ] = 'Disable';
-			$err = 'Bad Behaviour not found. Please check your install.';
+			$err = __( 'Bad Behaviour not found. Please check your install.', 'wp-super-cache' );
 		}
-		$cache_badbehaviour = $_POST['cache_badbehaviour'] == 'Disable' ? 0 : 1;
+		$cache_badbehaviour = $_POST['cache_badbehaviour'] == __( 'Disable', 'wp-super-cache' ) ? 0 : 1;
 		wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = 0;", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$cache_badbehaviour', "\$cache_badbehaviour = $cache_badbehaviour;", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$cache_badbehaviour_file', "\$cache_badbehaviour_file = '$bbfile';", $wp_cache_config_file);
 	}
 	echo '<form name="wp_supercache_badbehaviour_admin" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	wp_nonce_field('wp-cache');
-	echo '<strong>Bad Behaviour support is ';
 	if( $cache_badbehaviour == 0 ) {
-		echo 'disabled';
+		$bb_status = __( 'disabled', 'wp-super-cache' );
 	} else {
-		echo 'enabled';
+		$bb_status = __( 'enabled', 'wp-super-cache' );
 		wp_super_cache_disable();
 	}
-	echo '.</strong> (Only half-on caching supported, disabled compression and requires <a href="http://www.bad-behavior.ioerror.us/">Bad Behaviour</a> in "' . WP_CONTENT_DIR . '/plugins/bad-behavior/") ';
+	echo '<strong>' . sprintf( __( 'Bad Behaviour support is %s', 'wp-super-cache' ), $bb_status );
+	echo '.</strong>';
+	printf( __( '(Only half-on caching supported, disabled compression and requires <a href="http://www.bad-behavior.ioerror.us/">Bad Behavior</a> in "%s/plugins/bad-behavior/") ', 'wp-super-cache' ), WP_CONTENT_DIR );
 	if( $cache_badbehaviour == 0 ) {
-		echo '<input type="submit" name="cache_badbehaviour" value="Enable" />';
+		echo '<input type="submit" name="cache_badbehaviour" value="' . __( 'Enable', 'wp-super-cache' ) . '" />';
 	} else {
-		echo '<input type="submit" name="cache_badbehaviour" value="Disable" />';
+		echo '<input type="submit" name="cache_badbehaviour" value="' . __( 'Disable', 'wp-super-cache' ) . '" />';
 	}
 	echo "</form>\n";
 	if( $err )
-		echo "<p><strong>Warning!</strong> $err</p>";
+		echo "<p><strong>" . __( 'Warning!', 'wp-super-cache' ) . "</strong> $err</p>";
 
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_badbehaviour_admin' );

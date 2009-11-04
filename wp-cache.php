@@ -166,7 +166,7 @@ jQuery(document).ready(function(){
 </script>
 <?php
 	echo '<div class="wrap">';
-	echo "<h2><a href='?page=wpsupercache'>WP Super Cache Manager</a></h2>\n";
+	echo "<h2><a href='?page=wpsupercache'>" . __( 'WP Super Cache Manager', 'wp-super-cache' ) . "</a></h2>\n";
 	if( 1 == ini_get( 'safe_mode' ) || "on" == strtolower( ini_get( 'safe_mode' ) ) ) {
 		?><h3><?php _e( 'Warning! PHP Safe Mode Enabled!', 'wp-super-cache' ); ?></h3>
 		<p><?php _e( 'You may experience problems running this plugin because SAFE MODE is enabled.', 'wp-super-cache' );
@@ -358,8 +358,8 @@ jQuery(document).ready(function(){
 	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong><?php _e( 'OFF', 'wp-super-cache' ); ?></strong> <span class="setting-description"><?php _e( 'WP Cache and Super Cache disabled', 'wp-super-cache' ); ?></span></label><br />
 	<p><label><input type='checkbox' name='wp_cache_not_logged_in' <?php if( $wp_cache_not_logged_in ) echo "checked"; ?> value='1'> <?php _e( 'Don&#8217;t cache pages for logged in users.', 'wp-super-cache' ); ?></label></p>
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> <?php _e( 'Proudly tell the world your server is Digg proof! (places a message in your blog&#8217;s footer)', 'wp-super-cache' ); ?></label></p>
-	<p><label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> <?php _e( 'Clear all cache files when a post or page is published. (This may significantly slow down saving of posts.)' ); ?></label></p>
-	<p><label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> <?php _e( 'Cache rebuild. Serve a supercache file to anonymous users while a new file is being generated. Recommended for <em>very</em> busy websites with lots of comments. Makes "directly cached pages" and "Lockdown mode" obsolete.' ); ?></label></p>
+	<p><label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> <?php _e( 'Clear all cache files when a post or page is published. (This may significantly slow down saving of posts.)', 'wp-super-cache' ); ?></label></p>
+	<p><label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> <?php _e( 'Cache rebuild. Serve a supercache file to anonymous users while a new file is being generated. Recommended for <em>very</em> busy websites with lots of comments. Makes "directly cached pages" and "Lockdown mode" obsolete.', 'wp-super-cache' ); ?></label></p>
 	<?php if( false == defined( 'WPSC_DISABLE_LOCKING' ) ) { ?>
 		<p><label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( !$wp_cache_mutex_disabled ) echo "checked"; ?> value='0'> <?php _e( 'Coarse file locking. You probably don&#8217;t need this but it may help if your server is underpowered. Warning! <em>May cause your server to lock up in very rare cases!</em>', 'wp-super-cache' ); ?></label></p>
 	<?php } ?>
@@ -465,7 +465,7 @@ jQuery(document).ready(function(){
 
 	wp_cache_edit_max_time();
 
-	echo '<a name="files"></a><fieldset class="options"><h3>' . __( 'Accepted Filenames &amp; Rejected URIs' ) . '</h3>';
+	echo '<a name="files"></a><fieldset class="options"><h3>' . __( 'Accepted Filenames &amp; Rejected URIs', 'wp-super-cache' ) . '</h3>';
 	wp_cache_edit_rejected_pages();
 	echo "\n";
 	wp_cache_edit_rejected();
@@ -530,7 +530,7 @@ function wsc_mod_rewrite() {
 	<?php } ?>
 
 	<a name="modrewrite"></a><fieldset class="options"> 
-	<h3>Mod Rewrite Rules</h3><?php
+	<h3><?php _e( 'Mod Rewrite Rules', 'wp-super-cache' ); ?></h3><?php
 	if ( isset( $_SERVER[ "PHP_DOCUMENT_ROOT" ] ) ) {
 		$document_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
 		$apache_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
@@ -857,7 +857,7 @@ function wp_cache_edit_max_time () {
 	echo '<form name="wp_edit_max_time" action="#expirytime" method="post">';
 	echo '<label for="wp_max_time">' . __( 'Expire time:', 'wp-super-cache' ) . '</label> ';
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> " . __( "seconds", 'wp-super-cache' );
-	echo "<h4>" . __( 'Garbage Collection', 'wp-super-cache' ) . "</h4><p>" . __( 'If expiry time is more than 1800 seconds (half an hour), garbage collection will be done every 10 minutes, otherwise it will happen 10 seconds after the expiry time above.' ) . "</p>";
+	echo "<h4>" . __( 'Garbage Collection', 'wp-super-cache' ) . "</h4><p>" . __( 'If expiry time is more than 1800 seconds (half an hour), garbage collection will be done every 10 minutes, otherwise it will happen 10 seconds after the expiry time above.', 'wp-super-cache' ) . "</p>";
 	echo "<p>" . __( 'Checking for and deleting expired files is expensive, but it&#8217;s expensive leaving them there too. On a very busy site you should set the expiry time to <em>300 seconds</em>. Experiment with different values and visit this page to see how many expired files remain at different times during the day. Aim to have less than 500 cached files if possible.', 'wp-super-cache' ) . "</p>";
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Change Expiration', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
@@ -1036,10 +1036,10 @@ function wp_cache_debug_settings() {
 	echo "<input type='hidden' name='wp_cache_debug' value='1' /><br />";
 	echo "<table class='form-table'>";
 	echo "<tr><td>" . __( 'Debugging', 'wp-super-cache' ) . "</td><td><input type='checkbox' name='wp_super_cache_debug' value='1' " . checked( 1, $wp_super_cache_debug, false ) . " /> " . __( 'enabled', 'wp-super-cache' ) . "</td></tr>";
-	echo "<tr><td valign='top' rowspan='2'>Logging Type</td><td> " . __( 'Email', 'wp-super-cache' ) . ": <input type='text' size='30' name='wp_cache_debug_email' value='{$wp_cache_debug_email}' /></td></tr>";
+	echo "<tr><td valign='top' rowspan='2'>" . __( 'Logging Type', 'wp-super-cache' ) . "</td><td> " . __( 'Email', 'wp-super-cache' ) . ": <input type='text' size='30' name='wp_cache_debug_email' value='{$wp_cache_debug_email}' /></td></tr>";
 	echo "<tr><td><input type='checkbox' name='wp_cache_debug_to_file' value='1' " . checked( 1, $wp_cache_debug_to_file, false ) . " /> " . __( 'file', 'wp-super-cache' ) . "</td></tr>";
 	echo "<tr><td>" . __( 'IP Address', 'wp-super-cache' ) . "</td><td> <input type='text' size='20' name='wp_cache_debug_ip' value='{$wp_cache_debug_ip}' /> " . sprintf( __( '(only log requests from this IP address. Your IP is %s)', 'wp-super-cache' ), $_SERVER[ 'REMOTE_ADDR' ] ) . "</td></tr>";
-	echo "<tr><td>Log level</td><td> ";
+	echo "<tr><td>" . __( 'Log level', 'wp-super-cache' ) . "</td><td> ";
 	for( $t = 1; $t <= 5; $t++ ) {
 		echo "<input type='radio' name='wp_cache_debug_level' value='$t' ";
 		echo $wp_cache_debug_level == $t ? "checked='checked' " : '';
@@ -1317,7 +1317,7 @@ function wp_cache_files() {
 		}
 	}
 	echo "<a name='listfiles'></a>";
-	echo '<fieldset class="options" id="show-this-fieldset"><h3>Cache Contents</h3>';
+	echo '<fieldset class="options" id="show-this-fieldset"><h3>' . __( 'Cache Contents', 'wp-super-cache' ) . '</h3>';
 
 	$list_files = false; // it doesn't list supercached files, and removing single pages is buggy
 	$count = 0;
