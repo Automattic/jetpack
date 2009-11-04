@@ -91,7 +91,12 @@ function wp_cache_serve_cache_file() {
 
 	extract( wp_super_cache_init() );
 
-	if ( file_exists( $cache_file ) && !wp_cache_user_agent_is_rejected() ) {
+	if ( wp_cache_user_agent_is_rejected() ) {
+		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "No wp-cache file served as user agent rejected.", 5 );
+		return false;
+	}
+
+	if ( file_exists( $cache_file ) ) {
 		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "wp-cache file exists", 5 );
 		if ( !( $meta = unserialize( @file_get_contents( $meta_pathname) ) ) )  {
 			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "couldn't load wp-cache meta file", 5 );
@@ -126,7 +131,7 @@ function wp_cache_serve_cache_file() {
 		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "exit request", 5 );
 		die();
 	} else {
-		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "No wp-cache file exists or user agent rejected.", 5 );
+		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "No wp-cache file exists. Must generate a new one.", 5 );
 	}
 }
 
