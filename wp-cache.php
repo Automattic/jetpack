@@ -53,7 +53,7 @@ if( !defined( 'WP_CACHE' ) ) {
 include(WPCACHEHOME . 'wp-cache-base.php');
 
 function wp_super_cache_text_domain() {
-	load_plugin_textdomain( 'wp-super-cache', WPCACHEHOME, basename( dirname( __FILE__ ) ) );
+	load_plugin_textdomain( 'wp-super-cache', WPCACHEHOME . 'languages', basename( dirname( __FILE__ ) ) . '/languages' );
 }
 add_action( 'init', 'wp_super_cache_text_domain' );
 
