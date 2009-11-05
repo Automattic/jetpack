@@ -639,7 +639,7 @@ function wsc_mod_rewrite() {
 	} else {
 		?>
 		<p><?php printf( __( 'WP Super Cache mod rewrite rules were detected in your %s.htaccess file.<br /> Click the following link to see the lines added to that file. If you have upgraded the plugin make sure these rules match.', 'wp-super-cache' ), $home_path ); ?><br /><br />
-		<a href="javascript:toggleLayer('rewriterules');" class="button"><?php _e( 'View Mod_Rewrite Rules' ); ?></a>
+		<a href="javascript:toggleLayer('rewriterules');" class="button"><?php _e( 'View Mod_Rewrite Rules', 'wp-super-cache' ); ?></a>
 		<div id='rewriterules' style='display: none;'>
 		<?php echo "<p><pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>\n"; 
 		echo "<p>Rules must be added to " . WP_CONTENT_DIR ."/cache/.htaccess too:</p>";
@@ -1018,9 +1018,9 @@ function wp_cache_debug_settings() {
 
 	echo '<a name="debug"></a>';
 	echo '<fieldset class="options">';
-	echo "<h3>Debug Settings</h3>";
+	echo "<h3>" . __( 'Debug Settings', 'wp-super-cache' ) . "</h3>";
 	if ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) || ( isset( $wp_cache_debug_email ) && $wp_cache_debug_email != '' ) ) {
-		echo "<p>Currently logging to: ";
+		echo "<p>" . __( 'Currently logging to: ', 'wp-super-cache' );
 		if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) {
 			$url = str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}" );
 			echo "<a href='" . site_url( $url ) . "'>$cache_path{$wp_cache_debug_log}</a> ";
@@ -1439,7 +1439,7 @@ function wp_cache_files() {
 		echo "<div style='padding: 10px; border: 1px solid #333; height: 400px; width: 70%; overflow: auto'>";
 		if ( is_array( $cached_list ) && !empty( $cached_list ) ) {
 			echo "<h4>" . __( 'Fresh WP-Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Key' ) . "</th><th>" . __( 'Age' ) . "</th><th>" . __( 'Delete' ) . "</th></tr>";
+			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Key', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
 			$c = 1;
 			$flip = 1;
 			ksort( $cached_list );
@@ -1455,7 +1455,7 @@ function wp_cache_files() {
 		}
 		if ( is_array( $expired_list ) && !empty( $expired_list ) ) {
 			echo "<h4>" . __( 'Stale WP-Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Key' ) . "</th><th>" . __( 'Age' ) . "</th><th>" . __( 'Delete' ) . "</th></tr>";
+			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Key', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
 			$c = 1;
 			$flip = 1;
 			ksort( $expired_list );
@@ -1471,7 +1471,7 @@ function wp_cache_files() {
 		}
 		if ( is_array( $sizes[ 'cached_list' ] ) & !empty( $sizes[ 'cached_list' ] ) ) {
 			echo "<h4>" . __( 'Fresh Super Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Age' ) . "</th><th>" . __( 'Delete' ) . "</th></tr>";
+			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
 			$c = 1;
 			$flip = 1;
 			ksort( $sizes[ 'cached_list' ] );
@@ -1487,7 +1487,7 @@ function wp_cache_files() {
 		}
 		if ( is_array( $sizes[ 'expired_list' ] ) && !empty( $sizes[ 'expired_list' ] ) ) {
 			echo "<h4>" . __( 'Stale Super Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI' ) . "</th><th>" . __( 'Age' ) . "</th><th>" . __( 'Delete' ) . "</th></tr>";
+			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
 			$c = 1;
 			$flip = 1;
 			ksort( $sizes[ 'expired_list' ] );
