@@ -63,8 +63,8 @@ msgstr "Attenzione!"
 
 #: plugins/searchengine.php:71
 #, php-format
-msgid "a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for Friends</a> plugin is %s"
-msgstr "a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for Friends</a> é %s"
+msgid "<a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for Friends</a> plugin is %s"
+msgstr "<a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for Friends</a> é %s"
 
 #: plugins/searchengine.php:72
 msgid "(requires <a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">friendsadverts.php</a> too) "
