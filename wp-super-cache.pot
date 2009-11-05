@@ -870,6 +870,14 @@ msgstr ""
 msgid "Save Files"
 msgstr ""
 
+#: wp-cache.php:1021
+msgid "Debug Settings"
+msgstr ""
+
+#: wp-cache.php:1023
+msgid "Currently logging to: "
+msgstr ""
+
 #: wp-cache.php:1033
 msgid ""
 "Fix problems with the plugin by debugging it here. It can send you debug "
