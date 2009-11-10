@@ -422,7 +422,7 @@ jQuery(document).ready(function(){
 	<input type="image" src="https://www.paypal.com/en_GB/i/btn/btn_donate_SM.gif" border="0" name="submit" alt=""/>
 	<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1"/><br />
 	</form>
-	<p>Don't show me this again. <form action="#top" method="post"><input type='hidden' name='wp_cache_hide_donation' value='1' /><input type='submit' value='Hide' /><?php wp_nonce_field('wp-cache'); ?></form></p>
+	<p><?php _e( 'Don&#8217;t show me this again.', 'wp-super-cache' ); ?> <form action="#top" method="post"><input type='hidden' name='wp_cache_hide_donation' value='1' /><input type='submit' value='<?php _e( 'Hide', 'wp-super-cache' ); ?>' /><?php wp_nonce_field('wp-cache'); ?></form></p>
 	</div>
 	<?php } else { ?>
 	<p><?php printf( __( '%1$s is maintained and developed by %2$s with contributions from many others.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/wp-super-cache/?r=supercache">WP Super Cache</a>', '<a href="http://ocaoimh.ie/?r=supercache">Donncha O Caoimh</a>' ); ?></p>
@@ -437,14 +437,14 @@ jQuery(document).ready(function(){
 		}
 		?>
 		<p><?php printf( __( 'Cached pages since %1$s : <strong>%2$s</strong>', 'wp-super-cache' ), date( 'M j, Y', $start_date ), number_format( get_option( 'wpsupercache_count' ) ) ); ?></p>
-		<p><?php _e( 'Newest Cached Pages:' ); ?><ol>
+		<p><?php _e( 'Newest Cached Pages:', 'wp-super-cache' ); ?><ol>
 		<?php
 		foreach( array_reverse( (array)get_option( 'supercache_last_cached' ) ) as $url ) {
 			$since = time() - strtotime( $url[ 'date' ] );
 			echo "<li><a title='" . sprintf( __( 'Cached %s seconds ago', 'wp-super-cache' ), $since ) . "' href='" . site_url( $url[ 'url' ] ) . "'>{$url[ 'url' ]}</a></li>\n";
 		}
 		?></ol>
-		<small><?php _e( '(may not always be accurate on busy sites)' ); ?></small>
+		<small><?php _e( '(may not always be accurate on busy sites)', 'wp-super-cache' ); ?></small>
 		</p><?php 
 	} else {
 		$start_date = get_option( 'wpsupercache_start' );
@@ -642,7 +642,7 @@ function wsc_mod_rewrite() {
 		<a href="javascript:toggleLayer('rewriterules');" class="button"><?php _e( 'View Mod_Rewrite Rules', 'wp-super-cache' ); ?></a>
 		<div id='rewriterules' style='display: none;'>
 		<?php echo "<p><pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>\n"; 
-		echo "<p>Rules must be added to " . WP_CONTENT_DIR ."/cache/.htaccess too:</p>";
+		echo "<p>" . sprintf( __( 'Rules must be added to %s too:', 'wp-super-cache' ), WP_CONTENT_DIR . "/cache/.htaccess" ) . "</p>";
 		echo "<pre># BEGIN supercache\n" . wp_specialchars( $gziprules ) . "# END supercache</pre></p>"; ?>
 		</div>
 		<?php
