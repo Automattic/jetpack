@@ -126,6 +126,7 @@ function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_whitelist, $wp_cache_mobile_browsers;
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation, $wp_cache_not_logged_in, $wp_supercache_cache_list;
+	global $wp_super_cache_front_page_check;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -178,7 +179,7 @@ jQuery(document).ready(function(){
 		}
 	}
 
-	if ( !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
+	if ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 1 && !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
 		wp_schedule_single_event( time() + 60 , 'wp_cache_check_site_hook' );
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'scheduled wp_cache_check_site_hook for 60 seconds time.', 2 );
 	}
@@ -994,6 +995,7 @@ function wp_cache_edit_accepted() {
 
 function wp_cache_debug_settings() {
 	global $wp_super_cache_debug, $wp_cache_debug_email, $wp_cache_debug_log, $wp_cache_debug_level, $wp_cache_debug_ip, $cache_path, $valid_nonce, $wp_cache_config_file, $wp_cache_debug_to_file;
+	global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification;
 
 	if ( !isset( $wp_cache_debug_level ) )
 		$wp_cache_debug_level = 1;
@@ -1014,6 +1016,16 @@ function wp_cache_debug_settings() {
 		wp_cache_replace_line('^ *\$wp_cache_debug_ip', "\$wp_cache_debug_ip = '$wp_cache_debug_ip';", $wp_cache_config_file);
 		$wp_cache_debug_level = (int)$_POST[ 'wp_cache_debug_level' ];
 		wp_cache_replace_line('^ *\$wp_cache_debug_level', "\$wp_cache_debug_level = '$wp_cache_debug_level';", $wp_cache_config_file);
+		$wp_super_cache_front_page_check = (int)$_POST[ 'wp_super_cache_front_page_check' ];
+		wp_cache_replace_line('^ *\$wp_super_cache_front_page_check', "\$wp_super_cache_front_page_check = '$wp_super_cache_front_page_check';", $wp_cache_config_file);
+		$wp_super_cache_front_page_clear = (int)$_POST[ 'wp_super_cache_front_page_clear' ];
+		wp_cache_replace_line('^ *\$wp_super_cache_front_page_clear', "\$wp_super_cache_front_page_clear = '$wp_super_cache_front_page_clear';", $wp_cache_config_file);
+		$wp_super_cache_front_page_text = wp_specialchars( $_POST[ 'wp_super_cache_front_page_text' ] );
+		wp_cache_replace_line('^ *\$wp_super_cache_front_page_text', "\$wp_super_cache_front_page_text = '$wp_super_cache_front_page_text';", $wp_cache_config_file);
+		$wp_super_cache_front_page_notification = (int)$_POST[ 'wp_super_cache_front_page_notification' ];
+		wp_cache_replace_line('^ *\$wp_super_cache_front_page_notification', "\$wp_super_cache_front_page_notification = '$wp_super_cache_front_page_notification';", $wp_cache_config_file);
+		if ( $wp_super_cache_front_page_check )
+			wp_cache_check_site();
 	}
 
 	echo '<a name="debug"></a>';
@@ -1045,8 +1057,17 @@ function wp_cache_debug_settings() {
 		echo $wp_cache_debug_level == $t ? "checked='checked' " : '';
 		echo "/> $t ";
 	}
-	echo " " . __( '(1 = less, 5 = more, may cause severe server load.)', 'wp-super-cache' ) . "</td></tr></table>";
+	echo " " . __( '(1 = less, 5 = more, may cause severe server load.)', 'wp-super-cache' ) . "</td></tr>";
+	echo "</table>\n";
+	echo "<h4>" . __( 'Advanced', 'wp-super-cache' ) . "</h4><p>" . __( 'In very rare cases two problems may arise on some blogs:<ol><li> The front page may start downloading as a zip file.</li><li> The wrong page is occasionally cached as the front page if your blog uses a static front page and the permalink structure is <em>/%category%/%postname%/</em>.</li></ol>', 'wp-super-cache' ) . '</p>';
+	echo "<p>" . __( 'I&#8217;m 99% certain that they aren&#8217;t bugs in WP Super Cache and they only happen in very rare cases but you can run a simple check once a minute to verify that your site is ok if you&#8217;re worried. You will be emailed if there is a problem.', 'wp-super-cache' ) . "</p>";
+	echo "<table class='form-table'>";
+	echo "<tr><td valign='top' colspan='2'><input type='checkbox' name='wp_super_cache_front_page_check' value='1' " . checked( 1, $wp_super_cache_front_page_check, false ) . " /> " . __( 'Check front page once a minute.', 'wp-super-cache' ) . "</td></tr>";
+	echo "<tr><td valign='top'>" . __( 'Front page text', 'wp-super-cache' ) . "</td><td> <input type='text' size='30' name='wp_super_cache_front_page_text' value='{$wp_super_cache_front_page_text}' /> (" . __( 'Text to search for on your front page. If this text is missing the cache will be cleared. Leave blank to disable.', 'wp-super-cache' ) . ")</td></tr>";
+	echo "<tr><td valign='top' colspan='2'><input type='checkbox' name='wp_super_cache_front_page_clear' value='1' " . checked( 1, $wp_super_cache_front_page_clear, false ) . " /> " . __( 'Clear cache on error.', 'wp-super-cache' ) . "</td></tr>";
+	echo "<tr><td valign='top' colspan='2'><input type='checkbox' name='wp_super_cache_front_page_notification' value='1' " . checked( 1, $wp_super_cache_front_page_notification, false ) . " /> " . __( 'Email the blog admin when checks are made. (useful for testing)', 'wp-super-cache' ) . "</td></tr>";
 	
+	echo "</table>\n";
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
@@ -1723,14 +1744,39 @@ function wp_cache_admin_notice() {
 add_action( 'admin_notices', 'wp_cache_admin_notice' );
 
 function wp_cache_check_site() {
-	if( function_exists( "wp_remote_get" ) == false ) {
-		return;
+	global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification;
+
+	if ( !isset( $wp_super_cache_front_page_check ) || ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 0 ) ) {
+		return false;
+	}
+
+	if ( function_exists( "wp_remote_get" ) == false ) {
+		return false;
 	}
 	$front_page = wp_remote_get( site_url(), array('timeout' => 60, 'blocking' => true ) );
 	if( is_array( $front_page ) ) {
-		if( $front_page[ 'headers' ][ 'content-type' ] == 'application/x-gzip' ) {
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is gzipped! Please clear cache!', 'wp-super-cache' ), site_url() ), sprintf( __( "Please visit %s to clear the cache as the front page of your site is now downloading!", 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache" ) );
+		// Check for gzipped front page
+                if ( $front_page[ 'headers' ][ 'content-type' ] == 'application/x-gzip' ) {
+                        if ( !isset( $wp_super_cache_front_page_clear ) || ( isset( $wp_super_cache_front_page_clear ) && $wp_super_cache_front_page_clear == 0 ) ) {
+                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is gzipped! Please clear cache!', 'wp-super-cache' ), site_url() ), sprintf( __( "Please visit %s to clear the cache as the front page of your site is now downloading!", 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache" ) );
+                        } else {
+                                wp_cache_clear_cache();
+                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is gzipped! Cache Cleared!', 'wp-super-cache' ), site_url() ), sprintf( __( "The cache on your blog has been cleared because the front page of your site is now downloading. Please visit %s to verify the cache has been cleared.", 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache" ) );
+                        }
+                }
+
+		// Check for broken front page
+		if ( isset( $wp_super_cache_front_page_text ) && $wp_super_cache_front_page_text != '' && false === strpos( $front_page[ 'body' ], $wp_super_cache_front_page_text ) ) {
+			if ( !isset( $wp_super_cache_front_page_clear ) || ( isset( $wp_super_cache_front_page_clear ) && $wp_super_cache_front_page_clear == 0 ) ) {
+                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is not correct! Please clear cache!', 'wp-super-cache' ), site_url() ), sprintf( __( 'Please visit %1$s to clear the cache as the front page of your site is not correct and missing the text, "%2$s"!', 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache", $wp_super_cache_front_page_text ) );
+                        } else {
+                                wp_cache_clear_cache();
+                                wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page is not correct! Cache Cleared!', 'wp-super-cache' ), site_url() ), sprintf( __( 'The cache on your blog has been cleared because the front page of your site is missing the text "%2$s". Please visit %1$s to verify the cache has been cleared.', 'wp-super-cache' ), trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache", $wp_super_cache_front_page_text ) );
+			}
 		}
+	}
+	if ( isset( $wp_super_cache_front_page_notification ) && $wp_super_cache_front_page_notification == 1 ) {
+		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Front page check!', 'wp-super-cache' ), site_url() ), sprintf( __( "WP Super Cache has checked the front page of your blog. Please visit %s if you would like to disable this.", 'wp-super-cache' ) . "\n\n", trailingslashit( site_url() ) . "wp-admin/options-general.php?page=wpsupercache#debug" ) . print_r( $front_page, 1 ) );
 	}
 
 	if ( !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
