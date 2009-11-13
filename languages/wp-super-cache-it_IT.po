@@ -7,7 +7,7 @@ msgstr ""
 "Project-Id-Version: WP Super Cache in italiano\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-super-cache\n"
 "POT-Creation-Date: 2009-11-10 16:29+0000\n"
-"PO-Revision-Date: 2009-11-10 20:30+0100\n"
+"PO-Revision-Date: 2009-11-10 21:06+0100\n"
 "Last-Translator: Gianni Diurno (aka gidibao) <gidibao@gmail.com>\n"
 "Language-Team: Gianni Diurno | http://gidibao.net/ <gidibao@gmail.com>\n"
 "MIME-Version: 1.0\n"
@@ -1037,7 +1037,7 @@ msgstr "[%s] La front page é stata gzipped! La cache é stata svuotata!"
 #: wp-cache.php:1764
 #, php-format
 msgid "The cache on your blog has been cleared because the front page of your site is now downloading. Please visit %s to verify the cache has been cleared."
-msgstr "The cache on your blog has been cleared because the front page of your site is now downloading. Please visit %s to verify the cache has been cleared.La cache del blog é stata svuotata perché la front page del tuo sito é sotto downloading. Visita %1$s per controllare se la cache sia stata svuotata."
+msgstr "La cache del blog é stata svuotata perché la front page del tuo sito é sotto downloading. Visita %1$s per controllare se la cache sia stata svuotata."
 
 #: wp-cache.php:1771
 #, php-format
