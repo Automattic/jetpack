@@ -1,3 +1,11 @@
+2009-11-18 17:28  donncha
+
+	* readme.txt: Added "Translators" thank you message
+
+2009-11-18 17:14  donncha
+
+	* Changelog.txt, readme.txt: Updated changelog
+
 2009-11-18 16:36  donncha
 
 	* wp-cache-config-sample.php, wp-cache.php: Added
