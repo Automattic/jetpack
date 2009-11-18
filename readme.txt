@@ -28,6 +28,19 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == Changelog ==
 
+= 0.9.8 =
+* Added Spanish translation by Omi.
+* Added Italian translation by Gianni Diurno.
+* Addded advanced debug code to check front page for category problem. Enable by setting $wp_super_cache_advanced_debug to 1 in the config file.
+* Fixed wordpress vs wordpress_logged_in cookie mismatch in cookie checking function.
+* Correctly check if WP_CACHE is set or not. PHP is weird.
+* Added wp_cache_clear_cache() to clear out cache directory.
+* Only show logged in message when debugging enabled.
+* Added troubleshooting point 20. PHP vs Apache user.
+* Fixed problem deleting cache file.
+* Don't delete cache files when moderated comments are deleted.
+
+
 = 0.9.7 =
 * Fixed problem with blogs in folders.
 * Added cache file listing and delete links to admin page.

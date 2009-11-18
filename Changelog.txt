@@ -1,3 +1,187 @@
+2009-11-18 16:36  donncha
+
+	* wp-cache-config-sample.php, wp-cache.php: Added
+	  $wp_super_cache_advanced_debug and hide advanced debug features
+	  by default
+
+2009-11-13 12:33  donncha
+
+	* languages/wp-super-cache-es_ES.mo,
+	  languages/wp-super-cache-es_ES.po: Update Spanish translation
+	  files, props Omi
+
+2009-11-13 10:34  donncha
+
+	* wp-super-cache.pot: Update translation file
+
+2009-11-13 10:24  donncha
+
+	* wp-cache.php: Fire off page checker every 5 minutes rather than 1
+	  minute.
+
+2009-11-13 10:02  donncha
+
+	* languages/wp-super-cache-it_IT.mo,
+	  languages/wp-super-cache-it_IT.po: Fixed typo in translation
+
+2009-11-12 14:05  donncha
+
+	* languages/wp-super-cache-es_ES.mo,
+	  languages/wp-super-cache-es_ES.po,
+	  languages/wp-super-cache-it_IT.mo,
+	  languages/wp-super-cache-it_IT.po: Language updates via Gianni
+	  Diurno and Omi (thanks guys, you do a great job!)
+
+2009-11-10 16:31  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2009-11-10 16:26  donncha
+
+	* wp-cache-config-sample.php, wp-cache.php: Added
+	  wp_cache_check_site() function
+
+2009-11-10 13:00  donncha
+
+	* wp-cache.php: More gettext fixes
+
+2009-11-10 12:24  donncha
+
+	* languages/wp-super-cache-es_ES.mo,
+	  languages/wp-super-cache-es_ES.po: Added Spanish translation,
+	  props Omi
+
+2009-11-09 16:45  donncha
+
+	* wp-cache.php: Change wordpress_logged_in to wordpress in
+	  supercache cookie checks to match PHP code
+
+2009-11-05 18:01  donncha
+
+	* languages/wp-super-cache-it_IT.po: Fix link to adverts for
+	  friends plugin
+
+2009-11-05 16:17  donncha
+
+	* wp-cache.php: More gettext fixes, props Juan P.F.
+
+2009-11-05 12:24  donncha
+
+	* languages/wp-super-cache-it_IT.mo,
+	  languages/wp-super-cache-it_IT.po: First check in of Italian
+	  translation by Gianni Diurno (http://gidibao.net/)
+
+2009-11-05 12:10  donncha
+
+	* wp-super-cache.pot: Update translations
+
+2009-11-05 11:57  donncha
+
+	* wp-cache.php: More gettext changes, props Gianni
+
+2009-11-04 16:28  donncha
+
+	* wp-super-cache.pot: Fixed missing < in text
+
+2009-11-04 16:26  donncha
+
+	* plugins/searchengine.php: Ooops, minor typo, props Juan P.F.
+
+2009-11-04 12:07  donncha
+
+	* languages, wp-cache.php: Load translation files from languages
+	  folder
+
+2009-11-04 11:50  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2009-11-04 11:39  donncha
+
+	* wp-cache-phase1.php: Split user agent and cache file checks into
+	  two for easier debugging
+
+2009-11-04 11:38  donncha
+
+	* plugins/badbehaviour.php, plugins/searchengine.php, wp-cache.php:
+	  gettext updates, thanks Gianni
+
+2009-10-25 17:44  donncha
+
+	* wp-cache.php: Check for WP_CACHE when plugin loaded rather than
+	  after init. See
+	  http://wordpress.org/support/topic/307644?replies=28#post-1258599
+
+2009-10-21 12:22  donncha
+
+	* wp-cache-phase2.php: Add wp_cache_clear_cache() function to clean
+	  cache directory
+
+2009-10-21 12:04  donncha
+
+	* wp-cache-phase2.php: Fix indentation in ob callback
+
+2009-10-21 12:01  donncha
+
+	* wp-cache-phase2.php: Only show logged in message when debugging
+	  enabled
+
+2009-10-20 11:21  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2009-10-20 11:19  donncha
+
+	* wp-cache.php: Minor typo
+
+2009-10-20 11:13  donncha
+
+	* wp-cache.php: Minor text change to aid translation. Props Aldo
+	  Latino
+
+2009-10-15 03:08  donncha
+
+	* readme.txt: Added troubleshooting no 20., php vs apache owners
+	  accessing cache files. props Nikolay Bachiyski.
+
+2009-10-12 22:01  donncha
+
+	* wp-cache.php: Fix problem deleting cache files. props Marco
+	  Schmoecker
+
+2009-10-06 14:55  donncha
+
+	* wp-cache-phase2.php: Deleting a moderated comment shouldn't
+	  delete cached files.
+
+2009-10-06 10:32  donncha
+
+	* wp-cache-phase2.php: "wp_set_comment_status" action has 2
+	  parameters
+
+2009-10-06 08:50  donncha
+
+	* wp-cache-phase2.php: Don't delete cache files on moderated pings
+	  or trackbacks
+
+2009-10-05 21:29  donncha
+
+	* wp-cache.php: Remove this debugging code
+
+2009-10-05 21:25  donncha
+
+	* wp-cache.php: Schedule the site checker from the admin page, fix
+	  typo when checking schedules
+
+2009-10-05 16:53  donncha
+
+	* wp-cache.php: Added gzipped front page checker that kicks in
+	  every 60 seconds via cron
+
+2009-10-02 21:42  donncha
+
+	* Changelog.txt: More updating
+
 2009-10-02 21:40  donncha
 
 	* readme.txt, wp-cache.php: Bump version to 0.9.7
