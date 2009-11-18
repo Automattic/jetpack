@@ -3,13 +3,13 @@
 Plugin Name: WP Super Cache
 Plugin URI: http://ocaoimh.ie/wp-super-cache/
 Description: Very fast caching plugin for WordPress.
-Version: 0.9.7
+Version: 0.9.8
 Author: Donncha O Caoimh
 Author URI: http://ocaoimh.ie/
 */
 
 /*  Copyright 2005-2006  Ricardo Galli Granada  (email : gallir@uib.es)
-    Some code copyright 2007-2008 Donncha O Caoimh (http://ocaoimh.ie/)
+    Copyright 2007-2009 Donncha O Caoimh (http://ocaoimh.ie/)
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
