@@ -301,3 +301,7 @@ Updates to the plugin will be posted here, to [Holy Shmoly!](http://ocaoimh.ie/)
 I would sincerely like to thank [John Pozadzides](http://onemansblog.com/) for giving me the idea for this, for writing the "How it works" section and for testing the plugin through 2 front page appearances on digg.com
 
 Thanks to James Farmer and Andrew Billits of [Edu Blogs](http://edublogs.org/) fame who helped me make this more WordPress MU friendly.
+
+Translators who did a great job converting the text of the plugin to their native language. Thank you!
+[Gianni Diurno](http://gidibao.net/) (Italian)
+[Omi](http://equipajedemano.info/) (Spanish)
