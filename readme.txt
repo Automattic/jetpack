@@ -26,6 +26,8 @@ See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further
 
 The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is a good place to start if you want to know what has changed since you last downloaded the plugin.
 
+== Upgrade Notice ==
+
 == Changelog ==
 
 = 0.9.8 =
