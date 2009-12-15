@@ -275,6 +275,13 @@ A line like "127.0.0.1 localhost localhost.localdomain" is ok.
 20. If supercache cache files are generated but not served, check the permissions on all your wp-content/cache/supercache folders (and each of wp-content cache and supercache folders) and wp-content/cache/.htaccess. If your PHP runs as a different user to Apache and permissions are strict Apache may not be able to read the PHP generated cache files. To fix you must add the following line to your wp-config.php (Add it above the WP_CACHE define.) Then clear your cache.
 
 	`umask( 0022 );`
+21. If you see garbage in your browser after enabling compression in the plugin, compression may already be enabled in your web server. In Apache you must disable mod_deflate, or in PHP zlib compression may be enabled. You can disable that in three ways. If you have root access, edit your php.ini and find the zlib.output_compression setting and make sure it's "Off" or add this line to your .htaccess:
+
+	`php_flag zlib.output_compression off`
+
+If that doesn't work, add this line to your wp-config.php:
+
+	`ini_set('zlib.output_compression', 0);`
 
 == Custom Caching ==
 It is now possible to hook into the caching process using the add_cacheaction() function.
