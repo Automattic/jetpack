@@ -986,7 +986,7 @@ msgstr ""
 
 #: wp-cache.php:1131
 msgid ""
-"GZIP compression is enabled in Wordpress, wp-cache will be bypassed until "
+"GZIP compression is enabled in WordPress, wp-cache will be bypassed until "
 "you disable gzip compression."
 msgstr ""
 
