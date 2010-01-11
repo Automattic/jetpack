@@ -22,7 +22,7 @@ The static html files will be served to the vast majority of your users, but bec
 If for some reason "supercaching" doesn't work on your server then don't worry. Caching will still be performed, but every request will require loading the PHP engine. In normal circumstances this isn't bad at all. Visitors to your site will notice no slowdown or difference. Supercache really comes into it's own if your server is underpowered, or you're experiencing heavy traffic.
 Super Cached html files will be served more quickly than PHP generated cached files but in every day use, the difference isn't noticeable.
 
-See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further information.
+See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further information. [Developer documentation](http://ocaoimh.ie/wp-super-cache-developers/) is also available for those who need to interact with the cache or write plugins.
 
 The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is a good place to start if you want to know what has changed since you last downloaded the plugin.
 
