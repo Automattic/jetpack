@@ -126,7 +126,7 @@ function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_whitelist, $wp_cache_mobile_browsers;
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation, $wp_cache_not_logged_in, $wp_supercache_cache_list;
-	global $wp_super_cache_front_page_check;
+	global $wp_super_cache_front_page_check, $wp_cache_anon_only;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -333,6 +333,14 @@ jQuery(document).ready(function(){
 				$wp_cache_not_logged_in = 0;
 			}
 			wp_cache_replace_line('^ *\$wp_cache_not_logged_in', "\$wp_cache_not_logged_in = " . $wp_cache_not_logged_in . ";", $wp_cache_config_file);
+			if( isset( $_POST[ 'wp_cache_anon_only' ] ) ) {
+				if( $wp_cache_anon_only == 0 && function_exists( 'prune_super_cache' ) )
+					prune_super_cache ($cache_path, true);
+				$wp_cache_anon_only = 1;
+			} else {
+				$wp_cache_anon_only = 0;
+			}
+			wp_cache_replace_line('^ *\$wp_cache_anon_only', "\$wp_cache_anon_only = " . $wp_cache_anon_only . ";", $wp_cache_config_file);
 		}
 		if( defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
 			$cache_compression_changed = false;
@@ -366,6 +374,7 @@ jQuery(document).ready(function(){
 	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong><?php _e( 'HALF ON', 'wp-super-cache' ); ?></strong> <span class="setting-description"><?php _e( 'Super Cache Disabled, only legacy WP-Cache caching.', 'wp-super-cache' ); ?></span></label><br />
 	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong><?php _e( 'OFF', 'wp-super-cache' ); ?></strong> <span class="setting-description"><?php _e( 'WP Cache and Super Cache disabled', 'wp-super-cache' ); ?></span></label><br />
 	<p><label><input type='checkbox' name='wp_cache_not_logged_in' <?php if( $wp_cache_not_logged_in ) echo "checked"; ?> value='1'> <?php _e( 'Don&#8217;t cache pages for logged in users.', 'wp-super-cache' ); ?></label></p>
+	<p><label><input type='checkbox' name='wp_cache_anon_only' <?php if( $wp_cache_anon_only ) echo "checked"; ?> value='1'> <?php _e( 'Don&#8217;t cache pages for known users (logged in and commenters).', 'wp-super-cache' ); ?></label></p>
 	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> <?php _e( 'Proudly tell the world your server is Digg proof! (places a message in your blog&#8217;s footer)', 'wp-super-cache' ); ?></label></p>
 	<p><label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> <?php _e( 'Clear all cache files when a post or page is published. (This may significantly slow down saving of posts.)', 'wp-super-cache' ); ?></label></p>
 	<p><label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> <?php _e( 'Cache rebuild. Serve a supercache file to anonymous users while a new file is being generated. Recommended for <em>very</em> busy websites with lots of comments. Makes "directly cached pages" and "Lockdown mode" obsolete.', 'wp-super-cache' ); ?></label></p>
