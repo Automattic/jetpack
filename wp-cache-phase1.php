@@ -82,10 +82,17 @@ if( false == @is_dir( $blog_cache_dir . 'meta' ) )
 
 $wp_start_time = microtime();
 
+function get_wp_cache_key( $url = false ) {
+	global $wp_cache_request_uri, $wp_cache_gzip_encoding;
+	if ( !$url )
+		$url = $wp_cache_request_uri;
+	return do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() );
+}
+
 function wp_super_cache_init() {
 	global $wp_cache_key, $key, $blogcacheid, $wp_cache_request_uri, $file_prefix, $blog_cache_dir, $meta_file, $cache_file, $cache_filename, $wp_super_cache_debug, $meta_pathname, $wp_cache_gzip_encoding, $meta;
 
-	$wp_cache_key = do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $wp_cache_request_uri ) ).$wp_cache_gzip_encoding.wp_cache_get_cookies_values() );
+	$wp_cache_key = get_wp_cache_key();
 	$key = $blogcacheid . md5( $wp_cache_key );
 	$wp_cache_key = $blogcacheid . $wp_cache_key;
 
@@ -333,8 +340,15 @@ function reset_oc_version( $version = 1 ) {
 	return $version;
 }
 
-function get_oc_key() {
-	return get_current_url_supercache_dir() . get_oc_version();
+function get_oc_key( $url = false ) {
+	global $wp_cache_gzip_encoding;
+
+	if ( $url ) {
+		$key = $url;
+	} else {
+		$key = get_current_url_supercache_dir();
+	}
+	return $key . $wp_cache_gzip_encoding . get_oc_version();
 }
 
 ?>
