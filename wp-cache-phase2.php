@@ -669,7 +669,7 @@ function wp_cache_shutdown_callback() {
 		/* @header('Last-Modified: ' . $value); */
 		$wp_cache_meta[ 'headers' ][ 'Last-Modified' ] = "Last-Modified: $value";
 	}
-	if (!$response['Content-Type'] && !$response['Content-type']) {
+	if ( !isset( $response[ 'Content-Type' ] ) && !isset( $response[ 'Content-type' ] ) ) {
 		// On some systems, headers set by PHP can't be fetched from
 		// the output buffer. This is a last ditch effort to set the
 		// correct Content-Type header for feeds, if we didn't see
