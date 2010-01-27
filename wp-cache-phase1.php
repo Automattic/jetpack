@@ -116,7 +116,7 @@ function wp_cache_serve_cache_file() {
 	if ( !empty( $_GET ) )
 		return false;
 
-	if ( $wp_cache_object_cache ) { 
+	if ( $wp_cache_object_cache && wp_cache_get_cookies_values() == '' ) { 
 		$oc_key = get_oc_key();
 		$meta_filename = $oc_key . ".meta";
 		if ( gzip_accepted() ) {
