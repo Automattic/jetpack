@@ -46,7 +46,6 @@ $cache_rejected_user_agent = array ( 0 => 'bot', 1 => 'ia_archive', 2 => 'slurp'
 
 $cache_rebuild_files = 1;
 
-
 // Disable the file locking system.
 // If you are experiencing problems with clearing or creating cache files
 // uncommenting this may help.
@@ -72,8 +71,34 @@ $wp_cache_shutdown_gc = 0;
 $wp_super_cache_late_init = 0;
 
 // uncomment the next line to enable advanced debugging features
-//$wp_super_cache_advanced_debug = 1;
-$wp_super_cache_front_page_check = 0;
-$wp_super_cache_front_page_clear = 0;
+$wp_super_cache_advanced_debug = 0;
 $wp_super_cache_front_page_text = '';
+$wp_super_cache_front_page_clear = 0;
+$wp_super_cache_front_page_check = 0;
+$wp_super_cache_front_page_notification = '0';
+
+$wp_cache_object_cache = 0;
+$wp_cache_anon_only = 0;
+$wp_supercache_cache_list = 0;
+$wp_cache_debug_to_file = 0;
+$wp_super_cache_debug = 0;
+$wp_cache_debug_level = 5;
+$wp_cache_debug_ip = '';
+$wp_cache_debug_log = '';
+$wp_cache_debug_email = '';
+$wp_cache_pages[ "search" ] = 0;
+$wp_cache_pages[ "feed" ] = 0;
+$wp_cache_pages[ "category" ] = 0;
+$wp_cache_pages[ "home" ] = 0;
+$wp_cache_pages[ "frontpage" ] = 0;
+$wp_cache_pages[ "tag" ] = 0;
+$wp_cache_pages[ "archives" ] = 0;
+$wp_cache_pages[ "pages" ] = 0;
+$wp_cache_pages[ "single" ] = 0;
+$wp_cache_hide_donation = 0;
+$wp_cache_not_logged_in = 0;
+$wp_cache_clear_on_post_edit = 0;
+$wp_cache_hello_world = 0;
+$wp_cache_mobile_enabled = 0;
+$wp_cache_cron_check = 0;
 ?>
