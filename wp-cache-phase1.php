@@ -240,19 +240,12 @@ function do_cacheaction( $action, $value = '' ) {
 
 // From http://wordpress.org/extend/plugins/wordpress-mobile-edition/ by Alex King
 function wp_cache_check_mobile( $cache_key ) {
-	global $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_mobile_whitelist;
+	global $wp_cache_mobile_enabled, $wp_cache_mobile_browsers;
 	if( !isset( $wp_cache_mobile_enabled ) || false == $wp_cache_mobile_enabled )
 		return $cache_key;
 
 	if (!isset($_SERVER["HTTP_USER_AGENT"])) {
 		return $cache_key;
-	}
-	$whitelist = explode( ',', $wp_cache_mobile_whitelist );
-	foreach ($whitelist as $browser) {
-		if (strstr($_SERVER["HTTP_USER_AGENT"], trim($browser))) {
-			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "whitelst mobile browser detected: " . $_SERVER[ "HTTP_USER_AGENT" ], 5 );
-			return $cache_key;
-		}
 	}
 
 	$browsers = explode( ',', $wp_cache_mobile_browsers );

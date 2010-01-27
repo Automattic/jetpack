@@ -124,7 +124,7 @@ add_action('admin_menu', 'wp_cache_add_pages');
 
 function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
-	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_whitelist, $wp_cache_mobile_browsers;
+	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers;
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation, $wp_cache_not_logged_in, $wp_supercache_cache_list;
 	global $wp_super_cache_front_page_check, $wp_cache_anon_only, $wp_cache_object_cache;
 
@@ -268,6 +268,14 @@ jQuery(document).ready(function(){
 		}
 	}
 
+	// used by mod_rewrite rules and config file
+	if ( function_exists( "cfmobi_default_browsers" ) ) {
+		$mobile_browsers = cfmobi_default_browsers( "mobile" );
+		$mobile_browsers = array_merge( $mobile_browsers, cfmobi_default_browsers( "touch" ) );
+	} else {
+		$mobile_browsers = array( '2.0 MMP', '240x320', '400X240', 'AvantGo', 'BlackBerry', 'Blazer', 'Cellphone', 'Danger', 'DoCoMo', 'Elaine/3.0', 'EudoraWeb', 'Googlebot-Mobile', 'hiptop', 'IEMobile', 'KYOCERA/WX310K', 'LG/U990', 'MIDP-2.', 'MMEF20', 'MOT-V', 'NetFront', 'Newt', 'Nintendo Wii', 'Nitro', 'Nokia', 'Opera Mini', 'Palm', 'PlayStation Portable', 'portalmmm', 'Proxinet', 'ProxiNet', 'SHARP-TQ-GX10', 'SHG-i900', 'Small', 'SonyEricsson', 'Symbian OS', 'SymbianOS', 'TS21i-10', 'UP.Browser', 'UP.Link', 'webOS', 'Windows CE', 'WinWAP', 'YahooSeeker/M1A1-R2D2', 'iPhone', 'iPod', 'Android', 'BlackBerry9530', 'LG-TU915 Obigo', 'LGE VX', 'webOS', 'Nokia5800' );
+	}
+
 	if ( $valid_nonce ) {
 		if( isset( $_POST[ 'wp_cache_status' ] ) ) {
 			if( isset( $_POST[ 'wp_cache_mobile_enabled' ] ) ) {
@@ -276,10 +284,7 @@ jQuery(document).ready(function(){
 				$wp_cache_mobile_enabled = 0;
 			}
 			if( $wp_cache_mobile_enabled == 1 ) {
-				if( !isset( $wp_cache_mobile_whitelist ) )
-					wp_cache_replace_line('^ *\$wp_cache_mobile_whitelist', "\$wp_cache_mobile_whitelist = 'Stand Alone/QNws';", $wp_cache_config_file);
-				if( false == isset( $wp_cache_mobile_browsers ) )
-					wp_cache_replace_line('^ *\$wp_cache_mobile_browsers', "\$wp_cache_mobile_browsers = 'Android, 2.0 MMP, 240x320, AvantGo, BlackBerry, Blazer, Cellphone, Danger, DoCoMo, Elaine/3.0, EudoraWeb, hiptop, IEMobile, iPhone, iPod, KYOCERA/WX310K, LG/U990, MIDP-2.0, MMEF20, MOT-V, NetFront, Newt, Nintendo Wii, Nitro, Nokia, Opera Mini, Palm, Playstation Portable, portalmmm, Proxinet, ProxiNet, SHARP-TQ-GX10, Small, SonyEricsson, Symbian OS, SymbianOS, TS21i-10, UP.Browser, UP.Link, Windows CE, WinWAP';", $wp_cache_config_file);
+				wp_cache_replace_line('^ *\$wp_cache_mobile_browsers', "\$wp_cache_mobile_browsers = '" . implode( ', ', $mobile_browsers ) . "';", $wp_cache_config_file);
 			}
 			wp_cache_replace_line('^ *\$wp_cache_mobile_enabled', "\$wp_cache_mobile_enabled = " . $wp_cache_mobile_enabled . ";", $wp_cache_config_file);
 
@@ -395,16 +400,18 @@ jQuery(document).ready(function(){
 	<?php
 	$home_path = trailingslashit( get_home_path() );
 	$scrules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WPSuperCache' ) );
-	if ( !$wp_cache_mobile_enabled && strpos( $scrules, '240x320|AvantGo|BlackBerry|Blazer|Cellphone|Danger|DoCoMo' ) ) {
+	if ( !$wp_cache_mobile_enabled && strpos( $scrules, addcslashes( implode( '|', $mobile_browsers ), ' ' ) ) ) {
 		echo "<blockquote style='background-color:#feefb3; padding: 5px; margin: 5px;'><h4>" . __( 'Mobile rewrite rules detected', 'wp-super-cache' ) . "</h4>";
-		echo "<p>" . __( 'For best performance you should enable "Mobile device support" or delete the mobile rewrite rules in your .htaccess. Look for the 2 lines with the text "Android|2.0\ MMP|240x320|AvantGo|BlackBerry|Blazer|Cellphone" and delete those.', 'wp-super-cache' ) . "</p><p>" . __( 'This will have no affect on ordinary users but mobile users will see uncached pages.', 'wp-super-cache' ) . "</p></blockquote>";
-	} elseif ( $wp_cache_mobile_enabled && $scrules != '' && false === strpos( $scrules, '240x320|AvantGo|BlackBerry|Blazer|Cellphone|Danger|DoCoMo' ) ) {
+		echo "<p>" . __( 'For best performance you should enable "Mobile device support" or delete the mobile rewrite rules in your .htaccess. Look for the 2 lines with the text "2.0\ MMP|240x320" and delete those.', 'wp-super-cache' ) . "</p><p>" . __( 'This will have no affect on ordinary users but mobile users will see uncached pages.', 'wp-super-cache' ) . "</p></blockquote>";
+	} elseif ( $wp_cache_mobile_enabled && $scrules != '' && false === strpos( $scrules, addcslashes( implode( '|', $mobile_browsers ), ' ' ) ) ) {
 	?>
-	<blockquote style='background-color:#fefeb3; padding: 5px; margin: 5px;'><p><?php _e( 'Mobile support requires extra rules in your .htaccess file, or you can set the plugin to half-on mode. Here are your options (in order of difficulty):', 'wp-super-cache' ); ?>
-	<ol><li> 1. <?php _e( 'Set the plugin to half on mode and enable mobile support.', 'wp-super-cache' ); ?></li>
-	<li> 2. <?php printf( __( 'Delete the plugin mod_rewrite rules in %s.htaccess enclosed by <code># BEGIN WPSuperCache</code> and <code># END WPSuperCache</code> and let the plugin regenerate them by reloading this page.', 'wp-super-cache' ), $home_path ); ?></li>
-	<li> 3. <?php printf( __( 'Add the rules yourself. Edit %s.htaccess and find the block of code enclosed by the lines <code># BEGIN WPSuperCache</code> and <code># END WPSuperCache</code>. There are two sections that look very similar. Just below the line <code>%{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$</code> add this line: (do it twice, once for each section)', 'wp-super-cache' ), $home_path ); ?></p>
-	<div style='padding: 2px; margin: 2px; border: 1px solid #333; width:400px; overflow: scroll'><pre>RewriteCond %{HTTP_user_agent} !^.*(Android|2.0\ MMP|240x320|AvantGo|BlackBerry|Blazer|Cellphone|Danger|DoCoMo|Elaine/3.0|EudoraWeb|hiptop|IEMobile|iPhone|iPod|KYOCERA/WX310K|LG/U990|MIDP-2.0|MMEF20|MOT-V|NetFront|Newt|Nintendo\ Wii|Nitro|Nokia|Opera\ Mini|Palm|Playstation\ Portable|portalmmm|Proxinet|ProxiNet|SHARP-TQ-GX10|Small|SonyEricsson|Symbian\ OS|SymbianOS|TS21i-10|UP.Browser|UP.Link|Windows\ CE|WinWAP).*</pre></div></li></ol></blockquote>
+	<blockquote style='background-color:#fefeb3; padding: 5px; margin: 5px;'><h4><?php _e( 'Rewrite rules must be updated', 'wp-super-cache' ); ?></h4>
+	<p><?php _e( 'The rewrite rules required by this plugin have changed or are missing. ', 'wp-super-cache' ); ?>
+	<?php _e( 'Mobile support requires extra rules in your .htaccess file, or you can set the plugin to half-on mode. Here are your options (in order of difficulty):', 'wp-super-cache' ); ?>
+	<ol><li> <?php _e( 'Set the plugin to half on mode and enable mobile support.', 'wp-super-cache' ); ?></li>
+	<li> <?php printf( __( 'Delete the plugin mod_rewrite rules in %s.htaccess enclosed by <code># BEGIN WPSuperCache</code> and <code># END WPSuperCache</code> and let the plugin regenerate them by reloading this page.', 'wp-super-cache' ), $home_path ); ?></li>
+	<li> <?php printf( __( 'Add the rules yourself. Edit %s.htaccess and find the block of code enclosed by the lines <code># BEGIN WPSuperCache</code> and <code># END WPSuperCache</code>. There are two sections that look very similar. Just below the line <code>%{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$</code> add this line: (do it twice, once for each section)', 'wp-super-cache' ), $home_path ); ?></p>
+	<div style='padding: 2px; margin: 2px; border: 1px solid #333; width:400px; overflow: scroll'><pre>RewriteCond %{HTTP_user_agent} !^.*(<?php echo addcslashes( implode( '|', $mobile_browsers ), ' ' ); ?>).*</pre></div></li></ol></blockquote>
 	<?php } ?>
 	<p><strong><?php _e( 'Note:', 'wp-super-cache' ); ?></strong> <?php printf( __( 'If uninstalling this plugin, make sure the directory <em>%s</em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)', 'wp-super-cache' ), WP_CONTENT_DIR ); ?></p>
 	<p><?php printf( __( 'Uninstall using the <a href="%1$s/wp-super-cache/uninstall.php">uninstall script</a> to remove files and directories created by the plugin. (Please see <a href="%1$s/wp-super-cache/readme.txt">readme.txt</a> for instructions on uninstalling this script.)', 'wp-super-cache' ), WP_PLUGIN_URL ); ?></p>
@@ -488,7 +495,7 @@ jQuery(document).ready(function(){
 
 	wp_cache_files();
 
-	wsc_mod_rewrite();
+	wsc_mod_rewrite( $mobile_browsers );
 
 	wp_cache_edit_max_time();
 
@@ -525,7 +532,7 @@ jQuery(document).ready(function(){
 	echo "</div>\n";
 }
 
-function wsc_mod_rewrite() {
+function wsc_mod_rewrite( $mobile_browsers ) {
 	global $cache_enabled, $super_cache_enabled, $cache_compression, $cache_compression_changed, $valid_nonce, $cache_path;
 	if( $super_cache_enabled == false && $cache_enabled == true ) {
 		?><h3><?php _e( 'Super Cache Compression', 'wp-super-cache' ); ?></h3>
@@ -581,7 +588,7 @@ function wsc_mod_rewrite() {
 	$condition_rules[] = "RewriteCond %{REQUEST_METHOD} !POST";
 	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*=.*";
 	$condition_rules[] = "RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$";
-	$condition_rules[] = "RewriteCond %{HTTP_USER_AGENT} !^.*(Android|2.0\\ MMP|240x320|AvantGo|BlackBerry|Blazer|Cellphone|Danger|DoCoMo|Elaine/3.0|EudoraWeb|hiptop|IEMobile|iPhone|iPod|KYOCERA/WX310K|LG/U990|MIDP-2.0|MMEF20|MOT-V|NetFront|Newt|Nintendo\\ Wii|Nitro|Nokia|Opera\\ Mini|Palm|Playstation\\ Portable|portalmmm|Proxinet|ProxiNet|SHARP-TQ-GX10|Small|SonyEricsson|Symbian\\ OS|SymbianOS|TS21i-10|UP.Browser|UP.Link|Windows\\ CE|WinWAP).*";
+	$condition_rules[] = "RewriteCond %{HTTP_USER_AGENT} !^.*(" . addcslashes( implode( '|', $mobile_browsers ), ' ' ) . ").*";
 	$condition_rules = apply_filters( 'supercacherewriteconditions', $condition_rules );
 
 	$rules = "<IfModule mod_rewrite.c>\n";
