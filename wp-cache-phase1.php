@@ -348,7 +348,7 @@ function get_oc_key( $url = false ) {
 	} else {
 		$key = get_current_url_supercache_dir();
 	}
-	return $key . $wp_cache_gzip_encoding . get_oc_version();
+	return $_SERVER[ 'HTTP_HOST' ] . $key . $wp_cache_gzip_encoding . get_oc_version();
 }
 
 ?>
