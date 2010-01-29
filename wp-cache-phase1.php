@@ -142,8 +142,20 @@ function wp_cache_serve_cache_file() {
 			return true;
 		}
 	} else {
-		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "No wp-cache file exists. Must generate a new one.", 5 );
-		return false;
+		// last chance, check if a supercache file exists. Just in case .htaccess rules don't work on this host
+		$file = get_current_url_supercache_dir() . "index.html";
+		if ( file_exists( $file ) ) {
+			header( "Content-type: text/html; charset=UTF-8" ); // UTF-8 hard coded is bad but we don't know what it is this early in the process
+			header( "Vary: Accept-Encoding, Cookie" );
+			header( "Cache-Control: max-age=300, must-revalidate" );
+			header( "WP-Cache: Served supercache file from PHP" );
+			readfile( $file );
+			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Served page from supercache file. Mod rewrite rules may be broken or missing.", 5 );
+			die();
+		} else {
+			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "No wp-cache file exists. Must generate a new one.", 5 );
+			return false;
+		}
 	}
 	$cache_file = do_cacheaction( 'wp_cache_served_cache_file', $cache_file );
 	// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
