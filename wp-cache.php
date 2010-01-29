@@ -1371,6 +1371,7 @@ function wp_cache_files() {
 
 	if ( $wp_cache_object_cache ) {
 		echo "<p>" . __( "Object cache in use. No cache listing available.", 'wp-super-cache' ) . "</p>";
+		wp_cache_delete_buttons();
 		echo "</fieldset>";
 		return false;
 	}
@@ -1569,8 +1570,14 @@ function wp_cache_files() {
 		echo "<p>" . sprintf( __( '<strong>Garbage Collection</strong><br />Last GC was <strong>%s</strong> minutes ago<br />', 'wp-super-cache' ), date( 'i:s', $next_gc_mins ) );
 		printf( __( "Next GC in <strong>%s</strong> minutes", 'wp-super-cache' ), date( 'i:s', $next_gc - $next_gc_mins ) ) . "</p>";
 	}
-
 	echo "<p>" . sprintf( __( 'Expired files are files older than %s seconds. They are still used by the plugin and are deleted periodically.', 'wp-super-cache' ), $cache_max_time ) . "</p>";
+	wp_cache_delete_buttons();
+
+	echo '</fieldset>';
+}
+
+function wp_cache_delete_buttons() {
+
 	echo '<form name="wp_cache_content_expired" action="#listfiles" method="post">';
 	echo '<input type="hidden" name="wp_delete_expired" />';
 	echo '<div class="submit" style="float:left"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Expired', 'wp-super-cache' ) . ' &raquo;" /></div>';
@@ -1582,8 +1589,6 @@ function wp_cache_files() {
 	echo '<div class="submit" style="float:left;margin-left:10px"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
-
-	echo '</fieldset>';
 }
 
 function delete_cache_dashboard() {
