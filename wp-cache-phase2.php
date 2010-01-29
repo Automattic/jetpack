@@ -842,6 +842,9 @@ function wp_cache_post_change($post_id) {
 	if( !wp_cache_writers_entry() )
 		return $post_id;
 
+	if ( $wp_cache_object_cache )
+		reset_oc_version();
+
 	$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
 	if( $super_cache_enabled ) {
 		$siteurl = trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', get_option( 'home' ) ) ) ) );
