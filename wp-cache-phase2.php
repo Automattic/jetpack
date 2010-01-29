@@ -272,7 +272,7 @@ function wp_cache_get_ob(&$buffer) {
 	global $wp_cache_gzip_encoding, $super_cache_enabled, $cached_direct_pages;
 	global $wp_cache_404, $gzsize, $supercacheonly, $wp_cache_gzip_first, $wp_cache_gmt_offset;
 	global $blog_cache_dir, $wp_cache_request_uri, $wp_supercache_cache_list;
-	global $wp_cache_not_logged_in, $wp_cache_object_cache;
+	global $wp_cache_not_logged_in, $wp_cache_object_cache, $cache_max_time;
 
 	$new_cache = true;
 	$wp_cache_meta = '';
@@ -423,7 +423,7 @@ function wp_cache_get_ob(&$buffer) {
 			if( $fr )
 				fputs($fr, $store);
 		} else {
-			wp_cache_set( $oc_key, $store, 'supercache', 30 ); // TODO set timelimit
+			wp_cache_set( $oc_key, $store, 'supercache', $cache_max_time ); 
 		}
 	} else {
 		$buffer = apply_filters( 'wpsupercache_buffer', $buffer );
@@ -442,7 +442,7 @@ function wp_cache_get_ob(&$buffer) {
 					fputs($fr, $gzdata);
 				}
 			} elseif ( $cache_enabled ) {
-				wp_cache_set( $oc_key . ".gz", $gzdata, 'supercache', 30 ); // TODO set timelimit
+				wp_cache_set( $oc_key . ".gz", $gzdata, 'supercache', $cache_max_time ); 
 				$added_cache = 1;
 			}
 		} else { // no compression
@@ -453,7 +453,7 @@ function wp_cache_get_ob(&$buffer) {
 					fputs($fr, $buffer);
 				}
 			} elseif ( $cache_enabled ) {
-				wp_cache_set( $oc_key, $buffer, 'supercache', 30 ); // TODO set timelimit
+				wp_cache_set( $oc_key, $buffer, 'supercache', $cache_max_time ); 
 				$added_cache = 1;
 			}
 		}
@@ -732,7 +732,7 @@ function wp_cache_shutdown_callback() {
 				$oc_key = get_oc_key() . ".meta";
 				if ( gzip_accepted() )
 					$oc_key .= ".gz";
-				wp_cache_set( $oc_key, $serial, 'supercache', 30 );
+				wp_cache_set( $oc_key, $serial, 'supercache', $cache_max_time );
 			}
 			wp_cache_writers_exit();
 		}
