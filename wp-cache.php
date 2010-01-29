@@ -126,7 +126,7 @@ function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers;
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation, $wp_cache_not_logged_in, $wp_supercache_cache_list;
-	global $wp_super_cache_front_page_check, $wp_cache_object_cache;
+	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -338,7 +338,7 @@ jQuery(document).ready(function(){
 				$wp_cache_not_logged_in = 0;
 			}
 			wp_cache_replace_line('^ *\$wp_cache_not_logged_in', "\$wp_cache_not_logged_in = " . $wp_cache_not_logged_in . ";", $wp_cache_config_file);
-			if( isset( $_POST[ 'wp_cache_object_cache' ] ) ) {
+			if( $_wp_using_ext_object_cache && isset( $_POST[ 'wp_cache_object_cache' ] ) ) {
 				if( $wp_cache_object_cache == 0 && function_exists( 'prune_super_cache' ) )
 					prune_super_cache ($cache_path, true);
 				$wp_cache_object_cache = 1;
@@ -405,8 +405,9 @@ jQuery(document).ready(function(){
 	<?php } ?>
 	<p><strong><?php _e( 'Note:', 'wp-super-cache' ); ?></strong> <?php printf( __( 'If uninstalling this plugin, make sure the directory <em>%s</em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)', 'wp-super-cache' ), WP_CONTENT_DIR ); ?></p>
 	<p><?php printf( __( 'Uninstall using the <a href="%1$s/wp-super-cache/uninstall.php">uninstall script</a> to remove files and directories created by the plugin. (Please see <a href="%1$s/wp-super-cache/readme.txt">readme.txt</a> for instructions on uninstalling this script.)', 'wp-super-cache' ), WP_PLUGIN_URL ); ?></p>
-	<p><label><input type='checkbox' name='wp_cache_object_cache' <?php if( $wp_cache_object_cache ) echo "checked"; ?> value='1'> <?php echo __( 'Use object cache to store cached files.', 'wp-super-cache' ) . ' ' . __( '(Experimental)', 'wp-super-cache' ); ?></label></p>
-	<?php
+	<?php if ( $_wp_using_ext_object_cache ) { 
+		?><p><label><input type='checkbox' name='wp_cache_object_cache' <?php if( $wp_cache_object_cache ) echo "checked"; ?> value='1'> <?php echo __( 'Use object cache to store cached files.', 'wp-super-cache' ) . ' ' . __( '(Experimental)', 'wp-super-cache' ); ?></label></p><?php 
+	}
 	echo "<div class='submit'><input type='submit' " . SUBMITDISABLED . " value='" . __( 'Update Status', 'wp-super-cache' ) . " &raquo;' /></div>";
 	wp_nonce_field('wp-cache');
 	?>
