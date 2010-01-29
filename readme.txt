@@ -28,7 +28,25 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == Upgrade Notice ==
 
+= 0.9.9 =
+Object cache support added, new translations, bugfixes, serve a cached file if mod_rewrite rules don't work.
+
 == Changelog ==
+
+= 0.9.9 =
+* Added experimental object cache support.
+* Added Chinese(Traditional) translation by Pseric.
+* Added FAQ on WP-Cache vs Supercache files.
+* Use Supercache file if WP-Cache file not found. Useful if mod_rewrite rules are broken or not working.
+* Get mobile browser list from WP Mobile Edition if found. Warn user if .htaccess out of date.
+* Make sure writer lock is unlocked after writing cache files.
+* Added link to developer docs in readme.
+* Added Ukranian translation by Vitaly Mylo.
+* Added Upgrade Notice section to readme.
+* Warn if zlib compression in PHP is enabled.
+* Added compression troubleshooting answer. Props Vladimir (http://blog.sjinks.pro/)
+* Added Japanese translation by Tai (http://tekapo.com/)
+* Updated Italian translation.
 
 = 0.9.8 =
 * Added Spanish translation by Omi.

@@ -1,3 +1,159 @@
+2010-01-29 10:40  donncha
+
+	* wp-cache.php: Show delete buttons even when object cache is used.
+
+2010-01-29 10:36  donncha
+
+	* wp-cache-phase2.php: Use $cache_max_time for object cache timeout
+
+2010-01-29 10:28  donncha
+
+	* wp-cache-phase2.php: Clear object cache when posts change
+
+2010-01-29 10:20  donncha
+
+	* wp-cache.php: Don't show cache listing when object cache used.
+
+2010-01-29 10:13  donncha
+
+	* languages/wp-super-cache-zh_TW.mo,
+	  languages/wp-super-cache-zh_TW.po: Chinese(Traditional)
+	  translation by Pseric
+
+2010-01-29 10:07  donncha
+
+	* readme.txt: Added FAQ on wp-cache vs supercache files
+
+2010-01-29 09:47  donncha
+
+	* wp-cache-phase1.php: Hostname is already included in supercache
+	  dir
+
+2010-01-29 09:45  donncha
+
+	* wp-cache-phase1.php: If cache loader doesn't find a wp-cache
+	  file, look for a supercache one and serve that instead.
+
+2010-01-28 10:17  donncha
+
+	* wp-cache-phase1.php: Include the hostname in the object cache key
+
+2010-01-27 17:18  donncha
+
+	* wp-cache-phase1.php: Object cache is only useful for anon users.
+
+2010-01-27 15:46  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php, wp-cache.php: * Remove
+	  "anon user only", same as logged in option.
+	  * Add gzip encoding to object cache key
+	  * Don't cache for known users in object cache
+
+2010-01-27 14:58  donncha
+
+	* wp-cache-phase1.php: Oops, don't serve cache file in the right
+	  place
+
+2010-01-27 14:38  donncha
+
+	* wp-cache-phase1.php, wp-cache.php: Get mobile browser list from
+	  "wp mobile edition". Warn user of obsolete rules.
+
+2010-01-27 12:26  donncha
+
+	* wp-cache-phase2.php: Let's avoid warnings if we can
+
+2010-01-27 12:24  donncha
+
+	* wp-cache-config-sample.php: Add more default config settings
+
+2010-01-26 18:29  donncha
+
+	* wp-cache-phase2.php: Don't cache GET requests in object cache for
+	  the time being.
+	  Missing chunk of code from previous check in
+
+2010-01-26 18:20  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php, wp-cache.php: First
+	  pass at object cache support. (Thank you Andy Skelton for writing
+	  batcache from where I borrowed some code and ideas)
+
+2010-01-26 14:38  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: * Added "no caching for known
+	  users" option
+	  * Fix half-on caching.
+
+2010-01-21 22:10  donncha
+
+	* wp-cache-phase2.php: * Make sure the writer lock is unlocked
+	  * "Logged in" users now include those who leave comments
+
+2010-01-19 11:13  donncha
+
+	* wp-cache.php: Warn the user is php zlib output_compression is
+	  enabled.
+
+2010-01-11 10:07  donncha
+
+	* wp-cache-phase2.php: Don't create static cache files when dynamic
+	  mfunc content is detected.
+	  Delete 0 byte size tmp cache files
+
+2010-01-11 09:56  donncha
+
+	* readme.txt: Added link to developer docs
+
+2009-12-22 11:14  donncha
+
+	* languages/wp-super-cache-uk.mo, languages/wp-super-cache-uk.po:
+	  Added Ukrainian translation, props Vitaly Mylo
+
+2009-12-15 10:46  donncha
+
+	* readme.txt: Added Upgrade Notice section to readme
+
+2009-12-15 10:44  donncha
+
+	* wp-cache.php, wp-super-cache.pot: Wordpress -> WordPress
+
+2009-12-15 10:36  donncha
+
+	* wp-cache.php: Warn if zlib compression is enabled before user
+	  enables compression in the plugin
+
+2009-12-15 10:23  donncha
+
+	* readme.txt: Added compression troubleshooting answer, props
+	  Vladimir (http://blog.sjinks.pro/)
+
+2009-11-23 16:15  donncha
+
+	* languages/wp-super-cache-ja.mo, languages/wp-super-cache-ja.po,
+	  languages/wp-super-cache-ja_JA.mo,
+	  languages/wp-super-cache-ja_JA.po: Renamed Japanese language
+	  files
+
+2009-11-23 15:11  donncha
+
+	* languages/wp-super-cache-ja_JA.mo,
+	  languages/wp-super-cache-ja_JA.po: Added Japanese translation,
+	  props Tai (http://tekapo.com/)
+
+2009-11-19 11:59  donncha
+
+	* languages/wp-super-cache-it_IT.mo,
+	  languages/wp-super-cache-it_IT.po: Updated Italian translation
+
+2009-11-18 17:50  donncha
+
+	* Changelog.txt: Updated changelog
+
+2009-11-18 17:49  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 0.9.8
+
 2009-11-18 17:28  donncha
 
 	* readme.txt: Added "Translators" thank you message
