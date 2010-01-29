@@ -356,11 +356,11 @@ function get_oc_key( $url = false ) {
 	global $wp_cache_gzip_encoding;
 
 	if ( $url ) {
-		$key = $url;
+		$key = strtolower( preg_replace( '/:.*$/', '',  $_SERVER[ "HTTP_HOST" ] ) ) . $url;
 	} else {
 		$key = get_current_url_supercache_dir();
 	}
-	return $_SERVER[ 'HTTP_HOST' ] . $key . $wp_cache_gzip_encoding . get_oc_version();
+	return $key . $wp_cache_gzip_encoding . get_oc_version();
 }
 
 ?>
