@@ -179,6 +179,11 @@ jQuery(document).ready(function(){
 		}
 	}
 
+	if ( '' == get_option( 'permalink_structure' ) ) {
+		echo "<h3>" . __( 'Permlink Structure Error', 'wp-super-cache' ) . "</h3>";
+		echo "<p>" . __( 'A custom url or permalink structure is required for this plugin to work correctly. Please go to the <a href="options-permalink.php">Permalinks Options Page</a> to configure your permalinks.' ) . "</p>";
+	}
+
 	if ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 1 && !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
 		wp_schedule_single_event( time() + 360 , 'wp_cache_check_site_hook' );
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'scheduled wp_cache_check_site_hook for 360 seconds time.', 2 );
