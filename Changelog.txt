@@ -1,3 +1,40 @@
+2010-02-08 13:36  donncha
+
+	* wp-cache-phase1.php: Only serve supercached files to anon users
+
+2010-02-08 13:14  donncha
+
+	* wp-cache-phase1.php: Don't serve GET requests from object cache
+
+2010-02-08 13:03  donncha
+
+	* readme.txt: Update upgrade note
+
+2010-02-02 11:56  donncha
+
+	* wp-cache.php: Added check for permalink structure
+
+2010-01-29 12:28  donncha
+
+	* wp-super-cache.pot: Updated translation pot file
+
+2010-01-29 12:09  donncha
+
+	* wp-cache.php: Only show object cache option when an external
+	  object cache used.
+
+2010-01-29 11:15  donncha
+
+	* readme.txt: Added note about supercache header
+
+2010-01-29 11:13  donncha
+
+	* readme.txt: Updated mobile rewrite rules in readme.txt
+
+2010-01-29 11:11  donncha
+
+	* Changelog.txt, readme.txt: Update changelog
+
 2010-01-29 10:40  donncha
 
 	* wp-cache.php: Show delete buttons even when object cache is used.
