@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  \n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-super-cache\n"
-"POT-Creation-Date: 2010-02-08 14:13+0000\n"
+"POT-Creation-Date: 2010-02-08 14:22+0000\n"
 "PO-Revision-Date: 2010-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 msgid "Bad Behaviour not found. Please check your install."
 msgstr ""
 
-#: plugins/badbehaviour.php:47 plugins/badbehaviour.php:66
+#: plugins/badbehaviour.php:47 plugins/badbehaviour.php:65
 #: plugins/searchengine.php:61 plugins/searchengine.php:76 wp-cache.php:742
 msgid "Disable"
 msgstr ""
@@ -35,10 +35,10 @@ msgstr ""
 
 #: plugins/badbehaviour.php:60
 #, php-format
-msgid "Bad Behaviour support is %s"
+msgid "Bad Behaviour support is %s."
 msgstr ""
 
-#: plugins/badbehaviour.php:62
+#: plugins/badbehaviour.php:61
 #, php-format
 msgid ""
 "(Only half-on caching supported, disabled compression and requires <a href="
@@ -46,11 +46,11 @@ msgid ""
 "behavior/\") "
 msgstr ""
 
-#: plugins/badbehaviour.php:64 plugins/searchengine.php:74 wp-cache.php:742
+#: plugins/badbehaviour.php:63 plugins/searchengine.php:74 wp-cache.php:742
 msgid "Enable"
 msgstr ""
 
-#: plugins/badbehaviour.php:70 wp-cache.php:819 wp-cache.php:821
+#: plugins/badbehaviour.php:69 wp-cache.php:819 wp-cache.php:821
 msgid "Warning!"
 msgstr ""
 
@@ -58,7 +58,7 @@ msgstr ""
 #, php-format
 msgid ""
 "<a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for "
-"Friends</a> plugin is %s"
+"Friends</a> plugin is %s."
 msgstr ""
 
 #: plugins/searchengine.php:72
