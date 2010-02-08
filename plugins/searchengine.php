@@ -68,8 +68,8 @@ function wp_supercache_searchengine_admin() {
 	} else {
 		$status = __( 'enabled', 'wp-super-cache' );
 	}
-	echo '<strong>' . sprintf( __( '<a href="http://ocaoimh.ie/no-adverts-for-friends/">No Adverts for Friends</a> plugin is %s', 'wp-super-cache' ), $status );
-	echo '.</strong> ' . __( '(requires <a href="http://ocaoimh.ie/no-adverts-for-friends/">friendsadverts.php</a> too) ', 'wp-super-cache' );
+	echo '<strong>' . sprintf( __( '<a href="http://ocaoimh.ie/no-adverts-for-friends/">No Adverts for Friends</a> plugin is %s.', 'wp-super-cache' ), $status );
+	echo '</strong> ' . __( '(requires <a href="http://ocaoimh.ie/no-adverts-for-friends/">friendsadverts.php</a> too) ', 'wp-super-cache' );
 	if( $cache_no_adverts_for_friends == 'no' ) {
 		echo '<input type="submit" name="cache_no_adverts_for_friends" value="' . __( 'Enable', 'wp-super-cache' ) . '" />';
 	} else {

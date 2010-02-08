@@ -57,8 +57,7 @@ function wp_supercache_badbehaviour_admin() {
 		$bb_status = __( 'enabled', 'wp-super-cache' );
 		wp_super_cache_disable();
 	}
-	echo '<strong>' . sprintf( __( 'Bad Behaviour support is %s', 'wp-super-cache' ), $bb_status );
-	echo '.</strong>';
+	echo '<strong>' . sprintf( __( 'Bad Behaviour support is %s.', 'wp-super-cache' ), $bb_status ) . '</strong>';
 	printf( __( '(Only half-on caching supported, disabled compression and requires <a href="http://www.bad-behavior.ioerror.us/">Bad Behavior</a> in "%s/plugins/bad-behavior/") ', 'wp-super-cache' ), WP_CONTENT_DIR );
 	if( $cache_badbehaviour == 0 ) {
 		echo '<input type="submit" name="cache_badbehaviour" value="' . __( 'Enable', 'wp-super-cache' ) . '" />';
