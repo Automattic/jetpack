@@ -29,7 +29,7 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 == Upgrade Notice ==
 
 = 0.9.9 =
-Object cache support added, new translations, bugfixes, serve a cached file if mod_rewrite rules don't work.
+Experimental object cache support, better WP Mobile Edition support, new translations, bugfixes, workarounds for broken .htaccess rules.
 
 == Changelog ==
 
