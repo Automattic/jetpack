@@ -113,10 +113,13 @@ function wp_cache_serve_cache_file() {
 		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "No wp-cache file served as user agent rejected.", 5 );
 		return false;
 	}
-	if ( !empty( $_GET ) )
-		return false;
 
 	if ( $wp_cache_object_cache && wp_cache_get_cookies_values() == '' ) { 
+		if ( !empty( $_GET ) ) {
+			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Non empty GET request. Not serving request from object cache", 1 );
+			return false;
+		}
+
 		$oc_key = get_oc_key();
 		$meta_filename = $oc_key . ".meta";
 		if ( gzip_accepted() ) {
