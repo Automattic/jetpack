@@ -1,7 +1,7 @@
 === WP Super Cache ===
 Contributors: donncha
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 2.8.6
+Tested up to: 2.9.1
 Stable tag: 0.9.8
 Requires at least: 2.6
 Donate link: http://ocaoimh.ie/gad/
@@ -47,6 +47,7 @@ Experimental object cache support, better WP Mobile Edition support, new transla
 * Added compression troubleshooting answer. Props Vladimir (http://blog.sjinks.pro/)
 * Added Japanese translation by Tai (http://tekapo.com/)
 * Updated Italian translation.
+* Link to WP Mobile Edition from admin page for mobile support.
 
 = 0.9.8 =
 * Added Spanish translation by Omi.
@@ -216,7 +217,7 @@ This plugin is based on the excellent WP-Cache plugin and therefore brings all t
 
 = Will comments and other dynamic parts of my blog update immediately? =
 
-Comments will show as soon as they are moderated, depending on the comment policy of the blog owner. Other dynamic elements on a page may not update unless they are written in Javascript, Flash, Java or another client side browser language. The plugin really produces static html pages. No PHP is executed when those pages are served. "Popularity Contest" is one such plugin that will not work. Plugins that show different content for mobile users will probaby not work either.
+Comments will show as soon as they are moderated, depending on the comment policy of the blog owner. Other dynamic elements on a page may not update unless they are written in Javascript, Flash, Java or another client side browser language. The plugin really produces static html pages. No PHP is executed when those pages are served. "Popularity Contest" is one such plugin that will not work. 
 
 = Will the Super Cache compression slow down my server? =
 
