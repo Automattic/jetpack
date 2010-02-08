@@ -1,3 +1,12 @@
+2010-02-08 13:51  donncha
+
+	* wp-cache-phase1.php: Supercache files can't be used when GET is
+	  not empty
+
+2010-02-08 13:43  donncha
+
+	* Changelog.txt: Update changelog
+
 2010-02-08 13:36  donncha
 
 	* wp-cache-phase1.php: Only serve supercached files to anon users
