@@ -1,3 +1,16 @@
+2010-02-08 14:24  donncha
+
+	* wp-super-cache.pot: Updated pot file
+
+2010-02-08 14:22  donncha
+
+	* plugins/badbehaviour.php, plugins/searchengine.php: Minor text
+	  change, props Tai
+
+2010-02-08 14:18  donncha
+
+	* Changelog.txt: Updated, again!
+
 2010-02-08 14:16  donncha
 
 	* wp-super-cache.pot: Updated pot file
