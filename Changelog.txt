@@ -1,3 +1,21 @@
+2010-02-08 14:11  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 0.9.9
+
+2010-02-08 14:09  donncha
+
+	* wp-cache.php: Add links to readme and forum
+
+2010-02-08 14:00  donncha
+
+	* readme.txt, wp-cache.php: Updated tested version.
+	  Added link to WordPress Mobile Edition.
+
+2010-02-08 13:52  donncha
+
+	* Changelog.txt: Don't serve supercache files from PHP when GET is
+	  not empty
+
 2010-02-08 13:51  donncha
 
 	* wp-cache-phase1.php: Supercache files can't be used when GET is
