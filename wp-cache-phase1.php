@@ -147,7 +147,7 @@ function wp_cache_serve_cache_file() {
 	} else {
 		// last chance, check if a supercache file exists. Just in case .htaccess rules don't work on this host
 		$file = get_current_url_supercache_dir() . "index.html";
-		if ( wp_cache_get_cookies_values() == '' && file_exists( $file ) ) {
+		if ( wp_cache_get_cookies_values() == '' && empty( $_GET ) && file_exists( $file ) ) {
 			header( "Content-type: text/html; charset=UTF-8" ); // UTF-8 hard coded is bad but we don't know what it is this early in the process
 			header( "Vary: Accept-Encoding, Cookie" );
 			header( "Cache-Control: max-age=300, must-revalidate" );
