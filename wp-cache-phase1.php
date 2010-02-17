@@ -187,10 +187,10 @@ function wp_cache_serve_cache_file() {
 		}
 	} else {
 		if ( $meta[ 'dynamic' ] ) {
-			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Serving wp-cache dynamic file", 5 );
+			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Serving wp-cache dynamic file: $cache_file", 5 );
 			include($cache_file);
 		} else {
-			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Serving wp-cache static file", 5 );
+			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Serving wp-cache static file: $cache_file", 5 );
 			readfile( $cache_file );
 		}
 		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "exit request", 5 );
