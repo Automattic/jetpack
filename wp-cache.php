@@ -421,6 +421,32 @@ jQuery(document).ready(function(){
 	?>
 	</form>
 	<?php
+	if ( $cache_enabled ) {
+		echo '<a name="test"></a>';
+		if ( $_POST[ 'action' ] == 'test' && $valid_nonce ) {
+			// Prime the cache
+			$page = file_get_contents( site_url() );
+			sleep( 1 );
+			// Get the first copy
+			$page = file_get_contents( site_url() );
+			sleep( 1 );
+			// Get the second copy
+			$page2 = file_get_contents( site_url() );
+			if ( $page == $page2 ) {
+				echo '<p>' . __( 'The pages match!', 'wp-super-cache' ) . '</p>';
+			} else {
+				echo '<p>' . __( 'The pages do not match!', 'wp-super-cache' ) . '</p>';
+			}
+		}
+		echo "<h3>" . __( 'Cache Tester', 'wp-super-cache' ) . "</h3>";
+		echo '<p>' . __( 'Test your cached website by clicking the test button below.', 'wp-super-cache' ) . '</p>';
+		echo '<form name="cache_tester" action="#test" method="post">';
+		echo '<input type="hidden" name="action" value="test" />';
+		echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Test Cache', 'wp-super-cache' ) . '" /></div>';
+		wp_nonce_field('wp-cache');
+		echo '</form>';
+	}
+
 	if( $super_cache_enabled && function_exists( 'apache_get_modules' ) ) {
 		$mods = apache_get_modules();
 		$required_modules = array( 'mod_mime' => __( 'Required to serve compressed supercache files properly.', 'wp-super-cache' ), 'mod_headers' => __( 'Required to set caching information on supercache pages. IE7 users will see old pages without this module.', 'wp-super-cache' ), 'mod_expires' => __( 'Set the expiry date on supercached pages. Visitors may not see new pages when they refresh or leave comments without this module.', 'wp-super-cache' ) );
