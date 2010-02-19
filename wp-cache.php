@@ -423,23 +423,35 @@ jQuery(document).ready(function(){
 	<?php
 	if ( $cache_enabled ) {
 		echo '<a name="test"></a>';
-		if ( $_POST[ 'action' ] == 'test' && $valid_nonce ) {
-			// Prime the cache
-			$page = file_get_contents( site_url() );
-			sleep( 1 );
-			// Get the first copy
-			$page = file_get_contents( site_url() );
-			sleep( 1 );
-			// Get the second copy
-			$page2 = file_get_contents( site_url() );
-			if ( $page == $page2 ) {
-				echo '<p>' . __( 'The pages match!', 'wp-super-cache' ) . '</p>';
-			} else {
-				echo '<p>' . __( 'The pages do not match!', 'wp-super-cache' ) . '</p>';
-			}
-		}
 		echo "<h3>" . __( 'Cache Tester', 'wp-super-cache' ) . "</h3>";
 		echo '<p>' . __( 'Test your cached website by clicking the test button below.', 'wp-super-cache' ) . '</p>';
+		if ( $_POST[ 'action' ] == 'test' && $valid_nonce ) {
+			// Prime the cache
+			echo "<p>";
+			printf(  __( 'Fetching %s to prime cache: ', 'wp-super-cache' ), site_url() );
+			$page = file_get_contents( site_url() );
+			echo '<strong>' . __( 'OK', 'wp-super-cache' ) . '</strong>';
+			echo "</p>";
+			sleep( 1 );
+			// Get the first copy
+			echo "<p>";
+			printf(  __( 'Fetching first copy of %s: ', 'wp-super-cache' ), site_url() );
+			$page = file_get_contents( site_url() );
+			echo '<strong>' . __( 'OK', 'wp-super-cache' ) . '</strong>';
+			echo "</p>";
+			sleep( 1 );
+			// Get the second copy
+			echo "<p>";
+			printf(  __( 'Fetching second copy of %s: ', 'wp-super-cache' ), site_url() );
+			$page2 = file_get_contents( site_url() );
+			echo '<strong>' . __( 'OK', 'wp-super-cache' ) . '</strong>';
+			echo "</p>";
+			if ( $page == $page2 ) {
+				echo '<p><strong>' . __( 'The pages match!', 'wp-super-cache' ) . '</strong></p>';
+			} else {
+				echo '<p><strong>' . __( 'The pages do not match!', 'wp-super-cache' ) . '</strong></p>';
+			}
+		}
 		echo '<form name="cache_tester" action="#test" method="post">';
 		echo '<input type="hidden" name="action" value="test" />';
 		echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Test Cache', 'wp-super-cache' ) . '" /></div>';
