@@ -974,19 +974,24 @@ if( !function_exists('apache_request_headers') ) {
 function wp_cache_edit_rejected_ua() {
 	global $cache_rejected_user_agent, $wp_cache_config_file, $valid_nonce;
 
-	if (!function_exists('apache_request_headers')) return;
+	if ( !function_exists( 'apache_request_headers' ) ) return;
 
-	if(isset($_REQUEST['wp_rejected_user_agent']) && $valid_nonce) {
-		$text = wp_cache_sanitize_value($_REQUEST['wp_rejected_user_agent'], $cache_rejected_user_agent);
-		wp_cache_replace_line('^ *\$cache_rejected_user_agent', "\$cache_rejected_user_agent = $text;", $wp_cache_config_file);
+	if ( isset( $_POST[ 'wp_rejected_user_agent' ] ) && $valid_nonce ) {
+		$_POST[ 'wp_rejected_user_agent' ] = str_replace( ' ', '___', $_POST[ 'wp_rejected_user_agent' ] );
+		$text = str_replace( '___', ' ', wp_cache_sanitize_value( $_POST[ 'wp_rejected_user_agent' ], $cache_rejected_user_agent ) );
+		wp_cache_replace_line( '^ *\$cache_rejected_user_agent', "\$cache_rejected_user_agent = $text;", $wp_cache_config_file );
+		foreach( $cache_rejected_user_agent as $k => $ua ) {
+			$cache_rejected_user_agent[ $k ] = str_replace( '___', ' ', $ua );
+		}
+		reset( $cache_rejected_user_agent );
 	}
 
 	echo '<a name="useragents"></a><fieldset class="options"><h3>' . __( 'Rejected User Agents', 'wp-super-cache' ) . '</h3>';
 	echo "<p>" . __( 'Strings in the HTTP &#8217;User Agent&#8217; header that prevent WP-Cache from caching bot, spiders, and crawlers&#8217; requests. Note that super cached files are still sent to these agents if they already exists.', 'wp-super-cache' ) . "</p>\n";
 	echo '<form name="wp_edit_rejected_user_agent" action="#useragents" method="post">';
 	echo '<textarea name="wp_rejected_user_agent" cols="40" rows="4" style="width: 50%; font-size: 12px;" class="code">';
-	foreach ($cache_rejected_user_agent as $ua) {
-		echo wp_specialchars($ua) . "\n";
+	foreach( $cache_rejected_user_agent as $ua ) {
+		echo esc_html( $ua ) . "\n";
 	}
 	echo '</textarea> ';
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save UA Strings', 'wp-super-cache' ) . ' &raquo;" /></div>';
