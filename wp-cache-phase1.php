@@ -133,7 +133,7 @@ function wp_cache_serve_cache_file() {
 			return true;
 		}
 	} elseif ( file_exists( $cache_file ) ) {
-		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "wp-cache file exists", 5 );
+		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "wp-cache file exists: $cache_file", 5 );
 		if ( !( $meta = unserialize( @file_get_contents( $meta_pathname) ) ) )  {
 			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "couldn't load wp-cache meta file", 5 );
 			return true;
