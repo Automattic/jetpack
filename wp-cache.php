@@ -659,7 +659,8 @@ function wsc_mod_rewrite( $mobile_browsers ) {
 	$rules = str_replace( "CONDITION_RULES", implode( "\n", $condition_rules ) . "\n", $rules );
 
 	$dohtaccess = true;
-	if( function_exists( 'is_site_admin' ) ) {
+	global $wpmu_version;
+	if( isset( $wpmu_version ) ) {
 		echo "<h4 style='color: #a00'>" . __( 'WordPress MU Detected', 'wp-super-cache' ) . "</h4><p>" . __( "Unfortunately the rewrite rules cannot be updated automatically when running WordPress MU. Please open your .htaccess and add the following mod_rewrite rules above any other rules in that file.", 'wp-super-cache' ) . "</p>";
 	} elseif( !$wprules || $wprules == '' ) {
 		echo "<h4 style='color: #a00'>" . __( 'Mod Rewrite rules cannot be updated!', 'wp-super-cache' ) . "</h4>";
