@@ -799,7 +799,7 @@ function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 	if ($postid > 0)  {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post $postid changed. Update cache.", 4 );
 		return wp_cache_post_change($postid);
-	} else {
+	} elseif ( $_GET[ 'delete_all' ] != 'Empty Trash' && $_GET[ 'delete_all2' ] != 'Empty Spam' ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Unknown post changed. Update cache.", 4 );
 		return wp_cache_post_change(wp_cache_post_id());
 	}
