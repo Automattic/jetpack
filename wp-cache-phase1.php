@@ -86,7 +86,7 @@ function get_wp_cache_key( $url = false ) {
 	global $wp_cache_request_uri, $wp_cache_gzip_encoding;
 	if ( !$url )
 		$url = $wp_cache_request_uri;
-	return do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'].preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() );
+	return do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'] . intval( $_SERVER[ 'SERVER_PORT' ] ) . preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() );
 }
 
 function wp_super_cache_init() {
@@ -359,7 +359,7 @@ function get_oc_key( $url = false ) {
 	global $wp_cache_gzip_encoding;
 
 	if ( $url ) {
-		$key = strtolower( preg_replace( '/:.*$/', '',  $_SERVER[ "HTTP_HOST" ] ) ) . $url;
+		$key = intval( $_SERVER[ 'SERVER_PORT' ] ) . strtolower( preg_replace( '/:.*$/', '',  $_SERVER[ "HTTP_HOST" ] ) ) . $url;
 	} else {
 		$key = get_current_url_supercache_dir();
 	}
