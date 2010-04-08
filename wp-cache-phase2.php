@@ -798,10 +798,10 @@ function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 	// are called when deleting a comment
 	if ($postid > 0)  {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post $postid changed. Update cache.", 4 );
-		return wp_cache_post_change($postid);
+		return wp_cache_post_change( $postid );
 	} elseif ( $_GET[ 'delete_all' ] != 'Empty Trash' && $_GET[ 'delete_all2' ] != 'Empty Spam' ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Unknown post changed. Update cache.", 4 );
-		return wp_cache_post_change(wp_cache_post_id());
+		return wp_cache_post_change( wp_cache_post_id() );
 	}
 }
 
@@ -851,14 +851,20 @@ function wp_cache_post_id_gc( $siteurl, $post_id ) {
 	prune_super_cache( $dir . 'page/', true );
 }
 
-function wp_cache_post_change($post_id) {
-	global $file_prefix, $cache_path, $blog_id, $super_cache_enabled, $blog_cache_dir, $blogcacheid;
+function wp_cache_post_change( $post_id ) {
+	global $file_prefix, $cache_path, $blog_id, $super_cache_enabled, $blog_cache_dir, $blogcacheid, $wp_cache_refresh_single_only;
 	static $last_processed = -1;
 
 	if ($post_id == $last_processed) return $post_id;
 	$last_processed = $post_id;
 	if( !wp_cache_writers_entry() )
 		return $post_id;
+	if ( isset( $wp_cache_refresh_single_only ) && $wp_cache_refresh_single_only && strpos( $_SERVER[ 'REQUEST_URI' ], 'wp-comments-post.php' ) ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_change: comment detected. only deleting post page.", 4 );
+		$all = false;
+	} else {
+		$all = true;
+	}
 
 	if ( $wp_cache_object_cache )
 		reset_oc_version();
@@ -867,11 +873,14 @@ function wp_cache_post_change($post_id) {
 	if( $super_cache_enabled ) {
 		$siteurl = trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', get_option( 'home' ) ) ) ) );
 		// make sure the front page has a rebuild file
-		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: deleting cache files in " . $cache_path . 'supercache/' . $siteurl, 4 );
-		prune_super_cache( $cache_path . 'supercache/' . $siteurl . 'index.html', true, true ); 
-		prune_super_cache( $cache_path . 'supercache/' . $siteurl . 'index.html.gz', true, true );
+		if ( $all == true ) {
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: deleting cache files in " . $cache_path . 'supercache/' . $siteurl, 4 );
+			prune_super_cache( $cache_path . 'supercache/' . $siteurl . 'index.html', true, true ); 
+			prune_super_cache( $cache_path . 'supercache/' . $siteurl . 'index.html.gz', true, true );
+		}
 		wp_cache_post_id_gc( $siteurl, $post_id );
-		if( get_option( 'show_on_front' ) == 'page' ) {
+		if( $all == true && get_option( 'show_on_front' ) == 'page' ) {
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: deleting page_on_front and_page_for_posts pages.", 4 );
 			wp_cache_post_id_gc( $siteurl, get_option( 'page_on_front' ) );
 			wp_cache_post_id_gc( $siteurl, get_option( 'page_for_posts' ) );
 		}
@@ -885,12 +894,13 @@ function wp_cache_post_change($post_id) {
 				$content_pathname = $blog_cache_dir . $matches[1] . ".html";
 				$meta = unserialize(@file_get_contents($meta_pathname));
 				if( false == is_array( $meta ) ) {
+					if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change cleaning up stray file: $content_pathname", 4 );
 					@unlink($meta_pathname);
 					@unlink($content_pathname);
 					continue;
 				}
 				if ($post_id > 0 && $meta) {
-					if ($meta[ 'blog_id' ] == $blog_id  && (!$meta[ 'post' ] || $meta[ 'post' ] == $post_id) ) {
+					if ( $meta[ 'blog_id' ] == $blog_id  && ( ( $all == true && !$meta[ 'post' ] ) || $meta[ 'post' ] == $post_id) ) {
 						if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: deleting post cache files for {$meta[ 'uri' ]}: $content_pathname", 4 );
 						@unlink($meta_pathname);
 						@unlink($content_pathname);

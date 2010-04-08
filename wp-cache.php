@@ -126,7 +126,7 @@ function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers;
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation, $wp_cache_not_logged_in, $wp_supercache_cache_list;
-	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_remove_utm_source;
+	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only;
 
 	if( function_exists( 'is_site_admin' ) )
 		if( !is_site_admin() )
@@ -351,12 +351,12 @@ jQuery(document).ready(function(){
 				$wp_cache_object_cache = 0;
 			}
 			wp_cache_replace_line('^ *\$wp_cache_object_cache', "\$wp_cache_object_cache = " . $wp_cache_object_cache . ";", $wp_cache_config_file);
-			if( isset( $_POST[ 'wp_cache_remove_utm_source' ] ) ) {
-				$wp_cache_remove_utm_source = 1;
+			if( isset( $_POST[ 'wp_cache_refresh_single_only' ] ) ) {
+				$wp_cache_refresh_single_only = 1;
 			} else {
-				$wp_cache_remove_utm_source = 0;
+				$wp_cache_refresh_single_only = 0;
 			}
-			wp_cache_replace_line('^ *\$wp_cache_remove_utm_source', "\$wp_cache_remove_utm_source = '" . $wp_cache_remove_utm_source . "';", $wp_cache_config_file);
+			wp_cache_replace_line('^ *\$wp_cache_refresh_single_only', "\$wp_cache_refresh_single_only = '" . $wp_cache_refresh_single_only . "';", $wp_cache_config_file);
 		}
 		if( defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
 			$cache_compression_changed = false;
@@ -419,7 +419,7 @@ jQuery(document).ready(function(){
 	<?php if ( $_wp_using_ext_object_cache ) { 
 		?><p><label><input type='checkbox' name='wp_cache_object_cache' <?php if( $wp_cache_object_cache ) echo "checked"; ?> value='1'> <?php echo __( 'Use object cache to store cached files.', 'wp-super-cache' ) . ' ' . __( '(Experimental)', 'wp-super-cache' ); ?></label></p><?php 
 	}
-	?><p><label><input type='checkbox' name='wp_cache_remove_utm_source' <?php if( $wp_cache_remove_utm_source ) echo "checked"; ?> value='1'> <?php echo __( 'Remove utm_source parameters to make caching more efficient (and avoid PR dilution).', 'wp-super-cache' ); ?></label></p><?php 
+	?><p><label><input type='checkbox' name='wp_cache_refresh_single_only' <?php if( $wp_cache_refresh_single_only ) echo "checked"; ?> value='1'> <?php echo __( 'Only refresh current page when comments made.', 'wp-super-cache' ); ?></label></p><?php 
 
 	echo "<p><em>" . sprintf( __( 'Need help? Check the <a href="%1$s">Super Cache readme file</a>. It includes installation documentation, a FAQ and Troubleshooting tips. The <a href="%2$s">support forum</a> is also available. Your question may already have been answered.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/', 'http://wordpress.org/tags/wp-super-cache?forum_id=10' ) . "</em></p>";
 
