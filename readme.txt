@@ -271,6 +271,10 @@ Supercache doesn't support 304 header checks. This is caching done by your brows
 The page is still cached by your server, just not by the browsers of your visitors. WordPress doesn't support 304 caching either so you're not losing out.
 Try the Cacheability Engine at http://www.ircache.net/cgi-bin/cacheability.py or http://redbot.org/ for further analysis.
 
+= How should I best use the utm_source tracking tools in Google Analytics with this plugin? =
+
+That tracking adds a query string to each url linked from various sources like Twitter and feedreaders. Unfortunately it stops pages being supercached. See [Joost's comment here](http://ocaoimh.ie/remove-unused-utmsource-urls/#comment-672813) for how to turn it into an anchor tag which can be supercached.
+
 = Troubleshooting =
 
 If things don't work when you installed the plugin here are a few things to check:
