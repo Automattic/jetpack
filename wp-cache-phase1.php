@@ -161,8 +161,8 @@ function wp_cache_serve_cache_file() {
 		}
 	}
 	$cache_file = do_cacheaction( 'wp_cache_served_cache_file', $cache_file );
-	// Sometimes the gzip headers are lost. If this is a gzip capable client, send those headers.
-	if( $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta[ 'headers' ] ) ) {
+	// Sometimes the gzip headers are lost. If this is a gzip capable client and the page isn't "dynamic", send those headers.
+	if( !isset( $meta[ 'dynamic' ] ) && $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $meta[ 'headers' ] ) ) {
 		$meta[ 'headers' ][ 'Content-Encoding' ] =  'Content-Encoding: ' . $wp_cache_gzip_encoding;
 		$meta[ 'headers' ][ 'Vary' ] = 'Vary: Accept-Encoding, Cookie';
 		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "added gzip headers before serving.", 1 );
