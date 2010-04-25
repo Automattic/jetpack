@@ -468,6 +468,45 @@ jQuery(document).ready(function(){
 		echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Test Cache', 'wp-super-cache' ) . '" /></div>';
 		wp_nonce_field('wp-cache');
 		echo '</form>';
+
+		echo '<a name="preload"></a>';
+		echo "<h3>" . __( 'Preload Cache', 'wp-super-cache' ) . "</h3>";
+		echo '<p>' . __( 'Cache every page on your site', 'wp-super-cache' ) . '</p>';
+		if ( $_GET[ 'action' ] == 'preload' && $valid_nonce ) {
+			global $wpdb;
+			$c = 0;
+			if ( isset( $_GET[ 'c' ] ) )
+				$c = (int)$_GET[ 'c' ];
+
+			$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' LIMIT $c, 100" );
+			if ( $posts ) {
+				$count = $c + 1;
+				foreach( $posts as $post_id ) {
+					$url = get_permalink( $post_id );
+					wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
+					echo "$count Fetched $url<br />";
+					$count++;
+				}
+				$next_url = html_entity_decode( wp_nonce_url( "options-general.php?page=wpsupercache&action=preload&c=" . ( $c + 100 ) . "#preload", 'wp-cache' ) );
+				echo $next_url;
+				?><p><?php _e("If your browser doesn't start loading the next page automatically click this link:"); ?> <a class="button" href="<?php echo $next_url; ?>"><?php _e("Next Blogs", 'wp-super-cache' ); ?></a></p>
+					<script type='text/javascript'>
+					<!--
+					function nextpage() {
+						location.href = "<?php echo $next_url; ?>";
+					}
+				setTimeout( "nextpage()", 1000 );
+				//-->
+				</script><?php
+				die();
+			}
+		}
+		echo '<form name="cache_filler" action="#preload" method="GET">';
+		echo '<input type="hidden" name="action" value="preload" />';
+		echo '<input type="hidden" name="page" value="wpsupercache" />';
+		echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Preload Cache', 'wp-super-cache' ) . '" /></div>';
+		wp_nonce_field('wp-cache');
+		echo '</form>';
 	}
 
 	if( $super_cache_enabled && function_exists( 'apache_get_modules' ) ) {
