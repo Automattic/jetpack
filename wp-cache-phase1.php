@@ -1,4 +1,5 @@
 <?php
+//error_reporting(E_ERROR | E_PARSE); // uncomment to debug this file!
 // Pre-2.6 compatibility
 if( !defined('WP_CONTENT_DIR') )
 	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
