@@ -96,6 +96,8 @@ function wp_cache_phase2() {
 		}
 	}
 
+	if ( $cache_max_time == 0 )
+		return false;
 	if( !isset( $cache_max_time ) )
 		$cache_max_time = 600;
 	$last_gc = get_option( "wpsupercache_gc_time" );
@@ -937,6 +939,10 @@ function wp_cache_post_id() {
 
 function wp_cache_gc_cron() {
 	global $file_prefix, $cache_max_time;
+
+	if ( $cache_max_time == 0 )
+		return false;
+
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Cache garbage collection.', 5 );
 
 	if( !isset( $cache_max_time ) )

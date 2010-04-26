@@ -471,12 +471,14 @@ jQuery(document).ready(function(){
 
 		echo '<a name="preload"></a>';
 		echo "<h3>" . __( 'Preload Cache', 'wp-super-cache' ) . "</h3>";
-		echo '<p>' . __( 'Cache every page on your site', 'wp-super-cache' ) . '</p>';
+		echo '<p>' . __( 'Cache every page on your site. This will also disable garbage collection but that can be enabled later by setting a non-zero expiry time on this page.', 'wp-super-cache' ) . '</p>';
 		if ( $_GET[ 'action' ] == 'preload' && $valid_nonce ) {
 			global $wpdb;
 			$c = 0;
 			if ( isset( $_GET[ 'c' ] ) )
 				$c = (int)$_GET[ 'c' ];
+			if ( $c == 0 )
+				wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = 0;", $wp_cache_config_file);
 
 			$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' LIMIT $c, 100" );
 			if ( $posts ) {
@@ -969,10 +971,8 @@ function wp_cache_edit_max_time () {
 
 	if(isset($_POST['wp_max_time']) && $valid_nonce) {
 		$max_time = (int)$_POST['wp_max_time'];
-		if ($max_time > 0) {
-			$cache_max_time = $max_time;
-			wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = $cache_max_time;", $wp_cache_config_file);
-		}
+		$cache_max_time = $max_time;
+		wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = $cache_max_time;", $wp_cache_config_file);
 	}
 	?><fieldset class="options"> 
 	<a name='expirytime'></a>
@@ -982,6 +982,7 @@ function wp_cache_edit_max_time () {
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> " . __( "seconds", 'wp-super-cache' );
 	echo "<h4>" . __( 'Garbage Collection', 'wp-super-cache' ) . "</h4><p>" . __( 'If expiry time is more than 1800 seconds (half an hour), garbage collection will be done every 10 minutes, otherwise it will happen 10 seconds after the expiry time above.', 'wp-super-cache' ) . "</p>";
 	echo "<p>" . __( 'Checking for and deleting expired files is expensive, but it&#8217;s expensive leaving them there too. On a very busy site you should set the expiry time to <em>300 seconds</em>. Experiment with different values and visit this page to see how many expired files remain at different times during the day. Aim to have less than 500 cached files if possible.', 'wp-super-cache' ) . "</p>";
+	echo "<p>" . __( 'Set the expiry time to 0 seconds to disable garbage collection.', 'wp-super-cache' ) . "</p>";
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Change Expiration', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
@@ -1524,14 +1525,14 @@ function wp_cache_files() {
 						continue;
 					}
 					$meta[ 'age' ] = $age;
-					if ( $age > $cache_max_time ) {
+					if ( $cache_max_time > 0 && $age > $cache_max_time ) {
 						$expired_list[ $age ][] = $meta;
 					} else {
 						$cached_list[ $age ][] = $meta;
 					}
 				}
 
-				if ( $age > $cache_max_time ) {
+				if ( $cache_max_time > 0 && $age > $cache_max_time ) {
 					$expired++;
 				} else {
 					$count++;
@@ -1570,7 +1571,7 @@ function wp_cache_files() {
 			}
 		} else {
 			$filem = @filemtime( $supercachedir );
-			if(is_file($supercachedir) && $filem + $cache_max_time <= $now ) {
+			if ( is_file( $supercachedir ) && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
 				$sizes[ 'expired' ] ++;
 				if ( $valid_nonce && $_GET[ 'listfiles' ] )
 					$sizes[ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
@@ -1672,13 +1673,14 @@ function wp_cache_files() {
 		echo "<p><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'listfiles' => '1' ) ), 'wp-cache' ) . "#listfiles'>" . __( 'List all cached files', 'wp-super-cache' ) . "</a></p>";
 	}
 	$last_gc = get_option( "wpsupercache_gc_time" );
-	if( $last_gc ) {
+	if ( $cache_max_time > 0 && $last_gc ) {
 		$next_gc = $cache_max_time < 1800 ? $cache_max_time : 600;
 		$next_gc_mins = ( time() - $last_gc );
 		echo "<p>" . sprintf( __( '<strong>Garbage Collection</strong><br />Last GC was <strong>%s</strong> minutes ago<br />', 'wp-super-cache' ), date( 'i:s', $next_gc_mins ) );
 		printf( __( "Next GC in <strong>%s</strong> minutes", 'wp-super-cache' ), date( 'i:s', $next_gc - $next_gc_mins ) ) . "</p>";
 	}
-	echo "<p>" . sprintf( __( 'Expired files are files older than %s seconds. They are still used by the plugin and are deleted periodically.', 'wp-super-cache' ), $cache_max_time ) . "</p>";
+	if ( $cache_max_time > 0 )
+		echo "<p>" . sprintf( __( 'Expired files are files older than %s seconds. They are still used by the plugin and are deleted periodically.', 'wp-super-cache' ), $cache_max_time ) . "</p>";
 	wp_cache_delete_buttons();
 
 	echo '</fieldset>';
@@ -1726,7 +1728,7 @@ function wpsc_dirsize($directory, $sizes) {
 	} else {
 		if(is_file($directory) ) {
 			$filem = filemtime( $directory );
-			if( $filem + $cache_max_time <= $now ) {
+			if ( $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
 				$sizes[ 'expired' ]+=1;
 				if ( $valid_nonce && $_GET[ 'listfiles' ] )
 					$sizes[ 'expired_list' ][ $now - $filem ][ str_replace( $cache_path . 'supercache/' , '', str_replace( 'index.html', '', str_replace( 'index.html.gz', '', $directory ) ) ) ] = 1;
@@ -1779,6 +1781,10 @@ function wp_cache_clean_cache($file_prefix) {
 
 function wp_cache_clean_expired($file_prefix) {
 	global $cache_path, $cache_max_time, $blog_cache_dir;
+
+	if ( $cache_max_time == 0 ) {
+		return false;
+	}
 
 	// If phase2 was compiled, use its function to avoid race-conditions
 	if(function_exists('wp_cache_phase2_clean_expired')) {
