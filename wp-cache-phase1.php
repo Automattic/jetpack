@@ -295,6 +295,19 @@ function do_cacheaction( $action, $value = '' ) {
 	return $value;
 }
 
+function wp_cache_mobile_group( $user_agent ) {
+	global $wp_cache_mobile_groups;
+	foreach( (array)$wp_cache_mobile_groups as $name => $group ) {
+		foreach( (array)$group as $browser ) {
+			$browser = trim( strtolower( $browser ) );
+			if ( strstr( $user_agent, $browser ) ) {
+				return $browser;
+			}
+		}
+	}
+	return "mobile";
+}
+
 // From http://wordpress.org/extend/plugins/wordpress-mobile-edition/ by Alex King
 function wp_cache_check_mobile( $cache_key ) {
 	global $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes;
@@ -310,7 +323,7 @@ function wp_cache_check_mobile( $cache_key ) {
 	foreach ($browsers as $browser) {
 		if ( strstr( $user_agent, trim( strtolower( $browser ) ) ) ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "mobile browser detected: " . $_SERVER[ "HTTP_USER_AGENT" ], 5 );
-			return $cache_key . '-' . $browser;
+			return $cache_key . '-' . wp_cache_mobile_group( $user_agent );
 		}
 	}
 	if (isset($_SERVER['HTTP_X_WAP_PROFILE']) ) 

@@ -283,6 +283,8 @@ jQuery(document).ready(function(){
 	$mobile_prefixes = array( 'w3c ', 'w3c-', 'acs-', 'alav', 'alca', 'amoi', 'audi', 'avan', 'benq', 'bird', 'blac', 'blaz', 'brew', 'cell', 'cldc', 'cmd-', 'dang', 'doco', 'eric', 'hipt', 'htc_', 'inno', 'ipaq', 'ipod', 'jigs', 'kddi', 'keji', 'leno', 'lg-c', 'lg-d', 'lg-g', 'lge-', 'lg/u', 'maui', 'maxo', 'midp', 'mits', 'mmef', 'mobi', 'mot-', 'moto', 'mwbp', 'nec-', 'newt', 'noki', 'palm', 'pana', 'pant', 'phil', 'play', 'port', 'prox', 'qwap', 'sage', 'sams', 'sany', 'sch-', 'sec-', 'send', 'seri', 'sgh-', 'shar', 'sie-', 'siem', 'smal', 'smar', 'sony', 'sph-', 'symb', 't-mo', 'teli', 'tim-', 'tosh', 'tsm-', 'upg1', 'upsi', 'vk-v', 'voda', 'wap-', 'wapa', 'wapi', 'wapp', 'wapr', 'webc', 'winw', 'winw', 'xda ', 'xda-' ); // from http://svn.wp-plugins.org/wordpress-mobile-pack/trunk/plugins/wpmp_switcher/lite_detection.php
 	$mobile_browsers = apply_filters( 'cached_mobile_browsers', $mobile_browsers ); // Allow mobile plugins access to modify the mobile UA list
 	$mobile_prefixes = apply_filters( 'cached_mobile_prefixes', $mobile_prefixes ); // Allow mobile plugins access to modify the mobile UA prefix list
+	$mobile_groups = apply_filters( 'cached_mobile_groups', array() ); // Group mobile user agents by capabilities. Lump them all together by default
+	// mobile_groups = array( 'apple' => array( 'ipod', 'iphone' ), 'nokia' => array( 'nokia5800', 'symbianos' ) );
 
 	if ( $valid_nonce ) {
 		if( isset( $_POST[ 'wp_cache_status' ] ) ) {
@@ -292,7 +294,7 @@ jQuery(document).ready(function(){
 				$wp_cache_mobile_enabled = 0;
 			}
 			if( $wp_cache_mobile_enabled == 1 ) {
-				update_cached_mobile_ua_list( $mobile_browsers, $mobile_prefixes );
+				update_cached_mobile_ua_list( $mobile_browsers, $mobile_prefixes, $mobile_groups );
 			}
 			wp_cache_replace_line('^ *\$wp_cache_mobile_enabled', "\$wp_cache_mobile_enabled = " . $wp_cache_mobile_enabled . ";", $wp_cache_config_file);
 
@@ -1950,12 +1952,14 @@ function wp_cache_check_site() {
 }
 add_action( 'wp_cache_check_site_hook', 'wp_cache_check_site' );
 
-function update_cached_mobile_ua_list( $mobile_browsers, $mobile_prefixes = 0 ) {
+function update_cached_mobile_ua_list( $mobile_browsers, $mobile_prefixes = 0, $mobile_groups = 0 ) {
 	global $wp_cache_config_file;
 	if ( is_array( $mobile_browsers ) )
 		wp_cache_replace_line('^ *\$wp_cache_mobile_browsers', "\$wp_cache_mobile_browsers = '" . implode( ', ', $mobile_browsers ) . "';", $wp_cache_config_file);
 	if ( is_array( $mobile_prefixes ) )
 		wp_cache_replace_line('^ *\$wp_cache_mobile_prefixes', "\$wp_cache_mobile_prefixes = '" . implode( ', ', $mobile_prefixes ) . "';", $wp_cache_config_file);
+	if ( is_array( $mobile_groups ) )
+		wp_cache_replace_line('^ *\$wp_cache_mobile_groups', "\$wp_cache_mobile_groups = '" . implode( ', ', $mobile_groups ) . "';", $wp_cache_config_file);
 	
 	return true;
 }
