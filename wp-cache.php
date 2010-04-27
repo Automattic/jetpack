@@ -290,7 +290,7 @@ jQuery(document).ready(function(){
 				$wp_cache_mobile_enabled = 0;
 			}
 			if( $wp_cache_mobile_enabled == 1 ) {
-				wp_cache_replace_line('^ *\$wp_cache_mobile_browsers', "\$wp_cache_mobile_browsers = '" . implode( ', ', $mobile_browsers ) . "';", $wp_cache_config_file);
+				update_cached_mobile_ua_list( $mobile_browsers );
 			}
 			wp_cache_replace_line('^ *\$wp_cache_mobile_enabled', "\$wp_cache_mobile_enabled = " . $wp_cache_mobile_enabled . ";", $wp_cache_config_file);
 
@@ -1943,4 +1943,12 @@ function wp_cache_check_site() {
 	}
 }
 add_action( 'wp_cache_check_site_hook', 'wp_cache_check_site' );
+
+function update_cached_mobile_ua_list( $mobile_browsers ) {
+	global $wp_cache_config_file;
+	if ( is_array( $mobile_browsers ) )
+		wp_cache_replace_line('^ *\$wp_cache_mobile_browsers', "\$wp_cache_mobile_browsers = '" . implode( ', ', $mobile_browsers ) . "';", $wp_cache_config_file);
+	
+	return true;
+}
 ?>
