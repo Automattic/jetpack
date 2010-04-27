@@ -297,7 +297,7 @@ function do_cacheaction( $action, $value = '' ) {
 
 // From http://wordpress.org/extend/plugins/wordpress-mobile-edition/ by Alex King
 function wp_cache_check_mobile( $cache_key ) {
-	global $wp_cache_mobile_enabled, $wp_cache_mobile_browsers;
+	global $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes;
 	if( !isset( $wp_cache_mobile_enabled ) || false == $wp_cache_mobile_enabled )
 		return $cache_key;
 
@@ -306,11 +306,34 @@ function wp_cache_check_mobile( $cache_key ) {
 	}
 
 	$browsers = explode( ',', $wp_cache_mobile_browsers );
+	$user_agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 	foreach ($browsers as $browser) {
-		if (strstr($_SERVER["HTTP_USER_AGENT"], trim( $browser ))) {
+		if ( strstr( $user_agent, trim( strtolower( $browser ) ) ) ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "mobile browser detected: " . $_SERVER[ "HTTP_USER_AGENT" ], 5 );
-			return $cache_key . $browser;
+			return $cache_key . '-' . $browser;
 		}
+	}
+	if (isset($_SERVER['HTTP_X_WAP_PROFILE']) ) 
+		return $cache_key . '-' . $_SERVER['HTTP_X_WAP_PROFILE'];
+	if (isset($_SERVER['HTTP_PROFILE']) )
+		return $cache_key . '-' . $_SERVER['HTTP_PROFILE'];
+
+	if ( isset( $wp_cache_mobile_prefixes ) ) {
+		$browsers = explode( ',', $wp_cache_mobile_prefixes );
+		foreach ($browsers as $browser_prefix) {
+			if ( substr($user_agent, 0, 4) == $browser_prefix ) {
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "mobile browser (prefix) detected: " . $_SERVER[ "HTTP_USER_AGENT" ], 5 );
+				return $cache_key . '-' . $browser_prefix;
+			}
+		}
+	}
+	$accept = strtolower($_SERVER['HTTP_ACCEPT']);
+	if (strpos($accept, 'wap') !== false) {
+		return $cache_key . '-' . 'wap';
+	}
+
+	if (isset($_SERVER['ALL_HTTP']) && strpos(strtolower($_SERVER['ALL_HTTP']), 'operamini') !== false) {
+		return $cache_key . '-' . 'operamini';
 	}
 	return $cache_key;
 }
