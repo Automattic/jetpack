@@ -487,11 +487,10 @@ jQuery(document).ready(function(){
 				foreach( $posts as $post_id ) {
 					$url = get_permalink( $post_id );
 					wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-					echo "$count Fetched $url<br />";
+					echo sprintf( __( "%d. Fetched %s", 'wp-super-cache' ), $count, $url ) . "<br />";
 					$count++;
 				}
 				$next_url = html_entity_decode( wp_nonce_url( "options-general.php?page=wpsupercache&action=preload&c=" . ( $c + 100 ) . "#preload", 'wp-cache' ) );
-				echo $next_url;
 				?><p><?php _e( "If your browser doesn't start loading the next page automatically click this link:", 'wp-super-cache' ); ?> <a class="button" href="<?php echo $next_url; ?>"><?php _e( "Next Blogs", 'wp-super-cache' ); ?></a></p>
 					<script type='text/javascript'>
 					<!--
