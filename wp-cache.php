@@ -517,6 +517,9 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $mobile_
 			if ( $preload_counter = get_option( 'preload_cache_counter' ) ) {
 				echo '<p><strong>' . sprintf( __( 'Currently caching from post %d to %d', 'wp-super-cache' ), $preload_counter, ( $preload_counter + 100 ) ) . '</strong></p>';
 			}
+			if( $next_preload = wp_next_scheduled( 'wp_cache_preload_hook' ) ) {
+				echo '<p><strong>' . sprintf( __( 'Next refresh of cache at: %s', 'wp-super-cache' ), date('Y-m-d H:i:s', $next_preload ) ) . '</strong></p>';
+			}
 			echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Save', 'wp-super-cache' ) . '" /></div>';
 			wp_nonce_field('wp-cache');
 			echo '</form>';
