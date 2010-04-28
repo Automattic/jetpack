@@ -300,7 +300,7 @@ function wp_cache_mobile_group( $user_agent ) {
 	foreach( (array)$wp_cache_mobile_groups as $name => $group ) {
 		foreach( (array)$group as $browser ) {
 			$browser = trim( strtolower( $browser ) );
-			if ( strstr( $user_agent, $browser ) ) {
+			if ( $browser != '' && strstr( $user_agent, $browser ) ) {
 				return $browser;
 			}
 		}
