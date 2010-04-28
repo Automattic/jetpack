@@ -418,6 +418,7 @@ jQuery(document).ready(function(){
 	<p><?php _e( 'The rewrite rules required by this plugin have changed or are missing. ', 'wp-super-cache' ); ?>
 	<?php _e( 'Mobile support requires extra rules in your .htaccess file, or you can set the plugin to half-on mode. Here are your options (in order of difficulty):', 'wp-super-cache' ); ?>
 	<ol><li> <?php _e( 'Set the plugin to half on mode and enable mobile support.', 'wp-super-cache' ); ?></li>
+	<li> <?php _e( 'Scroll down this page and click the <strong>Update Mod_Rewrite Rules</strong> button.', 'wp-super-cache' ); ?></li>
 	<li> <?php printf( __( 'Delete the plugin mod_rewrite rules in %s.htaccess enclosed by <code># BEGIN WPSuperCache</code> and <code># END WPSuperCache</code> and let the plugin regenerate them by reloading this page.', 'wp-super-cache' ), $home_path ); ?></li>
 	<li> <?php printf( __( 'Add the rules yourself. Edit %s.htaccess and find the block of code enclosed by the lines <code># BEGIN WPSuperCache</code> and <code># END WPSuperCache</code>. There are two sections that look very similar. Just below the line <code>%%{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$</code> add these lines: (do it twice, once for each section)', 'wp-super-cache' ), $home_path ); ?></p>
 	<div style='padding: 2px; margin: 2px; border: 1px solid #333; width:400px; overflow: scroll'><pre>RewriteCond %{HTTP_user_agent} !^.*(<?php echo addcslashes( implode( '|', $mobile_browsers ), ' ' ); ?>).*
@@ -480,43 +481,48 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $mobile_
 
 		echo '<a name="preload"></a>';
 		echo "<h3>" . __( 'Preload Cache', 'wp-super-cache' ) . "</h3>";
-		echo '<p>' . __( 'Cache every page on your site. This will also disable garbage collection but that can be enabled later by setting a non-zero expiry time on this page.', 'wp-super-cache' ) . '</p>';
-		if ( $_GET[ 'action' ] == 'preload' && $valid_nonce ) {
-			global $wpdb;
-			$c = 0;
-			if ( isset( $_GET[ 'c' ] ) )
-				$c = (int)$_GET[ 'c' ];
-			if ( $c == 0 )
-				wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = 0;", $wp_cache_config_file);
+		if ( $super_cache_enabled == true ) {
+			echo '<p>' . __( 'Cache every page on your site. This will also disable garbage collection but that can be enabled later by setting a non-zero expiry time on this page.', 'wp-super-cache' ) . '</p>';
+			if ( $_GET[ 'action' ] == 'preload' && $valid_nonce ) {
+				global $wpdb;
+				$c = 0;
+				if ( isset( $_GET[ 'c' ] ) )
+					$c = (int)$_GET[ 'c' ];
+				if ( $c == 0 )
+					wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = 0;", $wp_cache_config_file);
 
-			$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' LIMIT $c, 100" );
-			if ( $posts ) {
-				$count = $c + 1;
-				foreach( $posts as $post_id ) {
-					$url = get_permalink( $post_id );
-					wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-					echo sprintf( __( "%d. Fetched %s", 'wp-super-cache' ), $count, $url ) . "<br />";
-					$count++;
-				}
-				$next_url = html_entity_decode( wp_nonce_url( "options-general.php?page=wpsupercache&action=preload&c=" . ( $c + 100 ) . "#preload", 'wp-cache' ) );
-				?><p><?php _e( "If your browser doesn't start loading the next page automatically click this link:", 'wp-super-cache' ); ?> <a class="button" href="<?php echo $next_url; ?>"><?php _e( "Next Blogs", 'wp-super-cache' ); ?></a></p>
-					<script type='text/javascript'>
-					<!--
-					function nextpage() {
-						location.href = "<?php echo $next_url; ?>";
+				$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' LIMIT $c, 100" );
+				if ( $posts ) {
+					$count = $c + 1;
+					foreach( $posts as $post_id ) {
+						$url = get_permalink( $post_id );
+						wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
+						echo sprintf( __( "%d. Fetched %s", 'wp-super-cache' ), $count, $url ) . "<br />";
+						$count++;
 					}
-				setTimeout( "nextpage()", 1000 );
-				//-->
-				</script><?php
-				die();
+					$next_url = html_entity_decode( wp_nonce_url( "options-general.php?page=wpsupercache&action=preload&c=" . ( $c + 100 ) . "#preload", 'wp-cache' ) );
+					?><p><?php _e( "If your browser doesn't start loading the next page automatically click this link:", 'wp-super-cache' ); ?> <a class="button" href="<?php echo $next_url; ?>"><?php _e( "Next Blogs", 'wp-super-cache' ); ?></a></p>
+						<script type='text/javascript'>
+						<!--
+						function nextpage() {
+							location.href = "<?php echo $next_url; ?>";
+						}
+					setTimeout( "nextpage()", 1000 );
+					//-->
+					</script><?php
+						die();
+				}
 			}
+			echo '<form name="cache_filler" action="#preload" method="GET">';
+			echo '<input type="hidden" name="action" value="preload" />';
+			echo '<input type="hidden" name="page" value="wpsupercache" />';
+			//echo '<p>' . sprintf( __( 'Refresh cache every %s minutes. (0 to disable)', 'wp-super-cache' ), "<input type='text' size=4 name='custom_preload_interval' value='" . (int)$preload_refresh_interval . "' />" ) . '</p>';
+			echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Preload Cache', 'wp-super-cache' ) . '" /></div>';
+			wp_nonce_field('wp-cache');
+			echo '</form>';
+		} else {
+			echo '<p>' . __( 'Preloading of cache disabled. Please enable supercaching.', 'wp-super-cache' ) . '</p>';
 		}
-		echo '<form name="cache_filler" action="#preload" method="GET">';
-		echo '<input type="hidden" name="action" value="preload" />';
-		echo '<input type="hidden" name="page" value="wpsupercache" />';
-		echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Preload Cache', 'wp-super-cache' ) . '" /></div>';
-		wp_nonce_field('wp-cache');
-		echo '</form>';
 	}
 
 	if( $super_cache_enabled && function_exists( 'apache_get_modules' ) ) {
@@ -663,51 +669,8 @@ function wsc_mod_rewrite( $mobile_browsers, $mobile_prefixes ) {
 
 	<a name="modrewrite"></a><fieldset class="options"> 
 	<h3><?php _e( 'Mod Rewrite Rules', 'wp-super-cache' ); ?></h3><?php
-	if ( isset( $_SERVER[ "PHP_DOCUMENT_ROOT" ] ) ) {
-		$document_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
-		$apache_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
-	} else {
-		$document_root = $_SERVER[ "DOCUMENT_ROOT" ];
-		$apache_root = '%{DOCUMENT_ROOT}';
-	}
-	$home_path = get_home_path();
-	$home_root = parse_url(get_bloginfo('url'));
-	$home_root = isset( $home_root['path'] ) ? trailingslashit( $home_root['path'] ) : '/';
-	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $document_root, '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
-	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
-	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
-	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
-	$scrules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WPSuperCache' ) );
 
-	if( substr( get_option( 'permalink_structure' ), -1 ) == '/' ) {
-		$condition_rules[] = "RewriteCond %{REQUEST_URI} !^.*[^/]$";
-		$condition_rules[] = "RewriteCond %{REQUEST_URI} !^.*//.*$";
-	}
-	$condition_rules[] = "RewriteCond %{REQUEST_METHOD} !POST";
-	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*=.*";
-	$condition_rules[] = "RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$";
-	$condition_rules[] = "RewriteCond %{HTTP_USER_AGENT} !^.*(" . addcslashes( implode( '|', $mobile_browsers ), ' ' ) . ").*";
-	$condition_rules[] = "RewriteCond %{HTTP_user_agent} !^(" . addcslashes( implode( '|', $mobile_prefixes ), ' ' ) . ").*";
-	$condition_rules = apply_filters( 'supercacherewriteconditions', $condition_rules );
-
-	$rules = "<IfModule mod_rewrite.c>\n";
-	$rules .= "RewriteEngine On\n";
-	$rules .= "RewriteBase $home_root\n"; // props Chris Messina
-	$charset = get_option('blog_charset') == '' ? 'UTF-8' : get_option('blog_charset');
-	$rules .= "AddDefaultCharset {$charset}\n";
-	$rules .= "CONDITION_RULES";
-	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
-	$rules .= "RewriteRule ^(.*) {$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz [L]\n\n";
-
-	$rules .= "CONDITION_RULES";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
-	$rules .= "RewriteRule ^(.*) {$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
-	$rules .= "</IfModule>\n";
-	$rules = apply_filters( 'supercacherewriterules', $rules );
-
-	$rules = str_replace( "CONDITION_RULES", implode( "\n", $condition_rules ) . "\n", $rules );
-
+	extract( wpsc_get_htaccess_info() );
 	$dohtaccess = true;
 	global $wpmu_version;
 	if( isset( $wpmu_version ) ) {
@@ -731,38 +694,15 @@ function wsc_mod_rewrite( $mobile_browsers, $mobile_prefixes ) {
 	} elseif( strpos( $scrules, 'supercache' ) || strpos( $wprules, 'supercache' ) ) { // only write the rules once
 		$dohtaccess = false;
 	}
-	// cache/.htaccess rules
-	$gziprules =  "<IfModule mod_mime.c>\n  <FilesMatch \"\\.html\\.gz\$\">\n    ForceType text/html\n    FileETag None\n  </FilesMatch>\n  AddEncoding gzip .gz\n  AddType text/html .gz\n</IfModule>\n";
-	$gziprules .= "<IfModule mod_deflate.c>\n  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n</IfModule>\n";
-	$gziprules .= "<IfModule mod_headers.c>\n  Header set Vary \"Accept-Encoding, Cookie\"\n  Header set Cache-Control 'max-age=300, must-revalidate'\n</IfModule>\n";
-	$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A300\n</IfModule>\n";
 	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
-		if( !is_writeable_ACLSafe( $home_path . ".htaccess" ) ) {
-			echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><h4>" . __( 'Cannot update .htaccess', 'wp-super-cache' ) . "</h4><p>" . sprintf( __( 'The file <code>%s.htaccess</code> cannot be modified by the web server. Please correct this using the chmod command or your ftp client.', 'wp-super-cache' ), $home_path ) . "</p><p>" . __( 'Refresh this page when the file permissions have been modified.' ) . "</p><p>" . sprintf( __( 'Alternatively, you can edit your <code>%s.htaccess</code> file manually and add the following code (before any WordPress rules):', 'wp-super-cache' ), $home_path ) . "</p>";
-			echo "<p><pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p></div>";
+		if ( $scrules == '' ) {
+			wpsc_update_htaccess_form( 0 ); // don't hide the update htaccess form
 		} else {
-			echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><p>" . sprintf( __( 'To serve static html files your server must have the correct mod_rewrite rules added to a file called <code>%s.htaccess</code>', 'wp-super-cache' ), $home_path ) . " ";
-			if( !function_exists( 'is_site_admin' ) ) {
-				_e( "You must edit the file yourself add the following rules.", 'wp-super-cache' );
-			} else {
-				_e( "You can edit the file yourself add the following rules.", 'wp-super-cache' );
-			}
-			echo __( " Make sure they appear before any existing WordPress rules. ", 'wp-super-cache' ) . "</p>";
-			echo "<pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>";
-			echo "<p>" . sprintf( __( 'Rules must be added to %s too:', 'wp-super-cache' ), WP_CONTENT_DIR . "/cache/.htaccess" ) . "</p>";
-			echo "<pre># BEGIN supercache\n" . wp_specialchars( $gziprules ) . "# END supercache</pre></p>";
-			if( !function_exists( 'is_site_admin' ) ) {
-				echo '<form name="updatehtaccess" action="#modrewrite" method="post">';
-				echo '<input type="hidden" name="updatehtaccess" value="1" />';
-				echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="' . __( 'Update Mod_Rewrite Rules', 'wp-super-cache' ) . ' &raquo;" /></div>';
-				wp_nonce_field('wp-cache');
-				echo "</form></div>\n";
-			}
+			wpsc_update_htaccess_form();
 		}
-	} elseif( $dohtaccess && $valid_nonce && $_POST[ 'updatehtaccess' ] ) {
-		wpsc_remove_marker( $home_path.'.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
+	} elseif( $valid_nonce && $_POST[ 'updatehtaccess' ] ) {
 		echo "<div style='padding:0 8px;color:#4f8a10;background-color:#dff2bf;border:1px solid #4f8a10;'>";
-		if( insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $wprules ) ) ) {
+		if( wpsc_update_htaccess() ) {
 			echo "<h4>" . __( 'Mod Rewrite rules updated!', 'wp-super-cache' ) . "</h4>";
 			echo "<p><strong>" . sprintf( __( '%s.htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. They should look like this:', 'wp-super-cache' ), $home_path ) . "</strong></p>\n";
 		} else {
@@ -774,6 +714,7 @@ function wsc_mod_rewrite( $mobile_browsers, $mobile_prefixes ) {
 		?>
 		<p><?php printf( __( 'WP Super Cache mod rewrite rules were detected in your %s.htaccess file.<br /> Click the following link to see the lines added to that file. If you have upgraded the plugin make sure these rules match.', 'wp-super-cache' ), $home_path ); ?><br /><br />
 		<a href="javascript:toggleLayer('rewriterules');" class="button"><?php _e( 'View Mod_Rewrite Rules', 'wp-super-cache' ); ?></a>
+		<?php wpsc_update_htaccess_form(); ?>
 		<div id='rewriterules' style='display: none;'>
 		<?php echo "<p><pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>\n"; 
 		echo "<p>" . sprintf( __( 'Rules must be added to %s too:', 'wp-super-cache' ), WP_CONTENT_DIR . "/cache/.htaccess" ) . "</p>";
@@ -1953,14 +1894,112 @@ function wp_cache_check_site() {
 add_action( 'wp_cache_check_site_hook', 'wp_cache_check_site' );
 
 function update_cached_mobile_ua_list( $mobile_browsers, $mobile_prefixes = 0, $mobile_groups = 0 ) {
-	global $wp_cache_config_file;
-	if ( is_array( $mobile_browsers ) )
-		wp_cache_replace_line('^ *\$wp_cache_mobile_browsers', "\$wp_cache_mobile_browsers = '" . implode( ', ', $mobile_browsers ) . "';", $wp_cache_config_file);
-	if ( is_array( $mobile_prefixes ) )
-		wp_cache_replace_line('^ *\$wp_cache_mobile_prefixes', "\$wp_cache_mobile_prefixes = '" . implode( ', ', $mobile_prefixes ) . "';", $wp_cache_config_file);
-	if ( is_array( $mobile_groups ) )
-		wp_cache_replace_line('^ *\$wp_cache_mobile_groups', "\$wp_cache_mobile_groups = '" . implode( ', ', $mobile_groups ) . "';", $wp_cache_config_file);
+	global $wp_cache_config_file, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes, $wp_cache_mobile_groups;
+	if ( is_array( $mobile_browsers ) ) {
+		$wp_cache_mobile_browsers = implode( ', ', $mobile_browsers );
+		wp_cache_replace_line('^ *\$wp_cache_mobile_browsers', "\$wp_cache_mobile_browsers = '" . $wp_cache_mobile_browsers . "';", $wp_cache_config_file);
+	}
+	if ( is_array( $mobile_prefixes ) ) {
+		$wp_cache_mobile_prefixes = implode( ', ', $mobile_prefixes );
+		wp_cache_replace_line('^ *\$wp_cache_mobile_prefixes', "\$wp_cache_mobile_prefixes = '" . $wp_cache_mobile_prefixes . "';", $wp_cache_config_file);
+	}
+	if ( is_array( $mobile_groups ) ) {
+		$wp_cache_mobile_groups = implode( ', ', $mobile_groups );
+		wp_cache_replace_line('^ *\$wp_cache_mobile_groups', "\$wp_cache_mobile_groups = '" . $wp_cache_mobile_groups . "';", $wp_cache_config_file);
+	}
 	
 	return true;
+}
+
+function wpsc_update_htaccess() {
+	extract( wpsc_get_htaccess_info() );
+	wpsc_remove_marker( $home_path.'.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
+	if( insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $wprules ) ) ) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function wpsc_update_htaccess_form( $short_form = true ) {
+	extract( wpsc_get_htaccess_info() );
+	if( !is_writeable_ACLSafe( $home_path . ".htaccess" ) ) {
+		echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><h4>" . __( 'Cannot update .htaccess', 'wp-super-cache' ) . "</h4><p>" . sprintf( __( 'The file <code>%s.htaccess</code> cannot be modified by the web server. Please correct this using the chmod command or your ftp client.', 'wp-super-cache' ), $home_path ) . "</p><p>" . __( 'Refresh this page when the file permissions have been modified.' ) . "</p><p>" . sprintf( __( 'Alternatively, you can edit your <code>%s.htaccess</code> file manually and add the following code (before any WordPress rules):', 'wp-super-cache' ), $home_path ) . "</p>";
+		echo "<p><pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p></div>";
+	} else {
+		if ( $short_form == false ) {
+			echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><p>" . sprintf( __( 'To serve static html files your server must have the correct mod_rewrite rules added to a file called <code>%s.htaccess</code>', 'wp-super-cache' ), $home_path ) . " ";
+			if( !function_exists( 'is_site_admin' ) ) {
+				_e( "You must edit the file yourself add the following rules.", 'wp-super-cache' );
+			} else {
+				_e( "You can edit the file yourself add the following rules.", 'wp-super-cache' );
+			}
+			echo __( " Make sure they appear before any existing WordPress rules. ", 'wp-super-cache' ) . "</p>";
+			echo "<pre># BEGIN WPSuperCache\n" . wp_specialchars( $rules ) . "# END WPSuperCache</pre></p>";
+			echo "<p>" . sprintf( __( 'Rules must be added to %s too:', 'wp-super-cache' ), WP_CONTENT_DIR . "/cache/.htaccess" ) . "</p>";
+			echo "<pre># BEGIN supercache\n" . wp_specialchars( $gziprules ) . "# END supercache</pre></p>";
+		}
+		if( !function_exists( 'is_site_admin' ) ) {
+			echo '<form name="updatehtaccess" action="#modrewrite" method="post">';
+			echo '<input type="hidden" name="updatehtaccess" value="1" />';
+			echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="' . __( 'Update Mod_Rewrite Rules', 'wp-super-cache' ) . ' &raquo;" /></div>';
+			wp_nonce_field('wp-cache');
+			echo "</form></div>\n";
+		}
+	}
+}
+
+function wpsc_get_htaccess_info() {
+	global $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers;
+	if ( isset( $_SERVER[ "PHP_DOCUMENT_ROOT" ] ) ) {
+		$document_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
+		$apache_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
+	} else {
+		$document_root = $_SERVER[ "DOCUMENT_ROOT" ];
+		$apache_root = '%{DOCUMENT_ROOT}';
+	}
+	$home_path = get_home_path();
+	$home_root = parse_url(get_bloginfo('url'));
+	$home_root = isset( $home_root['path'] ) ? trailingslashit( $home_root['path'] ) : '/';
+	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $document_root, '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
+	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
+	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
+	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
+	$scrules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WPSuperCache' ) );
+
+	if( substr( get_option( 'permalink_structure' ), -1 ) == '/' ) {
+		$condition_rules[] = "RewriteCond %{REQUEST_URI} !^.*[^/]$";
+		$condition_rules[] = "RewriteCond %{REQUEST_URI} !^.*//.*$";
+	}
+	$condition_rules[] = "RewriteCond %{REQUEST_METHOD} !POST";
+	$condition_rules[] = "RewriteCond %{QUERY_STRING} !.*=.*";
+	$condition_rules[] = "RewriteCond %{HTTP:Cookie} !^.*(comment_author_|wordpress|wp-postpass_).*$";
+	$condition_rules[] = "RewriteCond %{HTTP_USER_AGENT} !^.*(" . addcslashes( str_replace( ', ', '|', $wp_cache_mobile_browsers ), ' ' ) . ").*";
+	$condition_rules[] = "RewriteCond %{HTTP_user_agent} !^(" . addcslashes( str_replace( ', ', '|', $wp_cache_mobile_prefixes ), ' ' ) . ").*";
+	$condition_rules = apply_filters( 'supercacherewriteconditions', $condition_rules );
+
+	$rules = "<IfModule mod_rewrite.c>\n";
+	$rules .= "RewriteEngine On\n";
+	$rules .= "RewriteBase $home_root\n"; // props Chris Messina
+	$charset = get_option('blog_charset') == '' ? 'UTF-8' : get_option('blog_charset');
+	$rules .= "AddDefaultCharset {$charset}\n";
+	$rules .= "CONDITION_RULES";
+	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) {$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz [L]\n\n";
+
+	$rules .= "CONDITION_RULES";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
+	$rules .= "RewriteRule ^(.*) {$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html [L]\n";
+	$rules .= "</IfModule>\n";
+	$rules = apply_filters( 'supercacherewriterules', $rules );
+
+	$rules = str_replace( "CONDITION_RULES", implode( "\n", $condition_rules ) . "\n", $rules );
+
+	$gziprules =  "<IfModule mod_mime.c>\n  <FilesMatch \"\\.html\\.gz\$\">\n    ForceType text/html\n    FileETag None\n  </FilesMatch>\n  AddEncoding gzip .gz\n  AddType text/html .gz\n</IfModule>\n";
+	$gziprules .= "<IfModule mod_deflate.c>\n  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n</IfModule>\n";
+	$gziprules .= "<IfModule mod_headers.c>\n  Header set Vary \"Accept-Encoding, Cookie\"\n  Header set Cache-Control 'max-age=300, must-revalidate'\n</IfModule>\n";
+	$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A300\n</IfModule>\n";
+	return array( "document_root" => $document_root, "apache_root" => $apache_root, "home_path" => $home_path, "home_root" => $home_root, "inst_root" => $inst_root, "wprules" => $wprules, "scrules" => $scrules, "condition_rules" => $condition_rules, "rules" => $rules, "gziprules" => $gziprules );
 }
 ?>
