@@ -514,6 +514,9 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $mobile_
 			echo '<input type="hidden" name="page" value="wpsupercache" />';
 			echo '<p>' . sprintf( __( 'Refresh cache every %s minutes. (0 to disable)', 'wp-super-cache' ), "<input type='text' size=4 name='custom_preload_interval' value='" . (int)$wp_cache_preload_interval . "' />" ) . '</p>';
 			echo '<input type="checkbox" name="preload_now" value="1" checked=1 /> Preload now!';
+			if ( $preload_counter = get_option( 'preload_cache_counter' ) ) {
+				echo '<p><strong>' . sprintf( __( 'Currently caching from post %d to %d', 'wp-super-cache' ), $preload_counter, ( $preload_counter + 100 ) ) . '</strong></p>';
+			}
 			echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Save', 'wp-super-cache' ) . '" /></div>';
 			wp_nonce_field('wp-cache');
 			echo '</form>';
