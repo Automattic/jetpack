@@ -482,42 +482,39 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $mobile_
 		echo '<a name="preload"></a>';
 		echo "<h3>" . __( 'Preload Cache', 'wp-super-cache' ) . "</h3>";
 		if ( $super_cache_enabled == true ) {
-			echo '<p>' . __( 'Cache every page on your site. This will also disable garbage collection but that can be enabled later by setting a non-zero expiry time on this page.', 'wp-super-cache' ) . '</p>';
+			global $wp_cache_preload_interval;
 			if ( $_GET[ 'action' ] == 'preload' && $valid_nonce ) {
 				global $wpdb;
-				$c = 0;
-				if ( isset( $_GET[ 'c' ] ) )
-					$c = (int)$_GET[ 'c' ];
-				if ( $c == 0 )
-					wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = 0;", $wp_cache_config_file);
-
-				$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' LIMIT $c, 100" );
-				if ( $posts ) {
-					$count = $c + 1;
-					foreach( $posts as $post_id ) {
-						$url = get_permalink( $post_id );
-						wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-						echo sprintf( __( "%d. Fetched %s", 'wp-super-cache' ), $count, $url ) . "<br />";
-						$count++;
+				wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = 0;", $wp_cache_config_file);
+				if ( isset( $_GET[ 'preload_now' ] ) && function_exists( 'wp_cache_clear_cache' ) )
+					wp_cache_clear_cache();
+				if ( isset( $_GET[ 'custom_preload_interval' ] ) ) {
+					$wp_cache_preload_interval = (int)$_GET[ 'custom_preload_interval' ];
+					wp_cache_replace_line('^ *\$wp_cache_preload_interval', "\$wp_cache_preload_interval = $wp_cache_preload_interval;", $wp_cache_config_file);
+					$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
+					if ( $next_preload ) {
+						update_option( 'preload_cache_counter', 0 );
+						wp_unschedule_event( $next_preload, 'wp_cache_preload_hook' );
+						echo "<p><strong>" . __( 'Scheduled preloading of cache cancelled.' ) . "</strong></p>";
 					}
-					$next_url = html_entity_decode( wp_nonce_url( "options-general.php?page=wpsupercache&action=preload&c=" . ( $c + 100 ) . "#preload", 'wp-cache' ) );
-					?><p><?php _e( "If your browser doesn't start loading the next page automatically click this link:", 'wp-super-cache' ); ?> <a class="button" href="<?php echo $next_url; ?>"><?php _e( "Next Blogs", 'wp-super-cache' ); ?></a></p>
-						<script type='text/javascript'>
-						<!--
-						function nextpage() {
-							location.href = "<?php echo $next_url; ?>";
-						}
-					setTimeout( "nextpage()", 1000 );
-					//-->
-					</script><?php
-						die();
+					if ( isset( $_GET[ 'preload_now' ] ) ) {
+						update_option( 'preload_cache_counter', 0 );
+						wp_schedule_single_event( time() + 10, 'wp_cache_preload_hook' );
+						echo "<p><strong>" . __( 'Scheduled preloading of cache in 10 seconds.' ) . "</strong></p>";
+					} elseif ( (int)$_GET[ 'custom_preload_interval' ] ) {
+						update_option( 'preload_cache_counter', 0 );
+						wp_schedule_single_event( time() + ( (int)$_GET[ 'custom_preload_interval' ] * 60 ), 'wp_cache_preload_hook' );
+						echo "<p><strong>" . sprintf( __( 'Scheduled preloading of cache in %d minutes' ), (int)$_GET[ 'custom_preload_interval' ] ) . "</strong></p>";
+					}
 				}
 			}
+			echo '<p>' . __( 'Cache every page on your site. This will also disable garbage collection but that can be enabled later by setting a non-zero expiry time on this page.', 'wp-super-cache' ) . '</p>';
 			echo '<form name="cache_filler" action="#preload" method="GET">';
 			echo '<input type="hidden" name="action" value="preload" />';
 			echo '<input type="hidden" name="page" value="wpsupercache" />';
-			//echo '<p>' . sprintf( __( 'Refresh cache every %s minutes. (0 to disable)', 'wp-super-cache' ), "<input type='text' size=4 name='custom_preload_interval' value='" . (int)$preload_refresh_interval . "' />" ) . '</p>';
-			echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Preload Cache', 'wp-super-cache' ) . '" /></div>';
+			echo '<p>' . sprintf( __( 'Refresh cache every %s minutes. (0 to disable)', 'wp-super-cache' ), "<input type='text' size=4 name='custom_preload_interval' value='" . (int)$wp_cache_preload_interval . "' />" ) . '</p>';
+			echo '<input type="checkbox" name="preload_now" value="1" checked=1 /> Preload now!';
+			echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Save', 'wp-super-cache' ) . '" /></div>';
 			wp_nonce_field('wp-cache');
 			echo '</form>';
 		} else {
@@ -2002,4 +1999,27 @@ function wpsc_get_htaccess_info() {
 	$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A300\n</IfModule>\n";
 	return array( "document_root" => $document_root, "apache_root" => $apache_root, "home_path" => $home_path, "home_root" => $home_root, "inst_root" => $inst_root, "wprules" => $wprules, "scrules" => $scrules, "condition_rules" => $condition_rules, "rules" => $rules, "gziprules" => $gziprules );
 }
+
+function wp_cron_preload_cache() {
+	global $wpdb, $wp_cache_preload_interval;
+
+	$c = (int)get_option( 'preload_cache_counter' );
+	if ( $c == 0 && function_exists( 'wp_cache_clear_cache' ) )
+		wp_cache_clear_cache();
+	$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' LIMIT $c, 100" );
+	update_option( 'preload_cache_counter', ($c + 100) );
+	if ( $posts ) {
+		$count = $c + 1;
+		foreach( $posts as $post_id ) {
+			$url = get_permalink( $post_id );
+			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
+			$count++;
+		}
+		wp_schedule_single_event( time() + 10, 'wp_cache_preload_hook' );
+	} else {
+		update_option( 'preload_cache_counter', 0 );
+		wp_schedule_single_event( time() + ( (int)$wp_cache_preload_interval * 60 ), 'wp_cache_preload_hook' );
+	}
+}
+add_action( 'wp_cache_preload_hook', 'wp_cron_preload_cache' );
 ?>
