@@ -481,7 +481,7 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $mobile_
 
 		echo '<a name="preload"></a>';
 		echo "<h3>" . __( 'Preload Cache', 'wp-super-cache' ) . "</h3>";
-		if ( $super_cache_enabled == true ) {
+		if ( $super_cache_enabled == true && false == defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
 			global $wp_cache_preload_interval;
 			if ( $_GET[ 'action' ] == 'preload' && $valid_nonce ) {
 				global $wpdb;
