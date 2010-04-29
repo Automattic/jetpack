@@ -489,14 +489,14 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 			} else {
 				$min_refresh_interval = 30;
 			}
-			if ( $_GET[ 'action' ] == 'preload' && $valid_nonce ) {
+			if ( $_POST[ 'action' ] == 'preload' && $valid_nonce ) {
 				wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = 0;", $wp_cache_config_file);
-				$wp_cache_preload_posts = (int)$_GET[ 'posts_to_cache' ];
+				$wp_cache_preload_posts = (int)$_POST[ 'posts_to_cache' ];
 				wp_cache_replace_line('^ *\$wp_cache_preload_posts', "\$wp_cache_preload_posts = $wp_cache_preload_posts;", $wp_cache_config_file);
-				if ( isset( $_GET[ 'preload_now' ] ) && function_exists( 'wp_cache_clear_cache' ) )
+				if ( isset( $_POST[ 'preload' ] ) && $_POST[ 'preload' ] == __( 'Preload Cache Now', 'wp-super-cache' ) && function_exists( 'wp_cache_clear_cache' ) )
 					wp_cache_clear_cache();
-				if ( isset( $_GET[ 'custom_preload_interval' ] ) && ( $_GET[ 'custom_preload_interval' ] == 0 || $_GET[ 'custom_preload_interval' ] >= $min_refresh_interval ) ) {
-					$wp_cache_preload_interval = (int)$_GET[ 'custom_preload_interval' ];
+				if ( isset( $_POST[ 'custom_preload_interval' ] ) && ( $_POST[ 'custom_preload_interval' ] == 0 || $_POST[ 'custom_preload_interval' ] >= $min_refresh_interval ) ) {
+					$wp_cache_preload_interval = (int)$_POST[ 'custom_preload_interval' ];
 					wp_cache_replace_line('^ *\$wp_cache_preload_interval', "\$wp_cache_preload_interval = $wp_cache_preload_interval;", $wp_cache_config_file);
 					$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
 					if ( $next_preload ) {
@@ -505,34 +505,42 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 						echo "<p><strong>" . __( 'Scheduled preloading of cache cancelled.', 'wp-super-cache' ) . "</strong></p>";
 					}
 				}
-				if ( isset( $_GET[ 'preload_on' ] ) ) {
+				if ( isset( $_POST[ 'preload_on' ] ) ) {
 					$wp_cache_preload_on = 1;
 				} else {
 					$wp_cache_preload_on = 0;
 				}
 				wp_cache_replace_line('^ *\$wp_cache_preload_on', "\$wp_cache_preload_on = $wp_cache_preload_on;", $wp_cache_config_file);
-				if ( isset( $_GET[ 'preload_now' ] ) ) {
+				if ( isset( $_POST[ 'preload' ] ) && $_POST[ 'preload' ] == __( 'Preload Cache Now', 'wp-super-cache' ) ) {
 					update_option( 'preload_cache_counter', 0 );
 					wp_schedule_single_event( time() + 10, 'wp_cache_preload_hook' );
 					echo "<p><strong>" . __( 'Scheduled preloading of cache in 10 seconds.' ) . "</strong></p>";
-				} elseif ( (int)$_GET[ 'custom_preload_interval' ] ) {
+				} elseif ( (int)$_POST[ 'custom_preload_interval' ] ) {
 					update_option( 'preload_cache_counter', 0 );
-					wp_schedule_single_event( time() + ( (int)$_GET[ 'custom_preload_interval' ] * 60 ), 'wp_cache_preload_hook' );
-					echo "<p><strong>" . sprintf( __( 'Scheduled preloading of cache in %d minutes', 'wp-super-cache' ), (int)$_GET[ 'custom_preload_interval' ] ) . "</strong></p>";
+					wp_schedule_single_event( time() + ( (int)$_POST[ 'custom_preload_interval' ] * 60 ), 'wp_cache_preload_hook' );
+					echo "<p><strong>" . sprintf( __( 'Scheduled preloading of cache in %d minutes', 'wp-super-cache' ), (int)$_POST[ 'custom_preload_interval' ] ) . "</strong></p>";
 				}
 			}
 			echo '<p>' . __( 'This will cache every published post and page on your site. It will create supercache static files so unknown visitors (including bots) will hit a cached page. This will probably help your Google ranking as they are using speed as a metric when judging websites now.', 'wp-super-cache' ) . '</p>';
 			echo '<p>' . __( 'Preloading creates lots of files however. Caching is done from the newest post to the oldest so please consider only caching the newest if you have lots of posts. This is especially important on shared hosting.', 'wp-super-cache' ) . '</p>';
 			echo '<p>' . __( 'In &#8217;Preload Mode&#8217; garbage collection will only clean out old half-on files for known users, not the preloaded supercache files. Otherwise, garbage collection will work on both types of file.', 'wp-super-cache' ) . '</p>';
-			echo '<form name="cache_filler" action="#preload" method="GET">';
+			echo '<form name="cache_filler" action="#preload" method="POST">';
 			echo '<input type="hidden" name="action" value="preload" />';
 			echo '<input type="hidden" name="page" value="wpsupercache" />';
 			echo '<p>' . sprintf( __( 'Refresh preloaded cache files every %s minutes. (0 to disable, minimum %d minutes.)', 'wp-super-cache' ), "<input type='text' size=4 name='custom_preload_interval' value='" . (int)$wp_cache_preload_interval . "' />", $min_refresh_interval ) . '</p>';
 			if ( $count > 1000 ) {
 				$step = (int)( $count / 5 );
 				$best = $step * 4;
-				if ( isset( $wp_cache_preload_posts ) && $best > $wp_cache_preload_posts ) 
-					$best = $wp_cache_preload_posts;
+				if ( isset( $wp_cache_preload_posts ) ) {
+					if ( $wp_cache_preload_posts == $count ) {
+						$best = $count;
+					} else {
+						for( $c = $step; $c <= $count; $c += $step ) {
+							if ( $wp_cache_preload_posts == $c )
+								$best = $wp_cache_preload_posts;
+						}
+					}
+				}
 
 				$select = "<select name='posts_to_cache' size=1>";
 				for( $c = $step; $c <= $count; $c += $step ) {
@@ -541,12 +549,14 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 						$checked = 'selected=1 ';
 					$select .= "<option value='$c'{$checked}>$c</option>";
 				}
-				$select .= "<option value='$count'>$count</option>";
+				$checked = ' ';
+				if ( $best == $count )
+					$checked = 'selected=1 ';
+				$select .= "<option value='$count'{$checked}>$count</option>";
 				$select .= "</select>";
 				echo '<p>' . sprintf( __( 'Preload the newest %s posts.', 'wp-super-cache' ), $select ) . '</p>';
 			}
 
-			echo '<input type="checkbox" name="preload_now" value="1" checked=1 /> ' . __( 'Preload now!', 'wp-super-cache' ) . '<br />';
 			echo '<input type="checkbox" name="preload_on" value="1" ';
 			echo $wp_cache_preload_on == 1 ? 'checked=1' : '';
 			echo ' /> ' . __( 'Preload mode (garbage collection only on half-on cache files)', 'wp-super-cache' );
@@ -556,7 +566,7 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 			if( $next_preload = wp_next_scheduled( 'wp_cache_preload_hook' ) ) {
 				echo '<p><strong>' . sprintf( __( 'Next refresh of cache at: %s', 'wp-super-cache' ), date('Y-m-d H:i:s', $next_preload ) ) . '</strong></p>';
 			}
-			echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
+			echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Update Settings', 'wp-super-cache' ) . '" />&nbsp;<input type="submit" name="preload" value="' . __( 'Preload Cache Now', 'wp-super-cache' ) . '" /></div>';
 			wp_nonce_field('wp-cache');
 			echo '</form>';
 		} else {
