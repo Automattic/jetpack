@@ -555,6 +555,8 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 				$select .= "<option value='$count'{$checked}>$count</option>";
 				$select .= "</select>";
 				echo '<p>' . sprintf( __( 'Preload the newest %s posts.', 'wp-super-cache' ), $select ) . '</p>';
+			} else {
+				echo '<input type="hidden" name="posts_to_cache" value="' . $count . '" />';
 			}
 
 			echo '<input type="checkbox" name="preload_on" value="1" ';
