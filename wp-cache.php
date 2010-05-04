@@ -2082,7 +2082,7 @@ function wp_cron_preload_cache() {
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 			$count++;
 		}
-		wp_schedule_single_event( time() + 10, 'wp_cache_preload_hook' );
+		wp_schedule_single_event( time() + 60, 'wp_cache_preload_hook' );
 	} else {
 		update_option( 'preload_cache_counter', 0 );
 		if ( (int)$wp_cache_preload_interval )
