@@ -584,7 +584,9 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 				$currently_preloading = true;
 			}
 			if( $next_preload = wp_next_scheduled( 'wp_cache_preload_hook' ) ) {
-				echo '<p><strong>' . sprintf( __( 'Next refresh of cache at: %s', 'wp-super-cache' ), date('Y-m-d H:i:s', $next_preload ) ) . '</strong></p>';
+				$next_time = $next_preload - time();
+				if ( $next_time > 0 )
+					echo '<p><strong>' . sprintf( __( 'Next refresh of cache in %s seconds.', 'wp-super-cache' ), $next_time ) . '</strong></p>';
 				if ( ( $next_preload - time() ) <= 60 )
 					$currently_preloading = true;
 			}
