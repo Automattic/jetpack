@@ -581,13 +581,13 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 			$currently_preloading = false;
 			if( $next_preload = wp_next_scheduled( 'wp_cache_preload_hook' ) ) {
 				$next_time = $next_preload - time();
-				if ( $next_time > 0 )
+				if ( $next_time > 0 && $next_time < $wp_cache_preload_interval )
 					echo '<p><strong>' . sprintf( __( 'Next refresh of cache in %s seconds.', 'wp-super-cache' ), $next_time ) . '</strong></p>';
 				if ( ( $next_preload - time() ) <= 60 )
 					$currently_preloading = true;
 			}
 			if ( $preload_counter = get_option( 'preload_cache_counter' ) ) {
-				echo '<p><strong>' . sprintf( __( 'Currently caching from post %d to %d', 'wp-super-cache' ), $preload_counter, ( $preload_counter + 100 ) ) . '</strong></p>';
+				echo '<p><strong>' . sprintf( __( 'Currently caching from post %d to %d.', 'wp-super-cache' ), $preload_counter, ( $preload_counter + 100 ) ) . '</strong></p>';
 				$currently_preloading = true;
 			}
 			echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Update Settings', 'wp-super-cache' ) . '" />&nbsp;<input type="submit" name="preload" value="' . __( 'Preload Cache Now', 'wp-super-cache' ) . '" />';
