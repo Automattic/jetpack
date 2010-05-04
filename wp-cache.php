@@ -585,10 +585,11 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 				if ( $next_time > 0 ) {
 					// http://bytes.com/topic/php/answers/3917-seconds-converted-hh-mm-ss
 					$m = (int)($next_time / 60);
+					$s = $next_time % 60;
 					$h = (int)($m / 60); $m = $m % 60;
 				}
 				if ( $next_time > 0 && $next_time < ( 60 * $wp_cache_preload_interval ) )
-					echo '<p><strong>' . sprintf( __( 'Next refresh of cache in %d hours %d minutes.', 'wp-super-cache' ), $h, $m ) . '</strong></p>';
+					echo '<p><strong>' . sprintf( __( 'Next refresh of cache in %d hours %d minutes and %d seconds.', 'wp-super-cache' ), $h, $m, $s ) . '</strong></p>';
 				if ( ( $next_preload - time() ) <= 60 )
 					$currently_preloading = true;
 			}
