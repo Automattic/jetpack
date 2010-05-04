@@ -490,7 +490,6 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 				$min_refresh_interval = 30;
 			}
 			if ( $_POST[ 'action' ] == 'preload' && $valid_nonce ) {
-				wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = 0;", $wp_cache_config_file);
 				$wp_cache_preload_posts = (int)$_POST[ 'posts_to_cache' ];
 				wp_cache_replace_line('^ *\$wp_cache_preload_posts', "\$wp_cache_preload_posts = $wp_cache_preload_posts;", $wp_cache_config_file);
 				if ( isset( $_POST[ 'preload' ] ) && $_POST[ 'preload' ] == __( 'Preload Cache Now', 'wp-super-cache' ) && function_exists( 'wp_cache_clear_cache' ) )
