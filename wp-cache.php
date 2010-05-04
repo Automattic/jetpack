@@ -496,14 +496,21 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 				if ( isset( $_POST[ 'preload' ] ) && $_POST[ 'preload' ] == __( 'Preload Cache Now', 'wp-super-cache' ) && function_exists( 'wp_cache_clear_cache' ) )
 					wp_cache_clear_cache();
 				if ( isset( $_POST[ 'custom_preload_interval' ] ) && ( $_POST[ 'custom_preload_interval' ] == 0 || $_POST[ 'custom_preload_interval' ] >= $min_refresh_interval ) ) {
+					// if preload interval changes than unschedule any preload jobs and schedule any new one.
+					if ( $wp_cache_preload_interval != (int)$_POST[ 'custom_preload_interval' ] ) {
+						$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
+						if ( $next_preload ) {
+							update_option( 'preload_cache_counter', 0 );
+							wp_unschedule_event( $next_preload, 'wp_cache_preload_hook' );
+							if ( $wp_cache_preload_interval == 0 ) {
+								echo "<p><strong>" . __( 'Scheduled preloading of cache cancelled.', 'wp-super-cache' ) . "</strong></p>";
+							} 
+						}
+						if ( $wp_cache_preload_interval != 0 )
+							wp_schedule_single_event( time() + ( (int)$_POST[ 'custom_preload_interval' ] * 60 ), 'wp_cache_preload_hook' );
+					}
 					$wp_cache_preload_interval = (int)$_POST[ 'custom_preload_interval' ];
 					wp_cache_replace_line('^ *\$wp_cache_preload_interval', "\$wp_cache_preload_interval = $wp_cache_preload_interval;", $wp_cache_config_file);
-					$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
-					if ( $next_preload ) {
-						update_option( 'preload_cache_counter', 0 );
-						wp_unschedule_event( $next_preload, 'wp_cache_preload_hook' );
-						echo "<p><strong>" . __( 'Scheduled preloading of cache cancelled.', 'wp-super-cache' ) . "</strong></p>";
-					}
 				}
 				if ( isset( $_POST[ 'preload_on' ] ) ) {
 					$wp_cache_preload_on = 1;
@@ -2078,7 +2085,8 @@ function wp_cron_preload_cache() {
 		wp_schedule_single_event( time() + 10, 'wp_cache_preload_hook' );
 	} else {
 		update_option( 'preload_cache_counter', 0 );
-		wp_schedule_single_event( time() + ( (int)$wp_cache_preload_interval * 60 ), 'wp_cache_preload_hook' );
+		if ( (int)$wp_cache_preload_interval )
+			wp_schedule_single_event( time() + ( (int)$wp_cache_preload_interval * 60 ), 'wp_cache_preload_hook' );
 	}
 }
 add_action( 'wp_cache_preload_hook', 'wp_cron_preload_cache' );
