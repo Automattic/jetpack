@@ -2094,7 +2094,7 @@ function wp_cron_preload_cache() {
 	if ( $c == 0 && function_exists( 'wp_cache_clear_cache' ) )
 		wp_cache_clear_cache();
 	if ( $c <= $wp_cache_preload_posts ) {
-		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' ORDER BY ID DESC LIMIT $c, 100" );
+		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' ORDER BY post_date DESC LIMIT $c, 100" );
 	} else {
 		$posts = false;
 	}
