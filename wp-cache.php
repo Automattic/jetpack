@@ -504,7 +504,8 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 					echo "<p><strong>" . __( 'Scheduled preloading of cache cancelled. If a job is currently running it will not shutdown until the current 100 pages are complete.', 'wp-super-cache' ) . "</strong></p>";
 				} elseif ( isset( $_POST[ 'custom_preload_interval' ] ) && ( $_POST[ 'custom_preload_interval' ] == 0 || $_POST[ 'custom_preload_interval' ] >= $min_refresh_interval ) ) {
 					// if preload interval changes than unschedule any preload jobs and schedule any new one.
-					if ( $wp_cache_preload_interval != (int)$_POST[ 'custom_preload_interval' ] ) {
+					$_POST[ 'custom_preload_interval' ] = (int)$_POST[ 'custom_preload_interval' ];
+					if ( $wp_cache_preload_interval != $_POST[ 'custom_preload_interval' ] ) {
 						$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
 						if ( $next_preload ) {
 							update_option( 'preload_cache_counter', 0 );
@@ -514,8 +515,8 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 								echo "<p><strong>" . __( 'Scheduled preloading of cache cancelled.', 'wp-super-cache' ) . "</strong></p>";
 							} 
 						}
-						if ( $wp_cache_preload_interval != 0 )
-							wp_schedule_single_event( time() + ( (int)$_POST[ 'custom_preload_interval' ] * 60 ), 'wp_cache_preload_hook' );
+						if ( $_POST[ 'custom_preload_interval' ] != 0 )
+							wp_schedule_single_event( time() + ( $_POST[ 'custom_preload_interval' ] * 60 ), 'wp_cache_preload_hook' );
 					}
 					$wp_cache_preload_interval = (int)$_POST[ 'custom_preload_interval' ];
 					wp_cache_replace_line('^ *\$wp_cache_preload_interval', "\$wp_cache_preload_interval = $wp_cache_preload_interval;", $wp_cache_config_file);
