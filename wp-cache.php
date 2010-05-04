@@ -550,7 +550,7 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 				}
 
 				$select = "<select name='posts_to_cache' size=1>";
-				for( $c = $step; $c <= $count; $c += $step ) {
+				for( $c = $step; $c < $count; $c += $step ) {
 					$checked = ' ';
 					if ( $best == $c )
 						$checked = 'selected=1 ';
