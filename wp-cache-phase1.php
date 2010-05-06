@@ -391,9 +391,15 @@ function wp_cache_user_agent_is_rejected() {
 	return false;
 }
 
-function get_current_url_supercache_dir() {
+function get_current_url_supercache_dir( $post_id = 0 ) {
 	global $cached_direct_pages, $cache_path, $wp_cache_request_uri;
-	$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $wp_cache_request_uri ) ) ) );
+
+	if ( $post_id != 0 ) {
+		$uri = str_replace( site_url(), '', get_permalink( $post_id ) );
+	} else {
+		$uri = $wp_cache_request_uri;
+	}
+	$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $uri ) ) ) );
 	$uri = str_replace( '\\', '', $uri );
 	$dir = strtolower(preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"])) . $uri; // To avoid XSS attacks
 	if ( function_exists( "apply_filters" ) )
