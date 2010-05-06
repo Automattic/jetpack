@@ -492,8 +492,6 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 			if ( $_POST[ 'action' ] == 'preload' && $valid_nonce ) {
 				$wp_cache_preload_posts = (int)$_POST[ 'posts_to_cache' ];
 				wp_cache_replace_line('^ *\$wp_cache_preload_posts', "\$wp_cache_preload_posts = $wp_cache_preload_posts;", $wp_cache_config_file);
-				if ( isset( $_POST[ 'preload' ] ) && $_POST[ 'preload' ] == __( 'Preload Cache Now', 'wp-super-cache' ) && function_exists( 'wp_cache_clear_cache' ) )
-					wp_cache_clear_cache();
 
 				if ( isset( $_POST[ 'preload' ] ) && $_POST[ 'preload' ] == __( 'Cancel Cache Preload', 'wp-super-cache' ) ) {
 					$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
@@ -2089,6 +2087,16 @@ function wpsc_get_htaccess_info() {
 	return array( "document_root" => $document_root, "apache_root" => $apache_root, "home_path" => $home_path, "home_root" => $home_root, "inst_root" => $inst_root, "wprules" => $wprules, "scrules" => $scrules, "condition_rules" => $condition_rules, "rules" => $rules, "gziprules" => $gziprules );
 }
 
+function clear_post_supercache( $post_id ) {
+	$dir = get_current_url_supercache_dir( $post_id );
+	if ( file_exists( $dir . 'index.html' ) ) {
+		unlink( $dir . 'index.html' );
+	}
+	if ( file_exists( $dir . 'index.html.gz' ) ) {
+		unlink( $dir . 'index.html.gz' );
+	}
+}
+
 function wp_cron_preload_cache() {
 	global $wpdb, $wp_cache_preload_interval, $wp_cache_preload_posts;
 
@@ -2098,8 +2106,6 @@ function wp_cron_preload_cache() {
 	}
 
 	$c = (int)get_option( 'preload_cache_counter' );
-	if ( $c == 0 && function_exists( 'wp_cache_clear_cache' ) )
-		wp_cache_clear_cache();
 	if ( $c <= $wp_cache_preload_posts ) {
 		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_status = 'publish' ORDER BY post_date DESC LIMIT $c, 100" );
 	} else {
@@ -2109,6 +2115,7 @@ function wp_cron_preload_cache() {
 	if ( $posts ) {
 		$count = $c + 1;
 		foreach( $posts as $post_id ) {
+			clear_post_supercache( $post_id );
 			$url = get_permalink( $post_id );
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 			$count++;
