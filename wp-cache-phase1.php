@@ -265,7 +265,7 @@ function wp_cache_late_loader() {
 function wp_cache_get_cookies_values() {
 	$string = '';
 	while ($key = key($_COOKIE)) {
-		if ( preg_match( "/^wp-postpass|^wordpress|^comment_author_/", $key ) ) {
+		if ( preg_match( "/^wp-postpass|^wordpress_logged_in|^comment_author_/", $key ) ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Cookie detected: $key", 5 );
 			$string .= $_COOKIE[ $key ] . ",";
 		}
