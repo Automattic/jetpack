@@ -856,8 +856,15 @@ function wp_cache_post_change( $post_id ) {
 
 	if ($post_id == $last_processed) return $post_id;
 	$last_processed = $post_id;
+	$post = get_post( $post_id );
+	if( $post->post_status == 'draft' ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_change: draft post, not deleting any cache files.", 4 );
+		return $post_id;
+	}
+
 	if( !wp_cache_writers_entry() )
 		return $post_id;
+
 	if ( isset( $wp_cache_refresh_single_only ) && $wp_cache_refresh_single_only && strpos( $_SERVER[ 'REQUEST_URI' ], 'wp-comments-post.php' ) ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_change: comment detected. only deleting post page.", 4 );
 		$all = false;
