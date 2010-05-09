@@ -772,6 +772,11 @@ function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 		$comment[ 'old_comment_approved' ] = $comment[ 'comment_approved' ];
 		$comment[ 'comment_approved' ] = $status;
 	}
+	if ( ( $status == 'trash' || $status == 'spam' ) && $comment[ 'comment_approved' ] != 1 ) {
+		// don't modify cache if moderated comments are trashed or spammed
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Moderated comment deleted or spammed. Don't delete any cache files.", 4 );
+		return wp_cache_post_id();
+	}
 	$postid = $comment['comment_post_ID'];
 	// Do nothing if comment is not moderated
 	// http://ocaoimh.ie/2006/12/05/caching-wordpress-with-wp-cache-in-a-spam-filled-world
@@ -888,7 +893,9 @@ function wp_cache_post_change( $post_id ) {
 		if( $all == true && get_option( 'show_on_front' ) == 'page' ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: deleting page_on_front and_page_for_posts pages.", 4 );
 			wp_cache_post_id_gc( $siteurl, get_option( 'page_on_front' ) );
-			wp_cache_post_id_gc( $siteurl, get_option( 'page_for_posts' ) );
+			$permalink = trailingslashit( str_replace( get_option( 'home' ), '', post_permalink( get_option( 'page_for_posts' ) ) ) );
+			prune_super_cache( $cache_path . 'supercache/' . $siteurl . $permalink . 'index.html', true, true ); 
+			prune_super_cache( $cache_path . 'supercache/' . $siteurl . $permalink . 'index.html.gz', true, true );
 		}
 	}
 
