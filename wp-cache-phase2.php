@@ -631,7 +631,7 @@ function wp_cache_rebuild_or_delete( $file ) {
 	}
 }
 
-function wp_cache_phase2_clean_expired($file_prefix) {
+function wp_cache_phase2_clean_expired( $file_prefix, $force = false ) {
 	global $cache_path, $cache_max_time, $blog_cache_dir, $wp_cache_preload_on;
 
 	clearstatcache();
@@ -658,7 +658,7 @@ function wp_cache_phase2_clean_expired($file_prefix) {
 			}
 		}
 		closedir($handle);
-		if ( false == $wp_cache_preload_on ) {
+		if ( false == $force && false == $wp_cache_preload_on ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Doing GC on supercache dir: {$cache_path}supercache", 2 );
 			prune_super_cache( $cache_path . 'supercache' );
 		}

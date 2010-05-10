@@ -2137,6 +2137,9 @@ function wp_cron_preload_cache() {
 		update_option( 'preload_cache_counter', 0 );
 		if ( (int)$wp_cache_preload_interval )
 			wp_schedule_single_event( time() + ( (int)$wp_cache_preload_interval * 60 ), 'wp_cache_preload_hook' );
+		global $file_prefix, $cache_max_time;
+		$cache_max_time = (int)$wp_cache_preload_interval * 60; // fool the GC into expiring really old files
+		wp_cache_phase2_clean_expired( $file_prefix, true ); // force cleanup of old files.
 	}
 }
 add_action( 'wp_cache_preload_hook', 'wp_cron_preload_cache' );
