@@ -489,7 +489,7 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 		echo '<a name="preload"></a>';
 		echo "<h3>" . __( 'Preload Cache', 'wp-super-cache' ) . "</h3>";
 		if ( $super_cache_enabled == true && false == defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
-			global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_posts, $wpdb;
+			global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_email_me, $wp_cache_preload_posts, $wpdb;
 			$count = $wpdb->get_var( "SELECT count(*) FROM {$wpdb->posts} WHERE post_status = 'publish'" );
 			if ( $count > 1000 ) {
 				$min_refresh_interval = 720;
@@ -525,6 +525,12 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 					}
 					$wp_cache_preload_interval = (int)$_POST[ 'custom_preload_interval' ];
 					wp_cache_replace_line('^ *\$wp_cache_preload_interval', "\$wp_cache_preload_interval = $wp_cache_preload_interval;", $wp_cache_config_file);
+					if ( isset( $_POST[ 'preload_email_me' ] ) ) {
+						$wp_cache_preload_email_me = 1;
+					} else {
+						$wp_cache_preload_email_me = 0;
+					}
+					wp_cache_replace_line('^ *\$wp_cache_preload_email_me', "\$wp_cache_preload_email_me = $wp_cache_preload_email_me;", $wp_cache_config_file);
 					if ( isset( $_POST[ 'preload_on' ] ) ) {
 						$wp_cache_preload_on = 1;
 					} else {
@@ -582,7 +588,10 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 
 			echo '<input type="checkbox" name="preload_on" value="1" ';
 			echo $wp_cache_preload_on == 1 ? 'checked=1' : '';
-			echo ' /> ' . __( 'Preload mode (garbage collection only on half-on cache files)', 'wp-super-cache' );
+			echo ' /> ' . __( 'Preload mode (garbage collection only on half-on cache files)', 'wp-super-cache' ) . '<br />';
+			echo '<input type="checkbox" name="preload_email_me" value="1" ';
+			echo $wp_cache_preload_email_me == 1 ? 'checked=1' : '';
+			echo ' /> ' . __( 'Send me status emails when files are refreshed. (2 emails per 100 posts)', 'wp-super-cache' );
 			$currently_preloading = false;
 			if( $next_preload = wp_next_scheduled( 'wp_cache_preload_hook' ) ) {
 				$next_time = $next_preload - time();
@@ -2110,7 +2119,7 @@ function clear_post_supercache( $post_id ) {
 }
 
 function wp_cron_preload_cache() {
-	global $wpdb, $wp_cache_preload_interval, $wp_cache_preload_posts;
+	global $wpdb, $wp_cache_preload_interval, $wp_cache_preload_posts, $wp_cache_preload_email_me;
 
 	if ( get_option( 'preload_cache_stop' ) ) {
 		delete_option( 'preload_cache_stop' );
@@ -2125,20 +2134,33 @@ function wp_cron_preload_cache() {
 	}
 	update_option( 'preload_cache_counter', ($c + 100) );
 	if ( $posts ) {
+		if ( $wp_cache_preload_email_me )
+			wp_mail( get_option( 'admin_email' ), $_SERVER[ 'HTTP_HOST' ] . ": refreshing posts from $c to " . ($c + 100), '' );
+		$msg = '';
 		$count = $c + 1;
 		foreach( $posts as $post_id ) {
 			clear_post_supercache( $post_id );
 			$url = get_permalink( $post_id );
+			$msg .= "$url\n";
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 			$count++;
 		}
-		wp_schedule_single_event( time() + 60, 'wp_cache_preload_hook' );
+		if ( $wp_cache_preload_email_me )
+			wp_mail( get_option( 'admin_email' ), $_SERVER[ 'HTTP_HOST' ] . " " . ($c+100) . " posts refreshed", "Refreshed the following posts:\n$msg" );
+		if ( defined( 'DOING_CRON' ) ) {
+			wp_schedule_single_event( time() + 60, 'wp_cache_preload_hook' );
+		}
 	} else {
 		update_option( 'preload_cache_counter', 0 );
-		if ( (int)$wp_cache_preload_interval )
+		if ( (int)$wp_cache_preload_interval && defined( 'DOING_CRON' ) ) {
+			if ( $wp_cache_preload_email_me )
+				wp_mail( get_option( 'admin_email' ), $_SERVER[ 'HTTP_HOST' ] . " Scheduling next refresh in " . (int)$wp_cache_preload_interval . " minutes", "" );
 			wp_schedule_single_event( time() + ( (int)$wp_cache_preload_interval * 60 ), 'wp_cache_preload_hook' );
+		}
 		global $file_prefix, $cache_max_time;
 		$cache_max_time = (int)$wp_cache_preload_interval * 60; // fool the GC into expiring really old files
+		if ( $wp_cache_preload_email_me )
+			wp_mail( get_option( 'admin_email' ), $_SERVER[ 'HTTP_HOST' ] . " Cleaning up old supercache files", "" );
 		wp_cache_phase2_clean_expired( $file_prefix, true ); // force cleanup of old files.
 	}
 }
