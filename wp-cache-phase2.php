@@ -658,7 +658,7 @@ function wp_cache_phase2_clean_expired( $file_prefix, $force = false ) {
 			}
 		}
 		closedir($handle);
-		if ( false == $force && false == $wp_cache_preload_on ) {
+		if ( false == $wp_cache_preload_on || true == $force ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Doing GC on supercache dir: {$cache_path}supercache", 2 );
 			prune_super_cache( $cache_path . 'supercache' );
 		}
@@ -772,6 +772,7 @@ function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 		$comment[ 'old_comment_approved' ] = $comment[ 'comment_approved' ];
 		$comment[ 'comment_approved' ] = $status;
 	}
+
 	if ( ( $status == 'trash' || $status == 'spam' ) && $comment[ 'comment_approved' ] != 1 ) {
 		// don't modify cache if moderated comments are trashed or spammed
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Moderated comment deleted or spammed. Don't delete any cache files.", 4 );
