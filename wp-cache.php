@@ -2135,7 +2135,7 @@ function wp_cron_preload_cache() {
 	update_option( 'preload_cache_counter', ($c + 100) );
 	if ( $posts ) {
 		if ( $wp_cache_preload_email_me )
-			wp_mail( get_option( 'admin_email' ), $_SERVER[ 'HTTP_HOST' ] . ": refreshing posts from $c to " . ($c + 100), '' );
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] refreshing posts from %2$d to %3$d', 'wp-super-cache' ), $_SERVER[ 'HTTP_HOST' ], $c, ($c + 100) ), '' );
 		$msg = '';
 		$count = $c + 1;
 		foreach( $posts as $post_id ) {
@@ -2146,7 +2146,7 @@ function wp_cron_preload_cache() {
 			$count++;
 		}
 		if ( $wp_cache_preload_email_me )
-			wp_mail( get_option( 'admin_email' ), $_SERVER[ 'HTTP_HOST' ] . " " . ($c+100) . " posts refreshed", "Refreshed the following posts:\n$msg" );
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), $_SERVER[ 'HTTP_HOST' ], ($c+100) ), __( "Refreshed the following posts:", 'wp-super-cache' ) . "\n$msg" );
 		if ( defined( 'DOING_CRON' ) ) {
 			wp_schedule_single_event( time() + 60, 'wp_cache_preload_hook' );
 		}
@@ -2154,13 +2154,17 @@ function wp_cron_preload_cache() {
 		update_option( 'preload_cache_counter', 0 );
 		if ( (int)$wp_cache_preload_interval && defined( 'DOING_CRON' ) ) {
 			if ( $wp_cache_preload_email_me )
-				wp_mail( get_option( 'admin_email' ), $_SERVER[ 'HTTP_HOST' ] . " Scheduling next refresh in " . (int)$wp_cache_preload_interval . " minutes", "" );
+				wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Scheduling next refresh in %2$d minutes', 'wp-super-cache' ), $_SERVER[ 'HTTP_HOST' ], (int)$wp_cache_preload_interval ), "" );
 			wp_schedule_single_event( time() + ( (int)$wp_cache_preload_interval * 60 ), 'wp_cache_preload_hook' );
 		}
 		global $file_prefix, $cache_max_time;
-		$cache_max_time = (int)$wp_cache_preload_interval * 60; // fool the GC into expiring really old files
+		if ( $wp_cache_preload_interval > 0 ) {
+			$cache_max_time = (int)$wp_cache_preload_interval * 60; // fool the GC into expiring really old files
+		} else {
+			$cache_max_time = 86400; // fool the GC into expiring really old files
+		}
 		if ( $wp_cache_preload_email_me )
-			wp_mail( get_option( 'admin_email' ), $_SERVER[ 'HTTP_HOST' ] . " Cleaning up old supercache files", "" );
+			wp_mail( get_option( 'admin_email' ), sprintf( __( "[%s] Cleaning up old supercache files", 'wp-super-cache' ), $_SERVER[ 'HTTP_HOST' ] ), sprintf( __( "Cleaning up cache files that are older than %d seconds", 'wp-super-cache' ), $cache_max_time ) );
 		wp_cache_phase2_clean_expired( $file_prefix, true ); // force cleanup of old files.
 	}
 }
