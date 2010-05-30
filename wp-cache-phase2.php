@@ -837,7 +837,7 @@ function wp_cache_post_edit($post_id) {
 	}
 }
 
-function wp_cache_post_id_gc( $siteurl, $post_id ) {
+function wp_cache_post_id_gc( $siteurl, $post_id, $all = 'all' ) {
 	global $cache_path, $wp_cache_object_cache;
 	
 	if ( $wp_cache_object_cache )
@@ -847,11 +847,18 @@ function wp_cache_post_id_gc( $siteurl, $post_id ) {
 	if( $post_id == 0 )
 		return;
 
+	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc post_id: $post_id " . post_permalink( $post_id ) . " clearing cache in $dir{$permalink}.", 4 );
 	$permalink = trailingslashit( str_replace( get_option( 'home' ), '', post_permalink( $post_id ) ) );
 	$dir = $cache_path . 'supercache/' . $siteurl;
-	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cache in $dir{$permalink}.", 4 );
-	prune_super_cache( $dir . $permalink, true, true );
-	@rmdir( $dir . $permalink );
+	if ( $all == 'all' ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cache in $dir{$permalink}.", 4 );
+		prune_super_cache( $dir . $permalink, true, true );
+		@rmdir( $dir . $permalink );
+	} else {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cached index.html(.gz) in $dir{$permalink}.", 4 );
+		prune_super_cache( $dir . $permalink . 'index.html', true, true );
+		prune_super_cache( $dir . $permalink . 'index.html.gz', true, true );
+	}
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cache in {$dir}page/.", 4 );
 	prune_super_cache( $dir . 'page/', true );
 }
@@ -893,7 +900,8 @@ function wp_cache_post_change( $post_id ) {
 		wp_cache_post_id_gc( $siteurl, $post_id );
 		if( $all == true && get_option( 'show_on_front' ) == 'page' ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: deleting page_on_front and_page_for_posts pages.", 4 );
-			wp_cache_post_id_gc( $siteurl, get_option( 'page_on_front' ) );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: page_on_front " . get_option( 'page_on_front' ), 4 );
+			wp_cache_post_id_gc( $siteurl, get_option( 'page_on_front' ), 'single' );
 			$permalink = trailingslashit( str_replace( get_option( 'home' ), '', post_permalink( get_option( 'page_for_posts' ) ) ) );
 			prune_super_cache( $cache_path . 'supercache/' . $siteurl . $permalink . 'index.html', true, true ); 
 			prune_super_cache( $cache_path . 'supercache/' . $siteurl . $permalink . 'index.html.gz', true, true );
