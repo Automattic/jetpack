@@ -1,7 +1,7 @@
 === WP Super Cache ===
 Contributors: donncha
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 2.9.1
+Tested up to: 3.0
 Stable tag: 0.9.9
 Requires at least: 2.6
 Donate link: http://ocaoimh.ie/gad/
@@ -248,10 +248,6 @@ This plugin caches entire pages but some plugins think they can run PHP code eve
 = Why doesn't the plugin cache requests by search engine bots by default? =
 
 Those bots usually only visit each page once and if the page is not popular there's no point creating a cache file that will sit idle on your server.
-
-= Why shouldn't I create a cache file of every page on my site? =
-
-Like the previous question, there's no point caching pages that won't be visited. The large number of cache files will slow down the garbage collection system as it attempts to check each file. It also causes problems for hosting companies. In the event of a disk failure on your server it may take much longer to check the files. Remember how long a scandisk or a fsck took on a large drive?
 
 = A category page is showing instead of my homepage =
 
