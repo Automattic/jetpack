@@ -1556,12 +1556,13 @@ function wp_cache_files() {
 		return false;
 	}
 
+	$cache_stats = get_option( 'supercache_stats' );
+	if ( $valid_nonce && $_GET[ 'action' ] == 'regenerate_cache_stats' ) {
 	$list_files = false; // it doesn't list supercached files, and removing single pages is buggy
 	$count = 0;
 	$expired = 0;
 	$now = time();
 	if ( ($handle = @opendir( $blog_cache_dir . 'meta/' )) ) { 
-		if ($list_files) echo "<table cellspacing=\"0\" cellpadding=\"5\">";
 		$wp_cache_fsize = 0;
 		if ( $valid_nonce && isset( $_GET[ 'action' ] ) && $_GET[ 'action' ] == 'deletewpcache' ) {
 			$deleteuri = preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', base64_decode( $_GET[ 'uri' ] ) ) ) ) );
@@ -1613,7 +1614,6 @@ function wp_cache_files() {
 			}
 		}
 		closedir($handle);
-		if ($list_files) echo "</table>";
 	}
 	if( $wp_cache_fsize != 0 ) {
 		$wp_cache_fsize = $wp_cache_fsize/1024;
@@ -1653,12 +1653,22 @@ function wp_cache_files() {
 		} 
 		$sizes[ 'ts' ] = time();
 	}
+	$cache_stats = array( 'generated' => time(), 'supercache' => $sizes, 'wpcache' => array( 'cached' => $count, 'expired' => $expired, 'fsize' => $wp_cache_fsize ) );
+	update_option( 'supercache_stats', $cache_stats );
+	} else {
+		echo "<a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'regenerate_cache_stats' ) ), 'wp-cache' ) . "'>" . __( 'Regenerate cache stats' ) . "</a>";
+		if ( is_array( $cache_stats ) ) {
+			echo "<p>" . sprintf( __( 'Cache stats last generated: %s minutes ago.', 'wp-super-cache' ), number_format( ( time() - $cache_stats[ 'generated' ] ) / 60 ) ) . "</p>";
+		}
+		$cache_stats = get_option( 'supercache_stats' );
+	}// regerate stats cache
 
-	echo "<p><strong>" . __( 'WP-Cache', 'wp-super-cache' ) . " ({$wp_cache_fsize})</strong></p>";
-	echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), $count ) . "</li>";
-	echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ), $expired ) . "</li></ul>";
+	if ( is_array( $cache_stats ) ) {
+	echo "<p><strong>" . __( 'WP-Cache', 'wp-super-cache' ) . " ({$cache_stats[ 'wpcache' ][ 'fsize' ]})</strong></p>";
+	echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), $cache_stats[ 'wpcache' ][ 'cached' ] ) . "</li>";
+	echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ),    $cache_stats[ 'wpcache' ][ 'expired' ] ) . "</li></ul>";
 	if( $cache_enabled == true && $super_cache_enabled == true ) {
-		$fsize = $sizes[ 'fsize' ] / 1024;
+		$fsize = $cache_stats[ 'supercache' ][ 'fsize' ] / 1024;
 		if( $fsize > 1024 ) {
 			$fsize = number_format( $fsize / 1024, 2 ) . "MB";
 		} elseif( $fsize != 0 ) {
@@ -1668,9 +1678,9 @@ function wp_cache_files() {
 		}
 		$divisor = $cache_compression == 1 ? 2 : 1;
 		echo "<p><strong>" . __( 'WP-Super-Cache', 'wp-super-cache' ) . " ({$fsize})</strong></p>";
-		echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), intval( $sizes[ 'cached' ] / $divisor ) ) . "</li>";
+		echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), intval( $cache_stats[ 'supercache' ][ 'cached' ] / $divisor ) ) . "</li>";
 		$age = intval(($now - $sizes['ts'])/60);
-		echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ), intval( $sizes[ 'expired' ] / $divisor ) ) . "</li></ul>";
+		echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ), intval( $cache_stats[ 'supercache' ][ 'expired' ] / $divisor ) ) . "</li></ul>";
 	}
 	if ( $valid_nonce && $_GET[ 'listfiles' ] ) {
 		echo "<div style='padding: 10px; border: 1px solid #333; height: 400px; width: 70%; overflow: auto'>";
@@ -1740,6 +1750,8 @@ function wp_cache_files() {
 		}
 		echo "</div>";
 		echo "<p><a href='?page=wpsupercache#top'>" . __( 'Hide file list', 'wp-super-cache' ) . "</a></p>";
+	} elseif ( $count > 300 || $expired > 300 || ( $sizes[ 'cached' ] / $divisor ) > 300 || ( $sizes[ 'expired' ] / $divisor) > 300 ) {
+		echo "<p><em>" . __( 'Too many cached files, no listing possible.', 'wp-super-cache' ) . "</em></p>";
 	} else {
 		echo "<p><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'listfiles' => '1' ) ), 'wp-cache' ) . "#listfiles'>" . __( 'List all cached files', 'wp-super-cache' ) . "</a></p>";
 	}
@@ -1753,6 +1765,7 @@ function wp_cache_files() {
 	if ( $cache_max_time > 0 )
 		echo "<p>" . sprintf( __( 'Expired files are files older than %s seconds. They are still used by the plugin and are deleted periodically.', 'wp-super-cache' ), $cache_max_time ) . "</p>";
 	wp_cache_delete_buttons();
+	} // cache_stats
 
 	echo '</fieldset>';
 }
