@@ -1750,10 +1750,8 @@ function wp_cache_files() {
 		}
 		echo "</div>";
 		echo "<p><a href='?page=wpsupercache#top'>" . __( 'Hide file list', 'wp-super-cache' ) . "</a></p>";
-	} elseif ( $count > 300 || $expired > 300 || ( $sizes[ 'cached' ] / $divisor ) > 300 || ( $sizes[ 'expired' ] / $divisor) > 300 ) {
+	} elseif ( $cache_stats[ 'supercache' ][ 'cached' ] > 300 || $cache_stats[ 'supercache' ][ 'expired' ] > 300 || ( $cache_stats[ 'wpcache' ][ 'cached' ] / $divisor ) > 300 || ( $cache_stats[ 'wpcache' ][ 'expired' ] / $divisor) > 300 ) {
 		echo "<p><em>" . __( 'Too many cached files, no listing possible.', 'wp-super-cache' ) . "</em></p>";
-	} else {
-		echo "<p><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'listfiles' => '1' ) ), 'wp-cache' ) . "#listfiles'>" . __( 'List all cached files', 'wp-super-cache' ) . "</a></p>";
 	}
 	$last_gc = get_option( "wpsupercache_gc_time" );
 	if ( $cache_max_time > 0 && $last_gc ) {
