@@ -28,10 +28,19 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == Upgrade Notice ==
 
-= 0.9.9 =
-Experimental object cache support, better WP Mobile Edition support, new translations, bugfixes, workarounds for broken .htaccess rules.
+= 0.9.9.1 =
+Preloading of cache, better mobile plugin support, lots of bugfixes.
 
 == Changelog ==
+
+= 0.9.9.1 =
+* Added preloading of static cache.
+* Better mobile plugin support
+* .htaccess rules can be updated now. Added wpsc_update_htaccess().
+* Fixed "page on front" cache clearing bug.
+* Check for wordpress_logged_in cookie so test cookie isn't detected.
+* Added clear_post_supercache() to clear supercache for a single post.
+* Put quotes around rewrite rules in case paths have spaces.
 
 = 0.9.9 =
 * Added experimental object cache support.

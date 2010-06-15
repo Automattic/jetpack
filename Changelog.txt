@@ -1,3 +1,391 @@
+2010-06-14 10:23  donncha
+
+	* wp-cache.php: Added "Cache Preload Started" email
+
+2010-06-14 10:10  donncha
+
+	* wp-cache.php: Cache "cache contents" output and add "Regenerate"
+	  link to refresh it.
+
+2010-06-09 15:52  donncha
+
+	* wp-cache.php: Allow adjustment of email notification volume
+
+2010-05-30 07:54  donncha
+
+	* wp-cache.php: gettext changes to refresh messages and on preload,
+	  use an expiry of 1 day if no refresh timeout defined when
+	  clearing out old supercache files
+
+2010-05-30 07:43  donncha
+
+	* wp-cache-phase2.php: Only delete front page of blog if "page on
+	  front" selected rather than all cached files
+
+2010-05-14 13:51  donncha
+
+	* wp-cache-phase2.php: Only GC the supercache dir if preload mode
+	  is off or we're forcing it
+
+2010-05-14 13:47  donncha
+
+	* wp-cache.php: Added "email me" option to track progress of
+	  preload function
+
+2010-05-10 07:47  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Allow GC of supercache files
+	  to be forced and use that to clean up really old files after
+	  preload refresh
+
+2010-05-09 09:07  donncha
+
+	* wp-cache-phase2.php: Don't delete cache when moderated comments
+	  are modified, and don't delete the site when "page on front"
+	  option is selected
+
+2010-05-09 08:05  donncha
+
+	* wp-cache-phase1.php: Don't do slash checks on /
+
+2010-05-09 07:41  donncha
+
+	* wp-cache-phase1.php, wp-cache.php: Avoid duplicate content
+	  problems when slashes are missing and plugin tries to server
+	  static html file
+
+2010-05-07 10:59  donncha
+
+	* wp-cache-phase2.php: Don't delete any cache pages when a draft
+	  post is saved
+
+2010-05-07 10:37  donncha
+
+	* wp-cache.php: The imploded mobile browser config data is only
+	  ever used by phase1, the admin page uses the arrays
+
+2010-05-07 10:21  donncha
+
+	* wp-cache.php: Make mobile device support message generic
+
+2010-05-07 10:15  donncha
+
+	* wp-cache.php: Add warning if mod_rewrite rules don't match
+
+2010-05-07 09:22  donncha
+
+	* wp-cache-phase1.php, wp-cache.php: Check for wordpress_logged_in
+	  cookies to avoid matching wordpress_test_cookie
+
+2010-05-06 14:43  donncha
+
+	* wp-cache.php: Added "clear_post_supercache()" to clear the
+	  supercache for a particular post. Use that function to clear the
+	  cache for individual posts while preloading
+
+2010-05-06 14:41  donncha
+
+	* wp-cache-phase1.php: Get supercache dir of a post
+
+2010-05-04 16:43  donncha
+
+	* wp-cache.php: Add seconds too for completeness
+
+2010-05-04 16:41  donncha
+
+	* wp-cache.php: Show next refresh time in friendly hours and
+	  minutes
+
+2010-05-04 16:36  donncha
+
+	* wp-cache.php: case POST variable as an int first
+
+2010-05-04 16:35  donncha
+
+	* wp-cache.php: Don't reset cache expiry time when preload is done.
+
+2010-05-04 12:50  donncha
+
+	* wp-cache.php: Order get from posts table by publish date rather
+	  than ID
+
+2010-05-04 12:49  donncha
+
+	* wp-cache.php: Avoid showing gigantic intervals while scheduled
+	  job is running
+
+2010-05-04 12:43  donncha
+
+	* wp-cache.php: Minor rearrangement of text
+
+2010-05-04 12:37  donncha
+
+	* wp-cache.php: Show time until next cache refresh in seconds
+
+2010-05-04 12:33  donncha
+
+	* wp-cache.php: Added "Cancel Cache Preload" button to cancel
+	  current preload
+
+2010-05-04 12:13  donncha
+
+	* wp-cache.php: Don't show "number of posts" that matches total
+	  posts
+
+2010-05-04 12:11  donncha
+
+	* wp-cache.php: 60 seconds between preloading of 100 posts to save
+	  on load
+
+2010-05-04 12:10  donncha
+
+	* wp-cache.php: Only schedule preload refresh when interval is non
+	  zero, props Daniel,
+	  http://ocaoimh.ie/preload-cache-wp-super-cache/#comment-675081
+
+2010-05-03 07:40  donncha
+
+	* wp-cache.php: Always define posts_to_cache, props Daniel @
+	  http://ocaoimh.ie/preload-cache-wp-super-cache/#comment-674977
+
+2010-04-30 09:03  donncha
+
+	* wp-cache.php: Enclose rewrite rules in quotes, props duanestorey,
+	  http://wordpress.org/support/topic/339075/page/2?replies=32#post-1496557
+
+2010-04-29 13:37  donncha
+
+	* wp-cache.php: These are arrays, not strings
+
+2010-04-29 13:37  donncha
+
+	* wp-cache.php: Added WAP and Profile header checks, props
+	  AndreaTrasatti
+	  (http://wordpress.org/support/topic/339075?replies=25#post-1493778)
+
+2010-04-29 13:28  donncha
+
+	* wp-cache.php: * Use POST instead of GET for preload form.
+	  * Added "Preload Cache Now" and "Update Settings" buttons
+	  * Improved select dropdown
+
+2010-04-29 13:01  donncha
+
+	* wp-cache.php: Make sure mobile browsers and prefixes are defined
+	  before updating .htaccess file
+
+2010-04-29 11:19  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: * Added "preload on" mode
+	  where only half-on cache files are cleaned up.
+	  * Added "posts to cache" selector if more than 1000 posts.
+	  * Updated text description of preloading
+
+2010-04-29 11:13  donncha
+
+	* wp-cache.php: Disable preloading UI by defining the constant
+	  "DISABLESUPERCACHEPRELOADING". Just in case some hosts don't like
+	  it.
+
+2010-04-28 16:54  donncha
+
+	* wp-cache.php: Show next scheduled cache refresh
+
+2010-04-28 15:51  donncha
+
+	* wp-cache.php: Show preload counter when cache is being preloaded
+
+2010-04-28 15:46  donncha
+
+	* wp-cache.php: Preload cache using wp-cron and refresh cache every
+	  X minutes
+
+2010-04-28 14:35  donncha
+
+	* wp-cache-phase1.php: Check if browser is blank before checking
+	  for groups
+
+2010-04-28 13:09  donncha
+
+	* wp-cache.php: * Only allow preloading when running in supercache
+	  (ON) mode.
+	  * Added wpsc_update_htaccess() for plugins to update .htaccess
+	  rules.
+
+2010-04-27 17:44  donncha
+
+	* wp-cache-phase1.php, wp-cache.php: Added ability to group mobile
+	  devices. Added "cached_mobile_groups" filter so plugins can
+	  modify groups. One group by default. See
+	  http://wordpress.org/support/topic/339075?replies=21#post-1493412
+
+2010-04-27 12:05  donncha
+
+	* wp-cache-phase1.php: Merge code from
+	  http://svn.wp-plugins.org/wordpress-mobile-pack/trunk/plugins/wpmp_switcher/lite_detection.php
+	  into mobile detection function
+
+2010-04-27 11:36  donncha
+
+	* wp-cache.php: Added support for mobile prefixes, see
+	  http://wordpress.org/support/topic/339075?replies=17#post-1493120
+
+2010-04-27 09:33  donncha
+
+	* wp-cache.php: Minor text cleanup
+
+2010-04-27 09:29  donncha
+
+	* wp-cache.php: gettext this properly
+
+2010-04-27 08:55  donncha
+
+	* wp-cache.php: Added update_cached_mobile_ua_list() so plugins can
+	  update the list of cached mobile UAs.
+
+2010-04-27 08:48  donncha
+
+	* wp-cache.php: Added "cached_mobile_browsers" filter so mobile
+	  plugins can filter list of mobile user agents.
+
+2010-04-26 08:29  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Garbage collection can be
+	  disabled by setting expiry time to zero. Preloading cache
+	  disables GC too.
+
+2010-04-25 14:50  donncha
+
+	* wp-cache.php: First pass at a cache preloader
+
+2010-04-25 14:49  donncha
+
+	* wp-cache-phase1.php: Added error reporting to aid debugging
+
+2010-04-25 14:49  donncha
+
+	* wp-cache.php: Use WP api to fetch homepage in tester
+
+2010-04-22 10:17  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: * Fixed problem with
+	  eval() and html.
+	  * If compression is enabled, and client supports it but gzip
+	  headers are missing, make sure html served is not compressed.
+
+2010-04-22 08:38  donncha
+
+	* wp-cache-phase1.php: Check if page is dynamic before sending gzip
+	  headers. See http://wordpress.org/support/topic/347847?replies=29
+
+2010-04-09 16:16  donncha
+
+	* readme.txt, wp-cache-phase2.php: Remove the "redirect utm_source"
+	  code and add a FAQ on changing it into an anchor tag
+
+2010-04-08 17:25  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Add option, "Only refresh
+	  current page when comments made." See
+	  http://wordpress.org/support/topic/385305?replies=5
+
+2010-04-07 17:00  donncha
+
+	* wp-cache-phase1.php: Add the SERVER_PORT to the half mode and
+	  object cache. See
+	  http://wordpress.org/support/topic/368679?replies=4
+
+2010-03-25 11:51  donncha
+
+	* languages/wp-super-cache-zh_CN.mo,
+	  languages/wp-super-cache-zh_CN.po: Added Chinese(Simplified)
+	  translation, props Chen Yang (http://emule-fans.com/)
+
+2010-03-25 11:43  donncha
+
+	* wp-cache.php: Check for WP_CACHE set to false and report an error
+	  if the config file can't be updated. Props Artem @
+	  http://beerpla.net
+
+2010-03-25 10:22  donncha
+
+	* readme.txt: Added warning about APC, props John Berns
+
+2010-03-18 15:26  donncha
+
+	* wp-cache-phase2.php: Don't delete cache when spam and trash are
+	  emptied
+
+2010-03-15 17:14  donncha
+
+	* wp-cache.php: Check $wpmu_version to detect MU, and not
+	  is_site_admin.
+
+2010-02-25 10:59  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: More debugging, esp of
+	  page edit clear caching
+
+2010-02-23 18:01  donncha
+
+	* wp-cache.php: Save rejected user agents properly.
+	  http://wordpress.org/support/topic/366101?replies=2
+
+2010-02-23 17:59  donncha
+
+	* wp-cache.php: Better description of "logged in users" option,
+	  make it "known users"
+	  http://wordpress.org/support/topic/366904?replies=2
+
+2010-02-21 10:24  donncha
+
+	* wp-cache.php: Compare timestamps on each cached page when testing
+
+2010-02-21 09:33  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Added ability to remove
+	  utm_source parameters from urls
+
+2010-02-19 12:51  donncha
+
+	* wp-cache.php: Make tester more verbose
+
+2010-02-18 17:51  donncha
+
+	* wp-cache.php: First go at a cache tester
+
+2010-02-17 15:38  donncha
+
+	* wp-cache-phase1.php: Improved debugging of cache serving
+
+2010-02-12 12:45  donncha
+
+	* wp-cache-phase2.php: Add more debugging.
+
+2010-02-09 12:09  donncha
+
+	* languages/wp-super-cache-ja.mo, languages/wp-super-cache-ja.po:
+	  Updated Japanese language files, props Tai
+
+2010-02-09 09:04  donncha
+
+	* wp-cache.php: Fix printf warning
+
+2010-02-08 18:04  donncha
+
+	* languages/wp-super-cache-ja.mo, languages/wp-super-cache-ja.po:
+	  Updated Japanese translation files, props Tai
+
+2010-02-08 17:32  donncha
+
+	* languages/wp-super-cache-it_IT.mo,
+	  languages/wp-super-cache-it_IT.po: Updated Italian translation,
+	  props Gianni Diurno
+
+2010-02-08 14:25  donncha
+
+	* Changelog.txt: Yet another update to changelog
+
 2010-02-08 14:24  donncha
 
 	* wp-super-cache.pot: Updated pot file
@@ -2862,6 +3250,5 @@
 
 2007-10-23 20:02  plugin-master
 
-	* wp-super-cache, wp-super-cache/branches, wp-super-cache/tags, .:
-	  adding wp-super-cache by donncha
+	* .: adding wp-super-cache by donncha
 
