@@ -514,17 +514,17 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 					// if preload interval changes than unschedule any preload jobs and schedule any new one.
 					$_POST[ 'custom_preload_interval' ] = (int)$_POST[ 'custom_preload_interval' ];
 					if ( $wp_cache_preload_interval != $_POST[ 'custom_preload_interval' ] ) {
-						$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
+						$next_preload = wp_next_scheduled( 'wp_cache_full_preload_hook' );
 						if ( $next_preload ) {
 							update_option( 'preload_cache_counter', 0 );
 							add_option( 'preload_cache_stop', 1 );
-							wp_unschedule_event( $next_preload, 'wp_cache_preload_hook' );
+							wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
 							if ( $wp_cache_preload_interval == 0 ) {
 								echo "<p><strong>" . __( 'Scheduled preloading of cache cancelled.', 'wp-super-cache' ) . "</strong></p>";
 							} 
 						}
 						if ( $_POST[ 'custom_preload_interval' ] != 0 )
-							wp_schedule_single_event( time() + ( $_POST[ 'custom_preload_interval' ] * 60 ), 'wp_cache_preload_hook' );
+							wp_schedule_single_event( time() + ( $_POST[ 'custom_preload_interval' ] * 60 ), 'wp_cache_full_preload_hook' );
 					}
 					$wp_cache_preload_interval = (int)$_POST[ 'custom_preload_interval' ];
 					wp_cache_replace_line('^ *\$wp_cache_preload_interval', "\$wp_cache_preload_interval = $wp_cache_preload_interval;", $wp_cache_config_file);
@@ -552,7 +552,7 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 						echo "<p><strong>" . __( 'Scheduled preloading of cache in 10 seconds.' ) . "</strong></p>";
 					} elseif ( (int)$_POST[ 'custom_preload_interval' ] ) {
 						update_option( 'preload_cache_counter', 0 );
-						wp_schedule_single_event( time() + ( (int)$_POST[ 'custom_preload_interval' ] * 60 ), 'wp_cache_preload_hook' );
+						wp_schedule_single_event( time() + ( (int)$_POST[ 'custom_preload_interval' ] * 60 ), 'wp_cache_full_preload_hook' );
 						echo "<p><strong>" . sprintf( __( 'Scheduled preloading of cache in %d minutes', 'wp-super-cache' ), (int)$_POST[ 'custom_preload_interval' ] ) . "</strong></p>";
 					}
 				}
@@ -613,20 +613,10 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 			echo '/> ' . __( 'Less emails, 1 at the start and 1 at the end of preloading all posts.', 'wp-super-cache' ) . '<br >';
 
 			$currently_preloading = false;
-			if( $next_preload = wp_next_scheduled( 'wp_cache_preload_hook' ) ) {
-				$next_time = $next_preload - time();
-				$h = $m = $s = 0;
-				if ( $next_time > 0 ) {
-					// http://bytes.com/topic/php/answers/3917-seconds-converted-hh-mm-ss
-					$m = (int)($next_time / 60);
-					$s = $next_time % 60;
-					$h = (int)($m / 60); $m = $m % 60;
-				}
-				if ( $next_time > 0 && $next_time < ( 60 * $wp_cache_preload_interval ) )
-					echo '<p><strong>' . sprintf( __( 'Next refresh of cache in %d hours %d minutes and %d seconds.', 'wp-super-cache' ), $h, $m, $s ) . '</strong></p>';
-				if ( ( $next_preload - time() ) <= 60 )
-					$currently_preloading = true;
-			}
+
+			next_preload_message( 'wp_cache_preload_hook', 'Refresh of cache in %d hours %d minutes and %d seconds.', 60 );
+			next_preload_message( 'wp_cache_full_preload_hook', 'Full refresh of cache in %d hours %d minutes and %d seconds.' );
+
 			if ( $preload_counter = get_option( 'preload_cache_counter' ) ) {
 				echo '<p><strong>' . sprintf( __( 'Currently caching from post %d to %d.', 'wp-super-cache' ), $preload_counter, ( $preload_counter + 100 ) ) . '</strong></p>';
 				$currently_preloading = true;
@@ -2184,7 +2174,7 @@ function wp_cron_preload_cache() {
 		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume != 'less' )
 			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), $_SERVER[ 'HTTP_HOST' ], ($c+100) ), __( "Refreshed the following posts:", 'wp-super-cache' ) . "\n$msg" );
 		if ( defined( 'DOING_CRON' ) ) {
-			wp_schedule_single_event( time() + 60, 'wp_cache_preload_hook' );
+			wp_schedule_single_event( time() + 30, 'wp_cache_preload_hook' );
 		}
 	} else {
 		$msg = '';
@@ -2192,7 +2182,7 @@ function wp_cron_preload_cache() {
 		if ( (int)$wp_cache_preload_interval && defined( 'DOING_CRON' ) ) {
 			if ( $wp_cache_preload_email_me )
 				$msg = sprintf( __( 'Scheduling next preload refresh in %d minutes.', 'wp-super-cache' ), (int)$wp_cache_preload_interval );
-			wp_schedule_single_event( time() + ( (int)$wp_cache_preload_interval * 60 ), 'wp_cache_preload_hook' );
+			wp_schedule_single_event( time() + ( (int)$wp_cache_preload_interval * 60 ), 'wp_cache_full_preload_hook' );
 		}
 		global $file_prefix, $cache_max_time;
 		if ( $wp_cache_preload_interval > 0 ) {
@@ -2206,4 +2196,25 @@ function wp_cron_preload_cache() {
 	}
 }
 add_action( 'wp_cache_preload_hook', 'wp_cron_preload_cache' );
+add_action( 'wp_cache_full_preload_hook', 'wp_cron_preload_cache' );
+
+function next_preload_message( $hook, $text, $limit = 0 ) {
+	global $currently_preloading, $wp_cache_preload_interval;
+	if ( $next_preload = wp_next_scheduled( $hook ) ) {
+		$next_time = $next_preload - time();
+		if ( $limit != 0 && $next_time > $limit )
+			return false;
+		$h = $m = $s = 0;
+		if ( $next_time > 0 ) {
+			// http://bytes.com/topic/php/answers/3917-seconds-converted-hh-mm-ss
+			$m = (int)($next_time / 60);
+			$s = $next_time % 60;
+			$h = (int)($m / 60); $m = $m % 60;
+		}
+		if ( $next_time > 0 && $next_time < ( 60 * $wp_cache_preload_interval ) )
+			echo '<p><strong>' . sprintf( __( $text, 'wp-super-cache' ), $h, $m, $s ) . '</strong></p>';
+		if ( ( $next_preload - time() ) <= 60 )
+			$currently_preloading = true;
+	}
+}
 ?>
