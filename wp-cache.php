@@ -113,7 +113,7 @@ register_activation_hook( __FILE__, 'wpsupercache_activate' );
 function wp_cache_add_pages() {
 	if( function_exists( 'is_site_admin' ) ) {
 		if( is_site_admin() ) {
-			add_submenu_page('wpmu-admin.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager');
+			add_submenu_page( 'ms-admin.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
 			add_options_page('WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager');
 		}
 	} else {
@@ -2046,6 +2046,8 @@ function wpsc_update_htaccess() {
 }
 
 function wpsc_update_htaccess_form( $short_form = true ) {
+	global $wpmu_version;
+
 	extract( wpsc_get_htaccess_info() );
 	if( !is_writeable_ACLSafe( $home_path . ".htaccess" ) ) {
 		echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><h4>" . __( 'Cannot update .htaccess', 'wp-super-cache' ) . "</h4><p>" . sprintf( __( 'The file <code>%s.htaccess</code> cannot be modified by the web server. Please correct this using the chmod command or your ftp client.', 'wp-super-cache' ), $home_path ) . "</p><p>" . __( 'Refresh this page when the file permissions have been modified.' ) . "</p><p>" . sprintf( __( 'Alternatively, you can edit your <code>%s.htaccess</code> file manually and add the following code (before any WordPress rules):', 'wp-super-cache' ), $home_path ) . "</p>";
@@ -2063,7 +2065,7 @@ function wpsc_update_htaccess_form( $short_form = true ) {
 			echo "<p>" . sprintf( __( 'Rules must be added to %s too:', 'wp-super-cache' ), WP_CONTENT_DIR . "/cache/.htaccess" ) . "</p>";
 			echo "<pre># BEGIN supercache\n" . wp_specialchars( $gziprules ) . "# END supercache</pre></p>";
 		}
-		if( !function_exists( 'is_site_admin' ) ) {
+		if ( !isset( $wpmu_version ) || $wpmu_version == '' ) {
 			echo '<form name="updatehtaccess" action="#modrewrite" method="post">';
 			echo '<input type="hidden" name="updatehtaccess" value="1" />';
 			echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="' . __( 'Update Mod_Rewrite Rules', 'wp-super-cache' ) . ' &raquo;" /></div>';
