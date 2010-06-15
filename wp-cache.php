@@ -1659,6 +1659,7 @@ function wp_cache_files() {
 	echo "<p><strong>" . __( 'WP-Cache', 'wp-super-cache' ) . " ({$cache_stats[ 'wpcache' ][ 'fsize' ]})</strong></p>";
 	echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), $cache_stats[ 'wpcache' ][ 'cached' ] ) . "</li>";
 	echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ),    $cache_stats[ 'wpcache' ][ 'expired' ] ) . "</li></ul>";
+	$divisor = $cache_compression == 1 ? 2 : 1;
 	if( $cache_enabled == true && $super_cache_enabled == true ) {
 		$fsize = $cache_stats[ 'supercache' ][ 'fsize' ] / 1024;
 		if( $fsize > 1024 ) {
@@ -1668,7 +1669,6 @@ function wp_cache_files() {
 		} else {
 			$fsize = "0KB";
 		}
-		$divisor = $cache_compression == 1 ? 2 : 1;
 		echo "<p><strong>" . __( 'WP-Super-Cache', 'wp-super-cache' ) . " ({$fsize})</strong></p>";
 		echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), intval( $cache_stats[ 'supercache' ][ 'cached' ] / $divisor ) ) . "</li>";
 		$age = intval(($now - $sizes['ts'])/60);
@@ -1754,8 +1754,8 @@ function wp_cache_files() {
 	}
 	if ( $cache_max_time > 0 )
 		echo "<p>" . sprintf( __( 'Expired files are files older than %s seconds. They are still used by the plugin and are deleted periodically.', 'wp-super-cache' ), $cache_max_time ) . "</p>";
-	wp_cache_delete_buttons();
 	} // cache_stats
+	wp_cache_delete_buttons();
 
 	echo '</fieldset>';
 }
