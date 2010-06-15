@@ -1,3 +1,36 @@
+2010-06-15 13:19  donncha
+
+	* readme.txt: Bump version to 0.9.9.1
+
+2010-06-15 12:23  donncha
+
+	* Changelog.txt, readme.txt: Updated changelog and readme.txt
+	  changelog
+
+2010-06-15 11:38  donncha
+
+	* wp-cache.php: Separate out full and in-refresh jobs
+
+2010-06-14 21:31  donncha
+
+	* wp-cache.php: Remove link to uninstall.php and rearrange docs a
+	  bit
+
+2010-06-14 16:28  donncha
+
+	* wp-cache.php: Added medium email notification volume of
+	  preloading
+
+2010-06-14 10:45  donncha
+
+	* wp-cache.php: Check cache stats correctly before showing file
+	  listing link
+
+2010-06-14 10:32  donncha
+
+	* readme.txt: Removed "why shouldn't I cache every page" question
+	  and updated test version
+
 2010-06-14 10:23  donncha
 
 	* wp-cache.php: Added "Cache Preload Started" email
