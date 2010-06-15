@@ -2,7 +2,7 @@
 Contributors: donncha
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 3.0
-Stable tag: 0.9.9
+Stable tag: 0.9.9.1
 Requires at least: 2.6
 Donate link: http://ocaoimh.ie/gad/
 
