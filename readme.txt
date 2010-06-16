@@ -28,10 +28,19 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == Upgrade Notice ==
 
-= 0.9.9.1 =
-Preloading of cache, better mobile plugin support, lots of bugfixes.
+= 0.9.9.3 =
+Fix division by zero error in half-on mode, always show "delete cache" button, fix "Update mod_rewrite rules" button.
 
 == Changelog ==
+
+= 0.9.9.3 =
+* Fixed division by zero error in half on mode.
+* Always show "delete cache" button.
+* Fixed "Update mod_rewrite rules" button.
+* Minor text changes to admin page.
+
+= 0.9.9.2 =
+* Forgot to change version number in wp-cache.php
 
 = 0.9.9.1 =
 * Added preloading of static cache.

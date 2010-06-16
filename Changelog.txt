@@ -1,3 +1,55 @@
+2010-06-16 10:26  donncha
+
+	* wp-super-cache.pot: Updated translation file for 0.9.9.3
+
+2010-06-16 10:24  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 0.9.9.3
+
+2010-06-16 10:20  donncha
+
+	* wp-cache.php: Minor mod to preloading text
+
+2010-06-16 10:18  donncha
+
+	* wp-cache.php: If cache stats are not cached then do so, and also
+	  include an explanation of caching stats.
+
+2010-06-16 10:11  donncha
+
+	* wp-cache.php: Minor mod to preloading text
+
+2010-06-16 10:07  donncha
+
+	* wp-cache.php: Slight change in "preload mode" description and
+	  donation link
+
+2010-06-16 09:14  donncha
+
+	* wp-cache.php: Minor change to "about" text on admin page.
+
+2010-06-15 22:55  donncha
+
+	* wp-cache.php: Avoid division by zero error when plugin is
+	  "half-on" and always show "delete cache" button.
+
+2010-06-15 15:59  donncha
+
+	* wp-cache.php: Check if $wpmu_version is set rather than if
+	  is_site_admin() exists to detect MU
+
+2010-06-15 13:34  donncha
+
+	* readme.txt, wp-cache.php: Version 0.9.9.2
+
+2010-06-15 13:27  donncha
+
+	* wp-super-cache.pot: Updated pot translation file
+
+2010-06-15 13:22  donncha
+
+	* Changelog.txt: Updated changelog, version 0.9.9.1
+
 2010-06-15 13:19  donncha
 
 	* readme.txt: Bump version to 0.9.9.1
