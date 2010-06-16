@@ -1549,7 +1549,7 @@ function wp_cache_files() {
 	}
 
 	$cache_stats = get_option( 'supercache_stats' );
-	if ( $valid_nonce && $_GET[ 'action' ] == 'regenerate_cache_stats' ) {
+	if ( !is_array( $cache_stats ) || ( $valid_nonce && $_GET[ 'action' ] == 'regenerate_cache_stats' ) ) {
 	$list_files = false; // it doesn't list supercached files, and removing single pages is buggy
 	$count = 0;
 	$expired = 0;
@@ -1648,6 +1648,7 @@ function wp_cache_files() {
 	$cache_stats = array( 'generated' => time(), 'supercache' => $sizes, 'wpcache' => array( 'cached' => $count, 'expired' => $expired, 'fsize' => $wp_cache_fsize ) );
 	update_option( 'supercache_stats', $cache_stats );
 	} else {
+		echo "<p>" . __( 'Cache stats are not automatically generated. You must click the link below to regenerate the stats on this page.', 'wp-super-cache' ) . "</p>";
 		echo "<a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'regenerate_cache_stats' ) ), 'wp-cache' ) . "'>" . __( 'Regenerate cache stats' ) . "</a>";
 		if ( is_array( $cache_stats ) ) {
 			echo "<p>" . sprintf( __( 'Cache stats last generated: %s minutes ago.', 'wp-super-cache' ), number_format( ( time() - $cache_stats[ 'generated' ] ) / 60 ) ) . "</p>";
