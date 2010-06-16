@@ -559,7 +559,7 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 			}
 			echo '<p>' . __( 'This will cache every published post and page on your site. It will create supercache static files so unknown visitors (including bots) will hit a cached page. This will probably help your Google ranking as they are using speed as a metric when judging websites now.', 'wp-super-cache' ) . '</p>';
 			echo '<p>' . __( 'Preloading creates lots of files however. Caching is done from the newest post to the oldest so please consider only caching the newest if you have lots of posts. This is especially important on shared hosting.', 'wp-super-cache' ) . '</p>';
-			echo '<p>' . __( 'In &#8217;Preload Mode&#8217; garbage collection will only clean out old half-on files for known users, not the preloaded supercache files. Otherwise, garbage collection will work on both types of file.', 'wp-super-cache' ) . '</p>';
+			echo '<p>' . __( 'In &#8217;Preload Mode&#8217; garbage collection will only clean out old half-on files for known users, not the preloaded supercache files. Recommended.', 'wp-super-cache' ) . '</p>';
 			echo '<form name="cache_filler" action="#preload" method="POST">';
 			echo '<input type="hidden" name="action" value="preload" />';
 			echo '<input type="hidden" name="page" value="wpsupercache" />';
@@ -596,7 +596,7 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 
 			echo '<input type="checkbox" name="preload_on" value="1" ';
 			echo $wp_cache_preload_on == 1 ? 'checked=1' : '';
-			echo ' /> ' . __( 'Preload mode (garbage collection only on half-on cache files)', 'wp-super-cache' ) . '<br />';
+			echo ' /> ' . __( 'Preload mode (garbage collection only on half-on cache files. Recommended.)', 'wp-super-cache' ) . '<br />';
 			echo '<input type="checkbox" name="preload_email_me" value="1" ';
 			echo $wp_cache_preload_email_me == 1 ? 'checked=1' : '';
 			echo ' /> ' . __( 'Send me status emails when files are refreshed.', 'wp-super-cache' ) . '<br />';
@@ -672,7 +672,7 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 	</div>
 	<?php } else { ?>
 	<p><?php printf( __( '%1$s is maintained and developed by %2$s with contributions from many others.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/wp-super-cache/?r=supercache">WP Super Cache</a>', '<a href="http://ocaoimh.ie/?r=supercache">Donncha O Caoimh</a>' ); ?></p>
-	<p><?php printf( __( 'He blogs at %1$s, posts photos at %2$s. He would really appreciate a <a href="%3$s">donation</a> to encourage development of this plugin.<br />Even a penny will help.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a>', '<a href="http://inphotos.org/?r=supercache">In Photos.org</a>', 'http://ocaoimh.ie/gad' ); ?></p>
+	<p><?php printf( __( 'He blogs at %1$s and posts photos at %2$s. He would really appreciate a <a href="%3$s">donation</a> to encourage development of this plugin.<br />Even a penny will help.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a>', '<a href="http://inphotos.org/?r=supercache">In Photos.org</a>', 'http://ocaoimh.ie/gad' ); ?></p>
 	<p><?php printf( __( 'Please say hi to him on %s too!', 'wp-super-cache' ), '<a href="http://twitter.com/donncha/">Twitter</a>' ); ?></p>
 	<?php 
 	}
