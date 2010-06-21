@@ -128,9 +128,16 @@ function wp_cache_manager() {
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation, $wp_cache_not_logged_in, $wp_supercache_cache_list;
 	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
 
-	if( function_exists( 'is_site_admin' ) )
-		if( !is_site_admin() )
-			return;
+	if ( function_exists( 'is_site_admin' ) ) {
+		if ( !is_site_admin() )
+			return false;
+		if ( !is_main_site() ) {
+			global $current_site;
+			$protocol = ( 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
+			echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Sorry, the WP Super Cache admin page only works <a href="%s">on the main site</a> of this network.', 'wp-super-cache' ), "{$protocol}{$current_site->domain}{$current_site->path}wp-admin/ms-admin.php?page=wpsupercache" ) . '</p></div>';
+			return false;
+		}
+	}
 
 	$supercachedir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]);
 	if( get_option( 'gzipcompression' ) == 1 )
