@@ -6,7 +6,7 @@ See wp-cache.php for author details.
 */
 
 if ( ! defined('WPCACHEHOME') )
-	define( 'WPCACHEHOME', WP_CONTENT_DIR . '/plugins/wp-super-cache/' );
+	define( 'WPCACHEHOME', WP_PLUGIN_DIR . '/wp-super-cache/' );
 
 $cache_compression = 0; // Super cache compression
 $cache_enabled = false;
