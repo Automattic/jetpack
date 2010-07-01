@@ -663,26 +663,10 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 	</td><td valign='top'>
 	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
 	<h3 align='center'><?php _e( 'Make WordPress Faster', 'wp-super-cache' ); ?></h3>
-	<?php if( $wp_cache_hide_donation != 1 ) { ?>
-	<p><?php printf( __( '%1$s really makes your blog go faster. Make it go faster<sup>*</sup> by buying me an <a href="%2$s">Amazon gift card</a>! Make it out to "%3$s" for whatever amount you want. Every penny helps!', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/wp-super-cache/?r=wpsc">WP Super Cache</a>', 'http://ocaoimh.ie/agc', 'donncha@ocaoimh.ie' ) ?>;</p>
-	<p><?php printf( __( 'If Amazon isn&#8217;t your thing, there&#8217;s also PayPal. Click the "Donate" button below or take a quick peek at my <a href="%s">wishlist</a>.', 'wp-super-cache' ), 'http://ocaoimh.ie/wish' ); ?></p>
-	<p><?php _e( 'Thanks in advance!', 'wp-super-cache' ); ?><br />Donncha<br />
-	<small>* <?php _e( 'Ok, it won&#8217;t go any faster but you&#8217;ll make this plugin author very happy!', 'wp-super-cache' ); ?></small></p>
-	<div align='center'>
-	<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-	<input type="hidden" name="cmd" value="_s-xclick"/>
-	<input type="hidden" name="hosted_button_id" value="3244504"/>
-	<input type="image" src="https://www.paypal.com/en_GB/i/btn/btn_donate_SM.gif" border="0" name="submit" alt=""/>
-	<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1"/><br />
-	</form>
-	<p><?php _e( 'Don&#8217;t show me this again.', 'wp-super-cache' ); ?> <form action="#top" method="post"><input type='hidden' name='wp_cache_hide_donation' value='1' /><input type='submit' value='<?php _e( 'Hide', 'wp-super-cache' ); ?>' /><?php wp_nonce_field('wp-cache'); ?></form></p>
-	</div>
-	<?php } else { ?>
 	<p><?php printf( __( '%1$s is maintained and developed by %2$s with contributions from many others.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/wp-super-cache/?r=supercache">WP Super Cache</a>', '<a href="http://ocaoimh.ie/?r=supercache">Donncha O Caoimh</a>' ); ?></p>
-	<p><?php printf( __( 'He blogs at %1$s and posts photos at %2$s. He would really appreciate a <a href="%3$s">donation</a> to encourage development of this plugin.<br />Even a penny will help.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a>', '<a href="http://inphotos.org/?r=supercache">In Photos.org</a>', 'http://ocaoimh.ie/gad' ); ?></p>
+	<p><?php printf( __( 'He blogs at %1$s and posts photos at %2$s.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a>', '<a href="http://inphotos.org/?r=supercache">In Photos.org</a>' ); ?></p>
 	<p><?php printf( __( 'Please say hi to him on %s too!', 'wp-super-cache' ), '<a href="http://twitter.com/donncha/">Twitter</a>' ); ?></p>
 	<?php 
-	}
 	if ( isset( $wp_supercache_cache_list ) && $wp_supercache_cache_list ) { 
 		$start_date = get_option( 'wpsupercache_start' );
 		if ( !$start_date ) {
