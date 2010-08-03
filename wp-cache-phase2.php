@@ -310,7 +310,7 @@ function wp_cache_get_ob(&$buffer) {
 		}
 	}
 
-	if (!preg_match('/(<\/html>|<\/rss>|<\/feed>)/i',$buffer) ) {
+	if (!preg_match('/(<\/html>|<\/rss>|<\/feed>|<\/urlset)/i',$buffer) ) {
 		$new_cache = false;
 		if( false === strpos( $_SERVER[ 'REQUEST_URI' ], 'robots.txt' ) ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) {
