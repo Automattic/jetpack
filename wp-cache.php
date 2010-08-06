@@ -458,22 +458,22 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 		if ( $_POST[ 'action' ] == 'test' && $valid_nonce ) {
 			// Prime the cache
 			echo "<p>";
-			printf(  __( 'Fetching %s to prime cache: ', 'wp-super-cache' ), site_url() );
-			$page = wp_remote_get( site_url(), array('timeout' => 60, 'blocking' => true ) );
+			printf(  __( 'Fetching %s to prime cache: ', 'wp-super-cache' ), trailingslashit( get_bloginfo( 'url' ) ) );
+			$page = wp_remote_get( trailingslashit( get_bloginfo( 'url' ) ), array('timeout' => 60, 'blocking' => true ) );
 			echo '<strong>' . __( 'OK', 'wp-super-cache' ) . '</strong>';
 			echo "</p>";
 			sleep( 1 );
 			// Get the first copy
 			echo "<p>";
-			printf(  __( 'Fetching first copy of %s: ', 'wp-super-cache' ), site_url() );
-			$page = wp_remote_get( site_url(), array('timeout' => 60, 'blocking' => true ) );
+			printf(  __( 'Fetching first copy of %s: ', 'wp-super-cache' ), trailingslashit( get_bloginfo( 'url' ) ) );
+			$page = wp_remote_get( trailingslashit( get_bloginfo( 'url' ) ), array('timeout' => 60, 'blocking' => true ) );
 			echo '<strong>' . __( 'OK', 'wp-super-cache' ) . '</strong>';
 			echo "</p>";
 			sleep( 1 );
 			// Get the second copy
 			echo "<p>";
-			printf(  __( 'Fetching second copy of %s: ', 'wp-super-cache' ), site_url() );
-			$page2 = wp_remote_get( site_url(), array('timeout' => 60, 'blocking' => true ) );
+			printf(  __( 'Fetching second copy of %s: ', 'wp-super-cache' ), trailingslashit( get_bloginfo( 'url' ) ) );
+			$page2 = wp_remote_get( trailingslashit( get_bloginfo( 'url' ) ), array('timeout' => 60, 'blocking' => true ) );
 			echo '<strong>' . __( 'OK', 'wp-super-cache' ) . '</strong>';
 			echo "</p>";
 
