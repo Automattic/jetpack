@@ -285,7 +285,7 @@ function add_cacheaction( $action, $func ) {
 
 function do_cacheaction( $action, $value = '' ) {
 	global $wp_supercache_actions;
-	if( is_array( $wp_supercache_actions[ $action ] ) ) {
+	if( array_key_exists($action, $wp_supercache_actions) && is_array( $wp_supercache_actions[ $action ] ) ) {
 		$actions = $wp_supercache_actions[ $action ];
 		foreach( $actions as $func ) {
 			$value = $func( $value );
