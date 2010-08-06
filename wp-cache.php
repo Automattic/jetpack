@@ -110,15 +110,24 @@ function wpsupercache_activate() {
 }
 register_activation_hook( __FILE__, 'wpsupercache_activate' );
 
-function wp_cache_add_pages() {
-	if( function_exists( 'is_site_admin' ) ) {
-		if( is_site_admin() ) {
-			add_submenu_page( 'ms-admin.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
-			add_options_page('WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager');
-		}
+function wpsupercache_site_admin() {
+	if ( function_exists( 'is_super_admin' ) ) {
+		return is_super_admin();
+	} elseif ( function_exists( 'is_site_admin' ) ) {
+		return is_site_admin();
 	} else {
-		add_options_page('WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager');
+		return true;
 	}
+}
+
+function wp_cache_add_pages() {
+	global $wpmu_version;
+	if ( function_exists( 'is_multisite' ) && is_multisite() && wpsupercache_site_admin() ) {
+		add_submenu_page( 'ms-admin.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
+	} elseif ( isset( $wpmu_version ) && wpsupercache_site_admin() ) {
+		add_submenu_page( 'wpmu-admin.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
+	}
+	add_options_page('WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager');
 }
 add_action('admin_menu', 'wp_cache_add_pages');
 
@@ -127,14 +136,19 @@ function wp_cache_manager() {
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers;
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation, $wp_cache_not_logged_in, $wp_supercache_cache_list;
 	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
+	global $wpmu_version;
 
-	if ( function_exists( 'is_site_admin' ) ) {
-		if ( !is_site_admin() )
+	if ( isset( $wpmu_version ) || function_exists( 'is_multisite' ) && is_multisite() ) {
+		if ( false == wpsupercache_site_admin() )
 			return false;
-		if ( !is_main_site() ) {
+		if ( function_exists( "is_main_site" ) && false == is_main_site() || function_exists( 'is_main_blog' ) && is_main_blog() ) {
 			global $current_site;
 			$protocol = ( 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
-			echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Sorry, the WP Super Cache admin page only works <a href="%s">on the main site</a> of this network.', 'wp-super-cache' ), "{$protocol}{$current_site->domain}{$current_site->path}wp-admin/ms-admin.php?page=wpsupercache" ) . '</p></div>';
+			if ( isset( $wpmu_version ) ) {
+				echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Sorry, the WP Super Cache admin page only works <a href="%s">on the main site</a> of this network.', 'wp-super-cache' ), admin_url( "ms-admin.php?page=wpsupercache" ) ) . '</p></div>';
+			} else {
+				echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Sorry, the WP Super Cache admin page only works <a href="%s">on the main site</a> of this network.', 'wp-super-cache' ), admin_url( "wpmu-admin.php?page=wpsupercache" ) ) . '</p></div>';
+			}
 			return false;
 		}
 	}
@@ -1780,10 +1794,10 @@ function wp_cache_delete_buttons() {
 }
 
 function delete_cache_dashboard() {
-	if( function_exists( 'is_site_admin' ) && !is_site_admin() )
+	if ( false == wpsupercache_site_admin() )
 		return false;
 
-	if( function_exists('current_user_can') && !current_user_can('manage_options') )
+	if ( function_exists('current_user_can') && !current_user_can('manage_options') )
 		return false;
 
 	echo "<li><a href='" . wp_nonce_url( 'options-general.php?page=wpsupercache&wp_delete_cache=1', 'wp-cache' ) . "' target='_blank' title='" . __( 'Delete Super Cache cached files (opens in new window)', 'wp-super-cache' ) . "'>" . __( 'Delete Cache', 'wp-super-cache' ) . "</a></li>";
@@ -1943,10 +1957,10 @@ function wp_cache_catch_404() {
 add_action( 'template_redirect', 'wp_cache_catch_404' );
 
 function wp_cache_favorite_action( $actions ) {
-	if( function_exists( 'is_site_admin' ) && !is_site_admin() )
+	if ( false == wpsupercache_site_admin() ) 
 		return $actions;
 
-	if( function_exists('current_user_can') && !current_user_can('manage_options') )
+	if ( function_exists('current_user_can') && !current_user_can('manage_options') )
 		return $actions;
 
 	$actions[ wp_nonce_url( 'options-general.php?page=wpsupercache&wp_delete_cache=1', 'wp-cache' ) ] = array( __( 'Delete Cache', 'wp-super-cache' ), 'manage_options' );
@@ -2059,11 +2073,7 @@ function wpsc_update_htaccess_form( $short_form = true ) {
 	} else {
 		if ( $short_form == false ) {
 			echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><p>" . sprintf( __( 'To serve static html files your server must have the correct mod_rewrite rules added to a file called <code>%s.htaccess</code>', 'wp-super-cache' ), $home_path ) . " ";
-			if( !function_exists( 'is_site_admin' ) ) {
-				_e( "You must edit the file yourself add the following rules.", 'wp-super-cache' );
-			} else {
-				_e( "You can edit the file yourself add the following rules.", 'wp-super-cache' );
-			}
+			_e( "You can edit the file yourself add the following rules.", 'wp-super-cache' );
 			echo __( " Make sure they appear before any existing WordPress rules. ", 'wp-super-cache' ) . "</p>";
 			echo "<pre># BEGIN WPSuperCache\n" . esc_html( $rules ) . "# END WPSuperCache</pre></p>";
 			echo "<p>" . sprintf( __( 'Rules must be added to %s too:', 'wp-super-cache' ), WP_CONTENT_DIR . "/cache/.htaccess" ) . "</p>";
