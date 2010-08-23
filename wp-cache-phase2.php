@@ -540,7 +540,7 @@ function wp_cache_get_ob(&$buffer) {
 		update_option( 'supercache_last_cached', $last_urls );
 	}
 	wp_cache_writers_exit();
-	if ( !headers_sent() && isset( $wp_cache_gzip_first ) && 1 == $wp_cache_gzip_first && $wp_cache_gzip_encoding && $gzdata) {
+	if ( !headers_sent() && $wp_cache_gzip_encoding && $gzdata) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Writing gzip content headers. Sending buffer to browser", 5 );
 		header( 'Content-Encoding: ' . $wp_cache_gzip_encoding );
 		header( 'Vary: Accept-Encoding, Cookie' );
