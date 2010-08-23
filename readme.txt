@@ -258,6 +258,11 @@ The HTML comments around the mirrored PHP allow it to be executed in the static 
 
 That will include file.php under the ABSPATH directory, which is the same as where your wp-config.php file is located.
 
+Example:
+`<!--mfunc date( 'Y-m-d H:i:s' ) -->
+<?php date( 'Y-m-d H:i:s' ) ?>
+<!--/mfunc-->`
+
 = Why doesn't WP UserOnline, Popularity Contest, WP Postratings or plugin X not work or update on my blog now? =
 
 This plugin caches entire pages but some plugins think they can run PHP code every time a page loads. To fix this, the plugin needs to use Javascript/AJAX methods or the mfunc/mclude code described in the previous answer to update or display dynamic information.
