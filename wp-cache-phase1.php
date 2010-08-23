@@ -4,23 +4,35 @@
 if( !defined('WP_CONTENT_DIR') )
 	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
 
-if( !include( WP_CONTENT_DIR . '/wp-cache-config.php' ) )
+function wp_cache_load_config() {
+	global $wpsc_settings;
+	if( !include( WP_CONTENT_DIR . '/wp-cache-config.php' ) )
+		return false;
+	$fields = array( "cache_compression", "cache_enabled", "super_cache_enabled", "cache_max_time", "cache_path", "file_prefix", "blogcacheid", "cache_acceptable_files", "cache_rejected_uri", "cache_rejected_user_agent", "cache_rebuild_files", "wp_cache_mutex_disabled", "wp_cache_mobile", "wp_cache_mobile_whitelist", "wp_cache_mobile_browsers", "wp_cache_plugins_dir", "wp_cache_shutdown_gc", "wp_super_cache_late_init", "wp_super_cache_advanced_debug", "wp_super_cache_front_page_text", "wp_super_cache_front_page_clear", "wp_super_cache_front_page_check", "wp_super_cache_front_page_notification", "wp_cache_object_cache", "wp_cache_anon_only", "wp_supercache_cache_list", "wp_cache_debug_to_file", "wp_super_cache_debug", "wp_cache_debug_level", "wp_cache_debug_ip", "wp_cache_debug_log", "wp_cache_debug_email", "wp_cache_pages", "wp_cache_hide_donation", "wp_cache_not_logged_in", "wp_cache_clear_on_post_edit", "wp_cache_hello_world", "wp_cache_mobile_enabled", "wp_cache_cron_check", "use_flock", "sem_id" );
+	foreach( $fields as $field ) {
+		$GLOBALS[ $field ] = $$field;
+		$wpsc_settings[ $field ] = $$field;
+	}
 	return true;
+}
+
+if( false == wp_cache_load_config() )
+	return true;
+
 if( !defined( 'WPCACHEHOME' ) )
 	define('WPCACHEHOME', dirname(__FILE__).'/');
 
 include( WPCACHEHOME . 'wp-cache-base.php');
 
-if( $blogcacheid != '' ) {
-	$blog_cache_dir = str_replace( '//', '/', $cache_path . "blogs/" . $blogcacheid . '/' );
+if( $wpsc_settings[ 'blogcacheid' ] != '' ) {
+	$wpsc_settings[ 'blog_cache_dir' ] = str_replace( '//', '/', $wpsc_settings[ 'cache_path' ] . "blogs/" . $wpsc_settings[ 'blogcacheid' ] . '/' );
 } else {
-	$blog_cache_dir = $cache_path;
+	$wpsc_settings[ 'blog_cache_dir' ] = $wpsc_settings[ 'cache_path' ];
 }
+$blog_cache_dir = $wpsc_settings[ 'blog_cache_dir' ];
 
-$mutex_filename = 'wp_cache_mutex.lock';
+$wpsc_settings[ 'mutex_filename' ] = 'wp_cache_mutex.lock';
 $new_cache = false;
-
-// Don't change variables behind this point
 
 if( !isset( $wp_cache_plugins_dir ) )
 	$wp_cache_plugins_dir = WPCACHEHOME . 'plugins';
