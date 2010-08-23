@@ -263,6 +263,10 @@ Example:
 <?php date( 'Y-m-d H:i:s' ) ?>
 <!--/mfunc-->`
 
+= How do I delay serving the cache until the "init" action fires? =
+
+Cached files are served before almost all of WordPress is loaded. While that's great for performance it's a pain when you want to extend the plugin using a core part of WordPress. Set $wp_super_cache_late_init to "1" in wp-content/wp-cache-config.php and cached files will be served when "init" fires. WordPress and it's plugins will be loaded now. This is very useful when you are using the mfunc tag in your theme.
+
 = Why doesn't WP UserOnline, Popularity Contest, WP Postratings or plugin X not work or update on my blog now? =
 
 This plugin caches entire pages but some plugins think they can run PHP code every time a page loads. To fix this, the plugin needs to use Javascript/AJAX methods or the mfunc/mclude code described in the previous answer to update or display dynamic information.
