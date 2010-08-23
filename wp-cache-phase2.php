@@ -439,6 +439,10 @@ function wp_cache_get_ob(&$buffer) {
 		$store = apply_filters( 'wpsupercache_buffer', $store );
 		// Append WP Super Cache or Live page comment tag
 		wp_cache_append_tag($buffer);
+		global $wp_super_cache_late_init;
+		if ( false == isset( $wp_super_cache_late_init ) || ( isset( $wp_super_cache_late_init ) && $wp_super_cache_late_init == 0 ) )
+			$buffer .= '<!-- Super Cache dynamic page detected but $wp_super_cache_late_init not set. See the readme.txt for further details. -->';
+
 		if ( false == $wp_cache_object_cache ) {
 			if( $fr )
 				fputs($fr, $store);
