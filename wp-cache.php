@@ -131,13 +131,8 @@ function wp_cache_add_pages() {
 }
 add_action('admin_menu', 'wp_cache_add_pages');
 
-function wp_cache_manager() {
-	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
-	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers;
-	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation, $wp_cache_not_logged_in, $wp_supercache_cache_list;
-	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
+function wp_cache_manager_error_checks() {
 	global $wpmu_version;
-
 	if ( isset( $wpmu_version ) || function_exists( 'is_multisite' ) && is_multisite() ) {
 		if ( false == wpsupercache_site_admin() )
 			return false;
@@ -152,6 +147,43 @@ function wp_cache_manager() {
 			return false;
 		}
 	}
+
+	if ( 1 == ini_get( 'safe_mode' ) || "on" == strtolower( ini_get( 'safe_mode' ) ) ) {
+		echo '<div id="message" class="updated fade"><h3>' . __( 'Warning! PHP Safe Mode Enabled!', 'wp-super-cache' ) . '</h3><p>' .
+			__( 'You may experience problems running this plugin because SAFE MODE is enabled.', 'wp-super-cache' ) . ' ';
+		
+		
+		if( !ini_get( 'safe_mode_gid' ) ) {
+			_e( 'Your server is set up to check the owner of PHP scripts before allowing them to read and write files.', 'wp-super-cache' ) . " ";
+			printf( __( 'You or an administrator may be able to make it work by changing the group owner of the plugin scripts to match that of the web server user. The group owner of the %s/cache/ directory must also be changed. See the <a href="http://php.net/features.safe-mode">safe mode manual page</a> for further details.', 'wp-super-cache' ), WP_CONTENT_DIR );
+		} else {
+			_e( 'You or an administrator must disable this. See the <a href="http://php.net/features.safe-mode">safe mode manual page</a> for further details. This cannot be disabled in a .htaccess file unfortunately. It must be done in the php.ini config file.', 'wp-super-cache' );
+		}
+		echo '</p></div>';
+		return false;
+	}
+
+	if ( '' == get_option( 'permalink_structure' ) ) {
+		echo '<div id="message" class="updated fade"><h3>' . __( 'Permlink Structure Error', 'wp-super-cache' ) . '</h3>';
+		echo "<p>" . __( 'A custom url or permalink structure is required for this plugin to work correctly. Please go to the <a href="options-permalink.php">Permalinks Options Page</a> to configure your permalinks.' ) . "</p>";
+		echo '</div>';
+		return false;
+	}
+
+	return true;
+
+}
+add_filter( 'wp_super_cache_error_checking', 'wp_cache_manager_error_checks' );
+
+function wp_cache_manager() {
+	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
+	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers;
+	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_hide_donation, $wp_cache_not_logged_in, $wp_supercache_cache_list;
+	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
+	global $wpmu_version;
+
+	if ( false == apply_filters( 'wp_super_cache_error_checking', true ) )
+		return false;
 
 	$supercachedir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]);
 	if( get_option( 'gzipcompression' ) == 1 )
@@ -189,21 +221,6 @@ jQuery(document).ready(function(){
 <?php
 	echo '<div class="wrap">';
 	echo "<h2><a href='?page=wpsupercache'>" . __( 'WP Super Cache Manager', 'wp-super-cache' ) . "</a></h2>\n";
-	if ( 1 == ini_get( 'safe_mode' ) || "on" == strtolower( ini_get( 'safe_mode' ) ) ) {
-		?><h3><?php _e( 'Warning! PHP Safe Mode Enabled!', 'wp-super-cache' ); ?></h3>
-		<p><?php _e( 'You may experience problems running this plugin because SAFE MODE is enabled.', 'wp-super-cache' );
-		if( !ini_get( 'safe_mode_gid' ) ) {
-			echo __( 'Your server is set up to check the owner of PHP scripts before allowing them to read and write files.', 'wp-super-cache' ) . "</p><p>";
-			echo sprintf( __( 'You or an administrator may be able to make it work by changing the group owner of the plugin scripts to match that of the web server user. The group owner of the %s/cache/ directory must also be changed. See the <a href="http://php.net/features.safe-mode">safe mode manual page</a> for further details.', 'wp-super-cache' ), WP_CONTENT_DIR ) . "</p>";
-		} else {
-			echo __( 'You or an administrator must disable this. See the <a href="http://php.net/features.safe-mode">safe mode manual page</a> for further details. This cannot be disabled in a .htaccess file unfortunately. It must be done in the php.ini config file.', 'wp-super-cache' ) . "</p>";
-		}
-	}
-
-	if ( '' == get_option( 'permalink_structure' ) ) {
-		echo "<h3>" . __( 'Permlink Structure Error', 'wp-super-cache' ) . "</h3>";
-		echo "<p>" . __( 'A custom url or permalink structure is required for this plugin to work correctly. Please go to the <a href="options-permalink.php">Permalinks Options Page</a> to configure your permalinks.' ) . "</p>";
-	}
 
 	if ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 1 && !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
 		wp_schedule_single_event( time() + 360 , 'wp_cache_check_site_hook' );
@@ -414,23 +431,49 @@ jQuery(document).ready(function(){
 	}
 
 	echo '<a name="top"></a>';
-	?>
-	<table><td><fieldset class="options" id="show-this-fieldset"> 
-	<h3><?php _e( 'WP Super Cache Status', 'wp-super-cache' ); ?></h3><?php
 	echo '<form name="wp_manager" action="#top" method="post">';
 	?>
-	<label><input type='radio' name='wp_cache_status' value='all' <?php if( $cache_enabled == true && $super_cache_enabled == true ) { echo 'checked=checked'; } ?>> <strong><?php _e( 'ON', 'wp-super-cache' ); ?></strong> <span class="setting-description"><?php _e( 'WP Cache and Super Cache enabled', 'wp-super-cache' ); ?></span></label><br />
-	<label><input type='radio' name='wp_cache_status' value='wpcache' <?php if( $cache_enabled == true && $super_cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong><?php _e( 'HALF ON', 'wp-super-cache' ); ?></strong> <span class="setting-description"><?php _e( 'Super Cache Disabled, only legacy WP-Cache caching.', 'wp-super-cache' ); ?></span></label><br />
-	<label><input type='radio' name='wp_cache_status' value='none' <?php if( $cache_enabled == false ) { echo 'checked=checked'; } ?>> <strong><?php _e( 'OFF', 'wp-super-cache' ); ?></strong> <span class="setting-description"><?php _e( 'WP Cache and Super Cache disabled', 'wp-super-cache' ); ?></span></label><br />
-	<p><label><input type='checkbox' name='wp_cache_not_logged_in' <?php if( $wp_cache_not_logged_in ) echo "checked"; ?> value='1'> <?php _e( 'Don&#8217;t cache pages for known users. (Logged in users and those that comment)', 'wp-super-cache' ); ?></label></p>
-	<p><label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> <?php _e( 'Proudly tell the world your server is Digg proof! (places a message in your blog&#8217;s footer)', 'wp-super-cache' ); ?></label></p>
-	<p><label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> <?php _e( 'Clear all cache files when a post or page is published. (This may significantly slow down saving of posts.)', 'wp-super-cache' ); ?></label></p>
-	<p><label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> <?php _e( 'Cache rebuild. Serve a supercache file to anonymous users while a new file is being generated. Recommended for <em>very</em> busy websites with lots of comments. Makes "directly cached pages" and "Lockdown mode" obsolete.', 'wp-super-cache' ); ?></label></p>
-	<?php if( false == defined( 'WPSC_DISABLE_LOCKING' ) ) { ?>
-		<p><label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( !$wp_cache_mutex_disabled ) echo "checked"; ?> value='0'> <?php _e( 'Coarse file locking. You probably don&#8217;t need this but it may help if your server is underpowered. Warning! <em>May cause your server to lock up in very rare cases!</em>', 'wp-super-cache' ); ?></label></p>
-	<?php } ?>
-	<p><label><input type='checkbox' name='wp_supercache_cache_list' <?php if( $wp_supercache_cache_list ) echo "checked"; ?> value='1'> <?php _e( 'List the newest cached pages (may be expensive to run on busy sites, use with caution.)', 'wp-super-cache' ); ?></label>
-	<p><label><input type='checkbox' name='wp_cache_mobile_enabled' <?php if( $wp_cache_mobile_enabled ) echo "checked"; ?> value='1'> <?php printf( __( 'Mobile device support.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wordpress-mobile-edition/' ); ?></label>
+	<table class="form-table">
+		<tr valign="top">
+			<th scope="row"><label for="wp_cache_status"><?php _e( 'Caching', 'wp-super-cache' ); ?></label></th>
+			<td>
+				<fieldset>
+				<legend class="hidden">Caching</legend>
+				<label><input type='checkbox' name='wp_cache_status' value='all' <?php if ( $cache_enabled == true ) { echo 'checked=checked'; } ?>> <?php _e( 'Cache hits to this website for quicker access.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
+				<label><input type='checkbox' name='super_cache_enabled' <?php if( $super_cache_enabled == false ) echo "checked"; ?> value='0'> <?php _e( 'Use PHP to serve cache files.', 'wp-super-cache' ); ?></label><br />
+				</legend>
+				</fieldset>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><label for="wp_cache_status"><?php _e( 'Miscellaneous', 'wp-super-cache' ); ?></label></th>
+			<td>
+				<fieldset>
+				<legend class="hidden">Miscellaneous</legend>
+				<label><input type='checkbox' name='wp_cache_not_logged_in' <?php if( $wp_cache_not_logged_in ) echo "checked"; ?> value='1'> <?php _e( 'Don&#8217;t cache pages for <acronym title="Logged in users and those that comment">known users</acronym>.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
+				<label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> <?php _e( 'Cache rebuild. Serve a supercache file to anonymous users while a new file is being generated.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
+				<label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> <?php _e( 'Proudly tell the world your server is Digg proof! (places a message in your blog&#8217;s footer)', 'wp-super-cache' ); ?></label><br />
+				</legend>
+				</fieldset>
+			</td>
+		</tr>
+		<tr valign="top">
+			<th scope="row"><label for="wp_cache_status"><?php _e( 'Advanced', 'wp-super-cache' ); ?></label></th>
+			<td>
+				<fieldset>
+				<legend class="hidden">Advanced</legend>
+				<label><input type='checkbox' name='wp_cache_mobile_enabled' <?php if( $wp_cache_mobile_enabled ) echo "checked"; ?> value='1'> <?php printf( __( 'Mobile device support.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wordpress-mobile-edition/' ); ?></label><br />
+				<label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> <?php _e( 'Clear all cache files when a post or page is published.', 'wp-super-cache' ); ?></label><br />
+				<label><input type='checkbox' name='wp_cache_refresh_single_only' <?php if( $wp_cache_refresh_single_only ) echo "checked"; ?> value='1'> <?php _e( 'Only refresh current page when comments made.', 'wp-super-cache' ); ?></label><br />
+				<label><input type='checkbox' name='wp_supercache_cache_list' <?php if( $wp_supercache_cache_list ) echo "checked"; ?> value='1'> <?php _e( 'List the newest cached pages', 'wp-super-cache' ); ?></label><br />
+			<?php if( false == defined( 'WPSC_DISABLE_LOCKING' ) ) { ?>
+				<label><input type='checkbox' name='wp_cache_mutex_disabled' <?php if( !$wp_cache_mutex_disabled ) echo "checked"; ?> value='0'> <?php _e( 'Coarse file locking. You probably don&#8217;t need this but it may help if your server is underpowered. Warning! <em>May cause your server to lock up in very rare cases!</em>', 'wp-super-cache' ); ?></label><br />
+			<?php } ?>
+				</legend>
+				</fieldset>
+			</td>
+		</tr>
+	</table>
 	<?php
 	$home_path = trailingslashit( get_home_path() );
 	$scrules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WPSuperCache' ) );
@@ -455,7 +498,7 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 	<?php if ( $_wp_using_ext_object_cache ) { 
 		?><p><label><input type='checkbox' name='wp_cache_object_cache' <?php if( $wp_cache_object_cache ) echo "checked"; ?> value='1'> <?php echo __( 'Use object cache to store cached files.', 'wp-super-cache' ) . ' ' . __( '(Experimental)', 'wp-super-cache' ); ?></label></p><?php 
 	}
-	?><p><label><input type='checkbox' name='wp_cache_refresh_single_only' <?php if( $wp_cache_refresh_single_only ) echo "checked"; ?> value='1'> <?php echo __( 'Only refresh current page when comments made.', 'wp-super-cache' ); ?></label></p> 
+	?>
 	<p><strong><?php _e( 'Note:', 'wp-super-cache' ); ?></strong> <?php printf( __( 'If uninstalling this plugin, make sure the directory <em>%s</em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)', 'wp-super-cache' ), WP_CONTENT_DIR ); ?></p>
 	<p><?php printf( __( 'Please see the <a href="%1$s/wp-super-cache/readme.txt">readme.txt</a> for instructions on uninstalling this script. Look for the heading, "How to uninstall WP Super Cache".', 'wp-super-cache' ), WP_PLUGIN_URL ); ?></p><?php
 	echo "<p><em>" . sprintf( __( 'Need help? Check the <a href="%1$s">Super Cache readme file</a>. It includes installation documentation, a FAQ and Troubleshooting tips. The <a href="%2$s">support forum</a> is also available. Your question may already have been answered.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/', 'http://wordpress.org/tags/wp-super-cache?forum_id=10' ) . "</em></p>";
@@ -713,7 +756,6 @@ RewriteCond %{HTTP_user_agent} !^(<?php echo addcslashes( implode( '|', $wp_cach
 	?>
 	</div>
 
-	</td></table>
 	<?php
 
 	wp_cache_files();
