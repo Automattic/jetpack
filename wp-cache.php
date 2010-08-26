@@ -2227,10 +2227,10 @@ function wpsc_get_htaccess_info() {
 function clear_post_supercache( $post_id ) {
 	$dir = get_current_url_supercache_dir( $post_id );
 	if ( file_exists( $dir . 'index.html' ) ) {
-		unlink( $dir . 'index.html' );
+		@unlink( $dir . 'index.html' );
 	}
 	if ( file_exists( $dir . 'index.html.gz' ) ) {
-		unlink( $dir . 'index.html.gz' );
+		@unlink( $dir . 'index.html.gz' );
 	}
 }
 
