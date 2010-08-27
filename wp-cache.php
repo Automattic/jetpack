@@ -281,7 +281,7 @@ function wp_cache_manager_error_checks() {
 add_filter( 'wp_super_cache_error_checking', 'wp_cache_manager_error_checks' );
 
 function wp_cache_manager_updates() {
-	global $wp_cache_mobile_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression_changed, $cache_compression;
+	global $wp_cache_mobile_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression;
 	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
 	if ( $valid_nonce == false )
 		return false;
@@ -367,22 +367,27 @@ function wp_cache_manager_updates() {
 			$wp_cache_refresh_single_only = 0;
 		}
 		wp_cache_replace_line('^ *\$wp_cache_refresh_single_only', "\$wp_cache_refresh_single_only = '" . $wp_cache_refresh_single_only . "';", $wp_cache_config_file);
-	}
 	
-	if ( defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
-		$cache_compression_changed = false;
-		$cache_compression = 0;
-		wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = " . $cache_compression . ";", $wp_cache_config_file);
-	} elseif ( isset( $_POST[ 'cache_compression' ] ) && $_POST[ 'cache_compression' ] != $cache_compression ) {
-		if ( 1 == ini_get( 'zlib.output_compression' ) || "on" == strtolower( ini_get( 'zlib.output_compression' ) ) ) { 
-			_e( "<strong>Warning!</strong> You attempted to enable compression but <code>zlib.output_compression</code> is enabled. See #21 in the Troubleshooting section of the readme file.", 'wp-super-cache' );
-		} else {
-			$cache_compression = intval( $_POST[ 'cache_compression' ] );
-			$cache_compression_changed = true;
+		if ( defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
+			$cache_compression = 0;
 			wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = " . $cache_compression . ";", $wp_cache_config_file);
-			if ( function_exists( 'prune_super_cache' ) )
-				prune_super_cache( $cache_path, true );
-			delete_option( 'super_cache_meta' );
+		} else {
+			if ( isset( $_POST[ 'cache_compression' ] ) ) {
+				$new_cache_compression = 1;
+			} else {
+				$new_cache_compression = 0;
+			}
+			if ( 1 == ini_get( 'zlib.output_compression' ) || "on" == strtolower( ini_get( 'zlib.output_compression' ) ) ) { 
+				_e( "<strong>Warning!</strong> You attempted to enable compression but <code>zlib.output_compression</code> is enabled. See #21 in the Troubleshooting section of the readme file.", 'wp-super-cache' );
+			} else {
+				if ( $new_cache_compression != $cache_compression ) {
+					$cache_compression = $new_cache_compression;
+					wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = " . $cache_compression . ";", $wp_cache_config_file);
+					if ( function_exists( 'prune_super_cache' ) )
+						prune_super_cache( $cache_path, true );
+					delete_option( 'super_cache_meta' );
+				}
+			}
 		}
 	}
 }
@@ -498,6 +503,9 @@ jQuery(document).ready(function(){
 			<td>
 				<fieldset>
 				<legend class="hidden">Miscellaneous</legend>
+				<?php if( false == defined( 'WPSC_DISABLE_COMPRESSION' ) ) { ?>
+						<label><input type='checkbox' name='cache_compression' <?php if( $cache_compression ) echo "checked"; ?> value='1'> <?php _e( 'Compress pages so they&#8217;re served more quickly to visitors.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
+				<?php } ?>
 				<label><input type='checkbox' name='wp_cache_not_logged_in' <?php if( $wp_cache_not_logged_in ) echo "checked"; ?> value='1'> <?php _e( 'Don&#8217;t cache pages for <acronym title="Logged in users and those that comment">known users</acronym>.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
 				<label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> <?php _e( 'Cache rebuild. Serve a supercache file to anonymous users while a new file is being generated.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
 				<label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> <?php _e( 'Proudly tell the world your server is Digg proof! (places a message in your blog&#8217;s footer)', 'wp-super-cache' ); ?></label><br />
@@ -525,9 +533,12 @@ jQuery(document).ready(function(){
 			</td>
 		</tr>
 	</table>
-	<p><strong><?php _e( 'Note:', 'wp-super-cache' ); ?></strong> <?php printf( __( 'If uninstalling this plugin, make sure the directory <em>%s</em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)', 'wp-super-cache' ), WP_CONTENT_DIR ); ?></p>
-	<p><?php printf( __( 'Please see the <a href="%1$s/wp-super-cache/readme.txt">readme.txt</a> for instructions on uninstalling this script. Look for the heading, "How to uninstall WP Super Cache".', 'wp-super-cache' ), WP_PLUGIN_URL ); ?></p><?php
-	echo "<p><em>" . sprintf( __( 'Need help? Check the <a href="%1$s">Super Cache readme file</a>. It includes installation documentation, a FAQ and Troubleshooting tips. The <a href="%2$s">support forum</a> is also available. Your question may already have been answered.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/', 'http://wordpress.org/tags/wp-super-cache?forum_id=10' ) . "</em></p>";
+	<h3><?php _e( 'Note:', 'wp-super-cache' ); ?></h3>
+	<ol><li><?php _e( 'Compression is disabled by default because some hosts have problems with compressed files. Switching it on and off clears the cache.', 'wp-super-cache' ); ?></li>
+	<li><?php printf( __( 'If uninstalling this plugin, make sure the directory <em>%s</em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)', 'wp-super-cache' ), WP_CONTENT_DIR ); ?></li>
+	<li><?php printf( __( 'Please see the <a href="%1$s/wp-super-cache/readme.txt">readme.txt</a> for instructions on uninstalling this script. Look for the heading, "How to uninstall WP Super Cache".', 'wp-super-cache' ), WP_PLUGIN_URL ); ?></li><?php
+	echo "<li><em>" . sprintf( __( 'Need help? Check the <a href="%1$s">Super Cache readme file</a>. It includes installation documentation, a FAQ and Troubleshooting tips. The <a href="%2$s">support forum</a> is also available. Your question may already have been answered.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/', 'http://wordpress.org/tags/wp-super-cache?forum_id=10' ) . "</em></li>";
+	echo "</ol>";
 
 	echo "<div class='submit'><input class='button-primary' type='submit' " . SUBMITDISABLED . " value='" . __( 'Update Status', 'wp-super-cache' ) . " &raquo;' /></div>";
 	wp_nonce_field('wp-cache');
@@ -833,36 +844,8 @@ jQuery(document).ready(function(){
 }
 
 function wsc_mod_rewrite() {
-	global $cache_enabled, $super_cache_enabled, $cache_compression, $cache_compression_changed, $valid_nonce, $cache_path;
-	if( $super_cache_enabled == false && $cache_enabled == true ) {
-		?><h3><?php _e( 'Super Cache Compression', 'wp-super-cache' ); ?></h3>
-		<p><?php _e( 'Compression is enabled by default when in <em>HALF ON</em> mode.', 'wp-super-cache' ); ?></p>
-		<?php
-		return;
-	} elseif ( $super_cache_enabled == false ) {
-		return;
-	}
-	if( false == defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
+	global $cache_enabled, $super_cache_enabled, $valid_nonce, $cache_path;
 	?>
-	<a name='rewrite'></a>
-	<fieldset class="options"> 
-	<h3><?php _e( 'Super Cache Compression', 'wp-super-cache' ); ?></h3>
-	<form name="wp_manager" action="#rewrite" method="post">
-	<label><input type="radio" name="cache_compression" value="1" <?php if( $cache_compression ) { echo "checked=checked"; } ?>> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
-	<label><input type="radio" name="cache_compression" value="0" <?php if( !$cache_compression ) { echo "checked=checked"; } ?>> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
-	<p><?php _e( 'Compression is disabled by default because some hosts have problems with compressed files. Switching this on and off clears the cache.', 'wp-super-cache' ); ?></p>
-	<?php
-	if( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && !$cache_compression ) {
-		?><p><strong><?php _e( 'Super Cache compression is now disabled.', 'wp-super-cache' ); ?></strong></p> <?php
-	} elseif( isset( $cache_compression_changed ) && isset( $_POST[ 'cache_compression' ] ) && $cache_compression ) {
-		?><p><strong><?php _e( 'Super Cache compression is now enabled.', 'wps-uper-cache' ); ?></strong></p><?php
-	}
-	echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update Compression', 'wp-super-cache' ) . ' &raquo;" /></div>';
-	wp_nonce_field('wp-cache');
-	echo "</form>\n";
-	?></fieldset>
-	<?php } ?>
-
 	<a name="modrewrite"></a><fieldset class="options"> 
 	<h3><?php _e( 'Mod Rewrite Rules', 'wp-super-cache' ); ?></h3><?php
 
