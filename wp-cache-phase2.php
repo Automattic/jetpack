@@ -503,35 +503,44 @@ function wp_cache_get_ob(&$buffer) {
 			$supercacheonly = false;
 			fclose($fr);
 			if ( filesize( $tmp_wpcache_filename ) == 0 ) {
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Warning! The file $tmp_wpcache_filename was empty. Did not rename to {$blog_cache_dir}{$cache_filename}", 5 );
 				@unlink( $tmp_wpcache_filename );
-			} elseif ( !rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename ) ) {
-				unlink( $blog_cache_dir . $cache_filename );
-				rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename );
+			} else {
+				if ( !rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename ) ) {
+					unlink( $blog_cache_dir . $cache_filename );
+					rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename );
+				}
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Renamed temp wp-cache file to {$blog_cache_dir}$cache_filename", 5 );
+				$added_cache = 1;
 			}
-			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Renamed temp wp-cache file to {$blog_cache_dir}$cache_filename", 5 );
-			$added_cache = 1;
 		}
 		if( $fr2 ) {
 			fclose($fr2);
 			if ( filesize( $tmp_cache_filename ) == 0 ) {
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Warning! The file $tmp_cache_filename was empty. Did not rename to {$cache_fname}", 5 );
 				@unlink( $tmp_cache_filename );
-			} elseif ( !@rename( $tmp_cache_filename, $cache_fname ) ) {
-				@unlink( $cache_fname );
-				@rename( $tmp_cache_filename, $cache_fname );
+			} else {
+				if ( !@rename( $tmp_cache_filename, $cache_fname ) ) {
+					@unlink( $cache_fname );
+					@rename( $tmp_cache_filename, $cache_fname );
+				}
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Renamed temp supercache file to $cache_fname", 5 );
+				$added_cache = 1;
 			}
-			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Renamed temp supercache file to $cache_fname", 5 );
-			$added_cache = 1;
 		}
 		if( $gz ) {
 			fclose($gz);
 			if ( filesize( $tmp_cache_filename . '.gz' ) == 0 ) {
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Warning! The file {$tmp_cache_filename}.gz was empty. Did not rename to {$cache_fname}.gz", 5 );
 				@unlink( $tmp_cache_filename . '.gz' );
-			} elseif ( !@rename( $tmp_cache_filename . '.gz', $cache_fname . '.gz' ) ) {
-				@unlink( $cache_fname . '.gz' );
-				@rename( $tmp_cache_filename . '.gz', $cache_fname . '.gz' );
+			} else {
+				if ( !@rename( $tmp_cache_filename . '.gz', $cache_fname . '.gz' ) ) {
+					@unlink( $cache_fname . '.gz' );
+					@rename( $tmp_cache_filename . '.gz', $cache_fname . '.gz' );
+				}
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Renamed temp supercache gz file to {$cache_fname}.gz", 5 );
+				$added_cache = 1;
 			}
-			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Renamed temp supercache gz file to {$cache_fname}.gz", 5 );
-			$added_cache = 1;
 		}
 	}
 	if ( $added_cache && isset( $wp_supercache_cache_list ) && $wp_supercache_cache_list ) {
