@@ -950,15 +950,19 @@ function wp_cache_post_change( $post_id ) {
 						if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: deleting post cache files for {$meta[ 'uri' ]}: $content_pathname", 4 );
 						@unlink($meta_pathname);
 						@unlink($content_pathname);
-						@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
-						@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
+						if ( $super_cache_enabled == true ) {
+							@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
+							@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
+						}
 					}
 				} elseif ($meta[ 'blog_id' ] == $blog_id) {
 					if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: deleting cache files for {$meta[ 'uri' ]}: $content_pathname", 4 );
 					@unlink($meta_pathname);
 					@unlink($content_pathname);
-					@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
-					@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
+					if ( $super_cache_enabled == true ) {
+						@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html');
+						@wp_cache_rebuild_or_delete($cache_path . 'supercache/' . trailingslashit( $meta[ 'uri' ] ) . 'index.html.gz');
+					}
 				}
 
 			}
