@@ -771,8 +771,8 @@ function wp_cache_shutdown_callback() {
 				fclose($fr);
 				@chmod( $tmp_meta_filename, 0666 & ~umask());
 				if( !@rename( $tmp_meta_filename, $blog_cache_dir . 'meta/' . $meta_file ) ) {
-					unlink( $blog_cache_dir . 'meta/' . $meta_file );
-					rename( $tmp_meta_filename, $blog_cache_dir . 'meta/' . $meta_file );
+					@unlink( $blog_cache_dir . 'meta/' . $meta_file );
+					@rename( $tmp_meta_filename, $blog_cache_dir . 'meta/' . $meta_file );
 				}
 			} elseif ( $cache_enabled ) {
 				$oc_key = get_oc_key() . ".meta";
