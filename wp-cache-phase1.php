@@ -165,7 +165,13 @@ function wp_cache_serve_cache_file() {
 			header( "Vary: Accept-Encoding, Cookie" );
 			header( "Cache-Control: max-age=300, must-revalidate" );
 			header( "WP-Cache: Served supercache file from PHP" );
-			readfile( $file );
+			if ( file_exists( $file . ".gz" ) && $wp_cache_gzip_encoding ) {
+				header( 'Content-Encoding: ' . $wp_cache_gzip_encoding );
+				header( 'Content-Length: ' . filesize( $file . ".gz" ) );
+				readfile( $file . ".gz" );
+			} else {
+				readfile( $file );
+			}
 			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Served page from supercache file. Mod rewrite rules may be broken or missing.", 5 );
 			die();
 		} else {
