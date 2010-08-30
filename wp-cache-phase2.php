@@ -4,6 +4,11 @@ function wp_cache_phase2() {
 	global $wpsc_settings;
 	global $cache_filename, $cache_acceptable_files, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_last_gc;
 	global $cache_max_time, $wp_cache_request_uri, $super_cache_enabled, $wp_cache_object_cache;
+	global $cache_enabled;
+
+	if ( $cache_enabled == false )
+		return false;
+
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'In WP Cache Phase 2', 5 );
 
 	$wpsc_settings[ 'wp_cache_gmt_offset' ]   = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. http://wordpress.org/support/topic/224349
