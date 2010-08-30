@@ -329,10 +329,10 @@ function wp_cache_mobile_group( $user_agent ) {
 // From http://wordpress.org/extend/plugins/wordpress-mobile-edition/ by Alex King
 function wp_cache_check_mobile( $cache_key ) {
 	global $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes;
-	if( !isset( $wp_cache_mobile_enabled ) || false == $wp_cache_mobile_enabled )
+	if ( !isset( $wp_cache_mobile_enabled ) || false == $wp_cache_mobile_enabled )
 		return $cache_key;
 
-	if (!isset($_SERVER["HTTP_USER_AGENT"])) {
+	if ( !isset( $_SERVER[ "HTTP_USER_AGENT" ] ) ) {
 		return $cache_key;
 	}
 
