@@ -948,6 +948,10 @@ if( defined( 'WPLOCKDOWN' ) && constant( 'WPLOCKDOWN' ) )
 
 function wp_lock_down() {
 	global $wpdb, $cache_path, $wp_cache_config_file, $valid_nonce, $cached_direct_pages, $cache_enabled, $super_cache_enabled;
+	global $wp_super_cache_lock_down;
+
+	if ( !isset( $wp_super_cache_lock_down ) || ( isset( $wp_super_cache_lock_down ) && $wp_super_cache_lock_down != 1 ) )
+		return false;
 
 	if(isset($_POST['wp_lock_down']) && $valid_nonce) {
 		$wp_lock_down = $_POST['wp_lock_down'] == '1' ? '1' : '0';
