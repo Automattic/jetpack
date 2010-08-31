@@ -10,7 +10,7 @@ A very fast caching engine for WordPress that produces static html files.
 == Description ==
 This plugin generates static html files from your dynamic WordPress blog.  After a html file is generated your webserver will serve that file instead of processing the comparatively heavier and more expensive WordPress PHP scripts.
 
-The static html files will be served to the vast majority of your users, but because a user's details are displayed in the comment form after they leave a comment those requests are handled by PHP. Static files are served to:
+The static html files will be served to the vast majority of your users, but because a user's details are displayed in the comment form after they leave a comment those requests are handled by the legacy caching engine. Static files are served to:
 
 1. Users who are not logged in.
 2. Users who have not left a comment on your blog.
@@ -20,6 +20,14 @@ The static html files will be served to the vast majority of your users, but bec
 
 If for some reason "supercaching" doesn't work on your server then don't worry. Caching will still be performed, but every request will require loading the PHP engine. In normal circumstances this isn't bad at all. Visitors to your site will notice no slowdown or difference. Supercache really comes into it's own if your server is underpowered, or you're experiencing heavy traffic.
 Super Cached html files will be served more quickly than PHP generated cached files but in every day use, the difference isn't noticeable.
+
+The plugin serves cached files in 3 ways (ranked by speed):
+
+1. The fastest method is by using Apache mod_rewrite (or whatever similar module your web server supports). This completely bypasses PHP and is extremely quick. If your server is hit by deluge of traffic it is more likely to cope as the requests are "lighter". This does require the Apache mod_rewrite module (which is probably installed if you have custom permalinks) and a modification of your .htaccess file. Only visits by anonymous or unknown users will be served this way.
+2. Cached files can now be served by PHP in two ways. The new PHP method will serve a "supercached" file if it exists and it's almost as fast as the mod_rewrite method. It's easier to configure as the .htaccess file doesn't need to be changed. You still need a custom permalink. Your server may not cope as well with a really large amount of traffic (yes, you're gaming Digg aren't you?)
+3. Legacy caching is used to cache pages for known users. These are logged in users, visitors who leave comments or those who should be shown custom per-user data. It's the most flexible caching method but also the slowest. As each page is different it's often better not to cache pages for these users at all and avoid legacy caching.
+
+If you're new to caching use PHP caching. It's easy to set up and very fast. Avoid legacy caching unless you want to have highly customised pages.
 
 See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further information. [Developer documentation](http://ocaoimh.ie/wp-super-cache-developers/) is also available for those who need to interact with the cache or write plugins.
 
