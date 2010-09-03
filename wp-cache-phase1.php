@@ -164,7 +164,7 @@ function wp_cache_serve_cache_file() {
 			header( "Content-type: text/html; charset=UTF-8" ); // UTF-8 hard coded is bad but we don't know what it is this early in the process
 			header( "Vary: Accept-Encoding, Cookie" );
 			header( "Cache-Control: max-age=300, must-revalidate" );
-			header( "WP-Cache: Served supercache file from PHP" );
+			header( "WP-Super-Cache: Served supercache file from PHP" );
 			if ( file_exists( $file . ".gz" ) && $wp_cache_gzip_encoding ) {
 				header( 'Content-Encoding: ' . $wp_cache_gzip_encoding );
 				header( 'Content-Length: ' . filesize( $file . ".gz" ) );
@@ -192,7 +192,7 @@ function wp_cache_serve_cache_file() {
 		if( strpos( $header, 'Last-Modified:' ) === false ) 
 			header($header);
 	}
-	header( 'WP-Super-Cache: WP-Cache' );
+	header( 'WP-Super-Cache: Served legacy cache file' );
 	if ( $wp_cache_object_cache ) { 
 		if ( $cache ) {
 			if ( $ungzip ) {
