@@ -319,7 +319,7 @@ function wp_cache_manager_updates() {
 		if( isset( $_POST[ 'wp_cache_easy_on' ] ) && $_POST[ 'wp_cache_easy_on' ] == 1 ) {
 			$_POST[ 'wp_cache_mobile_enabled' ] = 1;
 			$_POST[ 'wp_cache_status' ] = 'all';
-			$_POST[ 'super_cache_enabled' ] = 0;
+			$_POST[ 'super_cache_enabled' ] = 2; // PHP
 			$_POST[ 'wp_cache_hello_world' ] = 1;
 			$_POST[ 'cache_rebuild_files' ] = 1;
 			$_POST[ 'cache_compression' ] = 1;
