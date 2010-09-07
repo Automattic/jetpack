@@ -426,7 +426,7 @@ function wp_cache_manager_updates() {
 				$new_cache_compression = 0;
 			}
 			if ( 1 == ini_get( 'zlib.output_compression' ) || "on" == strtolower( ini_get( 'zlib.output_compression' ) ) ) { 
-				_e( "<strong>Warning!</strong> You attempted to enable compression but <code>zlib.output_compression</code> is enabled. See #21 in the Troubleshooting section of the readme file.", 'wp-super-cache' );
+				echo '<div id="message" class="updated fade">' . __( "<strong>Warning!</strong> You attempted to enable compression but <code>zlib.output_compression</code> is enabled. See #21 in the Troubleshooting section of the readme file.", 'wp-super-cache' ) . '</div>';
 			} else {
 				if ( $new_cache_compression != $cache_compression ) {
 					$cache_compression = $new_cache_compression;
@@ -878,7 +878,7 @@ jQuery(document).ready(function(){
 
 	?>
 	</fieldset>
-	</td><td valign='top'>
+	</td><td valign='top' style='width: 300px'>
 	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
 	<h3 align='center'><?php _e( 'Make WordPress Faster', 'wp-super-cache' ); ?></h3>
 	<p><?php printf( __( '%1$s is maintained and developed by %2$s with contributions from many others.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/wp-super-cache/?r=supercache">WP Super Cache</a>', '<a href="http://ocaoimh.ie/?r=supercache">Donncha O Caoimh</a>' ); ?></p>
