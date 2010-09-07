@@ -250,10 +250,10 @@ function wp_cache_manager_error_checks() {
 
 	$home_path = trailingslashit( get_home_path() );
 	$scrules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WPSuperCache' ) );
-	if ( !$wp_cache_mobile_enabled && strpos( $scrules, addcslashes( implode( '|', $wp_cache_mobile_browsers ), ' ' ) ) ) {
+	if ( $cache_enabled && !$wp_cache_mobile_enabled && strpos( $scrules, addcslashes( implode( '|', $wp_cache_mobile_browsers ), ' ' ) ) ) {
 		echo '<div id="message" class="updated fade"><h3>' . __( 'Mobile rewrite rules detected', 'wp-super-cache' ) . "</h3>";
 		echo "<p>" . __( 'For best performance you should enable "Mobile device support" or delete the mobile rewrite rules in your .htaccess. Look for the 2 lines with the text "2.0\ MMP|240x320" and delete those.', 'wp-super-cache' ) . "</p><p>" . __( 'This will have no affect on ordinary users but mobile users will see uncached pages.', 'wp-super-cache' ) . "</p></div>";
-	} elseif ( $wp_cache_mobile_enabled && $scrules != '' && ( 
+	} elseif ( $cache_enabled && $wp_cache_mobile_enabled && $scrules != '' && ( 
 		false === strpos( $scrules, addcslashes( implode( '|', $wp_cache_mobile_prefixes ), ' ' ) ) ||
 		false === strpos( $scrules, addcslashes( implode( '|', $wp_cache_mobile_browsers ), ' ' ) ) ) 
 		) {
@@ -301,10 +301,34 @@ function wp_cache_manager_error_checks() {
 add_filter( 'wp_super_cache_error_checking', 'wp_cache_manager_error_checks' );
 
 function wp_cache_manager_updates() {
-	global $wp_cache_mobile_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression, $wp_cache_mod_rewrite;
+	global $wp_cache_mobile_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression, $wp_cache_mod_rewrite, $supercache_simple_setup;
 	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
 	if ( $valid_nonce == false )
 		return false;
+	if( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'adminpage' ) {
+		if( isset( $_POST[ 'supercache_simple_setup' ] ) && $_POST[ 'supercache_simple_setup' ] == 1 ) {
+			$supercache_simple_setup = 1;
+		} else {
+			$supercache_simple_setup = 0;
+		}
+		wp_cache_replace_line('^ *\$supercache_simple_setup', "\$supercache_simple_setup = " . $supercache_simple_setup . ";", $wp_cache_config_file);
+	}
+
+	if( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'easysetup' ) {
+		$_POST[ 'action' ] = 'scupdates';
+		if( isset( $_POST[ 'wp_cache_easy_on' ] ) && $_POST[ 'wp_cache_easy_on' ] == 1 ) {
+			$_POST[ 'wp_cache_mobile_enabled' ] = 1;
+			$_POST[ 'wp_cache_status' ] = 'all';
+			$_POST[ 'super_cache_enabled' ] = 0;
+			$_POST[ 'wp_cache_hello_world' ] = 1;
+			$_POST[ 'cache_rebuild_files' ] = 1;
+			$_POST[ 'cache_compression' ] = 1;
+		} else {
+			unset( $_POST[ 'wp_cache_status' ] );
+			$_POST[ 'super_cache_enabled' ] = 0;
+		}
+	}
+
 	if( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'scupdates' ) {
 		if( isset( $_POST[ 'wp_cache_mobile_enabled' ] ) ) {
 			$wp_cache_mobile_enabled = 1;
@@ -315,9 +339,6 @@ function wp_cache_manager_updates() {
 
 		$wp_supercache_cache_list = $_POST[ 'wp_supercache_cache_list' ] == 1 ? 1 : 0;
 		wp_cache_replace_line('^ *\$wp_supercache_cache_list', "\$wp_supercache_cache_list = " . $wp_supercache_cache_list . ";", $wp_cache_config_file);
-
-		if ( isset( $_POST[ 'super_cache_enabled' ] ) && $_POST[ 'super_cache_enabled' ] == 0 )
-			$_POST[ 'wp_cache_status' ] = 'wpcache';
 
 		if ( isset( $_POST[ 'wp_cache_status' ] ) ) {
 			if ( $_POST[ 'wp_cache_status' ] == 'all' )
@@ -426,7 +447,7 @@ function wp_cache_manager() {
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers;
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_not_logged_in, $wp_supercache_cache_list;
 	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
-	global $wpmu_version, $cache_max_time, $wp_cache_mod_rewrite;
+	global $wpmu_version, $cache_max_time, $wp_cache_mod_rewrite, $supercache_simple_setup;
 
 	// used by mod_rewrite rules and config file
 	if ( function_exists( "cfmobi_default_browsers" ) ) {
@@ -728,6 +749,49 @@ jQuery(document).ready(function(){
 		break;
 		case 'settings':
 		default:
+		if ( !isset( $supercache_simple_setup ) )
+			$supercache_simple_setup == 0; // for existing users
+		echo '<form name="wp_manager" action="" method="post">';
+		echo '<input type="hidden" name="action" value="adminpage" />';
+		?><table class="form-table">
+		<tr valign="top">
+			<th scope="row"><?php _e( 'Settings', 'wp-super-cache' ); ?></th>
+			<td>
+				<fieldset>
+				<legend class="hidden">Settings</legend>
+				<label><input type='radio' name='supercache_simple_setup' value='1' <?php if ( $supercache_simple_setup == 1 ) { echo 'checked=checked'; } ?>> <?php _e( 'Easy Setup. (Hide technical details as much as possible)', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
+				<label><input type='radio' name='supercache_simple_setup' value='0' <?php if ( $supercache_simple_setup == 0 ) { echo 'checked=checked'; } ?>> <?php _e( 'Advanced Setup. (More choices, more flexible, scary)', 'wp-super-cache' ); ?></label>
+				</legend>
+				</fieldset>
+			</td>
+		</tr>
+		</table><?php
+		wp_nonce_field('wp-cache');
+		echo "<input class='button-primary' type='submit' " . SUBMITDISABLED . " value='" . __( 'Settings Page Appearance', 'wp-super-cache' ) . " &raquo;' /></form><br />";
+		if ( isset( $supercache_simple_setup ) && $supercache_simple_setup ) {
+			?><h3><?php _e( 'Easy Configuration', 'wp-super-cache' ); ?></h3><?php
+			echo '<form name="wp_manager" action="" method="post">';
+			echo '<input type="hidden" name="action" value="easysetup" />';
+			wp_nonce_field('wp-cache');
+			?><table class="form-table">
+				<tr valign="top">
+				<th scope="row"><label for="wp_cache_status"><?php _e( 'Caching', 'wp-super-cache' ); ?></label></th>
+				<td>
+				<fieldset>
+				<legend class="hidden">Caching</legend>
+				<label><input type='radio' name='wp_cache_easy_on' value='1' <?php if ( $cache_enabled == true ) { echo 'checked=checked'; } ?>> <?php _e( 'Caching On', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
+				<label><input type='radio' name='wp_cache_easy_on' value='0' <?php if ( $cache_enabled == false ) { echo 'checked=checked'; } ?>> <?php _e( 'Caching Off', 'wp-super-cache' ); ?></label><br />
+				<em><?php _e( 'Note: enables PHP caching, compression, cache rebuild, Supercache footer message and mobile support', 'wp-super-cache' ); ?></em><br />
+				</legend>
+				</fieldset>
+				</td>
+				</tr>
+				</table>
+			<?php echo "<div class='submit'><input class='button-primary' type='submit' " . SUBMITDISABLED . " value='" . __( 'Update Status', 'wp-super-cache' ) . " &raquo;' /></div>";?>
+			</form><?php
+			break;
+		}
+		?><h3><?php _e( 'Advanced Configuration', 'wp-super-cache' ); ?></h3><?php
 		echo '<form name="wp_manager" action="" method="post">';
 		echo '<input type="hidden" name="action" value="scupdates" />';
 		?><table class="form-table">
@@ -740,7 +804,7 @@ jQuery(document).ready(function(){
 				<label><input type='radio' name='super_cache_enabled' <?php if( $super_cache_enabled ) echo "checked"; ?> value='1'> <?php printf( __( 'Use mod_rewrite to serve cache files.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wordpress-mobile-edition/' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
 				<label><input type='radio' name='super_cache_enabled' <?php if( $wp_cache_mod_rewrite == 0 ) echo "checked"; ?> value='2'> <?php printf( __( 'Use PHP to serve cache files.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wordpress-mobile-edition/' ); ?></label><br />
 				<label><input type='radio' name='super_cache_enabled' <?php if( $super_cache_enabled == false ) echo "checked"; ?> value='0'> <?php _e( 'Legacy page caching.', 'wp-super-cache' ); ?></label><br />
-				<em><?php _e( 'Mod_rewrite is fastest, PHP is almost as fast and easier to get working, while legacy caching is slower again, but more flexible and also easy to get working. New users should go with PHP caching.' ); ?></em><br />
+				<em><?php _e( 'Mod_rewrite is fastest, PHP is almost as fast and easier to get working, while legacy caching is slower again, but more flexible and also easy to get working. New users should go with PHP caching.', 'wp-super-cache' ); ?></em><br />
 				</legend>
 				</fieldset>
 			</td>

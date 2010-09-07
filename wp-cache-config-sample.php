@@ -8,6 +8,7 @@ See wp-cache.php for author details.
 if ( ! defined('WPCACHEHOME') )
 	define( 'WPCACHEHOME', WP_PLUGIN_DIR . '/wp-super-cache/' );
 
+$supercache_simple_setup = 1;
 $cache_compression = 0; // Super cache compression
 $cache_enabled = false;
 $super_cache_enabled = false;
