@@ -136,7 +136,7 @@ function wp_cache_manager_error_checks() {
 	if ( isset( $wpmu_version ) || function_exists( 'is_multisite' ) && is_multisite() ) {
 		if ( false == wpsupercache_site_admin() )
 			return false;
-		if ( function_exists( "is_main_site" ) && false == is_main_site() || function_exists( 'is_main_blog' ) && false == is_main_blog() ) {
+		if ( function_exists( "is_main_site" ) && false == is_main_site() || function_exists( 'is_main_blog' ) && is_main_blog() ) {
 			global $current_site;
 			$protocol = ( 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
 			if ( isset( $wpmu_version ) ) {
