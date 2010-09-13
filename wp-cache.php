@@ -1864,7 +1864,7 @@ function wp_cache_files() {
 	echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ),    $cache_stats[ 'wpcache' ][ 'expired' ] ) . "</li></ul>";
 	$divisor = $cache_compression == 1 ? 2 : 1;
 	if( $cache_enabled == true && $super_cache_enabled == true ) {
-		if ( array_key_exists('fsize', $cache_stats[ 'supercache' ]) )
+		if ( array_key_exists('fsize', (array)$cache_stats[ 'supercache' ]) )
 			$fsize = $cache_stats[ 'supercache' ][ 'fsize' ] / 1024;
 		else
 			$fsize = 0;
