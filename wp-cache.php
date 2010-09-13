@@ -504,10 +504,16 @@ jQuery(document).ready(function(){
 	});
 });
 </script>
+
+<style type='text/css'>
+.wrap h2 {
+	border-bottom: 1px solid #ccc;
+	padding-bottom: 0;
+}
+</style>
 <?php
 	echo '<a name="top"></a>';
 	echo '<div class="wrap">';
-	echo "<h2><a href='?page=wpsupercache'>" . __( 'WP Super Cache Manager', 'wp-super-cache' ) . "</a></h2>\n";
 	wpsc_admin_tabs();
 
 	if ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 1 && !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
@@ -958,16 +964,18 @@ function wpsc_admin_tabs( $current = 0 ) {
 			$current = 'settings';
 		}
 	}
-	$tabs = array( 'settings' => __( 'Settings', 'wp-super-cache' ), 'tester' => __( 'Tester', 'wp-super-cache' ), 'preload' => __( 'Preload', 'wp-super-cache' ), 'debug' => __( 'Debug', 'wp-super-cache' ) );
+	$tabs = array( 'settings' => __( 'WP Super Cache Settings', 'wp-super-cache' ), 'tester' => __( 'Tester', 'wp-super-cache' ), 'preload' => __( 'Preload', 'wp-super-cache' ), 'debug' => __( 'Debug', 'wp-super-cache' ) );
 	$links = array();
 	foreach( $tabs as $tab => $name ) {
 		if ( $current == $tab ) {
-			$links[] = "<strong>$name</strong>";
+			$links[] = "<a class='nav-tab nav-tab-active' href='?page=wpsupercache&tab=$tab'>$name</a>";
 		} else {
-			$links[] = "<a href='?page=wpsupercache&tab=$tab'>$name</a>";
+			$links[] = "<a class='nav-tab' href='?page=wpsupercache&tab=$tab'>$name</a>";
 		}
 	}
-	echo "| " . implode( " | ", $links ) . " |";
+	echo '<h2 class="themes-php">';
+	echo implode( "", $links );
+	echo '</h2>';
 }
 
 function wsc_mod_rewrite() {
