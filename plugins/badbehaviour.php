@@ -49,7 +49,7 @@ function wp_supercache_badbehaviour_admin() {
 		wp_cache_replace_line('^ *\$cache_badbehaviour', "\$cache_badbehaviour = $cache_badbehaviour;", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$cache_badbehaviour_file', "\$cache_badbehaviour_file = '$bbfile';", $wp_cache_config_file);
 	}
-	echo '<form name="wp_supercache_badbehaviour_admin" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
+	echo '<li><form name="wp_supercache_badbehaviour_admin" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	wp_nonce_field('wp-cache');
 	if( $cache_badbehaviour == 0 ) {
 		$bb_status = __( 'disabled', 'wp-super-cache' );
@@ -58,7 +58,7 @@ function wp_supercache_badbehaviour_admin() {
 		wp_super_cache_disable();
 	}
 	echo '<strong>' . sprintf( __( 'Bad Behaviour support is %s.', 'wp-super-cache' ), $bb_status ) . '</strong>';
-	printf( __( '(Only half-on caching supported, disabled compression and requires <a href="http://www.bad-behavior.ioerror.us/">Bad Behavior</a> in "%s/plugins/bad-behavior/") ', 'wp-super-cache' ), WP_CONTENT_DIR );
+	printf( __( '(Only legacy caching supported, disabled compression and requires <a href="http://www.bad-behavior.ioerror.us/">Bad Behavior</a> in "%s/plugins/bad-behavior/") ', 'wp-super-cache' ), WP_CONTENT_DIR );
 	if( $cache_badbehaviour == 0 ) {
 		echo '<input type="submit" name="cache_badbehaviour" value="' . __( 'Enable', 'wp-super-cache' ) . '" />';
 	} else {
@@ -67,6 +67,7 @@ function wp_supercache_badbehaviour_admin() {
 	echo "</form>\n";
 	if( $err )
 		echo "<p><strong>" . __( 'Warning!', 'wp-super-cache' ) . "</strong> $err</p>";
+	echo '</li>';
 
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_badbehaviour_admin' );

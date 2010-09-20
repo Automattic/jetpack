@@ -61,7 +61,7 @@ function wp_supercache_searchengine_admin() {
 		$cache_no_adverts_for_friends = $_POST['cache_no_adverts_for_friends'] == __( 'Disable', 'wp-super-cache' ) ? 'no' : 'yes';
 		wp_cache_replace_line('^ *\$cache_no_adverts_for_friends', "\$cache_no_adverts_for_friends = '$cache_no_adverts_for_friends';", $wp_cache_config_file);
 	}
-	echo '<form name="wp_supercache_searchengine_admin" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
+	echo '<li><form name="wp_supercache_searchengine_admin" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
 	wp_nonce_field('wp-cache');
 	if( $cache_no_adverts_for_friends == 'no' ) {
 		$status = __( 'disabled', 'wp-super-cache' );
@@ -75,7 +75,7 @@ function wp_supercache_searchengine_admin() {
 	} else {
 		echo '<input type="submit" name="cache_no_adverts_for_friends" value="' . __( 'Disable', 'wp-super-cache' ) . '" />';
 	}
-	echo "</form>\n";
+	echo "</form></li>\n";
 
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_searchengine_admin' );
