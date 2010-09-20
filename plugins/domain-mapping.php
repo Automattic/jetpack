@@ -1,0 +1,68 @@
+<?php
+
+function domain_mapping_gc_cache( $function, $directory ) {
+	global $cache_path;
+
+	if ( !function_exists( 'domain_mapping_warning' ) )
+		return false;
+
+	$siteurl = domain_mapping_siteurl( false );
+	if ( !$siteurl )
+		return false;
+
+	$protocol = ( 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
+	$siteurl = trailingslashit( str_replace( $protocol, '', $siteurl ) );
+
+	if ( $directory == 'homepage' )
+		$directory = '';
+
+	switch( $function ) {
+		case "rebuild":
+			@wp_cache_rebuild_or_delete( $cache_path . 'supercache/' . $siteurl . $directory . 'index.html' );
+			@wp_cache_rebuild_or_delete( $cache_path . 'supercache/' . $siteurl . $directory . 'index.html.gz' );
+		break;
+		case "prune":
+			prune_super_cache( $cache_path . 'supercache/' . $siteurl . $directory . 'index.html', true, true ); 
+			prune_super_cache( $cache_path . 'supercache/' . $siteurl . $directory . 'index.html.gz', true, true ); 
+		break;
+	}
+
+	return $directory;
+}
+
+function domain_mapping_actions() {
+	global $cache_domain_mapping;
+	if( $cache_domain_mapping == '1' ) {
+		add_action( 'gc_cache', 'domain_mapping_gc_cache', 10, 2 );
+	}
+}
+add_cacheaction( 'add_cacheaction', 'domain_mapping_actions' );
+
+function wp_supercache_domain_mapping_admin() {
+	global $cache_domain_mapping, $wp_cache_config_file, $valid_nonce;
+	
+	$cache_domain_mapping = $cache_domain_mapping == '' ? '0' : $cache_domain_mapping;
+
+	if(isset($_POST['cache_domain_mapping']) && $valid_nonce) {
+		$cache_domain_mapping = $_POST['cache_domain_mapping'] == __( 'Disable', 'wp-super-cache' ) ? '0' : '1';
+		wp_cache_replace_line('^ *\$cache_domain_mapping', "\$cache_domain_mapping = '$cache_domain_mapping';", $wp_cache_config_file);
+	}
+	echo '<li><form name="wp_supercache_searchengine_admin" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
+	wp_nonce_field('wp-cache');
+	if( $cache_domain_mapping == '0' ) {
+		$status = __( 'disabled', 'wp-super-cache' );
+	} else {
+		$status = __( 'enabled', 'wp-super-cache' );
+	}
+	echo '<strong>' . sprintf( __( 'Domain Mapping support plugin is %s', 'wp-super-cache' ), $status );
+	echo '.</strong> ' . __( '(support for multiple domains on multisite websites) ', 'wp-super-cache' );
+	if( $cache_domain_mapping == '0' ) {
+		echo '<input type="submit" name="cache_domain_mapping" value="' . __( 'Enable', 'wp-super-cache' ) . '" />';
+	} else {
+		echo '<input type="submit" name="cache_domain_mapping" value="' . __( 'Disable', 'wp-super-cache' ) . '" />';
+	}
+	echo "</form></li>\n";
+
+}
+add_cacheaction( 'cache_admin_page', 'wp_supercache_domain_mapping_admin' );
+?>
