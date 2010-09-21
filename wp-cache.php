@@ -760,9 +760,7 @@ jQuery(document).ready(function(){
 		break;
 		case 'settings':
 		echo '<form name="wp_manager" action="' . add_query_arg( array( 'page' => 'wpsupercache', 'tab' => 'settings' ) ) . '" method="post">';
-		echo '<input type="hidden" name="action" value="adminpage" />';
 		wp_nonce_field('wp-cache');
-		echo '<form name="wp_manager" action="" method="post">';
 		echo '<input type="hidden" name="action" value="scupdates" />';
 		?><table class="form-table">
 		<tr valign="top">
