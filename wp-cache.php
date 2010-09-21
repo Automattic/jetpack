@@ -494,6 +494,10 @@ jQuery(document).ready(function(){
 	echo '<a name="top"></a>';
 	echo '<div class="wrap">';
 	echo '<h2>' . __( 'WP Super Cache Settings', 'wp-super-cache' ) . '</h2>';
+	if ( !isset( $_GET[ 'tab' ] ) && $wp_cache_mod_rewrite ) {
+		$_GET[ 'tab' ] = 'settings';
+		echo '<div id="message" class="updated fade"><p>' .  __( 'Notice: <em>mod_rewrite caching enabled</em>. Showing Advanced Settings Page by default.', 'wp-super-cache' ) . '</p></div>';
+	}
 	wpsc_admin_tabs();
 
 	if ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 1 && !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
@@ -755,7 +759,7 @@ jQuery(document).ready(function(){
 		wp_cache_debug_settings();
 		break;
 		case 'settings':
-		echo '<form name="wp_manager" action="" method="post">';
+		echo '<form name="wp_manager" action="' . add_query_arg( array( 'page' => 'wpsupercache', 'tab' => 'settings' ) ) . '" method="post">';
 		echo '<input type="hidden" name="action" value="adminpage" />';
 		wp_nonce_field('wp-cache');
 		echo '<form name="wp_manager" action="" method="post">';
@@ -936,7 +940,7 @@ function wpsc_admin_tabs( $current = 0 ) {
 		if ( isset( $_GET[ 'tab' ] ) ) {
 			$current = $_GET[ 'tab' ];
 		} else {
-			$current = 'settings';
+			$current = 'easy';
 		}
 	}
 	$tabs = array( 'easy' => 'Easy', 'settings' => __( 'Advanced', 'wp-super-cache' ), 'tester' => __( 'Tester & Contents', 'wp-super-cache' ), 'preload' => __( 'Preload', 'wp-super-cache' ), 'plugins' => __( 'Plugins', 'wp-super-cache' ), 'debug' => __( 'Debug', 'wp-super-cache' ) );
