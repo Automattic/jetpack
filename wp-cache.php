@@ -133,21 +133,7 @@ add_action('admin_menu', 'wp_cache_add_pages');
 
 function wp_cache_manager_error_checks() {
 	global $wpmu_version, $wp_cache_debug, $wp_cache_cron_check, $cache_enabled, $super_cache_enabled, $wp_cache_config_file, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers, $wp_cache_mobile_enabled, $wp_cache_mod_rewrite;
-	if ( isset( $wpmu_version ) || function_exists( 'is_multisite' ) && is_multisite() ) {
-		if ( false == wpsupercache_site_admin() )
-			return false;
-		if ( function_exists( "is_main_site" ) && false == is_main_site() || function_exists( 'is_main_blog' ) && false == is_main_blog() ) {
-			global $current_site;
-			$protocol = ( 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
-			if ( isset( $wpmu_version ) ) {
-				echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Sorry, the WP Super Cache admin page only works <a href="%s">on the main site</a> of this network.', 'wp-super-cache' ), admin_url( "ms-admin.php?page=wpsupercache" ) ) . '</p></div>';
-			} else {
-				echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Sorry, the WP Super Cache admin page only works <a href="%s">on the main site</a> of this network.', 'wp-super-cache' ), admin_url( "wpmu-admin.php?page=wpsupercache" ) ) . '</p></div>';
-			}
-			return false;
-		}
-	}
-
+	
 	if ( 1 == ini_get( 'safe_mode' ) || "on" == strtolower( ini_get( 'safe_mode' ) ) ) {
 		echo '<div id="message" class="updated fade"><h3>' . __( 'Warning! PHP Safe Mode Enabled!', 'wp-super-cache' ) . '</h3><p>' .
 			__( 'You may experience problems running this plugin because SAFE MODE is enabled.', 'wp-super-cache' ) . ' ';
@@ -248,6 +234,7 @@ function wp_cache_manager_error_checks() {
 		}
 	}
 
+	if ( function_exists( "is_main_site" ) && true == is_main_site() || function_exists( 'is_main_blog' ) && true == is_main_blog() ) {
 	$home_path = trailingslashit( get_home_path() );
 	$scrules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WPSuperCache' ) );
 	if ( $cache_enabled && $wp_cache_mod_rewrite && !$wp_cache_mobile_enabled && strpos( $scrules, addcslashes( implode( '|', $wp_cache_mobile_browsers ), ' ' ) ) ) {
@@ -270,12 +257,12 @@ function wp_cache_manager_error_checks() {
 
 	if ( $super_cache_enabled && $wp_cache_mod_rewrite && $scrules == '' ) {
 		?><div id="message" class="updated fade"><h3><?php _e( 'Rewrite rules must be updated', 'wp-super-cache' ); ?></h3>
-			<p><?php _e( 'The rewrite rules required by this plugin have changed or are missing. ', 'wp-super-cache' ); ?>
-			<?php _e( 'Scroll down this page and click the <strong>Update Mod_Rewrite Rules</strong> button.', 'wp-super-cache' ); ?></p></div>
-		<?php
+		<p><?php _e( 'The rewrite rules required by this plugin have changed or are missing. ', 'wp-super-cache' ); ?>
+		<?php _e( 'Scroll down this page and click the <strong>Update Mod_Rewrite Rules</strong> button.', 'wp-super-cache' ); ?></p></div><?php
+	}
 	}
 
-	if( $super_cache_enabled && function_exists( 'apache_get_modules' ) ) {
+	if ( $wp_cache_mod_rewrite && $super_cache_enabled && function_exists( 'apache_get_modules' ) ) {
 		$mods = apache_get_modules();
 		$required_modules = array( 'mod_mime' => __( 'Required to serve compressed supercache files properly.', 'wp-super-cache' ), 'mod_headers' => __( 'Required to set caching information on supercache pages. IE7 users will see old pages without this module.', 'wp-super-cache' ), 'mod_expires' => __( 'Set the expiry date on supercached pages. Visitors may not see new pages when they refresh or leave comments without this module.', 'wp-super-cache' ) );
 		foreach( $required_modules as $req => $desc ) {
@@ -967,11 +954,28 @@ function wpsc_admin_tabs( $current = 0 ) {
 }
 
 function wsc_mod_rewrite() {
-	global $cache_enabled, $super_cache_enabled, $valid_nonce, $cache_path, $wp_cache_mod_rewrite;
+	global $cache_enabled, $super_cache_enabled, $valid_nonce, $cache_path, $wp_cache_mod_rewrite, $wpmu_version;
 
 	if ( !$wp_cache_mod_rewrite )
 		return false;
 
+	if ( isset( $wpmu_version ) || function_exists( 'is_multisite' ) && is_multisite() ) {
+		if ( false == wpsupercache_site_admin() )
+			return false;
+		if ( function_exists( "is_main_site" ) && false == is_main_site() || function_exists( 'is_main_blog' ) && false == is_main_blog() ) {
+			global $current_site;
+			$protocol = ( 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
+			if ( isset( $wpmu_version ) ) {
+				echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Notice: WP Super Cache mod_rewrite rule checks disabled unless running on <a href="%s">the main site</a> of this network.', 'wp-super-cache' ), admin_url( "ms-admin.php?page=wpsupercache" ) ) . '</p></div>';
+			} else {
+				echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Notice: WP Super Cache mod_rewrite rule checks disabled unless running on <a href="%s">on the main site</a> of this network.', 'wp-super-cache' ), admin_url( "wpmu-admin.php?page=wpsupercache" ) ) . '</p></div>';
+			}
+			return false;
+		}
+	}
+
+	if ( function_exists( "is_main_site" ) && false == is_main_site() || function_exists( 'is_main_blog' ) && false == is_main_blog() )
+		return true;
 	?>
 	<a name="modrewrite"></a><fieldset class="options"> 
 	<h3><?php _e( 'Mod Rewrite Rules', 'wp-super-cache' ); ?></h3><?php
