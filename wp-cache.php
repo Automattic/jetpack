@@ -1254,7 +1254,7 @@ function wp_cache_edit_max_time () {
 	echo '<label for="wp_max_time">' . __( 'Expire time:', 'wp-super-cache' ) . '</label> ';
 	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> " . __( "seconds", 'wp-super-cache' );
 	echo "<h4>" . __( 'Garbage Collection', 'wp-super-cache' ) . "</h4><p>" . __( 'If the expiry time is more than 1800 seconds (half an hour), garbage collection will be done every 10 minutes, otherwise it will happen 10 seconds after the expiry time above.', 'wp-super-cache' ) . "</p>";
-	echo "<p>" . __( 'Checking for and deleting expired files is expensive, but it&#8217;s expensive leaving them there too. On a very busy site you should set the expiry time to <em>300 seconds</em>. Experiment with different values and visit this page to see how many expired files remain at different times during the day. Aim to have less than 500 cached files if possible.', 'wp-super-cache' ) . "</p>";
+	echo "<p>" . __( 'Checking for and deleting expired files is expensive, but it&#8217;s expensive leaving them there too. On a very busy site you should set the expiry time to <em>300 seconds</em>. Experiment with different values and visit this page to see how many expired files remain at different times during the day. If you are using legacy caching aim to have less than 500 cached files if possible. You can have many times more cached files when using mod_rewrite or PHP caching.', 'wp-super-cache' ) . "</p>";
 	echo "<p>" . __( 'Set the expiry time to 0 seconds to disable garbage collection.', 'wp-super-cache' ) . "</p>";
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Change Expiration', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
