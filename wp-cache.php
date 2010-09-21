@@ -494,9 +494,9 @@ jQuery(document).ready(function(){
 	echo '<a name="top"></a>';
 	echo '<div class="wrap">';
 	echo '<h2>' . __( 'WP Super Cache Settings', 'wp-super-cache' ) . '</h2>';
-	if ( !isset( $_GET[ 'tab' ] ) && $wp_cache_mod_rewrite ) {
+	if ( !isset( $_GET[ 'tab' ] ) && ( $wp_cache_mod_rewrite || $super_cache_enabled == false ) ) {
 		$_GET[ 'tab' ] = 'settings';
-		echo '<div id="message" class="updated fade"><p>' .  __( 'Notice: <em>mod_rewrite caching enabled</em>. Showing Advanced Settings Page by default.', 'wp-super-cache' ) . '</p></div>';
+		echo '<div id="message" class="updated fade"><p>' .  __( 'Notice: <em>Mod_rewrite or Legacy caching enabled</em>. Showing Advanced Settings Page by default.', 'wp-super-cache' ) . '</p></div>';
 	}
 	wpsc_admin_tabs();
 
