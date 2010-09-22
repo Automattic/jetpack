@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha, automattic
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 3.0
-Stable tag: 0.9.9.3
+Tested up to: 3.0.1
+Stable tag: 0.9.9.4
 Requires at least: 2.9.2
 
 A very fast caching engine for WordPress that produces static html files.
@@ -365,8 +365,8 @@ If things don't work when you installed the plugin here are a few things to chec
     `127.0.0.1 myhostname.com`
 A line like "127.0.0.1 localhost localhost.localdomain" is ok.
 17. If old pages are being served to your visitors via the supercache, you may be missing Apache modules (or their equivalents if you don't use Apache). 3 modules are required: mod_mime, mod_headers and mod_expires. The last two are especially important for making sure browsers load new versions of existing pages on your site.
-18. The error message, "WP Super Cache is installed but broken. The path to wp-cache-phase1.php in wp-content/advanced-cache.php must be fixed!" appears at the end of every page. Open the file wp-content/advanced-cache.php in your favourite editor. Is the path to wp-cache-phase1.php correct? If it is not the caching engine will not load.
-19. Caching doesn't work. The timestamp on my blog keeps changing when I reload. Check that the path in your .htaccess rules matches where the supercache directory is. You may have to hardcode it. Or use the plugin in Half-On mode.
+18. The error message, "WP Super Cache is installed but broken. The path to wp-cache-phase1.php in wp-content/advanced-cache.php must be fixed!" appears at the end of every page. Open the file wp-content/advanced-cache.php in your favourite editor. Is the path to wp-cache-phase1.php correct? This file will normally be in wp-content/plugins/wp-super-cache/. If it is not correct the caching engine will not load.
+19. Caching doesn't work. The timestamp on my blog keeps changing when I reload. Check that the path in your .htaccess rules matches where the supercache directory is. You may have to hardcode it. Or use the plugin in PHP or legacy caching mode.
 20. If supercache cache files are generated but not served, check the permissions on all your wp-content/cache/supercache folders (and each of wp-content cache and supercache folders) and wp-content/cache/.htaccess. If your PHP runs as a different user to Apache and permissions are strict Apache may not be able to read the PHP generated cache files. To fix you must add the following line to your wp-config.php (Add it above the WP_CACHE define.) Then clear your cache.
 
 	`umask( 0022 );`
@@ -406,9 +406,10 @@ I would sincerely like to thank [John Pozadzides](http://onemansblog.com/) for g
 Thanks to James Farmer and Andrew Billits of [Edu Blogs](http://edublogs.org/) fame who helped me make this more WordPress MU friendly.
 
 Translators who did a great job converting the text of the plugin to their native language. Thank you!
-[Gianni Diurno](http://gidibao.net/) (Italian)
-[Omi](http://equipajedemano.info/) (Spanish)
-[tomchen1989](http://emule-fans.com/) (Simplified Chinese)
-Tai (Japanese)
-[Vitaly](http://pressword.com.ua/wordpress/) (Ukranian)
-[Pseric](http://pseric.com/) (Traditional Chinese)
+
+* [Gianni Diurno](http://gidibao.net/) (Italian)
+* [Omi](http://equipajedemano.info/) (Spanish)
+* [tomchen1989](http://emule-fans.com/) (Simplified Chinese)
+* Tai (Japanese)
+* [Vitaly](http://pressword.com.ua/wordpress/) (Ukranian)
+* [Pseric](http://pseric.com/) (Traditional Chinese)
