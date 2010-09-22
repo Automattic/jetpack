@@ -494,6 +494,14 @@ jQuery(document).ready(function(){
 	echo '<a name="top"></a>';
 	echo '<div class="wrap">';
 	echo '<h2>' . __( 'WP Super Cache Settings', 'wp-super-cache' ) . '</h2>';
+
+	// set a default
+	if ( $cache_enabled == false && isset( $wp_cache_mod_rewrite ) == false ) {
+		$wp_cache_mod_rewrite = 0;
+	} elseif ( !isset( $wp_cache_mod_rewrite ) && $cache_enabled && $super_cache_enabled ) {
+		$wp_cache_mod_rewrite = 1;
+	}
+
 	if ( !isset( $_GET[ 'tab' ] ) && ( $wp_cache_mod_rewrite || $super_cache_enabled == false ) ) {
 		$_GET[ 'tab' ] = 'settings';
 		echo '<div id="message" class="updated fade"><p>' .  __( 'Notice: <em>Mod_rewrite or Legacy caching enabled</em>. Showing Advanced Settings Page by default.', 'wp-super-cache' ) . '</p></div>';
@@ -519,10 +527,6 @@ jQuery(document).ready(function(){
 	if( $wp_cache_mobile_enabled == 1 ) {
 		update_cached_mobile_ua_list( $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes, $mobile_groups );
 	}
-
-	// set a default
-	if ( $cache_enabled == false && isset( $wp_cache_mod_rewrite ) == false )
-		$wp_cache_mod_rewrite = 0;
 
 	?> <table><td valign='top'><?php
 	switch( $_GET[ 'tab' ] ) {
