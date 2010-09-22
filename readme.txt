@@ -42,7 +42,7 @@ Garbage collection is the act of cleaning up cache files that are out of date an
 If you are not using legacy mode caching consider deleting the contents of the "Rejected User Agents" text box and allow search engines create supercache static files.
 
 Likewise, preload as many posts as you can and enable "Preload Mode". Garbage collection will still occur but it won't affect the preloaded files. If you don't care about sidebar widgets updating often set the preload interval to 2880 minutes (2 days) so all your posts aren't recached very often. When the preload occurs the cache files for the post being refreshed is deleted and then regenerated. Afterwards a garbage collection of all old files is performed to clean out stale cache files.
-
+With preloading on cached files will still be deleted when posts are made or edited or comments made.
 
 See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further information. [Developer documentation](http://ocaoimh.ie/wp-super-cache-developers/) is also available for those who need to interact with the cache or write plugins.
 
@@ -50,10 +50,25 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == Upgrade Notice ==
 
-= 0.9.9.3 =
-Fix division by zero error in half-on mode, always show "delete cache" button, fix "Update mod_rewrite rules" button.
+= 0.9.9.4 =
+Cache tester fixes, Easy settings page and tabs to settings page, new PHP caching mode, fixes to mobile support, domain mapping support plugin.
 
 == Changelog ==
+
+= 0.9.9.4 =
+* Settings page split into tabbed pages.
+* Added new "Easy" settings page for new users.
+* New PHP caching mode to serve supercached files.
+* Mobile support fixes.
+* Added Domain mapping support plugin.
+* Added "awaiting moderation" plugin that removes that text from posts.
+* Terminology change. Changed "half on" to "legacy caching".
+* Fixed cache tester on some installs of WordPress.
+* Updated documentation
+* Added $wp_super_cache_lock_down config variable to hide lockdown and directly cached pages admin items.
+* Preloaded checks if it has stalled and reschedules the job to continue.
+* Serve the gzipped page when first cached if the client supports compression.
+* Lots more bug fixes..
 
 = 0.9.9.3 =
 * Fixed division by zero error in half on mode.
@@ -393,3 +408,7 @@ Thanks to James Farmer and Andrew Billits of [Edu Blogs](http://edublogs.org/) f
 Translators who did a great job converting the text of the plugin to their native language. Thank you!
 [Gianni Diurno](http://gidibao.net/) (Italian)
 [Omi](http://equipajedemano.info/) (Spanish)
+[tomchen1989](http://emule-fans.com/) (Simplified Chinese)
+Tai (Japanese)
+[Vitaly](http://pressword.com.ua/wordpress/) (Ukranian)
+[Pseric](http://pseric.com/) (Traditional Chinese)
