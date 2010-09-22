@@ -54,7 +54,7 @@ function wp_supercache_domain_mapping_admin() {
 	} else {
 		$status = __( 'enabled', 'wp-super-cache' );
 	}
-	echo '<strong>' . sprintf( __( 'Domain Mapping support plugin is %s', 'wp-super-cache' ), $status );
+	echo '<strong>' . sprintf( __( '<a href="http://wordpress.org/extend/plugins/wordpress-mu-domain-mapping/">Domain Mapping</a> support plugin is %s', 'wp-super-cache' ), $status );
 	echo '.</strong> ' . __( '(support for multiple domains on multisite websites) ', 'wp-super-cache' );
 	if( $cache_domain_mapping == '0' ) {
 		echo '<input type="submit" name="cache_domain_mapping" value="' . __( 'Enable', 'wp-super-cache' ) . '" />';
@@ -65,4 +65,22 @@ function wp_supercache_domain_mapping_admin() {
 
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_domain_mapping_admin' );
+
+function wp_supercache_domain_mapping_notice() {
+	global $cache_enabled, $cache_domain_mapping;
+	if( $cache_enabled )
+		echo '<div class="error"><p><strong>' . __('Domain Mapping plugin detected! Please go to the Supercache plugins page and enable the domain mapping helper plugin.', 'wp-super-cache' ) . '</strong></p></div>';
+}
+function wp_supercache_domain_mapping_exists() {
+	global $cache_domain_mapping;
+	if ( $cache_domain_mapping == 1 )
+		return false;
+
+	if ( is_admin() && function_exists( 'domain_mapping_warning' ) )
+		add_action( 'admin_notices', 'wp_supercache_domain_mapping_notice' );
+}
+
+if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] == 'wpsupercache' ) {
+	add_cacheaction( 'add_cacheaction', 'wp_supercache_domain_mapping_exists' );
+}
 ?>
