@@ -302,6 +302,7 @@ function wp_cache_manager_updates() {
 			$_POST[ 'wp_cache_hello_world' ] = 1;
 			$_POST[ 'cache_rebuild_files' ] = 1;
 			$_POST[ 'cache_compression' ] = 1;
+			insert_with_markers( trailingslashit( get_home_path() ) . '.htaccess', 'WPSuperCache', array() );
 		} else {
 			unset( $_POST[ 'wp_cache_status' ] );
 			$_POST[ 'super_cache_enabled' ] = 0;
@@ -332,6 +333,7 @@ function wp_cache_manager_updates() {
 					$wp_cache_mod_rewrite = 1; // we need this because supercached files can be served by PHP too.
 				} else {
 					$wp_cache_mod_rewrite = 0;
+					insert_with_markers( trailingslashit( get_home_path() ) . '.htaccess', 'WPSuperCache', array() );
 				}
 				wp_cache_replace_line('^ *\$wp_cache_mod_rewrite', '$wp_cache_mod_rewrite = ' . $wp_cache_mod_rewrite . ";", $wp_cache_config_file);
 			}
