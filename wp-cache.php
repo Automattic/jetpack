@@ -146,7 +146,6 @@ function wp_cache_manager_error_checks() {
 			_e( 'You or an administrator must disable this. See the <a href="http://php.net/features.safe-mode">safe mode manual page</a> for further details. This cannot be disabled in a .htaccess file unfortunately. It must be done in the php.ini config file.', 'wp-super-cache' );
 		}
 		echo '</p></div>';
-		return false;
 	}
 
 	if ( '' == get_option( 'permalink_structure' ) ) {
