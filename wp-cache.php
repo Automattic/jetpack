@@ -299,7 +299,7 @@ function wp_cache_manager_updates() {
 			$_POST[ 'wp_cache_status' ] = 'all';
 			$_POST[ 'super_cache_enabled' ] = 2; // PHP
 			$_POST[ 'cache_rebuild_files' ] = 1;
-			$_POST[ 'cache_compression' ] = 1;
+			$_POST[ 'cache_compression' ] = 0;
 		} else {
 			unset( $_POST[ 'wp_cache_status' ] );
 			$_POST[ 'super_cache_enabled' ] = 0;
@@ -856,7 +856,7 @@ jQuery(document).ready(function(){
 				<fieldset>
 				<label><input type='radio' name='wp_cache_easy_on' value='1' <?php if ( $cache_enabled == true ) { echo 'checked=checked'; } ?>> <?php _e( 'Caching On', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
 				<label><input type='radio' name='wp_cache_easy_on' value='0' <?php if ( $cache_enabled == false ) { echo 'checked=checked'; } ?>> <?php _e( 'Caching Off', 'wp-super-cache' ); ?></label><br />
-				<em><?php _e( 'Note: enables PHP caching, compression, cache rebuild, Supercache footer message and mobile support', 'wp-super-cache' ); ?></em><br />
+				<em><?php _e( 'Note: enables PHP caching, cache rebuild, and mobile support', 'wp-super-cache' ); ?></em><br />
 				</legend>
 				</fieldset>
 				</td>
