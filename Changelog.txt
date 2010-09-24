@@ -1,3 +1,35 @@
+2010-09-24 11:31  donncha
+
+	* readme.txt, wp-cache.php: Bump to 0.9.9.5 for minor bug fixes.
+
+2010-09-24 11:26  donncha
+
+	* wp-cache.php: Show the lockdown menu again.
+
+2010-09-24 07:00  donncha
+
+	* wp-cache.php: Disable compression when using easy page, and only
+	  warn of mod_rewrite rules if they're turned off
+
+2010-09-24 06:47  donncha
+
+	* wp-cache.php: Disable cache compression, still problems with the
+	  occasional host.
+
+2010-09-23 18:08  donncha
+
+	* wp-cache.php: The plugin works somewhat well in safemode so don't
+	  stop users using the settings page.
+
+2010-09-23 17:53  donncha
+
+	* wp-cache.php: No more hello world notices and don't delete
+	  mod_rewrite rules when caching is disabled
+
+2010-09-22 16:05  donncha
+
+	* Changelog.txt: Updated changelog
+
 2010-09-22 16:02  donncha
 
 	* readme.txt, wp-cache.php: Bump version to 0.9.9.4 and update some
