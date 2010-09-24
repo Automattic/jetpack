@@ -299,7 +299,7 @@ function wp_cache_manager_updates() {
 			$_POST[ 'wp_cache_status' ] = 'all';
 			$_POST[ 'super_cache_enabled' ] = 2; // PHP
 			$_POST[ 'cache_rebuild_files' ] = 1;
-			$_POST[ 'cache_compression' ] = 0;
+			unset( $_POST[ 'cache_compression' ] );
 		} else {
 			unset( $_POST[ 'wp_cache_status' ] );
 			$_POST[ 'super_cache_enabled' ] = 0;
@@ -863,10 +863,10 @@ jQuery(document).ready(function(){
 				</tr>
 				</table>
 			<?php
-			if( $cache_enabled ) {
+			if( $cache_enabled && !$wp_cache_mod_rewrite ) {
 				$scrules = trim( implode( "\n", extract_from_markers( trailingslashit( get_home_path() ) . '.htaccess', 'WPSuperCache' ) ) );
 				if ( $scrules != '' ) {
-					echo "<p><strong>" . __( 'Notice: Supercache mod_rewrite rules detected. Cached files will be served using those rules. Please see the Advanced settings page for more info.', 'wp-super-cache' ) . '</strong></p>';
+					echo "<p><strong>" . __( 'Notice: Supercache mod_rewrite rules detected. Cached files will be served using those rules. Edit the .htaccess file in the root of your install and remove the SuperCache rules.', 'wp-super-cache' ) . '</strong></p>';
 				}
 			}
 			echo "<div class='submit'><input class='button-primary' type='submit' " . SUBMITDISABLED . " value='" . __( 'Update Status', 'wp-super-cache' ) . " &raquo;' /></div>";?>
