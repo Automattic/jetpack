@@ -2,7 +2,7 @@
 Contributors: donncha, automattic
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 3.0.1
-Stable tag: 0.9.9.4
+Stable tag: 0.9.9.5
 Requires at least: 2.9.2
 
 A very fast caching engine for WordPress that produces static html files.
@@ -50,10 +50,16 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == Upgrade Notice ==
 
-= 0.9.9.4 =
-Cache tester fixes, Easy settings page and tabs to settings page, new PHP caching mode, fixes to mobile support, domain mapping support plugin.
+= 0.9.9.5 =
+Don't enable compression or footer link on easy caching page and other bugfixes.
 
 == Changelog ==
+
+= 0.9.9.5 =
+* Disable compression on on easy setup page. Still causes problems on some hosts.
+* Remove footerlink on easy setup page.
+* Don't delete mod_rewrite rules when caching is disabled.
+* Don't stop users using settings page when in safe mode.
 
 = 0.9.9.4 =
 * Settings page split into tabbed pages.
