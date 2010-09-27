@@ -730,18 +730,18 @@ jQuery(document).ready(function(){
 				$wp_cache_preload_email_volume = 'many';
 			echo '&nbsp;&nbsp;&nbsp;&nbsp;<input name="wp_cache_preload_email_volume" type="radio" value="many" class="tog" ';
 			checked( 'many', $wp_cache_preload_email_volume );
-			echo '/> ' . __( 'Many emails, 2 emails per 100 posts.' ) . '<br >';
+			echo '/> ' . __( 'Many emails, 2 emails per 100 posts.', 'wp-super-cache' ) . '<br >';
 			echo '&nbsp;&nbsp;&nbsp;&nbsp;<input name="wp_cache_preload_email_volume" type="radio" value="medium" class="tog" ';
 			checked( 'medium', $wp_cache_preload_email_volume );
-			echo '/> ' . __( 'Medium, 1 email per 100 posts.' ) . '<br >';
+			echo '/> ' . __( 'Medium, 1 email per 100 posts.', 'wp-super-cache' ) . '<br >';
 			echo '&nbsp;&nbsp;&nbsp;&nbsp;<input name="wp_cache_preload_email_volume" type="radio" value="less" class="tog" ';
 			checked( 'less', $wp_cache_preload_email_volume );
 			echo '/> ' . __( 'Less emails, 1 at the start and 1 at the end of preloading all posts.', 'wp-super-cache' ) . '<br >';
 
 			$currently_preloading = false;
 
-			next_preload_message( 'wp_cache_preload_hook', 'Refresh of cache in %d hours %d minutes and %d seconds.', 60 );
-			next_preload_message( 'wp_cache_full_preload_hook', 'Full refresh of cache in %d hours %d minutes and %d seconds.' );
+			next_preload_message( 'wp_cache_preload_hook', __( 'Refresh of cache in %d hours %d minutes and %d seconds.', 'wp-super-cache' ), 60 );
+			next_preload_message( 'wp_cache_full_preload_hook', __( 'Full refresh of cache in %d hours %d minutes and %d seconds.', 'wp-super-cache' ) );
 
 			$preload_counter = get_option( 'preload_cache_counter' );
 			if ( isset( $preload_counter[ 'first' ] ) ) // converted from int to array
@@ -954,7 +954,7 @@ function wpsc_admin_tabs( $current = 0 ) {
 			$current = 'easy';
 		}
 	}
-	$tabs = array( 'easy' => 'Easy', 'settings' => __( 'Advanced', 'wp-super-cache' ), 'tester' => __( 'Tester & Contents', 'wp-super-cache' ), 'preload' => __( 'Preload', 'wp-super-cache' ), 'plugins' => __( 'Plugins', 'wp-super-cache' ), 'debug' => __( 'Debug', 'wp-super-cache' ) );
+	$tabs = array( 'easy' => __( 'Easy', 'wp-super-cache' ), 'settings' => __( 'Advanced', 'wp-super-cache' ), 'tester' => __( 'Tester & Contents', 'wp-super-cache' ), 'preload' => __( 'Preload', 'wp-super-cache' ), 'plugins' => __( 'Plugins', 'wp-super-cache' ), 'debug' => __( 'Debug', 'wp-super-cache' ) );
 	$links = array();
 	foreach( $tabs as $tab => $name ) {
 		if ( $current == $tab ) {
@@ -2439,7 +2439,7 @@ function next_preload_message( $hook, $text, $limit = 0 ) {
 			$h = (int)($m / 60); $m = $m % 60;
 		}
 		if ( $next_time > 0 && $next_time < ( 60 * $wp_cache_preload_interval ) )
-			echo '<p><strong>' . sprintf( __( $text, 'wp-super-cache' ), $h, $m, $s ) . '</strong></p>';
+			echo '<p><strong>' . sprintf( $text, $h, $m, $s ) . '</strong></p>';
 		if ( ( $next_preload - time() ) <= 60 )
 			$currently_preloading = true;
 	}
