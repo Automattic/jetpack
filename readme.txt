@@ -419,3 +419,4 @@ Translators who did a great job converting the text of the plugin to their nativ
 * Tai (Japanese)
 * [Vitaly](http://pressword.com.ua/wordpress/) (Ukranian)
 * [Pseric](http://pseric.com/) (Traditional Chinese)
+* [Maître Mô](http://maitremo.fr/) (French)
