@@ -947,6 +947,7 @@ function wpsc_plugins_tab() {
 }
 
 function wpsc_admin_tabs( $current = 0 ) {
+	global $wp_db_version;
 	if ( $current == 0 ) {
 		if ( isset( $_GET[ 'tab' ] ) ) {
 			$current = $_GET[ 'tab' ];
@@ -963,9 +964,13 @@ function wpsc_admin_tabs( $current = 0 ) {
 			$links[] = "<a class='nav-tab' href='?page=wpsupercache&tab=$tab'>$name</a>";
 		}
 	}
-	echo '<div id="nav"><h2 class="themes-php">';
-	echo implode( "", $links );
-	echo '</h2></div>';
+	if ( $wp_db_version >= 15477 ) {
+		echo '<div id="nav"><h2 class="themes-php">';
+		echo implode( "", $links );
+		echo '</h2></div>';
+	} else {
+		echo implode( " | ", $links );
+	}
 }
 
 function wsc_mod_rewrite() {
