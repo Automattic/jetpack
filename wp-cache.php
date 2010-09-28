@@ -2392,10 +2392,12 @@ function wp_cron_preload_cache() {
 		$msg = '';
 		$count = $c + 1;
 		foreach( $posts as $post_id ) {
+			set_time_limit( 60 );
 			clear_post_supercache( $post_id );
 			$url = get_permalink( $post_id );
 			$msg .= "$url\n";
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
+			sleep( 5 );
 			$count++;
 		}
 		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume != 'less' )
