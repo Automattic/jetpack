@@ -50,10 +50,16 @@ The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is
 
 == Upgrade Notice ==
 
-= 0.9.9.5 =
-Don't enable compression or footer link on easy caching page and other bugfixes.
+= 0.9.9.6 =
+Fixed problem serving cached files with PHP, added support for 304 "file not modified" browser caching, French & German and updated Italian translations
 
 == Changelog ==
+
+= 0.9.9.6 =
+* Fixed problem serving cached files with PHP
+* Added support for 304 "file not modified" header to help browser caching. (PHP caching only)
+* Added French & German translations, updated Italian translation and fixed translation strings.
+* Sleep 5 seconds between preload urls to reduce load on the server
 
 = 0.9.9.5 =
 * Disable compression on on easy setup page. Still causes problems on some hosts.
@@ -420,3 +426,4 @@ Translators who did a great job converting the text of the plugin to their nativ
 * [Vitaly](http://pressword.com.ua/wordpress/) (Ukranian)
 * [Pseric](http://pseric.com/) (Traditional Chinese)
 * [Maître Mô](http://maitremo.fr/) (French)
+* [Mathias Roth](http://trade-service.eu/) (German)
