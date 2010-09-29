@@ -59,7 +59,8 @@ Fixed problem serving cached files with PHP, added support for 304 "file not mod
 * Fixed problem serving cached files with PHP
 * Added support for 304 "file not modified" header to help browser caching. (PHP caching only)
 * Added French & German translations, updated Italian translation and fixed translation strings.
-* Sleep 5 seconds between preload urls to reduce load on the server
+* Sleep 4 seconds between preload urls to reduce load on the server
+* Updated docs and FAQs.
 
 = 0.9.9.5 =
 * Disable compression on on easy setup page. Still causes problems on some hosts.
