@@ -2085,7 +2085,7 @@ function wp_cache_clean_cache($file_prefix) {
 }
 
 function wp_cache_clean_expired($file_prefix) {
-	global $cache_path, $cache_max_time, $blog_cache_dir;
+	global $cache_path, $cache_max_time, $blog_cache_dir, $wp_cache_preload_on;
 
 	if ( $cache_max_time == 0 ) {
 		return false;
@@ -2093,7 +2093,7 @@ function wp_cache_clean_expired($file_prefix) {
 
 	// If phase2 was compiled, use its function to avoid race-conditions
 	if(function_exists('wp_cache_phase2_clean_expired')) {
-		if (function_exists ('prune_super_cache')) {
+		if ( $wp_cache_preload_on != 1 && function_exists ('prune_super_cache')) {
 			$dir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]);
 			if( is_dir( $dir ) ) {
 				prune_super_cache( $dir );
