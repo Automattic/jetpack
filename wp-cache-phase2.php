@@ -386,6 +386,7 @@ function wp_cache_get_ob(&$buffer) {
 		wp_cache_init(); // PHP5 destroys objects during shutdown
 	}
 
+	$fr = $fr2 = $gz = false;
 	if ( $cache_enabled ) {
 		// Open wp-cache cache file
 		if ( !$supercacheonly && ( !@file_exists( $blog_cache_dir . $cache_filename ) || ( @file_exists( $blog_cache_dir . $cache_filename ) && ( time() - @filemtime( $blog_cache_dir . $cache_filename ) ) > 5 ) ) ) {

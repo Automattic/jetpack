@@ -423,7 +423,7 @@ function wp_cache_manager_updates() {
 		}
 	}
 }
-if ( $_GET[ 'page' ] == 'wpsupercache' )
+if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] == 'wpsupercache' )
 	add_action( 'admin_init', 'wp_cache_manager_updates' );
 
 function wp_cache_manager() {
