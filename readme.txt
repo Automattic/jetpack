@@ -351,6 +351,10 @@ That tracking adds a query string to each url linked from various sources like T
 
 It's not good when the web server can write to these directories but sometimes shared hosting accounts are set up in this way to make administration easier. Use `chmod 755 directory` to fix the permissions or find the permissions section of your ftp client. This [Google search](http://www.google.ie/search?sourceid=chrome&ie=UTF-8&q=ftp+fix+directory+permissions+755) will lead you to more information on this topic. Unfortunately some hosts require that those directories be writable. If that's the case just ignore this warning.
 
+= How do I delete the WP_CACHE define from wp-config.php? =
+
+Load your desktop ftp client and connect to your site. Navigate to the root (or the directory below it) of your site where you'll find wp-config.php. Download that file and edit it in a text editor. Delete the line `define( 'WP_CACHE', true );` and save the file. Now upload that file, overwriting the wp-config.php on your server.
+
 = Troubleshooting =
 
 If things don't work when you installed the plugin here are a few things to check:
