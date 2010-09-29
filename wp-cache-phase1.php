@@ -163,7 +163,10 @@ function wp_cache_serve_cache_file() {
 				$file = $file . '.gz';
 				header( 'Content-Encoding: ' . $wp_cache_gzip_encoding );
 				header( 'Content-Length: ' . filesize( $file ) );
+			} elseif ( $wp_supercache_304 ) {
+				header( 'Content-Length: ' . filesize( $file ) );
 			}
+
 			if ( $wp_supercache_304 ) {
 				if ( function_exists( 'apache_request_headers' ) ) {
 					$request = apache_request_headers();
