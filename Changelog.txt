@@ -1,3 +1,116 @@
+2010-09-29 16:43  donncha
+
+	* readme.txt, wp-cache.php: Bump to 0.9.9.6
+
+2010-09-29 16:36  donncha
+
+	* readme.txt: Minor updated to changelog
+
+2010-09-29 16:33  donncha
+
+	* readme.txt: Added new FAQ on editing the .htaccess file
+
+2010-09-29 16:09  donncha
+
+	* readme.txt: Added new FAQ, "How do I delete the WP_CACHE define
+	  from wp-config.php?"
+
+2010-09-29 16:06  donncha
+
+	* wp-cache.php: Added "need help?" section to yellow box
+
+2010-09-29 14:30  donncha
+
+	* wp-cache.php: Sleep for 4 seconds between preloads to reduce
+	  server load some more when preloading
+
+2010-09-29 14:08  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php, wp-cache.php: Fix
+	  variable warning messages
+
+2010-09-29 10:11  donncha
+
+	* wp-cache-phase1.php: Send Content-Length header if 304 support
+	  enabled
+
+2010-09-29 09:50  donncha
+
+	* wp-cache.php: Don't delete expired supercache files when preload
+	  mode is on
+
+2010-09-29 09:05  donncha
+
+	* wp-cache.php: Pause 2 seconds instead of 5 between preload urls
+
+2010-09-28 17:30  donncha
+
+	* readme.txt: Updated readme, changelog and credits for German
+	  translation
+
+2010-09-28 17:26  donncha
+
+	* languages/wp-super-cache-de_DE.mo,
+	  languages/wp-super-cache-de_DE.po: Added German translation,
+	  props Mathias Roth, (http://trade-service.eu/)
+
+2010-09-28 16:34  donncha
+
+	* readme.txt: Added French translation credit
+
+2010-09-28 16:32  donncha
+
+	* languages/wp-super-cache-fr_FR.mo,
+	  languages/wp-super-cache-fr_FR.po: Added French translation,
+	  props Maitre Mo (http://maitremo.fr/)
+
+2010-09-28 16:28  donncha
+
+	* languages/wp-super-cache-it_IT.mo,
+	  languages/wp-super-cache-it_IT.po: Updated Italian translation,
+	  props Gianni Diurno
+
+2010-09-28 16:14  donncha
+
+	* wp-cache.php: Only show styled tabs in WP 3.0.1 and higher
+
+2010-09-28 13:58  donncha
+
+	* wp-cache.php: Sleep 5 seconds between preloads
+
+2010-09-27 13:59  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2010-09-27 13:57  donncha
+
+	* wp-cache.php: Gettext fixes, props Gianni Diurno for most of
+	  them.
+
+2010-09-27 12:09  donncha
+
+	* wp-cache-phase1.php: Added 304 not modified header check to
+	  legacy caching too. NOT for dynamic pages.
+
+2010-09-27 11:44  donncha
+
+	* wp-cache-phase1.php, wp-cache.php: Added 304 "File not modified"
+	  support in PHP mode, props qdinar,
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-still-not-corrected-bug-about-unicode-range-letters-in-permalink?replies=24#post-1687175
+
+2010-09-27 11:41  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Revert $wpsc_settings
+	  changes.
+
+2010-09-27 06:43  donncha
+
+	* wp-cache-phase1.php: Forgot to init the slashcheck variable
+
+2010-09-24 11:33  donncha
+
+	* Changelog.txt: Updated changelog for 0.9.9.5
+
 2010-09-24 11:31  donncha
 
 	* readme.txt, wp-cache.php: Bump to 0.9.9.5 for minor bug fixes.
