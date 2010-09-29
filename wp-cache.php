@@ -2402,7 +2402,7 @@ function wp_cron_preload_cache() {
 			$url = get_permalink( $post_id );
 			$msg .= "$url\n";
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-			sleep( 2 );
+			sleep( 4 );
 			$count++;
 		}
 		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume != 'less' )
