@@ -635,7 +635,9 @@ jQuery(document).ready(function(){
 						update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
 						wp_unschedule_event( $next_preload, 'wp_cache_preload_hook' );
 					}
-					echo "<p><strong>" . __( 'Scheduled preloading of cache cancelled. If a job is currently running it will not shutdown until the current 100 pages are complete.', 'wp-super-cache' ) . "</strong></p>";
+					$fp = @fopen( $cache_path . "stop_preload.txt", 'w' );
+					@fclose( $fp );
+					echo "<p><strong>" . __( 'Scheduled preloading of cache cancelled.', 'wp-super-cache' ) . "</strong></p>";
 				} elseif ( isset( $_POST[ 'custom_preload_interval' ] ) && ( $_POST[ 'custom_preload_interval' ] == 0 || $_POST[ 'custom_preload_interval' ] >= $min_refresh_interval ) ) {
 					// if preload interval changes than unschedule any preload jobs and schedule any new one.
 					$_POST[ 'custom_preload_interval' ] = (int)$_POST[ 'custom_preload_interval' ];
@@ -673,10 +675,12 @@ jQuery(document).ready(function(){
 					}
 					wp_cache_replace_line('^ *\$wp_cache_preload_on', "\$wp_cache_preload_on = $wp_cache_preload_on;", $wp_cache_config_file);
 					if ( isset( $_POST[ 'preload' ] ) && $_POST[ 'preload' ] == __( 'Preload Cache Now', 'wp-super-cache' ) ) {
+						@unlink( $cache_path . "preload_mutex.tmp" );
 						update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
 						wp_schedule_single_event( time() + 10, 'wp_cache_preload_hook' );
 						echo "<p><strong>" . __( 'Scheduled preloading of cache in 10 seconds.' ) . "</strong></p>";
 					} elseif ( (int)$_POST[ 'custom_preload_interval' ] ) {
+						@unlink( $cache_path . "preload_mutex.tmp" );
 						update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
 						wp_schedule_single_event( time() + ( (int)$_POST[ 'custom_preload_interval' ] * 60 ), 'wp_cache_full_preload_hook' );
 						echo "<p><strong>" . sprintf( __( 'Scheduled preloading of cache in %d minutes', 'wp-super-cache' ), (int)$_POST[ 'custom_preload_interval' ] ) . "</strong></p>";
@@ -747,8 +751,12 @@ jQuery(document).ready(function(){
 			if ( isset( $preload_counter[ 'first' ] ) ) // converted from int to array
 				update_option( 'preload_cache_counter', array( 'c' => $preload_counter[ 'c' ], 't' => time() ) );
 			if ( is_array( $preload_counter ) && $preload_counter[ 'c' ] > 0 ) {
-				echo '<p><strong>' . sprintf( __( 'Currently caching from post %d to %d.', 'wp-super-cache' ), $preload_counter[ 'c' ], ( $preload_counter[ 'c' ] + 100 ) ) . '</strong></p>';
+				echo '<p><strong>' . sprintf( __( 'Currently caching from post %d to %d.', 'wp-super-cache' ), ( $preload_counter[ 'c' ] - 100 ), $preload_counter[ 'c' ] ) . '</strong></p>';
 				$currently_preloading = true;
+				if ( @file_exists( $cache_path . "preload_permalink.txt" ) ) {
+					$url = file_get_contents( $cache_path . "preload_permalink.txt" );
+					echo "<p>" . sprintf( __( "<strong>Page last cached:</strong> %s", 'wp-super-cache' ), $url ) . "</p>";
+				}
 			}
 			echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Update Settings', 'wp-super-cache' ) . '" />&nbsp;<input type="submit" name="preload" value="' . __( 'Preload Cache Now', 'wp-super-cache' ) . '" />';
 			if ( $currently_preloading ) {
@@ -2377,12 +2385,23 @@ function clear_post_supercache( $post_id ) {
 }
 
 function wp_cron_preload_cache() {
-	global $wpdb, $wp_cache_preload_interval, $wp_cache_preload_posts, $wp_cache_preload_email_me, $wp_cache_preload_email_volume;
+	global $wpdb, $wp_cache_preload_interval, $wp_cache_preload_posts, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $cache_path;
 
 	if ( get_option( 'preload_cache_stop' ) ) {
 		delete_option( 'preload_cache_stop' );
 		return true;
 	}
+	$mutex = $cache_path . "preload_mutex.tmp";
+	sleep( 3 + mt_rand( 1, 5 ) );
+	if ( @file_exists( $mutex ) ) {
+		if ( @filemtime( $mutex ) > ( time() - 600 ) ) {
+			return true;
+		} else {
+			@unlink( $mutex );
+		}
+	}
+	$fp = @fopen( $mutex, 'w' );
+	@fclose( $fp );
 
 	$counter = get_option( 'preload_cache_counter' );
 	$c = $counter[ 'c' ];
@@ -2402,13 +2421,27 @@ function wp_cron_preload_cache() {
 			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing posts from %2$d to %3$d', 'wp-super-cache' ), site_url(), $c, ($c+100) ), '' );
 		$msg = '';
 		$count = $c + 1;
+		$permalink_counter_msg = $cache_path . "preload_permalink.txt";
 		foreach( $posts as $post_id ) {
 			set_time_limit( 60 );
 			clear_post_supercache( $post_id );
 			$url = get_permalink( $post_id );
+			$fp = @fopen( $permalink_counter_msg, 'w' );
+			if ( $fp ) {
+				@fwrite( $fp, $count . " " . $url );
+				@fclose( $fp );
+			}
+			if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
+				@unlink( $mutex );
+				@unlink( $cache_path . "stop_preload.txt" );
+				update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+				if ( $wp_cache_preload_email_me )
+					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), site_url(), '' ), '' );
+				return true;
+			}
 			$msg .= "$url\n";
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-			sleep( 4 );
+			sleep( 2 );
 			$count++;
 		}
 		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume != 'less' )
@@ -2434,6 +2467,7 @@ function wp_cron_preload_cache() {
 			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Cache Preload Completed', 'wp-super-cache' ), site_url() ), __( "Cleaning up old supercache files.", 'wp-super-cache' ) . "\n" . $msg );
 		wp_cache_phase2_clean_expired( $file_prefix, true ); // force cleanup of old files.
 	}
+	@unlink( $mutex );
 }
 add_action( 'wp_cache_preload_hook', 'wp_cron_preload_cache' );
 add_action( 'wp_cache_full_preload_hook', 'wp_cron_preload_cache' );
