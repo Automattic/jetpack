@@ -800,8 +800,12 @@ jQuery(document).ready(function(){
 				<fieldset>
 				<legend class="hidden">Miscellaneous</legend>
 				<?php if ( false == defined( 'WPSC_DISABLE_COMPRESSION' ) ) { ?>
-					<label><input type='checkbox' name='cache_compression' <?php if( $cache_compression ) echo "checked"; ?> value='1'> <?php _e( 'Compress pages so they&#8217;re served more quickly to visitors.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
-				<em><?php _e( 'Compression is disabled by default because some hosts have problems with compressed files. Switching it on and off clears the cache.', 'wp-super-cache' ); ?></em><br />
+					<?php if ( false == function_exists( 'gzencode' ) ) { ?>
+						<em><?php _e( 'Warning! Compression is disabled as gzencode() function not found.', 'wp-super-cache' ); ?></em><br />
+					<?php } else { ?>
+						<label><input type='checkbox' name='cache_compression' <?php if( $cache_compression ) echo "checked"; ?> value='1'> <?php _e( 'Compress pages so they&#8217;re served more quickly to visitors.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
+						<em><?php _e( 'Compression is disabled by default because some hosts have problems with compressed files. Switching it on and off clears the cache.', 'wp-super-cache' ); ?></em><br />
+					<?php } ?>
 				<?php } ?>
 				<?php if ( 0 == $wp_cache_mod_rewrite ) { ?>
 					<label><input type='checkbox' name='wp_supercache_304' <?php if( $wp_supercache_304 ) echo "checked"; ?> value='1'> <?php _e( '304 Not Modified browser caching. Indicate when a page has not been modified since last requested.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
