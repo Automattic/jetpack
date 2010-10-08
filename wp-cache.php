@@ -889,11 +889,22 @@ jQuery(document).ready(function(){
 			if( $cache_enabled && !$wp_cache_mod_rewrite ) {
 				$scrules = trim( implode( "\n", extract_from_markers( trailingslashit( get_home_path() ) . '.htaccess', 'WPSuperCache' ) ) );
 				if ( $scrules != '' ) {
-					echo "<p><strong>" . __( 'Notice: Supercache mod_rewrite rules detected. Cached files will be served using those rules. Edit the .htaccess file in the root of your install and remove the SuperCache rules.', 'wp-super-cache' ) . '</strong></p>';
+					echo "<p><strong>" . __( 'Notice: PHP caching enabled but Supercache mod_rewrite rules detected. Cached files will be served using those rules. If your site is working ok please ignore this message or you can edit the .htaccess file in the root of your install and remove the SuperCache rules.', 'wp-super-cache' ) . '</strong></p>';
 				}
 			}
 			echo "<div class='submit'><input class='button-primary' type='submit' " . SUBMITDISABLED . " value='" . __( 'Update Status', 'wp-super-cache' ) . " &raquo;' /></div>";?>
-			</form><?php
+			</form>
+			<h3><?php _e( 'Recommended Links and Plugins', 'wp-super-cache' ); ?></h3>
+			<p><?php _e( 'Caching is only one part of making a website faster. Here are some other plugins that will help:', 'wp-super-cache' ); ?></p>
+			<ol><li><?php printf( __( '<a href="%s">WP Minify</a> reduces the number of files served by your web server by joining Javascript and CSS files together.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-minify/' ); ?></li>
+			<li><?php printf( __( '<a href="%s">Yahoo! Yslow</a> is an extension for the Firefox add-on Firebug. It analyzes web pages and suggests ways to improve their performance based on a set of rules for high performance web pages.', 'wp-super-cache' ), 'http://developer.yahoo.com/yslow/' ); ?></li>
+			<li><?php printf( __( '<a href="%s">Use Google Libraries</a> allows you to load some commonly used Javascript libraries from Google webservers. Ironically it may reduce your Yslow score.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/use-google-libraries/' ); ?></li>
+			<li><?php printf( __( '<a href="%s">CDN Tools</a> and other <a href="%s">CDN plugins</a> will host your static files on a content delivery network.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/cdn-tools/', 'http://wordpress.org/extend/plugins/tags/cdn' ); ?></li>
+			<li><?php printf( __( '<strong>Advanced users only:</strong> <a href="%s">Speed up your site with Caching and cache-control</a> explains how to make your site more cacheable with .htaccess rules.', 'wp-super-cache' ), 'http://www.askapache.com/htaccess/speed-up-your-site-with-caching-and-cache-control.html' ); ?></li>
+			<li><?php printf( __( '<strong>Advanced users only:</strong> Install an object cache. Choose from <a href="%s">Memcached</a>, <a href="%s">XCache</a>, <a href="%s">eAcccelerator</a> and others.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/memcached/', 'http://neosmart.net/dl.php?id=12', 'http://neosmart.net/dl.php?id=13' ); ?></li>
+			</ol>
+			
+			<?php
 		break;
 	}
 
