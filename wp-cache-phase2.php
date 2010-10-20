@@ -401,36 +401,37 @@ function wp_cache_get_ob(&$buffer) {
 					return $buffer;
 				}
 			}
-		}
-		$user_info = wp_cache_get_cookies_values();
-		$do_cache = apply_filters( 'do_createsupercache', $user_info );
-		if ( $super_cache_enabled && ( $user_info == '' || $do_cache === true ) ) {
+		} else {
+			$user_info = wp_cache_get_cookies_values();
+			$do_cache = apply_filters( 'do_createsupercache', $user_info );
+			if ( $super_cache_enabled && ( $user_info == '' || $do_cache === true ) ) {
 
-			if( @is_dir( $dir ) == false )
-				@wp_mkdir_p( $dir );
+				if( @is_dir( $dir ) == false )
+					@wp_mkdir_p( $dir );
 
-			$cache_fname = "{$dir}index.html";
-			$tmp_cache_filename = $dir . uniqid( mt_rand(), true ) . '.tmp';
-			if ( !@file_exists( $cache_fname ) || ( @file_exists( $cache_fname ) && ( time() - @filemtime( $cache_fname ) ) > 5 ) ) {
-				$fr2 = @fopen( $tmp_cache_filename, 'w' );
-				if (!$fr2) {
-					if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Error. Supercache could not write to " . str_replace( ABSPATH, '', $tmp_cache_filename ), 1 );
-					$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $tmp_cache_filename ) . " -->\n";
-					@fclose( $fr );
-					@unlink( $tmp_wpcache_filename );
-					wp_cache_writers_exit();
-					return $buffer;
-				} elseif ( $cache_compression ) {
-					$gz = @fopen( $tmp_cache_filename . ".gz", 'w');
-					if (!$gz) {
-						if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Error. Supercache could not write to " . str_replace( ABSPATH, '', $tmp_cache_filename ) . ".gz", 1 );
-						$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $tmp_cache_filename ) . ".gz -->\n";
+				$cache_fname = "{$dir}index.html";
+				$tmp_cache_filename = $dir . uniqid( mt_rand(), true ) . '.tmp';
+				if ( !@file_exists( $cache_fname ) || ( @file_exists( $cache_fname ) && ( time() - @filemtime( $cache_fname ) ) > 5 ) ) {
+					$fr2 = @fopen( $tmp_cache_filename, 'w' );
+					if (!$fr2) {
+						if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Error. Supercache could not write to " . str_replace( ABSPATH, '', $tmp_cache_filename ), 1 );
+						$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $tmp_cache_filename ) . " -->\n";
 						@fclose( $fr );
 						@unlink( $tmp_wpcache_filename );
-						@fclose( $fr2 );
-						@unlink( $tmp_cache_filename );
 						wp_cache_writers_exit();
 						return $buffer;
+					} elseif ( $cache_compression ) {
+						$gz = @fopen( $tmp_cache_filename . ".gz", 'w');
+						if (!$gz) {
+							if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Error. Supercache could not write to " . str_replace( ABSPATH, '', $tmp_cache_filename ) . ".gz", 1 );
+							$buffer .= "<!-- File not cached! Super Cache Couldn't write to: " . str_replace( ABSPATH, '', $tmp_cache_filename ) . ".gz -->\n";
+							@fclose( $fr );
+							@unlink( $tmp_wpcache_filename );
+							@fclose( $fr2 );
+							@unlink( $tmp_cache_filename );
+							wp_cache_writers_exit();
+							return $buffer;
+						}
 					}
 				}
 			}
