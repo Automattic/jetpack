@@ -295,13 +295,28 @@ No, it will do the opposite. Super Cache files are compressed and stored that wa
 
 WP Super Cache retains the dynamic loading code of WP Cache but only works in legacy caching mode.
 
-There are two ways to do this, you can have functions that stay dynamic or you can include other files on every page load. To have a dynamic function in the cached PHP page use this syntax around the function:
+There are a few ways to do this, you can have functions that stay dynamic or you can include other files on every page load. To execute PHP code on every page load you can use either the "dynamic-cached-content", "mfunc", or "mclude" tags. The "dynamic-cached-content" tag is easier to use but the other tags can still be used. Make sure you duplicate the PHP code when using these tags. The first code is executed when the page is cached, while the second chunk of code is executed when the cached page is served to the next visitor.
+To execute WordPress functions you must define $wp_super_cache_late_init in your config file.
+
+1. This code will include the file adverts.php and will execute the functions "print_sidebar_ad()" and "do_more_stuff()". Make sure there's no space before or after the PHP tags.
+
+`<!--dynamic-cached-content--><?php
+include_once( ABSPATH . '/scripts/adverts.php' );
+print_sidebar_ad();
+do_more_stuff();
+?><!--
+include_once( ABSPATH . '/scripts/adverts.php' );
+print_sidebar_ad();
+do_more_stuff();
+--><!--/dynamic-cached-content-->`
+
+2. To execute the function "function_name()":
 
 `<!--mfunc function_name( 'parameter', 'another_parameter' ) -->
 <?php function_name( 'parameter', 'another_parameter' ) ?>
 <!--/mfunc-->`
 
-The HTML comments around the mirrored PHP allow it to be executed in the static page. To include another file try this:
+3. To include another file:
 
 `<!--mclude file.php-->
 <?php include_once( ABSPATH . 'file.php' ); ?>
