@@ -532,7 +532,7 @@ function wp_cache_get_ob(&$buffer) {
 		}
 		if( $fr2 ) {
 			fclose($fr2);
-			if ( $wp_cache_paranoid_checks && $cache_fname == $supercachedir . $home_url[ 'path' ] . 'index.html' && ( is_single() || is_category() || is_tag() ) ) {
+			if ( $wp_cache_paranoid_checks && $cache_fname == $supercachedir . $home_url[ 'path' ] . 'index.html' && !( is_front_page() || is_home() ) ) {
 				wp_cache_writers_exit();
 				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Warning! Not writing another page to front page cache.", 1 );
 				return $buffer;
