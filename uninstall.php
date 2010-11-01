@@ -5,7 +5,10 @@
 <body>
 <?php
 /** Include the bootstrap for setting up WordPress environment */
-include( '../../../wp-load.php' );
+if ( false == file_exists( './wp-load.php' ) ) {
+	die( 'This file must be copied into the same directory where WordPress is installed. The file wp-load.php is in this directory' );
+}
+include( './wp-load.php' );
 
 if ( !is_user_logged_in() )
 	wp_die( 'You must be logged in to run this script.' );
@@ -16,10 +19,10 @@ if ( !current_user_can( 'install_plugins' ) )
 if ( defined( 'UNINSTALL_WPSUPERCACHE' ) )
 	wp_die( 'UNINSTALL_WPSUPERCACHE set somewhere else! It must only be set in uninstall.php' );
 
-define( 'UNINSTALL_WPSUPERCACHE', '' );
+//define( 'UNINSTALL_WPSUPERCACHE', 1 );
 
 if ( !defined( 'UNINSTALL_WPSUPERCACHE' ) || constant( 'UNINSTALL_WPSUPERCACHE' ) == '' ) 
-	wp_die( 'UNINSTALL_WPSUPERCACHE must be set to a non-blank value in uninstall.php' );
+	wp_die( 'UNINSTALL_WPSUPERCACHE must be uncommented on line 22 of uninstall.php. Remove "//" at the start of the line.' );
 
 ?>
 <p>This script will uninstall the files and directories created by <a href='http://ocaoimh.ie/wp-super-cache/'>WP Super Cache</a>.</p>
@@ -46,7 +49,7 @@ if ( $_POST[ 'uninstall' ] ) {
 	echo " <strong>DONE</strong><br />";
 	echo "<p>Make sure you remove the following line from " . ABSPATH . "wp-config.php too.</p>";
 	echo "<blockquote><code>define('WP_CACHE', true);</code></blockquote>";
-	echo "<p><strong>Please comment out the UNINSTALL_WPSUPERCACHE <em>define()</em> in this file!</strong></p>";
+	echo "<p><strong>Please delete the UNINSTALL_WPSUPERCACHE <em>define()</em> on line 22 of uninstall.php</strong></p>";
 	wp_mail( $current_user->user_email, 'WP Super Cache Uninstalled', '' );
 } else {
 	?>
