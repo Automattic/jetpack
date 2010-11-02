@@ -126,13 +126,17 @@ function wp_cache_add_pages() {
 		add_submenu_page( 'ms-admin.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
 	} elseif ( isset( $wpmu_version ) && wpsupercache_site_admin() ) {
 		add_submenu_page( 'wpmu-admin.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
+	} else {
+		add_options_page( 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager');
 	}
-	add_options_page('WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager');
 }
 add_action('admin_menu', 'wp_cache_add_pages');
 
 function wp_cache_manager_error_checks() {
 	global $wpmu_version, $wp_cache_debug, $wp_cache_cron_check, $cache_enabled, $super_cache_enabled, $wp_cache_config_file, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers, $wp_cache_mobile_enabled, $wp_cache_mod_rewrite;
+
+	if ( !wpsupercache_site_admin() )
+		return false;
 	
 	if ( 1 == ini_get( 'safe_mode' ) || "on" == strtolower( ini_get( 'safe_mode' ) ) ) {
 		echo '<div id="message" class="updated fade"><h3>' . __( 'Warning! PHP Safe Mode Enabled!', 'wp-super-cache' ) . '</h3><p>' .
@@ -288,6 +292,10 @@ add_filter( 'wp_super_cache_error_checking', 'wp_cache_manager_error_checks' );
 
 function wp_cache_manager_updates() {
 	global $wp_cache_mobile_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_paranoid_checks;
+
+	if ( !wpsupercache_site_admin() )
+		return false;
+
 	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
 	if ( $valid_nonce == false )
 		return false;
@@ -446,6 +454,9 @@ function wp_cache_manager() {
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_not_logged_in, $wp_supercache_cache_list;
 	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
 	global $wpmu_version, $cache_max_time, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_paranoid_checks;
+
+	if ( !wpsupercache_site_admin() )
+		return false;
 
 	// used by mod_rewrite rules and config file
 	if ( function_exists( "cfmobi_default_browsers" ) ) {
