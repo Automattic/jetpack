@@ -9,7 +9,7 @@ Author URI: http://ocaoimh.ie/
 */
 
 /*  Copyright 2005-2006  Ricardo Galli Granada  (email : gallir@uib.es)
-    Copyright 2007-2009 Donncha O Caoimh (http://ocaoimh.ie/)
+    Copyright 2007-2010 Donncha O Caoimh (http://ocaoimh.ie/) and many others.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
