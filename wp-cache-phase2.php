@@ -247,6 +247,7 @@ function wp_cache_writers_exit() {
 
 function wp_cache_ob_callback( $buffer ) {
 	global $wp_cache_pages;
+	$buffer = apply_filters( 'wp_cache_ob_callback_filter', $buffer );
 	if( defined( 'DONOTCACHEPAGE' ) ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'DONOTCACHEPAGE defined. Caching disabled.', 2 );
 		return $buffer;
