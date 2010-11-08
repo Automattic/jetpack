@@ -57,6 +57,10 @@ function wp_super_cache_text_domain() {
 }
 add_action( 'init', 'wp_super_cache_text_domain' );
 
+
+// OSSDL CDN plugin (http://wordpress.org/extend/plugins/ossdl-cdn-off-linker/)
+include_once( WPCACHEHOME . 'ossdl-cdn.php' );
+
 // from legolas558 d0t users dot sf dot net at http://www.php.net/is_writable
 function is_writeable_ACLSafe($path) {
 
@@ -560,6 +564,9 @@ jQuery(document).ready(function(){
 
 	?> <table><td valign='top'><?php
 	switch( $_GET[ 'tab' ] ) {
+		case "cdn":
+		scossdl_off_options();
+		break;
 		case "tester":
 		if ( !$cache_enabled )
 			wp_die( __( 'Caching must be enabled to use this feature', 'wp-super-cache' ) );
@@ -1011,7 +1018,7 @@ function wpsc_admin_tabs( $current = 0 ) {
 			$current = 'easy';
 		}
 	}
-	$tabs = array( 'easy' => __( 'Easy', 'wp-super-cache' ), 'settings' => __( 'Advanced', 'wp-super-cache' ), 'tester' => __( 'Tester & Contents', 'wp-super-cache' ), 'preload' => __( 'Preload', 'wp-super-cache' ), 'plugins' => __( 'Plugins', 'wp-super-cache' ), 'debug' => __( 'Debug', 'wp-super-cache' ) );
+	$tabs = array( 'easy' => __( 'Easy', 'wp-super-cache' ), 'settings' => __( 'Advanced', 'wp-super-cache' ), 'cdn' => __( 'CDN', 'wp-super-cache' ), 'tester' => __( 'Tester & Contents', 'wp-super-cache' ), 'preload' => __( 'Preload', 'wp-super-cache' ), 'plugins' => __( 'Plugins', 'wp-super-cache' ), 'debug' => __( 'Debug', 'wp-super-cache' ) );
 	$links = array();
 	foreach( $tabs as $tab => $name ) {
 		if ( $current == $tab ) {
