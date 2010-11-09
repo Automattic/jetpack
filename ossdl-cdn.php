@@ -41,7 +41,12 @@ function scossdl_off_rewriter($match) {
 	if (scossdl_off_exclude_match($match[0], $arr_of_excludes)) {
 		return $match[0];
 	} else {
-		return str_replace($ossdl_off_blog_url, $ossdl_off_cdn_url, $match[0]);
+		$include_dirs = scossdl_off_additional_directories();
+		if ( preg_match( '/' . $include_dirs . '/', $match[0] ) ) {
+			return str_replace($ossdl_off_blog_url, $ossdl_off_cdn_url, $match[0]);
+		} else {
+			return $match[0];
+		}
 	}
 }
 
