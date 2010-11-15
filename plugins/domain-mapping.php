@@ -44,25 +44,36 @@ function wp_supercache_domain_mapping_admin() {
 	$cache_domain_mapping = $cache_domain_mapping == '' ? '0' : $cache_domain_mapping;
 
 	if(isset($_POST['cache_domain_mapping']) && $valid_nonce) {
-		$cache_domain_mapping = $_POST['cache_domain_mapping'] == __( 'Disable', 'wp-super-cache' ) ? '0' : '1';
+		if ( $cache_domain_mapping == (int)$_POST['cache_domain_mapping'] ) {
+			$changed = false;
+		} else {
+			$changed = true;
+		}
+		$cache_domain_mapping = (int)$_POST['cache_domain_mapping'];
 		wp_cache_replace_line('^ *\$cache_domain_mapping', "\$cache_domain_mapping = '$cache_domain_mapping';", $wp_cache_config_file);
 	}
-	echo '<li><form name="wp_supercache_searchengine_admin" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
+	$id = 'domain_mapping-section';
+	?>
+		<fieldset id="<?php echo $id; ?>" class="options"> 
+		<h4><?php _e( 'Domain Mapping', 'wp-super-cache' ); ?></h4>
+		<form name="wp_manager" action="<?php echo $_SERVER[ "REQUEST_URI" ]; ?>" method="post">
+		<label><input type="radio" name="cache_domain_mapping" value="1" <?php if( $cache_domain_mapping ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
+		<label><input type="radio" name="cache_domain_mapping" value="0" <?php if( !$cache_domain_mapping ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
+		<p><?php _e( '', 'wp-super-cache' ); ?></p><?php
+		echo '<p>' . __( 'Provides support for <a href="http://wordpress.org/extend/plugins/wordpress-mu-domain-mapping/">Domain Mapping</a> plugin to map multiple domains to a blog.', 'wp-super-cache' ) . '</p>';
+		if ($changed) {
+			if ( $cache_domain_mapping )
+				$status = __( "enabled" );
+			else
+				$status = __( "disabled" );
+			echo "<p><strong>" . sprintf( __( "Domain Mapping support is now %s", 'wp-super-cache' ), $status ) . "</strong></p>";
+		}
+	echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
-	if( $cache_domain_mapping == '0' ) {
-		$status = __( 'disabled', 'wp-super-cache' );
-	} else {
-		$status = __( 'enabled', 'wp-super-cache' );
-	}
-	echo '<strong>' . sprintf( __( '<a href="http://wordpress.org/extend/plugins/wordpress-mu-domain-mapping/">Domain Mapping</a> support plugin is %s', 'wp-super-cache' ), $status );
-	echo '.</strong> ' . __( '(support for multiple domains on multisite websites) ', 'wp-super-cache' );
-	if( $cache_domain_mapping == '0' ) {
-		echo '<input type="submit" name="cache_domain_mapping" value="' . __( 'Enable', 'wp-super-cache' ) . '" />';
-	} else {
-		echo '<input type="submit" name="cache_domain_mapping" value="' . __( 'Disable', 'wp-super-cache' ) . '" />';
-	}
-	echo "</form></li>\n";
-
+	?>
+	</form>
+	</fieldset>
+	<?php
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_domain_mapping_admin' );
 

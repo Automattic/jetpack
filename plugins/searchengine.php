@@ -2,7 +2,7 @@
 function wp_supercache_searchengine( $string ) {
 	global $passingthrough, $nevershowads, $cache_no_adverts_for_friends;
 
-	if( $cache_no_adverts_for_friends != 'yes' )
+	if( $cache_no_adverts_for_friends != 'yes' && $cache_no_adverts_for_friends != '1' )
 		return $string;
 
 	if( $string != '' )

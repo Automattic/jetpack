@@ -20,24 +20,34 @@ function wp_supercache_awaitingmoderation_admin() {
 	$cache_awaitingmoderation = $cache_awaitingmoderation == '' ? '0' : $cache_awaitingmoderation;
 
 	if(isset($_POST['cache_awaitingmoderation']) && $valid_nonce) {
-		$cache_awaitingmoderation = $_POST['cache_awaitingmoderation'] == __( 'Disable', 'wp-super-cache' ) ? '0' : '1';
+		$cache_awaitingmoderation = (int)$_POST['cache_awaitingmoderation'];
 		wp_cache_replace_line('^ *\$cache_awaitingmoderation', "\$cache_awaitingmoderation = '$cache_awaitingmoderation';", $wp_cache_config_file);
+		$changed = true;
+	} else {
+		$changed = false;
 	}
-	echo '<li><form name="wp_supercache_searchengine_admin" action="'. $_SERVER["REQUEST_URI"] . '" method="post">';
+	$id = 'awaitingmoderation-section';
+	?>
+		<fieldset id="<?php echo $id; ?>" class="options"> 
+		<h4><?php _e( 'Awaiting Moderation', 'wp-super-cache' ); ?></h4>
+		<form name="wp_manager" action="<?php echo $_SERVER[ "REQUEST_URI" ]; ?>" method="post">
+		<label><input type="radio" name="cache_awaitingmoderation" value="1" <?php if( $cache_awaitingmoderation ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
+		<label><input type="radio" name="cache_awaitingmoderation" value="0" <?php if( !$cache_awaitingmoderation ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
+		<p><?php _e( 'Enables or disables plugin to Remove the text "Your comment is awaiting moderation." when someone leaves a moderated comment.', 'wp-super-cache' ); ?></p>
+		<?php
+		if ($changed) {
+			if ( $cache_awaitingmoderation )
+				$status = __( "enabled" );
+			else
+				$status = __( "disabled" );
+			echo "<p><strong>" . sprintf( __( "Awaiting Moderation is now %s", 'wp-super-cache' ), $status ) . "</strong></p>";
+		}
+	echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
-	if( $cache_awaitingmoderation == '0' ) {
-		$status = __( 'disabled', 'wp-super-cache' );
-	} else {
-		$status = __( 'enabled', 'wp-super-cache' );
-	}
-	echo '<strong>' . sprintf( __( 'Awaiting Moderation plugin is %s', 'wp-super-cache' ), $status );
-	echo '.</strong> ' . __( '(Remove the text "Your comment is awaiting moderation." when someone leaves a moderated comment.) ', 'wp-super-cache' );
-	if( $cache_awaitingmoderation == '0' ) {
-		echo '<input type="submit" name="cache_awaitingmoderation" value="' . __( 'Enable', 'wp-super-cache' ) . '" />';
-	} else {
-		echo '<input type="submit" name="cache_awaitingmoderation" value="' . __( 'Disable', 'wp-super-cache' ) . '" />';
-	}
-	echo "</form></li>\n";
+	?>
+	</form>
+	</fieldset>
+	<?php
 
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_awaitingmoderation_admin' );
