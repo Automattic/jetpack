@@ -241,14 +241,9 @@ Fixed problem serving cached files with PHP, added support for 304 "file not mod
 
 == How to uninstall WP Super Cache ==
 
-Copy uninstall.php from where you have WP Super Cache installed to where your site is installed. The file wp-load.php is in this directory. Edit uninstall.php and uncomment line 22 by removing the "//" at the start of the line. It should look like this:
-
-	`define( 'UNINSTALL_WPSUPERCACHE', 1 );`
-
-Open your browser and load uninstall.php directly.
-You must be logged in, and you must confirm the action. If you do not delete the plugin
-immediately, after the script runs, please comment out the define() above to stop 
-someone else running it.
+Copy uninstall.php from where you have WP Super Cache installed to where your site is installed. The file wp-load.php is in this directory. Open your browser and load uninstall.php directly.
+You must be logged in to uninstall the plugin and there's one final step after the script runs. You have to remove the WP_CACHE define from your wp-config.php.
+After runing the script please delete it as it's not safe to leaving unused code around.
 
 To manually uninstall:
 
