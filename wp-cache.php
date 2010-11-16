@@ -948,6 +948,9 @@ jQuery(document).ready(function(){
 	<li><?php printf( __( '<a href="%1$s">Frequently Asked Questions</a>', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/faq/' ); ?></li>
 	<li><?php printf( __( '<a href="%1$s">Support Forum</a>', 'wp-super-cache' ), 'http://wordpress.org/tags/wp-super-cache' ); ?></li>
 	</ol>
+	<h3 align='center'><?php _e( 'Rate This Plugin!', 'wp-super-cache' ); ?></h3>
+	<p><?php printf( __( 'Please <a href="%s">rate</a> this plugin and tell me if it works for you or not. It really helps development.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/' ); ?></p>
+
 	<?php 
 	if ( isset( $wp_supercache_cache_list ) && $wp_supercache_cache_list ) { 
 		$start_date = get_option( 'wpsupercache_start' );
