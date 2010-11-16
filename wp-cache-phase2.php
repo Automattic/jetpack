@@ -305,7 +305,7 @@ function wp_cache_get_ob(&$buffer) {
 	global $cache_enabled, $cache_path, $cache_filename, $meta_file, $wp_start_time, $supercachedir;
 	global $new_cache, $wp_cache_meta, $file_expired, $blog_id, $cache_compression;
 	global $wp_cache_gzip_encoding, $super_cache_enabled, $cached_direct_pages;
-	global $wp_cache_404, $gzsize, $supercacheonly, $wp_cache_paranoid_checks;
+	global $wp_cache_404, $gzsize, $supercacheonly;
 	global $blog_cache_dir, $wp_cache_request_uri, $wp_supercache_cache_list;
 	global $wp_cache_not_logged_in, $wp_cache_object_cache, $cache_max_time;
 
@@ -533,7 +533,7 @@ function wp_cache_get_ob(&$buffer) {
 		}
 		if( $fr2 ) {
 			fclose($fr2);
-			if ( $wp_cache_paranoid_checks && $cache_fname == $supercachedir . $home_url[ 'path' ] . 'index.html' && !( is_front_page() || is_home() ) ) {
+			if ( $cache_fname == $supercachedir . $home_url[ 'path' ] . 'index.html' && !( is_front_page() || is_home() ) ) {
 				wp_cache_writers_exit();
 				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Warning! Not writing another page to front page cache.", 1 );
 				return $buffer;
