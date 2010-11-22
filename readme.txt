@@ -36,6 +36,7 @@ Advanced users will probably want to use mod_rewrite caching, but PHP caching is
 2. Compress pages.
 3. Don't cache pages for known users.
 4. Cache rebuild.
+5. CDN support.
 
 Garbage collection is the act of cleaning up cache files that are out of date and stale. There's no correct value for the expiry time but a good starting point is 1800 seconds if you're not using legacy mode. If you are using that mode start with an expiry time of 600 seconds.
 
@@ -145,7 +146,6 @@ Fixed problem serving cached files with PHP, added support for 304 "file not mod
 * Show correct number of cache files when compression off.
 * Fixed problem with PHP safe_mode detection.
 * Various bugfixes and documentation updates. See Changelog.txt
-
 
 = 0.9.6.1 =
 * Move "not logged in" message init below check for POST.
@@ -409,6 +409,14 @@ If that doesn't work, add this line to your wp-config.php:
 	`ini_set('zlib.output_compression', 0);`
 22. The "white screen of death" or a blank page  when you visit your site is almost always caused by a PHP error but [it may also be caused by APC](http://www.johnberns.com/2010/03/19/wp-super-cache-blank-page-problem-fixed/). Disable that PHP extension if you have trouble and replace with eAccelerator or Xcache.
 23. After uninstalling, your permalinks may break if you remove the WordPress mod_rewrite rules too. Regenerate those rules by visiting the Settings->Permalink page and saving that form again.
+
+== CDN ==
+
+A Content Delivery Network (CDN) is usually a network of computers situated around the world that will serve the content of your website faster by using servers close to you. Static files like images, Javascript and CSS files can be served through these networks to speed up how fast your site loads. You can also create a "poor man's CDN" by using a sub domain of your domain to serve static files too.
+
+[OSSDL CDN off-linker](http://wordpress.org/extend/plugins/ossdl-cdn-off-linker/) has been integrated into WP Super Cache to provide basic CDN support. It works by rewriting the URLs of files (excluding .php files) in wp-content and wp-includes on your server so they point at a different hostname. Many CDNs support [origin pull](http://www.google.com/search?hl=en&q=%22origin+pull%22). This means the CDN will download the file automatically from your server when it's first requested, and will continue to serve it for a configurable length of time before downloading it again from your server.
+
+Configure this on the "CDN" tab of the plugin settings page. This is an advanced technique and requires a basic understanding of how your webserver or CDNs work. Please be sure to clear the file cache after you configure the CDN.
 
 == Custom Caching ==
 It is now possible to hook into the caching process using the add_cacheaction() function.
