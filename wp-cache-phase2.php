@@ -475,7 +475,7 @@ function wp_cache_get_ob(&$buffer) {
 		wp_cache_append_tag($buffer);
 		if( $gz || $wp_cache_gzip_encoding ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Gzipping buffer.", 5 );
-			$gzdata = gzencode( $buffer . "<!-- Compression = gzip -->", 3, FORCE_GZIP );
+			$gzdata = gzencode( $buffer . "<!-- Compression = gzip -->", 6, FORCE_GZIP );
 			$gzsize = strlen($gzdata);
 		}
 		if ($wp_cache_gzip_encoding) {
