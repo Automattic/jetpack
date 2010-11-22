@@ -49,6 +49,8 @@ See the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) for further
 
 The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is a good place to start if you want to know what has changed since you last downloaded the plugin.
 
+Interested in translating WP Super Cache to your language? Grab the [development version](http://downloads.wordpress.org/plugin/wp-super-cache.zip) where you will find an up to date wp-super-cache.pot. Send any translation files to donncha @ ocaoimh.ie and thank you!
+
 == Upgrade Notice ==
 
 = 0.9.9.6 =
