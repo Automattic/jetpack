@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  \n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-super-cache\n"
-"POT-Creation-Date: 2010-11-20 15:29+0000\n"
+"POT-Creation-Date: 2010-11-22 17:30+0000\n"
 "PO-Revision-Date: 2010-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -19,30 +19,32 @@ msgstr ""
 
 #: ossdl-cdn.php:105
 msgid ""
-"Many WordPress plugins misbehave when linking to their JS or CSS files, and "
-"yet there is no filter to let your old posts point to a statics site or CDN "
-"for images.\n"
-"\t\tTherefore this plugin replaces any links into <code>wp-content</code> "
-"and <code>wp-includes</code> directories (except for PHP files) in the "
-"<code>blog_url</code> by the URL you provide below.\n"
-"\t\tThat way you can either copy all the static content to a dedicated host "
-"or mirror the files at a CDN by <a href=\"http://knowledgelayer.softlayer."
-"com/questions/365/How+does+Origin+Pull+work%3F\" target=\"_blank\">origin "
-"pull</a>."
+"Your website probably uses lots of static files. Image, Javascript and CSS "
+"files are usually static files that could just as easily be served from "
+"another site or CDN. Therefore this plugin replaces any links in the "
+"<code>wp-content</code> and <code>wp-includes</code> directories (except for "
+"PHP files) on your site with the URL you provide below. That way you can "
+"either copy all the static content to a dedicated host or mirror the files "
+"to a CDN by <a href=\"http://knowledgelayer.softlayer.com/questions/365/How"
+"+does+Origin+Pull+work%3F\" target=\"_blank\">origin pull</a>."
 msgstr ""
 
-#: ossdl-cdn.php:108
+#: ossdl-cdn.php:106
 #, php-format
 msgid ""
 "<strong style=\"color: red\">WARNING:</strong> Test some static urls e.g., %"
 "s  to ensure your CDN service is fully working before saving changes."
 msgstr ""
 
-#: ossdl-cdn.php:135
+#: ossdl-cdn.php:107
+msgid "You can define different CDN URLs for each site on a multsite network."
+msgstr ""
+
+#: ossdl-cdn.php:134
 msgid "Save Changes"
 msgstr ""
 
-#: ossdl-cdn.php:137
+#: ossdl-cdn.php:136
 msgid ""
 "CDN functionality provided by <a href=\"http://wordpress.org/extend/plugins/"
 "ossdl-cdn-off-linker/\">OSSDL CDN Off Linker</a> by <a href=\"http://mark."
@@ -785,7 +787,9 @@ msgstr ""
 #, php-format
 msgid ""
 "<a href=\"%s\">WP Minify</a> reduces the number of files served by your web "
-"server by joining Javascript and CSS files together."
+"server by joining Javascript and CSS files together. Alternatively you can "
+"use <a href=\"%s\">WPSCMin</a>, a Supercache plugin that minifies cached "
+"pages. It does not however join JS/CSS files together."
 msgstr ""
 
 #: wp-cache.php:927
@@ -793,7 +797,8 @@ msgstr ""
 msgid ""
 "<a href=\"%s\">Yahoo! Yslow</a> is an extension for the Firefox add-on "
 "Firebug. It analyzes web pages and suggests ways to improve their "
-"performance based on a set of rules for high performance web pages."
+"performance based on a set of rules for high performance web pages. Also try "
+"the performance tools online at <a href=\"%s\">GTMetrix</a>."
 msgstr ""
 
 #: wp-cache.php:928
