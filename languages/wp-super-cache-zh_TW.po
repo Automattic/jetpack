@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: WP Super Cache (Traditional Chinese)\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-super-cache\n"
-"POT-Creation-Date: 2010-11-20 15:29+0000\n"
+"POT-Creation-Date: 2010-11-22 17:30+0000\n"
 "PO-Revision-Date: \n"
 "Last-Translator: Liang, Jih-Kai <privism@gmail.com>\n"
 "Language-Team: privism <privism@gmail.com>\n"
@@ -14,25 +14,23 @@ msgstr ""
 "X-Poedit-SourceCharset: utf-8\n"
 
 #: ossdl-cdn.php:105
-msgid ""
-"Many WordPress plugins misbehave when linking to their JS or CSS files, and yet there is no filter to let your old posts point to a statics site or CDN for images.\n"
-"\t\tTherefore this plugin replaces any links into <code>wp-content</code> and <code>wp-includes</code> directories (except for PHP files) in the <code>blog_url</code> by the URL you provide below.\n"
-"\t\tThat way you can either copy all the static content to a dedicated host or mirror the files at a CDN by <a href=\"http://knowledgelayer.softlayer.com/questions/365/How+does+Origin+Pull+work%3F\" target=\"_blank\">origin pull</a>."
-msgstr ""
-"許多WordPress外掛都無法正常地連結到他們的JS和CSS，也沒有過濾器讓你可以將舊文章中的圖片指向固定的網站或CDN。\n"
-"\t\t所以這個外掛會取代你下面所提供的<code>blog_url</code>中<code>wp-content</code>和<code>wp-includes</code>目錄下的任何連結(除了PHP檔案)。\n"
-"\t\t用這個方式，你可以拷貝所有的靜態內容到一個專用的主機或或使用<a href=\"http://knowledgelayer.softlayer.com/questions/365/How+does+Origin+Pull+work%3F\" target=\"_blank\">origin pull</a>鏡射到CDN上。"
+msgid "Your website probably uses lots of static files. Image, Javascript and CSS files are usually static files that could just as easily be served from another site or CDN. Therefore this plugin replaces any links in the <code>wp-content</code> and <code>wp-includes</code> directories (except for PHP files) on your site with the URL you provide below. That way you can either copy all the static content to a dedicated host or mirror the files to a CDN by <a href=\"http://knowledgelayer.softlayer.com/questions/365/How+does+Origin+Pull+work%3F\" target=\"_blank\">origin pull</a>."
+msgstr "你的網站可能使用了許多的靜態檔案。圖片、Javascript、CSS檔案通常都是靜態檔案，所以可以很簡單地使用另一個站台或CDN來服務。所以這個外掛會根據你下面所提供的URL，取代你的網站中<code>wp-content</code>和<code>wp-includes</code>目錄下除了PHP檔案以外的任何連結。用這個方式，你可以把所有的靜態內容拷貝到一個專用的主機或或使用<a href=\"http://knowledgelayer.softlayer.com/questions/365/How+does+Origin+Pull+work%3F\" target=\"_blank\">origin pull</a>鏡射到CDN上。"
 
-#: ossdl-cdn.php:108
+#: ossdl-cdn.php:106
 #, php-format
 msgid "<strong style=\"color: red\">WARNING:</strong> Test some static urls e.g., %s  to ensure your CDN service is fully working before saving changes."
 msgstr "<strong style=\"color: red\">警告：</strong> 請先測試一些固定的網址，例如%s。在儲存變更前，確定你的CDN服務完全正常。"
 
-#: ossdl-cdn.php:135
+#: ossdl-cdn.php:107
+msgid "You can define different CDN URLs for each site on a multsite network."
+msgstr "你可以為多站台網路中的每個站台定義不同的CDN URL。"
+
+#: ossdl-cdn.php:134
 msgid "Save Changes"
 msgstr "儲存變更"
 
-#: ossdl-cdn.php:137
+#: ossdl-cdn.php:136
 msgid "CDN functionality provided by <a href=\"http://wordpress.org/extend/plugins/ossdl-cdn-off-linker/\">OSSDL CDN Off Linker</a> by <a href=\"http://mark.ossdl.de/\">Mark Kubacki</a>"
 msgstr "CDN 功能由<a href=\"http://wordpress.org/extend/plugins/ossdl-cdn-off-linker/\">OSSDL CDN Off Linker</a>提供，作者為<a href=\"http://mark.ossdl.de/\">Mark Kubacki</a>"
 
@@ -666,13 +664,13 @@ msgstr "快取只是讓網站變快的方法之一。這邊是一些其它有幫
 
 #: wp-cache.php:926
 #, php-format
-msgid "<a href=\"%s\">WP Minify</a> reduces the number of files served by your web server by joining Javascript and CSS files together."
-msgstr "<a href=\"%s\">WP Minify</a> 合併Javascript及CSS檔案，以減少網頁伺服器需要服務的檔案數量。"
+msgid "<a href=\"%s\">WP Minify</a> reduces the number of files served by your web server by joining Javascript and CSS files together. Alternatively you can use <a href=\"%s\">WPSCMin</a>, a Supercache plugin that minifies cached pages. It does not however join JS/CSS files together."
+msgstr "<a href=\"%s\">WP Minify</a> 合併Javascript及CSS檔案，以減少網頁伺服器需要服務的檔案數量。 或者你也可以使用 <a href=\"%s\">WPSCMin</a> 一個減少快取面數量的 Supercache 外掛。(但它並不會合併JS/CSS檔案)"
 
 #: wp-cache.php:927
 #, php-format
-msgid "<a href=\"%s\">Yahoo! Yslow</a> is an extension for the Firefox add-on Firebug. It analyzes web pages and suggests ways to improve their performance based on a set of rules for high performance web pages."
-msgstr "<a href=\"%s\">Yahoo! Yslow</a> 是Firefox附加元件Firebug的一個延伸套件。它可以分析你的網頁，並根據一些高效率網頁規則，建議你增加效能的方式。"
+msgid "<a href=\"%s\">Yahoo! Yslow</a> is an extension for the Firefox add-on Firebug. It analyzes web pages and suggests ways to improve their performance based on a set of rules for high performance web pages. Also try the performance tools online at <a href=\"%s\">GTMetrix</a>."
+msgstr "<a href=\"%s\">Yahoo! Yslow</a> 是Firefox附加元件Firebug的一個延伸套件。它可以分析你的網頁，並根據一些高效率網頁規則，建議你增加效能的方式。 你也可以試試一個線上效能分析工具 <a href=\"%s\">GTMetrix</a>。"
 
 #: wp-cache.php:928
 #, php-format
