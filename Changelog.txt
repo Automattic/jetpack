@@ -1,3 +1,221 @@
+2010-11-23 13:38  donncha
+
+	* wp-cache-phase1.php: Check if there are any actions before
+	  processing a cacheaction(), see
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-wp-admin-problem?replies=2
+
+2010-11-23 13:29  donncha
+
+	* wp-cache.php: Change preload limits and increase steps for
+	  smaller preloads -
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-how-do-i-cache-the-newest?replies=3
+
+2010-11-23 13:03  donncha
+
+	* readme.txt: Minor changes to documentation
+
+2010-11-23 12:51  donncha
+
+	* readme.txt: Updated docs for MU/MS
+
+2010-11-23 12:43  donncha
+
+	* readme.txt: Added a link to Priv's credit for translation
+
+2010-11-23 12:41  donncha
+
+	* languages/wp-super-cache-zh_TW.mo,
+	  languages/wp-super-cache-zh_TW.po: Updated translation file by
+	  Priv (http://priv.tw/blog)
+
+2010-11-22 17:44  donncha
+
+	* readme.txt: Credit priv with updated Traditional Chinese
+	  translation.
+
+2010-11-22 17:41  donncha
+
+	* languages/wp-super-cache-zh_TW.mo,
+	  languages/wp-super-cache-zh_TW.po: Updated translation file by
+	  priv
+
+2010-11-22 17:32  donncha
+
+	* readme.txt: Add link to development version for translators
+
+2010-11-22 17:31  donncha
+
+	* wp-super-cache.pot: Updated pot file for translation
+
+2010-11-22 17:20  donncha
+
+	* wp-cache.php: Link to WPSCMin and GTMetrix
+
+2010-11-22 17:03  donncha
+
+	* ossdl-cdn.php: Updated CDN settings page docs
+
+2010-11-22 16:28  donncha
+
+	* wp-cache-phase2.php: Increase the gzip level so pages are
+	  slightly smaller
+
+2010-11-22 16:03  donncha
+
+	* readme.txt: Added CDN docs
+
+2010-11-20 15:31  donncha
+
+	* wp-super-cache.pot: Updated translation file.
+
+2010-11-16 18:14  donncha
+
+	* wp-cache.php: Added a "rate this plugin" reminder to the sidebar
+	  on the settings page.
+
+2010-11-16 15:18  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Don't make extra front page
+	  checks optional
+
+2010-11-15 09:41  donncha
+
+	* readme.txt: Updated uninstall instructions
+
+2010-11-15 08:53  donncha
+
+	* wp-cache.php: Remove cdn line from recommended plugins, and
+	  change pause between urls in preload from 2 seconds to 1 second
+
+2010-11-15 08:51  donncha
+
+	* uninstall.php: Replaced UNINSTALL.. constant with nonce in the
+	  uninstall form to make things easier.
+
+2010-11-15 08:28  donncha
+
+	* plugins/awaitingmoderation.php, plugins/badbehaviour.php,
+	  plugins/domain-mapping.php, plugins/searchengine.php: Updated the
+	  settings page on SC plugins
+
+2010-11-09 09:52  donncha
+
+	* ossdl-cdn.php: Before rewriting URL to CDN, make sure it's in the
+	  include directories
+
+2010-11-08 20:56  donncha
+
+	* ossdl-cdn.php, wp-cache.php: Initial import of OSSDL CDN
+	  off-linker, a plugin by W-Mark Kubacki (http://mark.ossdl.de/)
+
+2010-11-06 09:47  donncha
+
+	* wp-cache-phase2.php: Added "wp_cache_ob_callback_filter" to
+	  filter the output callback buffer every time
+
+2010-11-06 09:43  donncha
+
+	* wp-cache.php: Change copyright notice, as others have of course
+	  contributed code!
+
+2010-11-03 16:45  donncha
+
+	* readme.txt: Added troubleshooting point explaining why permalinks
+	  might break after uninstalling
+
+2010-11-02 12:30  donncha
+
+	* wp-cache.php: Don't show Supercache admin page to ordinary users
+	  on MS sites. Props Mark Bailey.
+
+2010-11-01 11:56  donncha
+
+	* readme.txt, uninstall.php: uninstall.php now runs from where
+	  Wordpress is installed instead of in the supercache plugin
+	  directory
+
+2010-10-22 09:32  donncha
+
+	* wp-cache-phase2.php: Check if current page is front page or home
+	  page if cache file to write is for the homepage
+
+2010-10-21 13:45  donncha
+
+	* wp-cache-phase2.php: First paranoid check - check if the front
+	  page is being cached correctly
+
+2010-10-21 13:42  donncha
+
+	* wp-cache.php: Added "extra paranoid checks" option on the
+	  settings page
+
+2010-10-21 11:35  donncha
+
+	* wp-cache.php: Only show advanced settings page if cache enabled.
+
+2010-10-20 13:08  donncha
+
+	* wp-cache-phase2.php: Don't try to write a cache file for another
+	  page to the front page cache location
+
+2010-10-20 12:54  donncha
+
+	* wp-cache.php: Added "late init" option to settings page
+
+2010-10-20 12:29  donncha
+
+	* readme.txt: Added docs for new dynamic cached content tag
+
+2010-10-20 12:28  donncha
+
+	* wp-cache-phase2.php: When in legacy mode, no need to check for
+	  supercache
+
+2010-10-20 12:10  donncha
+
+	* wp-cache-phase2.php: Show supercache footer message on Legacy
+	  cached pages. Fixes the cache tester for those using this cache.
+
+2010-10-20 10:58  donncha
+
+	* wp-cache-phase2.php: Added "dynamic-cached-content" tag, see
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-proposed-replacement-to-mfuncmclude?replies=7
+
+2010-10-15 12:35  donncha
+
+	* wp-cache-phase2.php: Use the host from get_bloginfo( 'url' ) to
+	  figure out the supercache directory
+
+2010-10-11 17:18  donncha
+
+	* wp-cache.php: Fixed "Delete Cache" link on admin dropdown. See
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-delete-cache-on-dashboard-drop-down-doesnt-seem-to-work?replies=2#post-1734185
+
+2010-10-08 13:04  donncha
+
+	* wp-cache.php: Added recommended links and plugins and update
+	  "rewrite rules detected" notice
+
+2010-10-07 16:03  donncha
+
+	* wp-cache.php: Make sure compression stays disabled if gzencode()
+	  not found. See
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-check-for-gzencode?replies=2
+
+2010-09-30 11:43  donncha
+
+	* wp-cache.php: Only select posts, props liangzai,
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-preload-files?replies=7#post-1716174
+
+2010-09-30 11:35  donncha
+
+	* wp-cache.php: Reduce preload pause to 2 seconds and added
+	  notification of currently cached post plus faster cancellation
+
+2010-09-29 16:46  donncha
+
+	* Changelog.txt: Updated changelog
+
 2010-09-29 16:43  donncha
 
 	* readme.txt, wp-cache.php: Bump to 0.9.9.6
