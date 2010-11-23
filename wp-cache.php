@@ -720,8 +720,8 @@ jQuery(document).ready(function(){
 			echo '<input type="hidden" name="action" value="preload" />';
 			echo '<input type="hidden" name="page" value="wpsupercache" />';
 			echo '<p>' . sprintf( __( 'Refresh preloaded cache files every %s minutes. (0 to disable, minimum %d minutes.)', 'wp-super-cache' ), "<input type='text' size=4 name='custom_preload_interval' value='" . (int)$wp_cache_preload_interval . "' />", $min_refresh_interval ) . '</p>';
-			if ( $count > 1000 ) {
-				$step = (int)( $count / 5 );
+			if ( $count > 100 ) {
+				$step = (int)( $count / 10 );
 
 				$select = "<select name='posts_to_cache' size=1>";
 				$select .= "<option value='all' ";
