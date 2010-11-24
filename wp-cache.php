@@ -2450,7 +2450,7 @@ function wp_cron_preload_cache() {
 	$counter = get_option( 'preload_cache_counter' );
 	$c = $counter[ 'c' ];
 	if ( $wp_cache_preload_posts == 'all' || $c <= $wp_cache_preload_posts ) {
-		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE post_type = 'post' AND post_status = 'publish' ORDER BY post_date DESC LIMIT $c, 100" );
+		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE (post_type = 'post' OR post_type='page') AND post_status = 'publish' ORDER BY post_date DESC LIMIT $c, 100" );
 	} else {
 		$posts = false;
 	}
