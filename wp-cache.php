@@ -2260,6 +2260,9 @@ function wp_cache_admin_notice() {
 	global $cache_enabled;
 	if( substr( $_SERVER["PHP_SELF"], -11 ) == 'plugins.php' && !$cache_enabled && function_exists( "admin_url" ) )
 		echo '<div class="error"><p><strong>' . sprintf( __('WP Super Cache is disabled. Please go to the <a href="%s">plugin admin page</a> to enable caching.', 'wp-super-cache' ), admin_url( 'options-general.php?page=wpsupercache' ) ) . '</strong></p></div>';
+
+	if ( defined( 'ADVANCEDCACHEPROBLEM' ) )
+		echo '<div class="error"><p><strong>' . sprintf( __( 'Warning! WP Super Cache caching broken! The script advanced-cache.php could not load wp-cache-phase1.php.<br /><br />Please edit %1$s/advanced-cache.php and make sure the path to %2$swp-cache-phase1.php is correct.', 'wp-super-cache' ), WP_CONTENT_DIR, WPCACHEHOME ) . '</strong></p></div>';
 }
 add_action( 'admin_notices', 'wp_cache_admin_notice' );
 

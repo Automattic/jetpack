@@ -6,7 +6,9 @@ function wpcache_broken_message() {
 }
 
 if ( !include_once( 'CACHEHOME' . 'wp-cache-phase1.php' ) ) {
-	if ( !@is_file( 'CACHEHOME' . 'wp-cache-phase1.php' ) )
+	if ( !@is_file( 'CACHEHOME' . 'wp-cache-phase1.php' ) ) {
+		define( 'ADVANCEDCACHEPROBLEM', 1 );
 		register_shutdown_function( 'wpcache_broken_message' );
+	}
 }
 ?>
