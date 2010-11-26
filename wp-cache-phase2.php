@@ -714,7 +714,7 @@ function wp_cache_phase2_clean_expired( $file_prefix, $force = false ) {
 
 function wp_cache_shutdown_callback() {
 	global $cache_path, $cache_max_time, $file_expired, $file_prefix, $meta_file, $new_cache, $wp_cache_meta, $known_headers, $blog_id, $wp_cache_gzip_encoding, $gzsize, $cache_filename, $supercacheonly, $blog_cache_dir;
-	global $wp_cache_request_uri, $wp_cache_key, $wp_cache_object_cache, $cache_enabled, $wp_cache_blog_charset;
+	global $wp_cache_request_uri, $wp_cache_key, $wp_cache_object_cache, $cache_enabled, $wp_cache_blog_charset, $wp_cache_not_logged_in;
 
 	$wp_cache_meta[ 'uri' ] = $_SERVER["SERVER_NAME"].preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $wp_cache_request_uri); // To avoid XSS attacks
 	$wp_cache_meta[ 'blog_id' ] = $blog_id;
@@ -766,7 +766,7 @@ function wp_cache_shutdown_callback() {
 		$wp_cache_meta[ 'headers' ][ 'Content-Type' ] = "Content-Type: $value";
 	}
 
-	if ( ! $supercacheonly && $new_cache ) {
+	if ( !$supercacheonly && !$wp_cache_not_logged_in && $new_cache ) {
 		if( !isset( $wp_cache_meta[ 'dynamic' ] ) && $wp_cache_gzip_encoding && !in_array( 'Content-Encoding: ' . $wp_cache_gzip_encoding, $wp_cache_meta[ 'headers' ] ) ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Sending gzip headers.", 2 );
 			$wp_cache_meta[ 'headers' ][ 'Content-Encoding' ] = 'Content-Encoding: ' . $wp_cache_gzip_encoding;
@@ -781,13 +781,17 @@ function wp_cache_shutdown_callback() {
 				$fr = @fopen( $tmp_meta_filename, 'w');
 				if( !$fr )
 					@mkdir( $blog_cache_dir . 'meta' );
-				$fr = fopen( $tmp_meta_filename, 'w');
-				fputs($fr, $serial);
-				fclose($fr);
-				@chmod( $tmp_meta_filename, 0666 & ~umask());
-				if( !@rename( $tmp_meta_filename, $blog_cache_dir . 'meta/' . $meta_file ) ) {
-					@unlink( $blog_cache_dir . 'meta/' . $meta_file );
-					@rename( $tmp_meta_filename, $blog_cache_dir . 'meta/' . $meta_file );
+				$fr = @fopen( $tmp_meta_filename, 'w');
+				if ( $fr ) {
+					fputs($fr, $serial);
+					fclose($fr);
+					@chmod( $tmp_meta_filename, 0666 & ~umask());
+					if( !@rename( $tmp_meta_filename, $blog_cache_dir . 'meta/' . $meta_file ) ) {
+						@unlink( $blog_cache_dir . 'meta/' . $meta_file );
+						@rename( $tmp_meta_filename, $blog_cache_dir . 'meta/' . $meta_file );
+					}
+				} else {
+					if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Problem writing meta file: {$blog_cache_dir}meta/{$meta_file}", 2 );
 				}
 			} elseif ( $cache_enabled ) {
 				$oc_key = get_oc_key() . ".meta";
