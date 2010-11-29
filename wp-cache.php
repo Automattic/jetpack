@@ -136,6 +136,11 @@ function wp_cache_add_pages() {
 }
 add_action('admin_menu', 'wp_cache_add_pages');
 
+function wp_cache_network_pages() {
+	add_submenu_page('settings.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager');
+}
+add_action( 'network_admin_menu', 'wp_cache_network_pages' );
+
 function wp_cache_manager_error_checks() {
 	global $wpmu_version, $wp_cache_debug, $wp_cache_cron_check, $cache_enabled, $super_cache_enabled, $wp_cache_config_file, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers, $wp_cache_mobile_enabled, $wp_cache_mod_rewrite;
 
