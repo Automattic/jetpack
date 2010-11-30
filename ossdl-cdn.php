@@ -88,14 +88,25 @@ function do_scossdl_off_ob_start() {
 		add_filter( 'wp_cache_ob_callback_filter', 'scossdl_off_filter' );
 	}
 }
-add_action('init', 'do_scossdl_off_ob_start');
+if ( false == isset( $ossdlcdn ) )
+	$ossdlcdn = 1; // have to default to on for existing users.
+if ( $ossdlcdn == 1 )
+	add_action('init', 'do_scossdl_off_ob_start');
 
 function scossdl_off_options() {
+	global $ossdlcdn, $wp_cache_config_file;
+
 	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
 	if ( $valid_nonce && isset($_POST['action']) && ( $_POST['action'] == 'update_ossdl_off' )){
 		update_option('ossdl_off_cdn_url', $_POST['ossdl_off_cdn_url']);
 		update_option('ossdl_off_include_dirs', $_POST['ossdl_off_include_dirs'] == '' ? 'wp-content,wp-includes' : $_POST['ossdl_off_include_dirs']);
 		update_option('ossdl_off_exclude', $_POST['ossdl_off_exclude']);
+		if ( isset( $_POST[ 'ossdlcdn' ] ) ) {
+			$ossdlcdn = 1;
+		} else {
+			$ossdlcdn = 0;
+		}
+		wp_cache_replace_line('^ *\$ossdlcdn', "\$ossdlcdn = $ossdlcdn;", $wp_cache_config_file);
 	}
 	$example_cdn_uri = str_replace('http://', 'http://cdn.', str_replace('www.', '', get_option('siteurl')));
 
@@ -109,7 +120,13 @@ function scossdl_off_options() {
 		<?php wp_nonce_field('wp-cache'); ?>
 		<table class="form-table"><tbod>
 			<tr valign="top">
-				<th scope="row"><label for="ossdl_off_cdn_url">off-site URL</label></th>
+				<td style='text-align: right'>
+					<input id='ossdlcdn' type="checkbox" name="ossdlcdn" value="1" <?php if ( $ossdlcdn ) echo "checked=1"; ?> />
+				</td>
+				<th scope="row"><label for="ossdlcdn"><?php _e( 'Enable CDN Support', 'wp-super-cache' ); ?></label></th>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><label for="ossdl_off_cdn_url"><?php _e( 'off-site URL', 'wp-super-cache' ); ?></label></th>
 				<td>
 					<input type="text" name="ossdl_off_cdn_url" value="<?php echo(get_option('ossdl_off_cdn_url')); ?>" size="64" class="regular-text code" />
 					<span class="description">The new URL to be used in place of <?php echo(get_option('siteurl')); ?> for rewriting. No trailing <code>/</code> please. E.g. <code><?php echo($example_cdn_uri); ?></code>.</span>
