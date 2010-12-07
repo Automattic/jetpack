@@ -34,20 +34,22 @@ function get_bb_file_loc() {
 function wp_supercache_badbehaviour_admin() {
 	global $cache_badbehaviour, $wp_cache_config_file, $valid_nonce;
 	
-	$cache_badbehaviour = $cache_badbehaviour == '' ? 'no' : $cache_badbehaviour;
+	$cache_badbehaviour = $cache_badbehaviour == '' ? 0 : $cache_badbehaviour;
+	if ( $cache_badbehaviour == 'no' )
+		$cache_badbehaviour = 0;
 
 	$err = false;
 
-	if(isset($_POST['cache_badbehaviour']) && $valid_nonce) {
+	if ( isset( $_POST['cache_badbehaviour'] ) && $valid_nonce ) {
 		$bbfile = get_bb_file_loc();
 		if( !$bbfile ) {
 			$_POST[ 'cache_badbehaviour' ] = 0;
 			$err = __( 'Bad Behaviour not found. Please check your install.', 'wp-super-cache' );
 		}
 		if ( $cache_badbehaviour == (int)$_POST['cache_badbehaviour'] ) {
-			$changed = $false;
-		} else {
 			$changed = false;
+		} else {
+			$changed = true;
 		}
 		$cache_badbehaviour = (int)$_POST['cache_badbehaviour'];
 		wp_cache_replace_line('^ *\$cache_compression', "\$cache_compression = 0;", $wp_cache_config_file);
