@@ -15,6 +15,12 @@ if ( get_option( 'ossdl_off_exclude' ) == false )
 $ossdl_off_exclude = trim(get_option('ossdl_off_exclude'));
 $arr_of_excludes = array_map('trim', explode(',', $ossdl_off_exclude));
 
+if ( get_option( 'ossdl_cname' ) == false )
+	add_option('ossdl_cname', '');
+$ossdl_cname = trim(get_option('ossdl_cname'));
+$arr_of_cnames = array_map('trim', explode(',', $ossdl_cname));
+if ($arr_of_cnames[0] == '') $arr_of_cnames = array();
+
 /**
  * Determines whether to exclude a match.
  *
@@ -37,13 +43,20 @@ function scossdl_off_exclude_match($match, $excludes) {
  * Called by #scossdl_off_filter.
  */
 function scossdl_off_rewriter($match) {
-	global $ossdl_off_blog_url, $ossdl_off_cdn_url, $arr_of_excludes;
+	static $offset = -1;
+	global $ossdl_off_blog_url, $ossdl_off_cdn_url, $arr_of_excludes, $arr_of_cnames;
+
+	if ( false == in_array( $ossdl_off_cdn_url, $arr_of_cnames ) )
+		$arr_of_cnames[] = $ossdl_off_cdn_url;
+
 	if (scossdl_off_exclude_match($match[0], $arr_of_excludes)) {
 		return $match[0];
 	} else {
 		$include_dirs = scossdl_off_additional_directories();
 		if ( preg_match( '/' . $include_dirs . '/', $match[0] ) ) {
-			return str_replace($ossdl_off_blog_url, $ossdl_off_cdn_url, $match[0]);
+			$offset++;
+   			$offset %= count($arr_of_cnames);
+			return str_replace($ossdl_off_blog_url, $arr_of_cnames[$offset], $match[0]);
 		} else {
 			return $match[0];
 		}
@@ -101,6 +114,7 @@ function scossdl_off_options() {
 		update_option('ossdl_off_cdn_url', $_POST['ossdl_off_cdn_url']);
 		update_option('ossdl_off_include_dirs', $_POST['ossdl_off_include_dirs'] == '' ? 'wp-content,wp-includes' : $_POST['ossdl_off_include_dirs']);
 		update_option('ossdl_off_exclude', $_POST['ossdl_off_exclude']);
+		update_option('ossdl_cname', $_POST['ossdl_cname']);
 		if ( isset( $_POST[ 'ossdlcdn' ] ) ) {
 			$ossdlcdn = 1;
 		} else {
@@ -108,7 +122,10 @@ function scossdl_off_options() {
 		}
 		wp_cache_replace_line('^ *\$ossdlcdn', "\$ossdlcdn = $ossdlcdn;", $wp_cache_config_file);
 	}
-	$example_cdn_uri = str_replace('http://', 'http://cdn.', str_replace('www.', '', get_option('siteurl')));
+	$example_cdn_uri = str_replace( 'http://', 'http://cdn.', str_replace( 'www.', '', get_option( 'siteurl' ) ) );
+	$example_cnames  = str_replace( 'http://cdn.', 'http://cdn1.', $example_cdn_uri );
+	$example_cnames .= ',' . str_replace( 'http://cdn.', 'http://cdn2.', $example_cdn_uri );
+	$example_cnames .= ',' . str_replace( 'http://cdn.', 'http://cdn3.', $example_cdn_uri );
 
 	$example_cdn_uri = get_option('ossdl_off_cdn_url') == get_option('siteurl') ? $example_cdn_uri : get_option('ossdl_off_cdn_url');
 	$example_cdn_uri .= '/wp-includes/js/prototype.js';
@@ -126,24 +143,31 @@ function scossdl_off_options() {
 				<th scope="row"><label for="ossdlcdn"><?php _e( 'Enable CDN Support', 'wp-super-cache' ); ?></label></th>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><label for="ossdl_off_cdn_url"><?php _e( 'off-site URL', 'wp-super-cache' ); ?></label></th>
+				<th scope="row"><label for="ossdl_off_cdn_url"><?php _e( 'Off-site URL', 'wp-super-cache' ); ?></label></th>
 				<td>
-					<input type="text" name="ossdl_off_cdn_url" value="<?php echo(get_option('ossdl_off_cdn_url')); ?>" size="64" class="regular-text code" />
-					<span class="description">The new URL to be used in place of <?php echo(get_option('siteurl')); ?> for rewriting. No trailing <code>/</code> please. E.g. <code><?php echo($example_cdn_uri); ?></code>.</span>
+					<input type="text" name="ossdl_off_cdn_url" value="<?php echo(get_option('ossdl_off_cdn_url')); ?>" size="64" class="regular-text code" /><br />
+					<span class="description"><?php printf( __( 'The new URL to be used in place of %1$s for rewriting. No trailing <code>/</code> please.<br />Example: <code>%2$s</code>.', 'wp-super-cache' ), get_option( 'siteurl' ), $example_cdn_uri ); ?></span>
 				</td>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><label for="ossdl_off_include_dirs">include dirs</label></th>
+				<th scope="row"><label for="ossdl_off_include_dirs"><?php _e( 'Include directories', 'wp-super-cache' ); ?></label></th>
 				<td>
-					<input type="text" name="ossdl_off_include_dirs" value="<?php echo(get_option('ossdl_off_include_dirs')); ?>" size="64" class="regular-text code" />
-					<span class="description">Directories to include in static file matching. Use a comma as the delimiter. Default is <code>wp-content, wp-includes</code>, which will be enforced if this field is left empty.</span>
+					<input type="text" name="ossdl_off_include_dirs" value="<?php echo esc_attr( get_option( 'ossdl_off_include_dirs' ) ); ?>" size="64" class="regular-text code" /><br />
+					<span class="description"><?php _e( 'Directories to include in static file matching. Use a comma as the delimiter. Default is <code>wp-content, wp-includes</code>, which will be enforced if this field is left empty.', 'wp-super-cache' ); ?></span>
 				</td>
 			</tr>
 			<tr valign="top">
-				<th scope="row"><label for="ossdl_off_exclude">exclude if substring</label></th>
+				<th scope="row"><label for="ossdl_off_exclude"><?php _e( 'Exclude if substring', 'wp-super-cache' ); ?></label></th>
 				<td>
-					<input type="text" name="ossdl_off_exclude" value="<?php echo(get_option('ossdl_off_exclude')); ?>" size="64" class="regular-text code" />
-					<span class="description">Excludes something from being rewritten if one of the above strings is found in the match. Use a comma as the delimiter. E.g. <code>.php, .flv, .do</code>, always include <code>.php</code> (default).</span>
+					<input type="text" name="ossdl_off_exclude" value="<?php echo esc_attr( get_option( 'ossdl_off_exclude' ) ); ?>" size="64" class="regular-text code" /><br />
+					<span class="description"><?php _e( 'Excludes something from being rewritten if one of the above strings is found in the match. Use a comma as the delimiter like this, <code>.php, .flv, .do</code>, and always include <code>.php</code> (default).', 'wp-super-cache' ); ?></span>
+				</td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><label for="ossdl_cname"><?php _e( 'Additional CNAMES', 'wp-super-cache' ); ?></label></th>
+				<td>
+					<input type="text" name="ossdl_cname" value="<?php echo esc_attr( get_option( 'ossdl_cname' ) ); ?>" size="64" class="regular-text code" /><br />
+					<span class="description"><?php printf( __( 'These <a href="http://en.wikipedia.org/wiki/CNAME_record">CNAMES</a> will be used in place of %1$s for rewriting (in addition to the off-site URL above). Use a comma as the delimiter. For pages with a large number of static files, this can improve browser performance. CNAMEs may also need to be configured on your CDN.<br />Example: %2$s', 'wp-super-cache' ), get_option( 'siteurl' ), $example_cnames ); ?></span>
 				</td>
 			</tr>
 		</tbody></table>
