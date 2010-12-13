@@ -59,7 +59,9 @@ add_action( 'init', 'wp_super_cache_text_domain' );
 
 function wp_cache_set_home() {
 	global $wp_cache_is_home;
-	$wp_cache_is_home = ( is_front_page() || is_home() );
+	$wp_cache_is_home = ( is_front_page || is_home() );
+	if ( $wp_cache_is_home && is_paged() )
+		$wp_cache_is_home = false;
 }
 add_action( 'template_redirect', 'wp_cache_set_home' );
 
