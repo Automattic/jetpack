@@ -61,7 +61,7 @@ function wp_cache_set_home() {
 	global $wp_cache_is_home;
 	$wp_cache_is_home = ( is_front_page() || is_home() );
 }
-add_action( 'template_redirect', 'wp_cache_on_init' );
+add_action( 'template_redirect', 'wp_cache_set_home' );
 
 
 // OSSDL CDN plugin (http://wordpress.org/extend/plugins/ossdl-cdn-off-linker/)
