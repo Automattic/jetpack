@@ -2402,7 +2402,7 @@ function wpsc_get_htaccess_info() {
 		// $home_path: /kunden/homepages/xx/dxxxxxxxx/htdocs/site1/
 		// WP_CONTENT_DIR:    /homepages/xx/dxxxxxxxx/htdocs/site1/blog/wp-content
 		// Here we fix up the paths to make mode_rewrite work on 1and1 shared hosting.
-		$content_dir_root = substr( $content_dir_root, 7 )
+		$content_dir_root = substr( $content_dir_root, 7 );
 		$apache_root = $document_root;
 	}
 	$home_root = parse_url(get_bloginfo('url'));
