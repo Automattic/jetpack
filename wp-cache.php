@@ -2389,9 +2389,25 @@ function wpsc_get_htaccess_info() {
 		$apache_root = '%{DOCUMENT_ROOT}';
 	}
 	$home_path = get_home_path();
+	$content_dir_root = $document_root;
+	if ( strpos( $home_path, '/kunden/' ) === 0 ) {
+		// http://wordpress.org/support/topic/plugin-wp-super-cache-how-to-get-mod_rewrite-working-on-1and1-shared-hosting?replies=1
+		// When WordPress is running on 1and1 shared hosting the home_path
+		// starts with /kunden/, however the WP_CONTENT_DIR does not.
+		// Neither does the .htaccess %{DOCUMENT_ROOT} variable.
+		// This prevents the $inst_root from being calculated correctly and
+		// means that the $apache_root is wrong.
+		//
+		// e.g. This is an example of what these values look like on 1and1:
+		// $home_path: /kunden/homepages/xx/dxxxxxxxx/htdocs/site1/
+		// WP_CONTENT_DIR:    /homepages/xx/dxxxxxxxx/htdocs/site1/blog/wp-content
+		// Here we fix up the paths to make mode_rewrite work on 1and1 shared hosting.
+		$content_dir_root = substr( $content_dir_root, 7 )
+		$apache_root = $document_root;
+	}
 	$home_root = parse_url(get_bloginfo('url'));
 	$home_root = isset( $home_root['path'] ) ? trailingslashit( $home_root['path'] ) : '/';
-	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $document_root, '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
+	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $content_dir_root, '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
 	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
 	$wprules = str_replace( "RewriteBase $home_root\n", '', $wprules );
