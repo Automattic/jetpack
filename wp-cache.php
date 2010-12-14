@@ -1829,9 +1829,11 @@ function wp_cache_files() {
 	if ( $valid_nonce ) {
 		if(isset($_REQUEST['wp_delete_cache'])) {
 			wp_cache_clean_cache($file_prefix);
+			$_GET[ 'action' ] = 'regenerate_cache_stats';
 		}
 		if(isset($_REQUEST['wp_delete_expired'])) {
 			wp_cache_clean_expired($file_prefix);
+			$_GET[ 'action' ] = 'regenerate_cache_stats';
 		}
 	}
 	echo "<a name='listfiles'></a>";
