@@ -147,13 +147,20 @@ function wp_cache_serve_cache_file() {
 	} else {
 		// last chance, check if a supercache file exists. Just in case .htaccess rules don't work on this host
 		$file = get_current_url_supercache_dir() . "index.html";
+		$phpfile = get_current_url_supercache_dir() . "index.html.php";
+		$serving_supercache = false;
+		if ( file_exists( $file ) ) {
+			$serving_supercache = 'html';
+		} elseif ( file_exists( $phpfile ) ) {
+			$serving_supercache = 'php';
+		}
 		if ( 
 			( 
 				$wp_cache_request_uri == '/' || 
 				( $wp_cache_slash_check && substr( $wp_cache_request_uri, -1 ) == '/' ) || 
 				( $wp_cache_slash_check == 0 && substr( $wp_cache_request_uri, -1 ) != '/' ) 
 			) && 
-			( wp_cache_get_cookies_values() == '' && empty( $_GET ) && file_exists( $file ) ) ) 
+			( wp_cache_get_cookies_values() == '' && empty( $_GET ) && $serving_supercache ) )
 		{
 			header( "Content-type: text/html; charset=UTF-8" ); // UTF-8 hard coded is bad but we don't know what it is this early in the process
 			header( "Vary: Accept-Encoding, Cookie" );
@@ -163,11 +170,11 @@ function wp_cache_serve_cache_file() {
 				$file = $file . '.gz';
 				header( 'Content-Encoding: ' . $wp_cache_gzip_encoding );
 				header( 'Content-Length: ' . filesize( $file ) );
-			} elseif ( $wp_supercache_304 ) {
+			} elseif ( $serving_supercache == 'html' && $wp_supercache_304 ) {
 				header( 'Content-Length: ' . filesize( $file ) );
 			}
 
-			if ( $wp_supercache_304 ) {
+			if ( $serving_supercache == 'html' && $wp_supercache_304 ) {
 				if ( function_exists( 'apache_request_headers' ) ) {
 					$request = apache_request_headers();
 					$remote_mod_time = $request[ 'If-Modified-Since' ];
@@ -181,9 +188,16 @@ function wp_cache_serve_cache_file() {
 				}
 				header( 'Last-Modified: ' . $local_mod_time );
 			}
-			readfile( $file );
-			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Served page from supercache file using PHP.", 5 );
-			exit();
+			if ( $serving_supercache == 'html' ) {
+				readfile( $file );
+				if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Served page from supercache file using PHP.", 5 );
+				exit();
+			} elseif ( $serving_supercache == 'php' ) {
+				$cachefiledata = file_get_contents($phpfile); 
+				eval( '?>' . $cachefiledata . '<?php ' ); 
+				if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Served dynamic page from supercache file using PHP. file: $file", 5 ); 
+				exit();
+			}
 		} else {
 			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "No wp-cache file exists. Must generate a new one.", 5 );
 			return false;
