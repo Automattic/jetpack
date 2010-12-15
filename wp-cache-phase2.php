@@ -574,9 +574,6 @@ function wp_cache_get_ob(&$buffer) {
 				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Warning! The file $tmp_php_filename was empty. Did not rename to {$php_fname}", 5 );
 				@unlink( $tmp_php_filename );
 			} else {
-				if ( $php_fname == $supercachedir . $home_url[ 'path' ] . 'index.html' ) {
-					wp_mail( "donncha@gmail.com", "Writing homepage http://{$_SERVER["HTTP_HOST"]}{$_SERVER[ 'REQUEST_URI' ]}", "{$_SERVER["HTTP_HOST"]} {$home_url[ 'host' ]} $supercachedir $dir" );
-				}
 				if ( !@rename( $tmp_php_filename, $php_fname ) ) {
 					@unlink( $php_fname );
 					@rename( $tmp_php_filename, $php_fname );
