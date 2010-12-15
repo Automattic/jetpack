@@ -194,7 +194,9 @@ function wp_cache_serve_cache_file() {
 				exit();
 			} elseif ( $serving_supercache == 'php' ) {
 				$cachefiledata = file_get_contents($phpfile); 
+				ob_start("ob_gzhandler");
 				eval( '?>' . $cachefiledata . '<?php ' ); 
+				ob_end_flush();
 				if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Served dynamic page from supercache file using PHP. file: $file", 5 ); 
 				exit();
 			}
