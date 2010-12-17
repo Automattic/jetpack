@@ -197,6 +197,7 @@ function wp_cache_serve_cache_file() {
 				if ( $cache_compression and $wp_cache_gzip_encoding ) {
 					ob_start("ob_gzhandler");
 					eval( '?>' . $cachefiledata . '<?php ' ); 
+					echo "\n<!-- Compression = gzip -->\n";
 					ob_end_flush();
 					if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Served compressed dynamic page from supercache file using PHP. File: $file", 5 ); 
 				} else {
