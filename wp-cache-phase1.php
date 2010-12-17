@@ -194,12 +194,15 @@ function wp_cache_serve_cache_file() {
 				exit();
 			} elseif ( $serving_supercache == 'php' ) {
 				$cachefiledata = file_get_contents($phpfile); 
-				if ( 0 == ini_get( 'zlib.output_compression' ) || "off" == strtolower( ini_get( 'zlib.output_compression' ) ) )
+				if ( $cache_compression and $wp_cache_gzip_encoding ) {
 					ob_start("ob_gzhandler");
-				eval( '?>' . $cachefiledata . '<?php ' ); 
-				if ( 0 == ini_get( 'zlib.output_compression' ) || "off" == strtolower( ini_get( 'zlib.output_compression' ) ) )
+					eval( '?>' . $cachefiledata . '<?php ' ); 
 					ob_end_flush();
-				if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Served dynamic page from supercache file using PHP. file: $file", 5 ); 
+					if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Served compressed dynamic page from supercache file using PHP. File: $file", 5 ); 
+				} else {
+					eval( '?>' . $cachefiledata . '<?php ' ); 
+					if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Served dynamic page from supercache file using PHP. File: $file", 5 ); 
+				}
 				exit();
 			}
 		} else {
