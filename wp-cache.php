@@ -308,7 +308,7 @@ function wp_cache_manager_error_checks() {
 add_filter( 'wp_super_cache_error_checking', 'wp_cache_manager_error_checks' );
 
 function wp_cache_manager_updates() {
-	global $wp_cache_mobile_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init;
+	global $wp_cache_mobile_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks;
 
 	if ( !wpsupercache_site_admin() )
 		return false;
@@ -353,6 +353,13 @@ function wp_cache_manager_updates() {
 			$wp_cache_mobile_enabled = 0;
 		}
 		wp_cache_replace_line('^ *\$wp_cache_mobile_enabled', "\$wp_cache_mobile_enabled = " . $wp_cache_mobile_enabled . ";", $wp_cache_config_file);
+
+		if( isset( $_POST[ 'wp_cache_front_page_checks' ] ) ) {
+			$wp_cache_front_page_checks = 1;
+		} else {
+			$wp_cache_front_page_checks = 0;
+		}
+		wp_cache_replace_line('^ *\$wp_cache_front_page_checks', "\$wp_cache_front_page_checks = " . $wp_cache_front_page_checks . ";", $wp_cache_config_file);
 
 		$wp_supercache_cache_list = $_POST[ 'wp_supercache_cache_list' ] == 1 ? 1 : 0;
 		wp_cache_replace_line('^ *\$wp_supercache_cache_list', "\$wp_supercache_cache_list = " . $wp_supercache_cache_list . ";", $wp_cache_config_file);
@@ -464,7 +471,7 @@ function wp_cache_manager() {
 	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers;
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_not_logged_in, $wp_supercache_cache_list;
 	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
-	global $wpmu_version, $cache_max_time, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init;
+	global $wpmu_version, $cache_max_time, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks;
 
 	if ( !wpsupercache_site_admin() )
 		return false;
@@ -815,6 +822,8 @@ jQuery(document).ready(function(){
 		wp_cache_debug_settings();
 		break;
 		case 'settings':
+		if ( isset( $wp_cache_front_page_checks ) == false )
+			$wp_cache_front_page_checks = true;
 		echo '<form name="wp_manager" action="' . add_query_arg( array( 'page' => 'wpsupercache', 'tab' => 'settings' ) ) . '" method="post">';
 		wp_nonce_field('wp-cache');
 		echo '<input type="hidden" name="action" value="scupdates" />';
@@ -864,6 +873,7 @@ jQuery(document).ready(function(){
 				<legend class="hidden">Advanced</legend>
 				<label><input type='checkbox' name='wp_cache_mobile_enabled' <?php if( $wp_cache_mobile_enabled ) echo "checked"; ?> value='1'> <?php _e( 'Mobile device support.', 'wp-super-cache' ); ?></label><br />
 				<label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> <?php _e( 'Clear all cache files when a post or page is published.', 'wp-super-cache' ); ?></label><br />
+				<label><input type='checkbox' name='wp_cache_front_page_checks' <?php if( $wp_cache_front_page_checks ) echo "checked"; ?> value='1'> <?php _e( 'Extra homepage checks. (Very occasionally stops homepage caching)', 'wp-super-cache' ); ?></label><?php echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?><br />
 				<label><input type='checkbox' name='wp_cache_refresh_single_only' <?php if( $wp_cache_refresh_single_only ) echo "checked"; ?> value='1'> <?php _e( 'Only refresh current page when comments made.', 'wp-super-cache' ); ?></label><br />
 				<label><input type='checkbox' name='wp_supercache_cache_list' <?php if( $wp_supercache_cache_list ) echo "checked"; ?> value='1'> <?php _e( 'List the newest cached pages on this page.', 'wp-super-cache' ); ?></label><br />
 			<?php if( false == defined( 'WPSC_DISABLE_LOCKING' ) ) { ?>

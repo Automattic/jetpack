@@ -308,7 +308,7 @@ function wp_cache_get_ob(&$buffer) {
 	global $wp_cache_404, $gzsize, $supercacheonly;
 	global $blog_cache_dir, $wp_cache_request_uri, $wp_supercache_cache_list;
 	global $wp_cache_not_logged_in, $wp_cache_object_cache, $cache_max_time;
-	global $wp_cache_is_home;
+	global $wp_cache_is_home, $wp_cache_front_page_checks;
 
 	$new_cache = true;
 	$wp_cache_meta = '';
@@ -553,7 +553,7 @@ function wp_cache_get_ob(&$buffer) {
 		}
 		if( $fr2 ) {
 			fclose($fr2);
-			if ( $cache_fname == $supercachedir . $home_url[ 'path' ] . 'index.html' && !( $wp_cache_is_home ) ) {
+			if ( $wp_cache_front_page_checks && $cache_fname == $supercachedir . $home_url[ 'path' ] . 'index.html' && !( $wp_cache_is_home ) ) {
 				wp_cache_writers_exit();
 				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Warning! Not writing another page to front page cache.", 1 );
 				return $buffer;
