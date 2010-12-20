@@ -356,7 +356,11 @@ function do_cacheaction( $action, $value = '' ) {
 	if( array_key_exists($action, $wp_supercache_actions) && is_array( $wp_supercache_actions[ $action ] ) ) {
 		$actions = $wp_supercache_actions[ $action ];
 		foreach( $actions as $func ) {
-			$value = $func( $value );
+			if ( is_array( $func ) ) {
+				$value = $func[0]->{$func[1]}( $value );
+			} else {
+				$value = $func( $value ); 
+			}
 		}
 	}
 
