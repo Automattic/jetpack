@@ -2614,6 +2614,7 @@ function check_up_on_preloading() {
 	}
 }
 add_action( 'init', 'check_up_on_preloading' ); // sometimes preloading stops working. Kickstart it.
+
 function wp_cache_disable_plugin() {
 	global $wp_cache_config_file;
 	if ( file_exists( ABSPATH . 'wp-config.php') ) {
