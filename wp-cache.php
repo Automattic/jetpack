@@ -115,6 +115,7 @@ function wpsupercache_deactivate() {
 	@unlink( $cache_path . 'meta' );
 	@unlink( $cache_path . 'supercache' );
 	wp_clear_scheduled_hook( 'wp_cache_check_site_hook' );
+	wp_cache_disable_plugin();
 }
 register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
 
@@ -319,7 +320,7 @@ function wp_cache_manager_updates() {
 	if ( $valid_nonce == false )
 		return false;
 
-	if( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'easysetup' ) {
+	if ( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'easysetup' ) {
 		$_POST[ 'action' ] = 'scupdates';
 		if( isset( $_POST[ 'wp_cache_easy_on' ] ) && $_POST[ 'wp_cache_easy_on' ] == 1 ) {
 			$_POST[ 'wp_cache_mobile_enabled' ] = 1;
@@ -585,8 +586,6 @@ jQuery(document).ready(function(){
 		break;
 		case "tester":
 		case "contents":
-		if ( !$cache_enabled )
-			wp_die( __( 'Caching must be enabled to use this feature', 'wp-super-cache' ) );
 		echo '<a name="test"></a>';
 		wp_cache_files();
 		break;
@@ -956,7 +955,7 @@ jQuery(document).ready(function(){
 			echo '<div class="submit"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . ' &raquo;" /></div>';
 			wp_nonce_field('wp-cache');
 			echo "</form>\n";
-			?></form>
+			?>
 			<h3><?php _e( 'Recommended Links and Plugins', 'wp-super-cache' ); ?></h3>
 			<p><?php _e( 'Caching is only one part of making a website faster. Here are some other plugins that will help:', 'wp-super-cache' ); ?></p>
 			<ol><li><?php printf( __( '<a href="%s">WP Minify</a> reduces the number of files served by your web server by joining Javascript and CSS files together. Alternatively you can use <a href="%s">WPSCMin</a>, a Supercache plugin that minifies cached pages. It does not however join JS/CSS files together.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-minify/', 'http://lyncd.com/wpscmin/' ); ?></li>
@@ -1940,32 +1939,32 @@ function wp_cache_files() {
 	} else {
 		$wp_cache_fsize = '0KB';
 	}
-	if( $cache_enabled == true && $super_cache_enabled == true ) {
-		$now = time();
-		$sizes = array( 'expired' => 0, 'expired_list' => array(), 'cached' => 0, 'cached_list' => array(), 'ts' => 0 );
 
-		if (is_dir($supercachedir)) {
-			if( $dh = opendir( $supercachedir ) ) {
-				while( ( $entry = readdir( $dh ) ) !== false ) {
-					if ($entry != '.' && $entry != '..') {
-						$sizes = wpsc_dirsize( trailingslashit( $supercachedir ) . $entry, $sizes );
-					}
+	// Supercache files
+	$now = time();
+	$sizes = array( 'expired' => 0, 'expired_list' => array(), 'cached' => 0, 'cached_list' => array(), 'ts' => 0 );
+
+	if (is_dir($supercachedir)) {
+		if( $dh = opendir( $supercachedir ) ) {
+			while( ( $entry = readdir( $dh ) ) !== false ) {
+				if ($entry != '.' && $entry != '..') {
+					$sizes = wpsc_dirsize( trailingslashit( $supercachedir ) . $entry, $sizes );
 				}
-				closedir($dh);
 			}
+			closedir($dh);
+		}
+	} else {
+		$filem = @filemtime( $supercachedir );
+		if ( false == $wp_cache_preload_on && is_file( $supercachedir ) && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
+			$sizes[ 'expired' ] ++;
+			if ( $valid_nonce && $_GET[ 'listfiles' ] )
+				$sizes[ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
 		} else {
-			$filem = @filemtime( $supercachedir );
-			if ( false == $wp_cache_preload_on && is_file( $supercachedir ) && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
-				$sizes[ 'expired' ] ++;
-				if ( $valid_nonce && $_GET[ 'listfiles' ] )
-					$sizes[ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
-			} else {
-				if ( $valid_nonce && $_GET[ 'listfiles' ] && $filem )
-					$sizes[ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
-			}
-		} 
-		$sizes[ 'ts' ] = time();
-	}
+			if ( $valid_nonce && $_GET[ 'listfiles' ] && $filem )
+				$sizes[ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
+		}
+	} 
+	$sizes[ 'ts' ] = time();
 	$cache_stats = array( 'generated' => time(), 'supercache' => $sizes, 'wpcache' => array( 'cached' => $count, 'expired' => $expired, 'fsize' => $wp_cache_fsize ) );
 	update_option( 'supercache_stats', $cache_stats );
 	} else {
@@ -1978,11 +1977,10 @@ function wp_cache_files() {
 	}// regerate stats cache
 
 	if ( is_array( $cache_stats ) ) {
-	echo "<p><strong>" . __( 'WP-Cache', 'wp-super-cache' ) . " ({$cache_stats[ 'wpcache' ][ 'fsize' ]})</strong></p>";
-	echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), $cache_stats[ 'wpcache' ][ 'cached' ] ) . "</li>";
-	echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ),    $cache_stats[ 'wpcache' ][ 'expired' ] ) . "</li></ul>";
-	$divisor = $cache_compression == 1 ? 2 : 1;
-	if( $cache_enabled == true && $super_cache_enabled == true ) {
+		echo "<p><strong>" . __( 'WP-Cache', 'wp-super-cache' ) . " ({$cache_stats[ 'wpcache' ][ 'fsize' ]})</strong></p>";
+		echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), $cache_stats[ 'wpcache' ][ 'cached' ] ) . "</li>";
+		echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ),    $cache_stats[ 'wpcache' ][ 'expired' ] ) . "</li></ul>";
+		$divisor = $cache_compression == 1 ? 2 : 1;
 		if ( array_key_exists('fsize', (array)$cache_stats[ 'supercache' ]) )
 			$fsize = $cache_stats[ 'supercache' ][ 'fsize' ] / 1024;
 		else
@@ -2001,89 +1999,88 @@ function wp_cache_files() {
 		else
 			$age = 0;
 		echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ), intval( $cache_stats[ 'supercache' ][ 'expired' ] / $divisor ) ) . "</li></ul>";
-	}
-	if ( $valid_nonce && array_key_exists('listfiles', $_GET) && $_GET[ 'listfiles' ] ) {
-		echo "<div style='padding: 10px; border: 1px solid #333; height: 400px; width: 70%; overflow: auto'>";
-		if ( is_array( $cached_list ) && !empty( $cached_list ) ) {
-			echo "<h4>" . __( 'Fresh WP-Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Key', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
-			$c = 1;
-			$flip = 1;
-			ksort( $cached_list );
-			foreach( $cached_list as $age => $d ) {
-				foreach( $d as $details ) {
-				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
-				echo "<tr $bg><td>$c</td><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> {$age}</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletewpcache', 'uri' => base64_encode( $details[ 'uri' ] ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
-				$flip = !$flip;
-				$c++;
+		if ( $valid_nonce && array_key_exists('listfiles', $_GET) && $_GET[ 'listfiles' ] ) {
+			echo "<div style='padding: 10px; border: 1px solid #333; height: 400px; width: 70%; overflow: auto'>";
+			if ( is_array( $cached_list ) && !empty( $cached_list ) ) {
+				echo "<h4>" . __( 'Fresh WP-Cached Files', 'wp-super-cache' ) . "</h4>";
+				echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Key', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
+				$c = 1;
+				$flip = 1;
+				ksort( $cached_list );
+				foreach( $cached_list as $age => $d ) {
+					foreach( $d as $details ) {
+						$bg = $flip ? 'style="background: #EAEAEA;"' : '';
+						echo "<tr $bg><td>$c</td><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> {$age}</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletewpcache', 'uri' => base64_encode( $details[ 'uri' ] ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
+						$flip = !$flip;
+						$c++;
+					}
 				}
+				echo "</table>";
 			}
-			echo "</table>";
-		}
-		if ( is_array( $expired_list ) && !empty( $expired_list ) ) {
-			echo "<h4>" . __( 'Stale WP-Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Key', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
-			$c = 1;
-			$flip = 1;
-			ksort( $expired_list );
-			foreach( $expired_list as $age => $d ) {
-				foreach( $d as $details ) {
-				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
-				echo "<tr $bg><td>$c</td><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> {$age}</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletewpcache', 'uri' => base64_encode( $details[ 'uri' ] ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
-				$flip = !$flip;
-				$c++;
+			if ( is_array( $expired_list ) && !empty( $expired_list ) ) {
+				echo "<h4>" . __( 'Stale WP-Cached Files', 'wp-super-cache' ) . "</h4>";
+				echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Key', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
+				$c = 1;
+				$flip = 1;
+				ksort( $expired_list );
+				foreach( $expired_list as $age => $d ) {
+					foreach( $d as $details ) {
+						$bg = $flip ? 'style="background: #EAEAEA;"' : '';
+						echo "<tr $bg><td>$c</td><td> <a href='http://{$details[ 'uri' ]}'>" . $details[ 'uri' ] . "</a></td><td> " . str_replace( $details[ 'uri' ], '', $details[ 'key' ] ) . "</td><td> {$age}</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletewpcache', 'uri' => base64_encode( $details[ 'uri' ] ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
+						$flip = !$flip;
+						$c++;
+					}
 				}
+				echo "</table>";
 			}
-			echo "</table>";
-		}
-		if ( is_array( $sizes[ 'cached_list' ] ) & !empty( $sizes[ 'cached_list' ] ) ) {
-			echo "<h4>" . __( 'Fresh Super Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
-			$c = 1;
-			$flip = 1;
-			ksort( $sizes[ 'cached_list' ] );
-			foreach( $sizes[ 'cached_list' ] as $age => $d ) {
-				foreach( $d as $uri => $n ) {
-				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
-				echo "<tr $bg><td>$c</td><td> <a href='http://{$uri}'>" . $uri . "</a></td><td>$age</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletesupercache', 'uri' => base64_encode( $uri ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
-				$flip = !$flip;
-				$c++;
+			if ( is_array( $sizes[ 'cached_list' ] ) & !empty( $sizes[ 'cached_list' ] ) ) {
+				echo "<h4>" . __( 'Fresh Super Cached Files', 'wp-super-cache' ) . "</h4>";
+				echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
+				$c = 1;
+				$flip = 1;
+				ksort( $sizes[ 'cached_list' ] );
+				foreach( $sizes[ 'cached_list' ] as $age => $d ) {
+					foreach( $d as $uri => $n ) {
+						$bg = $flip ? 'style="background: #EAEAEA;"' : '';
+						echo "<tr $bg><td>$c</td><td> <a href='http://{$uri}'>" . $uri . "</a></td><td>$age</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletesupercache', 'uri' => base64_encode( $uri ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
+						$flip = !$flip;
+						$c++;
+					}
 				}
+				echo "</table>";
 			}
-			echo "</table>";
-		}
-		if ( is_array( $sizes[ 'expired_list' ] ) && !empty( $sizes[ 'expired_list' ] ) ) {
-			echo "<h4>" . __( 'Stale Super Cached Files', 'wp-super-cache' ) . "</h4>";
-			echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
-			$c = 1;
-			$flip = 1;
-			ksort( $sizes[ 'expired_list' ] );
-			foreach( $sizes[ 'expired_list' ] as $age => $d ) {
-				foreach( $d as $uri => $n ) {
-				$bg = $flip ? 'style="background: #EAEAEA;"' : '';
-				echo "<tr $bg><td>$c</td><td> <a href='http://{$uri}'>" . $uri . "</a></td><td>$age</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletesupercache', 'uri' => base64_encode( $uri ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
-				$flip = !$flip;
-				$c++;
+			if ( is_array( $sizes[ 'expired_list' ] ) && !empty( $sizes[ 'expired_list' ] ) ) {
+				echo "<h4>" . __( 'Stale Super Cached Files', 'wp-super-cache' ) . "</h4>";
+				echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
+				$c = 1;
+				$flip = 1;
+				ksort( $sizes[ 'expired_list' ] );
+				foreach( $sizes[ 'expired_list' ] as $age => $d ) {
+					foreach( $d as $uri => $n ) {
+						$bg = $flip ? 'style="background: #EAEAEA;"' : '';
+						echo "<tr $bg><td>$c</td><td> <a href='http://{$uri}'>" . $uri . "</a></td><td>$age</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletesupercache', 'uri' => base64_encode( $uri ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
+						$flip = !$flip;
+						$c++;
+					}
 				}
+				echo "</table>";
 			}
-			echo "</table>";
+			echo "</div>";
+			echo "<p><a href='?page=wpsupercache#top'>" . __( 'Hide file list', 'wp-super-cache' ) . "</a></p>";
+		} elseif ( $cache_stats[ 'supercache' ][ 'cached' ] > 300 || $cache_stats[ 'supercache' ][ 'expired' ] > 300 || ( $cache_stats[ 'wpcache' ][ 'cached' ] / $divisor ) > 300 || ( $cache_stats[ 'wpcache' ][ 'expired' ] / $divisor) > 300 ) {
+			echo "<p><em>" . __( 'Too many cached files, no listing possible.', 'wp-super-cache' ) . "</em></p>";
+		} else {
+			echo "<p><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'listfiles' => '1' ) ), 'wp-cache' ) . "#listfiles'>" . __( 'List all cached files', 'wp-super-cache' ) . "</a></p>";
 		}
-		echo "</div>";
-		echo "<p><a href='?page=wpsupercache#top'>" . __( 'Hide file list', 'wp-super-cache' ) . "</a></p>";
-	} elseif ( $cache_stats[ 'supercache' ][ 'cached' ] > 300 || $cache_stats[ 'supercache' ][ 'expired' ] > 300 || ( $cache_stats[ 'wpcache' ][ 'cached' ] / $divisor ) > 300 || ( $cache_stats[ 'wpcache' ][ 'expired' ] / $divisor) > 300 ) {
-		echo "<p><em>" . __( 'Too many cached files, no listing possible.', 'wp-super-cache' ) . "</em></p>";
-	} else {
-		echo "<p><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'listfiles' => '1' ) ), 'wp-cache' ) . "#listfiles'>" . __( 'List all cached files', 'wp-super-cache' ) . "</a></p>";
-	}
-	$last_gc = get_option( "wpsupercache_gc_time" );
-	if ( $cache_max_time > 0 && $last_gc ) {
-		$next_gc = $cache_max_time < 1800 ? $cache_max_time : 600;
-		$next_gc_mins = ( time() - $last_gc );
-		echo "<p>" . sprintf( __( '<strong>Garbage Collection</strong><br />Last GC was <strong>%s</strong> minutes ago<br />', 'wp-super-cache' ), date( 'i:s', $next_gc_mins ) );
-		printf( __( "Next GC in <strong>%s</strong> minutes", 'wp-super-cache' ), date( 'i:s', $next_gc - $next_gc_mins ) ) . "</p>";
-	}
-	if ( $cache_max_time > 0 )
-		echo "<p>" . sprintf( __( 'Expired files are files older than %s seconds. They are still used by the plugin and are deleted periodically.', 'wp-super-cache' ), $cache_max_time ) . "</p>";
+		$last_gc = get_option( "wpsupercache_gc_time" );
+		if ( $cache_max_time > 0 && $last_gc ) {
+			$next_gc = $cache_max_time < 1800 ? $cache_max_time : 600;
+			$next_gc_mins = ( time() - $last_gc );
+			echo "<p>" . sprintf( __( '<strong>Garbage Collection</strong><br />Last GC was <strong>%s</strong> minutes ago<br />', 'wp-super-cache' ), date( 'i:s', $next_gc_mins ) );
+			printf( __( "Next GC in <strong>%s</strong> minutes", 'wp-super-cache' ), date( 'i:s', $next_gc - $next_gc_mins ) ) . "</p>";
+		}
+		if ( $cache_max_time > 0 )
+			echo "<p>" . sprintf( __( 'Expired files are files older than %s seconds. They are still used by the plugin and are deleted periodically.', 'wp-super-cache' ), $cache_max_time ) . "</p>";
 	} // cache_stats
 	wp_cache_delete_buttons();
 
@@ -2617,4 +2614,50 @@ function check_up_on_preloading() {
 	}
 }
 add_action( 'init', 'check_up_on_preloading' ); // sometimes preloading stops working. Kickstart it.
+function wp_cache_disable_plugin() {
+	global $wp_cache_config_file;
+	if ( file_exists( ABSPATH . 'wp-config.php') ) {
+		$global_config = ABSPATH . 'wp-config.php';
+	} else {
+		$global_config = dirname(ABSPATH) . '/wp-config.php';
+	}
+	$line = 'define(\'WP_CACHE\', true);';
+	if ( ( !is_writeable_ACLSafe( $global_config ) || !wp_cache_replace_line( 'define *\( *\'WP_CACHE\'', '//' . $line, $global_config ) ) && $echo ) {
+		wp_die( "Could not remove WP_CACHE define from $global_config. Please edit that file and remove the line containing the text 'WP_CACHE'." );
+	}
+	uninstall_supercache( WP_CONTENT_DIR . '/cache' );
+	$permission_problem = false;
+	if ( @file_exists( WP_CONTENT_DIR . "/advanced-cache.php" ) ) {
+		if ( false == @unlink( WP_CONTENT_DIR . "/advanced-cache.php" ) )
+			$permission_problem = true;
+	}
+	if ( @file_exists( WP_CONTENT_DIR . "/wp-cache-config.php" ) ) {
+		if ( false == unlink( WP_CONTENT_DIR . "/wp-cache-config.php" ) )
+			$permission_problem = true;
+	}
+	if ( $permission_problem ) {
+		wp_die( "One or more files could not be deleted. " . WP_CONTENT_DIR . " must be made writeable:<br /><code>chmod 777 " . WP_CONTENT_DIR . "</code><br /><br /> and don't forgot to fix things later:<br /><code>chmod 755 " . WP_CONTENT_DIR . "</code><br /><br />" );
+	}
+}
+
+function uninstall_supercache( $folderPath ) { // from http://www.php.net/manual/en/function.rmdir.php
+	if ( trailingslashit( constant( 'ABSPATH' ) ) == trailingslashit( $folderPath ) )
+		return false;
+	if ( @is_dir ( $folderPath ) ) {
+		$dh  = @opendir($folderPath);
+		while( false !== ( $value = @readdir( $dh ) ) ) {
+			if ( $value != "." && $value != ".." ) {
+				$value = $folderPath . "/" . $value; 
+				if ( @is_dir ( $value ) ) {
+					uninstall_supercache( $value );
+				} else {
+					@unlink( $value );
+				}
+			}
+		}
+		return @rmdir( $folderPath );
+	} else {
+		return false;
+	}
+}
 ?>
