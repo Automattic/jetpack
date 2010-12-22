@@ -2639,6 +2639,13 @@ function wp_cache_disable_plugin() {
 	if ( $permission_problem ) {
 		wp_die( "One or more files could not be deleted. " . WP_CONTENT_DIR . " must be made writeable:<br /><code>chmod 777 " . WP_CONTENT_DIR . "</code><br /><br /> and don't forgot to fix things later:<br /><code>chmod 755 " . WP_CONTENT_DIR . "</code><br /><br />" );
 	}
+	extract( wpsc_get_htaccess_info() );
+	$htaccess_problem = true;
+	if ( $scrules == $rules && insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', array() ) )
+		$htaccess_problem = false;
+
+	if ( $htaccess_problem )
+		wp_mail( get_option( 'admin_email' ), __( 'Supercache Uninstall Problems', 'wp-super-cache' ), sprintf( __( "Dear User,\n\nWP Super Cache was removed from your blog but the mod_rewrite rules\nin your .htaccess were not.\n\nPlease edit the following file and remove the code\nbetween 'BEGIN WPSuperCache' and 'END WPSuperCache'. Please backup the file first!\n\n%s\n\nRegards,\nWP Super Cache Plugin\nhttp://wordpress.org/extend/plugins/wp-super-cache/", 'wp-super-cache' ), ABSPATH . '/.htaccess' ) );
 }
 
 function uninstall_supercache( $folderPath ) { // from http://www.php.net/manual/en/function.rmdir.php
