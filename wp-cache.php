@@ -1655,9 +1655,10 @@ function wp_cache_replace_line($old, $new, $my_file) {
 		echo "Error: file $my_file is not writable.\n";
 		return false;
 	}
+
 	$found = false;
 	$lines = file($my_file);
-	foreach($lines as $line) {
+	foreach( (array)$lines as $line ) {
 	 	if ( preg_match("/$old/", $line)) {
 			$found = true;
 			break;
@@ -1665,7 +1666,7 @@ function wp_cache_replace_line($old, $new, $my_file) {
 	}
 	if ($found) {
 		$fd = fopen($my_file, 'w');
-		foreach($lines as $line) {
+		foreach( (array)$lines as $line ) {
 			if ( !preg_match("/$old/", $line))
 				fputs($fd, $line);
 			else {
@@ -1677,7 +1678,7 @@ function wp_cache_replace_line($old, $new, $my_file) {
 	}
 	$fd = fopen($my_file, 'w');
 	$done = false;
-	foreach($lines as $line) {
+	foreach( (array)$lines as $line ) {
 		if ( $done || !preg_match('/^(if\ \(\ \!\ )?define|\$|\?>/', $line) ) {
 			fputs($fd, $line);
 		} else {
