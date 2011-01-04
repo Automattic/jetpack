@@ -253,7 +253,7 @@ function wp_cache_manager_error_checks() {
 		$wp_content_mode = ( $wp_content_stat[ 'mode' ] & 0777 );
 		if( $wp_content_mode != 0755 ) {
 			?><div id="message" class="updated fade"><h3><?php printf( __( 'Warning! %s is writeable!', 'wp-super-cache' ), WP_CONTENT_DIR ); ?></h3>
-			<p><?php printf( __( 'You should change the permissions on %s and make it more restrictive. Use your ftp client, or the following command to fix things:', 'wp-super-cache' ), WP_CONTENT_DIR ); ?><code>chmod 755 <?php echo WP_CONTENT_DIR; ?>/</code></p></div><?php
+			<p><?php printf( __( 'You should change the permissions on %s and make it more restrictive. Use your ftp client, or the following command to fix things:', 'wp-super-cache' ), WP_CONTENT_DIR ); ?> <code>chmod 755 <?php echo WP_CONTENT_DIR; ?>/</code></p></div><?php
 		}
 	}
 
