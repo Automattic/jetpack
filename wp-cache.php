@@ -2619,26 +2619,35 @@ add_action( 'init', 'check_up_on_preloading' ); // sometimes preloading stops wo
 function wp_cache_disable_plugin() {
 	global $wp_cache_config_file;
 	if ( file_exists( ABSPATH . 'wp-config.php') ) {
-		$global_config = ABSPATH . 'wp-config.php';
+		$global_config_file = ABSPATH . 'wp-config.php';
 	} else {
-		$global_config = dirname(ABSPATH) . '/wp-config.php';
+		$global_config_file = dirname(ABSPATH) . '/wp-config.php';
 	}
 	$line = 'define(\'WP_CACHE\', true);';
-	if ( ( !is_writeable_ACLSafe( $global_config ) || !wp_cache_replace_line( 'define *\( *\'WP_CACHE\'', '//' . $line, $global_config ) ) && $echo ) {
-		wp_die( "Could not remove WP_CACHE define from $global_config. Please edit that file and remove the line containing the text 'WP_CACHE'." );
-	}
+	if ( strpos( file_get_contents( $global_config_file ), $line ) && ( !is_writeable_ACLSafe( $global_config_file ) || !wp_cache_replace_line( 'define *\( *\'WP_CACHE\'', '//' . $line, $global_config_file ) ) )
+		wp_die( "Could not remove WP_CACHE define from $global_config_file. Please edit that file and remove the line containing the text 'WP_CACHE'. Then refresh this page." );
+
 	uninstall_supercache( WP_CONTENT_DIR . '/cache' );
-	$permission_problem = false;
+	$file_not_deleted = false;
 	if ( @file_exists( WP_CONTENT_DIR . "/advanced-cache.php" ) ) {
 		if ( false == @unlink( WP_CONTENT_DIR . "/advanced-cache.php" ) )
-			$permission_problem = true;
+			$file_not_deleted[] = 'advanced-cache.php';
 	}
 	if ( @file_exists( WP_CONTENT_DIR . "/wp-cache-config.php" ) ) {
 		if ( false == unlink( WP_CONTENT_DIR . "/wp-cache-config.php" ) )
-			$permission_problem = true;
+			$file_not_deleted[] = 'wp-cache-config.php';
 	}
-	if ( $permission_problem ) {
-		wp_die( "One or more files could not be deleted. " . WP_CONTENT_DIR . " must be made writeable:<br /><code>chmod 777 " . WP_CONTENT_DIR . "</code><br /><br /> and don't forgot to fix things later:<br /><code>chmod 755 " . WP_CONTENT_DIR . "</code><br /><br />" );
+	if ( $file_not_deleted ) {
+		$msg = "<p>One or more files could not be deleted. These files and directories must be made writeable:</p>\n <ol><li>" . WP_CONTENT_DIR . "</li>\n";
+		$code = "<ul>\n";
+		foreach( (array)$file_not_deleted as $filename ) {
+			$msg .= "<li>" . WP_CONTENT_DIR . "/{$filename}</li>";
+			$code .= "<li><code>chmod 666 " . WP_CONTENT_DIR . "/{$filename}</code></li>\n";
+		}
+		$code .= "</ul>\n";
+		
+		$msg .= "</ol>\n<p>First try fixing the directory permissions with this command and refresh this page:<br /><br /><code>chmod 777 " . WP_CONTENT_DIR . "</code><br /><br />If you still see this error, you have to fix the permissions on the files themselves and refresh this page again:</p> {$code}\n<p>Don't forgot to fix things later:<br /><code>chmod 755 " . WP_CONTENT_DIR . "</code></p><p>If you don't know what <strong>chmod</strong> is use <a href='http://www.google.ie/search?hl=en&q=ftp+chmod+777'>this Google search</a> to find out all about it.</p><p>Please refresh this page when the permissions have been modified.</p>";
+		wp_die( $msg );
 	}
 	extract( wpsc_get_htaccess_info() );
 	$htaccess_problem = true;
