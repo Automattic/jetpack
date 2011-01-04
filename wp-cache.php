@@ -2617,7 +2617,7 @@ function check_up_on_preloading() {
 add_action( 'init', 'check_up_on_preloading' ); // sometimes preloading stops working. Kickstart it.
 
 function wp_cache_disable_plugin() {
-	global $wp_cache_config_file;
+	global $wp_cache_config_file, $wp_rewrite;
 	if ( file_exists( ABSPATH . 'wp-config.php') ) {
 		$global_config_file = ABSPATH . 'wp-config.php';
 	} else {
@@ -2650,12 +2650,11 @@ function wp_cache_disable_plugin() {
 		wp_die( $msg );
 	}
 	extract( wpsc_get_htaccess_info() );
-	$htaccess_problem = true;
-	if ( $scrules == $rules && insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', array() ) )
-		$htaccess_problem = false;
-
-	if ( $htaccess_problem )
+	if ( $scrules != '' && insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', array() ) ) {
+		$wp_rewrite->flush_rules();
+	} else {
 		wp_mail( get_option( 'admin_email' ), __( 'Supercache Uninstall Problems', 'wp-super-cache' ), sprintf( __( "Dear User,\n\nWP Super Cache was removed from your blog but the mod_rewrite rules\nin your .htaccess were not.\n\nPlease edit the following file and remove the code\nbetween 'BEGIN WPSuperCache' and 'END WPSuperCache'. Please backup the file first!\n\n%s\n\nRegards,\nWP Super Cache Plugin\nhttp://wordpress.org/extend/plugins/wp-super-cache/", 'wp-super-cache' ), ABSPATH . '/.htaccess' ) );
+	}
 }
 
 function uninstall_supercache( $folderPath ) { // from http://www.php.net/manual/en/function.rmdir.php
