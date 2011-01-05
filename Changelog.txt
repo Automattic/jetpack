@@ -1,3 +1,29 @@
+2011-01-05 14:54  donncha
+
+	* wp-super-cache.pot: Updated pot file
+
+2011-01-05 14:51  donncha
+
+	* ossdl-cdn.php, wp-cache.php: Fixed link to CDN Sync support
+	  forum.
+
+2011-01-05 13:37  donncha
+
+	* wp-super-cache.pot: Updated pot file.
+
+2011-01-05 13:32  donncha
+
+	* ossdl-cdn.php, wp-cache.php: Link to the CDN Sync tool from the
+	  Easy settings page too
+
+2011-01-05 13:15  donncha
+
+	* ossdl-cdn.php: Link to CDN Sync Tool on CDN page.
+
+2011-01-05 11:50  donncha
+
+	* Changelog.txt: Updated changelog
+
 2011-01-05 11:46  donncha
 
 	* wp-cache-phase1.php, wp-cache.php: Remove log by email

@@ -54,10 +54,18 @@ Interested in translating WP Super Cache to your language? Grab the [development
 
 == Upgrade Notice ==
 
-= 0.9.9.6 =
-Fixed problem serving cached files with PHP, added support for 304 "file not modified" browser caching, French & German and updated Italian translations
+= 0.9.9.8 =
+CDN code can be switched off, better uninstall process, compress dynamic pages, 1and1 webhosting fix, use Supercache files for dynamic pages
 
 == Changelog ==
+
+= 0.9.9.8 =
+* CDN updates: can be switched off, multiple CNAMEs.
+* Uninstall process improved. It removes generated files and fixes edited files.
+* Cached dynamic pages can now be stored in Supercache files and compressed.
+* 1and1 Webhosting fix (/kunden/)
+* Remove log by email funtionality as it caused problems for users who were inundated by email
+* Many more minor fixes and changes.
 
 = 0.9.9.6 =
 * Fixed problem serving cached files with PHP
