@@ -1067,8 +1067,10 @@ function wp_cache_post_id() {
 function wp_cache_gc_cron() {
 	global $file_prefix, $cache_max_time;
 
-	if ( $cache_max_time == 0 )
+	if ( $cache_max_time == 0 ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Cache garbage collection disabled because cache expiry time is zero.', 5 );
 		return false;
+	}
 
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Cache garbage collection.', 5 );
 
