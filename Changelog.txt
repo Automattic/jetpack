@@ -1,3 +1,248 @@
+2011-01-05 11:46  donncha
+
+	* wp-cache-phase1.php, wp-cache.php: Remove log by email
+	  functionality. It cases problems for users when they get too much
+	  email
+
+2011-01-05 11:45  donncha
+
+	* wp-cache-phase2.php: Warn user by debug log if cache expiry is
+	  zero and therefore no garbage collection
+
+2011-01-04 15:22  donncha
+
+	* languages/wp-super-cache-zh_TW.mo,
+	  languages/wp-super-cache-zh_TW.po: Updated Traditional Chinese
+	  translation
+
+2011-01-04 12:49  donncha
+
+	* wp-cache.php: Added an extra space to make selecting chmod
+	  command easier.
+
+2011-01-04 12:48  donncha
+
+	* wp-cache.php: Flush the rewrite rules after uninstalling. Props
+	  @nacin, http://ocaoimh.ie/uninstall-supercache/
+
+2011-01-04 12:42  donncha
+
+	* wp-cache.php: Make uninstall warnings clearer and easier to read,
+	  hopefully
+
+2010-12-22 16:22  donncha
+
+	* wp-cache.php: Cast $lines as array to avoid warnings arising from
+	  empty config files.
+
+2010-12-22 12:00  donncha
+
+	* wp-cache.php: Remove .htaccess rules if they match the ones in
+	  the plugin, else email the blog admin that there's a problem.
+
+2010-12-21 14:26  donncha
+
+	* readme.txt: Updated docs to reflect changes to caching modes and
+	  uninstall instructions
+
+2010-12-21 12:52  donncha
+
+	* wp-cache.php: Let's tidy up and add some space
+
+2010-12-21 12:44  donncha
+
+	* wp-cache.php: * Added code to remove plugin files when plugin
+	  deactivated.
+	  * Show cache contents even when caching is disabled.
+	  * Minor fixes
+
+2010-12-21 12:17  donncha
+
+	* wp-cache.php: Fixed easy page "Update Status" button, it was
+	  triggering the cache tester
+
+2010-12-20 15:26  donncha
+
+	* wp-cache.php: Put cache tester and delete buttons on the "Easy"
+	  setup page.
+
+2010-12-20 14:43  donncha
+
+	* wp-cache-phase1.php: Allow functions in classes to be used in
+	  cacheactions. Props exz,
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-use-function-in-a-class-with-add_cacheaction?replies=1
+
+2010-12-17 18:32  donncha
+
+	* wp-cache.php: Show Settings->Super Cache page to super admins to
+	  preserve old links
+
+2010-12-17 16:47  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Added option to enable front
+	  page cache checks and enable by default.
+
+2010-12-17 16:04  donncha
+
+	* wp-cache-phase1.php: Print compression comment on cached dynamic
+	  pages
+
+2010-12-17 14:13  donncha
+
+	* wp-cache-phase2.php: Gzip the dynamic cached page before we serve
+	  the first user to visit a page.
+
+2010-12-17 14:10  donncha
+
+	* wp-cache-phase1.php: Use the plugin $cache_compression settings
+	  to determine if gzipped dynamic cached files should be served or
+	  not.
+
+2010-12-17 13:04  donncha
+
+	* wp-cache-phase1.php: Sometimes "zlib.output_compression" is set
+	  to "off" rather than 0, check for "on" to make sure we don't
+	  disable compression accidentally.
+
+2010-12-15 12:42  donncha
+
+	* wp-cache-phase1.php: CHeck if PHP is using zlib compression
+	  already before compressing dynamic pages
+
+2010-12-15 12:37  donncha
+
+	* wp-cache-phase1.php: Use "ob_gzhandler" to compress dynamic pages
+	  on the fly if supported, see
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-suggestion-mod_rewrite-mode-with-legacy-fallback?replies=8#post-1837856
+
+2010-12-15 12:27  donncha
+
+	* wp-cache.php: Updated patch to support 1and1 webhosting, see
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-how-to-get-mod_rewrite-working-on-1and1-shared-hosting?replies=6#post-1837843
+
+2010-12-15 07:20  donncha
+
+	* wp-cache-phase2.php: oops, left some debug code in!
+
+2010-12-14 14:56  donncha
+
+	* wp-cache.php: Regenerate the cache stats when the cache is
+	  deleted
+
+2010-12-14 14:34  donncha
+
+	* wp-cache.php: Minor typo fixed.
+
+2010-12-14 13:38  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: First pass at using
+	  supercache files to store "dynamic pages". See
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-suggestion-mod_rewrite-mode-with-legacy-fallback?replies=5
+
+2010-12-14 10:48  donncha
+
+	* wp-cache.php: Hopefully fix problems with 1and1 hosting as they
+	  use /kunden/ in their path, see
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-how-to-get-mod_rewrite-working-on-1and1-shared-hosting,
+	  props reviewmylife
+
+2010-12-13 18:52  donncha
+
+	* wp-cache.php: For the purposes of our checks, home is / or
+	  wherever the blog lives, not in the paged content.
+
+2010-12-13 18:38  donncha
+
+	* wp-cache.php: Call the correct function on template_redirect to
+	  set the is_home cache.
+
+2010-12-13 17:30  donncha
+
+	* languages/wp-super-cache-de_DE.mo,
+	  languages/wp-super-cache-de_DE.po: Updated German translation,
+	  props Mathias,
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-can-i-help-to-improve-language-file?replies=11#post-1829165
+
+2010-12-13 15:54  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Cache is_home and
+	  is_front_page in $wp_cache_is_home because they may not work on
+	  PHP shutdown. See
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-not-writing-another-page-to-front-page-cache?replies=8
+
+2010-12-09 13:34  donncha
+
+	* wp-super-cache.pot: Updated pot file for translation
+
+2010-12-09 13:31  donncha
+
+	* languages/wp-super-cache-de_DE.mo,
+	  languages/wp-super-cache-de_DE.po: Updated German translation,
+	  props Mathias (http://trade-service.biz/)
+
+2010-12-09 12:28  donncha
+
+	* ossdl-cdn.php: Added multiple CNAME support to CDN functionality
+	  (props David Ward) and add translation strings
+
+2010-12-07 16:00  donncha
+
+	* plugins/badbehaviour.php: Fixed admin form on Bad Behavior plugin
+
+2010-11-30 12:08  donncha
+
+	* ossdl-cdn.php, wp-cache-config-sample.php: Allow CDN support to
+	  be switched off, see
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-wp_supercache-problem-with-sharedaddy-shareandfollow?replies=6
+
+2010-11-29 15:55  donncha
+
+	* wp-cache.php: Add Supercache menu item on network admin menu,
+	  WordPress 3.1
+
+2010-11-29 11:24  donncha
+
+	* wp-cache.php: Silently fail when the config file is missing and
+	  we try to update it. Only happens when the settings page is first
+	  loaded.
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-warning-invalid-argument-supplied-for-foreach?replies=3
+
+2010-11-26 12:25  donncha
+
+	* wp-cache-phase2.php: There's no need to write meta files when
+	  we're not caching for logged in users!
+
+2010-11-26 11:31  donncha
+
+	* advanced-cache.php, wp-cache.php: Define the constant
+	  "ADVANCEDCACHEPROBLEM" if wp-cache-phase1.php can't be loaded and
+	  report it on the dashboard. See
+	  http://thehoneymonster.com/2010/10/wp-super-cache-oopsiedoodle/
+
+2010-11-26 10:03  donncha
+
+	* wp-cache.php: Fixed translation domain on string, props Priv,
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-can-i-help-to-improve-language-file?replies=6
+
+2010-11-24 09:55  donncha
+
+	* wp-cache.php: Preload pages as well as posts, see
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-pages-are-not-cached-in-preload-mode?replies=2
+
+2010-11-23 20:37  donncha
+
+	* languages/wp-super-cache-it_IT.mo,
+	  languages/wp-super-cache-it_IT.po: Updated Italian translation,
+	  props Gianni
+
+2010-11-23 13:48  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 0.9.9.7
+
+2010-11-23 13:45  donncha
+
+	* Changelog.txt: Updated changelog
+
 2010-11-23 13:38  donncha
 
 	* wp-cache-phase1.php: Check if there are any actions before
