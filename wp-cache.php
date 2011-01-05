@@ -824,6 +824,7 @@ jQuery(document).ready(function(){
 		</table>
 		<h3><?php _e( 'Note:', 'wp-super-cache' ); ?></h3>
 		<ol>
+		<li><?php __( 'Uninstall this plugin on the plugins page. It will automatically clean up after itself. If manual intervention is required then simple instructions are provided.', 'wp-super-cache' ); ?></li>
 		<li><?php printf( __( 'If uninstalling this plugin, make sure the directory <em>%s</em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)', 'wp-super-cache' ), WP_CONTENT_DIR ); ?></li>
 		<li><?php printf( __( 'Please see the <a href="%1$s/wp-super-cache/readme.txt">readme.txt</a> for instructions on uninstalling this script. Look for the heading, "How to uninstall WP Super Cache".', 'wp-super-cache' ), WP_PLUGIN_URL ); ?></li><?php
 		echo "<li><em>" . sprintf( __( 'Need help? Check the <a href="%1$s">Super Cache readme file</a>. It includes installation documentation, a FAQ and Troubleshooting tips. The <a href="%2$s">support forum</a> is also available. Your question may already have been answered.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/', 'http://wordpress.org/tags/wp-super-cache?forum_id=10' ) . "</em></li>";
@@ -1501,7 +1502,7 @@ function wp_cache_edit_accepted() {
 }
 
 function wp_cache_debug_settings() {
-	global $wp_super_cache_debug, $wp_cache_debug_email, $wp_cache_debug_log, $wp_cache_debug_level, $wp_cache_debug_ip, $cache_path, $valid_nonce, $wp_cache_config_file, $wp_cache_debug_to_file;
+	global $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_level, $wp_cache_debug_ip, $cache_path, $valid_nonce, $wp_cache_config_file;
 	global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wp_super_cache_advanced_debug;
 
 	if ( !isset( $wp_cache_debug_level ) )
@@ -1509,15 +1510,11 @@ function wp_cache_debug_settings() {
 	if ( isset( $_POST[ 'wp_cache_debug' ] ) && $valid_nonce ) {
 		$wp_super_cache_debug = intval( $_POST[ 'wp_super_cache_debug' ] );
 		wp_cache_replace_line('^ *\$wp_super_cache_debug', "\$wp_super_cache_debug = '$wp_super_cache_debug';", $wp_cache_config_file);
-		$wp_cache_debug_email = esc_html( $_POST[ 'wp_cache_debug_email' ] );
-		wp_cache_replace_line('^ *\$wp_cache_debug_email', "\$wp_cache_debug_email = '$wp_cache_debug_email';", $wp_cache_config_file);
-		$wp_cache_debug_to_file = intval( $_POST[ 'wp_cache_debug_to_file' ] );
-		if ( $wp_cache_debug_to_file && ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log == '' ) || !isset( $wp_cache_debug_log ) ) ) {
+		if ( $wp_super_cache_debug && ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log == '' ) || !isset( $wp_cache_debug_log ) ) ) {
 			$wp_cache_debug_log = md5( time() ) . ".txt";
-		} elseif( $wp_cache_debug_to_file == false ) {
+		} else {
 			$wp_cache_debug_log = "";
 		}
-		wp_cache_replace_line('^ *\$wp_cache_debug_to_file', "\$wp_cache_debug_to_file = '$wp_cache_debug_to_file';", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$wp_cache_debug_log', "\$wp_cache_debug_log = '$wp_cache_debug_log';", $wp_cache_config_file);
 		$wp_cache_debug_ip = esc_html( $_POST[ 'wp_cache_debug_ip' ] );
 		wp_cache_replace_line('^ *\$wp_cache_debug_ip', "\$wp_cache_debug_ip = '$wp_cache_debug_ip';", $wp_cache_config_file);
@@ -1539,25 +1536,15 @@ function wp_cache_debug_settings() {
 
 	echo '<a name="debug"></a>';
 	echo '<fieldset class="options">';
-	if ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) || ( isset( $wp_cache_debug_email ) && $wp_cache_debug_email != '' ) ) {
-		echo "<p>" . __( 'Currently logging to: ', 'wp-super-cache' );
-		if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) {
-			$url = str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}" );
-			echo "<a href='" . site_url( $url ) . "'>$cache_path{$wp_cache_debug_log}</a> ";
+	if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' )
+		echo "<p>" . sprintf( __( 'Currently logging to: %s', 'wp-super-cache' ), "<a href='" . site_url( str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}" ) ) . "'>$cache_path{$wp_cache_debug_log}</a>" ) . "</p>";
 
-		}
-		if ( isset( $wp_cache_debug_email ) )
-			echo " $wp_cache_debug_email ";
-		echo "</p>";
-	}
-	echo '<p>' . __( 'Fix problems with the plugin by debugging it here. It can send you debug emails or log them to a file in your cache directory.', 'wp-super-cache' ) . '</p>';
-	echo '<p>' . __( 'Logging to a file is easier but faces the problem that clearing the cache will clear the log file.', 'wp-super-cache' ) . '</p>';
+
+	echo '<p>' . __( 'Fix problems with the plugin by debugging it here. It can log them to a file in your cache directory.', 'wp-super-cache' ) . '</p>';
 	echo '<div style="clear:both"></div><form name="wp_cache_debug" action="" method="post">';
 	echo "<input type='hidden' name='wp_cache_debug' value='1' /><br />";
 	echo "<table class='form-table'>";
 	echo "<tr><td>" . __( 'Debugging', 'wp-super-cache' ) . "</td><td><input type='checkbox' name='wp_super_cache_debug' value='1' " . checked( 1, $wp_super_cache_debug, false ) . " /> " . __( 'enabled', 'wp-super-cache' ) . "</td></tr>";
-	echo "<tr><td valign='top' rowspan='2'>" . __( 'Logging Type', 'wp-super-cache' ) . "</td><td> " . __( 'Email', 'wp-super-cache' ) . ": <input type='text' size='30' name='wp_cache_debug_email' value='{$wp_cache_debug_email}' /></td></tr>";
-	echo "<tr><td><input type='checkbox' name='wp_cache_debug_to_file' value='1' " . checked( 1, $wp_cache_debug_to_file, false ) . " /> " . __( 'file', 'wp-super-cache' ) . "</td></tr>";
 	echo "<tr><td>" . __( 'IP Address', 'wp-super-cache' ) . "</td><td> <input type='text' size='20' name='wp_cache_debug_ip' value='{$wp_cache_debug_ip}' /> " . sprintf( __( '(only log requests from this IP address. Your IP is %s)', 'wp-super-cache' ), $_SERVER[ 'REMOTE_ADDR' ] ) . "</td></tr>";
 	echo "<tr><td>" . __( 'Log level', 'wp-super-cache' ) . "</td><td> ";
 	for( $t = 1; $t <= 5; $t++ ) {

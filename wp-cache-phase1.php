@@ -424,12 +424,12 @@ function wp_cache_check_mobile( $cache_key ) {
 }
 
 function wp_cache_debug( $message, $level = 1 ) {
-	global $wp_cache_debug_level, $wp_cache_debug_log, $wp_cache_debug_email, $cache_path, $wp_cache_debug_ip, $wp_super_cache_debug;
+	global $wp_cache_debug_level, $wp_cache_debug_log, $cache_path, $wp_cache_debug_ip, $wp_super_cache_debug;
 
 	if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug == false )
 		return false;
 
-	if ( isset( $wp_cache_debug_email ) == false && isset( $wp_cache_debug_log ) == false )
+	if ( isset( $wp_cache_debug_log ) == false )
 		return false;
 
 	if ( isset( $wp_cache_debug_level ) == false )
@@ -442,11 +442,6 @@ function wp_cache_debug( $message, $level = 1 ) {
 
 	if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) {
 		error_log( date( 'H:i:s' ) . " " . $_SERVER[ 'REQUEST_URI' ] . " " . $message . "\n", 3, $cache_path . str_replace( '/', '', str_replace( '..', '', $wp_cache_debug_log ) ) );
-	}
-
-	if ( isset( $wp_cache_debug_email ) && $wp_cache_debug_email != ''  ) {
-		$message .= "\n\nDisable these emails by commenting out or deleting the line containing\n\$wp_cache_debug_email in wp-content/wp-cache-config.php on your server.\n";
-		mail( $wp_cache_debug_email, '[' . addslashes( $_SERVER[ 'HTTP_HOST' ] ) . "] WP Super Cache Debug", $message );
 	}
 }
 
