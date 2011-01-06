@@ -1,3 +1,19 @@
+2011-01-06 13:13  donncha
+
+	* readme.txt: Updated docs
+
+2011-01-06 12:12  donncha
+
+	* readme.txt: Minor changes to docs
+
+2011-01-06 10:03  donncha
+
+	* readme.txt, wp-cache.php: Tagged version 0.9.9.8
+
+2011-01-05 15:02  donncha
+
+	* Changelog.txt, readme.txt: Updated changelogs
+
 2011-01-05 14:54  donncha
 
 	* wp-super-cache.pot: Updated pot file
