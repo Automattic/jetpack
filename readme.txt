@@ -302,7 +302,9 @@ There are 2 ways of doing this. You can use Javascript to draw the part of the p
 There are a few ways to do this, you can have functions that stay dynamic or you can include other files on every page load. To execute PHP code on every page load you can use either the "dynamic-cached-content", "mfunc", or "mclude" tags. The "dynamic-cached-content" tag is easier to use but the other tags can still be used. Make sure you duplicate the PHP code when using these tags. The first code is executed when the page is cached, while the second chunk of code is executed when the cached page is served to the next visitor.
 To execute WordPress functions you must define $wp_super_cache_late_init in your config file.
 
-1. This code will include the file adverts.php and will execute the functions "print_sidebar_ad()" and "do_more_stuff()". Make sure there's no space before or after the PHP tags.
+= dynamic-cached-content example =
+
+This code will include the file adverts.php and will execute the functions "print_sidebar_ad()" and "do_more_stuff()". Make sure there's no space before or after the PHP tags.
 
 `<!--dynamic-cached-content--><?php
 include_once( ABSPATH . '/scripts/adverts.php' );
@@ -314,13 +316,16 @@ print_sidebar_ad();
 do_more_stuff();
 --><!--/dynamic-cached-content-->`
 
-2. To execute the function "function_name()":
+= mfunc example =
+
+To execute the function "function_name()":
 
 `<!--mfunc function_name( 'parameter', 'another_parameter' ) -->
 <?php function_name( 'parameter', 'another_parameter' ) ?>
 <!--/mfunc-->`
 
-3. To include another file:
+= mclude example =
+To include another file:
 
 `<!--mclude file.php-->
 <?php include_once( ABSPATH . 'file.php' ); ?>
@@ -333,17 +338,21 @@ Example:
 <?php date( 'Y-m-d H:i:s' ) ?>
 <!--/mfunc-->`
 
+= How do I use WordPress functions in cached dynamic pages? =
+
+See the next qestion, you have to load WordPress before the cached file is served.
+
 = How do I delay serving the cache until the "init" action fires? =
 
 Cached files are served before almost all of WordPress is loaded. While that's great for performance it's a pain when you want to extend the plugin using a core part of WordPress. Set $wp_super_cache_late_init to "1" in wp-content/wp-cache-config.php and cached files will be served when "init" fires. WordPress and it's plugins will be loaded now. This is very useful when you are using the mfunc tag in your theme.
 
 = Why don't WP UserOnline, Popularity Contest, WP Postratings or plugin X not work or update on my blog now? =
 
-This plugin caches entire pages but some plugins think they can run PHP code every time a page loads. To fix this, the plugin needs to use Javascript/AJAX methods or the mfunc/mclude code described in the previous answer to update or display dynamic information.
+This plugin caches entire pages but some plugins think they can run PHP code every time a page loads. To fix this, the plugin needs to use Javascript/AJAX methods or the dynamic-cached-content/mfunc/mclude code described in the previous answer to update or display dynamic information.
 
 = Why doesn't the plugin cache requests by search engine bots by default? =
 
-Those bots usually only visit each page once and if the page is not popular there's no point creating a cache file that will sit idle on your server.
+Those bots usually only visit each page once and if the page is not popular there's no point creating a cache file that will sit idle on your server. However if you're not using legacy caching you can allow these visits to be cached by removing the list of bots from "Rejected User Agents" on the Advanced settings page.
 
 = A category page is showing instead of my homepage =
 
@@ -359,8 +368,7 @@ Sometimes a category page is cached as the homepage of the site instead of the s
 "Your blog doesn't support client caching (no 304 response to If-modified-since)."
 "Your feed doesn't support caching (no 304 response to If-modified-since)"
 
-Supercache doesn't support 304 header checks in mod_rewrite mode but does support it in PHP mode. This is caching done by your browser, not the server. It is a check your browser does to ask the server if an updated version of the current page is available. If not, it doesn't download the old version again.
-The page is still cached by your server, just not by the browsers of your visitors. WordPress doesn't support 304 caching either so you're not losing out.
+Supercache doesn't support 304 header checks in mod_rewrite mode but does support it in PHP mode. This is caching done by your browser, not the server. It is a check your browser does to ask the server if an updated version of the current page is available. If not, it doesn't download the old version again. The page is still cached by your server, just not by your visitors' browsers.
 Try the Cacheability Engine at http://www.ircache.net/cgi-bin/cacheability.py or http://redbot.org/ for further analysis.
 
 = How should I best use the utm_source tracking tools in Google Analytics with this plugin? =
@@ -441,7 +449,7 @@ There is one regular WordPress filter too. Use the "do_createsupercache" filter
 to customize the checks made before caching. The filter accepts one parameter. 
 The output of WP-Cache's wp_cache_get_cookies_values() function.
 
-See plugins/searchengine.php as an example I use for my [No Adverts for Friends](plugin at http://ocaoimh.ie/no-adverts-for-friends/)
+See plugins/searchengine.php as an example I use for my [No Adverts for Friends](http://ocaoimh.ie/no-adverts-for-friends/) plugin.
 
 == Links ==
 [WP Widget Cache](http://wordpress.org/extend/plugins/wp-widget-cache/) is another caching plugin for WordPress. This plugin caches the output of widgets and may significantly speed up dynamic page generation times.
