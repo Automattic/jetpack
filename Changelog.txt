@@ -1,3 +1,12 @@
+2011-01-06 17:37  donncha
+
+	* wp-cache.php: Print the text, not __() it, and check if rewrite
+	  rules in .htaccess are present before emailing user about it.
+
+2011-01-06 13:21  donncha
+
+	* Changelog.txt: Updated changelog
+
 2011-01-06 13:13  donncha
 
 	* readme.txt: Updated docs
