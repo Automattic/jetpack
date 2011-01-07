@@ -64,7 +64,7 @@ CDN code can be switched off, better uninstall process, compress dynamic pages, 
 * Uninstall process improved. It removes generated files and fixes edited files.
 * Cached dynamic pages can now be stored in Supercache files and compressed.
 * 1and1 Webhosting fix (/kunden/)
-* Remove log by email funtionality as it caused problems for users who were inundated by email
+* Remove log by email functionality as it caused problems for users who were inundated by email
 * Many more minor fixes and changes.
 
 = 0.9.9.6 =
