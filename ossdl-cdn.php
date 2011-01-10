@@ -43,8 +43,12 @@ function scossdl_off_exclude_match($match, $excludes) {
  * Called by #scossdl_off_filter.
  */
 function scossdl_off_rewriter($match) {
-	static $offset = -1;
 	global $ossdl_off_blog_url, $ossdl_off_cdn_url, $arr_of_excludes, $arr_of_cnames;
+	static $offset = -1;
+	static $rewritten_urls = array();
+
+	if ( isset( $rewritten_urls[ $match[ 0 ] ] ) )
+		return $rewritten_urls[ $match[ 0 ] ];
 
 	if ( false == in_array( $ossdl_off_cdn_url, $arr_of_cnames ) )
 		$arr_of_cnames[] = $ossdl_off_cdn_url;
@@ -56,7 +60,11 @@ function scossdl_off_rewriter($match) {
 		if ( preg_match( '/' . $include_dirs . '/', $match[0] ) ) {
 			$offset++;
    			$offset %= count($arr_of_cnames);
-			return str_replace($ossdl_off_blog_url, $arr_of_cnames[$offset], $match[0]);
+			$url = str_replace($ossdl_off_blog_url, $arr_of_cnames[$offset], $match[0]);
+			if ( count( $rewritten_urls ) < 30 ) // don't use too much memory please
+				$rewritten_urls[ $match[ 0 ] ] = $url;
+
+			return $url;
 		} else {
 			return $match[0];
 		}
