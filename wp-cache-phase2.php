@@ -356,6 +356,11 @@ function wp_cache_get_ob(&$buffer) {
 		return $buffer;
 	}
 
+	if ( $wp_cache_not_logged_in && is_feed() ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Feed detected. Writing legacy cache files.", 5 );
+		$wp_cache_not_logged_in = false;
+	}
+
 	$home_url = parse_url( trailingslashit( get_bloginfo( 'url' ) ) );
 
 	$dir = get_current_url_supercache_dir();
@@ -766,6 +771,9 @@ function wp_cache_shutdown_callback() {
 			$wp_cache_meta[ 'headers' ][ $key ] = "$key: " . $response[$key];
 		}
 	}
+
+	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_shutdown_callback: collecting meta data.", 2 );
+
 	if (!isset( $response['Last-Modified'] )) {
 		$value = gmdate('D, d M Y H:i:s') . ' GMT';
 		/* Dont send this the first time */
