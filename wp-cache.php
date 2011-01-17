@@ -1081,10 +1081,11 @@ function wsc_mod_rewrite() {
 			global $current_site;
 			$protocol = ( 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
 			if ( isset( $wpmu_version ) ) {
-				echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Notice: WP Super Cache mod_rewrite rule checks disabled unless running on <a href="%s">the main site</a> of this network.', 'wp-super-cache' ), admin_url( "ms-admin.php?page=wpsupercache" ) ) . '</p></div>';
+				$link_to_admin = admin_url( "wpmu-admin.php?page=wpsupercache" );
 			} else {
-				echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Notice: WP Super Cache mod_rewrite rule checks disabled unless running on <a href="%s">on the main site</a> of this network.', 'wp-super-cache' ), admin_url( "wpmu-admin.php?page=wpsupercache" ) ) . '</p></div>';
+				$link_to_admin = admin_url( "ms-admin.php?page=wpsupercache" );
 			}
+			echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Notice: WP Super Cache mod_rewrite rule checks disabled unless running on <a href="%s">the main site</a> of this network.', 'wp-super-cache' ), $link_to_admin ) . '</p></div>';
 			return false;
 		}
 	}
