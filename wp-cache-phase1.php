@@ -460,6 +460,11 @@ function wp_cache_user_agent_is_rejected() {
 
 function get_current_url_supercache_dir( $post_id = 0 ) {
 	global $cached_direct_pages, $cache_path, $wp_cache_request_uri;
+	static $saved_supercache_dir = array();
+
+	if ( isset( $saved_supercache_dir[ $post_id ] ) ) {
+		return $saved_supercache_dir[ $post_id ];
+	}
 
 	if ( $post_id != 0 ) {
 		$uri = str_replace( site_url(), '', get_permalink( $post_id ) );
@@ -477,6 +482,7 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	}
 	$dir = str_replace( '//', '/', $dir );
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "supercache dir: $dir", 5 );
+	$saved_supercache_dir[ $post_id ] = $dir;
 	return $dir;
 }
 
