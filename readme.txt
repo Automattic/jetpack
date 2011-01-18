@@ -387,6 +387,10 @@ Load your desktop ftp client and connect to your site. Navigate to the root (or 
 
 Load your desktop ftp client and connect to your site. You may need to enable "Show hidden files" in the preferences of the ftp client. Navigate to the root of your site where you'll find the .htaccess file. Download that file and edit it in a text editor. Delete the lines between "# BEGIN WPSuperCache" and "# END WPSuperCache" and save the file. Now upload it, overwriting the .htaccess file on your server.
 
+= How do I change file permissions? =
+
+This [page](http://codex.wordpress.org/Changing_File_Permissions) on the WordPress Codex explains everything you need to know about file permissions on your server and various ways of changing them.
+
 = Troubleshooting =
 
 If things don't work when you installed the plugin here are a few things to check:

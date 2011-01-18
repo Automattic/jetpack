@@ -239,6 +239,7 @@ function wp_cache_manager_error_checks() {
 		?><div id="message" class="updated fade"><h3><?php _e( 'Read Only Mode. Configuration cannot be changed.', 'wp-super-cache' ); ?></h3>
 		<p><?php printf( __( 'The WP Super Cache configuration file is <code>%s/wp-cache-config.php</code> and cannot be modified. That file must be writeable by the webserver to make any changes.', 'wp-super-cache' ), WP_CONTENT_DIR ); ?>
 		<?php _e( 'A simple way of doing that is by changing the permissions temporarily using the CHMOD command or through your ftp client. Make sure it&#8217;s globally writeable and it should be fine.', 'wp-super-cache' ); ?></p>
+		<p><?php _e( '<a href="http://codex.wordpress.org/Changing_File_Permissions">This page</a> explains how to change file permissions.', 'wp-super-cache' ); ?></p>
 		<?php _e( 'Writeable:', 'wp-super-cache' ); ?> <code>chmod 666 <?php echo WP_CONTENT_DIR; ?>/wp-cache-config.php</code>
 		<?php _e( 'Readonly:', 'wp-super-cache' ); ?> <code>chmod 644 <?php echo WP_CONTENT_DIR; ?>/wp-cache-config.php</code></p>
 		</div><?php
@@ -253,7 +254,9 @@ function wp_cache_manager_error_checks() {
 		$wp_content_mode = ( $wp_content_stat[ 'mode' ] & 0777 );
 		if( $wp_content_mode != 0755 ) {
 			?><div id="message" class="updated fade"><h3><?php printf( __( 'Warning! %s is writeable!', 'wp-super-cache' ), WP_CONTENT_DIR ); ?></h3>
-			<p><?php printf( __( 'You should change the permissions on %s and make it more restrictive. Use your ftp client, or the following command to fix things:', 'wp-super-cache' ), WP_CONTENT_DIR ); ?> <code>chmod 755 <?php echo WP_CONTENT_DIR; ?>/</code></p></div><?php
+			<p><?php printf( __( 'You should change the permissions on %s and make it more restrictive. Use your ftp client, or the following command to fix things:', 'wp-super-cache' ), WP_CONTENT_DIR ); ?> <code>chmod 755 <?php echo WP_CONTENT_DIR; ?>/</code></p>
+			<p><?php _e( '<a href="http://codex.wordpress.org/Changing_File_Permissions">This page</a> explains how to change file permissions.', 'wp-super-cache' ); ?></p></div>
+			<?php
 		}
 	}
 
