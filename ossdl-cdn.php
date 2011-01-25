@@ -18,6 +18,7 @@ $arr_of_excludes = array_map('trim', explode(',', $ossdl_off_exclude));
 if ( get_option( 'ossdl_cname' ) == false )
 	add_option('ossdl_cname', '');
 $ossdl_cname = trim(get_option('ossdl_cname'));
+$ossdl_https = trim(get_option('ossdl_https'));
 $arr_of_cnames = array_map('trim', explode(',', $ossdl_cname));
 if ($arr_of_cnames[0] == '') $arr_of_cnames = array();
 
@@ -43,9 +44,12 @@ function scossdl_off_exclude_match($match, $excludes) {
  * Called by #scossdl_off_filter.
  */
 function scossdl_off_rewriter($match) {
-	global $ossdl_off_blog_url, $ossdl_off_cdn_url, $arr_of_excludes, $arr_of_cnames;
+	global $ossdl_off_blog_url, $ossdl_off_cdn_url, $arr_of_excludes, $arr_of_cnames, $ossdl_https;
 	static $offset = -1;
 	static $rewritten_urls = array();
+
+	if ( $ossdl_https && substr( $match[0], 0, 5 ) == 'https' )
+		return $match[0];
 
 	if ( isset( $rewritten_urls[ $match[ 0 ] ] ) )
 		return $rewritten_urls[ $match[ 0 ] ];
@@ -123,6 +127,7 @@ function scossdl_off_options() {
 		update_option('ossdl_off_include_dirs', $_POST['ossdl_off_include_dirs'] == '' ? 'wp-content,wp-includes' : $_POST['ossdl_off_include_dirs']);
 		update_option('ossdl_off_exclude', $_POST['ossdl_off_exclude']);
 		update_option('ossdl_cname', $_POST['ossdl_cname']);
+		update_option('ossdl_https', (int)$_POST['ossdl_https']);
 		if ( isset( $_POST[ 'ossdlcdn' ] ) ) {
 			$ossdlcdn = 1;
 		} else {
@@ -178,6 +183,9 @@ function scossdl_off_options() {
 					<input type="text" name="ossdl_cname" value="<?php echo esc_attr( get_option( 'ossdl_cname' ) ); ?>" size="64" class="regular-text code" /><br />
 					<span class="description"><?php printf( __( 'These <a href="http://en.wikipedia.org/wiki/CNAME_record">CNAMES</a> will be used in place of %1$s for rewriting (in addition to the off-site URL above). Use a comma as the delimiter. For pages with a large number of static files, this can improve browser performance. CNAMEs may also need to be configured on your CDN.<br />Example: %2$s', 'wp-super-cache' ), get_option( 'siteurl' ), $example_cnames ); ?></span>
 				</td>
+			</tr>
+			<tr valign="top">
+				<th scope="row" colspan='2'><label><input type='checkbox' name='ossdl_https' value='1' <?php if ( get_option( 'ossdl_https' ) ) { echo 'checked'; } ?> /> <?php _e( 'Skip https URLs to avoid "mixed content" errors', 'wp-super-cache' ); ?></label></th>
 			</tr>
 		</tbody></table>
 		<input type="hidden" name="action" value="update_ossdl_off" />
