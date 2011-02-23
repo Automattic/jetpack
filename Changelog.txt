@@ -1,3 +1,93 @@
+2011-01-26 11:42  donncha
+
+	* wp-cache-phase2.php: Remove the 5 second old check on existing
+	  cache files as it may cause problems on pages with frequent
+	  comments
+
+2011-01-25 21:23  donncha
+
+	* ossdl-cdn.php: Add osscdl option to skip https loaded static
+	  content, see
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-toggle-for-conditional-cdn-for-sites-with-some-ssl-https-content?replies=3
+
+2011-01-25 20:40  donncha
+
+	* wp-cache-phase2.php: If caching disabled leave a html comment at
+	  the end of the page. Remove a caching check that's no longer
+	  needed
+
+2011-01-25 20:27  donncha
+
+	* wp-cache-phase1.php: Make the supercachedir lowercase to avoid
+	  problems with unicode characters. See
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-not-deleting-cache-on-comment-post
+	  and
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-still-not-corrected-bug-about-unicode-range-letters-in-permalink
+
+2011-01-18 16:08  donncha
+
+	* readme.txt, wp-cache.php: Added link to
+	  http://codex.wordpress.org/Changing_File_Permissions where
+	  permissions need to be changed, see
+	  http://wordpress.org/support/topic/wp-super-cache-getting-warning-message,
+	  props Samuel B
+
+2011-01-18 15:59  donncha
+
+	* wp-cache-phase1.php: Cache get_current_url_supercache_dir() as
+	  it's called several times during a request.
+
+2011-01-17 16:29  donncha
+
+	* wp-cache.php: Show mod_rewrite rules even when WordPress rules
+	  are not detected.
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-module-is-painful-to-use-if-you-dont-use-htaccess?replies=4#post-1890602
+
+2011-01-17 13:35  donncha
+
+	* wp-cache.php: Show the right url to older MU sites, props Raphaël
+	  Hertzog,
+	  http://twitter.com/#!/raphaelhertzog/statuses/26993300657414145
+
+2011-01-11 11:33  donncha
+
+	* wp-cache-phase2.php: If we're serving a feed we always want to
+	  cache that.
+
+2011-01-10 12:13  donncha
+
+	* languages/wp-super-cache-de_DE.mo,
+	  languages/wp-super-cache-de_DE.po: Updated German translation by
+	  Mathias Roth
+
+2011-01-10 12:09  donncha
+
+	* ossdl-cdn.php: If an image appears more than once on a page serve
+	  it from the same CDN hostname. See
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-start-page-and-rejected-user-agent?replies=3
+
+2011-01-07 17:04  donncha
+
+	* wp-cache.php: Make sure to use is_front_page(), the function.
+	  Props Backie.
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-wp_cache_is_home-always-true?replies=2#post-1873743
+
+2011-01-07 12:24  donncha
+
+	* uninstall.php: No need for this uninstall script any more!
+
+2011-01-07 12:20  donncha
+
+	* readme.txt: Bump the tested version
+
+2011-01-07 12:07  donncha
+
+	* readme.txt: Minor typo
+
+2011-01-07 12:02  donncha
+
+	* Changelog.txt: Updated changelog
+
 2011-01-06 17:37  donncha
 
 	* wp-cache.php: Print the text, not __() it, and check if rewrite
