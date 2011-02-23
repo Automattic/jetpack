@@ -1,0 +1,1617 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: WP Super Cache\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-super-cache\n"
+"POT-Creation-Date: 2011-01-05 14:52:03+00:00\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Baris Unver <baris.unver@beyn.org>\n"
+"Language-Team: Baris Unver <baris.unver@beyn.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Language: Turkish\n"
+"X-Poedit-Country: TURKEY\n"
+"X-Poedit-SourceCharset: utf-8\n"
+
+#: ossdl-cdn.php:133
+msgid "Your website probably uses lots of static files. Image, Javascript and CSS files are usually static files that could just as easily be served from another site or CDN. Therefore this plugin replaces any links in the <code>wp-content</code> and <code>wp-includes</code> directories (except for PHP files) on your site with the URL you provide below. That way you can either copy all the static content to a dedicated host or mirror the files to a CDN by <a href=\"http://knowledgelayer.softlayer.com/questions/365/How+does+Origin+Pull+work%3F\" target=\"_blank\">origin pull</a>."
+msgstr "Siteniz muhtemelen çok fazla statik dosya kullanıyordur. Görsel, JavaScript ve CSS dosyaları genellikle başka bir siteden veya bir CDN sisteminden kolayca sunabileceğiniz statik dosyalardır. Bu yüzden bu eklenti <code>wp-content</code> ve <code>wp-includes</code> dizinleri içerisindeki (PHP dosyaları haricindeki) tüm bağlantıları, aşağıda belirleyeceğiniz URL üzerinden sunacaktır. Bu şekilde tüm statik dosyalarınız sanal sunucunuza veya satın aldığınız CDN sistemine <a href=\"http://knowledgelayer.softlayer.com/questions/365/How+does+Origin+Pull+work%3F\" target=\"_blank\">\"origin pull\"</a> tekniğiyle aktarılacaktır."
+
+#: ossdl-cdn.php:134
+#: wp-cache.php:965
+msgid "The <a href=\"%1$s\">CDN Sync Tool</a> plugin will help upload files to Amazon S3/Cloudfront if you would rather not depend on origin pull. See the <a href=\"%2$s\">plugin support forum</a> if you have any queries about this plugin."
+msgstr "<a href=\"%1$s\">CDN Eşleme Aracı</a> eklentisi, eğer \"origin pull\" yöntemini istemezseniz Amazon S3/Cloudfront sistemlerine dosyaları otomatik olarak yükleyecektir. Yardıma ihtiyacınız olursa, <a href=\"%2$s\">eklenti destek forumunu</a> kullanabilirsiniz (İngilizcedir)."
+
+#: ossdl-cdn.php:135
+msgid "<strong style=\"color: red\">WARNING:</strong> Test some static urls e.g., %s  to ensure your CDN service is fully working before saving changes."
+msgstr "<strong style=\"color: red\">UYARI:</strong> CDN hizmetinizin düzgün şekilde çalışıp çalışmadığını, %s gibi statik dosyaları önce bir test ederek anlayabilirsiniz."
+
+#: ossdl-cdn.php:136
+msgid "You can define different CDN URLs for each site on a multsite network."
+msgstr "Çok siteli bir yapıya sahipseniz, her site için farklı CDN adresleri verebilirsiniz."
+
+#: ossdl-cdn.php:144
+msgid "Enable CDN Support"
+msgstr "CDN Desteğini Etkinleştir"
+
+#: ossdl-cdn.php:147
+msgid "Off-site URL"
+msgstr "Site dışı URL"
+
+#: ossdl-cdn.php:150
+msgid "The new URL to be used in place of %1$s for rewriting. No trailing <code>/</code> please.<br />Example: <code>%2$s</code>."
+msgstr "Yeniden yazım için %1$s yerine kullanılacak yeni adres. Adresin sonuna taksim (/ karakteri) koymayın lütfen..<br />Örnek: <code>%2$s</code>."
+
+#: ossdl-cdn.php:154
+msgid "Include directories"
+msgstr "Dizinleri dahil et"
+
+#: ossdl-cdn.php:157
+msgid "Directories to include in static file matching. Use a comma as the delimiter. Default is <code>wp-content, wp-includes</code>, which will be enforced if this field is left empty."
+msgstr "Statik dosya eşlemesinde kullanılacak dizinler. Dizinleri virgüllerle ayırabilirsiniz. Varsayılan <code>wp-content, wp-includes</code> şeklindedir, kutu boş bırakılırsa bunlar kullanılacaktır."
+
+#: ossdl-cdn.php:161
+msgid "Exclude if substring"
+msgstr "Hariç tutulacaklar"
+
+#: ossdl-cdn.php:164
+msgid "Excludes something from being rewritten if one of the above strings is found in the match. Use a comma as the delimiter like this, <code>.php, .flv, .do</code>, and always include <code>.php</code> (default)."
+msgstr "Hariç tutulacak dosyaların uzantılarını buraya girin ve uzantıları virgülle ayırın. (örn. <code>.php, .flv, .do</code>) <code>.php</code> her zaman olmalıdır (ve varsayılandır)."
+
+#: ossdl-cdn.php:168
+msgid "Additional CNAMES"
+msgstr "Ek CNAME'ler"
+
+#: ossdl-cdn.php:171
+msgid "These <a href=\"http://en.wikipedia.org/wiki/CNAME_record\">CNAMES</a> will be used in place of %1$s for rewriting (in addition to the off-site URL above). Use a comma as the delimiter. For pages with a large number of static files, this can improve browser performance. CNAMEs may also need to be configured on your CDN.<br />Example: %2$s"
+msgstr "Bu <a href=\"http://en.wikipedia.org/wiki/CNAME_record\">CNAME'ler</a>, yeniden yazım için %1$s yerine kullanılacaktır (yukarıda belirlediğiniz site dışı adrese ek olarak). Virgülle ayırın. Fazlaca statik dosyaya sahip sayfalar için bu seçenek tarayıcı performansını artırabilir. CNAME'lerin bazen CDN hizmetiniz için de ayarlanması gerekebilir.<br />Example: %2$s"
+
+#: ossdl-cdn.php:176
+msgid "Save Changes"
+msgstr "Değişiklikleri Kaydet"
+
+#: ossdl-cdn.php:178
+msgid "CDN functionality provided by <a href=\"http://wordpress.org/extend/plugins/ossdl-cdn-off-linker/\">OSSDL CDN Off Linker</a> by <a href=\"http://mark.ossdl.de/\">Mark Kubacki</a>"
+msgstr "CDN kullanımı, <a href=\"http://mark.ossdl.de/\">Mark Kubacki</a> tarafından yazılan <a href=\"http://wordpress.org/extend/plugins/ossdl-cdn-off-linker/\">OSSDL CDN Off Linker</a> ile sağlanmaktadır"
+
+#: wp-cache.php:99
+msgid "Please create %s /wp-cache-config.php from wp-super-cache/wp-cache-config-sample.php"
+msgstr "Lütfen wp-super-cache/wp-cache-config-sample.php dosyasından %s /wp-cache-config.php dosyasını oluşturun."
+
+#: wp-cache.php:162
+msgid "Warning! PHP Safe Mode Enabled!"
+msgstr "Uyarı! PHP Güvenli Mod (Safe Mode) Etkin!"
+
+#: wp-cache.php:163
+msgid "You may experience problems running this plugin because SAFE MODE is enabled."
+msgstr "SAFE MODE açık olduğu için bu eklentiyi kullanırken sorunlarla karşılaşabilirsiniz."
+
+#: wp-cache.php:167
+msgid "Your server is set up to check the owner of PHP scripts before allowing them to read and write files."
+msgstr "Sunucunuz, dosya okuma/yazma işlemlerine izin verilmeden önce PHP betiğinin sahibini kontrol edecek şekilde ayarlanmış."
+
+#: wp-cache.php:168
+msgid "You or an administrator may be able to make it work by changing the group owner of the plugin scripts to match that of the web server user. The group owner of the %s/cache/ directory must also be changed. See the <a href=\"http://php.net/features.safe-mode\">safe mode manual page</a> for further details."
+msgstr "Siz veya bir yönetici, eklenti betiklerini çalıştıran kullanıcıyı sunucu kullanıcısıyla aynı yaparak sorunu çözebilirsiniz. %s/cache/ dizininin grup sahibi de aynı şekilde değişmelidir. <a href=\"http://php.net/features.safe-mode\">Güvenli Mod yardım sayfasına</a> bakarak ayrıntılı bilgi edinebilirsiniz."
+
+#: wp-cache.php:170
+msgid "You or an administrator must disable this. See the <a href=\"http://php.net/features.safe-mode\">safe mode manual page</a> for further details. This cannot be disabled in a .htaccess file unfortunately. It must be done in the php.ini config file."
+msgstr "Siz veya başka bir yönetici bunu etkisizleştirmeli. <a href=\"http://php.net/features.safe-mode\">\"güvenli mod\" bilgilendirme sayfası</a>na gidip ayrıntılı bilgi alabilirsiniz. Ne yazık ki, bu ayar .htaccess ile etkisizleştirilemez; php.ini ayar dosyasının düzenlenmesi gerekiyor."
+
+#: wp-cache.php:176
+msgid "Permlink Structure Error"
+msgstr "Kalıcı Bağlantı Yapısı Hatası"
+
+#: wp-cache.php:177
+msgid "A custom url or permalink structure is required for this plugin to work correctly. Please go to the <a href=\"options-permalink.php\">Permalinks Options Page</a> to configure your permalinks."
+msgstr "Bu eklentinin çalışabilmesi için özel bir adres sisteminin ayarlı olması gerekiyor. <a href=\"options-permalink.php\">Kalıcı Bağlantı Ayarları</a> sayfasına gidip adres sisteminizi ayarlamalısınız."
+
+#: wp-cache.php:189
+msgid "Warning! Your hostname \"%s\" resolves to %s"
+msgstr "Warning! Your hostname \"%s\" resolves to %s"
+
+#: wp-cache.php:190
+msgid "Your server thinks your hostname resolves to %s. Some services such as garbage collection by this plugin, and WordPress scheduled posts may not operate correctly."
+msgstr "Sunucunuz, hostname'inizin %s şeklinde çözümlendiğini sanıyor. Bu eklentinin çöp toplama gibi bazı işlevleri (ve WordPress'in yazı zamanlama işlevi) bu şekilde düzgün çalışmayabilir."
+
+#: wp-cache.php:191
+#: wp-cache.php:205
+msgid "Please see entry 16 in the <a href=\"%s\">Troubleshooting section</a> of the readme.txt"
+msgstr "Lütfen readme.txt dosyasında, <a href=\"%s\">hata çözme bölümündeki</a> 16. girdiyi okuyun."
+
+#: wp-cache.php:204
+msgid "Unfortunately WordPress cannot find the file wp-cron.php. This script is required for the the correct operation of garbage collection by this plugin, WordPress scheduled posts as well as other critical activities."
+msgstr "Ne yazık ki WordPress, wp-cron.php dosyasını bulamadı. Bu dosya, çöp toplama, yazı zamanlama gibi işlevleri yerine getirmesi için şarttır."
+
+#: wp-cache.php:219
+msgid "Cannot continue... fix previous problems and retry."
+msgstr "Devam edilemiyor... önceki sorunları çözün ve tekrar deneyin."
+
+#: wp-cache.php:228
+msgid "Zlib Output Compression Enabled!"
+msgstr "Zlib Çıktı Sıkıştırma Etkin!"
+
+#: wp-cache.php:229
+msgid "PHP is compressing the data sent to the visitors of your site. Disabling this is recommended as the plugin caches the compressed output once instead of compressing the same page over and over again. Also see #21 in the Troubleshooting section. See <a href=\"http://php.net/manual/en/zlib.configuration.php\">this page</a> for instructions on modifying your php.ini."
+msgstr "PHP, ziyaretçilerinizin gördüğü verileri sıkıştırıyor. Bunu devre dışı bırakmak, eklentinin önbelleğe aldığı sayfaların tekrar tekrar sıkıştırılmaması için tavsiye edilir. (Hata Giderme bölümünde 21. maddeyi okuyun.) PHP.ini dosyanızı düzenleme yönergeleri için <a href=\"http://php.net/manual/en/zlib.configuration.php\">bu sayfayı okuyun</a>."
+
+#: wp-cache.php:233
+msgid "Mod rewrite may not be installed!"
+msgstr "Mod rewrite yüklenmemiş olabilir!"
+
+#: wp-cache.php:234
+msgid "It appears that mod_rewrite is not installed. Sometimes this check isn&#8217;t 100% reliable, especially if you are not using Apache. Please verify that the mod_rewrite module is loaded. It is required for serving Super Cache static files. You will still be able to use legacy or PHP modes."
+msgstr "Mod_rewrite yüklü değil gibi gözüküyor. Bazen bu kontrol kesin değildir, özellikle Apache kullanmıyorsanız. Lütfen mümkünse mod_rewrite'ın yüklü olup olmadığını doğrulayın. Eklentinin önbellek dosyalarını sunabilmesi için bu özelliğin bulunması şarttır ama yoksa, eski tarz önbelleklemeyi veya PHP ile önbelleklemeyi de kullanabilirsiniz."
+
+#: wp-cache.php:239
+msgid "Read Only Mode. Configuration cannot be changed."
+msgstr "Salt Okunur Mod. Ayarlar değiştirilemez."
+
+#: wp-cache.php:240
+msgid "The WP Super Cache configuration file is <code>%s/wp-cache-config.php</code> and cannot be modified. That file must be writeable by the webserver to make any changes."
+msgstr "WP Super Cache ayar dosyası <code>%s/wp-cache-config.php</code> düzenlenemiyor. Düzenleme yapılabilmesi için dosyanın sunucu tarafından yazılabilir olması gerekiyor."
+
+#: wp-cache.php:241
+msgid "A simple way of doing that is by changing the permissions temporarily using the CHMOD command or through your ftp client. Make sure it&#8217;s globally writeable and it should be fine."
+msgstr "Bunu yapmanın basit bir yolu, dosyanın CHMOD izinlerini kısa bir süreliğine değiştirmektir. CHMOD 777 yapmanız yeterlidir <strong>ama</strong> sonrasında işlemi geri almayı, izinleri eski haline getirmeyi unutmayın."
+
+#: wp-cache.php:242
+msgid "Writeable:"
+msgstr "Yazılabilir:"
+
+#: wp-cache.php:243
+msgid "Readonly:"
+msgstr "Salt Okunur:"
+
+#: wp-cache.php:255
+msgid "Warning! %s is writeable!"
+msgstr "Uyarı! %s yazılabilir!"
+
+#: wp-cache.php:256
+msgid "You should change the permissions on %s and make it more restrictive. Use your ftp client, or the following command to fix things:"
+msgstr "%s izinlerini düzenlemeli ve daha kısıtlayıcı hale getirmelisiniz. FTP istemcinizi kullanın veya aşağıdaki komutu uygulayın:"
+
+#: wp-cache.php:264
+msgid "Mobile rewrite rules detected"
+msgstr "Tespit edilen mobil yeniden yazım kuralları (rewrite rules)"
+
+#: wp-cache.php:265
+msgid "For best performance you should enable \"Mobile device support\" or delete the mobile rewrite rules in your .htaccess. Look for the 2 lines with the text \"2.0\\ MMP|240x320\" and delete those."
+msgstr "En iyi performans için \"Mobil cihaz desteği\"ni etkinleştirin veya .htaccess dosyasındaki mobil cihazlarla ilgili satırları kaldırın. Bunu yapmak için \"2.0\\ MMP|240x320\" ile başlayan iki satırı silmeniz yeterlidir."
+
+#: wp-cache.php:265
+msgid "This will have no affect on ordinary users but mobile users will see uncached pages."
+msgstr "Normal ziyaretçilere bir etkisi olmayacaktır ama mobil kullanıcılar önbelleklenmemiş sayfaları göreceklerdir."
+
+#: wp-cache.php:271
+#: wp-cache.php:282
+msgid "Rewrite rules must be updated"
+msgstr "Mod_Rewrite kuralları güncellenmeli"
+
+#: wp-cache.php:272
+#: wp-cache.php:283
+msgid "The rewrite rules required by this plugin have changed or are missing. "
+msgstr "Bu eklentinin ihtiyaç duyduğum yeniden yazım kuralları değişmiş veya yok olmuş."
+
+#: wp-cache.php:273
+msgid "Mobile support requires extra rules in your .htaccess file, or you can set the plugin to legacy mode. Here are your options (in order of difficulty):"
+msgstr "Mobil cihaz desteği, .htaccess dosyanıza fazladan kural eklenmesini gerektirir. Veya eski tarz önbelleklemeyi kullanabilirsiniz. Seçenekleriniz (zorluk sırasına göre) şunlar:"
+
+#: wp-cache.php:274
+msgid "Set the plugin to legacy mode and enable mobile support."
+msgstr "Eklentiyi Eski Tarz moduna getirin ve mobil cihaz desteğini aktifleştirin."
+
+#: wp-cache.php:275
+#: wp-cache.php:284
+msgid "Scroll down the Advanced Settings page and click the <strong>Update Mod_Rewrite Rules</strong> button."
+msgstr "Gelişmiş Ayarlar sayfasında aşağılara doğru gidin ve <strong>Mod_Rewrite Kurallarını Güncelle</strong> düğmesine tıkayın."
+
+#: wp-cache.php:276
+msgid "Delete the plugin mod_rewrite rules in %s.htaccess enclosed by <code># BEGIN WPSuperCache</code> and <code># END WPSuperCache</code> and let the plugin regenerate them by reloading this page."
+msgstr "%s.htaccess dosyanızda, <code># BEGIN WPSuperCache</code> ile  <code># END WPSuperCache</code> arasındaki satırları (bu iki satır da dahil olmak üzere) silerek eklentinin ürettiği mod_rewrite kurallarını silebilirsiniz. Sayfayı yenilediğinizde eklenti yenisini üretecektir."
+
+#: wp-cache.php:277
+msgid "Add the rules yourself. Edit %s.htaccess and find the block of code enclosed by the lines <code># BEGIN WPSuperCache</code> and <code># END WPSuperCache</code>. There are two sections that look very similar. Just below the line <code>%%{HTTP:Cookie} !^.*(comment_author_|wordpress_logged_in|wp-postpass_).*$</code> add these lines: (do it twice, once for each section)"
+msgstr "Kuralları kendiniz ekleyin. %s.htaccess dosyasını düzenlemek için açın ve <code># BEGIN WPSuperCache</code> ile <code># END WPSuperCache</code> arasındaki satırları bulun. Birbirine çok benzeyen iki bölüm olacaktır. <code>%%{HTTP:Cookie} !^.*(comment_author_|wordpress_logged_in|wp-postpass_).*$</code> satırının hemen altına şu satırları ekleyin: (iki bölüm için de birer defa yapmayı unutmayın)"
+
+#: wp-cache.php:290
+msgid "Required to serve compressed supercache files properly."
+msgstr "Sıkıştırılmış supercache dosyalarını sunabilmek için gereklidir."
+
+#: wp-cache.php:290
+msgid "Required to set caching information on supercache pages. IE7 users will see old pages without this module."
+msgstr "Super Cache ile önbelleklenmiş sayfalarda, önbellekleme bilgilerinin girilmesi için gereklidir. IE7 kullanıcıları bu olmadan, önbelleğe alınmamış sayfaları görüntülemeye devam ederler."
+
+#: wp-cache.php:290
+msgid "Set the expiry date on supercached pages. Visitors may not see new pages when they refresh or leave comments without this module."
+msgstr "Super Cache ile önbelleklenmiş sayfalarda son kullanma tarihini belirleyin. Bu modül olmadan ziyaretçiler, sayfayı yenilediklerinde veya yorum bıraktıklarında yeni sayfayı göremeyebilirler."
+
+#: wp-cache.php:297
+msgid "Missing Apache Modules"
+msgstr "Kayıp Apache Modülleri"
+
+#: wp-cache.php:298
+msgid "The following Apache modules are missing. The plugin will work in legacy mode without them. In full Supercache mode, your visitors may see corrupted pages or out of date content however."
+msgstr "Aşağıdaki Apache modülleri eksik. Onlar olmadan eklenti eski tarz önbelleklemeyle çalışacaktır. Super Cache modunda ziyaretçileriniz, eski içerikle veya bozuk veriyle karşılaşabilir."
+
+#: wp-cache.php:456
+msgid "<strong>Warning!</strong> You attempted to enable compression but <code>zlib.output_compression</code> is enabled. See #21 in the Troubleshooting section of the readme file."
+msgstr "<strong>Dikkat!</strong> Sıkıştırmayı etkinleştirmek istediniz fakat <code>zlib.output_compression</code> etkin durumda. Beni Oku dosyasının 'Hata Giderme' sayfasında 21 numaralı maddeye göz atın."
+
+#: wp-cache.php:547
+msgid "WP Super Cache Settings"
+msgstr "WP Super Cache Ayarları"
+
+#: wp-cache.php:558
+msgid "Notice: <em>Mod_rewrite or Legacy caching enabled</em>. Showing Advanced Settings Page by default."
+msgstr "Not: <em>Mod_rewrite veya eski tarz önbellekleme etkin</em>. Varsayılan olarak Gelişmiş Ayarlar görüntüleniyor."
+
+#: wp-cache.php:569
+msgid "Configuration file changed, some values might be wrong. Load the page again from the \"Settings\" menu to reset them."
+msgstr "Ayarların bulunduğu dosya değiştirildi, bazı değerler yanlış olabilir. \"Ayarlar\" menüsünden sayfayı tekrar yükleyip ayarları sıfırlayın."
+
+#: wp-cache.php:594
+msgid "Caching must be enabled to use this feature"
+msgstr "Bu özelliği kullanabilmeniz için önbellekleme etkin olmalıdır."
+
+#: wp-cache.php:612
+#: wp-cache.php:743
+msgid "Cancel Cache Preload"
+msgstr "Önbellek Önyüklemesi'ni Devre Dışı Bırak"
+
+#: wp-cache.php:620
+#: wp-cache.php:631
+msgid "Scheduled preloading of cache cancelled."
+msgstr "Önbellek önyüklemesinin zamanlanması iptal edildi."
+
+#: wp-cache.php:657
+#: wp-cache.php:741
+msgid "Preload Cache Now"
+msgstr "Önbellek Önyüklemesi'ni Şimdi Çalıştır"
+
+#: wp-cache.php:661
+msgid "Scheduled preloading of cache in 10 seconds."
+msgstr "Önbellek önyüklemesinin zamanlanması 10 saniye içinde başlıyor."
+
+#: wp-cache.php:666
+msgid "Scheduled preloading of cache in %d minutes"
+msgstr "Önbellek önyüklemesinin zamanlanması %d dakika içinde başlıyor"
+
+#: wp-cache.php:670
+msgid "This will cache every published post and page on your site. It will create supercache static files so unknown visitors (including bots) will hit a cached page. This will probably help your Google ranking as they are using speed as a metric when judging websites now."
+msgstr "Bu, site içerisindeki tüm yazı ve sayfaları tek tek önbelleğe alacaktır ve (botlar da dahil olmak üzere) ziyaretçiler bu oluşturulmuş Super Cache'li sayfaları görecektir. Google'daki sıralamanızı yükseltme açısından hız da önemli olduğu için bu seçenek faydalı olabilir."
+
+#: wp-cache.php:671
+msgid "Preloading creates lots of files however. Caching is done from the newest post to the oldest so please consider only caching the newest if you have lots (10,000+) of posts. This is especially important on shared hosting."
+msgstr "Yalnız önyükleme çok sayıda dosya oluşturur. Önbellekleme de en yeni yazıdan en eskisine kadar yapılır, dolayısıyla lütfen çok fazla (10 binden fazla) yazınız varsa yalnızca en yeni yazıları önyüklemeye alın. Paylaşımlı hosting'lerde bu özellikle önemlidir."
+
+#: wp-cache.php:672
+msgid "In &#8217;Preload Mode&#8217; regular garbage collection will only clean out old legacy files for known users, not the preloaded supercache files. This is a recommended setting when the cache is preloaded."
+msgstr "Önyükleme Modu'nda düzenli çöp toplama yalnızca bilinen kullanıcılar için eski önbellek dosyalarını temizlemede kullanılır, Super Cache'li dosyalar etkilenmez. Önbellek önyüklemesi yapıldığında bu seçeneğin etkinleştirilmesi önerilir."
+
+#: wp-cache.php:676
+msgid "Refresh preloaded cache files every %s minutes. (0 to disable, minimum %d minutes.)"
+msgstr "Önyüklenmiş önbelleği her %s dakikada bir yenile. (0 devre dışı bırakır, en az %d dakika yazılmalıdır.)"
+
+#: wp-cache.php:689
+msgid "all"
+msgstr "tümü"
+
+#: wp-cache.php:702
+msgid "Preload %s posts."
+msgstr "%s yazıyı önyüklemeye al."
+
+#: wp-cache.php:709
+msgid "Preload mode (garbage collection only on legacy cache files. Recommended.)"
+msgstr "Önyükleme modu (çöp toplama yalnızca eski tarz önbelleklemede. Önerilir.)"
+
+#: wp-cache.php:712
+msgid "Send me status emails when files are refreshed."
+msgstr "Dosyalar yenilendiğinde bana durum e-postaları gönder."
+
+#: wp-cache.php:717
+msgid "Many emails, 2 emails per 100 posts."
+msgstr "Çok: 100 yazı önyüklemesi başına 2 e-posta."
+
+#: wp-cache.php:720
+msgid "Medium, 1 email per 100 posts."
+msgstr "Orta: 100 yazı önyüklemesi başına bir e-posta."
+
+#: wp-cache.php:723
+msgid "Less emails, 1 at the start and 1 at the end of preloading all posts."
+msgstr "Az: Önyüklemenin başında ve sonunda 1'er e-posta."
+
+#: wp-cache.php:727
+msgid "Refresh of cache in %d hours %d minutes and %d seconds."
+msgstr "Önbellek %d saat, %d dakika ve %d saniye sonra yenilenecek."
+
+#: wp-cache.php:728
+msgid "Full refresh of cache in %d hours %d minutes and %d seconds."
+msgstr "Önbelleğin tamamı %d saat, %d dakika ve %d saniye sonra yenilenecek."
+
+#: wp-cache.php:734
+msgid "Currently caching from post %d to %d."
+msgstr "Şu anda %d ile %d arasındaki yazılar önbelleğe alınıyor."
+
+#: wp-cache.php:738
+msgid "<strong>Page last cached:</strong> %s"
+msgstr "<strong>Son önbelleğe alınan sayfa:</strong> %s"
+
+#: wp-cache.php:741
+msgid "Update Settings"
+msgstr "Ayarları Güncelle"
+
+#: wp-cache.php:749
+msgid "Preloading of cache disabled. Please disable legacy page caching or talk to your host administrator."
+msgstr "Önbellek önyüklemesi devre dışı. Lütfen eski tarz önbellekleme seçeneğini etkisizleştirin veya barındırıcı firmanızla görüşün."
+
+#: wp-cache.php:766
+#: wp-cache.php:862
+msgid "Caching"
+msgstr "Önbellekleme"
+
+#: wp-cache.php:770
+msgid "Cache hits to this website for quick access."
+msgstr "Bu siteye gelen ziyaretleri, daha hızlı erişim için önbelleğe alın."
+
+#: wp-cache.php:770
+#: wp-cache.php:771
+#: wp-cache.php:788
+#: wp-cache.php:793
+#: wp-cache.php:796
+#: wp-cache.php:797
+#: wp-cache.php:810
+#: wp-cache.php:865
+msgid "Recommended"
+msgstr "Önerilen"
+
+#: wp-cache.php:771
+msgid "Use mod_rewrite to serve cache files."
+msgstr "Önbellek dosyalarını sunmak için mod_rewrite kullan."
+
+#: wp-cache.php:772
+msgid "Use PHP to serve cache files."
+msgstr "Önbellek dosyalarını sunmak için PHP kullan."
+
+#: wp-cache.php:773
+msgid "Legacy page caching."
+msgstr "Eski tarz sayfa önbellekleme"
+
+#: wp-cache.php:774
+msgid "Mod_rewrite is fastest, PHP is almost as fast and easier to get working, while legacy caching is slower again, but more flexible and also easy to get working. New users should use PHP caching."
+msgstr "Mod_rewrite en hızlısıdır. PHP önbellekleme de çok hızlıdır ve kullanımı kolaydır. Eski tarz önbellekleme daha yavaştır ama daha esnektir ve bunun da kullanımı kolaydır. Yeni kullanıcılar PHP önbelleklemeyi denemelidir."
+
+#: wp-cache.php:780
+msgid "Miscellaneous"
+msgstr "Diğer"
+
+#: wp-cache.php:786
+msgid "Warning! Compression is disabled as gzencode() function not found."
+msgstr "Uyarı! Sıkıştırma devre dışı ve gzencode() fonksiyonu bulunamadı."
+
+#: wp-cache.php:788
+msgid "Compress pages so they&#8217;re served more quickly to visitors."
+msgstr "Sayfalar daha hızlı yüklensin diye sayfaları sıkıştır."
+
+#: wp-cache.php:789
+msgid "Compression is disabled by default because some hosts have problems with compressed files. Switching it on and off clears the cache."
+msgstr "Sıkıştırma varsayılan olarak devre dışıdır çünkü bazı barındırıcılar (hosting firmaları) sıkıştırılmış dosyalarla sorun yaşarlar. Bu özelliği açmak veya kapamak önbelleği temizler."
+
+#: wp-cache.php:793
+msgid "304 Not Modified browser caching. Indicate when a page has not been modified since last requested."
+msgstr "304 Not Modified tarayıcı önbelleklemesi. Son gösterimden beri sayfada bir değişiklik olmadıysa belirtir."
+
+#: wp-cache.php:794
+msgid "304 support is disabled by default because in the past GoDaddy had problems with some of the headers used."
+msgstr "304 desteği varsayılan olarak devre dışıdır çünkü geçmişte GoDaddy, kullanılan header'larla ilgili sorun çıkarıyordu."
+
+#: wp-cache.php:796
+msgid "Don&#8217;t cache pages for <acronym title=\"Logged in users and those that comment\">known users</acronym>."
+msgstr "Giriş yapmış kullanıcılar veya düzenli yorumcular için sayfaların önbellekleme."
+
+#: wp-cache.php:797
+msgid "Cache rebuild. Serve a supercache file to anonymous users while a new file is being generated."
+msgstr "Önbellek yenileme. Yeni bir önbellek dosyası oluşturulurken ziyaretçilere eskisi gösterilir."
+
+# Digg is not commonly used in our language, thus it's irrevelant to translate the "Digg-proof" expression. I translated this entry as "Tell your visitors that how durable this blog is!" (Baris Unver, translator.)
+#: wp-cache.php:798
+msgid "Proudly tell the world your server is Digg proof! (places a message in your blog&#8217;s footer)"
+msgstr "Ziyaretçilerinize bu blog'un ne kadar dayanıklı olduğunu duyurun! (blog'un footer kısmına bir mesaj eklenir.)"
+
+#: wp-cache.php:804
+#: wp-cache.php:1053
+#: wp-cache.php:1559
+msgid "Advanced"
+msgstr "Gelişmiş"
+
+#: wp-cache.php:808
+msgid "Mobile device support."
+msgstr "Mobil aygıt desteği."
+
+#: wp-cache.php:809
+msgid "Clear all cache files when a post or page is published."
+msgstr "Bir yazı veya sayfa yayınlandığında önbelleği temizle."
+
+#: wp-cache.php:810
+msgid "Extra homepage checks. (Very occasionally stops homepage caching)"
+msgstr "Fazladan anasayfa kontrolü. (Sık sık anasayfa önbelleklenmesi durur.)"
+
+#: wp-cache.php:811
+msgid "Only refresh current page when comments made."
+msgstr "Sadece yorum yapıldığında sayfayı güncelle."
+
+#: wp-cache.php:812
+msgid "List the newest cached pages on this page."
+msgstr "Bu sayfada son önbelleklenen sayfaları listele."
+
+#: wp-cache.php:814
+msgid "Coarse file locking. You probably don&#8217;t need this but it may help if your server is underpowered. Warning! <em>May cause your server to lock up in very rare cases!</em>"
+msgstr "Kabaca dosya kilitleme. Muhtemelen buna ihtiyacınız olmayacaktır ama eğer sunucunuz güçsüzse yardımcı olabilir. UYARI: <em>Çok nadir de olsa sunucunuzu kilitleyebilir!</em>"
+
+#: wp-cache.php:816
+msgid "Late init. Display cached files after WordPress has loaded. Most useful in legacy mode."
+msgstr "Geç başlatma: WordPress yüklendikten sonra önbellek dosyalarını gösterme. Eski tarz önbelleklemede çok işe yarar."
+
+#: wp-cache.php:818
+msgid "Use object cache to store cached files."
+msgstr "Önbellek dosyalarını depolamak için \"object cache\"yi kullan."
+
+#: wp-cache.php:818
+msgid "(Experimental)"
+msgstr "(Deneysel)"
+
+#: wp-cache.php:825
+msgid "Note:"
+msgstr "Not:"
+
+#: wp-cache.php:827
+msgid "Uninstall this plugin on the plugins page. It will automatically clean up after itself. If manual intervention is required then simple instructions are provided."
+msgstr "Bu eklentiyi kaldır: Otomatik olarak kendi artıklarını temizler. Eğer elle müdahale gerektirirse, basit bir yönerge ile yol gösterir."
+
+#: wp-cache.php:828
+msgid "If uninstalling this plugin, make sure the directory <em>%s</em> is writeable by the webserver so the files <em>advanced-cache.php</em> and <em>cache-config.php</em> can be deleted automatically. (Making sure those files are writeable too is probably a good idea!)"
+msgstr "Bu eklentiyi kaldırıyorsanız, <em>%s</em dizininin sunucu tarafından yazılabilir olduğundan emin olun ki <em>advanced-cache.php</em> ve <em>cache-config.php</em> dosyaları otomatik olarak kaldırılabilsin. (O dosyaların da yazılabilirliğini kontrol etmek de iyi olur!)"
+
+#: wp-cache.php:829
+msgid "Please see the <a href=\"%1$s/wp-super-cache/readme.txt\">readme.txt</a> for instructions on uninstalling this script. Look for the heading, \"How to uninstall WP Super Cache\"."
+msgstr "Lütfen eklentiyi kaldırmak için <a href=\"%1$s/wp-super-cache/readme.txt\">readme.txt</a> dosyasındaki yönergelere başvurun. \"How to uninstall WP Super Cache\" bölümünü arayın."
+
+#: wp-cache.php:830
+msgid "Need help? Check the <a href=\"%1$s\">Super Cache readme file</a>. It includes installation documentation, a FAQ and Troubleshooting tips. The <a href=\"%2$s\">support forum</a> is also available. Your question may already have been answered."
+msgstr "Yardıma ihtiyacınız mı var? <a href=\"%1$s\">Super Cache BeniOku dosyasını</a> inceleyin. Bu belge; eklentiyi yüklemek için gerekli dokümantasyonu, Sık Sorulan Sorular'ı ve Hata Anlama ipuçlarını içerir. <a href=\"%2$s\">Yardım forumu (İngilizce)</a> de mevcuttur, burada sorununuzun çözümünü bulabilirsiniz."
+
+#: wp-cache.php:833
+#: wp-cache.php:880
+msgid "Update Status"
+msgstr "Durumu Güncelle"
+
+#: wp-cache.php:840
+msgid "Accepted Filenames &amp; Rejected URIs"
+msgstr "Kabul Edilecek Dosyalar &amp; Reddedilecek Adresler"
+
+#: wp-cache.php:865
+msgid "Caching On"
+msgstr "Önbellekleme Açık"
+
+#: wp-cache.php:866
+msgid "Caching Off"
+msgstr "Önbellekleme Kapalı"
+
+#: wp-cache.php:867
+msgid "Note: enables PHP caching, cache rebuild, and mobile support"
+msgstr "Not: PHP önbelleklemeyi, önbelleğin yenilemeyi ve mobil tarayıcı desteğini etkinleştirir"
+
+#: wp-cache.php:877
+msgid "Notice: PHP caching enabled but Supercache mod_rewrite rules detected. Cached files will be served using those rules. If your site is working ok please ignore this message or you can edit the .htaccess file in the root of your install and remove the SuperCache rules."
+msgstr "Not: PHP önbellekleme aktif durumda ama Super Cache için var olan mod_rewrite kuralları mevcut ve önbelleklenen sayfalar bu kurallara göre sunulacak. Eğer siteniz düzgün çalışıyorsa bu mesajı dikkate almanıza gerek yok ama .htaccess dosyasından Super Cache önbelleklemeyi sağlayan kuralları kaldırmanızda fayda var."
+
+#: wp-cache.php:882
+msgid "Cache Tester"
+msgstr "Önbellek Testi"
+
+#: wp-cache.php:883
+msgid "Test your cached website by clicking the test button below."
+msgstr "Önbelleklenmiş sitenizi aşağıdaki test düğmesine basarak sınayın."
+
+#: wp-cache.php:889
+msgid "Fetching %s to prime cache: "
+msgstr "Fetching %s to prime cache: "
+
+#: wp-cache.php:891
+#: wp-cache.php:899
+#: wp-cache.php:907
+msgid "OK"
+msgstr "Tamam"
+
+#: wp-cache.php:894
+msgid "Fetching first copy of %s: "
+msgstr "%s dosyasının ilk kopyası alınıyor:"
+
+#: wp-cache.php:902
+msgid "Fetching second copy of %s: "
+msgstr "%s dosyasının ikinci kopyası alınıyor:"
+
+#: wp-cache.php:910
+msgid "One or more page requests failed:"
+msgstr "Bir veya birden fazla sayfa sorgusu başarısız:"
+
+#: wp-cache.php:929
+#: wp-cache.php:930
+msgid "Page %d: %d (%s)"
+msgstr "Sayfa %d: %d (%s)"
+
+#: wp-cache.php:936
+msgid "Page 1: %s"
+msgstr "Sayfa 1: %s"
+
+#: wp-cache.php:937
+msgid "Page 2: %s"
+msgstr "Sayfa 2: %s"
+
+#: wp-cache.php:938
+msgid "The timestamps on both pages match!"
+msgstr "İki sayfanın zaman damgaları uyuşuyor!"
+
+#: wp-cache.php:940
+msgid "The pages do not match! Timestamps differ or were not found!"
+msgstr "Sayfalar birbirini tutmuyor! Zaman damgaları birbirinden farklı veya bulunamadı!"
+
+#: wp-cache.php:947
+msgid "Send non-secure (non https) request for homepage"
+msgstr "Güvenliksiz (https'siz) anasayfa sorgusu gönder"
+
+#: wp-cache.php:948
+msgid "Test Cache"
+msgstr "Önbelleği Test Et"
+
+#: wp-cache.php:952
+msgid "Delete Cached Pages"
+msgstr "Önbelleğe Alınan Sayfaları Sil"
+
+#: wp-cache.php:953
+msgid "Cached pages are stored on your server as html and PHP files. If you need to delete them use the button below."
+msgstr "Önbelleklenen sayfalar, sunucunuzda HTML ve PHP sayfaları halinde depolanır. Bunları silmek isterseniz aşağıdaki düğmeye tıklayın."
+
+#: wp-cache.php:956
+#: wp-cache.php:2089
+#: wp-cache.php:2101
+#: wp-cache.php:2264
+msgid "Delete Cache"
+msgstr "Önbelleği Temizle"
+
+#: wp-cache.php:960
+msgid "Recommended Links and Plugins"
+msgstr "Tavsiye Edilen Bağlantılar ve Eklentiler"
+
+#: wp-cache.php:961
+msgid "Caching is only one part of making a website faster. Here are some other plugins that will help:"
+msgstr "Önbellekleme, bir siteyi hızlandırmak için atılan adımlardan yalnızca bir tanesidir. Sitenizi hızlandırmaya yardımcı olacak başka eklentiler de mevcuttur:"
+
+#: wp-cache.php:962
+msgid "<a href=\"%s\">WP Minify</a> reduces the number of files served by your web server by joining Javascript and CSS files together. Alternatively you can use <a href=\"%s\">WPSCMin</a>, a Supercache plugin that minifies cached pages. It does not however join JS/CSS files together."
+msgstr "<a href=\"%s\">WP Minify</a>, CSS ve JavaScript dosyalarını birleştirerek sitenize yapılan HTTP sorgularını azaltır. Alternatif olarak, önbelleklenen sayfaları sıkıştıran bir Super Cache eklentisi olan <a href=\"%s\">WPSCMin</a>'i kullanabilirsiniz. Ama bu eklenti JS ve CSS dosyalarını birleştirmez."
+
+#: wp-cache.php:963
+msgid "<a href=\"%s\">Yahoo! Yslow</a> is an extension for the Firefox add-on Firebug. It analyzes web pages and suggests ways to improve their performance based on a set of rules for high performance web pages. Also try the performance tools online at <a href=\"%s\">GTMetrix</a>."
+msgstr "<a href=\"%s\">Yahoo! Yslow</a>, Firefox'un Firebug eklentisinin bir alt eklentisidir. Sayfaları analiz etmeye yarar ve yüksek performanslı sayfalarda kullanılan bazı kurallara dayanarak sitenizi hızlandırmak için öneriler sunar. Alternatif olarak, YSlow testi de içeren <a href=\"%s\">GTMetrix</a> performans araçlarını deneyebilirsiniz."
+
+#: wp-cache.php:964
+msgid "<a href=\"%s\">Use Google Libraries</a> allows you to load some commonly used Javascript libraries from Google webservers. Ironically it may reduce your Yslow score."
+msgstr "<a href=\"%s\">Google Kütüphanelerini</a> kullanarak sık kullanılan JavaScript kütüphanelerini oradan yükletebilirsiniz. İlginçtir, bu YSlow skorunuzu düşürebilir."
+
+#: wp-cache.php:966
+msgid "<strong>Advanced users only:</strong> <a href=\"%s\">Speed up your site with Caching and cache-control</a> explains how to make your site more cacheable with .htaccess rules."
+msgstr "<strong>Yalnızca ileri düzey kullanıcılar için:</strong> <a href=\"%s\">\"Speed up your site with Caching and cache-control\"</a> isimli belge (İngilizce), sitenizin önbelleklenme sürecini geliştirmek için .htaccess önerileri barındırıyor."
+
+#: wp-cache.php:967
+msgid "<strong>Advanced users only:</strong> Install an object cache. Choose from <a href=\"%s\">Memcached</a>, <a href=\"%s\">XCache</a>, <a href=\"%s\">eAcccelerator</a> and others."
+msgstr "<strong>Yalnızca ileri düzey kullanıcılar için:</strong> Bir obje önbellekleme yöntemi kullanın. <a href=\"%s\">Memcached</a>, <a href=\"%s\">XCache</a>, <a href=\"%s\">eAcccelerator</a> ve benzeri örnekler mevcuttur."
+
+#: wp-cache.php:978
+msgid "Make WordPress Faster"
+msgstr "WordPress'i hızlandır!"
+
+#: wp-cache.php:979
+msgid "%1$s is maintained and developed by %2$s with contributions from many others."
+msgstr "%1$s, %2$s tarafından geliştirilmiştir ve diğer birçok kullanıcının katkısıyla hala gelişmektedir."
+
+#: wp-cache.php:980
+msgid "He blogs at %1$s and posts photos at %2$s."
+msgstr "Blogu %1$s ve fotoğrafları %2$s adreslerindedir."
+
+#: wp-cache.php:981
+msgid "Please say hi to him on %s too!"
+msgstr "%s adresinden bi' selam çakmayı da unutmayın!"
+
+#: wp-cache.php:982
+msgid "Need Help?"
+msgstr "Yardıma mı İhtiyacınız Var?"
+
+#: wp-cache.php:984
+msgid "<a href=\"%1$s\">Installation Help</a>"
+msgstr "<a href=\"%1$s\">Kurulum Yardımı</a>"
+
+#: wp-cache.php:985
+msgid "<a href=\"%1$s\">Frequently Asked Questions</a>"
+msgstr "<a href=\"%1$s\">Sık Sorulan Sorular</a>"
+
+#: wp-cache.php:986
+msgid "<a href=\"%1$s\">Support Forum</a>"
+msgstr "<a href=\"%1$s\">Destek Forumu</a>"
+
+#: wp-cache.php:988
+msgid "Rate This Plugin!"
+msgstr "Bu Eklentiyi Derecelendirin!"
+
+#: wp-cache.php:989
+msgid "Please <a href=\"%s\">rate</a> this plugin and tell me if it works for you or not. It really helps development."
+msgstr "Lütfen eklentinin işinize yarayıp yaramadığını <a href=\"%s\">derecelendirin</a>. Eklentinin gelişimine katkıda bulunmuş olacaksınız."
+
+#: wp-cache.php:998
+msgid "Cached pages since %1$s : <strong>%2$s</strong>"
+msgstr "%1$s 'den/'dan beri önbelleklenen sayfalar: <strong>%2$s</strong>"
+
+#: wp-cache.php:999
+msgid "Newest Cached Pages:"
+msgstr "Son Önbelleklenen Sayfalar:"
+
+#: wp-cache.php:1003
+msgid "Cached %s seconds ago"
+msgstr "%s saniye önce önbelleklendi"
+
+#: wp-cache.php:1006
+msgid "(may not always be accurate on busy sites)"
+msgstr "(çok ziyaret edilen sitelerde tam olarak doğru olmayabilir)"
+
+#: wp-cache.php:1025
+msgid "Cache plugins are PHP scripts that live in a plugins folder inside the wp-super-cache folder. They are loaded when Supercache loads, much sooner than regular WordPress plugins."
+msgstr "Bu eklentiler, WP Super Cache eklenti dizininin içerisinde bir başka eklentiler klasöründe bulunan PHP betikleridir. Etkinleştirildiğinde, WP Super Cache yüklendikten hemen sonra yüklenirler."
+
+#: wp-cache.php:1026
+msgid "This is strictly an advanced feature only and knowledge of both PHP and WordPress actions is required to create them."
+msgstr "Bu ileri düzey bir özelliktir ve PHP ile WordPress konusunda engin bilgi ve tecrübeye sahip kişiler tarafından yaratılmalıdır."
+
+#: wp-cache.php:1036
+msgid "Available Plugins"
+msgstr "Mevcut Eklentiler"
+
+#: wp-cache.php:1053
+msgid "Easy"
+msgstr "Kolay"
+
+#: wp-cache.php:1053
+msgid "CDN"
+msgstr "CDN"
+
+#: wp-cache.php:1053
+msgid "Contents"
+msgstr "İçerik"
+
+#: wp-cache.php:1053
+msgid "Preload"
+msgstr "Önyükleme"
+
+#: wp-cache.php:1053
+msgid "Plugins"
+msgstr "Eklentiler"
+
+#: wp-cache.php:1053
+msgid "Debug"
+msgstr "Hata Ayıklama"
+
+#: wp-cache.php:1084
+msgid "Notice: WP Super Cache mod_rewrite rule checks disabled unless running on <a href=\"%s\">the main site</a> of this network."
+msgstr "Not: WP Super Cache mod_rewrite kural kontrolleri, blog ağının <a href=\"%s\">ana sitesi</a> haricinde devre dışıdır."
+
+#: wp-cache.php:1086
+msgid "Notice: WP Super Cache mod_rewrite rule checks disabled unless running on <a href=\"%s\">on the main site</a> of this network."
+msgstr "Not: WP Super Cache mod_rewrite kural kontrolleri, blog ağının <a href=\"%s\">ana sitesi</a> haricinde devre dışıdır."
+
+#: wp-cache.php:1096
+msgid "Mod Rewrite Rules"
+msgstr "Mod_Rewrite Kuralları"
+
+#: wp-cache.php:1102
+msgid "WordPress MU Detected"
+msgstr "WordPress MU Saptandı"
+
+#: wp-cache.php:1102
+msgid "Unfortunately the rewrite rules cannot be updated automatically when running WordPress MU. Please open your .htaccess and add the following mod_rewrite rules above any other rules in that file."
+msgstr "Ne yazık ki, WordPress MU ile çalışırken mod_rewrite kuralları otomatik olarak güncellenememektedir. Lütfen .htaccess dosyanızı açın ve aşağıdaki mod_rewrite kurallarını, diğer kuralların üstüne yerleştirin."
+
+#: wp-cache.php:1104
+msgid "Mod Rewrite rules cannot be updated!"
+msgstr "Mod_Rewrite kuralları güncellenemiyor!"
+
+#: wp-cache.php:1105
+msgid "You must have <strong>BEGIN</strong> and <strong>END</strong> markers in %s.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:"
+msgstr "Kuralların otomatik olarak güncellenebilmesi için %s.htaccess dosyası içerisindeki kurallar <strong>BEGIN</strong> ve <strong>END</strong> yorum satırlarının arasında bulunmalıdır. Aşağıdaki gibi gözükürler ve WordPress'in kendi mod_rewrite kurallarının üstündedirler:"
+
+#: wp-cache.php:1107
+msgid "Refresh this page when you have updated your .htaccess file."
+msgstr ".htaccess dosyanızı güncelledikten sonra bu sayfayı yenileyin."
+
+#: wp-cache.php:1111
+msgid "Thank you for upgrading."
+msgstr "Yükselttiğiniz için teşekkürler."
+
+#: wp-cache.php:1111
+msgid "The mod_rewrite rules changed since you last installed this plugin. Unfortunately you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: %1$s so it looks like this: %2$s The only changes are \"HTTP_COOKIE\" becomes \"HTTP:Cookie\" and \"wordpressuser\" becomes \"wordpress\". This is a WordPress 2.5 change but it&#8217;s backwards compatible with older versions if you&#8217;re brave enough to use them."
+msgstr "Eklentiyi yüklediğinizden beri mod_rewrite kuralları değişti. Yenilerinin konabilmesi için öncekileri kaldırmanız gerekiyor. .htaccess dosyanızı düzenledikten sonra bu sayfayı yenileyin. Elle düzenlemek isterseniz, şu satırı şu şekilde değiştirin: %1$s ki şu şekilde gözüksün: %2$s Yapılan değişiklikler şöyle: \"HTTP_COOKIE\" yerine \"HTTP:Cookie\" yazılıyor ve \"wordpressuser\" yerine de \"wordpress\" geliyor. Bu WordPress 2.5 ile ilgili bir değişikliktir ama kendinizi cesur hissediyorsanız önceki sürümlerle de uyumludur."
+
+#: wp-cache.php:1115
+msgid "Trailing slash check required."
+msgstr "Son taksim (/ karakteri) kontrolü gerekli."
+
+#: wp-cache.php:1115
+msgid "It looks like your blog has URLs that end with a \"/\". Unfortunately since you installed this plugin a duplicate content bug has been found where URLs not ending in a \"/\" end serve the same content as those with the \"/\" and do not redirect to the proper URL. To fix, you must edit your .htaccess file and add these two rules to the two groups of Super Cache rules:"
+msgstr "Anlaşılan blog sayfalarınızın adreslerinin sonu \"/\" ile bitiyor (buna son taksim denir). Maalesef siz bu eklentiyi yükledikten sonra WordPress içerisinde, \"/\" ile bitmeyen adreslerin \"/\" ile biten sayfalara yönlenmediği bir bug bulundu. Bunu düzeltmek için, .htaccess dosyanızı açıp aşağıdaki kuralları, orada iki grup halinde bulunan Super Cache kurallarına eklemelisiniz:"
+
+#: wp-cache.php:1117
+msgid "You can see where the rules go and examine the complete rules by clicking the \"View mod_rewrite rules\" link below."
+msgstr "Kuralların nereye konacağını ve tüm kuralları, aşağıdaki \"mod_rewrite kurallarını görüntüle\" düğmesine tıklayarak görebilirsiniz."
+
+#: wp-cache.php:1131
+msgid "Mod Rewrite rules updated!"
+msgstr "Mod_Rewrite kuralları güncellendi!"
+
+#: wp-cache.php:1132
+msgid "%s.htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. They should look like this:"
+msgstr "%s.htaccess dosyası, uygun mod_rewrite kuralları eklenecek şekilde düzenlendi. Lütfen aşağıdakiyle karşılaştırıp doğru olduğunu kontrol edin:"
+
+#: wp-cache.php:1134
+msgid "Mod Rewrite rules must be updated!"
+msgstr "Mod_Rewrite kuralları güncellenmeli!"
+
+#: wp-cache.php:1135
+msgid "Your %s.htaccess is not writable by the webserver and must be updated with the necessary mod_rewrite rules. The new rules go above the regular WordPress rules as shown in the code below:"
+msgstr "%s.htaccess dosyanız sunucunuz tarafından düzenlenemiyor ama gerekli mod_rewrite kurallarının düzenlenmesi şart. Dosya içerisindeki normal WordPress kurallarının üstüne yazılması gereken kodlar şu şekilde:"
+
+#: wp-cache.php:1140
+msgid "WP Super Cache mod rewrite rules were detected in your %s.htaccess file.<br /> Click the following link to see the lines added to that file. If you have upgraded the plugin make sure these rules match."
+msgstr "%s.htaccess dosyanızda WP Super Cache'nin mod_rewrite kuralları saptandı.<br />Aşağıdaki bağlantıya tıklayarak dosyaya hangi satırların eklendiğini görüntüleyebilirsiniz. Eğer eklentinin sürümünü güncellediyseniz, bu kuralların eklenip eklenmediğini kontrol etmelisiniz."
+
+#: wp-cache.php:1143
+msgid "A difference between the rules in your .htaccess file and the plugin rewrite rules has been found. This could be simple whitespace differences but you should compare the rules in the file with those below as soon as possible. Click the &#8217;Update Mod_Rewrite Rules&#8217; button to update the rules."
+msgstr "Eklentinin yazmış olması gereken ile .htaccess dosyanızda var olan mod_rewrite kurallarının birbirinden farklı olduğu saptandı. Arada boşluk veya boş satır farkları da olsa, dosyada yazılı kurallarla olması gereken kuralları karşılaştırmanızı öneririz. \"Mod_rewrite Kurallarını Güncelle\" düğmesine tıklayıp kuralları güncelleyebilirsiniz."
+
+#: wp-cache.php:1146
+msgid "View Mod_Rewrite Rules"
+msgstr "Mod_Rewrite Kurallarını Görüntüle"
+
+#: wp-cache.php:1150
+#: wp-cache.php:2380
+msgid "Rules must be added to %s too:"
+msgstr "Kurallar %s dosyasına da eklenmeli:"
+
+#: wp-cache.php:1158
+msgid "Gzip encoding rules in %s.htaccess created."
+msgstr "%s.htaccess dosyasında gzip'leme kuralları oluşturuldu."
+
+#: wp-cache.php:1165
+msgid "Fix Configuration"
+msgstr "Ayarları Düzelt"
+
+#: wp-cache.php:1168
+msgid "Restore Default Configuration"
+msgstr "Varsayılan Ayarları Geri Yükle"
+
+#: wp-cache.php:1176
+msgid "Comment moderation is enabled. Your comment may take some time to appear."
+msgstr "Yorum onaylama sistemi etkin; yorumunuzun yayınlanması biraz zaman alabilir."
+
+#: wp-cache.php:1201
+msgid "Lock Down:"
+msgstr "Tecrit:"
+
+#: wp-cache.php:1201
+#: plugins/awaitingmoderation.php:35
+#: plugins/badbehaviour.php:66
+#: plugins/domain-mapping.php:61
+msgid "Disabled"
+msgstr "Etkisiz"
+
+#: wp-cache.php:1201
+#: plugins/awaitingmoderation.php:34
+#: plugins/badbehaviour.php:65
+#: plugins/domain-mapping.php:60
+msgid "Enabled"
+msgstr "Etkin"
+
+#: wp-cache.php:1202
+msgid "Prepare your server for an expected spike in traffic by enabling the lock down. When this is enabled, new comments on a post will not refresh the cached static files."
+msgstr "Büyük ziyaretçi akınları için tecrit modunu etkinleştirebilirsiniz. Etkinleştirildiğinde; yeni yorum girilse bile sayfa, önbellekli haliyle sunulur yani yeni yorumlar gözükmez, önbellekteki sabit dosya görüntülenir."
+
+#: wp-cache.php:1203
+msgid "Developers: Make your plugin lock down compatible by checking the \"WPLOCKDOWN\" constant. The following code will make sure your plugin respects the WPLOCKDOWN setting."
+msgstr "Eklenti Geliştiricilerine: Eklentinizin tecrit moduyla uyum sağlaması için \"WPLOCKDOWN\" sabitini inceleyin. Aşağıdaki kodu eklentinize eklediğinizde eklentiniz WPLOCKDOWN ayarlarıyla uyumlu davranacaktır."
+
+#: wp-cache.php:1205
+msgid "Sorry. My blog is locked down. Updates will appear shortly"
+msgstr "Üzgünüm; blog'umu kilit altına aldım. Güncellemeler sonra görüntülenebilecek."
+
+#: wp-cache.php:1209
+msgid "WordPress is locked down. Super Cache static files will not be deleted when new comments are made."
+msgstr "Blog'unuz tecrit moduna alındı. Yeni yorumlar gelse bile yalnızca Super Cache'nin önbellekli sayfaları görüntülenecek."
+
+#: wp-cache.php:1211
+msgid "WordPress is not locked down. New comments will refresh Super Cache static files as normal."
+msgstr "Blog'unuz tecrit modunda değil. Yeni yorumlar her zamanki gibi Super Cache önbellek dosyalarını yenileyecek."
+
+#: wp-cache.php:1214
+#: plugins/searchengine.php:61
+#: plugins/searchengine.php:76
+msgid "Disable"
+msgstr "Etksizileştir"
+
+#: wp-cache.php:1214
+#: plugins/searchengine.php:74
+msgid "Enable"
+msgstr "Etkinleştir"
+
+#: wp-cache.php:1217
+msgid "Lock Down"
+msgstr "Tecrit"
+
+#: wp-cache.php:1225
+msgid "Directly Cached Files"
+msgstr "Direkt Önbelleklenen Dosyalar"
+
+#: wp-cache.php:1283
+msgid "%s removed!"
+msgstr "%s kaldırıldı!"
+
+#: wp-cache.php:1291
+#: wp-cache.php:1293
+#: plugins/badbehaviour.php:83
+msgid "Warning!"
+msgstr "Uyarı!"
+
+#: wp-cache.php:1291
+msgid "You must make %s writable to enable this feature. As this is a security risk please make it readonly after your page is generated."
+msgstr "Bu ayarı etkinleştirebilmeniz için %s yazılabilir olmalı. Güvenlik açısından sayfanız oluşturulduğunda lütfen yazma ayarlarını geri alın."
+
+#: wp-cache.php:1293
+msgid "%s is writable. Please make it readonly after your page is generated as this is a security risk."
+msgstr "%s yazılabilir durumda. Güvenlik açısından sayfanız oluşturulduktan sonra yazılabilirlik ayarlarını geri almanız önerilir."
+
+#: wp-cache.php:1307
+msgid "Existing direct page"
+msgstr "Var olan direkt sayfa"
+
+#: wp-cache.php:1307
+msgid "Delete cached file"
+msgstr "Önbellekli dosyayı sil"
+
+#: wp-cache.php:1312
+msgid "Add direct page:"
+msgstr "Direkt sayfa ekle:"
+
+#: wp-cache.php:1314
+msgid "Directly cached files are files created directly off %s where your blog lives. This feature is only useful if you are expecting a major Digg or Slashdot level of traffic to one post or page."
+msgstr "Direkt olarak önbelleklenen dosyalar %s dizininden, blogunuzun yaşadığı yerden yaratılmıştır. Bu özellik sadece bir anda çok yüksek trafik almayı beklediğiniz zamanlarda işe yarar. (örn. Ekşi Sözlük, İnci Sözlük gibi yerlerden gelen toplu ziyaretler)"
+
+#: wp-cache.php:1316
+msgid "For example: to cache <em>%1$sabout/</em>, you would enter %1$sabout/ or /about/. The cached file will be generated the next time an anonymous user visits that page."
+msgstr "Örnek: <em>%1$sabout/</em> sayfasını önbelleklemek için, %1$shakkinda/ veya /hakkinda/ yazmalısınız. Sayfa, bir sonraki ziyaretçinin ziyaretinde önbelleğe alınacaktır."
+
+#: wp-cache.php:1317
+msgid "Make the textbox blank to remove it from the list of direct pages and delete the cached file."
+msgstr "Direkt sayfaları silmek ve önbelleği boşaltmak için metin kutusunu boş bırakın."
+
+#: wp-cache.php:1322
+msgid "Update Direct Pages"
+msgstr "Direkt Sayfaları Güncelle"
+
+#: wp-cache.php:1360
+msgid "Expiry Time &amp; Garbage Collection"
+msgstr "Zaman Aşımı &amp; Çöp Toplama"
+
+#: wp-cache.php:1362
+msgid "Expire time:"
+msgstr "Önbelleklenen dosyaların zaman aşımı:"
+
+#: wp-cache.php:1363
+msgid "seconds"
+msgstr "saniye"
+
+#: wp-cache.php:1364
+msgid "Garbage Collection"
+msgstr "Çöp Toplama"
+
+#: wp-cache.php:1364
+msgid "If the expiry time is more than 1800 seconds (half an hour), garbage collection will be done every 10 minutes, otherwise it will happen 10 seconds after the expiry time above."
+msgstr "Zaman aşımını 1800 saniyeden (yarım saat) fazla olacak şekilde ayarladıysanız, çöp toplama 10 dakikada bir yapılır. Yarım saatten daha az ise, zaman aşımı süresinden 10 saniye sonra yapılır."
+
+#: wp-cache.php:1365
+msgid "Checking for and deleting expired files is expensive, but it&#8217;s expensive leaving them there too. On a very busy site you should set the expiry time to <em>300 seconds</em>. Experiment with different values and visit this page to see how many expired files remain at different times during the day. If you are using legacy caching aim to have less than 500 cached files if possible. You can have many times more cached files when using mod_rewrite or PHP caching."
+msgstr "Süresi dolmuş önbellek sayfalarının silinmesi sunucuyu biraz yorar ama silinmemesi de yorar. Kalabalık bir sitede <em>300 saniye</em> değeri uygundur. Farklı farklı süreleri test edip, süresi dolan sayfaların ne kadar durduğunu görebilirsiniz. Eski tarz önbelleklemeyi kullanıyorsanız, 500 önbellek sayfasını aşmamaya dikkat edin. PHP veya mod_rewrite ile önbellekleme yapıyorsanız, birkaç kat daha fazla dosya olmasının bir önemi yoktur."
+
+#: wp-cache.php:1366
+msgid "Set the expiry time to 0 seconds to disable garbage collection."
+msgstr "Çöp toplamayı devre dışı bırakmak için bitiş süresini 0 yapın."
+
+#: wp-cache.php:1367
+msgid "Change Expiration"
+msgstr "Zaman Aşımını Değiştir"
+
+#: wp-cache.php:1411
+msgid "Rejected User Agents"
+msgstr "Reddedilecek Kullanıcı Temsilcisi (User Agent)"
+
+#: wp-cache.php:1412
+msgid "Strings in the HTTP &#8217;User Agent&#8217; header that prevent WP-Cache from caching bot, spiders, and crawlers&#8217; requests. Note that super cached files are still sent to these agents if they already exists."
+msgstr "Strings in the HTTP &#8217;User Agent&#8217; header that prevent WP-Cache from caching bot, spiders, and crawlers&#8217; requests. Note that super cached files are still sent to these agents if they already exists."
+
+#: wp-cache.php:1419
+msgid "Save UA Strings"
+msgstr "KT Dizgilerini Kaydet"
+
+#: wp-cache.php:1442
+msgid "Do not cache the following page types. See the <a href=\"http://codex.wordpress.org/Conditional_Tags\">Conditional Tags</a> documentation for a complete discussion on each type."
+msgstr "Aşağıdaki sayfa türlerini hiçbir zaman önbellekleme. (<a href=\"http://codex.wordpress.org/Conditional_Tags\">Koşul Etiketleri (İngilizce)</a> sayfasını ziyaret ederek tüm sayfa türleri hakkında bilgi edinebilirsiniz.)"
+
+#: wp-cache.php:1445
+msgid "Single Posts"
+msgstr "Tekil yazı sayfaları"
+
+#: wp-cache.php:1446
+msgid "Pages"
+msgstr "Sayfalar"
+
+#: wp-cache.php:1447
+msgid "Front Page"
+msgstr "Ön Sayfa"
+
+#: wp-cache.php:1448
+msgid "Home"
+msgstr "Anasayfa"
+
+#: wp-cache.php:1449
+msgid "Archives"
+msgstr "Arşivler"
+
+#: wp-cache.php:1450
+msgid "Tags"
+msgstr "Etiketler"
+
+#: wp-cache.php:1451
+msgid "Category"
+msgstr "Kategori sayfaları"
+
+#: wp-cache.php:1452
+msgid "Feeds"
+msgstr "Beslemeler"
+
+#: wp-cache.php:1453
+msgid "Search Pages"
+msgstr "Arama sayfaları"
+
+#: wp-cache.php:1455
+#: wp-cache.php:1569
+msgid "Save"
+msgstr "Kaydet"
+
+#: wp-cache.php:1472
+msgid "Add here strings (not a filename) that forces a page not to be cached. For example, if your URLs include year and you dont want to cache last year posts, it&#8217;s enough to specify the year, i.e. &#8217;/2004/&#8217;. WP-Cache will search if that string is part of the URI and if so, it will not cache that page."
+msgstr "Buraya, içeren sayfaları önbelleğe alınma<strong>ma</strong>sını sağlayacak metinler (dosyalar DEĞİL) ekleyin. Örneğin, kalıcı bağlantı yapınızda yıl değişkeni kullandıysanız (yani yazı adreslerinizde yıllar varsa) ve geçen yılın yazılarını önbelleğe almak istemiyorsanız, örneğin '2004' yazmanız yeterli olacaktır. Eklenti, adresin içerisinde bu metinlerin varlığını kontrol edecek ve varsa o sayfayı önbelleğe almayacaktır."
+
+#: wp-cache.php:1478
+msgid "Save Strings"
+msgstr "Dizgileri Kaydet"
+
+#: wp-cache.php:1494
+msgid "Add here those filenames that can be cached, even if they match one of the rejected substring specified above."
+msgstr "Yukarıda belirtilen kurallara uysa da önbelleklenebilmesi için buraya dosya isimleri ekleyebilirsiniz."
+
+#: wp-cache.php:1500
+msgid "Save Files"
+msgstr "Dosyaları kaydet"
+
+#: wp-cache.php:1541
+msgid "Currently logging to: %s"
+msgstr "Şuraya kayıt yapılıyor: %s"
+
+#: wp-cache.php:1544
+msgid "Fix problems with the plugin by debugging it here. It can log them to a file in your cache directory."
+msgstr "Eklentiyle ilgili sorunları, hata ayıklama modunu açarak buraya kaydettirebilirsiniz. Önbellek dizininizde oluşturulacak bir dosyaya kayıt yapılacaktır."
+
+#: wp-cache.php:1548
+msgid "Debugging"
+msgstr "Hata Ayıklama"
+
+#: wp-cache.php:1548
+#: plugins/awaitingmoderation.php:40
+#: plugins/badbehaviour.php:71
+#: plugins/searchengine.php:69
+#: plugins/domain-mapping.php:66
+msgid "enabled"
+msgstr "etkin"
+
+#: wp-cache.php:1549
+msgid "IP Address"
+msgstr "IP Adresi"
+
+#: wp-cache.php:1549
+msgid "(only log requests from this IP address. Your IP is %s)"
+msgstr "(yalnızca bu IP adresinden yapılan raporlama isteklerini kabul et. Şu anki IP adresiniz %s)"
+
+#: wp-cache.php:1550
+msgid "Log level"
+msgstr "Raporlama aşaması"
+
+#: wp-cache.php:1556
+msgid "(1 = less, 5 = more, may cause severe server load.)"
+msgstr "(1 = hafif, 5 = ağır - sunucuya yük bindirebilir)"
+
+#: wp-cache.php:1559
+msgid "In very rare cases two problems may arise on some blogs:<ol><li> The front page may start downloading as a zip file.</li><li> The wrong page is occasionally cached as the front page if your blog uses a static front page and the permalink structure is <em>/%category%/%postname%/</em>.</li></ol>"
+msgstr "Çok nadir durumlarda, bloglarda iki farklı problem baş gösterebiliyor: <ol><li>Anasayfanın bir zip dosyası halinde inebilir.</li><li>Anasayfa olarak sabit bir sayfa göstermeyi seçtiyseniz ve kalıcı bağlantı yapınız <em>/%category%/%postname%/</em> şeklindeyse, anasayfa diye başka bir sayfa önbelleklenebilir.</li></ol>"
+
+#: wp-cache.php:1560
+msgid "I&#8217;m 99% certain that they aren&#8217;t bugs in WP Super Cache and they only happen in very rare cases but you can run a simple check once every 5 minutes to verify that your site is ok if you&#8217;re worried. You will be emailed if there is a problem."
+msgstr "WP Super Cache eklentisinde hata bulunmadığından aşağı yukarı eminim, varsa da çok nadir durumlarda görülüyordur ama bu konuda endişeleriniz varsa 5 dakikada bir kontrol edip sitenizin çalışır durumda olduğunu görebilirsiniz. Bir sorun çıkarsa size e-posta yollanacaktır."
+
+#: wp-cache.php:1562
+msgid "Check front page every 5 minutes."
+msgstr "5 dakikada bir ön sayfayı kontrol edin."
+
+#: wp-cache.php:1563
+msgid "Front page text"
+msgstr "Ön sayfa yazısı"
+
+#: wp-cache.php:1563
+msgid "Text to search for on your front page. If this text is missing the cache will be cleared. Leave blank to disable."
+msgstr "Anasayfanızda aranacak metin - eğer bu metin anasayfada bulunamazsa önbellek temizlenir. Devre dışı bırakmak için boş bırakın."
+
+#: wp-cache.php:1564
+msgid "Clear cache on error."
+msgstr "Bir hatayla karşılaşıldığında önbelleği temizle."
+
+#: wp-cache.php:1565
+msgid "Email the blog admin when checks are made. (useful for testing)"
+msgstr "Kontroller yapıldığında blog sahibine e-posta gönder. (test etmek için yararlı bir özellik)"
+
+#: wp-cache.php:1579
+msgid "Error: GZIP compression is enabled, disable it if you want to enable wp-cache."
+msgstr "Hata: GZIP sıkıştırması etkin; wp-cache'i kullanabilmek için lütfen bu ayarı etkisizleştirin."
+
+#: wp-cache.php:1626
+#: wp-cache.php:1792
+msgid "Warning"
+msgstr "Uyarı"
+
+#: wp-cache.php:1626
+msgid "GZIP compression is enabled in WordPress, wp-cache will be bypassed until you disable gzip compression."
+msgstr "GZIP sıkıştırması Wordpress için etkin durumda, onu etkisizleştirene kadar wp-cache atlanacak."
+
+#: wp-cache.php:1688
+#: wp-cache.php:1693
+#: wp-cache.php:1725
+#: wp-cache.php:1730
+#: wp-cache.php:1736
+msgid "Error"
+msgstr "Hata"
+
+#: wp-cache.php:1688
+msgid "Your cache directory (<strong>$cache_path</strong>) did not exist and couldn&#8217;t be created by the web server. Check %s permissions."
+msgstr "Önbellek dizininiz (<strong>$cache_path</strong>) bulunamadı ve sunucu tarafından da oluşturulamadı. %s dosya izinlerini kontrol edin."
+
+#: wp-cache.php:1693
+msgid "Your cache directory (<strong>%1$s</strong>) or <strong>%2$s</strong> need to be writable for this plugin to work. Double-check it."
+msgstr "Önbellek dizininiz (<strong>%1$s</strong>) veya <strong>%2$s</strong>, eklentinin çalışabilmesi için yazılabilir olmalıdır. Lütfen tekrar kontrol edin."
+
+#: wp-cache.php:1725
+msgid "Your WP-Cache config file (<strong>%s</strong>) is out of date and not writable by the Web server.Please delete it and refresh this page."
+msgstr "WP-Cache ayar dosyanız (<strong>%s</strong>) çok eski ve yenisi de sunucu tarafından oluşturulamıyor. Lütfen dosyayı silip bu sayfayı yenileyin."
+
+#: wp-cache.php:1730
+msgid "Configuration file missing and %1$s  directory (<strong>%2$s</strong>) is not writable by the Web server.Check its permissions."
+msgstr "Ayar dosyası bulunamıyor ve %1$s dizini (<strong>%2$s</strong>) sunucu tarafından yazılamıyor. Lütfen izinleri kontrol edin."
+
+#: wp-cache.php:1736
+msgid "Sample WP-Cache config file (<strong>%s</strong>) does not exist.Verify you installation."
+msgstr "Örnek WP-Cache ayar dosyası (<strong>%s</strong>) yerinde yok. Lütfen yüklemenizi gözden geçirin."
+
+#: wp-cache.php:1792
+msgid "%s/advanced-cache.php</em> does not exist or cannot be updated."
+msgstr "%s/advanced-cache.php</em> bulunamadı veya güncellenemiyor."
+
+#: wp-cache.php:1793
+msgid "1. If it already exists please delete the file first."
+msgstr "1. Eğer hala varsa lütfen ilk satırı silin."
+
+#: wp-cache.php:1794
+msgid "2. Make %1$s writable using the chmod command through your ftp or server software. (<em>chmod 777 %1$s</em>) and refresh this page. This is only a temporary measure and you&#8217;ll have to make it read only afterwards again. (Change 777 to 755 in the previous command)"
+msgstr "2. %1$s dizinini, FTP veya sunucu yazılımınızla yazılabilir hale getirin (<em>chmod 777 %1$s</em>) ve sayfayı yenileyin. Bu yalnızca geçici bir işlem; sonrasında ayarı geri almanız gerekecek (bu sefer 777 yerine 755 ile chmod'layın)"
+
+#: wp-cache.php:1795
+msgid "3. Refresh this page to update <em>%s/advanced-cache.php</em>"
+msgstr "3. <em>%s/advanced-cache.php</em> dosyasını güncellemek için bu sayfayı yenileyin."
+
+#: wp-cache.php:1796
+msgid "If that doesn&#8217;t work, make sure the file <em>%s/advanced-cache.php</em> doesn&#8217;t exist:"
+msgstr "Eğer bu çalışmazsa, <em>%s/advanced-cache.php</em> dosyasının var olmadığından emin olun:"
+
+#: wp-cache.php:1797
+msgid "<li>1. Open <em>%1$s$wp_cache_file</em> in a text editor.</li><li>2. Change the text <em>CACHEHOME</em> to <em>%2$s</em></li><li>3. Save the file and copy it to <em>%3$s</em> and refresh this page.</li>"
+msgstr "<li>1. <em>%1$s$wp_cache_file</em> dosyasını bir düzenleyicide açın.</li><li>2. <em>CACHEHOME</em> metnini <em>%2$s</em> ile değiştirin.</li><li>3. Dosyayı kaydedin ve <em>%3$s</em> dizinine aktarın; sonra sayfayı yenileyin.</li>"
+
+#: wp-cache.php:1820
+msgid "<h3>WP_CACHE constant set to false</h3><p>The WP_CACHE constant is used by WordPress to load the code that serves cached pages. Unfortunately it is set to false. Please edit your wp-config.php and add or edit the following line above the final require_once command:<br /><br /><code>define('WP_CACHE', true);</code></p>"
+msgstr "<h3>WP_CACHE sabiti 'false' değerinde</h3><p>WP_CACHE sabiti, önbelleklenmiş dosyaları sunmak için gerekli kodun sağlanıp sağlanmayacağına karar verir. Ne yazık ki bu şu anda 'false' konumunda. Lütfen wp-config.php dosyanızı açın ve <code>require_once</code> diye başlayan son satırdan hemen önce bu kodu ekleyin (veya bu kodun bir benzeri varsa onu bu şekilde düzenleyin) :<br /><br /><code>define('WP_CACHE', true);</code></p>"
+
+#: wp-cache.php:1822
+msgid "<strong>Error: WP_CACHE is not enabled</strong> in your <code>wp-config.php</code> file and I couldn&#8217;t modify it."
+msgstr "<strong>Hata: WP_CACHE, wp-config.php dosyanızda etkin değil</strong> ve ben dosyayı düzenleyemiyorum."
+
+#: wp-cache.php:1823
+msgid "Edit <code>%s</code> and add the following line:<br /> <code>define('WP_CACHE', true);</code><br />Otherwise, <strong>WP-Cache will not be executed</strong> by WordPress core. "
+msgstr "<code>%s</code> kodunu düzenleyin ve şu satırı ekleyin:<br /> <code>define('WP_CACHE', true);</code><br />Bu olmadan, <strong>WP-Cache çalışmayacaktır</strong>."
+
+#: wp-cache.php:1827
+msgid "<h3>WP_CACHE constant added to wp-config.php</h3><p>If you continue to see this warning message please see point 5 of the <a href=\"http://wordpress.org/extend/plugins/wp-super-cache/faq/\">FAQ</a>. The WP_CACHE line must be moved up."
+msgstr "<h3>WP_CACHE sabiti, wp-config.php dosyasına eklendi</h3><p>Bu uyarı mesajını görmeye devam ederseniz lütfen <a href=\"http://wordpress.org/extend/plugins/wp-super-cache/faq/\">FAQ</a> sayfasındaki 5. maddeye bakın. WP_CACHE ile ilgili satır yukarı kaymış olmalı."
+
+#: wp-cache.php:1851
+msgid "Cache Contents"
+msgstr "Önbellek İçeriği"
+
+#: wp-cache.php:1854
+msgid "Object cache in use. No cache listing available."
+msgstr "Nesne önbellekleme devrede, listelenecek önbellek yok."
+
+#: wp-cache.php:1878
+msgid "Deleting supercache file: <strong>%s</strong><br />"
+msgstr "Şu supercache dosyası siliniyor: <strong>%s</strong><br />"
+
+#: wp-cache.php:1895
+msgid "Deleting wp-cache file: <strong>%s</strong><br />"
+msgstr "Şu wp-cache dosyası siliniyor: <strong>%s</strong><br />"
+
+#: wp-cache.php:1960
+msgid "Cache stats are not automatically generated. You must click the link below to regenerate the stats on this page."
+msgstr "Önbellek istatistikleri otomatik olarak üretilmez. Aşağıdaki bağlantıya tıklayarak istatistikleri bu sayfaya yeniden yüklemelisiniz."
+
+#: wp-cache.php:1961
+msgid "Regenerate cache stats"
+msgstr "Önbellek istatistiklerini güncelle"
+
+#: wp-cache.php:1963
+msgid "Cache stats last generated: %s minutes ago."
+msgstr "Önbellek istatistiklerinin son güncellenişi: %s dakika önce."
+
+#: wp-cache.php:1969
+msgid "WP-Cache"
+msgstr "WP-Cache"
+
+#: wp-cache.php:1970
+#: wp-cache.php:1985
+msgid "%s Cached Pages"
+msgstr "%s Önbellekli Dosya"
+
+#: wp-cache.php:1971
+#: wp-cache.php:1990
+msgid "%s Expired Pages"
+msgstr "%s Süresi Dolmuş Sayfa"
+
+#: wp-cache.php:1984
+msgid "WP-Super-Cache"
+msgstr "WP-Super-Cache"
+
+#: wp-cache.php:1994
+msgid "Fresh WP-Cached Files"
+msgstr "Yeni Önbellekli Dosyalar"
+
+#: wp-cache.php:1995
+#: wp-cache.php:2011
+#: wp-cache.php:2027
+#: wp-cache.php:2043
+msgid "URI"
+msgstr "Adres"
+
+#: wp-cache.php:1995
+#: wp-cache.php:2011
+msgid "Key"
+msgstr "Anahtar"
+
+#: wp-cache.php:1995
+#: wp-cache.php:2011
+#: wp-cache.php:2027
+#: wp-cache.php:2043
+msgid "Age"
+msgstr "Yaş"
+
+#: wp-cache.php:1995
+#: wp-cache.php:2011
+#: wp-cache.php:2027
+#: wp-cache.php:2043
+msgid "Delete"
+msgstr "Sil"
+
+#: wp-cache.php:2010
+msgid "Stale WP-Cached Files"
+msgstr "Süresi Dolmuş Önbellekli Dosyalar"
+
+#: wp-cache.php:2026
+msgid "Fresh Super Cached Files"
+msgstr "Yeni Süper-Önbellekli Dosyalar"
+
+#: wp-cache.php:2042
+msgid "Stale Super Cached Files"
+msgstr "Süresi Dolmuş Süper-Önbellekli Dosyalar"
+
+#: wp-cache.php:2058
+msgid "Hide file list"
+msgstr "Dosya listesini gizle"
+
+#: wp-cache.php:2060
+msgid "Too many cached files, no listing possible."
+msgstr "Çok fazla önbelleklenen sayfa var, listeleme yapılamaz."
+
+#: wp-cache.php:2062
+msgid "List all cached files"
+msgstr "Önbelleğe alınmış tüm dosyaları göster"
+
+#: wp-cache.php:2068
+msgid "<strong>Garbage Collection</strong><br />Last GC was <strong>%s</strong> minutes ago<br />"
+msgstr "<strong>Çöp Toplama</strong><br />Son çöp toplama <strong>%s</strong> dakika önce yapıldı<br />"
+
+#: wp-cache.php:2069
+msgid "Next GC in <strong>%s</strong> minutes"
+msgstr "Sonraki çöp toplama <strong>%s</strong> dakika sonra"
+
+#: wp-cache.php:2072
+msgid "Expired files are files older than %s seconds. They are still used by the plugin and are deleted periodically."
+msgstr "Zaman aşımına uğrayan sayfalar %s saniyeden daha eski. Hala eklenti tarafından kullanılıyorlar ve düzenli aralıklarla siliniyor."
+
+#: wp-cache.php:2083
+msgid "Delete Expired"
+msgstr "Süresi Dolan Önbelleği Temizle"
+
+#: wp-cache.php:2101
+msgid "Delete Super Cache cached files (opens in new window)"
+msgstr "Super Cache ile önbelleklenmiş dosyaları silin (yeni pencerede açılır)"
+
+#: wp-cache.php:2240
+msgid "%1$s is Digg proof thanks to caching by %2$s"
+msgstr "%1$s, %2$s eklentisi sayesinde dağ gibi sağlam!"
+
+#: wp-cache.php:2273
+msgid "WP Super Cache must be configured. Go to <a href=\"%s\">the admin page</a> to enable and configure the plugin."
+msgstr "WP Super Cache ayarları yapılmamış. <a href=\"%s\">Ayarlar sayfasına</a> gidip ayarlarını yapmalısınız."
+
+#: wp-cache.php:2279
+msgid "Settings"
+msgstr "Ayarlar"
+
+#: wp-cache.php:2289
+msgid "WP Super Cache is disabled. Please go to the <a href=\"%s\">plugin admin page</a> to enable caching."
+msgstr "WP Super Cache pasif durumda. Önbelleklemeye devam etmek için lütfen <a href=\"%s\">ayarlar sayfasına</a> gidip etkinleştirin."
+
+#: wp-cache.php:2292
+msgid "Warning! WP Super Cache caching broken! The script advanced-cache.php could not load wp-cache-phase1.php.<br /><br />Please edit %1$s/advanced-cache.php and make sure the path to %2$swp-cache-phase1.php is correct."
+msgstr "Uyarı! WP Super Cache önbellekleme bozuk! advanced-cache.php betiği wp-cache-phase1.php dosyasını yükleyemiyor.<br /><br />Lütfen %1$s/advanced-cache.php dosyasını düzenleyin ve  %2$swp-cache-phase1.php yolunun doğru olduğundan emin olun."
+
+#: wp-cache.php:2311
+msgid "[%s] Front page is gzipped! Please clear cache!"
+msgstr "[%s] Ön sayfa gzip'lendi, lütfen önbelleği boşaltın!"
+
+#: wp-cache.php:2311
+msgid "Please visit %s to clear the cache as the front page of your site is now downloading!"
+msgstr "Lütfen sitenizin indirdiği önbellekli ön sayfayı temizlemek için şurayı ziyaret edin: %s"
+
+#: wp-cache.php:2314
+msgid "[%s] Front page is gzipped! Cache Cleared!"
+msgstr "[%s] Ön sayfa gzip'lendi, Önbellek Temizlendi!"
+
+#: wp-cache.php:2314
+msgid "The cache on your blog has been cleared because the front page of your site is now downloading. Please visit %s to verify the cache has been cleared."
+msgstr "Sitenizin anasayfası şu anda indirildiği için önbelleğiniz temizlendi. Lütfen önbelleğin temizlendiğini doğrulamak için %s sayfasını ziyaret edin."
+
+#: wp-cache.php:2321
+msgid "[%s] Front page is not correct! Please clear cache!"
+msgstr "[%s] Ön sayfa doğru değil! Lütfen önbelleği temizleyin!"
+
+#: wp-cache.php:2321
+msgid "Please visit %1$s to clear the cache as the front page of your site is not correct and missing the text, \"%2$s\"!"
+msgstr "Lütfen %1$s sayfasına gidip önbelleğinizi temizleyin çünkü ön sayfanız doğru değil ve \"%2$s\" metni gözükmüyor!"
+
+#: wp-cache.php:2324
+msgid "[%s] Front page is not correct! Cache Cleared!"
+msgstr "[%s] Ön sayfa doğru değil! Önbellek Temizlendi!"
+
+#: wp-cache.php:2324
+msgid "The cache on your blog has been cleared because the front page of your site is missing the text \"%2$s\". Please visit %1$s to verify the cache has been cleared."
+msgstr "Önbelleğiniz temizlendi çünkü ana sayfanızda \"%2$s\" metni bulunmuyor. Lütfen %1$s sayfasını ziyaret edip önbelleğin temizlendiğini doğrulayın."
+
+#: wp-cache.php:2329
+msgid "[%s] Front page check!"
+msgstr "[%s] Ön sayfa kontrolü!"
+
+#: wp-cache.php:2329
+msgid "WP Super Cache has checked the front page of your blog. Please visit %s if you would like to disable this."
+msgstr "WP Super Cache anasayfanızı kontrol etti. Bu özelliği devre dışı bırakmak için lütfen %s ziyaret edin."
+
+#: wp-cache.php:2372
+msgid "Cannot update .htaccess"
+msgstr ".htaccess güncellenemiyor"
+
+#: wp-cache.php:2372
+msgid "The file <code>%s.htaccess</code> cannot be modified by the web server. Please correct this using the chmod command or your ftp client."
+msgstr "<code>%s.htaccess</code> dosyası sunucu tarafından düzenlenemiyor. Lütfen bu hatayı, chmod kullanarak FTP istemcinizle düzeltin."
+
+#: wp-cache.php:2372
+msgid "Refresh this page when the file permissions have been modified."
+msgstr "İzinleri düzenledikten sonra bu sayfayı yenileyin."
+
+#: wp-cache.php:2372
+msgid "Alternatively, you can edit your <code>%s.htaccess</code> file manually and add the following code (before any WordPress rules):"
+msgstr "Veya, <code>%s.htaccess</code> dosyanızı, dosyaya aşağıdaki kodları ekleyerek düzenleyin (en sona yeni bir satır açıp eklein):"
+
+#: wp-cache.php:2376
+msgid "To serve static html files your server must have the correct mod_rewrite rules added to a file called <code>%s.htaccess</code>"
+msgstr "Statik HTML dosyalarını sunabilmek için sunucunuzda doğru mod_rewrite kurallarının bulunması ve <code>%s.htaccess</code> adlı bir dosyanın olması gerekiyor."
+
+#: wp-cache.php:2377
+msgid "You can edit the file yourself add the following rules."
+msgstr "Dosyayı kendiniz düzenleyebilir ve aşağıdaki kuralları ekleyebilirsiniz."
+
+#: wp-cache.php:2378
+msgid " Make sure they appear before any existing WordPress rules. "
+msgstr "WordPress'in oluşturduğu kuralların üstünde durmasına dikkat edin."
+
+#: wp-cache.php:2386
+msgid "Update Mod_Rewrite Rules"
+msgstr "Mod_Rewrite Kurallarını Güncelle"
+
+#: wp-cache.php:2511
+msgid "[%1$s] Cache Preload Started"
+msgstr "[%1$s] Önbellek Önyükleme Başladı"
+
+#: wp-cache.php:2513
+msgid "[%1$s] Refreshing posts from %2$d to %3$d"
+msgstr "[%1$s] %2$d ile %3$d arasındaki yazılar güncelleniyor"
+
+#: wp-cache.php:2531
+msgid "[%1$s] Cache Preload Stopped"
+msgstr "[%1$s] Önbellek Önyüklemesi Durduruldu"
+
+#: wp-cache.php:2540
+msgid "[%1$s] %2$d posts refreshed"
+msgstr "[%1$s] %2$d yazı güncellendi"
+
+#: wp-cache.php:2540
+msgid "Refreshed the following posts:"
+msgstr "Şu yazılar yenilendi:"
+
+#: wp-cache.php:2549
+msgid "Scheduling next preload refresh in %d minutes."
+msgstr "Yeniden önyükleme %d dakika içinde yapılacak."
+
+#: wp-cache.php:2559
+msgid "[%s] Cache Preload Completed"
+msgstr "[%s] Önbellek Önyüklemesi Tamamlandı"
+
+#: wp-cache.php:2559
+msgid "Cleaning up old supercache files."
+msgstr "Eski supercache dosyaları temizleniyor."
+
+#: wp-cache.php:2601
+msgid "[%s] Preload may have stalled."
+msgstr "[%s] Önyükleme takılı kalmış olabilir."
+
+#: wp-cache.php:2601
+msgid ""
+"Preload has been restarted.\n"
+"%s"
+msgstr ""
+"Önyükleme yeniden başlatıldı.\n"
+"%s"
+
+#: wp-cache.php:2644
+msgid "Supercache Uninstall Problems"
+msgstr "Super Cache Kaldırma Sorunları"
+
+#: wp-cache.php:2644
+msgid ""
+"Dear User,\n"
+"\n"
+"WP Super Cache was removed from your blog but the mod_rewrite rules\n"
+"in your .htaccess were not.\n"
+"\n"
+"Please edit the following file and remove the code\n"
+"between 'BEGIN WPSuperCache' and 'END WPSuperCache'. Please backup the file first!\n"
+"\n"
+"%s\n"
+"\n"
+"Regards,\n"
+"WP Super Cache Plugin\n"
+"http://wordpress.org/extend/plugins/wp-super-cache/"
+msgstr ""
+"Değerli Kullanıcı,\n"
+"\n"
+"WP Super Cache blogunuzdan kaldırıldı fakat .htaccess dosyanızdaki mod_rewrite kuralları silinmedi.\n"
+"\n"
+"Lütfen aşağıdaki dosyayı düzenleyerek 'BEGIN WPSuperCache' ile  'END WPSuperCache' arasındaki kodları temizleyin. Yedek almayı unutmayın!\n"
+"\n"
+"%s\n"
+"\n"
+"Saygılar,\n"
+"WP Super Cache Eklentisi\n"
+"http://wordpress.org/extend/plugins/wp-super-cache/"
+
+#: plugins/awaitingmoderation.php:4
+msgid "Your comment is awaiting moderation."
+msgstr "Yorumunuz onay bekliyor."
+
+#: plugins/awaitingmoderation.php:32
+msgid "Awaiting Moderation"
+msgstr "Onay Kuyruğunda"
+
+#: plugins/awaitingmoderation.php:36
+msgid "Enables or disables plugin to Remove the text \"Your comment is awaiting moderation.\" when someone leaves a moderated comment."
+msgstr "Bir yorum gönderildiğinde, \"Yorumunuz onay kuyruğuna alındı.\" yazısını yorumun içinden kaldıran eklentiyi açıp kapatır."
+
+#: plugins/awaitingmoderation.php:42
+#: plugins/badbehaviour.php:73
+#: plugins/searchengine.php:67
+#: plugins/domain-mapping.php:68
+msgid "disabled"
+msgstr "ektisizleştirilmiş"
+
+#: plugins/awaitingmoderation.php:43
+msgid "Awaiting Moderation is now %s"
+msgstr "Onay Kuyruğu Eklentisi %s"
+
+#: plugins/awaitingmoderation.php:45
+#: plugins/badbehaviour.php:76
+#: plugins/domain-mapping.php:71
+msgid "Update"
+msgstr "Güncelle"
+
+#: plugins/badbehaviour.php:47
+msgid "Bad Behaviour not found. Please check your install."
+msgstr "Bad Behaviour eklentisi bulunamadı. Lütfen tekrar kontrol edin."
+
+#: plugins/badbehaviour.php:63
+msgid "Bad Behavior"
+msgstr "Bad Behaviour"
+
+#: plugins/badbehaviour.php:68
+msgid "(Only legacy caching supported, disabled compression and requires <a href=\"http://www.bad-behavior.ioerror.us/\">Bad Behavior</a> in \"%s/plugins/bad-behavior/\") "
+msgstr "(Sadece eski tarz önbellekleme desteklenir, sıkıştırma etkin değildir ve \"%s/plugins/bad-behavior/\" dizininde <a href=\"http://www.bad-behavior.ioerror.us/\">Bad Behavior</a> olması gerekir)"
+
+#: plugins/badbehaviour.php:74
+msgid "Bad Behavior support is now %s"
+msgstr "Bad Behaviour desteği %s"
+
+#: plugins/searchengine.php:71
+msgid "<a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for Friends</a> plugin is %s."
+msgstr "<a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for Friends</a> eklentisi %s"
+
+#: plugins/searchengine.php:72
+msgid "(requires <a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">friendsadverts.php</a> too) "
+msgstr "(<a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">friendsadverts.php</a> gerekir) "
+
+#: plugins/domain-mapping.php:58
+msgid "Domain Mapping"
+msgstr "Alan Adı Haritalama"
+
+#: plugins/domain-mapping.php:63
+msgid "Provides support for <a href=\"http://wordpress.org/extend/plugins/wordpress-mu-domain-mapping/\">Domain Mapping</a> plugin to map multiple domains to a blog."
+msgstr "<a href=\"http://wordpress.org/extend/plugins/wordpress-mu-domain-mapping/\">Alan Adı Haritalama</a> eklentisini destekler."
+
+#: plugins/domain-mapping.php:69
+msgid "Domain Mapping support is now %s"
+msgstr "Alan Adı Haritalama desteği %s"
+
+#: plugins/domain-mapping.php:83
+msgid "Domain Mapping plugin detected! Please go to the Supercache plugins page and enable the domain mapping helper plugin."
+msgstr "Alan Adı Haritalama eklentisi tespit edildi! Lütfen WP Super Cache eklenti ayarları sayfasına gidip ilgili eklentiyi etkinleştirin."
+
+#~ msgid "(support for multiple domains on multisite websites) "
+#~ msgstr "(çoklu sitelerde birden fazla alan adı kullanımına olanak sağlar)"
+
+#~ msgid "Tester & Contents"
+#~ msgstr "Testçi & İçerik"
+
+#~ msgid ""
+#~ "Logging to a file is easier but faces the problem that clearing the cache "
+#~ "will clear the log file."
+#~ msgstr ""
+#~ "Dosyaya raporlama daha kolaydır ama önbellek temizlendiğinde dosya da "
+#~ "temizlenecektir."
+
+#~ msgid "Logging Type"
+#~ msgstr "Raporlama Türü"
+
+#~ msgid "Email"
+#~ msgstr "E-posta"
+
+#~ msgid "file"
+#~ msgstr "dosya"
+
+#~ msgid "WP Super Cache Manager"
+#~ msgstr "WP Super Cache Yönetimi"
+
+#~ msgid "Why your configuration may not be changed"
+#~ msgstr "Ayarlarınız niye değişmemiş olabilir"
+
+#~ msgid "Why"
+#~ msgstr "Neden"
+
+#~ msgid "ON"
+#~ msgstr "AÇIK"
+
+#~ msgid "WP Cache and Super Cache enabled"
+#~ msgstr "WP Cache ve Super Cache etkin"
+
+#~ msgid "HALF ON"
+#~ msgstr "YARI-AÇIK"
+
+#~ msgid "Super Cache Disabled, only legacy WP-Cache caching."
+#~ msgstr "Super Cache devre dışı, yalnızca WP-Cache önbelleklemesi çalışıyor."
+
+#~ msgid "OFF"
+#~ msgstr "KAPALI"
+
+#~ msgid "WP Cache and Super Cache disabled"
+#~ msgstr "Hem WP Cache, hem Super Cache devre dışı."
+
+#~ msgid ""
+#~ "List the newest cached pages (may be expensive to run on busy sites, use "
+#~ "with caution.)"
+#~ msgstr ""
+#~ "En son önbelleklenmiş dosyaları görüntüle (Çok ziyaret edilen sitelerde "
+#~ "bu seçenek sunucuyu yorabilir, dikkatle kullanın.)"
+
+#~ msgid "Thanks in advance!"
+#~ msgstr "Şimdiden teşekkürler!"
+
+#~ msgid ""
+#~ "Ok, it won&#8217;t go any faster but you&#8217;ll make this plugin author "
+#~ "very happy!"
+#~ msgstr ""
+#~ "Tamam, hızlandırmayacak ama eklenti sahibini acayip mutlu edeceksiniz!"
+
+#~ msgid "Don&#8217;t show me this again."
+#~ msgstr "Bunu bana bir daha gösterme."
+
+#~ msgid "Hide"
+#~ msgstr "Sakla"
+
+#~ msgid ""
+#~ "He blogs at %1$s, posts photos at %2$s and <a href=\"%3$s\">wishes</a> he "
+#~ "had more time to read and relax."
+#~ msgstr ""
+#~ "%1$s sitesinde blog yazar, %2$s adresinde fotoğraflarını yayınlar ve "
+#~ "kitap okuyup rahatlamayı <a href=\"%3$s\">diler</a>."
+
+#~ msgid "Super Cache Compression"
+#~ msgstr "Super Cache Sıkıştırması"
+
+#~ msgid "Compression is enabled by default when in <em>HALF ON</em> mode."
+#~ msgstr ""
+#~ "<em>YARI AÇIK</em> mod etkin olduğunda sıkıştırma varsayılan olarak "
+#~ "etkindir."
+
+#~ msgid "Super Cache compression is now disabled."
+#~ msgstr "Super Cache sıkıştırması şu an etkisiz."
+
+#~ msgid "Super Cache compression is now enabled."
+#~ msgstr "Super Cache sıkıştırması şu an etkin."
+
+#~ msgid "Update Compression"
+#~ msgstr "Sıkıştırma Seçeneklerini Güncelle"
+
+#~ msgid "Debug Settings"
+#~ msgstr "Hata Ayıklama Ayarları"
+
+#~ msgid "You must edit the file yourself add the following rules."
+#~ msgstr "Dosyayı kendiniz düzenlemeli ve aşağıdaki kuralları eklemelisiniz."
+
+#~ msgid ""
+#~ "Mobile device support using <a href=\"%s\">WordPress Mobile Edition</a>."
+#~ msgstr ""
+#~ "<a href=\"%s\">WordPress Mobile Edition</a> ile mobil aygıt desteği."
