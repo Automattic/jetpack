@@ -54,10 +54,19 @@ Interested in translating WP Super Cache to your language? Grab the [development
 
 == Upgrade Notice ==
 
-= 0.9.9.8 =
-CDN code can be switched off, better uninstall process, compress dynamic pages, 1and1 webhosting fix, use Supercache files for dynamic pages
+= 0.9.9.9 =
+Serve repeated static files from the same CDN hostname, translations, logs of bug fixes
 
 == Changelog ==
+
+= 0.9.9.9 =
+* Fixed typo, is_front_page.
+* Serve repeated static files from the same CDN hostname.
+* Updated translations.
+* Make supercache dir lowercase to avoid problems with unicode URLs.
+* Add option to skip https loaded static content. 
+* Remove 5 second check on age of existing cache files. Should help with posts that get lots of comments and traffic.
+* Lots of bugs fixed.
 
 = 0.9.9.8 =
 * CDN updates: can be switched off, multiple CNAMEs.
@@ -481,3 +490,6 @@ Translators who did a great job converting the text of the plugin to their nativ
 * [Pseric](http://pseric.com/) and [Priv](http://priv.tw/blog) (Traditional Chinese)
 * [Maître Mô](http://maitremo.fr/) (French)
 * [Mathias Roth](http://trade-service.eu/) (German)
+* Bar¿¿ Ünver (Turkish)
+* [Elvis Fweb](http://fweb.org.ru/blog/super-cache-rus) (Russian)
+* Fredrik Forséll (Swedish)
