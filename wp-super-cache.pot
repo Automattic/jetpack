@@ -4,120 +4,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  \n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-super-cache\n"
-"POT-Creation-Date: 2011-02-23 17:57:46+00:00\n"
+"POT-Creation-Date: 2011-02-28 22:08:12+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2010-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-
-#: plugins/badbehaviour.php:47
-msgid "Bad Behaviour not found. Please check your install."
-msgstr ""
-
-#: plugins/badbehaviour.php:63
-msgid "Bad Behavior"
-msgstr ""
-
-#: plugins/badbehaviour.php:65 plugins/awaitingmoderation.php:34
-#: plugins/domain-mapping.php:60 wp-cache.php:1205
-msgid "Enabled"
-msgstr ""
-
-#: plugins/badbehaviour.php:66 plugins/awaitingmoderation.php:35
-#: plugins/domain-mapping.php:61 wp-cache.php:1205
-msgid "Disabled"
-msgstr ""
-
-#: plugins/badbehaviour.php:68
-msgid ""
-"(Only legacy caching supported, disabled compression and requires <a href="
-"\"http://www.bad-behavior.ioerror.us/\">Bad Behavior</a> in \"%s/plugins/bad-"
-"behavior/\") "
-msgstr ""
-
-#: plugins/badbehaviour.php:71 plugins/awaitingmoderation.php:40
-#: plugins/searchengine.php:69 plugins/domain-mapping.php:66 wp-cache.php:1552
-msgid "enabled"
-msgstr ""
-
-#: plugins/badbehaviour.php:73 plugins/awaitingmoderation.php:42
-#: plugins/searchengine.php:67 plugins/domain-mapping.php:68
-msgid "disabled"
-msgstr ""
-
-#: plugins/badbehaviour.php:74
-msgid "Bad Behavior support is now %s"
-msgstr ""
-
-#: plugins/badbehaviour.php:76 plugins/awaitingmoderation.php:45
-#: plugins/domain-mapping.php:71
-msgid "Update"
-msgstr ""
-
-#: plugins/badbehaviour.php:83 wp-cache.php:1295 wp-cache.php:1297
-msgid "Warning!"
-msgstr ""
-
-#: plugins/awaitingmoderation.php:4
-msgid "Your comment is awaiting moderation."
-msgstr ""
-
-#: plugins/awaitingmoderation.php:32
-msgid "Awaiting Moderation"
-msgstr ""
-
-#: plugins/awaitingmoderation.php:36
-msgid ""
-"Enables or disables plugin to Remove the text \"Your comment is awaiting "
-"moderation.\" when someone leaves a moderated comment."
-msgstr ""
-
-#: plugins/awaitingmoderation.php:43
-msgid "Awaiting Moderation is now %s"
-msgstr ""
-
-#: plugins/searchengine.php:61 plugins/searchengine.php:76 wp-cache.php:1218
-msgid "Disable"
-msgstr ""
-
-#: plugins/searchengine.php:71
-msgid ""
-"<a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for "
-"Friends</a> plugin is %s."
-msgstr ""
-
-#: plugins/searchengine.php:72
-msgid ""
-"(requires <a href=\"http://ocaoimh.ie/no-adverts-for-friends/"
-"\">friendsadverts.php</a> too) "
-msgstr ""
-
-#: plugins/searchengine.php:74 wp-cache.php:1218
-msgid "Enable"
-msgstr ""
-
-#: plugins/domain-mapping.php:58
-msgid "Domain Mapping"
-msgstr ""
-
-#: plugins/domain-mapping.php:63
-msgid ""
-"Provides support for <a href=\"http://wordpress.org/extend/plugins/wordpress-"
-"mu-domain-mapping/\">Domain Mapping</a> plugin to map multiple domains to a "
-"blog."
-msgstr ""
-
-#: plugins/domain-mapping.php:69
-msgid "Domain Mapping support is now %s"
-msgstr ""
-
-#: plugins/domain-mapping.php:83
-msgid ""
-"Domain Mapping plugin detected! Please go to the Supercache plugins page and "
-"enable the domain mapping helper plugin."
-msgstr ""
 
 #: ossdl-cdn.php:146
 msgid ""
@@ -1111,6 +1004,16 @@ msgstr ""
 msgid "Lock Down:"
 msgstr ""
 
+#: wp-cache.php:1205 plugins/awaitingmoderation.php:35
+#: plugins/badbehaviour.php:66 plugins/domain-mapping.php:61
+msgid "Disabled"
+msgstr ""
+
+#: wp-cache.php:1205 plugins/awaitingmoderation.php:34
+#: plugins/badbehaviour.php:65 plugins/domain-mapping.php:60
+msgid "Enabled"
+msgstr ""
+
 #: wp-cache.php:1206
 msgid ""
 "Prepare your server for an expected spike in traffic by enabling the lock "
@@ -1141,6 +1044,14 @@ msgid ""
 "files as normal."
 msgstr ""
 
+#: wp-cache.php:1218 plugins/searchengine.php:61 plugins/searchengine.php:76
+msgid "Disable"
+msgstr ""
+
+#: wp-cache.php:1218 plugins/searchengine.php:74
+msgid "Enable"
+msgstr ""
+
 #: wp-cache.php:1221
 msgid "Lock Down"
 msgstr ""
@@ -1151,6 +1062,10 @@ msgstr ""
 
 #: wp-cache.php:1287
 msgid "%s removed!"
+msgstr ""
+
+#: wp-cache.php:1295 wp-cache.php:1297 plugins/badbehaviour.php:83
+msgid "Warning!"
 msgstr ""
 
 #: wp-cache.php:1295
@@ -1342,6 +1257,12 @@ msgstr ""
 msgid "Debugging"
 msgstr ""
 
+#: wp-cache.php:1552 plugins/awaitingmoderation.php:40
+#: plugins/badbehaviour.php:71 plugins/searchengine.php:69
+#: plugins/domain-mapping.php:66
+msgid "enabled"
+msgstr ""
+
 #: wp-cache.php:1553
 msgid "IP Address"
 msgstr ""
@@ -1419,8 +1340,8 @@ msgstr ""
 
 #: wp-cache.php:1692
 msgid ""
-"Your cache directory (<strong>$cache_path</strong>) did not exist and "
-"couldn&#8217;t be created by the web server. Check %s permissions."
+"Your cache directory (<strong>%1$s</strong>) did not exist and couldn&#8217;"
+"t be created by the web server. Check %1$s permissions."
 msgstr ""
 
 #: wp-cache.php:1697
@@ -1802,4 +1723,84 @@ msgid ""
 "Regards,\n"
 "WP Super Cache Plugin\n"
 "http://wordpress.org/extend/plugins/wp-super-cache/"
+msgstr ""
+
+#: plugins/awaitingmoderation.php:4
+msgid "Your comment is awaiting moderation."
+msgstr ""
+
+#: plugins/awaitingmoderation.php:32
+msgid "Awaiting Moderation"
+msgstr ""
+
+#: plugins/awaitingmoderation.php:36
+msgid ""
+"Enables or disables plugin to Remove the text \"Your comment is awaiting "
+"moderation.\" when someone leaves a moderated comment."
+msgstr ""
+
+#: plugins/awaitingmoderation.php:42 plugins/badbehaviour.php:73
+#: plugins/searchengine.php:67 plugins/domain-mapping.php:68
+msgid "disabled"
+msgstr ""
+
+#: plugins/awaitingmoderation.php:43
+msgid "Awaiting Moderation is now %s"
+msgstr ""
+
+#: plugins/awaitingmoderation.php:45 plugins/badbehaviour.php:76
+#: plugins/domain-mapping.php:71
+msgid "Update"
+msgstr ""
+
+#: plugins/badbehaviour.php:47
+msgid "Bad Behaviour not found. Please check your install."
+msgstr ""
+
+#: plugins/badbehaviour.php:63
+msgid "Bad Behavior"
+msgstr ""
+
+#: plugins/badbehaviour.php:68
+msgid ""
+"(Only legacy caching supported, disabled compression and requires <a href="
+"\"http://www.bad-behavior.ioerror.us/\">Bad Behavior</a> in \"%s/plugins/bad-"
+"behavior/\") "
+msgstr ""
+
+#: plugins/badbehaviour.php:74
+msgid "Bad Behavior support is now %s"
+msgstr ""
+
+#: plugins/searchengine.php:71
+msgid ""
+"<a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for "
+"Friends</a> plugin is %s."
+msgstr ""
+
+#: plugins/searchengine.php:72
+msgid ""
+"(requires <a href=\"http://ocaoimh.ie/no-adverts-for-friends/"
+"\">friendsadverts.php</a> too) "
+msgstr ""
+
+#: plugins/domain-mapping.php:58
+msgid "Domain Mapping"
+msgstr ""
+
+#: plugins/domain-mapping.php:63
+msgid ""
+"Provides support for <a href=\"http://wordpress.org/extend/plugins/wordpress-"
+"mu-domain-mapping/\">Domain Mapping</a> plugin to map multiple domains to a "
+"blog."
+msgstr ""
+
+#: plugins/domain-mapping.php:69
+msgid "Domain Mapping support is now %s"
+msgstr ""
+
+#: plugins/domain-mapping.php:83
+msgid ""
+"Domain Mapping plugin detected! Please go to the Supercache plugins page and "
+"enable the domain mapping helper plugin."
 msgstr ""
