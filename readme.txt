@@ -55,7 +55,7 @@ Interested in translating WP Super Cache to your language? Grab the [development
 == Upgrade Notice ==
 
 = 0.9.9.9 =
-Serve repeated static files from the same CDN hostname, translations, logs of bug fixes
+Serve repeated static files from the same CDN hostname, translations, lots of bug fixes
 
 == Changelog ==
 
