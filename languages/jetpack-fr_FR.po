@@ -1,0 +1,563 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: JetPack\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/jetpack-client-plugin\n"
+"POT-Creation-Date: 2011-03-07 10:41:13+00:00\n"
+"PO-Revision-Date: 2011-03-07 12:16+0100\n"
+"Last-Translator: Paolo Belcastro <paolo@belcastro.com>\n"
+"Language-Team: Automattic <http://jetpack.me>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e;_x;_ex;_n;_nx\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-SearchPath-0: /Users/ze/Desktop/jetpack\n"
+
+#: jetpack.php:399
+msgid "Jetpack requires WordPress version %s or later."
+msgstr "Jetpack nécessite la version %s ou plus récente de WordPress."
+
+#: jetpack.php:508
+msgid "Jetpack contains the most recent version of the &#8220;%1$s&#8221; plugin."
+msgstr "Jetpack contient la version la plus récente du plugin &#8220;%1$s&#8221;."
+
+#: jetpack.php:570
+msgid "Settings"
+msgstr "Réglages"
+
+#: jetpack.php:587
+msgid "<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features."
+msgstr "<strong>Votre Jetpack est presque prêt</strong> &#8211; Connectez-vous à WordPress.com pour activer toutes les fonctions."
+
+#: jetpack.php:588
+#: jetpack.php:975
+msgid "Connect to WordPress.com"
+msgstr "Connexion à WordPress.com"
+
+#: jetpack.php:590
+msgid "<strong>JetPack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
+msgstr "<strong>JetPack est installé</strong> et prêt à ajouter d'impressionnantes fonctionnalités à votre site, alimentées par la puissance distribuée de WordPress."
+
+#: jetpack.php:591
+#: modules/module-info.php:42
+#: modules/module-info.php:99
+#: modules/module-info.php:133
+#: modules/module-info.php:167
+#: modules/module-info.php:203
+#: modules/module-info.php:238
+msgid "Learn More"
+msgstr "En savoir plus"
+
+#: jetpack.php:602
+msgid "<strong>JetPack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
+msgstr "<strong>JetPack est activé!</strong> Chaque site de votre réseau doit être connecté individuellement par un de ses administrateurs."
+
+#: jetpack.php:664
+msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
+msgstr "Vous devez autoriser la connexion Jetpack entre votre site et WordPress.com pour activer ces fonctionnalités impressionnantes."
+
+#: jetpack.php:667
+msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
+msgstr "Ne croisez pas les jets! Vous devez rester connecté à votre blog WordPress pendant que vous autorisez Jetpack."
+
+#: jetpack.php:671
+msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
+msgstr "Retour à l'envoyeur. Oops! On dirait que vous avez reçu le mauvais Jetpack au courrier; désactivez puis reactivez le plugin Jetpack pour en recevoir un nouveau."
+
+#: jetpack.php:674
+msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
+msgstr "Mauvaise taille. Humm&#8230; il semble que votre Jetpack ne vous aille pas.  Avez-vous perdu du poids? Cliquez sur &#8220;Connexion à WordPress.com&#8221; à nouveau pour que votre Jetpack soit retouché."
+
+#: jetpack.php:678
+msgid "Your website needs to be publicly accessible to use Jetpack: %s"
+msgstr "Votre site doit être accessible publiquement pour utiliser Jetpack: %s"
+
+#: jetpack.php:683
+msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "%s n'a pas pu être activé car il a provoqué une <strong>erreur fatale</strong>. Peut-être y a-t-il un conflit avec un autre plugin que vous avez installé?"
+
+#: jetpack.php:686
+msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "Le module n'a pas pu être activé car il a provoqué une <strong>erreur fatale</strong>. Peut-être y a-t-il un conflit avec un autre plugin que vous avez installé?"
+
+#: jetpack.php:689
+msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
+msgstr "<strong>Votre Jetpack a un petit souci.</strong> La connexion de ce site à WordPress.com n'est pas possible. Généralement ceci est provoqué par un site inaccessible publiquement (localhost)."
+
+#: jetpack.php:692
+msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
+msgstr "WordPress.com a actuellement des soucis et ne peut pas alimenter votre Jetpack. Veuillez essayer utlérieurement."
+
+#: jetpack.php:733
+msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
+msgstr "<strong>Votre Jetpack a un petit souci.</strong>  Quelque chose qui n&#8217;aurait pas du est allé de travers.  Vous êtes probablement chanceux: %s"
+
+#: jetpack.php:736
+msgid "Try connecting again."
+msgstr "Essayez de vous reconnecter."
+
+#: jetpack.php:746
+msgid "<strong>%s Activated!</strong> You can deactivate at any time using the deactivate button on the module card."
+msgstr "<strong>%s Activé!</strong> Vous pouvez le désactiver à tout moment en utilisant le bouton de désactivation dans la section du module."
+
+#: jetpack.php:753
+msgid "<strong>%s Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
+msgstr "<strong>%s Désactivé!</strong> Vous pouvez le reactiver à tout moment en utilisant le bouton dl&#8217;activation dans la section du module."
+
+#: jetpack.php:759
+msgid "<strong>Success!</strong> Module settings were saved."
+msgstr "<strong>Succès!</strong> Les réglages du module ont été sauvegardés"
+
+#: jetpack.php:763
+msgid "<strong>Whoops!</strong> Your Jetpack is already connected."
+msgstr "<strong>Oops!</strong> Votre Jetpack est déjà connecté."
+
+#: jetpack.php:767
+msgid "<strong>All Done!</strong> You&#8217;re fueled up and ready to go!"
+msgstr "<strong>C&#8217;est Fait!</strong> Vous avez le plein et êtres prêt(e) à partir!"
+
+#: jetpack.php:769
+msgid "The features below are now active. Click the learn more buttons to explore each feature."
+msgstr "Les fonctionnalités ci-dessous sont maintenant acitvées. Cliquez sur le bouton en savoir plus pour explorer chacune d'elles."
+
+#: jetpack.php:803
+msgid "Jetpack contains the most recent version of the %l plugin."
+msgid_plural "Jetpack contains the most recent versions of the %l plugins."
+msgstr[0] "Jetpack contient la version la plus récente du plugin %l. "
+msgstr[1] "Jetpack contient les versions les plus récentes des plugins %l."
+
+#: jetpack.php:812
+msgid "The old version has been deactivated and can be removed from your site."
+msgid_plural "The old versions have been deactivated and can be removed from your site."
+msgstr[0] "L&#8217;ancienne version a été désactivée et peut être supprimée de votre site."
+msgstr[1] "Les anciennes versions ont été désactivées et peuvent être supprimées de votre site."
+
+#: jetpack.php:954
+msgid "Connected to WordPress.com"
+msgstr "Connecté à WordPress.com"
+
+#: jetpack.php:955
+msgid "Disconnect from WordPress.com"
+msgstr "Déconnexion de WordPress.com"
+
+#: jetpack.php:958
+#: jetpack.php:1056
+msgid "Jetpack by WordPress.com"
+msgstr "Jetpack par WordPress.com"
+
+#: jetpack.php:961
+msgid "Jetpack is a WordPress plugin that enables the awesome cloud power of WordPress.com to supercharge your self-hosted website."
+msgstr "Jetpack est un plugin WordPress qui active l'impressionnante puissance distribuée de WordPress.com pour suralimenter votre site web auto-hébergé."
+
+#: jetpack.php:976
+msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right."
+msgstr "Pour activer toutes les fonctionnalités de Jetpack vous devez connecter votre site web à WordPress.com en utilisant le bouton à droite."
+
+#: jetpack.php:977
+msgid "Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below. To find out more about any feature use the 'Learn More' button for that feature."
+msgstr "Une fois la connexion effectuée, vous activerez toutes les fantastiques fonctionnalités ci-dessous. Pour en savoir plus sur une fonctionnalité, utilisez le bouton 'En Savoir Plus' sous celle-ci."
+
+#: jetpack.php:993
+msgid "Checking email updates status&hellip;"
+msgstr "Vérification du statut des notification par email&hellip;"
+
+#: jetpack.php:999
+msgctxt "%s = Unsubscribe link"
+msgid "You are currently subscribed to email updates. %s"
+msgstr "Vous êtes actuellement inscrit(e) aux notifications par email. %s "
+
+#: jetpack.php:1000
+msgid "Unsubscribe"
+msgstr "Désinscription"
+
+#: jetpack.php:1004
+msgctxt "%s = Subscribe link"
+msgid "Want to receive updates about Jetpack by email? %s"
+msgstr "Envie de recevoir les nouvelles sur Jetpack par email? %s "
+
+#: jetpack.php:1005
+msgid "Subscribe"
+msgstr "Inscription"
+
+#: jetpack.php:1012
+msgid "You have been subscribed to receive email updates."
+msgstr "Vous êtes inscrit aux notifications par email."
+
+#: jetpack.php:1014
+msgid "You will no longer receive email updates about Jetpack."
+msgstr "Vous ne recevrez plus de notification par email au sujet de Jetpack."
+
+#: jetpack.php:1027
+msgid "An <span>Automattic</span> Airline"
+msgstr "Une Ligne Aérienne <span>Automattic</span>"
+
+#: jetpack.php:1029
+msgid "Privacy Policy"
+msgstr "Vie Privée"
+
+#: jetpack.php:1030
+msgid "Terms of Service"
+msgstr "Conditions d&#8217;Utilisation"
+
+#: jetpack.php:1031
+msgid "Debug"
+msgstr "Debugguer"
+
+#: jetpack.php:1032
+msgid "Support"
+msgstr "Support"
+
+#: jetpack.php:1057
+msgid "Configure %s"
+msgstr "Configurer %s"
+
+#: jetpack.php:1100
+msgid "Deactivate"
+msgstr "Désactiver"
+
+#: jetpack.php:1110
+msgid "Activate"
+msgstr "Activer"
+
+#: jetpack.php:1142
+msgid "Free"
+msgstr "Gratuit"
+
+#: jetpack.php:1160
+msgid "Configure"
+msgstr "Configurer"
+
+#: jetpack.php:1194
+msgid "Coming soon&#8230;"
+msgstr "Bientôt disponible&#8230;"
+
+#: jetpack.php:1865
+msgid "An administrator for this blog must set up the Jetpack connection."
+msgstr "La connexion Jetpack doit être activée par un administrateur de ce blog."
+
+#: jetpack.php:1870
+msgid "You need to register your Jetpack before connecting it."
+msgstr "Vous devez enregistrer votre Jetpack avant de le connecter."
+
+#: modules/gravatar-hovercards.php:35
+#: modules/module-info.php:18
+#: modules/module-info.php:33
+msgid "Gravatar Hovercards"
+msgstr "Surcartes Gravatar"
+
+#: modules/gravatar-hovercards.php:47
+msgid "View people's profiles when you mouse over their Gravatars"
+msgstr "Voir les profils des gens lorsque vous passez la souris sur leurs Gravatars."
+
+#: modules/gravatar-hovercards.php:74
+msgid "Put your mouse over your Gravatar to check out your profile."
+msgstr "Placez la souris sur votre Gravatar pour voir votre profil."
+
+#: modules/module-info.php:14
+#: modules/module-info.php:29
+msgid "Gravatar Hovercard"
+msgstr "Surcartes Gravatar"
+
+#: modules/module-info.php:19
+#: modules/module-info.php:34
+msgid "What&#8217;s a Hovercard?"
+msgstr "Qu&#8217;est-ce qu&#8217;une Surcarte?"
+
+#: modules/module-info.php:20
+msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services they use on the web like Twitter, Facebook, or LinkedIn."
+msgstr "Les Surcartes améliorent les simples images Gravatar grâce aux informations à propos d'une personne: nom, biographie, images, coordonnées et les autres services qu'elle utilise sur le web, comme Twitter, Facebook ou LinkedIn"
+
+#: modules/module-info.php:21
+msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
+msgstr "Les Surcartes sont une excellente façon de montrer votre présence sur internet et aider les gens à trouver votre propre blog."
+
+#: modules/module-info.php:35
+msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
+msgstr "Les Surcartes améliorent les simples images Gravatar grâce aux informations à propos d'une personne: nom, biographie, images, coordonnées et  autres services."
+
+#: modules/module-info.php:36
+msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
+msgstr "Pour voir les surcartes, trouvez un article de votre blog avec des commentaires. Is l'auteur du commentaire a une surcarte associée à son gravatar, passez la souris sur l'image et la surcarte apparaîtra. Pour désactiver les surcartes, cliquez sur le bouton Désactiver ci-dessus."
+
+#: modules/module-info.php:51
+#: modules/module-info.php:55
+#: modules/module-info.php:64
+#: modules/module-info.php:68
+msgid "Shortcode Embeds"
+msgstr "Intégration par Codes de Substitution"
+
+#: modules/module-info.php:56
+#: modules/module-info.php:69
+msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
+msgstr "Les Codes de Substitution vous permettent d&#8217;intégrer facilement et avec sécurité des media d'autres sources dans votre site. Avec un simple code vous pouvez dire à WordPress d&#8217;intégrer YouTube, Flickr et autres media."
+
+#: modules/module-info.php:70
+msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
+msgstr "Saisissez un code de substition directement dans l&#8217;editeur d'Articles/Pages pour intégrer des media. Cliquez sur les liens ci-dessous pour des instructions spécifiques."
+
+#: modules/module-info.php:93
+msgid "Available shortcodes are: %l."
+msgstr "Les codes de substitution disponibles sont: %l."
+
+#: modules/module-info.php:108
+#: modules/module-info.php:112
+#: modules/module-info.php:122
+#: modules/module-info.php:126
+msgid "WP.me Shortlinks"
+msgstr "Liens courts WP.me"
+
+#: modules/module-info.php:113
+msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
+msgstr "Au lieu de saisir ou copier-coller de longues URL, vous pouvez maintenant obtenir des liens simples et courts vers vos articles et pages. Ceci utilise le nom de domaine ultra-compact wp.me, et vous donne une URL unique, sûre et fiable que vous pouvez utiliser."
+
+#: modules/module-info.php:114
+msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
+msgstr "C&#8217;est parfait pour Twitter, Facebook et les SMS, où chaque caractère compte."
+
+#: modules/module-info.php:127
+msgid "To use shortlinks, go to any already published post (or publish something new!). A 'Get Shortlink' button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
+msgstr "Pour utiliser les liens courts, allez sur un article déjà publié (ou publiez-en un nouveau!). Un bouton &#8217;Obtenir un lien court&#8217; sera visible sous le titre de l&#8217;Article. Lorsque vous cliquez dessus, une fenêtre de dialogue apparaît, avec le lien court et vous pouvez le copier, puis le coller dans Twitter, Facebook ou à tout endroit de votre choix."
+
+#: modules/module-info.php:142
+#: modules/module-info.php:146
+#: modules/module-info.php:155
+#: modules/module-info.php:159
+msgid "WordPress.com Stats"
+msgstr "Stats WordPress.com"
+
+#: modules/module-info.php:147
+#: modules/module-info.php:160
+msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
+msgstr "De nombreux plugins et services fournissent des statistiques, mais la quantité de données peut être écrasante. Les stats WordPress.com rendent les mesures les plus populaires faciles à comprendre à travers une interface claire et attractive."
+
+#: modules/module-info.php:161
+msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
+msgstr "Vous pouvez <a href=\"%s\">voir le tableau de bord de vos stats ici</a>."
+
+#: modules/module-info.php:176
+#: modules/module-info.php:180
+#: modules/module-info.php:191
+#: modules/module-info.php:195
+msgid "LaTeX"
+msgstr "LaTeX"
+
+#: modules/module-info.php:181
+#: modules/module-info.php:196
+msgid "<a href=\"%s\" target=\"_blank\">LaTeX</a> is a powerful markup language for writing complex mathematical equations, formulas, etc."
+msgstr "<a href=\"%s\" target=\"_blank\">LaTeX</a> est un langage de balisage puissant pour écrire des équations mathématiques complexes, formules, etc."
+
+#: modules/module-info.php:182
+msgid "Jetpack combines the power of LaTeX and the simplicity of WordPress to give you the ultimate in math blogging platforms."
+msgstr "Jetpack réunit le pouvoir de LaTeX et la simplicité de WordPress pour vous donner la meilleure plateforme de blogs mathématiques qui soit."
+
+#: modules/module-info.php:183
+msgid "Wow, that sounds nerdy."
+msgstr "Wow, ça à l'air complexe."
+
+#: modules/module-info.php:197
+msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include LaTeX in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
+msgstr "Use <code>$latex votre code latex ici$</code> ou <code>[latex]votre code latex ici[/latex]</code>pour inclure LaTeX dans vos articles et commentaires. Il y a <a href=\"%s\" target=\"_blank\">toutes sortes d&#8217;options</a> disponibles."
+
+#: modules/module-info.php:212
+#: modules/module-info.php:226
+msgid "Twitter"
+msgstr "Twitter"
+
+#: modules/module-info.php:216
+#: modules/module-info.php:230
+msgid "Twitter Widget"
+msgstr "Widget Twitter"
+
+#: modules/module-info.php:217
+msgid "The Twitter Widget shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site."
+msgstr "Le widget Twitter montre ves derniers tweets dans la barre latérale de votre thème. C&#8217;est une solution simple pour augmenter l'activité de votre site."
+
+#: modules/module-info.php:218
+msgid "There are also a number of customization options. Change the number of displayed tweets, filter out replies, and include retweets."
+msgstr "Il y a égelement un certain nombre d'options de personnalisation. Changer le nombre de tweets affichés, filtrer les réponses et inclure les retweets."
+
+#: modules/module-info.php:231
+msgid "The Twitter Widget shows your latest tweets within a sidebar on your theme."
+msgstr "Le widget Twitter montre ves derniers tweets dans la barre latérale de votre thème."
+
+#: modules/module-info.php:232
+msgid "To use the Twitter Widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. The Twitter widget is listed as &#8220;Twitter&nbsp;(Jetpack)&#8221;; drag it into one of your sidebars and configure away."
+msgstr "Pour utiliser le Widget Twitter, allez dans Apparence &#8594; <a href=\"%s\">Widgets</a>. Le widget Twitter est listé en tant que &#8220;Twitter&nbsp;(Jetpack)&#8221;; glissez le dans une de vos barres latérales et configurez-le."
+
+#: modules/shortcodes/archives.php:49
+msgid "Your blog does not currently have any published posts."
+msgstr "Votre blog ne contient pas d'articles publiés actuellement."
+
+#: modules/stats.php:177
+#: modules/stats.php:470
+msgid "Site Stats"
+msgstr "Statistiques du Site"
+
+#: modules/stats.php:253
+msgid "We were unable to get your stats just now. Please try again."
+msgstr "Nous sommes incapables d'obtenir vos stats à l'instant. Veuillez essayer ultérieurement."
+
+#: modules/stats.php:347
+msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
+msgstr "Visitez <a href=\"%s\">Statistiques du Site</a> pour voir vos statistiques."
+
+#: modules/stats.php:353
+msgid "Admin bar"
+msgstr "Barre d'administration"
+
+#: modules/stats.php:354
+msgid "Put a chart showing 48 hours of views in the admin bar."
+msgstr "Insérer un graphique montrant les pages vues des 48 dernières heures dans la barre d'administration."
+
+#: modules/stats.php:356
+msgid "Registered users"
+msgstr "Utilisateurs enregistrés"
+
+#: modules/stats.php:357
+msgid "Count the page views of registered users who are logged in."
+msgstr "Compter les pages vues par les utilisateurs enregistrés qui sont identifiés."
+
+#: modules/stats.php:358
+msgid "Report visibility"
+msgstr "Visibilité des rapports"
+
+#: modules/stats.php:360
+msgid "Select the roles that will be able to view stats reports."
+msgstr "Sélectionner les rôles qui ont la capacité de voir les rapports statistiques."
+
+#: modules/stats.php:371
+msgid "Save configuration"
+msgstr "Sauvegarder la configuration"
+
+#: modules/stats.php:402
+msgid "Views over 48 hours. Click for more Site Stats."
+msgstr "Pages vues sur les 48 dernières heures. Cliquez pour plus de Stats sur votre site."
+
+#: modules/stats.php:491
+msgid "day"
+msgstr "jour"
+
+#: modules/stats.php:492
+msgid "week"
+msgstr "semaine"
+
+#: modules/stats.php:493
+msgid "month"
+msgstr "mois"
+
+#: modules/stats.php:496
+msgid "the past day"
+msgstr "hier"
+
+#: modules/stats.php:497
+msgid "the past week"
+msgstr "la semaine dernière"
+
+#: modules/stats.php:498
+msgid "the past month"
+msgstr "le mois dernier"
+
+#: modules/stats.php:499
+msgid "the past quarter"
+msgstr "le trimestre dernier"
+
+#: modules/stats.php:500
+msgid "the past year"
+msgstr "l&#8217;année dernière"
+
+#: modules/stats.php:522
+msgid "Chart stats by"
+msgstr "Grpahique des stats par"
+
+#: modules/stats.php:535
+msgid "Show top posts over"
+msgstr "Afficher les posts les plus lus sur"
+
+#: modules/stats.php:548
+msgid "Show top search terms over"
+msgstr "Afficher les recherches plus fréquentes sur"
+
+#: modules/stats.php:678
+msgid "%1$s %2$s Views"
+msgstr "%1$s %2$s Pages Vues"
+
+#: modules/stats.php:694
+msgid "Top Posts"
+msgstr "Articles les plus lus"
+
+#: modules/stats.php:698
+#: modules/stats.php:722
+msgid "Sorry, nothing to report."
+msgstr "Désolé, pas de rapport."
+
+#: modules/stats.php:718
+msgid "Top Searches"
+msgstr "Recherches les plus fréquentes"
+
+#: modules/stats.php:735
+msgid "View All"
+msgstr "Tout Voir"
+
+#: modules/twitter-widget.php:68
+msgid "Display your tweets from Twitter"
+msgstr "Affichez vos tweets depuis Twitter"
+
+#: modules/twitter-widget.php:69
+msgid "Twitter (Jetpack)"
+msgstr "Twitter (Jetpack)"
+
+#: modules/twitter-widget.php:78
+msgid "Twitter Updates"
+msgstr "Mises à jour Twitter"
+
+#: modules/twitter-widget.php:164
+msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
+msgstr "Erreur: Assurez-vous que le compte Twitter est <a href=\"%s\">publique</a>."
+
+#: modules/twitter-widget.php:166
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Erreur: Twitter ne répond pas. Veuillez patienter quelques minutes, puis rafraîchir cette page."
+
+#: modules/twitter-widget.php:205
+msgid "Title:"
+msgstr "Titre:"
+
+#: modules/twitter-widget.php:208
+msgid "Twitter username:"
+msgstr "Nom d&#8217;utilisateur Twitter:"
+
+#: modules/twitter-widget.php:211
+msgid "Maximum number of tweets to show:"
+msgstr "Nombre maximal de tweets à montrer:"
+
+#: modules/twitter-widget.php:222
+msgid "Hide replies"
+msgstr "Cacher les réponses"
+
+#: modules/twitter-widget.php:227
+msgid "Include retweets"
+msgstr "Inclure les retweets"
+
+#: modules/twitter-widget.php:229
+msgid "Text to display between tweet and timestamp:"
+msgstr "Texte à afficher entre le message et l'horodatage:"
+
+#~ msgid "http://wordpress.org/extend/plugins/jetpack/"
+#~ msgstr "http://wordpress.org/extend/plugins/jetpack/"
+
+#~ msgid ""
+#~ "Bring the power of the WordPress.com cloud to your self-hosted WordPress. "
+#~ "Jetpack enables you to connect your blog to a WordPress.com account to "
+#~ "use the powerful features normally only available to WordPress.com users."
+#~ msgstr ""
+#~ "Ajoutez la puissance distribuée de WordPress.com à votre site WordPress "
+#~ "auto-hébergé. Jetpack vous permet de connecter votre blog à un compte "
+#~ "WordPress.com pour utiliser les puissantes fonctionnalités normalement "
+#~ "disponibles uniquement pour les utilisateurs WordPress.com."
+
+#~ msgid "Automattic"
+#~ msgstr "Automattic"
+
+#~ msgid "http://jetpack.me"
+#~ msgstr "http://jetpack.me"

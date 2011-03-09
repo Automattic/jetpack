@@ -1,0 +1,404 @@
+# Translation of the WordPress plugin Sharedaddy 0.2.9 by Automattic, Inc..
+# Copyright (C) 2010 Automattic, Inc.
+# This file is distributed under the same license as the Sharedaddy package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2010.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Sharedaddy 0.2.9\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/sharedaddy\n"
+"POT-Creation-Date: 2010-12-16 16:35+0000\n"
+"PO-Revision-Date: 2010-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: sharedaddy.php:14
+#, php-format
+msgid ""
+"%1$s (%2$s) thinks you may be interested in the following post:\n"
+"\n"
+msgstr ""
+
+#: sharedaddy.php:18
+msgid "Shared Post"
+msgstr ""
+
+#: sharedaddy.php:22 sharedaddy.php:23 sharing.php:49
+msgid "Sharing"
+msgstr ""
+
+#: sharedaddy.php:34
+msgid "Show sharing buttons on this post."
+msgstr ""
+
+#: sharedaddy.php:57 sharedaddy.php:64
+msgid "Settings"
+msgstr ""
+
+#: sharedaddy.php:65
+msgid "Support"
+msgstr ""
+
+#: sharedaddy.php:97
+msgid "Disable CSS and JS"
+msgstr ""
+
+#: sharedaddy.php:99
+msgid "Advanced - you must include these in your theme for Sharedaddy to work"
+msgstr ""
+
+#: sharing-service.php:194
+msgid "Share this:"
+msgstr ""
+
+#: sharing-service.php:434 sharing-sources.php:620 sharing.php:230
+#: sharing.php:271
+msgid "Share"
+msgstr ""
+
+#: sharing-sources.php:127
+msgid "Email"
+msgstr ""
+
+#: sharing-sources.php:169
+msgid "This post has been shared!"
+msgstr ""
+
+#: sharing-sources.php:170
+#, php-format
+msgid "You have shared this post with %s"
+msgstr ""
+
+#: sharing-sources.php:171
+msgid "Close"
+msgstr ""
+
+#: sharing-sources.php:193
+msgctxt "share to"
+msgid "Email"
+msgstr ""
+
+#: sharing-sources.php:193
+msgid "Click to email this to a friend"
+msgstr ""
+
+#: sharing-sources.php:207
+msgid "Send to Email Address"
+msgstr ""
+
+#: sharing-sources.php:215
+msgid "Your Name"
+msgstr ""
+
+#: sharing-sources.php:218
+msgid "Your Email Address"
+msgstr ""
+
+#: sharing-sources.php:226
+msgid "Send Email"
+msgstr ""
+
+#: sharing-sources.php:227
+msgid "Cancel"
+msgstr ""
+
+#: sharing-sources.php:230
+msgid "Post was not sent - check your email addresses!"
+msgstr ""
+
+#: sharing-sources.php:234
+msgid "Email check failed, please try again"
+msgstr ""
+
+#: sharing-sources.php:238
+msgid "Sorry, your blog cannot share posts by email."
+msgstr ""
+
+#: sharing-sources.php:257
+msgid "Twitter"
+msgstr ""
+
+#: sharing-sources.php:264
+msgctxt "share to"
+msgid "Twitter"
+msgstr ""
+
+#: sharing-sources.php:264
+msgid "Click to share on Twitter"
+msgstr ""
+
+#: sharing-sources.php:334 sharing-sources.php:411 sharing-sources.php:462
+#: sharing-sources.php:568
+msgid "Use smart button"
+msgstr ""
+
+#: sharing-sources.php:352
+msgid "StumbleUpon"
+msgstr ""
+
+#: sharing-sources.php:363
+msgctxt "share to"
+msgid "StumbleUpon"
+msgstr ""
+
+#: sharing-sources.php:363
+msgid "Click to share on StumbleUpon"
+msgstr ""
+
+#: sharing-sources.php:429 sharing-sources.php:436
+msgid "Reddit"
+msgstr ""
+
+#: sharing-sources.php:436
+msgid "Click to share on Reddit"
+msgstr ""
+
+#: sharing-sources.php:506
+msgid "Digg"
+msgstr ""
+
+#: sharing-sources.php:515 sharing-sources.php:519
+msgid "Click to Digg this post"
+msgstr ""
+
+#: sharing-sources.php:519
+msgctxt "share to"
+msgid "Digg"
+msgstr ""
+
+#: sharing-sources.php:601
+msgid "Facebook"
+msgstr ""
+
+#: sharing-sources.php:651
+msgctxt "share to"
+msgid "Facebook"
+msgstr ""
+
+#: sharing-sources.php:651
+msgid "Share on Facebook"
+msgstr ""
+
+#: sharing-sources.php:673
+msgid "Default button"
+msgstr ""
+
+#: sharing-sources.php:674
+msgid "Share button"
+msgstr ""
+
+#: sharing-sources.php:675
+msgid "Like button"
+msgstr ""
+
+#: sharing-sources.php:720
+msgid "Print"
+msgstr ""
+
+#: sharing-sources.php:724
+msgctxt "share to"
+msgid "Print"
+msgstr ""
+
+#: sharing-sources.php:724
+msgid "Click to print"
+msgstr ""
+
+#: sharing-sources.php:730
+msgid "Press This"
+msgstr ""
+
+#: sharing-sources.php:758
+msgctxt "share to"
+msgid "Press This"
+msgstr ""
+
+#: sharing-sources.php:758
+msgid "Click to Press This!"
+msgstr ""
+
+#: sharing-sources.php:789
+msgid "Click to share"
+msgstr ""
+
+#: sharing-sources.php:839
+msgid "Label"
+msgstr ""
+
+#: sharing-sources.php:844
+msgid "URL"
+msgstr ""
+
+#: sharing-sources.php:849
+msgid "Icon"
+msgstr ""
+
+#: sharing-sources.php:856
+msgid "Save"
+msgstr ""
+
+#: sharing-sources.php:857
+msgid "Remove Service"
+msgstr ""
+
+#: sharing.php:49 sharing.php:154
+msgid "Sharing Settings"
+msgstr ""
+
+#: sharing.php:144
+msgid "Warning! Multibyte support missing!"
+msgstr ""
+
+#: sharing.php:145
+#, php-format
+msgid ""
+"This plugin will work without it, but multibyte support is used <a href=\"%s"
+"\">if available</a>. You may see minor problems with Tweets and other "
+"sharing services."
+msgstr ""
+
+#: sharing.php:149
+msgid "Settings have been saved"
+msgstr ""
+
+#: sharing.php:160
+msgid "Available Services"
+msgstr ""
+
+#: sharing.php:161
+msgid "Drag and drop the services you'd like to enable into the box below."
+msgstr ""
+
+#: sharing.php:162
+msgid "Add a new service"
+msgstr ""
+
+#: sharing.php:182
+msgid "Enabled Services"
+msgstr ""
+
+#: sharing.php:185
+msgid "Services dragged here will appear individually."
+msgstr ""
+
+#: sharing.php:188
+msgid "Drag and drop available services here"
+msgstr ""
+
+#: sharing.php:199
+msgid "Services dragged here will be hidden behind a share button."
+msgstr ""
+
+#: sharing.php:214
+msgid "Live Preview"
+msgstr ""
+
+#: sharing.php:217
+msgid "Sharing is off. Please add services above to enable"
+msgstr ""
+
+#: sharing.php:299
+msgid "Default button style"
+msgstr ""
+
+#: sharing.php:302
+msgid "Icon + text"
+msgstr ""
+
+#: sharing.php:303
+msgid "Icon only"
+msgstr ""
+
+#: sharing.php:304
+msgid "Text only"
+msgstr ""
+
+#: sharing.php:309
+msgid "Sharing label"
+msgstr ""
+
+#: sharing.php:315
+msgid "Open links in"
+msgstr ""
+
+#: sharing.php:318
+msgid "New window"
+msgstr ""
+
+#: sharing.php:319
+msgid "Same window"
+msgstr ""
+
+#: sharing.php:324
+msgid "Show sharing buttons on"
+msgstr ""
+
+#: sharing.php:327
+msgid "Posts, pages, and index pages"
+msgstr ""
+
+#: sharing.php:328
+msgid "Posts and pages only"
+msgstr ""
+
+#: sharing.php:329
+msgid "Index pages only"
+msgstr ""
+
+#: sharing.php:339
+msgid "Save Changes"
+msgstr ""
+
+#: sharing.php:350
+msgid "Service name"
+msgstr ""
+
+#: sharing.php:356
+msgid "Sharing URL"
+msgstr ""
+
+#: sharing.php:360
+msgid "You can add the following variables to your service sharing URL:"
+msgstr ""
+
+#: sharing.php:365
+msgid "Icon URL"
+msgstr ""
+
+#: sharing.php:368
+msgid "Enter the URL of a 16x16px icon you want to use for this service."
+msgstr ""
+
+#: sharing.php:374
+msgid "Create Share"
+msgstr ""
+
+#: sharing.php:384
+msgid ""
+"An error occurred creating your new sharing service - please check you gave "
+"valid details."
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Sharedaddy"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "http://en.blog.wordpress.com/2010/08/24/more-ways-to-share/"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "The most super duper sharing tool on the interwebs."
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Automattic, Inc."
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "http://automattic.com/"
+msgstr ""
