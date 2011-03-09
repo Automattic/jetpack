@@ -138,8 +138,6 @@ class Jetpack {
 		add_action( 'http_transport_post_debug', array( $this, 'http_transport_detector' ) );
 		add_action( 'http_transport_get_debug',  array( $this, 'http_transport_detector' ) );
 
-		add_action( 'wp_ajax_jetpack-test-blog', array( $this, 'test_blog' ) );
-		add_action( 'wp_ajax_jetpack-test-user', array( $this, 'test_user' ) );
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
 	}
@@ -1198,32 +1196,6 @@ p {
 		}
 
 		echo '</div><!-- .module-container -->';
-	}
-
-	function test_blog() {
-		$this->load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.testConnection' );
-		if ( $xml->isError() ) {
-			printf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() );
-		} else {
-			print_r( $xml->getResponse() );
-		}
-		exit;
-	}
-
-	function test_user() {
-		$this->load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => $GLOBALS['current_user']->ID
-		) );
-		$xml->query( 'jetpack.testConnection' );
-		if ( $xml->isError() ) {
-			printf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() );
-		} else {
-			print_r( $xml->getResponse() );
-		}
-		exit;
 	}
 
 	function check_news_subscription() {
