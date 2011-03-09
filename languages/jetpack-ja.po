@@ -1,46 +1,48 @@
-# Copyright (C) 2010 
-# This file is distributed under the same license as the  package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Jetpack\n"
+"Project-Id-Version: JetPack\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/jetpack-trunk\n"
 "POT-Creation-Date: 2011-03-09 11:01:45+00:00\n"
-"PO-Revision-Date: 2011-03-09 15:19+0100\n"
-"Last-Translator: WordPress Portugal <http;//wp-portugal.com>\n"
-"Language-Team: Automattic\n"
+"PO-Revision-Date: 2011-03-09 23:28+0900\n"
+"Last-Translator: Naoko McCracken <naoko@automattic.com>\n"
+"Language-Team: Automattic <http://jetpack.me>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Poedit-Language: Italian\n"
-"X-Poedit-Country: ITALY\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__;_e;_x;_ex;_n;_nx\n"
+"X-Poedit-Basepath: .\n"
+"Plural-Forms: nplurals=1; plural=0;\\n\n"
+"X-Poedit-Language: Japanese\n"
+"X-Poedit-Country: JAPAN\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-SearchPath-0: /Users/ze/Desktop/jetpack\n"
 
 #: jetpack.php:410
 msgid "Jetpack requires WordPress version %s or later."
-msgstr "Jetpack richiede la versione %s o successiva di WordPress"
+msgstr "Jetpack を使うには WordPress バージョン %s 以降が必要です。"
 
 #: jetpack.php:519
 msgid "Jetpack contains the most recent version of the &#8220;%1$s&#8221; plugin."
-msgstr "Jetpack contiene la versione più recente del plugin &#8220;%1$s&#8221; "
+msgstr "Jetpack には最新バージョンの &#8220;%1$s&#8221; プラグインが含まれています。"
 
 #: jetpack.php:581
 #: modules/sharedaddy/sharedaddy.php:57
 #: modules/sharedaddy/sharedaddy.php:64
 msgid "Settings"
-msgstr "Parametri"
+msgstr "設定"
 
 #: jetpack.php:598
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features."
-msgstr "<strong>Il vostro Jetpack è quasi pronto</strong> &#8211; Collegatelo a WordPress.com per attivarne tutte le funzioni."
+msgstr "<strong>Jetpack をお使いいただく準備ができました。</strong>すべての機能を有効化するには WordPress.com に接続してください。"
 
 #: jetpack.php:599
 #: jetpack.php:990
 msgid "Connect to WordPress.com"
-msgstr "Collegamento a WordPress.com"
+msgstr "WordPress.com に接続"
 
 #: jetpack.php:601
 msgid "<strong>JetPack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
-msgstr "<strong>JetPack è installato</strong> e pronto ad aggiungere al tuo sito le fantastiche funzioni azionate dal cloud WordPress.com"
+msgstr "<strong>JetPack はインストール済み</strong>で、WordPress.com クラウドを活用した機能をあなたのサイトで使える準備ができています。"
 
 #: jetpack.php:602
 #: modules/module-info.php:42
@@ -52,259 +54,257 @@ msgstr "<strong>JetPack è installato</strong> e pronto ad aggiungere al tuo sit
 #: modules/module-info.php:276
 #: modules/module-info.php:298
 msgid "Learn More"
-msgstr "Saperne di più"
+msgstr "さらに詳しく"
 
 #: jetpack.php:613
 msgid "<strong>JetPack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
-msgstr "<strong>JetPack è attivato!</strong> Ogni sito nella sua rete deve essere collegato individualmente da uno dei suoi amministratori."
+msgstr "<strong>JetPack を有効化しました!</strong> ネットワーク上の各サイトで、管理者が接続設定を行う必要があります。"
 
 #: jetpack.php:675
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
-msgstr "Devi autorizzare il collegamento Jetpack tra il tuo sito e WordPress.com per attivare le fantastiche funzioni."
+msgstr "機能を有効化するにはサイトと WordPress.com との接続認証が必要です。"
 
 #: jetpack.php:678
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
-msgstr "Non incrociare i flussi! Devei rimanere identificato nel tuo blog WordPress mentre autorizzi Jetpack."
+msgstr "Jetpack の認証中は、WordPress.com にログインしている必要があります。ご注意ください。"
 
 #: jetpack.php:682
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
-msgstr "Rinvio al mittente. Oh oh! Sembra che tu abbia ricevuto il Jetpack sbagliato per posta; disattiva e poi riattiva il plugin Jetpack per riceverne uno nuovo."
+msgstr "間違った Jetpack をお使いのようです。一度停止して最有効化し、新しい Jetpack を取得しましょう。"
 
 #: jetpack.php:685
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
-msgstr "Non va la misura. Sembra che il tuo Jetpack sia un po' largo. Hai perso peso ultimamente? Clicca di nuovo su &#8220;Collegamento a WordPress.com&#8221; per farlo regolare."
+msgstr "Jetpack がぴったり合わないようです。最近なにか変わりましたか ? "
 
 #: jetpack.php:689
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
-msgstr "Il tuo sito deve essere accessibile pubblicamente per usare Jetpack: &s"
+msgstr "Jetpack を利用するには、サイトが公開されていて、アクセス制限がかかっていない必要があります: %s"
 
 #: jetpack.php:695
 msgid "%1$s could not be activated because it triggered a <strong>fatal error</strong>. Do you still have the %2$s plugin installed?"
-msgstr "%1$s non ha potuto essere attivato perché a provocato un <strong>errore fatale</strong>. Il plugin %2$s è encora installato?"
+msgstr "<strong>重大なエラー</strong>が発生したため「%s」を有効化できませんでした。「%2$s」プラグインが本当にインストールされていますか ?"
 
 #: jetpack.php:697
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr "%s non ha potuto essere attivato perché a provocato un <strong>errore fatale</strong>. Forse c'è un conflitto con un altro plugin già installato?"
+msgstr "<strong>重大なエラー</strong>が発生したため「%s」を有効化できませんでした。他にインストールしているプラグインと干渉している可能性があります。"
 
 #: jetpack.php:701
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr "il modulo non ha potuto essere attivato perché a provocato un <strong>errore fatale</strong>. Forse c'è un conflitto con un altro plugin già installato?"
+msgstr "<strong>重大なエラー</strong>が発生したためモジュールを有効化できませんでした。他にインストールしているプラグインと干渉している可能性があります。"
 
 #: jetpack.php:704
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
-msgstr "<strong>Il tuo Jetpack ha un problemino.</strong> Il collegamento del sito con WordPress.com non è possibile. In generale vuol dire che il tuo sito non è accessibile pubblicamente (localhost)."
+msgstr "<strong>Jetpack に問題が発生しました。</strong>WordPress.com に接続できません。サイトが非公開状態 (localhost) になっていませんか ?"
 
 #: jetpack.php:707
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
-msgstr "WordPress.com subisce attualmente certi problemi ed è incapace di alimentare il tuo Jetpack. Riprova un po' più tardi per favore."
+msgstr "WordPress.com 側の問題により現在 Jetpack をご利用いただけません。後ほどもう一度お試しください。"
 
 #: jetpack.php:748
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
-msgstr "<strong>Il tuo Jetpack ha un problemino.</strong> Qualcosa che non dovrebbe è andato di traverso. Forse sei solo fortunato: %s"
+msgstr "<strong>Jetpack に問題が発生しました。</strong>予期しない問題が発生しました。ちょっと運が悪かったようです。%s"
 
 #: jetpack.php:751
 msgid "Try connecting again."
-msgstr "Prova a ricollegarti."
+msgstr "もう一度接続をお試しください。"
 
 #: jetpack.php:761
 msgid "<strong>%s Activated!</strong> You can deactivate at any time using the deactivate button on the module card."
-msgstr "<strong>%s Attivato!</strong>Lo puoi disattivare quando vuoi usando il pulsante apposito nella sezione del modulo."
+msgstr "<strong>%s Activated!</strong> You can deactivate at any time using the deactivate button on the module card."
 
 #: jetpack.php:768
 msgid "<strong>%s Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
-msgstr "<strong>%s Disattivato!</strong>Lo puoi attivare di nuovo quando vuoi usando il pulsante apposito nella sezione del modulo."
+msgstr "<strong>%s を停止しました !</strong> モジュールカードの有効化ボタンからいつでも再有効化できます。"
 
 #: jetpack.php:774
 msgid "<strong>Success!</strong> Module settings were saved."
-msgstr "<strong>Successo!</strong> I parametri del modulo sono stati registrati."
+msgstr "<strong>保存完了 !</strong> モジュールの設定を保存しました。"
 
 #: jetpack.php:778
 msgid "<strong>Whoops!</strong> Your Jetpack is already connected."
-msgstr "<strong>Oh oh!</strong> Il tuo Jetpack è già collegato."
+msgstr "<strong>エラー</strong> Jetpack はすでに接続済みです。"
 
 #: jetpack.php:782
 msgid "<strong>All Done!</strong> You&#8217;re fueled up and ready to go!"
-msgstr "<strong>Fatto!</strong> Hai il pieno e sei pronto ad andare!"
+msgstr "<strong>すべて完了です !</strong>準備ができました。"
 
 #: jetpack.php:784
 msgid "The features below are now active. Click the learn more buttons to explore each feature."
-msgstr "Le funzioni qui sotto sono attive adesso. Clicca sui pulsanti per saperne di più ed esplorare ogni funzione."
+msgstr "以下の機能が有効になっています。「さらに詳しく」ボタンをクリックし、各機能についてもっと詳しく知ることができます。"
 
 #: jetpack.php:818
 msgid "Jetpack contains the most recent version of the %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the %l plugins."
-msgstr[0] "Jetpack contiene la versione più recente del plugin %l."
-msgstr[1] "Jetpack contiene le versioni più recenti dei plugins %l."
+msgstr[0] "Jetpack に最新バージョンの %l プラグインが含まれています。"
 
 #: jetpack.php:827
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
-msgstr[0] "La vecchia versione è stata disattivata e può essere rimossa dal tuo sito."
-msgstr[1] "Le vecchie versioni sono state disattivate e possono essere rimosse dal tuo sito."
+msgstr[0] "古いバージョンは無効化済みです。サイトから削除できます。"
 
 #: jetpack.php:969
 msgid "Connected to WordPress.com"
-msgstr "Collegato a WordPress.com"
+msgstr "WordPress.com に接続中"
 
 #: jetpack.php:970
 msgid "Disconnect from WordPress.com"
-msgstr "Scollegato da WordPress.com"
+msgstr "WordPress.com との接続を解除"
 
 #: jetpack.php:973
 #: jetpack.php:1070
 msgid "Jetpack by WordPress.com"
-msgstr "Jetpack da WordPress.com"
+msgstr "Jetpack by WordPress.com"
 
 #: jetpack.php:976
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
-msgstr "Jetpack sovralimenta il tuo sito WordPress self-hosted con la fantastica potenza del cloud WordPress.com."
+msgstr "Jetpack は、WordPress.com のクラウドの力を活用してインストール型サイトをパワーアップできる WordPress プラグインです。 "
 
 #: jetpack.php:991
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr "Per attivare tutte le funzioni del Jetpack devi collegare il tuo sito a WordPress.com con il pulsante qui a destra. Une volta effettuato il collegamento potrai attivare le deliziose funzioni qui sotto."
+msgstr "すべての機能を有効化するには右のボタンを使ってサイトを WordPress.com に接続する必要があります。接続を確立したら、以下の機能を有効化できます。"
 
 #: jetpack.php:1007
 msgid "Checking email updates status&hellip;"
-msgstr "Verifica stato degli aggiornamenti via email&hellip;"
+msgstr "メール更新の状態を確認中&hellip;"
 
 #: jetpack.php:1013
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
-msgstr "Sei attualmente iscritto agli aggiornamenti via email. %s"
+msgstr "現在ニュースメールを購読中です。 %s"
 
 #: jetpack.php:1014
 msgid "Unsubscribe"
-msgstr "Cancellati"
+msgstr "購読を解除"
 
 #: jetpack.php:1018
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
-msgstr "Vuoi ricevere aggiornamenti su Jetpack via email? %s"
+msgstr "Jetpack 関連のニュースをメールで受け取りますか ? %s"
 
 #: jetpack.php:1019
 msgid "Subscribe"
-msgstr "Iscriviti"
+msgstr "購読"
 
 #: jetpack.php:1026
 msgid "You have been subscribed to receive email updates."
-msgstr "Ti sei iscritto agli aggiornamenti via email."
+msgstr "ニュースメールを受信するように設定しました。"
 
 #: jetpack.php:1028
 msgid "You will no longer receive email updates about Jetpack."
-msgstr "Non riceverai più aggiornamenti via email su Jetpack."
+msgstr "Jetpack のニュースメール配信を停止しました。"
 
 #: jetpack.php:1041
 msgid "An <span>Automattic</span> Airline"
-msgstr "Una linea aerea <span>Automattic</span>"
+msgstr "An <span>Automattic</span> Airline"
 
 #: jetpack.php:1043
 msgid "Privacy Policy"
-msgstr "Informativa sulla privacy"
+msgstr "個人情報保護方針"
 
 #: jetpack.php:1044
 msgid "Terms of Service"
-msgstr "Termini di servizio"
+msgstr "利用規約"
 
 #: jetpack.php:1045
 msgid "Debug"
-msgstr "Debug"
+msgstr "デバッグ"
 
 #: jetpack.php:1046
 #: modules/sharedaddy/sharedaddy.php:65
 msgid "Support"
-msgstr "Aiuto"
+msgstr "サポート"
 
 #: jetpack.php:1071
 msgid "Configure %s"
-msgstr "Configurare %s"
+msgstr "%s設定"
 
 #: jetpack.php:1114
 msgid "Deactivate"
-msgstr "Disattivare"
+msgstr "停止"
 
 #: jetpack.php:1124
 msgid "Activate"
-msgstr "Attivare"
+msgstr "有効化"
 
 #: jetpack.php:1156
 msgid "Free"
-msgstr "Gratis"
+msgstr "無料"
 
 #: jetpack.php:1174
 msgid "Configure"
-msgstr "Configurare"
+msgstr "設定"
 
 #: jetpack.php:1208
 msgid "Coming soon&#8230;"
-msgstr "Disponibile prossimamente&#8230;"
+msgstr "Coming soon&#8230;"
 
 #: jetpack.php:1879
 msgid "An administrator for this blog must set up the Jetpack connection."
-msgstr "Un amministratore di questo blog deve impostare il collegamento Jetpack."
+msgstr "ブログの管理者が Jetpack 接続を設定する必要があります。"
 
 #: jetpack.php:1884
 msgid "You need to register your Jetpack before connecting it."
-msgstr "Devi iscrivere il tuo Jetpack prima di collegarlo."
+msgstr "接続前に Jetpack を登録する必要があります。"
 
 #: modules/after-the-deadline/atd-l10n.php:12
 msgid "Spelling"
-msgstr "Ortografia"
+msgstr "スペルチェック"
 
 #: modules/after-the-deadline/atd-l10n.php:13
 msgid "Repeated Word"
-msgstr "Parola ripetuta"
+msgstr "反復語"
 
 #: modules/after-the-deadline/atd-l10n.php:15
 msgid "No suggestions"
-msgstr "Nessun suggerimento"
+msgstr "候補はありません"
 
 #: modules/after-the-deadline/atd-l10n.php:17
 msgid "Explain..."
-msgstr "Spiega"
+msgstr "説明する"
 
 #: modules/after-the-deadline/atd-l10n.php:18
 msgid "Ignore suggestion"
-msgstr "Ignora il suggerimento"
+msgstr "候補を無視"
 
 #: modules/after-the-deadline/atd-l10n.php:19
 msgid "Ignore always"
-msgstr "Ignora sempre"
+msgstr "常に無視"
 
 #: modules/after-the-deadline/atd-l10n.php:20
 msgid "Ignore all"
-msgstr "Ignora tutto"
+msgstr "すべて無視"
 
 #: modules/after-the-deadline/atd-l10n.php:22
 msgid "Edit Selection..."
-msgstr "Modifica Selezionati..."
+msgstr "選択部分を編集する…"
 
 #: modules/after-the-deadline/atd-l10n.php:24
 msgid "proofread"
-msgstr "Revisione"
+msgstr "校正"
 
 #: modules/after-the-deadline/atd-l10n.php:25
 msgid "edit text"
-msgstr "Modifica il testo"
+msgstr "テキスト編集"
 
 #: modules/after-the-deadline/atd-l10n.php:26
 msgid "Proofread Writing"
-msgstr "Correzione delle bozze"
+msgstr "文章の校正"
 
 #: modules/after-the-deadline/atd-l10n.php:28
 msgid "No writing errors were found."
-msgstr "Non sono stati trovati errori nel testo."
+msgstr "文章の間違いは見つかりませんでした。"
 
 #: modules/after-the-deadline/atd-l10n.php:29
 msgid "There was a problem communicating with the After the Deadline service. Try again in one minute."
-msgstr "Si è verificato un problema nella comunicazione con il servizio After the Deadline. Prova di nuovo tra un po'."
+msgstr "After the Deadline サービスとの通信に問題が発生しました。1分ほど待って再度お試しください。"
 
 #: modules/after-the-deadline/atd-l10n.php:30
 msgid "There was an error communicating with the proofreading service."
-msgstr "C'è stato un errore di comunicazione con il servizio di correzione di bozze."
+msgstr "校正チェックサービスとの通信に問題が発生しました。"
 
 #: modules/after-the-deadline/atd-l10n.php:32
 msgid "Replace selection with:"
-msgstr "Sostituisci la selezione con:"
+msgstr "選択部分を入れ替える"
 
 #: modules/after-the-deadline/atd-l10n.php:33
 msgid ""
@@ -312,9 +312,9 @@ msgid ""
 "\n"
 "Press OK to publish your post, or Cancel to view the suggestions and edit your post."
 msgstr ""
-"Il correttore ha suggerimenti per quest&#8217;articolo. Sei sicuro di volerlo pubblicare?\n"
+"校正ツールによるこの投稿へのアドバイスがあります。本当に公開しますか ?\n"
 "\n"
-"Premi OK per pubblicare il tuo articolo, o Cancel per vedere i suggerimenti e correggerlo."
+"投稿を公開するには OK を、アドバイスを確認して投稿を編集するにはキャンセルをクリックしてください。"
 
 #: modules/after-the-deadline/atd-l10n.php:34
 msgid ""
@@ -322,205 +322,205 @@ msgid ""
 "\n"
 "Press OK to update your post, or Cancel to view the suggestions and edit your post."
 msgstr ""
-"Il correttore ha suggerimenti per quest&#8217;articolo. Sei sicuro di volerlo pubblicare?\n"
+"校正ツールによるこの投稿へのアドバイスがあります。本当に更新しますか ?\n"
 "\n"
-"Premi OK per pubblicare il tuo articolo, o Cancel per vedere i suggerimenti e correggerlo."
+"投稿を更新するには OK を、アドバイスを確認して投稿を編集するにはキャンセルをクリックしてください。"
 
 #: modules/after-the-deadline/config-options.php:22
 msgid "WordPress checks your grammar, spelling, and misused words with <a href=\"%s\">After the Deadline</a>. This feature is available to blogs set to the English language. Blogs in other languages will continue to have access to the old spellchecker."
-msgstr "WordPress verifica la grammatica, l'ortografia e lo stile con <a href=\"%s\">After the Deadline</a>. Questa funzione è disponibile per i blogs in Inglese. I blogs in altre lingue continuano ad usare il correttore classico."
+msgstr "WordPress は <a href=\"%s\">After the Deadline</a> を使って英語などの文法、スペルミス、間違った用語の使い方をチェックします。この機能は英語のブログのみに有効で、その他の言語に設定されているブログでは古いスペルチェッカーが表示されます。"
 
 #: modules/after-the-deadline/config-options.php:57
 msgid "Proofreading"
-msgstr "Correzione"
+msgstr "校正"
 
 #: modules/after-the-deadline/config-options.php:59
 msgid "Automatically proofread content when:"
-msgstr "Correggi automaticamente quando:"
+msgstr "以下の場合にコンテンツを自動校正する。"
 
 #: modules/after-the-deadline/config-options.php:62
 msgid "a post or page is first published"
-msgstr "l'articolo o la pagina sono pubblicati per la prima volta"
+msgstr "投稿または固定ページを最初に公開する時"
 
 #: modules/after-the-deadline/config-options.php:64
 msgid "a post or page is updated"
-msgstr "un articolo o una pagina sono stati aggiornati"
+msgstr "投稿または固定ページを更新した時"
 
 #: modules/after-the-deadline/config-options.php:67
 msgid "English Options"
-msgstr "Opzioni (inglese)"
+msgstr "英語設定"
 
 #: modules/after-the-deadline/config-options.php:69
 msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
-msgstr "Quando scrivi entrate e pagine permetti la revisione delle seguenti regole di grammatica e stile, ."
+msgstr "投稿や固定ページを書く際、以下の文法や文章スタイルのルールに対する校正を行う。"
 
 #: modules/after-the-deadline/config-options.php:72
 msgid "Bias Language"
-msgstr "Linguaggio non neutrale"
+msgstr "バイアス言語"
 
 #: modules/after-the-deadline/config-options.php:74
 msgid "Clich&eacute;s"
-msgstr "Clich&amp;e"
+msgstr "決まり文句/死語"
 
 #: modules/after-the-deadline/config-options.php:76
 msgid "Complex Phrases"
-msgstr "Frasi complesse"
+msgstr "難解な言い回し"
 
 #: modules/after-the-deadline/config-options.php:78
 msgid "Diacritical Marks"
-msgstr "Segni diacritici"
+msgstr "発音区別符"
 
 #: modules/after-the-deadline/config-options.php:80
 msgid "Double Negatives"
-msgstr "Doppie negazioni"
+msgstr "二重否定"
 
 #: modules/after-the-deadline/config-options.php:82
 msgid "Hidden Verbs"
-msgstr "Verbi nascosti"
+msgstr "隠れ動詞"
 
 #: modules/after-the-deadline/config-options.php:84
 msgid "Jargon"
-msgstr "Gergo"
+msgstr "特殊用語"
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Passive Voice"
-msgstr "Forma Passiva"
+msgstr "受動態"
 
 #: modules/after-the-deadline/config-options.php:88
 msgid "Phrases to Avoid"
-msgstr "Frasi da evitare"
+msgstr "無視するフレーズ"
 
 #: modules/after-the-deadline/config-options.php:90
 msgid "Redundant Phrases"
-msgstr "Frasi ridondanti"
+msgstr "冗長な言い回し"
 
 #: modules/after-the-deadline/config-options.php:92
 msgid "<a href=\"%s\">Learn more</a> about these options."
-msgstr "<a href=\"%s\">Scopri di pi&ugrave;</a> su queste opzioni."
+msgstr "設定の<a href=\"%s\">詳細について</a>"
 
 #: modules/after-the-deadline/config-options.php:95
 msgid "Language"
-msgstr "Lingua"
+msgstr "使用言語"
 
 #: modules/after-the-deadline/config-options.php:97
 msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href=\"%s\">WPLANG</a> value is the default proofreading language."
-msgstr "Il correttore corregge Inglese, Francese, Tedesco, Portoghese e Spagnolo. Il valore della tua <a href=\"%s\">WPLANG</a> è la lingua di default per la correzione."
+msgstr "この校正ツールは、英語・フランス語・ドイツ語・ポルトガル語・スペイン語に対応しています。サイトの <a href=\"%s\">WPLANG</a> の値がデフォルトの校正言語になります。"
 
 #: modules/after-the-deadline/config-options.php:100
 msgid "Use automatically detected language to proofread posts and pages"
-msgstr "Usa il rilevamento automatico del linguaggio per la revisione di articoli e pagine"
+msgstr "投稿や固定ページの校正に自動的に検出した言語を使う"
 
 #: modules/after-the-deadline/config-unignore.php:117
 msgid "Ignored Phrases"
-msgstr "Espressioni ignorate"
+msgstr "無視する語句"
 
 #: modules/after-the-deadline/config-unignore.php:119
 msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
-msgstr "Identifica parole ed espressioni da ignorare nella revisione dei tuoi post e pagine:"
+msgstr "投稿や固定ページの校正時に無視する単語やフレーズを指定してください。"
 
 #: modules/after-the-deadline/config-unignore.php:121
 msgid "Add"
-msgstr "Aggiungi"
+msgstr "追加"
 
 #: modules/after-the-deadline/config-unignore.php:126
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
-msgstr "Assicurati di cliccare \"Aggiorna Profilo\" in fondo alla pagina per salvare i cambiamenti effettuati."
+msgstr "変更を保存するには、この画面下の \"プロフィールを更新\" ボタンを必ずクリックしてください。"
 
 #: modules/gravatar-hovercards.php:35
 #: modules/module-info.php:18
 #: modules/module-info.php:33
 msgid "Gravatar Hovercards"
-msgstr "Hovercards Gravatar"
+msgstr "Gravatar ホバーカード"
 
 #: modules/gravatar-hovercards.php:47
 msgid "View people's profiles when you mouse over their Gravatars"
-msgstr "Guarda il profilo della gente passando il mouse sui loro Gravatars"
+msgstr "Gravatar をマウスオーバーしたときにプロフィールを表示"
 
 #: modules/gravatar-hovercards.php:74
 msgid "Put your mouse over your Gravatar to check out your profile."
-msgstr "Metti il mouse sul tuo Gravatar per controllare il tuo profilo."
+msgstr "自分のプロフィールをチェックするには、Gravatar 上でマウスオーバーしてください。"
 
 #: modules/module-info.php:14
 #: modules/module-info.php:29
 msgid "Gravatar Hovercard"
-msgstr "Hovercard Gravatar"
+msgstr "Gravatar ホバーカード"
 
 #: modules/module-info.php:19
 #: modules/module-info.php:34
 msgid "What&#8217;s a Hovercard?"
-msgstr "Cos&#8217;è un&#8217;Hovercard?"
+msgstr "ホバーカードって ?"
 
 #: modules/module-info.php:20
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services they use on the web like Twitter, Facebook, or LinkedIn."
-msgstr "Le Hovercards migliorano le semplici immagini Gravatar con informazioni sulla persona: nom, biografia, immagini, informazioni di contatto et altri servizi che usa sullo web, come Twitter, Facebook o LinkedIn"
+msgstr "Gravatar ホバーカードは、名前、プロフィール情報、写真、連絡先、Web 上で利用しているサービス (例: Twitter、Facebook、LinkedIn) などの情報を表示します。"
 
 #: modules/module-info.php:21
 msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
-msgstr "Le Hovercards sono un sistema eccellente per mostrare la tua presenza su internet ed aiutare la gente a trovare il tuo blog."
+msgstr "ホバーカードはネット上で他の人があなたのブログを見つけてくれるためのとても良い方法です。"
 
 #: modules/module-info.php:35
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
-msgstr "Le Hovercards migliorano le semplici immagini Gravatar con informazioni sulla persona: nom, biografia, immagini, informazioni di contatto et altri servizi."
+msgstr "Gravatar ホバーカードは、名前、プロフィール情報、写真、連絡先、その他の利用サービスといった情報を表示します。"
 
 #: modules/module-info.php:36
 msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
-msgstr "Per vedere le hovercards, cerca un articolo che abbia commenti. Se il commentatore ha un'hovercard associata al suo gravatar, passa il mouse sopra l&#8217;immagine e l&#8217;hovercard apparirà. Per disattivare le hovercards, clicca sul pulsante Disattivare qui sopra."
+msgstr "ホバーカードを表示するには、ブログ内でコメントの付いている投稿に移動してください。コメント投稿者が Gravatar に連動したホバーカードを持っている場合、画像にマウスオーバーするとホバーカードが表示されます。ホバーカードを無効化するには、上記の「無効化」ボタンをクリックしてください。"
 
 #: modules/module-info.php:51
 #: modules/module-info.php:55
 #: modules/module-info.php:64
 #: modules/module-info.php:68
 msgid "Shortcode Embeds"
-msgstr "Shortcodes Embeds"
+msgstr "ショートコード埋め込み"
 
 #: modules/module-info.php:56
 #: modules/module-info.php:69
 msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
-msgstr "Gli Shortcodes permettono di incorporare facilmente ed in tutta sicurezza media da altre provenienze nel tuo sito. Con un codice semplice, pui dire a WordPress.com di incorporare YouTube, Flickr et altri media."
+msgstr "ショートコードを使えば簡単かつ安全に外部メディアをサイトに埋め込めます。シンプルなコード一つで、WordPress に YouTube、Flickr などのメディアを埋め込むよう指定できます。"
 
 #: modules/module-info.php:70
 msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
-msgstr "Scrivi uno shortcode direttamente nell&#8217;articolo o la pagina per incorporare media. Per istruzioni specifiche segui i links qui sotto."
+msgstr "投稿または固定ページエディターにショートコードを直接入力し、メディアを埋め込みます。詳しい方法については以下のリンクをご覧ください。"
 
 #: modules/module-info.php:94
 msgid "Available shortcodes are: %l."
-msgstr "Gli shortcodes disponibili sono: %l."
+msgstr "利用出来るショートコード: %l"
 
 #: modules/module-info.php:109
 #: modules/module-info.php:113
 #: modules/module-info.php:123
 #: modules/module-info.php:127
 msgid "WP.me Shortlinks"
-msgstr "Shortlinks WP.me"
+msgstr "WP.me ショートリンク"
 
 #: modules/module-info.php:114
 #: modules/module-info.php:128
 msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
-msgstr "Invece di copiare-incollare URL lunghi, adesso puoi avere un link corto e semplice verso i tuoi articoli e pagine. Questo usa il nome di domino super compatto wp.me, e ti da un URL unico che puoi usare che è sicuro ed affidabile."
+msgstr "長い URL をコピー & ペーストする代わりに、短くてシンプルな投稿の短縮リンクを取得できます。とてもコンパクトな wp.me を利用し、安全で信頼できるユニーク URL を生成します。"
 
 #: modules/module-info.php:115
 msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
-msgstr "È perfetto da usare con Twitter, Facebook, et SMS dove ogni carattere conta."
+msgstr "Twitter、Facebook、携帯の SMS やメールのような文字数制限がある場合に使うのに最適です。"
 
 #: modules/module-info.php:129
 msgid "To use shortlinks, go to any already published post (or publish something new!). A 'Get Shortlink' button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
-msgstr "Per usare gli shortlinks, vai su un articolo già pubblicato (o pubblicane uno nuovo!). Un pulsante 'Get Shortlink' sarà visibile sotto il titolo dell&#8217;articolo. Quando fai clic sopra, una zona di dialogo apparirà con lo shortlink che puoi copiare ed incollare in Twitter, Facebook o dove preferisci."
+msgstr "短縮リンクを使うには、すでに公開済みの投稿の編集画面を表示します。投稿タイトル記入欄の下に「短縮リンクを取得」というボタンがあるはずです。これをクリックすると、短縮リンク入りのダイアログボックスが表示されますので、コピー & ペーストして Twitter、Facebook などお好きなところでご利用ください。"
 
 #: modules/module-info.php:144
 #: modules/module-info.php:148
 #: modules/module-info.php:157
 #: modules/module-info.php:161
 msgid "WordPress.com Stats"
-msgstr "Statistiche WordPress.com"
+msgstr "WordPress.com 統計情報"
 
 #: modules/module-info.php:149
 #: modules/module-info.php:162
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
-msgstr "Ci sono tanti plugins e servizi che forniscono statistiche, ma è facile affogare nei dati. Le statistiche WordPress.com rendono le misure più popolari facili da capire attraverso un&#8217;interfaccia chiara ed attrattiva."
+msgstr "統計情報を提供してくれるサービスは他にもありますが、データ量が多すぎて圧倒されることもあるかもしれません。WordPress.com の統計情報は、すっきりした魅力的なインターフェースで一番人気のある指標を分かりやすく伝えてくれます。"
 
 #: modules/module-info.php:163
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
-msgstr "Puoi <a href=\"%s\">vedere la bacheca delle statistiche qui</a>."
+msgstr "<a href=\"%s\">統計情報ダッシュボードはこちら</a>でご覧いただけます。"
 
 #: modules/module-info.php:178
 #: modules/module-info.php:182
@@ -532,19 +532,19 @@ msgstr "LaTeX"
 #: modules/module-info.php:183
 #: modules/module-info.php:198
 msgid "<a href=\"%s\" target=\"_blank\">LaTeX</a> is a powerful markup language for writing complex mathematical equations, formulas, etc."
-msgstr "<a href=\"%s\" target=\"_blank\">LaTeX</a> è un linguaggio di markup potente per scrivere equazioni matematiche complesse, formule, etc."
+msgstr "<a href=\"%s\" target=\"_blank\">LaTeX</a> は、複雑な数学の方程式や数式を書くためのパワフルなマークアップ言語です。"
 
 #: modules/module-info.php:184
 msgid "Jetpack combines the power of LaTeX and the simplicity of WordPress to give you the ultimate in math blogging platforms."
-msgstr "Jetpack riunisce la potenza di LaTeX e la semplicità di WordPress per darvi il massimo in termini di piattaforma di blog matematici."
+msgstr "Jetpack は LaTeX のパワーと WordPress のシンプルさを合わせてお届けすることで、最強の数学ブログをサポートします。"
 
 #: modules/module-info.php:185
 msgid "Wow, that sounds nerdy."
-msgstr "WOW, sembra complicato."
+msgstr "と、今のはちょっとオタクっぽかったですか。"
 
 #: modules/module-info.php:199
 msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include LaTeX in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
-msgstr "Usa <code>$latex i tuoi codici latex qui$</code> o <code>[latex]i tuoi codici latex qui[/latex]</code> per includere LaTeX nei tuoi articoli e commenti. Ci sono <a href=\"%s\" target=\"_blank\">un mucchio di possibilità</a> disponibili."
+msgstr "<code>$latex your-latex-code-here$</code> または <code>[latex]your-latex-code-here[/latex]</code> という形式で LaTeX を投稿やコメントに埋め込むことができます。他にも<a href=\"http://support.wordpress.com/latex/\">様々な設定</a>ができます。"
 
 #: modules/module-info.php:214
 #: modules/module-info.php:228
@@ -556,23 +556,23 @@ msgstr "Twitter"
 #: modules/module-info.php:218
 #: modules/module-info.php:232
 msgid "Twitter Widget"
-msgstr "Widget Twitter"
+msgstr "Twitter ウィジェット"
 
 #: modules/module-info.php:219
 msgid "The Twitter Widget shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site."
-msgstr "Il Widget Twitter mostra i tuoi ultimi tweets mella colonna laterale del tuo tema. È un modo facile per aumentare l&#8217;attività del tuo sito."
+msgstr "Twitter ウィジェットを使って最新のツィートをテーマのサイドバーに表示できます。簡単に、サイトに新しいコンテンツを追加できます。"
 
 #: modules/module-info.php:220
 msgid "There are also a number of customization options. Change the number of displayed tweets, filter out replies, and include retweets."
-msgstr "Ci sono varie possibilité di personalizzazione. Cambiare il numero di tweets mostrati, filtrare le risposte, includere i retweets."
+msgstr "Twitter ウィジェットは表示するツィートの数、返答の非表示、リツィートを含めるかどうかなど、カスタマイズオプションも豊富です。"
 
 #: modules/module-info.php:233
 msgid "The Twitter Widget shows your latest tweets within a sidebar on your theme."
-msgstr "Il Widget Twitter mostra i tuoi ultimi tweets in una colonna laterale del tuo tema."
+msgstr "Twitter ウィジェットを使えばテーマのサイドバーに最新のツィートを表示できます。"
 
 #: modules/module-info.php:234
 msgid "To use the Twitter Widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. The Twitter widget is listed as &#8220;Twitter&nbsp;(Jetpack)&#8221;; drag it into one of your sidebars and configure away."
-msgstr "Per usare il Widget Twitter, vai in Aspetto &#8594;<a href=\"%s\">Widgets</a>. Il widget Twitter è listato come &#8220;Twitter&nbsp;(Jetpack)&#8221;; trascinalo in una delle tue sidebar e impostalo lì."
+msgstr "Twitter ウィジェットを使うには、「外観 &#8594; <a href=\"%s\">ウィジェット</a>」に移動します。このウィジェットは、「Twitter&nbsp;(Jetpack)」という名前で見つかるはずですので、いずれかのサイドバーにドラッグして設定を変更してください。"
 
 #: modules/module-info.php:252
 #: modules/module-info.php:267
@@ -581,27 +581,27 @@ msgstr "Sharedaddy"
 
 #: modules/module-info.php:253
 msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
-msgstr "Condividi i tuoi articoli con Twitter, Facebook e tanti altri servizi. Puoi regolare i servizi per presentarli come icone, testi o tutti e due. Certi servizi hanno parametri speciali per mostrare pulsanti intelligenti, come Twitter, che tengono il conto del numero di volte che un articolo è stato condiviso."
+msgstr "投稿を Twitter、Facebook その他のサービスで共有しましょう。サービスをアイコン、テキスト、または両方で表示するよう設定できます。一部のサービスにはスマートボタンを表示する追加設定があります。例えば Twitter のスマートボタンでは、共有された回数を表示できます。"
 
 #: modules/module-info.php:255
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, Print, and Email."
-msgstr "Sono inclusi i servizi seguenti: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, Stampa et Email."
+msgstr "Twitter、Facebook、Reddit、StumbleUpon、PressThis、Digg の各サービスと印刷、メール共有オプションが含まれています。"
 
 #: modules/module-info.php:257
 msgid "Additionally you can define your own custom services."
-msgstr "In più puoi definire i tuoi propri servizi personalizzati."
+msgstr "また、カスタムサービスを定義することも可能です。"
 
 #: modules/module-info.php:268
 msgid "Change Sharedaddy settings from your dashboard <a href=\"%s\">Settings > Sharing</a> menu."
-msgstr "Modifica i parametri si Sharedaddy dal menu <a href=\"%s\">Impostazioni > Sharing</a> della tua bacheca."
+msgstr "Sharedaddy 設定を変更するには、ダッシュボードの「<a href=\"%s\">設定 > 共有</a>」メニューをクリックしてください。"
 
 #: modules/module-info.php:269
 msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
-msgstr "Trascina i servizi di condivisione nella sezione attiva per mostrarli sul tuo sito, e trascinali nella sezione nascosta per nasconderli dietro un pulsante."
+msgstr "有効化セクションに共有サービスをドラッグ & ドロップし、サイトに表示させます。非表示セクションにドラッグすると、「共有」ボタンをクリックした際にのみ表示されます。"
 
 #: modules/module-info.php:270
 msgid "Full details can be found on the <a href=\"%s\">Sharedaddy support page</a>. This video also gives a swish run-down of how to use Sharedaddy. Watch it in HD for extra snazz!"
-msgstr "Tutti i dettagli si trovano nella <a href=\"%s\">pagina di supporto Sharedaddy</a>. Questo video è una rapida introduzione a Sharedaddy. Guardalo in HD che è ancora meglio."
+msgstr "これについて詳しくは<a href=\"%s\">Sharedaddy サポートページ</a>でご覧いただけます。この動画でも、Sharedaddy の使い方の全貌をざっと知ることができます。HD バージョンで見るとさらにかっこいいですよ !"
 
 #: modules/module-info.php:285
 #: modules/module-info.php:289
@@ -610,101 +610,101 @@ msgstr "After the Deadline"
 
 #: modules/module-info.php:291
 msgid "After the Deadline can check your spelling, grammar, and style when you publish with WordPress."
-msgstr "After the Deadline può verificare l'ortografia, la grammatica e lo stile quando pubblichi con WordPress."
+msgstr "After the Deadline は、WordPress で記事を公開する際にスペリング、文法、スタイルをチェックしてくれます。"
 
 #: modules/module-info.php:292
 msgid "After the Deadline also provides a number of customization options. You can edit the phrase ignore list and enable extra options."
-msgstr "After the Deadline propone un certo numero di opzioni di personalizzazione. Potete modificare la lista di frasi da ignorare e attivare le opzioni extra."
+msgstr "After the Deadline には様々なカスタマイズオプションもあります。無視するフレーズのリストを編集したり、追加機能を有効化したりできます。"
 
 #: modules/sharedaddy/sharedaddy.php:18
 msgid "Shared Post"
-msgstr "Articolo condiviso"
+msgstr "共有投稿"
 
 #: modules/sharedaddy/sharedaddy.php:22
 #: modules/sharedaddy/sharedaddy.php:23
 #: modules/sharedaddy/sharing.php:49
 msgid "Sharing"
-msgstr "Condividere"
+msgstr "共有"
 
 #: modules/sharedaddy/sharedaddy.php:34
 msgid "Show sharing buttons on this post."
-msgstr "Mostra i pulsanti di condivisione su quest&#8217;articolo."
+msgstr "この投稿に共有ボタンを表示する。"
 
 #: modules/sharedaddy/sharedaddy.php:95
 msgid "Disable CSS and JS"
-msgstr "Disattiva CSS e JS"
+msgstr "CSS と JavaScript を無効化"
 
 #: modules/sharedaddy/sharedaddy.php:97
 msgid "Advanced - you must include these in your theme for Sharedaddy to work"
-msgstr "Avanzato – devi includere questi nel tuo tema perché Sharedaddy funzioni"
+msgstr "高度な設定: Sharedaddy を使うには、以下をテーマに含める必要があります。"
 
 #: modules/sharedaddy/sharing-service.php:194
 msgid "Share this:"
-msgstr "Condividi questo: "
+msgstr "共有:"
 
 #: modules/sharedaddy/sharing-service.php:434
 #: modules/sharedaddy/sharing.php:230
 #: modules/sharedaddy/sharing.php:271
 msgctxt "dropdown button"
 msgid "Share"
-msgstr "Condividere"
+msgstr "共有"
 
 #: modules/sharedaddy/sharing-sources.php:127
 msgid "Email"
-msgstr "Email"
+msgstr "メールアドレス"
 
 #: modules/sharedaddy/sharing-sources.php:169
 msgid "This post has been shared!"
-msgstr "Quest&#8217;articolo è stato condiviso!"
+msgstr "投稿を共有しました !"
 
 #: modules/sharedaddy/sharing-sources.php:170
 msgid "You have shared this post with %s"
-msgstr "Avete condiviso quest&#8217;articolo con %s"
+msgstr "この投稿を %s と共有しました"
 
 #: modules/sharedaddy/sharing-sources.php:171
 msgid "Close"
-msgstr "Chiudi"
+msgstr "閉じる"
 
 #: modules/sharedaddy/sharing-sources.php:193
 msgctxt "share to"
 msgid "Email"
-msgstr "Email"
+msgstr "メールアドレス"
 
 #: modules/sharedaddy/sharing-sources.php:193
 msgid "Click to email this to a friend"
-msgstr "Clicca per inviare all&#8217;Email di un amico(a)"
+msgstr "クリックして友達へメールで送信"
 
 #: modules/sharedaddy/sharing-sources.php:207
 msgid "Send to Email Address"
-msgstr "Invia all&#8217;Email"
+msgstr "メールで送信"
 
 #: modules/sharedaddy/sharing-sources.php:215
 msgid "Your Name"
-msgstr "Il tuo nome"
+msgstr "お名前"
 
 #: modules/sharedaddy/sharing-sources.php:218
 msgid "Your Email Address"
-msgstr "La tua Email"
+msgstr "メールアドレス"
 
 #: modules/sharedaddy/sharing-sources.php:226
 msgid "Send Email"
-msgstr "Invia Email"
+msgstr "メールを送信"
 
 #: modules/sharedaddy/sharing-sources.php:227
 msgid "Cancel"
-msgstr "Annulla"
+msgstr "キャンセル"
 
 #: modules/sharedaddy/sharing-sources.php:230
 msgid "Post was not sent - check your email addresses!"
-msgstr "L&#8217;articolo non è stato inviato – verifica l&#8217;Email"
+msgstr "投稿を送信できませんでした。メールアドレスを確認してください。"
 
 #: modules/sharedaddy/sharing-sources.php:234
 msgid "Email check failed, please try again"
-msgstr "La verifica dell'Email ha fallito, riprova per favore."
+msgstr "メール送信チェックに失敗しました。再度お試しください。"
 
 #: modules/sharedaddy/sharing-sources.php:238
 msgid "Sorry, your blog cannot share posts by email."
-msgstr "Purtroppo questo blog non può condividere articoli per Email"
+msgstr "このブログではメールでの投稿共有はできません。"
 
 #: modules/sharedaddy/sharing-sources.php:264
 msgctxt "share to"
@@ -713,14 +713,14 @@ msgstr "Twitter"
 
 #: modules/sharedaddy/sharing-sources.php:264
 msgid "Click to share on Twitter"
-msgstr "Clicca per condividere su Twitter"
+msgstr "クリックして Twitter で共有"
 
 #: modules/sharedaddy/sharing-sources.php:334
 #: modules/sharedaddy/sharing-sources.php:411
 #: modules/sharedaddy/sharing-sources.php:462
 #: modules/sharedaddy/sharing-sources.php:568
 msgid "Use smart button"
-msgstr "Usa il pulsante intelligente"
+msgstr "スマートボタンを使用"
 
 #: modules/sharedaddy/sharing-sources.php:352
 msgid "StumbleUpon"
@@ -733,7 +733,7 @@ msgstr "StumbleUpon"
 
 #: modules/sharedaddy/sharing-sources.php:363
 msgid "Click to share on StumbleUpon"
-msgstr "Clicca per condividere su StumbleUpon"
+msgstr "クリックして StumbleUpon で共有"
 
 #: modules/sharedaddy/sharing-sources.php:429
 #: modules/sharedaddy/sharing-sources.php:436
@@ -742,7 +742,7 @@ msgstr "Reddit"
 
 #: modules/sharedaddy/sharing-sources.php:436
 msgid "Click to share on Reddit"
-msgstr "Clicca per condividere su Reddit"
+msgstr "クリックして Reddit で共有"
 
 #: modules/sharedaddy/sharing-sources.php:506
 msgid "Digg"
@@ -751,7 +751,7 @@ msgstr "Digg"
 #: modules/sharedaddy/sharing-sources.php:515
 #: modules/sharedaddy/sharing-sources.php:519
 msgid "Click to Digg this post"
-msgstr "Clicca per condividere su Digg"
+msgstr "クリックして Digg に投稿"
 
 #: modules/sharedaddy/sharing-sources.php:519
 msgctxt "share to"
@@ -765,7 +765,7 @@ msgstr "Facebook"
 #: modules/sharedaddy/sharing-sources.php:620
 msgctxt "on facebook"
 msgid "Share"
-msgstr "Condividere"
+msgstr "共有"
 
 #: modules/sharedaddy/sharing-sources.php:653
 msgctxt "share to"
@@ -774,320 +774,320 @@ msgstr "Facebook"
 
 #: modules/sharedaddy/sharing-sources.php:653
 msgid "Share on Facebook"
-msgstr "Condividere su Facebook"
+msgstr "Facebook で共有"
 
 #: modules/sharedaddy/sharing-sources.php:675
 msgid "Default button"
-msgstr "Pulsante di default"
+msgstr "デフォルトボタン"
 
 #: modules/sharedaddy/sharing-sources.php:676
 msgid "Share button"
-msgstr "Pulsante Share"
+msgstr "共有ボタン"
 
 #: modules/sharedaddy/sharing-sources.php:677
 msgid "Like button"
-msgstr "Pulsante Like"
+msgstr "Like ボタン"
 
 #: modules/sharedaddy/sharing-sources.php:722
 msgid "Print"
-msgstr "Stampa"
+msgstr "印刷"
 
 #: modules/sharedaddy/sharing-sources.php:726
 msgctxt "share to"
 msgid "Print"
-msgstr "Stampa"
+msgstr "印刷"
 
 #: modules/sharedaddy/sharing-sources.php:726
 msgid "Click to print"
-msgstr "Clicca per stampare"
+msgstr "クリックして印刷"
 
 #: modules/sharedaddy/sharing-sources.php:732
 msgid "Press This"
-msgstr "Pubblica"
+msgstr "Press This"
 
 #: modules/sharedaddy/sharing-sources.php:760
 msgctxt "share to"
 msgid "Press This"
-msgstr "Pubblica"
+msgstr "Press This"
 
 #: modules/sharedaddy/sharing-sources.php:760
 msgid "Click to Press This!"
-msgstr "Clicca per pubblicare!"
+msgstr "クリックして Press This から投稿"
 
 #: modules/sharedaddy/sharing-sources.php:791
 msgid "Click to share"
-msgstr "Clicca per condividere"
+msgstr "クリックして共有"
 
 #: modules/sharedaddy/sharing-sources.php:841
 msgid "Label"
-msgstr "Etichetta"
+msgstr "ラベル"
 
 #: modules/sharedaddy/sharing-sources.php:846
 msgid "URL"
-msgstr "Indirizzo"
+msgstr "URL"
 
 #: modules/sharedaddy/sharing-sources.php:851
 msgid "Icon"
-msgstr "Icona"
+msgstr "アイコン"
 
 #: modules/sharedaddy/sharing-sources.php:858
 msgid "Save"
-msgstr "Registrare"
+msgstr "保存"
 
 #: modules/sharedaddy/sharing-sources.php:859
 msgid "Remove Service"
-msgstr "Rimuovere il servizio"
+msgstr "サービスを削除"
 
 #: modules/sharedaddy/sharing.php:49
 #: modules/sharedaddy/sharing.php:154
 msgid "Sharing Settings"
-msgstr "Parametri"
+msgstr "共有設定"
 
 #: modules/sharedaddy/sharing.php:144
 msgid "Warning! Multibyte support missing!"
-msgstr "Attenzione! IL supporto Multibyte è mancante!"
+msgstr "注意: マルチバイト対応が見つかりません。"
 
 #: modules/sharedaddy/sharing.php:145
 msgid "This plugin will work without it, but multibyte support is used <a href=\"%s\">if available</a>. You may see minor problems with Tweets and other sharing services."
-msgstr "Questo plugin funzionerà senza, ma il multibyte è usato <a href=\"%s\">se disponibile</a>. Potresti notare problemi minori con Twitter o altri servizi di condivisione."
+msgstr "このプラグインは<a href=\"%s\">もしマルチバイト対応が利用できれば</a>には活用しますが、そうでなくてもプラグイン自体は使用できます。Twitter 他の共有サービスでちょっとした不具合に遭遇する可能性があります。"
 
 #: modules/sharedaddy/sharing.php:149
 msgid "Settings have been saved"
-msgstr "I parametri sono stati registrati."
+msgstr "設定を保存しました。"
 
 #: modules/sharedaddy/sharing.php:160
 msgid "Available Services"
-msgstr "Servizi disponibili"
+msgstr "利用可能なサービス"
 
 #: modules/sharedaddy/sharing.php:161
 msgid "Drag and drop the services you'd like to enable into the box below."
-msgstr "Trascina i servizi che vorresti attivare nella zona qui sotto."
+msgstr "有効化したいサービスを下のボックスにドラッグ＆ドロップしてください。"
 
 #: modules/sharedaddy/sharing.php:162
 msgid "Add a new service"
-msgstr "Aggiungi un nuovo servizio"
+msgstr "新サービスを追加"
 
 #: modules/sharedaddy/sharing.php:182
 msgid "Enabled Services"
-msgstr "Servizi attivati"
+msgstr "有効化済みのサービス"
 
 #: modules/sharedaddy/sharing.php:185
 msgid "Services dragged here will appear individually."
-msgstr "I servizi trascinati qui appariranno singolarmente."
+msgstr "ここにドラッグしたサービスは個別に表示されます。"
 
 #: modules/sharedaddy/sharing.php:188
 msgid "Drag and drop available services here"
-msgstr "Trascina qui i servizi disponibili"
+msgstr "利用できるサービスをここにドラッグ＆ドロップ"
 
 #: modules/sharedaddy/sharing.php:199
 msgid "Services dragged here will be hidden behind a share button."
-msgstr "I servizi trascinati qui saranno inclusi nelle opzioni del pulsante Condividi."
+msgstr "ここにドラッグしたサービスは「共有」ボタン内に表示されます。"
 
 #: modules/sharedaddy/sharing.php:214
 msgid "Live Preview"
-msgstr "Anteprima Live"
+msgstr "ライブプレビュー"
 
 #: modules/sharedaddy/sharing.php:217
 msgid "Sharing is off. Please add services above to enable"
-msgstr "La Condivisione est disattivata. Aggiungi des servizi qui sopra per attivarla."
+msgstr "共有オプションがオフになっています。有効化するには上記のサービスを追加してください。"
 
 #: modules/sharedaddy/sharing.php:299
 msgid "Default button style"
-msgstr "Stile pulsante di default"
+msgstr "デフォルトのボタンスタイル"
 
 #: modules/sharedaddy/sharing.php:302
 msgid "Icon + text"
-msgstr "Icona + testo"
+msgstr "アイコンとテキスト"
 
 #: modules/sharedaddy/sharing.php:303
 msgid "Icon only"
-msgstr "Icona sola"
+msgstr "アイコンのみ"
 
 #: modules/sharedaddy/sharing.php:304
 msgid "Text only"
-msgstr "Testo solo"
+msgstr "テキストのみ"
 
 #: modules/sharedaddy/sharing.php:309
 msgid "Sharing label"
-msgstr "Titolo:"
+msgstr "共有ラベル"
 
 #: modules/sharedaddy/sharing.php:315
 msgid "Open links in"
-msgstr "Aprire i link"
+msgstr "リンクを開くウィンドウ"
 
 #: modules/sharedaddy/sharing.php:318
 msgid "New window"
-msgstr "In una nuova finestra"
+msgstr "新規ウィンドウ"
 
 #: modules/sharedaddy/sharing.php:319
 msgid "Same window"
-msgstr "Nella stessa finestra"
+msgstr "同一ウィンドウ"
 
 #: modules/sharedaddy/sharing.php:324
 msgid "Show sharing buttons on"
-msgstr "Mostrare i pulsanti di condivisone in"
+msgstr "共有ボタンの表示先"
 
 #: modules/sharedaddy/sharing.php:327
 msgid "Posts, pages, and index pages"
-msgstr "Articoli, pagine et pagina iniziale"
+msgstr "投稿、固定ページ、インデックスページ"
 
 #: modules/sharedaddy/sharing.php:328
 msgid "Posts and pages only"
-msgstr "Solo articoli e pagine"
+msgstr "投稿と固定ページのみ"
 
 #: modules/sharedaddy/sharing.php:329
 msgid "Index pages only"
-msgstr "Solo la pagina iniziale"
+msgstr "インデックスページのみ"
 
 #: modules/sharedaddy/sharing.php:339
 msgid "Save Changes"
-msgstr "Registra i cambiamenti"
+msgstr "変更を保存"
 
 #: modules/sharedaddy/sharing.php:350
 msgid "Service name"
-msgstr "Nome del servizio"
+msgstr "サービス名"
 
 #: modules/sharedaddy/sharing.php:356
 msgid "Sharing URL"
-msgstr "URL del servizio"
+msgstr "共有 URL"
 
 #: modules/sharedaddy/sharing.php:360
 msgid "You can add the following variables to your service sharing URL:"
-msgstr "Puoi aggiungere le variabili seguenti all&#8217;indirizzo del tuo servizio di condivisione:"
+msgstr "サービスの共有 URL に以下の変数を利用できます。"
 
 #: modules/sharedaddy/sharing.php:365
 msgid "Icon URL"
-msgstr "Indirizzo dell&#8217;icona"
+msgstr "アイコン URL"
 
 #: modules/sharedaddy/sharing.php:368
 msgid "Enter the URL of a 16x16px icon you want to use for this service."
-msgstr "Entra l&#8217;inidirizzo di un&#8217;icona da 16x16px da usare per questo servizio."
+msgstr "このサービスで使いたいアイコン (16x16px) の URL を入力してください。"
 
 #: modules/sharedaddy/sharing.php:374
 msgid "Create Share"
-msgstr "Creare un servizio"
+msgstr "共有する"
 
 #: modules/sharedaddy/sharing.php:384
 msgid "An error occurred creating your new sharing service - please check you gave valid details."
-msgstr "C&#8217;è stato un errore nella creazione del tuo nuovo servizio – verifica di aver inserito dati validi per favore."
+msgstr "新規共有サービスにエラーが発生しました。正しい情報を入力したかどうか確認してください。"
 
 #: modules/shortcodes/archives.php:49
 msgid "Your blog does not currently have any published posts."
-msgstr "Il tuo blog attualmente non ha nessun articolo pubblicato."
+msgstr "このブログには現在公開済みの投稿がありません。"
 
 #: modules/stats.php:182
 #: modules/stats.php:476
 msgid "Site Stats"
-msgstr "Statistiche Sito"
+msgstr "サイト統計情報"
 
 #: modules/stats.php:258
 msgid "We were unable to get your stats just now. Please try again."
-msgstr "Non possiamo recuperare le tue statistiche. Riprova per favore."
+msgstr "統計情報を取得できません。もう一度お試しください。"
 
 #: modules/stats.php:353
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
-msgstr "Visita <a href=\"%s\">Statistiche Sito</a> per vedere le tue statistiche."
+msgstr "<a href=\"%s\">サイト統計情報</a>で統計情報を表示できます。"
 
 #: modules/stats.php:359
 msgid "Admin bar"
-msgstr "Admin bar"
+msgstr "管理バー"
 
 #: modules/stats.php:360
 msgid "Put a chart showing 48 hours of views in the admin bar."
-msgstr "Inserire un grafico che mostra 48 ore di viste nell'admin bar."
+msgstr "管理バーに過去48時間のビュー数の表を表示します。"
 
 #: modules/stats.php:362
 msgid "Registered users"
-msgstr "Utenti iscritti"
+msgstr "登録済みユーザー"
 
 #: modules/stats.php:363
 msgid "Count the page views of registered users who are logged in."
-msgstr "Contare le pagine viste da utenti iscritti quando identificati."
+msgstr "ログイン中の登録ユーザーのページビューをカウントする。"
 
 #: modules/stats.php:364
 msgid "Report visibility"
-msgstr "Visibilità dei rapporti"
+msgstr "表示状態を報告"
 
 #: modules/stats.php:366
 msgid "Select the roles that will be able to view stats reports."
-msgstr "Seleziona i ruoli che possono vedere is rapporti statistici."
+msgstr "統計レポートを表示できる権限グループを選択してください。"
 
 #: modules/stats.php:377
 msgid "Save configuration"
-msgstr "Registrare la configurazione"
+msgstr "設定を保存"
 
 #: modules/stats.php:408
 msgid "Views over 48 hours. Click for more Site Stats."
-msgstr "Viste su 48 ore. Clicca per più Statistiche sul Sito"
+msgstr "過去48時間のビュー数。クリックすれば統計情報の詳細を表示できます。"
 
 #: modules/stats.php:497
 msgid "day"
-msgstr "giorno"
+msgstr "日"
 
 #: modules/stats.php:498
 msgid "week"
-msgstr "settimana"
+msgstr "週"
 
 #: modules/stats.php:499
 msgid "month"
-msgstr "mese"
+msgstr "月"
 
 #: modules/stats.php:502
 msgid "the past day"
-msgstr "ieri"
+msgstr "過去1日"
 
 #: modules/stats.php:503
 msgid "the past week"
-msgstr "la settimana scorsa"
+msgstr "過去1週間"
 
 #: modules/stats.php:504
 msgid "the past month"
-msgstr "il mese scorso"
+msgstr "過去1ヶ月間"
 
 #: modules/stats.php:505
 msgid "the past quarter"
-msgstr "il trimestre scorso"
+msgstr "現四半期"
 
 #: modules/stats.php:506
 msgid "the past year"
-msgstr "l&#8217;anno scorso"
+msgstr "去年"
 
 #: modules/stats.php:528
 msgid "Chart stats by"
-msgstr "Traccia le statistiche per"
+msgstr "統計情報表:"
 
 #: modules/stats.php:541
 msgid "Show top posts over"
-msgstr "Mostra i migliori articoli su"
+msgstr "以下の表示数以上の人気記事を表示:"
 
 #: modules/stats.php:554
 msgid "Show top search terms over"
-msgstr "Mostra i termini di ricerca più frequenti su"
+msgstr "以下の期間のトップ検索キーワードを表示:"
 
 #: modules/stats.php:684
 msgid "%1$s %2$s Views"
-msgstr "%1$s %2$s Viste"
+msgstr "%1$s %2$s ビュー"
 
 #: modules/stats.php:700
 msgid "Top Posts"
-msgstr "Top Articoli"
+msgstr "人気記事"
 
 #: modules/stats.php:704
 #: modules/stats.php:728
 msgid "Sorry, nothing to report."
-msgstr "Mi dispiace, non c&#8217;è niente da includere nel rapporto."
+msgstr "報告する内容がありません。"
 
 #: modules/stats.php:724
 msgid "Top Searches"
-msgstr "Top Ricerche"
+msgstr "人気検索キーワード"
 
 #: modules/stats.php:741
 msgid "View All"
-msgstr "Vedere tutto"
+msgstr "すべて表示"
 
 #: modules/twitter-widget.php:68
 msgid "Display your tweets from Twitter"
-msgstr "Mostra i tuoi tweets su Twitter"
+msgstr "Twitter の更新を表示"
 
 #: modules/twitter-widget.php:69
 msgid "Twitter (Jetpack)"
@@ -1095,45 +1095,57 @@ msgstr "Twitter (Jetpack)"
 
 #: modules/twitter-widget.php:78
 msgid "Twitter Updates"
-msgstr "Aggiornamenti Twitter"
+msgstr "Twitter アップデート"
 
 #: modules/twitter-widget.php:164
 msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
-msgstr "Errore: Accertati che il tuo conto Twitter sia <a href=\"%s\">pubblico</a> per favore."
+msgstr "エラー: Twitter アカウントが<a href=\"%s\">公開</a>になっている必要があります。"
 
 #: modules/twitter-widget.php:166
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr "Errore: Twitter non risponde. Per favore aspetta qualche minuto e ricarica questa pagina."
+msgstr "エラー: Twitter からの反応がありません。数分待ってページを再読み込みしてください。"
 
 #: modules/twitter-widget.php:205
 msgid "Title:"
-msgstr "Titolo:"
+msgstr "タイトル:"
 
 #: modules/twitter-widget.php:208
 msgid "Twitter username:"
-msgstr "Twitter username:"
+msgstr "Twitter ユーザー名:"
 
 #: modules/twitter-widget.php:211
 msgid "Maximum number of tweets to show:"
-msgstr "Numero massimo di tweets da mostrare:"
+msgstr "表示する Twitter 更新の上限:"
 
 #: modules/twitter-widget.php:222
 msgid "Hide replies"
-msgstr "Nascondere le risposte"
+msgstr "返信を隠す"
 
 #: modules/twitter-widget.php:227
 msgid "Include retweets"
-msgstr "Includere i retweets"
+msgstr "リツィートを含める"
 
 #: modules/twitter-widget.php:229
 msgid "Text to display between tweet and timestamp:"
-msgstr "Testo da inserire tra lo tweet e la marcatura oraria:"
+msgstr "つぶやきとタイムスタンプの間に表示するテキスト:"
+
+#~ msgid ""
+#~ "<strong>JetPack is activated</strong>, now an admin on each site will "
+#~ "need to complete the authorization process."
+#~ msgstr ""
+#~ "<strong>JetPack が有効化済み</strong>です。各サイトの管理者は認証プロセス"
+#~ "を完了する必要があります。"
 
 #~ msgid ""
 #~ "Once you&#8217;ve made the connection you&#8217;ll activate all the "
 #~ "delightful features below. To find out more about any feature use the "
 #~ "'Learn More' button for that feature."
 #~ msgstr ""
-#~ "Una volta effettuato il collegamento attiverai le squisite funzioni qui "
-#~ "sotto. Per saperne di più su ognuna, usa il pulsante \"Per Saperne di Più"
-#~ "\" della funzione."
+#~ "接続が確立したら、以下の便利な機能を有効化してください。機能の詳細を知りた"
+#~ "い場合は、「さらに詳しく」ボタンをご利用ください。"
+
+#~ msgid "Simple shortcodes for embedding power!"
+#~ msgstr "埋め込み用のシンプルなショートコードです !"
+
+#~ msgid "LaTeX Markup"
+#~ msgstr "LaTeX マークアップ"
