@@ -58,7 +58,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * [[slideshare]](http://support.wordpress.com/slideshows/slideshare/)
 * [[soundcloud]](http://support.wordpress.com/audio/soundcloud-audio-player/)
 * [[vimeo]](http://support.wordpress.com/videos/vimeo/)
-* [[youtube]]http://support.wordpress.com/videos/youtube/)
+* [[youtube]](http://support.wordpress.com/videos/youtube/)
 
 == Changelog ==
 
