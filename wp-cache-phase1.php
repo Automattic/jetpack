@@ -164,7 +164,7 @@ function wp_cache_serve_cache_file() {
 		{
 			header( "Content-type: text/html; charset=UTF-8" ); // UTF-8 hard coded is bad but we don't know what it is this early in the process
 			header( "Vary: Accept-Encoding, Cookie" );
-			header( "Cache-Control: max-age=300, must-revalidate" );
+			header( "Cache-Control: max-age=3, must-revalidate" );
 			header( "WP-Super-Cache: Served supercache file from PHP" );
 			if ( file_exists( $file . '.gz' ) && $wp_cache_gzip_encoding ) {
 				$file = $file . '.gz';
