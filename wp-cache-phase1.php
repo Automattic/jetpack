@@ -250,7 +250,7 @@ function wp_cache_serve_cache_file() {
 			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Serving wp-cache dynamic file", 5 );
 			if ( $ungzip ) {
 				$cache = file_get_contents( $cache_file );
-				$uncompressed = gzuncompress( $cache );
+				$uncompressed = @gzuncompress( $cache );
 				if ( $uncompressed ) {
 					if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Uncompressed gzipped cache file from wp-cache", 1 );
 					unset( $cache );
@@ -263,20 +263,6 @@ function wp_cache_serve_cache_file() {
 			}
 		} else {
 			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Serving wp-cache static file", 5 );
-			if ( $wp_supercache_304 ) {
-				if ( function_exists( 'apache_request_headers' ) ) {
-					$request = apache_request_headers();
-					$remote_mod_time = $request[ 'If-Modified-Since' ];
-				} else {
-					$remote_mod_time = $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ];
-				}
-				$local_mod_time = gmdate("D, d M Y H:i:s",filemtime( $cache_file )).' GMT';
-				if ( $remote_mod_time == $local_mod_time ) {
-					header("HTTP/1.0 304 Not Modified");
-					exit();
-				}
-				header( 'Last-Modified: ' . $local_mod_time );
-			}
 			if ( $ungzip ) {
 				$cache = file_get_contents( $cache_file );
 				$uncompressed = gzuncompress( $cache );
