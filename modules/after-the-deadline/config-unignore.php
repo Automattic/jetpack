@@ -54,7 +54,7 @@ function AtD_display_unignore_form() {
 	if ( ! $user || $user->ID == 0 )
 		return;
 
-	$ignores = AtD_get_setting( $user->ID, 'AtD_ignored_phrases');
+	$ignores = AtD_get_setting( $user->ID, 'AtD_ignored_phrases', true );
 ?>
 <script>
 function atd_show_phrases( ignored )

@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.1
+ * Version: 1.1.1
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -13,11 +13,10 @@
  */
 
 defined( 'JETPACK__API_BASE' ) or define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
-defined( 'JETPACK__DEBUG' ) or define( 'JETPACK__DEBUG', false );
 define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.0.5' );
-
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
+defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
 
 /*
 Options:
@@ -44,6 +43,9 @@ jetpack_active_modules (array)
 
 jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
+
+jetpack_fallback_no_verify_ssl_certs (int)
+	Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
 */
 
 class Jetpack {
@@ -169,6 +171,39 @@ class Jetpack {
 	}
 
 	/**
+	 * Returns an array of all PHP files in the specified absolute path.
+	 * Equivalent to glob( "$absolute_path/*.php" ).
+	 *
+	 * @param string $absolute_path The absolute path of the directory to search.
+	 * @return array Array of absolute paths to the PHP files.
+	 */
+	function glob_php( $absolute_path ) {
+		$absolute_path = untrailingslashit( $absolute_path );
+		$files = array();
+		if ( !$dir = @opendir( $absolute_path ) ) {
+			return $files;
+		}
+
+		while ( false !== $file = readdir( $dir ) ) {
+			if ( '.' == substr( $file, 0, 1 ) || '.php' != substr( $file, -4 ) ) {
+				continue;
+			}
+
+			$file = "$absolute_path/$file";
+
+			if ( !is_file( $file ) ) {
+				continue;
+			}
+
+			$files[] = $file;
+		}
+
+		closedir( $dir );
+
+		return $files;
+	}
+
+	/**
 	 * List available Jetpack modules. Simply lists .php files in /modules/.
 	 * Make sure to tuck away module "library" files in a sub-directory.
 	 */
@@ -178,7 +213,7 @@ class Jetpack {
 		if ( isset( $modules ) )
 			return $modules;
 
-		$files = glob( dirname( __FILE__ ) . '/modules/' . '*.php' );
+		$files = Jetpack::glob_php( dirname( __FILE__ ) . '/modules' );
 
 		foreach ( $files as $file ) {
 			if ( $headers = Jetpack::get_module( $file ) ) {
@@ -198,6 +233,10 @@ class Jetpack {
 		foreach ( Jetpack::get_available_modules() as $module ) {
 			// Add special cases here for modules to avoid auto-activation
 			switch ( $module ) {
+			case 'sharedaddy' :
+				if ( version_compare( PHP_VERSION, '5', '<' ) ) {
+					continue;
+				} // else no break
 			default :
 				$return[] = $module;
 			}
@@ -254,11 +293,40 @@ class Jetpack {
 		return !validate_file( $module, Jetpack::get_available_modules() );
 	}
 
+	/**
+	 * Catches PHP errors.  Must be used in conjunction with output buffering.
+	 *
+	 * @param bool $catch True to start catching, False to stop.
+	 *
+	 * @static
+	 */
+	function catch_errors( $catch ) {
+		static $display_errors, $error_reporting;
+
+		if ( $catch ) {
+			$display_errors = @ini_set( 'display_errors', 1 );
+			$error_reporting = @error_reporting( E_ALL );
+			add_action( 'shutdown', array( 'Jetpack', 'catch_errors_on_shutdown' ), 0 );
+		} else {
+			@ini_set( 'display_errors', $display_errors );
+			@error_reporting( $error_reporting );
+			remove_action( 'shutdown', array( 'Jetpack', 'catch_errors_on_shutdown' ), 1 );
+		}
+	}
+
+	/**
+	 * Saves any generated PHP errors in ::state( 'php_errors', {errors} )
+	 */
+	function catch_errors_on_shutdown() {
+		Jetpack::state( 'php_errors', ob_get_clean() );
+	}
+
 	function activate_default_modules() {
 		$modules = Jetpack::get_default_modules();
 
 		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating
 		$redirect = menu_page_url( 'jetpack', false );
+		Jetpack::catch_errors( true );
 		foreach ( $modules as $module ) {
 			$active = Jetpack::get_active_modules();
 			wp_redirect( add_query_arg( array( 'error' => 'module_activation_failed', 'module' => urlencode( $module ) ), $redirect ) ); // we'll override this later if the plugin can be included without fatal error
@@ -275,6 +343,7 @@ class Jetpack {
 			update_option( 'jetpack_active_modules', array_unique( $active ) );
 			ob_end_clean();
 		}
+		Jetpack::catch_errors( false );
 	}
 
 	function activate_module( $module ) {
@@ -295,9 +364,15 @@ class Jetpack {
 		}
 
 		// Check the file for fatal errors, a la wp-admin/plugins.php::activate
+		Jetpack::state( 'module', $module );
 		Jetpack::state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error
 		wp_redirect( Jetpack::admin_url() );
 
+		if ( 'sharedaddy' == $module && version_compare( PHP_VERSION, '5', '<' ) ) {
+			exit;
+		}
+
+		Jetpack::catch_errors( true );
 		ob_start();
 		require Jetpack::get_module_path( $module );
 		$active[] = $module;
@@ -306,6 +381,7 @@ class Jetpack {
 		Jetpack::state( 'message', 'module_activated' );
 		Jetpack::state( 'module', $module );
 		ob_end_clean();
+		Jetpack::catch_errors( false );
 		exit;
 	}
 
@@ -441,6 +517,7 @@ p {
 		delete_option( 'jetpack_active_modules' );
 		delete_option( 'jetpack_do_activate'    );
 		delete_option( 'jetpack_activated'      );
+		delete_option( 'jetpack_fallback_no_verify_ssl_certs' );
 
 		// Legacy
 		delete_option( 'jetpack_was_activated'  );
@@ -468,7 +545,7 @@ p {
 	function admin_init() {
 		// If the plugin is not connected, display a connect message.
 		if (
-			// the plugin was auto-activated and needs it's candy
+			// the plugin was auto-activated and needs its candy
 			get_option( 'jetpack_do_activate' )
 		||
 			// the plugin is active, but was never activated.  Probably came from a site-wide network activation
@@ -487,6 +564,12 @@ p {
 				if ( Jetpack::state( 'network_nag' ) )
 					add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
 			}
+		} elseif ( false === get_option( 'jetpack_fallback_no_verify_ssl_certs' ) ) {
+			Jetpack_Client::_wp_remote_request(
+				Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'test', 'get' ) ),
+				array(),
+				true
+			);
 		}
 
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
@@ -624,6 +707,7 @@ p {
 				$registered = Jetpack::try_registration();
 				if ( is_wp_error( $registered ) ) {
 					$error = $registered->get_error_code();
+					Jetpack::state( 'error_description', $registered->get_error_message() );
 					break;
 				}
 
@@ -680,10 +764,18 @@ p {
 		case 'module_activation_failed' :
 			$module = Jetpack::state( 'module' );
 			if ( !empty( $module ) && $mod = Jetpack::get_module( $module ) ) {
-				$this->error = sprintf( __( '%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?', 'jetpack' ), $mod['name'] );
-				break;
+				if ( 'sharedaddy' == $module && version_compare( PHP_VERSION, '5', '<' ) ) {
+					$this->error = sprintf( __( 'The %1$s module requires <strong>PHP version %2$s</strong> or higher.' ), '<strong>' . $mod['name'] . '</strong>', '5' );
+				} else {
+					$this->error = sprintf( __( '%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?', 'jetpack' ), $mod['name'] );
+				}
+			} else {
+				$this->error  = __( 'Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?', 'jetpack' );
 			}
-			$this->error = __( 'Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?', 'jetpack' );
+			if ( $php_errors = Jetpack::state( 'php_errors' ) ) {
+				$this->error .= "<br />\n";
+				$this->error .= $php_errors;
+			}
 			break;
 		case 'not_public' :
 			$this->error = __( "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost).", 'jetpack' );
@@ -691,7 +783,10 @@ p {
 		case 'wpcom_outage' :
 			$this->error = __( 'WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later.', 'jetpack' );
 			break;
-
+		case 'register_http_request_failed' :
+		case 'token_http_request_failed' :
+			$this->error = sprintf( __( 'Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host.', 'jetpack' ), "<code>$error</code>" );
+			break;
 		default :
 			if ( empty( $error ) ) {
 				break;
@@ -832,8 +927,8 @@ p {
 ?>
 <div id="message" class="jetpack-message jetpack-err">
 	<div class="squeezer">
-		<h4><?php echo wp_kses( $this->error, array( 'code' => true, 'strong' => true, 'br' => true ) ); ?></h4>
-<?php	if ( JETPACK__DEBUG && $desc = Jetpack::state( 'error_description' ) ) : ?>
+		<h4><?php echo wp_kses( $this->error, array( 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h4>
+<?php	if ( $desc = Jetpack::state( 'error_description' ) ) : ?>
 		<p><?php echo esc_html( stripslashes( $desc ) ); ?></p>
 <?php	endif; ?>
 	</div>
@@ -1275,6 +1370,14 @@ p {
 			return $url;
 		}
 
+		switch ( JETPACK_CLIENT__HTTPS ) {
+		case 'ALWAYS' :
+			return $url;
+		case 'NEVER' :
+			return substr_replace( $url, '', 4, 1 );
+		// default : case 'AUTO' :
+		}
+
 		$method = 'post' == strtolower( $method ) ? 'post' : 'get';
 		$jetpack = Jetpack::init();
 
@@ -1330,7 +1433,8 @@ p {
 		$stats_options = get_option( 'stats_options' );
 		$stats_id = isset($stats_options['blog_id']) ? $stats_options['blog_id'] : null;
 
-		$response = wp_remote_post( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), array(
+		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), array(
+			'method' => 'POST',
 			'body' => array(
 				'siteurl'         => site_url(),
 				'home'            => home_url(),
@@ -1347,7 +1451,11 @@ p {
 				'Accept' => 'application/json',
 			),
 			'timeout' => $timeout,
-		) );
+		), true );
+
+		if ( is_wp_error( $response ) ) {
+			return new Jetpack_Error( 'register_http_request_failed', $response->get_error_message() );
+		}
 
 		$code = wp_remote_retrieve_response_code( $response );
 		$entity = wp_remote_retrieve_body( $response );
@@ -1361,7 +1469,9 @@ p {
 			if ( empty( $json->error ) )
 				return new Jetpack_Error( 'not_public', '', $code );
 
-			return new Jetpack_Error( (string) $json->error, '', $code );
+			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s' ), (string) $json->error_description ) : '';
+
+			return new Jetpack_Error( (string) $json->error, $error_description, $code );
 		}
 
 		if ( empty( $json->jetpack_id ) || !is_scalar( $json->jetpack_id ) || preg_match( '/[^0-9]/', $json->jetpack_id ) )
@@ -1661,7 +1771,73 @@ class Jetpack_Client {
 			$url = add_query_arg( 'signature', urlencode( $signature ), $url );
 		}
 
-		return wp_remote_request( $url, $request );
+		return Jetpack_Client::_wp_remote_request( $url, $request );
+	}
+
+	/**
+	 * Wrapper for wp_remote_request().  Turns off SSL verification for certain SSL errors. 
+	 * This is lame, but many, many, many hosts have misconfigured SSL.
+	 *
+	 * When Jetpack is registered, the jetpack_fallback_no_verify_ssl_certs option is set to the current time if:
+	 * 1. a certificate error is found and
+	 * 2. not verifying the certificate works around the problem.
+	 *
+	 * The option is checked on each request.
+	 *
+	 * @internal
+	 * @todo: Better fallbacks (bundled certs?), feedback, UI, ....
+	 * @see Jetpack::fix_url_for_bad_hosts()
+	 *
+	 * @static
+	 * @return array|WP_Error WP HTTP response on success
+	 */
+	function _wp_remote_request( $url, $args, $set_fallback = false ) {
+		$fallback = get_option( 'jetpack_fallback_no_verify_ssl_certs' );
+		if ( false === $fallback ) {
+			update_option( 'jetpack_fallback_no_verify_ssl_certs', 0 );
+		}
+
+		if ( (int) $fallback ) {
+			// We're flagged to fallback
+			$args['sslverify'] = false;
+		}
+
+		$response = wp_remote_request( $url, $args );
+
+		if (
+			!$set_fallback                                     // We're not allowed to set the flag on this request, so whatever happens happens
+		||
+			isset( $args['sslverify'] ) && !$args['sslverify'] // No verification - no point in doing it again
+		||
+			!is_wp_error( $response )                          // Let it ride
+		) {
+			return $response;
+		}
+
+		// At this point, we're not flagged to fallback and we are allowed to set the flag on this request.
+
+		$message = $response->get_error_message();
+
+		// Is it an SSL Certificate verification error?
+		if (
+			( false === strpos( $message, 'SSL3_GET_SERVER_CERTIFICATE' ) || false === strpos( $message, '14090086' ) ) // OpenSSL SSL3
+		&&
+			( false === strpos( $message, 'SSL2_SET_CERTIFICATE' ) || false === strpos( $message, '1407E086' ) ) // OpenSSL SSL2
+		) {
+			// No, it is not.
+			return $response;
+		}
+
+		// Redo the request without SSL certificate verification.
+		$args['sslverify'] = false;
+		$response = wp_remote_request( $url, $args );
+
+		if ( !is_wp_error( $response ) ) {
+			// The request went through this time, flag for future fallbacks
+			update_option( 'jetpack_fallback_no_verify_ssl_certs', time() );
+		}
+
+		return $response;
 	}
 }
 
@@ -1763,8 +1939,7 @@ class Jetpack_Client_Server {
 				else
 					Jetpack::state( 'error', 'invalid_token' );
 
-				if ( JETPACK__DEBUG )
-					Jetpack::state( 'error_description', $token->get_error_message() );
+				Jetpack::state( 'error_description', $token->get_error_message() );
 
 				break;
 			}
@@ -1854,12 +2029,17 @@ class Jetpack_Client_Server {
 			), menu_page_url( 'jetpack', false ) ),
 		);
 
-		$response = wp_remote_post( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'token' ) ), array(
+		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'token' ) ), array(
+			'method' => 'POST',
 			'body' => $body,
 			'headers' => array(
 				'Accept' => 'application/json',
 			),
 		) );
+
+		if ( is_wp_error( $response ) ) {
+			return new Jetpack_Error( 'token_http_request_failed', $response->get_error_message() );
+		}
 
 		$code = wp_remote_retrieve_response_code( $response );
 		$entity = wp_remote_retrieve_body( $response );
@@ -1872,7 +2052,10 @@ class Jetpack_Client_Server {
 		if ( 200 != $code || !empty( $json->error ) ) {
 			if ( empty( $json->error ) )
 				return new Jetpack_Error( 'unknown', '', $code );
-			return new Jetpack_Error( (string) $json->error, (string) $json->error_description, $code );
+
+			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s' ), (string) $json->error_description ) : '';
+
+			return new Jetpack_Error( (string) $json->error, $error_description, $code );
 		}
 
 		if ( empty( $json->access_token ) || !is_scalar( $json->access_token ) ) {

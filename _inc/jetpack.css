@@ -1,4 +1,4 @@
-#screen-meta { display: none }
+body.toplevel_page_jetpack #screen-meta { display: none }
 
 #jp-header {
 	background: /*#8CAA46*/ url( images/header-bg.png ) top center repeat-x;
@@ -92,7 +92,7 @@
 		position: relative;
 		overflow: visible;
 		z-index: 50;
-		margin: 0 22px 0 25px;
+		margin: 0 12px 0 28px;
 		min-width: 780px;
 	}
 
@@ -190,17 +190,23 @@
 		margin: 0;
 	}
 	
-	.jetpack-message code {
+	.jetpack-message code, .jetpack-err p {
 		background: rgba( 0,0,0,0.2 );
 		font-size: 14px;
-		padding: 2px;
+		padding: 3px 5px !important;
+		text-shadow: 0px 1px 1px rgba(0,0,0,0.4);
+		color: #fff;
 	}
-
+	
 	.jetpack-message p {
 		margin: -1px 0 0 0 !important;
 		padding: 0;
 		display: inline-block;
 	}
+		.jetpack-err p {
+			overflow: hidden;
+			margin-bottom: 10px !important;
+		}
 
 		.jetpack-message p a.button-primary {
 			font-size: 16px !important;
@@ -289,26 +295,30 @@
 
 		.more-info .jp-close {
 			position: absolute;
-			top: 11px;
-			right: 11px;
-			background: #ccc;
-			background: rgba( 0,0,0,0.4);
+			top: 18px;
+			right: 0;
+			background: #888;
+			background: rgba(0,0,0,0.4);
 			color: #fff;
 			font-size: 14px !important;
 			height: 22px;
 			line-height: 20px;
-			padding: 0 6px;
+			padding: 0 4px 0 6px;
 			font-weight: bold !important;
 			-moz-border-radius: 3px;
 			-webkit-border-radius: 3px;
 			border-radius: 3px;
+			-moz-border-radius-topright: 0;
+			-moz-border-radius:bottomright: 0;
+			-webkit-border-top-right-radius: 0;
+			-webkit-border-bottom-right-radius: 0;
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
 			cursor: pointer;
-			text-shadow: 0 -1px 0 rgba(0,0,0,0.5);
+			text-shadow: 0 1px 0 rgba(0,0,0,0.2);
 		}
 			.more-info .jp-close:hover {
-				background: rgba( 255, 255, 255, 0.9 );
-				color: #7a934e;
-				text-shadow: none;
+				background: #69acce;
 			}
 
 		.more-info div.jp-info-img {
@@ -446,6 +456,7 @@ p.jp-help {
 		.jetpack-module div.module-image p {
 			background: #b4d278;
 			color: #fff;
+			text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
 			text-align: center;
 			margin: 0;
 			padding: 0;
@@ -493,10 +504,6 @@ p.jp-help {
 		margin-bottom: 20px;
 		color: #666;
 	}
-	
-		.jetpack-module-description .price {
-			color: #3b8b63;
-		}
 
 	.jetpack-module .jetpack-module-actions {
 		position: absolute;
@@ -655,7 +662,9 @@ p#news-sub {
 #jetpack-settings .button:hover {
 	color: #298cba !important;
 	border-color: #69acce !important;
-	-webkit-box-shadow: inset 0 0 1px #69acce;
-	-mox-box-shadow: inset 0 0 1px #69acce;
-	box-shadow: inset 0 0 1px #69acce;
+	-moz-box-shadow: 0 0 2px rgba(105,172,206,1);
+	-webkit-box-shadow: 0 0 2px rgba(105,172,206,1);
+	box-shadow: 0 0 2px rgba(105,172,206,1);
+	-webkit-transition-duration: .3s;
+	-moz-transition-duration: .3s;
 }

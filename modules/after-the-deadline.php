@@ -168,8 +168,9 @@ function AtD_load_submit_check_javascripts() {
 		return;
 	
 	if ( AtD_should_load_on_page() ) {
-		$atd_check_when = AtD_get_setting( $user->ID, 'AtD_check_when' );
-		if ($atd_check_when) {
+		$atd_check_when = AtD_get_setting( $user->ID, 'AtD_check_when', true );
+		
+		if ( !empty( $atd_check_when ) ) {
 			$check_when = '';
 			/* Set up the options in json */
 			foreach( explode( ',', $atd_check_when ) as $option ) {
