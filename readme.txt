@@ -3,7 +3,7 @@ Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, skel
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, kyte, kytetv, livevideo, redlasso, rockyou, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me
 Requires at least: 3.0.5
 Tested up to: 3.1
-Stable tag: 1.1
+Stable tag: 1.1.1
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
 
@@ -63,6 +63,24 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * [[youtube]](http://support.wordpress.com/videos/youtube/)
 
 == Changelog ==
+
+= 1.1.1 =
+* Bug Fix: Improve experience on hosts capable of making outgoing HTTPS requests but incapable of verifying SSL certificates. Fixes most "Your Jetpack has a glitch. Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)." errors.
+* Bug Fix: Sharedaddy: Fatal error under PHP4.  Disable on PHP4 hosts.
+* Bug Fix: Stats: Fatal error under PHP4.  Rewrite to be PHP4 compatible.
+* Bug Fix: Stats: Fatal error on some sites modifying/removing core WordPress user roles.  Add sanity check.
+* Bug Fix: Stats: Replace debug output with error message in dashboard widget.
+* Bug Fix: Stats: Rework hook priorities so that stats views are always counted even if a plugin (such as Paginated Comments) bails early on template_redirect.
+* Bug Fix: Identify the module that connot be activated to fatal error during single module activation.
+* Bug Fix: `glob()` is not always available.  Use `opendir()`, `readdir()`, `closedir()`.
+* Bug Fix: Send permalink options to Stats Server for improved per post permalink calculation.
+* Bug Fix: Do not hide Screen Options and Help links during Jetpack call to connect.
+* Bug Fix: Improve readablitiy of text.
+* Bug Fix: AtD: Correctly store/display options.
+* Enhancement: Output more informative error messages.
+* Enhancement: Improve CSS styling.
+* Enhancement: Stats: Query all post types and statuses when getting posts for stats reports.
+* Enhancement: Improve performance of LaTeX URLs be using cookieless CDN.
 
 = 1.1 =
 * Initial release

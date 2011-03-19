@@ -21,7 +21,7 @@ function stats_load() {
 	Jetpack::module_configuration_screen( __FILE__, 'stats_configuration_screen' );
 
 	// Generate the tracking code after wp() has queried for posts.
-	add_action( 'template_redirect', 'stats_template_redirect', 101 );
+	add_action( 'template_redirect', 'stats_template_redirect', 1 );
 
 	add_action( 'wp_head', 'stats_admin_bar_head', 100 );
 
@@ -37,6 +37,10 @@ function stats_load() {
 	add_action( 'update_option_timezone_string', 'stats_update_blog' );
 	add_action( 'add_option_timezone_string', 'stats_update_blog' );
 	add_action( 'update_option_gmt_offset', 'stats_update_blog' );
+	add_action( 'update_option_page_on_front', 'stats_update_blog' );
+	add_action( 'update_option_permalink_structure', 'stats_update_blog' );
+	add_action( 'update_option_category_base', 'stats_update_blog' );
+	add_action( 'update_option_tag_base', 'stats_update_blog' );
 
 	// Tell HQ about changed posts
 	add_action( 'save_post', 'stats_update_post', 10, 1 );
@@ -45,7 +49,8 @@ function stats_load() {
 
 	foreach ( stats_get_option( 'roles' ) as $role ) {
 		$role = get_role( $role );
-		$role->add_cap( 'view_stats' );
+		if ( $role )
+			$role->add_cap( 'view_stats' );
 	}
 }
 
@@ -427,15 +432,19 @@ function stats_update_post( $post ) {
 function stats_get_blog() {
 	$home = parse_url( trailingslashit( get_option( 'home' ) ) );
 	$blog = array(
-		'host'            => $home['host'],
-		'path'            => $home['path'],
-		'name'            => get_option( 'blogname' ),
-		'description'     => get_option( 'blogdescription' ),
-		'siteurl'         => get_option( 'siteurl' ),
-		'gmt_offset'      => get_option( 'gmt_offset' ),
-		'timezone_string' => get_option( 'timezone_string' ),
-		'version'         => STATS_VERSION,
-		'stats_api'       => 'jetpack',
+		'host'                => $home['host'],
+		'path'                => $home['path'],
+		'blogname'            => get_option( 'blogname' ),
+		'blogdescription'     => get_option( 'blogdescription' ),
+		'siteurl'             => get_option( 'siteurl' ),
+		'gmt_offset'          => get_option( 'gmt_offset' ),
+		'timezone_string'     => get_option( 'timezone_string' ),
+		'stats_version'       => STATS_VERSION,
+		'stats_api'           => 'jetpack',
+		'page_on_front'       => get_option( 'page_on_front' ),
+		'permalink_structure' => get_option( 'permalink_structure' ),
+		'category_base'       => get_option( 'category_base' ),
+		'tag_base'            => get_option( 'tag_base' ),
 	);
 	$blog = array_merge( $blog, stats_get_options() );
 	unset( $blog['roles'], $blog['blog_id'] );
@@ -445,17 +454,26 @@ function stats_get_blog() {
 function stats_get_posts( $args ) {
 	list( $post_ids ) = $args;
 	$post_ids = array_map( 'intval', (array) $post_ids );
-	$r = 'include=' . join( ',', $post_ids );
+	$r = array(
+		'include' => $post_ids,
+		'post_type' => 'any',
+		'post_status' => 'any',
+	);
 	$posts = get_posts( $r );
-	foreach ( $posts as &$post )
-		$post = stats_get_post( $post );
+	foreach ( $posts as $i => $post )
+		$posts[$i] = stats_get_post( $post );
 	return $posts;
 }
 
 function stats_get_post( $post ) {
 	$post = get_post( $post );
-	if ( $post )
+	if ( $post ) {
 		$post->permalink = get_permalink( $post );
+		$post->post_content = '';
+		$post->post_excerpt = '';
+		$post->post_content_filtered = '';
+		$post->post_password = '';
+	}
 	return $post;
 }
 
@@ -669,7 +687,7 @@ function stats_dashboard_widget_content() {
 	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	if ( is_wp_error( $get ) || empty( $get['body'] ) ) {
 		// @todo
-		print '<pre>' . htmlspecialchars( print_r( compact( 'url', 'get' ) , 1 ) ) . '</pre>';
+		echo '<p>' . __( 'We were unable to get your stats just now. Please try again.', 'jetpack' ) . '</p>';
 	} else {
 		$body = stats_convert_post_titles($get['body']);
 		$body = stats_convert_chart_urls($body);

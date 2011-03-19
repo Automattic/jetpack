@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/jetpack-trunk\n"
-"POT-Creation-Date: 2011-03-09 11:01:45+00:00\n"
-"PO-Revision-Date: 2011-03-09 15:19+0100\n"
+"POT-Creation-Date: 2011-03-18 19:01:09+00:00\n"
+"PO-Revision-Date: 2011-03-18 19:36+0100\n"
 "Last-Translator: WordPress Portugal <http;//wp-portugal.com>\n"
 "Language-Team: Automattic <http://jetpack.me>\n"
 "MIME-Version: 1.0\n"
@@ -16,34 +16,34 @@ msgstr ""
 "X-Poedit-Country: FRANCE\n"
 "X-Poedit-SearchPath-0: /Users/ze/Desktop/jetpack\n"
 
-#: jetpack.php:410
+#: jetpack.php:477
 msgid "Jetpack requires WordPress version %s or later."
 msgstr "Jetpack nécessite la version %s ou plus récente de WordPress."
 
-#: jetpack.php:519
+#: jetpack.php:593
 msgid "Jetpack contains the most recent version of the &#8220;%1$s&#8221; plugin."
 msgstr "Jetpack contient la version la plus récente du plugin &#8220;%1$s&#8221;."
 
-#: jetpack.php:581
+#: jetpack.php:655
 #: modules/sharedaddy/sharedaddy.php:57
 #: modules/sharedaddy/sharedaddy.php:64
 msgid "Settings"
 msgstr "Réglages"
 
-#: jetpack.php:598
+#: jetpack.php:672
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features."
 msgstr "<strong>Votre Jetpack est presque prêt</strong> &#8211; Connectez-vous à WordPress.com pour activer toutes les fonctions."
 
-#: jetpack.php:599
-#: jetpack.php:990
+#: jetpack.php:673
+#: jetpack.php:1072
 msgid "Connect to WordPress.com"
 msgstr "Connexion à WordPress.com"
 
-#: jetpack.php:601
+#: jetpack.php:675
 msgid "<strong>JetPack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr "<strong>JetPack est installé</strong> et prêt à ajouter d'impressionnantes fonctionnalités à votre site, alimentées par la puissance distribuée de WordPress."
 
-#: jetpack.php:602
+#: jetpack.php:676
 #: modules/module-info.php:42
 #: modules/module-info.php:100
 #: modules/module-info.php:135
@@ -55,195 +55,204 @@ msgstr "<strong>JetPack est installé</strong> et prêt à ajouter d'impressionn
 msgid "Learn More"
 msgstr "En savoir plus"
 
-#: jetpack.php:613
+#: jetpack.php:687
 msgid "<strong>JetPack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr "<strong>JetPack est activé!</strong> Chaque site de votre réseau doit être connecté individuellement par un de ses administrateurs."
 
-#: jetpack.php:675
+#: jetpack.php:750
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr "Vous devez autoriser la connexion Jetpack entre votre site et WordPress.com pour activer ces fonctionnalités impressionnantes."
 
-#: jetpack.php:678
+#: jetpack.php:753
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr "Ne croisez pas les jets! Vous devez rester connecté à votre blog WordPress pendant que vous autorisez Jetpack."
 
-#: jetpack.php:682
+#: jetpack.php:757
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr "Retour à l'envoyeur. Oops! On dirait que vous avez reçu le mauvais Jetpack au courrier; désactivez puis reactivez le plugin Jetpack pour en recevoir un nouveau."
 
-#: jetpack.php:685
+#: jetpack.php:760
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr "Mauvaise taille. Humm&#8230; il semble que votre Jetpack ne vous aille pas.  Avez-vous perdu du poids? Cliquez sur &#8220;Connexion à WordPress.com&#8221; à nouveau pour que votre Jetpack soit retouché."
 
-#: jetpack.php:689
+#: jetpack.php:764
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr "Votre site doit être accessible publiquement pour utiliser Jetpack: %s"
 
-#: jetpack.php:695
-msgid "%1$s could not be activated because it triggered a <strong>fatal error</strong>. Do you still have the %2$s plugin installed?"
-msgstr "%1$s n'a pas pu être activé car il a provoqué une <strong>erreur fatale</strong>. Le plugin %2$s est-il toujours installé?"
+#: jetpack.php:770
+msgid "The %1$s module requires <strong>PHP version %2$s</strong> or higher."
+msgstr "Le module %1$s nécessite la <strong>version %2$s de PHP<strong>, ou plus récente."
 
-#: jetpack.php:697
+#: jetpack.php:772
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "%s n'a pas pu être activé car il a provoqué une <strong>erreur fatale</strong>. Peut-être y a-t-il un conflit avec un autre plugin que vous avez installé?"
 
-#: jetpack.php:701
+#: jetpack.php:775
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "Le module n'a pas pu être activé car il a provoqué une <strong>erreur fatale</strong>. Peut-être y a-t-il un conflit avec un autre plugin que vous avez installé?"
 
-#: jetpack.php:704
+#: jetpack.php:783
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
 msgstr "<strong>Votre Jetpack a un petit souci.</strong> La connexion de ce site à WordPress.com n'est pas possible. Généralement ceci est provoqué par un site inaccessible publiquement (localhost)."
 
-#: jetpack.php:707
+#: jetpack.php:786
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
 msgstr "WordPress.com a actuellement des soucis et ne peut pas alimenter votre Jetpack. Veuillez essayer utlérieurement."
 
-#: jetpack.php:748
+#: jetpack.php:790
+msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
+msgstr "Jetpack n'a pas réussi à se connecter à WordPress.com. Généralement cela indique que quelque chose est mal configurée sue votre serveur."
+
+#: jetpack.php:830
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr "<strong>Votre Jetpack a un petit souci.</strong>  Quelque chose qui n&#8217;aurait pas du est allé de travers.  Vous êtes probablement chanceux: %s"
 
-#: jetpack.php:751
+#: jetpack.php:833
 msgid "Try connecting again."
 msgstr "Essayez de vous reconnecter."
 
-#: jetpack.php:761
+#: jetpack.php:843
 msgid "<strong>%s Activated!</strong> You can deactivate at any time using the deactivate button on the module card."
 msgstr "<strong>%s Activé!</strong> Vous pouvez le désactiver à tout moment en utilisant le bouton de désactivation dans la section du module."
 
-#: jetpack.php:768
+#: jetpack.php:850
 msgid "<strong>%s Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
 msgstr "<strong>%s Désactivé!</strong> Vous pouvez le reactiver à tout moment en utilisant le bouton dl&#8217;activation dans la section du module."
 
-#: jetpack.php:774
+#: jetpack.php:856
 msgid "<strong>Success!</strong> Module settings were saved."
 msgstr "<strong>Succès!</strong> Les réglages du module ont été sauvegardés"
 
-#: jetpack.php:778
+#: jetpack.php:860
 msgid "<strong>Whoops!</strong> Your Jetpack is already connected."
 msgstr "<strong>Oops!</strong> Votre Jetpack est déjà connecté."
 
-#: jetpack.php:782
+#: jetpack.php:864
 msgid "<strong>All Done!</strong> You&#8217;re fueled up and ready to go!"
 msgstr "<strong>C&#8217;est Fait!</strong> Vous avez le plein et êtres prêt(e) à partir!"
 
-#: jetpack.php:784
+#: jetpack.php:866
 msgid "The features below are now active. Click the learn more buttons to explore each feature."
 msgstr "Les fonctionnalités ci-dessous sont maintenant acitvées. Cliquez sur le bouton en savoir plus pour explorer chacune d'elles."
 
-#: jetpack.php:818
+#: jetpack.php:900
 msgid "Jetpack contains the most recent version of the %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the %l plugins."
 msgstr[0] "Jetpack contient la version la plus récente du plugin %l. "
 msgstr[1] "Jetpack contient les versions les plus récentes des plugins %l."
 
-#: jetpack.php:827
+#: jetpack.php:909
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] "L&#8217;ancienne version a été désactivée et peut être supprimée de votre site."
 msgstr[1] "Les anciennes versions ont été désactivées et peuvent être supprimées de votre site."
 
-#: jetpack.php:969
+#: jetpack.php:1051
 msgid "Connected to WordPress.com"
 msgstr "Connecté à WordPress.com"
 
-#: jetpack.php:970
+#: jetpack.php:1052
 msgid "Disconnect from WordPress.com"
 msgstr "Déconnexion de WordPress.com"
 
-#: jetpack.php:973
-#: jetpack.php:1070
+#: jetpack.php:1055
+#: jetpack.php:1152
 msgid "Jetpack by WordPress.com"
 msgstr "Jetpack par WordPress.com"
 
-#: jetpack.php:976
+#: jetpack.php:1058
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "Jetpack suralimente votre site WordPress auto-hébergé avec l'incroyable puissance du cloud WordPress.com."
 
-#: jetpack.php:991
+#: jetpack.php:1073
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
 msgstr "Pour activer toutes les fonctionnalités de Jetpack vous devez connecter votre site web à WordPress.com en utilisant le bouton à droite. Une fois la connexion effectuée, vous activerez toutes les délicieuses fonctions ci-dessous."
 
-#: jetpack.php:1007
+#: jetpack.php:1089
 msgid "Checking email updates status&hellip;"
 msgstr "Vérification du statut des notification par email&hellip;"
 
-#: jetpack.php:1013
+#: jetpack.php:1095
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr "Vous êtes actuellement inscrit(e) aux notifications par email. %s "
 
-#: jetpack.php:1014
+#: jetpack.php:1096
 msgid "Unsubscribe"
 msgstr "Désinscription"
 
-#: jetpack.php:1018
+#: jetpack.php:1100
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr "Envie de recevoir les nouvelles sur Jetpack par email? %s "
 
-#: jetpack.php:1019
+#: jetpack.php:1101
 msgid "Subscribe"
 msgstr "Inscription"
 
-#: jetpack.php:1026
+#: jetpack.php:1108
 msgid "You have been subscribed to receive email updates."
 msgstr "Vous êtes inscrit aux notifications par email."
 
-#: jetpack.php:1028
+#: jetpack.php:1110
 msgid "You will no longer receive email updates about Jetpack."
 msgstr "Vous ne recevrez plus de notification par email au sujet de Jetpack."
 
-#: jetpack.php:1041
+#: jetpack.php:1123
 msgid "An <span>Automattic</span> Airline"
 msgstr "Une Ligne Aérienne <span>Automattic</span>"
 
-#: jetpack.php:1043
+#: jetpack.php:1125
 msgid "Privacy Policy"
 msgstr "Vie Privée"
 
-#: jetpack.php:1044
+#: jetpack.php:1126
 msgid "Terms of Service"
 msgstr "Conditions d&#8217;Utilisation"
 
-#: jetpack.php:1045
+#: jetpack.php:1127
 msgid "Debug"
 msgstr "Debugguer"
 
-#: jetpack.php:1046
+#: jetpack.php:1128
 #: modules/sharedaddy/sharedaddy.php:65
 msgid "Support"
 msgstr "Support"
 
-#: jetpack.php:1071
+#: jetpack.php:1153
 msgid "Configure %s"
 msgstr "Configurer %s"
 
-#: jetpack.php:1114
+#: jetpack.php:1196
 msgid "Deactivate"
 msgstr "Désactiver"
 
-#: jetpack.php:1124
+#: jetpack.php:1206
 msgid "Activate"
 msgstr "Activer"
 
-#: jetpack.php:1156
+#: jetpack.php:1238
 msgid "Free"
 msgstr "Gratuit"
 
-#: jetpack.php:1174
+#: jetpack.php:1256
 msgid "Configure"
 msgstr "Configurer"
 
-#: jetpack.php:1208
+#: jetpack.php:1290
 msgid "Coming soon&#8230;"
 msgstr "Bientôt disponible&#8230;"
 
-#: jetpack.php:1879
+#: jetpack.php:1500
+#: jetpack.php:2084
+msgid "Error Details: %s"
+msgstr "Détails de l'erreur: %s"
+
+#: jetpack.php:2041
 msgid "An administrator for this blog must set up the Jetpack connection."
 msgstr "La connexion Jetpack doit être activée par un administrateur de ce blog."
 
-#: jetpack.php:1884
+#: jetpack.php:2046
 msgid "You need to register your Jetpack before connecting it."
 msgstr "Vous devez enregistrer votre Jetpack avant de le connecter."
 
@@ -976,113 +985,114 @@ msgstr "Une erreur s'est produite lors de la création de votre service de parta
 msgid "Your blog does not currently have any published posts."
 msgstr "Votre blog ne contient pas d'articles publiés actuellement."
 
-#: modules/stats.php:182
-#: modules/stats.php:476
+#: modules/stats.php:187
+#: modules/stats.php:494
 msgid "Site Stats"
 msgstr "Statistiques du Site"
 
-#: modules/stats.php:258
+#: modules/stats.php:263
+#: modules/stats.php:690
 msgid "We were unable to get your stats just now. Please try again."
 msgstr "Nous sommes incapables d'obtenir vos stats à l'instant. Veuillez essayer ultérieurement."
 
-#: modules/stats.php:353
+#: modules/stats.php:358
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
 msgstr "Visitez <a href=\"%s\">Statistiques du Site</a> pour voir vos statistiques."
 
-#: modules/stats.php:359
+#: modules/stats.php:364
 msgid "Admin bar"
 msgstr "Barre d'administration"
 
-#: modules/stats.php:360
+#: modules/stats.php:365
 msgid "Put a chart showing 48 hours of views in the admin bar."
 msgstr "Insérer un graphique montrant les pages vues des 48 dernières heures dans la barre d'administration."
 
-#: modules/stats.php:362
+#: modules/stats.php:367
 msgid "Registered users"
 msgstr "Utilisateurs enregistrés"
 
-#: modules/stats.php:363
+#: modules/stats.php:368
 msgid "Count the page views of registered users who are logged in."
 msgstr "Compter les pages vues par les utilisateurs enregistrés qui sont identifiés."
 
-#: modules/stats.php:364
+#: modules/stats.php:369
 msgid "Report visibility"
 msgstr "Visibilité des rapports"
 
-#: modules/stats.php:366
+#: modules/stats.php:371
 msgid "Select the roles that will be able to view stats reports."
 msgstr "Sélectionner les rôles qui ont la capacité de voir les rapports statistiques."
 
-#: modules/stats.php:377
+#: modules/stats.php:382
 msgid "Save configuration"
 msgstr "Sauvegarder la configuration"
 
-#: modules/stats.php:408
+#: modules/stats.php:413
 msgid "Views over 48 hours. Click for more Site Stats."
 msgstr "Pages vues sur les 48 dernières heures. Cliquez pour plus de Stats sur votre site."
 
-#: modules/stats.php:497
+#: modules/stats.php:515
 msgid "day"
 msgstr "jour"
 
-#: modules/stats.php:498
+#: modules/stats.php:516
 msgid "week"
 msgstr "semaine"
 
-#: modules/stats.php:499
+#: modules/stats.php:517
 msgid "month"
 msgstr "mois"
 
-#: modules/stats.php:502
+#: modules/stats.php:520
 msgid "the past day"
 msgstr "hier"
 
-#: modules/stats.php:503
+#: modules/stats.php:521
 msgid "the past week"
 msgstr "la semaine dernière"
 
-#: modules/stats.php:504
+#: modules/stats.php:522
 msgid "the past month"
 msgstr "le mois dernier"
 
-#: modules/stats.php:505
+#: modules/stats.php:523
 msgid "the past quarter"
 msgstr "le trimestre dernier"
 
-#: modules/stats.php:506
+#: modules/stats.php:524
 msgid "the past year"
 msgstr "l&#8217;année dernière"
 
-#: modules/stats.php:528
+#: modules/stats.php:546
 msgid "Chart stats by"
 msgstr "Grpahique des stats par"
 
-#: modules/stats.php:541
+#: modules/stats.php:559
 msgid "Show top posts over"
 msgstr "Afficher les posts les plus lus sur"
 
-#: modules/stats.php:554
+#: modules/stats.php:572
 msgid "Show top search terms over"
 msgstr "Afficher les recherches plus fréquentes sur"
 
-#: modules/stats.php:684
+#: modules/stats.php:702
 msgid "%1$s %2$s Views"
 msgstr "%1$s %2$s Pages Vues"
 
-#: modules/stats.php:700
+#: modules/stats.php:718
 msgid "Top Posts"
 msgstr "Articles les plus lus"
 
-#: modules/stats.php:704
-#: modules/stats.php:728
+#: modules/stats.php:722
+#: modules/stats.php:746
 msgid "Sorry, nothing to report."
 msgstr "Désolé, pas de rapport."
 
-#: modules/stats.php:724
+#: modules/stats.php:742
 msgid "Top Searches"
 msgstr "Recherches les plus fréquentes"
 
-#: modules/stats.php:741
+#: modules/stats.php:759
 msgid "View All"
 msgstr "Tout Voir"
 
@@ -1129,6 +1139,13 @@ msgstr "Inclure les retweets"
 #: modules/twitter-widget.php:229
 msgid "Text to display between tweet and timestamp:"
 msgstr "Texte à afficher entre le message et l'horodatage:"
+
+#~ msgid ""
+#~ "%1$s could not be activated because it triggered a <strong>fatal error</"
+#~ "strong>. Do you still have the %2$s plugin installed?"
+#~ msgstr ""
+#~ "%1$s n'a pas pu être activé car il a provoqué une <strong>erreur fatale</"
+#~ "strong>. Le plugin %2$s est-il toujours installé?"
 
 #~ msgid ""
 #~ "Once you&#8217;ve made the connection you&#8217;ll activate all the "
