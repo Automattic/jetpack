@@ -459,7 +459,10 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	}
 	$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $uri ) ) ) );
 	$uri = str_replace( '\\', '', $uri );
-	$dir = preg_replace( '/:.*$/', '',  $_SERVER["HTTP_HOST"] ) . $uri; // To avoid XSS attacks
+	//Add support for https and http caching
+	$is_https = ('on' ==  strtolower($_SERVER['HTTPS'])  || 'https' == strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])); //Also supports https requests coming from an nginx reverse proxy
+	$schema_dir = $is_https ? '/https' : '/http';
+	$dir = preg_replace( '/:.*$/', '',  $_SERVER["HTTP_HOST"] ) . $schema_dir . $uri; // To avoid XSS attacks
 	if ( function_exists( "apply_filters" ) )
 		$dir = apply_filters( 'supercache_dir', $dir );
 	$dir = $cache_path . 'supercache/' . $dir . '/';

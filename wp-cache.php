@@ -2450,14 +2450,28 @@ function wpsc_get_htaccess_info() {
 	$rules .= "RewriteBase $home_root\n"; // props Chris Messina
 	$charset = get_option('blog_charset') == '' ? 'UTF-8' : get_option('blog_charset');
 	$rules .= "AddDefaultCharset {$charset}\n";
+	$rules .= "#If you serve pages from behind a proxy you may want to change 'RewriteCond %{HTTPS} on' to something more sensible\n";
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html.gz\" [L]\n\n";
+	$rules .= "RewriteCond %{HTTPS} on\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root}$1/index.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root}$1/index.html.gz\" [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root}$1/index.html\" [L]\n";
+	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
+	$rules .= "RewriteCond %{HTTPS} !on\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root}$1/index.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root}$1/index.html.gz\" [L]\n\n";
+
+	$rules .= "CONDITION_RULES";
+	$rules .= "RewriteCond %{HTTPS} on\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root}$1/index.html -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root}$1/index.html\" [L]\n\n";
+
+	$rules .= "CONDITION_RULES";
+	$rules .= "RewriteCond %{HTTPS} !on\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root}$1/index.html -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root}$1/index.html\" [L]\n";
 	$rules .= "</IfModule>\n";
 	$rules = apply_filters( 'supercacherewriterules', $rules );
 
