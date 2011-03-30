@@ -251,8 +251,8 @@ function wp_cache_manager_error_checks() {
 	// writable, issue a warning only if the permissions aren't 755.
 	if( is_writeable_ACLSafe( WP_CONTENT_DIR . '/' ) ) {
 		$wp_content_stat = stat(WP_CONTENT_DIR . '/');
-		$wp_content_mode = ( $wp_content_stat[ 'mode' ] & 0777 );
-		if( $wp_content_mode != 0755 ) {
+		$wp_content_mode = decoct( $wp_content_stat[ 'mode' ] & 0777 );
+		if( substr( $wp_content_mode, -2 ) == '77' ) {
 			?><div id="message" class="updated fade"><h3><?php printf( __( 'Warning! %s is writeable!', 'wp-super-cache' ), WP_CONTENT_DIR ); ?></h3>
 			<p><?php printf( __( 'You should change the permissions on %s and make it more restrictive. Use your ftp client, or the following command to fix things:', 'wp-super-cache' ), WP_CONTENT_DIR ); ?> <code>chmod 755 <?php echo WP_CONTENT_DIR; ?>/</code></p>
 			<p><?php _e( '<a href="http://codex.wordpress.org/Changing_File_Permissions">This page</a> explains how to change file permissions.', 'wp-super-cache' ); ?></p></div>
