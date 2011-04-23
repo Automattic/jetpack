@@ -48,6 +48,9 @@ function scossdl_off_rewriter($match) {
 	static $offset = -1;
 	static $rewritten_urls = array();
 
+	if ( $ossdl_off_cdn_url == '' )
+		return $match[0];
+
 	if ( $ossdl_https && substr( $match[0], 0, 5 ) == 'https' )
 		return $match[0];
 
