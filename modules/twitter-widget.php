@@ -83,8 +83,8 @@ class Wickett_Twitter_Widget extends WP_Widget {
 		$include_retweets = (bool) $instance['includeretweets'];
 
 		echo "{$before_widget}{$before_title}<a href='" . esc_url( "http://twitter.com/{$account}" ) . "'>" . esc_html($title) . "</a>{$after_title}";
-
-		if ( !$tweets = wp_cache_get( 'widget-twitter-' . $this->number , 'widget' ) ) {
+ 
+		if ( false === ( $tweets = get_transient( 'widget-twitter-' . $this->number ) ) ) {
 			$params = array(
 				'screen_name'=>$account, // Twitter account name
 				'trim_user'=>true, // only basic user data (slims the result)
@@ -116,10 +116,10 @@ class Wickett_Twitter_Widget extends WP_Widget {
 			} else {
 				$tweets = 'error';
 				$expire = 300;
-				wp_cache_add( 'widget-twitter-response-code-' . $this->number, $response_code, 'widget', $expire );
+				set_transient( 'widget-twitter-response-code-' . $this->number, $response_code, $expire );
 			}
 
-			wp_cache_add( 'widget-twitter-' . $this->number, $tweets, 'widget', $expire );
+			set_transient( 'widget-twitter-' . $this->number, $tweets, $expire );
 		}
 
 		if ( 'error' != $tweets ) :
@@ -153,14 +153,15 @@ class Wickett_Twitter_Widget extends WP_Widget {
 					$tweet_id = urlencode( $tweet['id_str'] );
 				else
 					$tweet_id = urlencode( $tweet['id'] );
-				echo "<li>{$before_tweet}{$text}{$before_timesince}<a href=\"" . esc_url( "http://twitter.com/{$account}/statuses/{$tweet_id}" ) . '" class="timesince">' . str_replace( ' ', '&nbsp;', wpcom_time_since( strtotime( $tweet['created_at'] ) ) ) . "&nbsp;ago</a></li>\n";
+				$created_at = str_replace( '+0000', '', $tweet['created_at'] ) . ' UTC'; // Twitter's datetime format is strange, refactor for the sake of PHP4
+				echo "<li>{$before_tweet}{$text}{$before_timesince}<a href=\"" . esc_url( "http://twitter.com/{$account}/statuses/{$tweet_id}" ) . '" class="timesince">' . str_replace( ' ', '&nbsp;', wpcom_time_since( strtotime( $created_at ) ) ) . "&nbsp;ago</a></li>\n";
 				unset( $tweet_id );
 				$tweets_out++;
 			}
 
 			echo "</ul>\n";
 		else :
-			if ( 401 == wp_cache_get( 'widget-twitter-response-code-' . $this->number , 'widget' ) )
+			if ( 401 == get_transient( 'widget-twitter-response-code-' . $this->number ) )
 				echo '<p>' . wp_kses( sprintf( __( 'Error: Please make sure the Twitter account is <a href="%s">public</a>.', 'jetpack' ), 'http://support.twitter.com/forums/10711/entries/14016' ), array( 'a' => array( 'href' => true ) ) ) . '</p>';
 			else
 				echo '<p>' . esc_html__( 'Error: Twitter did not respond. Please wait a few minutes and refresh this page.', 'jetpack' ) . '</p>';
@@ -183,8 +184,8 @@ class Wickett_Twitter_Widget extends WP_Widget {
 		$instance['includeretweets'] = isset( $new_instance['includeretweets'] );
 		$instance['beforetimesince'] = $new_instance['beforetimesince'];
 
-		wp_cache_delete( 'widget-twitter-' . $this->number , 'widget' );
-		wp_cache_delete( 'widget-twitter-response-code-' . $this->number, 'widget' );
+		delete_transient( 'widget-twitter-' . $this->number );
+		delete_transient( 'widget-twitter-response-code-' . $this->number );
 
 		return $instance;
 	}

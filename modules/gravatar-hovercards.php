@@ -5,7 +5,7 @@
  * Sort Order: 1
  */
 
-define( 'GROFILES__CACHE_BUSTER', 'p' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes
+define( 'GROFILES__CACHE_BUSTER', 'u' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes
 
 function grofiles_hovercards_init() {
 	add_filter( 'get_avatar', 'grofiles_get_avatar', 10, 2 );

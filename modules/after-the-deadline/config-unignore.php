@@ -66,7 +66,7 @@ function atd_show_phrases( ignored )
 
 	for ( var i = 0; i < ignored.length; i++ ) {
 		if ( ignored[i].length > 0 )
-			items.push( '<span id="atd_' + i + '"><a class="ntdelbutton" href="javascript:atd_unignore(\'' + ignored[i].replace("'", "\\'") + '\')">X</a>&nbsp;' + ignored[i] + '</span>' );
+			items.push( '<span id="atd_' + i + '"><a class="ntdelbutton" href="javascript:atd_unignore(\'' + encodeURIComponent( ignored[i].replace("'", "\\'") ) + '\')">X</a>&nbsp;' + ignored[i] + '</span>' );
 	}
 
 	element.innerHTML = items.length >= 1 ? items.join("<br>") : ''; 

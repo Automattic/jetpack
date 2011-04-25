@@ -61,6 +61,8 @@ function stats_template_redirect() {
 		return;
 
 	$options = stats_get_options();
+	// Ensure this is always setup for the check below
+	$options['reg_users'] = empty( $options['reg_users'] ) ? false : true;
 
 	if ( !$options['reg_users'] && !empty( $current_user->ID ) )
 		return;
@@ -258,7 +260,8 @@ function stats_reports_page() {
 	$user_id = 1; // means send the wp.com user_id, not 1
 
 	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
-	if ( is_wp_error( $get ) ) {
+	$get_code = wp_remote_retrieve_response_code( $get );
+	if ( is_wp_error( $get ) || ( 2 != intval( $get_code / 100 ) && 304 != $get_code ) ) {
 		// @todo nicer looking error
 		echo '<p>' . __( 'We were unable to get your stats just now. Please try again.', 'jetpack' ) . '</p>';
 	} else {
@@ -446,7 +449,7 @@ function stats_get_blog() {
 		'category_base'       => get_option( 'category_base' ),
 		'tag_base'            => get_option( 'tag_base' ),
 	);
-	$blog = array_merge( $blog, stats_get_options() );
+	$blog = array_merge( stats_get_options(), $blog );
 	unset( $blog['roles'], $blog['blog_id'] );
 	return array_map( 'esc_html', $blog );
 }
@@ -685,7 +688,8 @@ function stats_dashboard_widget_content() {
 	$user_id = 1; // means send the wp.com user_id, not 1
 
 	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
-	if ( is_wp_error( $get ) || empty( $get['body'] ) ) {
+	$get_code = wp_remote_retrieve_response_code( $get );
+	if ( is_wp_error( $get ) || ( 2 != intval( $get_code / 100 ) && 304 != $get_code ) || empty( $get['body'] ) ) {
 		// @todo
 		echo '<p>' . __( 'We were unable to get your stats just now. Please try again.', 'jetpack' ) . '</p>';
 	} else {
@@ -823,7 +827,8 @@ function stats_get_remote_csv( $url ) {
 	$user_id = 1; // means send the wp.com user_id, not 1
 
 	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
-	if ( is_wp_error( $get ) || empty( $get['body'] ) ) {
+	$get_code = wp_remote_retrieve_response_code( $get );
+	if ( is_wp_error( $get ) || ( 2 != intval( $get_code / 100 ) && 304 != $get_code ) || empty( $get['body'] ) ) {
 		return array(); // @todo: return an error?
 	} else {
 		return stats_str_getcsv( $get['body'] );

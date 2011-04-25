@@ -7,13 +7,14 @@ class Jetpack_Signature {
 	var $token;
 	var $secret;
 
-	function Jetpack_Signature( $access_token ) {
+	function Jetpack_Signature( $access_token, $time_diff = 0 ) {
 		$secret = explode( '.', $access_token );
 		if ( 2 != count( $secret ) )
 			return;
 
 		$this->token  = $secret[0];
 		$this->secret = $secret[1];
+		$this->time_diff = $time_diff;
 	}
 
 	function sign_current_request( $override = null ) {
@@ -112,7 +113,8 @@ class Jetpack_Signature {
 			return new Jetpack_Error( 'invalid_signature', sprintf( 'The required "%s" parameter is malformed.', 'timestamp' ) );
 		}
 
-		if ( $timestamp < time() - 60 ) {
+		$local_time = $timestamp - $this->time_diff;
+		if ( $local_time < time() - 600 || $local_time > time() + 300 ) {
 			return new Jetpack_Error( 'invalid_signature', 'The timestamp is too old.' );
 		}
 

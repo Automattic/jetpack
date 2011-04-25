@@ -27,14 +27,14 @@ include( 'after-the-deadline/proxy.php' );
  * Update a user's After the Deadline Setting
  */
 function AtD_update_setting( $user_id, $name, $value ) {
-	update_usermeta( $user_id, $name, $value );
+	update_user_meta( $user_id, $name, $value );
 }
 
 /**
  * Retrieve a user's After the Deadline Setting
  */
-function AtD_get_setting( $user_id, $name, $value = null ) {
-	return get_user_meta( $user_id, $name, $value );
+function AtD_get_setting( $user_id, $name, $single = true ) {
+	return get_user_meta( $user_id, $name, $single );
 }
 
 /*

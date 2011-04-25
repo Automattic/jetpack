@@ -3,7 +3,7 @@ Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, skel
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, kyte, kytetv, livevideo, redlasso, rockyou, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me
 Requires at least: 3.0.5
 Tested up to: 3.1
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
 
@@ -63,6 +63,21 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * [[youtube]](http://support.wordpress.com/videos/youtube/)
 
 == Changelog ==
+
+= 1.1.2 =
+* Bug Fix: Note, store, and keep fresh the time difference between the Jetpack site's host and the Jetpack servers at WordPress.com.  Should fix all "timestamp is too old" errors.
+* Bug Fix: Improve experience on hosts capable of making outgoing HTTPS requests but incapable of verifying SSL certificates. Fixes some "register_http_request_failed", "error setting certificate verify locations", and "error:14090086:lib(20):func(144):reason(134)" errors.
+* Bug Fix: Better fallback when WordPress.com is experiencing problems.
+* Bug Fix: It's Jetpack, not JetPack :)
+* Bug Fix: Remove PHP Warnings/Notices.
+* Bug Fix: AtD: JS based XSS bug.  Props markjaquith.
+* Bug Fix: AtD: Prevent stored configuration options from becoming corrupted.
+* Bug Fix: Stats: Prevent missing old stats for some blogs.
+* Bug Fix: Twitter Widget: Fix formatting of dates/times in PHP4.
+* Bug Fix: Twitter Widget: Cache the response from Twitter to prevent "Twitter did not respond. Please wait a few minutes and refresh this page." errors.
+* Enhancement: Slightly improved RTL experience.  Jetpack 1.2 should include a much better fix.
+* Enhancement: Sharedaddy: Improve localization for Facebook Like button.
+* Enhancement: Gravatar Hovercards: Improved experience for Windows browsers.
 
 = 1.1.1 =
 * Bug Fix: Improve experience on hosts capable of making outgoing HTTPS requests but incapable of verifying SSL certificates. Fixes most "Your Jetpack has a glitch. Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)." errors.

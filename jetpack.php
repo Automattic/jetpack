@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.1.1
+ * Version: 1.1.2
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -46,6 +46,10 @@ jetpack_do_activate (bool)
 
 jetpack_fallback_no_verify_ssl_certs (int)
 	Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
+
+jetpack_time_diff (int)
+	Offset between Jetpack server's clocks and this server's clocks.
+	Jetpack Server Time = time() + (int) get_option( 'jetpack_time_diff' )
 */
 
 class Jetpack {
@@ -517,6 +521,7 @@ p {
 		delete_option( 'jetpack_active_modules' );
 		delete_option( 'jetpack_do_activate'    );
 		delete_option( 'jetpack_activated'      );
+		delete_option( 'jetpack_time_diff'      );
 		delete_option( 'jetpack_fallback_no_verify_ssl_certs' );
 
 		// Legacy
@@ -530,7 +535,7 @@ p {
 	 * @static
 	 */
 	function try_registration() {
-		$result = JetPack::register();
+		$result = Jetpack::register();
 
 		// If there was an error with registration and the site was not registered, record this so we can show a message.
 		if ( !$result || is_wp_error( $result ) ) {
@@ -554,7 +559,7 @@ p {
 			Jetpack::plugin_initialize();
 		}
 
-		if ( !JetPack::is_active() ) {
+		if ( !Jetpack::is_active() ) {
 			add_action( 'admin_print_styles', array( $this, 'admin_styles' ) );
 
 			if ( 4 != get_option( 'jetpack_activated' ) ) {
@@ -600,7 +605,7 @@ p {
 		add_filter( 'custom_menu_order', array( $this, 'admin_menu_order' ) );
 		add_filter( 'menu_order', array( $this, 'jetpack_menu_order' ) );
 
-		if ( JetPack::is_active() )
+		if ( Jetpack::is_active() )
 			add_action( "admin_print_styles-$hook", array( $this, 'admin_styles' ) );
 
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
@@ -670,7 +675,7 @@ p {
 					<h4><?php _e( '<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features.', 'jetpack' ); ?></h4>
 					<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
 				<?php else : ?>
-					<h4><?php _e( '<strong>JetPack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></h4>
+					<h4><?php _e( '<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></h4>
 					<p class="submit"><a href="<?php echo Jetpack::admin_url() ?>" class="button-primary" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a></p>
 				<?php endif; ?>
 			</div>
@@ -682,7 +687,7 @@ p {
 		?>
 		<div id="message" class="updated jetpack-message">
 			<div class="squeezer">
-				<h4><?php _e( '<strong>JetPack is activated!</strong> Each site on your network must be connected individually by an admin on that site.', 'jetpack' ) ?></h4>
+				<h4><?php _e( '<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site.', 'jetpack' ) ?></h4>
 			</div>
 		</div>
 		<?php
@@ -765,7 +770,7 @@ p {
 			$module = Jetpack::state( 'module' );
 			if ( !empty( $module ) && $mod = Jetpack::get_module( $module ) ) {
 				if ( 'sharedaddy' == $module && version_compare( PHP_VERSION, '5', '<' ) ) {
-					$this->error = sprintf( __( 'The %1$s module requires <strong>PHP version %2$s</strong> or higher.' ), '<strong>' . $mod['name'] . '</strong>', '5' );
+					$this->error = sprintf( __( 'The %1$s module requires <strong>PHP version %2$s</strong> or higher.' , 'jetpack' ), '<strong>' . $mod['name'] . '</strong>', '5' );
 				} else {
 					$this->error = sprintf( __( '%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?', 'jetpack' ), $mod['name'] );
 				}
@@ -780,6 +785,9 @@ p {
 		case 'not_public' :
 			$this->error = __( "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost).", 'jetpack' );
 			break;
+		case 'wpcom_408' :
+		case 'wpcom_5??' :
+		case 'wpcom_bad_response' :
 		case 'wpcom_outage' :
 			$this->error = __( 'WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later.', 'jetpack' );
 			break;
@@ -1037,7 +1045,7 @@ p {
 		global $current_user;
 
 		$role = $this->translate_current_user_to_role();
-		$is_connected = JetPack::is_active();
+		$is_connected = Jetpack::is_active();
 		$module = false;
 	?>
 		<div class="wrap" id="jetpack-settings">
@@ -1133,6 +1141,8 @@ p {
 					<li>CLIENT_ID:  <code style="font-size: 14px;"><?php echo esc_html( get_option( 'jetpack_id' ) ); ?></code></li>
 					<li>BLOG_TOKEN: <code style="font-size: 14px;"><?php echo esc_html( get_option( 'jetpack_blog_token' ) ); ?></code></li>
 					<li>USER_TOKEN: <code style="font-size: 14px;"><?php echo esc_html( get_option( 'jetpack_user_token' ) ); ?></code></li>
+					<li>CERT:       <code style="font-size: 14px;"><?php echo esc_html( get_option( 'jetpack_fallback_no_verify_ssl_certs' ) ); ?></code>
+					<li>TIME_DIFF:  <code style="font-size: 14px;"><?php echo esc_html( get_option( 'jetpack_time_diff' ) ); ?></code>
 				</ul>
 			</div>
 		</div>
@@ -1166,7 +1176,7 @@ p {
 	function admin_screen_list_modules() {
 		require_once dirname( __FILE__ ) . '/modules/module-info.php';
 		$jetpack_connected = true;
-		if ( !JetPack::is_active() )
+		if ( !Jetpack::is_active() )
 			$jetpack_connected = false;
 
 		?>
@@ -1465,13 +1475,16 @@ p {
 		else
 			$json = false;
 
-		if ( 200 != $code || !empty( $json->error ) ) {
-			if ( empty( $json->error ) )
-				return new Jetpack_Error( 'not_public', '', $code );
-
-			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s' ), (string) $json->error_description ) : '';
-
+		$code_type = intval( $code / 100 );
+		if ( 5 == $code_type ) {
+			return new Jetpack_error( 'wpcom_5??', sprintf( __( 'Error Details: %s' , 'jetpack' ), $code ), $code );
+		} elseif ( 408 == $code ) {
+			return new Jetpack_error( 'wpcom_408', sprintf( __( 'Error Details: %s' , 'jetpack' ), $code ), $code );
+		} elseif ( !empty( $json->error ) ) {
+			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s' , 'jetpack' ), (string) $json->error_description ) : '';
 			return new Jetpack_Error( (string) $json->error, $error_description, $code );
+		} elseif ( 200 != $code ) {
+			return new Jetpack_error( 'wpcom_bad_response', sprintf( __( 'Error Details: %s' , 'jetpack' ), $code ), $code );
 		}
 
 		if ( empty( $json->jetpack_id ) || !is_scalar( $json->jetpack_id ) || preg_match( '/[^0-9]/', $json->jetpack_id ) )
@@ -1533,7 +1546,7 @@ p {
 
 		require_once dirname( __FILE__ ) . '/class.jetpack-signature.php';
 
-		$jetpack_signature = new Jetpack_Signature( $token->secret );
+		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) get_option( 'jetpack_time_diff' ) );
 		$signature = $jetpack_signature->sign_current_request( array( 'body' => $this->HTTP_RAW_POST_DATA ) );
 		if ( !$signature ) {
 			return $user;
@@ -1716,9 +1729,10 @@ class Jetpack_Client {
 
 		require_once dirname( __FILE__ ) . '/class.jetpack-signature.php';
 
-		$jetpack_signature = new Jetpack_Signature( $token->secret );
+		$time_diff = (int) get_option( 'jetpack_time_diff' );
+		$jetpack_signature = new Jetpack_Signature( $token->secret, $time_diff );
 
-		$timestamp = time();
+		$timestamp = time() + $time_diff;
 		$nonce = wp_generate_password( 10, false );
 
 		// Kind of annoying.  Maybe refactor Jetpack_Signature to handle body-hashing
@@ -1811,6 +1825,7 @@ class Jetpack_Client {
 		||
 			!is_wp_error( $response )                          // Let it ride
 		) {
+			Jetpack_Client::set_time_diff( $response, $set_fallback );
 			return $response;
 		}
 
@@ -1820,9 +1835,11 @@ class Jetpack_Client {
 
 		// Is it an SSL Certificate verification error?
 		if (
-			( false === strpos( $message, 'SSL3_GET_SERVER_CERTIFICATE' ) || false === strpos( $message, '14090086' ) ) // OpenSSL SSL3
+			false === strpos( $message, '14090086' ) // OpenSSL SSL3 certificate error
 		&&
-			( false === strpos( $message, 'SSL2_SET_CERTIFICATE' ) || false === strpos( $message, '1407E086' ) ) // OpenSSL SSL2
+			false === strpos( $message, '1407E086' ) // OpenSSL SSL2 certificate error
+		&&
+			false === strpos( $message, 'error setting certificate verify locations' ) // cURL CA bundle not found
 		) {
 			// No, it is not.
 			return $response;
@@ -1835,9 +1852,38 @@ class Jetpack_Client {
 		if ( !is_wp_error( $response ) ) {
 			// The request went through this time, flag for future fallbacks
 			update_option( 'jetpack_fallback_no_verify_ssl_certs', time() );
+			Jetpack_Client::set_time_diff( $response, $set_fallback );
 		}
 
 		return $response;
+	}
+
+	function set_time_diff( &$response, $force_set = false ) {
+		$code = wp_remote_retrieve_response_code( $response );
+
+		// Only trust the Date header on some responses
+		if ( 200 != $code && 304 != $code && 400 != $code && 401 != $code ) {
+			return;
+		}
+
+		if ( !$date = wp_remote_retrieve_header( $response, 'date' ) ) {
+			return;
+		}
+
+		if ( 0 >= $time = (int) strtotime( $date ) ) {
+			return;
+		}
+
+		$time_diff = $time - time();
+
+		if ( $force_set ) { // during register
+			update_option( 'jetpack_time_diff', $time_diff );
+		} else { // otherwise
+			$old_diff = get_option( 'jetpack_time_diff' );
+			if ( false === $old_diff || abs( $time_diff - (int) $old_diff ) > 10 ) {
+				update_option( 'jetpack_time_diff', $time_diff );
+			}
+		}
 	}
 }
 
@@ -2053,7 +2099,7 @@ class Jetpack_Client_Server {
 			if ( empty( $json->error ) )
 				return new Jetpack_Error( 'unknown', '', $code );
 
-			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s' ), (string) $json->error_description ) : '';
+			$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s' , 'jetpack' ), (string) $json->error_description ) : '';
 
 			return new Jetpack_Error( (string) $json->error, $error_description, $code );
 		}
