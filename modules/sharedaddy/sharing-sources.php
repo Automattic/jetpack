@@ -615,20 +615,31 @@ class Share_Facebook extends Sharing_Advanced_Source {
 		}
 	}
 
+	function guess_locale_from_lang( $lang ) {
+		$lang = strtolower( str_replace( '-', '_', $lang ) );
+		if ( 5 == strlen( $lang ) )
+			$lang = substr( $lang, 0, 3 ) . strtoupper( substr( $lang, 3, 2 ) ); // Already in xx_xx, just make sure it's uppered
+		else if ( 3 == strlen( $lang ) )
+			$lang = $lang; // Don't know what to do with these
+		else
+			$lang = $lang . '_' . strtoupper( $lang ); // Sometimes this gives a workable locale
+		return $lang;
+	}
+
 	public function get_display( $post ) {
-		if ( $this->share_type == 'share' )
-			return '<div class="facebook_button"><a name="fb_share" rel="nofollow" type="button" share_url="' . get_permalink( $post->ID ) . '" href="http://www.facebook.com/sharer.php?u=' . rawurlencode( get_permalink( $post->ID ) ) . '&t=' . rawurlencode( $post->post_title ) . '">'._x( 'Share', 'on facebook', 'jetpack' ).'</a><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script></div>';
-    else if ( $this->share_type == 'like' ) {
+		if ( $this->share_type == 'share' ) {
+			return '<div class="facebook_button"><a name="fb_share" rel="nofollow" type="button" share_url="' . get_permalink( $post->ID ) . '" href="http://www.facebook.com/sharer.php?u=' . rawurlencode( get_permalink( $post->ID ) ) . '&t=' . rawurlencode( $post->post_title ) . '">'.__( 'Share' , 'jetpack' ).'</a><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script></div>';
+		} else if ( $this->share_type == 'like' ) {
 			$url = 'http://www.facebook.com/plugins/like.php?href=' . rawurlencode( get_permalink( $post->ID ) ) . '&amp;layout=button_count&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;height=21';
 			
 			// Default widths to suit English
 			$inner_w = 90;
 			
-			// Locale-specific widths
+			// Locale-specific widths/overrides
 			$widths = array(
 				'de' => array( 'width' => 100, 'locale' => 'de_DE' ),
 				'da' => array( 'width' => 115, 'locale' => 'da_DK' ),
-				'sr' => array( 'width' => 110, 'locale' => 'sr_RS' ),
+				'fi' => array( 'width' => 100, 'locale' => 'fi_FI' ),
 			);
 
 			$widths = apply_filters( 'sharing_facebook_like_widths', $widths );
@@ -639,12 +650,12 @@ class Share_Facebook extends Sharing_Advanced_Source {
 			if ( isset( $widths[substr( $locale, 0, 2 )] ) ) {
 				$inner_w = $widths[substr( $locale, 0, 2 )]['width'];
 				$locale  = $widths[substr( $locale, 0, 2 )]['locale'];
+			} else {
+				$locale  = $this->guess_locale_from_lang( get_locale() );
 			}
-			else
-				$locale = false;
 			
-			if ( $locale )			
-				$url .= '&amp;locale='.$locale;
+			if ( $locale && 'en_US' != $locale )
+				$url .= '&amp;locale=' . $locale;
 
 			$url .= '&amp;width='.$inner_w;
 			return '<div class="like_button"><iframe src="'.$url.'" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:'.( $inner_w + 6 ).'px; height:21px;" allowTransparency="true"></iframe></div>';

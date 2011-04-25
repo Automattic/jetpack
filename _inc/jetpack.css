@@ -291,6 +291,8 @@ body.toplevel_page_jetpack #screen-meta { display: none }
 			background: rgba( 0,0,0,0.05 );
 			font-size: 12px;
 			padding: 1px;
+			text-shadow: none;
+			color: #555;
 		}
 
 		.more-info .jp-close {
@@ -639,6 +641,7 @@ p#news-sub {
 	max-width: 980px;
 	min-width: 800px;
 	margin-top: 15px;
+	direction: ltr;
 }
 
 #jetpack-settings .button, #jetpack-settings .button-primary {
