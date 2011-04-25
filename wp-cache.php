@@ -896,18 +896,26 @@ jQuery(document).ready(function(){
 					// Get the first copy
 					echo "<p>" . sprintf(  __( 'Fetching first copy of %s: ', 'wp-super-cache' ), $url );
 					$page = wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-					$fp = fopen( $cache_path . "1.html", "w" );
-					fwrite( $fp, $page[ 'body' ] );
-					fclose( $fp );
-					echo '<strong>' . __( 'OK', 'wp-super-cache' ) . "</strong> (<a href='" . WP_CONTENT_URL . "/cache/1.html'>1.html</a>)</p>";
-					sleep( 1 );
+					if ( !is_wp_error( $page ) ) {
+						$fp = fopen( $cache_path . "1.html", "w" );
+						fwrite( $fp, $page[ 'body' ] );
+						fclose( $fp );
+						echo '<strong>' . __( 'OK', 'wp-super-cache' ) . "</strong> (<a href='" . WP_CONTENT_URL . "/cache/1.html'>1.html</a>)</p>";
+						sleep( 1 );
+					} else {
+						echo '<strong>' . __( 'FAILED', 'wp-super-cache' ) . "</strong></p>";
+					}
 					// Get the second copy
 					echo "<p>" . sprintf(  __( 'Fetching second copy of %s: ', 'wp-super-cache' ), $url );
 					$page2 = wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-					$fp = fopen( $cache_path . "2.html", "w" );
-					fwrite( $fp, $page2[ 'body' ] );
-					fclose( $fp );
-					echo '<strong>' . __( 'OK', 'wp-super-cache' ) . "</strong> (<a href='" . WP_CONTENT_URL . "/cache/2.html'>2.html</a>)</p>";
+					if ( !is_wp_error( $page2 ) ) {
+						$fp = fopen( $cache_path . "2.html", "w" );
+						fwrite( $fp, $page2[ 'body' ] );
+						fclose( $fp );
+						echo '<strong>' . __( 'OK', 'wp-super-cache' ) . "</strong> (<a href='" . WP_CONTENT_URL . "/cache/2.html'>2.html</a>)</p>";
+					} else {
+						echo '<strong>' . __( 'FAILED', 'wp-super-cache' ) . "</strong></p>";
+					}
 
 					if ( is_wp_error( $page ) || is_wp_error( $page2 ) || $page[ 'response' ][ 'code' ] != 200 || $page2[ 'response' ][ 'code' ] != 200 ) {
 						echo '<p><strong>' . __( 'One or more page requests failed:', 'wp-super-cache' ) . '</strong></p>';
