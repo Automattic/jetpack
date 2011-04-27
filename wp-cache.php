@@ -1302,7 +1302,11 @@ function wp_lock_down() {
 		$readonly = 'READONLY';
 		?><p style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><strong><?php _e( 'Warning!', 'wp-super-cache' ); ?></strong> <?php printf( __( 'You must make %s writable to enable this feature. As this is a security risk please make it readonly after your page is generated.', 'wp-super-cache' ), ABSPATH ); ?></p><?php
 	} else {
-		?><p style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><strong><?php _e( 'Warning!', 'wp-super-cache' ); ?></strong> <?php printf( __( '%s is writable. Please make it readonly after your page is generated as this is a security risk.', 'wp-super-cache' ), ABSPATH ); ?></p><?php
+		$abspath_stat = stat(ABSPATH . '/');
+		$abspath_mode = decoct( $abspath_stat[ 'mode' ] & 0777 );
+		if ( substr( $abspath_mode, -2 ) == '77' ) {
+			?><p style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><strong><?php _e( 'Warning!', 'wp-super-cache' ); ?></strong> <?php printf( __( '%s is writable. Please make it readonly after your page is generated as this is a security risk.', 'wp-super-cache' ), ABSPATH ); ?></p><?php
+		}
 	}
 	echo '<form name="direct_page" action="#direct" method="post">';
 	if( is_array( $cached_direct_pages ) ) {
