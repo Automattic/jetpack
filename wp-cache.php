@@ -2436,6 +2436,7 @@ function wpsc_get_htaccess_info() {
 	$home_path = get_home_path();
 	$home_root = parse_url(get_bloginfo('url'));
 	$home_root = isset( $home_root['path'] ) ? trailingslashit( $home_root['path'] ) : '/';
+	$home_root_lc = strtolower( $home_root );
 	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $content_dir_root, '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
 	$wprules = str_replace( "RewriteEngine On\n", '', $wprules );
@@ -2466,24 +2467,24 @@ function wpsc_get_htaccess_info() {
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{HTTPS} on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root}$1/index.html.gz -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root}$1/index.html.gz\" [L]\n\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root_lc}$1/index.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root_lc}$1/index.html.gz\" [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{HTTPS} !on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root}$1/index.html.gz -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root}$1/index.html.gz\" [L]\n\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root_lc}$1/index.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root_lc}$1/index.html.gz\" [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTPS} on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root}$1/index.html -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root}$1/index.html\" [L]\n\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root_lc}$1/index.html -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root_lc}$1/index.html\" [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTPS} !on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root}$1/index.html -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root}$1/index.html\" [L]\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root_lc}$1/index.html -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root_lc}$1/index.html\" [L]\n";
 	$rules .= "</IfModule>\n";
 	$rules = apply_filters( 'supercacherewriterules', $rules );
 
@@ -2493,7 +2494,7 @@ function wpsc_get_htaccess_info() {
 	$gziprules .= "<IfModule mod_deflate.c>\n  SetEnvIfNoCase Request_URI \.gz$ no-gzip\n</IfModule>\n";
 	$gziprules .= "<IfModule mod_headers.c>\n  Header set Vary \"Accept-Encoding, Cookie\"\n  Header set Cache-Control 'max-age=3, must-revalidate'\n</IfModule>\n";
 	$gziprules .= "<IfModule mod_expires.c>\n  ExpiresActive On\n  ExpiresByType text/html A3\n</IfModule>\n";
-	return array( "document_root" => $document_root, "apache_root" => $apache_root, "home_path" => $home_path, "home_root" => $home_root, "inst_root" => $inst_root, "wprules" => $wprules, "scrules" => $scrules, "condition_rules" => $condition_rules, "rules" => $rules, "gziprules" => $gziprules );
+	return array( "document_root" => $document_root, "apache_root" => $apache_root, "home_path" => $home_path, "home_root" => $home_root, "home_root_lc" => $home_root_lc, "inst_root" => $inst_root, "wprules" => $wprules, "scrules" => $scrules, "condition_rules" => $condition_rules, "rules" => $rules, "gziprules" => $gziprules );
 }
 
 function clear_post_supercache( $post_id ) {
