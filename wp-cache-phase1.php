@@ -57,7 +57,7 @@ if ($cache_compression) {
 	$wp_cache_gzip_encoding = gzip_accepted();
 }
 
-add_cacheaction( 'wp_cache_get_cookies_values', 'wp_cache_check_mobile' );
+add_cacheaction( 'supercache_filename_str', 'wp_cache_check_mobile' );
 
 $wp_cache_request_uri = $_SERVER[ 'REQUEST_URI' ]; // Cache this in case any plugin modifies it.
 
@@ -507,6 +507,7 @@ function supercache_filename() {
 
 	return $filename;
 }
+
 function get_oc_version() {
 	$wp_cache_oc_key = wp_cache_get( "wp_cache_oc_key" );
 	if ( ! $wp_cache_oc_key ) {

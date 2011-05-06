@@ -31,10 +31,9 @@ function wp_cache_phase2() {
 		// No post_id is available
 		add_action('switch_theme', 'wp_cache_no_postid', 99); 
 		add_action('edit_user_profile_update', 'wp_cache_no_postid', 99); 
-
 		add_action( 'wp_update_nav_menu', 'wp_cache_clear_cache' );
-
 		add_action('wp_cache_gc','wp_cache_gc_cron');
+		add_filter( 'supercache_filename_str', 'wp_cache_check_mobile' );
 
 		do_cacheaction( 'add_cacheaction' );
 	}
