@@ -146,8 +146,9 @@ function wp_cache_serve_cache_file() {
 		}
 	} else {
 		// last chance, check if a supercache file exists. Just in case .htaccess rules don't work on this host
-		$file = get_current_url_supercache_dir() . "index.html";
-		$phpfile = get_current_url_supercache_dir() . "index.html.php";
+		$filename = supercache_filename();
+		$file = get_current_url_supercache_dir() . $filename;
+		$phpfile = get_current_url_supercache_dir() . $filename . ".php";
 		$serving_supercache = false;
 		if ( file_exists( $file ) ) {
 			$serving_supercache = 'html';
@@ -459,10 +460,7 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	}
 	$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $uri ) ) ) );
 	$uri = str_replace( '\\', '', $uri );
-	//Add support for https and http caching
-	$is_https = ('on' ==  strtolower($_SERVER['HTTPS'])  || 'https' == strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])); //Also supports https requests coming from an nginx reverse proxy
-	$schema_dir = $is_https ? '/https' : '/http';
-	$dir = preg_replace( '/:.*$/', '',  $_SERVER["HTTP_HOST"] ) . $schema_dir . $uri; // To avoid XSS attacks
+	$dir = preg_replace( '/:.*$/', '',  $_SERVER["HTTP_HOST"] ) . $uri; // To avoid XSS attacks
 	if ( function_exists( "apply_filters" ) ) {
 		$dir = apply_filters( 'supercache_dir', $dir );
 	} else {
@@ -478,65 +476,37 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	return $dir;
 }
 
-function get_current_url_supercache_dirs( $post_id = 0 ) {
-	global $cached_direct_pages, $cache_path, $wp_cache_request_uri;
+function get_all_supercache_filenames() {
+	$filenames = array( 'index.html', 'index-https.html', 'index.html.php' );
 
-	$dirs = array();
-
-	if ( $post_id != 0 ) {
-		$uri = str_replace( site_url(), '', get_permalink( $post_id ) );
-	} else {
-		$uri = $wp_cache_request_uri;
-	}
-	$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $uri ) ) ) );
-	$uri = str_replace( '\\', '', $uri );
-	//Add support for https and http caching
-	$is_https = ('on' ==  strtolower($_SERVER['HTTPS'])  || 'https' == strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])); //Also supports https requests coming from an nginx reverse proxy
-	$schema_dir = $is_https ? '/https' : '/http';
-	$default_dir = strtolower(preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"])) . $schema_dir . $uri; // To avoid XSS attacks
-	$dirs[] = $default_dir;
 	if ( function_exists( "apply_filters" ) ) {
-		$dirs = apply_filters( 'supercache_dirs', $dirs, $default_dir );
+		$filenames = apply_filters( 'all_supercache_filenames', $filenames );
 	} else {
-		$dirs = do_cacheaction( 'supercache_dirs', $dirs, $default_dir );
+		$filenames = do_cacheaction( 'all_supercache_filenames', $filenames );
 	}
-	foreach ( $dirs as $i => & $dir ) {
-		$dirs[ $i ] = $cache_path . 'supercache/' . $dirs[ $i ] . '/';
-		if( is_array( $cached_direct_pages ) && in_array( $_SERVER[ 'REQUEST_URI' ], $cached_direct_pages ) ) {
-			$dirs[ $i ] = ABSPATH . $uri . '/';
-		}
-		$dirs[ $i ] = str_replace( '//', '/', $dir );
-		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "supercache dir $i: " . $dirs[ $i ], 5 );
+
+	foreach( $filenames as $file ) {
+		$out[] = $file;
+		$out[] = $file . '.gz';
 	}
-	return $dirs;
+
+	return $out;
 }
 
-function get_base_supercache_dirs() {
-	global $cached_direct_pages, $cache_path, $wp_cache_request_uri;
-
-	$dirs = array();
-
+function supercache_filename() {
 	//Add support for https and http caching
 	$is_https = ('on' ==  strtolower($_SERVER['HTTPS'])  || 'https' == strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])); //Also supports https requests coming from an nginx reverse proxy
-	$schema_dir = $is_https ? '/https' : '/http';
-	$default_dir = strtolower(preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]) ) . $schema_dir; // To avoid XSS attacks
-	$dirs[] = $default_dir;
-	if ( function_exists( "apply_filters" ) ) {
-		$dirs = apply_filters( 'supercache_dirs', $dirs, $default_dir );
-	} else {
-		$dirs = do_cacheaction( 'supercache_dirs', $dirs, $default_dir );
-	}
-	foreach ( $dirs as $i => & $dir ) {
-		$dirs[ $i ] = $cache_path . 'supercache/' . $dirs[ $i ] . '/';
-		if( is_array( $cached_direct_pages ) && in_array( $_SERVER[ 'REQUEST_URI' ], $cached_direct_pages ) ) {
-			$dirs[ $i ] = ABSPATH . $uri . '/';
-		}
-		$dirs[ $i ] = str_replace( '//', '/', $dir );
-		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "supercache dir $i: " . $dirs[ $i ], 5 );
-	}
-	return $dirs;
-}
+	$extra_str = $is_https ? '-https' : '';
 
+	if ( function_exists( "apply_filters" ) ) {
+		$extra_str = apply_filters( 'supercache_filename_str', $extra_str );
+	} else {
+		$extra_str = do_cacheaction( 'supercache_filename_str', $extra_str );
+	}
+	$filename = 'index' . $extra_str . '.html';
+
+	return $filename;
+}
 function get_oc_version() {
 	$wp_cache_oc_key = wp_cache_get( "wp_cache_oc_key" );
 	if ( ! $wp_cache_oc_key ) {

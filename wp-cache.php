@@ -2467,24 +2467,24 @@ function wpsc_get_htaccess_info() {
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{HTTPS} on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root_lc}$1/index.html.gz -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root_lc}$1/index.html.gz\" [L]\n\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root_lc}$1/index-https.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root_lc}$1/index-https.html.gz\" [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{HTTPS} !on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root_lc}$1/index.html.gz -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root_lc}$1/index.html.gz\" [L]\n\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/{$home_root_lc}$1/index.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/{$home_root_lc}$1/index.html.gz\" [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTPS} on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root_lc}$1/index.html -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/https{$home_root_lc}$1/index.html\" [L]\n\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/{$home_root_lc}$1/index-https.html -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/{$home_root_lc}$1/index-https.html\" [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTPS} !on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root_lc}$1/index.html -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/http{$home_root_lc}$1/index.html\" [L]\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}/{$home_root_lc}$1/index.html -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}/{$home_root_lc}$1/index.html\" [L]\n";
 	$rules .= "</IfModule>\n";
 	$rules = apply_filters( 'supercacherewriterules', $rules );
 
@@ -2498,15 +2498,14 @@ function wpsc_get_htaccess_info() {
 }
 
 function clear_post_supercache( $post_id ) {
-	$dirs = get_current_url_supercache_dirs( $post_id );
-	foreach ( $dirs as $dir ) {
-		if ( file_exists( $dir . 'index.html' ) ) {
-			@unlink( $dir . 'index.html' );
-		}
-		if ( file_exists( $dir . 'index.html.gz' ) ) {
-			@unlink( $dir . 'index.html.gz' );
-		}
-	}
+	$dir = get_current_url_supercache_dir( $post_id );
+	if ( false == @is_dir( $dir ) )
+		return false;
+
+	if ( !function_exists( 'prune_super_cache' ) )
+		include_once( 'wp-cache-phase2.php' );
+
+	prune_super_cache( $dir, true);
 }
 
 function wp_cron_preload_cache() {
