@@ -34,6 +34,8 @@ if( is_array( $plugins ) ) {
 	}
 }
 
+do_cacheaction( 'cache_init' );
+
 if (!$cache_enabled || $_SERVER["REQUEST_METHOD"] == 'POST') 
 	return true;
 
