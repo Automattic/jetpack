@@ -339,7 +339,7 @@ function add_cacheaction( $action, $func ) {
 function do_cacheaction( $action, $value = '' ) {
 	global $wp_supercache_actions;
 
-	if ( isset( $wp_supercache_actions ) && false == is_array( $wp_supercache_actions ) )
+	if ( !isset( $wp_supercache_actions ) || !is_array( $wp_supercache_actions ) )
 		return $value;
 
 	if( array_key_exists($action, $wp_supercache_actions) && is_array( $wp_supercache_actions[ $action ] ) ) {
