@@ -26,6 +26,11 @@ if( !isset( $wp_cache_plugins_dir ) )
 
 require_once( WPCACHEHOME . 'wp-cache-phase2.php');
 
+if ( isset( $_GET[ 'donotcachepage' ] ) && isset( $cache_page_secret ) && $_GET[ 'donotcachepage' ] == $cache_page_secret ) {
+	$cache_enabled = false;
+	define( 'DONOTCACHEPAGE', 1 );
+}
+
 $plugins = glob( $wp_cache_plugins_dir . '/*.php' );
 if( is_array( $plugins ) ) {
 	foreach ( $plugins as $plugin ) {
