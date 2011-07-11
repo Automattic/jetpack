@@ -83,10 +83,8 @@ function wp_cache_phase2() {
 	if( $super_cache_enabled && $cache_rebuild_files ) {
 		$user_info = wp_cache_get_cookies_values();
 		$do_cache = apply_filters( 'do_createsupercache', $user_info );
-		if( $user_info == '' || $do_cache === true ) {
+		if( $user_info == '' || $do_cache === true )
 			wpcache_do_rebuild( get_current_url_supercache_dir() );
-			wpcache_do_rebuild( get_supercache_dir() );
-		}
 	}
 
 	if ( $cache_max_time == 0 )
