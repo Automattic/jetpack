@@ -280,6 +280,9 @@ function wp_cache_ob_callback( $buffer ) {
 	} elseif ( isset( $wp_cache_pages[ 'search' ] ) && $wp_cache_pages[ 'search' ] == 1 && is_search() ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Not caching search page.', 2 );
 		return $buffer;
+	} elseif ( isset( $wp_cache_pages[ 'author' ] ) && $wp_cache_pages[ 'author' ] == 1 && is_author() ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Not caching author page.', 2 );
+		return $buffer;
 	} elseif ( isset( $wp_cache_pages[ 'feed' ] ) && $wp_cache_pages[ 'feed' ] == 1 && is_feed() ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Not caching feed.', 2 );
 		return $buffer;

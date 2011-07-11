@@ -1442,7 +1442,7 @@ function wp_cache_edit_rejected_pages() {
 	global $wp_cache_config_file, $valid_nonce, $wp_cache_pages;
 
 	if ( isset( $_POST[ 'wp_edit_rejected_pages' ] ) && $valid_nonce ) {
-		$pages = array( 'single', 'pages', 'archives', 'tag', 'frontpage', 'home', 'category', 'feed', 'search' );
+		$pages = array( 'single', 'pages', 'archives', 'tag', 'frontpage', 'home', 'category', 'feed', 'author', 'search' );
 		foreach( $pages as $page ) {
 			if ( isset( $_POST[ 'wp_cache_pages' ][ $page ] ) ) {
 				$value = 1;
@@ -1467,6 +1467,7 @@ function wp_cache_edit_rejected_pages() {
 	echo '&nbsp;&nbsp;<label><input type="checkbox" value="1" name="wp_cache_pages[category]" ' . checked( 1, $wp_cache_pages[ 'category' ], false ) . ' /> ' . __( 'Category', 'wp-super-cache' ) . ' (is_category)</label><br />';
 	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[feed]" ' . checked( 1, $wp_cache_pages[ 'feed' ], false ) . ' /> ' . __( 'Feeds', 'wp-super-cache' ) . ' (is_feed)</label><br />';
 	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[search]" ' . checked( 1, $wp_cache_pages[ 'search' ], false ) . ' /> ' . __( 'Search Pages', 'wp-super-cache' ) . ' (is_search)</label><br />';
+	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[author]" ' . checked( 1, $wp_cache_pages[ 'author' ], false ) . ' /> ' . __( 'Author Pages', 'wp-super-cache' ) . ' (is_author)</label><br />';
 
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
