@@ -447,6 +447,10 @@ function wp_cache_user_agent_is_rejected() {
 	return false;
 }
 
+function get_supercache_dir() {
+	global $cache_path;
+	return $cache_path . 'supercache/' . trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', get_option( 'home' ) ) ) ) );
+}
 function get_current_url_supercache_dir( $post_id = 0 ) {
 	global $cached_direct_pages, $cache_path, $wp_cache_request_uri;
 	static $saved_supercache_dir = array();
@@ -478,8 +482,21 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	return $dir;
 }
 
-function get_all_supercache_filenames() {
+function get_all_supercache_filenames( $dir = '' ) {
+	global $wp_cache_mobile_enabled;
+
 	$filenames = array( 'index.html', 'index-https.html', 'index.html.php' );
+
+	if ( $dir != '' && isset( $wp_cache_mobile_enabled ) && $wp_cache_mobile_enabled ) {
+		// open directory and look for index-*.html files
+		if ( is_dir( $dir ) && $dh = opendir( $dir ) ) {
+			while ( ( $file = readdir( $dh ) ) !== false ) {
+				if ( substr( $file, 0, 6 ) == 'index-' && strpos( $file, '.html' ) )
+					$filenames[] = $file;
+			}
+			closedir( $dh );
+		}
+	}
 
 	if ( function_exists( "apply_filters" ) ) {
 		$filenames = apply_filters( 'all_supercache_filenames', $filenames );

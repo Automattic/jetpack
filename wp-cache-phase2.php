@@ -84,23 +84,8 @@ function wp_cache_phase2() {
 		$user_info = wp_cache_get_cookies_values();
 		$do_cache = apply_filters( 'do_createsupercache', $user_info );
 		if( $user_info == '' || $do_cache === true ) {
-			$dir = get_current_url_supercache_dir();
-			$files_to_check = get_all_supercache_filenames();
-			foreach( $files_to_check as $cache_file ) {
-				$cache_file = $dir . $cache_file;
-				if( !@file_exists( $cache_file . '.needs-rebuild' ) )
-					continue;
-				$mtime = @filemtime($cache_file . '.needs-rebuild');
-				if( $mtime && (time() - $mtime) < 30 ) {
-					if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Rebuild file renamed to cache file temporarily: $cache_file", 3 );
-					@rename( $cache_file . '.needs-rebuild', $cache_file );
-				}
-				// cleanup old files or if rename fails
-				if( @file_exists( $cache_file . '.needs-rebuild' ) ) {
-					if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Rebuild file deleted: {$cache_file}.needs-rebuild", 3 );
-					@unlink( $cache_file . '.needs-rebuild' );
-				}
-			}
+			wpcache_do_rebuild( get_current_url_supercache_dir() );
+			wpcache_do_rebuild( get_supercache_dir() );
 		}
 	}
 
@@ -126,6 +111,26 @@ function wp_cache_phase2() {
 		} else {
 			global $time_to_gc_cache;
 			$time_to_gc_cache = 1; // tell the "shutdown gc" to run!
+		}
+	}
+}
+
+function wpcache_do_rebuild( $dir ) {
+	$dir = trailingslashit( $dir );
+	$files_to_check = get_all_supercache_filenames( $dir );
+	foreach( $files_to_check as $cache_file ) {
+		$cache_file = $dir . $cache_file;
+		if( !@file_exists( $cache_file . '.needs-rebuild' ) )
+			continue;
+		$mtime = @filemtime($cache_file . '.needs-rebuild');
+		if( $mtime && (time() - $mtime) < 30 ) {
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Rebuild file renamed to cache file temporarily: $cache_file", 3 );
+			@rename( $cache_file . '.needs-rebuild', $cache_file );
+		}
+		// cleanup old files or if rename fails
+		if( @file_exists( $cache_file . '.needs-rebuild' ) ) {
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Rebuild file deleted: {$cache_file}.needs-rebuild", 3 );
+			@unlink( $cache_file . '.needs-rebuild' );
 		}
 	}
 }
@@ -987,14 +992,14 @@ function wp_cache_post_change( $post_id ) {
 
 	$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', post_permalink( $post_id ) ) );
 	if( $super_cache_enabled ) {
+		$dir = get_supercache_dir();
 		$siteurl = trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', get_option( 'home' ) ) ) ) );
 		// make sure the front page has a rebuild file
 		wp_cache_post_id_gc( $siteurl, $post_id );
-		$dir = $cache_path . 'supercache/' . $siteurl; // To avoid XSS attacks
 		// make sure the front page has a rebuild file
 		if ( $all == true ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: deleting cache files in " . $cache_path . 'supercache/' . $siteurl, 4 );
-			$files_to_check = get_all_supercache_filenames();
+			$files_to_check = get_all_supercache_filenames( $dir );
 			foreach( $files_to_check as $cache_file ) {
 				prune_super_cache( $dir . $cache_file, true, true ); 
 			}
@@ -1006,7 +1011,7 @@ function wp_cache_post_change( $post_id ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: page_on_front " . get_option( 'page_on_front' ), 4 );
 			wp_cache_post_id_gc( $siteurl, get_option( 'page_on_front' ), 'single' );
 			$permalink = trailingslashit( str_replace( get_option( 'home' ), '', post_permalink( get_option( 'page_for_posts' ) ) ) );
-			$files_to_check = get_all_supercache_filenames();
+			$files_to_check = get_all_supercache_filenames( $dir . $permalink );
 			foreach( $files_to_check as $cache_file ) {
 				prune_super_cache( $dir . $permalink . $cache_file, true, true ); 
 			}
@@ -1043,7 +1048,7 @@ function wp_cache_post_change( $post_id ) {
 					@unlink($meta_pathname);
 					@unlink($content_pathname);
 					if ( $super_cache_enabled == true ) {
-						$files_to_check = get_all_supercache_filenames();
+						$files_to_check = get_all_supercache_filenames( $dir . $meta[ 'uri' ] );
 						foreach( $files_to_check as $cache_file ) {
 							@wp_cache_rebuild_or_delete( $dir . trailingslashit( $meta[ 'uri' ] ) . $cache_file );
 						}
