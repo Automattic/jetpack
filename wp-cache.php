@@ -321,7 +321,7 @@ function wp_cache_manager_updates() {
 
 	if ( false == isset( $cache_page_secret ) ) {
 		$cache_page_secret = md5( date() . mt_rand() );
-		wp_cache_replace_line('^ *\$cache_page_secret', "\$cache_page_secret = " . $cache_page_secret . ";", $wp_cache_config_file);
+		wp_cache_replace_line('^ *\$cache_page_secret', "\$cache_page_secret = '" . $cache_page_secret . "';", $wp_cache_config_file);
 	}
 
 	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
