@@ -970,9 +970,17 @@ jQuery(document).ready(function(){
 			echo "<p>" . __( "Cached pages are stored on your server as html and PHP files. If you need to delete them use the button below.", 'wp-super-cache' ) . "</p>";
 			echo '<form name="wp_cache_content_delete" action="?page=wpsupercache&tab=contents" method="post">';
 			echo '<input type="hidden" name="wp_delete_cache" />';
-			echo '<div class="submit"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . ' &raquo;" /></div>';
+			echo '<div class="submit" style="float:left;margin-left:10px"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . ' &raquo;" /></div>';
 			wp_nonce_field('wp-cache');
 			echo "</form>\n";
+
+			if ( defined( 'WP_ALLOW_MULTISITE' ) && wpsupercache_site_admin() ) {
+				echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
+				echo '<input type="hidden" name="wp_delete_all_cache" />';
+				echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . ' &raquo;" />';
+				wp_nonce_field('wp-cache');
+				echo "</form><br />\n";
+			}
 			?>
 			<h3><?php _e( 'Recommended Links and Plugins', 'wp-super-cache' ); ?></h3>
 			<p><?php _e( 'Caching is only one part of making a website faster. Here are some other plugins that will help:', 'wp-super-cache' ); ?></p>
@@ -1865,6 +1873,10 @@ function wp_cache_files() {
 			wp_cache_clean_cache($file_prefix);
 			$_GET[ 'action' ] = 'regenerate_cache_stats';
 		}
+		if ( isset( $_REQUEST[ 'wp_delete_all_cache' ] ) ) {
+			wp_cache_clean_cache( $file_prefix, true );
+			$_GET[ 'action' ] = 'regenerate_cache_stats';
+		}
 		if(isset($_REQUEST['wp_delete_expired'])) {
 			wp_cache_clean_expired($file_prefix);
 			$_GET[ 'action' ] = 'regenerate_cache_stats';
@@ -2112,6 +2124,13 @@ function wp_cache_delete_buttons() {
 	echo '<div class="submit" style="float:left;margin-left:10px"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
+	if ( defined( 'WP_ALLOW_MULTISITE' ) && wpsupercache_site_admin() ) {
+		echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
+		echo '<input type="hidden" name="wp_delete_all_cache" />';
+		echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . ' &raquo;" />';
+		wp_nonce_field('wp-cache');
+		echo "</form>\n";
+	}
 }
 
 function delete_cache_dashboard() {
@@ -2159,33 +2178,34 @@ function wpsc_dirsize($directory, $sizes) {
 	return $sizes;
 }
 
-
-function wp_cache_clean_cache($file_prefix) {
-	global $cache_path, $supercachedir, $blog_cache_dir, $wp_cache_object_cache;
+function wp_cache_clean_cache( $file_prefix, $all = false ) {
+	global $wpdb, $cache_path, $supercachedir, $blog_cache_dir, $wp_cache_object_cache;
 
 	if ( $wp_cache_object_cache && function_exists( "reset_oc_version" ) )
 		reset_oc_version();
 
-	// If phase2 was compiled, use its function to avoid race-conditions
-	if(function_exists('wp_cache_phase2_clean_cache')) {
-		if (function_exists ('prune_super_cache')) {
-			if( is_dir( $supercachedir ) ) {
-				prune_super_cache( $supercachedir, true );
-			} elseif( is_dir( $supercachedir . '.disabled' ) ) {
-				prune_super_cache( $supercachedir . '.disabled', true );
-			}
-			prune_super_cache( $cache_path, true );
-			$_POST[ 'super_cache_stats' ] = 1; // regenerate super cache stats;
-		} elseif ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Warning! prune_super_cache() not found in wp-cache.php', 1 );
-		return wp_cache_phase2_clean_cache($file_prefix);
-	} elseif ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Warning! wp_cache_phase2_clean_cache() not found in wp-cache.php', 1 );
+	if ( $all == true && wpsupercache_site_admin() && function_exists( 'prune_super_cache' ) ) {
+		prune_super_cache( $cache_path, true );
+		return true;
+	}
 
-	$expr = "/^$file_prefix/";
-	if ( ($handle = @opendir( $blog_cache_dir )) ) { 
+	if (function_exists ('prune_super_cache')) {
+		if( is_dir( $supercachedir ) ) {
+			prune_super_cache( $supercachedir, true );
+		} elseif( is_dir( $supercachedir . '.disabled' ) ) {
+			prune_super_cache( $supercachedir . '.disabled', true );
+		}
+		$_POST[ 'super_cache_stats' ] = 1; // regenerate super cache stats;
+	} elseif ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Warning! prune_super_cache() not found in wp-cache.php', 1 );
+
+	if ( $handle = @opendir( $blog_cache_dir . 'meta/' ) ) { 
 		while ( false !== ($file = readdir($handle))) {
-			if ( preg_match($expr, $file) ) {
-				@unlink( $blog_cache_dir . $file);
-				@unlink( $blog_cache_dir . 'meta/' . str_replace( '.html', '.meta', $file ) );
+			if ( preg_match( "/^$file_prefix/", $file ) ) {
+				$meta = unserialize( file_get_contents( $blog_cache_dir . 'meta/' . $file ) );
+				if ( $meta[ 'blog_id' ] == $wpdb->blogid ) {
+					@unlink( $blog_cache_dir . 'meta/' . $file);
+					@unlink( $blog_cache_dir .  str_replace( '.meta', '.html', $file ) );
+				}
 			}
 		}
 		closedir($handle);

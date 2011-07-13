@@ -644,8 +644,13 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Cleaning cache in $blog_cache_dir", 3 );
 	if ( ( $handle = @opendir( $blog_cache_dir ) ) ) { 
 		while ( false !== ($file = @readdir($handle))) {
-			if ( preg_match("/^$file_prefix/", $file) )
-				@unlink( $blog_cache_dir . $file );
+			if ( preg_match("/^$file_prefix/", $file) ) {
+				$meta = unserialize( file_get_contents( $blog_cache_dir . 'meta/' . $file ) );
+				if ( $meta[ 'blog_id' ] == $wpdb->blogid ) {
+					@unlink( $blog_cache_dir . $file );
+					@unlink( $blog_cache_dir . 'meta/' . str_replace( '.html', '.meta', $file ) );
+				}
+			}
 		}
 		closedir($handle);
 	}
