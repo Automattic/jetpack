@@ -209,7 +209,15 @@ function AtD_should_load_on_page() {
 		return true;
 	
 	return false;
-} 
+}
+
+// add button to DFW
+add_filter( 'wp_fullscreen_buttons', 'AtD_fullscreen' );
+function AtD_fullscreen($buttons) {
+	$buttons['spellchecker'] = array( 'title' => __('Proofread Writing'), 'onclick' => "tinyMCE.execCommand('mceWritingImprovementTool');", 'both' => false );
+
+	return $buttons;
+}
 
 /* add some vars into the AtD plugin */
 add_filter( 'tiny_mce_before_init', 'AtD_change_mce_settings' );
