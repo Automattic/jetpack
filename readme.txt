@@ -64,6 +64,16 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.1.3 =
+* Bug Fix: Increase compatibility with WordPress 3.2's new `wp_remote_request()` API.
+* Bug Fix: Increase compatibility with Admin Bar.
+* Bug Fix: Stats: Improved performance when creating new posts.
+* Bug Fix: Twitter Widget: Fix PHP Notice.
+* Bug Fix: Sharedaddy: Fix PHP Warning.
+* Enhancement: AtD: Add spellcheck button to Distraction Free Writing screen.
+* Translations: Added: Bosnian, Danish, German, Finnish, Galician, Croatian, Indonesian,  Macedonian, Norwegian (Bokmål), Russian, Slovak, Serbian, Swedish
+* Translations: Updated: Spanish, French, Italian, Japanese, Brazilian Portuguese, Portuguese
+
 = 1.1.2 =
 * Bug Fix: Note, store, and keep fresh the time difference between the Jetpack site's host and the Jetpack servers at WordPress.com.  Should fix all "timestamp is too old" errors.
 * Bug Fix: Improve experience on hosts capable of making outgoing HTTPS requests but incapable of verifying SSL certificates. Fixes some "register_http_request_failed", "error setting certificate verify locations", and "error:14090086:lib(20):func(144):reason(134)" errors.

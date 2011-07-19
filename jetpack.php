@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.1.2
+ * Version: 1.1.3
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -71,6 +71,9 @@ class Jetpack {
 //		'contributor' => 'edit_posts',
 	);
 
+	/**
+	 * WP < 3.2 only.  3.2+ has an API.
+	 */
 	var $use_ssl = array();
 
 	/**
@@ -141,6 +144,7 @@ class Jetpack {
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
+		// Only used in WordPress < 3.2
 		add_action( 'http_transport_post_debug', array( $this, 'http_transport_detector' ) );
 		add_action( 'http_transport_get_debug',  array( $this, 'http_transport_detector' ) );
 
@@ -570,9 +574,12 @@ p {
 					add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
 			}
 		} elseif ( false === get_option( 'jetpack_fallback_no_verify_ssl_certs' ) ) {
+			// Upgrade: 1.1 -> 1.1.1
+			// Check and see if host can verify the Jetpack servers' SSL certificate
+			$args = array();
 			Jetpack_Client::_wp_remote_request(
-				Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'test', 'get' ) ),
-				array(),
+				Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'test' ), $args ),
+				$args,
 				true
 			);
 		}
@@ -645,11 +652,11 @@ p {
 	}
 
 	function admin_styles() {
-		wp_enqueue_style( 'jetpack', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack.css' ), false, '20110307' );
+		wp_enqueue_style( 'jetpack', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack.css' ), false, '20110719' );
 	}
 
 	function admin_scripts() {
-		wp_enqueue_script( 'jetpack-js', plugins_url( basename( dirname( __FILE__ ) ) ) . '/_inc/jetpack.js', array( 'jquery' ), '20110307' );
+		wp_enqueue_script( 'jetpack-js', plugins_url( basename( dirname( __FILE__ ) ) ) . '/_inc/jetpack.js', array( 'jquery' ), '20110719' );
 		add_action( 'admin_footer', array( $this, 'do_stats' ) );
 	}
 
@@ -1350,9 +1357,11 @@ p {
 	 * Attached to http_transport_post_debug and http_transport_post_debug.
 	 *
 	 * Supports POST, GET, probably HEAD.  Does not currently support PUT, etc.
+	 *
+	 * Only used in WordPress < 3.2
 	 */
 	function http_transport_detector( $transport ) {
-		$method = 'http_transport_post_debug' == current_filter() ? 'post' : 'get';
+		$method = 'http_transport_post_debug' == current_filter() ? 'POST' : 'GET';
 
 		$transport = strtolower( get_class( array_pop( array_values( $transport ) ) ) );
 
@@ -1361,7 +1370,10 @@ p {
 		case 'wp_http_exthttp' :
 		case 'wp_http_curl' :
 			if ( is_callable( 'curl_version' ) && $curl_version = curl_version() ) {
-				$use_ssl = CURL_VERSION_SSL & $curl_version['features']; // bitwise
+				$use_ssl = 
+					( isset( $curl_version['ssl_version_number'] ) && $curl_version['ssl_version_number'] > 0 )
+					||
+					( defined( 'CURL_VERSION_SSL' ) && isset( $curl_version['features'] ) && ( CURL_VERSION_SSL & $curl_version['features'] ) ); // bitwise
 				break;
 			} // else no break
 		// Everything else uses PHP's linked OpenSSL for SSL connections.
@@ -1375,7 +1387,7 @@ p {
 	/**
 	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
 	 */
-	function fix_url_for_bad_hosts( $url, $method = 'post' ) {
+	function fix_url_for_bad_hosts( $url, &$args ) {
 		if ( 0 !== strpos( $url, 'https://' ) ) {
 			return $url;
 		}
@@ -1388,20 +1400,33 @@ p {
 		// default : case 'AUTO' :
 		}
 
-		$method = 'post' == strtolower( $method ) ? 'post' : 'get';
 		$jetpack = Jetpack::init();
 
-		if ( empty( $jetpack->use_ssl ) ) {
-			if ( function_exists( '_wp_http_get_object' ) ) {
-				_wp_http_get_object();
+		if ( version_compare( $GLOBALS['wp_version'], '3.2-something', '<' ) ) {
+			// WordPress < 3.2
+			if ( isset( $args['method'] ) && 'POST' == strtoupper( $args['method'] ) ) {
+				$method = 'POST';
 			} else {
-				new WP_Http;
+				$method = 'GET';
 			}
-		}
 
-		// Yay! Your host is good!
-		if ( $jetpack->use_ssl[$method] ) {
-			return $url;
+			if ( empty( $jetpack->use_ssl ) ) {
+				if ( function_exists( '_wp_http_get_object' ) ) {
+					_wp_http_get_object();
+				} else {
+					new WP_Http;
+				}
+			}
+
+			// Yay! Your host is good!
+			if ( $jetpack->use_ssl[$method] ) {
+				return $url;
+			}
+		} else {
+			// WordPress >= 3.2
+			if ( wp_http_supports( 'ssl' ) ) {
+				return $url;
+			}
 		}
 
 		// Boo! Your host is bad and makes Jetpack cry!
@@ -1443,7 +1468,7 @@ p {
 		$stats_options = get_option( 'stats_options' );
 		$stats_id = isset($stats_options['blog_id']) ? $stats_options['blog_id'] : null;
 
-		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), array(
+		$args = array(
 			'method' => 'POST',
 			'body' => array(
 				'siteurl'         => site_url(),
@@ -1461,7 +1486,8 @@ p {
 				'Accept' => 'application/json',
 			),
 			'timeout' => $timeout,
-		), true );
+		);
+		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ), $args ), $args, true );
 
 		if ( is_wp_error( $response ) ) {
 			return new Jetpack_Error( 'register_http_request_failed', $response->get_error_message() );
@@ -1763,7 +1789,7 @@ class Jetpack_Client {
 		}
 
 		$url = add_query_arg( urlencode_deep( $url_args ), $args['url'] );
-		$url = Jetpack::fix_url_for_bad_hosts( $url, $method );
+		$url = Jetpack::fix_url_for_bad_hosts( $url, $request );
 
 		$signature = $jetpack_signature->sign_request( $token_key, $timestamp, $nonce, $body_hash, $method, $url, $body, false );
 
@@ -1793,7 +1819,7 @@ class Jetpack_Client {
 	 * This is lame, but many, many, many hosts have misconfigured SSL.
 	 *
 	 * When Jetpack is registered, the jetpack_fallback_no_verify_ssl_certs option is set to the current time if:
-	 * 1. a certificate error is found and
+	 * 1. a certificate error is found AND
 	 * 2. not verifying the certificate works around the problem.
 	 *
 	 * The option is checked on each request.
@@ -2075,13 +2101,14 @@ class Jetpack_Client_Server {
 			), menu_page_url( 'jetpack', false ) ),
 		);
 
-		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'token' ) ), array(
+		$args = array(
 			'method' => 'POST',
 			'body' => $body,
 			'headers' => array(
 				'Accept' => 'application/json',
 			),
-		) );
+		);
+		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'token' ), $args ), $args );
 
 		if ( is_wp_error( $response ) ) {
 			return new Jetpack_Error( 'token_http_request_failed', $response->get_error_message() );
