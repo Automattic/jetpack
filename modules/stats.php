@@ -256,7 +256,7 @@ function stats_reports_page() {
 
 	$url = add_query_arg( $q, $url );
 	$method = 'GET';
-	$timeout = 30;
+	$timeout = 90;
 	$user_id = 1; // means send the wp.com user_id, not 1
 
 	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
@@ -684,7 +684,7 @@ function stats_dashboard_widget_content() {
 
 	$url = add_query_arg( $q, $url );
 	$method = 'GET';
-	$timeout = 30;
+	$timeout = 90;
 	$user_id = 1; // means send the wp.com user_id, not 1
 
 	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
@@ -823,7 +823,7 @@ function stats_get_csv( $table, $args = null ) {
 
 function stats_get_remote_csv( $url ) {
 	$method = 'GET';
-	$timeout = 30;
+	$timeout = 90;
 	$user_id = 1; // means send the wp.com user_id, not 1
 
 	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
