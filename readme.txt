@@ -1,5 +1,5 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, skeltoac
+Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, andy
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, kyte, kytetv, livevideo, redlasso, rockyou, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me
 Requires at least: 3.0.5
 Tested up to: 3.2
