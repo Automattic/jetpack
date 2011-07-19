@@ -192,7 +192,7 @@ class Wickett_Twitter_Widget extends WP_Widget {
 
 	function form( $instance ) {
 		//Defaults
-		$instance = wp_parse_args( (array) $instance, array( 'account' => '', 'title' => '', 'show' => 5, 'hidereplies' => false ) );
+		$instance = wp_parse_args( (array) $instance, array( 'account' => '', 'title' => '', 'show' => 5, 'hidereplies' => false, 'includeretweets' => false, 'beforetimesince' => '' ) );
 
 		$account = esc_attr( $instance['account'] );
 		$title = esc_attr( $instance['title'] );
