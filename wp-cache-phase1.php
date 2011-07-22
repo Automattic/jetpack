@@ -31,7 +31,7 @@ if ( isset( $_GET[ 'donotcachepage' ] ) && isset( $cache_page_secret ) && $_GET[
 	define( 'DONOTCACHEPAGE', 1 );
 }
 if ( isset( $wp_cache_make_known_anon ) && $wp_cache_make_known_anon )
-	add_cacheaction( 'wp_cache_get_cookies_values', 'wp_supercache_cache_for_admins' );
+	wp_supercache_cache_for_admins();
 
 $plugins = glob( $wp_cache_plugins_dir . '/*.php' );
 if( is_array( $plugins ) ) {
@@ -562,17 +562,21 @@ function get_oc_key( $url = false ) {
 	return $key . $wp_cache_gzip_encoding . get_oc_version();
 }
 
-function wp_supercache_cache_for_admins( $cookies ) {
+function wp_supercache_cache_for_admins() {
 	if ( function_exists( "is_admin" ) && is_admin() )
 		return $cookies;
 
+	$cookie_keys = array( 'wordpress_logged_in', 'comment_author_' );
+	reset( $_COOKIE );
 	foreach( $_COOKIE as $cookie => $val ) {
-		if ( strpos( "wordpress_logged_in_", $cookie ) !== FALSE ) {
-			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Removing auth from $_COOKIE to allow caching for logged user (' . $cookie . ')', 5 );
-			unset( $_COOKIE[ $cookie ] );
+		reset( $cookie_keys );
+		foreach( $cookie_keys as $key ) {
+			if ( strpos( $cookie, $key ) !== FALSE ) {
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Removing auth from $_COOKIE to allow caching for logged user (' . $cookie . ')', 5 );
+				unset( $_COOKIE[ $cookie ] );
+			}
 		}
 	}
-	return $cookies;
 }
 
 ?>
