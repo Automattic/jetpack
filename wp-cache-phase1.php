@@ -563,7 +563,7 @@ function get_oc_key( $url = false ) {
 }
 
 function wp_supercache_cache_for_admins() {
-	if ( function_exists( "is_admin" ) && is_admin() )
+	if ( isset( $_GET[ 'preview' ] ) || function_exists( "is_admin" ) && is_admin() )
 		return $cookies;
 
 	$cookie_keys = array( 'wordpress_logged_in', 'comment_author_' );
