@@ -497,3 +497,4 @@ Translators who did a great job converting the text of the plugin to their nativ
 * Bar¿¿ Ünver (Turkish)
 * [Elvis Fweb](http://fweb.org.ru/blog/super-cache-rus) (Russian)
 * Fredrik Forséll (Swedish)
+* [Alyona Lompar](http://wwww.webhostinggeeks.com/) (Ukranian)
