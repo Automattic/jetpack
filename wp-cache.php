@@ -965,6 +965,11 @@ jQuery(document).ready(function(){
 						echo '<p><strong>' . __( 'The timestamps on both pages match!', 'wp-super-cache' ) . '</strong></p>';
 					} else {
 						echo '<p><strong>' . __( 'The pages do not match! Timestamps differ or were not found!', 'wp-super-cache' ) . '</strong></p>';
+						echo '<p>' . __( 'Things you can do:', 'wp-super-cache' ) . '</p>';
+						echo '<ol><li>' . __( 'Load your homepage in a logged out browser, check the timestamp at the end of the html source. Load the page again and compare the timestamp. Caching is working if the timestamps match.', 'wp-super-cache' ) . '</li>';
+						echo '<li>' . __( 'Enable logging on the Debug page here. That should help you track down the problem.', 'wp-super-cache' ) . '</li>';
+						echo '<li>' . __( 'You should check Page 1 and Page 2 above for errors. Your local server configuration may not allow your website to access itself.', 'wp-super-cache' ) . '</li>';
+						echo "</ol>";
 
 					}
 				}
