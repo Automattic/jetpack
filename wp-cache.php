@@ -320,7 +320,7 @@ function wp_cache_manager_updates() {
 		return false;
 
 	if ( false == isset( $cache_page_secret ) ) {
-		$cache_page_secret = md5( date() . mt_rand() );
+		$cache_page_secret = md5( date( 'H:i:s' ) . mt_rand() );
 		wp_cache_replace_line('^ *\$cache_page_secret', "\$cache_page_secret = '" . $cache_page_secret . "';", $wp_cache_config_file);
 	}
 
