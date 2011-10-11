@@ -177,7 +177,7 @@ function wp_cache_is_rejected($uri) {
 			return true; // we don't allow caching of wp-admin for security reasons
 	}
 	foreach ( $cache_rejected_uri as $expr ) {
-		if( $expr != '' && preg_match( "~$expr~", $uri ) )
+		if( $expr != '' && @preg_match( "~$expr~", $uri ) )
 			return true;
 	}
 	return false;
