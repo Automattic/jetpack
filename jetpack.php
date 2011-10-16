@@ -1424,7 +1424,7 @@ p {
 			}
 		} else {
 			// WordPress >= 3.2
-			if ( wp_http_supports( 'ssl' ) ) {
+			if ( wp_http_supports( array( 'ssl' => true ) ) ) {
 				return $url;
 			}
 		}
