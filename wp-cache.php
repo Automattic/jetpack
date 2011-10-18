@@ -2571,6 +2571,45 @@ function wp_cron_preload_cache() {
 
 	$counter = get_option( 'preload_cache_counter' );
 	$c = $counter[ 'c' ];
+	$taxonomies = apply_filters( 'wp_cache_preload_taxonomies', array( 'post_tag' => 'tag', 'category' => 'category' ) );
+	$finished = false;
+	foreach( $taxonomies as $taxonomy => $path ) {
+		$taxonomy_filename = $cache_path . "taxonomy_" . $taxonomy . ".txt";
+		if ( $c == 0 )
+			@unlink( $taxonomy_filename );
+
+		if ( false == @file_exists( $taxonomy_filename ) ) {
+			$out = '';
+			$records = get_terms( $taxonomy );
+			foreach( $records as $term ) {
+				$out .= site_url( $path . "/" . $term->slug . "/" ) . "\n";
+			}
+			$fp = fopen( $taxonomy_filename, 'w' );
+			if ( $fp ) {
+				fwrite( $fp, $out );
+				fclose( $fp );
+			}
+			$details = explode( "\n", $out );
+		} else {
+			$details = explode( "\n", file_get_contents( $taxonomy_filename ) );
+		}
+		if ( !empty( $details ) ) {
+			$rows = array_splice( $details, 0, 10 );
+			foreach( (array)$rows as $url ) {
+				$url_info = parse_url( $url );
+				$dir = get_supercache_dir() . $url_info[ 'path' ];
+				prune_super_cache( $dir );
+				wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
+				sleep( 1 );
+			}
+			$fp = fopen( $taxonomy_filename, 'w' );
+			if ( $fp ) {
+				fwrite( $fp, implode( "\n", $details ) );
+				fclose( $fp );
+			}
+		}
+	}
+
 	if ( $wp_cache_preload_posts == 'all' || $c <= $wp_cache_preload_posts ) {
 		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE (post_type = 'post' OR post_type='page') AND post_status = 'publish' ORDER BY post_date DESC LIMIT $c, 100" );
 	} else {
