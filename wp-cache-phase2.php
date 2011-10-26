@@ -963,10 +963,10 @@ function wp_cache_post_id_gc( $siteurl, $post_id, $all = 'all' ) {
 	if ( $all == 'all' ) {
 		prune_super_cache( $dir, true, true );
 		do_action( 'gc_cache', 'prune', $permalink );
-		@rmdir( $dir . $permalink );
+		@rmdir( $dir );
 	} else {
-		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cached index files in $dir{$permalink}.", 4 );
-		prune_super_cache( $dir . $permalink, true, true ); 
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cached index files in $dir.", 4 );
+		prune_super_cache( $dir, true, true ); 
 		do_action( 'gc_cache', 'prune', $permalink );
 	}
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cache in {$dir}page/.", 4 );
