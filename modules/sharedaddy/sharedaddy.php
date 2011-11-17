@@ -94,7 +94,7 @@ function sharing_global_resources() {
 <tr valign="top">
 	<th scope="row"><label for="disable_css"><?php _e( 'Disable CSS and JS', 'jetpack' ); ?></label></th>
 	<td>
-		<input id="disable_css" type="checkbox" name="disable_resourcse" <?php if ( $disable == 1 ) echo ' checked="checked"'; ?>/>  <small><em><?php _e( 'Advanced - you must include these in your theme for Sharedaddy to work', 'jetpack' ); ?></em></small>
+		<input id="disable_css" type="checkbox" name="disable_resourcse" <?php if ( $disable == 1 ) echo ' checked="checked"'; ?>/>  <small><em><?php _e( 'Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work.', 'jetpack' ); ?></em></small>
 	</td>
 </tr>
 <?php

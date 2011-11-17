@@ -68,13 +68,17 @@
 .sharing a.share-reddit,.sharing-hidden a.share-reddit { background: url('images/reddit.png') no-repeat center left; }
 .sharing a.share-print,.sharing-hidden a.share-print { background: url('images/print.png') no-repeat center left; }
 .sharing a.share-press-this,.sharing-hidden a.share-press-this { background: url('images/wordpress.png') no-repeat center left; }
+.sharing a.share-linkedin,.sharing-hidden a.share-linkedin { background: url('images/linkedin.png') no-repeat center left; }
+.sharing a.share-google-plus-1,.sharing-hidden a.share-google-plus-1 { background: url('images/googleplus1.png') no-repeat center left; }
 
-.sharing div.twitter_button { padding: 2px 0; }
-.sharing div.reddit_button { padding: 2px 0 0 0; }
-.sharing div.stumbleupon_button { padding: 3px; }
-.sharing div.digg_button { font-size: 0px; padding: 4px 0 0 0; }
-.sharing div.facebook_button { font-size: 0px; padding: 3px 0;  height: 18px;}
-.sharing div.like_button { font-size: 0px; padding: 2px 0;  height: 18px;}
+.sharing div.twitter_button { padding: 4px 0; }
+.sharing div.reddit_button { padding: 4px 0 0 0; }
+.sharing div.stumbleupon_button { padding: 4px; }
+.sharing div.digg_button { font-size: 0px; padding: 0 0 0 0; }
+.sharing div.facebook_button { font-size: 0px; padding: 5px 0;  height: 18px;}
+.sharing div.like_button { font-size: 0px; padding: 4px 0;  height: 18px;}
+.sharing div.linkedin_button { padding-top: 4px; line-height: 16px; }
+.sharing div.googleplus1_button { padding-top: 4px; line-height: 16px; }
 
 .sharing-hidden li {
 	width: 130px;
@@ -86,6 +90,8 @@
 .sharing-hidden div.digg_button { font-size: 0px; padding: 0; }
 .sharing-hidden div.facebook_button { font-size: 0px; padding: 0;}
 .sharing-hidden div.like_button { font-size: 0px; padding: 0;}
+.sharing-hidden div.linkedin_button { padding: 0; }
+.sharing-hidden div.googleplus1_button { padding: 0; }
 
 
 .sharing div.facebook_button a, .sharing-hidden.facebook_button a {

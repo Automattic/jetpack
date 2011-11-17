@@ -26,7 +26,7 @@ function AtD_init_l10n_js() {
 			'button_proofread_tooltip' => __( 'Proofread Writing', 'jetpack' ),
 
 			'message_no_errors_found' => __( 'No writing errors were found.', 'jetpack' ),
-			'message_server_error' => __( 'There was a problem communicating with the After the Deadline service. Try again in one minute.', 'jetpack' ),
+			'message_server_error' => __( 'There was a problem communicating with the Proofreading service. Try again in one minute.', 'jetpack' ),
 			'message_server_error_short' => __( 'There was an error communicating with the proofreading service.', 'jetpack' ),
 
 			'dialog_replace_selection' => __( 'Replace selection with:', 'jetpack' ),

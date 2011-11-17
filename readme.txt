@@ -1,8 +1,8 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, andy
-Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, kyte, kytetv, livevideo, redlasso, rockyou, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me
-Requires at least: 3.0.5
-Tested up to: 3.2
+Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, andy, designsimply, hew, westi, eoigal, tmoorewp
+Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions
+Requires at least: 3.1
+Tested up to: 3.3
 Stable tag: 1.1.3
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
@@ -16,6 +16,7 @@ For more information, check out [Jetpack.me](http://jetpack.me/).
 Features include:
 
 * Simple, concise stats with no additional load on your server.  Previously provided by [WordPress.com Stats](http://wordpress.org/extend/plugins/stats/).
+* Email subscriptions for your blog's posts and your post's comments.
 * The [WP.me URL shortener](http://wp.me/sf2B5-shorten).
 * Hovercard popups for your commenters via [Gravatar](http://gravatar.com/).
 * Easily embedded media from popular sites like YouTube, Digg, and Vimeo.
@@ -24,6 +25,8 @@ Features include:
 * Your readers can easily share your posts via email or their favorite social networks.  Previously provided by the [Sharedaddy](http://wordpress.org/extend/plugins/sharedaddy/) WordPress plugin.
 * Your writing will improve thanks to After the Deadline, an artificial intelligence based spell, style, and grammar checker.  Previously provided by the [After the Deadline](http://wordpress.org/extend/plugins/after-the-deadline/) WordPress plugin.
 * and *many* more to come!
+
+Note: The stats portion of Jetpack uses Quantcast to enhance its data.
 
 == Installation ==
 
@@ -61,8 +64,30 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * [[soundcloud]](http://support.wordpress.com/audio/soundcloud-audio-player/)
 * [[vimeo]](http://support.wordpress.com/videos/vimeo/)
 * [[youtube]](http://support.wordpress.com/videos/youtube/)
+* [[googlemaps]](http://en.support.wordpress.com/google-maps/)
+
+== Screenshots ==
+
+1. Stats chart.
+2. Sharing buttons.
+3. Subscriptions widget.
+4. Gravatar Hovercards settings.
+5. Spelling and Grammar demo.
 
 == Changelog ==
+
+= 1.2 =
+* Enhancement: Add Subscriptions: Subscribe to site's posts and posts' comments.
+* Enhancement: Add Google Maps shortcode.
+* Enhancement: Add Image Widget.
+* Enhancement: Add RSS Links Widget.
+* Enhancement: Stats: More responsive stats dashboard.
+* Enhancement: Shortcodes: Google Maps, VideoPress
+* Enhancement: Sharing: Google+, LinkedIn
+* Enhancement: Enhanced Distribution: Added Jetpack blogs to http://en.wordpress.com/firehose/
+* Bug Fix: Spelling and Grammar: WordPress 3.3 compatibility.
+* Bug Fix: Translatable module names/descriptinos.
+* Bug Fix: Correctly detect host's ability to make outgoing HTTPS requests.
 
 = 1.1.3 =
 * Bug Fix: Increase compatibility with WordPress 3.2's new `wp_remote_request()` API.

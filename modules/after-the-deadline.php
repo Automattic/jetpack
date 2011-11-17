@@ -1,7 +1,9 @@
 <?php
 /**
- * Module Name: After the Deadline
- * Module Description: After the Deadline helps you write better by adding spell, style, and grammar checking to WordPress.
+ * Module Name: Spelling and Grammar
+ * Module Description: Improve your spelling, style, and grammar with the <a href="http://www.afterthedeadline.com/">After&nbsp;the&nbsp;Deadline</a> Proofreading service.
+ * Sort Order: 1
+ * First Introduced: 1.1
  */
  
 add_action( 'jetpack_modules_loaded', 'AtD_load' );
@@ -12,7 +14,7 @@ function AtD_load() {
 }
 
 function AtD_configuration_load() {
-	wp_redirect( admin_url( 'profile.php#atd' ) );
+	wp_safe_redirect( admin_url( 'profile.php#atd' ) );
 	exit;	
 }
 
@@ -151,11 +153,11 @@ function AtD_load_javascripts() {
         global $pagenow;
         
 	if ( AtD_should_load_on_page() ) {
-		wp_enqueue_script( 'AtD_core', plugins_url( '/after-the-deadline/atd.core.js', __FILE__ ), array() );
-	        wp_enqueue_script( 'AtD_quicktags', plugins_url( '/after-the-deadline/atd-nonvis-editor-plugin.js', __FILE__ ), array('quicktags') );
-        	wp_enqueue_script( 'AtD_jquery', plugins_url( '/after-the-deadline/jquery.atd.js', __FILE__ ), array('jquery') );
-        	wp_enqueue_script( 'AtD_settings', admin_url() . 'admin-ajax.php?action=atd_settings', array('AtD_jquery') );
-		wp_enqueue_script( 'AtD_autoproofread', plugins_url( '/after-the-deadline/atd-autoproofread.js', __FILE__ ), array('AtD_jquery') );
+		wp_enqueue_script( 'AtD_core', plugins_url( '/after-the-deadline/atd.core.js', __FILE__ ), array(), '20110906' );
+	        wp_enqueue_script( 'AtD_quicktags', plugins_url( '/after-the-deadline/atd-nonvis-editor-plugin.js', __FILE__ ), array('quicktags'), '20110906' );
+        	wp_enqueue_script( 'AtD_jquery', plugins_url( '/after-the-deadline/jquery.atd.js', __FILE__ ), array('jquery'), '20110906' );
+        	wp_enqueue_script( 'AtD_settings', admin_url() . 'admin-ajax.php?action=atd_settings', array('AtD_jquery'), '20110906' );
+		wp_enqueue_script( 'AtD_autoproofread', plugins_url( '/after-the-deadline/atd-autoproofread.js', __FILE__ ), array('AtD_jquery'), '20110906' );
 	}		
 }
 
@@ -201,20 +203,24 @@ function AtD_load_css() {
 
 /* Helper used to check if javascript should be added to page. Helps avoid bloat in admin */
 function AtD_should_load_on_page() {
-	global $pagenow;
-	
+	global $pagenow, $current_screen;
+
 	$pages = array( 'post.php', 'post-new.php', 'page.php', 'page-new.php', 'admin.php', 'profile.php' );
-	
-	if( in_array( $pagenow, $pages ) ) 
+
+	if ( in_array( $pagenow, $pages ) ) {
+		if ( isset( $current_screen->post_type ) && $current_screen->post_type ) {
+			return post_type_supports( $current_screen->post_type, 'editor' );
+		}
 		return true;
-	
+	}
+
 	return false;
 }
 
 // add button to DFW
 add_filter( 'wp_fullscreen_buttons', 'AtD_fullscreen' );
 function AtD_fullscreen($buttons) {
-	$buttons['spellchecker'] = array( 'title' => __('Proofread Writing'), 'onclick' => "tinyMCE.execCommand('mceWritingImprovementTool');", 'both' => false );
+	$buttons['spellchecker'] = array( 'title' => __( 'Proofread Writing', 'jetpack' ), 'onclick' => "tinyMCE.execCommand('mceWritingImprovementTool');", 'both' => false );
 
 	return $buttons;
 }

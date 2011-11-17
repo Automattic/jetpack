@@ -97,7 +97,10 @@
       /* called when the plugin is initialized */
       init : function(ed, url) 
       {
-         var t = this;
+         if ( typeof(AtDCore) == 'undefined' )
+         	return;
+
+		 var t = this;
          var plugin  = this;
          var editor  = ed;
          var core = this.initAtDCore(editor, plugin);
@@ -136,7 +139,7 @@
                /* if the server is not accepting requests, let the user know */
                if (request.status != 200 || request.responseText.substr(1, 4) == 'html')
                {
-                  ed.windowManager.alert( plugin.editor.getLang('AtD.message_server_error', 'There was a problem communicating with the After the Deadline service. Try again in one minute.') );
+                  ed.windowManager.alert( plugin.editor.getLang('AtD.message_server_error', 'There was a problem communicating with the Proofreading service. Try again in one minute.') );
                   return;
                }
 
@@ -205,21 +208,12 @@
                plugin._done();
             }
          });
-      },
-
-      createControl : function(name, controlManager) 
-      {
-         var control = this;
-
-         if (name == 'AtD') 
-         {
-            return controlManager.createButton(name, { 
-               title: this.editor.getLang('AtD.button_proofread_tooltip', 'Proofread Writing'),
-               image: this.editor.getParam('atd_button_url', this.url + '/atdbuttontr.gif'), 
-               cmd: 'mceWritingImprovementTool', 
-               scope: control 
-            });
-         }
+         
+		ed.addButton('AtD', { 
+			title: ed.getLang('AtD.button_proofread_tooltip', 'Proofread Writing'),
+			image: ed.getParam('atd_button_url', url + '/atdbuttontr.gif'), 
+			cmd: 'mceWritingImprovementTool'
+		});
       },
 
       _removeWords : function(w) 

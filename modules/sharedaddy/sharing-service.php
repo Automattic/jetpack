@@ -37,14 +37,16 @@ class Sharing_Service {
 	private function get_all_services() {
 		// Default services
 		$services = array(
-			'email'       => 'Share_Email',
-			'print'       => 'Share_Print',
-			'digg'        => 'Share_Digg',
-			'facebook'    => 'Share_Facebook',
-			'reddit'      => 'Share_Reddit',
-			'stumbleupon' => 'Share_Stumbleupon',
-			'twitter'     => 'Share_Twitter',
-			'press-this'	=> 'Share_PressThis',
+			'email'         => 'Share_Email',
+			'print'         => 'Share_Print',
+			'digg'          => 'Share_Digg',
+			'facebook'      => 'Share_Facebook',
+			'linkedin'      => 'Share_LinkedIn',
+			'reddit'        => 'Share_Reddit',
+			'stumbleupon'   => 'Share_Stumbleupon',
+			'twitter'       => 'Share_Twitter',
+			'press-this'    => 'Share_PressThis',
+			'google-plus-1' => 'Share_GooglePlus1'
 		);
 		
 		// Add any custom services in
@@ -193,7 +195,7 @@ class Sharing_Service {
 			'button_style'  => 'icon-text',
 			'sharing_label' => __( 'Share this:', 'jetpack' ),
 			'open_links'    => 'same',
-			'show'          => 'posts',
+			'show'          => array( 'post', 'page' ),
 			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array()
 		);
 		
@@ -209,8 +211,27 @@ class Sharing_Service {
 		if ( isset( $data['open_links'] ) && in_array( $data['open_links'], array( 'new', 'same' ) ) )
 			$options['global']['open_links'] = $data['open_links'];
 
-		if ( isset( $data['show'] ) && in_array( $data['show'], array( 'posts', 'index', 'posts-index' ) ) )
-			$options['global']['show'] = $data['show'];
+		$shows = array_values( get_post_types( array( 'public' => true ) ) );
+		$shows[] = 'index';
+		if ( isset( $data['show'] ) ) {
+			if ( is_scalar( $data['show'] ) ) {
+				switch ( $data['show'] ) {
+				case 'posts' :
+					$data['show'] = array( 'post', 'page' );
+					break;
+				case 'index' :
+					$data['show'] = array( 'index' );
+					break;
+				case 'posts-index' :
+					$data['show'] = array( 'post', 'page', 'index' );
+					break;
+				}
+			}
+
+			if ( $data['show'] = array_intersect( $data['show'], $shows ) ) {
+				$options['global']['show'] = $data['show'];
+			}
+		}
 
 		update_option( 'sharing-options', $options );
 		return $options['global'];
@@ -226,6 +247,21 @@ class Sharing_Service {
 				$this->global = $this->set_global_options( $options['global'] );
 		}		
 
+		if ( empty( $this->global['show'] ) ) {
+			$this->global['show'] = array( 'post', 'page' );
+		} elseif ( is_scalar( $this->global['show'] ) ) {
+			switch ( $this->global['show'] ) {
+			case 'posts' :
+				$this->global['show'] = array( 'post', 'page' );
+				break;
+			case 'index' :
+				$this->global['show'] = array( 'index' );
+				break;
+			case 'posts-index' :
+				$this->global['show'] = array( 'post', 'page', 'index' );
+				break;
+			}
+		}
 		return $this->global;
 	}
 	
@@ -372,20 +408,22 @@ function sharing_process_requests() {
 }
 
 function sharing_display( $text = '' ) {
-	static $shared_with_posts = array();
-	global $post;
+	global $post, $wp_current_filter;
+
+	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
+		return $text;
+	}
 	
 	$sharer = new Sharing_Service();
 	$global = $sharer->get_global_options();
 
 	$show = false;
 	if ( !is_feed() ) {
-		if ( $global['show'] == 'posts' && ( is_single() || is_page() ) )
+		if ( is_singular() && in_array( get_post_type(), $global['show'] ) ) {
 			$show = true;
-		elseif ( $global['show'] == 'index' && ( is_home() || is_archive() || is_search() ) )
+		} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_archive() || is_search() ) ) {
 			$show = true;
-		elseif ( $global['show'] == 'posts-index' && ( is_single() || is_page() || is_home() || is_search() || is_archive() ) )
-			$show = true;
+		}
 	}
 
 	// Pass through a filter for final say so
@@ -397,11 +435,6 @@ function sharing_display( $text = '' ) {
 	if ( !empty( $switched_status ) )
 		$show = false;
 
-	// Only show once
-	if ( isset( $shared_with_posts[$post->ID] ) )
-		$show = false;
-
-	$shared_with_posts[$post->ID] = true;
 	$sharing_content = '';
 	
 	if ( $show ) {
@@ -480,41 +513,6 @@ function sharing_display( $text = '' ) {
 	return $text.$sharing_content;
 }
 
-function calculate_excerpt_length( $length = 55 ) { 
-	$text = get_the_content(''); 
-	$text = strip_shortcodes( $text ); 
-	$text = apply_filters('the_content', $text); 
-	
-	if ( function_exists( 'mb_stripos' ) ) {
-		$mb = true;
-		$share_start = mb_stripos( $text, '<div class="sharing">' ); 
-	} else {
-		$mb = false;
-		$share_start = stripos( $text, '<div class="sharing">' ); 
-	}
-	if ( $share_start > 0 ) { 
-		if ( $mb ) {
-			$post_minus_share = mb_substr( $text, 0, $share_start ); 
-		} else {
-			$post_minus_share = substr( $text, 0, $share_start ); 
-		}
-	
-		$words = preg_split("/[\n\r\t ]+/", $post_minus_share, $length + 1, PREG_SPLIT_NO_EMPTY); 
-		if ( count( $words ) < $length ) { 
-			add_filter( 'excerpt_more', 'remove_helipse' ); 
-			
-			return count( $words ) - 1; 
-		} 	
-	} 
-
-	return $length; 
-} 
-
-function remove_helipse() { 
-	return ''; 
-}
-
-add_filter( 'excerpt_length', 'calculate_excerpt_length' ); 
 add_filter( 'the_content', 'sharing_display', 19 );
 add_filter( 'the_excerpt', 'sharing_display', 19 );
 

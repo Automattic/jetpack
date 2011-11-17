@@ -2,10 +2,11 @@
 /**
  * Module Name: Gravatar Hovercards
  * Module Description: Show a pop-up business card of your users' gravatar profiles in comments.
- * Sort Order: 1
+ * Sort Order: 5
+ * First Introduced: 1.1
  */
 
-define( 'GROFILES__CACHE_BUSTER', 'w' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes
+define( 'GROFILES__CACHE_BUSTER', 'aa' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes
 
 function grofiles_hovercards_init() {
 	add_filter( 'get_avatar', 'grofiles_get_avatar', 10, 2 );
@@ -17,6 +18,14 @@ function grofiles_hovercards_init() {
 	add_action( 'load-users.php',              'grofiles_admin_cards' );
 	add_action( 'load-edit-comments.php',      'grofiles_admin_cards' );	
 	add_action( 'load-options-discussion.php', 'grofiles_admin_cards_forced' );	
+
+	Jetpack::enable_module_configurable( __FILE__ );
+	Jetpack::module_configuration_load( __FILE__, 'gravatar_hovercards_configuration_load' );
+}
+
+function gravatar_hovercards_configuration_load() {
+	wp_safe_redirect( admin_url( 'options-discussion.php#gravatar-hovercard-options' ) );
+	exit;
 }
 
 add_action( 'jetpack_modules_loaded', 'grofiles_hovercards_init' );
@@ -44,7 +53,7 @@ function grofiles_setting_callback() {
 
 	$checked = 'disabled' == get_option( 'gravatar_disable_hovercards' ) ? '' : 'checked="checked" ';
  
- 	echo "<label><input {$checked}name='gravatar_disable_hovercards' id='gravatar_disable_hovercards' type='checkbox' value='enabled' class='code' /> " . __( "View people's profiles when you mouse over their Gravatars", 'jetpack' ) . "</label>";
+ 	echo "<label id='gravatar-hovercard-options'><input {$checked}name='gravatar_disable_hovercards' id='gravatar_disable_hovercards' type='checkbox' value='enabled' class='code' /> " . __( "View people's profiles when you mouse over their Gravatars", 'jetpack' ) . "</label>";
 ?>
 <style type="text/css">
 #grav-profile-example img {

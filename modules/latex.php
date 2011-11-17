@@ -1,17 +1,19 @@
-<?php 
+<?php
 /**
- * Module Name: LaTeX
- * Module Description: Mark up your posts with the LaTeX markup language, perfect for complex mathematical equations and other über-geekery.
+ * Module Name: Beautiful Math
+ * Module Description: Mark up your posts with the <img src="http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2" alt="LaTeX logo" title="LaTeX" style="vertical-align: -25%" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery.
+ * Sort Order: 15
+ * First Introduced: 1.1
  */
 
 /**
- * Latex support. 
- *  
+ * LaTeX support.
+ *
  * Backward compatibility requires support for both "[latex][/latex]", and
  * "$latex $" shortcodes.
- * 
+ *
  * $latex e^{\i \pi} + 1 = 0$  ->  [latex]e^{\i \pi} + 1 = 0[/latex]
- * $latex [a, b]$              ->  [latex][a, b][/latex]  
+ * $latex [a, b]$              ->  [latex][a, b][/latex]
  */
 
 function latex_markup( $content ) {
@@ -65,14 +67,14 @@ function latex_render( $latex, $fg, $bg, $s = 0 ) {
 	$url = ( is_ssl() ? 'https://s-ssl.wordpress.com' : 'http://s0.wp.com' ) . "/latex.php?latex=" . urlencode( $latex ) . "&bg=$bg&fg=$fg&s=$s";
 	$url = esc_url( $url );
 	$alt = str_replace( '\\', '&#92;', esc_attr( $latex ) );
-	
+
 	return "<img src='$url' alt='$alt' title='$alt' class='latex' />";
 }
 
 /**
  * The shortcode way. The attributes are the same as the old ones - 'fg' and 'bg', instead of foreground
  * and background, and 's' is for the font size.
- * 
+ *
  * Example: [latex s=4 bg=00f fg=ff0]\LaTeX[/latex]
  */
 function latex_shortcode( $atts, $content = '' ) {
@@ -81,7 +83,7 @@ function latex_shortcode( $atts, $content = '' ) {
 		'bg' => latex_get_default_color( 'bg' ),
 		'fg' => latex_get_default_color( 'text', '000' )
 	), $atts ) );
-	
+
 	return latex_render( latex_entity_decode( $content ), $fg, $bg, $s );
 }
 

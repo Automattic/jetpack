@@ -82,6 +82,8 @@
 .services ul li#email, .preview-email{background: #FFF url(images/email.png) no-repeat 4px 5px; padding-right: 10px;}
 .services ul li#print, .preview-print{background: #FFF url(images/print.png) no-repeat 4px 5px; padding-right: 10px;}
 .services ul li#press-this, .preview-press-this{background: #FFF url(images/wordpress.png) no-repeat 4px 5px; padding-right: 10px;}
+.services ul li#linkedin, .preview-linkedin div.option-smart-off{background: #FFF url(images/linkedin.png) no-repeat 4px 5px;}
+.services ul li#google-plus-1,.preview-google-plus-1{background: #FFF url(images/googleplus1.png) no-repeat 4px 5px; padding-right: 10px;}
 .services ul li.share-custom, .preview-custom{background: #FFF url(images/custom.png) no-repeat 4px 5px; no-repeat 4px 5px; padding-right: 10px;}
 
 /****************************************************************************/
@@ -94,11 +96,11 @@
 	cursor: default;
 }
 
-.preview li.preview-digg, .preview li.preview-reddit, .preview li.preview-stumbleupon, .preview li.preview-facebook, .preview li.preview-twitter {
+.preview li.preview-digg, .preview li.preview-reddit, .preview li.preview-stumbleupon, .preview li.preview-facebook, .preview li.preview-twitter, .preview li.preview-linkedin {
 	padding: 0;
 }
 
-.preview-digg .option-smart-off, .preview-reddit .option-smart-off, .preview-stumbleupon .option-smart-off, .preview-facebook .option-smart-off, .preview-twitter .option-smart-off {
+.preview-digg .option-smart-off, .preview-reddit .option-smart-off, .preview-stumbleupon .option-smart-off, .preview-facebook .option-smart-off, .preview-twitter .option-smart-off, .preview-linkedin .option-smart-off {
 	background-position: 0px 5px !important;
 	padding: 5px 0px 5px 20px;
 }
@@ -143,6 +145,21 @@
 	width:92px;
 	height:20px;
 	margin-top: 3px;
+}
+
+.preview-linkedin .option-smart-on {
+	background: #FFF url(images/linkedin-smart.png) no-repeat top center;
+	width:99px;
+	height:22px;
+	margin-top: 3px;
+}
+
+.preview-google-plus-1 .option-smart-on {
+	background: #FFF url(images/smart-googleplus1.png) no-repeat top left;
+	max-width: 70px;
+	width: 15px;
+	height: 15px;
+	margin-top: 4px;
 }
 
 .services .preview li.share-custom {
@@ -204,6 +221,9 @@
 
 .options-toggle{
 }
+	#available-services .options-toggle {
+		display: none;
+	}
 	
 	.services ul li.options{
 		padding-right: 0px;
@@ -313,7 +333,7 @@
 	width: 100px;
 }
 
-.sharing-hidden .preview-digg, .sharing-hidden .preview-reddit, .sharing-hidden .preview-stumbleupon, .sharing-hidden .preview-facebook, .sharing-hidden .preview-twitter {
+.sharing-hidden .preview-digg, .sharing-hidden .preview-reddit, .sharing-hidden .preview-stumbleupon, .sharing-hidden .preview-facebook, .sharing-hidden .preview-twitter, .sharing-hidden .preview-linkedin, .sharing-hidden .preview-google-plus-1 {
 	width: 120px !important;
 }
 

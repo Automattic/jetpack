@@ -173,7 +173,7 @@ class Share_Email extends Sharing_Source {
 <?php
 				}
 				else
-					wp_redirect( get_permalink( $post->ID ).'?shared=email' );
+					wp_safe_redirect( get_permalink( $post->ID ).'?shared=email' );
 
 				die();
 			}
@@ -184,7 +184,7 @@ class Share_Email extends Sharing_Source {
 		if ( $ajax )
 			echo $error;
 		else
-			wp_redirect( get_permalink( $post->ID ).'?shared=email&msg=fail' );
+			wp_safe_redirect( get_permalink( $post->ID ).'?shared=email&msg=fail' );
 
 		die();
 	}
@@ -259,13 +259,13 @@ class Share_Twitter extends Sharing_Advanced_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart == 'smart' )
-			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&amp;counturl=' . rawurlencode( str_replace( 'https://', 'http://', get_permalink( $post->ID ) ) ) . '&amp;count=horizontal&amp;text=' . rawurlencode( $post->post_title ) . ': " style="width:97px; height:20px;"></iframe></div>';
+			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="http://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&amp;counturl=' . rawurlencode( str_replace( 'https://', 'http://', get_permalink( $post->ID ) ) ) . '&amp;count=horizontal&amp;text=' . rawurlencode( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) ) . ': " style="width:97px; height:20px;"></iframe></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Twitter', 'share to', 'jetpack' ), __( 'Click to share on Twitter', 'jetpack' ), 'share=twitter' );
 	}	
 	
 	public function process_request( $post, array $post_data ) {
-		$post_title = $post->post_title;
+		$post_title = apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id );
 		$post_link = apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id );
 		
 		$twitter_url = '';	
@@ -358,7 +358,7 @@ class Share_Stumbleupon extends Sharing_Advanced_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart == 'smart' )
-			return '<div class="stumbleupon_button"><iframe src="http://www.stumbleupon.com/badge/embed/1/?url=' . urlencode( get_permalink( $post->ID ) ) . '&amp;title=' . urlencode( $post->post_title ) . '" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:74px; height: 18px;" allowTransparency="true"></iframe></div>';
+			return '<div class="stumbleupon_button"><iframe src="http://www.stumbleupon.com/badge/embed/1/?url=' . urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&amp;title=' . urlencode( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) ) . '" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:74px; height: 18px;" allowTransparency="true"></iframe></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'StumbleUpon', 'share to', 'jetpack' ), __( 'Click to share on StumbleUpon', 'jetpack' ), 'share=stumbleupon' );
 	}		
@@ -379,7 +379,7 @@ class Share_Stumbleupon extends Sharing_Advanced_Source {
 	}
 	
 	public function process_request( $post, array $post_data ) {
-		$stumbleupon_url = 'http://www.stumbleupon.com/submit?url=' . urlencode( get_permalink( $post->ID ) ) . '&title=' . urlencode( $post->post_title );	
+		$stumbleupon_url = 'http://www.stumbleupon.com/submit?url=' . urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&title=' . urlencode( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) );	
 		
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -431,7 +431,7 @@ class Share_Reddit extends Sharing_Advanced_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart == 'smart' )
-			return '<div class="reddit_button"><iframe src="http://www.reddit.com/static/button/button1.html?width=120&amp;url=' . urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&amp;title=' . rawurlencode( $post->post_title ) . '" height="22" width="104" scrolling="no" frameborder="0"></iframe></div>';
+			return '<div class="reddit_button"><iframe src="http://www.reddit.com/static/button/button1.html?width=120&amp;url=' . urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&amp;title=' . rawurlencode( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), __( 'Reddit', 'share to', 'jetpack' ), __( 'Click to share on Reddit', 'jetpack' ), 'share=reddit' );
 	}	
@@ -481,7 +481,7 @@ class Share_Reddit extends Sharing_Advanced_Source {
 	}
 	
 	public function process_request( $post, array $post_data ) {
-		$reddit_url = 'http://reddit.com/submit?url=' . urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&title=' . urlencode( $post->post_title );	
+		$reddit_url = 'http://reddit.com/submit?url=' . urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&title=' . urlencode( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) );	
 		
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -512,7 +512,7 @@ class Share_Digg extends Sharing_Advanced_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart ) {
-			$url = $this->get_link( 'http://digg.com/submit?url='. urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&amp;title=' . urlencode( $post->post_title ), 'Digg', __( 'Click to Digg this post', 'jetpack' ) );
+			$url = $this->get_link( 'http://digg.com/submit?url='. urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&amp;title=' . urlencode( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) ), 'Digg', __( 'Click to Digg this post', 'jetpack' ) );
 			return '<div class="digg_button">' . str_replace( 'class="', 'class="DiggThisButton DiggCompact ', $url ) . '</div>';
 		}
 		else
@@ -520,7 +520,7 @@ class Share_Digg extends Sharing_Advanced_Source {
 	}	
 	
 	public function process_request( $post, array $post_data ) {
-		$digg_url = 'http://digg.com/submit?url=' . urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&title=' . urlencode( $post->post_title );	
+		$digg_url = 'http://digg.com/submit?url=' . urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&title=' . urlencode( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) );	
 		
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -587,6 +587,119 @@ class Share_Digg extends Sharing_Advanced_Source {
 	}
 }
 
+class Share_LinkedIn extends Sharing_Advanced_Source {
+	private $smart = true;
+	
+	public function __construct( $id, array $settings ) {
+		parent::__construct( $id, $settings );
+
+		if ( isset( $settings['smart'] ) )
+			$this->smart = (bool) $settings['smart'];
+	}
+
+	public function get_name() {
+		return __( 'LinkedIn', 'jetpack' );
+	}
+
+	public function has_custom_button_style() {
+		return (bool) $this->smart;
+	}
+	
+	public function display_header() {
+	}
+	
+	public function get_display( $post ) {
+		static $added_linkedin_js = false;
+		$proto = ( is_ssl() ) ? 'https://' : 'http://';
+		$permalink = get_permalink( $post->ID );
+		$display = '';
+		
+		if( $this->smart ) {
+			
+			// So we don't spit out the linkedin js for each post on index pages
+			if( ! $added_linkedin_js ) {
+				$display .= sprintf( '<script type="text/javascript" src="%splatform.linkedin.com/in.js"></script>', $proto );
+				$added_linkedin_js = true;
+			}
+			
+			$display .= sprintf( '<div class="linkedin_button"><script type="in/share" data-url="%s" data-counter="right"></script></div>', esc_url( $permalink ) );
+			
+		} else {
+		
+			$display = $this->get_link( $permalink, _x( 'LinkedIn', 'share to', 'jetpack' ), __( 'Click to share on LinkedIn', 'jetpack' ), 'share=linkedin' );
+			
+		}
+		return $display;
+	}
+	
+	public function process_request( $post, array $post_data ) {
+		$post_link = apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id );
+
+		// http://www.linkedin.com/shareArticle?mini=true&url={articleUrl}&title={articleTitle}&summary={articleSummary}&source={articleSource}
+
+		$encoded_title = rawurlencode( $post->post_title );
+		if( strlen( $encoded_title ) > 200 )
+			$encoded_title = substr( $encoded_title, 0, 197 ) . '...';
+
+		$encoded_summary = rawurlencode( get_the_excerpt() );
+		if( strlen( $encoded_summary ) > 256 )
+			$encoded_summary = substr( $encoded_summary, 0, 253 ) . '...';
+	
+		$source = get_bloginfo( 'name' );
+
+		$query = add_query_arg( array(
+			'title' => $encoded_title,
+			'url' => rawurlencode( $post_link ),
+			'source' => rawurlencode( $source ),
+			'summary' => $encoded_summary,
+		) );
+
+		$linkedin_url = 'http://www.linkedin.com/shareArticle?mini=true' . $query;
+		
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		// Redirect to LinkedIn
+		wp_redirect( $linkedin_url );
+		die();
+	}
+	
+	public function update_options( array $data ) {
+		$this->smart = false;
+
+		if ( isset( $data['smart'] ) )
+			$this->smart = true;
+	}
+
+	public function get_options() {
+		return array(
+			'smart' => $this->smart
+		);
+	}
+
+	public function display_options() {
+		?><div class="input">
+			<label>
+				<input name="smart" type="checkbox"<?php checked( $this->smart ); ?>/>
+				<?php _e( 'Use smart button', 'jetpack' ); ?>
+			</label>
+		</div><?php
+	}
+	
+	public function display_preview() {
+		?>
+		<div class="option option-smart-<?php echo $this->smart ? 'on' : 'off'; ?>">
+		<?php
+		if ( ! $this->smart ) {
+			if ( $this->button_style == 'text' || $this->button_style == 'icon-text' )
+				echo $this->get_name();
+			else
+				echo '&nbsp;';
+		} ?>
+		</div><?php
+	}
+}
+
 class Share_Facebook extends Sharing_Advanced_Source {
 	private $share_type = 'default';
 	
@@ -611,7 +724,7 @@ class Share_Facebook extends Sharing_Advanced_Source {
 			global $post;
 			
 			if ( $post && $post->ID > 0 )
-				echo '<meta property="og:description" content="'.esc_attr( $post->post_title ).'" />';
+				echo '<meta property="og:description" content="'.esc_attr( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) ).'" />';
 		}
 	}
 
@@ -628,7 +741,7 @@ class Share_Facebook extends Sharing_Advanced_Source {
 
 	public function get_display( $post ) {
 		if ( $this->share_type == 'share' ) {
-			return '<div class="facebook_button"><a name="fb_share" rel="nofollow" type="button" share_url="' . get_permalink( $post->ID ) . '" href="http://www.facebook.com/sharer.php?u=' . rawurlencode( get_permalink( $post->ID ) ) . '&t=' . rawurlencode( $post->post_title ) . '">'.__( 'Share' , 'jetpack' ).'</a><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script></div>';
+			return '<div class="facebook_button"><a name="fb_share" rel="nofollow" type="button" share_url="' . apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) . '" href="http://www.facebook.com/sharer.php?u=' . rawurlencode( get_permalink( $post->ID ) ) . '&t=' . rawurlencode( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) ) . '">'.__( 'Share' , 'jetpack' ).'</a><script src="http://static.ak.fbcdn.net/connect.php/js/FB.Share" type="text/javascript"></script></div>';
 		} else if ( $this->share_type == 'like' ) {
 			$url = 'http://www.facebook.com/plugins/like.php?href=' . rawurlencode( get_permalink( $post->ID ) ) . '&amp;layout=button_count&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;height=21';
 			
@@ -638,7 +751,7 @@ class Share_Facebook extends Sharing_Advanced_Source {
 			// Locale-specific widths/overrides
 			$widths = array(
 				'de' => array( 'width' => 100, 'locale' => 'de_DE' ),
-				'da' => array( 'width' => 115, 'locale' => 'da_DK' ),
+				'da' => array( 'width' => 120, 'locale' => 'da_DK' ),
 				'fi' => array( 'width' => 100, 'locale' => 'fi_FI' ),
 			);
 
@@ -717,7 +830,7 @@ class Share_Facebook extends Sharing_Advanced_Source {
 	}
 
 	public function process_request( $post, array $post_data ) {
-		$fb_url = 'http://www.facebook.com/sharer.php?u=' . urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&t=' . urlencode( $post->post_title );	
+		$fb_url = 'http://www.facebook.com/sharer.php?u=' . urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&t=' . urlencode( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) );	
 		
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -748,13 +861,13 @@ class Share_PressThis extends Sharing_Source {
 		
 		$blogs = get_blogs_of_user( $current_user->ID );
 		if ( empty( $blogs ) ) {
-			wp_redirect( get_permalink( $post->ID ) ); 
+			wp_safe_redirect( get_permalink( $post->ID ) ); 
 			die();
 		}
 		
 		$blog = current( $blogs );
 
-		$url = $blog->siteurl.'/wp-admin/press-this.php?u='.urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ).'&t='.urlencode( $post->post_title ).'&v=4';
+		$url = $blog->siteurl.'/wp-admin/press-this.php?u='.urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ).'&t='.urlencode( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) ).'&v=4';
 
 		if ( isset( $_GET['sel'] ) )
 			$url .= '&s='.urlencode( $_GET['sel'] );
@@ -763,12 +876,74 @@ class Share_PressThis extends Sharing_Source {
 		parent::process_request( $post, $post_data );
 		
 		// Redirect to Press This
-		wp_redirect( $url );
+		wp_safe_redirect( $url );
 		die();
 	}
 
 	public function get_display( $post ) {
 		return $this->get_link( get_permalink( $post->ID ), _x( 'Press This', 'share to', 'jetpack' ), __( 'Click to Press This!', 'jetpack' ), 'share=press-this' );
+	}
+}
+
+class Share_GooglePlus1 extends Sharing_Source {	
+	private $state = false;
+	
+	public function get_name() {
+		return __( 'Google +1', 'jetpack' );
+	}
+
+	public function get_display( $post ) {
+		return '<div class="googleplus1_button"><g:plusone size="small" callback="sharing_plusone" href="' . esc_attr( get_permalink( $post->ID ) ) . '"></g:plusone></div>';
+	}		
+	
+	public function display_preview() {
+?>
+	<div class="option option-smart-on"></div>
+<?php
+	}
+	
+	public function get_state() {
+		return $this->state;
+	}
+	
+	public function process_request( $post, array $post_data ) {		
+		
+		if ( isset( $post_data['state'] ) ) {
+			$this->state = $post_data['state'];
+		}
+		// Record stats
+		parent::process_request( $post, $post_data );
+		die();
+	}
+	
+	public function display_footer() {
+		global $post;
+?>
+	<script type="text/javascript" charset="utf-8">
+	function sharing_plusone( obj ) { 
+		jQuery.ajax( {
+			url: '<?php echo get_permalink( $post->ID ) . '?share=google-plus-1'; ?>',
+			type: 'POST',
+			data: obj
+		} );
+	}
+	</script>
+	<script type="text/javascript" src="http://apis.google.com/js/plusone.js"></script>
+<?php
+	}	
+
+	public function get_total( $post = false ) {
+		global $wpdb, $blog_id;
+		
+		$name = strtolower( $this->get_id() ); 
+		
+		if ( $post == false ) {
+			// get total number of shares for service
+			return $wpdb->get_var( $wpdb->prepare( "SELECT SUM( count ) FROM sharing_stats WHERE blog_id = %d AND share_service = %s", $blog_id, $name ) );
+		}
+		
+		//get total shares for a post
+		return $wpdb->get_var( $wpdb->prepare( "SELECT count FROM sharing_stats WHERE blog_id = %d AND post_id = %d AND share_service = %s", $blog_id, $post->ID, $name ) );
 	}
 }
 
@@ -807,7 +982,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 		$url = $this->url;
 		$url = str_replace( '%post_url%', urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ), $url );
 		$url = str_replace( '%post_full_url%', urlencode( get_permalink( $post->ID ) ), $url );
-		$url = str_replace( '%post_title%', urlencode( $post->post_title ), $url );
+		$url = str_replace( '%post_title%', urlencode( apply_filters( 'sharing_post_title', $post->post_title, $post->ID, $this->id ) ), $url );
 
 		if ( strpos( $url, '%post_tags%' ) !== false ) {
 			$tags   = get_the_tags( $post->ID );

@@ -124,3 +124,6 @@ Upload the plugin to your blog and activate it. Configure your sharing services 
 * Theme placement improvements
 * Add Danish width to Facebook
 * Fix invalid HTML in Twitter iframe
+
+= 0.2.13 =
+* Add Google+1 button

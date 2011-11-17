@@ -73,6 +73,7 @@ function flickr_embed_to_shortcode( $content ) {
 			$code .= ']';
 
 			$content = str_replace( $match[0], $code, $content );
+			do_action( 'jetpack_embed_to_shortcode', 'flickr_video', $flashvars['photo_id'] );
 		}
 	}
 

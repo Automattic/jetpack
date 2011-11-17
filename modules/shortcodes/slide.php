@@ -1,10 +1,10 @@
 <?php
+
 /**
  * slideshow and slideguest shortcodes for slide.com
  * [slideshow id=2233785415202545677&w=426&h=320]
- */ 
-
-function slide_embed_to_short_code( $content ) {
+ */
+function jetpack_slide_embed_to_short_code( $content ) {
 	global $content_width;
 
 	if ( false === strpos( $content, 'slide.com/widgets' ) )
@@ -51,26 +51,32 @@ function slide_embed_to_short_code( $content ) {
 			}
 
 			$content = str_replace( $match[0], "[slideshow id={$id}&amp;w={$width}&amp;h={$height}]", $content );
+
+			do_action( 'jetpack_embed_to_shortcode', 'slideshow', $id );
 		}
 	}
 
 	return $content;
 }
-add_filter( 'pre_kses', 'slide_embed_to_short_code' );
+add_filter( 'pre_kses', 'jetpack_slide_embed_to_short_code' );
 
-function slideshow_shortcode( $atts ) {
-	return slide_embed( 'slideshow', $atts );
+function jetpack_slideshow_shortcode( $atts, $content, $shortcode ) {
+	if (
+		'slideshow' == $shortcode
+	&&
+		( empty( $atts['id'] ) || false === strpos( $atts['id'], '&' ) )
+	&&
+		( $previous_slideshow_shortcode = jetpack_slide_shortcodes( true ) )
+	&&
+		is_callable( $previous_slideshow_shortcode )
+	) {
+		return call_user_func( $previous_slideshow_shortcode, $atts, $content, $shortcode );
+	}
+
+	return jetpack_slide_embed( $shortcode, $atts );
 }
 
-function slideguest_shortcode( $atts ) {
-	return slide_embed( 'slideguest', $atts );
-}
-
-function slide_markup( $content ) {
-	return preg_replace( '!\[(slideshow|slideguest) (id=.+|[0-9]+)]!ie', 'slide_embed("$1", "$2")', $content );
-}
-
-function slide_embed( $type, $atts ) {
+function jetpack_slide_embed( $type, $atts ) {
 	$param = shortcode_new_to_old_params( $atts );
 
 	if ( ctype_digit( $param ) ) {
@@ -96,8 +102,20 @@ function slide_embed( $type, $atts ) {
 
 }
 
-/**
- * slideshow_find_handler resolves a conflict between slide.com and WordPress.com slideshow
- */ 
-add_shortcode( 'slideguest', 'slideguest_shortcode' );
-add_shortcode( 'slideshow', 'slideshow_shortcode' );
+function jetpack_slide_shortcodes( $get_previous = false ) {
+	global $shortcode_tags;
+	static $previous = false;
+
+	if ( $get_previous ) {
+		return $previous;
+	}
+
+	if ( isset( $shortcode_tags['slideshow'] ) ) {
+		$previous = $shortcode_tags['slideshow'];
+	}
+
+	add_shortcode( 'slideguest', 'jetpack_slideshow_shortcode' );
+	add_shortcode( 'slideshow',  'jetpack_slideshow_shortcode' );
+}
+
+jetpack_slide_shortcodes();

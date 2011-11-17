@@ -35,9 +35,7 @@ function scribd_shortcode_handler( $atts ) {
 
 function scribd_shortcode_markup( $atts ) {
 	$markup = <<<EOD
-<object id="scribd_$atts[id]" name="scribd_$atts[id]" height="500" width="100%" type="application/x-shockwave-flash" data="http://d1.scribdassets.com/ScribdViewer.swf" style="outline:none;" align="middle">
-<param name="movie" value="http://d1.scribdassets.com/ScribdViewer.swf"><param name="wmode" value="opaque"> <param name="bgcolor" value="#ffffff"> <param name="allowFullScreen" value="true"> <param name="FlashVars" value="document_id=$atts[id]&access_key=$atts[key]&page=1&viewMode=$atts[mode]">
-<embed id="scribd_$atts[id]" name="scribd_$atts[id]" src="http://d1.scribdassets.com/ScribdViewer.swf?document_id=$atts[id]&access_key=$atts[key]&page=1&viewMode=$atts[mode]" type="application/x-shockwave-flash" allowfullscreen="true" height="500" width="100%" wmode="opaque" bgcolor="#ffffff"></embed></object>
+<iframe class="scribd_iframe_embed" src="http://www.scribd.com/embeds/$atts[id]/content?start_page=1&view_mode=$atts[mode]&access_key=$atts[key]" data-auto-height="true" scrolling="no" id="scribd_$atts[id]" width="100%" height="500" frameborder="0"></iframe>
 <div style="font-size:10px;text-align:center;width:100%"><a href="http://www.scribd.com/doc/$atts[id]">View this document on Scribd</a></div>
 EOD;
 
