@@ -316,13 +316,13 @@ class Jetpack_Subscriptions {
 
 		if ( FALSE === has_filter( 'comment_form', 'show_subscription_checkbox' ) ) {
 			// Subscribe to comments checkbox
-			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto;"' . $comments_checked . '" /> ';
+			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto;"' . $comments_checked . ' /> ';
 			$str .= '<label class="subscribe-label" id="subscribe-label" for="subscribe_comments">' . __( 'Notify me of follow-up comments by email.', 'jetpack' ) . '</label>';
 			$str .= '</p>';
 		}
 
 		// Subscribe to blog checkbox
-		$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto;"' . $blog_checked . '" /> ';
+		$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto;"' . $blog_checked . ' /> ';
 		$str .=	'<label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog">' . __( 'Notify me of new posts by email.', 'jetpack' ) . '</label>';
 		$str .= '</p>';
 
