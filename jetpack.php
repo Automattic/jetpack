@@ -17,7 +17,7 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.1' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
-define( 'JETPACK__VERSION', '1.2' );
+define( 'JETPACK__VERSION', '1.2.1' );
 
 /*
 Options:
@@ -1687,7 +1687,7 @@ p {
 							<?php _e( 'Answer a short survey to let us know how we&#8217;re doing and what to add in the future.', 'jetpack' ); ?>
 						</div>
 						<div class="jp-survey-button-container">
-							<p class="submit"><?php printf( '<a id="jp-survey-button" class="button-primary" target="_blank" href="%1$s">%2$s</a>', 'http://jetpack.me/survey/', __( 'Take Survey', 'jetpack' ) ); ?></p>
+							<p class="submit"><?php printf( '<a id="jp-survey-button" class="button-primary" target="_blank" href="%1$s">%2$s</a>', 'http://jetpack.me/survey/?rel=' . JETPACK__VERSION, __( 'Take Survey', 'jetpack' ) ); ?></p>
 						</div>
 					</div>
 				</div>
