@@ -50,33 +50,30 @@ function stats_load() {
 
 	add_filter( 'jetpack_xmlrpc_methods', 'stats_xmlrpc_methods' );
 
-	// Ignore me doing this: @ is for PHP5+WP<3.3.  This is not a valid exception to the "never use @" rule :)
-	@get_role( 'noop' ); // Instantiate $GLOBALS['wp_roles']
+	// Map stats caps
+	add_filter( 'map_meta_cap', 'stats_map_meta_caps', 10, 4 );
+}
 
-	$all_roles = array_keys( $wp_roles->roles );
-	$stats_roles = stats_get_option( 'roles' );
+/**
+ * Maps view_stats cap to read cap as needed
+ *
+ * @return array Possibly mapped capabilities for meta capability
+ */
+function stats_map_meta_caps( $caps, $cap, $user_id, $args ) {
 
-	// Ensure no role has the view_stats cap
-	foreach ( $all_roles as $role_key ) {
-		if ( $role = get_role( $role_key ) ) {
-			$role->remove_cap( 'view_stats' );
+	// Map view_stats to exists
+	if ( 'view_stats' == $cap ) {
+		$user        = new WP_User( $user_id );
+		$user_role   = array_shift( $user->roles );
+		$stats_roles = stats_get_option( 'roles' );
+
+		// Is the users role in the available stats roles?
+		if ( in_array( $user_role, $stats_roles ) ) {
+			$caps = array( 'read' );
 		}
 	}
 
-	// Hack: don't store in the DB, just use on current page load
-	$use_db = $wp_roles->use_db;
-	$wp_roles->use_db = false;
-	$is_php_4 = version_compare( 5, PHP_VERSION, '>' );
-	foreach ( array_intersect( $all_roles, $stats_roles ) as $role_key ) {
-		if ( $role = get_role( $role_key ) ) {
-			$role->add_cap( 'view_stats' );
-			// Double Hack for PHP4, which doesn't keep track of the role objects "correctly"
-			if ( $is_php_4 && current_user_can( $role_key ) ) {
-				$GLOBALS['current_user']->allcaps['view_stats'] = true;
-			}
-		}
-	}
-	$wp_roles->use_db = $use_db;
+	return $caps;
 }
 
 function stats_template_redirect() {

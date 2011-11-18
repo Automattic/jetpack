@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.2
+ * Version: 1.2.1
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -633,10 +633,15 @@ class Jetpack {
 			'deactivate'  => 'Deactivate',
 			'free'        => 'Free',
 		);
+
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
+		if ( !file_exists( $file ) )
+			return false;
+
 		$mod = get_file_data( $file, $headers );
 		if ( empty( $mod['name'] ) )
 			return false;
+
 		$mod['name'] = translate( $mod['name'], 'jetpack' );
 		$mod['description'] = translate( $mod['description'], 'jetpack' );
 		if ( empty( $mod['sort'] ) )
@@ -747,12 +752,18 @@ class Jetpack {
 				}
 				continue;
 			}
+
+			$file = Jetpack::get_module_path( $module );
+			if ( !file_exists( $file ) ) {
+				continue;
+			}
+
 			// we'll override this later if the plugin can be included without fatal error
 			wp_safe_redirect( Jetpack::admin_url() );
 			Jetpack::state( 'error', 'module_activation_failed' );
 			Jetpack::state( 'module', $module );
 			ob_start();
-			require Jetpack::get_module_path( $module );
+			require $file;
 			$active[] = $module;
 			$state = in_array( $module, $other_modules ) ? 'reactivated_modules' : 'activated_modules';
 			if ( $active_state = Jetpack::state( $state ) ) {
@@ -1086,6 +1097,8 @@ p {
 	function admin_menu() {
 		list( $jetpack_version ) = explode( ':', Jetpack::get_option( 'version' ) );
 		if (
+			$jetpack_version
+		&&
 			$jetpack_version != JETPACK__VERSION
 		&&
 			( $new_modules = Jetpack::get_default_modules( $jetpack_version, JETPACK__VERSION ) )
@@ -1130,7 +1143,7 @@ p {
 			'<p><strong>' . __( 'Jetpack Module Options', 'jetpack' ) . '</strong></p>' .
 			'<p>' . __( '<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button.', 'jetpack' ) . '</p>' .
 			'<p><strong>' . __( 'For more information:', 'jetpack' ) . '</strong></p>' .
-			'<p><a href="https://jetpack.me/faq/">' . __( 'Jetpack FAQ', 'jetpack' ) . '</a></p>' .
+			'<p><a href="http://jetpack.me/faq/">' . __( 'Jetpack FAQ', 'jetpack' ) . '</a></p>' .
 			'<p><a href="http://jetpack.me/support/">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>';
 	}
 
@@ -1804,8 +1817,20 @@ p {
 		}
 		unset( $avail_raw );
 		usort( $available, array( 'Jetpack', 'sort_modules' ) );
-		list( $jetpack_version, $jetpack_version_time ) = explode( ':', Jetpack::get_option( 'version' ) );
-		list( $jetpack_old_version ) = explode( ':', Jetpack::get_option( 'old_version' ) );
+		$jetpack_version = Jetpack::get_option( 'version' );
+		if ( $jetpack_version ) {
+			list( $jetpack_version, $jetpack_version_time ) = explode( ':', $jetpack_version );
+		} else {
+			$jetpack_version = 0;
+			$jetpack_version_time = 0;
+		}
+
+		$jetpack_old_version = Jetpack::get_option( 'old_version' );
+		if ( $jetpack_old_version ) {
+			list( $jetpack_old_version ) = explode( ':', $jetpack_old_version );
+		} else {
+			$jetpack_old_version = 0;
+		}
 		$now = time();
 
 		foreach ( (array) $available as $module_data ) {

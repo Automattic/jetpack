@@ -24,12 +24,12 @@ function vaultpress_jetpack_more_info() {
 	</div>
 
 	<h4><?php esc_html_e( 'VaultPress', 'jetpack' ) ?></h4>
-<?php	if ( function_exists( 'vaultpress_contact_service' ) ) : ?>
+<?php	if ( class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' ) ) : ?>
 	<p><?php esc_html_e( 'Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support.', 'jetpack' ); ?></p>
 	<p><?php printf( _x( 'To check your backups, see any security alerts, or check your VaultPress Vitality, visit your %s.', 'Visit your _VaultPress_dashboard_.', 'jetpack' ), '<a href="https://dashboard.vaultpress.com/">' . esc_html__( 'VaultPress dashboard', 'jetpack' ) . '</a>' ); ?></a></p>
 <?php	else : ?>
 	<p><?php esc_html_e( 'With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks.', 'jetpack' ); ?></p>
-	<p><?php printf( _x( 'View %s.', 'View _Plans_&_Pricing_. (VaultPress)', 'jetpack' ), '<a href="' . $vaultpress_url . '">' . esc_html__( 'View Plans & Pricing', 'jetpack' ) . '</a>' ); ?></a></p>
+	<p><?php printf( _x( 'View %s.', 'View _Plans_&_Pricing_. (VaultPress)', 'jetpack' ), '<a href="' . $vaultpress_url . '">' . esc_html__( 'Plans & Pricing', 'jetpack' ) . '</a>' ); ?></a></p>
 <?php	endif;
 }
 add_action( 'jetpack_module_more_info_vaultpress', 'vaultpress_jetpack_more_info' );

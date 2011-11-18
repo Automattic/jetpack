@@ -76,6 +76,13 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.2.1 =
+* Bug Fix: Ensure Site Stats menu item is accessible.
+* Bug Fix: Fixed errors displayed during some upgrades.
+* Bug Fix: Fix inaccurate new modules "bubble" in menu for some upgrades.
+* Bug Fix: Fix VaultPress detection.
+* Bug Fix: Fix link to http://jetpack.me/faq/
+
 = 1.2 =
 * Enhancement: Add Subscriptions: Subscribe to site's posts and posts' comments.
 * Enhancement: Add Google Maps shortcode.
