@@ -1751,6 +1751,7 @@ p {
 			die( '-1' );
 		}
 ?>
+		<p><?php esc_html_e( 'This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords.' ); ?></p>
 		<ul>
 		<?php
 		foreach ( array(
