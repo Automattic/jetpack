@@ -1765,6 +1765,8 @@ p {
 		?>
 			<li><?php echo esc_html( $label ); ?>: <code><?php echo esc_html( Jetpack::get_option( $option_name ) ); ?></code></li>
 		<?php endforeach; ?>
+			<li><?php echo 'PHP_VERSION'; ?>: <code><?php echo esc_html( PHP_VERSION ); ?></code></li>
+			<li><?php echo 'WORDPRESS_VERSION'; ?>: <code><?php echo esc_html( $GLOBALS['wp_version'] ); ?></code></li>
 		</ul>
 <?php
 		exit;
