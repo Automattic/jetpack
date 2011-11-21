@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  \n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-super-cache\n"
-"POT-Creation-Date: 2011-10-26 17:19:55+00:00\n"
+"POT-Creation-Date: 2011-11-21 11:29:28+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -451,8 +451,8 @@ msgstr ""
 
 #: wp-cache.php:816
 msgid ""
-"Proudly tell the world your server is Digg proof! (places a message in your "
-"blog&#8217;s footer)"
+"Proudly tell the world your server is <a href=\"%s\">Stephen Fry proof</a>! "
+"(places a message in your blog&#8217;s footer)"
 msgstr ""
 
 #: wp-cache.php:822 wp-cache.php:1093 wp-cache.php:1605
@@ -959,12 +959,12 @@ msgid "Lock Down:"
 msgstr ""
 
 #: wp-cache.php:1242 plugins/awaitingmoderation.php:35
-#: plugins/domain-mapping.php:61 plugins/badbehaviour.php:66
+#: plugins/badbehaviour.php:66 plugins/domain-mapping.php:61
 msgid "Disabled"
 msgstr ""
 
 #: wp-cache.php:1242 plugins/awaitingmoderation.php:34
-#: plugins/domain-mapping.php:60 plugins/badbehaviour.php:65
+#: plugins/badbehaviour.php:65 plugins/domain-mapping.php:60
 msgid "Enabled"
 msgstr ""
 
@@ -1216,8 +1216,8 @@ msgid "Debugging"
 msgstr ""
 
 #: wp-cache.php:1594 plugins/awaitingmoderation.php:40
-#: plugins/searchengine.php:69 plugins/domain-mapping.php:66
-#: plugins/badbehaviour.php:71
+#: plugins/badbehaviour.php:71 plugins/domain-mapping.php:66
+#: plugins/searchengine.php:69
 msgid "enabled"
 msgstr ""
 
@@ -1504,7 +1504,7 @@ msgid "Delete Super Cache cached files (opens in new window)"
 msgstr ""
 
 #: wp-cache.php:2298
-msgid "%1$s is Digg proof thanks to caching by %2$s"
+msgid "%1$s is Stephen Fry proof thanks to caching by %2$s"
 msgstr ""
 
 #: wp-cache.php:2331
@@ -1783,8 +1783,8 @@ msgid ""
 "moderation.\" when someone leaves a moderated comment."
 msgstr ""
 
-#: plugins/awaitingmoderation.php:42 plugins/searchengine.php:67
-#: plugins/domain-mapping.php:68 plugins/badbehaviour.php:73
+#: plugins/awaitingmoderation.php:42 plugins/badbehaviour.php:73
+#: plugins/domain-mapping.php:68 plugins/searchengine.php:67
 msgid "disabled"
 msgstr ""
 
@@ -1792,21 +1792,28 @@ msgstr ""
 msgid "Awaiting Moderation is now %s"
 msgstr ""
 
-#: plugins/awaitingmoderation.php:45 plugins/domain-mapping.php:71
-#: plugins/badbehaviour.php:76
+#: plugins/awaitingmoderation.php:45 plugins/badbehaviour.php:76
+#: plugins/domain-mapping.php:71
 msgid "Update"
 msgstr ""
 
-#: plugins/searchengine.php:71
-msgid ""
-"<a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for "
-"Friends</a> plugin is %s."
+#: plugins/badbehaviour.php:47
+msgid "Bad Behaviour not found. Please check your install."
 msgstr ""
 
-#: plugins/searchengine.php:72
+#: plugins/badbehaviour.php:63
+msgid "Bad Behavior"
+msgstr ""
+
+#: plugins/badbehaviour.php:68
 msgid ""
-"(requires <a href=\"http://ocaoimh.ie/no-adverts-for-friends/"
-"\">friendsadverts.php</a> too) "
+"(Only legacy caching supported, disabled compression and requires <a href="
+"\"http://www.bad-behavior.ioerror.us/\">Bad Behavior</a> in \"%s/plugins/bad-"
+"behavior/\") "
+msgstr ""
+
+#: plugins/badbehaviour.php:74
+msgid "Bad Behavior support is now %s"
 msgstr ""
 
 #: plugins/domain-mapping.php:58
@@ -1830,21 +1837,14 @@ msgid ""
 "enable the domain mapping helper plugin."
 msgstr ""
 
-#: plugins/badbehaviour.php:47
-msgid "Bad Behaviour not found. Please check your install."
-msgstr ""
-
-#: plugins/badbehaviour.php:63
-msgid "Bad Behavior"
-msgstr ""
-
-#: plugins/badbehaviour.php:68
+#: plugins/searchengine.php:71
 msgid ""
-"(Only legacy caching supported, disabled compression and requires <a href="
-"\"http://www.bad-behavior.ioerror.us/\">Bad Behavior</a> in \"%s/plugins/bad-"
-"behavior/\") "
+"<a href=\"http://ocaoimh.ie/no-adverts-for-friends/\">No Adverts for "
+"Friends</a> plugin is %s."
 msgstr ""
 
-#: plugins/badbehaviour.php:74
-msgid "Bad Behavior support is now %s"
+#: plugins/searchengine.php:72
+msgid ""
+"(requires <a href=\"http://ocaoimh.ie/no-adverts-for-friends/"
+"\">friendsadverts.php</a> too) "
 msgstr ""
