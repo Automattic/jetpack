@@ -2295,7 +2295,7 @@ function wpsc_remove_marker( $filename, $marker ) {
 }
 
 function wp_super_cache_footer() {
-	?><p id='supercache'><?php printf( __( '%1$s is Digg proof thanks to caching by %2$s', 'wp-super-cache' ), bloginfo( 'name' ), '<a href="http://ocaoimh.ie/wp-super-cache/">WP Super Cache</a>' ); ?></p><?php
+	?><p id='supercache'><?php printf( __( '%1$s is Stephen Fry proof thanks to caching by %2$s', 'wp-super-cache' ), bloginfo( 'name' ), '<a href="http://ocaoimh.ie/wp-super-cache/">WP Super Cache</a>' ); ?></p><?php
 }
 if( isset( $wp_cache_hello_world ) && $wp_cache_hello_world )
 	add_action( 'wp_footer', 'wp_super_cache_footer' );
