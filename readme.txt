@@ -453,6 +453,8 @@ If that doesn't work, add this line to your wp-config.php:
 	`ini_set('zlib.output_compression', 0);`
 22. The "white screen of death" or a blank page  when you visit your site is almost always caused by a PHP error but [it may also be caused by APC](http://www.johnberns.com/2010/03/19/wp-super-cache-blank-page-problem-fixed/). Disable that PHP extension if you have trouble and replace with eAccelerator or Xcache.
 23. After uninstalling, your permalinks may break if you remove the WordPress mod_rewrite rules too. Regenerate those rules by visiting the Settings->Permalink page and saving that form again.
+24. If your blog refuses to load make sure your wp-config.php is correct. Are you missing an opening or closing PHP tag?
+25. Your front page is ok but posts and pages give a 404? Go to Settings->permalinks and click "Save" once you've selected a custom permalink structure. You may need to manually update your .htaccess file.
 
 == CDN ==
 
