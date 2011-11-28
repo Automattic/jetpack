@@ -1401,24 +1401,107 @@ function RecursiveFolderDelete ( $folderPath ) { // from http://www.php.net/manu
 }
 
 function wp_cache_edit_max_time () {
-	global $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled;
+	global $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled, $cache_schedule_type, $cache_scheduled_time, $cache_schedule_interval, $cache_time_interval, $cache_gc_email_me;
+
+
+	if( !isset( $cache_schedule_type ) )
+		$cache_schedule_type = 'interval';
+
+	if( !isset( $cache_scheduled_time ) )
+		$cache_scheduled_time = '00:00';
 
 	if( !isset( $cache_max_time ) )
 		$cache_max_time = 3600;
 
-	if(isset($_POST['wp_max_time']) && $valid_nonce) {
-		$max_time = (int)$_POST['wp_max_time'];
-		$cache_max_time = $max_time;
+	if ( !isset( $cache_time_interval ) )
+		$cache_time_interval = $cache_max_time;
+
+	if ( isset( $_POST['wp_max_time'] ) && $valid_nonce ) {
+		$cache_max_time = (int)$_POST['wp_max_time'];
 		wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = $cache_max_time;", $wp_cache_config_file);
+	}
+
+	if ( isset( $_POST[ 'cache_gc_email_me' ] ) && $valid_nonce ) {
+		$cache_gc_email_me = 1;
+		wp_cache_replace_line('^ *\$cache_gc_email_me', "\$cache_gc_email_me = $cache_gc_email_me;", $wp_cache_config_file); 
+	} elseif ( $valid_nonce ) {
+		$cache_gc_email_me = 0;
+		wp_cache_replace_line('^ *\$cache_gc_email_me', "\$cache_gc_email_me = $cache_gc_email_me;", $wp_cache_config_file); 
+	}
+	if ( $_POST[ 'cache_schedule_type' ] == 'interval' && isset( $_POST['cache_time_interval'] ) && $valid_nonce ) {
+		wp_clear_scheduled_hook( 'wp_cache_gc' );
+		$cache_schedule_type = 'interval';
+		$cache_time_interval = (int)$_POST[ 'cache_time_interval' ];
+		wp_schedule_single_event( time() + $cache_time_interval, 'wp_cache_gc' );
+		wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
+		wp_cache_replace_line('^ *\$cache_time_interval', "\$cache_time_interval = '$cache_time_interval';", $wp_cache_config_file);
+	} elseif ( $valid_nonce ) {
+		wp_clear_scheduled_hook( 'wp_cache_gc' );
+		$cache_schedule_type = 'time';
+		$cache_scheduled_time = $_POST[ 'cache_scheduled_time' ];
+		$cache_schedule_interval = $_POST[ 'cache_schedule_interval' ];
+		wp_schedule_single_event( strtotime( $cache_scheduled_time ), 'wp_cache_gc' );
+		wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
+		wp_cache_replace_line('^ *\$cache_schedule_interval', "\$cache_schedule_interval = '{$_POST[ 'cache_schedule_interval' ]}';", $wp_cache_config_file);
+		wp_cache_replace_line('^ *\$cache_scheduled_time', "\$cache_scheduled_time = '$cache_scheduled_time';", $wp_cache_config_file);
+		wp_schedule_event( strtotime( $cache_scheduled_time ), $_POST[ 'cache_schedule_interval' ], 'wp_cache_gc' );
 	}
 	?><fieldset class="options"> 
 	<a name='expirytime'></a>
 	<h3><?php _e( 'Expiry Time &amp; Garbage Collection', 'wp-super-cache' ); ?></h3><?php
+	// Add scenarios - long gc, short gc, timed..
+	$next_gc = wp_next_scheduled( 'wp_cache_gc' );
+	echo "<p>" . sprintf( __( 'Current server time is: %s', 'wp-super-cache' ), date( 'Y-m-d H:i:s', time() ) ) . "</p>";
+	if ( $next_gc )
+		echo "<p>" . sprintf( __( 'Next scheduled garbage collection will be at (YY-MM-DD H:M:S): %s', 'wp-super-cache' ), date( 'Y-m-d H:i:s', $next_gc ) ) . "</p>";
+	echo "<script type='text/javascript'>";
+	echo "jQuery(function () {
+		jQuery('#cache_interval_time').click(function () {
+			jQuery('#schedule_interval').attr('checked', true);
+		});
+		jQuery('#cache_scheduled_time').click(function () {
+			jQuery('#schedule_time').attr('checked', true);
+		});
+		jQuery('#cache_scheduled_select').click(function () {
+			jQuery('#schedule_time').attr('checked', true);
+		});
+		});";
+	echo "</script>";
 	echo '<form name="wp_edit_max_time" action="#expirytime" method="post">';
-	echo '<label for="wp_max_time">' . __( 'Expire time:', 'wp-super-cache' ) . '</label> ';
-	echo "<input type=\"text\" size=6 name=\"wp_max_time\" value=\"$cache_max_time\" /> " . __( "seconds", 'wp-super-cache' );
-	echo "<h4>" . __( 'Garbage Collection', 'wp-super-cache' ) . "</h4><p>" . __( 'If the expiry time is more than 1800 seconds (half an hour), garbage collection will be done every 10 minutes, otherwise it will happen 10 seconds after the expiry time above.', 'wp-super-cache' ) . "</p>";
-	echo "<p>" . __( 'Checking for and deleting expired files is expensive, but it&#8217;s expensive leaving them there too. On a very busy site you should set the expiry time to <em>300 seconds</em>. Experiment with different values and visit this page to see how many expired files remain at different times during the day. If you are using legacy caching aim to have less than 500 cached files if possible. You can have many times more cached files when using mod_rewrite or PHP caching.', 'wp-super-cache' ) . "</p>";
+	echo '<table class="form-table">';
+	echo '<tr><td><label for="wp_max_time"><strong>' . __( 'Cache Timeout', 'wp-super-cache' ) . '</strong></label></td>';
+	echo "<td><input type='text' id='wp_max_time' size=6 name='wp_max_time' value='$cache_max_time' /> " . __( "seconds", 'wp-super-cache' ) . "</td></tr>\n";
+	echo "<tr><td></td><td>" . __( 'How long should cached pages remain fresh? Set to 0 to disable garbage collection. A good starting point is 3600 seconds.', 'wp-super-cache' ) . "</td></tr>\n";
+	echo '<tr><td valign="top"><strong>' . __( 'Scheduler', 'wp-super-cache' ) . '</strong><br />' . __( '(pick one)', 'wp-super-cache' ) . '</td><td><table cellpadding=0 cellspacing=0><tr><td valign="top"><input type="radio" id="schedule_interval" name="cache_schedule_type" value="interval" ' . checked( 'interval', $cache_schedule_type, false ) . ' /></td><td valign="top"><label for="cache_interval_time">' . __( 'Timer:', 'wp-super-cache' ) . '</label></td>';
+	echo "<td><input type='text' id='cache_interval_time' size=6 name='cache_time_interval' value='$cache_time_interval' /> " . __( "seconds", 'wp-super-cache' ) . '<br />' . __( 'Check for stale cached files every <em>interval</em> seconds.', 'wp-super-cache' ) . "</td></tr>";
+	echo '<tr><td valign="top"><input type="radio" id="schedule_time" name="cache_schedule_type" value="time" ' . checked( 'time', $cache_schedule_type, false ) . ' /></td><td valign="top"><label for="schedule_time">' . __( 'Clock:', 'wp-super-cache' ) . '</label></td>';
+	echo "<td><input type=\"text\" size=5 id='cache_scheduled_time' name='cache_scheduled_time' value=\"$cache_scheduled_time\" /> " . __( "HH:MM", 'wp-super-cache' ) . "<br />" . __( 'Check for stale cached files at this time or starting at this time every <em>interval</em> below.', 'wp-super-cache' ) . "</td></tr>";
+	$schedules = wp_get_schedules();
+	echo "<tr><td><br /></td><td>" . __( 'Interval:', 'wp-super-cache' ) . "</td><td><select id='cache_scheduled_select' name='cache_schedule_interval' size=1>";
+	foreach( $schedules as $desc => $details ) {
+		echo "<option name='$desc' " . selected( $desc, $cache_schedule_interval, false ) . " /> $desc</option>";
+	}
+	echo "</select></td></tr>";
+	echo '</table></td></tr>';
+	echo '<tr><td><label for="wp_max_time"><strong>' . __( 'Email me when garbage collection runs', 'wp-super-cache' ) . '</strong></label></td>';
+	echo "<td><input type='checkbox' id='cache_gc_email_me' name='cache_gc_email_me' " . checked( $cache_gc_email_me, 1, false ) . " /> </td></tr>\n";
+	echo "</table>\n";
+	echo "<h4>" . __( 'Garbage Collection', 'wp-super-cache' ) . "</h4>";
+	echo "<ol><li>" . __( '<em>Garbage collection</em> is the simple act of throwing out your garbage. For this plugin that would be old or <em>stale</em> cached files that may be out of date. New cached files are described as <em>fresh</em>.', 'wp-super-cache' ) . "</li>\n";
+	echo "<li>" . __( 'Cached files are fresh for a limited length of time. You can set that time in the <em>Cache Timeout</em> text box on this page.', 'wp-super-cache' ) . "</li>\n";
+	echo "<li>" . __( 'Stale cached files are not removed as soon as they become stale. They have to be removed by the garbage collecter. That is why you have to tell the plugin when the garbage collector should run.', 'wp-super-cache' ) . "</li>\n";
+	echo "<li>" . __( 'Use the <em>Timer</em> or <em>Clock</em> schedulers to define when the garbage collector should run.', 'wp-super-cache' ) . "</li>\n";
+	echo "<li>" . __( 'The <em>Timer</em> scheduler tells the plugin to run the garbage collector at regular intervals. When one garbage collection is done, the next run is scheduled.', 'wp-super-cache' ) . "</li>\n";
+	echo "<li>" . __( 'Or, the <em>Clock</em> scheduler allows the garbage collection to run at specific times. If set to run hourly or twicedaily the garbage collector will be first scheduled for the time you enter here. It will then run again at the indicated interval. If set to run daily it will run once a day at the time specified.', 'wp-super-cache' ) . "</li>\n";
+	echo "</ol>";
+	echo "<p>" . __( 'There are no best garbage collection settings but here are a few scenarios. Garbage collection is separate to other actions that clear our cached files like leaving a comment or publishing a post.', 'wp-super-cache' ) . "</p>\n";
+	echo "<ol>";
+	echo "<li>" . __( 'Sites that want to serve lots of newly generated data should set the <em>Cache Timeout</em> to 60 and use the <em>Timer</em> scheduler set to 90 seconds.', 'wp-super-cache' ) . "</li>\n";
+	echo "<li>" . __( 'Sites with widgets and rss feeds in their sidebar should probably use a timeout of 3600 seconds and set the timer to 600 seconds. Stale files will be caught within 10 minutes of going stale.', 'wp-super-cache' ) . "</li>\n";
+	echo "<li>" . __( 'Sites with lots of static content, no widgets or rss feeds in their sidebar can use a timeout of 86400 seconds or even more and set the timer to something equally long.', 'wp-super-cache' ) . "</li>\n";
+	echo "<li>" . __( 'Sites where an external data source updates at a particular time every day should set the timeout to 86400 seconds and use the Clock scheduler set appropriately.', 'wp-super-cache' ) . "</li>\n";
+	echo "</ol>";
+	echo "<p>" . __( 'Checking for and deleting expired files is expensive, but it&#8217;s expensive leaving them there too. On a very busy site you should set the expiry time to <em>600 seconds</em>. Experiment with different values and visit this page to see how many expired files remain at different times during the day. If you are using legacy caching aim to have less than 500 cached files if possible. You can have many times more cached files when using mod_rewrite or PHP caching.', 'wp-super-cache' ) . "</p>";
 	echo "<p>" . __( 'Set the expiry time to 0 seconds to disable garbage collection.', 'wp-super-cache' ) . "</p>";
 	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Change Expiration', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
