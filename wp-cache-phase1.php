@@ -114,7 +114,7 @@ function wp_super_cache_init() {
 
 function wp_cache_serve_cache_file() {
 	global $key, $blogcacheid, $wp_cache_request_uri, $file_prefix, $blog_cache_dir, $meta_file, $cache_file, $cache_filename, $wp_super_cache_debug, $meta_pathname, $wp_cache_gzip_encoding, $meta;
-	global $wp_cache_object_cache, $cache_compression, $wp_cache_slash_check, $wp_supercache_304;
+	global $wp_cache_object_cache, $cache_compression, $wp_cache_slash_check, $wp_supercache_304, $wp_cache_home_path;
 
 	extract( wp_super_cache_init() );
 
@@ -164,9 +164,11 @@ function wp_cache_serve_cache_file() {
 		} elseif ( file_exists( $phpfile ) ) {
 			$serving_supercache = 'php';
 		}
+		if ( false == isset( $wp_cache_home_path ) )
+			$wp_cache_home_path = '/';
 		if ( 
 			( 
-				$wp_cache_request_uri == '/' || 
+				$wp_cache_request_uri == $wp_cache_home_path || 
 				( $wp_cache_slash_check && substr( $wp_cache_request_uri, -1 ) == '/' ) || 
 				( $wp_cache_slash_check == 0 && substr( $wp_cache_request_uri, -1 ) != '/' ) 
 			) && 
