@@ -1110,6 +1110,11 @@ function wp_cache_gc_cron() {
 
 function schedule_wp_gc( $forced = 0 ) {
 	global $cache_schedule_type, $cache_max_time, $cache_time_interval, $cache_scheduled_time, $cache_schedule_interval;
+
+	if ( false == isset( $cache_schedule_type ) ) {
+		$cache_schedule_type = 'interval';
+		$cache_schedule_interval = $cache_max_time;
+	}
 	if ( $cache_schedule_type == 'interval' ) {
 		if ( $cache_max_time == 0 )
 			return false;
