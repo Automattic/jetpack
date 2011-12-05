@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2011-11-16 22:55:34+0000\n"
+"PO-Revision-Date: 2011-12-05 21:56:02+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -267,7 +267,7 @@ msgstr "Sa mjesečnom pretplatom, VaultPress plugin će vršiti backup sadržaja
 
 #: modules/module-info.php:188
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
-msgstr "<a href=\"%s\">Ovdje možete pogledati</a> kontrolnu ploču vaših statisku."
+msgstr "<a href=\"%s\">Ovdje možete pogledati</a> kontrolnu ploču vaše statistike."
 
 #: modules/module-info.php:22
 msgid "VaultPress dashboard"
@@ -336,7 +336,7 @@ msgstr "Centrirano"
 
 #: modules/module-info.php:81 modules/module-info.php:94
 msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
-msgstr "Kratki kodovi omogućavaju vam jednostavko i sigurno ugrađivanje mutimedije sa drugih lokacija na vašu stranicu. Pomoću jednog jednostavnog koda, možete reći WordPressu da ugradi Youtube, Flickr i drugu multimediju."
+msgstr "Kratki kodovi omogućavaju vam jednostavno i sigurno ugrađivanje multimedije sa drugih lokacija na vašu stranicu. Pomoću jednog jednostavnog koda, možete reći WordPressu da ugradi Youtube, Flickr i drugu multimediju."
 
 #: modules/ie-sitemode/custom-jumplist.php:49
 msgid "Pending comments"
@@ -505,7 +505,7 @@ msgstr "Nemate potrebni <a rel=\"nofollow\" href=\"%s\">nivo slobode</a> za preg
 
 #: modules/module-info.php:323
 msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
-msgstr "After the Deadline ima dosta <a href=\"%s\">opcija za prilagođavanje</a> koje možete uređivati u vašem profilu."
+msgstr "After the Deadline ima mnogo <a href=\"%s\">opcija za prilagođavanje</a> koje možete uređivati u vašem profilu."
 
 #: modules/sharedaddy/sharing-sources.php:884
 msgctxt "share to"
@@ -595,7 +595,7 @@ msgstr "Posjetite svoju %s."
 
 #: modules/sharedaddy/sharing.php:221
 msgid "Sharing is off. Please add services above to enable"
-msgstr "Dijeljenje je isključeno. Molimo vas da dodate gornje servise da biste ga omogućili"
+msgstr "Dijeljenje je isključeno. Molimo vas da dodate gornje servise da biste ga omogućili."
 
 #: modules/sharedaddy/sharing.php:203
 msgid "Services dragged here will be hidden behind a share button."
@@ -1009,7 +1009,7 @@ msgid "Close"
 msgstr "Zatvori"
 
 msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
-msgstr "Najbolji alat za razmjenu na webu. Razmjenjujte sadržaj sa Facebooka, Twitter i sa još mnogo servisa."
+msgstr "Najbolji alat za razmjenu na webu. Razmjenjujte sadržaj sa Facebooka, Twittera i sa još mnogo servisa."
 
 #: modules/module-info.php:245
 msgid "There are also a number of customization options. Change the number of displayed tweets, filter out replies, and include retweets."
@@ -1058,7 +1058,7 @@ msgid "Display the latest updates from a Twitter user inside your theme's widget
 msgstr "Prikažite najnovije vijesti sa vašeg Twitter računa pomoću dodatka za vašu temu."
 
 msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
-msgstr "Dozvoljava korisnicima da se pretplate na vaše članke i komentari i da primaju obavijesti o njima putem emaila."
+msgstr "Dozvoljava korisnicima da se pretplate na vaše članke i komentare i da primaju obavijesti o njima putem emaila."
 
 msgid "Subscriptions"
 msgstr "Pretplate"
@@ -1067,7 +1067,7 @@ msgid "Simple, concise site stats with no additional load on your server."
 msgstr "Jednostavna statistika stranice koja dodatno ne opterećuje vaš server."
 
 msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
-msgstr "Omogućine WP.me kratke linkove radi lakše razmjene na svim vašim člancima i stranicama."
+msgstr "Omogućite WP.me kratke linkove radi lakše razmjene na svim vašim člancima i stranicama."
 
 msgid "Easily add RSS links to your theme's sidebar."
 msgstr "Jednostavno dodajte RSS linkove u bočnu traku vaše teme."
@@ -1226,7 +1226,7 @@ msgstr "Dugme \"Volim ovo\""
 
 #: modules/module-info.php:300
 msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
-msgstr "Dovucite servise za dijeljenje u sekciju za omgućavanje da biste ih prikazali na vašoj stranici, a možete ih odvući i u sekciju za sakrivene servise kako biste ih maskirali unutar dugmeta."
+msgstr "Dovucite servise za dijeljenje u sekciju za omogućavanje da biste ih prikazali na vašoj stranici, a možete ih odvući i u sekciju za sakrivene servise kako biste ih maskirali unutar dugmeta."
 
 #: modules/subscriptions.php:445
 msgid "Email Address"
@@ -1457,7 +1457,7 @@ msgstr "Klišei"
 
 #: jetpack.php:1168
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features."
-msgstr "<strong>JetPack je skoro spreman!</strong> &#8211; Povežite se na WordPress.com za omogućavanje svih mogućnosti."
+msgstr "<strong>JetPack je skoro spreman!</strong> &#8211; Povežite se na WordPress.com za aktivaciju svih mogućnosti."
 
 #: jetpack.php:1171
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."

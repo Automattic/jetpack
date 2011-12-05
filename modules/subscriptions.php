@@ -49,7 +49,7 @@ class Jetpack_Subscriptions {
 		add_action( 'comment_form', array( &$this, 'comment_subscribe_init' ) );
 
 		// Catch comment posts and check for subscriptions.
-		add_action( 'comment_post', array( &$this, 'comment_subscribe_submit' ), 50 );
+		add_action( 'comment_post', array( &$this, 'comment_subscribe_submit' ), 50, 2 );
 	}
 
 	function post_is_public( $the_post ) {
@@ -316,13 +316,13 @@ class Jetpack_Subscriptions {
 
 		if ( FALSE === has_filter( 'comment_form', 'show_subscription_checkbox' ) ) {
 			// Subscribe to comments checkbox
-			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto;"' . $comments_checked . ' /> ';
+			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $comments_checked . ' /> ';
 			$str .= '<label class="subscribe-label" id="subscribe-label" for="subscribe_comments">' . __( 'Notify me of follow-up comments by email.', 'jetpack' ) . '</label>';
 			$str .= '</p>';
 		}
 
 		// Subscribe to blog checkbox
-		$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto;"' . $blog_checked . ' /> ';
+		$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $blog_checked . ' /> ';
 		$str .=	'<label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog">' . __( 'Notify me of new posts by email.', 'jetpack' ) . '</label>';
 		$str .= '</p>';
 
@@ -334,7 +334,11 @@ class Jetpack_Subscriptions {
 	 *
 	 * When a user checks the comment subscribe box and submits a comment, subscribe them to the comment thread.
 	 */
-	 function comment_subscribe_submit( $comment_id ) {
+	 function comment_subscribe_submit( $comment_id, $approved ) {
+		if ( 'spam' === $approved ) {
+			return;
+		}
+
 		// Set cookies for this post/comment
 		$this->set_cookies( isset( $_REQUEST['subscribe_comments'] ), isset( $_REQUEST['subscribe_blog'] ) );
 

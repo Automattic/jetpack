@@ -76,6 +76,12 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.2.2 =
+* Bug Fix: Ensure expected modules get reactivated correctly during upgrade.
+* Bug Fix: Don't send subscription request during spam comment submission.
+* Bug Fix: Increased theme compatibility for subscriptions.
+* Bug Fix: Remove reference to unused background image.
+
 = 1.2.1 =
 * Bug Fix: Ensure Site Stats menu item is accessible.
 * Bug Fix: Fixed errors displayed during some upgrades.

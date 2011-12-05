@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2011-11-16 22:56:14+0000\n"
+"PO-Revision-Date: 2011-12-05 21:56:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -16,7 +16,7 @@ msgstr ""
 
 #: modules/stats.php:628
 msgid "week"
-msgstr ""
+msgstr "нед."
 
 #: modules/rsslinks-widget.php:13
 msgid "RSS Links (Jetpack)"
@@ -28,7 +28,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1037
 msgid "Icon"
-msgstr ""
+msgstr "Иконка"
 
 #: modules/shortcodes/videopress.php:612
 msgid "No data found for VideoPress identifier: <strong>%s</strong>."
@@ -36,11 +36,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1027
 msgid "Label"
-msgstr ""
+msgstr "Текст"
 
 #: modules/sharedaddy/sharing.php:308
 msgid "Text only"
-msgstr ""
+msgstr "Только текст"
 
 #: modules/rsslinks-widget.php:121
 msgid "Image Color:"
@@ -48,7 +48,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:977
 msgid "Click to share"
-msgstr ""
+msgstr "Нажмите, чтобы поделиться"
 
 #: modules/shortcodes/videopress.php:876
 msgid "February"
@@ -64,11 +64,11 @@ msgstr ""
 
 #: modules/module-info.php:203 modules/module-info.php:218
 msgid "LaTeX"
-msgstr ""
+msgstr "LaTeX"
 
 #: modules/sharedaddy/sharing.php:319
 msgid "Open links in"
-msgstr ""
+msgstr "Открывать ссылки в"
 
 #: modules/image-widget.php:129
 msgid "Image Alignment:"
@@ -80,7 +80,7 @@ msgstr ""
 
 #: modules/stats.php:634
 msgid "the past month"
-msgstr ""
+msgstr "прошедший месяц"
 
 #: modules/shortcodes/videopress.php:1115
 #: modules/shortcodes/videopress.php:1137
@@ -93,19 +93,19 @@ msgstr ""
 
 #: modules/ie-sitemode.php:103 modules/stats.php:208 modules/stats.php:606
 msgid "Site Stats"
-msgstr ""
+msgstr "Статистика сайта"
 
 #: modules/sharedaddy/sharing.php:148
 msgid "Warning! Multibyte support missing!"
-msgstr ""
+msgstr "Внимание! Поддержка мультибайтовых кодировок отсутствует!"
 
 #: modules/sharedaddy/sharing.php:149
 msgid "This plugin will work without it, but multibyte support is used <a href=\"%s\">if available</a>. You may see minor problems with Tweets and other sharing services."
-msgstr ""
+msgstr "Этот плагин будет работать без неё, но многобайтовая поддержка используется при её <a href=\"%s\">наличии</a>. Вы можете заметить небольшие проблемы с твитами и другими сервисами обмена ссылок."
 
 #: modules/stats.php:476
 msgid "Count the page views of registered users who are logged in."
-msgstr ""
+msgstr "Учитывать просмотры страниц, произведённые авторизованными зарегистрированными пользователями."
 
 #: modules/module-info.php:299
 msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
@@ -113,15 +113,15 @@ msgstr ""
 
 #: modules/stats.php:633
 msgid "the past week"
-msgstr ""
+msgstr "прошедшая неделя"
 
 #: modules/sharedaddy/sharing.php:307
 msgid "Icon only"
-msgstr ""
+msgstr "Только иконка"
 
 #: modules/sharedaddy/sharing.php:371
 msgid "You can add the following variables to your service sharing URL:"
-msgstr ""
+msgstr "Вы можете добавить следующие переменные к вашему URL сервиса публикации ссылок:"
 
 #: modules/subscriptions.php:517
 msgid "Sign me up!"
@@ -129,7 +129,7 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:13
 msgid "Repeated Word"
-msgstr ""
+msgstr "Повторяющееся слово"
 
 #: modules/module-info.php:377
 msgid "The RSS Links Widget allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments."
@@ -141,11 +141,11 @@ msgstr ""
 
 #: modules/stats.php:627
 msgid "day"
-msgstr ""
+msgstr "дн."
 
 #: modules/sharedaddy/sharing-sources.php:884
 msgid "Click to Press This!"
-msgstr ""
+msgstr "Нажать и опубликовать!"
 
 #: modules/rsslinks-widget.php:83
 msgid "Text & Image Links"
@@ -153,7 +153,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1044
 msgid "Save"
-msgstr ""
+msgstr " Сохранить "
 
 #: modules/ie-sitemode.php:77
 msgid "Edit post"
@@ -169,11 +169,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:306
 msgid "Icon + text"
-msgstr ""
+msgstr "Иконка + текст"
 
 #: modules/sharedaddy/sharing-sources.php:363
 msgid "Click to share on StumbleUpon"
-msgstr ""
+msgstr "Нажмите, чтобы поделиться на StumbleUpon"
 
 #: modules/shortcodes/videopress.php:876
 msgid "January"
@@ -193,7 +193,7 @@ msgstr ""
 
 #: modules/stats.php:472
 msgid "Admin bar"
-msgstr ""
+msgstr "Панель администратора"
 
 #: modules/subscriptions.php:313
 msgid "Notify me of new posts by email."
@@ -201,7 +201,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:227
 msgid "Cancel"
-msgstr ""
+msgstr "Отменить"
 
 #: modules/shortcodes/videopress.php:876
 msgid "November"
@@ -210,7 +210,7 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:363
 msgctxt "share to"
 msgid "StumbleUpon"
-msgstr ""
+msgstr "StumbleUpon"
 
 #: modules/sharedaddy/sharing-sources.php:892
 msgid "Google +1"
@@ -222,15 +222,15 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:49 modules/sharedaddy/sharing.php:158
 msgid "Sharing Settings"
-msgstr ""
+msgstr "Настройки общего доступа"
 
 #: modules/module-info.php:244
 msgid "The Twitter Widget shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site."
-msgstr ""
+msgstr "Виджет Twitter отображает ваши последние твиты в боковой панели темы. Это простой способ добавить активности вашему сайту."
 
 #: modules/stats.php:525
 msgid "Views over 48 hours. Click for more Site Stats."
-msgstr ""
+msgstr "Просмотры за 48 часов. Нажмите для получения дополнительной статистики сайта."
 
 #: modules/module-info.php:391
 msgid "To use the RSS Links Widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. The RSS Links widget is listed as &#8220;RSS Links&nbsp;(Jetpack)&#8221;; drag it into one of your sidebars and configure away."
@@ -242,24 +242,24 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:436
 msgid "Click to share on Reddit"
-msgstr ""
+msgstr "Нажмите, чтобы поделиться на Reddit"
 
 #: modules/sharedaddy/sharing-sources.php:506
 msgid "Digg"
-msgstr ""
+msgstr "Digg"
 
 #: modules/sharedaddy/sharing-sources.php:515
 #: modules/sharedaddy/sharing-sources.php:519
 msgid "Click to Digg this post"
-msgstr ""
+msgstr "Нажмите, чтобы поделиться ссылкой на эту запись на Digg"
 
 #: modules/sharedaddy/sharing-sources.php:777
 msgid "Share on Facebook"
-msgstr ""
+msgstr "Поделиться на Facebook"
 
 #: modules/sharedaddy/sharing.php:165
 msgid "Drag and drop the services you'd like to enable into the box below."
-msgstr ""
+msgstr "Перетащите в поле ниже сервисы, которые вы хотите включить."
 
 #: modules/module-info.php:20
 msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in realtime, as well as perform regular security scans for common threats and attacks."
@@ -267,7 +267,7 @@ msgstr ""
 
 #: modules/module-info.php:188
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
-msgstr ""
+msgstr "Вы можете <a href=\"%s\">просмотреть панель статистики здесь</a>."
 
 #: modules/module-info.php:22
 msgid "VaultPress dashboard"
@@ -290,11 +290,11 @@ msgstr ""
 #: modules/sharedaddy/sharing.php:49 modules/module-info.php:274
 #: modules/module-info.php:277 modules/module-info.php:298
 msgid "Sharing"
-msgstr ""
+msgstr "Поделиться"
 
 #: modules/after-the-deadline/atd-l10n.php:28
 msgid "No writing errors were found."
-msgstr ""
+msgstr "Не найдено ни одной письменной ошибки."
 
 #: modules/subscriptions.php:307
 msgid "Notify me of follow-up comments by email."
@@ -307,7 +307,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1032
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: modules/module-info.php:343
 msgid "The Image Widget allows you to easily add images to widget areas in your theme. It&#8217;s an easy way to add more visual interest to your site."
@@ -336,7 +336,7 @@ msgstr ""
 
 #: modules/module-info.php:81 modules/module-info.php:94
 msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
-msgstr ""
+msgstr "Сокращённые коды позволяют вам легко и безопасно встраивать внешние объекты медиа  в ваш сайт. С помощью одного простого кода, вы можете дать указание WordPress внедрить объект YouTube, Flickr и других медиа."
 
 #: modules/ie-sitemode/custom-jumplist.php:49
 msgid "Pending comments"
@@ -352,19 +352,19 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:164
 msgid "Available Services"
-msgstr ""
+msgstr "Доступные сервисы"
 
 #: modules/module-info.php:210
 msgid "Wow, that sounds nerdy."
-msgstr ""
+msgstr "Ух ты, как интересно... ботаникам."
 
 #: modules/sharedaddy/sharing.php:313
 msgid "Sharing label"
-msgstr ""
+msgstr "Ярлык"
 
 #: modules/sharedaddy/sharing-sources.php:230
 msgid "Post was not sent - check your email addresses!"
-msgstr ""
+msgstr "Сообщение не было отправлено &mdash; проверьте адреса электронной почты!"
 
 #: modules/sharedaddy/sharing-sources.php:601
 msgid "LinkedIn"
@@ -380,11 +380,11 @@ msgstr ""
 
 #: modules/module-info.php:139 modules/module-info.php:153
 msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
-msgstr ""
+msgstr "Вместо того, чтобы набирать либо копировать и вставлять длинные URL-адреса, теперь вы можете получить короткие и простые ссылки на свои записи и страницы. При этом используется ультра-компактный домен wp.me, который даёт вам уникальный URL-адрес, &mdash; им можно безопасно и надежно воспользоваться."
 
 #: modules/stats.php:857
 msgid "%1$s %2$s Views"
-msgstr ""
+msgstr "%1$s %2$s Просмотров"
 
 #: modules/subscriptions.php:437 modules/subscriptions.php:516
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
@@ -396,16 +396,16 @@ msgstr ""
 
 #: modules/module-info.php:60
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
-msgstr ""
+msgstr "Всплывающие визитки улучшают обычные изображения граватаров, добавляя информацию о человеке: имя, биографию, фотографии, контактные данные, а также используемые сервисы."
 
 #: modules/module-info.php:76 modules/module-info.php:80
 #: modules/module-info.php:89 modules/module-info.php:93
 msgid "Shortcode Embeds"
-msgstr ""
+msgstr "Вставка сокращённого кода"
 
 #: modules/module-info.php:61
 msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
-msgstr ""
+msgstr "Чтобы увидеть всплывающие визитки, откройте на вашем блоге любую запись с комментариями. Если у комментатора есть всплывающая визитка, привязанная к граватару, она появится при наведении курсора мыши на изображение. Чтобы отключить всплывающие визитки, щелкните по кнопке \"Деактивировать\" выше."
 
 #: modules/rsslinks-widget.php:101
 msgid "Large"
@@ -424,7 +424,7 @@ msgstr ""
 
 #: modules/module-info.php:174 modules/module-info.php:187
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
-msgstr ""
+msgstr "Существует множество плагинов и сервисов, предоставляющих статистику, но данные могут подавлять своим количеством или сложностью. Статистика WordPress.com делает популярные метрики легко понятными с помощью простого и привлекательного интерфейса."
 
 #: modules/subscriptions.php:417
 msgid "You have already subscribed to this site, please check your inbox."
@@ -432,11 +432,11 @@ msgstr ""
 
 #: modules/module-info.php:140
 msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
-msgstr ""
+msgstr "Это идеально подходит для использования на Twitter, Facebook и SMS, где каждый символ на счету."
 
 #: modules/module-info.php:243 modules/module-info.php:257
 msgid "Twitter Widget"
-msgstr ""
+msgstr "Виджет Twitter"
 
 #: modules/module-info.php:154
 msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
@@ -444,7 +444,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:153
 msgid "Settings have been saved"
-msgstr ""
+msgstr "Настройки сохранены"
 
 #: modules/module-info.php:342 modules/module-info.php:355
 msgid "Image Widget"
@@ -464,16 +464,16 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:97
 msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href=\"%s\">WPLANG</a> value is the default proofreading language."
-msgstr ""
+msgstr "Корректор поддерживает английский, французский, немецкий, португальский и испанский языки. Ваше значение <a href=\"%s\">WPLANG</a> по умолчанию задаёт язык корректуры."
 
 #: modules/sharedaddy/sharing-sources.php:193
 msgctxt "share to"
 msgid "Email"
-msgstr ""
+msgstr "по электронной почте"
 
 #: modules/sharedaddy/sharing-sources.php:226
 msgid "Send Email"
-msgstr ""
+msgstr "Отправить сообщение электронной почты"
 
 #: modules/image-widget.php:139
 msgid "Width:"
@@ -497,7 +497,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:186
 msgid "Enabled Services"
-msgstr ""
+msgstr "Включённые сервисы"
 
 #: modules/shortcodes/videopress.php:958
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
@@ -510,20 +510,20 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:884
 msgctxt "share to"
 msgid "Press This"
-msgstr ""
+msgstr "Опубликовать"
 
 #: modules/sharedaddy/sharing-sources.php:257 modules/module-info.php:239
 #: modules/module-info.php:253
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: modules/sharedaddy/sharing.php:322
 msgid "New window"
-msgstr ""
+msgstr "В новом окне"
 
 #: modules/after-the-deadline/atd-l10n.php:15
 msgid "No suggestions"
-msgstr ""
+msgstr "Нет предложений"
 
 #: modules/module-info.php:24
 msgid "View Plans & Pricing"
@@ -531,7 +531,7 @@ msgstr ""
 
 #: modules/module-info.php:46
 msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
-msgstr ""
+msgstr "Всплывающие визитки &mdash отличный способ показать ваши страницы и профили в интернете и помочь другим найти ваш блог."
 
 #: modules/subscriptions.php:408
 msgid "You are now subscribed to this blog."
@@ -539,7 +539,7 @@ msgstr ""
 
 #: modules/module-info.php:278
 msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
-msgstr ""
+msgstr "Поделитесь своими записями на Twitter, Facebook, а также множестве других сервисов. Вы можете настроить отображение сервисов в виде иконок, текста, либо и того и другого. Некоторые сервисы имеют дополнительные опции для отображения &laquo;умных&raquo; кнопок, например, Twitter будет показывать сколько раз была упомянута ссылка."
 
 #: modules/module-info.php:15 modules/module-info.php:19
 msgid "VaultPress"
@@ -547,7 +547,7 @@ msgstr ""
 
 #: modules/shortcodes/archives.php:49
 msgid "Your blog does not currently have any published posts."
-msgstr ""
+msgstr "Ваш блог в настоящее время не имеет каких-либо опубликованных сообщений."
 
 #: modules/shortcodes/videopress.php:1298
 msgid "Loading video..."
@@ -559,15 +559,15 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:17
 msgid "Explain..."
-msgstr ""
+msgstr "Объяснить..."
 
 #: modules/after-the-deadline/atd-l10n.php:18
 msgid "Ignore suggestion"
-msgstr ""
+msgstr "Игнорировать предложения"
 
 #: modules/rsslinks-widget.php:62 modules/twitter-widget.php:207
 msgid "Title:"
-msgstr ""
+msgstr "Заголовок:"
 
 #: modules/subscriptions.php:441
 msgid "Join %s other subscriber"
@@ -578,11 +578,11 @@ msgstr[2] ""
 
 #: modules/stats.php:684
 msgid "Show top search terms over"
-msgstr ""
+msgstr "Показать топ поисковых запросов за"
 
 #: modules/sharedaddy/sharing.php:350
 msgid "Save Changes"
-msgstr ""
+msgstr " Сохранить изменения "
 
 #: modules/sharedaddy/sharing.php:334
 msgid "Front Page, Archive Pages, and Search Results"
@@ -595,29 +595,29 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:221
 msgid "Sharing is off. Please add services above to enable"
-msgstr ""
+msgstr "Сервис обмена ссылками выключен. Пожалуйста, добавьте сервисы из доступных выше, чтобы включить."
 
 #: modules/sharedaddy/sharing.php:203
 msgid "Services dragged here will be hidden behind a share button."
-msgstr ""
+msgstr "Перетащенные сюда услуги будут скрыты за кнопкой \"Поделиться\"."
 
 #: modules/sharedaddy/sharing-service.php:467
 #: modules/sharedaddy/sharing.php:234 modules/sharedaddy/sharing.php:275
 msgctxt "dropdown button"
 msgid "Share"
-msgstr ""
+msgstr "Поделиться"
 
 #: modules/sharedaddy/sharedaddy.php:18
 msgid "Shared Post"
-msgstr ""
+msgstr "Запись, которой поделились"
 
 #: modules/sharedaddy/sharing-sources.php:800
 msgid "Share button"
-msgstr ""
+msgstr "Кнопка \"Поделиться\""
 
 #: modules/sharedaddy/sharing-sources.php:714
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: modules/sharedaddy/sharing-sources.php:629
 msgid "Click to share on LinkedIn"
@@ -626,7 +626,7 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:519
 msgctxt "share to"
 msgid "Digg"
-msgstr ""
+msgstr "Digg"
 
 #: modules/rsslinks-widget.php:119
 msgid "Silver"
@@ -634,23 +634,23 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:352
 msgid "StumbleUpon"
-msgstr ""
+msgstr "StumbleUpon"
 
 #: modules/sharedaddy/sharing-sources.php:234
 msgid "Email check failed, please try again"
-msgstr ""
+msgstr "Проверка по электронной почте не удалась, попробуйте еще раз"
 
 #: modules/sharedaddy/sharing-sources.php:169
 msgid "This post has been shared!"
-msgstr ""
+msgstr "Ссылка на запись была опубликована!"
 
 #: modules/sharedaddy/sharing-service.php:196
 msgid "Share this:"
-msgstr ""
+msgstr "Поделиться ссылкой:"
 
 #: modules/after-the-deadline/atd-l10n.php:19
 msgid "Ignore always"
-msgstr ""
+msgstr "Игнорировать всегда"
 
 #: modules/module-info.php:414 modules/module-info.php:427
 msgid "IE Sitemode Integration"
@@ -658,11 +658,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:95
 msgid "Disable CSS and JS"
-msgstr ""
+msgstr "Деактивировать CSS и JS"
 
 #: modules/sharedaddy/sharing.php:385
 msgid "Create Share"
-msgstr ""
+msgstr "Создать сервис"
 
 #: modules/rsslinks-widget.php:82
 msgid "Image Link"
@@ -670,7 +670,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:303
 msgid "Default button style"
-msgstr ""
+msgstr "Стиль кнопки по умолчанию "
 
 #: modules/rsslinks-widget.php:100
 msgid "Medium"
@@ -678,7 +678,7 @@ msgstr ""
 
 #: modules/stats.php:898
 msgid "Top Searches"
-msgstr ""
+msgstr "Топ запросов"
 
 #: modules/ie-sitemode.php:85
 msgid "Write a post"
@@ -690,6 +690,9 @@ msgid ""
 "\n"
 "Press OK to publish your post, or Cancel to view the suggestions and edit your post."
 msgstr ""
+"У корректора есть предложения для этой записи. Вы уверены, что хотите её опубликовать?\n"
+"\n"
+"Нажмите ОК, чтобы опубликовать свою запись или Отмена чтобы просмотреть предложения и отредактировать её."
 
 #: modules/rsslinks-widget.php:99
 msgid "Small"
@@ -702,15 +705,15 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:850
 msgctxt "share to"
 msgid "Print"
-msgstr ""
+msgstr "Печать"
 
 #: modules/sharedaddy/sharing.php:395
 msgid "An error occurred creating your new sharing service - please check you gave valid details."
-msgstr ""
+msgstr "Ошибка создания нового сервиса - пожалуйста, проверьте, что вы ввели правильные данные."
 
 #: modules/module-info.php:45
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services they use on the web like Twitter, Facebook, or LinkedIn."
-msgstr ""
+msgstr "Всплывающие визитки улучшают обычные изображения граватаров, добавляя информацию о человеке: имя, биографию, фотографии, контактные данные, а также другие сервисы, которыми они пользуются в сети, например, Twitter, Facebook и LinkedIn."
 
 #: modules/image-widget.php:14
 msgid "Image (Jetpack)"
@@ -726,39 +729,39 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:367
 msgid "Sharing URL"
-msgstr ""
+msgstr "URL-адрес сервиса"
 
 #: modules/stats.php:874
 msgid "Top Posts"
-msgstr ""
+msgstr "Топ записей"
 
 #: modules/after-the-deadline/atd-l10n.php:32
 msgid "Replace selection with:"
-msgstr ""
+msgstr "Заменить выбранное на:"
 
 #: modules/stats.php:878 modules/stats.php:902
 msgid "Sorry, nothing to report."
-msgstr ""
+msgstr "К сожалению, нет данных для отчёта."
 
 #: modules/stats.php:629
 msgid "month"
-msgstr ""
+msgstr "мес."
 
 #: modules/sharedaddy/sharing-sources.php:850
 msgid "Click to print"
-msgstr ""
+msgstr "Нажмите для печати"
 
 #: modules/sharedaddy/sharing-sources.php:193
 msgid "Click to email this to a friend"
-msgstr ""
+msgstr "Послать это другу"
 
 #: modules/sharedaddy/sharing.php:379
 msgid "Enter the URL of a 16x16px icon you want to use for this service."
-msgstr ""
+msgstr "Введите URL-адрес иконки 16x16 пикселей, который вы хотите использовать для этого сервиса."
 
 #: modules/sharedaddy/sharing-sources.php:846
 msgid "Print"
-msgstr ""
+msgstr "Печать"
 
 #: modules/ie-sitemode.php:75
 msgid "Edit attachment"
@@ -775,14 +778,17 @@ msgid ""
 "\n"
 "Press OK to update your post, or Cancel to view the suggestions and edit your post."
 msgstr ""
+"У корректора есть предложения для этой записи. \n"
+"\n"
+"Вы уверены, что хотите её обновить? Нажмите ОК, чтобы опубликовать свою запись или Отмена чтобы просмотреть предложения и отредактировать её."
 
 #: modules/after-the-deadline/atd-l10n.php:30
 msgid "There was an error communicating with the proofreading service."
-msgstr ""
+msgstr "Ошибка связи со службой корректуры ."
 
 #: modules/sharedaddy/sharedaddy.php:34
 msgid "Show sharing buttons on this post."
-msgstr ""
+msgstr "Показывать кнопки \"Поделиться\" для этой записи."
 
 #: modules/module-info.php:282
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
@@ -794,28 +800,28 @@ msgstr ""
 
 #: modules/stats.php:635
 msgid "the past quarter"
-msgstr ""
+msgstr "прошедший квартал"
 
 #: modules/stats.php:473
 msgid "Put a chart showing 48 hours of views in the admin bar."
-msgstr ""
+msgstr "Показывать график последних 48 часов просмотров в панели администратора."
 
 #: modules/stats.php:466
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
-msgstr ""
+msgstr "Посетите <a href=\"%s\">статистику сайта</a>."
 
 #: modules/module-info.php:134 modules/module-info.php:138
 #: modules/module-info.php:148 modules/module-info.php:152
 msgid "WP.me Shortlinks"
-msgstr ""
+msgstr "Короткие ссылки WP.me"
 
 #: modules/module-info.php:119
 msgid "Available shortcodes are: %l."
-msgstr ""
+msgstr "Доступные коды: %l."
 
 #: modules/module-info.php:288
 msgid "Additionally you can define your own custom services."
-msgstr ""
+msgstr "Кроме того, вы можете указать свои сервисы по предпочтению."
 
 #: modules/module-info.php:316 modules/module-info.php:320
 msgid "Spelling and Grammar"
@@ -827,7 +833,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:127
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
 msgstr ""
@@ -863,15 +869,15 @@ msgstr ""
 #: modules/module-info.php:169 modules/module-info.php:173
 #: modules/module-info.php:182 modules/module-info.php:186
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "Статистика WordPress.com"
 
 #: modules/after-the-deadline/config-options.php:100
 msgid "Use automatically detected language to proofread posts and pages"
-msgstr ""
+msgstr "Использовать автоматически обнаруженный язык для проверки грамотности записей и страниц"
 
 #: modules/after-the-deadline/atd-l10n.php:12
 msgid "Spelling"
-msgstr ""
+msgstr "Правописание"
 
 #: modules/subscriptions.php:376
 msgid "Blog Subscriptions (Jetpack)"
@@ -883,7 +889,7 @@ msgstr ""
 
 #: modules/gravatar-hovercards.php:75
 msgid "Put your mouse over your Gravatar to check out your profile."
-msgstr ""
+msgstr "Наведите курсор мыши на ваш граватар, чтобы увидеть, как выглядит ваш профиль."
 
 #: modules/image-widget.php:146
 msgid "Link URL (when the image is clicked):"
@@ -915,7 +921,7 @@ msgstr ""
 
 #: modules/stats.php:870
 msgid "View All"
-msgstr ""
+msgstr "Все"
 
 #: modules/rsslinks-widget.php:117
 msgid "Purple"
@@ -939,39 +945,39 @@ msgstr ""
 
 #: modules/stats.php:671
 msgid "Show top posts over"
-msgstr ""
+msgstr "Показать топ записей за"
 
 #: modules/stats.php:658
 msgid "Chart stats by"
-msgstr ""
+msgstr "График статистики за"
 
 #: modules/stats.php:636
 msgid "the past year"
-msgstr ""
+msgstr "прошедший год"
 
 #: modules/stats.php:632
 msgid "the past day"
-msgstr ""
+msgstr "прошедший день"
 
 #: modules/stats.php:490
 msgid "Save configuration"
-msgstr ""
+msgstr "Сохранить конфигурацию"
 
 #: modules/stats.php:477
 msgid "Report visibility"
-msgstr ""
+msgstr "Видимость отчёта"
 
 #: modules/stats.php:479
 msgid "Select the roles that will be able to view stats reports."
-msgstr ""
+msgstr "Выберите роли пользователей, которые будут иметь возможность просматривать отчёты статистики."
 
 #: modules/sharedaddy/sharing.php:192
 msgid "Drag and drop available services here"
-msgstr ""
+msgstr "Перетащите доступные сервисы сюда"
 
 #: modules/sharedaddy/sharing.php:189
 msgid "Services dragged here will appear individually."
-msgstr ""
+msgstr "Перетащенные сюда сервисы будут отображаться по отдельности. "
 
 #: modules/shortcodes/videopress.php:1144
 msgctxt "Play as in playback or view a movie"
@@ -984,7 +990,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1045
 msgid "Remove Service"
-msgstr ""
+msgstr "Удалить сервис"
 
 #: modules/shortcodes/videopress.php:608
 msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
@@ -1000,14 +1006,14 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:171
 msgid "Close"
-msgstr ""
+msgstr "Закрыть"
 
 msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
 msgstr ""
 
 #: modules/module-info.php:245
 msgid "There are also a number of customization options. Change the number of displayed tweets, filter out replies, and include retweets."
-msgstr ""
+msgstr "Есть также целый ряд возможностей настройки. Можно изменять количество отображаемых твитов, скрывать ответы и показывать ретвиты."
 
 #: modules/rsslinks-widget.php:71
 msgid "Feed(s) to Display:"
@@ -1015,27 +1021,27 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:328
 msgid "Show sharing buttons on"
-msgstr ""
+msgstr "Показывать кнопки \"Поделиться\" на следующих типах страниц"
 
 #: modules/sharedaddy/sharing.php:323
 msgid "Same window"
-msgstr ""
+msgstr "В том же окне"
 
 #: modules/twitter-widget.php:210
 msgid "Twitter username:"
-msgstr ""
+msgstr "Имя пользователя Twitter:"
 
 #: modules/twitter-widget.php:168
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr ""
+msgstr "Ошибка: Twitter не ответил. Пожалуйста, подождите несколько минут и обновите эту страницу."
 
 #: modules/twitter-widget.php:166
 msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
-msgstr ""
+msgstr "Ошибка: пожалуйста, убедитесь, что учетная запись в Twitter является <a href=\"%s\">публичной</a>."
 
 #: modules/gravatar-hovercards.php:48
 msgid "View people's profiles when you mouse over their Gravatars"
-msgstr ""
+msgstr "Показывать профили пользователей при наведении курсора мыши на их граватары"
 
 #: modules/shortcodes/videopress.php:1291
 msgid "This video requires <a rel=\"nofollow\" href=\"%s\">Adobe Flash</a> for playback."
@@ -1092,69 +1098,69 @@ msgstr ""
 
 #: modules/twitter-widget.php:231
 msgid "Text to display between tweet and timestamp:"
-msgstr ""
+msgstr "Текст для показа между твитом и временем публикации:"
 
 #: modules/twitter-widget.php:229
 msgid "Include retweets"
-msgstr ""
+msgstr "Показывать ретвиты"
 
 #: modules/twitter-widget.php:224
 msgid "Hide replies"
-msgstr ""
+msgstr "Скрыть ответы"
 
 #: modules/twitter-widget.php:213
 msgid "Maximum number of tweets to show:"
-msgstr ""
+msgstr "Максимальное число показываемых твитов:"
 
 #: modules/twitter-widget.php:79
 msgid "Twitter Updates"
-msgstr ""
+msgstr "Обновления Twitter"
 
 #: modules/twitter-widget.php:70
 msgid "Twitter (Jetpack)"
-msgstr ""
+msgstr "Twitter (Jetpack)"
 
 #: modules/twitter-widget.php:69
 msgid "Display your tweets from Twitter"
-msgstr ""
+msgstr "Показывать ваши сообщения из Twitter"
 
 #: modules/sharedaddy/sharing-sources.php:218
 msgid "Your Email Address"
-msgstr ""
+msgstr "Ваш адрес электронной почты"
 
 #: modules/sharedaddy/sharing-sources.php:215
 msgid "Your Name"
-msgstr ""
+msgstr "Ваше имя"
 
 #: modules/sharedaddy/sharing-sources.php:207
 msgid "Send to Email Address"
-msgstr ""
+msgstr "Отправить на электронный адрес"
 
 #: modules/module-info.php:95
 msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
-msgstr ""
+msgstr "Введите сокращённый код непосредственно в область редактирования записей и страниц, чтобы вставить медиа-объект. Для получения дополнительных инструкций, следуйте по ссылкам ниже."
 
 msgid "http://wordpress.org/extend/plugins/jetpack/"
 msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:799
 msgid "Default button"
-msgstr ""
+msgstr "Кнопка по умолчанию"
 
 #: modules/sharedaddy/sharing.php:218
 msgid "Live Preview"
-msgstr ""
+msgstr "Просмотр"
 
 #: modules/sharedaddy/sharing.php:166
 msgid "Add a new service"
-msgstr ""
+msgstr "Добавить новый сервис"
 
 msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
 msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:24
 msgid "proofread"
-msgstr ""
+msgstr "корректировать"
 
 #: modules/shortcodes/videopress.php:860
 msgid "Please verify your birthday."
@@ -1163,7 +1169,7 @@ msgstr ""
 #: modules/after-the-deadline/atd-l10n.php:26
 #: modules/after-the-deadline.php:222
 msgid "Proofread Writing"
-msgstr ""
+msgstr "Корректировать написание"
 
 #: modules/module-info.php:372 modules/module-info.php:385
 msgid "RSS Links"
@@ -1172,7 +1178,7 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:777
 msgctxt "share to"
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: modules/sharedaddy/sharing-sources.php:744
 msgid "Share"
@@ -1188,39 +1194,39 @@ msgstr ""
 
 #: modules/module-info.php:259
 msgid "To use the Twitter Widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. The Twitter widget is listed as &#8220;Twitter&nbsp;(Jetpack)&#8221;; drag it into one of your sidebars and configure away."
-msgstr ""
+msgstr "Чтобы использовать виджет Twitter, зайдите в меню консоли Внешний вид &#8594; <a href=\"%s\"> Виджеты</a>. Виджет Twitter будет указан как &laquo;Twitter (Jetpack)&raquo; перетащите его в одну из боковых панелей и настройте так, как вам нравится."
 
 #: modules/module-info.php:258
 msgid "The Twitter Widget shows your latest tweets within a sidebar on your theme."
-msgstr ""
+msgstr "Виджет Twitter отображает ваши последние твиты в боковой панели темы."
 
 #: modules/after-the-deadline/atd-l10n.php:25
 msgid "edit text"
-msgstr ""
+msgstr "редактировать текст"
 
 #: modules/after-the-deadline/atd-l10n.php:22
 msgid "Edit Selection..."
-msgstr ""
+msgstr "Изменить выбор..."
 
 #: modules/after-the-deadline/atd-l10n.php:20
 msgid "Ignore all"
-msgstr ""
+msgstr "Игнорировать все"
 
 #: modules/stats.php:475
 msgid "Registered users"
-msgstr ""
+msgstr "Зарегистрированные пользователи"
 
 #: modules/sharedaddy/sharing-sources.php:856
 msgid "Press This"
-msgstr ""
+msgstr "Опубликовать"
 
 #: modules/sharedaddy/sharing-sources.php:801
 msgid "Like button"
-msgstr ""
+msgstr "Кнопка \"Мне нравится\""
 
 #: modules/module-info.php:300
 msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
-msgstr ""
+msgstr "Перетащите сервисы во \"включённый\" раздел, чтобы показывать их на вашем сайте либо в \"скрытый\" раздел, чтобы спрятать их за кнопкой \"Поделиться\"."
 
 #: modules/subscriptions.php:445
 msgid "Email Address"
@@ -1228,24 +1234,24 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:376
 msgid "Icon URL"
-msgstr ""
+msgstr "URL-адрес иконки"
 
 #: modules/sharedaddy/sharing.php:361
 msgid "Service name"
-msgstr ""
+msgstr "Название сервиса"
 
 #: modules/sharedaddy/sharing-sources.php:238
 msgid "Sorry, your blog cannot share posts by email."
-msgstr ""
+msgstr "К сожалению, ваш блог не может делиться ссылками на записи по электронной почте."
 
 #: modules/sharedaddy/sharing-sources.php:429
 #: modules/sharedaddy/sharing-sources.php:436
 msgid "Reddit"
-msgstr ""
+msgstr "Reddit"
 
 #: modules/module-info.php:39 modules/module-info.php:54
 msgid "Gravatar Hovercard"
-msgstr ""
+msgstr "Всплывающая визитка граватара"
 
 #: modules/image-widget.php:107 modules/subscriptions.php:542
 msgid "Widget title:"
@@ -1258,7 +1264,7 @@ msgstr ""
 #: modules/module-info.php:43 modules/module-info.php:58
 #: modules/gravatar-hovercards.php:36
 msgid "Gravatar Hovercards"
-msgstr ""
+msgstr "Всплывающая \"визитка\" "
 
 #: modules/stats.php:296
 msgid "View Site Stats without Javascript"
@@ -1270,7 +1276,7 @@ msgstr ""
 
 #: modules/stats.php:370 modules/stats.php:844
 msgid "We were unable to get your stats just now. Please try again."
-msgstr ""
+msgstr "Не удалось отобразить статистику. Пожалуйста, попробуйте еще раз."
 
 #: modules/module-info.php:322
 msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
@@ -1294,7 +1300,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:170
 msgid "You have shared this post with %s"
-msgstr ""
+msgstr "Вы поделились этой записью с %s"
 
 #: modules/sharedaddy/sharedaddy.php:97
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
@@ -1303,7 +1309,7 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:264
 msgctxt "share to"
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: modules/sharedaddy/sharing-sources.php:334
 #: modules/sharedaddy/sharing-sources.php:411
@@ -1311,15 +1317,15 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:568
 #: modules/sharedaddy/sharing-sources.php:684
 msgid "Use smart button"
-msgstr ""
+msgstr "Используйте \"умную\" клавишу"
 
 #: modules/sharedaddy/sharing-sources.php:264
 msgid "Click to share on Twitter"
-msgstr ""
+msgstr "Нажмите, чтобы поделиться на Twitter"
 
 #: modules/module-info.php:44 modules/module-info.php:59
 msgid "What&#8217;s a Hovercard?"
-msgstr ""
+msgstr "Что такое \"всплывающая визитка\"?"
 
 #: modules/rsslinks-widget.php:85
 msgid "Format:"
@@ -1327,7 +1333,7 @@ msgstr ""
 
 #: jetpack.php:1270
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
-msgstr ""
+msgstr "Ваш сайт должен быть в открытом доступе, чтобы иметь возможность использовать Jetpack: %s"
 
 #: jetpack.php:1400
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
@@ -1335,32 +1341,32 @@ msgstr ""
 
 #: jetpack.php:1677 modules/sharedaddy/sharedaddy.php:65
 msgid "Support"
-msgstr ""
+msgstr "Поддержка"
 
 #: jetpack.php:1674
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Конфиденциальность"
 
 #: jetpack.php:2078 jetpack.php:2080 jetpack.php:2082 jetpack.php:2085
 #: jetpack.php:2697
 msgid "Error Details: %s"
-msgstr ""
+msgstr "Подробности ошибки: %s"
 
 #: modules/after-the-deadline/config-options.php:76
 msgid "Complex Phrases"
-msgstr ""
+msgstr "Сложные фразы"
 
 #: jetpack.php:1256
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
-msgstr ""
+msgstr "Необходимо разрешить Jetpack подключить ваш сайт к WordPress.com, чтобы воспользоваться его потрясающими возможностями."
 
 #: jetpack.php:1723
 msgid "Configure %s"
-msgstr ""
+msgstr "Настроить %s"
 
 #: modules/after-the-deadline/config-options.php:67
 msgid "English Options"
-msgstr ""
+msgstr "\"Английские\" настройки"
 
 #: jetpack.php:1084
 msgid "One New Jetpack Module"
@@ -1371,16 +1377,16 @@ msgstr[2] ""
 
 #: jetpack.php:1259
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
-msgstr ""
+msgstr "Не вносите путаницу! Вы должны оставаться авторизованным в своем блоге WordPress, пока идёт авторизация Jetpack."
 
 #: jetpack.php:1643
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
-msgstr ""
+msgstr "В настоящее время вы подписаны на обновления по электронной почте. %s"
 
 #: modules/after-the-deadline/config-options.php:88
 msgid "Phrases to Avoid"
-msgstr ""
+msgstr "Фразы, которые следует избегать"
 
 #: jetpack.php:1172 modules/module-info.php:31 modules/module-info.php:67
 #: modules/module-info.php:125 modules/module-info.php:160
@@ -1390,7 +1396,7 @@ msgstr ""
 #: modules/module-info.php:397 modules/module-info.php:402
 #: modules/module-info.php:434
 msgid "Learn More"
-msgstr ""
+msgstr "Узнать"
 
 #: jetpack.php:1393
 msgid "The following modules have been updated: %l."
@@ -1398,60 +1404,60 @@ msgstr ""
 
 #: jetpack.php:1671
 msgid "An <span>Automattic</span> Airline"
-msgstr ""
+msgstr "Авиалинии <span>Automattic</span>"
 
 #: modules/after-the-deadline/config-options.php:69
 msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
-msgstr ""
+msgstr "Включить корректирование при написании постов и страниц на следующие правила грамматики и стиля:"
 
 #: jetpack.php:1649 modules/ie-sitemode.php:109
 msgid "Subscribe"
-msgstr ""
+msgstr "Подписаться"
 
 #: modules/after-the-deadline/config-options.php:62
 msgid "a post or page is first published"
-msgstr ""
+msgstr "запись или страницa впервые опубликованы"
 
 #: jetpack.php:1658
 msgid "You will no longer receive email updates about Jetpack."
-msgstr ""
+msgstr "Вы больше не получите email отчетов про Jetpack."
 
 #: jetpack.php:1656
 msgid "You have been subscribed to receive email updates."
-msgstr ""
+msgstr "Вы подписались на получение обновлений по электронной почте."
 
 #: jetpack.php:1345
 msgid "Try connecting again."
-msgstr ""
+msgstr "Попробуйте соединиться снова."
 
 #: jetpack.php:1648
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
-msgstr ""
+msgstr "Хотите получать новости Jetpack по электронной почте? %s"
 
 #: jetpack.php:1263
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
-msgstr ""
+msgstr "\"Вернуть отправителю\". Ой! Похоже, что вы получили неправильный Jetpack по почте; деактивируйте и заново активируйте плагин Jetpack, чтобы получить новый."
 
 #: jetpack.php:1266
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
-msgstr ""
+msgstr "Неверный размер. Хм&hellip; кажется, ваш &laquo;реактивный ранец&raquo; &mdash; Jetpack не совсем подходит. Вы похудели? Нажмите кнопку &laquo;Подключиться к WordPress.com&raquo; снова, чтобы получить скорректированный Jetpack."
 
 #: modules/after-the-deadline/config-options.php:92
 msgid "<a href=\"%s\">Learn more</a> about these options."
-msgstr ""
+msgstr "<a href=\"%s\">Дополнительная информация</a> об этих параметрах."
 
 #: jetpack.php:1869
 msgid "Coming soon&#8230;"
-msgstr ""
+msgstr "Скоро будет&#8230;"
 
 #: modules/after-the-deadline/config-options.php:74
 msgid "Clich&eacute;s"
-msgstr ""
+msgstr "Клише"
 
 #: jetpack.php:1168
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features."
-msgstr ""
+msgstr "<strong>Ваш Jetpack почти готов</strong> &mdash; подключитесь к WordPress.com, чтобы включить все функции."
 
 #: jetpack.php:1171
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
@@ -1459,35 +1465,35 @@ msgstr ""
 
 #: jetpack.php:1676
 msgid "Debug"
-msgstr ""
+msgstr "Отладка"
 
 #: jetpack.php:1675
 msgid "Terms of Service"
-msgstr ""
+msgstr "Условия использования"
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Passive Voice"
-msgstr ""
+msgstr "Страдательный залог"
 
 #: jetpack.php:1292
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
-msgstr ""
+msgstr "<strong>Ваш Jetpack глючит.</strong> Невозможно подключить этот сайт к WordPress.com. Это обычно означает, что ваш сайт не находится в общем доступе (является локальным)."
 
 #: jetpack.php:1276
 msgid "The %1$s module requires <strong>PHP version %2$s</strong> or higher."
-msgstr ""
+msgstr "Для модуля \"%1$s\" необходим PHP версии <strong>%2$s</strong> или выше."
 
 #: jetpack.php:1644
 msgid "Unsubscribe"
-msgstr ""
+msgstr "Отменить подписку"
 
 #: modules/after-the-deadline/config-options.php:72
 msgid "Bias Language"
-msgstr ""
+msgstr "Ненормативная лексика"
 
 #: modules/after-the-deadline/config-options.php:64
 msgid "a post or page is updated"
-msgstr ""
+msgstr "пост или страница обновлены"
 
 #: jetpack.php:1183
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
@@ -1495,28 +1501,28 @@ msgstr ""
 
 #: jetpack.php:1407
 msgid "<strong>%s Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
-msgstr ""
+msgstr "<strong>Модуль %s деактивирован!</strong> Вы можете в любой момент снова его активировать с помощью кнопки активации в описании модуля."
 
 #: modules/after-the-deadline/config-options.php:84
 msgid "Jargon"
-msgstr ""
+msgstr "Жаргон"
 
 #: modules/after-the-deadline/config-options.php:95
 msgid "Language"
-msgstr ""
+msgstr "Язык"
 
 #: jetpack.php:1151 modules/sharedaddy/sharedaddy.php:57
 #: modules/sharedaddy/sharedaddy.php:64
 msgid "Settings"
-msgstr ""
+msgstr "Настройки"
 
 #: jetpack.php:1413
 msgid "<strong>Success!</strong> Module settings were saved."
-msgstr ""
+msgstr "<strong>Завершено!</strong> Настройки модуля сохранены."
 
 #: jetpack.php:1417
 msgid "<strong>Whoops!</strong> Your Jetpack is already connected."
-msgstr ""
+msgstr "<strong>Ой!</strong> Ваш Jetpack уже подключен."
 
 #: jetpack.php:1049 jetpack.php:1065
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
@@ -1524,7 +1530,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:59
 msgid "Automatically proofread content when:"
-msgstr ""
+msgstr "Автоматически корректировать содержимое, если:"
 
 #: modules/after-the-deadline/config-options.php:22
 msgid "WordPress checks your grammar, spelling, and misused words with <a href=\"%s\">After the Deadline</a> Proofreading service. This feature is available to blogs set to the English language. Blogs in other languages will continue to have access to the old spellchecker."
@@ -1532,23 +1538,23 @@ msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:126
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
-msgstr ""
+msgstr "Не забудьте нажать \"Обновить профиль\" в нижней части экрана, чтобы сохранить изменения."
 
 #: modules/after-the-deadline/config-unignore.php:121
 msgid "Add"
-msgstr ""
+msgstr "Добавить"
 
 #: modules/after-the-deadline/config-unignore.php:117
 msgid "Ignored Phrases"
-msgstr ""
+msgstr "Игнорируемые фразы"
 
 #: jetpack.php:2658
 msgid "You need to register your Jetpack before connecting it."
-msgstr ""
+msgstr "Вам потребуется зарегистрировать ваш Jetpack перед подключением."
 
 #: modules/after-the-deadline/config-unignore.php:119
 msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
-msgstr ""
+msgstr "Определить слова и фразы, которые нужно игнорировать при корректированииваших постов и страниц:"
 
 #: jetpack.php:1445
 msgid "Jetpack contains the most recent version of the old %l plugin."
@@ -1559,23 +1565,23 @@ msgstr[2] ""
 
 #: jetpack.php:1423
 msgid "The features below are now active. Click the learn more buttons to explore each feature."
-msgstr ""
+msgstr "Указанные ниже функции в настоящее время активны. Нажмите на соответствующую кнопку \"Узнать больше\" для изучения каждого компонента."
 
 #: jetpack.php:1421
 msgid "<strong>All Done!</strong> You&#8217;re fueled up and ready to go!"
-msgstr ""
+msgstr "<strong>Сделано!</strong> Вы готовы к взлёту!"
 
 #: jetpack.php:1342
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
-msgstr ""
+msgstr "<strong>Ваш Jetpack глючит.</strong> Случилось что-то, чего не должно было произойти. Похоже, вам просто &laquo;повезло&raquo;: %s"
 
 #: jetpack.php:1302
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
-msgstr ""
+msgstr "Jetpack не смог связаться с WordPress.com: %s. Обычно это означает, что что-то неправильно настроено на вашем веб-хостинге."
 
 #: jetpack.php:1169 jetpack.php:1620
 msgid "Connect to WordPress.com"
-msgstr ""
+msgstr "Подключение к WordPress.com"
 
 #: jetpack.php:1280
 msgid "Do you still have the %s plugin installed?"
@@ -1583,15 +1589,15 @@ msgstr ""
 
 #: jetpack.php:2653
 msgid "An administrator for this blog must set up the Jetpack connection."
-msgstr ""
+msgstr "Администратора этого блога должен настроить подключение Jetpack."
 
 #: jetpack.php:1284
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr ""
+msgstr "Модуль не может быть активирован, потому что он вызвал <strong>фатальную ошибку</strong>. Возможно, существует конфликт с другим плагином, установленным вами ранее?"
 
 #: jetpack.php:1278
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr ""
+msgstr "Модуль %s не может быть активирован, потому что он вызвал <strong>фатальную ошибку</strong>. Возможно, существует конфликт с другим плагином, установленным вами ранее? "
 
 #: jetpack.php:1819
 msgid "Purchase"
@@ -1599,78 +1605,78 @@ msgstr ""
 
 #: jetpack.php:1835
 msgid "Configure"
-msgstr ""
+msgstr "Настроить"
 
 #: modules/after-the-deadline/config-options.php:90
 msgid "Redundant Phrases"
-msgstr ""
+msgstr "Ненужные фразы"
 
 #: jetpack.php:1780
 msgid "Activate"
-msgstr ""
+msgstr "Включить"
 
 #: jetpack.php:1770
 msgid "Deactivate"
-msgstr ""
+msgstr "Деактировать"
 
 #: jetpack.php:1819
 msgid "Free"
-msgstr ""
+msgstr "Бесплатный"
 
 #: modules/after-the-deadline/config-options.php:82
 msgid "Hidden Verbs"
-msgstr ""
+msgstr "Скрытые глаголы"
 
 #: modules/after-the-deadline/config-options.php:80
 msgid "Double Negatives"
-msgstr ""
+msgstr "Двойное отрицание"
 
 #: modules/after-the-deadline/config-options.php:78
 msgid "Diacritical Marks"
-msgstr ""
+msgstr "Диакритические знаки"
 
 #: jetpack.php:1637
 msgid "Checking email updates status&hellip;"
-msgstr ""
+msgstr "Проверка статуса обновлений электронной почты..."
 
 #: jetpack.php:1621
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr ""
+msgstr "Чтобы иметь доступ ко всем возможностям Jetpack, нужно подключить ваш сайт к WordPress.com, щелкнув по кнопке справа. После подключения вы сможете активировать все нижеописанные супер-возможности."
 
 #: jetpack.php:1608
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
-msgstr ""
+msgstr "Jetpack разгоняет ваш автономный WordPress-сайт заоблачной энергией WordPress.com."
 
 #: jetpack.php:1605 jetpack.php:1722
 msgid "Jetpack by WordPress.com"
-msgstr ""
+msgstr "\"Реактивный ранец\" для WordPress.com"
 
 #: jetpack.php:1602
 msgid "Disconnect from WordPress.com"
-msgstr ""
+msgstr "Отключение от WordPress.com"
 
 #: jetpack.php:1601
 msgid "Connected to WordPress.com"
-msgstr ""
+msgstr "Подключено к WordPress.com"
 
 #: jetpack.php:1454
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Все предыдущие версии были деактивированы и могут быть удалены с вашего сайта."
+msgstr[1] "Все предыдущие версии были деактивированы и могут быть удалены с вашего сайта."
+msgstr[2] "Все предыдущие версии были деактивированы и могут быть удалены с вашего сайта."
 
 #: jetpack.php:899
 msgid "Jetpack requires WordPress version %s or later."
-msgstr ""
+msgstr "Jetpack требует WordPress версии %s или позже."
 
 #: jetpack.php:1298
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
-msgstr ""
+msgstr "На WordPress.com сейчас проблемы и \"заправить\" ваш Jetpack невозможно. Пожалуйста, попробуйте снова через некоторое время."
 
 #: modules/after-the-deadline/config-options.php:57
 msgid "Proofreading"
-msgstr ""
+msgstr "Корректура"
 
 #: jetpack.php:1369
 msgid "Welcome to <strong>Jetpack %s</strong>!"
