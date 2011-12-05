@@ -413,6 +413,14 @@ Cached pages have to be refreshed when posts are made. Perhaps your server just 
 
 The only real limit are limits defined by your server. For example, EXT2 and EXT3 allow a maximum of 31,999 sub directories so if you have a flat permalink structure (like /%POSTNAME%/) and more than 32,000 posts you may run into problems. Likewise, if you run a multisite network and have more than 31,999 sites (blogs) you won't be able to cache all of them. Realistically if you had that many active sites you wouldn't be running on one server.
 
+= How do I serve cached mobile pages to clients on small screens like phones and tablets? =
+
+You'll have to use a separate mobile plugin to render a page formatted for those visitors. The following plugins have been tested but YMMV depending on mobile client.
+* [WPTouch] (http://wordpress.org/extend/plugins/wptouch/)
+* [WordPress Mobile Edition] (http://wordpress.org/extend/plugins/wordpress-mobile-edition/)
+* [WordPress Mobile Pack] (http://wordpress.org/extend/plugins/wordpress-mobile-pack/) (can't have "Don't cache pages for known users." enabled)
+
+
 = Troubleshooting =
 
 If things don't work when you installed the plugin here are a few things to check:
