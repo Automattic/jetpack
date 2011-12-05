@@ -187,7 +187,7 @@ class Sharing_Service {
 		$options = get_option( 'sharing-options' );
 
 		// No options yet
-		if ( !is_array( $options ) )
+		if ( ! is_array( $options ) )
 			$options = array();
 
 		// Defaults
@@ -213,6 +213,7 @@ class Sharing_Service {
 
 		$shows = array_values( get_post_types( array( 'public' => true ) ) );
 		$shows[] = 'index';
+
 		if ( isset( $data['show'] ) ) {
 			if ( is_scalar( $data['show'] ) ) {
 				switch ( $data['show'] ) {
@@ -231,6 +232,8 @@ class Sharing_Service {
 			if ( $data['show'] = array_intersect( $data['show'], $shows ) ) {
 				$options['global']['show'] = $data['show'];
 			}
+		} else {
+			$options['global']['show'] = array();
 		}
 
 		update_option( 'sharing-options', $options );
@@ -247,7 +250,7 @@ class Sharing_Service {
 				$this->global = $this->set_global_options( $options['global'] );
 		}		
 
-		if ( empty( $this->global['show'] ) ) {
+		if ( ! isset( $this->global['show'] ) ) {
 			$this->global['show'] = array( 'post', 'page' );
 		} elseif ( is_scalar( $this->global['show'] ) ) {
 			switch ( $this->global['show'] ) {

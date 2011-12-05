@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.2.1
+ * Version: 1.2.2
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -17,7 +17,7 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.1' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
-define( 'JETPACK__VERSION', '1.2.1' );
+define( 'JETPACK__VERSION', '1.2.2' );
 
 /*
 Options:
@@ -203,7 +203,12 @@ class Jetpack {
 			return;
 		}
 
-		list( $version ) = explode( ':', Jetpack::get_option( 'version' ) );
+		$version = Jetpack::get_option( 'version' );
+		if ( !$version ) {
+			$version = $old_version = JETPACK__VERSION . ':' . time();
+			Jetpack::update_options( compact( 'version', 'old_version' ) );
+		}
+		list( $version ) = explode( ':', $version );
 
 		$modules = array_filter( Jetpack::get_active_modules(), array( 'Jetpack', 'is_module' ) );
 
@@ -506,7 +511,8 @@ class Jetpack {
 
 		$jetpack_old_version = Jetpack::get_option( 'version' ); // [sic]
 		if ( !$jetpack_old_version ) {
-			return;
+			$jetpack_old_version = $version = $old_version = '1.1:' . time();
+			Jetpack::update_options( compact( 'version', 'old_version' ) );
 		}
 
 		list( $jetpack_version ) = explode( ':', $jetpack_old_version ); // [sic]
@@ -2476,6 +2482,7 @@ class Jetpack_Client {
 
 		// Send an Authorization header so various caches/proxies do the right thing
 		$auth['signature'] = $signature;
+		$auth['version'] = JETPACK__VERSION;
 		$header_pieces = array();
 		foreach ( $auth as $key => $value ) {
 			$header_pieces[] = sprintf( '%s="%s"', $key, $value );

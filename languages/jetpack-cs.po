@@ -1,12 +1,12 @@
-# Translation of 1.2.1 in Hebrew
+# Translation of 1.2.1 in Czech
 # This file is distributed under the same license as the 1.2.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2011-12-05 21:56:50+0000\n"
+"PO-Revision-Date: 2011-12-05 21:56:45+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 1.2.1\n"
 
@@ -281,6 +281,7 @@ msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: modules/subscriptions.php:573
 msgid "Subscribe Button:"
@@ -308,6 +309,7 @@ msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: modules/subscriptions.php:463
 msgid "Email Address"
@@ -1535,6 +1537,7 @@ msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: jetpack.php:1456
 msgid "The features below are now active. Click the learn more buttons to explore each feature."
@@ -1549,6 +1552,7 @@ msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: jetpack.php:1672
 msgid "Have feedback on Jetpack?"
@@ -1693,6 +1697,7 @@ msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: jetpack.php:1127 jetpack.php:1638 jetpack.php:1768
 msgid "Jetpack by WordPress.com"
