@@ -2610,8 +2610,6 @@ function wpsc_get_htaccess_info() {
 	$rules = "<IfModule mod_rewrite.c>\n";
 	$rules .= "RewriteEngine On\n";
 	$rules .= "RewriteBase $home_root\n"; // props Chris Messina
-	$charset = get_option('blog_charset') == '' ? 'UTF-8' : get_option('blog_charset');
-	$rules .= "AddDefaultCharset {$charset}\n";
 	$rules .= "#If you serve pages from behind a proxy you may want to change 'RewriteCond %{HTTPS} on' to something more sensible\n";
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";

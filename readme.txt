@@ -455,6 +455,10 @@ If that doesn't work, add this line to your wp-config.php:
 23. After uninstalling, your permalinks may break if you remove the WordPress mod_rewrite rules too. Regenerate those rules by visiting the Settings->Permalink page and saving that form again.
 24. If your blog refuses to load make sure your wp-config.php is correct. Are you missing an opening or closing PHP tag?
 25. Your front page is ok but posts and pages give a 404? Go to Settings->permalinks and click "Save" once you've selected a custom permalink structure. You may need to manually update your .htaccess file.
+26. If certain characters do not appear correctly on your website your server may not be configured correctly. You need to tell visitors what character set is used. Go to Settings->Reading and copy the 'Encoding for pages and feeds' value. Edit the .htaccess file with all your Supercache and WordPress rewrite rules and add this at the top, replacing CHARSET with the copied value. (for example, 'UTF-8')
+
+	`AddDefaultCharset CHARSET`
+
 
 == CDN ==
 
