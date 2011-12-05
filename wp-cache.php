@@ -1406,7 +1406,7 @@ function RecursiveFolderDelete ( $folderPath ) { // from http://www.php.net/manu
 }
 
 function wp_cache_edit_max_time () {
-	global $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled, $cache_schedule_type, $cache_scheduled_time, $cache_schedule_interval, $cache_time_interval, $cache_gc_email_me;
+	global $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled, $cache_schedule_type, $cache_scheduled_time, $cache_schedule_interval, $cache_time_interval, $cache_gc_email_me, $wp_cache_preload_on;
 
 
 	if( !isset( $cache_schedule_type ) ) {
@@ -1466,11 +1466,14 @@ function wp_cache_edit_max_time () {
 	?><fieldset class="options"> 
 	<a name='expirytime'></a>
 	<h3><?php _e( 'Expiry Time &amp; Garbage Collection', 'wp-super-cache' ); ?></h3><?php
-	// Add scenarios - long gc, short gc, timed..
 	$next_gc = wp_next_scheduled( 'wp_cache_gc' );
-	echo "<p>" . sprintf( __( 'Current server time is: %s', 'wp-super-cache' ), date( 'Y-m-d H:i:s', time() ) ) . "</p>";
+	echo "<p>" . sprintf( __( 'Current server time is: %s', 'wp-super-cache' ), "<strong>" . date( 'Y-m-d H:i:s', time() ) . "</strong>" ) . "</p>";
 	if ( $next_gc )
-		echo "<p>" . sprintf( __( 'Next scheduled garbage collection will be at (YY-MM-DD H:M:S): %s', 'wp-super-cache' ), date( 'Y-m-d H:i:s', $next_gc ) ) . "</p>";
+		echo "<p>" . sprintf( __( 'Next scheduled garbage collection will be at (YY-MM-DD H:M:S): %s', 'wp-super-cache' ), "<strong>" . date( 'Y-m-d H:i:s', $next_gc ) . "</strong>" ) . "</p>";
+
+	if ( $wp_cache_preload_on )
+		echo "<p>" . __( 'Warning! <strong>PRELOAD MODE</strong> activated. Supercache files will not be deleted regardless of age.' ) . "</p>";
+
 	echo "<script type='text/javascript'>";
 	echo "jQuery(function () {
 		jQuery('#cache_interval_time').click(function () {
