@@ -449,6 +449,8 @@ function wp_cache_user_agent_is_rejected() {
 	if (!function_exists('apache_request_headers')) return false;
 	$headers = apache_request_headers();
 	if (!isset($headers["User-Agent"])) return false;
+	if ( false == is_array( $cache_rejected_user_agent ) )
+		return false;
 	foreach ($cache_rejected_user_agent as $expr) {
 		if (strlen($expr) > 0 && stristr($headers["User-Agent"], $expr))
 			return true;
