@@ -2687,6 +2687,10 @@ function wp_cron_preload_cache() {
 		update_option( 'preload_cache_counter', $counter );
 	}
 	$c = $counter[ 'c' ];
+
+	if ( $wp_cache_preload_email_me && $c == 0 )
+		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), site_url(), '' ), ' ' );
+
 	$taxonomies = apply_filters( 'wp_cache_preload_taxonomies', array( 'post_tag' => 'tag', 'category' => 'category' ) );
 	$finished = false;
 	$permalink_counter_msg = $cache_path . "preload_permalink.txt";
@@ -2710,8 +2714,10 @@ function wp_cron_preload_cache() {
 		} else {
 			$details = explode( "\n", file_get_contents( $taxonomy_filename ) );
 		}
-		if ( !empty( $details ) ) {
+		if ( count( $details ) != 1 && $details[ 0 ] != '' ) {
 			$rows = array_splice( $details, 0, 50 );
+			if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume == 'many' )
+				wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), site_url(), $taxonomy, $c, ($c+100) ), 'Refreshing: ' . print_r( $rows, 1 ) );
 			foreach( (array)$rows as $url ) {
 				set_time_limit( 60 );
 				if ( $url == '' )
@@ -2745,10 +2751,8 @@ function wp_cron_preload_cache() {
 
 	update_option( 'preload_cache_counter', array( 'c' => ( $c + 100 ), 't' => time() ) );
 	if ( $posts ) {
-		if ( $wp_cache_preload_email_me && $c == 0 )
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), site_url(), '' ), '' );
 		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume == 'many' )
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing posts from %2$d to %3$d', 'wp-super-cache' ), site_url(), $c, ($c+100) ), '' );
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing posts from %2$d to %3$d', 'wp-super-cache' ), site_url(), $c, ($c+100) ), ' ' );
 		$msg = '';
 		$count = $c + 1;
 		$permalink_counter_msg = $cache_path . "preload_permalink.txt";
@@ -2766,7 +2770,7 @@ function wp_cron_preload_cache() {
 				@unlink( $cache_path . "stop_preload.txt" );
 				update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
 				if ( $wp_cache_preload_email_me )
-					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), site_url(), '' ), '' );
+					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), site_url(), '' ), ' ' );
 				return true;
 			}
 			$msg .= "$url\n";
