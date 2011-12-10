@@ -318,7 +318,7 @@ function wp_cache_get_ob(&$buffer) {
 		}
 	}
 
-	if (!preg_match('/(<\/html>|<\/rss>|<\/feed>|<\/urlset)/i',$buffer) ) {
+	if ( !preg_match( apply_filters( 'wp_cache_eof_tags', '/(<\/html>|<\/rss>|<\/feed>|<\/urlset|<\?xml)/i' ), $buffer ) ) {
 		$new_cache = false;
 		if( false === strpos( $_SERVER[ 'REQUEST_URI' ], 'robots.txt' ) ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) {
