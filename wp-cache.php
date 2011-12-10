@@ -1456,7 +1456,9 @@ function wp_cache_edit_max_time () {
 		if ( $_POST[ 'cache_scheduled_time' ] == '' )
 			$_POST[ 'cache_scheduled_time' ] = '00:00';
 		$cache_scheduled_time = $_POST[ 'cache_scheduled_time' ];
-		$cache_schedule_interval = (int)$_POST[ 'cache_schedule_interval' ];
+		$schedules = wp_get_schedules();
+		if ( isset( $schedules[ $_POST[ 'cache_schedule_interval' ] ] ) )
+			$cache_schedule_interval = $_POST[ 'cache_schedule_interval' ];
 		wp_schedule_single_event( strtotime( $cache_scheduled_time ), 'wp_cache_gc' );
 		wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$cache_schedule_interval', "\$cache_schedule_interval = '{$cache_schedule_interval}';", $wp_cache_config_file);
