@@ -914,6 +914,7 @@ function wp_cache_clear_cache() {
 	if ( $wp_cache_object_cache ) {
 		reset_oc_version();
 	} else {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Clearing all cached files in wp_cache_clear_cache()", 4 );
 		prune_super_cache( $cache_path . 'supercache/', true );
 		prune_super_cache( $cache_path, true );
 	}
