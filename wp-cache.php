@@ -2668,7 +2668,11 @@ function clear_post_supercache( $post_id ) {
 	if ( !function_exists( 'prune_super_cache' ) )
 		include_once( 'wp-cache-phase2.php' );
 
-	prune_super_cache( $dir, true);
+	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "clear_post_supercache: deleting $dir/index*.html files", 2 );
+	$files_to_check = get_all_supercache_filenames( $dir );
+	foreach( $files_to_check as $cache_file ) {
+		prune_super_cache( $dir . $cache_file, true ); 
+	}
 }
 
 function wp_cron_preload_cache() {
