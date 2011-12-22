@@ -2923,7 +2923,7 @@ function uninstall_supercache( $folderPath ) { // from http://www.php.net/manual
 
 function supercache_admin_bar_render() {
 	global $wp_admin_bar, $wp_cache_not_logged_in;
-	if ( !is_user_logged_in() && !$wp_cache_not_logged_in ) 
+	if ( !is_user_logged_in() || !$wp_cache_not_logged_in ) 
 		return false;
 
 	if ( !wpsupercache_site_admin() )
