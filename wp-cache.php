@@ -2340,10 +2340,10 @@ function wp_cache_clean_legacy_files( $dir, $file_prefix ) {
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match( "/^$file_prefix/", $file ) ) {
 				$meta = unserialize( file_get_contents( $dir . 'meta/' . $file ) );
-				if ( $meta[ 'blog_id' ] == $wpdb->blogid ) {
-					@unlink( $dir . 'meta/' . $file);
-					@unlink( $dir .  str_replace( '.meta', '.html', $file ) );
-				}
+				if ( defined( 'WP_ALLOW_MULTISITE' ) && $meta[ 'blog_id' ] != $wpdb->blogid )
+					continue;
+				@unlink( $dir . 'meta/' . $file);
+				@unlink( $dir .  str_replace( '.meta', '.html', $file ) );
 			}
 		}
 		closedir($handle);
