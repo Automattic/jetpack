@@ -388,6 +388,9 @@ function wp_cache_check_mobile( $cache_key ) {
 		return $cache_key;
 	}
 
+	if ( do_cacheaction( 'disable_mobile_check', false ) )
+		return $cache_key;
+
 	$browsers = explode( ',', $wp_cache_mobile_browsers );
 	$user_agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 	foreach ($browsers as $browser) {
