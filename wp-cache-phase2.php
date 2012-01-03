@@ -970,7 +970,7 @@ function wp_cache_post_change( $post_id ) {
 	if ($post_id == $last_processed) return $post_id;
 	$last_processed = $post_id;
 	$post = get_post( $post_id );
-	if( $post->post_status == 'draft' ) {
+	if( $post->post_status != 'publish' ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_change: draft post, not deleting any cache files.", 4 );
 		return $post_id;
 	}
