@@ -1501,7 +1501,7 @@ function wp_cache_edit_max_time () {
 	$schedules = wp_get_schedules();
 	echo "<tr><td><br /></td><td><label for='cache_scheduled_select'>" . __( 'Interval:', 'wp-super-cache' ) . "</label></td><td><select id='cache_scheduled_select' name='cache_schedule_interval' size=1>";
 	foreach( $schedules as $desc => $details ) {
-		echo "<option name='$desc' " . selected( $desc, $cache_schedule_interval, false ) . " /> $desc</option>";
+		echo "<option name='$desc' " . selected( $desc, $cache_schedule_interval, false ) . " /> {$details[ 'display' ]}</option>";
 	}
 	echo "</select></td></tr>";
 	echo '</table></td></tr>';
