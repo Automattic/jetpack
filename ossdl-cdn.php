@@ -14,6 +14,8 @@ if ( get_option( 'ossdl_off_exclude' ) == false )
 	add_option('ossdl_off_exclude', '.php');
 $ossdl_off_exclude = trim(get_option('ossdl_off_exclude'));
 $arr_of_excludes = array_map('trim', explode(',', $ossdl_off_exclude));
+if ( !is_array( $arr_of_excludes ) )
+	$arr_of_excludes = array();
 
 if ( get_option( 'ossdl_cname' ) == false )
 	add_option('ossdl_cname', '');
@@ -65,7 +67,7 @@ function scossdl_off_rewriter($match) {
 	if ( false == in_array( $ossdl_off_cdn_url, $arr_of_cnames ) )
 		$arr_of_cnames[] = $ossdl_off_cdn_url;
 
-	if (scossdl_off_exclude_match($match[0], $arr_of_excludes)) {
+	if ( scossdl_off_exclude_match( $match[0], $arr_of_excludes ) ) {
 		return $match[0];
 	} else {
 		$include_dirs = scossdl_off_additional_directories();
