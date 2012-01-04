@@ -2763,7 +2763,7 @@ function wp_cron_preload_cache() {
 		}
 	}
 
-	if ( $wp_cache_preload_posts == 'all' || $c <= $wp_cache_preload_posts ) {
+	if ( $wp_cache_preload_posts == 'all' || $c < $wp_cache_preload_posts ) {
 		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type != 'revision' AND post_type != 'nav_menu_item' ) AND post_status = 'publish' ORDER BY post_date DESC LIMIT $c, 100" );
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: got 100 posts from position $c.", 5 );
 	} else {
