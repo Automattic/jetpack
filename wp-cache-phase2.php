@@ -361,7 +361,7 @@ function wp_cache_get_ob(&$buffer) {
 
 	$supercacheonly = false;
 	if( $super_cache_enabled ) {
-		if ( wp_cache_get_cookies_values() == '' && !empty( $_GET ) ) {
+		if ( wp_cache_get_cookies_values() == '' && empty( $_GET ) ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Anonymous user detected. Only creating Supercache file.", 3 );
 			$supercacheonly = true;
 		}
