@@ -699,9 +699,11 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 		if( in_array( $directory, $protected_directories ) )
 			$oktodelete = false;
 		if( $oktodelete && !$rename ) {
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "prune_super_cache: deleted $directory", 5 );
 			@unlink( $directory );
 			$log++;
 		} elseif( $oktodelete && $rename ) {
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "prune_super_cache: wp_cache_rebuild_or_delete( $directory )", 5 );
 			wp_cache_rebuild_or_delete( $directory );
 			$log++;
 		}

@@ -2683,14 +2683,17 @@ function wp_cron_preload_cache() {
 
 	if ( get_option( 'preload_cache_stop' ) ) {
 		delete_option( 'preload_cache_stop' );
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: preload cancelled", 1 );
 		return true;
 	}
 	$mutex = $cache_path . "preload_mutex.tmp";
 	sleep( 3 + mt_rand( 1, 5 ) );
 	if ( @file_exists( $mutex ) ) {
 		if ( @filemtime( $mutex ) > ( time() - 600 ) ) {
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: preload mutex found and less than 600 seconds old. Aborting preload.", 1 );
 			return true;
 		} else {
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: old preload mutex found and deleted. Preload continues.", 1 );
 			@unlink( $mutex );
 		}
 	}
@@ -2699,6 +2702,7 @@ function wp_cron_preload_cache() {
 
 	$counter = get_option( 'preload_cache_counter' );
 	if ( is_array( $counter ) == false ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: setting up preload for the first time!", 5 );
 		$counter = array( 'c' => 0, 't' => time() );
 		update_option( 'preload_cache_counter', $counter );
 	}
@@ -2759,7 +2763,9 @@ function wp_cron_preload_cache() {
 
 	if ( $wp_cache_preload_posts == 'all' || $c <= $wp_cache_preload_posts ) {
 		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type != 'revision' AND post_type != 'nav_menu_item' ) AND post_status = 'publish' ORDER BY post_date DESC LIMIT $c, 100" );
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: got 100 posts from position $c.", 5 );
 	} else {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: no more posts to get. Limit ($wp_cache_preload_posts) reached.", 5 );
 		$posts = false;
 	}
 	if ( !isset( $wp_cache_preload_email_volume ) )
@@ -2782,6 +2788,7 @@ function wp_cron_preload_cache() {
 				@fclose( $fp );
 			}
 			if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: cancelling preload. stop_preload.txt found.", 5 );
 				@unlink( $mutex );
 				@unlink( $cache_path . "stop_preload.txt" );
 				update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
@@ -2791,12 +2798,15 @@ function wp_cron_preload_cache() {
 			}
 			$msg .= "$url\n";
 			wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
 			sleep( 1 );
 			$count++;
 		}
 		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume != 'less' )
 			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), $_SERVER[ 'HTTP_HOST' ], ($c+100) ), __( "Refreshed the following posts:", 'wp-super-cache' ) . "\n$msg" );
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "prune_super_cache: wp_cache_rebuild_or_delete( $directory )", 5 );
 		if ( defined( 'DOING_CRON' ) ) {
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: scheduling the next preload in 30 seconds.", 5 );
 			wp_schedule_single_event( time() + 30, 'wp_cache_preload_hook' );
 		}
 	} else {
@@ -2805,6 +2815,7 @@ function wp_cron_preload_cache() {
 		if ( (int)$wp_cache_preload_interval && defined( 'DOING_CRON' ) ) {
 			if ( $wp_cache_preload_email_me )
 				$msg = sprintf( __( 'Scheduling next preload refresh in %d minutes.', 'wp-super-cache' ), (int)$wp_cache_preload_interval );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: no more posts. scheduling next preload in $wp_cache_preload_interval minutes.", 5 );
 			wp_schedule_single_event( time() + ( (int)$wp_cache_preload_interval * 60 ), 'wp_cache_full_preload_hook' );
 		}
 		global $file_prefix, $cache_max_time;
@@ -2815,6 +2826,7 @@ function wp_cron_preload_cache() {
 		}
 		if ( $wp_cache_preload_email_me )
 			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%s] Cache Preload Completed', 'wp-super-cache' ), site_url() ), __( "Cleaning up old supercache files.", 'wp-super-cache' ) . "\n" . $msg );
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: clean expired cache files older than $cache_max_time seconds.", 5 );
 		wp_cache_phase2_clean_expired( $file_prefix, true ); // force cleanup of old files.
 	}
 	@unlink( $mutex );
