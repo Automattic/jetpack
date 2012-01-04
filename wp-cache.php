@@ -2708,6 +2708,8 @@ function wp_cron_preload_cache() {
 	}
 	$c = $counter[ 'c' ];
 
+	update_option( 'preload_cache_counter', array( 'c' => ( $c + 100 ), 't' => time() ) );
+
 	if ( $wp_cache_preload_email_me && $c == 0 )
 		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), site_url(), '' ), ' ' );
 
@@ -2771,7 +2773,6 @@ function wp_cron_preload_cache() {
 	if ( !isset( $wp_cache_preload_email_volume ) )
 		$wp_cache_preload_email_volume = 'medium';
 
-	update_option( 'preload_cache_counter', array( 'c' => ( $c + 100 ), 't' => time() ) );
 	if ( $posts ) {
 		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume == 'many' )
 			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing posts from %2$d to %3$d', 'wp-super-cache' ), site_url(), $c, ($c+100) ), ' ' );
