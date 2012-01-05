@@ -235,7 +235,8 @@ function wp_cache_manager_error_checks() {
 	}
 
 	if( !is_writeable_ACLSafe( $wp_cache_config_file ) ) {
-		define( "SUBMITDISABLED", 'disabled style="color: #aaa" ' );
+		if ( !defined( 'SUBMITDISABLED' ) )
+			define( "SUBMITDISABLED", 'disabled style="color: #aaa" ' );
 		?><div id="message" class="updated fade"><h3><?php _e( 'Read Only Mode. Configuration cannot be changed.', 'wp-super-cache' ); ?></h3>
 		<p><?php printf( __( 'The WP Super Cache configuration file is <code>%s/wp-cache-config.php</code> and cannot be modified. That file must be writeable by the webserver to make any changes.', 'wp-super-cache' ), WP_CONTENT_DIR ); ?>
 		<?php _e( 'A simple way of doing that is by changing the permissions temporarily using the CHMOD command or through your ftp client. Make sure it&#8217;s globally writeable and it should be fine.', 'wp-super-cache' ); ?></p>
@@ -243,7 +244,7 @@ function wp_cache_manager_error_checks() {
 		<?php _e( 'Writeable:', 'wp-super-cache' ); ?> <code>chmod 666 <?php echo WP_CONTENT_DIR; ?>/wp-cache-config.php</code>
 		<?php _e( 'Readonly:', 'wp-super-cache' ); ?> <code>chmod 644 <?php echo WP_CONTENT_DIR; ?>/wp-cache-config.php</code></p>
 		</div><?php
-	} else {
+	} elseif ( !defined( 'SUBMITDISABLED' ) ) {
 		define( "SUBMITDISABLED", ' ' );
 	}
 

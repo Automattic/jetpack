@@ -48,6 +48,7 @@ function wp_super_cache_override_on_flag() {
 		$cache_enabled = false;
 		$super_cache_enabled = false;
 		define( 'DONOTCACHEPAGE', 1 );
+		define( "SUBMITDISABLED", 'disabled style="color: #aaa" ' );
 		if ( is_admin() )
 			add_action( 'admin_notices', 'wp_super_cache_multisite_notice' );
 	}
