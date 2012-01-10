@@ -315,7 +315,7 @@ function wp_cache_manager_error_checks() {
 add_filter( 'wp_super_cache_error_checking', 'wp_cache_manager_error_checks' );
 
 function wp_cache_manager_updates() {
-	global $wp_cache_mobile_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $wp_cache_make_known_anon, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks, $cache_page_secret;
+	global $wp_cache_mobile_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $wp_cache_make_known_anon, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks, $cache_page_secret, $wp_cache_disable_utf8, $wp_cache_no_cache_for_get;
 
 	if ( !wpsupercache_site_admin() )
 		return false;
@@ -362,6 +362,20 @@ function wp_cache_manager_updates() {
 			$wp_super_cache_late_init = 0;
 		}
 		wp_cache_replace_line('^ *\$wp_super_cache_late_init', "\$wp_super_cache_late_init = " . $wp_super_cache_late_init . ";", $wp_cache_config_file);
+
+		if( isset( $_POST[ 'wp_cache_disable_utf8' ] ) ) {
+			$wp_cache_disable_utf8 = 1;
+		} else {
+			$wp_cache_disable_utf8 = 0;
+		}
+		wp_cache_replace_line('^ *\$wp_cache_disable_utf8', "\$wp_cache_disable_utf8 = " . $wp_cache_disable_utf8 . ";", $wp_cache_config_file);
+
+		if( isset( $_POST[ 'wp_cache_no_cache_for_get' ] ) ) {
+			$wp_cache_no_cache_for_get = 1;
+		} else {
+			$wp_cache_no_cache_for_get = 0;
+		}
+		wp_cache_replace_line('^ *\$wp_cache_no_cache_for_get', "\$wp_cache_no_cache_for_get = " . $wp_cache_no_cache_for_get . ";", $wp_cache_config_file);
 
 		if( isset( $_POST[ 'wp_supercache_304' ] ) ) {
 			$wp_supercache_304 = 1;
@@ -500,10 +514,10 @@ if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] == 'wpsupercache' )
 
 function wp_cache_manager() {
 	global $wp_cache_config_file, $valid_nonce, $supercachedir, $cache_path, $cache_enabled, $cache_compression, $super_cache_enabled, $wp_cache_hello_world;
-	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers;
+	global $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_no_cache_for_get;
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_not_logged_in, $wp_cache_make_known_anon, $wp_supercache_cache_list, $cache_page_secret, $cache_home_path;
 	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
-	global $wpmu_version, $cache_max_time, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks;
+	global $wpmu_version, $cache_max_time, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks, $wp_cache_disable_utf8;
 
 	if ( !wpsupercache_site_admin() )
 		return false;
@@ -832,6 +846,7 @@ jQuery(document).ready(function(){
 				<em><?php _e( '304 support is disabled by default because in the past GoDaddy had problems with some of the headers used.', 'wp-super-cache' ); ?></em><br />
 				<?php } ?>
 				<label><input type='checkbox' name='wp_cache_not_logged_in' <?php if( $wp_cache_not_logged_in ) echo "checked"; ?> value='1'> <?php _e( 'Don&#8217;t cache pages for <acronym title="Logged in users and those that comment">known users</acronym>.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
+				<label><input type='checkbox' name='wp_cache_no_cache_for_get' <?php if( $wp_cache_no_cache_for_get ) echo "checked"; ?> value='1'> <?php _e( 'Don&#8217;t cache pages with GET parameters. (?x=y at the end of a url)', 'wp-super-cache' ); ?></label><br />
 				<label><input type='checkbox' name='wp_cache_make_known_anon' <?php if( $wp_cache_make_known_anon ) echo "checked"; ?> value='1'> <?php _e( 'Make known users anonymous so they&#8217;re served supercached static files.', 'wp-super-cache' ); ?></label><br />
 				<label><input type='checkbox' name='cache_rebuild_files' <?php if( $cache_rebuild_files ) echo "checked"; ?> value='1'> <?php _e( 'Cache rebuild. Serve a supercache file to anonymous users while a new file is being generated.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
 				<label><input type='checkbox' name='wp_cache_hello_world' <?php if( $wp_cache_hello_world ) echo "checked"; ?> value='1'> <?php printf( __( 'Proudly tell the world your server is <a href="%s">Stephen Fry proof</a>! (places a message in your blog&#8217;s footer)', 'wp-super-cache' ), 'https://twitter.com/#!/HibbsLupusTrust/statuses/136429993059291136' ); ?></label><br />
@@ -848,6 +863,7 @@ jQuery(document).ready(function(){
 				<?php if ( $wp_cache_mobile_enabled ) {
 					echo '<blockquote><h4>' . __( 'Mobile Browsers', 'wp-super-cache' ) . '</h4>' . implode( ', ', $wp_cache_mobile_browsers ) . "<br /><h4>" . __( 'Mobile Prefixes', 'wp-super-cache' ) . "</h4>" . implode( ', ', $wp_cache_mobile_prefixes ) . "<br /></blockquote>";
 				} ?>
+				<label><input type='checkbox' name='wp_cache_disable_utf8' <?php if( $wp_cache_disable_utf8 ) echo "checked"; ?> value='1'> <?php _e( 'Remove UTF8/blog charset support from .htaccess file. Only necessary if you see odd characters or punctuation looks incorrect. Requires rewrite rules update.', 'wp-super-cache' ); ?></label><br />
 				<label><input type='checkbox' name='wp_cache_clear_on_post_edit' <?php if( $wp_cache_clear_on_post_edit ) echo "checked"; ?> value='1'> <?php _e( 'Clear all cache files when a post or page is published or updated.', 'wp-super-cache' ); ?></label><br />
 				<label><input type='checkbox' name='wp_cache_front_page_checks' <?php if( $wp_cache_front_page_checks ) echo "checked"; ?> value='1'> <?php _e( 'Extra homepage checks. (Very occasionally stops homepage caching)', 'wp-super-cache' ); ?></label><?php echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?><br />
 				<label><input type='checkbox' name='wp_cache_refresh_single_only' <?php if( $wp_cache_refresh_single_only ) echo "checked"; ?> value='1'> <?php _e( 'Only refresh current page when comments made.', 'wp-super-cache' ); ?></label><br />
@@ -2580,7 +2596,7 @@ function wpsc_update_htaccess_form( $short_form = true ) {
 }
 
 function wpsc_get_htaccess_info() {
-	global $wp_cache_mobile_enabled, $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers;
+	global $wp_cache_mobile_enabled, $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers, $wp_cache_disable_utf8;
 	if ( isset( $_SERVER[ "PHP_DOCUMENT_ROOT" ] ) ) {
 		$document_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
 		$apache_root = $_SERVER[ "PHP_DOCUMENT_ROOT" ];
@@ -2637,6 +2653,11 @@ function wpsc_get_htaccess_info() {
 	$rules .= "RewriteEngine On\n";
 	$rules .= "RewriteBase $home_root\n"; // props Chris Messina
 	$rules .= "#If you serve pages from behind a proxy you may want to change 'RewriteCond %{HTTPS} on' to something more sensible\n";
+	if ( isset( $wp_cache_disable_utf8 ) == false || $wp_cache_disable_utf8 = 0 ) {
+		$charset = get_option('blog_charset') == '' ? 'UTF-8' : get_option('blog_charset');
+		$rules .= "AddDefaultCharset {$charset}\n";
+	}
+
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{HTTPS} on\n";

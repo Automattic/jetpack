@@ -1,10 +1,14 @@
 <?php
 
 function wp_cache_phase2() {
-	global $wpsc_settings;
 	global $cache_filename, $cache_acceptable_files, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_last_gc;
-	global $cache_max_time, $wp_cache_request_uri, $super_cache_enabled, $wp_cache_object_cache, $cache_time_interval;
+	global $cache_max_time, $wp_cache_request_uri, $super_cache_enabled, $wp_cache_object_cache, $cache_time_interval, $wp_cache_no_cache_for_get;
 	global $cache_enabled, $wp_cache_gmt_offset, $wp_cache_blog_charset, $cache_schedule_type, $cache_scheduled_time, $cache_schedule_interval;
+
+	if ( $wp_cache_no_cache_for_get && false == empty( $_GET ) ) {
+		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Non empty GET request. Caching disabled on settings page.", 1 );
+		return false;
+	}
 
 	if ( $cache_enabled == false )
 		return false;
@@ -318,7 +322,6 @@ function wp_cache_append_tag( &$buffer ) {
 }
 
 function wp_cache_get_ob(&$buffer) {
-	global $wpsc_settings;
 	global $cache_enabled, $cache_path, $cache_filename, $meta_file, $wp_start_time, $supercachedir;
 	global $new_cache, $wp_cache_meta, $file_expired, $blog_id, $cache_compression;
 	global $wp_cache_gzip_encoding, $super_cache_enabled, $cached_direct_pages;
