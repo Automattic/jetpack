@@ -419,7 +419,7 @@ function wp_cache_get_ob(&$buffer) {
 	}
 
 	if ( !$cache_enabled ) {
-		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( '', 5 );
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Cache is not enabled. Sending buffer to browser.', 5 );
 		wp_cache_writers_exit();
 		return $buffer . "\n<!-- Page not cached by WP Super Cache. Check your settings page. $cache_error -->";
 	}
