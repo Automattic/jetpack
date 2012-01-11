@@ -997,6 +997,9 @@ function wp_cache_post_id_gc( $siteurl, $post_id, $all = 'all' ) {
 	}
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cache in {$dir}page/.", 4 );
 	prune_super_cache( $dir . 'page/', true );
+	$supercache_home = get_supercache_dir();
+	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cache in {$supercache_home}page/.", 4 );
+	prune_super_cache( $supercache_home . 'page/', true );
 	do_action( 'gc_cache', 'prune', '/page/' );
 }
 
@@ -1031,7 +1034,6 @@ function wp_cache_post_change( $post_id ) {
 		$siteurl = trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', get_option( 'home' ) ) ) ) );
 		// make sure the front page has a rebuild file
 		wp_cache_post_id_gc( $siteurl, $post_id );
-		// make sure the front page has a rebuild file
 		if ( $all == true ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: deleting cache files in " . $cache_path . 'supercache/' . $siteurl, 4 );
 			$files_to_check = get_all_supercache_filenames( $dir );
