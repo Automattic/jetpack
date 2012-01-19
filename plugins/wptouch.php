@@ -81,6 +81,9 @@ add_cacheaction( 'disable_mobile_check', 'wp_super_cache_maybe_disable_wptouch' 
 function wp_super_cache_wptouch_browsers( $browsers ) {
 	global $cache_wptouch, $wptouch_exclude_ua, $wp_cache_config_file;
 
+	if ( false == function_exists( 'bnc_wptouch_get_exclude_user_agents' ) || false == function_exists( 'bnc_wptouch_get_user_agents' ) )
+		return $browsers;
+
 	$browsers = implode( ',', bnc_wptouch_get_exclude_user_agents() ); // hack, support exclude agents too
 	if ( $browsers != $wptouch_exclude_ua ) {
 		wp_cache_replace_line('^ *\$wptouch_exclude_ua', "\$wptouch_exclude_ua = '$browsers';", $wp_cache_config_file);
