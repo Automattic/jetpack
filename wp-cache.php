@@ -548,7 +548,7 @@ function wp_cache_manager() {
 	if ( false == apply_filters( 'wp_super_cache_error_checking', true ) )
 		return false;
 
-	$supercachedir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]);
+	$supercachedir = get_supercache_dir();
 	if( get_option( 'gzipcompression' ) == 1 )
 		update_option( 'gzipcompression', 0 );
 	if( !isset( $cache_rebuild_files ) )
@@ -2384,7 +2384,7 @@ function wp_cache_clean_expired($file_prefix) {
 	// If phase2 was compiled, use its function to avoid race-conditions
 	if(function_exists('wp_cache_phase2_clean_expired')) {
 		if ( $wp_cache_preload_on != 1 && function_exists ('prune_super_cache')) {
-			$dir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $_SERVER["HTTP_HOST"]);
+			$dir = get_supercache_dir();
 			if( is_dir( $dir ) ) {
 				prune_super_cache( $dir );
 			} elseif( is_dir( $dir . '.disabled' ) ) {
