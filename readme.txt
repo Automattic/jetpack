@@ -466,6 +466,7 @@ If that doesn't work, add this line to your wp-config.php:
 26. If certain characters do not appear correctly on your website your server may not be configured correctly. You need to tell visitors what character set is used. Go to Settings->Reading and copy the 'Encoding for pages and feeds' value. Edit the .htaccess file with all your Supercache and WordPress rewrite rules and add this at the top, replacing CHARSET with the copied value. (for example, 'UTF-8')
 
 	`AddDefaultCharset CHARSET`
+27. Use [Cron View](http://wordpress.org/extend/plugins/cron-view/) to help diagnose garbage collection and preload problems. Use the plugin to make sure jobs are scheduled and for what time. Look for the wp_cache_gc and wp_cache_full_preload_hook jobs.
 
 
 == CDN ==
