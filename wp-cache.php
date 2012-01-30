@@ -648,7 +648,7 @@ jQuery(document).ready(function(){
 			wp_die( __( 'Caching must be enabled to use this feature', 'wp-super-cache' ) );
 		echo '<a name="preload"></a>';
 		if ( $super_cache_enabled == true && false == defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
-			global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
+			global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_taxonomies, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
 			$count = $wpdb->get_var( "SELECT count(*) FROM {$wpdb->posts} WHERE post_status = 'publish'" );
 			if ( $count > 1000 ) {
 				$min_refresh_interval = 720;
@@ -702,6 +702,12 @@ jQuery(document).ready(function(){
 						$wp_cache_preload_email_volume = 'medium';
 					}
 					wp_cache_replace_line('^ *\$wp_cache_preload_email_volume', "\$wp_cache_preload_email_volume = '$wp_cache_preload_email_volume';", $wp_cache_config_file);
+					if ( isset( $_POST[ 'preload_taxonomies' ] ) ) {
+						$wp_cache_preload_taxonomies = 1;
+					} else {
+						$wp_cache_preload_taxonomies = 0;
+					}
+					wp_cache_replace_line('^ *\$wp_cache_preload_taxonomies', "\$wp_cache_preload_taxonomies = $wp_cache_preload_taxonomies;", $wp_cache_config_file);
 					if ( isset( $_POST[ 'preload_on' ] ) ) {
 						$wp_cache_preload_on = 1;
 					} else {
@@ -761,6 +767,9 @@ jQuery(document).ready(function(){
 			echo '<input type="checkbox" name="preload_on" value="1" ';
 			echo $wp_cache_preload_on == 1 ? 'checked=1' : '';
 			echo ' /> ' . __( 'Preload mode (garbage collection only on legacy cache files. Recommended.)', 'wp-super-cache' ) . '<br />';
+			echo '<input type="checkbox" name="preload_taxonomies" value="1" ';
+			echo $wp_cache_preload_taxonomies == 1 ? 'checked=1' : '';
+			echo ' /> ' . __( 'Preload tags, categories and other taxonomies.', 'wp-super-cache' ) . '<br />';
 			echo '<input type="checkbox" name="preload_email_me" value="1" ';
 			echo $wp_cache_preload_email_me == 1 ? 'checked=1' : '';
 			echo ' /> ' . __( 'Send me status emails when files are refreshed.', 'wp-super-cache' ) . '<br />';
@@ -2709,7 +2718,7 @@ function clear_post_supercache( $post_id ) {
 }
 
 function wp_cron_preload_cache() {
-	global $wpdb, $wp_cache_preload_interval, $wp_cache_preload_posts, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $cache_path;
+	global $wpdb, $wp_cache_preload_interval, $wp_cache_preload_posts, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $cache_path, $wp_cache_preload_taxonomies;
 
 	if ( get_option( 'preload_cache_stop' ) ) {
 		delete_option( 'preload_cache_stop' );
@@ -2745,54 +2754,55 @@ function wp_cron_preload_cache() {
 
 	if ( $wp_cache_preload_posts == 'all' || $c < $wp_cache_preload_posts ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: doing taxonomy preload.", 5 );
-		$taxonomies = apply_filters( 'wp_cache_preload_taxonomies', array( 'post_tag' => 'tag', 'category' => 'category' ) );
-		$finished = false;
 		$permalink_counter_msg = $cache_path . "preload_permalink.txt";
-		foreach( $taxonomies as $taxonomy => $path ) {
-			$taxonomy_filename = $cache_path . "taxonomy_" . $taxonomy . ".txt";
-			if ( $c == 0 )
-				@unlink( $taxonomy_filename );
+		if ( isset( $wp_cache_preload_taxonomies ) && $wp_cache_preload_taxonomies ) {
+			$taxonomies = apply_filters( 'wp_cache_preload_taxonomies', array( 'post_tag' => 'tag', 'category' => 'category' ) );
+			foreach( $taxonomies as $taxonomy => $path ) {
+				$taxonomy_filename = $cache_path . "taxonomy_" . $taxonomy . ".txt";
+				if ( $c == 0 )
+					@unlink( $taxonomy_filename );
 
-			if ( false == @file_exists( $taxonomy_filename ) ) {
-				$out = '';
-				$records = get_terms( $taxonomy );
-				foreach( $records as $term ) {
-					$out .= site_url( $path . "/" . $term->slug . "/" ) . "\n";
-				}
-				$fp = fopen( $taxonomy_filename, 'w' );
-				if ( $fp ) {
-					fwrite( $fp, $out );
-					fclose( $fp );
-				}
-				$details = explode( "\n", $out );
-			} else {
-				$details = explode( "\n", file_get_contents( $taxonomy_filename ) );
-			}
-			if ( count( $details ) != 1 && $details[ 0 ] != '' ) {
-				$rows = array_splice( $details, 0, 50 );
-				if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume == 'many' )
-					wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), site_url(), $taxonomy, $c, ($c+100) ), 'Refreshing: ' . print_r( $rows, 1 ) );
-				foreach( (array)$rows as $url ) {
-					set_time_limit( 60 );
-					if ( $url == '' )
-						continue;
-					$url_info = parse_url( $url );
-					$dir = get_supercache_dir() . $url_info[ 'path' ];
-					if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: delete $dir", 5 );
-					prune_super_cache( $dir );
-					$fp = @fopen( $permalink_counter_msg, 'w' );
-					if ( $fp ) {
-						@fwrite( $fp, "$taxonomy: $url" );
-						@fclose( $fp );
+				if ( false == @file_exists( $taxonomy_filename ) ) {
+					$out = '';
+					$records = get_terms( $taxonomy );
+					foreach( $records as $term ) {
+						$out .= site_url( $path . "/" . $term->slug . "/" ) . "\n";
 					}
-					wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-					if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
-					sleep( 1 );
+					$fp = fopen( $taxonomy_filename, 'w' );
+					if ( $fp ) {
+						fwrite( $fp, $out );
+						fclose( $fp );
+					}
+					$details = explode( "\n", $out );
+				} else {
+					$details = explode( "\n", file_get_contents( $taxonomy_filename ) );
 				}
-				$fp = fopen( $taxonomy_filename, 'w' );
-				if ( $fp ) {
-					fwrite( $fp, implode( "\n", $details ) );
-					fclose( $fp );
+				if ( count( $details ) != 1 && $details[ 0 ] != '' ) {
+					$rows = array_splice( $details, 0, 50 );
+					if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume == 'many' )
+						wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d', 'wp-super-cache' ), site_url(), $taxonomy, $c, ($c+100) ), 'Refreshing: ' . print_r( $rows, 1 ) );
+					foreach( (array)$rows as $url ) {
+						set_time_limit( 60 );
+						if ( $url == '' )
+							continue;
+						$url_info = parse_url( $url );
+						$dir = get_supercache_dir() . $url_info[ 'path' ];
+						if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: delete $dir", 5 );
+						prune_super_cache( $dir );
+						$fp = @fopen( $permalink_counter_msg, 'w' );
+						if ( $fp ) {
+							@fwrite( $fp, "$taxonomy: $url" );
+							@fclose( $fp );
+						}
+						wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
+						if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
+						sleep( 1 );
+					}
+					$fp = fopen( $taxonomy_filename, 'w' );
+					if ( $fp ) {
+						fwrite( $fp, implode( "\n", $details ) );
+						fclose( $fp );
+					}
 				}
 			}
 		}
