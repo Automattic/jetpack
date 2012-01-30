@@ -622,7 +622,9 @@ jQuery(document).ready(function(){
 		wp_cache_replace_line('^ *\$wp_cache_slash_check', "\$wp_cache_slash_check = 0;", $wp_cache_config_file);
 	}
 	$home_path = parse_url( site_url() );
-	$home_path = trailingslashit( $home_path[ 'path' ] );
+	$home_path = trailingslashit( array_key_exists( 'path', $home_path ) ? $home_path[ 'path' ] : '' );
+	if (! isset( $wp_cache_home_path ) )
+		$wp_cache_home_path = '/'; 
 	if ( "$home_path" != "$wp_cache_home_path" )
 		wp_cache_replace_line('^ *\$wp_cache_home_path', "\$wp_cache_home_path = '$home_path';", $wp_cache_config_file);
 	
