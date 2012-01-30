@@ -1443,6 +1443,7 @@ function RecursiveFolderDelete ( $folderPath ) { // from http://www.php.net/manu
 function wp_cache_edit_max_time () {
 	global $cache_max_time, $wp_cache_config_file, $valid_nonce, $cache_enabled, $super_cache_enabled, $cache_schedule_type, $cache_scheduled_time, $cache_schedule_interval, $cache_time_interval, $cache_gc_email_me, $wp_cache_preload_on;
 
+	$timezone_format = _x('Y-m-d G:i:s', 'timezone date format');
 
 	if( !isset( $cache_schedule_type ) ) {
 		$cache_schedule_type = 'interval';
@@ -1485,7 +1486,7 @@ function wp_cache_edit_max_time () {
 		wp_schedule_single_event( time() + $cache_time_interval, 'wp_cache_gc' );
 		wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$cache_time_interval', "\$cache_time_interval = '$cache_time_interval';", $wp_cache_config_file);
-	} elseif ( $valid_nonce ) {
+	} elseif ( $valid_nonce ) { // clock
 		wp_clear_scheduled_hook( 'wp_cache_gc' );
 		$cache_schedule_type = 'time';
 		if ( $_POST[ 'cache_scheduled_time' ] == '' )
@@ -1503,10 +1504,16 @@ function wp_cache_edit_max_time () {
 	?><fieldset class="options"> 
 	<a name='expirytime'></a>
 	<h3><?php _e( 'Expiry Time &amp; Garbage Collection', 'wp-super-cache' ); ?></h3><?php
+
+	?><span id="utc-time"><?php printf(__('<abbr title="Coordinated Universal Time">UTC</abbr> time is <code>%s</code>'), date_i18n($timezone_format, false, 'gmt')); ?></span><?php
+	$current_offset = get_option('gmt_offset');
+	if ( get_option('timezone_string') || !empty($current_offset) ) {
+		?><span id="local-time"><?php printf(__('Local time is <code>%1$s</code>'), date_i18n($timezone_format)); ?></span><?php
+	}
 	$next_gc = wp_next_scheduled( 'wp_cache_gc' );
-	echo "<p>" . sprintf( __( 'Current server time is: %s', 'wp-super-cache' ), "<strong>" . date( 'Y-m-d H:i:s', time() ) . "</strong>" ) . "</p>";
 	if ( $next_gc )
-		echo "<p>" . sprintf( __( 'Next scheduled garbage collection will be at (YY-MM-DD H:M:S): %s', 'wp-super-cache' ), "<strong>" . date( 'Y-m-d H:i:s', $next_gc ) . "</strong>" ) . "</p>";
+		echo "<p>" . sprintf( __( 'Next scheduled garbage collection will be at <strong>%s UTC</strong>', 'wp-super-cache' ), date_i18n( $timezone_format, $next_gc, 'gmt' ) ) . "</p>";
+
 
 	if ( $wp_cache_preload_on )
 		echo "<p>" . __( 'Warning! <strong>PRELOAD MODE</strong> activated. Supercache files will not be deleted regardless of age.' ) . "</p>";
@@ -1532,7 +1539,7 @@ function wp_cache_edit_max_time () {
 	echo '<tr><td valign="top"><strong>' . __( 'Scheduler', 'wp-super-cache' ) . '</strong></td><td><table cellpadding=0 cellspacing=0><tr><td valign="top"><input type="radio" id="schedule_interval" name="cache_schedule_type" value="interval" ' . checked( 'interval', $cache_schedule_type, false ) . ' /></td><td valign="top"><label for="cache_interval_time">' . __( 'Timer:', 'wp-super-cache' ) . '</label></td>';
 	echo "<td><input type='text' id='cache_interval_time' size=6 name='cache_time_interval' value='$cache_time_interval' /> " . __( "seconds", 'wp-super-cache' ) . '<br />' . __( 'Check for stale cached files every <em>interval</em> seconds.', 'wp-super-cache' ) . "</td></tr>";
 	echo '<tr><td valign="top"><input type="radio" id="schedule_time" name="cache_schedule_type" value="time" ' . checked( 'time', $cache_schedule_type, false ) . ' /></td><td valign="top"><label for="schedule_time">' . __( 'Clock:', 'wp-super-cache' ) . '</label></td>';
-	echo "<td><input type=\"text\" size=5 id='cache_scheduled_time' name='cache_scheduled_time' value=\"$cache_scheduled_time\" /> " . __( "HH:MM", 'wp-super-cache' ) . "<br />" . __( 'Check for stale cached files at this time or starting at this time every <em>interval</em> below.', 'wp-super-cache' ) . "</td></tr>";
+	echo "<td><input type=\"text\" size=5 id='cache_scheduled_time' name='cache_scheduled_time' value=\"$cache_scheduled_time\" /> " . __( "HH:MM", 'wp-super-cache' ) . "<br />" . __( 'Check for stale cached files at this time <strong>(UTC)</strong> or starting at this time every <em>interval</em> below.', 'wp-super-cache' ) . "</td></tr>";
 	$schedules = wp_get_schedules();
 	echo "<tr><td><br /></td><td><label for='cache_scheduled_select'>" . __( 'Interval:', 'wp-super-cache' ) . "</label></td><td><select id='cache_scheduled_select' name='cache_schedule_interval' size=1>";
 	foreach( $schedules as $desc => $details ) {
