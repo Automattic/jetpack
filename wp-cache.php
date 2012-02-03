@@ -1056,6 +1056,7 @@ jQuery(document).ready(function(){
 			<li><?php printf( __( 'The <a href="%1$s">CDN Sync Tool</a> plugin will help upload files to Amazon S3/Cloudfront if you would rather not depend on origin pull. See the <a href="%2$s">plugin support forum</a> if you have any queries about this plugin.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/cdn-sync-tool/', 'http://wordpress.org/tags/cdn-sync-tool?forum_id=10' ); ?></li>
 			<li><?php printf( __( '<strong>Advanced users only:</strong> <a href="%s">Speed up your site with Caching and cache-control</a> explains how to make your site more cacheable with .htaccess rules.', 'wp-super-cache' ), 'http://www.askapache.com/htaccess/speed-up-your-site-with-caching-and-cache-control.html' ); ?></li>
 			<li><?php printf( __( '<strong>Advanced users only:</strong> Install an object cache. Choose from <a href="%s">Memcached</a>, <a href="%s">XCache</a>, <a href="%s">eAcccelerator</a> and others.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/memcached/', 'http://neosmart.net/dl.php?id=12', 'http://neosmart.net/dl.php?id=13' ); ?></li>
+			<li><?php printf( __( '<a href="%s">Cron View</a> is a useful plugin to use when trying to debug garbage collection and preload problems.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/cron-view/' ); ?></li>
 			</ol>
 			
 			<?php
