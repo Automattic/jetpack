@@ -479,7 +479,37 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	}
 
 	if ( $post_id != 0 ) {
-		$uri = str_replace( site_url(), '', get_permalink( $post_id ) );
+		$site_url = site_url();
+		$permalink = get_permalink( $post_id );
+		if ( false === strpos( $permalink, $site_url ) ) {
+			/*
+			 * Sometimes site_url doesn't return the siteurl. See http://wordpress.org/support/topic/wp-super-cache-not-refreshing-post-after-comments-made
+			*/
+			$DONOTREMEMBER = 1;
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "get_current_url_supercache_dir: warning! site_url ($site_url) not found in permalink ($permalink).", 1 );
+			if ( false === strpos( $permalink, $_SERVER[ 'SERVER_NAME' ] ) ) {
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "get_current_url_supercache_dir: WARNING! SERVER_NAME ({$_SERVER[ 'SERVER_NAME' ]}) not found in permalink ($permalink). ", 1 );
+				$p = parse_url( $permalink );
+				if ( is_array( $p ) ) {
+					$uri = $p[ 'path' ];
+					if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "get_current_url_supercache_dir: WARNING! Using $uri as permalink. Used parse_url.", 1 );
+				} else {
+					if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "get_current_url_supercache_dir: WARNING! Permalink ($permalink) could not be understood by parse_url. Using front page.", 1 );
+					$uri = '';
+				}
+			} else {
+				if ( isset( $_SERVER[ 'HTTPS' ] ) )
+					$protocol = ( 'on' == strtolower( $_SERVER[ 'HTTPS' ] ) ) ? 'https://' : 'http://';
+				else
+					$protocol = 'http://';
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "get_current_url_supercache_dir: Removing SERVER_NAME ({$_SERVER[ 'SERVER_NAME' ]}) and $protocol from permalink ($permalink). Is the url right?", 1 );
+				$uri = str_replace( $_SERVER[ 'SERVER_NAME' ], '', $permalink );
+				$uri = str_replace( $protocol, '', $uri );
+			}
+		} else {
+			$DONOTREMEMBER = 0;
+			$uri = str_replace( $site_url, '', $permalink );
+		}
 	} else {
 		$uri = strtolower( $wp_cache_request_uri );
 	}
@@ -497,7 +527,8 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	}
 	$dir = str_replace( '//', '/', $dir );
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "supercache dir: $dir", 5 );
-	$saved_supercache_dir[ $post_id ] = $dir;
+	if ( $DONOTREMEMBER == 0 )
+		$saved_supercache_dir[ $post_id ] = $dir;
 	return $dir;
 }
 
