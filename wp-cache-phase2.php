@@ -976,7 +976,7 @@ function wp_cache_post_edit($post_id) {
 }
 
 function wp_cache_post_id_gc( $siteurl, $post_id, $all = 'all' ) {
-	global $cache_path, $wp_cache_object_cache;
+	global $cache_path, $wp_cache_object_cache, $wp_cache_refresh_single_only;
 	
 	if ( $wp_cache_object_cache )
 		reset_oc_version();
@@ -1020,7 +1020,7 @@ function wp_cache_post_change( $post_id ) {
 	if( !wp_cache_writers_entry() )
 		return $post_id;
 
-	if ( isset( $wp_cache_refresh_single_only ) && $wp_cache_refresh_single_only && strpos( $_SERVER[ 'REQUEST_URI' ], 'wp-comments-post.php' ) ) {
+	if ( isset( $wp_cache_refresh_single_only ) && $wp_cache_refresh_single_only && ( strpos( $_SERVER[ 'HTTP_REFERER' ], 'edit-comments.php' ) || strpos( $_SERVER[ 'REQUEST_URI' ], 'wp-comments-post.php' ) ) ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_change: comment detected. only deleting post page.", 4 );
 		$all = false;
 	} else {
