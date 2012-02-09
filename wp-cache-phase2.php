@@ -997,11 +997,11 @@ function wp_cache_post_id_gc( $siteurl, $post_id, $all = 'all' ) {
 		prune_super_cache( $dir, true, true ); 
 		do_action( 'gc_cache', 'prune', $permalink );
 	}
-	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cache in {$dir}page/.", 4 );
-	prune_super_cache( $dir . 'page/', true );
+	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cache in {$dir}/page/.", 4 );
+	prune_super_cache( $dir . '/page/', true );
 	$supercache_home = get_supercache_dir();
-	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cache in {$supercache_home}page/.", 4 );
-	prune_super_cache( $supercache_home . 'page/', true );
+	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_id_gc clearing cache in {$supercache_home}/page/.", 4 );
+	prune_super_cache( $supercache_home . '/page/', true );
 	do_action( 'gc_cache', 'prune', '/page/' );
 }
 
