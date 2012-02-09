@@ -10,6 +10,9 @@ if( !include( WP_CONTENT_DIR . '/wp-cache-config.php' ) )
 if( !defined( 'WPCACHEHOME' ) )
 	define('WPCACHEHOME', dirname(__FILE__).'/');
 
+if ( false == isset( $_SERVER[ 'SERVER_NAME' ] ) && true == isset( $_SERVER[ 'HTTP_HOST' ] ) )
+	$_SERVER[ 'SERVER_NAME' ] = $_SERVER[ 'HTTP_HOST' ];
+
 include( WPCACHEHOME . 'wp-cache-base.php');
 
 if( $blogcacheid != '' ) {
