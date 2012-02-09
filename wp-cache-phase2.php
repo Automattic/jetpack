@@ -5,11 +5,6 @@ function wp_cache_phase2() {
 	global $cache_max_time, $wp_cache_request_uri, $super_cache_enabled, $wp_cache_object_cache, $cache_time_interval, $wp_cache_no_cache_for_get;
 	global $cache_enabled, $wp_cache_gmt_offset, $wp_cache_blog_charset, $cache_schedule_type, $cache_scheduled_time, $cache_schedule_interval;
 
-	if ( $wp_cache_no_cache_for_get && false == empty( $_GET ) && false == defined( 'DOING_CRON' ) ) {
-		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Non empty GET request. Caching disabled on settings page.", 1 );
-		return false;
-	}
-
 	if ( $cache_enabled == false ) {
 		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Caching disabled! quiting!", 1 );
 		return false;
@@ -45,6 +40,11 @@ function wp_cache_phase2() {
 		add_filter( 'supercache_filename_str', 'wp_cache_check_mobile' );
 
 		do_cacheaction( 'add_cacheaction' );
+	}
+
+	if ( $wp_cache_no_cache_for_get && false == empty( $_GET ) && false == defined( 'DOING_CRON' ) ) {
+		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Non empty GET request. Caching disabled on settings page.", 1 );
+		return false;
 	}
 
 	if ( is_admin() ) {
