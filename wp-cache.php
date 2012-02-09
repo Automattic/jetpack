@@ -1951,7 +1951,7 @@ function wp_cache_verify_config_file() {
 		$new = true;
 	}
 	if( $sem_id == 5419 && $cache_path != '' ) {
-		$sem_id = crc32( $_SERVER[ 'HTTP_HOST' ] . $cache_path ) & 0x7fffffff;
+		$sem_id = crc32( $_SERVER[ 'SERVER_NAME' ] . $cache_path ) & 0x7fffffff;
 		wp_cache_replace_line('sem_id', '$sem_id = ' . $sem_id . ';', $wp_cache_config_file);
 	}
 	require($wp_cache_config_file);
@@ -2680,24 +2680,24 @@ function wpsc_get_htaccess_info() {
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{HTTPS} on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root_lc}$1/index-https.html.gz -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root_lc}$1/index-https.html.gz\" [L]\n\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{SERVER_NAME}{$home_root_lc}$1/index-https.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{SERVER_NAME}{$home_root_lc}$1/index-https.html.gz\" [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTP:Accept-Encoding} gzip\n";
 	$rules .= "RewriteCond %{HTTPS} !on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root_lc}$1/index.html.gz -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root_lc}$1/index.html.gz\" [L]\n\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{SERVER_NAME}{$home_root_lc}$1/index.html.gz -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{SERVER_NAME}{$home_root_lc}$1/index.html.gz\" [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTPS} on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root_lc}$1/index-https.html -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root_lc}$1/index-https.html\" [L]\n\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{SERVER_NAME}{$home_root_lc}$1/index-https.html -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{SERVER_NAME}{$home_root_lc}$1/index-https.html\" [L]\n\n";
 
 	$rules .= "CONDITION_RULES";
 	$rules .= "RewriteCond %{HTTPS} !on\n";
-	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root_lc}$1/index.html -f\n";
-	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{HTTP_HOST}{$home_root_lc}$1/index.html\" [L]\n";
+	$rules .= "RewriteCond {$apache_root}{$inst_root}cache/supercache/%{SERVER_NAME}{$home_root_lc}$1/index.html -f\n";
+	$rules .= "RewriteRule ^(.*) \"{$inst_root}cache/supercache/%{SERVER_NAME}{$home_root_lc}$1/index.html\" [L]\n";
 	$rules .= "</IfModule>\n";
 	$rules = apply_filters( 'supercacherewriterules', $rules );
 
@@ -2857,7 +2857,7 @@ function wp_cron_preload_cache() {
 			$count++;
 		}
 		if ( $wp_cache_preload_email_me && $wp_cache_preload_email_volume != 'less' )
-			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), $_SERVER[ 'HTTP_HOST' ], ($c+100) ), __( "Refreshed the following posts:", 'wp-super-cache' ) . "\n$msg" );
+			wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] %2$d posts refreshed', 'wp-super-cache' ), $_SERVER[ 'SERVER_NAME' ], ($c+100) ), __( "Refreshed the following posts:", 'wp-super-cache' ) . "\n$msg" );
 		if ( defined( 'DOING_CRON' ) ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cron_preload_cache: scheduling the next preload in 30 seconds.", 5 );
 			wp_schedule_single_event( time() + 30, 'wp_cache_preload_hook' );

@@ -15,7 +15,7 @@ $blogcacheid = '';
 if( defined( 'WP_ALLOW_MULTISITE' ) ) {
 	$blogcacheid = 'blog'; // main blog
 	if( defined( 'SUBDOMAIN_INSTALL' ) && constant( 'SUBDOMAIN_INSTALL' ) == true ) {
-		$blogcacheid = $_SERVER['HTTP_HOST'];
+		$blogcacheid = $_SERVER['SERVER_NAME'];
 	} else {
 		$request_uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '..', '', $_SERVER['REQUEST_URI'] ) );
 		if( strpos( $request_uri, '/', 1 ) ) {

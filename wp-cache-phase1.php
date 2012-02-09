@@ -95,7 +95,7 @@ function get_wp_cache_key( $url = false ) {
 	global $wp_cache_request_uri, $wp_cache_gzip_encoding;
 	if ( !$url )
 		$url = $wp_cache_request_uri;
-	return do_cacheaction( 'wp_cache_key', $_SERVER['HTTP_HOST'] . intval( $_SERVER[ 'SERVER_PORT' ] ) . preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() );
+	return do_cacheaction( 'wp_cache_key', $_SERVER['SERVER_NAME'] . intval( $_SERVER[ 'SERVER_PORT' ] ) . preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() );
 }
 
 function wp_super_cache_init() {
@@ -485,7 +485,7 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	}
 	$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $uri ) ) ) );
 	$uri = str_replace( '\\', '', $uri );
-	$dir = preg_replace( '/:.*$/', '',  $_SERVER["HTTP_HOST"] ) . $uri; // To avoid XSS attacks
+	$dir = preg_replace( '/:.*$/', '',  $_SERVER["SERVER_NAME"] ) . $uri; // To avoid XSS attacks
 	if ( function_exists( "apply_filters" ) ) {
 		$dir = apply_filters( 'supercache_dir', $dir );
 	} else {
@@ -567,7 +567,7 @@ function get_oc_key( $url = false ) {
 	global $wp_cache_gzip_encoding;
 
 	if ( $url ) {
-		$key = intval( $_SERVER[ 'SERVER_PORT' ] ) . strtolower( preg_replace( '/:.*$/', '',  $_SERVER[ "HTTP_HOST" ] ) ) . $url;
+		$key = intval( $_SERVER[ 'SERVER_PORT' ] ) . strtolower( preg_replace( '/:.*$/', '',  $_SERVER[ "SERVER_NAME" ] ) ) . $url;
 	} else {
 		$key = get_current_url_supercache_dir();
 	}
