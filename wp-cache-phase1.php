@@ -58,7 +58,7 @@ function gzip_accepted(){
 	if ( 1 == ini_get( 'zlib.output_compression' ) || "on" == strtolower( ini_get( 'zlib.output_compression' ) ) ) // don't compress WP-Cache data files when PHP is already doing it
 		return false;
 
-	if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') === false) return false;
+	if ( isset( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] ) && strpos( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ], 'gzip' ) === false ) return false;
 	return 'gzip';
 }
 
@@ -263,7 +263,7 @@ function wp_cache_serve_cache_file() {
 			die();
 		}
 	} else {
-		if ( $meta[ 'dynamic' ] ) {
+		if ( isset( $meta[ 'dynamic' ] ) ) {
 			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Serving wp-cache dynamic file", 5 );
 			if ( $ungzip ) {
 				$cache = file_get_contents( $cache_file );
@@ -418,7 +418,7 @@ function wp_cache_check_mobile( $cache_key ) {
 			}
 		}
 	}
-	$accept = strtolower($_SERVER['HTTP_ACCEPT']);
+	$accept = isset( $_SERVER[ 'HTTP_ACCEPT' ] ) ? strtolower( $_SERVER[ 'HTTP_ACCEPT' ] ) : '';
 	if (strpos($accept, 'wap') !== false) {
 		return $cache_key . '-' . 'wap';
 	}
@@ -478,6 +478,7 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 		return $saved_supercache_dir[ $post_id ];
 	}
 
+	$DONOTREMEMBER = 0;
 	if ( $post_id != 0 ) {
 		$site_url = site_url();
 		$permalink = get_permalink( $post_id );
@@ -507,7 +508,6 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 				$uri = str_replace( $protocol, '', $uri );
 			}
 		} else {
-			$DONOTREMEMBER = 0;
 			$uri = str_replace( $site_url, '', $permalink );
 		}
 	} else {
@@ -564,7 +564,7 @@ function get_all_supercache_filenames( $dir = '' ) {
 
 function supercache_filename() {
 	//Add support for https and http caching
-	$is_https = ('on' ==  strtolower($_SERVER['HTTPS'])  || 'https' == strtolower($_SERVER['HTTP_X_FORWARDED_PROTO'])); //Also supports https requests coming from an nginx reverse proxy
+	$is_https = ( ( isset( $_SERVER[ 'HTTPS' ] ) && 'on' ==  strtolower( $_SERVER[ 'HTTPS' ] ) ) || ( isset( $_SERVER[ 'HTTP_X_FORWARDED_PROTO' ] ) && 'https' == strtolower( $_SERVER[ 'HTTP_X_FORWARDED_PROTO' ] ) ) ); //Also supports https requests coming from an nginx reverse proxy
 	$extra_str = $is_https ? '-https' : '';
 
 	if ( function_exists( "apply_filters" ) ) {

@@ -601,7 +601,7 @@ function wp_cache_get_ob(&$buffer) {
 				$added_cache = 1;
 			}
 		}
-		if( $php_fd ) {
+		if ( isset( $php_fd ) ) {
 			fclose( $php_fd );
 			if ( $php_fname == $supercachedir . $home_url[ 'path' ] . supercache_filename() . '.php' && !( $wp_cache_is_home ) ) {
 				wp_cache_writers_exit();
