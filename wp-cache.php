@@ -3009,6 +3009,7 @@ function supercache_admin_bar_render() {
 				'parent' => '',
 				'id' => 'delete-cache',
 				'title' => __( 'Delete Cache', 'wp-super-cache' ),
+				'meta' => array( 'title' => __( 'Delete cache of the current page', 'wp-super-cache' ) ),
 				'href' => wp_nonce_url( admin_url( 'options-general.php?page=wpsupercache&action=delete&path=' . urlencode( $_SERVER[ 'REQUEST_URI' ] ) ), 'delete-cache' )
 				) );
 }
