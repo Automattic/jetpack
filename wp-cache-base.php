@@ -12,7 +12,7 @@ if (!class_exists('CacheMeta')) {
 
 // We want to be able to identify each blog in a WordPress MU install
 $blogcacheid = '';
-if( defined( 'WP_ALLOW_MULTISITE' ) ) {
+if ( defined( 'VHOST' ) || defined( 'WP_ALLOW_MULTISITE' ) ) {
 	$blogcacheid = 'blog'; // main blog
 	if( defined( 'SUBDOMAIN_INSTALL' ) && constant( 'SUBDOMAIN_INSTALL' ) == true ) {
 		$blogcacheid = $_SERVER['SERVER_NAME'];
