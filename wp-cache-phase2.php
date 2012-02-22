@@ -1054,7 +1054,6 @@ function wp_cache_post_change( $post_id ) {
 			}
 			do_action( 'gc_cache', 'prune', 'homepage' );
 		}
-		wp_cache_post_id_gc( $siteurl, $post_id );
 		if( $all == true && get_option( 'show_on_front' ) == 'page' ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: deleting page_on_front and page_for_posts pages.", 4 );
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Post change: page_on_front " . get_option( 'page_on_front' ), 4 );
