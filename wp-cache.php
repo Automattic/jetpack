@@ -1040,7 +1040,7 @@ jQuery(document).ready(function(){
 			wp_nonce_field('wp-cache');
 			echo "</form>\n";
 
-			if ( ( defined( 'VHOST' ) || defined( 'WP_ALLOW_MULTISITE' ) ) && wpsupercache_site_admin() ) {
+			if ( ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && wpsupercache_site_admin() ) {
 				echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 				echo '<input type="hidden" name="wp_delete_all_cache" />';
 				echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . ' &raquo;" />';
@@ -2298,7 +2298,7 @@ function wp_cache_delete_buttons() {
 	echo '<div class="submit" style="float:left;margin-left:10px"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . ' &raquo;" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
-	if ( ( defined( 'VHOST' ) || defined( 'WP_ALLOW_MULTISITE' ) ) && wpsupercache_site_admin() ) {
+	if ( ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && wpsupercache_site_admin() ) {
 		echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 		echo '<input type="hidden" name="wp_delete_all_cache" />';
 		echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . ' &raquo;" />';
@@ -2383,7 +2383,7 @@ function wp_cache_clean_legacy_files( $dir, $file_prefix ) {
 		while ( false !== ($file = readdir($handle))) {
 			if ( preg_match( "/^$file_prefix/", $file ) ) {
 				$meta = unserialize( file_get_contents( $dir . 'meta/' . $file ) );
-				if ( ( defined( 'VHOST' ) || defined( 'WP_ALLOW_MULTISITE' ) ) && $meta[ 'blog_id' ] != $wpdb->blogid )
+				if ( ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && $meta[ 'blog_id' ] != $wpdb->blogid )
 					continue;
 				@unlink( $dir . 'meta/' . $file);
 				@unlink( $dir .  str_replace( '.meta', '.html', $file ) );
