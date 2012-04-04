@@ -23,11 +23,14 @@ function AtD_submit_check( e ) {
 
 /* This is the callback function that runs after the publish/update button is pressed */
 function AtD_submit_check_callback(count) {
-
 	AtD_unbind_proofreader_listeners();
-	
-	if (count == 0 || AtD_proofread_click_count > 1) {
+
+	if ( 0 == count || 1 < AtD_proofread_click_count ) {
 		/* if no errors were found, submit form */
+		AtD_update_post();
+	} else if ( -1 == count ) {
+		/* If there was an error, alert the user and submit form */
+		alert( AtD.getLang('message_server_error', 'There was a problem communicating with the Proofreading service. Try again in one minute.') );
 		AtD_update_post();
 	} else {
 		var original_post_status = jQuery('#original_post_status').val()
@@ -73,8 +76,8 @@ function AtD_update_post() {
 function atd_auto_proofread_init() {
         var original_post_status = jQuery('#original_post_status').val();
 
-        /* check if auto-check is enabled */
-        if ( typeof AtD_check_when != 'undefined' && ((original_post_status != 'publish' && AtD_check_when.onpublish) || ((original_post_status == 'publish' || original_post_status == 'schedule') && AtD_check_when.onupdate)))
+        /* check if auto-check is enabled && if #content exists */
+        if ( typeof AtD_check_when != 'undefined' && ((original_post_status != 'publish' && AtD_check_when.onpublish) || ((original_post_status == 'publish' || original_post_status == 'schedule') && AtD_check_when.onupdate)) && jQuery('#content').length != 0 )
                 jQuery('#publish').click( AtD_submit_check );
 }
         

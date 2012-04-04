@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.2.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2011-12-05 21:56:55+0000\n"
+"PO-Revision-Date: 2012-04-04 22:11:51+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -29,10 +29,10 @@ msgid "The most super duper sharing tool on the interwebs. Share content with Fa
 msgstr "A super ferramenta de compartilhamento! Compartilhe conteúdo com Facebook, Twitter e muitos mais."
 
 msgid "Mark up your posts with the <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
-msgstr "Marque seus posts com <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> linguagem de marcação, perfeito para equações matemáticas complexas e outras  &#252; nerdices."
+msgstr "Marque seus posts com <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> linguagem de marcação, perfeito para equações matemáticas complexas e outras nerdices."
 
 msgid "Share your public posts and comments to search engines and other services in real-time."
-msgstr "Compartilhe seus posts e comentários públicos para os motores de busca e outros serviços, em tempo real."
+msgstr "Compartilhe seus posts e comentários públicos para os mecanismos de pesquisa e outros serviços, em tempo real."
 
 msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
 msgstr "Melhore a ortografia, o estilo e a gramática com o serviço de Revisão <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a>."
@@ -41,7 +41,7 @@ msgid "http://jetpack.me"
 msgstr "http://jetpack.me"
 
 msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
-msgstr "Permitir que os usuários assinem seus posts e comentários para receberem uma notificação via email."
+msgstr "Permita que os usuários assinem seus posts e comentários para receberem uma notificação via email."
 
 msgid "Realtime backup and security scanning for your WordPress site."
 msgstr "Backup em tempo real e segurança de digitalizada para seu site WordPress."
@@ -1688,7 +1688,7 @@ msgstr "Nesta página, você será  capaz de ver os módulos disponíveis dentro
 
 #: jetpack.php:1128 jetpack.php:1641
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
-msgstr "Jetpack aprimora seu WordPress auot-hospedado com o poder da super nuvem do WordPress.com."
+msgstr "Jetpack turbina seu WordPress em servidor próprio com o poder da nuvem WordPress.com."
 
 #: jetpack.php:1065 jetpack.php:1081
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."

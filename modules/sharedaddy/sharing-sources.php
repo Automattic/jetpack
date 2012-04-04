@@ -893,7 +893,7 @@ class Share_GooglePlus1 extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		return '<div class="googleplus1_button"><g:plusone size="small" callback="sharing_plusone" href="' . esc_attr( get_permalink( $post->ID ) ) . '"></g:plusone></div>';
+		return '<div class="googleplus1_button"><div class="g-plusone" data-size="medium" data-callback="sharing_plusone" data-href="' . esc_attr( get_permalink( $post->ID ) ) . '"></div></div>';
 	}		
 	
 	public function display_preview() {

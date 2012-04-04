@@ -6,4 +6,4 @@
  * First Introduced: 1.2
  */
 
-add_filter( 'jetpack_firehose_toggle', '__return_true' );
+// Stub

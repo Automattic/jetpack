@@ -89,7 +89,7 @@
              return editor.getLang("AtD." + key, defaultk);
          };
 
-         core.setIgnoreStrings(editor.getParam("atd_ignore_strings", ""));
+         core.setIgnoreStrings(editor.getParam("atd_ignore_strings", [] ).join(','));
          core.showTypes(editor.getParam("atd_show_types", ""));
          return core;
       },
@@ -137,16 +137,22 @@
                plugin.editor.setProgressState(0);
 
                /* if the server is not accepting requests, let the user know */
-               if (request.status != 200 || request.responseText.substr(1, 4) == 'html')
+               if ( request.status != 200 || request.responseText.substr(1, 4) == 'html' || !request.responseXML )
                {
-                  ed.windowManager.alert( plugin.editor.getLang('AtD.message_server_error', 'There was a problem communicating with the Proofreading service. Try again in one minute.') );
+                  ed.windowManager.alert(
+                     plugin.editor.getLang('AtD.message_server_error', 'There was a problem communicating with the Proofreading service. Try again in one minute.'),
+                     callback ? function() { callback( 0 ); } : function() {}
+                  );
                   return;
                }
 
                /* check to see if things are broken first and foremost */
                if (request.responseXML.getElementsByTagName('message').item(0) != null)
                {
-                  ed.windowManager.alert(request.responseXML.getElementsByTagName('message').item(0).firstChild.data);
+                  ed.windowManager.alert(
+                     request.responseXML.getElementsByTagName('message').item(0).firstChild.data,
+                     callback ? function() { callback( 0 ); } : function() {}
+                  );
                   return;
                }
 

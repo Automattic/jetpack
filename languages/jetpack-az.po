@@ -1,8 +1,8 @@
-# Translation of 1.2.1 in Italian
+# Translation of 1.2.1 in Azerbaijani
 # This file is distributed under the same license as the 1.2.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-04-04 22:11:47+0000\n"
+"PO-Revision-Date: 2012-04-04 22:11:37+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -38,7 +38,7 @@ msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.a
 msgstr ""
 
 msgid "http://jetpack.me"
-msgstr "http://jetpack.me"
+msgstr ""
 
 msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
 msgstr ""
@@ -62,53 +62,53 @@ msgstr ""
 
 #: modules/widgets/twitter-widget.php:224
 msgid "Hide replies"
-msgstr "Nascondi risposte"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:213
 msgid "Maximum number of tweets to show:"
-msgstr "Numero massimo di tweet da mostrare:"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:210
 msgid "Twitter username:"
-msgstr "Username Twitter:"
+msgstr ""
 
 msgid "Automattic"
-msgstr "Automattic"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:231
 msgid "Text to display between tweet and timestamp:"
 msgstr ""
 
 msgid "http://wordpress.org/extend/plugins/jetpack/"
-msgstr "http://wordpress.org/extend/plugins/jetpack/"
+msgstr ""
 
 #: modules/vaultpress.php:22
 msgid "Active"
-msgstr "Attivo"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:229
 msgid "Include retweets"
-msgstr "Includi retweet"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:79
 msgid "Twitter Updates"
-msgstr "Aggiornamenti Twitter"
+msgstr ""
 
 #: modules/widgets/image-widget.php:142
 msgid "Height:"
-msgstr "Altezza:"
+msgstr ""
 
 #: modules/widgets/image-widget.php:129
 msgid "Image Alignment:"
-msgstr "Allineamento immagine:"
+msgstr ""
 
 #: modules/widgets/image-widget.php:125
 msgid "Left"
-msgstr "Sinistra"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:69
 msgid "Display your tweets from Twitter"
-msgstr "Mostra i tuoi tweets da Twitter"
+msgstr ""
 
 #: modules/widgets/image-widget.php:145
 msgid "If empty, we will attempt to determine the image size."
@@ -116,39 +116,39 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:139
 msgid "Width:"
-msgstr "Larghezza:"
+msgstr ""
 
 #: modules/widgets/image-widget.php:127
 msgid "Right"
-msgstr "Destra"
+msgstr ""
 
 #: modules/widgets/image-widget.php:126
 msgid "Center"
-msgstr "Centro"
+msgstr ""
 
 #: modules/widgets/image-widget.php:124
 msgid "None"
-msgstr "Nessuno"
+msgstr ""
 
 #: modules/widgets/image-widget.php:119
 msgid "Caption:"
-msgstr "Didascalia:"
+msgstr ""
 
 #: modules/widgets/image-widget.php:146
 msgid "Link URL (when the image is clicked):"
-msgstr "URL link (quando l'immagine è cliccata):"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:70
 msgid "Twitter (Jetpack)"
-msgstr "Twitter (Jetpack)"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:116
 msgid "Blue"
-msgstr "Blu"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:115
 msgid "Green"
-msgstr "Verde"
+msgstr ""
 
 #: modules/widgets/image-widget.php:113
 msgid "Alternate text:"
@@ -156,7 +156,7 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:116
 msgid "Image title:"
-msgstr "Titolo immagine:"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:140
 msgid "Subscribe to %s"
@@ -168,7 +168,7 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:119
 msgid "Silver"
-msgstr "Argento"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:118
 msgid "Pink"
@@ -212,23 +212,23 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:82
 msgid "Image Link"
-msgstr "Link immagine"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:81
 msgid "Text Link"
-msgstr "Link testo"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:71
 msgid "Feed(s) to Display:"
-msgstr "Feed da mostrare:"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:114
 msgid "Orange"
-msgstr "Arancione"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
-msgstr "Articoli & Commenti"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:83
 msgid "Text & Image Links"
@@ -236,21 +236,21 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:96
 msgid "Image Settings:"
-msgstr "Impostazioni immagine:"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:85
 msgid "Format:"
-msgstr "Formato:"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:62
 #: modules/widgets/twitter-widget.php:207
 msgid "Title:"
-msgstr "Titolo:"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
 msgid "Posts"
-msgstr "Articoli"
+msgstr ""
 
 #: modules/subscriptions.php:567
 msgid "Optional text to display to your readers:"
@@ -258,15 +258,15 @@ msgstr ""
 
 #: modules/subscriptions.php:553
 msgid "%s: %s"
-msgstr "%s: %s"
+msgstr ""
 
 #: modules/subscriptions.php:561 modules/widgets/image-widget.php:107
 msgid "Widget title:"
-msgstr "Titolo widget:"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:13
 msgid "RSS Links (Jetpack)"
-msgstr "Link RSS (Jetpack)"
+msgstr ""
 
 #: modules/subscriptions.php:537
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
@@ -399,11 +399,11 @@ msgstr ""
 
 #: modules/stats.php:644
 msgid "week"
-msgstr "settimana"
+msgstr ""
 
 #: modules/stats.php:506
 msgid "Save configuration"
-msgstr "Salva configurazione"
+msgstr ""
 
 #: modules/stats.php:541
 msgid "Views over 48 hours. Click for more Site Stats."
@@ -411,7 +411,7 @@ msgstr ""
 
 #: modules/stats.php:645
 msgid "month"
-msgstr "mese"
+msgstr ""
 
 #: modules/stats.php:648
 msgid "the past day"
@@ -423,7 +423,7 @@ msgstr ""
 
 #: modules/stats.php:643
 msgid "day"
-msgstr "giorno"
+msgstr ""
 
 #: modules/stats.php:492
 msgid "Hide the stats smiley face image."
@@ -443,7 +443,7 @@ msgstr ""
 
 #: modules/stats.php:304
 msgid "Loading&hellip;"
-msgstr "Caricamento&hellip;"
+msgstr ""
 
 #: modules/stats.php:218 modules/stats.php:622
 msgid "Site Stats"
@@ -657,7 +657,7 @@ msgstr ""
 
 #: modules/module-info.php:221 modules/module-info.php:236
 msgid "LaTeX"
-msgstr "LaTeX"
+msgstr ""
 
 #: modules/module-info.php:187 modules/module-info.php:191
 #: modules/module-info.php:200 modules/module-info.php:204
@@ -778,16 +778,16 @@ msgstr ""
 
 #: modules/shortcodes/videopress.php:912
 msgid "Submit"
-msgstr "Invia"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:915
 msgid "More information"
-msgstr "Maggiori informazioni"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:1115
 #: modules/shortcodes/videopress.php:1137
 msgid "this video"
-msgstr "questo video"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:1144
 msgctxt "Play as in playback or view a movie"
@@ -800,27 +800,27 @@ msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "July"
-msgstr "Luglio"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "August"
-msgstr "Agosto"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "June"
-msgstr "Giugno"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "September"
-msgstr "Settembre"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "October"
-msgstr "Ottobre"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "May"
-msgstr "Maggio"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:860
 msgid "This video is intended for mature audiences."
@@ -828,15 +828,15 @@ msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "January"
-msgstr "Gennaio"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "February"
-msgstr "Febbraio"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "March"
-msgstr "Marzo"
+msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "April"
@@ -888,11 +888,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1037
 msgid "Icon"
-msgstr "Icona"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1032
 msgid "URL"
-msgstr "URL"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:801
 msgid "Like button"
@@ -908,7 +908,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:846
 msgid "Print"
-msgstr "Stampa"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:884
 msgctxt "share to"
@@ -922,24 +922,24 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:850
 msgctxt "share to"
 msgid "Print"
-msgstr "Stampa"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:714
 msgid "Facebook"
-msgstr "Facebook"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:744
 msgid "Share"
-msgstr "Condividi"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:777
 msgctxt "share to"
 msgid "Facebook"
-msgstr "Facebook"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:777
 msgid "Share on Facebook"
-msgstr "Condividi su Facebook"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:799
 msgid "Default button"
@@ -992,19 +992,19 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:429
 #: modules/sharedaddy/sharing-sources.php:436
 msgid "Reddit"
-msgstr "Reddit"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:436
 msgid "Click to share on Reddit"
-msgstr "Clicca per condividere su Reddit"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:363
 msgid "Click to share on StumbleUpon"
-msgstr "Clicca per condividere su StumbleUpon"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:193
 msgid "Click to email this to a friend"
-msgstr "Clicca per inviarlo via email ad un amico"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:234
 msgid "Email check failed, please try again"
@@ -1012,11 +1012,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:264
 msgid "Click to share on Twitter"
-msgstr "Clicca per condividere su Twitter"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:215
 msgid "Your Name"
-msgstr "Tuo Nome"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:207
 msgid "Send to Email Address"
@@ -1024,11 +1024,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:257
 msgid "Twitter"
-msgstr "Twitter"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:227
 msgid "Cancel"
-msgstr "Annulla"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:238
 msgid "Sorry, your blog cannot share posts by email."
@@ -1040,12 +1040,12 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:226
 msgid "Send Email"
-msgstr "Invia Email"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:264
 msgctxt "share to"
 msgid "Twitter"
-msgstr "Twitter"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:230
 msgid "Post was not sent - check your email addresses!"
@@ -1102,7 +1102,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:350
 msgid "Save Changes"
-msgstr "Salva cambiamenti"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:221
 msgid "Sharing is off. Please add services above to enable"
@@ -1110,19 +1110,19 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:308
 msgid "Text only"
-msgstr "Solo testo"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:322
 msgid "New window"
-msgstr "Nuova finestra"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:218
 msgid "Live Preview"
-msgstr "Anteprima"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:306
 msgid "Icon + text"
-msgstr "Icona + testo"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:328
 msgid "Show sharing buttons on"
@@ -1138,11 +1138,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:307
 msgid "Icon only"
-msgstr "Solo icona"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:323
 msgid "Same window"
-msgstr "Stessa finestra"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:303
 msgid "Default button style"
@@ -1184,15 +1184,15 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:164
 msgid "Available Services"
-msgstr "Servizi disponibili"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:186
 msgid "Enabled Services"
-msgstr "Servizi abilitati"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:166
 msgid "Add a new service"
-msgstr "Aggiungi un nuovo servizio"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:148
 msgid "Warning! Multibyte support missing!"
@@ -1309,7 +1309,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:95
 msgid "Language"
-msgstr "Lingua"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:78
 msgid "Diacritical Marks"
@@ -1369,7 +1369,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:121
 msgid "Add"
-msgstr "Aggiungi"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:69
 msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
@@ -1397,7 +1397,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:67
 msgid "English Options"
-msgstr "Opzioni Inglese"
+msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:117
 msgid "Ignored Phrases"
@@ -1413,31 +1413,31 @@ msgstr ""
 
 #: jetpack.php:1857
 msgid "New"
-msgstr "Nuovo"
+msgstr ""
 
 #: jetpack.php:1849
 msgid "Purchase"
-msgstr "Acquista"
+msgstr ""
 
 #: jetpack.php:1723 modules/sharedaddy/sharedaddy.php:65
 msgid "Support"
-msgstr "Supporto"
+msgstr ""
 
 #: jetpack.php:1889
 msgid "Configure"
-msgstr "Configura"
+msgstr ""
 
 #: jetpack.php:1769
 msgid "Configure %s"
-msgstr "Configura %s"
+msgstr ""
 
 #: jetpack.php:1816
 msgid "Deactivate"
-msgstr "Disattiva"
+msgstr ""
 
 #: jetpack.php:1860
 msgid "Updated"
-msgstr "Aggiorna"
+msgstr ""
 
 #: jetpack.php:2720
 msgid "An administrator for this blog must set up the Jetpack connection."
@@ -1450,7 +1450,7 @@ msgstr ""
 
 #: jetpack.php:1826
 msgid "Activate"
-msgstr "Attiva"
+msgstr ""
 
 #: jetpack.php:1849
 msgid "Free"
@@ -1524,11 +1524,11 @@ msgstr ""
 
 #: jetpack.php:1635
 msgid "Disconnect from WordPress.com"
-msgstr "Disconnesso da WordPress.com"
+msgstr ""
 
 #: jetpack.php:1634
 msgid "Connected to WordPress.com"
-msgstr "Connesso con WordPress.com"
+msgstr ""
 
 #: jetpack.php:1478
 msgid "Jetpack contains the most recent version of the old %l plugin."
@@ -1640,12 +1640,12 @@ msgstr ""
 
 #: jetpack.php:1202 jetpack.php:1653
 msgid "Connect to WordPress.com"
-msgstr "Connetti a WordPress.com"
+msgstr ""
 
 #: jetpack.php:1184 modules/sharedaddy/sharedaddy.php:57
 #: modules/sharedaddy/sharedaddy.php:64
 msgid "Settings"
-msgstr "Impostazioni"
+msgstr ""
 
 #: jetpack.php:1201
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features."
@@ -1700,8 +1700,8 @@ msgstr ""
 
 #: jetpack.php:1130
 msgid "Jetpack Module Options"
-msgstr "Opzioni moduli Jetpack"
+msgstr ""
 
 #: jetpack.php:1132
 msgid "For more information:"
-msgstr "Per maggiori informazioni:"
+msgstr ""

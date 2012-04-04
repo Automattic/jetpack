@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.2.2
+ * Version: 1.2.3-RC1
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -17,7 +17,7 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.1' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
-define( 'JETPACK__VERSION', '1.2.2' );
+define( 'JETPACK__VERSION', '1.2.3-RC1' );
 
 /*
 Options:
@@ -385,6 +385,27 @@ class Jetpack {
 		}
 
 		return $comment;
+	}
+	
+	function get_taxonomy( $id, $columns = true, $type ) {
+		$taxonomy_obj = get_term_by( 'slug', $id, $type );
+
+		if ( !$taxonomy_obj )
+			return false;
+		$taxonomy = get_object_vars( $taxonomy_obj );
+
+		// Only send specific columns if requested
+		if ( is_array( $columns ) ) {
+			$keys = array_keys( $taxonomy );
+			foreach ( $keys as $column ) {
+				if ( !in_array( $column, $columns ) ) {
+					unset( $taxonomy[$column] );
+				}
+			}
+		}
+		
+		$taxonomy['type'] = $type;
+		return $taxonomy;	
 	}
 
 	/**
@@ -1124,11 +1145,14 @@ p {
 
 		$hook = add_menu_page( 'Jetpack', $title, 'manage_options', 'jetpack', array( &$this, 'admin_page' ), '' );
 
-		if ( isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
-			add_contextual_help( $hook, $this->jetpack_help() );
-		}
-
 		add_action( "load-$hook", array( &$this, 'admin_page_load' ) );
+		if ( version_compare( $GLOBALS['wp_version'], '3.3', '<' ) ) {
+			if ( isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
+				add_contextual_help( $hook, $this->jetpack_help() );
+			}
+		} else {
+			add_action( "load-$hook", array( &$this, 'admin_help' ) );
+		}
 		add_action( "admin_head-$hook", array( &$this, 'admin_head' ) );
 		add_filter( 'custom_menu_order', array( &$this, 'admin_menu_order' ) );
 		add_filter( 'menu_order', array( &$this, 'jetpack_menu_order' ) );
@@ -1141,6 +1165,11 @@ p {
 		do_action( 'jetpack_admin_menu' );
 	}
 
+	/**
+	 * Add help to the Jetpack page
+	 *
+	 * Deprecated.  Remove when Jetpack requires WP 3.3+
+	 */
 	function jetpack_help() {
 		return
 			'<p><strong>' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</strong></p>' .
@@ -1149,8 +1178,50 @@ p {
 			'<p><strong>' . __( 'Jetpack Module Options', 'jetpack' ) . '</strong></p>' .
 			'<p>' . __( '<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button.', 'jetpack' ) . '</p>' .
 			'<p><strong>' . __( 'For more information:', 'jetpack' ) . '</strong></p>' .
-			'<p><a href="http://jetpack.me/faq/">' . __( 'Jetpack FAQ', 'jetpack' ) . '</a></p>' .
-			'<p><a href="http://jetpack.me/support/">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>';
+			'<p><a href="http://jetpack.me/faq/" target="_blank">'     . __( 'Jetpack FAQ',     'jetpack' ) . '</a></p>' .
+			'<p><a href="http://jetpack.me/support/" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>';
+	}
+
+	/**
+	 * Add help to the Jetpack page
+	 *
+	 * @since Jetpack (1.2.3)
+	 * @return false if not the Jetpack page
+	 */
+	function admin_help() {
+		$current_screen = get_current_screen();
+
+		// Overview
+		$current_screen->add_help_tab( array(
+			'id'		=> 'overview',
+			'title'		=> __( 'Overview', 'jetpack' ),
+			'content'	=>
+				'<p><strong>' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</strong></p>' .
+				'<p>' . __( 'Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.', 'jetpack' ) . '</p>' .
+				'<p>' . __( 'On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed.', 'jetpack' ) . '</p>'
+		) );
+
+		// Screen Content
+		$current_screen->add_help_tab( array(
+			'id'		=> 'modules',
+			'title'		=> __( 'Modules', 'jetpack' ),
+			'content'	=>
+				'<p><strong>' . __( 'Jetpack by WordPress.com',                                              'jetpack' ) . '</strong></p>' .
+				'<p>' . __( 'You can activate or deactivate individual Jetpack modules to suit your needs.', 'jetpack' ) . '</p>' .
+				'<ol>' .
+					'<li>' . __( 'Find the component you want to manage',                            'jetpack' ) . '</li>' .
+					'<li>' . __( 'Click on Learn More',                                              'jetpack' ) . '</li>' .
+					'<li>' . __( 'An Activate or Deactivate button will appear',                     'jetpack' ) . '</li>' .
+					'<li>' . __( 'If additional settings are available, a link to them will appear', 'jetpack' ) . '</li>' .
+				'</ol>'
+		) );
+
+		// Help Sidebar
+		$current_screen->set_help_sidebar(
+			'<p><strong>' . __( 'For more information:', 'jetpack' ) . '</strong></p>' .
+			'<p><a href="http://jetpack.me/faq/" target="_blank">'     . __( 'Jetpack FAQ',     'jetpack' ) . '</a></p>' .
+			'<p><a href="http://jetpack.me/support/" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>'
+		);
 	}
 
 	function admin_menu_css() { ?>
@@ -2259,12 +2330,15 @@ p {
 		// This should always have gone through Jetpack_Signature::sign_request() first to check $timestamp an $nonce
 
 		// Raw query so we can avoid races: add_option will also update
-		return $wpdb->query( $wpdb->prepare(
+		$show_errors = $wpdb->show_errors( false );
+		$return = $wpdb->query( $wpdb->prepare(
 			"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
 			"jetpack_nonce_{$timestamp}_{$nonce}",
 			time(),
 			'no'
 		) );
+		$wpdb->show_errors( $show_errors );
+		return $return;
 	}
 
 	/**
@@ -2355,11 +2429,14 @@ p {
 	 * Helper method for multicall XMLRPC.
 	 */
 	function xmlrpc_async_call() {
-		static $client = array();
+		global $blog_id;
+		static $clients = array();
 
-		if ( !$client ) {
+		$client_blog_id = is_multisite() ? $blog_id : 0;
+
+		if ( !isset( $clients[$client_blog_id] ) ) {
 			Jetpack::load_xml_rpc_client();
-			$client[0] =& new Jetpack_IXR_ClientMulticall( array(
+			$clients[$client_blog_id] =& new Jetpack_IXR_ClientMulticall( array(
 				'user_id' => get_current_user_id()
 			) );
 			ignore_user_abort( true );
@@ -2367,11 +2444,30 @@ p {
 		}
 
 		$args = func_get_args();
+
 		if ( !empty( $args[0] ) ) {
-			call_user_func_array( array( &$client[0], 'addCall' ), $args );
-		} elseif ( !empty( $client[0]->calls ) ) {
-			flush();
-			$client[0]->query();
+			call_user_func_array( array( &$clients[$client_blog_id], 'addCall' ), $args );
+		} elseif ( is_multisite() ) {
+			foreach ( $clients as $client_blog_id => $client ) {
+				if ( !$client_blog_id || empty( $client->calls ) ) {
+					continue;
+				}
+
+				$switch_success = switch_to_blog( $client_blog_id, true );
+				if ( !$switch_success ) {
+					continue;
+				}
+
+				flush();
+				$client->query();
+
+				restore_current_blog();
+			}
+		} else {
+			if ( isset( $clients[0] ) && !empty( $clients[0]->calls ) ) {
+				flush();
+				$clients[0]->query();
+			}
 		}
 	}
 
@@ -2386,7 +2482,6 @@ p {
 
 		return preg_replace( '|://[^/]+?/|', "://s$static_counter.wp.com/", $url );
 	}
-
 }
 
 class Jetpack_Client {
@@ -2893,9 +2988,15 @@ class Jetpack_Sync {
 		global $wpdb;
 		$jetpack = Jetpack::init();
 
-		$sync_data = array(
-			'firehose' => apply_filters( 'jetpack_firehose_toggle', false ),
-		);
+		$available_modules = Jetpack::get_available_modules();
+		$active_modules = Jetpack::get_active_modules();
+		$modules = array();
+		foreach ( $available_modules as $available_module ) {
+			$modules[$available_module] = in_array( $available_module, $active_modules );
+		}
+		$modules['vaultpress'] = class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' );
+
+		$sync_data = compact( 'modules' );
 
 		if ( count( $this->sync ) ) {
 			foreach ( $this->sync as $obj => $data ) {
@@ -2936,6 +3037,30 @@ class Jetpack_Sync {
 						$sync_data['delete_comment'][$comment] = true;
 					}
 					break;
+			
+				case 'tag':
+					foreach ( $data as $taxonomy => $columns ) {
+						$sync_data['tag'][$taxonomy] = $jetpack->get_taxonomy( $taxonomy, $columns, 'post_tag' );
+					}
+					break;
+					
+				case 'delete_tag':
+					foreach ( $data as $taxonomy => $columns ) {
+						$sync_data['delete_tag'][$taxonomy] = $columns;
+					}
+					break;
+
+				case 'category':
+					foreach ( $data as $taxonomy => $columns ) {
+						$sync_data['category'][$taxonomy] = $jetpack->get_taxonomy( $taxonomy, $columns, 'category' );
+					}
+					break;
+					
+				case 'delete_category':
+					foreach ( $data as $taxonomy => $columns ) {
+						$sync_data['delete_category'][$taxonomy] = $columns;
+					}
+					break;
 				}
 			}
 
@@ -2943,6 +3068,29 @@ class Jetpack_Sync {
 		}
 	}
 
+	function taxonomy( $slug, $fields = true, $type ) {
+		if ( !get_term_by( 'slug', $slug, $type ) ) {
+			return false;
+		}
+		
+		if ( 'post_tag' == $type )
+			return $this->register( 'tag', $slug, $fields );
+		else
+			return $this->register( 'category', $slug, $fields );
+	}
+
+	/**
+	 * Request that a post be deleted remotely
+	 *
+	 * @param int $id The post_ID
+	 */
+	function delete_taxonomy( $slugs, $type ) {
+		if ( 'post_tag' == $type )
+			return $this->register( 'delete_tag', 1, $slugs );
+		else
+			return $this->register( 'delete_category', 1, $slugs );
+	}
+	
 	/**
 	 * Helper method for easily requesting a sync of a post.
 	 *

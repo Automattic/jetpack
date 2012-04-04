@@ -54,25 +54,30 @@ function AtD_display_unignore_form() {
 	if ( ! $user || $user->ID == 0 )
 		return;
 
-	$ignores = AtD_get_setting( $user->ID, 'AtD_ignored_phrases', true );
+	$ignores = AtD_get_setting( $user->ID, 'AtD_ignored_phrases' );
 ?>
 <script>
 function atd_show_phrases( ignored )
 {
-	var element = jQuery( '#atd_ignores' ).get( 0 );
-	var items   = new Array();
+	var element = jQuery( '#atd_ignores' ),
+	    items   = [],
+	    delLink;
 
 	ignored.sort();
 
+	element.empty();
 	for ( var i = 0; i < ignored.length; i++ ) {
-		if ( ignored[i].length > 0 )
-			items.push( '<span id="atd_' + i + '"><a class="ntdelbutton" href="javascript:atd_unignore(\'' + encodeURIComponent( ignored[i].replace("'", "\\'") ) + '\')">X</a>&nbsp;' + ignored[i] + '</span>' );
+		if ( ignored[i].length > 0 ) {
+			delLink = jQuery( '<span id="atd_' + i + '">&nbsp;</span>' );
+			delLink
+				.text( delLink.text() + ignored[i] )
+				.prepend( jQuery( '<a class="ntdelbutton">X</a>' ).data( 'ignored', ignored[i] ) );
+			element.append( delLink ).append( '<br />' );
+		}
 	}
-
-	element.innerHTML = items.length >= 1 ? items.join("<br>") : ''; 
 }
 
-function atd_unignore( phrase, eid ) {
+function atd_unignore( phrase ) {
 	/* get the ignored values and remove the unwanted phrase */
 	var ignored = jQuery( '#AtD_ignored_phrases' ).val().split( /,/g );
         ignored = jQuery.map(ignored, function(value, index) { return value == phrase ? null : value; });
@@ -103,6 +108,10 @@ function atd_ignore () {
 
 function atd_ignore_init() {
 	jQuery( '#AtD_message' ).hide();
+	jQuery( '#atd_ignores' ).delegate( 'a', 'click', function() {
+		atd_unignore( jQuery(this).data( 'ignored' ) );
+		return false;
+	} );
 	atd_show_phrases( jQuery( '#AtD_ignored_phrases' ).val().split( /,/g ) );
 }
 

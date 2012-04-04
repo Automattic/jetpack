@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.2.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2011-12-05 21:56:58+0000\n"
+"PO-Revision-Date: 2012-04-04 22:11:55+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -38,7 +38,7 @@ msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.a
 msgstr ""
 
 msgid "http://jetpack.me"
-msgstr ""
+msgstr "http://jetpack.me"
 
 msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
 msgstr ""
@@ -160,7 +160,7 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:140
 msgid "Subscribe to %s"
-msgstr ""
+msgstr "Prenumerera på %s"
 
 #: modules/widgets/rsslinks-widget.php:121
 msgid "Image Color:"
@@ -204,7 +204,7 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:103
 msgid "Image Size:"
-msgstr ""
+msgstr "Bildstorlek:"
 
 #: modules/widgets/rsslinks-widget.php:101
 msgid "Large"
@@ -228,7 +228,7 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
-msgstr ""
+msgstr "Inlägg & kommentarer"
 
 #: modules/widgets/rsslinks-widget.php:83
 msgid "Text & Image Links"
@@ -236,16 +236,16 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:96
 msgid "Image Settings:"
-msgstr ""
+msgstr "Bildinställningar:"
 
 #: modules/widgets/rsslinks-widget.php:85
 msgid "Format:"
-msgstr ""
+msgstr "Format:"
 
 #: modules/widgets/rsslinks-widget.php:62
 #: modules/widgets/twitter-widget.php:207
 msgid "Title:"
-msgstr ""
+msgstr "Titel:"
 
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
@@ -293,7 +293,7 @@ msgstr ""
 #: modules/widgets/rsslinks-widget.php:68
 #: modules/widgets/rsslinks-widget.php:136
 msgid "Comments"
-msgstr ""
+msgstr "Kommentarer"
 
 #: modules/gravatar-hovercards.php:83
 msgid "Put your mouse over your Gravatar to check out your profile."
@@ -403,7 +403,7 @@ msgstr ""
 
 #: modules/stats.php:506
 msgid "Save configuration"
-msgstr ""
+msgstr "Spara konfiguration"
 
 #: modules/stats.php:541
 msgid "Views over 48 hours. Click for more Site Stats."
@@ -475,7 +475,7 @@ msgstr ""
 
 #: modules/stats.php:489
 msgid "Registered users"
-msgstr ""
+msgstr "Registrerade användare"
 
 #: modules/stats.php:490
 msgid "Count the page views of registered users who are logged in."
@@ -657,7 +657,7 @@ msgstr ""
 
 #: modules/module-info.php:221 modules/module-info.php:236
 msgid "LaTeX"
-msgstr ""
+msgstr "LaTeX"
 
 #: modules/module-info.php:187 modules/module-info.php:191
 #: modules/module-info.php:200 modules/module-info.php:204

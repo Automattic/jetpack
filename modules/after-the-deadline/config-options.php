@@ -15,15 +15,6 @@ function AtD_print_option( $name, $value, $options ) {
 }
 
 /*
- *  Print a message saying AtD s not available due to the language settings
- */
-function AtD_process_not_supported() {
-?>
-   <p><?php printf( __( 'WordPress checks your grammar, spelling, and misused words with <a href="%s">After the Deadline</a> Proofreading service. This feature is available to blogs set to the English language. Blogs in other languages will continue to have access to the old spellchecker.', 'jetpack' ), 'http://www.afterthedeadline.com' ); ?></p>
-<?php
-}
-
-/*
  *  Save AtD options
  */
 function AtD_process_options_update() {
@@ -94,7 +85,11 @@ function AtD_display_options_form() {
 
    <p style="font-weight: bold"><?php _e( 'Language', 'jetpack' ); ?></font>
 
-   <p><?php printf( __( 'The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href="%s">WPLANG</a> value is the default proofreading language.', 'jetpack' ), 'http://codex.wordpress.org/Installing_WordPress_in_Your_Language' ); ?></p>
+   <p><?php printf(
+	_x( 'The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href="%1$s">%2%s</a> value is the default proofreading language.', '%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG', 'jetpack' ),
+	'http://codex.wordpress.org/Installing_WordPress_in_Your_Language',
+	'WPLANG'
+   ); ?></p>
 
    <p><?php
 	AtD_print_option( 'true', __('Use automatically detected language to proofread posts and pages', 'jetpack' ), $options_guess_lang );

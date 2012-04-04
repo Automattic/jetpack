@@ -25,6 +25,8 @@ include( 'after-the-deadline/config-options.php' );
 include( 'after-the-deadline/config-unignore.php' );
 include( 'after-the-deadline/proxy.php' );
 
+define('ATD_VERSION', '20120221');
+
 /**
  * Update a user's After the Deadline Setting
  */
@@ -40,7 +42,7 @@ function AtD_get_setting( $user_id, $name, $single = true ) {
 }
 
 /*
- * Display the AtD configuration options (or not supported if the language id is not English [1])
+ * Display the AtD configuration options
  */
 function AtD_config() {
 	AtD_display_options_form();
@@ -51,12 +53,11 @@ function AtD_config() {
  *  Code to update the toolbar with the AtD Button and Install the AtD TinyMCE Plugin
  */
 function AtD_addbuttons() {
-
 	/* Don't bother doing this stuff if the current user lacks permissions */
-	if ( ! current_user_can( 'edit_posts' ) && ! current_user_can( 'edit_pages' ) )
+	if ( ! AtD_is_allowed() )
 		return;
    
-	/* Add only in Rich Editor mode w/ Blog language ID set to English */
+	/* Add only in Rich Editor mode */
 	if ( get_user_option( 'rich_editing' ) == 'true' ) {
 		add_filter( 'mce_external_plugins', 'add_AtD_tinymce_plugin' );
 		add_filter( 'mce_buttons', 'register_AtD_button' );
@@ -81,7 +82,7 @@ function register_AtD_button( $buttons ) {
 	}
 
 	/* hrm... ok add us last plz */
-	array_push( $buttons, 'separator', 'AtD' );
+	array_push( $buttons, '|', 'AtD' );
 	return $buttons;
 }
  
@@ -89,7 +90,7 @@ function register_AtD_button( $buttons ) {
  * Load the TinyMCE plugin : editor_plugin.js (wp2.5) 
  */
 function add_AtD_tinymce_plugin( $plugin_array ) {
-	$plugin_array['AtD'] = plugins_url( '/after-the-deadline/tinymce/editor_plugin.js', __FILE__ );
+	$plugin_array['AtD'] = plugins_url( 'after-the-deadline/tinymce/editor_plugin.js?v=' . ATD_VERSION, __FILE__ );
 	return $plugin_array;
 }
 
@@ -97,18 +98,18 @@ function add_AtD_tinymce_plugin( $plugin_array ) {
  * Update the TinyMCE init block with AtD specific settings
  */
 function AtD_change_mce_settings( $init_array ) {
-        /* grab our user and validate their existence */
-        $user = wp_get_current_user();
-        if ( ! $user || $user->ID == 0 )
-                return;
+	if ( ! AtD_is_allowed() )
+		return $init_array;
 
-	$init_array['atd_rpc_url']        = admin_url() . 'admin-ajax.php?action=proxy_atd&url=';
-	$init_array['atd_ignore_rpc_url'] = admin_url() . 'admin-ajax.php?action=atd_ignore&phrase=';
+	$user = wp_get_current_user();
+
+	$init_array['atd_rpc_url']        = admin_url( 'admin-ajax.php?action=proxy_atd&url=' );
+	$init_array['atd_ignore_rpc_url'] = admin_url( 'admin-ajax.php?action=atd_ignore&phrase=' );
 	$init_array['atd_rpc_id']         = 'WPORG-' . md5(get_bloginfo('wpurl'));
 	$init_array['atd_theme']          = 'wordpress';
 	$init_array['atd_ignore_enable']  = 'true';
 	$init_array['atd_strip_on_get']   = 'true';
-	$init_array['atd_ignore_strings'] = str_replace( '"', '', AtD_get_setting( $user->ID, 'AtD_ignored_phrases' ) );
+	$init_array['atd_ignore_strings'] = json_encode( explode( ',',  AtD_get_setting( $user->ID, 'AtD_ignored_phrases' ) ) );
 	$init_array['atd_show_types']     = AtD_get_setting( $user->ID, 'AtD_options' );
 	$init_array['gecko_spellcheck']   = 'false';
 
@@ -125,39 +126,36 @@ function AtD_sanitize( $untrusted ) {
 /* 
  * AtD HTML Editor Stuff 
  */
-
 function AtD_settings() {
         $user = wp_get_current_user();
 
         header( 'Content-Type: text/javascript' );
 
-        /* set the RPC URL for AtD */
-	echo "AtD.rpc = '" . admin_url() . "admin-ajax.php?action=proxy_atd&url=';\n";
+	/* set the RPC URL for AtD */
+	echo "AtD.rpc = " . json_encode( esc_url_raw( admin_url( 'admin-ajax.php?action=proxy_atd&url=' ) ) ) . ";\n";
 
-        /* set the API key for AtD */
-        echo "AtD.api_key = 'WPORG-" . md5(get_bloginfo('wpurl')) . "';\n";
+	/* set the API key for AtD */
+	echo "AtD.api_key = " . json_encode( 'WPORG-' . md5( get_bloginfo( 'wpurl' ) ) ) . ";\n";
 
         /* set the ignored phrases for AtD */
-        echo "AtD.setIgnoreStrings('" . str_replace( "'", "\\'", AtD_get_setting( $user->ID, 'AtD_ignored_phrases' ) ) . "');\n";
+	echo "AtD.setIgnoreStrings(" . json_encode( AtD_get_setting( $user->ID, 'AtD_ignored_phrases' ) ) . ");\n";
 
         /* honor the types we want to show */
-        echo "AtD.showTypes('" . str_replace( "'", "\\'", AtD_get_setting( $user->ID, 'AtD_options' ) ) ."');\n";
+        echo "AtD.showTypes(" . json_encode( AtD_get_setting( $user->ID, 'AtD_options' ) ) .");\n";
 
         /* this is not an AtD/jQuery setting but I'm putting it in AtD to make it easy for the non-viz plugin to find it */
-	echo "AtD.rpc_ignore = '" . admin_url() . "admin-ajax.php?action=atd_ignore&phrase=';\n";
+	echo "AtD.rpc_ignore = " . json_encode( esc_url_raw( admin_url( 'admin-ajax.php?action=atd_ignore&phrase=' ) ) ) . ";\n";
 
         die;
 }
 
 function AtD_load_javascripts() {
-        global $pagenow;
-        
 	if ( AtD_should_load_on_page() ) {
-		wp_enqueue_script( 'AtD_core', plugins_url( '/after-the-deadline/atd.core.js', __FILE__ ), array(), '20110906' );
-	        wp_enqueue_script( 'AtD_quicktags', plugins_url( '/after-the-deadline/atd-nonvis-editor-plugin.js', __FILE__ ), array('quicktags'), '20110906' );
-        	wp_enqueue_script( 'AtD_jquery', plugins_url( '/after-the-deadline/jquery.atd.js', __FILE__ ), array('jquery'), '20110906' );
-        	wp_enqueue_script( 'AtD_settings', admin_url() . 'admin-ajax.php?action=atd_settings', array('AtD_jquery'), '20110906' );
-		wp_enqueue_script( 'AtD_autoproofread', plugins_url( '/after-the-deadline/atd-autoproofread.js', __FILE__ ), array('AtD_jquery'), '20110906' );
+		wp_enqueue_script( 'AtD_core', plugins_url( '/after-the-deadline/atd.core.js', __FILE__ ), array(), ATD_VERSION );
+	        wp_enqueue_script( 'AtD_quicktags', plugins_url( '/after-the-deadline/atd-nonvis-editor-plugin.js', __FILE__ ), array('quicktags'), ATD_VERSION );
+        	wp_enqueue_script( 'AtD_jquery', plugins_url( '/after-the-deadline/jquery.atd.js', __FILE__ ), array('jquery'), ATD_VERSION );
+        	wp_enqueue_script( 'AtD_settings', admin_url() . 'admin-ajax.php?action=atd_settings', array('AtD_jquery'), ATD_VERSION );
+		wp_enqueue_script( 'AtD_autoproofread', plugins_url( '/after-the-deadline/atd-autoproofread.js', __FILE__ ), array('AtD_jquery'), ATD_VERSION );
 	}		
 }
 
@@ -170,21 +168,24 @@ function AtD_load_submit_check_javascripts() {
 		return;
 	
 	if ( AtD_should_load_on_page() ) {
-		$atd_check_when = AtD_get_setting( $user->ID, 'AtD_check_when', true );
+		$atd_check_when = AtD_get_setting( $user->ID, 'AtD_check_when' );
 		
 		if ( !empty( $atd_check_when ) ) {
-			$check_when = '';
+			$check_when = array();
 			/* Set up the options in json */
 			foreach( explode( ',', $atd_check_when ) as $option ) {
-				$check_when .= ( $check_when ? ', ' : '' ) . $option . ': true';
+				$check_when[$option] = true;
 			}
 			echo '<script type="text/javascript">' . "\n";
-			echo 'AtD_check_when = { ' . $check_when . ' };' . "\n";
+			echo 'AtD_check_when = ' . json_encode( (object) $check_when ) . ";\n";
 			echo '</script>' . "\n";
 		}
 	}
 }
 
+/*
+ * Check if a user is allowed to use AtD
+ */
 function AtD_is_allowed() {
         $user = wp_get_current_user();
         if ( ! $user || $user->ID == 0 )
@@ -198,7 +199,7 @@ function AtD_is_allowed() {
 
 function AtD_load_css() {
 	if ( AtD_should_load_on_page() )
-	        wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/atd.css', __FILE__ ), null, '1.0', 'screen' );
+	        wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/atd.css', __FILE__ ), null, ATD_VERSION, 'screen' );
 }
 
 /* Helper used to check if javascript should be added to page. Helps avoid bloat in admin */
@@ -214,14 +215,13 @@ function AtD_should_load_on_page() {
 		return true;
 	}
 
-	return false;
+	return apply_filters( 'atd_load_scripts', false );
 }
 
 // add button to DFW
 add_filter( 'wp_fullscreen_buttons', 'AtD_fullscreen' );
 function AtD_fullscreen($buttons) {
 	$buttons['spellchecker'] = array( 'title' => __( 'Proofread Writing', 'jetpack' ), 'onclick' => "tinyMCE.execCommand('mceWritingImprovementTool');", 'both' => false );
-
 	return $buttons;
 }
 

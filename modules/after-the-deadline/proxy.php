@@ -9,23 +9,30 @@
  */
 function AtD_http_post( $request, $host, $path, $port = 80 ) {
 	$http_args = array(
-		'body'			=> $request,
-		'headers'		=> array(
-			'Content-Type'	=> 'application/x-www-form-urlencoded; ' .
-								'charset=' . get_option( 'blog_charset' ),
-			'Host'			=> $host,
-			'User-Agent'	=> 'AtD/0.1'
+		'body'                 => $request,
+		'headers'              => array(
+			'Content-Type' => 'application/x-www-form-urlencoded; charset=' . get_option( 'blog_charset' ),
+			'Host'         => $host,
+			'User-Agent'   => 'AtD/0.1'
 		),
-		'httpversion'	=> '1.0',
-		'timeout'		=> 15
+		'httpversion'          => '1.0',
+		'timeout'              => apply_filters( 'atd_http_post_timeout', 15 ),
 	);
 	$AtD_url = "http://{$host}{$path}";
 	$response = wp_remote_post( $AtD_url, $http_args );
+	$code = (int) wp_remote_retrieve_response_code( $response );
 	
-	if ( is_wp_error( $response ) )
+	if ( is_wp_error( $response ) ) {
+		do_action( 'atd_http_post_error', 'http-error' );
 		return array();
+	} elseif ( 200 != $code ) {
+		do_action( 'atd_http_post_error', $code );
+	}
 	
-	return array( $response['headers'], $response['body'] );
+	return array(
+		wp_remote_retrieve_headers( $response ), 
+		wp_remote_retrieve_body( $response ),
+	);
 }
 
 /* 
@@ -37,7 +44,7 @@ function AtD_redirect_call() {
 
         $url = $_GET['url'];
 
-	$service = 'service.afterthedeadline.com';
+	$service = apply_filters( 'atd_service_domain', 'service.afterthedeadline.com' );
 	if ( defined('WPLANG') ) {
 		if ( strpos(WPLANG, 'pt') !== false )
 			$service = 'pt.service.afterthedeadline.com';

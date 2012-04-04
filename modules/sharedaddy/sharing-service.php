@@ -413,6 +413,10 @@ function sharing_process_requests() {
 function sharing_display( $text = '' ) {
 	global $post, $wp_current_filter;
 
+	if ( is_preview() ) {
+		return $text;
+	}
+
 	if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
 		return $text;
 	}

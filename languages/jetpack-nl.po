@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.2.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2011-12-05 21:56:46+0000\n"
+"PO-Revision-Date: 2012-04-04 22:11:42+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,491 +11,491 @@ msgstr ""
 "Project-Id-Version: 1.2.1\n"
 
 msgid "Simple, concise site stats with no additional load on your server."
-msgstr ""
+msgstr "Eenvoudige, beknopte website statistieken zonder extra belasting van je server"
 
 msgid "Beautiful Math"
-msgstr ""
+msgstr "Beautiful Math"
 
 msgid "Show a pop-up business card of your users' gravatar profiles in comments."
-msgstr ""
+msgstr "Toon een pop-up visitekaart van je gebruikers Gravatar-profiel bij de reacties."
 
 msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
-msgstr ""
+msgstr "Activeer WP.me korte links op al je berichten en pagina's voor gemakkelijker delen."
 
 msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
-msgstr ""
+msgstr "Sluit eenvoudig video's en meer in van sites als YouTube, Vimeo en SlideShare"
 
 msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
-msgstr ""
+msgstr "De handigste tool voor delen op het interwebs. Deel content met Facebook, Twitter en veel meer"
 
 msgid "Mark up your posts with the <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
 msgstr ""
 
 msgid "Share your public posts and comments to search engines and other services in real-time."
-msgstr ""
+msgstr "Je publieke berichten en reacties delen aan zoekmachines en andere services in real-time"
 
 msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
 msgstr ""
 
 msgid "http://jetpack.me"
-msgstr ""
+msgstr "http://jetpack.me"
 
 msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
-msgstr ""
+msgstr "Toestaan dat gebruikers zich inschrijven om een melding te ontvangen via email op je berichten en reacties."
 
 msgid "Realtime backup and security scanning for your WordPress site."
-msgstr ""
+msgstr "Realtime backup en security scanning voor jouw WordPress site."
 
 msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
-msgstr ""
+msgstr "Makkelijk afbeeldingen, Twitter updates en RSS links van je website plaatsen op je thema sidebar."
 
 #: modules/widgets/twitter-widget.php:168
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr ""
+msgstr "Fout: Twitter reageert niet. Wacht enkele minuten en ververs de pagina dan nogmaals."
 
 #: modules/widgets/twitter-widget.php:166
 msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
-msgstr ""
+msgstr "Fout: Weet je zeker dat de Twitter account <a href=\"%s\">publiek</a> is?"
 
 msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
-msgstr ""
+msgstr "Breng de kracht van de WordPress.com cloud naar je zelfgehoste WordPress. Jetpack maakt het mogelijk je blog te verbinden met een WordPress.com account om de krachtige mogelijkheden te gebruiken die normaal enkel beschikbaar zijn voor WordPress.com gebruikers."
 
 #: modules/widgets/twitter-widget.php:224
 msgid "Hide replies"
-msgstr ""
+msgstr "Reacties verbergen"
 
 #: modules/widgets/twitter-widget.php:213
 msgid "Maximum number of tweets to show:"
-msgstr ""
+msgstr "Maximaal te tonen tweets:"
 
 #: modules/widgets/twitter-widget.php:210
 msgid "Twitter username:"
-msgstr ""
+msgstr "Twitter gebruikersnaam:"
 
 msgid "Automattic"
-msgstr ""
+msgstr "Automattic"
 
 #: modules/widgets/twitter-widget.php:231
 msgid "Text to display between tweet and timestamp:"
-msgstr ""
+msgstr "Te tonen tekst tussen tweet en tijdsaanduiding:"
 
 msgid "http://wordpress.org/extend/plugins/jetpack/"
-msgstr ""
+msgstr "http://wordpress.org/extend/plugins/jetpack/"
 
 #: modules/vaultpress.php:22
 msgid "Active"
-msgstr ""
+msgstr "Actief"
 
 #: modules/widgets/twitter-widget.php:229
 msgid "Include retweets"
-msgstr ""
+msgstr "Inclusief retweets"
 
 #: modules/widgets/twitter-widget.php:79
 msgid "Twitter Updates"
-msgstr ""
+msgstr "Twitter Updates"
 
 #: modules/widgets/image-widget.php:142
 msgid "Height:"
-msgstr ""
+msgstr "Hoogte:"
 
 #: modules/widgets/image-widget.php:129
 msgid "Image Alignment:"
-msgstr ""
+msgstr "Uitlijning afbeelding:"
 
 #: modules/widgets/image-widget.php:125
 msgid "Left"
-msgstr ""
+msgstr "Links"
 
 #: modules/widgets/twitter-widget.php:69
 msgid "Display your tweets from Twitter"
-msgstr ""
+msgstr "Toon je tweets van Twitter"
 
 #: modules/widgets/image-widget.php:145
 msgid "If empty, we will attempt to determine the image size."
-msgstr ""
+msgstr "Indien leeg, zal de afbeeldingsgrootte automatisch bepaald worden."
 
 #: modules/widgets/image-widget.php:139
 msgid "Width:"
-msgstr ""
+msgstr "Breedte:"
 
 #: modules/widgets/image-widget.php:127
 msgid "Right"
-msgstr ""
+msgstr "Rechts"
 
 #: modules/widgets/image-widget.php:126
 msgid "Center"
-msgstr ""
+msgstr "Midden"
 
 #: modules/widgets/image-widget.php:124
 msgid "None"
-msgstr ""
+msgstr "Geen"
 
 #: modules/widgets/image-widget.php:119
 msgid "Caption:"
-msgstr ""
+msgstr "Onderschrift:"
 
 #: modules/widgets/image-widget.php:146
 msgid "Link URL (when the image is clicked):"
-msgstr ""
+msgstr "URL (link die opent na klikken op afbeelding):"
 
 #: modules/widgets/twitter-widget.php:70
 msgid "Twitter (Jetpack)"
-msgstr ""
+msgstr "Twitter (Jetpack)"
 
 #: modules/widgets/rsslinks-widget.php:116
 msgid "Blue"
-msgstr ""
+msgstr "Blauw"
 
 #: modules/widgets/rsslinks-widget.php:115
 msgid "Green"
-msgstr ""
+msgstr "Groen"
 
 #: modules/widgets/image-widget.php:113
 msgid "Alternate text:"
-msgstr ""
+msgstr "Alternatieve tekst:"
 
 #: modules/widgets/image-widget.php:116
 msgid "Image title:"
-msgstr ""
+msgstr "Afbeeldingstitel:"
 
 #: modules/widgets/rsslinks-widget.php:140
 msgid "Subscribe to %s"
-msgstr ""
+msgstr "Abonneer op %s"
 
 #: modules/widgets/rsslinks-widget.php:121
 msgid "Image Color:"
-msgstr ""
+msgstr "Afbeeldingskleur:"
 
 #: modules/widgets/rsslinks-widget.php:119
 msgid "Silver"
-msgstr ""
+msgstr "Zilver"
 
 #: modules/widgets/rsslinks-widget.php:118
 msgid "Pink"
-msgstr ""
+msgstr "Roze"
 
 #: modules/widgets/rsslinks-widget.php:117
 msgid "Purple"
-msgstr ""
+msgstr "Paars"
 
 #: modules/widgets/image-widget.php:12
 msgid "Display an image in your sidebar"
-msgstr ""
+msgstr "Toon een afbeelding in je sidebar"
 
 #: modules/widgets/image-widget.php:110
 msgid "Image URL:"
-msgstr ""
+msgstr "Afbeeldings URL:"
 
 #: modules/widgets/image-widget.php:14
 msgid "Image (Jetpack)"
-msgstr ""
+msgstr "Afbeelding (Jetpack)"
 
 #: modules/widgets/rsslinks-widget.php:99
 msgid "Small"
-msgstr ""
+msgstr "Klein"
 
 #: modules/widgets/rsslinks-widget.php:100
 msgid "Medium"
-msgstr ""
+msgstr "Gemiddeld"
 
 #: modules/widgets/rsslinks-widget.php:113
 msgid "Red"
-msgstr ""
+msgstr "Rood"
 
 #: modules/widgets/rsslinks-widget.php:103
 msgid "Image Size:"
-msgstr ""
+msgstr "Afbeeldingsgrootte:"
 
 #: modules/widgets/rsslinks-widget.php:101
 msgid "Large"
-msgstr ""
+msgstr "Groot"
 
 #: modules/widgets/rsslinks-widget.php:82
 msgid "Image Link"
-msgstr ""
+msgstr "Afbeeldingslink:"
 
 #: modules/widgets/rsslinks-widget.php:81
 msgid "Text Link"
-msgstr ""
+msgstr "Tekst Link:"
 
 #: modules/widgets/rsslinks-widget.php:71
 msgid "Feed(s) to Display:"
-msgstr ""
+msgstr "Te Tonen Feed(s):"
 
 #: modules/widgets/rsslinks-widget.php:114
 msgid "Orange"
-msgstr ""
+msgstr "Oranje"
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
-msgstr ""
+msgstr "Berichten & Reacties"
 
 #: modules/widgets/rsslinks-widget.php:83
 msgid "Text & Image Links"
-msgstr ""
+msgstr "Tekst & Afbeeldings links"
 
 #: modules/widgets/rsslinks-widget.php:96
 msgid "Image Settings:"
-msgstr ""
+msgstr "Afbeeldingsinstellingen:"
 
 #: modules/widgets/rsslinks-widget.php:85
 msgid "Format:"
-msgstr ""
+msgstr "Opmaak:"
 
 #: modules/widgets/rsslinks-widget.php:62
 #: modules/widgets/twitter-widget.php:207
 msgid "Title:"
-msgstr ""
+msgstr "Titel:"
 
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
 msgid "Posts"
-msgstr ""
+msgstr "Berichten:"
 
 #: modules/subscriptions.php:567
 msgid "Optional text to display to your readers:"
-msgstr ""
+msgstr "Optionele tekst om te tonen aan je lezers:"
 
 #: modules/subscriptions.php:553
 msgid "%s: %s"
-msgstr ""
+msgstr "%s: %s"
 
 #: modules/subscriptions.php:561 modules/widgets/image-widget.php:107
 msgid "Widget title:"
-msgstr ""
+msgstr "Widget titel:"
 
 #: modules/widgets/rsslinks-widget.php:13
 msgid "RSS Links (Jetpack)"
-msgstr ""
+msgstr "RSS Links (Jetpack)"
 
 #: modules/subscriptions.php:537
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
-msgstr ""
+msgstr "Klik om in te schrijven op deze blog en email meldingen te ontvangen van nieuwe berichten."
 
 #: modules/widgets/rsslinks-widget.php:12
 msgid "Links to your blog's RSS feeds"
-msgstr ""
+msgstr "Links naar je blog RSS feeds"
 
 #: modules/subscriptions.php:580
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Toon het aantal inschrijvingen? (%s inschrijving)"
+msgstr[1] "Toon het aantal inschrijvingen? (%s inschrijvingen)"
 
 #: modules/subscriptions.php:573
 msgid "Subscribe Button:"
-msgstr ""
+msgstr "Inschrijfknop:"
 
 #: modules/subscriptions.php:535
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
-msgstr ""
+msgstr "Vul je emailadres in om in te schrijven op deze blog en emailmeldingen te ontvangen van nieuwe berichten."
 
 #: modules/widgets/rsslinks-widget.php:68
 #: modules/widgets/rsslinks-widget.php:136
 msgid "Comments"
-msgstr ""
+msgstr "Reacties"
 
 #: modules/gravatar-hovercards.php:83
 msgid "Put your mouse over your Gravatar to check out your profile."
-msgstr ""
+msgstr "Plaats je muis op je Gravatar om je profiel te zien."
 
 #: modules/subscriptions.php:320
 msgid "Notify me of follow-up comments by email."
-msgstr ""
+msgstr "E-mail me als er nieuwe reacties zijn."
 
 #: modules/subscriptions.php:459
 msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Voeg je bij %s andere abonnee"
+msgstr[1] "Voeg je bij %s andere abonnees"
 
 #: modules/subscriptions.php:463
 msgid "Email Address"
-msgstr ""
+msgstr "E-mailadres"
 
 #: modules/subscriptions.php:421
 msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
-msgstr ""
+msgstr "Er is zojuist een e-mail aan je verzonden om je inschrijving te bevestigen. Bekijk de e-mail en klik op \"activeren\" om de inschrijving te starten."
 
 #: modules/subscriptions.php:326
 msgid "Notify me of new posts by email."
-msgstr ""
+msgstr "E-mail me als er nieuwe berichten zijn."
 
 #: modules/subscriptions.php:431
 msgid "The email you entered was invalid, please check and try again."
-msgstr ""
+msgstr "Het ingevulde e-mailadres is niet geldig, kijk het na en probeer het opnieuw."
 
 #: modules/subscriptions.php:441
 msgid "There was an error when subscribing, please try again."
-msgstr ""
+msgstr "Er is een fout opgetreden tijdens het inschrijven, probeer opnieuw."
 
 #: modules/subscriptions.php:434
 msgid "You have already subscribed to this site, please check your inbox."
-msgstr ""
+msgstr "Je bent al ingeschreven, gelieve je inbox na te kijken."
 
 #: modules/subscriptions.php:390
 msgid "Blog Subscriptions (Jetpack)"
-msgstr ""
+msgstr "Blog Inschrijvingen (Jetpack)"
 
 #: modules/subscriptions.php:387
 msgid "Add an email signup form to allow people to subscribe to your blog."
-msgstr ""
+msgstr "Voeg een e-mail inschrijvingsformulier toe zodat mensen zich kunnen inschrijven op je blog."
 
 #: modules/subscriptions.php:534
 msgid "Subscribe to Blog via Email"
-msgstr ""
+msgstr "Abonneer je op dit Blog via E-mail"
 
 #: modules/stats.php:700
 msgid "Show top search terms over"
-msgstr ""
+msgstr "Laat top zoektermen zien over"
 
 #: modules/stats.php:906
 msgid "Top Searches"
-msgstr ""
+msgstr "Top zoektermen"
 
 #: modules/stats.php:886 modules/stats.php:910
 msgid "Sorry, nothing to report."
-msgstr ""
+msgstr "Sorry, niets te melden"
 
 #: modules/stats.php:878
 msgid "View All"
-msgstr ""
+msgstr "Toon alles"
 
 #: modules/stats.php:882
 msgid "Top Posts"
-msgstr ""
+msgstr "Top Berichten"
 
 #: modules/stats.php:865
 msgid "%1$s %2$s Views"
-msgstr ""
+msgstr "%1$s %2$s Bekeken"
 
 #: modules/stats.php:650
 msgid "the past month"
-msgstr ""
+msgstr "vorige maand"
 
 #: modules/stats.php:651
 msgid "the past quarter"
-msgstr ""
+msgstr "vorig kwartaal"
 
 #: modules/stats.php:652
 msgid "the past year"
-msgstr ""
+msgstr "vorig jaar"
 
 #: modules/stats.php:674
 msgid "Chart stats by"
-msgstr ""
+msgstr "Grafiek statistieken door"
 
 #: modules/stats.php:687
 msgid "Show top posts over"
-msgstr ""
+msgstr "Top berichten bekijken over"
 
 #: modules/gravatar-hovercards.php:56
 msgid "View people's profiles when you mouse over their Gravatars"
-msgstr ""
+msgstr "Bekijk andere hun profiel door met je muis over hun Gravatar te gaan."
 
 #: modules/stats.php:495
 msgid "Select the roles that will be able to view stats reports."
-msgstr ""
+msgstr "Selecteer de profielen die de statistiekrapporten mogen bekijken."
 
 #: modules/stats.php:644
 msgid "week"
-msgstr ""
+msgstr "week"
 
 #: modules/stats.php:506
 msgid "Save configuration"
-msgstr ""
+msgstr "Bewaar instellingen"
 
 #: modules/stats.php:541
 msgid "Views over 48 hours. Click for more Site Stats."
-msgstr ""
+msgstr "Weergave in 48 uur. Klik voor meer website statistieken."
 
 #: modules/stats.php:645
 msgid "month"
-msgstr ""
+msgstr "maand"
 
 #: modules/stats.php:648
 msgid "the past day"
-msgstr ""
+msgstr "de vorige dag"
 
 #: modules/stats.php:649
 msgid "the past week"
-msgstr ""
+msgstr "de vorige week"
 
 #: modules/stats.php:643
 msgid "day"
-msgstr ""
+msgstr "dag"
 
 #: modules/stats.php:492
 msgid "Hide the stats smiley face image."
-msgstr ""
+msgstr "Verberg het statistiek smiley gezichtje."
 
 #: modules/stats.php:492
 msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
-msgstr ""
+msgstr "De afbeelding helpt je statistieken te verzamelen en <strong>maakt van de wereld een betere plek</strong> maar zal blijven werken wanneer het verborgen is."
 
 #: modules/stats.php:492
 msgid "Smiley face"
-msgstr ""
+msgstr "Lachend gezichtje"
 
 #: modules/stats.php:493
 msgid "Report visibility"
-msgstr ""
+msgstr "Rapport zichtbaarheid"
 
 #: modules/stats.php:304
 msgid "Loading&hellip;"
-msgstr ""
+msgstr "Laden&hellip;"
 
 #: modules/stats.php:218 modules/stats.php:622
 msgid "Site Stats"
-msgstr ""
+msgstr "Website Statistieken"
 
 #: modules/stats.php:305
 msgid "Your Site Stats work better with Javascript enabled."
-msgstr ""
+msgstr "Je website statistieken werken beter met Javascript aangeschakeld."
 
 #: modules/stats.php:486
 msgid "Admin bar"
-msgstr ""
+msgstr "Toolbar"
 
 #: modules/stats.php:480
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
-msgstr ""
+msgstr "Bezoeke <a href=\"%s\">Website Statistieken</a> om je statistieken te bekijken."
 
 #: modules/module-info.php:383
 msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
-msgstr ""
+msgstr "Jetpack deelt de gepubliceerde content van je blog of website direct met diensten als zoekmachines, waarmee je je bereik en verkeer vergroot."
 
 #: modules/stats.php:378 modules/stats.php:850
 msgid "We were unable to get your stats just now (too many redirects). Please try again."
-msgstr ""
+msgstr "Het is momenteel onmogelijk om je stats te tonen (te veel doorverwijzingen). Probeer het opnieuw."
 
 #: modules/stats.php:306
 msgid "View Site Stats without Javascript"
-msgstr ""
+msgstr "Website Statistieken bekijken zonder Javascript"
 
 #: modules/stats.php:489
 msgid "Registered users"
-msgstr ""
+msgstr "Geregistreerde gebruikers"
 
 #: modules/stats.php:490
 msgid "Count the page views of registered users who are logged in."
-msgstr ""
+msgstr "De pagina weergaven tellen van de ingelogde geregistreerde bezoekers."
 
 #: modules/stats.php:491
 msgid "Smiley"
-msgstr ""
+msgstr "Smiley"
 
 #: modules/stats.php:380 modules/stats.php:852
 msgid "We were unable to get your stats just now. Please try again."
-msgstr ""
+msgstr "Het is momenteel onmogelijk om je stats te tonen. Probeer het opnieuw."
 
 #: modules/stats.php:487
 msgid "Put a chart showing 48 hours of views in the admin bar."
-msgstr ""
+msgstr "Plaatst een grafiek in de admin bar die 48 uur paginaweergave toont."
 
 #: modules/module-info.php:381
 msgid "Enhanced Distribution"
-msgstr ""
+msgstr "Verbeterde Distributie"
 
 #: modules/module-info.php:368
 msgid "To use the Subscriptions widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away."
@@ -503,19 +503,19 @@ msgstr ""
 
 #: modules/module-info.php:342
 msgid "The Image Widget"
-msgstr ""
+msgstr "Afbeelding Widget"
 
 #: modules/module-info.php:344
 msgid "Each of these widgets has a number of customization options."
-msgstr ""
+msgstr "Elk van deze widgets heeft een aantal aanpassingsopties."
 
 #: modules/module-info.php:341
 msgid "The Twitter Widget"
-msgstr ""
+msgstr "Twitter Widget"
 
 #: modules/module-info.php:357
 msgid "Subsriptions Screenshot"
-msgstr ""
+msgstr "Inschrijvingsschermafbeelding"
 
 #: modules/module-info.php:362
 msgid "Easily allow any visitor to subscribe to all of your posts via email through a widget in your blog&#8217;s sidebar.  Every time you publish a post, WordPress.com will send a notification to all your subscribers."
@@ -523,7 +523,7 @@ msgstr ""
 
 #: modules/module-info.php:360
 msgid "Subscriptions"
-msgstr ""
+msgstr "Abonnementen"
 
 #: modules/module-info.php:344
 msgid "To use the widgets, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag them into one of your sidebars and configure away."
@@ -531,11 +531,11 @@ msgstr ""
 
 #: modules/module-info.php:341
 msgid "shows your latest tweets within a sidebar on your theme."
-msgstr ""
+msgstr "toont je nieuwste tweets in een sidebar van je thema."
 
 #: modules/module-info.php:342
 msgid "lets you easily add images to a sidebar on your theme."
-msgstr ""
+msgstr "voeg eenvoudig afbeeldingen toe aan de sidebar van uw theme."
 
 #: modules/module-info.php:363
 msgid "When leaving comments, your visitors can also subscribe to a post&#8217;s comments to keep up with the conversation."
@@ -547,11 +547,11 @@ msgstr ""
 
 #: modules/module-info.php:340
 msgid "lets you easily add post and comment RSS feeds to a sidebar on your theme."
-msgstr ""
+msgstr "Laat je makkelijk berichten en reactie RSS feeds plaatsen in een zijbalk van je thema."
 
 #: modules/module-info.php:323 modules/module-info.php:338
 msgid "Extra Sidebar Widgets"
-msgstr ""
+msgstr "Extra Zijbalk Widgets"
 
 #: modules/module-info.php:327
 msgid "allows you to easily add images to widget areas in your theme. It&#8217;s an easy way to add more visual interest to your site."
@@ -559,19 +559,19 @@ msgstr ""
 
 #: modules/module-info.php:325
 msgid "The RSS Links Widget "
-msgstr ""
+msgstr "De RSS Link Widget"
 
 #: modules/module-info.php:326
 msgid "The Twitter Widget "
-msgstr ""
+msgstr "De Twitter Widget"
 
 #: modules/module-info.php:320 modules/module-info.php:335
 msgid "Widgets Screenshot"
-msgstr ""
+msgstr "Widgets Screenshot"
 
 #: modules/module-info.php:327
 msgid "The Image Widget "
-msgstr ""
+msgstr "De Afbeelding Widget"
 
 #: modules/module-info.php:306
 msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
@@ -587,7 +587,7 @@ msgstr ""
 
 #: modules/module-info.php:340
 msgid "The RSS Links Widget"
-msgstr ""
+msgstr "De RSS Link Widget"
 
 #: modules/module-info.php:283
 msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
@@ -595,7 +595,7 @@ msgstr ""
 
 #: modules/module-info.php:299 modules/module-info.php:303
 msgid "Spelling and Grammar"
-msgstr ""
+msgstr "Spelling en grammatica"
 
 #: modules/module-info.php:261
 msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
@@ -615,19 +615,19 @@ msgstr ""
 
 #: modules/module-info.php:228
 msgid "Wow, that sounds nerdy."
-msgstr ""
+msgstr "Wow, dat klinkt nerdy."
 
 #: modules/module-info.php:265
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr ""
+msgstr "De volgende diensten zijn inbegrepen: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
 
 #: modules/module-info.php:267
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr ""
+msgstr "De volgende diensten zijn inbegrepen: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
 
 #: modules/module-info.php:271
 msgid "Additionally you can define your own custom services."
-msgstr ""
+msgstr "Aanvullend kan je je eigen aangepaste diensten defini&euml;ren "
 
 #: modules/module-info.php:282
 msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
@@ -639,30 +639,30 @@ msgstr ""
 
 #: modules/module-info.php:137
 msgid "Available shortcodes are: %l."
-msgstr ""
+msgstr "Beschikbare shortcodes zijn: %l."
 
 #: modules/module-info.php:152 modules/module-info.php:156
 #: modules/module-info.php:166 modules/module-info.php:170
 msgid "WP.me Shortlinks"
-msgstr ""
+msgstr "WP.me Shortlinks"
 
 #: modules/module-info.php:206
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
-msgstr ""
+msgstr "Je kan <a href=\"%s\">je statistieken dashboard hier bekijken</a>."
 
 #: modules/module-info.php:90 modules/module-info.php:94
 #: modules/module-info.php:103 modules/module-info.php:107
 msgid "Shortcode Embeds"
-msgstr ""
+msgstr "Ingebedde shortcode"
 
 #: modules/module-info.php:221 modules/module-info.php:236
 msgid "LaTeX"
-msgstr ""
+msgstr "LaTeX"
 
 #: modules/module-info.php:187 modules/module-info.php:191
 #: modules/module-info.php:200 modules/module-info.php:204
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "WordPress.com Stats"
 
 #: modules/module-info.php:192 modules/module-info.php:205
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
@@ -690,12 +690,12 @@ msgstr ""
 
 #: modules/module-info.php:158
 msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
-msgstr ""
+msgstr "lt&#8217;s perfekt voor gebruik op Twitter, Facebook, en sms waar elk karakter telt."
 
 #: modules/module-info.php:32
 msgctxt "View _Plans_&_Pricing_. (VaultPress)"
 msgid "View %s."
-msgstr ""
+msgstr "Toon %s."
 
 #: modules/module-info.php:29
 msgctxt "Visit your _VaultPress_dashboard_."
@@ -709,11 +709,11 @@ msgstr ""
 #: modules/module-info.php:57 modules/module-info.php:72
 #: modules/gravatar-hovercards.php:44
 msgid "Gravatar Hovercards"
-msgstr ""
+msgstr "Gravatar Hovercards"
 
 #: modules/module-info.php:53 modules/module-info.php:68
 msgid "Gravatar Hovercard"
-msgstr ""
+msgstr "Gravatar Hovercard"
 
 #: modules/module-info.php:32
 msgid "View Plans & Pricing"
@@ -729,7 +729,7 @@ msgstr ""
 
 #: modules/module-info.php:29
 msgid "VaultPress dashboard"
-msgstr ""
+msgstr "VaultPress dashboard"
 
 #: modules/module-info.php:59
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services they use on the web like Twitter, Facebook, or LinkedIn."
@@ -737,7 +737,7 @@ msgstr ""
 
 #: modules/module-info.php:58 modules/module-info.php:73
 msgid "What&#8217;s a Hovercard?"
-msgstr ""
+msgstr "Wat is een Hovercard?"
 
 #: modules/module-info.php:31
 msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks."
@@ -745,24 +745,24 @@ msgstr ""
 
 #: modules/shortcodes/videopress.php:1298
 msgid "Loading video..."
-msgstr ""
+msgstr "Video Laden ..."
 
 #: modules/shortcodes/archives.php:49
 msgid "Your blog does not currently have any published posts."
-msgstr ""
+msgstr "Je blog heeft op dit moment geen gepubliceerde berichten."
 
 #: modules/module-info.php:22 modules/module-info.php:26
 msgid "VaultPress"
-msgstr ""
+msgstr "VaultPress"
 
 #: modules/shortcodes/videopress.php:1291
 msgid "This video requires <a rel=\"nofollow\" href=\"%s\">Adobe Flash</a> for playback."
-msgstr ""
+msgstr "Deze video vereist <a rel=\"nofollow\" href=\"%s\">Adobe Flash</a> om afgespeeld te worden."
 
 #: modules/shortcodes/videopress.php:1016
 msgctxt "watch a video title"
 msgid "Watch: %s"
-msgstr ""
+msgstr "Bekijk: %s"
 
 #: modules/shortcodes/videopress.php:958
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
@@ -770,85 +770,85 @@ msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "November"
-msgstr ""
+msgstr "November"
 
 #: modules/shortcodes/videopress.php:876
 msgid "December"
-msgstr ""
+msgstr "December"
 
 #: modules/shortcodes/videopress.php:912
 msgid "Submit"
-msgstr ""
+msgstr "Verstuur"
 
 #: modules/shortcodes/videopress.php:915
 msgid "More information"
-msgstr ""
+msgstr "Meer informatie"
 
 #: modules/shortcodes/videopress.php:1115
 #: modules/shortcodes/videopress.php:1137
 msgid "this video"
-msgstr ""
+msgstr "deze video"
 
 #: modules/shortcodes/videopress.php:1144
 msgctxt "Play as in playback or view a movie"
 msgid "JavaScript required to play %s."
-msgstr ""
+msgstr "JavaScript vereist om %s af te spelen."
 
 #: modules/shortcodes/videopress.php:860
 msgid "Please verify your birthday."
-msgstr ""
+msgstr "Verifieer aub je verjaardag."
 
 #: modules/shortcodes/videopress.php:876
 msgid "July"
-msgstr ""
+msgstr "Juli"
 
 #: modules/shortcodes/videopress.php:876
 msgid "August"
-msgstr ""
+msgstr "Augustus"
 
 #: modules/shortcodes/videopress.php:876
 msgid "June"
-msgstr ""
+msgstr "Juni"
 
 #: modules/shortcodes/videopress.php:876
 msgid "September"
-msgstr ""
+msgstr "September"
 
 #: modules/shortcodes/videopress.php:876
 msgid "October"
-msgstr ""
+msgstr "Oktober"
 
 #: modules/shortcodes/videopress.php:876
 msgid "May"
-msgstr ""
+msgstr "Mei"
 
 #: modules/shortcodes/videopress.php:860
 msgid "This video is intended for mature audiences."
-msgstr ""
+msgstr "Deze video is alleen geschikt voor volwassenen."
 
 #: modules/shortcodes/videopress.php:876
 msgid "January"
-msgstr ""
+msgstr "Januari"
 
 #: modules/shortcodes/videopress.php:876
 msgid "February"
-msgstr ""
+msgstr "Februari"
 
 #: modules/shortcodes/videopress.php:876
 msgid "March"
-msgstr ""
+msgstr "Maart"
 
 #: modules/shortcodes/videopress.php:876
 msgid "April"
-msgstr ""
+msgstr "April"
 
 #: modules/sharedaddy/sharing-sources.php:1027
 msgid "Label"
-msgstr ""
+msgstr "Label"
 
 #: modules/sharedaddy/sharing-sources.php:892
 msgid "Google +1"
-msgstr ""
+msgstr "Google +1"
 
 #: modules/shortcodes/videopress.php:610
 msgid "<strong>%s</strong> is not an allowed embed site."
@@ -860,15 +860,15 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:977
 msgid "Click to share"
-msgstr ""
+msgstr "Klik om te delen"
 
 #: modules/sharedaddy/sharing-sources.php:884
 msgid "Click to Press This!"
-msgstr ""
+msgstr "Klik om te publiceren!"
 
 #: modules/shortcodes/videopress.php:826
 msgid "%s Error"
-msgstr ""
+msgstr "%s Fout"
 
 #: modules/shortcodes/videopress.php:612
 msgid "No data found for VideoPress identifier: <strong>%s</strong>."
@@ -876,7 +876,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1045
 msgid "Remove Service"
-msgstr ""
+msgstr "Service Verwijderen"
 
 #: modules/shortcodes/videopress.php:608
 msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
@@ -884,62 +884,62 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1044
 msgid "Save"
-msgstr ""
+msgstr "Bewaar"
 
 #: modules/sharedaddy/sharing-sources.php:1037
 msgid "Icon"
-msgstr ""
+msgstr "Icoon"
 
 #: modules/sharedaddy/sharing-sources.php:1032
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: modules/sharedaddy/sharing-sources.php:801
 msgid "Like button"
-msgstr ""
+msgstr "Like knop"
 
 #: modules/sharedaddy/sharing-sources.php:856
 msgid "Press This"
-msgstr ""
+msgstr "Publiceren"
 
 #: modules/sharedaddy/sharing-sources.php:850
 msgid "Click to print"
-msgstr ""
+msgstr "Klik om af te drukken"
 
 #: modules/sharedaddy/sharing-sources.php:846
 msgid "Print"
-msgstr ""
+msgstr "Afdrukken"
 
 #: modules/sharedaddy/sharing-sources.php:884
 msgctxt "share to"
 msgid "Press This"
-msgstr ""
+msgstr "Publiceren"
 
 #: modules/sharedaddy/sharing-sources.php:800
 msgid "Share button"
-msgstr ""
+msgstr "Share knop"
 
 #: modules/sharedaddy/sharing-sources.php:850
 msgctxt "share to"
 msgid "Print"
-msgstr ""
+msgstr "Print"
 
 #: modules/sharedaddy/sharing-sources.php:714
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: modules/sharedaddy/sharing-sources.php:744
 msgid "Share"
-msgstr ""
+msgstr "Deel"
 
 #: modules/sharedaddy/sharing-sources.php:777
 msgctxt "share to"
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: modules/sharedaddy/sharing-sources.php:777
 msgid "Share on Facebook"
-msgstr ""
+msgstr "Deel op Facebook"
 
 #: modules/sharedaddy/sharing-sources.php:799
 msgid "Default button"
@@ -952,34 +952,34 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:629
 msgid "Click to share on LinkedIn"
-msgstr ""
+msgstr "Klik om te delen op LinkedIn"
 
 #: modules/sharedaddy/sharing-sources.php:519
 msgctxt "share to"
 msgid "Digg"
-msgstr ""
+msgstr "Digg"
 
 #: modules/sharedaddy/sharing-sources.php:601
 msgid "LinkedIn"
-msgstr ""
+msgstr "LinkedIn"
 
 #: modules/sharedaddy/sharing-sources.php:363
 msgctxt "share to"
 msgid "StumbleUpon"
-msgstr ""
+msgstr "StumbleUpon"
 
 #: modules/sharedaddy/sharing-sources.php:629
 msgctxt "share to"
 msgid "LinkedIn"
-msgstr ""
+msgstr "LinkedIn"
 
 #: modules/sharedaddy/sharing-sources.php:506
 msgid "Digg"
-msgstr ""
+msgstr "Digg"
 
 #: modules/sharedaddy/sharing-sources.php:352
 msgid "StumbleUpon"
-msgstr ""
+msgstr "StumbleUpon"
 
 #: modules/sharedaddy/sharing-sources.php:334
 #: modules/sharedaddy/sharing-sources.php:411
@@ -987,73 +987,73 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:568
 #: modules/sharedaddy/sharing-sources.php:684
 msgid "Use smart button"
-msgstr ""
+msgstr "Smart Button gebruiken"
 
 #: modules/sharedaddy/sharing-sources.php:429
 #: modules/sharedaddy/sharing-sources.php:436
 msgid "Reddit"
-msgstr ""
+msgstr "Reddit"
 
 #: modules/sharedaddy/sharing-sources.php:436
 msgid "Click to share on Reddit"
-msgstr ""
+msgstr "Delen op Reddit"
 
 #: modules/sharedaddy/sharing-sources.php:363
 msgid "Click to share on StumbleUpon"
-msgstr ""
+msgstr "Delen op StumbleUpon"
 
 #: modules/sharedaddy/sharing-sources.php:193
 msgid "Click to email this to a friend"
-msgstr ""
+msgstr "Klik om dit te mailen naar een vriend"
 
 #: modules/sharedaddy/sharing-sources.php:234
 msgid "Email check failed, please try again"
-msgstr ""
+msgstr "Email verificatie mislukt, probeer opnieuw"
 
 #: modules/sharedaddy/sharing-sources.php:264
 msgid "Click to share on Twitter"
-msgstr ""
+msgstr "Delen op Twitter"
 
 #: modules/sharedaddy/sharing-sources.php:215
 msgid "Your Name"
-msgstr ""
+msgstr "Je naam"
 
 #: modules/sharedaddy/sharing-sources.php:207
 msgid "Send to Email Address"
-msgstr ""
+msgstr "Verstuur naar e-mailadres"
 
 #: modules/sharedaddy/sharing-sources.php:257
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: modules/sharedaddy/sharing-sources.php:227
 msgid "Cancel"
-msgstr ""
+msgstr "Annuleer"
 
 #: modules/sharedaddy/sharing-sources.php:238
 msgid "Sorry, your blog cannot share posts by email."
-msgstr ""
+msgstr "Sorry, jouw blog kan geen berichten delen via e-mail."
 
 #: modules/sharedaddy/sharing-sources.php:218
 msgid "Your Email Address"
-msgstr ""
+msgstr "Je e-mailadres"
 
 #: modules/sharedaddy/sharing-sources.php:226
 msgid "Send Email"
-msgstr ""
+msgstr "Verstuur e-mail"
 
 #: modules/sharedaddy/sharing-sources.php:264
 msgctxt "share to"
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: modules/sharedaddy/sharing-sources.php:230
 msgid "Post was not sent - check your email addresses!"
-msgstr ""
+msgstr "Bericht is niet verzonden - kijk je emailadres na!"
 
 #: modules/sharedaddy/sharing.php:367
 msgid "Sharing URL"
-msgstr ""
+msgstr "Deel URL"
 
 #: modules/sharedaddy/sharing.php:371
 msgid "You can add the following variables to your service sharing URL:"
@@ -1062,27 +1062,27 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:193
 msgctxt "share to"
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 #: modules/sharedaddy/sharing-sources.php:169
 msgid "This post has been shared!"
-msgstr ""
+msgstr "Dit bericht is gedeeld!"
 
 #: modules/sharedaddy/sharing-sources.php:170
 msgid "You have shared this post with %s"
-msgstr ""
+msgstr "Je hebt dit bericht gedeeld met %s"
 
 #: modules/sharedaddy/sharing-sources.php:171
 msgid "Close"
-msgstr ""
+msgstr "Sluit"
 
 #: modules/sharedaddy/sharing.php:376
 msgid "Icon URL"
-msgstr ""
+msgstr "URL van het icoon"
 
 #: modules/sharedaddy/sharing.php:361
 msgid "Service name"
-msgstr ""
+msgstr "Service naam"
 
 #: modules/sharedaddy/sharing.php:379
 msgid "Enter the URL of a 16x16px icon you want to use for this service."
@@ -1090,7 +1090,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:127
 msgid "Email"
-msgstr ""
+msgstr "E-mail"
 
 #: modules/sharedaddy/sharing.php:385
 msgid "Create Share"
@@ -1102,27 +1102,27 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:350
 msgid "Save Changes"
-msgstr ""
+msgstr "Bewaar wijzigingen"
 
 #: modules/sharedaddy/sharing.php:221
 msgid "Sharing is off. Please add services above to enable"
-msgstr ""
+msgstr "Delen is uitgeschakeld. Plaats hierboven een service om in te schakelen."
 
 #: modules/sharedaddy/sharing.php:308
 msgid "Text only"
-msgstr ""
+msgstr "Alleen tekst"
 
 #: modules/sharedaddy/sharing.php:322
 msgid "New window"
-msgstr ""
+msgstr "Nieuw venster"
 
 #: modules/sharedaddy/sharing.php:218
 msgid "Live Preview"
-msgstr ""
+msgstr "Live Voorbeeld"
 
 #: modules/sharedaddy/sharing.php:306
 msgid "Icon + text"
-msgstr ""
+msgstr "Icoon + tekst"
 
 #: modules/sharedaddy/sharing.php:328
 msgid "Show sharing buttons on"
@@ -1130,19 +1130,19 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:334
 msgid "Front Page, Archive Pages, and Search Results"
-msgstr ""
+msgstr "Begin Pagina, Archief Pagina en Zoekresultaten"
 
 #: modules/sharedaddy/sharing.php:319
 msgid "Open links in"
-msgstr ""
+msgstr "Open links in"
 
 #: modules/sharedaddy/sharing.php:307
 msgid "Icon only"
-msgstr ""
+msgstr "Alleen Icoon "
 
 #: modules/sharedaddy/sharing.php:323
 msgid "Same window"
-msgstr ""
+msgstr "Zelfde venster"
 
 #: modules/sharedaddy/sharing.php:303
 msgid "Default button style"
@@ -1158,13 +1158,13 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:49 modules/sharedaddy/sharing.php:158
 msgid "Sharing Settings"
-msgstr ""
+msgstr "Delen Instellingen"
 
 #: modules/sharedaddy/sharing-service.php:467
 #: modules/sharedaddy/sharing.php:234 modules/sharedaddy/sharing.php:275
 msgctxt "dropdown button"
 msgid "Share"
-msgstr ""
+msgstr "Delen"
 
 #: modules/sharedaddy/sharing.php:203
 msgid "Services dragged here will be hidden behind a share button."
@@ -1176,7 +1176,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:153
 msgid "Settings have been saved"
-msgstr ""
+msgstr "Instellingen zijn bewaard"
 
 #: modules/sharedaddy/sharing.php:165
 msgid "Drag and drop the services you'd like to enable into the box below."
@@ -1184,15 +1184,15 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:164
 msgid "Available Services"
-msgstr ""
+msgstr "Beschikbare Services"
 
 #: modules/sharedaddy/sharing.php:186
 msgid "Enabled Services"
-msgstr ""
+msgstr "Ingeschakelde Services"
 
 #: modules/sharedaddy/sharing.php:166
 msgid "Add a new service"
-msgstr ""
+msgstr "Voeg een nieuwe service toe"
 
 #: modules/sharedaddy/sharing.php:148
 msgid "Warning! Multibyte support missing!"
@@ -1204,11 +1204,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:95
 msgid "Disable CSS and JS"
-msgstr ""
+msgstr "Schakel CSS en JS uit"
 
 #: modules/sharedaddy/sharing-service.php:196
 msgid "Share this:"
-msgstr ""
+msgstr "Deel dit:"
 
 #: modules/after-the-deadline/atd-l10n.php:34
 msgid ""
@@ -1223,7 +1223,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:18
 msgid "Shared Post"
-msgstr ""
+msgstr "Gedeeld bericht"
 
 #: modules/sharedaddy/sharedaddy.php:34
 msgid "Show sharing buttons on this post."
@@ -1244,15 +1244,15 @@ msgstr ""
 #: modules/sharedaddy/sharing.php:49 modules/module-info.php:257
 #: modules/module-info.php:260 modules/module-info.php:281
 msgid "Sharing"
-msgstr ""
+msgstr "Delen"
 
 #: modules/after-the-deadline/atd-l10n.php:28
 msgid "No writing errors were found."
-msgstr ""
+msgstr "Geen schrijffouten gevonden."
 
 #: modules/after-the-deadline/atd-l10n.php:32
 msgid "Replace selection with:"
-msgstr ""
+msgstr "Selectie vervangen met:"
 
 #: modules/after-the-deadline/atd-l10n.php:30
 msgid "There was an error communicating with the proofreading service."
@@ -1260,7 +1260,7 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:25
 msgid "edit text"
-msgstr ""
+msgstr "Tekst aanpassen"
 
 #: modules/after-the-deadline/config-options.php:100
 msgid "Use automatically detected language to proofread posts and pages"
@@ -1268,28 +1268,28 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:18
 msgid "Ignore suggestion"
-msgstr ""
+msgstr "Suggestie negeren"
 
 #: modules/after-the-deadline/atd-l10n.php:19
 msgid "Ignore always"
-msgstr ""
+msgstr "Altijd negeren"
 
 #: modules/after-the-deadline/atd-l10n.php:26
 #: modules/after-the-deadline.php:223
 msgid "Proofread Writing"
-msgstr ""
+msgstr "Gecontroleerd Schrijven"
 
 #: modules/after-the-deadline/atd-l10n.php:24
 msgid "proofread"
-msgstr ""
+msgstr "Gecontroleerd"
 
 #: modules/after-the-deadline/atd-l10n.php:15
 msgid "No suggestions"
-msgstr ""
+msgstr "Geen suggesties"
 
 #: modules/after-the-deadline/atd-l10n.php:17
 msgid "Explain..."
-msgstr ""
+msgstr "Leg uit..."
 
 #: modules/after-the-deadline/atd-l10n.php:13
 msgid "Repeated Word"
@@ -1297,19 +1297,19 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:20
 msgid "Ignore all"
-msgstr ""
+msgstr "Negeer alles"
 
 #: modules/after-the-deadline/atd-l10n.php:22
 msgid "Edit Selection..."
-msgstr ""
+msgstr "Wijzig selectie..."
 
 #: modules/after-the-deadline/atd-l10n.php:12
 msgid "Spelling"
-msgstr ""
+msgstr "Spelling"
 
 #: modules/after-the-deadline/config-options.php:95
 msgid "Language"
-msgstr ""
+msgstr "Taal"
 
 #: modules/after-the-deadline/config-options.php:78
 msgid "Diacritical Marks"
@@ -1357,7 +1357,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:92
 msgid "<a href=\"%s\">Learn more</a> about these options."
-msgstr ""
+msgstr "<a href=\"%s\">Leer meer</a> over deze opties."
 
 #: modules/after-the-deadline/config-options.php:22
 msgid "WordPress checks your grammar, spelling, and misused words with <a href=\"%s\">After the Deadline</a> Proofreading service. This feature is available to blogs set to the English language. Blogs in other languages will continue to have access to the old spellchecker."
@@ -1369,7 +1369,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:121
 msgid "Add"
-msgstr ""
+msgstr "Toevoegen"
 
 #: modules/after-the-deadline/config-options.php:69
 msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
@@ -1377,7 +1377,7 @@ msgstr ""
 
 #: jetpack.php:2725
 msgid "You need to register your Jetpack before connecting it."
-msgstr ""
+msgstr "Je dient Jetpack eerst te registreren voor er mee te verbinden."
 
 #: modules/after-the-deadline/config-options.php:59
 msgid "Automatically proofread content when:"
@@ -1385,11 +1385,11 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:62
 msgid "a post or page is first published"
-msgstr ""
+msgstr "een bericht of pagina is voor het eerst gepubliceerd"
 
 #: modules/after-the-deadline/config-options.php:64
 msgid "a post or page is updated"
-msgstr ""
+msgstr "een bericht of pagina is geupdate"
 
 #: modules/after-the-deadline/config-options.php:57
 msgid "Proofreading"
@@ -1409,102 +1409,102 @@ msgstr ""
 
 #: jetpack.php:1923
 msgid "Coming soon&#8230;"
-msgstr ""
+msgstr "Binnenkort&#8230;"
 
 #: jetpack.php:1857
 msgid "New"
-msgstr ""
+msgstr "Nieuw"
 
 #: jetpack.php:1849
 msgid "Purchase"
-msgstr ""
+msgstr "Kopen"
 
 #: jetpack.php:1723 modules/sharedaddy/sharedaddy.php:65
 msgid "Support"
-msgstr ""
+msgstr "Ondersteuning"
 
 #: jetpack.php:1889
 msgid "Configure"
-msgstr ""
+msgstr "Configureer"
 
 #: jetpack.php:1769
 msgid "Configure %s"
-msgstr ""
+msgstr "Configureer %s"
 
 #: jetpack.php:1816
 msgid "Deactivate"
-msgstr ""
+msgstr "Deactiveren"
 
 #: jetpack.php:1860
 msgid "Updated"
-msgstr ""
+msgstr "Bijgewerkt"
 
 #: jetpack.php:2720
 msgid "An administrator for this blog must set up the Jetpack connection."
-msgstr ""
+msgstr "Een beheerder van dit blog moet de verbinding met Jetpack instellen."
 
 #: jetpack.php:2132 jetpack.php:2134 jetpack.php:2136 jetpack.php:2139
 #: jetpack.php:2764
 msgid "Error Details: %s"
-msgstr ""
+msgstr "Fout Details: %s"
 
 #: jetpack.php:1826
 msgid "Activate"
-msgstr ""
+msgstr "Activeer"
 
 #: jetpack.php:1849
 msgid "Free"
-msgstr ""
+msgstr "Gratis"
 
 #: jetpack.php:1720
 msgid "Privacy Policy"
-msgstr ""
+msgstr "Privacy Policy"
 
 #: jetpack.php:1689
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
-msgstr ""
+msgstr "Je bent momenteel ingeschreven op email updates. %s"
 
 #: jetpack.php:1722
 msgid "Debug"
-msgstr ""
+msgstr "Debug"
 
 #: jetpack.php:1717
 msgid "An <span>Automattic</span> Airline"
-msgstr ""
+msgstr "Een <span>Automattic</span> luchtvaartmaatschappij"
 
 #: jetpack.php:1721
 msgid "Terms of Service"
-msgstr ""
+msgstr "Servicevoorwaarden"
 
 #: jetpack.php:1690
 msgid "Unsubscribe"
-msgstr ""
+msgstr "Uitschrijven"
 
 #: jetpack.php:1694
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
-msgstr ""
+msgstr "Updates ontvangen via email over Jetpack? %s"
 
 #: jetpack.php:1695 modules/subscriptions.php:536
 msgid "Subscribe"
-msgstr ""
+msgstr "Inschrijven"
 
 #: jetpack.php:1702
 msgid "You have been subscribed to receive email updates."
-msgstr ""
+msgstr "Je bent ingeschreven om updates te ontvangen via email."
 
 #: jetpack.php:1704
 msgid "You will no longer receive email updates about Jetpack."
-msgstr ""
+msgstr "Je zal niet langer updates via email ontvangen over Jetpack."
 
 #: jetpack.php:1683
 msgid "Checking email updates status&hellip;"
-msgstr ""
+msgstr "Email update status nakijken&hellip;"
 
 #: jetpack.php:1677
 msgid "Take Survey"
-msgstr ""
+msgstr "Peiling Afnemen"
 
 #: jetpack.php:1433
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
@@ -1524,7 +1524,7 @@ msgstr ""
 
 #: jetpack.php:1635
 msgid "Disconnect from WordPress.com"
-msgstr ""
+msgstr "Verbreek met WordPress.com"
 
 #: jetpack.php:1634
 msgid "Connected to WordPress.com"
@@ -1568,7 +1568,7 @@ msgstr ""
 
 #: jetpack.php:1378
 msgid "Try connecting again."
-msgstr ""
+msgstr "Probeer nog eens te verbinden."
 
 #: jetpack.php:1426
 msgid "The following modules have been updated: %l."
@@ -1580,7 +1580,7 @@ msgstr ""
 
 #: jetpack.php:1402
 msgid "Welcome to <strong>Jetpack %s</strong>!"
-msgstr ""
+msgstr "Welkom bij <strong>Jetpack %s</strong>!"
 
 #: jetpack.php:1331
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
@@ -1604,19 +1604,19 @@ msgstr ""
 
 #: jetpack.php:1309
 msgid "The %1$s module requires <strong>PHP version %2$s</strong> or higher."
-msgstr ""
+msgstr "De %1$s module vereist <strong>PHP versie %2$s</strong> of nieuwer."
 
 #: jetpack.php:1335
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
-msgstr ""
+msgstr "Jetpack kon geen verbinding maken met WordPress.com: %s. Dit betekent meestal dat er iets niet goed geconfigureerd is bij je web host."
 
 #: jetpack.php:1134
 msgid "Jetpack Support"
-msgstr ""
+msgstr "Jetpack Ondersteuning"
 
 #: jetpack.php:1216
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
-msgstr ""
+msgstr "<strong>Jetpack is geactiveerd!</strong> Elke site in je netwerk moet individueel verbonden worden door een admin van die site."
 
 #: jetpack.php:1292
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
@@ -1640,12 +1640,12 @@ msgstr ""
 
 #: jetpack.php:1202 jetpack.php:1653
 msgid "Connect to WordPress.com"
-msgstr ""
+msgstr "Verbind met WordPress.com"
 
 #: jetpack.php:1184 modules/sharedaddy/sharedaddy.php:57
 #: modules/sharedaddy/sharedaddy.php:64
 msgid "Settings"
-msgstr ""
+msgstr "Instellingen"
 
 #: jetpack.php:1201
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features."
@@ -1662,15 +1662,15 @@ msgstr ""
 #: modules/module-info.php:350 modules/module-info.php:374
 #: modules/module-info.php:392
 msgid "Learn More"
-msgstr ""
+msgstr "Leer meer"
 
 #: jetpack.php:915
 msgid "Jetpack requires WordPress version %s or later."
-msgstr ""
+msgstr "Jetpack vereist WordPress versie %s of nieuwer."
 
 #: jetpack.php:1133
 msgid "Jetpack FAQ"
-msgstr ""
+msgstr "Jetpack FAQ"
 
 #: jetpack.php:1131
 msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
@@ -1686,22 +1686,22 @@ msgstr ""
 
 #: jetpack.php:1065 jetpack.php:1081
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
-msgstr ""
+msgstr "Jetpack bevat de meest recente versie van de oude &#8220;%1$s&#8221; plugin."
 
 #: jetpack.php:1100
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Een nieuwe Jetpack module"
+msgstr[1] "%s nieuwe Jetpack modules"
 
 #: jetpack.php:1127 jetpack.php:1638 jetpack.php:1768
 msgid "Jetpack by WordPress.com"
-msgstr ""
+msgstr "Jetpack door WordPress.com"
 
 #: jetpack.php:1130
 msgid "Jetpack Module Options"
-msgstr ""
+msgstr "Jetpack Module Opties"
 
 #: jetpack.php:1132
 msgid "For more information:"
-msgstr ""
+msgstr "Voor meer informatie:"

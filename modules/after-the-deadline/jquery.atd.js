@@ -311,11 +311,12 @@ AtD.suggest = function(element) {
 
 	var pos = jQuery(element).offset();
 	var width = jQuery(element).width();
-	jQuery(suggest).css({ left: (pos.left + width) + 'px', top: pos.top + 'px' });
 
         /* a sanity check for Internet Explorer--my favorite browser in every possible way */
         if (width > 100) 
                 width = 50; 
+
+	jQuery(suggest).css({ left: (pos.left + width) + 'px', top: pos.top + 'px' });
 
 	jQuery(suggest).fadeIn(200);
 

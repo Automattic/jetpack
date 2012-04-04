@@ -27,10 +27,17 @@ class Jetpack_Subscriptions {
 
 		add_filter( 'jetpack_xmlrpc_methods', array( &$this, 'xmlrpc_methods' ) );
 
+		// @todo remove sync from subscriptions and move elsewhere...
+		
 		// Handle Posts
 		add_action( 'transition_post_status', array( &$this, 'transition_post_status' ), 10, 3 );
 		add_action( 'trashed_post', array( &$this, 'delete_post' ) );
 		add_action( 'delete_post', array( &$this, 'delete_post' ) );
+		
+		// Handle Taxonomy
+		add_action( 'created_term', array( &$this, 'save_taxonomy'), 10, 3);
+		add_action( 'edited_term',  array( &$this, 'save_taxonomy'), 10, 3 );
+		add_action( 'delete_term',  array( &$this, 'delete_taxonomy'),   10, 3 );
 
 		// Handle Comments
 		add_action( 'wp_insert_comment', array( &$this, 'save_comment' ), 10, 2 );
@@ -80,7 +87,17 @@ class Jetpack_Subscriptions {
 			$this->jetpack->sync->post( $the_post->ID );
 		}
 	}
+	
+	function save_taxonomy( $term, $tt_id, $taxonomy ) {
+		$tax = get_term_by( 'id', $term, $taxonomy );
+		$this->jetpack->sync->taxonomy( $tax->slug, true, $taxonomy );
+	}
 
+	function delete_taxonomy( $term, $tt_id, $taxonomy ) {
+		$tags = get_terms( $taxonomy, array( 'hide_empty' => 0 ) ); // since we can't figure out what the slug is... we will do an array comparison on the remote site and remove old taxonomy...
+		$this->jetpack->sync->delete_taxonomy( $tags, $taxonomy );
+	}
+	
 	function delete_post( $id ) {
 		$the_post = get_post( $id );
 		if ( 'post' == $the_post->post_type || 'page' == $the_post->post_type )
@@ -421,8 +438,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'] ) {
 			?>
 
-			<div style="background-color: #FFFFE0; border: 1px solid #E6DB55; padding-left: 5px; padding-right: 5px; margin-bottom: 10px;">
-				<?php _e( 'An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing.', 'jetpack' ); ?>
+			<div style="success">
+				<p><?php _e( 'An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing.', 'jetpack' ); ?></p>
 			</div>
 
 			<?php

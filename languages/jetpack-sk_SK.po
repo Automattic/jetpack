@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.2.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2011-12-05 21:56:57+0000\n"
+"PO-Revision-Date: 2012-04-04 22:11:53+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -38,7 +38,7 @@ msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.a
 msgstr ""
 
 msgid "http://jetpack.me"
-msgstr ""
+msgstr "http://jetpack.me"
 
 msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
 msgstr ""
@@ -62,7 +62,7 @@ msgstr ""
 
 #: modules/widgets/twitter-widget.php:224
 msgid "Hide replies"
-msgstr ""
+msgstr "Skryť odpovede"
 
 #: modules/widgets/twitter-widget.php:213
 msgid "Maximum number of tweets to show:"
@@ -73,7 +73,7 @@ msgid "Twitter username:"
 msgstr ""
 
 msgid "Automattic"
-msgstr ""
+msgstr "Automattic"
 
 #: modules/widgets/twitter-widget.php:231
 msgid "Text to display between tweet and timestamp:"
@@ -84,31 +84,31 @@ msgstr ""
 
 #: modules/vaultpress.php:22
 msgid "Active"
-msgstr ""
+msgstr "Aktívne"
 
 #: modules/widgets/twitter-widget.php:229
 msgid "Include retweets"
-msgstr ""
+msgstr "Vložiť retweety"
 
 #: modules/widgets/twitter-widget.php:79
 msgid "Twitter Updates"
-msgstr ""
+msgstr "Twitter aktualizácie"
 
 #: modules/widgets/image-widget.php:142
 msgid "Height:"
-msgstr ""
+msgstr "Výška:"
 
 #: modules/widgets/image-widget.php:129
 msgid "Image Alignment:"
-msgstr ""
+msgstr "Zarovnanie obrázka:"
 
 #: modules/widgets/image-widget.php:125
 msgid "Left"
-msgstr ""
+msgstr "Na ľavo"
 
 #: modules/widgets/twitter-widget.php:69
 msgid "Display your tweets from Twitter"
-msgstr ""
+msgstr "Zobrazte svoje tweety z Twitteru"
 
 #: modules/widgets/image-widget.php:145
 msgid "If empty, we will attempt to determine the image size."
@@ -116,7 +116,7 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:139
 msgid "Width:"
-msgstr ""
+msgstr "Šírka:"
 
 #: modules/widgets/image-widget.php:127
 msgid "Right"
@@ -164,19 +164,19 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:121
 msgid "Image Color:"
-msgstr ""
+msgstr "Farba obrázka:"
 
 #: modules/widgets/rsslinks-widget.php:119
 msgid "Silver"
-msgstr ""
+msgstr "Strieborná"
 
 #: modules/widgets/rsslinks-widget.php:118
 msgid "Pink"
-msgstr ""
+msgstr "Ružová"
 
 #: modules/widgets/rsslinks-widget.php:117
 msgid "Purple"
-msgstr ""
+msgstr "Fialová"
 
 #: modules/widgets/image-widget.php:12
 msgid "Display an image in your sidebar"
@@ -200,7 +200,7 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:113
 msgid "Red"
-msgstr ""
+msgstr "Červená"
 
 #: modules/widgets/rsslinks-widget.php:103
 msgid "Image Size:"
@@ -401,31 +401,31 @@ msgstr ""
 
 #: modules/stats.php:644
 msgid "week"
-msgstr ""
+msgstr "týždeň"
 
 #: modules/stats.php:506
 msgid "Save configuration"
-msgstr ""
+msgstr "Uložiť konfiguráciu"
 
 #: modules/stats.php:541
 msgid "Views over 48 hours. Click for more Site Stats."
-msgstr ""
+msgstr "Prezretí za 48 hodín. Pre viac kliknite na Štatistiky stránky."
 
 #: modules/stats.php:645
 msgid "month"
-msgstr ""
+msgstr "mesiac"
 
 #: modules/stats.php:648
 msgid "the past day"
-msgstr ""
+msgstr "posledný deň"
 
 #: modules/stats.php:649
 msgid "the past week"
-msgstr ""
+msgstr "posledný týždeň"
 
 #: modules/stats.php:643
 msgid "day"
-msgstr ""
+msgstr "deň"
 
 #: modules/stats.php:492
 msgid "Hide the stats smiley face image."
@@ -449,7 +449,7 @@ msgstr ""
 
 #: modules/stats.php:218 modules/stats.php:622
 msgid "Site Stats"
-msgstr ""
+msgstr "Štatistiky stránky"
 
 #: modules/stats.php:305
 msgid "Your Site Stats work better with Javascript enabled."
@@ -731,7 +731,7 @@ msgstr ""
 
 #: modules/module-info.php:29
 msgid "VaultPress dashboard"
-msgstr ""
+msgstr "Nástenka VaultPress"
 
 #: modules/module-info.php:59
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services they use on the web like Twitter, Facebook, or LinkedIn."
@@ -747,7 +747,7 @@ msgstr ""
 
 #: modules/shortcodes/videopress.php:1298
 msgid "Loading video..."
-msgstr ""
+msgstr "Nahrávam video..."
 
 #: modules/shortcodes/archives.php:49
 msgid "Your blog does not currently have any published posts."
@@ -755,7 +755,7 @@ msgstr ""
 
 #: modules/module-info.php:22 modules/module-info.php:26
 msgid "VaultPress"
-msgstr ""
+msgstr "VaultPress"
 
 #: modules/shortcodes/videopress.php:1291
 msgid "This video requires <a rel=\"nofollow\" href=\"%s\">Adobe Flash</a> for playback."
@@ -772,11 +772,11 @@ msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "November"
-msgstr ""
+msgstr "November"
 
 #: modules/shortcodes/videopress.php:876
 msgid "December"
-msgstr ""
+msgstr "December"
 
 #: modules/shortcodes/videopress.php:912
 msgid "Submit"
@@ -784,12 +784,12 @@ msgstr ""
 
 #: modules/shortcodes/videopress.php:915
 msgid "More information"
-msgstr ""
+msgstr "Viac informácií"
 
 #: modules/shortcodes/videopress.php:1115
 #: modules/shortcodes/videopress.php:1137
 msgid "this video"
-msgstr ""
+msgstr "toto video"
 
 #: modules/shortcodes/videopress.php:1144
 msgctxt "Play as in playback or view a movie"
@@ -814,7 +814,7 @@ msgstr ""
 
 #: modules/shortcodes/videopress.php:876
 msgid "September"
-msgstr ""
+msgstr "September"
 
 #: modules/shortcodes/videopress.php:876
 msgid "October"
@@ -886,11 +886,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1044
 msgid "Save"
-msgstr ""
+msgstr "Uložiť"
 
 #: modules/sharedaddy/sharing-sources.php:1037
 msgid "Icon"
-msgstr ""
+msgstr "Ikona"
 
 #: modules/sharedaddy/sharing-sources.php:1032
 msgid "URL"
@@ -1030,7 +1030,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:227
 msgid "Cancel"
-msgstr ""
+msgstr "Zrušiť"
 
 #: modules/sharedaddy/sharing-sources.php:238
 msgid "Sorry, your blog cannot share posts by email."
@@ -1076,7 +1076,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:171
 msgid "Close"
-msgstr ""
+msgstr "Zavrieť"
 
 #: modules/sharedaddy/sharing.php:376
 msgid "Icon URL"
@@ -1084,7 +1084,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:361
 msgid "Service name"
-msgstr ""
+msgstr "Meno služby"
 
 #: modules/sharedaddy/sharing.php:379
 msgid "Enter the URL of a 16x16px icon you want to use for this service."
@@ -1104,7 +1104,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:350
 msgid "Save Changes"
-msgstr ""
+msgstr "Uložiť zmeny"
 
 #: modules/sharedaddy/sharing.php:221
 msgid "Sharing is off. Please add services above to enable"
@@ -1112,19 +1112,19 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:308
 msgid "Text only"
-msgstr ""
+msgstr "Len text"
 
 #: modules/sharedaddy/sharing.php:322
 msgid "New window"
-msgstr ""
+msgstr "Nové okno"
 
 #: modules/sharedaddy/sharing.php:218
 msgid "Live Preview"
-msgstr ""
+msgstr "Živý náhľad"
 
 #: modules/sharedaddy/sharing.php:306
 msgid "Icon + text"
-msgstr ""
+msgstr "Ikona + text"
 
 #: modules/sharedaddy/sharing.php:328
 msgid "Show sharing buttons on"
@@ -1140,11 +1140,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:307
 msgid "Icon only"
-msgstr ""
+msgstr "Len ikona"
 
 #: modules/sharedaddy/sharing.php:323
 msgid "Same window"
-msgstr ""
+msgstr "Rovnaké okno"
 
 #: modules/sharedaddy/sharing.php:303
 msgid "Default button style"
@@ -1287,7 +1287,7 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:15
 msgid "No suggestions"
-msgstr ""
+msgstr "Žiadne návrhy"
 
 #: modules/after-the-deadline/atd-l10n.php:17
 msgid "Explain..."
@@ -1423,7 +1423,7 @@ msgstr ""
 
 #: jetpack.php:1723 modules/sharedaddy/sharedaddy.php:65
 msgid "Support"
-msgstr ""
+msgstr "Podpora"
 
 #: jetpack.php:1889
 msgid "Configure"
@@ -1439,7 +1439,7 @@ msgstr ""
 
 #: jetpack.php:1860
 msgid "Updated"
-msgstr ""
+msgstr "Aktualizovaný"
 
 #: jetpack.php:2720
 msgid "An administrator for this blog must set up the Jetpack connection."
@@ -1452,7 +1452,7 @@ msgstr ""
 
 #: jetpack.php:1826
 msgid "Activate"
-msgstr ""
+msgstr "Aktivovať"
 
 #: jetpack.php:1849
 msgid "Free"
@@ -1526,11 +1526,11 @@ msgstr ""
 
 #: jetpack.php:1635
 msgid "Disconnect from WordPress.com"
-msgstr ""
+msgstr "Odhlásiť sa z WordPress.com"
 
 #: jetpack.php:1634
 msgid "Connected to WordPress.com"
-msgstr ""
+msgstr "Prepojený s WordPress.com"
 
 #: jetpack.php:1478
 msgid "Jetpack contains the most recent version of the old %l plugin."
@@ -1572,7 +1572,7 @@ msgstr ""
 
 #: jetpack.php:1378
 msgid "Try connecting again."
-msgstr ""
+msgstr "Pokúsiť sa znovu pripojiť."
 
 #: jetpack.php:1426
 msgid "The following modules have been updated: %l."
@@ -1616,7 +1616,7 @@ msgstr ""
 
 #: jetpack.php:1134
 msgid "Jetpack Support"
-msgstr ""
+msgstr "Podpora Jetpack"
 
 #: jetpack.php:1216
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
@@ -1644,12 +1644,12 @@ msgstr ""
 
 #: jetpack.php:1202 jetpack.php:1653
 msgid "Connect to WordPress.com"
-msgstr ""
+msgstr "Pripojit na WordPress.com"
 
 #: jetpack.php:1184 modules/sharedaddy/sharedaddy.php:57
 #: modules/sharedaddy/sharedaddy.php:64
 msgid "Settings"
-msgstr ""
+msgstr "Nastavenia"
 
 #: jetpack.php:1201
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features."
@@ -1666,7 +1666,7 @@ msgstr ""
 #: modules/module-info.php:350 modules/module-info.php:374
 #: modules/module-info.php:392
 msgid "Learn More"
-msgstr ""
+msgstr "Zistiť viac"
 
 #: jetpack.php:915
 msgid "Jetpack requires WordPress version %s or later."
@@ -1709,4 +1709,4 @@ msgstr ""
 
 #: jetpack.php:1132
 msgid "For more information:"
-msgstr ""
+msgstr "Pre viac informácií:"
