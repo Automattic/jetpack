@@ -122,8 +122,8 @@ function stats_template_redirect() {
 		// 3. Set page_on_front = something
 		// 4. Visit http://example.com/
 
-		$queried_object = ( isset( $wp_the_query->queried_object ) ) ? $wp_the_query->queried_object : '';
-		$queried_object_id = ( isset( $wp_the_query->queried_object_id ) ) ? $wp_the_query->queried_object_id : '';
+		$queried_object = ( isset( $wp_the_query->queried_object ) ) ? $wp_the_query->queried_object : null;
+		$queried_object_id = ( isset( $wp_the_query->queried_object_id ) ) ? $wp_the_query->queried_object_id : null;
 		$post = $wp_the_query->get_queried_object_id();
 		$wp_the_query->queried_object = $queried_object;
 		$wp_the_query->queried_object_id = $queried_object_id;
