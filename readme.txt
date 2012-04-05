@@ -3,7 +3,7 @@ Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, andy
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions
 Requires at least: 3.1
 Tested up to: 3.3
-Stable tag: 1.2.3
+Stable tag: 1.2.4
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
 
@@ -75,6 +75,9 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 5. Spelling and Grammar demo.
 
 == Changelog ==
+
+= 1.2.4 =
+* Bug Fix: Fix rare bug with static front pages
 
 = 1.2.3 =
 * Enhancement: Twitter Widget: Expand t.co URLs
