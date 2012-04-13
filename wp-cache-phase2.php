@@ -22,6 +22,7 @@ function wp_cache_phase2() {
 		add_action( 'template_redirect', 'wp_super_cache_query_vars' );
 
 		// Post ID is received
+		add_action('wp_trash_post', 'wp_cache_post_edit', 0);
 		add_action('publish_post', 'wp_cache_post_edit', 0);
 		add_action('edit_post', 'wp_cache_post_change', 0); // leaving a comment called edit_post
 		add_action('delete_post', 'wp_cache_post_edit', 0);
@@ -964,6 +965,7 @@ function wp_cache_clear_cache() {
 	}
 }
 
+/* check if we want to clear out all cached files on post updates, otherwise call standard wp_cache_post_change() */
 function wp_cache_post_edit($post_id) {
 	global $wp_cache_clear_on_post_edit, $cache_path, $blog_cache_dir;
 	if( $wp_cache_clear_on_post_edit ) {
