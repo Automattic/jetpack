@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.2.4
+ * Version: 1.3
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -17,7 +17,7 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.1' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
-define( 'JETPACK__VERSION', '1.2.4' );
+define( 'JETPACK__VERSION', '1.3' );
 
 /*
 Options:
@@ -52,6 +52,7 @@ class Jetpack {
 		'sharedaddy' => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
 		'twitter-widget' => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
 		'after-the-deadline' => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
+		'contact-form' => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
 	);
 
 	var $capability_translations = array(
@@ -1828,7 +1829,7 @@ p {
 			die( '-1' );
 		}
 ?>
-		<p><?php esc_html_e( 'This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords.' ); ?></p>
+		<p><?php esc_html_e( 'This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords.', 'jetpack' ); ?></p>
 		<ul>
 		<?php
 		foreach ( array(
@@ -2023,7 +2024,7 @@ p {
 		}
 
 		// Add in some "Coming soon..." placeholders to fill up the current row and one more
-		for ( $i = 0; $i < 3; $i++ ) { ?>
+		for ( $i = 0; $i < 4; $i++ ) { ?>
 			<div class="jetpack-module placeholder"<?php if ( $i > 8 - $counter ) echo ' style="display: none;"'; ?>>
 				<h3><?php _e( 'Coming soon&#8230;', 'jetpack' ) ?></h3>
 			</div>

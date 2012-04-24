@@ -401,3 +401,30 @@ function jetpack_enhanced_distribution_more_link() {
 	echo '<a class="button more-info-link" href="http://en.wordpress.com/firehose/">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
 }
 add_action( 'jetpack_learn_more_button_enhanced-distribution', 'jetpack_enhanced_distribution_more_link' );
+
+// Contact Form: START
+function jetpack_contact_form_learn_more_button() {
+    echo '<a class="button more-info-link" href="http://support.wordpress.com/contact-form/">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+
+function jetpack_contact_form_more_info() {
+    echo '<div class="jp-info-img">';
+    echo '<a href="http://support.wordpress.com/contact-form/">';
+    echo '<img class="jp-info-img" src="' . plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/contact-form.jpg' ) . '" alt="' . esc_attr__( 'Contact Form', 'jetpack' ) . '" width="194" height="148" />';
+    echo '</a>';
+    echo '</div>';
+
+    echo '<h4>' . esc_html__( 'Contact Form', 'jetpack' ) . '</h4>';
+
+    echo '<p>';
+    _e( 'A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address.', 'jetpack' );
+    echo '</p>';
+
+    echo '<p>';    _e( 'Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href="http://akismet.com/">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area.', 'jetpack' );
+    echo '</p>';
+}
+
+add_action( 'jetpack_learn_more_button_contact-form', 'jetpack_contact_form_learn_more_button' );
+add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_info' );
+add_action( 'jetpack_module_more_info_connected_contact-form', 'jetpack_contact_form_more_info' );
+// Contact Form: STOP

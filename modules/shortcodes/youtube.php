@@ -92,7 +92,7 @@ add_filter('pre_kses', 'youtube_embed_to_short_code');
  * @return string The content with embeds instead of URLs
  */
 function youtube_link( $content ) {
-	return preg_replace_callback( '!(?:\n|\A)(http://www\.youtube\.com/(v|watch)[^\s]+?)(?:\n|\Z)!i', 'youtube_link_callback', $content );
+	return preg_replace_callback( '!(?:\n|\A)http://(?:www\.)?(?:youtube.com/(?:v/|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content );
 }
 
 /**

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * google video is replaced by youtube, but its embeds will probably continue working indefinitely.
  * [googlevideo=http://video.google.com/googleplayer.swf?docId=-6006084025483872237]    
