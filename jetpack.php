@@ -2024,7 +2024,7 @@ p {
 		}
 
 		// Add in some "Coming soon..." placeholders to fill up the current row and one more
-		for ( $i = 0; $i < 3; $i++ ) { ?>
+		for ( $i = 0; $i < 4; $i++ ) { ?>
 			<div class="jetpack-module placeholder"<?php if ( $i > 8 - $counter ) echo ' style="display: none;"'; ?>>
 				<h3><?php _e( 'Coming soon&#8230;', 'jetpack' ) ?></h3>
 			</div>
