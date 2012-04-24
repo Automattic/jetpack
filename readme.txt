@@ -79,6 +79,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 = 1.3 =
 * Enhancement: Add Contact Forms feature.  Formerly Grunion Contact Forms.
 * Bug Fix: Tweak YouTube autoembedder to catch more YouTube URLs.
+* Bug Fix: Correctly load the Sharing CSS files.
 
 = 1.2.4 =
 * Bug Fix: Fix rare bug with static front pages

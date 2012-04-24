@@ -12,9 +12,6 @@ class Sharing_Admin {
 		add_action( 'admin_init', array( &$this, 'admin_init' ) );
 		add_action( 'admin_menu', array( &$this, 'subscription_menu' ) );
 
-		// Insert our CSS and JS
-		add_action( 'load-settings_page_sharing', array( &$this, 'sharing_head' ) );
-
 		// Catch AJAX
 		add_action( 'wp_ajax_sharing_save_services', array( &$this, 'ajax_save_services' ) );
 		add_action( 'wp_ajax_sharing_save_options', array( &$this, 'ajax_save_options' ) );
@@ -46,7 +43,10 @@ class Sharing_Admin {
 	}
 	
 	public function subscription_menu( $user ) {
-		add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( &$this, 'management_page' ) );
+		$hook = add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( &$this, 'management_page' ) );
+
+		// Insert our CSS and JS
+		add_action( "load-$hook", array( &$this, 'sharing_head' ) );
 	}
 	
 	public function ajax_save_services() {
