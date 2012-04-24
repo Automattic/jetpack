@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Archives shortcode
  * @author bubel & nickmomrik

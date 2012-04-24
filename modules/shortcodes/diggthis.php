@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Digg changed their button API. 
  * 
