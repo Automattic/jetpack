@@ -1049,15 +1049,13 @@ p {
 			Jetpack::plugin_initialize();
 		}
 
-		if ( !$is_active = Jetpack::is_active() ) {
-			add_action( 'admin_print_styles', array( &$this, 'admin_styles' ) );
+		$is_active = Jetpack::is_active();
 
+		if ( !$is_active ) {
 			if ( 4 != Jetpack::get_option( 'activated' ) ) {
-				foreach ( array( 'user_admin_notices', 'admin_notices' ) as $filter )
-					add_action( $filter, array( &$this, 'admin_connect_notice' ) );
-
-				if ( Jetpack::state( 'network_nag' ) )
-					add_action( 'network_admin_notices', array( &$this, 'network_connect_notice' ) );
+				// Show connect notice on dashboard and plugins pages
+				add_action( 'load-index.php', array( &$this, 'prepare_connect_notice' ) );
+				add_action( 'load-plugins.php', array( &$this, 'prepare_connect_notice' ) );
 			}
 		} elseif ( false === Jetpack::get_option( 'fallback_no_verify_ssl_certs' ) ) {
 			// Upgrade: 1.1 -> 1.1.1
@@ -1080,6 +1078,15 @@ p {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
 			add_action( 'activate_plugin', array( &$this, 'throw_error_on_activate_plugin' ) );
 		}
+	}
+
+	function prepare_connect_notice() {
+		add_action( 'admin_print_styles', array( &$this, 'admin_styles' ) );
+
+		add_action( 'admin_notices', array( &$this, 'admin_connect_notice' ) );
+
+		if ( Jetpack::state( 'network_nag' ) )
+			add_action( 'network_admin_notices', array( &$this, 'network_connect_notice' ) );
 	}
 
 	/**
@@ -1180,8 +1187,7 @@ p {
 		add_filter( 'custom_menu_order', array( &$this, 'admin_menu_order' ) );
 		add_filter( 'menu_order', array( &$this, 'jetpack_menu_order' ) );
 
-		if ( Jetpack::is_active() )
-			add_action( "admin_print_styles-$jetpack_hook", array( &$this, 'admin_styles' ) );
+		add_action( "admin_print_styles-$jetpack_hook", array( &$this, 'admin_styles' ) );
 
 		add_action( "admin_print_scripts-$jetpack_hook", array( &$this, 'admin_scripts' ) );
 
