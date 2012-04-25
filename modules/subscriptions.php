@@ -13,13 +13,13 @@ class Jetpack_Subscriptions {
 	 * @static
 	 */
 	function &init() {
-		static $instance = array();
+		static $instance = false;
 
 		if ( !$instance ) {
-			$instance[0] =& new Jetpack_Subscriptions;
+			$instance = new Jetpack_Subscriptions;
 		}
 
-		return $instance[0];
+		return $instance;
 	}
 
 	function Jetpack_Subscriptions() {
@@ -178,7 +178,7 @@ class Jetpack_Subscriptions {
 
 		if ( !$async ) {
 			Jetpack::load_xml_rpc_client();
-			$xml =& new Jetpack_IXR_ClientMulticall();
+			$xml = new Jetpack_IXR_ClientMulticall();
 		}
 
 		foreach( (array) $post_ids as $post_id ) {
@@ -217,25 +217,25 @@ class Jetpack_Subscriptions {
 			}
 
 			if ( !is_array( $response[0] ) || empty( $response[0]['status'] ) ) {
-				$r[] =& new Jetpack_Error( 'unknown' );
+				$r[] = new Jetpack_Error( 'unknown' );
 				continue;
 			}
 
 			switch ( $response[0]['status'] ) {
 			case 'error' :
-				$r[] =& new Jetpack_Error( 'not_subscribed' );
+				$r[] = new Jetpack_Error( 'not_subscribed' );
 				continue 2;
 			case 'disabled' :
-				$r[] =& new Jetpack_Error( 'disabled' );
+				$r[] = new Jetpack_Error( 'disabled' );
 				continue 2;
 			case 'active' :
-				$r[] =& new Jetpack_Error( 'active' );
+				$r[] = new Jetpack_Error( 'active' );
 				continue 2;
 			case 'pending' :
 				$r[] = true;
 				continue 2;
 			default :
-				$r[] =& new Jetpack_Error( 'unknown_status', (string) $response[0]['status'] );
+				$r[] = new Jetpack_Error( 'unknown_status', (string) $response[0]['status'] );
 				continue 2;
 			}
 		}
@@ -512,7 +512,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( FALSE === $subs_count || 'failed' == $subs_count['status'] ) {
 			Jetpack:: load_xml_rpc_client();
 
-			$xml =& new Jetpack_IXR_Client( array(
+			$xml = new Jetpack_IXR_Client( array(
 				'user_id' => $GLOBALS['current_user']->ID
 			) );
 
