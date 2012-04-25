@@ -32,11 +32,11 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		return apply_filters( 'jetpack_xmlrpc_methods', array(
-			'jetpack.testConnection'    => array( &$this, 'test_connection' ),
-			'jetpack.featuresAvailable' => array( &$this, 'features_available' ),
-			'jetpack.featuresEnabled'   => array( &$this, 'features_enabled' ),
-			'jetpack.getPost'           => array( &$this, 'get_post' ),
-			'jetpack.getComment'        => array( &$this, 'get_comment' ),  
+			'jetpack.testConnection'    => array( $this, 'test_connection' ),
+			'jetpack.featuresAvailable' => array( $this, 'features_available' ),
+			'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
+			'jetpack.getPost'           => array( $this, 'get_post' ),
+			'jetpack.getComment'        => array( $this, 'get_comment' ),  
 		) );
 	}
 
@@ -45,7 +45,7 @@ class Jetpack_XMLRPC_Server {
 	 */
 	function bootstrap_xmlrpc_methods() {
 		return array(
-			'jetpack.verifyRegistration' => array( &$this, 'verify_registration' ),
+			'jetpack.verifyRegistration' => array( $this, 'verify_registration' ),
 		);
 	}
 

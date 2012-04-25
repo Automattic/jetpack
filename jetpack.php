@@ -162,33 +162,33 @@ class Jetpack {
 
 			if ( $this->is_active() ) {
 				// Allow Jetpack authentication
-				add_filter( 'authenticate', array( &$this, 'authenticate_xml_rpc' ), 10, 3 );
+				add_filter( 'authenticate', array( $this, 'authenticate_xml_rpc' ), 10, 3 );
 
 				// Hack to preserve $HTTP_RAW_POST_DATA
-				add_filter( 'xmlrpc_methods', array( &$this, 'xmlrpc_methods' ) );
+				add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
 				// The actual API methods.
-				add_filter( 'xmlrpc_methods', array( &$this->xmlrpc_server, 'xmlrpc_methods' ) );
+				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
 			} else {
 				// The bootstrap API methods.
-				add_filter( 'xmlrpc_methods', array( &$this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
+				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
 			}
 
 			// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
 			add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
 		}
 
-		add_action( 'jetpack_clean_nonces', array( &$this, 'clean_nonces' ) );
+		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
 
-		add_action( 'admin_menu', array( &$this, 'admin_menu' ) );
-		add_action( 'admin_init', array( &$this, 'admin_init' ) );
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		// Only used in WordPress < 3.2
-		add_action( 'http_transport_post_debug', array( &$this, 'http_transport_detector' ) );
-		add_action( 'http_transport_get_debug',  array( &$this, 'http_transport_detector' ) );
+		add_action( 'http_transport_post_debug', array( $this, 'http_transport_detector' ) );
+		add_action( 'http_transport_get_debug',  array( $this, 'http_transport_detector' ) );
 
-		add_action( 'wp_ajax_jetpack-check-news-subscription', array( &$this, 'check_news_subscription' ) );
-		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( &$this, 'subscribe_to_news' ) );
+		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
+		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
 	}
 
 	/**
@@ -1054,8 +1054,8 @@ p {
 		if ( !$is_active ) {
 			if ( 4 != Jetpack::get_option( 'activated' ) ) {
 				// Show connect notice on dashboard and plugins pages
-				add_action( 'load-index.php', array( &$this, 'prepare_connect_notice' ) );
-				add_action( 'load-plugins.php', array( &$this, 'prepare_connect_notice' ) );
+				add_action( 'load-index.php', array( $this, 'prepare_connect_notice' ) );
+				add_action( 'load-plugins.php', array( $this, 'prepare_connect_notice' ) );
 			}
 		} elseif ( false === Jetpack::get_option( 'fallback_no_verify_ssl_certs' ) ) {
 			// Upgrade: 1.1 -> 1.1.1
@@ -1068,25 +1068,25 @@ p {
 			);
 		}
 
-		add_action( 'load-plugins.php', array( &$this, 'intercept_plugin_error_scrape_init' ) );
-		add_action( 'admin_head', array( &$this, 'admin_menu_css' ) );
-		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( &$this, 'plugin_action_links' ) );
+		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
+		add_action( 'admin_head', array( $this, 'admin_menu_css' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
 
-		add_action( 'wp_ajax_jetpack_debug', array( &$this, 'ajax_debug' ) );
+		add_action( 'wp_ajax_jetpack_debug', array( $this, 'ajax_debug' ) );
 
 		if ( $is_active ) {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
-			add_action( 'activate_plugin', array( &$this, 'throw_error_on_activate_plugin' ) );
+			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
 		}
 	}
 
 	function prepare_connect_notice() {
-		add_action( 'admin_print_styles', array( &$this, 'admin_styles' ) );
+		add_action( 'admin_print_styles', array( $this, 'admin_styles' ) );
 
-		add_action( 'admin_notices', array( &$this, 'admin_connect_notice' ) );
+		add_action( 'admin_notices', array( $this, 'admin_connect_notice' ) );
 
 		if ( Jetpack::state( 'network_nag' ) )
-			add_action( 'network_admin_notices', array( &$this, 'network_connect_notice' ) );
+			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
 	}
 
 	/**
@@ -1121,7 +1121,7 @@ p {
 	}
 
 	function intercept_plugin_error_scrape_init() {
-		add_action( 'check_admin_referer', array( &$this, 'intercept_plugin_error_scrape' ), 10, 2 );
+		add_action( 'check_admin_referer', array( $this, 'intercept_plugin_error_scrape' ), 10, 2 );
 	}
 
 	function intercept_plugin_error_scrape( $action, $result ) {
@@ -1166,30 +1166,30 @@ p {
 			$stats_hook = add_submenu_page( 'stats', __( 'Site Stats', 'jetpack' ), __( 'Site Stats', 'jetpack' ), 'view_stats', 'stats', 'stats_reports_page' );
 			add_action( "load-$stats_hook", 'stats_reports_load' );
 
-			$jetpack_hook = add_submenu_page( 'stats', 'Jetpack Management', 'Manage', 'manage_options', 'jetpack', array( &$this, 'admin_page' ) );
+			$jetpack_hook = add_submenu_page( 'stats', 'Jetpack Management', 'Manage', 'manage_options', 'jetpack', array( $this, 'admin_page' ) );
 
 			$this->top_level = 'stats';
 		} else {
-			$jetpack_hook = add_menu_page( 'Jetpack', $title, 'manage_options', 'jetpack', array( &$this, 'admin_page' ), '' );
+			$jetpack_hook = add_menu_page( 'Jetpack', $title, 'manage_options', 'jetpack', array( $this, 'admin_page' ), '' );
 
 			$this->top_level = 'jetpack';
 		}
 
-		add_action( "load-$jetpack_hook", array( &$this, 'admin_page_load' ) );
+		add_action( "load-$jetpack_hook", array( $this, 'admin_page_load' ) );
 		if ( version_compare( $GLOBALS['wp_version'], '3.3', '<' ) ) {
 			if ( isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
 				add_contextual_help( $jetpack_hook, $this->jetpack_help() );
 			}
 		} else {
-			add_action( "load-$jetpack_hook", array( &$this, 'admin_help' ) );
+			add_action( "load-$jetpack_hook", array( $this, 'admin_help' ) );
 		}
-		add_action( "admin_head-$jetpack_hook", array( &$this, 'admin_head' ) );
-		add_filter( 'custom_menu_order', array( &$this, 'admin_menu_order' ) );
-		add_filter( 'menu_order', array( &$this, 'jetpack_menu_order' ) );
+		add_action( "admin_head-$jetpack_hook", array( $this, 'admin_head' ) );
+		add_filter( 'custom_menu_order', array( $this, 'admin_menu_order' ) );
+		add_filter( 'menu_order', array( $this, 'jetpack_menu_order' ) );
 
-		add_action( "admin_print_styles-$jetpack_hook", array( &$this, 'admin_styles' ) );
+		add_action( "admin_print_styles-$jetpack_hook", array( $this, 'admin_styles' ) );
 
-		add_action( "admin_print_scripts-$jetpack_hook", array( &$this, 'admin_scripts' ) );
+		add_action( "admin_print_scripts-$jetpack_hook", array( $this, 'admin_scripts' ) );
 
 		do_action( 'jetpack_admin_menu' );
 	}
@@ -1298,7 +1298,7 @@ p {
 		wp_localize_script( 'jetpack-js', 'jetpackL10n', array(
 				'ays_disconnect' => "This will deactivate all Jetpack modules.\nAre you sure you want to disconnect?",
 			) );
-		add_action( 'admin_footer', array( &$this, 'do_stats' ) );
+		add_action( 'admin_footer', array( $this, 'do_stats' ) );
 	}
 
 	function plugin_action_links( $actions ) {
@@ -1616,7 +1616,7 @@ p {
 		}
 
 		if ( $this->message || $this->error ) {
-			add_action( 'jetpack_notices', array( &$this, 'admin_notices' ) );
+			add_action( 'jetpack_notices', array( $this, 'admin_notices' ) );
 		}
 
 		if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) ) {
@@ -2966,7 +2966,7 @@ class Jetpack_Sync {
 	var $post_transitions = array();
 
 	function Jetpack_Sync() {
-		add_action( 'transition_post_status', array( &$this, 'track_post_transition' ), 1, 3 );
+		add_action( 'transition_post_status', array( $this, 'track_post_transition' ), 1, 3 );
 	}
 
 	function track_post_transition( $new_status, $old_status, $post ) {
@@ -2993,7 +2993,7 @@ class Jetpack_Sync {
 		// Since we've registered something for sync, hook it up to execute on shutdown if we haven't already
 		if ( !$this->sync ) {
 			ignore_user_abort( true );
-			add_action( 'shutdown', array( &$this, 'sync' ), 9 ); // Right before async XML-RPC
+			add_action( 'shutdown', array( $this, 'sync' ), 9 ); // Right before async XML-RPC
 		}
 
 		$this->add_to_array( $this->sync, $object, $id, $specifics );

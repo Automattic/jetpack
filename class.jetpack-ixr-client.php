@@ -116,7 +116,7 @@ class Jetpack_IXR_ClientMulticall extends Jetpack_IXR_Client {
 	}
 
 	function query() {
-		usort( $this->calls, array( &$this, 'sort_calls' ) );
+		usort( $this->calls, array( $this, 'sort_calls' ) );
 
 		// Prepare multicall, then call the parent::query() method
 		return parent::query( 'system.multicall', $this->calls );

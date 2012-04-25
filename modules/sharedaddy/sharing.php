@@ -9,14 +9,14 @@ class Sharing_Admin {
 		
 		require_once WP_SHARING_PLUGIN_DIR.'sharing-service.php';
 
-		add_action( 'admin_init', array( &$this, 'admin_init' ) );
-		add_action( 'admin_menu', array( &$this, 'subscription_menu' ) );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_menu', array( $this, 'subscription_menu' ) );
 
 		// Catch AJAX
-		add_action( 'wp_ajax_sharing_save_services', array( &$this, 'ajax_save_services' ) );
-		add_action( 'wp_ajax_sharing_save_options', array( &$this, 'ajax_save_options' ) );
-		add_action( 'wp_ajax_sharing_new_service', array( &$this, 'ajax_new_service' ) );
-		add_action( 'wp_ajax_sharing_delete_service', array( &$this, 'ajax_delete_service' ) );
+		add_action( 'wp_ajax_sharing_save_services', array( $this, 'ajax_save_services' ) );
+		add_action( 'wp_ajax_sharing_save_options', array( $this, 'ajax_save_options' ) );
+		add_action( 'wp_ajax_sharing_new_service', array( $this, 'ajax_new_service' ) );
+		add_action( 'wp_ajax_sharing_delete_service', array( $this, 'ajax_delete_service' ) );
 	}
 	
 	public function sharing_head() {
@@ -43,10 +43,10 @@ class Sharing_Admin {
 	}
 	
 	public function subscription_menu( $user ) {
-		$hook = add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( &$this, 'management_page' ) );
+		$hook = add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( $this, 'management_page' ) );
 
 		// Insert our CSS and JS
-		add_action( "load-$hook", array( &$this, 'sharing_head' ) );
+		add_action( "load-$hook", array( $this, 'sharing_head' ) );
 	}
 	
 	public function ajax_save_services() {
