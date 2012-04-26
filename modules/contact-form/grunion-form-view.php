@@ -5,20 +5,20 @@
 
 wp_register_script( 'grunion', GRUNION_PLUGIN_URL . 'js/grunion.js', array( 'jquery-ui-sortable', 'jquery-ui-draggable' ), JETPACK__VERSION );
 wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
-	'nameLabel' => esc_attr( _c( 'Name', 'Label for HTML form "Name" field in contact form builder', 'jetpack' ) ),
-	'emailLabel' => esc_attr( _c( 'Email', 'Label for HTML form "Email" field in contact form builder', 'jetpack' ) ),
-	'urlLabel' => esc_attr( _c( 'Website', 'Label for HTML form "URL/Website" field in contact form builder', 'jetpack' ) ),
-	'commentLabel' => esc_attr( _c( 'Comment', 'Label for HTML form "Comment/Response" field in contact form builder', 'jetpack' ) ),
-	'newLabel' => esc_attr( _c( 'New Field', 'Default label for new HTML form field in contact form builder', 'jetpack' ) ),
-	'optionsLabel' => esc_attr( _c( 'Options', 'Label for the set of options to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
-	'optionsLabel' => esc_attr( _c( 'Option', 'Label for an option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
-	'firstOptionLabel' => esc_attr( _c( 'First option', 'Default label for the first option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
-	'problemGeneratingForm' => esc_attr( _c( "Oops, there was a problem generating your form.  You'll likely need to try again.", 'error message in contact form builder', 'jetpack' ) ),
+	'nameLabel' => esc_attr( _x( 'Name', 'Label for HTML form "Name" field in contact form builder', 'jetpack' ) ),
+	'emailLabel' => esc_attr( _x( 'Email', 'Label for HTML form "Email" field in contact form builder', 'jetpack' ) ),
+	'urlLabel' => esc_attr( _x( 'Website', 'Label for HTML form "URL/Website" field in contact form builder', 'jetpack' ) ),
+	'commentLabel' => esc_attr( _x( 'Comment', 'Label for HTML form "Comment/Response" field in contact form builder', 'jetpack' ) ),
+	'newLabel' => esc_attr( _x( 'New Field', 'Default label for new HTML form field in contact form builder', 'jetpack' ) ),
+	'optionsLabel' => esc_attr( _x( 'Options', 'Label for the set of options to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
+	'optionsLabel' => esc_attr( _x( 'Option', 'Label for an option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
+	'firstOptionLabel' => esc_attr( _x( 'First option', 'Default label for the first option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
+	'problemGeneratingForm' => esc_attr( _x( "Oops, there was a problem generating your form.  You'll likely need to try again.", 'error message in contact form builder', 'jetpack' ) ),
 	'moveInstructions' => esc_attr__( "Drag up or down\nto re-arrange", 'jetpack' ),
-	'moveLabel' => esc_attr( _c( 'move', 'Label to drag HTML form fields around to change their order in contact form builder', 'jetpack' ) ),
-	'editLabel' => esc_attr( _c( 'edit', 'Link to edit an HTML form field in contact form builder', 'jetpack' ) ),
+	'moveLabel' => esc_attr( _x( 'move', 'Label to drag HTML form fields around to change their order in contact form builder', 'jetpack' ) ),
+	'editLabel' => esc_attr( _x( 'edit', 'Link to edit an HTML form field in contact form builder', 'jetpack' ) ),
 	'savedMessage' => esc_attr__( 'Saved successfully', 'jetpack' ),
-	'requiredLabel' => esc_attr( _c( '(required)', 'This HTML form field is marked as required by the user in contact form builder', 'jetpack' ) ),
+	'requiredLabel' => esc_attr( _x( '(required)', 'This HTML form field is marked as required by the user in contact form builder', 'jetpack' ) ),
 	'exitConfirmMessage' => esc_attr__( 'Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost.', 'jetpack' ),
 ) );
 
@@ -121,12 +121,12 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 			<p><?php esc_html_e( 'By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you.', 'jetpack' ); ?></p>
 			<h3 style="margin-top: 21px;"><?php esc_html_e( 'Can I add more fields?', 'jetpack' ); ?></h3>
 			<p><?php printf(
-				esc_html( _c( 'Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field.', '%1$s = "Click here" in an HTML link', 'jetpack' ) ),
+				esc_html( _x( 'Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field.', '%1$s = "Click here" in an HTML link', 'jetpack' ) ),
 				'<a href="#" class="fb-add-field" style="padding-left: 0;">' . esc_html__( 'Click here', 'jetpack' ) . '</a>'
 			); ?></p>
 			<h3 style="margin-top: 21px;"><?php esc_html_e( 'Can I view my feedback within WordPress?', 'jetpack' ); ?></h3>
 			<p><?php printf(
-				esc_html( _c( 'Yep, you can read your feedback at any time by clicking the "%1$s" link in the admin menu.', '%1$s = "Feedbacks" in an HTML link', 'jetpack' ) ),
+				esc_html( _x( 'Yep, you can read your feedback at any time by clicking the "%1$s" link in the admin menu.', '%1$s = "Feedbacks" in an HTML link', 'jetpack' ) ),
 				'<a id="fb-feedback" href="' . admin_url( 'edit.php?post_type=feedback' ) . '">' . esc_html__( 'Feedbacks', 'jetpack' ) . '</a>'
 			); ?></p>
 			<div class="clear"></div>
