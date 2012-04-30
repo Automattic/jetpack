@@ -438,7 +438,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'] ) {
 			?>
 
-			<div style="success">
+			<div class="success">
 				<p><?php _e( 'An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing.', 'jetpack' ); ?></p>
 			</div>
 
