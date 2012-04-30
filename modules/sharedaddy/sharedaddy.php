@@ -19,8 +19,11 @@ function sharing_email_send_post( $data ) {
 }
 
 function sharing_add_meta_box() {
-	add_meta_box( 'sharing_meta', __( 'Sharing', 'jetpack' ), 'sharing_meta_box_content', 'page', 'advanced', 'high' );
-	add_meta_box( 'sharing_meta', __( 'Sharing', 'jetpack' ), 'sharing_meta_box_content', 'post', 'advanced', 'high' );
+	$post_types = get_post_types( array( 'public' => true ) );
+
+	foreach( $post_types as $post_type ) {
+		add_meta_box( 'sharing_meta', __( 'Sharing', 'jetpack' ), 'sharing_meta_box_content', $post_type, 'advanced', 'high' );
+	}
 }
 
 function sharing_meta_box_content( $post ) {
@@ -39,13 +42,12 @@ function sharing_meta_box_save( $post_id ) {
 		return $post_id;
 
 	// Record sharing disable
-	if ( isset( $_POST['post_type'] ) && ( 'post' == $_POST['post_type'] || 'page' == $_POST['post_type'] ) ) {
-		if ( current_user_can( 'edit_post', $post_id ) ) {
-			if ( isset( $_POST['sharing_status_hidden'] ) ) {
-				if ( !isset( $_POST['enable_post_sharing'] ) )
-					update_post_meta( $post_id, 'sharing_disabled', 1 );
-				else
-					delete_post_meta( $post_id, 'sharing_disabled' );
+	if ( current_user_can( 'edit_post', $post_id ) ) {
+		if ( isset( $_POST['sharing_status_hidden'] ) ) {
+			if ( !isset( $_POST['enable_post_sharing'] ) ) {
+				update_post_meta( $post_id, 'sharing_disabled', 1 );
+			} else {
+				delete_post_meta( $post_id, 'sharing_disabled' );
 			}
 		}
 	}
