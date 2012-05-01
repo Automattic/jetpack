@@ -392,6 +392,16 @@ function wp_cache_check_mobile( $cache_key ) {
 	if ( !isset( $wp_cache_mobile_enabled ) || false == $wp_cache_mobile_enabled )
 		return $cache_key;
 
+	// allow plugins to short circuit mobile check. Cookie, extra UA checks?
+	switch( do_cacheaction( 'wp_cache_check_mobile', $cache_key ) ) {
+	case "normal":
+		return $cache_key;
+		break;
+	case "mobile":
+		return $cache_key . "_mobile";
+		break;
+	}
+
 	if ( !isset( $_SERVER[ "HTTP_USER_AGENT" ] ) ) {
 		return $cache_key;
 	}
@@ -429,6 +439,7 @@ function wp_cache_check_mobile( $cache_key ) {
 	if (isset($_SERVER['ALL_HTTP']) && strpos(strtolower($_SERVER['ALL_HTTP']), 'operamini') !== false) {
 		return $cache_key . '-' . 'operamini';
 	}
+
 	return $cache_key;
 }
 

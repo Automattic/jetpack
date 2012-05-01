@@ -92,11 +92,23 @@ function wp_super_cache_wptouch_browsers( $browsers ) {
 
 	return bnc_wptouch_get_user_agents();
 }
+
 function wp_super_cache_wptouch_prefixes( $prefixes ) {
 	return array(); // wptouch doesn't support UA prefixes
 } 
+
+function wp_super_cache_wptouch_cookie_check( $cache_key ) {
+	if ( false == isset( $_COOKIE[ 'wptouch_switch_toggle' ] ) )
+		return $cache_key;
+	if ( $_COOKIE[ 'wptouch_switch_toggle' ] == 'normal' || $_COOKIE[ 'wptouch_switch_toggle' ] == 'mobile' )
+		return $_COOKIE[ 'wptouch_switch_toggle' ];
+
+	return $cache_key;
+}
+
 if ( $cache_wptouch == 1 ) {
 	add_cacheaction( 'wp_super_cache_mobile_browsers', 'wp_super_cache_wptouch_browsers' );
 	add_cacheaction( 'wp_super_cache_mobile_prefixes', 'wp_super_cache_wptouch_prefixes' );
+	add_cacheaction( 'wp_cache_check_mobile', 'wp_super_cache_wptouch_cookie_check' );
 }
 ?>
