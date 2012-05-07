@@ -1300,9 +1300,11 @@ p {
 		wp_enqueue_script( 'jetpack-js', plugins_url( basename( dirname( __FILE__ ) ) ) . '/_inc/jetpack.js', array( 'jquery' ), JETPACK__VERSION . '-20111115' );
 		wp_localize_script( 'jetpack-js', 'jetpackL10n', array(
 				'ays_disconnect' => "This will deactivate all Jetpack modules.\nAre you sure you want to disconnect?",
+				'ays_dismiss'    => "This will deactivate Jetpack.\nAre you sure you want to deactivate Jetpack?",
 			) );
 		add_action( 'admin_footer', array( $this, 'do_stats' ) );
 	}
+
 
 	function plugin_action_links( $actions ) {
 		return array_merge(
@@ -1323,7 +1325,7 @@ p {
 
 		<div id="message" class="updated jetpack-message jp-connect">
 			<?php if ( 1 == Jetpack::get_option( 'activated' ) ) : ?>
-				<div id="jp-disconnect" class="jetpack-close-button-container">
+				<div id="jp-dismiss" class="jetpack-close-button-container">
 					<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"><?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?></a>
 				</div>
 				<div class="jetpack-wrap-container">
@@ -1799,7 +1801,7 @@ p {
 			<?php if ( ! $is_connected ) : ?>
 
 				<div id="message" class="updated jetpack-message jp-connect">
-					<div id="jp-disconnect" class="jetpack-close-button-container">
+					<div id="jp-dismiss" class="jetpack-close-button-container">
 						<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss" title="<?php _e( 'Dismiss this notice.', 'jetpack' ); ?>"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
 					</div>
 					<div class="jetpack-wrap-container">
