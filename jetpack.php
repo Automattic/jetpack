@@ -182,6 +182,7 @@ class Jetpack {
 
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
 		// Only used in WordPress < 3.2
 		add_action( 'http_transport_post_debug', array( $this, 'http_transport_detector' ) );
@@ -189,6 +190,8 @@ class Jetpack {
 
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
+
+
 	}
 
 	/**
@@ -394,7 +397,7 @@ class Jetpack {
 
 		return $comment;
 	}
-	
+
 	function get_taxonomy( $id, $columns = true, $type ) {
 		$taxonomy_obj = get_term_by( 'slug', $id, $type );
 
@@ -411,9 +414,9 @@ class Jetpack {
 				}
 			}
 		}
-		
+
 		$taxonomy['type'] = $type;
-		return $taxonomy;	
+		return $taxonomy;
 	}
 
 	/**
@@ -1317,17 +1320,30 @@ p {
 		if ( !current_user_can( 'manage_options' ) )
 			return;
 		?>
+
 		<div id="message" class="updated jetpack-message jp-connect">
-			<div class="squeezer">
-				<?php if ( 1 == Jetpack::get_option( 'activated' ) ) : ?>
-					<h4><?php _e( '<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features.', 'jetpack' ); ?></h4>
-					<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-primary" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
-				<?php else : ?>
+			<?php if ( 1 == Jetpack::get_option( 'activated' ) ) : ?>
+				<div id="jp-disconnect" class="jetpack-close-button-container">
+					<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"><?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?></a>
+				</div>
+				<div class="jetpack-wrap-container">
+					<div class="jetpack-text-container">
+						<h4>
+							<p><?php _e( '<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enabled features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!', 'jetpack' ); ?></p>
+						</h4>
+					</div>
+					<div class="jetpack-install-container">
+						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="jp-button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
+					</div>
+				</div>
+			<?php else : ?>
+				<div class="squeezer">
 					<h4><?php _e( '<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></h4>
 					<p class="submit"><a href="<?php echo Jetpack::admin_url() ?>" class="button-primary" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a></p>
-				<?php endif; ?>
-			</div>
+				</div>
+			<?php endif; ?>
 		</div>
+
 		<?php
 	}
 
@@ -1738,6 +1754,17 @@ p {
 		return $url;
 	}
 
+	function dismiss_jetpack_notice() {
+		if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+			deactivate_plugins( __FILE__ );
+
+			wp_safe_redirect( admin_url() . 'plugins.php' );
+			exit;
+		}
+	}
+
 	function admin_page() {
 		global $current_user;
 
@@ -1769,11 +1796,22 @@ p {
 			<?php do_action( 'jetpack_notices' ) ?>
 
 			<?php // If the connection has not been made then show the marketing text. ?>
-			<?php if ( !$is_connected ) : ?>
+			<?php if ( ! $is_connected ) : ?>
 
-				<div id="jp-info">
-					<a href="<?php echo $this->build_connect_url() ?>" class="jp-button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
-					<p><?php _e( "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below.", 'jetpack' ) ?></p>
+				<div id="message" class="updated jetpack-message jp-connect">
+					<div id="jp-disconnect" class="jetpack-close-button-container">
+						<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss" title="<?php _e( 'Dismiss this notice.', 'jetpack' ); ?>"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
+					</div>
+					<div class="jetpack-wrap-container">
+						<div class="jetpack-text-container">
+							<h4>
+								<p><?php _e( "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below.", 'jetpack' ) ?></p>
+							</h4>
+						</div>
+						<div class="jetpack-install-container">
+							<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="jp-button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
+						</div>
+					</div>
 				</div>
 
 			<?php endif; ?>
@@ -1800,7 +1838,7 @@ p {
 						</div>
 					</div>
 				</div>
-				
+
 				<?php if ( $is_connected && $this->current_user_is_connection_owner() ) : ?>
 					<p id="news-sub"><?php _e( 'Checking email updates status&hellip;', 'jetpack' ); ?></p>
 					<script type="text/javascript">
@@ -3069,13 +3107,13 @@ class Jetpack_Sync {
 						$sync_data['delete_comment'][$comment] = true;
 					}
 					break;
-			
+
 				case 'tag':
 					foreach ( $data as $taxonomy => $columns ) {
 						$sync_data['tag'][$taxonomy] = $jetpack->get_taxonomy( $taxonomy, $columns, 'post_tag' );
 					}
 					break;
-					
+
 				case 'delete_tag':
 					foreach ( $data as $taxonomy => $columns ) {
 						$sync_data['delete_tag'][$taxonomy] = $columns;
@@ -3087,7 +3125,7 @@ class Jetpack_Sync {
 						$sync_data['category'][$taxonomy] = $jetpack->get_taxonomy( $taxonomy, $columns, 'category' );
 					}
 					break;
-					
+
 				case 'delete_category':
 					foreach ( $data as $taxonomy => $columns ) {
 						$sync_data['delete_category'][$taxonomy] = $columns;
@@ -3104,7 +3142,7 @@ class Jetpack_Sync {
 		if ( !get_term_by( 'slug', $slug, $type ) ) {
 			return false;
 		}
-		
+
 		if ( 'post_tag' == $type )
 			return $this->register( 'tag', $slug, $fields );
 		else
@@ -3122,7 +3160,7 @@ class Jetpack_Sync {
 		else
 			return $this->register( 'delete_category', 1, $slugs );
 	}
-	
+
 	/**
 	 * Helper method for easily requesting a sync of a post.
 	 *
