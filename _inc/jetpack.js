@@ -93,42 +93,6 @@ jetpack = {
 			}
 		} );
 
-		var widerWidth = 0;
-		jQuery( '#jp-dismiss' ).hover( function() {
-			var t = jQuery( this ),
-			    a = t.find( 'a' ),
-			    width = t.width(),
-			    changeWidth = widerWidth == 0;
-
-			if ( changeWidth && widerWidth < width ) {
-				widerWidth = width;
-			}
-			jetpack.statusText = a.html();
-			a.html( jQuery( '#jp-dismiss span' ).html() );
-			width = t.width();
-			if ( changeWidth && widerWidth < width ) {
-				widerWidth = width + 15;
-			}
-			if ( changeWidth ) {
-				t.width( widerWidth );
-			}
-			a.hide().fadeIn(100);
-		}, function() {
-			var a = jQuery( 'a', this );
-			a.html( jetpack.statusText );
-			a.hide().fadeIn(100);
-			jetpack.statusText = null;
-		} ).find( 'a' ).click( function() {
-			if ( confirm( jetpackL10n.ays_dismiss ) ) {
-				jQuery( '#jp-dismiss' ).unbind( 'mouseenter mouseleave' );
-				jQuery( this ).css( {
-					"background-image": 'url( ' + userSettings.url + 'wp-admin/images/wpspin_dark.gif )',
-					"background-position": '0px 0px',
-				} ).unbind( 'click' ).click( function() { return false; } );
-			} else {
-				return false;
-			}
-		} );
 	},
 
 	level_modules: function() {
