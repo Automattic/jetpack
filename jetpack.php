@@ -1762,7 +1762,7 @@ p {
 
 			deactivate_plugins( __FILE__ );
 
-			wp_safe_redirect( admin_url() . 'plugins.php' );
+			wp_safe_redirect( admin_url() . 'plugins.php?deactivate=true&plugin_status=all&paged=1&s=' );
 			exit;
 		}
 	}
