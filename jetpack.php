@@ -1324,26 +1324,27 @@ p {
 		?>
 
 		<div id="message" class="updated jetpack-message jp-connect">
-			<?php if ( 1 == Jetpack::get_option( 'activated' ) ) : ?>
-				<div id="jp-dismiss" class="jetpack-close-button-container">
-					<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"><?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?></a>
-				</div>
-				<div class="jetpack-wrap-container">
-					<div class="jetpack-text-container">
-						<h4>
+			<div id="jp-dismiss" class="jetpack-close-button-container">
+				<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"><?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?></a>
+			</div>
+			<div class="jetpack-wrap-container">
+				<div class="jetpack-text-container">
+					<h4>
+						<?php if ( 1 == Jetpack::get_option( 'activated' ) ) : ?>
 							<p><?php _e( '<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enabled features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!', 'jetpack' ); ?></p>
-						</h4>
-					</div>
-					<div class="jetpack-install-container">
-						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="jp-button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
-					</div>
+						<?php else : ?>
+							<p><?php _e( '<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
+						<?php endif; ?>
+					</h4>
 				</div>
-			<?php else : ?>
-				<div class="squeezer">
-					<h4><?php _e( '<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></h4>
-					<p class="submit"><a href="<?php echo Jetpack::admin_url() ?>" class="button-primary" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a></p>
+				<div class="jetpack-install-container">
+					<?php if ( 1 == Jetpack::get_option( 'activated' ) ) : ?>
+						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
+					<?php else : ?>
+						<p class="submit"><a href="<?php echo Jetpack::admin_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a></p>
+					<?php endif; ?>
 				</div>
-			<?php endif; ?>
+			</div>
 		</div>
 
 		<?php
@@ -1811,7 +1812,7 @@ p {
 							</h4>
 						</div>
 						<div class="jetpack-install-container">
-							<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="jp-button" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
+							<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
 						</div>
 					</div>
 				</div>
