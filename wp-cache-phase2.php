@@ -38,6 +38,7 @@ function wp_cache_phase2() {
 		add_action('edit_user_profile_update', 'wp_cache_no_postid', 99); 
 		add_action( 'wp_update_nav_menu', 'wp_cache_clear_cache' );
 		add_action('wp_cache_gc','wp_cache_gc_cron');
+		add_action( 'clean_post_cache', 'wp_cache_post_edit' );
 		add_filter( 'supercache_filename_str', 'wp_cache_check_mobile' );
 
 		do_cacheaction( 'add_cacheaction' );
@@ -968,6 +969,11 @@ function wp_cache_clear_cache() {
 /* check if we want to clear out all cached files on post updates, otherwise call standard wp_cache_post_change() */
 function wp_cache_post_edit($post_id) {
 	global $wp_cache_clear_on_post_edit, $cache_path, $blog_cache_dir;
+	static $last_post_edited = -1;
+
+	if ( $post_id == $last_post_edited ) return $post_id;
+	$last_post_edited = $post_id;
+
 	$post = get_post( $post_id );
 	if ( $post->post_status != 'publish' ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_edit: draft post, not deleting any cache files.", 4 );
