@@ -83,14 +83,16 @@ if ( $wp_cache_object_cache ) {
 		return;
 }
 
-if( false == @is_dir( $blog_cache_dir ) ) {
-	@mkdir( $cache_path . "blogs" );
-	@mkdir( $blog_cache_dir );
+function setup_blog_cache_dir() {
+	global $blog_cache_dir, $cache_path;
+	if( false == @is_dir( $blog_cache_dir ) ) {
+		@mkdir( $cache_path . "blogs" );
+		@mkdir( $blog_cache_dir );
+	}
+
+	if( false == @is_dir( $blog_cache_dir . 'meta' ) )
+		@mkdir( $blog_cache_dir . 'meta' );
 }
-
-if( false == @is_dir( $blog_cache_dir . 'meta' ) )
-	@mkdir( $blog_cache_dir . 'meta' );
-
 
 $wp_start_time = microtime();
 

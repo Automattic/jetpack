@@ -190,6 +190,7 @@ function wp_cache_mutex_init() {
 
 	$mutex = false;
 	if ($use_flock )  {
+		setup_blog_cache_dir();
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Created mutex lock on filename: {$blog_cache_dir}{$mutex_filename}", 5 );
 		$mutex = @fopen( $blog_cache_dir . $mutex_filename, 'w' );
 	} else {
@@ -869,7 +870,7 @@ function wp_cache_shutdown_callback() {
 				$tmp_meta_filename = $blog_cache_dir . 'meta/' . uniqid( mt_rand(), true ) . '.tmp';
 				$fr = @fopen( $tmp_meta_filename, 'w');
 				if( !$fr )
-					@mkdir( $blog_cache_dir . 'meta' );
+					@wp_mkdir_p( $blog_cache_dir . 'meta' );
 				$fr = @fopen( $tmp_meta_filename, 'w');
 				if ( $fr ) {
 					fputs($fr, $serial);
