@@ -992,7 +992,7 @@ function wp_cache_post_edit($post_id) {
 			reset_oc_version();
 		} else {
 			prune_super_cache( $blog_cache_dir, true );
-			prune_super_cache( $cache_path . 'supercache/', true );
+			prune_super_cache( get_supercache_dir(), true );
 		}
 	} else {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Clearing cache for post $post_id on post edit.", 2 );
