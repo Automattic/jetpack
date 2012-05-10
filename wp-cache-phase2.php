@@ -579,6 +579,8 @@ function wp_cache_get_ob(&$buffer) {
 				@unlink( $tmp_wpcache_filename );
 			} else {
 				if ( !rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename ) ) {
+					if ( false == is_dir( $blog_cache_dir ) )
+						@wp_mkdir_p( $blog_cache_dir );
 					unlink( $blog_cache_dir . $cache_filename );
 					rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename );
 				}
