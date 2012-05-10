@@ -957,14 +957,14 @@ function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 
 /* Clear out the cache directory. */
 function wp_cache_clear_cache( $blog_id = 0 ) {
-	global $cache_path, $wp_cache_object_cache, $blog_cache_dir;
+	global $cache_path, $wp_cache_object_cache;
 	if ( $wp_cache_object_cache ) {
 		reset_oc_version();
 	} else {
 		if ( $blog_id == 0 ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Clearing all cached files in wp_cache_clear_cache()", 4 );
-			prune_super_cache( get_supercache_dir(), true );
-			prune_super_cache( $blog_cache_dir, true );
+			prune_super_cache( $cache_path . 'supercache/', true );
+			prune_super_cache( $cache_path, true );
 		} else {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Clearing all cached files for blog $blog_id in wp_cache_clear_cache()", 4 );
 			prune_super_cache( get_supercache_dir( $blog_id ), true );
