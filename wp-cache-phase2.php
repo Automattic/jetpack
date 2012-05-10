@@ -36,7 +36,7 @@ function wp_cache_phase2() {
 		// No post_id is available
 		add_action('switch_theme', 'wp_cache_no_postid', 99); 
 		add_action('edit_user_profile_update', 'wp_cache_no_postid', 99); 
-		add_action( 'wp_update_nav_menu', 'wp_cache_clear_cache' );
+		add_action( 'wp_update_nav_menu', 'wp_cache_clear_cache_on_menu' );
 		add_action('wp_cache_gc','wp_cache_gc_cron');
 		add_action( 'clean_post_cache', 'wp_cache_post_edit' );
 		add_filter( 'supercache_filename_str', 'wp_cache_check_mobile' );
@@ -953,6 +953,12 @@ function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Unknown post changed. Update cache.", 4 );
 		return wp_cache_post_change( wp_cache_post_id() );
 	}
+}
+
+/* Used by wp_update_nav_menu action to clear current blog's cache files when navigation menu is modified */
+function wp_cache_clear_cache_on_menu() {
+	global $wpdb;
+	wp_cache_clear_cache( $wpdb->blogid );
 }
 
 /* Clear out the cache directory. */
