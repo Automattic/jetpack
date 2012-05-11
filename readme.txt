@@ -56,10 +56,49 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 0.9.9.9 =
-Serve repeated static files from the same CDN hostname, translations, lots of bug fixes
+= 1.1 =
+Lots of bugfixes
 
 == Changelog ==
+
+= 1.1 =
+* Use $_SERVER[ 'SERVER_NAME' ] to create cache directories.
+* Only create blogs cached directories if valid requests and blogs exist.
+* Only clear current blog's cache files if navigation menu is modified
+* Added clean_post_cache action to clear cache on post actions
+* Removed garbage collection details on Contents tab
+* Added wp_cache_check_mobile cacheaction filter to shortcircuit mobile device check.
+* Don't delete cache files for draft posts
+* Added action on wp_trash_post to clear the cache when trashed posts are deleted
+* Show a warning when 304 browser caching is disabled (because mod_rewrite caching is on)
+* New check for safe mode if using less that PHP 5.3.0
+* Added wp_supercache_remove_cookies filter to disable anonymous browsing mode.
+* Fixed garbage collection schedule dropdown
+* Fixed preload problem clearing site's cache on "page on front" sites.
+* Fix for PHP variable not defined warnings
+* Fixed problem refreshing cache when comments made as siteurl() sometimes didn't work
+* Preloading of taxonomies is now optional
+* Domain mapping fixes.
+* Better support for https sites. Remove https:// to get cache paths.
+* Added AddDefaultCharset .htaccess rule back in and added an option to remove it if required.
+* Added multisite plugin that adds a "Cached" column to Network->Sites to disable caching on a per site basis.
+* Added WPTouch plugin to modify browser and prefix list in mobile detection code. Added support for that plugin's exclude list.
+* Fixed cache tester
+* Filter the tags that are used to detect end-of-page using the wp_cache_eof_tags filter.
+
+= 1.0 =
+* Removed AddDefaultCharset .htaccess rule
+* Fixed problem with blogs in a folder and don't have a trailing slash
+* New scheduling of garbage collection
+* Added a "Delete cache" link to admin bar to delete cache of current page.
+* Updated documentation
+* Sorry Digg, Stephen Fry power now!
+* Updated translations
+* Preload taxonomies and all post types except revisionsand nav menu items
+* Fixed previews by logged in users.
+* Added option to make logged in users anonymous
+* Use WP 3.0 variables to detect multisite installs
+* Hash filenames so files are served from the same CDNs
 
 = 0.9.9.9 =
 * Fixed typo, is_front_page.
