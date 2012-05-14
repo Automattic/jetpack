@@ -2673,7 +2673,7 @@ function wpsc_get_htaccess_info() {
 	$rules .= "RewriteEngine On\n";
 	$rules .= "RewriteBase $home_root\n"; // props Chris Messina
 	$rules .= "#If you serve pages from behind a proxy you may want to change 'RewriteCond %{HTTPS} on' to something more sensible\n";
-	if ( isset( $wp_cache_disable_utf8 ) == false || $wp_cache_disable_utf8 = 0 ) {
+	if ( isset( $wp_cache_disable_utf8 ) == false || $wp_cache_disable_utf8 == 0 ) {
 		$charset = get_option('blog_charset') == '' ? 'UTF-8' : get_option('blog_charset');
 		$rules .= "AddDefaultCharset {$charset}\n";
 	}
