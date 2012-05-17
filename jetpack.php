@@ -1758,10 +1758,10 @@ p {
 	}
 
 	function dismiss_jetpack_notice() {
-		if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] ) {
+		if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] && ! is_plugin_active_for_network( plugin_basename( __FILE__ ) ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
-			deactivate_plugins( __FILE__ );
+			deactivate_plugins( plugin_basename( __FILE__ ), false, false );
 
 			wp_safe_redirect( admin_url() . 'plugins.php?deactivate=true&plugin_status=all&paged=1&s=' );
 			exit;
@@ -1795,6 +1795,12 @@ p {
 					<?php endif; ?>
 				</div>
 			</div>
+
+			<?php if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] ) : ?>
+				<div id="message" class="error">
+					<p><?php _e( 'Jetpack is network activated and notices can not be dismissed.' ); ?></p>
+				</div>
+			<?php endif; ?>
 
 			<?php do_action( 'jetpack_notices' ) ?>
 
