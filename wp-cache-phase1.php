@@ -446,17 +446,12 @@ function wp_cache_check_mobile( $cache_key ) {
 }
 
 function wp_cache_debug( $message, $level = 1 ) {
-	global $wp_cache_debug_level, $wp_cache_debug_log, $cache_path, $wp_cache_debug_ip, $wp_super_cache_debug;
+	global $wp_cache_debug_log, $cache_path, $wp_cache_debug_ip, $wp_super_cache_debug;
 
 	if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug == false )
 		return false;
 
 	if ( isset( $wp_cache_debug_log ) == false )
-		return false;
-
-	if ( isset( $wp_cache_debug_level ) == false )
-		$wp_cache_debug_level = 1;
-	if ( $wp_cache_debug_level < $level )
 		return false;
 
 	if ( isset( $wp_cache_debug_ip ) && $wp_cache_debug_ip != '' && $wp_cache_debug_ip != $_SERVER[ 'REMOTE_ADDR' ] )

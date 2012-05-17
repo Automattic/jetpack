@@ -1716,11 +1716,9 @@ function wp_cache_edit_accepted() {
 }
 
 function wp_cache_debug_settings() {
-	global $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_level, $wp_cache_debug_ip, $cache_path, $valid_nonce, $wp_cache_config_file;
+	global $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_ip, $cache_path, $valid_nonce, $wp_cache_config_file;
 	global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wp_super_cache_advanced_debug;
 
-	if ( !isset( $wp_cache_debug_level ) )
-		$wp_cache_debug_level = 1;
 	if ( isset( $_POST[ 'wp_cache_debug' ] ) && $valid_nonce ) {
 		$wp_super_cache_debug = intval( $_POST[ 'wp_super_cache_debug' ] );
 		wp_cache_replace_line('^ *\$wp_super_cache_debug', "\$wp_super_cache_debug = '$wp_super_cache_debug';", $wp_cache_config_file);
@@ -1732,8 +1730,6 @@ function wp_cache_debug_settings() {
 		wp_cache_replace_line('^ *\$wp_cache_debug_log', "\$wp_cache_debug_log = '$wp_cache_debug_log';", $wp_cache_config_file);
 		$wp_cache_debug_ip = esc_html( $_POST[ 'wp_cache_debug_ip' ] );
 		wp_cache_replace_line('^ *\$wp_cache_debug_ip', "\$wp_cache_debug_ip = '$wp_cache_debug_ip';", $wp_cache_config_file);
-		$wp_cache_debug_level = (int)$_POST[ 'wp_cache_debug_level' ];
-		wp_cache_replace_line('^ *\$wp_cache_debug_level', "\$wp_cache_debug_level = '$wp_cache_debug_level';", $wp_cache_config_file);
 		$wp_super_cache_front_page_check = (int)$_POST[ 'wp_super_cache_front_page_check' ];
 		wp_cache_replace_line('^ *\$wp_super_cache_front_page_check', "\$wp_super_cache_front_page_check = '$wp_super_cache_front_page_check';", $wp_cache_config_file);
 		$wp_super_cache_front_page_clear = (int)$_POST[ 'wp_super_cache_front_page_clear' ];
@@ -1760,13 +1756,6 @@ function wp_cache_debug_settings() {
 	echo "<table class='form-table'>";
 	echo "<tr><td>" . __( 'Debugging', 'wp-super-cache' ) . "</td><td><input type='checkbox' name='wp_super_cache_debug' value='1' " . checked( 1, $wp_super_cache_debug, false ) . " /> " . __( 'enabled', 'wp-super-cache' ) . "</td></tr>";
 	echo "<tr><td>" . __( 'IP Address', 'wp-super-cache' ) . "</td><td> <input type='text' size='20' name='wp_cache_debug_ip' value='{$wp_cache_debug_ip}' /> " . sprintf( __( '(only log requests from this IP address. Your IP is %s)', 'wp-super-cache' ), $_SERVER[ 'REMOTE_ADDR' ] ) . "</td></tr>";
-	echo "<tr><td>" . __( 'Log level', 'wp-super-cache' ) . "</td><td> ";
-	for( $t = 1; $t <= 5; $t++ ) {
-		echo "<input type='radio' name='wp_cache_debug_level' value='$t' ";
-		echo $wp_cache_debug_level == $t ? "checked='checked' " : '';
-		echo "/> $t ";
-	}
-	echo " " . __( '(1 = less, 5 = more, may cause severe server load.)', 'wp-super-cache' ) . "</td></tr>";
 	echo "</table>\n";
 	if ( isset( $wp_super_cache_advanced_debug ) ) {
 	echo "<h4>" . __( 'Advanced', 'wp-super-cache' ) . "</h4><p>" . __( 'In very rare cases two problems may arise on some blogs:<ol><li> The front page may start downloading as a zip file.</li><li> The wrong page is occasionally cached as the front page if your blog uses a static front page and the permalink structure is <em>/%category%/%postname%/</em>.</li></ol>', 'wp-super-cache' ) . '</p>';
