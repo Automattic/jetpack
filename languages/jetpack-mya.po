@@ -1,0 +1,1924 @@
+# Translation of 1.3 in Burmese
+# This file is distributed under the same license as the 1.3 package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2012-04-24 21:01:21+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/0.1\n"
+"Project-Id-Version: 1.3\n"
+
+#: modules/contact-form/admin.php:159
+msgid "Restore this item from the Trash"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:506
+msgid "Sent by a verified %s user."
+msgstr ""
+
+msgid "http://jetpack.me"
+msgstr ""
+
+msgid "Easily insert a contact form any where on your site."
+msgstr ""
+
+msgid "Realtime backup and security scanning for your WordPress site."
+msgstr ""
+
+msgid "Simple, concise site stats with no additional load on your server."
+msgstr ""
+
+msgid "Mark up your posts with the <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
+msgstr ""
+
+msgid "Automattic"
+msgstr ""
+
+msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
+msgstr ""
+
+msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
+msgstr ""
+
+#: modules/module-info.php:420
+msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
+msgstr ""
+
+msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
+msgstr ""
+
+msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
+msgstr ""
+
+msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
+msgstr ""
+
+msgid "Beautiful Math"
+msgstr ""
+
+msgid "Show a pop-up business card of your users' gravatar profiles in comments."
+msgstr ""
+
+msgid "Share your public posts and comments to search engines and other services in real-time."
+msgstr ""
+
+msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
+msgstr ""
+
+msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
+msgstr ""
+
+msgid "http://wordpress.org/extend/plugins/jetpack/"
+msgstr ""
+
+#: modules/widgets/twitter-widget.php:241
+msgid "Include retweets"
+msgstr ""
+
+#: modules/widgets/twitter-widget.php:243
+msgid "Text to display between tweet and timestamp:"
+msgstr ""
+
+#: modules/widgets/twitter-widget.php:222
+msgid "Twitter username:"
+msgstr ""
+
+#: modules/widgets/twitter-widget.php:79
+msgid "Twitter Updates"
+msgstr ""
+
+#: modules/widgets/twitter-widget.php:236
+msgid "Hide replies"
+msgstr ""
+
+#: modules/widgets/twitter-widget.php:225
+msgid "Maximum number of tweets to show:"
+msgstr ""
+
+#: modules/widgets/twitter-widget.php:180
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr ""
+
+#: modules/widgets/twitter-widget.php:70
+msgid "Twitter (Jetpack)"
+msgstr ""
+
+#: modules/widgets/twitter-widget.php:69
+msgid "Display your tweets from Twitter"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:140
+msgid "Subscribe to %s"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:121
+msgid "Image Color:"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:119
+msgid "Silver"
+msgstr "ေငွေရာင်"
+
+#: modules/widgets/twitter-widget.php:178
+msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:113
+msgid "Red"
+msgstr "အနီ"
+
+#: modules/widgets/rsslinks-widget.php:101
+msgid "Large"
+msgstr "အြကီး"
+
+#: modules/widgets/rsslinks-widget.php:115
+msgid "Green"
+msgstr "အစိမ်း"
+
+#: modules/widgets/rsslinks-widget.php:100
+msgid "Medium"
+msgstr "အလယ်အလတ်"
+
+#: modules/widgets/rsslinks-widget.php:103
+msgid "Image Size:"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:118
+msgid "Pink"
+msgstr "ပန်းေရာင်"
+
+#: modules/widgets/rsslinks-widget.php:117
+msgid "Purple"
+msgstr "မရမ်းေရာင်"
+
+#: modules/widgets/rsslinks-widget.php:116
+msgid "Blue"
+msgstr "အြပာ"
+
+#: modules/widgets/rsslinks-widget.php:114
+msgid "Orange"
+msgstr "လိေမ္မာ်"
+
+#: modules/widgets/rsslinks-widget.php:67
+#: modules/widgets/rsslinks-widget.php:133
+msgid "Posts"
+msgstr "စာမူများ"
+
+#: modules/widgets/rsslinks-widget.php:96
+msgid "Image Settings:"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:85
+msgid "Format:"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:83
+msgid "Text & Image Links"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:82
+msgid "Image Link"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:81
+msgid "Text Link"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:71
+msgid "Feed(s) to Display:"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:69
+msgid "Posts & Comments"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:68
+#: modules/widgets/rsslinks-widget.php:136
+msgid "Comments"
+msgstr "မှတ်ချက်များ"
+
+#: modules/widgets/rsslinks-widget.php:62
+#: modules/widgets/twitter-widget.php:219
+msgid "Title:"
+msgstr "ေခါင်းစဉ် :"
+
+#: modules/widgets/rsslinks-widget.php:13
+msgid "RSS Links (Jetpack)"
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:99
+msgid "Small"
+msgstr ""
+
+#: modules/widgets/image-widget.php:139
+msgid "Width:"
+msgstr ""
+
+#: modules/widgets/image-widget.php:126
+msgid "Center"
+msgstr "ဗဟို"
+
+#: modules/widgets/image-widget.php:145
+msgid "If empty, we will attempt to determine the image size."
+msgstr ""
+
+#: modules/widgets/rsslinks-widget.php:12
+msgid "Links to your blog's RSS feeds"
+msgstr ""
+
+#: modules/widgets/image-widget.php:127
+msgid "Right"
+msgstr "ညာ"
+
+#: modules/widgets/image-widget.php:142
+msgid "Height:"
+msgstr ""
+
+#: modules/widgets/image-widget.php:129
+msgid "Image Alignment:"
+msgstr ""
+
+#: modules/widgets/image-widget.php:125
+msgid "Left"
+msgstr "ဘယ်"
+
+#: modules/widgets/image-widget.php:124
+msgid "None"
+msgstr "တစ်ခုမျှ မေရွး"
+
+#: modules/widgets/image-widget.php:119
+msgid "Caption:"
+msgstr ""
+
+#: modules/widgets/image-widget.php:146
+msgid "Link URL (when the image is clicked):"
+msgstr ""
+
+#: modules/subscriptions.php:558
+msgid "Click to subscribe to this blog and receive notifications of new posts by email."
+msgstr ""
+
+#: modules/widgets/image-widget.php:12
+msgid "Display an image in your sidebar"
+msgstr ""
+
+#: modules/widgets/image-widget.php:116
+msgid "Image title:"
+msgstr ""
+
+#: modules/subscriptions.php:574
+msgid "%s: %s"
+msgstr ""
+
+#: modules/subscriptions.php:601
+msgid "Show total number of subscribers? (%s subscriber)"
+msgid_plural "Show total number of subscribers? (%s subscribers)"
+msgstr[0] ""
+msgstr[1] ""
+
+#: modules/widgets/image-widget.php:113
+msgid "Alternate text:"
+msgstr ""
+
+#: modules/widgets/image-widget.php:110
+msgid "Image URL:"
+msgstr ""
+
+#: modules/vaultpress.php:22
+msgid "Active"
+msgstr ""
+
+#: modules/subscriptions.php:588
+msgid "Optional text to display to your readers:"
+msgstr ""
+
+#: modules/subscriptions.php:582 modules/widgets/image-widget.php:107
+msgid "Widget title:"
+msgstr ""
+
+#: modules/subscriptions.php:594
+msgid "Subscribe Button:"
+msgstr ""
+
+#: modules/widgets/image-widget.php:14
+msgid "Image (Jetpack)"
+msgstr ""
+
+#: modules/subscriptions.php:556
+msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
+msgstr ""
+
+#: modules/subscriptions.php:555
+msgid "Subscribe to Blog via Email"
+msgstr ""
+
+#: modules/subscriptions.php:484
+msgid "Email Address"
+msgstr ""
+
+#: modules/subscriptions.php:480
+msgid "Join %s other subscriber"
+msgid_plural "Join %s other subscribers"
+msgstr[0] ""
+msgstr[1] ""
+
+#: modules/subscriptions.php:462
+msgid "There was an error when subscribing, please try again."
+msgstr ""
+
+#: modules/subscriptions.php:411
+msgid "Blog Subscriptions (Jetpack)"
+msgstr ""
+
+#: modules/subscriptions.php:408
+msgid "Add an email signup form to allow people to subscribe to your blog."
+msgstr ""
+
+#: modules/subscriptions.php:343
+msgid "Notify me of new posts by email."
+msgstr ""
+
+#: modules/subscriptions.php:455
+msgid "You have already subscribed to this site, please check your inbox."
+msgstr ""
+
+#: modules/subscriptions.php:452
+msgid "The email you entered was invalid, please check and try again."
+msgstr ""
+
+#: modules/subscriptions.php:442
+msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
+msgstr ""
+
+#: modules/stats.php:908
+msgid "View All"
+msgstr "အားလံုးကိုြကည့်မည်"
+
+#: modules/stats.php:895
+msgid "%1$s %2$s Views"
+msgstr ""
+
+#: modules/stats.php:704
+msgid "Chart stats by"
+msgstr ""
+
+#: modules/stats.php:680
+msgid "the past month"
+msgstr ""
+
+#: modules/stats.php:916 modules/stats.php:940
+msgid "Sorry, nothing to report."
+msgstr ""
+
+#: modules/subscriptions.php:337
+msgid "Notify me of follow-up comments by email."
+msgstr ""
+
+#: modules/stats.php:936
+msgid "Top Searches"
+msgstr ""
+
+#: modules/stats.php:717
+msgid "Show top posts over"
+msgstr ""
+
+#: modules/stats.php:730
+msgid "Show top search terms over"
+msgstr ""
+
+#: modules/stats.php:682
+msgid "the past year"
+msgstr ""
+
+#: modules/stats.php:681
+msgid "the past quarter"
+msgstr ""
+
+#: modules/stats.php:912
+msgid "Top Posts"
+msgstr ""
+
+#: modules/stats.php:536
+msgid "Save configuration"
+msgstr ""
+
+#: modules/stats.php:678
+msgid "the past day"
+msgstr ""
+
+#: modules/stats.php:675
+msgid "month"
+msgstr ""
+
+#: modules/stats.php:679
+msgid "the past week"
+msgstr ""
+
+#: modules/stats.php:522
+msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
+msgstr ""
+
+#: modules/stats.php:674
+msgid "week"
+msgstr ""
+
+#: modules/stats.php:673
+msgid "day"
+msgstr ""
+
+#: modules/stats.php:571
+msgid "Views over 48 hours. Click for more Site Stats."
+msgstr ""
+
+#: modules/stats.php:525
+msgid "Select the roles that will be able to view stats reports."
+msgstr ""
+
+#: modules/stats.php:523
+msgid "Report visibility"
+msgstr ""
+
+#: modules/stats.php:522
+msgid "Smiley face"
+msgstr ""
+
+#: modules/stats.php:333
+msgid "Your Site Stats work better with Javascript enabled."
+msgstr ""
+
+#: modules/stats.php:409 modules/stats.php:882
+msgid "We were unable to get your stats just now. Please try again."
+msgstr ""
+
+#: modules/stats.php:332
+msgid "Loading&hellip;"
+msgstr ""
+
+#: modules/stats.php:520
+msgid "Count the page views of registered users who are logged in."
+msgstr ""
+
+#: modules/stats.php:521
+msgid "Smiley"
+msgstr ""
+
+#: modules/stats.php:522
+msgid "Hide the stats smiley face image."
+msgstr ""
+
+#: modules/stats.php:519
+msgid "Registered users"
+msgstr ""
+
+#: modules/stats.php:517
+msgid "Put a chart showing 48 hours of views in the admin bar."
+msgstr ""
+
+#: modules/stats.php:407 modules/stats.php:880
+msgid "We were unable to get your stats just now (too many redirects). Please try again."
+msgstr ""
+
+#: modules/stats.php:516
+msgid "Admin bar"
+msgstr ""
+
+#: modules/stats.php:510
+msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
+msgstr ""
+
+#: modules/stats.php:334
+msgid "View Site Stats without Javascript"
+msgstr ""
+
+#: modules/shortcodes/videopress.php:912
+msgid "Submit"
+msgstr "ပို့ပါ။"
+
+#: modules/shortcodes/videopress.php:876
+msgid "December"
+msgstr "ဒီဇင်ဘာ"
+
+#: modules/stats.php:246 modules/stats.php:652
+msgid "Site Stats"
+msgstr ""
+
+#: modules/shortcodes/videopress.php:1291
+msgid "This video requires <a rel=\"nofollow\" href=\"%s\">Adobe Flash</a> for playback."
+msgstr ""
+
+#: modules/shortcodes/videopress.php:958
+msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
+msgstr ""
+
+#: modules/shortcodes/videopress.php:876
+msgid "November"
+msgstr "နိုဝင်ဘာ"
+
+#: modules/shortcodes/videopress.php:1016
+msgctxt "watch a video title"
+msgid "Watch: %s"
+msgstr ""
+
+#: modules/shortcodes/videopress.php:1144
+msgctxt "Play as in playback or view a movie"
+msgid "JavaScript required to play %s."
+msgstr ""
+
+#: modules/shortcodes/videopress.php:1115
+#: modules/shortcodes/videopress.php:1137
+msgid "this video"
+msgstr ""
+
+#: modules/shortcodes/videopress.php:1298
+msgid "Loading video..."
+msgstr ""
+
+#: modules/shortcodes/videopress.php:915
+msgid "More information"
+msgstr ""
+
+#: modules/shortcodes/videopress.php:876
+msgid "July"
+msgstr "ဇူလိုင်"
+
+#: modules/shortcodes/videopress.php:860
+msgid "This video is intended for mature audiences."
+msgstr ""
+
+#: modules/shortcodes/videopress.php:876
+msgid "October"
+msgstr "ေအာက်တိုဘာ"
+
+#: modules/shortcodes/videopress.php:876
+msgid "April"
+msgstr "ဧြပီ"
+
+#: modules/shortcodes/videopress.php:876
+msgid "March"
+msgstr "မတ်"
+
+#: modules/shortcodes/videopress.php:876
+msgid "February"
+msgstr "ေဖ‌ေဖာ်ဝါရီ"
+
+#: modules/shortcodes/videopress.php:876
+msgid "January"
+msgstr "ဇန်နဝါရီ"
+
+#: modules/shortcodes/videopress.php:876
+msgid "September"
+msgstr "စက်တင်ဘာ"
+
+#: modules/shortcodes/videopress.php:860
+msgid "Please verify your birthday."
+msgstr ""
+
+#: modules/shortcodes/videopress.php:876
+msgid "June"
+msgstr "ဇွန်"
+
+#: modules/shortcodes/videopress.php:876
+msgid "August"
+msgstr "ဩဂုတ်"
+
+#: modules/shortcodes/videopress.php:876
+msgid "May"
+msgstr "ေမ"
+
+#: modules/sharedaddy/sharing.php:379
+msgid "Enter the URL of a 16x16px icon you want to use for this service."
+msgstr ""
+
+#: modules/shortcodes/videopress.php:608
+msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
+msgstr ""
+
+#: modules/shortcodes/videopress.php:826
+msgid "%s Error"
+msgstr ""
+
+#: modules/shortcodes/videopress.php:610
+msgid "<strong>%s</strong> is not an allowed embed site."
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:371
+msgid "You can add the following variables to your service sharing URL:"
+msgstr ""
+
+#: modules/shortcodes/archives.php:50
+msgid "Your blog does not currently have any published posts."
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:395
+msgid "An error occurred creating your new sharing service - please check you gave valid details."
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:376
+msgid "Icon URL"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:385
+msgid "Create Share"
+msgstr ""
+
+#: modules/shortcodes/videopress.php:612
+msgid "No data found for VideoPress identifier: <strong>%s</strong>."
+msgstr ""
+
+#: modules/shortcodes/videopress.php:610
+msgid "Publisher limits playback of video embeds."
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:367
+msgid "Sharing URL"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:334
+msgid "Front Page, Archive Pages, and Search Results"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:313
+msgid "Sharing label"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:319
+msgid "Open links in"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:361
+msgid "Service name"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:350
+msgid "Save Changes"
+msgstr "အ‌ေြပာင်းအလဲများကို သိမ်းပါ"
+
+#: modules/sharedaddy/sharing.php:328
+msgid "Show sharing buttons on"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:306
+msgid "Icon + text"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:322
+msgid "New window"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:323
+msgid "Same window"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:308
+msgid "Text only"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:307
+msgid "Icon only"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:186
+msgid "Enabled Services"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:164
+msgid "Available Services"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:192
+msgid "Drag and drop available services here"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:303
+msgid "Default button style"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:153
+msgid "Settings have been saved"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:165
+msgid "Drag and drop the services you'd like to enable into the box below."
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:203
+msgid "Services dragged here will be hidden behind a share button."
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:221
+msgid "Sharing is off. Please add services above to enable"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:218
+msgid "Live Preview"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:189
+msgid "Services dragged here will appear individually."
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:149
+msgid "This plugin will work without it, but multibyte support is used <a href=\"%s\">if available</a>. You may see minor problems with Tweets and other sharing services."
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:166
+msgid "Add a new service"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1027
+msgid "Label"
+msgstr "နာမည်တံဆိပ်"
+
+#: modules/sharedaddy/sharing-sources.php:977
+msgid "Click to share"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1032
+msgid "URL"
+msgstr "URL"
+
+#: modules/sharedaddy/sharing.php:148
+msgid "Warning! Multibyte support missing!"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:49 modules/sharedaddy/sharing.php:158
+msgid "Sharing Settings"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1045
+msgid "Remove Service"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1044
+msgid "Save"
+msgstr "သိမ်းပါ"
+
+#: modules/sharedaddy/sharing-sources.php:1037
+msgid "Icon"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:892
+msgid "Google +1"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:884
+msgctxt "share to"
+msgid "Press This"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:884
+msgid "Click to Press This!"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:856
+msgid "Press This"
+msgstr "ဒါကို ပံုနှိပ်ေဖာ်ြပပါ"
+
+#: modules/sharedaddy/sharing-sources.php:850
+msgid "Click to print"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:744
+msgid "Share"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:777
+msgctxt "share to"
+msgid "Facebook"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:799
+msgid "Default button"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:850
+msgctxt "share to"
+msgid "Print"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:777
+msgid "Share on Facebook"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:714
+msgid "Facebook"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:801
+msgid "Like button"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:846
+msgid "Print"
+msgstr "ပံုနှိပ်ပါ"
+
+#: modules/sharedaddy/sharing-sources.php:800
+msgid "Share button"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:629
+msgctxt "share to"
+msgid "LinkedIn"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:519
+msgctxt "share to"
+msgid "Digg"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:601
+msgid "LinkedIn"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:515
+#: modules/sharedaddy/sharing-sources.php:519
+msgid "Click to Digg this post"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:436
+msgid "Click to share on Reddit"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:429
+#: modules/sharedaddy/sharing-sources.php:436
+msgid "Reddit"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:363
+msgctxt "share to"
+msgid "StumbleUpon"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:363
+msgid "Click to share on StumbleUpon"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:629
+msgid "Click to share on LinkedIn"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:506
+msgid "Digg"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:257
+msgid "Twitter"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:226
+msgid "Send Email"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:238
+msgid "Sorry, your blog cannot share posts by email."
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:234
+msgid "Email check failed, please try again"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:218
+msgid "Your Email Address"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:227
+msgid "Cancel"
+msgstr "ပယ်ဖျက်"
+
+#: modules/sharedaddy/sharing-sources.php:230
+msgid "Post was not sent - check your email addresses!"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:352
+msgid "StumbleUpon"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:264
+msgid "Click to share on Twitter"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:264
+msgctxt "share to"
+msgid "Twitter"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:334
+#: modules/sharedaddy/sharing-sources.php:411
+#: modules/sharedaddy/sharing-sources.php:462
+#: modules/sharedaddy/sharing-sources.php:568
+#: modules/sharedaddy/sharing-sources.php:684
+msgid "Use smart button"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:207
+msgid "Send to Email Address"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:170
+msgid "You have shared this post with %s"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:193
+msgid "Click to email this to a friend"
+msgstr ""
+
+#: modules/sharedaddy/sharedaddy.php:104
+msgid "Disable CSS and JS"
+msgstr ""
+
+#: modules/sharedaddy/sharedaddy.php:106
+msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
+msgstr ""
+
+#: modules/sharedaddy/sharing-service.php:196
+msgid "Share this:"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:171
+msgid "Close"
+msgstr "ပိတ်ပါ"
+
+#: modules/sharedaddy/sharing-service.php:474
+#: modules/sharedaddy/sharing.php:234 modules/sharedaddy/sharing.php:275
+msgctxt "dropdown button"
+msgid "Share"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:169
+msgid "This post has been shared!"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:193
+msgctxt "share to"
+msgid "Email"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:215
+msgid "Your Name"
+msgstr ""
+
+#: modules/module-info.php:423
+msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
+msgstr ""
+
+#: modules/sharedaddy/sharedaddy.php:18
+msgid "Shared Post"
+msgstr ""
+
+#: modules/module-info.php:392
+msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
+msgstr ""
+
+#: modules/module-info.php:372
+msgid "When leaving comments, your visitors can also subscribe to a post&#8217;s comments to keep up with the conversation."
+msgstr ""
+
+#: modules/module-info.php:369
+msgid "Subscriptions"
+msgstr ""
+
+#: modules/module-info.php:377
+msgid "To use the Subscriptions widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away."
+msgstr ""
+
+#: modules/sharedaddy/sharedaddy.php:34
+msgid "Show sharing buttons on this post."
+msgstr ""
+
+#: modules/module-info.php:413 modules/module-info.php:417
+msgid "Contact Form"
+msgstr ""
+
+#: modules/module-info.php:390
+msgid "Enhanced Distribution"
+msgstr ""
+
+#: modules/module-info.php:371
+msgid "Easily allow any visitor to subscribe to all of your posts via email through a widget in your blog&#8217;s sidebar.  Every time you publish a post, WordPress.com will send a notification to all your subscribers."
+msgstr ""
+
+#: modules/module-info.php:350
+msgid "shows your latest tweets within a sidebar on your theme."
+msgstr ""
+
+#: modules/module-info.php:349
+msgid "lets you easily add post and comment RSS feeds to a sidebar on your theme."
+msgstr ""
+
+#: modules/module-info.php:350
+msgid "The Twitter Widget"
+msgstr ""
+
+#: modules/module-info.php:349
+msgid "The RSS Links Widget"
+msgstr ""
+
+#: modules/module-info.php:353
+msgid "To use the widgets, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag them into one of your sidebars and configure away."
+msgstr ""
+
+#: modules/module-info.php:366
+msgid "Subsriptions Screenshot"
+msgstr ""
+
+#: modules/module-info.php:351
+msgid "The Image Widget"
+msgstr ""
+
+#: modules/module-info.php:353
+msgid "Each of these widgets has a number of customization options."
+msgstr ""
+
+#: modules/module-info.php:351
+msgid "lets you easily add images to a sidebar on your theme."
+msgstr ""
+
+#: modules/module-info.php:335
+msgid "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options."
+msgstr ""
+
+#: modules/module-info.php:308 modules/module-info.php:312
+msgid "Spelling and Grammar"
+msgstr ""
+
+#: modules/module-info.php:335
+msgid "The Twitter Widget "
+msgstr ""
+
+#: modules/module-info.php:336
+msgid "allows you to easily add images to widget areas in your theme. It&#8217;s an easy way to add more visual interest to your site."
+msgstr ""
+
+#: modules/module-info.php:336
+msgid "The Image Widget "
+msgstr ""
+
+#: modules/module-info.php:334
+msgid "allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments."
+msgstr ""
+
+#: modules/module-info.php:334
+msgid "The RSS Links Widget "
+msgstr ""
+
+#: modules/module-info.php:332 modules/module-info.php:347
+msgid "Extra Sidebar Widgets"
+msgstr ""
+
+#: modules/module-info.php:329 modules/module-info.php:344
+msgid "Widgets Screenshot"
+msgstr ""
+
+#: modules/module-info.php:315
+msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
+msgstr ""
+
+#: modules/module-info.php:314
+msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
+msgstr ""
+
+#: modules/module-info.php:286
+msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
+msgstr ""
+
+#: modules/module-info.php:265
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr ""
+
+#: modules/module-info.php:227
+msgid "Jetpack combines the power of %s and the simplicity of WordPress to give you the ultimate in math blogging platforms."
+msgstr ""
+
+#: modules/module-info.php:228
+msgid "Wow, that sounds nerdy."
+msgstr ""
+
+#: modules/module-info.php:242
+msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
+msgstr ""
+
+#: modules/module-info.php:293
+msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
+msgstr ""
+
+#: modules/module-info.php:287
+msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
+msgstr ""
+
+#: modules/module-info.php:267
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr ""
+
+#: modules/module-info.php:261
+msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
+msgstr ""
+
+#: modules/module-info.php:257 modules/module-info.php:260
+#: modules/module-info.php:281 modules/sharedaddy/sharedaddy.php:22
+#: modules/sharedaddy/sharedaddy.php:23 modules/sharedaddy/sharing.php:49
+msgid "Sharing"
+msgstr ""
+
+#: modules/module-info.php:226 modules/module-info.php:241
+msgid "%s is a powerful markup language for writing complex mathematical equations, formulas, etc."
+msgstr ""
+
+#: modules/module-info.php:271
+msgid "Additionally you can define your own custom services."
+msgstr ""
+
+#: modules/module-info.php:187 modules/module-info.php:191
+#: modules/module-info.php:200 modules/module-info.php:204
+msgid "WordPress.com Stats"
+msgstr ""
+
+#: modules/module-info.php:172
+msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
+msgstr ""
+
+#: modules/module-info.php:137
+msgid "Available shortcodes are: %l."
+msgstr ""
+
+#: modules/module-info.php:192 modules/module-info.php:205
+msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
+msgstr ""
+
+#: modules/module-info.php:206
+msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
+msgstr ""
+
+#: modules/module-info.php:157 modules/module-info.php:171
+msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
+msgstr ""
+
+#: modules/module-info.php:221 modules/module-info.php:236
+msgid "LaTeX"
+msgstr ""
+
+#: modules/module-info.php:109
+msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
+msgstr ""
+
+#: modules/module-info.php:158
+msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
+msgstr ""
+
+#: modules/module-info.php:95 modules/module-info.php:108
+msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
+msgstr ""
+
+#: modules/module-info.php:152 modules/module-info.php:156
+#: modules/module-info.php:166 modules/module-info.php:170
+msgid "WP.me Shortlinks"
+msgstr ""
+
+#: modules/module-info.php:29
+msgctxt "Visit your _VaultPress_dashboard_."
+msgid "To check your backups, see any security alerts, or check your VaultPress Vitality, visit your %s."
+msgstr ""
+
+#: modules/module-info.php:90 modules/module-info.php:94
+#: modules/module-info.php:103 modules/module-info.php:107
+msgid "Shortcode Embeds"
+msgstr ""
+
+#: modules/module-info.php:59
+msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services they use on the web like Twitter, Facebook, or LinkedIn."
+msgstr ""
+
+#: modules/module-info.php:60
+msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
+msgstr ""
+
+#: modules/module-info.php:74
+msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
+msgstr ""
+
+#: modules/module-info.php:75
+msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
+msgstr ""
+
+#: modules/module-info.php:29
+msgid "VaultPress dashboard"
+msgstr ""
+
+#: modules/module-info.php:31
+msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks."
+msgstr ""
+
+#: modules/module-info.php:32
+msgctxt "View _Plans_&_Pricing_. (VaultPress)"
+msgid "View %s."
+msgstr ""
+
+#: modules/module-info.php:32
+msgid "Plans & Pricing"
+msgstr ""
+
+#: modules/module-info.php:53 modules/module-info.php:68
+msgid "Gravatar Hovercard"
+msgstr ""
+
+#: modules/module-info.php:58 modules/module-info.php:73
+msgid "What&#8217;s a Hovercard?"
+msgstr ""
+
+#: modules/module-info.php:22 modules/module-info.php:26
+msgid "VaultPress"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:711
+msgid "Add a custom form"
+msgstr ""
+
+#: modules/gravatar-hovercards.php:44 modules/module-info.php:57
+#: modules/module-info.php:72
+msgid "Gravatar Hovercards"
+msgstr ""
+
+#: modules/gravatar-hovercards.php:56
+msgid "View people's profiles when you mouse over their Gravatars"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:687
+msgid "Spam <span class=\"count\">(%s)</span>"
+msgid_plural "Spam <span class=\"count\">(%s)</span>"
+msgstr[0] ""
+msgstr[1] ""
+
+#: modules/contact-form/grunion-contact-form.php:670
+msgid "Search Feedback"
+msgstr ""
+
+#: modules/module-info.php:28
+msgid "Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support."
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:671
+#: modules/contact-form/grunion-contact-form.php:672
+msgid "No feedback found"
+msgstr ""
+
+#: modules/gravatar-hovercards.php:83
+msgid "Put your mouse over your Gravatar to check out your profile."
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:669
+msgid "Feedback"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:668
+msgid "Feedbacks"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:274
+#: modules/contact-form/grunion-contact-form.php:322
+msgid "Error!"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:146
+msgid "%s is required"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:284
+msgid "Submit &#187;"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:327
+msgid "Message Sent"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:461
+msgid "l F j, Y \\a\\t g:i a"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:481
+msgid "Time:"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:482
+msgid "IP Address:"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:483
+msgid "Contact Form URL:"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:139
+msgid "%s requires a valid email address"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:510
+msgid "Sent by an unverified visitor to your site."
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:35
+#: modules/sharedaddy/sharing-sources.php:127
+msgid "Email"
+msgstr "အီးေမးလ်"
+
+#: modules/contact-form/grunion-contact-form.php:78
+#: modules/contact-form/grunion-contact-form.php:83
+#: modules/contact-form/grunion-contact-form.php:87
+#: modules/contact-form/grunion-contact-form.php:99
+#: modules/contact-form/grunion-contact-form.php:104
+#: modules/contact-form/grunion-contact-form.php:118
+msgid "(required)"
+msgstr "(လိုအပ်သည်)"
+
+#: modules/contact-form/grunion-contact-form.php:98
+msgid "Yes"
+msgstr "လုပ်ပါ။"
+
+#: modules/contact-form/admin.php:456
+msgid "You are not allowed to move this item to the Trash."
+msgstr "ဤ​အ​မျိုး​အ​မည်​ကို​ ​အ​မှိုက်​ပံုး​အ​တွင်း​သို့​ ​ေရွှ့​ရန်​ ​သင့်​ကို​ခွင့်​မ​ြပု​ပါ​။"
+
+#: modules/contact-form/admin.php:452
+msgid "Error in restoring from Trash."
+msgstr "အမှိုက်ပံုးတွင်းမှ ေနရာတကျြပန်ထားစဉ် အမှားအယွင်းြဖစ်ေနသည်။"
+
+#: modules/contact-form/admin.php:449
+msgid "You are not allowed to move this item out of the Trash."
+msgstr "ဒါကို အမှုိက်ပံုးအြပင်သုိ့ပို့ရန် သင့်အားခွင့်မြပုပါ။"
+
+#: modules/contact-form/grunion-contact-form.php:39
+msgid "Subject"
+msgstr "အ‌ေြကာင်းအရာ"
+
+#: modules/contact-form/admin.php:483
+msgid "Messages"
+msgstr ""
+
+#: modules/contact-form/admin.php:506
+msgid "Spam"
+msgstr ""
+
+#: modules/contact-form/grunion-contact-form.php:34
+msgid "Name"
+msgstr "အမည်"
+
+#: modules/contact-form/admin.php:459
+msgid "Error in moving to Trash."
+msgstr "အမှိုက်ပံုးတွင်းသို့ ေရွှ့စဉ် အမှားအယွင်းြဖစ်ေနသည်။"
+
+#: modules/contact-form/grunion-contact-form.php:36
+msgid "Website"
+msgstr "ဝက်ဘ်ဆိုဒ်"
+
+#: modules/contact-form/admin.php:88
+#: modules/contact-form/grunion-contact-form.php:41
+msgid "Message"
+msgstr ""
+
+#: modules/contact-form/admin.php:197
+msgid "Mark this message as spam"
+msgstr ""
+
+#: modules/contact-form/admin.php:166 modules/contact-form/admin.php:265
+msgid "Delete Permanently"
+msgstr "အြပီးအပိုင်ဖျက်ပါ"
+
+#: modules/contact-form/admin.php:257
+msgid "Mark this message as NOT spam"
+msgstr ""
+
+#: modules/contact-form/admin.php:164 modules/contact-form/admin.php:263
+msgid "Delete this item permanently"
+msgstr "ဒါကို အြပီးတိုင်ဖျက်ပါ။"
+
+#: modules/contact-form/admin.php:296
+msgid "Y-m-d @ g:i:s A"
+msgstr ""
+
+#: modules/contact-form/admin.php:415
+msgid "You are not allowed to manage this item."
+msgstr ""
+
+#: modules/contact-form/admin.php:161
+msgid "Restore"
+msgstr "ြပန်လည်ထားသိုပါ။"
+
+#: modules/contact-form/admin.php:89
+msgid "Date"
+msgstr "ေန့စွဲ"
+
+#: modules/contact-form/admin.php:204 modules/contact-form/admin.php:206
+#: modules/contact-form/admin.php:493
+msgid "Trash"
+msgstr "အမှုိက်ပံုး"
+
+#: modules/after-the-deadline/config-unignore.php:130
+msgid "Add"
+msgstr "ထပ်ေပါင်းထည့်ပါ။"
+
+#: modules/after-the-deadline/config-unignore.php:128
+msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:89
+msgctxt "%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG"
+msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href=\"%1$s\">%2%s</a> value is the default proofreading language."
+msgstr ""
+
+#: modules/contact-form/admin.php:87
+msgid "From"
+msgstr ""
+
+#: modules/after-the-deadline/config-unignore.php:135
+msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
+msgstr ""
+
+#: modules/after-the-deadline/config-unignore.php:126
+msgid "Ignored Phrases"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:95
+msgid "Use automatically detected language to proofread posts and pages"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:86
+msgid "Language"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:81
+msgid "Redundant Phrases"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:79
+msgid "Phrases to Avoid"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:77
+msgid "Passive Voice"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:83
+msgid "<a href=\"%s\">Learn more</a> about these options."
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:67
+msgid "Complex Phrases"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:75
+msgid "Jargon"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:73
+msgid "Hidden Verbs"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:71
+msgid "Double Negatives"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:69
+msgid "Diacritical Marks"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:65
+msgid "Clich&eacute;s"
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:30
+msgid "There was an error communicating with the proofreading service."
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:63
+msgid "Bias Language"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:60
+msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:58
+msgid "English Options"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:55
+msgid "a post or page is updated"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:53
+msgid "a post or page is first published"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:50
+msgid "Automatically proofread content when:"
+msgstr ""
+
+#: modules/after-the-deadline/config-options.php:48
+msgid "Proofreading"
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:34
+msgid ""
+"The proofreader has suggestions for this post. Are you sure you want to update it?\n"
+"\n"
+"Press OK to update your post, or Cancel to view the suggestions and edit your post."
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:33
+msgid ""
+"The proofreader has suggestions for this post. Are you sure you want to publish it?\n"
+"\n"
+"Press OK to publish your post, or Cancel to view the suggestions and edit your post."
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:32
+msgid "Replace selection with:"
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:22
+msgid "Edit Selection..."
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:20
+msgid "Ignore all"
+msgstr "အားလံုးကို လှစ်လျူရှုပါ"
+
+#: modules/after-the-deadline/atd-l10n.php:17
+msgid "Explain..."
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:15
+msgid "No suggestions"
+msgstr "အြကံြပုချက်များ မရှိပါ။"
+
+#: modules/after-the-deadline/atd-l10n.php:19
+msgid "Ignore always"
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:18
+msgid "Ignore suggestion"
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:25
+msgid "edit text"
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:24
+msgid "proofread"
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:26
+#: modules/after-the-deadline.php:224
+msgid "Proofread Writing"
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:28
+msgid "No writing errors were found."
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:29
+msgid "There was a problem communicating with the Proofreading service. Try again in one minute."
+msgstr ""
+
+#: jetpack.php:1995
+msgid "Configure"
+msgstr "ြပင်ဆင် ချိန်ညိှရန်"
+
+#: modules/after-the-deadline/atd-l10n.php:13
+msgid "Repeated Word"
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:12
+msgid "Spelling"
+msgstr ""
+
+#: jetpack.php:2851
+msgid "An administrator for this blog must set up the Jetpack connection."
+msgstr ""
+
+#: jetpack.php:2856
+msgid "You need to register your Jetpack before connecting it."
+msgstr ""
+
+#: jetpack.php:2238 jetpack.php:2240 jetpack.php:2242 jetpack.php:2245
+#: jetpack.php:2895
+msgid "Error Details: %s"
+msgstr ""
+
+#: jetpack.php:2029
+msgid "Coming soon&#8230;"
+msgstr ""
+
+#: jetpack.php:1966
+msgid "Updated"
+msgstr ""
+
+#: jetpack.php:1963
+msgid "New"
+msgstr ""
+
+#: jetpack.php:1955
+msgid "Free"
+msgstr ""
+
+#: jetpack.php:1932
+msgid "Activate"
+msgstr "စတင် အလုပ်လုပ်ပါ"
+
+#: jetpack.php:1955
+msgid "Purchase"
+msgstr ""
+
+#: jetpack.php:1808
+msgid "An <span>Automattic</span> Airline"
+msgstr ""
+
+#: jetpack.php:1863
+msgid "Configure %s"
+msgstr ""
+
+#: jetpack.php:1832
+msgid "This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords."
+msgstr ""
+
+#: jetpack.php:1922
+msgid "Deactivate"
+msgstr "အလုပ်လုပ်မှုရပ်ဆိုင်းပါ။"
+
+#: jetpack.php:1795
+msgid "You will no longer receive email updates about Jetpack."
+msgstr ""
+
+#: jetpack.php:1793
+msgid "You have been subscribed to receive email updates."
+msgstr ""
+
+#: jetpack.php:1814 modules/sharedaddy/sharedaddy.php:74
+msgid "Support"
+msgstr ""
+
+#: jetpack.php:1813
+msgid "Debug"
+msgstr ""
+
+#: jetpack.php:1812
+msgid "Terms of Service"
+msgstr ""
+
+#: jetpack.php:1786 modules/subscriptions.php:557
+msgid "Subscribe"
+msgstr ""
+
+#: jetpack.php:1811
+msgid "Privacy Policy"
+msgstr ""
+
+#: jetpack.php:1768
+msgid "Take Survey"
+msgstr ""
+
+#: jetpack.php:1569
+msgid "Jetpack contains the most recent version of the old %l plugin."
+msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
+msgstr[0] ""
+msgstr[1] ""
+
+#: jetpack.php:1725
+msgid "Connected to WordPress.com"
+msgstr ""
+
+#: jetpack.php:1763
+msgid "Have feedback on Jetpack?"
+msgstr ""
+
+#: jetpack.php:1765
+msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
+msgstr ""
+
+#: jetpack.php:1774
+msgid "Checking email updates status&hellip;"
+msgstr ""
+
+#: jetpack.php:1726
+msgid "Disconnect from WordPress.com"
+msgstr ""
+
+#: jetpack.php:1781
+msgid "Unsubscribe"
+msgstr ""
+
+#: jetpack.php:1578
+msgid "The old version has been deactivated and can be removed from your site."
+msgid_plural "The old versions have been deactivated and can be removed from your site."
+msgstr[0] ""
+msgstr[1] ""
+
+#: jetpack.php:1745
+msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
+msgstr ""
+
+#: jetpack.php:1785
+msgctxt "%s = Subscribe link"
+msgid "Want to receive updates about Jetpack by email? %s"
+msgstr ""
+
+#: jetpack.php:1780
+msgctxt "%s = Unsubscribe link"
+msgid "You are currently subscribed to email updates. %s"
+msgstr ""
+
+#: jetpack.php:1545
+msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
+msgstr ""
+
+#: jetpack.php:1517
+msgid "The following modules have been updated: %l."
+msgstr ""
+
+#: jetpack.php:1541
+msgid "<strong>Your Jetpack is already connected.</strong> "
+msgstr ""
+
+#: jetpack.php:1531
+msgid "<strong>%s Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
+msgstr ""
+
+#: jetpack.php:1547
+msgid "The features below are now active. Click the learn more buttons to explore each feature."
+msgstr ""
+
+#: jetpack.php:1537
+msgid "<strong>Module settings were saved.</strong> "
+msgstr ""
+
+#: jetpack.php:1524
+msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
+msgstr ""
+
+#: jetpack.php:1493
+msgid "Welcome to <strong>Jetpack %s</strong>!"
+msgstr ""
+
+#: jetpack.php:1469
+msgid "Try connecting again."
+msgstr ""
+
+#: jetpack.php:1466
+msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
+msgstr ""
+
+#: jetpack.php:1505
+msgid "The following new modules have been activated: %l."
+msgstr ""
+
+#: jetpack.php:1416
+msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
+msgstr ""
+
+#: jetpack.php:1383
+msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
+msgstr ""
+
+#: jetpack.php:1380
+msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
+msgstr ""
+
+#: jetpack.php:1390
+msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
+msgstr ""
+
+#: jetpack.php:1404
+msgid "Do you still have the %s plugin installed?"
+msgstr ""
+
+#: jetpack.php:1422
+msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
+msgstr ""
+
+#: jetpack.php:1426
+msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
+msgstr ""
+
+#: jetpack.php:1408
+msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr ""
+
+#: jetpack.php:1402
+msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr ""
+
+#: jetpack.php:1387
+msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
+msgstr ""
+
+#: jetpack.php:1400
+msgid "The %1$s module requires <strong>PHP version %2$s</strong> or higher."
+msgstr ""
+
+#: jetpack.php:1394
+msgid "Your website needs to be publicly accessible to use Jetpack: %s"
+msgstr ""
+
+#: jetpack.php:1307
+msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
+msgstr ""
+
+#: jetpack.php:1275 modules/sharedaddy/sharedaddy.php:66
+#: modules/sharedaddy/sharedaddy.php:73
+msgid "Settings"
+msgstr "အြပင်အဆင်များ"
+
+#: jetpack.php:1295
+msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
+msgstr ""
+
+#: jetpack.php:1213
+msgid "Find the component you want to manage"
+msgstr ""
+
+#: jetpack.php:1214
+msgid "Click on Learn More"
+msgstr ""
+
+#: jetpack.php:1293 jetpack.php:1744
+msgid "Connect to WordPress.com"
+msgstr ""
+
+#: jetpack.php:1296 modules/module-info.php:45 modules/module-info.php:81
+#: modules/module-info.php:143 modules/module-info.php:178
+#: modules/module-info.php:212 modules/module-info.php:248
+#: modules/module-info.php:299 modules/module-info.php:321
+#: modules/module-info.php:359 modules/module-info.php:383
+#: modules/module-info.php:401 modules/module-info.php:407
+msgid "Learn More"
+msgstr ""
+
+#: jetpack.php:1216
+msgid "If additional settings are available, a link to them will appear"
+msgstr ""
+
+#: jetpack.php:1292
+msgid "<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features."
+msgstr ""
+
+#: jetpack.php:1215
+msgid "An Activate or Deactivate button will appear"
+msgstr ""
+
+#: jetpack.php:1211
+msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
+msgstr ""
+
+#: jetpack.php:1180
+msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
+msgstr ""
+
+#: jetpack.php:1179
+msgid "Jetpack Module Options"
+msgstr ""
+
+#: jetpack.php:1178 jetpack.php:1202
+msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
+msgstr ""
+
+#: jetpack.php:1198
+msgid "Overview"
+msgstr ""
+
+#: jetpack.php:1182 jetpack.php:1223
+msgid "Jetpack FAQ"
+msgstr ""
+
+#: jetpack.php:1141
+msgid "One New Jetpack Module"
+msgid_plural "%s New Jetpack Modules"
+msgstr[0] ""
+msgstr[1] ""
+
+#: jetpack.php:1208
+msgid "Modules"
+msgstr ""
+
+#: jetpack.php:1177 jetpack.php:1201 jetpack.php:1732
+msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
+msgstr ""
+
+#: jetpack.php:1183 jetpack.php:1224
+msgid "Jetpack Support"
+msgstr ""
+
+#: jetpack.php:1181 jetpack.php:1222
+msgid "For more information:"
+msgstr "ေနာက်ထပ် အချက်အလက်များအတွက် း"
+
+#: jetpack.php:1176 jetpack.php:1200 jetpack.php:1210 jetpack.php:1729
+#: jetpack.php:1862
+msgid "Jetpack by WordPress.com"
+msgstr ""
+
+#: jetpack.php:1104 jetpack.php:1120
+msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
+msgstr ""
+
+#: jetpack.php:954
+msgid "Jetpack requires WordPress version %s or later."
+msgstr ""

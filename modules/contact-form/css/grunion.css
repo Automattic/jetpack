@@ -1,0 +1,9 @@
+.textwidget input[type='text'], .textwidget textarea { width: 100% !important; }
+.contact-form .clear-form { clear: both; }
+.contact-form input[type='text'] { width: 300px; margin-bottom: 13px; }
+.contact-form select { margin-bottom: 13px; }
+.contact-form textarea { height: 200px; width: 80%; float: none; margin-bottom: 13px; }
+.contact-form input[type='radio'], .contact-form input[type='checkbox'] { float: none; margin-bottom: 13px; }
+.contact-form label { margin-bottom: 3px; float: none; font-weight: bold; display: block; }
+.contact-form label.checkbox, .contact-form label.radio { margin-bottom: 3px; float: none; font-weight: bold; display: inline-block; }
+.contact-form label span { color: #AAA; margin-left: 4px; font-weight: normal; }

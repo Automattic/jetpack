@@ -1,0 +1,1682 @@
+# Translation of 1.2 in Indonesian
+# This file is distributed under the same license as the 1.2 package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2011-12-05 21:56:10+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: GlotPress/0.1\n"
+"Project-Id-Version: 1.2\n"
+
+#: modules/rsslinks-widget.php:118
+msgid "Pink"
+msgstr "Merah muda"
+
+#: modules/stats.php:628
+msgid "week"
+msgstr "minggu"
+
+#: modules/rsslinks-widget.php:13
+msgid "RSS Links (Jetpack)"
+msgstr "Taut RSS (Jetpack)"
+
+#: modules/image-widget.php:110
+msgid "Image URL:"
+msgstr "URL Gambar:"
+
+#: modules/sharedaddy/sharing-sources.php:1037
+msgid "Icon"
+msgstr "Ikon"
+
+#: modules/shortcodes/videopress.php:612
+msgid "No data found for VideoPress identifier: <strong>%s</strong>."
+msgstr "Tidak ada data yang ditemukan untuk pengenal VideoPress: <strong>%s</strong>."
+
+#: modules/sharedaddy/sharing-sources.php:1027
+msgid "Label"
+msgstr "Label"
+
+#: modules/sharedaddy/sharing.php:308
+msgid "Text only"
+msgstr "Teks saja"
+
+#: modules/rsslinks-widget.php:121
+msgid "Image Color:"
+msgstr "Warna Gambar:"
+
+#: modules/sharedaddy/sharing-sources.php:977
+msgid "Click to share"
+msgstr "Klik untuk berbagi"
+
+#: modules/shortcodes/videopress.php:876
+msgid "February"
+msgstr "Februari"
+
+#: modules/ie-sitemode.php:91
+msgid "Moderate comments"
+msgstr "Moderasi komentar"
+
+#: modules/ie-sitemode/custom-jumplist.php:22
+msgid "Recent posts"
+msgstr "Tulisan terkini"
+
+#: modules/module-info.php:203 modules/module-info.php:218
+msgid "LaTeX"
+msgstr "LaTeX"
+
+#: modules/sharedaddy/sharing.php:319
+msgid "Open links in"
+msgstr "Buka taut dalam"
+
+#: modules/image-widget.php:129
+msgid "Image Alignment:"
+msgstr "Penjajaran Gambar:"
+
+#: modules/module-info.php:415
+msgid "The Internet Explorer sitemode integration allows your users to interact with your website when using Internet Explorer 9's sitemode function."
+msgstr "Integrasi sitemode Internet Explorer memungkinkan pengguna untuk berinteraksi dengan situs web Anda ketika menggunakan fungsi sitemode Internet Explorer 9 ini."
+
+#: modules/stats.php:634
+msgid "the past month"
+msgstr "bulan terakhir"
+
+#: modules/shortcodes/videopress.php:1115
+#: modules/shortcodes/videopress.php:1137
+msgid "this video"
+msgstr "video ini"
+
+#: modules/module-info.php:301
+msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
+msgstr "Keterangan lengkap dapat ditemukan pada <a href=\"%s\">halaman dukungan Berbagi</a>. Video ini juga memberikan desir tata cara menggunakan fitur Berbagi. Tonton videonya pada resolusi HD untuk ekstra wah!"
+
+#: modules/ie-sitemode.php:103 modules/stats.php:208 modules/stats.php:606
+msgid "Site Stats"
+msgstr "Statistik Situs"
+
+#: modules/sharedaddy/sharing.php:148
+msgid "Warning! Multibyte support missing!"
+msgstr "Perhatian! Dukungan Multibyte tidak ditemukan!"
+
+#: modules/sharedaddy/sharing.php:149
+msgid "This plugin will work without it, but multibyte support is used <a href=\"%s\">if available</a>. You may see minor problems with Tweets and other sharing services."
+msgstr "Plugin ini dapat berfungsi tanpanya, namun dukungan multibyte digunakan <a href=\"%s\">bila tersedia</a>. Anda mungkin mendapati masalah kecil dengan Tweet atau layanan berbagi lainnya."
+
+#: modules/stats.php:476
+msgid "Count the page views of registered users who are logged in."
+msgstr "Hitung tampilnya halaman untuk pengguna terdaftar yang log masuk."
+
+#: modules/module-info.php:299
+msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
+msgstr "Untuk mengkonfigurasi pengaturan berbagi Anda, pergi ke menu Pengaturan &rarr; <a href=\"%s\">Berbagi</a>."
+
+#: modules/stats.php:633
+msgid "the past week"
+msgstr "minggu terakhir"
+
+#: modules/sharedaddy/sharing.php:307
+msgid "Icon only"
+msgstr "Ikon saja"
+
+#: modules/sharedaddy/sharing.php:371
+msgid "You can add the following variables to your service sharing URL:"
+msgstr "Anda dapat menambahkan variabel berikut pada URL layanan berbagi Anda:"
+
+#: modules/subscriptions.php:517
+msgid "Sign me up!"
+msgstr "Daftarkan saya!"
+
+#: modules/after-the-deadline/atd-l10n.php:13
+msgid "Repeated Word"
+msgstr "Kata yang Diulang"
+
+#: modules/module-info.php:377
+msgid "The RSS Links Widget allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments."
+msgstr "Widget Taut RSS ini memungkinkan Anda untuk menambahkan taut-taut ke tulisan blog Anda dan umpan RSS komentar pada bilah sisi Anda. Hal ini memudahkan pembaca Anda agar tetap diberitahu ketika Anda menulis konten baru atau menerima komentar baru."
+
+#: modules/module-info.php:209
+msgid "Jetpack combines the power of %s and the simplicity of WordPress to give you the ultimate in math blogging platforms."
+msgstr "Jetpack menggabungkan kekuatan dari %s dan kesederhanaan dari WordPress untuk memberikan Anda fitur yang paling mantap dalam platform blog matematika."
+
+#: modules/stats.php:627
+msgid "day"
+msgstr "hari"
+
+#: modules/sharedaddy/sharing-sources.php:884
+msgid "Click to Press This!"
+msgstr "Klik untuk Press-kan Ini!"
+
+#: modules/rsslinks-widget.php:83
+msgid "Text & Image Links"
+msgstr "Taut Teks & Gambar"
+
+#: modules/sharedaddy/sharing-sources.php:1044
+msgid "Save"
+msgstr "Simpan"
+
+#: modules/ie-sitemode.php:77
+msgid "Edit post"
+msgstr "Sunting tulisan"
+
+#: modules/rsslinks-widget.php:103
+msgid "Image Size:"
+msgstr "Ukuran Gambar:"
+
+#: modules/stats.php:295
+msgid "Your Site Stats work better with Javascript enabled."
+msgstr "Statistik Situs Anda bekerja lebih baik dengan Javascript dinyalakan."
+
+#: modules/sharedaddy/sharing.php:306
+msgid "Icon + text"
+msgstr "Ikon + teks"
+
+#: modules/sharedaddy/sharing-sources.php:363
+msgid "Click to share on StumbleUpon"
+msgstr "Klik untuk berbagi di StumbleUpon"
+
+#: modules/shortcodes/videopress.php:876
+msgid "January"
+msgstr "Januari"
+
+#: modules/shortcodes/videopress.php:915
+msgid "More information"
+msgstr "Informasi lebih lanjut"
+
+#: modules/ie-sitemode.php:97
+msgid "Upload new media"
+msgstr "Unggah media baru"
+
+#: modules/shortcodes/videopress.php:876
+msgid "March"
+msgstr "Maret"
+
+#: modules/stats.php:472
+msgid "Admin bar"
+msgstr "Batang admin"
+
+#: modules/subscriptions.php:313
+msgid "Notify me of new posts by email."
+msgstr "Beritahu saya akan tulisan baru melalui surel."
+
+#: modules/sharedaddy/sharing-sources.php:227
+msgid "Cancel"
+msgstr "Batal"
+
+#: modules/shortcodes/videopress.php:876
+msgid "November"
+msgstr "November"
+
+#: modules/sharedaddy/sharing-sources.php:363
+msgctxt "share to"
+msgid "StumbleUpon"
+msgstr "StumbleUpon"
+
+#: modules/sharedaddy/sharing-sources.php:892
+msgid "Google +1"
+msgstr "Google +1"
+
+#: modules/subscriptions.php:515
+msgid "Email Subscription"
+msgstr "Surel Berlangganan"
+
+#: modules/sharedaddy/sharing.php:49 modules/sharedaddy/sharing.php:158
+msgid "Sharing Settings"
+msgstr "Pengaturan Berbagi"
+
+#: modules/module-info.php:244
+msgid "The Twitter Widget shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site."
+msgstr "Widget Twitter menampilkan tweet terbaru Anda dalam bilah sisi tema Anda. Memudahkan Anad untuk menambahkan aktivitas tambahan di situs Anda."
+
+#: modules/stats.php:525
+msgid "Views over 48 hours. Click for more Site Stats."
+msgstr "Tampilan selama 48 jam. Klik untuk Statistik Situs lebih lanjut."
+
+#: modules/module-info.php:391
+msgid "To use the RSS Links Widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. The RSS Links widget is listed as &#8220;RSS Links&nbsp;(Jetpack)&#8221;; drag it into one of your sidebars and configure away."
+msgstr "Untuk menggunakan Widget Taut RSS, pergi ke Penampilan &#8594; <a href=\"%s\">Widget</a>. Widget Taut RSS terdaftar sebagai &#8220;Taut RSS &nbsp;(Jetpack)&#8221;; tarik ke salah satu bilah sisi Anda dan konfigurasikanlah."
+
+#: modules/rsslinks-widget.php:140
+msgid "Subscribe to %s"
+msgstr "Berlangganan pada %s"
+
+#: modules/sharedaddy/sharing-sources.php:436
+msgid "Click to share on Reddit"
+msgstr "Klik untuk berbagi di Reddit"
+
+#: modules/sharedaddy/sharing-sources.php:506
+msgid "Digg"
+msgstr "Digg"
+
+#: modules/sharedaddy/sharing-sources.php:515
+#: modules/sharedaddy/sharing-sources.php:519
+msgid "Click to Digg this post"
+msgstr "Klik untuk men-Digg tulisan ini"
+
+#: modules/sharedaddy/sharing-sources.php:777
+msgid "Share on Facebook"
+msgstr "Berbagi di Facebook"
+
+#: modules/sharedaddy/sharing.php:165
+msgid "Drag and drop the services you'd like to enable into the box below."
+msgstr "Tarik dan taruh layanan yang ingin dinyalakan ke dalam kotak di bawah ini."
+
+#: modules/module-info.php:20
+msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in realtime, as well as perform regular security scans for common threats and attacks."
+msgstr "Dengan berlangganan bulanan, plugin VaultPress akan mencadangkan konten situs, tema, dan plugin Anda secara realtime, serta melakukan pemindaian keamanan secara reguler untuk mencari ancaman dan serangan lazim."
+
+#: modules/module-info.php:188
+msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
+msgstr "Anda dapat <a href=\"%s\">melihat dasbor statistik Anda di sini</a>."
+
+#: modules/module-info.php:22
+msgid "VaultPress dashboard"
+msgstr "Dasbor VaultPress"
+
+#: modules/module-info.php:390
+msgid "The RSS Links Widget let&#8217;s you easily add post and comment RSS feeds to a sidebar on your theme."
+msgstr "Widget Taut RSS memudahkan Anda dalam menambahkan tulisan dan umpan RSS komentar ke bilah sisi tema Anda."
+
+#: modules/module-info.php:376 modules/module-info.php:389
+msgid "RSS Links Widget"
+msgstr "Widget Taut RSS"
+
+#: modules/module-info.php:338 modules/module-info.php:351
+#: modules/module-info.php:410 modules/module-info.php:423
+msgid "Image"
+msgstr "Gambar"
+
+#: modules/sharedaddy/sharedaddy.php:22 modules/sharedaddy/sharedaddy.php:23
+#: modules/sharedaddy/sharing.php:49 modules/module-info.php:274
+#: modules/module-info.php:277 modules/module-info.php:298
+msgid "Sharing"
+msgstr "Berbagi"
+
+#: modules/after-the-deadline/atd-l10n.php:28
+msgid "No writing errors were found."
+msgstr "Tidak ada galat penulisan."
+
+#: modules/subscriptions.php:307
+msgid "Notify me of follow-up comments by email."
+msgstr "Beritahu saya akan tindak lanjut komentar melalui surel."
+
+#: modules/module-info.php:24
+msgctxt "View _Plans_&_Pricing_. (VaultPress)"
+msgid "View %s."
+msgstr "Tinjau %s."
+
+#: modules/sharedaddy/sharing-sources.php:1032
+msgid "URL"
+msgstr "URL"
+
+#: modules/module-info.php:343
+msgid "The Image Widget allows you to easily add images to widget areas in your theme. It&#8217;s an easy way to add more visual interest to your site."
+msgstr "Widget Gambar memungkinkan Anda untuk menambahkan foto ke daerah widget pada tema Anda dengan mudah. Ini adalah cara mudah untuk menambahkan tingkat keindahan visual situs Anda."
+
+#: modules/rsslinks-widget.php:115
+msgid "Green"
+msgstr "Hijau"
+
+#: modules/shortcodes/videopress.php:912
+msgid "Submit"
+msgstr "Kirim"
+
+#: modules/shortcodes/videopress.php:876
+msgid "December"
+msgstr "Desember"
+
+#: modules/shortcodes/videopress.php:1016
+msgctxt "watch a video title"
+msgid "Watch: %s"
+msgstr "Tonton: %s"
+
+#: modules/image-widget.php:126
+msgid "Center"
+msgstr "Tengah"
+
+#: modules/module-info.php:81 modules/module-info.php:94
+msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
+msgstr "Kode-singkat mengizinkan Anda untuk menyematkan media dengan mudah dan aman dari tempat lain ke dalam situs Anda. Cukup dengan satu kode sederhana, Anda dapat memerintahkan WordPress untuk menyematkan YouTube, Flickr, dan media lain."
+
+#: modules/ie-sitemode/custom-jumplist.php:49
+msgid "Pending comments"
+msgstr "Komentar menunggu moderasi"
+
+#: modules/subscriptions.php:414
+msgid "The email you entered was invalid, please check and try again."
+msgstr "Surel yang Anda masukkan tidak sah, silakan cek dan coba lagi."
+
+#: modules/subscriptions.php:404
+msgid "Please check your email to confirm your subscription."
+msgstr "Silahkan periksa surel Anda untuk mengkonfirmasi langganan Anda."
+
+#: modules/sharedaddy/sharing.php:164
+msgid "Available Services"
+msgstr "Layanan yang Tersedia"
+
+#: modules/module-info.php:210
+msgid "Wow, that sounds nerdy."
+msgstr "Waw, sepertinya rumit ya."
+
+#: modules/sharedaddy/sharing.php:313
+msgid "Sharing label"
+msgstr "Label berbagi"
+
+#: modules/sharedaddy/sharing-sources.php:230
+msgid "Post was not sent - check your email addresses!"
+msgstr "Tulisan tidak terkirim - cek alamat surel Anda!"
+
+#: modules/sharedaddy/sharing-sources.php:601
+msgid "LinkedIn"
+msgstr "LinkedIn"
+
+#: modules/rsslinks-widget.php:81
+msgid "Text Link"
+msgstr "Taut Teks"
+
+#: modules/rsslinks-widget.php:12
+msgid "Links to your blog's RSS feeds"
+msgstr "Taut ke umpan RSS blog Anda"
+
+#: modules/module-info.php:139 modules/module-info.php:153
+msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
+msgstr "Ketimbang mengetik atau salin-tempel URL yang panjang, Anda sekarang bisa mendapatkan taut yang singkat dan sederhana untuk tulisan dan halaman Anda. Menggunakan nama domain wp.me yang super singkat dan padat, dan memberikan Anda URL yang unik yang dapat digunakan sekaligus aman dan terpercaya."
+
+#: modules/stats.php:857
+msgid "%1$s %2$s Views"
+msgstr "%1$s %2$s Tampilan"
+
+#: modules/subscriptions.php:437 modules/subscriptions.php:516
+msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
+msgstr "Masukkan alamat surel Anda untuk berlangganan blog ini dan menerima pemberitahuan tulisan-tulisan baru melalui surel."
+
+#: modules/module-info.php:208 modules/module-info.php:223
+msgid "%s is a powerful markup language for writing complex mathematical equations, formulas, etc."
+msgstr "%s adalah bahasa markup yang sangat berguna untuk menulis persamaan matematika yang kompleks, rumus, dll."
+
+#: modules/module-info.php:60
+msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
+msgstr "Hovercard meningkatkan kemampuan tampilan gambar Gravatar biasa dengan informasi mengenai orang tersebut: nama, biografi, gambar-gambar, informasi untuk dihubungi, dan layanan lainnya."
+
+#: modules/module-info.php:76 modules/module-info.php:80
+#: modules/module-info.php:89 modules/module-info.php:93
+msgid "Shortcode Embeds"
+msgstr "Sematan Kode-singkat"
+
+#: modules/module-info.php:61
+msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
+msgstr "Untuk melihat hovercard, bukalah tulisan pada blog Anda yang memiliki komentar. Jika pemberi komentar memiliki hovercard yang terhubung dengan gravatarnya, taruh tetikus di atas foto mereka dan sang hovercard akan muncul. Untuk mematikan hovercard, klik tombol Nonaktifkan di atas."
+
+#: modules/rsslinks-widget.php:101
+msgid "Large"
+msgstr "Besar"
+
+#: modules/subscriptions.php:561
+msgid "Show total number of subscribers? (%s subscriber)"
+msgid_plural "Show total number of subscribers? (%s subscribers)"
+msgstr[0] "Tampilkan jumlah total pelanggan? (%s pelanggan)"
+msgstr[1] "Tampilkan jumlah total pelanggan? (%s pelanggan)"
+
+#: modules/image-widget.php:12
+msgid "Display an image in your sidebar"
+msgstr "Menampilkan gambar pada bilah sisi Anda"
+
+#: modules/module-info.php:174 modules/module-info.php:187
+msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
+msgstr "Ada banyak sekali plugin dan layanan yang menyediakan statistik, namun datanya memusingkan. Statistik WordPress.com menjadikan metrik, yang paling populer, mudah untuk dipahami lewat antar-muka yang jelas dan memukau."
+
+#: modules/subscriptions.php:417
+msgid "You have already subscribed to this site, please check your inbox."
+msgstr "Anda telah berlangganan pada situs ini, silakan cek kotak masuk Anda."
+
+#: modules/module-info.php:140
+msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
+msgstr "Cocok sekali untuk digunakan pada Twitter, Facebook, dan SMS di mana jumlah karakter amat berpengaruh. "
+
+#: modules/module-info.php:243 modules/module-info.php:257
+msgid "Twitter Widget"
+msgstr "Widget Twitter"
+
+#: modules/module-info.php:154
+msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
+msgstr "Untuk menggunakan taut singkat, pergi ke salah satu tulisan yang sudah diterbitkan (atau publikasikan sesuatu yang baru!). Sebuah tombol \"Dapatkan Taut Singkat (Shortlink)\" akan terlihat di bawah judul Tulisan. Ketika Anda klik itu, sebuah kotak dialog akan muncul dengan taut singkatnya (shortlink) dan Anda dapat menyalin dan menempelkannya ke Twitter, Facebook atau di manapun Anda mau."
+
+#: modules/sharedaddy/sharing.php:153
+msgid "Settings have been saved"
+msgstr "Pengaturan telah disimpan"
+
+#: modules/module-info.php:342 modules/module-info.php:355
+msgid "Image Widget"
+msgstr "Widget Gambar"
+
+#: modules/subscriptions.php:554
+msgid "Subscription Button:"
+msgstr "Tombol Berlangganan:"
+
+#: modules/subscriptions.php:548
+msgid "Optional text to display to your readers:"
+msgstr "Teks opsional untuk ditampilkan bagi pembaca Anda:"
+
+#: modules/subscriptions.php:518
+msgid "Click to subscribe to this blog and receive notifications of new posts by email."
+msgstr "Klik untuk berlangganan ke blog ini dan menerima pemberitahuan tulisan-tulisan baru melalui surel."
+
+#: modules/after-the-deadline/config-options.php:97
+msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href=\"%s\">WPLANG</a> value is the default proofreading language."
+msgstr "Pemeriksa ejaan mendukung Bahasa Inggris, Perancis, Jerman, Portugis, dan Spanyol. Nilai <a href=\"%s\">WPLANG</a> Anda ditetapkan sebagai nilai bawaan bagi bahasa pemeriksa ejaan."
+
+#: modules/sharedaddy/sharing-sources.php:193
+msgctxt "share to"
+msgid "Email"
+msgstr "Surel"
+
+#: modules/sharedaddy/sharing-sources.php:226
+msgid "Send Email"
+msgstr "Kirim Surel"
+
+#: modules/image-widget.php:139
+msgid "Width:"
+msgstr "Lebar:"
+
+#: modules/rsslinks-widget.php:68 modules/rsslinks-widget.php:136
+msgid "Comments"
+msgstr "Komentar"
+
+#: modules/ie-sitemode.php:115
+msgid "WordPress.org Support"
+msgstr "Dukungan WordPress.org"
+
+#: modules/ie-sitemode.php:112
+msgid "Get started with your own blog!"
+msgstr "Mulai dengan blog Anda sendiri!"
+
+#: modules/module-info.php:224
+msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
+msgstr "Gunakan <code>$latex kode lateks Anda di sini$</code> atau <code>[latex]kode lateks Anda di sini[/latex]</code> untuk memasukkan %s dalam tulisan dan komentar Anda. Ada <a href=\"%s\" target=\"_blank\">berbagai macam pilihan</a> yang tersedia."
+
+#: modules/sharedaddy/sharing.php:186
+msgid "Enabled Services"
+msgstr "Nyalakan Layanan"
+
+#: modules/shortcodes/videopress.php:958
+msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
+msgstr "Anda tidak memiliki cukup <a rel=\"nofollow\" href=\"%s\">tingkat kebebasan</a> untuk menonton video ini. Dukunglah perangkat lunak bebas dan mutakhirkanlah."
+
+#: modules/module-info.php:323
+msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
+msgstr "After the Deadline menyediakan sejumlah <a href=\"%s\">pilihan kustomisasi</a>, yang dapat disunting dalam profil Anda."
+
+#: modules/sharedaddy/sharing-sources.php:884
+msgctxt "share to"
+msgid "Press This"
+msgstr "Press-kan Ini"
+
+#: modules/sharedaddy/sharing-sources.php:257 modules/module-info.php:239
+#: modules/module-info.php:253
+msgid "Twitter"
+msgstr "Twitter"
+
+#: modules/sharedaddy/sharing.php:322
+msgid "New window"
+msgstr "Jendela baru"
+
+#: modules/after-the-deadline/atd-l10n.php:15
+msgid "No suggestions"
+msgstr "Tidak ada saran"
+
+#: modules/module-info.php:24
+msgid "View Plans & Pricing"
+msgstr "Lihat Penawaran & Harga"
+
+#: modules/module-info.php:46
+msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
+msgstr "Hovercard menawarkan cara yang menakjubkan untuk menampilkan kehadiran Anda di internet dan membantu orang lain menemukan blog Anda sendiri."
+
+#: modules/subscriptions.php:408
+msgid "You are now subscribed to this blog."
+msgstr "Anda kini berlangganan ke blog ini."
+
+#: modules/module-info.php:278
+msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
+msgstr "Bagi tulisan Anda pada Twitter, Facebook, dan penyedia layanan berbagi lainnya. Anda dapat mengatur layanan agar muncul sebagai ikon, teks, atau keduanya. Beberapa layanan memiliki pilihan tambahan seperti: menampilkan tombol pintar, contohnya Twitter, yang akan memperbarui angka sebanyak apa tulisan telah dibagi-bagikan."
+
+#: modules/module-info.php:15 modules/module-info.php:19
+msgid "VaultPress"
+msgstr "VaultPress"
+
+#: modules/shortcodes/archives.php:49
+msgid "Your blog does not currently have any published posts."
+msgstr "Blog Anda tidak memiliki tulisan yang telah diterbitkan."
+
+#: modules/shortcodes/videopress.php:1298
+msgid "Loading video..."
+msgstr "Memuat video..."
+
+#: modules/after-the-deadline/atd-l10n.php:29
+msgid "There was a problem communicating with the Proofreading service. Try again in one minute."
+msgstr "Ada masalah berkomunikasi dengan layanan Koreksi Bahasa. Coba dalam satu menit lagi."
+
+#: modules/after-the-deadline/atd-l10n.php:17
+msgid "Explain..."
+msgstr "Jelaskan..."
+
+#: modules/after-the-deadline/atd-l10n.php:18
+msgid "Ignore suggestion"
+msgstr "Abaikan saran"
+
+#: modules/rsslinks-widget.php:62 modules/twitter-widget.php:207
+msgid "Title:"
+msgstr "Judul:"
+
+#: modules/subscriptions.php:441
+msgid "Join %s other subscriber"
+msgid_plural "Join %s other subscribers"
+msgstr[0] "Bergabung dengan %s pelanggan lain"
+msgstr[1] "Bergabung dengan %s pelanggan lain"
+
+#: modules/stats.php:684
+msgid "Show top search terms over"
+msgstr "Tampilkan istilah pencarian teratas selama"
+
+#: modules/sharedaddy/sharing.php:350
+msgid "Save Changes"
+msgstr "Simpan Perubahan"
+
+#: modules/sharedaddy/sharing.php:334
+msgid "Front Page, Archive Pages, and Search Results"
+msgstr "Halaman Depan, Halaman Arsip dan Hasil Pencarian"
+
+#: modules/module-info.php:22
+msgctxt "Visit your _VaultPress_dashboard_."
+msgid "Visit your %s."
+msgstr "Kunjungi %s Anda."
+
+#: modules/sharedaddy/sharing.php:221
+msgid "Sharing is off. Please add services above to enable"
+msgstr "Berbagi dimatikan. Silahkan tambah layanan di atas ini untuk menyalakan"
+
+#: modules/sharedaddy/sharing.php:203
+msgid "Services dragged here will be hidden behind a share button."
+msgstr "Layanan-layanan yang ditarik kemari akan disembunyikan di balik tombol berbagi."
+
+#: modules/sharedaddy/sharing-service.php:467
+#: modules/sharedaddy/sharing.php:234 modules/sharedaddy/sharing.php:275
+msgctxt "dropdown button"
+msgid "Share"
+msgstr "Berbagi"
+
+#: modules/sharedaddy/sharedaddy.php:18
+msgid "Shared Post"
+msgstr "Tulisan "
+
+#: modules/sharedaddy/sharing-sources.php:800
+msgid "Share button"
+msgstr "Tombol berbagi"
+
+#: modules/sharedaddy/sharing-sources.php:714
+msgid "Facebook"
+msgstr "Facebook"
+
+#: modules/sharedaddy/sharing-sources.php:629
+msgid "Click to share on LinkedIn"
+msgstr "Klik untuk berbagi di LinkedIn"
+
+#: modules/sharedaddy/sharing-sources.php:519
+msgctxt "share to"
+msgid "Digg"
+msgstr "Digg"
+
+#: modules/rsslinks-widget.php:119
+msgid "Silver"
+msgstr "Perak"
+
+#: modules/sharedaddy/sharing-sources.php:352
+msgid "StumbleUpon"
+msgstr "StumbleUpon"
+
+#: modules/sharedaddy/sharing-sources.php:234
+msgid "Email check failed, please try again"
+msgstr "Cek surel gagal, silahkan coba kembali"
+
+#: modules/sharedaddy/sharing-sources.php:169
+msgid "This post has been shared!"
+msgstr "Tulisan ini telah dibagikan!"
+
+#: modules/sharedaddy/sharing-service.php:196
+msgid "Share this:"
+msgstr "Berbagi ini:"
+
+#: modules/after-the-deadline/atd-l10n.php:19
+msgid "Ignore always"
+msgstr "Abaikan selalu"
+
+#: modules/module-info.php:414 modules/module-info.php:427
+msgid "IE Sitemode Integration"
+msgstr "Integrasi IE Sitemode"
+
+#: modules/sharedaddy/sharedaddy.php:95
+msgid "Disable CSS and JS"
+msgstr "Matikan CSS dan JS"
+
+#: modules/sharedaddy/sharing.php:385
+msgid "Create Share"
+msgstr "Ciptakan Bagian"
+
+#: modules/rsslinks-widget.php:82
+msgid "Image Link"
+msgstr "Taut Gambar"
+
+#: modules/sharedaddy/sharing.php:303
+msgid "Default button style"
+msgstr "Gaya tombol bawaan"
+
+#: modules/rsslinks-widget.php:100
+msgid "Medium"
+msgstr "Medium"
+
+#: modules/stats.php:898
+msgid "Top Searches"
+msgstr "Pencarian Teratas"
+
+#: modules/ie-sitemode.php:85
+msgid "Write a post"
+msgstr "Menulis sebuah tulisan"
+
+#: modules/after-the-deadline/atd-l10n.php:33
+msgid ""
+"The proofreader has suggestions for this post. Are you sure you want to publish it?\n"
+"\n"
+"Press OK to publish your post, or Cancel to view the suggestions and edit your post."
+msgstr ""
+"Pemeriksa ejaan memiliki beberapa saran untuk tulisan ini. Apakah Anda yakin ingin menerbitkannya?\n"
+"\n"
+"Tekan OK untuk menerbitkan tulisan, atau Batal untuk melihat saran dan menyunting tulisan."
+
+#: modules/rsslinks-widget.php:99
+msgid "Small"
+msgstr "Kecil"
+
+#: modules/ie-sitemode.php:73
+msgid "Edit page"
+msgstr "Sunting halaman"
+
+#: modules/sharedaddy/sharing-sources.php:850
+msgctxt "share to"
+msgid "Print"
+msgstr "Cetak"
+
+#: modules/sharedaddy/sharing.php:395
+msgid "An error occurred creating your new sharing service - please check you gave valid details."
+msgstr "Galat terjadi ketika menciptakan layanan berbagi baru Anda - silahkan periksa detil yang Anda berikan apakah sah."
+
+#: modules/module-info.php:45
+msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services they use on the web like Twitter, Facebook, or LinkedIn."
+msgstr "Hovercard meningkatkan kemampuan tampilan gambar Gravatar biasa dengan informasi mengenai orang tersebut: nama, biografi, gambar-gambar, informasi untuk dihubungi, dan layanan lainnya yang mereka gunakan di web seperti Twitter, Facebook, atau Linkedin."
+
+#: modules/image-widget.php:14
+msgid "Image (Jetpack)"
+msgstr "Gambar (Jetpack)"
+
+#: modules/ie-sitemode.php:51
+msgid "Author posts, manage comments, and manage %s."
+msgstr "Mengarang tulisan, mengelola komentar, dan mengelola %s."
+
+#: modules/rsslinks-widget.php:96
+msgid "Image Settings:"
+msgstr "Pengaturan gambar:"
+
+#: modules/sharedaddy/sharing.php:367
+msgid "Sharing URL"
+msgstr "URL Berbagi"
+
+#: modules/stats.php:874
+msgid "Top Posts"
+msgstr "Tulisan Teratas"
+
+#: modules/after-the-deadline/atd-l10n.php:32
+msgid "Replace selection with:"
+msgstr "Timpa pilihan dengan:"
+
+#: modules/stats.php:878 modules/stats.php:902
+msgid "Sorry, nothing to report."
+msgstr "Maaf, tidak ada yang perlu dilaporkan."
+
+#: modules/stats.php:629
+msgid "month"
+msgstr "bulan"
+
+#: modules/sharedaddy/sharing-sources.php:850
+msgid "Click to print"
+msgstr "Klik untuk cetak"
+
+#: modules/sharedaddy/sharing-sources.php:193
+msgid "Click to email this to a friend"
+msgstr "Klik untuk mengirim ini lewat surel kepada seorang teman"
+
+#: modules/sharedaddy/sharing.php:379
+msgid "Enter the URL of a 16x16px icon you want to use for this service."
+msgstr "Masukkan URL dari ikon 16x16 piksel yang ingin digunakan untuk layanan ini."
+
+#: modules/sharedaddy/sharing-sources.php:846
+msgid "Print"
+msgstr "Cetak"
+
+#: modules/ie-sitemode.php:75
+msgid "Edit attachment"
+msgstr "Sunting lampiran"
+
+#: modules/sharedaddy/sharing-sources.php:629
+msgctxt "share to"
+msgid "LinkedIn"
+msgstr "LinkedIn"
+
+#: modules/after-the-deadline/atd-l10n.php:34
+msgid ""
+"The proofreader has suggestions for this post. Are you sure you want to update it?\n"
+"\n"
+"Press OK to update your post, or Cancel to view the suggestions and edit your post."
+msgstr ""
+"Pemeriksa ejaan memiliki beberapa saran untuk tulisan ini. Apakah Anda yakin ingin memperbaruinya?\n"
+"\n"
+"Tekan OK untuk memperbarui tulisan, atau Batal untuk melihat saran dan menyunting tulisan."
+
+#: modules/after-the-deadline/atd-l10n.php:30
+msgid "There was an error communicating with the proofreading service."
+msgstr "Ada masalah berkomunikasi dengan layanan pemeriksa ejaan."
+
+#: modules/sharedaddy/sharedaddy.php:34
+msgid "Show sharing buttons on this post."
+msgstr "Tampilkan tombol berbagi pada tulisan ini."
+
+#: modules/module-info.php:282
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr "Layanan-layanan berikut telah disertakan: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, dan Surel (Email)."
+
+#: modules/image-widget.php:142
+msgid "Height:"
+msgstr "Tinggi:"
+
+#: modules/stats.php:635
+msgid "the past quarter"
+msgstr "caturwulan terakhir"
+
+#: modules/stats.php:473
+msgid "Put a chart showing 48 hours of views in the admin bar."
+msgstr "Taruh sebuah bagan yang menunjukkan tampilan selama 48 jam pada ruas batang admin."
+
+#: modules/stats.php:466
+msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
+msgstr "Kunjungi <a href=\"%s\">Statistik Situs</a> untuk melihat statistik Anda."
+
+#: modules/module-info.php:134 modules/module-info.php:138
+#: modules/module-info.php:148 modules/module-info.php:152
+msgid "WP.me Shortlinks"
+msgstr "Taut-singkat WP.me"
+
+#: modules/module-info.php:119
+msgid "Available shortcodes are: %l."
+msgstr "Kode-singkat yang tersedia adalah: %l."
+
+#: modules/module-info.php:288
+msgid "Additionally you can define your own custom services."
+msgstr "Selain itu Anda dapat mendefinisikan layanan tersuai Anda sendiri."
+
+#: modules/module-info.php:316 modules/module-info.php:320
+msgid "Spelling and Grammar"
+msgstr "Ejaan dan Tata Bahasa"
+
+#: modules/module-info.php:357
+msgid "To use the Image Widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. The Image widget is listed as &#8220;Image&nbsp;(Jetpack)&#8221;; drag it into one of your sidebars and configure away."
+msgstr "Untuk menggunakan Widget Gambar, pergi ke Penampilan &#8594; <a href=\"%s\">Widget</a>. Widget Gambar terdaftar sebagai &#8220;Gambar&nbsp;(Jetpack)&#8221;; tarik ke salah satu bilah sisi Anda dan konfigurasikanlah."
+
+#: modules/sharedaddy/sharing-sources.php:127
+msgid "Email"
+msgstr "Surel"
+
+msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
+msgstr "Memperbaiki ejaan, gaya, dan tata bahasa Anda layanan Koreksi Bahasa dari <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a>."
+
+#: modules/shortcodes/videopress.php:876
+msgid "April"
+msgstr "April"
+
+#: modules/shortcodes/videopress.php:876
+msgid "May"
+msgstr "Mei"
+
+#: modules/shortcodes/videopress.php:876
+msgid "June"
+msgstr "Juni"
+
+#: modules/shortcodes/videopress.php:876
+msgid "July"
+msgstr "Juli"
+
+#: modules/shortcodes/videopress.php:876
+msgid "August"
+msgstr "Agustus"
+
+#: modules/shortcodes/videopress.php:876
+msgid "September"
+msgstr "September"
+
+#: modules/shortcodes/videopress.php:876
+msgid "October"
+msgstr "Oktober"
+
+#: modules/module-info.php:169 modules/module-info.php:173
+#: modules/module-info.php:182 modules/module-info.php:186
+msgid "WordPress.com Stats"
+msgstr "Statistik WordPress.com"
+
+#: modules/after-the-deadline/config-options.php:100
+msgid "Use automatically detected language to proofread posts and pages"
+msgstr "Gunakan bahasa yang terdeteksi secara otomatis untuk memeriksa ejaan dalam tulisan dan halaman"
+
+#: modules/after-the-deadline/atd-l10n.php:12
+msgid "Spelling"
+msgstr "Ejaan"
+
+#: modules/subscriptions.php:376
+msgid "Blog Subscriptions (Jetpack)"
+msgstr "Langganan Blog (Jetpack)"
+
+#: modules/subscriptions.php:373
+msgid "Add an email signup form to allow people to subscribe to your blog."
+msgstr "Tambahkan formulir pendaftaran surel untuk memungkinkan orang untuk berlangganan ke blog Anda."
+
+#: modules/gravatar-hovercards.php:75
+msgid "Put your mouse over your Gravatar to check out your profile."
+msgstr "Taruh tetikus di atas Gravatar Anda untuk melihat profil Anda."
+
+#: modules/image-widget.php:146
+msgid "Link URL (when the image is clicked):"
+msgstr "URL taut (saat gambar diklik):"
+
+#: modules/image-widget.php:145
+msgid "If empty, we will attempt to determine the image size."
+msgstr "Jika kosong, kita akan mencoba untuk menentukan ukuran gambar."
+
+#: modules/image-widget.php:127
+msgid "Right"
+msgstr "Kanan"
+
+#: modules/image-widget.php:125
+msgid "Left"
+msgstr "Kiri"
+
+#: modules/image-widget.php:124
+msgid "None"
+msgstr "Tiada"
+
+#: modules/image-widget.php:119
+msgid "Caption:"
+msgstr "Keterangan:"
+
+#: modules/image-widget.php:116
+msgid "Image title:"
+msgstr "Judul gambar:"
+
+#: modules/stats.php:870
+msgid "View All"
+msgstr "Lihat Semua"
+
+#: modules/rsslinks-widget.php:117
+msgid "Purple"
+msgstr "Ungu"
+
+#: modules/rsslinks-widget.php:116
+msgid "Blue"
+msgstr "Biru"
+
+#: modules/rsslinks-widget.php:114
+msgid "Orange"
+msgstr "Oranye"
+
+#: modules/rsslinks-widget.php:69
+msgid "Posts & Comments"
+msgstr "Tulisan & Komentar"
+
+#: modules/rsslinks-widget.php:67 modules/rsslinks-widget.php:133
+msgid "Posts"
+msgstr "Tulisan"
+
+#: modules/stats.php:671
+msgid "Show top posts over"
+msgstr "Tampilkan tulisan teratas selama"
+
+#: modules/stats.php:658
+msgid "Chart stats by"
+msgstr "Bagan statistik oleh"
+
+#: modules/stats.php:636
+msgid "the past year"
+msgstr "tahun terakhir"
+
+#: modules/stats.php:632
+msgid "the past day"
+msgstr "sehari terakhir"
+
+#: modules/stats.php:490
+msgid "Save configuration"
+msgstr "Simpan konfigurasi"
+
+#: modules/stats.php:477
+msgid "Report visibility"
+msgstr "Kenampakan laporan"
+
+#: modules/stats.php:479
+msgid "Select the roles that will be able to view stats reports."
+msgstr "Pilih peranan yang dapat melihat laporan statistik."
+
+#: modules/sharedaddy/sharing.php:192
+msgid "Drag and drop available services here"
+msgstr "Tarik dan taruh layanan yang tersedia kemari"
+
+#: modules/sharedaddy/sharing.php:189
+msgid "Services dragged here will appear individually."
+msgstr "Layanan-layanan yang ditarik kemari akan muncul secara individual."
+
+#: modules/shortcodes/videopress.php:1144
+msgctxt "Play as in playback or view a movie"
+msgid "JavaScript required to play %s."
+msgstr "JavaScript dibutuhkan untuk memainkan %s."
+
+#: modules/image-widget.php:113
+msgid "Alternate text:"
+msgstr "Teks alternatif:"
+
+#: modules/sharedaddy/sharing-sources.php:1045
+msgid "Remove Service"
+msgstr "Cabut Layanan"
+
+#: modules/shortcodes/videopress.php:608
+msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
+msgstr "Plugin VideoPress tidak bisa berkomunikasi dengan server VideoPress. Kesalahan ini kemungkinan besar disebabkan oleh sebuah plugin yang dikonfigurasikan secara kurang tepat. Silakan instal ulang atau mutakhirkan."
+
+#: modules/shortcodes/videopress.php:610
+msgid "<strong>%s</strong> is not an allowed embed site."
+msgstr "<strong>%s</strong> adalah bukan situs embed yang diperbolehkan."
+
+#: modules/shortcodes/videopress.php:610
+msgid "Publisher limits playback of video embeds."
+msgstr "Penerbit membatasi pemutaran video embed."
+
+#: modules/sharedaddy/sharing-sources.php:171
+msgid "Close"
+msgstr "Tutup"
+
+msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
+msgstr "Alat berbagi yang paling super duper di interweb. Berbagi konten dengan Facebook, Twitter, dan masih banyak lagi."
+
+#: modules/module-info.php:245
+msgid "There are also a number of customization options. Change the number of displayed tweets, filter out replies, and include retweets."
+msgstr "Juga ada banyak pilihan penyesuaian. Mengubah jumlah tweet yang ditampilkan, mengabaikan balasan, dan menyertakan retweet."
+
+#: modules/rsslinks-widget.php:71
+msgid "Feed(s) to Display:"
+msgstr "Umpan yang Ditampilkan:"
+
+#: modules/sharedaddy/sharing.php:328
+msgid "Show sharing buttons on"
+msgstr "Tampilkan tombol berbagi pada"
+
+#: modules/sharedaddy/sharing.php:323
+msgid "Same window"
+msgstr "Jendela yang sama"
+
+#: modules/twitter-widget.php:210
+msgid "Twitter username:"
+msgstr "Nama pengguna Twitter:"
+
+#: modules/twitter-widget.php:168
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Galat: Twitter tidak merespon. Silahkan tunggu beberapa saat dan muat ulang laman ini."
+
+#: modules/twitter-widget.php:166
+msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
+msgstr "Galat: Tolong pastikan akun Twitter-nya bersifat <a href=\"%s\">publik</a>."
+
+#: modules/gravatar-hovercards.php:48
+msgid "View people's profiles when you mouse over their Gravatars"
+msgstr "Untuk melihat profil orang lain ketika mengambangkan tetikus di atas Gravatar mereka"
+
+#: modules/shortcodes/videopress.php:1291
+msgid "This video requires <a rel=\"nofollow\" href=\"%s\">Adobe Flash</a> for playback."
+msgstr "Video ini membutuhkan <a rel=\"nofollow\" href=\"%s\">Adobe Flash</a> untuk diputar ulang."
+
+#: modules/stats.php:294
+msgid "Loading&hellip;"
+msgstr "Memuat&hellip;"
+
+msgid "Realtime backup and security scanning for your WordPress site."
+msgstr "Pencadangan realtime dan pemindaian keamanan untuk situs WordPress Anda."
+
+msgid "Display the latest updates from a Twitter user inside your theme's widgets."
+msgstr "Menampilkan tulisan terbaru dari pengguna Twitter di dalam widget pada tema Anda."
+
+msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
+msgstr "Memungkinkan pengguna untuk berlangganan pada tulisan dan komentar Anda dengan menerima pemberitahuan melalui surel."
+
+msgid "Subscriptions"
+msgstr "Langganan"
+
+msgid "Simple, concise site stats with no additional load on your server."
+msgstr "Statistik situs yang sederhana, ringkas tanpa beban tambahan pada server Anda."
+
+msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
+msgstr "Aktifkan taut singkat WP.me untuk semua Tulisan dan Halaman Anda untuk berbagi dengan lebih mudah."
+
+msgid "Easily add RSS links to your theme's sidebar."
+msgstr "Menambahkan taut RSS untuk bilah sisi tema Anda dengan mudah."
+
+msgid "Mark up your posts with the <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
+msgstr "Mark up tulisan Anda dengan <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" />bahasa markup, cocok untuk persamaan matematika kompleks dan persamaan canggih lainnya."
+
+msgid "Beautiful Math"
+msgstr "Matematika Indah"
+
+msgid "Easily add images to your theme's sidebar."
+msgstr "Menambahkan gambar ke bilah sisi tema Anda dengan mudah."
+
+msgid "Allow users to interact with your site in Internet Explorer 9's sitemode."
+msgstr "Memungkinkan pengguna untuk berinteraksi dengan situs Anda di sitemode Internet Explorer 9."
+
+msgid "Show a pop-up business card of your users' gravatar profiles in comments."
+msgstr "Tampilkan kartu bisnis pop-up dari profil pengguna Gravatar Anda dalam komentar."
+
+msgid "http://jetpack.me"
+msgstr "http://jetpack.me"
+
+msgid "Automattic"
+msgstr "Automattic"
+
+msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
+msgstr "Membawa kekuatan awan WordPress.com pada Wordpress host mandiri Anda. Jetpack memungkinkan Anda untuk menghubungkan blog Anda ke akun WordPress.com untuk menggunakan fitur canggih yang biasanya hanya tersedia bagi pengguna WordPress.com saja."
+
+#: modules/twitter-widget.php:231
+msgid "Text to display between tweet and timestamp:"
+msgstr "Teks untuk ditampilkan di antara tweet dan cap waktu:"
+
+#: modules/twitter-widget.php:229
+msgid "Include retweets"
+msgstr "Sertakan retweet"
+
+#: modules/twitter-widget.php:224
+msgid "Hide replies"
+msgstr "Sembunyikan balasan"
+
+#: modules/twitter-widget.php:213
+msgid "Maximum number of tweets to show:"
+msgstr "Jumlah maksimal dari tweet yang akan ditampilkan:"
+
+#: modules/twitter-widget.php:79
+msgid "Twitter Updates"
+msgstr "Pembaruan Twitter"
+
+#: modules/twitter-widget.php:70
+msgid "Twitter (Jetpack)"
+msgstr "Twitter (Jetpack)"
+
+#: modules/twitter-widget.php:69
+msgid "Display your tweets from Twitter"
+msgstr "Tampilkan tweet Anda dari Twitter"
+
+#: modules/sharedaddy/sharing-sources.php:218
+msgid "Your Email Address"
+msgstr "Alamat Surel Anda"
+
+#: modules/sharedaddy/sharing-sources.php:215
+msgid "Your Name"
+msgstr "Nama Anda"
+
+#: modules/sharedaddy/sharing-sources.php:207
+msgid "Send to Email Address"
+msgstr "Kirim ke Alamat Surel"
+
+#: modules/module-info.php:95
+msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
+msgstr "Masukkan sebuah kode-singkat langsung ke dalam penyunting Tulisan/Halaman untuk menyematkan media. Untuk instruksi spesifik ikuti taut di bawah ini."
+
+msgid "http://wordpress.org/extend/plugins/jetpack/"
+msgstr "http://wordpress.org/extend/plugins/jetpack/"
+
+#: modules/sharedaddy/sharing-sources.php:799
+msgid "Default button"
+msgstr "Tombol bawaan"
+
+#: modules/sharedaddy/sharing.php:218
+msgid "Live Preview"
+msgstr "Pratampil Langsung"
+
+#: modules/sharedaddy/sharing.php:166
+msgid "Add a new service"
+msgstr "Tambahkan layanan baru"
+
+msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
+msgstr "Dengan mudah menanamkan (embed) video dan masih banyak lagi dari situs seperti YouTube, Vimeo, dan SlideShare."
+
+#: modules/after-the-deadline/atd-l10n.php:24
+msgid "proofread"
+msgstr "koreksi ejaan"
+
+#: modules/shortcodes/videopress.php:860
+msgid "Please verify your birthday."
+msgstr "Harap verifikasi ulang tahun Anda."
+
+#: modules/after-the-deadline/atd-l10n.php:26
+#: modules/after-the-deadline.php:222
+msgid "Proofread Writing"
+msgstr "Koreksi Ejaan pada Penulisan"
+
+#: modules/module-info.php:372 modules/module-info.php:385
+msgid "RSS Links"
+msgstr "Taut RSS"
+
+#: modules/sharedaddy/sharing-sources.php:777
+msgctxt "share to"
+msgid "Facebook"
+msgstr "Facebook"
+
+#: modules/sharedaddy/sharing-sources.php:744
+msgid "Share"
+msgstr "Berbagi"
+
+#: modules/shortcodes/videopress.php:826
+msgid "%s Error"
+msgstr "%s Galat"
+
+#: modules/shortcodes/videopress.php:860
+msgid "This video is intended for mature audiences."
+msgstr "Video ini ditujukan untuk pemirsa dewasa."
+
+#: modules/module-info.php:259
+msgid "To use the Twitter Widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. The Twitter widget is listed as &#8220;Twitter&nbsp;(Jetpack)&#8221;; drag it into one of your sidebars and configure away."
+msgstr "Untuk menggunakan Widget Twitter, pergilah ke Tampilan &#8594; <a href=\"%s\">Widget</a>. Widget Twitter terdaftar sebagai &#8220;Twitter&nbsp;(Jetpack)&#8221;; tariklah ke dalam salah satu bilah sisi lalu silahkan diatur."
+
+#: modules/module-info.php:258
+msgid "The Twitter Widget shows your latest tweets within a sidebar on your theme."
+msgstr "Widget Twitter menampilkan tweet terbaru Anda dalam bilah sisi tema Anda."
+
+#: modules/after-the-deadline/atd-l10n.php:25
+msgid "edit text"
+msgstr "sunting tulisan"
+
+#: modules/after-the-deadline/atd-l10n.php:22
+msgid "Edit Selection..."
+msgstr "Sunting Pilihan..."
+
+#: modules/after-the-deadline/atd-l10n.php:20
+msgid "Ignore all"
+msgstr "Abaikan semua"
+
+#: modules/stats.php:475
+msgid "Registered users"
+msgstr "Pengguna terdaftar"
+
+#: modules/sharedaddy/sharing-sources.php:856
+msgid "Press This"
+msgstr "Press-kan Ini"
+
+#: modules/sharedaddy/sharing-sources.php:801
+msgid "Like button"
+msgstr "Tombol Suka"
+
+#: modules/module-info.php:300
+msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
+msgstr "Tarik dan taruh layanan berbagi ke dalam seksi yang dinyalakan agar mereka muncul pada situs Anda, atau tarik mereka ke seksi terselubung untuk menyembunyikan mereka di balik sebuah tombol."
+
+#: modules/subscriptions.php:445
+msgid "Email Address"
+msgstr "Alamat Surat Elektronik"
+
+#: modules/sharedaddy/sharing.php:376
+msgid "Icon URL"
+msgstr "URL Ikon"
+
+#: modules/sharedaddy/sharing.php:361
+msgid "Service name"
+msgstr "Nama layanan"
+
+#: modules/sharedaddy/sharing-sources.php:238
+msgid "Sorry, your blog cannot share posts by email."
+msgstr "Maaf, blog Anda tidak dapat berbagi tulisan lewat surel."
+
+#: modules/sharedaddy/sharing-sources.php:429
+#: modules/sharedaddy/sharing-sources.php:436
+msgid "Reddit"
+msgstr "Reddit"
+
+#: modules/module-info.php:39 modules/module-info.php:54
+msgid "Gravatar Hovercard"
+msgstr "Hovercard Gravatar"
+
+#: modules/image-widget.php:107 modules/subscriptions.php:542
+msgid "Widget title:"
+msgstr "Judul widget:"
+
+#: modules/rsslinks-widget.php:113
+msgid "Red"
+msgstr "Merah"
+
+#: modules/module-info.php:43 modules/module-info.php:58
+#: modules/gravatar-hovercards.php:36
+msgid "Gravatar Hovercards"
+msgstr "Hovercard Gravatar"
+
+#: modules/stats.php:296
+msgid "View Site Stats without Javascript"
+msgstr "Lihat Statistik Situs tanpa Javascript"
+
+#: modules/stats.php:368 modules/stats.php:842
+msgid "We were unable to get your stats just now (too many redirects). Please try again."
+msgstr "Kami tidak dapat mendapatkan statistik Anda saat ini (terlalu banyak pengalihan). Silakan coba lagi."
+
+#: modules/stats.php:370 modules/stats.php:844
+msgid "We were unable to get your stats just now. Please try again."
+msgstr "Kami tadi tidak dapat mengambil statistik Anda. Silahkan coba kembali."
+
+#: modules/module-info.php:322
+msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
+msgstr "Layanan Koreksi bahasa <a href='%s'>After&nbsp;the&nbsp;Deadline</a> meningkatkan gaya penulisan Anda dengan menggunakan kecerdasan buatan untuk menemukan kesalahan dan menawarkan saran yang cerdas."
+
+#: modules/module-info.php:284
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr "Berikut adalah layanan yang tersedia: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Cetak, dan Surel."
+
+#: modules/module-info.php:428
+msgid "IE Sitemode Integration allows your users to interact with your site while using the sitemode functionality in Internet Explorer 9."
+msgstr "Integrasi IE Sitemode memungkinkan pengguna untuk berinteraksi dengan situs Anda saat menggunakan fungsi sitemode di Internet Explorer 9."
+
+#: modules/module-info.php:356
+msgid "The Image Widget let&#8217;s you easily add images to a sidebar on your theme."
+msgstr "Image Widget memungkinkan Anda menambahkan gambar pada bilah sisi tema Anda dengan mudah."
+
+#: modules/subscriptions.php:423
+msgid "There was an error when subscribing, please try again."
+msgstr "Ada kesalahan saat berlangganan, silakan coba lagi."
+
+#: modules/sharedaddy/sharing-sources.php:170
+msgid "You have shared this post with %s"
+msgstr "Anda telah berbagi tulisan ini dengan %s"
+
+#: modules/sharedaddy/sharedaddy.php:97
+msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
+msgstr "Lanjutan. Jika opsi ini dicentang, Anda harus menyertakan berkas-berkas berikut ini dalam tema Anda secara manual agar taut berbagi dapat bekerja."
+
+#: modules/sharedaddy/sharing-sources.php:264
+msgctxt "share to"
+msgid "Twitter"
+msgstr "Twitter"
+
+#: modules/sharedaddy/sharing-sources.php:334
+#: modules/sharedaddy/sharing-sources.php:411
+#: modules/sharedaddy/sharing-sources.php:462
+#: modules/sharedaddy/sharing-sources.php:568
+#: modules/sharedaddy/sharing-sources.php:684
+msgid "Use smart button"
+msgstr "Gunakan tombol pintar"
+
+#: modules/sharedaddy/sharing-sources.php:264
+msgid "Click to share on Twitter"
+msgstr "Klik untuk berbagi di Twitter"
+
+#: modules/module-info.php:44 modules/module-info.php:59
+msgid "What&#8217;s a Hovercard?"
+msgstr "Apa itu Hovercard?"
+
+#: modules/rsslinks-widget.php:85
+msgid "Format:"
+msgstr "Format:"
+
+#: jetpack.php:1270
+msgid "Your website needs to be publicly accessible to use Jetpack: %s"
+msgstr "Situs web Anda perlu dapat diakses secara publik untuk menggunakan Jetpack: %s"
+
+#: jetpack.php:1400
+msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
+msgstr "<strong>%s Diaktifkan!</strong> Anda dapat menonaktifkannya setiap saat dengan mengklik Pelajari Lebih Lanjut dan kemudian Nonaktifkan pada kartu modul."
+
+#: jetpack.php:1677 modules/sharedaddy/sharedaddy.php:65
+msgid "Support"
+msgstr "Dukungan"
+
+#: jetpack.php:1674
+msgid "Privacy Policy"
+msgstr "Kebijakan Privasi"
+
+#: jetpack.php:2078 jetpack.php:2080 jetpack.php:2082 jetpack.php:2085
+#: jetpack.php:2697
+msgid "Error Details: %s"
+msgstr "Detil Galat:%s"
+
+#: modules/after-the-deadline/config-options.php:76
+msgid "Complex Phrases"
+msgstr "Frase Kompleks"
+
+#: jetpack.php:1256
+msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
+msgstr "Anda perlu mengotorisasi hubungan Jetpack antara situs Anda dan WordPress.com untuk menyalakan kemampuannya yang hebat."
+
+#: jetpack.php:1723
+msgid "Configure %s"
+msgstr "Konfigurasikan %s"
+
+#: modules/after-the-deadline/config-options.php:67
+msgid "English Options"
+msgstr "Pilihan Bahasa Inggris"
+
+#: jetpack.php:1084
+msgid "One New Jetpack Module"
+msgid_plural "%s New Jetpack Modules"
+msgstr[0] "Satu Modul Jetpack Baru"
+msgstr[1] "%s Modul Jetpack Baru"
+
+#: jetpack.php:1259
+msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
+msgstr "Jangan sebrangi arusnya dulu! Anda perlu tetap masuk log dalam blog WordPress Anda selagi mengotorisasi Jetpack."
+
+#: jetpack.php:1643
+msgctxt "%s = Unsubscribe link"
+msgid "You are currently subscribed to email updates. %s"
+msgstr "Anda sedang berlangganan dengan pembaruan surel. %s"
+
+#: modules/after-the-deadline/config-options.php:88
+msgid "Phrases to Avoid"
+msgstr "Frase untuk Dihindari"
+
+#: jetpack.php:1172 modules/module-info.php:31 modules/module-info.php:67
+#: modules/module-info.php:125 modules/module-info.php:160
+#: modules/module-info.php:194 modules/module-info.php:230
+#: modules/module-info.php:265 modules/module-info.php:307
+#: modules/module-info.php:329 modules/module-info.php:363
+#: modules/module-info.php:397 modules/module-info.php:402
+#: modules/module-info.php:434
+msgid "Learn More"
+msgstr "Pelajari"
+
+#: jetpack.php:1393
+msgid "The following modules have been updated: %l."
+msgstr "Modul berikut telah diperbarui: %l."
+
+#: jetpack.php:1671
+msgid "An <span>Automattic</span> Airline"
+msgstr "Sebuah Maskapai Penerbangan <span>Automattic</span>"
+
+#: modules/after-the-deadline/config-options.php:69
+msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
+msgstr "Menyalakan pemeriksaan ejaan untuk tata bahasa berikut dan aturan gaya berikut ketika menulis tulisan dan halaman:"
+
+#: jetpack.php:1649 modules/ie-sitemode.php:109
+msgid "Subscribe"
+msgstr "Berlangganan"
+
+#: modules/after-the-deadline/config-options.php:62
+msgid "a post or page is first published"
+msgstr "sebuah tulisan atau halaman telah diterbitkan pertama kali"
+
+#: jetpack.php:1658
+msgid "You will no longer receive email updates about Jetpack."
+msgstr "Anda tidak lagi berlangganan untuk menerima pembaruan surel mengenai Jetpack."
+
+#: jetpack.php:1656
+msgid "You have been subscribed to receive email updates."
+msgstr "Anda telah berlangganan untuk menerima pembaruan surel."
+
+#: jetpack.php:1345
+msgid "Try connecting again."
+msgstr "Coba hubungkan kembali."
+
+#: jetpack.php:1648
+msgctxt "%s = Subscribe link"
+msgid "Want to receive updates about Jetpack by email? %s"
+msgstr "Ingin menerima pembaruan tentang Jetpack lewat surel? %s"
+
+#: jetpack.php:1263
+msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
+msgstr "Dikembalikan ke sang pengirim. Ups! Sepertinya Anda menerima Jetpack yang salah dalam surel; nonaktifkan dan aktifkan kembali plugin Jetpack Anda untuk mendapatkan Jetpack baru."
+
+#: jetpack.php:1266
+msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
+msgstr "Ukuran yang salah. Hm, sepertinya Jetpack Anda belum muat ukurannya. Apa Anda menjadi lebih kurus? Klik &#8220;Hubungkan ke WordPress.com&#8221; kembali untuk menyesuaikan ukuran Jetpack Anda."
+
+#: modules/after-the-deadline/config-options.php:92
+msgid "<a href=\"%s\">Learn more</a> about these options."
+msgstr "<a href=\"%s\">Pelajari lebih lanjut</a> tentang pilihan berikut."
+
+#: jetpack.php:1869
+msgid "Coming soon&#8230;"
+msgstr "Segera hadir&#8230;"
+
+#: modules/after-the-deadline/config-options.php:74
+msgid "Clich&eacute;s"
+msgstr "Klise"
+
+#: jetpack.php:1168
+msgid "<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features."
+msgstr "<strong>Jetpack Anda hampir beres</strong> &#8211; Hubungkan dengan WordPress.com untuk menyalakan seluruh kemampuannya."
+
+#: jetpack.php:1171
+msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
+msgstr "<strong>Jetpack terinstal</strong> dan siap untuk menghadirkan fitur-fitur bertenaga awan WordPress.com yang canggih untuk situs Anda."
+
+#: jetpack.php:1676
+msgid "Debug"
+msgstr "Debug"
+
+#: jetpack.php:1675
+msgid "Terms of Service"
+msgstr "Persyaratan Layanan"
+
+#: modules/after-the-deadline/config-options.php:86
+msgid "Passive Voice"
+msgstr "Suara Pasif"
+
+#: jetpack.php:1292
+msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
+msgstr "<strong>Jetpack Anda bermasalah.</strong> Tidak dapat menghubungkan situs ini dengan WordPress.com. Biasanya artinya situs Anda tidak dapat diakses secara publik (localhost)."
+
+#: jetpack.php:1276
+msgid "The %1$s module requires <strong>PHP version %2$s</strong> or higher."
+msgstr "Modul %1$s memerlukan <strong>PHP versi%2$s</strong> atau lebih tinggi."
+
+#: jetpack.php:1644
+msgid "Unsubscribe"
+msgstr "Berhenti berlangganan"
+
+#: modules/after-the-deadline/config-options.php:72
+msgid "Bias Language"
+msgstr "Bahasa Bias"
+
+#: modules/after-the-deadline/config-options.php:64
+msgid "a post or page is updated"
+msgstr "sebuah tulisan atau halaman telah diperbarui"
+
+#: jetpack.php:1183
+msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
+msgstr "<strong>Jetpack telah diaktifkan!</strong> Setiap situs pada jaringan Anda harus dihubungkan satu per satu oleh seorang admin di situs tersebut."
+
+#: jetpack.php:1407
+msgid "<strong>%s Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
+msgstr "<strong>%s telah dinonaktifkan!</strong> Anda dapat mengaktifkannya kembali kapan saja dengan menggunakan tombol Aktifkan pada kartu modul tsb."
+
+#: modules/after-the-deadline/config-options.php:84
+msgid "Jargon"
+msgstr "Prokem"
+
+#: modules/after-the-deadline/config-options.php:95
+msgid "Language"
+msgstr "Bahasa"
+
+#: jetpack.php:1151 modules/sharedaddy/sharedaddy.php:57
+#: modules/sharedaddy/sharedaddy.php:64
+msgid "Settings"
+msgstr "Pengaturan"
+
+#: jetpack.php:1413
+msgid "<strong>Success!</strong> Module settings were saved."
+msgstr "<strong>Sukses!</strong> Pengaturan modul telah tersimpan."
+
+#: jetpack.php:1417
+msgid "<strong>Whoops!</strong> Your Jetpack is already connected."
+msgstr "<strong>Waduh!</strong> Jetpack Anda sudah terhubung."
+
+#: jetpack.php:1049 jetpack.php:1065
+msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
+msgstr "Jetpack berisi versi terbaru dari plugin lama &#8220;%1$s&#8221;."
+
+#: modules/after-the-deadline/config-options.php:59
+msgid "Automatically proofread content when:"
+msgstr "Memeriksa ejaan konten secara otomatis ketika:"
+
+#: modules/after-the-deadline/config-options.php:22
+msgid "WordPress checks your grammar, spelling, and misused words with <a href=\"%s\">After the Deadline</a> Proofreading service. This feature is available to blogs set to the English language. Blogs in other languages will continue to have access to the old spellchecker."
+msgstr "WordPress memeriksa tata bahasa, ejaan, dan kata-kata yang disalahgunakan dengan layanan koreksi <a href=\"%s\">After the Deadline</a>. Fitur ini tersedia untuk blog yang bahasanya diatur ke Bahasa Inggris. Blog dalam bahasa lainnya akan tetap memiliki akses pada pemeriksa ejaan yang lama."
+
+#: modules/after-the-deadline/config-unignore.php:126
+msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
+msgstr "Jangan lupa klik \"Perbarui Profil\" pada bagian bawah layar untuk menyimpan perubahan Anda."
+
+#: modules/after-the-deadline/config-unignore.php:121
+msgid "Add"
+msgstr "Tambah"
+
+#: modules/after-the-deadline/config-unignore.php:117
+msgid "Ignored Phrases"
+msgstr "Frase yang Diabaikan"
+
+#: jetpack.php:2658
+msgid "You need to register your Jetpack before connecting it."
+msgstr "Anda perlu mendaftarkan Jetpack Anda sebelum menghubungkannya."
+
+#: modules/after-the-deadline/config-unignore.php:119
+msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
+msgstr "Identifikasikan kata dan frase untuk diabaikan selagi memeriksa ejaan tulisan dan halaman Anda:"
+
+#: jetpack.php:1445
+msgid "Jetpack contains the most recent version of the old %l plugin."
+msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
+msgstr[0] "Jetpack mengandung versi terkini dari plugin lama berikut %l."
+msgstr[1] "Jetpack mengandung versi terkini dari plugin lama berikut %l."
+
+#: jetpack.php:1423
+msgid "The features below are now active. Click the learn more buttons to explore each feature."
+msgstr "Kemampuan-kemampuan di bawah telah aktif. Klik tombol pelajari lebih lanjut untuk mengeksplorasi masing-masing kemampuannya."
+
+#: jetpack.php:1421
+msgid "<strong>All Done!</strong> You&#8217;re fueled up and ready to go!"
+msgstr "<strong>Beres sudah!</strong> Bahan bakar Anda penuh dan siap meluncur!"
+
+#: jetpack.php:1342
+msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
+msgstr "<strong>Jetpack Anda bermasalah.</strong> Telah terjadi sesuatu yang tidak terduga. Mungkin Anda memang beruntung: %s"
+
+#: jetpack.php:1302
+msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
+msgstr "Jetpack tidak dapat menghubungi WordPress.com: %s. Hal ini biasanya berarti ada sesuatu yang tidak terkonfigurasi dengan benar pada host web Anda."
+
+#: jetpack.php:1169 jetpack.php:1620
+msgid "Connect to WordPress.com"
+msgstr "Hubungkan ke WordPress.com"
+
+#: jetpack.php:1280
+msgid "Do you still have the %s plugin installed?"
+msgstr "Apakah Anda masih memiliki plugin %s terinstal?"
+
+#: jetpack.php:2653
+msgid "An administrator for this blog must set up the Jetpack connection."
+msgstr "Seorang administrator blog ini harus mengatur hubungan Jetpacknya."
+
+#: jetpack.php:1284
+msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "Modul tidak dapat diaktifkan karena telah menyebabkan <strong>galat fatal</strong>. Mungkin ada konflik dengan plugin lain yang Anda pasang?"
+
+#: jetpack.php:1278
+msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "%s tidak dapat diaktifkan karena telah menyebabkan <strong>galat fatal</strong>. Mungkin ada konflik dengan plugin lain yang Anda pasang?"
+
+#: jetpack.php:1819
+msgid "Purchase"
+msgstr "Pembelian"
+
+#: jetpack.php:1835
+msgid "Configure"
+msgstr "Konfigurasikan"
+
+#: modules/after-the-deadline/config-options.php:90
+msgid "Redundant Phrases"
+msgstr "Frase Berlebihan"
+
+#: jetpack.php:1780
+msgid "Activate"
+msgstr "Aktifkan"
+
+#: jetpack.php:1770
+msgid "Deactivate"
+msgstr "Nonaktifkan"
+
+#: jetpack.php:1819
+msgid "Free"
+msgstr "Gratis"
+
+#: modules/after-the-deadline/config-options.php:82
+msgid "Hidden Verbs"
+msgstr "Kata Tersembunyi"
+
+#: modules/after-the-deadline/config-options.php:80
+msgid "Double Negatives"
+msgstr "Negatif Ganda"
+
+#: modules/after-the-deadline/config-options.php:78
+msgid "Diacritical Marks"
+msgstr "Tanda-tanda Diakritik"
+
+#: jetpack.php:1637
+msgid "Checking email updates status&hellip;"
+msgstr "Memeriksa pembaruan status surel&hellip;"
+
+#: jetpack.php:1621
+msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
+msgstr "Untuk menyalakan seluruh kemampuan Jetpack Anda perlu menghubungkan situs Anda dengan WordPress.com dengan menggunakan tombol di kanan. Begitu terhubung seluruh kemampuan di bawah ini otomatis nyala."
+
+#: jetpack.php:1608
+msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
+msgstr "Jetpack melengkapi situs WordPress Anda yang dihost sendiri dengan kemampuan hebat awan WordPress.com."
+
+#: jetpack.php:1605 jetpack.php:1722
+msgid "Jetpack by WordPress.com"
+msgstr "Jetpack oleh WordPress.com"
+
+#: jetpack.php:1602
+msgid "Disconnect from WordPress.com"
+msgstr "Tidak terhubung dengan WordPress.com"
+
+#: jetpack.php:1601
+msgid "Connected to WordPress.com"
+msgstr "Terhubung dengan WordPress.com"
+
+#: jetpack.php:1454
+msgid "The old version has been deactivated and can be removed from your site."
+msgid_plural "The old versions have been deactivated and can be removed from your site."
+msgstr[0] "Versi lamanya telah dinonaktifkan dan dapat disingkirkan dari situs Anda."
+msgstr[1] "Versi lamanya telah dinonaktifkan dan dapat disingkirkan dari situs Anda."
+
+#: jetpack.php:899
+msgid "Jetpack requires WordPress version %s or later."
+msgstr "Jetpack memerlukan WordPress versi %s atau lebih."
+
+#: jetpack.php:1298
+msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
+msgstr "WordPress.com sedang mengalami masalah dan tidak dapat menyalakan Jetpack Anda. Silahkan coba kembali lain waktu."
+
+#: modules/after-the-deadline/config-options.php:57
+msgid "Proofreading"
+msgstr "Pemeriksaan Ejaan"
+
+#: jetpack.php:1369
+msgid "Welcome to <strong>Jetpack %s</strong>!"
+msgstr "Selamat datang di <strong>Jetpack %s</strong>!"
+
+#: jetpack.php:1381
+msgid "The following new modules have been activated: %l."
+msgstr "Modul baru berikut ini telah diaktifkan: %l."
