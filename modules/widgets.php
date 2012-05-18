@@ -25,3 +25,9 @@ function jetpack_widgets_configuration_load() {
 }
 	
 jetpack_load_widgets();
+
+add_action( 'widgets_init', 'facebook_likebox_widget_init' );
+
+function facebook_likebox_widget_init() {
+	register_widget( 'WPCOM_Widget_Facebook_LikeBox' );
+}
