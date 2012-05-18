@@ -88,7 +88,10 @@ class Jetpack_Subscriptions {
 		}
 	}
 	
-	function save_taxonomy( $term, $tt_id, $taxonomy ) {
+	function save_taxonomy( $term, $tt_id, $taxonomy = null ) {
+		if ( is_null( $taxonomy ) )
+			return;
+
 		$tax = get_term_by( 'id', $term, $taxonomy );
 		$this->jetpack->sync->taxonomy( $tax->slug, true, $taxonomy );
 	}
