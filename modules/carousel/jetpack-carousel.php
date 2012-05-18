@@ -65,7 +65,7 @@ class Jetpack_Carousel {
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
 			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( '20120517' ) );
 
-			do_action( 'jp_carousel_enqueue_assets', $this->first_run );
+			do_action( 'jp_carousel_enqueue_assets', $this->first_run, $localize_strings );
 
 			$this->first_run = false;
 		}
