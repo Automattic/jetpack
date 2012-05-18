@@ -23,7 +23,7 @@ function contact_form_parse( $content ) {
 	$contact_form_fields = array();
 
 	if ( empty( $_REQUEST['action'] ) || $_REQUEST['action'] != 'grunion_shortcode_to_json' ) {
-			wp_print_styles( 'grunion.css' );
+		wp_print_styles( 'grunion.css' );
 	}
 	
 	$out = do_shortcode( $content );
@@ -34,9 +34,10 @@ function contact_form_parse( $content ) {
 		[contact-field label="'.__( 'Name', 'jetpack' ).'" type="name" required="true" /]
 		[contact-field label="'.__( 'Email', 'jetpack' ).'" type="email" required="true" /]
 		[contact-field label="'.__( 'Website', 'jetpack' ).'" type="url" /]';
-		if ( 'yes' == strtolower($grunion_form->show_subject) )
+		if ( 'yes' == strtolower($grunion_form->show_subject) ) {
 			$default_form .= '
 			[contact-field label="'.__( 'Subject', 'jetpack' ).'" type="subject" /]';
+		}
 		$default_form .= '
 		[contact-field label="'.__( 'Message', 'jetpack' ).'" type="textarea" /]';
 
@@ -232,7 +233,7 @@ function contact_form_shortcode( $atts, $content ) {
 		'widget' => 0 //This is not exposed to the user. Works with contact_form_widget_atts
 	), $atts ) );
 
-	 $widget = esc_attr( $widget );
+	$widget = esc_attr( $widget );
 
 	if ( ( function_exists( 'faux_faux' ) && faux_faux() ) || is_feed() )
 		return '[contact-form]';
@@ -277,8 +278,8 @@ function contact_form_shortcode( $atts, $content ) {
 		$r .= "</ul>\n</div>\n\n";
 	}
 	
-	$permalink = get_permalink( $post->ID );
-	$r .= "<form action='$permalink#contact-form-$id' method='post' class='contact-form commentsblock'>\n";
+	$action = apply_filters( 'grunion_contact_form_form_action', get_permalink( $post->ID ) . "#contact-form-$id", $post, $id );
+	$r .= "<form action='" . esc_url( $action ) . "' method='post' class='contact-form commentsblock'>\n";
 	$r .= $body;
 	$r .= "\t<p class='contact-submit'>\n";
 	$r .= "\t\t<input type='submit' value='" . __( "Submit &#187;", 'jetpack' ) . "' class='pushbutton-wide'/>\n";
@@ -545,13 +546,13 @@ function contact_form_send_message( $to, $subject, $widget ) {
 	add_filter( 'wp_insert_post_data', 'grunion_insert_filter', 10, 2 );
 
 	$post_id = wp_insert_post( array(
-		'post_date'		=> $feedback_mysql_time,
-		'post_type'		=> 'feedback',
-		'post_status'	=> $feedback_status,
-		'post_parent'	=> $post->ID,
-		'post_title'	=> wp_kses( $feedback_title, array() ),
-		'post_content'	=> wp_kses($comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$contact_form_subject}\nIP: {$comment_author_IP}\n" . print_r( $all_values, TRUE ), array()), // so that search will pick up this data
-		'post_name'		=> md5( $feedback_title )
+		'post_date'    => $feedback_mysql_time,
+		'post_type'    => 'feedback',
+		'post_status'  => $feedback_status,
+		'post_parent'  => $post->ID,
+		'post_title'   => wp_kses( $feedback_title, array() ),
+		'post_content' => wp_kses($comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$contact_form_subject}\nIP: {$comment_author_IP}\n" . print_r( $all_values, TRUE ), array()), // so that search will pick up this data
+		'post_name'    => md5( $feedback_title )
 	) );
 
 	# once insert has finished we don't need this filter any more
@@ -641,7 +642,7 @@ function contact_form_widget_atts( $text ) {
 	
 	$widget++;
 
-	return str_replace( '[contact-form', '[contact-form widget="' . $widget . '"', $text );
+	return preg_replace( '/\[contact-form([^a-zA-Z_-])/', '[contact-form widget="' . $widget . '"\\1', $text );
 }
 add_filter( 'widget_text', 'contact_form_widget_atts', 0 );
 
@@ -664,30 +665,30 @@ function contact_form_init() {
 
 	// custom post type we'll use to keep copies of the feedback items
 	register_post_type( 'feedback', array(
-		'labels'	=> array(
-			'name'			=> __( 'Feedbacks', 'jetpack' ),
-			'singular_name'	=> __( 'Feedback', 'jetpack' ),
-			'search_items'	=> __( 'Search Feedback', 'jetpack' ),
-			'not_found'		=> __( 'No feedback found', 'jetpack' ),
-			'not_found_in_trash'	=> __( 'No feedback found', 'jetpack' )
+		'labels'            => array(
+			'name'               => __( 'Feedbacks', 'jetpack' ),
+			'singular_name'      => __( 'Feedback', 'jetpack' ),
+			'search_items'       => __( 'Search Feedback', 'jetpack' ),
+			'not_found'          => __( 'No feedback found', 'jetpack' ),
+			'not_found_in_trash' => __( 'No feedback found', 'jetpack' )
 		),
-		'menu_icon'		=> GRUNION_PLUGIN_URL . '/images/grunion-menu.png',
-		'show_ui'		=> TRUE,
-		'show_in_admin_bar'     => FALSE,
-		'public'		=> FALSE,
-		'rewrite'		=> FALSE,
-		'query_var'		=> FALSE,
-		'capability_type'	=> 'page'
+		'menu_icon'         => GRUNION_PLUGIN_URL . '/images/grunion-menu.png',
+		'show_ui'           => TRUE,
+		'show_in_admin_bar' => FALSE,
+		'public'            => FALSE,
+		'rewrite'           => FALSE,
+		'query_var'         => FALSE,
+		'capability_type'   => 'page'
 	) );
 
 	register_post_status( 'spam', array(
-		'label'			=> 'Spam',
-		'public'		=> FALSE,
-		'exclude_from_search'	=> TRUE,
-		'show_in_admin_all_list'=> FALSE,
-		'label_count' => _n_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'jetpack' ),
-		'protected'		=> TRUE,
-		'_builtin'		=> FALSE
+		'label'                  => 'Spam',
+		'public'                 => FALSE,
+		'exclude_from_search'    => TRUE,
+		'show_in_admin_all_list' => FALSE,
+		'label_count'            => _n_noop( 'Spam <span class="count">(%s)</span>', 'Spam <span class="count">(%s)</span>', 'jetpack' ),
+		'protected'              => TRUE,
+		'_builtin'               => FALSE
 	) );
 	
 	/* Can be dequeued by placing the following in wp-content/themes/yourtheme/functions.php
