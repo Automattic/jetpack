@@ -1,0 +1,184 @@
+.jp-carousel-info {
+	position: absolute;
+	bottom: 0;
+}
+
+.jp-carousel-photo-info {
+	position: absolute;
+	-webkit-transition: 400ms ease-out;
+	-moz-transition: 400ms ease-out;
+	-o-transition: 400ms ease-out;
+	transition: 400ms ease-out;
+	left: 25%;
+	width: 50%;
+}
+
+.jp-carousel-info h2 {
+	background: none !important;
+	border: none !important;
+	color: #FFF;
+	display: block !important;
+	font: normal 17px/1.25em "Helvetica Neue", sans-serif !important;
+	letter-spacing: 0 !important;
+	margin: 0 140px 0 0 !important;
+	padding: 10px 0 0 !important;
+	overflow: hidden;
+	text-align: left;
+	text-shadow: none !important;
+	text-transform: none !important;
+	-webkit-font-smoothing: subpixel-antialiased;
+}
+
+.jp-carousel-next-button,
+.jp-carousel-previous-button {
+	text-indent: -9999px;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.jp-carousel-next-button span,
+.jp-carousel-previous-button span {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	width: 84px;
+	background: url(./images/arrows.png) no-repeat center center;
+	opacity: 0.2;
+	-webkit-transition: 500ms opacity ease-out;
+	-moz-transition: 500ms opacity ease-out;
+	-o-transition: 500ms opacity ease-out;
+	transition: 500ms opacity ease-out;
+}
+
+.jp-carousel-next-button:hover span,
+.jp-carousel-previous-button:hover span {
+	opacity: 0.6;
+}
+.jp-carousel-next-button span {
+	background-position: -110px center;
+	right: 0;
+}
+
+.jp-carousel-previous-button span {
+	background-position: -10px center;
+	left:0;
+}
+
+
+.jp-carousel-next-button {
+	background: -webkit-linear-gradient(left, rgba(0,0,0,0.0), rgba(0,0,0,0.75));
+	background: -moz-linear-gradient(left, rgba(0,0,0,0.0), rgba(0,0,0,0.75));
+	background: -o-linear-gradient(left, rgba(0,0,0,0.0), rgba(0,0,0,0.75));
+	background: -ms-linear-gradient(left, rgba(0,0,0,0.0), rgba(0,0,0,0.75));
+}
+
+.jp-carousel-previous-button {
+	background: -webkit-linear-gradient(right, rgba(0,0,0,0.0), rgba(0,0,0,0.75));
+	background: -moz-linear-gradient(right, rgba(0,0,0,0.0), rgba(0,0,0,0.75));
+	background: -o-linear-gradient(right, rgba(0,0,0,0.0), rgba(0,0,0,0.75));
+	background: -ms-linear-gradient(right, rgba(0,0,0,0.0), rgba(0,0,0,0.75));
+}
+
+.jp-carousel-buttons {
+	position:absolute;
+	right: 0;
+	top: 11px;
+}
+
+div.jp-carousel-buttons a {
+	background: url(./images/socialicons.png) no-repeat;
+	border: none !important;
+	color: #fff;
+	font: normal 13px/1.2em "Helvetica Neue", sans-serif !important;
+	letter-spacing: 0 !important;
+	margin: 0 0 0 5px !important;
+	padding: 5px 2px 5px 20px !important;
+	text-decoration: none !important;
+	text-shadow: none !important;
+	vertical-align: baseline !important;
+	-webkit-font-smoothing: subpixel-antialiased;
+}
+
+div.jp-carousel-buttons a:hover {
+	color: #296186;
+	border: none !important;
+	-webkit-transition: none !important;
+	-moz-transition: none !important;
+	-o-transition: none !important;
+	transition: none !important;
+}
+
+div.jp-carousel-buttons a.jp-carousel-permalink {
+	background-position: 0 4px;
+	margin-right:0;
+}
+
+div.jp-carousel-buttons a.jp-carousel-permalink:hover {
+	background-position: 0 -16px;
+	margin-right:0;
+}
+
+.jp-carousel-slide {
+	position:absolute;
+	width:0;
+	bottom:0;
+	background:url(./images/spin.gif) center center no-repeat;
+	background-color:#000;
+	border-radius:2px;
+	-webkit-border-radius:2px;
+	-moz-border-radius:2px;
+	-ms-border-radius:2px;
+	-o-border-radius:2px;
+	-webkit-transition: 400ms ease-out;
+	-moz-transition: 400ms ease-out;
+	-o-transition: 400ms ease-out;
+	transition: 400ms ease-out;
+}
+
+.jp-carousel-slide img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	background: none !important;
+	border: none !important;
+	padding: 0 !important;
+	border-radius:2px;
+	-webkit-border-radius:2px;
+	-moz-border-radius:2px;
+	-ms-border-radius:2px;
+	-o-border-radius:2px;
+	-webkit-box-shadow: 0 3px 15px rgba(0,0,0,0.6);
+	-moz-box-shadow: 0 3px 15px rgba(0,0,0,0.6);
+	box-shadow: 0 3px 15px rgba(0,0,0,0.6);
+}
+
+.jp-carousel-close-hint {
+	color: #777;
+	cursor: default;
+	font: 15px/1.2 "Helvetica Neue", sans-serif !important;
+	letter-spacing: 0 !important;
+	padding-top: 1.7em;
+	padding-bottom: 1em;
+	position: absolute;
+	text-align: right;
+	width: 98%;
+	-webkit-transition: opacity 200ms linear;
+	-moz-transition: opacity 200ms linear;
+	-o-transition: opacity 200ms linear;
+	transition: opacity 200ms linear;
+	-webkit-font-smoothing: subpixel-antialiased;
+	opacity: 1.0;
+}
+
+.jp-carousel-close-hint:hover {
+	cursor: default;
+}
+
+.jp-carousel-close-hint span {
+	border: 2px solid #777;
+	padding: 2px 7px 4px;
+	margin: 0 5px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+}

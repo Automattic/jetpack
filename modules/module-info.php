@@ -428,3 +428,21 @@ add_action( 'jetpack_learn_more_button_contact-form', 'jetpack_contact_form_lear
 add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_info' );
 add_action( 'jetpack_module_more_info_connected_contact-form', 'jetpack_contact_form_more_info' );
 // Contact Form: STOP
+
+// Carousel: START
+function jetpack_carousel_learn_more_button() {
+	echo '<a class="button more-info-link" href="https://en.blog.wordpress.com/2011/11/08/new-photo-carousel/">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+
+function jetpack_carousel_more_info() {
+	echo '<h4>' . esc_html__( 'Carousel', 'jetpack' ) . '</h4>';
+
+	echo '<p>';
+	echo 'More info goes here…';
+	echo '</p>';
+}
+
+add_action( 'jetpack_learn_more_button_carousel', 'jetpack_carousel_learn_more_button' );
+add_action( 'jetpack_module_more_info_carousel', 'jetpack_carousel_more_info' );
+add_action( 'jetpack_module_more_info_connected_carousel', 'jetpack_carousel_more_info' );
+// Carousel: STOP
