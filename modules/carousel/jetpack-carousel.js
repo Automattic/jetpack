@@ -69,7 +69,8 @@
 				});
 
 			title = $('<h2>Title</h2>');
-			buttons = '<a class="jp-carousel-permalink" href="#">Permalink</a></div>';
+			buttons = '<a class="jp-carousel-permalink" href="#">Permalink</a>';
+			buttons = '<div class="jp-carousel-buttons">' + buttons + '</div>';
 			photo_info = $('<div class="jp-carousel-photo-info"></div>').append(title).append($(buttons));
 			info = $('<div></div>')
 				.addClass('jp-carousel-info')
