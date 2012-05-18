@@ -1,9 +1,4 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- */
 
 /**
  * Facebook Like Box widget class
@@ -34,11 +29,6 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 			return;
 		}
 		
-		/*
-		 * TODO: Ideally, we should validate that the URL is a valid Facebook Page
-		 * Can make a call to https://graph.facebook.com/pagename?metadata=1 and sniff the type value
-		 *
-		 */
 
 		$title    = apply_filters( 'widget_title', $instance['title'] );
 		$page_url = ( is_ssl() ) ? str_replace( 'http://', 'https://', $like_args['href'] ) : $like_args['href'];
