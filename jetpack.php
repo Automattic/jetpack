@@ -2461,8 +2461,13 @@ p {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 			$admin_url = Jetpack::admin_url();
 			$bits = parse_url( $admin_url );
-			$path = dirname( $bits['path'] );
-			$domain = $bits['host'];
+
+			if ( is_array( $bits ) ) {
+				$path = ( isset( $bits['path'] ) ) ? dirname( $bits['path'] ) : null;
+				$domain = ( isset( $bits['host'] ) ) ? $bits['host'] : null;
+			} else {
+				$path = $domain = null;
+			}
 		}
 
 		// Extract state from cookies and delete cookies
