@@ -1,3 +1,33 @@
+div.jp-carousel-buttons a.jp-carousel-permalink {
+	background: url(./images/carousel-link.png) no-repeat;
+	background-size: 12px 32px;
+}
+
+.jp-carousel-next-button span,
+.jp-carousel-previous-button span {
+	background: url(./images/arrows.png) no-repeat center center;
+	background-size: 200px 126px;
+}
+
+div.jp-carousel-buttons a.jp-carousel-permalink {
+	background-position: 2px 6px;
+	margin-right:0;
+}
+
+div.jp-carousel-buttons a.jp-carousel-permalink:hover {
+	background-position: 2px -14px;
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
+	div.jp-carousel-buttons a.jp-carousel-permalink {
+		background: url(./images/carousel-link-2x.png) no-repeat;
+	}
+	.jp-carousel-next-button span,
+	.jp-carousel-previous-button span {
+		background: url(./images/arrows-2x.png) no-repeat center center;
+	}
+}
+
 .jp-carousel-info {
 	position: absolute;
 	bottom: 0;
@@ -42,7 +72,6 @@
 	top: 0;
 	bottom: 0;
 	width: 84px;
-	background: url(./images/arrows.png) no-repeat center center;
 	opacity: 0.2;
 	-webkit-transition: 500ms opacity ease-out;
 	-moz-transition: 500ms opacity ease-out;
@@ -86,7 +115,6 @@
 }
 
 div.jp-carousel-buttons a {
-	background: url(./images/socialicons.png) no-repeat;
 	border: none !important;
 	color: #fff;
 	font: normal 13px/1.2em "Helvetica Neue", sans-serif !important;
@@ -100,22 +128,12 @@ div.jp-carousel-buttons a {
 }
 
 div.jp-carousel-buttons a:hover {
-	color: #296186;
+	color: #68c9e8;
 	border: none !important;
 	-webkit-transition: none !important;
 	-moz-transition: none !important;
 	-o-transition: none !important;
 	transition: none !important;
-}
-
-div.jp-carousel-buttons a.jp-carousel-permalink {
-	background-position: 0 4px;
-	margin-right:0;
-}
-
-div.jp-carousel-buttons a.jp-carousel-permalink:hover {
-	background-position: 0 -16px;
-	margin-right:0;
 }
 
 .jp-carousel-slide {
