@@ -21,6 +21,7 @@ div.jp-carousel-buttons a.jp-carousel-permalink:hover {
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
 	div.jp-carousel-buttons a.jp-carousel-permalink {
 		background: url(./images/carousel-link-2x.png) no-repeat;
+		background-position: 2px 6px;
 	}
 	.jp-carousel-next-button span,
 	.jp-carousel-previous-button span {
