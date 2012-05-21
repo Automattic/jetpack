@@ -76,6 +76,14 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.3.1 = 
+* Enhancement: Add a new widget, the Facebook Likebox
+* Bug Fix: Sharing: Sharing buttons can now be used on custom post types.
+* Bug Fix: Contact Forms: Make Contact Forms widget shortcode less aggressive about the shortcodes it converts.
+* Bug Fix: Connection notices now only appear on the Dashboard and plugin page.
+* Bug Fix: Connection notices are now dismissable if Jetpack is not network activated.
+* Bug Fix: Subscriptions: Fix an issue that was causing errors with new BuddyPress forum posts.
+
 = 1.3 =
 * Enhancement: Add Contact Forms feature.  Formerly Grunion Contact Forms.
 * Bug Fix: Tweak YouTube autoembedder to catch more YouTube URLs.
