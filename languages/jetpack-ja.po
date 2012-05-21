@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.3 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-04-24 21:00:53+0000\n"
+"PO-Revision-Date: 2012-05-21 22:23:41+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,11 +10,316 @@ msgstr ""
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 1.3\n"
 
+#: modules/widgets/facebook-likebox.php:18
+msgid "Facebook Like Box"
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:18
+msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:108
+msgid "Title"
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:115
+msgid "Facebook Page URL"
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:118
+msgid "The Like Box only works with <a href=\"http://www.facebook.com/help/?faq=174987089221178\">Facebook Pages</a>."
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:124
+msgid "Width"
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:131
+msgid "Color Scheme"
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:133
+msgid "Light"
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:134
+msgid "Dark"
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:143
+msgid "Show Faces"
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:145
+msgid "Show profile photos in the plugin."
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:152
+msgid "Show Stream"
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:154
+msgid "Show the profile stream for the public profile."
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:161
+msgid "Show Wall"
+msgstr ""
+
+#: modules/widgets/facebook-likebox.php:163
+msgid "Show the wall for a Places page rather than friend activity."
+msgstr ""
+
+#: modules/module-info.php:336
+msgid "The Facebook Like Box Widget "
+msgstr ""
+
+#: modules/module-info.php:336
+msgid "shows your Facebook Like Box within a sidebar on your theme. It&#8217;s a great way to let your readers show their support."
+msgstr ""
+
+#: modules/module-info.php:352
+msgid "The Facebook Like Box Widget"
+msgstr ""
+
+#: modules/module-info.php:352
+msgid "shows your Facebook Like Box within a sidebar on your theme."
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:112
+msgid "Your new field was saved successfully"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:114
+msgid "Form builder"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:115
+msgid "Email notifications"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:120
+msgid "How does this work?"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:121
+msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:122
+msgid "Can I add more fields?"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:124
+msgctxt "%1$s = \"Click here\" in an HTML link"
+msgid "Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field."
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:125
+msgid "Click here"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:127
+msgid "Can I view my feedback within WordPress?"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:129
+msgctxt "%1$s = \"Feedbacks\" in an HTML link"
+msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:135
+msgid "Do I need to fill this out?"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:136
+msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:140
+msgid "Edit this new field"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:143
+msgid "New field"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:145
+msgid "Field type"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:147
+msgid "Checkbox"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:148
+msgid "Drop down"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:151
+msgid "Radio"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:152
+msgid "Text"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:153
+msgid "Textarea"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:160
+msgid "Options"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:161
+msgid "First option"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:164
+msgid "Add another option"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:171
+msgid "Required?"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:176
+msgid "Save this field"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:181
+msgid "Here&#8217;s what your form will look like"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:186
+msgid "Add a new field"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:188
+msgid "Add this form to my post"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:191
+msgid "Email settings"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:193
+msgid "Enter your email address"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:196
+msgid "What should the subject line be?"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:199
+msgid "Save and go back to form builder"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:8
+msgctxt "Label for HTML form \"Name\" field in contact form builder"
+msgid "Name"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:9
+msgctxt "Label for HTML form \"Email\" field in contact form builder"
+msgid "Email"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:10
+msgctxt "Label for HTML form \"URL/Website\" field in contact form builder"
+msgid "Website"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:11
+msgctxt "Label for HTML form \"Comment/Response\" field in contact form builder"
+msgid "Comment"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:12
+msgctxt "Default label for new HTML form field in contact form builder"
+msgid "New Field"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:13
+msgctxt "Label for the set of options to be included in a user-created dropdown in contact form builder"
+msgid "Options"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:14
+msgctxt "Label for an option to be included in a user-created dropdown in contact form builder"
+msgid "Option"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:15
+msgctxt "Default label for the first option to be included in a user-created dropdown in contact form builder"
+msgid "First option"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:16
+msgctxt "error message in contact form builder"
+msgid "Oops, there was a problem generating your form.  You'll likely need to try again."
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:17
+msgid ""
+"Drag up or down\n"
+"to re-arrange"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:18
+msgctxt "Label to drag HTML form fields around to change their order in contact form builder"
+msgid "move"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:19
+msgctxt "Link to edit an HTML form field in contact form builder"
+msgid "edit"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:20
+msgid "Saved successfully"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:21
+msgctxt "This HTML form field is marked as required by the user in contact form builder"
+msgid "(required)"
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:22
+msgid "Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost."
+msgstr ""
+
+#: jetpack.php:1801
+msgid "Jetpack is network activated and notices can not be dismissed."
+msgstr ""
+
+#: jetpack.php:1812
+msgid "Dismiss this notice."
+msgstr ""
+
+#: jetpack.php:1328
+msgid "Dismiss this notice and deactivate Jetpack."
+msgstr ""
+
+#: jetpack.php:1334
+msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enabled features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
+msgstr ""
+
+#: jetpack.php:1160
+msgctxt "1: A number showing how many new features there are after upgrading Jetpack"
+msgid "Jetpack + Stats %1$s"
+msgstr ""
+
+#: jetpack.php:1164 jetpack.php:1168
+msgid "Jetpack + Stats"
+msgstr ""
+
 #: modules/contact-form/admin.php:159
 msgid "Restore this item from the Trash"
 msgstr "この項目をゴミ箱から元に戻す"
 
-#: modules/contact-form/grunion-contact-form.php:506
+#: modules/contact-form/grunion-contact-form.php:507
 msgid "Sent by a verified %s user."
 msgstr "%s ユーザーから送信されています"
 
@@ -42,7 +347,7 @@ msgstr "コンテンツを Facebook、Twitter などで簡単に共有できる�
 msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
 msgstr "読者がメールで新規投稿やコメントの通知を受け取れるようにします。"
 
-#: modules/module-info.php:420
+#: modules/module-info.php:422
 msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
 msgstr "コンタクトフォームを使えば、個人メールアドレスを知られることなく読者からのコメントを受け取る事ができます。"
 
@@ -256,7 +561,7 @@ msgstr "キャプション:"
 msgid "Link URL (when the image is clicked):"
 msgstr "リンク URL (画像クリック時):"
 
-#: modules/subscriptions.php:558
+#: modules/subscriptions.php:561
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
 msgstr "ブログを購読すれば、更新をメールで受信できます。"
 
@@ -268,11 +573,11 @@ msgstr "サイドバーに画像を表示"
 msgid "Image title:"
 msgstr "画像タイトル:"
 
-#: modules/subscriptions.php:574
+#: modules/subscriptions.php:577
 msgid "%s: %s"
 msgstr "%s: %s"
 
-#: modules/subscriptions.php:601
+#: modules/subscriptions.php:604
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] "合計購読者数を表示しますか？ (現在%s名)"
@@ -289,15 +594,15 @@ msgstr "画像 URL:"
 msgid "Active"
 msgstr "有効"
 
-#: modules/subscriptions.php:588
+#: modules/subscriptions.php:591
 msgid "Optional text to display to your readers:"
 msgstr "読者に表示するテキスト (オプション)。"
 
-#: modules/subscriptions.php:582 modules/widgets/image-widget.php:107
+#: modules/subscriptions.php:585 modules/widgets/image-widget.php:107
 msgid "Widget title:"
 msgstr "ウィジェット名:"
 
-#: modules/subscriptions.php:594
+#: modules/subscriptions.php:597
 msgid "Subscribe Button:"
 msgstr "購読ボタン"
 
@@ -305,188 +610,188 @@ msgstr "購読ボタン"
 msgid "Image (Jetpack)"
 msgstr "画像 (Jetpack)"
 
-#: modules/subscriptions.php:556
+#: modules/subscriptions.php:559
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
 msgstr "メールアドレスを記入して購読すれば、更新をメールで受信できます。"
 
-#: modules/subscriptions.php:555
+#: modules/subscriptions.php:558
 msgid "Subscribe to Blog via Email"
 msgstr "ブログをメールで購読"
 
-#: modules/subscriptions.php:484
+#: modules/subscriptions.php:487
 msgid "Email Address"
 msgstr "メールアドレス"
 
-#: modules/subscriptions.php:480
+#: modules/subscriptions.php:483
 msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
 msgstr[0] "%s人の購読者に加わりましょう"
 
-#: modules/subscriptions.php:462
+#: modules/subscriptions.php:465
 msgid "There was an error when subscribing, please try again."
 msgstr "近況を投稿する際にエラーが発生しました。もう一度お試しください。"
 
-#: modules/subscriptions.php:411
+#: modules/subscriptions.php:414
 msgid "Blog Subscriptions (Jetpack)"
 msgstr "ブログ購読ログ (Jetpack)"
 
-#: modules/subscriptions.php:408
+#: modules/subscriptions.php:411
 msgid "Add an email signup form to allow people to subscribe to your blog."
 msgstr "このブログをメール購読できるよう登録フォームを追加する"
 
-#: modules/subscriptions.php:343
+#: modules/subscriptions.php:346
 msgid "Notify me of new posts by email."
 msgstr "新しい投稿をメールで受け取る"
 
-#: modules/subscriptions.php:455
+#: modules/subscriptions.php:458
 msgid "You have already subscribed to this site, please check your inbox."
 msgstr "すでにこのサイトを購読しています。メールをチェックしてみてください。"
 
-#: modules/subscriptions.php:452
+#: modules/subscriptions.php:455
 msgid "The email you entered was invalid, please check and try again."
 msgstr "入力されたメールアドレスが間違っているようです。もう一度ご確認ください。"
 
-#: modules/subscriptions.php:442
+#: modules/subscriptions.php:445
 msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
 msgstr "購読確認のメールを送信しました。メール内にあるリンクをクリックして購読を開始してください。"
 
-#: modules/stats.php:908
+#: modules/stats.php:905
 msgid "View All"
 msgstr "すべて表示"
 
-#: modules/stats.php:895
+#: modules/stats.php:892
 msgid "%1$s %2$s Views"
 msgstr "%1$s %2$s ビュー"
 
-#: modules/stats.php:704
+#: modules/stats.php:701
 msgid "Chart stats by"
 msgstr "統計情報表:"
 
-#: modules/stats.php:680
+#: modules/stats.php:677
 msgid "the past month"
 msgstr "過去1ヶ月間"
 
-#: modules/stats.php:916 modules/stats.php:940
+#: modules/stats.php:913 modules/stats.php:937
 msgid "Sorry, nothing to report."
 msgstr "報告する内容がありません。"
 
-#: modules/subscriptions.php:337
+#: modules/subscriptions.php:340
 msgid "Notify me of follow-up comments by email."
 msgstr "新しいコメントをメールで通知"
 
-#: modules/stats.php:936
+#: modules/stats.php:933
 msgid "Top Searches"
 msgstr "人気検索キーワード"
 
-#: modules/stats.php:717
+#: modules/stats.php:714
 msgid "Show top posts over"
 msgstr "以下の表示数以上の人気記事を表示:"
 
-#: modules/stats.php:730
+#: modules/stats.php:727
 msgid "Show top search terms over"
 msgstr "以下の期間のトップ検索キーワードを表示:"
 
-#: modules/stats.php:682
+#: modules/stats.php:679
 msgid "the past year"
 msgstr "去年"
 
-#: modules/stats.php:681
+#: modules/stats.php:678
 msgid "the past quarter"
 msgstr "現四半期"
 
-#: modules/stats.php:912
+#: modules/stats.php:909
 msgid "Top Posts"
 msgstr "人気記事"
 
-#: modules/stats.php:536
+#: modules/stats.php:533
 msgid "Save configuration"
 msgstr "設定を保存"
 
-#: modules/stats.php:678
+#: modules/stats.php:675
 msgid "the past day"
 msgstr "過去1日"
 
-#: modules/stats.php:675
+#: modules/stats.php:672
 msgid "month"
 msgstr "ヶ月"
 
-#: modules/stats.php:679
+#: modules/stats.php:676
 msgid "the past week"
 msgstr "過去1週間"
 
-#: modules/stats.php:522
+#: modules/stats.php:519
 msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
 msgstr "この画像は統計情報の集計に使われますが、隠しても動作します。"
 
-#: modules/stats.php:674
+#: modules/stats.php:671
 msgid "week"
 msgstr "週"
 
-#: modules/stats.php:673
+#: modules/stats.php:670
 msgid "day"
 msgstr "日"
 
-#: modules/stats.php:571
+#: modules/stats.php:568
 msgid "Views over 48 hours. Click for more Site Stats."
 msgstr "過去48時間のビュー数。クリックすれば統計情報の詳細を表示できます。"
 
-#: modules/stats.php:525
+#: modules/stats.php:522
 msgid "Select the roles that will be able to view stats reports."
 msgstr "統計レポートを表示できる権限グループを選択してください。"
 
-#: modules/stats.php:523
+#: modules/stats.php:520
 msgid "Report visibility"
 msgstr "表示状態を報告"
 
-#: modules/stats.php:522
+#: modules/stats.php:519
 msgid "Smiley face"
 msgstr "スマイル"
 
-#: modules/stats.php:333
+#: modules/stats.php:330
 msgid "Your Site Stats work better with Javascript enabled."
 msgstr "サイト統計情報を利用するには、JavaScript の有効化をおすすめします。"
 
-#: modules/stats.php:409 modules/stats.php:882
+#: modules/stats.php:406 modules/stats.php:879
 msgid "We were unable to get your stats just now. Please try again."
 msgstr "統計情報を取得できません。もう一度お試しください。"
 
-#: modules/stats.php:332
+#: modules/stats.php:329
 msgid "Loading&hellip;"
 msgstr "読み込み中&hellip;"
 
-#: modules/stats.php:520
+#: modules/stats.php:517
 msgid "Count the page views of registered users who are logged in."
 msgstr "ログイン中の登録ユーザーのページビューをカウントする。"
 
-#: modules/stats.php:521
+#: modules/stats.php:518
 msgid "Smiley"
 msgstr "スマイル"
 
-#: modules/stats.php:522
+#: modules/stats.php:519
 msgid "Hide the stats smiley face image."
 msgstr "統計のスマイル画像を非表示"
 
-#: modules/stats.php:519
+#: modules/stats.php:516
 msgid "Registered users"
 msgstr "登録済みユーザー"
 
-#: modules/stats.php:517
+#: modules/stats.php:514
 msgid "Put a chart showing 48 hours of views in the admin bar."
 msgstr "管理バーに過去48時間のビュー数の表を表示します。"
 
-#: modules/stats.php:407 modules/stats.php:880
+#: modules/stats.php:404 modules/stats.php:877
 msgid "We were unable to get your stats just now (too many redirects). Please try again."
 msgstr "統計情報ツールを有効化することができませんでした。リダイレクトが多すぎるようです。もう一度お試しください。"
 
-#: modules/stats.php:516
+#: modules/stats.php:513
 msgid "Admin bar"
 msgstr "管理バー"
 
-#: modules/stats.php:510
+#: modules/stats.php:507
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
 msgstr "<a href=\"%s\">サイト統計情報</a>で統計情報を表示できます。"
 
-#: modules/stats.php:334
+#: modules/stats.php:331
 msgid "View Site Stats without Javascript"
 msgstr "Javascript なしで統計情報を表示"
 
@@ -498,7 +803,7 @@ msgstr "送信"
 msgid "December"
 msgstr "12月"
 
-#: modules/stats.php:246 modules/stats.php:652
+#: jetpack.php:1169 modules/stats.php:649
 msgid "Site Stats"
 msgstr "サイト統計情報"
 
@@ -725,6 +1030,7 @@ msgstr "このプラグインは<a href=\"%s\">もしマルチバイト対応が
 msgid "Add a new service"
 msgstr "新サービスを追加"
 
+#: modules/contact-form/grunion-form-view.php:142
 #: modules/sharedaddy/sharing-sources.php:1027
 msgid "Label"
 msgstr "ラベル"
@@ -741,7 +1047,7 @@ msgstr "URL"
 msgid "Warning! Multibyte support missing!"
 msgstr "注意: マルチバイト対応が見つかりません。"
 
-#: modules/sharedaddy/sharing.php:49 modules/sharedaddy/sharing.php:158
+#: modules/sharedaddy/sharing.php:46 modules/sharedaddy/sharing.php:158
 msgid "Sharing Settings"
 msgstr "共有設定"
 
@@ -922,11 +1228,11 @@ msgstr "この投稿を %s と共有しました"
 msgid "Click to email this to a friend"
 msgstr "クリックして友達へメールで送信"
 
-#: modules/sharedaddy/sharedaddy.php:104
+#: modules/sharedaddy/sharedaddy.php:106
 msgid "Disable CSS and JS"
 msgstr "CSS と JavaScript を無効化"
 
-#: modules/sharedaddy/sharedaddy.php:106
+#: modules/sharedaddy/sharedaddy.php:108
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
 msgstr "高度な設定です。このオプションがチェックされている場合、共有リンクを動作させるためにはテーマに手動でこれらのファイルを追加する必要があります。"
 
@@ -957,7 +1263,7 @@ msgstr "メールアドレス"
 msgid "Your Name"
 msgstr "お名前"
 
-#: modules/module-info.php:423
+#: modules/module-info.php:425
 msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
 msgstr "コンタクトフォームはそれぞれ、必要に応じてカスタマイズできます。ユーザーがフォームを送信すると、フィードバックがスパムでないことを確認するため <a href=\"http://akismet.com/\">Akismet</a> のフィルターが適用されます (有効化されている場合) 。チェックを通過した内容はメールで送られ、さらにフィードバック管理エリアにも保存されます。"
 
@@ -965,71 +1271,72 @@ msgstr "コンタクトフォームはそれぞれ、必要に応じてカスタ
 msgid "Shared Post"
 msgstr "共有投稿"
 
-#: modules/module-info.php:392
+#: modules/module-info.php:394
 msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
 msgstr "Jetpack はブログで公開されたコンテンツを即時に検索エンジンなどのサードパーティサービスと自動で共有します。これにより、リーチやトラフィックの増加につながります。"
 
-#: modules/module-info.php:372
+#: modules/module-info.php:374
 msgid "When leaving comments, your visitors can also subscribe to a post&#8217;s comments to keep up with the conversation."
 msgstr "読者がコメントを投稿する際、コメントを購読して今後つけられたコメントの通知を受け取ることもできます。"
 
-#: modules/module-info.php:369
+#: modules/module-info.php:371
 msgid "Subscriptions"
 msgstr "購読"
 
-#: modules/module-info.php:377
+#: modules/module-info.php:379
 msgid "To use the Subscriptions widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away."
 msgstr "購読ウィジェットを使うには、「外観 &#8594; <a href=\"%s\">ウィジェット</a>」ページに移動します。「ブログ購読 (Jetpack)」という項目を右カラムにドラッグし、設定を変更してください。"
 
-#: modules/sharedaddy/sharedaddy.php:34
+#: modules/sharedaddy/sharedaddy.php:37
 msgid "Show sharing buttons on this post."
 msgstr "この投稿に共有ボタンを表示する。"
 
-#: modules/module-info.php:413 modules/module-info.php:417
+#: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:415
+#: modules/module-info.php:419
 msgid "Contact Form"
 msgstr "コンタクトフォーム"
 
-#: modules/module-info.php:390
+#: modules/module-info.php:392
 msgid "Enhanced Distribution"
 msgstr "拡張配信"
 
-#: modules/module-info.php:371
+#: modules/module-info.php:373
 msgid "Easily allow any visitor to subscribe to all of your posts via email through a widget in your blog&#8217;s sidebar.  Every time you publish a post, WordPress.com will send a notification to all your subscribers."
 msgstr "読者が投稿のメール通知を受け取れるようにするウィジェットをブログのサイドバーに簡単に設置できます。新しい投稿が公開されると、WordPress.com から購読者にメールが送信されます。"
 
-#: modules/module-info.php:350
+#: modules/module-info.php:351
 msgid "shows your latest tweets within a sidebar on your theme."
 msgstr "テーマのサイドバーに簡単に最新のツイートを追加できます。"
 
-#: modules/module-info.php:349
+#: modules/module-info.php:350
 msgid "lets you easily add post and comment RSS feeds to a sidebar on your theme."
 msgstr "テーマのサイドバーに簡単に投稿・コメント RSS フィードを追加できます。"
 
-#: modules/module-info.php:350
+#: modules/module-info.php:351
 msgid "The Twitter Widget"
 msgstr "Twitter ウィジェット"
 
-#: modules/module-info.php:349
+#: modules/module-info.php:350
 msgid "The RSS Links Widget"
 msgstr "RSS リンクウィジェット"
 
-#: modules/module-info.php:353
+#: modules/module-info.php:355
 msgid "To use the widgets, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag them into one of your sidebars and configure away."
 msgstr "ウィジェットを使うには、外観 &#8594; <a href=\"%s\">ウィジェット</a>ページでサイドバーにウィジェットボックスをドラッグし、設定してください。"
 
-#: modules/module-info.php:366
+#: modules/module-info.php:368
 msgid "Subsriptions Screenshot"
 msgstr "購読スクリーンショット"
 
-#: modules/module-info.php:351
+#: modules/module-info.php:353
 msgid "The Image Widget"
 msgstr "画像ウィジェット"
 
-#: modules/module-info.php:353
+#: modules/module-info.php:355
 msgid "Each of these widgets has a number of customization options."
 msgstr "各ウィジェットにはさまざまなカスタマイズ設定が含まれています。"
 
-#: modules/module-info.php:351
+#: modules/module-info.php:353
 msgid "lets you easily add images to a sidebar on your theme."
 msgstr "テーマのサイドバーに簡単に画像を追加できます。"
 
@@ -1045,11 +1352,11 @@ msgstr "スペル＆文法チェック"
 msgid "The Twitter Widget "
 msgstr "Twitter ウィジェット "
 
-#: modules/module-info.php:336
+#: modules/module-info.php:337
 msgid "allows you to easily add images to widget areas in your theme. It&#8217;s an easy way to add more visual interest to your site."
 msgstr "テーマのウィジェットエリアへ簡単に画像を追加できるようにします。手軽に視覚的変化をつけられます。"
 
-#: modules/module-info.php:336
+#: modules/module-info.php:337
 msgid "The Image Widget "
 msgstr "画像ウィジェット"
 
@@ -1061,11 +1368,11 @@ msgstr "リンクの投稿とコメント RSS フィードをサイドバーに�
 msgid "The RSS Links Widget "
 msgstr "RSS リンクウィジェット"
 
-#: modules/module-info.php:332 modules/module-info.php:347
+#: modules/module-info.php:332 modules/module-info.php:348
 msgid "Extra Sidebar Widgets"
 msgstr "追加サイドバーウィジェット"
 
-#: modules/module-info.php:329 modules/module-info.php:344
+#: modules/module-info.php:329 modules/module-info.php:345
 msgid "Widgets Screenshot"
 msgstr "ウィジェットスクリーンショット"
 
@@ -1114,8 +1421,8 @@ msgid "Share your posts with Twitter, Facebook, and a host of other services. Yo
 msgstr "投稿を Twitter、Facebook その他のサービスで共有しましょう。サービスをアイコン、テキスト、または両方で表示するよう設定できます。一部のサービスにはスマートボタンを表示する追加設定があります。例えば Twitter のスマートボタンでは、共有された回数を表示できます。"
 
 #: modules/module-info.php:257 modules/module-info.php:260
-#: modules/module-info.php:281 modules/sharedaddy/sharedaddy.php:22
-#: modules/sharedaddy/sharedaddy.php:23 modules/sharedaddy/sharing.php:49
+#: modules/module-info.php:281 modules/sharedaddy/sharedaddy.php:25
+#: modules/sharedaddy/sharing.php:46
 msgid "Sharing"
 msgstr "共有"
 
@@ -1228,7 +1535,7 @@ msgstr "ホバーカードって ?"
 msgid "VaultPress"
 msgstr "VaultPress"
 
-#: modules/contact-form/grunion-contact-form.php:711
+#: modules/contact-form/grunion-contact-form.php:713
 msgid "Add a custom form"
 msgstr "カスタムフォームを追加"
 
@@ -1241,12 +1548,12 @@ msgstr "Gravatar ホバーカード"
 msgid "View people's profiles when you mouse over their Gravatars"
 msgstr "Gravatar をマウスオーバーしたときにプロフィールを表示"
 
-#: modules/contact-form/grunion-contact-form.php:687
+#: modules/contact-form/grunion-contact-form.php:689
 msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
 msgstr[0] "スパム <span class=\"count\">(%s)</span>"
 
-#: modules/contact-form/grunion-contact-form.php:670
+#: modules/contact-form/grunion-contact-form.php:671
 msgid "Search Feedback"
 msgstr "フィードバックを検索"
 
@@ -1254,8 +1561,8 @@ msgstr "フィードバックを検索"
 msgid "Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support."
 msgstr "現在この WordPress インストールは、世界最高レベルのセキュリティ、バックアップ、サポートで保護されています。"
 
-#: modules/contact-form/grunion-contact-form.php:671
 #: modules/contact-form/grunion-contact-form.php:672
+#: modules/contact-form/grunion-contact-form.php:673
 msgid "No feedback found"
 msgstr "フィードバックが見つかりませんでした"
 
@@ -1263,70 +1570,72 @@ msgstr "フィードバックが見つかりませんでした"
 msgid "Put your mouse over your Gravatar to check out your profile."
 msgstr "自分のプロフィールをチェックするには、Gravatar 上でマウスオーバーしてください。"
 
-#: modules/contact-form/grunion-contact-form.php:669
+#: modules/contact-form/grunion-contact-form.php:670
 msgid "Feedback"
 msgstr "フィードバック"
 
-#: modules/contact-form/grunion-contact-form.php:668
+#: modules/contact-form/grunion-contact-form.php:669
+#: modules/contact-form/grunion-form-view.php:130
 msgid "Feedbacks"
 msgstr "フィードバック"
 
-#: modules/contact-form/grunion-contact-form.php:274
-#: modules/contact-form/grunion-contact-form.php:322
+#: modules/contact-form/grunion-contact-form.php:275
+#: modules/contact-form/grunion-contact-form.php:323
 msgid "Error!"
 msgstr "エラーが発生しました。"
 
-#: modules/contact-form/grunion-contact-form.php:146
+#: modules/contact-form/grunion-contact-form.php:147
 msgid "%s is required"
 msgstr "%s は必須項目です。"
 
-#: modules/contact-form/grunion-contact-form.php:284
+#: modules/contact-form/grunion-contact-form.php:285
 msgid "Submit &#187;"
 msgstr "送信 &#187;"
 
-#: modules/contact-form/grunion-contact-form.php:327
+#: modules/contact-form/grunion-contact-form.php:328
 msgid "Message Sent"
 msgstr "メッセージを送信しました。"
 
-#: modules/contact-form/grunion-contact-form.php:461
+#: modules/contact-form/grunion-contact-form.php:462
 msgid "l F j, Y \\a\\t g:i a"
 msgstr "Y年n月j日 g:i a"
 
-#: modules/contact-form/grunion-contact-form.php:481
+#: modules/contact-form/grunion-contact-form.php:482
 msgid "Time:"
 msgstr "時間:"
 
-#: modules/contact-form/grunion-contact-form.php:482
+#: modules/contact-form/grunion-contact-form.php:483
 msgid "IP Address:"
 msgstr "IP アドレス:"
 
-#: modules/contact-form/grunion-contact-form.php:483
+#: modules/contact-form/grunion-contact-form.php:484
 msgid "Contact Form URL:"
 msgstr "お問い合せフォーム URL:"
 
-#: modules/contact-form/grunion-contact-form.php:139
+#: modules/contact-form/grunion-contact-form.php:140
 msgid "%s requires a valid email address"
 msgstr "%s: 正しいメールアドレスが必要です。"
 
-#: modules/contact-form/grunion-contact-form.php:510
+#: modules/contact-form/grunion-contact-form.php:511
 msgid "Sent by an unverified visitor to your site."
 msgstr "認証されていないサイト訪問者から送信されました。"
 
 #: modules/contact-form/grunion-contact-form.php:35
+#: modules/contact-form/grunion-form-view.php:149
 #: modules/sharedaddy/sharing-sources.php:127
 msgid "Email"
 msgstr "メールアドレス"
 
-#: modules/contact-form/grunion-contact-form.php:78
-#: modules/contact-form/grunion-contact-form.php:83
-#: modules/contact-form/grunion-contact-form.php:87
-#: modules/contact-form/grunion-contact-form.php:99
-#: modules/contact-form/grunion-contact-form.php:104
-#: modules/contact-form/grunion-contact-form.php:118
+#: modules/contact-form/grunion-contact-form.php:79
+#: modules/contact-form/grunion-contact-form.php:84
+#: modules/contact-form/grunion-contact-form.php:88
+#: modules/contact-form/grunion-contact-form.php:100
+#: modules/contact-form/grunion-contact-form.php:105
+#: modules/contact-form/grunion-contact-form.php:119
 msgid "(required)"
 msgstr "(必須)"
 
-#: modules/contact-form/grunion-contact-form.php:98
+#: modules/contact-form/grunion-contact-form.php:99
 msgid "Yes"
 msgstr "はい"
 
@@ -1355,6 +1664,7 @@ msgid "Spam"
 msgstr "スパム"
 
 #: modules/contact-form/grunion-contact-form.php:34
+#: modules/contact-form/grunion-form-view.php:150
 msgid "Name"
 msgstr "名前"
 
@@ -1363,11 +1673,12 @@ msgid "Error in moving to Trash."
 msgstr "ゴミ箱への移動中にエラーが発生しました。"
 
 #: modules/contact-form/grunion-contact-form.php:36
+#: modules/contact-form/grunion-form-view.php:154
 msgid "Website"
 msgstr "ウェブサイト"
 
 #: modules/contact-form/admin.php:88
-#: modules/contact-form/grunion-contact-form.php:41
+#: modules/contact-form/grunion-contact-form.php:42
 msgid "Message"
 msgstr "メッセージ"
 
@@ -1582,7 +1893,7 @@ msgstr "文章の間違いは見つかりませんでした。"
 msgid "There was a problem communicating with the Proofreading service. Try again in one minute."
 msgstr "After the Deadline サービスとの通信に問題が発生しました。1分ほど待ってもう一度お試しください。"
 
-#: jetpack.php:1995
+#: jetpack.php:2073
 msgid "Configure"
 msgstr "設定"
 
@@ -1594,331 +1905,327 @@ msgstr "反復語"
 msgid "Spelling"
 msgstr "スペルチェック"
 
-#: jetpack.php:2851
+#: jetpack.php:2934
 msgid "An administrator for this blog must set up the Jetpack connection."
 msgstr "ブログの管理者が Jetpack 接続を設定する必要があります。"
 
-#: jetpack.php:2856
+#: jetpack.php:2939
 msgid "You need to register your Jetpack before connecting it."
 msgstr "接続前に Jetpack を登録する必要があります。"
 
-#: jetpack.php:2238 jetpack.php:2240 jetpack.php:2242 jetpack.php:2245
-#: jetpack.php:2895
+#: jetpack.php:2316 jetpack.php:2318 jetpack.php:2320 jetpack.php:2323
+#: jetpack.php:2978
 msgid "Error Details: %s"
 msgstr "エラーの詳細： %s"
 
-#: jetpack.php:2029
+#: jetpack.php:2107
 msgid "Coming soon&#8230;"
 msgstr "Coming soon&#8230;"
 
-#: jetpack.php:1966
+#: jetpack.php:2044
 msgid "Updated"
 msgstr "更新しました"
 
-#: jetpack.php:1963
+#: jetpack.php:2041
 msgid "New"
 msgstr "新"
 
-#: jetpack.php:1955
+#: jetpack.php:2033
 msgid "Free"
 msgstr "無料"
 
-#: jetpack.php:1932
+#: jetpack.php:2010
 msgid "Activate"
 msgstr "有効化"
 
-#: jetpack.php:1955
+#: jetpack.php:2033
 msgid "Purchase"
 msgstr "購入"
 
-#: jetpack.php:1808
+#: jetpack.php:1886
 msgid "An <span>Automattic</span> Airline"
 msgstr "An <span>Automattic</span> Airline"
 
-#: jetpack.php:1863
+#: jetpack.php:1941
 msgid "Configure %s"
 msgstr "%s設定"
 
-#: jetpack.php:1832
+#: jetpack.php:1910
 msgid "This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords."
 msgstr "これは機密情報です。BLOG_TOKEN または USER_TOKEN はパスワードのようなものですので、決して公開しないでください。"
 
-#: jetpack.php:1922
+#: jetpack.php:2000
 msgid "Deactivate"
 msgstr "停止"
 
-#: jetpack.php:1795
+#: jetpack.php:1873
 msgid "You will no longer receive email updates about Jetpack."
 msgstr "Jetpack のニュースメール配信を停止しました。"
 
-#: jetpack.php:1793
+#: jetpack.php:1871
 msgid "You have been subscribed to receive email updates."
 msgstr "ニュースメールを受信するように設定しました。"
 
-#: jetpack.php:1814 modules/sharedaddy/sharedaddy.php:74
+#: jetpack.php:1892 modules/sharedaddy/sharedaddy.php:76
 msgid "Support"
 msgstr "サポート"
 
-#: jetpack.php:1813
+#: jetpack.php:1891
 msgid "Debug"
 msgstr "デバッグ"
 
-#: jetpack.php:1812
+#: jetpack.php:1890
 msgid "Terms of Service"
 msgstr "利用規約"
 
-#: jetpack.php:1786 modules/subscriptions.php:557
+#: jetpack.php:1864 modules/subscriptions.php:560
 msgid "Subscribe"
 msgstr "購読"
 
-#: jetpack.php:1811
+#: jetpack.php:1889
 msgid "Privacy Policy"
 msgstr "個人情報保護方針"
 
-#: jetpack.php:1768
+#: jetpack.php:1846
 msgid "Take Survey"
 msgstr "アンケートに答える"
 
-#: jetpack.php:1569
+#: jetpack.php:1619
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] "Jetpack には、最新バージョンの %l プラグインが含まれています。"
 
-#: jetpack.php:1725
+#: jetpack.php:1786
 msgid "Connected to WordPress.com"
 msgstr "WordPress.com に接続済み"
 
-#: jetpack.php:1763
+#: jetpack.php:1841
 msgid "Have feedback on Jetpack?"
 msgstr "Jetpack へのご意見・ご要望"
 
-#: jetpack.php:1765
+#: jetpack.php:1843
 msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
 msgstr "短いアンケートに答えて今後の開発にご協力ください。"
 
-#: jetpack.php:1774
+#: jetpack.php:1852
 msgid "Checking email updates status&hellip;"
 msgstr "メール更新の状態を確認中&hellip;"
 
-#: jetpack.php:1726
+#: jetpack.php:1787
 msgid "Disconnect from WordPress.com"
 msgstr "WordPress.com との接続を解除"
 
-#: jetpack.php:1781
+#: jetpack.php:1859
 msgid "Unsubscribe"
 msgstr "購読を解除"
 
-#: jetpack.php:1578
+#: jetpack.php:1628
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] "古いバージョンは無効化済みです。サイトから削除できます。"
 
-#: jetpack.php:1745
+#: jetpack.php:1817
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
 msgstr "すべての機能を有効化するには右のボタンを使ってサイトを WordPress.com に接続する必要があります。接続を確立したら、以下の機能を有効化できます。"
 
-#: jetpack.php:1785
+#: jetpack.php:1863
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr "Jetpack 関連のニュースをメールで受け取りますか ? %s"
 
-#: jetpack.php:1780
+#: jetpack.php:1858
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr "現在ニュースメールを購読中です。 %s"
 
-#: jetpack.php:1545
+#: jetpack.php:1595
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr "<strong>準備ができました !</strong> "
 
-#: jetpack.php:1517
+#: jetpack.php:1567
 msgid "The following modules have been updated: %l."
 msgstr "モジュールを更新しました: %l"
 
-#: jetpack.php:1541
+#: jetpack.php:1591
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr "<strong>Jetpack はすでに正しく接続されています。</strong> "
 
-#: jetpack.php:1531
+#: jetpack.php:1581
 msgid "<strong>%s Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
 msgstr "<strong>%s を停止しました !</strong> モジュールカードの有効化ボタンからいつでも再有効化できます。"
 
-#: jetpack.php:1547
+#: jetpack.php:1597
 msgid "The features below are now active. Click the learn more buttons to explore each feature."
 msgstr "以下の機能が有効になっています。「詳細」ボタンをクリックし、各機能についてもっと詳しく知ることができます。"
 
-#: jetpack.php:1537
+#: jetpack.php:1587
 msgid "<strong>Module settings were saved.</strong> "
 msgstr "<strong>モジュール設定を保存しました。</strong> "
 
-#: jetpack.php:1524
+#: jetpack.php:1574
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
 msgstr "<strong>%s を有効化しました。</strong>無効にするには、モジュールカード内の「詳細」ボタンをクリックし、「停止」を選択して下さい。"
 
-#: jetpack.php:1493
+#: jetpack.php:1543
 msgid "Welcome to <strong>Jetpack %s</strong>!"
 msgstr "<strong>Jetpack %s</strong> へようこそ !"
 
-#: jetpack.php:1469
+#: jetpack.php:1519
 msgid "Try connecting again."
 msgstr "もう一度接続をお試しください。"
 
-#: jetpack.php:1466
+#: jetpack.php:1516
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr "<strong>Jetpack に問題が発生しました。</strong>予期しない問題が発生しました。ちょっと運が悪かったようです。%s"
 
-#: jetpack.php:1505
+#: jetpack.php:1555
 msgid "The following new modules have been activated: %l."
 msgstr "以下の新しいモジュールを有効化しました: %l"
 
-#: jetpack.php:1416
+#: jetpack.php:1466
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
 msgstr "<strong>Jetpack に問題が発生しました。</strong>WordPress.com に接続できません。サイトが非公開状態 (localhost) になっていませんか ?"
 
-#: jetpack.php:1383
+#: jetpack.php:1433
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr "Jetpack の認証中は、WordPress.com にログインしている必要があります。ご注意ください。"
 
-#: jetpack.php:1380
+#: jetpack.php:1430
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr "機能を有効化するにはサイトと WordPress.com との接続認証が必要です。"
 
-#: jetpack.php:1390
+#: jetpack.php:1440
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr "Jetpack がぴったり合わないようです。最近なにか変わりましたか ? "
 
-#: jetpack.php:1404
+#: jetpack.php:1454
 msgid "Do you still have the %s plugin installed?"
 msgstr "%s プラグインをまだインストールしていますか ?"
 
-#: jetpack.php:1422
+#: jetpack.php:1472
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
 msgstr "WordPress.com 側の問題により現在 Jetpack をご利用いただけません。後ほどもう一度お試しください。"
 
-#: jetpack.php:1426
+#: jetpack.php:1476
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
 msgstr "Jetpack は WordPress.com と接続できませんでした: %s これは通常、ホスティングサービス上の設定が何か間違っていることを意味しています。"
 
-#: jetpack.php:1408
+#: jetpack.php:1458
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "<strong>重大なエラー</strong>が発生したためモジュールを有効化できませんでした。他にインストールしているプラグインと干渉している可能性があります。"
 
-#: jetpack.php:1402
+#: jetpack.php:1452
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "<strong>重大なエラー</strong>が発生したため「%s」を有効化できませんでした。他にインストールしているプラグインと干渉している可能性があります。"
 
-#: jetpack.php:1387
+#: jetpack.php:1437
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr "間違った Jetpack をお使いのようです。一度停止して最有効化し、新しい Jetpack を取得しましょう。"
 
-#: jetpack.php:1400
+#: jetpack.php:1450
 msgid "The %1$s module requires <strong>PHP version %2$s</strong> or higher."
 msgstr "%1$s モジュールには <strong>PHP バージョン %2$s</strong> 以降が必要です。"
 
-#: jetpack.php:1394
+#: jetpack.php:1444
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr "Jetpack を利用するには、サイトが公開されていて、アクセス制限がかかっていない必要があります: %s"
 
-#: jetpack.php:1307
+#: jetpack.php:1357
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr "<strong>Jetpack を有効化しました。</strong> ネットワーク上の各サイトでは、それぞれのサイトの管理者が接続設定を行う必要があります。"
 
-#: jetpack.php:1275 modules/sharedaddy/sharedaddy.php:66
-#: modules/sharedaddy/sharedaddy.php:73
+#: jetpack.php:1311 modules/sharedaddy/sharedaddy.php:68
+#: modules/sharedaddy/sharedaddy.php:75
 msgid "Settings"
 msgstr "設定"
 
-#: jetpack.php:1295
+#: jetpack.php:1336
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr "<strong>Jetpack のインストールが完了しました。</strong>これで、 WordPress.com のクラウドリソースを活用した機能をサイトに導入する準備ができました。"
 
-#: jetpack.php:1213
+#: jetpack.php:1244
 msgid "Find the component you want to manage"
 msgstr "管理したいコンポーネントを探す"
 
-#: jetpack.php:1214
+#: jetpack.php:1245
 msgid "Click on Learn More"
 msgstr "「さらに詳しく」をクリック"
 
-#: jetpack.php:1293 jetpack.php:1744
+#: jetpack.php:1342 jetpack.php:1821
 msgid "Connect to WordPress.com"
 msgstr "WordPress.com に接続"
 
-#: jetpack.php:1296 modules/module-info.php:45 modules/module-info.php:81
+#: jetpack.php:1344 modules/module-info.php:45 modules/module-info.php:81
 #: modules/module-info.php:143 modules/module-info.php:178
 #: modules/module-info.php:212 modules/module-info.php:248
 #: modules/module-info.php:299 modules/module-info.php:321
-#: modules/module-info.php:359 modules/module-info.php:383
-#: modules/module-info.php:401 modules/module-info.php:407
+#: modules/module-info.php:361 modules/module-info.php:385
+#: modules/module-info.php:403 modules/module-info.php:409
 msgid "Learn More"
 msgstr "さらに詳しく"
 
-#: jetpack.php:1216
+#: jetpack.php:1247
 msgid "If additional settings are available, a link to them will appear"
 msgstr "追加設定がある場合はリンクが表示されます"
 
-#: jetpack.php:1292
-msgid "<strong>Your Jetpack is almost ready</strong> &#8211; Connect to WordPress.com to enable all features."
-msgstr "<strong>Jetpack をお使いいただく準備ができました。</strong>すべての機能を有効化するには WordPress.com に接続してください。"
-
-#: jetpack.php:1215
+#: jetpack.php:1246
 msgid "An Activate or Deactivate button will appear"
 msgstr "有効化・無効化ボタンが表示されます"
 
-#: jetpack.php:1211
+#: jetpack.php:1242
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
 msgstr "各 Jetpack モジュールを必要に応じて有効化・無効化できます。"
 
-#: jetpack.php:1180
+#: jetpack.php:1211
 msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
 msgstr "<strong>モジュールの有効化 / 無効化</strong> - 「詳細」をクリックすると、有効化・無効化ボタンが表示されますのでクリックしてください。"
 
-#: jetpack.php:1179
+#: jetpack.php:1210
 msgid "Jetpack Module Options"
 msgstr "Jetpack モジュール設定"
 
-#: jetpack.php:1178 jetpack.php:1202
+#: jetpack.php:1209 jetpack.php:1233
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr "このページでは Jetpack 内で利用可能なモジュールを確認できます。詳細を確認し、必要なものを有効化・無効化してください。"
 
-#: jetpack.php:1198
+#: jetpack.php:1229
 msgid "Overview"
 msgstr "概要"
 
-#: jetpack.php:1182 jetpack.php:1223
+#: jetpack.php:1213 jetpack.php:1254
 msgid "Jetpack FAQ"
 msgstr "Jetpack よくある質問"
 
-#: jetpack.php:1141
+#: jetpack.php:1158
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] "%個の Jetpack モジュール"
 
-#: jetpack.php:1208
+#: jetpack.php:1239
 msgid "Modules"
 msgstr "モジュール"
 
-#: jetpack.php:1177 jetpack.php:1201 jetpack.php:1732
+#: jetpack.php:1208 jetpack.php:1232 jetpack.php:1793
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "Jetpack は、WordPress.com クラウドの力を活用してインストール型サイトをパワーアップできる WordPress プラグインです。 "
 
-#: jetpack.php:1183 jetpack.php:1224
+#: jetpack.php:1214 jetpack.php:1255
 msgid "Jetpack Support"
 msgstr "Jetpack サポート"
 
-#: jetpack.php:1181 jetpack.php:1222
+#: jetpack.php:1212 jetpack.php:1253
 msgid "For more information:"
 msgstr "詳細情報:"
 
-#: jetpack.php:1176 jetpack.php:1200 jetpack.php:1210 jetpack.php:1729
-#: jetpack.php:1862
+#: jetpack.php:1207 jetpack.php:1231 jetpack.php:1241 jetpack.php:1790
+#: jetpack.php:1940
 msgid "Jetpack by WordPress.com"
 msgstr "Jetpack by WordPress.com"
 
-#: jetpack.php:1104 jetpack.php:1120
+#: jetpack.php:1121 jetpack.php:1137
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
 msgstr "Jetpack には、最新バージョンの &#8220;%1$s&#8221; プラグインが含まれています。"
 
-#: jetpack.php:954
+#: jetpack.php:964
 msgid "Jetpack requires WordPress version %s or later."
 msgstr "Jetpack を使うには WordPress バージョン %s 以降が必要です。"
