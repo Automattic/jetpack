@@ -15,7 +15,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	private $allowed_colorschemes = array( 'light', 'dark' );
 
 	function __construct() {
-		parent::__construct( 'facebook-likebox', __( 'Facebook Like Box' ), array( 'classname' => 'widget_facebook_likebox', 'description' => __( 'Display a Facebook Like Box to connect visitors to your Facebook Page' ) ) );
+		parent::__construct( 'facebook-likebox', __( 'Facebook Like Box', 'jetpack' ), array( 'classname' => 'widget_facebook_likebox', 'description' => __( 'Display a Facebook Like Box to connect visitors to your Facebook Page', 'jetpack' ) ) );
 	}
 
 	function widget( $args, $instance ) {
@@ -59,11 +59,11 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		if( ! empty( $title ) ) :
 			echo $before_title;
-			?><a href="<?php echo esc_url( $page_url ); ?>"><?php esc_html_e( $title ); ?></a><?php
+			?><a href="<?php echo esc_url( $page_url ); ?>"><?php esc_html_e( $title , 'jetpack' ); ?></a><?php
 			echo $after_title;
 		endif;
 
-		?><iframe src="<?php echo esc_url( $like_url ); ?>" scrolling="no" frameborder="0" style="border: none; overflow: hidden; width: <?php esc_html_e( $like_args['width'] ); ?>px; height: <?php esc_html_e( $like_args['height'] ); ?>px; background: <?php esc_html_e( $like_bg_colour ); ?>"></iframe><?php
+		?><iframe src="<?php echo esc_url( $like_url ); ?>" scrolling="no" frameborder="0" style="border: none; overflow: hidden; width: <?php esc_html_e( $like_args['width'] , 'jetpack' ); ?>px; height: <?php esc_html_e( $like_args['height'] , 'jetpack' ); ?>px; background: <?php esc_html_e( $like_bg_colour , 'jetpack' ); ?>"></iframe><?php
 
 		echo $after_widget;
 
@@ -105,33 +105,33 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
-				<?php _e( 'Title' ); ?>
+				<?php _e( 'Title', 'jetpack' ); ?>
 				<input type="text" name="<?php echo $this->get_field_name( 'title' ); ?>" id="<?php echo $this->get_field_id( 'title' ); ?>" value="<?php echo esc_attr( $instance['title'] ); ?>" class="widefat" />
 			</label>
 		</p>
 		
 		<p>
 			<label for="<?php echo $this->get_field_id( 'href' ); ?>">
-				<?php _e( 'Facebook Page URL' ); ?>
+				<?php _e( 'Facebook Page URL', 'jetpack' ); ?>
 				<input type="text" name="<?php echo $this->get_field_name( 'href' ); ?>" id="<?php echo $this->get_field_id( 'href' ); ?>" value="<?php echo esc_url( $like_args['href'] ); ?>" class="widefat" />
 				<br />
-				<small><?php _e( 'The Like Box only works with <a href="http://www.facebook.com/help/?faq=174987089221178">Facebook Pages</a>.' ); ?></small>
+				<small><?php _e( 'The Like Box only works with <a href="http://www.facebook.com/help/?faq=174987089221178">Facebook Pages</a>.', 'jetpack' ); ?></small>
 			</label>
 		</p>
 		
 		<p>
 			<label for="<?php echo $this->get_field_id( 'width' ); ?>">
-				<?php _e( 'Width' ); ?>
+				<?php _e( 'Width', 'jetpack' ); ?>
 				<input type="text" maxlength="3" name="<?php echo $this->get_field_name( 'width' ); ?>" id="<?php echo $this->get_field_id( 'width' ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="width: 30px; text-align: center;" />
 			</label>
 		</p>
 		
 		<p>
 			<label for="<?php echo $this->get_field_id( 'colorscheme' ); ?>">
-				<?php _e( 'Color Scheme' ); ?>
+				<?php _e( 'Color Scheme', 'jetpack' ); ?>
 				<select name="<?php echo $this->get_field_name( 'colorscheme' ); ?>" id="<?php echo $this->get_field_id( 'colorscheme' ); ?>">
-					<option value="light" <?php selected( $like_args['colorscheme'], 'light' ); ?>><?php _e( 'Light' ); ?></option>
-					<option value="dark" <?php selected( $like_args['colorscheme'], 'dark' ); ?>><?php _e( 'Dark' ); ?></option>
+					<option value="light" <?php selected( $like_args['colorscheme'], 'light' ); ?>><?php _e( 'Light', 'jetpack' ); ?></option>
+					<option value="dark" <?php selected( $like_args['colorscheme'], 'dark' ); ?>><?php _e( 'Dark', 'jetpack' ); ?></option>
 				</select>
 			</label>
 		</p>
@@ -140,27 +140,27 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'show_faces' ); ?>">
 				<input type="checkbox" name="<?php echo $this->get_field_name( 'show_faces' ); ?>" id="<?php echo $this->get_field_id( 'show_faces' ); ?>" <?php checked( $like_args['show_faces'] ); ?> />
-				<?php _e( 'Show Faces' ); ?>
+				<?php _e( 'Show Faces', 'jetpack' ); ?>
 				<br />
-				<small><?php _e( 'Show profile photos in the plugin.' ); ?></small>
+				<small><?php _e( 'Show profile photos in the plugin.', 'jetpack' ); ?></small>
 			</label>
 		</p>
 		
 		<p>
 			<label for="<?php echo $this->get_field_id( 'stream' ); ?>">
 				<input type="checkbox" name="<?php echo $this->get_field_name( 'stream' ); ?>" id="<?php echo $this->get_field_id( 'stream' ); ?>" <?php checked( $like_args['stream'] ); ?> />
-				<?php _e( 'Show Stream' ); ?>
+				<?php _e( 'Show Stream', 'jetpack' ); ?>
 				<br />
-				<small><?php _e( 'Show the profile stream for the public profile.' ); ?></small>
+				<small><?php _e( 'Show the profile stream for the public profile.', 'jetpack' ); ?></small>
 			</label>
 		</p>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'force_wall' ); ?>">
 				<input type="checkbox" name="<?php echo $this->get_field_name( 'force_wall' ); ?>" id="<?php echo $this->get_field_id( 'force_wall' ); ?>" <?php checked( $like_args['force_wall'] ); ?> />
-				<?php _e( 'Show Wall' ); ?>
+				<?php _e( 'Show Wall', 'jetpack' ); ?>
 				<br />
-				<small><?php _e( 'Show the wall for a Places page rather than friend activity.' ); ?></small>
+				<small><?php _e( 'Show the wall for a Places page rather than friend activity.', 'jetpack' ); ?></small>
 			</label>
 		</p>
 		
