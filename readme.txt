@@ -76,6 +76,9 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.3.2 =
+* Bug Fix: Fix Jetpack menu so that Akismet and VaultPress submenus show up.
+
 = 1.3.1 = 
 * Enhancement: Add a new widget, the Facebook Likebox
 * Bug Fix: Sharing: Sharing buttons can now be used on custom post types.

@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.3.1
+ * Version: 1.3.2
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -17,7 +17,7 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.2' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
-define( 'JETPACK__VERSION', '1.3.1' );
+define( 'JETPACK__VERSION', '1.3.2' );
 
 /*
 Options:
@@ -181,6 +181,7 @@ class Jetpack {
 		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
 
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+		add_action( 'admin_menu', array( $this, 'fix_top_level_admin_menu' ), 1000 );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
@@ -1195,6 +1196,16 @@ p {
 		add_action( "admin_print_scripts-$jetpack_hook", array( $this, 'admin_scripts' ) );
 
 		do_action( 'jetpack_admin_menu' );
+	}
+
+	function fix_top_level_admin_menu() {
+		global $submenu;
+		if ( 'stats' != $this->top_level ) {
+			return;
+		}
+
+		$submenu['stats'] = array_merge( $submenu['stats'], $submenu['jetpack'] );
+		unset( $submenu['jetpack'] );
 	}
 
 	/**
