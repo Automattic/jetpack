@@ -76,6 +76,9 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.3.3 =
+* Bug Fix: Fix notices caused by last update
+
 = 1.3.2 =
 * Bug Fix: Fix Jetpack menu so that Akismet and VaultPress submenus show up.
 
