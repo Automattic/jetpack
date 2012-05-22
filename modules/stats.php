@@ -242,6 +242,9 @@ function stats_admin_menu() {
 			exit;
 		}
 	}
+
+	$hook = add_submenu_page( 'jetpack', __( 'Site Stats', 'jetpack' ), __( 'Site Stats', 'jetpack' ), 'view_stats', 'stats', 'stats_reports_page' );
+	add_action( "load-$hook", 'stats_reports_load' );
 }
 
 function stats_admin_path() {
