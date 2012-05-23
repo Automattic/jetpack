@@ -548,7 +548,8 @@ function wp_cache_manager() {
 	if ( false == apply_filters( 'wp_super_cache_error_checking', true ) )
 		return false;
 
-	$supercachedir = get_supercache_dir();
+	if ( function_exists( 'get_supercache_dir' ) )
+		$supercachedir = get_supercache_dir();
 	if( get_option( 'gzipcompression' ) == 1 )
 		update_option( 'gzipcompression', 0 );
 	if( !isset( $cache_rebuild_files ) )
