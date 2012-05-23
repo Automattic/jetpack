@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version:  \n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-super-cache\n"
-"POT-Creation-Date: 2012-05-23 10:05:24+00:00\n"
+"POT-Creation-Date: 2012-05-23 10:16:26+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -968,10 +968,8 @@ msgstr ""
 
 #: wp-cache.php:1061
 msgid ""
-"<a href=\"%s\">WP Minify</a> reduces the number of files served by your web "
-"server by joining Javascript and CSS files together. Alternatively you can "
-"use <a href=\"%s\">WPSCMin</a>, a Supercache plugin that minifies cached "
-"pages. It does not however join JS/CSS files together."
+"<a href=\"%s\">WPSCMin</a>, a Supercache plugin that minifies cached pages "
+"by removing whitespaces and extra characters "
 msgstr ""
 
 #: wp-cache.php:1062
