@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.3.4
+ * Version: 1.4-alpha
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -17,7 +17,7 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.2' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
-define( 'JETPACK__VERSION', '1.3.4' );
+define( 'JETPACK__VERSION', '1.4-alpha' );
 
 /*
 Options:
@@ -1623,28 +1623,32 @@ p {
 
 	function admin_notices() {
 
-		if ( $this->error ) {
-?>
-<div id="message" class="jetpack-message jetpack-err">
-	<div class="squeezer">
-		<h4><?php echo wp_kses( $this->error, array( 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h4>
-<?php	if ( $desc = Jetpack::state( 'error_description' ) ) : ?>
-		<p><?php echo esc_html( stripslashes( $desc ) ); ?></p>
-<?php	endif; ?>
-	</div>
-</div>
-<?php
-		}
+		if ( $this->error ) : ?>
 
-		if ( $this->message ) {
-?>
-<div id="message" class="jetpack-message">
-	<div class="squeezer">
-		<h4><?php echo wp_kses( $this->message, array( 'strong' => array(), 'a' => array( 'href' => true ), 'br' => true ) ); ?></h4>
-	</div>
-</div>
-<?php
-		}
+			<div id="message" class="jetpack-message jetpack-err">
+				<div class="squeezer">
+					<h4><?php echo wp_kses( $this->error, array( 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h4>
+
+					<?php if ( $desc = Jetpack::state( 'error_description' ) ) : ?>
+
+						<p><?php echo esc_html( stripslashes( $desc ) ); ?></p>
+
+					<?php endif; ?>
+
+				</div>
+			</div>
+
+		<?php endif;
+
+		if ( $this->message ) : ?>
+
+			<div id="message" class="jetpack-message">
+				<div class="squeezer">
+					<h4><?php echo wp_kses( $this->message, array( 'strong' => array(), 'a' => array( 'href' => true ), 'br' => true ) ); ?></h4>
+				</div>
+			</div>
+
+		<?php endif;
 	}
 
 	/**

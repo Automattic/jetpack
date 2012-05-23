@@ -330,7 +330,7 @@ function jetpack_widgets_more_info() { ?>
 	</div>
 
 	<h4><?php esc_html_e( 'Extra Sidebar Widgets' , 'jetpack' ); ?></h4>
-	
+
 	<p><strong><?php esc_html_e( 'The RSS Links Widget ', 'jetpack' ); ?></strong> <?php esc_html_e( "allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments.", 'jetpack' ) ?></p>
 	<p><strong><?php esc_html_e( 'The Twitter Widget ', 'jetpack' ); ?></strong> <?php esc_html_e( "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options.", 'jetpack' ) ?></p>
 	<p><strong><?php esc_html_e( 'The Facebook Like Box Widget ', 'jetpack' ); ?></strong> <?php esc_html_e( "shows your Facebook Like Box within a sidebar on your theme. It&#8217;s a great way to let your readers show their support.", 'jetpack' ) ?></p>
@@ -430,3 +430,21 @@ add_action( 'jetpack_learn_more_button_contact-form', 'jetpack_contact_form_lear
 add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_info' );
 add_action( 'jetpack_module_more_info_connected_contact-form', 'jetpack_contact_form_more_info' );
 // Contact Form: STOP
+
+// Jetpack Comments
+
+function jetpack_comments_more_info() { ?>
+	<h4><?php esc_html_e( 'Jetpack Comments' , 'jetpack' ); ?></h4>
+
+	<p><?php esc_html_e( 'A new comment system that has integrated social media login options.', 'jetpack' ); ?></p>
+
+<?php
+}
+
+add_action( 'jetpack_module_more_info_comments', 'jetpack_comments_more_info' );
+add_action( 'jetpack_module_more_info_connected_comments', 'jetpack_comments_more_info' );
+
+function jetpack_comments_more_link() {
+	echo '<a class="button more-info-link" href="http://en.wordpress.com/">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_action( 'jetpack_learn_more_button_comments', 'jetpack_comments_more_link' );
