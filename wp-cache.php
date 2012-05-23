@@ -1081,6 +1081,7 @@ jQuery(document).ready(function(){
 	<p><?php printf( __( 'Please say hi to him on %s too!', 'wp-super-cache' ), '<a href="http://twitter.com/donncha/">Twitter</a>' ); ?></p>
 	<h3 align='center'><?php _e( 'Need Help?', 'wp-super-cache' ); ?></h3>
 	<ol>
+	<li><?php _e( 'Use the debug system in the Debug tab above. It will tell you what the plugin is doing.', 'wp-super-cache' ); ?></li>
 	<li><?php printf( __( '<a href="%1$s">Installation Help</a>', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/installation/' ); ?></li>
 	<li><?php printf( __( '<a href="%1$s">Frequently Asked Questions</a>', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/faq/' ); ?></li>
 	<li><?php printf( __( '<a href="%1$s">Support Forum</a>', 'wp-super-cache' ), 'http://wordpress.org/tags/wp-super-cache' ); ?></li>
