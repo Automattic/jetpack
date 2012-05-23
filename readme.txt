@@ -85,6 +85,8 @@ Lots of bugfixes
 * Added WPTouch plugin to modify browser and prefix list in mobile detection code. Added support for that plugin's exclude list.
 * Fixed cache tester
 * Filter the tags that are used to detect end-of-page using the wp_cache_eof_tags filter.
+* Removed debug level from logging as it wasn't helpful.
+* Removed mention of wp-minify.
 
 = 1.0 =
 * Removed AddDefaultCharset .htaccess rule

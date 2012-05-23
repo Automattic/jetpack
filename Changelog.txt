@@ -1,3 +1,38 @@
+2012-05-23 10:17  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2012-05-23 10:14  donncha
+
+	* wp-cache.php: Remove mentions of wp-minify as that plugin doesn't
+	  exist any more
+
+2012-05-23 10:06  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2012-05-23 10:04  donncha
+
+	* wp-cache.php: Added message to yellow box.
+
+2012-05-23 10:03  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2012-05-17 15:36  donncha
+
+	* wp-cache-phase1.php, wp-cache.php: Remove the debug log level, I
+	  always recommend level 5 anyway.
+
+2012-05-14 16:32  donncha
+
+	* wp-cache.php: Correctly check $wp_cache_disable_utf8 is not set
+
+2012-05-11 15:24  donncha
+
+	* Changelog.txt, readme.txt: Added changelog entries for 1.0 and
+	  1.1
+
 2012-05-11 15:02  donncha
 
 	* wp-super-cache.pot: Updated translation file
