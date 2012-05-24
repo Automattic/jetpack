@@ -5,8 +5,11 @@
 		}
   } );
 
-	$( document ).ready(function() {
-		$( '.sharing a.sharing-anchor' ).click( function() {
+	$( document ).on( 'ready post-load', function() {
+		var $more_sharing_button = $( '.sharing a.sharing-anchor' ),
+		    $more_sharing_pane   = $more_sharing_button.parents( 'div:first' ).find( '.inner' );
+
+		$more_sharing_button.click( function() {
 			return false;
 		} );
 
@@ -16,79 +19,105 @@
 		} );
 
 		// Show hidden buttons
-		$( '.sharing a.sharing-anchor' ).hover( function() {
-			if ( $( this ).data( 'hasappeared' ) !== true ) {
-				var item     = $( this ).parents( 'div:first' ).find( '.inner' );
-				var original = $( this );
 
-				// Create a timer to make the area appear if the mouse hovers for a period
-				var timer = setTimeout( function() {
-					$( '#sharing_email' ).slideUp( 200 );
-
-					$( item ).css( {
-						left: $( original ).position().left + 'px',
-						top: $( original ).position().top + $( original ).height() + 3 + 'px'
-					} ).slideDown( 200, function() {
-						// Mark the item as have being appeared by the hover
-						$( original ).data( 'hasappeared', true ).data( 'hasoriginal', true ).data( 'hasitem', false );
-
-						// Remove all special handlers
-						$( item ).mouseleave( handler_item_leave ).mouseenter( handler_item_enter );
-						$( original ).mouseleave( handler_original_leave ).mouseenter( handler_original_enter );
-
-						// Add a special handler to quickly close the item
-						$( original ).click( close_it );
-					} );
-
-					// The following handlers take care of the mouseenter/mouseleave for the share button and the share area - if both are left then we close the share area
-					var handler_item_leave = function() {
-						$( original ).data( 'hasitem', false );
-
-						if ( $( original ).data( 'hasoriginal' ) === false ) {
-							var timer = setTimeout( close_it, 800 );
-							$( original ).data( 'timer2', timer );
-						}
-					};
-
-					var handler_item_enter = function() {
-						$( original ).data( 'hasitem', true );
-						clearTimeout( $( original ).data( 'timer2' ) );
-					}
-
-					var handler_original_leave = function() {
-						$( original ).data( 'hasoriginal', false );
-
-						if ( $( original ).data( 'hasitem' ) === false ) {
-							var timer = setTimeout( close_it, 800 );
-							$( original ).data( 'timer2', timer );
-						}
-					};
-
-					var handler_original_enter = function() {
-						$( original ).data( 'hasoriginal', true );
-						clearTimeout( $( original ).data( 'timer2' ) );
-					};
-
-					var close_it = function() {
-						item.slideUp( 200 );
-
-						// Clear all hooks
-						$( original ).unbind( 'mouseleave', handler_original_leave ).unbind( 'mouseenter', handler_original_enter );
-						$( item ).unbind( 'mouseleave', handler_item_leave ).unbind( 'mouseenter', handler_item_leave );
-						$( original ).data( 'hasappeared', false );
-						$( original ).unbind( 'click', close_it );
-						return false;
-					};
-				}, 200 );
-
-				// Remember the timer so we can detect it on the mouseout
-				$( this ).data( 'timer', timer );
+		// Touchscreen device: use click.
+		// Non-touchscreen device: use click if not already appearing due to a hover event
+		$more_sharing_button.click( function() {
+			if ( $more_sharing_pane.is( ':animated' ) ) {
+				// We're in the middle of some other event's animation
+				return;
 			}
-		}, function() {
-			// Mouse out - remove any timer
-			clearTimeout( $( this ).data( 'timer' ) );
-			$( this ).data( 'timer', false );
+
+			if ( true === $more_sharing_pane.data( 'justSlid' ) ) {
+				// We just finished some other event's animation - don't process click event so that slow-to-react-clickers don't get confused
+				return;
+			}
+
+			$( '#sharing_email' ).slideUp( 200 );
+
+			$more_sharing_pane.css( {
+				left: $more_sharing_button.position().left + 'px',
+				top: $more_sharing_button.position().top + $more_sharing_button.height() + 3 + 'px'
+			} ).slideToggle( 200 );
 		} );
+
+		if ( document.ontouchstart === undefined ) {
+			// Non-touchscreen device: use hover/mouseout with delay
+			$more_sharing_button.hover( function() {
+				if ( !$more_sharing_pane.is( ':animated' ) ) {
+					// Create a timer to make the area appear if the mouse hovers for a period
+					var timer = setTimeout( function() {
+						$( '#sharing_email' ).slideUp( 200 );
+
+						$more_sharing_pane.data( 'justSlid', true );
+						$more_sharing_pane.css( {
+							left: $more_sharing_button.position().left + 'px',
+							top: $more_sharing_button.position().top + $more_sharing_button.height() + 3 + 'px'
+						} ).slideDown( 200, function() {
+							// Mark the item as have being appeared by the hover
+							$more_sharing_button.data( 'hasoriginal', true ).data( 'hasitem', false );
+
+							// Remove all special handlers
+							$more_sharing_pane.mouseleave( handler_item_leave ).mouseenter( handler_item_enter );
+							$more_sharing_button.mouseleave( handler_original_leave ).mouseenter( handler_original_enter );
+							setTimeout( function() {
+								$more_sharing_pane.data( 'justSlid', false );
+							}, 300 );
+						} );
+
+						// The following handlers take care of the mouseenter/mouseleave for the share button and the share area - if both are left then we close the share area
+						var handler_item_leave = function() {
+							$more_sharing_button.data( 'hasitem', false );
+
+							if ( $more_sharing_button.data( 'hasoriginal' ) === false ) {
+								var timer = setTimeout( close_it, 800 );
+								$more_sharing_button.data( 'timer2', timer );
+							}
+						};
+
+						var handler_item_enter = function() {
+							$more_sharing_button.data( 'hasitem', true );
+							clearTimeout( $more_sharing_button.data( 'timer2' ) );
+						}
+
+						var handler_original_leave = function() {
+							$more_sharing_button.data( 'hasoriginal', false );
+
+							if ( $more_sharing_button.data( 'hasitem' ) === false ) {
+								var timer = setTimeout( close_it, 800 );
+								$more_sharing_button.data( 'timer2', timer );
+							}
+						};
+
+						var handler_original_enter = function() {
+							$more_sharing_button.data( 'hasoriginal', true );
+							clearTimeout( $more_sharing_button.data( 'timer2' ) );
+						};
+
+						var close_it = function() {
+							$more_sharing_pane.data( 'justSlid', true );
+							$more_sharing_pane.slideUp( 200, function() {
+								setTimeout( function() {
+									$more_sharing_pane.data( 'justSlid', false );
+								}, 300 );
+							} );
+
+							// Clear all hooks
+							$more_sharing_button.unbind( 'mouseleave', handler_original_leave ).unbind( 'mouseenter', handler_original_enter );
+							$more_sharing_pane.unbind( 'mouseleave', handler_item_leave ).unbind( 'mouseenter', handler_item_leave );
+							return false;
+						};
+					}, 200 );
+
+					// Remember the timer so we can detect it on the mouseout
+					$more_sharing_button.data( 'timer', timer );
+				}
+			}, function() {
+				// Mouse out - remove any timer
+				clearTimeout( $more_sharing_button.data( 'timer' ) );
+				$more_sharing_button.data( 'timer', false );
+			} );
+		}
 
 		// Add click functionality
 		$( '.sharing ul' ).each( function( item ) {
