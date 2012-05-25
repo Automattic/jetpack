@@ -200,19 +200,24 @@ class Jetpack_Comments {
 		foreach ( $params as $k => $v )
 			$signing[] = "{$k}={$v}";
 
+		$url_origin       = ( is_ssl() ? 'https' : 'http' ) . '://jetpack.wordpress.com';
 		$params['sig']    = sha1( Jetpack::get_option( 'blog_token' ) . ':' . implode( ':', $signing ) );
-		$url              = 'http://jetpack.wordpress.com/jetpack-comment/?' . http_build_query( $params );
+		$url              = "{$url_origin}/jetpack-comment/?" . http_build_query( $params );
+		$url              = "{$url}#parent=" . urlencode( ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 		$this->signed_url = $url;
-		$url              = esc_url( $url );
 		$height           = $params['comment_registration'] || is_user_logged_in() ? '315' : '430'; // Iframe can be shorter if we're not allowing guest commenting
 		$transparent      = ( $params['color_scheme'] == 'transparent' ) ? 'true' : 'false';
+
+		if ( isset( $_GET['replytocom'] ) ) {
+			$url .= '&replytocom=' . (int) $_GET['replytocom'];
+		}
 
 		// The actual iframe (loads comment form from Jetpack server)
 		?>
 
 		<div id="respond">
 			<div id="cancel-comment-reply-link" style="display:none; float:right;"><a href="#"><?php echo esc_html( __( 'Cancel Reply', 'jetpack' ) ); ?></a></div>
-			<iframe src="<?php echo $url; ?>" allowtransparency="<?php echo $transparent; ?>" style="width:100%; height: <?php echo $height; ?>px;border:0px;" frameBorder="0" scrolling="no" name="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>
+			<iframe src="<?php echo esc_url( $url ); ?>" allowtransparency="<?php echo $transparent; ?>" style="width:100%; height: <?php echo $height; ?>px;border:0px;" frameBorder="0" scrolling="no" name="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>
 		</div>
 
 		<?php // Below is required for comment reply JS to work ?>
@@ -228,23 +233,68 @@ class Jetpack_Comments {
 	 * @since JetpackComments (1.4)
 	 */
 	public function watch_comment_parent() {
+		$url_origin = ( is_ssl() ? 'https' : 'http' ) . '://jetpack.wordpress.com';
 	?>
 
 		<script type="text/javascript">
-			var comm_par = document.getElementById( 'comment_parent' ).value;
-			var comm_par_mon = setInterval(
-				function(){
-					if ( comm_par != document.getElementById( 'comment_parent' ).value ) {
-						comm_par = document.getElementById( 'comment_parent' ).value;
-						if ( 0 == comm_par ) {
-							document.getElementById( 'jetpack_remote_comment' ).src = '<?php echo esc_url_raw( $this->signed_url ); ?>';
-						} else {
-							document.getElementById( 'jetpack_remote_comment' ).src = '<?php echo esc_url_raw( $this->signed_url ); ?>&replytocom=' + comm_par;
+			var comm_par = document.getElementById( 'comment_parent' ).value,
+			    frame = document.getElementById( 'jetpack_remote_comment' ),
+			    tellFrameNewParent;
+
+			tellFrameNewParent = function() {
+				if ( comm_par ) {
+					frame.src = <?php echo json_encode( esc_url_raw( $this->signed_url ) ); ?> + '&replytocom=' + parseInt( comm_par, 10 ).toString();
+				} else {
+					frame.src = <?php echo json_encode( esc_url_raw( $this->signed_url ) ); ?>;
+				}
+			};
+
+			addComment._Jetpack_moveForm = addComment.moveForm;
+
+			addComment.moveForm = function( commId, parentId, respondId, postId ) {
+				var returnValue = addComment._Jetpack_moveForm( commId, parentId, respondId, postId ), cancelClick, cancel;
+
+				if ( false === returnValue ) {
+					cancel = document.getElementById( 'cancel-comment-reply-link' );
+					cancelClick = cancel.onclick;
+					cancel.onclick = function() {
+						var cancelReturn = cancelClick.call( this );
+						if ( false !== cancelReturn ) {
+							return cancelReturn;
 						}
+
+						if ( !comm_par ) {
+							return cancelReturn;
+						}
+
+						comm_par = 0;
+
+						tellFrameNewParent();
+
+						return cancelReturn;
+					};
+				}
+
+				if ( comm_par == parentId ) {
+					return returnValue;
+				}
+
+				comm_par = parentId;
+
+				tellFrameNewParent();
+
+				return returnValue;
+			};
+
+			if ( window.postMessage ) {
+				window.addEventListener( 'message', function( event ) {
+					if ( <?php echo json_encode( esc_url_raw( $url_origin ) ); ?> !== event.origin ) {
+						return;
 					}
-				},
-				500
-			);
+
+					jQuery( frame ).height( event.data );
+				} );
+			}
 		</script>
 
 	<?php
