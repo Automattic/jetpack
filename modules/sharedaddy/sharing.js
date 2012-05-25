@@ -6,10 +6,9 @@
   } );
 
 	$( document ).on( 'ready post-load', function() {
-		var $more_sharing_button = $( '.sharing a.sharing-anchor' ),
-		    $more_sharing_pane   = $more_sharing_button.parents( 'div:first' ).find( '.inner' );
+		var $more_sharing_buttons = $( '.sharing a.sharing-anchor' );
 
-		$more_sharing_button.click( function() {
+		$more_sharing_buttons.click( function() {
 			return false;
 		} );
 
@@ -22,7 +21,10 @@
 
 		// Touchscreen device: use click.
 		// Non-touchscreen device: use click if not already appearing due to a hover event
-		$more_sharing_button.click( function() {
+		$more_sharing_buttons.click( function() {
+			var $more_sharing_button = $( this ),
+			    $more_sharing_pane = $more_sharing_button.parents( 'div:first' ).find( '.inner' );
+
 			if ( $more_sharing_pane.is( ':animated' ) ) {
 				// We're in the middle of some other event's animation
 				return;
@@ -43,7 +45,10 @@
 
 		if ( document.ontouchstart === undefined ) {
 			// Non-touchscreen device: use hover/mouseout with delay
-			$more_sharing_button.hover( function() {
+			$more_sharing_buttons.hover( function() {
+				var $more_sharing_button = $( this ),
+				    $more_sharing_pane = $more_sharing_button.parents( 'div:first' ).find( '.inner' );
+
 				if ( !$more_sharing_pane.is( ':animated' ) ) {
 					// Create a timer to make the area appear if the mouse hovers for a period
 					var timer = setTimeout( function() {
@@ -114,8 +119,10 @@
 				}
 			}, function() {
 				// Mouse out - remove any timer
-				clearTimeout( $more_sharing_button.data( 'timer' ) );
-				$more_sharing_button.data( 'timer', false );
+				$more_sharing_buttons.each( function() { 
+					clearTimeout( $( this ).data( 'timer' ) );
+				} );
+				$more_sharing_buttons.data( 'timer', false );
 			} );
 		}
 
