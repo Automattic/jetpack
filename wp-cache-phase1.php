@@ -625,7 +625,7 @@ function wp_supercache_cache_for_admins() {
 	if ( isset( $_GET[ 'preview' ] ) || function_exists( "is_admin" ) && is_admin() )
 		return $cookies;
 
-	if ( false == apply_filters( 'wp_supercache_remove_cookies', true ) )
+	if ( false == do_cacheaction( 'wp_supercache_remove_cookies', true ) )
 		return true;
 
 	$cookie_keys = array( 'wordpress_logged_in', 'comment_author_' );
