@@ -118,8 +118,8 @@ class Jetpack_Comments {
 		add_action( 'comment_form_after',  array( $this, 'comment_form_after'  ) );
 
 		// Before a comment is posted
+		add_action( 'pre_comment_on_post', array( $this, 'pre_comment_on_post' ), 1 );
 		add_action( 'pre_comment_on_post', array( $this, 'allow_logged_out_user_to_comment_as_external' ) );
-		add_action( 'pre_comment_on_post', array( $this, 'pre_comment_on_post'                          ) );
 
 		// After a comment is posted
 		add_action( 'comment_post', array( $this, 'set_comment_and_tab_cookies' ) );
