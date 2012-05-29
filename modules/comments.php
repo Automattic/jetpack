@@ -201,7 +201,7 @@ class Jetpack_Comments {
 			$signing[] = "{$k}={$v}";
 
 		$url_origin       = ( is_ssl() ? 'https' : 'http' ) . '://jetpack.wordpress.com';
-		$params['sig']    = sha1( Jetpack::get_option( 'blog_token' ) . ':' . implode( ':', $signing ) );
+		$params['sig']    = hash_hmac( 'sha1', implode( ':', $signing ), Jetpack::get_option( 'blog_token' ) );
 		$url              = "{$url_origin}/jetpack-comment/?" . http_build_query( $params );
 		$url              = "{$url}#parent=" . urlencode( ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 		$this->signed_url = $url;
@@ -412,7 +412,7 @@ class Jetpack_Comments {
 		foreach( $post_array as $k => $v )
 			$signing[] = "{$k}={$v}";
 
-		$check = sha1( $secret . ":" . implode( ":", $signing ) );
+		$check = hash_hmac( 'sha1', implode( ":", $signing ), $secret );
 
 		// Bail if token is expired or not valid
 		if ( $sig != $check )
