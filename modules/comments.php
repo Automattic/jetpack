@@ -396,8 +396,10 @@ class Jetpack_Comments {
 		$post_array = stripslashes_deep( $_POST );
 
 		// Bail if missing the Jetpack token
-		if ( ! isset( $post_array['sig'] ) )
-			wp_die( __( 'Security token not found.', 'jetpack' ) );
+		if ( ! isset( $post_array['sig'] ) ) {
+			unset( $_POST['hc_post_as'] );
+			return;
+		}
 
 		$sig = $post_array['sig'];
 		unset( $post_array['sig'] );
