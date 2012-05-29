@@ -140,6 +140,26 @@ class Jetpack_Comments {
 		add_filter( 'get_avatar',         array( $this, 'get_avatar' ), 10, 4 );
 	}
 
+	static function sign_remote_comment_parameters( $parameters, $key ) {
+		unset(
+			$parameters['sig'],       // Don't sign the signature
+			$parameters['replytocom'] // This parameter is unsigned - it changes dynamically as the comment form moves from parent comment to parent comment
+		);
+
+		ksort( $parameters );
+
+		$signing = array();
+		foreach ( $parameters as $k => $v ) {
+			if ( !is_scalar( $v ) ) {
+				return new WP_Error( 'invalid_input', __( 'Invalid request' ) );
+			}
+
+			$signing[] = "{$k}={$v}";
+		}
+	
+		return hash_hmac( 'sha1', implode( ':', $signing ), $key );
+	}
+
 	/** Output Methods ********************************************************/
 
 	/**
@@ -167,7 +187,6 @@ class Jetpack_Comments {
 			return;
 		}
 
-		$signing = array();
 		$params  = array(
 			'blogid'               => Jetpack::get_option( 'id' ),
 			'postid'               => get_the_ID(),
@@ -179,7 +198,6 @@ class Jetpack_Comments {
 			'avatar_default'       => get_option( 'avatar_default' ),
 			'greeting'             => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),
 			'color_scheme'         => get_option( 'jetpack_comment_form_color_scheme',   0  ),
-			//'custom_css_url'       => get_option( 'jetpack_comment_form_custom_css_url', '' ),
 			'lang'                 => get_bloginfo( 'language' ),
 		);
 
@@ -195,13 +213,13 @@ class Jetpack_Comments {
 				$params['_wp_unfiltered_html_comment'] = wp_create_nonce( 'unfiltered-html-comment_' . get_the_ID() );
 		}
 
-		ksort( $params );
+		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack::get_option( 'blog_token' ) );
+		if ( is_wp_error( $signature ) ) {
+			$signature = 'error';
+		}
 
-		foreach ( $params as $k => $v )
-			$signing[] = "{$k}={$v}";
-
+		$params['sig']    = $signature;
 		$url_origin       = ( is_ssl() ? 'https' : 'http' ) . '://jetpack.wordpress.com';
-		$params['sig']    = hash_hmac( 'sha1', implode( ':', $signing ), Jetpack::get_option( 'blog_token' ) );
 		$url              = "{$url_origin}/jetpack-comment/?" . http_build_query( $params );
 		$url              = "{$url}#parent=" . urlencode( ( is_ssl() ? 'https://' : 'http://' ) . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 		$this->signed_url = $url;
@@ -401,23 +419,16 @@ class Jetpack_Comments {
 			return;
 		}
 
-		$sig = $post_array['sig'];
-		unset( $post_array['sig'] );
-
 		if ( FALSE !== strpos( $post_array['hc_avatar'], '.gravatar.com' ) )
 			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'] );
 
-		$secret = Jetpack::get_option( 'blog_token' );
-
-		$signing = array();
-
-		foreach( $post_array as $k => $v )
-			$signing[] = "{$k}={$v}";
-
-		$check = hash_hmac( 'sha1', implode( ":", $signing ), $secret );
+		$check = Jetpack_Comments::sign_remote_comment_parameters( $post_array, Jetpack::get_option( 'blog_token' ) );
+		if ( is_wp_error( $check ) ) {
+			wp_die( $check );
+		}
 
 		// Bail if token is expired or not valid
-		if ( $sig != $check )
+		if ( $check !== $post_array['sig'] )
 			wp_die( __( 'Invalid security token.', 'jetpack' ) );
 	}
 
@@ -761,14 +772,14 @@ class Jetpack_Comments {
 				break;
 
 			case 'wordpress' :
-				$comment_meta['hc_post_as']			= 'wordpress';
-				$comment_meta['hc_avatar']			= stripslashes( $_POST['hc_avatar'] );
+				$comment_meta['hc_post_as']         = 'wordpress';
+				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
 				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
 				break;
 
 			case 'jetpack' :
-				$comment_meta['hc_post_as']			= 'jetpack';
-				$comment_meta['hc_avatar']			= stripslashes( $_POST['hc_avatar'] );
+				$comment_meta['hc_post_as']         = 'jetpack';
+				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
 				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
 				break;
 
