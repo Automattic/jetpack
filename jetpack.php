@@ -2705,6 +2705,12 @@ class Jetpack_Client {
 			false === strpos( $message, '1407E086' ) // OpenSSL SSL2 certificate error
 		&&
 			false === strpos( $message, 'error setting certificate verify locations' ) // cURL CA bundle not found
+		&&
+			false === strpos( $message, 'Peer certificate cannot be authenticated with' ) // cURL CURLE_SSL_CACERT: CA bundle found, but not helpful
+			                                                                              // different versions of curl have different error messages
+			                                                                              // this string should catch them all
+		&&
+			false === strpos( $message, 'Problem with the SSL CA cert' ) // cURL CURLE_SSL_CACERT_BADFILE: probably access rights
 		) {
 			// No, it is not.
 			return $response;
