@@ -8,10 +8,11 @@ function AtD_submit_check( e ) {
 		return;
 
 	/* Let's not submit the form, shall we? */
+	e.stopImmediatePropagation();
 	e.preventDefault();
 
 	/* We'll call the AtD function based on which editor is currently active */
-	if (typeof(tinyMCE) != 'undefined' && tinyMCE.activeEditor != null && tinyMCE.activeEditor.isHidden() == false) {
+	if ( typeof(tinyMCE) != 'undefined' && tinyMCE.activeEditor && !tinyMCE.activeEditor.isHidden() ) {
 		/* Woo! We're running tinyMCE! */
 		tinyMCE.activeEditor.execCommand('mceWritingImprovementTool', AtD_submit_check_callback);
 	} else {
@@ -23,6 +24,7 @@ function AtD_submit_check( e ) {
 
 /* This is the callback function that runs after the publish/update button is pressed */
 function AtD_submit_check_callback(count) {
+	count = count || 0;
 	AtD_unbind_proofreader_listeners();
 
 	if ( 0 == count || 1 < AtD_proofread_click_count ) {
@@ -57,33 +59,26 @@ function AtD_submit_check_callback(count) {
 
 /* Stop the proofreader from doing its auto proofread thing (activated when the proofread button is clicked) */
 function AtD_kill_autoproofread() {
-	jQuery('#publish').unbind('click', AtD_submit_check);
+	jQuery('#publish').unbind('click.AtD_submit_check');
 }
 
 /* a function to force the post to be submitted */
 function AtD_update_post() {
 
-	if ( typeof(tinyMCE) == 'undefined' || tinyMCE.activeEditor == null || tinyMCE.activeEditor.isHidden() )
+	if ( typeof(tinyMCE) == 'undefined' || !tinyMCE.activeEditor || tinyMCE.activeEditor.isHidden() )
 		AtD_restore_if_proofreading(); 
 
-	jQuery('#publish')
-		.unbind('click', AtD_submit_check)
-		.click() // we're using click() because doing a form submit causes posts to not publish. I couldn't trace back the the cause :/
-		;
+	jQuery('#publish').unbind('click.AtD_submit_check').click();
 }
 
 /* init the autoproofread options */
-function atd_auto_proofread_init() {
-        var original_post_status = jQuery('#original_post_status').val();
+jQuery( document ).ready( function($){
+	var orig_status = $('#original_post_status').val();
 
-        /* check if auto-check is enabled && if #content exists */
-        if ( typeof AtD_check_when != 'undefined' && ((original_post_status != 'publish' && AtD_check_when.onpublish) || ((original_post_status == 'publish' || original_post_status == 'schedule') && AtD_check_when.onupdate)) && jQuery('#content').length != 0 )
-                jQuery('#publish').click( AtD_submit_check );
-}
-        
-/* document.ready() does not execute in IE6 unless it's at the bottom of the page. oi! */
-if (navigator.appName == 'Microsoft Internet Explorer')
-        setTimeout( atd_auto_proofread_init, 2500 );
-else
-        jQuery( document ).ready( atd_auto_proofread_init );
+	/* check if auto-check is enabled && if #content exists */
+	if ( typeof AtD_check_when != 'undefined' && $('#content').length
+		&& ( ( orig_status != 'publish' && AtD_check_when.onpublish )
+		|| ( ( orig_status == 'publish' || orig_status == 'schedule' ) && AtD_check_when.onupdate ) ) )
+			$('#publish').bind( 'click.AtD_submit_check', AtD_submit_check );
+});
 

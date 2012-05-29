@@ -6,27 +6,26 @@ function AtD_restore_text_area()
 	AtD.remove('content'); 
 
 	/* swap the preview div for the textarea, notice how I have to restore the appropriate class/id/style attributes */
+    var content = jQuery('#content').html();
 
-        var content;
-
-	if (navigator.appName == 'Microsoft Internet Explorer')
-		content = jQuery('#content').html().replace(/<BR.*?class.*?atd_remove_me.*?>/gi, "\n");
-	else
-		content = jQuery('#content').html();
+	if ( navigator.appName == 'Microsoft Internet Explorer' )
+		content = content.replace(/<BR.*?class.*?atd_remove_me.*?>/gi, "\n");
 
 	jQuery('#content').replaceWith( AtD.content_canvas );
 	jQuery('#content').val( content.replace(/\&lt\;/g, '<').replace(/\&gt\;/g, '>').replace(/\&amp;/g, '&') );
 	jQuery('#content').height(AtD.height); 
 
-	/* change the link text back to its original label */
-	jQuery(AtD_qtbutton).val( AtD.getLang('button_proofread', 'proofread') );
-	jQuery(AtD_qtbutton).css({ 'color' : '#464646' });
+	if ( AtD_qtbutton ) {
+		/* change the link text back to its original label */
+		jQuery(AtD_qtbutton).val( AtD.getLang('button_proofread', 'proofread') );
+		jQuery(AtD_qtbutton).css({ 'color' : '#464646' });
 
-	/* enable the toolbar buttons */
-	jQuery( AtD_qtbutton ).siblings('input').andSelf().attr( 'disabled', false );
+		/* enable the toolbar buttons */
+		jQuery( AtD_qtbutton ).siblings('input').andSelf().attr( 'disabled', false );
+	}
 
 	/* restore autosave */
-	if (AtD.autosave != undefined)
+	if ( AtD.autosave != undefined )
 		autosave = AtD.autosave;
 };
 
@@ -43,7 +42,7 @@ if ( typeof(QTags) != 'undefined' && QTags.addButton ) {
 }
 
 function AtD_restore_if_proofreading() {
-	if (jQuery(AtD_qtbutton).val() == AtD.getLang('button_edit_text', 'edit text')) 
+	if ( AtD_qtbutton && jQuery(AtD_qtbutton).val() == AtD.getLang('button_edit_text', 'edit text') ) 
 		AtD_restore_text_area();
 }
 
