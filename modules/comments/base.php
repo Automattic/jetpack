@@ -34,8 +34,8 @@ class Highlander_Comments_Base {
 	 */
 	protected function setup_filters() {
 		add_filter( 'comments_array',     array( $this, 'comments_array' ) );
-                add_filter( 'preprocess_comment', array( $this, 'allow_logged_in_user_to_comment_as_guest' ), 0 );
-                add_filter( 'get_avatar',         array( $this, 'get_avatar' ), 10, 4 );
+		add_filter( 'preprocess_comment', array( $this, 'allow_logged_in_user_to_comment_as_guest' ), 0 );
+		add_filter( 'get_avatar',         array( $this, 'get_avatar' ), 10, 4 );
 	}
 
 	/**
