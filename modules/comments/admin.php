@@ -1,19 +1,57 @@
 <?php
 
 class Jetpack_Comments_Settings {
-	static function init() {
-		static $instance = false;
 
-		if ( $instance ) {
-			$instance = new Jetpack_Comments_Settings;
-		}
+	/** Variables *************************************************************/
 
-		return $instance;
-	}
+	/**
+	 * The default comment form greeting
+	 * @var string
+	 */
+	var $default_greeting = ''; // Set in constructor
+
+	/**
+	 * The default comment form color scheme
+	 * @var string
+	 */
+	var $default_color_scheme = '';
+
+	/**
+	 * The default comment form custom CSS url
+	 * @var string
+	 */
+	var $default_custom_css_url = '';
+
+	/**
+	 * The default comment form color scheme
+	 * @var string
+	 */
+	var $color_schemes = array();
 
 	public function __construct() {
 		// Setup settings
 		add_action( 'admin_init', array( $this, 'add_settings' ) );
+		$this->setup_globals();
+	}
+
+	/** Private Methods *******************************************************/
+
+	/**
+	 * Set any global variables or class variables
+	 * @since JetpackComments (1.4)
+	 */
+	protected function setup_globals() {
+		// Default option values
+		$this->default_greeting       = __( 'Leave a Reply', 'jetpack' );
+		$this->default_color_scheme   = 'light';
+		$this->default_custom_css_url = '';
+
+		// Possible color schemes
+		$this->color_schemes = array(
+			'light'        => __( 'Light',        'jetpack' ),
+			'dark'         => __( 'Dark',         'jetpack' ),
+			'transparent'  => __( 'Transparent',  'jetpack' ),
+		);
 	}
 
 	/** Settings **************************************************************/
@@ -160,4 +198,4 @@ class Jetpack_Comments_Settings {
 	}
 }
 
-Jetpack_Comments_Settings::init();
+$jetpack_comments_admin = new Jetpack_Comments_Settings;

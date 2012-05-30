@@ -14,30 +14,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	/** Variables *************************************************************/
 
 	/**
-	 * The default comment form greeting
-	 * @var string
-	 */
-	var $default_greeting = ''; // Set in constructor
-
-	/**
-	 * The default comment form color scheme
-	 * @var string
-	 */
-	var $default_color_scheme = '';
-
-	/**
-	 * The default comment form custom CSS url
-	 * @var string
-	 */
-	var $default_custom_css_url = '';
-
-	/**
-	 * The default comment form color scheme
-	 * @var string
-	 */
-	var $color_schemes = array();
-
-	/**
 	 * Possible comment form sources
 	 * @var array
 	 */
@@ -71,18 +47,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 */
 	protected function setup_globals() {
 		parent::setup_globals();
-
-		// Default option values
-		$this->default_greeting       = __( 'Leave a Reply', 'jetpack' );
-		$this->default_color_scheme   = 'light';
-		$this->default_custom_css_url = '';
-
-		// Possible color schemes
-		$this->color_schemes = array(
-			'light'        => __( 'Light',        'jetpack' ),
-			'dark'         => __( 'Dark',         'jetpack' ),
-			'transparent'  => __( 'Transparent',  'jetpack' ),
-		);
 
 		// Sources
 		$this->id_sources = array(
