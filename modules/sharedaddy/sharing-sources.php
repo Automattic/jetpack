@@ -764,6 +764,7 @@ class Share_Facebook extends Sharing_Advanced_Source {
 				'fi_FI' => 100,
 				'it_IT' => 100,
 				'ja_JP' => 100,
+				'ru_RU' => 128,
 			);
 
 			$widths = apply_filters( 'sharing_facebook_like_widths', $widths );
