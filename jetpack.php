@@ -356,6 +356,25 @@ class Jetpack {
 	}
 
 	/**
+	 * Decide whether a post/page/attachment is visible to the public.
+	 *
+	 * @param array $post
+	 * @return bool
+	 */
+	function is_post_public( $post ) {
+		if ( ! is_array( $post ) )
+			return false;
+		if ( ! empty( $post['post_password'] ) )
+			return false;
+		if ( ! in_array( $post['post_type'], get_post_types( array( 'public' => true ) ) ) )
+			return false;
+		$post_status = get_post_status( $post['ID'] ); // Inherited status is resolved here.
+		if ( ! in_array( $post_status, get_post_stati( array( 'public' => true ) ) ) )
+			return false;
+		return true;
+	}
+
+	/**
 	 * Get a comment and associated data in the standard JP format.
 	 * Cannot be called statically
 	 *
