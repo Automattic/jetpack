@@ -761,6 +761,8 @@ class Share_Facebook extends Sharing_Advanced_Source {
 				'bg_BG' => 120,
 				'de_DE' => 100,
 				'da_DK' => 120,
+				'es_ES' => 100,
+				'es_LA' => 100,
 				'fi_FI' => 100,
 				'it_IT' => 100,
 				'ja_JP' => 100,
