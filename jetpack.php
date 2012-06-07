@@ -623,6 +623,8 @@ class Jetpack {
 		foreach ( Jetpack::get_available_modules( $min_version, $max_version ) as $module ) {
 			// Add special cases here for modules to avoid auto-activation
 			switch ( $module ) {
+			case 'comments' :
+				continue;
 			case 'sharedaddy' :
 				if ( version_compare( PHP_VERSION, '5', '<' ) ) {
 					continue;
