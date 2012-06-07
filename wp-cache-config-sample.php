@@ -72,6 +72,7 @@ $wp_cache_pages[ "tag" ] = 0;
 $wp_cache_pages[ "archives" ] = 0;
 $wp_cache_pages[ "pages" ] = 0;
 $wp_cache_pages[ "single" ] = 0;
+$wp_cache_pages[ "author" ] = 0;
 $wp_cache_hide_donation = 0;
 $wp_cache_not_logged_in = 0;
 $wp_cache_clear_on_post_edit = 0;

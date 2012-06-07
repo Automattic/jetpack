@@ -1034,7 +1034,7 @@ jQuery(document).ready(function(){
 				}
 				echo '<form name="cache_tester" action="" method="post">';
 				echo '<input type="hidden" name="action" value="test" />';
-				if ( 'on' == strtolower( $_SERVER['HTTPS' ] ) )
+				if ( isset( $_SERVER['HTTPS' ] ) && 'on' == strtolower( $_SERVER['HTTPS' ] ) )
 					echo "<input type='checkbox' name='httponly' checked='checked' value='1' /> " . __( 'Send non-secure (non https) request for homepage', 'wp-super-cache' );
 				echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Test Cache', 'wp-super-cache' ) . '" /></div>';
 				wp_nonce_field('wp-cache');
@@ -1488,7 +1488,7 @@ function wp_cache_edit_max_time () {
 		$cache_gc_email_me = 0;
 		wp_cache_replace_line('^ *\$cache_gc_email_me', "\$cache_gc_email_me = $cache_gc_email_me;", $wp_cache_config_file); 
 	}
-	if ( $_POST[ 'cache_schedule_type' ] == 'interval' && isset( $_POST['cache_time_interval'] ) && $valid_nonce ) {
+	if ( isset( $_POST[ 'cache_schedule_type' ] ) && $_POST[ 'cache_schedule_type' ] == 'interval' && isset( $_POST['cache_time_interval'] ) && $valid_nonce ) {
 		wp_clear_scheduled_hook( 'wp_cache_gc' );
 		$cache_schedule_type = 'interval';
 		if ( (int)$_POST[ 'cache_time_interval' ] == 0 )
