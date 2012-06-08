@@ -61,7 +61,7 @@ function gzip_accepted(){
 	if ( 1 == ini_get( 'zlib.output_compression' ) || "on" == strtolower( ini_get( 'zlib.output_compression' ) ) ) // don't compress WP-Cache data files when PHP is already doing it
 		return false;
 
-	if ( isset( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] ) && strpos( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ], 'gzip' ) === false ) return false;
+	if ( !isset( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ] ) || strpos( $_SERVER[ 'HTTP_ACCEPT_ENCODING' ], 'gzip' ) === false ) return false;
 	return 'gzip';
 }
 
