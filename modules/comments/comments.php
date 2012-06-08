@@ -25,7 +25,24 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 */
 	var $signed_url = '';
 
+	/**
+	 * The default comment form color scheme
+	 * @var string
+	 * @see ::set_default_color_theme_based_on_theme_settings()
+	 */
+	var $default_color_scheme =  'light';
+
 	/** Methods ***************************************************************/
+
+	public static function init() {
+		static $instance = false;
+
+		if ( !$instance ) {
+			$instance = new Jetpack_Comments;
+		}
+
+		return $instance;
+	}
 
 	/**
 	 * Main constructor for Jetpack Comments
@@ -37,6 +54,24 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		// Jetpack Comments is loaded
 		do_action_ref_array( 'jetpack_comments_loaded', array( $this ) );
+		add_action( 'after_setup_theme', array( $this, 'set_default_color_theme_based_on_theme_settings' ), 100 );
+	}
+
+	public function set_default_color_theme_based_on_theme_settings() {
+		if ( function_exists( 'twentyeleven_get_theme_options' ) ) {
+			$theme_options = twentyeleven_get_theme_options();
+			$theme_color_scheme = isset( $theme_options['color_scheme'] ) ? $theme_options['color_scheme'] : 'transparent';
+		} else {
+			$theme_color_scheme = get_theme_mod( 'color_scheme', 'transparent' );
+		}
+		// Default for $theme_color_scheme is 'transparent' just so it doesn't match 'light' or 'dark'
+		// The default for Jetpack's color scheme is still defined above as 'light'
+
+		if ( false !== stripos( $theme_color_scheme, 'light' ) ) {
+			$this->default_color_scheme = 'light';
+		} elseif ( false !== stripos( $theme_color_scheme, 'dark' ) ) {
+			$this->default_color_scheme = 'dark';
+		}
 	}
 
 	/** Private Methods *******************************************************/
@@ -120,7 +155,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			'show_avatars'         => ( get_option( 'show_avatars' )         ? '1' : '0' ),
 			'avatar_default'       => get_option( 'avatar_default' ),
 			'greeting'             => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),
-			'color_scheme'         => get_option( 'jetpack_comment_form_color_scheme',   0  ),
+			'color_scheme'         => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
 			'lang'                 => get_bloginfo( 'language' ),
 		);
 
@@ -318,4 +353,4 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 }
 
-$jetpack_comments = new Jetpack_Comments;
+Jetpack_Comments::init();
