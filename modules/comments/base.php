@@ -81,7 +81,7 @@ class Highlander_Comments_Base {
 		$signing = array();
 		foreach ( $parameters as $k => $v ) {
 			if ( !is_scalar( $v ) ) {
-				return new WP_Error( 'invalid_input', __( 'Invalid request' ) );
+				return new WP_Error( 'invalid_input', __( 'Invalid request', 'jetpack' ) );
 			}
 
 			$signing[] = "{$k}={$v}";
@@ -228,9 +228,9 @@ class Highlander_Comments_Base {
 
 		if ( get_option( 'require_name_email' ) ) {
 			if ( 6 > strlen( $_POST['email'] ) || empty( $_POST['author'] ) ) {
-				wp_die( __( 'Error: please fill the required fields (name, email).' ) );
+				wp_die( __( 'Error: please fill the required fields (name, email).', 'jetpack' ) );
 			} elseif ( ! is_email( $_POST['email'] ) ) {
-				wp_die( __( 'Error: please enter a valid email address.' ) );
+				wp_die( __( 'Error: please enter a valid email address.', 'jetpack' ) );
 			}
 		}
 
