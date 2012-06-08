@@ -11,19 +11,19 @@ function jetpack_googlemaps_embed_to_short_code( $content ) {
 
 	// IE and TinyMCE format things differently
 	if ( strpos( $content, 'src="<a href="' ) !== false ) {
-		$content = preg_replace_callback( '!&lt;iframe width="(\d+)" height="(\d+)" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="<a href="http://.*\.google\.(.*)/(.*)\?(.+)&quot;&gt;&lt;/iframe&gt;&lt;br">http://.*\.google\..*/(.*)\?(.+)"&gt;&lt;/iframe&gt;&lt;br</a> /&gt;&lt;small&gt;(.*)&lt;/small&gt;!i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
+		$content = preg_replace_callback( '!&lt;iframe width="(\d+)" height="(\d+)" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="<a href="https?://.*\.google\.(.*)/(.*)\?(.+)&quot;&gt;&lt;/iframe&gt;&lt;br">https?://.*\.google\..*/(.*)\?(.+)"&gt;&lt;/iframe&gt;&lt;br</a> /&gt;&lt;small&gt;(.*)&lt;/small&gt;!i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
 		return $content;
 	}
 
-	$content = preg_replace_callback( '!\<iframe width="(\d+)" height="(\d+)" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://.*\.google\.(.*)/(.*)\?(.+)"\>\</iframe\>\<br /\>\<small\>(.*)\</small\>!i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
+	$content = preg_replace_callback( '!\<iframe width="(\d+)" height="(\d+)" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https?://.*\.google\.(.*)/(.*)\?(.+)"\>\</iframe\>\<br /\>\<small\>(.*)\</small\>!i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
 
-	$content = preg_replace_callback( '!&lt;iframe width="(\d+)" height="(\d+)" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="http://.*\.google\.(.*)/(.*)\?(.+)"&gt;&lt;/iframe&gt;&lt;br /&gt;&lt;small&gt;(.*)&lt;/small&gt;!i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
+	$content = preg_replace_callback( '!&lt;iframe width="(\d+)" height="(\d+)" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https?://.*\.google\.(.*)/(.*)\?(.+)"&gt;&lt;/iframe&gt;&lt;br /&gt;&lt;small&gt;(.*)&lt;/small&gt;!i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
 
 	return $content;
 }
 
 function jetpack_googlemaps_embed_to_short_code_callback( $match ) {
-	$url = "http://maps.google.{$match[3]}/{$match[4]}?{$match[5]}&amp;w={$match[1]}&amp;h={$match[2]}";
+	$url = "https://maps.google.{$match[3]}/{$match[4]}?{$match[5]}&amp;w={$match[1]}&amp;h={$match[2]}";
 
 	do_action( 'jetpack_embed_to_shortcode', 'googlemaps', $url );
 
@@ -41,7 +41,7 @@ function jetpack_googlemaps_shortcode( $atts ) {
 	$width = 425;
 	$height = 350;
 
-	if ( preg_match( '!^http://maps\.google(\.co|\.com)?(\.[a-z]+)?/.*?(\?.+)!i', $params, $match ) ) {
+	if ( preg_match( '!^https?://maps\.google(\.co|\.com)?(\.[a-z]+)?/.*?(\?.+)!i', $params, $match ) ) {
 		$params = str_replace( '&amp;amp;', '&amp;', $params );
 		$params = str_replace( '&amp;', '&', $params );
 		parse_str( $params, $arg );

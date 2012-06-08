@@ -729,14 +729,22 @@ class Share_Facebook extends Sharing_Advanced_Source {
 	}
 
 	function guess_locale_from_lang( $lang ) {
-		$lang = strtolower( str_replace( '-', '_', $lang ) );
-		if ( 5 == strlen( $lang ) )
-			$lang = substr( $lang, 0, 3 ) . strtoupper( substr( $lang, 3, 2 ) ); // Already in xx_xx, just make sure it's uppered
-		else if ( 3 == strlen( $lang ) )
-			$lang = $lang; // Don't know what to do with these
-		else
-			$lang = $lang . '_' . strtoupper( $lang ); // Sometimes this gives a workable locale
-		return $lang;
+		if ( 'en' == $lang || 'en_US' == $lang || !$lang ) {
+			return 'en_US';
+		}
+	
+		if ( !class_exists( 'GP_Locales' ) ) {
+			require JETPACK__PLUGIN_DIR . 'locales.php';
+		}
+	
+		// Jetpack: get_locale() returns 'it_IT';
+		$locale = GP_Locales::by_field( 'wp_locale', $lang );
+	
+		if ( !$locale || empty( $locale->facebook_locale ) ) {
+			return false;
+		}
+	
+		return $locale->facebook_locale;
 	}
 
 	public function get_display( $post ) {
@@ -747,28 +755,33 @@ class Share_Facebook extends Sharing_Advanced_Source {
 			
 			// Default widths to suit English
 			$inner_w = 90;
-			
+
 			// Locale-specific widths/overrides
 			$widths = array(
-				'de' => array( 'width' => 100, 'locale' => 'de_DE' ),
-				'da' => array( 'width' => 120, 'locale' => 'da_DK' ),
-				'fi' => array( 'width' => 100, 'locale' => 'fi_FI' ),
+				'bg_BG' => 120,
+				'de_DE' => 100,
+				'da_DK' => 120,
+				'es_ES' => 100,
+				'es_LA' => 100,
+				'fi_FI' => 100,
+				'it_IT' => 100,
+				'ja_JP' => 100,
+				'ru_RU' => 128,
 			);
 
 			$widths = apply_filters( 'sharing_facebook_like_widths', $widths );
 			
 			// Fix the button to the blogs locale and then adjust the width
-			$locale = str_replace( '-', '_', get_locale() );
+			$locale = $this->guess_locale_from_lang( get_locale() );
+			if ( $locale ) {
+				if ( 'en_US' != $locale ) {
+					$url .= '&amp;locale=' . $locale;
+				}
 			
-			if ( isset( $widths[substr( $locale, 0, 2 )] ) ) {
-				$inner_w = $widths[substr( $locale, 0, 2 )]['width'];
-				$locale  = $widths[substr( $locale, 0, 2 )]['locale'];
-			} else {
-				$locale  = $this->guess_locale_from_lang( get_locale() );
+				if ( isset( $widths[$locale] ) ) {
+					$inner_w = $widths[$locale];
+				}
 			}
-			
-			if ( $locale && 'en_US' != $locale )
-				$url .= '&amp;locale=' . $locale;
 
 			$url .= '&amp;width='.$inner_w;
 			return '<div class="like_button"><iframe src="'.$url.'" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:'.( $inner_w + 6 ).'px; height:21px;" allowTransparency="true"></iframe></div>';

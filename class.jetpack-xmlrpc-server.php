@@ -185,17 +185,8 @@ class Jetpack_XMLRPC_Server {
 		$jetpack = Jetpack::init();
 		$post = $jetpack->get_post( $id );
 
-		if (
-			is_array( $post )
-		&&
-			empty( $post['post_password'] )
-		&&
-			in_array( $post['post_type'], get_post_types( array( 'public' => true ) ) )
-		&&
-			in_array( $post['post_status'], get_post_stati( array( 'public' => true ) ) )
-		) {
+		if ( $jetpack->is_post_public( $post ) )
 			return $post;
-		}
 
 		return false;
 	}

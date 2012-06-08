@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.4-alpha
+ * Version: 1.4-trunk
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -17,8 +17,8 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.2' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
-define( 'JETPACK__VERSION', '1.4-alpha' );
-
+define( 'JETPACK__VERSION', '1.4-trunk' );
+define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 /*
 Options:
 jetpack_options (array)
@@ -353,6 +353,25 @@ class Jetpack {
 
 		$post['permalink'] = get_permalink( $post_obj->ID );
 		return $post;
+	}
+
+	/**
+	 * Decide whether a post/page/attachment is visible to the public.
+	 *
+	 * @param array $post
+	 * @return bool
+	 */
+	function is_post_public( $post ) {
+		if ( ! is_array( $post ) )
+			return false;
+		if ( ! empty( $post['post_password'] ) )
+			return false;
+		if ( ! in_array( $post['post_type'], get_post_types( array( 'public' => true ) ) ) )
+			return false;
+		$post_status = get_post_status( $post['ID'] ); // Inherited status is resolved here.
+		if ( ! in_array( $post_status, get_post_stati( array( 'public' => true ) ) ) )
+			return false;
+		return true;
 	}
 
 	/**
@@ -1625,32 +1644,28 @@ p {
 
 	function admin_notices() {
 
-		if ( $this->error ) : ?>
+		if ( $this->error ) {
+?>
+<div id="message" class="jetpack-message jetpack-err">
+	<div class="squeezer">
+		<h4><?php echo wp_kses( $this->error, array( 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h4>
+<?php	if ( $desc = Jetpack::state( 'error_description' ) ) : ?>
+		<p><?php echo esc_html( stripslashes( $desc ) ); ?></p>
+<?php	endif; ?>
+	</div>
+</div>
+<?php
+		}
 
-			<div id="message" class="jetpack-message jetpack-err">
-				<div class="squeezer">
-					<h4><?php echo wp_kses( $this->error, array( 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h4>
-
-					<?php if ( $desc = Jetpack::state( 'error_description' ) ) : ?>
-
-						<p><?php echo esc_html( stripslashes( $desc ) ); ?></p>
-
-					<?php endif; ?>
-
-				</div>
-			</div>
-
-		<?php endif;
-
-		if ( $this->message ) : ?>
-
-			<div id="message" class="jetpack-message">
-				<div class="squeezer">
-					<h4><?php echo wp_kses( $this->message, array( 'strong' => array(), 'a' => array( 'href' => true ), 'br' => true ) ); ?></h4>
-				</div>
-			</div>
-
-		<?php endif;
+		if ( $this->message ) {
+?>
+<div id="message" class="jetpack-message">
+	<div class="squeezer">
+		<h4><?php echo wp_kses( $this->message, array( 'strong' => array(), 'a' => array( 'href' => true ), 'br' => true ) ); ?></h4>
+	</div>
+</div>
+<?php
+		}
 	}
 
 	/**
@@ -2711,6 +2726,12 @@ class Jetpack_Client {
 			false === strpos( $message, '1407E086' ) // OpenSSL SSL2 certificate error
 		&&
 			false === strpos( $message, 'error setting certificate verify locations' ) // cURL CA bundle not found
+		&&
+			false === strpos( $message, 'Peer certificate cannot be authenticated with' ) // cURL CURLE_SSL_CACERT: CA bundle found, but not helpful
+			                                                                              // different versions of curl have different error messages
+			                                                                              // this string should catch them all
+		&&
+			false === strpos( $message, 'Problem with the SSL CA cert' ) // cURL CURLE_SSL_CACERT_BADFILE: probably access rights
 		) {
 			// No, it is not.
 			return $response;

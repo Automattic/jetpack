@@ -312,7 +312,7 @@ class Sharing_Admin {
 	  				<tr valign="top">
 	  					<th scope="row"><label><?php _e( 'Sharing label', 'jetpack' ); ?></label></th>
 	  					<td>
-	  						<input type="text" name="sharing_label" value="<?php echo esc_attr( $global['sharing_label'] ); ?>" />
+	  						<input type="text" name="sharing_label" value="<?php echo ( FALSE === $global['sharing_label'] ) ? __( 'Share this:', 'jetpack' ) : $global['sharing_label']; ?>" />
 	  					</td>
 	  				</tr>
 	  				<tr valign="top">
