@@ -205,8 +205,15 @@ class Sharing_Service {
 		if ( isset( $data['button_style'] ) && in_array( $data['button_style'], array( 'icon-text', 'icon', 'text' ) ) )
 			$options['global']['button_style'] = $data['button_style'];
 
-		if ( isset( $data['sharing_label'] ) )
-			$options['global']['sharing_label'] = trim( wp_kses( stripslashes( $data['sharing_label'] ), array() ) );
+		if ( isset( $data['sharing_label'] ) ) {
+			$new_label = trim( wp_kses( stripslashes( $data['sharing_label'] ), array() ) );
+			
+			if ( 0 === strcmp( $new_label, $options['global']['sharing_label'] ) ) {
+				$options['global']['sharing_label'] = FALSE;
+			} else {
+				$options['global']['sharing_label'] = $new_label;
+			}
+		}
 
 		if ( isset( $data['open_links'] ) && in_array( $data['open_links'], array( 'new', 'same' ) ) )
 			$options['global']['open_links'] = $data['open_links'];
@@ -466,8 +473,12 @@ function sharing_display( $text = '' ) {
 			}
 
 			$parts = array();
-			if ( $global['sharing_label'] != '' )
-				$parts[] = '<li class="sharing_label">'.$global['sharing_label'].'</li>';
+			
+			if ( FALSE === $global['sharing_label'] ) {
+				$parts[] = '<li class="sharing_label">' . __( 'Share this:', 'jetpack' ) . '</li>';
+			} elseif ( '' != $global['sharing_label'] ) {
+				$parts[] = '<li class="sharing_label">' . esc_html( $global['sharing_label'] ) . '</li>';
+			}
 
 			$parts[] = $visible;
 			if ( count( $enabled['hidden'] ) > 0 )
