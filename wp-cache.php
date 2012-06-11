@@ -600,7 +600,10 @@ jQuery(document).ready(function(){
 		$wp_cache_mod_rewrite = 1;
 	}
 
-	if ( !isset( $_GET[ 'tab' ] ) && $cache_enabled && ( $wp_cache_mod_rewrite || $super_cache_enabled == false ) ) {
+	if ( !isset( $_GET[ 'tab' ] ) )
+		$_GET[ 'tab' ] = '';
+
+	if ( $_GET[ 'tab' ] == '' && $cache_enabled && ( $wp_cache_mod_rewrite || $super_cache_enabled == false ) ) {
 		$_GET[ 'tab' ] = 'settings';
 		echo '<div id="message" class="updated fade"><p>' .  __( 'Notice: <em>Mod_rewrite or Legacy caching enabled</em>. Showing Advanced Settings Page by default.', 'wp-super-cache' ) . '</p></div>';
 	}
