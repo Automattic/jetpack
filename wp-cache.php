@@ -1975,10 +1975,20 @@ function wp_cache_verify_config_file() {
 
 function wp_cache_create_advanced_cache() {
 	global $wp_cache_link, $wp_cache_file;
+	if ( file_exists( ABSPATH . 'wp-config.php') ) {
+		$global_config_file = ABSPATH . 'wp-config.php';
+	} else {
+		$global_config_file = dirname(ABSPATH) . '/wp-config.php';
+	}
+
+	$line = 'define( \'WPCACHEHOME\', \'' . constant( 'WPCACHEHOME' ) . '\' );';
+	if ( !is_writeable_ACLSafe($global_config_file) || !wp_cache_replace_line('define *\( *\'WPCACHEHOME\'', $line, $global_config_file ) ) {
+			echo '<div id="message" class="updated fade"><h3>' . __( 'Warning', 'wp-super-cache' ) . "! <em>" . sprintf( __( 'Could not update %s!</em> WPCACHEHOME must be set in config file.', 'wp-super-cache' ), $global_config_file ) . "</h3>";
+			return false;
+	}
 	$ret = true;
 
 	$file = file_get_contents( $wp_cache_file );
-	$file = str_replace( 'CACHEHOME', constant( 'WPCACHEHOME' ), $file );
 	$fp = @fopen( $wp_cache_link, 'w' );
 	if( $fp ) {
 		fputs( $fp, $file );
@@ -1995,7 +2005,7 @@ function wp_cache_check_link() {
  	$ret = true;
 	if( file_exists($wp_cache_link) ) {
 		$file = file_get_contents( $wp_cache_link );
-		if( strpos( $file, "WP SUPER CACHE 0.8.9.1" ) ) {
+		if( strpos( $file, "WP SUPER CACHE 0.8.9.1" ) || strpos( $file, "WP SUPER CACHE 1.2" ) ) {
 			return true;
 		} else {
 			if( !@unlink($wp_cache_link) ) {

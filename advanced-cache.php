@@ -1,14 +1,17 @@
 <?php
-# WP SUPER CACHE 0.8.9.1
+# WP SUPER CACHE 1.2
 function wpcache_broken_message() {
 	if ( false == strpos( $_SERVER[ 'REQUEST_URI' ], 'wp-admin' ) )
-		echo "<!-- WP Super Cache is installed but broken. The path to wp-cache-phase1.php in wp-content/advanced-cache.php must be fixed! -->";
+		echo "<!-- WP Super Cache is installed but broken. The constant WPCACHEHOME must be set in the file wp-config.php and point at the WP Super Cache plugin directory. -->";
 }
 
-if ( !include_once( 'CACHEHOME' . 'wp-cache-phase1.php' ) ) {
-	if ( !@is_file( 'CACHEHOME' . 'wp-cache-phase1.php' ) ) {
+if ( false == defined( 'WPCACHEHOME' ) ) {
+	define( 'ADVANCEDCACHEPROBLEM', 1 );
+} elseif ( !include_once( WPCACHEHOME . 'wp-cache-phase1.php' ) ) {
+	if ( !@is_file( WPCACHEHOME . 'wp-cache-phase1.php' ) ) {
 		define( 'ADVANCEDCACHEPROBLEM', 1 );
-		register_shutdown_function( 'wpcache_broken_message' );
 	}
 }
+if ( defined( 'ADVANCEDCACHEPROBLEM' ) )
+	register_shutdown_function( 'wpcache_broken_message' );
 ?>
