@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.4-alpha
+ * Version: 1.4-alpha-2
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -17,7 +17,7 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.2' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
-define( 'JETPACK__VERSION', '1.4-alpha' );
+define( 'JETPACK__VERSION', '1.4-alpha-2' );
 define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 /*
 Options:
@@ -1358,31 +1358,36 @@ p {
 	}
 	
 	function jetpack_comment_notice() {
-		$message = '<br /><br />' . sprintf( 
-										__( 'Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href="%s">%s</a>.', 'jetpack' ), 
-										wp_nonce_url( 
-											Jetpack::admin_url( array( 
-												'action' => 'activate', 
-												'module' => 'comments', 
-											) ),
-											"jetpack_activate-comments"
-										), 
-										__( 'click here', 'jetpack' )
-									);
+		if ( in_array( 'comments', Jetpack::get_active_modules() ) ) {
+			return '';
+		}
+
 		$jetpack_old_version = explode( ':', Jetpack::get_option( 'old_version' ) );
 		$jetpack_new_version = explode( ':', Jetpack::get_option( 'version' ) );
-		
+
 		if ( $jetpack_old_version ) {
-			if ( version_compare( $jetpack_old_version[0], '1.4', '<' ) ) {
-				return $message;
+			if ( version_compare( $jetpack_old_version[0], '1.4', '>=' ) ) {
+				return '';
 			}
 		}
 
 		if ( $jetpack_new_version ) {
-			if ( version_compare( $jetpack_new_version[0], '1.4', '>=' ) ) {
-				return $message;
+			if ( version_compare( $jetpack_new_version[0], '1.4-something', '<' ) ) {
+				return '';
 			}
 		}
+
+		return '<br /><br />' . sprintf( 
+			__( 'Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href="%s">%s</a>.', 'jetpack' ),
+			wp_nonce_url(
+				Jetpack::admin_url( array(
+					'action' => 'activate',
+					'module' => 'comments',
+				) ),
+				"jetpack_activate-comments"
+			),
+			__( 'click here', 'jetpack' )
+		);
 	}
 
 	function admin_page_load() {

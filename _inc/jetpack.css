@@ -188,14 +188,13 @@
 		margin: 0;
 	}
 
-	.jetpack-message a, .jetpack-message a:visited {
+	.jetpack-message .squeezer a, .jetpack-message .squeezer a:visited {
 		color: #fff;
-		text-decoration: none;
+		text-decoration: underline;
 	}
 	
-	.jetpack-message a:hover {
+	.jetpack-message .squeezer a:hover {
 		color: #f0a000;
-		text-decoration: underline;
 	}
 		
 	.jetpack-message code, .jetpack-err p {
