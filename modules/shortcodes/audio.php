@@ -46,7 +46,7 @@ class AudioShortcode {
 		// alert the infinite scroll renderer that it should try to load the script
 		self::$add_script = true;
 
-		$atts[0] = strip_tags( join( ' ', $atts ) );
+		$atts[0] = strip_tags( join( '%20', $atts ) );
 		$src = ltrim( $atts[0], '=' );
 		$ap_options = apply_filters(
 			'audio_player_default_colors',
@@ -79,8 +79,9 @@ class AudioShortcode {
 		$src = trim( $src, ' "' );
 		$options = array();
 		$data = preg_split( "/\|/", $src );
-		$sound_file = esc_url_raw( $data[0] );
+		$sound_file = $data[0];
 		$sound_files = preg_split( '/,/', $sound_file );
+		$sound_files = array_map( 'esc_url_raw', $sound_files ); // Ensure each is a valid URL
 		$num_files = count( $sound_files );
 		$sound_types = array(
 			'mp3'  => 'mpeg',
@@ -102,7 +103,7 @@ class AudioShortcode {
 		// Merge runtime options to default colour options
 		// (runtime options overwrite default options)
 		$options = array_merge( $ap_options, $options );
-		$options['soundFile'] = esc_url_raw( $data[0] );
+		$options['soundFile'] = join( ',', $sound_files ); // Rebuild the option with our now sanitized data
 		$flash_vars = array();
 		foreach ( $options as $key => $value ) {
 			$flash_vars[] = rawurlencode( $key ) . '=' . rawurlencode( $value );
@@ -168,7 +169,7 @@ class AudioShortcode {
 		foreach ( $sound_files as $sfile ) {
 			$not_supported .= sprintf(
 				__( 'Download: <a href="%s">%s</a><br />', 'jetpack' ),
-				esc_url_raw( $sfile ),
+				esc_url( $sfile ),
 				esc_html( basename( $sfile ) ) );
 		}
 
@@ -179,7 +180,6 @@ class AudioShortcode {
 		$num_good = 0;
 		$to_remove = array();
 		foreach ( $sound_files as $i => $sfile ) {
-			$sfile = esc_url_raw( $sfile );
 			$file_extension = pathinfo( $sfile, PATHINFO_EXTENSION );
 			if ( ! preg_match( '/^(mp3|wav|ogg|oga|m4a|aac|webm)$/', $file_extension ) ) {
 				$html5_audio .= '<!-- Audio shortcode unsupported audio format -->';
@@ -259,8 +259,8 @@ FLASH;
 		}
 
 		// javacript to control audio
-		$script_files   = "'" . implode( "', '", $sound_files ) . "'";
-		$script_titles  = "'" . implode( "', '", $script_titles ) . "'";
+		$script_files   = json_encode( $sound_files );
+		$script_titles  = json_encode( $script_titles );
 		$script = <<<SCRIPT
 			<script type='text/javascript'>
 			//<![CDATA[
@@ -268,8 +268,8 @@ FLASH;
 				if ( typeof window.audioshortcode != 'undefined' ) {
 					audioshortcode.prep(
 						'{$post->ID}_{$ap_playerID}',
-						[$script_files],
-						[$script_titles],
+						$script_files,
+						$script_titles,
 						$volume,
 						$script_loop );
 				}
@@ -303,7 +303,7 @@ SCRIPT;
 	function audio_shortcode_infinite() {
 		// only try to load if a shortcode has been called
 		if( self::$add_script ) {
-			$script_url = esc_url_raw( plugins_url( 'js/audio-shortcode.js', __FILE__ ) );
+			$script_url = json_encode( esc_url_raw( plugins_url( 'js/audio-shortcode.js', __FILE__ ) ) );
 
 			// if the script hasn't been loaded, load it
 			// if the script loads successfully, fire an 'as-script-load' event
@@ -313,7 +313,7 @@ SCRIPT;
 				if ( typeof window.audioshortcode === 'undefined' ) {
 					var wp_as_js = document.createElement( 'script' );
 					wp_as_js.type = 'text/javascript';
-					wp_as_js.src = '$script_url';
+					wp_as_js.src = $script_url;
 					wp_as_js.async = true;
 					wp_as_js.onload = function() { 
 						jQuery( document.body ).trigger( 'as-script-load' ); 
