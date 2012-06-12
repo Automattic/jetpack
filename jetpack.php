@@ -1318,6 +1318,8 @@ p {
 
 		if ( !current_user_can( 'manage_options' ) )
 			return;
+			
+		$comment_notice = Jetpack::jetpack_comment_notice();
 		?>
 
 		<div id="message" class="updated jetpack-message jp-connect">
@@ -1328,9 +1330,14 @@ p {
 				<div class="jetpack-text-container">
 					<h4>
 						<?php if ( 1 == Jetpack::get_option( 'activated' ) ) : ?>
-							<p><?php _e( '<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enabled features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!', 'jetpack' ); ?></p>
+							<p><?php _e( '<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enabled features like Comments, Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!', 'jetpack' ); ?></p>
 						<?php else : ?>
 							<p><?php _e( '<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
+							<?php 
+							if ( ! empty( $comment_notice ) ) :
+								echo $comment_notice;
+							endif; 
+							?>
 						<?php endif; ?>
 					</h4>
 				</div>
@@ -1355,6 +1362,12 @@ p {
 			</div>
 		</div>
 		<?php
+	}
+	
+	function jetpack_comment_notice() {
+		if ( '1.4' <= Jetpack::get_option( 'version' ) ) {
+			 return sprintf( __( '<br /><br />Jetpack 1.4 includes Jetpack Comments which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. Jetpack Comments is an opt-in module; to use it, activate it <a href="%s">%s</a>.', 'jetpack' ), Jetpack::admin_url(), __( 'here', 'jetpack' ) );
+		}
 	}
 
 	function admin_page_load() {
@@ -1564,6 +1577,8 @@ p {
 					$this->message .= '<br /><br />' . wp_sprintf( __( 'The following modules have been updated: %l.', 'jetpack' ), $titles );
 				}
 			}
+
+			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
 
 		case 'module_activated' :
@@ -1592,6 +1607,7 @@ p {
 			$this->message  = __( "<strong>You&#8217;re fueled up and ready to go.</strong> ", 'jetpack' );
 			$this->message .= "<br />\n";
 			$this->message .= __( 'The features below are now active. Click the learn more buttons to explore each feature.', 'jetpack' );
+			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
 		}
 
