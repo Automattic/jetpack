@@ -2,7 +2,7 @@
 /**
  * Module Name: Extra Sidebar Widgets
  * Module Description: Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar.
- * Sort Order: 20
+ * Sort Order: 9
  * First Introduced: 1.2
  */
 

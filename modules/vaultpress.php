@@ -3,7 +3,7 @@
  * Module Name: VaultPress
  * Module Description: Realtime backup and security scanning for your WordPress site.
  * First Introduced: 0:1.2
- * Sort Order: 2
+ * Sort Order: 5
  * Deactivate: false
  * Free: false
  */
