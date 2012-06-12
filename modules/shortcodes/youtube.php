@@ -241,7 +241,7 @@ function youtube_id( $url ) {
 		}
 	}
 
-	$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_attr( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$hd&wmode=$wmode" ) . "' frameborder='0'></iframe></span>";
+	$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$hd&wmode=$wmode" ) . "' frameborder='0'></iframe></span>";
 	$html = apply_filters( 'video_embed_html', $html );
 
 	return $html;
