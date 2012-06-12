@@ -115,7 +115,7 @@ class Jetpack_Comments_Settings {
 	public function comment_form_settings_section() {
 	?>
 
-		<p id="jetpack-comments-settings"><?php _e( 'Trick-out your Jetpack Comments form with a clever greeting, and color-scheme.', 'jetpack' ); ?></p>
+		<p id="jetpack-comments-settings"><?php _e( 'Adjust your Jetpack Comments form with a clever greeting and color-scheme.', 'jetpack' ); ?></p>
 
 	<?php
 	}
