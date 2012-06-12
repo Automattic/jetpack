@@ -188,6 +188,16 @@
 		margin: 0;
 	}
 
+	.jetpack-message a, .jetpack-message a:visited {
+		color: #fff;
+		text-decoration: none;
+	}
+	
+	.jetpack-message a:hover {
+		color: #f0a000;
+		text-decoration: underline;
+	}
+		
 	.jetpack-message code, .jetpack-err p {
 		background: rgba( 0,0,0,0.2 );
 		font-size: 14px;
