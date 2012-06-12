@@ -10,8 +10,6 @@ if( !include( WP_CONTENT_DIR . '/wp-cache-config.php' ) )
 if( !defined( 'WPCACHEHOME' ) )
 	define('WPCACHEHOME', dirname(__FILE__).'/');
 
-if ( false == isset( $_SERVER[ 'SERVER_NAME' ] ) && true == isset( $_SERVER[ 'HTTP_HOST' ] ) )
-	$_SERVER[ 'SERVER_NAME' ] = $_SERVER[ 'HTTP_HOST' ];
 
 include( WPCACHEHOME . 'wp-cache-base.php');
 
@@ -97,10 +95,10 @@ function setup_blog_cache_dir() {
 $wp_start_time = microtime();
 
 function get_wp_cache_key( $url = false ) {
-	global $wp_cache_request_uri, $wp_cache_gzip_encoding;
+	global $wp_cache_request_uri, $wp_cache_gzip_encoding, $WPSC_HTTP_HOST;
 	if ( !$url )
 		$url = $wp_cache_request_uri;
-	return do_cacheaction( 'wp_cache_key', $_SERVER['SERVER_NAME'] . intval( $_SERVER[ 'SERVER_PORT' ] ) . preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() );
+	return do_cacheaction( 'wp_cache_key', $WPSC_HTTP_HOST . intval( $_SERVER[ 'SERVER_PORT' ] ) . preg_replace('/#.*$/', '', str_replace( '/index.php', '/', $url ) ) . $wp_cache_gzip_encoding . wp_cache_get_cookies_values() );
 }
 
 function wp_super_cache_init() {
@@ -487,7 +485,7 @@ function get_supercache_dir( $blog_id = 0 ) {
 	return apply_filters( 'wp_super_cache_supercachedir', $cache_path . 'supercache/' . trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', str_replace( 'https://', '', $home ) ) ) ) ) );
 }
 function get_current_url_supercache_dir( $post_id = 0 ) {
-	global $cached_direct_pages, $cache_path, $wp_cache_request_uri;
+	global $cached_direct_pages, $cache_path, $wp_cache_request_uri, $WPSC_HTTP_HOST;
 	static $saved_supercache_dir = array();
 
 	if ( isset( $saved_supercache_dir[ $post_id ] ) ) {
@@ -504,8 +502,8 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 			*/
 			$DONOTREMEMBER = 1;
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "get_current_url_supercache_dir: warning! site_url ($site_url) not found in permalink ($permalink).", 1 );
-			if ( false === strpos( $permalink, $_SERVER[ 'SERVER_NAME' ] ) ) {
-				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "get_current_url_supercache_dir: WARNING! SERVER_NAME ({$_SERVER[ 'SERVER_NAME' ]}) not found in permalink ($permalink). ", 1 );
+			if ( false === strpos( $permalink, $WPSC_HTTP_HOST ) ) {
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "get_current_url_supercache_dir: WARNING! SERVER_NAME ({$WPSC_HTTP_HOST}) not found in permalink ($permalink). ", 1 );
 				$p = parse_url( $permalink );
 				if ( is_array( $p ) ) {
 					$uri = $p[ 'path' ];
@@ -519,8 +517,8 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 					$protocol = ( 'on' == strtolower( $_SERVER[ 'HTTPS' ] ) ) ? 'https://' : 'http://';
 				else
 					$protocol = 'http://';
-				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "get_current_url_supercache_dir: Removing SERVER_NAME ({$_SERVER[ 'SERVER_NAME' ]}) and $protocol from permalink ($permalink). Is the url right?", 1 );
-				$uri = str_replace( $_SERVER[ 'SERVER_NAME' ], '', $permalink );
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "get_current_url_supercache_dir: Removing SERVER_NAME ({$WPSC_HTTP_HOST}) and $protocol from permalink ($permalink). Is the url right?", 1 );
+				$uri = str_replace( $WPSC_HTTP_HOST, '', $permalink );
 				$uri = str_replace( $protocol, '', $uri );
 			}
 		} else {
@@ -531,7 +529,7 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	}
 	$uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '/index.php', '/', str_replace( '..', '', preg_replace("/(\?.*)?$/", '', $uri ) ) ) );
 	$uri = str_replace( '\\', '', $uri );
-	$dir = preg_replace( '/:.*$/', '',  $_SERVER["SERVER_NAME"] ) . $uri; // To avoid XSS attacks
+	$dir = preg_replace( '/:.*$/', '',  $WPSC_HTTP_HOST ) . $uri; // To avoid XSS attacks
 	if ( function_exists( "apply_filters" ) ) {
 		$dir = apply_filters( 'supercache_dir', $dir );
 	} else {
@@ -611,10 +609,10 @@ function reset_oc_version( $version = 1 ) {
 }
 
 function get_oc_key( $url = false ) {
-	global $wp_cache_gzip_encoding;
+	global $wp_cache_gzip_encoding, $WPSC_HTTP_HOST;
 
 	if ( $url ) {
-		$key = intval( $_SERVER[ 'SERVER_PORT' ] ) . strtolower( preg_replace( '/:.*$/', '',  $_SERVER[ "SERVER_NAME" ] ) ) . $url;
+		$key = intval( $_SERVER[ 'SERVER_PORT' ] ) . strtolower( preg_replace( '/:.*$/', '',  $WPSC_HTTP_HOST ) ) . $url;
 	} else {
 		$key = get_current_url_supercache_dir();
 	}

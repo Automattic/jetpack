@@ -10,12 +10,14 @@ if (!class_exists('CacheMeta')) {
 	}
 }
 
+$WPSC_HTTP_HOST = htmlentities( $_SERVER[ 'HTTP_HOST' ] );
+
 // We want to be able to identify each blog in a WordPress MU install
 $blogcacheid = '';
 if ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) {
 	$blogcacheid = 'blog'; // main blog
 	if( defined( 'SUBDOMAIN_INSTALL' ) && constant( 'SUBDOMAIN_INSTALL' ) == true ) {
-		$blogcacheid = $_SERVER['SERVER_NAME'];
+		$blogcacheid = $WPSC_HTTP_HOST;
 	} else {
 		$request_uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '..', '', $_SERVER['REQUEST_URI'] ) );
 		if( strpos( $request_uri, '/', 1 ) ) {
