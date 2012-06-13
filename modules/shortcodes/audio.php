@@ -26,7 +26,6 @@ class AudioShortcode {
 	function audio_shortcode( $atts ) {
 		global $ap_playerID;
 		global $post;
-
 		if ( ! is_array( $atts ) ) {
 			return '<!-- Audio shortcode passed invalid attributes -->';
 		}
@@ -79,8 +78,9 @@ class AudioShortcode {
 		$options = array();
 		$data = preg_split( "/\|/", $src );
 		$sound_file = $data[0];
-		$sound_file = str_replace( ' ', rawurlencode( ' ' ), $sound_file );
-		$sound_files = preg_split( '/,/', $sound_file );
+		$sound_files = explode( ',', $sound_file );
+		$sound_files = array_map( 'trim', $sound_files );
+		$sound_files = array_map( array( $this, 'unbreak_spacey_url' ), $sound_files );
 		$sound_files = array_map( 'esc_url_raw', $sound_files ); // Ensure each is a valid URL
 		$num_files = count( $sound_files );
 		$sound_types = array(
@@ -335,6 +335,17 @@ SCRIPT;
 				</script>
 SCRIPT;
 		}
+	}
+
+	/**
+	 * Fixes URLs that have been pasted with spaces:
+	 * [audio http://example.com/Some Cool Music.mp3]
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	function unbreak_spacey_url( $url ) {
+		return str_replace( ' ', rawurlencode( ' ' ), $url );
 	}
 }
 
