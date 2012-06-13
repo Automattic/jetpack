@@ -26,7 +26,6 @@ class AudioShortcode {
 	function audio_shortcode( $atts ) {
 		global $ap_playerID;
 		global $post;
-
 		if ( ! is_array( $atts ) ) {
 			return '<!-- Audio shortcode passed invalid attributes -->';
 		}
@@ -45,8 +44,7 @@ class AudioShortcode {
 
 		// alert the infinite scroll renderer that it should try to load the script
 		self::$add_script = true;
-
-		$atts[0] = strip_tags( join( '%20', $atts ) );
+		$atts[0] = strip_tags( join( ' ', $atts ) );
 		$src = ltrim( $atts[0], '=' );
 		$ap_options = apply_filters(
 			'audio_player_default_colors',
@@ -80,7 +78,9 @@ class AudioShortcode {
 		$options = array();
 		$data = preg_split( "/\|/", $src );
 		$sound_file = $data[0];
-		$sound_files = preg_split( '/,/', $sound_file );
+		$sound_files = explode( ',', $sound_file );
+		$sound_files = array_map( 'trim', $sound_files );
+		$sound_files = array_map( array( $this, 'unbreak_spacey_url' ), $sound_files );
 		$sound_files = array_map( 'esc_url_raw', $sound_files ); // Ensure each is a valid URL
 		$num_files = count( $sound_files );
 		$sound_types = array(
@@ -102,7 +102,16 @@ class AudioShortcode {
 
 		// Merge runtime options to default colour options
 		// (runtime options overwrite default options)
-		$options = array_merge( $ap_options, $options );
+		foreach ( $ap_options as $key => $default ) {
+			if ( isset( $options[$key] ) ) {
+				if ( preg_match( '/^0x[a-f0-9]{6}$/i', $default ) && !preg_match( '/^0x[a-f0-9]{6}$/i', $options[$key] ) ) {
+					// Default is a hex color, but input is not
+					$options[$key] = $default;
+				}
+			} else {
+				$options[$key] = $default;
+			}
+		}
 		$options['soundFile'] = join( ',', $sound_files ); // Rebuild the option with our now sanitized data
 		$flash_vars = array();
 		foreach ( $options as $key => $value ) {
@@ -112,9 +121,9 @@ class AudioShortcode {
 		$flash_vars = esc_attr( $flash_vars );
 
 		// extract some of the options to insert into the markup
-		if ( isset( $options['bgcolor'] ) ) {
-			$bgcolor = esc_attr( $options['bgcolor'] );
-			$bgcolor = preg_replace( '/^0x/', '#', $bgcolor );
+		if ( isset( $options['bgcolor'] ) && preg_match( '/^0x[a-f0-9]{6}$/i', $options['bgcolor'] ) ) {
+			$bgcolor = preg_replace( '/^0x/', '#', $options['bgcolor'] );
+			$bgcolor = esc_attr( $bgcolor );
 		} else {
 			$bgcolor = '#FFFFFF';
 		}
@@ -326,6 +335,17 @@ SCRIPT;
 				</script>
 SCRIPT;
 		}
+	}
+
+	/**
+	 * Fixes URLs that have been pasted with spaces:
+	 * [audio http://example.com/Some Cool Music.mp3]
+	 *
+	 * @param string $url
+	 * @return string
+	 */
+	function unbreak_spacey_url( $url ) {
+		return str_replace( ' ', rawurlencode( ' ' ), $url );
 	}
 }
 
