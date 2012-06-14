@@ -146,11 +146,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 
 		if ( in_array( 'subscriptions', Jetpack::get_active_modules() ) ) {
-			$stb_enabled = get_option( 'stb_enabled' );
-			$stb_enabled = ( empty( $stb_enabled ) ) ? 0 : $stb_enabled;
+			$stb_enabled = get_option( 'stb_enabled', 1 );
+			$stb_enabled = empty( $stb_enabled ) ? 0 : 1;
 		
-			$stc_enabled = get_option( 'stc_enabled' );
-			$stc_enabled = ( empty( $stc_enabled ) ) ? 0 : $stc_enabled;
+			$stc_enabled = get_option( 'stc_enabled', 1 );
+			$stc_enabled = empty( $stc_enabled ) ? 0 : 1;
 		} else {
 			$stb_enabled = 0;
 			$stc_enabled = 0;
