@@ -42,7 +42,7 @@ class Jetpack_Subscriptions {
 		// @todo remove sync from subscriptions and move elsewhere...
 
 		// Add Configuration Page
-		add_action( 'admin_init',             array( $this, 'configure'                  ) );
+		add_action( 'admin_init', array( $this, 'configure' ) );
 		
 		// Handle Posts
 		add_action( 'transition_post_status', array( $this, 'transition_post_status' ), 10, 3 );
@@ -179,7 +179,7 @@ class Jetpack_Subscriptions {
 
 		add_settings_field(
 			'jetpack_subscriptions_post_subscribe',
-			__( 'Allow Post Subscriptions', 'jetpack' ),
+			__( 'Follow Blog', 'jetpack' ),
 			array( $this, 'subscription_post_subscribe_setting' ),
 			'discussion',
 			'jetpack_subscriptions'
@@ -194,7 +194,7 @@ class Jetpack_Subscriptions {
 
 		add_settings_field(
 			'jetpack_subscriptions_comment_subscribe',
-			__( 'Allow Comment Subscriptions', 'jetpack' ),
+			__( 'Follow Comments', 'jetpack' ),
 			array( $this, 'subscription_comment_subscribe_setting' ),
 			'discussion',
 			'jetpack_subscriptions'
@@ -228,8 +228,8 @@ class Jetpack_Subscriptions {
 
 		<p class="description">
 			<input type="checkbox" name="stb_enabled" id="jetpack-post-subscribe" value="1" <?php checked( $stb_enabled, 1 ); ?> />
+			<?php _e( "Show a <em>'follow blog'</em> option in the comment form", 'jetpack' ); ?>
 		</p>
-
 	<?php
 	}
 
@@ -243,6 +243,7 @@ class Jetpack_Subscriptions {
 
 		<p class="description">
 			<input type="checkbox" name="stc_enabled" id="jetpack-comment-subscribe" value="1" <?php checked( $stc_enabled, 1 ); ?> />
+			<?php _e( "Show a <em>'follow comments'</em> option in the comment form", 'jetpack' ); ?>
 		</p>
 
 	<?php
