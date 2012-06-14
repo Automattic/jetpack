@@ -145,13 +145,31 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			return;
 		}
 
+                $active_modules = Jetpack::get_active_modules();
+
+                if ( in_array( 'subscriptions', $active_modules ) ) {
+                        $stb_enabled = get_option( 'stb_enabled' );
+			$stb_enabled = ( empty( $stb_enabled ) ) ? 0 : $stb_enabled;
+
+                        // if Mark Jaquith's Subscribe to Comments psugin is present, don't show our checkbox
+                        if ( FALSE === has_filter( 'comment_form', 'show_subscription_checkbox' ) ) {
+                                $stc_enabled = get_option( 'stc_enabled' );
+				$stc_enabled = ( empty( $stc_enabled ) ) ? 0 : $stc_enabled;
+                        } else {
+                                $stc_enabled = 0;
+                        }
+                } else {
+                        $stb_enabled = 0;
+                        $stc_enabled = 0;
+                }
+
 		$params  = array(
 			'blogid'               => Jetpack::get_option( 'id' ),
 			'postid'               => get_the_ID(),
 			'comment_registration' => ( get_option( 'comment_registration' ) ? '1' : '0' ), // Need to explicitly send a '1' or a '0' for these
 			'require_name_email'   => ( get_option( 'require_name_email' )   ? '1' : '0' ),
-			'stc_enabled'          => ( get_option( 'stc_enabled' )          ? '1' : '0' ),
-			'stb_enabled'          => ( get_option( 'stb_enabled' )          ? '1' : '0' ),
+			'stc_enabled'          => $stc_enabled,
+			'stb_enabled'          => $stb_enabled,
 			'show_avatars'         => ( get_option( 'show_avatars' )         ? '1' : '0' ),
 			'avatar_default'       => get_option( 'avatar_default' ),
 			'greeting'             => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),

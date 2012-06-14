@@ -5,6 +5,18 @@
  * Sort Order: 3
  * First Introduced: 1.2
  */
+
+add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
+ 
+function jetpack_subscriptions_load() {
+	Jetpack::enable_module_configurable( __FILE__ );
+	Jetpack::module_configuration_load( __FILE__, 'jetpack_subscriptions_configuration_load' );
+}
+
+function jetpack_subscriptions_configuration_load() {
+	wp_safe_redirect( admin_url( 'options-discussion.php#jetpack-subscriptions-settings' ) );
+	exit;
+}
 class Jetpack_Subscriptions {
 	var $jetpack = false;
 
@@ -28,6 +40,9 @@ class Jetpack_Subscriptions {
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
 		// @todo remove sync from subscriptions and move elsewhere...
+
+		// Add Configuration Page
+		add_action( 'admin_init',             array( $this, 'configure'                  ) );
 		
 		// Handle Posts
 		add_action( 'transition_post_status', array( $this, 'transition_post_status' ), 10, 3 );
@@ -151,8 +166,86 @@ class Jetpack_Subscriptions {
 	 *
 	 * Jetpack Subscriptions configuration screen.
 	 */
-	function configure() {
-		echo '<p>This is the configuration page for the Subscriptions Module.</p>';
+	function configure() {	
+		// Create the section
+		add_settings_section(
+			'jetpack_subscriptions',
+			__( 'Jetpack Subscriptions Settings', 'jetpack' ),
+			array( $this, 'subscriptions_settings_section' ),
+			'discussion'
+		);
+
+		/** Subscribe to Posts ***************************************************/
+
+		add_settings_field(
+			'jetpack_subscriptions_post_subscribe',
+			__( 'Allow Post Subscriptions', 'jetpack' ),
+			array( $this, 'subscription_post_subscribe_setting' ),
+			'discussion',
+			'jetpack_subscriptions'
+		);
+
+		register_setting(
+			'discussion',
+			'stb_enabled'
+		);
+
+		/** Subscribe to Comments ******************************************************/
+
+		add_settings_field(
+			'jetpack_subscriptions_comment_subscribe',
+			__( 'Allow Comment Subscriptions', 'jetpack' ),
+			array( $this, 'subscription_comment_subscribe_setting' ),
+			'discussion',
+			'jetpack_subscriptions'
+		);
+
+		register_setting(
+			'discussion',
+			'stc_enabled'
+		);
+	}
+
+	/**
+	 * Discussions setting section blurb
+	 *
+	 */
+	function subscriptions_settings_section() {
+	?>
+
+		<p id="jetpack-subscriptions-settings"><?php _e( 'Change whether your visitors can subscribe to your posts or comments or both.', 'jetpack' ); ?></p>
+
+	<?php
+	}
+
+	/**
+	 * Post Subscriptions Toggle
+	 *
+	 */
+	function subscription_post_subscribe_setting() {
+
+		$stb_enabled = get_option( 'stb_enabled', 1 ); ?>
+
+		<p class="description">
+			<input type="checkbox" name="stb_enabled" id="jetpack-post-subscribe" value="1" <?php checked( $stb_enabled, 1 ); ?> />
+		</p>
+
+	<?php
+	}
+
+	/**
+	 * Comments Subscriptions Toggle
+	 *
+	 */
+	function subscription_comment_subscribe_setting() {
+
+		$stc_enabled = get_option( 'stc_enabled', 1 ); ?>
+
+		<p class="description">
+			<input type="checkbox" name="stc_enabled" id="jetpack-comment-subscribe" value="1" <?php checked( $stc_enabled, 1 ); ?> />
+		</p>
+
+	<?php
 	}
 
 	/**
