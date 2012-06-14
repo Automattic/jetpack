@@ -2,7 +2,7 @@
 /**
  * Module Name: WP.me Shortlinks
  * Module Description: Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing.
- * Sort Order 1
+ * Sort Order: 10
  * First Introduced: 1.1
  */
 

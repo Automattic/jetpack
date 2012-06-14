@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.4-trunk
+ * Version: 1.4-alpha-2
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -17,7 +17,7 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.2' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
-define( 'JETPACK__VERSION', '1.4-trunk' );
+define( 'JETPACK__VERSION', '1.4-alpha-2' );
 define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 /*
 Options:
@@ -642,6 +642,8 @@ class Jetpack {
 		foreach ( Jetpack::get_available_modules( $min_version, $max_version ) as $module ) {
 			// Add special cases here for modules to avoid auto-activation
 			switch ( $module ) {
+			case 'comments' :
+				continue;
 			case 'sharedaddy' :
 				if ( version_compare( PHP_VERSION, '5', '<' ) ) {
 					continue;
@@ -1326,7 +1328,7 @@ p {
 				<div class="jetpack-text-container">
 					<h4>
 						<?php if ( 1 == Jetpack::get_option( 'activated' ) ) : ?>
-							<p><?php _e( '<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enabled features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!', 'jetpack' ); ?></p>
+							<p><?php _e( '<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enabled features like Comments, Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!', 'jetpack' ); ?></p>
 						<?php else : ?>
 							<p><?php _e( '<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
 						<?php endif; ?>
@@ -1353,6 +1355,39 @@ p {
 			</div>
 		</div>
 		<?php
+	}
+	
+	function jetpack_comment_notice() {
+		if ( in_array( 'comments', Jetpack::get_active_modules() ) ) {
+			return '';
+		}
+
+		$jetpack_old_version = explode( ':', Jetpack::get_option( 'old_version' ) );
+		$jetpack_new_version = explode( ':', Jetpack::get_option( 'version' ) );
+
+		if ( $jetpack_old_version ) {
+			if ( version_compare( $jetpack_old_version[0], '1.4', '>=' ) ) {
+				return '';
+			}
+		}
+
+		if ( $jetpack_new_version ) {
+			if ( version_compare( $jetpack_new_version[0], '1.4-something', '<' ) ) {
+				return '';
+			}
+		}
+
+		return '<br /><br />' . sprintf( 
+			__( 'Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href="%s">%s</a>.', 'jetpack' ),
+			wp_nonce_url(
+				Jetpack::admin_url( array(
+					'action' => 'activate',
+					'module' => 'comments',
+				) ),
+				"jetpack_activate-comments"
+			),
+			__( 'click here', 'jetpack' )
+		);
 	}
 
 	function admin_page_load() {
@@ -1562,6 +1597,8 @@ p {
 					$this->message .= '<br /><br />' . wp_sprintf( __( 'The following modules have been updated: %l.', 'jetpack' ), $titles );
 				}
 			}
+
+			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
 
 		case 'module_activated' :
@@ -1590,6 +1627,7 @@ p {
 			$this->message  = __( "<strong>You&#8217;re fueled up and ready to go.</strong> ", 'jetpack' );
 			$this->message .= "<br />\n";
 			$this->message .= __( 'The features below are now active. Click the learn more buttons to explore each feature.', 'jetpack' );
+			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
 		}
 

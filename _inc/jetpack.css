@@ -188,6 +188,15 @@
 		margin: 0;
 	}
 
+	.jetpack-message .squeezer a, .jetpack-message .squeezer a:visited {
+		color: #fff;
+		text-decoration: underline;
+	}
+	
+	.jetpack-message .squeezer a:hover {
+		color: #f0a000;
+	}
+		
 	.jetpack-message code, .jetpack-err p {
 		background: rgba( 0,0,0,0.2 );
 		font-size: 14px;

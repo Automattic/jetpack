@@ -2,7 +2,7 @@
 /**
  * Module Name: Contact Form
  * Module Description: Easily insert a contact form any where on your site.
- * Sort Order: 5
+ * Sort Order: 6
  * First Introduced: 1.3
  */
 

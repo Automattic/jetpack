@@ -177,7 +177,7 @@ class AudioShortcode {
 		$not_supported = '';
 		foreach ( $sound_files as $sfile ) {
 			$not_supported .= sprintf(
-				__( 'Download: <a href="%s">%s</a><br />' ),
+				__( 'Download: <a href="%s">%s</a><br />', 'jetpack' ),
 				esc_url( $sfile ),
 				esc_html( basename( $sfile ) ) );
 		}

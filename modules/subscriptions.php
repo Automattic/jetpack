@@ -2,7 +2,7 @@
 /**
  * Module Name: Subscriptions
  * Module Description: Allow users to subscribe to your posts and comments to receive a notification via email.
- * Sort Order: 1
+ * Sort Order: 3
  * First Introduced: 1.2
  */
 class Jetpack_Subscriptions {

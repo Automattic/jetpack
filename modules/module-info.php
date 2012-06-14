@@ -430,3 +430,34 @@ add_action( 'jetpack_learn_more_button_contact-form', 'jetpack_contact_form_lear
 add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_info' );
 add_action( 'jetpack_module_more_info_connected_contact-form', 'jetpack_contact_form_more_info' );
 // Contact Form: STOP
+
+// Jetpack Comments
+
+function jetpack_comments_learn_more_button() {
+    echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+
+function jetpack_comments_more_info() {
+?>
+	<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/comments.png' ) ?>" alt="<?php esc_attr_e( 'Jetpack Comments Screenshot', 'jetpack' ) ?>" width="320" height="205" />
+	</div>
+
+	<h4><?php esc_html_e( 'Jetpack Comments', 'jetpack' ); ?></h4>
+
+	<p><?php esc_html_e( 'Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site.', 'jetpack' ); ?></p>
+
+<?php	if ( 'jetpack_module_more_info_connected_comments' == current_filter() ) : ?>
+
+	<p><?php printf(
+		__( "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page.", 'jetpack' ),
+		admin_url( 'options-discussion.php#jetpack-comments-settings' )
+	); ?></p>
+
+<?php	endif; ?>
+<?php
+}
+
+add_action( 'jetpack_learn_more_button_comments', 'jetpack_comments_learn_more_button' );
+add_action( 'jetpack_module_more_info_comments', 'jetpack_comments_more_info' );
+add_action( 'jetpack_module_more_info_connected_comments', 'jetpack_comments_more_info' );
