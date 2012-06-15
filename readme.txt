@@ -17,6 +17,8 @@ Features include:
 
 * Simple, concise stats with no additional load on your server.  Previously provided by [WordPress.com Stats](http://wordpress.org/extend/plugins/stats/).
 * Email subscriptions for your blog's posts and your post's comments.
+* Social networking enabled comment system.
+* Simple, Akismet-backed contact forms.
 * The [WP.me URL shortener](http://wp.me/sf2B5-shorten).
 * Hovercard popups for your commenters via [Gravatar](http://gravatar.com/).
 * Easily embedded media from popular sites like YouTube, Digg, and Vimeo.
@@ -74,6 +76,9 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 5. Spelling and Grammar demo.
 
 == Changelog ==
+
+= 1.4.1 =
+* Bug Fix: Jetpack Comments / Subscriptions: Add checkboxes and logic control for the Subscription checkboxes.
 
 = 1.4 =
 * Enhancement: Add Jetpack Comments feature.
