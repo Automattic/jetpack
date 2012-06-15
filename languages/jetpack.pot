@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack by WordPress.com 1.4\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/jetpack\n"
-"POT-Creation-Date: 2012-06-14 21:40:06+00:00\n"
+"POT-Creation-Date: 2012-06-15 00:07:43+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2562,16 +2562,6 @@ msgid ""
 "Improve your spelling, style, and grammar with the <a href=\"http://www."
 "afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading "
 "service."
-msgstr ""
-
-#. Module Name of the plugin/theme
-msgid "Carousel"
-msgstr ""
-
-#. Module Description of the plugin/theme
-msgid ""
-"Transform your standard image galleries into an immersize full-screen "
-"experience."
 msgstr ""
 
 #. Module Description of the plugin/theme
