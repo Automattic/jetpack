@@ -1,12 +1,12 @@
-# Translation of 1.4.1 in Macedonian
+# Translation of 1.4.1 in Romanian
 # This file is distributed under the same license as the 1.4.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-06-15 00:50:42+0000\n"
+"PO-Revision-Date: 2012-06-15 00:50:43+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n==1 || n%10==1 ? 0 : 1;\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2);\n"
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 1.4.1\n"
 
@@ -40,15 +40,15 @@ msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:18
 msgid "Shared Post"
-msgstr "Споделен напис"
+msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:37
 msgid "Show sharing buttons on this post."
-msgstr "Прикажи ги копчињата за споделување на овој напис."
+msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:106
 msgid "Disable CSS and JS"
-msgstr "Оневозможи CSS и JS"
+msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:108
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
@@ -58,79 +58,79 @@ msgstr ""
 #: modules/sharedaddy/sharing-service.php:478
 #: modules/sharedaddy/sharing.php:315
 msgid "Share this:"
-msgstr "Сподели:"
+msgstr ""
 
 #: modules/sharedaddy/sharing-service.php:485
 #: modules/sharedaddy/sharing.php:234 modules/sharedaddy/sharing.php:275
 msgctxt "dropdown button"
 msgid "Share"
-msgstr "Сподели"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:169
 msgid "This post has been shared!"
-msgstr "Овој напис беше споделен!"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:170
 msgid "You have shared this post with %s"
-msgstr "Го споделивте овој напис со %s"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:171
 msgid "Close"
-msgstr "Затвори"
+msgstr "Închide"
 
 #: modules/sharedaddy/sharing-sources.php:193
 msgctxt "share to"
 msgid "Email"
-msgstr "Е-пошта"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:193
 msgid "Click to email this to a friend"
-msgstr "Кликнете за да испратете на пријател"
+msgstr "Click pentru a trimite prin email unui prieten"
 
 #: modules/sharedaddy/sharing-sources.php:207
 msgid "Send to Email Address"
-msgstr "Испрати по е-пошта"
+msgstr "Trimite la adresa de email"
 
 #: modules/sharedaddy/sharing-sources.php:215
 msgid "Your Name"
-msgstr "Вашето име"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:218
 msgid "Your Email Address"
-msgstr "Вашата адреса за е-пошта"
+msgstr "Adresa ta de email"
 
 #: modules/sharedaddy/sharing-sources.php:226
 msgid "Send Email"
-msgstr "Испрати е-пошта"
+msgstr "Trimite email"
 
 #: modules/sharedaddy/sharing-sources.php:227
 msgid "Cancel"
-msgstr "Откажи"
+msgstr "Anulează"
 
 #: modules/sharedaddy/sharing-sources.php:230
 msgid "Post was not sent - check your email addresses!"
-msgstr "Написот не беше испратен - проверете ја Вашата е-пошта!"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:234
 msgid "Email check failed, please try again"
-msgstr "Проверката не успеа, обиди се повторно"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:238
 msgid "Sorry, your blog cannot share posts by email."
-msgstr "Жалам, Вашиот блог не поддржува споделување по е-пошта."
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:257
 msgid "Twitter"
-msgstr "Twitter"
+msgstr "Twitter "
 
 #: modules/sharedaddy/sharing-sources.php:264
 msgctxt "share to"
 msgid "Twitter"
-msgstr "Twitter"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:264
 msgid "Click to share on Twitter"
-msgstr "Кликни за да споделиш на Twitter"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:334
 #: modules/sharedaddy/sharing-sources.php:411
@@ -138,7 +138,7 @@ msgstr "Кликни за да споделиш на Twitter"
 #: modules/sharedaddy/sharing-sources.php:568
 #: modules/sharedaddy/sharing-sources.php:684
 msgid "Use smart button"
-msgstr "Користи паметно копче"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:352
 msgid "StumbleUpon"
@@ -147,98 +147,98 @@ msgstr "StumbleUpon"
 #: modules/sharedaddy/sharing-sources.php:363
 msgctxt "share to"
 msgid "StumbleUpon"
-msgstr "StumbleUpon"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:363
 msgid "Click to share on StumbleUpon"
-msgstr "Кликни за да споделиш на StumbleUpon"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:429
 #: modules/sharedaddy/sharing-sources.php:436
 msgid "Reddit"
-msgstr "Reddit"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:436
 msgid "Click to share on Reddit"
-msgstr "Кликни за да споделиш на Reddit"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:506
 msgid "Digg"
-msgstr "Digg"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:515
 #: modules/sharedaddy/sharing-sources.php:519
 msgid "Click to Digg this post"
-msgstr "Кликнете за Digg"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:519
 msgctxt "share to"
 msgid "Digg"
-msgstr "Digg"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:601
 msgid "LinkedIn"
-msgstr "LinkedIn"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:629
 msgctxt "share to"
 msgid "LinkedIn"
-msgstr "LinkedIn"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:629
 msgid "Click to share on LinkedIn"
-msgstr "Кликни за да споделиш на LinkedIn"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:714
 msgid "Facebook"
-msgstr "Facebook"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:752
 msgid "Share"
-msgstr "Сподели"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:790
 msgctxt "share to"
 msgid "Facebook"
-msgstr "Facebook"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:790
 msgid "Share on Facebook"
-msgstr "Сподели на Facebook"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:812
 msgid "Default button"
-msgstr "Стандардно копче"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:813
 msgid "Share button"
-msgstr "Копче за споделување"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:814
 msgid "Like button"
-msgstr "„Ми се допаѓа“ копче"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:859
 msgid "Print"
-msgstr "Печати"
+msgstr "Listare"
 
 #: modules/sharedaddy/sharing-sources.php:863
 msgctxt "share to"
 msgid "Print"
-msgstr "Печати"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:863
 msgid "Click to print"
-msgstr "Кликни за печатење"
+msgstr "Click pentru imprimare"
 
 #: modules/sharedaddy/sharing-sources.php:869
 msgid "Press This"
-msgstr "Притисни тука"
+msgstr "Publicare Imediată"
 
 #: modules/sharedaddy/sharing-sources.php:897
 msgctxt "share to"
 msgid "Press This"
-msgstr "Претисни овде"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:897
 msgid "Click to Press This!"
@@ -250,7 +250,7 @@ msgstr "Google +1"
 
 #: modules/sharedaddy/sharing-sources.php:990
 msgid "Click to share"
-msgstr "Кликни за да споделиш"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1045
 msgid "URL"
@@ -258,19 +258,19 @@ msgstr "URL"
 
 #: modules/sharedaddy/sharing-sources.php:1050
 msgid "Icon"
-msgstr "Иконка"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1057
 msgid "Save"
-msgstr "Зачувај"
+msgstr "Salvează"
 
 #: modules/sharedaddy/sharing-sources.php:1058
 msgid "Remove Service"
-msgstr "Избриши сервис"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:46 modules/sharedaddy/sharing.php:158
 msgid "Sharing Settings"
-msgstr "Поставувања за споделување"
+msgstr "Setările de partajare"
 
 #: modules/sharedaddy/sharing.php:148
 msgid "Warning! Multibyte support missing!"
@@ -282,27 +282,27 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:153
 msgid "Settings have been saved"
-msgstr "Поставувањата беа зачувани"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:164
 msgid "Available Services"
-msgstr "Достапни сервиси"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:165
 msgid "Drag and drop the services you'd like to enable into the box below."
-msgstr "Влечи и остави ги сервисите кои сакате да ги користите."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:166
 msgid "Add a new service"
-msgstr "Додај нов сервис"
+msgstr "Adaugă un serviciu nou"
 
 #: modules/sharedaddy/sharing.php:186
 msgid "Enabled Services"
-msgstr "Овозможени сервиси"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:189
 msgid "Services dragged here will appear individually."
-msgstr ""
+msgstr "Serviciile trase aici vor apărea idividual."
 
 #: modules/sharedaddy/sharing.php:192
 msgid "Drag and drop available services here"
@@ -310,15 +310,15 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:203
 msgid "Services dragged here will be hidden behind a share button."
-msgstr "Сервисите додадени овде ќе бидат скриени позади копчето за споделување."
+msgstr "Serviciile trase aici vor fi ascunse în spatele unui buton de partajare."
 
 #: modules/sharedaddy/sharing.php:218
 msgid "Live Preview"
-msgstr "Преглед во реално време"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:221
 msgid "Sharing is off. Please add services above to enable"
-msgstr "Споделувањето е исклучено. Ве молам додадете сервиси за да се овозможи"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:303
 msgid "Default button style"
@@ -326,35 +326,35 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:306
 msgid "Icon + text"
-msgstr "Иконка + текст"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:307
 msgid "Icon only"
-msgstr "Само иконка"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:308
 msgid "Text only"
-msgstr "Само текст"
+msgstr "Doar text"
 
 #: modules/sharedaddy/sharing.php:313
 msgid "Sharing label"
-msgstr "Текст:"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:319
 msgid "Open links in"
-msgstr "Отвори ги врските во"
+msgstr "Deschide legăturile în"
 
 #: modules/sharedaddy/sharing.php:322
 msgid "New window"
-msgstr "Нов прозорец"
+msgstr "Fereastră nouă"
 
 #: modules/sharedaddy/sharing.php:323
 msgid "Same window"
-msgstr "Истиот прозорец"
+msgstr "Aceeași fereastră"
 
 #: modules/sharedaddy/sharing.php:328
 msgid "Show sharing buttons on"
-msgstr "Прикажи ги копчињата на"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:334
 msgid "Front Page, Archive Pages, and Search Results"
@@ -362,31 +362,31 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:350
 msgid "Save Changes"
-msgstr "Зачувај ги промените"
+msgstr "Salvează"
 
 #: modules/sharedaddy/sharing.php:361
 msgid "Service name"
-msgstr "Име на сервисот"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:367
 msgid "Sharing URL"
-msgstr "Адреса за споделување"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:371
 msgid "You can add the following variables to your service sharing URL:"
-msgstr "Можете да ги додадете следните променливи во вашиот сервис за споделување:"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:376
 msgid "Icon URL"
-msgstr "Адреса за иконката"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:379
 msgid "Enter the URL of a 16x16px icon you want to use for this service."
-msgstr "Внесете URL адреса од икона со димензии 16х16px која ќе се користи за овој сервис."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:385
 msgid "Create Share"
-msgstr "Создади споделување"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:395
 msgid "An error occurred creating your new sharing service - please check you gave valid details."
@@ -394,7 +394,7 @@ msgstr ""
 
 #: modules/shortcodes/archives.php:50
 msgid "Your blog does not currently have any published posts."
-msgstr "Нема објавени написи на Вашиот блог."
+msgstr ""
 
 #: modules/shortcodes/audio.php:180
 msgid "Download: <a href=\"%s\">%s</a><br />"
@@ -422,67 +422,67 @@ msgstr ""
 
 #: modules/shortcodes/videopress.php:860
 msgid "This video is intended for mature audiences."
-msgstr "Ова видео е наменето за возрасна публика."
+msgstr ""
 
 #: modules/shortcodes/videopress.php:860
 msgid "Please verify your birthday."
-msgstr "Ве молиме потврдете го вашиот роденден."
+msgstr "Verifică data de naştere."
 
 #: modules/shortcodes/videopress.php:876
 msgid "January"
-msgstr "Јануари"
+msgstr "ianuarie"
 
 #: modules/shortcodes/videopress.php:876
 msgid "February"
-msgstr "Февруари"
+msgstr "februarie"
 
 #: modules/shortcodes/videopress.php:876
 msgid "March"
-msgstr "Март"
+msgstr "martie"
 
 #: modules/shortcodes/videopress.php:876
 msgid "April"
-msgstr "Април"
+msgstr "aprilie"
 
 #: modules/shortcodes/videopress.php:876
 msgid "May"
-msgstr "Мај"
+msgstr "mai"
 
 #: modules/shortcodes/videopress.php:876
 msgid "June"
-msgstr "Јуни"
+msgstr "iunie"
 
 #: modules/shortcodes/videopress.php:876
 msgid "July"
-msgstr "Јули"
+msgstr "iulie"
 
 #: modules/shortcodes/videopress.php:876
 msgid "August"
-msgstr "Август"
+msgstr "august"
 
 #: modules/shortcodes/videopress.php:876
 msgid "September"
-msgstr "Септември"
+msgstr "septembrie"
 
 #: modules/shortcodes/videopress.php:876
 msgid "October"
-msgstr "Октомври"
+msgstr "octombrie"
 
 #: modules/shortcodes/videopress.php:876
 msgid "November"
-msgstr "Ноември"
+msgstr "noiembrie"
 
 #: modules/shortcodes/videopress.php:876
 msgid "December"
-msgstr "Декември"
+msgstr "decembrie"
 
 #: modules/shortcodes/videopress.php:912
 msgid "Submit"
-msgstr "Испрати"
+msgstr "Trimite"
 
 #: modules/shortcodes/videopress.php:915
 msgid "More information"
-msgstr "Повеќе информации"
+msgstr "Mai multe informaţiii"
 
 #: modules/shortcodes/videopress.php:958
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
@@ -513,7 +513,7 @@ msgstr ""
 
 #: modules/stats.php:246 modules/stats.php:652
 msgid "Site Stats"
-msgstr "Статистика"
+msgstr "Statistici site"
 
 #: modules/stats.php:332
 msgid "Loading&hellip;"
@@ -533,15 +533,15 @@ msgstr ""
 
 #: modules/stats.php:409 modules/stats.php:882
 msgid "We were unable to get your stats just now. Please try again."
-msgstr "Не бевме во можност да ја направиме Вашата статистика. Ве молам обидете се повторно."
+msgstr ""
 
 #: modules/stats.php:510
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
-msgstr "Посетете ја <a href=\"%s\">Статистиката на сајтот</a> за да ја видите Вашата статистика."
+msgstr ""
 
 #: modules/stats.php:516
 msgid "Admin bar"
-msgstr "Админ лента"
+msgstr ""
 
 #: modules/stats.php:517
 msgid "Put a chart showing 48 hours of views in the admin bar."
@@ -549,11 +549,11 @@ msgstr ""
 
 #: modules/stats.php:519
 msgid "Registered users"
-msgstr "Регистрирани корисници"
+msgstr ""
 
 #: modules/stats.php:520
 msgid "Count the page views of registered users who are logged in."
-msgstr "Број ги прегледите на страниците на корисниците кои се најавени."
+msgstr ""
 
 #: modules/stats.php:521
 msgid "Smiley"
@@ -573,83 +573,83 @@ msgstr ""
 
 #: modules/stats.php:523
 msgid "Report visibility"
-msgstr "Видливост на известувања"
+msgstr ""
 
 #: modules/stats.php:525
 msgid "Select the roles that will be able to view stats reports."
-msgstr "Изберете улоги за кои ќе биде видлива статистиката."
+msgstr ""
 
 #: modules/stats.php:536
 msgid "Save configuration"
-msgstr "Зачувај"
+msgstr ""
 
 #: modules/stats.php:571
 msgid "Views over 48 hours. Click for more Site Stats."
-msgstr "Прегледи во претходните 48 часа. Кликнете за повеќе статистика."
+msgstr ""
 
 #: modules/stats.php:673
 msgid "day"
-msgstr "ден"
+msgstr "zi"
 
 #: modules/stats.php:674
 msgid "week"
-msgstr "недела"
+msgstr "săptămână"
 
 #: modules/stats.php:675
 msgid "month"
-msgstr "месец"
+msgstr "luna"
 
 #: modules/stats.php:678
 msgid "the past day"
-msgstr "претходниот ден"
+msgstr "ieri"
 
 #: modules/stats.php:679
 msgid "the past week"
-msgstr "претходната недела"
+msgstr "săptămâna trecută"
 
 #: modules/stats.php:680
 msgid "the past month"
-msgstr "претходниот месец"
+msgstr "luna trecută"
 
 #: modules/stats.php:681
 msgid "the past quarter"
-msgstr "претходниот квартал"
+msgstr "Ultimul trimestru"
 
 #: modules/stats.php:682
 msgid "the past year"
-msgstr "претходната година"
+msgstr "anul trecut"
 
 #: modules/stats.php:704
 msgid "Chart stats by"
-msgstr "Графикон според"
+msgstr "Grafic statistici realizat de către"
 
 #: modules/stats.php:717
 msgid "Show top posts over"
-msgstr "Прикажи ги топ написите"
+msgstr "Afișează cele mai bune posturi primele"
 
 #: modules/stats.php:730
 msgid "Show top search terms over"
-msgstr "Прикажи ги најкористените термини за пребарување"
+msgstr ""
 
 #: modules/stats.php:895
 msgid "%1$s %2$s Views"
-msgstr "%1$s %2$s прегледи"
+msgstr ""
 
 #: modules/stats.php:908
 msgid "View All"
-msgstr "Види ги сите"
+msgstr "Vizualizează tot"
 
 #: modules/stats.php:912
 msgid "Top Posts"
-msgstr "Топ написи"
+msgstr "Top articole"
 
 #: modules/stats.php:916 modules/stats.php:940
 msgid "Sorry, nothing to report."
-msgstr "Жалам, нема ништо за известување."
+msgstr ""
 
 #: modules/stats.php:936
 msgid "Top Searches"
-msgstr "Топ пребарувања"
+msgstr "Cele mai căutate"
 
 #: modules/subscriptions.php:173
 msgid "Jetpack Subscriptions Settings"
@@ -712,10 +712,11 @@ msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: modules/subscriptions.php:581
 msgid "Email Address"
-msgstr "Адреса за е-пошта"
+msgstr "Adresa de email"
 
 #: modules/subscriptions.php:652
 msgid "Subscribe to Blog via Email"
@@ -750,6 +751,7 @@ msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: modules/vaultpress.php:22
 msgid "Active"
@@ -765,7 +767,7 @@ msgstr ""
 
 #: modules/widgets/facebook-likebox.php:108
 msgid "Title"
-msgstr "Наслов"
+msgstr "Titlu"
 
 #: modules/widgets/facebook-likebox.php:115
 msgid "Facebook Page URL"
@@ -777,7 +779,7 @@ msgstr ""
 
 #: modules/widgets/facebook-likebox.php:124
 msgid "Width"
-msgstr "Ширина"
+msgstr "Lățime"
 
 #: modules/widgets/facebook-likebox.php:143
 msgid "Show Faces"
@@ -805,7 +807,7 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:12
 msgid "Display an image in your sidebar"
-msgstr ""
+msgstr "Afişează o imagine în bara laterală"
 
 #: modules/widgets/image-widget.php:14
 msgid "Image (Jetpack)"
@@ -829,19 +831,19 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:124
 msgid "None"
-msgstr "Нема"
+msgstr "Nespecificat"
 
 #: modules/widgets/image-widget.php:125
 msgid "Left"
-msgstr "Лево"
+msgstr "Stânga"
 
 #: modules/widgets/image-widget.php:126
 msgid "Center"
-msgstr "Средина"
+msgstr "Centru"
 
 #: modules/widgets/image-widget.php:127
 msgid "Right"
-msgstr "Десно"
+msgstr "Dreapta"
 
 #: modules/widgets/image-widget.php:129
 msgid "Image Alignment:"
@@ -874,17 +876,17 @@ msgstr ""
 #: modules/widgets/rsslinks-widget.php:62
 #: modules/widgets/twitter-widget.php:219
 msgid "Title:"
-msgstr "Наслов:"
+msgstr "Titlu:"
 
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
 msgid "Posts"
-msgstr "Написи"
+msgstr "Articole"
 
 #: modules/widgets/rsslinks-widget.php:68
 #: modules/widgets/rsslinks-widget.php:136
 msgid "Comments"
-msgstr "Коментари"
+msgstr "Comentarii"
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
@@ -916,51 +918,51 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:99
 msgid "Small"
-msgstr ""
+msgstr "Mic"
 
 #: modules/widgets/rsslinks-widget.php:100
 msgid "Medium"
-msgstr "Средно"
+msgstr "Mediu"
 
 #: modules/widgets/rsslinks-widget.php:101
 msgid "Large"
-msgstr "Голема"
+msgstr "Mare"
 
 #: modules/widgets/rsslinks-widget.php:103
 msgid "Image Size:"
-msgstr ""
+msgstr "Dimensiuni imagine:"
 
 #: modules/widgets/rsslinks-widget.php:113
 msgid "Red"
-msgstr "Црвена"
+msgstr "Roșu"
 
 #: modules/widgets/rsslinks-widget.php:114
 msgid "Orange"
-msgstr "Портокалова"
+msgstr "Portocaliu"
 
 #: modules/widgets/rsslinks-widget.php:115
 msgid "Green"
-msgstr "Зелена"
+msgstr "Verde"
 
 #: modules/widgets/rsslinks-widget.php:116
 msgid "Blue"
-msgstr "Сина"
+msgstr "Albastru"
 
 #: modules/widgets/rsslinks-widget.php:117
 msgid "Purple"
-msgstr "Виолетова"
+msgstr "Violet"
 
 #: modules/widgets/rsslinks-widget.php:118
 msgid "Pink"
-msgstr "Розева"
+msgstr "Roz"
 
 #: modules/widgets/rsslinks-widget.php:119
 msgid "Silver"
-msgstr "Сребрена"
+msgstr "Argintiu"
 
 #: modules/widgets/rsslinks-widget.php:121
 msgid "Image Color:"
-msgstr ""
+msgstr "Culoare imagine:"
 
 #: modules/widgets/rsslinks-widget.php:140
 msgid "Subscribe to %s"
@@ -968,55 +970,55 @@ msgstr ""
 
 #: modules/widgets/twitter-widget.php:69
 msgid "Display your tweets from Twitter"
-msgstr "Ги прикажува Вашите твитови"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:70
 msgid "Twitter (Jetpack)"
-msgstr "Twitter (Jetpack)"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:79
 msgid "Twitter Updates"
-msgstr "Twitter ажурирање"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:178
 msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
-msgstr "Грешка: Ве молам осигурете се дека Вашиот Twitter профил е <a href=\"%s\">јавен</a>."
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:180
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr "Грешка: Twitter не одговори. Ве молам почекајте неколку минути и освежете ја страницата."
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:222
 msgid "Twitter username:"
-msgstr "Twitter корисничко име:"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:225
 msgid "Maximum number of tweets to show:"
-msgstr "Макс. број на твитови за прикажување:"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:236
 msgid "Hide replies"
-msgstr "Сокриј одговори"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:241
 msgid "Include retweets"
-msgstr "Прикажи ре-твитови"
+msgstr ""
 
 #: modules/widgets/twitter-widget.php:243
 msgid "Text to display between tweet and timestamp:"
-msgstr "Текст за прикажување помеѓу твитовите и времето на објавување:"
+msgstr ""
 
 msgid "http://wordpress.org/extend/plugins/jetpack/"
-msgstr "http://wordpress.org/extend/plugins/jetpack/"
+msgstr ""
 
 msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
-msgstr "Понесете ја моќта од WordPress.com на Вашиот лично хостиран WordPress. Jetpack Ви овозможува да го поврзите Вашиот блог со Вашата WordPress.com сметка и да ги користите моќните функциите кои се достапни за WordPress.com корисниците."
+msgstr ""
 
 msgid "Automattic"
-msgstr "Automattic"
+msgstr ""
 
 msgid "http://jetpack.me"
-msgstr "http://jetpack.me"
+msgstr ""
 
 msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
 msgstr ""
@@ -1068,7 +1070,7 @@ msgstr ""
 
 #: jetpack.php:978
 msgid "Jetpack requires WordPress version %s or later."
-msgstr "Jetpack бара WordPress верзија %s или понова."
+msgstr ""
 
 #: jetpack.php:1135 jetpack.php:1151
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
@@ -1079,6 +1081,7 @@ msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: jetpack.php:1175
 msgid "Jetpack"
@@ -1087,11 +1090,11 @@ msgstr ""
 #: jetpack.php:1207 jetpack.php:1231 jetpack.php:1241 jetpack.php:1823
 #: jetpack.php:1973
 msgid "Jetpack by WordPress.com"
-msgstr "Jetpack од WordPress.com"
+msgstr ""
 
 #: jetpack.php:1208 jetpack.php:1232 jetpack.php:1826
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
-msgstr "Jetpack на Вашиот лично хостиран WordPress ги додава сите моќи кои ги има WordPress.com"
+msgstr ""
 
 #: jetpack.php:1209 jetpack.php:1233
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
@@ -1107,7 +1110,7 @@ msgstr ""
 
 #: jetpack.php:1212 jetpack.php:1253
 msgid "For more information:"
-msgstr ""
+msgstr "Pentru mai multe informaţii:"
 
 #: jetpack.php:1213 jetpack.php:1254
 msgid "Jetpack FAQ"
@@ -1148,7 +1151,7 @@ msgstr ""
 #: jetpack.php:1308 modules/sharedaddy/sharedaddy.php:68
 #: modules/sharedaddy/sharedaddy.php:75
 msgid "Settings"
-msgstr "Поставувања"
+msgstr "Setări"
 
 #: jetpack.php:1325
 msgid "Dismiss this notice and deactivate Jetpack."
@@ -1164,7 +1167,7 @@ msgstr ""
 
 #: jetpack.php:1339 jetpack.php:1854
 msgid "Connect to WordPress.com"
-msgstr "Конектирај со WordPress.com"
+msgstr ""
 
 #: jetpack.php:1341 modules/module-info.php:45 modules/module-info.php:81
 #: modules/module-info.php:143 modules/module-info.php:178
@@ -1174,7 +1177,7 @@ msgstr "Конектирај со WordPress.com"
 #: modules/module-info.php:403 modules/module-info.php:409
 #: modules/module-info.php:437
 msgid "Learn More"
-msgstr "Повеќе..."
+msgstr ""
 
 #: jetpack.php:1354
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
@@ -1190,7 +1193,7 @@ msgstr ""
 
 #: jetpack.php:1460
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
-msgstr "Потребно е да ја авторизирате врската помеѓу Jetpack и Вашиот WordPress.com сајт за да ги овозможите функциите."
+msgstr ""
 
 #: jetpack.php:1463
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
@@ -1202,11 +1205,11 @@ msgstr ""
 
 #: jetpack.php:1470
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
-msgstr "Погрешна големина. Хм... изгледа дека Вашиот Jetpack не го собира. Дали изгубивте тежина? Кликнете „Конектирај се на WordPress.com“ за Вашиот Jetpack да се намести."
+msgstr ""
 
 #: jetpack.php:1474
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
-msgstr "Вашиот сајт треба да биде јавно достапен за да користи Jetpack: %s"
+msgstr ""
 
 #: jetpack.php:1480
 msgid "The %1$s module requires <strong>PHP version %2$s</strong> or higher."
@@ -1230,7 +1233,7 @@ msgstr ""
 
 #: jetpack.php:1502
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
-msgstr "Моментално WordPress.com има проблеми и Jetpack е оневозможен. Ве молам обидете се подоцна."
+msgstr ""
 
 #: jetpack.php:1506
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
@@ -1242,7 +1245,7 @@ msgstr ""
 
 #: jetpack.php:1549
 msgid "Try connecting again."
-msgstr "Обидете се да се конектирате повторно."
+msgstr ""
 
 #: jetpack.php:1573
 msgid "Welcome to <strong>Jetpack %s</strong>!"
@@ -1285,20 +1288,22 @@ msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: jetpack.php:1661
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
-msgstr[0] "Старата верзија беше деактивирана и можете да ја избришете."
-msgstr[1] "Старите верзии беа деактивирани и можете да ги избришете."
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
 
 #: jetpack.php:1819
 msgid "Connected to WordPress.com"
-msgstr "Конектирано со WordPress.com"
+msgstr ""
 
 #: jetpack.php:1820
 msgid "Disconnect from WordPress.com"
-msgstr "Дисконектирај од WordPress.com"
+msgstr ""
 
 #: jetpack.php:1834
 msgid "Jetpack is network activated and notices can not be dismissed."
@@ -1310,7 +1315,7 @@ msgstr ""
 
 #: jetpack.php:1850
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr "За да ги овозможите сите Jetpack карактеристики потребно е да го поврзите Вашиот сајт со WordPress.com, користејќи го копчето од десната страна. Откако ќе се поврзете ќе можете да ги користите сите функции."
+msgstr ""
 
 #: jetpack.php:1874
 msgid "Have feedback on Jetpack?"
@@ -1331,20 +1336,20 @@ msgstr ""
 #: jetpack.php:1891
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
-msgstr "Вие моментално сте пријавени за известувања по е-пошта. %s"
+msgstr ""
 
 #: jetpack.php:1892
 msgid "Unsubscribe"
-msgstr "Откажи претплата"
+msgstr "Dezabonare"
 
 #: jetpack.php:1896
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
-msgstr "Сакате да добивате известувања за Jetpack по е-пошта? %s"
+msgstr ""
 
 #: jetpack.php:1897 modules/subscriptions.php:654
 msgid "Subscribe"
-msgstr "Претплати се"
+msgstr "Abonează-te"
 
 #: jetpack.php:1904
 msgid "You have been subscribed to receive email updates."
@@ -1356,23 +1361,23 @@ msgstr ""
 
 #: jetpack.php:1919
 msgid "An <span>Automattic</span> Airline"
-msgstr "<span>Automattic</span> Airline"
+msgstr ""
 
 #: jetpack.php:1922
 msgid "Privacy Policy"
-msgstr "Полиса на приватност"
+msgstr ""
 
 #: jetpack.php:1923
 msgid "Terms of Service"
-msgstr "Услови за користење"
+msgstr "Termenii de utilizare a serviciului"
 
 #: jetpack.php:1924
 msgid "Debug"
-msgstr "Дебагирај"
+msgstr ""
 
 #: jetpack.php:1925 modules/sharedaddy/sharedaddy.php:76
 msgid "Support"
-msgstr "Поддршка"
+msgstr "Sprijin"
 
 #: jetpack.php:1943
 msgid "This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords."
@@ -1380,19 +1385,19 @@ msgstr ""
 
 #: jetpack.php:1974
 msgid "Configure %s"
-msgstr "Постави %s"
+msgstr ""
 
 #: jetpack.php:2033
 msgid "Deactivate"
-msgstr "Деактивирај"
+msgstr "Dezactivare"
 
 #: jetpack.php:2043
 msgid "Activate"
-msgstr "Активирај"
+msgstr "Activează"
 
 #: jetpack.php:2066
 msgid "Free"
-msgstr "Бесплатно"
+msgstr ""
 
 #: jetpack.php:2066
 msgid "Purchase"
@@ -1400,7 +1405,7 @@ msgstr ""
 
 #: jetpack.php:2074
 msgid "New"
-msgstr ""
+msgstr "Nou"
 
 #: jetpack.php:2077
 msgid "Updated"
@@ -1408,11 +1413,11 @@ msgstr ""
 
 #: jetpack.php:2106
 msgid "Configure"
-msgstr "Конфигурирај"
+msgstr "Configurări"
 
 #: jetpack.php:2140
 msgid "Coming soon&#8230;"
-msgstr "Наскоро&#8230;"
+msgstr ""
 
 #: jetpack.php:2349 jetpack.php:2351 jetpack.php:2353 jetpack.php:2356
 #: jetpack.php:3017
@@ -1421,11 +1426,11 @@ msgstr ""
 
 #: jetpack.php:2973
 msgid "An administrator for this blog must set up the Jetpack connection."
-msgstr "Администраторот на овој блог мора да постави Jetpack конекција."
+msgstr ""
 
 #: jetpack.php:2978
 msgid "You need to register your Jetpack before connecting it."
-msgstr "Вие мора да регистрирате Jetpack пред да го конектирате."
+msgstr ""
 
 #: locales.php:29
 msgctxt "locales"
@@ -1434,35 +1439,35 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:12
 msgid "Spelling"
-msgstr ""
+msgstr "Ortografie"
 
 #: modules/after-the-deadline/atd-l10n.php:13
 msgid "Repeated Word"
-msgstr "Повторан збор"
+msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:15
 msgid "No suggestions"
-msgstr "Нема предлози"
+msgstr "Nu sunt sugestii"
 
 #: modules/after-the-deadline/atd-l10n.php:17
 msgid "Explain..."
-msgstr "Објасни..."
+msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:18
 msgid "Ignore suggestion"
-msgstr "Игнорирај предлози"
+msgstr "Ignoră sugestia"
 
 #: modules/after-the-deadline/atd-l10n.php:19
 msgid "Ignore always"
-msgstr "Секогаш игнорирај"
+msgstr "Ignoră mereu"
 
 #: modules/after-the-deadline/atd-l10n.php:20
 msgid "Ignore all"
-msgstr "Игнорорај сѐ"
+msgstr "Ignoră tot"
 
 #: modules/after-the-deadline/atd-l10n.php:22
 msgid "Edit Selection..."
-msgstr "Уреди ја селекцијата..."
+msgstr "Editare selecţie..."
 
 #: modules/after-the-deadline/atd-l10n.php:24
 msgid "proofread"
@@ -1470,7 +1475,7 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:25
 msgid "edit text"
-msgstr "уреди го текстот"
+msgstr "editare text"
 
 #: modules/after-the-deadline/atd-l10n.php:26
 #: modules/after-the-deadline.php:224
@@ -1479,7 +1484,7 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:28
 msgid "No writing errors were found."
-msgstr "Нема грешки во пишувањето."
+msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:29
 msgid "There was a problem communicating with the Proofreading service. Try again in one minute."
@@ -1491,7 +1496,7 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:32
 msgid "Replace selection with:"
-msgstr "Замени го селектираното со:"
+msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:33
 msgid ""
@@ -1517,11 +1522,11 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:53
 msgid "a post or page is first published"
-msgstr "напис или страница е прво објавена"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:55
 msgid "a post or page is updated"
-msgstr "напис или страница е ажурирана"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:58
 msgid "English Options"
@@ -1541,23 +1546,23 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:67
 msgid "Complex Phrases"
-msgstr "Комплексни фрази"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:69
 msgid "Diacritical Marks"
-msgstr ""
+msgstr "Semne diacritice"
 
 #: modules/after-the-deadline/config-options.php:71
 msgid "Double Negatives"
-msgstr "Двоен негатив"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:73
 msgid "Hidden Verbs"
-msgstr "Скриени глаголи"
+msgstr "Verbe ascunse"
 
 #: modules/after-the-deadline/config-options.php:75
 msgid "Jargon"
-msgstr ""
+msgstr "Jargon"
 
 #: modules/after-the-deadline/config-options.php:77
 msgid "Passive Voice"
@@ -1565,19 +1570,19 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:79
 msgid "Phrases to Avoid"
-msgstr ""
+msgstr "Expresii de evitat"
 
 #: modules/after-the-deadline/config-options.php:81
 msgid "Redundant Phrases"
-msgstr ""
+msgstr "Expresii redundante"
 
 #: modules/after-the-deadline/config-options.php:83
 msgid "<a href=\"%s\">Learn more</a> about these options."
-msgstr "<a href=\"%s\">Научи повеќе</a> за овие опции."
+msgstr "<a href=\"%s\">Află mai multe</a> despre aceste opțiuni."
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Language"
-msgstr "Јазик"
+msgstr "Limbă"
 
 #: modules/after-the-deadline/config-options.php:89
 msgctxt "%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG"
@@ -1590,7 +1595,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:126
 msgid "Ignored Phrases"
-msgstr "Игнорирани фрази"
+msgstr "Expresii ignorate"
 
 #: modules/after-the-deadline/config-unignore.php:128
 msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
@@ -1598,23 +1603,23 @@ msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:130
 msgid "Add"
-msgstr "Додај"
+msgstr "Adaugă"
 
 #: modules/after-the-deadline/config-unignore.php:135
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
-msgstr "Не заборавајте да кликнете на „Ажурирај го профилот“ за да ги зачувате проените."
+msgstr "Nu uita să faci click pe \"Actualizare profil\" în partea de jos a paginii pentru a salva modificările."
 
 #: modules/comments/admin.php:50 modules/comments/comments.php:168
 msgid "Leave a Reply"
-msgstr "Напишете коментар"
+msgstr "Lasă un răspuns"
 
 #: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:133
 msgid "Light"
-msgstr "Светла"
+msgstr "Luminos"
 
 #: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:134
 msgid "Dark"
-msgstr "Темна"
+msgstr "Întunecat"
 
 #: modules/comments/admin.php:56
 msgid "Transparent"
@@ -1647,11 +1652,11 @@ msgstr ""
 
 #: modules/comments/base.php:231
 msgid "Error: please fill the required fields (name, email)."
-msgstr "Грешка: Ве молиме пополнете ги задолжителните полиња (име, е-пошта)."
+msgstr "Eroare: completează câmpurile obligatorii (nume, e-mail)."
 
 #: modules/comments/base.php:233
 msgid "Error: please enter a valid email address."
-msgstr "Грешка: Ве молиме внесете валидна адреса за е-пошта."
+msgstr "Eroare: introdu o adresă de e-mail validă."
 
 #: modules/comments/comments.php:144
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
@@ -1672,11 +1677,11 @@ msgstr ""
 #: modules/contact-form/admin.php:88
 #: modules/contact-form/grunion-contact-form.php:42
 msgid "Message"
-msgstr "Порака"
+msgstr "Mesaj"
 
 #: modules/contact-form/admin.php:89
 msgid "Date"
-msgstr "Датум"
+msgstr "Dată"
 
 #: modules/contact-form/admin.php:159
 msgid "Restore this item from the Trash"
@@ -1684,7 +1689,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:161
 msgid "Restore"
-msgstr "Врати"
+msgstr "Restaurează"
 
 #: modules/contact-form/admin.php:164 modules/contact-form/admin.php:263
 msgid "Delete this item permanently"
@@ -1692,7 +1697,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:166 modules/contact-form/admin.php:265
 msgid "Delete Permanently"
-msgstr "Трајно избриши"
+msgstr "Șterge definitiv"
 
 #: modules/contact-form/admin.php:197
 msgid "Mark this message as spam"
@@ -1701,7 +1706,7 @@ msgstr ""
 #: modules/contact-form/admin.php:204 modules/contact-form/admin.php:206
 #: modules/contact-form/admin.php:493
 msgid "Trash"
-msgstr "Во ѓубре"
+msgstr "Gunoi"
 
 #: modules/contact-form/admin.php:257
 msgid "Mark this message as NOT spam"
@@ -1737,27 +1742,27 @@ msgstr ""
 
 #: modules/contact-form/admin.php:506
 msgid "Spam"
-msgstr "Спам"
+msgstr "Spam"
 
 #: modules/contact-form/grunion-contact-form.php:34
 #: modules/contact-form/grunion-form-view.php:150
 msgid "Name"
-msgstr "Име"
+msgstr "Nume"
 
 #: modules/contact-form/grunion-contact-form.php:35
 #: modules/contact-form/grunion-form-view.php:149
 #: modules/sharedaddy/sharing-sources.php:127
 msgid "Email"
-msgstr "Е-пошта"
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:36
 #: modules/contact-form/grunion-form-view.php:154
 msgid "Website"
-msgstr "Веб страница"
+msgstr "Pagina web"
 
 #: modules/contact-form/grunion-contact-form.php:39
 msgid "Subject"
-msgstr "Наслов"
+msgstr "Subiect"
 
 #: modules/contact-form/grunion-contact-form.php:79
 #: modules/contact-form/grunion-contact-form.php:84
@@ -1766,11 +1771,11 @@ msgstr "Наслов"
 #: modules/contact-form/grunion-contact-form.php:105
 #: modules/contact-form/grunion-contact-form.php:119
 msgid "(required)"
-msgstr "(задолжително)"
+msgstr "(necesar)"
 
 #: modules/contact-form/grunion-contact-form.php:99
 msgid "Yes"
-msgstr "Да"
+msgstr "Da"
 
 #: modules/contact-form/grunion-contact-form.php:140
 msgid "%s requires a valid email address"
@@ -1783,15 +1788,15 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:275
 #: modules/contact-form/grunion-contact-form.php:323
 msgid "Error!"
-msgstr ""
+msgstr "Eroare!"
 
 #: modules/contact-form/grunion-contact-form.php:285
 msgid "Submit &#187;"
-msgstr ""
+msgstr "Submit &#187;"
 
 #: modules/contact-form/grunion-contact-form.php:328
 msgid "Message Sent"
-msgstr ""
+msgstr "Mesaj trimis"
 
 #: modules/contact-form/grunion-contact-form.php:462
 msgid "l F j, Y \\a\\t g:i a"
@@ -1799,11 +1804,11 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:482
 msgid "Time:"
-msgstr ""
+msgstr "Timp:"
 
 #: modules/contact-form/grunion-contact-form.php:483
 msgid "IP Address:"
-msgstr ""
+msgstr "Adresă IP:"
 
 #: modules/contact-form/grunion-contact-form.php:484
 msgid "Contact Form URL:"
@@ -1815,12 +1820,12 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:511
 msgid "Sent by an unverified visitor to your site."
-msgstr ""
+msgstr "Trimis către situl tău de către un vizitator neverificat."
 
 #: modules/contact-form/grunion-contact-form.php:674
 #: modules/contact-form/grunion-form-view.php:130
 msgid "Feedbacks"
-msgstr "Повратни информации"
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:675
 msgid "Feedback"
@@ -1840,6 +1845,7 @@ msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
+msgstr[2] ""
 
 #: modules/contact-form/grunion-contact-form.php:718
 msgid "Add a custom form"
@@ -2005,7 +2011,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:152
 msgid "Text"
-msgstr "Текст"
+msgstr "Text"
 
 #: modules/contact-form/grunion-form-view.php:153
 msgid "Textarea"
@@ -2013,7 +2019,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:160
 msgid "Options"
-msgstr "Опции"
+msgstr "Opțiuni"
 
 #: modules/contact-form/grunion-form-view.php:161
 msgid "First option"
@@ -2062,7 +2068,7 @@ msgstr ""
 #: modules/gravatar-hovercards.php:44 modules/module-info.php:57
 #: modules/module-info.php:72
 msgid "Gravatar Hovercards"
-msgstr "Gravatar Hovercards"
+msgstr ""
 
 #: modules/gravatar-hovercards.php:56
 msgid "View people's profiles when you mouse over their Gravatars"
@@ -2070,7 +2076,7 @@ msgstr ""
 
 #: modules/gravatar-hovercards.php:83
 msgid "Put your mouse over your Gravatar to check out your profile."
-msgstr "Ставете го курсурот врз Вашиот Gravatar за да го видите Вашиот профил."
+msgstr ""
 
 #: modules/module-info.php:22 modules/module-info.php:26
 msgid "VaultPress"
@@ -2120,7 +2126,7 @@ msgstr ""
 
 #: modules/module-info.php:74
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
-msgstr "Лебдечките карти ја прикажуваат вашата слика со информации како: име, биографија, слики, контакт и др. сервиси."
+msgstr ""
 
 #: modules/module-info.php:75
 msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
@@ -2129,11 +2135,11 @@ msgstr ""
 #: modules/module-info.php:90 modules/module-info.php:94
 #: modules/module-info.php:103 modules/module-info.php:107
 msgid "Shortcode Embeds"
-msgstr "Кратенки за вметнување"
+msgstr ""
 
 #: modules/module-info.php:95 modules/module-info.php:108
 msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
-msgstr "Кратките кодови Ви овозожуваат полесно да додадете мултиедијални датотеки на Вашиот сајт. Со само еден едноставен код Вие можете да му кажете на WordPress да вметне материјал од YouTube, Flickr, ..."
+msgstr ""
 
 #: modules/module-info.php:109
 msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
@@ -2141,7 +2147,7 @@ msgstr ""
 
 #: modules/module-info.php:137
 msgid "Available shortcodes are: %l."
-msgstr "Дозволени кратенки се: %l."
+msgstr ""
 
 #: modules/module-info.php:152 modules/module-info.php:156
 #: modules/module-info.php:166 modules/module-info.php:170
@@ -2150,7 +2156,7 @@ msgstr ""
 
 #: modules/module-info.php:157 modules/module-info.php:171
 msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
-msgstr "Наместо да користите долги URL aдреси, Вие можете да ги скратите адресите и користите поедноставни адреси за Вашите написи и страници. Ова го користи супер доменот - wp.me и Ви дава уникатно URL."
+msgstr ""
 
 #: modules/module-info.php:158
 msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
@@ -2163,7 +2169,7 @@ msgstr ""
 #: modules/module-info.php:187 modules/module-info.php:191
 #: modules/module-info.php:200 modules/module-info.php:204
 msgid "WordPress.com Stats"
-msgstr "WordPress.com Статистика"
+msgstr ""
 
 #: modules/module-info.php:192 modules/module-info.php:205
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
@@ -2171,11 +2177,11 @@ msgstr ""
 
 #: modules/module-info.php:206
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
-msgstr "Вашата статистика можете да ја видите <a href=\"%s\">овде</a>."
+msgstr ""
 
 #: modules/module-info.php:221 modules/module-info.php:236
 msgid "LaTeX"
-msgstr "LaTeX"
+msgstr ""
 
 #: modules/module-info.php:226 modules/module-info.php:241
 msgid "%s is a powerful markup language for writing complex mathematical equations, formulas, etc."
@@ -2197,7 +2203,7 @@ msgstr ""
 #: modules/module-info.php:281 modules/sharedaddy/sharedaddy.php:25
 #: modules/sharedaddy/sharing.php:46
 msgid "Sharing"
-msgstr "Споделува"
+msgstr "Partajare"
 
 #: modules/module-info.php:261
 msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
