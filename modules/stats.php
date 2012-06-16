@@ -502,7 +502,6 @@ function stats_configuration_head() {
 }
 
 function stats_configuration_screen() {
-	global $wp_version;
 	$options = stats_get_options();
 	$options['reg_users'] = empty( $options['reg_users'] ) ? false : true;
 	?>
@@ -512,10 +511,8 @@ function stats_configuration_screen() {
 		<input type='hidden' name='action' value='save_options' />
 		<?php wp_nonce_field( 'stats' ); ?>
 		<table id="menu" class="form-table">
-	<?php if ( version_compare( $wp_version, '3.1-RC', '>=' ) ) : ?>
 		<tr valign="top"><th scope="row"><label for="admin_bar"><?php _e( 'Admin bar' , 'jetpack' ); ?></label></th>
 		<td><label><input type='checkbox'<?php checked( $options['admin_bar'] ); ?> name='admin_bar' id='admin_bar' /> <?php _e( "Put a chart showing 48 hours of views in the admin bar.", 'jetpack' ); ?></label></td></tr>
-	<?php endif; ?>
 		<tr valign="top"><th scope="row"><label for="reg_users"><?php _e( 'Registered users', 'jetpack' ); ?></label></th>
 		<td><label><input type='checkbox'<?php checked( $options['reg_users'] ); ?> name='reg_users' id='reg_users' /> <?php _e( "Count the page views of registered users who are logged in.", 'jetpack' ); ?></label></td></tr>
 		<tr valign="top"><th scope="row"><?php _e( 'Smiley' , 'jetpack' ); ?></th>

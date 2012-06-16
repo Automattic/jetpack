@@ -35,16 +35,7 @@ function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 }
 
 function jetpack_load_shortcodes() {
-	if ( version_compare( PHP_VERSION, 5, '<' ) ) {
-		$php5_only = array( 'videopress.php' => true );
-	} else {
-		$php5_only = array();
-	}
-
 	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/shortcodes' ) as $file ) {
-		if ( isset( $php5_only[basename( $file )] ) ) {
-			continue;
-		}
 		include $file;
 	}
 }

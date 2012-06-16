@@ -124,9 +124,7 @@ function jetpack_shortcodes_more_info_connected() { ?>
 		'polldaddy' => 'http://support.polldaddy.com/wordpress-shortcodes/',
 	);
 
-	if ( version_compare( PHP_VERSION, 5, '>=' ) ) {
-		$codes['wpvideo (VideoPress)'] = 'http://en.support.wordpress.com/videopress/';
-	}
+	$codes['wpvideo (VideoPress)'] = 'http://en.support.wordpress.com/videopress/';
 
 	$available = '';
 	foreach ( $codes as $code => $url ) {
