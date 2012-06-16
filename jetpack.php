@@ -63,11 +63,6 @@ class Jetpack {
 	);
 
 	/**
-	 * WP < 3.2 only.  3.2+ has an API.
-	 */
-	var $use_ssl = array();
-
-	/**
 	 * Message to display in admin_notice
 	 * @var string
 	 */
@@ -177,14 +172,8 @@ class Jetpack {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
-		// Only used in WordPress < 3.2
-		add_action( 'http_transport_post_debug', array( $this, 'http_transport_detector' ) );
-		add_action( 'http_transport_get_debug',  array( $this, 'http_transport_detector' ) );
-
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
-
-
 	}
 
 	/**
@@ -2179,40 +2168,6 @@ p {
 	 */
 	function api_url( $relative_url ) {
 		return trailingslashit( JETPACK__API_BASE . $relative_url  ) . JETPACK__API_VERSION . '/';
-	}
-
-	/**
-	 * Determines which WP_Http transport will be used for wp_remote_request() calls.
-	 * Detect if that transport has SSL capability on this host.
-	 *
-	 * Attached to http_transport_post_debug and http_transport_post_debug.
-	 *
-	 * Supports POST, GET, probably HEAD.  Does not currently support PUT, etc.
-	 *
-	 * Only used in WordPress < 3.2
-	 */
-	function http_transport_detector( $transport ) {
-		$method = 'http_transport_post_debug' == current_filter() ? 'POST' : 'GET';
-
-		$transport = strtolower( get_class( array_pop( array_values( $transport ) ) ) );
-
-		switch ( $transport ) {
-		// The HTTP and cURL extensions both use cURL and so use cURL's linked OpenSSL for SSL connections.
-		case 'wp_http_exthttp' :
-		case 'wp_http_curl' :
-			if ( is_callable( 'curl_version' ) && $curl_version = curl_version() ) {
-				$use_ssl =
-					( isset( $curl_version['ssl_version_number'] ) && $curl_version['ssl_version_number'] > 0 )
-					||
-					( defined( 'CURL_VERSION_SSL' ) && isset( $curl_version['features'] ) && ( CURL_VERSION_SSL & $curl_version['features'] ) ); // bitwise
-				break;
-			} // else no break
-		// Everything else uses PHP's linked OpenSSL for SSL connections.
-		default :
-			$use_ssl = extension_loaded( 'openssl' );
-		}
-
-		$this->use_ssl[$method] = (bool) $use_ssl;
 	}
 
 	/**
