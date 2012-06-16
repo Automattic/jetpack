@@ -24,7 +24,7 @@ class Jetpack_Subscriptions {
 	 * Singleton
 	 * @static
 	 */
-	function &init() {
+	function init() {
 		static $instance = false;
 
 		if ( !$instance ) {

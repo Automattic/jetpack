@@ -28,7 +28,7 @@ class Jetpack_IXR_Client extends IXR_Client {
 	function query() {
 		$args = func_get_args();
 		$method = array_shift( $args );
-		$request =& new IXR_Request( $method, $args );
+		$request = new IXR_Request( $method, $args );
 		$xml = trim( $request->getXml() );
 
 		$headers = array(
@@ -38,33 +38,33 @@ class Jetpack_IXR_Client extends IXR_Client {
 		$response = Jetpack_Client::remote_request( $this->jetpack_args, $xml );
 
 		if ( is_wp_error( $response ) ) {
-			$this->error =& new IXR_Error( -10520, sprintf( 'Jetpack: [%s] %s', $response->get_error_code(), $response->get_error_message() ) );
+			$this->error = new IXR_Error( -10520, sprintf( 'Jetpack: [%s] %s', $response->get_error_code(), $response->get_error_message() ) );
 			return false;
 		}
 
 		if ( !$response ) {
-			$this->error =& new IXR_Error( -10520, 'Jetpack: Unknown Error' );
+			$this->error = new IXR_Error( -10520, 'Jetpack: Unknown Error' );
 			return false;
 		}
 
 		if ( 200 != wp_remote_retrieve_response_code( $response ) ) {
-			$this->error =& new IXR_Error( -32300, 'transport error - HTTP status code was not 200' );
+			$this->error = new IXR_Error( -32300, 'transport error - HTTP status code was not 200' );
 			return false;
 		}
 		
 		$content = wp_remote_retrieve_body( $response );
 
 		// Now parse what we've got back
-		$this->message =& new IXR_Message( $content );
+		$this->message = new IXR_Message( $content );
 		if ( !$this->message->parse() ) {
 			// XML error
-			$this->error =& new IXR_Error( -32700, 'parse error. not well formed' );
+			$this->error = new IXR_Error( -32700, 'parse error. not well formed' );
 			return false;
 		}
 
 		// Is the message a fault?
 		if ( $this->message->messageType == 'fault' ) {
-			$this->error =& new IXR_Error( $this->message->faultCode, $this->message->faultString );
+			$this->error = new IXR_Error( $this->message->faultCode, $this->message->faultString );
 			return false;
 		}
 
