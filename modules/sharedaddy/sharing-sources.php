@@ -609,27 +609,19 @@ class Share_LinkedIn extends Sharing_Advanced_Source {
 	}
 	
 	public function get_display( $post ) {
-		static $added_linkedin_js = false;
-		$proto = ( is_ssl() ) ? 'https://' : 'http://';
 		$permalink = get_permalink( $post->ID );
-		$display = '';
 		
-		if( $this->smart ) {
-			
-			// So we don't spit out the linkedin js for each post on index pages
-			if( ! $added_linkedin_js ) {
-				$display .= sprintf( '<script type="text/javascript" src="%splatform.linkedin.com/in.js"></script>', $proto );
-				$added_linkedin_js = true;
-			}
-			
-			$display .= sprintf( '<div class="linkedin_button"><script type="in/share" data-url="%s" data-counter="right"></script></div>', esc_url( $permalink ) );
-			
-		} else {
-		
+		if( $this->smart )
+			$display = sprintf( '<div class="linkedin_button"><script type="in/share" data-url="%s" data-counter="right"></script></div>', esc_url( $permalink ) );			
+		else		
 			$display = $this->get_link( $permalink, _x( 'LinkedIn', 'share to', 'jetpack' ), __( 'Click to share on LinkedIn', 'jetpack' ), 'share=linkedin' );
 			
-		}
 		return $display;
+	}
+
+	public function display_footer() {
+		if( $this->smart )
+			echo '<script type="text/javascript" src="//platform.linkedin.com/in.js"></script>'; 
 	}
 	
 	public function process_request( $post, array $post_data ) {
