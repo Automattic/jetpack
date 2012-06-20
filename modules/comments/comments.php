@@ -274,13 +274,23 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			};
 
 			if ( window.postMessage ) {
-				window.addEventListener( 'message', function( event ) {
-					if ( <?php echo json_encode( esc_url_raw( $url_origin ) ); ?> !== event.origin ) {
-						return;
-					}
+				if ( document.addEventListener ) {
+					window.addEventListener( 'message', function( event ) {
+						if ( <?php echo json_encode( esc_url_raw( $url_origin ) ); ?> !== event.origin ) {
+							return;
+						}
 
-					jQuery( frame ).height( event.data );
-				} );
+						jQuery( frame ).height( event.data );
+					} );
+				} else if ( document.attachEvent ) {
+					window.attachEvent( 'message', function( event ) {
+						if ( <?php echo json_encode( esc_url_raw( $url_origin ) ); ?> !== event.origin ) {
+							return;
+						}
+
+						jQuery( frame ).height( event.data );
+					} );
+				}
 			}
 		</script>
 
