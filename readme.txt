@@ -77,6 +77,11 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.4.2 =
+* Bug Fix: Jetpack Comments: Add alternative Javascript event listener for Internet 8 users.
+* Enhancement: Remove more PHP 4 backwards-compatible code (WordPress andJetpack only support PHP 5).
+* Enhancement: Remove more WordPress 3.1 and under backwards-compatible code.
+
 = 1.4.1 =
 * Bug Fix: Jetpack Comments / Subscriptions: Add checkboxes and logic control for the Subscription checkboxes.
 
