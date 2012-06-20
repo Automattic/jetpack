@@ -25,7 +25,8 @@ if ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_AL
 				$blogcacheid = substr( $request_uri, 1, strpos( $request_uri, '/', 1 ) - 1 );
 			} else {
 				$blogcacheid = str_replace( $base, '', $request_uri );
-				$blogcacheid = substr( $blogcacheid, 0, strpos( $blogcacheid, '/', 1 ) );
+				if ( $blogcacheid != '' )
+					$blogcacheid = substr( $blogcacheid, 0, strpos( $blogcacheid, '/', 1 ) );
 			}
 			if ( '/' == substr($blogcacheid, -1))
 				$blogcacheid = substr($blogcacheid, 0, -1);
