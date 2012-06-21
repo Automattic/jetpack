@@ -1016,7 +1016,9 @@ function wp_cache_post_edit($post_id) {
 	}
 
 	$post = get_post( $post_id );
-	if ( $post->post_status != 'publish' ) {
+	// Some users are inexplicibly seeing this error on scheduled posts. 
+	// define this constant to disable the post status check.
+	if ( false == defined( 'WPSCFORCEUPDATE' ) && $post->post_status != 'publish' ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_edit: draft post, not deleting any cache files.", 4 );
 		return $post_id;
 	}
@@ -1076,7 +1078,9 @@ function wp_cache_post_change( $post_id ) {
 		return $post_id;
 	}
 	$post = get_post( $post_id );
-	if( $post->post_status != 'publish' ) {
+	// Some users are inexplicibly seeing this error on scheduled posts. 
+	// define this constant to disable the post status check.
+	if ( false == defined( 'WPSCFORCEUPDATE' ) && $post->post_status != 'publish' ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_change: draft post, not deleting any cache files.", 4 );
 		return $post_id;
 	}
