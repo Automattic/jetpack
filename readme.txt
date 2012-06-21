@@ -549,7 +549,7 @@ Translators who did a great job converting the text of the plugin to their nativ
 
 * [Gianni Diurno](http://gidibao.net/) (Italian)
 * [Omi](http://equipajedemano.info/) (Spanish)
-* [tomchen1989](http://emule-fans.com/) (Simplified Chinese)
+* [tomchen1989](http://emule-fans.com/) and [Christopher Meng](http://cicku.me) (Simplified Chinese)
 * Tai (Japanese)
 * [Vitaly](http://pressword.com.ua/wordpress/) (Ukranian)
 * [Pseric](http://pseric.com/) and [Priv](http://priv.tw/blog) (Traditional Chinese)
