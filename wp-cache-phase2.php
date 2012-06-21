@@ -1071,13 +1071,16 @@ function wp_cache_post_change( $post_id ) {
 	global $file_prefix, $cache_path, $blog_id, $super_cache_enabled, $blog_cache_dir, $blogcacheid, $wp_cache_refresh_single_only;
 	static $last_processed = -1;
 
-	if ($post_id == $last_processed) return $post_id;
-	$last_processed = $post_id;
+	if ( $post_id == $last_processed ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_change: Already processed post $post_id.", 4 );
+		return $post_id;
+	}
 	$post = get_post( $post_id );
 	if( $post->post_status != 'publish' ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_post_change: draft post, not deleting any cache files.", 4 );
 		return $post_id;
 	}
+	$last_processed = $post_id;
 
 	if( !wp_cache_writers_entry() )
 		return $post_id;
