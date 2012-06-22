@@ -1,3 +1,133 @@
+2012-06-21 15:14  donncha
+
+	* wp-cache-phase2.php: Added new constant, "WPSCFORCEUPDATE" that
+	  will disable the draft post check if defined
+
+2012-06-21 15:08  donncha
+
+	* wp-cache-phase2.php: Only check dupe posts after the post has
+	  been published
+
+2012-06-21 09:46  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2012-06-21 09:37  donncha
+
+	* readme.txt: Updated credits for translations
+
+2012-06-21 09:25  donncha
+
+	* languages/wp-super-cache-zh_CN.mo,
+	  languages/wp-super-cache-zh_CN.po: Updated translation, props
+	  Christopher Meng.
+
+2012-06-21 09:21  donncha
+
+	* languages/wp-super-cache-zh_TW.mo,
+	  languages/wp-super-cache-zh_TW.po: Updated translation, props
+	  Priv
+
+2012-06-21 08:53  donncha
+
+	* wp-cache-phase2.php: wp_cache_post_edit() checks if the current
+	  post has been processed already. Now that check only happens
+	  after a post is published. Possibly fixes scheduled posts
+	  problems for some users.
+
+2012-06-20 09:32  donncha
+
+	* wp-cache-base.php: Avoid raising a warning on strpos, see
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-wp-super-cache-warning-strpos-functionstrpos-offset-not-contained-in-stri?replies=2
+
+2012-06-13 21:55  donncha
+
+	* readme.txt: Bump tested version
+
+2012-06-12 12:52  donncha
+
+	* wp-cache.php: No need to schedule a single job if it's going to
+	  be scheduled for a particular time.
+
+2012-06-12 11:37  donncha
+
+	* wp-cache-base.php, wp-cache-phase1.php, wp-cache-phase2.php,
+	  wp-cache.php: Use HTTP_HOST instead of SERVER_NAME because nginx
+	  has problems with it.
+
+2012-06-11 16:00  donncha
+
+	* advanced-cache.php, readme.txt, wp-cache.php: Move
+	  advanced-cache.php path into wp-config.php by defining
+	  WPCACHEHOME there.
+
+2012-06-11 13:40  donncha
+
+	* wp-cache.php: Fixed DO NOT CACHE PAGE url, props netrival,
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-possible-low-priority-bug-do-not-cache-page-secret-key-showing-wrong-link?replies=1
+
+2012-06-11 13:39  donncha
+
+	* wp-cache.php: Hide another variable warning
+
+2012-06-11 13:23  donncha
+
+	* wp-cache.php: Hide "tab" variable warning
+
+2012-06-11 12:06  donncha
+
+	* wp-cache-phase2.php: Forgot these carriage returns in the debug
+	  messages
+
+2012-06-11 11:56  donncha
+
+	* wp-cache-phase1.php: Remove warning if this isn't set
+
+2012-06-08 15:05  donncha
+
+	* wp-cache-phase1.php: Fixed serving of gzipped content to clients
+	  who who don't tell us either way. Fixes #1528. Props pioto
+
+2012-06-07 16:04  donncha
+
+	* plugins/badbehaviour.php, plugins/domain-mapping.php,
+	  plugins/searchengine.php, plugins/wptouch.php,
+	  wp-cache-config-sample.php, wp-cache.php: Get rid of PHP notices,
+	  props @simonwheatley
+
+2012-06-05 14:34  donncha
+
+	* wp-cache.php: Don't stop processing form input because
+	  wp-cron.php isn't found. We should still inform the user though.
+
+2012-05-30 16:22  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Added option on Debug page to
+	  disable caching comments on public pages.
+
+2012-05-28 08:46  donncha
+
+	* wp-cache-phase1.php: Fix fatal error when "make known users
+	  anonymous" is selected
+
+2012-05-23 14:35  donncha
+
+	* wp-cache.php: Check that get_supercache_dir exists before calling
+	  it. Props @hewsut
+
+2012-05-23 12:16  donncha
+
+	* wp-cache.php: Added note about moving supercache plugins.
+
+2012-05-23 10:26  donncha
+
+	* readme.txt, wp-cache.php: Bump version and stable versions for
+	  new release
+
+2012-05-23 10:24  donncha
+
+	* Changelog.txt, readme.txt: Updated changelog
+
 2012-05-23 10:17  donncha
 
 	* wp-super-cache.pot: Updated translation file
