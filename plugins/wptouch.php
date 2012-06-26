@@ -63,7 +63,8 @@ function wp_super_cache_maybe_disable_wptouch( $t ) {
 	if ( $cache_wptouch != 1 )
 		return false;
 
-	if ( isset( $_COOKIE[ 'wptouch_switch_toggle' ] ) && $_COOKIE['wptouch_switch_toggle'] == 'normal' )
+	if ( ( isset( $_COOKIE[ 'wptouch_switch_toggle' ] ) && $_COOKIE[ 'wptouch_switch_toggle' ] == 'normal' ) ||
+		( isset( $_COOKIE[ 'wptouch-pro-view' ] ) && $_COOKIE[ 'wptouch-pro-view' ] == 'desktop' ) )
 		return true;
 
 	$ua = explode( ",", $wptouch_exclude_ua );
