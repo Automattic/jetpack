@@ -104,6 +104,13 @@ function wp_super_cache_wptouch_cookie_check( $cache_key ) {
 	if ( $_COOKIE[ 'wptouch_switch_toggle' ] == 'normal' || $_COOKIE[ 'wptouch_switch_toggle' ] == 'mobile' )
 		return $_COOKIE[ 'wptouch_switch_toggle' ];
 
+	if ( isset( $_COOKIE[ 'wptouch-pro-view' ] ) ) {
+		if ( $_COOKIE[ 'wptouch-pro-view' ] == 'desktop' )
+			return 'normal';
+		else
+			return $_COOKIE[ 'wptouch-pro-view' ];
+	}
+
 	return $cache_key;
 }
 
