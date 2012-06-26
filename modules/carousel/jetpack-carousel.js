@@ -3,7 +3,7 @@
 
 	// gallery faded layer and container elements
 	var overlay, comments, gallery, container, nextButton, previousButton, info, title,
-	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval,
+	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval, buttons,
 	screenPadding = 110, originalOverflow = $('body').css('overflow');
 
 	var keyListener = function(e){
