@@ -171,12 +171,6 @@ class Jetpack_Signature {
 	}
 }
 
-if ( version_compare( PHP_VERSION, 5, '<' ) ) :
-function jetpack_sha1_base64( $text ) {
-	return base64_encode( pack( 'H40', sha1( $text ) ) );
-}
-else :
 function jetpack_sha1_base64( $text ) {
 	return base64_encode( sha1( $text, true ) );
 }
-endif;

@@ -561,14 +561,7 @@ class VideoPress_Video {
 
 		// PHP 5.3.3 or newer can throw a warning on a bad input URI. catch that occurance just in case
 		try {
-			// use the component parameter of parse_url if current version of PHP supports
-			if ( version_compare(PHP_VERSION, '5.1.2', '>=') ) {
-				return parse_url( $url, PHP_URL_HOST );
-			} else {
-				$url_parts = parse_url( $url );
-				if ( $url_parts !== false && isset( $url_parts['host'] ) )
-					return $url_parts['host'];
-			}
+			return parse_url( $url, PHP_URL_HOST );
 		} catch (Exception $e){}
 		return false;
 	}

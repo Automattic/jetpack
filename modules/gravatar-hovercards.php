@@ -2,7 +2,7 @@
 /**
  * Module Name: Gravatar Hovercards
  * Module Description: Show a pop-up business card of your users' gravatar profiles in comments.
- * Sort Order: 5
+ * Sort Order: 8
  * First Introduced: 1.1
  */
 

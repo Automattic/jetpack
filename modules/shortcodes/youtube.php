@@ -2,13 +2,13 @@
 
 /**
  * youtube shortcode
- * 
- * Contains shortcode + some improvements over the Embeds syntax @  
+ *
+ * Contains shortcode + some improvements over the Embeds syntax @
  * http://codex.wordpress.org/Embeds
- * 
+ *
  * @example [youtube=http://www.youtube.com/watch?v=wq0rXGLs0YM&amp;fs=1&amp;hl=bg_BG]
- */ 
- 
+ */
+
 /**
  * Replaces YouTube embeds with YouTube shortcodes.
  *
@@ -42,7 +42,7 @@ function youtube_embed_to_short_code( $content ) {
 	$ifr_regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $ifr_regexp, ENT_NOQUOTES ) );
 
 	foreach ( array( 'regexp', 'regexp_ent', 'old_regexp', 'old_regexp_ent', 'ifr_regexp', 'ifr_regexp_ent' ) as $reg ) {
-		if ( !preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) )
+		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) )
 			continue;
 
 		foreach ( $matches as $match ) {
@@ -51,13 +51,13 @@ function youtube_embed_to_short_code( $content ) {
 			// if it is present
 			// YouTube changed their embed code.
 			// Example of how it is now:
-//<object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/aP9AaD4tgBY?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/aP9AaD4tgBY?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>
-			// As shown at the start of function, previous YouTube didn't '?' 
+			//     <object width="640" height="385"><param name="movie" value="http://www.youtube.com/v/aP9AaD4tgBY?fs=1&amp;hl=en_US"></param><param name="allowFullScreen" value="true"></param><param name="allowscriptaccess" value="always"></param><embed src="http://www.youtube.com/v/aP9AaD4tgBY?fs=1&amp;hl=en_US" type="application/x-shockwave-flash" allowscriptaccess="always" allowfullscreen="true" width="640" height="385"></embed></object>
+			// As shown at the start of function, previous YouTube didn't '?'
 			// the 1st field-value pair.
 			if ( in_array ( $reg, array( 'ifr_regexp', 'ifr_regexp_ent' ) ) ) {
 				$params = $match[1];
 
-				if ( 'ifr_regexp_ent' == $reg ) 
+				if ( 'ifr_regexp_ent' == $reg )
 					$params = html_entity_decode( $params );
 
 				$params = wp_kses_hair( $params, array( 'http' ) );
@@ -65,13 +65,14 @@ function youtube_embed_to_short_code( $content ) {
 				$width = isset( $params['width'] ) ? (int) $params['width']['value'] : 0;
 				$height = isset( $params['height'] ) ? (int) $params['height']['value'] : 0;
 				$wh = '';
+
 				if ( $width && $height )
 					$wh = "&w=$width&h=$height";
-					
+
 				$url = esc_url_raw( "http://www.youtube.com/watch?v={$match[2]}{$wh}" );
 			} else {
 				$match[1] = str_replace( '?', '&', $match[1] );
-	
+
 				$url = esc_url_raw( 'http://www.youtube.com/watch?v=' . html_entity_decode( $match[1] ) );
 			}
 
@@ -83,11 +84,12 @@ function youtube_embed_to_short_code( $content ) {
 
 	return $content;
 }
+
 add_filter('pre_kses', 'youtube_embed_to_short_code');
 
 /**
  * Replaces plain-text links to YouTube videos with YouTube embeds.
- * 
+ *
  * @param string $content HTML content
  * @return string The content with embeds instead of URLs
  */
@@ -113,14 +115,14 @@ function youtube_sanitize_url( $url ) {
 	$url = trim( $url, ' "' );
 	$url = trim( $url );
 	$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&' ), $url );
-	
+
 	// Replace any extra question marks with ampersands - the result of a URL like "http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US" being passed in.
 	$query_string_start = strpos( $url, "?" );
-	
+
 	if ( false !== $query_string_start ) {
 		$url = substr( $url, 0, $query_string_start + 1 ) . str_replace( "?", "&", substr( $url, $query_string_start + 1 ) );
 	}
-	
+
 	return $url;
 }
 
@@ -133,17 +135,17 @@ function youtube_sanitize_url( $url ) {
  *    http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US
  *    http://youtu.be/Rrohlqeir5E
  */
- 
+
 function get_youtube_id( $url ) {
 	$url = youtube_sanitize_url( $url );
 	$url = parse_url( $url );
 
-	if ( !isset( $url['query'] ) )
+	if ( ! isset( $url['query'] ) )
 		return false;
 
 	parse_str( $url['query'], $qargs );
 
-	if ( !isset( $qargs['v'] ) )
+	if ( ! isset( $qargs['v'] ) )
 		return false;
 
 	$id = preg_replace( '|[^_a-z0-9-]|i', '', $qargs['v'] );
@@ -158,13 +160,13 @@ function youtube_id( $url ) {
 	if ( apply_filters( 'jetpack_bail_on_shortcode', false, 'youtube' ) )
 		return '';
 
-	if ( !$id = get_youtube_id( $url ) )
+	if ( ! $id = get_youtube_id( $url ) )
 		return '<!--YouTube Error: bad URL entered-->';
 
 	$url = youtube_sanitize_url( $url );
 	$url = parse_url( $url );
 
-	if ( !isset( $url['query'] ) )
+	if ( ! isset( $url['query'] ) )
 		return false;
 
 	parse_str( $url['query'], $qargs );
@@ -172,73 +174,60 @@ function youtube_id( $url ) {
 	$agent = $_SERVER['HTTP_USER_AGENT'];
 	// Bloglines & Google Reader handle YouTube well now, instead of
 	// big blank space of yester year, so they can skip this treatment
-	if ( is_feed() && !preg_match( '#' . apply_filters( 'jetpack_shortcode_youtube_whitelist_user_agents', 'Bloglines|FeedFetcher-Google|feedburner' ) . '#i', $agent ) )
+	if ( is_feed() && ! preg_match( '#' . apply_filters( 'jetpack_shortcode_youtube_whitelist_user_agents', 'Bloglines|FeedFetcher-Google|feedburner' ) . '#i', $agent ) )
 		return '<span style="text-align:center; display: block;"><a href="' . get_permalink() . '"><img src="http://img.youtube.com/vi/' . $id . '/2.jpg" alt="" /></a></span>';
 
-	// calculate the width and height, taken content_width into consideration
+	// calculate the width and height, taking content_width into consideration
 	global $content_width;
 
 	$input_w = ( isset( $qargs['w'] ) && intval( $qargs['w'] ) ) ? intval( $qargs['w'] ) : 0;
 	$input_h = ( isset( $qargs['h'] ) && intval( $qargs['h'] ) ) ? intval( $qargs['h'] ) : 0;
 
-	$default_width = 640;
+	$default_width = get_option('embed_size_w');
+
+	if ( empty( $default_width ) ) {
+		if ( ! empty( $content_width ) ) {
+			$default_width = $content_width;
+		} else {
+			$default_width = 640;
+		}
+	}
 
 	if ( $input_w > 0 && $input_h > 0 ) {
 		$w = $input_w;
 		$h = $input_h;
 	} elseif ( 0 == $input_w && 0 == $input_h ) {
-		if ( isset( $qargs['fmt'] ) && intval( $qargs['fmt'] ) )
-			$w = ( !empty( $content_width ) ? min( $content_width, 480 ) : 480 );
-		else
-			$w = ( !empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
-
-		$h = ceil( ( $w / 16 ) * 9 ) + 30;
+		if ( isset( $qargs['fmt'] ) && intval( $qargs['fmt'] ) ) {
+			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
+		} else {
+			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
+			$h = ceil( ( $w / 16 ) * 9 ) + 30;
+		}
 	} elseif ( $input_w > 0 ) {
 		$w = $input_w;
 		$h = ceil( ( $w / 16 ) * 9 ) + 30;
 	} else {
-		if ( isset( $qargs['fmt'] ) && intval( $qargs['fmt'] ) )
-			$w = ( !empty( $content_width ) ? min( $content_width, 480 ) : 480 );
-		else
-			$w = ( !empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
-
-		$h = $input_h;
+		if ( isset( $qargs['fmt'] ) && intval( $qargs['fmt'] ) ) {
+			$w = ( ! empty( $content_width ) ? min( $content_width, 480 ) : 480 );
+		} else {
+			$w = ( ! empty( $content_width ) ? min( $content_width, $default_width ) : $default_width );
+			$h = $input_h;
+		}
 	}
 
 	$w = (int) apply_filters( 'youtube_width', $w );
 	$h = (int) apply_filters( 'youtube_height', $h );
 
-	$fmt = '';
-	if ( isset( $qargs['fmt'] ) && intval( $qargs['fmt'] ) )
-		$fmt = '&fmt=' . (int) $qargs['fmt'];
+	$rel =    ( isset( $qargs['rel'] )            && 0 == $qargs['rel']            ) ? 0 : 1;
+	$search = ( isset( $qargs['showsearch'] )     && 1 == $qargs['showsearch']     ) ? 1 : 0;
+	$info =   ( isset( $qargs['showinfo'] )       && 0 == $qargs['showinfo']       ) ? 0 : 1;
+	$iv =     ( isset( $qargs['iv_load_policy'] ) && 3 == $qargs['iv_load_policy'] ) ? 3 : 1;
 
-	if ( isset( $qargs['rel'] ) && 0 == $qargs['rel'] )
-		$rel = 0;
-	else
-		$rel = 1;
+	$fmt =    ( isset( $qargs['fmt'] )            && intval( $qargs['fmt'] )       ) ? '&fmt=' . (int) $qargs['fmt']     : '';
+	$start =  ( isset( $qargs['start'] )          && intval( $qargs['start'] )     ) ? '&start=' . (int) $qargs['start'] : '';
+	$hd =     ( isset( $qargs['hd'] )             && intval( $qargs['hd'] )        ) ? '&hd=' . (int) $qargs['hd']       : '';
 
-	if ( isset( $qargs['showsearch'] ) && 1 == $qargs['showsearch'] )
-		$search = 1;
-	else
-		$search = 0;
-
-	if ( isset( $qargs['showinfo'] ) && 0 == $qargs['showinfo'] )
-		$info = 0;
-	else
-		$info = 1;
-
-	if ( isset( $qargs['iv_load_policy'] ) && 3 == $qargs['iv_load_policy'] )
-		$iv = 3;
-	else
-		$iv = 1;
-
-	$start = '';
-	if ( isset( $qargs['start'] ) && intval( $qargs['start'] ) )
-		$start = '&start=' . (int) $qargs['start'];
-
-	$hd = '';
-	if ( isset( $qargs['hd'] ) && intval( $qargs['hd'] ) )
-		$hd = '&hd=' . (int) $qargs['hd'];
+	$wmode =  ( isset( $qargs['wmode'] ) && in_array( strtolower( $qargs['wmode'] ), array( 'opaque', 'window', 'transparent' ) ) ) ? $qargs['wmode'] : 'transparent';
 
 	$alignmentcss = 'text-align:center;';
 	if ( isset( $qargs['align'] ) ) {
@@ -251,25 +240,17 @@ function youtube_id( $url ) {
 				break;
 		}
 	}
-	
-	if ( isset( $qargs['wmode'] ) && in_array( strtolower( $qargs['wmode'] ), array( 'opaque', 'window', 'transparent' ) ) )
-		$wmode = $qargs['wmode'];
-	else
-		$wmode = 'transparent';
 
-	$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_attr( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$hd&wmode=$wmode" ) . "' frameborder='0'></iframe></span>";
+	$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$hd&wmode=$wmode" ) . "' frameborder='0'></iframe></span>";
 	$html = apply_filters( 'video_embed_html', $html );
+
 	return $html;
 }
 
 function youtube_shortcode( $atts ) {
-	if ( isset ( $atts[0] ) ) 
-		$src = ltrim( $atts[0] , '=' );
-	else
-		$src = shortcode_new_to_old_params( $atts );
-
-	return youtube_id( $src );
+	return youtube_id( ( isset ( $atts[0] ) ) ? ltrim( $atts[0] , '=' ) : shortcode_new_to_old_params( $atts ) );
 }
+
 add_shortcode( 'youtube', 'youtube_shortcode' );
 
 /**
@@ -283,6 +264,7 @@ function wpcom_youtube_embed_crazy_url( $matches, $attr, $url ) {
 function wpcom_youtube_embed_crazy_url_init() {
 	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', '#http://(?:www\.)?(?:youtube.com/(?:v/|watch[/\#?])|youtu\.be/).*#i', 'wpcom_youtube_embed_crazy_url' );
 }
+
 add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
 
 // higher priority because we need it before auto-link and autop get to it

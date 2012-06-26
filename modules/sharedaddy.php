@@ -2,7 +2,7 @@
 /**
  * Module Name: Sharing
  * Module Description: The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more.
- * Sort Order: 1
+ * Sort Order: 4
  * First Introduced: 1.1
  * Major Changes In: 1.2
  */

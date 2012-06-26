@@ -2,23 +2,39 @@
 /**
  * Template for form builder
  */
+
+wp_register_script( 'grunion', GRUNION_PLUGIN_URL . 'js/grunion.js', array( 'jquery-ui-sortable', 'jquery-ui-draggable' ), JETPACK__VERSION );
+wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
+	'nameLabel' => esc_attr( _x( 'Name', 'Label for HTML form "Name" field in contact form builder', 'jetpack' ) ),
+	'emailLabel' => esc_attr( _x( 'Email', 'Label for HTML form "Email" field in contact form builder', 'jetpack' ) ),
+	'urlLabel' => esc_attr( _x( 'Website', 'Label for HTML form "URL/Website" field in contact form builder', 'jetpack' ) ),
+	'commentLabel' => esc_attr( _x( 'Comment', 'Label for HTML form "Comment/Response" field in contact form builder', 'jetpack' ) ),
+	'newLabel' => esc_attr( _x( 'New Field', 'Default label for new HTML form field in contact form builder', 'jetpack' ) ),
+	'optionsLabel' => esc_attr( _x( 'Options', 'Label for the set of options to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
+	'optionsLabel' => esc_attr( _x( 'Option', 'Label for an option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
+	'firstOptionLabel' => esc_attr( _x( 'First option', 'Default label for the first option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
+	'problemGeneratingForm' => esc_attr( _x( "Oops, there was a problem generating your form.  You'll likely need to try again.", 'error message in contact form builder', 'jetpack' ) ),
+	'moveInstructions' => esc_attr__( "Drag up or down\nto re-arrange", 'jetpack' ),
+	'moveLabel' => esc_attr( _x( 'move', 'Label to drag HTML form fields around to change their order in contact form builder', 'jetpack' ) ),
+	'editLabel' => esc_attr( _x( 'edit', 'Link to edit an HTML form field in contact form builder', 'jetpack' ) ),
+	'savedMessage' => esc_attr__( 'Saved successfully', 'jetpack' ),
+	'requiredLabel' => esc_attr( _x( '(required)', 'This HTML form field is marked as required by the user in contact form builder', 'jetpack' ) ),
+	'exitConfirmMessage' => esc_attr__( 'Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost.', 'jetpack' ),
+) );
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Contact form</title>
-<?php wp_print_scripts( 'jquery' ); ?>
-<?php wp_print_scripts( 'jquery-ui-core' ); ?>
-<?php wp_print_scripts( 'jquery-ui-sortable' ); ?>
-<?php wp_print_scripts( 'jquery-ui-draggable' ); ?>
+<title><?php esc_html_e( 'Contact Form', 'jetpack' ); ?></title>
 <script type="text/javascript">
 	var ajaxurl = '<?php echo admin_url('admin-ajax.php'); ?>';
 	var postId = <?php echo absint( $_GET['post_id'] ); ?>;
 	var ajax_nonce_shortcode = '<?php echo wp_create_nonce( 'grunion_shortcode' ); ?>';
 	var ajax_nonce_json = '<?php echo wp_create_nonce( 'grunion_shortcode_to_json' ); ?>';
 </script>
-<script type="text/javascript" src="<?php echo GRUNION_PLUGIN_URL; ?>js/grunion.js?00005"></script>
+<?php wp_print_scripts( 'grunion' ); ?>
 <script type="text/javascript">
 	jQuery(document).ready(function () {
 		FB.ContactForm.init();
@@ -93,88 +109,94 @@
 
 <body>
 	<div id="media-upload-header">
-		<div id="fb-success" class="fb-success" style="display: none;">Your new field was saved successfully</div>
+		<div id="fb-success" class="fb-success" style="display: none;"><?php esc_html_e( 'Your new field was saved successfully', 'jetpack' ); ?></div>
 		<ul id="sidemenu">
-			<li id="tab-preview"><a class="current" href="">Form builder</a></li>
-			<li id="tab-settings"><a href="">Email notifications</a></li>
+			<li id="tab-preview"><a class="current" href=""><?php esc_html_e( 'Form builder', 'jetpack' ); ?></a></li>
+			<li id="tab-settings"><a href=""><?php esc_html_e( 'Email notifications', 'jetpack' ); ?></a></li>
 		</ul>
 	</div>
 	<div class="fb-right">
 		<div id="fb-desc" class="fb-desc">
-			<h3>How does this work?</h3>
-			<p>By adding a contact form your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you.</p>
-			<h3 style="margin-top: 21px;">Can I add more fields?</h3>
-			<p>Sure thing. <a href="#" class="fb-add-field" style="padding-left: 0;">Click here</a> to add a new text box, textarea, radio, checkbox, or dropdown field.</p>
-			<h3 style="margin-top: 21px;">Can I view my feedback within WordPress?</h3>
-			<p>Yep, you can read your feedback at any time by clicking the "<a id="fb-feedback" href="<?php echo admin_url( 'edit.php?post_type=feedback' ); ?>">Feedbacks</a>" link in the main admin menu.</p>
+			<h3><?php esc_html_e( 'How does this work?', 'jetpack' ); ?></h3>
+			<p><?php esc_html_e( 'By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you.', 'jetpack' ); ?></p>
+			<h3 style="margin-top: 21px;"><?php esc_html_e( 'Can I add more fields?', 'jetpack' ); ?></h3>
+			<p><?php printf(
+				esc_html( _x( 'Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field.', '%1$s = "Click here" in an HTML link', 'jetpack' ) ),
+				'<a href="#" class="fb-add-field" style="padding-left: 0;">' . esc_html__( 'Click here', 'jetpack' ) . '</a>'
+			); ?></p>
+			<h3 style="margin-top: 21px;"><?php esc_html_e( 'Can I view my feedback within WordPress?', 'jetpack' ); ?></h3>
+			<p><?php printf(
+				esc_html( _x( 'Yep, you can read your feedback at any time by clicking the "%1$s" link in the admin menu.', '%1$s = "Feedbacks" in an HTML link', 'jetpack' ) ),
+				'<a id="fb-feedback" href="' . admin_url( 'edit.php?post_type=feedback' ) . '">' . esc_html__( 'Feedbacks', 'jetpack' ) . '</a>'
+			); ?></p>
 			<div class="clear"></div>
 		</div>
 		<div id="fb-email-desc" class="fb-desc" style="display: none;">
-			<h3>Do I need to fill this out?</h3>
-			<p>Nope.  However, if you'd like to modify where your feedback is sent, or the subject line you can.  If you don't make any changes here, feedback will be sent to the author of the post and the subject will be the name of this page/post.</p>
+			<h3><?php esc_html_e( 'Do I need to fill this out?', 'jetpack' ); ?></h3>
+			<p><?php esc_html_e( 'Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post.', 'jetpack' ); ?></p>
 			<div class="clear"></div>
 		</div>
 		<div id="fb-add-field" style="display: none;">
-			<h3>Edit this new field</h3>
+			<h3><?php esc_html_e( 'Edit this new field', 'jetpack' ); ?></h3>
 			
-			<label for="fb-new-label">Label</label>
-			<input type="text" id="fb-new-label" value="New field" />
+			<label for="fb-new-label"><?php esc_html_e( 'Label', 'jetpack' ); ?></label>
+			<input type="text" id="fb-new-label" value="<?php esc_attr_e( 'New field', 'jetpack' ); ?>" />
 			
-			<label for="fb-new-label">Field type</label>
+			<label for="fb-new-label"><?php esc_html_e( 'Field type', 'jetpack' ); ?></label>
 			<select id="fb-new-type">
-				<option value="checkbox">Checkbox</option>
-				<option value="select">Drop down</option>
-				<option value="email">Email</option>
-				<option value="name">Name</option>
-				<option value="radio">Radio</option>
-				<option value="text" selected="selected">Text</option>
-				<option value="textarea">Textarea</option>
-				<option value="url">Website</option>
+				<option value="checkbox"><?php esc_html_e( 'Checkbox', 'jetpack' ); ?></option>
+				<option value="select"><?php esc_html_e( 'Drop down', 'jetpack' ); ?></option>
+				<option value="email"><?php esc_html_e( 'Email', 'jetpack' ); ?></option>
+				<option value="name"><?php esc_html_e( 'Name', 'jetpack' ); ?></option>
+				<option value="radio"><?php esc_html_e( 'Radio', 'jetpack' ); ?></option>
+				<option value="text" selected="selected"><?php esc_html_e( 'Text', 'jetpack' ); ?></option>
+				<option value="textarea"><?php esc_html_e( 'Textarea', 'jetpack' ); ?></option>
+				<option value="url"><?php esc_html_e( 'Website', 'jetpack' ); ?></option>
 			</select>
 			<div class="clear"></div>
 			
 			<div id="fb-options" style="display: none;">
 				<div id="fb-new-options">
-					<label for="fb-option0">Options</label>
-					<input type="text" id="fb-option0" optionid="0" value="First option" class="fb-options" />
+					<label for="fb-option0"><?php esc_html_e( 'Options', 'jetpack' ); ?></label>
+					<input type="text" id="fb-option0" optionid="0" value="<?php esc_attr_e( 'First option', 'jetpack' ); ?>" class="fb-options" />
 				</div>
 				<div id="fb-add-option" class="fb-add-option">
-					<a href="#" id="fb-another-option">Add another option</a>
+					<a href="#" id="fb-another-option"><?php esc_html_e( 'Add another option', 'jetpack' ); ?></a>
 				</div>
 			</div>
 			
 			<div class="fb-required">
 				<label for="fb-new-label"></label>
 				<input type="checkbox" id="fb-new-required" />
-				<label for="fb-new-label" class="fb-radio-label">Required?</label>
+				<label for="fb-new-label" class="fb-radio-label"><?php esc_html_e( 'Required?', 'jetpack' ); ?></label>
 				<div class="clear"></div>
 			</div>
 			
 			<input type="hidden" id="fb-field-id" />
-			<input type="submit" class="button" value="Save this field" id="fb-save-field" name="save">
+			<input type="submit" class="button" value="<?php esc_attr_e( 'Save this field', 'jetpack' ); ?>" id="fb-save-field" name="save">
 		</div>
 	</div>
 	<form id="fb-preview">
 		<div id="fb-preview-form" class="fb-container">
-			<h1>Here's what your form will look like</h1>
+			<h1><?php esc_html_e( 'Here&#8217;s what your form will look like', 'jetpack' ); ?></h1>
 			<div id="sortable" class="fb-form-case">
 				
 				<div id="fb-extra-fields" class="fb-extra-fields"></div>
 				
-				<a href="#" id="fb-new-field" class="fb-add-field">Add a new field</a>
+				<a href="#" id="fb-new-field" class="fb-add-field"><?php esc_html_e( 'Add a new field', 'jetpack' ); ?></a>
 			</div>
-			<input type="submit" class="button-primary" tabindex="4" value="Add this form to my post" id="fb-save-form" name="save">
+			<input type="submit" class="button-primary" tabindex="4" value="<?php esc_attr_e( 'Add this form to my post', 'jetpack' ); ?>" id="fb-save-form" name="save">
 		</div>
 		<div id="fb-email-settings" class="fb-container" style="display: none;">
-			<h1>Email settings</h1>
+			<h1><?php esc_html_e( 'Email settings', 'jetpack' ); ?></h1>
 			<div class="fb-form-case fb-settings">
-				<label for="fb-fieldname">Enter your email address</label>
+				<label for="fb-fieldname"><?php esc_html_e( 'Enter your email address', 'jetpack' ); ?></label>
 				<input type="text" id="fb-field-my-email" style="background: #FFF !important;" />
 
-				<label for="fb-fieldemail" style="margin-top: 14px;">What should the subject line be?</label>
+				<label for="fb-fieldemail" style="margin-top: 14px;"><?php esc_html_e( 'What should the subject line be?', 'jetpack' ); ?></label>
 				<input type="text" id="fb-field-subject" style="background: #FFF !important;" />
 			</div>
-			<input type="submit" class="button-primary" value="Save and go back to form builder" id="fb-prev-form" name="save">
+			<input type="submit" class="button-primary" value="<?php esc_attr_e( 'Save and go back to form builder', 'jetpack' ); ?>" id="fb-prev-form" name="save">
 		</div>
 	</form>
 </body>

@@ -38,6 +38,10 @@ class Jetpack_Carousel {
 			// If in admin, register the ajax endpoints.
 			add_action( 'wp_ajax_get_attachment_comments', array( $this, 'get_attachment_comments' ) );
 			add_action( 'wp_ajax_nopriv_get_attachment_comments', array( $this, 'get_attachment_comments' ) );
+			add_action( 'wp_ajax_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
+			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
+			// Also register the Carousel-related related settings
+			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
 		}
 	}
 
@@ -60,19 +64,53 @@ class Jetpack_Carousel {
 		do_action( 'jp_carousel_thumbnails_shown' );
 
 		if ( $this->first_run ) {
-			wp_enqueue_script( 'jetpack-carousel', plugins_url( 'jetpack-carousel.js', __FILE__ ), array( 'jquery' ), $this->asset_version( '20120517' ), true );
+			wp_enqueue_script( 'jetpack-carousel', plugins_url( 'jetpack-carousel.js', __FILE__ ), array( 'jquery' ), $this->asset_version( '20120620' ), true );
 
 			// Note: using  home_url() instead of admin_url() for ajaxurl to be sure  to get same domain on wpcom when using mapped domains (also works on self-hosted)
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
+			$is_logged_in = is_user_logged_in();
+			$current_user = wp_get_current_user();
 			$localize_strings = array(
-				'widths'       => $this->prebuilt_widths,
-				'is_logged_in' => is_user_logged_in(),
-				'ajaxurl'      => home_url( '/wp-admin/admin-ajax.php', is_ssl() ? 'https' : 'http' ),
-				'nonce'        => wp_create_nonce( 'carousel_nonce' ),
+				'widths'               => $this->prebuilt_widths,
+				'is_logged_in'         => $is_logged_in,
+				'ajaxurl'              => home_url( '/wp-admin/admin-ajax.php', is_ssl() ? 'https' : 'http' ),
+				'nonce'                => wp_create_nonce( 'carousel_nonce' ),
+				'display_exif'         => $this->test_1or0_option( get_option( 'carousel_display_exif' ), true ),
+				'display_geo'          => $this->test_1or0_option( get_option( 'carousel_display_geo' ), true ),
+				'post_comment'         => __('Post Comment'),
+				'loading_comments'     => __('Loading Comments...'),
+				'download_original'    => __('View full size <span class="photo-size">{0}<span class="photo-size-times">&times;</span>{1}</span>'),
+				'no_comment_text'      => __('Please be sure to submit some text with your comment.'),
+				'no_comment_email'     => __('Please provide an email address to comment.'),
+				'no_comment_author'    => __('Please provide your name to comment.'),
+				'comment_post_error'   => __('Sorry, but there was an error posting your comment. Please try again later.'),
+				'comment_approved'     => __( 'Your comment was approved.' ),
+				'comment_unapproved'   => __( 'Your comment is in moderation.' ),
+				'camera'               => __('Camera'),
+				'aperture'             => __('Aperture'),
+				'shutter_speed'        => __('Shutter Speed'),
+				'focal_length'         => __('Focal Length'),
 			);
+
+			if ( ! isset( $localize_strings['jetpack_comments_iframe_src'] ) || empty( $localize_strings['jetpack_comments_iframe_src'] ) ) {
+				// We're not using Jetpack comments after all, so fallback to standard local comments.
+
+				if ( $is_logged_in ) {
+					$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . sprintf( __( 'Commenting as %s' ), $current_user->data->display_name ) . '</p>';
+				} else {
+					$localize_strings['local_comments_commenting_as'] = ''
+						. '<fieldset><label for="email">' . __( 'Email (Required)' ) . '</label> '
+						. '<input type="text" name="email" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-email-field" /></fieldset>'
+						. '<fieldset><label for="author">' . __( 'Name (Required)' ) . '</label> '
+						. '<input type="text" name="author" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-author-field" /></fieldset>'
+						. '<fieldset><label for="url">' . __( 'Website' ) . '</label> '
+						. '<input type="text" name="url" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-url-field" /></fieldset>';
+				}
+			}
+
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
-			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( '20120517' ) );
+			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( '20120620' ) );
 
 			do_action( 'jp_carousel_enqueue_assets', $this->first_run, $localize_strings );
 
@@ -86,12 +124,27 @@ class Jetpack_Carousel {
 		if ( $this->first_run ) // not in a gallery
 			return $html;
 
-		$attachment_id = intval( $attachment_id );
-		$meta          = wp_get_attachment_metadata( $attachment_id );
-		$size          = isset( $meta['width'] ) ? "{$meta['width']},{$meta['height']}" : '';
-		$img_meta      = esc_attr( json_encode( $meta['image_meta'] ) );
+		$attachment_id   = intval( $attachment_id );
+		$meta            = wp_get_attachment_metadata( $attachment_id );
+		$size            = isset( $meta['width'] ) ? "{$meta['width']},{$meta['height']}" : '';
+		$img_meta        = $meta['image_meta'];
+		$comments_opened = comments_open( $attachment_id );
 
-		$html = str_replace( '<img ', "<img data-attachment-id='$attachment_id' data-orig-size='$size' data-image-meta='$img_meta' ", $html );
+		$attachment      = get_post( $attachment_id );
+		$attachment_desc = esc_attr( wpautop( $attachment->post_content ) );
+
+		// Not yet providing geo-data
+		// http://janitorialp2.wordpress.com/2012/06/18/carousel-v2-pre-prod-thread-please-post-and/#comment-6928
+		if ( ! empty( $img_meta ) ) {
+			foreach ( $img_meta as $k => $v ) {
+				if ( 'latitude' == $k || 'longitude' == $k )
+					unset( $img_meta[$k] );
+			}
+		}
+
+		$img_meta = esc_attr( json_encode( $img_meta ) );
+
+		$html = str_replace( '<img ', "<img data-attachment-id='$attachment_id' data-orig-size='$size' data-comments-opened='$comments_opened' data-image-meta='$img_meta' data-image-description='$attachment_desc'", $html );
 
 		$html = apply_filters( 'jp_carousel_add_data_to_images', $html, $attachment_id );
 
@@ -115,22 +168,30 @@ class Jetpack_Carousel {
 	}
 	
 	function get_attachment_comments() {
-		header('Content-type: text/javascript');
+		if ( ! headers_sent() )
+			header('Content-type: text/javascript');
+		
 		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0;
 		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
+		
 		if ( ! $attachment_id ) {
 			echo json_encode( 'Whoops, missing attachment ID.' );
 			die();
 		}
+		
 		if ( $offset < 1 )
 			$offset = 0;
+		
 		$comments = get_comments( array(
 			'status'  => 'approve',
+			'order'   => ( 'asc' == get_option('comment_order') ) ? 'ASC' : 'DESC',
 			'number'  => 10,
-			'post_id' => $attachment_id,
 			'offset'  => $offset,
+			'post_id' => $attachment_id,
 		) );
+		
 		$out      = array();
+		
 		// Can't just send the results, they contain the commenter's email address.
 		foreach ( $comments as $comment ) {
 			$author_markup   = '<a href="' . esc_url( $comment->comment_author_url ) . '">' . esc_html( $comment->comment_author ) . '</a>';
@@ -140,11 +201,147 @@ class Jetpack_Carousel {
 				'author_markup'   => $author_markup,
 				'gravatar_markup' => get_avatar( $comment->comment_author_email, 64 ),
 				'date_gmt'        => $comment->comment_date_gmt,
-				'content'         => $comment->comment_content,
+				'content'         => wpautop($comment->comment_content),
 			);
 		}
+		
 		die( json_encode( $out ) );
 	}
+
+	function post_attachment_comment() {
+		if ( ! headers_sent() )
+			header('Content-type: text/javascript');
+		
+		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce($_POST['nonce'], 'carousel_nonce') )
+			die( json_encode( array( 'error' => 'Nonce verification failed.' ) ) );
+		
+		$_blog_id = (int) $_POST['blog_id'];
+		$_post_id = (int) $_POST['id'];
+		$comment = $_POST['comment'];
+		
+		if ( empty( $_blog_id ) )
+			die( json_encode( array( 'error' => 'Missing target blog ID' ) ) );
+		
+		if ( empty( $_post_id ) )
+			die( json_encode( array( 'error' => 'Missing target post ID.' ) ) );
+		
+		if ( empty( $comment ) )
+			die( json_encode( array( 'error' => 'No comment text was submitted.' ) ) );
+
+		// Used in context like NewDash
+		$switched = false;
+		if ( $_blog_id != get_current_blog_id() ) {
+			switch_to_blog( $_blog_id );
+			$switched = true;
+		}
+
+		if ( ! comments_open( $_post_id ) )
+			die( json_encode( array( 'error' => 'Comments on this post are closed.' ) ) );
+		
+		if ( is_user_logged_in() ) {
+			$user         = wp_get_current_user();
+			$user_id      = $user->ID;
+			$display_name = $user->display_name;
+			$email        = $user->user_email;
+			$url          = $user->user_url;
+
+			if ( empty( $user_id ) )
+				die( json_encode( array( 'error' => 'Sorry, but we could not authenticate your request.' ) ) );
+		} else {
+			$user_id      = 0;
+			$display_name = $_POST['author'];
+			$email        = $_POST['email'];
+			$url          = $_POST['url'];
+
+			if ( empty( $display_name ) )
+				die( json_encode( array( 'error' => 'Please provide your name.' ) ) );
+
+			if ( empty( $email ) )
+				die( json_encode( array( 'error' => 'Please provide an email address.' ) ) );
+
+			if ( ! is_email( $email ) )
+				die( json_encode( array( 'error' => 'Please provide a valid email address.' ) ) );
+		}
+
+		$comment_data =  array(
+			'comment_content' => $comment,
+			'comment_post_ID' => $_post_id,
+			'comment_author' => $display_name,
+			'comment_author_email' => $email,
+			'comment_author_url' => $url,
+			'comment_approved' => 0,
+		);
+
+		if ( ! empty( $user_id ) )
+			$comment_data['user_id'] = $user_id;
+
+		// Note: wp_new_comment() sanitizes and validates the values (too).
+		$comment_id = wp_new_comment( $comment_data );
+		bump_stats_extras( 'carousel', 'comment_submit' );
+		$comment_status = wp_get_comment_status( $comment_id );
+
+		if ( true == $switched )
+			restore_current_blog();
+
+		die( json_encode( array( 'comment_id' => $comment_id, 'comment_status' => $comment_status ) ) );
+	}
+	
+	function register_settings() {
+		add_settings_section('carousel_section', __('Image Galleries'), array( $this, 'carousel_section_callback' ), 'media');
+		
+		add_settings_field('carousel_display_exif', __('Metadata'), array( $this, 'carousel_display_exif_callback' ), 'media', 'carousel_section' );
+		register_setting( 'media', 'carousel_display_exif', array( $this, 'carousel_display_exif_sanitize' ) );
+
+		// No geo setting yet
+		// http://janitorialp2.wordpress.com/2012/06/18/carousel-v2-pre-prod-thread-please-post-and/#comment-6928
+		// add_settings_field('carousel_display_geo', __('Geolocation'), array( $this, 'carousel_display_geo_callback' ), 'media', 'carousel_section' );
+		// register_setting( 'media', 'carousel_display_geo', array( $this, 'carousel_display_geo_sanitize' ) );
+	}
+
+	// Fulfill the settings section callback requirement by returning nothing
+	function carousel_section_callback() {
+		return;
+	}
+
+	function test_1or0_option( $value, $default_to_1 = true ) {
+		if ( true == $default_to_1 ) {
+			// Binary false (===) of $value means it has not yet been set, in which case we do want to default sites to 1
+			if ( false === $value )
+				$value = 1;
+		}
+		return ( 1 == $value ) ? 1 : 0;
+	}
+	
+	function sanitize_1or0_option( $value ) {
+		return ( 1 == $value ) ? 1 : 0;
+	}
+
+	function settings_checkbox($name, $label_text, $extra_text = '', $default_to_checked = true) {
+		$option = $this->test_1or0_option( get_option( $name ), $default_to_checked );
+		echo '<fieldset>';
+		echo '<input type="checkbox" name="'.esc_attr($name).'" id="'.esc_attr($name).'" value="1" ';
+		echo checked( '1', $option );
+		echo '/> <label for="'.esc_attr($name).'">'.$label_text.'</label>';
+		if ( ! empty( $extra_text ) )
+			echo '<p class="description">'.$extra_text.'</p>';
+		echo '</fieldset>';
+	}
+
+	function carousel_display_exif_callback() {
+		$this->settings_checkbox( 'carousel_display_exif', __( 'Show photo metadata in carousel, when available.' ) );
+	}
+
+	function carousel_display_exif_sanitize( $value ) {
+		return $this->sanitize_1or0_option( $value );
+	}
+
+	function carousel_display_geo_callback() {
+		$this->settings_checkbox( 'carousel_display_geo', __( 'Show map of photo location in carousel, when available.' ) );
+	}
+
+	function carousel_display_geo_sanitize( $value ) {
+		return $this->sanitize_1or0_option( $value );
+	} 
 }
 
 new Jetpack_Carousel;
