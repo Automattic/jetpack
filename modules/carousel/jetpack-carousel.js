@@ -4,7 +4,7 @@
 	// gallery faded layer and container elements
 	var overlay, comments, gallery, container, nextButton, previousButton, info, title,
 	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval,
-	screenPadding = 110;
+	screenPadding = 110, originalOverflow = $('body').css('overflow');
 
 	var keyListener = function(e){
 		switch(e.which){
@@ -373,7 +373,7 @@
 
 			// make sure to stop the page from scrolling behind the carousel overlay, so we don't trigger
 			// infiniscroll for it when enabled (Reader, theme infiniscroll, etc).
-			wpcom.carousel.original_overflow = $('body').css('overflow');
+			originalOverflow = $('body').css('overflow');
 			$('body').css('overflow', 'hidden');
 
 			prepareGallery();
@@ -411,7 +411,7 @@
 
 		close : function(){
 			// make sure to let the page scroll again
-			$('body').css('overflow', wpcom.carousel.original_overflow);
+			$('body').css('overflow', originalOverflow);
 			return container
 				.trigger('jp_carousel.beforeClose')
 				.fadeOut('fast', function(){
