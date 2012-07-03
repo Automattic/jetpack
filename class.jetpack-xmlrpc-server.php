@@ -5,21 +5,9 @@
  */
 class Jetpack_XMLRPC_Server {
 	/**
-	 * A reference to $GLOBALS['wp_xmlrpc_server'];
-	 */
-	var $wp_xmlrpc_server = null;
-
-	/**
 	 * The current error object
 	 */
 	var $error = null;
-
-	/**
-	 * Since we're not extending wp_xmlrpc_server via wp_xmlrpc_server_class, store it as a reference.
-	 */
-	function Jetpack_XMLRPC_Server( $wp_xmlrpc_server ) {
-		$this->wp_xmlrpc_server = $wp_xmlrpc_server;
-	}
 
 	/**
 	 * Whitelist of the XML-RPC methods available to the Jetpack Server. If the 
