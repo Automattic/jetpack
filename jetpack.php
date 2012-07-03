@@ -177,7 +177,7 @@ class Jetpack {
 
 		// You get our Device Pixels script just for activating Jetpack. This improves the
 		// resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.
-		wp_enqueue_script( 'devicepx', ( is_ssl() ? 'https' : 'http' ) . '://blogamist.wordpress.com/wp-content/js/devicepx-jetpack.js', array(), gmdate('oW'), true );
+		wp_enqueue_script( 'devicepx', ( is_ssl() ? 'https' : 'http' ) . '://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate('oW'), true );
 	}
 
 	/**
