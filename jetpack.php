@@ -174,6 +174,10 @@ class Jetpack {
 
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
+
+		// You get our Device Pixels script just for activating Jetpack. This improves the
+		// resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.
+		wp_enqueue_script( 'devicepx', ( is_ssl() ? 'https' : 'http' ) . '://blogamist.wordpress.com/wp-content/js/devicepx-jetpack.js', array(), gmdate('oW'), true );
 	}
 
 	/**
