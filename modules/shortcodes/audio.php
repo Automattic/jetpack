@@ -104,7 +104,7 @@ class AudioShortcode {
 		// (runtime options overwrite default options)
 		foreach ( $ap_options as $key => $default ) {
 			if ( isset( $options[$key] ) ) {
-				if ( preg_match( '/^0x[a-f0-9]{6}$/i', $default ) && !preg_match( '/^0x[a-f0-9]{6}$/i', $options[$key] ) ) {
+				if ( preg_match( '/^(0x)?[a-f0-9]{6}$/i', $default ) && !preg_match( '/^(0x)?[a-f0-9]{6}$/i', $options[$key] ) ) {
 					// Default is a hex color, but input is not
 					$options[$key] = $default;
 				}
@@ -121,8 +121,8 @@ class AudioShortcode {
 		$flash_vars = esc_attr( $flash_vars );
 
 		// extract some of the options to insert into the markup
-		if ( isset( $options['bgcolor'] ) && preg_match( '/^0x[a-f0-9]{6}$/i', $options['bgcolor'] ) ) {
-			$bgcolor = preg_replace( '/^0x/', '#', $options['bgcolor'] );
+		if ( isset( $options['bgcolor'] ) && preg_match( '/^(0x)?[a-f0-9]{6}$/i', $options['bgcolor'] ) ) {
+			$bgcolor = preg_replace( '/^(0x)?/', '#', $options['bgcolor'] );
 			$bgcolor = esc_attr( $bgcolor );
 		} else {
 			$bgcolor = '#FFFFFF';
@@ -236,8 +236,14 @@ CONTROLS;
 			'jetpack_static_url',
 			'http://en.wordpress.com/wp-content/plugins/audio-player/player.swf' );
 
-		// process regular flash player, inserting HTML5 tags into object as fallback
-		if ( $all_mp3 ) {
+		// all the fancy javascript is causing Google Reader to break, just include flash in GReader
+		// override html5 audio code w/ just not supported code
+		if ( is_feed() ) {
+			$html5_audio = $not_supported;
+		} 
+
+		if ( $all_mp3 ) { 
+			// process regular flash player, inserting HTML5 tags into object as fallback
 			$audio_tags = <<<FLASH
 				<object id='wp-as-{$post->ID}_{$ap_playerID}-flash' type='application/x-shockwave-flash' data='$swfurl' width='$width' height='24'>
 					<param name='movie' value='$swfurl' />
@@ -288,9 +294,10 @@ FLASH;
 SCRIPT;
 
 		// add the special javascript, if needed
-		if ( 0 < $num_good ) {
+		if ( 0 < $num_good && ! is_feed() ) {
 			$audio_tags .= $script;
 		}
+		
 		return "<span style='text-align:left;display:block;'><p>$audio_tags</p></span>";
 	}
 
