@@ -460,17 +460,65 @@ p.jp-help {
 	.jetpack-module div.module-image {
 		float: right;
 		margin: 0 0 5px 10px;
+		padding: 60px 0 0;
 		background: #cbe0a1;
-		width: 84px;
-		-webkit-border-top-left-radius: 2px;
-		-moz-border-radius-topleft: 2px;
-		border-top-left-radius: 2px;
-		-webkit-border-bottom-left-radius: 2px;
-		-moz-border-radius-bottomleft: 2px;
-		border-bottom-left-radius: 2px;
+		width: 80px;
+		-webkit-border-top-left-radius: 3px;
+		-moz-border-radius-topleft: 3px;
+		border-top-left-radius: 3px;
+		-webkit-border-bottom-left-radius: 3px;
+		-moz-border-radius-bottomleft: 3px;
+		border-bottom-left-radius: 3px;
+		background-repeat: no-repeat;
+		background-image: url( images/module-icons-sprite.png );
 	}
-		.jetpack-module div.module-image img {
-			padding: 6px;
+
+
+	@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+		.jetpack-module div.module-image {
+			background-image: url( images/module-icons-sprite-2x.png );
+			background-size: 1400px 50px;
+		}
+	}
+
+		#stats.jetpack-module div.module-image {
+			background-position: -510px 5px;
+		}
+		#comments.jetpack-module div.module-image {
+			background-position: -1210px 5px;
+		}
+		#subscriptions.jetpack-module div.module-image {
+			background-position: -1009px 5px;
+		}
+		#sharedaddy.jetpack-module div.module-image {
+			background-position: -710px 5px;
+		}
+		#after-the-deadline.jetpack-module div.module-image {
+			background-position: -308px 5px;
+		}
+		#vaultpress.jetpack-module div.module-image {
+			background-position: -910px 5px;
+		}
+		#gravatar-hovercards.jetpack-module div.module-image {
+			background-position: -410px 5px;
+		}
+		#contact-form.jetpack-module div.module-image {
+			background-position: -1107px 5px;
+		}
+		#shortlinks.jetpack-module div.module-image {
+			background-position: -108px 5px;
+		}
+		#shortcodes.jetpack-module div.module-image {
+			background-position: -608px 5px;
+		}
+		#latex.jetpack-module div.module-image {
+			background-position: -208px 5px;
+		}
+		#widgets.jetpack-module div.module-image {
+			background-position: -5px 5px;
+		}
+		#enhanced-distribution.jetpack-module div.module-image {
+			background-position: -808px 5px;
 		}
 
 		.jetpack-module div.module-image p {

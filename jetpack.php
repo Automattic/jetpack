@@ -1270,7 +1270,7 @@ p {
 
 	function admin_styles() {
 		global $wp_styles;
-		wp_enqueue_style( 'jetpack', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack.css' ), false, JETPACK__VERSION . '-20111115' );
+		wp_enqueue_style( 'jetpack', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack.css' ), false, JETPACK__VERSION . '-20120701' );
 		$wp_styles->add_data( 'jetpack', 'rtl', true );
 	}
 
@@ -2063,12 +2063,6 @@ p {
 					"jetpack_activate-$module"
 				);
 			}
-			$file = Jetpack::get_module_path( $module );
-			$png = str_replace( '.php', '.png', $file );
-			if ( is_readable( dirname( __FILE__ ) . '/_inc/images/icons/' . basename( $png ) ) )
-				$module_img = plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/icons/' . basename( $png ) );
-			else
-				$module_img = plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/module-blank.png' );
 
 			if ( $counter % 4 == 0 ) {
 				$classes = $css . ' jetpack-newline';
@@ -2100,7 +2094,6 @@ p {
 				<h3><?php echo $module_data['name']; ?></h3>
 				<div class="jetpack-module-description">
 						<div class="module-image">
-							<img src="<?php echo esc_url( $module_img ); ?>" align="right" width="71" height="45" />
 							<p><span class="module-image-badge"><?php echo $badge_text; ?></span><span class="module-image-free" style="display: none"><?php echo $free_text; ?></span></p>
 						</div>
 
