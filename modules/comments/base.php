@@ -72,10 +72,8 @@ class Highlander_Comments_Base {
 	 */
 	static function sign_remote_comment_parameters( $parameters, $key ) {
 		unset(
-			$parameters['sig'],        // Don't sign the signature
-			$parameters['replytocom'], // This parameter is unsigned - it changes dynamically as the comment form moves from parent comment to parent comment
-			$parameters['blogid'],     // This parameter is unsigned - changes dynamically in multi-blog display contexts, such as the WPCOM Reader
-			$parameters['postid']      // This parameter is unsigned - changes dynamically in Carousel JS, where we cannot hash anything
+			$parameters['sig'],       // Don't sign the signature
+			$parameters['replytocom'] // This parameter is unsigned - it changes dynamically as the comment form moves from parent comment to parent comment
 		);
 
 		ksort( $parameters );

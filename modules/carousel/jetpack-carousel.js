@@ -541,28 +541,31 @@
 			// if advancing prepare the slide that will enter the screen
 			previous[method]({left:-previous.width() + (screenPadding * 0.75) }).show();
 			next[method]({left:gallery.width() - (screenPadding * 0.75) }).show();
-			document.location.href = document.location.href.replace(/#.*/, '') + '#jp-carousel-' + current.data('attachment-id');
-			this.jp_carousel('resetButtons', current);
-			container.trigger('jp_carousel.selectSlide', [current]);
 
-			$( 'div.jp-carousel-image-meta', 'div.jp-carousel-wrap' ).html('');
-			
-			this.jp_carousel('getTitleDesc', { title: current.data('title'), desc: current.data('desc') } );
-			this.jp_carousel('getMeta', current.data('image-meta'));
-			this.jp_carousel('getFullSizeLink', current);
-			this.jp_carousel('getMap', current.data('image-meta'));
-			this.jp_carousel('testCommentsOpened', current.data('comments-opened'));
-			this.jp_carousel('getComments', {'attachment_id': current.data('attachment-id'), 'offset': 0, 'clear': true});
+			setTimeout( function() {
+				document.location.href = document.location.href.replace(/#.*/, '') + '#jp-carousel-' + current.data('attachment-id');
+				gallery.jp_carousel('resetButtons', current);
+				container.trigger('jp_carousel.selectSlide', [current]);
 
-			$('#jp-carousel-comment-post-results').slideUp()
+				$( 'div.jp-carousel-image-meta', 'div.jp-carousel-wrap' ).html('');
+				
+				gallery.jp_carousel('getTitleDesc', { title: current.data('title'), desc: current.data('desc') } );
+				gallery.jp_carousel('getMeta', current.data('image-meta'));
+				gallery.jp_carousel('getFullSizeLink', current);
+				gallery.jp_carousel('getMap', current.data('image-meta'));
+				gallery.jp_carousel('testCommentsOpened', current.data('comments-opened'));
+				gallery.jp_carousel('getComments', {'attachment_id': current.data('attachment-id'), 'offset': 0, 'clear': true});
 
-			if ( current.data('caption') && $.trim(current.data('caption')) != $.trim(current.data('title')) ) {
-				caption.html( current.data('caption') );
-				caption.fadeIn('slow');
-			} else {
-				caption.fadeOut('fast');
-				caption.empty();
-			}
+				$('#jp-carousel-comment-post-results').slideUp()
+
+				if ( current.data('caption') && $.trim(current.data('caption')) != $.trim(current.data('title')) ) {
+					caption.html( current.data('caption') );
+					caption.fadeIn('slow');
+				} else {
+					caption.fadeOut('fast');
+					caption.empty();
+				}
+			}, 600 );
 
 		},
 
@@ -791,7 +794,7 @@
 			var title ='', desc = '', markup = '', target, commentWrapper;
 			
 			target = $( 'div.jp-carousel-titleanddesc', 'div.jp-carousel-wrap' );
-			target.fadeOut('fast');
+			target.hide();
 			
 			title = gallery.jp_carousel('parseTitleDesc', data.title);
 			desc  = gallery.jp_carousel('parseTitleDesc', data.desc);
@@ -804,7 +807,7 @@
 				markup += ( desc.length ) ? '<p>' + desc + '</p>' : '';
 
 				target.html( markup );
-				target.fadeIn('fast');
+				target.show();
 			}
 
 			$( 'div#jp-carousel-comment-form-container' ).css('margin-top', '20px');
@@ -905,10 +908,10 @@
 			var comments        = $('.jp-carousel-comments'),
 				commentsLoading = $('#jp-carousel-comments-loading');
 			
-			commentsLoading.fadeIn('fast');
+			commentsLoading.show();
 			
 			if ( args.clear ) {
-				comments.fadeOut('fast');
+				comments.hide();
 				comments.empty();
 			}
 			
@@ -972,8 +975,8 @@
 					// Increase the height of the background, semi-transparent overlay to match the new length of the comments list.
 					$('.jp-carousel-overlay').height( $(window).height() + titleAndDescription.height() + commentForm.height() + ( (comments.height() > 0) ? comments.height() : imageMeta.height() ) + 200 );
 					
-					comments.fadeIn('fast');
-					commentsLoading.fadeOut('fast');
+					comments.show();
+					commentsLoading.hide();
 				},
 				error: function(xhr, status, error) {
 					// TODO: proper error handling
@@ -1022,7 +1025,7 @@
 
 	}
 	// register the event listener for staring the gallery
-	$( document.body ).on( 'click', 'div.gallery', function(e) {
+	$( document.body ).one( 'click', 'div.gallery', function(e) {
 		e.preventDefault();
 		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item').index($(e.target).parents('.gallery-item'))});
 	});
