@@ -64,7 +64,7 @@ class Jetpack_Carousel {
 		do_action( 'jp_carousel_thumbnails_shown' );
 
 		if ( $this->first_run ) {
-			wp_enqueue_script( 'jetpack-carousel', plugins_url( 'jetpack-carousel.js', __FILE__ ), array( 'jquery' ), $this->asset_version( '20120620' ), true );
+			wp_enqueue_script( 'jetpack-carousel', plugins_url( 'jetpack-carousel.js', __FILE__ ), array( 'jquery' ), $this->asset_version( '20120629' ), true );
 
 			// Note: using  home_url() instead of admin_url() for ajaxurl to be sure  to get same domain on wpcom when using mapped domains (also works on self-hosted)
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
@@ -110,7 +110,7 @@ class Jetpack_Carousel {
 
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
-			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( '20120620' ) );
+			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( '20120629' ) );
 
 			do_action( 'jp_carousel_enqueue_assets', $this->first_run, $localize_strings );
 
@@ -125,16 +125,16 @@ class Jetpack_Carousel {
 			return $html;
 
 		$attachment_id   = intval( $attachment_id );
+		$orig_file       = wp_get_attachment_url( $attachment_id );
 		$meta            = wp_get_attachment_metadata( $attachment_id );
-		$size            = isset( $meta['width'] ) ? "{$meta['width']},{$meta['height']}" : '';
+		$size            = isset( $meta['width'] ) ? intval( $meta['width'] ) . ',' . intval( $meta['height'] ) : '';
 		$img_meta        = $meta['image_meta'];
-		$comments_opened = comments_open( $attachment_id );
+		$comments_opened = intval( comments_open( $attachment_id ) );
 
 		$attachment      = get_post( $attachment_id );
-		$attachment_desc = esc_attr( wpautop( $attachment->post_content ) );
+		$attachment_desc = wpautop( $attachment->post_content );
 
-		// Not yet providing geo-data
-		// http://janitorialp2.wordpress.com/2012/06/18/carousel-v2-pre-prod-thread-please-post-and/#comment-6928
+		// Not yet providing geo-data, need to "fuzzify" for privacy
 		if ( ! empty( $img_meta ) ) {
 			foreach ( $img_meta as $k => $v ) {
 				if ( 'latitude' == $k || 'longitude' == $k )
@@ -142,9 +142,21 @@ class Jetpack_Carousel {
 			}
 		}
 
-		$img_meta = esc_attr( json_encode( $img_meta ) );
+		$img_meta = json_encode( $img_meta );
 
-		$html = str_replace( '<img ', "<img data-attachment-id='$attachment_id' data-orig-size='$size' data-comments-opened='$comments_opened' data-image-meta='$img_meta' data-image-description='$attachment_desc'", $html );
+		$html = str_replace(
+			'<img ',
+			sprintf(
+				'<img data-attachment-id="%1$d" data-orig-file="%2$s" data-orig-size="%3$s" data-comments-opened="%4$s" data-image-meta="%5$s" data-image-description="%6$s"',
+				$attachment_id,
+				esc_attr( $orig_file ),
+				$size,
+				$comments_opened,
+				esc_attr( $img_meta ),
+				esc_attr( $attachment_desc )
+			),
+			$html
+		);
 
 		$html = apply_filters( 'jp_carousel_add_data_to_images', $html, $attachment_id );
 
@@ -292,8 +304,7 @@ class Jetpack_Carousel {
 		add_settings_field('carousel_display_exif', __('Metadata'), array( $this, 'carousel_display_exif_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_exif', array( $this, 'carousel_display_exif_sanitize' ) );
 
-		// No geo setting yet
-		// http://janitorialp2.wordpress.com/2012/06/18/carousel-v2-pre-prod-thread-please-post-and/#comment-6928
+		// No geo setting yet, need to "fuzzify" data first, for privacy
 		// add_settings_field('carousel_display_geo', __('Geolocation'), array( $this, 'carousel_display_geo_callback' ), 'media', 'carousel_section' );
 		// register_setting( 'media', 'carousel_display_geo', array( $this, 'carousel_display_geo_sanitize' ) );
 	}

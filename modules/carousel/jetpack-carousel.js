@@ -4,7 +4,7 @@
 	// gallery faded layer and container elements
 	var overlay, comments, gallery, container, nextButton, previousButton, info, title,
 	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval, buttons,
-	screenPadding = 110, originalOverflow = $('body').css('overflow');
+	screenPadding = 110, originalOverflow = $('body').css('overflow'), proportion = 85;
 
 	var keyListener = function(e){
 		switch(e.which){
@@ -61,17 +61,16 @@
 					left:0,
 				});
 
-			buttons = $('<div class="jp-carousel-buttons">' + buttons + '</div>')
-				.css({'whiteSpace': 'nowrap'});
+			buttons = $('<div class="jp-carousel-buttons">' + buttons + '</div>');
 			
 			caption    = $('<h2></h2>');
-			photo_info = $('<div class="jp-carousel-photo-info"></div>').append(caption).append($(buttons));
+			photo_info = $('<div class="jp-carousel-photo-info"></div>').append(caption);
 
 			imageMeta = $('<div></div>')
 				.addClass('jp-carousel-image-meta')
 				.css({
 					float: 'right',
-					marginTop: '65px',
+					marginTop: '20px',
 					width: '250px',
 				});
 
@@ -150,7 +149,7 @@
 			info = $('<div></div>')
 				.addClass('jp-carousel-info')
 				.css({
-					top: ($(window).height() / 100) * 85, // define proportions here, curr 85%
+					top: ($(window).height() / 100) * proportion,
 					left:screenPadding,
 					right:screenPadding
 				})
@@ -198,7 +197,6 @@
 					'bottom':targetBottomPos,
 					'left':0,
 					'right':0,
-					'overflow': 'hidden'
 				});
 
 			close_hint = $('<div class="jp-carousel-close-hint"><span>&times;</span></div>')
@@ -216,7 +214,8 @@
 					left:0,
 					zIndex:999999,
 					overflowX: 'hidden',
-					overflowY: 'auto'
+					overflowY: 'auto',
+					direction: 'ltr'
 				})
 				.hide()
 				.append(overlay)
@@ -574,8 +573,8 @@
 		slideDimensions : function(){
 			return {
 				width: $(window).width() - (screenPadding * 2),
-				height: gallery.height() - 20
-			}
+				height: $(window).height() / 100 * proportion - 60
+			};
 		},
 
 		loadSlide : function(){
@@ -591,18 +590,31 @@
 		},
 
 		bestFit : function(){
-			var max = gallery.jp_carousel('slideDimensions'),
-				orig = this.jp_carousel('originalDimensions');
+			var max        = gallery.jp_carousel('slideDimensions'),
+			    orig       = this.jp_carousel('originalDimensions'),
+			    orig_ratio = orig.width / orig.height
+			    w_ratio    = 1,
+			    h_ratio    = 1;
 
-			if ( orig.width > max.width || orig.height > max.height) {
-				ratio = Math.min(Math.min(max.width/orig.width, 1), Math.min(max.height/orig.height, 1));
+			if ( orig.width > max.width )
+				w_ratio = max.width / orig.width;
+			if ( orig.height > max.height )
+				h_ratio = max.height / orig.height;
+
+			if ( w_ratio < h_ratio ) {
+				width = max.width;
+				height = width / orig_ratio;
+			} else if ( h_ratio < w_ratio ) {
+				height = max.height;
+				width = height * orig_ratio;
 			} else {
-				ratio = 1;
+				width = orig.width;
+				height = orig.height;
 			}
 
 			return {
-				width: orig.width * ratio,
-				height: orig.height * ratio
+				width: width,
+				height: height
 			};
 		},
 
@@ -618,7 +630,7 @@
 		},
 
 		fitMeta : function(animated){
-			var newInfoTop   = { top: ( gallery.height() + 5 ) + 'px' };
+			var newInfoTop   = { top: ( $(window).height() / 100 * proportion + 5 ) + 'px' };
 			var newLeftWidth = { width: ( info.width() - (imageMeta.width() + 80) ) + 'px' };
 			
 			if (animated) {
@@ -632,13 +644,13 @@
 
 		fitSlide : function(animated){
 			return this.each(function(){
-				var selected = gallery.jp_carousel('selectedSlide'),
-					$this = $(this),
-					dimensions = $this.jp_carousel('bestFit'),
-					method = 'css',
-					max = gallery.jp_carousel('slideDimensions');
+				var selected   = gallery.jp_carousel('selectedSlide'),
+				    $this      = $(this),
+				    dimensions = $this.jp_carousel('bestFit'),
+				    method     = 'css',
+				    max        = gallery.jp_carousel('slideDimensions');
 
-				if ( selected.length == 0) {
+				if ( selected.length == 0 ) {
 					dimensions.left = $(window).width();
 				} else if ($this.is(selected)) {
 					dimensions.left = ($(window).width() - dimensions.width) * 0.5;
@@ -673,7 +685,7 @@
 				if ( !attachment_id || !orig_size )
 					return false; // break the loop if we are missing the data-* attributes
 				
-				var src   = src_item.attr('src'),
+				var src   = src_item.data('orig-file'),
 					slide = $('<div class="jp-carousel-slide"></div>')
 						.hide()
 						.css({
@@ -793,13 +805,10 @@
 
 				target.html( markup );
 				target.fadeIn('fast');
-				
-				$( 'div#jp-carousel-comment-form-container' ).css('margin-top', '20px');
-				$( 'div#jp-carousel-comments-loading' ).css('margin-top', '20px');
-			} else {
-				$( 'div#jp-carousel-comment-form-container' ).css('margin-top', '65px');
-				$( 'div#jp-carousel-comments-loading' ).css('margin-top', '65px');
 			}
+
+			$( 'div#jp-carousel-comment-form-container' ).css('margin-top', '20px');
+			$( 'div#jp-carousel-comments-loading' ).css('margin-top', '20px');
 		},
 		
 		getMeta: function( meta ) {
@@ -825,7 +834,8 @@
 				
 				$ul.append( '<li><h5>' + jetpackCarouselStrings[key] + '</h5>' + val + '</li>' );
 			});
-				
+
+
 			$( 'div.jp-carousel-image-meta', 'div.jp-carousel-wrap' )
 				.append( $ul );
 		},
