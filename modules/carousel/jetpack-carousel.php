@@ -177,10 +177,10 @@ class Jetpack_Carousel {
 	}
 
 	function add_data_to_container( $html ) {
-		global $current_blog, $post;
+		global $post;
 
 		if ( isset( $post ) ) {
-			$blog_id = isset( $current_blog ) ? $current_blog->blog_id : 0;
+			$blog_id = (int) get_current_blog_id();
 			$extra_data = array( 'data-carousel-extra' => array( 'blog_id' => $blog_id, 'permalink' => get_permalink( $post->ID ) ) );
 
 			$extra_data = apply_filters( 'jp_carousel_add_data_to_container', $extra_data );
@@ -200,7 +200,7 @@ class Jetpack_Carousel {
 		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
 		
 		if ( ! $attachment_id ) {
-			echo json_encode( 'Whoops, missing attachment ID.' );
+			echo json_encode( __( 'Missing attachment ID.' ) );
 			die();
 		}
 		
@@ -238,20 +238,20 @@ class Jetpack_Carousel {
 			header('Content-type: text/javascript');
 		
 		if ( empty( $_POST['nonce'] ) || ! wp_verify_nonce($_POST['nonce'], 'carousel_nonce') )
-			die( json_encode( array( 'error' => 'Nonce verification failed.' ) ) );
+			die( json_encode( array( 'error' => __( 'Nonce verification failed.' ) ) ) );
 		
 		$_blog_id = (int) $_POST['blog_id'];
 		$_post_id = (int) $_POST['id'];
 		$comment = $_POST['comment'];
 		
 		if ( empty( $_blog_id ) )
-			die( json_encode( array( 'error' => 'Missing target blog ID' ) ) );
+			die( json_encode( array( 'error' => __( 'Missing target blog ID.' ) ) ) );
 		
 		if ( empty( $_post_id ) )
-			die( json_encode( array( 'error' => 'Missing target post ID.' ) ) );
+			die( json_encode( array( 'error' => __( 'Missing target post ID.' ) ) ) );
 		
 		if ( empty( $comment ) )
-			die( json_encode( array( 'error' => 'No comment text was submitted.' ) ) );
+			die( json_encode( array( 'error' => __( 'No comment text was submitted.' ) ) ) );
 
 		// Used in context like NewDash
 		$switched = false;
@@ -261,7 +261,7 @@ class Jetpack_Carousel {
 		}
 
 		if ( ! comments_open( $_post_id ) )
-			die( json_encode( array( 'error' => 'Comments on this post are closed.' ) ) );
+			die( json_encode( array( 'error' => __( 'Comments on this post are closed.' ) ) ) );
 		
 		if ( is_user_logged_in() ) {
 			$user         = wp_get_current_user();
@@ -271,7 +271,7 @@ class Jetpack_Carousel {
 			$url          = $user->user_url;
 
 			if ( empty( $user_id ) )
-				die( json_encode( array( 'error' => 'Sorry, but we could not authenticate your request.' ) ) );
+				die( json_encode( array( 'error' => __( 'Sorry, but we could not authenticate your request.' ) ) ) );
 		} else {
 			$user_id      = 0;
 			$display_name = $_POST['author'];
@@ -279,13 +279,13 @@ class Jetpack_Carousel {
 			$url          = $_POST['url'];
 
 			if ( empty( $display_name ) )
-				die( json_encode( array( 'error' => 'Please provide your name.' ) ) );
+				die( json_encode( array( 'error' => __( 'Please provide your name.' ) ) ) );
 
 			if ( empty( $email ) )
-				die( json_encode( array( 'error' => 'Please provide an email address.' ) ) );
+				die( json_encode( array( 'error' => __( 'Please provide an email address.' ) ) ) );
 
 			if ( ! is_email( $email ) )
-				die( json_encode( array( 'error' => 'Please provide a valid email address.' ) ) );
+				die( json_encode( array( 'error' => __( 'Please provide a valid email address.' ) ) ) );
 		}
 
 		$comment_data =  array(
