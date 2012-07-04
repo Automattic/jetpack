@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 1.4.1
+ * Version: 1.4.3-alpha
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -17,7 +17,7 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.2' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
-define( 'JETPACK__VERSION', '1.4.1' );
+define( 'JETPACK__VERSION', '1.4.3-alpha' );
 define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 /*
 Options:
@@ -143,7 +143,7 @@ class Jetpack {
 
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			require_once dirname( __FILE__ ) . '/class.jetpack-xmlrpc-server.php';
-			$this->xmlrpc_server = new Jetpack_XMLRPC_Server( $GLOBALS['wp_xmlrpc_server'] );
+			$this->xmlrpc_server = new Jetpack_XMLRPC_Server();
 
 			// Don't let anyone authenticate
 			remove_all_filters( 'authenticate' );
@@ -174,6 +174,10 @@ class Jetpack {
 
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
+
+		// You get our Device Pixels script just for activating Jetpack. This improves the
+		// resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.
+		wp_enqueue_script( 'devicepx', ( is_ssl() ? 'https' : 'http' ) . '://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate('oW'), true );
 	}
 
 	/**
@@ -1270,7 +1274,7 @@ p {
 
 	function admin_styles() {
 		global $wp_styles;
-		wp_enqueue_style( 'jetpack', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack.css' ), false, JETPACK__VERSION . '-20111115' );
+		wp_enqueue_style( 'jetpack', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack.css' ), false, JETPACK__VERSION . '-20120701' );
 		$wp_styles->add_data( 'jetpack', 'rtl', true );
 	}
 
@@ -2063,12 +2067,6 @@ p {
 					"jetpack_activate-$module"
 				);
 			}
-			$file = Jetpack::get_module_path( $module );
-			$png = str_replace( '.php', '.png', $file );
-			if ( is_readable( dirname( __FILE__ ) . '/_inc/images/icons/' . basename( $png ) ) )
-				$module_img = plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/icons/' . basename( $png ) );
-			else
-				$module_img = plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/module-blank.png' );
 
 			if ( $counter % 4 == 0 ) {
 				$classes = $css . ' jetpack-newline';
@@ -2100,7 +2098,6 @@ p {
 				<h3><?php echo $module_data['name']; ?></h3>
 				<div class="jetpack-module-description">
 						<div class="module-image">
-							<img src="<?php echo esc_url( $module_img ); ?>" align="right" width="71" height="45" />
 							<p><span class="module-image-badge"><?php echo $badge_text; ?></span><span class="module-image-free" style="display: none"><?php echo $free_text; ?></span></p>
 						</div>
 

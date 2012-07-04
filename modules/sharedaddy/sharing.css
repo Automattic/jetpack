@@ -71,6 +71,24 @@
 .sharing a.share-linkedin,.sharing-hidden a.share-linkedin { background: url('images/linkedin.png') no-repeat center left; }
 .sharing a.share-google-plus-1,.sharing-hidden a.share-google-plus-1 { background: url('images/googleplus1.png') no-repeat center left; }
 
+/* RETINA IMAGES */
+
+@media screen and (-webkit-min-device-pixel-ratio: 1.5),
+screen and (max--moz-device-pixel-ratio: 1.5) {
+
+	.sharing a.share-twitter,.sharing-hidden a.share-twitter { background: url('images/twitter@2x.png') no-repeat center left; background-size:16px 16px;  }
+	.sharing a.share-facebook,.sharing-hidden a.share-facebook { background: url('images/facebook@2x.png') no-repeat center left; background-size:16px 16px; }
+	.sharing a.share-email,.sharing-hidden a.share-email { background: url('images/email@2x.png') no-repeat center left; background-size:16px 16px; }
+	.sharing a.share-digg,.sharing-hidden a.share-digg { background: url('images/digg@2x.png') no-repeat center left; background-size:16px 16px; }
+	.sharing a.share-stumbleupon,.sharing-hidden a.share-stumbleupon { background: url('images/stumbleupon@2x.png') no-repeat center left; background-size:16px 16px; }
+	.sharing a.share-reddit,.sharing-hidden a.share-reddit { background: url('images/reddit@2x.png') no-repeat center left; background-size:16px 16px; }
+	.sharing a.share-print,.sharing-hidden a.share-print { background: url('images/print@2x.png') no-repeat center left; background-size:16px 16px; }
+	.sharing a.share-press-this,.sharing-hidden a.share-press-this { background: url('images/wordpress@2x.png') no-repeat center left; background-size:16px 16px; }
+	.sharing a.share-linkedin,.sharing-hidden a.share-linkedin { background: url('images/linkedin@2x.png') no-repeat center left; background-size:16px 16px; }
+	.sharing a.share-google-plus-1,.sharing-hidden a.share-google-plus-1 { background: url('images/googleplus1@2x.png') no-repeat center left; background-size:16px 16px; }
+
+}
+
 .sharing div.twitter_button { padding: 4px 0; }
 .sharing div.reddit_button { padding: 4px 0 0 0; }
 .sharing div.stumbleupon_button { padding: 4px; }
