@@ -64,6 +64,11 @@ class Jetpack_Carousel {
 		do_action( 'jp_carousel_thumbnails_shown' );
 
 		if ( $this->first_run ) {
+			if ( ! has_action( 'wp_enqueue_scripts', 'register_spin_scripts' ) ) {
+				wp_enqueue_script( 'spin', plugins_url( 'spin.js', __FILE__ ), false, '1.2.4' );
+				wp_enqueue_script( 'jquery.spin', plugins_url( 'jquery.spin.js', __FILE__ ) , array( 'jquery', 'spin' ) );
+			}
+
 			wp_enqueue_script( 'jetpack-carousel', plugins_url( 'jetpack-carousel.js', __FILE__ ), array( 'jquery' ), $this->asset_version( '20120629' ), true );
 
 			// Note: using  home_url() instead of admin_url() for ajaxurl to be sure  to get same domain on wpcom when using mapped domains (also works on self-hosted)
@@ -131,6 +136,12 @@ class Jetpack_Carousel {
 		$img_meta        = $meta['image_meta'];
 		$comments_opened = intval( comments_open( $attachment_id ) );
 
+		$medium_img_info = wp_get_attachment_image_src( $attachment_id, 'medium' );
+		$medium_size     = isset( $medium_img_info[1] ) ? intval( $medium_img_info['1'] ) . ',' . intval( $medium_img_info[2] ) : '';
+
+		$large_img_info = wp_get_attachment_image_src( $attachment_id, 'large' );
+		$large_size     = isset( $large_img_info[1] ) ? intval( $large_img_info['1'] ) . ',' . intval( $large_img_info[2] ) : '';
+
 		$attachment      = get_post( $attachment_id );
 		$attachment_desc = wpautop( $attachment->post_content );
 
@@ -147,13 +158,15 @@ class Jetpack_Carousel {
 		$html = str_replace(
 			'<img ',
 			sprintf(
-				'<img data-attachment-id="%1$d" data-orig-file="%2$s" data-orig-size="%3$s" data-comments-opened="%4$s" data-image-meta="%5$s" data-image-description="%6$s"',
+				'<img data-attachment-id="%1$d" data-orig-file="%2$s" data-orig-size="%3$s" data-comments-opened="%4$s" data-image-meta="%5$s" data-image-description="%6$s" data-medium-size="%7$s" data-large-size="%8$s"',
 				$attachment_id,
 				esc_attr( $orig_file ),
 				$size,
 				$comments_opened,
 				esc_attr( $img_meta ),
-				esc_attr( $attachment_desc )
+				esc_attr( $attachment_desc ),
+				$medium_size,
+				$large_size
 			),
 			$html
 		);
