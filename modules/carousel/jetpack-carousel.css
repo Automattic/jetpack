@@ -158,7 +158,8 @@ div.jp-carousel-buttons a:hover {
 	transition: none !important;
 }
 
-.jp-carousel-slide, .jp-carousel-slide img {
+.jp-carousel-slide, .jp-carousel-slide img, .jp-carousel-next-button,
+.jp-carousel-previous-button {
 	-webkit-transform:translate3d(0, 0, 0);
 	-moz-transform:translate3d(0, 0, 0);
 	-o-transform:translate3d(0, 0, 0);
