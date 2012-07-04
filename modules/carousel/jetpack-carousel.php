@@ -302,7 +302,7 @@ class Jetpack_Carousel {
 
 		// Note: wp_new_comment() sanitizes and validates the values (too).
 		$comment_id = wp_new_comment( $comment_data );
-		bump_stats_extras( 'carousel', 'comment_submit' );
+		do_action( 'jp_carousel_post_attachment_comment' );
 		$comment_status = wp_get_comment_status( $comment_id );
 
 		if ( true == $switched )
