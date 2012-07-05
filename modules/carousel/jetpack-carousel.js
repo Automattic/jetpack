@@ -678,12 +678,14 @@
 				x = 0;
 			// create the 'slide'
 			items.each(function(i){
-				var src_item = $(this),
-					attachment_id = src_item.data('attachment-id') || 0,
+				var src_item        = $(this),
+					attachment_id   = src_item.data('attachment-id') || 0,
 					comments_opened = src_item.data('comments-opened') || 0,
-					image_meta = src_item.data('image-meta'),
-					orig_size = src_item.data('orig-size') || 0,
-					description = src_item.data('image-description');
+					image_meta      = src_item.data('image-meta') || {},
+					orig_size       = src_item.data('orig-size') || 0,
+					description     = src_item.data('image-description'),
+					medium_file     = src_item.data('medium-file') || '',
+					large_file      = src_item.data('large-file') || '';
 
 				if ( !attachment_id || !orig_size )
 					return false; // break the loop if we are missing the data-* attributes
@@ -706,13 +708,59 @@
 						.data('orig-size', orig_size)
 						.data('comments-opened', comments_opened)
 						.data('image-meta', image_meta)
+						.data('medium-file', medium_file)
+						.data('large-file', large_file)
 						.jp_carousel('fitSlide', false);
 
+				var max       = gallery.jp_carousel('slideDimensions'),
+					parts     = orig_size.split(',');
+					orig_size = {width: parseInt(parts[0], 10), height: parseInt(parts[1], 10)};
+				
+					src = gallery.jp_carousel('selectBestImageSize', {
+						orig_file   : src,
+						orig_width  : orig_size.width,
+						max_width   : max.width,
+						medium_file : medium_file,
+						large_file  : large_file
+					});
 				
 				// Preloading all images
 				slide.find('img').first().attr('src', src );
 			});
 			return this;
+		},
+
+		selectBestImageSize: function(args) {
+			if ( 'object' != typeof args )
+				args = {};
+			
+			if ( 'undefined' == typeof args.orig_file )
+				return '';
+			
+			if ( 'undefined' == typeof args.orig_width || 'undefined' == typeof args.max_width )
+				return args.orig_file;
+			
+			if ( 'undefined' == typeof args.medium_file || 'undefined' == typeof args.large_file )
+				return args.orig_file;
+
+			var medium_size       = args.medium_file.replace(/^https?:\/\/.+-([\d]+x[\d]+)\..+$/, '$1'),
+				medium_size_parts = (medium_size != args.medium_file) ? medium_size.split('x') : [args.orig_width, 0],
+				medium_width      = parseInt( medium_size_parts[0] ),
+				large_size        = args.large_file.replace(/^https?:\/\/.+-([\d]+x[\d]+)\..+$/, '$1'),
+				large_size_parts  = (large_size != args.large_file) ? large_size.split('x') : [args.orig_width, 0],
+				large_width       = parseInt( large_size_parts[0] );
+		
+			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
+			if ('undefined' != typeof window.devicePixelRatio && window.devicePixelRatio > 1)
+				args.max_width = args.max_width * window.devicePixelRatio;
+
+			if ( medium_width >= args.max_width )
+				return args.medium_file;
+
+			if ( large_width >= args.max_width )
+				return args.large_file;
+
+			return args.orig_file;
 		},
 
 

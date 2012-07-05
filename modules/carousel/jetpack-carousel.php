@@ -136,11 +136,26 @@ class Jetpack_Carousel {
 		$img_meta        = $meta['image_meta'];
 		$comments_opened = intval( comments_open( $attachment_id ) );
 
-		$medium_img_info = wp_get_attachment_image_src( $attachment_id, 'medium' );
-		$medium_size     = isset( $medium_img_info[1] ) ? intval( $medium_img_info['1'] ) . ',' . intval( $medium_img_info[2] ) : '';
+		/*
+		 * Note: Cannot generate a filename from the width and height wp_get_attachment_image_src() returns because
+		 * it takes the $content_width global variable themes can set in consideration, therefore returning sizes
+		 * which when used to generate a filename will likely result in a 404 on the image.
+		 * $content_width has no filter we could temporarily de-register, run wp_get_attachment_image_src(), then
+		 * re-register. So using returned file URL instead, which we can define the sizes from through filename
+		 * parsing in the JS, as this is a failsafe file reference.
+		 * 
+		 * EG with Twenty Eleven activated:
+		 * array(4) { [0]=> string(82) "http://vanillawpinstall.blah/wp-content/uploads/2012/06/IMG_3534-1024x764.jpg" [1]=> int(584) [2]=> int(435) [3]=> bool(true) }
+		 * 
+		 * EG with Twenty Ten activated:
+		 * array(4) { [0]=> string(82) "http://vanillawpinstall.blah/wp-content/uploads/2012/06/IMG_3534-1024x764.jpg" [1]=> int(640) [2]=> int(477) [3]=> bool(true) }
+		 */
 
-		$large_img_info = wp_get_attachment_image_src( $attachment_id, 'large' );
-		$large_size     = isset( $large_img_info[1] ) ? intval( $large_img_info['1'] ) . ',' . intval( $large_img_info[2] ) : '';
+		$medium_file_info = wp_get_attachment_image_src( $attachment_id, 'medium' );
+		$medium_file      = isset( $medium_file_info[0] ) ? $medium_file_info[0] : '';
+
+		$large_file_info = wp_get_attachment_image_src( $attachment_id, 'large' );
+		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
 
 		$attachment      = get_post( $attachment_id );
 		$attachment_desc = wpautop( $attachment->post_content );
@@ -158,15 +173,15 @@ class Jetpack_Carousel {
 		$html = str_replace(
 			'<img ',
 			sprintf(
-				'<img data-attachment-id="%1$d" data-orig-file="%2$s" data-orig-size="%3$s" data-comments-opened="%4$s" data-image-meta="%5$s" data-image-description="%6$s" data-medium-size="%7$s" data-large-size="%8$s"',
+				'<img data-attachment-id="%1$d" data-orig-file="%2$s" data-orig-size="%3$s" data-comments-opened="%4$s" data-image-meta="%5$s" data-image-description="%6$s" data-medium-file="%7$s" data-large-file="%8$s"',
 				$attachment_id,
 				esc_attr( $orig_file ),
 				$size,
 				$comments_opened,
 				esc_attr( $img_meta ),
 				esc_attr( $attachment_desc ),
-				$medium_size,
-				$large_size
+				esc_attr( $medium_file ),
+				esc_attr( $large_file )
 			),
 			$html
 		);
