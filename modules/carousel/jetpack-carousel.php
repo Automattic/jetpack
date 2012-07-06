@@ -20,6 +20,8 @@ class Jetpack_Carousel {
 
 	var $first_run = true;
 
+	var $in_jetpack = true;
+
 	function __construct() {
 		add_action( 'init', array( $this, 'init' ) );
 	}
@@ -28,23 +30,33 @@ class Jetpack_Carousel {
 		if ( $this->maybe_disable_jp_carousel() )
 			return;
 
-		if ( ! is_admin() ) {
-			// If on front-end, do the Carousel thang.
-			$this->prebuilt_widths = apply_filters( 'jp_carousel_widths', $this->prebuilt_widths );
-			add_filter( 'post_gallery', array( $this, 'enqueue_assets' ), 1000, 2 ); // load later than other callbacks hooked it
-			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
-			add_filter( 'wp_get_attachment_link', array( $this, 'add_data_to_images' ), 10, 2 );
-		} else {
+		$this->in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
+
+		if ( is_admin() ) {
+			// Register the Carousel-related related settings
+			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
+			if ( ! $this->in_jetpack ) {
+				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) )
+					return; // Carousel disabled, abort early, but still register setting so user can switch it back on
+			}
 			// If in admin, register the ajax endpoints.
 			add_action( 'wp_ajax_get_attachment_comments', array( $this, 'get_attachment_comments' ) );
 			add_action( 'wp_ajax_nopriv_get_attachment_comments', array( $this, 'get_attachment_comments' ) );
 			add_action( 'wp_ajax_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
 			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
-			// Also register the Carousel-related related settings
-			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
+		} else {
+			if ( ! $this->in_jetpack ) {
+				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) )
+					return; // Carousel disabled, abort early
+			}
+			// If on front-end, do the Carousel thang.
+			$this->prebuilt_widths = apply_filters( 'jp_carousel_widths', $this->prebuilt_widths );
+			add_filter( 'post_gallery', array( $this, 'enqueue_assets' ), 1000, 2 ); // load later than other callbacks hooked it
+			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
+			add_filter( 'wp_get_attachment_link', array( $this, 'add_data_to_images' ), 10, 2 );
 		}
 
-		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
+		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
 			Jetpack::enable_module_configurable( dirname( dirname( __FILE__ ) ) . '/carousel.php' );
 			Jetpack::module_configuration_load( dirname( dirname( __FILE__ ) ) . '/carousel.php', array( $this, 'jetpack_configuration_load' ) );
 		}
@@ -338,8 +350,13 @@ class Jetpack_Carousel {
 	}
 	
 	function register_settings() {
-		add_settings_section('carousel_section', __('Image Galleries'), array( $this, 'carousel_section_callback' ), 'media');
+		add_settings_section('carousel_section', __('Image Gallery Carousel'), array( $this, 'carousel_section_callback' ), 'media');
 		
+		if ( ! $this->in_jetpack ) {
+			add_settings_field('carousel_enable_it', __('Enable carousel'), array( $this, 'carousel_enable_it_callback' ), 'media', 'carousel_section' );
+			register_setting( 'media', 'carousel_enable_it', array( $this, 'carousel_enable_it_sanitize' ) );
+		}
+
 		add_settings_field('carousel_background_color', __('Background color'), array( $this, 'carousel_background_color_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_background_color', array( $this, 'carousel_background_color_sanitize' ) );
 		
@@ -400,7 +417,7 @@ class Jetpack_Carousel {
 	}
 
 	function carousel_display_exif_callback() {
-		$this->settings_checkbox( 'carousel_display_exif', __( 'Show photo metadata in carousel, when available.' ) );
+		$this->settings_checkbox( 'carousel_display_exif', __( 'Show photo metadata (<a href="http://en.wikipedia.org/wiki/Exchangeable_image_file_format" target="_blank">Exif</a>) in carousel, when available.' ) );
 	}
 
 	function carousel_display_exif_sanitize( $value ) {
@@ -416,11 +433,19 @@ class Jetpack_Carousel {
 	} 
 
 	function carousel_background_color_callback() {
-		$this->settings_select( 'carousel_background_color', array( 'black' => __( 'black' ), 'white' => __( 'white' ) ) );
+		$this->settings_select( 'carousel_background_color', array( 'black' => __( 'Black' ), 'white' => __( 'White' ) ) );
 	}
 
 	function carousel_background_color_sanitize( $value ) {
 		return ( 'white' == $value ) ? 'white' : 'black';
+	}
+
+	function carousel_enable_it_callback() {
+		$this->settings_checkbox( 'carousel_enable_it', __( 'Display images in full-size carousel slideshow.' ) );
+	}
+
+	function carousel_enable_it_sanitize( $value ) {
+		return $this->sanitize_1or0_option( $value );
 	}
 }
 
