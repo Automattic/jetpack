@@ -33,8 +33,11 @@
 				gallery.jp_carousel('clearCommentTextAreaValue');
 				container.jp_carousel('close');
 				break;
+			default:
+				// making jslint happy
+				break;
 		}
-	}
+	};
 
 	var resizeListener = function(e){
 		clearTimeout(resizeTimeout);
@@ -46,7 +49,7 @@
 				.jp_carousel('fitInfo', true)
 				.jp_carousel('fitMeta', true);
 		}, 200);
-	}
+	};
 
 	var prepareGallery = function(){
 		if (!overlay) {
@@ -54,11 +57,11 @@
 			overlay = $('<div></div>')
 				.addClass('jp-carousel-overlay')
 				.css({
-					position:'absolute',
-					top:0,
-					right:0,
-					bottom:0,
-					left:0,
+					'position' : 'absolute',
+					'top'      : 0,
+					'right'    : 0,
+					'bottom'   : 0,
+					'left'     : 0
 				});
 
 			buttons = $('<div class="jp-carousel-buttons">' + buttons + '</div>');
@@ -69,22 +72,22 @@
 			imageMeta = $('<div></div>')
 				.addClass('jp-carousel-image-meta')
 				.css({
-					float: 'right',
-					marginTop: '20px',
-					width: '250px',
+					'float'      : 'right',
+					'margin-top' : '20px',
+					'width'      :  '250px'
 				});
 
 			titleAndDescription = $('<div></div>')
 				.addClass('jp-carousel-titleanddesc')
 				.css({
-					width: '100%',
-					marginTop: imageMeta.css('margin-top'),
+					'width'      : '100%',
+					'margin-top' : imageMeta.css('margin-top')
 				});
 
 			var commentFormMarkup = '';
 			var iframeSrc = '';
 
-			var commentFormMarkup  = '<div id="jp-carousel-comment-form-container">';
+			commentFormMarkup  = '<div id="jp-carousel-comment-form-container">';
 			if (iframeSrc && iframeSrc.length) {
 				// We're using Jetpack comments!
 				var iframeHeight = (jetpackCarouselStrings.is_logged_in || iframeSrc.match('comment_registration=1')) ? 220 : 340;
@@ -106,24 +109,24 @@
 
 			commentForm = $(commentFormMarkup)
 				.css({
-					width: '100%',
-					marginTop: '20px',
-					color: '#999'
+					'width'      : '100%',
+					'margin-top' : '20px',
+					'color'      : '#999'
 				});
 
 			comments = $('<div></div>')
 				.addClass('jp-carousel-comments')
 				.css({
-					width:     '100%',
-					bottom:    '10px',
-					marginTop: '20px'
+					'width'      : '100%',
+					'bottom'     : '10px',
+					'margin-top' : '20px'
 				});
 
 			commentsLoading = $('<div id="jp-carousel-comments-loading"><span>'+jetpackCarouselStrings.loading_comments+'</span></div>')
 				.css({
-					width:     '100%',
-					bottom:    '10px',
-					marginTop: '20px'
+					'width'      : '100%',
+					'bottom'     : '10px',
+					'margin-top' : '20px'
 				});
 			
 			leftWidth = ( $(window).width() - ( screenPadding * 2 ) ) - (imageMeta.width() + 40);
@@ -136,7 +139,7 @@
 			leftColWrapper = $('<div></div>')
 				.addClass('jp-carousel-left-column-wrapper')
 				.css({
-					width:leftWidth,
+					'width' : leftWidth
 				})
 				.append(titleAndDescription)
 				.append(commentForm)
@@ -149,59 +152,59 @@
 			info = $('<div></div>')
 				.addClass('jp-carousel-info')
 				.css({
-					top: ($(window).height() / 100) * proportion,
-					left:screenPadding,
-					right:screenPadding
+					'top'   : ($(window).height() / 100) * proportion,
+					'left'  : screenPadding,
+					'right' : screenPadding
 				})
 				.append(photo_info)
 				.append(imageMeta)
 				.append(leftColWrapper);
 
-			targetBottomPos = ( $(window).height() - parseInt( info.css('top') ) ) + 'px';
+			targetBottomPos = ( $(window).height() - parseInt( info.css('top'), 10 ) ) + 'px';
 
 			nextButton = $("<div><span></span></div>")
 				.addClass('jp-carousel-next-button')
 				.css({
-					position:'fixed',
-					top:'0',
-					right:'0',
-					bottom:'0',
-					width: screenPadding
+					'position' : 'fixed',
+					'top'      : 0,
+					'right'    : 0,
+					'bottom'   : 0,
+					'width'    : screenPadding
 				});
 
 			$('span', nextButton).css({
-				'top': '40px',
-				'bottom': targetBottomPos
+				'top'    : '40px',
+				'bottom' : targetBottomPos
 			});
 			
 			previousButton = $("<div><span></span></div>")
 				.addClass('jp-carousel-previous-button')
 				.css({
-					position:'fixed',
-					top:'0',
-					left:'0',
-					bottom:'0',
-					width: screenPadding
+					'position' : 'fixed',
+					'top'      : 0,
+					'left'     : 0,
+					'bottom'   : 0,
+					'width'    : screenPadding
 				});
 
 			$('span', previousButton).css({
-				'top': '40px',
-				'bottom': targetBottomPos
+				'top'    : '40px',
+				'bottom' : targetBottomPos
 			});
 			
 			gallery = $('<div></div>')
 				.addClass('jp-carousel')
 				.css({
-					'position':'absolute',
-					'top':0,
-					'bottom':targetBottomPos,
-					'left':0,
-					'right':0,
+					'position' : 'absolute',
+					'top'      : 0,
+					'bottom'   : targetBottomPos,
+					'left'     : 0,
+					'right'    : 0
 				});
 
 			close_hint = $('<div class="jp-carousel-close-hint"><span>&times;</span></div>')
 				.css({
-					position: 'fixed'
+					position : 'fixed'
 				});
 			
 			container = $("<div></div>")
@@ -211,15 +214,15 @@
 				 container.addClass('jp-carousel-light');
 			
 			container.css({
-					position:'fixed',
-					top:0,
-					right:0,
-					bottom:0,
-					left:0,
-					zIndex:999999,
-					overflowX: 'hidden',
-					overflowY: 'auto',
-					direction: 'ltr'
+					'position'   : 'fixed',
+					'top'        : 0,
+					'right'      : 0,
+					'bottom'     : 0,
+					'left'       : 0,
+					'z-index'    : 999999,
+					'overflow-x' : 'hidden',
+					'overflow-y' : 'auto',
+					'direction'  : 'ltr'
 				})
 				.hide()
 				.append(overlay)
@@ -360,8 +363,8 @@
 					gallery.jp_carousel('previous');
 				}
 			});
-		};
-	}
+		}
+	};
 
 	var methods = {
 		open: function(options) {
@@ -405,8 +408,8 @@
 		start : function(start_index){
 			var slides = this.jp_carousel('slides'), selected = slides.eq(start_index);
 
-			if ( selected.length == 0 )
-				selected = slides.eq(0)
+			if ( 0 === selected.length )
+				selected = slides.eq(0);
 				
 			gallery.jp_carousel('selectSlide', selected, false);
 			return this;
@@ -426,7 +429,7 @@
 		next : function(){
 			var selected = this.jp_carousel('selectedSlide'), slide;
 
-			if ( selected.length == 0 ) { // no selection return first item
+			if ( 0 === selected.length ) { // no selection return first item
 				slide = this.jp_carousel('slides').first(0);
 			} else if( selected.is( this.jp_carousel('slides').last() ) ) {
 				gallery.jp_carousel('loopSlides');
@@ -443,7 +446,7 @@
 		previous : function(){
 			var selected = this.jp_carousel('selectedSlide'), slide;
 
-			if ( selected.length == 0 ) { // no selection return first item
+			if ( 0 === selected.length ) { // no selection return first item
 				slide = this.jp_carousel('slides').first();
 			} else if ( selected.is( this.jp_carousel('slides').first() ) ) { // if it's the last slide
 				gallery.jp_carousel('loopSlides', true);
@@ -462,17 +465,17 @@
 
 		loopSlides : function(reverse){
 			var slides = gallery.jp_carousel('slides'), last, first;
-			gallery.jp_carousel('selectedSlide').removeClass('selected').css({position: 'fixed'});
+			gallery.jp_carousel('selectedSlide').removeClass('selected').css({'position': 'fixed'});
 			if (reverse !== true ) {
 				last = slides.last();
-				slides.first().nextAll().not(last).css({left:gallery.width()+slides.first().width()}).hide();
+				slides.first().nextAll().not(last).css({'left':gallery.width()+slides.first().width()}).hide();
 				last.css({
-					left:-last.width()
+					'left' : -last.width()
 				});
 				last.prev().css({
-					left:-last.width() - last.prev().width()
+					'left' : -last.width() - last.prev().width()
 				});
-				slides.first().css({left:gallery.width()});
+				slides.first().css({'left':gallery.width()});
 				setTimeout(function(){
 					gallery.jp_carousel('selectSlide', slides.show().first());
 				}, 400);
@@ -480,14 +483,14 @@
 			} else {
 				first = slides.first();
 				first.css({
-					left:gallery.width()
+					'left':gallery.width()
 				});
 				first.next().css({
-					left:gallery.width() + first.width()
+					'left':gallery.width() + first.width()
 				});
-				first.next().nextAll().hide().css({left:-slides.last().width()});
-				slides.last().css({left:-slides.last().width()});
-				slides.last().prevAll().not(first, first.next()).hide().css({left:-slides.last().width()-slides.last().prev().width()});
+				first.next().nextAll().hide().css({'left':-slides.last().width()});
+				slides.last().css({'left':-slides.last().width()});
+				slides.last().prevAll().not(first, first.next()).hide().css({'left':-slides.last().width()-slides.last().prev().width()});
 				setTimeout(function(){
 					gallery.jp_carousel('selectSlide', slides.show().last());
 				}, 400);
@@ -501,8 +504,8 @@
 
 		selectSlide : function(slide, animate){
 			var last = this.find('.selected').removeClass('selected'),
-				slides = gallery.jp_carousel('slides').css({position: 'fixed'}),
-				current = $(slide).addClass('selected').css({position: 'relative'}),
+				slides = gallery.jp_carousel('slides').css({'position': 'fixed'}),
+				current = $(slide).addClass('selected').css({'position': 'relative'}),
 				previous = current.prev(),
 				next = current.next(),
 				width = $(window).width(),
@@ -534,12 +537,12 @@
 			// prep the slides
 			var direction = last.is(current.prevAll()) ? 1 : -1;
 			if ( 1 == direction ) {
-				next_next.css({left:gallery.width() + next.width()}).show();
-				next.hide().css({left:gallery.width() + current.width()}).show();
-				previous_previous.css({left:-previous_previous.width() - current.width()});
+				next_next.css({'left':gallery.width() + next.width()}).show();
+				next.hide().css({'left':gallery.width() + current.width()}).show();
+				previous_previous.css({'left':-previous_previous.width() - current.width()});
 			} else {
-				previous.css({left:-previous.width() - current.width()});
-				next_next.css({left:gallery.width() + current.width()});
+				previous.css({'left':-previous.width() - current.width()});
+				next_next.css({'left':gallery.width() + current.width()});
 			}
 			
 			// if advancing prepare the slide that will enter the screen
@@ -560,7 +563,7 @@
 				gallery.jp_carousel('testCommentsOpened', current.data('comments-opened'));
 				gallery.jp_carousel('getComments', {'attachment_id': current.data('attachment-id'), 'offset': 0, 'clear': true});
 
-				$('#jp-carousel-comment-post-results').slideUp()
+				$('#jp-carousel-comment-post-results').slideUp();
 
 				if ( current.data('caption') && $.trim(current.data('caption')) != $.trim(current.data('title')) ) {
 					caption.html( current.data('caption') );
@@ -599,7 +602,7 @@
 		bestFit : function(){
 			var max        = gallery.jp_carousel('slideDimensions'),
 			    orig       = this.jp_carousel('originalDimensions'),
-			    orig_ratio = orig.width / orig.height
+			    orig_ratio = orig.width / orig.height,
 			    w_ratio    = 1,
 			    h_ratio    = 1;
 
@@ -630,8 +633,8 @@
 				size = current.jp_carousel('bestFit');
 
 			photo_info.css({
-				left:(info.width() - size.width) * 0.5,
-				width:size.width
+				'left'  : (info.width() - size.width) * 0.5,
+				'width' : size.width
 			});
 			return this;
 		},
@@ -657,7 +660,7 @@
 				    method     = 'css',
 				    max        = gallery.jp_carousel('slideDimensions');
 
-				if ( selected.length == 0 ) {
+				if ( 0 === selected.length ) {
 					dimensions.left = $(window).width();
 				} else if ($this.is(selected)) {
 					dimensions.left = ($(window).width() - dimensions.width) * 0.5;
@@ -674,7 +677,7 @@
 				}
 				dimensions.top = ( (max.height - dimensions.height) * 0.5 ) + 40;
 				$this[method](dimensions);
-			})
+			});
 		},
 
 		initSlides : function(items, start_index){
@@ -698,8 +701,8 @@
 					slide = $('<div class="jp-carousel-slide"></div>')
 						.hide()
 						.css({
-							position: 'fixed',
-							left:i < start_index ? -1000 : gallery.width()
+							'position' : 'fixed',
+							'left'     : i < start_index ? -1000 : gallery.width()
 						})
 						.append($('<img>'))
 						.appendTo(gallery)
@@ -749,10 +752,10 @@
 
 			var medium_size       = args.medium_file.replace(/^https?:\/\/.+-([\d]+x[\d]+)\..+$/, '$1'),
 				medium_size_parts = (medium_size != args.medium_file) ? medium_size.split('x') : [args.orig_width, 0],
-				medium_width      = parseInt( medium_size_parts[0] ),
+				medium_width      = parseInt( medium_size_parts[0], 10 ),
 				large_size        = args.large_file.replace(/^https?:\/\/.+-([\d]+x[\d]+)\..+$/, '$1'),
 				large_size_parts  = (large_size != args.large_file) ? large_size.split('x') : [args.orig_width, 0],
-				large_width       = parseInt( large_size_parts[0] );
+				large_width       = parseInt( large_size_parts[0], 10 );
 		
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
 			if ('undefined' != typeof window.devicePixelRatio && window.devicePixelRatio > 1)
@@ -830,7 +833,7 @@
 				'Scan',                   // Scanners
 				'SANY',                   // Sanyo
 				'SAM',                    // Samsung
-				'Screen Shot [0-9]+',     // Mac screenshots
+				'Screen Shot [0-9]+'      // Mac screenshots
 			])
 			.each(function(key, val){
 				regex = new RegExp('^' + val);
@@ -872,7 +875,7 @@
 			
 			var $ul = $( '<ul></ul>' );
 			$.each( meta, function( key, val ) {
-				if ( 0 == parseFloat(val) || !val.length || -1 == $.inArray( key, [ 'camera', 'aperture', 'shutter_speed', 'focal_length' ] ) )
+				if ( 0 === parseFloat(val) || !val.length || -1 === $.inArray( key, [ 'camera', 'aperture', 'shutter_speed', 'focal_length' ] ) )
 					return;
 				
 				switch( key ) {
@@ -884,6 +887,9 @@
 						break;
 					case 'aperture':
 						val = 'f/' + val;
+						break;
+					default:
+						// making jslint happy
 						break;
 				}
 				
@@ -913,34 +919,34 @@
 			if ( !meta.latitude || !meta.longitude || 1 != jetpackCarouselStrings.display_geo )
 				return;
 				
-			var lat = meta.latitude, 
-				long = meta.longitude, 
-				$metabox = $( 'div.jp-carousel-image-meta', 'div.jp-carousel-wrap' ),
-				$mapbox = $( '<div></div>' ),
-				style = '&scale=2&style=feature:all|element:all|invert_lightness:true|hue:0x0077FF|saturation:-50|lightness:-5|gamma:0.91'
+			var latitude  = meta.latitude, 
+				longitude = meta.longitude, 
+				$metabox  = $( 'div.jp-carousel-image-meta', 'div.jp-carousel-wrap' ),
+				$mapbox   = $( '<div></div>' ),
+				style     = '&scale=2&style=feature:all|element:all|invert_lightness:true|hue:0x0077FF|saturation:-50|lightness:-5|gamma:0.91';
 
 			$mapbox
 				.addClass( 'jp-carousel-image-map' )
 				.html( '<img width="154" height="154" src="https://maps.googleapis.com/maps/api/staticmap?\
-							center=' + lat + ',' + long + '&\
+							center=' + latitude + ',' + longitude + '&\
 							zoom=8&\
 							size=154x154&\
 							sensor=false&\
-							markers=size:medium%7Ccolor:blue%7C' + lat + ',' + long + style +'" class="gmap-main" />\
+							markers=size:medium%7Ccolor:blue%7C' + latitude + ',' + longitude + style +'" class="gmap-main" />\
 							\
 						<div class="gmap-topright"><div class="imgclip"><img width="175" height="154" src="https://maps.googleapis.com/maps/api/staticmap?\
-							center=' + lat + ',' + long + '&\
+							center=' + latitude + ',' + longitude + '&\
 							zoom=3&\
 							size=175x154&\
 							sensor=false&\
-							markers=size:small%7Ccolor:blue%7C' + lat + ',' + long + style + '"c /></div></div>\
+							markers=size:small%7Ccolor:blue%7C' + latitude + ',' + longitude + style + '"c /></div></div>\
 							\
 						' )
 				.prependTo( $metabox );
 		},
 
 		testCommentsOpened: function( opened ) {
-			if ( 1 == parseInt( opened ) ) {
+			if ( 1 == parseInt( opened, 10 ) ) {
 				commentForm.fadeIn('fast');
 			} else {
 				commentForm.fadeOut('fast');
@@ -1075,7 +1081,8 @@
 			$.error( 'Method ' +	method + ' does not exist on jQuery.jp_carousel' );
 		}
 
-	}
+	};
+
 	// register the event listener for staring the gallery
 	$( document.body ).on( 'click', 'div.gallery', function(e) {
 		e.preventDefault();

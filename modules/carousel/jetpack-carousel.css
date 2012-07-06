@@ -170,7 +170,6 @@ div.jp-carousel-buttons a:hover {
 	position:absolute;
 	width:0;
 	bottom:0;
-	background:url(./images/spin.gif) center center no-repeat;
 	background-color:#000;
 	border-radius:2px;
 	-webkit-border-radius:2px;
