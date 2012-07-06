@@ -142,6 +142,8 @@ class Jetpack {
 		$this->sync = new Jetpack_Sync;
 
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
+			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
+
 			require_once dirname( __FILE__ ) . '/class.jetpack-xmlrpc-server.php';
 			$this->xmlrpc_server = new Jetpack_XMLRPC_Server();
 
@@ -1243,9 +1245,24 @@ p {
 
 	function admin_menu_css() { ?>
 		<style type="text/css" id="jetpack-menu-css">
-			#toplevel_page_jetpack .wp-menu-image img { visibility: hidden; }
-			#toplevel_page_jetpack .wp-menu-image { background: url( <?php echo plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/jp-icon.png' ) ?> ) 0 90% no-repeat; }
-			#toplevel_page_jetpack.current .wp-menu-image, #toplevel_page_jetpack.wp-has-current-submenu .wp-menu-image, #toplevel_page_jetpack:hover .wp-menu-image { background-position: top left; }
+			#toplevel_page_jetpack .wp-menu-image img { 
+				visibility: hidden; 
+			}
+			#toplevel_page_jetpack .wp-menu-image { 
+				background: url( <?php echo plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/menuicon-sprite.png' ) ?> ) 0 90% no-repeat; 
+			}
+			/* Retina Jetpack Menu Icon */
+			@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+				#toplevel_page_jetpack .wp-menu-image { 
+					background: url( <?php echo plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/menuicon-sprite-2x.png' ) ?> ) 0 90% no-repeat;
+					background-size:30px 64px;
+				}
+			}
+			#toplevel_page_jetpack.current .wp-menu-image, 
+			#toplevel_page_jetpack.wp-has-current-submenu .wp-menu-image, 
+			#toplevel_page_jetpack:hover .wp-menu-image { 
+				background-position: top left; 
+			}
 		</style><?php
 	}
 
