@@ -383,6 +383,7 @@ class Jetpack_Carousel {
 			selected( $key, $option );
 			echo '>'.esc_html($value).'</option>';
 		}
+		echo '</select>';
 		if ( ! empty( $extra_text ) )
 			echo '<p class="description">'.$extra_text.'</p>';
 		echo '</fieldset>';
@@ -405,7 +406,7 @@ class Jetpack_Carousel {
 	} 
 
 	function carousel_background_color_callback() {
-		$this->settings_select( 'carousel_background_color', array( 'black' => __( 'black' ), 'white' => __( 'white' ) ), __( 'Background color' ) );
+		$this->settings_select( 'carousel_background_color', array( 'black' => __( 'black' ), 'white' => __( 'white' ) ) );
 	}
 
 	function carousel_background_color_sanitize( $value ) {
