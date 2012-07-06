@@ -82,6 +82,7 @@ class Jetpack_Carousel {
 				'nonce'                => wp_create_nonce( 'carousel_nonce' ),
 				'display_exif'         => $this->test_1or0_option( get_option( 'carousel_display_exif' ), true ),
 				'display_geo'          => $this->test_1or0_option( get_option( 'carousel_display_geo' ), true ),
+				'background_color'     => $this->carousel_background_color_sanitize( get_option( 'carousel_background_color' ) ),
 				'post_comment'         => __('Post Comment'),
 				'loading_comments'     => __('Loading Comments...'),
 				'download_original'    => __('View full size <span class="photo-size">{0}<span class="photo-size-times">&times;</span>{1}</span>'),
@@ -329,6 +330,9 @@ class Jetpack_Carousel {
 	function register_settings() {
 		add_settings_section('carousel_section', __('Image Galleries'), array( $this, 'carousel_section_callback' ), 'media');
 		
+		add_settings_field('carousel_background_color', __('Background color'), array( $this, 'carousel_background_color_callback' ), 'media', 'carousel_section' );
+		register_setting( 'media', 'carousel_background_color', array( $this, 'carousel_background_color_sanitize' ) );
+		
 		add_settings_field('carousel_display_exif', __('Metadata'), array( $this, 'carousel_display_exif_callback' ), 'media', 'carousel_section' );
 		register_setting( 'media', 'carousel_display_exif', array( $this, 'carousel_display_exif_sanitize' ) );
 
@@ -356,11 +360,29 @@ class Jetpack_Carousel {
 	}
 
 	function settings_checkbox($name, $label_text, $extra_text = '', $default_to_checked = true) {
+		if ( empty( $name ) )
+			return;
 		$option = $this->test_1or0_option( get_option( $name ), $default_to_checked );
 		echo '<fieldset>';
 		echo '<input type="checkbox" name="'.esc_attr($name).'" id="'.esc_attr($name).'" value="1" ';
-		echo checked( '1', $option );
+		checked( '1', $option );
 		echo '/> <label for="'.esc_attr($name).'">'.$label_text.'</label>';
+		if ( ! empty( $extra_text ) )
+			echo '<p class="description">'.$extra_text.'</p>';
+		echo '</fieldset>';
+	}
+
+	function settings_select($name, $values, $extra_text = '') {
+		if ( empty( $name ) || ! is_array( $values ) || empty( $values ) )
+			return;
+		$option = get_option( $name );
+		echo '<fieldset>';
+		echo '<select name="'.esc_attr($name).'">';
+		foreach( $values as $key => $value ) {
+			echo '<option value="'.esc_attr($key).'" ';
+			selected( $key, $option );
+			echo '>'.esc_html($value).'</option>';
+		}
 		if ( ! empty( $extra_text ) )
 			echo '<p class="description">'.$extra_text.'</p>';
 		echo '</fieldset>';
@@ -381,6 +403,14 @@ class Jetpack_Carousel {
 	function carousel_display_geo_sanitize( $value ) {
 		return $this->sanitize_1or0_option( $value );
 	} 
+
+	function carousel_background_color_callback() {
+		$this->settings_select( 'carousel_background_color', array( 'black' => __( 'black' ), 'white' => __( 'white' ) ), __( 'Background color' ) );
+	}
+
+	function carousel_background_color_sanitize( $value ) {
+		return ( 'white' == $value ) ? 'white' : 'black';
+	}
 }
 
 new Jetpack_Carousel;

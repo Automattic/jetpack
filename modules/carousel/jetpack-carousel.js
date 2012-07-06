@@ -205,8 +205,12 @@
 				});
 			
 			container = $("<div></div>")
-				.addClass('jp-carousel-wrap')
-				.css({
+				.addClass('jp-carousel-wrap');
+			
+			if ( 'white' == jetpackCarouselStrings.background_color )
+				 container.addClass('jp-carousel-light');
+			
+			container.css({
 					position:'fixed',
 					top:0,
 					right:0,
@@ -846,7 +850,7 @@
 			
 			title = gallery.jp_carousel('parseTitleDesc', data.title);
 			desc  = gallery.jp_carousel('parseTitleDesc', data.desc);
-
+			
 			if ( title == desc )
 				title = '';
 
