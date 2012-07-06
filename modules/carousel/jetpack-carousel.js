@@ -1077,7 +1077,7 @@
 
 	}
 	// register the event listener for staring the gallery
-	$( document.body ).one( 'click', 'div.gallery', function(e) {
+	$( document.body ).on( 'click', 'div.gallery', function(e) {
 		e.preventDefault();
 		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item').index($(e.target).parents('.gallery-item'))});
 	});

@@ -43,10 +43,20 @@ class Jetpack_Carousel {
 			// Also register the Carousel-related related settings
 			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
 		}
+
+		if ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
+			Jetpack::enable_module_configurable( dirname( dirname( __FILE__ ) ) . '/carousel.php' );
+			Jetpack::module_configuration_load( dirname( dirname( __FILE__ ) ) . '/carousel.php', array( $this, 'jetpack_configuration_load' ) );
+		}
 	}
 
 	function maybe_disable_jp_carousel() {
 		return apply_filters( 'jp_carousel_maybe_disable', false );
+	}
+
+	function jetpack_configuration_load() {
+		wp_safe_redirect( admin_url( 'options-media.php#carousel_background_color' ) );
+		exit;
 	}
 
 	function asset_version( $version ) {
@@ -377,7 +387,7 @@ class Jetpack_Carousel {
 			return;
 		$option = get_option( $name );
 		echo '<fieldset>';
-		echo '<select name="'.esc_attr($name).'">';
+		echo '<select name="'.esc_attr($name).'" id="'.esc_attr($name).'">';
 		foreach( $values as $key => $value ) {
 			echo '<option value="'.esc_attr($key).'" ';
 			selected( $key, $option );
