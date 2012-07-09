@@ -517,7 +517,7 @@
 				info_min;
 			// center the main image
 			
-			caption.fadeOut('fast');
+			caption.hide();
 
 			method = 'css';
 			animated = current
@@ -564,13 +564,16 @@
 				gallery.jp_carousel('getComments', {'attachment_id': current.data('attachment-id'), 'offset': 0, 'clear': true});
 
 				$('#jp-carousel-comment-post-results').slideUp();
-
-				if ( current.data('caption') && $.trim(current.data('caption')) != $.trim(current.data('title')) ) {
-					caption.html( current.data('caption') );
-					caption.fadeIn('slow');
+				
+				// $('<div />').html(sometext).text() is a trick to go to HTML to plain text (including HTML emntities decode, etc)
+				if ( current.data('caption') ) {
+					if ( $('<div />').html(current.data('caption')).text() == $('<div />').html(current.data('title')).text() )
+						$('.jp-carousel-titleanddesc-title').fadeOut('fast').empty();
+					if ( $('<div />').html(current.data('caption')).text() == $('<div />').html(current.data('desc')).text() )
+						$('.jp-carousel-titleanddesc-desc').fadeOut('fast').empty();
+					caption.html( current.data('caption') ).fadeIn('slow');
 				} else {
-					caption.fadeOut('fast');
-					caption.empty();
+					caption.fadeOut('fast').empty();
 				}
 			}, 600 );
 
@@ -680,6 +683,12 @@
 			});
 		},
 
+		texturize : function(text) {
+				text = text.replace("'", '&#8217;').replace('&#039;', '&#8217;').replace(/[\u2019]/, '&#8217;');
+				text = text.replace('"', '&#8221;').replace('&#034;', '&#8221;').replace('&quot;', '&#8221;').replace(/[\u201D]/, '&#8221;');
+				return $.trim(text);
+		},
+
 		initSlides : function(items, start_index){
 			var width = this.jp_carousel('slideDimensions').width,
 				x = 0;
@@ -690,12 +699,18 @@
 					comments_opened = src_item.data('comments-opened') || 0,
 					image_meta      = src_item.data('image-meta') || {},
 					orig_size       = src_item.data('orig-size') || 0,
-					description     = src_item.data('image-description'),
+					title           = src_item.attr('title') || '',
+					description     = src_item.data('image-description') || '',
+					caption         = src_item.parents('dl').find('dd.gallery-caption').html() || '',
 					medium_file     = src_item.data('medium-file') || '',
 					large_file      = src_item.data('large-file') || '';
 
 				if ( !attachment_id || !orig_size )
 					return false; // break the loop if we are missing the data-* attributes
+				
+				title       = gallery.jp_carousel('texturize', title);
+				description = gallery.jp_carousel('texturize', description);
+				caption     = gallery.jp_carousel('texturize', caption);
 				
 				var src   = src_item.data('orig-file'),
 					slide = $('<div class="jp-carousel-slide"></div>')
@@ -707,9 +722,9 @@
 						.append($('<img>'))
 						.appendTo(gallery)
 						.data('src', src )
-						.data('title', src_item.attr('title'))
+						.data('title', title)
 						.data('desc', description)
-						.data('caption', src_item.parents('dl').find('dd.gallery-caption').html())
+						.data('caption', caption)
 						.data('attachment-id', attachment_id)
 						.data('permalink', src_item.parents('a').attr('href'))
 						.data('orig-size', orig_size)
@@ -846,23 +861,23 @@
 		},
 		
 		getTitleDesc: function( data ) {
-			var title ='', desc = '', markup = '', target, commentWrapper;
+			var title ='', desc = '', markup = '', target, commentWrappere;
 			
 			target = $( 'div.jp-carousel-titleanddesc', 'div.jp-carousel-wrap' );
 			target.hide();
 			
-			title = gallery.jp_carousel('parseTitleDesc', data.title);
-			desc  = gallery.jp_carousel('parseTitleDesc', data.desc);
+			title = gallery.jp_carousel('parseTitleDesc', data.title) || '';
+			desc  = gallery.jp_carousel('parseTitleDesc', data.desc)  || '';
 			
-			if ( title == desc )
-				title = '';
-
 			if ( title.length || desc.length ) {
-				markup  = ( title.length ) ? '<div>' + title + '</div>' : '';
-				markup += ( desc.length ) ? '<p>' + desc + '</p>' : '';
+				// $('<div />').html(sometext).text() is a trick to go to HTML to plain text (including HTML emntities decode, etc)
+				if ( $('<div />').html(title).text() == $('<div />').html(desc).text() )
+					title = '';
 
-				target.html( markup );
-				target.show();
+				markup  = ( title.length ) ? '<div class="jp-carousel-titleanddesc-title">' + title + '</div>' : '';
+				markup += ( desc.length )  ? '<div class="jp-carousel-titleanddesc-desc">' + desc + '</div>'   : '';
+
+				target.html( markup ).fadeIn('slow');
 			}
 
 			$( 'div#jp-carousel-comment-form-container' ).css('margin-top', '20px');

@@ -437,7 +437,7 @@ div#carousel-reblog-box {
 	margin-bottom: 20px;
 	font-weight:400;
 }
-.jp-carousel-titleanddesc div {
+.jp-carousel-titleanddesc-title {
 	font: 300 1.5em/1.1 "Helvetica Neue", sans-serif !important;
 	text-transform: none !important; /* prevents uppercase from leaking through */
 	color: #fff;
@@ -445,7 +445,7 @@ div#carousel-reblog-box {
 	padding:0;
 }
 
-.jp-carousel-titleanddesc p {
+.jp-carousel-titleanddesc-desc p {
 	color: #999;
 	line-height:1.4;
 	margin-bottom: 0.75em;

@@ -181,7 +181,7 @@ class Jetpack_Carousel {
 		$large_file      = isset( $large_file_info[0] ) ? $large_file_info[0] : '';
 
 		$attachment      = get_post( $attachment_id );
-		$attachment_desc = wpautop( $attachment->post_content );
+		$attachment_desc = wpautop( wptexturize( $attachment->post_content ) );
 
 		// Not yet providing geo-data, need to "fuzzify" for privacy
 		if ( ! empty( $img_meta ) ) {
