@@ -154,6 +154,7 @@ add_action( 'network_admin_menu', 'wp_cache_network_pages' );
 
 function wp_cache_manager_error_checks() {
 	global $wpmu_version, $wp_cache_debug, $wp_cache_cron_check, $cache_enabled, $super_cache_enabled, $wp_cache_config_file, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers, $wp_cache_mobile_enabled, $wp_cache_mod_rewrite, $cache_path;
+	global $dismiss_htaccess_warning, $dismiss_readable_warning;
 
 	if ( !wpsupercache_site_admin() )
 		return false;
@@ -247,15 +248,30 @@ function wp_cache_manager_error_checks() {
 		define( "SUBMITDISABLED", ' ' );
 	}
 
+	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
 	// Server could be running as the owner of the wp-content directory.  Therefore, if it's
 	// writable, issue a warning only if the permissions aren't 755.
-	if( is_writeable_ACLSafe( WP_CONTENT_DIR . '/' ) ) {
+	if ( $valid_nonce && $_POST[ 'action' ] == 'dismiss_readable_warning' ) {
+		wp_cache_replace_line('^ *\$dismiss_readable_warning', "\$dismiss_readable_warning = 1;", $wp_cache_config_file);
+		$dismiss_readable_warning = 1;
+	} elseif ( !isset( $dismiss_readable_warning ) ) {
+		$dismiss_readable_warning = 0;
+	}
+	if( $dismiss_readable_warning == 0 && is_writeable_ACLSafe( WP_CONTENT_DIR . '/' ) ) {
 		$wp_content_stat = stat(WP_CONTENT_DIR . '/');
 		$wp_content_mode = decoct( $wp_content_stat[ 'mode' ] & 0777 );
 		if( substr( $wp_content_mode, -2 ) == '77' ) {
 			?><div id="message" class="updated fade"><h3><?php printf( __( 'Warning! %s is writeable!', 'wp-super-cache' ), WP_CONTENT_DIR ); ?></h3>
 			<p><?php printf( __( 'You should change the permissions on %s and make it more restrictive. Use your ftp client, or the following command to fix things:', 'wp-super-cache' ), WP_CONTENT_DIR ); ?> <code>chmod 755 <?php echo WP_CONTENT_DIR; ?>/</code></p>
-			<p><?php _e( '<a href="http://codex.wordpress.org/Changing_File_Permissions">This page</a> explains how to change file permissions.', 'wp-super-cache' ); ?></p></div>
+			<p><?php _e( '<a href="http://codex.wordpress.org/Changing_File_Permissions">This page</a> explains how to change file permissions.', 'wp-super-cache' ); ?></p>
+			<form action="" method="POST">
+			<input type="hidden" name="action" value="dismiss_readable_warning" />
+			<input type="hidden" name="page" value="wpsupercache" />
+			<?php wp_nonce_field( 'wp-cache' ); ?>
+			<input type='submit' value='<?php _e( 'Dismiss', 'wp-super-cache' ); ?>' />
+			</form>
+			<br />
+			</div>
 			<?php
 		}
 	}
@@ -306,6 +322,26 @@ function wp_cache_manager_error_checks() {
 			echo "</ul>";
 			echo "</div>";
 		}
+	}
+
+	if ( $valid_nonce && $_POST[ 'action' ] == 'dismiss_htaccess_warning' ) {
+		wp_cache_replace_line('^ *\$dismiss_htaccess_warning', "\$dismiss_htaccess_warning = 1;", $wp_cache_config_file);
+		$dismiss_htaccess_warning = 1;
+	} elseif ( !isset( $dismiss_htaccess_warning ) ) {
+		$dismiss_htaccess_warning = 0;
+	}
+	if ( $dismiss_htaccess_warning == 0 && $wp_cache_mod_rewrite && $super_cache_enabled && $disable_supercache_htaccess_warning == false && get_option( 'siteurl' ) != get_option( 'home' ) ) {
+		$home_dir = str_replace( get_option( 'home' ), '', get_option( 'siteurl' ) );
+		?><div id="message" class="updated fade"><h3><?php _e( '.htaccess file may need to be moved', 'wp-super-cache' ); ?></h3>
+		<p><?php _e( 'It appears you have WordPress installed in a sub directory as described <a href="http://codex.wordpress.org/Giving_WordPress_Its_Own_Directory">here</a>. Unfortunately WordPress writes to the .htaccess in the install directory, not where your site is served from.<br />When you update the rewrite rules in this plugin you will have to copy the file to where your site is hosted. This will be fixed in the future.', 'wp-super-cache' ); ?></p>
+		<form action="" method="POST">
+		<input type="hidden" name="action" value="dismiss_htaccess_warning" />
+		<input type="hidden" name="page" value="wpsupercache" />
+		<?php wp_nonce_field( 'wp-cache' ); ?>
+		<input type='submit' value='<?php _e( 'Dismiss', 'wp-super-cache' ); ?>' />
+		</form>
+		<br />	
+		</div><?php
 	}
 
 	return true;
