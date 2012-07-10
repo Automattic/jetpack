@@ -117,7 +117,7 @@ function wpsupercache_deactivate() {
 	wp_clear_scheduled_hook( 'wp_cache_check_site_hook' );
 	wp_cache_disable_plugin();
 }
-register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
+register_uninstall_hook( __FILE__, 'wpsupercache_deactivate' );
 
 function wpsupercache_activate() {
 }
