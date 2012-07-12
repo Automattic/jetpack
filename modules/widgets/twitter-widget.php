@@ -160,8 +160,8 @@ class Wickett_Twitter_Widget extends WP_Widget {
 				 * Create links from plain text based on Twitter patterns
 				 * @link http://github.com/mzsanford/twitter-text-rb/blob/master/lib/regex.rb Official Twitter regex
 				 */
-				$text = preg_replace_callback( '/(^|[^0-9A-Z&\/]+)(#|\xef\xbc\x83)([0-9A-Z_]*[A-Z_]+[a-z0-9_\xc0-\xd6\xd8-\xf6\xf8\xff]*)/iu',  array( &$this, '_wpcom_widget_twitter_hashtag' ), $text );
-				$text = preg_replace_callback( '/([^a-zA-Z0-9_]|^)([@\xef\xbc\xa0]+)([a-zA-Z0-9_]{1,20})(\/[a-zA-Z][a-zA-Z0-9\x80-\xff-]{0,79})?/u', array( &$this, '_wpcom_widget_twitter_username' ), $text );
+				$text = preg_replace_callback( '/(^|[^0-9A-Z&\/]+)(#|\xef\xbc\x83)([0-9A-Z_]*[A-Z_]+[a-z0-9_\xc0-\xd6\xd8-\xf6\xf8\xff]*)/iu',  array( $this, '_wpcom_widget_twitter_hashtag' ), $text );
+				$text = preg_replace_callback( '/([^a-zA-Z0-9_]|^)([@\xef\xbc\xa0]+)([a-zA-Z0-9_]{1,20})(\/[a-zA-Z][a-zA-Z0-9\x80-\xff-]{0,79})?/u', array( $this, '_wpcom_widget_twitter_username' ), $text );
 				if ( isset( $tweet['id_str'] ) )
 					$tweet_id = urlencode( $tweet['id_str'] );
 				else

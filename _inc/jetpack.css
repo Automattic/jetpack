@@ -1,7 +1,7 @@
 #jp-header {
 	min-width: 741px;
 	z-index: 0;
-	margin: 0 0 -30px 0;
+	margin: 30px 0 -30px 0;
 }
 	#jp-header.small {
 		margin-bottom: 50px;
@@ -985,4 +985,102 @@ p#news-sub {
 	position: absolute;
 	top: 28px;
 	right: 15px;
+}
+
+.jetpack-close-button-container {
+	position: absolute;
+	top: 0;
+	right: 0;
+}
+
+.jetpack-close-button {
+	display: block;
+	width: 16px;
+	height: 16px;
+	text-indent: -9999px;
+	background: transparent url( images/jetpack-closebox-icon.png ) no-repeat center center;
+	border: 0 none;
+	-moz-border-radius: 0 0 0 5px;
+	-webkit-border-radius: 0 0 0 5px;
+	-o-border-radius: 0 0 0 5px;
+	-ms-border-radius: 0 0 0 5px;
+	border-radius: 0 0 0 5px;
+	-moz-box-shadow: none;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	-webkit-transition-duration: .3s;
+	-moz-transition-duration: .3s;
+	-o-transition-duration: .3s;
+	-ms-transition-duration: .3s;
+	transition-duration: .3s;
+	cursor: pointer;
+}
+
+.jetpack-close-button:hover {
+	background-color: #fff;
+	border: 0 none;
+	outline: none;
+	-webkit-transition-duration: .3s;
+	-moz-transition-duration: .3s;
+	-o-transition-duration: .3s;
+	-ms-transition-duration: .3s;
+	transition-duration: .3s;
+}
+
+.jetpack-close-button:active {
+	background-color: #efefef;
+	border: 0 none;
+	-webkit-transition-duration: .3s;
+	-moz-transition-duration: .3s;
+	-o-transition-duration: .3s;
+	-ms-transition-duration: .3s;
+	transition-duration: .3s;
+}
+
+.jetpack-wrap-container {
+	overflow: hidden;
+	padding: 0 20px 8px 15px;
+}
+
+.jetpack-text-container {
+	float: left;
+	width: 68.421053%; /* 390px / 570px */
+}
+
+.jetpack-install-container p a.button-connector {
+	position: absolute;
+	bottom: 5px;
+	right: 15px;
+	font-family: "Helvetica Neue",Helvetica,Arial,"Lucida Grande",Verdana,"Bitstream Vera Sans",sans-serif;
+	float: right;
+	display: inline-block;
+	background: #b4d278;
+	-moz-box-shadow: inset 0 0 2px #fff, 0 1px 5px rgba(0,0,0,0.3);
+	-webkit-box-shadow: inset 0 0 2px #fff, 0 1px 5px rgba(0,0,0,0.3);
+	box-shadow: inset 0 0 2px #fff, 0 1px 5px rgba(0,0,0,0.3);
+	padding: 8px 15px;
+	border: 1px solid #2a8cba;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	line-height: 100%;
+	color: #fff;
+	text-align: center;
+	font-size: 16px;
+	font-weight: bold;
+	text-decoration: none;
+	text-shadow: 0px 1px 2px rgba( 0,0,0,0.5);
+	-webkit-transition-duration: .3s;
+	-moz-transition-duration: .3s;
+	cursor: pointer;
+}
+
+.jetpack-install-container p a.button-connector:hover, .jetpack-install-container p a.button-connector:active {
+	background-color: #f0a000;
+	border-color: #c87800;
+	-webkit-transition-duration: .3s;
+	outline: none;
+	-moz-box-shadow: inset 0 0 2px #fff, 0 1px 7px rgba(240,160,0,0.5);
+	-webkit-box-shadow: inset 0 0 2px #fff, 0 1px 7px rgba(240,160,0,0.5);
+	box-shadow: inset 0 0 2px #fff, 0 1px 7spx rgba(240,160,0,0.5);
 }

@@ -19,8 +19,11 @@ function sharing_email_send_post( $data ) {
 }
 
 function sharing_add_meta_box() {
-	add_meta_box( 'sharing_meta', __( 'Sharing', 'jetpack' ), 'sharing_meta_box_content', 'page', 'advanced', 'high' );
-	add_meta_box( 'sharing_meta', __( 'Sharing', 'jetpack' ), 'sharing_meta_box_content', 'post', 'advanced', 'high' );
+	$post_types = get_post_types( array( 'public' => true ) );
+
+	foreach( $post_types as $post_type ) {
+		add_meta_box( 'sharing_meta', __( 'Sharing', 'jetpack' ), 'sharing_meta_box_content', $post_type, 'advanced', 'high' );
+	}
 }
 
 function sharing_meta_box_content( $post ) {
@@ -39,13 +42,12 @@ function sharing_meta_box_save( $post_id ) {
 		return $post_id;
 
 	// Record sharing disable
-	if ( isset( $_POST['post_type'] ) && ( 'post' == $_POST['post_type'] || 'page' == $_POST['post_type'] ) ) {
-		if ( current_user_can( 'edit_post', $post_id ) ) {
-			if ( isset( $_POST['sharing_status_hidden'] ) ) {
-				if ( !isset( $_POST['enable_post_sharing'] ) )
-					update_post_meta( $post_id, 'sharing_disabled', 1 );
-				else
-					delete_post_meta( $post_id, 'sharing_disabled' );
+	if ( current_user_can( 'edit_post', $post_id ) ) {
+		if ( isset( $_POST['sharing_status_hidden'] ) ) {
+			if ( !isset( $_POST['enable_post_sharing'] ) ) {
+				update_post_meta( $post_id, 'sharing_disabled', 1 );
+			} else {
+				delete_post_meta( $post_id, 'sharing_disabled' );
 			}
 		}
 	}
@@ -113,15 +115,12 @@ function shareing_global_resources_save() {
 	update_option( 'sharedaddy_disable_resources', isset( $_POST['disable_resourcse'] ) ? 1 : 0 );
 }
 
-// Only run if PHP5
-if ( version_compare( phpversion(), '5.0', '>=' ) ) {
-	add_action( 'init', 'sharing_init' );
-	add_action( 'admin_init', 'sharing_add_meta_box' );
-	add_action( 'save_post', 'sharing_meta_box_save' );
-	add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
-	add_action( 'sharing_global_options', 'sharing_global_resources' );
-	add_action( 'sharing_admin_update', 'shareing_global_resources_save' );
-	add_filter( 'sharing_services', 'sharing_restrict_to_single' );
-	add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
-	add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
-}
+add_action( 'init', 'sharing_init' );
+add_action( 'admin_init', 'sharing_add_meta_box' );
+add_action( 'save_post', 'sharing_meta_box_save' );
+add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
+add_action( 'sharing_global_options', 'sharing_global_resources' );
+add_action( 'sharing_admin_update', 'shareing_global_resources_save' );
+add_filter( 'sharing_services', 'sharing_restrict_to_single' );
+add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
+add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );

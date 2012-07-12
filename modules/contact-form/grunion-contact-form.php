@@ -647,9 +647,14 @@ function contact_form_widget_atts( $text ) {
 add_filter( 'widget_text', 'contact_form_widget_atts', 0 );
 
 function contact_form_widget_shortcode_hack( $text ) {
+	if ( !preg_match( '/\[contact-form([^a-zA-Z_-])/', $text ) ) {
+		return $text;
+	}
+
 	$old = $GLOBALS['shortcode_tags'];
 	remove_all_shortcodes();
 	add_shortcode( 'contact-form', 'contact_form_shortcode' );
+	add_shortcode( 'contact-field', 'contact_form_field' );
 	$text = do_shortcode( $text );
 	$GLOBALS['shortcode_tags'] = $old;
 	return $text;
