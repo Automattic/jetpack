@@ -485,7 +485,7 @@ function get_supercache_dir( $blog_id = 0 ) {
 	return apply_filters( 'wp_super_cache_supercachedir', $cache_path . 'supercache/' . trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'http://', '', str_replace( 'https://', '', $home ) ) ) ) ) );
 }
 function get_current_url_supercache_dir( $post_id = 0 ) {
-	global $cached_direct_pages, $cache_path, $wp_cache_request_uri, $WPSC_HTTP_HOST;
+	global $cached_direct_pages, $cache_path, $wp_cache_request_uri, $WPSC_HTTP_HOST, $wp_cache_home_path;
 	static $saved_supercache_dir = array();
 
 	if ( isset( $saved_supercache_dir[ $post_id ] ) ) {
@@ -523,6 +523,8 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 			}
 		} else {
 			$uri = str_replace( $site_url, '', $permalink );
+			if ( strpos( $uri, $wp_cache_home_path ) !== 0 )
+				$uri = rtrim( $wp_cache_home_path, '/' ) . $uri;
 		}
 	} else {
 		$uri = strtolower( $wp_cache_request_uri );
