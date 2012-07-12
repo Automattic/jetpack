@@ -1,5 +1,5 @@
 
-(function($) {
+jQuery(document).ready(function($) {
 
 	// gallery faded layer and container elements
 	var overlay, comments, gallery, container, nextButton, previousButton, info, title,
@@ -1140,4 +1140,4 @@
 				gallery.jp_carousel('open', {start_index: index});
 		});
 	}
-})(jQuery);
+});
