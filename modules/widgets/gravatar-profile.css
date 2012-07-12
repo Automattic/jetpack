@@ -1,0 +1,36 @@
+.widget-grofile {
+}
+	.widget-grofile h4 {
+		margin: 1em 0 1.2em;
+		/*font-size: 1.2em;*/
+	}
+	.widget-grofile ul.grofile-urls {
+		margin-left: 0;
+		overflow: hidden;
+	}
+		.widget-grofile ul.grofile-accounts li {
+			list-style: none;
+			display: inline;
+		}
+		
+		.widget-grofile ul.grofile-accounts li::before {
+			content: "" !important; /* Kubrick :( */
+		}
+		.widget-grofile .grofile-accounts-logo {
+			background-image: url('http://0.gravatar.com/images/grav-share-sprite.png');
+			background-repeat: no-repeat;
+			/*background-position: -16px -16px;*/
+			width: 16px; /* So we don't show the topmost logo */
+			height: 16px; /* So we don't show the topmost logo */
+			float: left;
+			margin-right: 8px;
+			margin-bottom: 8px;
+		}
+		.rtl .widget-grofile .grofile-accounts-logo {
+			margin-left: 8px;
+			margin-right: 0;
+		}
+
+		.grofile-thumbnail {
+			width: 100%;
+		}
