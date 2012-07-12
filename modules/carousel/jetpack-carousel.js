@@ -703,6 +703,8 @@
 					medium_file     = src_item.data('medium-file') || '',
 					large_file      = src_item.data('large-file') || '';
 
+					src = src_item.data('orig-file');
+					
 					src = gallery.jp_carousel('selectBestImageSize', {
 						orig_file   : src,
 						orig_width  : orig_size.width,
