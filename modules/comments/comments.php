@@ -236,42 +236,48 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				}
 			};
 
-			addComment._Jetpack_moveForm = addComment.moveForm;
+	<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
 
-			addComment.moveForm = function( commId, parentId, respondId, postId ) {
-				var returnValue = addComment._Jetpack_moveForm( commId, parentId, respondId, postId ), cancelClick, cancel;
+			if ( 'undefined' !== typeof addComment ) {
+				addComment._Jetpack_moveForm = addComment.moveForm;
 
-				if ( false === returnValue ) {
-					cancel = document.getElementById( 'cancel-comment-reply-link' );
-					cancelClick = cancel.onclick;
-					cancel.onclick = function() {
-						var cancelReturn = cancelClick.call( this );
-						if ( false !== cancelReturn ) {
+				addComment.moveForm = function( commId, parentId, respondId, postId ) {
+					var returnValue = addComment._Jetpack_moveForm( commId, parentId, respondId, postId ), cancelClick, cancel;
+
+					if ( false === returnValue ) {
+						cancel = document.getElementById( 'cancel-comment-reply-link' );
+						cancelClick = cancel.onclick;
+						cancel.onclick = function() {
+							var cancelReturn = cancelClick.call( this );
+							if ( false !== cancelReturn ) {
+								return cancelReturn;
+							}
+
+							if ( !comm_par ) {
+								return cancelReturn;
+							}
+
+							comm_par = 0;
+
+							tellFrameNewParent();
+
 							return cancelReturn;
-						}
+						};
+					}
 
-						if ( !comm_par ) {
-							return cancelReturn;
-						}
+					if ( comm_par == parentId ) {
+						return returnValue;
+					}
 
-						comm_par = 0;
+					comm_par = parentId;
 
-						tellFrameNewParent();
+					tellFrameNewParent();
 
-						return cancelReturn;
-					};
-				}
-
-				if ( comm_par == parentId ) {
 					return returnValue;
-				}
+				};
+			}
 
-				comm_par = parentId;
-
-				tellFrameNewParent();
-
-				return returnValue;
-			};
+	<?php endif; ?>
 
 			if ( window.postMessage ) {
 				if ( document.addEventListener ) {

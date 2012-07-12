@@ -23,11 +23,12 @@ function jetpack_widgets_configuration_load() {
 	wp_safe_redirect( admin_url( 'widgets.php' ) );
 	exit;
 }
-	
+
+function jetpack_register_widgets() {
+	register_widget( 'WPCOM_Widget_Facebook_LikeBox' );
+	register_widget( 'Jetpack_Gravatar_Profile_Widget' );
+}
+
 jetpack_load_widgets();
 
-add_action( 'widgets_init', 'facebook_likebox_widget_init' );
-
-function facebook_likebox_widget_init() {
-	register_widget( 'WPCOM_Widget_Facebook_LikeBox' );
-}
+add_action( 'widgets_init', 'jetpack_register_widgets' );
