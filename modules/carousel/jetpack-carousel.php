@@ -100,7 +100,7 @@ class Jetpack_Carousel {
 			$localize_strings = array(
 				'widths'               => $this->prebuilt_widths,
 				'is_logged_in'         => $is_logged_in,
-				'ajaxurl'              => home_url( '/wp-admin/admin-ajax.php', is_ssl() ? 'https' : 'http' ),
+				'ajaxurl'              => admin_url( 'admin-ajax.php', is_ssl() ? 'https' : 'http' ),
 				'nonce'                => wp_create_nonce( 'carousel_nonce' ),
 				'display_exif'         => $this->test_1or0_option( get_option( 'carousel_display_exif' ), true ),
 				'display_geo'          => $this->test_1or0_option( get_option( 'carousel_display_geo' ), true ),
@@ -196,7 +196,7 @@ class Jetpack_Carousel {
 		$html = str_replace(
 			'<img ',
 			sprintf(
-				'<img data-attachment-id="%1$d" data-orig-file="%2$s" data-orig-size="%3$s" data-comments-opened="%4$s" data-image-meta="%5$s" data-image-description="%6$s" data-medium-file="%7$s" data-large-file="%8$s"',
+				'<img data-attachment-id="%1$d" data-orig-file="%2$s" data-orig-size="%3$s" data-comments-opened="%4$s" data-image-meta="%5$s" data-image-description="%6$s" data-medium-file="%7$s" data-large-file="%8$s" ',
 				$attachment_id,
 				esc_attr( $orig_file ),
 				$size,
@@ -233,6 +233,8 @@ class Jetpack_Carousel {
 	function get_attachment_comments() {
 		if ( ! headers_sent() )
 			header('Content-type: text/javascript');
+		
+		do_action('jp_carousel_check_blog_user_privileges');
 		
 		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0;
 		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
@@ -297,6 +299,8 @@ class Jetpack_Carousel {
 			switch_to_blog( $_blog_id );
 			$switched = true;
 		}
+		
+		do_action('jp_carousel_check_blog_user_privileges');
 
 		if ( ! comments_open( $_post_id ) )
 			die( json_encode( array( 'error' => __( 'Comments on this post are closed.' ) ) ) );
