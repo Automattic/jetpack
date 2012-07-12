@@ -692,6 +692,33 @@
 		initSlides : function(items, start_index){
 			var width = this.jp_carousel('slideDimensions').width,
 				x = 0;
+
+			// Calculate the new src.
+			items.each(function(i){
+				var src_item  = $(this),
+					orig_size = src_item.data('orig-size') || 0,
+					max       = gallery.jp_carousel('slideDimensions'),
+					parts     = orig_size.split(',');
+					orig_size = {width: parseInt(parts[0], 10), height: parseInt(parts[1], 10)},
+					medium_file     = src_item.data('medium-file') || '',
+					large_file      = src_item.data('large-file') || '';
+
+					src = gallery.jp_carousel('selectBestImageSize', {
+						orig_file   : src,
+						orig_width  : orig_size.width,
+						max_width   : max.width,
+						medium_file : medium_file,
+						large_file  : large_file
+					});
+				
+				// Set the final src
+				$(this).data( 'gallery-src', src );
+			});
+
+			// If the start_index is not 0 then preload the clicked image first.
+			if ( 0 !== start_index )
+				$('<img/>')[0].src = $(items[start_index]).data('gallery-src');
+
 			// create the 'slide'
 			items.each(function(i){
 				var src_item        = $(this),
@@ -702,6 +729,7 @@
 					title           = src_item.attr('title') || '',
 					description     = src_item.data('image-description') || '',
 					caption         = src_item.parents('dl').find('dd.gallery-caption').html() || '',
+					src				= src_item.data('gallery-src') || '',
 					medium_file     = src_item.data('medium-file') || '',
 					large_file      = src_item.data('large-file') || '';
 
@@ -712,8 +740,7 @@
 				description = gallery.jp_carousel('texturize', description);
 				caption     = gallery.jp_carousel('texturize', caption);
 				
-				var src   = src_item.data('orig-file'),
-					slide = $('<div class="jp-carousel-slide"></div>')
+				var slide = $('<div class="jp-carousel-slide"></div>')
 						.hide()
 						.css({
 							'position' : 'fixed',
@@ -734,17 +761,6 @@
 						.data('large-file', large_file)
 						.jp_carousel('fitSlide', false);
 
-				var max       = gallery.jp_carousel('slideDimensions'),
-					parts     = orig_size.split(',');
-					orig_size = {width: parseInt(parts[0], 10), height: parseInt(parts[1], 10)};
-				
-					src = gallery.jp_carousel('selectBestImageSize', {
-						orig_file   : src,
-						orig_width  : orig_size.width,
-						max_width   : max.width,
-						medium_file : medium_file,
-						large_file  : large_file
-					});
 				
 				// Preloading all images
 				slide.find('img').first().attr('src', src );
