@@ -427,8 +427,7 @@ add_action( 'jetpack_module_more_info_contact-form', 'jetpack_contact_form_more_
 add_action( 'jetpack_module_more_info_connected_contact-form', 'jetpack_contact_form_more_info' );
 // Contact Form: STOP
 
-// Jetpack Comments
-
+// Jetpack Comments: START
 function jetpack_comments_learn_more_button() {
     echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
 }
@@ -457,3 +456,28 @@ function jetpack_comments_more_info() {
 add_action( 'jetpack_learn_more_button_comments', 'jetpack_comments_learn_more_button' );
 add_action( 'jetpack_module_more_info_comments', 'jetpack_comments_more_info' );
 add_action( 'jetpack_module_more_info_connected_comments', 'jetpack_comments_more_info' );
+// Jetpack Comments: STOP
+
+// Gallery Carousel: START
+function jetpack_carousel_learn_more_button() {
+    echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+
+function jetpack_carousel_more_info() {
+?>
+	<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/screenshot-6.png' ) ?>" alt="<?php esc_attr_e( 'Gallery Carousel Screenshot', 'jetpack' ) ?>" width="300" height="188" />
+	</div>
+
+	<h4><?php esc_html_e( 'Carousel', 'jetpack' ); ?></h4>
+
+    <p>
+		With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.
+    </p>
+<?php
+}
+
+add_action( 'jetpack_learn_more_button_carousel', 'jetpack_carousel_learn_more_button' );
+add_action( 'jetpack_module_more_info_carousel', 'jetpack_carousel_more_info' );
+add_action( 'jetpack_module_more_info_connected_carousel', 'jetpack_carousel_more_info' );
+// Gallery Carousel: STOP
