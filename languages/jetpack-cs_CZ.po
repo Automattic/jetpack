@@ -1,41 +1,41 @@
-# Translation of 1.4.1 in Czech
-# This file is distributed under the same license as the 1.4.1 package.
+# Translation of 1.5 in Czech
+# This file is distributed under the same license as the 1.5 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-06-20 15:11:37+0000\n"
+"PO-Revision-Date: 2012-07-13 19:24:54+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: GlotPress/0.1\n"
-"Project-Id-Version: 1.4.1\n"
+"Project-Id-Version: 1.5\n"
 
-#: modules/module-info.php:392
-msgid "Enhanced Distribution"
-msgstr ""
-
-#: modules/module-info.php:394
+#: modules/module-info.php:390
 msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
 msgstr ""
 
-#: modules/module-info.php:422
+#: modules/module-info.php:418
 msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
 msgstr ""
 
-#: modules/module-info.php:425
+#: modules/module-info.php:421
 msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
 msgstr ""
 
-#: modules/module-info.php:443
+#: modules/module-info.php:438
 msgid "Jetpack Comments Screenshot"
 msgstr ""
 
-#: modules/module-info.php:448
+#: modules/module-info.php:443
 msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
 msgstr ""
 
-#: modules/module-info.php:453
+#: modules/module-info.php:448
 msgid "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page."
+msgstr ""
+
+#: modules/module-info.php:467
+msgid "Carousel"
 msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:18
@@ -136,7 +136,7 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:411
 #: modules/sharedaddy/sharing-sources.php:462
 #: modules/sharedaddy/sharing-sources.php:568
-#: modules/sharedaddy/sharing-sources.php:684
+#: modules/sharedaddy/sharing-sources.php:676
 msgid "Use smart button"
 msgstr ""
 
@@ -180,91 +180,91 @@ msgstr ""
 msgid "LinkedIn"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:629
+#: modules/sharedaddy/sharing-sources.php:617
 msgctxt "share to"
 msgid "LinkedIn"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:629
+#: modules/sharedaddy/sharing-sources.php:617
 msgid "Click to share on LinkedIn"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:714
+#: modules/sharedaddy/sharing-sources.php:706
 msgid "Facebook"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:752
+#: modules/sharedaddy/sharing-sources.php:744
 msgid "Share"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:790
+#: modules/sharedaddy/sharing-sources.php:782
 msgctxt "share to"
 msgid "Facebook"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:790
+#: modules/sharedaddy/sharing-sources.php:782
 msgid "Share on Facebook"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:812
+#: modules/sharedaddy/sharing-sources.php:804
 msgid "Default button"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:813
+#: modules/sharedaddy/sharing-sources.php:805
 msgid "Share button"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:814
+#: modules/sharedaddy/sharing-sources.php:806
 msgid "Like button"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:859
+#: modules/sharedaddy/sharing-sources.php:851
 msgid "Print"
 msgstr "Tisk"
 
-#: modules/sharedaddy/sharing-sources.php:863
+#: modules/sharedaddy/sharing-sources.php:855
 msgctxt "share to"
 msgid "Print"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:863
+#: modules/sharedaddy/sharing-sources.php:855
 msgid "Click to print"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:869
+#: modules/sharedaddy/sharing-sources.php:861
 msgid "Press This"
 msgstr "Kliknout a publikovat"
 
-#: modules/sharedaddy/sharing-sources.php:897
+#: modules/sharedaddy/sharing-sources.php:889
 msgctxt "share to"
 msgid "Press This"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:897
+#: modules/sharedaddy/sharing-sources.php:889
 msgid "Click to Press This!"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:905
+#: modules/sharedaddy/sharing-sources.php:897
 msgid "Google +1"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:990
+#: modules/sharedaddy/sharing-sources.php:982
 msgid "Click to share"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1045
+#: modules/sharedaddy/sharing-sources.php:1037
 msgid "URL"
 msgstr "URL"
 
-#: modules/sharedaddy/sharing-sources.php:1050
+#: modules/sharedaddy/sharing-sources.php:1042
 msgid "Icon"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1057
+#: modules/sharedaddy/sharing-sources.php:1049
 msgid "Save"
 msgstr "Uložit"
 
-#: modules/sharedaddy/sharing-sources.php:1058
+#: modules/sharedaddy/sharing-sources.php:1050
 msgid "Remove Service"
 msgstr ""
 
@@ -400,118 +400,118 @@ msgstr ""
 msgid "Download: <a href=\"%s\">%s</a><br />"
 msgstr ""
 
-#: modules/shortcodes/videopress.php:608
+#: modules/shortcodes/videopress.php:601
 msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
 msgstr ""
 
-#: modules/shortcodes/videopress.php:610
+#: modules/shortcodes/videopress.php:603
 msgid "<strong>%s</strong> is not an allowed embed site."
 msgstr ""
 
-#: modules/shortcodes/videopress.php:610
+#: modules/shortcodes/videopress.php:603
 msgid "Publisher limits playback of video embeds."
 msgstr ""
 
-#: modules/shortcodes/videopress.php:612
+#: modules/shortcodes/videopress.php:605
 msgid "No data found for VideoPress identifier: <strong>%s</strong>."
 msgstr ""
 
-#: modules/shortcodes/videopress.php:826
+#: modules/shortcodes/videopress.php:819
 msgid "%s Error"
 msgstr ""
 
-#: modules/shortcodes/videopress.php:860
+#: modules/shortcodes/videopress.php:853
 msgid "This video is intended for mature audiences."
 msgstr ""
 
-#: modules/shortcodes/videopress.php:860
+#: modules/shortcodes/videopress.php:853
 msgid "Please verify your birthday."
 msgstr ""
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "January"
 msgstr "Leden"
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "February"
 msgstr "Únor"
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "March"
 msgstr "Březen"
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "April"
 msgstr "Duben"
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "May"
 msgstr "Květen"
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "June"
 msgstr "Červen"
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "July"
 msgstr "Červenec"
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "August"
 msgstr "Srpen"
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "September"
 msgstr "Září"
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "October"
 msgstr "Říjen"
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "November"
 msgstr "Listopad"
 
-#: modules/shortcodes/videopress.php:876
+#: modules/shortcodes/videopress.php:869
 msgid "December"
 msgstr "Prosinec"
 
-#: modules/shortcodes/videopress.php:912
+#: modules/shortcodes/videopress.php:905
 msgid "Submit"
 msgstr "Potvrdit"
 
-#: modules/shortcodes/videopress.php:915
+#: modules/shortcodes/videopress.php:908
 msgid "More information"
 msgstr ""
 
-#: modules/shortcodes/videopress.php:958
+#: modules/shortcodes/videopress.php:951
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
 msgstr ""
 
-#: modules/shortcodes/videopress.php:1016
+#: modules/shortcodes/videopress.php:1009
 msgctxt "watch a video title"
 msgid "Watch: %s"
 msgstr ""
 
-#: modules/shortcodes/videopress.php:1115
-#: modules/shortcodes/videopress.php:1137
+#: modules/shortcodes/videopress.php:1108
+#: modules/shortcodes/videopress.php:1130
 msgid "this video"
 msgstr ""
 
-#: modules/shortcodes/videopress.php:1144
+#: modules/shortcodes/videopress.php:1137
 msgctxt "Play as in playback or view a movie"
 msgid "JavaScript required to play %s."
 msgstr ""
 
-#: modules/shortcodes/videopress.php:1291
+#: modules/shortcodes/videopress.php:1284
 msgid "This video requires <a rel=\"nofollow\" href=\"%s\">Adobe Flash</a> for playback."
 msgstr ""
 
-#: modules/shortcodes/videopress.php:1298
+#: modules/shortcodes/videopress.php:1291
 msgid "Loading video..."
 msgstr ""
 
-#: modules/stats.php:246 modules/stats.php:652
+#: modules/stats.php:246 modules/stats.php:649
 msgid "Site Stats"
 msgstr ""
 
@@ -527,127 +527,127 @@ msgstr ""
 msgid "View Site Stats without Javascript"
 msgstr ""
 
-#: modules/stats.php:407 modules/stats.php:880
+#: modules/stats.php:407 modules/stats.php:877
 msgid "We were unable to get your stats just now (too many redirects). Please try again."
 msgstr ""
 
-#: modules/stats.php:409 modules/stats.php:882
+#: modules/stats.php:409 modules/stats.php:879
 msgid "We were unable to get your stats just now. Please try again."
 msgstr ""
 
-#: modules/stats.php:510
+#: modules/stats.php:509
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
 msgstr ""
 
-#: modules/stats.php:516
+#: modules/stats.php:514
 msgid "Admin bar"
 msgstr ""
 
-#: modules/stats.php:517
+#: modules/stats.php:515
 msgid "Put a chart showing 48 hours of views in the admin bar."
 msgstr ""
 
-#: modules/stats.php:519
+#: modules/stats.php:516
 msgid "Registered users"
 msgstr ""
 
-#: modules/stats.php:520
+#: modules/stats.php:517
 msgid "Count the page views of registered users who are logged in."
 msgstr ""
 
-#: modules/stats.php:521
+#: modules/stats.php:518
 msgid "Smiley"
 msgstr ""
 
-#: modules/stats.php:522
+#: modules/stats.php:519
 msgid "Hide the stats smiley face image."
 msgstr ""
 
-#: modules/stats.php:522
+#: modules/stats.php:519
 msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
 msgstr ""
 
-#: modules/stats.php:522
+#: modules/stats.php:519
 msgid "Smiley face"
 msgstr ""
 
-#: modules/stats.php:523
+#: modules/stats.php:520
 msgid "Report visibility"
 msgstr ""
 
-#: modules/stats.php:525
+#: modules/stats.php:522
 msgid "Select the roles that will be able to view stats reports."
 msgstr ""
 
-#: modules/stats.php:536
+#: modules/stats.php:533
 msgid "Save configuration"
 msgstr ""
 
-#: modules/stats.php:571
+#: modules/stats.php:568
 msgid "Views over 48 hours. Click for more Site Stats."
 msgstr ""
 
-#: modules/stats.php:673
+#: modules/stats.php:670
 msgid "day"
 msgstr "den"
 
-#: modules/stats.php:674
+#: modules/stats.php:671
 msgid "week"
 msgstr "týden"
 
-#: modules/stats.php:675
+#: modules/stats.php:672
 msgid "month"
 msgstr "měsíc"
 
-#: modules/stats.php:678
+#: modules/stats.php:675
 msgid "the past day"
 msgstr "v předchozích dnech"
 
-#: modules/stats.php:679
+#: modules/stats.php:676
 msgid "the past week"
 msgstr "poslední týden"
 
-#: modules/stats.php:680
+#: modules/stats.php:677
 msgid "the past month"
 msgstr "poslední měsíc"
 
-#: modules/stats.php:681
+#: modules/stats.php:678
 msgid "the past quarter"
 msgstr "poslední čtvrtletí"
 
-#: modules/stats.php:682
+#: modules/stats.php:679
 msgid "the past year"
 msgstr "poslední rok"
 
-#: modules/stats.php:704
+#: modules/stats.php:701
 msgid "Chart stats by"
 msgstr "Seřaď statistiky podle"
 
-#: modules/stats.php:717
+#: modules/stats.php:714
 msgid "Show top posts over"
 msgstr "Zobrazit nejlepší příspěvky nahoře"
 
-#: modules/stats.php:730
+#: modules/stats.php:727
 msgid "Show top search terms over"
 msgstr ""
 
-#: modules/stats.php:895
+#: modules/stats.php:892
 msgid "%1$s %2$s Views"
 msgstr ""
 
-#: modules/stats.php:908
+#: modules/stats.php:905
 msgid "View All"
 msgstr "Zobrazit vše"
 
-#: modules/stats.php:912
+#: modules/stats.php:909
 msgid "Top Posts"
 msgstr "Nejlepší příspěvky"
 
-#: modules/stats.php:916 modules/stats.php:940
+#: modules/stats.php:913 modules/stats.php:937
 msgid "Sorry, nothing to report."
 msgstr ""
 
-#: modules/stats.php:936
+#: modules/stats.php:933
 msgid "Top Searches"
 msgstr "Nejčastěji hledané termíny"
 
@@ -757,29 +757,34 @@ msgstr[2] ""
 msgid "Active"
 msgstr "Aktivní"
 
-#: modules/widgets/facebook-likebox.php:18
+#: modules/widgets/facebook-likebox.php:20
 msgid "Facebook Like Box"
 msgstr ""
 
-#: modules/widgets/facebook-likebox.php:18
+#: modules/widgets/facebook-likebox.php:20
 msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
 msgstr ""
 
-#: modules/widgets/facebook-likebox.php:108
+#: modules/widgets/facebook-likebox.php:101
+#: modules/widgets/gravatar-profile.php:131
 msgid "Title"
 msgstr "Název"
 
-#: modules/widgets/facebook-likebox.php:115
+#: modules/widgets/facebook-likebox.php:108
 msgid "Facebook Page URL"
 msgstr ""
 
-#: modules/widgets/facebook-likebox.php:118
+#: modules/widgets/facebook-likebox.php:111
 msgid "The Like Box only works with <a href=\"http://www.facebook.com/help/?faq=174987089221178\">Facebook Pages</a>."
 msgstr ""
 
-#: modules/widgets/facebook-likebox.php:124
+#: modules/widgets/facebook-likebox.php:117
 msgid "Width"
 msgstr "Šířka"
+
+#: modules/widgets/facebook-likebox.php:124
+msgid "Height"
+msgstr "Výška"
 
 #: modules/widgets/facebook-likebox.php:143
 msgid "Show Faces"
@@ -803,6 +808,75 @@ msgstr ""
 
 #: modules/widgets/facebook-likebox.php:163
 msgid "Show the wall for a Places page rather than friend activity."
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:9
+msgid "Gravatar Profile"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:11
+msgid "Display a mini version of your Gravatar Profile"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:59
+msgid "View Full Profile &rarr;"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:67
+msgid "Error loading profile"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:78
+msgid "Personal Links"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:98
+msgid "Verified Services"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:109
+msgctxt "1: User Name, 2: Service Name (Facebook, Twitter, ...)"
+msgid "%1$s on %2$s"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:137
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:141
+msgid "Custom"
+msgstr "Uživatelský odkaz"
+
+#: modules/widgets/gravatar-profile.php:151
+msgid "Custom Email Address"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:159
+msgid "Show Personal Links"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:161
+msgid "Links to your websites, blogs, or any other sites that help describe who you are."
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:168
+msgid "Show Account Links"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:170
+msgid "Links to services that you use across the web."
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:174
+msgid "Opens in new window"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:174
+msgid "Edit Your Profile"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:174
+msgid "What's a Gravatar?"
 msgstr ""
 
 #: modules/widgets/image-widget.php:12
@@ -1023,9 +1097,6 @@ msgstr ""
 msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
 msgstr ""
 
-msgid "Carousel"
-msgstr ""
-
 msgid "Transform your standard image galleries into an immersize full-screen experience."
 msgstr ""
 
@@ -1068,367 +1139,363 @@ msgstr ""
 msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
 msgstr ""
 
-#: jetpack.php:978
+#: jetpack.php:972
 msgid "Jetpack requires WordPress version %s or later."
 msgstr ""
 
-#: jetpack.php:1135 jetpack.php:1151
+#: jetpack.php:1129 jetpack.php:1145
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
 msgstr ""
 
-#: jetpack.php:1172
+#: jetpack.php:1166
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: jetpack.php:1175
+#: jetpack.php:1169
 msgid "Jetpack"
 msgstr ""
 
-#: jetpack.php:1207 jetpack.php:1231 jetpack.php:1241 jetpack.php:1823
-#: jetpack.php:1973
+#: jetpack.php:1201 jetpack.php:1225 jetpack.php:1235 jetpack.php:1865
+#: jetpack.php:2015
 msgid "Jetpack by WordPress.com"
 msgstr ""
 
-#: jetpack.php:1208 jetpack.php:1232 jetpack.php:1826
+#: jetpack.php:1202 jetpack.php:1226 jetpack.php:1868
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr ""
 
-#: jetpack.php:1209 jetpack.php:1233
+#: jetpack.php:1203 jetpack.php:1227
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr ""
 
-#: jetpack.php:1210
+#: jetpack.php:1204
 msgid "Jetpack Module Options"
 msgstr ""
 
-#: jetpack.php:1211
+#: jetpack.php:1205
 msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
 msgstr ""
 
-#: jetpack.php:1212 jetpack.php:1253
+#: jetpack.php:1206 jetpack.php:1247
 msgid "For more information:"
 msgstr "Další informace:"
 
-#: jetpack.php:1213 jetpack.php:1254
+#: jetpack.php:1207 jetpack.php:1248
 msgid "Jetpack FAQ"
 msgstr ""
 
-#: jetpack.php:1214 jetpack.php:1255
+#: jetpack.php:1208 jetpack.php:1249
 msgid "Jetpack Support"
 msgstr ""
 
-#: jetpack.php:1229
+#: jetpack.php:1223
 msgid "Overview"
 msgstr ""
 
-#: jetpack.php:1239
+#: jetpack.php:1233
 msgid "Modules"
 msgstr ""
 
-#: jetpack.php:1242
+#: jetpack.php:1236
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
 msgstr ""
 
-#: jetpack.php:1244
+#: jetpack.php:1238
 msgid "Find the component you want to manage"
 msgstr ""
 
-#: jetpack.php:1245
+#: jetpack.php:1239
 msgid "Click on Learn More"
 msgstr ""
 
-#: jetpack.php:1246
+#: jetpack.php:1240
 msgid "An Activate or Deactivate button will appear"
 msgstr ""
 
-#: jetpack.php:1247
+#: jetpack.php:1241
 msgid "If additional settings are available, a link to them will appear"
 msgstr ""
 
-#: jetpack.php:1308 modules/sharedaddy/sharedaddy.php:68
+#: jetpack.php:1317 modules/sharedaddy/sharedaddy.php:68
 #: modules/sharedaddy/sharedaddy.php:75
 msgid "Settings"
 msgstr "Nastavení"
 
-#: jetpack.php:1325
+#: jetpack.php:1334
 msgid "Dismiss this notice and deactivate Jetpack."
 msgstr ""
 
-#: jetpack.php:1331
+#: jetpack.php:1340
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enabled features like Comments, Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
 msgstr ""
 
-#: jetpack.php:1333
+#: jetpack.php:1342
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr ""
 
-#: jetpack.php:1339 jetpack.php:1854
+#: jetpack.php:1348 jetpack.php:1896
 msgid "Connect to WordPress.com"
 msgstr ""
 
-#: jetpack.php:1341 modules/module-info.php:45 modules/module-info.php:81
-#: modules/module-info.php:143 modules/module-info.php:178
-#: modules/module-info.php:212 modules/module-info.php:248
-#: modules/module-info.php:299 modules/module-info.php:321
-#: modules/module-info.php:361 modules/module-info.php:385
-#: modules/module-info.php:403 modules/module-info.php:409
-#: modules/module-info.php:437
+#: jetpack.php:1350 modules/module-info.php:45 modules/module-info.php:81
+#: modules/module-info.php:141 modules/module-info.php:176
+#: modules/module-info.php:210 modules/module-info.php:246
+#: modules/module-info.php:297 modules/module-info.php:319
+#: modules/module-info.php:357 modules/module-info.php:381
+#: modules/module-info.php:399 modules/module-info.php:405
+#: modules/module-info.php:432 modules/module-info.php:463
 msgid "Learn More"
 msgstr ""
 
-#: jetpack.php:1354
+#: jetpack.php:1363
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr ""
 
-#: jetpack.php:1381
+#: jetpack.php:1390
 msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
 msgstr ""
 
-#: jetpack.php:1389
+#: jetpack.php:1398
 msgid "click here"
 msgstr ""
 
-#: jetpack.php:1460
+#: jetpack.php:1506
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr ""
 
-#: jetpack.php:1463
+#: jetpack.php:1509
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr ""
 
-#: jetpack.php:1467
+#: jetpack.php:1513
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr ""
 
-#: jetpack.php:1470
+#: jetpack.php:1516
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr ""
 
-#: jetpack.php:1474
+#: jetpack.php:1520
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr ""
 
-#: jetpack.php:1480
-msgid "The %1$s module requires <strong>PHP version %2$s</strong> or higher."
-msgstr ""
-
-#: jetpack.php:1482
+#: jetpack.php:1525
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr ""
 
-#: jetpack.php:1484
+#: jetpack.php:1527
 msgid "Do you still have the %s plugin installed?"
 msgstr ""
 
-#: jetpack.php:1488
+#: jetpack.php:1530
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr ""
 
-#: jetpack.php:1496
+#: jetpack.php:1538
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
 msgstr ""
 
-#: jetpack.php:1502
+#: jetpack.php:1544
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
 msgstr ""
 
-#: jetpack.php:1506
+#: jetpack.php:1548
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
 msgstr ""
 
-#: jetpack.php:1546
+#: jetpack.php:1588
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr ""
 
-#: jetpack.php:1549
+#: jetpack.php:1591
 msgid "Try connecting again."
 msgstr ""
 
-#: jetpack.php:1573
+#: jetpack.php:1615
 msgid "Welcome to <strong>Jetpack %s</strong>!"
 msgstr ""
 
-#: jetpack.php:1585
+#: jetpack.php:1627
 msgid "The following new modules have been activated: %l."
 msgstr ""
 
-#: jetpack.php:1597
+#: jetpack.php:1639
 msgid "The following modules have been updated: %l."
 msgstr ""
 
-#: jetpack.php:1606
+#: jetpack.php:1648
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
 msgstr ""
 
-#: jetpack.php:1613
+#: jetpack.php:1655
 msgid "<strong>%s Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
 msgstr ""
 
-#: jetpack.php:1619
+#: jetpack.php:1661
 msgid "<strong>Module settings were saved.</strong> "
 msgstr ""
 
-#: jetpack.php:1623
+#: jetpack.php:1665
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr ""
 
-#: jetpack.php:1627
+#: jetpack.php:1669
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr ""
 
-#: jetpack.php:1629
+#: jetpack.php:1671
 msgid "The features below are now active. Click the learn more buttons to explore each feature."
 msgstr ""
 
-#: jetpack.php:1652
+#: jetpack.php:1694
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: jetpack.php:1661
+#: jetpack.php:1703
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: jetpack.php:1819
+#: jetpack.php:1861
 msgid "Connected to WordPress.com"
 msgstr ""
 
-#: jetpack.php:1820
+#: jetpack.php:1862
 msgid "Disconnect from WordPress.com"
 msgstr ""
 
-#: jetpack.php:1834
+#: jetpack.php:1876
 msgid "Jetpack is network activated and notices can not be dismissed."
 msgstr ""
 
-#: jetpack.php:1845
+#: jetpack.php:1887
 msgid "Dismiss this notice."
 msgstr ""
 
-#: jetpack.php:1850
+#: jetpack.php:1892
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
 msgstr ""
 
-#: jetpack.php:1874
+#: jetpack.php:1916
 msgid "Have feedback on Jetpack?"
 msgstr ""
 
-#: jetpack.php:1876
+#: jetpack.php:1918
 msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
 msgstr ""
 
-#: jetpack.php:1879
+#: jetpack.php:1921
 msgid "Take Survey"
 msgstr ""
 
-#: jetpack.php:1885
+#: jetpack.php:1927
 msgid "Checking email updates status&hellip;"
 msgstr ""
 
-#: jetpack.php:1891
+#: jetpack.php:1933
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr ""
 
-#: jetpack.php:1892
+#: jetpack.php:1934
 msgid "Unsubscribe"
 msgstr "Zrušit odběr"
 
-#: jetpack.php:1896
+#: jetpack.php:1938
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr ""
 
-#: jetpack.php:1897 modules/subscriptions.php:654
+#: jetpack.php:1939 modules/subscriptions.php:654
 msgid "Subscribe"
 msgstr "Přihlásit se k odběru"
 
-#: jetpack.php:1904
+#: jetpack.php:1946
 msgid "You have been subscribed to receive email updates."
 msgstr ""
 
-#: jetpack.php:1906
+#: jetpack.php:1948
 msgid "You will no longer receive email updates about Jetpack."
 msgstr ""
 
-#: jetpack.php:1919
+#: jetpack.php:1961
 msgid "An <span>Automattic</span> Airline"
 msgstr ""
 
-#: jetpack.php:1922
+#: jetpack.php:1964
 msgid "Privacy Policy"
 msgstr ""
 
-#: jetpack.php:1923
+#: jetpack.php:1965
 msgid "Terms of Service"
 msgstr "Podmínky používání služby"
 
-#: jetpack.php:1924
+#: jetpack.php:1966
 msgid "Debug"
 msgstr ""
 
-#: jetpack.php:1925 modules/sharedaddy/sharedaddy.php:76
+#: jetpack.php:1967 modules/sharedaddy/sharedaddy.php:76
 msgid "Support"
 msgstr "Podpora"
 
-#: jetpack.php:1943
+#: jetpack.php:1985
 msgid "This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords."
 msgstr ""
 
-#: jetpack.php:1974
+#: jetpack.php:2016
 msgid "Configure %s"
 msgstr ""
 
-#: jetpack.php:2033
+#: jetpack.php:2075
 msgid "Deactivate"
 msgstr "Deaktivovat"
 
-#: jetpack.php:2043
+#: jetpack.php:2085
 msgid "Activate"
 msgstr "Aktivovat"
 
-#: jetpack.php:2066
+#: jetpack.php:2102
 msgid "Free"
 msgstr ""
 
-#: jetpack.php:2066
+#: jetpack.php:2102
 msgid "Purchase"
 msgstr ""
 
-#: jetpack.php:2074
+#: jetpack.php:2110
 msgid "New"
 msgstr ""
 
-#: jetpack.php:2077
+#: jetpack.php:2113
 msgid "Updated"
 msgstr ""
 
-#: jetpack.php:2106
+#: jetpack.php:2141
 msgid "Configure"
 msgstr "Nastavení"
 
-#: jetpack.php:2140
+#: jetpack.php:2175
 msgid "Coming soon&#8230;"
 msgstr ""
 
-#: jetpack.php:2349 jetpack.php:2351 jetpack.php:2353 jetpack.php:2356
-#: jetpack.php:3017
+#: jetpack.php:2328 jetpack.php:2330 jetpack.php:2332 jetpack.php:2335
+#: jetpack.php:2996
 msgid "Error Details: %s"
 msgstr ""
 
-#: jetpack.php:2973
+#: jetpack.php:2952
 msgid "An administrator for this blog must set up the Jetpack connection."
 msgstr ""
 
-#: jetpack.php:2978
+#: jetpack.php:2957
 msgid "You need to register your Jetpack before connecting it."
 msgstr ""
 
@@ -1609,6 +1676,152 @@ msgstr "Vytvořit"
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
 msgstr ""
 
+#: modules/carousel/jetpack-carousel.php:108
+msgid "Post Comment"
+msgstr "Odeslat komentář"
+
+#: modules/carousel/jetpack-carousel.php:109
+msgid "Loading Comments..."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:110
+msgid "View full size <span class=\"photo-size\">{0}<span class=\"photo-size-times\">&times;</span>{1}</span>"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:111
+msgid "Please be sure to submit some text with your comment."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:112
+msgid "Please provide an email address to comment."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:113
+msgid "Please provide your name to comment."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:114
+msgid "Sorry, but there was an error posting your comment. Please try again later."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:115
+msgid "Your comment was approved."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:116
+msgid "Your comment is in moderation."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:117
+msgid "Camera"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:118
+msgid "Aperture"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:119
+msgid "Shutter Speed"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:120
+msgid "Focal Length"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:127
+msgid "Commenting as %s"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:130
+msgid "Email (Required)"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:132
+msgid "Name (Required)"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:134
+#: modules/contact-form/grunion-contact-form.php:36
+#: modules/contact-form/grunion-form-view.php:154
+msgid "Website"
+msgstr "Webová stránka"
+
+#: modules/carousel/jetpack-carousel.php:243
+msgid "Missing attachment ID."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:281
+msgid "Nonce verification failed."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:288
+msgid "Missing target blog ID."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:291
+msgid "Missing target post ID."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:294
+msgid "No comment text was submitted."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:306
+msgid "Comments on this post are closed."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:316
+msgid "Sorry, but we could not authenticate your request."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:324
+msgid "Please provide your name."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:327
+msgid "Please provide an email address."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:330
+msgid "Please provide a valid email address."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:357
+msgid "Image Gallery Carousel"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:360
+msgid "Enable carousel"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:364
+msgid "Background color"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:367
+msgid "Metadata"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:424
+msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:432
+msgid "Show map of photo location in carousel, when available."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:440
+msgid "Black"
+msgstr "Černá"
+
+#: modules/carousel/jetpack-carousel.php:440
+msgid "White"
+msgstr "Bílá"
+
+#: modules/carousel/jetpack-carousel.php:448
+msgid "Display images in full-size carousel slideshow."
+msgstr ""
+
 #: modules/comments/admin.php:50 modules/comments/comments.php:168
 msgid "Leave a Reply"
 msgstr "Napsat komentář"
@@ -1625,7 +1838,7 @@ msgstr "Tmavá"
 msgid "Transparent"
 msgstr ""
 
-#: modules/comments/admin.php:72 modules/module-info.php:446
+#: modules/comments/admin.php:72 modules/module-info.php:441
 msgid "Jetpack Comments"
 msgstr ""
 
@@ -1666,7 +1879,7 @@ msgstr ""
 msgid "Cancel Reply"
 msgstr ""
 
-#: modules/comments/comments.php:315
+#: modules/comments/comments.php:332
 msgid "Invalid security token."
 msgstr ""
 
@@ -1754,11 +1967,6 @@ msgstr "Jméno"
 #: modules/sharedaddy/sharing-sources.php:127
 msgid "Email"
 msgstr "Emailová adresa"
-
-#: modules/contact-form/grunion-contact-form.php:36
-#: modules/contact-form/grunion-form-view.php:154
-msgid "Website"
-msgstr "Webová stránka"
 
 #: modules/contact-form/grunion-contact-form.php:39
 msgid "Subject"
@@ -1925,8 +2133,8 @@ msgstr ""
 msgid "Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:415
-#: modules/module-info.php:419
+#: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:411
+#: modules/module-info.php:415
 msgid "Contact Form"
 msgstr ""
 
@@ -1985,7 +2193,7 @@ msgid "Edit this new field"
 msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:142
-#: modules/sharedaddy/sharing-sources.php:1040
+#: modules/sharedaddy/sharing-sources.php:1032
 msgid "Label"
 msgstr "Text"
 
@@ -2145,202 +2353,206 @@ msgstr ""
 msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
 msgstr ""
 
-#: modules/module-info.php:137
+#: modules/module-info.php:135
 msgid "Available shortcodes are: %l."
 msgstr ""
 
-#: modules/module-info.php:152 modules/module-info.php:156
-#: modules/module-info.php:166 modules/module-info.php:170
+#: modules/module-info.php:150 modules/module-info.php:154
+#: modules/module-info.php:164 modules/module-info.php:168
 msgid "WP.me Shortlinks"
 msgstr ""
 
-#: modules/module-info.php:157 modules/module-info.php:171
+#: modules/module-info.php:155 modules/module-info.php:169
 msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
 msgstr ""
 
-#: modules/module-info.php:158
+#: modules/module-info.php:156
 msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
 msgstr ""
 
-#: modules/module-info.php:172
+#: modules/module-info.php:170
 msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
 msgstr ""
 
-#: modules/module-info.php:187 modules/module-info.php:191
-#: modules/module-info.php:200 modules/module-info.php:204
+#: modules/module-info.php:185 modules/module-info.php:189
+#: modules/module-info.php:198 modules/module-info.php:202
 msgid "WordPress.com Stats"
 msgstr ""
 
-#: modules/module-info.php:192 modules/module-info.php:205
+#: modules/module-info.php:190 modules/module-info.php:203
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
 msgstr ""
 
-#: modules/module-info.php:206
+#: modules/module-info.php:204
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
 msgstr ""
 
-#: modules/module-info.php:221 modules/module-info.php:236
+#: modules/module-info.php:219 modules/module-info.php:234
 msgid "LaTeX"
 msgstr ""
 
-#: modules/module-info.php:226 modules/module-info.php:241
+#: modules/module-info.php:224 modules/module-info.php:239
 msgid "%s is a powerful markup language for writing complex mathematical equations, formulas, etc."
 msgstr ""
 
-#: modules/module-info.php:227
+#: modules/module-info.php:225
 msgid "Jetpack combines the power of %s and the simplicity of WordPress to give you the ultimate in math blogging platforms."
 msgstr ""
 
-#: modules/module-info.php:228
+#: modules/module-info.php:226
 msgid "Wow, that sounds nerdy."
 msgstr ""
 
-#: modules/module-info.php:242
+#: modules/module-info.php:240
 msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
 msgstr ""
 
-#: modules/module-info.php:257 modules/module-info.php:260
-#: modules/module-info.php:281 modules/sharedaddy/sharedaddy.php:25
+#: modules/module-info.php:255 modules/module-info.php:258
+#: modules/module-info.php:279 modules/sharedaddy/sharedaddy.php:25
 #: modules/sharedaddy/sharing.php:46
 msgid "Sharing"
 msgstr ""
 
-#: modules/module-info.php:261
+#: modules/module-info.php:259
 msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
 msgstr ""
 
-#: modules/module-info.php:265
+#: modules/module-info.php:263
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
 msgstr ""
 
-#: modules/module-info.php:267
+#: modules/module-info.php:265
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
 msgstr ""
 
-#: modules/module-info.php:271
+#: modules/module-info.php:269
 msgid "Additionally you can define your own custom services."
 msgstr ""
 
-#: modules/module-info.php:286
+#: modules/module-info.php:284
 msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
 msgstr ""
 
-#: modules/module-info.php:287
+#: modules/module-info.php:285
 msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
 msgstr ""
 
-#: modules/module-info.php:293
+#: modules/module-info.php:291
 msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
 msgstr ""
 
-#: modules/module-info.php:308 modules/module-info.php:312
+#: modules/module-info.php:306 modules/module-info.php:310
 msgid "Spelling and Grammar"
 msgstr ""
 
-#: modules/module-info.php:314
+#: modules/module-info.php:312
 msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
 msgstr ""
 
-#: modules/module-info.php:315
+#: modules/module-info.php:313
 msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
 msgstr ""
 
-#: modules/module-info.php:329 modules/module-info.php:345
+#: modules/module-info.php:327 modules/module-info.php:341
 msgid "Widgets Screenshot"
 msgstr ""
 
-#: modules/module-info.php:332 modules/module-info.php:348
+#: modules/module-info.php:330 modules/module-info.php:344
 msgid "Extra Sidebar Widgets"
 msgstr ""
 
-#: modules/module-info.php:334
+#: modules/module-info.php:332
 msgid "The RSS Links Widget "
 msgstr ""
 
-#: modules/module-info.php:334
+#: modules/module-info.php:332
 msgid "allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments."
 msgstr ""
 
-#: modules/module-info.php:335
+#: modules/module-info.php:333
 msgid "The Twitter Widget "
 msgstr ""
 
-#: modules/module-info.php:335
+#: modules/module-info.php:333
 msgid "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options."
 msgstr ""
 
-#: modules/module-info.php:336
+#: modules/module-info.php:333
 msgid "The Facebook Like Box Widget "
 msgstr ""
 
-#: modules/module-info.php:336
+#: modules/module-info.php:333
 msgid "shows your Facebook Like Box within a sidebar on your theme. It&#8217;s a great way to let your readers show their support."
 msgstr ""
 
-#: modules/module-info.php:337
+#: modules/module-info.php:333
 msgid "The Image Widget "
 msgstr ""
 
-#: modules/module-info.php:337
+#: modules/module-info.php:333
 msgid "allows you to easily add images to widget areas in your theme. It&#8217;s an easy way to add more visual interest to your site."
 msgstr ""
 
-#: modules/module-info.php:350
+#: modules/module-info.php:346
 msgid "The RSS Links Widget"
 msgstr ""
 
-#: modules/module-info.php:350
+#: modules/module-info.php:346
 msgid "lets you easily add post and comment RSS feeds to a sidebar on your theme."
 msgstr ""
 
-#: modules/module-info.php:351
+#: modules/module-info.php:347
 msgid "The Twitter Widget"
 msgstr ""
 
-#: modules/module-info.php:351
+#: modules/module-info.php:347
 msgid "shows your latest tweets within a sidebar on your theme."
 msgstr ""
 
-#: modules/module-info.php:352
+#: modules/module-info.php:348
 msgid "The Facebook Like Box Widget"
 msgstr ""
 
-#: modules/module-info.php:352
+#: modules/module-info.php:348
 msgid "shows your Facebook Like Box within a sidebar on your theme."
 msgstr ""
 
-#: modules/module-info.php:353
+#: modules/module-info.php:349
 msgid "The Image Widget"
 msgstr ""
 
-#: modules/module-info.php:353
+#: modules/module-info.php:349
 msgid "lets you easily add images to a sidebar on your theme."
 msgstr ""
 
-#: modules/module-info.php:355
+#: modules/module-info.php:351
 msgid "Each of these widgets has a number of customization options."
 msgstr ""
 
-#: modules/module-info.php:355
+#: modules/module-info.php:351
 msgid "To use the widgets, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag them into one of your sidebars and configure away."
 msgstr ""
 
-#: modules/module-info.php:368
+#: modules/module-info.php:364
 msgid "Subsriptions Screenshot"
 msgstr ""
 
-#: modules/module-info.php:371
+#: modules/module-info.php:367
 msgid "Subscriptions"
 msgstr ""
 
-#: modules/module-info.php:373
+#: modules/module-info.php:369
 msgid "Easily allow any visitor to subscribe to all of your posts via email through a widget in your blog&#8217;s sidebar.  Every time you publish a post, WordPress.com will send a notification to all your subscribers."
 msgstr ""
 
-#: modules/module-info.php:374
+#: modules/module-info.php:370
 msgid "When leaving comments, your visitors can also subscribe to a post&#8217;s comments to keep up with the conversation."
 msgstr ""
 
-#: modules/module-info.php:379
+#: modules/module-info.php:375
 msgid "To use the Subscriptions widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away."
+msgstr ""
+
+#: modules/module-info.php:388
+msgid "Enhanced Distribution"
 msgstr ""
