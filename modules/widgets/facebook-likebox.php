@@ -11,8 +11,6 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	private $default_width        = 200;
 	private $max_width            = 400;
 	private $min_width            = 100;
-	private $max_height           = 999;
-	private $min_height           = 100;
 	private $default_colorscheme  = 'light';
 	private $allowed_colorschemes = array( 'light', 'dark' );
 
@@ -34,7 +32,16 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		$title    = apply_filters( 'widget_title', $instance['title'] );
 		$page_url = ( is_ssl() ) ? str_replace( 'http://', 'https://', $like_args['href'] ) : $like_args['href'];
-
+		
+		// Calculate the height based on the features enabled
+		if( $like_args['show_faces'] && $like_args['stream'] ) {
+			$like_args['height'] = 580;
+		} else if( ! $like_args['show_faces'] && ! $like_args['stream'] ) {
+			$like_args['height'] = 110;
+		} else {
+			$like_args['height'] = 432;
+		}
+		
 		$like_args['show_faces'] = (bool) $like_args['show_faces']         ? 'true' : 'false';
 		$like_args['stream']     = (bool) $like_args['stream']             ? 'true' : 'false';
 		$like_args['force_wall'] = (bool) $like_args['force_wall']               ? 'true' : 'false';
@@ -118,13 +125,6 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 				<input type="text" maxlength="3" name="<?php echo $this->get_field_name( 'width' ); ?>" id="<?php echo $this->get_field_id( 'width' ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="width: 30px; text-align: center;" />
 			</label>
 		</p>
-
-		<p>
-			<label for="<?php echo $this->get_field_id( 'height' ); ?>">
-				<?php _e( 'Height', 'jetpack' ); ?>
-				<input type="text" maxlength="3" name="<?php echo $this->get_field_name( 'height' ); ?>" id="<?php echo $this->get_field_id( 'height' ); ?>" value="<?php echo esc_attr( $like_args['height'] ); ?>" style="width: 30px; text-align: center;" />
-			</label>
-		</p>
 		
 		<p>
 			<label for="<?php echo $this->get_field_id( 'colorscheme' ); ?>">
@@ -194,24 +194,10 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		}
 
 		$args['width']       = $this->normalize_int_value(  (int) $args['width'], $this->default_width,       $this->max_width, $this->min_width );
-		$args['height']       = $this->normalize_int_value(  (int) $args['height'], $this->default_height,       $this->max_height, $this->min_height );
 		$args['colorscheme'] = $this->normalize_text_value( $args['colorscheme'], $this->default_colorscheme, $this->allowed_colorschemes        );
 		$args['show_faces']  = (bool) $args['show_faces'];
 		$args['stream']      = (bool) $args['stream'];
 		$args['force_wall']  = (bool) $args['force_wall'];
-
-		// The height used to be dependent on other widget settings
-		// If the user changes those settings but doesn't customize the height,
-		// let's intelligently assign a new height.
-		if ( in_array( $args['height'], array( 580, 110, 432 ) ) ) {
-			if( $args['show_faces'] && $args['stream'] ) {
-				$args['height'] = 580;
-			} else if( ! $args['show_faces'] && ! $args['stream'] ) {
-				$args['height'] = 110;
-			} else {
-				$args['height'] = 432;
-			}
-		}
 		
 		return $args;
 	}

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.4.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-06-15 00:50:37+0000\n"
+"PO-Revision-Date: 2012-06-20 15:11:12+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,23 +20,23 @@ msgstr "El JetPack agafarà automàticament el meravellós contingut del bloc o 
 
 #: modules/module-info.php:422
 msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
-msgstr ""
+msgstr "Un formulari de contacte és una gran manera d'oferir als vostres lectors la possibilitat de contactar amb vosaltres, sense que doneu el correu electrònic."
 
 #: modules/module-info.php:425
 msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr ""
+msgstr "Cada formulari de contacte es pot fàcilment adaptar a les vostres necessitats. Quan un usuari envia el formulari de contacte, l'opinió es filtrarà mitjançant l'<a href=\"http://akismet.com/\">Akismet</a> (si està activat a la pàgina web) per assegurar-nos que no és brossa. Qualsevol opinió legítima s'us enviarà per correu electrònic, i s'afegirà a l'àrea de gestió de les opinions."
 
 #: modules/module-info.php:443
 msgid "Jetpack Comments Screenshot"
-msgstr ""
+msgstr "Captura de pantalla dels comentaris del Jetpack"
 
 #: modules/module-info.php:448
 msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
-msgstr ""
+msgstr "Els comentaris del Jetpack permet als vostres visitants fer servir els seus comptes de WordPress, Twitter o Facebook per comentar a la pàgina web."
 
 #: modules/module-info.php:453
 msgid "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page."
-msgstr ""
+msgstr "El Jetpack tracta d'ajustar l'esquema de color de la pàgina web automàticament, però podeu fer manualment els ajustos a la part inferior de la pàgina de <a href='%s'>configuració de les discussions</a>."
 
 #: modules/sharedaddy/sharedaddy.php:18
 msgid "Shared Post"
@@ -398,7 +398,7 @@ msgstr "El bloc no té cap entrada publicada actualment."
 
 #: modules/shortcodes/audio.php:180
 msgid "Download: <a href=\"%s\">%s</a><br />"
-msgstr ""
+msgstr "Baixa: <a href=\"%s\">%s</a><br />"
 
 #: modules/shortcodes/videopress.php:608
 msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
@@ -653,27 +653,27 @@ msgstr "Cerques més populars"
 
 #: modules/subscriptions.php:173
 msgid "Jetpack Subscriptions Settings"
-msgstr ""
+msgstr "Configuració de les subscripcions del Jetpack"
 
 #: modules/subscriptions.php:182
 msgid "Follow Blog"
-msgstr ""
+msgstr "Segueix el bloc"
 
 #: modules/subscriptions.php:197
 msgid "Follow Comments"
-msgstr ""
+msgstr "Segueix els comentaris"
 
 #: modules/subscriptions.php:216
 msgid "Change whether your visitors can subscribe to your posts or comments or both."
-msgstr ""
+msgstr "Canvia si els visitants poden subscriure's a les entrades, als comentaris o a tots dos."
 
 #: modules/subscriptions.php:231
 msgid "Show a <em>'follow blog'</em> option in the comment form"
-msgstr ""
+msgstr "Mostra una opció <em>'segueix el bloc'</em> al formulari dels comentaris"
 
 #: modules/subscriptions.php:246
 msgid "Show a <em>'follow comments'</em> option in the comment form"
-msgstr ""
+msgstr "Mostra una opció <em>'segueix els comentaris'</em> al formulari de comentaris"
 
 #: modules/subscriptions.php:434
 msgid "Notify me of follow-up comments by email."
@@ -757,11 +757,11 @@ msgstr "Actiu"
 
 #: modules/widgets/facebook-likebox.php:18
 msgid "Facebook Like Box"
-msgstr ""
+msgstr "Caixa M'agrada del Facebook"
 
 #: modules/widgets/facebook-likebox.php:18
 msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
-msgstr ""
+msgstr "Mostra una caixa M'agrada del Facebook per connectar els visitants a la seva pàgina del Facebook"
 
 #: modules/widgets/facebook-likebox.php:108
 msgid "Title"
@@ -769,11 +769,11 @@ msgstr "Títol"
 
 #: modules/widgets/facebook-likebox.php:115
 msgid "Facebook Page URL"
-msgstr ""
+msgstr "URL de la pàgina del Facebook"
 
 #: modules/widgets/facebook-likebox.php:118
 msgid "The Like Box only works with <a href=\"http://www.facebook.com/help/?faq=174987089221178\">Facebook Pages</a>."
-msgstr ""
+msgstr "La caixa M'agrada solament funciona amb les <a href=\"http://www.facebook.com/help/?faq=174987089221178\">pàgines del Facebook</a>."
 
 #: modules/widgets/facebook-likebox.php:124
 msgid "Width"
@@ -781,27 +781,27 @@ msgstr "Amplada"
 
 #: modules/widgets/facebook-likebox.php:143
 msgid "Show Faces"
-msgstr ""
+msgstr "Mostra les cares"
 
 #: modules/widgets/facebook-likebox.php:145
 msgid "Show profile photos in the plugin."
-msgstr ""
+msgstr "Mostra fotografies del perfil a l'extensió"
 
 #: modules/widgets/facebook-likebox.php:152
 msgid "Show Stream"
-msgstr ""
+msgstr "Mostra el flux"
 
 #: modules/widgets/facebook-likebox.php:154
 msgid "Show the profile stream for the public profile."
-msgstr ""
+msgstr "Mostra el flux del perfil per al perfil públic."
 
 #: modules/widgets/facebook-likebox.php:161
 msgid "Show Wall"
-msgstr ""
+msgstr "Mostra el mur"
 
 #: modules/widgets/facebook-likebox.php:163
 msgid "Show the wall for a Places page rather than friend activity."
-msgstr ""
+msgstr "Mostra el mur de la pàgina de llocs en lloc de l'activitat de l'amic."
 
 #: modules/widgets/image-widget.php:12
 msgid "Display an image in your sidebar"
@@ -1022,16 +1022,16 @@ msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.a
 msgstr "Millora l'ortografia, l'estil, i la gramàtica amb el servei de correcció <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a>."
 
 msgid "Carousel"
-msgstr ""
+msgstr "Carrusel"
 
 msgid "Transform your standard image galleries into an immersize full-screen experience."
-msgstr ""
+msgstr "Transformeu les galeries d'imatges en una captivadora experiència a pantalla completa."
 
 msgid "A new comment system that has integrated social media login options."
-msgstr ""
+msgstr "Un sistema de comentaris nou que té integrat opcions per identificar-se mitjançant xares socials."
 
 msgid "Easily insert a contact form any where on your site."
-msgstr ""
+msgstr "Insereix fàcilment un formulari de contacte en qualsevol lloc de la pàgina web."
 
 msgid "Share your public posts and comments to search engines and other services in real-time."
 msgstr "Comparteix les teves entrades i comentaris públics amb els motors de cerca i altres serveis en tems real."
@@ -1082,7 +1082,7 @@ msgstr[1] "%s mòduls nous del Jetpack"
 
 #: jetpack.php:1175
 msgid "Jetpack"
-msgstr ""
+msgstr "Jetpack"
 
 #: jetpack.php:1207 jetpack.php:1231 jetpack.php:1241 jetpack.php:1823
 #: jetpack.php:1973
@@ -1123,27 +1123,27 @@ msgstr "Resum"
 
 #: jetpack.php:1239
 msgid "Modules"
-msgstr ""
+msgstr "Mòduls"
 
 #: jetpack.php:1242
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
-msgstr ""
+msgstr "Podeu activar i desactivar els mòduls del Jetpack de manera individual per adaptar-lo a les vostres necessitats."
 
 #: jetpack.php:1244
 msgid "Find the component you want to manage"
-msgstr ""
+msgstr "Troba el component que vols gestionar"
 
 #: jetpack.php:1245
 msgid "Click on Learn More"
-msgstr ""
+msgstr "Fes clic a Aprèn més"
 
 #: jetpack.php:1246
 msgid "An Activate or Deactivate button will appear"
-msgstr ""
+msgstr "Pot aparèixer un botó per activar o desactivar"
 
 #: jetpack.php:1247
 msgid "If additional settings are available, a link to them will appear"
-msgstr ""
+msgstr "Si hi ha paràmetres addicionals, apareixerà un enllaç a ells"
 
 #: jetpack.php:1308 modules/sharedaddy/sharedaddy.php:68
 #: modules/sharedaddy/sharedaddy.php:75
@@ -1152,11 +1152,11 @@ msgstr "Opcions"
 
 #: jetpack.php:1325
 msgid "Dismiss this notice and deactivate Jetpack."
-msgstr ""
+msgstr "Rebutja aquest avís i desactiva el Jetpack."
 
 #: jetpack.php:1331
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enabled features like Comments, Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
-msgstr ""
+msgstr "<strong>El Jetpack està quasi llest</strong> &#8211; Es necessita una connexió a WordPress.com per activar característiques com ara els comentaris, les estadístiques, els formularis de contacte i les subscripcions. Connecteu ara per accelerar!"
 
 #: jetpack.php:1333
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
@@ -1182,11 +1182,11 @@ msgstr "<strong>S'ha activat el JetPack!</strong> Cada lloc web de la xarxa ha d
 
 #: jetpack.php:1381
 msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
-msgstr ""
+msgstr "El Jetpack ara inclou els comentaris Jetpack, que possibilita als vostres visitants l'ús del seus comptes del WordPress, Twitter o Facebook quan comenten a la pàgina web. Per activar els comentaris Jetpack, <a href=\"%s\">%s</a>."
 
 #: jetpack.php:1389
 msgid "click here"
-msgstr ""
+msgstr "feu clic aquí"
 
 #: jetpack.php:1460
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
@@ -1302,11 +1302,11 @@ msgstr "Desconnectat de WordPress.com"
 
 #: jetpack.php:1834
 msgid "Jetpack is network activated and notices can not be dismissed."
-msgstr ""
+msgstr "El Jetpack té activada la xarxa i els avisos no es poden rebutjar."
 
 #: jetpack.php:1845
 msgid "Dismiss this notice."
-msgstr ""
+msgstr "Rebutja aquest avís"
 
 #: jetpack.php:1850
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
@@ -1376,7 +1376,7 @@ msgstr "Suport"
 
 #: jetpack.php:1943
 msgid "This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords."
-msgstr ""
+msgstr "Açò és informació sensible. No feu públic el BLOG_TOKEN o el USER_TOKEN; són com contrasenyes. "
 
 #: jetpack.php:1974
 msgid "Configure %s"
@@ -1430,7 +1430,7 @@ msgstr "Heu de registrar el Jetpack abans de connectar-lo."
 #: locales.php:29
 msgctxt "locales"
 msgid "%1$s/%2$s"
-msgstr ""
+msgstr "s%1$s/%2$s"
 
 #: modules/after-the-deadline/atd-l10n.php:12
 msgid "Spelling"
@@ -1588,7 +1588,7 @@ msgstr "Llengua "
 #: modules/after-the-deadline/config-options.php:89
 msgctxt "%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG"
 msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href=\"%1$s\">%2%s</a> value is the default proofreading language."
-msgstr ""
+msgstr "El corrector suporta l'anglès, el francès, l'alemany, el portuguès i el castellà. El  <a href=\"%1$s\">%2%s</a> és l'idioma de correcció predeterminat."
 
 #: modules/after-the-deadline/config-options.php:95
 msgid "Use automatically detected language to proofread posts and pages"
@@ -1624,32 +1624,32 @@ msgstr "Obscur"
 
 #: modules/comments/admin.php:56
 msgid "Transparent"
-msgstr ""
+msgstr "Transparent"
 
 #: modules/comments/admin.php:72 modules/module-info.php:446
 msgid "Jetpack Comments"
-msgstr ""
+msgstr "Comentaris del Jetpack"
 
 #: modules/comments/admin.php:81
 msgid "Greeting Text"
-msgstr ""
+msgstr "Text de salutació"
 
 #: modules/comments/admin.php:97 modules/comments/admin.php:168
 #: modules/widgets/facebook-likebox.php:131
 msgid "Color Scheme"
-msgstr ""
+msgstr "Esquema de color"
 
 #: modules/comments/admin.php:118
 msgid "Adjust your Jetpack Comments form with a clever greeting and color-scheme."
-msgstr ""
+msgstr "Ajusta el formulari dels comentaris del Jetpack amb una salutació i esquema de color intel·ligents."
 
 #: modules/comments/admin.php:134
 msgid "A few catchy words to motivate your readers to comment"
-msgstr ""
+msgstr "Unes poques paraules enganxoses que motivin els lectors a comentar"
 
 #: modules/comments/base.php:84
 msgid "Invalid request"
-msgstr ""
+msgstr "Sol·licitud no vàlida"
 
 #: modules/comments/base.php:231
 msgid "Error: please fill the required fields (name, email)."
@@ -1661,19 +1661,19 @@ msgstr "Error: introdueix una adreça de correu electrònic vàlid."
 
 #: modules/comments/comments.php:144
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
-msgstr ""
+msgstr "Heu d'a href=\"%s\">entrar</a> per publicar un comentari."
 
 #: modules/comments/comments.php:206
 msgid "Cancel Reply"
-msgstr ""
+msgstr "Cancel·la la resposta"
 
 #: modules/comments/comments.php:315
 msgid "Invalid security token."
-msgstr ""
+msgstr "El testimoni de seguretat no és vàlid."
 
 #: modules/contact-form/admin.php:87
 msgid "From"
-msgstr ""
+msgstr "Des de"
 
 #: modules/contact-form/admin.php:88
 #: modules/contact-form/grunion-contact-form.php:42
@@ -1702,7 +1702,7 @@ msgstr "Suprimeix definitivament"
 
 #: modules/contact-form/admin.php:197
 msgid "Mark this message as spam"
-msgstr ""
+msgstr "Marca aquest missatge com a brossa"
 
 #: modules/contact-form/admin.php:204 modules/contact-form/admin.php:206
 #: modules/contact-form/admin.php:493
@@ -1711,15 +1711,15 @@ msgstr "Paperera"
 
 #: modules/contact-form/admin.php:257
 msgid "Mark this message as NOT spam"
-msgstr ""
+msgstr "Marca el missatge com a legítim"
 
 #: modules/contact-form/admin.php:296
 msgid "Y-m-d @ g:i:s A"
-msgstr ""
+msgstr "d-m-Y a les g:i"
 
 #: modules/contact-form/admin.php:415
 msgid "You are not allowed to manage this item."
-msgstr ""
+msgstr "No teniu autorització per gestionar aquest element."
 
 #: modules/contact-form/admin.php:449
 msgid "You are not allowed to move this item out of the Trash."
@@ -1739,7 +1739,7 @@ msgstr "S'ha produït un error en moure a la paperera."
 
 #: modules/contact-form/admin.php:483
 msgid "Messages"
-msgstr ""
+msgstr "Missatges"
 
 #: modules/contact-form/admin.php:506
 msgid "Spam"
@@ -1780,11 +1780,11 @@ msgstr "Sí"
 
 #: modules/contact-form/grunion-contact-form.php:140
 msgid "%s requires a valid email address"
-msgstr ""
+msgstr "%s necessita un correu electrònic vàlid"
 
 #: modules/contact-form/grunion-contact-form.php:147
 msgid "%s is required"
-msgstr ""
+msgstr "Es necessita %s"
 
 #: modules/contact-form/grunion-contact-form.php:275
 #: modules/contact-form/grunion-contact-form.php:323
@@ -1801,11 +1801,11 @@ msgstr "Missatge enviat"
 
 #: modules/contact-form/grunion-contact-form.php:462
 msgid "l F j, Y \\a\\t g:i a"
-msgstr ""
+msgstr "d-m-Y \\a \\l\\e\\s G:i"
 
 #: modules/contact-form/grunion-contact-form.php:482
 msgid "Time:"
-msgstr ""
+msgstr "Hora:"
 
 #: modules/contact-form/grunion-contact-form.php:483
 msgid "IP Address:"
@@ -1813,11 +1813,11 @@ msgstr "Adreça IP:"
 
 #: modules/contact-form/grunion-contact-form.php:484
 msgid "Contact Form URL:"
-msgstr ""
+msgstr "URl del formulari de contacte:"
 
 #: modules/contact-form/grunion-contact-form.php:507
 msgid "Sent by a verified %s user."
-msgstr ""
+msgstr "S'ha enviat per un usuari %s verificat."
 
 #: modules/contact-form/grunion-contact-form.php:511
 msgid "Sent by an unverified visitor to your site."
@@ -1826,7 +1826,7 @@ msgstr "Enviat per un/a visitant no verificat a la teva web."
 #: modules/contact-form/grunion-contact-form.php:674
 #: modules/contact-form/grunion-form-view.php:130
 msgid "Feedbacks"
-msgstr ""
+msgstr "Opinions"
 
 #: modules/contact-form/grunion-contact-form.php:675
 msgid "Feedback"
@@ -1834,155 +1834,157 @@ msgstr "Opinions (en anglès)"
 
 #: modules/contact-form/grunion-contact-form.php:676
 msgid "Search Feedback"
-msgstr ""
+msgstr "Cerca opinions"
 
 #: modules/contact-form/grunion-contact-form.php:677
 #: modules/contact-form/grunion-contact-form.php:678
 msgid "No feedback found"
-msgstr ""
+msgstr "No s'han trobat opinions"
 
 #: modules/contact-form/grunion-contact-form.php:694
 msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Brossa <span class=\"count\">(%s)</span>"
+msgstr[1] "Brosses <span class=\"count\">(%s)</span>"
 
 #: modules/contact-form/grunion-contact-form.php:718
 msgid "Add a custom form"
-msgstr ""
+msgstr "Afegeix un formulari personalitzat"
 
 #: modules/contact-form/grunion-form-view.php:8
 msgctxt "Label for HTML form \"Name\" field in contact form builder"
 msgid "Name"
-msgstr ""
+msgstr "Nom"
 
 #: modules/contact-form/grunion-form-view.php:9
 msgctxt "Label for HTML form \"Email\" field in contact form builder"
 msgid "Email"
-msgstr ""
+msgstr "Correu electrònic"
 
 #: modules/contact-form/grunion-form-view.php:10
 msgctxt "Label for HTML form \"URL/Website\" field in contact form builder"
 msgid "Website"
-msgstr ""
+msgstr "Lloc web"
 
 #: modules/contact-form/grunion-form-view.php:11
 msgctxt "Label for HTML form \"Comment/Response\" field in contact form builder"
 msgid "Comment"
-msgstr ""
+msgstr "Comentari"
 
 #: modules/contact-form/grunion-form-view.php:12
 msgctxt "Default label for new HTML form field in contact form builder"
 msgid "New Field"
-msgstr ""
+msgstr "Camp nou"
 
 #: modules/contact-form/grunion-form-view.php:13
 msgctxt "Label for the set of options to be included in a user-created dropdown in contact form builder"
 msgid "Options"
-msgstr ""
+msgstr "Opcions"
 
 #: modules/contact-form/grunion-form-view.php:14
 msgctxt "Label for an option to be included in a user-created dropdown in contact form builder"
 msgid "Option"
-msgstr ""
+msgstr "Opció"
 
 #: modules/contact-form/grunion-form-view.php:15
 msgctxt "Default label for the first option to be included in a user-created dropdown in contact form builder"
 msgid "First option"
-msgstr ""
+msgstr "Primera opció"
 
 #: modules/contact-form/grunion-form-view.php:16
 msgctxt "error message in contact form builder"
 msgid "Oops, there was a problem generating your form.  You'll likely need to try again."
-msgstr ""
+msgstr "Buf, s'ha produït un problema en generar el formulari. Probablement haureu d'intentar-ho de nou."
 
 #: modules/contact-form/grunion-form-view.php:17
 msgid ""
 "Drag up or down\n"
 "to re-arrange"
 msgstr ""
+"Arrossega i desa\n"
+"per tornar a organitzar"
 
 #: modules/contact-form/grunion-form-view.php:18
 msgctxt "Label to drag HTML form fields around to change their order in contact form builder"
 msgid "move"
-msgstr ""
+msgstr "mou"
 
 #: modules/contact-form/grunion-form-view.php:19
 msgctxt "Link to edit an HTML form field in contact form builder"
 msgid "edit"
-msgstr ""
+msgstr "edita"
 
 #: modules/contact-form/grunion-form-view.php:20
 msgid "Saved successfully"
-msgstr ""
+msgstr "S'ha desat correctament."
 
 #: modules/contact-form/grunion-form-view.php:21
 msgctxt "This HTML form field is marked as required by the user in contact form builder"
 msgid "(required)"
-msgstr ""
+msgstr "(necessari)"
 
 #: modules/contact-form/grunion-form-view.php:22
 msgid "Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost."
-msgstr ""
+msgstr "Segur que voleu sortir de l'editor del formulari sense desar? Qualsevol canvi que hàgiu fet es perdrà."
 
 #: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:415
 #: modules/module-info.php:419
 msgid "Contact Form"
-msgstr ""
+msgstr "Formulari de contacte"
 
 #: modules/contact-form/grunion-form-view.php:112
 msgid "Your new field was saved successfully"
-msgstr ""
+msgstr "S'ha desat correctament el camp nou"
 
 #: modules/contact-form/grunion-form-view.php:114
 msgid "Form builder"
-msgstr ""
+msgstr "Constructor de formularis"
 
 #: modules/contact-form/grunion-form-view.php:115
 msgid "Email notifications"
-msgstr ""
+msgstr "Notificacions per correu electrònic"
 
 #: modules/contact-form/grunion-form-view.php:120
 msgid "How does this work?"
-msgstr ""
+msgstr "Com funciona açò?"
 
 #: modules/contact-form/grunion-form-view.php:121
 msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
-msgstr ""
+msgstr "En afegir un formulari de contacte, els lectors podran enviar-vos opinions. Totes les opinions s'escanegen automàticament per trobar-hi brossa, i les opinions legítimes s'us enviaran per correu electrònic.s"
 
 #: modules/contact-form/grunion-form-view.php:122
 msgid "Can I add more fields?"
-msgstr ""
+msgstr "Puc afegir més camps?"
 
 #: modules/contact-form/grunion-form-view.php:124
 msgctxt "%1$s = \"Click here\" in an HTML link"
 msgid "Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field."
-msgstr ""
+msgstr "Segur que sí. %1$s per afegir un caixa de text nova, una àrea de text, un botó d'opció, una casella de selecció o un desplegable."
 
 #: modules/contact-form/grunion-form-view.php:125
 msgid "Click here"
-msgstr ""
+msgstr "Feu clic aquí"
 
 #: modules/contact-form/grunion-form-view.php:127
 msgid "Can I view my feedback within WordPress?"
-msgstr ""
+msgstr "Puc veure la meva opinió al WordPress?"
 
 #: modules/contact-form/grunion-form-view.php:129
 msgctxt "%1$s = \"Feedbacks\" in an HTML link"
 msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
-msgstr ""
+msgstr "Sí, podeu llegir les opinions en qualsevol moment si feu clic a l'enllaç \"%1$s\" al menú de l'administrador."
 
 #: modules/contact-form/grunion-form-view.php:135
 msgid "Do I need to fill this out?"
-msgstr ""
+msgstr "He d'omplir això?"
 
 #: modules/contact-form/grunion-form-view.php:136
 msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
-msgstr ""
+msgstr "No. Però si us agrada modificar on s'envien o l'assumpte de les opinions, podeu. Si no feu cap canvi aquí, les opinions s'enviaran a l'autor de la pàgina o de l'entrada i l'assumpte del missatge serà el nom de la pàgina o de l'entrada."
 
 #: modules/contact-form/grunion-form-view.php:140
 msgid "Edit this new field"
-msgstr ""
+msgstr "Edita aquest camp nou"
 
 #: modules/contact-form/grunion-form-view.php:142
 #: modules/sharedaddy/sharing-sources.php:1040
@@ -1991,23 +1993,23 @@ msgstr "Etiqueta"
 
 #: modules/contact-form/grunion-form-view.php:143
 msgid "New field"
-msgstr ""
+msgstr "Camp nou"
 
 #: modules/contact-form/grunion-form-view.php:145
 msgid "Field type"
-msgstr ""
+msgstr "Tipus de camp"
 
 #: modules/contact-form/grunion-form-view.php:147
 msgid "Checkbox"
-msgstr ""
+msgstr "Casella de selecció"
 
 #: modules/contact-form/grunion-form-view.php:148
 msgid "Drop down"
-msgstr ""
+msgstr "Desplega"
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Radio"
-msgstr ""
+msgstr "Botó d'opció"
 
 #: modules/contact-form/grunion-form-view.php:152
 msgid "Text"
@@ -2015,7 +2017,7 @@ msgstr "Text"
 
 #: modules/contact-form/grunion-form-view.php:153
 msgid "Textarea"
-msgstr ""
+msgstr "Àrea de text"
 
 #: modules/contact-form/grunion-form-view.php:160
 msgid "Options"
@@ -2023,47 +2025,47 @@ msgstr "Opcions"
 
 #: modules/contact-form/grunion-form-view.php:161
 msgid "First option"
-msgstr ""
+msgstr "Primera opció"
 
 #: modules/contact-form/grunion-form-view.php:164
 msgid "Add another option"
-msgstr ""
+msgstr "Afegeix altra opció"
 
 #: modules/contact-form/grunion-form-view.php:171
 msgid "Required?"
-msgstr ""
+msgstr "Necessari?"
 
 #: modules/contact-form/grunion-form-view.php:176
 msgid "Save this field"
-msgstr ""
+msgstr "S'ha desat aquest camp"
 
 #: modules/contact-form/grunion-form-view.php:181
 msgid "Here&#8217;s what your form will look like"
-msgstr ""
+msgstr "Així és com el formulari es veurà"
 
 #: modules/contact-form/grunion-form-view.php:186
 msgid "Add a new field"
-msgstr ""
+msgstr "Afegeix un camp nou"
 
 #: modules/contact-form/grunion-form-view.php:188
 msgid "Add this form to my post"
-msgstr ""
+msgstr "Afegeix aquest formulari a l'entrada"
 
 #: modules/contact-form/grunion-form-view.php:191
 msgid "Email settings"
-msgstr ""
+msgstr "Paràmetres del correu electrònic"
 
 #: modules/contact-form/grunion-form-view.php:193
 msgid "Enter your email address"
-msgstr ""
+msgstr "Introduïu el vostre correu electrònic"
 
 #: modules/contact-form/grunion-form-view.php:196
 msgid "What should the subject line be?"
-msgstr ""
+msgstr "Quina hauria de ser la línia de l'assumpte?"
 
 #: modules/contact-form/grunion-form-view.php:199
 msgid "Save and go back to form builder"
-msgstr ""
+msgstr "Desa i torna al constructor de formularis"
 
 #: modules/gravatar-hovercards.php:44 modules/module-info.php:57
 #: modules/module-info.php:72
@@ -2106,7 +2108,7 @@ msgstr "Mostra %s."
 
 #: modules/module-info.php:32
 msgid "Plans & Pricing"
-msgstr ""
+msgstr "Plans i preus"
 
 #: modules/module-info.php:53 modules/module-info.php:68
 msgid "Gravatar Hovercard"
@@ -2271,11 +2273,11 @@ msgstr "mostra les darreres piulades en la barra lateral del tema. És una maner
 
 #: modules/module-info.php:336
 msgid "The Facebook Like Box Widget "
-msgstr ""
+msgstr "Giny M'agrada del Facebook"
 
 #: modules/module-info.php:336
 msgid "shows your Facebook Like Box within a sidebar on your theme. It&#8217;s a great way to let your readers show their support."
-msgstr ""
+msgstr "mostra la caixa M'agrada del Facebook a la barra lateral del tema. És una gran forma de deixar que els vostres lectors mostrin el seu suport."
 
 #: modules/module-info.php:337
 msgid "The Image Widget "
@@ -2303,11 +2305,11 @@ msgstr "mostra les darreres piulades a la barra lateral del tema."
 
 #: modules/module-info.php:352
 msgid "The Facebook Like Box Widget"
-msgstr ""
+msgstr "El giny de la caixa M'agrada del Facebook"
 
 #: modules/module-info.php:352
 msgid "shows your Facebook Like Box within a sidebar on your theme."
-msgstr ""
+msgstr "mostra la caixa M'agrada del Facebook a la barra lateral del tema."
 
 #: modules/module-info.php:353
 msgid "The Image Widget"

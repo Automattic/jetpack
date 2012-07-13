@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.4.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-06-15 00:50:35+0000\n"
+"PO-Revision-Date: 2012-06-20 15:11:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -665,15 +665,15 @@ msgstr "Suivre les Commentaires"
 
 #: modules/subscriptions.php:216
 msgid "Change whether your visitors can subscribe to your posts or comments or both."
-msgstr "Permet de choisir si vos lecteurs peuvent s&rsquo;abonner à votre blog, à vos commentaires, ou aux deux."
+msgstr "Permet de choisir si vos lecteurs peuvent s&rsquo;abonner à votre blog, aux commentaires, ou aux deux."
 
 #: modules/subscriptions.php:231
 msgid "Show a <em>'follow blog'</em> option in the comment form"
-msgstr "Ajouter l'option <em>'souscrire au blog'</em> au formulaire de commentaire."
+msgstr "Ajouter l'option <em>'S&rsquo;abonner au blog'</em> au formulaire de commentaires"
 
 #: modules/subscriptions.php:246
 msgid "Show a <em>'follow comments'</em> option in the comment form"
-msgstr "Afficher les options d&rsquo;abonnement dans le formulaire de commentaires"
+msgstr "Ajouter l&rsquo;option <em>'S&rsquo;abonner aux commentaires'</em> au formulaire de commentaires"
 
 #: modules/subscriptions.php:434
 msgid "Notify me of follow-up comments by email."
@@ -1258,7 +1258,7 @@ msgstr "Les modules suivants ont été mis à jour : %l."
 
 #: jetpack.php:1606
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
-msgstr "<strong>%s activé !</strong> Vous pouvez le désactiver en cliquant En savoir plus puis désactiver dans la carte du module."
+msgstr "<strong> Le module &#8220;%s&#8221; est activé !</strong> Vous pouvez le désactiver en cliquant sur &#8220;Plus d&rsquo;info.&#8221;, puis &#8220;désactiver&#8221; dans la carte du module."
 
 #: jetpack.php:1613
 msgid "<strong>%s Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
@@ -1637,7 +1637,7 @@ msgstr "Texte d&rsquo;accueil"
 #: modules/comments/admin.php:97 modules/comments/admin.php:168
 #: modules/widgets/facebook-likebox.php:131
 msgid "Color Scheme"
-msgstr "Shéma de couleur"
+msgstr "Schéma de couleurs"
 
 #: modules/comments/admin.php:118
 msgid "Adjust your Jetpack Comments form with a clever greeting and color-scheme."

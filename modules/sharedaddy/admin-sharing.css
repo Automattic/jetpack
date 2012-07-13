@@ -351,24 +351,3 @@
 	border: 0;
 	padding: 4px 6px 0 0;
 }
-
-/* RETINA IMAGES */
-
-@media screen and (-webkit-min-device-pixel-ratio: 1.5),
-screen and (max--moz-device-pixel-ratio: 1.5) {
-	
-.services ul li#facebook, .preview-facebook div.option-smart-off{background: #FFF url(images/facebook@2x.png) no-repeat 4px 5px !important;background-size: 32px 32px;}
-.services ul li#twitter, .preview-twitter div.option-smart-off{background: #FFF url(images/twitter@2x.png) no-repeat 4px 5px !important;background-size: 32px 32px;}
-.services ul li#wordpress, .preview-wordpress{background: #FFF url(images/wordpress@2x.png) no-repeat 4px 5px !important;background-size: 32px 32px;}
-.services ul li#digg, .preview-digg div.option-smart-off{background: #FFF url(images/digg@2x.png) no-repeat 4px 5px !important;background-size: 32px 32px;}
-.services ul li#reddit, .preview-reddit div.option-smart-off{background: #FFF url(images/reddit@2x.png) no-repeat 4px 5px !important;background-size: 32px 32px;}
-.services ul li#stumbleupon, .preview-stumbleupon div.option-smart-off{background: #FFF url(images/stumbleupon@2x.png) no-repeat 4px 5px !important;background-size: 32px 32px;}
-.services ul li#email, .preview-email{background: #FFF url(images/email@2x.png) no-repeat 4px 5px !important; padding-right: 10px;background-size: 32px 32px;}
-.services ul li#print, .preview-print{background: #FFF url(images/print@2x.png) no-repeat 4px 5px !important; padding-right: 10px;background-size: 32px 32px;}
-.services ul li#press-this, .preview-press-this{background: #FFF url(images/wordpress@2x.png) no-repeat 4px 5px !important; padding-right: 10px;background-size: 32px 32px;}
-.services ul li#linkedin, .preview-linkedin div.option-smart-off{background: #FFF url(images/linkedin@2x.png) no-repeat 4px 5px !important;background-size: 32px 32px;}
-.services ul li#google-plus-1,.preview-google-plus-1{background: #FFF url(images/googleplus1@2x.png) no-repeat 4px 5px !important; padding-right: 10px;background-size: 32px 32px;}
-.services ul li.share-custom, .preview-custom{background: #FFF url(images/custom@2x.png) no-repeat 4px 5px !important; no-repeat 4px 5px; padding-right: 10px;background-size: 32px 32px;}
-
-	}
-	

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.4.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-06-15 00:50:36+0000\n"
+"PO-Revision-Date: 2012-06-20 15:11:10+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -28,15 +28,15 @@ msgstr "コンタクトフォームはそれぞれ、必要に応じてカスタ
 
 #: modules/module-info.php:443
 msgid "Jetpack Comments Screenshot"
-msgstr ""
+msgstr "Jetpack コメントのスクリーンショット"
 
 #: modules/module-info.php:448
 msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
-msgstr ""
+msgstr "Jetpack コメントを使うと、読者が WordPress.com、Twitter、または Facebook アカウントでログインしてコメントを残せるようになります。"
 
 #: modules/module-info.php:453
 msgid "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page."
-msgstr ""
+msgstr "Jetpack はサイトの色調と自動で一致させるように試みますが、<a href='%s'>ディスカッション設定</a>画面の下部で手動調整することも可能です。"
 
 #: modules/sharedaddy/sharedaddy.php:18
 msgid "Shared Post"
@@ -398,7 +398,7 @@ msgstr "このブログには現在公開済みの投稿がありません。"
 
 #: modules/shortcodes/audio.php:180
 msgid "Download: <a href=\"%s\">%s</a><br />"
-msgstr ""
+msgstr "ダウンロード: <a href=\"%s\">%s</a><br />"
 
 #: modules/shortcodes/videopress.php:608
 msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
@@ -653,7 +653,7 @@ msgstr "人気検索キーワード"
 
 #: modules/subscriptions.php:173
 msgid "Jetpack Subscriptions Settings"
-msgstr ""
+msgstr "Jetpack 購読設定"
 
 #: modules/subscriptions.php:182
 msgid "Follow Blog"
@@ -665,7 +665,7 @@ msgstr "コメントをフォロー"
 
 #: modules/subscriptions.php:216
 msgid "Change whether your visitors can subscribe to your posts or comments or both."
-msgstr ""
+msgstr "読者による投稿・コメントの購読を可能にするかどうかを設定します。"
 
 #: modules/subscriptions.php:231
 msgid "Show a <em>'follow blog'</em> option in the comment form"
@@ -673,7 +673,7 @@ msgstr "コメントフォームに「ブログをフォロー」オプション
 
 #: modules/subscriptions.php:246
 msgid "Show a <em>'follow comments'</em> option in the comment form"
-msgstr ""
+msgstr "コメントフォームに「コメントをフォロー」オプションを表示"
 
 #: modules/subscriptions.php:434
 msgid "Notify me of follow-up comments by email."
@@ -1020,13 +1020,13 @@ msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.a
 msgstr "<a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> 校正サービスを使って、文章中の英語などのつづり・文書スタイル・文法を向上させましょう。"
 
 msgid "Carousel"
-msgstr ""
+msgstr "カルーセル"
 
 msgid "Transform your standard image galleries into an immersize full-screen experience."
-msgstr ""
+msgstr "通常の画像ギャラリーをフルスクリーンで見られるようにしましょう。"
 
 msgid "A new comment system that has integrated social media login options."
-msgstr ""
+msgstr "ソーシャルメディアログインに対応したら新しいコメントシステムです。"
 
 msgid "Easily insert a contact form any where on your site."
 msgstr "コンタクトフォームを簡単に好きな位置に設置します。"
@@ -1079,7 +1079,7 @@ msgstr[0] "%個の Jetpack モジュール"
 
 #: jetpack.php:1175
 msgid "Jetpack"
-msgstr ""
+msgstr "Jetpack"
 
 #: jetpack.php:1207 jetpack.php:1231 jetpack.php:1241 jetpack.php:1823
 #: jetpack.php:1973
@@ -1153,7 +1153,7 @@ msgstr "Jetpack を無効化し、通知を非表示にする。"
 
 #: jetpack.php:1331
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enabled features like Comments, Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
-msgstr ""
+msgstr "<strong>Jetpack の設定完了までもう少しです</strong>。コメント、統計情報、お問い合せフォーム、購読といった機能を有効化するには WordPress.com との連携が必要です。"
 
 #: jetpack.php:1333
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
@@ -1179,11 +1179,11 @@ msgstr "<strong>Jetpack を有効化しました。</strong> ネットワーク�
 
 #: jetpack.php:1381
 msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
-msgstr ""
+msgstr "Jetpack にコメント機能が加わりました。読者が WordPress.com、Twitter、Facebook アカウントを使ってログインし、サイト上でコメントできるようになっています。有効化するには、<a href=\"%s\">%s</a>。"
 
 #: jetpack.php:1389
 msgid "click here"
-msgstr ""
+msgstr "ここをクリック"
 
 #: jetpack.php:1460
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
@@ -1425,7 +1425,7 @@ msgstr "連携前に Jetpack を登録する必要があります。"
 #: locales.php:29
 msgctxt "locales"
 msgid "%1$s/%2$s"
-msgstr ""
+msgstr "%1$s/%2$s"
 
 #: modules/after-the-deadline/atd-l10n.php:12
 msgid "Spelling"
@@ -1607,7 +1607,7 @@ msgstr "変更を保存するには、この画面下の \"プロフィールを
 
 #: modules/comments/admin.php:50 modules/comments/comments.php:168
 msgid "Leave a Reply"
-msgstr ""
+msgstr "コメントをどうぞ"
 
 #: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:133
 msgid "Light"
@@ -1619,15 +1619,15 @@ msgstr "ダークカラー"
 
 #: modules/comments/admin.php:56
 msgid "Transparent"
-msgstr ""
+msgstr "透明"
 
 #: modules/comments/admin.php:72 modules/module-info.php:446
 msgid "Jetpack Comments"
-msgstr ""
+msgstr "Jetpack コメント"
 
 #: modules/comments/admin.php:81
 msgid "Greeting Text"
-msgstr ""
+msgstr "グリーティングメッセージ"
 
 #: modules/comments/admin.php:97 modules/comments/admin.php:168
 #: modules/widgets/facebook-likebox.php:131
@@ -1636,11 +1636,11 @@ msgstr "配色 "
 
 #: modules/comments/admin.php:118
 msgid "Adjust your Jetpack Comments form with a clever greeting and color-scheme."
-msgstr ""
+msgstr "Jetpack コメントフォームのメッセージと色調設定ができます。"
 
 #: modules/comments/admin.php:134
 msgid "A few catchy words to motivate your readers to comment"
-msgstr ""
+msgstr "読者にコメントを促すメッセージ"
 
 #: modules/comments/base.php:84
 msgid "Invalid request"
@@ -1648,23 +1648,23 @@ msgstr "不正なリクエスト"
 
 #: modules/comments/base.php:231
 msgid "Error: please fill the required fields (name, email)."
-msgstr ""
+msgstr "エラー: 入力必須項目 (お名前、メールアドレス) を記入してください。"
 
 #: modules/comments/base.php:233
 msgid "Error: please enter a valid email address."
-msgstr ""
+msgstr "エラー: 正しいメールアドレスを記入してください。"
 
 #: modules/comments/comments.php:144
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
-msgstr ""
+msgstr "コメントを投稿するには<a href=\"%s\">ログイン</a>が必要です。"
 
 #: modules/comments/comments.php:206
 msgid "Cancel Reply"
-msgstr ""
+msgstr "返信をキャンセル"
 
 #: modules/comments/comments.php:315
 msgid "Invalid security token."
-msgstr ""
+msgstr "不正なセキュリティトークンです。"
 
 #: modules/contact-form/admin.php:87
 msgid "From"

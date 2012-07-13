@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.4.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-06-15 00:50:35+0000\n"
+"PO-Revision-Date: 2012-06-20 15:11:13+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -653,27 +653,27 @@ msgstr "Toppsøk"
 
 #: modules/subscriptions.php:173
 msgid "Jetpack Subscriptions Settings"
-msgstr ""
+msgstr "Innstillinger for Jetpack Diskusjon"
 
 #: modules/subscriptions.php:182
 msgid "Follow Blog"
-msgstr ""
+msgstr "Følg nettstedet"
 
 #: modules/subscriptions.php:197
 msgid "Follow Comments"
-msgstr ""
+msgstr "Følg kommentarer"
 
 #: modules/subscriptions.php:216
 msgid "Change whether your visitors can subscribe to your posts or comments or both."
-msgstr ""
+msgstr "Endre hvorvidt dine besøkende kan abonnere på dine innlegg, dine kommentarer eller begge deler."
 
 #: modules/subscriptions.php:231
 msgid "Show a <em>'follow blog'</em> option in the comment form"
-msgstr ""
+msgstr "Vis en <em>'følg nettstedet'</em>-muligheten i kommentarskjemaet"
 
 #: modules/subscriptions.php:246
 msgid "Show a <em>'follow comments'</em> option in the comment form"
-msgstr ""
+msgstr "Vis en <em>'følg kommentarene'</em>-muligheten i kommentarskjemaet"
 
 #: modules/subscriptions.php:434
 msgid "Notify me of follow-up comments by email."
@@ -1022,10 +1022,10 @@ msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.a
 msgstr "Forbedre din staving, stil og grammatikk med <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> korrekturtjeneste."
 
 msgid "Carousel"
-msgstr ""
+msgstr "Karusell"
 
 msgid "Transform your standard image galleries into an immersize full-screen experience."
-msgstr ""
+msgstr "Omform dine standard bildegallerier til fullskjermopplevelse."
 
 msgid "A new comment system that has integrated social media login options."
 msgstr "Et nytt kommentarsystem som har integrerte muligheter for innlogging via sosiale media."

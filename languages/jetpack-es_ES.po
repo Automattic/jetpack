@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.4.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-06-15 00:50:37+0000\n"
+"PO-Revision-Date: 2012-06-20 15:11:18+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1661,7 +1661,7 @@ msgstr "Error: por favor, escribe un correo electrónico válido."
 
 #: modules/comments/comments.php:144
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
-msgstr ""
+msgstr "Para comentar debe estar <a href=\"%s\">registrado</a>."
 
 #: modules/comments/comments.php:206
 msgid "Cancel Reply"
