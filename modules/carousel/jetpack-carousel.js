@@ -18,13 +18,11 @@ jQuery(document).ready(function($) {
 				break;
 			case 39: // right
 				e.preventDefault();
-				container.animate({scrollTop:0}, 'fast');
 				gallery.jp_carousel('clearCommentTextAreaValue');
 				gallery.jp_carousel('next');
 				break;
 			case 37: // left
 				e.preventDefault();
-				container.animate({scrollTop:0}, 'fast');
 				gallery.jp_carousel('clearCommentTextAreaValue');
 				gallery.jp_carousel('previous');
 				break;
@@ -356,7 +354,6 @@ jQuery(document).ready(function($) {
 			nextButton.add(previousButton).click(function(e){
 				e.preventDefault();
 				e.stopPropagation();
-				container.animate({scrollTop:0}, 'fast');
 				if ( nextButton.is(this) ) {
 					gallery.jp_carousel('next');
 				} else {
@@ -428,7 +425,7 @@ jQuery(document).ready(function($) {
 
 		next : function(){
 			var selected = this.jp_carousel('selectedSlide'), slide;
-
+			container.animate({scrollTop:0}, 'fast');
 			if ( 0 === selected.length ) { // no selection return first item
 				slide = this.jp_carousel('slides').first(0);
 			} else if( selected.is( this.jp_carousel('slides').last() ) ) {
@@ -445,7 +442,7 @@ jQuery(document).ready(function($) {
 
 		previous : function(){
 			var selected = this.jp_carousel('selectedSlide'), slide;
-
+			container.animate({scrollTop:0}, 'fast');
 			if ( 0 === selected.length ) { // no selection return first item
 				slide = this.jp_carousel('slides').first();
 			} else if ( selected.is( this.jp_carousel('slides').first() ) ) { // if it's the last slide
