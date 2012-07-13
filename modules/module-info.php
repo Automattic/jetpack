@@ -464,11 +464,17 @@ function jetpack_carousel_learn_more_button() {
 }
 
 function jetpack_carousel_more_info() {
-    echo '<h4>' . esc_html__( 'Carousel', 'jetpack' ) . '</h4>';
+?>
+	<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/screenshot-6.jpg' ) ?>" alt="<?php esc_attr_e( 'Gallery Carousel Screenshot', 'jetpack' ) ?>" width="300" height="200" />
+	</div>
 
-    echo '<p>';
-    echo 'With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.';
-    echo '</p>';
+	<h4><?php esc_html__( 'Carousel', 'jetpack' ); ?></h4>
+
+    <p>
+		With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.
+    </p>
+<?php
 }
 
 add_action( 'jetpack_learn_more_button_carousel', 'jetpack_carousel_learn_more_button' );
