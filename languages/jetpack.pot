@@ -32,7 +32,7 @@ msgstr[1] ""
 msgid "Jetpack"
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 #: jetpack.php:1188 jetpack.php:1212 jetpack.php:1222 jetpack.php:1837
 #: jetpack.php:1987
@@ -636,7 +636,7 @@ msgstr ""
 msgid "Transparent"
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/comments/admin.php:72 modules/module-info.php:444
 msgid "Jetpack Comments"
@@ -953,7 +953,7 @@ msgid ""
 "you have made will be lost."
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:413
 #: modules/module-info.php:417
@@ -1106,7 +1106,7 @@ msgstr ""
 msgid "Save and go back to form builder"
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/gravatar-hovercards.php:44 modules/module-info.php:57
 #: modules/module-info.php:72
@@ -1121,7 +1121,7 @@ msgstr ""
 msgid "Put your mouse over your Gravatar to check out your profile."
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:22 modules/module-info.php:26
 msgid "VaultPress"
@@ -1195,7 +1195,7 @@ msgid ""
 "Deactivate button above."
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:90 modules/module-info.php:94
 #: modules/module-info.php:103 modules/module-info.php:107
@@ -1219,7 +1219,7 @@ msgstr ""
 msgid "Available shortcodes are: %l."
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:150 modules/module-info.php:154
 #: modules/module-info.php:164 modules/module-info.php:168
@@ -1248,7 +1248,7 @@ msgid ""
 "you can copy and paste to Twitter, Facebook or wherever your heart desires."
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:185 modules/module-info.php:189
 #: modules/module-info.php:198 modules/module-info.php:202
@@ -1293,7 +1293,7 @@ msgid ""
 "<a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:255 modules/module-info.php:258
 #: modules/module-info.php:279 modules/sharedaddy/sharedaddy.php:25
@@ -1345,7 +1345,7 @@ msgid ""
 "Watch it in HD for extra snazz!"
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:306 modules/module-info.php:310
 msgid "Spelling and Grammar"
@@ -1368,7 +1368,7 @@ msgstr ""
 msgid "Widgets Screenshot"
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:330 modules/module-info.php:346
 msgid "Extra Sidebar Widgets"
@@ -1463,7 +1463,7 @@ msgstr ""
 msgid "Subsriptions Screenshot"
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:369
 msgid "Subscriptions"
@@ -1489,7 +1489,7 @@ msgid ""
 "&#8221; into one of your sidebars and configure away."
 msgstr ""
 
-#. #-#-#-#-#  jetpack2.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.5)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:390
 msgid "Enhanced Distribution"
