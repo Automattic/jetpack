@@ -583,6 +583,9 @@ p.jp-help {
 		#enhanced-distribution.jetpack-module div.module-image {
 			background-position: -808px 5px;
 		}
+		#carousel.jetpack-module div.module-image {
+			background-position: -1325px 5px;
+		}
 
 		.jetpack-module div.module-image p {
 			background-color: #b4d278;
