@@ -81,6 +81,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 = 1.5 =
 * Enhancement: Add Gallery Carousel feature
+* Note: the Carousel module bundles http://fgnass.github.com/spin.js/ (MIT license)
 
 = 1.4.2 =
 * Bug Fix: Jetpack Comments: Add alternative Javascript event listener for Internet 8 users.
