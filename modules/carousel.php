@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Module Name: Carousel
  * Module Description: Transform your standard image galleries into an immersize full-screen experience.
