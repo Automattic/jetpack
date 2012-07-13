@@ -26,6 +26,7 @@ Features include:
 * A widget for displaying recent tweets.  Previously provided by [Wickett Twitter Widget](http://wordpress.org/extend/plugins/wickett-twitter-widget/)
 * Your readers can easily share your posts via email or their favorite social networks.  Previously provided by the [Sharedaddy](http://wordpress.org/extend/plugins/sharedaddy/) WordPress plugin.
 * Your writing will improve thanks to After the Deadline, an artificial intelligence based spell, style, and grammar checker.  Previously provided by the [After the Deadline](http://wordpress.org/extend/plugins/after-the-deadline/) WordPress plugin.
+* With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.
 * and *many* more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.
@@ -74,8 +75,12 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 3. Subscriptions widget.
 4. Gravatar Hovercards settings.
 5. Spelling and Grammar demo.
+6. Gallery Carousel.
 
 == Changelog ==
+
+= 1.5 =
+* Enhancement: Add Gallery Carousel feature
 
 = 1.4.2 =
 * Bug Fix: Jetpack Comments: Add alternative Javascript event listener for Internet 8 users.
