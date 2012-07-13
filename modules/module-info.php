@@ -471,7 +471,7 @@ function jetpack_carousel_more_info() {
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/screenshot-6.png' ) ?>" alt="<?php esc_attr_e( 'Gallery Carousel Screenshot', 'jetpack' ) ?>" width="300" height="188" />
 	</div>
 
-	<h4><?php esc_html__( 'Carousel', 'jetpack' ); ?></h4>
+	<h4><?php esc_html_e( 'Carousel', 'jetpack' ); ?></h4>
 
     <p>
 		With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.
