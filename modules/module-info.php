@@ -467,7 +467,7 @@ function jetpack_carousel_more_info() {
     echo '<h4>' . esc_html__( 'Carousel', 'jetpack' ) . '</h4>';
 
     echo '<p>';
-    echo 'More info goes here?~@?';
+    echo 'With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.';
     echo '</p>';
 }
 
