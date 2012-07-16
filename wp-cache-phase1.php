@@ -629,6 +629,8 @@ function wp_supercache_cache_for_admins() {
 		return true;
 
 	$cookie_keys = array( 'wordpress_logged_in', 'comment_author_' );
+	if ( defined( 'LOGGED_IN_COOKIE' ) )
+		$cookie_keys[] = constant( 'LOGGED_IN_COOKIE' );
 	reset( $_COOKIE );
 	foreach( $_COOKIE as $cookie => $val ) {
 		reset( $cookie_keys );
