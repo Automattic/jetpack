@@ -31,8 +31,6 @@ if ( isset( $_GET[ 'donotcachepage' ] ) && isset( $cache_page_secret ) && $_GET[
 	$cache_enabled = false;
 	define( 'DONOTCACHEPAGE', 1 );
 }
-if ( isset( $wp_cache_make_known_anon ) && $wp_cache_make_known_anon )
-	wp_supercache_cache_for_admins();
 
 $plugins = glob( $wp_cache_plugins_dir . '/*.php' );
 if( is_array( $plugins ) ) {
@@ -41,6 +39,9 @@ if( is_array( $plugins ) ) {
 		require_once( $plugin );
 	}
 }
+
+if ( isset( $wp_cache_make_known_anon ) && $wp_cache_make_known_anon )
+	wp_supercache_cache_for_admins();
 
 do_cacheaction( 'cache_init' );
 
