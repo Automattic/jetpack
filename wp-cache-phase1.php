@@ -399,7 +399,7 @@ function wp_cache_check_mobile( $cache_key ) {
 		return $cache_key;
 		break;
 	case "mobile":
-		return $cache_key . "_mobile";
+		return $cache_key . "-mobile";
 		break;
 	}
 
