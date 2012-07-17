@@ -546,33 +546,31 @@ jQuery(document).ready(function($) {
 			previous[method]({left:-previous.width() + (screenPadding * 0.75) }).show();
 			next[method]({left:gallery.width() - (screenPadding * 0.75) }).show();
 
-			setTimeout( function() {
-				document.location.href = document.location.href.replace(/#.*/, '') + '#jp-carousel-' + current.data('attachment-id');
-				gallery.jp_carousel('resetButtons', current);
-				container.trigger('jp_carousel.selectSlide', [current]);
+			document.location.href = document.location.href.replace(/#.*/, '') + '#jp-carousel-' + current.data('attachment-id');
+			gallery.jp_carousel('resetButtons', current);
+			container.trigger('jp_carousel.selectSlide', [current]);
 
-				$( 'div.jp-carousel-image-meta', 'div.jp-carousel-wrap' ).html('');
-				
-				gallery.jp_carousel('getTitleDesc', { title: current.data('title'), desc: current.data('desc') } );
-				gallery.jp_carousel('getMeta', current.data('image-meta'));
-				gallery.jp_carousel('getFullSizeLink', current);
-				gallery.jp_carousel('getMap', current.data('image-meta'));
-				gallery.jp_carousel('testCommentsOpened', current.data('comments-opened'));
-				gallery.jp_carousel('getComments', {'attachment_id': current.data('attachment-id'), 'offset': 0, 'clear': true});
+			$( 'div.jp-carousel-image-meta', 'div.jp-carousel-wrap' ).html('');
+			
+			gallery.jp_carousel('getTitleDesc', { title: current.data('title'), desc: current.data('desc') } );
+			gallery.jp_carousel('getMeta', current.data('image-meta'));
+			gallery.jp_carousel('getFullSizeLink', current);
+			gallery.jp_carousel('getMap', current.data('image-meta'));
+			gallery.jp_carousel('testCommentsOpened', current.data('comments-opened'));
+			gallery.jp_carousel('getComments', {'attachment_id': current.data('attachment-id'), 'offset': 0, 'clear': true});
 
-				$('#jp-carousel-comment-post-results').slideUp();
-				
-				// $('<div />').html(sometext).text() is a trick to go to HTML to plain text (including HTML emntities decode, etc)
-				if ( current.data('caption') ) {
-					if ( $('<div />').html(current.data('caption')).text() == $('<div />').html(current.data('title')).text() )
-						$('.jp-carousel-titleanddesc-title').fadeOut('fast').empty();
-					if ( $('<div />').html(current.data('caption')).text() == $('<div />').html(current.data('desc')).text() )
-						$('.jp-carousel-titleanddesc-desc').fadeOut('fast').empty();
-					caption.html( current.data('caption') ).fadeIn('slow');
-				} else {
-					caption.fadeOut('fast').empty();
-				}
-			}, 600 );
+			$('#jp-carousel-comment-post-results').slideUp();
+			
+			// $('<div />').html(sometext).text() is a trick to go to HTML to plain text (including HTML emntities decode, etc)
+			if ( current.data('caption') ) {
+				if ( $('<div />').html(current.data('caption')).text() == $('<div />').html(current.data('title')).text() )
+					$('.jp-carousel-titleanddesc-title').fadeOut('fast').empty();
+				if ( $('<div />').html(current.data('caption')).text() == $('<div />').html(current.data('desc')).text() )
+					$('.jp-carousel-titleanddesc-desc').fadeOut('fast').empty();
+				caption.html( current.data('caption') ).fadeIn('slow');
+			} else {
+				caption.fadeOut('fast').empty();
+			}
 
 		},
 
@@ -705,7 +703,9 @@ jQuery(document).ready(function($) {
 					src = gallery.jp_carousel('selectBestImageSize', {
 						orig_file   : src,
 						orig_width  : orig_size.width,
+						orig_height : orig_size.height,
 						max_width   : max.width,
+						max_height  : max.height,
 						medium_file : medium_file,
 						large_file  : large_file
 					});
@@ -783,18 +783,22 @@ jQuery(document).ready(function($) {
 			var medium_size       = args.medium_file.replace(/^https?:\/\/.+-([\d]+x[\d]+)\..+$/, '$1'),
 				medium_size_parts = (medium_size != args.medium_file) ? medium_size.split('x') : [args.orig_width, 0],
 				medium_width      = parseInt( medium_size_parts[0], 10 ),
+				medium_height     = parseInt( medium_size_parts[1], 10 ),
 				large_size        = args.large_file.replace(/^https?:\/\/.+-([\d]+x[\d]+)\..+$/, '$1'),
 				large_size_parts  = (large_size != args.large_file) ? large_size.split('x') : [args.orig_width, 0],
-				large_width       = parseInt( large_size_parts[0], 10 );
+				large_width       = parseInt( large_size_parts[0], 10 ),
+				large_height      = parseInt( large_size_parts[1], 10 );
 		
 			// Give devices with a higher devicePixelRatio higher-res images (Retina display = 2, Android phones = 1.5, etc)
-			if ('undefined' != typeof window.devicePixelRatio && window.devicePixelRatio > 1)
-				args.max_width = args.max_width * window.devicePixelRatio;
+			if ('undefined' != typeof window.devicePixelRatio && window.devicePixelRatio > 1) {
+				args.max_width  = args.max_width * window.devicePixelRatio;
+				args.max_height = args.max_height * window.devicePixelRatio;
+			}
 
-			if ( medium_width >= args.max_width )
+			if ( medium_width >= args.max_width || medium_height >= args.max_height )
 				return args.medium_file;
 
-			if ( large_width >= args.max_width )
+			if ( large_width >= args.max_width || large_height >= args.max_height )
 				return args.large_file;
 
 			return args.orig_file;

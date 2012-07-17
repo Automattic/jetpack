@@ -79,6 +79,10 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.5.1 =
+* Enhancement: Carousel: Better image resolution selection based on available width/height.
+* Enhancement: Carousel: Load image caption, metadata, comments, et alii when a slide is clicked to switch to instead of waiting.
+
 = 1.5 =
 * Enhancement: Add Gallery Carousel feature
 * Note: the Carousel module bundles http://fgnass.github.com/spin.js/ (MIT license)
