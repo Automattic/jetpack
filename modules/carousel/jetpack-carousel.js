@@ -938,6 +938,8 @@ jQuery(document).ready(function($) {
 				$ul.append( '<li><h5>' + jetpackCarouselStrings[key] + '</h5>' + val + '</li>' );
 			});
 
+			$( 'div.jp-carousel-image-meta', 'div.jp-carousel-wrap' )
+				.append( $( buttons ) );
 
 			$( 'div.jp-carousel-image-meta', 'div.jp-carousel-wrap' )
 				.append( $ul );
@@ -989,10 +991,10 @@ jQuery(document).ready(function($) {
 
 		testCommentsOpened: function( opened ) {
 			if ( 1 == parseInt( opened, 10 ) ) {
-				$('.jp-carousel-commentlink').fadeIn('fast');
+					$('.jp-carousel-buttons').fadeIn('fast');
 				commentForm.fadeIn('fast');
 			} else {
-				$('.jp-carousel-commentlink').fadeOut('fast');
+					$('.jp-carousel-buttons').fadeOut('fast');
 				commentForm.fadeOut('fast');
 			}
 		},
