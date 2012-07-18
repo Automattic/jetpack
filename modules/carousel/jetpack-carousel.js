@@ -62,7 +62,8 @@ jQuery(document).ready(function($) {
 					'left'     : 0
 				});
 
-			buttons = $('<div class="jp-carousel-buttons">' + buttons + '</div>');
+			buttons  = '<a class="jp-carousel-commentlink" href="#">' + jetpackCarouselStrings.comment + '</a>';
+			buttons  = $('<div class="jp-carousel-buttons">' + buttons + '</div>');
 			
 			caption    = $('<h2></h2>');
 			photo_info = $('<div class="jp-carousel-photo-info"></div>').append(caption);
@@ -238,6 +239,13 @@ jQuery(document).ready(function($) {
 
 					if ( target.is(gallery) || target.parents().add(target).is(close_hint) ) {
 						container.jp_carousel('close');
+					} else if ( target.hasClass('jp-carousel-commentlink') ) {
+						e.preventDefault();
+						e.stopPropagation();
+						$(window).unbind('keydown', keyListener);
+						container.animate({scrollTop: parseInt(info.position()['top'], 10)}, 'fast');
+						$('#jp-carousel-comment-form-submit-and-info-wrapper').slideDown('fast');
+						$('#jp-carousel-comment-form-comment-field').focus();
 					} else if ( target.parents('#jp-carousel-comment-form-container').length ) {
 						var textarea = $('#jp-carousel-comment-form-comment-field')
 							.blur(function(){
@@ -981,8 +989,10 @@ jQuery(document).ready(function($) {
 
 		testCommentsOpened: function( opened ) {
 			if ( 1 == parseInt( opened, 10 ) ) {
+				$('.jp-carousel-commentlink').fadeIn('fast');
 				commentForm.fadeIn('fast');
 			} else {
+				$('.jp-carousel-commentlink').fadeOut('fast');
 				commentForm.fadeOut('fast');
 			}
 		},

@@ -105,6 +105,7 @@ class Jetpack_Carousel {
 				'display_exif'         => $this->test_1or0_option( get_option( 'carousel_display_exif' ), true ),
 				'display_geo'          => $this->test_1or0_option( get_option( 'carousel_display_geo' ), true ),
 				'background_color'     => $this->carousel_background_color_sanitize( get_option( 'carousel_background_color' ) ),
+				'comment'              => __( 'Comment', 'jetpack' ),
 				'post_comment'         => __( 'Post Comment', 'jetpack' ),
 				'loading_comments'     => __( 'Loading Comments...', 'jetpack' ),
 				'download_original'    => __( 'View full size <span class="photo-size">{0}<span class="photo-size-times">&times;</span>{1}</span>', 'jetpack' ),

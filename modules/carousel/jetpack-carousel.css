@@ -6,11 +6,6 @@
 	background: #000;
 }
 
-div.jp-carousel-buttons a.jp-carousel-permalink {
-	background: url(./images/carousel-link.png) no-repeat;
-	background-size: 12px 32px;
-}
-
 div.jp-carousel-fadeaway {
 	background: -moz-linear-gradient(bottom, rgba(0,0,0,0.5), rgba(0,0,0,0));
 	background: -webkit-gradient(linear, left bottom, left top, from(rgba(0,0,0,0.5)), to(rgba(0,0,0,0)));
@@ -27,20 +22,11 @@ div.jp-carousel-fadeaway {
 	background-size: 200px 126px;
 }
 
-div.jp-carousel-buttons a.jp-carousel-permalink {
-	background-position: 2px 6px;
-	margin-right:0;
-}
-
-div.jp-carousel-buttons a.jp-carousel-permalink:hover {
-	background-position: 2px -14px;
-}
-
-@media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
-	div.jp-carousel-buttons a.jp-carousel-permalink {
-		background-image: url(./images/carousel-link-2x.png);
-		background-position: 2px 6px;
-	}
+@media
+only screen and (-webkit-min-device-pixel-ratio: 1.5),
+only screen and (-o-min-device-pixel-ratio: 3/2),
+only screen and (min--moz-device-pixel-ratio: 1.5),
+only screen and (min-device-pixel-ratio: 1.5) {
 	.jp-carousel-next-button span,
 	.jp-carousel-previous-button span {
 		background-image: url(./images/arrows-2x.png);
@@ -132,17 +118,19 @@ div.jp-carousel-buttons a.jp-carousel-permalink:hover {
 }
 
 .jp-carousel-buttons {
-	margin:0 0 15px 0;
-	padding-bottom:15px;
+	margin:-18px -20px 15px;
+	padding:8px 10px;
 	border-bottom:1px solid #222;
+	background: #222;
+	text-align: center;
 }
 
 div.jp-carousel-buttons a {
 	border: none !important;
 	color: #999;
-	font: normal 13px/1.2em "Helvetica Neue", sans-serif !important;
+	font: normal 11px/1.2em "Helvetica Neue", sans-serif !important;
 	letter-spacing: 0 !important;
-	padding: 5px 2px 5px 20px !important;
+	padding: 5px 2px 5px 0;
 	text-decoration: none !important;
 	text-shadow: none !important;
 	vertical-align: baseline !important;
@@ -253,29 +241,31 @@ div.jp-carousel-buttons a:hover {
 
 div.jp-carousel-buttons a.jp-carousel-like,
 div.jp-carousel-buttons a.jp-carousel-reblog,
+div.jp-carousel-buttons a.jp-carousel-commentlink,
 a.jp-carousel-image-download {
-	background: url(./images/carousel-sprite.png?3) no-repeat;
-	background-size: 16px 120px;
+	background: url(./images/carousel-sprite.png?4) no-repeat;
+	background-size: 16px 160px;
 }
 
-div.jp-carousel-buttons a.jp-carousel-reblog {
-	margin:0 5px 0 -5px !important;
+div.jp-carousel-buttons a.jp-carousel-reblog,
+div.jp-carousel-buttons a.jp-carousel-commentlink {
+	margin:0 14px 0 0 !important;
 }
 
 div.jp-carousel-buttons a.jp-carousel-reblog.reblogged,
 div.jp-carousel-buttons a.jp-carousel-like.liked {
-	background-color: #222;
+	background-color: #303030;
 	padding-right: 8px !important;
-	border-radius: 3px;
-	border-radius:3px;
-	-webkit-border-radius:3px;
-	-moz-border-radius:3px;
-	-ms-border-radius:3px;
-	-o-border-radius:3px;
+	border-radius: 2px;
+	border-radius:2px;
+	-webkit-border-radius:2px;
+	-moz-border-radius:2px;
+	-ms-border-radius:2px;
+	-o-border-radius:2px;
 }
 
 div.jp-carousel-buttons a.jp-carousel-reblog.reblogged {
-	margin:0 5px 0 0 !important;
+	margin:0 2px 0 -12px !important;
 }
 
 
@@ -284,6 +274,11 @@ div.jp-carousel-buttons a.jp-carousel-reblog.reblogged:hover {
 	background-position: 6px -36px;
 	padding-left: 26px !important;
 	color: #999;
+}
+
+div.jp-carousel-buttons a.jp-carousel-commentlink {
+	background-position: 0px -116px;
+	padding-left: 19px !important;
 }
 
 div.jp-carousel-buttons a.jp-carousel-reblog.reblogged:hover {
@@ -311,8 +306,9 @@ only screen and (min--moz-device-pixel-ratio: 1.5),
 only screen and (min-device-pixel-ratio: 1.5) {
 	div.jp-carousel-buttons a.jp-carousel-like,
 	div.jp-carousel-buttons a.jp-carousel-reblog,
+	div.jp-carousel-buttons a.jp-carousel-commentlink,
 	a.jp-carousel-image-download {
-		background-image: url(./images/carousel-sprite-2x.png?3);
+		background-image: url(./images/carousel-sprite-2x.png?4);
 	}
 }
 
@@ -492,12 +488,13 @@ h1:before, h1:after {
 /** Meta Box Start **/
 .jp-carousel-image-meta {
 	background: #111;
-	padding: 18px 20px;
+	border: 1px solid #222;
 	color: #fff;
 	font-size: 13px;
 	font: 12px/1.4 "Helvetica Neue", sans-serif !important;
+	overflow: hidden;
+	padding: 18px 20px;
 	width: 209px !important;
-	border: 1px solid #222;
 }
 
 .jp-carousel-image-meta li,
@@ -878,7 +875,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 }
 
 .jp-carousel-light .jp-carousel-buttons {
-	border-bottom-color: #dfdfdf;
+	border-bottom-color: #f0f0f0;
+	background: #f5f5f5;
 }
 
 .jp-carousel-light div.jp-carousel-buttons a:hover {
@@ -896,6 +894,10 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-light div.jp-carousel-buttons a.jp-carousel-like.liked {
 	background-color: #2ea2cc;
 	color: #fff;
+}
+
+.jp-carousel-light div.jp-carousel-buttons a.jp-carousel-commentlink {
+	background-position: 0px -136px;
 }
 
 .jp-carousel-light div.jp-carousel-buttons a.jp-carousel-like,
