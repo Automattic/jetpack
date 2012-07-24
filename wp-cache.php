@@ -1119,8 +1119,8 @@ jQuery(document).ready(function(){
 	</td><td valign='top' style='width: 300px'>
 	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
 	<h3 align='center'><?php _e( 'Make WordPress Faster', 'wp-super-cache' ); ?></h3>
-	<p><?php printf( __( '%1$s is maintained and developed by %2$s with contributions from many others.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/wp-super-cache/?r=supercache">WP Super Cache</a>', '<a href="http://ocaoimh.ie/?r=supercache">Donncha O Caoimh</a>' ); ?></p>
-	<p><?php printf( __( 'He blogs at %1$s and posts photos at %2$s.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/?r=supercache">Holy Shmoly</a>', '<a href="http://inphotos.org/?r=supercache">In Photos.org</a>' ); ?></p>
+	<p><?php printf( __( '%1$s is maintained and developed by %2$s with contributions from many others.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/y/34">WP Super Cache</a>', '<a href="http://ocaoimh.ie/y/35">Donncha O Caoimh</a>' ); ?></p>
+	<p><?php printf( __( 'He blogs at %1$s and posts photos at %2$s.', 'wp-super-cache' ), '<a href="http://ocaoimh.ie/y/35">Holy Shmoly</a>', '<a href="http://ocaoimh.ie/y/2m">In Photos.org</a>' ); ?></p>
 	<p><?php printf( __( 'Please say hi to him on %s too!', 'wp-super-cache' ), '<a href="http://twitter.com/donncha/">Twitter</a>' ); ?></p>
 	<h3 align='center'><?php _e( 'Need Help?', 'wp-super-cache' ); ?></h3>
 	<ol>
@@ -1128,6 +1128,7 @@ jQuery(document).ready(function(){
 	<li><?php printf( __( '<a href="%1$s">Installation Help</a>', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/installation/' ); ?></li>
 	<li><?php printf( __( '<a href="%1$s">Frequently Asked Questions</a>', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/faq/' ); ?></li>
 	<li><?php printf( __( '<a href="%1$s">Support Forum</a>', 'wp-super-cache' ), 'http://wordpress.org/tags/wp-super-cache' ); ?></li>
+	<li><?php printf( __( '<a href="%1$s">Development Version</a>', 'wp-super-cache' ), 'http://ocaoimh.ie/y/2o' ); ?></li>
 	</ol>
 	<h3 align='center'><?php _e( 'Rate This Plugin!', 'wp-super-cache' ); ?></h3>
 	<p><?php printf( __( 'Please <a href="%s">rate</a> this plugin and tell me if it works for you or not. It really helps development.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/wp-super-cache/' ); ?></p>
