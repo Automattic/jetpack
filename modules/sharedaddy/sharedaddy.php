@@ -2,7 +2,7 @@
 /*
 Plugin Name: Sharedaddy
 Description: The most super duper sharing tool on the interwebs.
-Version: 0.2.12
+Version: 0.3
 Author: Automattic, Inc.
 Author URI: http://automattic.com/
 Plugin URI: http://en.blog.wordpress.com/2010/08/24/more-ways-to-share/
@@ -42,17 +42,19 @@ function sharing_meta_box_save( $post_id ) {
 		return $post_id;
 
 	// Record sharing disable
-	if ( current_user_can( 'edit_post', $post_id ) ) {
-		if ( isset( $_POST['sharing_status_hidden'] ) ) {
-			if ( !isset( $_POST['enable_post_sharing'] ) ) {
-				update_post_meta( $post_id, 'sharing_disabled', 1 );
-			} else {
-				delete_post_meta( $post_id, 'sharing_disabled' );
+	if ( isset( $_POST['post_type'] ) && ( 'post' == $_POST['post_type'] || 'page' == $_POST['post_type'] ) ) {
+		if ( current_user_can( 'edit_post', $post_id ) ) {
+			if ( isset( $_POST['sharing_status_hidden'] ) ) {
+				if ( !isset( $_POST['enable_post_sharing'] ) ) {
+					update_post_meta( $post_id, 'sharing_disabled', 1 );
+				} else {
+					delete_post_meta( $post_id, 'sharing_disabled' );
+				}
 			}
 		}
 	}
-
-  return $post_id;
+  	
+  	return $post_id;
 }
 
 function sharing_meta_box_protected( $protected, $meta_key, $meta_type ) {
@@ -99,28 +101,35 @@ function sharing_disable_js() {
 	return false;
 }
 
+if ( !function_exists( 'sharing_register_post_for_share_counts' ) ) {
+	function sharing_register_post_for_share_counts() {}
+}
+
 function sharing_global_resources() {
 	$disable = get_option( 'sharedaddy_disable_resources' );
 ?>
 <tr valign="top">
 	<th scope="row"><label for="disable_css"><?php _e( 'Disable CSS and JS', 'jetpack' ); ?></label></th>
 	<td>
-		<input id="disable_css" type="checkbox" name="disable_resourcse" <?php if ( $disable == 1 ) echo ' checked="checked"'; ?>/>  <small><em><?php _e( 'Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work.', 'jetpack' ); ?></em></small>
+		<input id="disable_css" type="checkbox" name="disable_resources" <?php if ( $disable == 1 ) echo ' checked="checked"'; ?>/>  <small><em><?php _e( 'Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work.', 'jetpack' ); ?></em></small>
 	</td>
 </tr>
 <?php
 }
 
-function shareing_global_resources_save() {
-	update_option( 'sharedaddy_disable_resources', isset( $_POST['disable_resourcse'] ) ? 1 : 0 );
+function sharing_global_resources_save() {
+	update_option( 'sharedaddy_disable_resources', isset( $_POST['disable_resources'] ) ? 1 : 0 );
 }
 
-add_action( 'init', 'sharing_init' );
-add_action( 'admin_init', 'sharing_add_meta_box' );
-add_action( 'save_post', 'sharing_meta_box_save' );
-add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
-add_action( 'sharing_global_options', 'sharing_global_resources' );
-add_action( 'sharing_admin_update', 'shareing_global_resources_save' );
-add_filter( 'sharing_services', 'sharing_restrict_to_single' );
-add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
-add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
+// Only run if PHP5
+if ( version_compare( phpversion(), '5.0', '>=' ) ) {
+	add_action( 'init', 'sharing_init' );
+	add_action( 'admin_init', 'sharing_add_meta_box' );
+	add_action( 'save_post', 'sharing_meta_box_save' );
+	add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
+	add_action( 'sharing_global_options', 'sharing_global_resources' );
+	add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
+	add_filter( 'sharing_services', 'sharing_restrict_to_single' );
+	add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
+	add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
+}

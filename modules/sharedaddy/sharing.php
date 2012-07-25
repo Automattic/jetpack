@@ -9,19 +9,24 @@ class Sharing_Admin {
 		
 		require_once WP_SHARING_PLUGIN_DIR.'sharing-service.php';
 
-		add_action( 'admin_init', array( $this, 'admin_init' ) );
-		add_action( 'admin_menu', array( $this, 'subscription_menu' ) );
+		add_action( 'admin_init', array( &$this, 'admin_init' ) );
+		add_action( 'admin_menu', array( &$this, 'subscription_menu' ) );
+
+		// Insert our CSS and JS
+		add_action( 'load-settings_page_sharing', array( &$this, 'sharing_head' ) );
 
 		// Catch AJAX
-		add_action( 'wp_ajax_sharing_save_services', array( $this, 'ajax_save_services' ) );
-		add_action( 'wp_ajax_sharing_save_options', array( $this, 'ajax_save_options' ) );
-		add_action( 'wp_ajax_sharing_new_service', array( $this, 'ajax_new_service' ) );
-		add_action( 'wp_ajax_sharing_delete_service', array( $this, 'ajax_delete_service' ) );
+		add_action( 'wp_ajax_sharing_save_services', array( &$this, 'ajax_save_services' ) );
+		add_action( 'wp_ajax_sharing_save_options', array( &$this, 'ajax_save_options' ) );
+		add_action( 'wp_ajax_sharing_new_service', array( &$this, 'ajax_new_service' ) );
+		add_action( 'wp_ajax_sharing_delete_service', array( &$this, 'ajax_delete_service' ) );
 	}
 	
 	public function sharing_head() {
-		wp_enqueue_script( 'sharing-js', WP_SHARING_PLUGIN_URL.'admin-sharing.js', array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ), 1 );
+		wp_enqueue_script( 'sharing-js', WP_SHARING_PLUGIN_URL.'admin-sharing.js', array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ), 2 );
 		wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'admin-sharing.css', false, WP_SHARING_PLUGIN_VERSION );
+		wp_enqueue_style( 'sharing-common', WP_SHARING_PLUGIN_URL.'sharing.css', false, WP_SHARING_PLUGIN_VERSION );
+		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 2 );
 
 		add_thickbox();
 	}
@@ -43,10 +48,7 @@ class Sharing_Admin {
 	}
 	
 	public function subscription_menu( $user ) {
-		$hook = add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'manage_options', 'sharing', array( $this, 'management_page' ) );
-
-		// Insert our CSS and JS
-		add_action( "load-$hook", array( $this, 'sharing_head' ) );
+		add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'sharing', array( &$this, 'management_page' ) );
 	}
 	
 	public function ajax_save_services() {
@@ -102,35 +104,38 @@ class Sharing_Admin {
 	}
 	
 	public function output_preview( $service ) {
-		$klasses = array( 'advanced', 'preview-item');
+		$klasses = array( 'advanced', 'preview-item' );
 		
-		if ( $service->button_style != 'text' || $service->has_custom_button_style() ) {
+		if (
+				'googleplus1' == $service->shortname
+			||
+				$service->button_style != 'text'
+			||
+				$service->has_custom_button_style()
+		) {
 			$klasses[] = 'preview-'.$service->get_class();
+			$klasses[] = 'share-'.$service->get_class();
 			
-			if ( $service->get_class() != $service->get_id() )	
+			if ( $service->get_class() != $service->get_id() )
 				$klasses[] = 'preview-'.$service->get_id();
 		}
 			
 		echo '<li class="'.implode( ' ', $klasses ).'">';
-		$service->display_preview();
+		echo $service->display_preview();
 		echo '</li>';
 	}
 	
 	public function output_service( $id, $service, $show_dropdown = false ) {
 ?>
-	<li class="service advanced<?php if ( $show_dropdown ) echo ' options'; ?> share-<?php echo $service->get_class(); ?>" id="<?php echo $service->get_id(); ?>">
-		<span class="options-left"><?php echo esc_html( $service->get_name() ); ?></span><?php if ( $service->has_advanced_options() ) : ?><span class="options-toggle" style="background: url(<?php echo admin_url( '/images/menu-bits.gif' ); ?>) no-repeat 0px -110px;">&nbsp;</span>
-			<br style="clear:both;" />
-			<div class="advanced-form">
-				<form method="post" action="<?php echo admin_url( 'admin-ajax.php' ); ?>">
-					<?php $service->display_options(); ?>
-					
-					<input type="hidden" name="action" value="sharing_save_options" />
-					<input type="hidden" name="service" value="<?php echo esc_attr( $id ); ?>" />
-					
-					<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-options_'.$id );?>" />
-				</form>
-			</div>
+	<li class="service advanced share-<?php echo $service->get_class(); ?>" id="<?php echo $service->get_id(); ?>">
+		<span class="options-left"><?php echo esc_html( $service->get_name() ); ?></span>
+		<?php if ( 0 === strpos( $service->get_id(), 'custom-' ) || $service->has_advanced_options() ) : ?>
+		<span class="close"><a href="#" class="remove">&times;</a></span>
+		<form method="post" action="<?php echo admin_url( 'admin-ajax.php' ); ?>">
+			<input type="hidden" name="action" value="sharing_delete_service" />
+			<input type="hidden" name="service" value="<?php echo esc_attr( $id ); ?>" />
+			<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-options_'.$id );?>" />
+		</form>
 		<?php endif; ?>
 	</li>
 <?php
@@ -156,6 +161,13 @@ class Sharing_Admin {
 	<div class="wrap">
 	  	<div class="icon32" id="icon-options-general"><br /></div>
 	  	<h2><?php _e( 'Sharing Settings', 'jetpack' ); ?></h2>
+	  	
+		<?php do_action( 'pre_admin_screen_sharing' ) ?>
+		
+		<?php if ( current_user_can( 'manage_options' ) ) : ?>
+		
+	  	<h3><?php _e( 'Sharing Buttons' ) ?></h3>
+	  	<p><?php _e( 'Add sharing buttons to your blog and allow your visitors to share posts with their friends.' ) ?></p>
 	  	
 	  	<div id="services-config">
 	  		<table id="available-services">
@@ -192,7 +204,7 @@ class Sharing_Admin {
 			  				<h2 id="drag-instructions" <?php if ( count( $enabled['visible'] ) > 0 ) echo ' style="display: none"'; ?>><?php _e( 'Drag and drop available services here', 'jetpack' ); ?></h2>
 			  				
 								<ul class="services-enabled">
-									<?php foreach ( $enabled['visible'] AS $id => $service ) : ?>
+									<?php foreach ( $enabled['visible'] as $id => $service ) : ?>
 										<?php $this->output_service( $id, $service, true ); ?>
 									<?php endforeach; ?>
 									
@@ -203,7 +215,7 @@ class Sharing_Admin {
 			  				<p><?php _e( 'Services dragged here will be hidden behind a share button.', 'jetpack' ); ?></p>
 			  				
 			  				<ul class="services-hidden">
-									<?php foreach ( $enabled['hidden'] AS $id => $service ) : ?>
+									<?php foreach ( $enabled['hidden'] as $id => $service ) : ?>
 										<?php $this->output_service( $id, $service, true ); ?>
 									<?php endforeach; ?>
 									<li class="end-fix"></li>
@@ -218,71 +230,56 @@ class Sharing_Admin {
 						<h3><?php _e( 'Live Preview', 'jetpack' ); ?></h3>
 					</td>
 					<td class="services">
-						<h2<?php if ( count( $enabled['all'] ) > 0 ) echo ' style="display: none"'; ?>><?php _e( 'Sharing is off. Please add services above to enable', 'jetpack' ); ?></h2>
-						
-						<ul class="preview">
+						<h2<?php if ( count( $enabled['all'] ) > 0 ) echo ' style="display: none"'; ?>><?php _e( 'Sharing is off. Add services above to enable.', 'jetpack' ); ?></h2>
+						<div class="sharedaddy sd-sharing-enabled">
 							<?php if ( count( $enabled['all'] ) > 0 ) : ?>
-							<li class="sharing-label"><?php echo esc_html( $global['sharing_label'] ); ?></li>
+							<h3 class="sd-title"><?php echo esc_html( $global['sharing_label'] ); ?></h3>
 							<?php endif; ?>
-							
-							<?php foreach ( $enabled['visible'] AS $id => $service ) : ?>
-								<?php $this->output_preview( $service ); ?>
-							<?php endforeach; ?>
-	
-							<?php if ( count( $enabled['hidden'] ) > 0 ) : ?>
-							<li class="share-custom">
-								<a href="#" class="sharing-anchor"><?php _ex( 'Share', 'dropdown button', 'jetpack' ); ?></a>
-								
+							<div class="sd-content">
+								<ul class="preview">
+					                <?php foreach ( $enabled['visible'] as $id => $service ) : ?>
+										<?php $this->output_preview( $service ); ?>
+									<?php endforeach; ?>
+					
+									<?php if ( count( $enabled['hidden'] ) > 0 ) : ?>
+					                <li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php _e( 'More', 'jetpack' ); ?></span></a></li>
+					                <?php endif; ?>
+					            </ul>
+					            
+					            <?php if ( count( $enabled['hidden'] ) > 0 ) : ?>
 								<div class="sharing-hidden">
-									<div class="inner" style="display: none;">
+									<div class="inner" style="display: none; <?php echo count( $enabled['hidden'] ) == 1 ? 'width:150px;' : ''; ?>">
+									<?php if ( count( $enabled['hidden'] ) == 1 ) : ?>
+										<ul style="background-image:none;">
+									<?php else: ?>
 										<ul>
-											<?php
-												$count = 1;
-												
-												foreach ( $enabled['hidden'] AS $id => $service ) {
-													$this->output_preview( $service );
-
-			                    if ( ( $count % 2 ) == 0 )
-			                        echo '<li class="share-end"></li>';
-													
-													$count++;
-												}
-											?>
-											<li class="share-end"></li>
-										</ul>
+									<?php endif; ?>
+	
+									<?php foreach ( $enabled['hidden'] as $id => $service ) {
+											$this->output_preview( $service );
+										}?>
+										</ul>						            
 									</div>
 								</div>
-							</li>
-							<?php endif; ?>
-						</ul>
-
-						<ul class="archive" style="display: none">
-							<li class="sharing-label"><?php echo esc_html( $global['sharing_label'] ); ?></li>
-
-							<?php foreach ( $sharer->get_all_services_blog() AS $id => $service ) : ?>
-								<?php
-									if ( isset( $enabled['visible'][$id] ) )
-										$service = $enabled['visible'][$id];
-									elseif ( isset( $enabled['hidden'][$id] ) )
-										$service = $enabled['hidden'][$id];
-
-									$service->button_style = 'icon-text';   // The archive needs the full text, which is removed in JS later
-									$this->output_preview( $service );
-								?>
-							<?php endforeach; ?>
-	
-							<li class="share-custom">
-								<a href="#" class="sharing-anchor"><?php _ex( 'Share', 'dropdown button', 'jetpack' ); ?></a>
 								
-								<div class="sharing-hidden">
-									<div class="inner" style="display: none;">
-										<ul>
-											<li/>
-										</ul>
-									</div>
-								</div>
-							</li>
-						</ul>
+								<ul class="archive" style="display:none;">
+								<?php 
+									foreach ( $sharer->get_all_services_blog() as $id => $service ) : 
+										if ( isset( $enabled['visible'][$id] ) )
+											$service = $enabled['visible'][$id];
+										elseif ( isset( $enabled['hidden'][$id] ) )
+											$service = $enabled['hidden'][$id];
+
+										$service->button_style = 'icon-text';   // The archive needs the full text, which is removed in JS later
+										$service->smart = false;
+										$this->output_preview( $service );
+									endforeach; ?>
+									<li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php _e( 'More', 'jetpack' ); ?></span></a></li>
+								</ul>
+								<?php endif; ?>
+								<div class="sharing-clear"></div>
+							</div>
+						</div>
 						<br class="clearing" />
 					</td>
 				</tr>
@@ -300,19 +297,20 @@ class Sharing_Admin {
 	  		<table class="form-table">
 	  			<tbody>
 	  				<tr valign="top">
-	  					<th scope="row"><label><?php _e( 'Default button style', 'jetpack' ); ?></label></th>
+	  					<th scope="row"><label><?php _e( 'Button style', 'jetpack' ); ?></label></th>
 	  					<td>
-	  						<select name="button_style">
+	  						<select name="button_style" id="button_style">
 	  							<option<?php if ( $global['button_style'] == 'icon-text' ) echo ' selected="selected"';?> value="icon-text"><?php _e( 'Icon + text', 'jetpack' ); ?></option>
 	  							<option<?php if ( $global['button_style'] == 'icon' ) echo ' selected="selected"';?> value="icon"><?php _e( 'Icon only', 'jetpack' ); ?></option>
 	  							<option<?php if ( $global['button_style'] == 'text' ) echo ' selected="selected"';?> value="text"><?php _e( 'Text only', 'jetpack' ); ?></option>
+	  							<option<?php if ( $global['button_style'] == 'official' ) echo ' selected="selected"';?> value="official"><?php _e( 'Official buttons', 'jetpack' ); ?></option>
 	  						</select>
 	  					</td>
 	  				</tr>
 	  				<tr valign="top">
 	  					<th scope="row"><label><?php _e( 'Sharing label', 'jetpack' ); ?></label></th>
 	  					<td>
-	  						<input type="text" name="sharing_label" value="<?php echo ( FALSE === $global['sharing_label'] ) ? __( 'Share this:', 'jetpack' ) : $global['sharing_label']; ?>" />
+	  						<input type="text" name="sharing_label" value="<?php echo esc_attr( $global['sharing_label'] ); ?>" />
 	  					</td>
 	  				</tr>
 	  				<tr valign="top">
@@ -325,7 +323,7 @@ class Sharing_Admin {
 	  					</td>
 	  				</tr>
 	  				<tr valign="top">
-	  					<th scope="row"><label><?php _e( 'Show sharing buttons on', 'jetpack' ); ?></label></th>
+	  					<th scope="row"><label><?php _e( 'Show buttons on', 'jetpack' ); ?></label></th>
 	  					<td>
 						<?php
 							$br = false;
@@ -360,13 +358,13 @@ class Sharing_Admin {
 	  				<tr valign="top">
 	  					<th scope="row" width="100"><label><?php _e( 'Service name', 'jetpack' ); ?></label></th>
 	  					<td>
-	  						<input type="text" name="sharing_name" size="40" />
+	  						<input type="text" name="sharing_name" id="new_sharing_name" size="40" />
 	  					</td>
 	  				</tr>
 	  				<tr valign="top">
 	  					<th scope="row" width="100"><label><?php _e( 'Sharing URL', 'jetpack' ); ?></label></th>
 	  					<td>
-	  						<input type="text" name="sharing_url" size="40" />
+	  						<input type="text" name="sharing_url" id="new_sharing_url" size="40" />
 	  						
 	  						<p><?php _e( 'You can add the following variables to your service sharing URL:', 'jetpack' ); ?><br/>
 	  						<code>%post_title%</code>, <code>%post_url%</code>, <code>%post_full_url%</code>, <code>%post_excerpt%</code>, <code>%post_full_url%</code>, <code>%post_tags%</code></p>
@@ -375,14 +373,14 @@ class Sharing_Admin {
 	  				<tr valign="top">
 	  					<th scope="row" width="100"><label><?php _e( 'Icon URL', 'jetpack' ); ?></label></th>
 	  					<td>
-	  						<input type="text" name="sharing_icon" size="40" />
+	  						<input type="text" name="sharing_icon" id="new_sharing_icon" size="40" />
 	  						<p><?php _e( 'Enter the URL of a 16x16px icon you want to use for this service.', 'jetpack' ); ?></p>
 	  					</td>
 	  				</tr>
 	  				<tr valign="top" width="100">
 	  					<th scope="row"></th>
 	  					<td>
-								<input type="submit" class="button-secondary" value="<?php _e( 'Create Share', 'jetpack' ); ?>" />
+								<input type="submit" class="button-primary" value="<?php _e( 'Create Share Button', 'jetpack' ); ?>" />
 	  						<img src="<?php echo admin_url( 'images/loading.gif' ); ?>" width="16" height="16" alt="loading" style="vertical-align: middle; display: none" />
 	  					</td>
 	  				</tr>
@@ -390,6 +388,8 @@ class Sharing_Admin {
 	  				<?php do_action( 'sharing_new_service_form' ); ?>
 	  			</tbody>
 	  		</table>
+
+		<?php do_action( 'post_admin_screen_sharing' ) ?>
 
 				<div class="inerror" style="display: none; margin-top: 15px">
 					<p><?php _e( 'An error occurred creating your new sharing service - please check you gave valid details.', 'jetpack' ); ?></p>
@@ -399,10 +399,24 @@ class Sharing_Admin {
 				<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-new_service' );?>" />
 	  	</form>
 	   </div>
+	   
+	   
+	   <?php endif; ?>
+
+
 	</div>
 	
 	<script type="text/javascript">
 		var sharing_loading_icon = '<?php echo esc_js( admin_url( "/images/loading.gif" ) ); ?>';
+		<?php if ( isset( $_GET['create_new_service'] ) && 'true' == $_GET['create_new_service'] ) : ?>
+		jQuery(document).ready(function() {
+			// Prefill new service box and then open it
+			jQuery( '#new_sharing_name' ).val( '<?php echo esc_js( $_GET['name'] ); ?>' );
+			jQuery( '#new_sharing_url' ).val( '<?php echo esc_js( $_GET['url'] ); ?>' );
+			jQuery( '#new_sharing_icon' ).val( '<?php echo esc_js( $_GET['icon'] ); ?>' );
+			jQuery( '#add-a-new-service' ).click();
+		});
+		<?php endif; ?>
 	</script>
 <?php
 	}

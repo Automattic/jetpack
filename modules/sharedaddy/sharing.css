@@ -1,289 +1,429 @@
-.sharing {
-	padding: 0 0 10px 0;
-}
-
-.sharing_label {
-	line-height: 24px;
-	padding: 10px 10px 0 0;
-	float: left;
-	font-weight: bold;
-}
-
-.sharing ul, .sharing-hidden ul {
-	list-style: none outside none !important;
-	padding: 0 !important;
-	margin: 0 !important;
-	float: left;
-	text-indent: 0 !important;
-}
-
-.sharing li, .sharing-hidden li {
-	display: list-item !important;
-	list-style: none outside none !important;
-	float: left;
-	padding: 10px 0 0 0 !important;
-	margin: 0 10px 0 0 !important;
-	background: none !important;
-}
-
-.sharing li div, .sharing-hidden li div {
-	margin: 0 !important;
-}
-
-.sharing li:before, .sharing-hidden li:before {
-	content: none !important;
-}
-
-
-.sharing li a, .sharing-hidden li a {
-	padding: 0px 0 0 20px;
-	line-height: 24px;
-	display: block;
-}
-
-.sharing li.share-regular a, .sharing-hidden li a, .sharing li.share-regular a:hover, .sharing-hidden li a:hover {
-	border: none !important;
-}
-
-.share-custom a.sharing-anchor{
-	color: #666;
-	font-size:11px;
-	font-family: arial, tahoma, verdana, sans-serif;
-	text-decoration: none;
-}
-
-.sharing li.share-custom{
-
-}
-
-.sharing-hidden a{
-	color: #666;
-}
-
-.sharing a.share-twitter,.sharing-hidden a.share-twitter { background: url('images/twitter.png') no-repeat center left; }
-.sharing a.share-facebook,.sharing-hidden a.share-facebook { background: url('images/facebook.png') no-repeat center left; }
-.sharing a.share-email,.sharing-hidden a.share-email { background: url('images/email.png') no-repeat center left; }
-.sharing a.share-digg,.sharing-hidden a.share-digg { background: url('images/digg.png') no-repeat center left; }
-.sharing a.share-stumbleupon,.sharing-hidden a.share-stumbleupon { background: url('images/stumbleupon.png') no-repeat center left; }
-.sharing a.share-reddit,.sharing-hidden a.share-reddit { background: url('images/reddit.png') no-repeat center left; }
-.sharing a.share-print,.sharing-hidden a.share-print { background: url('images/print.png') no-repeat center left; }
-.sharing a.share-press-this,.sharing-hidden a.share-press-this { background: url('images/wordpress.png') no-repeat center left; }
-.sharing a.share-linkedin,.sharing-hidden a.share-linkedin { background: url('images/linkedin.png') no-repeat center left; }
-.sharing a.share-google-plus-1,.sharing-hidden a.share-google-plus-1 { background: url('images/googleplus1.png') no-repeat center left; }
-
-/* RETINA IMAGES */
-
-@media screen and (-webkit-min-device-pixel-ratio: 1.5),
-screen and (max--moz-device-pixel-ratio: 1.5) {
-
-	.sharing a.share-twitter,.sharing-hidden a.share-twitter { background: url('images/twitter@2x.png') no-repeat center left; background-size:16px 16px;  }
-	.sharing a.share-facebook,.sharing-hidden a.share-facebook { background: url('images/facebook@2x.png') no-repeat center left; background-size:16px 16px; }
-	.sharing a.share-email,.sharing-hidden a.share-email { background: url('images/email@2x.png') no-repeat center left; background-size:16px 16px; }
-	.sharing a.share-digg,.sharing-hidden a.share-digg { background: url('images/digg@2x.png') no-repeat center left; background-size:16px 16px; }
-	.sharing a.share-stumbleupon,.sharing-hidden a.share-stumbleupon { background: url('images/stumbleupon@2x.png') no-repeat center left; background-size:16px 16px; }
-	.sharing a.share-reddit,.sharing-hidden a.share-reddit { background: url('images/reddit@2x.png') no-repeat center left; background-size:16px 16px; }
-	.sharing a.share-print,.sharing-hidden a.share-print { background: url('images/print@2x.png') no-repeat center left; background-size:16px 16px; }
-	.sharing a.share-press-this,.sharing-hidden a.share-press-this { background: url('images/wordpress@2x.png') no-repeat center left; background-size:16px 16px; }
-	.sharing a.share-linkedin,.sharing-hidden a.share-linkedin { background: url('images/linkedin@2x.png') no-repeat center left; background-size:16px 16px; }
-	.sharing a.share-google-plus-1,.sharing-hidden a.share-google-plus-1 { background: url('images/googleplus1@2x.png') no-repeat center left; background-size:16px 16px; }
-
-}
-
-.sharing div.twitter_button { padding: 4px 0; }
-.sharing div.reddit_button { padding: 4px 0 0 0; }
-.sharing div.stumbleupon_button { padding: 4px; }
-.sharing div.digg_button { font-size: 0px; padding: 0 0 0 0; }
-.sharing div.facebook_button { font-size: 0px; padding: 5px 0;  height: 18px;}
-.sharing div.like_button { font-size: 0px; padding: 4px 0;  height: 18px;}
-.sharing div.linkedin_button { padding-top: 4px; line-height: 16px; }
-.sharing div.googleplus1_button { padding-top: 4px; line-height: 16px; }
-
-.sharing-hidden li {
-	width: 130px;
-}
-
-.sharing-hidden div.twitter_button { padding: 0; }
-.sharing-hidden div.reddit_button { padding: 0; }
-.sharing-hidden div.stumbleupon_button { padding: 0; }
-.sharing-hidden div.digg_button { font-size: 0px; padding: 0; }
-.sharing-hidden div.facebook_button { font-size: 0px; padding: 0;}
-.sharing-hidden div.like_button { font-size: 0px; padding: 0;}
-.sharing-hidden div.linkedin_button { padding: 0; }
-.sharing-hidden div.googleplus1_button { padding: 0; }
-
-
-.sharing div.facebook_button a, .sharing-hidden.facebook_button a {
-	line-height: none;
+div.sharedaddy ul, 
+div.sharedaddy li {
+	margin: 0;
 	padding: 0;
+	list-style: none;
+	border: none;
+	background: none;
 }
 
-#sharing_email {
-	background-color: #fff;
-	padding: 15px;
-	width: 312px;
-	position: absolute;
-	border: 2px solid #6e6e6e;
-	z-index: 1001;
-	text-align: left;
-}
-
-#sharing_email .errors {
-	color: #fff;
-	background-color: #771a09;
-	font-size: 11px;
-	padding: 5px 8px;
-	line-height: 11px;
-	margin: 10px 0 0 0;
-}
-
-#sharing_email label {
-	font-size: 11px;
-	color: #333;
-	font-weight: bold;
-	display: block;
-	padding: 0 0 4px 0;
-	text-align: left;
-}
-
-#sharing_email input[type="text"] {
-	width: 100%;
-	margin-bottom: 12px;
-}
-
-#sharing_email .sharing_send {
-}
-
-#sharing_email .sharing_cancel {
-	padding: 0 0 0 10px;
-	font-size: 11px;
-}
-
-#sharing_email .recaptcha {
-	width: 312px;
-	height: 123px;
-	margin: 10px 0 14px 0;
-}
-
-#sharing_background {
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: black;
-	z-index: 1000;
-}
-
-.sharing-hidden {
-	padding: 10px 0 0 0;
-}
-
-.sharing-hidden .inner {
-	border: 2px solid #6e6e6e;
-	padding: 15px 0 15px 0;
-	background: #fff;
-	position: absolute;
-	top: 0;
-	left: 0;
-	margin: 0px !important;
-	width: 300px;
-	z-index: 1000;
-}
-
-.sharing-hidden ul {
-	background: white url('images/share-bg.png') repeat-y center center;
-	margin: 0 !important;
-}
-
-.sharing-hidden li {
-	padding-left:10px !important;
-	padding-right:10px !important;
-	padding-top:0px !important;
-	margin: 0 !important;
-	margin-bottom:10px !important;
-}
-
-.sharing-hidden li a {
-	padding-right: 20px;
-	font-size: 11px;
-	line-height: 16px;
-	display: block;
-	text-decoration: none !important;
-	border-bottom: 0px !important;
-
-}
-
-.sharing-hidden li a.no-text{
-	width: 16px;
-	height:16px;
-}
-
-.sharing li a.no-text{
-	width: 16px;
-	height: 16px;
-	margin-top: 4px;
-	padding: 0px !important;
-}
-
-.sharing li a.no-icon {
-	background: none !important;
-	padding-left: 0 !important;
-}
-
-.sharing li.share-end, .sharing-hidden li.share-end {
+div.sharedaddy, 
+#content div.sharedaddy, 
+#main div.sharedaddy {
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 12px;
 	clear: both;
-	height: 0;
-	padding: 0px !important;
-	margin: 0px !important;
-	width: 0;
-	visibility: hidden;
-	float: none;
 }
 
-.sharing .sharing-anchor {
-	border-radius: 3px;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border: 1px solid #d8d8d8;
+div.sharedaddy, 
+div.sharedaddy div {
+	-webkit-border-radius: 0 !important;
+	-moz-border-radius: 0 !important;
+	border-radius: 0 !important;
+}
+
+div.sharedaddy h3,
+#content div.sharedaddy h3,
+#main div.sharedaddy h3,
+#primary div.sharedaddy h3 {
+	font-size: 12px;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	margin: 3px 0;
+	padding: 0;
+	text-transform: none;
+	letter-spacing: 0;
+	line-height: 1;
+	font-weight: bold;
+	width: 15.625%; /* 100px / 640px */ float: left;
+	position: static;
+	background: none;
+	border: none;
+}
+
+.rtl div.sharedaddy h3, 
+.rtl #content div.sharedaddy h3,
+.rtl #main div.sharedaddy h3,
+.rtl #primary div.sharedaddy h3 {
+	float: right;
+	text-align: right;
+}
+
+div.sharedaddy ul, 
+div.sharedaddy li {
+	margin: 0 !important;
+	padding: 0 !important;
+	text-indent: 0;
+}
+
+div.sharedaddy li::before {
+	content: "";
+}
+
+div.sharedaddy div.sharing-clear {
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+div.sharedaddy div.pd-rating {
+	margin: 0;
+	min-height: 23px;
+}
+
+div.sharedaddy a, 
+div.sharedaddy a:link, 
+div.sharedaddy a:visited {
+	font-style: normal;
+}
+
+/* ClearFix trick */
+
+div.sharedaddy:before, 
+div.sharedaddy:after,
+div.sharedaddy .sd-block:before, 
+div.sharedaddy .sd-block:after,
+div.sharedaddy ul:before, 
+div.sharedaddy ul:after {
+	content: "\0020";
+	display: block;
+	height: 0;
+	overflow: hidden;
+}
+
+div.sharedaddy:after,
+div.sharedaddy .sd-block:after,
+div.sharedaddy ul:after {
+	clear: both;
+}
+
+div.sharedaddy,
+div.sharedaddy .sd-block,
+div.sharedaddy ul {
+	zoom: 1;
+}
+
+
+/* =Base Styles
+-------------------------------------------------------------- */
+
+div.sharedaddy div.sd-block {
+	border-top: 1px solid #ddd;
+	border-top: 1px solid rgba(0,0,0,.13);
+	padding: 10px 0 5px;
+	margin: 0;
+	width: 100% !important;
+}
+
+div.sharedaddy.sharedaddy-dark .sd-block {
+	border-top-color: #222;
+	border-top-color: rgba(50,50,50,.5);
+}
+
+div.sharedaddy .sd-content {
+	width: 82.125%; /* 530px / 640px */ 
+	float: right;
+	margin: 0;
+}
+
+div.sharedaddy .sd-content ul {
+	margin: 0;
+}
+
+div.sharedaddy .sd-content li {
 	float: left;
-	line-height: 20px;
-	padding: 0 8px 0 21px;
-	background: #fff url('images/sharing-hidden.png') no-repeat 0px center;
+	margin: 0 5px 5px 0 !important;
+	display: block;
+}
+
+.rtl div.sharedaddy .sd-content {
+	float: right;
+}
+
+.rtl div.sharedaddy .sd-content li {
+	float: right;
+	margin: 0 0 5px 5px !important;
+}
+
+/* Base Button .sd-button */
+
+div.sharedaddy a.sd-button {
+	margin: 0;
+	padding: 0;
+	display: inline-block;
+	background: #efefef;
+	background: -moz-linear-gradient(top, #f7f7f7 0%, #efefef 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#efefef));
+	background: -webkit-linear-gradient(top, #f7f7f7 0%,#efefef 100%);
+	background: -o-linear-gradient(top, #f7f7f7 0%,#efefef 100%);
+	background: -ms-linear-gradient(top, #f7f7f7 0%,#efefef 100%);
+	background: linear-gradient(top, #f7f7f7 0%,#efefef 100%);
+	border-radius: 3px;
+	border: 1px solid #ddd !important;
+	box-shadow: inset 0 1px 0 #fff;
+	color: #000 !important;
+	text-decoration: none;
+	line-height: 1;
+	font-size: 12px;
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-weight: normal;
 }
 
-.sharing-clear {
-	clear: left;
+div.sharedaddy a.sd-button:hover {
+	color: #000;
+	text-shadow: 0 1px 0 #fff;
+	border-color: #ccc;
+	background: #eee;
+	background: -moz-linear-gradient(top, #efefef 0%, #eee 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#efefef), color-stop(100%,#eee));
+	background: -webkit-linear-gradient(top, #efefef 0%,#eee 100%);
+	background: -o-linear-gradient(top, #efefef 0%,#eee 100%);
+	background: -ms-linear-gradient(top, #efefef 0%,#eee 100%);
+	background: linear-gradient(top, #efefef 0%,#eee 100%);
 }
 
-.response {
+div.sharedaddy a.sd-button:active {
+	background-color: #efefef;
+	box-shadow: inset 0 -1px 0 #fff;
+	border-color: #ddd;
 }
 
-.response-title {
-	font-size: 12px;
-	line-height: 18px;
-	font-weight: bold;
+a.sd-button > span {
+	padding: 4px 8px;
+	display: block;
+	opacity: .8;
+	line-height: 1;
+	text-shadow: none;
 }
 
-.response-sub {
-	font-size: 11px;
-	line-height: 24px;
+a.sd-button:hover span {
+	opacity: 1;
 }
 
-.response-close .sharing_cancel {
-	padding: 0px !important;
+.sd-button span.share-count {
+	font-size: 90%;
+	color: #666;
+	margin-left: 5px;
 }
 
-li.share-email, li.share-custom a.sharing-anchor {
-	display: none !important;
+.rtl .sd-button span.share-count {
+	margin-right: 5px;
 }
 
-li.share-service-visible {
-	display: list-item !important;
+/* Button Style Options */
+
+.sd-social-icon-text a.sd-button > span,
+a.sd-button > span {
+	padding: 3px 5px 3px 23px;
+	background-position: 2px center;
+	background-repeat: no-repeat;
 }
 
-li.share-custom a.sharing-anchor.share-service-visible {
-	display: inline !important;
+.sd-social-icon a.sd-button > span {
+	padding: 3px;
+	width: 16px;
+	height: 16px;
+	text-indent: -9999px;
+	background-position: center center;
+	background-repeat: no-repeat;
+}
+
+.sd-social-text a.sd-button > span {
+	background: none !important;
+	padding-left: 5px
+}
+
+.sd-social-official li {
+	height: 21px;
+}
+
+div.sharedaddy .no-text {
+	width: 21px;
+	height: 21px;
+}
+
+div.sharedaddy .no-text a {
+	text-decoration: none;
+}
+
+div.sharedaddy .no-icon a span, div.sharedaddy li.no-icon div a span {
+	padding-left: 5px;
+	background-image: none;
+}
+
+.rtl .sd-social-icon-text a.sd-button > span,
+.rtl a.sd-button > span {
+	padding: 3px 23px 3px 5px;
+	background-position: 98% center;
+}
+
+.rtl .sd-social-text a.sd-button > span {
+	padding-left: 0;
+	padding-right: 5px
+}
+
+.rtl div.sharedaddy .no-icon a span, .rtl div.sharedaddy li.no-icon div a span {
+	padding-left: 0;
+	padding-right: 5px
+}
+
+/* Icons */
+
+li.share-facebook a.sd-button > span {
+	background-image: url('images/icon-facebook.png');
+}
+
+li.share-tumblr a.sd-button > span {
+	background-image: url('images/icon-tumblr.png');
+}
+
+li.share-twitter a.sd-button > span {
+	background-image: url('images/icon-twitter.png?1');
+}
+
+li.share-linkedin a.sd-button > span {
+	background-image: url('images/icon-linkedin.png');
+}
+
+li.share-press-this a.sd-button > span {
+	background-image: url('images/icon-wordpress.png');
+}
+
+li.share-digg a.sd-button > span {
+	background-image: url('images/icon-digg.png');
+}
+
+li.share-stumbleupon a.sd-button > span {
+	background-image: url('images/icon-stumbleupon.png');
+}
+
+li.share-reddit a.sd-button > span {
+	background-image: url('images/icon-reddit.png');
+}
+
+li.share-pinterest a.sd-button > span {
+	background-image: url('images/pinterest.png');
+}
+
+li.share-email a.sd-button > span {
+	background-image: url('images/icon-email.png');
+}
+
+li.share-print a.sd-button > span {
+	background-image: url('images/icon-print.png');
+}
+
+a.sd-button.share-more span {
+	background-image: url('images/icon-more.png');
+}
+
+@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+
+	li.share-facebook a.sd-button > span {
+		background-image: url('images/icon-facebook@2x.png');
+		background-size: 16px 16px;
+	}
+	
+	li.share-tumblr a.sd-button > span {
+		background-image: url('images/icon-tumblr@2x.png');
+		background-size: 16px 16px;
+	}
+	
+	li.share-twitter a.sd-button > span {
+		background-image: url('images/icon-twitter@2x.png?1');
+		background-size: 16px 16px;
+	}
+	
+	li.share-linkedin a.sd-button > span {
+		background-image: url('images/icon-linkedin@2x.png');
+		background-size: 16px 16px;
+	}
+	
+	li.share-press-this a.sd-button > span {
+		background-image: url('images/icon-wordpress@2x.png');
+		background-size: 16px 16px;
+	}
+	
+	li.share-digg a.sd-button > span {
+		background-image: url('images/icon-digg@2x.png?1');
+		background-size: 16px 16px;
+	}
+	
+	li.share-stumbleupon a.sd-button > span {
+		background-image: url('images/icon-stumbleupon@2x.png');
+		background-size: 16px 16px;
+	}
+	
+	li.share-reddit a.sd-button > span {
+		background-image: url('images/icon-reddit@2x.png');
+		background-size: 16px 16px;
+	}
+	
+	li.share-pinterest a.sd-button > span {
+		background-image: url('images/pinterest@2x.png');
+		background-size: 16px 16px;
+	}
+	
+	li.share-email a.sd-button > span {
+		background-image: url('images/icon-email@2x.png?1');
+		background-size: 16px 16px;
+	}
+	
+	li.share-print a.sd-button > span {
+		background-image: url('images/icon-print@2x.png');
+		background-size: 16px 16px;
+	}
+	
+	a.sd-button.share-more span {
+		background-image: url('images/icon-more@2x.png?1');
+		background-size: 16px 16px;
+	}
+
+}
+
+
+/* Special case for non-smart implementations of Google+ button */
+
+div.sharedaddy .sd-content ul li.share-google-plus-1 {
+	line-height: 90%;
+	margin-bottom: 2px !important;
+	min-height: 20px;
+}
+
+div.sharedaddy .sd-social-official .sd-content ul li.share-google-plus-1 {
+	padding-top: 0;
+}
+
+/* More pannel */
+
+div.sharedaddy .sharing-hidden .inner {
+	max-width: 250px;
+	padding: 15px 15px 10px;
+	position: absolute;
+	margin-left: -100px;
+	z-index: 1001;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	-moz-border-radius: 3px !important;
+	-webkit-border-radius: 3px !important;
+	border-radius: 3px !important;
+	-moz-box-shadow: 0px 2px 8px #ccc;
+	-webkit-box-shadow: 0px 2px 8px #ccc;
+	box-shadow: 0px 2px 8px #ccc;
+	-webkit-box-shadow: 0px 2px 8px rgba(0, 0, 0, .2);
+	-moz-box-shadow: 0px 2px 8px rgba(0, 0, 0, .2);
+	box-shadow: 0px 2px 8px rgba(0, 0, 0, .2);
+}
+
+.rtl div.sharedaddy .sharing-hidden .inner {
+	margin-left: 0;
+	margin-right: -100px;
+}
+
+div.sharedaddy.sharedaddy-dark .sharing-hidden .inner {
+	border-color: #222;
+}
+
+div.sd-content a.sd-button > span {
+    line-height: 1.5em;
 }
 
 /* =RTL
