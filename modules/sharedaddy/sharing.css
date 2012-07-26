@@ -268,35 +268,35 @@ div.sharedaddy .no-icon a span, div.sharedaddy li.no-icon div a span {
 /* Icons */
 
 li.share-facebook a.sd-button > span {
-	background-image: url('images/icon-facebook.png');
+	background-image: url('images/facebook.png');
 }
 
 li.share-tumblr a.sd-button > span {
-	background-image: url('images/icon-tumblr.png');
+	background-image: url('images/tumblr.png');
 }
 
 li.share-twitter a.sd-button > span {
-	background-image: url('images/icon-twitter.png?1');
+	background-image: url('images/twitter.png?1');
 }
 
 li.share-linkedin a.sd-button > span {
-	background-image: url('images/icon-linkedin.png');
+	background-image: url('images/linkedin.png');
 }
 
 li.share-press-this a.sd-button > span {
-	background-image: url('images/icon-wordpress.png');
+	background-image: url('images/wordpress.png');
 }
 
 li.share-digg a.sd-button > span {
-	background-image: url('images/icon-digg.png');
+	background-image: url('images/digg.png');
 }
 
 li.share-stumbleupon a.sd-button > span {
-	background-image: url('images/icon-stumbleupon.png');
+	background-image: url('images/stumbleupon.png');
 }
 
 li.share-reddit a.sd-button > span {
-	background-image: url('images/icon-reddit.png');
+	background-image: url('images/reddit.png');
 }
 
 li.share-pinterest a.sd-button > span {
@@ -304,56 +304,56 @@ li.share-pinterest a.sd-button > span {
 }
 
 li.share-email a.sd-button > span {
-	background-image: url('images/icon-email.png');
+	background-image: url('images/email.png');
 }
 
 li.share-print a.sd-button > span {
-	background-image: url('images/icon-print.png');
+	background-image: url('images/print.png');
 }
 
 a.sd-button.share-more span {
-	background-image: url('images/icon-more.png');
+	background-image: url('images/more.png');
 }
 
 @media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
 
 	li.share-facebook a.sd-button > span {
-		background-image: url('images/icon-facebook@2x.png');
+		background-image: url('images/facebook@2x.png');
 		background-size: 16px 16px;
 	}
 	
 	li.share-tumblr a.sd-button > span {
-		background-image: url('images/icon-tumblr@2x.png');
+		background-image: url('images/tumblr@2x.png');
 		background-size: 16px 16px;
 	}
 	
 	li.share-twitter a.sd-button > span {
-		background-image: url('images/icon-twitter@2x.png?1');
+		background-image: url('images/twitter@2x.png?1');
 		background-size: 16px 16px;
 	}
 	
 	li.share-linkedin a.sd-button > span {
-		background-image: url('images/icon-linkedin@2x.png');
+		background-image: url('images/linkedin@2x.png');
 		background-size: 16px 16px;
 	}
 	
 	li.share-press-this a.sd-button > span {
-		background-image: url('images/icon-wordpress@2x.png');
+		background-image: url('images/wordpress@2x.png');
 		background-size: 16px 16px;
 	}
 	
 	li.share-digg a.sd-button > span {
-		background-image: url('images/icon-digg@2x.png?1');
+		background-image: url('images/digg@2x.png?1');
 		background-size: 16px 16px;
 	}
 	
 	li.share-stumbleupon a.sd-button > span {
-		background-image: url('images/icon-stumbleupon@2x.png');
+		background-image: url('images/stumbleupon@2x.png');
 		background-size: 16px 16px;
 	}
 	
 	li.share-reddit a.sd-button > span {
-		background-image: url('images/icon-reddit@2x.png');
+		background-image: url('images/reddit@2x.png');
 		background-size: 16px 16px;
 	}
 	
@@ -363,17 +363,17 @@ a.sd-button.share-more span {
 	}
 	
 	li.share-email a.sd-button > span {
-		background-image: url('images/icon-email@2x.png?1');
+		background-image: url('images/email@2x.png?1');
 		background-size: 16px 16px;
 	}
 	
 	li.share-print a.sd-button > span {
-		background-image: url('images/icon-print@2x.png');
+		background-image: url('images/print@2x.png');
 		background-size: 16px 16px;
 	}
 	
 	a.sd-button.share-more span {
-		background-image: url('images/icon-more@2x.png?1');
+		background-image: url('images/more@2x.png?1');
 		background-size: 16px 16px;
 	}
 
