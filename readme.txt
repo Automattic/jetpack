@@ -352,7 +352,7 @@ No, it will do the opposite. Super Cache files are compressed and stored that wa
 There are 2 ways of doing this. You can use Javascript to draw the part of the page you want to keep dynamic. That's what Google Adsense and many widgets from external sites do. Or you can use a WP Super Cache tag to do the job but you can't use mod_rewrite mode caching. You have to switch to PHP or legacy caching.
 
 There are a few ways to do this, you can have functions that stay dynamic or you can include other files on every page load. To execute PHP code on every page load you can use either the "dynamic-cached-content", "mfunc", or "mclude" tags. The "dynamic-cached-content" tag is easier to use but the other tags can still be used. Make sure you duplicate the PHP code when using these tags. The first code is executed when the page is cached, while the second chunk of code is executed when the cached page is served to the next visitor.
-To execute WordPress functions you must define $wp_super_cache_late_init in your config file.
+To execute WordPress functions you must enable the 'Late init' feature on the advanced settings page.
 
 = dynamic-cached-content example =
 
