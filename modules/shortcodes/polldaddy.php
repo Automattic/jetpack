@@ -137,7 +137,7 @@ CONTAINER;
 		
 			$poll      = intval( $poll );
 			$poll_url  = sprintf( 'http://polldaddy.com/poll/%d', $poll );
-			$poll_js   = sprintf( 'http://static.polldaddy.com/p/%d.js', $poll );
+			$poll_js   = sprintf( '%s.polldaddy.com/p/%d.js', ( is_ssl() ? 'https://secure' : 'http://static' ), $poll );
 			$poll_link = sprintf( '<a href="%s">Take Our Poll</a>', $poll_url );
 	
 			if ( $no_script )
