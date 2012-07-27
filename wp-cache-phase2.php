@@ -40,6 +40,7 @@ function wp_cache_phase2() {
 		add_action('wp_cache_gc','wp_cache_gc_cron');
 		add_action( 'clean_post_cache', 'wp_cache_post_edit' );
 		add_filter( 'supercache_filename_str', 'wp_cache_check_mobile' );
+		add_action( 'wp_cache_gc_watcher', 'wp_cache_gc_watcher' );
 
 		do_cacheaction( 'add_cacheaction' );
 	}
@@ -1239,10 +1240,10 @@ function schedule_wp_gc( $forced = 0 ) {
 		$cache_schedule_interval = $cache_max_time;
 	}
 	if ( $cache_schedule_type == 'interval' ) {
-		if ( $cache_max_time == 0 )
-			return false;
 		if ( !isset( $cache_max_time ) )
 			$cache_max_time = 600;
+		if ( $cache_max_time == 0 )
+			return false;
 		$last_gc = get_option( "wpsupercache_gc_time" );
 
 		if ( !$last_gc ) {
@@ -1266,6 +1267,11 @@ function schedule_wp_gc( $forced = 0 ) {
 		wp_schedule_event( strtotime( $cache_scheduled_time ), $cache_schedule_interval, 'wp_cache_gc' );
 	}
 	return true;
+}
+
+function wp_cache_gc_watcher() {
+	if ( wp_next_scheduled( 'wp_cache_gc' ) )
+		schedule_wp_gc();
 }
 
 ?>
