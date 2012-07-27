@@ -351,9 +351,23 @@ add_filter( 'wp_super_cache_error_checking', 'wp_cache_manager_error_checks' );
 
 function wp_cache_manager_updates() {
 	global $wp_cache_mobile_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $wp_cache_make_known_anon, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks, $cache_page_secret, $wp_cache_disable_utf8, $wp_cache_no_cache_for_get;
+	global $cache_schedule_type, $cache_scheduled_time, $cache_max_time, $cache_time_interval;
 
 	if ( !wpsupercache_site_admin() )
 		return false;
+
+	// set up garbage collection with some default settings
+	if ( false == wp_next_scheduled( 'wp_cache_gc' ) ) {
+		if ( false == isset( $cache_schedule_type ) ) {
+			$cache_schedule_type = 'interval';
+			$cache_time_interval = 600;
+			$cache_max_time = 1800;
+			wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
+			wp_cache_replace_line('^ *\$cache_time_interval', "\$cache_time_interval = '$cache_time_interval';", $wp_cache_config_file);
+			wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = '$cache_max_time';", $wp_cache_config_file);
+		}
+		wp_schedule_single_event( time() + 600, 'wp_cache_gc' );
+	}
 
 	if ( false == isset( $cache_page_secret ) ) {
 		$cache_page_secret = md5( date( 'H:i:s' ) . mt_rand() );
