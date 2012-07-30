@@ -1270,8 +1270,10 @@ function schedule_wp_gc( $forced = 0 ) {
 }
 
 function wp_cache_gc_watcher() {
-	if ( wp_next_scheduled( 'wp_cache_gc' ) )
+	if ( false == wp_next_scheduled( 'wp_cache_gc' ) ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'GC Watcher: scheduled new gc cron.', 5 );
 		schedule_wp_gc();
+	}
 }
 
 ?>
