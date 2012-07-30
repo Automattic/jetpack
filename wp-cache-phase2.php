@@ -1194,6 +1194,24 @@ function wp_cache_post_id() {
 	return 0;
 }
 
+function maybe_stop_gc() {
+	global $cache_path;
+
+	if ( @file_exists( $cache_path . 'wp_cache_gc.txt' ) ) {
+		if ( filemtime( $cache_path . 'wp_cache_gc.txt' ) > 600 ) {
+			@unlink( $cache_path . 'wp_cache_gc.txt' );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "maybe_stop_gc: GC flag found but deleted because it's older than 600 seconds.", 5 );
+			return false;
+		} else {
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'maybe_stop_gc: GC flag found. GC cancelled.', 5 );
+			return true;
+		}
+	} else {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'maybe_stop_gc: GC flag not found. GC will go ahead..', 5 );
+		return false;
+	}
+}
+
 function wp_cache_gc_cron() {
 	global $file_prefix, $cache_max_time, $cache_gc_email_me, $cache_time_interval;
 
@@ -1202,7 +1220,15 @@ function wp_cache_gc_cron() {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Cache garbage collection disabled because cache expiry time is zero.', 5 );
 		return false;
 	}
+
+	if ( maybe_stop_gc() ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'GC flag found. GC cancelled.', 5 );
+		return false;
+	}
+
 	update_option( 'wpsupercache_gc_time', time() ); 
+	$fp = @fopen( $cache_path . "wp_cache_gc.txt", 'w' );
+	@fclose( $fp );
 
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Cache garbage collection.', 5 );
 
@@ -1229,6 +1255,8 @@ function wp_cache_gc_cron() {
 
 		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] WP Super Cache GC Report', 'wp-super-cache' ), site_url() ), $msg );
 	}
+	@unlink( $cache_path . 'wp_cache_gc.txt' );
+	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'GC completed. GC flag deleted.', 5 );
 	schedule_wp_gc( 1 );
 }
 
