@@ -290,5 +290,57 @@
 		background: url('images/align-right-2x.png') no-repeat center left;
 		background-size: 22px 15px;
 	}
+
+	.button,
+	.submit input,
+	.button-secondary {
+		background-color: #f5f5f5;
+		background-image: -webkit-gradient(linear, left bottom, left top, from(#fff), to(#f2f2f2));
+		background-image: -webkit-linear-gradient(top, #fff, #f2f2f2);
+		background-image:    -moz-linear-gradient(top, #fff, #f2f2f2);
+		background-image:      -o-linear-gradient(top, #fff, #f2f2f2);
+		background-image: linear-gradient(to bottom, #fff, #f2f2f2);
+	}
+
+	.button:active,
+	.submit input:active,
+	.button-secondary:active {
+		background-image: -webkit-gradient(linear, left bottom, left top, from(#f2f2f2), to(#fff));
+		background-image: -webkit-linear-gradient(top, #f2f2f2, #fff);
+		background-image:    -moz-linear-gradient(top, #f2f2f2, #fff);
+		background-image:      -o-linear-gradient(top, #f2f2f2, #fff);
+		background-image: linear-gradient(to bottom, #f2f2f2, #fff);
+	}
+
+	input.button-primary,
+	button.button-primary,
+	a.button-primary {
+		background-color: #21759B;
+		background-image: -webkit-gradient(linear, left bottom, left top, from(#298bb9), to(#217196));
+		background-image: -webkit-linear-gradient(top, #298bb9, #217196);
+		background-image:    -moz-linear-gradient(top, #298bb9, #217196);
+		background-image:      -o-linear-gradient(top, #298bb9, #217196);
+		background-image:   linear-gradient(to bottom, #298bb9, #217196);
+	}
+
+	input.button-primary:active,
+	button.button-primary:active,
+	a.button-primary:active {
+		background-image: -webkit-gradient(linear, left bottom, left top, from(#217196), to(#298bb9));
+		background-image: -webkit-linear-gradient(top, #217196, #298bb9);
+		background-image:    -moz-linear-gradient(top, #217196, #298bb9);
+		background-image:      -o-linear-gradient(top, #217196, #298bb9);
+		background-image:   linear-gradient(to bottom, #217196, #298bb9);
+	}
+
+	.admin-color-classic #quicktags,
+	.admin-color-classic .wp-editor-wrap .wp_themeSkin tr.mceFirst td.mceToolbar {
+		background-color: #cfdfe9;
+		background-image: -webkit-gradient(linear, left bottom, left top, from(#eff8ff), to(#d3e2eb));
+		background-image: -webkit-linear-gradient(top, #eff8ff, #d3e2eb);
+		background-image:    -moz-linear-gradient(top, #eff8ff, #d3e2eb);
+		background-image:      -o-linear-gradient(top, #eff8ff, #d3e2eb);
+		background-image:   linear-gradient(to bottom, #eff8ff, #d3e2eb);
+	}
 }
 
