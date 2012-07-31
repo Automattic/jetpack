@@ -58,5 +58,237 @@
 		background-image: url('images/imgedit-icons-2x.png');
 		background-size: 260px 64px;
 	}
+
+	/* Welcome screen close button */
+	.welcome-panel .welcome-panel-close:before {
+		background-image: url('images/xit-2x.gif');
+		background-size: 20px 10px;
+	}
+
+	/* Dismiss tag buttons */
+	.tagchecklist span a, #bulk-titles div a {
+		background-image: url('images/xit-2x.gif') !important;
+		background-size: 20px 10px !important;
+	}
+	.tagchecklist span a:hover, #bulk-titles div a:hover {
+		background-image: url('images/xit-2x.gif') !important;
+		background-size: 20px 10px !important;
+	}
+
+	/* Pointer dismiss button */
+	.wp-pointer-buttons a.close::before {
+		background-image: url('images/xit-2x.gif');
+		background-size: 20px 10px; 
+	}
+
+	/* Pointer icon */
+	.wp-pointer-content h3::before {
+		background-image: url('images/icon-pointer-flag-2x.png');
+		background-size: 36px 37px;
+	}
+
+	/* Pointer arrow */
+	.wp-pointer-arrow {
+		background-image: url('images/arrow-pointer-blue-2x.png') !important;
+		background-size: 30px 60px !important;
+	}
+
+	/* Screen options links */
+	#screen-meta-links a.show-settings {
+		background-image: url('images/arrows-2x.png') !important;
+		background-size: 15px 123px !important;
+	}
+	body.admin-color-classic #screen-meta-links a.show-settings {
+		background-image: url('images/arrows-vs-2x.png') !important;
+	}
+	
+	/* Collapse button divs */
+	#collapse-button div {
+		background-image: url('images/arrows-2x.png') !important;
+		background-size: 15px 123px !important;
+	}
+	body.admin-color-classic #collapse-button div {
+		background-image: url('images/arrows-vs-2x.png') !important;
+	}
+
+	/* Metabox handle arrows */
+	.meta-box-sortables .postbox:hover .handlediv {
+		background-image: url('images/arrows-2x.png') !important;
+		background-size: 15px 123px !important;
+	}
+	body.admin-color-classic .meta-box-sortables .postbox:hover .handlediv {
+		background-image: url('images/arrows-vs-2x.png') !important;
+	}
+
+	/* Date button */
+	.curtime #timestamp {
+		background-image: url('images/date-button-2x.gif') !important;
+		background-size: 16px 16px;
+		display: inline-block;
+		height: 16px;
+	}
+
+	/* Comments column bubble */
+	.column-comments .vers img {
+		padding-top: 12px;
+		height: 0;
+		width: 12px;
+		background: transparent url('images/comment-grey-bubble-2x.png') no-repeat center center;
+		background-size: 12px 12px;
+	}
+	.post-com-count {
+		background-image: url('images/bubble_bg-2x.png') !important;
+		background-size: 18px 100px;
+	}
+
+	/* Post sorting indicator */
+	.sorting-indicator {
+		background-image: url('images/sort-2x.gif');
+		background-size: 14px 4px;
+	}
+
+	/* Widget arrows */
+	.sidebar-name-arrow {
+		background-image: url('images/arrows-2x.png') !important;
+		background-size: 15px 123px !important;
+	}
+	body.admin-color-classic .sidebar-name-arrow {
+		background-image: url('images/arrows-vs-2x.png') !important;
+	}
+	.sidebar-name:hover .sidebar-name-arrow {
+		background-image: url('images/arrows-dark-2x.png') !important;
+	}
+	body.admin-color-classic .sidebar-name:hover .sidebar-name-arrow {
+		background-image: url('images/arrows-dark-vs-2x.png') !important;
+	}
+	.widget-top a.widget-action {
+		background-image: url('images/arrows-2x.png') !important;
+		background-size: 15px 123px !important;
+	}
+	body.admin-color-classic .widget-top a.widget-action {
+		background-image: url('images/arrows-vs-2x.png') !important;
+	}
+	.widget-top a.widget-action:hover {
+		background-image: url('images/arrows-dark-2x.png') !important;
+	}
+	body.admin-color-classic .widget-top a.widget-action:hover {
+		background-image: url('images/arrows-dark-vs-2x.png') !important;
+	}
+
+	/* Menu editor item arrows */
+	.item-edit {
+		background-image: url('images/arrows-2x.png') !important;
+		background-size: 15px 123px !important;
+	}
+	body.admin-color-classic .item-edit {
+		background-image: url('images/arrows-vs-2x.png') !important;
+	}
+	.item-edit:hover {
+		background-image: url('images/arrows-dark-2x.png') !important;
+		background-size: 15px 123px !important;
+	}
+	body.admin-color-classic .item-edit:hover {
+		background-image: url('images/arrows-dark-vs-2x.png') !important;
+	}
+
+	/* Plugin install star ratings */
+	div.star-holder {
+		background-image: url('images/stars-2x.png');
+		background-size: 21px 37px;
+	}
+	div.star-holder .star-rating {
+		background-image: url('images/stars-2x.png');
+		background-size: 21px 37px;
+	}
+
+	/* Press This bookmarklet icon */
+	.pressthis a span {
+		background-image: url('images/press-this-2x.png');
+		background-size: 24px 20px;
+	}
+
+	/* Media button */
+	#wp-content-media-buttons a.add_media img, #dashboard_quick_press a.add_media img {
+		padding-top: 15px;
+		width: 15px;
+		height: 0;
+		background: url('images/media-button-2x.png') no-repeat center center;
+		background-size: 15px 15px;
+	}
+
+	/* After the Deadline MCE icon */
+	a#content_AtD img {
+		padding-top: 20px;
+		width: 20px;
+		height: 0;
+		background: url('images/atdbuttontr-2x.png') no-repeat center center;
+		background-size: 20px 20px;
+	}
+
+	/* Resize editor */
+	#post-body .wp_themeSkin .mceStatusbar a.mceResize {
+		background-image: url('images/resize-2x.gif') !important;
+		background-size: 11px 11px !important;
+	}
+
+	/* MCE dropdowns */
+	.wp_themeSkin .mceListBox .mceOpen span, .wp_themeSkin .mceSplitButton a.mceOpen {
+		background-image: url("images/down_arrow-2x.gif") !important;
+		background-size: 10px 20px;
+	}
+	
+	/* Img overlay buttons */
+	#wp_editimgbtn, #wp_delimgbtn, #wp_editgallery, #wp_delgallery {
+		padding-top: 24px !important;
+		height: 0;
+		width: 24px;
+		background: url("images/delete-2x.png") no-repeat center center !important;
+		background-size: 24px 24px;
+	}
+
+	#wp_editimgbtn, #wp_delimgbtn, #wp_editgallery, #wp_delgallery {
+		padding-top: 24px !important;
+		height: 0;
+		width: 24px;
+		background-size: 24px 24px;
+	}
+
+	#wp_editimgbtn, #wp_editgallery {
+		background: #eee url("images/image-2x.png") no-repeat center center !important;
+	}
+
+	#wp_delimgbtn, #wp_delgallery {
+		background: #eee url("images/delete-2x.png") no-repeat center center !important;
+	}
+		
+	/* AJAX loading spinners */
+	img.ajax-loading, img.ajax-feedback {
+		width: 16px;
+		height: 0;
+		padding-top: 19px !important;
+		background: url("images/wpspin_light-2x.gif") no-repeat center center !important;
+		background-size: 16px 16px;
+	}
+
+	/* Align buttons (in image properties in the media library) */
+	.image-align-none-label {
+		background: url('images/align-none-2x.png') no-repeat center left;
+		background-size: 21px 15px;
+	}
+
+	.image-align-left-label {
+		background: url('images/align-left-2x.png') no-repeat center left;
+		background-size: 22px 15px;
+	}
+
+	.image-align-center-label {
+		background: url('images/align-center-2x.png') no-repeat center left;
+		background-size: 21px 15px;
+	}
+
+	.image-align-right-label {
+		background: url('images/align-right-2x.png') no-repeat center left;
+		background-size: 22px 15px;
+	}
 }
 

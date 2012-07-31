@@ -1089,9 +1089,15 @@ p {
 		if ( $is_active ) {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
-			// Add retina backgrounds to admin
-			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
-			add_action( 'admin_print_footer_scripts', array( $this, 'output_retina_js' ) );
+
+			// Add retina images hotfix to admin
+			global $wp_db_version;
+			if ( $wp_db_version > 19470  ) {
+				// WP 3.4.x
+				// TODO will need to add && $wp_db_version < xxxxx when 3.5 comes out.
+				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
+				add_action( 'admin_print_footer_scripts', array( $this, 'output_retina_js' ) );
+			}
 		}
 	}
 
@@ -1318,6 +1324,7 @@ p {
 
 	function output_retina_js() {
 		$src = plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/' );
+		// This has to be outputted in the footer. It runs straight away, just before jQuery(document)ready() so the 2x images start loading asap
 		?><script type="text/javascript">
 		(function($){
 			if ( window.devicePixelRatio > 1 ) {
