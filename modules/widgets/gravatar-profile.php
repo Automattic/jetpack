@@ -17,11 +17,18 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
-
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
-		if ( ! $instance['email'] )
+		if ( !$instance['email'] ) {
+			if ( current_user_can( 'edit_theme_options' ) ) {
+				echo $args['before_widget'];
+				if ( ! empty( $title ) )
+					echo $args['before_title'] . $title . $args['after_title'];
+				echo '<p>' . sprintf( __( 'You need to select what to show in this <a href="%s">Gravatar Profile widget</a>.' ), admin_url( 'widgets.php' ) ) . '</p>';
+				echo $args['after_widget'];
+			}
 			return;
+		}
 
 		echo $args['before_widget'];
 		if ( ! empty( $title ) )
@@ -63,8 +70,9 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			do_action( 'jetpack_stats_extra', 'widgets', 'grofile' );
 							
 		} else {
-			if ( current_user_can( 'edit_theme_options' ) )
-				esc_html_e( 'Error loading profile', 'jetpack' );
+			if ( current_user_can( 'edit_theme_options' ) ) {
+				echo '<p>' . esc_html__( 'Error loading profile', 'jetpack' ) . '</p>';
+			}
 		}
 
 		echo $args['after_widget'];
@@ -119,11 +127,11 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 	function form( $instance ) {
 
-		$title               = $instance['title'];
-		$email               = $instance['email'];
+		$title               = isset( $instance['title'] ) ? $instance['title'] : '';
+		$email               = isset( $instance['email'] ) ? $instance['email'] : '';
 		$email_user          = isset( $instance['email_user'] ) ? $instance['email_user'] : get_current_user_id();
-		$show_personal_links = (bool) $instance['show_personal_links'];
-		$show_account_links  = (bool) $instance['show_account_links'];
+		$show_personal_links = isset( $instance['show_personal_links'] ) ? (bool) $instance['show_personal_links'] : '';
+		$show_account_links  = isset( $instance['show_account_links'] ) ? (bool) $instance['show_account_links'] : '';
 
 		?>
 		<p>

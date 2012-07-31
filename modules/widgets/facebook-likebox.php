@@ -10,7 +10,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	private $default_height       = 432;
 	private $default_width        = 200;
 	private $max_width            = 400;
-	private $min_width            = 100;
+	private $min_width            = 0;
 	private $max_height           = 999;
 	private $min_height           = 100;
 	private $default_colorscheme  = 'light';
@@ -26,7 +26,12 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		
 		$like_args = $this->normalize_facebook_args( $instance['like_args'] );
 		
-		if( empty( $like_args['href'] ) || ! $this->is_valid_facebook_url( $like_args['href'] ) ) {
+		if ( empty( $like_args['href'] ) || ! $this->is_valid_facebook_url( $like_args['href'] ) ) {
+			if ( current_user_can('edit_theme_options') ) {
+				echo $before_widget;
+				echo '<p>' . sprintf( __( 'It looks like your Facebook URL is incorrectly configured. Please check it in your <a href="%s">widget settings</a>.' ), admin_url( 'widgets.php' ) ) . '</p>';
+				echo $after_widget;
+			}
 			echo '<!-- Invalid Facebook Page URL -->';
 			return;
 		}
@@ -37,12 +42,12 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 		$like_args['show_faces'] = (bool) $like_args['show_faces']         ? 'true' : 'false';
 		$like_args['stream']     = (bool) $like_args['stream']             ? 'true' : 'false';
-		$like_args['force_wall'] = (bool) $like_args['force_wall']               ? 'true' : 'false';
+		$like_args['force_wall'] = (bool) $like_args['force_wall']         ? 'true' : 'false';
 		$like_args['header']     = (bool) $like_args['header']             ? 'true' : 'false';
 		$like_bg_colour          = ( 'dark' == $like_args['colorscheme'] ) ? '#000' : '#fff';
 		
 		$locale = $this->get_locale();
-		if( $locale && 'en_US' != $locale )
+		if ( $locale && 'en_US' != $locale )
 			$like_args['locale'] = $locale;
 
 		$like_args = urlencode_deep( $like_args );
@@ -50,13 +55,13 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		
 		echo $before_widget;
 
-		if( ! empty( $title ) ) :
+		if ( ! empty( $title ) ) :
 			echo $before_title;
-			?><a href="<?php echo esc_url( $page_url ); ?>"><?php esc_html_e( $title , 'jetpack' ); ?></a><?php
+			?><a href="<?php echo esc_url( $page_url ); ?>"><?php echo esc_html( $title ); ?></a><?php
 			echo $after_title;
 		endif;
 
-		?><iframe src="<?php echo esc_url( $like_url ); ?>" scrolling="no" frameborder="0" style="border: none; overflow: hidden; width: <?php esc_html_e( $like_args['width'] , 'jetpack' ); ?>px; height: <?php esc_html_e( $like_args['height'] , 'jetpack' ); ?>px; background: <?php esc_html_e( $like_bg_colour , 'jetpack' ); ?>"></iframe><?php
+		?><iframe src="<?php echo esc_url( $like_url ); ?>" scrolling="no" frameborder="0" style="border: none; overflow: hidden;<?php echo 0 != $like_args['width'] ? ' width: ' . (int) $like_args['width'] . 'px; ' : ''; ?> height: <?php echo (int) $like_args['height']; ?>px; background: <?php echo esc_attr( $like_bg_colour ); ?>"></iframe><?php
 
 		echo $after_widget;
 
@@ -115,14 +120,14 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'width' ); ?>">
 				<?php _e( 'Width', 'jetpack' ); ?>
-				<input type="text" maxlength="3" name="<?php echo $this->get_field_name( 'width' ); ?>" id="<?php echo $this->get_field_id( 'width' ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="width: 30px; text-align: center;" />
+				<input type="text" maxlength="3" name="<?php echo $this->get_field_name( 'width' ); ?>" id="<?php echo $this->get_field_id( 'width' ); ?>" value="<?php echo esc_attr( $like_args['width'] ); ?>" style="width: 30px; text-align: center;" />px
 			</label>
 		</p>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'height' ); ?>">
 				<?php _e( 'Height', 'jetpack' ); ?>
-				<input type="text" maxlength="3" name="<?php echo $this->get_field_name( 'height' ); ?>" id="<?php echo $this->get_field_id( 'height' ); ?>" value="<?php echo esc_attr( $like_args['height'] ); ?>" style="width: 30px; text-align: center;" />
+				<input type="text" maxlength="3" name="<?php echo $this->get_field_name( 'height' ); ?>" id="<?php echo $this->get_field_id( 'height' ); ?>" value="<?php echo esc_attr( $like_args['height'] ); ?>" style="width: 30px; text-align: center;" />px
 			</label>
 		</p>
 		
@@ -223,7 +228,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	function normalize_int_value( $value, $default = 0, $max = 0, $min = 0 ) {
 		$value = (int) $value;
 		
-		if( ! $value || $max < $value || $min > $value )
+		if ( $max < $value || $min > $value )
 			$value = $default;
 			
 		return (int) $value;
@@ -232,7 +237,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	function normalize_text_value( $value, $default = '', $allowed = array() ) {
 		$allowed = (array) $allowed;
 		
-		if( empty( $value ) || ( ! empty( $allowed ) && ! in_array( $value, $allowed ) ) )
+		if ( empty( $value ) || ( ! empty( $allowed ) && ! in_array( $value, $allowed ) ) )
 			$value = $default;
 		
 		return $value; 
