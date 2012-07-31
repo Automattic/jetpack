@@ -387,12 +387,16 @@ FB.ContactForm = function() {
 						jQuery( '#content', window.parent.document ).val( currentCode.replace( regexp, response ) );
 					}
 				} else {
-					if (isVisual) {
-						win.tinyMCE.activeEditor.execCommand('mceInsertContent', false, response);
-					} else {
-						// looks like the visual editor is disabled,
-						// update the contents of the post directly
-						jQuery( '#content', window.parent.document ).val( currentCode + response );
+					try {
+						win.send_to_editor( response );
+					} catch ( e ) {
+						if (isVisual) {
+							win.tinyMCE.activeEditor.execCommand('mceInsertContent', false, response);
+						} else {
+							// looks like the visual editor is disabled,
+							// update the contents of the post directly
+							jQuery( '#content', window.parent.document ).val( currentCode + response );
+						}
 					}
 				}
 				hidePopup();
