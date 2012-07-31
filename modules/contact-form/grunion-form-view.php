@@ -104,6 +104,12 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 	.fb-settings input[type='text'], .fb-settings textarea { background-image: none !important; }
 	.fb-success { position: absolute; top: -3px; right: 100px; padding: 6px 23px 4px 23px; background: #FFFFE0; font-weight: normal; border: 1px solid #E6DB55; color: #333; -moz-border-radius:4px; border-radius:4px; -webkit-border-radius:4px; }
 	.right { float: right; }
+	@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+		.fb-remove { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-field-2x.png') no-repeat; background-size: 20px 23px; }
+		.fb-remove:hover { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-field-hover-2x.png') no-repeat; background-size: 20px 23px; }
+		.fb-remove-option { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-option-2x.png') no-repeat; background-size: 20px 23px; }
+		.fb-remove-option:hover { background: url('<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-remove-option-hover-2x.png') no-repeat; background-size: 20px 23px; }
+	}
 </style>
 </head>
 

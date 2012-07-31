@@ -42,7 +42,10 @@ color: #D98500;
 
 #icon-edit { background-position: -432px -5px; }
 
-#icon-edit, #icon-post { background: url("<?php echo GRUNION_PLUGIN_URL; ?>/images/grunion-menu-big.png") no-repeat !important; }
+#icon-edit, #icon-post { background: url("<?php echo GRUNION_PLUGIN_URL; ?>images/grunion-menu-big.png") no-repeat !important; }
+@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+    #icon-edit, #icon-post { background: url("<?php echo GRUNION_PLUGIN_URL; ?>images/grunion-menu-big-2x.png") no-repeat !important; background-size: 30px 31px; }
+}
 </style>
 
 <?php

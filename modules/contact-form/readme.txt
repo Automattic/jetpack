@@ -74,6 +74,7 @@ Just make the title of your post "Contact Mary" or put "Hey, drop John a line wi
 * Support forms with no email address
 * Don't include *** SPAM *** in the subject line of unspammed items
 * Fix form processing when there is more than one form on a page (Koff)
+* Retina images added
 
 = 2.3 =
 * Fix for Chrome going 'oh snap' when inserting a new contact form
