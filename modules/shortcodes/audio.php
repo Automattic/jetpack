@@ -80,7 +80,7 @@ class AudioShortcode {
 		$sound_file = $data[0];
 		$sound_files = explode( ',', $sound_file );
 		$sound_files = array_map( 'trim', $sound_files );
-		$sound_files = array_map( array( $this, 'unbreak_spacey_url' ), $sound_files );
+		$sound_files = array_map( array( $this, 'rawurlencode_spaces' ), $sound_files );
 		$sound_files = array_map( 'esc_url_raw', $sound_files ); // Ensure each is a valid URL
 		$num_files = count( $sound_files );
 		$sound_types = array(
@@ -351,7 +351,7 @@ SCRIPT;
 	 * @param string $url
 	 * @return string
 	 */
-	function unbreak_spacey_url( $url ) {
+	function rawurlencode_spaces( $url ) {
 		return str_replace( ' ', rawurlencode( ' ' ), $url );
 	}
 }

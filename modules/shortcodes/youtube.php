@@ -94,7 +94,7 @@ add_filter('pre_kses', 'youtube_embed_to_short_code');
  * @return string The content with embeds instead of URLs
  */
 function youtube_link( $content ) {
-	return preg_replace_callback( '!(?:\n|\A)http://(?:www\.)?(?:youtube.com/(?:v/|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content );
+	return preg_replace_callback( '!(?:\n|\A)http://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content );
 }
 
 /**
@@ -114,7 +114,7 @@ function youtube_link_callback( $matches ) {
 function youtube_sanitize_url( $url ) {
 	$url = trim( $url, ' "' );
 	$url = trim( $url );
-	$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&' ), $url );
+	$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
 
 	// Replace any extra question marks with ampersands - the result of a URL like "http://www.youtube.com/v/9FhMMmqzbD8?fs=1&hl=en_US" being passed in.
 	$query_string_start = strpos( $url, "?" );
@@ -128,6 +128,7 @@ function youtube_sanitize_url( $url ) {
 
 /*
  * url can be:
+ *    http://www.youtube.com/embed/videoseries?list=PL94269DA08231042B&amp;hl=en_US
  *    http://www.youtube.com/watch#!v=H2Ncxw1xfck
  *    http://www.youtube.com/watch?v=H2Ncxw1xfck
  *    http://www.youtube.com/watch?v=H2Ncxw1xfck&w=320&h=240&fmt=1&rel=0&showsearch=1&hd=0
@@ -145,10 +146,13 @@ function get_youtube_id( $url ) {
 
 	parse_str( $url['query'], $qargs );
 
-	if ( ! isset( $qargs['v'] ) )
+	if ( ! isset( $qargs['v'] ) && ! isset( $qargs['list'] ) )
 		return false;
 
-	$id = preg_replace( '|[^_a-z0-9-]|i', '', $qargs['v'] );
+	$id = preg_replace( '|[^_a-z0-9-]|i', '', $qargs['list'] );
+
+	if ( empty( $id ) )
+		$id = preg_replace( '|[^_a-z0-9-]|i', '', $qargs['v'] );
 
 	return $id;
 }
@@ -241,7 +245,12 @@ function youtube_id( $url ) {
 		}
 	}
 
-	$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$hd&wmode=$wmode" ) . "' frameborder='0'></iframe></span>";
+	if ( ( isset( $url['path'] ) && '/videoseries' == $url['path'] ) || isset( $qargs['list'] ) ) {
+		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "http://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) . "' frameborder='0'></iframe></span>";
+	} else {
+		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$hd&wmode=$wmode" ) . "' frameborder='0'></iframe></span>";
+	}
+
 	$html = apply_filters( 'video_embed_html', $html );
 
 	return $html;
@@ -262,7 +271,7 @@ function wpcom_youtube_embed_crazy_url( $matches, $attr, $url ) {
 }
 
 function wpcom_youtube_embed_crazy_url_init() {
-	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', '#http://(?:www\.)?(?:youtube.com/(?:v/|watch[/\#?])|youtu\.be/).*#i', 'wpcom_youtube_embed_crazy_url' );
+	wp_embed_register_handler( 'wpcom_youtube_embed_crazy_url', '#http://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/).*#i', 'wpcom_youtube_embed_crazy_url' );
 }
 
 add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
