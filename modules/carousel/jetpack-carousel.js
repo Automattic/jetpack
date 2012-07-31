@@ -689,7 +689,7 @@ jQuery(document).ready(function($) {
 		texturize : function(text) {
 				text = text.replace(/'/g, '&#8217;').replace(/&#039;/g, '&#8217;').replace(/[\u2019]/g, '&#8217;');
 				text = text.replace(/"/g, '&#8221;').replace(/&#034;/g, '&#8221;').replace(/&quot;/g, '&#8221;').replace(/[\u201D]/g, '&#8221;');
-				text = text.replace(/([\w]+)=&#[\d]+;(.+)&#[\d]+;/g, '$1="$2"'); // untexturize allowed HTML tags params double-quotes
+				text = text.replace(/([\w]+)=&#[\d]+;(.+?)&#[\d]+;/g, '$1="$2"'); // untexturize allowed HTML tags params double-quotes
 				return $.trim(text);
 		},
 
@@ -1132,6 +1132,8 @@ jQuery(document).ready(function($) {
 
 	// register the event listener for staring the gallery
 	$( document.body ).on( 'click', 'div.gallery', function(e) {
+		if ( $(e.target).parent().hasClass('gallery-caption') )
+			return;
 		e.preventDefault();
 		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item').index($(e.target).parents('.gallery-item'))});
 	});
