@@ -1089,6 +1089,9 @@ p {
 		if ( $is_active ) {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
+			// Add retina backgrounds to admin
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
+			add_action( 'admin_print_footer_scripts', array( $this, 'output_retina_js' ) );
 		}
 	}
 
@@ -1170,7 +1173,7 @@ p {
 			$title = __( 'Jetpack', 'jetpack' );
 		}
 
-		$hook = add_menu_page( 'Jetpack', $title, 'manage_options', 'jetpack', array( $this, 'admin_page' ), '' );
+		$hook = add_menu_page( 'Jetpack', $title, 'manage_options', 'jetpack', array( $this, 'admin_page' ), 'div' );
 
 		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
 
@@ -1253,9 +1256,6 @@ p {
 
 	function admin_menu_css() { ?>
 		<style type="text/css" id="jetpack-menu-css">
-			#toplevel_page_jetpack .wp-menu-image img { 
-				visibility: hidden; 
-			}
 			#toplevel_page_jetpack .wp-menu-image { 
 				background: url( <?php echo plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/menuicon-sprite.png' ) ?> ) 0 90% no-repeat; 
 			}
@@ -1312,6 +1312,24 @@ p {
 		add_action( 'admin_footer', array( $this, 'do_stats' ) );
 	}
 
+	function enqueue_retina_scripts() {
+		wp_enqueue_style( 'jetpack-retina', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack-retina.css' ), false, JETPACK__VERSION . '-20120730' );
+	}
+
+	function output_retina_js() {
+		$src = plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/' );
+		?><script type="text/javascript">
+		(function($){
+			if ( window.devicePixelRatio > 1 ) {
+				$('img[src$="wp-admin/images/generic.png"]').attr({
+					'src': '<?php echo $src; ?>generic-2x.png',
+					'width': '16',
+					'height': '16'
+				});
+			}
+		})(jQuery);
+		</script><?php
+	}
 
 	function plugin_action_links( $actions ) {
 		return array_merge(
