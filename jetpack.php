@@ -178,6 +178,7 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
+		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
 	}
 
@@ -1097,6 +1098,10 @@ p {
 				// TODO will need to add && $wp_db_version < xxxxx when 3.5 comes out.
 				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
 				add_action( 'admin_print_footer_scripts', array( $this, 'output_retina_js' ) );
+
+				// /wp-admin/customize.php omits the actions above.
+				add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
+				add_action( 'customize_controls_print_footer_scripts', array( $this, 'output_retina_js' ) );
 			}
 		}
 	}

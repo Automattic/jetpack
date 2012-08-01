@@ -433,17 +433,17 @@
 		background-size: 46px 60px;
 	}
 
-	.wp-admin .farbtastic .marker {
+	.farbtastic .marker {
 		background-image: url('images/marker-2x.png');
 		background-size: 17px 17px;
 	}
 
-	.wp-admin .farbtastic .wheel {
+	.farbtastic .wheel {
 		background-image: url('images/wheel-2x.png');
 		background-size: 195px 195px;
 	}
 
-	.wp-admin .farbtastic .overlay {
+	.farbtastic .overlay {
 		background-image: url('images/mask-2x.png');
 		background-size: 101px 101px;
 	}
