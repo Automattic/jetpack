@@ -352,6 +352,100 @@
 		background-size: 15px 15px;
 	}
 
+	td.media-icon img[src$='wp-includes/images/crystal/archive.png'],
+	td.A1B1 img[src$='wp-includes/images/crystal/archive.png'] {
+		background: url('images/archive-2x.png') no-repeat center center;
+		padding-top: 60px;
+		width: 46px;
+		height: 0;
+		background-size: 46px 60px;
+	}
 
+	td.media-icon img[src$='wp-includes/images/crystal/audio.png'],
+	td.A1B1 img[src$='wp-includes/images/crystal/audio.png'] {
+		background: url('images/audio-2x.png') no-repeat center center;
+		padding-top: 60px;
+		width: 46px;
+		height: 0;
+		background-size: 46px 60px;
+	}
+
+	td.media-icon img[src$='wp-includes/images/crystal/code.png'],
+	td.A1B1 img[src$='wp-includes/images/crystal/code.png'] {
+		background: url('images/code-2x.png') no-repeat center center;
+		padding-top: 60px;
+		width: 46px;
+		height: 0;
+		background-size: 46px 60px;
+	}
+
+	td.media-icon img[src$='wp-includes/images/crystal/default.png'],
+	td.A1B1 img[src$='wp-includes/images/crystal/default.png'] {
+		background: url('images/default-2x.png') no-repeat center center;
+		padding-top: 60px;
+		width: 46px;
+		height: 0;
+		background-size: 46px 60px;
+	}
+
+	td.media-icon img[src$='wp-includes/images/crystal/document.png'],
+	td.A1B1 img[src$='wp-includes/images/crystal/document.png'] {
+		background: url('images/document-2x.png') no-repeat center center;
+		padding-top: 60px;
+		width: 46px;
+		height: 0;
+		background-size: 46px 60px;
+	}
+
+	td.media-icon img[src$='wp-includes/images/crystal/interactive.png'],
+	td.A1B1 img[src$='wp-includes/images/crystal/interactive.png'] {
+		background: url('images/interactive-2x.png') no-repeat center center;
+		padding-top: 60px;
+		width: 46px;
+		height: 0;
+		background-size: 46px 60px;
+	}
+
+	td.media-icon img[src$='wp-includes/images/crystal/spreadsheet.png'],
+	td.A1B1 img[src$='wp-includes/images/crystal/spreadsheet.png'] {
+		background: url('images/spreadsheet-2x.png') no-repeat center center;
+		padding-top: 60px;
+		width: 46px;
+		height: 0;
+		background-size: 46px 60px;
+	}
+
+	td.media-icon img[src$='wp-includes/images/crystal/text.png'],
+	td.A1B1 img[src$='wp-includes/images/crystal/text.png'] {
+		background: url('images/text-2x.png') no-repeat center center;
+		padding-top: 60px;
+		width: 46px;
+		height: 0;
+		background-size: 46px 60px;
+	}
+
+	td.media-icon img[src$='wp-includes/images/crystal/video.png'],
+	td.A1B1 img[src$='wp-includes/images/crystal/video.png'] {
+		background: url('images/video-2x.png') no-repeat center center;
+		padding-top: 60px;
+		width: 46px;
+		height: 0;
+		background-size: 46px 60px;
+	}
+
+	.wp-admin .farbtastic .marker {
+		background-image: url('images/marker-2x.png');
+		background-size: 17px 17px;
+	}
+
+	.wp-admin .farbtastic .wheel {
+		background-image: url('images/wheel-2x.png');
+		background-size: 195px 195px;
+	}
+
+	.wp-admin .farbtastic .overlay {
+		background-image: url('images/mask-2x.png');
+		background-size: 101px 101px;
+	}
 }
 
