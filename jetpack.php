@@ -1097,11 +1097,8 @@ p {
 				// WP 3.4.x
 				// TODO will need to add && $wp_db_version < xxxxx when 3.5 comes out.
 				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
-				add_action( 'admin_print_footer_scripts', array( $this, 'output_retina_js' ) );
-
-				// /wp-admin/customize.php omits the actions above.
+				// /wp-admin/customize.php omits the action above.
 				add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
-				add_action( 'customize_controls_print_footer_scripts', array( $this, 'output_retina_js' ) );
 			}
 		}
 	}
@@ -1325,22 +1322,6 @@ p {
 
 	function enqueue_retina_scripts() {
 		wp_enqueue_style( 'jetpack-retina', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack-retina.css' ), false, JETPACK__VERSION . '-20120730' );
-	}
-
-	function output_retina_js() {
-		$src = plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/images/' );
-		// This has to be outputted in the footer. It runs straight away, just before jQuery(document)ready() so the 2x images start loading asap
-		?><script type="text/javascript">
-		(function($){
-			if ( window.devicePixelRatio > 1 ) {
-				$('img[src$="wp-admin/images/generic.png"]').attr({
-					'src': '<?php echo $src; ?>generic-2x.png',
-					'width': '16',
-					'height': '16'
-				});
-			}
-		})(jQuery);
-		</script><?php
 	}
 
 	function plugin_action_links( $actions ) {

@@ -447,5 +447,14 @@
 		background-image: url('images/mask-2x.png');
 		background-size: 101px 101px;
 	}
+
+	/* Generic admin menu icon */
+	#adminmenu img[src$='wp-admin/images/generic.png'] {
+		background: url('images/generic-2x.png') no-repeat center center;
+		padding-top: 25px;
+		width: 16px;
+		height: 0;
+		background-size: 16px 16px;
+	}
 }
 
