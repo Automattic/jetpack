@@ -342,5 +342,16 @@
 		background-image:      -o-linear-gradient(top, #eff8ff, #d3e2eb);
 		background-image:   linear-gradient(to bottom, #eff8ff, #d3e2eb);
 	}
+
+	/* Uploader close button */
+	#TB_closeWindowButton img {
+		background: url('images/tb-close-2x.png') no-repeat center center;
+		padding-top: 15px;
+		width: 15px;
+		height: 0;
+		background-size: 15px 15px;
+	}
+
+
 }
 
