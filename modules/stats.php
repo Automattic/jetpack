@@ -64,7 +64,7 @@ function stats_ignore_db_version( $version ) {
 	if (
 		is_admin() &&
 		isset( $_GET['page'] ) && $_GET['page'] == 'stats' &&
-		isset( $_GET['chart'] ) && $_GET['chart'] == 'admin-bar-hours'
+		isset( $_GET['chart'] ) && strpos($_GET['chart'], 'admin-bar-hours') === 0
 	) {
 		global $wp_db_version;
 		return $wp_db_version;
@@ -556,9 +556,29 @@ function stats_admin_bar_head() {
 	?>
 
 <style type='text/css'>
-#wpadminbar .quicklinks li#wp-admin-bar-stats {height:28px}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a {height:28px;padding:0}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a img {padding:4px 11px}
+#wpadminbar .quicklinks li#wp-admin-bar-stats {
+	height: 28px;
+}
+#wpadminbar .quicklinks li#wp-admin-bar-stats a {
+	height: 28px;
+	padding: 0;
+}
+#wpadminbar .quicklinks li#wp-admin-bar-stats a div {
+	height: 28px;
+	width: 95px;
+	overflow: hidden;
+	margin: 0 10px;
+}
+#wpadminbar .quicklinks li#wp-admin-bar-stats a:hover div {
+	width: auto;
+	margin: 0 8px 0 10px;
+}
+#wpadminbar .quicklinks li#wp-admin-bar-stats a img {
+	height: 24px;
+	padding: 2px 0;
+	max-width: none;
+	border: none;
+}
 </style>
 <?php
 }
@@ -568,11 +588,12 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 
 	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ); // no menu_page_url() blog-side.
 
-	$img_src = add_query_arg( array( 'noheader'=>'', 'proxy'=>'', 'chart'=>'admin-bar-hours', 'height'=>20, 'hours'=>48 ), $url );
+	$img_src = esc_attr( add_query_arg( array( 'noheader'=>'', 'proxy'=>'', 'chart'=>'admin-bar-hours-scale' ), $url ) );
+	$img_src_2x = esc_attr( add_query_arg( array( 'noheader'=>'', 'proxy'=>'', 'chart'=>'admin-bar-hours-scale-2x' ), $url ) );
 
 	$title = __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' );
 
-	$menu = array( 'id' => 'stats', 'title' => "<img style='width:95px;height:20px' src='$img_src' alt='$title' title='$title' />", 'href' => $url );
+	$menu = array( 'id' => 'stats', 'title' => "<div><script type='text/javascript'>var src;if(typeof(window.devicePixelRatio)=='undefined'||window.devicePixelRatio<2){src='$img_src';}else{src='$img_src_2x';}document.write('<img src=\''+src+'\' alt=\'$alt\' title=\'$title\' />');</script></div>", 'href' => $url );
 
 	$wp_admin_bar->add_menu( $menu );
 }
