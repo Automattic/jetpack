@@ -83,6 +83,18 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Carousel: Better image resolution selection based on available width/height.
 * Enhancement: Carousel: Load image caption, metadata, comments, et alii when a slide is clicked to switch to instead of waiting.
 * Enhancement: Carousel: Added a "Comment" button and handling to scroll to and focus on comment textarea.
+* Enhancement: Widgets: Facebook Likebox now supports a height parameter and a better width parameter.
+* Enhancement: Widgets: Better feedback when widgets are not set up properly.
+* Enhancement: Shortcodes: Google Maps shortcode now supports percentages in the width.
+* Enhancement: Shortcodes: Update Polldaddy shortcode for more efficient Javascript libraries.
+* Enhancement: Shortcodes: Youtube shortcode now has playlist support.
+* Enhancement: Add Gravatar Profile widget.
+* Enhancement: Update Sharedaddy to latest version, including Pinterest support.
+* Enhancement: Retinized Jetpack.
+* Bug Fix: Shortcodes: Fix Audio shortcode color parameter and rename encoding function.
+* Bug Fix: Shortcodes: Don't output HTML 5 version of the Audio shortcode because of a bug with Google Reader.
+* Bug Fix: Jetpack Comments: Don't overlead the addComments object if it doesn't exist. Fixes spacing issue with comment form.
+* Bug Fix: Contact Form: If send_to_editor() exists, use it. Fixes an IE9 text area issue.
 
 = 1.5 =
 * Enhancement: Add Gallery Carousel feature
