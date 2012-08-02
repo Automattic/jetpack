@@ -261,7 +261,8 @@ class Sharing_Admin {
 										</ul>						            
 									</div>
 								</div>
-								
+								<?php endif; ?>
+
 								<ul class="archive" style="display:none;">
 								<?php 
 									foreach ( $sharer->get_all_services_blog() as $id => $service ) : 
@@ -276,7 +277,6 @@ class Sharing_Admin {
 									endforeach; ?>
 									<li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php _e( 'More', 'jetpack' ); ?></span></a></li>
 								</ul>
-								<?php endif; ?>
 								<div class="sharing-clear"></div>
 							</div>
 						</div>
