@@ -456,5 +456,15 @@
 		height: 0;
 		background-size: 16px 16px;
 	}
+
+	/* Editor dialogs close button */
+	.clearlooks2 .mceClose,
+	.clearlooks2 .mceMin,
+	.clearlooks2 .mceMed,
+	.clearlooks2 .mceMax,
+	.wp-dialog .ui-dialog-titlebar-close {
+		background-image: url('images/buttons-2x.gif') !important;
+		background-size: 116px 48px !important;
+	}
 }
 
