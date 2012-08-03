@@ -156,7 +156,7 @@ add_action( 'network_admin_menu', 'wp_cache_network_pages' );
 
 function wp_cache_manager_error_checks() {
 	global $wpmu_version, $wp_cache_debug, $wp_cache_cron_check, $cache_enabled, $super_cache_enabled, $wp_cache_config_file, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers, $wp_cache_mobile_enabled, $wp_cache_mod_rewrite, $cache_path;
-	global $dismiss_htaccess_warning, $dismiss_readable_warning;
+	global $dismiss_htaccess_warning, $dismiss_readable_warning, $dismiss_gc_warning, $wp_cache_shutdown_gc;
 
 	if ( !wpsupercache_site_admin() )
 		return false;
@@ -251,6 +251,32 @@ function wp_cache_manager_error_checks() {
 	}
 
 	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
+	// Check that garbage collection is running
+	if ( $valid_nonce && $_POST[ 'action' ] == 'dismiss_gc_warning' ) {
+		wp_cache_replace_line('^ *\$dismiss_gc_warning', "\$dismiss_gc_warning = 1;", $wp_cache_config_file);
+		$dismiss_gc_warning = 1;
+	} elseif ( !isset( $dismiss_gc_warning ) ) {
+		$dismiss_gc_warning = 0;
+	}
+	if ( $cache_enabled && ( !isset( $wp_cache_shutdown_gc ) || $wp_cache_shutdown_gc == 0 ) && function_exists( 'get_gc_flag' ) ) {
+		$gc_flag = get_gc_flag();
+		if ( $dismiss_gc_warning == 0 ) {
+			if ( false == maybe_stop_gc( $gc_flag ) && false == wp_next_scheduled( 'wp_cache_gc' ) ) {
+				?><div id="message" class="updated fade"><h3><?php _e( 'Warning! Garbage collection is not scheduled!', 'wp-super-cache' ); ?></h3>
+				<p><?php _e( 'Garbage collection by this plugin clears out expired and old cached pages on a regular basis. Use <a href="#expirytime">this form</a> to enable it.', 'wp-super-cache' ); ?> </p>
+				<form action="" method="POST">
+				<input type="hidden" name="action" value="dismiss_gc_warning" />
+				<input type="hidden" name="page" value="wpsupercache" />
+				<?php wp_nonce_field( 'wp-cache' ); ?>
+				<input type='submit' value='<?php _e( 'Dismiss', 'wp-super-cache' ); ?>' />
+				</form>
+				<br />
+				</div>
+				<?php
+			}
+		}
+	}
+
 	// Server could be running as the owner of the wp-content directory.  Therefore, if it's
 	// writable, issue a warning only if the permissions aren't 755.
 	if ( $valid_nonce && $_POST[ 'action' ] == 'dismiss_readable_warning' ) {
@@ -358,22 +384,6 @@ function wp_cache_manager_updates() {
 	if ( !wpsupercache_site_admin() )
 		return false;
 
-	// set up garbage collection with some default settings
-	if ( ( !isset( $wp_cache_shutdown_gc ) || $wp_cache_shutdown_gc == 0 ) && false == wp_next_scheduled( 'wp_cache_gc' ) ) {
-		if ( false == isset( $cache_schedule_type ) ) {
-			$cache_schedule_type = 'interval';
-			$cache_time_interval = 600;
-			$cache_max_time = 1800;
-			wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
-			wp_cache_replace_line('^ *\$cache_time_interval', "\$cache_time_interval = '$cache_time_interval';", $wp_cache_config_file);
-			wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = '$cache_max_time';", $wp_cache_config_file);
-		}
-		wp_schedule_single_event( time() + 600, 'wp_cache_gc' );
-	}
-	// schedule gc watcher
-	if ( false == wp_next_scheduled( 'wp_cache_gc_watcher' ) )
-		wp_schedule_event( time()+600, 'hourly', 'wp_cache_gc_watcher' );
-
 	if ( false == isset( $cache_page_secret ) ) {
 		$cache_page_secret = md5( date( 'H:i:s' ) . mt_rand() );
 		wp_cache_replace_line('^ *\$cache_page_secret', "\$cache_page_secret = '" . $cache_page_secret . "';", $wp_cache_config_file);
@@ -402,9 +412,26 @@ function wp_cache_manager_updates() {
 			$_POST[ 'super_cache_enabled' ] = 2; // PHP
 			$_POST[ 'cache_rebuild_files' ] = 1;
 			unset( $_POST[ 'cache_compression' ] );
+			//
+			// set up garbage collection with some default settings
+			if ( ( !isset( $wp_cache_shutdown_gc ) || $wp_cache_shutdown_gc == 0 ) && false == wp_next_scheduled( 'wp_cache_gc' ) ) {
+				if ( false == isset( $cache_schedule_type ) ) {
+					$cache_schedule_type = 'interval';
+					$cache_time_interval = 600;
+					$cache_max_time = 1800;
+					wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
+					wp_cache_replace_line('^ *\$cache_time_interval', "\$cache_time_interval = '$cache_time_interval';", $wp_cache_config_file);
+					wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = '$cache_max_time';", $wp_cache_config_file);
+				}
+				wp_schedule_single_event( time() + 600, 'wp_cache_gc' );
+			}
+
 		} else {
 			unset( $_POST[ 'wp_cache_status' ] );
 			$_POST[ 'super_cache_enabled' ] = 0;
+			wp_clear_scheduled_hook( 'wp_cache_check_site_hook' );
+			wp_clear_scheduled_hook( 'wp_cache_gc' );
+			wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
 		}
 	}
 
@@ -1542,6 +1569,9 @@ function wp_cache_edit_max_time () {
 	if ( isset( $_POST['wp_max_time'] ) && $valid_nonce ) {
 		$cache_max_time = (int)$_POST['wp_max_time'];
 		wp_cache_replace_line('^ *\$cache_max_time', "\$cache_max_time = $cache_max_time;", $wp_cache_config_file);
+		// schedule gc watcher
+		if ( false == wp_next_scheduled( 'wp_cache_gc_watcher' ) )
+			wp_schedule_event( time()+600, 'hourly', 'wp_cache_gc_watcher' );
 	}
 
 	if ( isset( $_POST[ 'cache_gc_email_me' ] ) && $valid_nonce ) {
@@ -1863,6 +1893,9 @@ function wp_cache_enable() {
 function wp_cache_disable() {
 	global $wp_cache_config_file, $cache_enabled;
 
+	wp_clear_scheduled_hook( 'wp_cache_check_site_hook' );
+	wp_clear_scheduled_hook( 'wp_cache_gc' );
+	wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
 	if (wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = false;', $wp_cache_config_file)) {
 		$cache_enabled = false;
 	}
