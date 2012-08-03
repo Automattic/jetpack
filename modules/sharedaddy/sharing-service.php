@@ -395,7 +395,7 @@ function sharing_add_header() {
 	}
 	
 	if ( count( $enabled['all'] ) > 0 )
-		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css' );
+		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css', array(), WP_SHARING_PLUGIN_VERSION );
 }
 add_action( 'wp_head', 'sharing_add_header', 1 );
 
