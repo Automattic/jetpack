@@ -79,6 +79,11 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.6.1 =
+* Bug Fix: Prevent Fatal error under certain conditions in sharing module
+* Bug Fix: Add cachebuster to sharing.css
+* Bug Fix: Disable via for Twitter until more robust code is in place
+
 = 1.6 =
 * Enhancement: Carousel: Better image resolution selection based on available width/height.
 * Enhancement: Carousel: Load image caption, metadata, comments, et alii when a slide is clicked to switch to instead of waiting.
