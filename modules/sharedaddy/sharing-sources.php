@@ -323,6 +323,8 @@ class Share_Twitter extends Sharing_Source {
 	}
 
 	function sharing_twitter_via( $post ) {
+		return '';
+
 		// Default 'via' is always us.
 		$via = preg_replace( '/(https?:\/\/)|(\.)|(\/)/i', '', home_url() );
 
