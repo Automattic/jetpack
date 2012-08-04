@@ -232,9 +232,13 @@ var WPCOMSharing = {
 					$( '#sharing_email form' ).show();
 					$( '#sharing_email form input[type=submit]' ).removeAttr( 'disabled' );
 					$( '#sharing_email form a.sharing_cancel' ).show();
+					
+					var key = '';
+					if ( $( '#recaptcha_public_key' ).length > 0 )
+						key = $( '#recaptcha_public_key' ).val();
 
 					// Update the recaptcha
-					Recaptcha.create( '6LcYW8MSAAAAADBAuEH9yaPcF7lWh11Iq62ZKtoo', 'sharing_recaptcha' );
+					Recaptcha.create( key, 'sharing_recaptcha' );
 
 					// Show dialog
 					$( '#sharing_email' ).css( {

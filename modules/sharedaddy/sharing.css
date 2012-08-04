@@ -426,6 +426,62 @@ div.sd-content a.sd-button > span {
     line-height: 1.5em;
 }
 
+#sharing_email {
+    background-color: #FFFFFF;
+    border: 1px solid #CCCCCC;
+    border-radius: 3px 3px 3px 3px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    margin-left: -120px;
+    padding: 15px;
+    position: absolute;
+    text-align: left;
+    width: 312px;
+    z-index: 1001;
+}
+
+div.sharedaddy.sharedaddy-dark #sharing_email {
+    border-color: #FFFFFF;
+}
+
+#sharing_email .errors {
+    background-color: #771A09;
+    color: #FFFFFF;
+    font-size: 11px;
+    line-height: 11px;
+    margin: 10px 0 0;
+    padding: 5px 8px;
+}
+
+#sharing_email label {
+    color: #333333;
+    display: block;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 0 0 4px;
+    text-align: left;
+    text-shadow: none;
+}
+
+#sharing_email input[type="text"] {
+    background: none repeat scroll 0 0 #FFFFFF;
+    border: 1px solid #CCCCCC;
+    color: #333333;
+    margin-bottom: 12px;
+    width: 98.5%;
+}
+
+#sharing_email .sharing_cancel {
+    font-size: 11px;
+    padding: 0 0 0 10px;
+    text-shadow: none;
+}
+
+#sharing_email .recaptcha {
+    height: 123px;
+    margin: 10px 0 14px;
+    width: 312px;
+}
+
 /* =RTL
 -------------------------------------------------------------- */
 body.rtl .sharing ul {
@@ -433,4 +489,15 @@ body.rtl .sharing ul {
 }
 body.rtl .sharing li {
 	margin: 0 0 0 10px !important;
+}
+.rtl #sharing_email {
+    margin-left: 0;
+    margin-right: -120px;
+    text-align: right;
+}
+.rtl #sharing_email .sharing_cancel {
+    padding: 0 10px 0 0;
+}
+.rtl #sharing_email label {
+    text-align: right;
 }
