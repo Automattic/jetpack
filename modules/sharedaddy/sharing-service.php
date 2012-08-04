@@ -2,7 +2,7 @@
 
 include_once dirname( __FILE__ ).'/sharing-sources.php';
 
-define( 'WP_SHARING_PLUGIN_VERSION', '0.3' );
+define( 'WP_SHARING_PLUGIN_VERSION', '0.3.1' );
 
 class Sharing_Service {
 	private $global = false;

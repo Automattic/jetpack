@@ -2,7 +2,7 @@
 /*
 Plugin Name: Sharedaddy
 Description: The most super duper sharing tool on the interwebs.
-Version: 0.3
+Version: 0.3.1
 Author: Automattic, Inc.
 Author URI: http://automattic.com/
 Plugin URI: http://en.blog.wordpress.com/2010/08/24/more-ways-to-share/
