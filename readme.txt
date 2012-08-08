@@ -79,6 +79,9 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= next =
+* Bug Fix: Subscriptions: Make Subscriptions module obey the settings of the Settngs -> Discussion checkboxes for Follow Blog/Comments
+
 = 1.6.1 =
 * Bug Fix: Prevent Fatal error under certain conditions in sharing module
 * Bug Fix: Add cachebuster to sharing.css
