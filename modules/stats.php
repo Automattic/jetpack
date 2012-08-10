@@ -591,7 +591,9 @@ function stats_admin_bar_menu( &$wp_admin_bar ) {
 	$img_src = esc_attr( add_query_arg( array( 'noheader'=>'', 'proxy'=>'', 'chart'=>'admin-bar-hours-scale' ), $url ) );
 	$img_src_2x = esc_attr( add_query_arg( array( 'noheader'=>'', 'proxy'=>'', 'chart'=>'admin-bar-hours-scale-2x' ), $url ) );
 
-	$title = __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' );
+	$alt = esc_attr( __( 'Stats', 'jetpack' ) );
+
+	$title = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
 
 	$menu = array( 'id' => 'stats', 'title' => "<div><script type='text/javascript'>var src;if(typeof(window.devicePixelRatio)=='undefined'||window.devicePixelRatio<2){src='$img_src';}else{src='$img_src_2x';}document.write('<img src=\''+src+'\' alt=\'$alt\' title=\'$title\' />');</script></div>", 'href' => $url );
 

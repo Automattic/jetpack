@@ -80,6 +80,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 == Changelog ==
 
 = next =
+* Bug Fix: Stats: Fix notice about undefined variable $alt
 * Bug Fix: Subscriptions: Make Subscriptions module obey the settings of the Settngs -> Discussion checkboxes for Follow Blog/Comments
 
 = 1.6.1 =
