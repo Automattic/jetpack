@@ -6,7 +6,7 @@
  * First Introduced: 1.1
  */
 
-define( 'GROFILES__CACHE_BUSTER', 'aa' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes
+define( 'GROFILES__CACHE_BUSTER', gmdate( 'YM' ) . 'aa' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes
 
 function grofiles_hovercards_init() {
 	add_filter( 'get_avatar', 'grofiles_get_avatar', 10, 2 );
@@ -171,7 +171,7 @@ function grofiles_attach_cards() {
 	if ( 'disabled' == get_option( 'gravatar_disable_hovercards' ) )
 		return;
 
-	wp_enqueue_script( 'grofiles-cards', ( is_ssl() ? 'https://secure' : 'http://s' ) . '.gravatar.com/js/gprofiles.js?' . GROFILES__CACHE_BUSTER, array( 'jquery' ) );
+	wp_enqueue_script( 'grofiles-cards', ( is_ssl() ? 'https://secure' : 'http://s' ) . '.gravatar.com/js/gprofiles.js', array( 'jquery' ), GROFILES__CACHE_BUSTER );
 	wp_enqueue_script( 'wpgroho', plugins_url( 'wpgroho.js', __FILE__ ), array( 'grofiles-cards' ) );
 	if ( is_user_logged_in() ) {
 		$cu = wp_get_current_user();
