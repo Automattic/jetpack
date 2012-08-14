@@ -45,7 +45,14 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				array(),
 				'20120711'
 			);
-			
+
+			wp_enqueue_style(
+				'gravatar-card-services',
+				is_ssl() ? 'https://secure.gravatar.com/css/services.css' : 'http://s.gravatar.com/css/services.css',
+				array(),
+				defined( 'GROFILES__CACHE_BUSTER' ) ? GROFILES__CACHE_BUSTER : gmdate( 'YW' )
+			);
+
 			?>
 			<img src="<?php echo esc_url( $gravatar_url ); ?>" class="grofile-thumbnail no-grav" />
 			<div class="grofile-meta">
