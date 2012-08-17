@@ -101,10 +101,6 @@ function sharing_disable_js() {
 	return false;
 }
 
-if ( !function_exists( 'sharing_register_post_for_share_counts' ) ) {
-	function sharing_register_post_for_share_counts() {}
-}
-
 function sharing_global_resources() {
 	$disable = get_option( 'sharedaddy_disable_resources' );
 ?>

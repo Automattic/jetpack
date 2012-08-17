@@ -375,16 +375,38 @@ class Sharing_Post_Total {
 	}
 }
 
+function sharing_register_post_for_share_counts( $post_id ) {
+	global $jetpack_sharing_counts;
+
+	if ( ! isset( $jetpack_sharing_counts ) || ! is_array( $jetpack_sharing_counts ) )
+		$jetpack_sharing_counts = array();
+
+	$jetpack_sharing_counts[ (int) $post_id ] = get_permalink( $post_id );
+}
+
 function sharing_add_footer() {
-	if ( apply_filters( 'sharing_js', true ) )
+	global $jetpack_sharing_counts;
+
+	if ( apply_filters( 'sharing_js', true ) ) {
+
+		if ( is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
+?>
+
+	<script type="text/javascript">
+		WPCOM_sharing_counts = <?php echo json_encode( array_flip( $jetpack_sharing_counts ) ); ?>
+	</script>
+<?php
+		endif;
+
 		wp_print_scripts( 'sharing-js' );
+	}
 	
 	$sharer = new Sharing_Service();
 	$enabled = $sharer->get_blog_services();
 	foreach ( array_merge( $enabled['visible'], $enabled['hidden'] ) AS $service ) {
 		$service->display_footer();
 	}
-} 
+}
 
 function sharing_add_header() {
 	$sharer = new Sharing_Service();
