@@ -286,7 +286,7 @@ class Share_Email extends Sharing_Source {
 			
 			<?php do_action( 'sharing_email_dialog', 'jetpack' ); ?>
 
-			<img style="float: right; display: none" class="loading" src="<?php echo plugin_dir_url( __FILE__ ) . 'images/loading.gif'; ?>" alt="loading" width="16" height="16" />
+			<img style="float: right; display: none" class="loading" src="<?php echo apply_filters( 'jetpack_static_url', plugin_dir_url( __FILE__ ) . 'images/loading.gif' ); ?>" alt="loading" width="16" height="16" />
 			<input type="submit" value="<?php _e( 'Send Email', 'jetpack' ); ?>" class="sharing_send" />
 			<a href="#cancel" class="sharing_cancel"><?php _e( 'Cancel', 'jetpack' ); ?></a>
 			
@@ -323,20 +323,37 @@ class Share_Twitter extends Sharing_Source {
 	}
 
 	function sharing_twitter_via( $post ) {
-		return '';
-
-		// Default 'via' is always us.
-		$via = preg_replace( '/(https?:\/\/)|(\.)|(\/)/i', '', home_url() );
-
 		// Allow themes to customize the via
-		return apply_filters( 'sharing_twitter_via', $via, $post->ID );
+		return apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID );
+	}
+
+	public function get_related_accounts( $post ) {
+		// Format is 'username' => 'Optional description'
+		$related_accounts = apply_filters( 'jetpack_sharing_twitter_related', array(), $post->ID );
+
+		// Example related string: account1,account2:Account 2 description,account3
+		$related = array();
+
+		foreach ( $related_accounts as $related_account_username => $related_account_description ) {
+			// Join the description onto the end of the username
+			if ( $related_account_description )
+				$related_account_username .= ':' . $related_account_description;
+
+			$related[] = $related_account_username;
+		}
+
+		return implode( ',', $related );
 	}
 
 	public function get_display( $post ) {
 		$via = $this->sharing_twitter_via( $post );
 
 		if ( $via ) {
-			$via = sprintf( '&via=%1$s', rawurlencode( $via ) );
+			$via = '&via=' . rawurlencode( $via );
+
+			$related = $this->get_related_accounts( $post );
+			if ( ! empty( $related ) && $related !== $via )
+				$via .= '&related=' . rawurlencode( $related );
 		} else {
 			$via = '';
 		}
@@ -363,7 +380,10 @@ class Share_Twitter extends Sharing_Source {
 		
 		$via = $this->sharing_twitter_via( $post );
 		if ( $via ) {
-			$related = false;
+			$related = $this->get_related_accounts( $post );
+			if ( $related === $via )
+				$related = false;
+
 			$sig     = " via @$via";
 		} else {
 			$via     = false;
@@ -387,7 +407,7 @@ class Share_Twitter extends Sharing_Source {
 		
 		$url = $post_link;
 		$twitter_url = add_query_arg(
-			urlencode_deep( compact( 'via', 'related', 'text', 'url' ) ),
+			urlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
 			sprintf( '%s://twitter.com/intent/tweet', ( is_ssl() ? 'https' : 'http' ) )
 		);
 
@@ -639,11 +659,20 @@ class Share_Facebook extends Sharing_Source {
 		}
 
 		if ( !class_exists( 'GP_Locales' ) ) {
-			require JETPACK__PLUGIN_DIR . 'locales.php';
+			if ( !defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || !file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+				return false;
+			}
+
+			require JETPACK__GLOTPRESS_LOCALES_PATH;
 		}
 
-		// Jetpack: get_locale() returns 'it_IT';
-		$locale = GP_Locales::by_field( 'wp_locale', $lang );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// WP.com: get_locale() returns 'it'
+			$locale = GP_Locales::by_slug( $lang );
+		} else {
+			// Jetpack: get_locale() returns 'it_IT';
+			$locale = GP_Locales::by_field( 'wp_locale', $lang );
+		}
 
 		if ( !$locale || empty( $locale->facebook_locale ) ) {
 			return false;
@@ -1102,7 +1131,7 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="pinterest_button"><a href="http://pinterest.com/pin/create/button/?url='. rawurlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&description=' . rawurlencode( esc_attr( $post->post_title ) ) . '&media=' . rawurlencode( esc_url(  $this->get_post_image( $post->post_content ) ) ) . '" class="pin-it-button" count-layout="horizontal"> '. __( 'Pin It', 'jetpack' ) .'</a></div>';
+			return '<div class="pinterest_button"><a href="http://pinterest.com/pin/create/button/?url='. rawurlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&description=' . rawurlencode( esc_attr( $post->post_title ) ) . '&media=' . rawurlencode( esc_url(  $this->get_post_image( $post->post_content ) ) ) . '" class="pin-it-button" count-layout="horizontal"> '. __( 'Pin It', 'jetpack') .'</a></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest' );
 	}
