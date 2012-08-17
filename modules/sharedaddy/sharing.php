@@ -175,7 +175,7 @@ class Sharing_Admin {
 		  			<td class="description">
 		  				<h3><?php _e( 'Available Services', 'jetpack' ); ?></h3>
 		  				<p><?php _e( "Drag and drop the services you'd like to enable into the box below.", 'jetpack' ); ?></p>
-		  				<p><a href="#TB_inline?height=395&amp;width=600&amp;inlineId=new-service" title="<?php echo esc_attr( __( 'Add a new service', 'jetpack' ) ); ?>" class="thickbox"><?php _e( 'Add a new service', 'jetpack' ); ?></a></p>
+		  				<p><a href="#TB_inline?height=395&amp;width=600&amp;inlineId=new-service" title="<?php echo esc_attr( __( 'Add a new service', 'jetpack' ) ); ?>" class="thickbox" id="add-a-new-service"><?php _e( 'Add a new service', 'jetpack' ); ?></a></p>
 		  			</td>
 		  			<td class="services">
 		  				<ul class="services-available" style="height: 100px;">
@@ -190,7 +190,7 @@ class Sharing_Admin {
 		  			</td>
 					</tr>
 	  		</table>
-	
+
   			<table id="enabled-services">
   				<tr>
   					<td class="description">
@@ -201,7 +201,7 @@ class Sharing_Admin {
 						<p><?php _e( 'Services dragged here will appear individually.', 'jetpack' ); ?></p>
   					</td>
 	  				<td class="services" id="share-drop-target">
-			  				<h2 id="drag-instructions" <?php if ( count( $enabled['visible'] ) > 0 ) echo ' style="display: none"'; ?>><?php _e( 'Drag and drop available services here', 'jetpack' ); ?></h2>
+			  				<h2 id="drag-instructions" <?php if ( count( $enabled['visible'] ) > 0 ) echo ' style="display: none"'; ?>><?php _e( 'Drag and drop available services here.', 'jetpack' ); ?></h2>
 			  				
 								<ul class="services-enabled">
 									<?php foreach ( $enabled['visible'] as $id => $service ) : ?>
@@ -210,7 +210,7 @@ class Sharing_Admin {
 									
 									<li class="end-fix"></li>
 								</ul>
-					</td>	  			
+					</td>
 					<td id="hidden-drop-target" class="services">
 			  				<p><?php _e( 'Services dragged here will be hidden behind a share button.', 'jetpack' ); ?></p>
 			  				
@@ -222,8 +222,8 @@ class Sharing_Admin {
 			  				</ul>
 					</td>
 				</tr>
-			</table>						  			
-				
+			</table>
+
 			<table id="live-preview">
 				<tr>
 					<td class="description">
@@ -240,7 +240,7 @@ class Sharing_Admin {
 					                <?php foreach ( $enabled['visible'] as $id => $service ) : ?>
 										<?php $this->output_preview( $service ); ?>
 									<?php endforeach; ?>
-					
+	
 									<?php if ( count( $enabled['hidden'] ) > 0 ) : ?>
 					                <li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php _e( 'More', 'jetpack' ); ?></span></a></li>
 					                <?php endif; ?>
@@ -262,7 +262,7 @@ class Sharing_Admin {
 									</div>
 								</div>
 								<?php endif; ?>
-
+								
 								<ul class="archive" style="display:none;">
 								<?php 
 									foreach ( $sharer->get_all_services_blog() as $id => $service ) : 
@@ -284,7 +284,7 @@ class Sharing_Admin {
 					</td>
 				</tr>
 			</table>
-				
+
 				<form method="post" action="<?php echo admin_url( 'admin-ajax.php' ); ?>" id="save-enabled-shares">
 					<input type="hidden" name="action" value="sharing_save_services" />
 					<input type="hidden" name="visible" value="<?php echo implode( ',', array_keys( $enabled['visible'] ) ); ?>" />
@@ -343,7 +343,7 @@ class Sharing_Admin {
 	  				<?php do_action( 'sharing_global_options' ); ?>
 	  			</tbody>
 	  		</table>
-	  	
+
 		  	<p class="submit">
 					<input type="submit" name="submit" class="button-primary" value="<?php _e( 'Save Changes', 'jetpack' ); ?>" />
 				</p>
@@ -367,7 +367,7 @@ class Sharing_Admin {
 	  						<input type="text" name="sharing_url" id="new_sharing_url" size="40" />
 	  						
 	  						<p><?php _e( 'You can add the following variables to your service sharing URL:', 'jetpack' ); ?><br/>
-	  						<code>%post_title%</code>, <code>%post_url%</code>, <code>%post_full_url%</code>, <code>%post_excerpt%</code>, <code>%post_full_url%</code>, <code>%post_tags%</code></p>
+	  						<code>%post_title%</code>, <code>%post_url%</code>, <code>%post_full_url%</code>, <code>%post_excerpt%</code>, <code>%post_tags%</code></p>
 	  					</td>
 	  				</tr>
 	  				<tr valign="top">
@@ -396,7 +396,7 @@ class Sharing_Admin {
 				</div>
 	  	
 	  		<input type="hidden" name="action" value="sharing_new_service" />
-				<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-new_service' );?>" />
+			<input type="hidden" name="_wpnonce" value="<?php echo wp_create_nonce( 'sharing-new_service' );?>" />
 	  	</form>
 	   </div>
 	   
