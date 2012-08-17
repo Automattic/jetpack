@@ -140,6 +140,7 @@ function youtube_sanitize_url( $url ) {
 function get_youtube_id( $url ) {
 	$url = youtube_sanitize_url( $url );
 	$url = parse_url( $url );
+	$id  = false;
 
 	if ( ! isset( $url['query'] ) )
 		return false;
@@ -149,7 +150,8 @@ function get_youtube_id( $url ) {
 	if ( ! isset( $qargs['v'] ) && ! isset( $qargs['list'] ) )
 		return false;
 
-	$id = preg_replace( '|[^_a-z0-9-]|i', '', $qargs['list'] );
+	if ( isset( $qargs['list'] ) )
+		$id = preg_replace( '|[^_a-z0-9-]|i', '', $qargs['list'] );
 
 	if ( empty( $id ) )
 		$id = preg_replace( '|[^_a-z0-9-]|i', '', $qargs['v'] );
