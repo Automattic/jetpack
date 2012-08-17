@@ -29,7 +29,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		if ( empty( $like_args['href'] ) || ! $this->is_valid_facebook_url( $like_args['href'] ) ) {
 			if ( current_user_can('edit_theme_options') ) {
 				echo $before_widget;
-				echo '<p>' . sprintf( __( 'It looks like your Facebook URL is incorrectly configured. Please check it in your <a href="%s">widget settings</a>.' ), admin_url( 'widgets.php' ) ) . '</p>';
+				echo '<p>' . sprintf( __( 'It looks like your Facebook URL is incorrectly configured. Please check it in your <a href="%s">widget settings</a>.', 'jetpack' ), admin_url( 'widgets.php' ) ) . '</p>';
 				echo $after_widget;
 			}
 			echo '<!-- Invalid Facebook Page URL -->';

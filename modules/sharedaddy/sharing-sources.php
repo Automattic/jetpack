@@ -498,10 +498,10 @@ class Share_Digg extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart ) {
-			$url = $this->get_link( 'http://digg.com/submit?url='. urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&amp;title=' . urlencode( $post->post_title ), 'Digg', __( 'Click to Digg this post' ) );
+			$url = $this->get_link( 'http://digg.com/submit?url='. urlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&amp;title=' . urlencode( $post->post_title ), 'Digg', __( 'Click to Digg this post', 'jetpack' ) );
 			return '<div class="digg_button">' . str_replace( 'class="', 'class="DiggThisButton DiggCompact ', $url ) . '</div>';
 		} else {
-			return $this->get_link( get_permalink( $post->ID ), _x( 'Digg', 'share to', 'jetpack' ), __( 'Click to Digg this post' ), 'share=digg' );
+			return $this->get_link( get_permalink( $post->ID ), _x( 'Digg', 'share to', 'jetpack' ), __( 'Click to Digg this post', 'jetpack' ), 'share=digg' );
 		}
 	}	
 	
@@ -1102,7 +1102,7 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="pinterest_button"><a href="http://pinterest.com/pin/create/button/?url='. rawurlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&description=' . rawurlencode( esc_attr( $post->post_title ) ) . '&media=' . rawurlencode( esc_url(  $this->get_post_image( $post->post_content ) ) ) . '" class="pin-it-button" count-layout="horizontal"> '. __( 'Pin It', 'sharedaddy') .'</a></div>';
+			return '<div class="pinterest_button"><a href="http://pinterest.com/pin/create/button/?url='. rawurlencode( apply_filters( 'sharing_permalink', get_permalink( $post->ID ), $post->ID, $this->id ) ) . '&description=' . rawurlencode( esc_attr( $post->post_title ) ) . '&media=' . rawurlencode( esc_url(  $this->get_post_image( $post->post_content ) ) ) . '" class="pin-it-button" count-layout="horizontal"> '. __( 'Pin It', 'jetpack' ) .'</a></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest' );
 	}

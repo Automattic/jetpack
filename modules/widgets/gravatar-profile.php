@@ -24,7 +24,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				echo $args['before_widget'];
 				if ( ! empty( $title ) )
 					echo $args['before_title'] . $title . $args['after_title'];
-				echo '<p>' . sprintf( __( 'You need to select what to show in this <a href="%s">Gravatar Profile widget</a>.' ), admin_url( 'widgets.php' ) ) . '</p>';
+				echo '<p>' . sprintf( __( 'You need to select what to show in this <a href="%s">Gravatar Profile widget</a>.', 'jetpack' ), admin_url( 'widgets.php' ) ) . '</p>';
 				echo $args['after_widget'];
 			}
 			return;
@@ -70,7 +70,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				
 			?>
 			
-			<h4><a href="<?php echo esc_url( $profile['profileUrl'] ); ?>" class="grofile-full-link"><?php esc_html_e( 'View Full Profile &rarr;' ); ?></a></h4>
+			<h4><a href="<?php echo esc_url( $profile['profileUrl'] ); ?>" class="grofile-full-link"><?php esc_html_e( 'View Full Profile &rarr;', 'jetpack' ); ?></a></h4>
 					
 			<?php
 
