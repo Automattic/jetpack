@@ -121,7 +121,7 @@ div.sharedaddy.sharedaddy-dark .sd-block {
 div.sharedaddy .sd-content {
 	width: 82.125%; /* 530px / 640px */ 
 	float: right;
-	margin: 0;
+	margin: -2px 0 0 0;
 }
 
 div.sharedaddy .sd-content ul {
@@ -190,7 +190,7 @@ a.sd-button > span {
 	padding: 4px 8px;
 	display: block;
 	opacity: .8;
-	line-height: 1;
+	line-height: 1.5em;
 	text-shadow: none;
 }
 
@@ -212,7 +212,7 @@ a.sd-button:hover span {
 
 .sd-social-icon-text a.sd-button > span,
 a.sd-button > span {
-	padding: 3px 5px 3px 23px;
+	padding: 1px 5px 1px 23px;
 	background-position: 2px center;
 	background-repeat: no-repeat;
 }
@@ -422,64 +422,70 @@ div.sharedaddy.sharedaddy-dark .sharing-hidden .inner {
 	border-color: #222;
 }
 
-div.sd-content a.sd-button > span {
-    line-height: 1.5em;
-}
+/* =Sharing: Email Dialog
+-------------------------------------------------------------- */
 
 #sharing_email {
-    background-color: #FFFFFF;
-    border: 1px solid #CCCCCC;
-    border-radius: 3px 3px 3px 3px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    margin-left: -120px;
-    padding: 15px;
-    position: absolute;
-    text-align: left;
-    width: 312px;
-    z-index: 1001;
+	width: 312px;
+	padding: 15px;
+	position: absolute;
+	margin-left: -120px;
+	z-index: 1001;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	-moz-box-shadow: 0px 2px 8px #ccc;
+	-webkit-box-shadow: 0px 2px 8px #ccc;
+	box-shadow: 0px 2px 8px #ccc;
+	-webkit-box-shadow: 0px 2px 8px rgba(0, 0, 0, .2);
+	-moz-box-shadow: 0px 2px 8px rgba(0, 0, 0, .2);
+	box-shadow: 0px 2px 8px rgba(0, 0, 0, .2);
+	text-align: left;
 }
 
 div.sharedaddy.sharedaddy-dark #sharing_email {
-    border-color: #FFFFFF;
+	border-color: #fff;
 }
 
 #sharing_email .errors {
-    background-color: #771A09;
-    color: #FFFFFF;
-    font-size: 11px;
-    line-height: 11px;
-    margin: 10px 0 0;
-    padding: 5px 8px;
+	color: #fff;
+	background-color: #771a09;
+	font-size: 11px;
+	padding: 5px 8px;
+	line-height: 11px;
+	margin: 10px 0 0 0;
 }
 
 #sharing_email label {
-    color: #333333;
-    display: block;
-    font-size: 11px;
-    font-weight: bold;
-    padding: 0 0 4px;
-    text-align: left;
-    text-shadow: none;
+	font-size: 11px;
+	color: #333;
+	font-weight: bold;
+	display: block;
+	padding: 0 0 4px 0;
+	text-align: left;
+	text-shadow: none;
 }
 
 #sharing_email input[type="text"] {
-    background: none repeat scroll 0 0 #FFFFFF;
-    border: 1px solid #CCCCCC;
-    color: #333333;
-    margin-bottom: 12px;
-    width: 98.5%;
+	width: 98.5%;
+	margin-bottom: 12px;
+	border: 1px solid #ccc;
+	background: #fff;
+	color: #333;
 }
 
 #sharing_email .sharing_cancel {
-    font-size: 11px;
-    padding: 0 0 0 10px;
-    text-shadow: none;
+	padding: 0 0 0 10px;
+	font-size: 11px;
+	text-shadow: none;
 }
 
 #sharing_email .recaptcha {
-    height: 123px;
-    margin: 10px 0 14px;
-    width: 312px;
+	width: 312px;
+	height: 123px;
+	margin: 10px 0 14px 0;
 }
 
 /* =RTL
@@ -490,14 +496,17 @@ body.rtl .sharing ul {
 body.rtl .sharing li {
 	margin: 0 0 0 10px !important;
 }
+
 .rtl #sharing_email {
-    margin-left: 0;
-    margin-right: -120px;
-    text-align: right;
+	margin-left: -0px;
+	margin-right: -120px;
+	text-align: right
 }
-.rtl #sharing_email .sharing_cancel {
-    padding: 0 10px 0 0;
-}
+
 .rtl #sharing_email label {
-    text-align: right;
+	text-align: right
+}
+
+.rtl #sharing_email .sharing_cancel {
+	padding: 0 10px 0 0;
 }
