@@ -79,9 +79,16 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
-= next =
+= 1.6.2 =
+* Enhancement: Sharing: Share counts for Twitter, Facebook, LinkedIn
+* Enhancement: Sharing: Improve styling
+* Enhancement: Sharing: Add support for ReCaptcha
+* Enhancement: Sharing: Better extensability through filters
 * Bug Fix: Stats: Fix notice about undefined variable $alt
 * Bug Fix: Subscriptions: Make Subscriptions module obey the settings of the Settngs -> Discussion checkboxes for Follow Blog/Comments
+* Bug Fix: Shortcodes: VideoPress: Compatibility with the latest version of VideoPress
+* Bug Fix: Hovercards: Improve cache handling.
+* Bug Fix: Widgets: Gravatar Profle: Correctly display service icons in edge cases.
 
 = 1.6.1 =
 * Bug Fix: Prevent Fatal error under certain conditions in sharing module
