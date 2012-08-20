@@ -447,6 +447,12 @@ function sharing_display( $text = '' ) {
 		return $text;
 	}
 
+	if ( is_attachment() && in_array( 'the_excerpt', (array) $wp_current_filter ) ) {
+		// Many themes run the_excerpt() conditionally on an attachment page, then run the_content().
+		// We only want to output the sharing buttons once.  Let's stick with the_content().
+		return $text;
+	}
+
 	$sharer = new Sharing_Service();
 	$global = $sharer->get_global_options();
 
