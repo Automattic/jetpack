@@ -6,6 +6,11 @@ define( 'WP_SHARING_PLUGIN_VERSION', '0.3.1' );
 
 class Sharing_Service {
 	private $global = false;
+	var $default_sharing_label = '';
+
+	public function __construct() {
+		$this->default_sharing_label = __( 'Share this:', 'jetpack' );
+	}
 
 	/**
 	 * Gets a generic list of all services, without any config
@@ -193,7 +198,7 @@ class Sharing_Service {
 		// Defaults
 		$options['global'] = array(
 			'button_style'  => 'icon-text',
-			'sharing_label' => __( 'Share this:', 'jetpack' ),
+			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
 			'show'          => array( 'post', 'page' ),
 			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array()
@@ -205,8 +210,13 @@ class Sharing_Service {
 		if ( isset( $data['button_style'] ) && in_array( $data['button_style'], array( 'icon-text', 'icon', 'text', 'official' ) ) )
 			$options['global']['button_style'] = $data['button_style'];
 
-		if ( isset( $data['sharing_label'] ) )
-			$options['global']['sharing_label'] = trim( wp_kses( stripslashes( $data['sharing_label'] ), array() ) );
+		if ( isset( $data['sharing_label'] ) ) {
+			if ( $this->default_sharing_label === $data['sharing_label'] ) {
+				$options['global']['sharing_label'] = false;
+			} else {
+				$options['global']['sharing_label'] = trim( wp_kses( stripslashes( $data['sharing_label'] ), array() ) );
+			}
+		}
 
 		if ( isset( $data['open_links'] ) && in_array( $data['open_links'], array( 'new', 'same' ) ) )
 			$options['global']['open_links'] = $data['open_links'];
@@ -264,6 +274,11 @@ class Sharing_Service {
 				break;
 			}
 		}
+
+		if ( false === $this->global['sharing_label'] ) {
+			$this->global['sharing_label'] = $this->default_sharing_label;
+		}
+
 		return $this->global;
 	}
 	
