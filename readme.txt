@@ -84,7 +84,12 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Sharing: Improve styling
 * Enhancement: Sharing: Add support for ReCaptcha
 * Enhancement: Sharing: Better extensability through filters
+* Enhancement: Widgets: Twitter: Attempt to reduce errors by storing a long lasting copy of the data. Thanks, kareldonk :)
+* Regression Fix: Sharing: Properly store and display the sharing label option's default value.
+* Bug Fix: Contact Form: remove worse-than-useless nonce.
+* Bug Fix: Subscriptions: remove worse-than-useless nonce.
 * Bug Fix: Sharing: Don't show sharing buttons twice on attachment pages.
+* Bug Fix: Sharing: Increase width of Spanish Like button for Facebook.
 * Bug Fix: Stats: Fix notice about undefined variable $alt
 * Bug Fix: Subscriptions: Make Subscriptions module obey the settings of the Settngs -> Discussion checkboxes for Follow Blog/Comments
 * Bug Fix: Shortcodes: VideoPress: Compatibility with the latest version of VideoPress
