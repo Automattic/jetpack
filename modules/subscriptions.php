@@ -356,7 +356,9 @@ class Jetpack_Subscriptions {
 	 */
 	function widget_submit() {
 		// Check the nonce.
-		check_admin_referer( 'blogsub_subscribe_' . get_current_blog_id() );
+		if ( is_user_logged_in() ) {
+			check_admin_referer( 'blogsub_subscribe_' . get_current_blog_id() );
+		}
 
 		if ( empty( $_REQUEST['email'] ) )
 			return false;
@@ -587,7 +589,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>" />
 				<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>" />
 				<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $widget_id ); ?>" />
-				<?php wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false ); ?>
+				<?php
+					if ( is_user_logged_in() ) {
+						wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false );
+					}
+				?>
 				<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>" name="jetpack_subscriptions_widget" />
 			</p>
 		</form>
