@@ -80,6 +80,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 == Changelog ==
 
 = 1.6.2 =
+* Enhancement: Comments: Submit the comment within the iframe.  No more full page load to jetpack.wordpress.com.
 * Enhancement: Sharing: Share counts for Twitter, Facebook, LinkedIn
 * Enhancement: Sharing: Improve styling
 * Enhancement: Sharing: Add support for ReCaptcha

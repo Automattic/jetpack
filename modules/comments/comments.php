@@ -115,6 +115,16 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		add_action( 'comment_post', array( $this, 'add_comment_meta' ) );
 	}
 
+	/**
+	 * Setup filters for methods in this class
+	 * @since 1.6.2
+	 */
+	protected function setup_filters() {
+		parent::setup_filters();
+
+		add_filter( 'comment_post_redirect', array( $this, 'capture_comment_post_redirect_to_reload_parent_frame' ), 100 );
+	}
+
 	/** Output Methods ********************************************************/
 
 	/**
@@ -168,6 +178,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			'greeting'             => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),
 			'color_scheme'         => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
 			'lang'                 => get_bloginfo( 'language' ),
+			'jetpack_version'      => JETPACK__VERSION,
 		);
 
 		// Extra parameters for logged in user
@@ -378,6 +389,87 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		// Loop through extra meta and add values
 		foreach ( $comment_meta as $key => $value )
 			add_comment_meta( $comment_id, $key, $value, true );
+	}
+	function capture_comment_post_redirect_to_reload_parent_frame( $url ) {
+		if ( !isset( $_GET['for'] ) || 'jetpack' != $_GET['for'] ) {
+			return $url;
+		}
+?>
+<!DOCTYPE html>
+<html <?php language_attributes(); ?>>
+<!--<![endif]-->
+<head>
+<meta charset="<?php bloginfo( 'charset' ); ?>" />
+<title><?php printf( __( 'Submitting Comment%s', 'jetpack' ), '&hellip;' ); ?></title>
+<style type="text/css">
+body {
+	display: table;
+	width: 100%;
+	height: 60%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow: hidden;
+	color: #333;
+}
+
+h1 {
+	text-align: center;
+	margin: 0;
+	padding: 0;
+	display: table-cell;
+	vertical-align: middle;
+	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", sans-serif;
+	font-weight: normal;
+}
+
+.hidden {
+	opacity: 0;
+}
+
+h1 span {
+	-moz-transition-property: opacity;
+	-moz-transition-duration: 1s;
+	-moz-transition-timing-function: ease-in-out;
+
+	-webkit-transition-property: opacity;
+	-webkit-transition-duration: 1s;
+	-webbit-transition-timing-function: ease-in-out;
+
+	-o-transition-property: opacity;
+	-o-transition-duration: 1s;
+	-o-transition-timing-function: ease-in-out;
+
+	-ms-transition-property: opacity;
+	-ms-transition-duration: 1s;
+	-ms-transition-timing-function: ease-in-out;
+
+	transition-property: opacity;
+	transition-duration: 1s;
+	transition-timing-function: ease-in-out;
+}
+</style>
+</head>
+<body>
+        <h1><?php printf( __( 'Submitting Comment%s', 'jetpack' ), '<span id="ellipsis" class="hidden">&hellip;</span>' ); ?></h1>
+<script type="text/javascript">
+try {
+	window.parent.location = <?php echo json_encode( $url ); ?>;
+	window.parent.location.reload();
+} catch ( e ) {
+	window.location = <?php echo json_encode( $url ); ?>;
+	window.location.reload();
+}
+ellipsis = document.getElementById( 'ellipsis' );
+function toggleEllipsis() {
+        ellipsis.className = ellipsis.className ? '' : 'hidden';
+}
+setInterval( toggleEllipsis, 1200 );
+</script>
+</body>
+</html>
+<?php
+		exit;
 	}
 }
 
