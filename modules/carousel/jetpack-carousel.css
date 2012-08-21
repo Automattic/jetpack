@@ -482,7 +482,10 @@ div#carousel-reblog-box {
 	display: none;
 }
 
-h1:before, h1:after {
+.jp-carousel-photo-info h1:before, 
+.jp-carousel-photo-info h1:after,
+.jp-carousel-left-column-wrapper h1:before,
+.jp-carousel-left-column-wrapper h1:after {
 	content:none !important;
 }
 /** Title and Desc End **/
@@ -631,6 +634,8 @@ a.jp-carousel-image-download:hover {
 	width:auto;
 	display: inline;
 	float:none;
+	border:none;
+	margin:0;
 }
 
 .jp-carousel-comment .comment-author a {
@@ -644,6 +649,7 @@ a.jp-carousel-image-download:hover {
 .jp-carousel-comment .comment-content {
 	border:none;
 	margin-left:85px;
+	padding: 0;
 }
 
 .jp-carousel-comment .avatar {
