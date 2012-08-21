@@ -90,6 +90,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Bug Fix: Shortcodes: VideoPress: Compatibility with the latest version of VideoPress
 * Bug Fix: Hovercards: Improve cache handling.
 * Bug Fix: Widgets: Gravatar Profle: Correctly display service icons in edge cases.
+* Bug Fix: Carousel: CSS Compatibility with more themes.
 
 = 1.6.1 =
 * Bug Fix: Prevent Fatal error under certain conditions in sharing module
