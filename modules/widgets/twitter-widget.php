@@ -85,7 +85,8 @@ class Wickett_Twitter_Widget extends WP_Widget {
 
 		echo "{$before_widget}{$before_title}<a href='" . esc_url( "http://twitter.com/{$account}" ) . "'>" . esc_html($title) . "</a>{$after_title}";
  
-		if ( false === ( $tweets = get_transient( 'widget-twitter-' . $this->number ) ) ) {
+		$tweets = get_transient( 'widget-twitter-' . $this->number );
+		if ( false === $tweets ) {
 			$params = array(
 				'screen_name'=>$account, // Twitter account name
 				'trim_user'=>true, // only basic user data (slims the result)
@@ -109,15 +110,20 @@ class Wickett_Twitter_Widget extends WP_Widget {
 			if ( 200 == $response_code ) {
 				$tweets = wp_remote_retrieve_body( $response );
 				$tweets = json_decode( $tweets, true );
-				$expire = 900;
+				$expire = 900; // 15 minutes
 				if ( !is_array( $tweets ) || isset( $tweets['error'] ) ) {
 					$tweets = 'error';
-					$expire = 300;
+					$expire = 300; // 5 minutes
+				} else {				
+					set_transient( 'widget-twitter-backup-' . $this->number, $tweets, 86400 ); // 1 day
 				}
 			} else {
-				$tweets = 'error';
-				$expire = 300;
-				set_transient( 'widget-twitter-response-code-' . $this->number, $response_code, $expire );
+				$expire = 300; // 5 minutes
+				$tweets = get_transient( 'widget-twitter-backup-' . $this->number );
+				if ( !is_array( $tweets ) || isset( $tweets['error'] ) ) {
+					$tweets = 'error';
+					set_transient( 'widget-twitter-response-code-' . $this->number, $response_code, $expire );
+				}
 			}
 
 			set_transient( 'widget-twitter-' . $this->number, $tweets, $expire );
