@@ -260,10 +260,15 @@ function contact_form_shortcode( $atts, $content ) {
 	else
 		$contact_form_last_id = $id;
 
-	ob_start();
-		wp_nonce_field( 'contact-form_' . $id );
-		$nonce = ob_get_contents();
-	ob_end_clean();
+	if ( is_user_logged_in() ) {
+		ob_start();
+			wp_nonce_field( 'contact-form_' . $id );
+			$nonce = ob_get_contents();
+			$nonce = "\t\t$nonce\n";
+		ob_end_clean();
+	} else {
+		$nonce = '';
+	}
 
 
 	$body = contact_form_parse( $content );
@@ -283,7 +288,7 @@ function contact_form_shortcode( $atts, $content ) {
 	$r .= $body;
 	$r .= "\t<p class='contact-submit'>\n";
 	$r .= "\t\t<input type='submit' value='" . __( "Submit &#187;", 'jetpack' ) . "' class='pushbutton-wide'/>\n";
-	$r .= "\t\t$nonce\n";
+	$r .= $nonce;
 	$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
 	$r .= "\t</p>\n";
 	$r .= "</form>\n</div>";
@@ -351,10 +356,12 @@ function contact_form_send_message( $to, $subject, $widget ) {
 	if ( ( $widget && 'widget-' . $widget != $_POST['contact-form-id'] ) || ( !$widget && $post->ID != $_POST['contact-form-id'] ) )
 		return;
 
-	if ( $widget )
-		check_admin_referer( 'contact-form_widget-' . $widget );
-	else
-		check_admin_referer( 'contact-form_' . $post->ID );
+	if ( is_user_logged_in() ) {
+		if ( $widget )
+			check_admin_referer( 'contact-form_widget-' . $widget );
+		else
+			check_admin_referer( 'contact-form_' . $post->ID );
+	}
 
 	global $contact_form_values, $contact_form_errors, $current_user, $user_identity;
 	global $contact_form_fields, $contact_form_message;
