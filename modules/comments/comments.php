@@ -234,6 +234,14 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$url_origin = ( is_ssl() ? 'https' : 'http' ) . '://jetpack.wordpress.com';
 	?>
 
+		<!--[if IE]>
+		<script type="text/javascript">
+		if ( 0 === window.location.hash.indexOf( '#comment-' ) ) {
+			// window.location.reload() doesn't respect the Hash in IE
+			window.location.hash = window.location.hash;
+		}
+		</script>
+		<![endif]-->
 		<script type="text/javascript">
 			var comm_par_el = document.getElementById( 'comment_parent' ),
 			    comm_par = (comm_par_el && comm_par_el.value) ? comm_par_el.value : '',
