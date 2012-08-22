@@ -91,6 +91,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Bug Fix: Subscriptions: remove worse-than-useless nonce.
 * Bug Fix: Sharing: Don't show sharing buttons twice on attachment pages.
 * Bug Fix: Sharing: Increase width of Spanish Like button for Facebook.
+* Bug Fix: Sharing: Use the correct URL to the throbber.
 * Bug Fix: Stats: Fix notice about undefined variable $alt
 * Bug Fix: Subscriptions: Make Subscriptions module obey the settings of the Settngs -> Discussion checkboxes for Follow Blog/Comments
 * Bug Fix: Shortcodes: VideoPress: Compatibility with the latest version of VideoPress
