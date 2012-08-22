@@ -769,7 +769,8 @@ function safecss_admin() {
 <?php do_action( 'custom_design_header' ); ?>
 <div id="poststuff" class="has-right-sidebar">
 <h2><?php _e( 'CSS Stylesheet Editor', 'jetpack' ); ?></h2>
-<p class="css-support"><?php _e( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/">beginner tutorial</a>. Questions? Ask in the <a href="http://en.forums.wordpress.com/forum/css-customization">CSS Customization forum</a>.', 'jetpack' ); ?></p>
+<p class="css-support"><?php echo apply_filters( 'safecss_intro_text', __( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/">beginner tutorial</a>. Questions? 
+Ask in the <a href="http://wordpress.org/support/forum/themes-and-templates">Themes and Templates forum</a>.', 'jetpack' ) ); ?></p>
 
 <form id="safecssform" action="" method="post">
 	<?php if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) : ?>
@@ -807,7 +808,7 @@ function safecss_admin() {
 		</p>
 		<p><?php printf( __( '<a href="%s">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor.', 'jetpack' ), apply_filters( 'safecss_theme_stylesheet_url', get_bloginfo( 'stylesheet_directory' ) . '/style.css' ), get_current_theme() ); ?></p>
 		<p class="custom_content_width">
-			<label for="custom_content_width"><?php _e( 'Limit width to', 'jetpack' ); ?></label><input type="text" name="custom_content_width" id="custom_content_width" value="<?php echo esc_attr( $custom_content_width ); ?>" size=5 /> <?php printf( __( 'pixels for videos, full size images, and other shortcodes. (<a href="%s">More info</a>.)', 'jetpack' ), 'http://support.wordpress.com/editing-css/#limited-width' ); ?>
+			<label for="custom_content_width"><?php _e( 'Limit width to', 'jetpack' ); ?></label><input type="text" name="custom_content_width" id="custom_content_width" value="<?php echo esc_attr( $custom_content_width ); ?>" size=5 /> <?php printf( __( 'pixels for videos, full size images, and other shortcodes. (<a href="%s">More info</a>.)', 'jetpack' ), apply_filters( 'safecss_limit_width_link', 'http://jetpack.me/support/custom-css/#limited-width' ) ); ?>
 		<?php if ( !empty( $GLOBALS['content_width'] ) && $custom_content_width != $GLOBALS['content_width'] ) printf( __( 'The default content width for the %s theme is %d pixels.', 'jetpack' ), get_current_theme(), intval( $GLOBALS['content_width'] ) ); ?>
 		</p>
 	<?php
