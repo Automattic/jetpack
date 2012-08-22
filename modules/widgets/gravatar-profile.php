@@ -54,7 +54,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			);
 
 			?>
-			<img src="<?php echo esc_url( $gravatar_url ); ?>" class="grofile-thumbnail no-grav" />
+			<img src="<?php echo esc_url( $gravatar_url ); ?>" class="grofile-thumbnail no-grav" style="max-width: 100%;" />
 			<div class="grofile-meta">
 				<h4><a href="<?php echo esc_url( $profile['profileUrl'] ); ?>"><?php echo esc_html( $profile['displayName'] ); ?></a></h4>
 				<p><?php echo esc_html( wp_kses( $profile['aboutMe'], array() ) ); ?></p>
