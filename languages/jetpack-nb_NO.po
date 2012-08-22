@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-08-18 01:15:03+0000\n"
+"PO-Revision-Date: 2012-08-22 20:01:44+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,7 +10,11 @@ msgstr ""
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 1.6\n"
 
-#: modules/sharedaddy/sharing-service.php:502
+#: modules/comments/comments.php:411 modules/comments/comments.php:462
+msgid "Submitting Comment%s"
+msgstr ""
+
+#: modules/sharedaddy/sharing-service.php:523
 #: modules/sharedaddy/sharing.php:245 modules/sharedaddy/sharing.php:278
 msgid "More"
 msgstr ""
@@ -392,31 +396,31 @@ msgstr "Twitter (Jetpack)"
 msgid "Twitter Updates"
 msgstr "Twitter-oppdateringer"
 
-#: modules/widgets/twitter-widget.php:178
+#: modules/widgets/twitter-widget.php:184
 msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
 msgstr "Feil: Vennligst forsikre deg om at Twitter-kontoen er <a href=\"%s\">offentlig</a>."
 
-#: modules/widgets/twitter-widget.php:180
+#: modules/widgets/twitter-widget.php:186
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
 msgstr "Feil: Twitter svarte ikke. Vennligst vent noen minutter og last denne siden på nytt."
 
-#: modules/widgets/twitter-widget.php:222
+#: modules/widgets/twitter-widget.php:228
 msgid "Twitter username:"
 msgstr "Twitter-brukernavn:"
 
-#: modules/widgets/twitter-widget.php:225
+#: modules/widgets/twitter-widget.php:231
 msgid "Maximum number of tweets to show:"
 msgstr "Maks antall tweets å vise:"
 
-#: modules/widgets/twitter-widget.php:236
+#: modules/widgets/twitter-widget.php:242
 msgid "Hide replies"
 msgstr "Skjul svar"
 
-#: modules/widgets/twitter-widget.php:241
+#: modules/widgets/twitter-widget.php:247
 msgid "Include retweets"
 msgstr "Inkluder retweets"
 
-#: modules/widgets/twitter-widget.php:243
+#: modules/widgets/twitter-widget.php:249
 msgid "Text to display between tweet and timestamp:"
 msgstr "Tekst som skal vises mellom tweet og tidsstempel:"
 
@@ -480,7 +484,7 @@ msgid "RSS Links (Jetpack)"
 msgstr "RSS-lenker (Jetpack)"
 
 #: modules/widgets/rsslinks-widget.php:62
-#: modules/widgets/twitter-widget.php:219
+#: modules/widgets/twitter-widget.php:225
 msgid "Title:"
 msgstr "Tittel:"
 
@@ -623,39 +627,39 @@ msgstr "Vis et bilde i sidestolpen"
 msgid "Image (Jetpack)"
 msgstr "Bilde (Jetpack)"
 
-#: modules/subscriptions.php:583
+#: modules/subscriptions.php:585
 msgid "Email Address"
 msgstr "Epost-adresse"
 
-#: modules/subscriptions.php:654
+#: modules/subscriptions.php:660
 msgid "Subscribe to Blog via Email"
 msgstr "Abonner på nettstedet via epost"
 
-#: modules/subscriptions.php:655
+#: modules/subscriptions.php:661
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
 msgstr "Oppgi din epost-adresse for å abonnere på dette nettstedet og motta varsler om nye innlegg via epost."
 
-#: modules/subscriptions.php:657
+#: modules/subscriptions.php:663
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
 msgstr "Klikk for å abonnere på dette nettstedet og motta varsler om nye innlegg via epost."
 
-#: modules/subscriptions.php:673
+#: modules/subscriptions.php:679
 msgid "%s: %s"
 msgstr "%s: %s"
 
-#: modules/subscriptions.php:681 modules/widgets/image-widget.php:107
+#: modules/subscriptions.php:687 modules/widgets/image-widget.php:107
 msgid "Widget title:"
 msgstr "Widget-tittel:"
 
-#: modules/subscriptions.php:687
+#: modules/subscriptions.php:693
 msgid "Optional text to display to your readers:"
 msgstr "Ytterligere tekst å vise dine lesere:"
 
-#: modules/subscriptions.php:693
+#: modules/subscriptions.php:699
 msgid "Subscribe Button:"
 msgstr "Abonnementsknapp"
 
-#: modules/subscriptions.php:700
+#: modules/subscriptions.php:706
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] "Vis antall abonnenter? (%s abonnent)"
@@ -685,39 +689,39 @@ msgstr "Vis en <em>'følg nettstedet'</em>-muligheten i kommentarskjemaet"
 msgid "Show a <em>'follow comments'</em> option in the comment form"
 msgstr "Vis en <em>'følg kommentarene'</em>-muligheten i kommentarskjemaet"
 
-#: modules/subscriptions.php:434
+#: modules/subscriptions.php:436
 msgid "Notify me of follow-up comments by email."
 msgstr "Varsle meg om senere kommentarer via epost."
 
-#: modules/subscriptions.php:441
+#: modules/subscriptions.php:443
 msgid "Notify me of new posts by email."
 msgstr "Varsle meg om nye innlegg via epost."
 
-#: modules/subscriptions.php:507
+#: modules/subscriptions.php:509
 msgid "Add an email signup form to allow people to subscribe to your blog."
 msgstr "Legg til et abonnementsskjema for å la leserne abonnere på ditt nettsted."
 
-#: modules/subscriptions.php:510
+#: modules/subscriptions.php:512
 msgid "Blog Subscriptions (Jetpack)"
 msgstr "Nettstedsabonnementer (Jetpack)"
 
-#: modules/subscriptions.php:541
+#: modules/subscriptions.php:543
 msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
 msgstr "En epost ble akkurat sendt til deg for bekrefte ditt abonnement. Vennligst finn eposten nå og klikk aktiver."
 
-#: modules/subscriptions.php:551
+#: modules/subscriptions.php:553
 msgid "The email you entered was invalid, please check and try again."
 msgstr "Epost-adressen du oppga var ugyldig. Vennligst korriger den og prøv igjen."
 
-#: modules/subscriptions.php:554
+#: modules/subscriptions.php:556
 msgid "You have already subscribed to this site, please check your inbox."
 msgstr "Du har allerede abonnert på dette nettstedet. Vennligst sjekk din innboks."
 
-#: modules/subscriptions.php:561
+#: modules/subscriptions.php:563
 msgid "There was an error when subscribing, please try again."
 msgstr "Det oppsto en feil ved abonneringen. Vennligst prøv igjen."
 
-#: modules/subscriptions.php:579
+#: modules/subscriptions.php:581
 msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
 msgstr[0] "Bli med blant %s annen abonnent"
@@ -1171,7 +1175,7 @@ msgstr "Klikk for å dele på LinkedIn"
 msgid "Facebook"
 msgstr "Facebook"
 
-#: modules/sharedaddy/sharing-service.php:504
+#: modules/sharedaddy/sharing-service.php:525
 msgid "Share"
 msgstr "Del"
 
@@ -1324,7 +1328,7 @@ msgstr "Deaktiver CSS og JS"
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
 msgstr "Avansert: Hvis dette alternativet er valgt må du manuelt inkludere disse filene i ditt tema for at delingslenkene skal virke."
 
-#: modules/sharedaddy/sharing-service.php:196
+#: modules/sharedaddy/sharing-service.php:12
 msgid "Share this:"
 msgstr "Del dette:"
 
@@ -1782,26 +1786,26 @@ msgstr "Epost-varslinger"
 msgid "How does this work?"
 msgstr "Hvordan virker dette?"
 
-#: modules/contact-form/grunion-contact-form.php:675
+#: modules/contact-form/grunion-contact-form.php:682
 msgid "Feedback"
 msgstr "Tilbakemelding"
 
-#: modules/contact-form/grunion-contact-form.php:676
+#: modules/contact-form/grunion-contact-form.php:683
 msgid "Search Feedback"
 msgstr "Søk i tilbakemeldinger"
 
-#: modules/contact-form/grunion-contact-form.php:677
-#: modules/contact-form/grunion-contact-form.php:678
+#: modules/contact-form/grunion-contact-form.php:684
+#: modules/contact-form/grunion-contact-form.php:685
 msgid "No feedback found"
 msgstr "Ingen tilbakemeldinger funnet"
 
-#: modules/contact-form/grunion-contact-form.php:694
+#: modules/contact-form/grunion-contact-form.php:701
 msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
 msgstr[0] "Useriøs <span class=\"count\">(%s)</span>"
 msgstr[1] "Useriøse <span class=\"count\">(%s)</span>"
 
-#: modules/contact-form/grunion-contact-form.php:718
+#: modules/contact-form/grunion-contact-form.php:725
 msgid "Add a custom form"
 msgstr "Legg til et tilpasset skjema"
 
@@ -1853,44 +1857,44 @@ msgstr "%s krever en gyldig epostadresse"
 msgid "%s is required"
 msgstr "%s er påkrevet"
 
-#: modules/contact-form/grunion-contact-form.php:275
-#: modules/contact-form/grunion-contact-form.php:323
+#: modules/contact-form/grunion-contact-form.php:280
+#: modules/contact-form/grunion-contact-form.php:328
 msgid "Error!"
 msgstr "Feil!"
 
-#: modules/contact-form/grunion-contact-form.php:285
+#: modules/contact-form/grunion-contact-form.php:290
 msgid "Submit &#187;"
 msgstr "Send inn &#187;"
 
-#: modules/contact-form/grunion-contact-form.php:328
+#: modules/contact-form/grunion-contact-form.php:333
 msgid "Message Sent"
 msgstr "Melding sendt"
 
-#: modules/contact-form/grunion-contact-form.php:462
+#: modules/contact-form/grunion-contact-form.php:469
 msgid "l F j, Y \\a\\t g:i a"
 msgstr "j. F Y \\k\\l H:i"
 
-#: modules/contact-form/grunion-contact-form.php:482
+#: modules/contact-form/grunion-contact-form.php:489
 msgid "Time:"
 msgstr "Tid:"
 
-#: modules/contact-form/grunion-contact-form.php:483
+#: modules/contact-form/grunion-contact-form.php:490
 msgid "IP Address:"
 msgstr "IP-adresse:"
 
-#: modules/contact-form/grunion-contact-form.php:484
+#: modules/contact-form/grunion-contact-form.php:491
 msgid "Contact Form URL:"
 msgstr "Kontaktskjema URL"
 
-#: modules/contact-form/grunion-contact-form.php:507
+#: modules/contact-form/grunion-contact-form.php:514
 msgid "Sent by a verified %s user."
 msgstr "Sendt av en bekreftet %s bruker."
 
-#: modules/contact-form/grunion-contact-form.php:511
+#: modules/contact-form/grunion-contact-form.php:518
 msgid "Sent by an unverified visitor to your site."
 msgstr "Send av en ubekreftet besøkende."
 
-#: modules/contact-form/grunion-contact-form.php:674
+#: modules/contact-form/grunion-contact-form.php:681
 #: modules/contact-form/grunion-form-view.php:136
 msgid "Feedbacks"
 msgstr "Tilbakemeldinger"
@@ -2040,15 +2044,15 @@ msgstr "Feil: Vennligst fyll ut det nødvendige feltet (navn, epost)."
 msgid "Error: please enter a valid email address."
 msgstr "Feil: Vennligst skriv inn en gyldig epostadresse,"
 
-#: modules/comments/comments.php:144
+#: modules/comments/comments.php:154
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
 msgstr "Du må <a href=\"%s\">logge inn</a> for å legge inn kommentar."
 
-#: modules/comments/comments.php:206
+#: modules/comments/comments.php:217
 msgid "Cancel Reply"
 msgstr "Avbryt kommentaren"
 
-#: modules/comments/comments.php:332
+#: modules/comments/comments.php:351
 msgid "Invalid security token."
 msgstr "Ugyldig sikkerhetskode."
 
@@ -2089,7 +2093,7 @@ msgstr "Legg til"
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
 msgstr "Husk å klikke \"oppdater profil\" nederst på skjermen for å lagre endringene."
 
-#: modules/comments/admin.php:50 modules/comments/comments.php:168
+#: modules/comments/admin.php:50 modules/comments/comments.php:178
 msgid "Leave a Reply"
 msgstr "Legg inn en kommentar"
 
@@ -2219,15 +2223,15 @@ msgid "Coming soon&#8230;"
 msgstr "Kommer snart…"
 
 #: jetpack.php:2342 jetpack.php:2344 jetpack.php:2346 jetpack.php:2349
-#: jetpack.php:3010
+#: jetpack.php:3015
 msgid "Error Details: %s"
 msgstr "Detaljer om feil: %s"
 
-#: jetpack.php:2966
+#: jetpack.php:2971
 msgid "An administrator for this blog must set up the Jetpack connection."
 msgstr "En administrator for dette nettstedet må sette opp Jetpack-tilkoblingen."
 
-#: jetpack.php:2971
+#: jetpack.php:2976
 msgid "You need to register your Jetpack before connecting it."
 msgstr "Du må registrere Jetpack før du kobler det til."
 
@@ -2342,7 +2346,7 @@ msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr "Vil du få oppdateringer om Jetpack på e-post? %s"
 
-#: jetpack.php:1953 modules/subscriptions.php:656
+#: jetpack.php:1953 modules/subscriptions.php:662
 msgid "Subscribe"
 msgstr "Abonner"
 

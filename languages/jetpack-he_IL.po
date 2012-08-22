@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-08-18 01:15:05+0000\n"
+"PO-Revision-Date: 2012-08-22 20:01:45+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,7 +10,11 @@ msgstr ""
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 1.6\n"
 
-#: modules/sharedaddy/sharing-service.php:502
+#: modules/comments/comments.php:411 modules/comments/comments.php:462
+msgid "Submitting Comment%s"
+msgstr ""
+
+#: modules/sharedaddy/sharing-service.php:523
 #: modules/sharedaddy/sharing.php:245 modules/sharedaddy/sharing.php:278
 msgid "More"
 msgstr "עוד"
@@ -392,31 +396,31 @@ msgstr "טוויטר (Jetpack)"
 msgid "Twitter Updates"
 msgstr "עדכוני טוויטר"
 
-#: modules/widgets/twitter-widget.php:178
+#: modules/widgets/twitter-widget.php:184
 msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
 msgstr "שגיאה: אנא וודא שחשבון טוויטר <a href=\"%s\">ציבורי</a>."
 
-#: modules/widgets/twitter-widget.php:180
+#: modules/widgets/twitter-widget.php:186
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
 msgstr "שגיאה: טוויטר לא הגיב. בבקשה המתן כמה דקות ורענן את הדף."
 
-#: modules/widgets/twitter-widget.php:222
+#: modules/widgets/twitter-widget.php:228
 msgid "Twitter username:"
 msgstr "שם משתמש בטוויטר:"
 
-#: modules/widgets/twitter-widget.php:225
+#: modules/widgets/twitter-widget.php:231
 msgid "Maximum number of tweets to show:"
 msgstr "מספר מירבי של ציוצים להצגה:"
 
-#: modules/widgets/twitter-widget.php:236
+#: modules/widgets/twitter-widget.php:242
 msgid "Hide replies"
 msgstr "הסתר תשובות"
 
-#: modules/widgets/twitter-widget.php:241
+#: modules/widgets/twitter-widget.php:247
 msgid "Include retweets"
 msgstr "כלול ציוצים חוזרים"
 
-#: modules/widgets/twitter-widget.php:243
+#: modules/widgets/twitter-widget.php:249
 msgid "Text to display between tweet and timestamp:"
 msgstr "טקסט להצגה בין הציוץ לתאריך/שעה שלו:"
 
@@ -480,7 +484,7 @@ msgid "RSS Links (Jetpack)"
 msgstr "הזנות RSS (Jetpack)"
 
 #: modules/widgets/rsslinks-widget.php:62
-#: modules/widgets/twitter-widget.php:219
+#: modules/widgets/twitter-widget.php:225
 msgid "Title:"
 msgstr "כותרת:"
 
@@ -623,39 +627,39 @@ msgstr "הצג תמונה בסרגל הצד שלך"
 msgid "Image (Jetpack)"
 msgstr "תמונה (Jetpack)"
 
-#: modules/subscriptions.php:583
+#: modules/subscriptions.php:585
 msgid "Email Address"
 msgstr "כתובת דואר אלקטרוני"
 
-#: modules/subscriptions.php:654
+#: modules/subscriptions.php:660
 msgid "Subscribe to Blog via Email"
 msgstr "הירשם לבלוג באמצעות המייל"
 
-#: modules/subscriptions.php:655
+#: modules/subscriptions.php:661
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
 msgstr "הזן את כתובת המייל שלך כדי להירשם לאתר ולקבל הודעות על פוסטים חדשים במייל."
 
-#: modules/subscriptions.php:657
+#: modules/subscriptions.php:663
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
 msgstr "לחץ כדי להירשם לאתר ולקבל הודעות על פוסטים חדשים בדואר אלקטרוני."
 
-#: modules/subscriptions.php:673
+#: modules/subscriptions.php:679
 msgid "%s: %s"
 msgstr "%s: %s"
 
-#: modules/subscriptions.php:681 modules/widgets/image-widget.php:107
+#: modules/subscriptions.php:687 modules/widgets/image-widget.php:107
 msgid "Widget title:"
 msgstr "כותרת היישומון (וידג'ט):"
 
-#: modules/subscriptions.php:687
+#: modules/subscriptions.php:693
 msgid "Optional text to display to your readers:"
 msgstr "טקסט אופציונלי שיוצג לקוראים שלך:"
 
-#: modules/subscriptions.php:693
+#: modules/subscriptions.php:699
 msgid "Subscribe Button:"
 msgstr "כפתור הרשמה:"
 
-#: modules/subscriptions.php:700
+#: modules/subscriptions.php:706
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] "האם להציג את מספר המנויים? (מנוי אחד)"
@@ -685,39 +689,39 @@ msgstr ""
 msgid "Show a <em>'follow comments'</em> option in the comment form"
 msgstr ""
 
-#: modules/subscriptions.php:434
+#: modules/subscriptions.php:436
 msgid "Notify me of follow-up comments by email."
 msgstr "הודע לי על תגובות נוספות באמצעות המייל."
 
-#: modules/subscriptions.php:441
+#: modules/subscriptions.php:443
 msgid "Notify me of new posts by email."
 msgstr "הודע לי על פוסטים חדשים באמצעות המייל."
 
-#: modules/subscriptions.php:507
+#: modules/subscriptions.php:509
 msgid "Add an email signup form to allow people to subscribe to your blog."
 msgstr "הוסף טופס הרשמה במייל כדי לאפשר לאנשים לעשות מנוי לבלוג שלך."
 
-#: modules/subscriptions.php:510
+#: modules/subscriptions.php:512
 msgid "Blog Subscriptions (Jetpack)"
 msgstr "מנויים לבלוג (Jetpack)"
 
-#: modules/subscriptions.php:541
+#: modules/subscriptions.php:543
 msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
 msgstr "הודעת מייל נשלחה אליך לאישור ההרשמה. להפעלת המנוי, לחץ על הקישור בהודעת המייל."
 
-#: modules/subscriptions.php:551
+#: modules/subscriptions.php:553
 msgid "The email you entered was invalid, please check and try again."
 msgstr "כתובת הדואר האלקטרוני שהזנת אינה תקנית, בדוק ונסה שוב בבקשה."
 
-#: modules/subscriptions.php:554
+#: modules/subscriptions.php:556
 msgid "You have already subscribed to this site, please check your inbox."
 msgstr "כבר נרשמת לאתר זה, בבקשה בדוק את תיבת הדואר הנכנס שלך."
 
-#: modules/subscriptions.php:561
+#: modules/subscriptions.php:563
 msgid "There was an error when subscribing, please try again."
 msgstr "ארעה שגיאה בהרשמה, בבקשה נסה שוב."
 
-#: modules/subscriptions.php:579
+#: modules/subscriptions.php:581
 msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
 msgstr[0] "הצטרף למנוי נוסף אחד"
@@ -1171,7 +1175,7 @@ msgstr "לחץ כדי לשתף ב LinkedIn"
 msgid "Facebook"
 msgstr "פייסבוק"
 
-#: modules/sharedaddy/sharing-service.php:504
+#: modules/sharedaddy/sharing-service.php:525
 msgid "Share"
 msgstr "שתף"
 
@@ -1324,7 +1328,7 @@ msgstr "ביטול CSS וג'אווה-סקריפט"
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
 msgstr "מתקדם. אם אפשרות זו מסומנת, עליך לכלול את הקבצים האלה בערכת הנושא שלך באופן ידני כדי שהקישורים לשיתוף יעבדו."
 
-#: modules/sharedaddy/sharing-service.php:196
+#: modules/sharedaddy/sharing-service.php:12
 msgid "Share this:"
 msgstr "שתף זאת:"
 
@@ -1782,26 +1786,26 @@ msgstr ""
 msgid "How does this work?"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:675
+#: modules/contact-form/grunion-contact-form.php:682
 msgid "Feedback"
 msgstr "משוב"
 
-#: modules/contact-form/grunion-contact-form.php:676
+#: modules/contact-form/grunion-contact-form.php:683
 msgid "Search Feedback"
 msgstr "חיפוש משובים"
 
-#: modules/contact-form/grunion-contact-form.php:677
-#: modules/contact-form/grunion-contact-form.php:678
+#: modules/contact-form/grunion-contact-form.php:684
+#: modules/contact-form/grunion-contact-form.php:685
 msgid "No feedback found"
 msgstr "לא נמצא משוב"
 
-#: modules/contact-form/grunion-contact-form.php:694
+#: modules/contact-form/grunion-contact-form.php:701
 msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
 msgstr[0] "ספאם <span class=\"count\">אחד</span>"
 msgstr[1] "ספאם <span class=\"count\">(%s)</span>"
 
-#: modules/contact-form/grunion-contact-form.php:718
+#: modules/contact-form/grunion-contact-form.php:725
 msgid "Add a custom form"
 msgstr "הוספת טופס מותאם אישית"
 
@@ -1853,44 +1857,44 @@ msgstr "%s דורש כתובת אימייל תקינה"
 msgid "%s is required"
 msgstr "נדרש %s"
 
-#: modules/contact-form/grunion-contact-form.php:275
-#: modules/contact-form/grunion-contact-form.php:323
+#: modules/contact-form/grunion-contact-form.php:280
+#: modules/contact-form/grunion-contact-form.php:328
 msgid "Error!"
 msgstr "שגיאה!"
 
-#: modules/contact-form/grunion-contact-form.php:285
+#: modules/contact-form/grunion-contact-form.php:290
 msgid "Submit &#187;"
 msgstr "&laquo; לשלוח"
 
-#: modules/contact-form/grunion-contact-form.php:328
+#: modules/contact-form/grunion-contact-form.php:333
 msgid "Message Sent"
 msgstr "הודעה נשלחה"
 
-#: modules/contact-form/grunion-contact-form.php:462
+#: modules/contact-form/grunion-contact-form.php:469
 msgid "l F j, Y \\a\\t g:i a"
 msgstr "l j ל-F , Y בשעה G:i "
 
-#: modules/contact-form/grunion-contact-form.php:482
+#: modules/contact-form/grunion-contact-form.php:489
 msgid "Time:"
 msgstr "שעה:"
 
-#: modules/contact-form/grunion-contact-form.php:483
+#: modules/contact-form/grunion-contact-form.php:490
 msgid "IP Address:"
 msgstr "כתובת IP:"
 
-#: modules/contact-form/grunion-contact-form.php:484
+#: modules/contact-form/grunion-contact-form.php:491
 msgid "Contact Form URL:"
 msgstr "כתובת טופס יצירת הקשר:"
 
-#: modules/contact-form/grunion-contact-form.php:507
+#: modules/contact-form/grunion-contact-form.php:514
 msgid "Sent by a verified %s user."
 msgstr "נשלח על ידי משתמש רשום של %s."
 
-#: modules/contact-form/grunion-contact-form.php:511
+#: modules/contact-form/grunion-contact-form.php:518
 msgid "Sent by an unverified visitor to your site."
 msgstr "נשלח לאתרך ע\"י מבקר לא מאומת"
 
-#: modules/contact-form/grunion-contact-form.php:674
+#: modules/contact-form/grunion-contact-form.php:681
 #: modules/contact-form/grunion-form-view.php:136
 msgid "Feedbacks"
 msgstr "משובים"
@@ -2040,15 +2044,15 @@ msgstr "בעיה: השארת שם כמה שדות ריקים (השם או הסי
 msgid "Error: please enter a valid email address."
 msgstr "בעיה: לא כתבת כתובת אימייל תקינה.?"
 
-#: modules/comments/comments.php:144
+#: modules/comments/comments.php:154
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
 msgstr ""
 
-#: modules/comments/comments.php:206
+#: modules/comments/comments.php:217
 msgid "Cancel Reply"
 msgstr ""
 
-#: modules/comments/comments.php:332
+#: modules/comments/comments.php:351
 msgid "Invalid security token."
 msgstr ""
 
@@ -2089,7 +2093,7 @@ msgstr "להוסיף"
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
 msgstr "ודא שלחצת על \"עדכון פרופיל\" בתחתית המסך כדי לשמור את השינויים שלך."
 
-#: modules/comments/admin.php:50 modules/comments/comments.php:168
+#: modules/comments/admin.php:50 modules/comments/comments.php:178
 msgid "Leave a Reply"
 msgstr "כתיבת תגובה"
 
@@ -2219,15 +2223,15 @@ msgid "Coming soon&#8230;"
 msgstr "בקרוב..."
 
 #: jetpack.php:2342 jetpack.php:2344 jetpack.php:2346 jetpack.php:2349
-#: jetpack.php:3010
+#: jetpack.php:3015
 msgid "Error Details: %s"
 msgstr "פרטים שגויים: %s"
 
-#: jetpack.php:2966
+#: jetpack.php:2971
 msgid "An administrator for this blog must set up the Jetpack connection."
 msgstr "מנהל הבלוג חייב להגדיר את החיבור ל-Jetpack."
 
-#: jetpack.php:2971
+#: jetpack.php:2976
 msgid "You need to register your Jetpack before connecting it."
 msgstr "צריך לבצע הרשמה של ה-Jetpack שלך לפני שאתה מחבר אותו."
 
@@ -2342,7 +2346,7 @@ msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr "מעוניין לקבל עדכונים על Jepack במייל? %s"
 
-#: jetpack.php:1953 modules/subscriptions.php:656
+#: jetpack.php:1953 modules/subscriptions.php:662
 msgid "Subscribe"
 msgstr "להירשם"
 

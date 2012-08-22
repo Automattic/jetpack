@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-08-18 01:15:20+0000\n"
+"PO-Revision-Date: 2012-08-22 20:01:52+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,7 +10,11 @@ msgstr ""
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 1.6\n"
 
-#: modules/sharedaddy/sharing-service.php:502
+#: modules/comments/comments.php:411 modules/comments/comments.php:462
+msgid "Submitting Comment%s"
+msgstr ""
+
+#: modules/sharedaddy/sharing-service.php:523
 #: modules/sharedaddy/sharing.php:245 modules/sharedaddy/sharing.php:278
 msgid "More"
 msgstr ""
@@ -392,31 +396,31 @@ msgstr ""
 msgid "Twitter Updates"
 msgstr "Aktualizace Twitteru"
 
-#: modules/widgets/twitter-widget.php:178
+#: modules/widgets/twitter-widget.php:184
 msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
 msgstr ""
 
-#: modules/widgets/twitter-widget.php:180
+#: modules/widgets/twitter-widget.php:186
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
 msgstr ""
 
-#: modules/widgets/twitter-widget.php:222
+#: modules/widgets/twitter-widget.php:228
 msgid "Twitter username:"
 msgstr ""
 
-#: modules/widgets/twitter-widget.php:225
+#: modules/widgets/twitter-widget.php:231
 msgid "Maximum number of tweets to show:"
 msgstr ""
 
-#: modules/widgets/twitter-widget.php:236
+#: modules/widgets/twitter-widget.php:242
 msgid "Hide replies"
 msgstr ""
 
-#: modules/widgets/twitter-widget.php:241
+#: modules/widgets/twitter-widget.php:247
 msgid "Include retweets"
 msgstr ""
 
-#: modules/widgets/twitter-widget.php:243
+#: modules/widgets/twitter-widget.php:249
 msgid "Text to display between tweet and timestamp:"
 msgstr ""
 
@@ -480,7 +484,7 @@ msgid "RSS Links (Jetpack)"
 msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:62
-#: modules/widgets/twitter-widget.php:219
+#: modules/widgets/twitter-widget.php:225
 msgid "Title:"
 msgstr "Název:"
 
@@ -623,39 +627,39 @@ msgstr ""
 msgid "Image (Jetpack)"
 msgstr ""
 
-#: modules/subscriptions.php:583
+#: modules/subscriptions.php:585
 msgid "Email Address"
 msgstr "Emailová adresa"
 
-#: modules/subscriptions.php:654
+#: modules/subscriptions.php:660
 msgid "Subscribe to Blog via Email"
 msgstr ""
 
-#: modules/subscriptions.php:655
+#: modules/subscriptions.php:661
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
 msgstr ""
 
-#: modules/subscriptions.php:657
+#: modules/subscriptions.php:663
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
 msgstr ""
 
-#: modules/subscriptions.php:673
+#: modules/subscriptions.php:679
 msgid "%s: %s"
 msgstr ""
 
-#: modules/subscriptions.php:681 modules/widgets/image-widget.php:107
+#: modules/subscriptions.php:687 modules/widgets/image-widget.php:107
 msgid "Widget title:"
 msgstr "Jméno Widgetu:"
 
-#: modules/subscriptions.php:687
+#: modules/subscriptions.php:693
 msgid "Optional text to display to your readers:"
 msgstr ""
 
-#: modules/subscriptions.php:693
+#: modules/subscriptions.php:699
 msgid "Subscribe Button:"
 msgstr ""
 
-#: modules/subscriptions.php:700
+#: modules/subscriptions.php:706
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] ""
@@ -686,39 +690,39 @@ msgstr ""
 msgid "Show a <em>'follow comments'</em> option in the comment form"
 msgstr ""
 
-#: modules/subscriptions.php:434
+#: modules/subscriptions.php:436
 msgid "Notify me of follow-up comments by email."
 msgstr ""
 
-#: modules/subscriptions.php:441
+#: modules/subscriptions.php:443
 msgid "Notify me of new posts by email."
 msgstr ""
 
-#: modules/subscriptions.php:507
+#: modules/subscriptions.php:509
 msgid "Add an email signup form to allow people to subscribe to your blog."
 msgstr ""
 
-#: modules/subscriptions.php:510
+#: modules/subscriptions.php:512
 msgid "Blog Subscriptions (Jetpack)"
 msgstr ""
 
-#: modules/subscriptions.php:541
+#: modules/subscriptions.php:543
 msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
 msgstr ""
 
-#: modules/subscriptions.php:551
+#: modules/subscriptions.php:553
 msgid "The email you entered was invalid, please check and try again."
 msgstr ""
 
-#: modules/subscriptions.php:554
+#: modules/subscriptions.php:556
 msgid "You have already subscribed to this site, please check your inbox."
 msgstr ""
 
-#: modules/subscriptions.php:561
+#: modules/subscriptions.php:563
 msgid "There was an error when subscribing, please try again."
 msgstr ""
 
-#: modules/subscriptions.php:579
+#: modules/subscriptions.php:581
 msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
 msgstr[0] ""
@@ -1173,7 +1177,7 @@ msgstr ""
 msgid "Facebook"
 msgstr ""
 
-#: modules/sharedaddy/sharing-service.php:504
+#: modules/sharedaddy/sharing-service.php:525
 msgid "Share"
 msgstr ""
 
@@ -1326,7 +1330,7 @@ msgstr ""
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
 msgstr ""
 
-#: modules/sharedaddy/sharing-service.php:196
+#: modules/sharedaddy/sharing-service.php:12
 msgid "Share this:"
 msgstr ""
 
@@ -1784,27 +1788,27 @@ msgstr ""
 msgid "How does this work?"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:675
+#: modules/contact-form/grunion-contact-form.php:682
 msgid "Feedback"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:676
+#: modules/contact-form/grunion-contact-form.php:683
 msgid "Search Feedback"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:677
-#: modules/contact-form/grunion-contact-form.php:678
+#: modules/contact-form/grunion-contact-form.php:684
+#: modules/contact-form/grunion-contact-form.php:685
 msgid "No feedback found"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:694
+#: modules/contact-form/grunion-contact-form.php:701
 msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: modules/contact-form/grunion-contact-form.php:718
+#: modules/contact-form/grunion-contact-form.php:725
 msgid "Add a custom form"
 msgstr ""
 
@@ -1856,44 +1860,44 @@ msgstr ""
 msgid "%s is required"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:275
-#: modules/contact-form/grunion-contact-form.php:323
+#: modules/contact-form/grunion-contact-form.php:280
+#: modules/contact-form/grunion-contact-form.php:328
 msgid "Error!"
 msgstr "Chyba!"
 
-#: modules/contact-form/grunion-contact-form.php:285
+#: modules/contact-form/grunion-contact-form.php:290
 msgid "Submit &#187;"
 msgstr "Potvrdit &#187;"
 
-#: modules/contact-form/grunion-contact-form.php:328
+#: modules/contact-form/grunion-contact-form.php:333
 msgid "Message Sent"
 msgstr "Vzkaz odeslán"
 
-#: modules/contact-form/grunion-contact-form.php:462
+#: modules/contact-form/grunion-contact-form.php:469
 msgid "l F j, Y \\a\\t g:i a"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:482
+#: modules/contact-form/grunion-contact-form.php:489
 msgid "Time:"
 msgstr "Čas"
 
-#: modules/contact-form/grunion-contact-form.php:483
+#: modules/contact-form/grunion-contact-form.php:490
 msgid "IP Address:"
 msgstr "IP Adresa:"
 
-#: modules/contact-form/grunion-contact-form.php:484
+#: modules/contact-form/grunion-contact-form.php:491
 msgid "Contact Form URL:"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:507
+#: modules/contact-form/grunion-contact-form.php:514
 msgid "Sent by a verified %s user."
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:511
+#: modules/contact-form/grunion-contact-form.php:518
 msgid "Sent by an unverified visitor to your site."
 msgstr "Posláno neověřeným návštěvníkem vašich stránek."
 
-#: modules/contact-form/grunion-contact-form.php:674
+#: modules/contact-form/grunion-contact-form.php:681
 #: modules/contact-form/grunion-form-view.php:136
 msgid "Feedbacks"
 msgstr ""
@@ -2043,15 +2047,15 @@ msgstr "Chyba: Zadejte prosím požadované údaje (jméno, email)."
 msgid "Error: please enter a valid email address."
 msgstr "Chyba: Zadejte prosím správnou emailovou adresu."
 
-#: modules/comments/comments.php:144
+#: modules/comments/comments.php:154
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
 msgstr ""
 
-#: modules/comments/comments.php:206
+#: modules/comments/comments.php:217
 msgid "Cancel Reply"
 msgstr ""
 
-#: modules/comments/comments.php:332
+#: modules/comments/comments.php:351
 msgid "Invalid security token."
 msgstr ""
 
@@ -2092,7 +2096,7 @@ msgstr "Vytvořit"
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
 msgstr ""
 
-#: modules/comments/admin.php:50 modules/comments/comments.php:168
+#: modules/comments/admin.php:50 modules/comments/comments.php:178
 msgid "Leave a Reply"
 msgstr "Napsat komentář"
 
@@ -2216,15 +2220,15 @@ msgid "Coming soon&#8230;"
 msgstr ""
 
 #: jetpack.php:2342 jetpack.php:2344 jetpack.php:2346 jetpack.php:2349
-#: jetpack.php:3010
+#: jetpack.php:3015
 msgid "Error Details: %s"
 msgstr ""
 
-#: jetpack.php:2966
+#: jetpack.php:2971
 msgid "An administrator for this blog must set up the Jetpack connection."
 msgstr ""
 
-#: jetpack.php:2971
+#: jetpack.php:2976
 msgid "You need to register your Jetpack before connecting it."
 msgstr ""
 
@@ -2339,7 +2343,7 @@ msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr ""
 
-#: jetpack.php:1953 modules/subscriptions.php:656
+#: jetpack.php:1953 modules/subscriptions.php:662
 msgid "Subscribe"
 msgstr "Přihlásit se k odběru"
 
