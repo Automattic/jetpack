@@ -354,7 +354,7 @@ CONTAINER;
 			$script_url = json_encode( esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) ) );
 
 			// if the script hasn't been loaded, load it
-			// if the script loads successfully, fire an 'as-script-load' event
+			// if the script loads successfully, fire an 'pd-script-load' event
 			echo <<<SCRIPT
 				<script type='text/javascript'>
 				//<![CDATA[
