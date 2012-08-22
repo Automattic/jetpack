@@ -55,6 +55,7 @@ class Jetpack {
 		'twitter-widget' => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
 		'after-the-deadline' => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
 		'contact-form' => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
+		'custom-css' => array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
 	);
 
 	var $capability_translations = array(

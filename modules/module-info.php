@@ -479,3 +479,25 @@ add_action( 'jetpack_learn_more_button_carousel', 'jetpack_carousel_learn_more_b
 add_action( 'jetpack_module_more_info_carousel', 'jetpack_carousel_more_info' );
 add_action( 'jetpack_module_more_info_connected_carousel', 'jetpack_carousel_more_info' );
 // Gallery Carousel: STOP
+
+// Custom CSS: START
+function jetpack_custom_css_more_info() {
+	?>
+	<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/custom-css.png' ) ?>" alt="<?php esc_attr_e( 'Custom CSS', 'jetpack' ) ?>" width="300" height="150" />
+	</div>
+
+	<h4><?php esc_html_e( 'Custom CSS', 'jetpack' ); ?></h4>
+	<p><?php esc_html_e( "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing.", 'jetpack' ); ?></p>
+	<p><?php printf( __( 'To use the CSS editor, go to Appearance &#8594; <a href="%s">Edit CSS</a>.', 'jetpack' ), admin_url( 'themes.php?page=editcss' ) ); ?></p>
+
+	<?php
+}
+
+function jetpack_custom_css_more_button() {
+	echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+
+add_action( 'jetpack_learn_more_button_custom-css', 'jetpack_custom_css_more_button' );
+add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info' );
+// Custom CSS: STOP

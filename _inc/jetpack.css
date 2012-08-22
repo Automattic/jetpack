@@ -540,7 +540,7 @@ p.jp-help {
 	@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
 		.jetpack-module div.module-image {
 			background-image: url( images/module-icons-sprite-2x.png );
-			background-size: 1450px 50px;
+			background-size: 1550px 50px;
 		}
 	}
 
@@ -585,6 +585,9 @@ p.jp-help {
 		}
 		#carousel.jetpack-module div.module-image {
 			background-position: -1325px 5px;
+		}
+		#custom-css.jetpack-module div.module-image {
+			background-position: -1459px 5px;
 		}
 
 		.jetpack-module div.module-image p {
