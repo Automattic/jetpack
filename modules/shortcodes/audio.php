@@ -279,17 +279,28 @@ FLASH;
 		$script = <<<SCRIPT
 			<script type='text/javascript'>
 			//<![CDATA[
-			jQuery(document).on( 'ready as-script-load', function($) {
-				if ( typeof window.audioshortcode != 'undefined' ) {
+			(function() {
+				var prep = function() {
+					if ( 'undefined' === typeof window.audioshortcode ) { return; }
 					audioshortcode.prep(
 						'{$post->ID}_{$ap_playerID}',
 						$script_files,
 						$script_titles,
 						$volume,
-						$script_loop );
+						$script_loop
+					);
+				};
+				if ( 'undefined' === typeof jQuery ) {
+					if ( document.addEventListener ) {
+						window.addEventListener( 'load', prep, false );
+					} else if ( document.attachEvent ) {
+						window.attachEvent( 'onload', prep );
+					}
+				} else {
+					jQuery(document).on( 'ready as-script-load', prep );
 				}
-			} );
-			//]]>
+			})();
+			//]]> 
 			</script>
 SCRIPT;
 
