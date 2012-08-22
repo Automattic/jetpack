@@ -59,14 +59,15 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * [[dailymotion]](http://support.wordpress.com/videos/dailymotion/)
 * [[digg]](http://support.wordpress.com/digg/)
 * [[flickr]](http://support.wordpress.com/videos/flickr-video/)
+* [[googlemaps]](http://en.support.wordpress.com/google-maps/)
 * [[googlevideo]](http://support.wordpress.com/videos/google-video/)
 * [[polldaddy]](http://support.polldaddy.com/wordpress-shortcodes/)
 * [[scribd]](http://support.wordpress.com/scribd/)
 * [[slideshare]](http://support.wordpress.com/slideshows/slideshare/)
 * [[soundcloud]](http://support.wordpress.com/audio/soundcloud-audio-player/)
+* [[videopress]](http://support.wordpress.com/videopress/)
 * [[vimeo]](http://support.wordpress.com/videos/vimeo/)
 * [[youtube]](http://support.wordpress.com/videos/youtube/)
-* [[googlemaps]](http://en.support.wordpress.com/google-maps/)
 
 == Screenshots ==
 
@@ -98,6 +99,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Bug Fix: Shortcodes: Audio: Include JS File for HTML5 audio player
 * Bug Fix: Hovercards: Improve cache handling.
 * Bug Fix: Widgets: Gravatar Profle: Correctly display service icons in edge cases.
+* Bug Fix: Widgets: Gravatar Profle: Prevent ugly "flash" of too-large image when page first loads on some sites
 * Bug Fix: Carousel: CSS Compatibility with more themes.
 
 = 1.6.1 =
