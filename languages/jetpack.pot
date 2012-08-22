@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack by WordPress.com 1.6.2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/jetpack\n"
-"POT-Creation-Date: 2012-08-22 19:25:42+00:00\n"
+"POT-Creation-Date: 2012-08-22 22:45:20+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,418 +12,419 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: jetpack.php:976
+#: jetpack.php:977
 msgid "Jetpack requires WordPress version %s or later."
 msgstr ""
 
-#: jetpack.php:1143 jetpack.php:1159
+#: jetpack.php:1144 jetpack.php:1160
 msgid ""
 "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; "
 "plugin."
 msgstr ""
 
-#: jetpack.php:1180
+#: jetpack.php:1181
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] ""
 msgstr[1] ""
 
-#: jetpack.php:1183
+#: jetpack.php:1184
 msgid "Jetpack"
 msgstr ""
 
 #. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.6.2)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
-#: jetpack.php:1215 jetpack.php:1239 jetpack.php:1249 jetpack.php:1879
-#: jetpack.php:2029
+#: jetpack.php:1216 jetpack.php:1240 jetpack.php:1250 jetpack.php:1880
+#: jetpack.php:2030
 msgid "Jetpack by WordPress.com"
 msgstr ""
 
-#: jetpack.php:1216 jetpack.php:1240 jetpack.php:1882
+#: jetpack.php:1217 jetpack.php:1241 jetpack.php:1883
 msgid ""
 "Jetpack supercharges your self-hosted WordPress site with the awesome cloud "
 "power of WordPress.com."
 msgstr ""
 
-#: jetpack.php:1217 jetpack.php:1241
+#: jetpack.php:1218 jetpack.php:1242
 msgid ""
 "On this page, you are able to view the modules available within Jetpack, "
 "learn more about them, and activate or deactivate them as needed."
 msgstr ""
 
-#: jetpack.php:1218
+#: jetpack.php:1219
 msgid "Jetpack Module Options"
 msgstr ""
 
-#: jetpack.php:1219
+#: jetpack.php:1220
 msgid ""
 "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An "
 "Activate or Deactivate button will now appear next to the Learn More button. "
 "Click the Activate/Deactivate button."
 msgstr ""
 
-#: jetpack.php:1220 jetpack.php:1261
+#: jetpack.php:1221 jetpack.php:1262
 msgid "For more information:"
 msgstr ""
 
-#: jetpack.php:1221 jetpack.php:1262
+#: jetpack.php:1222 jetpack.php:1263
 msgid "Jetpack FAQ"
 msgstr ""
 
-#: jetpack.php:1222 jetpack.php:1263
+#: jetpack.php:1223 jetpack.php:1264
 msgid "Jetpack Support"
 msgstr ""
 
-#: jetpack.php:1237
+#: jetpack.php:1238
 msgid "Overview"
 msgstr ""
 
-#: jetpack.php:1247
+#: jetpack.php:1248
 msgid "Modules"
 msgstr ""
 
-#: jetpack.php:1250
+#: jetpack.php:1251
 msgid ""
 "You can activate or deactivate individual Jetpack modules to suit your needs."
 msgstr ""
 
-#: jetpack.php:1252
+#: jetpack.php:1253
 msgid "Find the component you want to manage"
 msgstr ""
 
-#: jetpack.php:1253
+#: jetpack.php:1254
 msgid "Click on Learn More"
 msgstr ""
 
-#: jetpack.php:1254
+#: jetpack.php:1255
 msgid "An Activate or Deactivate button will appear"
 msgstr ""
 
-#: jetpack.php:1255
+#: jetpack.php:1256
 msgid "If additional settings are available, a link to them will appear"
 msgstr ""
 
-#: jetpack.php:1331 modules/sharedaddy/sharedaddy.php:70
+#: jetpack.php:1332 modules/sharedaddy/sharedaddy.php:70
 #: modules/sharedaddy/sharedaddy.php:77
 msgid "Settings"
 msgstr ""
 
-#: jetpack.php:1348
+#: jetpack.php:1349
 msgid "Dismiss this notice and deactivate Jetpack."
 msgstr ""
 
-#: jetpack.php:1354
+#: jetpack.php:1355
 msgid ""
 "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to "
 "WordPress.com is needed to enable features like Comments, Stats, Contact "
 "Forms, and Subscriptions. Connect now to get fueled up!"
 msgstr ""
 
-#: jetpack.php:1356
+#: jetpack.php:1357
 msgid ""
 "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress."
 "com cloud-powered features to your site."
 msgstr ""
 
-#: jetpack.php:1362 jetpack.php:1910
+#: jetpack.php:1363 jetpack.php:1911
 msgid "Connect to WordPress.com"
 msgstr ""
 
-#: jetpack.php:1364 modules/module-info.php:45 modules/module-info.php:81
+#: jetpack.php:1365 modules/module-info.php:45 modules/module-info.php:81
 #: modules/module-info.php:141 modules/module-info.php:176
 #: modules/module-info.php:210 modules/module-info.php:246
 #: modules/module-info.php:297 modules/module-info.php:319
 #: modules/module-info.php:357 modules/module-info.php:381
 #: modules/module-info.php:399 modules/module-info.php:405
 #: modules/module-info.php:432 modules/module-info.php:463
+#: modules/module-info.php:498
 msgid "Learn More"
 msgstr ""
 
-#: jetpack.php:1377
+#: jetpack.php:1378
 msgid ""
 "<strong>Jetpack is activated!</strong> Each site on your network must be "
 "connected individually by an admin on that site."
 msgstr ""
 
-#: jetpack.php:1404
+#: jetpack.php:1405
 msgid ""
 "Jetpack now includes Jetpack Comments, which enables your visitors to use "
 "their WordPress.com, Twitter, or Facebook accounts when commenting on your "
 "site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
 msgstr ""
 
-#: jetpack.php:1412
+#: jetpack.php:1413
 msgid "click here"
 msgstr ""
 
-#: jetpack.php:1520
+#: jetpack.php:1521
 msgid ""
 "You need to authorize the Jetpack connection between your site and WordPress."
 "com to enable the awesome features."
 msgstr ""
 
-#: jetpack.php:1523
+#: jetpack.php:1524
 msgid ""
 "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress "
 "blog while you authorize Jetpack."
 msgstr ""
 
-#: jetpack.php:1527
+#: jetpack.php:1528
 msgid ""
 "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the "
 "mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr ""
 
-#: jetpack.php:1530
+#: jetpack.php:1531
 msgid ""
 "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have "
 "you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get "
 "your Jetpack adjusted."
 msgstr ""
 
-#: jetpack.php:1534
+#: jetpack.php:1535
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr ""
 
-#: jetpack.php:1539
+#: jetpack.php:1540
 msgid ""
 "%s could not be activated because it triggered a <strong>fatal error</"
 "strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr ""
 
-#: jetpack.php:1541
+#: jetpack.php:1542
 msgid "Do you still have the %s plugin installed?"
 msgstr ""
 
-#: jetpack.php:1544
+#: jetpack.php:1545
 msgid ""
 "Module could not be activated because it triggered a <strong>fatal error</"
 "strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr ""
 
-#: jetpack.php:1552
+#: jetpack.php:1553
 msgid ""
 "<strong>Your Jetpack has a glitch.</strong> Connecting this site with "
 "WordPress.com is not possible. This usually means your site is not publicly "
 "accessible (localhost)."
 msgstr ""
 
-#: jetpack.php:1558
+#: jetpack.php:1559
 msgid ""
 "WordPress.com is currently having problems and is unable to fuel up your "
 "Jetpack.  Please try again later."
 msgstr ""
 
-#: jetpack.php:1562
+#: jetpack.php:1563
 msgid ""
 "Jetpack could not contact WordPress.com: %s.  This usually means something "
 "is incorrectly configured on your web host."
 msgstr ""
 
-#: jetpack.php:1602
+#: jetpack.php:1603
 msgid ""
 "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;"
 "s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr ""
 
-#: jetpack.php:1605
+#: jetpack.php:1606
 msgid "Try connecting again."
 msgstr ""
 
-#: jetpack.php:1629
+#: jetpack.php:1630
 msgid "Welcome to <strong>Jetpack %s</strong>!"
 msgstr ""
 
-#: jetpack.php:1641
+#: jetpack.php:1642
 msgid "The following new modules have been activated: %l."
 msgstr ""
 
-#: jetpack.php:1653
+#: jetpack.php:1654
 msgid "The following modules have been updated: %l."
 msgstr ""
 
-#: jetpack.php:1662
+#: jetpack.php:1663
 msgid ""
 "<strong>%s Activated!</strong> You can deactivate at any time by clicking "
 "Learn More and then Deactivate on the module card."
 msgstr ""
 
-#: jetpack.php:1669
+#: jetpack.php:1670
 msgid ""
 "<strong>%s Deactivated!</strong> You can activate it again at any time using "
 "the activate button on the module card."
 msgstr ""
 
-#: jetpack.php:1675
+#: jetpack.php:1676
 msgid "<strong>Module settings were saved.</strong> "
 msgstr ""
 
-#: jetpack.php:1679
+#: jetpack.php:1680
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr ""
 
-#: jetpack.php:1683
+#: jetpack.php:1684
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr ""
 
-#: jetpack.php:1685
+#: jetpack.php:1686
 msgid ""
 "The features below are now active. Click the learn more buttons to explore "
 "each feature."
 msgstr ""
 
-#: jetpack.php:1708
+#: jetpack.php:1709
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] ""
 msgstr[1] ""
 
-#: jetpack.php:1717
+#: jetpack.php:1718
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural ""
 "The old versions have been deactivated and can be removed from your site."
 msgstr[0] ""
 msgstr[1] ""
 
-#: jetpack.php:1875
+#: jetpack.php:1876
 msgid "Connected to WordPress.com"
 msgstr ""
 
-#: jetpack.php:1876
+#: jetpack.php:1877
 msgid "Disconnect from WordPress.com"
 msgstr ""
 
-#: jetpack.php:1890
+#: jetpack.php:1891
 msgid "Jetpack is network activated and notices can not be dismissed."
 msgstr ""
 
-#: jetpack.php:1901
+#: jetpack.php:1902
 msgid "Dismiss this notice."
 msgstr ""
 
-#: jetpack.php:1906
+#: jetpack.php:1907
 msgid ""
 "To enable all of the Jetpack features you&#8217;ll need to connect your "
 "website to WordPress.com using the button to the right. Once you&#8217;ve "
 "made the connection you&#8217;ll activate all the delightful features below."
 msgstr ""
 
-#: jetpack.php:1930
+#: jetpack.php:1931
 msgid "Have feedback on Jetpack?"
 msgstr ""
 
-#: jetpack.php:1932
+#: jetpack.php:1933
 msgid ""
 "Answer a short survey to let us know how we&#8217;re doing and what to add "
 "in the future."
 msgstr ""
 
-#: jetpack.php:1935
+#: jetpack.php:1936
 msgid "Take Survey"
 msgstr ""
 
-#: jetpack.php:1941
+#: jetpack.php:1942
 msgid "Checking email updates status&hellip;"
 msgstr ""
 
-#: jetpack.php:1947
+#: jetpack.php:1948
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr ""
 
-#: jetpack.php:1948
+#: jetpack.php:1949
 msgid "Unsubscribe"
 msgstr ""
 
-#: jetpack.php:1952
+#: jetpack.php:1953
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr ""
 
-#: jetpack.php:1953 modules/subscriptions.php:662
+#: jetpack.php:1954 modules/subscriptions.php:662
 msgid "Subscribe"
 msgstr ""
 
-#: jetpack.php:1960
+#: jetpack.php:1961
 msgid "You have been subscribed to receive email updates."
 msgstr ""
 
-#: jetpack.php:1962
+#: jetpack.php:1963
 msgid "You will no longer receive email updates about Jetpack."
 msgstr ""
 
-#: jetpack.php:1975
+#: jetpack.php:1976
 msgid "An <span>Automattic</span> Airline"
 msgstr ""
 
-#: jetpack.php:1978
+#: jetpack.php:1979
 msgid "Privacy Policy"
 msgstr ""
 
-#: jetpack.php:1979
+#: jetpack.php:1980
 msgid "Terms of Service"
 msgstr ""
 
-#: jetpack.php:1980
+#: jetpack.php:1981
 msgid "Debug"
 msgstr ""
 
-#: jetpack.php:1981 modules/sharedaddy/sharedaddy.php:78
+#: jetpack.php:1982 modules/sharedaddy/sharedaddy.php:78
 msgid "Support"
 msgstr ""
 
-#: jetpack.php:1999
+#: jetpack.php:2000
 msgid ""
 "This is sensitive information.  Please do not post your BLOG_TOKEN or "
 "USER_TOKEN publicly; they are like passwords."
 msgstr ""
 
-#: jetpack.php:2030
+#: jetpack.php:2031
 msgid "Configure %s"
 msgstr ""
 
-#: jetpack.php:2089
+#: jetpack.php:2090
 msgid "Deactivate"
 msgstr ""
 
-#: jetpack.php:2099
+#: jetpack.php:2100
 msgid "Activate"
 msgstr ""
 
-#: jetpack.php:2116
+#: jetpack.php:2117
 msgid "Free"
 msgstr ""
 
-#: jetpack.php:2116
+#: jetpack.php:2117
 msgid "Purchase"
 msgstr ""
 
-#: jetpack.php:2124
+#: jetpack.php:2125
 msgid "New"
 msgstr ""
 
-#: jetpack.php:2127
+#: jetpack.php:2128
 msgid "Updated"
 msgstr ""
 
-#: jetpack.php:2155
+#: jetpack.php:2156
 msgid "Configure"
 msgstr ""
 
-#: jetpack.php:2189
+#: jetpack.php:2190
 msgid "Coming soon&#8230;"
 msgstr ""
 
-#: jetpack.php:2342 jetpack.php:2344 jetpack.php:2346 jetpack.php:2349
-#: jetpack.php:3015
+#: jetpack.php:2343 jetpack.php:2345 jetpack.php:2347 jetpack.php:2350
+#: jetpack.php:3016
 msgid "Error Details: %s"
 msgstr ""
 
-#: jetpack.php:2971
+#: jetpack.php:2972
 msgid "An administrator for this blog must set up the Jetpack connection."
 msgstr ""
 
-#: jetpack.php:2976
+#: jetpack.php:2977
 msgid "You need to register your Jetpack before connecting it."
 msgstr ""
 
@@ -1261,6 +1262,88 @@ msgstr ""
 msgid "Save and go back to form builder"
 msgstr ""
 
+#: modules/custom-css/custom-css.php:468
+msgid "Preview: changes must be saved or they will be lost"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:496
+msgid "Edit CSS"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:510
+msgid "CSS"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:549
+msgid "Custom CSS Stylesheet"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:763
+msgid "Stylesheet saved."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:771
+msgid "CSS Stylesheet Editor"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:772
+msgid ""
+"New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/"
+"\">beginner tutorial</a>. Questions? \n"
+"Ask in the <a href=\"http://wordpress.org/support/forum/themes-and-templates"
+"\">Themes and Templates forum</a>."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:792
+msgid "Preview"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:793
+msgid "Save Stylesheet &amp; Buy Upgrade"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:793
+msgid "Save Stylesheet"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:806
+msgid "Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:807
+msgid ""
+"Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with "
+"my own CSS."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:809
+msgid ""
+"<a href=\"%s\">View the original stylesheet</a> for the %s theme. Use this "
+"as a reference and do not copy and paste all of it into the CSS Editor."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:811
+msgid "Limit width to"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:811
+msgid ""
+"pixels for videos, full size images, and other shortcodes. (<a href=\"%s"
+"\">More info</a>.)"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:812
+msgid "The default content width for the %s theme is %d pixels."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:817
+msgid "CSS Settings"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:836
+msgid "CSS Revisions"
+msgstr ""
+
 #. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.6.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/gravatar-hovercards.php:44 modules/module-info.php:57
@@ -1704,6 +1787,24 @@ msgid ""
 "With Carousel active, any standard WordPress galleries you have embedded in "
 "posts or pages will launch a gorgeous full-screen photo browsing experience "
 "with comments and EXIF metadata."
+msgstr ""
+
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.6.2)  #-#-#-#-#
+#. Module Name of the plugin/theme
+#: modules/module-info.php:487 modules/module-info.php:490
+msgid "Custom CSS"
+msgstr ""
+
+#: modules/module-info.php:491
+msgid ""
+"The Custom CSS editor gives you the ability to add to or replace your "
+"theme's CSS, all while supplying syntax coloring, auto-indentation, and "
+"immediate feedback on the validity of the CSS you're writing."
+msgstr ""
+
+#: modules/module-info.php:492
+msgid ""
+"To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
 msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:18
@@ -2857,6 +2958,12 @@ msgstr ""
 
 #. Module Description of the plugin/theme
 msgid "Easily insert a contact form any where on your site."
+msgstr ""
+
+#. Module Description of the plugin/theme
+msgid ""
+"Customize the appearance of your site using CSS but without modifying your "
+"theme."
 msgstr ""
 
 #. Module Description of the plugin/theme
