@@ -86,7 +86,7 @@ function AtD_display_options_form() {
    <p style="font-weight: bold"><?php _e( 'Language', 'jetpack' ); ?></font>
 
    <p><?php printf(
-	_x( 'The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href="%1$s">%2%s</a> value is the default proofreading language.', '%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG', 'jetpack' ),
+	_x( 'The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href="%1$s">%2$s</a> value is the default proofreading language.', '%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG', 'jetpack' ),
 	'http://codex.wordpress.org/Installing_WordPress_in_Your_Language',
 	'WPLANG'
    ); ?></p>
