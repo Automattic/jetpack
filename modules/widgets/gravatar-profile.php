@@ -1,5 +1,14 @@
 <?php
 /**
+ * Register the widget for use in Appearance -> Widgets
+ */
+add_action( 'widgets_init', 'jetpack_gravatar_profile_widget_init' );
+
+function jetpack_gravatar_profile_widget_init() {
+	register_widget( 'Jetpack_Gravatar_Profile_Widget' );
+}
+
+/**
  * Display a widgetized version of your Gravatar Profile
  * http://blog.gravatar.com/2010/03/26/gravatar-profiles/
  */
