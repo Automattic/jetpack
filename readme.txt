@@ -27,6 +27,7 @@ Features include:
 * Your readers can easily share your posts via email or their favorite social networks.  Previously provided by the [Sharedaddy](http://wordpress.org/extend/plugins/sharedaddy/) WordPress plugin.
 * Your writing will improve thanks to After the Deadline, an artificial intelligence based spell, style, and grammar checker.  Previously provided by the [After the Deadline](http://wordpress.org/extend/plugins/after-the-deadline/) WordPress plugin.
 * With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.
+* A CSS editor that lets you customize your site design without modifying your theme.
 * and *many* more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.
@@ -77,10 +78,12 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 4. Gravatar Hovercards settings.
 5. Spelling and Grammar demo.
 6. Gallery Carousel.
+7. CSS Editor
 
 == Changelog ==
 
-= 1.6.2 =
+= 1.7 =
+* Enhancement: CSS Editor: Customize your site's design without modifying your theme.
 * Enhancement: Comments: Submit the comment within the iframe.  No more full page load to jetpack.wordpress.com.
 * Enhancement: Sharing: Share counts for Twitter, Facebook, LinkedIn
 * Enhancement: Sharing: Improve styling

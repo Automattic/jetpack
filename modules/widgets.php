@@ -24,11 +24,4 @@ function jetpack_widgets_configuration_load() {
 	exit;
 }
 
-function jetpack_register_widgets() {
-	register_widget( 'WPCOM_Widget_Facebook_LikeBox' );
-	register_widget( 'Jetpack_Gravatar_Profile_Widget' );
-}
-
 jetpack_load_widgets();
-
-add_action( 'widgets_init', 'jetpack_register_widgets' );

@@ -1,6 +1,15 @@
 <?php
 
 /**
+ * Register the widget for use in Appearance -> Widgets
+ */
+add_action( 'widgets_init', 'jetpack_facebook_likebox_init' );
+
+function jetpack_facebook_likebox_init() {
+	register_widget( 'WPCOM_Widget_Facebook_LikeBox' );
+}
+
+/**
  * Facebook Like Box widget class
  * Display a Facebook Like Box as a widget
  * http://developers.facebook.com/docs/reference/plugins/like-box/
