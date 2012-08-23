@@ -1,133 +1,249 @@
-# Translation of 1.6 in Catalan
-# This file is distributed under the same license as the 1.6 package.
+# Translation of 1.7 in Catalan
+# This file is distributed under the same license as the 1.7 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-08-22 20:01:44+0000\n"
+"PO-Revision-Date: 2012-08-23 01:09:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: GlotPress/0.1\n"
-"Project-Id-Version: 1.6\n"
+"Project-Id-Version: 1.7\n"
 
-#: modules/comments/comments.php:411 modules/comments/comments.php:462
-msgid "Submitting Comment%s"
+msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
+msgstr "Incrusta vídeos fàcilment i més des de llocs webs com ara YouTube, Vimeo, i SlideShare."
+
+msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
+msgstr "Activeu els enllaços curts de WP.me per a totes les entrades i pàgines i així compartir més fàcilment."
+
+msgid "Simple, concise site stats with no additional load on your server."
+msgstr "Estadístiques del lloc simples i concises sense càrrega addicional del servidor."
+
+msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
+msgstr "Permet als usuaris subscriure's a les vostres entrades i comentaris per rebre una notificació per correu electrònic."
+
+msgid "Realtime backup and security scanning for your WordPress site."
+msgstr "Còpia de seguretat i escaneig de seguretat en temps real per al lloc web del WordPress."
+
+msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
+msgstr "Afegeix fàcilment imatges, actualitzacions del Twitter i enllaços RSS a la barra lateral del tema."
+
+#: modules/widgets/twitter-widget.php:228
+msgid "Twitter username:"
+msgstr "Nom d'usuari del Twitter:"
+
+#: modules/widgets/twitter-widget.php:231
+msgid "Maximum number of tweets to show:"
+msgstr "Nombre màxim de piulades que cal mostrar:"
+
+#: modules/widgets/twitter-widget.php:242
+msgid "Hide replies"
+msgstr "Amaga les respostes"
+
+#: modules/widgets/twitter-widget.php:247
+msgid "Include retweets"
+msgstr "Inclou repiulades"
+
+#: modules/widgets/twitter-widget.php:249
+msgid "Text to display between tweet and timestamp:"
+msgstr "Text que cal mostrar entre la piulada i la hora:"
+
+msgid "http://wordpress.org/extend/plugins/jetpack/"
+msgstr "http://wordpress.org/extend/plugins/jetpack/"
+
+msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
+msgstr "Porta el poder del núvol de WordPress.com al vostre WordPress. El JetPack us permet connectar el vostre bloc amb un compre de WordPress.com per fer servir les potents funcionalitats que normalment solament estan disponibles per a usuaris de WordPress.com."
+
+msgid "Automattic"
+msgstr "Automattic"
+
+msgid "http://jetpack.me"
+msgstr "http://jetpack.me"
+
+msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
+msgstr "Millora l'ortografia, l'estil, i la gramàtica amb el servei de correcció <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a>."
+
+msgid "Transform your standard image galleries into an immersive full-screen experience."
 msgstr ""
 
-#: modules/sharedaddy/sharing-service.php:523
-#: modules/sharedaddy/sharing.php:245 modules/sharedaddy/sharing.php:278
-msgid "More"
+msgid "A new comment system that has integrated social media login options."
+msgstr "Un sistema de comentaris nou que té integrat opcions per identificar-se mitjançant xares socials."
+
+msgid "Easily insert a contact form any where on your site."
+msgstr "Insereix fàcilment un formulari de contacte en qualsevol lloc de la pàgina web."
+
+msgid "Customize the appearance of your site using CSS but without modifying your theme."
 msgstr ""
 
-#: modules/module-info.php:469
-msgid "Gallery Carousel Screenshot"
-msgstr ""
+msgid "Share your public posts and comments to search engines and other services in real-time."
+msgstr "Comparteix les teves entrades i comentaris públics amb els motors de cerca i altres serveis en tems real."
 
-#: modules/module-info.php:472
-msgid "Carousel"
-msgstr "Carrusel"
+msgid "Show a pop-up business card of your users' gravatar profiles in comments."
+msgstr "Mostra una tarja professional emergent dels perfils del usuaris en els comentaris. "
 
-#: modules/module-info.php:474
-msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
-msgstr ""
+msgid "Beautiful Math"
+msgstr "Matemàtiques maques"
 
-#: modules/sharedaddy/sharing-sources.php:1068
-msgid "Tumblr"
-msgstr "Tumblr"
+msgid "Mark up your posts with the <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
+msgstr "Marca les entrades amb el llenguatge de marques <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"Logo de LaTeX\" title=\"LaTeX\" style=\"vertical-align: -25%\" />, perfecte per a equacions matemàtiques complexes i altres herbes."
 
-#: modules/sharedaddy/sharing-sources.php:1075
-msgctxt "share to"
-msgid "Tumblr"
-msgstr ""
+msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
+msgstr "La millor eina per compartir en la web. Comparteix contingut amb el Facebook, el Twitter, i molts més."
 
-#: modules/sharedaddy/sharing-sources.php:1075
-msgid "Click to share on Tumblr"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:96
+msgid "Image Settings:"
+msgstr "Configuració de la imatge:"
 
-#: modules/sharedaddy/sharing-sources.php:1110
-msgid "Pinterest"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:99
+msgid "Small"
+msgstr "Petit"
 
-#: modules/sharedaddy/sharing-sources.php:1140
-msgid "Pin It"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:100
+msgid "Medium"
+msgstr "Mitjana"
 
-#: modules/sharedaddy/sharing-sources.php:1142
-msgctxt "share to"
-msgid "Pinterest"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:101
+msgid "Large"
+msgstr "Gran"
 
-#: modules/sharedaddy/sharing-sources.php:1142
-msgid "Click to share on Pinterest"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:103
+msgid "Image Size:"
+msgstr "Mida de la imatge:"
 
-#: modules/sharedaddy/sharing.php:169
-msgid "Sharing Buttons"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:113
+msgid "Red"
+msgstr "Vermell"
 
-#: modules/sharedaddy/sharing.php:170
-msgid "Add sharing buttons to your blog and allow your visitors to share posts with their friends."
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:114
+msgid "Orange"
+msgstr "Taronja"
 
-#: modules/sharedaddy/sharing.php:204
-msgid "Drag and drop available services here."
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:115
+msgid "Green"
+msgstr "Verd"
 
-#: modules/sharedaddy/sharing.php:233
-msgid "Sharing is off. Add services above to enable."
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:116
+msgid "Blue"
+msgstr "Blau"
 
-#: modules/sharedaddy/sharing.php:300
-msgid "Button style"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:117
+msgid "Purple"
+msgstr "Violeta"
 
-#: modules/sharedaddy/sharing.php:306
-msgid "Official buttons"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:118
+msgid "Pink"
+msgstr "Rosa"
 
-#: modules/sharedaddy/sharing.php:326
-msgid "Show buttons on"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:119
+msgid "Silver"
+msgstr "Plata"
 
-#: modules/sharedaddy/sharing.php:383
-msgid "Create Share Button"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:121
+msgid "Image Color:"
+msgstr "Color de la imatge:"
 
-#: modules/stats.php:594
-msgid "Stats"
-msgstr "Estadístiques"
+#: modules/widgets/rsslinks-widget.php:140
+msgid "Subscribe to %s"
+msgstr "Subscriu-me a %s"
 
-#: modules/widgets/facebook-likebox.php:32
-msgid "It looks like your Facebook URL is incorrectly configured. Please check it in your <a href=\"%s\">widget settings</a>."
-msgstr ""
+#: modules/widgets/twitter-widget.php:69
+msgid "Display your tweets from Twitter"
+msgstr "Mostra els teves piulades del Twitter"
 
-#: modules/widgets/facebook-likebox.php:129
-msgid "Height"
-msgstr "Alçada"
+#: modules/widgets/twitter-widget.php:70
+msgid "Twitter (Jetpack)"
+msgstr "Twitter (Jetpack)"
 
-#: modules/widgets/gravatar-profile.php:9
-msgid "Gravatar Profile"
-msgstr "Perfil del gravatar"
+#: modules/widgets/twitter-widget.php:79
+msgid "Twitter Updates"
+msgstr "Actualitzacions del Twitter"
 
-#: modules/widgets/gravatar-profile.php:11
-msgid "Display a mini version of your Gravatar Profile"
-msgstr "Mostra una versió mini del perfil del gravatar"
+#: modules/widgets/twitter-widget.php:184
+msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
+msgstr "Error: comproveu que el compte del Twitter és <a href=\"%s\">públic</a>."
 
-#: modules/widgets/gravatar-profile.php:27
-msgid "You need to select what to show in this <a href=\"%s\">Gravatar Profile widget</a>."
-msgstr ""
+#: modules/widgets/twitter-widget.php:186
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Error: el Twitter no respon. Espereu uns pocs minuts i refresqueu aquesta pàgina. "
 
-#: modules/widgets/gravatar-profile.php:73
-msgid "View Full Profile &rarr;"
-msgstr "Mostra el perfil complet &rarr;"
+#: modules/widgets/image-widget.php:125
+msgid "Left"
+msgstr "Esquerra"
 
-#: modules/widgets/gravatar-profile.php:81
-msgid "Error loading profile"
-msgstr "S'ha produït un error en carregar el perfil"
+#: modules/widgets/image-widget.php:126
+msgid "Center"
+msgstr "Centrat"
 
-#: modules/widgets/gravatar-profile.php:93
-msgid "Personal Links"
-msgstr "Enllaços personals"
+#: modules/widgets/image-widget.php:127
+msgid "Right"
+msgstr "Dreta"
+
+#: modules/widgets/image-widget.php:129
+msgid "Image Alignment:"
+msgstr "Alineació de la imatge:"
+
+#: modules/widgets/image-widget.php:139
+msgid "Width:"
+msgstr "Amplada:"
+
+#: modules/widgets/image-widget.php:142
+msgid "Height:"
+msgstr "Alçada:"
+
+#: modules/widgets/image-widget.php:145
+msgid "If empty, we will attempt to determine the image size."
+msgstr "Si està buit, intentarem determinar la grandària de la imatge."
+
+#: modules/widgets/image-widget.php:146
+msgid "Link URL (when the image is clicked):"
+msgstr "URL de l'enllaç (quan es fa clic a la imatge):"
+
+#: modules/widgets/rsslinks-widget.php:12
+msgid "Links to your blog's RSS feeds"
+msgstr "Enllaços al canal de subscripció RSS del bloc"
+
+#: modules/widgets/rsslinks-widget.php:13
+msgid "RSS Links (Jetpack)"
+msgstr "Enllaços RSS (Jetpack)"
+
+#: modules/widgets/rsslinks-widget.php:62
+#: modules/widgets/twitter-widget.php:225
+msgid "Title:"
+msgstr "Títol:"
+
+#: modules/widgets/rsslinks-widget.php:67
+#: modules/widgets/rsslinks-widget.php:133
+msgid "Posts"
+msgstr "Entrades"
+
+#: modules/widgets/rsslinks-widget.php:68
+#: modules/widgets/rsslinks-widget.php:136
+msgid "Comments"
+msgstr "Comentaris"
+
+#: modules/widgets/rsslinks-widget.php:69
+msgid "Posts & Comments"
+msgstr "Entrades i comentaris"
+
+#: modules/widgets/rsslinks-widget.php:71
+msgid "Feed(s) to Display:"
+msgstr "Fil(s) de subscripció a mostrar:"
+
+#: modules/widgets/rsslinks-widget.php:81
+msgid "Text Link"
+msgstr "Enllaç de text"
+
+#: modules/widgets/rsslinks-widget.php:82
+msgid "Image Link"
+msgstr "Enllaç d'Imatge"
+
+#: modules/widgets/rsslinks-widget.php:83
+msgid "Text & Image Links"
+msgstr "Enllaços de text i imatge"
+
+#: modules/widgets/rsslinks-widget.php:85
+msgid "Format:"
+msgstr "Format:"
 
 #: modules/widgets/gravatar-profile.php:113
 msgid "Verified Services"
@@ -178,353 +294,13 @@ msgstr "Editeu el perfil"
 msgid "What's a Gravatar?"
 msgstr "Què és un Gravatar?"
 
-msgid "Transform your standard image galleries into an immersive full-screen experience."
-msgstr ""
-
-#: jetpack.php:1354
-msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Comments, Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
-msgstr ""
-
-#: modules/carousel/jetpack-carousel.php:108
-msgid "Comment"
-msgstr ""
-
-#: modules/carousel/jetpack-carousel.php:109
-msgid "Post Comment"
-msgstr "Envia un comentari"
-
-#: modules/carousel/jetpack-carousel.php:110
-msgid "Loading Comments..."
-msgstr "S'estan carregant els comentaris..."
-
-#: modules/carousel/jetpack-carousel.php:111
-msgid "View full size <span class=\"photo-size\">%1$s<span class=\"photo-size-times\">&times;</span>%2$s</span>"
-msgstr ""
-
-#: modules/carousel/jetpack-carousel.php:112
-msgid "Please be sure to submit some text with your comment."
-msgstr "Assegureu-vos d'enviar algun text amb el comentari."
-
-#: modules/carousel/jetpack-carousel.php:113
-msgid "Please provide an email address to comment."
-msgstr "Proporcioneu una adreça de correu electrònic per comentar."
-
-#: modules/carousel/jetpack-carousel.php:114
-msgid "Please provide your name to comment."
-msgstr "Proporcioneu el nom per comentar."
-
-#: modules/carousel/jetpack-carousel.php:115
-msgid "Sorry, but there was an error posting your comment. Please try again later."
-msgstr "S'ha produït un error en publicar el comentari. Torneu a intentar-ho més tard."
-
-#: modules/carousel/jetpack-carousel.php:116
-msgid "Your comment was approved."
-msgstr "El comentari s'ha aprovat."
-
-#: modules/carousel/jetpack-carousel.php:117
-msgid "Your comment is in moderation."
-msgstr "El comentari està en moderació."
-
-#: modules/carousel/jetpack-carousel.php:118
-msgid "Camera"
-msgstr "Càmera"
-
-#: modules/carousel/jetpack-carousel.php:119
-msgid "Aperture"
-msgstr "Apertura"
-
-#: modules/carousel/jetpack-carousel.php:120
-msgid "Shutter Speed"
-msgstr "Velocitat de l'obturador"
-
-#: modules/carousel/jetpack-carousel.php:121
-msgid "Focal Length"
-msgstr "Longitud focal"
-
-#: modules/carousel/jetpack-carousel.php:128
-msgid "Commenting as %s"
-msgstr "S'està comentant com a %s"
-
-#: modules/carousel/jetpack-carousel.php:131
-msgid "Email (Required)"
-msgstr "Correu electrònic (necessari)"
-
-#: modules/carousel/jetpack-carousel.php:133
-msgid "Name (Required)"
-msgstr "Nom (necessari)"
-
-#: modules/carousel/jetpack-carousel.php:244
-msgid "Missing attachment ID."
-msgstr "Falta l'identificador adjunt."
-
-#: modules/carousel/jetpack-carousel.php:282
-msgid "Nonce verification failed."
-msgstr "No ha fallat cap verificació."
-
-#: modules/carousel/jetpack-carousel.php:289
-msgid "Missing target blog ID."
-msgstr "Falta l'identificador del bloc de destí."
-
-#: modules/carousel/jetpack-carousel.php:292
-msgid "Missing target post ID."
-msgstr "Falta l'identificador de l'entrada de destinació."
-
-#: modules/carousel/jetpack-carousel.php:295
-msgid "No comment text was submitted."
-msgstr "No s'ha enviat text del comentari."
-
-#: modules/carousel/jetpack-carousel.php:307
-msgid "Comments on this post are closed."
-msgstr "Els comentaris d'aquesta entrada estan tancats."
-
-#: modules/carousel/jetpack-carousel.php:317
-msgid "Sorry, but we could not authenticate your request."
-msgstr "Ho sentim, però no podem autenticar la sol·licitud."
-
-#: modules/carousel/jetpack-carousel.php:325
-msgid "Please provide your name."
-msgstr "Proporcioneu el vostre nom."
-
-#: modules/carousel/jetpack-carousel.php:328
-msgid "Please provide an email address."
-msgstr "Proporcioneu una adreça de correu electrònic."
-
-#: modules/carousel/jetpack-carousel.php:331
-msgid "Please provide a valid email address."
-msgstr "Proporcioneu una adreça de correu electrònic vàlid."
-
-#: modules/carousel/jetpack-carousel.php:358
-msgid "Image Gallery Carousel"
-msgstr "Carrusel de la galeria d'imatges"
-
-#: modules/carousel/jetpack-carousel.php:361
-msgid "Enable carousel"
-msgstr "Activar el carrusel"
-
-#: modules/carousel/jetpack-carousel.php:365
-msgid "Background color"
-msgstr "Color de fons"
-
-#: modules/carousel/jetpack-carousel.php:368
-msgid "Metadata"
-msgstr "Metadada"
-
-#: modules/carousel/jetpack-carousel.php:425
-msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
-msgstr "Mostra metadades (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) de la foto al carrousel, quan hi hagi"
-
-#: modules/carousel/jetpack-carousel.php:433
-msgid "Show map of photo location in carousel, when available."
-msgstr "Mostra el mapa de localització de la foto al carrusel, quan hi hagi"
-
-#: modules/carousel/jetpack-carousel.php:441
-msgid "Black"
-msgstr "Negre"
-
-#: modules/carousel/jetpack-carousel.php:441
-msgid "White"
-msgstr "Blanc"
-
-#: modules/carousel/jetpack-carousel.php:449
-msgid "Display images in full-size carousel slideshow."
-msgstr "Mostra les imatges a mida completa a les diapositives del carrusel."
-
-msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
-msgstr "Activeu els enllaços curts de WP.me per a totes les entrades i pàgines i així compartir més fàcilment."
-
-msgid "Simple, concise site stats with no additional load on your server."
-msgstr "Estadístiques del lloc simples i concises sense càrrega addicional del servidor."
-
-msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
-msgstr "Permet als usuaris subscriure's a les vostres entrades i comentaris per rebre una notificació per correu electrònic."
-
-msgid "Realtime backup and security scanning for your WordPress site."
-msgstr "Còpia de seguretat i escaneig de seguretat en temps real per al lloc web del WordPress."
-
-msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
-msgstr "Afegeix fàcilment imatges, actualitzacions del Twitter i enllaços RSS a la barra lateral del tema."
-
-msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
-msgstr "Porta el poder del núvol de WordPress.com al vostre WordPress. El JetPack us permet connectar el vostre bloc amb un compre de WordPress.com per fer servir les potents funcionalitats que normalment solament estan disponibles per a usuaris de WordPress.com."
-
-msgid "Automattic"
-msgstr "Automattic"
-
-msgid "http://jetpack.me"
-msgstr "http://jetpack.me"
-
-msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
-msgstr "Millora l'ortografia, l'estil, i la gramàtica amb el servei de correcció <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a>."
-
-msgid "A new comment system that has integrated social media login options."
-msgstr "Un sistema de comentaris nou que té integrat opcions per identificar-se mitjançant xares socials."
-
-msgid "Easily insert a contact form any where on your site."
-msgstr "Insereix fàcilment un formulari de contacte en qualsevol lloc de la pàgina web."
-
-msgid "Share your public posts and comments to search engines and other services in real-time."
-msgstr "Comparteix les teves entrades i comentaris públics amb els motors de cerca i altres serveis en tems real."
-
-msgid "Show a pop-up business card of your users' gravatar profiles in comments."
-msgstr "Mostra una tarja professional emergent dels perfils del usuaris en els comentaris. "
-
-msgid "Beautiful Math"
-msgstr "Matemàtiques maques"
-
-msgid "Mark up your posts with the <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
-msgstr "Marca les entrades amb el llenguatge de marques <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"Logo de LaTeX\" title=\"LaTeX\" style=\"vertical-align: -25%\" />, perfecte per a equacions matemàtiques complexes i altres herbes."
-
-msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
-msgstr "La millor eina per compartir en la web. Comparteix contingut amb el Facebook, el Twitter, i molts més."
-
-msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
-msgstr "Incrusta vídeos fàcilment i més des de llocs webs com ara YouTube, Vimeo, i SlideShare."
-
-#: modules/widgets/rsslinks-widget.php:140
-msgid "Subscribe to %s"
-msgstr "Subscriu-me a %s"
-
-#: modules/widgets/twitter-widget.php:69
-msgid "Display your tweets from Twitter"
-msgstr "Mostra els teves piulades del Twitter"
-
-#: modules/widgets/twitter-widget.php:70
-msgid "Twitter (Jetpack)"
-msgstr "Twitter (Jetpack)"
-
-#: modules/widgets/twitter-widget.php:79
-msgid "Twitter Updates"
-msgstr "Actualitzacions del Twitter"
-
-#: modules/widgets/twitter-widget.php:184
-msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
-msgstr "Error: comproveu que el compte del Twitter és <a href=\"%s\">públic</a>."
-
-#: modules/widgets/twitter-widget.php:186
-msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr "Error: el Twitter no respon. Espereu uns pocs minuts i refresqueu aquesta pàgina. "
-
-#: modules/widgets/twitter-widget.php:228
-msgid "Twitter username:"
-msgstr "Nom d'usuari del Twitter:"
-
-#: modules/widgets/twitter-widget.php:231
-msgid "Maximum number of tweets to show:"
-msgstr "Nombre màxim de piulades que cal mostrar:"
-
-#: modules/widgets/twitter-widget.php:242
-msgid "Hide replies"
-msgstr "Amaga les respostes"
-
-#: modules/widgets/twitter-widget.php:247
-msgid "Include retweets"
-msgstr "Inclou repiulades"
-
-#: modules/widgets/twitter-widget.php:249
-msgid "Text to display between tweet and timestamp:"
-msgstr "Text que cal mostrar entre la piulada i la hora:"
-
-msgid "http://wordpress.org/extend/plugins/jetpack/"
-msgstr "http://wordpress.org/extend/plugins/jetpack/"
-
-#: modules/widgets/rsslinks-widget.php:99
-msgid "Small"
-msgstr "Petit"
-
-#: modules/widgets/rsslinks-widget.php:100
-msgid "Medium"
-msgstr "Mitjana"
-
-#: modules/widgets/rsslinks-widget.php:101
-msgid "Large"
-msgstr "Gran"
-
-#: modules/widgets/rsslinks-widget.php:103
-msgid "Image Size:"
-msgstr "Mida de la imatge:"
-
-#: modules/widgets/rsslinks-widget.php:113
-msgid "Red"
-msgstr "Vermell"
-
-#: modules/widgets/rsslinks-widget.php:114
-msgid "Orange"
-msgstr "Taronja"
-
-#: modules/widgets/rsslinks-widget.php:115
-msgid "Green"
-msgstr "Verd"
-
-#: modules/widgets/rsslinks-widget.php:116
-msgid "Blue"
-msgstr "Blau"
-
-#: modules/widgets/rsslinks-widget.php:117
-msgid "Purple"
-msgstr "Violeta"
-
-#: modules/widgets/rsslinks-widget.php:118
-msgid "Pink"
-msgstr "Rosa"
-
-#: modules/widgets/rsslinks-widget.php:119
-msgid "Silver"
-msgstr "Plata"
-
-#: modules/widgets/rsslinks-widget.php:121
-msgid "Image Color:"
-msgstr "Color de la imatge:"
-
-#: modules/widgets/rsslinks-widget.php:12
-msgid "Links to your blog's RSS feeds"
-msgstr "Enllaços al canal de subscripció RSS del bloc"
-
-#: modules/widgets/rsslinks-widget.php:13
-msgid "RSS Links (Jetpack)"
-msgstr "Enllaços RSS (Jetpack)"
-
-#: modules/widgets/rsslinks-widget.php:62
-#: modules/widgets/twitter-widget.php:225
-msgid "Title:"
-msgstr "Títol:"
-
-#: modules/widgets/rsslinks-widget.php:67
-#: modules/widgets/rsslinks-widget.php:133
-msgid "Posts"
-msgstr "Entrades"
-
-#: modules/widgets/rsslinks-widget.php:68
-#: modules/widgets/rsslinks-widget.php:136
-msgid "Comments"
-msgstr "Comentaris"
-
-#: modules/widgets/rsslinks-widget.php:69
-msgid "Posts & Comments"
-msgstr "Entrades i comentaris"
-
-#: modules/widgets/rsslinks-widget.php:71
-msgid "Feed(s) to Display:"
-msgstr "Fil(s) de subscripció a mostrar:"
-
-#: modules/widgets/rsslinks-widget.php:81
-msgid "Text Link"
-msgstr "Enllaç de text"
-
-#: modules/widgets/rsslinks-widget.php:82
-msgid "Image Link"
-msgstr "Enllaç d'Imatge"
-
-#: modules/widgets/rsslinks-widget.php:83
-msgid "Text & Image Links"
-msgstr "Enllaços de text i imatge"
-
-#: modules/widgets/rsslinks-widget.php:85
-msgid "Format:"
-msgstr "Format:"
-
-#: modules/widgets/rsslinks-widget.php:96
-msgid "Image Settings:"
-msgstr "Configuració de la imatge:"
+#: modules/widgets/image-widget.php:12
+msgid "Display an image in your sidebar"
+msgstr "Mostra una imatge en la barra lateral"
+
+#: modules/widgets/image-widget.php:14
+msgid "Image (Jetpack)"
+msgstr "Imatge (Jetpack)"
 
 #: modules/widgets/image-widget.php:110
 msgid "Image URL:"
@@ -546,37 +322,9 @@ msgstr "Títol:"
 msgid "None"
 msgstr "Cap"
 
-#: modules/widgets/image-widget.php:125
-msgid "Left"
-msgstr "Esquerra"
-
-#: modules/widgets/image-widget.php:126
-msgid "Center"
-msgstr "Centrat"
-
-#: modules/widgets/image-widget.php:127
-msgid "Right"
-msgstr "Dreta"
-
-#: modules/widgets/image-widget.php:129
-msgid "Image Alignment:"
-msgstr "Alineació de la imatge:"
-
-#: modules/widgets/image-widget.php:139
-msgid "Width:"
-msgstr "Amplada:"
-
-#: modules/widgets/image-widget.php:142
-msgid "Height:"
-msgstr "Alçada:"
-
-#: modules/widgets/image-widget.php:145
-msgid "If empty, we will attempt to determine the image size."
-msgstr "Si està buit, intentarem determinar la grandària de la imatge."
-
-#: modules/widgets/image-widget.php:146
-msgid "Link URL (when the image is clicked):"
-msgstr "URL de l'enllaç (quan es fa clic a la imatge):"
+#: modules/widgets/facebook-likebox.php:32
+msgid "It looks like your Facebook URL is incorrectly configured. Please check it in your <a href=\"%s\">widget settings</a>."
+msgstr ""
 
 #: modules/widgets/facebook-likebox.php:106
 #: modules/widgets/gravatar-profile.php:146
@@ -594,6 +342,10 @@ msgstr "La caixa M'agrada solament funciona amb les <a href=\"http://www.faceboo
 #: modules/widgets/facebook-likebox.php:122
 msgid "Width"
 msgstr "Amplada"
+
+#: modules/widgets/facebook-likebox.php:129
+msgid "Height"
+msgstr "Alçada"
 
 #: modules/widgets/facebook-likebox.php:148
 msgid "Show Faces"
@@ -619,13 +371,59 @@ msgstr "Mostra el mur"
 msgid "Show the wall for a Places page rather than friend activity."
 msgstr "Mostra el mur de la pàgina de llocs en lloc de l'activitat de l'amic."
 
-#: modules/widgets/image-widget.php:12
-msgid "Display an image in your sidebar"
-msgstr "Mostra una imatge en la barra lateral"
+#: modules/widgets/gravatar-profile.php:9
+msgid "Gravatar Profile"
+msgstr "Perfil del gravatar"
 
-#: modules/widgets/image-widget.php:14
-msgid "Image (Jetpack)"
-msgstr "Imatge (Jetpack)"
+#: modules/widgets/gravatar-profile.php:11
+msgid "Display a mini version of your Gravatar Profile"
+msgstr "Mostra una versió mini del perfil del gravatar"
+
+#: modules/widgets/gravatar-profile.php:27
+msgid "You need to select what to show in this <a href=\"%s\">Gravatar Profile widget</a>."
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:73
+msgid "View Full Profile &rarr;"
+msgstr "Mostra el perfil complet &rarr;"
+
+#: modules/widgets/gravatar-profile.php:81
+msgid "Error loading profile"
+msgstr "S'ha produït un error en carregar el perfil"
+
+#: modules/widgets/gravatar-profile.php:93
+msgid "Personal Links"
+msgstr "Enllaços personals"
+
+#: modules/subscriptions.php:509
+msgid "Add an email signup form to allow people to subscribe to your blog."
+msgstr "Afegeix un formulari de registre de correu electrònic per permetre a la gent subscriure's al vostre bloc."
+
+#: modules/subscriptions.php:512
+msgid "Blog Subscriptions (Jetpack)"
+msgstr "Subscripcions del bloc (Jetpack)"
+
+#: modules/subscriptions.php:543
+msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
+msgstr "S'acaba d'enviar un correu electrònic perquè confirmeu la subscripció. Cerqueu ara el correu electrònic i feu clic a activa per iniciar la subscripció."
+
+#: modules/subscriptions.php:553
+msgid "The email you entered was invalid, please check and try again."
+msgstr "El correu electrònic que heu introduït és incorrecte, comproveu-ho i torneu-ho a provar."
+
+#: modules/subscriptions.php:556
+msgid "You have already subscribed to this site, please check your inbox."
+msgstr "Ja esteu subscrits a aquest lloc, comproveu la safata d'entrada."
+
+#: modules/subscriptions.php:563
+msgid "There was an error when subscribing, please try again."
+msgstr "S'ha produït un error en subscriure, torneu-ho a provar."
+
+#: modules/subscriptions.php:581
+msgid "Join %s other subscriber"
+msgid_plural "Join %s other subscribers"
+msgstr[0] "Uneix %s altre subscriptor"
+msgstr[1] "Uneix altres %s subscriptors"
 
 #: modules/subscriptions.php:585
 msgid "Email Address"
@@ -677,55 +475,13 @@ msgstr "Caixa M'agrada del Facebook"
 msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
 msgstr "Mostra una caixa M'agrada del Facebook per connectar els visitants a la seva pàgina del Facebook"
 
-#: modules/subscriptions.php:216
-msgid "Change whether your visitors can subscribe to your posts or comments or both."
-msgstr "Canvia si els visitants poden subscriure's a les entrades, als comentaris o a tots dos."
+#: modules/stats.php:705
+msgid "the past month"
+msgstr "el mes passat"
 
-#: modules/subscriptions.php:231
-msgid "Show a <em>'follow blog'</em> option in the comment form"
-msgstr "Mostra una opció <em>'segueix el bloc'</em> al formulari dels comentaris"
-
-#: modules/subscriptions.php:246
-msgid "Show a <em>'follow comments'</em> option in the comment form"
-msgstr "Mostra una opció <em>'segueix els comentaris'</em> al formulari de comentaris"
-
-#: modules/subscriptions.php:436
-msgid "Notify me of follow-up comments by email."
-msgstr "Aviseu-me del seguiment dels comentaris per correu."
-
-#: modules/subscriptions.php:443
-msgid "Notify me of new posts by email."
-msgstr "Notifica'm per correu electrònic si hi ha entrades noves."
-
-#: modules/subscriptions.php:509
-msgid "Add an email signup form to allow people to subscribe to your blog."
-msgstr "Afegeix un formulari de registre de correu electrònic per permetre a la gent subscriure's al vostre bloc."
-
-#: modules/subscriptions.php:512
-msgid "Blog Subscriptions (Jetpack)"
-msgstr "Subscripcions del bloc (Jetpack)"
-
-#: modules/subscriptions.php:543
-msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
-msgstr "S'acaba d'enviar un correu electrònic perquè confirmeu la subscripció. Cerqueu ara el correu electrònic i feu clic a activa per iniciar la subscripció."
-
-#: modules/subscriptions.php:553
-msgid "The email you entered was invalid, please check and try again."
-msgstr "El correu electrònic que heu introduït és incorrecte, comproveu-ho i torneu-ho a provar."
-
-#: modules/subscriptions.php:556
-msgid "You have already subscribed to this site, please check your inbox."
-msgstr "Ja esteu subscrits a aquest lloc, comproveu la safata d'entrada."
-
-#: modules/subscriptions.php:563
-msgid "There was an error when subscribing, please try again."
-msgstr "S'ha produït un error en subscriure, torneu-ho a provar."
-
-#: modules/subscriptions.php:581
-msgid "Join %s other subscriber"
-msgid_plural "Join %s other subscribers"
-msgstr[0] "Uneix %s altre subscriptor"
-msgstr[1] "Uneix altres %s subscriptors"
+#: modules/stats.php:706
+msgid "the past quarter"
+msgstr "el quart passat"
 
 #: modules/stats.php:707
 msgid "the past year"
@@ -775,73 +531,25 @@ msgstr "Segueix el bloc"
 msgid "Follow Comments"
 msgstr "Segueix els comentaris"
 
-#: modules/stats.php:524
-msgid "Smiley face"
-msgstr "Cara somrient"
+#: modules/subscriptions.php:216
+msgid "Change whether your visitors can subscribe to your posts or comments or both."
+msgstr "Canvia si els visitants poden subscriure's a les entrades, als comentaris o a tots dos."
 
-#: modules/stats.php:525
-msgid "Report visibility"
-msgstr "Informa de la visibilitat"
+#: modules/subscriptions.php:231
+msgid "Show a <em>'follow blog'</em> option in the comment form"
+msgstr "Mostra una opció <em>'segueix el bloc'</em> al formulari dels comentaris"
 
-#: modules/stats.php:527
-msgid "Select the roles that will be able to view stats reports."
-msgstr "Selecciona els rols que podran veure les estadístiques."
+#: modules/subscriptions.php:246
+msgid "Show a <em>'follow comments'</em> option in the comment form"
+msgstr "Mostra una opció <em>'segueix els comentaris'</em> al formulari de comentaris"
 
-#: modules/stats.php:538
-msgid "Save configuration"
-msgstr "Desa la configuració"
+#: modules/subscriptions.php:436
+msgid "Notify me of follow-up comments by email."
+msgstr "Aviseu-me del seguiment dels comentaris per correu."
 
-#: modules/stats.php:596
-msgid "Views over 48 hours. Click for more Site Stats."
-msgstr "Visualitzacions durant 48 hores. Feu clic per veure més estadístiques del lloc."
-
-#: modules/stats.php:698
-msgid "day"
-msgstr "dia"
-
-#: modules/stats.php:699
-msgid "week"
-msgstr "setmana"
-
-#: modules/stats.php:700
-msgid "month"
-msgstr "mes"
-
-#: modules/stats.php:703
-msgid "the past day"
-msgstr "el dia passat"
-
-#: modules/stats.php:704
-msgid "the past week"
-msgstr "la setmana passada"
-
-#: modules/stats.php:705
-msgid "the past month"
-msgstr "el mes passat"
-
-#: modules/stats.php:706
-msgid "the past quarter"
-msgstr "el quart passat"
-
-#: modules/stats.php:337
-msgid "Loading&hellip;"
-msgstr "S'està carregant&hellip;"
-
-#: modules/stats.php:338
-msgid "Your Site Stats work better with Javascript enabled."
-msgstr "Les estadístiques del lloc web funcionen millor si teniu activat el Javascript."
-
-#: modules/stats.php:339
-msgid "View Site Stats without Javascript"
-msgstr "Visualitza les estadístiques del lloc sense Javascript"
-
-#: modules/stats.php:412 modules/stats.php:905
-msgid "We were unable to get your stats just now (too many redirects). Please try again."
-msgstr "Ha estat impossible aconseguir les estadístiques ara mateix (massa redireccionaments). Torneu-ho a provar."
-
-#: modules/stats.php:414 modules/stats.php:907
-msgid "We were unable to get your stats just now. Please try again."
-msgstr "No hem pogut aconseguir les estadístiques ara mateix. Torneu-ho a provar."
+#: modules/subscriptions.php:443
+msgid "Notify me of new posts by email."
+msgstr "Notifica'm per correu electrònic si hi ha entrades noves."
 
 #: modules/stats.php:514
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
@@ -874,6 +582,58 @@ msgstr "Amaga la imatge de la cara somrient de les estadístiques."
 #: modules/stats.php:524
 msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
 msgstr "La imatge ajuda a recollir les estadístiques i <strong>fa del món un millor lloc</strong> però hauria de funciona quan està oculta."
+
+#: modules/stats.php:524
+msgid "Smiley face"
+msgstr "Cara somrient"
+
+#: modules/stats.php:525
+msgid "Report visibility"
+msgstr "Informa de la visibilitat"
+
+#: modules/stats.php:527
+msgid "Select the roles that will be able to view stats reports."
+msgstr "Selecciona els rols que podran veure les estadístiques."
+
+#: modules/stats.php:538
+msgid "Save configuration"
+msgstr "Desa la configuració"
+
+#: modules/stats.php:594
+msgid "Stats"
+msgstr "Estadístiques"
+
+#: modules/stats.php:596
+msgid "Views over 48 hours. Click for more Site Stats."
+msgstr "Visualitzacions durant 48 hores. Feu clic per veure més estadístiques del lloc."
+
+#: modules/stats.php:698
+msgid "day"
+msgstr "dia"
+
+#: modules/stats.php:699
+msgid "week"
+msgstr "setmana"
+
+#: modules/stats.php:700
+msgid "month"
+msgstr "mes"
+
+#: modules/stats.php:703
+msgid "the past day"
+msgstr "el dia passat"
+
+#: modules/stats.php:704
+msgid "the past week"
+msgstr "la setmana passada"
+
+#: modules/shortcodes/videopress.php:879
+msgid "August"
+msgstr "agost"
+
+#: modules/shortcodes/videopress.php:879
+msgid "September"
+msgstr "setembre"
 
 #: modules/shortcodes/videopress.php:879
 msgid "October"
@@ -926,6 +686,62 @@ msgstr "S'està carregant el vídeo..."
 msgid "Site Stats"
 msgstr "Estadístiques del lloc web"
 
+#: modules/stats.php:337
+msgid "Loading&hellip;"
+msgstr "S'està carregant&hellip;"
+
+#: modules/stats.php:338
+msgid "Your Site Stats work better with Javascript enabled."
+msgstr "Les estadístiques del lloc web funcionen millor si teniu activat el Javascript."
+
+#: modules/stats.php:339
+msgid "View Site Stats without Javascript"
+msgstr "Visualitza les estadístiques del lloc sense Javascript"
+
+#: modules/stats.php:412 modules/stats.php:905
+msgid "We were unable to get your stats just now (too many redirects). Please try again."
+msgstr "Ha estat impossible aconseguir les estadístiques ara mateix (massa redireccionaments). Torneu-ho a provar."
+
+#: modules/stats.php:414 modules/stats.php:907
+msgid "We were unable to get your stats just now. Please try again."
+msgstr "No hem pogut aconseguir les estadístiques ara mateix. Torneu-ho a provar."
+
+#: modules/sharedaddy/sharing.php:377
+msgid "Enter the URL of a 16x16px icon you want to use for this service."
+msgstr "Introduïu la URL d'una icona de 16x16 píxels que voleu fer servir per aquest servei."
+
+#: modules/sharedaddy/sharing.php:383
+msgid "Create Share Button"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:395
+msgid "An error occurred creating your new sharing service - please check you gave valid details."
+msgstr "S'ha produït un error en crear el vostre nou serveu de compartició - comproveu que doneu els detalls correctes."
+
+#: modules/shortcodes/archives.php:50
+msgid "Your blog does not currently have any published posts."
+msgstr "El bloc no té cap entrada publicada actualment."
+
+#: modules/shortcodes/audio.php:180
+msgid "Download: <a href=\"%s\">%s</a><br />"
+msgstr "Baixa: <a href=\"%s\">%s</a><br />"
+
+#: modules/shortcodes/videopress.php:608
+msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
+msgstr "L'extensió VideoPress no es pot comunicar amb els servidors de VideoPress. Aquest error la majoria de vegades és culpa d'un error en la configuració de l'extensió. Reinstal·leu o actualitzeu."
+
+#: modules/shortcodes/videopress.php:610
+msgid "<strong>%s</strong> is not an allowed embed site."
+msgstr "<strong>%s</strong> no és un lloc incrustat permès."
+
+#: modules/shortcodes/videopress.php:610
+msgid "Publisher limits playback of video embeds."
+msgstr "dEl publicador limita la reproducció de vídeos incrustats."
+
+#: modules/shortcodes/videopress.php:612
+msgid "No data found for VideoPress identifier: <strong>%s</strong>."
+msgstr "No s'ha trobat informació per a l'identificador del VideoPress: <strong>%s</strong>."
+
 #: modules/shortcodes/videopress.php:829
 msgid "%s Error"
 msgstr "%s error"
@@ -966,57 +782,21 @@ msgstr "juny"
 msgid "July"
 msgstr "juliol"
 
-#: modules/shortcodes/videopress.php:879
-msgid "August"
-msgstr "agost"
+#: modules/sharedaddy/sharing.php:215
+msgid "Services dragged here will be hidden behind a share button."
+msgstr "Els serveis arrossegats i deixats aquí, s'ocultaran darrere d'un botó de compartició."
 
-#: modules/shortcodes/videopress.php:879
-msgid "September"
-msgstr "setembre"
+#: modules/sharedaddy/sharing.php:230
+msgid "Live Preview"
+msgstr "Previsualització "
 
-#: modules/sharedaddy/sharing.php:365
-msgid "Sharing URL"
-msgstr "S'està compartint la URL"
+#: modules/sharedaddy/sharing.php:233
+msgid "Sharing is off. Add services above to enable."
+msgstr ""
 
-#: modules/sharedaddy/sharing.php:369
-msgid "You can add the following variables to your service sharing URL:"
-msgstr "Podeu afegir les següents variables al servei de compartició d'URL:"
-
-#: modules/sharedaddy/sharing.php:374
-msgid "Icon URL"
-msgstr "URL de la icona"
-
-#: modules/sharedaddy/sharing.php:377
-msgid "Enter the URL of a 16x16px icon you want to use for this service."
-msgstr "Introduïu la URL d'una icona de 16x16 píxels que voleu fer servir per aquest servei."
-
-#: modules/sharedaddy/sharing.php:395
-msgid "An error occurred creating your new sharing service - please check you gave valid details."
-msgstr "S'ha produït un error en crear el vostre nou serveu de compartició - comproveu que doneu els detalls correctes."
-
-#: modules/shortcodes/archives.php:50
-msgid "Your blog does not currently have any published posts."
-msgstr "El bloc no té cap entrada publicada actualment."
-
-#: modules/shortcodes/audio.php:180
-msgid "Download: <a href=\"%s\">%s</a><br />"
-msgstr "Baixa: <a href=\"%s\">%s</a><br />"
-
-#: modules/shortcodes/videopress.php:608
-msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
-msgstr "L'extensió VideoPress no es pot comunicar amb els servidors de VideoPress. Aquest error la majoria de vegades és culpa d'un error en la configuració de l'extensió. Reinstal·leu o actualitzeu."
-
-#: modules/shortcodes/videopress.php:610
-msgid "<strong>%s</strong> is not an allowed embed site."
-msgstr "<strong>%s</strong> no és un lloc incrustat permès."
-
-#: modules/shortcodes/videopress.php:610
-msgid "Publisher limits playback of video embeds."
-msgstr "dEl publicador limita la reproducció de vídeos incrustats."
-
-#: modules/shortcodes/videopress.php:612
-msgid "No data found for VideoPress identifier: <strong>%s</strong>."
-msgstr "No s'ha trobat informació per a l'identificador del VideoPress: <strong>%s</strong>."
+#: modules/sharedaddy/sharing.php:300
+msgid "Button style"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:303
 msgid "Icon + text"
@@ -1029,6 +809,10 @@ msgstr "Només icones"
 #: modules/sharedaddy/sharing.php:305
 msgid "Text only"
 msgstr "Només text"
+
+#: modules/sharedaddy/sharing.php:306
+msgid "Official buttons"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:311
 msgid "Sharing label"
@@ -1046,6 +830,10 @@ msgstr "Finestra nova"
 msgid "Same window"
 msgstr "A la mateixa finestra"
 
+#: modules/sharedaddy/sharing.php:326
+msgid "Show buttons on"
+msgstr ""
+
 #: modules/sharedaddy/sharing.php:332
 msgid "Front Page, Archive Pages, and Search Results"
 msgstr "Pàgina principal, pàgines d'arxiu, i resultats de la cerca."
@@ -1058,6 +846,48 @@ msgstr "Desa els canvis"
 msgid "Service name"
 msgstr "Nom del servei"
 
+#: modules/sharedaddy/sharing.php:365
+msgid "Sharing URL"
+msgstr "S'està compartint la URL"
+
+#: modules/sharedaddy/sharing.php:369
+msgid "You can add the following variables to your service sharing URL:"
+msgstr "Podeu afegir les següents variables al servei de compartició d'URL:"
+
+#: modules/sharedaddy/sharing.php:374
+msgid "Icon URL"
+msgstr "URL de la icona"
+
+#: modules/sharedaddy/sharing-sources.php:1075
+msgctxt "share to"
+msgid "Tumblr"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1075
+msgid "Click to share on Tumblr"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1110
+msgid "Pinterest"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1140
+msgid "Pin It"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1142
+msgctxt "share to"
+msgid "Pinterest"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1142
+msgid "Click to share on Pinterest"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:51 modules/sharedaddy/sharing.php:163
+msgid "Sharing Settings"
+msgstr "Opcions de compartició"
+
 #: modules/sharedaddy/sharing.php:153
 msgid "Warning! Multibyte support missing!"
 msgstr "Atenció! S'ha perdut el suport multibyte!"
@@ -1069,6 +899,14 @@ msgstr "Aquesta extensió funcionarà sense suport per a múltiples bytes, per s
 #: modules/sharedaddy/sharing.php:158
 msgid "Settings have been saved"
 msgstr "S'ha desat la configuració"
+
+#: modules/sharedaddy/sharing.php:169
+msgid "Sharing Buttons"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:170
+msgid "Add sharing buttons to your blog and allow your visitors to share posts with their friends."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:176
 msgid "Available Services"
@@ -1090,13 +928,39 @@ msgstr "Serveis actius"
 msgid "Services dragged here will appear individually."
 msgstr "Els serveis arrossegats aquí apareixeran individualment."
 
-#: modules/sharedaddy/sharing.php:215
-msgid "Services dragged here will be hidden behind a share button."
-msgstr "Els serveis arrossegats i deixats aquí, s'ocultaran darrere d'un botó de compartició."
+#: modules/sharedaddy/sharing.php:204
+msgid "Drag and drop available services here."
+msgstr ""
 
-#: modules/sharedaddy/sharing.php:230
-msgid "Live Preview"
-msgstr "Previsualització "
+#: modules/sharedaddy/sharing-sources.php:575
+msgid "LinkedIn"
+msgstr "LinkedIn"
+
+#: modules/sharedaddy/sharing-sources.php:589
+msgctxt "share to"
+msgid "LinkedIn"
+msgstr "LinkedIn"
+
+#: modules/sharedaddy/sharing-sources.php:589
+msgid "Click to share on LinkedIn"
+msgstr "Fes clic per compartir al Linkedin"
+
+#: modules/sharedaddy/sharing-sources.php:655
+msgid "Facebook"
+msgstr "Facebook"
+
+#: modules/sharedaddy/sharing-sources.php:729
+msgctxt "share to"
+msgid "Facebook"
+msgstr "Facebook"
+
+#: modules/sharedaddy/sharing-sources.php:729
+msgid "Share on Facebook"
+msgstr "Comparteix al Facebook"
+
+#: modules/sharedaddy/sharing-sources.php:760
+msgid "Print"
+msgstr "Imprimeix"
 
 #: modules/sharedaddy/sharing-sources.php:764
 msgctxt "share to"
@@ -1144,53 +1008,33 @@ msgstr "Desa"
 msgid "Remove Service"
 msgstr "Suprimeix el servei"
 
-#: modules/sharedaddy/sharing.php:51 modules/sharedaddy/sharing.php:163
-msgid "Sharing Settings"
-msgstr "Opcions de compartició"
+#: modules/sharedaddy/sharing-sources.php:1068
+msgid "Tumblr"
+msgstr "Tumblr"
 
-#: modules/sharedaddy/sharing-sources.php:528
-#: modules/sharedaddy/sharing-sources.php:531
-msgid "Click to Digg this post"
-msgstr "Fes clic per enviar l'entrada al Digg"
+#: modules/sharedaddy/sharing-sources.php:275
+msgid "Send to Email Address"
+msgstr "Enviaeu a l'adreá de correu electrònic"
 
-#: modules/sharedaddy/sharing-sources.php:531
-msgctxt "share to"
-msgid "Digg"
-msgstr "Digg"
+#: modules/sharedaddy/sharing-sources.php:283
+msgid "Your Name"
+msgstr "El teu nom"
 
-#: modules/sharedaddy/sharing-sources.php:575
-msgid "LinkedIn"
-msgstr "LinkedIn"
+#: modules/sharedaddy/sharing-sources.php:286
+msgid "Your Email Address"
+msgstr "L'adreça de correu electrònic"
 
-#: modules/sharedaddy/sharing-sources.php:589
-msgctxt "share to"
-msgid "LinkedIn"
-msgstr "LinkedIn"
+#: modules/sharedaddy/sharing-sources.php:294
+msgid "Send Email"
+msgstr "Envia el correu electrònic"
 
-#: modules/sharedaddy/sharing-sources.php:589
-msgid "Click to share on LinkedIn"
-msgstr "Fes clic per compartir al Linkedin"
+#: modules/sharedaddy/sharing-sources.php:295
+msgid "Cancel"
+msgstr "Cancel·la"
 
-#: modules/sharedaddy/sharing-sources.php:655
-msgid "Facebook"
-msgstr "Facebook"
-
-#: modules/sharedaddy/sharing-service.php:525
-msgid "Share"
-msgstr "Comparteix"
-
-#: modules/sharedaddy/sharing-sources.php:729
-msgctxt "share to"
-msgid "Facebook"
-msgstr "Facebook"
-
-#: modules/sharedaddy/sharing-sources.php:729
-msgid "Share on Facebook"
-msgstr "Comparteix al Facebook"
-
-#: modules/sharedaddy/sharing-sources.php:760
-msgid "Print"
-msgstr "Imprimeix"
+#: modules/sharedaddy/sharing-sources.php:298
+msgid "Post was not sent - check your email addresses!"
+msgstr "L'entrada no s'havia enviat, comproveu les vostres adreces electròniques!"
 
 #: modules/sharedaddy/sharing-sources.php:302
 msgid "Email check failed, please try again"
@@ -1239,6 +1083,73 @@ msgstr "Fes clic per compartir al Reddit"
 msgid "Digg"
 msgstr "Digg"
 
+#: modules/sharedaddy/sharing-sources.php:528
+#: modules/sharedaddy/sharing-sources.php:531
+msgid "Click to Digg this post"
+msgstr "Fes clic per enviar l'entrada al Digg"
+
+#: modules/sharedaddy/sharing-sources.php:531
+msgctxt "share to"
+msgid "Digg"
+msgstr "Digg"
+
+#: modules/module-info.php:448
+msgid "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page."
+msgstr "El Jetpack tracta d'ajustar l'esquema de color de la pàgina web automàticament, però podeu fer manualment els ajustos a la part inferior de la pàgina de <a href='%s'>configuració de les discussions</a>."
+
+#: modules/module-info.php:469
+msgid "Gallery Carousel Screenshot"
+msgstr ""
+
+#: modules/module-info.php:472
+msgid "Carousel"
+msgstr "Carrusel"
+
+#: modules/module-info.php:474
+msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
+msgstr ""
+
+#: modules/module-info.php:487 modules/module-info.php:490
+msgid "Custom CSS"
+msgstr ""
+
+#: modules/module-info.php:491
+msgid "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing."
+msgstr ""
+
+#: modules/module-info.php:492
+msgid "To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
+msgstr ""
+
+#: modules/sharedaddy/sharedaddy.php:18
+msgid "Shared Post"
+msgstr "Entrada compartida"
+
+#: modules/sharedaddy/sharedaddy.php:37
+msgid "Show sharing buttons on this post."
+msgstr "Mostra els botons de compartició en aquesta entrada."
+
+#: modules/sharedaddy/sharedaddy.php:108
+msgid "Disable CSS and JS"
+msgstr "Desactiva CSS i JS"
+
+#: modules/sharedaddy/sharedaddy.php:110
+msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
+msgstr "Avançat. Si aquesta opció està marcada, heu d'incloure aquests fitxers en el tema manualment perquè els enllaços de compartició funcionin."
+
+#: modules/sharedaddy/sharing-service.php:12
+msgid "Share this:"
+msgstr "Comparteix això:"
+
+#: modules/sharedaddy/sharing-service.php:523
+#: modules/sharedaddy/sharing.php:245 modules/sharedaddy/sharing.php:278
+msgid "More"
+msgstr ""
+
+#: modules/sharedaddy/sharing-service.php:525
+msgid "Share"
+msgstr "Comparteix"
+
 #: modules/sharedaddy/sharing-sources.php:238
 msgid "This post has been shared!"
 msgstr "S'ha compartit aquesta entrada!"
@@ -1260,77 +1171,9 @@ msgstr "Correu electrònic"
 msgid "Click to email this to a friend"
 msgstr "Feu clic per enviar un correu electrònic a un amic"
 
-#: modules/sharedaddy/sharing-sources.php:275
-msgid "Send to Email Address"
-msgstr "Enviaeu a l'adreá de correu electrònic"
-
-#: modules/sharedaddy/sharing-sources.php:283
-msgid "Your Name"
-msgstr "El teu nom"
-
-#: modules/sharedaddy/sharing-sources.php:286
-msgid "Your Email Address"
-msgstr "L'adreça de correu electrònic"
-
-#: modules/sharedaddy/sharing-sources.php:294
-msgid "Send Email"
-msgstr "Envia el correu electrònic"
-
-#: modules/sharedaddy/sharing-sources.php:295
-msgid "Cancel"
-msgstr "Cancel·la"
-
-#: modules/sharedaddy/sharing-sources.php:298
-msgid "Post was not sent - check your email addresses!"
-msgstr "L'entrada no s'havia enviat, comproveu les vostres adreces electròniques!"
-
-#: modules/module-info.php:388
-msgid "Enhanced Distribution"
-msgstr "Distribució millorada"
-
-#: modules/module-info.php:390
-msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
-msgstr "El JetPack agafarà automàticament el meravellós contingut del bloc o pàgina web i el compartirà instantàniament amb serveis de tercers com ara motors de cerca, i augmentar l'abast i trànsit. "
-
-#: modules/module-info.php:418
-msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
-msgstr "Un formulari de contacte és una gran manera d'oferir als vostres lectors la possibilitat de contactar amb vosaltres, sense que doneu el correu electrònic."
-
-#: modules/module-info.php:421
-msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr "Cada formulari de contacte es pot fàcilment adaptar a les vostres necessitats. Quan un usuari envia el formulari de contacte, l'opinió es filtrarà mitjançant l'<a href=\"http://akismet.com/\">Akismet</a> (si està activat a la pàgina web) per assegurar-nos que no és brossa. Qualsevol opinió legítima s'us enviarà per correu electrònic, i s'afegirà a l'àrea de gestió de les opinions."
-
-#: modules/module-info.php:438
-msgid "Jetpack Comments Screenshot"
-msgstr "Captura de pantalla dels comentaris del Jetpack"
-
-#: modules/module-info.php:443
-msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
-msgstr "Els comentaris del Jetpack permet als vostres visitants fer servir els seus comptes de WordPress, Twitter o Facebook per comentar a la pàgina web."
-
-#: modules/module-info.php:448
-msgid "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page."
-msgstr "El Jetpack tracta d'ajustar l'esquema de color de la pàgina web automàticament, però podeu fer manualment els ajustos a la part inferior de la pàgina de <a href='%s'>configuració de les discussions</a>."
-
-#: modules/sharedaddy/sharedaddy.php:18
-msgid "Shared Post"
-msgstr "Entrada compartida"
-
-#: modules/sharedaddy/sharedaddy.php:37
-msgid "Show sharing buttons on this post."
-msgstr "Mostra els botons de compartició en aquesta entrada."
-
-#: modules/sharedaddy/sharedaddy.php:108
-msgid "Disable CSS and JS"
-msgstr "Desactiva CSS i JS"
-
-#: modules/sharedaddy/sharedaddy.php:110
-msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
-msgstr "Avançat. Si aquesta opció està marcada, heu d'incloure aquests fitxers en el tema manualment perquè els enllaços de compartició funcionin."
-
-#: modules/sharedaddy/sharing-service.php:12
-msgid "Share this:"
-msgstr "Comparteix això:"
+#: modules/module-info.php:347
+msgid "The Twitter Widget"
+msgstr "El giny del Twitter"
 
 #: modules/module-info.php:347
 msgid "shows your latest tweets within a sidebar on your theme."
@@ -1380,6 +1223,62 @@ msgstr "Quan facin comentaris, els vostres visitants poden també subscriure's a
 msgid "To use the Subscriptions widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away."
 msgstr "Per fer servir el giny de subscripcions, aneu a Aparença &#8594; <a href=\"%s\">Ginys</a>. Arrossegueu el giny etiquetat com a &#8220;Subscripcions al Bloc (Jetpack)&#8221; a una de les barres laterals i configureu-lo."
 
+#: modules/module-info.php:388
+msgid "Enhanced Distribution"
+msgstr "Distribució millorada"
+
+#: modules/module-info.php:390
+msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
+msgstr "El JetPack agafarà automàticament el meravellós contingut del bloc o pàgina web i el compartirà instantàniament amb serveis de tercers com ara motors de cerca, i augmentar l'abast i trànsit. "
+
+#: modules/module-info.php:418
+msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
+msgstr "Un formulari de contacte és una gran manera d'oferir als vostres lectors la possibilitat de contactar amb vosaltres, sense que doneu el correu electrònic."
+
+#: modules/module-info.php:421
+msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
+msgstr "Cada formulari de contacte es pot fàcilment adaptar a les vostres necessitats. Quan un usuari envia el formulari de contacte, l'opinió es filtrarà mitjançant l'<a href=\"http://akismet.com/\">Akismet</a> (si està activat a la pàgina web) per assegurar-nos que no és brossa. Qualsevol opinió legítima s'us enviarà per correu electrònic, i s'afegirà a l'àrea de gestió de les opinions."
+
+#: modules/module-info.php:438
+msgid "Jetpack Comments Screenshot"
+msgstr "Captura de pantalla dels comentaris del Jetpack"
+
+#: modules/module-info.php:443
+msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
+msgstr "Els comentaris del Jetpack permet als vostres visitants fer servir els seus comptes de WordPress, Twitter o Facebook per comentar a la pàgina web."
+
+#: modules/module-info.php:269
+msgid "Additionally you can define your own custom services."
+msgstr "De manera addicional podeu definir els vostres propis serveis."
+
+#: modules/module-info.php:284
+msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
+msgstr "Per configurar les opcions de compartició, aneu al menú de les opcions &rarr; <a href=\"%s\">de compartició</a>."
+
+#: modules/module-info.php:285
+msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
+msgstr "Arrossega i deixa anar els serveis de compartició en la secció activa per activar-les al lloc web, i arrossega-les en les seccions ocultes per tenir-les ocultes darrere d'un botó."
+
+#: modules/module-info.php:291
+msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
+msgstr "Tots els detalls es poden trobar a la <a href=\"%s\">pàgina de suport de compartició</a>. Aquest vídeo també dóna una pinzellada sobre com fer servir la característica de compartició. Mireu-lo en alta definició!"
+
+#: modules/module-info.php:306 modules/module-info.php:310
+msgid "Spelling and Grammar"
+msgstr "Ortografia i gramàtica"
+
+#: modules/module-info.php:312
+msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
+msgstr "El servei de correcció <a href='%s'>After&nbsp;the&nbsp;Deadline</a> millora l'escriptura en fer servir intel·ligència artificial per trobar errors i oferir suggeriments intel·ligents."
+
+#: modules/module-info.php:313
+msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
+msgstr "After the Deadline proporciona un nombre d'<a href=\"%s\">opcions de personalització</a>, que podeu editar al vostre perfil."
+
+#: modules/module-info.php:327 modules/module-info.php:341
+msgid "Widgets Screenshot"
+msgstr "Captura dels ginys"
+
 #: modules/module-info.php:330 modules/module-info.php:344
 msgid "Extra Sidebar Widgets"
 msgstr "Ginys extra de la barra lateral"
@@ -1424,63 +1323,13 @@ msgstr "El giny d'enllaços RSS"
 msgid "lets you easily add post and comment RSS feeds to a sidebar on your theme."
 msgstr "us permet afegir fàcilment canals RSS de les entrades i comentaris a una barra lateral del tema."
 
-#: modules/module-info.php:347
-msgid "The Twitter Widget"
-msgstr "El giny del Twitter"
+#: modules/module-info.php:95 modules/module-info.php:108
+msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
+msgstr "Els trossos de codi us permeten incrustar mèdia des d'altres llocs de manera fàcil i amb seguretat al vostre lloc web. Amb un simple codi, podeu dir-li al WordPress que incrusti YouTube, Flickr i altres mèdia."
 
-#: modules/module-info.php:240
-msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
-msgstr "Useu <code>$latex el vostre codi latex aquí$</code> o <code>[latex]el vostre codi latex aquí[/latex]</code> per incloure %s en les entrades i comentaris. Hi ha disponibles <a href=\"%s\" target=\"_blank\">tot tipus d'opcions</a>."
-
-#: modules/module-info.php:255 modules/module-info.php:258
-#: modules/module-info.php:279 modules/sharedaddy/sharedaddy.php:25
-#: modules/sharedaddy/sharing.php:51
-msgid "Sharing"
-msgstr "Compartint"
-
-#: modules/module-info.php:259
-msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
-msgstr "Comparteix les entrades amb el Twitter, el Facebook, i un munt d'altres serveis. Podeu configurar els serveis perquè apareguin com a icones, text o ambdues opcions. Alguns serveis tenen opcions addicionals a mostrar-se com a botons intel·ligents, com ara el Twitter, que actualitzarà el nombre de vegades que l'entrada s'ha compartit."
-
-#: modules/module-info.php:263
-msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr "Els següents serveis estan inclosos: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, i Email."
-
-#: modules/module-info.php:265
-msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr "Estan inclosos els següents serveis: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, i Email."
-
-#: modules/module-info.php:269
-msgid "Additionally you can define your own custom services."
-msgstr "De manera addicional podeu definir els vostres propis serveis."
-
-#: modules/module-info.php:284
-msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
-msgstr "Per configurar les opcions de compartició, aneu al menú de les opcions &rarr; <a href=\"%s\">de compartició</a>."
-
-#: modules/module-info.php:285
-msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
-msgstr "Arrossega i deixa anar els serveis de compartició en la secció activa per activar-les al lloc web, i arrossega-les en les seccions ocultes per tenir-les ocultes darrere d'un botó."
-
-#: modules/module-info.php:291
-msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
-msgstr "Tots els detalls es poden trobar a la <a href=\"%s\">pàgina de suport de compartició</a>. Aquest vídeo també dóna una pinzellada sobre com fer servir la característica de compartició. Mireu-lo en alta definició!"
-
-#: modules/module-info.php:306 modules/module-info.php:310
-msgid "Spelling and Grammar"
-msgstr "Ortografia i gramàtica"
-
-#: modules/module-info.php:312
-msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
-msgstr "El servei de correcció <a href='%s'>After&nbsp;the&nbsp;Deadline</a> millora l'escriptura en fer servir intel·ligència artificial per trobar errors i oferir suggeriments intel·ligents."
-
-#: modules/module-info.php:313
-msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
-msgstr "After the Deadline proporciona un nombre d'<a href=\"%s\">opcions de personalització</a>, que podeu editar al vostre perfil."
-
-#: modules/module-info.php:327 modules/module-info.php:341
-msgid "Widgets Screenshot"
-msgstr "Captura dels ginys"
+#: modules/module-info.php:109
+msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
+msgstr "Introduïu un tros de codi directament a l'editor de l'entrada/pàgina per incrustar mèdia. Si voleu instruccions més específiques seguiu els enllaços següents."
 
 #: modules/module-info.php:135
 msgid "Available shortcodes are: %l."
@@ -1532,6 +1381,66 @@ msgstr "El JetPack combina el pdoer de %s i la simplicitat del WordPress per a d
 msgid "Wow, that sounds nerdy."
 msgstr "Uau, això sona molt lleig."
 
+#: modules/module-info.php:240
+msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
+msgstr "Useu <code>$latex el vostre codi latex aquí$</code> o <code>[latex]el vostre codi latex aquí[/latex]</code> per incloure %s en les entrades i comentaris. Hi ha disponibles <a href=\"%s\" target=\"_blank\">tot tipus d'opcions</a>."
+
+#: modules/module-info.php:255 modules/module-info.php:258
+#: modules/module-info.php:279 modules/sharedaddy/sharedaddy.php:25
+#: modules/sharedaddy/sharing.php:51
+msgid "Sharing"
+msgstr "Compartint"
+
+#: modules/module-info.php:259
+msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
+msgstr "Comparteix les entrades amb el Twitter, el Facebook, i un munt d'altres serveis. Podeu configurar els serveis perquè apareguin com a icones, text o ambdues opcions. Alguns serveis tenen opcions addicionals a mostrar-se com a botons intel·ligents, com ara el Twitter, que actualitzarà el nombre de vegades que l'entrada s'ha compartit."
+
+#: modules/module-info.php:263
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr "Els següents serveis estan inclosos: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, i Email."
+
+#: modules/module-info.php:265
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr "Estan inclosos els següents serveis: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, i Email."
+
+#: modules/custom-css/custom-css.php:817
+msgid "CSS Settings"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:836
+msgid "CSS Revisions"
+msgstr ""
+
+#: modules/gravatar-hovercards.php:44 modules/module-info.php:57
+#: modules/module-info.php:72
+msgid "Gravatar Hovercards"
+msgstr "Logo de les targes contextuals"
+
+#: modules/gravatar-hovercards.php:56
+msgid "View people's profiles when you mouse over their Gravatars"
+msgstr "Visualitza els perfils de la gent quan passeu el ratolí per sobre dels seus Gravatars."
+
+#: modules/gravatar-hovercards.php:83
+msgid "Put your mouse over your Gravatar to check out your profile."
+msgstr "Passeu el ratolí per sobre del Gravatar per revisar el vostre perfil."
+
+#: modules/module-info.php:22 modules/module-info.php:26
+msgid "VaultPress"
+msgstr "VaultPress"
+
+#: modules/module-info.php:28
+msgid "Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support."
+msgstr "La instal·lació del WordPress està sent protegida actualment amb la millor seguretat del món, còpia de seguretat i suport."
+
+#: modules/module-info.php:29
+msgctxt "Visit your _VaultPress_dashboard_."
+msgid "To check your backups, see any security alerts, or check your VaultPress Vitality, visit your %s."
+msgstr "Per comprovar les còpies de seguretat, veure qualsevol alerta de seguretat o comprovar la vitalitat del VaultPress, visiteu %s."
+
+#: modules/module-info.php:29
+msgid "VaultPress dashboard"
+msgstr "Tauler de control del VaultPress"
+
 #: modules/module-info.php:31
 msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks."
 msgstr "Amb una subscripció mensual, l'extensió VaultPress farà una còpia de seguretat del contingut de la web, dels temes i de les extensions en temps real, així també realitzarà escanejos de seguretat regulars per trobar les amenaces i atacs més comuns."
@@ -1574,26 +1483,6 @@ msgstr "Per veure les targes emergents, cerqueu en qualsevol entrada del bloc qu
 msgid "Shortcode Embeds"
 msgstr "Incrusta el codi"
 
-#: modules/module-info.php:95 modules/module-info.php:108
-msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
-msgstr "Els trossos de codi us permeten incrustar mèdia des d'altres llocs de manera fàcil i amb seguretat al vostre lloc web. Amb un simple codi, podeu dir-li al WordPress que incrusti YouTube, Flickr i altres mèdia."
-
-#: modules/module-info.php:109
-msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
-msgstr "Introduïu un tros de codi directament a l'editor de l'entrada/pàgina per incrustar mèdia. Si voleu instruccions més específiques seguiu els enllaços següents."
-
-#: modules/contact-form/grunion-form-view.php:194
-msgid "Add this form to my post"
-msgstr "Afegeix aquest formulari a l'entrada"
-
-#: modules/contact-form/grunion-form-view.php:197
-msgid "Email settings"
-msgstr "Paràmetres del correu electrònic"
-
-#: modules/contact-form/grunion-form-view.php:199
-msgid "Enter your email address"
-msgstr "Introduïu el vostre correu electrònic"
-
 #: modules/contact-form/grunion-form-view.php:202
 msgid "What should the subject line be?"
 msgstr "Quina hauria de ser la línia de l'assumpte?"
@@ -1602,35 +1491,88 @@ msgstr "Quina hauria de ser la línia de l'assumpte?"
 msgid "Save and go back to form builder"
 msgstr "Desa i torna al constructor de formularis"
 
-#: modules/gravatar-hovercards.php:44 modules/module-info.php:57
-#: modules/module-info.php:72
-msgid "Gravatar Hovercards"
-msgstr "Logo de les targes contextuals"
+#: modules/custom-css/custom-css.php:468
+msgid "Preview: changes must be saved or they will be lost"
+msgstr "Vista prèvia: els canvis s'ha de guardar o es perdran"
 
-#: modules/gravatar-hovercards.php:56
-msgid "View people's profiles when you mouse over their Gravatars"
-msgstr "Visualitza els perfils de la gent quan passeu el ratolí per sobre dels seus Gravatars."
+#: modules/custom-css/custom-css.php:496
+msgid "Edit CSS"
+msgstr "Editar CSS"
 
-#: modules/gravatar-hovercards.php:83
-msgid "Put your mouse over your Gravatar to check out your profile."
-msgstr "Passeu el ratolí per sobre del Gravatar per revisar el vostre perfil."
+#: modules/custom-css/custom-css.php:510
+msgid "CSS"
+msgstr ""
 
-#: modules/module-info.php:22 modules/module-info.php:26
-msgid "VaultPress"
-msgstr "VaultPress"
+#: modules/custom-css/custom-css.php:549
+msgid "Custom CSS Stylesheet"
+msgstr ""
 
-#: modules/module-info.php:28
-msgid "Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support."
-msgstr "La instal·lació del WordPress està sent protegida actualment amb la millor seguretat del món, còpia de seguretat i suport."
+#: modules/custom-css/custom-css.php:763
+msgid "Stylesheet saved."
+msgstr "Full d'estil guardat."
 
-#: modules/module-info.php:29
-msgctxt "Visit your _VaultPress_dashboard_."
-msgid "To check your backups, see any security alerts, or check your VaultPress Vitality, visit your %s."
-msgstr "Per comprovar les còpies de seguretat, veure qualsevol alerta de seguretat o comprovar la vitalitat del VaultPress, visiteu %s."
+#: modules/custom-css/custom-css.php:771
+msgid "CSS Stylesheet Editor"
+msgstr ""
 
-#: modules/module-info.php:29
-msgid "VaultPress dashboard"
-msgstr "Tauler de control del VaultPress"
+#: modules/custom-css/custom-css.php:772
+msgid ""
+"New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions? \n"
+"Ask in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:792
+msgid "Preview"
+msgstr "Previsualitza"
+
+#: modules/custom-css/custom-css.php:793
+msgid "Save Stylesheet &amp; Buy Upgrade"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:793
+msgid "Save Stylesheet"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:806
+msgid "Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:807
+msgid "Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with my own CSS."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:809
+msgid "<a href=\"%s\">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:811
+msgid "Limit width to"
+msgstr "Limita l'amplada a"
+
+#: modules/custom-css/custom-css.php:811
+msgid "pixels for videos, full size images, and other shortcodes. (<a href=\"%s\">More info</a>.)"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:812
+msgid "The default content width for the %s theme is %d pixels."
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:146
+msgid "Edit this new field"
+msgstr "Edita aquest camp nou"
+
+#: modules/contact-form/grunion-form-view.php:148
+#: modules/sharedaddy/sharing-sources.php:971
+msgid "Label"
+msgstr "Etiqueta"
+
+#: modules/contact-form/grunion-form-view.php:149
+msgid "New field"
+msgstr "Camp nou"
+
+#: modules/contact-form/grunion-form-view.php:151
+msgid "Field type"
+msgstr "Tipus de camp"
 
 #: modules/contact-form/grunion-form-view.php:153
 msgid "Checkbox"
@@ -1680,61 +1622,17 @@ msgstr "Així és com el formulari es veurà"
 msgid "Add a new field"
 msgstr "Afegeix un camp nou"
 
-#: modules/contact-form/grunion-form-view.php:127
-msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
-msgstr "En afegir un formulari de contacte, els lectors podran enviar-vos opinions. Totes les opinions s'escanegen automàticament per trobar-hi brossa, i les opinions legítimes s'us enviaran per correu electrònic.s"
+#: modules/contact-form/grunion-form-view.php:194
+msgid "Add this form to my post"
+msgstr "Afegeix aquest formulari a l'entrada"
 
-#: modules/contact-form/grunion-form-view.php:128
-msgid "Can I add more fields?"
-msgstr "Puc afegir més camps?"
+#: modules/contact-form/grunion-form-view.php:197
+msgid "Email settings"
+msgstr "Paràmetres del correu electrònic"
 
-#: modules/contact-form/grunion-form-view.php:130
-msgctxt "%1$s = \"Click here\" in an HTML link"
-msgid "Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field."
-msgstr "Segur que sí. %1$s per afegir un caixa de text nova, una àrea de text, un botó d'opció, una casella de selecció o un desplegable."
-
-#: modules/contact-form/grunion-form-view.php:131
-msgid "Click here"
-msgstr "Feu clic aquí"
-
-#: modules/contact-form/grunion-form-view.php:133
-msgid "Can I view my feedback within WordPress?"
-msgstr "Puc veure la meva opinió al WordPress?"
-
-#: modules/contact-form/grunion-form-view.php:135
-msgctxt "%1$s = \"Feedbacks\" in an HTML link"
-msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
-msgstr "Sí, podeu llegir les opinions en qualsevol moment si feu clic a l'enllaç \"%1$s\" al menú de l'administrador."
-
-#: modules/contact-form/grunion-form-view.php:141
-msgid "Do I need to fill this out?"
-msgstr "He d'omplir això?"
-
-#: modules/contact-form/grunion-form-view.php:142
-msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
-msgstr "No. Però si us agrada modificar on s'envien o l'assumpte de les opinions, podeu. Si no feu cap canvi aquí, les opinions s'enviaran a l'autor de la pàgina o de l'entrada i l'assumpte del missatge serà el nom de la pàgina o de l'entrada."
-
-#: modules/contact-form/grunion-form-view.php:146
-msgid "Edit this new field"
-msgstr "Edita aquest camp nou"
-
-#: modules/contact-form/grunion-form-view.php:148
-#: modules/sharedaddy/sharing-sources.php:971
-msgid "Label"
-msgstr "Etiqueta"
-
-#: modules/contact-form/grunion-form-view.php:149
-msgid "New field"
-msgstr "Camp nou"
-
-#: modules/contact-form/grunion-form-view.php:151
-msgid "Field type"
-msgstr "Tipus de camp"
-
-#: modules/contact-form/grunion-form-view.php:16
-msgctxt "error message in contact form builder"
-msgid "Oops, there was a problem generating your form.  You'll likely need to try again."
-msgstr "Buf, s'ha produït un problema en generar el formulari. Probablement haureu d'intentar-ho de nou."
+#: modules/contact-form/grunion-form-view.php:199
+msgid "Enter your email address"
+msgstr "Introduïu el vostre correu electrònic"
 
 #: modules/contact-form/grunion-form-view.php:17
 msgid ""
@@ -1787,6 +1685,61 @@ msgstr "Notificacions per correu electrònic"
 #: modules/contact-form/grunion-form-view.php:126
 msgid "How does this work?"
 msgstr "Com funciona açò?"
+
+#: modules/contact-form/grunion-form-view.php:127
+msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
+msgstr "En afegir un formulari de contacte, els lectors podran enviar-vos opinions. Totes les opinions s'escanegen automàticament per trobar-hi brossa, i les opinions legítimes s'us enviaran per correu electrònic.s"
+
+#: modules/contact-form/grunion-form-view.php:128
+msgid "Can I add more fields?"
+msgstr "Puc afegir més camps?"
+
+#: modules/contact-form/grunion-form-view.php:130
+msgctxt "%1$s = \"Click here\" in an HTML link"
+msgid "Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field."
+msgstr "Segur que sí. %1$s per afegir un caixa de text nova, una àrea de text, un botó d'opció, una casella de selecció o un desplegable."
+
+#: modules/contact-form/grunion-form-view.php:131
+msgid "Click here"
+msgstr "Feu clic aquí"
+
+#: modules/contact-form/grunion-form-view.php:133
+msgid "Can I view my feedback within WordPress?"
+msgstr "Puc veure la meva opinió al WordPress?"
+
+#: modules/contact-form/grunion-form-view.php:135
+msgctxt "%1$s = \"Feedbacks\" in an HTML link"
+msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
+msgstr "Sí, podeu llegir les opinions en qualsevol moment si feu clic a l'enllaç \"%1$s\" al menú de l'administrador."
+
+#: modules/contact-form/grunion-form-view.php:141
+msgid "Do I need to fill this out?"
+msgstr "He d'omplir això?"
+
+#: modules/contact-form/grunion-form-view.php:142
+msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
+msgstr "No. Però si us agrada modificar on s'envien o l'assumpte de les opinions, podeu. Si no feu cap canvi aquí, les opinions s'enviaran a l'autor de la pàgina o de l'entrada i l'assumpte del missatge serà el nom de la pàgina o de l'entrada."
+
+#: modules/contact-form/grunion-contact-form.php:490
+msgid "IP Address:"
+msgstr "Adreça IP:"
+
+#: modules/contact-form/grunion-contact-form.php:491
+msgid "Contact Form URL:"
+msgstr "URl del formulari de contacte:"
+
+#: modules/contact-form/grunion-contact-form.php:514
+msgid "Sent by a verified %s user."
+msgstr "S'ha enviat per un usuari %s verificat."
+
+#: modules/contact-form/grunion-contact-form.php:518
+msgid "Sent by an unverified visitor to your site."
+msgstr "Enviat per un/a visitant no verificat a la teva web."
+
+#: modules/contact-form/grunion-contact-form.php:681
+#: modules/contact-form/grunion-form-view.php:136
+msgid "Feedbacks"
+msgstr "Opinions"
 
 #: modules/contact-form/grunion-contact-form.php:682
 msgid "Feedback"
@@ -1851,55 +1804,14 @@ msgctxt "Default label for the first option to be included in a user-created dro
 msgid "First option"
 msgstr "Primera opció"
 
-#: modules/contact-form/grunion-contact-form.php:140
-msgid "%s requires a valid email address"
-msgstr "%s necessita un correu electrònic vàlid"
+#: modules/contact-form/grunion-form-view.php:16
+msgctxt "error message in contact form builder"
+msgid "Oops, there was a problem generating your form.  You'll likely need to try again."
+msgstr "Buf, s'ha produït un problema en generar el formulari. Probablement haureu d'intentar-ho de nou."
 
-#: modules/contact-form/grunion-contact-form.php:147
-msgid "%s is required"
-msgstr "Es necessita %s"
-
-#: modules/contact-form/grunion-contact-form.php:280
-#: modules/contact-form/grunion-contact-form.php:328
-msgid "Error!"
-msgstr "Error"
-
-#: modules/contact-form/grunion-contact-form.php:290
-msgid "Submit &#187;"
-msgstr "Envia &#187;"
-
-#: modules/contact-form/grunion-contact-form.php:333
-msgid "Message Sent"
-msgstr "Missatge enviat"
-
-#: modules/contact-form/grunion-contact-form.php:469
-msgid "l F j, Y \\a\\t g:i a"
-msgstr "d-m-Y \\a \\l\\e\\s G:i"
-
-#: modules/contact-form/grunion-contact-form.php:489
-msgid "Time:"
-msgstr "Hora:"
-
-#: modules/contact-form/grunion-contact-form.php:490
-msgid "IP Address:"
-msgstr "Adreça IP:"
-
-#: modules/contact-form/grunion-contact-form.php:491
-msgid "Contact Form URL:"
-msgstr "URl del formulari de contacte:"
-
-#: modules/contact-form/grunion-contact-form.php:514
-msgid "Sent by a verified %s user."
-msgstr "S'ha enviat per un usuari %s verificat."
-
-#: modules/contact-form/grunion-contact-form.php:518
-msgid "Sent by an unverified visitor to your site."
-msgstr "Enviat per un/a visitant no verificat a la teva web."
-
-#: modules/contact-form/grunion-contact-form.php:681
-#: modules/contact-form/grunion-form-view.php:136
-msgid "Feedbacks"
-msgstr "Opinions"
+#: modules/contact-form/admin.php:418
+msgid "You are not allowed to manage this item."
+msgstr "No teniu autorització per gestionar aquest element."
 
 #: modules/contact-form/admin.php:452
 msgid "You are not allowed to move this item out of the Trash."
@@ -1936,12 +1848,6 @@ msgstr "Nom"
 msgid "Email"
 msgstr "Correu electrònic"
 
-#: modules/carousel/jetpack-carousel.php:135
-#: modules/contact-form/grunion-contact-form.php:36
-#: modules/contact-form/grunion-form-view.php:160
-msgid "Website"
-msgstr "Lloc web"
-
 #: modules/contact-form/grunion-contact-form.php:39
 msgid "Subject"
 msgstr "Assumpte"
@@ -1958,6 +1864,67 @@ msgstr "(necessari)"
 #: modules/contact-form/grunion-contact-form.php:99
 msgid "Yes"
 msgstr "Sí"
+
+#: modules/contact-form/grunion-contact-form.php:140
+msgid "%s requires a valid email address"
+msgstr "%s necessita un correu electrònic vàlid"
+
+#: modules/contact-form/grunion-contact-form.php:147
+msgid "%s is required"
+msgstr "Es necessita %s"
+
+#: modules/contact-form/grunion-contact-form.php:280
+#: modules/contact-form/grunion-contact-form.php:328
+msgid "Error!"
+msgstr "Error"
+
+#: modules/contact-form/grunion-contact-form.php:290
+msgid "Submit &#187;"
+msgstr "Envia &#187;"
+
+#: modules/contact-form/grunion-contact-form.php:333
+msgid "Message Sent"
+msgstr "Missatge enviat"
+
+#: modules/contact-form/grunion-contact-form.php:469
+msgid "l F j, Y \\a\\t g:i a"
+msgstr "d-m-Y \\a \\l\\e\\s G:i"
+
+#: modules/contact-form/grunion-contact-form.php:489
+msgid "Time:"
+msgstr "Hora:"
+
+#: modules/comments/admin.php:134
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "Unes poques paraules enganxoses que motivin els lectors a comentar"
+
+#: modules/comments/base.php:84
+msgid "Invalid request"
+msgstr "Sol·licitud no vàlida"
+
+#: modules/comments/base.php:231
+msgid "Error: please fill the required fields (name, email)."
+msgstr "Error: completeu els camps necessaris (nom, correu electrònic)."
+
+#: modules/comments/base.php:233
+msgid "Error: please enter a valid email address."
+msgstr "Error: introdueix una adreça de correu electrònic vàlid."
+
+#: modules/comments/comments.php:154
+msgid "You must <a href=\"%s\">log in</a> to post a comment."
+msgstr "Heu d'a href=\"%s\">entrar</a> per publicar un comentari."
+
+#: modules/comments/comments.php:217
+msgid "Cancel Reply"
+msgstr "Cancel·la la resposta"
+
+#: modules/comments/comments.php:351
+msgid "Invalid security token."
+msgstr "El testimoni de seguretat no és vàlid."
+
+#: modules/comments/comments.php:411 modules/comments/comments.php:462
+msgid "Submitting Comment%s"
+msgstr ""
 
 #: modules/contact-form/admin.php:90
 msgid "From"
@@ -2005,9 +1972,61 @@ msgstr "Marca el missatge com a legítim"
 msgid "Y-m-d @ g:i:s A"
 msgstr "d-m-Y a les g:i"
 
-#: modules/contact-form/admin.php:418
-msgid "You are not allowed to manage this item."
-msgstr "No teniu autorització per gestionar aquest element."
+#: modules/carousel/jetpack-carousel.php:328
+msgid "Please provide an email address."
+msgstr "Proporcioneu una adreça de correu electrònic."
+
+#: modules/carousel/jetpack-carousel.php:331
+msgid "Please provide a valid email address."
+msgstr "Proporcioneu una adreça de correu electrònic vàlid."
+
+#: modules/carousel/jetpack-carousel.php:358
+msgid "Image Gallery Carousel"
+msgstr "Carrusel de la galeria d'imatges"
+
+#: modules/carousel/jetpack-carousel.php:361
+msgid "Enable carousel"
+msgstr "Activar el carrusel"
+
+#: modules/carousel/jetpack-carousel.php:365
+msgid "Background color"
+msgstr "Color de fons"
+
+#: modules/carousel/jetpack-carousel.php:368
+msgid "Metadata"
+msgstr "Metadada"
+
+#: modules/carousel/jetpack-carousel.php:425
+msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
+msgstr "Mostra metadades (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) de la foto al carrousel, quan hi hagi"
+
+#: modules/carousel/jetpack-carousel.php:433
+msgid "Show map of photo location in carousel, when available."
+msgstr "Mostra el mapa de localització de la foto al carrusel, quan hi hagi"
+
+#: modules/carousel/jetpack-carousel.php:441
+msgid "Black"
+msgstr "Negre"
+
+#: modules/carousel/jetpack-carousel.php:441
+msgid "White"
+msgstr "Blanc"
+
+#: modules/carousel/jetpack-carousel.php:449
+msgid "Display images in full-size carousel slideshow."
+msgstr "Mostra les imatges a mida completa a les diapositives del carrusel."
+
+#: modules/comments/admin.php:50 modules/comments/comments.php:178
+msgid "Leave a Reply"
+msgstr "Deixa un comentari"
+
+#: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:138
+msgid "Light"
+msgstr "Clar"
+
+#: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:139
+msgid "Dark"
+msgstr "Obscur"
 
 #: modules/comments/admin.php:56
 msgid "Transparent"
@@ -2030,33 +2049,87 @@ msgstr "Esquema de color"
 msgid "Adjust your Jetpack Comments form with a clever greeting and color-scheme."
 msgstr "Ajusta el formulari dels comentaris del Jetpack amb una salutació i esquema de color intel·ligents."
 
-#: modules/comments/admin.php:134
-msgid "A few catchy words to motivate your readers to comment"
-msgstr "Unes poques paraules enganxoses que motivin els lectors a comentar"
+#: modules/carousel/jetpack-carousel.php:116
+msgid "Your comment was approved."
+msgstr "El comentari s'ha aprovat."
 
-#: modules/comments/base.php:84
-msgid "Invalid request"
-msgstr "Sol·licitud no vàlida"
+#: modules/carousel/jetpack-carousel.php:117
+msgid "Your comment is in moderation."
+msgstr "El comentari està en moderació."
 
-#: modules/comments/base.php:231
-msgid "Error: please fill the required fields (name, email)."
-msgstr "Error: completeu els camps necessaris (nom, correu electrònic)."
+#: modules/carousel/jetpack-carousel.php:118
+msgid "Camera"
+msgstr "Càmera"
 
-#: modules/comments/base.php:233
-msgid "Error: please enter a valid email address."
-msgstr "Error: introdueix una adreça de correu electrònic vàlid."
+#: modules/carousel/jetpack-carousel.php:119
+msgid "Aperture"
+msgstr "Apertura"
 
-#: modules/comments/comments.php:154
-msgid "You must <a href=\"%s\">log in</a> to post a comment."
-msgstr "Heu d'a href=\"%s\">entrar</a> per publicar un comentari."
+#: modules/carousel/jetpack-carousel.php:120
+msgid "Shutter Speed"
+msgstr "Velocitat de l'obturador"
 
-#: modules/comments/comments.php:217
-msgid "Cancel Reply"
-msgstr "Cancel·la la resposta"
+#: modules/carousel/jetpack-carousel.php:121
+msgid "Focal Length"
+msgstr "Longitud focal"
 
-#: modules/comments/comments.php:351
-msgid "Invalid security token."
-msgstr "El testimoni de seguretat no és vàlid."
+#: modules/carousel/jetpack-carousel.php:128
+msgid "Commenting as %s"
+msgstr "S'està comentant com a %s"
+
+#: modules/carousel/jetpack-carousel.php:131
+msgid "Email (Required)"
+msgstr "Correu electrònic (necessari)"
+
+#: modules/carousel/jetpack-carousel.php:133
+msgid "Name (Required)"
+msgstr "Nom (necessari)"
+
+#: modules/carousel/jetpack-carousel.php:135
+#: modules/contact-form/grunion-contact-form.php:36
+#: modules/contact-form/grunion-form-view.php:160
+msgid "Website"
+msgstr "Lloc web"
+
+#: modules/carousel/jetpack-carousel.php:244
+msgid "Missing attachment ID."
+msgstr "Falta l'identificador adjunt."
+
+#: modules/carousel/jetpack-carousel.php:282
+msgid "Nonce verification failed."
+msgstr "No ha fallat cap verificació."
+
+#: modules/carousel/jetpack-carousel.php:289
+msgid "Missing target blog ID."
+msgstr "Falta l'identificador del bloc de destí."
+
+#: modules/carousel/jetpack-carousel.php:292
+msgid "Missing target post ID."
+msgstr "Falta l'identificador de l'entrada de destinació."
+
+#: modules/carousel/jetpack-carousel.php:295
+msgid "No comment text was submitted."
+msgstr "No s'ha enviat text del comentari."
+
+#: modules/carousel/jetpack-carousel.php:307
+msgid "Comments on this post are closed."
+msgstr "Els comentaris d'aquesta entrada estan tancats."
+
+#: modules/carousel/jetpack-carousel.php:317
+msgid "Sorry, but we could not authenticate your request."
+msgstr "Ho sentim, però no podem autenticar la sol·licitud."
+
+#: modules/carousel/jetpack-carousel.php:325
+msgid "Please provide your name."
+msgstr "Proporcioneu el vostre nom."
+
+#: modules/after-the-deadline/config-options.php:77
+msgid "Passive Voice"
+msgstr "Veu passiva"
+
+#: modules/after-the-deadline/config-options.php:79
+msgid "Phrases to Avoid"
+msgstr "Frases a evitar"
 
 #: modules/after-the-deadline/config-options.php:81
 msgid "Redundant Phrases"
@@ -2095,82 +2168,37 @@ msgstr "Afegeix"
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
 msgstr "Assegureu-vos que feu clic al botó \"Actualitza el perfil\" del peu de la pàgina per desar els canvis."
 
-#: modules/comments/admin.php:50 modules/comments/comments.php:178
-msgid "Leave a Reply"
-msgstr "Deixa un comentari"
+#: modules/carousel/jetpack-carousel.php:108
+msgid "Comment"
+msgstr ""
 
-#: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:138
-msgid "Light"
-msgstr "Clar"
+#: modules/carousel/jetpack-carousel.php:109
+msgid "Post Comment"
+msgstr "Envia un comentari"
 
-#: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:139
-msgid "Dark"
-msgstr "Obscur"
+#: modules/carousel/jetpack-carousel.php:110
+msgid "Loading Comments..."
+msgstr "S'estan carregant els comentaris..."
 
-#: modules/after-the-deadline/config-options.php:55
-msgid "a post or page is updated"
-msgstr "s'ha actualitzat una entrada o pàgina"
+#: modules/carousel/jetpack-carousel.php:111
+msgid "View full size <span class=\"photo-size\">%1$s<span class=\"photo-size-times\">&times;</span>%2$s</span>"
+msgstr ""
 
-#: modules/after-the-deadline/config-options.php:58
-msgid "English Options"
-msgstr "Opcions de l'anglès"
+#: modules/carousel/jetpack-carousel.php:112
+msgid "Please be sure to submit some text with your comment."
+msgstr "Assegureu-vos d'enviar algun text amb el comentari."
 
-#: modules/after-the-deadline/config-options.php:60
-msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
-msgstr "Activa la correcció per a les següents gramàtiques i regles d'estil quan s'escriguin entrades i pàgines:"
+#: modules/carousel/jetpack-carousel.php:113
+msgid "Please provide an email address to comment."
+msgstr "Proporcioneu una adreça de correu electrònic per comentar."
 
-#: modules/after-the-deadline/config-options.php:63
-msgid "Bias Language"
-msgstr "Llengua "
+#: modules/carousel/jetpack-carousel.php:114
+msgid "Please provide your name to comment."
+msgstr "Proporcioneu el nom per comentar."
 
-#: modules/after-the-deadline/config-options.php:65
-msgid "Clich&eacute;s"
-msgstr "Clix&eacute;s"
-
-#: modules/after-the-deadline/config-options.php:67
-msgid "Complex Phrases"
-msgstr "Frases complexes"
-
-#: modules/after-the-deadline/config-options.php:69
-msgid "Diacritical Marks"
-msgstr "Signes diacrítics"
-
-#: modules/after-the-deadline/config-options.php:71
-msgid "Double Negatives"
-msgstr "Doble negacions"
-
-#: modules/after-the-deadline/config-options.php:73
-msgid "Hidden Verbs"
-msgstr "Verbs ocults"
-
-#: modules/after-the-deadline/config-options.php:75
-msgid "Jargon"
-msgstr "Jargon"
-
-#: modules/after-the-deadline/config-options.php:77
-msgid "Passive Voice"
-msgstr "Veu passiva"
-
-#: modules/after-the-deadline/config-options.php:79
-msgid "Phrases to Avoid"
-msgstr "Frases a evitar"
-
-#: modules/after-the-deadline/atd-l10n.php:22
-msgid "Edit Selection..."
-msgstr "Edita la selecció..."
-
-#: modules/after-the-deadline/atd-l10n.php:24
-msgid "proofread"
-msgstr "corregeix"
-
-#: modules/after-the-deadline/atd-l10n.php:25
-msgid "edit text"
-msgstr "edita el text"
-
-#: modules/after-the-deadline/atd-l10n.php:26
-#: modules/after-the-deadline.php:224
-msgid "Proofread Writing"
-msgstr "Corregeix l'escriptura"
+#: modules/carousel/jetpack-carousel.php:115
+msgid "Sorry, but there was an error posting your comment. Please try again later."
+msgstr "S'ha produït un error en publicar el comentari. Torneu a intentar-ho més tard."
 
 #: modules/after-the-deadline/atd-l10n.php:28
 msgid "No writing errors were found."
@@ -2220,20 +2248,72 @@ msgstr "Corregeix el contingut automàticament quan:"
 msgid "a post or page is first published"
 msgstr "una entrada o pàgina es publica primer"
 
-#: jetpack.php:2189
+#: modules/after-the-deadline/config-options.php:55
+msgid "a post or page is updated"
+msgstr "s'ha actualitzat una entrada o pàgina"
+
+#: modules/after-the-deadline/config-options.php:58
+msgid "English Options"
+msgstr "Opcions de l'anglès"
+
+#: modules/after-the-deadline/config-options.php:60
+msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
+msgstr "Activa la correcció per a les següents gramàtiques i regles d'estil quan s'escriguin entrades i pàgines:"
+
+#: modules/after-the-deadline/config-options.php:63
+msgid "Bias Language"
+msgstr "Llengua "
+
+#: modules/after-the-deadline/config-options.php:65
+msgid "Clich&eacute;s"
+msgstr "Clix&eacute;s"
+
+#: modules/after-the-deadline/config-options.php:67
+msgid "Complex Phrases"
+msgstr "Frases complexes"
+
+#: modules/after-the-deadline/config-options.php:69
+msgid "Diacritical Marks"
+msgstr "Signes diacrítics"
+
+#: modules/after-the-deadline/config-options.php:71
+msgid "Double Negatives"
+msgstr "Doble negacions"
+
+#: modules/after-the-deadline/config-options.php:73
+msgid "Hidden Verbs"
+msgstr "Verbs ocults"
+
+#: modules/after-the-deadline/config-options.php:75
+msgid "Jargon"
+msgstr "Jargon"
+
+#: jetpack.php:2125
+msgid "New"
+msgstr "Noves"
+
+#: jetpack.php:2128
+msgid "Updated"
+msgstr "Actualitzat"
+
+#: jetpack.php:2156
+msgid "Configure"
+msgstr "Configura"
+
+#: jetpack.php:2190
 msgid "Coming soon&#8230;"
 msgstr "Molt aviat&#8230;"
 
-#: jetpack.php:2342 jetpack.php:2344 jetpack.php:2346 jetpack.php:2349
-#: jetpack.php:3015
+#: jetpack.php:2343 jetpack.php:2345 jetpack.php:2347 jetpack.php:2350
+#: jetpack.php:3016
 msgid "Error Details: %s"
 msgstr "Detalls de l'error: %s"
 
-#: jetpack.php:2971
+#: jetpack.php:2972
 msgid "An administrator for this blog must set up the Jetpack connection."
 msgstr "Un administrador d'aquest bloc deu configurar la connexió del JetPack."
 
-#: jetpack.php:2976
+#: jetpack.php:2977
 msgid "You need to register your Jetpack before connecting it."
 msgstr "Heu de registrar el Jetpack abans de connectar-lo."
 
@@ -2270,338 +2350,348 @@ msgstr "Ignora sempre"
 msgid "Ignore all"
 msgstr "Ignora-ho tot"
 
-#: jetpack.php:1979
-msgid "Terms of Service"
-msgstr "Condicions de Servei"
+#: modules/after-the-deadline/atd-l10n.php:22
+msgid "Edit Selection..."
+msgstr "Edita la selecció..."
 
-#: jetpack.php:1980
-msgid "Debug"
-msgstr "Depura"
+#: modules/after-the-deadline/atd-l10n.php:24
+msgid "proofread"
+msgstr "corregeix"
 
-#: jetpack.php:1981 modules/sharedaddy/sharedaddy.php:78
-msgid "Support"
-msgstr "Suport"
+#: modules/after-the-deadline/atd-l10n.php:25
+msgid "edit text"
+msgstr "edita el text"
 
-#: jetpack.php:1999
-msgid "This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords."
-msgstr "Açò és informació sensible. No feu públic el BLOG_TOKEN o el USER_TOKEN; són com contrasenyes. "
+#: modules/after-the-deadline/atd-l10n.php:26
+#: modules/after-the-deadline.php:224
+msgid "Proofread Writing"
+msgstr "Corregeix l'escriptura"
 
-#: jetpack.php:2030
-msgid "Configure %s"
-msgstr "Configura %s"
-
-#: jetpack.php:2089
-msgid "Deactivate"
-msgstr "Desactiva"
-
-#: jetpack.php:2099
-msgid "Activate"
-msgstr "Activa"
-
-#: jetpack.php:2116
-msgid "Free"
-msgstr "Gratuït "
-
-#: jetpack.php:2116
-msgid "Purchase"
-msgstr "Compra"
-
-#: jetpack.php:2124
-msgid "New"
-msgstr "Noves"
-
-#: jetpack.php:2127
-msgid "Updated"
-msgstr "Actualitzat"
-
-#: jetpack.php:2155
-msgid "Configure"
-msgstr "Configura"
-
-#: jetpack.php:1930
-msgid "Have feedback on Jetpack?"
-msgstr "Vols opinions sobre el JetPack?"
-
-#: jetpack.php:1932
-msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
-msgstr "Respon una enquesta curta per fer-nos saber què estem fent i què afegir en un futur."
-
-#: jetpack.php:1935
+#: jetpack.php:1936
 msgid "Take Survey"
 msgstr "Fes la enquesta"
 
-#: jetpack.php:1941
+#: jetpack.php:1942
 msgid "Checking email updates status&hellip;"
 msgstr "S'estan comprovant l'estat de les actualitzacions per correu electrònic&hellip;"
 
-#: jetpack.php:1947
+#: jetpack.php:1948
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr "Ara mateix esteu subscrit a les actualitzacions per correu electrònic. %s"
 
-#: jetpack.php:1948
+#: jetpack.php:1949
 msgid "Unsubscribe"
 msgstr "Dóna'm de baixa "
 
-#: jetpack.php:1952
+#: jetpack.php:1953
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr "Voleu rebre actualitzacions del Jetpack per correu electrònic? %s"
 
-#: jetpack.php:1953 modules/subscriptions.php:662
+#: jetpack.php:1954 modules/subscriptions.php:662
 msgid "Subscribe"
 msgstr "Subscriure's"
 
-#: jetpack.php:1960
+#: jetpack.php:1961
 msgid "You have been subscribed to receive email updates."
 msgstr "Us haveu subscrit per rebre actualitzacions per correu electrònic."
 
-#: jetpack.php:1962
+#: jetpack.php:1963
 msgid "You will no longer receive email updates about Jetpack."
 msgstr "No rebreu més actualitzacions per correu electrònic sobre el JetPack."
 
-#: jetpack.php:1975
+#: jetpack.php:1976
 msgid "An <span>Automattic</span> Airline"
 msgstr "Una línia aèria <span>Automattic</span>"
 
-#: jetpack.php:1978
+#: jetpack.php:1979
 msgid "Privacy Policy"
 msgstr "Política de privacitat"
 
-#: jetpack.php:1669
+#: jetpack.php:1980
+msgid "Terms of Service"
+msgstr "Condicions de Servei"
+
+#: jetpack.php:1981
+msgid "Debug"
+msgstr "Depura"
+
+#: jetpack.php:1982 modules/sharedaddy/sharedaddy.php:78
+msgid "Support"
+msgstr "Suport"
+
+#: jetpack.php:2000
+msgid "This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords."
+msgstr "Açò és informació sensible. No feu públic el BLOG_TOKEN o el USER_TOKEN; són com contrasenyes. "
+
+#: jetpack.php:2031
+msgid "Configure %s"
+msgstr "Configura %s"
+
+#: jetpack.php:2090
+msgid "Deactivate"
+msgstr "Desactiva"
+
+#: jetpack.php:2100
+msgid "Activate"
+msgstr "Activa"
+
+#: jetpack.php:2117
+msgid "Free"
+msgstr "Gratuït "
+
+#: jetpack.php:2117
+msgid "Purchase"
+msgstr "Compra"
+
+#: jetpack.php:1606
+msgid "Try connecting again."
+msgstr "Proveu a connectar-vos de nou."
+
+#: jetpack.php:1630
+msgid "Welcome to <strong>Jetpack %s</strong>!"
+msgstr "Benvingut al <strong>Jetpack %s</strong>!"
+
+#: jetpack.php:1642
+msgid "The following new modules have been activated: %l."
+msgstr "S'han activat els següents mòduls: %l."
+
+#: jetpack.php:1654
+msgid "The following modules have been updated: %l."
+msgstr "S'han actualitzat els mòduls següents: %l."
+
+#: jetpack.php:1663
+msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
+msgstr "<strong>S'ha activar %s!</strong> Podeu desactivar-lo en qualsevol moment en fer clic a Aprèn més i aleshores desactivar la tarja del mòdul."
+
+#: jetpack.php:1670
 msgid "<strong>%s Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
 msgstr "<strong>Desactivat %s!</strong> Podeu activar-lo de nou en qualsevol moment fent servir el botó d'activació a la targeta del mòdul."
 
-#: jetpack.php:1675
+#: jetpack.php:1676
 msgid "<strong>Module settings were saved.</strong> "
 msgstr "<strong>S'ha desat la configuració del mòdul</strong> "
 
-#: jetpack.php:1679
+#: jetpack.php:1680
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr "<strong>El JetPack ja està connectat.</strong> "
 
-#: jetpack.php:1683
+#: jetpack.php:1684
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr "<strong>Està llest i preparat per menjar-te el món.</strong> "
 
-#: jetpack.php:1685
+#: jetpack.php:1686
 msgid "The features below are now active. Click the learn more buttons to explore each feature."
 msgstr "Les funcionalitats d'aquí sota estan actives ara. Feu clic als botons aprèn més per explorar cada funcionalitat."
 
-#: jetpack.php:1708
+#: jetpack.php:1709
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] "El JetPack conté la versió més recent de l'antiga extensió %l."
 msgstr[1] "El JetPack conté les versions més recent de les antigues extensions %l."
 
-#: jetpack.php:1717
+#: jetpack.php:1718
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] "La versió antiga s'ha desactivat i es pot suprimir del lloc web."
 msgstr[1] "Les versions antigues s'han desactivat i es poden suprimir del lloc web."
 
-#: jetpack.php:1875
+#: jetpack.php:1876
 msgid "Connected to WordPress.com"
 msgstr "Connectat amb WordPress.com"
 
-#: jetpack.php:1876
+#: jetpack.php:1877
 msgid "Disconnect from WordPress.com"
 msgstr "Desconnectat de WordPress.com"
 
-#: jetpack.php:1890
+#: jetpack.php:1891
 msgid "Jetpack is network activated and notices can not be dismissed."
 msgstr "El Jetpack té activada la xarxa i els avisos no es poden rebutjar."
 
-#: jetpack.php:1901
+#: jetpack.php:1902
 msgid "Dismiss this notice."
 msgstr "Rebutja aquest avís"
 
-#: jetpack.php:1906
+#: jetpack.php:1907
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
 msgstr "Per activar totes les funcions del JetPack necessiteu connectar la vostra pàgina web amb WordPress.com fent servir el botó de la dreta. Una vegada establiu la connexió, s'activaran totes les encantadores funcionalitats d'aquí sota."
 
-#: jetpack.php:1539
-msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr "%s no es pot activar perquè s'ha llançat un <strong>error fatal</strong>. Potser hi ha algun conflicte amb alguna extensió que heu instal·lat?"
+#: jetpack.php:1931
+msgid "Have feedback on Jetpack?"
+msgstr "Vols opinions sobre el JetPack?"
 
-#: jetpack.php:1541
-msgid "Do you still have the %s plugin installed?"
-msgstr "Encara teniu l'extensió %s instal·lada?"
+#: jetpack.php:1933
+msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
+msgstr "Respon una enquesta curta per fer-nos saber què estem fent i què afegir en un futur."
 
-#: jetpack.php:1544
-msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr "El mòdul no es pot activar perquè a llançat un <strong>error fatal</strong>. Potser hi ha un conflicte amb altra extensió que teniu instal·lada?"
+#: jetpack.php:1355
+msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Comments, Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
+msgstr ""
 
-#: jetpack.php:1552
-msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
-msgstr "<strong>El JetPack té un problema tècnic.</strong> La connexió d'aquest lloc amb WordPress.com no és possible. Això significa normalment que el vostre lloc no és accessible públicament (localhost)."
-
-#: jetpack.php:1558
-msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
-msgstr "WordPress.com està tenint problemes ara mateix i no pot donar-li canya al teu JetPack. Torneu-ho a provar més tard."
-
-#: jetpack.php:1562
-msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
-msgstr "El JetPack no ha pogut contactar amb WordPress.com: %s. Això normalment significa que alguna cosa està mal configurada al vostre servidor web."
-
-#: jetpack.php:1602
-msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
-msgstr "<strong>El JetPack té un problema tècnic.</strong> Alguna cosa que no hauria d'haver succeït, ha anat malament.  Suposem que teniu sort: %s"
-
-#: jetpack.php:1605
-msgid "Try connecting again."
-msgstr "Proveu a connectar-vos de nou."
-
-#: jetpack.php:1629
-msgid "Welcome to <strong>Jetpack %s</strong>!"
-msgstr "Benvingut al <strong>Jetpack %s</strong>!"
-
-#: jetpack.php:1641
-msgid "The following new modules have been activated: %l."
-msgstr "S'han activat els següents mòduls: %l."
-
-#: jetpack.php:1653
-msgid "The following modules have been updated: %l."
-msgstr "S'han actualitzat els mòduls següents: %l."
-
-#: jetpack.php:1662
-msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
-msgstr "<strong>S'ha activar %s!</strong> Podeu desactivar-lo en qualsevol moment en fer clic a Aprèn més i aleshores desactivar la tarja del mòdul."
-
-#: jetpack.php:1356
+#: jetpack.php:1357
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr "<strong>S'ha instal·lat el JetPack</strong> i està llest per donar-vos magnífiques característiques del núvol del WordPress al vostre lloc web."
 
-#: jetpack.php:1362 jetpack.php:1910
+#: jetpack.php:1363 jetpack.php:1911
 msgid "Connect to WordPress.com"
 msgstr "Connectat amb WordPress.com"
 
-#: jetpack.php:1364 modules/module-info.php:45 modules/module-info.php:81
+#: jetpack.php:1365 modules/module-info.php:45 modules/module-info.php:81
 #: modules/module-info.php:141 modules/module-info.php:176
 #: modules/module-info.php:210 modules/module-info.php:246
 #: modules/module-info.php:297 modules/module-info.php:319
 #: modules/module-info.php:357 modules/module-info.php:381
 #: modules/module-info.php:399 modules/module-info.php:405
 #: modules/module-info.php:432 modules/module-info.php:463
+#: modules/module-info.php:498
 msgid "Learn More"
 msgstr "Apreneu més"
 
-#: jetpack.php:1377
+#: jetpack.php:1378
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr "<strong>S'ha activat el JetPack!</strong> Cada lloc web de la xarxa ha d'estar connectat individualment per un administrador d'aquest lloc web."
 
-#: jetpack.php:1404
+#: jetpack.php:1405
 msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
 msgstr "El Jetpack ara inclou els comentaris Jetpack, que possibilita als vostres visitants l'ús del seus comptes del WordPress, Twitter o Facebook quan comenten a la pàgina web. Per activar els comentaris Jetpack, <a href=\"%s\">%s</a>."
 
-#: jetpack.php:1412
+#: jetpack.php:1413
 msgid "click here"
 msgstr "feu clic aquí"
 
-#: jetpack.php:1520
+#: jetpack.php:1521
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr "Necessiteu autoritzar la connexió del JetPack entre la vostra web i WordPress.com per activar les meravelloses funcionalitats."
 
-#: jetpack.php:1523
+#: jetpack.php:1524
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr "No feu això! Necessiteu estar identificats al vostre bloc del WordPress mentre s'autoritza el JetPack."
 
-#: jetpack.php:1527
+#: jetpack.php:1528
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr "Torna al remitent. Buff! Sembla que teniu el JetPack incorrecte al correu; desactiveu-lo i aleshores torneu a activar l'extensió del JetPack per aconseguir altre."
 
-#: jetpack.php:1530
+#: jetpack.php:1531
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr "Grandària incorrecta. Hm&#8230; sembla que el JetPack no s'acaba d'ajustar. Has perdut pes? feu clic de nou a &#8220;Connecta amb WordsPress.com&#8221; per aconseguir que el JetPack s'ajusti."
 
-#: jetpack.php:1534
+#: jetpack.php:1535
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr "La pàgina web necessita ser accessible públicament per fer servir el JetPack: %s"
 
-#: jetpack.php:1220 jetpack.php:1261
-msgid "For more information:"
-msgstr "Per a més informació:"
+#: jetpack.php:1540
+msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "%s no es pot activar perquè s'ha llançat un <strong>error fatal</strong>. Potser hi ha algun conflicte amb alguna extensió que heu instal·lat?"
 
-#: jetpack.php:1221 jetpack.php:1262
-msgid "Jetpack FAQ"
-msgstr "PMF del JetPack"
+#: jetpack.php:1542
+msgid "Do you still have the %s plugin installed?"
+msgstr "Encara teniu l'extensió %s instal·lada?"
 
-#: jetpack.php:1222 jetpack.php:1263
-msgid "Jetpack Support"
-msgstr "Suport del Jetpack"
+#: jetpack.php:1545
+msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "El mòdul no es pot activar perquè a llançat un <strong>error fatal</strong>. Potser hi ha un conflicte amb altra extensió que teniu instal·lada?"
 
-#: jetpack.php:1237
-msgid "Overview"
-msgstr "Resum"
+#: jetpack.php:1553
+msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
+msgstr "<strong>El JetPack té un problema tècnic.</strong> La connexió d'aquest lloc amb WordPress.com no és possible. Això significa normalment que el vostre lloc no és accessible públicament (localhost)."
 
-#: jetpack.php:1247
-msgid "Modules"
-msgstr "Mòduls"
+#: jetpack.php:1559
+msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
+msgstr "WordPress.com està tenint problemes ara mateix i no pot donar-li canya al teu JetPack. Torneu-ho a provar més tard."
 
-#: jetpack.php:1250
-msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
-msgstr "Podeu activar i desactivar els mòduls del Jetpack de manera individual per adaptar-lo a les vostres necessitats."
+#: jetpack.php:1563
+msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
+msgstr "El JetPack no ha pogut contactar amb WordPress.com: %s. Això normalment significa que alguna cosa està mal configurada al vostre servidor web."
 
-#: jetpack.php:1252
-msgid "Find the component you want to manage"
-msgstr "Troba el component que vols gestionar"
+#: jetpack.php:1603
+msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
+msgstr "<strong>El JetPack té un problema tècnic.</strong> Alguna cosa que no hauria d'haver succeït, ha anat malament.  Suposem que teniu sort: %s"
 
-#: jetpack.php:1253
-msgid "Click on Learn More"
-msgstr "Fes clic a Aprèn més"
+#: jetpack.php:1217 jetpack.php:1241 jetpack.php:1883
+msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
+msgstr "El JetPack recarrega el vostre lloc web fet amb el WordPress amb el poder meravellós del núvol de WordPress.com"
 
-#: jetpack.php:1254
-msgid "An Activate or Deactivate button will appear"
-msgstr "Pot aparèixer un botó per activar o desactivar"
+#: jetpack.php:1216 jetpack.php:1240 jetpack.php:1250 jetpack.php:1880
+#: jetpack.php:2030
+msgid "Jetpack by WordPress.com"
+msgstr "El Jetpack gràcies a WordPress.com"
 
-#: jetpack.php:1255
-msgid "If additional settings are available, a link to them will appear"
-msgstr "Si hi ha paràmetres addicionals, apareixerà un enllaç a ells"
+#: jetpack.php:1184
+msgid "Jetpack"
+msgstr "Jetpack"
 
-#: jetpack.php:1331 modules/sharedaddy/sharedaddy.php:70
-#: modules/sharedaddy/sharedaddy.php:77
-msgid "Settings"
-msgstr "Opcions"
-
-#: jetpack.php:1348
-msgid "Dismiss this notice and deactivate Jetpack."
-msgstr "Rebutja aquest avís i desactiva el Jetpack."
-
-#: jetpack.php:976
-msgid "Jetpack requires WordPress version %s or later."
-msgstr "El JetPack requereix la versió %s del WordPress o superior."
-
-#: jetpack.php:1143 jetpack.php:1159
-msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
-msgstr "El JetPack conté la versió més recent de l'antiga extensió &#8220;%1$s&#8221;."
-
-#: jetpack.php:1180
+#: jetpack.php:1181
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] "Un mòdul nou del Jetpack"
 msgstr[1] "%s mòduls nous del Jetpack"
 
-#: jetpack.php:1183
-msgid "Jetpack"
-msgstr "Jetpack"
-
-#: jetpack.php:1215 jetpack.php:1239 jetpack.php:1249 jetpack.php:1879
-#: jetpack.php:2029
-msgid "Jetpack by WordPress.com"
-msgstr "El Jetpack gràcies a WordPress.com"
-
-#: jetpack.php:1216 jetpack.php:1240 jetpack.php:1882
-msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
-msgstr "El JetPack recarrega el vostre lloc web fet amb el WordPress amb el poder meravellós del núvol de WordPress.com"
-
-#: jetpack.php:1217 jetpack.php:1241
+#: jetpack.php:1218 jetpack.php:1242
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr "En aquesta pàgina, podeu veure els mòduls disponibles al JetPack, aprendre més sobre ells, i activar i desactivar-los quan ho necessiteu."
 
-#: jetpack.php:1218
+#: jetpack.php:1219
 msgid "Jetpack Module Options"
 msgstr "Opcions del mòdul JetPack"
 
-#: jetpack.php:1219
+#: jetpack.php:1220
 msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
 msgstr "<strong>Per activar/desactivar un mòdul</strong> - Feu clic a Aprèn més. Un botó Activa o Desactiva apareixerà ara prop del botó Aprèn més. Feu clic al botó Activa/Desactiva."
+
+#: jetpack.php:1221 jetpack.php:1262
+msgid "For more information:"
+msgstr "Per a més informació:"
+
+#: jetpack.php:1222 jetpack.php:1263
+msgid "Jetpack FAQ"
+msgstr "PMF del JetPack"
+
+#: jetpack.php:1223 jetpack.php:1264
+msgid "Jetpack Support"
+msgstr "Suport del Jetpack"
+
+#: jetpack.php:1238
+msgid "Overview"
+msgstr "Resum"
+
+#: jetpack.php:1248
+msgid "Modules"
+msgstr "Mòduls"
+
+#: jetpack.php:1251
+msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
+msgstr "Podeu activar i desactivar els mòduls del Jetpack de manera individual per adaptar-lo a les vostres necessitats."
+
+#: jetpack.php:1253
+msgid "Find the component you want to manage"
+msgstr "Troba el component que vols gestionar"
+
+#: jetpack.php:1254
+msgid "Click on Learn More"
+msgstr "Fes clic a Aprèn més"
+
+#: jetpack.php:1255
+msgid "An Activate or Deactivate button will appear"
+msgstr "Pot aparèixer un botó per activar o desactivar"
+
+#: jetpack.php:1256
+msgid "If additional settings are available, a link to them will appear"
+msgstr "Si hi ha paràmetres addicionals, apareixerà un enllaç a ells"
+
+#: jetpack.php:1332 modules/sharedaddy/sharedaddy.php:70
+#: modules/sharedaddy/sharedaddy.php:77
+msgid "Settings"
+msgstr "Opcions"
+
+#: jetpack.php:1349
+msgid "Dismiss this notice and deactivate Jetpack."
+msgstr "Rebutja aquest avís i desactiva el Jetpack."
+
+#: jetpack.php:1144 jetpack.php:1160
+msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
+msgstr "El JetPack conté la versió més recent de l'antiga extensió &#8220;%1$s&#8221;."
+
+#: jetpack.php:977
+msgid "Jetpack requires WordPress version %s or later."
+msgstr "El JetPack requereix la versió %s del WordPress o superior."

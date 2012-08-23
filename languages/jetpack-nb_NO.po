@@ -1,133 +1,249 @@
-# Translation of 1.6 in Norwegian (Bokmål)
-# This file is distributed under the same license as the 1.6 package.
+# Translation of 1.7 in Norwegian (Bokmål)
+# This file is distributed under the same license as the 1.7 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-08-22 20:01:44+0000\n"
+"PO-Revision-Date: 2012-08-23 01:09:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: GlotPress/0.1\n"
-"Project-Id-Version: 1.6\n"
+"Project-Id-Version: 1.7\n"
 
-#: modules/comments/comments.php:411 modules/comments/comments.php:462
-msgid "Submitting Comment%s"
+msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
+msgstr "Bygg enkelt inn videoer og annet fra nettsteder som YouTube, Vimeo og SlideShare."
+
+msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
+msgstr "Gjør kortlenker fra tjenesten wp.me tilgjengelig for alle dine innlegg og sider for enklere deling."
+
+msgid "Simple, concise site stats with no additional load on your server."
+msgstr "Enkel, kortfattet besøksstaistikk uten ekstra belastning på din server."
+
+msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
+msgstr "Lar besøkende abonnere på dine innlegg og kommentarer gjennom å motta varsler via epost."
+
+msgid "Realtime backup and security scanning for your WordPress site."
+msgstr "Sanntids sikkerhetskopi og -skanning av ditt WordPress-nettsted."
+
+msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
+msgstr "Legg enkelt til bilder, Twitter-oppdateringer og dit nettsteds RSS-lenker i sidestolpen."
+
+#: modules/widgets/twitter-widget.php:228
+msgid "Twitter username:"
+msgstr "Twitter-brukernavn:"
+
+#: modules/widgets/twitter-widget.php:231
+msgid "Maximum number of tweets to show:"
+msgstr "Maks antall tweets å vise:"
+
+#: modules/widgets/twitter-widget.php:242
+msgid "Hide replies"
+msgstr "Skjul svar"
+
+#: modules/widgets/twitter-widget.php:247
+msgid "Include retweets"
+msgstr "Inkluder retweets"
+
+#: modules/widgets/twitter-widget.php:249
+msgid "Text to display between tweet and timestamp:"
+msgstr "Tekst som skal vises mellom tweet og tidsstempel:"
+
+msgid "http://wordpress.org/extend/plugins/jetpack/"
+msgstr "http://wordpress.org/extend/plugins/jetpack/"
+
+msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
+msgstr "Ta kraften fra WordPress.com-skyen til din egen WordPress-installasjon. Jetpack lar deg koble din blogg til en WordPress.com-konto, og bruke avanserte funksjoner som normalt kun er tilgjengelige for WordPress.com-brukere."
+
+msgid "Automattic"
+msgstr "Automattic"
+
+msgid "http://jetpack.me"
+msgstr "http://jetpack.me"
+
+msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
+msgstr "Forbedre din staving, stil og grammatikk med <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> korrekturtjeneste."
+
+msgid "Transform your standard image galleries into an immersive full-screen experience."
 msgstr ""
 
-#: modules/sharedaddy/sharing-service.php:523
-#: modules/sharedaddy/sharing.php:245 modules/sharedaddy/sharing.php:278
-msgid "More"
+msgid "A new comment system that has integrated social media login options."
+msgstr "Et nytt kommentarsystem som har integrerte muligheter for innlogging via sosiale media."
+
+msgid "Easily insert a contact form any where on your site."
+msgstr "Legg enkelt til et kontaktskjema hvor som helst på nettstedet ditt."
+
+msgid "Customize the appearance of your site using CSS but without modifying your theme."
 msgstr ""
 
-#: modules/module-info.php:469
-msgid "Gallery Carousel Screenshot"
-msgstr ""
+msgid "Share your public posts and comments to search engines and other services in real-time."
+msgstr "Del dine offentlige innlegg og kommentarer med søkermotorer og andre sanntids-tjenester."
 
-#: modules/module-info.php:472
-msgid "Carousel"
-msgstr "Karusell"
+msgid "Show a pop-up business card of your users' gravatar profiles in comments."
+msgstr "Vis et visittkort med dine brukeres gravatarprofil som et sprettoppvindu under kommentarer."
 
-#: modules/module-info.php:474
-msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
-msgstr ""
+msgid "Beautiful Math"
+msgstr "Nydelig matematikk"
 
-#: modules/sharedaddy/sharing-sources.php:1068
-msgid "Tumblr"
-msgstr ""
+msgid "Mark up your posts with the <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
+msgstr "Marker opp dine innlegg med <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> oppmerkingsspråk, perfekt for komplekse matematiske likninger og annet fagstoff."
 
-#: modules/sharedaddy/sharing-sources.php:1075
-msgctxt "share to"
-msgid "Tumblr"
-msgstr ""
+msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
+msgstr "Det mest superdupre delingsverktøyet for sosiale media. Del innhold med Facebook, Twitter og mange flere,"
 
-#: modules/sharedaddy/sharing-sources.php:1075
-msgid "Click to share on Tumblr"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:96
+msgid "Image Settings:"
+msgstr "Bildeinnstillinger:"
 
-#: modules/sharedaddy/sharing-sources.php:1110
-msgid "Pinterest"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:99
+msgid "Small"
+msgstr "Liten"
 
-#: modules/sharedaddy/sharing-sources.php:1140
-msgid "Pin It"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:100
+msgid "Medium"
+msgstr "mellomstor"
 
-#: modules/sharedaddy/sharing-sources.php:1142
-msgctxt "share to"
-msgid "Pinterest"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:101
+msgid "Large"
+msgstr "stor"
 
-#: modules/sharedaddy/sharing-sources.php:1142
-msgid "Click to share on Pinterest"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:103
+msgid "Image Size:"
+msgstr "bildestørrelse"
 
-#: modules/sharedaddy/sharing.php:169
-msgid "Sharing Buttons"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:113
+msgid "Red"
+msgstr "rød"
 
-#: modules/sharedaddy/sharing.php:170
-msgid "Add sharing buttons to your blog and allow your visitors to share posts with their friends."
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:114
+msgid "Orange"
+msgstr "oransje"
 
-#: modules/sharedaddy/sharing.php:204
-msgid "Drag and drop available services here."
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:115
+msgid "Green"
+msgstr "grønn"
 
-#: modules/sharedaddy/sharing.php:233
-msgid "Sharing is off. Add services above to enable."
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:116
+msgid "Blue"
+msgstr "blå"
 
-#: modules/sharedaddy/sharing.php:300
-msgid "Button style"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:117
+msgid "Purple"
+msgstr "fiolett"
 
-#: modules/sharedaddy/sharing.php:306
-msgid "Official buttons"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:118
+msgid "Pink"
+msgstr "rosa"
 
-#: modules/sharedaddy/sharing.php:326
-msgid "Show buttons on"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:119
+msgid "Silver"
+msgstr "Sølv"
 
-#: modules/sharedaddy/sharing.php:383
-msgid "Create Share Button"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:121
+msgid "Image Color:"
+msgstr "Bildefarge:"
 
-#: modules/stats.php:594
-msgid "Stats"
-msgstr ""
+#: modules/widgets/rsslinks-widget.php:140
+msgid "Subscribe to %s"
+msgstr "Abonner på %s"
 
-#: modules/widgets/facebook-likebox.php:32
-msgid "It looks like your Facebook URL is incorrectly configured. Please check it in your <a href=\"%s\">widget settings</a>."
-msgstr ""
+#: modules/widgets/twitter-widget.php:69
+msgid "Display your tweets from Twitter"
+msgstr "Vis dine tweets fra Twitter"
 
-#: modules/widgets/facebook-likebox.php:129
-msgid "Height"
-msgstr "Høyde"
+#: modules/widgets/twitter-widget.php:70
+msgid "Twitter (Jetpack)"
+msgstr "Twitter (Jetpack)"
 
-#: modules/widgets/gravatar-profile.php:9
-msgid "Gravatar Profile"
-msgstr "Gravatarprofil"
+#: modules/widgets/twitter-widget.php:79
+msgid "Twitter Updates"
+msgstr "Twitter-oppdateringer"
 
-#: modules/widgets/gravatar-profile.php:11
-msgid "Display a mini version of your Gravatar Profile"
-msgstr "Vis en miniversjon av din gravatarprofil"
+#: modules/widgets/twitter-widget.php:184
+msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
+msgstr "Feil: Vennligst forsikre deg om at Twitter-kontoen er <a href=\"%s\">offentlig</a>."
 
-#: modules/widgets/gravatar-profile.php:27
-msgid "You need to select what to show in this <a href=\"%s\">Gravatar Profile widget</a>."
-msgstr ""
+#: modules/widgets/twitter-widget.php:186
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Feil: Twitter svarte ikke. Vennligst vent noen minutter og last denne siden på nytt."
 
-#: modules/widgets/gravatar-profile.php:73
-msgid "View Full Profile &rarr;"
-msgstr "Vis full profil &rarr;"
+#: modules/widgets/image-widget.php:125
+msgid "Left"
+msgstr "venstre"
 
-#: modules/widgets/gravatar-profile.php:81
-msgid "Error loading profile"
-msgstr "Feil ved lasting av profil"
+#: modules/widgets/image-widget.php:126
+msgid "Center"
+msgstr "Sentrert"
 
-#: modules/widgets/gravatar-profile.php:93
-msgid "Personal Links"
-msgstr "Personlige lenker"
+#: modules/widgets/image-widget.php:127
+msgid "Right"
+msgstr "Høyre"
+
+#: modules/widgets/image-widget.php:129
+msgid "Image Alignment:"
+msgstr "Justering av bilde:"
+
+#: modules/widgets/image-widget.php:139
+msgid "Width:"
+msgstr "Bredde:"
+
+#: modules/widgets/image-widget.php:142
+msgid "Height:"
+msgstr "Høyde:"
+
+#: modules/widgets/image-widget.php:145
+msgid "If empty, we will attempt to determine the image size."
+msgstr "Om den står tom vil vi prøve å beregne bildestørrelsen."
+
+#: modules/widgets/image-widget.php:146
+msgid "Link URL (when the image is clicked):"
+msgstr "Lenke-URL (når bildet klikkes på):"
+
+#: modules/widgets/rsslinks-widget.php:12
+msgid "Links to your blog's RSS feeds"
+msgstr "Lenker til ditt nettsteds RSS-strømmer"
+
+#: modules/widgets/rsslinks-widget.php:13
+msgid "RSS Links (Jetpack)"
+msgstr "RSS-lenker (Jetpack)"
+
+#: modules/widgets/rsslinks-widget.php:62
+#: modules/widgets/twitter-widget.php:225
+msgid "Title:"
+msgstr "Tittel:"
+
+#: modules/widgets/rsslinks-widget.php:67
+#: modules/widgets/rsslinks-widget.php:133
+msgid "Posts"
+msgstr "Innlegg"
+
+#: modules/widgets/rsslinks-widget.php:68
+#: modules/widgets/rsslinks-widget.php:136
+msgid "Comments"
+msgstr "Kommentarer"
+
+#: modules/widgets/rsslinks-widget.php:69
+msgid "Posts & Comments"
+msgstr "Innlegg og kommentarer"
+
+#: modules/widgets/rsslinks-widget.php:71
+msgid "Feed(s) to Display:"
+msgstr "Innmating(er) å vise:"
+
+#: modules/widgets/rsslinks-widget.php:81
+msgid "Text Link"
+msgstr "Tekstlenke"
+
+#: modules/widgets/rsslinks-widget.php:82
+msgid "Image Link"
+msgstr "Bildelenke"
+
+#: modules/widgets/rsslinks-widget.php:83
+msgid "Text & Image Links"
+msgstr "Tekst og bildelenker"
+
+#: modules/widgets/rsslinks-widget.php:85
+msgid "Format:"
+msgstr "Format:"
 
 #: modules/widgets/gravatar-profile.php:113
 msgid "Verified Services"
@@ -178,353 +294,13 @@ msgstr "Rediger din profil"
 msgid "What's a Gravatar?"
 msgstr "Hva er en gravatar?"
 
-msgid "Transform your standard image galleries into an immersive full-screen experience."
-msgstr ""
-
-#: jetpack.php:1354
-msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Comments, Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
-msgstr ""
-
-#: modules/carousel/jetpack-carousel.php:108
-msgid "Comment"
-msgstr ""
-
-#: modules/carousel/jetpack-carousel.php:109
-msgid "Post Comment"
-msgstr "Legg inn en kommentar"
-
-#: modules/carousel/jetpack-carousel.php:110
-msgid "Loading Comments..."
-msgstr "Laster kommentarer..."
-
-#: modules/carousel/jetpack-carousel.php:111
-msgid "View full size <span class=\"photo-size\">%1$s<span class=\"photo-size-times\">&times;</span>%2$s</span>"
-msgstr ""
-
-#: modules/carousel/jetpack-carousel.php:112
-msgid "Please be sure to submit some text with your comment."
-msgstr "Vennligst ta med noe tekst i din kommentar."
-
-#: modules/carousel/jetpack-carousel.php:113
-msgid "Please provide an email address to comment."
-msgstr "Vennligst oppgi en epost-adresse for å kommentere."
-
-#: modules/carousel/jetpack-carousel.php:114
-msgid "Please provide your name to comment."
-msgstr "Vennligst oppgi ditt navn for å kommentere."
-
-#: modules/carousel/jetpack-carousel.php:115
-msgid "Sorry, but there was an error posting your comment. Please try again later."
-msgstr "Beklager, men det oppsto en feil ved innsending av din kommentar. Vennligst prøv igjen senere."
-
-#: modules/carousel/jetpack-carousel.php:116
-msgid "Your comment was approved."
-msgstr "Din kommentar ble godkjent."
-
-#: modules/carousel/jetpack-carousel.php:117
-msgid "Your comment is in moderation."
-msgstr "Din kommentar er til moderering."
-
-#: modules/carousel/jetpack-carousel.php:118
-msgid "Camera"
-msgstr "Kamera"
-
-#: modules/carousel/jetpack-carousel.php:119
-msgid "Aperture"
-msgstr "Blenderåpning"
-
-#: modules/carousel/jetpack-carousel.php:120
-msgid "Shutter Speed"
-msgstr "Lukkerhastighet"
-
-#: modules/carousel/jetpack-carousel.php:121
-msgid "Focal Length"
-msgstr "Brennvidde"
-
-#: modules/carousel/jetpack-carousel.php:128
-msgid "Commenting as %s"
-msgstr "Kommenterer som %s"
-
-#: modules/carousel/jetpack-carousel.php:131
-msgid "Email (Required)"
-msgstr "Epost (påkrevet)"
-
-#: modules/carousel/jetpack-carousel.php:133
-msgid "Name (Required)"
-msgstr "Navn (påkrevet)"
-
-#: modules/carousel/jetpack-carousel.php:244
-msgid "Missing attachment ID."
-msgstr "Mangler vedleggs-ID."
-
-#: modules/carousel/jetpack-carousel.php:282
-msgid "Nonce verification failed."
-msgstr "Hensiktsbekreftelse (nonce) feilet."
-
-#: modules/carousel/jetpack-carousel.php:289
-msgid "Missing target blog ID."
-msgstr "Mangler bloggens ID."
-
-#: modules/carousel/jetpack-carousel.php:292
-msgid "Missing target post ID."
-msgstr "Mangler innleggets ID."
-
-#: modules/carousel/jetpack-carousel.php:295
-msgid "No comment text was submitted."
-msgstr "Ingen kommentartekst ble sendt inn."
-
-#: modules/carousel/jetpack-carousel.php:307
-msgid "Comments on this post are closed."
-msgstr "Kommentarer til dette innlegget er stengt."
-
-#: modules/carousel/jetpack-carousel.php:317
-msgid "Sorry, but we could not authenticate your request."
-msgstr "Beklager, men vi kunne ikke autensere din forespørsel."
-
-#: modules/carousel/jetpack-carousel.php:325
-msgid "Please provide your name."
-msgstr "Vennligst oppgi ditt navn."
-
-#: modules/carousel/jetpack-carousel.php:328
-msgid "Please provide an email address."
-msgstr "Vennligst oppgi en epost-adresse."
-
-#: modules/carousel/jetpack-carousel.php:331
-msgid "Please provide a valid email address."
-msgstr "Vennligst oppgi en gyldig epost-adresse."
-
-#: modules/carousel/jetpack-carousel.php:358
-msgid "Image Gallery Carousel"
-msgstr "Bildegalleri-karusell"
-
-#: modules/carousel/jetpack-carousel.php:361
-msgid "Enable carousel"
-msgstr "Slå på karusell"
-
-#: modules/carousel/jetpack-carousel.php:365
-msgid "Background color"
-msgstr "Bakgrunnsfarge"
-
-#: modules/carousel/jetpack-carousel.php:368
-msgid "Metadata"
-msgstr "Metadata"
-
-#: modules/carousel/jetpack-carousel.php:425
-msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
-msgstr "Vis foto-metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in karusellen når de er tilgjengelig."
-
-#: modules/carousel/jetpack-carousel.php:433
-msgid "Show map of photo location in carousel, when available."
-msgstr "Vis et kart over fotografert sted i karusellen, når det er tilgjengelig."
-
-#: modules/carousel/jetpack-carousel.php:441
-msgid "Black"
-msgstr "Svart"
-
-#: modules/carousel/jetpack-carousel.php:441
-msgid "White"
-msgstr "Hvit"
-
-#: modules/carousel/jetpack-carousel.php:449
-msgid "Display images in full-size carousel slideshow."
-msgstr "Vis bildene i full størrelse i lysbildefremvisningen."
-
-msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
-msgstr "Gjør kortlenker fra tjenesten wp.me tilgjengelig for alle dine innlegg og sider for enklere deling."
-
-msgid "Simple, concise site stats with no additional load on your server."
-msgstr "Enkel, kortfattet besøksstaistikk uten ekstra belastning på din server."
-
-msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
-msgstr "Lar besøkende abonnere på dine innlegg og kommentarer gjennom å motta varsler via epost."
-
-msgid "Realtime backup and security scanning for your WordPress site."
-msgstr "Sanntids sikkerhetskopi og -skanning av ditt WordPress-nettsted."
-
-msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
-msgstr "Legg enkelt til bilder, Twitter-oppdateringer og dit nettsteds RSS-lenker i sidestolpen."
-
-msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
-msgstr "Ta kraften fra WordPress.com-skyen til din egen WordPress-installasjon. Jetpack lar deg koble din blogg til en WordPress.com-konto, og bruke avanserte funksjoner som normalt kun er tilgjengelige for WordPress.com-brukere."
-
-msgid "Automattic"
-msgstr "Automattic"
-
-msgid "http://jetpack.me"
-msgstr "http://jetpack.me"
-
-msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
-msgstr "Forbedre din staving, stil og grammatikk med <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> korrekturtjeneste."
-
-msgid "A new comment system that has integrated social media login options."
-msgstr "Et nytt kommentarsystem som har integrerte muligheter for innlogging via sosiale media."
-
-msgid "Easily insert a contact form any where on your site."
-msgstr "Legg enkelt til et kontaktskjema hvor som helst på nettstedet ditt."
-
-msgid "Share your public posts and comments to search engines and other services in real-time."
-msgstr "Del dine offentlige innlegg og kommentarer med søkermotorer og andre sanntids-tjenester."
-
-msgid "Show a pop-up business card of your users' gravatar profiles in comments."
-msgstr "Vis et visittkort med dine brukeres gravatarprofil som et sprettoppvindu under kommentarer."
-
-msgid "Beautiful Math"
-msgstr "Nydelig matematikk"
-
-msgid "Mark up your posts with the <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
-msgstr "Marker opp dine innlegg med <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> oppmerkingsspråk, perfekt for komplekse matematiske likninger og annet fagstoff."
-
-msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
-msgstr "Det mest superdupre delingsverktøyet for sosiale media. Del innhold med Facebook, Twitter og mange flere,"
-
-msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
-msgstr "Bygg enkelt inn videoer og annet fra nettsteder som YouTube, Vimeo og SlideShare."
-
-#: modules/widgets/rsslinks-widget.php:140
-msgid "Subscribe to %s"
-msgstr "Abonner på %s"
-
-#: modules/widgets/twitter-widget.php:69
-msgid "Display your tweets from Twitter"
-msgstr "Vis dine tweets fra Twitter"
-
-#: modules/widgets/twitter-widget.php:70
-msgid "Twitter (Jetpack)"
-msgstr "Twitter (Jetpack)"
-
-#: modules/widgets/twitter-widget.php:79
-msgid "Twitter Updates"
-msgstr "Twitter-oppdateringer"
-
-#: modules/widgets/twitter-widget.php:184
-msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
-msgstr "Feil: Vennligst forsikre deg om at Twitter-kontoen er <a href=\"%s\">offentlig</a>."
-
-#: modules/widgets/twitter-widget.php:186
-msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr "Feil: Twitter svarte ikke. Vennligst vent noen minutter og last denne siden på nytt."
-
-#: modules/widgets/twitter-widget.php:228
-msgid "Twitter username:"
-msgstr "Twitter-brukernavn:"
-
-#: modules/widgets/twitter-widget.php:231
-msgid "Maximum number of tweets to show:"
-msgstr "Maks antall tweets å vise:"
-
-#: modules/widgets/twitter-widget.php:242
-msgid "Hide replies"
-msgstr "Skjul svar"
-
-#: modules/widgets/twitter-widget.php:247
-msgid "Include retweets"
-msgstr "Inkluder retweets"
-
-#: modules/widgets/twitter-widget.php:249
-msgid "Text to display between tweet and timestamp:"
-msgstr "Tekst som skal vises mellom tweet og tidsstempel:"
-
-msgid "http://wordpress.org/extend/plugins/jetpack/"
-msgstr "http://wordpress.org/extend/plugins/jetpack/"
-
-#: modules/widgets/rsslinks-widget.php:99
-msgid "Small"
-msgstr "Liten"
-
-#: modules/widgets/rsslinks-widget.php:100
-msgid "Medium"
-msgstr "mellomstor"
-
-#: modules/widgets/rsslinks-widget.php:101
-msgid "Large"
-msgstr "stor"
-
-#: modules/widgets/rsslinks-widget.php:103
-msgid "Image Size:"
-msgstr "bildestørrelse"
-
-#: modules/widgets/rsslinks-widget.php:113
-msgid "Red"
-msgstr "rød"
-
-#: modules/widgets/rsslinks-widget.php:114
-msgid "Orange"
-msgstr "oransje"
-
-#: modules/widgets/rsslinks-widget.php:115
-msgid "Green"
-msgstr "grønn"
-
-#: modules/widgets/rsslinks-widget.php:116
-msgid "Blue"
-msgstr "blå"
-
-#: modules/widgets/rsslinks-widget.php:117
-msgid "Purple"
-msgstr "fiolett"
-
-#: modules/widgets/rsslinks-widget.php:118
-msgid "Pink"
-msgstr "rosa"
-
-#: modules/widgets/rsslinks-widget.php:119
-msgid "Silver"
-msgstr "Sølv"
-
-#: modules/widgets/rsslinks-widget.php:121
-msgid "Image Color:"
-msgstr "Bildefarge:"
-
-#: modules/widgets/rsslinks-widget.php:12
-msgid "Links to your blog's RSS feeds"
-msgstr "Lenker til ditt nettsteds RSS-strømmer"
-
-#: modules/widgets/rsslinks-widget.php:13
-msgid "RSS Links (Jetpack)"
-msgstr "RSS-lenker (Jetpack)"
-
-#: modules/widgets/rsslinks-widget.php:62
-#: modules/widgets/twitter-widget.php:225
-msgid "Title:"
-msgstr "Tittel:"
-
-#: modules/widgets/rsslinks-widget.php:67
-#: modules/widgets/rsslinks-widget.php:133
-msgid "Posts"
-msgstr "Innlegg"
-
-#: modules/widgets/rsslinks-widget.php:68
-#: modules/widgets/rsslinks-widget.php:136
-msgid "Comments"
-msgstr "Kommentarer"
-
-#: modules/widgets/rsslinks-widget.php:69
-msgid "Posts & Comments"
-msgstr "Innlegg og kommentarer"
-
-#: modules/widgets/rsslinks-widget.php:71
-msgid "Feed(s) to Display:"
-msgstr "Innmating(er) å vise:"
-
-#: modules/widgets/rsslinks-widget.php:81
-msgid "Text Link"
-msgstr "Tekstlenke"
-
-#: modules/widgets/rsslinks-widget.php:82
-msgid "Image Link"
-msgstr "Bildelenke"
-
-#: modules/widgets/rsslinks-widget.php:83
-msgid "Text & Image Links"
-msgstr "Tekst og bildelenker"
-
-#: modules/widgets/rsslinks-widget.php:85
-msgid "Format:"
-msgstr "Format:"
-
-#: modules/widgets/rsslinks-widget.php:96
-msgid "Image Settings:"
-msgstr "Bildeinnstillinger:"
+#: modules/widgets/image-widget.php:12
+msgid "Display an image in your sidebar"
+msgstr "Vis et bilde i sidestolpen"
+
+#: modules/widgets/image-widget.php:14
+msgid "Image (Jetpack)"
+msgstr "Bilde (Jetpack)"
 
 #: modules/widgets/image-widget.php:110
 msgid "Image URL:"
@@ -546,37 +322,9 @@ msgstr "Bildetekst:"
 msgid "None"
 msgstr "ingen"
 
-#: modules/widgets/image-widget.php:125
-msgid "Left"
-msgstr "venstre"
-
-#: modules/widgets/image-widget.php:126
-msgid "Center"
-msgstr "Sentrert"
-
-#: modules/widgets/image-widget.php:127
-msgid "Right"
-msgstr "Høyre"
-
-#: modules/widgets/image-widget.php:129
-msgid "Image Alignment:"
-msgstr "Justering av bilde:"
-
-#: modules/widgets/image-widget.php:139
-msgid "Width:"
-msgstr "Bredde:"
-
-#: modules/widgets/image-widget.php:142
-msgid "Height:"
-msgstr "Høyde:"
-
-#: modules/widgets/image-widget.php:145
-msgid "If empty, we will attempt to determine the image size."
-msgstr "Om den står tom vil vi prøve å beregne bildestørrelsen."
-
-#: modules/widgets/image-widget.php:146
-msgid "Link URL (when the image is clicked):"
-msgstr "Lenke-URL (når bildet klikkes på):"
+#: modules/widgets/facebook-likebox.php:32
+msgid "It looks like your Facebook URL is incorrectly configured. Please check it in your <a href=\"%s\">widget settings</a>."
+msgstr ""
 
 #: modules/widgets/facebook-likebox.php:106
 #: modules/widgets/gravatar-profile.php:146
@@ -594,6 +342,10 @@ msgstr "Liker-boksen virker bare med <a href=\"http://www.facebook.com/help/?faq
 #: modules/widgets/facebook-likebox.php:122
 msgid "Width"
 msgstr "Bredde"
+
+#: modules/widgets/facebook-likebox.php:129
+msgid "Height"
+msgstr "Høyde"
 
 #: modules/widgets/facebook-likebox.php:148
 msgid "Show Faces"
@@ -619,13 +371,59 @@ msgstr "Vis vegg"
 msgid "Show the wall for a Places page rather than friend activity."
 msgstr "Vis veggen for en Steder-side i stedet for venners aktiviteter."
 
-#: modules/widgets/image-widget.php:12
-msgid "Display an image in your sidebar"
-msgstr "Vis et bilde i sidestolpen"
+#: modules/widgets/gravatar-profile.php:9
+msgid "Gravatar Profile"
+msgstr "Gravatarprofil"
 
-#: modules/widgets/image-widget.php:14
-msgid "Image (Jetpack)"
-msgstr "Bilde (Jetpack)"
+#: modules/widgets/gravatar-profile.php:11
+msgid "Display a mini version of your Gravatar Profile"
+msgstr "Vis en miniversjon av din gravatarprofil"
+
+#: modules/widgets/gravatar-profile.php:27
+msgid "You need to select what to show in this <a href=\"%s\">Gravatar Profile widget</a>."
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:73
+msgid "View Full Profile &rarr;"
+msgstr "Vis full profil &rarr;"
+
+#: modules/widgets/gravatar-profile.php:81
+msgid "Error loading profile"
+msgstr "Feil ved lasting av profil"
+
+#: modules/widgets/gravatar-profile.php:93
+msgid "Personal Links"
+msgstr "Personlige lenker"
+
+#: modules/subscriptions.php:509
+msgid "Add an email signup form to allow people to subscribe to your blog."
+msgstr "Legg til et abonnementsskjema for å la leserne abonnere på ditt nettsted."
+
+#: modules/subscriptions.php:512
+msgid "Blog Subscriptions (Jetpack)"
+msgstr "Nettstedsabonnementer (Jetpack)"
+
+#: modules/subscriptions.php:543
+msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
+msgstr "En epost ble akkurat sendt til deg for bekrefte ditt abonnement. Vennligst finn eposten nå og klikk aktiver."
+
+#: modules/subscriptions.php:553
+msgid "The email you entered was invalid, please check and try again."
+msgstr "Epost-adressen du oppga var ugyldig. Vennligst korriger den og prøv igjen."
+
+#: modules/subscriptions.php:556
+msgid "You have already subscribed to this site, please check your inbox."
+msgstr "Du har allerede abonnert på dette nettstedet. Vennligst sjekk din innboks."
+
+#: modules/subscriptions.php:563
+msgid "There was an error when subscribing, please try again."
+msgstr "Det oppsto en feil ved abonneringen. Vennligst prøv igjen."
+
+#: modules/subscriptions.php:581
+msgid "Join %s other subscriber"
+msgid_plural "Join %s other subscribers"
+msgstr[0] "Bli med blant %s annen abonnent"
+msgstr[1] "Bli med blant %s andre abonnenter"
 
 #: modules/subscriptions.php:585
 msgid "Email Address"
@@ -677,55 +475,13 @@ msgstr "Facebook Liker-boks"
 msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
 msgstr "Vis en Facebook Liker-boks for å koble besøkende til din Facebook-side"
 
-#: modules/subscriptions.php:216
-msgid "Change whether your visitors can subscribe to your posts or comments or both."
-msgstr "Endre hvorvidt dine besøkende kan abonnere på dine innlegg, dine kommentarer eller begge deler."
+#: modules/stats.php:705
+msgid "the past month"
+msgstr "den siste måneden"
 
-#: modules/subscriptions.php:231
-msgid "Show a <em>'follow blog'</em> option in the comment form"
-msgstr "Vis en <em>'følg nettstedet'</em>-muligheten i kommentarskjemaet"
-
-#: modules/subscriptions.php:246
-msgid "Show a <em>'follow comments'</em> option in the comment form"
-msgstr "Vis en <em>'følg kommentarene'</em>-muligheten i kommentarskjemaet"
-
-#: modules/subscriptions.php:436
-msgid "Notify me of follow-up comments by email."
-msgstr "Varsle meg om senere kommentarer via epost."
-
-#: modules/subscriptions.php:443
-msgid "Notify me of new posts by email."
-msgstr "Varsle meg om nye innlegg via epost."
-
-#: modules/subscriptions.php:509
-msgid "Add an email signup form to allow people to subscribe to your blog."
-msgstr "Legg til et abonnementsskjema for å la leserne abonnere på ditt nettsted."
-
-#: modules/subscriptions.php:512
-msgid "Blog Subscriptions (Jetpack)"
-msgstr "Nettstedsabonnementer (Jetpack)"
-
-#: modules/subscriptions.php:543
-msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
-msgstr "En epost ble akkurat sendt til deg for bekrefte ditt abonnement. Vennligst finn eposten nå og klikk aktiver."
-
-#: modules/subscriptions.php:553
-msgid "The email you entered was invalid, please check and try again."
-msgstr "Epost-adressen du oppga var ugyldig. Vennligst korriger den og prøv igjen."
-
-#: modules/subscriptions.php:556
-msgid "You have already subscribed to this site, please check your inbox."
-msgstr "Du har allerede abonnert på dette nettstedet. Vennligst sjekk din innboks."
-
-#: modules/subscriptions.php:563
-msgid "There was an error when subscribing, please try again."
-msgstr "Det oppsto en feil ved abonneringen. Vennligst prøv igjen."
-
-#: modules/subscriptions.php:581
-msgid "Join %s other subscriber"
-msgid_plural "Join %s other subscribers"
-msgstr[0] "Bli med blant %s annen abonnent"
-msgstr[1] "Bli med blant %s andre abonnenter"
+#: modules/stats.php:706
+msgid "the past quarter"
+msgstr "det siste kvartalet"
 
 #: modules/stats.php:707
 msgid "the past year"
@@ -775,73 +531,25 @@ msgstr "Følg nettstedet"
 msgid "Follow Comments"
 msgstr "Følg kommentarer"
 
-#: modules/stats.php:524
-msgid "Smiley face"
-msgstr "Smilefjes"
+#: modules/subscriptions.php:216
+msgid "Change whether your visitors can subscribe to your posts or comments or both."
+msgstr "Endre hvorvidt dine besøkende kan abonnere på dine innlegg, dine kommentarer eller begge deler."
 
-#: modules/stats.php:525
-msgid "Report visibility"
-msgstr "Rapportsynlighet"
+#: modules/subscriptions.php:231
+msgid "Show a <em>'follow blog'</em> option in the comment form"
+msgstr "Vis en <em>'følg nettstedet'</em>-muligheten i kommentarskjemaet"
 
-#: modules/stats.php:527
-msgid "Select the roles that will be able to view stats reports."
-msgstr "Velg rollene som skal være i stand til å se statistikkrapporter."
+#: modules/subscriptions.php:246
+msgid "Show a <em>'follow comments'</em> option in the comment form"
+msgstr "Vis en <em>'følg kommentarene'</em>-muligheten i kommentarskjemaet"
 
-#: modules/stats.php:538
-msgid "Save configuration"
-msgstr "Lagre innstilling"
+#: modules/subscriptions.php:436
+msgid "Notify me of follow-up comments by email."
+msgstr "Varsle meg om senere kommentarer via epost."
 
-#: modules/stats.php:596
-msgid "Views over 48 hours. Click for more Site Stats."
-msgstr "Visninger over 48 timer. Klikk for mer nettstedsstatistikk."
-
-#: modules/stats.php:698
-msgid "day"
-msgstr "dag"
-
-#: modules/stats.php:699
-msgid "week"
-msgstr "uke"
-
-#: modules/stats.php:700
-msgid "month"
-msgstr "måned"
-
-#: modules/stats.php:703
-msgid "the past day"
-msgstr "den siste dagen"
-
-#: modules/stats.php:704
-msgid "the past week"
-msgstr "den siste uka"
-
-#: modules/stats.php:705
-msgid "the past month"
-msgstr "den siste måneden"
-
-#: modules/stats.php:706
-msgid "the past quarter"
-msgstr "det siste kvartalet"
-
-#: modules/stats.php:337
-msgid "Loading&hellip;"
-msgstr "Laster&hellip;"
-
-#: modules/stats.php:338
-msgid "Your Site Stats work better with Javascript enabled."
-msgstr "Ditt nettsted fungerer bedre med JavaScript slått på."
-
-#: modules/stats.php:339
-msgid "View Site Stats without Javascript"
-msgstr "Vis statistikken uten Javascript"
-
-#: modules/stats.php:412 modules/stats.php:905
-msgid "We were unable to get your stats just now (too many redirects). Please try again."
-msgstr "Vi er ikke i stand til å hente din statistikk akkurat nå (for mange redirigeringer). Vennligst prøv igjen."
-
-#: modules/stats.php:414 modules/stats.php:907
-msgid "We were unable to get your stats just now. Please try again."
-msgstr "Vi kunne ikke hente din statistikk akkurat nå. Vennligst prøv igjen."
+#: modules/subscriptions.php:443
+msgid "Notify me of new posts by email."
+msgstr "Varsle meg om nye innlegg via epost."
 
 #: modules/stats.php:514
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
@@ -874,6 +582,58 @@ msgstr "Skjul smilefjes i statistikken"
 #: modules/stats.php:524
 msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
 msgstr "Bildet hjelper til med å registrere statistikken og <strong>gjør verden til et bedre sted</strong>, men skulle fortsatt virke om det blir skjult"
+
+#: modules/stats.php:524
+msgid "Smiley face"
+msgstr "Smilefjes"
+
+#: modules/stats.php:525
+msgid "Report visibility"
+msgstr "Rapportsynlighet"
+
+#: modules/stats.php:527
+msgid "Select the roles that will be able to view stats reports."
+msgstr "Velg rollene som skal være i stand til å se statistikkrapporter."
+
+#: modules/stats.php:538
+msgid "Save configuration"
+msgstr "Lagre innstilling"
+
+#: modules/stats.php:594
+msgid "Stats"
+msgstr ""
+
+#: modules/stats.php:596
+msgid "Views over 48 hours. Click for more Site Stats."
+msgstr "Visninger over 48 timer. Klikk for mer nettstedsstatistikk."
+
+#: modules/stats.php:698
+msgid "day"
+msgstr "dag"
+
+#: modules/stats.php:699
+msgid "week"
+msgstr "uke"
+
+#: modules/stats.php:700
+msgid "month"
+msgstr "måned"
+
+#: modules/stats.php:703
+msgid "the past day"
+msgstr "den siste dagen"
+
+#: modules/stats.php:704
+msgid "the past week"
+msgstr "den siste uka"
+
+#: modules/shortcodes/videopress.php:879
+msgid "August"
+msgstr "august"
+
+#: modules/shortcodes/videopress.php:879
+msgid "September"
+msgstr "september"
 
 #: modules/shortcodes/videopress.php:879
 msgid "October"
@@ -926,6 +686,62 @@ msgstr "Laster video..."
 msgid "Site Stats"
 msgstr "Nettstedsstatistikk"
 
+#: modules/stats.php:337
+msgid "Loading&hellip;"
+msgstr "Laster&hellip;"
+
+#: modules/stats.php:338
+msgid "Your Site Stats work better with Javascript enabled."
+msgstr "Ditt nettsted fungerer bedre med JavaScript slått på."
+
+#: modules/stats.php:339
+msgid "View Site Stats without Javascript"
+msgstr "Vis statistikken uten Javascript"
+
+#: modules/stats.php:412 modules/stats.php:905
+msgid "We were unable to get your stats just now (too many redirects). Please try again."
+msgstr "Vi er ikke i stand til å hente din statistikk akkurat nå (for mange redirigeringer). Vennligst prøv igjen."
+
+#: modules/stats.php:414 modules/stats.php:907
+msgid "We were unable to get your stats just now. Please try again."
+msgstr "Vi kunne ikke hente din statistikk akkurat nå. Vennligst prøv igjen."
+
+#: modules/sharedaddy/sharing.php:377
+msgid "Enter the URL of a 16x16px icon you want to use for this service."
+msgstr "Skriv inn URL-en til et ikon med dimensjonene 16x16 px som du vil bruke for denne tjenesten."
+
+#: modules/sharedaddy/sharing.php:383
+msgid "Create Share Button"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:395
+msgid "An error occurred creating your new sharing service - please check you gave valid details."
+msgstr "Det oppstod en feil når den nye tjenesten for deling skulle lages - vennligst sjekk at du ga gyldige detaljer."
+
+#: modules/shortcodes/archives.php:50
+msgid "Your blog does not currently have any published posts."
+msgstr "Bloggen din har for tiden ingen publiserte innlegg."
+
+#: modules/shortcodes/audio.php:180
+msgid "Download: <a href=\"%s\">%s</a><br />"
+msgstr "Last ned: <a href=\"%s\">%s</a><br />"
+
+#: modules/shortcodes/videopress.php:608
+msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
+msgstr "VideoPress-modulen klarte ikke å kommunisere med VideoPress-serverne. Denne feilen skyldes mest sannsynlig et feilkonfigurert innstikk. Vennligst reinstaler eller oppgrader dette."
+
+#: modules/shortcodes/videopress.php:610
+msgid "<strong>%s</strong> is not an allowed embed site."
+msgstr "<strong>%s</strong> er ikke et tillatt innbyggings-nettsted."
+
+#: modules/shortcodes/videopress.php:610
+msgid "Publisher limits playback of video embeds."
+msgstr "Utgiver begrenser avspilling av video-innbygginger."
+
+#: modules/shortcodes/videopress.php:612
+msgid "No data found for VideoPress identifier: <strong>%s</strong>."
+msgstr "Ingen data funnet for VideoPress-identiteten: <strong>%s</strong>."
+
 #: modules/shortcodes/videopress.php:829
 msgid "%s Error"
 msgstr "%s feil"
@@ -966,57 +782,21 @@ msgstr "juni"
 msgid "July"
 msgstr "juli"
 
-#: modules/shortcodes/videopress.php:879
-msgid "August"
-msgstr "august"
+#: modules/sharedaddy/sharing.php:215
+msgid "Services dragged here will be hidden behind a share button."
+msgstr "Tjenester som dras hit vil være skjult bak en deleknapp."
 
-#: modules/shortcodes/videopress.php:879
-msgid "September"
-msgstr "september"
+#: modules/sharedaddy/sharing.php:230
+msgid "Live Preview"
+msgstr "Live forhåndsvisning"
 
-#: modules/sharedaddy/sharing.php:365
-msgid "Sharing URL"
-msgstr "Dele-URL"
+#: modules/sharedaddy/sharing.php:233
+msgid "Sharing is off. Add services above to enable."
+msgstr ""
 
-#: modules/sharedaddy/sharing.php:369
-msgid "You can add the following variables to your service sharing URL:"
-msgstr "Du kan legge til følgende variabler til tjenestens dele-URL:"
-
-#: modules/sharedaddy/sharing.php:374
-msgid "Icon URL"
-msgstr "Ikon-URL"
-
-#: modules/sharedaddy/sharing.php:377
-msgid "Enter the URL of a 16x16px icon you want to use for this service."
-msgstr "Skriv inn URL-en til et ikon med dimensjonene 16x16 px som du vil bruke for denne tjenesten."
-
-#: modules/sharedaddy/sharing.php:395
-msgid "An error occurred creating your new sharing service - please check you gave valid details."
-msgstr "Det oppstod en feil når den nye tjenesten for deling skulle lages - vennligst sjekk at du ga gyldige detaljer."
-
-#: modules/shortcodes/archives.php:50
-msgid "Your blog does not currently have any published posts."
-msgstr "Bloggen din har for tiden ingen publiserte innlegg."
-
-#: modules/shortcodes/audio.php:180
-msgid "Download: <a href=\"%s\">%s</a><br />"
-msgstr "Last ned: <a href=\"%s\">%s</a><br />"
-
-#: modules/shortcodes/videopress.php:608
-msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
-msgstr "VideoPress-modulen klarte ikke å kommunisere med VideoPress-serverne. Denne feilen skyldes mest sannsynlig et feilkonfigurert innstikk. Vennligst reinstaler eller oppgrader dette."
-
-#: modules/shortcodes/videopress.php:610
-msgid "<strong>%s</strong> is not an allowed embed site."
-msgstr "<strong>%s</strong> er ikke et tillatt innbyggings-nettsted."
-
-#: modules/shortcodes/videopress.php:610
-msgid "Publisher limits playback of video embeds."
-msgstr "Utgiver begrenser avspilling av video-innbygginger."
-
-#: modules/shortcodes/videopress.php:612
-msgid "No data found for VideoPress identifier: <strong>%s</strong>."
-msgstr "Ingen data funnet for VideoPress-identiteten: <strong>%s</strong>."
+#: modules/sharedaddy/sharing.php:300
+msgid "Button style"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:303
 msgid "Icon + text"
@@ -1029,6 +809,10 @@ msgstr "Kun ikon"
 #: modules/sharedaddy/sharing.php:305
 msgid "Text only"
 msgstr "Kun tekst"
+
+#: modules/sharedaddy/sharing.php:306
+msgid "Official buttons"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:311
 msgid "Sharing label"
@@ -1046,6 +830,10 @@ msgstr "Nytt vindu"
 msgid "Same window"
 msgstr "Samme vindu"
 
+#: modules/sharedaddy/sharing.php:326
+msgid "Show buttons on"
+msgstr ""
+
 #: modules/sharedaddy/sharing.php:332
 msgid "Front Page, Archive Pages, and Search Results"
 msgstr "Forside, arkivsider og søkeresultater"
@@ -1058,6 +846,48 @@ msgstr "Lagre endringer"
 msgid "Service name"
 msgstr "Tjenestenavn"
 
+#: modules/sharedaddy/sharing.php:365
+msgid "Sharing URL"
+msgstr "Dele-URL"
+
+#: modules/sharedaddy/sharing.php:369
+msgid "You can add the following variables to your service sharing URL:"
+msgstr "Du kan legge til følgende variabler til tjenestens dele-URL:"
+
+#: modules/sharedaddy/sharing.php:374
+msgid "Icon URL"
+msgstr "Ikon-URL"
+
+#: modules/sharedaddy/sharing-sources.php:1075
+msgctxt "share to"
+msgid "Tumblr"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1075
+msgid "Click to share on Tumblr"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1110
+msgid "Pinterest"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1140
+msgid "Pin It"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1142
+msgctxt "share to"
+msgid "Pinterest"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:1142
+msgid "Click to share on Pinterest"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:51 modules/sharedaddy/sharing.php:163
+msgid "Sharing Settings"
+msgstr "Deleinnstillinger"
+
 #: modules/sharedaddy/sharing.php:153
 msgid "Warning! Multibyte support missing!"
 msgstr "Advarsel! Multibyte-støtte mangler!"
@@ -1069,6 +899,14 @@ msgstr "Dette innstikket vil fungere uten det, men multibyte-støtte brukes <a h
 #: modules/sharedaddy/sharing.php:158
 msgid "Settings have been saved"
 msgstr "Innstillinger har blitt lagret"
+
+#: modules/sharedaddy/sharing.php:169
+msgid "Sharing Buttons"
+msgstr ""
+
+#: modules/sharedaddy/sharing.php:170
+msgid "Add sharing buttons to your blog and allow your visitors to share posts with their friends."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:176
 msgid "Available Services"
@@ -1090,13 +928,39 @@ msgstr "Aktiverte tjenester"
 msgid "Services dragged here will appear individually."
 msgstr "Tjenester som dras hit vil vises individuelt."
 
-#: modules/sharedaddy/sharing.php:215
-msgid "Services dragged here will be hidden behind a share button."
-msgstr "Tjenester som dras hit vil være skjult bak en deleknapp."
+#: modules/sharedaddy/sharing.php:204
+msgid "Drag and drop available services here."
+msgstr ""
 
-#: modules/sharedaddy/sharing.php:230
-msgid "Live Preview"
-msgstr "Live forhåndsvisning"
+#: modules/sharedaddy/sharing-sources.php:575
+msgid "LinkedIn"
+msgstr "LinkedIn"
+
+#: modules/sharedaddy/sharing-sources.php:589
+msgctxt "share to"
+msgid "LinkedIn"
+msgstr "LinkedIn"
+
+#: modules/sharedaddy/sharing-sources.php:589
+msgid "Click to share on LinkedIn"
+msgstr "Klikk for å dele på LinkedIn"
+
+#: modules/sharedaddy/sharing-sources.php:655
+msgid "Facebook"
+msgstr "Facebook"
+
+#: modules/sharedaddy/sharing-sources.php:729
+msgctxt "share to"
+msgid "Facebook"
+msgstr "Facebook"
+
+#: modules/sharedaddy/sharing-sources.php:729
+msgid "Share on Facebook"
+msgstr "Del på Facebook"
+
+#: modules/sharedaddy/sharing-sources.php:760
+msgid "Print"
+msgstr "Skriv ut"
 
 #: modules/sharedaddy/sharing-sources.php:764
 msgctxt "share to"
@@ -1144,53 +1008,33 @@ msgstr "Lagre"
 msgid "Remove Service"
 msgstr "Fjern tjeneste"
 
-#: modules/sharedaddy/sharing.php:51 modules/sharedaddy/sharing.php:163
-msgid "Sharing Settings"
-msgstr "Deleinnstillinger"
+#: modules/sharedaddy/sharing-sources.php:1068
+msgid "Tumblr"
+msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:528
-#: modules/sharedaddy/sharing-sources.php:531
-msgid "Click to Digg this post"
-msgstr "Klikk for å Digge dette innlegget"
+#: modules/sharedaddy/sharing-sources.php:275
+msgid "Send to Email Address"
+msgstr "Send til e-postadresse"
 
-#: modules/sharedaddy/sharing-sources.php:531
-msgctxt "share to"
-msgid "Digg"
-msgstr "Digg"
+#: modules/sharedaddy/sharing-sources.php:283
+msgid "Your Name"
+msgstr "Ditt navn"
 
-#: modules/sharedaddy/sharing-sources.php:575
-msgid "LinkedIn"
-msgstr "LinkedIn"
+#: modules/sharedaddy/sharing-sources.php:286
+msgid "Your Email Address"
+msgstr "Din e-postadresse"
 
-#: modules/sharedaddy/sharing-sources.php:589
-msgctxt "share to"
-msgid "LinkedIn"
-msgstr "LinkedIn"
+#: modules/sharedaddy/sharing-sources.php:294
+msgid "Send Email"
+msgstr "Send e-post"
 
-#: modules/sharedaddy/sharing-sources.php:589
-msgid "Click to share on LinkedIn"
-msgstr "Klikk for å dele på LinkedIn"
+#: modules/sharedaddy/sharing-sources.php:295
+msgid "Cancel"
+msgstr "Avbryt"
 
-#: modules/sharedaddy/sharing-sources.php:655
-msgid "Facebook"
-msgstr "Facebook"
-
-#: modules/sharedaddy/sharing-service.php:525
-msgid "Share"
-msgstr "Del"
-
-#: modules/sharedaddy/sharing-sources.php:729
-msgctxt "share to"
-msgid "Facebook"
-msgstr "Facebook"
-
-#: modules/sharedaddy/sharing-sources.php:729
-msgid "Share on Facebook"
-msgstr "Del på Facebook"
-
-#: modules/sharedaddy/sharing-sources.php:760
-msgid "Print"
-msgstr "Skriv ut"
+#: modules/sharedaddy/sharing-sources.php:298
+msgid "Post was not sent - check your email addresses!"
+msgstr "E-post ble ikke sendt - Sjekk dine e-postadresser!"
 
 #: modules/sharedaddy/sharing-sources.php:302
 msgid "Email check failed, please try again"
@@ -1239,6 +1083,73 @@ msgstr "Klikk for å dele på Reddit"
 msgid "Digg"
 msgstr "Digg"
 
+#: modules/sharedaddy/sharing-sources.php:528
+#: modules/sharedaddy/sharing-sources.php:531
+msgid "Click to Digg this post"
+msgstr "Klikk for å Digge dette innlegget"
+
+#: modules/sharedaddy/sharing-sources.php:531
+msgctxt "share to"
+msgid "Digg"
+msgstr "Digg"
+
+#: modules/module-info.php:448
+msgid "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page."
+msgstr "Jetpack prøver automatisk å matche ditt nettsteds fargepalett, men du kan gjøre manuelle tilpasninger på bunnen av siden <a href='%s'>Innstillinger for diskusjon</a>."
+
+#: modules/module-info.php:469
+msgid "Gallery Carousel Screenshot"
+msgstr ""
+
+#: modules/module-info.php:472
+msgid "Carousel"
+msgstr "Karusell"
+
+#: modules/module-info.php:474
+msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
+msgstr ""
+
+#: modules/module-info.php:487 modules/module-info.php:490
+msgid "Custom CSS"
+msgstr ""
+
+#: modules/module-info.php:491
+msgid "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing."
+msgstr ""
+
+#: modules/module-info.php:492
+msgid "To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
+msgstr ""
+
+#: modules/sharedaddy/sharedaddy.php:18
+msgid "Shared Post"
+msgstr "Delt innlegg"
+
+#: modules/sharedaddy/sharedaddy.php:37
+msgid "Show sharing buttons on this post."
+msgstr "Vis deleknapper på dette innlegget."
+
+#: modules/sharedaddy/sharedaddy.php:108
+msgid "Disable CSS and JS"
+msgstr "Deaktiver CSS og JS"
+
+#: modules/sharedaddy/sharedaddy.php:110
+msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
+msgstr "Avansert: Hvis dette alternativet er valgt må du manuelt inkludere disse filene i ditt tema for at delingslenkene skal virke."
+
+#: modules/sharedaddy/sharing-service.php:12
+msgid "Share this:"
+msgstr "Del dette:"
+
+#: modules/sharedaddy/sharing-service.php:523
+#: modules/sharedaddy/sharing.php:245 modules/sharedaddy/sharing.php:278
+msgid "More"
+msgstr ""
+
+#: modules/sharedaddy/sharing-service.php:525
+msgid "Share"
+msgstr "Del"
+
 #: modules/sharedaddy/sharing-sources.php:238
 msgid "This post has been shared!"
 msgstr "Dette innlegget har blitt delt!"
@@ -1260,77 +1171,9 @@ msgstr "E-post"
 msgid "Click to email this to a friend"
 msgstr "Klikk for å e-poste dette til en venn"
 
-#: modules/sharedaddy/sharing-sources.php:275
-msgid "Send to Email Address"
-msgstr "Send til e-postadresse"
-
-#: modules/sharedaddy/sharing-sources.php:283
-msgid "Your Name"
-msgstr "Ditt navn"
-
-#: modules/sharedaddy/sharing-sources.php:286
-msgid "Your Email Address"
-msgstr "Din e-postadresse"
-
-#: modules/sharedaddy/sharing-sources.php:294
-msgid "Send Email"
-msgstr "Send e-post"
-
-#: modules/sharedaddy/sharing-sources.php:295
-msgid "Cancel"
-msgstr "Avbryt"
-
-#: modules/sharedaddy/sharing-sources.php:298
-msgid "Post was not sent - check your email addresses!"
-msgstr "E-post ble ikke sendt - Sjekk dine e-postadresser!"
-
-#: modules/module-info.php:388
-msgid "Enhanced Distribution"
-msgstr "Utvidet distribusjon"
-
-#: modules/module-info.php:390
-msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
-msgstr "Jetpack vil automatisk ta ditt storartede publiserte innhold, fra din blogg eller nettsted, og straks dele det med tredjepartstjenester som søkemotorer, for slik å øke ditt nedslagsfelt og din trafikk."
-
-#: modules/module-info.php:418
-msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
-msgstr "Et kontaktskjema er en fin måte å tilby dine lesere muligheten til å komme i kontakt med deg uten at du må publisere din epostadresse."
-
-#: modules/module-info.php:421
-msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr "Hvert kontaktskjema kan enkelt bli tilpasset dine behov. Når en besøkende sender inn kontaktskjemaet vil tilbakemeldingene bli filtrert gjennom <a href=\"http://akismet.com/\">Akismet</a> (hvis aktiv på ditt nettsted) for kontrollere at det ikke er en useriøs melding. Alle godkjente tilbakemeldinger vil bli sendt til deg via epost og samtidig lagt til ditt administrasjonsområde for tilbakemeldinger."
-
-#: modules/module-info.php:438
-msgid "Jetpack Comments Screenshot"
-msgstr "Jetpack Kommenater skjermdump"
-
-#: modules/module-info.php:443
-msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
-msgstr "Jetpack Kommentarer gjør dine besøkende i stand til å bruke sin WordPress.com, Twitter eller Facebook-konto nåt de kommenterer på nettsiden."
-
-#: modules/module-info.php:448
-msgid "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page."
-msgstr "Jetpack prøver automatisk å matche ditt nettsteds fargepalett, men du kan gjøre manuelle tilpasninger på bunnen av siden <a href='%s'>Innstillinger for diskusjon</a>."
-
-#: modules/sharedaddy/sharedaddy.php:18
-msgid "Shared Post"
-msgstr "Delt innlegg"
-
-#: modules/sharedaddy/sharedaddy.php:37
-msgid "Show sharing buttons on this post."
-msgstr "Vis deleknapper på dette innlegget."
-
-#: modules/sharedaddy/sharedaddy.php:108
-msgid "Disable CSS and JS"
-msgstr "Deaktiver CSS og JS"
-
-#: modules/sharedaddy/sharedaddy.php:110
-msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
-msgstr "Avansert: Hvis dette alternativet er valgt må du manuelt inkludere disse filene i ditt tema for at delingslenkene skal virke."
-
-#: modules/sharedaddy/sharing-service.php:12
-msgid "Share this:"
-msgstr "Del dette:"
+#: modules/module-info.php:347
+msgid "The Twitter Widget"
+msgstr "Twitter-widgeten"
 
 #: modules/module-info.php:347
 msgid "shows your latest tweets within a sidebar on your theme."
@@ -1380,6 +1223,62 @@ msgstr "Når dine besøkende har lagt inn en kommentar får de også tilbud om �
 msgid "To use the Subscriptions widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away."
 msgstr "For å bruke Abonnementer-widgeten går du til Utseende &#8594; <a href=\"%s\">Widgeter</a>. Dra widgeten merket &#8220;Abonnementer (Jetpack)&#8221; over i en av dine sidepaneler og konfigurer i vei"
 
+#: modules/module-info.php:388
+msgid "Enhanced Distribution"
+msgstr "Utvidet distribusjon"
+
+#: modules/module-info.php:390
+msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
+msgstr "Jetpack vil automatisk ta ditt storartede publiserte innhold, fra din blogg eller nettsted, og straks dele det med tredjepartstjenester som søkemotorer, for slik å øke ditt nedslagsfelt og din trafikk."
+
+#: modules/module-info.php:418
+msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
+msgstr "Et kontaktskjema er en fin måte å tilby dine lesere muligheten til å komme i kontakt med deg uten at du må publisere din epostadresse."
+
+#: modules/module-info.php:421
+msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
+msgstr "Hvert kontaktskjema kan enkelt bli tilpasset dine behov. Når en besøkende sender inn kontaktskjemaet vil tilbakemeldingene bli filtrert gjennom <a href=\"http://akismet.com/\">Akismet</a> (hvis aktiv på ditt nettsted) for kontrollere at det ikke er en useriøs melding. Alle godkjente tilbakemeldinger vil bli sendt til deg via epost og samtidig lagt til ditt administrasjonsområde for tilbakemeldinger."
+
+#: modules/module-info.php:438
+msgid "Jetpack Comments Screenshot"
+msgstr "Jetpack Kommenater skjermdump"
+
+#: modules/module-info.php:443
+msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
+msgstr "Jetpack Kommentarer gjør dine besøkende i stand til å bruke sin WordPress.com, Twitter eller Facebook-konto nåt de kommenterer på nettsiden."
+
+#: modules/module-info.php:269
+msgid "Additionally you can define your own custom services."
+msgstr "I tillegg kan du definere dine egne tilpassede tjenester."
+
+#: modules/module-info.php:284
+msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
+msgstr "For å konfigurere dine delingsinnstillinger går du til menyvalget Innstillinger&rarr; <a href=\"%s\">Deling</a>."
+
+#: modules/module-info.php:285
+msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
+msgstr "Dra og slipp tjenester for deling i aktivert-seksjonen for å vise dem på nettstedet ditt, og dra dem inn i skjult-seksjonen for å gjemme dem bak en knapp."
+
+#: modules/module-info.php:291
+msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
+msgstr "Alle detaljer kan du finne på <a href=\"%s\">Del brukerstøtte-side</a>. Denne videoen gir deg en enkel gjennomgang av hvordan du bruker delingsfunksjonen. Se den i HD for ekstra snazz!"
+
+#: modules/module-info.php:306 modules/module-info.php:310
+msgid "Spelling and Grammar"
+msgstr "Staving og grammatikk"
+
+#: modules/module-info.php:312
+msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
+msgstr "<a href='%s'>After&nbsp;the&nbsp;Deadline</a>-korrekturtjenesten forbedrer din skriving ved å bruke kunstig intelligens for å finne feil og tilbyr smarte forbedringsforslag."
+
+#: modules/module-info.php:313
+msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
+msgstr "After the Deadline tlbyr en rekke <a href=\"%s\">tilpasningsalternativer</a> som du kan bestemme via din egen brukerprofil på dette nettstedet."
+
+#: modules/module-info.php:327 modules/module-info.php:341
+msgid "Widgets Screenshot"
+msgstr "Skjermbilde widgeter"
+
 #: modules/module-info.php:330 modules/module-info.php:344
 msgid "Extra Sidebar Widgets"
 msgstr "Ekstra widgeter"
@@ -1424,63 +1323,13 @@ msgstr "RSS-lenke-widgeten"
 msgid "lets you easily add post and comment RSS feeds to a sidebar on your theme."
 msgstr "lar deg enkelt legge ut RSS-lenkene til innlegg og kommentarer i sidestolpen."
 
-#: modules/module-info.php:347
-msgid "The Twitter Widget"
-msgstr "Twitter-widgeten"
+#: modules/module-info.php:95 modules/module-info.php:108
+msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
+msgstr "Med kortkodene kan du enkelt og trygt bygge inn media fra andre steder på ditt nettsted. Med bare én enkelt kode, kan du få WordPress til å bygge inn YouTube, Flickr og annen media."
 
-#: modules/module-info.php:240
-msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
-msgstr "Bruk <code>$latex din latex-kode her$</code> eller <code>[latex]din latex-kode her[/latex]</code> for å inkluderes %s i dine innlegg og kommentarer. Det finnes <a href=\"%s\" target=\"_blank\">en rekke alternativer</a> tilgjengelige."
-
-#: modules/module-info.php:255 modules/module-info.php:258
-#: modules/module-info.php:279 modules/sharedaddy/sharedaddy.php:25
-#: modules/sharedaddy/sharing.php:51
-msgid "Sharing"
-msgstr "Deling"
-
-#: modules/module-info.php:259
-msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
-msgstr "Del dine innlegg på Twitter, Facebook og en rekke andre tjenester. Du kan konfigurere tjenestene til å vises som ikoner, tekst eller både og. Noen tjenester har flere alternativer for å vise smarte knapper, som for eksempel Twitter, som vil oppdatere antall ganger innlegget har blitt delt."
-
-#: modules/module-info.php:263
-msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr "Følgende tjenester er inkludert: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google+1, utskrift og epostl."
-
-#: modules/module-info.php:265
-msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr "Følgende tjenester er inkludert: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google+1, utskrift og epost."
-
-#: modules/module-info.php:269
-msgid "Additionally you can define your own custom services."
-msgstr "I tillegg kan du definere dine egne tilpassede tjenester."
-
-#: modules/module-info.php:284
-msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
-msgstr "For å konfigurere dine delingsinnstillinger går du til menyvalget Innstillinger&rarr; <a href=\"%s\">Deling</a>."
-
-#: modules/module-info.php:285
-msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
-msgstr "Dra og slipp tjenester for deling i aktivert-seksjonen for å vise dem på nettstedet ditt, og dra dem inn i skjult-seksjonen for å gjemme dem bak en knapp."
-
-#: modules/module-info.php:291
-msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
-msgstr "Alle detaljer kan du finne på <a href=\"%s\">Del brukerstøtte-side</a>. Denne videoen gir deg en enkel gjennomgang av hvordan du bruker delingsfunksjonen. Se den i HD for ekstra snazz!"
-
-#: modules/module-info.php:306 modules/module-info.php:310
-msgid "Spelling and Grammar"
-msgstr "Staving og grammatikk"
-
-#: modules/module-info.php:312
-msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
-msgstr "<a href='%s'>After&nbsp;the&nbsp;Deadline</a>-korrekturtjenesten forbedrer din skriving ved å bruke kunstig intelligens for å finne feil og tilbyr smarte forbedringsforslag."
-
-#: modules/module-info.php:313
-msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
-msgstr "After the Deadline tlbyr en rekke <a href=\"%s\">tilpasningsalternativer</a> som du kan bestemme via din egen brukerprofil på dette nettstedet."
-
-#: modules/module-info.php:327 modules/module-info.php:341
-msgid "Widgets Screenshot"
-msgstr "Skjermbilde widgeter"
+#: modules/module-info.php:109
+msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
+msgstr "Skriv inn en snarvei direkte i innleggs- eller sideredigereren for å bygge inn media. For spesifikke instruksjoner, følg lenkene nedenfor."
 
 #: modules/module-info.php:135
 msgid "Available shortcodes are: %l."
@@ -1532,6 +1381,66 @@ msgstr "Jetpack kombinerer kraften fra %s og enkelheten fra WordPress for å gi 
 msgid "Wow, that sounds nerdy."
 msgstr "Wow, det ser nerdete ut."
 
+#: modules/module-info.php:240
+msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
+msgstr "Bruk <code>$latex din latex-kode her$</code> eller <code>[latex]din latex-kode her[/latex]</code> for å inkluderes %s i dine innlegg og kommentarer. Det finnes <a href=\"%s\" target=\"_blank\">en rekke alternativer</a> tilgjengelige."
+
+#: modules/module-info.php:255 modules/module-info.php:258
+#: modules/module-info.php:279 modules/sharedaddy/sharedaddy.php:25
+#: modules/sharedaddy/sharing.php:51
+msgid "Sharing"
+msgstr "Deling"
+
+#: modules/module-info.php:259
+msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
+msgstr "Del dine innlegg på Twitter, Facebook og en rekke andre tjenester. Du kan konfigurere tjenestene til å vises som ikoner, tekst eller både og. Noen tjenester har flere alternativer for å vise smarte knapper, som for eksempel Twitter, som vil oppdatere antall ganger innlegget har blitt delt."
+
+#: modules/module-info.php:263
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr "Følgende tjenester er inkludert: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google+1, utskrift og epostl."
+
+#: modules/module-info.php:265
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr "Følgende tjenester er inkludert: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google+1, utskrift og epost."
+
+#: modules/custom-css/custom-css.php:817
+msgid "CSS Settings"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:836
+msgid "CSS Revisions"
+msgstr ""
+
+#: modules/gravatar-hovercards.php:44 modules/module-info.php:57
+#: modules/module-info.php:72
+msgid "Gravatar Hovercards"
+msgstr "Gravatar svevekort"
+
+#: modules/gravatar-hovercards.php:56
+msgid "View people's profiles when you mouse over their Gravatars"
+msgstr "Vis folks profiler når du beveger musen over deres profilbilder"
+
+#: modules/gravatar-hovercards.php:83
+msgid "Put your mouse over your Gravatar to check out your profile."
+msgstr "Plasser pekeren over ditt profilbilde for å kontrollere profilen din."
+
+#: modules/module-info.php:22 modules/module-info.php:26
+msgid "VaultPress"
+msgstr "VaultPress"
+
+#: modules/module-info.php:28
+msgid "Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support."
+msgstr "Din WordPress-installasjon blir for øyeblikket beskyttet med verdens beste sikkerhetssystem, sikkerhetskopiering og brukerstøtte."
+
+#: modules/module-info.php:29
+msgctxt "Visit your _VaultPress_dashboard_."
+msgid "To check your backups, see any security alerts, or check your VaultPress Vitality, visit your %s."
+msgstr "For å kontrollere din sikkerhetskopier, se sikkerhetsadvarsler eller kontrollere din VaultPress-helse, besøk din %s."
+
+#: modules/module-info.php:29
+msgid "VaultPress dashboard"
+msgstr "VaultPress kontrollpanel"
+
 #: modules/module-info.php:31
 msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks."
 msgstr "Men et månedlig abonnement vil VaultPress-modulen sikkerhetskopiere innholdet, temaer og innstikk på nesstedet ditt i sanntid. Dessuten vil den foreta en jevnlige sikkerhetskontroller mot de vanligste truslene og angrepene."
@@ -1574,26 +1483,6 @@ msgstr "For å se hovercards, se på et blogginnlegg på bloggen din som har kom
 msgid "Shortcode Embeds"
 msgstr "Kortkode bygger inn"
 
-#: modules/module-info.php:95 modules/module-info.php:108
-msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
-msgstr "Med kortkodene kan du enkelt og trygt bygge inn media fra andre steder på ditt nettsted. Med bare én enkelt kode, kan du få WordPress til å bygge inn YouTube, Flickr og annen media."
-
-#: modules/module-info.php:109
-msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
-msgstr "Skriv inn en snarvei direkte i innleggs- eller sideredigereren for å bygge inn media. For spesifikke instruksjoner, følg lenkene nedenfor."
-
-#: modules/contact-form/grunion-form-view.php:194
-msgid "Add this form to my post"
-msgstr "Sett dette skjemaet inn i innlegget"
-
-#: modules/contact-form/grunion-form-view.php:197
-msgid "Email settings"
-msgstr "Epost-innstillinger"
-
-#: modules/contact-form/grunion-form-view.php:199
-msgid "Enter your email address"
-msgstr "Skriv inn din epostadresse"
-
 #: modules/contact-form/grunion-form-view.php:202
 msgid "What should the subject line be?"
 msgstr "Hva vil du ha i emnefeltet?"
@@ -1602,35 +1491,88 @@ msgstr "Hva vil du ha i emnefeltet?"
 msgid "Save and go back to form builder"
 msgstr "Lagre og gå tilbake til skjemabyggeren"
 
-#: modules/gravatar-hovercards.php:44 modules/module-info.php:57
-#: modules/module-info.php:72
-msgid "Gravatar Hovercards"
-msgstr "Gravatar svevekort"
+#: modules/custom-css/custom-css.php:468
+msgid "Preview: changes must be saved or they will be lost"
+msgstr ""
 
-#: modules/gravatar-hovercards.php:56
-msgid "View people's profiles when you mouse over their Gravatars"
-msgstr "Vis folks profiler når du beveger musen over deres profilbilder"
+#: modules/custom-css/custom-css.php:496
+msgid "Edit CSS"
+msgstr ""
 
-#: modules/gravatar-hovercards.php:83
-msgid "Put your mouse over your Gravatar to check out your profile."
-msgstr "Plasser pekeren over ditt profilbilde for å kontrollere profilen din."
+#: modules/custom-css/custom-css.php:510
+msgid "CSS"
+msgstr ""
 
-#: modules/module-info.php:22 modules/module-info.php:26
-msgid "VaultPress"
-msgstr "VaultPress"
+#: modules/custom-css/custom-css.php:549
+msgid "Custom CSS Stylesheet"
+msgstr ""
 
-#: modules/module-info.php:28
-msgid "Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support."
-msgstr "Din WordPress-installasjon blir for øyeblikket beskyttet med verdens beste sikkerhetssystem, sikkerhetskopiering og brukerstøtte."
+#: modules/custom-css/custom-css.php:763
+msgid "Stylesheet saved."
+msgstr ""
 
-#: modules/module-info.php:29
-msgctxt "Visit your _VaultPress_dashboard_."
-msgid "To check your backups, see any security alerts, or check your VaultPress Vitality, visit your %s."
-msgstr "For å kontrollere din sikkerhetskopier, se sikkerhetsadvarsler eller kontrollere din VaultPress-helse, besøk din %s."
+#: modules/custom-css/custom-css.php:771
+msgid "CSS Stylesheet Editor"
+msgstr ""
 
-#: modules/module-info.php:29
-msgid "VaultPress dashboard"
-msgstr "VaultPress kontrollpanel"
+#: modules/custom-css/custom-css.php:772
+msgid ""
+"New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions? \n"
+"Ask in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:792
+msgid "Preview"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:793
+msgid "Save Stylesheet &amp; Buy Upgrade"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:793
+msgid "Save Stylesheet"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:806
+msgid "Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:807
+msgid "Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with my own CSS."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:809
+msgid "<a href=\"%s\">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:811
+msgid "Limit width to"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:811
+msgid "pixels for videos, full size images, and other shortcodes. (<a href=\"%s\">More info</a>.)"
+msgstr ""
+
+#: modules/custom-css/custom-css.php:812
+msgid "The default content width for the %s theme is %d pixels."
+msgstr ""
+
+#: modules/contact-form/grunion-form-view.php:146
+msgid "Edit this new field"
+msgstr "Rediger dette nye feltet"
+
+#: modules/contact-form/grunion-form-view.php:148
+#: modules/sharedaddy/sharing-sources.php:971
+msgid "Label"
+msgstr "Etikett"
+
+#: modules/contact-form/grunion-form-view.php:149
+msgid "New field"
+msgstr "Nytt felt"
+
+#: modules/contact-form/grunion-form-view.php:151
+msgid "Field type"
+msgstr "Type felt"
 
 #: modules/contact-form/grunion-form-view.php:153
 msgid "Checkbox"
@@ -1680,61 +1622,17 @@ msgstr "Slik vil ditt skjema se ut"
 msgid "Add a new field"
 msgstr "Sett inn et nytt felt"
 
-#: modules/contact-form/grunion-form-view.php:127
-msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
-msgstr "Ved å legge til et kontaktskjema vil dine lesere kunne sende deg tilbakemeldinger. Alle tilbakemeldinger blir automatisk skannet for useriøse, og godkjente tilbakemeldinger vil bli sendt deg på epost."
+#: modules/contact-form/grunion-form-view.php:194
+msgid "Add this form to my post"
+msgstr "Sett dette skjemaet inn i innlegget"
 
-#: modules/contact-form/grunion-form-view.php:128
-msgid "Can I add more fields?"
-msgstr "Kan jeg legge til flere felter?"
+#: modules/contact-form/grunion-form-view.php:197
+msgid "Email settings"
+msgstr "Epost-innstillinger"
 
-#: modules/contact-form/grunion-form-view.php:130
-msgctxt "%1$s = \"Click here\" in an HTML link"
-msgid "Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field."
-msgstr "Helt klart. %1$s for å legge til  en ny tekstboks, tekstområde, valgknapper, avkrysningesbokser, eller nedtrekksmenyer."
-
-#: modules/contact-form/grunion-form-view.php:131
-msgid "Click here"
-msgstr "Klikk her"
-
-#: modules/contact-form/grunion-form-view.php:133
-msgid "Can I view my feedback within WordPress?"
-msgstr "Kan jeg se mine tilbakemeldinger i WordPress?"
-
-#: modules/contact-form/grunion-form-view.php:135
-msgctxt "%1$s = \"Feedbacks\" in an HTML link"
-msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
-msgstr "Ja, du kan lese dine tilbakemeldinger når som helst ved å klikke på lenken \"%1$s\" i menyen på kontrollpanelet."
-
-#: modules/contact-form/grunion-form-view.php:141
-msgid "Do I need to fill this out?"
-msgstr "Trenger jeg fylle ut dette?"
-
-#: modules/contact-form/grunion-form-view.php:142
-msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
-msgstr "Nei. Men hvis du vil endre hvor dine tilbakemeldinger blir sendt, eller emnelinjen, så kan du det. Hvis du ikke gjør noen endringer her vil tilbakemeldingene bli sendt til forfatteren av siden eller innlegget og emnet vil bli det samme som denne sidens/innleggets."
-
-#: modules/contact-form/grunion-form-view.php:146
-msgid "Edit this new field"
-msgstr "Rediger dette nye feltet"
-
-#: modules/contact-form/grunion-form-view.php:148
-#: modules/sharedaddy/sharing-sources.php:971
-msgid "Label"
-msgstr "Etikett"
-
-#: modules/contact-form/grunion-form-view.php:149
-msgid "New field"
-msgstr "Nytt felt"
-
-#: modules/contact-form/grunion-form-view.php:151
-msgid "Field type"
-msgstr "Type felt"
-
-#: modules/contact-form/grunion-form-view.php:16
-msgctxt "error message in contact form builder"
-msgid "Oops, there was a problem generating your form.  You'll likely need to try again."
-msgstr "Ooops. Det oppsto et problem med å opprette ditt skjema. Du vil trolig måtte prøve igjen."
+#: modules/contact-form/grunion-form-view.php:199
+msgid "Enter your email address"
+msgstr "Skriv inn din epostadresse"
 
 #: modules/contact-form/grunion-form-view.php:17
 msgid ""
@@ -1785,6 +1683,61 @@ msgstr "Epost-varslinger"
 #: modules/contact-form/grunion-form-view.php:126
 msgid "How does this work?"
 msgstr "Hvordan virker dette?"
+
+#: modules/contact-form/grunion-form-view.php:127
+msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
+msgstr "Ved å legge til et kontaktskjema vil dine lesere kunne sende deg tilbakemeldinger. Alle tilbakemeldinger blir automatisk skannet for useriøse, og godkjente tilbakemeldinger vil bli sendt deg på epost."
+
+#: modules/contact-form/grunion-form-view.php:128
+msgid "Can I add more fields?"
+msgstr "Kan jeg legge til flere felter?"
+
+#: modules/contact-form/grunion-form-view.php:130
+msgctxt "%1$s = \"Click here\" in an HTML link"
+msgid "Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field."
+msgstr "Helt klart. %1$s for å legge til  en ny tekstboks, tekstområde, valgknapper, avkrysningesbokser, eller nedtrekksmenyer."
+
+#: modules/contact-form/grunion-form-view.php:131
+msgid "Click here"
+msgstr "Klikk her"
+
+#: modules/contact-form/grunion-form-view.php:133
+msgid "Can I view my feedback within WordPress?"
+msgstr "Kan jeg se mine tilbakemeldinger i WordPress?"
+
+#: modules/contact-form/grunion-form-view.php:135
+msgctxt "%1$s = \"Feedbacks\" in an HTML link"
+msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
+msgstr "Ja, du kan lese dine tilbakemeldinger når som helst ved å klikke på lenken \"%1$s\" i menyen på kontrollpanelet."
+
+#: modules/contact-form/grunion-form-view.php:141
+msgid "Do I need to fill this out?"
+msgstr "Trenger jeg fylle ut dette?"
+
+#: modules/contact-form/grunion-form-view.php:142
+msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
+msgstr "Nei. Men hvis du vil endre hvor dine tilbakemeldinger blir sendt, eller emnelinjen, så kan du det. Hvis du ikke gjør noen endringer her vil tilbakemeldingene bli sendt til forfatteren av siden eller innlegget og emnet vil bli det samme som denne sidens/innleggets."
+
+#: modules/contact-form/grunion-contact-form.php:490
+msgid "IP Address:"
+msgstr "IP-adresse:"
+
+#: modules/contact-form/grunion-contact-form.php:491
+msgid "Contact Form URL:"
+msgstr "Kontaktskjema URL"
+
+#: modules/contact-form/grunion-contact-form.php:514
+msgid "Sent by a verified %s user."
+msgstr "Sendt av en bekreftet %s bruker."
+
+#: modules/contact-form/grunion-contact-form.php:518
+msgid "Sent by an unverified visitor to your site."
+msgstr "Send av en ubekreftet besøkende."
+
+#: modules/contact-form/grunion-contact-form.php:681
+#: modules/contact-form/grunion-form-view.php:136
+msgid "Feedbacks"
+msgstr "Tilbakemeldinger"
 
 #: modules/contact-form/grunion-contact-form.php:682
 msgid "Feedback"
@@ -1849,55 +1802,14 @@ msgctxt "Default label for the first option to be included in a user-created dro
 msgid "First option"
 msgstr "Første alternativ"
 
-#: modules/contact-form/grunion-contact-form.php:140
-msgid "%s requires a valid email address"
-msgstr "%s krever en gyldig epostadresse"
+#: modules/contact-form/grunion-form-view.php:16
+msgctxt "error message in contact form builder"
+msgid "Oops, there was a problem generating your form.  You'll likely need to try again."
+msgstr "Ooops. Det oppsto et problem med å opprette ditt skjema. Du vil trolig måtte prøve igjen."
 
-#: modules/contact-form/grunion-contact-form.php:147
-msgid "%s is required"
-msgstr "%s er påkrevet"
-
-#: modules/contact-form/grunion-contact-form.php:280
-#: modules/contact-form/grunion-contact-form.php:328
-msgid "Error!"
-msgstr "Feil!"
-
-#: modules/contact-form/grunion-contact-form.php:290
-msgid "Submit &#187;"
-msgstr "Send inn &#187;"
-
-#: modules/contact-form/grunion-contact-form.php:333
-msgid "Message Sent"
-msgstr "Melding sendt"
-
-#: modules/contact-form/grunion-contact-form.php:469
-msgid "l F j, Y \\a\\t g:i a"
-msgstr "j. F Y \\k\\l H:i"
-
-#: modules/contact-form/grunion-contact-form.php:489
-msgid "Time:"
-msgstr "Tid:"
-
-#: modules/contact-form/grunion-contact-form.php:490
-msgid "IP Address:"
-msgstr "IP-adresse:"
-
-#: modules/contact-form/grunion-contact-form.php:491
-msgid "Contact Form URL:"
-msgstr "Kontaktskjema URL"
-
-#: modules/contact-form/grunion-contact-form.php:514
-msgid "Sent by a verified %s user."
-msgstr "Sendt av en bekreftet %s bruker."
-
-#: modules/contact-form/grunion-contact-form.php:518
-msgid "Sent by an unverified visitor to your site."
-msgstr "Send av en ubekreftet besøkende."
-
-#: modules/contact-form/grunion-contact-form.php:681
-#: modules/contact-form/grunion-form-view.php:136
-msgid "Feedbacks"
-msgstr "Tilbakemeldinger"
+#: modules/contact-form/admin.php:418
+msgid "You are not allowed to manage this item."
+msgstr "Du har ike tillatelse til å behandle dette elementet."
 
 #: modules/contact-form/admin.php:452
 msgid "You are not allowed to move this item out of the Trash."
@@ -1934,12 +1846,6 @@ msgstr "Navn"
 msgid "Email"
 msgstr "E-post"
 
-#: modules/carousel/jetpack-carousel.php:135
-#: modules/contact-form/grunion-contact-form.php:36
-#: modules/contact-form/grunion-form-view.php:160
-msgid "Website"
-msgstr "Nettsted"
-
 #: modules/contact-form/grunion-contact-form.php:39
 msgid "Subject"
 msgstr "Emne"
@@ -1956,6 +1862,67 @@ msgstr "(påkrevet)"
 #: modules/contact-form/grunion-contact-form.php:99
 msgid "Yes"
 msgstr "Ja"
+
+#: modules/contact-form/grunion-contact-form.php:140
+msgid "%s requires a valid email address"
+msgstr "%s krever en gyldig epostadresse"
+
+#: modules/contact-form/grunion-contact-form.php:147
+msgid "%s is required"
+msgstr "%s er påkrevet"
+
+#: modules/contact-form/grunion-contact-form.php:280
+#: modules/contact-form/grunion-contact-form.php:328
+msgid "Error!"
+msgstr "Feil!"
+
+#: modules/contact-form/grunion-contact-form.php:290
+msgid "Submit &#187;"
+msgstr "Send inn &#187;"
+
+#: modules/contact-form/grunion-contact-form.php:333
+msgid "Message Sent"
+msgstr "Melding sendt"
+
+#: modules/contact-form/grunion-contact-form.php:469
+msgid "l F j, Y \\a\\t g:i a"
+msgstr "j. F Y \\k\\l H:i"
+
+#: modules/contact-form/grunion-contact-form.php:489
+msgid "Time:"
+msgstr "Tid:"
+
+#: modules/comments/admin.php:134
+msgid "A few catchy words to motivate your readers to comment"
+msgstr "Et par velvalgte ord for motivere dine lesere til kommentare"
+
+#: modules/comments/base.php:84
+msgid "Invalid request"
+msgstr "Ugyldig forespørsel"
+
+#: modules/comments/base.php:231
+msgid "Error: please fill the required fields (name, email)."
+msgstr "Feil: Vennligst fyll ut det nødvendige feltet (navn, epost)."
+
+#: modules/comments/base.php:233
+msgid "Error: please enter a valid email address."
+msgstr "Feil: Vennligst skriv inn en gyldig epostadresse,"
+
+#: modules/comments/comments.php:154
+msgid "You must <a href=\"%s\">log in</a> to post a comment."
+msgstr "Du må <a href=\"%s\">logge inn</a> for å legge inn kommentar."
+
+#: modules/comments/comments.php:217
+msgid "Cancel Reply"
+msgstr "Avbryt kommentaren"
+
+#: modules/comments/comments.php:351
+msgid "Invalid security token."
+msgstr "Ugyldig sikkerhetskode."
+
+#: modules/comments/comments.php:411 modules/comments/comments.php:462
+msgid "Submitting Comment%s"
+msgstr ""
 
 #: modules/contact-form/admin.php:90
 msgid "From"
@@ -2003,9 +1970,61 @@ msgstr "Merk denne meldingen som IKKE useriøs"
 msgid "Y-m-d @ g:i:s A"
 msgstr "Y-m-d  G:i:s"
 
-#: modules/contact-form/admin.php:418
-msgid "You are not allowed to manage this item."
-msgstr "Du har ike tillatelse til å behandle dette elementet."
+#: modules/carousel/jetpack-carousel.php:328
+msgid "Please provide an email address."
+msgstr "Vennligst oppgi en epost-adresse."
+
+#: modules/carousel/jetpack-carousel.php:331
+msgid "Please provide a valid email address."
+msgstr "Vennligst oppgi en gyldig epost-adresse."
+
+#: modules/carousel/jetpack-carousel.php:358
+msgid "Image Gallery Carousel"
+msgstr "Bildegalleri-karusell"
+
+#: modules/carousel/jetpack-carousel.php:361
+msgid "Enable carousel"
+msgstr "Slå på karusell"
+
+#: modules/carousel/jetpack-carousel.php:365
+msgid "Background color"
+msgstr "Bakgrunnsfarge"
+
+#: modules/carousel/jetpack-carousel.php:368
+msgid "Metadata"
+msgstr "Metadata"
+
+#: modules/carousel/jetpack-carousel.php:425
+msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
+msgstr "Vis foto-metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in karusellen når de er tilgjengelig."
+
+#: modules/carousel/jetpack-carousel.php:433
+msgid "Show map of photo location in carousel, when available."
+msgstr "Vis et kart over fotografert sted i karusellen, når det er tilgjengelig."
+
+#: modules/carousel/jetpack-carousel.php:441
+msgid "Black"
+msgstr "Svart"
+
+#: modules/carousel/jetpack-carousel.php:441
+msgid "White"
+msgstr "Hvit"
+
+#: modules/carousel/jetpack-carousel.php:449
+msgid "Display images in full-size carousel slideshow."
+msgstr "Vis bildene i full størrelse i lysbildefremvisningen."
+
+#: modules/comments/admin.php:50 modules/comments/comments.php:178
+msgid "Leave a Reply"
+msgstr "Legg inn en kommentar"
+
+#: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:138
+msgid "Light"
+msgstr "Lys"
+
+#: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:139
+msgid "Dark"
+msgstr "Mørk"
 
 #: modules/comments/admin.php:56
 msgid "Transparent"
@@ -2028,33 +2047,87 @@ msgstr "Fargeoppsett"
 msgid "Adjust your Jetpack Comments form with a clever greeting and color-scheme."
 msgstr "Tilpass skjemaet i Jetpack Kommentarer med en fin hilsen og en fargepalett."
 
-#: modules/comments/admin.php:134
-msgid "A few catchy words to motivate your readers to comment"
-msgstr "Et par velvalgte ord for motivere dine lesere til kommentare"
+#: modules/carousel/jetpack-carousel.php:116
+msgid "Your comment was approved."
+msgstr "Din kommentar ble godkjent."
 
-#: modules/comments/base.php:84
-msgid "Invalid request"
-msgstr "Ugyldig forespørsel"
+#: modules/carousel/jetpack-carousel.php:117
+msgid "Your comment is in moderation."
+msgstr "Din kommentar er til moderering."
 
-#: modules/comments/base.php:231
-msgid "Error: please fill the required fields (name, email)."
-msgstr "Feil: Vennligst fyll ut det nødvendige feltet (navn, epost)."
+#: modules/carousel/jetpack-carousel.php:118
+msgid "Camera"
+msgstr "Kamera"
 
-#: modules/comments/base.php:233
-msgid "Error: please enter a valid email address."
-msgstr "Feil: Vennligst skriv inn en gyldig epostadresse,"
+#: modules/carousel/jetpack-carousel.php:119
+msgid "Aperture"
+msgstr "Blenderåpning"
 
-#: modules/comments/comments.php:154
-msgid "You must <a href=\"%s\">log in</a> to post a comment."
-msgstr "Du må <a href=\"%s\">logge inn</a> for å legge inn kommentar."
+#: modules/carousel/jetpack-carousel.php:120
+msgid "Shutter Speed"
+msgstr "Lukkerhastighet"
 
-#: modules/comments/comments.php:217
-msgid "Cancel Reply"
-msgstr "Avbryt kommentaren"
+#: modules/carousel/jetpack-carousel.php:121
+msgid "Focal Length"
+msgstr "Brennvidde"
 
-#: modules/comments/comments.php:351
-msgid "Invalid security token."
-msgstr "Ugyldig sikkerhetskode."
+#: modules/carousel/jetpack-carousel.php:128
+msgid "Commenting as %s"
+msgstr "Kommenterer som %s"
+
+#: modules/carousel/jetpack-carousel.php:131
+msgid "Email (Required)"
+msgstr "Epost (påkrevet)"
+
+#: modules/carousel/jetpack-carousel.php:133
+msgid "Name (Required)"
+msgstr "Navn (påkrevet)"
+
+#: modules/carousel/jetpack-carousel.php:135
+#: modules/contact-form/grunion-contact-form.php:36
+#: modules/contact-form/grunion-form-view.php:160
+msgid "Website"
+msgstr "Nettsted"
+
+#: modules/carousel/jetpack-carousel.php:244
+msgid "Missing attachment ID."
+msgstr "Mangler vedleggs-ID."
+
+#: modules/carousel/jetpack-carousel.php:282
+msgid "Nonce verification failed."
+msgstr "Hensiktsbekreftelse (nonce) feilet."
+
+#: modules/carousel/jetpack-carousel.php:289
+msgid "Missing target blog ID."
+msgstr "Mangler bloggens ID."
+
+#: modules/carousel/jetpack-carousel.php:292
+msgid "Missing target post ID."
+msgstr "Mangler innleggets ID."
+
+#: modules/carousel/jetpack-carousel.php:295
+msgid "No comment text was submitted."
+msgstr "Ingen kommentartekst ble sendt inn."
+
+#: modules/carousel/jetpack-carousel.php:307
+msgid "Comments on this post are closed."
+msgstr "Kommentarer til dette innlegget er stengt."
+
+#: modules/carousel/jetpack-carousel.php:317
+msgid "Sorry, but we could not authenticate your request."
+msgstr "Beklager, men vi kunne ikke autensere din forespørsel."
+
+#: modules/carousel/jetpack-carousel.php:325
+msgid "Please provide your name."
+msgstr "Vennligst oppgi ditt navn."
+
+#: modules/after-the-deadline/config-options.php:77
+msgid "Passive Voice"
+msgstr "Passiv stemme"
+
+#: modules/after-the-deadline/config-options.php:79
+msgid "Phrases to Avoid"
+msgstr "Uttrykk for å unngå"
 
 #: modules/after-the-deadline/config-options.php:81
 msgid "Redundant Phrases"
@@ -2093,82 +2166,37 @@ msgstr "Legg til"
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
 msgstr "Husk å klikke \"oppdater profil\" nederst på skjermen for å lagre endringene."
 
-#: modules/comments/admin.php:50 modules/comments/comments.php:178
-msgid "Leave a Reply"
+#: modules/carousel/jetpack-carousel.php:108
+msgid "Comment"
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:109
+msgid "Post Comment"
 msgstr "Legg inn en kommentar"
 
-#: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:138
-msgid "Light"
-msgstr "Lys"
+#: modules/carousel/jetpack-carousel.php:110
+msgid "Loading Comments..."
+msgstr "Laster kommentarer..."
 
-#: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:139
-msgid "Dark"
-msgstr "Mørk"
+#: modules/carousel/jetpack-carousel.php:111
+msgid "View full size <span class=\"photo-size\">%1$s<span class=\"photo-size-times\">&times;</span>%2$s</span>"
+msgstr ""
 
-#: modules/after-the-deadline/config-options.php:55
-msgid "a post or page is updated"
-msgstr "et innlegg eller en side blir oppdatert"
+#: modules/carousel/jetpack-carousel.php:112
+msgid "Please be sure to submit some text with your comment."
+msgstr "Vennligst ta med noe tekst i din kommentar."
 
-#: modules/after-the-deadline/config-options.php:58
-msgid "English Options"
-msgstr "Valg for engelsk"
+#: modules/carousel/jetpack-carousel.php:113
+msgid "Please provide an email address to comment."
+msgstr "Vennligst oppgi en epost-adresse for å kommentere."
 
-#: modules/after-the-deadline/config-options.php:60
-msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
-msgstr "Aktiver korrekturlesing for følgende grammatikk- og stilregler når du skriver innlegg og sider:"
+#: modules/carousel/jetpack-carousel.php:114
+msgid "Please provide your name to comment."
+msgstr "Vennligst oppgi ditt navn for å kommentere."
 
-#: modules/after-the-deadline/config-options.php:63
-msgid "Bias Language"
-msgstr "Forutinntatt språk"
-
-#: modules/after-the-deadline/config-options.php:65
-msgid "Clich&eacute;s"
-msgstr "Klisjeer"
-
-#: modules/after-the-deadline/config-options.php:67
-msgid "Complex Phrases"
-msgstr "Komplekse setninger"
-
-#: modules/after-the-deadline/config-options.php:69
-msgid "Diacritical Marks"
-msgstr "Diakritiske merker"
-
-#: modules/after-the-deadline/config-options.php:71
-msgid "Double Negatives"
-msgstr "Dobbel negasjon"
-
-#: modules/after-the-deadline/config-options.php:73
-msgid "Hidden Verbs"
-msgstr "Skjulte verb"
-
-#: modules/after-the-deadline/config-options.php:75
-msgid "Jargon"
-msgstr "Sjargong"
-
-#: modules/after-the-deadline/config-options.php:77
-msgid "Passive Voice"
-msgstr "Passiv stemme"
-
-#: modules/after-the-deadline/config-options.php:79
-msgid "Phrases to Avoid"
-msgstr "Uttrykk for å unngå"
-
-#: modules/after-the-deadline/atd-l10n.php:22
-msgid "Edit Selection..."
-msgstr "Rediger Utvalg…"
-
-#: modules/after-the-deadline/atd-l10n.php:24
-msgid "proofread"
-msgstr "korrekturles"
-
-#: modules/after-the-deadline/atd-l10n.php:25
-msgid "edit text"
-msgstr "rediger tekst"
-
-#: modules/after-the-deadline/atd-l10n.php:26
-#: modules/after-the-deadline.php:224
-msgid "Proofread Writing"
-msgstr "Korrekturles skriving"
+#: modules/carousel/jetpack-carousel.php:115
+msgid "Sorry, but there was an error posting your comment. Please try again later."
+msgstr "Beklager, men det oppsto en feil ved innsending av din kommentar. Vennligst prøv igjen senere."
 
 #: modules/after-the-deadline/atd-l10n.php:28
 msgid "No writing errors were found."
@@ -2218,20 +2246,72 @@ msgstr "Korrekturles automatisk innhold når:"
 msgid "a post or page is first published"
 msgstr "et innlegg eller side først blir publisert"
 
-#: jetpack.php:2189
+#: modules/after-the-deadline/config-options.php:55
+msgid "a post or page is updated"
+msgstr "et innlegg eller en side blir oppdatert"
+
+#: modules/after-the-deadline/config-options.php:58
+msgid "English Options"
+msgstr "Valg for engelsk"
+
+#: modules/after-the-deadline/config-options.php:60
+msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
+msgstr "Aktiver korrekturlesing for følgende grammatikk- og stilregler når du skriver innlegg og sider:"
+
+#: modules/after-the-deadline/config-options.php:63
+msgid "Bias Language"
+msgstr "Forutinntatt språk"
+
+#: modules/after-the-deadline/config-options.php:65
+msgid "Clich&eacute;s"
+msgstr "Klisjeer"
+
+#: modules/after-the-deadline/config-options.php:67
+msgid "Complex Phrases"
+msgstr "Komplekse setninger"
+
+#: modules/after-the-deadline/config-options.php:69
+msgid "Diacritical Marks"
+msgstr "Diakritiske merker"
+
+#: modules/after-the-deadline/config-options.php:71
+msgid "Double Negatives"
+msgstr "Dobbel negasjon"
+
+#: modules/after-the-deadline/config-options.php:73
+msgid "Hidden Verbs"
+msgstr "Skjulte verb"
+
+#: modules/after-the-deadline/config-options.php:75
+msgid "Jargon"
+msgstr "Sjargong"
+
+#: jetpack.php:2125
+msgid "New"
+msgstr "Ny"
+
+#: jetpack.php:2128
+msgid "Updated"
+msgstr "Oppdatert"
+
+#: jetpack.php:2156
+msgid "Configure"
+msgstr "Konfigurer"
+
+#: jetpack.php:2190
 msgid "Coming soon&#8230;"
 msgstr "Kommer snart…"
 
-#: jetpack.php:2342 jetpack.php:2344 jetpack.php:2346 jetpack.php:2349
-#: jetpack.php:3015
+#: jetpack.php:2343 jetpack.php:2345 jetpack.php:2347 jetpack.php:2350
+#: jetpack.php:3016
 msgid "Error Details: %s"
 msgstr "Detaljer om feil: %s"
 
-#: jetpack.php:2971
+#: jetpack.php:2972
 msgid "An administrator for this blog must set up the Jetpack connection."
 msgstr "En administrator for dette nettstedet må sette opp Jetpack-tilkoblingen."
 
-#: jetpack.php:2976
+#: jetpack.php:2977
 msgid "You need to register your Jetpack before connecting it."
 msgstr "Du må registrere Jetpack før du kobler det til."
 
@@ -2268,338 +2348,348 @@ msgstr "Ignorer alltid"
 msgid "Ignore all"
 msgstr "Ignorer alle"
 
-#: jetpack.php:1979
-msgid "Terms of Service"
-msgstr "Bruksvilkår"
+#: modules/after-the-deadline/atd-l10n.php:22
+msgid "Edit Selection..."
+msgstr "Rediger Utvalg…"
 
-#: jetpack.php:1980
-msgid "Debug"
-msgstr "Debug"
+#: modules/after-the-deadline/atd-l10n.php:24
+msgid "proofread"
+msgstr "korrekturles"
 
-#: jetpack.php:1981 modules/sharedaddy/sharedaddy.php:78
-msgid "Support"
-msgstr "Support"
+#: modules/after-the-deadline/atd-l10n.php:25
+msgid "edit text"
+msgstr "rediger tekst"
 
-#: jetpack.php:1999
-msgid "This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords."
-msgstr "Dette er sensitiv informasjon. Vennligst ikke leggr din BLOG_TOKEN eller USER_TOKEN ut offentlig. De er som passord."
+#: modules/after-the-deadline/atd-l10n.php:26
+#: modules/after-the-deadline.php:224
+msgid "Proofread Writing"
+msgstr "Korrekturles skriving"
 
-#: jetpack.php:2030
-msgid "Configure %s"
-msgstr "Sett opp %s"
-
-#: jetpack.php:2089
-msgid "Deactivate"
-msgstr "Deaktiver"
-
-#: jetpack.php:2099
-msgid "Activate"
-msgstr "Aktiver"
-
-#: jetpack.php:2116
-msgid "Free"
-msgstr "Gratis"
-
-#: jetpack.php:2116
-msgid "Purchase"
-msgstr "Kjøp"
-
-#: jetpack.php:2124
-msgid "New"
-msgstr "Ny"
-
-#: jetpack.php:2127
-msgid "Updated"
-msgstr "Oppdatert"
-
-#: jetpack.php:2155
-msgid "Configure"
-msgstr "Konfigurer"
-
-#: jetpack.php:1930
-msgid "Have feedback on Jetpack?"
-msgstr "Har du en tilbakemelding om Jetpack?"
-
-#: jetpack.php:1932
-msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
-msgstr "Besvar en kort spørreundersøkelse og la oss få vite hvordan vi gjør det og hva vi bør legg til i fremtiden."
-
-#: jetpack.php:1935
+#: jetpack.php:1936
 msgid "Take Survey"
 msgstr "Ta spørreundersøkelsen"
 
-#: jetpack.php:1941
+#: jetpack.php:1942
 msgid "Checking email updates status&hellip;"
 msgstr "Sjekker status for e-postoppdateringer…"
 
-#: jetpack.php:1947
+#: jetpack.php:1948
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr "Du abonnerer for tiden på e-postoppdateringer. %s"
 
-#: jetpack.php:1948
+#: jetpack.php:1949
 msgid "Unsubscribe"
 msgstr "Avslutt abonnement"
 
-#: jetpack.php:1952
+#: jetpack.php:1953
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr "Vil du få oppdateringer om Jetpack på e-post? %s"
 
-#: jetpack.php:1953 modules/subscriptions.php:662
+#: jetpack.php:1954 modules/subscriptions.php:662
 msgid "Subscribe"
 msgstr "Abonner"
 
-#: jetpack.php:1960
+#: jetpack.php:1961
 msgid "You have been subscribed to receive email updates."
 msgstr "Du abonnerer nå på e-postoppdateringer."
 
-#: jetpack.php:1962
+#: jetpack.php:1963
 msgid "You will no longer receive email updates about Jetpack."
 msgstr "Du vil ikke lenger motta e-postoppdateringer om Jetpack."
 
-#: jetpack.php:1975
+#: jetpack.php:1976
 msgid "An <span>Automattic</span> Airline"
 msgstr "En <span>Automattic</span>-flylinje"
 
-#: jetpack.php:1978
+#: jetpack.php:1979
 msgid "Privacy Policy"
 msgstr "Personvern"
 
-#: jetpack.php:1669
+#: jetpack.php:1980
+msgid "Terms of Service"
+msgstr "Bruksvilkår"
+
+#: jetpack.php:1981
+msgid "Debug"
+msgstr "Debug"
+
+#: jetpack.php:1982 modules/sharedaddy/sharedaddy.php:78
+msgid "Support"
+msgstr "Support"
+
+#: jetpack.php:2000
+msgid "This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords."
+msgstr "Dette er sensitiv informasjon. Vennligst ikke leggr din BLOG_TOKEN eller USER_TOKEN ut offentlig. De er som passord."
+
+#: jetpack.php:2031
+msgid "Configure %s"
+msgstr "Sett opp %s"
+
+#: jetpack.php:2090
+msgid "Deactivate"
+msgstr "Deaktiver"
+
+#: jetpack.php:2100
+msgid "Activate"
+msgstr "Aktiver"
+
+#: jetpack.php:2117
+msgid "Free"
+msgstr "Gratis"
+
+#: jetpack.php:2117
+msgid "Purchase"
+msgstr "Kjøp"
+
+#: jetpack.php:1606
+msgid "Try connecting again."
+msgstr "Prøv på nytt."
+
+#: jetpack.php:1630
+msgid "Welcome to <strong>Jetpack %s</strong>!"
+msgstr "Velkommen til <strong>Jetpack %s</strong>!"
+
+#: jetpack.php:1642
+msgid "The following new modules have been activated: %l."
+msgstr "Følgende nye moduler har blitt aktivert: %l."
+
+#: jetpack.php:1654
+msgid "The following modules have been updated: %l."
+msgstr "De følgende modulene har blitt oppdatert: %l."
+
+#: jetpack.php:1663
+msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
+msgstr "<strong>%s aktivert!</strong> Du kan deaktivere når soim helst ved å klikke på Lær mer og så Deaktiver på modulkortet."
+
+#: jetpack.php:1670
 msgid "<strong>%s Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
 msgstr "<strong>%s deaktivert!</strong> Du kan aktivere det igjen når som helst ved å bruke aktiver-knappen på modulkortet."
 
-#: jetpack.php:1675
+#: jetpack.php:1676
 msgid "<strong>Module settings were saved.</strong> "
 msgstr "<strong>Modulinnstillingene ble lagret.</strong> "
 
-#: jetpack.php:1679
+#: jetpack.php:1680
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr "<strong>Din Jetpack er allerede tilkoblet.</strong>"
 
-#: jetpack.php:1683
+#: jetpack.php:1684
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr "<strong>Du har fylt opp tanken og er klar til å kjøre.</strong>"
 
-#: jetpack.php:1685
+#: jetpack.php:1686
 msgid "The features below are now active. Click the learn more buttons to explore each feature."
 msgstr "Funksjonene nedenfor er nå aktive. Klikk lær mer-knappene for å utforske hver funksjon."
 
-#: jetpack.php:1708
+#: jetpack.php:1709
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] "Jetpack inneholder den nyeste versjonen av det gamle %l innstikket."
 msgstr[1] "Jetpack inneholder de nyeste versjonen av de gamle %l innstikkene."
 
-#: jetpack.php:1717
+#: jetpack.php:1718
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] "Den gamle versjonen har blitt deaktivert og kan fjernes fra nettstedet."
 msgstr[1] "De gamle versjonene har blitt deaktiverte og kan fjernes fra nettstedet."
 
-#: jetpack.php:1875
+#: jetpack.php:1876
 msgid "Connected to WordPress.com"
 msgstr "Koblet til WordPress.com"
 
-#: jetpack.php:1876
+#: jetpack.php:1877
 msgid "Disconnect from WordPress.com"
 msgstr "Koble fra WordPress.com"
 
-#: jetpack.php:1890
+#: jetpack.php:1891
 msgid "Jetpack is network activated and notices can not be dismissed."
 msgstr "Jetpack er nå aktivert i hele nettverket og varsler kan ikke avvises."
 
-#: jetpack.php:1901
+#: jetpack.php:1902
 msgid "Dismiss this notice."
 msgstr "Avvis dette varselet."
 
-#: jetpack.php:1906
+#: jetpack.php:1907
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
 msgstr "Hvis du vil aktivere alle Jetpack-funksjonene, må du koble ditt nettsted til WordPress.com med knappen til høyre. Når du har gjort den tilkoblingen vil du aktivere alle de herlige funksjonene nedenfor."
 
-#: jetpack.php:1539
-msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr "%s kunne ikke aktiveres fordi det utløste en <strong>fatal feil</strong>. Kanskje det er en konflikt med et annet innstikk du har installert?"
+#: jetpack.php:1931
+msgid "Have feedback on Jetpack?"
+msgstr "Har du en tilbakemelding om Jetpack?"
 
-#: jetpack.php:1541
-msgid "Do you still have the %s plugin installed?"
-msgstr "Har du fremdeles innstikket %s installert?"
+#: jetpack.php:1933
+msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
+msgstr "Besvar en kort spørreundersøkelse og la oss få vite hvordan vi gjør det og hva vi bør legg til i fremtiden."
 
-#: jetpack.php:1544
-msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr "Modul kunne ikke aktiveres fordi det utløste en <strong>fatal feil</strong>. Kanskje det er en konflikt med et annet innstikk du har installert?"
+#: jetpack.php:1355
+msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Comments, Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
+msgstr ""
 
-#: jetpack.php:1552
-msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
-msgstr "<strong>Din Jetpack har en feil.</strong> Det er ikke mulig å koble dette nettstedet til WordPress.com. Dette betyr vanligvis at nettstedet ditt ikke er offentlig tilgjengelig (localhost)."
-
-#: jetpack.php:1558
-msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
-msgstr "WordPress.com har for øyeblikket problemer og er ute av stand til å gi drivstoff til din Jetpack. Vennligst prøv igjen senere."
-
-#: jetpack.php:1562
-msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
-msgstr "Jetpack kunne i koble til WordPress.com: %s. Dette skyldes vanligvis at noe er satt opp feil hos ditt nettvert eller på din server."
-
-#: jetpack.php:1602
-msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
-msgstr "<strong>Din Jetpack har en feil.</strong> Noe gikk galt som aldri skal skje. Antar at du bare er heldig: %s"
-
-#: jetpack.php:1605
-msgid "Try connecting again."
-msgstr "Prøv på nytt."
-
-#: jetpack.php:1629
-msgid "Welcome to <strong>Jetpack %s</strong>!"
-msgstr "Velkommen til <strong>Jetpack %s</strong>!"
-
-#: jetpack.php:1641
-msgid "The following new modules have been activated: %l."
-msgstr "Følgende nye moduler har blitt aktivert: %l."
-
-#: jetpack.php:1653
-msgid "The following modules have been updated: %l."
-msgstr "De følgende modulene har blitt oppdatert: %l."
-
-#: jetpack.php:1662
-msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
-msgstr "<strong>%s aktivert!</strong> Du kan deaktivere når soim helst ved å klikke på Lær mer og så Deaktiver på modulkortet."
-
-#: jetpack.php:1356
+#: jetpack.php:1357
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr "<strong>Jetpack er installert</strong> og klar tilå gi deg nettsky-drevne funksjoner fra WordPress.com til ditt nettsted."
 
-#: jetpack.php:1362 jetpack.php:1910
+#: jetpack.php:1363 jetpack.php:1911
 msgid "Connect to WordPress.com"
 msgstr "Koble til WordPress.com"
 
-#: jetpack.php:1364 modules/module-info.php:45 modules/module-info.php:81
+#: jetpack.php:1365 modules/module-info.php:45 modules/module-info.php:81
 #: modules/module-info.php:141 modules/module-info.php:176
 #: modules/module-info.php:210 modules/module-info.php:246
 #: modules/module-info.php:297 modules/module-info.php:319
 #: modules/module-info.php:357 modules/module-info.php:381
 #: modules/module-info.php:399 modules/module-info.php:405
 #: modules/module-info.php:432 modules/module-info.php:463
+#: modules/module-info.php:498
 msgid "Learn More"
 msgstr "Lær mer"
 
-#: jetpack.php:1377
+#: jetpack.php:1378
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr "<strong>Jetpack er aktivert!</strong> Hver nettside av ditt nettverk må tilknyttes individuelt av en administrator for hver enkelt nettside."
 
-#: jetpack.php:1404
+#: jetpack.php:1405
 msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
 msgstr "Jetpack inneholder nå JetPack Kommentarer som gjør det mulig for dine besøkende å bruke sin WordPress.com- eller Twitter-konto når de kommenterer på nettstedet ditt. For å aktivere Jetpack Kommentarer <a href=\"%s\">%s</a>."
 
-#: jetpack.php:1412
+#: jetpack.php:1413
 msgid "click here"
 msgstr "klikk her"
 
-#: jetpack.php:1520
+#: jetpack.php:1521
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr "Du må autorisere Jetpack-forbindelsen mellom nettstedet og WordPress.com for å aktivere disse fete funksjonene."
 
-#: jetpack.php:1523
+#: jetpack.php:1524
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr "Ikke kryss strømmene! Du må være logget inn på din WordPress-blogg mens du autoriserer Jetpack."
 
-#: jetpack.php:1527
+#: jetpack.php:1528
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr "Tilbake til avsenderen. Whoops! Det ser ut som du fikk feil Jetpack i posten. Deaktiverer og reaktiverer innstikket Jetpack for å få en ny."
 
-#: jetpack.php:1530
+#: jetpack.php:1531
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr "Feil størrelse. Hmm&#8230; det virker som at din Jetpack ikke helt passer. Har du gått ned i vekt? Klikk \"Koble til WordPress.com\" igjen for å få Jetpack justert."
 
-#: jetpack.php:1534
+#: jetpack.php:1535
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr "Ditt nettsted må være offentlig tilgjengelig for å bruk Jetpack: %s"
 
-#: jetpack.php:1220 jetpack.php:1261
-msgid "For more information:"
-msgstr "For mer informasjon:"
+#: jetpack.php:1540
+msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "%s kunne ikke aktiveres fordi det utløste en <strong>fatal feil</strong>. Kanskje det er en konflikt med et annet innstikk du har installert?"
 
-#: jetpack.php:1221 jetpack.php:1262
-msgid "Jetpack FAQ"
-msgstr "Jetpack FAQ"
+#: jetpack.php:1542
+msgid "Do you still have the %s plugin installed?"
+msgstr "Har du fremdeles innstikket %s installert?"
 
-#: jetpack.php:1222 jetpack.php:1263
-msgid "Jetpack Support"
-msgstr "Jetpack brukerstøtte"
+#: jetpack.php:1545
+msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "Modul kunne ikke aktiveres fordi det utløste en <strong>fatal feil</strong>. Kanskje det er en konflikt med et annet innstikk du har installert?"
 
-#: jetpack.php:1237
-msgid "Overview"
-msgstr "Oversikt"
+#: jetpack.php:1553
+msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
+msgstr "<strong>Din Jetpack har en feil.</strong> Det er ikke mulig å koble dette nettstedet til WordPress.com. Dette betyr vanligvis at nettstedet ditt ikke er offentlig tilgjengelig (localhost)."
 
-#: jetpack.php:1247
-msgid "Modules"
-msgstr "Moduler"
+#: jetpack.php:1559
+msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
+msgstr "WordPress.com har for øyeblikket problemer og er ute av stand til å gi drivstoff til din Jetpack. Vennligst prøv igjen senere."
 
-#: jetpack.php:1250
-msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
-msgstr "Du kan aktivere eller deaktivere individuelle Jetpack-moduler etter dine behov."
+#: jetpack.php:1563
+msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
+msgstr "Jetpack kunne i koble til WordPress.com: %s. Dette skyldes vanligvis at noe er satt opp feil hos ditt nettvert eller på din server."
 
-#: jetpack.php:1252
-msgid "Find the component you want to manage"
-msgstr "Finn komponenten du ønsker å administrere"
+#: jetpack.php:1603
+msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
+msgstr "<strong>Din Jetpack har en feil.</strong> Noe gikk galt som aldri skal skje. Antar at du bare er heldig: %s"
 
-#: jetpack.php:1253
-msgid "Click on Learn More"
-msgstr "Klikk på Lær mer"
+#: jetpack.php:1217 jetpack.php:1241 jetpack.php:1883
+msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
+msgstr "Jetpack revolusjonerer din WordPress-installasjon med den utrolige kraften til WordPress.com-skyen."
 
-#: jetpack.php:1254
-msgid "An Activate or Deactivate button will appear"
-msgstr "En Aktiver eller Deaktiver-knapp vill vises"
+#: jetpack.php:1216 jetpack.php:1240 jetpack.php:1250 jetpack.php:1880
+#: jetpack.php:2030
+msgid "Jetpack by WordPress.com"
+msgstr "Jetpack av WordPress.com"
 
-#: jetpack.php:1255
-msgid "If additional settings are available, a link to them will appear"
-msgstr "Hvis det finnes ytterligere innstillinger vil en lenke til dem dukke opp"
+#: jetpack.php:1184
+msgid "Jetpack"
+msgstr "Jetpack"
 
-#: jetpack.php:1331 modules/sharedaddy/sharedaddy.php:70
-#: modules/sharedaddy/sharedaddy.php:77
-msgid "Settings"
-msgstr "Innstillinger"
-
-#: jetpack.php:1348
-msgid "Dismiss this notice and deactivate Jetpack."
-msgstr "Avvis dette varselet og deaktiver Jetpack."
-
-#: jetpack.php:976
-msgid "Jetpack requires WordPress version %s or later."
-msgstr "Jetpack krever WordPress versjon %s eller senere."
-
-#: jetpack.php:1143 jetpack.php:1159
-msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
-msgstr "Jetpack inneholder den nyeste versjonen av det gamle &#8220;%1$s&#8221; innstikket"
-
-#: jetpack.php:1180
+#: jetpack.php:1181
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] "En ny Jetpack-modul"
 msgstr[1] "%s nye Jetpack-moduler"
 
-#: jetpack.php:1183
-msgid "Jetpack"
-msgstr "Jetpack"
-
-#: jetpack.php:1215 jetpack.php:1239 jetpack.php:1249 jetpack.php:1879
-#: jetpack.php:2029
-msgid "Jetpack by WordPress.com"
-msgstr "Jetpack av WordPress.com"
-
-#: jetpack.php:1216 jetpack.php:1240 jetpack.php:1882
-msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
-msgstr "Jetpack revolusjonerer din WordPress-installasjon med den utrolige kraften til WordPress.com-skyen."
-
-#: jetpack.php:1217 jetpack.php:1241
+#: jetpack.php:1218 jetpack.php:1242
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr "På denne siden kan du se de modulene som er tilgjengelige i Jetpack, lære mer om dem og aktivere eller deaktivere dem etter behov."
 
-#: jetpack.php:1218
+#: jetpack.php:1219
 msgid "Jetpack Module Options"
 msgstr "Jetpack modulinnstillinger"
 
-#: jetpack.php:1219
+#: jetpack.php:1220
 msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
 msgstr "<strong>For å aktivere/deaktivere en modul</strong> - Klikk på Lær mer. En Aktiver- eller Deaktiver-knapp vil duke opp ved siden av Lær mer-knappen. Klikk Aktiver/deaktiver-knappen."
+
+#: jetpack.php:1221 jetpack.php:1262
+msgid "For more information:"
+msgstr "For mer informasjon:"
+
+#: jetpack.php:1222 jetpack.php:1263
+msgid "Jetpack FAQ"
+msgstr "Jetpack FAQ"
+
+#: jetpack.php:1223 jetpack.php:1264
+msgid "Jetpack Support"
+msgstr "Jetpack brukerstøtte"
+
+#: jetpack.php:1238
+msgid "Overview"
+msgstr "Oversikt"
+
+#: jetpack.php:1248
+msgid "Modules"
+msgstr "Moduler"
+
+#: jetpack.php:1251
+msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
+msgstr "Du kan aktivere eller deaktivere individuelle Jetpack-moduler etter dine behov."
+
+#: jetpack.php:1253
+msgid "Find the component you want to manage"
+msgstr "Finn komponenten du ønsker å administrere"
+
+#: jetpack.php:1254
+msgid "Click on Learn More"
+msgstr "Klikk på Lær mer"
+
+#: jetpack.php:1255
+msgid "An Activate or Deactivate button will appear"
+msgstr "En Aktiver eller Deaktiver-knapp vill vises"
+
+#: jetpack.php:1256
+msgid "If additional settings are available, a link to them will appear"
+msgstr "Hvis det finnes ytterligere innstillinger vil en lenke til dem dukke opp"
+
+#: jetpack.php:1332 modules/sharedaddy/sharedaddy.php:70
+#: modules/sharedaddy/sharedaddy.php:77
+msgid "Settings"
+msgstr "Innstillinger"
+
+#: jetpack.php:1349
+msgid "Dismiss this notice and deactivate Jetpack."
+msgstr "Avvis dette varselet og deaktiver Jetpack."
+
+#: jetpack.php:1144 jetpack.php:1160
+msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
+msgstr "Jetpack inneholder den nyeste versjonen av det gamle &#8220;%1$s&#8221; innstikket"
+
+#: jetpack.php:977
+msgid "Jetpack requires WordPress version %s or later."
+msgstr "Jetpack krever WordPress versjon %s eller senere."
