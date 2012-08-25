@@ -704,6 +704,7 @@ class Share_Facebook extends Sharing_Source {
 				'fi_FI' => 100,
 				'it_IT' => 100,
 				'ja_JP' => 100,
+				'nl_NL' => 130,
 				'ru_RU' => 128,
 			);
 
