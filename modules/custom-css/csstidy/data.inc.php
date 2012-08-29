@@ -586,7 +586,7 @@ $GLOBALS['csstidy']['quoted_string_properties'] = array('content', 'font', 'font
  *
  * @global array $GLOBALS['csstidy']['quoted_string_properties']
  */
-$GLOBALS['csstidy']['multiple_properties'] = array('background', 'background-image');
+$GLOBALS['csstidy']['multiple_properties'] = array('background', 'background-image', 'transition');
 
 /**
  * An array containing all predefined templates.

@@ -29,6 +29,16 @@ foreach ( $GLOBALS['csstidy']['all_properties'] as $property => $levels ) {
 	}
 }
 
+foreach ( $GLOBALS['csstidy']['multiple_properties'] as $property ) {
+	if ( '-' != $property[0] ) {
+		$GLOBALS['csstidy']['multiple_properties'][] = '-o-' . $property;
+		$GLOBALS['csstidy']['multiple_properties'][] = '-ms-' . $property;
+		$GLOBALS['csstidy']['multiple_properties'][] = '-webkit-' . $property;
+		$GLOBALS['csstidy']['multiple_properties'][] = '-moz-' . $property;
+		$GLOBALS['csstidy']['multiple_properties'][] = '-khtml-' . $property;
+	}
+}
+
 /**
  * CSS Animation
  *
@@ -39,9 +49,12 @@ $GLOBALS['csstidy']['at_rules']['-moz-keyframes'] = 'at';
 $GLOBALS['csstidy']['at_rules']['-ms-keyframes'] = 'at';
 
 /**
- * Non-standard CSS properties.  They're not part of any spec, but we say 
+ * Non-standard CSS properties.  They're not part of any spec, but we say
  * they're in all of them so that we can support them.
  */
+$GLOBALS['csstidy']['all_properties']['-webkit-filter'] = 'CSS2.0,CSS2.1,CSS3.0';
+$GLOBALS['csstidy']['all_properties']['-moz-filter'] = 'CSS2.0,CSS2.1,CSS3.0';
+$GLOBALS['csstidy']['all_properties']['-ms-filter'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['filter'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['scrollbar-face-color'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['-ms-interpolation-mode'] = 'CSS2.0,CSS2.1,CSS3.0';
@@ -51,4 +64,8 @@ $GLOBALS['csstidy']['all_properties']['-webkit-transform-origin-y'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['-webkit-transform-origin-z'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['-webkit-font-smoothing'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['-font-smooth'] = 'CSS3.0';
-$GLOBALS['csstidy']['all_properties']['font-smoothing'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['-o-object-fit'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['object-fit'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['-o-object-position'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['object-position'] = 'CSS3.0';
+
