@@ -2592,7 +2592,7 @@ function wp_cache_catch_404() {
 add_action( 'template_redirect', 'wp_cache_catch_404' );
 
 function wp_cache_favorite_action( $actions ) {
-	if ( false == wpsupercache_site_admin() ) 
+	if ( false == wpsupercache_site_admin() )
 		return $actions;
 
 	if ( function_exists('current_user_can') && !current_user_can('manage_options') )
