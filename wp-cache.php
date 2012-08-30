@@ -304,7 +304,7 @@ function wp_cache_manager_error_checks() {
 		}
 	}
 
-	if ( function_exists( "is_main_site" ) && true == is_main_site() || function_exists( 'is_main_blog' ) && true == is_main_blog() ) {
+	if ( function_exists( "is_main_site" ) && true == is_main_site() ) {
 	$home_path = trailingslashit( get_home_path() );
 	$scrules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WPSuperCache' ) );
 	if ( $cache_enabled && $wp_cache_mod_rewrite && !$wp_cache_mobile_enabled && strpos( $scrules, addcslashes( implode( '|', $wp_cache_mobile_browsers ), ' ' ) ) ) {
@@ -1275,7 +1275,7 @@ function wsc_mod_rewrite() {
 	if ( isset( $wpmu_version ) || function_exists( 'is_multisite' ) && is_multisite() ) {
 		if ( false == wpsupercache_site_admin() )
 			return false;
-		if ( function_exists( "is_main_site" ) && false == is_main_site() || function_exists( 'is_main_blog' ) && false == is_main_blog() ) {
+		if ( function_exists( "is_main_site" ) && false == is_main_site() ) {
 			global $current_site;
 			$protocol = ( 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
 			if ( isset( $wpmu_version ) ) {
@@ -1288,7 +1288,7 @@ function wsc_mod_rewrite() {
 		}
 	}
 
-	if ( function_exists( "is_main_site" ) && false == is_main_site() || function_exists( 'is_main_blog' ) && false == is_main_blog() )
+	if ( function_exists( "is_main_site" ) && false == is_main_site() )
 		return true;
 	?>
 	<a name="modrewrite"></a><fieldset class="options"> 
