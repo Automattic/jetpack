@@ -1,10 +1,4 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- */
 
 /**
  * Twitter widget class
