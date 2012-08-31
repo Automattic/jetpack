@@ -32,7 +32,7 @@ function sharing_meta_box_content( $post ) {
 	<p>
 		<label for="enable_post_sharing">
 			<input type="checkbox" name="enable_post_sharing" id="enable_post_sharing" value="1" <?php checked( !$disabled ); ?>>
-			<?php printf( __( 'Show sharing buttons on this %s.' ), wpl_get_post_type_name() ); ?>
+			<?php _e( 'Show sharing buttons.' ); ?>
 		</label>
 		<input type="hidden" name="sharing_status_hidden" value="1" />
 	</p>
