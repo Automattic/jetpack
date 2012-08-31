@@ -41,31 +41,6 @@ function sharing_meta_box_content( $post ) {
 
 }
 
-/**
- * Get the singular name of the type of post.
- *
- * @return mixed|void
- */
-if ( ! function_exists( 'wpl_get_post_type_name' ) ) {
-	function wpl_get_post_type_name() {
-
-	        $post_type = get_post_type();
-
-	        if ( 'post' == $post_type ) {
-	                $post_type = __( 'post' );
-
-	        } elseif ( 'page' == $post_type ) {
-	                $post_type = __( 'page' );
-
-	        } else {
-	                $post_type = get_post_type_object( $post_type );
-	                $post_type = strtolower( $post_type->labels->singular_name );
-	        }
-
-	        return apply_filters( 'wpl_get_post_type_name', $post_type );
-	}
-}
-
 function sharing_meta_box_save( $post_id ) {
 	if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE )
 		return $post_id;
