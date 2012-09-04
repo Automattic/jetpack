@@ -229,6 +229,8 @@ function safecss_init() {
 
 		do_action( 'safecss_save_pre' );
 
+		$warnings = array();
+
 		safecss_class();
 		$csstidy = new csstidy();
 		$csstidy->optimise = new safecss($csstidy);
@@ -385,7 +387,7 @@ function safecss_style() {
 	if ( apply_filters( 'safecss_style_error', false ) )
 		return;
 
-	if ( ! is_super_admin() && ( 1 == $current_blog->spam || 1 == $current_blog->deleted ) )
+	if ( ! is_super_admin() && isset( $current_blog ) && ( 1 == $current_blog->spam || 1 == $current_blog->deleted ) )
 		return;
 
 	$option = safecss_is_preview() ? 'safecss_preview' : 'safecss';
