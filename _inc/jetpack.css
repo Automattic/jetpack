@@ -21,20 +21,27 @@
 			height: 70px;
 		}
 
-		#jp-header #jp-clouds #jp-disconnect {
+
+		#jp-header #jp-clouds #jp-disconnectors {
 			font-size: 12px;
 			color: #fff;
 			float: right;
-			margin: -35px 25px 0 0;
-			text-align: right;
+			margin-top: -35px;
+			text-align: left;
+			position: relative;
+			left: -45px;
 		}
 
-		#jp-header #jp-clouds #jp-disconnect a {
+		#jp-header #jp-clouds .jp-disconnect a {
 			background: #8caa46 url( images/status-light.png ) 3px 85% no-repeat;
 			display: inline-block;
-			padding: 4px 10px 3px 30px;
+			position: relative;
+			width: 100%;
+			height: 1.7em;
+			overflow: hidden;
+			padding: 4px 0 3px 30px;
+			margin: 0 -20px 3px 0;
 			color: #fff;
-			text-align: center;
 			text-decoration: none;
 			border: 1px solid #7a943d;
 			-moz-border-radius: 5px;
@@ -45,13 +52,22 @@
 			box-shadow: inset 0 0 2px rgba( 255, 255, 255, 0.4 );
 			text-shadow: 0px -1px 0px rgba( 0,0,0,0.3 );
 		}
-			#jp-header #jp-clouds #jp-disconnect a:hover {
-				background: #8caa46 url( images/status-light.png ) 3px 5% no-repeat;
+			#jp-header #jp-clouds .jp-disconnect a:hover {
+				background: #8caa46 url( images/status-light.png ) 3px -2% no-repeat;
 				background-color: #839f40;
 				border-color: #6a8037;
 			}
 
-			#jp-header #jp-clouds #jp-disconnect span { display: none; }
+			#jp-header #jp-clouds .jp-disconnect div {
+				position: relative;
+				line-height: 1.7em;
+				height: 1.7em;
+			}
+
+			#jp-header #jp-clouds .jp-disconnect a:hover div,
+			#jp-header #jp-clouds .jp-disconnect a.clicked div {
+				top: -1.7em;
+			}
 	
 	/* Retina Header Clouds & Status Light */
 	@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
@@ -64,12 +80,12 @@
 	    		background-size:980px 140px;
 	    	}
 	    	
-	    #jp-header #jp-clouds #jp-disconnect a {
+	    #jp-header #jp-clouds .jp-disconnect a {
 	    	background: #8caa46 url( images/status-light-2x.png ) 3px 85% no-repeat;
 	    	background-size:25px 57px;
 	    }
-	    	#jp-header #jp-clouds #jp-disconnect a:hover {
-	    		background: #8caa46 url( images/status-light-2x.png ) 3px 5% no-repeat;
+	    	#jp-header #jp-clouds .jp-disconnect a:hover {
+	    		background: #8caa46 url( images/status-light-2x.png ) 3px -2% no-repeat;
 	    		background-size:25px 57px;
 	    	}
 	}

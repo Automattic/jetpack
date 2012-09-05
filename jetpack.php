@@ -21,6 +21,8 @@ define( 'JETPACK__VERSION', '1.7' );
 define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) or define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'locales.php' );
 
+define( 'JETPACK_MASTER_USER', true );
+
 /*
 Options:
 jetpack_options (array)
@@ -135,6 +137,22 @@ class Jetpack {
 			}
 		}
 
+		// Upgrade from a single user token to a user_id-indexed array and a master_user ID
+		if ( !Jetpack::get_option( 'user_tokens' ) ) {
+			if ( $user_token = Jetpack::get_option( 'user_token' ) ) {
+				$token_parts = explode( '.', $user_token );
+				if ( isset( $token_parts[2] ) ) {
+					$master_user = $token_parts[2];
+					$user_tokens = array( $master_user => $user_token );
+					Jetpack::update_options( compact( 'master_user', 'user_tokens' ) );
+					Jetpack::delete_option( 'user_token' );
+				} else {
+					// @todo: is this even possible?
+					trigger_error( sprintf( 'Jetpack::plugin_upgrade found no user_id in user_token "%s"', $user_token ), E_USER_WARNING );
+				}
+			}
+		}
+
 		// Future: switch on version? If so, think twice before updating version/old_version.
 	}
 
@@ -197,11 +215,18 @@ class Jetpack {
 	 * Is Jetpack active?
 	 */
 	function is_active() {
-		return (bool) Jetpack_Data::get_access_token( 1 ); // 1 just means user token
+		return (bool) Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+	}
+
+	/**
+	 * Is the current user linked to a WordPress.com user?
+	 */
+	function is_user_connected() {
+		return (bool) Jetpack_Data::get_access_token( get_current_user_id() );
 	}
 
 	function current_user_is_connection_owner() {
-		$user_token = Jetpack_Data::get_access_token( 1 );
+		$user_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 		return $user_token && is_object( $user_token ) && isset( $user_token->external_user_id ) && get_current_user_id() === $user_token->external_user_id;
 	}
 
@@ -269,7 +294,9 @@ class Jetpack {
 		return array(
 			'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
 			'blog_token',                   // (string) The Client Secret/Blog Token of this site.
-			'user_token',                   // (string) The User Token of this site.
+			'user_token',                   // (string) The User Token of this site. (deprecated)
+			'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
+			'user_tokens',                  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
 			'version',                      // (string) Used during upgrade procedure to auto-activate new modules. version:time
 			'old_version',                  // (string) Used to determine which modules are the most recently added. previous_version:time
 			'fallback_no_verify_ssl_certs', // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
@@ -519,6 +546,28 @@ class Jetpack {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Enters a user token into the user_tokens option
+	 *
+	 * @param int $user_id
+	 * @param string $token
+	 * return bool
+	 */
+	function update_user_token( $user_id, $token, $is_master_user ) {
+		// not designed for concurrent updates
+		$user_tokens = Jetpack::get_option( 'user_tokens' );
+		if ( ! is_array( $user_tokens ) )
+			$user_tokens = array();
+		$user_tokens[$user_id] = $token;
+		if ( $is_master_user ) {
+			$master_user = $user_id;
+			$options = compact('user_tokens', 'master_user');
+		} else {
+			$options = compact('user_tokens');
+		}
+		return Jetpack::update_options( $options );
 	}
 
 	/**
@@ -1027,6 +1076,8 @@ p {
 			'register',
 			'blog_token',
 			'user_token',
+			'user_tokens',
+			'master_user',
 			'time_diff',
 			'fallback_no_verify_ssl_certs',
 		) );
@@ -1034,6 +1085,32 @@ p {
 		if ( $update_activated_state ) {
 			Jetpack::update_option( 'activated', 4 );
 		}
+	}
+
+	/**
+	 * Unlinks the current user from the linked WordPress.com user
+	 */
+	function unlink_user() {
+		if ( !$tokens = Jetpack::get_option( 'user_tokens' ) )
+			return false;
+
+		$user_id = get_current_user_id();
+
+		if ( Jetpack::get_option( 'master_user' ) == $user_id )
+			return false;
+
+		if ( !isset( $tokens[$user_id] ) )
+			return false;
+
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( compact( 'user_id' ) );
+		$xml->query( 'jetpack.unlink_user', $user_id );
+
+		unset( $tokens[$user_id] );
+
+		Jetpack::update_option( 'user_tokens', $tokens );
+
+		return true;
 	}
 
 	/**
@@ -1065,9 +1142,7 @@ p {
 			Jetpack::plugin_initialize();
 		}
 
-		$is_active = Jetpack::is_active();
-
-		if ( !$is_active ) {
+		if ( Jetpack::is_active() ) {
 			if ( 4 != Jetpack::get_option( 'activated' ) ) {
 				// Show connect notice on dashboard and plugins pages
 				add_action( 'load-index.php', array( $this, 'prepare_connect_notice' ) );
@@ -1090,7 +1165,7 @@ p {
 
 		add_action( 'wp_ajax_jetpack_debug', array( $this, 'ajax_debug' ) );
 
-		if ( $is_active ) {
+		if ( Jetpack::is_active() ) {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
 
@@ -1310,14 +1385,15 @@ p {
 
 	function admin_styles() {
 		global $wp_styles;
-		wp_enqueue_style( 'jetpack', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack.css' ), false, JETPACK__VERSION . '-20120701' );
+		wp_enqueue_style( 'jetpack', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack.css' ), false, JETPACK__VERSION . '-20120805' );
 		$wp_styles->add_data( 'jetpack', 'rtl', true );
 	}
 
 	function admin_scripts() {
-		wp_enqueue_script( 'jetpack-js', plugins_url( basename( dirname( __FILE__ ) ) ) . '/_inc/jetpack.js', array( 'jquery' ), JETPACK__VERSION . '-20111115' );
+		wp_enqueue_script( 'jetpack-js', plugins_url( basename( dirname( __FILE__ ) ) ) . '/_inc/jetpack.js', array( 'jquery' ), JETPACK__VERSION . '-20120805' );
 		wp_localize_script( 'jetpack-js', 'jetpackL10n', array(
 				'ays_disconnect' => "This will deactivate all Jetpack modules.\nAre you sure you want to disconnect?",
+				'ays_unlink'     => "This will stop sending notifications for this user.\nAre you sure you want to unlink?",
 				'ays_dismiss'    => "This will deactivate Jetpack.\nAre you sure you want to deactivate Jetpack?",
 			) );
 		add_action( 'admin_footer', array( $this, 'do_stats' ) );
@@ -1436,7 +1512,7 @@ p {
 	 * 8 - Jetpack_Client_Server::authorize()
 	 * 9 - Jetpack_Client_Server::get_token()
 	 * 10- GET https://jetpack.wordpress.com/jetpack.token/1/ with
-	 *     client_id, client_secret, grant_type, code, redirect_uri:action=authorize, state, scope, user_email
+	 *     client_id, client_secret, grant_type, code, redirect_uri:action=authorize, state, scope, user_email, user_login
 	 * 11- which responds with
 	 *     access_token, token_type, scope
 	 * 12- Jetpack_Client_Server::authorize() stores jetpack_options: user_token => access_token.$user_id
@@ -1462,7 +1538,7 @@ p {
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
 			case 'authorize' :
-				if ( Jetpack::is_active() ) {
+				if ( Jetpack::is_active() && Jetpack::is_user_connected() ) {
 					Jetpack::state( 'message', 'already_authorized' );
 					wp_safe_redirect( Jetpack::admin_url() );
 					exit;
@@ -1507,6 +1583,12 @@ p {
 				Jetpack::deactivate_module( $module );
 				Jetpack::state( 'message', 'module_deactivated' );
 				Jetpack::state( 'module', $module );
+				wp_safe_redirect( Jetpack::admin_url() );
+				exit;
+			case 'unlink' :
+				check_admin_referer( 'jetpack-unlink' );
+				$this->unlink_user();
+				Jetpack::state( 'message', 'unlinked' );
 				wp_safe_redirect( Jetpack::admin_url() );
 				exit;
 			}
@@ -1686,6 +1768,16 @@ p {
 			$this->message .= __( 'The features below are now active. Click the learn more buttons to explore each feature.', 'jetpack' );
 			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
+
+		case 'linked' :
+			$this->message  = __( "<strong>You&#8217;re fueled up and ready to go.</strong> ", 'jetpack' );
+			$this->message .= Jetpack::jetpack_comment_notice();
+			break;
+
+		case 'unlinked' :
+			$user = wp_get_current_user();
+			$this->message = sprintf( __( '<strong>You have unlinked your account (%s) from WordPress.com.</strong>', 'jetpack' ), $user->user_login );
+			break;
 		}
 
 		$deactivated_plugins = Jetpack::state( 'deactivated_plugins' );
@@ -1805,7 +1897,7 @@ p {
 			return false;
 		}
 
-		$token = Jetpack_Data::get_access_token( 0 );
+		$token = Jetpack_Data::get_access_token();
 		if ( !$token || is_wp_error( $token ) ) {
 			return false;
 		}
@@ -1832,6 +1924,7 @@ p {
 				'state' => $user->ID,
 				'scope' => $signed_role,
 				'user_email' => $user->user_email,
+				'user_login' => $user->user_login,
 			) );
 
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
@@ -1863,6 +1956,9 @@ p {
 
 		$role = $this->translate_current_user_to_role();
 		$is_connected = Jetpack::is_active();
+		$user_token = Jetpack_Data::get_access_token($current_user->ID);
+		$is_user_connected = $user_token && !is_wp_error($user_token);
+		$is_master_user = $current_user->ID == Jetpack::get_option( 'master_user' );
 		$module = false;
 	?>
 		<div class="wrap" id="jetpack-settings">
@@ -1872,9 +1968,15 @@ p {
 			<div id="jp-header"<?php if ( $is_connected ) : ?> class="small"<?php endif; ?>>
 				<div id="jp-clouds">
 					<?php if ( $is_connected ) : ?>
-					<div id="jp-disconnect">
-						<a href="<?php echo wp_nonce_url( Jetpack::admin_url( array( 'action' => 'disconnect' ) ), 'jetpack-disconnect' ); ?>"><?php _e( 'Connected to WordPress.com', 'jetpack' ); ?></a>
-						<span><?php _e( 'Disconnect from WordPress.com', 'jetpack' ) ?></span>
+					<div id="jp-disconnectors">
+					<div id="jp-disconnect" class="jp-disconnect">
+						<a href="<?php echo wp_nonce_url( Jetpack::admin_url( array( 'action' => 'disconnect' ) ), 'jetpack-disconnect' ); ?>"><div class="deftext"><?php _e( 'Connected to WordPress.com', 'jetpack' ); ?></div><div class="hovertext"><?php _e( 'Disconnect from WordPress.com', 'jetpack' ) ?></div></a>
+					</div>
+						<?php if ( $is_user_connected && !$is_master_user ) : ?>
+						<div id="jp-unlink" class="jp-disconnect">
+							<a href="<?php echo wp_nonce_url( Jetpack::admin_url( array( 'action' => 'unlink' ) ), 'jetpack-unlink' ); ?>"><div class="deftext"><?php _e( 'User linked to WordPress.com', 'jetpack' ); ?></div><div class="hovertext"><?php _e( 'Unlink user from WordPress.com', 'jetpack' ) ?></div></a>
+						</div>
+						<?php endif; ?>
 					</div>
 					<?php endif; ?>
 					<h3><?php _e( 'Jetpack by WordPress.com', 'jetpack' ) ?></h3>
@@ -1913,6 +2015,23 @@ p {
 					</div>
 				</div>
 
+			<?php elseif ( ! $is_user_connected ) : ?>
+
+				<div id="message" class="updated jetpack-message jp-connect">
+					<div class="jetpack-wrap-container">
+						<div class="jetpack-text-container">
+							<h4>
+								<p><?php _e( "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right.", 'jetpack' ) ?></p>
+							</h4>
+						</div>
+						<div class="jetpack-install-container">
+							<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link accounts with WordPress.com', 'jetpack' ); ?></a></p>
+						</div>
+					</div>
+				</div>
+
+			<?php else /* blog and user are connected */ : ?>
+				<?php /* TODO: if not master user, show user disconnect button? */ ?>
 			<?php endif; ?>
 
 			<?php
@@ -2000,10 +2119,20 @@ p {
 		<p><?php esc_html_e( 'This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords.', 'jetpack' ); ?></p>
 		<ul>
 		<?php
+		// Extract the current_user's token
+		$user_id = get_current_user_id();
+		$user_tokens = Jetpack::get_option( 'user_tokens' );
+		if ( is_array( $user_tokens ) && array_key_exists( $user_id, $user_tokens ) ) {
+			$user_token = $user_tokens[$user_id];
+		} else {
+			$user_token = '[this user has no token]';
+		}
+		unset( $user_tokens );
+
 		foreach ( array(
 			'CLIENT_ID'   => 'id',
 			'BLOG_TOKEN'  => 'blog_token',
-			'USER_TOKEN'  => 'user_token',
+			'MASTER_USER' => 'master_user',
 			'CERT'        => 'fallback_no_verify_ssl_certs',
 			'TIME_DIFF'   => 'time_diff',
 			'VERSION'     => 'version',
@@ -2012,6 +2141,8 @@ p {
 		?>
 			<li><?php echo esc_html( $label ); ?>: <code><?php echo esc_html( Jetpack::get_option( $option_name ) ); ?></code></li>
 		<?php endforeach; ?>
+			<li>USER_ID: <code><?php echo esc_html( $user_id ); ?></code></li>
+			<li>USER_TOKEN: <code><?php echo esc_html( $user_token ); ?></code></li>
 			<li>PHP_VERSION: <code><?php echo esc_html( PHP_VERSION ); ?></code></li>
 			<li>WORDPRESS_VERSION: <code><?php echo esc_html( $GLOBALS['wp_version'] ); ?></code></li>
 		</ul>
@@ -2627,7 +2758,7 @@ class Jetpack_Client {
 			$args['auth_location'] = 'query_string';
 		}
 
-		$token = Jetpack_Data::get_access_token( $args );
+		$token = Jetpack_Data::get_access_token( $args['user_id'] );
 		if ( !$token ) {
 			return new Jetpack_Error( 'missing_token' );
 		}
@@ -2821,20 +2952,26 @@ class Jetpack_Data {
 	 * @static
 	 * @return object|false
 	 */
-	function get_access_token( $args ) {
-		if ( is_numeric( $args ) ) {
-			$args = array( 'user_id' => $args );
-		}
-
-		if ( $args['user_id'] ) {
-			if ( !$token = Jetpack::get_option( 'user_token' ) ) {
+	function get_access_token( $user_id = false ) {
+		if ( $user_id ) {
+			if ( !$tokens = Jetpack::get_option( 'user_tokens' ) ) {
+				return false;
+			}
+			if ( $user_id === JETPACK_MASTER_USER ) {
+				if ( !$user_id = Jetpack::get_option( 'master_user' ) ) {
+					return false;
+				}
+			}
+			if ( !$token = $tokens[$user_id] ) {
 				return false;
 			}
 			$token_chunks = explode( '.', $token );
 			if ( empty( $token_chunks[1] ) || empty( $token_chunks[2] ) ) {
 				return false;
 			}
-			$args['user_id'] = $token_chunks[2];
+			if ( $user_id != $token_chunks[2] ) {
+				return false;
+			}
 			$token = "{$token_chunks[0]}.{$token_chunks[1]}";
 		} else {
 			$token = Jetpack::get_option( 'blog_token' );
@@ -2845,7 +2982,7 @@ class Jetpack_Data {
 
 		return (object) array(
 			'secret' => $token,
-			'external_user_id' => (int) $args['user_id'],
+			'external_user_id' => (int) $user_id,
 		);
 	}
 }
@@ -2922,8 +3059,18 @@ class Jetpack_Client_Server {
 				break;
 			}
 
-			Jetpack::update_option( 'user_token', sprintf( '%s.%d', $token, $current_user_id ), true );
-			Jetpack::state( 'message', 'authorized' );
+			$is_master_user = ! Jetpack::is_active();
+
+			Jetpack::update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_master_user );
+
+
+			if ( $is_master_user ) {
+				Jetpack::state( 'message', 'authorized' );
+			} else {
+				Jetpack::state( 'message', 'linked' );
+				// Don't activate anything since we are just connecting a user.
+				break;
+			}
 
 			if ( $active_modules = Jetpack::get_option( 'active_modules' ) ) {
 				Jetpack::delete_option( 'active_modules' );
@@ -2972,7 +3119,7 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
 		}
 
-		$client_secret = Jetpack_Data::get_access_token( 0 );
+		$client_secret = Jetpack_Data::get_access_token();
 		if ( !$client_secret ) {
 			return new Jetpack_Error( 'client_secret', __( 'You need to register your Jetpack before connecting it.', 'jetpack' ) );
 		}
