@@ -82,6 +82,9 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= trunk =
+* Enhancement: Multiuser: Allow multiple users to link their accounts to WordPress.com accounts.
+
 = 1.7 =
 * Enhancement: CSS Editor: Customize your site's design without modifying your theme.
 * Enhancement: Comments: Submit the comment within the iframe.  No more full page load to jetpack.wordpress.com.
