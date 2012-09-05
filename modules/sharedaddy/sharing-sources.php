@@ -699,7 +699,7 @@ class Share_Facebook extends Sharing_Source {
 				'bg_BG' => 120,
 				'de_DE' => 120,
 				'da_DK' => 120,
-				'es_ES' => 110,
+				'es_ES' => 122,
 				'es_LA' => 110,
 				'fi_FI' => 100,
 				'it_IT' => 100,
