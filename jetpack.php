@@ -1142,7 +1142,7 @@ p {
 			Jetpack::plugin_initialize();
 		}
 
-		if ( Jetpack::is_active() ) {
+		if ( !Jetpack::is_active() ) {
 			if ( 4 != Jetpack::get_option( 'activated' ) ) {
 				// Show connect notice on dashboard and plugins pages
 				add_action( 'load-index.php', array( $this, 'prepare_connect_notice' ) );
