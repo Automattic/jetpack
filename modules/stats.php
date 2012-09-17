@@ -417,8 +417,11 @@ function stats_reports_page() {
 		if ( !empty( $get['headers']['content-type'] ) ) {
 			$type = $get['headers']['content-type'];
 			if ( substr( $type, 0, 5 ) == 'image' ) {
+				$img = $get['body'];
 				header( 'Content-Type: ' . $type );
-				die( $get['body'] );
+				header( 'Content-Length: ' . strlen( $img ) );
+				echo $img;
+				die();
 			}
 		}
 		$body = stats_convert_post_titles( $get['body'] );
