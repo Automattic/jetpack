@@ -152,6 +152,9 @@ function save_revision( $css, $is_preview = false ) {
 
 	// If null, there was no original safecss record, so create one
 	if ( null == $safecss_post ) {
+		if ( ! $css )
+			return true;
+
 		$post = array();
 		$post['post_content'] = $css;
 		$post['post_title'] = 'safecss';
@@ -175,7 +178,9 @@ function save_revision( $css, $is_preview = false ) {
 }
 
 function safecss_skip_stylesheet() {
-	if ( safecss_is_preview() )
+	if ( custom_css_is_customizer_preview() )
+		return false;
+	else if ( safecss_is_preview() )
 		return (bool) ( get_option('safecss_preview_add') == 'no' );
 	else
 		return (bool) ( get_option('safecss_add') == 'no' );
@@ -390,6 +395,9 @@ function safecss_style() {
 	if ( ! is_super_admin() && isset( $current_blog ) && ( 1 == $current_blog->spam || 1 == $current_blog->deleted ) )
 		return;
 
+	if ( custom_css_is_customizer_preview() )
+		return;
+
 	$option = safecss_is_preview() ? 'safecss_preview' : 'safecss';
 
 	if ( 'safecss' == $option ) {
@@ -566,78 +574,24 @@ function safecss_class() {
 	// Wrapped so we don't need the parent class just to load the plugin
 	if ( class_exists('safecss') )
 		return;
-	require_once('csstidy/class.csstidy.php');
-	class safecss extends csstidy_optimise {
-		var $tales = array();
-		var $props_w_urls = array('background', 'background-image', 'list-style', 'list-style-image');
-		var $allowed_protocols = array('http');
 
-		function safecss(&$css) {
-			return $this->csstidy_optimise($css);
+	require_once( 'csstidy/class.csstidy.php' );
+
+	class safecss extends csstidy_optimise {
+		function safecss( &$css ) {
+			return $this->csstidy_optimise( $css );
 		}
 
 		function postparse() {
-			if ( !empty($this->parser->import) ) {
-				$this->tattle("Import attempt:\n".print_r($this->parser->import,1));
-				$this->parser->import = array();
-			}
-			if ( !empty($this->parser->charset) ) {
-				$this->tattle("Charset attempt:\n".print_r($this->parser->charset,1));
-				$this->parser->charset = array();
-			}
+			do_action( 'csstidy_optimize_postparse', $this );
+
 			return parent::postparse();
 		}
 
 		function subvalue() {
-			$this->sub_value = trim($this->sub_value);
-
-			// Send any urls through our filter
-			if ( preg_match('!^\s*(?P<url_expression>url\s*(?P<opening_paren>\(|\\0028)(?P<parenthetical_content>.*)(?P<closing_paren>\)|\\0029))(.*)$!Dis', $this->sub_value, $matches) ) {
-				$this->sub_value = $this->clean_url( $matches['parenthetical_content'] );
-
-				// Only replace the url([...]) portion of the sub_value so we don't
-				// lose things like trailing commas or !important declarations.
-				if ( $this->sub_value ) $this->sub_value = str_replace( $matches['url_expression'], $this->sub_value, $matches[0] );
-			}
-
-			// Strip any expressions
-			if ( preg_match('!^\\s*expression!Dis', $this->sub_value) ) {
-				$this->tattle("Expression attempt: $this->sub_value");
-				$this->sub_value = '';
-			}
+			do_action( 'csstidy_optimize_subvalue', $this );
 
 			return parent::subvalue();
-		}
-
-		function clean_url($url) {
-			// Clean up the string
-			$url = trim($url, "' \" \r \n");
-
-			// Check against whitelist for properties allowed to have URL values
-			if ( ! in_array(trim($this->property), $this->props_w_urls) ) { 
-				// trim() is because multiple properties with the same name are stored with 
-				// additional trailing whitespace so they don't overwrite each other in the hash.
-				$this->tattle('URL in illegal property ' . $this->property . ":\n$url");
-				return '';
-			}
-
-			$url = wp_kses_bad_protocol_once($url, $this->allowed_protocols);
-
-			if ( empty($url) ) {
-				$this->tattle('URL empty');
-				return '';
-			}
-
-			return "url('" . str_replace( "'", "\\'", $url ) . "')";
-		}
-
-		function tattle($msg, $send=false) {
-			if ( $msg )
-				$this->tales [] = $msg;
-
-			if ( $send && $this->tales ) {
-				do_action( 'safecss_tattle', $this );
-			}
 		}
 	}
 }
@@ -890,4 +844,19 @@ function safecss_filter_attr($css, $element = 'div') {
 function disable_safecss_style() {
 	remove_action( 'wp_head', 'safecss_style', 101 );
 	remove_filter( 'stylesheet_uri', 'safecss_style_filter' );
+}
+
+function custom_css_reset() {
+	save_revision( '' );
+	update_option( 'safecss_rev', intval( get_option( 'safecss_rev' ) ) + 1 );
+	update_option( 'safecss_add', 'yes' );
+}
+
+add_action( 'switch_theme', 'custom_css_reset' );
+
+function custom_css_is_customizer_preview() {
+	if ( isset ( $GLOBALS['wp_customize'] ) )
+		return ! $GLOBALS['wp_customize']->is_theme_active();
+
+	return false;
 }
