@@ -1133,7 +1133,7 @@ class Share_Pinterest extends Sharing_Source {
 			}
 		}
 
-		return $image;
+		return htmlspecialchars_decode( $image );
 	}
 
 	public function get_display( $post ) {
