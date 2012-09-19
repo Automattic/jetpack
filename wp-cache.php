@@ -2888,7 +2888,7 @@ function wp_cron_preload_cache() {
 					$out = '';
 					$records = get_terms( $taxonomy );
 					foreach( $records as $term ) {
-						$out .= site_url( $path . "/" . $term->slug . "/" ) . "\n";
+						$out .= get_term_link( $term ). "\n";
 					}
 					$fp = fopen( $taxonomy_filename, 'w' );
 					if ( $fp ) {
