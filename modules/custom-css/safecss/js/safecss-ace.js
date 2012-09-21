@@ -43,7 +43,7 @@
 	}
 
 	// exit if we're on IE <= 7
-	if ( $.browser.msie && parseInt( $.browser.version, 10 ) <= 7 ) {
+	if ( ( $.browser.msie && parseInt( $.browser.version, 10 ) <= 7 ) || navigator.userAgent.match(/iPad/i) != null ) {
 		$("#safecss-container").hide();
 		$("#safecss").removeClass('hide-if-js');
 		return false;
