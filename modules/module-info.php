@@ -499,3 +499,25 @@ function jetpack_custom_css_more_button() {
 add_action( 'jetpack_learn_more_button_custom-css', 'jetpack_custom_css_more_button' );
 add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info' );
 // Custom CSS: STOP
+
+// Minileven: START
+function jetpack_minileven_more_info() {
+	?>
+	<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/minileven.png' ) ?>" alt="<?php esc_attr_e( 'Mobile Theme', 'jetpack' ) ?>" width="300" height="150" />
+	</div>
+
+	<h4><?php esc_html_e( 'Mobile Theme', 'jetpack' ); ?></h4>
+	<p><?php esc_html_e( "There's a good chance that visitors to your site will be using a smartphone, and it's important to provide them with a great reading experience while on the small screen.", 'jetpack' ); ?></p>
+	<p><?php esc_html_e( "Jetpack's mobile theme is optimized for small screens. It uses the header image, background, and widgets from your current theme for a great custom look. Post format support is included, so your photos and galleries will look fantastic on a smartphone.", 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'Visitors on iPhone, Android, Windows Phone, and other mobile devices will automatically see the mobile theme, with the option to view the full site. You can enable or disable the mobile theme by clicking the "Activate" or "Deactive" button above.', 'jetpack' ); ?></p>
+	<?php
+}
+
+function jetpack_minileven_more_button() {
+	echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+
+add_action( 'jetpack_learn_more_button_minileven', 'jetpack_minileven_more_button' );
+add_action( 'jetpack_module_more_info_minileven', 'jetpack_minileven_more_info' );
+// Minileven: STOP

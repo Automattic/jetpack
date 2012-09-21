@@ -699,6 +699,7 @@ class Jetpack {
 			switch ( $module ) {
 			case 'comments' :
 			case 'carousel' :
+			case 'minileven':
 				continue;
 			default :
 				$return[] = $module;
