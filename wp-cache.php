@@ -1202,10 +1202,8 @@ jQuery(document).ready(function(){
 		?></ol>
 		<small><?php _e( '(may not always be accurate on busy sites)', 'wp-super-cache' ); ?></small>
 		</p><?php 
-	} else {
-		$start_date = get_option( 'wpsupercache_start' );
-		if ( $start_date ) {
-			update_option( 'wpsupercache_start', $start_date );
+	} elseif ( false == get_option( 'wpsupercache_start' ) ) {
+			update_option( 'wpsupercache_start', time() );
 			update_option( 'wpsupercache_count', 0 );
 		}
 	}
