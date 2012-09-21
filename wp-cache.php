@@ -1205,7 +1205,6 @@ jQuery(document).ready(function(){
 	} elseif ( false == get_option( 'wpsupercache_start' ) ) {
 			update_option( 'wpsupercache_start', time() );
 			update_option( 'wpsupercache_count', 0 );
-		}
 	}
 	?>
 	</div>
