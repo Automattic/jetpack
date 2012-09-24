@@ -504,7 +504,7 @@ add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info
 function jetpack_minileven_more_info() {
 	?>
 	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/minileven.png' ) ?>" alt="<?php esc_attr_e( 'Mobile Theme', 'jetpack' ) ?>" width="300" height="150" />
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/mobile-theme.png' ) ?>" alt="<?php esc_attr_e( 'Mobile Theme', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
 	<h4><?php esc_html_e( 'Mobile Theme', 'jetpack' ); ?></h4>
