@@ -108,7 +108,7 @@ add_filter( 'get_edit_post_link', 'safecss_revision_post_link', 10, 3 );
  */
 function get_safecss_post() {
 	$safecss_post = array();
-	$a = array_shift( get_posts( array( 'numberposts' => 1, 'post_type' => 'safecss', 'post_status' => 'publish' ) ) );
+	$a = array_shift( get_posts( array( 'posts_per_page' => 1, 'post_type' => 'safecss', 'post_status' => 'publish', 'orderby' => 'date', 'order' => 'DESC' ) ) );
 	if ( $a )
 		$safecss_post = get_object_vars( $a ); // needed for php 5.3
 	return $safecss_post;
@@ -126,10 +126,10 @@ function get_current_revision() {
 		return false;
 	}
 
-	$revisions = wp_get_post_revisions( $safecss_post['ID'], 'orderby=ID&order=DESC&limit=1' );
+	$revisions = wp_get_post_revisions( $safecss_post['ID'], array( 'posts_per_page' => 1, 'orderby' => 'date', 'order' => 'DESC' ) );
 
 	// Empty array if no revisions exist
-	if ( empty( $revisions) ) {
+	if ( empty( $revisions ) ) {
 		// Return original post
 		return $safecss_post;
 	} else {
@@ -161,12 +161,25 @@ function save_revision( $css, $is_preview = false ) {
 		$post['post_status'] = 'publish';
 		$post['post_type'] = 'safecss';
 
+		// Set excerpt to current theme, for display in revisions list
+		$post['post_excerpt'] = get_current_theme();
+
 		// Insert the CSS into wp_posts
 		$post_id = wp_insert_post( $post );
 		return true;
 	}
 
+	// Update CSS in post array with new value passed to this function
 	$safecss_post['post_content'] = $css;
+
+	// Set excerpt to current theme, for display in revisions list
+	$safecss_post['post_excerpt'] = get_current_theme();
+
+	// Don't carry over last revision's timestamps, otherwise revisions all have matching timestamps
+	unset( $safecss_post['post_date'] );
+	unset( $safecss_post['post_date_gmt'] );
+	unset( $safecss_post['post_modified'] );
+	unset( $safecss_post['post_modified_gmt'] );
 
 	// Do not update post if we are only saving a preview
 	if ( false === $is_preview ) {
@@ -189,18 +202,28 @@ function safecss_skip_stylesheet() {
 function safecss_init() {
 	define( 'SAFECSS_USE_ACE', apply_filters( 'safecss_use_ace', true ) );
 
-	// Register safecss as a custom post_type
-	register_post_type( 'safecss', array(
+  	// Register safecss as a custom post_type
+  	// Explicit capability definitions are largely unnecessary because the posts are manipulated in code via an options page, managing CSS revisions does check the capabilities, so let's ensure that the proper caps are checked.
+  	register_post_type( 'safecss', array(
 //		These are the defaults
 //		'exclude_from_search' => true,
 //		'public' => false,
 //		'publicly_queryable' => false,
 //		'show_ui' => false,
-		'supports' => array( 'revisions' ),
-		'label' => 'Custom CSS',
-		'can_export' => false,
-		'rewrite' => false,
-	) );
+  		'supports' => array( 'revisions' ),
+  		'label' => 'Custom CSS',
+  		'can_export' => false,
+  		'rewrite' => false,
+  		'capabilities' => array(
+  			'edit_post' => 'edit_theme_options',
+  			'read_post' => 'read',
+  			'delete_post' => 'edit_theme_options',
+  			'edit_posts' => 'edit_theme_options',
+  			'edit_others_posts' => 'edit_theme_options',
+  			'publish_posts' => 'edit_theme_options',
+  			'read_private_posts' => 'read'
+  		)
+  	) );
 
 	// Short-circuit WP if this is a CSS stylesheet request
 	if ( isset( $_GET['custom-css'] ) ) {
@@ -722,89 +745,137 @@ function safecss_saved() {
 function safecss_admin() {
 ?>
 <div class="wrap">
-<?php do_action( 'custom_design_header' ); ?>
-<div id="poststuff" class="has-right-sidebar">
-<h2><?php _e( 'CSS Stylesheet Editor', 'jetpack' ); ?></h2>
-<p class="css-support"><?php echo apply_filters( 'safecss_intro_text', __( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/">beginner tutorial</a>. Questions? 
-Ask in the <a href="http://wordpress.org/support/forum/themes-and-templates">Themes and Templates forum</a>.', 'jetpack' ) ); ?></p>
+	<?php do_action( 'custom_design_header' ); ?>
+	<div id="poststuff" class="has-right-sidebar">
+	<h2><?php _e( 'CSS Stylesheet Editor', 'jetpack' ); ?></h2>
+	<p class="css-support"><?php echo apply_filters( 'safecss_intro_text', __( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/">beginner tutorial</a>. Questions?
+	Ask in the <a href="http://wordpress.org/support/forum/themes-and-templates">Themes and Templates forum</a>.', 'jetpack' ) ); ?></p>
 
-<form id="safecssform" action="" method="post">
-	<?php if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) : ?>
-		<div id="safecss-container">
-			<div id="safecss-ace"></div>
-		</div>
-		<script type="text/javascript">
-			jQuery.fn.spin && jQuery("#safecss-container").spin( 'large' );
-		</script>
-		<textarea id="safecss" name="safecss" class="hide-if-js"><?php echo esc_textarea( safecss() ); ?></textarea>
-		<div class="clear"></div>
-	<?php else : ?>
-	<p><textarea id="safecss" name="safecss"><?php echo str_replace('</textarea>', '&lt;/textarea&gt', safecss()); ?></textarea></p>
-	<?php endif; ?>
-	<p class="submit">
-		<span>
-			<input type="hidden" name="action" value="save" />
-			<?php wp_nonce_field( 'safecss' ) ?>
-			<input type="button" class="button" id="preview" name="preview" value="<?php esc_attr_e( 'Preview', 'jetpack' ) ?>" />
-			<input type="submit" class="button-primary" id="save" name="save" value="<?php ( safecss_is_freetrial() ) ? esc_attr_e( 'Save Stylesheet &amp; Buy Upgrade', 'jetpack' ) : esc_attr_e( 'Save Stylesheet', 'jetpack' ); ?>" />
-			<?php wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false ); ?>
-		</span>
-	</p>
-
-	<?php
-	function custom_css_meta_box() {
-		$custom_content_width = intval( get_option('safecss_content_width' ) );
-		// If custom content width hasn't been overridden and the theme has a content_width value, use that as a default.
-		if ( $custom_content_width <= 0 && ! empty( $GLOBALS['content_width'] ) )
-			$custom_content_width = intval( $GLOBALS['content_width'] );
-	?>
-		<p class="css-settings">
-			<label><input type="radio" name="add_to_existing" value="true" <?php checked( get_option( 'safecss_add' ) != 'no' ); ?> /> <?php printf( __( 'Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet.', 'jetpack' ), get_current_theme() ); ?></label><br />
-			<label><input type="radio" name="add_to_existing" value="false" <?php checked( get_option( 'safecss_add' ) == 'no' ); ?> /> <?php printf( __( 'Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with my own CSS.', 'jetpack' ), get_current_theme() ); ?></label>
+	<form id="safecssform" action="" method="post">
+		<?php if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) : ?>
+			<div id="safecss-container">
+				<div id="safecss-ace"></div>
+			</div>
+			<script type="text/javascript">
+				jQuery.fn.spin && jQuery("#safecss-container").spin( 'large' );
+			</script>
+			<textarea id="safecss" name="safecss" class="hide-if-js"><?php echo esc_textarea( safecss() ); ?></textarea>
+			<div class="clear"></div>
+		<?php else : ?>
+		<p><textarea id="safecss" name="safecss"><?php echo str_replace('</textarea>', '&lt;/textarea&gt', safecss()); ?></textarea></p>
+		<?php endif; ?>
+		<p class="submit">
+			<span>
+				<input type="hidden" name="action" value="save" />
+				<?php wp_nonce_field( 'safecss' ) ?>
+				<input type="button" class="button" id="preview" name="preview" value="<?php esc_attr_e( 'Preview', 'jetpack' ) ?>" />
+				<input type="submit" class="button-primary" id="save" name="save" value="<?php ( safecss_is_freetrial() ) ? esc_attr_e( 'Save Stylesheet &amp; Buy Upgrade', 'jetpack' ) : esc_attr_e( 'Save Stylesheet', 'jetpack' ); ?>" />
+				<?php wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false ); ?>
+			</span>
 		</p>
-		<p><?php printf( __( '<a href="%s">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor.', 'jetpack' ), apply_filters( 'safecss_theme_stylesheet_url', get_bloginfo( 'stylesheet_directory' ) . '/style.css' ), get_current_theme() ); ?></p>
-		<p class="custom_content_width" style="display: none;">
-			<label for="custom_content_width"><?php _e( 'Limit width to', 'jetpack' ); ?></label><input type="text" name="custom_content_width" id="custom_content_width" value="<?php echo esc_attr( $custom_content_width ); ?>" size=5 /> <?php printf( __( 'pixels for videos, full size images, and other shortcodes. (<a href="%s">More info</a>.)', 'jetpack' ), apply_filters( 'safecss_limit_width_link', 'http://jetpack.me/support/custom-css/#limited-width' ) ); ?>
-		<?php if ( !empty( $GLOBALS['content_width'] ) && $custom_content_width != $GLOBALS['content_width'] ) printf( __( 'The default content width for the %s theme is %d pixels.', 'jetpack' ), get_current_theme(), intval( $GLOBALS['content_width'] ) ); ?>
-		</p>
-	<?php
-	}
 
-	add_meta_box( 'settingsdiv', __( 'CSS Settings', 'jetpack' ), 'custom_css_meta_box', 'editcss', 'normal' );
+		<?php add_meta_box( 'settingsdiv', __( 'CSS Settings', 'jetpack' ), 'custom_css_meta_box', 'editcss', 'normal' ); ?>
 
-	?>
+		<?php
+		$safecss_post = get_safecss_post();
 
+		if ( ! empty( $safecss_post ) && 0 < $safecss_post['ID'] && wp_get_post_revisions( $safecss_post['ID'] ) ) {
+			echo '<div id="side-info-column" class="inner-sidebar">';
+			add_meta_box( 'revisionsdiv', __( 'CSS Revisions', 'jetpack' ), 'custom_css_post_revisions_meta_box', 'editcss', 'side' );
+			do_meta_boxes( 'editcss', 'side', $safecss_post );
+			echo '</div>';
+
+			echo '<div id="post-body"><div id="post-body-content">';
+			do_meta_boxes( 'editcss', 'normal', $safecss_post );
+			echo '</div></div>';
+			echo '<div class="clear"></div>';
+		} else {
+			do_meta_boxes( 'editcss', 'normal', $safecss_post );
+		}
+		?>
+		</form>
+	</div>
+</div>
 <?php
-$safecss_post = get_safecss_post();
-
-if ( ! empty( $safecss_post ) && 0 < $safecss_post['ID'] && wp_get_post_revisions( $safecss_post['ID'] ) ) {
-	function post_revisions_meta_box( $safecss_post ) {
-		// Specify numberposts and ordering args
-		$args = array( 'numberposts' => 6, 'orderby' => 'ID', 'order' => 'DESC' );
-		// Remove numberposts from args if show_all_rev is specified
-		if ( isset( $_GET['show_all_rev'] ) )
-			unset( $args['numberposts'] );
-
-		wp_list_post_revisions( $safecss_post['ID'], $args );
-	}
-
-	echo '<div id="side-info-column" class="inner-sidebar">';
-	add_meta_box( 'revisionsdiv', __( 'CSS Revisions', 'jetpack' ), 'post_revisions_meta_box', 'editcss', 'side' );
-	do_meta_boxes( 'editcss', 'side', $safecss_post );
-	echo '</div>';
-
-	echo '<div id="post-body"><div id="post-body-content">';
-	do_meta_boxes( 'editcss', 'normal', $safecss_post );
-	echo '</div></div>';
-	echo '<div class="clear"></div>';
-} else {
-	do_meta_boxes( 'editcss', 'normal', $safecss_post );
 }
+
+/**
+ * Render CSS Settings metabox
+ * Called by `safecss_admin`
+ *
+ * @uses get_option, checked, __, get_current_theme, apply_filters, get_stylesheet_uri, _e, esc_attr
+ * @return string
+ */
+function custom_css_meta_box() {
+	$custom_content_width = intval( get_option( 'safecss_content_width' ) );
+	// If custom content width hasn't been overridden and the theme has a content_width value, use that as a default.
+	if ( $custom_content_width <= 0 && ! empty( $GLOBALS['content_width'] ) )
+		$custom_content_width = intval( $GLOBALS['content_width'] );
 ?>
-</form>
-</div>
-</div>
+	<p class="css-settings">
+		<label><input type="radio" name="add_to_existing" value="true" <?php checked( get_option( 'safecss_add' ) != 'no' ); ?> /> <?php printf( __( 'Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet.', 'jetpack' ), get_current_theme() ); ?></label><br />
+		<label><input type="radio" name="add_to_existing" value="false" <?php checked( get_option( 'safecss_add' ) == 'no' ); ?> /> <?php printf( __( 'Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with my own CSS.', 'jetpack' ), get_current_theme() ); ?></label>
+	</p>
+	<p><?php printf( __( '<a href="%s">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor.', 'jetpack' ), apply_filters( 'safecss_theme_stylesheet_url', get_stylesheet_uri() ), get_current_theme() ); ?></p>
+	<p class="custom_content_width" style="display: none;">
+		<label for="custom_content_width"><?php _e( 'Limit width to', 'jetpack' ); ?></label><input type="text" name="custom_content_width" id="custom_content_width" value="<?php echo esc_attr( $custom_content_width ); ?>" size=5 /> <?php printf( __( 'pixels for videos, full size images, and other shortcodes. (<a href="%s">More info</a>.)', 'jetpack' ), apply_filters( 'safecss_limit_width_link', 'http://jetpack.me/support/custom-css/#limited-width' ) ); ?>
+	<?php if ( !empty( $GLOBALS['content_width'] ) && $custom_content_width != $GLOBALS['content_width'] ) printf( __( 'The default content width for the %s theme is %d pixels.', 'jetpack' ), get_current_theme(), intval( $GLOBALS['content_width'] ) ); ?>
+	</p>
 <?php
+}
+
+/**
+ * Render metabox listing CSS revisions and the themes that correspond to the revisions.
+ * Called by `safecss_admin`
+ *
+ * @param array $safecss_post
+ * @global $post
+ * @uses WP_Query, wp_post_revision_title, esc_html, add_query_arg, menu_page_url, wp_reset_query
+ * @return string
+ */
+function custom_css_post_revisions_meta_box( $safecss_post ) {
+	$max_revisions = defined( 'WP_POST_REVISIONS' ) && is_numeric( WP_POST_REVISIONS ) ? (int) WP_POST_REVISIONS : 25;
+	$posts_per_page = isset( $_GET['show_all_rev'] ) ? $max_revisions : 6;
+
+	$revisions = new WP_Query( array(
+		'posts_per_page' => $posts_per_page,
+		'post_type' => 'revision',
+		'post_status' => 'inherit',
+		'post_parent' => $safecss_post['ID'],
+		'orderby' => 'date',
+		'order' => 'DESC'
+	) );
+
+	if ( $revisions->have_posts() ) : ?>
+		<ul class="post-revisions"><?php
+
+		global $post;
+
+		while ( $revisions->have_posts() ) :
+			$revisions->the_post();
+
+			?><li>
+				<?php
+					echo wp_post_revision_title( $post );
+
+					if ( ! empty( $post->post_excerpt ) )
+						echo ' (' . esc_html( $post->post_excerpt ) . ')';
+				?>
+			</li><?php
+
+		endwhile;
+
+		?></ul><?php
+
+		if ( $revisions->found_posts > 6 ) : ?>
+
+		<br>
+		<a href="<?php echo add_query_arg( 'show_all_rev', 'true', menu_page_url( 'editcss', false ) ); ?>">Show more</a>
+
+		<?php endif; // "Show more"
+	endif; // have_posts();
+
+	wp_reset_query();
 }
 
 if ( !function_exists( 'safecss_filter_attr' ) ) {
