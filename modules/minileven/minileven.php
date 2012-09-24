@@ -38,10 +38,10 @@ function jetpack_check_mobile() {
 		return false;
 	if ( isset($_COOKIE['akm_mobile']) && $_COOKIE['akm_mobile'] == 'true' )
 		return true;
-	if ( jetpack_is_mobile() )
-		return true;
 
-	return apply_filters( 'jetpack_check_mobile', false );
+	$is_mobile = jetpack_is_mobile();
+
+	return apply_filters( 'jetpack_check_mobile', $is_mobile );
 }
 
 function jetpack_mobile_exclude() {
@@ -184,7 +184,8 @@ function jetpack_mobile_theme_setup() {
 		add_action('option_template', 'jetpack_mobile_template');
 		add_action('option_stylesheet', 'jetpack_mobile_stylesheet');
 
-		add_action( 'init', 'disable_safecss_style', 11 );
+		if ( function_exists( 'disable_safecss_style' ) )
+			add_action( 'init', 'disable_safecss_style', 11 );
 
 		do_action( 'mobile_setup' );
 	}
