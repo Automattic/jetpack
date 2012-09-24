@@ -16,7 +16,7 @@
 
 <footer id="colophon" role="contentinfo">
 	<div id="site-generator">
-		<a href="<?php get_bloginfo( 'url' ); ?>/?ak_action=reject_mobile">View Full Site</a><br />
+		<a href="<?php echo home_url( '?ak_action=reject_mobile' ); ?>">View Full Site</a><br />
 		<?php do_action( 'wp_mobile_theme_footer' ); ?>
 		<?php do_action( 'minileven_credits' ); ?>
 		<a href="<?php echo esc_url( __( 'http://wordpress.org/', 'minileven' ) ); ?>" title="<?php esc_attr_e( 'Semantic Personal Publishing Platform', 'minileven' ); ?>" rel="generator"><?php printf( __( 'Proudly powered by %s', 'minileven' ), 'WordPress' ); ?></a>
