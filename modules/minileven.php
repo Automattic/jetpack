@@ -60,7 +60,7 @@ function minileven_configuration_screen() {
 	<h3><?php _e( 'Mobile Apps', 'jetpack' ); ?></h3>
 	<p><?php _e( 'Take WordPress with you.', 'jetpack' ); ?></p>
 	<a href="http://wordpress.org/extend/mobile/"><img src="<?php echo plugin_dir_url( __FILE__ ); ?>/minileven/images/wp-app-devices.png" width="332" height="73" /></a>
-	<p><?php printf( __( 'We have apps for <a href="%s">iOS (iPhone, iPad, iPod Touch)</a>, <a href="%s">Android</a>, <a href="%s">BlackBerry</a>, <a href="%s">Windows Phone</a>, and <a href="%s">more</a>!' ), 'http://ios.wordpress.org/', 'http://android.wordpress.org/', 'http://blackberry.wordpress.org/', 'http://windowsphone.wordpress.org/', 'http://wordpress.org/extend/mobile/' ); ?></p>
+	<p><?php printf( __( 'We have apps for <a href="%s">iOS (iPhone, iPad, iPod Touch)</a>, <a href="%s">Android</a>, <a href="%s">BlackBerry</a>, <a href="%s">Windows Phone</a>, and <a href="%s">more</a>!', 'jetpack' ), 'http://ios.wordpress.org/', 'http://android.wordpress.org/', 'http://blackberry.wordpress.org/', 'http://windowsphone.wordpress.org/', 'http://wordpress.org/extend/mobile/' ); ?></p>
 	<?php
 }
 
