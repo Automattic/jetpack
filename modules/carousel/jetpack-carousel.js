@@ -4,7 +4,12 @@ jQuery(document).ready(function($) {
 	// gallery faded layer and container elements
 	var overlay, comments, gallery, container, nextButton, previousButton, info, title,
 	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval, buttons,
-	screenPadding = 110, originalOverflow = $('body').css('overflow'), proportion = 85;
+	screenPadding = 110, originalOverflow = $('body').css('overflow'), proportion = 85, isMobile;
+	
+	isMobile = /Android|iPhone|iPod/i.test(navigator.userAgent);
+	
+	if (isMobile)
+		screenPadding = 0;
 
 	var keyListener = function(e){
 		switch(e.which){
@@ -134,6 +139,9 @@ jQuery(document).ready(function($) {
 			else if ( $.browser.msie )
 				leftWidth -= 20;
 			leftWidth += 'px';
+			
+			if (isMobile)
+				leftWidth = '100%';
 
 			leftColWrapper = $('<div></div>')
 				.addClass('jp-carousel-left-column-wrapper')
@@ -147,7 +155,7 @@ jQuery(document).ready(function($) {
 
 			fadeaway = $('<div></div>')
 				.addClass('jp-carousel-fadeaway');
-							
+		 	
 			info = $('<div></div>')
 				.addClass('jp-carousel-info')
 				.css({
@@ -158,6 +166,11 @@ jQuery(document).ready(function($) {
 				.append(photo_info)
 				.append(imageMeta)
 				.append(leftColWrapper);
+				
+			if (isMobile)
+				info.prepend(leftColWrapper);
+			else
+				info.append(leftColWrapper);
 
 			targetBottomPos = ( $(window).height() - parseInt( info.css('top'), 10 ) ) + 'px';
 
@@ -358,6 +371,14 @@ jQuery(document).ready(function($) {
 					document.location.hash = '';
 					$(window).scrollTop(scroll);
 				});
+				
+				$('.jp-carousel').touchwipe({
+				     wipeLeft: function() { gallery.jp_carousel('next'); },
+				     wipeRight: function() { gallery.jp_carousel('previous'); },
+				     min_move_x: 20,
+				     min_move_y: 20,
+				     preventDefaultEvents: true
+				});
 
 			nextButton.add(previousButton).click(function(e){
 				e.preventDefault();
@@ -374,7 +395,7 @@ jQuery(document).ready(function($) {
 	var methods = {
 		open: function(options) {
 			var settings = {
-				'items_selector' : ".gallery-item [data-attachment-id]",
+				'items_selector' : ".gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id]",
 				'start_index': 0
 			},
 			data = $(this).data('carousel-extra');
@@ -473,29 +494,21 @@ jQuery(document).ready(function($) {
 			gallery.jp_carousel('selectedSlide').removeClass('selected').css({'position': 'fixed'});
 			if (reverse !== true ) {
 				last = slides.last();
-				slides.first().nextAll().not(last).css({'left':gallery.width()+slides.first().width()}).hide();
-				last.css({
-					'left' : -last.width()
-				});
-				last.prev().css({
-					'left' : -last.width() - last.prev().width()
-				});
-				slides.first().css({'left':gallery.width()});
+				slides.first().nextAll().not(last).jp_carousel('setSlidePosition', gallery.width()+slides.first().width()).hide();
+				last.jp_carousel('setSlidePosition', -last.width());
+				last.prev().jp_carousel('setSlidePosition', -last.width() - last.prev().width());
+				slides.first().jp_carousel('setSlidePosition', gallery.width());
 				setTimeout(function(){
 					gallery.jp_carousel('selectSlide', slides.show().first());
 				}, 400);
 
 			} else {
 				first = slides.first();
-				first.css({
-					'left':gallery.width()
-				});
-				first.next().css({
-					'left':gallery.width() + first.width()
-				});
-				first.next().nextAll().hide().css({'left':-slides.last().width()});
-				slides.last().css({'left':-slides.last().width()});
-				slides.last().prevAll().not(first, first.next()).hide().css({'left':-slides.last().width()-slides.last().prev().width()});
+				first.jp_carousel('setSlidePosition', gallery.width());
+				first.next().jp_carousel('setSlidePosition', gallery.width() + first.width());
+				first.next().nextAll().hide().jp_carousel('setSlidePosition', -slides.last().width());
+				slides.last().jp_carousel('setSlidePosition', -slides.last().width());
+				slides.last().prevAll().not(first, first.next()).hide().jp_carousel('setSlidePosition', -slides.last().width()-slides.last().prev().width());
 				setTimeout(function(){
 					gallery.jp_carousel('selectSlide', slides.show().last());
 				}, 400);
@@ -505,6 +518,16 @@ jQuery(document).ready(function($) {
 
 		selectedSlide : function(){
 			return this.find('.selected');
+		},
+		
+		setSlidePosition : function(x) {
+			return this.css({
+					'-webkit-transform':'translate3d(' + x + 'px,0,0)',
+					'-moz-transform':'translate3d(' + x + 'px,0,0)',
+					'-ms-transform':'translate(' + x + 'px,0)',
+					'-o-transform':'translate(' + x + 'px,0)',
+					'transform':'translate3d(' + x + 'px,0,0)'
+			});
 		},
 
 		selectSlide : function(slide, animate){
@@ -534,7 +557,7 @@ jQuery(document).ready(function($) {
 			// slide the whole view to the x we want
 			slides.not(animated).hide();
 
-			current[method]({left:left}).show();
+			current.jp_carousel('setSlidePosition', left).show();
 
 			// minimum width
 			gallery.jp_carousel('fitInfo', animate);
@@ -542,17 +565,17 @@ jQuery(document).ready(function($) {
 			// prep the slides
 			var direction = last.is(current.prevAll()) ? 1 : -1;
 			if ( 1 == direction ) {
-				next_next.css({'left':gallery.width() + next.width()}).show();
-				next.hide().css({'left':gallery.width() + current.width()}).show();
-				previous_previous.css({'left':-previous_previous.width() - current.width()});
+				next_next.jp_carousel('setSlidePosition', gallery.width() + next.width()).show();
+				next.hide().jp_carousel('setSlidePosition', gallery.width() + current.width()).show();
+				previous_previous.jp_carousel('setSlidePosition', -previous_previous.width() - current.width()).show();
 			} else {
-				previous.css({'left':-previous.width() - current.width()});
-				next_next.css({'left':gallery.width() + current.width()});
+				previous.jp_carousel('setSlidePosition', -previous.width() - current.width()).show();
+				next_next.jp_carousel('setSlidePosition', gallery.width() + current.width()).show();
 			}
 			
 			// if advancing prepare the slide that will enter the screen
-			previous[method]({left:-previous.width() + (screenPadding * 0.75) }).show();
-			next[method]({left:gallery.width() - (screenPadding * 0.75) }).show();
+			previous.jp_carousel('setSlidePosition', -previous.width() + (screenPadding * 0.75)).show();
+			next.jp_carousel('setSlidePosition', gallery.width() - (screenPadding * 0.75)).show();
 
 			document.location.href = document.location.href.replace(/#.*/, '') + '#jp-carousel-' + current.data('attachment-id');
 			gallery.jp_carousel('resetButtons', current);
@@ -593,7 +616,7 @@ jQuery(document).ready(function($) {
 			};
 		},
 
-		loadSlide : function(){
+		loadSlide : function() {
 			return this.each(function(){
 				var slide = $(this);
 				slide.find('img')
@@ -642,6 +665,12 @@ jQuery(document).ready(function($) {
 				'left'  : (info.width() - size.width) * 0.5,
 				'width' : size.width
 			});
+			
+			if (isMobile){
+				photo_info.css('left', '0px');
+				photo_info.css('top', '-20px');
+			}
+			
 			return this;
 		},
 
@@ -666,21 +695,7 @@ jQuery(document).ready(function($) {
 				    method     = 'css',
 				    max        = gallery.jp_carousel('slideDimensions');
 
-				if ( 0 === selected.length ) {
-					dimensions.left = $(window).width();
-				} else if ($this.is(selected)) {
-					dimensions.left = ($(window).width() - dimensions.width) * 0.5;
-				} else if ($this.is(selected.next())) {
-					dimensions.left = gallery.width() - ( screenPadding * 0.75 );
-				} else if ($this.is(selected.prev())) {
-					dimensions.left = -dimensions.width + screenPadding * 0.75;
-				} else {
-					if ($this.is(selected.nextAll())) {
-						dimensions.left = $(window).width();
-					} else {
-						dimensions.left = -dimensions.width;
-					}
-				}
+				dimensions.left = 0;
 				dimensions.top = ( (max.height - dimensions.height) * 0.5 ) + 40;
 				$this[method](dimensions);
 			});
@@ -740,6 +755,10 @@ jQuery(document).ready(function($) {
 					src				= src_item.data('gallery-src') || '',
 					medium_file     = src_item.data('medium-file') || '',
 					large_file      = src_item.data('large-file') || '';
+
+				var tiledCaption = src_item.parents('div.tiled-gallery-item').find('div.tiled-gallery-caption').html();
+				if ( tiledCaption )
+					caption = tiledCaption;
 
 				if ( !attachment_id || !orig_size )
 					return false; // break the loop if we are missing the data-* attributes
@@ -1131,11 +1150,11 @@ jQuery(document).ready(function($) {
 	};
 
 	// register the event listener for staring the gallery
-	$( document.body ).on( 'click', 'div.gallery', function(e) {
+	$( document.body ).on( 'click', 'div.gallery,div.tiled-gallery', function(e) {
 		if ( $(e.target).parent().hasClass('gallery-caption') )
 			return;
 		e.preventDefault();
-		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item').index($(e.target).parents('.gallery-item'))});
+		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item, .tiled-gallery-item').index($(e.target).parents('.gallery-item, .tiled-gallery-item'))});
 	});
 
 	// start on page load if hash exists
@@ -1157,3 +1176,7 @@ jQuery(document).ready(function($) {
 		});
 	}
 });
+
+// Swipe gesture detection
+(function($){$.fn.touchwipe=function(settings){var config={min_move_x:20,min_move_y:20,wipeLeft:function(){},wipeRight:function(){},wipeUp:function(){},wipeDown:function(){},preventDefaultEvents:true};if(settings)$.extend(config,settings);this.each(function(){var startX;var startY;var isMoving=false;function cancelTouch(){this.removeEventListener('touchmove',onTouchMove);startX=null;isMoving=false}function onTouchMove(e){if(config.preventDefaultEvents){e.preventDefault()}if(isMoving){var x=e.touches[0].pageX;var y=e.touches[0].pageY;var dx=startX-x;var dy=startY-y;if(Math.abs(dx)>=config.min_move_x){cancelTouch();if(dx>0){config.wipeLeft()}else{config.wipeRight()}}else if(Math.abs(dy)>=config.min_move_y){cancelTouch();if(dy>0){config.wipeDown()}else{config.wipeUp()}}}}function onTouchStart(e){if(e.touches.length==1){startX=e.touches[0].pageX;startY=e.touches[0].pageY;isMoving=true;this.addEventListener('touchmove',onTouchMove,false)}}if('ontouchstart'in document.documentElement){this.addEventListener('touchstart',onTouchStart,false)}});return this}})(jQuery);
+

@@ -1043,3 +1043,63 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	background: -moz-linear-gradient(bottom, rgba(255,255,255,0.75), rgba(255,255,255,0));
 	background: -webkit-gradient(linear, left bottom, left top, from(rgba(255,255,255,0.75)), to(rgba(255,255,255,0)));
 }
+
+/* Small screens */
+@media only screen and (max-width: 760px) {
+
+	.jp-carousel-info {
+		margin: 0 10px !important;
+	}
+
+	.jp-carousel-next-button, .jp-carousel-previous-button { 
+		display: none !important; 
+	}
+
+	.jp-carousel-buttons {
+		display: none !important;
+	}
+	
+	.jp-carousel-image-meta {
+		float: none !important;
+		width: 100% !important;
+		-moz-box-sizing:border-box;
+		-webkit-box-sizing:border-box;
+		box-sizing: border-box;
+	}
+	
+	.jp-carousel-close-hint {
+	 	font-weight: 800 !important;
+		font-size: 26px !important;
+		position: fixed !important;
+		top: -10px;
+	}
+	
+	.jp-carousel-slide img {
+		filter: alpha(opacity=100);
+		opacity: 1;
+	}
+	
+	.jp-carousel-wrap {
+		background-color: #000;	
+	}
+	
+	.jp-carousel-fadeaway {
+		display: none;
+	}
+	
+	#jp-carousel-comment-form-container {
+		display: none !important;
+	}
+	
+	.jp-carousel-titleanddesc {
+		padding-top: 0 !important;
+		border: none !important;
+	}
+	.jp-carousel-titleanddesc-title {
+		font-size: 1em !important;
+	}
+	
+	.jp-carousel-left-column-wrapper {
+		padding: 0;
+	}	
+}
