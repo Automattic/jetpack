@@ -65,6 +65,8 @@ function minileven_show_background_and_header_color() {
 	$background = minileven_get_background();
 	$header_text = minileven_header_text_display();
 
+	$style = '';
+
 	if ( $background['color'] || $background['image'] ) :
 		$style = $background['color'] ? "background-color: #$background[color];" : '';
 
@@ -88,9 +90,11 @@ function minileven_show_background_and_header_color() {
 	endif;
 ?>
 	<style type="text/css">
-		body {
-			<?php echo trim( $style ); ?>
-		}
+		<?php if ( $style ) { ?>
+			body {
+				<?php echo trim( $style ); ?>
+			}
+		<?php } ?>
 		#page {
 			margin: 0.6em 0.6em 0.8em;
 		}
