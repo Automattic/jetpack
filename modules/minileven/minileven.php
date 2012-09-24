@@ -87,14 +87,10 @@ function jetpack_mobile_template( $theme ) {
 }
 
 function jetpack_mobile_available() {
-	echo '<div style="text-align:center;margin:10px 0;"><a href="'. home_url('?ak_action=accept_mobile') . '">' . __('View Mobile Site') . '</a></div>';
+	echo '<div style="text-align:center;margin:10px 0;"><a href="'. home_url( '?ak_action=accept_mobile' ) . '">' . __( 'View Mobile Site', 'jetpack' ) . '</a></div>';
 }
 
-function jetpack_mobile_link() {
-	echo '<a href="'. home_url('?ak_action=force_mobile') .'">Mobile Edition</a>';
-}
-
-function jetpack_request_handler() {
+function jetpack_mobile_request_handler() {
 	global $wpdb;
 	if (isset($_GET['ak_action'])) {
 		$url = parse_url( get_bloginfo( 'url' ) );
@@ -147,7 +143,7 @@ function jetpack_request_handler() {
 		}
 	}
 }
-add_action('init', 'jetpack_request_handler');
+add_action('init', 'jetpack_mobile_request_handler');
 
 function jetpack_mobile_theme_setup() {
 	if ( jetpack_check_mobile() ) {
