@@ -51,7 +51,7 @@ function minileven_setup() {
 	add_theme_support( 'automatic-feed-links' );
 
 	// This theme uses wp_nav_menu() in one location.
-	register_nav_menu( 'primary', __( 'Primary Menu', 'minileven' ) );
+	register_nav_menu( 'primary', __( 'Primary Menu', 'jetpack' ) );
 
 	// Add support for a variety of post formats
 	add_theme_support( 'post-formats', array( 'gallery' ) );
@@ -89,7 +89,7 @@ add_action( 'wp_enqueue_scripts', 'minileven_scripts' );
  */
 function minileven_widgets_init() {
 	register_sidebar( array(
-		'name' => __( 'Main Sidebar', 'minileven' ),
+		'name' => __( 'Main Sidebar', 'jetpack' ),
 		'id' => 'sidebar-1',
 		'before_widget' => '<aside id="%1$s" class="widget %2$s">',
 		'after_widget' => "</aside>",

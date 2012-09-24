@@ -29,7 +29,7 @@
 
 	// Add a page number if necessary:
 	if ( $paged >= 2 || $page >= 2 )
-		echo ' | ' . sprintf( __( 'Page %s', 'minileven' ), max( $paged, $page ) );
+		echo ' | ' . sprintf( __( 'Page %s', 'jetpack' ), max( $paged, $page ) );
 
 	?></title>
 <link rel="profile" href="http://gmpg.org/xfn/11" />
@@ -47,10 +47,10 @@
 		<div class="menu-search">
 			<nav id="access" role="navigation">
 				<div class="menu-handle">
-					<h3 class="assistive-text"><?php _e( 'Menu', 'minileven' ); ?></h3>
+					<h3 class="assistive-text"><?php _e( 'Menu', 'jetpack' ); ?></h3>
 				</div><!-- .menu-handle -->
 				<?php /*  Allow screen readers / text browsers to skip the navigation menu and get right to the good stuff. */ ?>
-				<div class="skip-link"><a class="assistive-text" href="#content" title="<?php esc_attr_e( 'Skip to primary content', 'minileven' ); ?>"><?php _e( 'Skip to primary content', 'minileven' ); ?></a></div>
+				<div class="skip-link"><a class="assistive-text" href="#content" title="<?php esc_attr_e( 'Skip to primary content', 'jetpack' ); ?>"><?php _e( 'Skip to primary content', 'minileven' , 'jetpack'); ?></a></div>
 				<?php /* Our navigation menu.  If one isn't filled out, wp_nav_menu falls back to wp_page_menu. The menu assiged to the primary position is the one used. If none is assigned, the menu with the lowest ID is used. */
 					if ( false !== $location ) :
 						$menu_id = array_shift( array_values( $location ) ); // acccess the ID of the menu assigned to that location. Using only the first menu ID returned in the array.

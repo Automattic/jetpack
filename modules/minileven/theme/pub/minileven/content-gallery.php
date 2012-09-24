@@ -11,14 +11,14 @@
 <article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 	<header class="entry-header">
 		<hgroup>
-			<h2 class="entry-title"><a href="<?php the_permalink(); ?>" title="<?php echo esc_attr( sprintf( __( 'Permalink to %s', 'minileven' ), the_title_attribute( 'echo=0' ) ) ); ?>" rel="bookmark"><?php the_title(); ?></a></h2>
-			<h3 class="entry-format"><?php _e( 'Gallery', 'minileven' ); ?></h3>
+			<h2 class="entry-title"><a href="<?php the_permalink(); ?>" title="<?php echo esc_attr( sprintf( __( 'Permalink to %s', 'jetpack' ), the_title_attribute( 'echo=0' ) ) ); ?>" rel="bookmark"><?php the_title(); ?></a></h2>
+			<h3 class="entry-format"><?php _e( 'Gallery', 'jetpack' ); ?></h3>
 		</hgroup>
 	</header><!-- .entry-header -->
 
 	<div class="entry-content">
 		<?php if ( is_single() ) : ?>
-			<?php the_content( __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'minileven' ) ); ?>
+			<?php the_content( __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'jetpack' ) ); ?>
 
 		<?php else : ?>
 			<?php
@@ -54,24 +54,24 @@
 					</div><!-- .img-gallery -->
 					<?php endif; ?>
 
-					<p class="gallery-info"><em><?php printf( _n( 'This gallery contains <a %1$s>%2$s photo</a>.', 'This gallery contains <a %1$s>%2$s photos</a>.', $total_images, 'minileven' ),
-							'href="' . esc_url( get_permalink() ) . '" title="' . esc_attr( sprintf( __( 'Permalink to %s', 'minileven' ), the_title_attribute( 'echo=0' ) ) ) . '" rel="bookmark"',
+					<p class="gallery-info"><em><?php printf( _n( 'This gallery contains <a %1$s>%2$s photo</a>.', 'This gallery contains <a %1$s>%2$s photos</a>.', $total_images, 'jetpack' ),
+							'href="' . esc_url( get_permalink() ) . '" title="' . esc_attr( sprintf( __( 'Permalink to %s', 'jetpack' ), the_title_attribute( 'echo=0' ) ) ) . '" rel="bookmark"',
 							number_format_i18n( $total_images ) );
 					?></em></p>
 
 				<?php endif; ?>
 			<?php endif; ?>
 
-	<?php wp_link_pages( array( 'before' => '<div class="page-link"><span>' . __( 'Pages:', 'minileven' ) . '</span>', 'after' => '</div>' ) ); ?>
+	<?php wp_link_pages( array( 'before' => '<div class="page-link"><span>' . __( 'Pages:', 'jetpack' ) . '</span>', 'after' => '</div>' ) ); ?>
 </div><!-- .entry-content -->
 
 	<footer class="entry-meta">
 		<?php minileven_posted_on(); ?>
 		<?php if ( comments_open() ) : ?>
-		<span class="comments-link"><?php comments_popup_link( '<span class="leave-reply">' . __( 'Leave a Reply', 'minileven' ) . '</span>', __( '<b>1</b> Reply', 'minileven' ), __( '<b>%</b> Replies', 'minileven' ) ); ?></span>
+		<span class="comments-link"><?php comments_popup_link( '<span class="leave-reply">' . __( 'Leave a Reply', 'jetpack' ) . '</span>', __( '<b>1</b> Reply', 'minileven' , 'jetpack'), __( '<b>%</b> Replies', 'minileven' , 'jetpack') ); ?></span>
 		<?php endif; // End if comments_open() ?>
 
-		<?php edit_post_link( __( 'Edit', 'minileven' ), '<span class="edit-link">', '</span>' ); ?>
+		<?php edit_post_link( __( 'Edit', 'jetpack' ), '<span class="edit-link">', '</span>' ); ?>
 	</footer><!-- #entry-meta -->
 </article><!-- #post-<?php the_ID(); ?> -->
 

@@ -61,7 +61,7 @@ get_header(); ?>
 
 						<div class="entry-description">
 							<?php the_content(); ?>
-							<?php wp_link_pages( array( 'before' => '<div class="page-link"><span>' . __( 'Pages:', 'minileven' ) . '</span>', 'after' => '</div>' ) ); ?>
+							<?php wp_link_pages( array( 'before' => '<div class="page-link"><span>' . __( 'Pages:', 'jetpack' ) . '</span>', 'after' => '</div>' ) ); ?>
 						</div><!-- .entry-description -->
 
 					</div><!-- .entry-content -->
@@ -70,23 +70,23 @@ get_header(); ?>
 						<div class="attachment-meta">
 						<?php
 							$metadata = wp_get_attachment_metadata();
-							printf( __( '<span class="entry-gallery">&laquo; <a href="%1$s" title="Back to %2$s" rel="gallery">Back to Gallery</a></span>', 'minileven' ),
+							printf( __( '<span class="entry-gallery">&laquo; <a href="%1$s" title="Back to %2$s" rel="gallery">Back to Gallery</a></span>', 'jetpack' ),
 								esc_url( get_permalink( $post->post_parent ) ),
 								get_the_title( $post->post_parent )
 							);
 						?>
 						</div><!-- .attachment-meta-->
 					<?php if ( comments_open() ) : ?>
-					<span class="comments-link"><?php comments_popup_link( '<span class="leave-reply">' . __( 'Leave a reply', 'minileven' ) . '</span>', __( '<b>1</b> Reply', 'minileven' ), __( '<b>%</b> Replies', 'minileven' ) ); ?></span>
+					<span class="comments-link"><?php comments_popup_link( '<span class="leave-reply">' . __( 'Leave a reply', 'jetpack' ) . '</span>', __( '<b>1</b> Reply', 'minileven' , 'jetpack'), __( '<b>%</b> Replies', 'minileven' , 'jetpack') ); ?></span>
 					<?php endif; // End if comments_open() ?>
-					<?php edit_post_link( __( 'Edit', 'minileven' ), '<span class="edit-link">', '</span>' ); ?>
+					<?php edit_post_link( __( 'Edit', 'jetpack' ), '<span class="edit-link">', '</span>' ); ?>
 				</footer><!-- #entry-meta -->
 				</article><!-- #post-<?php the_ID(); ?> -->
 
 				<nav id="nav-single">
-					<h3 class="assistive-text"><?php _e( 'Image navigation', 'next-saturday' ); ?></h3>
-					<span class="nav-previous"><?php previous_image_link( false, __( '&raquo; Previous' , 'minileven' ) ); ?></span>
-					<span class="nav-next"><?php next_image_link( false, __( 'Next &raquo; ' , 'minileven' ) ); ?></span>
+					<h3 class="assistive-text"><?php _e( 'Image navigation', 'next-saturday' , 'jetpack' ); ?></h3>
+					<span class="nav-previous"><?php previous_image_link( false, __( '&raquo; Previous' , 'jetpack' ) ); ?></span>
+					<span class="nav-next"><?php next_image_link( false, __( 'Next &raquo; ' , 'jetpack' ) ); ?></span>
 				</nav><!-- #nav-single -->
 
 				<?php comments_template(); ?>

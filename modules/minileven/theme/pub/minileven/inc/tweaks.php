@@ -23,7 +23,7 @@ add_filter( 'excerpt_length', 'minileven_excerpt_length' );
  * Returns a "Continue Reading" link for excerpts
  */
 function minileven_continue_reading_link() {
-	return ' <a href="'. esc_url( get_permalink() ) . '">' . __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'minileven' ) . '</a>';
+	return ' <a href="'. esc_url( get_permalink() ) . '">' . __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'jetpack' ) . '</a>';
 }
 
 /**
