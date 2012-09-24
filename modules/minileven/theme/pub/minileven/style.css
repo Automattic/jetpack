@@ -303,13 +303,12 @@ header img {
 /* Small menu */
 #access {
 	float: left;
-	margin-right: 0.5%;
-	width: 60%;
+	width: 55%;
 }
 .search-form {
-	float: left;
+	float: right;
 	text-align: right;
-	width: 34%;
+	width: 43%;
 }
 .menu-toggle {
 	cursor: pointer;
@@ -389,11 +388,14 @@ header img {
 }
 .search-form #s {
 	background: #eee;
+	border: 1px solid #ddd;
 	border-radius: 0;
+	color: #888;
 	font-size: 0.923em;
+	margin-right: 1%;
 	text-shadow: 0 1px 0 #fff;
 	padding: 0.6em;
-	width: 100%;
+	width: 80%;
 }
 
 	
@@ -743,7 +745,6 @@ and remove the padding rules below.
 	margin-top: 1.3em;
 }
 
-
 /* =Quote Posts
 ----------------------------------------------- */
 
@@ -752,7 +753,6 @@ and remove the padding rules below.
 	font-size: 1.308em;
 	margin: 0;
 }
-
 
 /* =error404
 ----------------------------------------------- */

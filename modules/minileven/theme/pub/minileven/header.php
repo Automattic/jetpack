@@ -33,96 +33,17 @@
 
 	?></title>
 <link rel="profile" href="http://gmpg.org/xfn/11" />
-<link rel="stylesheet" type="text/css" media="all" href="<?php bloginfo( 'stylesheet_url' ); ?>" />
 <link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
-<?php
-	/* We add some JavaScript to pages with the comment form
-	 * to support sites with threaded comments (when in use).
-	 */
-	if ( is_singular() && get_option( 'thread_comments' ) )
-		wp_enqueue_script( 'comment-reply' );
-
-	/* Always have wp_head() just before the closing </head>
-	 * tag of your theme, or you will break many plugins, which
-	 * generally use this hook to add elements to <head> such
-	 * as styles, scripts, and meta tags.
-	 */
-	wp_head();
-?>
-</head>
-
-
-<?php
-	$background = minileven_get_background();
-
-	if ( $background['color'] || $background['image'] ) {
-		$style = $background['color'] ? "background-color: #$background[color];" : '';
-
-		if ( $background['image'] ) {
-			$image = " background-image: url('$background[image]');";
-
-			if ( ! in_array( $background['repeat'], array( 'no-repeat', 'repeat-x', 'repeat-y', 'repeat' ) ) )
-				$background['repeat'] = 'repeat';
-			$repeat = " background-repeat: $background[repeat];";
-
-			if ( ! in_array( $background['position'], array( 'center', 'right', 'left' ) ) )
-				$background['position'] = 'left';
-			$position = " background-position: top $background[position];";
-
-			if ( ! in_array( $background['attachment'], array( 'fixed', 'scroll' ) ) )
-				$background['attachment'] = 'scroll';
-			$attachment = " background-attachment: $background[attachment];";
-
-			$style .= $image . $repeat . $position . $attachment;
-		}
-?>
-	<style type="text/css">
-		body { <?php echo trim( $style ); ?> }
-		#page { margin: 0.6em 0.6em 0.8em; }
-		#site-generator { border: 0; }
-	</style>
-<?php
-	}
-?>
+<?php wp_head(); ?>
 
 <body <?php body_class(); ?>>
 <div id="wrapper">
 <div id="page" class="hfeed">
 	<header id="branding" role="banner">
 	<?php
-		$header_image = minileven_get_header_image();
-		$header_text = minileven_header_text_display();
-
-		if  ( minileven_get_header_image() )
-			list( $width ) = getimagesize( $header_image );
+		minileven_header();
+		$location = minileven_get_menu_location(); // get the menu locations from the current theme in use
 	?>
-		<?php // Display small header images floated to the left of the site title
-			if ( false !== $header_image && $width < 115) : ?>
-				<div id="header-logo">
-					<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
-						<img src="<?php echo $header_image; ?>" alt="" />
-					</a>
-				</div><!-- #header-logo -->
-			<?php endif; // end check for header images that are less than 115px wide ?>
-
-			<?php if ( 'blank' != $header_text ) : ?>
-				<hgroup>
-					<h1 id="site-title"><span><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></span></h1>
-					<h2 id="site-description"><?php bloginfo( 'description' ); ?></h2>
-				</hgroup>
-			<?php endif; ?>
-
-			<?php // Display standard size header images below the site title
-				if ( false !== $header_image && $width >= 115) : ?>
-					<div id="header-img">
-						<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
-							<img src="<?php echo $header_image; ?>" alt="" />
-						</a>
-					</div><!-- #header-img -->
-			<?php endif; // end check for header images that are at least 115px wide ?>
-
-		<?php $location = minileven_get_menu_location(); // get the menu locations from the current theme in use ?>
-
 		<div class="menu-search">
 			<nav id="access" role="navigation">
 				<div class="menu-handle">
@@ -132,11 +53,12 @@
 				<div class="skip-link"><a class="assistive-text" href="#content" title="<?php esc_attr_e( 'Skip to primary content', 'minileven' ); ?>"><?php _e( 'Skip to primary content', 'minileven' ); ?></a></div>
 				<?php /* Our navigation menu.  If one isn't filled out, wp_nav_menu falls back to wp_page_menu. The menu assiged to the primary position is the one used. If none is assigned, the menu with the lowest ID is used. */
 					if ( false !== $location ) :
-						$menu_id = array_shift( array_values( $location ) ); // acccess the ID of the menu assigned to that location. Using only the first menu ID returned in the array. ?>
-						<?php wp_nav_menu( array( 'theme_location' => 'primary', 'menu' => $menu_id ) ); ?>
-					<?php else: // if the $location variable is false, wp_page_menu() is shown instead. ?>
-						<?php wp_nav_menu( array( 'theme_location' => 'primary' ) ); ?>
-					<?php endif; ?>
+						$menu_id = array_shift( array_values( $location ) ); // acccess the ID of the menu assigned to that location. Using only the first menu ID returned in the array.
+						wp_nav_menu( array( 'theme_location' => 'primary', 'menu' => $menu_id ) );
+					else: // if the $location variable is false, wp_page_menu() is shown instead.
+						wp_nav_menu( array( 'theme_location' => 'primary' ) );
+					endif;
+				?>
 			</nav><!-- #access -->
 			<div class="search-form">
 				<?php get_search_form(); ?>
