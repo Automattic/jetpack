@@ -58,7 +58,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 			$before_tweet     = isset( $instance['beforetweet'] ) ? stripslashes( wp_filter_post_kses( $instance['beforetweet'] ) ) : '';
 			$before_timesince = ( isset( $instance['beforetimesince'] ) && ! empty( $instance['beforetimesince'] ) ) ? esc_html( $instance['beforetimesince'] ) : ' ';			
 
-			$this->display_tweets( $show, $tweets['data'], $hidepublicized, $before_tweet, $beforetimesince );
+			$this->display_tweets( $show, $tweets['data'], $hidepublicized, $before_tweet, $beforetimesince, $account );
 
 			if ( $follow_button )
 				$this->display_follow_button( $account );
@@ -72,7 +72,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 		do_action( 'jetpack_stats_extra', 'widgets', 'twitter' );
 	}
 
-	function display_tweets( $show, $tweets, $hidepublicized, $before_tweet, $beforetimesince ) {
+	function display_tweets( $show, $tweets, $hidepublicized, $before_tweet, $beforetimesince, $account ) {
 		$tweets_out = 0;
 		?><ul class='tweets'><?php
 
