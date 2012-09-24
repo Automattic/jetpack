@@ -94,49 +94,6 @@ function jetpack_mobile_link() {
 	echo '<a href="'. home_url('?ak_action=force_mobile') .'">Mobile Edition</a>';
 }
 
-if (!function_exists('ak_recent_posts')) {
-// this is based almost entirely on:
-/*
-Plugin Name: Recent Posts
-Plugin URI: http://mtdewvirus.com/code/wordpress-plugins/
-Description: Returns a list of the most recent posts.
-Version: 1.07
-Author: Nick Momrik
-Author URI: http://mtdewvirus.com/
-*/
-	function ak_recent_posts($count = 5, $before = '<li>', $after = '</li>', $hide_pass_post = true, $skip_posts = 0, $show_excerpts = false, $where = '', $join = '', $groupby = '') {
-		global $wpdb;
-		$time_difference = get_settings('gmt_offset');
-		$now = gmdate("Y-m-d H:i:s",time());
-
-		$join = apply_filters('posts_join', $join);
-		$where = apply_filters('posts_where', $where);
-		$groupby = apply_filters('posts_groupby', $groupby);
-		if (!empty($groupby)) { $groupby = ' GROUP BY '.$groupby; }
-
-		$request = "SELECT ID, post_title, post_excerpt FROM $wpdb->posts $join WHERE post_status = 'publish' AND post_type != 'page' ";
-		if ($hide_pass_post) $request .= "AND post_password ='' ";
-		$request .= "AND post_date_gmt < '$now' $where $groupby ORDER BY post_date DESC LIMIT $skip_posts, $count";
-		$posts = $wpdb->get_results($request);
-		$output = '';
-		if ($posts) {
-			foreach ($posts as $post) {
-				$post_title = stripslashes($post->post_title);
-				$permalink = get_permalink($post->ID);
-				$output .= $before . '<a href="' . $permalink . '" rel="bookmark" title="Permanent Link: ' . htmlspecialchars($post_title, ENT_COMPAT) . '">' . htmlspecialchars($post_title) . '</a>';
-				if($show_excerpts) {
-					$post_excerpt = stripslashes($post->post_excerpt);
-					$output.= '<br />' . $post_excerpt;
-				}
-				$output .= $after;
-			}
-		} else {
-			$output .= $before . "None found" . $after;
-		}
-		echo $output;
-	}
-}
-
 function jetpack_request_handler() {
 	global $wpdb;
 	if (isset($_GET['ak_action'])) {
@@ -194,6 +151,34 @@ add_action('init', 'jetpack_request_handler');
 
 function jetpack_mobile_theme_setup() {
 	if ( jetpack_check_mobile() ) {
+		// Redirect to download page if user clicked mobile app promo link in mobile footer
+		if ( isset( $_GET['app-download'] ) ) {
+			do_action( 'mobile_app_promo_download', $_GET['app-download'] );
+
+			switch ( $_GET['app-download'] ) {
+				case 'android':
+					header( 'Location: market://search?q=pname:org.wordpress.android' );
+					exit;
+				break;
+				case 'ios':
+					header( 'Location: http://itunes.apple.com/us/app/wordpress/id335703880?mt=8' );
+					exit;
+				break;
+				case 'blackberry':
+					header( 'Location: http://blackberry.wordpress.org/download/' );
+					exit;
+				break;
+				case 'nokia':
+					header( 'Location: http://nokia.wordpress.org/download/' );
+					exit;
+				break;
+				case 'windowsphone':
+					header( 'Location: http://social.zune.net/redirect?type=phoneApp&id=5f64ad85-f801-e011-9264-00237de2db9e' );
+					exit;
+				break;
+			}
+		}
+
 		add_action('stylesheet', 'jetpack_mobile_stylesheet');
 		add_action('template', 'jetpack_mobile_template');
 		add_action('option_template', 'jetpack_mobile_template');
@@ -247,3 +232,24 @@ function jetpack_is_mobile() {
 
 	return false;
 }
+
+function jetpack_mobile_app_promo()  {
+	?>
+	<script type="text/javascript">
+		if ( ! navigator.userAgent.match( /wp-(iphone|android|blackberry|nokia|windowsphone)/i ) ) {
+			if ( ( navigator.userAgent.match( /iphone/i ) ) || ( navigator.userAgent.match( /ipod/i ) ) )
+			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=ios">Download WordPress for iOS</a></span><br /><br />' );
+			else if ( ( navigator.userAgent.match( /android/i ) ) )
+			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=android">Download WordPress for Android</a></span><br /><br />' );
+			else if ( ( navigator.userAgent.match( /blackberry/i ) ) )
+			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=blackberry">Download WordPress for BlackBerry</a></span><br /><br />' );
+			else if ( ( navigator.userAgent.match( /windows phone os/i ) ) )
+			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px; line-height: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=windowsphone">Download WordPress for <br />Windows Phone</a></span><br /><br />' );
+			else if ( ( navigator.userAgent.match( /nokia/i ) ) )
+			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=nokia">Download WordPress for Nokia</a></span><br /><br />' );
+		}
+	</script>
+	<?php
+}
+
+add_action( 'wp_mobile_theme_footer', 'jetpack_mobile_app_promo' );
