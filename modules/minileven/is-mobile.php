@@ -8,6 +8,8 @@ function is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	static $matched_agent = '';
 	global $ua_info;
 
+	if ( ! $ua_info ) $ua_info = new user_agent_info();
+
 	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) || strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) )
 		return false;
 

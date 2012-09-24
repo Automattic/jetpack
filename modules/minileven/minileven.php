@@ -224,13 +224,12 @@ function mobile_admin_bar() {
 }
 
 function jetpack_is_mobile() {
-	if ( function_exists( 'is_mobile' ) )
-		return is_mobile();
-
 	if ( function_exists( 'wp_is_mobile' ) )
 		return wp_is_mobile();
+	else if ( ! function_exists( 'is_mobile' ) )
+		include dirname( __FILE__ ) . '/is-mobile.php';
 
-	return false;
+	return is_mobile();
 }
 
 function jetpack_mobile_app_promo()  {
