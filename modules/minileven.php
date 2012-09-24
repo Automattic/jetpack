@@ -66,7 +66,7 @@ function minileven_configuration_screen() {
 
 function minileven_theme_root( $theme_root ) {
 	if ( jetpack_check_mobile() ) {
-		return dirname( __FILE__ ) . '/theme';
+		return dirname( __FILE__ ) . '/minileven/theme';
 	}
 
 	return $theme_root;
@@ -76,7 +76,7 @@ add_filter( 'theme_root', 'minileven_theme_root' );
 
 function minileven_theme_root_uri( $theme_root_uri ) {
 	if ( jetpack_check_mobile() ) {
-		return plugins_url( 'minileven/theme', dirname( __FILE__ ) );
+		return plugins_url( 'modules/minileven/theme', dirname( __FILE__ ) );
 	}
 
 	return $theme_root_uri;
