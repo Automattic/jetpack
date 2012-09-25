@@ -28,6 +28,7 @@ Features include:
 * Your writing will improve thanks to After the Deadline, an artificial intelligence based spell, style, and grammar checker.  Previously provided by the [After the Deadline](http://wordpress.org/extend/plugins/after-the-deadline/) WordPress plugin.
 * With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.
 * A CSS editor that lets you customize your site design without modifying your theme.
+* A mobile theme that automatically streamlines your site for visitors on mobile devices.
 * and *many* more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.
@@ -79,11 +80,20 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 5. Spelling and Grammar demo.
 6. Gallery Carousel.
 7. CSS Editor
+8. Mobile Theme
 
 == Changelog ==
 
-= trunk =
+= 1.8 =
+* Enhancement: Mobile Theme: Automatically serve a slimmed down version of your site to users on mobile devices.
 * Enhancement: Multiuser: Allow multiple users to link their accounts to WordPress.com accounts.
+* Enhancement: Custom CSS: Addeded support for object-fit, object-position, transition, and filter properties.
+* Enhancement: Twitter Widget: Added Follow button
+* Enhancement: Widgets: Added Top Posts and Pages widget
+* Bug Fix: Twitter Widget: Fixed tweet permalinks in the Twitter widget
+* Bug Fix: Custom CSS: @import rules and external images are no longer stripped out of custom CSS
+* Bug Fix: Custom CSS: Fixed warnings and notices displayed in debug mode
+* Bug Fix: Sharing: Fixed double-encoding of image URLs
 
 = 1.7 =
 * Enhancement: CSS Editor: Customize your site's design without modifying your theme.
