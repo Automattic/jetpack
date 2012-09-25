@@ -1,0 +1,16 @@
+/*
+ * Widget styles for Jetpack
+ */
+
+/* Clear floats */
+.clear:after,
+.jetpack-image-container:after {
+	clear: both;
+}
+.clear:before,
+.clear:after,
+.jetpack-image-container:before,
+.jetpack-image-container:after {
+	display: table;
+	content: "";
+}

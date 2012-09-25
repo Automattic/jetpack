@@ -43,7 +43,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 			if ( '' != $instance['caption'] )
 				$output = '[caption align="align' .  esc_attr( $instance['align'] ) . '" width="' . esc_attr( $instance['img_width'] ) .'" caption="' . esc_attr( $instance['caption'] ) . '"]' . $output . '[/caption]';
 
-			echo '<div style="overflow:hidden;">' . do_shortcode( $output ) . '</div>';
+			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
 		}
 
 		echo "\n" . $after_widget;
