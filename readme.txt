@@ -1,5 +1,5 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, andy, designsimply, hew, westi, eoigal, tmoorewp, matt, pento, cfinke
+Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, andy, designsimply, hew, westi, eoigal, tmoorewp, matt, pento, cfinke, daniloercoli
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions
 Requires at least: 3.2
 Tested up to: 3.4.1
@@ -29,6 +29,7 @@ Features include:
 * With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.
 * A CSS editor that lets you customize your site design without modifying your theme.
 * A mobile theme that automatically streamlines your site for visitors on mobile devices.
+* Mobile push notifications for new comments via WordPress mobile apps. 
 * and *many* more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.
@@ -90,6 +91,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Custom CSS: Added support for object-fit, object-position, transition, and filter properties.
 * Enhancement: Twitter Widget: Added Follow button
 * Enhancement: Widgets: Added Top Posts and Pages widget
+* Enhancement: Mobile Push Notifications: Added support for mobile push notifications on new comments.
 * Bug Fix: Twitter Widget: Fixed tweet permalinks in the Twitter widget
 * Bug Fix: Custom CSS: @import rules and external images are no longer stripped out of custom CSS
 * Bug Fix: Custom CSS: Fixed warnings and notices displayed in debug mode
