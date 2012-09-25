@@ -87,7 +87,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 = 1.8 =
 * Enhancement: Mobile Theme: Automatically serve a slimmed down version of your site to users on mobile devices.
 * Enhancement: Multiuser: Allow multiple users to link their accounts to WordPress.com accounts.
-* Enhancement: Custom CSS: Addeded support for object-fit, object-position, transition, and filter properties.
+* Enhancement: Custom CSS: Added support for object-fit, object-position, transition, and filter properties.
 * Enhancement: Twitter Widget: Added Follow button
 * Enhancement: Widgets: Added Top Posts and Pages widget
 * Bug Fix: Twitter Widget: Fixed tweet permalinks in the Twitter widget
