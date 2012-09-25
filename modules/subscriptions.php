@@ -127,9 +127,11 @@ class Jetpack_Subscriptions {
 			return;
 		}
 
-		if ( 1 == $comment->comment_approved ) {
-			$this->jetpack->sync->comment( $id );
+		if ( 'spam' === $comment->comment_approved ) {
+			return;
 		}
+		
+		$this->jetpack->sync->comment( $id );
 	}
 
 	function transition_comment_status( $new, $old, $the_comment ) {

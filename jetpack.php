@@ -191,6 +191,8 @@ class Jetpack {
 
 		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
 
+		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
+		
 		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
@@ -2586,6 +2588,21 @@ p {
 	function xmlrpc_methods( $methods ) {
 		$this->HTTP_RAW_POST_DATA = $GLOBALS['HTTP_RAW_POST_DATA'];
 		return $methods;
+	}
+	
+	function xmlrpc_options( $options ) {
+		$options['jetpack_version'] = array(
+				'desc'          => __( 'Jetpack Plugin Version' ),
+				'readonly'      => true,
+				'value'         => JETPACK__VERSION,
+		);
+	
+		$options['jetpack_client_id'] = array(
+				'desc'          => __( 'The Client ID/WP.com Blog ID of this site' ),
+				'readonly'      => true,
+				'value'         => $this->get_option( 'id' ),
+		);
+		return $options;
 	}
 
 	function clean_nonces( $all = false ) {
