@@ -550,13 +550,13 @@ p.jp-help {
 		border-bottom-left-radius: 3px;
 		background-repeat: no-repeat;
 		background-image: url( images/module-icons-sprite.png );
+		background-size: 2000px 50px; /* remember to update this every time a new module is added! */
 	}
 
 
 	@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
 		.jetpack-module div.module-image {
 			background-image: url( images/module-icons-sprite-2x.png );
-			background-size: 1550px 50px;
 		}
 	}
 
