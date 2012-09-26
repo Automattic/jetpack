@@ -2594,13 +2594,13 @@ p {
 	
 	function xmlrpc_options( $options ) {
 		$options['jetpack_version'] = array(
-				'desc'          => __( 'Jetpack Plugin Version' ),
+				'desc'          => __( 'Jetpack Plugin Version' , 'jetpack'),
 				'readonly'      => true,
 				'value'         => JETPACK__VERSION,
 		);
 	
 		$options['jetpack_client_id'] = array(
-				'desc'          => __( 'The Client ID/WP.com Blog ID of this site' ),
+				'desc'          => __( 'The Client ID/WP.com Blog ID of this site' , 'jetpack'),
 				'readonly'      => true,
 				'value'         => $this->get_option( 'id' ),
 		);
