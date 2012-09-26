@@ -220,15 +220,6 @@ function mobile_admin_bar() {
 	endif;
 }
 
-function jetpack_is_mobile() {
-	if ( function_exists( 'wp_is_mobile' ) )
-		return wp_is_mobile();
-	else if ( ! function_exists( 'is_mobile' ) )
-		include dirname( __FILE__ ) . '/is-mobile.php';
-
-	return is_mobile();
-}
-
 function jetpack_mobile_app_promo()  {
 	?>
 	<script type="text/javascript">

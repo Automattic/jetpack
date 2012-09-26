@@ -1,14 +1,11 @@
 <?php
 
-$ua_info = new user_agent_info();
-
-function is_mobile( $kind = 'any', $return_matched_agent = false ) {
+function jetpack_is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	static $kinds = array( 'smart' => false, 'dumb' => false, 'any' => false );
 	static $first_run = true;
 	static $matched_agent = '';
-	global $ua_info;
 
-	if ( ! $ua_info ) $ua_info = new user_agent_info();
+	$ua_info = new Jetpack_User_Agent_Info();
 
 	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) || strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) )
 		return false;
@@ -61,85 +58,7 @@ function is_mobile( $kind = 'any', $return_matched_agent = false ) {
 	return $kinds[$kind];
 }
 
-function is_bot() {
-	static $is_bot = false;
-	static $first_run = true;
-
-	if ( $first_run ) {
-		$first_run = false;
-
-	/*
-		$bot_ips = array( );
-
-		foreach ( $bot_ips as $bot_ip ) {
-			if ( $_SERVER['REMOTE_ADDR'] == $bot_ip )
-				$is_bot = true;
-		}
-	*/
-
-		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-
-		$bot_agents = array(
-			'alexa', 'altavista', 'ask jeeves', 'attentio', 'baiduspider', 'bingbot', 'chtml generic', 'crawler', 'fastmobilecrawl',
-			'feedfetcher-google', 'firefly', 'froogle', 'gigabot', 'googlebot', 'googlebot-mobile', 'heritrix', 'ia_archiver', 'irlbot',
-			'infoseek', 'jumpbot', 'lycos', 'mediapartners', 'mediobot', 'motionbot', 'msnbot', 'mshots', 'openbot',
-			'pythumbnail', 'scooter', 'slurp', 'snapbot', 'spider', 'surphace scout', 'taptubot', 'technoratisnoop',
-			'teoma', 'twiceler', 'yahooseeker', 'yahooysmcm', 'yammybot',
-		);
-
-		foreach ( $bot_agents as $bot_agent ) {
-			if ( false !== strpos( $agent, $bot_agent ) )
-				$is_bot = true;
-		}
-	}
-
-	return $is_bot;
-}
-
-/*
-  is_ipad() can be used to check the User Agent for an iPad device
-
-  They type can check for any iPad, an iPad using Safari, or an iPad using something other than Safari
-*/
-
-function is_ipad( $type = 'ipad-any' ) {
-	$is_ipad = ( false !== strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'ipad' ) );
-	$is_safari = ( false !== strpos( strtolower( $_SERVER['HTTP_USER_AGENT'] ), 'safari' ) );
-
-	if ( 'ipad-safari' == $type )
-		return $is_ipad && $is_safari;
-	elseif ( 'ipad-not-safari' == $type )
-		return $is_ipad && !$is_safari;
-	else
-		return $is_ipad;
-}
-
-/*
- Is_android_tablet() can be used to check the User Agent for an android tablet
- Assumes 'Android' should be in the user agent, but not 'mobile'
- See http://mobileprojects.wordpress.com/2011/06/15/we-received-a-request-from-cnn-to-serve/
-
- DEPRECATED: use is_android_tablet in the user_agent_info class
- */
-function is_android_tablet( ) {
-
-	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
-		return false;
-
-	$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-
-	$pos_android = strpos($agent, 'android');
-	$pos_mobile = strpos($agent, 'mobile');
-    $post_android_app = strpos($agent, 'wp-android');
-
-	if ( $pos_android !== false && $pos_mobile === false && $post_android_app === false )
-		return true;
-	else
-		return false;
-}
-
-
-class user_agent_info {
+class Jetpack_User_Agent_Info {
 
 	var $useragent;
 	var $matched_agent;
@@ -176,7 +95,7 @@ class user_agent_info {
 	);
 
    //The constructor. Initializes default variables.
-   function user_agent_info()
+   function Jetpack_User_Agent_Info()
    {
    		if ( !empty( $_SERVER['HTTP_USER_AGENT'] ) )
        		$this->useragent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
@@ -339,7 +258,7 @@ class user_agent_info {
 			$this->isTierGenericMobile = false;
 		}
 		elseif ( $this->is_blackberry_10() ) {
-			$this->matched_agent = 'blackberry_10';
+			$this->matched_agent = 'blackberry-10';
 			$this->isTierIphone = true;
 			$this->isTierRichCss = false;
 			$this->isTierGenericMobile = false;
@@ -1116,6 +1035,7 @@ class user_agent_info {
 	 * Retrieve the blackberry OS version.
 	 *
 	 * Return strings are from the following list:
+	 * - blackberry-10
 	 * - blackberry-7
 	 * - blackberry-6
 	 * - blackberry-torch //only the first edition. The 2nd edition has the OS7 onboard and doesn't need any special rule.
@@ -1200,6 +1120,7 @@ class user_agent_info {
 	 * Retrieve the blackberry browser version.
 	 *
 	 * Return string are from the following list:
+	 * - blackberry-10
 	 * - blackberry-webkit
 	 * - blackberry-5
 	 * - blackberry-4.7
@@ -1216,7 +1137,7 @@ class user_agent_info {
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		if ( self::is_blackberry_10() )
-			return 'blackberry_10';
+			return 'blackberry-10';
 		
 		$pos_blackberry = strpos( $agent, 'blackberry' );
 		if ( $pos_blackberry === false ) {

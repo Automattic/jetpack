@@ -162,6 +162,8 @@ class Jetpack {
 	function Jetpack() {
 		$this->sync = new Jetpack_Sync;
 
+		require_once dirname( __FILE__ ) . '/class.jetpack-user-agent.php';
+
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
 
