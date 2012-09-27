@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Register the widget for use in Appearance -> Widgets
  */
