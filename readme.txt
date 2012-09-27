@@ -97,6 +97,8 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Bug Fix: Custom CSS: @import rules and external images are no longer stripped out of custom CSS
 * Bug Fix: Custom CSS: Fixed warnings and notices displayed in debug mode
 * Bug Fix: Sharing: Fixed double-encoding of image URLs
+* Bug Fix: Sharing: Fix Google +1 button HTML validation issues (again :))
+* Bug Fix: Gravatar Profile Widget: Reduce size of header margins
 
 = 1.7 =
 * Enhancement: CSS Editor: Customize your site's design without modifying your theme.
