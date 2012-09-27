@@ -211,13 +211,15 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		global $wpdb;
 		$post_views = wp_cache_get( "get_top_posts_$count", 'stats' );
 		if ( false === $post_views ) {
-			$post_views = array_shift( stats_get_csv( 'post_views', "days=2&limit=10" ) );
-			unset( $post_views[0] );
+			$post_views = stats_get_csv( 'postviews', array( 'days' => 2, 'limit' => 10 ) );
 			wp_cache_add( "get_top_posts_$count", $post_views, 'stats', 1200);
 		}
 
-		if ( ! empty( $post_views ) )
-			return $this->get_posts( array_keys( $post_views ), $count );
+		if ( ! empty( $post_views ) ) {
+			$post_view_ids = array();
+			foreach ( $post_views as $post_view ) $post_view_ids[] = $post_view['post_id'];
+			return $this->get_posts( $post_view_ids, $count );
+		}
 		else
 			return array();
 	}
