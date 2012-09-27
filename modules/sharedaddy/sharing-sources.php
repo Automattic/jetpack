@@ -829,7 +829,7 @@ class Share_GooglePlus1 extends Sharing_Source {
 
 	public function get_display( $post ) {
 		// Smart or not, return the G+ button
-		return '<div class="googleplus1_button"><g:plusone size="medium" callback="sharing_plusone" href="' . esc_url( $this->get_share_url( $post->ID ) ) . '"></g:plusone></div>';
+		return '<div class="googleplus1_button"><div class="g-plusone" data-size="medium" data-callback="sharing_plusone" data-href="' . esc_url( $this->get_share_url( $post->ID ) ) . '"></div></div>';
 	}
 	
 	public function display_preview() {
