@@ -107,7 +107,9 @@ class Jetpack_User_Agent_Info {
     * @return string The matched User Agent name, false otherwise.
     */
    function get_mobile_user_agent_name() {
-	   	if ( $this->is_iphone_or_ipod( 'iphone-safari' ) )
+   		if( $this->is_chrome_for_iOS( ) ) //keep this check before the safari rule
+   			return 'chrome-for-ios';
+	   	elseif ( $this->is_iphone_or_ipod( 'iphone-safari' ) )
 	 	  	return  'iphone';
 	   	elseif ( $this->is_ipad( 'ipad-safari' ) )
 	   		return 'ipad';
@@ -416,6 +418,27 @@ class Jetpack_User_Agent_Info {
 			return $is_iphone;
 	}
 
+	
+	/*
+	*  Detects if the current UA is Chrome for iOS
+	*
+	*  The User-Agent string in Chrome for iOS is the same as the Mobile Safari User-Agent, with CriOS/<ChromeRevision> instead of Version/<VersionNum>.
+	*  - Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_1_1 like Mac OS X; en) AppleWebKit/534.46.0 (KHTML, like Gecko) CriOS/19.0.1084.60 Mobile/9B206 Safari/7534.48.3
+	*/
+	function is_chrome_for_iOS( ) {
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
+			return false;
+			
+		if ( self::is_iphone_or_ipod( 'iphone-safari' ) === false ) return false;
+	
+		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+	
+		if ( strpos( $ua, 'crios/' ) !== false )
+			return true;
+		else
+			return false;
+	}
+	
 	/*
 	 *  Detects if the current UA is Twitter for iPhone
 	 * Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_5 like Mac OS X; nb-no) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPhone
@@ -450,8 +473,9 @@ class Jetpack_User_Agent_Info {
 
 	/*
 	 * Detects if the current UA is Facebook for iPhone
-	 * - Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPhone3,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/5.0;FBSS/2; FBCR/O2;FBID/phone;FBLC/en_US;FBSF/2.0]
 	 * - Facebook 4020.0 (iPhone; iPhone OS 5.0.1; fr_FR)
+	 * - Mozilla/5.0 (iPhone; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPhone3,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/5.0;FBSS/2; FBCR/O2;FBID/phone;FBLC/en_US;FBSF/2.0]
+	 * - Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 [FBAN/FBIOS;FBAV/5.0;FBBV/47423;FBDV/iPhone3,1;FBMD/iPhone;FBSN/iPhone OS;FBSV/5.1.1;FBSS/2; FBCR/3ITA;FBID/phone;FBLC/en_US]
 	 */
 	function is_facebook_for_iphone( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
@@ -466,14 +490,17 @@ class Jetpack_User_Agent_Info {
 			return true;
 		else if ( strpos( $ua, 'fbforiphone' ) !== false && strpos( $ua, 'tablet' ) === false )
 			return true;
+		else if ( strpos( $ua, 'fban/fbios;' ) !== false && strpos( $ua, 'tablet' ) === false ) //FB app v5.0 or higher
+			return true;
 		else
 			return false;
 	}
 
 	/*
 	 * Detects if the current UA is Facebook for iPad
-	 * - Mozilla/5.0 (iPad; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/5.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US;FBSF/1.0]
 	 * - Facebook 4020.0 (iPad; iPhone OS 5.0.1; en_US)
+	 * - Mozilla/5.0 (iPad; U; CPU iPhone OS 5_0 like Mac OS X; en_US) AppleWebKit (KHTML, like Gecko) Mobile [FBAN/FBForIPhone;FBAV/4.0.2;FBBV/4020.0;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/5.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US;FBSF/1.0]
+	 * - Mozilla/5.0 (iPad; CPU OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Mobile/10A403 [FBAN/FBIOS;FBAV/5.0;FBBV/47423;FBDV/iPad2,1;FBMD/iPad;FBSN/iPhone OS;FBSV/6.0;FBSS/1; FBCR/;FBID/tablet;FBLC/en_US]
 	 */
 	function is_facebook_for_ipad( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
@@ -484,7 +511,7 @@ class Jetpack_User_Agent_Info {
 		if ( strpos( $ua, 'ipad' ) === false )
 			return false;
 
-		if ( strpos( $ua, 'facebook' ) !== false || strpos( $ua, 'fbforiphone' ) !== false  )
+		if ( strpos( $ua, 'facebook' ) !== false || strpos( $ua, 'fbforiphone' ) !== false  || strpos( $ua, 'fban/fbios;' ) !== false )
 			return true;
 		else
 			return false;
