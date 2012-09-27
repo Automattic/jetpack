@@ -31,33 +31,20 @@ function minileven_header() {
 	$header_image = minileven_get_header_image();
 	$header_text = minileven_header_text_display();
 
-	if  ( minileven_get_header_image() )
-		list( $width ) = getimagesize( $header_image );
-	?>
-	<?php // Display small header image floated to the left of the site title
-	if ( false !== $header_image && $width < 115) : ?>
-		<div id="header-logo">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
-				<img src="<?php echo $header_image; ?>" alt="" />
-			</a>
-		</div><!-- #header-logo -->
-	<?php endif; // end check for header images that are less than 115px wide ?>
-
-	<?php if ( 'blank' != $header_text ) : ?>
+	if ( 'blank' != $header_text ) : ?>
 		<hgroup>
 			<h1 id="site-title"><span><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></span></h1>
 			<h2 id="site-description"><?php bloginfo( 'description' ); ?></h2>
 		</hgroup>
-	<?php endif; ?>
+<?php endif;
 
-	<?php // Display standard size header images below the site title
-		if ( false !== $header_image && $width >= 115) : ?>
-			<div id="header-img">
-				<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
-					<img src="<?php echo $header_image; ?>" alt="" />
-				</a>
-			</div><!-- #header-img -->
-	<?php endif; // end check for header images that are at least 115px wide
+	if ( false !== $header_image ) : ?>
+		<div id="header-img">
+			<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
+				<img src="<?php echo $header_image; ?>" alt="" />
+			</a>
+		</div><!-- #header-img -->
+<?php endif; // end check for header image existence.
 }
 
 /* This function displays the custom background image or color, and custom text color */

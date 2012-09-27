@@ -270,11 +270,6 @@ object {
 #header-img {
 	text-align: center;
 }
-#header-logo {
-	float: left;
-	margin-right: 2%;
-	padding: 0;
-}
 header img {
 	max-width: 100%;
 	height: auto;
