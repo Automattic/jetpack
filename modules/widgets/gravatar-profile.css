@@ -1,8 +1,7 @@
 .widget-grofile {
 }
 	.widget-grofile h4 {
-		margin: 1em 0 1.2em;
-		/*font-size: 1.2em;*/
+		margin: 1em 0 .5em;
 	}
 	.widget-grofile ul.grofile-urls {
 		margin-left: 0;
