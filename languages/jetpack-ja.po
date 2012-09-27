@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.8 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-09-27 00:55:11+0000\n"
+"PO-Revision-Date: 2012-09-27 14:25:49+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,11 +12,11 @@ msgstr ""
 
 #: jetpack.php:2597
 msgid "Jetpack Plugin Version"
-msgstr ""
+msgstr "Jetpack プラグインバージョン"
 
 #: jetpack.php:2603
 msgid "The Client ID/WP.com Blog ID of this site"
-msgstr ""
+msgstr "このサイトのクライアント ID / WP.com ブログ ID"
 
 #: jetpack.php:1031
 msgid "Jetpack requires WordPress version %s or later."
@@ -272,7 +272,7 @@ msgstr "すべての機能を有効化するには右のボタンを使って Wo
 
 #: jetpack.php:2029
 msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right."
-msgstr ""
+msgstr "Jetpack の全機能を有効化するには、WordPress.com アカウントとの連携が必要です。右下のボタンを使ってください。"
 
 #: jetpack.php:2033
 msgid "Link accounts with WordPress.com"
@@ -554,7 +554,7 @@ msgstr "言語"
 #: modules/after-the-deadline/config-options.php:89
 msgctxt "%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG"
 msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href=\"%1$s\">%2$s</a> value is the default proofreading language."
-msgstr ""
+msgstr "校正ツールは英語、フランス語、ドイツ語、ポルトガル語、スペイン語に対応しています。デフォルトでは <a href=\"http://wpdocs.sourceforge.jp/Installing_WordPress_in_Your_Language\">%2$s</a> の値が校正ツールの言語として採用されます。"
 
 #: modules/after-the-deadline/config-options.php:95
 msgid "Use automatically detected language to proofread posts and pages"
@@ -1210,7 +1210,7 @@ msgstr "CSS スタイルシートエディター"
 msgid ""
 "New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions?\n"
 "\tAsk in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
-msgstr ""
+msgstr "CSS についてもっと知りたい場合は、<a href=\"http://www.tohoho-web.com/css/basic.htm\">入門用チュートリアル</a>をご覧ください。質問があれば、<a href=\"http://ja.forums.wordpress.org/forum/4\">CSS カスタマイズフォーラム</a>でお尋ねください。"
 
 #: modules/custom-css/custom-css.php:771
 msgid "Preview"
@@ -1402,7 +1402,7 @@ msgstr "メインコンテンツへ移動"
 
 #: modules/minileven/theme/pub/minileven/image.php:73
 msgid "<span class=\"entry-gallery\">&laquo; <a href=\"%1$s\" title=\"Back to %2$s\" rel=\"gallery\">Back to Gallery</a></span>"
-msgstr ""
+msgstr "<span class=\"entry-gallery\">&laquo; <a href=\"%1$s\" title=\"%2$s へ戻る\" rel=\"gallery\">ギャラリーへ戻る</a></span>"
 
 #: modules/minileven/theme/pub/minileven/image.php:87
 msgid "Image navigation"
@@ -1410,19 +1410,19 @@ msgstr "画像ナビゲーション"
 
 #: modules/minileven/theme/pub/minileven/image.php:88
 msgid "&raquo; Previous"
-msgstr ""
+msgstr "前 &raquo;"
 
 #: modules/minileven/theme/pub/minileven/image.php:89
 msgid "Next &raquo; "
-msgstr ""
+msgstr "次へ &raquo;"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:20
 msgid "<span class=\"meta-nav\">&laquo;</span> Older"
-msgstr ""
+msgstr "<span class=\"meta-nav\">&laquo;</span> 過去の投稿"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:21
 msgid "Newer <span class=\"meta-nav\">&raquo;</span>"
-msgstr ""
+msgstr "新しい投稿 <span class=\"meta-nav\">&raquo;</span>"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:38
 msgid "Pingback:"
@@ -1430,7 +1430,7 @@ msgstr "ピンバック:"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:55
 msgid "%1$s on %2$s"
-msgstr "%2$s に %1$s より"
+msgstr "%1$s (%2$s)"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:61
 msgid "%1$s at %2$s"
@@ -1446,7 +1446,7 @@ msgstr "返信 <span>&darr;</span>"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:93
 msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
-msgstr ""
+msgstr "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time class=\"entry-date\" datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
 
 #: modules/minileven/theme/pub/minileven/index.php:23
 msgid "Daily Archives: %s"
@@ -1466,7 +1466,7 @@ msgstr "カテゴリー: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:31
 msgid "Tagged with %s"
-msgstr ""
+msgstr "タグ: %1$s"
 
 #: modules/minileven/theme/pub/minileven/index.php:33
 msgid "Posted by"
@@ -1496,15 +1496,15 @@ msgstr "検索"
 
 #: modules/minileven.php:42
 msgid "Excerpts"
-msgstr ""
+msgstr "抜粋"
 
 #: modules/minileven.php:46
 msgid "Enable excerpts on front page and on archive pages"
-msgstr ""
+msgstr "フロントページとアーカイブページで抜粋を有効化する"
 
 #: modules/minileven.php:51
 msgid "Show full posts on front page and on archive pages"
-msgstr ""
+msgstr "フロントページとアーカイブページで全文を表示する"
 
 #: modules/minileven.php:60
 msgid "Mobile Apps"
@@ -1787,7 +1787,7 @@ msgstr "購読ウィジェットを使うには、「外観 &#8594; <a href=\"%s
 
 #: modules/module-info.php:373
 msgid "You can also make changes to your Subscription settings at the bottom of the <a href=\"%s\">Discussion Settings</a> page."
-msgstr ""
+msgstr "購読設定は<a href=\"%s\">ディスカッション設定</a>ページの下部からも変更できます。"
 
 #: modules/module-info.php:386
 msgid "Enhanced Distribution"
@@ -1847,15 +1847,15 @@ msgstr "モバイル用テーマ"
 
 #: modules/module-info.php:511
 msgid "There's a good chance that visitors to your site will be using a smartphone, and it's important to provide them with a great reading experience while on the small screen."
-msgstr ""
+msgstr "スマートフォンからアクセスしている読者もたくさんいる可能性があります。小さな画面でも読みやすくしておくことも重要です。"
 
 #: modules/module-info.php:512
 msgid "Jetpack's mobile theme is optimized for small screens. It uses the header image, background, and widgets from your current theme for a great custom look. Post format support is included, so your photos and galleries will look fantastic on a smartphone."
-msgstr ""
+msgstr "Jetpack のモバイルテーマは小さな画面にも最適化されています。現在のテーマのヘッダー画像、背景、ウィジェットを使い、カスタム表示に対応します。投稿フォーマットにも対応しており、スマートフォンでも写真やギャラリーを美しく表示できます。"
 
 #: modules/module-info.php:513
 msgid "Visitors on iPhone, Android, Windows Phone, and other mobile devices will automatically see the mobile theme, with the option to view the full site. You can enable or disable the mobile theme by clicking the \"Activate\" or \"Deactive\" button above."
-msgstr ""
+msgstr "iPhone、Android、Windows Phone などのモバイルデバイス上の読者には、自動的に通常サイト表示オプション付きのモバイル対応テーマが提供されます。モバイル対応テーマは、上記のボタンから有効化・無効化できます。"
 
 #: modules/sharedaddy/sharedaddy.php:18
 msgid "Shared Post"
@@ -1863,7 +1863,7 @@ msgstr "共有投稿"
 
 #: modules/sharedaddy/sharedaddy.php:35
 msgid "Show sharing buttons."
-msgstr "ソーシャル共有アイコンを表示する。"
+msgstr "共有ボタンを表示する。"
 
 #: modules/sharedaddy/sharedaddy.php:112
 msgid "Disable CSS and JS"
@@ -2894,7 +2894,7 @@ msgstr "人気の投稿とページ"
 
 #: modules/widgets/top-posts.php:22
 msgid "Shows your most viewed posts and pages."
-msgstr ""
+msgstr "人気の投稿や固定ページを表示します。"
 
 #: modules/widgets/top-posts.php:63
 msgid "Number of posts to show:"
@@ -3012,7 +3012,7 @@ msgid "Mark up your posts with the <img src=\"http://l.wordpress.com/latex.php?l
 msgstr "投稿を <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX ロゴ\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> マークアップ言語で記入できます。複雑な数学の数式などに向いています。"
 
 msgid "Automatically optimize your site for mobile devices."
-msgstr ""
+msgstr "サイトをモバイルデバイス向けに自動で最適化します。"
 
 msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
 msgstr "コンテンツを Facebook、Twitter などで簡単に共有できるパワフルなツールです。"
