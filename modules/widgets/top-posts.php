@@ -213,7 +213,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( false === $post_views ) {
 			$post_views = array_shift( stats_get_csv( 'post_views', "days=2&limit=10" ) );
 			unset( $post_views[0] );
-			wp_cache_add( "get_top_posts_$number", $post_views, 'stats', 1200);
+			wp_cache_add( "get_top_posts_$count", $post_views, 'stats', 1200);
 		}
 
 		if ( ! empty( $post_views ) )
