@@ -228,7 +228,8 @@ class VideoPress {
 			'w' => 0,
 			'freedom' => false,
 			'flashonly' => false,
-			'autoplay' => false
+			'autoplay' => false,
+			'hd' => false
 		), $attr ) );
 
 		$freedom = (bool) $freedom;
@@ -239,6 +240,12 @@ class VideoPress {
 			$freedom = true;
 			
 		$forcestatic = get_option( 'video_player_static', false );
+
+		/**
+		* Set the video to HD if the blog option has it enabled
+		*/
+		if ( (bool) get_option( 'video_player_high_quality', false ) )
+			$hd = true;
 
 		$width = absint($w);
 		unset($w);
@@ -258,7 +265,8 @@ class VideoPress {
 			'freedom' => $freedom,
 			'force_flash' => (bool) $flashonly,
 			'autoplay' => (bool) $autoplay,
-			'forcestatic' => $forcestatic
+			'forcestatic' => $forcestatic,
+			'hd' => (bool) $hd
 		);
 		unset( $freedom );
 		unset( $flashonly );
@@ -1039,7 +1047,8 @@ class VideoPress_Player {
 			'blog' => absint( $this->video->blog_id ),
 			'post' => absint( $this->video->post_id ),
 			'duration'=> absint( $this->video->duration ),
-			'poster' => esc_url_raw( $this->video->poster_frame_uri, array( 'http', 'https' ) )
+			'poster' => esc_url_raw( $this->video->poster_frame_uri, array( 'http', 'https' ) ),
+			'hd' => (bool) $this->options['hd']
 		);
 		if ( isset( $this->video->videos ) ) {
 			if ( isset( $this->video->videos->mp4 ) && isset( $this->video->videos->mp4->url ) )

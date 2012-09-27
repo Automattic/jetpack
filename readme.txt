@@ -92,6 +92,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Twitter Widget: Added Follow button
 * Enhancement: Widgets: Added Top Posts and Pages widget
 * Enhancement: Mobile Push Notifications: Added support for mobile push notifications on new comments.
+* Enhancement: VideoPress: Shortcodes now support the HD option, for default HD playback.
 * Bug Fix: Twitter Widget: Fixed tweet permalinks in the Twitter widget
 * Bug Fix: Custom CSS: @import rules and external images are no longer stripped out of custom CSS
 * Bug Fix: Custom CSS: Fixed warnings and notices displayed in debug mode
