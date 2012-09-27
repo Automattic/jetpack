@@ -162,9 +162,6 @@ class Jetpack {
 	function Jetpack() {
 		$this->sync = new Jetpack_Sync;
 
-		require_once dirname( __FILE__ ) . '/class.jetpack-user-agent.php';
-		require_once dirname( __FILE__ ) . '/class.jetpack-post-images.php';
-
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
 
@@ -3454,6 +3451,9 @@ class Jetpack_Sync {
 		return $this->register( 'delete_comment', (int) $id, true );
 	}
 }
+
+require_once dirname( __FILE__ ) . '/class.jetpack-user-agent.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-post-images.php';
 
 class Jetpack_Error extends WP_Error {}
 
