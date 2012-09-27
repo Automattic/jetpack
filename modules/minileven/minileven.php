@@ -201,7 +201,7 @@ function mobile_admin_bar() {
 	?>
 	<script type="text/javascript" id='mobile-admin-bar'>
 		jQuery( function( $ ) {
-			var menupop = $( '#wpadminbar .ab-top-menu > li' )
+			var menupop = $( '#wpadminbar .ab-top-menu > li.menupop' )
 				.unbind( 'mouseover' )
 				.unbind( 'mouseout' )
 				.click( function ( e ) {
