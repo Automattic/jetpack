@@ -1160,7 +1160,7 @@ jQuery(document).ready(function($) {
 	// start on page load if hash exists
 	if ( document.location.hash && document.location.hash.match(/jp-carousel-(\d+)/) ) {
 		$(document).ready(function(){
-			var gallery = $('div.gallery'), index = -1, n = document.location.hash.match(/jp-carousel-(\d+)/);
+			var gallery = $('div.gallery, div.tiled-gallery'), index = -1, n = document.location.hash.match(/jp-carousel-(\d+)/);
 
 			n = parseInt(n[1], 10);
 
