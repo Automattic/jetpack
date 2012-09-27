@@ -807,21 +807,16 @@ function safecss_admin() {
  * @return string
  */
 function custom_css_meta_box() {
-	$custom_content_width = intval( get_option( 'safecss_content_width' ) );
-	// If custom content width hasn't been overridden and the theme has a content_width value, use that as a default.
-	if ( $custom_content_width <= 0 && ! empty( $GLOBALS['content_width'] ) )
-		$custom_content_width = intval( $GLOBALS['content_width'] );
-?>
+	?>
 	<p class="css-settings">
 		<label><input type="radio" name="add_to_existing" value="true" <?php checked( get_option( 'safecss_add' ) != 'no' ); ?> /> <?php printf( __( 'Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet.', 'jetpack' ), get_current_theme() ); ?></label><br />
 		<label><input type="radio" name="add_to_existing" value="false" <?php checked( get_option( 'safecss_add' ) == 'no' ); ?> /> <?php printf( __( 'Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with my own CSS.', 'jetpack' ), get_current_theme() ); ?></label>
 	</p>
 	<p><?php printf( __( '<a href="%s">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor.', 'jetpack' ), apply_filters( 'safecss_theme_stylesheet_url', get_stylesheet_uri() ), get_current_theme() ); ?></p>
-	<p class="custom_content_width" style="display: none;">
-		<label for="custom_content_width"><?php _e( 'Limit width to', 'jetpack' ); ?></label><input type="text" name="custom_content_width" id="custom_content_width" value="<?php echo esc_attr( $custom_content_width ); ?>" size=5 /> <?php printf( __( 'pixels for videos, full size images, and other shortcodes. (<a href="%s">More info</a>.)', 'jetpack' ), apply_filters( 'safecss_limit_width_link', 'http://jetpack.me/support/custom-css/#limited-width' ) ); ?>
-	<?php if ( !empty( $GLOBALS['content_width'] ) && $custom_content_width != $GLOBALS['content_width'] ) printf( __( 'The default content width for the %s theme is %d pixels.', 'jetpack' ), get_current_theme(), intval( $GLOBALS['content_width'] ) ); ?>
-	</p>
-<?php
+	<?php
+
+	do_action( 'custom_css_meta_fields' );
+
 }
 
 /**
