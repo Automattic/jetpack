@@ -27,7 +27,7 @@ function sharing_add_meta_box() {
 }
 
 function sharing_meta_box_content( $post ) {
-	$disabled = get_post_meta( $post_id, 'sharing_disabled', true ); ?>
+	$disabled = get_post_meta( $post->ID, 'sharing_disabled', true ); ?>
 
 	<p>
 		<label for="enable_post_sharing">
