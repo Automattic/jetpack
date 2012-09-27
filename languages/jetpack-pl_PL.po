@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.8 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-09-27 00:55:24+0000\n"
+"PO-Revision-Date: 2012-09-27 14:26:02+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -303,7 +303,7 @@ msgstr ""
 #: jetpack.php:2072
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
-msgstr ""
+msgstr "Prenumerujesz obecnie wiadomości emailowe.%s"
 
 #: jetpack.php:2073
 msgid "Unsubscribe"
@@ -2501,11 +2501,11 @@ msgstr ""
 
 #: modules/subscriptions.php:184
 msgid "Follow Blog"
-msgstr ""
+msgstr "Śledź blog"
 
 #: modules/subscriptions.php:199
 msgid "Follow Comments"
-msgstr ""
+msgstr "Śledź komentarze"
 
 #: modules/subscriptions.php:218
 msgid "Change whether your visitors can subscribe to your posts or comments or both."
@@ -2521,11 +2521,11 @@ msgstr ""
 
 #: modules/subscriptions.php:438
 msgid "Notify me of follow-up comments by email."
-msgstr ""
+msgstr "Powiadom mnie o kolejnych komentarzach przez email."
 
 #: modules/subscriptions.php:445
 msgid "Notify me of new posts by email."
-msgstr ""
+msgstr "Powiadom mnie o nowych wpisach przez email."
 
 #: modules/subscriptions.php:511
 msgid "Add an email signup form to allow people to subscribe to your blog."
@@ -2537,26 +2537,26 @@ msgstr ""
 
 #: modules/subscriptions.php:545
 msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
-msgstr ""
+msgstr "Wysłaliśmy do ciebie e-mail z prośbą o potwierdzenie Twojej subskrypcji. Odszukaj ten email i kliknij \"aktywuj\" aby rozpocząć subskrypcję."
 
 #: modules/subscriptions.php:555
 msgid "The email you entered was invalid, please check and try again."
-msgstr ""
+msgstr "Wprowadzony adres e-mail jest niepoprawny. Sprawdź i spróbuj ponownie."
 
 #: modules/subscriptions.php:558
 msgid "You have already subscribed to this site, please check your inbox."
-msgstr ""
+msgstr "Już prenumerujesz tą witrynę. Sprawdź swoją skrzynkę emailową."
 
 #: modules/subscriptions.php:565
 msgid "There was an error when subscribing, please try again."
-msgstr ""
+msgstr "Pojawił się błąd przy prenumeracie. Spróbuj ponownie."
 
 #: modules/subscriptions.php:583
 msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Dołącz do %s subskrybenta"
+msgstr[1] "Dołącz do %s pozostałych subskrybentów"
+msgstr[2] "Dołącz do %s pozostałych subskrybentów"
 
 #: modules/subscriptions.php:587
 msgid "Email Address"
@@ -2564,15 +2564,15 @@ msgstr "Adres e-mail"
 
 #: modules/subscriptions.php:662
 msgid "Subscribe to Blog via Email"
-msgstr ""
+msgstr "Zaprenumeruj ten blog przez e-mail"
 
 #: modules/subscriptions.php:663
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
-msgstr ""
+msgstr "Wprowadź swój adres email aby zaprenumerować ten blog i otrzymywać powiadomienia o nowych wpisach przez email."
 
 #: modules/subscriptions.php:665
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
-msgstr ""
+msgstr "Kliknij aby zaprenumerować ten blog i otrzymywać powiadomienia o nowych wpisach przez email."
 
 #: modules/subscriptions.php:681
 msgid "%s: %s"
