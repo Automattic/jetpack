@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * Currently, this widget depends on the Stats Module. To not load this file
+ * when the Stats Module is not active would potentially bypass Jetpack's
+ * fatal error detection on module activation, so we always load this file.
+ * Instead, we don't register the widget if the Stats Module isn't active.
+ */
 
 /**
  * Register the widget for use in Appearance -> Widgets
@@ -7,6 +13,15 @@
 add_action( 'widgets_init', 'jetpack_top_posts_widget_init' );
 
 function jetpack_top_posts_widget_init() {
+	// Currently, this widget depends on the Stats Module
+	if (
+		( !defined( 'IS_WPCOM' ) || !IS_WPCOM )
+	&&
+		!function_exists( 'stats_get_csv' )
+	) {
+		return;
+	}
+
 	register_widget( 'Jetpack_Top_Posts_Widget' );
 }
 
