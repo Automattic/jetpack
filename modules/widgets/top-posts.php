@@ -209,19 +209,17 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 	function get_by_views( $count ) {
 		global $wpdb;
-		$post_views = wp_cache_get( "get_top_posts_$count", 'stats' );
-		if ( false === $post_views ) {
-			$post_views = stats_get_csv( 'postviews', array( 'days' => 2, 'limit' => 10 ) );
-			wp_cache_add( "get_top_posts_$count", $post_views, 'stats', 1200);
+		$post_view_posts = stats_get_csv( 'postviews', array( 'days' => 2, 'limit' => 10 ) );
+		if ( !$post_view_posts ) {
+			return array();
 		}
 
-		if ( ! empty( $post_views ) ) {
-			$post_view_ids = array();
-			foreach ( $post_views as $post_view ) $post_view_ids[] = $post_view['post_id'];
-			return $this->get_posts( $post_view_ids, $count );
-		}
-		else
+		$post_view_ids = wp_list_pluck( $post_view_posts, 'post_id' );
+		if ( !$post_view_ids ) {
 			return array();
+		}
+
+		return $this->get_posts( $post_view_ids, $count );
 	}
 
 	function get_fallback_posts() {
