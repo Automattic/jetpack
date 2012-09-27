@@ -2771,7 +2771,6 @@ class Jetpack_Client {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$args['user_id'] = (int) $args['user_id'];
 		$args['blog_id'] = (int) $args['blog_id'];
 
 		if ( 'header' != $args['auth_location'] ) {
@@ -2782,6 +2781,8 @@ class Jetpack_Client {
 		if ( !$token ) {
 			return new Jetpack_Error( 'missing_token' );
 		}
+
+		$args['user_id'] = (int) $args['user_id'];
 
 		$method = strtoupper( $args['method'] );
 

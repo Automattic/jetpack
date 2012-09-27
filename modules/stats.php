@@ -401,7 +401,7 @@ function stats_reports_page() {
 	$url = add_query_arg( $q, $url );
 	$method = 'GET';
 	$timeout = 90;
-	$user_id = 1; // means send the wp.com user_id, not 1
+	$user_id = JETPACK_MASTER_USER; // means send the wp.com user_id
 
 	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
 	$get_code = wp_remote_retrieve_response_code( $get );
