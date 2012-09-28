@@ -9,6 +9,9 @@
 
 function jetpack_load_minileven() {
 	include dirname( __FILE__ ) . "/minileven/minileven.php";
+
+	if ( get_option( 'wp_mobile_app_promos' ) != '1' )
+		remove_action( 'wp_mobile_theme_footer', 'jetpack_mobile_app_promo' );
 }
 
 add_action( 'jetpack_modules_loaded', 'minileven_loaded' );
@@ -24,6 +27,8 @@ function minileven_configuration_load() {
 		if ( isset( $_POST['wp_mobile_excerpt'] ) )
 			update_option( 'wp_mobile_excerpt', '1' == $_POST['wp_mobile_excerpt'] ? '1' : '0' );
 
+		update_option( 'wp_mobile_app_promos', ( isset( $_POST['wp_mobile_app_promos'] ) ) ? '1' : '0' );
+
 		Jetpack::state( 'message', 'module_configured' );
 		wp_safe_redirect( Jetpack::module_configuration_url( 'minileven' ) );
 		exit;
@@ -32,6 +37,7 @@ function minileven_configuration_load() {
 
 function minileven_configuration_screen() {
 	$excerpts = ( 0 == get_option( 'wp_mobile_excerpt' ) ) ? 0 : 1;
+	$promos = ( '1' == get_option( 'wp_mobile_app_promos' ) ) ? 1 : 0;
 
 	?>
 	<form method="post">
@@ -49,6 +55,15 @@ function minileven_configuration_screen() {
 					<label>
 						<input name="wp_mobile_excerpt" type="radio" value="0" class="code" <?php checked( 0, $excerpts, true ); ?> />
 						<?php _e( 'Show full posts on front page and on archive pages', 'jetpack' ); ?>
+					</label>
+				</td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><?php _e( 'Mobile App Promos', 'jetpack' ); ?></th>
+				<td>
+					<label>
+						<input name="wp_mobile_app_promos" type="checkbox" value="1" <?php checked( 1, $promos, true ); ?> />
+						<?php _e ( 'Show a promo for the WordPress mobile apps in the footer of the mobile theme.', 'jetpack' ); ?>
 					</label>
 				</td>
 			</tr>
