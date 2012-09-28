@@ -324,7 +324,7 @@ class Jetpack_PostImages {
 				return array();
 			}
 
-			if ( !preg_match( '/src=["\']([^"\'])["\']/', $avatar, $matches ) ) {
+			if ( !preg_match( '/src=["\']([^"\']+)["\']/', $avatar, $matches ) ) {
 				return array();
 			}
 
