@@ -1,5 +1,5 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, andy, designsimply, hew, westi, eoigal, tmoorewp, matt, pento, cfinke, daniloercoli
+Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, andy, designsimply, hew, westi, eoigal, tmoorewp, matt, pento, cfinke, daniloercoli, chellycat
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions
 Requires at least: 3.2
 Tested up to: 3.4.2
@@ -84,6 +84,15 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 8. Mobile Theme
 
 == Changelog ==
+
+= 1.8.1 =
+* Bug Fix: Stats: Fixed a bug preventing some users from viewing stats.
+* Bug Fix: Mobile Theme: Fixed some disabled toolbar buttons.
+* Bug Fix: Top Posts widget: Fixed a bug preventing the usage of the Top Posts widget.
+* Bug Fix: Mobile Theme: Fixed a bug that broke some sites when the Subscriptions module was not enabled and the Mobile Theme module was enabled.
+* Bug Fix: Mobile Theme: Made mobile app promos in the Mobile Theme footer opt-in.
+* Bug Fix: Twitter Widget: A fix to prevent malware warnings.
+* Bug Fix: Mobile Theme: Fixed a bug that caused errors for some users with custom header images.
 
 = 1.8 =
 * Enhancement: Mobile Theme: Automatically serve a slimmed down version of your site to users on mobile devices.
