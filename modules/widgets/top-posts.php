@@ -229,7 +229,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			return array();
 		}
 
-		$post_view_ids = wp_list_pluck( $post_view_posts, 'post_id' );
+		$post_view_ids = array_filter( wp_list_pluck( $post_view_posts, 'post_id' ) );
 		if ( !$post_view_ids ) {
 			return array();
 		}
