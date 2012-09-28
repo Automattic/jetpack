@@ -308,7 +308,7 @@ function safecss_init() {
 
 		$css = $csstidy->print->plain();
 
-		if ( intval($_POST['custom_content_width']) > 0 )
+		if ( isset( $_POST['custom_content_width'] ) && intval($_POST['custom_content_width']) > 0 )
 			$custom_content_width = intval($_POST['custom_content_width']);
 		else
 			$custom_content_width = false;
