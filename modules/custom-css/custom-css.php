@@ -162,7 +162,13 @@ function save_revision( $css, $is_preview = false ) {
 		$post['post_type'] = 'safecss';
 
 		// Set excerpt to current theme, for display in revisions list
-		$post['post_excerpt'] = get_current_theme();
+		if ( function_exists( 'wp_get_theme' ) ) {
+			$current_theme = wp_get_theme();
+			$post['post_excerpt'] = $current_theme->Name;
+		}
+		else {
+			$post['post_excerpt'] = get_current_theme();
+		}
 
 		// Insert the CSS into wp_posts
 		$post_id = wp_insert_post( $post );
@@ -173,7 +179,13 @@ function save_revision( $css, $is_preview = false ) {
 	$safecss_post['post_content'] = $css;
 
 	// Set excerpt to current theme, for display in revisions list
-	$safecss_post['post_excerpt'] = get_current_theme();
+	if ( function_exists( 'wp_get_theme' ) ) {
+		$current_theme = wp_get_theme();
+		$safecss_post['post_excerpt'] = $current_theme->Name;
+	}
+	else {
+		$safecss_post['post_excerpt'] = get_current_theme();
+	}
 
 	// Don't carry over last revision's timestamps, otherwise revisions all have matching timestamps
 	unset( $safecss_post['post_date'] );
@@ -803,16 +815,24 @@ function safecss_admin() {
  * Render CSS Settings metabox
  * Called by `safecss_admin`
  *
- * @uses get_option, checked, __, get_current_theme, apply_filters, get_stylesheet_uri, _e, esc_attr
+ * @uses get_option, checked, __, get_current_theme, apply_filters, get_stylesheet_uri, _e, esc_attr, wp_get_theme
  * @return string
  */
 function custom_css_meta_box() {
+	if ( function_exists( 'wp_get_theme' ) ) {
+		$current_theme = wp_get_theme();
+		$current_theme = $current_theme->Name;
+	}
+	else {
+		$current_theme = get_current_theme();
+	}
+
 	?>
 	<p class="css-settings">
-		<label><input type="radio" name="add_to_existing" value="true" <?php checked( get_option( 'safecss_add' ) != 'no' ); ?> /> <?php printf( __( 'Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet.', 'jetpack' ), get_current_theme() ); ?></label><br />
-		<label><input type="radio" name="add_to_existing" value="false" <?php checked( get_option( 'safecss_add' ) == 'no' ); ?> /> <?php printf( __( 'Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with my own CSS.', 'jetpack' ), get_current_theme() ); ?></label>
+		<label><input type="radio" name="add_to_existing" value="true" <?php checked( get_option( 'safecss_add' ) != 'no' ); ?> /> <?php printf( __( 'Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet.', 'jetpack' ), $current_theme ); ?></label><br />
+		<label><input type="radio" name="add_to_existing" value="false" <?php checked( get_option( 'safecss_add' ) == 'no' ); ?> /> <?php printf( __( 'Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with my own CSS.', 'jetpack' ), $current_theme ); ?></label>
 	</p>
-	<p><?php printf( __( '<a href="%s">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor.', 'jetpack' ), apply_filters( 'safecss_theme_stylesheet_url', get_stylesheet_uri() ), get_current_theme() ); ?></p>
+	<p><?php printf( __( '<a href="%s">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor.', 'jetpack' ), apply_filters( 'safecss_theme_stylesheet_url', get_stylesheet_uri() ), $current_theme ); ?></p>
 	<?php
 
 	do_action( 'custom_css_meta_fields' );
