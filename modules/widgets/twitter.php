@@ -87,7 +87,6 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 				continue;
 
 			$tweet['text'] = esc_html( $tweet['text'] ); // escape here so that Twitter handles in Tweets don't get mangled
-			$tweet['text'] = $this->normalize_tweet_text( $tweet['text'] );
 			$tweet         = $this->expand_tco_links( $tweet );
 			$tweet['text'] = make_clickable( $tweet['text'] ); 
 
@@ -143,12 +142,6 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 		}
 
 		return $tweet;
-	}
-
-	function normalize_tweet_text( $text ) {
-			// Hack to replace this junk from the tweets.
-			// http://www.theregister.co.uk/2011/03/31/lizamoon_mass_injection_attack/
-			return str_replace( '&lt;/title&gt;&lt;script src=http://lizamoon.com/ur.php&gt;&lt;/script&gt;', '', $text );
 	}
 
 	function fetch_twitter_user_stream( $account, $hidereplies, $show, $include_retweets ) {
