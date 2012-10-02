@@ -2721,7 +2721,7 @@ p {
 		if ( !isset( $clients[$client_blog_id] ) ) {
 			Jetpack::load_xml_rpc_client();
 			$clients[$client_blog_id] = new Jetpack_IXR_ClientMulticall( array(
-				'user_id' => get_current_user_id()
+				'user_id' => JETPACK_MASTER_USER,
 			) );
 			ignore_user_abort( true );
 			add_action( 'shutdown', array( 'Jetpack', 'xmlrpc_async_call' ) );
