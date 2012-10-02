@@ -203,8 +203,32 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
+		
+		//Mobile comment push notifications
+		add_action( 'wp_insert_comment', array( $this, 'save_comment' ) , 10, 2  );
 	}
+	
+	/**
+	 *  Synch comment with the .COM backend.
+	 */
+	function save_comment( $id, $comment ) {
+		
+		$post = $this->get_post( $comment->comment_post_ID );
 
+		if ( $this->is_post_public( $post ) === false )
+			return;
+
+		/*if ( ! Jetpack_Subscriptions::post_is_public( $comment->comment_post_ID ) ) {
+			return;
+		}*/
+		
+		if ( 'spam' === $comment->comment_approved ) {
+			return;
+		}
+		
+		$this->sync->comment( $id );
+	}
+	
 	/**
 	 * Device Pixels support
 	 * This improves the resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.

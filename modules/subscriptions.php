@@ -55,7 +55,6 @@ class Jetpack_Subscriptions {
 		add_action( 'delete_term',  array( $this, 'delete_taxonomy'),   10, 3 );
 
 		// Handle Comments
-		add_action( 'wp_insert_comment', array( $this, 'save_comment' ), 10, 2 );
 		add_action( 'transition_comment_status', array( $this, 'transition_comment_status' ), 10, 3 );
 		add_action( 'trashed_comment', array( $this, 'delete_comment' ) );
 		add_action( 'delete_comment', array( $this, 'delete_comment' ) );
@@ -120,18 +119,6 @@ class Jetpack_Subscriptions {
 		$the_post = get_post( $id );
 		if ( 'post' == $the_post->post_type || 'page' == $the_post->post_type )
 			$this->jetpack->sync->delete_post( $id );
-	}
-
-	function save_comment( $id, $comment ) {
-		if ( !$this->post_is_public( $comment->comment_post_ID ) ) {
-			return;
-		}
-
-		if ( 'spam' === $comment->comment_approved ) {
-			return;
-		}
-		
-		$this->jetpack->sync->comment( $id );
 	}
 
 	function transition_comment_status( $new, $old, $the_comment ) {
