@@ -28,7 +28,7 @@ function jetpack_widgets_configuration_load() {
  * Loads file for front-end widget styles.
  */
 function jetpack_widgets_styles() {
-	wp_enqueue_style( 'jetpack-widgets', plugins_url( 'widgets/widgets.css', __FILE__ ), array(), '20120924' );
+	wp_enqueue_style( 'jetpack-widgets', plugins_url( 'widgets/widgets.css', __FILE__ ), array(), '20121003' );
 }
 add_action( 'wp_enqueue_scripts', 'jetpack_widgets_styles' );
 
