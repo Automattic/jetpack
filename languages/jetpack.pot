@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Jetpack by WordPress.com package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Jetpack by WordPress.com 1.8\n"
+"Project-Id-Version: Jetpack by WordPress.com 1.8.2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/jetpack\n"
-"POT-Creation-Date: 2012-09-28 15:50:31+00:00\n"
+"POT-Creation-Date: 2012-10-03 21:08:53+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -32,7 +32,7 @@ msgstr[1] ""
 msgid "Jetpack"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 #: jetpack.php:1294 jetpack.php:1318 jetpack.php:1328 jetpack.php:1985
 #: jetpack.php:2164
@@ -825,7 +825,7 @@ msgstr ""
 msgid "Transparent"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/comments/admin.php:72 modules/module-info.php:439
 msgid "Jetpack Comments"
@@ -1141,7 +1141,7 @@ msgid ""
 "you have made will be lost."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:409
 #: modules/module-info.php:413
@@ -1294,31 +1294,45 @@ msgstr ""
 msgid "Save and go back to form builder"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:521
+#: modules/custom-css/custom-css.php:409
+msgid ""
+"Welcome to Custom CSS!\n"
+"\n"
+"CSS (Cascading Style Sheets) is a kind of code that tells the browser how to "
+"render a web page. You may delete these comments and get started with your "
+"customizations.\n"
+"\n"
+"By default, your stylesheet will be loaded after the theme stylesheets, "
+"which means that your rules can take precedence and override the theme CSS "
+"rules. Just write here what you want to change, you don't need to copy all "
+"your theme's stylesheet content."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:518
 msgid "Preview: changes must be saved or they will be lost"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:549
+#: modules/custom-css/custom-css.php:546
 msgid "Edit CSS"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:563
+#: modules/custom-css/custom-css.php:560
 msgid "CSS"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:602
+#: modules/custom-css/custom-css.php:599
 msgid "Custom CSS Stylesheet"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:762
+#: modules/custom-css/custom-css.php:759
 msgid "Stylesheet saved."
 msgstr ""
 
-#: modules/custom-css/custom-css.php:770
+#: modules/custom-css/custom-css.php:767
 msgid "CSS Stylesheet Editor"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:771
+#: modules/custom-css/custom-css.php:768
 msgid ""
 "New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/"
 "\">beginner tutorial</a>. Questions?\n"
@@ -1326,43 +1340,43 @@ msgid ""
 "templates\">Themes and Templates forum</a>."
 msgstr ""
 
-#: modules/custom-css/custom-css.php:791
+#: modules/custom-css/custom-css.php:788
 msgid "Preview"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:792
+#: modules/custom-css/custom-css.php:789
 msgid "Save Stylesheet &amp; Buy Upgrade"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:792
+#: modules/custom-css/custom-css.php:789
 msgid "Save Stylesheet"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:797
+#: modules/custom-css/custom-css.php:794
 msgid "CSS Settings"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:804
+#: modules/custom-css/custom-css.php:801
 msgid "CSS Revisions"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:840
+#: modules/custom-css/custom-css.php:837
 msgid "Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet."
 msgstr ""
 
-#: modules/custom-css/custom-css.php:841
+#: modules/custom-css/custom-css.php:838
 msgid ""
 "Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with "
 "my own CSS."
 msgstr ""
 
-#: modules/custom-css/custom-css.php:843
+#: modules/custom-css/custom-css.php:840
 msgid ""
 "<a href=\"%s\">View the original stylesheet</a> for the %s theme. Use this "
 "as a reference and do not copy and paste all of it into the CSS Editor."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/gravatar-hovercards.php:44 modules/module-info.php:57
 #: modules/module-info.php:72
@@ -1648,7 +1662,7 @@ msgid ""
 "Phone</a>, and <a href=\"%s\">more</a>!"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:22 modules/module-info.php:26
 msgid "VaultPress"
@@ -1722,7 +1736,7 @@ msgid ""
 "Deactivate button above."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:90 modules/module-info.php:94
 #: modules/module-info.php:103 modules/module-info.php:107
@@ -1746,7 +1760,7 @@ msgstr ""
 msgid "Available shortcodes are: %l."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:147 modules/module-info.php:151
 #: modules/module-info.php:161 modules/module-info.php:165
@@ -1775,7 +1789,7 @@ msgid ""
 "you can copy and paste to Twitter, Facebook or wherever your heart desires."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:182 modules/module-info.php:186
 #: modules/module-info.php:195 modules/module-info.php:199
@@ -1820,7 +1834,7 @@ msgid ""
 "<a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:252 modules/module-info.php:255
 #: modules/module-info.php:276 modules/sharedaddy/sharedaddy.php:25
@@ -1872,7 +1886,7 @@ msgid ""
 "Watch it in HD for extra snazz!"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:303 modules/module-info.php:307
 msgid "Spelling and Grammar"
@@ -1895,7 +1909,7 @@ msgstr ""
 msgid "Widgets Screenshot"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:327 modules/module-info.php:341
 msgid "Extra Sidebar Widgets"
@@ -1990,7 +2004,7 @@ msgstr ""
 msgid "Subsriptions Screenshot"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:364
 msgid "Subscriptions"
@@ -2022,7 +2036,7 @@ msgid ""
 "<a href=\"%s\">Discussion Settings</a> page."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:386
 msgid "Enhanced Distribution"
@@ -2071,7 +2085,7 @@ msgstr ""
 msgid "Gallery Carousel Screenshot"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:470
 msgid "Carousel"
@@ -2084,7 +2098,7 @@ msgid ""
 "with comments and EXIF metadata."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:485 modules/module-info.php:488
 msgid "Custom CSS"
@@ -2102,7 +2116,7 @@ msgid ""
 "To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:507 modules/module-info.php:510
 msgid "Mobile Theme"
