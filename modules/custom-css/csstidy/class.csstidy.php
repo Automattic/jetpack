@@ -577,7 +577,8 @@ class csstidy {
 							$this->at .= $this->_unicode($string, $i);
 						}
 						// fix for complicated media, i.e @media screen and (-webkit-min-device-pixel-ratio:1.5)
-						elseif (in_array($string{$i}, array('(', ')', ':', '.'))) {
+						// '/' is included for ratios in Opera: (-o-min-device-pixel-ratio: 3/2)
+						elseif (in_array($string{$i}, array('(', ')', ':', '.', '/'))) {
 							$this->at .= $string{$i};
 						}
 					} else {

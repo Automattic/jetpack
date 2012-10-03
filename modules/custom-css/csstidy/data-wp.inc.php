@@ -2,6 +2,8 @@
 
 unset( $GLOBALS['csstidy']['all_properties']['binding'] );
 
+$GLOBALS['csstidy']['all_properties']['text-size-adjust'] = 'CSS3.0';
+
 // Support browser prefixes for properties only in the latest CSS draft
 foreach ( $GLOBALS['csstidy']['all_properties'] as $property => $levels ) {
 	if ( strpos( $levels, "," ) === false ) {

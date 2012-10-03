@@ -583,10 +583,11 @@ $GLOBALS['csstidy']['quoted_string_properties'] = array('content', 'font', 'font
 
 /**
  * An array containing all properties that can be defined multiple times without being overwritten.
+ * All unit values are included so that units like rem can be supported with fallbacks to px or em.
  *
  * @global array $GLOBALS['csstidy']['quoted_string_properties']
  */
-$GLOBALS['csstidy']['multiple_properties'] = array('background', 'background-image', 'transition');
+$GLOBALS['csstidy']['multiple_properties'] = array_merge( $GLOBALS['csstidy']['unit_values'], array('background', 'background-image', 'transition') );
 
 /**
  * An array containing all predefined templates.
