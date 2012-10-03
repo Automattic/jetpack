@@ -161,7 +161,7 @@ class Jetpack {
 			return;
 		}
 
-		if ( version_compare( $version, '1.9', '<' ) && version_compare( '1.9-something', JETPACK__VERSION, '<' ) {
+		if ( version_compare( $version, '1.9', '<' ) && version_compare( '1.9-something', JETPACK__VERSION, '<' ) ) {
 			add_action( 'jetpack_modules_loaded', array( $this->sync, 'sync_all_registered_options' ), 1000 );
 		}
 	}
