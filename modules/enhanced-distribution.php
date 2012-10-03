@@ -6,4 +6,9 @@
  * First Introduced: 1.2
  */
 
-// Stub
+add_action( 'jetpack_modules_loaded', 'jetpack_enhanced_distribution_load' );
+ 
+function jetpack_enhanced_distribution_load() {
+	Jetpack_Sync::sync_posts( __FILE__ );
+	Jetpack_Sync::sync_comments( __FILE__ );
+}

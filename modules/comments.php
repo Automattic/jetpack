@@ -16,6 +16,15 @@ if ( is_admin() ) {
 function jetpack_comments_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	Jetpack::module_configuration_load( __FILE__, 'jetpack_comments_configuration_load' );
+
+	Jetpack_Sync::sync_options( __FILE__,
+		'comment_registration',
+		'require_name_email',
+		'show_avatars',
+		'avatar_default',
+		'highlander_comment_form_prompt',
+		'jetpack_comment_form_color_scheme'
+	);
 }
 
 function jetpack_comments_configuration_load() {

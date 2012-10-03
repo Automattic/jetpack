@@ -11,12 +11,30 @@ add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
 function jetpack_subscriptions_load() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	Jetpack::module_configuration_load( __FILE__, 'jetpack_subscriptions_configuration_load' );
+
+	Jetpack_Sync::sync_options( __FILE__,
+		'home',
+		'blogname',
+		'siteurl',
+		'page_on_front',
+		'permalink_structure',
+		'category_base',
+		'rss_use_excerpt',
+		'subscription_options',
+		'stb_enabled',
+		'stc_enabled',
+		'tag_base'
+	);
+
+	Jetpack_Sync::sync_posts( __FILE__ );
+	Jetpack_Sync::sync_comments( __FILE__ );
 }
 
 function jetpack_subscriptions_configuration_load() {
 	wp_safe_redirect( admin_url( 'options-discussion.php#jetpack-subscriptions-settings' ) );
 	exit;
 }
+
 class Jetpack_Subscriptions {
 	var $jetpack = false;
 
@@ -43,21 +61,6 @@ class Jetpack_Subscriptions {
 
 		// Add Configuration Page
 		add_action( 'admin_init', array( $this, 'configure' ) );
-		
-		// Handle Posts
-		add_action( 'transition_post_status', array( $this, 'transition_post_status' ), 10, 3 );
-		add_action( 'trashed_post', array( $this, 'delete_post' ) );
-		add_action( 'delete_post', array( $this, 'delete_post' ) );
-		
-		// Handle Taxonomy
-		add_action( 'created_term', array( $this, 'save_taxonomy'), 10, 3);
-		add_action( 'edited_term',  array( $this, 'save_taxonomy'), 10, 3 );
-		add_action( 'delete_term',  array( $this, 'delete_taxonomy'),   10, 3 );
-
-		// Handle Comments
-		add_action( 'transition_comment_status', array( $this, 'transition_comment_status' ), 10, 3 );
-		add_action( 'trashed_comment', array( $this, 'delete_comment' ) );
-		add_action( 'delete_comment', array( $this, 'delete_comment' ) );
 
 		// Set up the subscription widget.
 		add_action( 'widgets_init', array( $this, 'widget_init' ) );
@@ -79,63 +82,6 @@ class Jetpack_Subscriptions {
 		}
 
 		return 'publish' === $post->post_status && strlen( (string) $post->post_password ) < 1;
-	}
-
-	function transition_post_status( $new, $old, $the_post ) {
-		if ( 'publish' == $old && 'publish' != $new ) {
-			// A published post was trashed or something else
-			$this->delete_post( $the_post->ID );
-			return;
-		}
-
-		clean_post_cache( $the_post->ID );
-
-		// Publish a new post
-		if (
-			'publish' != $old
-		&&
-			$this->post_is_public( $the_post->ID )
-		&&
-			( 'post' == $the_post->post_type || 'page' == $the_post->post_type )
-		) {
-			$this->jetpack->sync->post( $the_post->ID );
-		}
-	}
-	
-	function save_taxonomy( $term, $tt_id, $taxonomy = null ) {
-		if ( is_null( $taxonomy ) )
-			return;
-
-		$tax = get_term_by( 'id', $term, $taxonomy );
-		$this->jetpack->sync->taxonomy( $tax->slug, true, $taxonomy );
-	}
-
-	function delete_taxonomy( $term, $tt_id, $taxonomy ) {
-		$tags = get_terms( $taxonomy, array( 'hide_empty' => 0 ) ); // since we can't figure out what the slug is... we will do an array comparison on the remote site and remove old taxonomy...
-		$this->jetpack->sync->delete_taxonomy( $tags, $taxonomy );
-	}
-	
-	function delete_post( $id ) {
-		$the_post = get_post( $id );
-		if ( 'post' == $the_post->post_type || 'page' == $the_post->post_type )
-			$this->jetpack->sync->delete_post( $id );
-	}
-
-	function transition_comment_status( $new, $old, $the_comment ) {
-		if ( !$this->post_is_public( $the_comment->comment_post_ID ) ) {
-			return;
-		}
-
-		if ( 'approved' == $new ) {
-			$this->jetpack->sync->comment( $the_comment->comment_ID );
-		} else if ( 'approved' == $old && 'approved' != $new ) {
-			// Delete comments that are changing to anything but approved
-			$this->jetpack->sync->delete_comment( $the_comment->comment_ID );
-		}
-	}
-
-	function delete_comment( $id ) {
-		$this->jetpack->sync->delete_comment( $id );
 	}
 
 	/**
@@ -193,6 +139,37 @@ class Jetpack_Subscriptions {
 			'discussion',
 			'stc_enabled'
 		);
+		
+		/** Subscription Messaging Options ******************************************************/
+		
+		register_setting( 
+			'reading', 
+			'subscription_options', 
+			array( $this, 'validate_settings' ) 
+		);
+
+		add_settings_section( 
+			'email_settings', 
+			__( 'Follower Settings', 'jetpack' ), 
+			array( $this, 'reading_section' ), 
+			'reading'
+		);
+		
+		add_settings_field(
+			'invitation',
+			__( 'Blog follow email text' , 'jetpack' ), 
+			array( $this, 'setting_invitation' ), 
+			'reading', 
+			'email_settings'
+		);
+
+		add_settings_field(
+			'comment-follow',
+			__( 'Comment follow email text', 'jetpack' ), 
+			array( $this, 'setting_comment_follow' ), 
+			'reading', 
+			'email_settings'
+		);		
 	}
 
 	/**
@@ -238,6 +215,51 @@ class Jetpack_Subscriptions {
 	<?php
 	}
 
+	function validate_settings( $settings ) {
+		global $allowedposttags;
+
+		$default = $this->get_default_settings();
+
+		// Blog Follow
+		$settings['invitation'] = trim( wp_kses( $settings['invitation'], $allowedposttags ) );
+		if ( empty( $settings['invitation'] ) )
+			$settings['invitation'] = $default['invitation'];
+
+		// Comments Follow (single post)
+		$settings['comment_follow'] = trim( wp_kses( $settings['comment_follow'], $allowedposttags ) );
+		if ( empty( $settings['comment_follow'] ) )
+			$settings['comment_follow'] = $default['comment_follow'];
+
+		return $settings;
+	}
+
+	public function reading_section() {
+		_e( 'These settings change emails sent from your blog to followers.' );
+	}
+
+	public function setting_invitation() {
+		$settings = $this->get_settings();
+		echo '<textarea name="subscription_options[invitation]" class="large-text" cols="50" rows="5">'.$settings['invitation'].'</textarea>';
+		echo '<p><span class="description">'.__( 'Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)' ).'</span></p>';
+	}
+
+	public function setting_comment_follow() {
+		$settings = $this->get_settings();
+		echo '<textarea name="subscription_options[comment_follow]" class="large-text" cols="50" rows="5">'.$settings['comment_follow'].'</textarea>';
+		echo '<p><span class="description">'.__( 'Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)' ).'</span></p>';
+	}
+
+	function get_default_settings() {
+		return array(
+			'invitation'             => __( "Howdy.\n\nYou recently followed this blog's posts. This means you will receive each new post by email.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again." ),
+			'comment_follow'  => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again." )
+		);
+	}
+		
+	function get_settings() {
+		return wp_parse_args( (array) get_option( 'subscription_options', array() ), $this->get_default_settings() );
+	}
+		
 	/**
 	 * Jetpack_Subscriptions::subscribe()
 	 *
