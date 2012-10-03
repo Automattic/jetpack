@@ -3478,6 +3478,7 @@ class Jetpack_Sync {
 
 require_once dirname( __FILE__ ) . '/class.jetpack-user-agent.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-post-images.php';
+require dirname( __FILE__ ) . '/functions.photon.php';
 
 class Jetpack_Error extends WP_Error {}
 
