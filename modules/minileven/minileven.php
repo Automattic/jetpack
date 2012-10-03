@@ -58,7 +58,7 @@ function jetpack_mobile_exclude() {
 			$exclude = true;
 	}
 
-	if ( ! is_admin() && defined( 'DOING_AJAX' ) && true === DOING_AJAX )
+	if ( defined( 'DOING_AJAX' ) && true === DOING_AJAX )
 		$exclude = false;
 
 	return $exclude;
