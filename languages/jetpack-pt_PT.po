@@ -1,86 +1,14 @@
-# Translation of 1.8.1 in Portuguese (Portugal)
-# This file is distributed under the same license as the 1.8.1 package.
+# Translation of 1.8.2 in Portuguese (Portugal)
+# This file is distributed under the same license as the 1.8.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-09-28 17:20:26+0000\n"
+"PO-Revision-Date: 2012-10-03 23:06:50+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: GlotPress/0.1\n"
-"Project-Id-Version: 1.8.1\n"
-
-#: modules/widgets/rsslinks-widget.php:121
-msgid "Image Color:"
-msgstr "Cor da imagem:"
-
-#: modules/widgets/rsslinks-widget.php:140
-msgid "Subscribe to %s"
-msgstr "Subscrever %s"
-
-#: modules/widgets/top-posts.php:35 modules/widgets/top-posts.php:41
-msgid "Top Posts &amp; Pages"
-msgstr "Top de Posts &amp; Páginas"
-
-#: modules/widgets/top-posts.php:37
-msgid "Shows your most viewed posts and pages."
-msgstr ""
-
-#: modules/widgets/top-posts.php:78
-msgid "Number of posts to show:"
-msgstr "Número de artigos a apresentar:"
-
-#: modules/widgets/top-posts.php:83
-msgid "Display as:"
-msgstr ""
-
-#: modules/widgets/top-posts.php:85
-msgid "Text List"
-msgstr ""
-
-#: modules/widgets/top-posts.php:86
-msgid "Image List"
-msgstr ""
-
-#: modules/widgets/top-posts.php:87
-msgid "Image Grid"
-msgstr ""
-
-#: modules/widgets/top-posts.php:91
-msgid "Top Posts &amp; Pages by views are calculated from 24-48 hours of stats. They take a while to change."
-msgstr ""
-
-#: modules/widgets/top-posts.php:164
-msgid "There are no posts to display. <a href=\"%s\">Want more traffic?</a>"
-msgstr ""
-
-#: modules/widgets/twitter.php:22
-msgid "Display your Tweets from Twitter"
-msgstr ""
-
-#: modules/widgets/twitter.php:31
-msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
-msgstr ""
-
-#: modules/widgets/twitter.php:41
-msgid "Twitter Updates"
-msgstr "Atualizações do Twitter"
-
-#: modules/widgets/twitter.php:179 modules/widgets/twitter.php:200
-msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
-msgstr "Erro: O Twitter não respondeu. Por favor aguarde uns minutos e recarregue esta página."
-
-#: modules/widgets/twitter.php:193
-msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
-msgstr "Erro: Por favor verifique que a conta Twitter é <a href=\"%s\">pública</a>."
-
-#: modules/widgets/twitter.php:283
-msgid "Twitter username:"
-msgstr "Nome de utilizador Twitter:"
-
-#: modules/widgets/twitter.php:290
-msgid "Maximum number of Tweets to show:"
-msgstr ""
+"Project-Id-Version: 1.8.2\n"
 
 #: modules/widgets/twitter.php:304
 msgid "Hide replies"
@@ -164,83 +92,6 @@ msgstr "Cópias e monitorização de segurança em tempo real para o seu site Wo
 
 msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
 msgstr "Adicionar fácilmente imagens, atualizações do Twitter e links RSS do seu site à barra lateral do seu tema."
-
-#: modules/widgets/facebook-likebox.php:159
-msgid "Show profile photos in the plugin."
-msgstr ""
-
-#: modules/widgets/facebook-likebox.php:166
-msgid "Show Stream"
-msgstr ""
-
-#: modules/widgets/facebook-likebox.php:168
-msgid "Show the profile stream for the public profile."
-msgstr ""
-
-#: modules/widgets/facebook-likebox.php:175
-msgid "Show Wall"
-msgstr ""
-
-#: modules/widgets/facebook-likebox.php:177
-msgid "Show the wall for a Places page rather than friend activity."
-msgstr ""
-
-#: modules/widgets/gravatar-profile.php:19
-msgid "Gravatar Profile"
-msgstr "Perfil de Gravatar"
-
-#: modules/widgets/gravatar-profile.php:21
-msgid "Display a mini version of your Gravatar Profile"
-msgstr "Mostrar uma mini versão do seu Perfil de Gravatar"
-
-#: modules/widgets/gravatar-profile.php:37
-msgid "You need to select what to show in this <a href=\"%s\">Gravatar Profile widget</a>."
-msgstr ""
-
-#: modules/widgets/gravatar-profile.php:83
-msgid "View Full Profile &rarr;"
-msgstr "Ver o perfil completo &rarr;"
-
-#: modules/widgets/gravatar-profile.php:91
-msgid "Error loading profile"
-msgstr "Erro ao carregar o perfil"
-
-#: modules/widgets/gravatar-profile.php:103
-msgid "Personal Links"
-msgstr "Links pessoais"
-
-#: modules/widgets/gravatar-profile.php:123
-msgid "Verified Services"
-msgstr "Serviços verificados"
-
-#: modules/widgets/gravatar-profile.php:134
-msgctxt "1: User Name, 2: Service Name (Facebook, Twitter, ...)"
-msgid "%1$s on %2$s"
-msgstr ""
-
-#: modules/widgets/gravatar-profile.php:162
-msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr ""
-
-#: modules/widgets/gravatar-profile.php:166
-msgid "Custom"
-msgstr "Personalizado(a)"
-
-#: modules/widgets/gravatar-profile.php:176
-msgid "Custom Email Address"
-msgstr "Endereço de Email personalizado"
-
-#: modules/widgets/gravatar-profile.php:184
-msgid "Show Personal Links"
-msgstr "Mostrar links pessoais"
-
-#: modules/widgets/gravatar-profile.php:186
-msgid "Links to your websites, blogs, or any other sites that help describe who you are."
-msgstr "Links para os seus sites, blogs, ou outros sites que ajudem a descrever quem é."
-
-#: modules/widgets/gravatar-profile.php:193
-msgid "Show Account Links"
-msgstr ""
 
 #: modules/widgets/gravatar-profile.php:195
 msgid "Links to services that you use across the web."
@@ -413,69 +264,77 @@ msgstr "Rosa"
 msgid "Silver"
 msgstr "Prateado"
 
-#: modules/stats.php:526
-msgid "Smiley"
-msgstr "<em>Smiley</em>"
+#: modules/widgets/rsslinks-widget.php:121
+msgid "Image Color:"
+msgstr "Cor da imagem:"
 
-#: modules/stats.php:527
-msgid "Hide the stats smiley face image."
-msgstr "Esconder a imagem do <em>smiley</em> de estatísticas"
+#: modules/widgets/rsslinks-widget.php:140
+msgid "Subscribe to %s"
+msgstr "Subscrever %s"
 
-#: modules/stats.php:527
-msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
-msgstr "A imagem ajuda a recolher estatísticas, mas continuará a funcionar quando escondida."
+#: modules/widgets/top-posts.php:35 modules/widgets/top-posts.php:41
+msgid "Top Posts &amp; Pages"
+msgstr "Top de Posts &amp; Páginas"
 
-#: modules/stats.php:527
-msgid "Smiley face"
-msgstr "<em>Smiley</em>"
+#: modules/widgets/top-posts.php:37
+msgid "Shows your most viewed posts and pages."
+msgstr ""
 
-#: modules/stats.php:528
-msgid "Report visibility"
-msgstr "Visibilidade do relatório"
+#: modules/widgets/top-posts.php:78
+msgid "Number of posts to show:"
+msgstr "Número de posts a apresentar:"
 
-#: modules/stats.php:530
-msgid "Select the roles that will be able to view stats reports."
-msgstr "Selecione os perfis que estão autorizados a visualizar relatórios de estatísticas."
+#: modules/widgets/top-posts.php:83
+msgid "Display as:"
+msgstr "Mostrar como:"
 
-#: modules/stats.php:541
-msgid "Save configuration"
-msgstr "Guardar configuração"
+#: modules/widgets/top-posts.php:85
+msgid "Text List"
+msgstr "Lista de texto"
 
-#: modules/stats.php:597
-msgid "Stats"
-msgstr "Estatísticas"
+#: modules/widgets/top-posts.php:86
+msgid "Image List"
+msgstr "Lista de imagens"
 
-#: modules/stats.php:599
-msgid "Views over 48 hours. Click for more Site Stats."
-msgstr "Vistas nas últimas 48 horas. Clique para mais estatísticas do site."
+#: modules/widgets/top-posts.php:87
+msgid "Image Grid"
+msgstr ""
 
-#: modules/stats.php:701
-msgid "day"
-msgstr "dia"
+#: modules/widgets/top-posts.php:91
+msgid "Top Posts &amp; Pages by views are calculated from 24-48 hours of stats. They take a while to change."
+msgstr ""
 
-#: modules/stats.php:702
-msgid "week"
-msgstr "semana"
+#: modules/widgets/top-posts.php:164
+msgid "There are no posts to display. <a href=\"%s\">Want more traffic?</a>"
+msgstr ""
 
-#: modules/stats.php:703
-msgid "month"
-msgstr "mês"
+#: modules/widgets/twitter.php:22
+msgid "Display your Tweets from Twitter"
+msgstr "Mostrar os seus Tweets do Twitter"
 
-#: modules/stats.php:706
-msgid "the past day"
-msgstr "ontem"
+#: modules/widgets/twitter.php:31
+msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
+msgstr "Por favor introduza o seu username no twitter para o <a href=\"%s\">Twitter Widget</a>."
 
-#: modules/stats.php:707
-msgid "the past week"
-msgstr "na semana passada"
+#: modules/widgets/twitter.php:41
+msgid "Twitter Updates"
+msgstr "Atualizações do Twitter"
 
-#: modules/stats.php:708
-msgid "the past month"
-msgstr "o mês passado"
+#: modules/widgets/twitter.php:179 modules/widgets/twitter.php:200
+msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
+msgstr "Erro: O Twitter não respondeu. Por favor aguarde uns minutos e recarregue esta página."
 
-#: modules/stats.php:709
-msgid "the past quarter"
-msgstr "passado trimestre"
+#: modules/widgets/twitter.php:193
+msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
+msgstr "Erro: Por favor verifique que a conta Twitter é <a href=\"%s\">pública</a>."
+
+#: modules/widgets/twitter.php:283
+msgid "Twitter username:"
+msgstr "Nome de utilizador Twitter:"
+
+#: modules/widgets/twitter.php:290
+msgid "Maximum number of Tweets to show:"
+msgstr "Numero máximo de Tweets a mostrar:"
 
 #: modules/stats.php:710
 msgid "the past year"
@@ -654,69 +513,82 @@ msgstr "Altura"
 msgid "Show Faces"
 msgstr ""
 
-#: modules/sharedaddy/sharing.php:230
-msgid "Live Preview"
-msgstr "Pré-visualização"
-
-#: modules/sharedaddy/sharing.php:233
-msgid "Sharing is off. Add services above to enable."
+#: modules/widgets/facebook-likebox.php:159
+msgid "Show profile photos in the plugin."
 msgstr ""
 
-#: modules/sharedaddy/sharing.php:300
-msgid "Button style"
-msgstr "Estilo de botão"
-
-#: modules/sharedaddy/sharing.php:303
-msgid "Icon + text"
-msgstr "Ícone + Texto"
-
-#: modules/sharedaddy/sharing.php:304
-msgid "Icon only"
-msgstr "Apenas Ícone"
-
-#: modules/sharedaddy/sharing.php:305
-msgid "Text only"
-msgstr "Apenas texto"
-
-#: modules/sharedaddy/sharing.php:306
-msgid "Official buttons"
-msgstr "Botões oficiais"
-
-#: modules/sharedaddy/sharing.php:311
-msgid "Sharing label"
-msgstr "Etiqueta da partilha"
-
-#: modules/sharedaddy/sharing.php:317
-msgid "Open links in"
-msgstr "Abrir links em"
-
-#: modules/sharedaddy/sharing.php:320
-msgid "New window"
-msgstr "Nova Janela"
-
-#: modules/sharedaddy/sharing.php:321
-msgid "Same window"
-msgstr "Mesma Janela"
-
-#: modules/sharedaddy/sharing.php:326
-msgid "Show buttons on"
-msgstr "Mostrar botões"
-
-#: modules/sharedaddy/sharing.php:332
-msgid "Front Page, Archive Pages, and Search Results"
+#: modules/widgets/facebook-likebox.php:166
+msgid "Show Stream"
 msgstr ""
 
-#: modules/sharedaddy/sharing.php:348
-msgid "Save Changes"
-msgstr "Guardar alterações"
+#: modules/widgets/facebook-likebox.php:168
+msgid "Show the profile stream for the public profile."
+msgstr ""
 
-#: modules/sharedaddy/sharing.php:359
-msgid "Service name"
-msgstr "Nome do serviço"
+#: modules/widgets/facebook-likebox.php:175
+msgid "Show Wall"
+msgstr ""
 
-#: modules/sharedaddy/sharing.php:365
-msgid "Sharing URL"
-msgstr "URL de Partilha"
+#: modules/widgets/facebook-likebox.php:177
+msgid "Show the wall for a Places page rather than friend activity."
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:19
+msgid "Gravatar Profile"
+msgstr "Perfil de Gravatar"
+
+#: modules/widgets/gravatar-profile.php:21
+msgid "Display a mini version of your Gravatar Profile"
+msgstr "Mostrar uma mini versão do seu Perfil de Gravatar"
+
+#: modules/widgets/gravatar-profile.php:37
+msgid "You need to select what to show in this <a href=\"%s\">Gravatar Profile widget</a>."
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:83
+msgid "View Full Profile &rarr;"
+msgstr "Ver o perfil completo &rarr;"
+
+#: modules/widgets/gravatar-profile.php:91
+msgid "Error loading profile"
+msgstr "Erro ao carregar o perfil"
+
+#: modules/widgets/gravatar-profile.php:103
+msgid "Personal Links"
+msgstr "Links pessoais"
+
+#: modules/widgets/gravatar-profile.php:123
+msgid "Verified Services"
+msgstr "Serviços verificados"
+
+#: modules/widgets/gravatar-profile.php:134
+msgctxt "1: User Name, 2: Service Name (Facebook, Twitter, ...)"
+msgid "%1$s on %2$s"
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:162
+msgid "Select a user or pick \"custom\" and enter a custom email address."
+msgstr ""
+
+#: modules/widgets/gravatar-profile.php:166
+msgid "Custom"
+msgstr "Personalizado(a)"
+
+#: modules/widgets/gravatar-profile.php:176
+msgid "Custom Email Address"
+msgstr "Endereço de Email personalizado"
+
+#: modules/widgets/gravatar-profile.php:184
+msgid "Show Personal Links"
+msgstr "Mostrar links pessoais"
+
+#: modules/widgets/gravatar-profile.php:186
+msgid "Links to your websites, blogs, or any other sites that help describe who you are."
+msgstr "Links para os seus sites, blogs, ou outros sites que ajudem a descrever quem é."
+
+#: modules/widgets/gravatar-profile.php:193
+msgid "Show Account Links"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:369
 msgid "You can add the following variables to your service sharing URL:"
@@ -901,67 +773,69 @@ msgstr "Utilizadores Registados"
 msgid "Count the page views of registered users who are logged in."
 msgstr "Contar as visualizações de páginas de utilizadores registados."
 
-#: modules/sharedaddy/sharing-sources.php:240
-msgid "Close"
-msgstr "Fechar"
+#: modules/stats.php:526
+msgid "Smiley"
+msgstr "<em>Smiley</em>"
 
-#: modules/sharedaddy/sharing-sources.php:262
-msgctxt "share to"
-msgid "Email"
-msgstr "Email"
+#: modules/stats.php:527
+msgid "Hide the stats smiley face image."
+msgstr "Esconder a imagem do <em>smiley</em> de estatísticas"
 
-#: modules/sharedaddy/sharing-sources.php:262
-msgid "Click to email this to a friend"
-msgstr "Carregue aqui para partilhar por email com um amigo"
+#: modules/stats.php:527
+msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
+msgstr "A imagem ajuda a recolher estatísticas, mas continuará a funcionar quando escondida."
 
-#: modules/sharedaddy/sharing-sources.php:275
-msgid "Send to Email Address"
-msgstr "Enviar para endereço de Email"
+#: modules/stats.php:527
+msgid "Smiley face"
+msgstr "<em>Smiley</em>"
 
-#: modules/sharedaddy/sharing-sources.php:283
-msgid "Your Name"
-msgstr "O seu nome"
+#: modules/stats.php:528
+msgid "Report visibility"
+msgstr "Visibilidade do relatório"
 
-#: modules/sharedaddy/sharing-sources.php:286
-msgid "Your Email Address"
-msgstr "O seu endereço de email"
+#: modules/stats.php:530
+msgid "Select the roles that will be able to view stats reports."
+msgstr "Selecione os perfis que estão autorizados a visualizar relatórios de estatísticas."
 
-#: modules/sharedaddy/sharing-sources.php:294
-msgid "Send Email"
-msgstr "Enviar Email"
+#: modules/stats.php:541
+msgid "Save configuration"
+msgstr "Guardar configuração"
 
-#: modules/sharedaddy/sharing-sources.php:295
-msgid "Cancel"
-msgstr "Cancelar"
+#: modules/stats.php:597
+msgid "Stats"
+msgstr "Estatísticas"
 
-#: modules/sharedaddy/sharing-sources.php:298
-msgid "Post was not sent - check your email addresses!"
-msgstr "O artigo não foi enviado - por favor verifique os seus endereços de email!"
+#: modules/stats.php:599
+msgid "Views over 48 hours. Click for more Site Stats."
+msgstr "Vistas nas últimas 48 horas. Clique para mais estatísticas do site."
 
-#: modules/sharedaddy/sharing-sources.php:302
-msgid "Email check failed, please try again"
-msgstr "A verificação do email falhou, tente de novamente"
+#: modules/stats.php:701
+msgid "day"
+msgstr "dia"
 
-#: modules/sharedaddy/sharing-sources.php:306
-msgid "Sorry, your blog cannot share posts by email."
-msgstr "Lamentamos, mas o seu blog não pode partilhar posts por email."
+#: modules/stats.php:702
+msgid "week"
+msgstr "semana"
 
-#: modules/sharedaddy/sharing-sources.php:326 modules/widgets/twitter.php:22
-msgid "Twitter"
-msgstr "Twitter"
+#: modules/stats.php:703
+msgid "month"
+msgstr "mês"
 
-#: modules/sharedaddy/sharing-sources.php:372
-msgctxt "share to"
-msgid "Twitter"
-msgstr "Twitter"
+#: modules/stats.php:706
+msgid "the past day"
+msgstr "ontem"
 
-#: modules/sharedaddy/sharing-sources.php:372
-msgid "Click to share on Twitter"
-msgstr "Carregue aqui para partilhar no Twitter"
+#: modules/stats.php:707
+msgid "the past week"
+msgstr "na semana passada"
 
-#: modules/sharedaddy/sharing-sources.php:447
-msgid "StumbleUpon"
-msgstr "StumbleUpon"
+#: modules/stats.php:708
+msgid "the past month"
+msgstr "o mês passado"
+
+#: modules/stats.php:709
+msgid "the past quarter"
+msgstr "passado trimestre"
 
 #: modules/sharedaddy/sharing-sources.php:458
 msgctxt "share to"
@@ -997,7 +871,7 @@ msgstr "Digg"
 
 #: modules/sharedaddy/sharing-sources.php:575
 msgid "LinkedIn"
-msgstr ""
+msgstr "LinkedIn"
 
 #: modules/sharedaddy/sharing-sources.php:589
 msgctxt "share to"
@@ -1153,65 +1027,69 @@ msgstr ""
 msgid "Services dragged here will be hidden behind a share button."
 msgstr "Os serviços arrastados para aqui ficarão escondidos dentro de um botão de partilha."
 
-#: modules/module-info.php:260
-msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
+#: modules/sharedaddy/sharing.php:230
+msgid "Live Preview"
+msgstr "Pré-visualização em tempo real"
+
+#: modules/sharedaddy/sharing.php:233
+msgid "Sharing is off. Add services above to enable."
 msgstr ""
 
-#: modules/module-info.php:262
-msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
+#: modules/sharedaddy/sharing.php:300
+msgid "Button style"
+msgstr "Estilo de botão"
+
+#: modules/sharedaddy/sharing.php:303
+msgid "Icon + text"
+msgstr "Ícone + Texto"
+
+#: modules/sharedaddy/sharing.php:304
+msgid "Icon only"
+msgstr "Apenas Ícone"
+
+#: modules/sharedaddy/sharing.php:305
+msgid "Text only"
+msgstr "Apenas texto"
+
+#: modules/sharedaddy/sharing.php:306
+msgid "Official buttons"
+msgstr "Botões oficiais"
+
+#: modules/sharedaddy/sharing.php:311
+msgid "Sharing label"
+msgstr "Etiqueta da partilha"
+
+#: modules/sharedaddy/sharing.php:317
+msgid "Open links in"
+msgstr "Abrir links em"
+
+#: modules/sharedaddy/sharing.php:320
+msgid "New window"
+msgstr "Nova Janela"
+
+#: modules/sharedaddy/sharing.php:321
+msgid "Same window"
+msgstr "Mesma Janela"
+
+#: modules/sharedaddy/sharing.php:326
+msgid "Show buttons on"
+msgstr "Mostrar botões"
+
+#: modules/sharedaddy/sharing.php:332
+msgid "Front Page, Archive Pages, and Search Results"
 msgstr ""
 
-#: modules/module-info.php:266
-msgid "Additionally you can define your own custom services."
-msgstr "Adicionalmente pode definir os seu próprios serviços personalizados."
+#: modules/sharedaddy/sharing.php:348
+msgid "Save Changes"
+msgstr "Guardar alterações"
 
-#: modules/module-info.php:281
-msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
-msgstr ""
+#: modules/sharedaddy/sharing.php:359
+msgid "Service name"
+msgstr "Nome do serviço"
 
-#: modules/module-info.php:282
-msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
-msgstr "Pegue e arraste serviços de partilha para a caixa activa, para que apareçam no seu site, ou arraste-os para a secção escondida para que apareçam dentro de um botão."
-
-#: modules/module-info.php:288
-msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
-msgstr ""
-
-#: modules/module-info.php:303 modules/module-info.php:307
-msgid "Spelling and Grammar"
-msgstr "Ortografia e gramática"
-
-#: modules/module-info.php:309
-msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
-msgstr ""
-
-#: modules/module-info.php:310
-msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
-msgstr ""
-
-#: modules/module-info.php:324 modules/module-info.php:338
-msgid "Widgets Screenshot"
-msgstr ""
-
-#: modules/module-info.php:327 modules/module-info.php:341
-msgid "Extra Sidebar Widgets"
-msgstr ""
-
-#: modules/module-info.php:329
-msgid "The RSS Links Widget "
-msgstr ""
-
-#: modules/module-info.php:329
-msgid "allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments."
-msgstr ""
-
-#: modules/module-info.php:330
-msgid "The Twitter Widget "
-msgstr ""
-
-#: modules/module-info.php:330
-msgid "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options."
-msgstr ""
+#: modules/sharedaddy/sharing.php:365
+msgid "Sharing URL"
+msgstr "URL de Partilha"
 
 #: modules/module-info.php:330
 msgid "The Facebook Like Box Widget "
@@ -1398,61 +1276,67 @@ msgstr "Este artigo foi partilhado!"
 msgid "You have shared this post with %s"
 msgstr "Acabou de partilhar este artigo com %s"
 
-#: modules/minileven/theme/pub/minileven/image.php:88
-msgid "&raquo; Previous"
-msgstr ""
+#: modules/sharedaddy/sharing-sources.php:240
+msgid "Close"
+msgstr "Fechar"
 
-#: modules/minileven/theme/pub/minileven/image.php:89
-msgid "Next &raquo; "
-msgstr ""
+#: modules/sharedaddy/sharing-sources.php:262
+msgctxt "share to"
+msgid "Email"
+msgstr "Email"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:20
-msgid "<span class=\"meta-nav\">&laquo;</span> Older"
-msgstr ""
+#: modules/sharedaddy/sharing-sources.php:262
+msgid "Click to email this to a friend"
+msgstr "Carregue aqui para partilhar por email com um amigo"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:21
-msgid "Newer <span class=\"meta-nav\">&raquo;</span>"
-msgstr ""
+#: modules/sharedaddy/sharing-sources.php:275
+msgid "Send to Email Address"
+msgstr "Enviar para endereço de Email"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:38
-msgid "Pingback:"
-msgstr "Pingback:"
+#: modules/sharedaddy/sharing-sources.php:283
+msgid "Your Name"
+msgstr "O seu nome"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:55
-msgid "%1$s on %2$s"
-msgstr "%1$s em %2$s"
+#: modules/sharedaddy/sharing-sources.php:286
+msgid "Your Email Address"
+msgstr "O seu endereço de email"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:61
-msgid "%1$s at %2$s"
-msgstr "%1$s às %2$s"
+#: modules/sharedaddy/sharing-sources.php:294
+msgid "Send Email"
+msgstr "Enviar Email"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:70
-msgid "Your comment is awaiting moderation."
-msgstr "O seu comentário aguarda moderação."
+#: modules/sharedaddy/sharing-sources.php:295
+msgid "Cancel"
+msgstr "Cancelar"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:79
-msgid "Reply <span>&darr;</span>"
-msgstr "Comentar <span>&darr;</span>"
+#: modules/sharedaddy/sharing-sources.php:298
+msgid "Post was not sent - check your email addresses!"
+msgstr "O artigo não foi enviado - por favor verifique os seus endereços de email!"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:93
-msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
-msgstr ""
+#: modules/sharedaddy/sharing-sources.php:302
+msgid "Email check failed, please try again"
+msgstr "A verificação do email falhou, tente de novamente"
 
-#: modules/minileven/theme/pub/minileven/index.php:23
-msgid "Daily Archives: %s"
-msgstr "Arquivos diários: %s"
+#: modules/sharedaddy/sharing-sources.php:306
+msgid "Sorry, your blog cannot share posts by email."
+msgstr "Lamentamos, mas o seu blog não pode partilhar posts por email."
 
-#: modules/minileven/theme/pub/minileven/index.php:25
-msgid "Monthly Archives: %s"
-msgstr "Arquivos mensais: %s"
+#: modules/sharedaddy/sharing-sources.php:326 modules/widgets/twitter.php:22
+msgid "Twitter"
+msgstr "Twitter"
 
-#: modules/minileven/theme/pub/minileven/index.php:27
-msgid "Yearly Archives: %s"
-msgstr "Arquivos anuais: %s"
+#: modules/sharedaddy/sharing-sources.php:372
+msgctxt "share to"
+msgid "Twitter"
+msgstr "Twitter"
 
-#: modules/minileven/theme/pub/minileven/index.php:29
-msgid "Posted in %s"
-msgstr "Na categoria %s"
+#: modules/sharedaddy/sharing-sources.php:372
+msgid "Click to share on Twitter"
+msgstr "Carregue aqui para partilhar no Twitter"
+
+#: modules/sharedaddy/sharing-sources.php:447
+msgid "StumbleUpon"
+msgstr "StumbleUpon"
 
 #: modules/minileven/theme/pub/minileven/index.php:31
 msgid "Tagged with %s"
@@ -1647,113 +1531,125 @@ msgstr "Partilha"
 msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
 msgstr "Partilhe os seus artigos no Twitter, Facebook e muitos outros serviços. Pode configurar os serviços para que apareçam como ícones, como texto ou ambos. Alguns serviços tem opções adicionais para mostrar botões inteligentes, como o Twitter que, por exemplo, actualiza o número de vezes que um artigo foi partilhado."
 
-#: modules/contact-form/grunion-form-view.php:166
-msgid "Options"
-msgstr "Opções"
-
-#: modules/contact-form/grunion-form-view.php:167
-msgid "First option"
+#: modules/module-info.php:260
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:170
-msgid "Add another option"
+#: modules/module-info.php:262
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:177
-msgid "Required?"
+#: modules/module-info.php:266
+msgid "Additionally you can define your own custom services."
+msgstr "Adicionalmente pode definir os seu próprios serviços personalizados."
+
+#: modules/module-info.php:281
+msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:182
-msgid "Save this field"
+#: modules/module-info.php:282
+msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
+msgstr "Pegue e arraste serviços de partilha para a caixa activa, para que apareçam no seu site, ou arraste-os para a secção escondida para que apareçam dentro de um botão."
+
+#: modules/module-info.php:288
+msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:187
-msgid "Here&#8217;s what your form will look like"
+#: modules/module-info.php:303 modules/module-info.php:307
+msgid "Spelling and Grammar"
+msgstr "Ortografia e gramática"
+
+#: modules/module-info.php:309
+msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:192
-msgid "Add a new field"
+#: modules/module-info.php:310
+msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:194
-msgid "Add this form to my post"
+#: modules/module-info.php:324 modules/module-info.php:338
+msgid "Widgets Screenshot"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:197
-msgid "Email settings"
+#: modules/module-info.php:327 modules/module-info.php:341
+msgid "Extra Sidebar Widgets"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:199
-msgid "Enter your email address"
+#: modules/module-info.php:329
+msgid "The RSS Links Widget "
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:202
-msgid "What should the subject line be?"
+#: modules/module-info.php:329
+msgid "allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments."
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:205
-msgid "Save and go back to form builder"
+#: modules/module-info.php:330
+msgid "The Twitter Widget "
 msgstr ""
 
-#: modules/custom-css/custom-css.php:521
+#: modules/module-info.php:330
+msgid "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options."
+msgstr ""
+
+#: modules/custom-css/custom-css.php:518
 msgid "Preview: changes must be saved or they will be lost"
 msgstr "Pré-visualizar: as alterações devem ser guardadas ou serão perdidas"
 
-#: modules/custom-css/custom-css.php:549
+#: modules/custom-css/custom-css.php:546
 msgid "Edit CSS"
 msgstr "Modificar CSS"
 
-#: modules/custom-css/custom-css.php:563
+#: modules/custom-css/custom-css.php:560
 msgid "CSS"
 msgstr "CSS"
 
-#: modules/custom-css/custom-css.php:602
+#: modules/custom-css/custom-css.php:599
 msgid "Custom CSS Stylesheet"
 msgstr ""
 
-#: modules/custom-css/custom-css.php:762
+#: modules/custom-css/custom-css.php:759
 msgid "Stylesheet saved."
 msgstr "Stylesheet guardado."
 
-#: modules/custom-css/custom-css.php:770
+#: modules/custom-css/custom-css.php:767
 msgid "CSS Stylesheet Editor"
 msgstr "Editor de folha de estilos CSS"
 
-#: modules/custom-css/custom-css.php:771
+#: modules/custom-css/custom-css.php:768
 msgid ""
 "New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions?\n"
 "\tAsk in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
 msgstr ""
 
-#: modules/custom-css/custom-css.php:791
+#: modules/custom-css/custom-css.php:788
 msgid "Preview"
 msgstr "Pré-visualizar"
 
-#: modules/custom-css/custom-css.php:792
+#: modules/custom-css/custom-css.php:789
 msgid "Save Stylesheet &amp; Buy Upgrade"
 msgstr "Guardar folha de estilos &amp; comprar melhora"
 
-#: modules/custom-css/custom-css.php:792
+#: modules/custom-css/custom-css.php:789
 msgid "Save Stylesheet"
 msgstr "Guardar folha de estilos"
 
-#: modules/custom-css/custom-css.php:797
+#: modules/custom-css/custom-css.php:794
 msgid "CSS Settings"
 msgstr "Definições de CSS"
 
-#: modules/custom-css/custom-css.php:804
+#: modules/custom-css/custom-css.php:801
 msgid "CSS Revisions"
 msgstr "Versões de CSS"
 
-#: modules/custom-css/custom-css.php:840
+#: modules/custom-css/custom-css.php:837
 msgid "Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet."
 msgstr ""
 
-#: modules/custom-css/custom-css.php:841
+#: modules/custom-css/custom-css.php:838
 msgid "Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with my own CSS."
 msgstr ""
 
-#: modules/custom-css/custom-css.php:843
+#: modules/custom-css/custom-css.php:840
 msgid "<a href=\"%s\">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor."
 msgstr ""
 
@@ -1776,7 +1672,7 @@ msgstr "Ver site móvel"
 
 #: modules/minileven/theme/pub/minileven/comments.php:15
 msgid "This post is password protected. Enter the password to view any comments."
-msgstr "Este post está protegido por senha. Para o consultar, introduza-a abaixo:"
+msgstr "Este conteúdo está protegido por senha. Introduz a senha para ver eventuais comentários."
 
 #: modules/minileven/theme/pub/minileven/comments.php:45
 msgid "Comment navigation"
@@ -1846,7 +1742,7 @@ msgstr "Em destaque"
 
 #: modules/minileven/theme/pub/minileven/content.php:23
 msgid "Posted by "
-msgstr ""
+msgstr "Publicado por"
 
 #: modules/minileven/theme/pub/minileven/content.php:25
 msgid "%s"
@@ -1910,70 +1806,65 @@ msgstr ""
 msgid "Image navigation"
 msgstr "Navegação de imagens"
 
-#: modules/contact-form/admin.php:486
-msgid "Messages"
-msgstr "Mensagens"
-
-#: modules/contact-form/admin.php:509
-msgid "Spam"
-msgstr "Lixo eléctrónico"
-
-#: modules/contact-form/grunion-contact-form.php:34
-#: modules/contact-form/grunion-form-view.php:156
-msgid "Name"
-msgstr "Nome"
-
-#: modules/contact-form/grunion-contact-form.php:35
-#: modules/contact-form/grunion-form-view.php:155
-#: modules/sharedaddy/sharing-sources.php:196
-msgid "Email"
-msgstr "Email"
-
-#: modules/contact-form/grunion-contact-form.php:39
-msgid "Subject"
-msgstr "Assunto"
-
-#: modules/contact-form/grunion-contact-form.php:79
-#: modules/contact-form/grunion-contact-form.php:84
-#: modules/contact-form/grunion-contact-form.php:88
-#: modules/contact-form/grunion-contact-form.php:100
-#: modules/contact-form/grunion-contact-form.php:105
-#: modules/contact-form/grunion-contact-form.php:119
-msgid "(required)"
-msgstr "(obrigatório)"
-
-#: modules/contact-form/grunion-contact-form.php:99
-msgid "Yes"
-msgstr "Sim"
-
-#: modules/contact-form/grunion-contact-form.php:140
-msgid "%s requires a valid email address"
+#: modules/minileven/theme/pub/minileven/image.php:88
+msgid "&raquo; Previous"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:147
-msgid "%s is required"
+#: modules/minileven/theme/pub/minileven/image.php:89
+msgid "Next &raquo; "
+msgstr "Próximo &raquo;"
+
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:20
+msgid "<span class=\"meta-nav\">&laquo;</span> Older"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:280
-#: modules/contact-form/grunion-contact-form.php:328
-msgid "Error!"
-msgstr "Erro!"
-
-#: modules/contact-form/grunion-contact-form.php:290
-msgid "Submit &#187;"
-msgstr "Submeter &#187;"
-
-#: modules/contact-form/grunion-contact-form.php:333
-msgid "Message Sent"
-msgstr "Mensagem enviada"
-
-#: modules/contact-form/grunion-contact-form.php:469
-msgid "l F j, Y \\a\\t g:i a"
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:21
+msgid "Newer <span class=\"meta-nav\">&raquo;</span>"
 msgstr ""
+
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:38
+msgid "Pingback:"
+msgstr "Pingback:"
+
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:55
+msgid "%1$s on %2$s"
+msgstr "%1$s em %2$s"
+
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:61
+msgid "%1$s at %2$s"
+msgstr "%1$s ás %2$s"
+
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:70
+msgid "Your comment is awaiting moderation."
+msgstr "O teu comentário aguarda moderação."
+
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:79
+msgid "Reply <span>&darr;</span>"
+msgstr "Comentar <span>&darr;</span>"
+
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:93
+msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
+msgstr ""
+
+#: modules/minileven/theme/pub/minileven/index.php:23
+msgid "Daily Archives: %s"
+msgstr "Arquivos diários: %s"
+
+#: modules/minileven/theme/pub/minileven/index.php:25
+msgid "Monthly Archives: %s"
+msgstr "Arquivos mensais: %s"
+
+#: modules/minileven/theme/pub/minileven/index.php:27
+msgid "Yearly Archives: %s"
+msgstr "Arquivos anuais: %s"
+
+#: modules/minileven/theme/pub/minileven/index.php:29
+msgid "Posted in %s"
+msgstr "Na categoria %s"
 
 #: modules/contact-form/grunion-contact-form.php:489
 msgid "Time:"
-msgstr ""
+msgstr "Tempo:"
 
 #: modules/contact-form/grunion-contact-form.php:490
 msgid "IP Address:"
@@ -2022,17 +1913,17 @@ msgstr ""
 #: modules/contact-form/grunion-form-view.php:8
 msgctxt "Label for HTML form \"Name\" field in contact form builder"
 msgid "Name"
-msgstr ""
+msgstr "Nome"
 
 #: modules/contact-form/grunion-form-view.php:9
 msgctxt "Label for HTML form \"Email\" field in contact form builder"
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: modules/contact-form/grunion-form-view.php:10
 msgctxt "Label for HTML form \"URL/Website\" field in contact form builder"
 msgid "Website"
-msgstr ""
+msgstr "Website"
 
 #: modules/contact-form/grunion-form-view.php:11
 msgctxt "Label for HTML form \"Comment/Response\" field in contact form builder"
@@ -2052,7 +1943,7 @@ msgstr ""
 #: modules/contact-form/grunion-form-view.php:14
 msgctxt "Label for an option to be included in a user-created dropdown in contact form builder"
 msgid "Option"
-msgstr ""
+msgstr "Opção"
 
 #: modules/contact-form/grunion-form-view.php:15
 msgctxt "Default label for the first option to be included in a user-created dropdown in contact form builder"
@@ -2183,69 +2074,68 @@ msgstr "Texto"
 
 #: modules/contact-form/grunion-form-view.php:159
 msgid "Textarea"
+msgstr "Área de Texto"
+
+#: modules/contact-form/grunion-form-view.php:166
+msgid "Options"
+msgstr "Opções"
+
+#: modules/contact-form/grunion-form-view.php:167
+msgid "First option"
+msgstr "Primeira opção"
+
+#: modules/contact-form/grunion-form-view.php:170
+msgid "Add another option"
 msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:119
-msgid "Your comment is in moderation."
+#: modules/contact-form/grunion-form-view.php:177
+msgid "Required?"
 msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:120
-msgid "Camera"
+#: modules/contact-form/grunion-form-view.php:182
+msgid "Save this field"
 msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:121
-msgid "Aperture"
+#: modules/contact-form/grunion-form-view.php:187
+msgid "Here&#8217;s what your form will look like"
 msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:122
-msgid "Shutter Speed"
+#: modules/contact-form/grunion-form-view.php:192
+msgid "Add a new field"
 msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:123
-msgid "Focal Length"
+#: modules/contact-form/grunion-form-view.php:194
+msgid "Add this form to my post"
 msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:130
-msgid "Commenting as %s"
+#: modules/contact-form/grunion-form-view.php:197
+msgid "Email settings"
 msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:133
-msgid "Email (Required)"
+#: modules/contact-form/grunion-form-view.php:199
+msgid "Enter your email address"
+msgstr "Introduza o seu endereço de email"
+
+#: modules/contact-form/grunion-form-view.php:202
+msgid "What should the subject line be?"
 msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:135
-msgid "Name (Required)"
+#: modules/contact-form/grunion-form-view.php:205
+msgid "Save and go back to form builder"
 msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:137
-#: modules/contact-form/grunion-contact-form.php:36
-#: modules/contact-form/grunion-form-view.php:160
-msgid "Website"
-msgstr "Website"
-
-#: modules/carousel/jetpack-carousel.php:246
-msgid "Missing attachment ID."
-msgstr ""
-
-#: modules/carousel/jetpack-carousel.php:284
-msgid "Nonce verification failed."
-msgstr ""
-
-#: modules/carousel/jetpack-carousel.php:291
-msgid "Missing target blog ID."
-msgstr ""
-
-#: modules/carousel/jetpack-carousel.php:294
-msgid "Missing target post ID."
-msgstr ""
-
-#: modules/carousel/jetpack-carousel.php:297
-msgid "No comment text was submitted."
+#: modules/custom-css/custom-css.php:409
+msgid ""
+"Welcome to Custom CSS!\n"
+"\n"
+"CSS (Cascading Style Sheets) is a kind of code that tells the browser how to render a web page. You may delete these comments and get started with your customizations.\n"
+"\n"
+"By default, your stylesheet will be loaded after the theme stylesheets, which means that your rules can take precedence and override the theme CSS rules. Just write here what you want to change, you don't need to copy all your theme's stylesheet content."
 msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:309
 msgid "Comments on this post are closed."
-msgstr ""
+msgstr "Os comentários nesta publicação estão fechados."
 
 #: modules/carousel/jetpack-carousel.php:319
 msgid "Sorry, but we could not authenticate your request."
@@ -2302,7 +2192,7 @@ msgstr ""
 #: modules/comments/admin.php:50 modules/comments/comments.php:178
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 msgid "Leave a Reply"
-msgstr "Deixar uma resposta"
+msgstr "Deixa uma resposta"
 
 #: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:147
 msgid "Light"
@@ -2314,7 +2204,7 @@ msgstr "Escuro"
 
 #: modules/comments/admin.php:56
 msgid "Transparent"
-msgstr ""
+msgstr "Transparente"
 
 #: modules/comments/admin.php:72 modules/module-info.php:439
 msgid "Jetpack Comments"
@@ -2367,7 +2257,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:90
 msgid "From"
-msgstr ""
+msgstr "De"
 
 #: modules/contact-form/admin.php:91
 #: modules/contact-form/grunion-contact-form.php:42
@@ -2396,7 +2286,7 @@ msgstr "Apagar Definitivamente"
 
 #: modules/contact-form/admin.php:200
 msgid "Mark this message as spam"
-msgstr ""
+msgstr "Marcar esta mensagem como spam"
 
 #: modules/contact-form/admin.php:207 modules/contact-form/admin.php:209
 #: modules/contact-form/admin.php:496
@@ -2405,7 +2295,7 @@ msgstr "Lixo"
 
 #: modules/contact-form/admin.php:260
 msgid "Mark this message as NOT spam"
-msgstr ""
+msgstr "Marcar esta mensagem como NÃO sendo spam"
 
 #: modules/contact-form/admin.php:299
 msgid "Y-m-d @ g:i:s A"
@@ -2417,7 +2307,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:452
 msgid "You are not allowed to move this item out of the Trash."
-msgstr "Não tem permissões para mover este item para fora do Lixo."
+msgstr "Não pode mover este item para fora do Lixo."
 
 #: modules/contact-form/admin.php:455
 msgid "Error in restoring from Trash."
@@ -2425,65 +2315,72 @@ msgstr "Erro ao retirar do Lixo."
 
 #: modules/contact-form/admin.php:459
 msgid "You are not allowed to move this item to the Trash."
-msgstr "Não tem permissões para movereste item para o Lixo."
+msgstr "Não pode mover este item para o Lixo."
 
 #: modules/contact-form/admin.php:462
 msgid "Error in moving to Trash."
 msgstr "Erro ao mover para o Lixo."
 
-#: jetpack.php:2259
-msgid "New"
-msgstr "Recente"
+#: modules/contact-form/admin.php:486
+msgid "Messages"
+msgstr "Mensagens"
 
-#: jetpack.php:2262
-msgid "Updated"
+#: modules/contact-form/admin.php:509
+msgid "Spam"
+msgstr "Lixo eléctrónico"
+
+#: modules/contact-form/grunion-contact-form.php:34
+#: modules/contact-form/grunion-form-view.php:156
+msgid "Name"
+msgstr "Nome"
+
+#: modules/contact-form/grunion-contact-form.php:35
+#: modules/contact-form/grunion-form-view.php:155
+#: modules/sharedaddy/sharing-sources.php:196
+msgid "Email"
+msgstr "Email"
+
+#: modules/contact-form/grunion-contact-form.php:39
+msgid "Subject"
+msgstr "Assunto"
+
+#: modules/contact-form/grunion-contact-form.php:79
+#: modules/contact-form/grunion-contact-form.php:84
+#: modules/contact-form/grunion-contact-form.php:88
+#: modules/contact-form/grunion-contact-form.php:100
+#: modules/contact-form/grunion-contact-form.php:105
+#: modules/contact-form/grunion-contact-form.php:119
+msgid "(required)"
+msgstr "(obrigatório)"
+
+#: modules/contact-form/grunion-contact-form.php:99
+msgid "Yes"
+msgstr "Sim"
+
+#: modules/contact-form/grunion-contact-form.php:140
+msgid "%s requires a valid email address"
 msgstr ""
 
-#: jetpack.php:2290
-msgid "Configure"
-msgstr "Configurar"
-
-#: jetpack.php:2324
-msgid "Coming soon&#8230;"
-msgstr "Em breve&#8230;"
-
-#: jetpack.php:2477 jetpack.php:2479 jetpack.php:2481 jetpack.php:2484
-#: jetpack.php:3182
-msgid "Error Details: %s"
-msgstr "Detalhes do erro: %s"
-
-#: jetpack.php:2595
-msgid "Jetpack Plugin Version"
+#: modules/contact-form/grunion-contact-form.php:147
+msgid "%s is required"
 msgstr ""
 
-#: jetpack.php:2601
-msgid "The Client ID/WP.com Blog ID of this site"
+#: modules/contact-form/grunion-contact-form.php:280
+#: modules/contact-form/grunion-contact-form.php:328
+msgid "Error!"
+msgstr "Erro!"
+
+#: modules/contact-form/grunion-contact-form.php:290
+msgid "Submit &#187;"
+msgstr "Submeter &#187;"
+
+#: modules/contact-form/grunion-contact-form.php:333
+msgid "Message Sent"
+msgstr "Mensagem enviada"
+
+#: modules/contact-form/grunion-contact-form.php:469
+msgid "l F j, Y \\a\\t g:i a"
 msgstr ""
-
-#: jetpack.php:3138
-msgid "An administrator for this blog must set up the Jetpack connection."
-msgstr "Um administrador deste site deve configurar a conexão do Jetpack."
-
-#: jetpack.php:3143
-msgid "You need to register your Jetpack before connecting it."
-msgstr "É necessário registar o seu Jetpack antes de o conectar."
-
-#: locales.php:29
-msgctxt "locales"
-msgid "%1$s/%2$s"
-msgstr ""
-
-#: modules/after-the-deadline/atd-l10n.php:12
-msgid "Spelling"
-msgstr "Ortografia"
-
-#: modules/after-the-deadline/atd-l10n.php:13
-msgid "Repeated Word"
-msgstr "Palavra Repetida"
-
-#: modules/after-the-deadline/atd-l10n.php:15
-msgid "No suggestions"
-msgstr "Nenhuma sugestão"
 
 #: modules/after-the-deadline/atd-l10n.php:17
 msgid "Explain..."
@@ -2653,7 +2550,7 @@ msgstr "Não se esqueça de clicar em \"Actualizar Perfil\" no final da página 
 
 #: modules/carousel/jetpack-carousel.php:110
 msgid "Comment"
-msgstr ""
+msgstr "Comentário"
 
 #: modules/carousel/jetpack-carousel.php:111
 msgid "Post Comment"
@@ -2677,7 +2574,7 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:116
 msgid "Please provide your name to comment."
-msgstr ""
+msgstr "Por favor insira o seu nome para comentar."
 
 #: modules/carousel/jetpack-carousel.php:117
 msgid "Sorry, but there was an error posting your comment. Please try again later."
@@ -2687,55 +2584,62 @@ msgstr ""
 msgid "Your comment was approved."
 msgstr ""
 
-#: jetpack.php:1444 modules/module-info.php:45 modules/module-info.php:81
-#: modules/module-info.php:138 modules/module-info.php:173
-#: modules/module-info.php:207 modules/module-info.php:243
-#: modules/module-info.php:294 modules/module-info.php:316
-#: modules/module-info.php:354 modules/module-info.php:379
-#: modules/module-info.php:397 modules/module-info.php:403
-#: modules/module-info.php:430 modules/module-info.php:461
-#: modules/module-info.php:496 modules/module-info.php:518
-msgid "Learn More"
-msgstr "Saber Mais"
+#: modules/carousel/jetpack-carousel.php:119
+msgid "Your comment is in moderation."
+msgstr "O seu comentário esta em moderação."
 
-#: jetpack.php:1457
-msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
-msgstr "<strong>Jetpack foi activado!</strong> Cada site na rede deve conectar-se individualmente por um administrador desse site."
-
-#: jetpack.php:1484
-msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
+#: modules/carousel/jetpack-carousel.php:120
+msgid "Camera"
 msgstr ""
 
-#: jetpack.php:1492
-msgid "click here"
+#: modules/carousel/jetpack-carousel.php:121
+msgid "Aperture"
 msgstr ""
 
-#: jetpack.php:1606
-msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
-msgstr "Necessita autorizar a conexão entre o seu site Jetpack e o WordPress.com para activar os recursos."
+#: modules/carousel/jetpack-carousel.php:122
+msgid "Shutter Speed"
+msgstr ""
 
-#: jetpack.php:1609
-msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
-msgstr "Não cruze os fluxos! É necessário permanecer ligado ao seu site enquanto autoriza o Jetpack."
+#: modules/carousel/jetpack-carousel.php:123
+msgid "Focal Length"
+msgstr ""
 
-#: jetpack.php:1613
-msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
-msgstr "Devolvido ao remetente. Ups! Parece que você recebeu um Jetpack errado no correio; desactive o Jetpack e em seguida reactive-o para obter um novo."
+#: modules/carousel/jetpack-carousel.php:130
+msgid "Commenting as %s"
+msgstr "Comentar como %s"
 
-#: jetpack.php:1616
-msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
-msgstr "Tamanho errado. Hm&#8230; parece que seu Jetpack não se encaixa. Perdeu peso? Clique em &#8220;Conectar ao WordPress.com&#8221; novamente para ajustar o seu Jetpack."
+#: modules/carousel/jetpack-carousel.php:133
+msgid "Email (Required)"
+msgstr ""
 
-#: jetpack.php:1620
-msgid "Your website needs to be publicly accessible to use Jetpack: %s"
-msgstr "O seu site precisa ser acessível ao público para usar o Jetpack: %s"
+#: modules/carousel/jetpack-carousel.php:135
+msgid "Name (Required)"
+msgstr "Nome (Necessário)"
 
-#: jetpack.php:1625
-msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr "%s não pôde ser ativado porque gerou um <strong>erro fatal.</strong> Talvez exista um conflito com outro plugin instalado?"
+#: modules/carousel/jetpack-carousel.php:137
+#: modules/contact-form/grunion-contact-form.php:36
+#: modules/contact-form/grunion-form-view.php:160
+msgid "Website"
+msgstr "Website"
 
-#: jetpack.php:1627
-msgid "Do you still have the %s plugin installed?"
+#: modules/carousel/jetpack-carousel.php:246
+msgid "Missing attachment ID."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:284
+msgid "Nonce verification failed."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:291
+msgid "Missing target blog ID."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:294
+msgid "Missing target post ID."
+msgstr ""
+
+#: modules/carousel/jetpack-carousel.php:297
+msgid "No comment text was submitted."
 msgstr ""
 
 #: jetpack.php:1630
@@ -2788,7 +2692,7 @@ msgstr ""
 
 #: jetpack.php:1765
 msgid "<strong>Your Jetpack is already connected.</strong> "
-msgstr ""
+msgstr "<strong>O seu Jetpack já esta conectado.</strong>"
 
 #: jetpack.php:1769 jetpack.php:1776
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
@@ -2936,6 +2840,60 @@ msgstr "Grátis"
 msgid "Purchase"
 msgstr "Adquirir"
 
+#: jetpack.php:2259
+msgid "New"
+msgstr "Recente"
+
+#: jetpack.php:2262
+msgid "Updated"
+msgstr ""
+
+#: jetpack.php:2290
+msgid "Configure"
+msgstr "Configurar"
+
+#: jetpack.php:2324
+msgid "Coming soon&#8230;"
+msgstr "Em breve&#8230;"
+
+#: jetpack.php:2477 jetpack.php:2479 jetpack.php:2481 jetpack.php:2484
+#: jetpack.php:3182
+msgid "Error Details: %s"
+msgstr "Detalhes do erro: %s"
+
+#: jetpack.php:2595
+msgid "Jetpack Plugin Version"
+msgstr ""
+
+#: jetpack.php:2601
+msgid "The Client ID/WP.com Blog ID of this site"
+msgstr ""
+
+#: jetpack.php:3138
+msgid "An administrator for this blog must set up the Jetpack connection."
+msgstr "Um administrador deste site deve configurar a conexão do Jetpack."
+
+#: jetpack.php:3143
+msgid "You need to register your Jetpack before connecting it."
+msgstr "É necessário registar o seu Jetpack antes de o conectar."
+
+#: locales.php:29
+msgctxt "locales"
+msgid "%1$s/%2$s"
+msgstr ""
+
+#: modules/after-the-deadline/atd-l10n.php:12
+msgid "Spelling"
+msgstr "Ortografia"
+
+#: modules/after-the-deadline/atd-l10n.php:13
+msgid "Repeated Word"
+msgstr "Palavra Repetida"
+
+#: modules/after-the-deadline/atd-l10n.php:15
+msgid "No suggestions"
+msgstr "Nenhuma sugestão"
+
 #: jetpack.php:1029
 msgid "Jetpack requires WordPress version %s or later."
 msgstr "O Jetpack requer o WordPress %s ou superior."
@@ -2993,7 +2951,7 @@ msgstr "Visão geral"
 
 #: jetpack.php:1326
 msgid "Modules"
-msgstr ""
+msgstr "Módulos"
 
 #: jetpack.php:1329
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
@@ -3035,3 +2993,54 @@ msgstr "<strong>O JetPack está instalado</strong> e pronto para usar os impress
 #: jetpack.php:1442 jetpack.php:2016
 msgid "Connect to WordPress.com"
 msgstr "Conectar ao WordPress.com"
+
+#: jetpack.php:1444 modules/module-info.php:45 modules/module-info.php:81
+#: modules/module-info.php:138 modules/module-info.php:173
+#: modules/module-info.php:207 modules/module-info.php:243
+#: modules/module-info.php:294 modules/module-info.php:316
+#: modules/module-info.php:354 modules/module-info.php:379
+#: modules/module-info.php:397 modules/module-info.php:403
+#: modules/module-info.php:430 modules/module-info.php:461
+#: modules/module-info.php:496 modules/module-info.php:518
+msgid "Learn More"
+msgstr "Saber Mais"
+
+#: jetpack.php:1457
+msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
+msgstr "<strong>Jetpack foi activado!</strong> Cada site na rede deve conectar-se individualmente por um administrador desse site."
+
+#: jetpack.php:1484
+msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
+msgstr ""
+
+#: jetpack.php:1492
+msgid "click here"
+msgstr ""
+
+#: jetpack.php:1606
+msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
+msgstr "Necessita autorizar a conexão entre o seu site Jetpack e o WordPress.com para activar os recursos."
+
+#: jetpack.php:1609
+msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
+msgstr "Não cruze os fluxos! É necessário permanecer ligado ao seu site enquanto autoriza o Jetpack."
+
+#: jetpack.php:1613
+msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
+msgstr "Devolvido ao remetente. Ups! Parece que você recebeu um Jetpack errado no correio; desactive o Jetpack e em seguida reactive-o para obter um novo."
+
+#: jetpack.php:1616
+msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
+msgstr "Tamanho errado. Hm&#8230; parece que seu Jetpack não se encaixa. Perdeu peso? Clique em &#8220;Conectar ao WordPress.com&#8221; novamente para ajustar o seu Jetpack."
+
+#: jetpack.php:1620
+msgid "Your website needs to be publicly accessible to use Jetpack: %s"
+msgstr "O seu site precisa ser acessível ao público para usar o Jetpack: %s"
+
+#: jetpack.php:1625
+msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "%s não pôde ser ativado porque gerou um <strong>erro fatal.</strong> Talvez exista um conflito com outro plugin instalado?"
+
+#: jetpack.php:1627
+msgid "Do you still have the %s plugin installed?"
+msgstr ""
