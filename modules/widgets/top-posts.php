@@ -178,10 +178,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				$image = Jetpack_PostImages::get_image( $post['post_id'], $get_image_options );
 				$post['image'] = $image['src'];
 				if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
-					if ( false !== strpos( $post['image'], 'files.wordpress.com' ) ) {
-						$post['image'] = add_query_arg( 'w', '800', $post['image'] );
-					}
-					$post['image'] = apply_filters( 'jetpack_static_url', is_ssl() ? 'https' : 'http' . "://en.wordpress.com/imgpress?resize={$get_image_options['avatar_size']},{$get_image_options['avatar_size']}&url=" . urlencode( $post['image'] ) );
+					$size = (int) $get_image_options['avatar_size'];
+					$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$size,$size" ) );
 				}
 			}
 
