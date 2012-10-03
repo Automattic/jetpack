@@ -4,6 +4,16 @@
 	width: 100%;
 }
 
+.widgets-grid-layout:before,
+.widgets-grid-layout:after {
+	content: " ";
+	display: table;
+}
+
+.widgets-grid-layout:after {
+	clear: both;
+}
+
 .widget-grid-view-image {
 	float: left;
 	max-width: 50%;
