@@ -210,6 +210,9 @@ class Jetpack {
 		}
 
 		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		if ( !wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
+			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
+		}
 
 		add_filter( 'xmlrpc_blog_options', array( $this, 'xmlrpc_options' ) );
 		
@@ -2498,7 +2501,15 @@ p {
 			$sql_args[] = time() - 3600;
 		}
 
-		$wpdb->query( $wpdb->prepare( $sql, $sql_args ) );
+		$sql .= ' LIMIT 100';
+
+		$sql = $wpdb->prepare( $sql, $sql_args );
+
+		for ( $i = 0; $i < 1000; $i++ ) {
+			if ( !$wpdb->query( $sql ) ) {
+				break;
+			}
+		}
 	}
 
 	/**
