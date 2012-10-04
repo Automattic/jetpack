@@ -119,6 +119,7 @@ function wp_super_cache_init() {
 function wp_cache_serve_cache_file() {
 	global $key, $blogcacheid, $wp_cache_request_uri, $file_prefix, $blog_cache_dir, $meta_file, $cache_file, $cache_filename, $wp_super_cache_debug, $meta_pathname, $wp_cache_gzip_encoding, $meta;
 	global $wp_cache_object_cache, $cache_compression, $wp_cache_slash_check, $wp_supercache_304, $wp_cache_home_path, $wp_cache_no_cache_for_get;
+	global $wp_cache_disable_utf8;
 
 	extract( wp_super_cache_init() );
 
@@ -183,7 +184,8 @@ function wp_cache_serve_cache_file() {
 			) && 
 			( wp_cache_get_cookies_values() == '' && empty( $_GET ) && $serving_supercache ) )
 		{
-			header( "Content-type: text/html; charset=UTF-8" ); // UTF-8 hard coded is bad but we don't know what it is this early in the process
+			if ( isset( $wp_cache_disable_utf8 ) == false || $wp_cache_disable_utf8 == 0 )
+				header( "Content-type: text/html; charset=UTF-8" ); 
 			header( "Vary: Accept-Encoding, Cookie" );
 			header( "Cache-Control: max-age=3, must-revalidate" );
 			header( "WP-Super-Cache: Served supercache file from PHP" );
