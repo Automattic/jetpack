@@ -1,3 +1,163 @@
+2012-10-05 11:36  donncha
+
+	* readme.txt, wp-cache.php: * Updated version to 1.2 and bumped
+	  tested version.
+	  * Added changelog for 1.2
+
+2012-10-04 20:31  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2012-10-04 20:27  donncha
+
+	* wp-cache-phase1.php: Check for $wp_cache_disable_utf8 when
+	  serving supercache files from PHP, like it affects mod_rewrite
+	  served files.
+
+2012-09-21 16:04  donncha
+
+	* wp-cache.php: Oops, fixed a minor typo
+
+2012-09-21 16:01  donncha
+
+	* wp-cache.php: Set up the cached pages counter correctly, see
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-confusing-information-in-cached-pages-since?replies=2
+
+2012-09-19 21:15  donncha
+
+	* wp-cache.php: Fixed term link when preloading, props Stefan
+	  Parmark
+
+2012-08-30 11:53  donncha
+
+	* wp-cache.php: Remove is_main_blog() calls, requires 3.0 already.
+	  Props angelxas.
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-crashes-wp-341-multisite?replies=2
+
+2012-08-30 10:59  donncha
+
+	* wp-cache.php: Very minor whitespace fix
+
+2012-08-30 10:39  donncha
+
+	* wp-cache-phase2.php: Make sure sites that upgrade to 1.0 don't
+	  schedule the GC too often, props tigertech, fixed #1569.
+	  http://wordpress.org/support/topic/wp-super-cache-causes-high-doing_wp_cron-load?replies=3
+
+2012-08-30 10:32  donncha
+
+	* wp-cache.php: Allow editors to delete cached files for specific
+	  pages via the admin bar. See
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-allow-editor-role-to-delete-cache?replies=8
+
+2012-08-03 09:57  donncha
+
+	* wp-cache.php: * Added warning if garbage collection wasn't
+	  enabled
+	  * schedule watcher job when GC form is submitted
+	  * Enable GC when using the easy settings page
+
+2012-08-03 09:53  donncha
+
+	* wp-cache-phase2.php: Added function to create garbage collection
+	  flag filename.
+
+2012-07-30 09:01  donncha
+
+	* wp-cache-phase2.php: Use GC flag wp_cache_gc.txt in cache
+	  directory so watcher job doesn't schedule a GC when it's already
+	  running
+
+2012-07-30 08:58  donncha
+
+	* wp-cache-phase2.php: If wp_cache_gc job is NOT scheduled then we
+	  need to schedule a new one in the watcher job
+
+2012-07-27 10:20  donncha
+
+	* wp-super-cache.pot: Updated translation pot file
+
+2012-07-27 10:17  donncha
+
+	* languages/wp-super-cache-zh_CN.po: Updated translation, props
+	  Christopher Meng
+
+2012-07-27 09:48  donncha
+
+	* readme.txt: Updated docs on late init, props Storm.
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-mfunc-issue?replies=4#post-3018123
+
+2012-07-27 09:39  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: * Added a garbage collection
+	  watcher job to restart GC if it somehow fails.
+	  * Clear gc hooks when uninstalling
+	  * Added a check for shutdown gc when scheduling default gc
+
+2012-07-27 09:14  donncha
+
+	* wp-cache.php: Enable garbage collection when activating caching
+
+2012-07-24 08:56  donncha
+
+	* wp-cache.php: Fix some links and add a link to the development
+	  version
+
+2012-07-17 19:16  donncha
+
+	* wp-cache-phase1.php: Use the supercached mobile files, props
+	  turtlehat,
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-why-_mobile-instead-of-mobile-after-wp_cache_check_mobile-action?replies=2
+
+2012-07-16 13:04  donncha
+
+	* wp-cache-phase1.php: Move call to
+	  wp_supercache_cache_for_admins() down after loading supercache
+	  plugins. Props rapidstrider,
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-wp_supercache_remove_cookies-not-working
+
+2012-07-16 12:59  donncha
+
+	* wp-cache-phase1.php: Added support for LOGGED_IN_COOKIE constant,
+	  props Askapache
+
+2012-07-12 16:47  donncha
+
+	* wp-cache-phase1.php: Fixes problems updating cache files on
+	  directory installs. Props Naki-BoT,
+	  http://wordpress.org/support/topic/plugin-wp-super-cache-wordpress-in-directory-and-cache-on-post-edit-not-removed
+
+2012-07-10 13:37  donncha
+
+	* wp-cache.php: * Added warning if WordPress is installed in a
+	  folder and served from root
+	  * Added Dismiss buttons on htaccess and readable wp-content
+	  warnings.
+
+2012-07-10 07:50  donncha
+
+	* wp-cache.php: Change deactivate hook to uninstall hook so updates
+	  don't delete the old configuration
+
+2012-06-27 10:14  donncha
+
+	* languages/wp-super-cache-zh_TW.mo,
+	  languages/wp-super-cache-zh_TW.po: Updated translation, props
+	  priv
+
+2012-06-26 12:21  donncha
+
+	* plugins/wptouch.php: Check WPTouch Pro cookies here too
+
+2012-06-26 10:26  donncha
+
+	* plugins/wptouch.php: Support WPTouch Pro switch to desktop,
+	  hopefully.
+
+2012-06-22 16:19  donncha
+
+	* Changelog.txt: Updated changelog
+
 2012-06-21 15:14  donncha
 
 	* wp-cache-phase2.php: Added new constant, "WPSCFORCEUPDATE" that
