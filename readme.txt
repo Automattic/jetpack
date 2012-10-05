@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha, automattic
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 3.4
-Stable tag: 1.1
+Tested up to: 3.4.2
+Stable tag: 1.2
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -56,10 +56,23 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.1 =
-Lots of bugfixes
+= 1.2 =
+Lots of bugfixes, garbage collection improved, more details at http://ocaoimh.ie/y/3i
 
 == Changelog ==
+
+= 1.2 =
+* Garbage collection of old cache files is significantly improved. I added a scheduled job that keeps an eye on things and restarts the job if necessary. Also, if you enable caching from the Easy page garbage collection will be enabled too.
+* Editors can delete single cached files from the admin bar now.
+* Fixed the cached page counter on the settings page.
+* Some sites that updated to 1.0 experienced too much garbage collection. There are still stragglers out there who haven.t upgraded but that.s fixed now!
+* Supercached mobile files are now used as there was a tiny little typo that needed fixing.
+* If your site is in a directory and you saw problems updating a page then that should be fixed now.
+* The deactivate hook has been changed so your configuration isn.t hosed when you upgrade. Unfortunately this will only happen after you do this upgrade.
+* Some sites use custom cookies with the LOGGED_IN_COOKIE constant. Added support for that.
+* Added support for WPTouch Pro, but it appears to be flaky still. Anyone have time to work on that? I don.t.
+* Some sites had problems with scheduled posts. For some reason the plugin thought the post was in draft mode and then because it only checked the same post once, when the post magically became published the cache wasn.t cleared. That.s fixed, thanks to the debug logging of several patient users.
+* And more bug fixes and translation updates.
 
 = 1.1 =
 * Use $_SERVER[ 'SERVER_NAME' ] to create cache directories.
