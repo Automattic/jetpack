@@ -928,7 +928,6 @@ class Jetpack_User_Agent_Info {
 	/**
 	 * Detects if the current browser is the Native Android Tablet browser.
 	 * 	Assumes 'Android' should be in the user agent, but not 'mobile'
-	 *  See http://mobileprojects.wordpress.com/2011/06/15/we-received-a-request-from-cnn-to-serve/
 	 *
 	 * @return boolean true if the browser is Android and not 'mobile' otherwise false
 	 */
