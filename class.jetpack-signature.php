@@ -17,18 +17,29 @@ class Jetpack_Signature {
 		$this->time_diff = $time_diff;
 	}
 
-	function sign_current_request( $override = null ) {
+	function sign_current_request( $override = array() ) {
+		if ( isset( $override['scheme'] ) ) {
+			$scheme = $override['scheme'];
+			if ( !in_array( $scheme, array( 'http', 'https' ) ) ) {
+				return new Jetpack_Error( 'invalid_sheme', 'Invalid URL scheme' );
+			}
+		} else {
+			if ( is_ssl() ) {
+				$scheme = 'https';
+			} else {
+				$scheme = 'http';
+			}
+		}
+
 		if ( is_ssl() ) {
-			$scheme = 'https';
 			$port = JETPACK_SIGNATURE__HTTPS_PORT == $_SERVER['SERVER_PORT'] ? '' : $_SERVER['SERVER_PORT'];
 		} else {
-			$scheme = 'http';
 			$port = JETPACK_SIGNATURE__HTTP_PORT  == $_SERVER['SERVER_PORT'] ? '' : $_SERVER['SERVER_PORT'];
 		}
 
 		$url = "{$scheme}://{$_SERVER['HTTP_HOST']}:{$port}" . stripslashes( $_SERVER['REQUEST_URI'] );
 
-		if ( isset( $override['body'] ) && !is_null( $override['body'] ) ) {
+		if ( array_key_exists( 'body', $override ) && !is_null( $override['body'] ) ) {
 			$body = $override['body'];
 		} else if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 			$body = $GLOBALS['HTTP_RAW_POST_DATA'];
@@ -45,7 +56,8 @@ class Jetpack_Signature {
 			}
 		}
 
-		return $this->sign_request( $a['token'], $a['timestamp'], $a['nonce'], $a['body-hash'], $_SERVER['REQUEST_METHOD'], $url, $body, true );
+		$method = isset( $override['method'] ) ? $override['method'] : $_SERVER['REQUEST_METHOD']; 
+		return $this->sign_request( $a['token'], $a['timestamp'], $a['nonce'], $a['body-hash'], $method, $url, $body, true );
 	}
 
 	// body_hash v. body-hash is annoying.  Refactor to accept an array?

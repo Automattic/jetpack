@@ -608,6 +608,13 @@ p.jp-help {
 		#minileven.jetpack-module div.module-image {
 			background-position: -1570px 5px;
 		}
+		#notes.jetpack-module div.module-image {
+			background-position: -1806px 5px;
+		}
+		
+		#json-api.jetpack-module div.module-image {
+			background-position: -1689px 5px;
+		}
 
 		.jetpack-module div.module-image p {
 			background-color: #b4d278;

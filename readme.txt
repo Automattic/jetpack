@@ -1,6 +1,6 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, andy, designsimply, hew, westi, eoigal, tmoorewp, matt, pento, cfinke, daniloercoli, chellycat
-Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions
+Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, andy, designsimply, hew, westi, eoigal, tmoorewp, matt, pento, cfinke, daniloercoli, chellycat, gibrown, jblz, jshreve
+Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest
 Requires at least: 3.2
 Tested up to: 3.4.2
 Stable tag: 1.8.2
@@ -29,7 +29,8 @@ Features include:
 * With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.
 * A CSS editor that lets you customize your site design without modifying your theme.
 * A mobile theme that automatically streamlines your site for visitors on mobile devices.
-* Mobile push notifications for new comments via WordPress mobile apps. 
+* Mobile push notifications for new comments via WordPress mobile apps.
+* The ability to allow applications to securely authenticate and access your site with your permission. 
 * and *many* more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.
