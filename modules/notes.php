@@ -29,7 +29,7 @@ class Jetpack_Notifications {
 
 		add_action( 'jetpack_modules_loaded', array( &$this, 'enable_configuration' ) );
 		add_action( 'init', array( &$this, 'action_init' ) );
-		$this->always_show_toolbar = get_option( 'jp_notes_always_show_toolbar', 1 );
+		$this->always_show_toolbar = get_option( 'jp_notes_always_show_toolbar', 0 );
 		if ( $this->always_show_toolbar )
 			add_filter( 'show_admin_bar', '__return_true' , 1000 );
 
