@@ -301,28 +301,20 @@ class Highlander_Comments_Base {
 		}
 	
 		// Return the FB or Twitter avatar
-		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( $this->imgpress_avatar( $foreign_avatar, $size ) ) . '\\1', $avatar );
+		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( $this->photon_avatar( $foreign_avatar, $size ) ) . '\\1', $avatar );
 	}
 
 	/**
- 	 * Get an avatar from Imgpress
+ 	 * Get an avatar from Photon
  	 *
  	 * @since JetpackComments (1.4)
  	 * @param string $url
  	 * @param int $size
  	 * @return string
  	 */
-	protected function imgpress_avatar( $url, $size ) {
+	protected function photon_avatar( $url, $size ) {
 		$size = (int) $size;
 
-		$args = urlencode_deep( array(
-			'url'    => $url,
-			'resize' => "$size,$size",
-		) );
-
-		$url = apply_filters( 'jetpack_static_url', ( is_ssl() ? 'https://s-ssl.wordpress.com' : 'http://s.wordpress.com' ) . '/imgpress' );
-		$url = add_query_arg( $args, $url );
-
-		return $url;
+		return jetpack_photon_url( $url, array( 'resize' => "$size,$size" ) );
 	}
 }
