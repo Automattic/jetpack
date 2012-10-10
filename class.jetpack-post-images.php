@@ -62,7 +62,6 @@ class Jetpack_PostImages {
 					'src'        => $url,
 					'src_width'  => $meta['width'],
 					'src_height' => $meta['height'],
-					'thumb'      => add_query_arg( $meta['width'] >= $meta['height'] ? 'w' : 'h', 200, $url ), // scale the bigger dimension
 					'href'       => $permalink,
 				);
 			}
@@ -98,9 +97,6 @@ class Jetpack_PostImages {
 		// Find all the galleries
 		preg_match_all( '/' . get_shortcode_regex() . '/s', $post->post_content, $gallery_matches, PREG_SET_ORDER );
 
-		// We'll staticize this later
-		// $imgpress_url = get_blogaddress_by_id( $GLOBALS['wpdb']->blogid ) . 'imgpress';
-
 		foreach ( $gallery_matches as $gallery_match ) {
 			$gallery = do_shortcode_tag( $gallery_match );
 
@@ -131,14 +127,7 @@ class Jetpack_PostImages {
 				$images[] = array(
 					'type'  => 'image',
 					'from'  => 'gallery',
-	/*				Facebook doesn't like imgpress for some reason.
-					'thumb' => staticize_subdomain( add_query_arg( array(
-						'url' => urlencode( $raw_src ),
-						'fit' => '200,200',
-					), $imgpress_url ) ),
-	*/
 					'src'   => $raw_src,
-					'thumb' => add_query_arg( 'w', 200, $raw_src ), // Stick to normal width adjustment for now.  FB seems to deal with portrait images (which are technically too big at width=90) OK.
 					'href'  => $permalink, // $href,
 				);
 			}
@@ -187,7 +176,6 @@ class Jetpack_PostImages {
 				'src'        => $url,
 				'src_width'  => $meta['width'],
 				'src_height' => $meta['height'],
-				'thumb'      => add_query_arg( $meta['width'] >= $meta['height'] ? 'w' : 'h', 200, $url ),
 				'href'       => $permalink,
 			);
 		}
@@ -224,7 +212,6 @@ class Jetpack_PostImages {
 				'src'        => $url,
 				'src_width'  => $meta['width'],
 				'src_height' => $meta['height'],
-				'thumb'      => add_query_arg( $meta['width'] >= $meta['height'] ? 'w' : 'h', 200, $url ),
 				'href'       => get_permalink( $thumb ),
 			) );
 		}
@@ -256,7 +243,6 @@ class Jetpack_PostImages {
 					'type'  => 'image',
 					'from'  => 'html',
 					'src'   => html_entity_decode( $match ),
-					'thumb' => html_entity_decode( $match ), // For now, leaving it as fullsize
 					'href'  => '', // No link to apply to these. Might potentially parse for that as well, but not for now
 				);
 			}
@@ -290,7 +276,6 @@ class Jetpack_PostImages {
 			'src'        => $url,
 			'src_width'  => $size,
 			'src_height' => $size,
-			'thumb'      => $url, // For now, leaving it as fullsize
 			'href'       => $permalink,
 		) );
 	}
@@ -337,7 +322,6 @@ class Jetpack_PostImages {
 			'src'        => $url,
 			'src_width'  => $size,
 			'src_height' => $size,
-			'thumb'      => $url, // For now, leaving it as fullsize
 			'href'       => $permalink,
 		) );
 	}
