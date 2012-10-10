@@ -3,7 +3,7 @@
  * Module Name: WordPress.com Notifications
  * Module Description: Generate notifications and display the Notifications toolbar menu on your site.
  * Sort Order: 1
- * First Introduced: 1.1
+ * First Introduced: 1.9
  */
 
 class Jetpack_Notifications {
