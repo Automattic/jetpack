@@ -76,7 +76,7 @@ class Jetpack_Carousel {
 	}
 
 	function enqueue_assets( $output ) {
-		if ( ! empty( $output ) ) {
+		if ( ! empty( $output ) && ! apply_filters( 'jp_carousel_force_enable', false ) ) {
 			// Bail because someone is overriding the [gallery] shortcode.
 			remove_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			remove_filter( 'wp_get_attachment_link', array( $this, 'add_data_to_images' ) );
