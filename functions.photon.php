@@ -12,6 +12,9 @@
 function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	$image_url = trim( $image_url );
 
+	$image_url = apply_filters( 'jetpack_photon_pre_image_url', $image_url, $args,      $scheme );
+	$args      = apply_filters( 'jetpack_photon_pre_args',      $args,      $image_url, $scheme );
+
 	if ( empty( $image_url ) )
 		return $image_url;
 
@@ -43,7 +46,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	}
 
 	// This setting is Photon Server dependent
-	if ( !apply_filters( 'jetpack_photon_any_extension_for_domain', false, $image_url_parts['host'] ) ) {
+	if ( ! apply_filters( 'jetpack_photon_any_extension_for_domain', false, $image_url_parts['host'] ) ) {
 		// Photon doesn't support query strings so we ignore them and look only at the path.
 		// However some source images are served via PHP so check the no-query-string extension.
 		// For future proofing, this is a blacklist of common issues rather than a whitelist.
@@ -78,8 +81,55 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	return jetpack_photon_url_scheme( $photon_url, $scheme );
 }
 
+
+/**
+ * WordPress.com
+ *
+ * If a cropped WP.com-hosted image is the source image, have Photon replicate the crop.
+ */
+add_filter( 'jetpack_photon_pre_args', 'jetpack_photon_parse_wpcom_query_args', 10, 2 );
+
+function jetpack_photon_parse_wpcom_query_args( $args, $image_url ) {
+	$image_url_parts = parse_url( $image_url );
+
+	if ( '.files.wordpress.com' != substr( $image_url_parts['host'], -20 ) )
+		return $args;
+
+	if ( empty( $image_url_parts['query'] ) )
+		return $args;
+
+	$wpcom_args = wp_parse_args( $image_url_parts['query'] );
+
+	if ( empty( $wpcom_args['w'] ) || empty( $wpcom_args['h'] ) )
+		return $args;
+
+	// Keep the crop by using "resize"
+	if ( ! empty( $wpcom_args['crop'] ) ) {
+		if ( is_array( $args ) ) {
+			$args = array_merge( array( 'resize' => array( $wpcom_args['w'], $wpcom_args['h'] ) ), $args );
+		} else {
+			$args = 'resize=' . rawurlencode( absint( $wpcom_args['w'] ) . ',' . absint( $wpcom_args['h'] ) ) . '&' . $args;
+		}
+	} else {
+		if ( is_array( $args ) ) {
+			$args = array_merge( array( 'fit' => array( $wpcom_args['w'], $wpcom_args['h'] ) ), $args );
+		} else {
+			$args = 'fit=' . rawurlencode( absint( $wpcom_args['w'] ) . ',' . absint( $wpcom_args['h'] ) ) . '&' . $args;
+		}
+	}
+
+	return $args;
+}
+
+
+/**
+ * Facebook
+ */
+add_filter( 'jetpack_photon_add_query_string_to_domain', 'jetpack_photon_allow_facebook_graph_domain', 10, 2 );
+add_filter( 'jetpack_photon_any_extension_for_domain',   'jetpack_photon_allow_facebook_graph_domain', 10, 2 );
+
 function jetpack_photon_url_scheme( $url, $scheme ) {
-	if ( !in_array( $scheme, array( 'http', 'https', 'network_path' ) ) ) {
+	if ( ! in_array( $scheme, array( 'http', 'https', 'network_path' ) ) ) {
 		$scheme = is_ssl() ? 'https' : 'http';
 	}
 
@@ -100,6 +150,3 @@ function jetpack_photon_allow_facebook_graph_domain( $allow = false, $domain ) {
 
 	return $allow;
 }
-
-add_filter( 'jetpack_photon_add_query_string_to_domain', 'jetpack_photon_allow_facebook_graph_domain', 10, 2 );
-add_filter( 'jetpack_photon_any_extension_for_domain',   'jetpack_photon_allow_facebook_graph_domain', 10, 2 );
