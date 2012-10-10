@@ -47,6 +47,14 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		$profile = $this->get_profile( $instance['email'] );
 		
 		if( ! empty( $profile ) ) {
+			$profile = wp_parse_args( $profile, array(
+				'thumbnailUrl' => '',
+				'profileUrl'   => '',
+				'displayName'  => '',
+				'aboutMe'      => '',
+				'urls'         => array(),
+				'accounts'     => array(),
+			) );
 			$gravatar_url = add_query_arg( 's', 500, $profile['thumbnailUrl'] ); // the default grav returned by grofiles is super small
 			
 			wp_enqueue_style(
