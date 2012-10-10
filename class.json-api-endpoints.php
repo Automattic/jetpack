@@ -835,7 +835,7 @@ EOPHP;
 			$email       = $author->comment_author_email;
 			$name        = $author->comment_author;
 			$URL         = $author->comment_author_url;
-			$profile_URL = 'http://en.gravatar.com/' . md5( $email );
+			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 		} else {
 			if ( isset( $author->post_author ) ) {
 				$author = $author->post_author;
@@ -858,7 +858,7 @@ EOPHP;
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				$profile_URL = "http://en.gravatar.com/{$user->user_login}";
 			} else {
-				$profile_URL = 'http://en.gravatar.com/' . md5( $email );
+				$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			}
 		}
 
@@ -2047,7 +2047,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'status'    => array(
 			'approved'   => 'The comment has been approved.',
 			'unapproved' => 'The comment has been held for review in the moderation queue.',
-			'spam'       => 'The comment has meeb marked as spam.',
+			'spam'       => 'The comment has been marked as spam.',
 			'trash'      => 'The comment is in the trash.',
 		),
 		'parent' => "(object>comment_reference|false) A reference to the comment's parent, if it has one.",
@@ -2546,23 +2546,44 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			$update["comment_$key"] = $value;
 		}
 
-		if ( wp_get_comment_status( $comment->comment_ID ) !== $update['status'] && !current_user_can( 'moderate_comments' ) ) {
+		$comment_status = wp_get_comment_status( $comment->comment_ID );
+		if ( $comment_status !== $update['status'] && !current_user_can( 'moderate_comments' ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot moderate comments', 403 );
 		}
 
 		if ( isset( $update['comment_status'] ) ) {
 			switch ( $update['comment_status'] ) {
-			case 'unapproved' :
-				$update['comment_approved'] = 0;
-				break;
-			case 'spam' :
-				$update['comment_approved'] = 'spam';
-				break;
-			default :
-				$update['comment_approved'] = 1;
-				break;
-			}
+				case 'unapproved' :
+					$update['comment_approved'] = 0;
+					break;
+				case 'spam' :
+					if ( 'spam' != $comment_status ) {
+						wp_spam_comment( $comment->comment_ID );
+					}
+					break;
+				case 'unspam' :
+					if ( 'spam' == $comment_status ) {
+						wp_unspam_comment( $comment->comment_ID );
+					}
+					break;
+				case 'trash' :
+					if ( ! EMPTY_TRASH_DAYS ) {
+						return new WP_Error( 'trash_disabled', 'Cannot trash comment', 403 );
+					}
 
+					if ( 'trash' != $comment_status ) { 
+ 						wp_trash_comment( $comment_id );
+ 					}
+ 					break;
+				case 'untrash' :
+					if ( 'trash' == $comment_status ) {
+						wp_untrash_comment( $comment->comment_ID );
+					}
+					break;
+				default:
+					$update['comment_approved'] = 1;
+					break;
+			}
 			unset( $update['comment_status'] );
 		}
 
@@ -3362,6 +3383,9 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 			'approved'   => 'Approve the comment.',
 			'unapproved' => 'Remove the comment from public view and send it to the moderation queue.',
 			'spam'       => 'Mark the comment as spam.',
+			'unspam'     => 'Unmark the comment as spam. Will attempt to set it to the previous status.',
+			'trash'      => 'Send a comment to the trash if trashing is enabled (see constant: EMPTY_TRASH_DAYS).',
+			'untrash'    => 'Untrash a comment. Only works when the comment is in the trash.',
 		),
 	),
 

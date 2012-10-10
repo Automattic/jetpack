@@ -208,14 +208,14 @@ class WPCOM_JSON_API {
 			if ( 'json' === $help_content_type ) {
 				$docs = array();
 				foreach ( $matching_endpoints as $matching_endpoint ) {
-					if ( !$matching_endpoint[0]->in_testing )
+					if ( !$matching_endpoint[0]->in_testing || WPCOM_JSON_API__DEBUG )
 						$docs[] = call_user_func( array( $matching_endpoint[0], 'generate_documentation' ) );
 				}
 				return $this->output( 200, $docs );
 			} else {
 				status_header( 200 );
 				foreach ( $matching_endpoints as $matching_endpoint ) {
-					if ( !$matching_endpoint[0]->in_testing )
+					if ( !$matching_endpoint[0]->in_testing || WPCOM_JSON_API__DEBUG )
 						call_user_func( array( $matching_endpoint[0], 'document' ) );
 				}
 			}
