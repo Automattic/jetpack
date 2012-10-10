@@ -752,9 +752,10 @@ jQuery(document).ready(function($) {
 					title           = src_item.attr('title') || '',
 					description     = src_item.data('image-description') || '',
 					caption         = src_item.parents('dl').find('dd.gallery-caption').html() || '',
-					src				= src_item.data('gallery-src') || '',
+					src		= src_item.data('gallery-src') || '',
 					medium_file     = src_item.data('medium-file') || '',
-					large_file      = src_item.data('large-file') || '';
+					large_file      = src_item.data('large-file') || '',
+					orig_file	= src_item.data('orig-file') || '';
 
 				var tiledCaption = src_item.parents('div.tiled-gallery-item').find('div.tiled-gallery-caption').html();
 				if ( tiledCaption )
@@ -786,6 +787,7 @@ jQuery(document).ready(function($) {
 						.data('image-meta', image_meta)
 						.data('medium-file', medium_file)
 						.data('large-file', large_file)
+						.data('orig-file', orig_file)
 						.jp_carousel('fitSlide', false);
 
 				
@@ -968,7 +970,7 @@ jQuery(document).ready(function($) {
 		getFullSizeLink: function(current) {
 			if(!current || !current.data)
 				return false;
-			var original  = current.data('src').replace(/\?.+$/, ''),
+			var original  = current.data('orig-file').replace(/\?.+$/, ''),
 				origSize  = current.data('orig-size').split(','),
 				permalink = $( '<a>'+gallery.jp_carousel('format', {'text': jetpackCarouselStrings.download_original, 'replacements': origSize})+'</a>' )
 					.addClass( 'jp-carousel-image-download' )
