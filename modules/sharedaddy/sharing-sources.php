@@ -19,6 +19,10 @@ abstract class Sharing_Source {
 			$this->smart = $settings['smart'];
 	}
 	
+	public function http() {
+		return is_ssl() ? 'https' : 'http';
+	}
+
 	public function get_id() {
 		return $this->id;
 	}
@@ -365,7 +369,7 @@ class Share_Twitter extends Sharing_Source {
 		$share_url = $this->get_share_url( $post->ID );
 
 		if ( $this->smart ) {
-			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( 'http://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $share_url ) . '&counturl=' . rawurlencode( str_replace( 'https://', 'http://', get_permalink( $post->ID ) ) ) . '&count=horizontal&text=' . rawurlencode( $post->post_title . ':' ) . $via ) . '" style="width:101px; height:20px;"></iframe></div>';
+			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $share_url ) . '&counturl=' . rawurlencode( str_replace( 'https://', 'http://', get_permalink( $post->ID ) ) ) . '&count=horizontal&text=' . rawurlencode( $post->post_title . ':' ) . $via ) . '" style="width:101px; height:20px;"></iframe></div>';
 		} else {
 			if ( 'icon-text' == $this->button_style || 'text' == $this->button_style )
 				sharing_register_post_for_share_counts( $post->ID );
@@ -415,7 +419,7 @@ class Share_Twitter extends Sharing_Source {
 		$url = $post_link;
 		$twitter_url = add_query_arg(
 			urlencode_deep( array_filter( compact( 'via', 'related', 'text', 'url' ) ) ),
-			sprintf( '%s://twitter.com/intent/tweet', ( is_ssl() ? 'https' : 'http' ) )
+			sprintf( '%s://twitter.com/intent/tweet', $this->http() )
 		);
 
 		// Redirect to Twitter
@@ -459,7 +463,7 @@ class Share_Stumbleupon extends Sharing_Source {
 	}
 	
 	public function process_request( $post, array $post_data ) {
-		$stumbleupon_url = 'http://www.stumbleupon.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $post->post_title );
+		$stumbleupon_url = $this->http() . '://www.stumbleupon.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $post->post_title );
 		
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -689,7 +693,7 @@ class Share_Facebook extends Sharing_Source {
 	public function get_display( $post ) {
 		$share_url = $this->get_share_url( $post->ID );
 		if ( $this->smart ) {
-			$url = 'http://www.facebook.com/plugins/like.php?href=' . rawurlencode( $share_url ) . '&amp;layout=button_count&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;height=21';
+			$url = $this->http() . '://www.facebook.com/plugins/like.php?href=' . rawurlencode( $share_url ) . '&amp;layout=button_count&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;height=21';
 			
 			// Default widths to suit English
 			$inner_w = 90;
@@ -731,7 +735,7 @@ class Share_Facebook extends Sharing_Source {
 	}
 	
 	public function process_request( $post, array $post_data ) {
-		$fb_url = 'http://www.facebook.com/sharer.php?u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $post->post_title );
+		$fb_url = $this->http() . '://www.facebook.com/sharer.php?u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $post->post_title );
 		
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -867,7 +871,7 @@ class Share_GooglePlus1 extends Sharing_Source {
 		} );
 	}
 	</script>
-	<script type="text/javascript" src="http://apis.google.com/js/plusone.js"></script>
+	<script type="text/javascript" src="<?php echo $this->http(); ?>://apis.google.com/js/plusone.js"></script>
 <?php
 	}	
 

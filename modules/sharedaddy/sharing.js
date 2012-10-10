@@ -3,9 +3,9 @@ var WPCOMSharing = {
 		if ( jQuery( '#sharing-facebook-' + WPCOM_sharing_counts[ url ] ).length )
 			jQuery.getScript( 'https://graph.facebook.com/' + encodeURIComponent( url ) + '?callback=WPCOMSharing.update_facebook_count' );
 		if ( jQuery( '#sharing-twitter-' + WPCOM_sharing_counts[ url ] ).length )
-			jQuery.getScript( 'http://urls.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' + encodeURIComponent( url ) );
+			jQuery.getScript( window.location.protocol + '//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' + encodeURIComponent( url ) );
 		if ( jQuery( '#sharing-linkedin-' + WPCOM_sharing_counts[ url ] ).length )
-			jQuery.getScript( 'http://www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' + encodeURIComponent( url ) );
+			jQuery.getScript( window.location.protocol + '//www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' + encodeURIComponent( url ) );
 	},
 	update_facebook_count : function( data ) {
 		if ( 'undefined' != typeof data.shares && ( data.shares * 1 ) > 0 ) {
@@ -104,12 +104,17 @@ var WPCOMSharing = {
 							// Mark the item as have being appeared by the hover
 							$more_sharing_button.data( 'hasoriginal', true ).data( 'hasitem', false );
 							
-							// Remove all special handlers
-							$more_sharing_pane.mouseleave( handler_item_leave ).mouseenter( handler_item_enter );
-							$more_sharing_button.mouseleave( handler_original_leave ).mouseenter( handler_original_enter );
 							setTimeout( function() {
 								$more_sharing_pane.data( 'justSlid', false );
 							}, 300 );
+
+							if ( $more_sharing_pane.find( '.share-google-plus-1' ).size() ) {
+								// The pane needs to stay open for the Google+ Button
+								return;
+							}
+
+							$more_sharing_pane.mouseleave( handler_item_leave ).mouseenter( handler_item_enter );
+							$more_sharing_button.mouseleave( handler_original_leave ).mouseenter( handler_original_enter );
 						} );
 						
 						// The following handlers take care of the mouseenter/mouseleave for the share button and the share area - if both are left then we close the share area
