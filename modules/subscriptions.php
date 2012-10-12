@@ -620,7 +620,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			Jetpack:: load_xml_rpc_client();
 
 			$xml = new Jetpack_IXR_Client( array(
-				'user_id' => $GLOBALS['current_user']->ID
+				'user_id' => JETPACK_MASTER_USER,
 			) );
 
 			$xml->query( 'jetpack.fetchSubscriberCount' );

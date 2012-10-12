@@ -2336,7 +2336,7 @@ p {
 
 		$this->load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => $GLOBALS['current_user']->ID
+			'user_id' => JETPACK_MASTER_USER,
 		) );
 		$xml->query( 'jetpack.checkNewsSubscription' );
 		if ( $xml->isError() ) {
@@ -2354,7 +2354,7 @@ p {
 
 		$this->load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => $GLOBALS['current_user']->ID
+			'user_id' => JETPACK_MASTER_USER,
 		) );
 		$xml->query( 'jetpack.subscribeToNews' );
 		if ( $xml->isError() ) {
@@ -2779,8 +2779,6 @@ class Jetpack_Client {
 		if ( !$token ) {
 			return new Jetpack_Error( 'missing_token' );
 		}
-
-		$args['user_id'] = (int) $args['user_id'];
 
 		$method = strtoupper( $args['method'] );
 
