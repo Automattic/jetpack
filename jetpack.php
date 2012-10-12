@@ -3192,7 +3192,7 @@ class Jetpack_Data {
 					return false;
 				}
 			}
-			if ( !$token = $tokens[$user_id] ) {
+			if ( !isset( $tokens[$user_id] ) || !$token = $tokens[$user_id] ) {
 				return false;
 			}
 			$token_chunks = explode( '.', $token );
