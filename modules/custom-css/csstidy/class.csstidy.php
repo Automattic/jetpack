@@ -657,6 +657,9 @@ class csstidy {
 						if ($lastpos == -1 || !( (ctype_space($this->selector{$lastpos}) || csstidy::is_token($this->selector, $lastpos) && $this->selector{$lastpos} === ',') && ctype_space($string{$i}))) {
 							$this->selector .= $string{$i};
 						}
+						else if (ctype_space($string{$i}) && $this->get_cfg('preserve_css') && !$this->get_cfg('merge_selectors')) {
+							$this->selector .= $string{$i};
+						}
 					}
 					break;
 

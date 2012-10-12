@@ -150,6 +150,8 @@ function get_current_revision() {
 function save_revision( $css, $is_preview = false ) {
 	$safecss_post = get_safecss_post();
 
+	$compressed_css = custom_css_minify( $css );
+
 	// If null, there was no original safecss record, so create one
 	if ( null == $safecss_post ) {
 		if ( ! $css )
@@ -160,6 +162,7 @@ function save_revision( $css, $is_preview = false ) {
 		$post['post_title'] = 'safecss';
 		$post['post_status'] = 'publish';
 		$post['post_type'] = 'safecss';
+		$post['post_content_filtered'] = $compressed_css;
 
 		// Set excerpt to current theme, for display in revisions list
 		if ( function_exists( 'wp_get_theme' ) ) {
@@ -177,6 +180,7 @@ function save_revision( $css, $is_preview = false ) {
 
 	// Update CSS in post array with new value passed to this function
 	$safecss_post['post_content'] = $css;
+	$safecss_post['post_content_filtered'] = $compressed_css;
 
 	// Set excerpt to current theme, for display in revisions list
 	if ( function_exists( 'wp_get_theme' ) ) {
@@ -212,7 +216,7 @@ function safecss_skip_stylesheet() {
 }
 
 function safecss_init() {
-	define( 'SAFECSS_USE_ACE', apply_filters( 'safecss_use_ace', true ) );
+	define( 'SAFECSS_USE_ACE', ! jetpack_is_mobile() && ! Jetpack_User_Agent_Info::is_ipad() && apply_filters( 'safecss_use_ace', true ) );
 
   	// Register safecss as a custom post_type
   	// Explicit capability definitions are largely unnecessary because the posts are manipulated in code via an options page, managing CSS revisions does check the capabilities, so let's ensure that the proper caps are checked.
@@ -274,14 +278,17 @@ function safecss_init() {
 		safecss_class();
 		$csstidy = new csstidy();
 		$csstidy->optimise = new safecss($csstidy);
-		$csstidy->set_cfg('remove_bslash', false);
-		$csstidy->set_cfg('compress_colors', false);
-		$csstidy->set_cfg('compress_font-weight', false);
-		$csstidy->set_cfg('discard_invalid_properties', true);
-		$csstidy->set_cfg('merge_selectors', false);
-		$csstidy->set_cfg('remove_last_;', false);
-		$csstidy->set_cfg('css_level', 'CSS3.0');
-		$csstidy->set_cfg('template', dirname( __FILE__ ) . '/csstidy/wordpress-standard.tpl');
+
+		$csstidy->set_cfg( 'remove_bslash',              false );
+		$csstidy->set_cfg( 'compress_colors',            false );
+		$csstidy->set_cfg( 'compress_font-weight',       false );
+		$csstidy->set_cfg( 'optimise_shorthands',        0 );
+		$csstidy->set_cfg( 'remove_last_;',              false );
+		$csstidy->set_cfg( 'case_properties',            false );
+		$csstidy->set_cfg( 'discard_invalid_properties', true );
+		$csstidy->set_cfg( 'css_level',                  'CSS3.0' );
+		$csstidy->set_cfg( 'preserve_css',               true );
+		$csstidy->set_cfg( 'template',                   dirname( __FILE__ ) . '/csstidy/wordpress-standard.tpl' );
 
 		$css = $orig = stripslashes($_POST['safecss']);
 
@@ -363,7 +370,7 @@ function safecss_is_freetrial() {
 	return apply_filters( 'safecss_is_freetrial', false );
 }
 
-function safecss() {
+function safecss( $compressed = false ) {
 	$default_css = apply_filters( 'safecss_get_css_error', false );
 
 	if ( $default_css !== false )
@@ -374,13 +381,13 @@ function safecss() {
 	if ( 'safecss' == $option ) {
 		if ( get_option( 'safecss_revision_migrated' ) ) {
 			$safecss_post = get_safecss_post();
-			$css = $safecss_post['post_content'];
+			$css = ( $compressed && $safecss_post['post_content_filtered'] ) ? $safecss_post['post_content_filtered'] : $safecss_post['post_content'];
 		} else {
 			$current_revision = get_current_revision();
 			if ( false === $current_revision ) {
 				$css = '';
 			} else {
-				$css = $current_revision['post_content'];
+				$css = ( $compressed && $current_revision['post_content_filtered'] ) ? $current_revision['post_content_filtered'] : $current_revision['post_content'];
 			}
 		}
 
@@ -392,11 +399,11 @@ function safecss() {
 			}
 		}
 	}
-
-	if ( 'safecss_preview' == $option ) {
+	else if ( 'safecss_preview' == $option ) {
 		$safecss_post = get_current_revision();
 		$css = $safecss_post['post_content'];
 		$css = stripslashes( $css );
+		$css = custom_css_minify( $css );
 	}
 
 	$css = str_replace( array( '\\\00BB \\\0020', '\0BB \020', '0BB 020' ), '\00BB \0020', $css );
@@ -423,7 +430,7 @@ function safecss() {
 function safecss_print() {
 	do_action( 'safecss_print_pre' );
 
-	echo safecss();
+	echo safecss( true );
 }
 
 function safecss_style() {
@@ -678,8 +685,8 @@ textarea#safecss {
 }
 #safecssform .button,
 #safecssform .button-primary {
-	border-radius: 2em;
 	padding: 7px 12px;
+	margin-left: 6px;
 }
 <?php
 if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) :
@@ -763,7 +770,7 @@ function safecss_admin() {
 ?>
 <div class="wrap">
 	<?php do_action( 'custom_design_header' ); ?>
-	<div id="poststuff" class="has-right-sidebar">
+	<div id="poststuff" class="has-right-sidebar metabox-holder">
 	<h2><?php _e( 'CSS Stylesheet Editor', 'jetpack' ); ?></h2>
 	<p class="css-support"><?php echo apply_filters( 'safecss_intro_text', __( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/">beginner tutorial</a>. Questions?
 	Ask in the <a href="http://wordpress.org/support/forum/themes-and-templates">Themes and Templates forum</a>.', 'jetpack' ) ); ?></p>
@@ -937,10 +944,15 @@ function disable_safecss_style() {
 	remove_filter( 'stylesheet_uri', 'safecss_style_filter' );
 }
 
+/**
+ * Reset all aspects of Custom CSS on a theme switch so that changing
+ * themes is a sure-fire way to get a clean start.
+ */
 function custom_css_reset() {
 	save_revision( '' );
 	update_option( 'safecss_rev', intval( get_option( 'safecss_rev' ) ) + 1 );
 	update_option( 'safecss_add', 'yes' );
+	update_option( 'safecss_content_width', false );
 }
 
 add_action( 'switch_theme', 'custom_css_reset' );
@@ -950,4 +962,26 @@ function custom_css_is_customizer_preview() {
 		return ! $GLOBALS['wp_customize']->is_theme_active();
 
 	return false;
+}
+
+function custom_css_minify( $css ) {
+	if ( ! $css )
+		return '';
+
+	safecss_class();
+	$csstidy = new csstidy();
+	$csstidy->optimise = new safecss( $csstidy );
+
+	$csstidy->set_cfg( 'remove_bslash',              false );
+	$csstidy->set_cfg( 'compress_colors',            true );
+	$csstidy->set_cfg( 'compress_font-weight',       true );
+	$csstidy->set_cfg( 'lowercase_s',                true );
+	$csstidy->set_cfg( 'remove_last_;',              true );
+	$csstidy->set_cfg( 'case_properties',            true );
+	$csstidy->set_cfg( 'discard_invalid_properties', true );
+	$csstidy->set_cfg( 'css_level',                  'CSS3.0' );
+	$csstidy->set_cfg( 'template', 'highest');
+	$csstidy->parse( $css );
+
+	return $csstidy->print->plain();
 }
