@@ -108,8 +108,7 @@ class Jetpack_Notifications {
 	}
 
 	function print_js() {
-		if ( is_user_logged_in() && !Jetpack::is_user_connected() )
-			$link_accounts_url = $this->jetpack->admin_url();
+		$link_accounts_url = is_user_logged_in() && !Jetpack::is_user_connected() ? $this->jetpack->admin_url() : false;
 ?>
 <script type="text/javascript">
 /* <![CDATA[ */
