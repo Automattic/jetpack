@@ -18,7 +18,7 @@ class Jetpack_Notifications {
 		static $instance = array();
 
 		if ( !$instance ) {
-			$instance[0] =& new Jetpack_Notifications;
+			$instance[0] = new Jetpack_Notifications;
 		}
 
 		return $instance[0];
