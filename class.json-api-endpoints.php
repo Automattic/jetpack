@@ -2510,13 +2510,19 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		);
 
 		ob_start();
-		add_action( 'shutdown', array( $this, 'trap_comment_errors' ), 0 );
+		add_filter( 'wp_die_handler', array( $this, 'filter_wp_die_callback' ), 10, 1 ); //override wp_die
 		$comment_id = wp_new_comment( add_magic_quotes( $insert ) );
-		remove_action( 'shutdown', array( $this, 'trap_comment_errors' ), 0 );
-		ob_end_clean();
+		remove_filter( 'wp_die_handler', array( $this, 'filter_wp_die_callback' ), 10, 1 );
+		$msg = ob_get_clean();
+		if ( $msg ) {
+			return new WP_Error( 400, $msg );
+		}
 
 		$return = $this->get_comment( $comment_id, $args['context'] );
-		if ( !$return || is_wp_error( $return ) ) {
+		if ( !$return ) {
+			return new WP_Error( 400, __( 'Comment cache problem?' ) );
+		}
+		if ( is_wp_error( $return ) ) {
 			return $return;
 		}
 
@@ -2629,13 +2635,15 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		return $this->get_comment( $comment->comment_ID, $args['context'] );
 	}
 
-	// @todo error handling
-	function trap_comment_errors() {
-		ob_end_clean();
-
-		$api = WPCOM_JSON_API::init();
-		$api->output( 400, null, 'application/javascript', false );
+	function filter_wp_die_callback( $callback ) {
+		return array( $this, 'trap_wp_die' );
 	}
+
+	//die with the message, ob_start/ob_get_clean will pick up the actual error message
+	function trap_wp_die( $msg, $title = '', $args = array() ) {
+		die( $msg );
+	}
+
 }
 
 class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
