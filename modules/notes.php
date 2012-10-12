@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Notifications
- * Module Description: Generate notifications and display the Notifications Toolbar menu on your site.
+ * Module Description: Monitor and manage your site's activity with Nofications in your Toolbar and on WordPress.com.
  * Sort Order: 1
  * First Introduced: 1.9
  */
