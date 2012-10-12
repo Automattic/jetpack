@@ -18,8 +18,6 @@ class Jetpack_IXR_Client extends IXR_Client {
 
 		$args = wp_parse_args( $args, $defaults );
 
-		$args['user_id'] = (int) $args['user_id'];
-
 		$this->jetpack_args = $args;
 
 		$this->IXR_Client( $args['url'], $path, $port, $timeout );
