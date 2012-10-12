@@ -180,7 +180,7 @@ function jetpack_mobile_theme_setup() {
 		add_action('option_template', 'jetpack_mobile_template');
 		add_action('option_stylesheet', 'jetpack_mobile_stylesheet');
 
-		if ( function_exists( 'disable_safecss_style' ) )
+		if ( function_exists( 'disable_safecss_style' ) && ! get_option( 'wp_mobile_custom_css' ) )
 			add_action( 'init', 'disable_safecss_style', 11 );
 
 		do_action( 'mobile_setup' );
@@ -240,3 +240,27 @@ function jetpack_mobile_app_promo()  {
 }
 
 add_action( 'wp_mobile_theme_footer', 'jetpack_mobile_app_promo' );
+
+/**
+ * Adds an option to allow your Custom CSS to also be applied to the Mobile Theme.
+ * It's disabled by default, but this should allow people who know what they're
+ * doing to customize the mobile theme.
+ */
+function jetpack_mobile_css_settings() {
+	?>
+	<p>
+		<label>
+			<input type="checkbox" name="mobile_css" value="1" <?php checked( get_option( 'wp_mobile_custom_css' ) ); ?> />
+			<?php esc_html_e( 'Apply this CSS to the Mobile Theme', 'jetpack' ); ?>
+		</label>
+	</p>
+	<?php
+}
+
+add_action( 'custom_css_meta_fields', 'jetpack_mobile_css_settings' );
+
+function jetpack_mobile_save_css_settings() {
+	update_option( 'wp_mobile_custom_css', isset( $_POST['mobile_css'] ) && ! empty( $_POST['mobile_css'] ) );
+}
+
+add_action( 'safecss_save_pre', 'jetpack_mobile_save_css_settings' );
