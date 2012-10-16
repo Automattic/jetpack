@@ -264,10 +264,11 @@ class Jetpack_XMLRPC_Server {
 		$json_api_args = $args[0];
 		$verify_api_user_args = $args[1];
 
-		$method    = (string) $json_api_args[0];
-		$url       = (string) $json_api_args[1];
-		$post_body = is_null( $json_api_args[2] ) ? null : (string) $json_api_args[2];
-		$my_id     = (int) $json_api_args[3];
+		$method       = (string) $json_api_args[0];
+		$url          = (string) $json_api_args[1];
+		$post_body    = is_null( $json_api_args[2] ) ? null : (string) $json_api_args[2];
+		$my_id        = (int) $json_api_args[3];
+		$user_details = (array) $json_api_args[4];
 
 		if ( !$verify_api_user_args ) {
 			$user_id = 0;
@@ -313,6 +314,7 @@ class Jetpack_XMLRPC_Server {
 
 		require_once dirname( __FILE__ ) . '/class.json-api.php';
 		$api = WPCOM_JSON_API::init( $method, $url, $post_body );
+		$api->token_details['user'] = $user_details;
 		require_once dirname( __FILE__ ) . '/class.json-api-endpoints.php';
 
 		$display_errors = ini_set( 'display_errors', 0 );
