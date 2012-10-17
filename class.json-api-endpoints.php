@@ -112,6 +112,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->path        = $args['path'];
 		$this->path_labels = $args['path_labels'];
 
+		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
+		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
+
 		$this->version     = $args['version'];
 
 		if ( $this->request_format ) {
