@@ -975,7 +975,6 @@ function custom_css_minify( $css ) {
 	$csstidy->set_cfg( 'remove_bslash',              false );
 	$csstidy->set_cfg( 'compress_colors',            true );
 	$csstidy->set_cfg( 'compress_font-weight',       true );
-	$csstidy->set_cfg( 'lowercase_s',                true );
 	$csstidy->set_cfg( 'remove_last_;',              true );
 	$csstidy->set_cfg( 'case_properties',            true );
 	$csstidy->set_cfg( 'discard_invalid_properties', true );
