@@ -200,13 +200,9 @@ class Jetpack {
 			require_once dirname( __FILE__ ) . '/class.jetpack-xmlrpc-server.php';
 			$this->xmlrpc_server = new Jetpack_XMLRPC_Server();
 
-			// Don't let anyone authenticate
-			remove_all_filters( 'authenticate' );
+			$this->require_jetpack_authentication();
 
 			if ( $this->is_active() ) {
-				// Allow Jetpack authentication
-				add_filter( 'authenticate', array( $this, 'authenticate_xml_rpc' ), 10, 3 );
-
 				// Hack to preserve $HTTP_RAW_POST_DATA
 				add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
@@ -219,6 +215,9 @@ class Jetpack {
 
 			// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
 			add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
+		} elseif ( is_admin() && isset( $_POST['action'] ) && 'jetpack_upload_file' == $_POST['action'] ) {
+			$this->require_jetpack_authentication();
+			$this->add_remote_request_handlers();
 		} else {
 			if ( $this->is_active() ) { 
 				add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) ); 
@@ -242,6 +241,17 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
+	}
+
+	function require_jetpack_authentication() {
+		// Don't let anyone authenticate
+		$_COOKIE = array();
+		remove_all_filters( 'authenticate' );
+
+		if ( $this->is_active() ) {
+			// Allow Jetpack authentication
+			add_filter( 'authenticate', array( $this, 'authenticate_jetpack' ), 10, 3 );
+		}
 	}
 
 	/**
@@ -1199,6 +1209,121 @@ p {
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
 
 		do_action( 'jetpack_admin_menu' );
+	}
+
+	function add_remote_request_handlers() {
+		add_action( 'wp_ajax_nopriv_jetpack_upload_file', array( $this, 'remote_request_handlers' ) );
+	}
+
+	function remote_request_handlers() {
+		switch ( current_filter() ) {
+		case 'wp_ajax_nopriv_jetpack_upload_file' :
+			$response = $this->upload_handler();
+			break;
+		default :
+			$response = new Jetpack_Error( 'unknown_handler', 'Unknown Handler', 400 );
+			break;
+		}
+
+		if ( !$response ) {
+			$response = new Jetpack_Error( 'unknown_error', 'Unknown Error', 400 );
+		}
+
+		if ( is_wp_error( $response ) ) {
+			$status_code       = $response->get_error_data();
+			$error             = $response->get_error_code();
+			$error_description = $response->get_error_message();
+
+			if ( !is_int( $status_code ) ) {
+				$status_code = 400;
+			}
+
+			status_header( $status_code );
+			die( json_encode( (object) compact( 'error', 'error_description' ) ) );
+		}
+
+		status_header( 200 );
+		if ( true === $response ) {
+			exit;
+		}
+
+		die( json_encode( (object) $response ) );
+	}
+
+	function upload_handler() {
+		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
+			return new Jetpack_Error( 405, get_status_header_desc( 405 ), 405 );
+		}
+
+		$user = wp_authenticate( '', '' );
+		if ( !$user || is_wp_error( $user ) ) {
+			return new Jetpack_Error( 403, get_status_header_desc( 403 ), 403 );
+		}
+
+		wp_set_current_user( $user->ID );
+
+		if ( !current_user_can( 'upload_files' ) ) {
+			return new Jetpack_Error( 'cannot_upload_files', 'User does not have permission to upload files', 403 );
+		}
+
+		if ( empty( $_FILES ) ) {
+			return new Jetpack_Error( 'no_files_uploaded', 'No files were uploaded: nothing to process', 400 );
+		}
+
+		foreach ( array_keys( $_FILES ) as $files_key ) {
+			if ( !isset( $_POST["_jetpack_file_hmac_{$files_key}"] ) ) {
+				return new Jetpack_Error( 'missing_hmac', 'An HMAC for one or more files is missing', 400 );
+			}
+		}
+
+		$media_keys = array_keys( $_FILES['media'] );
+
+		$token = Jetpack_Data::get_access_token( get_current_user_id() );
+		if ( !$token || is_wp_error( $token ) ) {
+			return new Jetpack_Error( 'unknown_token', 'Unknown Jetpack token', 403 );
+		}
+
+		$uploaded_files = array();
+		$global_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
+		unset( $GLOBALS['post'] );
+		foreach ( $_FILES['media']['name'] as $index => $name ) {
+			$file = array();
+			foreach ( $media_keys as $media_key ) {
+				$file[$media_key] = $_FILES['media'][$media_key][$index];
+			}
+
+			list( $hmac_provided, $salt ) = explode( ':', $_POST['_jetpack_file_hmac_media'][$index] );
+
+			$hmac_file = hash_hmac_file( 'sha1', $file['tmp_name'], $salt . $token->secret );
+			if ( $hmac_provided !== $hmac_file ) {
+				$uploaded_files[$index] = (object) array( 'error' => 'invalid_hmac', 'error_description' => 'The corresponding HMAC for this file does not match' );
+				continue;
+			}
+
+			$_FILES['.jetpack.upload.'] = $file;
+			$attachment_id = media_handle_upload( '.jetpack.upload.', 0, array(), array(
+				'action' => 'jetpack_upload_file',
+			) );
+
+			if ( !$attachment_id ) {
+				$uploaded_files[$index] = (object) array( 'error' => 'unknown', 'error_description' => 'An unknown problem occurred processing the upload on the Jetpack site' );
+			} elseif ( is_wp_error( $attachment_id ) ) {
+				$uploaded_files[$index] = (object) array( 'error' => 'attachment_' . $attachment_id->get_error_code(), 'error_description' => $attachment_id->get_error_message() );
+			} else {
+				$attachment = get_post( $attachment_id );
+				$uploaded_files[$index] = (object) array(
+					'id'   => (string) $attachment_id,
+					'file' => $attachment->post_title,
+					'url'  => wp_get_attachment_url( $attachment_id ),
+					'type' => $attachment->post_mime_type,
+				);
+			}
+		}
+		if ( !is_null( $global_post ) ) {
+			$GLOBALS['post'] = $global_post;
+		}
+
+		return $uploaded_files;
 	}
 
 	/**
@@ -2529,17 +2654,15 @@ p {
 	}
 
 	/**
-	 * Authenticates XML-RPC requests from the Jetpack Server
-	 *
-	 * We don't actually know who the real user is; we set it to the account that created the connection.
+	 * Authenticates XML-RPC and other requests from the Jetpack Server
 	 */
-	function authenticate_xml_rpc( $user, $username, $password ) {
+	function authenticate_jetpack( $user, $username, $password ) {
 		if ( is_a( $user, 'WP_User' ) ) {
 			return $user;
 		}
 
 		// It's not for us
-		if ( !isset( $_GET['for'] ) || 'jetpack' != $_GET['for'] || !isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
+		if ( !isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
 			return $user;
 		}
 
@@ -2566,7 +2689,34 @@ p {
 		require_once dirname( __FILE__ ) . '/class.jetpack-signature.php';
 
 		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack::get_option( 'time_diff' ) );
-		$signature = $jetpack_signature->sign_current_request( array( 'body' => $this->HTTP_RAW_POST_DATA ) );
+		if ( isset( $_POST['_jetpack_is_multipart'] ) ) {
+			$post_data = $_POST;
+			$file_hashes = array();
+			foreach ( $post_data as $post_data_key => $post_data_value ) {
+				if ( 0 !== strpos( $post_data_key, '_jetpack_file_hmac_' ) ) {
+					continue;
+				}
+				$post_data_key = substr( $post_data_key, strlen( '_jetpack_file_hmac_' ) );
+				$file_hashes[$post_data_key] = $post_data_value;
+			}
+
+			foreach ( $file_hashes as $post_data_key => $post_data_value ) {
+				unset( $post_data["_jetpack_file_hmac_{$post_data_key}"] );
+				$post_data[$post_data_key] = $post_data_value;
+			}
+
+			ksort( $post_data );
+
+			$body = http_build_query( stripslashes_deep( $post_data ) );
+		} elseif ( is_null( $this->HTTP_RAW_POST_DATA ) ) {
+			$body = file_get_contents( 'php://input' );
+		} else {
+			$body = null;
+		}
+		$signature = $jetpack_signature->sign_current_request( array(
+			'body' => is_null( $body ) ? $this->HTTP_RAW_POST_DATA : $body
+		) );
+
 		if ( !$signature ) {
 			return $user;
 		} else if ( is_wp_error( $signature ) ) {
