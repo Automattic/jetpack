@@ -3957,10 +3957,16 @@ class Jetpack_Sync {
 			$post['pinged']
 		);
 
-		if ( !$this->is_post_public( $post ) ) {
+		if ( $this->is_post_public( $post ) ) {
+			$post['post_is_public'] = Jetpack::get_option( 'public' );
+		} else {
+			//obscure content
 			$post['post_content'] = '';
 			$post['post_excerpt'] = '';
+			$post['post_is_public'] = false;
 		}
+		$post_type_obj = get_post_type_object( $post['post_type'] );
+		$post['post_is_excluded_from_search'] = $post_type_obj->exclude_from_search;
 
 		$post['tax'] = array();
 		$taxonomies = get_object_taxonomies( $post_obj );
