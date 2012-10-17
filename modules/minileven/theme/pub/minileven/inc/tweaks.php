@@ -56,3 +56,12 @@ function minileven_page_menu_args( $args ) {
 	return $args;
 }
 add_filter( 'wp_page_menu_args', 'minileven_page_menu_args' );
+
+/**
+ * Adds a custom class to the array of body classes, to allow Minileven to be targeted with Custom CSS.
+ */
+function minileven_body_classes( $classes ) {
+	$classes[] = 'mobile-theme';
+	return $classes;
+}
+add_filter( 'body_class', 'minileven_body_classes' );
