@@ -5,6 +5,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 	// The API Object
 	var $api;
 
+	var $pass_wpcom_user_details = false;
+	var $can_use_user_details_instead_of_blog_membership = false;
+
 	// One liner.
 	var $description;
 
@@ -89,7 +92,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'version'              => 'v1',
 			'example_request'      => '',
 			'example_request_data' => '',
-			'example_response'     => ''
+			'example_response'     => '',
+
+			'pass_wpcom_user_details' => false,
+			'can_use_user_details_instead_of_blog_membership' => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -3296,6 +3302,9 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 //		'author'    => '(author object) The author of the comment.',
 	),
 
+	'pass_wpcom_user_details' => true,
+	'can_use_user_details_instead_of_blog_membership' => true,
+
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/posts/1222/replies/new/',
 	'example_request_data' =>  array(
 		'headers' => array(
@@ -3362,6 +3371,9 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 //		@todo Should we open this up to unauthenticated requests too?
 //		'author'    => '(author object) The author of the comment.',
 	),
+
+	'pass_wpcom_user_details' => true,
+	'can_use_user_details_instead_of_blog_membership' => true,
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/comments/8/replies/new/',
 	'example_request_data' => array(
