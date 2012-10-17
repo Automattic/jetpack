@@ -98,10 +98,10 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Sync: Obfuscate post content for password protected posts.
 * Enhancement: Privacy: if site appears to not be reachable publicly, disable enhanced-distribution and json-api modules by default
 * Enhancement: Custom CSS: allow applying Custom CSS to mobile theme.
-* Enhancement: Custom CSS: minify CSS.
 * Enhancement: Sharing: On HTTPS pageloads, load as much of the sharing embeds as possible from HTTPS URLs.
 * Bug Fix: Only allow users with manage_options permission to enable/disable modules
-* Bug Fix: Custom CSS: allow '/'; is included for ratios in Opera: (-o-min-device-pixel-ratio: 3/2)
+* Bug Fix: Custom CSS: allow '/' in media query units; e.g. (-o-min-device-pixel-ratio: 3/2)
+* Bug Fix: Custom CSS: leave comments alone in CSS when editing but minify on the frontend
 * Bug Fix: Sharing: Keep "more" pane open so Google+ Button isn't obscured
 * Bug Fix: Carousel: Make sure the original size is used, even when it is exceedingly large.
 * Bug Fix: Exclude iPad from Twitter on iPhone mobile browsing
