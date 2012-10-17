@@ -234,25 +234,25 @@ class Jetpack_Subscriptions {
 	}
 
 	public function reading_section() {
-		_e( 'These settings change emails sent from your blog to followers.' );
+		_e( 'These settings change emails sent from your blog to followers.' , 'jetpack');
 	}
 
 	public function setting_invitation() {
 		$settings = $this->get_settings();
 		echo '<textarea name="subscription_options[invitation]" class="large-text" cols="50" rows="5">'.$settings['invitation'].'</textarea>';
-		echo '<p><span class="description">'.__( 'Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)' ).'</span></p>';
+		echo '<p><span class="description">'.__( 'Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)' , 'jetpack').'</span></p>';
 	}
 
 	public function setting_comment_follow() {
 		$settings = $this->get_settings();
 		echo '<textarea name="subscription_options[comment_follow]" class="large-text" cols="50" rows="5">'.$settings['comment_follow'].'</textarea>';
-		echo '<p><span class="description">'.__( 'Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)' ).'</span></p>';
+		echo '<p><span class="description">'.__( 'Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)' , 'jetpack').'</span></p>';
 	}
 
 	function get_default_settings() {
 		return array(
-			'invitation'             => __( "Howdy.\n\nYou recently followed this blog's posts. This means you will receive each new post by email.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again." ),
-			'comment_follow'  => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again." )
+			'invitation'             => __( "Howdy.\n\nYou recently followed this blog's posts. This means you will receive each new post by email.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again." , 'jetpack'),
+			'comment_follow'  => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again." , 'jetpack')
 		);
 	}
 		
