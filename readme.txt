@@ -87,6 +87,25 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.9 =
+* Enhancement: Notifications: Display Notifications in the toolbar and support reply/moderation of comment notifications.
+* Enhancement: Mobile Push Notifications: Allows iOS app to receive push notifications of new comments
+* Enhancement: JSON API: Allows applications to send API requests via Jetpack or to have them sent via WordPress.com (see http://developer.wordpress.com/docs/api/)
+* Enhancement: Sync: Modules (that require the data) sync full Post/Comment to ensure consistent data on WP.com (eg Stats)
+* Enhancement: Sync: Improve syncing of site options to WP.com
+* Enhancement: Sync: Sync attachment parents to WP.com
+* Enhancement: Sync: Add signing of WP.com user ids for Jetpack Comments
+* Enhancement: Sync: Obfuscate post content for password protected posts.
+* Enhancement: Privacy: if site appears to not be reachable publicly, disable enhanced-distribution and json-api modules by default
+* Enhancement: Custom CSS: allow applying Custom CSS to mobile theme.
+* Enhancement: Custom CSS: minify CSS.
+* Enhancement: Sharing: On HTTPS pageloads, load as much of the sharing embeds as possible from HTTPS URLs.
+* Bug Fix: Only allow users with manage_options permission to enable/disable modules
+* Bug Fix: Custom CSS: allow '/'; is included for ratios in Opera: (-o-min-device-pixel-ratio: 3/2)
+* Bug Fix: Sharing: Keep "more" pane open so Google+ Button isn't obscured
+* Bug Fix: Carousel: Make sure the original size is used, even when it is exceedingly large.
+* Bug Fix: Exclude iPad from Twitter on iPhone mobile browsing
+
 = 1.8.2 =
 * Bug Fix: Subscriptions: Fix a bug where subscriptions were not sent for posts and comments written by some authors.
 * Bug Fix: Widgets: Fix CSS that was uglifying some themes (like P2).
