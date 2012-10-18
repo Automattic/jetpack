@@ -95,8 +95,8 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Sync: Improve syncing of site options to WP.com
 * Enhancement: Sync: Sync attachment parents to WP.com
 * Enhancement: Sync: Add signing of WP.com user ids for Jetpack Comments
-* Enhancement: Sync: Obfuscate post content for password protected posts.
-* Enhancement: Privacy: if site appears to not be reachable publicly, disable enhanced-distribution and json-api modules by default
+* Enhancement: Sync: Mark and obfuscate private posts.
+* Enhancement: Privacy: Default disable enhanced-distribution and json-api modules if site appears to be private.
 * Enhancement: Custom CSS: allow applying Custom CSS to mobile theme.
 * Enhancement: Sharing: On HTTPS pageloads, load as much of the sharing embeds as possible from HTTPS URLs.
 * Bug Fix: Only allow users with manage_options permission to enable/disable modules
