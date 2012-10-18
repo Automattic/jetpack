@@ -90,7 +90,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 = 1.9 =
 * Enhancement: Notifications: Display Notifications in the toolbar and support reply/moderation of comment notifications.
 * Enhancement: Mobile Push Notifications: Added support for mobile push notifications of new comments for users that linked their accounts to WordPress.com accounts.
-* Enhancement: JSON API: Allows applications to send API requests via Jetpack or to have them sent via WordPress.com (see http://developer.wordpress.com/docs/api/)
+* Enhancement: JSON API: Allows applications to send API requests via WordPress.com (see http://developer.wordpress.com/docs/api/)
 * Enhancement: Sync: Modules (that require the data) sync full Post/Comment to ensure consistent data on WP.com (eg Stats)
 * Enhancement: Sync: Improve syncing of site options to WP.com
 * Enhancement: Sync: Sync attachment parents to WP.com
@@ -99,6 +99,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Privacy: Default disable enhanced-distribution and json-api modules if site appears to be private.
 * Enhancement: Custom CSS: allow applying Custom CSS to mobile theme.
 * Enhancement: Sharing: On HTTPS pageloads, load as much of the sharing embeds as possible from HTTPS URLs.
+* Enhancement: Contact Form: Overhaul of the contact form code to fix incompatibilites with other plugins.
 * Bug Fix: Only allow users with manage_options permission to enable/disable modules
 * Bug Fix: Custom CSS: allow '/' in media query units; e.g. (-o-min-device-pixel-ratio: 3/2)
 * Bug Fix: Custom CSS: leave comments alone in CSS when editing but minify on the frontend
