@@ -1,5 +1,43 @@
 <?php
 
+function menu_alter() {
+    echo '
+	<style>
+	#menu-posts-feedback .wp-menu-image img { display: none; }
+	#adminmenu .menu-icon-feedback:hover div.wp-menu-image, #adminmenu .menu-icon-feedback.wp-has-current-submenu div.wp-menu-image, #adminmenu .menu-icon-feedback.current div.wp-menu-image { background: url("' .GRUNION_PLUGIN_URL . 'images/grunion-menu-hover.png") no-repeat 7px 7px !important; }
+	#adminmenu .menu-icon-feedback div.wp-menu-image, #adminmenu .menu-icon-feedback div.wp-menu-image, #adminmenu .menu-icon-feedback div.wp-menu-image { background: url("' . GRUNION_PLUGIN_URL . 'images/grunion-menu.png") no-repeat 7px 7px !important; }
+	.grunion-menu-button { background: url("' . GRUNION_PLUGIN_URL . 'images/grunion-form.png") no-repeat; width: 13px; height: 12px; display: inline-block; ) }
+	@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+	    #adminmenu .menu-icon-feedback:hover div.wp-menu-image, #adminmenu .menu-icon-feedback.wp-has-current-submenu div.wp-menu-image, #adminmenu .menu-icon-feedback.current div.wp-menu-image { background: url("' .GRUNION_PLUGIN_URL . 'images/grunion-menu-hover-2x.png") no-repeat 7px 7px !important; background-size: 15px 16px !important; }
+		#adminmenu .menu-icon-feedback div.wp-menu-image, #adminmenu .menu-icon-feedback div.wp-menu-image, #adminmenu .menu-icon-feedback div.wp-menu-image { background: url("' . GRUNION_PLUGIN_URL . 'images/grunion-menu-2x.png") no-repeat 7px 7px !important; background-size: 15px 16px !important; }
+	    .grunion-menu-button { background-image: url("' . GRUNION_PLUGIN_URL . 'images/grunion-form-2x.png"); background-size: 13px 12px !important; vertical-align: bottom; }
+	}
+	</style>';
+}
+
+add_action('admin_head', 'menu_alter');
+
+/**
+ * Add a contact form button to the post composition screen
+ */
+add_action( 'media_buttons', 'grunion_media_button', 999 );
+function grunion_media_button( ) {
+	global $post_ID, $temp_ID;
+	$iframe_post_id = (int) (0 == $post_ID ? $temp_ID : $post_ID);
+	$title = esc_attr( __( 'Add a custom form', 'jetpack' ) );
+	$plugin_url = esc_url( GRUNION_PLUGIN_URL );
+	$site_url = esc_url( admin_url( "/admin-ajax.php?post_id={$iframe_post_id}&action=grunion_form_builder&TB_iframe=true&width=768" ) );
+
+	echo '<a href="' . $site_url . '&id=add_form" class="thickbox" title="' . $title . '"><div class="grunion-menu-button" alt="' . $title . '"></div></a>';
+}
+
+add_action( 'wp_ajax_grunion_form_builder', 'display_form_view' );
+
+function display_form_view() {
+	require_once GRUNION_PLUGIN_DIR . 'grunion-form-view.php';
+	exit;
+}
+
 // feedback specific css items
 add_action( 'admin_print_styles', 'grunion_admin_css' );
 function grunion_admin_css() {
@@ -40,12 +78,13 @@ function grunion_admin_css() {
 color: #D98500;
 }
 
-#icon-edit { background-position: -432px -5px; }
-
-#icon-edit, #icon-post { background: url("<?php echo GRUNION_PLUGIN_URL; ?>images/grunion-menu-big.png") no-repeat !important; }
+#icon-edit.icon32-posts-feedback, #icon-post.icon32-posts-feedback { background: url("<?php echo GRUNION_PLUGIN_URL; ?>images/grunion-menu-big.png") no-repeat !important; }
 @media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
-    #icon-edit, #icon-post { background: url("<?php echo GRUNION_PLUGIN_URL; ?>images/grunion-menu-big-2x.png") no-repeat !important; background-size: 30px 31px !important; }
+    #icon-edit.icon32-posts-feedback, #icon-post.icon32-posts-feedback { background: url("<?php echo GRUNION_PLUGIN_URL; ?>images/grunion-menu-big-2x.png") no-repeat !important; background-size: 30px 31px !important; }
 }
+
+#icon-edit.icon32-posts-feedback { background-position: 2px 2px !important; }
+
 </style>
 
 <?php
@@ -320,48 +359,41 @@ function grunion_sort_objects( $a, $b ) {
 // returns both the shortcode form, and HTML markup representing a preview of the form
 function grunion_ajax_shortcode() {
 	check_ajax_referer( 'grunion_shortcode' );
-	
-	$atts = '';
-	if ( trim( $_POST['subject'] ) )
-		$atts .= ' subject="'.grunion_esc_attr($_POST['subject']).'"';
-	if ( trim( $_POST['to'] ) )
-		$atts .= ' to="'.grunion_esc_attr($_POST['to']).'"';
-		
-	$shortcode = '[contact-form'.$atts.']';
-	$shortcode .= "\n";
-	if ( is_array( $_POST['fields'] ) ) {
-		usort( $_POST['fields'], 'grunion_sort_objects' );
-		foreach ( $_POST['fields'] as $field ) {
-			$req = $opts = '';
-			if ( $field['required'] == 'true' )
-				$req = ' required="true"';
-			if ( isset( $field['options'] ) && $field['options'] ) {
-				$opts = ' options="';
-				foreach ( $field['options'] as $option ) {
-					$option = wp_kses( $option, array() );
-					$option = grunion_esc_attr( $option );
 
-					# we need to be very specific about how we
-					# encode these values
-					$option = str_replace( ',', '&#x002c;', $option );
-					$option = str_replace( '"', '&#x0022;', $option );
-					$option = str_replace( "'", '&#x0027;', $option );
-					$option = str_replace( '&', '&#x0026;', $option );
+	$attributes = array();
 
-					$opts .= $option . ',';
-				}
-				$opts = rtrim( $opts, ',' ) . '"';
-			}
-
-			$field['label'] = wp_kses( $field['label'], array() );
-			$field['label'] = str_replace( '"', '&#x0022;', $field['label'] );
-
-			$shortcode .= '[contact-field label="'. $field['label'] .'" type="'.grunion_esc_attr($field['type']).'"' . $req . $opts .' /]'."\n";
+	foreach ( array( 'subject', 'to' ) as $attribute ) {
+		if ( isset( $_POST[$attribute] ) && strlen( $_POST[$attribute] ) ) {
+			$attributes[$attribute] = stripslashes( $_POST[$attribute] );
 		}
 	}
-	$shortcode .= '[/contact-form]';
-	
-	die( "\n$shortcode\n" );
+
+	if ( is_array( $_POST['fields'] ) ) {
+		$fields = stripslashes_deep( $_POST['fields'] );
+		usort( $fields, 'grunion_sort_objects' );
+
+		$field_shortcodes = array();
+
+		foreach ( $fields as $field ) {
+			$field_attributes = array();
+
+			if ( isset( $field['required'] ) && 'true' === $field['required'] ) {
+				$field_attributes['required'] = 'true';
+			}
+
+			foreach ( array( 'options', 'label', 'type' ) as $attribute ) {
+				if ( isset( $field[$attribute] ) ) {
+					$field_attributes[$attribute] = $field[$attribute];
+				}
+			}
+
+			$field_shortcodes[] = new Grunion_Contact_Form_Field( $field_attributes );
+		}
+	}
+
+	$grunion = new Grunion_Contact_Form( $attributes, $field_shortcodes );
+
+	die( "\n$grunion\n" );
 }
 
 // takes a post_id, extracts the contact-form shortcode from that post (if there is one), parses it,
@@ -370,33 +402,45 @@ function grunion_ajax_shortcode_to_json() {
 	global $post, $grunion_form;
 	
 	check_ajax_referer( 'grunion_shortcode_to_json' );
-	if ( isset( $_POST['content'] ) && is_numeric( $_POST['post_id'] ) ) {
-		$content = stripslashes( $_POST['content'] );
-		$post = get_post( $_POST['post_id'] );
-		// does it look like a post with a [contact-form] already?
-		if ( strpos( $content, '[contact-form' ) !== false ) {
-			$out = do_shortcode($content);
-			global $contact_form_fields;
-			if ( is_array($contact_form_fields) && !empty($contact_form_fields) ) {
-				foreach ( $contact_form_fields as $field_id => $field ) {
-					# need to dig deeper on select field options
-					if ( preg_match( "|^(.*)\-select$|", $field_id ) ) {
-						foreach ( (array) $field['options'] as $opt_i => $opt ) {
-							$contact_form_fields[$field_id]['options'][$opt_i] = html_entity_decode( $opt );
-						}
-					}
-					$contact_form_fields[$field_id]['label'] = html_entity_decode( $contact_form_fields[$field_id]['label'] );
-					$contact_form_fields[$field_id]['label'] = wp_kses( $contact_form_fields[$field_id]['label'], array() );
-				}
 
-				$out = array( 'fields' => $contact_form_fields, 'to' => $grunion_form->to, 'subject' => $grunion_form->subject );
-				die( json_encode( $out ) );
-			}
-		}
+	if ( !isset( $_POST['content'] ) || !is_numeric( $_POST['post_id'] ) ) {
+		die( '-1' );
+	}
+
+	$content = stripslashes( $_POST['content'] );
+
+	// doesn't look like a post with a [contact-form] already.
+	if ( false === strpos( $content, '[contact-form' ) ) {
 		die( '' );
 	}
-	
-	die( -1 );
+
+	$post = get_post( $_POST['post_id'] );
+
+	do_shortcode( $content );
+
+	$grunion = Grunion_Contact_Form::$last;
+
+	$out = array(
+		'to'      => '',
+		'subject' => '',
+		'fields'  => array(),
+	);
+
+	foreach ( $grunion->fields as $field ) {
+		$out['fields'][$field->get_attribute( 'id' )] = $field->attributes;
+	}
+
+	$to = $grunion->get_attribute( 'to' );
+	$subject = $grunion->get_attribute( 'subject' );
+	foreach ( array( 'to', 'subject' ) as $attribute ) {
+		$value = $grunion->get_attribute( $attribute );
+		if ( isset( $grunion->defaults[$attribute] ) && $value == $grunion->defaults[$attribute] ) {
+			$value = '';
+		}
+		$out[$attribute] = $value;
+	}
+
+	die( json_encode( $out ) );
 }
 
 
