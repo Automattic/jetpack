@@ -282,6 +282,45 @@ class Jetpack {
 	}
 
 	/**
+	* Synchronize connected user role changes
+	*/
+	function user_role_change( $user_id ) {
+		if ( $this->is_active() && $this->is_user_connected( $user_id ) ) {
+
+			$current_user_id = get_current_user_id();
+			wp_set_current_user( $user_id );
+			$role = $this->translate_current_user_to_role();
+			$signed_role = $this->sign_role( $role );
+			wp_set_current_user( $current_user_id );
+
+			$master_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+			$master_user_id = absint( $master_token->external_user_id );
+
+			if ( !$master_user_id )
+				return; // this shouldn't happen
+
+			$this->xmlrpc_async_call( 'jetpack.updateRole', $user_id, $signed_role );
+			//@todo retry on failure
+
+			//try to choose a new master if we're demoting the current one
+			if ( $user_id == $master_user_id && 'administrator' != $role ) {
+				$query = new WP_User_Query( array(
+						'fields'  => array( 'id' ),
+						'role'    => 'administrator',
+						'orderby' => 'id',
+						'exclude' => array( $master_user_id ),
+						'number'  => 1,
+					)
+				);
+				$new_master = isset( $query->results[0]->id ) ? absint( $query->results[0]->id ) : 0;
+				if ( $new_master ) {
+					Jetpack::update_option( 'master_user', $new_master );
+				}
+			}
+		}
+	}
+
+	/**
 	 * Loads the currently active modules.
 	 */
 	function load_modules() {
@@ -1098,6 +1137,9 @@ p {
 		if ( Jetpack::is_active() ) {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
+
+			// Kick off synchronization of user role when it changes
+			add_action( 'set_user_role', array( $this, 'user_role_change' ) );
 
 			// Add retina images hotfix to admin
 			global $wp_db_version;
