@@ -93,6 +93,9 @@ class Jetpack_Notifications {
 		if ( !is_object( $wp_admin_bar ) )
 			return;
 
+		if ( !is_user_logged_in() && !$this->always_show_toolbar )
+			return;
+
 		$classes = 'wpnt-loading wpn-read';
 		$wp_admin_bar->add_menu( array(
 			'id'     => 'notes',
