@@ -178,8 +178,10 @@ class Jetpack_Notifications {
 	function notes_option_always_show_toolbar() {
 	?>
 		<p class="description">
-			<input type="checkbox" name="jp_notes_always_show_toolbar" id="jetpack-notes-always_show_toolbar" value="1" <?php checked( $this->always_show_toolbar ); ?> />
-			<?php _e( "Always show the Toolbar so visitors can view their notifications from your site", 'jetpack' ); ?>
+			<label>
+				<input type="checkbox" name="jp_notes_always_show_toolbar" id="jetpack-notes-always_show_toolbar" value="1" <?php checked( $this->always_show_toolbar ); ?> />
+				<?php _e( "Always show the Toolbar so visitors can view their notifications from your site", 'jetpack' ); ?>
+			</label>
 		</p>
 	<?php
 	}
