@@ -85,6 +85,11 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.8.3 =
+* Bug Fix: Subscriptions: Fix a bug where subscriptions were not being sent from the blog.
+* Bug Fix: Twitter: Fix a bug where the Twitter username was being saved as blank.
+* Bug Fix: Fix a bug where Contoct Form notification emails were not being sent.
+
 = 1.8.2 =
 * Bug Fix: Subscriptions: Fix a bug where subscriptions were not sent for posts and comments written by some authors.
 * Bug Fix: Widgets: Fix CSS that was uglifying some themes (like P2).
