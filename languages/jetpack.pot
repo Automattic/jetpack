@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Jetpack by WordPress.com package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Jetpack by WordPress.com 1.8.2\n"
+"Project-Id-Version: Jetpack by WordPress.com 1.8.3-beta\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/jetpack\n"
-"POT-Creation-Date: 2012-10-03 21:08:53+00:00\n"
+"POT-Creation-Date: 2012-10-23 18:05:52+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -32,7 +32,7 @@ msgstr[1] ""
 msgid "Jetpack"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 #: jetpack.php:1294 jetpack.php:1318 jetpack.php:1328 jetpack.php:1985
 #: jetpack.php:2164
@@ -439,7 +439,7 @@ msgid "Coming soon&#8230;"
 msgstr ""
 
 #: jetpack.php:2477 jetpack.php:2479 jetpack.php:2481 jetpack.php:2484
-#: jetpack.php:3182
+#: jetpack.php:3180
 msgid "Error Details: %s"
 msgstr ""
 
@@ -451,11 +451,11 @@ msgstr ""
 msgid "The Client ID/WP.com Blog ID of this site"
 msgstr ""
 
-#: jetpack.php:3138
+#: jetpack.php:3136
 msgid "An administrator for this blog must set up the Jetpack connection."
 msgstr ""
 
-#: jetpack.php:3143
+#: jetpack.php:3141
 msgid "You need to register your Jetpack before connecting it."
 msgstr ""
 
@@ -622,8 +622,8 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:89
 msgctxt ""
-"%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, "
-"%2$s = WPLANG"
+"%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2"
+"$s = WPLANG"
 msgid ""
 "The proofreader supports English, French, German, Portuguese, and Spanish. "
 "Your <a href=\"%1$s\">%2$s</a> value is the default proofreading language."
@@ -825,7 +825,7 @@ msgstr ""
 msgid "Transparent"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/comments/admin.php:72 modules/module-info.php:439
 msgid "Jetpack Comments"
@@ -1000,55 +1000,55 @@ msgstr ""
 msgid "Message Sent"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:469
+#: modules/contact-form/grunion-contact-form.php:471
 msgid "l F j, Y \\a\\t g:i a"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:489
+#: modules/contact-form/grunion-contact-form.php:491
 msgid "Time:"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:490
+#: modules/contact-form/grunion-contact-form.php:492
 msgid "IP Address:"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:491
+#: modules/contact-form/grunion-contact-form.php:493
 msgid "Contact Form URL:"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:514
+#: modules/contact-form/grunion-contact-form.php:516
 msgid "Sent by a verified %s user."
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:518
+#: modules/contact-form/grunion-contact-form.php:520
 msgid "Sent by an unverified visitor to your site."
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:681
+#: modules/contact-form/grunion-contact-form.php:683
 #: modules/contact-form/grunion-form-view.php:136
 msgid "Feedbacks"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:682
+#: modules/contact-form/grunion-contact-form.php:684
 msgid "Feedback"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:683
+#: modules/contact-form/grunion-contact-form.php:685
 msgid "Search Feedback"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:684
-#: modules/contact-form/grunion-contact-form.php:685
+#: modules/contact-form/grunion-contact-form.php:686
+#: modules/contact-form/grunion-contact-form.php:687
 msgid "No feedback found"
 msgstr ""
 
-#: modules/contact-form/grunion-contact-form.php:701
+#: modules/contact-form/grunion-contact-form.php:703
 msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
 msgstr[0] ""
 msgstr[1] ""
 
-#: modules/contact-form/grunion-contact-form.php:725
+#: modules/contact-form/grunion-contact-form.php:727
 msgid "Add a custom form"
 msgstr ""
 
@@ -1141,7 +1141,7 @@ msgid ""
 "you have made will be lost."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:409
 #: modules/module-info.php:413
@@ -1376,7 +1376,7 @@ msgid ""
 "as a reference and do not copy and paste all of it into the CSS Editor."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/gravatar-hovercards.php:44 modules/module-info.php:57
 #: modules/module-info.php:72
@@ -1662,7 +1662,7 @@ msgid ""
 "Phone</a>, and <a href=\"%s\">more</a>!"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:22 modules/module-info.php:26
 msgid "VaultPress"
@@ -1736,7 +1736,7 @@ msgid ""
 "Deactivate button above."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:90 modules/module-info.php:94
 #: modules/module-info.php:103 modules/module-info.php:107
@@ -1760,7 +1760,7 @@ msgstr ""
 msgid "Available shortcodes are: %l."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:147 modules/module-info.php:151
 #: modules/module-info.php:161 modules/module-info.php:165
@@ -1789,7 +1789,7 @@ msgid ""
 "you can copy and paste to Twitter, Facebook or wherever your heart desires."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:182 modules/module-info.php:186
 #: modules/module-info.php:195 modules/module-info.php:199
@@ -1834,7 +1834,7 @@ msgid ""
 "<a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:252 modules/module-info.php:255
 #: modules/module-info.php:276 modules/sharedaddy/sharedaddy.php:25
@@ -1886,7 +1886,7 @@ msgid ""
 "Watch it in HD for extra snazz!"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:303 modules/module-info.php:307
 msgid "Spelling and Grammar"
@@ -1909,7 +1909,7 @@ msgstr ""
 msgid "Widgets Screenshot"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:327 modules/module-info.php:341
 msgid "Extra Sidebar Widgets"
@@ -2004,7 +2004,7 @@ msgstr ""
 msgid "Subsriptions Screenshot"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:364
 msgid "Subscriptions"
@@ -2036,7 +2036,7 @@ msgid ""
 "<a href=\"%s\">Discussion Settings</a> page."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:386
 msgid "Enhanced Distribution"
@@ -2085,7 +2085,7 @@ msgstr ""
 msgid "Gallery Carousel Screenshot"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:470
 msgid "Carousel"
@@ -2098,7 +2098,7 @@ msgid ""
 "with comments and EXIF metadata."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:485 modules/module-info.php:488
 msgid "Custom CSS"
@@ -2116,7 +2116,7 @@ msgid ""
 "To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.2)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 1.8.3-beta)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:507 modules/module-info.php:510
 msgid "Mobile Theme"
@@ -3121,7 +3121,7 @@ msgid "RSS Links (Jetpack)"
 msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:62 modules/widgets/top-posts.php:73
-#: modules/widgets/twitter.php:276
+#: modules/widgets/twitter.php:255
 msgid "Title:"
 msgstr ""
 
@@ -3278,31 +3278,31 @@ msgid ""
 "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
 msgstr ""
 
-#: modules/widgets/twitter.php:283
+#: modules/widgets/twitter.php:262
 msgid "Twitter username:"
 msgstr ""
 
-#: modules/widgets/twitter.php:290
+#: modules/widgets/twitter.php:269
 msgid "Maximum number of Tweets to show:"
 msgstr ""
 
-#: modules/widgets/twitter.php:304
+#: modules/widgets/twitter.php:283
 msgid "Hide replies"
 msgstr ""
 
-#: modules/widgets/twitter.php:311
+#: modules/widgets/twitter.php:290
 msgid "Hide Tweets pushed by Publicize"
 msgstr ""
 
-#: modules/widgets/twitter.php:318
+#: modules/widgets/twitter.php:297
 msgid "Include retweets"
 msgstr ""
 
-#: modules/widgets/twitter.php:325
+#: modules/widgets/twitter.php:304
 msgid "Display Follow Button"
 msgstr ""
 
-#: modules/widgets/twitter.php:331
+#: modules/widgets/twitter.php:310
 msgid "Text to display between Tweet and timestamp:"
 msgstr ""
 
