@@ -270,10 +270,14 @@ class Jetpack {
 	}
 
 	/**
-	 * Is the current user linked to a WordPress.com user?
+	 * Is a given user (or the current user if none is specified) linked to a WordPress.com user?
 	 */
-	function is_user_connected() {
-		return (bool) Jetpack_Data::get_access_token( get_current_user_id() );
+	function is_user_connected( $user_id = false ) {
+		$user_id = false === $user_id ? get_current_user_id() : absint( $user_id );
+		if ( !$user_id ) {
+			return false;
+		}
+		return (bool) Jetpack_Data::get_access_token( $user_id );
 	}
 
 	function current_user_is_connection_owner() {
@@ -309,13 +313,21 @@ class Jetpack {
 						'role'    => 'administrator',
 						'orderby' => 'id',
 						'exclude' => array( $master_user_id ),
-						'number'  => 1,
 					)
 				);
-				$new_master = isset( $query->results[0]->id ) ? absint( $query->results[0]->id ) : 0;
+				$new_master = false;
+				foreach ( $query->results as $result ) {
+					$uid = absint( $result->id );
+					if ( $uid && $this->is_user_connected( $uid ) ) {
+						$new_master = $uid;
+						break;
+					}
+				}
+
 				if ( $new_master ) {
 					Jetpack::update_option( 'master_user', $new_master );
 				}
+				// else disconnect..?
 			}
 		}
 	}
