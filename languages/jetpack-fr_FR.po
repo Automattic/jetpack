@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.8.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-10-04 00:12:37+0000\n"
+"PO-Revision-Date: 2012-10-23 18:10:02+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2136,6 +2136,13 @@ msgid ""
 "\n"
 "By default, your stylesheet will be loaded after the theme stylesheets, which means that your rules can take precedence and override the theme CSS rules. Just write here what you want to change, you don't need to copy all your theme's stylesheet content."
 msgstr ""
+"Bienvenue dans l&rsquo;éditeur CSS de l&rsquo;extension Design !\n"
+"\n"
+"CSS (Cascading Style Sheets) est un langage qui fournit des informations à votre navigateur concernant le style de la page web que vous visitez. Vous pouvez maintenant supprimer ces commentaires et commencer à ajouter votre propre code CSS.\n"
+"\n"
+"Par défaut, cette feuille de style sera chargée après la feuille de style de votre thème, ce qui veut dire que les nouvelles règles que vous ajouterez ici pourront remplacer celles créées par le thème.\n"
+"\n"
+"Vous pouvez donc ajouter ici les changements que vous souhaitez apporter à votre thème, sans avoir à copier la feuille de style existante de celui-ci, ou avoir à recréer toutes les règles de style de votre thème."
 
 #: modules/carousel/jetpack-carousel.php:309
 msgid "Comments on this post are closed."

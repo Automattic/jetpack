@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.8.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-10-04 00:12:42+0000\n"
+"PO-Revision-Date: 2012-10-23 18:10:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -52,7 +52,7 @@ msgid "A new comment system that has integrated social media login options."
 msgstr ""
 
 msgid "Easily insert a contact form any where on your site."
-msgstr ""
+msgstr "Inserisci facilmente un form di contatto in ogni parte del tuo sito."
 
 msgid "Customize the appearance of your site using CSS but without modifying your theme."
 msgstr ""
@@ -91,23 +91,23 @@ msgid "Realtime backup and security scanning for your WordPress site."
 msgstr ""
 
 msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
-msgstr ""
+msgstr "Aggiungi facilmente immagini, aggiornamenti Twitter, e i link RSS alla sidebar del tuo tema."
 
 #: modules/widgets/gravatar-profile.php:195
 msgid "Links to services that you use across the web."
-msgstr ""
+msgstr "Link ai servizi che usi sul web."
 
 #: modules/widgets/gravatar-profile.php:199
 msgid "Opens in new window"
-msgstr ""
+msgstr "Apre in una nuova finestra"
 
 #: modules/widgets/gravatar-profile.php:199
 msgid "Edit Your Profile"
-msgstr ""
+msgstr "Modifica il tuo profilo"
 
 #: modules/widgets/gravatar-profile.php:199
 msgid "What's a Gravatar?"
-msgstr ""
+msgstr "Cos'è un Gravatar?"
 
 #: modules/widgets/image-widget.php:12
 msgid "Display an image in your sidebar"
@@ -278,7 +278,7 @@ msgstr "Classifica Articoli e Pagine"
 
 #: modules/widgets/top-posts.php:37
 msgid "Shows your most viewed posts and pages."
-msgstr ""
+msgstr "Mostra i tuoi articoli e pagine più viste."
 
 #: modules/widgets/top-posts.php:78
 msgid "Number of posts to show:"
@@ -290,15 +290,15 @@ msgstr "Mostra come:"
 
 #: modules/widgets/top-posts.php:85
 msgid "Text List"
-msgstr ""
+msgstr "Lista testo"
 
 #: modules/widgets/top-posts.php:86
 msgid "Image List"
-msgstr ""
+msgstr "Lista immagini"
 
 #: modules/widgets/top-posts.php:87
 msgid "Image Grid"
-msgstr ""
+msgstr "Griglia immagini"
 
 #: modules/widgets/top-posts.php:91
 msgid "Top Posts &amp; Pages by views are calculated from 24-48 hours of stats. They take a while to change."
@@ -306,7 +306,7 @@ msgstr ""
 
 #: modules/widgets/top-posts.php:164
 msgid "There are no posts to display. <a href=\"%s\">Want more traffic?</a>"
-msgstr ""
+msgstr "Non ci sono articoli da mostrare. <a href=\"%s\">Vuoi più traffico?</a>"
 
 #: modules/widgets/twitter.php:22
 msgid "Display your Tweets from Twitter"
@@ -314,7 +314,7 @@ msgstr "Mostra i tuoi Tweets da Twitter"
 
 #: modules/widgets/twitter.php:31
 msgid "Please configure your Twitter username for the <a href=\"%s\">Twitter Widget</a>."
-msgstr ""
+msgstr "Configura il tuo username Twitter per il <a href=\"%s\">Widget Twitter</a>."
 
 #: modules/widgets/twitter.php:41
 msgid "Twitter Updates"
@@ -398,7 +398,7 @@ msgstr ""
 
 #: modules/subscriptions.php:438
 msgid "Notify me of follow-up comments by email."
-msgstr ""
+msgstr "Notificami nuovi commenti tramite email."
 
 #: modules/subscriptions.php:445
 msgid "Notify me of new posts by email."
@@ -547,7 +547,7 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:83
 msgid "View Full Profile &rarr;"
-msgstr ""
+msgstr "Vedi profilo completo &rarr;"
 
 #: modules/widgets/gravatar-profile.php:91
 msgid "Error loading profile"
@@ -580,11 +580,11 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:184
 msgid "Show Personal Links"
-msgstr ""
+msgstr "Mostra link personali"
 
 #: modules/widgets/gravatar-profile.php:186
 msgid "Links to your websites, blogs, or any other sites that help describe who you are."
-msgstr ""
+msgstr "Link ai tuoi siti, blog, o qualsiasi altro sito che aiuta a descrivere chi sei."
 
 #: modules/widgets/gravatar-profile.php:193
 msgid "Show Account Links"
@@ -1073,7 +1073,7 @@ msgstr "Stessa finestra"
 
 #: modules/sharedaddy/sharing.php:326
 msgid "Show buttons on"
-msgstr ""
+msgstr "Mostra i bottoni su"
 
 #: modules/sharedaddy/sharing.php:332
 msgid "Front Page, Archive Pages, and Search Results"
@@ -1121,7 +1121,7 @@ msgstr "Il widget Twitter"
 
 #: modules/module-info.php:344
 msgid "shows your latest tweets within a sidebar on your theme."
-msgstr ""
+msgstr "mostra i tuoi ultimi tweets nella sidebar del tuo tema."
 
 #: modules/module-info.php:345
 msgid "The Facebook Like Box Widget"
@@ -1137,7 +1137,7 @@ msgstr "Il widget Immagine"
 
 #: modules/module-info.php:346
 msgid "lets you easily add images to a sidebar on your theme."
-msgstr ""
+msgstr "consente di aggiungere facilmente immagini nella sidebar del tuo tema."
 
 #: modules/module-info.php:348
 msgid "Each of these widgets has a number of customization options."
@@ -1213,7 +1213,7 @@ msgstr ""
 
 #: modules/module-info.php:485 modules/module-info.php:488
 msgid "Custom CSS"
-msgstr ""
+msgstr "CSS personalizzato"
 
 #: modules/module-info.php:489
 msgid "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing."
@@ -1627,15 +1627,15 @@ msgstr "Anteprima"
 
 #: modules/custom-css/custom-css.php:789
 msgid "Save Stylesheet &amp; Buy Upgrade"
-msgstr ""
+msgstr "Salva foglio di stile &amp; Compra l'aggiornamento"
 
 #: modules/custom-css/custom-css.php:789
 msgid "Save Stylesheet"
-msgstr ""
+msgstr "Salva foglio di stile"
 
 #: modules/custom-css/custom-css.php:794
 msgid "CSS Settings"
-msgstr ""
+msgstr "Impostazioni CSS"
 
 #: modules/custom-css/custom-css.php:801
 msgid "CSS Revisions"
@@ -1668,7 +1668,7 @@ msgstr "Metti il mouse sul tuo Gravatar per controllare il tuo profilo."
 
 #: modules/minileven/minileven.php:90
 msgid "View Mobile Site"
-msgstr ""
+msgstr "Vedi sito mobile"
 
 #: modules/minileven/theme/pub/minileven/comments.php:15
 msgid "This post is password protected. Enter the password to view any comments."
@@ -1908,7 +1908,7 @@ msgstr[1] "Spam <span class=\"count\">(%s)</span>"
 
 #: modules/contact-form/grunion-contact-form.php:725
 msgid "Add a custom form"
-msgstr ""
+msgstr "Aggiungi un form personalizzato"
 
 #: modules/contact-form/grunion-form-view.php:8
 msgctxt "Label for HTML form \"Name\" field in contact form builder"
@@ -1953,13 +1953,15 @@ msgstr "Prima opzione"
 #: modules/contact-form/grunion-form-view.php:16
 msgctxt "error message in contact form builder"
 msgid "Oops, there was a problem generating your form.  You'll likely need to try again."
-msgstr ""
+msgstr "Oops, c'è stato un problema nella generazione del tuo form. Avrai probabilmente bisogno di riprovare."
 
 #: modules/contact-form/grunion-form-view.php:17
 msgid ""
 "Drag up or down\n"
 "to re-arrange"
 msgstr ""
+"Trascina verso l'alto o verso il basso\n"
+"per riarrangiare"
 
 #: modules/contact-form/grunion-form-view.php:18
 msgctxt "Label to drag HTML form fields around to change their order in contact form builder"
@@ -2570,11 +2572,11 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:115
 msgid "Please provide an email address to comment."
-msgstr ""
+msgstr "Fornisci un indirizzo email per commentare."
 
 #: modules/carousel/jetpack-carousel.php:116
 msgid "Please provide your name to comment."
-msgstr ""
+msgstr "Fornisci il tuo nome per commentare."
 
 #: modules/carousel/jetpack-carousel.php:117
 msgid "Sorry, but there was an error posting your comment. Please try again later."

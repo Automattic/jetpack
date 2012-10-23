@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.8.2 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-10-04 00:12:38+0000\n"
+"PO-Revision-Date: 2012-10-23 18:10:01+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1260,7 +1260,7 @@ msgstr "이 글 공유하기:"
 #: modules/sharedaddy/sharing-service.php:523
 #: modules/sharedaddy/sharing.php:245 modules/sharedaddy/sharing.php:278
 msgid "More"
-msgstr "더"
+msgstr "더 보기"
 
 #: modules/sharedaddy/sharing-service.php:525
 msgid "Share"
@@ -1380,11 +1380,11 @@ msgstr "전면 페이지와 글 보관함 페이지에 글 전체 보이기"
 
 #: modules/minileven.php:62
 msgid "Mobile App Promos"
-msgstr ""
+msgstr "모바일 앱 광고"
 
 #: modules/minileven.php:66
 msgid "Show a promo for the WordPress mobile apps in the footer of the mobile theme."
-msgstr ""
+msgstr "모바일 테마의 푸터에 워드프레스 모바일 앱 광고 보이기"
 
 #: modules/minileven.php:75
 msgid "Mobile Apps"
@@ -1476,7 +1476,7 @@ msgstr "WP.me 짧은 링크"
 
 #: modules/module-info.php:152 modules/module-info.php:166
 msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
-msgstr "글자를 입력하거나 린 URL을 복사 붙여넣기하는 대신에 숏코드로 글과 페이지에 간단하게 링크를 만들 수 있습니다. 아주 간단한 wp.me라는 도메인 이름을 사용하며 안전하고 신뢰성 있는 URL을 사용할 수 있습니다."
+msgstr "글자를 입력하거나 긴 URL을 복사 붙여넣기하는 대신에 숏코드로 글과 페이지에 간단하게 링크를 만들 수 있습니다. 아주 간단한 wp.me라는 도메인 이름을 사용하며 안전하고 신뢰성 있는 URL을 사용할 수 있습니다."
 
 #: modules/module-info.php:153
 msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
@@ -1651,7 +1651,7 @@ msgstr "<strong>%s</strong>의 CSS를 사용하지 않고 내가 만든 CSS로 �
 
 #: modules/custom-css/custom-css.php:840
 msgid "<a href=\"%s\">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor."
-msgstr "%s 테마의 <a href=\"%s\">원래 스타일시트 보기</a>. 이것은 참조용으로 사용하고 전체를 복사하여 CSS 편집기에 붙여 넣지 마세요."
+msgstr "<a href=\"%s\">원래 스타일시트 보기</a>는 %s 테마의 스타일시트입니다. 이것은 참조용으로 사용하고 전체를 복사하여 CSS 편집기에 붙여 넣지 마세요."
 
 #: modules/gravatar-hovercards.php:44 modules/module-info.php:57
 #: modules/module-info.php:72
@@ -2132,6 +2132,11 @@ msgid ""
 "\n"
 "By default, your stylesheet will be loaded after the theme stylesheets, which means that your rules can take precedence and override the theme CSS rules. Just write here what you want to change, you don't need to copy all your theme's stylesheet content."
 msgstr ""
+"사용자 정의 CSS에 오신 것을 환영합니다!\n"
+"\n"
+"CSS (Cascading Style Sheets) 는 웹브라우저가 웹페이지를 어떻게 보여줄지 명령하는 일종의 코드입니다. 이 글을 지우고 자신만의 사용자 정의를 시작할 수 있습니다.\n"
+"\n"
+"기본적으로 당신의 스타일시트는 테마 스타일시트 다음에 로드됩니다. 이것은 당신이 만든 규칙이 테마의 CSS 규칙에 우선하고 덮어쓰는 것을 의미합니다. 변경하고자 하는 것을 이곳에 작성하세요. 테마의 모든 스타일시트를 복사할 필요는 없습니다."
 
 #: modules/carousel/jetpack-carousel.php:309
 msgid "Comments on this post are closed."
@@ -2217,7 +2222,7 @@ msgstr "인사 글"
 #: modules/comments/admin.php:97 modules/comments/admin.php:168
 #: modules/widgets/facebook-likebox.php:145
 msgid "Color Scheme"
-msgstr "색상표"
+msgstr "색상 구조"
 
 #: modules/comments/admin.php:118
 msgid "Adjust your Jetpack Comments form with a clever greeting and color-scheme."
