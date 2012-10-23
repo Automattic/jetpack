@@ -209,32 +209,11 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 		return array( 'data' => $tweets, 'error' => $the_error );
 	}
 
-	/**
-	 * Test if Twitter screenname exists on Twitter.com.
-	 * Used to test input before saving.
-	 */
-	public static function twitter_screenname_exists( $screenname ) {
-		if ( empty( $screenname ) )
-			return false;
-
-		$twitter_json_url = esc_url_raw( 'http://api.twitter.com/1/users/show.json?' . http_build_query( array( 'screen_name' => $screenname ) ), array( 'http', 'https' ) );
-		$response = wp_remote_head( $twitter_json_url, array( 'httpversion' => '1.1', 'timeout' => 3, 'redirection' => 0 ) );
-		if ( wp_remote_retrieve_response_code( $response ) === 200 )
-			return true;
-		else
-			return false;
-	}
-
 	function update( $new_instance, $old_instance ) {
 		$instance = array();
 
 		$instance['account'] = trim( wp_kses( $new_instance['account'], array() ) );
 		$instance['account'] = str_replace( array( 'http://twitter.com/', '/', '@', '#!', ), array( '', '', '', '', ), $instance['account'] );
-
-		if (  ! empty( $instance['account'] ) && ( ! isset( $old_instance['account'] ) || $instance['account'] !== $old_instance['account'] ) ) {
-			if ( ! self::twitter_screenname_exists( $instance['account'] ) )
-				$instance['account'] = '';
-		}
 
 		$instance['title']           = wp_kses( $new_instance['title'], array() );
 		$instance['show']            = absint( $new_instance['show'] );
