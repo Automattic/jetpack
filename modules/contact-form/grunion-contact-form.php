@@ -454,14 +454,16 @@ function contact_form_send_message( $to, $subject, $widget ) {
 		$to[$to_key] = wp_kses( $to_value, array() );
 	}
 
-	$from_email_addr = $to[0];
-	if ( !empty( $comment_author_email ) ) {
-		$from_email_addr = $comment_author_email;
+	$blog_url = parse_url( site_url() );
+	$from_email_addr = 'wordpress@' . $blog_url['host'];
+
+	$reply_to_addr = $to[0];
+	if ( ! empty( $comment_author_email ) ) {
+		$reply_to_addr = $comment_author_email;
 	}
 
-	$headers = 'From: ' . wp_kses( $comment_author, array() ) .
-		' <' . wp_kses( $from_email_addr, array() ) . ">\r\n" .
-		'Reply-To: ' . wp_kses( $from_email_addr, array() ) . "\r\n" .
+	$headers = 'From: ' . wp_kses( $comment_author, array() ) . ' <' . wp_kses( $from_email_addr, array() ) . ">\r\n" .
+		'Reply-To: ' . wp_kses( $comment_author, array() ) . ' <' . wp_kses( $reply_to_addr, array() ) . ">\r\n" .
 		"Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\""; 
 	$subject = apply_filters( 'contact_form_subject', $contact_form_subject );
 	$subject = wp_kses( $subject, array() );
