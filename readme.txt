@@ -3,7 +3,7 @@ Contributors: automattic, apeatling, beaulebens, hugobaeta, joen, mdawaffe, andy
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest
 Requires at least: 3.2
 Tested up to: 3.4.2
-Stable tag: 1.8.2
+Stable tag: 1.8.3
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
 
@@ -106,6 +106,11 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Bug Fix: Sharing: Keep "more" pane open so Google+ Button isn't obscured
 * Bug Fix: Carousel: Make sure the original size is used, even when it is exceedingly large.
 * Bug Fix: Exclude iPad from Twitter on iPhone mobile browsing
+
+= 1.8.3 =
+* Bug Fix: Subscriptions: Fix a bug where subscriptions were not being sent from the blog.
+* Bug Fix: Twitter: Fix a bug where the Twitter username was being saved as blank.
+* Bug Fix: Fix a bug where Contoct Form notification emails were not being sent.
 
 = 1.8.2 =
 * Bug Fix: Subscriptions: Fix a bug where subscriptions were not sent for posts and comments written by some authors.
