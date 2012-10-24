@@ -68,6 +68,8 @@ class Jetpack_Notifications {
 	}
 
 	function action_init() {
+		if ( !is_user_logged_in() )
+			return;
 		wp_enqueue_style( 'notes-admin-bar-rest', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-rest.css' ), array(), '2012-05-18a' );
 		wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), '2012-10-02' );
 		wp_enqueue_script( 'spin', $this->wpcom_static_url( '/wp-includes/js/spin.js' ), array( 'jquery' ) );
@@ -86,9 +88,6 @@ class Jetpack_Notifications {
 		global $wp_admin_bar, $current_blog;
 
 		if ( !is_object( $wp_admin_bar ) )
-			return;
-
-		if ( !is_user_logged_in() )
 			return;
 
 		$classes = 'wpnt-loading wpn-read';
