@@ -110,7 +110,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 = 1.8.3 =
 * Bug Fix: Subscriptions: Fix a bug where subscriptions were not being sent from the blog.
 * Bug Fix: Twitter: Fix a bug where the Twitter username was being saved as blank.
-* Bug Fix: Fix a bug where Contoct Form notification emails were not being sent.
+* Bug Fix: Fix a bug where Contact Form notification emails were not being sent.
 
 = 1.8.2 =
 * Bug Fix: Subscriptions: Fix a bug where subscriptions were not sent for posts and comments written by some authors.
