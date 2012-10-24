@@ -8,7 +8,6 @@
 
 class Jetpack_Notifications {
 	var $jetpack = false;
-	var $always_show_toolbar = false;
 
 	/**
 	 * Singleton
@@ -27,11 +26,7 @@ class Jetpack_Notifications {
 	function Jetpack_Notifications() {
 		$this->jetpack = Jetpack::init();
 
-		add_action( 'jetpack_modules_loaded', array( &$this, 'enable_configuration' ) );
 		add_action( 'init', array( &$this, 'action_init' ) );
-		$this->always_show_toolbar = get_option( 'jp_notes_always_show_toolbar', 0 );
-		if ( $this->always_show_toolbar )
-			add_filter( 'show_admin_bar', '__return_true' , 1000 );
 
 		Jetpack_Sync::sync_options( __FILE__,
 			'home',
@@ -93,7 +88,7 @@ class Jetpack_Notifications {
 		if ( !is_object( $wp_admin_bar ) )
 			return;
 
-		if ( !is_user_logged_in() && !$this->always_show_toolbar )
+		if ( !is_user_logged_in() )
 			return;
 
 		$classes = 'wpnt-loading wpn-read';
@@ -122,68 +117,6 @@ class Jetpack_Notifications {
 /* ]]> */
 </script>
 <?php
-	}
-
-	// Add Configuration Page
-	function enable_configuration() {
-		Jetpack::enable_module_configurable( __FILE__ );
-		Jetpack::module_configuration_load( __FILE__, array( &$this, 'load_settings_page' ) );
-		add_action( 'admin_init', array( &$this, 'configure' ) );
-	}
-
-	function load_settings_page() {
-		wp_safe_redirect( admin_url( 'options-discussion.php#jetpack-notifications-settings' ) );
-		exit;
-	}
-
-	/**
-	 * Jetpack_Notifications::configure()
-	 *
-	 * Jetpack Notifications configuration screen.
-	 */
-	function configure() {
-		// Create the section
-		add_settings_section(
-			'jetpack_notes',
-			__( 'Jetpack Notifications Settings', 'jetpack' ),
-			array( $this, 'notes_settings_section' ),
-			'discussion'
-		);
-
-		/** Optionally always show the Toolbar ********************************/
-		add_settings_field(
-			'jetpack_notes_option_always_show_toolbar',
-			__( 'Toolbar', 'jetpack' ),
-			array( $this, 'notes_option_always_show_toolbar' ),
-			'discussion',
-			'jetpack_notes'
-		);
-
-		register_setting(
-			'discussion',
-			'jp_notes_always_show_toolbar'
-		);
-	}
-
-	/**
-	 * Discussions setting section blurb
-	 *
-	 */
-	function notes_settings_section() {
-	?>
-		<p id="jetpack-notifications-settings"><?php _e( 'Change how your site interacts with the WordPress.com Notifications System.', 'jetpack' ); ?></p>
-	<?php
-	}
-
-	function notes_option_always_show_toolbar() {
-	?>
-		<p class="description">
-			<label>
-				<input type="checkbox" name="jp_notes_always_show_toolbar" id="jetpack-notes-always_show_toolbar" value="1" <?php checked( $this->always_show_toolbar ); ?> />
-				<?php _e( "Always show the Toolbar so visitors can view their notifications from your site", 'jetpack' ); ?>
-			</label>
-		</p>
-	<?php
 	}
 
 }
