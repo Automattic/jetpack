@@ -1636,6 +1636,21 @@ p {
 			Jetpack::restate();
 		}
 
+		if ( isset( $_GET['connect_url_redirect'] ) ) {
+			// User clicked in the iframe to link their accounts
+			if ( ! Jetpack::is_user_connected() ) {
+				$connect_url = Jetpack::build_connect_url( true );
+				if ( isset( $_GET['notes_iframe'] ) )
+					$connect_url .= '&notes_iframe';
+				wp_redirect( $connect_url );
+				exit;
+			} else {
+				Jetpack::state( 'message', 'already_authorized' );
+				wp_safe_redirect( Jetpack::admin_url() );
+				exit;
+			}
+		}
+
 		if ( isset( $_GET['action'] ) ) {
 			switch ( $_GET['action'] ) {
 			case 'authorize' :
