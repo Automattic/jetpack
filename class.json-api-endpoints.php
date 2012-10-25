@@ -1087,7 +1087,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	function the_password_form() {
-		return __( 'This post is password protected.' );
+		return __( 'This post is password protected.' , 'jetpack');
 	}
 
 	function get_post_by( $field, $post_id, $context = 'display' ) {
@@ -2569,7 +2569,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 
 		$return = $this->get_comment( $comment_id, $args['context'] );
 		if ( !$return ) {
-			return new WP_Error( 400, __( 'Comment cache problem?' ) );
+			return new WP_Error( 400, __( 'Comment cache problem?' , 'jetpack') );
 		}
 		if ( is_wp_error( $return ) ) {
 			return $return;
