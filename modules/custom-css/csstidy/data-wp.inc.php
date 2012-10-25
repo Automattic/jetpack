@@ -70,4 +70,5 @@ $GLOBALS['csstidy']['all_properties']['-o-object-fit'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['object-fit'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['-o-object-position'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['object-position'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['text-overflow'] = 'CSS3.0';
 
