@@ -106,6 +106,8 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Bug Fix: Sharing: Keep "more" pane open so Google+ Button isn't obscured
 * Bug Fix: Carousel: Make sure the original size is used, even when it is exceedingly large.
 * Bug Fix: Exclude iPad from Twitter on iPhone mobile browsing
+* Bug Fix: Sync: On .org user role changes synchronize the change to .com
+* Bug Fix: Contact Form: Fix a bug where some web hosts would reject mail from the contact form due to email address spoofing.
 
 = 1.8.3 =
 * Bug Fix: Subscriptions: Fix a bug where subscriptions were not being sent from the blog.
