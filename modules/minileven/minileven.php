@@ -136,7 +136,7 @@ function jetpack_mobile_request_handler() {
 				$go = $_SERVER['HTTP_REFERER'];
 			}
 			else {
-				$go = get_bloginfo( 'url' );
+				$go = remove_query_arg( array( 'ak_action' ) );
 			}
 			wp_safe_redirect( $go );
 			exit;
