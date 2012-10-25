@@ -3745,14 +3745,7 @@ class Jetpack_Sync {
 		return true;
 	}
 
-	/**
-	 * Set up all the data and queue it for the outgoing XML-RPC request
-	 */
-	function sync() {
-		if ( !$this->sync ) {
-			return false;
-		}
-
+	function get_common_sync_data() {
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules = Jetpack::get_active_modules();
 		$modules = array();
@@ -3765,6 +3758,19 @@ class Jetpack_Sync {
 			'modules' => $modules,
 			'version' => JETPACK__VERSION,
 		);
+
+		return $sync_data;
+	}
+
+	/**
+	 * Set up all the data and queue it for the outgoing XML-RPC request
+	 */
+	function sync() {
+		if ( !$this->sync ) {
+			return false;
+		}
+
+		$sync_data = $this->get_common_sync_data();
 
 		foreach ( $this->sync as $sync_operation_type => $sync_operations ) {
 			switch ( $sync_operation_type ) {
@@ -3819,6 +3825,35 @@ class Jetpack_Sync {
 		}
 
 		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
+	}
+
+	/**
+	 * Format and return content data from a direct xmlrpc request for it.
+	 * 
+	 * @param array $content_ids: array( 'posts' => array of ids, 'comments' => array of ids, 'options' => array of options )
+	 */
+	function get_content( $content_ids ) {
+		$sync_data = $this->get_common_sync_data();
+
+		if ( isset( $content_ids['posts'] ) ) {
+			foreach ( $content_ids['posts'] as $id ) {
+				$sync_data['post'][$id] = $this->get_post( $id );
+			}
+		}
+
+		if ( isset( $content_ids['comments'] ) ) {
+			foreach ( $content_ids['comments'] as $id ) {
+				$sync_data['comment'][$id] = $this->get_post( $id );
+			}
+		}
+
+		if ( isset( $content_ids['options'] ) ) {
+			foreach ( $content_ids['options'] as $option ) {
+				$sync_data['option'][$option] = array( 'value' => get_option( $option ) );
+			}
+		}
+
+		return $sync_data;
 	}
 
 	/**

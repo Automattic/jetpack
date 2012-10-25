@@ -28,7 +28,9 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.featuresAvailable' => array( $this, 'features_available' ),
 				'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
 				'jetpack.getPost'           => array( $this, 'get_post' ),
+				'jetpack.getPosts'          => array( $this, 'get_posts' ),
 				'jetpack.getComment'        => array( $this, 'get_comment' ),  
+				'jetpack.getComments'       => array( $this, 'get_comments' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
@@ -231,6 +233,15 @@ class Jetpack_XMLRPC_Server {
 		return $post;
 	}
 	
+	function get_posts( $args ) {
+		list( $post_ids ) = $args;
+		$post_ids = array_map( 'intval', (array) $post_ids );
+		$jp = Jetpack::init();
+		$sync_data = $jp->sync->get_content( array( 'posts' => $post_ids ) );
+
+		return $sync_data;
+	}
+
 	function get_comment( $id ) {
 		if ( !$id = (int) $id ) {
 			return false;
@@ -248,6 +259,15 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		return $comment;
+	}
+
+	function get_comments( $args ) {
+		list( $comment_ids ) = $args;
+		$comment_ids = array_map( 'intval', (array) $comment_ids );
+		$jp = Jetpack::init();
+		$sync_data = $jp->sync->get_content( array( 'comments' => $comment_ids ) );
+
+		return $sync_data;
 	}
 	
 	function update_attachment_parent( $args ) {

@@ -635,36 +635,9 @@ function stats_get_blog() {
 	return array_map( 'esc_html', $blog );
 }
 
-function stats_get_posts( $args ) {
-	list( $post_ids ) = $args;
-	$post_ids = array_map( 'intval', (array) $post_ids );
-	$r = array(
-		'include' => $post_ids,
-		'post_type' => array_values( get_post_types( array( 'public' => true ) ) ),
-		'post_status' => array_values( get_post_stati( array( 'public' => true ) ) ),
-	);
-	$posts = get_posts( $r );
-	foreach ( $posts as $i => $post )
-		$posts[$i] = stats_get_post( $post );
-	return $posts;
-}
-
-function stats_get_post( $post ) {
-	if ( !$post = get_post( $post ) ) {
-		return null;
-	}
-
-	$stats_post = wp_clone( $post );
-	$stats_post->permalink = get_permalink( $post );
-	foreach ( array( 'post_content', 'post_excerpt', 'post_content_filtered', 'post_password' ) as $do_not_want )
-		unset( $stats_post->$do_not_want );
-	return $stats_post;
-}
-
 function stats_xmlrpc_methods( $methods ) {
 	$my_methods = array(
 		'jetpack.getBlog' => 'stats_get_blog',
-		'jetpack.getPosts' => 'stats_get_posts',
 	);
 
 	return array_merge( $methods, $my_methods );
