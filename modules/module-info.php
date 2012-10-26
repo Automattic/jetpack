@@ -579,7 +579,7 @@ add_action( 'jetpack_module_more_info_minileven', 'jetpack_minileven_more_info' 
 // Mobile Push Notifications: START
 function jetpack_mobile_push_notifications_more_info() { ?>
 	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/mobile-push-notifications.png' ) ?>" alt="<?php esc_attr_e( 'Mobile Push Notifications', 'jetpack' ) ?>" width="300" height="150" />
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/mobile-push-notifications.jpg' ) ?>" alt="<?php esc_attr_e( 'Mobile Push Notifications', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 	
 	<h4><?php esc_html_e( 'Mobile Push Notifications' , 'jetpack' ); ?></h4>
