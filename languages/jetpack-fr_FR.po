@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.9 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-10-25 20:17:02+0000\n"
+"PO-Revision-Date: 2012-10-26 12:52:35+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,37 +11,37 @@ msgstr ""
 "Project-Id-Version: 1.9\n"
 
 msgid "Receive notifications on your mobile device."
-msgstr ""
+msgstr "Recevez des notifications sur votre smartphone."
 
 msgid "Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com."
-msgstr ""
+msgstr "Restez à l&rsquo;écoute de tous les événements importants sur votre site grâce à des notifications qui apparaitront dans la barre d&rsquo;outils de votre site, et sur WordPress.com."
 
 msgid "Allow applications to securely access your content through the cloud."
-msgstr ""
+msgstr "Autorisez des applications à accéder à votre contenu via le Cloud."
 
 #: modules/subscriptions.php:160
 msgid "Blog follow email text"
-msgstr ""
+msgstr "Texte de l&rsquo;email de confirmation envoyé après abonnement à votre blog"
 
 #: modules/subscriptions.php:153
 msgid "Follower Settings"
-msgstr ""
+msgstr "Réglages des abonnements à votre site"
 
 #: modules/subscriptions.php:168
 msgid "Comment follow email text"
-msgstr ""
+msgstr "Texte de l&rsquo;email de confirmation envoyé après abonnement à l&rsquo;un des articles de votre blog"
 
 #: modules/subscriptions.php:237
 msgid "These settings change emails sent from your blog to followers."
-msgstr "Permet de modifier le message envoyé aux nouveaux followers."
+msgstr "Permet de modifier les messages envoyés aux nouveaux abonnés."
 
 #: modules/subscriptions.php:243
 msgid "Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)"
-msgstr ""
+msgstr "Texte d'introduction envoyé lorsqu&rsquo;une personne s&rsquo;abonne à votre blog. (Les détails de confirmation seront ajoutés automatiquement.)"
 
 #: modules/subscriptions.php:249
 msgid "Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)"
-msgstr ""
+msgstr "Texte d'introduction envoyé lorsqu&rsquo;une personne s&rsquo;abonne à l&rsquo;un des articles de votre blog. (Les détails de confirmation seront ajoutés automatiquement.)"
 
 #: modules/subscriptions.php:254
 msgid ""
@@ -51,6 +51,11 @@ msgid ""
 "\n"
 "To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
 msgstr ""
+"Bonjour,\n"
+"\n"
+"Vous vous êtes récemment abonné à ce blog. Vous recevrez donc chaque nouvel article par email.\n"
+"\n"
+"Pour activer votre abonnement, merci de confirmer ci-dessous. Si en revanche vous pensez que ce message vous a été envoyé par erreur, vous pouvez ignorer ce message, et nous ne vous dérangerons pas avec d&rsquo;autres emails !"
 
 #: modules/subscriptions.php:255
 msgid ""
@@ -60,39 +65,44 @@ msgid ""
 "\n"
 "To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
 msgstr ""
+"Bonjour,\n"
+"\n"
+"Vous vous êtes récemment abonné à l&rsquo;un des articles de mon blog. Vous recevrez donc un email chaque fois qu&rsquo;un nouveau commentaire sera ajouté à cet article.\n"
+"\n"
+"Pour activer votre abonnement, merci de confirmer ci-dessous. Si en revanche vous pensez que ce message vous a été envoyé par erreur, vous pouvez ignorer ce message, et nous ne vous dérangerons pas avec d&rsquo;autres emails !"
 
 #: modules/module-info.php:587
 msgid "If you have your blog added to the iOS app, you’ll now be able to opt in to receive push notifications of new comments, which makes it easier than ever to keep up with your readers and moderate comments on the go."
-msgstr ""
+msgstr "Si vous avez ajouté votre blog à l&rsquo;application WordPress pour iOS, vous pourrez maintenant recevez des notifications en Push pour chaque nouveau commentaire. Vous pourrez donc modérer et intéragir avec vos lecteurs plus rapidement !"
 
 msgid "Mobile Push Notifications"
-msgstr ""
+msgstr "Notifications Push pour votre Mobile"
 
 #: modules/module-info.php:441
 msgid "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
-msgstr ""
+msgstr "Si vous êtes développeur, vous pouvez utiliser le système d&rsquo;authentification <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> de WordPress.com, ainsi que l&rsquo;<a href='http://developer.wordpress.com/docs/api/'>API REST de WordPress.com</a> pour intéragir avec le contenu de votre site."
 
 #: modules/module-info.php:439
 msgid "Jetpack will allow you to authorize applications and services to securely connect to your blog and allow them to use your content in new ways and offer you new functionality."
-msgstr ""
+msgstr "Jetpack vous permettra d&rsquo;autoriser des applications à se connecter à votre blog pour utiliser votre contenu et vous offrir de nouvelles fonctionnalités."
 
 msgid "JSON API"
-msgstr ""
+msgstr "API JSON"
 
 #: modules/module-info.php:235
 msgid "You can view your notifications in the Toolbar and <a href=\"%s\">on WordPress.com</a>."
-msgstr ""
+msgstr "Vous pouvez accéder à vos notifications depuis votre barre d&rsquo;outils et <a href=\"%s\">sur WordPress.com</a>."
 
 #: modules/module-info.php:221 modules/module-info.php:234
 msgid "Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users."
-msgstr ""
+msgstr "Tenez-vous au courant de ce qui se passe sur tous vos sites WordPress, et échangez avec d'autres utilisateurs WordPress.com."
 
 #: modules/minileven/minileven.php:254
 msgid "Apply this CSS to the Mobile Theme"
-msgstr ""
+msgstr "Appliquez ce CSS au thème Mobile"
 
 msgid "Notifications"
-msgstr ""
+msgstr "Notifications"
 
 #: modules/contact-form/grunion-contact-form.php:648
 msgid "go back"
@@ -118,71 +128,71 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:699
 msgctxt "%1$s = form field label, %2$s = form field value"
 msgid "%1$s: %2$s"
-msgstr ""
+msgstr "%1$s : %2$s"
 
 #: modules/contact-form/grunion-contact-form.php:514
 msgctxt "%1$s = blog name"
 msgid "%1$s Sidebar"
-msgstr ""
+msgstr "Colonne latérale de %1$s"
 
 #: modules/contact-form/grunion-contact-form.php:521
 msgctxt "%1$s = blog name, %2$s = post title"
 msgid "%1$s %2$s"
-msgstr ""
+msgstr "%2$s %1$s"
 
 #: jetpack.php:3161
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
-msgstr ""
+msgstr "%s souhaite accéder aux données de votre site. Identifiez-vous pour autoriser l&rsquo;accès à ces données."
 
 #: jetpack.php:3121
 msgid "The authorization process expired.  Please go back and try again."
-msgstr ""
+msgstr "Le process d&rsquo;autorisation a expiré. Merci d&rsquo;essayer une nouvelle fois."
 
 #: jetpack.php:3093
 msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
-msgstr ""
+msgstr "Quelqu&rsquo;un pourrait être en train d&rsquo;essayer d&rsquo;obtenir l&rsquo;accès à votre site. Ou alors vous venez de trouver un bug :). Dans tous les cas, merci de fermer cette fenêtre. "
 
 #: jetpack.php:3090
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
-msgstr ""
+msgstr "Vous devez connecter l&rsquo;extension Jetpack à WordPress.com afin d&rsquo;utiliser cette fonctionnalité."
 
 #: jetpack.php:2218
 msgid "Link account with WordPress.com"
-msgstr ""
+msgstr "Lier votre compte à WordPress.com"
 
 #: jetpack.php:2034
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
-msgstr ""
+msgstr "Désactiver %l"
 
 #: jetpack.php:2020
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
 msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
 msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Si votre site n&rsquo;est pas accessible au public, nous vous conseillons de <a href=\"%1$s\" title=\"%2$s\">désactiver cette fonctionnalité</a>."
+msgstr[1] "Si votre site n&rsquo;est pas accessible au public, nous vous conseillons de <a href=\"%1$s\" title=\"%2$s\">désactiver ces fonctionnalités</a>."
 
 #: jetpack.php:2007
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "A l&rsquo;instar des flux RSS de votre site, %l autorise l&rsquo;accès à vos articles et à votre contenu par des services tiers."
+msgstr[1] "A l&rsquo;instar des flux RSS de votre site, %l autorisent l&rsquo;accès à vos articles et à votre contenu par des services tiers."
 
 #: jetpack.php:2004
 msgid "Is this site private?"
-msgstr ""
+msgstr "Ce site est-il privé ?"
 
 #: jetpack.php:1874
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate buttons on their module cards."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "<strong>%l est désactivé !</strong> Vous pouvez le réactiver en utilisant le bouton \"Activer\" dans  le module."
+msgstr[1] "<strong>%l désactivés !</strong> Vous pouvez les réactiver en utilisant le bouton \"Activer\" dans  les module."
 
 #: class.json-api-endpoints.php:2572
 msgid "Comment cache problem?"
-msgstr ""
+msgstr "Problème de cache avec le commentaire ?"
 
 #: class.json-api-endpoints.php:1090
 msgid "This post is password protected."
@@ -1607,7 +1617,7 @@ msgstr "Les Codes de Substitution vous permettent d&rsquo;intégrer facilement e
 
 #: modules/module-info.php:109
 msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
-msgstr "Saisissez un code de substition directement dans l&rsquo;editeur d&rsquo;articles/pages pour intégrer des médias. Cliquez sur les liens ci-dessous pour des instructions spécifiques."
+msgstr "Saisissez un code de substitution directement dans l&rsquo;editeur d&rsquo;articles/pages pour intégrer des médias. Cliquez sur les liens ci-dessous pour des instructions spécifiques."
 
 #: modules/module-info.php:132
 msgid "Available shortcodes are: %l."
@@ -1770,11 +1780,11 @@ msgstr "Liste des révisions de votre CSS"
 
 #: modules/custom-css/custom-css.php:844
 msgid "Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet."
-msgstr "Ajouter mon CSS à la Feuille de Style CSS de <strong>%s&apos;s</strong>"
+msgstr "Ajouter mon CSS à la Feuille de Style CSS de <strong>%s</strong>"
 
 #: modules/custom-css/custom-css.php:845
 msgid "Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with my own CSS."
-msgstr "Ne pas utiliser la Feuille de Style CSS de <strong>%s&apos;s</strong>, et la remplacer par mon propre CSS."
+msgstr "Ne pas utiliser la Feuille de Style CSS de <strong>%s</strong>, et la remplacer par mon propre CSS."
 
 #: modules/custom-css/custom-css.php:847
 msgid "<a href=\"%s\">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor."
