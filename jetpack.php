@@ -4208,7 +4208,6 @@ class Jetpack_Sync {
 			return false;
 		}
 
-		$delete = false;
 		$delete_on_behalf_of = array();
 		$submit_on_behalf_of = array();
 		$delete_stati = array( 'delete' );
@@ -4221,17 +4220,15 @@ class Jetpack_Sync {
 			$deleted_comment = in_array( $new_status, $delete_stati );
 
 			if ( $deleted_comment ) {
-				$delete = true;
 				$delete_on_behalf_of[] = $module;
 			}
 
 			$old_status_in_stati = in_array( $old_status, $conditions['comment_stati'] );
 			$new_status_in_stati = in_array( $new_status, $conditions['comment_stati'] );
-	
+			
 			if ( $old_status_in_stati && !$new_status_in_stati ) {
 				// Jetpack no longer needs the comment
 				if ( !$deleted_comment ) {
-					$delete = true;
 					$delete_on_behalf_of[] = $module;
 				} // else, we've already flagged it above
 				continue;
@@ -4242,20 +4239,19 @@ class Jetpack_Sync {
 			}
 	
 			// At this point, we know we want to sync the comment, not delete it
-			$delete = false;
 			$submit_on_behalf_of[] = $module;
 		}
 
-		if ( $delete ) {
+		if ( ! empty( $submit_on_behalf_of ) ) {
+			$this->register_post( $comment->comment_post_ID, array( 'on_behalf_of' => $submit_on_behalf_of ) );
+			return $this->register_comment( $comment->comment_ID, array( 'on_behalf_of' => $submit_on_behalf_of ) );
+		}
+
+		if ( !empty( $delete_on_behalf_of ) ) {
 			return $this->register( 'delete_comment', $comment->comment_ID, array( 'on_behalf_of' => $delete_on_behalf_of ) );
 		}
 
-		if ( !$submit_on_behalf_of ) {
-			return false;
-		}
-
-		$this->register_post( $comment->comment_post_ID, array( 'on_behalf_of' => $submit_on_behalf_of ) );
-		return $this->register_comment( $comment->comment_ID, array( 'on_behalf_of' => $submit_on_behalf_of ) );
+		return false;
 	}
 
 	/**
