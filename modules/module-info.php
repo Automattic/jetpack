@@ -208,6 +208,26 @@ function stats_load_more_link( $description ) {
 }
 add_filter( 'jetpack_learn_more_button_stats', 'stats_load_more_link' );
 
+// Publicize
+function publicize_more_info() { ?>
+	<div class="jp-info-img">
+		<a href="http://en.support.wordpress.com/publicize/">
+			<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/publicize.png' ) ?>" alt="<?php esc_attr_e( 'Publicize', 'jetpack' ) ?>" width="328" height="123" />
+		</a>
+	</div>
+
+	<h4><?php esc_html_e( 'Publicize' , 'jetpack' ); ?></h4>
+	<p><?php esc_html_e( 'Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.	 You can make a connection for just yourself or for all users on your blog.', 'jetpack' ) ?></p>
+	<p><?php esc_html_e( 'Publicize allows you to share your posts on Facebook, Twitter, Tumblr, Yahoo!, and Linkedin.', 'jetpack' ); ?></p>
+<?php
+}
+add_action( 'jetpack_module_more_info_publicize', 'publicize_more_info' );
+
+
+function publicize_load_more_link( $description ) {
+	echo '<a class="button more-info-link" href="http://en.support.wordpress.com/publicize/">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_filter( 'jetpack_learn_more_button_publicize', 'publicize_load_more_link' );
 
 // Notifications
 function notes_more_info() { ?>

@@ -106,13 +106,7 @@ class Sharing_Admin {
 	public function output_preview( $service ) {
 		$klasses = array( 'advanced', 'preview-item' );
 		
-		if (
-				'googleplus1' == $service->shortname
-			||
-				$service->button_style != 'text'
-			||
-				$service->has_custom_button_style()
-		) {
+		if ( $service->button_style != 'text' || $service->has_custom_button_style() ) {
 			$klasses[] = 'preview-'.$service->get_class();
 			$klasses[] = 'share-'.$service->get_class();
 			

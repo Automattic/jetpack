@@ -830,19 +830,14 @@ class Share_GooglePlus1 extends Sharing_Source {
 	public function get_name() {
 		return __( 'Google +1', 'jetpack' );
 	}
+	
+	public function has_custom_button_style() {
+		return $this->smart;
+	}
 
 	public function get_display( $post ) {
 		// Smart or not, return the G+ button
 		return '<div class="googleplus1_button"><div class="g-plusone" data-size="medium" data-callback="sharing_plusone" data-href="' . esc_url( $this->get_share_url( $post->ID ) ) . '"></div></div>';
-	}
-	
-	public function display_preview() {
-		?>
-		<div class="option option-smart-on">
-		<a href="javascript:void(0);return false;" class="share-<?php echo $this->shortname; ?>">
-			<span></span>
-		</a>
-		</div><?php
 	}
 	
 	public function get_state() {
@@ -856,6 +851,10 @@ class Share_GooglePlus1 extends Sharing_Source {
 		}
 		// Record stats
 		parent::process_request( $post, $post_data );
+		
+		// Redirect to Google +'s sharing endpoint
+		$url = 'https://plus.google.com/share?url=' . rawurlencode( $this->get_share_url( $post->ID ) );
+		wp_redirect( $url );
 		die();
 	}
 	
@@ -1074,10 +1073,15 @@ class Share_Tumblr extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		if ( $this->smart )
-			return '<a href="http://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $post->post_title ) . '" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">Share on Tumblr</a>';
-		else
+		if ( $this->smart ) {
+			$target = '';
+			if ( 'new' == $this->open_links )
+				$target = '_blank';
+
+			return '<a target="' . $target . '" href="http://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $post->post_title ) . '" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+		 } else {
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Tumblr', 'share to', 'jetpack' ), __( 'Click to share on Tumblr', 'jetpack' ), 'share=tumblr' );
+		}
 	}
 	
 	public function process_request( $post, array $post_data ) {

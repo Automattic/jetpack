@@ -10,13 +10,14 @@ class Jetpack_XMLRPC_Server {
 	var $error = null;
 
 	/**
-	 * Whitelist of the XML-RPC methods available to the Jetpack Server. If the 
+	 * Whitelist of the XML-RPC methods available to the Jetpack Server. If the
 	 * user is not authenticated (->login()) then the methods are never added,
 	 * so they will get a "does not exist" error.
 	 */
 	function xmlrpc_methods( $core_methods ) {
 		$jetpack_methods = array(
-			'jetpack.jsonAPI' => array( $this, 'json_api' ),
+			'jetpack.jsonAPI'      => array( $this, 'json_api' ),
+			'jetpack.verifyAction' => array( $this, 'verify_action' ),
 		);
 
 		$user = $this->login();
@@ -48,12 +49,18 @@ class Jetpack_XMLRPC_Server {
 	function bootstrap_xmlrpc_methods() {
 		return array(
 			'jetpack.verifyRegistration' => array( $this, 'verify_registration' ),
+			'jetpack.verifyAction'       => array( $this, 'verify_action' ),
 		);
 	}
 
 	/**
-	 * Verifies that Jetpack.WordPress.com received a registration request from this site
-	 *
+	* Verifies that Jetpack.WordPress.com received a registration request from this site
+	*/
+	function verify_registration( $verify_secret ) {
+		return $this->verify_action( array( 'register', $verify_secret ) );
+	}
+
+	/**
 	 * @return WP_Error|string secret_2 on success, WP_Error( error_code => error_code, error_message => error description, error_data => status code ) on failure
 	 *
 	 * Possible error_codes:
@@ -63,31 +70,34 @@ class Jetpack_XMLRPC_Server {
 	 * verify_secrets_missing: No longer have verification secrets stored
 	 * verify_secrets_mismatch: stored secret_1 does not match secret_1 sent by Jetpack.WordPress.com
 	 */
-	function verify_registration( $verify_secret ) {
+	function verify_action( $params ) {
+		$action = $params[0];
+		$verify_secret = $params[1];
+
 		if ( empty( $verify_secret ) ) {
 			return $this->error( new Jetpack_Error( 'verify_secret_1_missing', sprintf( 'The required "%s" parameter is missing.', 'secret_1' ), 400 ) );
 		} else if ( !is_string( $verify_secret ) ) {
 			return $this->error( new Jetpack_Error( 'verify_secret_1_malformed', sprintf( 'The required "%s" parameter is malformed.', 'secret_1' ), 400 ) );
 		}
 
-		$secrets = Jetpack::get_option( 'register' );
+		$secrets = Jetpack::get_option( $action );
 		if ( !$secrets || is_wp_error( $secrets ) ) {
-			Jetpack::delete_option( 'register' );
+			Jetpack::delete_option( $action );
 			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
 		}
 
 		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', $secrets );
 		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
-			Jetpack::delete_option( 'register' );
+			Jetpack::delete_option( $action );
 			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification took too long', 400 ) );
 		}
 
 		if ( $verify_secret !== $secret_1 ) {
-			Jetpack::delete_option( 'register' );
+			Jetpack::delete_option( $action );
 			return $this->error( new Jetpack_Error( 'verify_secrets_mismatch', 'Secret mismatch', 400 ) );
 		}
 
-		Jetpack::delete_option( 'register' );
+		Jetpack::delete_option( $action );
 
 		return $secret_2;
 	}
@@ -221,7 +231,7 @@ class Jetpack_XMLRPC_Server {
 
 		return $modules;
 	}
-	
+
 	function get_post( $id ) {
 		if ( !$id = (int) $id ) {
 			return false;
@@ -232,7 +242,7 @@ class Jetpack_XMLRPC_Server {
 		$post = $jetpack->sync->get_post( $id );
 		return $post;
 	}
-	
+
 	function get_posts( $args ) {
 		list( $post_ids ) = $args;
 		$post_ids = array_map( 'intval', (array) $post_ids );

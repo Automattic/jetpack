@@ -18,6 +18,6 @@ function sharedaddy_loaded() {
 }
 
 function sharedaddy_configuration_load() {
-        wp_safe_redirect( menu_page_url( 'sharing', false ) );
+        wp_safe_redirect( menu_page_url( 'sharing', false ) . "#sharing-buttons" );
         exit;
 }
