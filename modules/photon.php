@@ -3,7 +3,7 @@
  * Module Name: Photon
  * Module Description:
  * Sort Order: 15
- * First Introduced: 1.9
+ * First Introduced: 2.0
  */
 
 class Jetpack_Photon {
