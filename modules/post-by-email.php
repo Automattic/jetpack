@@ -18,6 +18,9 @@ Jetpack_Sync::sync_options( __FILE__,
 	'medium_size_h'
 );
 
+add_action( 'jetpack_activate_module_post-by-email',   array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
+add_action( 'jetpack_deactivate_module_post-by-email', array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
+
 class Jetpack_Post_By_Email {
 	function &init() {
 		static $instance = NULL;
@@ -31,6 +34,11 @@ class Jetpack_Post_By_Email {
 
 	function __construct() {
 		add_action( 'init', array( &$this, 'action_init' ) );
+	}
+	
+	function module_toggle() {
+		$jetpack = Jetpack::init();
+		$jetpack->sync->register( 'noop' );
 	}
 
 	function action_init() {
