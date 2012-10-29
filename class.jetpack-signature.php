@@ -42,7 +42,7 @@ class Jetpack_Signature {
 		if ( array_key_exists( 'body', $override ) && !is_null( $override['body'] ) ) {
 			$body = $override['body'];
 		} else if ( 'POST' == strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
-			$body = $GLOBALS['HTTP_RAW_POST_DATA'];
+			$body = isset( $GLOBALS['HTTP_RAW_POST_DATA'] ) ? $GLOBALS['HTTP_RAW_POST_DATA'] : null;
 		} else {
 			$body = null;
 		}
