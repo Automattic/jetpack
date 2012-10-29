@@ -4221,7 +4221,7 @@ class Jetpack_Sync {
 
 			$old_status_in_stati = in_array( $old_status, $conditions['comment_stati'] );
 			$new_status_in_stati = in_array( $new_status, $conditions['comment_stati'] );
-			
+
 			if ( $old_status_in_stati && !$new_status_in_stati ) {
 				// Jetpack no longer needs the comment
 				if ( !$deleted_comment ) {
