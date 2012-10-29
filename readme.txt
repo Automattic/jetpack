@@ -90,6 +90,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 = 1.9.1 =
 * Enhancement: Notifications feature is enabled for logged-out users when the module is active & the toolbar is shown by another plugin.
 * Bug Fix: Use proper CDN addresses to avoid SSL cert issues.
+* Bug Fix: Prioritize syncing comments over deleting comments on WordPress.com. Fixes comment notifications marked as spam appearing to be trashed.
 
 = 1.9 =
 * Enhancement: Notifications: Display Notifications in the toolbar and support reply/moderation of comment notifications.
