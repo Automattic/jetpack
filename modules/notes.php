@@ -70,7 +70,7 @@ class Jetpack_Notifications {
 	}
 
 	function action_init() {
-		if ( !is_user_logged_in() )
+		if ( !has_filter( 'show_admin_bar', '__return_true' ) && !is_user_logged_in() )
 			return;
 		wp_enqueue_style( 'notes-admin-bar-rest', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-rest.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 		wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
