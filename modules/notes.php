@@ -6,7 +6,7 @@
  * First Introduced: 1.9
  */
 
-if ( !defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) define( 'JETPACK_NOTES__CACHE_BUSTER', gmdate( 'oW' ) );
+if ( !defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) );
 
 class Jetpack_Notifications {
 	var $jetpack = false;
