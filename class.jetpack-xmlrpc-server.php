@@ -30,7 +30,7 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
 				'jetpack.getPost'           => array( $this, 'get_post' ),
 				'jetpack.getPosts'          => array( $this, 'get_posts' ),
-				'jetpack.getComment'        => array( $this, 'get_comment' ),  
+				'jetpack.getComment'        => array( $this, 'get_comment' ), 
 				'jetpack.getComments'       => array( $this, 'get_comments' ),
 			) );
 
