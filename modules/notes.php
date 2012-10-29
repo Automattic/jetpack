@@ -6,7 +6,7 @@
  * First Introduced: 1.9
  */
 
-if ( !defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) define( 'JETPACK_NOTES__CACHE_BUSTER', gmdate( 'oW' ) );
+if ( !defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) );
 
 class Jetpack_Notifications {
 	var $jetpack = false;
@@ -65,12 +65,12 @@ class Jetpack_Notifications {
 	function wpcom_static_url($file) {
 		$i = hexdec( substr( md5( $file ), -1 ) ) % 2;
 		$http = is_ssl() ? 'https' : 'http';
-		$url = $http . '://s' . $i . '.wordpress.com' . $file;
+		$url = $http . '://s' . $i . '.wp.com' . $file;
 		return $url;
 	}
 
 	function action_init() {
-		if ( !is_user_logged_in() )
+		if ( !has_filter( 'show_admin_bar', '__return_true' ) && !is_user_logged_in() )
 			return;
 		wp_enqueue_style( 'notes-admin-bar-rest', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-rest.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 		wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
