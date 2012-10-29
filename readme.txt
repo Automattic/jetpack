@@ -87,6 +87,10 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.9.1 =
+* Enhancement: Notifications feature is enabled for logged-out users when the module is active & the toolbar is shown by another plugin.
+* Bug Fix: Use proper CDN addresses to avoid SSL cert issues.
+
 = 1.9 =
 * Enhancement: Notifications: Display Notifications in the toolbar and support reply/moderation of comment notifications.
 * Enhancement: Mobile Push Notifications: Added support for mobile push notifications of new comments for users that linked their accounts to WordPress.com accounts.
