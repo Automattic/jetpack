@@ -65,7 +65,7 @@ class Jetpack_Notifications {
 	function wpcom_static_url($file) {
 		$i = hexdec( substr( md5( $file ), -1 ) ) % 2;
 		$http = is_ssl() ? 'https' : 'http';
-		$url = $http . '://s' . $i . '.wordpress.com' . $file;
+		$url = $http . '://s' . $i . '.wp.com' . $file;
 		return $url;
 	}
 
