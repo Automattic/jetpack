@@ -379,7 +379,7 @@ function jetpack_widgets_more_info() { ?>
 	</div>
 
 	<h4><?php esc_html_e( 'Extra Sidebar Widgets' , 'jetpack' ); ?></h4>
-	
+
 	<p><strong><?php esc_html_e( 'The RSS Links Widget ', 'jetpack' ); ?></strong> <?php esc_html_e( "allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments.", 'jetpack' ) ?></p>
 	<p><strong><?php esc_html_e( 'The Twitter Widget ', 'jetpack' ); ?></strong> <?php esc_html_e( "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options.", 'jetpack' ) ?> <strong><?php esc_html_e( 'The Facebook Like Box Widget ', 'jetpack' ); ?></strong> <?php esc_html_e( "shows your Facebook Like Box within a sidebar on your theme. It&#8217;s a great way to let your readers show their support.", 'jetpack' ) ?> <strong><?php esc_html_e( 'The Image Widget ', 'jetpack' ); ?></strong><?php esc_html_e( "allows you to easily add images to widget areas in your theme. It&#8217;s an easy way to add more visual interest to your site.", 'jetpack' ) ?></p>
 
@@ -601,7 +601,7 @@ function jetpack_mobile_push_notifications_more_info() { ?>
 	<div class="jp-info-img">
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/mobile-push-notifications.jpg' ) ?>" alt="<?php esc_attr_e( 'Mobile Push Notifications', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
-	
+
 	<h4><?php esc_html_e( 'Mobile Push Notifications' , 'jetpack' ); ?></h4>
 
 	<p><?php _e( 'If you have your blog added to the <a href="http://ios.wordpress.org/">WordPress for iOS app</a>, you’ll now be able to opt in to receive push notifications of new comments, which makes it easier than ever to keep up with your readers and moderate comments on the go.', 'jetpack' ); ?></p>
@@ -623,7 +623,7 @@ function jetpack_post_by_email_more_info() { ?>
 	<div class="jp-info-img">
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/post-by-email.png' ) ?>" alt="<?php esc_attr_e( 'Post by Email', 'jetpack' ) ?>" width="300" height="115" />
 	</div>
-	
+
 	<h4><?php esc_html_e( 'Post by Email' , 'jetpack' ); ?></h4>
 
 	<p><?php esc_html_e( 'Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones.', 'jetpack' ); ?></p>
@@ -638,3 +638,32 @@ function jetpack_post_by_email_more_link() {
 add_action( 'jetpack_module_more_info_post-by-email', 'jetpack_post_by_email_more_info' );
 add_action( 'jetpack_learn_more_button_post-by-email', 'jetpack_post_by_email_more_link' );
 // Post by Email: STOP
+
+
+// Photon: START
+/**
+ *
+ */
+function jetpack_photon_more_info() { ?>
+	<!--<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/photon.png' ) ?>" alt="<?php esc_attr_e( 'Photon', 'jetpack' ) ?>" width="300" height="115" />
+	</div>-->
+
+	<h4><?php esc_html_e( 'Photon' , 'jetpack' ); ?></h4>
+
+	<p><?php esc_html_e( "Give your site a boost by loading images in post and posts' featured images from the WordPress.com content delivery network. We cache your images and serve them from our super-fast network, reducing the burden on your web host with the click of a button.", 'jetpack' ); ?></p>
+<?php
+}
+add_action( 'jetpack_module_more_info_photon', 'jetpack_photon_more_info' );
+
+/**
+ * Display "Learn More" button for Photon module
+ * @uses __
+ * @action jetpack_learn_more_button_photon
+ * @return string
+ */
+function jetpack_photon_more_link() {
+	echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_action( 'jetpack_learn_more_button_photon', 'jetpack_photon_more_link' );
+// Photon: STOP
