@@ -241,6 +241,8 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
+
+		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
 	}
 
 	function require_jetpack_authentication() {
@@ -869,7 +871,7 @@ class Jetpack {
 			Jetpack::state( 'module', $module );
 			ob_start();
 			require $file;
-			do_action( "jetpack_activate_module_$module" );
+			do_action( 'jetpack_activate_module', $module );
 			$active[] = $module;
 			$state = in_array( $module, $other_modules ) ? 'reactivated_modules' : 'activated_modules';
 			if ( $active_state = Jetpack::state( $state ) ) {
@@ -927,7 +929,7 @@ class Jetpack {
 		Jetpack::catch_errors( true );
 		ob_start();
 		require Jetpack::get_module_path( $module );
-		do_action( "jetpack_activate_module_$module" );
+		do_action( 'jetpack_activate_module', $module );
 		$active[] = $module;
 		Jetpack::update_option( 'active_modules', array_unique( $active ) );
 		Jetpack::state( 'error', false ); // the override
@@ -936,6 +938,12 @@ class Jetpack {
 		ob_end_clean();
 		Jetpack::catch_errors( false );
 		exit;
+	}
+
+	function activate_module_actions( $module ) {
+		do_action( "jetpack_activate_module_$module" );
+
+		$this->sync->sync_all_module_options( $module );
 	}
 
 	function deactivate_module( $module ) {
@@ -1377,7 +1385,11 @@ p {
 			}
 
 			$_FILES['.jetpack.upload.'] = $file;
-			$attachment_id = media_handle_upload( '.jetpack.upload.', 0, array(), array(
+			$post_id = isset( $_POST['post_id'][$index] ) ? absint( $_POST['post_id'][$index] ) : 0;
+			if ( !current_user_can( 'edit_post', $post_id ) ) {
+				$post_id = 0;
+			}
+			$attachment_id = media_handle_upload( '.jetpack.upload.', $post_id, array(), array(
 				'action' => 'jetpack_upload_file',
 			) );
 
@@ -1392,6 +1404,7 @@ p {
 					'file' => $attachment->post_title,
 					'url'  => wp_get_attachment_url( $attachment_id ),
 					'type' => $attachment->post_mime_type,
+					'meta' => wp_get_attachment_metadata( $attachment_id ),
 				);
 			}
 		}
@@ -4307,14 +4320,22 @@ class Jetpack_Sync {
 	/* Ah... so much simpler than Posts and Comments :) */
 	function options( $file, $option /*, $option, ... */ ) {
 		$options = func_get_args();
-		$file = array_shift( $options ); // $file is actually unused for options.  It's just here to make the API more parallel with the other syncs
+		$file = array_shift( $options );
+
+		$module_slug = Jetpack::get_module_slug( $file );
+
+		if ( !isset( $this->sync_options[$module_slug] ) ) {
+			$this->sync_options[$module_slug] = array();
+		}
 
 		foreach ( $options as $option ) {
-			$this->sync_options[] = $option;
+			$this->sync_options[$module_slug][] = $option;
 			add_action( "delete_option_{$option}", array( $this, 'deleted_option_action' ) );
 			add_action( "update_option_{$option}", array( $this, 'updated_option_action' ) );
 			add_action( "add_option_{$option}",    array( $this, 'added_option_action'   ) );
 		}
+
+		$this->sync_options[$module_slug] = array_unique( $this->sync_options[$module_slug] );
 	}
 
 	function deleted_option_action( $option ) {
@@ -4338,9 +4359,20 @@ class Jetpack_Sync {
 		$this->register( 'option', $option );
 	}
 
+	function sync_all_module_options( $module_slug ) {
+		if ( empty( $this->sync_options[$module_slug] ) ) {
+			return;
+		}
+
+		foreach ( $this->sync_options[$module_slug] as $option ) {
+			$this->added_option_action( $option );
+		}
+	}
+
 	function sync_all_registered_options( $options = array() ) {
 		if ( 'jetpack_sync_all_registered_options' == current_filter() ) {
-			foreach ( $this->sync_options as $option ) {
+			$all_registered_options = array_unique( call_user_func_array( 'array_merge', $this->sync_options ) );
+			foreach ( $all_registered_options as $option ) {
 				$this->added_option_action( $option );
 			}
 		} else {

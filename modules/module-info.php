@@ -616,3 +616,25 @@ function jetpack_mobile_push_notifications_more_link() {
 add_action( 'jetpack_learn_more_button_mobile-push', 'jetpack_mobile_push_notifications_more_link' );
 add_action( 'jetpack_module_more_info_mobile-push', 'jetpack_mobile_push_notifications_more_info' );
 // Mobile Push Notifications: STOP
+
+
+// Post by Email: START
+function jetpack_post_by_email_more_info() { ?>
+	<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/post-by-email.png' ) ?>" alt="<?php esc_attr_e( 'Post by Email', 'jetpack' ) ?>" width="300" height="115" />
+	</div>
+	
+	<h4><?php esc_html_e( 'Post by Email' , 'jetpack' ); ?></h4>
+
+	<p><?php esc_html_e( 'Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones.', 'jetpack' ); ?></p>
+
+<?php
+}
+
+function jetpack_post_by_email_more_link() {
+	echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+
+add_action( 'jetpack_module_more_info_post-by-email', 'jetpack_post_by_email_more_info' );
+add_action( 'jetpack_learn_more_button_post-by-email', 'jetpack_post_by_email_more_link' );
+// Post by Email: STOP

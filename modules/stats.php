@@ -15,6 +15,20 @@ defined( 'STATS_DASHBOARD_SERVER' ) or define( 'STATS_DASHBOARD_SERVER', 'dashbo
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
 
+// Tell HQ about changed settings
+Jetpack_Sync::sync_options( __FILE__,
+	'home',
+	'siteurl',
+	'blogname',
+	'blogdescription',
+	'gmt_offset',
+	'timezone_string',
+	'page_on_front',
+	'permalink_structure',
+	'category_base',
+	'tag_base'
+);
+
 function stats_load() {
 	global $wp_roles;
 
@@ -22,20 +36,6 @@ function stats_load() {
 	Jetpack::module_configuration_load( __FILE__, 'stats_configuration_load' );
 	Jetpack::module_configuration_head( __FILE__, 'stats_configuration_head' );
 	Jetpack::module_configuration_screen( __FILE__, 'stats_configuration_screen' );
-
-	// Tell HQ about changed settings
-	Jetpack_Sync::sync_options( __FILE__,
-		'home',
-		'siteurl',
-		'blogname',
-		'blogdescription',
-		'gmt_offset',
-		'timezone_string',
-		'page_on_front',
-		'permalink_structure',
-		'category_base',
-		'tag_base'
-	);
 
 	// Tell HQ about changed posts
 	$post_stati = get_post_stati( array( 'public' => true ) ); // All public post stati
