@@ -164,18 +164,6 @@ class Jetpack {
 				}
 			}
 		}
-
-		$version = Jetpack::get_option( 'version' );
-		if ( $version ) {
-			list( $version ) = explode( ':', $version );
-		}
-		if ( $version == JETPACK__VERSION ) {
-			return;
-		}
-
-		if ( version_compare( $version, '1.9', '<' ) && version_compare( '1.9-something', JETPACK__VERSION, '<' ) ) {
-			add_action( 'jetpack_modules_loaded', array( $this->sync, 'sync_all_registered_options' ), 1000 );
-		}
 	}
 
 	/**
@@ -599,6 +587,10 @@ class Jetpack {
 
 			$reactivate_modules[] = $active_module;
 			Jetpack::deactivate_module( $active_module );
+		}
+
+		if ( version_compare( $jetpack_version, '1.9', '<' ) && version_compare( '1.9-something', JETPACK__VERSION, '<' ) ) {
+			add_action( 'jetpack_activate_default_modules', array( $this->sync, 'sync_all_registered_options' ), 1000 );
 		}
 
 		Jetpack::update_options( array(
