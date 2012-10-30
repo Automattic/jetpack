@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.9 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-10-26 12:52:38+0000\n"
+"PO-Revision-Date: 2012-10-30 15:50:50+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,37 +11,37 @@ msgstr ""
 "Project-Id-Version: 1.9\n"
 
 msgid "Receive notifications on your mobile device."
-msgstr ""
+msgstr "Motta varslinger på mobilen."
 
 msgid "Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com."
-msgstr ""
+msgstr "Overvåk og administrer aktiviteten på nettstedet ditt med varslinger i verktøylinjen og på WordPress.com."
 
 msgid "Allow applications to securely access your content through the cloud."
-msgstr ""
+msgstr "Tillat applikasjoner å få adgang til innhold på en sikker måte, gjennom nettskyen."
 
 #: modules/subscriptions.php:160
 msgid "Blog follow email text"
-msgstr ""
+msgstr "Tekst i epost om å følge nettstedet"
 
 #: modules/subscriptions.php:153
 msgid "Follower Settings"
-msgstr ""
+msgstr "Innstillinger for følging"
 
 #: modules/subscriptions.php:168
 msgid "Comment follow email text"
-msgstr ""
+msgstr "Tekst i epost for å følge kommentarer"
 
 #: modules/subscriptions.php:237
 msgid "These settings change emails sent from your blog to followers."
-msgstr ""
+msgstr "Disse innstillingene endrer eposter som sendes ra ditt nettsted til følgere."
 
 #: modules/subscriptions.php:243
 msgid "Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)"
-msgstr ""
+msgstr "Introduksjonstekst som sendes når noen følger ditt nettsted. (Nettstedsnavn og bekreftelsesdetaljer vil automatisk bli lagt til.)"
 
 #: modules/subscriptions.php:249
 msgid "Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)"
-msgstr ""
+msgstr "Introduksjonstekst som sendes når noen følger et innlegg på nettstedet ditt. (Bekreftelsesdetaljer vil automatisk bli lagt til.)"
 
 #: modules/subscriptions.php:254
 msgid ""
@@ -51,6 +51,11 @@ msgid ""
 "\n"
 "To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
 msgstr ""
+"Hei.\n"
+"\n"
+"Du har akkurat valgt å følge innleggene på dette nettstedet. Det betyr at du vil motta nye innlegg på epost.\n"
+"\n"
+"For å aktivere klikker du Bekreft nedenfor. Hvis du mener du har mottatt dette.ved en feil er det bare å ignorere, og vi vil ikke forstyrre deg igjen."
 
 #: modules/subscriptions.php:255
 msgid ""
@@ -60,13 +65,18 @@ msgid ""
 "\n"
 "To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
 msgstr ""
+"Hei\n"
+"\n"
+"Du har akkurat valgt å følge en av mine innlegg . Det betyr at du vil motta nye kommentarer på epost.\n"
+"\n"
+"For å aktivere klikker du Bekreft nedenfor. Hvis du mener du har mottatt denne ved en feil kan du bare ignorere dette, og vi vil ikke forstyrre deg igjen."
 
 #: modules/module-info.php:587
 msgid "If you have your blog added to the iOS app, you’ll now be able to opt in to receive push notifications of new comments, which makes it easier than ever to keep up with your readers and moderate comments on the go."
-msgstr ""
+msgstr "Hvis du har lagt ditt nettsted til iOS-applikasjonen vil du du nå kunne velge å motta varslinger om nye kommentarer, noe som gjør det enklere enn noen gang å betjene dine lesere og moderere kommentarer i farta."
 
 msgid "Mobile Push Notifications"
-msgstr ""
+msgstr "Mobilvarslinger"
 
 #: modules/module-info.php:441
 msgid "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
@@ -74,29 +84,29 @@ msgstr ""
 
 #: modules/module-info.php:439
 msgid "Jetpack will allow you to authorize applications and services to securely connect to your blog and allow them to use your content in new ways and offer you new functionality."
-msgstr ""
+msgstr "Jetpack vil la deg autorisere applikasjoner og tjenester til å koble seg til ditt nettsted på en sikker måte, tillate dem å bruke ditt innhold på nye måter og tilby deg ny funksjonalitet."
 
 msgid "JSON API"
-msgstr ""
+msgstr "JSON API"
 
 #: modules/module-info.php:235
 msgid "You can view your notifications in the Toolbar and <a href=\"%s\">on WordPress.com</a>."
-msgstr ""
+msgstr "Du kan se dine varslinger på verktøylinjen og <a href=\"%s\">på WordPress.com</a>."
 
 #: modules/module-info.php:221 modules/module-info.php:234
 msgid "Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users."
-msgstr ""
+msgstr "Hold deg oppdatert om de siste hendelsene på alle dine nettsteder på WordPress.com og samhandle med andre brukere på WordPress.com"
 
 #: modules/minileven/minileven.php:254
 msgid "Apply this CSS to the Mobile Theme"
-msgstr ""
+msgstr "Bruk denne CSS i mobil-temaet"
 
 msgid "Notifications"
-msgstr ""
+msgstr "Varslinger"
 
 #: modules/contact-form/grunion-contact-form.php:648
 msgid "go back"
-msgstr ""
+msgstr "gå tilbake"
 
 #: modules/custom-css/custom-css.php:416
 msgid ""
@@ -116,21 +126,21 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:699
 msgctxt "%1$s = form field label, %2$s = form field value"
 msgid "%1$s: %2$s"
-msgstr ""
+msgstr "%1$s: %2$s"
 
 #: modules/contact-form/grunion-contact-form.php:514
 msgctxt "%1$s = blog name"
 msgid "%1$s Sidebar"
-msgstr ""
+msgstr "%1$s sidestolpe"
 
 #: modules/contact-form/grunion-contact-form.php:521
 msgctxt "%1$s = blog name, %2$s = post title"
 msgid "%1$s %2$s"
-msgstr ""
+msgstr "%1$s %2$s"
 
 #: jetpack.php:3161
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
-msgstr ""
+msgstr "%s ønsker adgang til ditt nettsteds data. Logg inn for å godkjenne den adgangen.."
 
 #: jetpack.php:3121
 msgid "The authorization process expired.  Please go back and try again."
@@ -142,49 +152,49 @@ msgstr ""
 
 #: jetpack.php:3090
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
-msgstr ""
+msgstr "Du må koble ditt Jetpack-innstikk til WordPress.com for å bruke denne funksjonen,"
 
 #: jetpack.php:2218
 msgid "Link account with WordPress.com"
-msgstr ""
+msgstr "Koble brukerkontoen til WordPress.com"
 
 #: jetpack.php:2034
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
-msgstr ""
+msgstr "Deaktiver %l"
 
 #: jetpack.php:2020
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
 msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
 msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Hvis ditt nettsted ikke er offentlig tilgjengelig bør du vurdere å <a href=\"%1$s\" title=\"%2$s\">deaktivere denne funksjonen</a>."
+msgstr[1] "Hvis ditt nettsted ikke er offentlig tilgjengelig bør du vurdere å <a href=\"%1$s\" title=\"%2$s\">deaktivere disse funksjonene</a>."
 
 #: jetpack.php:2007
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Akkurat som  RSS-matinger, vil %l gi andre adgang til dine innlegg og annet innhold."
+msgstr[1] "Akkurat som  RSS-matinger, vil %l gi andre adgang til dine innlegg og annet innhold."
 
 #: jetpack.php:2004
 msgid "Is this site private?"
-msgstr ""
+msgstr "Er dette nettstedet privat?"
 
 #: jetpack.php:1874
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate buttons on their module cards."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "<strong>%l deaktivert!</strong> Du kan aktivere den igjen når som helst ved å bruke Aktiver-knappen på modulboksen."
+msgstr[1] "<strong>%l deaktivert!</strong> Du kan aktivere dem igjen når som helst ved å bruke Aktiver-knappene på modulboksene."
 
 #: class.json-api-endpoints.php:2572
 msgid "Comment cache problem?"
-msgstr ""
+msgstr "Bufferproblemer med kommentarer?"
 
 #: class.json-api-endpoints.php:1090
 msgid "This post is password protected."
-msgstr ""
+msgstr "Dette innlegget er beskyttet av et passord."
 
 #: modules/widgets/twitter.php:262
 msgid "Twitter username:"

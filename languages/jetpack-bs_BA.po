@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.9 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-10-26 12:52:39+0000\n"
+"PO-Revision-Date: 2012-10-30 15:50:52+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,13 +11,13 @@ msgstr ""
 "Project-Id-Version: 1.9\n"
 
 msgid "Receive notifications on your mobile device."
-msgstr ""
+msgstr "Primajte obavijesti na vašem mobilnom uređaju."
 
 msgid "Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com."
-msgstr ""
+msgstr "Pratite i upravljajte aktivnostima na vašoj stranici pomoću Obavijesti u vašoj alatnoj traci i na WordPress.com stranici."
 
 msgid "Allow applications to securely access your content through the cloud."
-msgstr ""
+msgstr "Dozvolite aplikacijama sigurni pristup vašem sadržaju preko oblaka."
 
 #: modules/subscriptions.php:160
 msgid "Blog follow email text"
@@ -25,7 +25,7 @@ msgstr ""
 
 #: modules/subscriptions.php:153
 msgid "Follower Settings"
-msgstr ""
+msgstr "Postavke pretplatnika"
 
 #: modules/subscriptions.php:168
 msgid "Comment follow email text"
@@ -77,7 +77,7 @@ msgid "Jetpack will allow you to authorize applications and services to securely
 msgstr ""
 
 msgid "JSON API"
-msgstr ""
+msgstr "JSON API"
 
 #: modules/module-info.php:235
 msgid "You can view your notifications in the Toolbar and <a href=\"%s\">on WordPress.com</a>."
@@ -89,14 +89,14 @@ msgstr ""
 
 #: modules/minileven/minileven.php:254
 msgid "Apply this CSS to the Mobile Theme"
-msgstr ""
+msgstr "Primijeni ovaj CSS na mobilnu temu"
 
 msgid "Notifications"
-msgstr ""
+msgstr "Obavijesti"
 
 #: modules/contact-form/grunion-contact-form.php:648
 msgid "go back"
-msgstr ""
+msgstr "idi nazad"
 
 #: modules/custom-css/custom-css.php:416
 msgid ""
@@ -111,17 +111,17 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:699
 msgctxt "%1$s = form field label, %2$s = form field value"
 msgid "%1$s: %2$s"
-msgstr ""
+msgstr "%1$s: %2$s"
 
 #: modules/contact-form/grunion-contact-form.php:514
 msgctxt "%1$s = blog name"
 msgid "%1$s Sidebar"
-msgstr ""
+msgstr "%1$s - bočna traka"
 
 #: modules/contact-form/grunion-contact-form.php:521
 msgctxt "%1$s = blog name, %2$s = post title"
 msgid "%1$s %2$s"
-msgstr ""
+msgstr "%1$s - %2$s"
 
 #: jetpack.php:3161
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
@@ -129,7 +129,7 @@ msgstr ""
 
 #: jetpack.php:3121
 msgid "The authorization process expired.  Please go back and try again."
-msgstr ""
+msgstr "Autorizacijski proces je istekao. Molimo vas da se vratite nazad i pokušate ponovo."
 
 #: jetpack.php:3093
 msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
@@ -137,16 +137,16 @@ msgstr ""
 
 #: jetpack.php:3090
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
-msgstr ""
+msgstr "Morate povezati vaš Jetpack plugin sa WordPress.com stranicom da biste mogli koristiti ovu mogućnost."
 
 #: jetpack.php:2218
 msgid "Link account with WordPress.com"
-msgstr ""
+msgstr "Povežite račun sa WordPress.com"
 
 #: jetpack.php:2034
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
-msgstr ""
+msgstr "Deaktiviraj %l"
 
 #: jetpack.php:2020
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
@@ -166,7 +166,7 @@ msgstr[2] ""
 
 #: jetpack.php:2004
 msgid "Is this site private?"
-msgstr ""
+msgstr "Je li ova stranica privatna?"
 
 #: jetpack.php:1874
 msgctxt "%l = list of Jetpack module/feature names"
@@ -2650,7 +2650,7 @@ msgstr "Ne zaboravite kliknuti na \"Ažuriraj profil\" u dnu stranice da biste s
 
 #: modules/carousel/jetpack-carousel.php:110
 msgid "Comment"
-msgstr "komentar"
+msgstr "Komentar"
 
 #: modules/carousel/jetpack-carousel.php:111
 msgid "Post Comment"

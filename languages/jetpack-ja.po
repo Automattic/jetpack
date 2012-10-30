@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.9 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-10-26 12:52:37+0000\n"
+"PO-Revision-Date: 2012-10-30 15:50:51+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -66,7 +66,7 @@ msgid "If you have your blog added to the iOS app, you’ll now be able to opt i
 msgstr ""
 
 msgid "Mobile Push Notifications"
-msgstr ""
+msgstr "モバイルプッシュ通知"
 
 #: modules/module-info.php:441
 msgid "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
@@ -77,7 +77,7 @@ msgid "Jetpack will allow you to authorize applications and services to securely
 msgstr ""
 
 msgid "JSON API"
-msgstr ""
+msgstr "JSON API"
 
 #: modules/module-info.php:235
 msgid "You can view your notifications in the Toolbar and <a href=\"%s\">on WordPress.com</a>."
@@ -89,7 +89,7 @@ msgstr ""
 
 #: modules/minileven/minileven.php:254
 msgid "Apply this CSS to the Mobile Theme"
-msgstr ""
+msgstr "この CSS をモバイルテーマに適用"
 
 msgid "Notifications"
 msgstr "通知"
@@ -141,12 +141,12 @@ msgstr ""
 
 #: jetpack.php:2218
 msgid "Link account with WordPress.com"
-msgstr ""
+msgstr "アカウントを WordPress.com と連携"
 
 #: jetpack.php:2034
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
-msgstr ""
+msgstr "%l を無効化"
 
 #: jetpack.php:2020
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
@@ -162,7 +162,7 @@ msgstr[0] ""
 
 #: jetpack.php:2004
 msgid "Is this site private?"
-msgstr ""
+msgstr "このサイトは非公開ですか ?"
 
 #: jetpack.php:1874
 msgctxt "%l = list of Jetpack module/feature names"
@@ -1515,11 +1515,11 @@ msgstr "フロントページとアーカイブページで全文を表示する
 
 #: modules/minileven.php:62
 msgid "Mobile App Promos"
-msgstr ""
+msgstr "モバイルアプリの広告"
 
 #: modules/minileven.php:66
 msgid "Show a promo for the WordPress mobile apps in the footer of the mobile theme."
-msgstr ""
+msgstr "WordPress モバイルアプリの広告をモバイルテーマのフッターに表示します。"
 
 #: modules/minileven.php:75
 msgid "Mobile Apps"

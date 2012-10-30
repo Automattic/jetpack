@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 1.9 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-10-26 12:52:41+0000\n"
+"PO-Revision-Date: 2012-10-30 15:50:55+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -763,11 +763,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:374
 msgid "Icon URL"
-msgstr "Ikon URL"
+msgstr "Ikon hívatkozás"
 
 #: modules/sharedaddy/sharing.php:377
 msgid "Enter the URL of a 16x16px icon you want to use for this service."
-msgstr "Adjuk meg annak a 16x16px méretű ikonnak az URL címét, amelyet használni szeretnénk ehhez a szolgáltatáshoz."
+msgstr "Adjuk meg annak a 16x16px méretű ikonnak a hívatkozását, amelyet használni szeretnénk ehhez a szolgáltatáshoz."
 
 #: modules/sharedaddy/sharing.php:383
 msgid "Create Share Button"
