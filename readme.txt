@@ -87,6 +87,9 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 1.9.2 =
+* Bug Fix: Only sync options on upgrade once.
+
 = 1.9.1 =
 * Enhancement: Notifications feature is enabled for logged-out users when the module is active & the toolbar is shown by another plugin.
 * Bug Fix: Use proper CDN addresses to avoid SSL cert issues.
