@@ -3,7 +3,7 @@
 /**
  * Module Name: Post by Email
  * Module Description: Publish posts to your blog directly from your personal email account.
- * First Introduced: 1.9
+ * First Introduced: 2.0
  * Sort Order: 4
  */
 
@@ -35,7 +35,7 @@ class Jetpack_Post_By_Email {
 	function __construct() {
 		add_action( 'init', array( &$this, 'action_init' ) );
 	}
-	
+
 	function module_toggle() {
 		$jetpack = Jetpack::init();
 		$jetpack->sync->register( 'noop' );
@@ -48,30 +48,46 @@ class Jetpack_Post_By_Email {
 		add_action( 'wp_ajax_jetpack_post_by_email_enable', array( &$this, 'create_post_by_email_address' ) );
 		add_action( 'wp_ajax_jetpack_post_by_email_regenerate', array( &$this, 'regenerate_post_by_email_address' ) );
 		add_action( 'wp_ajax_jetpack_post_by_email_disable', array( &$this, 'delete_post_by_email_address' ) );
+
+		if ( ! $this->check_user_connection() )
+			Jetpack::init()->admin_styles();
 	}
 
 	function profile_scripts() {
 		wp_enqueue_script( 'post-by-email', plugins_url( 'post-by-email.js', __FILE__ ), array( 'jquery' ) );
 	}
 
+	function check_user_connection() {
+		$user_token = Jetpack_Data::get_access_token( get_current_user_id() );
+		$is_user_connected = $user_token && !is_wp_error( $user_token );
+
+		// If the user is already connected via Jetpack, then we're good
+		if ( $is_user_connected )
+			return true;
+
+		return false;
+		Jetpack::init()->admin_styles();
+		add_action( 'profile_personal_options', array( &$this, 'user_profile' ) );
+	}
+
 	function user_profile() {
-		$email = $this->get_post_by_email_address();
+		if ( $this->check_user_connection() ) {
+			$email = $this->get_post_by_email_address();
+
+			if ( empty( $email ) ) {
+				$enable_hidden = '';
+				$info_hidden = ' hidden="hidden"';
+			}
+			else {
+				$enable_hidden = ' hidden="hidden"';
+				$info_hidden = '';
+			}
+			// TODO: Add a spinner, or some such feedback for when the API calls are occurring
 ?>
 <table class="form-table">
 	<tr>
 		<th scope="row"><?php _e( 'Post By Email', 'jetpack' ); ?></th>
 		<td>
-<?php
-		if ( empty( $email ) ) {
-			$enable_hidden = '';
-			$info_hidden = ' hidden="hidden"';
-		}
-		else {
-			$enable_hidden = ' hidden="hidden"';
-			$info_hidden = '';
-		}
-		// TODO: Add a spinner, or some such feedback for when the API calls are occurring
-?>
 		<div id="jp-pbe-error"></div>
 		<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" value="<? _e( 'Enable Post By Email', 'jetpack' ); ?> "<?php echo $enable_hidden; ?> />
 		<div id="jp-pbe-info"<?php echo $info_hidden; ?>>
@@ -83,13 +99,31 @@ class Jetpack_Post_By_Email {
 	</tr>
 </table>
 <?php
+		}
+		else {
+			$jetpack = Jetpack::init();
+?>
+		<div id="message" class="updated jetpack-message jp-connect">
+			<div class="jetpack-wrap-container">
+				<div class="jetpack-text-container">
+					<h4>
+						<p><?php _e( "To use Post By Email you&#8217;ll need to link your account here to your WordPress.com account using the button to the right. If you don't have one yet you can sign up for free, in just a few seconds.", 'jetpack' ) ?></p>
+					</h4>
+				</div>
+				<div class="jetpack-install-container">
+					<p class="submit"><a href="<?php echo $jetpack->build_connect_url(); ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
+				</div>
+			</div>
+		</div> 
+<?php
+		}
 	}
 
 	// TODO: API call to get the actual email address
 	function get_post_by_email_address() {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => JETPACK_MASTER_USER,
+			'user_id' => get_current_user_id(),
 		) );
 		$xml->query( 'jetpack.getPostByEmailAddress' );
 
@@ -106,7 +140,7 @@ class Jetpack_Post_By_Email {
 	function create_post_by_email_address() {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => JETPACK_MASTER_USER,
+			'user_id' => get_current_user_id(),
 		) );
 		$xml->query( 'jetpack.createPostByEmailAddress' );
 
@@ -134,7 +168,7 @@ class Jetpack_Post_By_Email {
 	function regenerate_post_by_email_address() {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => JETPACK_MASTER_USER,
+			'user_id' => get_current_user_id(),
 		) );
 		$xml->query( 'jetpack.regeneratePostByEmailAddress' );
 
@@ -162,7 +196,7 @@ class Jetpack_Post_By_Email {
 	function delete_post_by_email_address() {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => JETPACK_MASTER_USER,
+			'user_id' => get_current_user_id(),
 		) );
 		$xml->query( 'jetpack.deletePostByEmailAddress' );
 

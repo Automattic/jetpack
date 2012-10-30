@@ -100,6 +100,9 @@ jetpack_post_by_email = {
 			disabled = true;
 		}
 
+		if ( 'error' != error.response )
+			disabled = true;
+
 		if ( disabled ) {
 			jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
 			jQuery( '#jp-pbe-info' ).fadeOut( 400, function() {
