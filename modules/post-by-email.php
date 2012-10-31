@@ -82,7 +82,7 @@ class Jetpack_Post_By_Email {
 		<div id="post-by-email"></div>
 		<table class="form-table">
 			<tr>
-				<th scope="row"><?php _e( 'Post By Email', 'jetpack' ); ?></th>
+				<th scope="row"><?php _e( 'Post By Email', 'jetpack' ); ?><span id="jp-pbe-spinner" class="spinner"></span></th>
 				<td>
 				<div id="jp-pbe-error" class="jetpack-inline-error"></div> <?php
 		
@@ -96,9 +96,7 @@ class Jetpack_Post_By_Email {
 					else {
 						$enable_hidden = ' hidden="hidden"';
 						$info_hidden = '';
-					}
-				
-					// TODO: Add a spinner, or some such feedback for when the API calls are occurring ?>
+					} ?>
 			
 					<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" value="<? _e( 'Enable Post By Email', 'jetpack' ); ?> "<?php echo $enable_hidden; ?> />
 					<div id="jp-pbe-info"<?php echo $info_hidden; ?>>
