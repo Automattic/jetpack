@@ -172,13 +172,13 @@ class Jetpack_Post_By_Email {
 		) );
 		$xml->query( 'jetpack.regeneratePostByEmailAddress' );
 
-		//if ( $xml->isError() ) {
+		if ( $xml->isError() ) {
 			echo json_encode( array(
 						'response' => 'error',
 						'message' => __( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
 			) );
 			die();
-		//}
+		}
 
 		$response = $xml->getResponse();
 		if ( empty( $response ) ) {
