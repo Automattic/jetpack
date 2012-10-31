@@ -62,7 +62,8 @@ class Jetpack_Post_By_Email {
 	}
 
 	function profile_scripts() {
-		wp_enqueue_script( 'post-by-email', plugins_url( 'post-by-email.js', __FILE__ ), array( 'jquery' ) );
+		wp_enqueue_script( 'post-by-email', plugins_url( 'post-by-email/post-by-email.js', __FILE__ ), array( 'jquery' ) );
+		wp_enqueue_style( 'post-by-email', plugins_url( 'post-by-email/post-by-email.css', __FILE__ ) );
 	}
 
 	function check_user_connection() {
