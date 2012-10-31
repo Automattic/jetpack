@@ -367,6 +367,9 @@ class Jetpack {
 		}
 
 		do_action( 'jetpack_modules_loaded' );
+
+		// Load module-specific code that is needed even when a module isn't active. Loaded here because code contained therein may need actions such as setup_theme.
+		require_once( dirname( __FILE__ ) . '/modules/module-extras.php' );
 	}
 
 /* Jetpack Options API */
@@ -2513,7 +2516,7 @@ p {
 
 				<div class="jetpack-module-actions">
 				<?php if ( $jetpack_connected ) : ?>
-					<?php if ( !$activated && current_user_can( 'manage_options' ) ) : ?>
+					<?php if ( !$activated && current_user_can( 'manage_options' ) && apply_filters( 'jetpack_can_activate_' . $module, true ) ) : ?>
 						<a href="<?php echo esc_url( $toggle_url ); ?>" class="<?php echo ( 'inactive' == $css ? ' button-primary' : ' button-secondary' ); ?>"><?php echo $toggle; ?></a>&nbsp;
 					<?php endif; ?>
 
