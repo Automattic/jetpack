@@ -627,6 +627,8 @@ function jetpack_post_by_email_more_info() { ?>
 	<h4><?php esc_html_e( 'Post by Email' , 'jetpack' ); ?></h4>
 
 	<p><?php esc_html_e( 'Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones.', 'jetpack' ); ?></p>
+	
+	<p>&rarr; <a href="http://en.support.wordpress.com/post-by-email/#sending-emails"><?php esc_html_e( 'More information on sending emails, attachments, and customizing your posts.', 'jetpack' ); ?></a></p>
 
 <?php
 }
