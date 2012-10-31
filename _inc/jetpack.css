@@ -1023,3 +1023,13 @@ p#news-sub {
 	box-shadow: inset 0 0 2px #fff, 0 1px 7spx rgba(240,160,0,0.5);
 }
 
+.jetpack-inline-error { 
+	background-color: #ffebe8;
+	border-color: #c00;
+	padding: 1em 1em .5em 1em;
+	-webkit-border radius: 3px;
+	border-radius: 3px;
+	border-width: 1px;
+	border-style: solid;
+	color: #333;
+}

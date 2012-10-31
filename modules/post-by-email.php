@@ -78,55 +78,52 @@ class Jetpack_Post_By_Email {
 		add_action( 'profile_personal_options', array( &$this, 'user_profile' ) );
 	}
 
-	function user_profile() { 
-		echo '<div id="post-by-email"></div>';
+	function user_profile() { ?>
+		<div id="post-by-email"></div>
+		<table class="form-table">
+			<tr>
+				<th scope="row"><?php _e( 'Post By Email', 'jetpack' ); ?></th>
+				<td>
+				<div id="jp-pbe-error"></div> <?php
 		
-		if ( $this->check_user_connection() ) {
-			$email = $this->get_post_by_email_address();
-
-			if ( empty( $email ) ) {
-				$enable_hidden = '';
-				$info_hidden = ' hidden="hidden"';
-			}
-			else {
-				$enable_hidden = ' hidden="hidden"';
-				$info_hidden = '';
-			}
-			// TODO: Add a spinner, or some such feedback for when the API calls are occurring
-?>
-<table class="form-table">
-	<tr>
-		<th scope="row"><?php _e( 'Post By Email', 'jetpack' ); ?></th>
-		<td>
-		<div id="jp-pbe-error"></div>
-		<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" value="<? _e( 'Enable Post By Email', 'jetpack' ); ?> "<?php echo $enable_hidden; ?> />
-		<div id="jp-pbe-info"<?php echo $info_hidden; ?>>
-			<span id="jp-pbe-email-wrapper"><strong><?php _e( 'Email Address:', 'jetpack' ); ?></strong> <span id="jp-pbe-email"><?php echo $email; ?></span></span><br/>
-			<input type="button" name="jp-pbe-regenerate" id="jp-pbe-regenerate" value="<? _e( 'Regenerate Address', 'jetpack' ); ?> " />
-			<input type="button" name="jp-pbe-disable" id="jp-pbe-disable" value="<? _e( 'Disable Post By Email', 'jetpack' ); ?> " />
-		</div>
-		</td>
-	</tr>
-</table>
-<?php
-		}
-		else {
-			$jetpack = Jetpack::init();
-?>
-		<div id="message" class="updated jetpack-message jp-connect">
-			<div class="jetpack-wrap-container">
-				<div class="jetpack-text-container">
-					<h4>
-						<p><?php _e( "To use Post By Email you&#8217;ll need to link your account here to your WordPress.com account using the button to the right. If you don't have one yet you can sign up for free, in just a few seconds.", 'jetpack' ) ?></p>
-					</h4>
-				</div>
-				<div class="jetpack-install-container">
-					<p class="submit"><a href="<?php echo $jetpack->build_connect_url(); ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
-				</div>
-			</div>
-		</div> 
-<?php
-		}
+				if ( $this->check_user_connection() ) {
+					$email = $this->get_post_by_email_address();
+		
+					if ( empty( $email ) ) {
+						$enable_hidden = '';
+						$info_hidden = ' hidden="hidden"';
+					}
+					else {
+						$enable_hidden = ' hidden="hidden"';
+						$info_hidden = '';
+					}
+				
+					// TODO: Add a spinner, or some such feedback for when the API calls are occurring ?>
+			
+					<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" value="<? _e( 'Enable Post By Email', 'jetpack' ); ?> "<?php echo $enable_hidden; ?> />
+					<div id="jp-pbe-info"<?php echo $info_hidden; ?>>
+						<span id="jp-pbe-email-wrapper"><strong><?php _e( 'Email Address:', 'jetpack' ); ?></strong> <span id="jp-pbe-email"><?php echo $email; ?></span></span><br/>
+						<input type="button" name="jp-pbe-regenerate" id="jp-pbe-regenerate" value="<? _e( 'Regenerate Address', 'jetpack' ); ?> " />
+						<input type="button" name="jp-pbe-disable" id="jp-pbe-disable" value="<? _e( 'Disable Post By Email', 'jetpack' ); ?> " />
+					</div> <?php
+				} else {
+					$jetpack = Jetpack::init(); ?>
+		
+					<input type="button" disabled="disabled" value="<? _e( 'Enable Post By Email', 'jetpack' ); ?>" />
+					<br /><br />
+		
+					<div class="jetpack-inline-error"><p>
+						<?php _e( "To use Post By Email you&#8217;ll need to link your account here to your WordPress.com account.", 'jetpack' ); ?> <br />
+						<?php _e( "If you don't have one yet you can sign up for free, in just a few seconds.", 'jetpack' ) ?>
+						<br /><br />
+						<a href="<?php echo $jetpack->build_connect_url(); ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a> 
+						
+					</p></div>
+					<?php
+				} ?>
+				</td>
+			</tr>
+		</table> <?php
 	}
 
 	// TODO: API call to get the actual email address
