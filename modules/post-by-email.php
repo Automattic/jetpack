@@ -21,6 +21,9 @@ Jetpack_Sync::sync_options( __FILE__,
 add_action( 'jetpack_activate_module_post-by-email',   array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
 add_action( 'jetpack_deactivate_module_post-by-email', array( 'Jetpack_Post_By_Email', 'module_toggle' ) );
 
+Jetpack::enable_module_configurable( __FILE__ );
+Jetpack::module_configuration_load( __FILE__, array( 'Jetpack_Post_By_Email', 'configuration_redirect' ) );
+		        
 class Jetpack_Post_By_Email {
 	function &init() {
 		static $instance = NULL;
@@ -39,6 +42,11 @@ class Jetpack_Post_By_Email {
 	function module_toggle() {
 		$jetpack = Jetpack::init();
 		$jetpack->sync->register( 'noop' );
+	}
+	
+	function configuration_redirect() {
+		wp_safe_redirect( admin_url( 'profile.php#post-by-email' ) );
+		exit;
 	}
 
 	function action_init() {
@@ -70,7 +78,9 @@ class Jetpack_Post_By_Email {
 		add_action( 'profile_personal_options', array( &$this, 'user_profile' ) );
 	}
 
-	function user_profile() {
+	function user_profile() { 
+		echo '<div id="post-by-email"></div>';
+		
 		if ( $this->check_user_connection() ) {
 			$email = $this->get_post_by_email_address();
 
