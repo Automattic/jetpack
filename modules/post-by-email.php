@@ -50,6 +50,9 @@ class Jetpack_Post_By_Email {
 	}
 
 	function action_init() {
+		if ( ! current_user_can( 'edit_posts' ) )
+			return;
+
 		add_action( 'profile_personal_options', array( &$this, 'user_profile' ) );
 		add_action( 'admin_print_scripts-profile.php', array( &$this, 'profile_scripts' ) );
 

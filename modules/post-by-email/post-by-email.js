@@ -31,6 +31,7 @@ jetpack_post_by_email = {
 
 		if ( enabled ) {
 			jQuery( '#jp-pbe-enable' ).fadeOut( 400, function() {
+				jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
 				jQuery( '#jp-pbe-email' ).html( response );
 				jQuery( '#jp-pbe-info' ).fadeIn();
 			});
@@ -38,9 +39,9 @@ jetpack_post_by_email = {
 		else {
 			jQuery( '#jp-pbe-error' ).html( error.message );
 			jQuery( '#jp-pbe-error' ).fadeIn();
+		jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
 		}
 
-		jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
 	},
 
 	regenerate: function() {
@@ -108,16 +109,18 @@ jetpack_post_by_email = {
 		if ( disabled ) {
 			jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
 			jQuery( '#jp-pbe-info' ).fadeOut( 400, function() {
+				jQuery( '#jp-pbe-regenerate' ).removeAttr( 'disabled' );
+				jQuery( '#jp-pbe-disable' ).removeAttr( 'disabled' );
 				jQuery( '#jp-pbe-enable' ).fadeIn();
 			});
 		}
 		else {
+			jQuery( '#jp-pbe-regenerate' ).removeAttr( 'disabled' );
+			jQuery( '#jp-pbe-disable' ).removeAttr( 'disabled' );
+
 			jQuery( '#jp-pbe-error' ).html( error.message );
 			jQuery( '#jp-pbe-error' ).fadeIn();
 		}
-
-		jQuery( '#jp-pbe-regenerate' ).removeAttr( 'disabled' );
-		jQuery( '#jp-pbe-disable' ).removeAttr( 'disabled' );
 	}
 };
 
