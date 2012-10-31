@@ -1099,7 +1099,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	function the_password_form() {
-		return __( 'This post is password protected.' , 'jetpack');
+		return __( 'This post is password protected.', 'jetpack' );
 	}
 
 	function get_post_by( $field, $post_id, $context = 'display' ) {
@@ -2509,7 +2509,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
-		if ( -1 == get_option( 'blog_public' ) && !is_user_member_of_blog() ) {
+		if ( -1 == get_option( 'blog_public' ) && ! is_user_member_of_blog() && ! is_super_admin() ) {
 			return new WP_Error( 'unauthorized', 'User cannot create comments', 403 );
 		}
 
@@ -2579,7 +2579,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 
 		$return = $this->get_comment( $comment_id, $args['context'] );
 		if ( !$return ) {
-			return new WP_Error( 400, __( 'Comment cache problem?' , 'jetpack') );
+			return new WP_Error( 400, __( 'Comment cache problem?', 'jetpack' ) );
 		}
 		if ( is_wp_error( $return ) ) {
 			return $return;

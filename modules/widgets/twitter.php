@@ -54,7 +54,10 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 
 		$tweets = $this->fetch_twitter_user_stream( $account, $hidereplies, $show, $include_retweets );
 
-		if ( ! $tweets['error'] ) {
+		if ( isset( $tweets['error'] ) && ( isset( $tweets['data'] ) && ! empty( $tweets['data'] ) ) )
+			$tweets['error'] = '';
+
+		if ( empty( $tweets['error'] ) ) {
 			$before_tweet     = isset( $instance['beforetweet'] ) ? stripslashes( wp_filter_post_kses( $instance['beforetweet'] ) ) : '';
 			$before_timesince = ( isset( $instance['beforetimesince'] ) && ! empty( $instance['beforetimesince'] ) ) ? esc_html( $instance['beforetimesince'] ) : ' ';			
 
@@ -65,7 +68,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 
 			add_action( 'wp_footer', array( $this, 'twitter_widget_script' ) );
 		} else {
-			echo esc_html( $tweets['error'] );
+			echo $tweets['error'];
 		}
 
 		echo $args['after_widget'];
@@ -176,7 +179,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 
 					if ( ! is_array( $tweets ) || isset( $tweets['error'] ) ) {
 						do_action( 'jetpack_bump_stats_extras', 'twitter_widget', 'request-fail-$response_code-bad-data' );
-						$the_error = '<p>' . __( 'Error: Twitter did not respond. Please wait a few minutes and refresh this page.', 'jetpack' ) . '</p>';
+						$the_error = '<p>' . esc_html__( 'Error: Twitter did not respond. Please wait a few minutes and refresh this page.', 'jetpack' ) . '</p>';
 						$tweet_cache_expire = 300;
 						break;
 					} else {				
@@ -190,14 +193,14 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 					do_action( 'jetpack_bump_stats_extras', 'twitter_widget', 'request-fail-$response_code' );
 
 					$tweets = array();
-					$the_error = '<p>' . sprintf( __( 'Error: Please make sure the Twitter account is <a href="%s">public</a>.', 'jetpack' ), 'http://support.twitter.com/forums/10711/entries/14016' ) . '</p>';
+					$the_error = '<p>' . sprintf( esc_html__( 'Error: Please make sure the Twitter account is %1$spublic%2$s.', 'jetpack' ), '<a href="http://support.twitter.com/forums/10711/entries/14016">', '</a>' ) . '</p>';
 					$tweet_cache_expire = 300;
 					break;
 				default :  // display an error message
 					do_action( 'jetpack_bump_stats_extras', 'twitter_widget', 'request-fail-$response_code' );
 
 					$tweets = get_transient( 'widget-twitter-backup-' . $this->number );
-					$the_error = '<p>' . __( 'Error: Twitter did not respond. Please wait a few minutes and refresh this page.', 'jetpack' ) . '</p>';
+					$the_error = '<p>' . esc_html__( 'Error: Twitter did not respond. Please wait a few minutes and refresh this page.', 'jetpack' ) . '</p>';
 					$tweet_cache_expire = 300;
 					break;
 			}

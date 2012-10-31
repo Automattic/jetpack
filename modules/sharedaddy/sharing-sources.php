@@ -836,8 +836,15 @@ class Share_GooglePlus1 extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		// Smart or not, return the G+ button
-		return '<div class="googleplus1_button"><div class="g-plusone" data-size="medium" data-callback="sharing_plusone" data-href="' . esc_url( $this->get_share_url( $post->ID ) ) . '"></div></div>';
+		$share_url = $this->get_share_url( $post->ID );
+
+		if ( $this->smart ) {
+			return '<div class="googleplus1_button"><div class="g-plusone" data-size="medium" data-callback="sharing_plusone" data-href="' . esc_url( $share_url ) . '"></div></div>';
+		} else {
+			//if ( 'icon-text' == $this->button_style || 'text' == $this->button_style )
+				//sharing_register_post_for_share_counts( $post->ID );
+			return $this->get_link( get_permalink( $post->ID ), _x( 'Google +1', 'share to', 'jetpack' ), __( 'Click to share on Google+', 'jetpack' ), 'share=google-plus-1', 'sharing-google-' . $post->ID );
+		}
 	}
 	
 	public function get_state() {
@@ -860,18 +867,21 @@ class Share_GooglePlus1 extends Sharing_Source {
 	
 	public function display_footer() {
 		global $post;
-?>
-	<script type="text/javascript" charset="utf-8">
-	function sharing_plusone( obj ) { 
-		jQuery.ajax( {
-			url: '<?php echo get_permalink( $post->ID ) . '?share=google-plus-1'; ?>',
-			type: 'POST',
-			data: obj
-		} );
-	}
-	</script>
-	<script type="text/javascript" src="<?php echo $this->http(); ?>://apis.google.com/js/plusone.js"></script>
-<?php
+		
+		if ( $this->smart ) { ?>
+			<script type="text/javascript" charset="utf-8">
+				function sharing_plusone( obj ) { 
+					jQuery.ajax( {
+						url: '<?php echo get_permalink( $post->ID ) . '?share=google-plus-1'; ?>',
+						type: 'POST',
+						data: obj
+					} );
+				}
+			</script>
+			<script type="text/javascript" src="<?php echo $this->http(); ?>://apis.google.com/js/plusone.js"></script> <?php
+		} else {
+			$this->js_dialog( 'google-plus-1', array( 'width' => 600, 'height' => 600 ) );
+		}
 	}	
 
 	public function get_total( $post = false ) {

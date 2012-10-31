@@ -177,12 +177,6 @@ function youtube_id( $url ) {
 
 	parse_str( $url['query'], $qargs );
 
-	$agent = $_SERVER['HTTP_USER_AGENT'];
-	// Bloglines & Google Reader handle YouTube well now, instead of
-	// big blank space of yester year, so they can skip this treatment
-	if ( is_feed() && ! preg_match( '#' . apply_filters( 'jetpack_shortcode_youtube_whitelist_user_agents', 'Bloglines|FeedFetcher-Google|feedburner' ) . '#i', $agent ) )
-		return '<span style="text-align:center; display: block;"><a href="' . get_permalink() . '"><img src="http://img.youtube.com/vi/' . $id . '/2.jpg" alt="" /></a></span>';
-
 	// calculate the width and height, taking content_width into consideration
 	global $content_width;
 

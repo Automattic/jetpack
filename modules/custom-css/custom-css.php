@@ -236,8 +236,8 @@ function safecss_skip_stylesheet() {
 		}
 		else {
 			$safecss_post = get_safecss_post();
-			$safecss_post_id = isset( $safecss_post['ID'] ) ? $safecss_post['ID'] : null;
-			return (bool) ( get_option('safecss_add') == 'no' || get_post_meta( $safecss_post_id, 'custom_css_add', true ) == 'no' );
+
+			return (bool) ( get_option('safecss_add') == 'no' || get_post_meta( $safecss_post['ID'], 'custom_css_add', true ) == 'no' );
 		}
 	}
 }

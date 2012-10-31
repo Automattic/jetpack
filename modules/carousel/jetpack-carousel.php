@@ -201,7 +201,7 @@ class Jetpack_Carousel {
 			}
 		}
 
-		$img_meta = json_encode( $img_meta );
+		$img_meta = json_encode( array_map( 'strval', $img_meta ) );
 
 		$html = str_replace(
 			'<img ',
