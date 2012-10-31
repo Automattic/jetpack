@@ -266,6 +266,7 @@ abstract class Publicize_Base {
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
 			foreach ( $connections as $connection ) {
 				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name ) ) {
+					delete_post_meta( $post_id, $this->PENDING );
 					continue;
 				}
 
@@ -281,7 +282,7 @@ abstract class Publicize_Base {
 						// Also make sure that the service-specific input isn't there.
 						// If the user connected to a new service 'in-page' then a hidden field with the service
 						// name is added, so we just assume they wanted to Publicize to that service.
-						if ( empty( $_POST[$this->ADMIN_PAGE]['submit'][$service] ) ) {
+						if ( empty( $_POST[$this->ADMIN_PAGE]['submit'][$service_name] ) ) {
 							// Nothing seems to be checked, so we're going to mark this one to be skipped
 							update_post_meta( $post_id, $this->POST_SKIP . $unique_id, 1 );
 							continue;

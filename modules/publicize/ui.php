@@ -476,11 +476,9 @@ jQuery( function($) {
 					<strong><?php _e( 'Connect to', 'jetpack' ); ?>:</strong>
 
 					<ul class="not-connected">
-						<?php foreach ( $available_services as $name => $service ) :
-							$service_name = "Yahoo! Updates" == $this->publicize->get_service_label( $service_name ) ? 'yahoo' : strtolower( $this->publicize->get_service_label( $service_name ) );
-						?>
+						<?php foreach ( $available_services as $service_name => $service ) : ?>
 						<li>
-							<a class="pub-service" data-service="<?php esc_attr_e( $name ); ?>" title="<?php esc_attr_e( sprintf( __( 'Connect and share your posts on %s', 'jetpack' ), $this->publicize->get_service_label( $service_name ) ) ); ?>" target="_blank" href="<?php echo $this->publicize->connect_url( $service_name ); ?>">
+							<a class="pub-service" data-service="<?php esc_attr_e( $service_name ); ?>" title="<?php esc_attr_e( sprintf( __( 'Connect and share your posts on %s', 'jetpack' ), $this->publicize->get_service_label( $service_name ) ) ); ?>" target="_blank" href="<?php echo $this->publicize->connect_url( $service_name ); ?>">
 								<?php echo esc_html( $this->publicize->get_service_label( $service_name ) ); ?>
 							</a>
 						</li>
