@@ -56,14 +56,12 @@ class Jetpack_Post_By_Email {
 		add_action( 'wp_ajax_jetpack_post_by_email_enable', array( &$this, 'create_post_by_email_address' ) );
 		add_action( 'wp_ajax_jetpack_post_by_email_regenerate', array( &$this, 'regenerate_post_by_email_address' ) );
 		add_action( 'wp_ajax_jetpack_post_by_email_disable', array( &$this, 'delete_post_by_email_address' ) );
-
-		if ( ! $this->check_user_connection() )
-			Jetpack::init()->admin_styles();
 	}
 
 	function profile_scripts() {
 		wp_enqueue_script( 'post-by-email', plugins_url( 'post-by-email/post-by-email.js', __FILE__ ), array( 'jquery' ) );
 		wp_enqueue_style( 'post-by-email', plugins_url( 'post-by-email/post-by-email.css', __FILE__ ) );
+		Jetpack::init()->admin_styles();
 	}
 
 	function check_user_connection() {
@@ -75,8 +73,6 @@ class Jetpack_Post_By_Email {
 			return true;
 
 		return false;
-		Jetpack::init()->admin_styles();
-		add_action( 'profile_personal_options', array( &$this, 'user_profile' ) );
 	}
 
 	function user_profile() { ?>
@@ -85,7 +81,7 @@ class Jetpack_Post_By_Email {
 			<tr>
 				<th scope="row"><?php _e( 'Post By Email', 'jetpack' ); ?></th>
 				<td>
-				<div id="jp-pbe-error"></div> <?php
+				<div id="jp-pbe-error" class="jetpack-inline-error"></div> <?php
 		
 				if ( $this->check_user_connection() ) {
 					$email = $this->get_post_by_email_address();
@@ -124,7 +120,6 @@ class Jetpack_Post_By_Email {
 		</table> <?php
 	}
 
-	// TODO: API call to get the actual email address
 	function get_post_by_email_address() {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
