@@ -110,10 +110,7 @@ class Jetpack_Post_By_Email {
 				} else {
 					$jetpack = Jetpack::init(); ?>
 		
-					<input type="button" disabled="disabled" value="<? _e( 'Enable Post By Email', 'jetpack' ); ?>" />
-					<br /><br />
-		
-					<div class="jetpack-inline-error"><p>
+					<div class="jetpack-inline-message"><p>
 						<?php _e( "To use Post By Email you&#8217;ll need to link your account here to your WordPress.com account.", 'jetpack' ); ?> <br />
 						<?php _e( "If you don't have one yet you can sign up for free, in just a few seconds.", 'jetpack' ) ?>
 						<br /><br />
