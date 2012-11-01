@@ -1782,7 +1782,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$insert['ping_status'] = 'closed';
 			
 		unset( $input['comments_open'], $input['pings_open'] );
-
+		
+		$publicize = $input['publicize'];
+		$publicize_custom_message = $input['publicize_message'];
+		unset( $input['publicize'], $input['publicize_message'] );
+		
 		foreach ( $input as $key => $value ) {
 			$insert["post_$key"] = $value;
 		}
@@ -1825,7 +1829,22 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		if ( !$post_id || is_wp_error( $post_id ) ) {
 			return null;
 		}
-
+			
+		if ( $publicize === false ) {
+			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
+				update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name, 1 );
+			}
+		} else if ( is_array( $publicize ) && ( count ( $publicize ) > 0 ) ) {
+			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
+				if ( !in_array( $name, $publicize ) ) {
+					update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name, 1 );
+				}
+			}
+		}
+		
+		if ( !empty( $publicize_custom_message ) )
+			update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS, trim( $publicize_custom_message ) ); 
+		
 		if ( is_array( $categories ) )
 			wp_set_object_terms( $post_id, $categories, 'category' );
 		if ( is_array( $tags ) )
@@ -2947,6 +2966,8 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'content'   => '(HTML) The post content.',
 		'excerpt'   => '(HTML) An optional post excerpt.',
 		'slug'      => '(string) The name (slug) for your post, used in URLs.',
+		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
+		'publicize_message' => '(string) Custom message to be publicized to external services.',
 		'status'    => array(
 			'publish' => 'Publish the post.',
 			'private' => 'Privately publish the post.',
@@ -3074,6 +3095,8 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'content'   => '(HTML) The post content.',
 		'excerpt'   => '(HTML) An optional post excerpt.',
 		'slug'      => '(string) The name (slug) for your post, used in URLs.',
+		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
+		'publicize_message' => '(string) Custom message to be publicized to external services.',
 		'status'    => array(
 			'publish' => 'Publish the post.',
 			'private' => 'Privately publish the post.',
