@@ -1759,8 +1759,21 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
  		}
 
 		unset( $input['tags'], $input['categories'] );
-
+		
 		$insert = array();
+		
+		if ( true === $input['comments_open'] )
+			$insert['comment_status'] = 'open';
+		else if ( false === $input['comments_open'] )
+			$insert['comment_status'] = 'closed';
+			
+		if ( true === $input['pings_open'] )
+			$insert['ping_status'] = 'open';
+		else if ( false === $input['pings_open'] )
+			$insert['ping_status'] = 'closed';
+			
+		unset( $input['comments_open'], $input['pings_open'] );
+
 		foreach ( $input as $key => $value ) {
 			$insert["post_$key"] = $value;
 		}
