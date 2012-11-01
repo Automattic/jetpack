@@ -561,69 +561,75 @@ p.jp-help {
 	}
 
 		#stats.jetpack-module div.module-image {
-			background-position: -510px 5px;
+			background-position: -560px 5px;
 		}
 		#comments.jetpack-module div.module-image {
-			background-position: -1210px 5px;
+			background-position: -1260px 5px;
 		}
 		#subscriptions.jetpack-module div.module-image {
-			background-position: -1009px 5px;
+			background-position: -1060px 5px;
 		}
 		#sharedaddy.jetpack-module div.module-image {
-			background-position: -710px 5px;
+			background-position: -760px 5px;
 		}
 		#after-the-deadline.jetpack-module div.module-image {
-			background-position: -308px 5px;
+			background-position: -360px 5px;
 		}
 		#vaultpress.jetpack-module div.module-image {
-			background-position: -910px 5px;
+			background-position: -960px 5px;
 		}
 		#gravatar-hovercards.jetpack-module div.module-image {
-			background-position: -410px 5px;
+			background-position: -460px 5px;
 		}
 		#contact-form.jetpack-module div.module-image {
-			background-position: -1107px 5px;
+			background-position: -1160px 5px;
 		}
 		#shortlinks.jetpack-module div.module-image {
-			background-position: -108px 5px;
+			background-position: -160px 5px;
 		}
 		#shortcodes.jetpack-module div.module-image {
-			background-position: -608px 5px;
+			background-position: -660px 5px;
 		}
 		#latex.jetpack-module div.module-image {
-			background-position: -208px 5px;
+			background-position: -260px 5px;
 		}
 		#widgets.jetpack-module div.module-image {
-			background-position: -5px 5px;
+			background-position: -60px 5px;
 		}
 		#enhanced-distribution.jetpack-module div.module-image {
-			background-position: -808px 5px;
+			background-position: -860px 5px;
 		}
 		#carousel.jetpack-module div.module-image {
-			background-position: -1325px 5px;
+			background-position: -1377px 5px;
 		}
 		#custom-css.jetpack-module div.module-image {
-			background-position: -1459px 5px;
+			background-position: -1510px 5px;
 		}
 		#minileven.jetpack-module div.module-image {
-			background-position: -1570px 5px;
+			background-position: -1620px 5px;
 		}
 		#notes.jetpack-module div.module-image {
-			background-position: -1806px 5px;
+			background-position: -1856px 5px;
 		}
 		#json-api.jetpack-module div.module-image {
-			background-position: -1689px 5px;
+			background-position: -1739px 5px;
 		}
 		#mobile-push.jetpack-module div.module-image {
-			background-position: -1925px 5px;
+			background-position: -1975px 5px;
 		}
 		#publicize.jetpack-module div.module-image {
-			background-position: -2136px 5px;
+			background-position: -2190px 5px;
 		}
 		#post-by-email.jetpack-module div.module-image {
-			background-position: -2025px 5px;
+			background-position: -2075px 5px;
 		}
-		
+		#infinite-scroll.jetpack-module div.module-image {
+			background-position: -2300px 5px;
+		}
+		#photon.jetpack-module div.module-image {
+			background-position: -2300px 5px;
+		}
+
 		.jetpack-module div.module-image p {
 			background-color: #b4d278;
 			color: #fff;
