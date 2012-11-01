@@ -22,6 +22,7 @@ Scroller = function( settings ) {
 	this.throttle         = false;
 	this.handle           = '<div id="infinite-handle"><span>' + text.replace( '\\', '' ) + '</span></div>';
 	this.google_analytics = settings.google_analytics;
+	this.history          = settings.history;
 
 	// Footer settings
 	this.footer      = $( '#infinite-footer' );
@@ -281,13 +282,17 @@ Scroller.prototype.refresh = function() {
 				// Render the results
 				self.render.apply( self, arguments );
 
+				// With each IS load, update address bar to reflect archive page URL
+				var pageSlug = window.location.protocol + '//' + self.history.host + self.history.path.replace( /%d/, self.page );
+				history.pushState( null, null, pageSlug );
+
 				// If 'click' type, add back the handle
 				if ( type == 'click' )
 					self.element.append( self.handle );
 
 				// Fire Google Analytics pageview
-				if ( 'string' == typeof self.google_analytics && 'object' == typeof _gaq )
-					_gaq.push(['_trackPageview', self.google_analytics.replace( /%d/, self.page ) ]);
+				if ( self.google_analytics && 'object' == typeof _gaq )
+					_gaq.push(['_trackPageview', self.history.path.replace( /%d/, self.page ) ]);
 			}
 		});
 

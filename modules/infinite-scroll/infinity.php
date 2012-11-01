@@ -307,7 +307,8 @@ class The_Neverending_Home_Page {
 		add_filter( 'body_class', array( $this, 'body_class' ) );
 
 		// Add our scripts.
-		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '20121031' );
+		wp_register_script( 'jquery-sonar', plugins_url( 'jquery.sonar.min.js', __FILE__ ), array( 'jquery' ), 3.0, true );
+		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery', 'jquery-sonar' ), '20121031' );
 
 		// Add our default styles.
 		wp_enqueue_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20120612' );
@@ -465,20 +466,27 @@ class The_Neverending_Home_Page {
 	 * @return string
 	 */
 	function action_wp_head() {
+		global $wp_rewrite;
+
 		// Base JS settings
 		$js_settings = array(
-			'id'            => self::get_settings()->container,
-			'ajaxurl'       => esc_js( esc_url_raw( self::ajax_url() ) ),
-			'type'          => esc_js( self::get_settings()->type ),
-			'wrapper'       => self::has_wrapper(),
-			'wrapper_class' => is_string( self::get_settings()->wrapper ) ? esc_js( self::get_settings()->wrapper ) : 'infinite-wrap',
-			'footer'        => is_string( self::get_settings()->footer ) ? esc_js( self::get_settings()->footer ) : self::get_settings()->footer,
-			'text'          => esc_js( __( 'Load more posts' ) ),
-			'totop'         => esc_js( __( 'Scroll back to top' ) ),
-			'order'         => 'DESC',
-			'scripts'       => array(),
-			'styles'        => array(),
-			'google_analytics' => self::get_analytics_path()
+			'id'               => self::get_settings()->container,
+			'ajaxurl'          => esc_js( esc_url_raw( self::ajax_url() ) ),
+			'type'             => esc_js( self::get_settings()->type ),
+			'wrapper'          => self::has_wrapper(),
+			'wrapper_class'    => is_string( self::get_settings()->wrapper ) ? esc_js( self::get_settings()->wrapper ) : 'infinite-wrap',
+			'footer'           => is_string( self::get_settings()->footer ) ? esc_js( self::get_settings()->footer ) : self::get_settings()->footer,
+			'text'             => esc_js( __( 'Load more posts' ) ),
+			'totop'            => esc_js( __( 'Scroll back to top' ) ),
+			'order'            => 'DESC',
+			'scripts'          => array(),
+			'styles'           => array(),
+			'google_analytics' => (bool) get_option( self::$option_name_google_analytics ),
+			'history'          => array(
+				'host'                 => preg_replace( '#^http(s)?://#i', '', untrailingslashit( get_option( 'home' ) ) ),
+				'path'                 => self::get_request_path(),
+				'use_trailing_slashes' => $wp_rewrite->use_trailing_slashes
+			)
 		);
 
 		// Optional order param
@@ -503,18 +511,15 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
-	 * Build path for Google Analytics tracking based on site's permalink structure
+	 * Build path data for current request.
+	 * Used for Google Analytics and pushState history tracking.
 	 *
 	 * @global $wp_rewrite
 	 * @global $wp
-	 * @uses get_option, user_trailingslashit, sanitize_text_field, add_query_arg
+	 * @uses user_trailingslashit, sanitize_text_field, add_query_arg
 	 * @return string|bool
 	 */
-	private function get_analytics_path() {
-		// Only needed if Google Analytics tracking is enabled
-		if ( ! (bool) get_option( self::$option_name_google_analytics ) )
-			return false;
-
+	private function get_request_path() {
 		global $wp_rewrite;
 
 		if ( $wp_rewrite->using_permalinks() ) {
