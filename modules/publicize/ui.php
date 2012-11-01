@@ -103,7 +103,7 @@ class Publicize_UI {
 			  			</div>
 
 			  			<div class="publicize-service-right">
-			  				<?php if ( $this->publicize->is_enabled( $name ) && $connections = $this->publicize->get_connections( $name ) ) : ?>
+			  				<?php if ( $this->publicize->is_enabled( $name ) && $connections = $this->publicize->get_connections( $name, false, false ) ) : ?>
 			  					<ul>
 				  					<?php
 									foreach( $connections as $c ) :
