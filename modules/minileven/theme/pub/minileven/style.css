@@ -393,7 +393,7 @@ header img {
 	width: 80%;
 }
 
-	
+
 /* =Content
 ----------------------------------------------- */
 
@@ -419,7 +419,7 @@ header img {
 	position: relative;
 }
 .hentry {
-	border-bottom: 1px solid #ddd;	
+	border-bottom: 1px solid #ddd;
 }
 .hentry:last-child,
 .no-results,
@@ -1113,7 +1113,7 @@ and remove the padding rules below.
 .comment-meta .fn {
 	font-style: normal;
 }
-.comment-meta, 
+.comment-meta,
 .comment-content {
 	margin-left: 4em;
 }
