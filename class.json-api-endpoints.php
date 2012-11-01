@@ -1060,6 +1060,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'short_URL' => '(URL) The wp.me short URL.',
 		'content'   => '(HTML) <code>context</code> dependent.',
 		'excerpt'   => '(HTML) <code>context</code> dependent.',
+		'slug'      => '(string) The name (slug) for your post, used in URLs.',
 		'status'    => array(
 			'publish' => 'The post is published.',
 			'draft'   => 'The post is saved as a draft.',
@@ -1230,6 +1231,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'status' :
 				$response[$key] = (string) get_post_status( $post->ID );
 				break;
+			case 'slug' :
+				$response[$key] = (string) $post->post_name;
+			break;
 			case 'password' :
 				$response[$key] = (string) $post->post_password;
 				break;
@@ -1762,6 +1766,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		
 		$insert = array();
 		
+		if ( !empty( $input['slug'] ) ) {
+			$insert['post_name'] = $input['slug'];
+			unset( $input['slug'] );
+		}
+
 		if ( true === $input['comments_open'] )
 			$insert['comment_status'] = 'open';
 		else if ( false === $input['comments_open'] )
@@ -2937,6 +2946,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'title'     => '(HTML) The post title.',
 		'content'   => '(HTML) The post content.',
 		'excerpt'   => '(HTML) An optional post excerpt.',
+		'slug'      => '(string) The name (slug) for your post, used in URLs.',
 		'status'    => array(
 			'publish' => 'Publish the post.',
 			'private' => 'Privately publish the post.',
@@ -3063,6 +3073,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'title'     => '(HTML) The post title.',
 		'content'   => '(HTML) The post content.',
 		'excerpt'   => '(HTML) An optional post excerpt.',
+		'slug'      => '(string) The name (slug) for your post, used in URLs.',
 		'status'    => array(
 			'publish' => 'Publish the post.',
 			'private' => 'Privately publish the post.',
