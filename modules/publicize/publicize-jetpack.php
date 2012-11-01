@@ -201,7 +201,10 @@ class Publicize extends Publicize_Base {
 		), menu_page_url( 'sharing', false ) );
 	}
 
-	function get_services( $filter = 'all' ) {
+	function get_services( $filter ) {
+		if ( !in_array( $filter, array( 'all', 'connected' ) ) )
+			$filter = 'all';
+			
 		$services = array(
 				'facebook' => array(),
 				'twitter'  => array(),
