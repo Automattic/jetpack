@@ -95,9 +95,6 @@ class Publicize extends Publicize_Base {
 
 					$verification = Jetpack::create_nonce( 'publicize' );
 
-					$stats_options = get_option( 'stats_options' );
-					$stats_id = isset( $stats_options['blog_id'] ) ? $stats_options['blog_id'] : null;
-
 					$user = wp_get_current_user();
 					$redirect = $this->api_url( $service_name, urlencode_deep( array(
 						'action'       => 'request',
@@ -105,7 +102,7 @@ class Publicize extends Publicize_Base {
 						'for'          => 'publicize', // required flag that says this connection is intended for publicize
 						'siteurl'      => site_url(),
 						'state'        => $user->ID,
-						'blog_id'      => $stats_id,
+						'blog_id'      => Jetpack::get_option('id'),
 						'secret_1'	   => $verification['secret_1'],
 						'secret_2'     => $verification['secret_2'],
 						'eol'		   => $verification['eol'],
