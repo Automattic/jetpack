@@ -282,8 +282,6 @@ Scroller.prototype.refresh = function() {
 				// Render the results
 				self.render.apply( self, arguments );
 
-				self.updateURL( self.page );
-
 				// If 'click' type, add back the handle
 				if ( type == 'click' )
 					self.element.append( self.handle );
