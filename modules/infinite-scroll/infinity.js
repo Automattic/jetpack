@@ -3,6 +3,13 @@
 // Local vars
 var Scroller, ajaxurl, stats, type, text, totop, timer;
 
+// IE requires special handling
+var isIE = ( -1 != navigator.userAgent.search( 'MSIE' ) );
+if ( isIE ) {
+	var IEVersion = navigator.userAgent.match(/MSIE\s?(\d+)\.?\d*;/);
+	var IEVersion = parseInt( IEVersion[1] );
+}
+
 /**
  * Loads new posts when users scroll near the bottom of the page.
  */
@@ -240,13 +247,6 @@ Scroller.prototype.refresh = function() {
 
 				// If additional stylesheets are required by the incoming set of posts, parse them
 				if ( response.styles ) {
-					// IE requires special handling due to WP's support for conditional comments when styles are registered or enqueued.
-					var isIE = ( -1 != navigator.userAgent.search( 'MSIE' ) );
-					if ( isIE ) {
-						var browserVersion = navigator.userAgent.match(/MSIE\s?(\d+)\.?\d*;/);
-						var browserVersion = parseInt( browserVersion[1] );
-					}
-
 					$( response.styles ).each( function() {
 						// Add stylesheet handle to list of those already parsed
 						window.infiniteScroll.settings.styles.push( this.handle );
@@ -258,7 +258,7 @@ Scroller.prototype.refresh = function() {
 						style.id = this.handle + '-css';
 
 						// Destroy link tag if a conditional statement is present and either the browser isn't IE, or the conditional doesn't evaluate true
-						if ( this.conditional && ( ! isIE || ! eval( this.conditional.replace( /%ver/g, browserVersion ) ) ) )
+						if ( this.conditional && ( ! isIE || ! eval( this.conditional.replace( /%ver/g, IEVersion ) ) ) )
 							var style = false;
 
 						// Append link tag if necessary
@@ -467,10 +467,13 @@ $( document ).ready( function() {
 
 /**
  * Monitor user scroll activity to update URL to correspond to archive page for current set of IS posts
+ * IE only supports pushState() in v10 and above, so don't bother if those conditions aren't met.
  */
-$( window ).bind( 'scroll', function() {
-	clearTimeout( timer );
-	timer = setTimeout( infiniteScroll.scroller.determineURL , 100 );
-});
+if ( ! isIE || ( isIE && IEVersion >= 10 ) ) {
+	$( window ).bind( 'scroll', function() {
+		clearTimeout( timer );
+		timer = setTimeout( infiniteScroll.scroller.determineURL , 100 );
+	});
+}
 
 })(jQuery); // Close closure
