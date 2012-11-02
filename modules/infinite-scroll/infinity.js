@@ -395,13 +395,13 @@ $( document ).ready( function() {
 
 
 
-// URL updating during scrolling. Disabled for now, but will be enabled and incorporated into the above methods once tested and refined.
+// URL updating during scrolling. Will be incorporated into the above methods once tested and refined.
 (function($) {
 	var timer;
-	//$(window).bind('scroll',function () {
-	//	clearTimeout(timer);
-	//	timer = setTimeout( refresh , 150 );
-	//});
+	$(window).bind('scroll',function () {
+		clearTimeout(timer);
+		timer = setTimeout( refresh , 150 );
+	});
 
 	//$(document.body).on( 'post-load', refresh );
 
