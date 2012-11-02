@@ -307,8 +307,7 @@ class The_Neverending_Home_Page {
 		add_filter( 'body_class', array( $this, 'body_class' ) );
 
 		// Add our scripts.
-		wp_register_script( 'jquery-sonar', plugins_url( 'jquery.sonar.min.js', __FILE__ ), array( 'jquery' ), 3.0, true );
-		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery', 'jquery-sonar' ), '20121031' );
+		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '20121031' );
 
 		// Add our default styles.
 		wp_enqueue_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20120612' );
@@ -349,7 +348,7 @@ class The_Neverending_Home_Page {
 		global $posts;
 		$count = count( $posts );
 
-		if ( ! empty( $date ) && preg_match( '|\d\d\d\d\-\d\d\-\d\d|', $_GET['date'] ) ) {
+		if ( ! empty( $date ) && preg_match( '|\d{4}\-\d{2}\-\d{2}|', $_GET['date'] ) ) {
 			self::$the_time = "$date 00:00:00";
 			return self::$the_time;
 		}
@@ -466,7 +465,7 @@ class The_Neverending_Home_Page {
 	 * @return string
 	 */
 	function action_wp_head() {
-		global $wp_rewrite;
+		global $wp_query, $wp_rewrite;
 
 		// Base JS settings
 		$js_settings = array(
@@ -482,6 +481,7 @@ class The_Neverending_Home_Page {
 			'scripts'          => array(),
 			'styles'           => array(),
 			'google_analytics' => (bool) get_option( self::$option_name_google_analytics ),
+			'offset'           => $wp_query->get( 'paged' ),
 			'history'          => array(
 				'host'                 => preg_replace( '#^http(s)?://#i', '', untrailingslashit( get_option( 'home' ) ) ),
 				'path'                 => self::get_request_path(),
@@ -785,7 +785,7 @@ class The_Neverending_Home_Page {
 				$wrapper_classes .= ' infinite-view-' . $page;
 				$wrapper_classes = trim( $wrapper_classes );
 
-				$results['html'] = '<div class="' . esc_attr( $wrapper_classes ) . '">' . $results['html'] . '</div>';
+				$results['html'] = '<div class="' . esc_attr( $wrapper_classes ) . '" id="infinite-view-' . $page . '" data-page-num="' . $page . '">' . $results['html'] . '</div>';
 			}
 
 			// Fire wp_footer to ensure that all necessary scripts are enqueued. Output isn't used, but scripts are extracted in self::action_wp_footer.
