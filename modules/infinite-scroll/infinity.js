@@ -1,7 +1,7 @@
 (function($){ // Open closure
 
 // Local vars
-var Scroller, ajaxurl, stats, type, text, totop;
+var Scroller, ajaxurl, stats, type, text, totop, timer;
 
 /**
  * Loads new posts when users scroll near the bottom of the page.
@@ -18,6 +18,7 @@ Scroller = function( settings ) {
 	this.ready            = true;
 	this.disabled         = false;
 	this.page             = 1;
+	this.offset           = settings.offset;
 	this.order            = settings.order;
 	this.throttle         = false;
 	this.handle           = '<div id="infinite-handle"><span>' + text.replace( '\\', '' ) + '</span></div>';
@@ -348,7 +349,90 @@ Scroller.prototype.checkViewportOnLoad = function( ev ) {
 }
 
 /**
- * With each IS load, update address bar to reflect archive page URL, but only if URL has changed.
+ * Identify archive page that corresponds to majority of posts shown in the current browser window.
+ */
+Scroller.prototype.determineURL = function () {
+	var self         = window.infiniteScroll.scroller,
+		windowTop    = $( window ).scrollTop(),
+		windowBottom = windowTop + $( window ).height(),
+		windowSize   = windowBottom - windowTop,
+		setsInView   = [],
+		pageNum      = false;
+
+	// Find out which sets are in view
+	$( '.' + self.wrapperClass ).each( function() {
+		var id         = $( this ).attr( 'id' ),
+			setTop     = $( this ).offset().top,
+			setBottom  = setTop + $( this ).height(),
+			setPageNum = $( this ).data( 'page-num' );
+
+		if ( setTop < windowTop && setBottom > windowBottom ) { // top of set is above window, bottom is below
+			setsInView.push({'id': id, 'top': setTop, 'bottom': setBottom, 'pageNum': setPageNum });
+		}
+		else if( setTop > windowTop && setTop < windowBottom ) { // top of set is between top (gt) and bottom (lt)
+			setsInView.push({'id': id, 'top': setTop, 'bottom': setBottom, 'pageNum': setPageNum });
+		}
+		else if( setBottom > windowTop && setBottom < windowBottom ) { // bottom of set is between top (gt) and bottom (lt)
+			setsInView.push({'id': id, 'top': setTop, 'bottom': setBottom, 'pageNum': setPageNum });
+		}
+	} );
+
+	// Parse number of sets found in view in an attempt to update the URL to match the set that comprises the majority of the window.
+	if ( 0 == setsInView.length ) {
+		pageNum = -1;
+	}
+	else if ( 1 == setsInView.length ) {
+		var setData = setsInView.pop();
+
+		// If the first set of IS posts is in the same view as the posts loaded in the template by WordPress, determine how much of the view is comprised of IS-loaded posts
+		if ( ( ( windowBottom - setData.top ) / windowSize ) < 0.5 )
+			pageNum = -1;
+		else
+			pageNum = setData.pageNum;
+	}
+	else {
+		var majorityPercentageInView = 0;
+
+		// Identify the IS set that comprises the majority of the current window and set the URL to it.
+		$.each( setsInView, function( i, setData ) {
+			var topInView     = 0,
+				bottomInView  = 0,
+				percentOfView = 0;
+
+			// Figure percentage of view the current set represents
+			if ( setData.top > windowTop && setData.top < windowBottom )
+				topInView = ( windowBottom - setData.top ) / windowSize;
+
+			if ( setData.bottom > windowTop && setData.bottom < windowBottom )
+				bottomInView = ( setData.bottom - windowTop ) / windowSize;
+
+			// Figure out largest percentage of view for current set
+			if ( topInView >= bottomInView )
+				percentOfView = topInView;
+			else if ( bottomInView >= topInView )
+				percentOfView = bottomInView;
+
+			// Does current set's percentage of view supplant the largest previously-found set?
+			if ( percentOfView > majorityPercentageInView ) {
+				pageNum = setData.pageNum;
+				majorityPercentageInView = percentOfView;
+			}
+		} );
+	}
+
+	// If a page number could be determined, update the URL
+	// -1 indicates that the original requested URL should be used.
+	if ( 'number' == typeof pageNum ) {
+		if ( pageNum != -1 )
+			pageNum += ( 0 == self.offset ) ? 1 : self.offset;
+
+		self.updateURL( pageNum );
+	}
+}
+
+/**
+ * Update address bar to reflect archive page URL for a given page number.
+ * Checks if URL is different to prevent polution of browser history.
  */
 Scroller.prototype.updateURL = function( page ) {
 	var self = this,
@@ -379,105 +463,14 @@ $( document ).ready( function() {
 
 	// Initialize the scroller (with the ID of the element from the theme)
 	infiniteScroll.scroller = new Scroller( infiniteScroll.settings );
+});
 
-	//
-	if ( infiniteScroll.settings.wrapper ) {
-		$( '.' + infiniteScroll.settings.wrapper_class ).on( 'scrollin', function() {
-			alert( this.attr( 'class' ) );
-			console.log('something scrolled in' );
-		} );
-	}
+/**
+ * Monitor user scroll activity to update URL to correspond to archive page for current set of IS posts
+ */
+$( window ).bind( 'scroll', function() {
+	clearTimeout( timer );
+	timer = setTimeout( infiniteScroll.scroller.determineURL , 100 );
 });
 
 })(jQuery); // Close closure
-
-
-
-// URL updating during scrolling. Will be incorporated into the above methods once tested and refined.
-(function($) {
-	var timer;
-	$(window).bind('scroll',function () {
-		clearTimeout(timer);
-		timer = setTimeout( refresh , 150 );
-	});
-
-	//$(document.body).on( 'post-load', refresh );
-
-	var refresh = function () {
-		var windowTop = $(window).scrollTop(),
-			windowBottom = windowTop + $(window).height(),
-			windowSize = windowBottom - windowTop,
-			setsInView = [],
-			pageNum = false;
-
-		// Find out which sets are in view
-		$( '.' + window.infiniteScroll.settings.wrapper_class ).each( function() {
-			var id = $( this ).attr( 'id' ),
-				setTop = $( this ).offset().top,
-				setBottom = setTop + $( this ).height(),
-				setPageNum = $( this ).data( 'page-num' );
-
-			if ( setTop < windowTop && setBottom > windowBottom ) { // top of set is above window, bottom is below
-				setsInView.push({'id': id, 'top': setTop, 'bottom': setBottom, 'pageNum': setPageNum });
-			}
-			else if( setTop > windowTop && setTop < windowBottom ) { // top of set is between top (gt) and bottom (lt)
-				setsInView.push({'id': id, 'top': setTop, 'bottom': setBottom, 'pageNum': setPageNum });
-			}
-			else if( setBottom > windowTop && setBottom < windowBottom ) { // bottom of set is between top (gt) and bottom (lt)
-				setsInView.push({'id': id, 'top': setTop, 'bottom': setBottom, 'pageNum': setPageNum });
-			}
-		} );
-
-		// Parse number of sets found in view in an attempt to update the URL to match the set that comprises the majority of the window.
-		if ( 0 == setsInView.length ) {
-			pageNum = -1;
-		}
-		else if ( 1 == setsInView.length ) {
-			var setData = setsInView.pop();
-
-			// If the first set of IS posts is in the same view as the posts loaded in the template by WordPress, determine how much of the view is comprised of IS-loaded posts
-			if ( ( ( windowBottom - setData.top ) / windowSize ) < 0.5 )
-				pageNum = -1;
-			else
-				pageNum = setData.pageNum;
-		}
-		else {
-			var majorityPercentageInView = 0;
-
-			// Identify the IS set that comprises the majority of the current window and set the URL to it.
-			$.each( setsInView, function( i, setData ) {
-				var topInView = 0,
-					bottomInView = 0,
-					percentOfView = 0;
-
-				// Figure percentage of view the current set represents
-				if ( setData.top > windowTop && setData.top < windowBottom )
-					topInView = ( windowBottom - setData.top ) / windowSize;
-
-				if ( setData.bottom > windowTop && setData.bottom < windowBottom )
-					bottomInView = ( setData.bottom - windowTop ) / windowSize;
-
-				// Figure out largest percentage of view for current set
-				if ( topInView >= bottomInView )
-					percentOfView = topInView;
-				else if ( bottomInView >= topInView )
-					percentOfView = bottomInView;
-
-				// Does current set's percentage of view supplant the largest previously-found set?
-				if ( percentOfView > majorityPercentageInView ) {
-					pageNum = setData.pageNum;
-					majorityPercentageInView = percentOfView;
-				}
-			} );
-		}
-
-		// If a page number could be determined, update the URL
-		// -1 indicates that the original requested URL should be used.
-		if ( 'number' == typeof pageNum ) {
-			if ( pageNum != -1 )
-				pageNum += ( 0 == infiniteScroll.settings.offset ) ? 1 : infiniteScroll.settings.offset;
-
-			infiniteScroll.scroller.updateURL( pageNum );
-		}
-	};
-})(jQuery);
