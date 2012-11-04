@@ -11,7 +11,8 @@
 function twenty_ten_infinite_scroll_init() {
 	add_theme_support( 'infinite-scroll', array(
 		'container' => 'content',
-		'render'    => 'twenty_ten_infinite_scroll_render'
+		'render'    => 'twenty_ten_infinite_scroll_render',
+		'footer'    => 'wrapper',
 	) );
 }
 add_action( 'init', 'twenty_ten_infinite_scroll_init' );
