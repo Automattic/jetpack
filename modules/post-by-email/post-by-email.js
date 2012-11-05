@@ -11,7 +11,7 @@ jetpack_post_by_email = {
 		jQuery( '#jp-pbe-spinner' ).fadeIn();
 
 		var data = {
-				action: 'jetpack_post_by_email_enable'
+			action: 'jetpack_post_by_email_enable'
 		};
 
 		jQuery.post( ajaxurl, data, jetpack_post_by_email.handle_enabled );
@@ -22,8 +22,7 @@ jetpack_post_by_email = {
 		var error;
 		try {
 			error = JSON.parse( response );
-		}
-		catch ( e ) {
+		} catch ( e ) {
 			enabled = true;
 		}
 
@@ -36,11 +35,10 @@ jetpack_post_by_email = {
 				jQuery( '#jp-pbe-email' ).html( response );
 				jQuery( '#jp-pbe-info' ).fadeIn();
 			});
-		}
-		else {
+		} else {
 			jQuery( '#jp-pbe-error' ).html( error.message );
 			jQuery( '#jp-pbe-error' ).fadeIn();
-		jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
+			jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
 		}
 
 		jQuery( '#jp-pbe-spinner' ).fadeOut();
@@ -53,7 +51,7 @@ jetpack_post_by_email = {
 		jQuery( '#jp-pbe-spinner' ).fadeIn();
 
 		var data = {
-				action: 'jetpack_post_by_email_regenerate'
+			action: 'jetpack_post_by_email_regenerate'
 		};
 
 		jQuery.post( ajaxurl, data, jetpack_post_by_email.handle_regenerated );
@@ -64,8 +62,7 @@ jetpack_post_by_email = {
 		var error;
 		try {
 			error = JSON.parse( response );
-		}
-		catch ( e ) {
+		} catch ( e ) {
 			regenerated = true;
 		}
 
@@ -74,8 +71,7 @@ jetpack_post_by_email = {
 				jQuery( '#jp-pbe-email' ).html( response );
 				jQuery( '#jp-pbe-email-wrapper' ).fadeIn();
 			});
-		}
-		else {
+		} else {
 			jQuery( '#jp-pbe-error' ).html( error.message );
 			jQuery( '#jp-pbe-error' ).fadeIn();
 		}
@@ -92,7 +88,7 @@ jetpack_post_by_email = {
 		jQuery( '#jp-pbe-spinner' ).fadeIn();
 
 		var data = {
-				action: 'jetpack_post_by_email_disable'
+			action: 'jetpack_post_by_email_disable'
 		};
 
 		jQuery.post( ajaxurl, data, jetpack_post_by_email.handle_disabled );
@@ -103,13 +99,13 @@ jetpack_post_by_email = {
 		var error;
 		try {
 			error = JSON.parse( response );
-		}
-		catch ( e ) {
+		} catch ( e ) {
 			disabled = true;
 		}
 
-		if ( 'error' != error.response )
+		if ( 'error' != error.response ) {
 			disabled = true;
+		}
 
 		if ( disabled ) {
 			jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
@@ -118,8 +114,7 @@ jetpack_post_by_email = {
 				jQuery( '#jp-pbe-disable' ).removeAttr( 'disabled' );
 				jQuery( '#jp-pbe-enable' ).fadeIn();
 			});
-		}
-		else {
+		} else {
 			jQuery( '#jp-pbe-regenerate' ).removeAttr( 'disabled' );
 			jQuery( '#jp-pbe-disable' ).removeAttr( 'disabled' );
 
