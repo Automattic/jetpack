@@ -94,7 +94,11 @@ class Publicize extends Publicize_Base {
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );
 
 					$verification = Jetpack::create_nonce( 'publicize' );
-
+					
+					$stats_options = get_option( 'stats_options' );
+					$wpcom_blog_id = Jetpack::get_option('id');
+					$wpcom_blog_id = !empty( $wpcom_blog_id ) ? $wpcom_blog_id : $stats_options['blog_id'];
+					
 					$user = wp_get_current_user();
 					$redirect = $this->api_url( $service_name, urlencode_deep( array(
 						'action'       => 'request',
@@ -102,7 +106,7 @@ class Publicize extends Publicize_Base {
 						'for'          => 'publicize', // required flag that says this connection is intended for publicize
 						'siteurl'      => site_url(),
 						'state'        => $user->ID,
-						'blog_id'      => Jetpack::get_option('id'),
+						'blog_id'      => $wpcom_blog_id,
 						'secret_1'	   => $verification['secret_1'],
 						'secret_2'     => $verification['secret_2'],
 						'eol'		   => $verification['eol'],
