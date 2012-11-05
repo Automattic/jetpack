@@ -79,7 +79,7 @@ class Jetpack_Post_By_Email {
 	}
 
 	function user_profile() { ?>
-		<div id="post-by-email"></div>
+		<div id="post-by-email" style="position: relative; top: -28px"></div>
 		<table class="form-table">
 			<tr>
 				<th scope="row"><?php _e( 'Post By Email', 'jetpack' ); ?><span id="jp-pbe-spinner" class="spinner"></span></th>
