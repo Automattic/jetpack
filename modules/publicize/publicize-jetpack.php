@@ -89,6 +89,10 @@ class Publicize extends Publicize_Base {
 				$service_name = $_GET['service'];
 
 			switch ( $_GET['action'] ) {
+				case 'error':
+					add_action( 'admin_notices', array( $this, 'display_connection_error' ) );
+				break;
+				
 				case 'request':
 					check_admin_referer( 'keyring-request', 'kr_nonce' );
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );
@@ -144,6 +148,18 @@ class Publicize extends Publicize_Base {
 				break;
 			}
 		}
+	}
+	
+	function display_connection_error() {
+		if ( isset( $_GET['service'] ) ) {
+			$service_name = $_GET['service'];
+			$m = sprintf ( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack' ), Publicize::get_service_label( $service_name ) );
+		} else {
+			$m = __( 'There was a problem connecting with Publicize. Please try again in a moment.', 'jetpack' );
+		}
+		echo "<div class='error'>\n";
+		echo "<p>{$m}</p>\n";
+		echo "</div>\n\n";
 	}
 
 	function globalization() {
