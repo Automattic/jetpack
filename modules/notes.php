@@ -72,18 +72,24 @@ class Jetpack_Notifications {
 	function action_init() {
 		if ( !has_filter( 'show_admin_bar', '__return_true' ) && !is_user_logged_in() )
 			return;
+		add_action( 'admin_bar_menu', array( &$this, 'admin_bar_menu'), 120 );
+		add_action( 'wp_head', array( &$this, 'styles_and_scripts') );
+		add_action( 'admin_head', array( &$this, 'styles_and_scripts') );
+	}
+
+	function styles_and_scripts() {
 		wp_enqueue_style( 'notes-admin-bar-rest', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-rest.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 		wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+
+		$this->print_js();
 		wp_enqueue_script( 'spin', $this->wpcom_static_url( '/wp-includes/js/spin.js' ), array( 'jquery' ), JETPACK_NOTES__CACHE_BUSTER );
 		wp_enqueue_script( 'jquery.spin', $this->wpcom_static_url( '/wp-includes/js/jquery/jquery.spin.js' ), array( 'jquery', 'spin' ), JETPACK_NOTES__CACHE_BUSTER );
-		wp_enqueue_script( 'notes-postmessage', $this->wpcom_static_url( '/wp-content/js/postmessage.js' ), array(), JETPACK_NOTES__CACHE_BUSTER, true );
-		wp_enqueue_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER, true );
-		wp_enqueue_script( 'underscore', $this->wpcom_static_url( '/wp-content/js/underscore.js' ), null, JETPACK_NOTES__CACHE_BUSTER, true );
-		wp_enqueue_script( 'backbone', $this->wpcom_static_url( '/wp-content/js/backbone.js' ), array( 'jquery', 'underscore' ), JETPACK_NOTES__CACHE_BUSTER, true );
-		wp_enqueue_script( 'notes-rest-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-rest-common.js' ), array( 'backbone', 'mustache' ), JETPACK_NOTES__CACHE_BUSTER, true );
-		wp_enqueue_script( 'notes-admin-bar-rest', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-rest.js' ), array( 'jquery', 'underscore', 'backbone' ), JETPACK_NOTES__CACHE_BUSTER, true );
-		add_action( 'admin_bar_menu', array( &$this, 'admin_bar_menu'), 120 );
-		add_action( 'wp_print_scripts', array( &$this, 'print_js'), 0 );
+		wp_enqueue_script( 'notes-postmessage', $this->wpcom_static_url( '/wp-content/js/postmessage.js' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+		wp_enqueue_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
+		wp_enqueue_script( 'underscore', $this->wpcom_static_url( '/wp-content/js/underscore.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
+		wp_enqueue_script( 'backbone', $this->wpcom_static_url( '/wp-content/js/backbone.js' ), array( 'jquery', 'underscore' ), JETPACK_NOTES__CACHE_BUSTER );
+		wp_enqueue_script( 'notes-rest-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-rest-common.js' ), array( 'backbone', 'mustache' ), JETPACK_NOTES__CACHE_BUSTER );
+		wp_enqueue_script( 'notes-admin-bar-rest', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-rest.js' ), array( 'jquery', 'underscore', 'backbone' ), JETPACK_NOTES__CACHE_BUSTER );
 	}
 
 	function admin_bar_menu() {
