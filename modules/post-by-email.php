@@ -98,11 +98,11 @@ class Jetpack_Post_By_Email {
 						$info_hidden = '';
 					} ?>
 			
-					<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" value="<? _e( 'Enable Post By Email', 'jetpack' ); ?> "<?php echo $enable_hidden; ?> />
+					<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" value="<?php _e( 'Enable Post By Email', 'jetpack' ); ?> "<?php echo $enable_hidden; ?> />
 					<div id="jp-pbe-info"<?php echo $info_hidden; ?>>
 						<span id="jp-pbe-email-wrapper"><strong><?php _e( 'Email Address:', 'jetpack' ); ?></strong> <span id="jp-pbe-email"><?php echo $email; ?></span></span><br/>
-						<input type="button" name="jp-pbe-regenerate" id="jp-pbe-regenerate" value="<? _e( 'Regenerate Address', 'jetpack' ); ?> " />
-						<input type="button" name="jp-pbe-disable" id="jp-pbe-disable" value="<? _e( 'Disable Post By Email', 'jetpack' ); ?> " />
+						<input type="button" name="jp-pbe-regenerate" id="jp-pbe-regenerate" value="<?php _e( 'Regenerate Address', 'jetpack' ); ?> " />
+						<input type="button" name="jp-pbe-disable" id="jp-pbe-disable" value="<?php _e( 'Disable Post By Email', 'jetpack' ); ?> " />
 					</div> <?php
 				} else {
 					$jetpack = Jetpack::init(); ?>
