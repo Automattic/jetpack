@@ -550,7 +550,7 @@ p.jp-help {
 		border-bottom-left-radius: 3px;
 		background-repeat: no-repeat;
 		background-image: url( images/module-icons-sprite.png );
-		background-size: 2300px 50px; /* remember to update this every time a new module is added! */
+		background-size: 2500px 50px; /* remember to update this every time a new module is added! */
 	}
 
 
@@ -624,10 +624,10 @@ p.jp-help {
 			background-position: -2025px 5px;
 		}
 		#infinite-scroll.jetpack-module div.module-image {
-			background-position: -2300px 5px;
+			background-position: -2230px 5px;
 		}
 		#photon.jetpack-module div.module-image {
-			background-position: -2300px 5px;
+			background-position: -2320px 5px;
 		}
 
 		.jetpack-module div.module-image p {
