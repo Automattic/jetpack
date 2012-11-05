@@ -156,7 +156,7 @@ abstract class Publicize_Base {
 			return true;
 
 		// otherwise, just show if this is the completed step / first load
-		if ( 'completed' == $_GET['action'] && !empty( $_GET['service'] ) && $service_name == $_GET['service'] && ! in_array( $_GET['service'], array( 'facebook', 'tumblr' ) ) )
+		if ( !empty( $_GET['action'] ) && 'completed' == $_GET['action'] && !empty( $_GET['service'] ) && $service_name == $_GET['service'] && ! in_array( $_GET['service'], array( 'facebook', 'tumblr' ) ) )
 			return true;
 
 		return false;
