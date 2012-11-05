@@ -110,7 +110,7 @@ class Jetpack_Post_By_Email {
 						<?php _e( "To use Post By Email you&#8217;ll need to link your account here to your WordPress.com account.", 'jetpack' ); ?> <br />
 						<?php _e( "If you don't have one yet you can sign up for free, in just a few seconds.", 'jetpack' ) ?>
 						<br /><br />
-						<a href="<?php echo $jetpack->build_connect_url(); ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a> 
+						<a href="<?php echo $jetpack->build_connect_url( false, admin_url( 'profile.php#post-by-email' ) ); ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a> 
 						
 					</p></div>
 					<?php

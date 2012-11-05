@@ -2137,7 +2137,7 @@ p {
 		return $role . ':' . hash_hmac( 'md5', "{$role}|{$user_id}", $token->secret );
 	}
 
-	function build_connect_url( $raw = false ) {
+	function build_connect_url( $raw = false, $redirect = false ) {
 		if ( !Jetpack::get_option( 'blog_token' ) ) {
 			$url = wp_nonce_url( add_query_arg( 'action', 'register', menu_page_url( 'jetpack', false ) ), 'jetpack-register' );
 		} else {
@@ -2146,12 +2146,15 @@ p {
 
 			$user = wp_get_current_user();
 
+			$redirect = $redirect ? esc_url_raw( $redirect ) : '';
+
 			$args = urlencode_deep( array(
 				'response_type' => 'code',
 				'client_id' => Jetpack::get_option( 'id' ),
 				'redirect_uri' => add_query_arg( array(
 					'action' => 'authorize',
-					'_wpnonce' => wp_create_nonce( "jetpack-authorize_$role" ),
+					'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
+					'redirect' => $redirect ? urlencode( $redirect ) : false,
 				), menu_page_url( 'jetpack', false ) ),
 				'state' => $user->ID,
 				'scope' => $signed_role,
@@ -3476,6 +3479,8 @@ class Jetpack_Client_Server {
 
 		$args = array();
 
+		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
+
 		do {
 			$jetpack = Jetpack::init();
 			$role = $jetpack->translate_current_user_to_role();
@@ -3490,7 +3495,7 @@ class Jetpack_Client_Server {
 				break;
 			}
 
-			check_admin_referer( "jetpack-authorize_$role" );
+			check_admin_referer( "jetpack-authorize_{$role}_{$redirect}" );
 
 			if ( !empty( $data['error'] ) ) {
 				Jetpack::state( 'error', $data['error'] );
@@ -3564,7 +3569,12 @@ class Jetpack_Client_Server {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		} while ( false );
 
-		wp_safe_redirect( Jetpack::admin_url() );
+		if ( wp_validate_redirect( $redirect ) ) {
+			wp_safe_redirect( $redirect );
+		} else {
+			wp_safe_redirect( Jetpack::admin_url() );
+		}
+
 		exit;
 	}
 
@@ -3603,6 +3613,8 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'client_secret', __( 'You need to register your Jetpack before connecting it.', 'jetpack' ) );
 		}
 
+		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
+
 		$body = array(
 			'client_id' => Jetpack::get_option( 'id' ),
 			'client_secret' => $client_secret->secret,
@@ -3610,7 +3622,8 @@ class Jetpack_Client_Server {
 			'code' => $data['code'],
 			'redirect_uri' => add_query_arg( array(
 				'action' => 'authorize',
-				'_wpnonce' => wp_create_nonce( "jetpack-authorize_$role" ),
+				'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
+				'redirect' => $redirect ? urlencode( $redirect ) : false,
 			), menu_page_url( 'jetpack', false ) ),
 		);
 
