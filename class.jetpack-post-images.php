@@ -156,7 +156,7 @@ class Jetpack_PostImages {
 		if ( !$post_images )
 			return false;
 
-		$permalink = get_permalink( $post->ID );
+		$permalink = get_permalink( $post_id );
 
 		$images = array();
 
