@@ -164,7 +164,7 @@ abstract class Sharing_Source {
 		?>
 		<script type="text/javascript" charset="utf-8">
 		jQuery(document).ready(function(){
-			jQuery( '.share-<?php echo $name; ?>' ).click(function(){
+			jQuery( 'a.share-<?php echo $name; ?>' ).click(function(){
 				window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
 				return false;
 			});
