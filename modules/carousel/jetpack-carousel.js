@@ -854,7 +854,7 @@ jQuery(document).ready(function($) {
 
 		shutterSpeed: function(d) {
 			if (d >= 1)
-				Math.round(d) + 's';
+				return Math.round(d) + 's';
 			var df = 1, top = 1, bot = 1;
 			var limit = 1e5; //Increase for greater precision.
 			while (df != d && limit-- > 0) {
