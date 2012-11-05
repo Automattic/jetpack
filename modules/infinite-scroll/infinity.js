@@ -363,9 +363,21 @@ Scroller.prototype.determineURL = function () {
 	$( '.' + self.wrapperClass ).each( function() {
 		var id         = $( this ).attr( 'id' ),
 			setTop     = $( this ).offset().top,
-			setBottom  = setTop + $( this ).height(),
+			setHeight  = $( this ).outerHeight(),
+			setBottom  = 0,
 			setPageNum = $( this ).data( 'page-num' );
 
+		// Account for containers that have no height because their children are floated elements.
+		if ( 0 == setHeight ) {
+			$( '> *', this ).each( function() {
+				setHeight += $( this ).outerHeight();
+			} );
+		}
+
+		// Determine position of bottom of set by adding its height to the scroll position of its top.
+		setBottom = setTop + setHeight;
+
+		// Populate setsInView object. While this logic could all be combined into a single conditional statement, this is easier to understand.
 		if ( setTop < windowTop && setBottom > windowBottom ) { // top of set is above window, bottom is below
 			setsInView.push({'id': id, 'top': setTop, 'bottom': setBottom, 'pageNum': setPageNum });
 		}
