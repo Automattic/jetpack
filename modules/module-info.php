@@ -680,7 +680,7 @@ function jetpack_post_by_email_more_info() { ?>
 
 <?php endif; ?>
 
-	<p>&rarr; <a href="http://jetpack.me/support/post-by-email"><?php esc_html_e( 'More information on sending emails, attachments, and customizing your posts.', 'jetpack' ); ?></a></p>
+	<p>&rarr; <a href="http://jetpack.me/support/post-by-email/"><?php esc_html_e( 'More information on sending emails, attachments, and customizing your posts.', 'jetpack' ); ?></a></p>
 
 <?php
 }
