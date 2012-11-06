@@ -686,7 +686,7 @@ function jetpack_post_by_email_more_info() { ?>
 }
 
 function jetpack_post_by_email_more_link() {
-	echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/post-by-email/">' . __( 'Learn More', 'jetpack' ) . '</a>';
 }
 
 add_action( 'jetpack_module_more_info_post-by-email', 'jetpack_post_by_email_more_info' );
