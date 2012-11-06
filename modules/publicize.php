@@ -32,6 +32,7 @@ class Jetpack_Publicize {
 
 		require_once dirname( __FILE__ ) . '/publicize/ui.php';
 		$publicize_ui = new Publicize_UI();
+		$publicize_ui->in_jetpack = $this->in_jetpack;
 
 		// if sharedaddy isn't active, the sharing menu hasn't been added yet
 		if ( $this->in_jetpack ) {

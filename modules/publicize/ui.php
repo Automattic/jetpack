@@ -91,6 +91,15 @@ class Publicize_UI {
 	  			<?php esc_html_e( 'Connect your blog to popular social networking sites and automatically share new posts with your friends.', 'jetpack' ) ?>
 	  			<?php esc_html_e( 'You can make a connection for just yourself or for all users on your blog. Shared connections are marked with the (Shared) text.', 'jetpack' ); ?>
 	  		</p>
+	  		
+  			<?php
+  			if ( $this->in_jetpack )
+  				$doc_link = "http://jetpack.me/support/publicize/";
+  			else
+  				$doc_link = "http://en.support.wordpress.com/publicize/";
+  			?>
+	  		
+	  		<p>&rarr; <a href="<?php echo esc_url( $doc_link ); ?>"><?php esc_html_e( 'More information on using Publicize.', 'jetpack' ); ?></a></p>
 
 	  		<div id="publicize-services-block">
 		  		<?php
