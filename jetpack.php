@@ -226,6 +226,7 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
 
+		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -242,6 +243,21 @@ class Jetpack {
 			// Allow Jetpack authentication
 			add_filter( 'authenticate', array( $this, 'authenticate_jetpack' ), 10, 3 );
 		}
+	}
+
+	/**
+	 * Register assets for use in various modules and the Jetpack admin page.
+	 *
+	 * @uses wp_script_is, wp_register_script, plugins_url
+	 * @action wp_loaded
+	 * @return null
+	 */
+	public function register_assets() {
+		if ( ! wp_script_is( 'spin', 'registered' ) )
+			wp_register_script( 'spin', plugins_url( '_inc/spin.js', __FILE__ ), false, '1.2.4' );
+
+		if ( ! wp_script_is( 'jquery.spin', 'registered' ) )
+			wp_register_script( 'jquery.spin', plugins_url( '_inc/jquery.spin.js', __FILE__ ) , array( 'jquery', 'spin' ) );
 	}
 
 	/**

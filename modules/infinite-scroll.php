@@ -31,22 +31,6 @@ function infinite_scroll_configuration_load() {
 }
 
 /**
- * Register spinner scripts included in Carousel module.
- *
- * @uses wp_script_is, wp_register_script, plugins_url
- * @action wp_enqueue_scripts
- * @return null
- */
-function infinite_scroll_register_spin_scripts() {
-	if ( ! wp_script_is( 'spin', 'registered' ) )
-		wp_register_script( 'spin', plugins_url( 'carousel/spin.js', __FILE__ ), false, '1.2.4' );
-
-	if ( ! wp_script_is( 'jquery.spin', 'registered' ) )
-		wp_register_script( 'jquery.spin', plugins_url( 'carousel/jquery.spin.js', __FILE__ ) , array( 'jquery', 'spin' ) );
-}
-add_action( 'wp_enqueue_scripts', 'infinite_scroll_register_spin_scripts', 5 );
-
-/**
  * Provide WP Stats info for tracking Infinite Scroll loads
  *
  * @uses Jetpack::get_active_modules, is_user_logged_in, stats_get_options, Jetpack::get_option, get_option, JETPACK__API_VERSION, JETPACK__VERSION
