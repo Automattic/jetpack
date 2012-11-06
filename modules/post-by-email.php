@@ -45,7 +45,7 @@ class Jetpack_Post_By_Email {
 	}
 
 	function configuration_redirect() {
-		wp_safe_redirect( admin_url( 'profile.php#post-by-email' ) );
+		wp_safe_redirect( get_edit_profile_url( get_current_user_id() ) . '#post-by-email' );
 		exit;
 	}
 
@@ -126,7 +126,7 @@ class Jetpack_Post_By_Email {
 						<?php echo esc_html( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack' ) ) ); ?>
 					</p>
 					<p>
-						<a href="<?php echo $jetpack->build_connect_url( false, admin_url( 'profile.php#post-by-email' ) ); ?>" class="button button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
+						<a href="<?php echo $jetpack->build_connect_url( false, get_edit_profile_url( get_current_user_id() ) . '#post-by-email' ); ?>" class="button button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
 					</p>
 					<?php
 				} ?>
