@@ -219,13 +219,22 @@ function publicize_more_info() { ?>
 	<h4><?php esc_html_e( 'Publicize' , 'jetpack' ); ?></h4>
 	<p><?php esc_html_e( 'Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.	 You can make a connection for just yourself or for all users on your blog.', 'jetpack' ) ?></p>
 	<p><?php esc_html_e( 'Publicize allows you to share your posts on Facebook, Twitter, Tumblr, Yahoo!, and Linkedin.', 'jetpack' ); ?></p>
+
+<?php	if ( 'jetpack_module_more_info_connected_publicize' == current_filter() ) : ?>
+
+	<p><?php printf( __( 'Manage your <a href="%s">Publicize settings</a>.', 'jetpack' ), menu_page_url( 'sharing', false ) ); ?>
+
+<?php	endif; ?>
+
+	<p>&rarr; <a href="http://jetpack.me/support/publicize/"><?php esc_html_e( 'More information on using Publicize.', 'jetpack' ); ?></a></p>
 <?php
 }
-add_action( 'jetpack_module_more_info_publicize', 'publicize_more_info' );
 
+add_action( 'jetpack_module_more_info_publicize', 'publicize_more_info' );
+add_action( 'jetpack_module_more_info_connected_publicize', 'publicize_more_info' );
 
 function publicize_load_more_link( $description ) {
-	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/publicize/">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/publicize/">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
 }
 add_filter( 'jetpack_learn_more_button_publicize', 'publicize_load_more_link' );
 
