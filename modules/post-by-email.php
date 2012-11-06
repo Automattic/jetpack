@@ -23,7 +23,7 @@ add_action( 'jetpack_deactivate_module_post-by-email', array( 'Jetpack_Post_By_E
 
 Jetpack::enable_module_configurable( __FILE__ );
 Jetpack::module_configuration_load( __FILE__, array( 'Jetpack_Post_By_Email', 'configuration_redirect' ) );
-		        
+
 class Jetpack_Post_By_Email {
 	function &init() {
 		static $instance = NULL;
@@ -43,7 +43,7 @@ class Jetpack_Post_By_Email {
 		$jetpack = Jetpack::init();
 		$jetpack->sync->register( 'noop' );
 	}
-	
+
 	function configuration_redirect() {
 		wp_safe_redirect( admin_url( 'profile.php#post-by-email' ) );
 		exit;
@@ -92,10 +92,10 @@ class Jetpack_Post_By_Email {
 				<th scope="row"><?php esc_html_e( 'Email Address', 'jetpack' ); ?><span id="jp-pbe-spinner" class="spinner"></span></th>
 				<td>
 				<div id="jp-pbe-error" class="jetpack-inline-error"></div> <?php
-		
+
 				if ( $this->check_user_connection() ) {
 					$email = $this->get_post_by_email_address();
-		
+
 					if ( empty( $email ) ) {
 						$enable_hidden = '';
 						$info_hidden = ' style="display: none;"';
@@ -103,7 +103,7 @@ class Jetpack_Post_By_Email {
 						$enable_hidden = ' style="display: none;"';
 						$info_hidden = '';
 					} ?>
-			
+
 					<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" class="button" value="<?php esc_attr_e( 'Enable Post By Email', 'jetpack' ); ?> "<?php echo $enable_hidden; ?> />
 					<div id="jp-pbe-info"<?php echo $info_hidden; ?>>
 						<p id="jp-pbe-email-wrapper">
@@ -116,7 +116,7 @@ class Jetpack_Post_By_Email {
 					</div> <?php
 				} else {
 					$jetpack = Jetpack::init(); ?>
-		
+
 					<p class="jetpack-inline-message">
 						<?php printf(
 							esc_html( wptexturize( __( 'To use Post By Email, you need to link your %s account to your WordPress.com account.', 'jetpack' ) ) ),
@@ -162,8 +162,8 @@ class Jetpack_Post_By_Email {
 
 		if ( $xml->isError() ) {
 			echo json_encode( array(
-						'response' => 'error',
-						'message' => __( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
+				'response' => 'error',
+				'message' => __( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
 			) );
 			die();
 		}
@@ -171,8 +171,8 @@ class Jetpack_Post_By_Email {
 		$response = $xml->getResponse();
 		if ( empty( $response ) ) {
 			echo json_encode( array(
-						'response' => 'error',
-						'message' => __( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
+				'response' => 'error',
+				'message' => __( 'Unable to create your Post By Email address. Please try again later.', 'jetpack' )
 			) );
 			die();
 		}
@@ -190,8 +190,8 @@ class Jetpack_Post_By_Email {
 
 		if ( $xml->isError() ) {
 			echo json_encode( array(
-						'response' => 'error',
-						'message' => __( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
+				'response' => 'error',
+				'message' => __( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
 			) );
 			die();
 		}
@@ -199,8 +199,8 @@ class Jetpack_Post_By_Email {
 		$response = $xml->getResponse();
 		if ( empty( $response ) ) {
 			echo json_encode( array(
-						'response' => 'error',
-						'message' => __( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
+				'response' => 'error',
+				'message' => __( 'Unable to regenerate your Post By Email address. Please try again later.', 'jetpack' )
 			) );
 			die();
 		}
@@ -218,8 +218,8 @@ class Jetpack_Post_By_Email {
 
 		if ( $xml->isError() ) {
 			echo json_encode( array(
-						'response' => 'error',
-						'message' => __( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
+				'response' => 'error',
+				'message' => __( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
 			) );
 			die();
 		}
@@ -227,8 +227,8 @@ class Jetpack_Post_By_Email {
 		$response = $xml->getResponse();
 		if ( empty( $response ) ) {
 			echo json_encode( array(
-						'response' => 'error',
-						'message' => __( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
+				'response' => 'error',
+				'message' => __( 'Unable to disable your Post By Email address. Please try again later.', 'jetpack' )
 			) );
 			die();
 		}
