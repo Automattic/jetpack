@@ -36,7 +36,7 @@ jetpack_post_by_email = {
 				jQuery( '#jp-pbe-info' ).fadeIn();
 			});
 		} else {
-			jQuery( '#jp-pbe-error' ).html( error.message );
+			jQuery( '#jp-pbe-error' ).text( error.message );
 			jQuery( '#jp-pbe-error' ).fadeIn();
 			jQuery( '#jp-pbe-enable' ).removeAttr( 'disabled' );
 		}
@@ -72,7 +72,7 @@ jetpack_post_by_email = {
 				jQuery( '#jp-pbe-email-wrapper' ).fadeIn();
 			});
 		} else {
-			jQuery( '#jp-pbe-error' ).html( error.message );
+			jQuery( '#jp-pbe-error' ).text( error.message );
 			jQuery( '#jp-pbe-error' ).fadeIn();
 		}
 
@@ -118,7 +118,7 @@ jetpack_post_by_email = {
 			jQuery( '#jp-pbe-regenerate' ).removeAttr( 'disabled' );
 			jQuery( '#jp-pbe-disable' ).removeAttr( 'disabled' );
 
-			jQuery( '#jp-pbe-error' ).html( error.message );
+			jQuery( '#jp-pbe-error' ).text( error.message );
 			jQuery( '#jp-pbe-error' ).fadeIn();
 		}
 
