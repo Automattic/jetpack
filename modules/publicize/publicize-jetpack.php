@@ -41,16 +41,25 @@ class Publicize extends Publicize_Base {
 
 	function admin_page_warning() {
 		$jetpack = Jetpack::init();
+		$blog_name = get_bloginfo( 'blogname' );
+		if ( empty( $blog_name ) ) {
+			$blog_name = home_url( '/' );
+		}
+
 		?>
 				<div id="message" class="updated jetpack-message jp-connect">
 					<div class="jetpack-wrap-container">
 						<div class="jetpack-text-container">
 							<h4>
-								<p><?php _e( "To use Publicize you&#8217;ll need to link your account here to your WordPress.com account using the button to the right. If you don't have one yet you can sign up for free, in just a few seconds.", 'jetpack' ) ?></p>
+							<p><?php printf(
+								esc_html( wptexturize( __( "To use Publicize, you'll need to link your %s account to your WordPress.com account using the button to the right.", 'jetpack' ) ) ),
+								'<strong>' . esc_html( $blog_name ) . '</strong>'
+							); ?></p>
+							<p><?php echo esc_html( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack' ) ) ); ?></p>
 							</h4>
 						</div>
 						<div class="jetpack-install-container">
-							<p class="submit"><a href="<?php echo $jetpack->build_connect_url(); ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
+							<p class="submit"><a href="<?php echo $jetpack->build_connect_url(); ?>" class="button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
 						</div>
 					</div>
 				</div>
@@ -153,12 +162,12 @@ class Publicize extends Publicize_Base {
 	function display_connection_error() {
 		if ( isset( $_GET['service'] ) ) {
 			$service_name = $_GET['service'];
-			$m = sprintf ( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack' ), Publicize::get_service_label( $service_name ) );
+			$m = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack' ), Publicize::get_service_label( $service_name ) );
 		} else {
 			$m = __( 'There was a problem connecting with Publicize. Please try again in a moment.', 'jetpack' );
 		}
 		echo "<div class='error'>\n";
-		echo "<p>{$m}</p>\n";
+		echo '<p>' . esc_html( $m ) . "</p>\n";
 		echo "</div>\n\n";
 	}
 
@@ -300,7 +309,10 @@ class Publicize extends Publicize_Base {
 				echo $update_notice;
 			?>
 
-			<p><?php _e( 'Publicize to my <strong>Facebook Wall</strong>:' ) ?></p>
+			<p><?php printf(
+				esc_html__( 'Publicize to my %s:', 'jetpack' ),
+				'<strong>' . esc_html__( 'Facebook Wall' ) . '</strong>'
+			); ?></p>
 			<table id="option-profile">
 				<tbody>
 					<tr>
@@ -313,7 +325,10 @@ class Publicize extends Publicize_Base {
 
 			<?php if ( $pages ) : ?>
 
-				<p><?php _e( 'Publicize to my <strong>Facebook Page</strong>:' ) ?></p>
+				<p><?php printf(
+					esc_html__( 'Publicize to my %s:', 'jetpack' ),
+					'<strong>' . esc_html__( 'Facebook Page' ) . '</strong>'
+				); ?></p>
 				<table id="option-fb-fanpage">
 					<tbody>
 
@@ -434,7 +449,10 @@ class Publicize extends Publicize_Base {
 				echo $update_notice;
 			?>
 
-			<p><?php _e( 'Publicize to my <strong>Tumblr blog</strong>:' ) ?></p>
+			<p><?php printf(
+				esc_html__( 'Publicize to my %s:', 'jetpack' ),
+				'<strong>' . esc_html__( 'Tumblr blog' ) . '</strong>'
+			); ?></p>
 
 			<ul id="option-tumblr-blog">
 
