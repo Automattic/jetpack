@@ -1030,7 +1030,7 @@ p#news-sub {
 }
 
 .jetpack-inline-error, .jetpack-inline-message {
-	padding: 1em 1em .5em 1em;
+	padding: .5em 1em .5em 1em;
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
@@ -1047,4 +1047,17 @@ p#news-sub {
 .jetpack-inline-message {
 	background-color: #ffffe0;
 	border-color: #e6db55;
+}
+
+.jetpack-targetable {
+	border-top: 28px solid transparent;
+	margin-top: -28px;
+}
+
+.jetpack-targetable:target {
+	background-color: #ffffe0;
+	background-clip: padding-box;
+	padding: 0 10px;
+	margin-left: -10px;
+	margin-right: -10px;
 }

@@ -79,7 +79,7 @@ class Jetpack_Post_By_Email {
 	}
 
 	function user_profile() { ?>
-		<div id="post-by-email" style="position: relative; top: -28px"></div>
+		<div id="post-by-email" class="jetpack-targetable">
 		<h3><?php esc_html_e( 'Post by Email', 'jetpack' ); ?></h3>
 		<table class="form-table">
 			<tr>
@@ -111,18 +111,20 @@ class Jetpack_Post_By_Email {
 				} else {
 					$jetpack = Jetpack::init(); ?>
 		
-					<div class="jetpack-inline-message"><p>
-						<?php _e( "To use Post By Email you&#8217;ll need to link your account here to your WordPress.com account.", 'jetpack' ); ?> <br />
+					<p class="jetpack-inline-message">
+						<?php _e( "To use Post By Email you&#8217;ll need to link your account here to your WordPress.com account.", 'jetpack' ); ?><br />
 						<?php _e( "If you don't have one yet you can sign up for free, in just a few seconds.", 'jetpack' ) ?>
-						<br /><br />
-						<a href="<?php echo $jetpack->build_connect_url( false, admin_url( 'profile.php#post-by-email' ) ); ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a> 
-						
-					</p></div>
+					</p>
+					<p>
+						<a href="<?php echo $jetpack->build_connect_url( false, admin_url( 'profile.php#post-by-email' ) ); ?>" class="button button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
+					</p>
 					<?php
 				} ?>
 				</td>
 			</tr>
-		</table> <?php
+		</table>
+		</div>
+	<?php
 	}
 
 	function get_post_by_email_address() {
