@@ -422,22 +422,13 @@ class The_Neverending_Home_Page {
 	 * Returns the Ajax url
 	 */
 	function ajax_url() {
-		global $current_blog, $wp;
+		global $wp;
 
 		$base_url = home_url( trailingslashit( $wp->request ), is_ssl() ? 'https' : 'http' );
 
 		$ajaxurl = add_query_arg( array( 'infinity' => 'scrolling' ), $base_url );
 
-		// If present, take domain mapping into account
-		// But make sure the url is not a WP.com one
-		if ( isset( $current_blog->primary_redirect ) ) {
-			$wpcom_url = preg_match('/\bwordpress.com/i', $current_blog->primary_redirect );
-
-			if ( ! $wpcom_url )
-				$ajaxurl = preg_replace( '|https?://' . preg_quote( $current_blog->domain ) . '|', 'http://' . $current_blog->primary_redirect, $ajaxurl );
-		}
-
-		return $ajaxurl;
+		return apply_filters( 'infinite_scroll_ajax_url', $ajaxurl );
 	}
 
 	/**
