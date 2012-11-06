@@ -67,7 +67,7 @@ class Publicize extends Publicize_Base {
 	}
 
 	// @todo only load current users conncetions and _user_id = 0
-	function get_connections( $service_name, $_blog_id, $_user_id ) {
+	function get_connections( $service_name, $_blog_id = false, $_user_id = false ) {
 		$connections = Jetpack::get_option( 'publicize_connections' );
 		$connections_to_return = array();
 		if ( !empty( $connections ) && is_array( $connections ) ) {
@@ -245,7 +245,7 @@ class Publicize extends Publicize_Base {
 			return $services;
 		} else {
 			foreach ( $services as $service => $empty ) {
-				$connections = $this->get_connections( $service, false, false );
+				$connections = $this->get_connections( $service );
 				if ( $connections )
 					$connected_services[$service] = $connections;
 			}
@@ -253,7 +253,7 @@ class Publicize extends Publicize_Base {
 		}
 	}
 
-	function get_connection( $service, $id, $_blog_id, $_user_id ) {
+	function get_connection( $service, $id, $_blog_id = false, $_user_id = false ) {
 		// @todo implement
 	}
 
