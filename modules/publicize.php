@@ -3,7 +3,7 @@
  * Module Name: Publicize
  * Module Description: Connect your site to popular social networks and automatically share new posts with your friends.
  * Sort Order: 1
- * First Introduced: 1.9
+ * First Introduced: 2.0
  */
 
 class Jetpack_Publicize {
