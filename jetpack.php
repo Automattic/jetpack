@@ -321,7 +321,7 @@ class Jetpack {
 			}
 		}
 	}
-	
+
 	/**
 	 * Loads the currently active modules.
 	 */
@@ -423,7 +423,7 @@ class Jetpack {
 
 		return $default;
 	}
-	
+
 	/**
 	* Stores two secrets and a timestamp so WordPress.com can make a request back and verify an action
 	* Does some extra verification so urls (such as those to public-api, register, etc) cant just be crafted
@@ -431,12 +431,12 @@ class Jetpack {
 	*/
 	function create_nonce( $name ) {
 		$secret = wp_generate_password( 32, false ) . ':' . wp_generate_password( 32, false ) . ':' . ( time() + 600 );
-		
+
 		Jetpack::update_option( $name, $secret );
 		@list( $secret_1, $secret_2, $eol ) = explode( ':', Jetpack::get_option( $name ) );
 		if ( empty( $secret_1 ) || empty( $secret_2 ) || $eol < time() )
 			return new Jetpack_Error( 'missing_secrets' );
-			
+
 		return array(
 			'secret_1' => $secret_1,
 			'secret_2' => $secret_2,
@@ -1177,7 +1177,7 @@ p {
 
 			// Kick off synchronization of user role when it changes
 			add_action( 'set_user_role', array( $this, 'user_role_change' ) );
-			
+
 			// Add retina images hotfix to admin
 			global $wp_db_version;
 			if ( $wp_db_version > 19470  ) {
@@ -1665,7 +1665,7 @@ p {
 			// Should only be used in intermediate redirects to preserve state across redirects
 			Jetpack::restate();
 		}
-		
+
 		if ( isset( $_GET['connect_url_redirect'] ) ) {
 			// User clicked in the iframe to link their accounts
 			if ( ! Jetpack::is_user_connected() ) {
@@ -3802,7 +3802,7 @@ class Jetpack_Sync {
 
 		return true;
 	}
-	
+
 	function get_common_sync_data() {
 		$available_modules = Jetpack::get_available_modules();
 		$active_modules = Jetpack::get_active_modules();
@@ -3894,10 +3894,10 @@ class Jetpack_Sync {
 
 		Jetpack::xmlrpc_async_call( 'jetpack.syncContent', $sync_data );
 	}
-	
+
 	/**
 	 * Format and return content data from a direct xmlrpc request for it.
-	 * 
+	 *
 	 * @param array $content_ids: array( 'posts' => array of ids, 'comments' => array of ids, 'options' => array of options )
 	 */
 	function get_content( $content_ids ) {
