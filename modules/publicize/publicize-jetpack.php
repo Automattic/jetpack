@@ -59,7 +59,7 @@ class Publicize extends Publicize_Base {
 							</h4>
 						</div>
 						<div class="jetpack-install-container">
-							<p class="submit"><a href="<?php echo $jetpack->build_connect_url(); ?>" class="button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
+							<p class="submit"><a href="<?php echo $jetpack->build_connect_url( false, menu_page_url( 'sharing', false ) ); ?>" class="button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a></p>
 						</div>
 					</div>
 				</div>
