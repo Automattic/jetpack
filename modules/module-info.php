@@ -674,7 +674,13 @@ function jetpack_post_by_email_more_info() { ?>
 
 	<p><?php esc_html_e( 'Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones.', 'jetpack' ); ?></p>
 
-	<p>&rarr; <a href="http://en.support.wordpress.com/post-by-email/#sending-emails"><?php esc_html_e( 'More information on sending emails, attachments, and customizing your posts.', 'jetpack' ); ?></a></p>
+<?php if ( 'jetpack_module_more_info_connected_post-by-email' == current_filter() ) : ?>
+
+	<p><?php printf( __( 'Manage your Post By Email address from your <a href="%s">profile settings</a>.', 'jetpack' ), esc_url( get_edit_profile_url( get_current_user_id() ) . '#post-by-email' ) ); ?>
+
+<?php endif; ?>
+
+	<p>&rarr; <a href="http://jetpack.me/support/post-by-email"><?php esc_html_e( 'More information on sending emails, attachments, and customizing your posts.', 'jetpack' ); ?></a></p>
 
 <?php
 }
@@ -684,6 +690,7 @@ function jetpack_post_by_email_more_link() {
 }
 
 add_action( 'jetpack_module_more_info_post-by-email', 'jetpack_post_by_email_more_info' );
+add_action( 'jetpack_module_more_info_connected_post-by-email', 'jetpack_post_by_email_more_info' );
 add_action( 'jetpack_learn_more_button_post-by-email', 'jetpack_post_by_email_more_link' );
 // Post by Email: STOP
 
