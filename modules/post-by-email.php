@@ -78,12 +78,18 @@ class Jetpack_Post_By_Email {
 		return false;
 	}
 
-	function user_profile() { ?>
+	function user_profile() {
+		$blog_name = get_bloginfo( 'blogname' );
+		if ( empty( $blog_name ) ) {
+			$blog_name = home_url( '/' );
+		}
+
+		?>
 		<div id="post-by-email" class="jetpack-targetable">
 		<h3><?php esc_html_e( 'Post by Email', 'jetpack' ); ?></h3>
 		<table class="form-table">
 			<tr>
-				<th scope="row"><?php _e( 'Email Address', 'jetpack' ); ?><span id="jp-pbe-spinner" class="spinner"></span></th>
+				<th scope="row"><?php esc_html_e( 'Email Address', 'jetpack' ); ?><span id="jp-pbe-spinner" class="spinner"></span></th>
 				<td>
 				<div id="jp-pbe-error" class="jetpack-inline-error"></div> <?php
 		
@@ -98,25 +104,28 @@ class Jetpack_Post_By_Email {
 						$info_hidden = '';
 					} ?>
 			
-					<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" class="button" value="<?php _e( 'Enable Post By Email', 'jetpack' ); ?> "<?php echo $enable_hidden; ?> />
+					<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" class="button" value="<?php esc_attr_e( 'Enable Post By Email', 'jetpack' ); ?> "<?php echo $enable_hidden; ?> />
 					<div id="jp-pbe-info"<?php echo $info_hidden; ?>>
 						<p id="jp-pbe-email-wrapper">
 							<input type="text" id="jp-pbe-email" value="<?php echo esc_attr( $email ); ?>" readonly="readonly" class="regular-text" />
 						</p>
 						<p>
-							<input type="button" name="jp-pbe-regenerate" id="jp-pbe-regenerate" class="button" value="<?php _e( 'Regenerate Address', 'jetpack' ); ?> " />
-							<input type="button" name="jp-pbe-disable" id="jp-pbe-disable" class="button" value="<?php _e( 'Disable Post By Email', 'jetpack' ); ?> " />
+							<input type="button" name="jp-pbe-regenerate" id="jp-pbe-regenerate" class="button" value="<?php esc_attr_e( 'Regenerate Address', 'jetpack' ); ?> " />
+							<input type="button" name="jp-pbe-disable" id="jp-pbe-disable" class="button" value="<?php esc_attr_e( 'Disable Post By Email', 'jetpack' ); ?> " />
 						</p>
 					</div> <?php
 				} else {
 					$jetpack = Jetpack::init(); ?>
 		
 					<p class="jetpack-inline-message">
-						<?php _e( "To use Post By Email you&#8217;ll need to link your account here to your WordPress.com account.", 'jetpack' ); ?><br />
-						<?php _e( "If you don't have one yet you can sign up for free, in just a few seconds.", 'jetpack' ) ?>
+						<?php printf(
+							esc_html( wptexturize( __( 'To use Post By Email, you need to link your %s account to your WordPress.com account.', 'jetpack' ) ) ),
+							'<strong>' . esc_html( $blog_name ) . '</strong>'
+						); ?><br />
+						<?php echo esc_html( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack' ) ) ); ?>
 					</p>
 					<p>
-						<a href="<?php echo $jetpack->build_connect_url( false, admin_url( 'profile.php#post-by-email' ) ); ?>" class="button button-connector" id="wpcom-connect"><?php _e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
+						<a href="<?php echo $jetpack->build_connect_url( false, admin_url( 'profile.php#post-by-email' ) ); ?>" class="button button-connector" id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
 					</p>
 					<?php
 				} ?>
