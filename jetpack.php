@@ -3830,9 +3830,15 @@ class Jetpack_Sync {
 
 		$sync_data = $this->get_common_sync_data();
 
+		$wp_importing = defined( 'WP_IMPORTING' ) && WP_IMPORTING;
+
 		foreach ( $this->sync as $sync_operation_type => $sync_operations ) {
 			switch ( $sync_operation_type ) {
 			case 'post':
+				if ( $wp_importing ) {
+					break;
+				}
+
 				$global_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : null;
 				$GLOBALS['post'] = null;
 				foreach ( $sync_operations as $post_id => $settings ) {
@@ -3848,6 +3854,10 @@ class Jetpack_Sync {
 				unset( $global_post );
 				break;
 			case 'comment':
+				if ( $wp_importing ) {
+					break;
+				}
+
 				$global_comment = isset( $GLOBALS['comment'] ) ? $GLOBALS['comment'] : null;
 				unset( $GLOBALS['comment'] );
 				foreach ( $sync_operations as $comment_id => $settings ) {
