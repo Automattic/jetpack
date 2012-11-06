@@ -80,9 +80,10 @@ class Jetpack_Post_By_Email {
 
 	function user_profile() { ?>
 		<div id="post-by-email" style="position: relative; top: -28px"></div>
+		<h3><?php esc_html_e( 'Post by Email', 'jetpack' ); ?></h3>
 		<table class="form-table">
 			<tr>
-				<th scope="row"><?php _e( 'Post By Email', 'jetpack' ); ?><span id="jp-pbe-spinner" class="spinner"></span></th>
+				<th scope="row"><?php _e( 'Email Address', 'jetpack' ); ?><span id="jp-pbe-spinner" class="spinner"></span></th>
 				<td>
 				<div id="jp-pbe-error" class="jetpack-inline-error"></div> <?php
 		
@@ -99,9 +100,13 @@ class Jetpack_Post_By_Email {
 			
 					<input type="button" name="jp-pbe-enable" id="jp-pbe-enable" class="button" value="<?php _e( 'Enable Post By Email', 'jetpack' ); ?> "<?php echo $enable_hidden; ?> />
 					<div id="jp-pbe-info"<?php echo $info_hidden; ?>>
-						<span id="jp-pbe-email-wrapper"><strong><?php _e( 'Email Address:', 'jetpack' ); ?></strong> <span id="jp-pbe-email"><?php echo $email; ?></span></span><br/>
-						<input type="button" name="jp-pbe-regenerate" id="jp-pbe-regenerate" class="button" value="<?php _e( 'Regenerate Address', 'jetpack' ); ?> " />
-						<input type="button" name="jp-pbe-disable" id="jp-pbe-disable" class="button" value="<?php _e( 'Disable Post By Email', 'jetpack' ); ?> " />
+						<p id="jp-pbe-email-wrapper">
+							<input type="text" id="jp-pbe-email" value="<?php echo esc_attr( $email ); ?>" readonly="readonly" class="regular-text" />
+						</p>
+						<p>
+							<input type="button" name="jp-pbe-regenerate" id="jp-pbe-regenerate" class="button" value="<?php _e( 'Regenerate Address', 'jetpack' ); ?> " />
+							<input type="button" name="jp-pbe-disable" id="jp-pbe-disable" class="button" value="<?php _e( 'Disable Post By Email', 'jetpack' ); ?> " />
+						</p>
 					</div> <?php
 				} else {
 					$jetpack = Jetpack::init(); ?>
