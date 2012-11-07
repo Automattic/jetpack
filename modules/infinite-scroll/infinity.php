@@ -238,11 +238,11 @@ class The_Neverending_Home_Page {
 			return;
 
 		// Add the setting field [infinite_scroll] and place it in Settings > Reading
-		add_settings_field( self::$option_name_enabled, '<span id="infinite-scroll-options">' . __( 'To infinity and beyond' ) . '</span>', array( $this, 'infinite_setting_html' ), 'reading' );
+		add_settings_field( self::$option_name_enabled, '<span id="infinite-scroll-options">' . __( 'To infinity and beyond', 'jetpack' ) . '</span>', array( $this, 'infinite_setting_html' ), 'reading' );
 		register_setting( 'reading', self::$option_name_enabled, 'esc_attr' );
 
 		// Add setting field for Google Analytics tracking in IS
-		add_settings_field( self::$option_name_google_analytics, '<span id="infinite-scroll-google-analytics">' . __( 'Use Google Analytics with Infinite Scroll' ) . '</span>', array( $this, 'infinite_setting_google_analytics_html' ), 'reading' );
+		add_settings_field( self::$option_name_google_analytics, '<span id="infinite-scroll-google-analytics">' . __( 'Use Google Analytics with Infinite Scroll', 'jetpack' ) . '</span>', array( $this, 'infinite_setting_google_analytics_html' ), 'reading' );
 		register_setting( 'reading', self::$option_name_google_analytics, array( $this, 'sanitize_boolean_value' ) );
 	}
 
@@ -251,13 +251,13 @@ class The_Neverending_Home_Page {
 	 * for the infinite_scroll setting.
 	 */
 	function infinite_setting_html() {
-		$notice = '<em>' . __( "We've disabled this option for you since you have footer widgets in Appearance &rarr; Widgets, or because your theme does not support infinite scroll." ) . '</em>';
+		$notice = '<em>' . __( "We've disabled this option for you since you have footer widgets in Appearance &rarr; Widgets, or because your theme does not support infinite scroll.", 'jetpack' ) . '</em>';
 
 		// If the blog has footer widgets, show a notice instead of the checkbox
 		if ( self::get_settings()->footer_widgets || 'click' == self::get_settings()->requested_type ) {
 			echo '<label>' . $notice . '</label>';
 		} else {
-			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . __( 'Scroll Infinitely' ) . '</br><small>' . sprintf( __( '(Shows %s posts on each load)' ), number_format_i18n( self::get_settings()->posts_per_page ) ) . '</small>' . '</label>';
+			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . __( 'Scroll Infinitely', 'jetpack' ) . '</br><small>' . sprintf( __( '(Shows %s posts on each load)', 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) . '</small>' . '</label>';
 		}
 	}
 
@@ -268,7 +268,7 @@ class The_Neverending_Home_Page {
 	 * @return html
 	 */
 	function infinite_setting_google_analytics_html() {
-		echo '<label><input name="infinite_scroll_google_analytics" type="checkbox" value="1" ' . checked( true, (bool) get_option( self::$option_name_google_analytics, false ), false ) . ' /> ' . __( 'Track each Infinite Scroll post load as a page view in Google Analytics' ) . '</br><small>' . __( 'By checking the box above, each new set of posts loaded via Infinite Scroll will be recorded as a page view in Google Analytics.' ) . '</small>' . '</label>';
+		echo '<label><input name="infinite_scroll_google_analytics" type="checkbox" value="1" ' . checked( true, (bool) get_option( self::$option_name_google_analytics, false ), false ) . ' /> ' . __( 'Track each Infinite Scroll post load as a page view in Google Analytics', 'jetpack' ) . '</br><small>' . __( 'By checking the box above, each new set of posts loaded via Infinite Scroll will be recorded as a page view in Google Analytics.', 'jetpack' ) . '</small>' . '</label>';
 	}
 
 	/**
@@ -466,8 +466,8 @@ class The_Neverending_Home_Page {
 			'wrapper'          => self::has_wrapper(),
 			'wrapper_class'    => is_string( self::get_settings()->wrapper ) ? esc_js( self::get_settings()->wrapper ) : 'infinite-wrap',
 			'footer'           => is_string( self::get_settings()->footer ) ? esc_js( self::get_settings()->footer ) : self::get_settings()->footer,
-			'text'             => esc_js( __( 'Load more posts' ) ),
-			'totop'            => esc_js( __( 'Scroll back to top' ) ),
+			'text'             => esc_js( __( 'Load more posts', 'jetpack' ) ),
+			'totop'            => esc_js( __( 'Scroll back to top', 'jetpack' ) ),
 			'order'            => 'DESC',
 			'scripts'          => array(),
 			'styles'           => array(),
@@ -848,7 +848,7 @@ class The_Neverending_Home_Page {
 				</div>
 				<div class="blog-credits">
 					<a href="http://wordpress.org/" rel="generator">Proudly powered by WordPress</a>
-					<?php printf( __( 'Theme: %1$s.' ), $theme_name ); ?>
+					<?php printf( __( 'Theme: %1$s.', 'jetpack' ), $theme_name ); ?>
 				</div>
 			</div>
 		</div><!-- #infinite-footer -->

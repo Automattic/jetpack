@@ -71,7 +71,7 @@ function jetpack_og_tags() {
 
 	// Facebook whines if you give it an empty title
 	if ( empty( $tags['og:title'] ) )
-		$tags['og:title'] = __( '(no title)' );
+		$tags['og:title'] = __( '(no title)', 'jetpack' );
 
 	// Shorten the description if it's too long
 	$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '...' : $tags['og:description'];

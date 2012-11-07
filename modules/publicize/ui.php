@@ -166,7 +166,7 @@ class Publicize_UI {
 				  					?>
 				  				</ul>
 				  			<?php endif; ?>
-					  		<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection" href="<?php echo esc_url( $connect_url); ?>"><?php esc_html_e( sprintf( __( 'Add new %s connection.', 'jetpack' ), $this->publicize->get_service_label( $name ) ) ); ?></a>
+					  		<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection" href="<?php echo esc_url( $connect_url); ?>"><?php echo esc_html( sprintf( __( 'Add new %s connection.', 'jetpack' ), $this->publicize->get_service_label( $name ) ) ); ?></a>
 			  			</div>
 			  		</div>
 				<?php endforeach; ?>
@@ -426,7 +426,7 @@ jQuery( function($) {
 								$checked = false;
 
 							$label = sprintf(
-								_x( '%1$s: %2$s', 'Service: Account connected as' ),
+								_x( '%1$s: %2$s', 'Service: Account connected as', 'jetpack' ),
 								esc_html( $this->publicize->get_service_label( $name ) ),
 								esc_html( $this->publicize->get_display_name( $name, $connection ) )
 							);
@@ -487,7 +487,7 @@ jQuery( function($) {
 					<ul class="not-connected">
 						<?php foreach ( $available_services as $service_name => $service ) : ?>
 						<li>
-							<a class="pub-service" data-service="<?php esc_attr_e( $service_name ); ?>" title="<?php esc_attr_e( sprintf( __( 'Connect and share your posts on %s', 'jetpack' ), $this->publicize->get_service_label( $service_name ) ) ); ?>" target="_blank" href="<?php echo $this->publicize->connect_url( $service_name ); ?>">
+							<a class="pub-service" data-service="<?php echo esc_attr( $service_name ); ?>" title="<?php echo esc_attr( sprintf( __( 'Connect and share your posts on %s', 'jetpack' ), $this->publicize->get_service_label( $service_name ) ) ); ?>" target="_blank" href="<?php echo $this->publicize->connect_url( $service_name ); ?>">
 								<?php echo esc_html( $this->publicize->get_service_label( $service_name ) ); ?>
 							</a>
 						</li>

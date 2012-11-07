@@ -707,7 +707,7 @@ function stats_dashboard_widget_control() {
 	</p>
 
 	<p>
-	<label for="top"><?php _e( 'Show top posts over', 'jetpack'); ?></label>
+	<label for="top"><?php _e( 'Show top posts over', 'jetpack' ); ?></label>
 	<select id="top" name="top">
 	<?php
 	foreach ( $intervals as $val => $label ) {
@@ -720,7 +720,7 @@ function stats_dashboard_widget_control() {
 	</p>
 
 	<p>
-	<label for="search"><?php _e( 'Show top search terms over', 'jetpack'); ?></label>
+	<label for="search"><?php _e( 'Show top search terms over', 'jetpack' ); ?></label>
 	<select id="search" name="search">
 	<?php
 	foreach ( $intervals as $val => $label ) {
@@ -943,7 +943,7 @@ function stats_dashboard_widget_content() {
 function stats_print_wp_remote_error( $get, $url ) {
 ?>
 	<div class="wrap">
-	<p><?php printf( __( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s">contact support</a>. In your report please include the information below.' ), 'http://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
+	<p><?php printf( __( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s">contact support</a>. In your report please include the information below.', 'jetpack' ), 'http://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
 	<pre>
 	User Agent: "<?php print htmlspecialchars( $_SERVER['HTTP_USER_AGENT'] ); ?>"
 	Page URL: "http<?php print (is_ssl()?'s':'') . '://' . htmlspecialchars( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ); ?>"

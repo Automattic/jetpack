@@ -311,7 +311,7 @@ class Publicize extends Publicize_Base {
 
 			<p><?php printf(
 				esc_html__( 'Publicize to my %s:', 'jetpack' ),
-				'<strong>' . esc_html__( 'Facebook Wall' ) . '</strong>'
+				'<strong>' . esc_html__( 'Facebook Wall', 'jetpack' ) . '</strong>'
 			); ?></p>
 			<table id="option-profile">
 				<tbody>
@@ -327,7 +327,7 @@ class Publicize extends Publicize_Base {
 
 				<p><?php printf(
 					esc_html__( 'Publicize to my %s:', 'jetpack' ),
-					'<strong>' . esc_html__( 'Facebook Page' ) . '</strong>'
+					'<strong>' . esc_html__( 'Facebook Page', 'jetpack' ) . '</strong>'
 				); ?></p>
 				<table id="option-fb-fanpage">
 					<tbody>
@@ -451,7 +451,7 @@ class Publicize extends Publicize_Base {
 
 			<p><?php printf(
 				esc_html__( 'Publicize to my %s:', 'jetpack' ),
-				'<strong>' . esc_html__( 'Tumblr blog' ) . '</strong>'
+				'<strong>' . esc_html__( 'Tumblr blog', 'jetpack' ) . '</strong>'
 			); ?></p>
 
 			<ul id="option-tumblr-blog">

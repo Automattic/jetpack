@@ -72,7 +72,7 @@ class Publicize_Util {
 		}
 
 		// @see wp_trim_words()
-		if ( 'characters' == _x( 'words', 'word count: words or characters?' ) ) {
+		if ( 'characters' == _x( 'words', 'word count: words or characters?', 'jetpack' ) ) {
 			return trim( mb_substr( $string, 0, $length - 1, 'UTF-8' ) ) . "\xE2\x80\xA6"; // ellipsis
 		}
 
