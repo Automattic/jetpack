@@ -24,8 +24,8 @@ class Sharing_Admin {
 	
 	public function sharing_head() {
 		wp_enqueue_script( 'sharing-js', WP_SHARING_PLUGIN_URL.'admin-sharing.js', array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ), 2 );
-		wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing.css', false, WP_SHARING_PLUGIN_VERSION );
-		wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing.css', false, WP_SHARING_PLUGIN_VERSION );
+		wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing.css', false, JETPACK__VERSION );
+		wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing.css', false, JETPACK__VERSION );
 		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 2 );
 
 		add_thickbox();

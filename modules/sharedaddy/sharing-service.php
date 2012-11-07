@@ -2,7 +2,7 @@
 
 include_once dirname( __FILE__ ).'/sharing-sources.php';
 
-define( 'WP_SHARING_PLUGIN_VERSION', '0.3.1' );
+define( 'WP_SHARING_PLUGIN_VERSION', JETPACK__VERSION );
 
 class Sharing_Service {
 	private $global = false;
@@ -432,7 +432,7 @@ function sharing_add_header() {
 	}
 	
 	if ( count( $enabled['all'] ) > 0 )
-		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css', array(), WP_SHARING_PLUGIN_VERSION );
+		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css', array(), JETPACK__VERSION );
 }
 add_action( 'wp_head', 'sharing_add_header', 1 );
 
