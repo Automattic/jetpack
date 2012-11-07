@@ -702,6 +702,8 @@ class Jetpack {
 			case 'comments' :
 			case 'carousel' :
 			case 'minileven':
+			case 'infinite-scroll' :
+			case 'photon' :
 				break;
 
 			// These modules are default off if we think the site is a private one
