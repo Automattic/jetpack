@@ -144,7 +144,7 @@ class Jetpack_Photon {
 				$args = array();
 
 				if ( false !== $width && false !== $height )
-					$args['fit'] = $width . ',' . $height;
+					$args['resize'] = $width . ',' . $height;
 
 				$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height' ) );
 
