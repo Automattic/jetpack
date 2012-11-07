@@ -65,7 +65,7 @@ class Sharing_Admin {
 	public function ajax_new_service() {
 		if ( isset( $_POST['_wpnonce'] ) && isset( $_POST['sharing_name'] ) && isset( $_POST['sharing_url'] ) && isset( $_POST['sharing_icon'] ) && wp_verify_nonce( $_POST['_wpnonce'], 'sharing-new_service' ) ) {
 			$sharer = new Sharing_Service();
-			if ( $service = $sharer->new_service( $_POST['sharing_name'], $_POST['sharing_url'], $_POST['sharing_icon'] ) ) {
+			if ( $service = $sharer->new_service( stripslashes( $_POST['sharing_name'] ), stripslashes( $_POST['sharing_url'] ), stripslashes( $_POST['sharing_icon'] ) ) ) {
 				$this->output_service( $service->get_id(), $service );
 				echo '<!--->';
 				$service->button_style = 'icon-text';
