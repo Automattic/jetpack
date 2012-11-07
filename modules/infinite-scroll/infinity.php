@@ -224,8 +224,6 @@ class The_Neverending_Home_Page {
 	 * Add a checkbox field to Settings > Reading
 	 * for enabling infinite scroll.
 	 *
-	 * Also adds a checkbox to enable Google Analytics tracking
-	 *
 	 * Only show if the current theme supports infinity.
 	 *
 	 * @uses current_theme_supports, add_settings_field, __, register_setting
