@@ -34,11 +34,23 @@ class Jetpack_Publicize {
 		$publicize_ui = new Publicize_UI();
 		$publicize_ui->in_jetpack = $this->in_jetpack;
 
-		// if sharedaddy isn't active, the sharing menu hasn't been added yet
-		if ( $this->in_jetpack ) {
+		// Jetpack specific checks / hooks
+		if ( $this->in_jetpack) {
+			add_action( 'jetpack_activate_module_publicize',   array( $this, 'module_state_toggle' ) );
+			add_action( 'jetpack_deactivate_module_publicize', array( $this, 'module_state_toggle' ) );
+			
+			// if sharedaddy isn't active, the sharing menu hasn't been added yet
 			$active = Jetpack::get_active_modules();
 			if ( in_array( 'publicize', $active ) && !in_array( 'sharedaddy', $active ) )
 				add_action( 'admin_menu', array( &$publicize_ui, 'sharing_menu' ) );
+		}
+	}
+
+	function module_stats_toggle() {
+		// extra check that we are on the JP blog, just incase
+		if ( class_exists( 'Jetpack' ) && $this->in_jetpack ) {
+			$jetpack = Jetpack::init();
+			$jetpack->sync->register( 'noop' );
 		}
 	}
 
