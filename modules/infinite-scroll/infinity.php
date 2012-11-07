@@ -39,7 +39,6 @@ class The_Neverending_Home_Page {
 	static $settings = null; // Don't access directly, instead use self::get_settings().
 
 	static $option_name_enabled = 'infinite_scroll';
-	static $option_name_google_analytics = 'infinite_scroll_google_analytics';
 
 	/**
 	 * Parse IS settings provided by theme
@@ -195,7 +194,7 @@ class The_Neverending_Home_Page {
 				$settings['posts_per_page'] = 'click' == $settings['type'] ? (int) get_option( 'posts_per_page' ) : 7;
 
 			// Store final settings in a class static to avoid reparsing
-			self::$settings = $settings;
+			self::$settings = apply_filters( 'infinite_scroll_settings', $settings );
 		}
 
 		return (object) self::$settings;
@@ -240,10 +239,6 @@ class The_Neverending_Home_Page {
 		// Add the setting field [infinite_scroll] and place it in Settings > Reading
 		add_settings_field( self::$option_name_enabled, '<span id="infinite-scroll-options">' . __( 'To infinity and beyond', 'jetpack' ) . '</span>', array( $this, 'infinite_setting_html' ), 'reading' );
 		register_setting( 'reading', self::$option_name_enabled, 'esc_attr' );
-
-		// Add setting field for Google Analytics tracking in IS
-		add_settings_field( self::$option_name_google_analytics, '<span id="infinite-scroll-google-analytics">' . __( 'Use Google Analytics with Infinite Scroll', 'jetpack' ) . '</span>', array( $this, 'infinite_setting_google_analytics_html' ), 'reading' );
-		register_setting( 'reading', self::$option_name_google_analytics, array( $this, 'sanitize_boolean_value' ) );
 	}
 
 	/**
@@ -259,26 +254,6 @@ class The_Neverending_Home_Page {
 		} else {
 			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . __( 'Scroll Infinitely', 'jetpack' ) . '</br><small>' . sprintf( __( '(Shows %s posts on each load)', 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) . '</small>' . '</label>';
 		}
-	}
-
-	/**
-	 * Render Google Analytics option
-	 *
-	 * @uses checked, get_option, __
-	 * @return html
-	 */
-	function infinite_setting_google_analytics_html() {
-		echo '<label><input name="infinite_scroll_google_analytics" type="checkbox" value="1" ' . checked( true, (bool) get_option( self::$option_name_google_analytics, false ), false ) . ' /> ' . __( 'Track each Infinite Scroll post load as a page view in Google Analytics', 'jetpack' ) . '</br><small>' . __( 'By checking the box above, each new set of posts loaded via Infinite Scroll will be recorded as a page view in Google Analytics.', 'jetpack' ) . '</small>' . '</label>';
-	}
-
-	/**
-	 * Sanitize value as a boolean
-	 *
-	 * @param mixed $value
-	 * @return bool
-	 */
-	public function sanitize_boolean_value( $value ) {
-		return (bool) $value;
 	}
 
 	/**
@@ -471,7 +446,7 @@ class The_Neverending_Home_Page {
 			'order'            => 'DESC',
 			'scripts'          => array(),
 			'styles'           => array(),
-			'google_analytics' => (bool) get_option( self::$option_name_google_analytics ),
+			'google_analytics' => false,
 			'offset'           => $wp_query->get( 'paged' ),
 			'history'          => array(
 				'host'                 => preg_replace( '#^http(s)?://#i', '', untrailingslashit( get_option( 'home' ) ) ),
