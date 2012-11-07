@@ -4414,7 +4414,15 @@ require_once dirname( __FILE__ ) . '/class.jetpack-post-images.php';
 require dirname( __FILE__ ) . '/functions.photon.php';
 
 if ( in_array( 'publicize', Jetpack::get_active_modules() ) || in_array( 'sharedaddy', Jetpack::get_active_modules() ) )
-	require_once dirname( __FILE__ ) . '/functions.opengraph.php';
+        add_filter( 'jetpack_enable_opengraph', '__return_true', 0 );
+
+$active_plugins = get_option( 'active_plugins', array() );
+
+if ( in_array( 'facebook/facebook.php', $active_plugins ) )
+        add_filter( 'jetpack_enable_opengraph', '__return_false', 99 );
+
+if ( apply_filters( 'jetpack_enable_opengraph', false ) )
+        require_once dirname( __FILE__ ) . '/functions.opengraph.php';
 
 class Jetpack_Error extends WP_Error {}
 

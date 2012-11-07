@@ -14,7 +14,7 @@ function jetpack_og_tags() {
 	if ( false === apply_filters( 'jetpack_enable_open_graph', true ) )
 		return;
 
-	$og_output = '';
+	$og_output = "\n<!-- Jetpack Open Graph Tags -->\n";
 	$tags = array();
 
 	$image_width = 200;
@@ -75,7 +75,7 @@ function jetpack_og_tags() {
 
 	// Add any additional tags here, or modify what we've come up with
 	$tags = apply_filters( 'jetpack_open_graph_tags', $tags );
-
+	
 	foreach ( (array) $tags as $tag_property => $tag_content ) {
 		foreach ( (array) $tag_content as $tag_content_single ) { // to accomodate multiple images
 			if ( empty( $tag_content_single ) )
