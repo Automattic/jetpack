@@ -632,10 +632,6 @@ add_action( 'jetpack_module_more_info_mobile-push', 'jetpack_mobile_push_notific
  */
 function jetpack_infinite_scroll_more_info() {
 	?>
-	<!-- <div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/mobile-theme.png' ) ?>" alt="<?php esc_attr_e( 'Infinite Scroll', 'jetpack' ) ?>" width="300" height="150" />
-	</div> -->
-
 	<h4><?php esc_html_e( 'Infinite Scroll', 'jetpack' ); ?></h4>
 
 	<?php if ( ! Jetpack::is_active() || ( Jetpack::is_active() && current_theme_supports( 'infinite-scroll' ) ) ) : ?>
@@ -709,13 +705,13 @@ add_action( 'jetpack_learn_more_button_post-by-email', 'jetpack_post_by_email_mo
  *
  */
 function jetpack_photon_more_info() { ?>
-	<!--<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/photon.png' ) ?>" alt="<?php esc_attr_e( 'Photon', 'jetpack' ) ?>" width="300" height="115" />
-	</div>-->
-
 	<h4><?php esc_html_e( 'Photon' , 'jetpack' ); ?></h4>
 
 	<p><?php esc_html_e( "Give your site a boost by loading images in post and posts' featured images from the WordPress.com content delivery network. We cache your images and serve them from our super-fast network, reducing the burden on your web host with the click of a button.", 'jetpack' ); ?></p>
+
+	<?php if ( ! Jetpack::get_option( 'public' ) ) : ?>
+	<p><strong><?php esc_html_e( "At this time, Photon cannot be activated on this site because it isn't publicly accessible.", 'jetpack' ); ?></strong></p>
+	<?php endif; ?>
 <?php
 }
 add_action( 'jetpack_module_more_info_photon', 'jetpack_photon_more_info' );

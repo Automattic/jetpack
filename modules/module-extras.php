@@ -39,3 +39,15 @@ function jetpack_can_activate_infinite_scroll( $can_activate ) {
 	return (bool) current_theme_supports( 'infinite-scroll' );
 }
 add_filter( 'jetpack_can_activate_infinite-scroll', 'jetpack_can_activate_infinite_scroll' );
+
+/**
+ * Prevent Photon from being activated if the site isn't public.
+ *
+ * @param bool $can_activate
+ * @filter jetpack_can_activate_photon
+ * @return bool
+ */
+function jetpack_can_activate_photon( $can_activate ) {
+	return Jetpack::get_option( 'public' );
+}
+add_filter( 'jetpack_can_activate_photon', 'jetpack_can_activate_photon' );
