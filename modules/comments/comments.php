@@ -464,10 +464,10 @@ h1 span {
 <script type="text/javascript">
 try {
 	window.parent.location = <?php echo json_encode( $url ); ?>;
-	window.parent.location.reload();
+	window.parent.location.reload( true );
 } catch ( e ) {
 	window.location = <?php echo json_encode( $url ); ?>;
-	window.location.reload();
+	window.location.reload( true );
 }
 ellipsis = document.getElementById( 'ellipsis' );
 function toggleEllipsis() {
