@@ -992,7 +992,11 @@ EOPHP;
 
 		$gmt_offset = get_option( 'gmt_offset' );
 		$local_time = $time + $gmt_offset * 3600;
-		$datetime->setTimestamp( $local_time );
+		
+		$date = getdate( ( int ) $local_time );
+		$datetime->setDate( $date['year'], $date['mon'], $date['mday'] );
+		$datetime->setTime( $date['hours'], $date['minutes'], $date['seconds'] );
+        
 		$local      = $datetime->format( 'Y-m-d H:i:s' );
 		return array( (string) $local, (string) $gmt );
 	}
