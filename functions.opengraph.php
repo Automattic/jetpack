@@ -17,8 +17,8 @@ function jetpack_og_tags() {
 	$og_output = "\n<!-- Jetpack Open Graph Tags -->\n";
 	$tags = array();
 
-	$image_width = 200;
-	$image_height = 200;
+	$image_width  = absint( apply_filters( 'jetpack_open_graph_image_width', 200 ) );
+	$image_height = absint( apply_filters( 'jetpack_open_graph_image_height', 200 ) );
 	$description_length = 197;
 
 	if ( is_home() || is_front_page() ) {
@@ -59,9 +59,12 @@ function jetpack_og_tags() {
 	$tags['og:image'] = jetpack_og_get_image( $image_width, $image_height );
 	if ( is_array( $tags['og:image'] ) ) {
 		// We got back more than one image from Jetpack_PostImages, so we need to extract just the thumb
+		$fit_width  = $image_width * 2;
+		$fit_height = $image_height * 2;
+
 		$imgs = array();
 		foreach ( $tags['og:image'] as $img ) {
-			$imgs[] = jetpack_photon_url( $img['src'], array( 'fit' => '400,400' ) );
+			$imgs[] = jetpack_photon_url( $img['src'], array( 'fit' => "$fit_width,$fit_height" ) );
 		}
 		$tags['og:image'] = $imgs;
 	}
@@ -75,7 +78,7 @@ function jetpack_og_tags() {
 
 	// Add any additional tags here, or modify what we've come up with
 	$tags = apply_filters( 'jetpack_open_graph_tags', $tags );
-	
+
 	foreach ( (array) $tags as $tag_property => $tag_content ) {
 		foreach ( (array) $tag_content as $tag_content_single ) { // to accomodate multiple images
 			if ( empty( $tag_content_single ) )
