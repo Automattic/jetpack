@@ -48,7 +48,9 @@ class Sharing_Admin {
 	}
 	
 	public function subscription_menu( $user ) {
-		add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'sharing', array( &$this, 'management_page' ) );
+		$active = Jetpack::get_active_modules();
+		if ( in_array( 'publicize', $active ) || current_user_can( 'manage_options' ) )
+			add_submenu_page( 'options-general.php', __( 'Sharing Settings', 'jetpack' ), __( 'Sharing', 'jetpack' ), 'publish_posts', 'sharing', array( &$this, 'management_page' ) );
 	}
 	
 	public function ajax_save_services() {
