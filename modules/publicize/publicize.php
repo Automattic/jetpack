@@ -154,10 +154,16 @@ abstract class Publicize_Base {
 		// always show if no selection has been made for tumblr
 		if ( 'tumblr' == $service_name && empty ( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) )
 			return true;
-
-		// otherwise, just show if this is the completed step / first load
-		if ( !empty( $_GET['action'] ) && 'completed' == $_GET['action'] && !empty( $_GET['service'] ) && $service_name == $_GET['service'] && ! in_array( $_GET['service'], array( 'facebook', 'tumblr' ) ) )
-			return true;
+		
+		// if we have the specific conncetion info..
+		if ( isset( $_GET['id'] ) ) {
+			if ( $cmeta['connection_data']['id'] == $_GET['id'] )
+				return true;
+		} else {
+			// otherwise, just show if this is the completed step / first load
+			if ( !empty( $_GET['action'] ) && 'completed' == $_GET['action'] && !empty( $_GET['service'] ) && $service_name == $_GET['service'] && ! in_array( $_GET['service'], array( 'facebook', 'tumblr' ) ) )
+				return true;
+		}
 
 		return false;
 	}
