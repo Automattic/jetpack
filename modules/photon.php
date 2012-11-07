@@ -40,10 +40,12 @@ class Jetpack_Photon {
 	 * Register actions and filters, but only if basic Photon functions are available.
 	 * The basic functions are found in ./functions.photon.php.
 	 *
-	 * @uses add_filter, add_action
+	 * @uses add_action, add_filter
 	 * @return null
 	 */
 	private function __construct() {
+		add_action( 'jetpack_activate_module_photon', array( $this, 'action_jetpack_activate_module_photon' ) );
+
 		if ( ! function_exists( 'jetpack_photon_url' ) )
 			return;
 
@@ -53,6 +55,17 @@ class Jetpack_Photon {
 		// Featured images aka post thumbnails
 		add_action( 'begin_fetch_post_thumbnail_html', array( $this, 'action_begin_fetch_post_thumbnail_html' ) );
 		add_action( 'end_fetch_post_thumbnail_html', array( $this, 'action_end_fetch_post_thumbnail_html' ) );
+	}
+
+	/**
+	 * Check if site is private and warn user if it is
+	 *
+	 * @uses Jetpack::check_privacy
+	 * @action jetpack_activate_module_photon
+	 * @return null
+	 */
+	public function action_jetpack_activate_module_photon() {
+		Jetpack::check_privacy( __FILE__ );
 	}
 
 	/**
