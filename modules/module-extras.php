@@ -21,7 +21,7 @@
 function jetpack_load_infinite_scroll_annotation() {
 	if ( is_admin() && isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
 		$theme = wp_get_theme();
-var_dump($theme);exit;
+
 		$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/infinite-scroll/themes/{$theme->stylesheet}.php", $theme->stylesheet );
 
 		if ( is_readable( $customization_file ) ) {
