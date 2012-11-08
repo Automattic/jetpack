@@ -87,6 +87,9 @@ class Jetpack_Photon {
 			foreach ( $images[0] as $index => $tag ) {
 				$src = $src_orig = $images[2][ $index ];
 
+				// Default to resize, though fit may be used in certain cases where a dimension cannot be ascertained
+				$transform = 'resize';
+
 				// Check if image URL should be used with Photon
 				if ( ! $this->validate_image_url( $src ) )
 					continue;
@@ -116,25 +119,18 @@ class Jetpack_Photon {
 					elseif ( $width > $content_width ) {
 						$width = $content_width;
 					}
-
-					if ( false === $height )
-						$height = 9999;
 				}
 
 				// Set a width if none is found and height is available, either $content_width or a very large value
 				// Large value is used so as to not unnecessarily constrain image when passed to Photon
-				if ( false === $width && false !== $height )
+				if ( false === $width && false !== $height ) {
 					$width = is_numeric( $content_width ) ? (int) $content_width : 9999;
-
-				// Set a height if none is found and width is available, using a large value
-				if ( false === $height && false !== $width )
-					$height = 9999;
+					$transform = 'fit';
+				}
 
 				// As a last resort, ensure that image won't be larger than $content_width if it is set.
-				if ( false === $width && is_numeric( $content_width ) ) {
+				if ( false === $width && is_numeric( $content_width ) )
 					$width = (int) $content_width;
-					$height = 9999;
-				}
 
 				// Build URL, first removing WP's resized string so we pass the original image to Photon
 				if ( false != preg_match( '#(-\d+x\d+)\.(' . implode('|', $this->extensions ) . '){1}$#i', $src, $src_parts ) )
@@ -144,7 +140,11 @@ class Jetpack_Photon {
 				$args = array();
 
 				if ( false !== $width && false !== $height )
-					$args['resize'] = $width . ',' . $height;
+					$args[ $transform ] = $width . ',' . $height;
+				elseif ( false !== $width )
+					$args['w'] = $width;
+				elseif ( false !== $height )
+					$args['h'] = $height;
 
 				$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height' ) );
 
