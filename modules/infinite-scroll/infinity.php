@@ -793,7 +793,7 @@ class The_Neverending_Home_Page {
 	/**
 	 * The Infinite Blog Footer
 	 *
-	 * @uses self::get_settings, self::set_last_post_time, self::archive_supports_infinity, wp_get_theme, get_current_theme, home_url, esc_attr, get_bloginfo, bloginfo, __
+	 * @uses self::get_settings, self::set_last_post_time, self::archive_supports_infinity, __, wp_get_theme, get_current_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
 	 * @return string or null
 	 */
 	function footer() {
@@ -809,7 +809,9 @@ class The_Neverending_Home_Page {
 		if ( 'scroll' != self::get_settings()->type || ! self::archive_supports_infinity() )
 			return;
 
-		$theme_name = function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme();
+		$credits = '<a href="http://wordpress.org/" rel="generator">Proudly powered by WordPress</a> ';
+		$credits .= sprintf( __( 'Theme: %1$s.', 'jetpack' ), function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme() );
+		$credits = apply_filters( 'infinite_scroll_credit', $credits );
 
 		?>
 		<div id="infinite-footer">
@@ -820,8 +822,7 @@ class The_Neverending_Home_Page {
 					</a>
 				</div>
 				<div class="blog-credits">
-					<a href="http://wordpress.org/" rel="generator">Proudly powered by WordPress</a>
-					<?php printf( __( 'Theme: %1$s.', 'jetpack' ), $theme_name ); ?>
+					<?php echo $credits; ?>
 				</div>
 			</div>
 		</div><!-- #infinite-footer -->
