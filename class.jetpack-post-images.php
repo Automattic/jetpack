@@ -210,6 +210,11 @@ class Jetpack_PostImages {
 	 */
 	static function from_thumbnail( $post_id, $width = 200, $height = 200 ) {
 		$images = array();
+
+		if ( !function_exists( 'get_post_thumbnail_id' ) ) {
+			return $images;
+		}
+
 		$thumb = get_post_thumbnail_id( $post_id );
 
 		if ( $thumb ) {
