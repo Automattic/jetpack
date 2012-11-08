@@ -298,6 +298,10 @@ class Jetpack_Photon {
 		if ( is_null( $url_info['host'] ) )
 			return false;
 
+		// Bail if the image alredy went through Photon
+		if ( preg_match( '#^i[\d]{1}.wp.com$#i', $url_info['host'] ) )
+			return false;
+
 		// Bail if no path is found
 		if ( is_null( $url_info['path'] ) )
 			return false;
