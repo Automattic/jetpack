@@ -337,7 +337,7 @@ class Publicize extends Publicize_Base {
 							<?php if ( ! ( $i % 2 ) ) : ?>
 								<tr>
 							<?php endif; ?>
-									<td class="radio"><input type="radio" name="option" data-type="page" id="<?php echo intval( $page['id'] ) ?>" value="<?php echo intval( $page['id'] ) ?>" <?php checked( $page_selected && $page_selected == $page['id'], true ); ?> /></td>
+									<td class="radio"><input type="radio" name="option" data-type="page" id="<?php echo esc_attr( $page['id'] ) ?>" value="<?php echo esc_attr( $page['id'] ) ?>" <?php checked( $page_selected && $page_selected == $page['id'], true ); ?> /></td>
 									<td class="thumbnail"><label for="<?php echo esc_attr( $page['id'] ) ?>"><img src="<?php echo esc_url( str_replace( '_s', '_q', $page['picture']['data']['url'] ) ) ?>" width="50" height="50" /></label></td>
 									<td class="details">
 										<label for="<?php echo esc_attr( $page['id'] ) ?>">
@@ -372,7 +372,7 @@ class Publicize extends Publicize_Base {
 		$id = $_POST['connection'];
 
 		// Check for a numeric page ID
-		$page_id = (int) $_POST['selected_id'];
+		$page_id = $_POST['selected_id'];
 		if ( !ctype_digit( $page_id ) )
 			die( 'Security check' );
 
