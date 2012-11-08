@@ -631,6 +631,8 @@ add_action( 'jetpack_module_more_info_mobile-push', 'jetpack_mobile_push_notific
  *
  */
 function jetpack_infinite_scroll_more_info() {
+	$support_text = sprintf( __( 'If you are a theme author, you can learn about adding support for Infinite Scroll at <a href="%1$s">%1$s</a>.', 'jetpack' ), 'http://jetpack.me/support/infinite-scroll/' );
+
 	?>
 	<h4><?php esc_html_e( 'Infinite Scroll', 'jetpack' ); ?></h4>
 
@@ -646,15 +648,19 @@ function jetpack_infinite_scroll_more_info() {
 
 		<?php
 
-		if ( current_user_can( 'update_themes' ) ) {
+		if ( current_user_can( 'update_themes' ) ) :
 			ob_start();
 			theme_update_available( function_exists( 'wp_get_theme' ) ? wp_get_theme() : (object) get_theme( get_current_theme() ) );
 			$theme_update_available = ob_get_clean();
 
 			if ( ! empty( $theme_update_available ) ) : ?>
 				<p><?php printf( __( 'There is an update available for your theme. You may wish to check if this update adds Infinite Scroll support by visiting the <a href="%s">WordPress Updates</a> page.', 'jetpack' ), esc_url( admin_url( 'update-core.php' ) ) ); ?></p>
+			<?php else : ?>
+				<p><?php echo $support_text; ?></p>
 			<?php endif; ?>
-		<?php } ?>
+		<?php else : ?>
+			<p><?php echo $support_text; ?></p>
+		<?php endif; ?>
 	<?php endif;
 }
 add_action( 'jetpack_module_more_info_infinite-scroll', 'jetpack_infinite_scroll_more_info' );
