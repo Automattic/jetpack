@@ -170,8 +170,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'text/x-json' :
 		case 'text/json' :
 			$return = json_decode( $input );
-			if ( JSON_ERROR_NONE !== json_last_error() ) {
-				return null;
+			if ( function_exists( 'json_last_error' ) ) {
+				if ( JSON_ERROR_NONE !== json_last_error() ) {
+					return null;
+				}
+			} else {
+				if ( is_null( $return ) && json_encode( null ) !== $input ) {
+					return null;
+				}
 			}
 
 			if ( is_object( $return ) ) {
