@@ -95,7 +95,7 @@ jetpack = {
 		jQuery( 'div.placeholder' ).show();
 
 		var containerWidth = jetpack.container.width(),
-		    needed = 4 * parseInt( containerWidth / 242, 10 ) - jetpack.numModules
+		    needed = 5 * parseInt( containerWidth / 242, 10 ) - jetpack.numModules
 
 		if ( jetpack.numModules * 242 > containerWidth )
 			jQuery( 'div.placeholder' ).slice( needed ).hide();
