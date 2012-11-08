@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the Jetpack by WordPress.com package.
 msgid ""
 msgstr ""
-"Project-Id-Version: Jetpack by WordPress.com 2.0b5\n"
+"Project-Id-Version: Jetpack by WordPress.com 2.0b8\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/tag/jetpack\n"
-"POT-Creation-Date: 2012-11-07 21:10:10+00:00\n"
+"POT-Creation-Date: 2012-11-08 16:12:19+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,11 +12,11 @@ msgstr ""
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 
-#: class.json-api-endpoints.php:1107
+#: class.json-api-endpoints.php:1113
 msgid "This post is password protected."
 msgstr ""
 
-#: class.json-api-endpoints.php:2627
+#: class.json-api-endpoints.php:2633
 msgid "Comment cache problem?"
 msgstr ""
 
@@ -44,7 +44,7 @@ msgstr[1] ""
 msgid "Jetpack"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 #: jetpack.php:1438 jetpack.php:1462 jetpack.php:1473 jetpack.php:2238
 #: jetpack.php:2422
@@ -332,11 +332,11 @@ msgctxt ""
 "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature "
 "names}"
 msgid ""
-"If your site is not publicly accessible, consider <a href=\"%1$s\" title="
-"\"%2$s\">deactivating this feature</a>."
+"If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2"
+"$s\">deactivating this feature</a>."
 msgid_plural ""
-"If your site is not publicly accessible, consider <a href=\"%1$s\" title="
-"\"%2$s\">deactivating these features</a>."
+"If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2"
+"$s\">deactivating these features</a>."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -698,8 +698,8 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:89
 msgctxt ""
-"%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, "
-"%2$s = WPLANG"
+"%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2"
+"$s = WPLANG"
 msgid ""
 "The proofreader supports English, French, German, Portuguese, and Spanish. "
 "Your <a href=\"%1$s\">%2$s</a> value is the default proofreading language."
@@ -901,7 +901,7 @@ msgstr ""
 msgid "Transparent"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/comments/admin.php:72 modules/module-info.php:521
 msgid "Jetpack Comments"
@@ -1236,7 +1236,7 @@ msgid ""
 "you have made will be lost."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:491
 #: modules/module-info.php:495
@@ -1471,7 +1471,7 @@ msgid ""
 "as a reference and do not copy and paste all of it into the CSS Editor."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/gravatar-hovercards.php:44 modules/module-info.php:57
 #: modules/module-info.php:72
@@ -1486,34 +1486,34 @@ msgstr ""
 msgid "Put your mouse over your Gravatar to check out your profile."
 msgstr ""
 
-#: modules/infinite-scroll/infinity.php:240
+#: modules/infinite-scroll/infinity.php:238
 msgid "To infinity and beyond"
 msgstr ""
 
-#: modules/infinite-scroll/infinity.php:249
+#: modules/infinite-scroll/infinity.php:247
 msgid ""
 "We've disabled this option for you since you have footer widgets in "
 "Appearance &rarr; Widgets, or because your theme does not support infinite "
 "scroll."
 msgstr ""
 
-#: modules/infinite-scroll/infinity.php:255
+#: modules/infinite-scroll/infinity.php:253
 msgid "Scroll Infinitely"
 msgstr ""
 
-#: modules/infinite-scroll/infinity.php:255
+#: modules/infinite-scroll/infinity.php:253
 msgid "(Shows %s posts on each load)"
 msgstr ""
 
-#: modules/infinite-scroll/infinity.php:444
+#: modules/infinite-scroll/infinity.php:442
 msgid "Load more posts"
 msgstr ""
 
-#: modules/infinite-scroll/infinity.php:445
+#: modules/infinite-scroll/infinity.php:443
 msgid "Scroll back to top"
 msgstr ""
 
-#: modules/infinite-scroll/infinity.php:826
+#: modules/infinite-scroll/infinity.php:813
 msgid "Theme: %1$s."
 msgstr ""
 
@@ -1807,7 +1807,7 @@ msgid ""
 "Phone</a>, and <a href=\"%s\">more</a>!"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:22 modules/module-info.php:26
 msgid "VaultPress"
@@ -1881,7 +1881,7 @@ msgid ""
 "Deactivate button above."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:90 modules/module-info.php:94
 #: modules/module-info.php:103 modules/module-info.php:107
@@ -1905,7 +1905,7 @@ msgstr ""
 msgid "Available shortcodes are: %l."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:147 modules/module-info.php:151
 #: modules/module-info.php:161 modules/module-info.php:165
@@ -1934,7 +1934,7 @@ msgid ""
 "you can copy and paste to Twitter, Facebook or wherever your heart desires."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:182 modules/module-info.php:186
 #: modules/module-info.php:195 modules/module-info.php:199
@@ -1952,7 +1952,7 @@ msgstr ""
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:215 modules/module-info.php:219
 #: modules/publicize/ui.php:89
@@ -1980,7 +1980,7 @@ msgstr ""
 msgid "More information on using Publicize."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:245 modules/module-info.php:249
 #: modules/module-info.php:258 modules/module-info.php:262
@@ -2027,7 +2027,7 @@ msgid ""
 "<a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:315 modules/module-info.php:318
 #: modules/module-info.php:339 modules/publicize/ui.php:35
@@ -2079,7 +2079,7 @@ msgid ""
 "Watch it in HD for extra snazz!"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:366 modules/module-info.php:370
 msgid "Spelling and Grammar"
@@ -2102,7 +2102,7 @@ msgstr ""
 msgid "Widgets Screenshot"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:390 modules/module-info.php:404
 msgid "Extra Sidebar Widgets"
@@ -2197,7 +2197,7 @@ msgstr ""
 msgid "Subsriptions Screenshot"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:427
 msgid "Subscriptions"
@@ -2229,7 +2229,7 @@ msgid ""
 "<a href=\"%s\">Discussion Settings</a> page."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:449
 msgid "Enhanced Distribution"
@@ -2242,7 +2242,7 @@ msgid ""
 "engines, increasing your reach and traffic."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:466
 msgid "JSON API"
@@ -2299,7 +2299,7 @@ msgstr ""
 msgid "Gallery Carousel Screenshot"
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:552
 msgid "Carousel"
@@ -2312,7 +2312,7 @@ msgid ""
 "with comments and EXIF metadata."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:567 modules/module-info.php:570
 msgid "Custom CSS"
@@ -2330,7 +2330,7 @@ msgid ""
 "To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:589 modules/module-info.php:592
 msgid "Mobile Theme"
@@ -2359,7 +2359,7 @@ msgid ""
 "\"Deactive\" button above."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:611 modules/module-info.php:614
 msgid "Mobile Push Notifications"
@@ -2373,7 +2373,7 @@ msgid ""
 "with your readers and moderate comments on the go."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:635
 msgid "Infinite Scroll"
@@ -2415,7 +2415,7 @@ msgid ""
 "Updates</a> page."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:675 modules/module-info.php:678
 #: modules/post-by-email.php:89
@@ -2440,7 +2440,7 @@ msgid ""
 "More information on sending emails, attachments, and customizing your posts."
 msgstr ""
 
-#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b5)  #-#-#-#-#
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 2.0b8)  #-#-#-#-#
 #. Module Name of the plugin/theme
 #: modules/module-info.php:708
 msgid "Photon"
