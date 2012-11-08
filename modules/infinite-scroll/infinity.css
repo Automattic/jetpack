@@ -2,9 +2,9 @@
 -------------------------------------------------------------- */
 
 .infinite-wrap {
-	border-top: 2px solid #444;
+/*	border-top: 2px solid #444;
 	border-top: 2px solid rgba(68,68,68,0.8);
-	padding: 20px 0 0;
+	padding: 20px 0 0; */
 }
 .infinite-loader {
 	color: #000;
