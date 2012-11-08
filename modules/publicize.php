@@ -46,7 +46,7 @@ class Jetpack_Publicize {
 		}
 	}
 
-	function module_stats_toggle() {
+	function module_state_toggle() {
 		// extra check that we are on the JP blog, just incase
 		if ( class_exists( 'Jetpack' ) && $this->in_jetpack ) {
 			$jetpack = Jetpack::init();
