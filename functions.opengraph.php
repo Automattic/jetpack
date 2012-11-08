@@ -104,10 +104,31 @@ function jetpack_og_get_image( $width = 50, $height = 50, $max_images = 4 ) { //
 			$image = Jetpack_PostImages::get_images( $post->ID, array( 'width' => $width, 'height' => $height ) );
 	} else if ( is_author() ) {
 		$author = get_queried_object();
-		$avatar = get_avatar_url( $author->user_email, $width );
+		if ( function_exists( 'get_avatar_url' ) ) {
+			$avatar = get_avatar_url( $author->user_email, $width );
 
-		if ( ! empty( $avatar ) )
-			$image = $avatar[0];
+			if ( ! empty( $avatar ) ) {
+				if ( is_array( $avatar ) )
+					$image = $avatar[0];
+				else
+					$image = $avatar;
+			}
+		}
+		else {
+			$has_filter = has_filter( 'pre_option_show_avatars', '__return_true' );
+			if ( !$has_filter ) {
+				add_filter( 'pre_option_show_avatars', '__return_true' );
+			}
+			$avatar = get_avatar( $author->user_email, $width );
+			if ( !$has_filter ) {
+				remove_filter( 'pre_option_show_avatars', '__return_true' );
+			}
+
+			if ( !empty( $avatar ) && !is_wp_error( $avatar ) ) {
+				if ( preg_match( '/src=["\']([^"\']+)["\']/', $avatar, $matches ) );
+					$image = wp_specialchars_decode( $matches[1], ENT_QUOTES );
+			}
+		}
 	}
 
 	// Fallback to Blavatar if available
