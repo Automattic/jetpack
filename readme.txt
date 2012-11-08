@@ -92,8 +92,8 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 = 2.0 =
 * Enhancement: Publicize: Connect your site to popular social networks and automatically share new posts with your friends.
 * Enhancement: Post By Email: Publish posts to your blog directly from your personal email account.
-* Enhancement: Photon: Loads images from the WordPress.com content delivery network.
-* Enhancement: Infinite Scroll: Automatically pull the next set of posts into view when the reader approaches the bottom of the page.
+* Enhancement: Photon: Images served through the global WordPress.com cloud.
+* Enhancement: Infinite Scroll: Better/faster browsing by pulling the next set of posts into view automatically when the reader approaches the bottom of the page.
 * Enhancement: Open Graph: Provides more detailed information about your posts to social networks.
 * Enhancement: JSON API: New parameters for creating and viewing posts.
 * Enhancement: Improved compatibility for the upcoming WordPress 3.5.
