@@ -844,26 +844,13 @@ add_action( 'init', 'the_neverending_home_page_init', 20 );
 /**
  * Check whether the current theme is infinite-scroll aware.
  * If so, include the files which add theme support.
- *
- * As released in Jetpack 2.0, a child theme's parent wasn't checked for in the plugin's bundled support, hence the convoluted way the parent is checked for now.
- *
- * @uses wp_get_theme, apply_filters
- * @action after_setup_theme
- * @return null
  */
 function the_neverending_home_page_theme_support() {
-	$theme = wp_get_theme();
+	$theme_name = get_stylesheet();
 
-	$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/themes/{$theme->stylesheet}.php", $theme->stylesheet );
+	$customization_file = apply_filters( 'infinite_scroll_customization_file', dirname( __FILE__ ) . "/themes/{$theme_name}.php", $theme_name );
 
-	if ( is_readable( $customization_file ) ) {
+	if ( is_readable( $customization_file ) )
 		require_once( $customization_file );
-	}
-	elseif ( ! empty( $theme->template ) ) {
-		$customization_file = dirname( __FILE__ ) . "/themes/{$theme->template}.php";
-
-		if ( is_readable( $customization_file ) )
-			require_once( $customization_file );
-	}
 }
 add_action( 'after_setup_theme', 'the_neverending_home_page_theme_support', 5 );
