@@ -4164,6 +4164,7 @@ class Jetpack_Sync {
 		);
 
 		$post['permalink'] = get_permalink( $post_obj->ID );
+		$post['shortlink'] = wp_get_shortlink( $post_obj->ID );
 		return $post;
 	}
 
