@@ -89,6 +89,14 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 2.0.1 =
+* Enhancement: Photon: Support for the [Lazy Load](http://wordpress.org/extend/plugins/lazy-load/) plugin.
+* Bug Fix: Photon: Fix warped images with un- or under- specified dimensions.
+* Bug Fix: Photon: Fix warped images with pre-photonized URLs; don't try to photonize them twice.
+* Bug Fix: Infinite Scroll: Check a child theme's parent theme for infinite scroll support.
+* Bug Fix: Publicize: Send the correct shortlink to Twitter (et al.) if your site uses a shortener other than wp.me.
+* Bug Fix: Sharing: Improved theme compatibility for the Google+ button.
+
 = 2.0 =
 * Enhancement: Publicize: Connect your site to popular social networks and automatically share new posts with your friends.
 * Enhancement: Post By Email: Publish posts to your blog directly from your personal email account.
