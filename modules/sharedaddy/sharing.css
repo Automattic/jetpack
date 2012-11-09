@@ -388,19 +388,6 @@ a.sd-button.share-more span {
 
 }
 
-
-/* Special case for non-smart implementations of Google+ button */
-
-div.sharedaddy .sd-content ul li.share-google-plus-1 {
-	line-height: 90%;
-	margin-bottom: 2px !important;
-	min-height: 20px;
-}
-
-div.sharedaddy .sd-social-official .sd-content ul li.share-google-plus-1 {
-	padding-top: 0;
-}
-
 /* More pannel */
 
 div.sharedaddy .sharing-hidden .inner {
