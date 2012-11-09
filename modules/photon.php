@@ -85,10 +85,18 @@ class Jetpack_Photon {
 			global $content_width;
 
 			foreach ( $images[0] as $index => $tag ) {
-				$src = $src_orig = $images[2][ $index ];
-
 				// Default to resize, though fit may be used in certain cases where a dimension cannot be ascertained
 				$transform = 'resize';
+
+				// Identify image source
+				$src = $src_orig = $images[2][ $index ];
+
+				// Support Automattic's Lazy Load plugin
+				// Can't modify $tag yet as we need unadulterated version later
+				if ( false != preg_match( '#data-lazy-src=["|\'](.+?)["|\']#i', $tag, $lazy_load_src ) ) {
+					$placeholder_src = $placeholder_src_orig = $src;
+					$src = $src_orig = $lazy_load_src[1];
+				}
 
 				// Check if image URL should be used with Photon
 				if ( ! $this->validate_image_url( $src ) )
@@ -158,6 +166,14 @@ class Jetpack_Photon {
 					// Supplant the original source value with our Photon URL
 					$photon_url = esc_url( $photon_url );
 					$new_tag = str_replace( $src_orig, $photon_url, $new_tag );
+
+					// If Lazy Load is in use, pass placeholder image through Photon
+					if ( isset( $placeholder_src ) && $this->validate_image_url( $placeholder_src ) ) {
+						$placeholder_src = jetpack_photon_url( $placeholder_src );
+
+						if ( $placeholder_src != $placeholder_src_orig )
+							$new_tag = str_replace( $placeholder_src_orig, esc_url( $placeholder_src ), $new_tag );
+					}
 
 					// Remove the width and height arguments from the tag to prevent distortion
 					$new_tag = preg_replace( '#(width|height)=["|\']?(\d+)["|\']?\s{1}#i', '', $new_tag );
