@@ -173,6 +173,8 @@ class Jetpack_Photon {
 
 						if ( $placeholder_src != $placeholder_src_orig )
 							$new_tag = str_replace( $placeholder_src_orig, esc_url( $placeholder_src ), $new_tag );
+
+						unset( $placeholder_src );
 					}
 
 					// Remove the width and height arguments from the tag to prevent distortion
