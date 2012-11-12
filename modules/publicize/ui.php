@@ -141,7 +141,7 @@ class Publicize_UI {
 										<li>
 											<?php
 											if ( !empty( $profile_link ) ) : ?>
-												<a class="publicize-profile-link" href="<?php echo esc_attr( $profile_link ); ?>">
+												<a class="publicize-profile-link" href="<?php echo esc_url( $profile_link ); ?>">
 													<?php echo esc_html( $connection_display ); ?>
 												</a><?php
 											else :
