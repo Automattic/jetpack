@@ -142,12 +142,15 @@ jetpack = {
 						jQuery( window ).scrollTo( ( jQuery( 'div.more-info' ).prev().offset().top ) - 70, 600, function() { if ( typeof callback == 'function' ) callback.call( this ); } );
 					} else {
 						jQuery( 'div.more-info div.jp-content' ).hide();
-						jQuery( 'div.more-info' ).slideUp( 200, function() {
-							jQuery(this).detach().insertAfter( el );
+						jQuery( 'div.more-info' ).css( { height: '230px', minHeight: 0 } ).slideUp( 200, function() {
+							var $this = jQuery(this);
+							$this.detach().insertAfter( el );
 							jQuery( 'div.more-info div.jp-content' ).hide();
 							jetpack.learn_more_content( jQuery(card).attr( 'id' ) );
-							jQuery( 'div.more-info' ).slideDown( 300 );
-							jQuery( window ).scrollTo( ( jQuery( 'div.more-info' ).prev().offset().top ) - 70, 600, function() { if ( typeof callback == 'function' ) callback.call( this ); } );
+							$this.css( { height: '230px', minHeight: 0 } ).slideDown( 300, function() {
+								$this.css( { height: 'auto', minHeight: '230px' } );
+							} );
+							jQuery( window ).scrollTo( ( $this.prev().offset().top ) - 70, 600, function() { if ( typeof callback == 'function' ) callback.call( this ); } );
 						} );
 					}
 
@@ -157,7 +160,9 @@ jetpack = {
 					jQuery( el ).after( '<div id="message" class="more-info jetpack-message"><div class="arrow"></div><div class="jp-content"></div><div class="jp-close">&times;</div><div class="clear"></div></div>' );
 
 					// Show the box
+					jQuery( 'div.more-info' ).css( { height: '230px', minHeight: 0 } );
 					jQuery( 'div.more-info', 'div.module-container' ).hide().slideDown( 400, function() {
+						jQuery( 'div.more-info' ).css( { height: 'auto', minHeight: '230px' } );
 						// Load the content and scroll to it
 						jetpack.learn_more_content( jQuery(card).attr( 'id' ) );
 						jQuery( window ).scrollTo( ( jQuery( 'div.more-info' ).prev().offset().top ) - 70, 600 );
@@ -213,7 +218,7 @@ jetpack = {
 	close_learn_more: function( callback ) {
 		jQuery( 'div.more-info div.jp-content' ).hide();
 
-		jQuery( 'div.more-info' ).slideUp( 200, function() {
+		jQuery( 'div.more-info' ).css( { height: '230px', minHeight: 0 } ).slideUp( 200, function() {
 			jQuery( this ).remove();
 				jQuery( 'a.jetpack-deactivate-button' ).hide();
 				jetpack.linkClicked.parents( 'div.jetpack-module' ).children( '.jetpack-module-actions' ).children( 'a.jetpack-configure-button' ).show();
