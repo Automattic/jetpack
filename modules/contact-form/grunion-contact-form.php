@@ -990,8 +990,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$message .= __( 'Time:', 'jetpack' ) . ' ' . $time . "\n";
 		$message .= __( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP . "\n";
-		$message .= __( 'Contact Form URL:', 'jetpack' ) . ' ' . get_permalink( $post->ID ) . "\n";
 
+		if ( $widget ) {
+			$url = home_url( '/' );
+		} else {
+			$url = get_permalink( $post->ID );
+		}
+
+		$message .= __( 'Contact Form URL:', 'jetpack' ) . " $url\n";
 
 		if ( is_user_logged_in() ) {
 			$message .= "\n";
