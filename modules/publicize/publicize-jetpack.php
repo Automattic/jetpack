@@ -101,17 +101,17 @@ class Publicize extends Publicize_Base {
 				case 'error':
 					add_action( 'admin_notices', array( $this, 'display_connection_error' ) );
 				break;
-				
+
 				case 'request':
 					check_admin_referer( 'keyring-request', 'kr_nonce' );
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );
 
 					$verification = Jetpack::create_nonce( 'publicize' );
-					
+
 					$stats_options = get_option( 'stats_options' );
 					$wpcom_blog_id = Jetpack::get_option('id');
 					$wpcom_blog_id = !empty( $wpcom_blog_id ) ? $wpcom_blog_id : $stats_options['blog_id'];
-					
+
 					$user = wp_get_current_user();
 					$redirect = $this->api_url( $service_name, urlencode_deep( array(
 						'action'       => 'request',
@@ -158,7 +158,7 @@ class Publicize extends Publicize_Base {
 			}
 		}
 	}
-	
+
 	function display_connection_error() {
 		if ( isset( $_GET['service'] ) ) {
 			$service_name = $_GET['service'];
@@ -230,7 +230,7 @@ class Publicize extends Publicize_Base {
 	function get_services( $filter ) {
 		if ( !in_array( $filter, array( 'all', 'connected' ) ) )
 			$filter = 'all';
-			
+
 		$services = array(
 				'facebook' => array(),
 				'twitter'  => array(),
