@@ -1,7 +1,7 @@
 <?php
 /**
  * Open Graph Tags
- * 
+ *
  * Add Open Graph tags so that Facebook (and any other service that supports them)
  * can crawl the site better and we provide a better sharing experience.
  *
@@ -57,17 +57,6 @@ function jetpack_og_tags() {
 
 	$tags['og:site_name'] = get_bloginfo( 'name' );
 	$tags['og:image'] = jetpack_og_get_image( $image_width, $image_height );
-	if ( is_array( $tags['og:image'] ) ) {
-		// We got back more than one image from Jetpack_PostImages, so we need to extract just the thumb
-		$fit_width  = $image_width * 2;
-		$fit_height = $image_height * 2;
-
-		$imgs = array();
-		foreach ( $tags['og:image'] as $img ) {
-			$imgs[] = jetpack_photon_url( $img['src'], array( 'fit' => "$fit_width,$fit_height" ) );
-		}
-		$tags['og:image'] = $imgs;
-	}
 
 	// Facebook whines if you give it an empty title
 	if ( empty( $tags['og:title'] ) )
@@ -77,10 +66,14 @@ function jetpack_og_tags() {
 	$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '...' : $tags['og:description'];
 
 	// Add any additional tags here, or modify what we've come up with
-	$tags = apply_filters( 'jetpack_open_graph_tags', $tags );
+	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
 
 	foreach ( (array) $tags as $tag_property => $tag_content ) {
-		foreach ( (array) $tag_content as $tag_content_single ) { // to accomodate multiple images
+		// to accomodate multiple images
+		$tag_content = (array) $tag_content;
+		$tag_content = array_unique( $tag_content );
+
+		foreach ( $tag_content as $tag_content_single ) {
 			if ( empty( $tag_content_single ) )
 				continue; // Don't ever output empty tags
 			$og_tag = sprintf( '<meta property="%s" content="%s" />', esc_attr( $tag_property ), esc_attr( $tag_content_single ) );
@@ -100,8 +93,15 @@ function jetpack_og_get_image( $width = 50, $height = 50, $max_images = 4 ) { //
 		$image = '';
 
 		// Attempt to find something good for this post using our generalized PostImages code
-		if ( class_exists( 'Jetpack_PostImages' ) )
-			$image = Jetpack_PostImages::get_images( $post->ID, array( 'width' => $width, 'height' => $height ) );
+		if ( class_exists( 'Jetpack_PostImages' ) ) {
+			$post_images = Jetpack_PostImages::get_images( $post->ID, array( 'width' => $width, 'height' => $height ) );
+			if ( $post_images && !is_wp_error( $post_images ) ) {
+				$image = array();
+				foreach ( (array) $post_images as $post_image ) {
+					$image[] = $post_image['src'];
+				}
+			}
+		}
 	} else if ( is_author() ) {
 		$author = get_queried_object();
 		if ( function_exists( 'get_avatar_url' ) ) {

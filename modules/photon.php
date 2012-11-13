@@ -55,6 +55,9 @@ class Jetpack_Photon {
 		// Featured images aka post thumbnails
 		add_action( 'begin_fetch_post_thumbnail_html', array( $this, 'action_begin_fetch_post_thumbnail_html' ) );
 		add_action( 'end_fetch_post_thumbnail_html', array( $this, 'action_end_fetch_post_thumbnail_html' ) );
+
+		// og:image URL
+		add_filter( 'jetpack_open_graph_tags', array( $this, 'filter_open_graph_tags' ), 10, 2 );
 	}
 
 	/**
@@ -374,6 +377,36 @@ class Jetpack_Photon {
 		}
 
 		return is_array( self::$image_sizes ) ? self::$image_sizes : array();
+	}
+
+	/**
+	 * Pass og:image URLs through Photon
+	 *
+	 * @param array $tags
+	 * @param array $parameters
+	 * @uses jetpack_photon_url
+	 * @return array
+	 */
+	function filter_open_graph_tags( $tags, $parameters ) {
+		if ( empty( $tags['og:image'] ) ) {
+			return $tags;
+		}
+
+		$photon_args = array(
+			'fit' => sprintf( '%d,%d', 2 * $parameters['image_width'], 2 * $parameters['image_height'] ),
+		);
+
+		if ( is_array( $tags['og:image'] ) ) {
+			$images = array();
+			foreach ( $tags['og:image'] as $image ) {
+				$images[] = jetpack_photon_url( $image, $photon_args );
+			}
+			$tags['og:image'] = $images;
+		} else {
+			$tags['og:image'] = jetpack_photon_url( $tags['og:image'], $photon_args );
+		}
+
+		return $tags;
 	}
 }
 
