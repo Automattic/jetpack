@@ -445,7 +445,13 @@ function stats_convert_image_urls( $html ) {
 }
 
 function stats_convert_chart_urls( $html ) {
-	$html = preg_replace( '|https?://[-.a-z0-9]+/wp-includes/charts/([-.a-z0-9]+).php|', 'admin.php?page=stats&noheader&chart=$1', $html );
+	$html = preg_replace_callback( '|https?://[-.a-z0-9]+/wp-includes/charts/([-.a-z0-9]+).php(\??)|', 
+			create_function(
+				'$matches',
+				// If there is a query string, change the beginning '?' to a '&' so it fits into the middle of this query string
+				'return "admin.php?page=stats&noheader&chart=" . $matches[1] . str_replace( "?", "&", $matches[2] );'
+			),
+			$html );
 	return $html;
 }
 
