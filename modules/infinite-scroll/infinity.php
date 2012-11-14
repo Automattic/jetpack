@@ -579,6 +579,10 @@ class The_Neverending_Home_Page {
 					// Base source
 					$src = $wp_scripts->registered[ $handle ]->src;
 
+					// Take base_url into account
+					if ( strpos( $src, 'http' ) !== 0 )
+						$src = $wp_scripts->base_url . $src;
+
 					// Version and additional arguments
 					if ( null === $wp_scripts->registered[ $handle ]->ver )
 						$ver = '';
@@ -623,6 +627,10 @@ class The_Neverending_Home_Page {
 
 					// Base source
 					$src = $wp_styles->registered[ $handle ]->src;
+
+					// Take base_url into account
+					if ( strpos( $src, 'http' ) !== 0 )
+						$src = $wp_styles->base_url . $src;
 
 					// Version and additional arguments
 					if ( null === $wp_styles->registered[ $handle ]->ver )
