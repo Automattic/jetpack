@@ -5,7 +5,7 @@ class Publicize extends Publicize_Base {
 	function __construct() {
 		parent::__construct();
 
-		add_action( 'load-settings_page_sharing', array( $this, 'admin_page_load' ) );
+		add_action( 'load-settings_page_sharing', array( $this, 'admin_page_load' ), 9 );
 
 		add_action( 'wp_ajax_publicize_tumblr_options_page', array( $this, 'options_page_tumblr' ) );
 		add_action( 'wp_ajax_publicize_facebook_options_page', array( $this, 'options_page_facebook' ) );
@@ -98,76 +98,119 @@ class Publicize extends Publicize_Base {
 				$service_name = $_GET['service'];
 
 			switch ( $_GET['action'] ) {
-				case 'error':
-					add_action( 'admin_notices', array( $this, 'display_connection_error' ) );
+			case 'error':
+				add_action( 'pre_admin_screen_sharing', array( $this, 'display_connection_error' ), 9 );
 				break;
 
-				case 'request':
-					check_admin_referer( 'keyring-request', 'kr_nonce' );
-					check_admin_referer( "keyring-request-$service_name", 'nonce' );
+			case 'request':
+				check_admin_referer( 'keyring-request', 'kr_nonce' );
+				check_admin_referer( "keyring-request-$service_name", 'nonce' );
 
-					$verification = Jetpack::create_nonce( 'publicize' );
+				$verification = Jetpack::create_nonce( 'publicize' );
 
-					$stats_options = get_option( 'stats_options' );
-					$wpcom_blog_id = Jetpack::get_option('id');
-					$wpcom_blog_id = !empty( $wpcom_blog_id ) ? $wpcom_blog_id : $stats_options['blog_id'];
+				$stats_options = get_option( 'stats_options' );
+				$wpcom_blog_id = Jetpack::get_option('id');
+				$wpcom_blog_id = !empty( $wpcom_blog_id ) ? $wpcom_blog_id : $stats_options['blog_id'];
 
-					$user = wp_get_current_user();
-					$redirect = $this->api_url( $service_name, urlencode_deep( array(
-						'action'       => 'request',
-						'redirect_uri' => add_query_arg( array( 'action' => 'done' ), menu_page_url( 'sharing', false ) ),
-						'for'          => 'publicize', // required flag that says this connection is intended for publicize
-						'siteurl'      => site_url(),
-						'state'        => $user->ID,
-						'blog_id'      => $wpcom_blog_id,
-						'secret_1'	   => $verification['secret_1'],
-						'secret_2'     => $verification['secret_2'],
-						'eol'		   => $verification['eol'],
-					) ) );
-					wp_redirect( $redirect );
-					exit;
+				$user = wp_get_current_user();
+				$redirect = $this->api_url( $service_name, urlencode_deep( array(
+					'action'       => 'request',
+					'redirect_uri' => add_query_arg( array( 'action' => 'done' ), menu_page_url( 'sharing', false ) ),
+					'for'          => 'publicize', // required flag that says this connection is intended for publicize
+					'siteurl'      => site_url(),
+					'state'        => $user->ID,
+					'blog_id'      => $wpcom_blog_id,
+					'secret_1'	   => $verification['secret_1'],
+					'secret_2'     => $verification['secret_2'],
+					'eol'		   => $verification['eol'],
+				) ) );
+				wp_redirect( $redirect );
+				exit;
 				break;
 
-				case 'completed':
-					// Jetpack blog requests Publicize Connections via new XML-RPC method
-					Jetpack::load_xml_rpc_client();
-					$xml = new Jetpack_IXR_Client();
-					$xml->query( 'jetpack.fetchPublicizeConnections' );
+			case 'completed':
+				// Jetpack blog requests Publicize Connections via new XML-RPC method
+				Jetpack::load_xml_rpc_client();
+				$xml = new Jetpack_IXR_Client();
+				$xml->query( 'jetpack.fetchPublicizeConnections' );
 
-					if ( !$xml->isError() ) {
-						$response = $xml->getResponse();
-						Jetpack::update_option( 'publicize_connections', $response );
-					}
+				if ( !$xml->isError() ) {
+					$response = $xml->getResponse();
+					Jetpack::update_option( 'publicize_connections', $response );
+				}
 				break;
 
-				case 'delete':
-					$id = $_GET['id'];
+			case 'delete':
+				$id = $_GET['id'];
 
-					check_admin_referer( 'keyring-request', 'kr_nonce' );
-					check_admin_referer( "keyring-request-$service_name", 'nonce' );
+				check_admin_referer( 'keyring-request', 'kr_nonce' );
+				check_admin_referer( "keyring-request-$service_name", 'nonce' );
 
-					Jetpack::load_xml_rpc_client();
-					$xml = new Jetpack_IXR_Client();
-					$xml->query( 'jetpack.deletePublicizeConnection', $id );
+				Jetpack::load_xml_rpc_client();
+				$xml = new Jetpack_IXR_Client();
+				$xml->query( 'jetpack.deletePublicizeConnection', $id );
 
-					if ( !$xml->isError() ) {
-						$response = $xml->getResponse();
-						Jetpack::update_option( 'publicize_connections', $response );
-					}
+				if ( !$xml->isError() ) {
+					$response = $xml->getResponse();
+					Jetpack::update_option( 'publicize_connections', $response );
+				}
+				add_action( 'admin_notices', array( $this, 'display_disconnected' ) );
 				break;
 			}
+		}
+
+		// Errors encountered on WordPress.com's end are passed back as a code
+		if ( isset( $_GET['action'] ) && 'error' == $_GET['action'] ) {
+			// Load Jetpack's styles to handle the box
+			Jetpack::init()->admin_styles();
 		}
 	}
 
 	function display_connection_error() {
+		$code = false;
 		if ( isset( $_GET['service'] ) ) {
 			$service_name = $_GET['service'];
-			$m = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack' ), Publicize::get_service_label( $service_name ) );
+			$error = sprintf( __( 'There was a problem connecting to %s to create an authorized connection. Please try again in a moment.', 'jetpack' ), Publicize::get_service_label( $service_name ) );
 		} else {
-			$m = __( 'There was a problem connecting with Publicize. Please try again in a moment.', 'jetpack' );
+			if ( isset( $_GET['publicize_error'] ) ) {
+				$code = strtolower( $_GET['publicize_error'] );
+				switch ( $code ) {
+				case '400':
+					$error = __( 'An invalid request was made. This normally means that something intercepted or corrupted the request from your server to the Jetpack Server. Try again and see if it works this time.', 'jetpack' );
+					break;
+				case 'secret_mismatch':
+					$error = __( 'We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server.', 'jetpack' );
+					break;
+				case 'empty_blog_id':
+					$error = __( 'No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Publicize again.', 'jetpack' );
+					break;
+				case 'empty_state':
+					$error = sprintf( __( 'No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href="%s">Jetpack page</a> within wp-admin.', 'jetpack' ), Jetpack::admin_url() );
+					break;
+				default:
+					$error = __( 'Something which should never happen, happened. Sorry about that. If you try again, maybe it will work.', 'jetpack' );
+					break;
+				}
+			} else {
+				$error = __( 'There was a problem connecting with Publicize. Please try again in a moment.', 'jetpack' );
+			}
 		}
-		echo "<div class='error'>\n";
-		echo '<p>' . esc_html( $m ) . "</p>\n";
+		// Using the same formatting/style as Jetpack::admin_notices() error
+		?>
+		<div id="message" class="jetpack-message jetpack-err">
+			<div class="squeezer">
+				<h4><?php echo wp_kses( $error, array( 'a' => array( 'href' => true ), 'code' => true, 'strong' => true, 'br' => true, 'b' => true ) ); ?></h4>
+				<?php if ( $code ) : ?>
+				<p><?php printf( __( 'Error code: %s', 'jetpack' ), esc_html( stripslashes( $code ) ) ); ?></p>
+				<?php endif; ?>
+			</div>
+		</div>
+		<?
+	}
+
+	function display_disconnected() {
+		echo "<div class='updated'>\n";
+		echo '<p>' . esc_html( __( 'That connection has been removed.', 'jetpack' ) ) . "</p>\n";
 		echo "</div>\n\n";
 	}
 
