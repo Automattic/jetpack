@@ -274,8 +274,9 @@ class Jetpack_Photon {
 
 				// Expose arguments to a filter before passing to Photon
 				$photon_args = array(
-					'fit' => $image_args['width'] . ',' . $image_args['height']
+					'fit' => $width . ',' . $height
 				);
+
 				$photon_args = apply_filters( 'jetpack_photon_image_downsize_array', $photon_args, compact( 'width', 'height', 'image_url', 'attachment_id' ) );
 
 				// Generate Photon URL
