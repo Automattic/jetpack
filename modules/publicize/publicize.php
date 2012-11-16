@@ -102,6 +102,18 @@ abstract class Publicize_Base {
 			return 'http://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'
 		} else if ( 'yahoo' == $service_name ) {
 			return 'http://profile.yahoo.com/' . $cmeta['external_id'];
+		} else if ( 'linkedin' == $service_name ) {
+			if ( !isset( $cmeta['connection_data']['meta']['profile_url'] ) ) {
+				return false;
+			}
+
+			$profile_url_query = parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
+			wp_parse_str( $profile_url_query, $profile_url_query_args );
+			if ( !isset( $profile_url_query_args['key'] ) ) {
+				return false;
+			}
+
+			return esc_url_raw( add_query_arg( 'id', urlencode( $profile_url_query_args['key'] ), 'http://www.linkedin.com/profile/view' ) );
 		} else {
 			return false; // no fallback. we just won't link it
 		}
@@ -220,6 +232,8 @@ abstract class Publicize_Base {
 			!did_action( 'wp_ajax_json_quickpress_post' )
 		&&
 			!did_action( 'wp_ajax_instapost_publish' )
+		&&
+			!did_action( 'wp_ajax_post_reblog' )
 		) {
 			$submit_post = false;
 		}
