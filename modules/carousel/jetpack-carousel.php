@@ -298,7 +298,7 @@ class Jetpack_Carousel {
 
 		// Used in context like NewDash
 		$switched = false;
-		if ( $_blog_id != get_current_blog_id() ) {
+		if ( function_exists('switch_to_blog') && $_blog_id != get_current_blog_id() ) {
 			switch_to_blog( $_blog_id );
 			$switched = true;
 		}
@@ -350,7 +350,7 @@ class Jetpack_Carousel {
 		do_action( 'jp_carousel_post_attachment_comment' );
 		$comment_status = wp_get_comment_status( $comment_id );
 
-		if ( true == $switched )
+		if ( function_exists('restore_current_blog') && true == $switched )
 			restore_current_blog();
 
 		die( json_encode( array( 'comment_id' => $comment_id, 'comment_status' => $comment_status ) ) );
