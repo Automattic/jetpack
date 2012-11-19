@@ -153,6 +153,13 @@ class Jetpack_Infinite_Scroll_Extras {
 
 			// We made it this far, so gather the data needed to track IS views
 			$settings['stats'] = 'blog=' . Jetpack::get_option( 'id' ) . '&host=' . parse_url( get_option( 'home' ), PHP_URL_HOST ) . '&v=ext&j=' . JETPACK__API_VERSION . ':' . JETPACK__VERSION;
+
+			// Pagetype parameter
+			$settings['stats'] .= '&x_pagetype=infinite';
+			if ( 'click' == $settings['type'] )
+				$settings['stats'] .= '-click';
+
+			$settings['stats'] .= '-jetpack';
 		}
 
 		// Check if Google Analytics tracking is requested
