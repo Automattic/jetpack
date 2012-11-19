@@ -710,6 +710,7 @@ class Share_Facebook extends Sharing_Source {
 				'ja_JP' => 100,
 				'nl_NL' => 130,
 				'ru_RU' => 128,
+				'cs_CZ' => 135,
 			);
 
 			$widths = apply_filters( 'sharing_facebook_like_widths', $widths );
