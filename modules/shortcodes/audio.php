@@ -6,7 +6,7 @@
 class AudioShortcode {
 
 	static $add_script = false;
-	
+
 	/**
 	 * Add all the actions & resgister the shortcode
 	 */
@@ -161,8 +161,8 @@ class AudioShortcode {
 
 		// generate default titles
 		$file_titles = array();
-		for ( $i = 0; $i < $num_files; $i++ ) { 
-			$file_titles[] = 'Track #' . ($i+1); 
+		for ( $i = 0; $i < $num_files; $i++ ) {
+			$file_titles[] = 'Track #' . ($i+1);
 		}
 
 		// replace with real titles if they exist
@@ -190,7 +190,7 @@ class AudioShortcode {
 		$to_remove = array();
 		foreach ( $sound_files as $i => $sfile ) {
 			$file_extension = pathinfo( $sfile, PATHINFO_EXTENSION );
-			if ( ! preg_match( '/^(mp3|wav|ogg|oga|m4a|aac|webm)$/', $file_extension ) ) {
+			if ( ! preg_match( '/^(mp3|wav|ogg|oga|m4a|aac|webm)$/i', $file_extension ) ) {
 				$html5_audio .= '<!-- Audio shortcode unsupported audio format -->';
 				if ( 1 == $num_files ) {
 					$html5_audio .= $not_supported;
@@ -199,7 +199,7 @@ class AudioShortcode {
 				$to_remove[] = $i; // make a note of the bad files
 				$all_mp3 = false;
 				continue;
-			} elseif ( ! preg_match( '/^mp3$/', $file_extension ) ) {
+			} elseif ( ! preg_match( '/^mp3$/i', $file_extension ) ) {
 				$all_mp3 = false;
 			}
 
@@ -240,9 +240,9 @@ CONTROLS;
 		// override html5 audio code w/ just not supported code
 		if ( is_feed() ) {
 			$html5_audio = $not_supported;
-		} 
+		}
 
-		if ( $all_mp3 ) { 
+		if ( $all_mp3 ) {
 			// process regular flash player, inserting HTML5 tags into object as fallback
 			$audio_tags = <<<FLASH
 				<object id='wp-as-{$post->ID}_{$ap_playerID}-flash' type='application/x-shockwave-flash' data='$swfurl' width='$width' height='24'>
@@ -268,7 +268,7 @@ FLASH;
 
 		// mashup the artist/titles for the script
 		$script_titles = array();
-		for ( $i = 0; $i < $num_files; $i++ ) { 
+		for ( $i = 0; $i < $num_files; $i++ ) {
 			$script_titles[] = $file_artists[$i] . $file_titles[$i];
 
 		}
@@ -300,7 +300,7 @@ FLASH;
 					jQuery(document).on( 'ready as-script-load', prep );
 				}
 			})();
-			//]]> 
+			//]]>
 			</script>
 SCRIPT;
 
@@ -308,7 +308,7 @@ SCRIPT;
 		if ( 0 < $num_good && ! is_feed() ) {
 			$audio_tags .= $script;
 		}
-		
+
 		return "<span style='text-align:left;display:block;'><p>$audio_tags</p></span>";
 	}
 
@@ -342,8 +342,8 @@ SCRIPT;
 					wp_as_js.type = 'text/javascript';
 					wp_as_js.src = $script_url;
 					wp_as_js.async = true;
-					wp_as_js.onload = function() { 
-						jQuery( document.body ).trigger( 'as-script-load' ); 
+					wp_as_js.onload = function() {
+						jQuery( document.body ).trigger( 'as-script-load' );
 					};
 					document.getElementsByTagName( 'head' )[0].appendChild( wp_as_js );
 				} else {

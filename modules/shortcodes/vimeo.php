@@ -39,14 +39,14 @@ function vimeo_shortcode( $atts ) {
 
 	if ( isset( $args['w'] ) ) {
 		$width = (int) $args['w'];
-		
+
 		if ( ! isset( $args['h'] ) ) {
 			// The case where w=300 is specified without h=200, otherwise $height
 			// will always equal the default of 300, no matter what w was set to.
 			$height = round( ( $width / 640 ) * 360 );
 		}
 	}
-	
+
 	if ( isset( $args['h'] ) ) {
 		$height = (int) $args['h'];
 
@@ -54,7 +54,7 @@ function vimeo_shortcode( $atts ) {
 			$width = round( ( $height / 360 ) * 640 );
 		}
 	}
-	
+
 	if ( ! $width )
 		$width = absint( $content_width );
 
@@ -71,13 +71,13 @@ function vimeo_shortcode( $atts ) {
 add_shortcode( 'vimeo', 'vimeo_shortcode' );
 
 function vimeo_embed_to_shortcode( $content ) {
-	if ( false === stripos( $content, 'player.vimeo.com/video/' ) ) 
+	if ( false === stripos( $content, 'player.vimeo.com/video/' ) )
 		return $content;
 
 	$regexp = '!<iframe\s+src=[\'"]http://player\.vimeo\.com/video/(\d+)[\'"]((?:\s+\w+=[\'"][^\'"]*[\'"])*)></iframe>!i';
-	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) ); 
-  
-	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) { 
+	$regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $regexp, ENT_NOQUOTES ) );
+
+	foreach ( array( 'regexp', 'regexp_ent' ) as $reg ) {
 		if ( !preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) )
 			continue;
 
@@ -86,7 +86,7 @@ function vimeo_embed_to_shortcode( $content ) {
 
 			$params = $match[2];
 
-			if ( 'regexp_ent' == $reg ) 
+			if ( 'regexp_ent' == $reg )
 				$params = html_entity_decode( $params );
 
 			$params = wp_kses_hair( $params, array( 'http' ) );
@@ -95,8 +95,8 @@ function vimeo_embed_to_shortcode( $content ) {
 			$height = isset( $params['height'] ) ? (int) $params['height']['value'] : 0;
 
 			$wh = '';
-			if ( $width && $height ) 
-				$wh = ' w=' . $width . ' h=' . $height; 
+			if ( $width && $height )
+				$wh = ' w=' . $width . ' h=' . $height;
 
 			$shortcode = '[vimeo ' . $id . $wh . ']';
 			$content = str_replace( $match[0], $shortcode, $content );
