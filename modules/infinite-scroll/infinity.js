@@ -68,7 +68,7 @@ Scroller = function( settings ) {
 		this.body.bind( 'post-load', { self: self }, self.checkViewportOnLoad );
 	} else if ( type == 'click' ) {
 		this.element.append( self.handle );
-		this.element.live( 'click.infinity', '#infinite-handle', function() {
+		this.element.on( 'click.infinity', '#infinite-handle', function() {
 			// Handle the handle
 			$( '#infinite-handle' ).remove();
 			// Fire the refresh
@@ -124,7 +124,7 @@ Scroller.prototype.gotop = function() {
 	blog.attr( 'title', totop );
 
 	// Scroll to top on blog title
-	blog.live( 'click', function( e ) {
+	blog.on( 'click', function( e ) {
 		$( 'html, body' ).animate( { scrollTop: 0 }, 'fast' );
 		e.preventDefault();
 	});
@@ -314,7 +314,7 @@ Scroller.prototype.ensureFilledViewport = function() {
 		} );
 
 		if ( postsHeight === 0 ) {
-			self.body.unbind( 'post-load', self.checkViewportOnLoad );
+			self.body.off( 'post-load', self.checkViewportOnLoad );
 			return;
 		}
 	}
@@ -336,7 +336,7 @@ Scroller.prototype.ensureFilledViewport = function() {
 		self.refresh();
 	}
 	else {
-		self.body.unbind( 'post-load', self.checkViewportOnLoad );
+		self.body.off( 'post-load', self.checkViewportOnLoad );
 	}
 }
 
