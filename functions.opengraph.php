@@ -33,7 +33,7 @@ function jetpack_og_tags() {
 		if ( ! empty( $facebook_admins ) )
 			$tags['fb:admins'] = $facebook_admins;
 
-	} elseif ( is_author() ) {
+	} else if ( is_author() ) {
 		$tags['og:type'] = 'author';
 
 		$author = get_queried_object();
@@ -42,7 +42,7 @@ function jetpack_og_tags() {
 		$tags['og:url'] = get_author_posts_url( $author->ID );
 		$tags['og:description'] = $author->description;
 
-	} elseif ( is_singular() ) {
+	} else if ( is_singular() ) {
 		global $post;
 		setup_postdata( $post );
 
@@ -50,6 +50,11 @@ function jetpack_og_tags() {
 		$tags['og:title'] = get_the_title();
 		$tags['og:url'] = get_permalink();
 		$tags['og:description'] = strip_tags( get_the_excerpt() );
+
+		// Force a description, to avoid FB getting its own
+		if ( empty( $tags['og:description'] ) )
+			$tags['og:description'] = ' ';
+
 	}
 
 	if ( empty( $tags ) )
