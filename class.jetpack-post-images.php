@@ -179,7 +179,7 @@ class Jetpack_PostImages {
 				'href'       => $permalink,
 			);
 		}
-		
+
 		/*
 		* We only want to pass back attached images that were actually inserted.
 		* We can load up all the images found in the HTML source and then
@@ -187,12 +187,11 @@ class Jetpack_PostImages {
 		*/
 		$html_images = array();
 		$html_images = self::from_html( get_post( $post_id ) );
-
 		$inserted_images = array();
-		
+
 		foreach( $html_images as $html_image ) {
 			$src = parse_url( $html_image['src'] );
-			$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path']; // strip off any query strings 
+			$inserted_images[] = $src['scheme'] . '://' . $src['host'] . $src['path']; // strip off any query strings
 		}
 		foreach( $images as $i => $image ) {
 			if ( !in_array( $image['src'], $inserted_images ) )
@@ -257,7 +256,7 @@ class Jetpack_PostImages {
 				return $images;
 		}
 
-		preg_match_all( '!<img.*src="([^"]+)".*/>!iUs', $html, $matches );
+		preg_match_all( '!<img.*src="([^"]+)".*/?>!iUs', $html, $matches );
 		if ( !empty( $matches[1] ) ) {
 			foreach ( $matches[1] as $match ) {
 				if ( stristr( $match, '/smilies/' ) )
@@ -386,14 +385,14 @@ class Jetpack_PostImages {
 
 		$media = apply_filters( 'jetpack_images_pre_get_images', $media, $post_id, $args );
 		if ( $media )
-			return $media; 
+			return $media;
 
 		$defaults = array(
-			'width' => 200,  // Required minimum width (if possible to determine)
-			'height' => 200, // Required minimum height (if possible to determine)
-			'avatar_size' => 96,
+			'width'               => 200,  // Required minimum width (if possible to determine)
+			'height'              => 200, // Required minimum height (if possible to determine)
+			'avatar_size'         => 96,
 			'fallback_to_avatars' => false,
-			'gravatar_default' => false,
+			'gravatar_default'    => false,
 		);
 		$args = wp_parse_args( $args, $defaults );
 
