@@ -581,8 +581,8 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$email_address = $current_user->user_email;
 
 		// Display a subscribe form ?>
-		<a name="subscribe-blog"></a>
-		<form action="" method="post" accept-charset="utf-8" id="subscribe-blog">
+		<a id="subscribe-blog"></a>
+		<form action="." method="post" accept-charset="utf-8" id="subscribe-blog">
 			<?php
 			if ( ! isset ( $_GET['subscribe'] ) ) {
 				?><p><?php echo $subscribe_text ?></p><?php

@@ -193,7 +193,7 @@ SCRIPT;
 						$data = esc_attr( json_encode( $data ) );
 						
 						return <<<CONTAINER
-<a name="pd_a_{$poll}"></a>
+<a id="pd_a_{$poll}"></a>
 <div class="PDS_Poll" id="PDI_container{$poll}" data-settings="{$data}" style="display:inline-block;{$float}{$margins}"></div>
 <div id="PD_superContainer"></div>
 <noscript>{$poll_link}</noscript>
@@ -204,7 +204,7 @@ CONTAINER;
 							$cb = '';
 							
 						return <<<CONTAINER
-<a name="pd_a_{$poll}"></a>
+<a id="pd_a_{$poll}"></a>
 <div class="PDS_Poll" id="PDI_container{$poll}" style="display:inline-block;{$float}{$margins}"></div>
 <div id="PD_superContainer"></div>
 <script type="text/javascript" charset="UTF-8" src="{$poll_js}{$cb}"></script>

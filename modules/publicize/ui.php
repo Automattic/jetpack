@@ -85,7 +85,7 @@ class Publicize_UI {
 		$_blog_id = get_current_blog_id();
 		?>
 
-  		<form action="" id="publicize-form">
+  		<form action="." id="publicize-form">
 	  		<h3 id="publicize"><?php _e( 'Publicize', 'jetpack' ) ?></h3>
 	  		<p>
 	  			<?php esc_html_e( 'Connect your blog to popular social networking sites and automatically share new posts with your friends.', 'jetpack' ) ?>

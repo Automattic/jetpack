@@ -45,7 +45,7 @@ function AtD_display_options_form() {
 ?>
    <table class="form-table">
       <tr valign="top">
-         <th scope="row"> <a name="atd"></a> <?php _e( 'Proofreading', 'jetpack' ); ?></th>
+         <th scope="row"> <a id="atd"></a> <?php _e( 'Proofreading', 'jetpack' ); ?></th>
 		 <td>
    <p><?php _e( 'Automatically proofread content when:', 'jetpack' ); ?>
 

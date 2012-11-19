@@ -275,7 +275,7 @@ class Share_Email extends Sharing_Source {
 		$visible = $status = false;
 ?>
 	<div id="sharing_email" style="display: none;">
-		<form action="" method="post">
+		<form action="." method="post">
 			<label for="target_email"><?php _e( 'Send to Email Address', 'jetpack' ) ?></label>
 			<input type="text" name="target_email" id="target_email" value="" />
 			
