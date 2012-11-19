@@ -242,7 +242,7 @@ class Jetpack_Photon {
 				return $image;
 
 			// If an image is requested with a size known to WordPress, use that size's settings with Photon
-			if ( ! is_array( $size ) && array_key_exists( $size, $this->image_sizes() ) ) {
+			if ( ( is_string( $size ) || is_int( $size ) ) && array_key_exists( $size, $this->image_sizes() ) ) {
 				$image_args = $this->image_sizes();
 				$image_args = $image_args[ $size ];
 
