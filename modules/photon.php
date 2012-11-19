@@ -44,6 +44,7 @@ class Jetpack_Photon {
 	 * @return null
 	 */
 	private function __construct() {
+		// Display warning if site is private
 		add_action( 'jetpack_activate_module_photon', array( $this, 'action_jetpack_activate_module_photon' ) );
 
 		if ( ! function_exists( 'jetpack_photon_url' ) )
@@ -84,7 +85,7 @@ class Jetpack_Photon {
 	 * @return string
 	 */
 	public function filter_the_content( $content ) {
-		if ( false != preg_match_all( '#<img(.+?)src=["|\'](.+?)["|\'](.+?)/?>#i', $content, $images ) ) {
+		if ( false != preg_match_all( '#(<a.+?href=["|\'](.+?)["|\'].+?>\s?)?(<img.+?src=["|\'](.+?)["|\'].+?/?>){1}(\s?</a>)?#i', $content, $images ) ) {
 			global $content_width;
 
 			foreach ( $images[0] as $index => $tag ) {
@@ -92,11 +93,11 @@ class Jetpack_Photon {
 				$transform = 'resize';
 
 				// Identify image source
-				$src = $src_orig = $images[2][ $index ];
+				$src = $src_orig = $images[4][ $index ];
 
 				// Support Automattic's Lazy Load plugin
 				// Can't modify $tag yet as we need unadulterated version later
-				if ( false != preg_match( '#data-lazy-src=["|\'](.+?)["|\']#i', $tag, $lazy_load_src ) ) {
+				if ( false != preg_match( '#data-lazy-src=["|\'](.+?)["|\']#i', $images[3][ $index ], $lazy_load_src ) ) {
 					$placeholder_src = $placeholder_src_orig = $src;
 					$src = $src_orig = $lazy_load_src[1];
 				}
@@ -109,10 +110,10 @@ class Jetpack_Photon {
 				$width = $height = false;
 
 				// First, check the image tag
-				if ( preg_match( '#width=["|\']?(\d+)["|\']?#i', $tag, $width_string ) )
+				if ( preg_match( '#width=["|\']?(\d+)["|\']?#i', $images[3][ $index ], $width_string ) )
 					$width = (int) $width_string[1];
 
-				if ( preg_match( '#height=["|\']?(\d+)["|\']?#i', $tag, $height_string ) )
+				if ( preg_match( '#height=["|\']?(\d+)["|\']?#i', $images[3][ $index ], $height_string ) )
 					$height = (int) $height_string[1];
 
 				// If image tag lacks width and height arguments, try to determine from strings WP appends to resized image filenames.
@@ -182,6 +183,10 @@ class Jetpack_Photon {
 
 					// Remove the width and height arguments from the tag to prevent distortion
 					$new_tag = preg_replace( '#(width|height)=["|\']?(\d+)["|\']?\s{1}#i', '', $new_tag );
+
+					// If image is linked to an image (presumably itself, but who knows), pass link href to Photon sans arguments
+					if ( ! empty( $images[2][ $index ] ) && false !== strpos( $new_tag, $images[2][ $index ] ) && $this->validate_image_url( $images[2][ $index ] ) )
+						$new_tag = str_replace( $images[2][ $index ], jetpack_photon_url( $images[2][ $index ] ), $new_tag );
 
 					$content = str_replace( $tag, $new_tag, $content );
 				}
