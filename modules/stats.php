@@ -947,6 +947,18 @@ function stats_dashboard_widget_content() {
 }
 
 function stats_print_wp_remote_error( $get, $url ) {
+	$state_name = 'stats_remote_error_' . substr( md5( $url ), 0, 8 );
+	$previous_error = Jetpack::state( $state_name );
+	$error = md5( serialize( compact( 'get', 'url' ) ) );
+	Jetpack::state( $state_name, $error );
+	if ( $error !== $previous_error ) {
+?>
+	<div class="wrap">
+	<p><?php _e( 'We were unable to get your stats just now. Please reload this page to try again.', 'jetpack' ); ?></p>
+	</div>
+<?php
+		return;
+	}
 ?>
 	<div class="wrap">
 	<p><?php printf( __( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s">contact support</a>. In your report please include the information below.', 'jetpack' ), 'http://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
