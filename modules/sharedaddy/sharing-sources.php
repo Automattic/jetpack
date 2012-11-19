@@ -701,6 +701,7 @@ class Share_Facebook extends Sharing_Source {
 			// Locale-specific widths/overrides
 			$widths = array(
 				'bg_BG' => 120,
+				'cs_CZ' => 135,
 				'de_DE' => 120,
 				'da_DK' => 120,
 				'es_ES' => 122,
@@ -710,7 +711,6 @@ class Share_Facebook extends Sharing_Source {
 				'ja_JP' => 100,
 				'nl_NL' => 130,
 				'ru_RU' => 128,
-				'cs_CZ' => 135,
 			);
 
 			$widths = apply_filters( 'sharing_facebook_like_widths', $widths );
