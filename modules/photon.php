@@ -133,16 +133,14 @@ class Jetpack_Photon {
 					}
 				}
 
-				// Set a width if none is found and height is available, either $content_width or a very large value
-				// Large value is used so as to not unnecessarily constrain image when passed to Photon
-				if ( false === $width && false !== $height ) {
-					$width = is_numeric( $content_width ) ? (int) $content_width : 9999;
-					$transform = 'fit';
-				}
-
-				// As a last resort, ensure that image won't be larger than $content_width if it is set.
-				if ( false === $width && is_numeric( $content_width ) )
+				// Set a width if none is found and $content_width is available
+				// If width is set in this manner and height is available, use `fit` instead of `resize` to prevent skewing
+				if ( false === $width && is_numeric( $content_width ) ) {
 					$width = (int) $content_width;
+
+					if ( false !== $height )
+						$transform = 'fit';
+				}
 
 				// Build URL, first removing WP's resized string so we pass the original image to Photon
 				if ( false != preg_match( '#(-\d+x\d+)\.(' . implode('|', $this->extensions ) . '){1}$#i', $src, $src_parts ) )
