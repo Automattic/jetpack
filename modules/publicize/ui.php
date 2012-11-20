@@ -390,6 +390,10 @@ jQuery( function($) {
 					<ul>
 
 					<?php
+					// We can set an _all flag to indicate that this post is completely done as
+					// far as Publicize is concerned. Jetpack uses this approach.
+					$all_done = get_post_meta( $post->ID, $this->publicize->POST_DONE . 'all', true );
+
 					foreach ( $services as $name => $connections ) {
 						foreach ( $connections as $connection ) {
 							if ( !$continue = apply_filters( 'wpas_submit_post?', true, $post->ID, $name ) )
@@ -414,7 +418,6 @@ jQuery( function($) {
 							// If this is a global connection and this user doesn't have enough permissions to modify
 							// those connections, don't let them change it
 							$cmeta = $this->publicize->get_connection_meta( $connection );
-
 							$hidden_checkbox = false;
 							if ( !$done && ( 0 == $cmeta['user_id'] && !current_user_can( Publicize::GLOBAL_CAP ) ) ) {
 								$disabled = ' disabled="disabled"';
@@ -424,6 +427,10 @@ jQuery( function($) {
 							// Post was published prior to plugin activation
 							if ( $skip && 'publish' == $post->post_status && !$done )
 								$checked = false;
+
+							// This post has been handled, so disable everything
+							if ( $all_done )
+								$disabled = ' disabled="disabled"';
 
 							$label = sprintf(
 								_x( '%1$s: %2$s', 'Service: Account connected as', 'jetpack' ),
@@ -464,7 +471,7 @@ jQuery( function($) {
 					<label for="wpas-title"><?php _e( 'Custom Message:', 'jetpack' ); ?></label>
 					<span id="wpas-title-counter" class="alignright hide-if-no-js">0</span>
 
-					<textarea name="wpas_title" id="wpas-title"><?php echo $title; ?></textarea>
+					<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo $title; ?></textarea>
 
 					<a href="#" class="hide-if-no-js" id="publicize-form-hide"><?php _e( 'Hide', 'jetpack' ); ?></a>
 					<input type="hidden" name="wpas[0]" value="1" />
