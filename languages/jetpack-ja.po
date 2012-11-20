@@ -1,420 +1,14 @@
-# Translation of 1.9 in Japanese
-# This file is distributed under the same license as the 1.9 package.
+# Translation of 2.0 in Japanese
+# This file is distributed under the same license as the 2.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2012-10-26 12:52:37+0000\n"
+"PO-Revision-Date: 2012-11-20 20:01:51+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: GlotPress/0.1\n"
-"Project-Id-Version: 1.9\n"
-
-msgid "Receive notifications on your mobile device."
-msgstr ""
-
-msgid "Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com."
-msgstr ""
-
-msgid "Allow applications to securely access your content through the cloud."
-msgstr ""
-
-#: modules/subscriptions.php:160
-msgid "Blog follow email text"
-msgstr "ブログがフォローされた際の送信メール"
-
-#: modules/subscriptions.php:153
-msgid "Follower Settings"
-msgstr "フォロワー設定"
-
-#: modules/subscriptions.php:168
-msgid "Comment follow email text"
-msgstr "コメントフォロワー用メール文"
-
-#: modules/subscriptions.php:237
-msgid "These settings change emails sent from your blog to followers."
-msgstr "ブログからフォロワーへ送るメールの設定を変更できます。"
-
-#: modules/subscriptions.php:243
-msgid "Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)"
-msgstr ""
-
-#: modules/subscriptions.php:249
-msgid "Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)"
-msgstr ""
-
-#: modules/subscriptions.php:254
-msgid ""
-"Howdy.\n"
-"\n"
-"You recently followed this blog's posts. This means you will receive each new post by email.\n"
-"\n"
-"To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
-msgstr ""
-
-#: modules/subscriptions.php:255
-msgid ""
-"Howdy.\n"
-"\n"
-"You recently followed one of my posts. This means you will receive an email when new comments are posted.\n"
-"\n"
-"To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
-msgstr ""
-
-#: modules/module-info.php:587
-msgid "If you have your blog added to the iOS app, you’ll now be able to opt in to receive push notifications of new comments, which makes it easier than ever to keep up with your readers and moderate comments on the go."
-msgstr ""
-
-msgid "Mobile Push Notifications"
-msgstr ""
-
-#: modules/module-info.php:441
-msgid "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
-msgstr ""
-
-#: modules/module-info.php:439
-msgid "Jetpack will allow you to authorize applications and services to securely connect to your blog and allow them to use your content in new ways and offer you new functionality."
-msgstr ""
-
-msgid "JSON API"
-msgstr ""
-
-#: modules/module-info.php:235
-msgid "You can view your notifications in the Toolbar and <a href=\"%s\">on WordPress.com</a>."
-msgstr ""
-
-#: modules/module-info.php:221 modules/module-info.php:234
-msgid "Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users."
-msgstr ""
-
-#: modules/minileven/minileven.php:254
-msgid "Apply this CSS to the Mobile Theme"
-msgstr ""
-
-msgid "Notifications"
-msgstr "通知"
-
-#: modules/contact-form/grunion-contact-form.php:648
-msgid "go back"
-msgstr "戻る"
-
-#: modules/custom-css/custom-css.php:416
-msgid ""
-"Welcome to Custom CSS!\n"
-"\n"
-"CSS (Cascading Style Sheets) is a kind of code that tells the browser how to render a web page. You may delete these comments and get started with your customizations.\n"
-"\n"
-"By default, your stylesheet will be loaded after the theme stylesheets, which means that your rules can take precedence and override the theme CSS rules. Just write here what you want to change, you don't need to copy all your theme's stylesheet content."
-msgstr ""
-
-#: modules/contact-form/grunion-contact-form.php:683
-#: modules/contact-form/grunion-contact-form.php:699
-msgctxt "%1$s = form field label, %2$s = form field value"
-msgid "%1$s: %2$s"
-msgstr "%1$s: %2$s"
-
-#: modules/contact-form/grunion-contact-form.php:514
-msgctxt "%1$s = blog name"
-msgid "%1$s Sidebar"
-msgstr "%1$s サイドバー"
-
-#: modules/contact-form/grunion-contact-form.php:521
-msgctxt "%1$s = blog name, %2$s = post title"
-msgid "%1$s %2$s"
-msgstr "%1$s %2$s"
-
-#: jetpack.php:3161
-msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
-msgstr ""
-
-#: jetpack.php:3121
-msgid "The authorization process expired.  Please go back and try again."
-msgstr ""
-
-#: jetpack.php:3093
-msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
-msgstr ""
-
-#: jetpack.php:3090
-msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
-msgstr ""
-
-#: jetpack.php:2218
-msgid "Link account with WordPress.com"
-msgstr ""
-
-#: jetpack.php:2034
-msgctxt "%l = list of Jetpack module/feature names"
-msgid "Deactivate %l"
-msgstr ""
-
-#: jetpack.php:2020
-msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
-msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
-msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
-msgstr[0] ""
-
-#: jetpack.php:2007
-msgctxt "%l = list of Jetpack module/feature names"
-msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
-msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
-msgstr[0] ""
-
-#: jetpack.php:2004
-msgid "Is this site private?"
-msgstr ""
-
-#: jetpack.php:1874
-msgctxt "%l = list of Jetpack module/feature names"
-msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
-msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate buttons on their module cards."
-msgstr[0] ""
-
-#: class.json-api-endpoints.php:2572
-msgid "Comment cache problem?"
-msgstr ""
-
-#: class.json-api-endpoints.php:1090
-msgid "This post is password protected."
-msgstr "この投稿はパスワードで保護されています。"
-
-#: modules/widgets/twitter.php:262
-msgid "Twitter username:"
-msgstr "Twitter ユーザー名:"
-
-#: modules/widgets/twitter.php:269
-msgid "Maximum number of Tweets to show:"
-msgstr "表示するツイートの上限:"
-
-#: modules/widgets/twitter.php:283
-msgid "Hide replies"
-msgstr "返信を隠す"
-
-#: modules/widgets/twitter.php:290
-msgid "Hide Tweets pushed by Publicize"
-msgstr "パブリサイズ共有機能で送信されたツイートを表示しない"
-
-#: modules/widgets/twitter.php:297
-msgid "Include retweets"
-msgstr "リツィートを含める"
-
-#: modules/widgets/twitter.php:304
-msgid "Display Follow Button"
-msgstr "フォローボタンを表示"
-
-#: modules/widgets/twitter.php:310
-msgid "Text to display between Tweet and timestamp:"
-msgstr "ツイートとタイムスタンプの間に表示するテキスト:"
-
-msgid "http://wordpress.org/extend/plugins/jetpack/"
-msgstr "http://wordpress.org/extend/plugins/jetpack/"
-
-msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
-msgstr "WordPress.com クラウドサービスのパワーをインストール型 WordPress にも取り入れましょう。Jetpack を使えば、ブログを WordPress.com アカウントと連携させ、便利な機能を利用できます。"
-
-msgid "Automattic"
-msgstr "Automattic"
-
-msgid "http://jetpack.me"
-msgstr "http://jetpack.me"
-
-msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
-msgstr "<a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> 校正サービスを使って、文章中の英語などのつづり・文書スタイル・文法を向上させましょう。"
-
-msgid "Transform your standard image galleries into an immersive full-screen experience."
-msgstr "標準の画像ギャラリーを迫力あるフルスクリーン表示に変更できます。"
-
-msgid "A new comment system that has integrated social media login options."
-msgstr "ソーシャルメディアログインに対応した新しいコメントシステムです。"
-
-msgid "Easily insert a contact form any where on your site."
-msgstr "コンタクトフォームを簡単に好きな位置に設置します。"
-
-msgid "Customize the appearance of your site using CSS but without modifying your theme."
-msgstr "テーマを変更することなく、CSS を使ってサイトの外観をカスタマイズできます。"
-
-msgid "Share your public posts and comments to search engines and other services in real-time."
-msgstr "公開した投稿やコメントをリアルタイムで検索エンジンやその他のサービスと共有できます。"
-
-msgid "Show a pop-up business card of your users' gravatar profiles in comments."
-msgstr "コメント投稿者の Gravatar プロフィールをポップアップで表示できます。"
-
-msgid "Beautiful Math"
-msgstr "Beautiful Math"
-
-msgid "Mark up your posts with the <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
-msgstr "投稿を <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX ロゴ\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> マークアップ言語で記入できます。複雑な数学の数式などに向いています。"
-
-msgid "Automatically optimize your site for mobile devices."
-msgstr "サイトをモバイルデバイス向けに自動で最適化します。"
-
-msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
-msgstr "コンテンツを Facebook、Twitter などで簡単に共有できるパワフルなツールです。"
-
-msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
-msgstr "YouTube、Vimeo、SlideShare などのサイトから動画などを簡単に埋め込めます。"
-
-msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
-msgstr "共有しやすいように、すべての固定ページとブログ投稿で WP.me ドメインの短縮 URL を有効化します。"
-
-msgid "Simple, concise site stats with no additional load on your server."
-msgstr "サーバーに余計な負担をかけない、シンプルで簡潔なサイト統計情報ツールです。"
-
-msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
-msgstr "読者がメールで新規投稿やコメントの通知を受け取れるようにします。"
-
-msgid "Realtime backup and security scanning for your WordPress site."
-msgstr "WordPress サイト用のリアルタイムバックアップ＆セキュリティスキャンサービスです。"
-
-msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
-msgstr "簡単に画像、Twitter 更新、サイトの RSS リンクを簡単にテーマのサイドバーに追加しましょう。"
-
-#: modules/widgets/gravatar-profile.php:201
-msgid "Show Account Links"
-msgstr "アカウントのリンクを表示"
-
-#: modules/widgets/gravatar-profile.php:203
-msgid "Links to services that you use across the web."
-msgstr "使用している Web サービスへのリンク。"
-
-#: modules/widgets/gravatar-profile.php:207
-msgid "Opens in new window"
-msgstr "新しいウィンドウで開く"
-
-#: modules/widgets/gravatar-profile.php:207
-msgid "Edit Your Profile"
-msgstr "プロフィールの編集"
-
-#: modules/widgets/gravatar-profile.php:207
-msgid "What's a Gravatar?"
-msgstr "Gravatar って何 ?"
-
-#: modules/widgets/image-widget.php:12
-msgid "Display an image in your sidebar"
-msgstr "サイドバーに画像を表示"
-
-#: modules/widgets/image-widget.php:14
-msgid "Image (Jetpack)"
-msgstr "画像 (Jetpack)"
-
-#: modules/widgets/image-widget.php:110
-msgid "Image URL:"
-msgstr "画像 URL:"
-
-#: modules/widgets/image-widget.php:113
-msgid "Alternate text:"
-msgstr "代替テキスト:"
-
-#: modules/widgets/image-widget.php:116
-msgid "Image title:"
-msgstr "画像タイトル:"
-
-#: modules/widgets/image-widget.php:119
-msgid "Caption:"
-msgstr "キャプション:"
-
-#: modules/widgets/image-widget.php:124
-msgid "None"
-msgstr "なし"
-
-#: modules/widgets/image-widget.php:125
-msgid "Left"
-msgstr "左"
-
-#: modules/widgets/image-widget.php:126
-msgid "Center"
-msgstr "中央"
-
-#: modules/widgets/image-widget.php:127
-msgid "Right"
-msgstr "右"
-
-#: modules/widgets/image-widget.php:129
-msgid "Image Alignment:"
-msgstr "画像の位置:"
-
-#: modules/widgets/image-widget.php:139
-msgid "Width:"
-msgstr "幅:"
-
-#: modules/widgets/image-widget.php:142
-msgid "Height:"
-msgstr "高さ:"
-
-#: modules/widgets/image-widget.php:145
-msgid "If empty, we will attempt to determine the image size."
-msgstr "空欄の場合、画像サイズを検出するよう試みます。"
-
-#: modules/widgets/image-widget.php:146
-msgid "Link URL (when the image is clicked):"
-msgstr "リンク URL (画像クリック時):"
-
-#: modules/widgets/rsslinks-widget.php:12
-msgid "Links to your blog's RSS feeds"
-msgstr "ブログ RSS フィードへのリンク"
-
-#: modules/widgets/rsslinks-widget.php:13
-msgid "RSS Links (Jetpack)"
-msgstr "RSS リンク (Jetpack)"
-
-#: modules/widgets/rsslinks-widget.php:62 modules/widgets/top-posts.php:73
-#: modules/widgets/twitter.php:255
-msgid "Title:"
-msgstr "タイトル:"
-
-#: modules/widgets/rsslinks-widget.php:67
-#: modules/widgets/rsslinks-widget.php:133
-msgid "Posts"
-msgstr "投稿"
-
-#: modules/widgets/rsslinks-widget.php:68
-#: modules/widgets/rsslinks-widget.php:136
-msgid "Comments"
-msgstr "コメント"
-
-#: modules/widgets/rsslinks-widget.php:69
-msgid "Posts & Comments"
-msgstr "投稿・コメント"
-
-#: modules/widgets/rsslinks-widget.php:71
-msgid "Feed(s) to Display:"
-msgstr "表示するフィード:"
-
-#: modules/widgets/rsslinks-widget.php:81
-msgid "Text Link"
-msgstr "テキストリンク"
-
-#: modules/widgets/rsslinks-widget.php:82
-msgid "Image Link"
-msgstr "画像リンク"
-
-#: modules/widgets/rsslinks-widget.php:83
-msgid "Text & Image Links"
-msgstr "テキスト・画像リンク"
-
-#: modules/widgets/rsslinks-widget.php:85
-msgid "Format:"
-msgstr "形式:"
-
-#: modules/widgets/rsslinks-widget.php:96
-msgid "Image Settings:"
-msgstr "画像設定:"
-
-#: modules/widgets/rsslinks-widget.php:99
-msgid "Small"
-msgstr "小"
-
-#: modules/widgets/rsslinks-widget.php:100
-msgid "Medium"
-msgstr "中"
-
-#: modules/widgets/rsslinks-widget.php:101
-msgid "Large"
-msgstr "大"
-
-#: modules/widgets/rsslinks-widget.php:103
-msgid "Image Size:"
-msgstr "画像サイズ:"
+"Project-Id-Version: 2.0\n"
 
 #: modules/widgets/rsslinks-widget.php:113
 msgid "Red"
@@ -500,163 +94,125 @@ msgstr "<a href=\"%s\">Twitter ウィジェット</a>の Twitter ユーザー名
 msgid "Twitter Updates"
 msgstr "Twitter アップデート"
 
-#: modules/widgets/twitter.php:179 modules/widgets/twitter.php:200
+#: modules/widgets/twitter.php:182 modules/widgets/twitter.php:203
 msgid "Error: Twitter did not respond. Please wait a few minutes and refresh this page."
 msgstr "エラー: Twitter からの反応がありません。数分待ってページを再読み込みしてください。"
 
-#: modules/widgets/twitter.php:193
-msgid "Error: Please make sure the Twitter account is <a href=\"%s\">public</a>."
-msgstr "エラー: Twitter アカウントが<a href=\"%s\">公開</a>になっている必要があります。"
+#: modules/widgets/twitter.php:196
+msgid "Error: Please make sure the Twitter account is %1$spublic%2$s."
+msgstr "エラー: Twitter アカウントが%1$s公開%2$sされているか確認してください。"
 
-#: modules/stats.php:708
-msgid "the past year"
-msgstr "去年"
+#: modules/widgets/twitter.php:265
+msgid "Twitter username:"
+msgstr "Twitter ユーザー名:"
 
-#: modules/stats.php:730
-msgid "Chart stats by"
-msgstr "統計情報表:"
+#: modules/widgets/twitter.php:272
+msgid "Maximum number of Tweets to show:"
+msgstr "表示するツイートの上限:"
 
-#: modules/stats.php:743
-msgid "Show top posts over"
-msgstr "以下の表示数以上の人気記事を表示:"
+#: modules/widgets/twitter.php:286
+msgid "Hide replies"
+msgstr "返信を隠す"
 
-#: modules/stats.php:756
-msgid "Show top search terms over"
-msgstr "以下の期間のトップ検索キーワードを表示:"
+#: modules/widgets/twitter.php:293
+msgid "Hide Tweets pushed by Publicize"
+msgstr "パブリサイズ共有で送信されたツイートを表示しない"
 
-#: modules/stats.php:921
-msgid "%1$s %2$s Views"
-msgstr "%1$s %2$s ビュー"
+#: modules/widgets/twitter.php:300
+msgid "Include retweets"
+msgstr "リツィートを含める"
 
-#: modules/stats.php:934
-msgid "View All"
-msgstr "すべて表示"
+#: modules/widgets/twitter.php:307
+msgid "Display Follow Button"
+msgstr "フォローボタンを表示"
 
-#: modules/stats.php:938
-msgid "Top Posts"
-msgstr "人気記事"
+#: modules/widgets/twitter.php:313
+msgid "Text to display between Tweet and timestamp:"
+msgstr "ツイートとタイムスタンプの間に表示するテキスト:"
 
-#: modules/stats.php:942 modules/stats.php:966
-msgid "Sorry, nothing to report."
-msgstr "報告する内容がありません。"
+msgid "http://wordpress.org/extend/plugins/jetpack/"
+msgstr "http://wordpress.org/extend/plugins/jetpack/"
 
-#: modules/stats.php:962
-msgid "Top Searches"
-msgstr "人気検索キーワード"
+msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
+msgstr "WordPress.com クラウドサービスのパワーをインストール型 WordPress にも取り入れましょう。Jetpack を使えば、ブログを WordPress.com アカウントと連携させ、便利な機能を利用できます。"
 
-#: modules/subscriptions.php:108
-msgid "Jetpack Subscriptions Settings"
-msgstr "Jetpack 購読設定"
+msgid "Automattic"
+msgstr "Automattic"
 
-#: modules/subscriptions.php:117
-msgid "Follow Blog"
-msgstr "ブログをフォロー"
+msgid "http://jetpack.me"
+msgstr "http://jetpack.me"
 
-#: modules/subscriptions.php:132
-msgid "Follow Comments"
-msgstr "コメントをフォロー"
+msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
+msgstr "<a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> 校正サービスを使って、文章中の英語などのつづり・文書スタイル・文法を向上させましょう。"
 
-#: modules/subscriptions.php:182
-msgid "Change whether your visitors can subscribe to your posts or comments or both."
-msgstr "読者による投稿・コメントの購読を可能にするかどうかを設定します。"
+msgid "Transform your standard image galleries into an immersive full-screen experience."
+msgstr "標準の画像ギャラリーを迫力あるフルスクリーン表示に変更できます。"
 
-#: modules/subscriptions.php:197
-msgid "Show a <em>'follow blog'</em> option in the comment form"
-msgstr "コメントフォームに「ブログをフォロー」オプションを表示する"
+msgid "A new comment system that has integrated social media login options."
+msgstr "ソーシャルメディアログインに対応した新しいコメントシステムです。"
 
-#: modules/subscriptions.php:212
-msgid "Show a <em>'follow comments'</em> option in the comment form"
-msgstr "コメントフォームに「コメントをフォロー」オプションを表示"
+msgid "Easily insert a contact form any where on your site."
+msgstr "コンタクトフォームを簡単に好きな位置に設置します。"
 
-#: modules/subscriptions.php:447
-msgid "Notify me of follow-up comments by email."
-msgstr "新しいコメントをメールで通知"
+msgid "Customize the appearance of your site using CSS but without modifying your theme."
+msgstr "テーマを変更することなく、CSS を使ってサイトの外観をカスタマイズできます。"
 
-#: modules/subscriptions.php:454
-msgid "Notify me of new posts by email."
-msgstr "新しい投稿をメールで受け取る"
+msgid "Share your public posts and comments to search engines and other services in real-time."
+msgstr "公開した投稿やコメントをリアルタイムで検索エンジンやその他のサービスと共有できます。"
 
-#: modules/subscriptions.php:520
-msgid "Add an email signup form to allow people to subscribe to your blog."
-msgstr "このブログをメール購読できるよう登録フォームを追加する"
+msgid "Show a pop-up business card of your users' gravatar profiles in comments."
+msgstr "コメント投稿者の Gravatar プロフィールをポップアップで表示できます。"
 
-#: modules/subscriptions.php:523
-msgid "Blog Subscriptions (Jetpack)"
-msgstr "ブログ購読 (Jetpack)"
+msgid "Automatically pull the next set of posts into view when the reader approaches the bottom of the page."
+msgstr "読者がページの下の方へ近づくと自動的に追加投稿を読み込みます。"
 
-#: modules/subscriptions.php:554
-msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
-msgstr "購読確認のメールを送信しました。メール内にあるリンクをクリックして購読を開始してください。"
+msgid "Allow applications to securely access your content through the cloud."
+msgstr "アプリケーションがクラウドを通じてコンテンツへ安全にアクセスすることを許可します。"
 
-#: modules/subscriptions.php:564
-msgid "The email you entered was invalid, please check and try again."
-msgstr "入力されたメールアドレスが間違っているようです。もう一度ご確認ください。"
+msgid "Beautiful Math"
+msgstr "Beautiful Math"
 
-#: modules/subscriptions.php:567
-msgid "You have already subscribed to this site, please check your inbox."
-msgstr "すでにこのサイトを購読しています。メールをチェックしてみてください。"
+msgid "Mark up your posts with the <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
+msgstr "投稿を <img src=\"http://l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX ロゴ\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> マークアップ言語で記入できます。複雑な数学の数式などに向いています。"
 
-#: modules/subscriptions.php:574
-msgid "There was an error when subscribing, please try again."
-msgstr "近況を投稿する際にエラーが発生しました。もう一度お試しください。"
+msgid "Automatically optimize your site for mobile devices."
+msgstr "サイトをモバイルデバイス向けに自動で最適化します。"
 
-#: modules/subscriptions.php:592
-msgid "Join %s other subscriber"
-msgid_plural "Join %s other subscribers"
-msgstr[0] "%s人の購読者に加わりましょう"
+msgid "Receive notifications on your Apple device."
+msgstr "Apple 社のデバイスでプッシュ通知を受け取れます。"
 
-#: modules/subscriptions.php:596
-msgid "Email Address"
-msgstr "メールアドレス"
+msgid "Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com."
+msgstr "ツールバーと WordPress.com 上でサイトのアクティビティを観測・管理できます。"
 
-#: modules/subscriptions.php:671
-msgid "Subscribe to Blog via Email"
-msgstr "ブログをメールで購読"
+msgid "Give your site a boost by loading images from the WordPress.com content delivery network."
+msgstr "WordPress.com コンテンツ・デリバリー・ネットワーク (CDN) から画像を読み込んでサイトをスピードアップさせましょう。"
 
-#: modules/subscriptions.php:672
-msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
-msgstr "メールアドレスを記入して購読すれば、更新をメールで受信できます。"
+msgid "Publish posts to your blog directly from your personal email account."
+msgstr "メールアカウントから直接ブログを公開できます。"
 
-#: modules/subscriptions.php:674
-msgid "Click to subscribe to this blog and receive notifications of new posts by email."
-msgstr "ブログを購読すれば、更新をメールで受信できます。"
+msgid "Connect your site to popular social networks and automatically share new posts with your friends."
+msgstr "サイトを人気のソーシャルネットワークに接続し、新しい投稿を自動的に友達と共有できます。"
 
-#: modules/subscriptions.php:690
-msgid "%s: %s"
-msgstr "%s: %s"
+msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
+msgstr "コンテンツを Facebook、Twitter などで簡単に共有できるパワフルなツールです。"
 
-#: modules/subscriptions.php:698 modules/widgets/image-widget.php:107
-msgid "Widget title:"
-msgstr "ウィジェット名:"
+msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
+msgstr "YouTube、Vimeo、SlideShare などのサイトから動画などを簡単に埋め込めます。"
 
-#: modules/subscriptions.php:704
-msgid "Optional text to display to your readers:"
-msgstr "読者に表示するテキスト (オプション)。"
+msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
+msgstr "共有しやすいように、すべての固定ページとブログ投稿で WP.me ドメインの短縮 URL を有効化します。"
 
-#: modules/subscriptions.php:710
-msgid "Subscribe Button:"
-msgstr "購読ボタン"
+msgid "Simple, concise site stats with no additional load on your server."
+msgstr "サーバーに余計な負担をかけない、シンプルで簡潔なサイト統計情報ツールです。"
 
-#: modules/subscriptions.php:717
-msgid "Show total number of subscribers? (%s subscriber)"
-msgid_plural "Show total number of subscribers? (%s subscribers)"
-msgstr[0] "合計購読者数を表示しますか？ (現在%s名)"
+msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
+msgstr "読者がメールで新規投稿やコメントの通知を受け取れるようにします。"
 
-#: modules/vaultpress.php:22
-msgid "Active"
-msgstr "有効"
+msgid "Realtime backup and security scanning for your WordPress site."
+msgstr "WordPress サイト用のリアルタイムバックアップ＆セキュリティスキャンサービスです。"
 
-#: modules/widgets/facebook-likebox.php:29
-msgid "Facebook Like Box"
-msgstr "Facebook Like ボックス"
-
-#: modules/widgets/facebook-likebox.php:29
-msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
-msgstr "Facebook ページに読者を誘導する Facebook Like ボックスを表示"
-
-#: modules/widgets/facebook-likebox.php:41
-msgid "It looks like your Facebook URL is incorrectly configured. Please check it in your <a href=\"%s\">widget settings</a>."
-msgstr "Facebook URL が正しく設定されていないようです。<a href=\"%s\">ウィジェットの設定</a>を確認してください。"
+msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
+msgstr "簡単に画像、Twitter 更新、サイトの RSS リンクを簡単にテーマのサイドバーに追加しましょう。"
 
 #: modules/widgets/facebook-likebox.php:115
 #: modules/widgets/gravatar-profile.php:164
@@ -755,6 +311,475 @@ msgstr "パーソナルリンクを表示"
 #: modules/widgets/gravatar-profile.php:194
 msgid "Links to your websites, blogs, or any other sites that help describe who you are."
 msgstr "あなたのウェブサイト、ブログ、その他あなたが誰なのかが分かるようなサイトへのリンク。"
+
+#: modules/widgets/gravatar-profile.php:201
+msgid "Show Account Links"
+msgstr "アカウントのリンクを表示"
+
+#: modules/widgets/gravatar-profile.php:203
+msgid "Links to services that you use across the web."
+msgstr "使用している Web サービスへのリンク。"
+
+#: modules/widgets/gravatar-profile.php:207
+msgid "Opens in new window"
+msgstr "新しいウィンドウで開く"
+
+#: modules/widgets/gravatar-profile.php:207
+msgid "Edit Your Profile"
+msgstr "プロフィールの編集"
+
+#: modules/widgets/gravatar-profile.php:207
+msgid "What's a Gravatar?"
+msgstr "Gravatar って何 ?"
+
+#: modules/widgets/image-widget.php:12
+msgid "Display an image in your sidebar"
+msgstr "サイドバーに画像を表示"
+
+#: modules/widgets/image-widget.php:14
+msgid "Image (Jetpack)"
+msgstr "画像 (Jetpack)"
+
+#: modules/widgets/image-widget.php:110
+msgid "Image URL:"
+msgstr "画像 URL:"
+
+#: modules/widgets/image-widget.php:113
+msgid "Alternate text:"
+msgstr "代替テキスト:"
+
+#: modules/widgets/image-widget.php:116
+msgid "Image title:"
+msgstr "画像タイトル:"
+
+#: modules/widgets/image-widget.php:119
+msgid "Caption:"
+msgstr "キャプション:"
+
+#: modules/widgets/image-widget.php:124
+msgid "None"
+msgstr "なし"
+
+#: modules/widgets/image-widget.php:125
+msgid "Left"
+msgstr "左"
+
+#: modules/widgets/image-widget.php:126
+msgid "Center"
+msgstr "中央"
+
+#: modules/widgets/image-widget.php:127
+msgid "Right"
+msgstr "右"
+
+#: modules/widgets/image-widget.php:129
+msgid "Image Alignment:"
+msgstr "画像の位置:"
+
+#: modules/widgets/image-widget.php:139
+msgid "Width:"
+msgstr "幅:"
+
+#: modules/widgets/image-widget.php:142
+msgid "Height:"
+msgstr "高さ:"
+
+#: modules/widgets/image-widget.php:145
+msgid "If empty, we will attempt to determine the image size."
+msgstr "空欄の場合、画像サイズを検出するよう試みます。"
+
+#: modules/widgets/image-widget.php:146
+msgid "Link URL (when the image is clicked):"
+msgstr "リンク URL (画像クリック時):"
+
+#: modules/widgets/rsslinks-widget.php:12
+msgid "Links to your blog's RSS feeds"
+msgstr "ブログ RSS フィードへのリンク"
+
+#: modules/widgets/rsslinks-widget.php:13
+msgid "RSS Links (Jetpack)"
+msgstr "RSS リンク (Jetpack)"
+
+#: modules/widgets/rsslinks-widget.php:62 modules/widgets/top-posts.php:73
+#: modules/widgets/twitter.php:258
+msgid "Title:"
+msgstr "タイトル:"
+
+#: modules/widgets/rsslinks-widget.php:67
+#: modules/widgets/rsslinks-widget.php:133
+msgid "Posts"
+msgstr "投稿"
+
+#: modules/widgets/rsslinks-widget.php:68
+#: modules/widgets/rsslinks-widget.php:136
+msgid "Comments"
+msgstr "コメント"
+
+#: modules/widgets/rsslinks-widget.php:69
+msgid "Posts & Comments"
+msgstr "投稿・コメント"
+
+#: modules/widgets/rsslinks-widget.php:71
+msgid "Feed(s) to Display:"
+msgstr "表示するフィード:"
+
+#: modules/widgets/rsslinks-widget.php:81
+msgid "Text Link"
+msgstr "テキストリンク"
+
+#: modules/widgets/rsslinks-widget.php:82
+msgid "Image Link"
+msgstr "画像リンク"
+
+#: modules/widgets/rsslinks-widget.php:83
+msgid "Text & Image Links"
+msgstr "テキスト・画像リンク"
+
+#: modules/widgets/rsslinks-widget.php:85
+msgid "Format:"
+msgstr "形式:"
+
+#: modules/widgets/rsslinks-widget.php:96
+msgid "Image Settings:"
+msgstr "画像設定:"
+
+#: modules/widgets/rsslinks-widget.php:99
+msgid "Small"
+msgstr "小"
+
+#: modules/widgets/rsslinks-widget.php:100
+msgid "Medium"
+msgstr "中"
+
+#: modules/widgets/rsslinks-widget.php:101
+msgid "Large"
+msgstr "大"
+
+#: modules/widgets/rsslinks-widget.php:103
+msgid "Image Size:"
+msgstr "画像サイズ:"
+
+#: modules/stats.php:527
+msgid "Hide the stats smiley face image."
+msgstr "統計のスマイル画像を非表示"
+
+#: modules/stats.php:527
+msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
+msgstr "この画像は統計情報の集計に使われますが、隠しても動作します。"
+
+#: modules/stats.php:527
+msgid "Smiley face"
+msgstr "スマイル"
+
+#: modules/stats.php:528
+msgid "Report visibility"
+msgstr "表示状態を報告"
+
+#: modules/stats.php:530
+msgid "Select the roles that will be able to view stats reports."
+msgstr "統計レポートを表示できる権限グループを選択してください。"
+
+#: modules/stats.php:541
+msgid "Save configuration"
+msgstr "設定を保存"
+
+#: modules/stats.php:597
+msgid "Stats"
+msgstr "統計情報"
+
+#: modules/stats.php:599
+msgid "Views over 48 hours. Click for more Site Stats."
+msgstr "過去48時間のビュー数。クリックすれば統計情報の詳細を表示できます。"
+
+#: modules/stats.php:666
+msgid "day"
+msgstr "日"
+
+#: modules/stats.php:667
+msgid "week"
+msgstr "週"
+
+#: modules/stats.php:668
+msgid "month"
+msgstr "ヶ月"
+
+#: modules/stats.php:671
+msgid "the past day"
+msgstr "過去1日"
+
+#: modules/stats.php:672
+msgid "the past week"
+msgstr "過去1週間"
+
+#: modules/stats.php:673
+msgid "the past month"
+msgstr "過去1ヶ月間"
+
+#: modules/stats.php:674
+msgid "the past quarter"
+msgstr "現四半期"
+
+#: modules/stats.php:675
+msgid "the past year"
+msgstr "去年"
+
+#: modules/stats.php:697
+msgid "Chart stats by"
+msgstr "統計情報表:"
+
+#: modules/stats.php:710
+msgid "Show top posts over"
+msgstr "以下の表示数以上の人気記事を表示:"
+
+#: modules/stats.php:723
+msgid "Show top search terms over"
+msgstr "以下の期間のトップ検索キーワードを表示:"
+
+#: modules/stats.php:882
+msgid "%1$s %2$s Views"
+msgstr "%1$s %2$s ビュー"
+
+#: modules/stats.php:895
+msgid "View All"
+msgstr "すべて表示"
+
+#: modules/stats.php:899
+msgid "Top Posts"
+msgstr "人気記事"
+
+#: modules/stats.php:903 modules/stats.php:927
+msgid "Sorry, nothing to report."
+msgstr "報告する内容がありません。"
+
+#: modules/stats.php:923
+msgid "Top Searches"
+msgstr "人気検索キーワード"
+
+#: modules/stats.php:946
+msgid "We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href=\"%1$s\">contact support</a>. In your report please include the information below."
+msgstr "統計情報を取得できませんでしたので、後ほどもう一度お試しください。このエラーが引き続き発生する場合は、以下の情報を含めて<a href=\"%1$s\">サポートにご連絡</a>ください。"
+
+#: modules/subscriptions.php:108
+msgid "Jetpack Subscriptions Settings"
+msgstr "Jetpack 購読設定"
+
+#: modules/subscriptions.php:117
+msgid "Follow Blog"
+msgstr "ブログをフォロー"
+
+#: modules/subscriptions.php:132
+msgid "Follow Comments"
+msgstr "コメントをフォロー"
+
+#: modules/subscriptions.php:153
+msgid "Follower Settings"
+msgstr "フォロワー設定"
+
+#: modules/subscriptions.php:160
+msgid "Blog follow email text"
+msgstr "ブログがフォローされた際の送信メール"
+
+#: modules/subscriptions.php:168
+msgid "Comment follow email text"
+msgstr "コメントフォロワー用メール文"
+
+#: modules/subscriptions.php:182
+msgid "Change whether your visitors can subscribe to your posts or comments or both."
+msgstr "読者による投稿・コメントの購読を可能にするかどうかを設定します。"
+
+#: modules/subscriptions.php:197
+msgid "Show a <em>'follow blog'</em> option in the comment form"
+msgstr "コメントフォームに「ブログをフォロー」オプションを表示する"
+
+#: modules/subscriptions.php:212
+msgid "Show a <em>'follow comments'</em> option in the comment form"
+msgstr "コメントフォームに「コメントをフォロー」オプションを表示"
+
+#: modules/subscriptions.php:237
+msgid "These settings change emails sent from your blog to followers."
+msgstr "ブログからフォロワーへ送るメールの設定を変更できます。"
+
+#: modules/subscriptions.php:243
+msgid "Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)"
+msgstr "ブログをフォローした方へ送信する文 (サイト情報および承認作業にかんする説明は自動的に追加されます) 。"
+
+#: modules/subscriptions.php:249
+msgid "Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)"
+msgstr "ブログの投稿をフォローした方へ送信する文 (サイト情報および承認作業にかんする説明は自動的に追加されます) 。"
+
+#: modules/subscriptions.php:254
+msgid ""
+"Howdy.\n"
+"\n"
+"You recently followed this blog's posts. This means you will receive each new post by email.\n"
+"\n"
+"To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
+msgstr ""
+"ブログ投稿のご購読ありがとうございます。\n"
+"\n"
+"このブログで新しい投稿が公開されると、メールで通知が送信されます。\n"
+"\n"
+"メール通知を有効化するには以下から認証を行なってください。このメッセージが何かの間違いだと思う場合は、何もする必要はありません。今後メールは送信されません。"
+
+#: modules/subscriptions.php:255
+msgid ""
+"Howdy.\n"
+"\n"
+"You recently followed one of my posts. This means you will receive an email when new comments are posted.\n"
+"\n"
+"To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
+msgstr ""
+"ブログ投稿のご購読ありがとうございます。\n"
+"\n"
+"フォローしている投稿にコメントがつくと、メールで通知が送信されます。\n"
+"\n"
+"メール通知を有効化するには以下から認証を行なってください。このメッセージが何かの間違いだと思う場合は、何もする必要はありません。今後メールは送信されません。"
+
+#: modules/subscriptions.php:447
+msgid "Notify me of follow-up comments by email."
+msgstr "新しいコメントをメールで通知"
+
+#: modules/subscriptions.php:454
+msgid "Notify me of new posts by email."
+msgstr "新しい投稿をメールで受け取る"
+
+#: modules/subscriptions.php:520
+msgid "Add an email signup form to allow people to subscribe to your blog."
+msgstr "このブログをメール購読できるよう登録フォームを追加する"
+
+#: modules/subscriptions.php:523
+msgid "Blog Subscriptions (Jetpack)"
+msgstr "ブログ購読 (Jetpack)"
+
+#: modules/subscriptions.php:554
+msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
+msgstr "購読確認のメールを送信しました。メール内にあるリンクをクリックして購読を開始してください。"
+
+#: modules/subscriptions.php:564
+msgid "The email you entered was invalid, please check and try again."
+msgstr "入力されたメールアドレスが間違っているようです。もう一度ご確認ください。"
+
+#: modules/subscriptions.php:567
+msgid "You have already subscribed to this site, please check your inbox."
+msgstr "すでにこのサイトを購読しています。メールをチェックしてみてください。"
+
+#: modules/subscriptions.php:574
+msgid "There was an error when subscribing, please try again."
+msgstr "近況を投稿する際にエラーが発生しました。もう一度お試しください。"
+
+#: modules/subscriptions.php:592
+msgid "Join %s other subscriber"
+msgid_plural "Join %s other subscribers"
+msgstr[0] "%s人の購読者に加わりましょう"
+
+#: modules/subscriptions.php:671
+msgid "Subscribe to Blog via Email"
+msgstr "ブログをメールで購読"
+
+#: modules/subscriptions.php:672
+msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
+msgstr "メールアドレスを記入して購読すれば、更新をメールで受信できます。"
+
+#: modules/subscriptions.php:674
+msgid "Click to subscribe to this blog and receive notifications of new posts by email."
+msgstr "ブログを購読すれば、更新をメールで受信できます。"
+
+#: modules/subscriptions.php:690
+msgid "%s: %s"
+msgstr "%s: %s"
+
+#: modules/subscriptions.php:698 modules/widgets/image-widget.php:107
+msgid "Widget title:"
+msgstr "ウィジェット名:"
+
+#: modules/subscriptions.php:704
+msgid "Optional text to display to your readers:"
+msgstr "読者に表示するテキスト (オプション)。"
+
+#: modules/subscriptions.php:710
+msgid "Subscribe Button:"
+msgstr "購読ボタン"
+
+#: modules/subscriptions.php:717
+msgid "Show total number of subscribers? (%s subscriber)"
+msgid_plural "Show total number of subscribers? (%s subscribers)"
+msgstr[0] "合計購読者数を表示しますか？ (現在%s名)"
+
+#: modules/vaultpress.php:22
+msgid "Active"
+msgstr "有効"
+
+#: modules/widgets/facebook-likebox.php:29
+msgid "Facebook Like Box"
+msgstr "Facebook Like ボックス"
+
+#: modules/widgets/facebook-likebox.php:29
+msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
+msgstr "Facebook ページに読者を誘導する Facebook Like ボックスを表示"
+
+#: modules/widgets/facebook-likebox.php:41
+msgid "It looks like your Facebook URL is incorrectly configured. Please check it in your <a href=\"%s\">widget settings</a>."
+msgstr "Facebook URL が正しく設定されていないようです。<a href=\"%s\">ウィジェットの設定</a>を確認してください。"
+
+#: modules/sharedaddy/sharing.php:300
+msgid "Button style"
+msgstr "ボタンのスタイル"
+
+#: modules/sharedaddy/sharing.php:303
+msgid "Icon + text"
+msgstr "アイコンとテキスト"
+
+#: modules/sharedaddy/sharing.php:304
+msgid "Icon only"
+msgstr "アイコンのみ"
+
+#: modules/sharedaddy/sharing.php:305
+msgid "Text only"
+msgstr "テキストのみ"
+
+#: modules/sharedaddy/sharing.php:306
+msgid "Official buttons"
+msgstr "公式ボタン"
+
+#: modules/sharedaddy/sharing.php:311
+msgid "Sharing label"
+msgstr "共有ラベル"
+
+#: modules/sharedaddy/sharing.php:317
+msgid "Open links in"
+msgstr "リンクを開くウィンドウ"
+
+#: modules/sharedaddy/sharing.php:320
+msgid "New window"
+msgstr "新規ウィンドウ"
+
+#: modules/sharedaddy/sharing.php:321
+msgid "Same window"
+msgstr "同一ウィンドウ"
+
+#: modules/sharedaddy/sharing.php:326
+msgid "Show buttons on"
+msgstr "ボタン表示"
+
+#: modules/sharedaddy/sharing.php:332
+msgid "Front Page, Archive Pages, and Search Results"
+msgstr "フロントページ、アーカイブページ、検索結果ページ"
+
+#: modules/sharedaddy/sharing.php:348
+msgid "Save Changes"
+msgstr "変更を保存"
+
+#: modules/sharedaddy/sharing.php:359
+msgid "Service name"
+msgstr "サービス名"
+
+#: modules/sharedaddy/sharing.php:365
+msgid "Sharing URL"
+msgstr "共有 URL"
+
+#: modules/sharedaddy/sharing.php:369
+msgid "You can add the following variables to your service sharing URL:"
+msgstr "サービスの共有 URL に以下の変数を利用できます。"
 
 #: modules/sharedaddy/sharing.php:374
 msgid "Icon URL"
@@ -860,10 +885,6 @@ msgstr "12月"
 msgid "Submit"
 msgstr "送信"
 
-#: modules/shortcodes/videopress.php:926
-msgid "More information"
-msgstr "さらに詳しく"
-
 #: modules/shortcodes/videopress.php:969
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
 msgstr "この動画を表示する十分な<a rel=\"nofollow\" href=\"%s\">フリーダムレベル</a>がありません。アップグレードしてフリーソフトウェアを支援してください。"
@@ -891,7 +912,7 @@ msgstr "この動画を再生するには <a rel=\"nofollow\" href=\"%s\">Adobe 
 msgid "Loading video..."
 msgstr "動画を読み込んでいます…"
 
-#: modules/stats.php:252 modules/stats.php:678
+#: modules/stats.php:252 modules/stats.php:645
 msgid "Site Stats"
 msgstr "サイト統計情報"
 
@@ -907,97 +928,87 @@ msgstr "サイト統計情報を利用するには、JavaScript の有効化を�
 msgid "View Site Stats without Javascript"
 msgstr "Javascript なしで統計情報を表示"
 
-#: modules/stats.php:418 modules/stats.php:906
-msgid "We were unable to get your stats just now (too many redirects). Please try again."
-msgstr "統計情報ツールを有効化することができませんでした。リダイレクトが多すぎるようです。もう一度お試しください。"
-
-#: modules/stats.php:420 modules/stats.php:908
-msgid "We were unable to get your stats just now. Please try again."
-msgstr "統計情報を取得できません。もう一度お試しください。"
-
-#: modules/stats.php:523
+#: modules/stats.php:517
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
 msgstr "<a href=\"%s\">サイト統計情報</a>で統計情報を表示できます。"
 
-#: modules/stats.php:528
+#: modules/stats.php:522
 msgid "Admin bar"
 msgstr "管理バー"
 
-#: modules/stats.php:529
+#: modules/stats.php:523
 msgid "Put a chart showing 48 hours of views in the admin bar."
 msgstr "管理バーに過去48時間のビュー数の表を表示します。"
 
-#: modules/stats.php:530
+#: modules/stats.php:524
 msgid "Registered users"
 msgstr "登録済みユーザー"
 
-#: modules/stats.php:531
+#: modules/stats.php:525
 msgid "Count the page views of registered users who are logged in."
 msgstr "ログイン中の登録ユーザーのページビューをカウントする。"
 
-#: modules/stats.php:532
+#: modules/stats.php:526
 msgid "Smiley"
 msgstr "スマイル"
 
-#: modules/stats.php:533
-msgid "Hide the stats smiley face image."
-msgstr "統計のスマイル画像を非表示"
+#: modules/sharedaddy/sharing-sources.php:279
+msgid "Send to Email Address"
+msgstr "メールで送信"
 
-#: modules/stats.php:533
-msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
-msgstr "この画像は統計情報の集計に使われますが、隠しても動作します。"
+#: modules/sharedaddy/sharing-sources.php:287
+msgid "Your Name"
+msgstr "お名前"
 
-#: modules/stats.php:533
-msgid "Smiley face"
-msgstr "スマイル"
+#: modules/sharedaddy/sharing-sources.php:290
+msgid "Your Email Address"
+msgstr "メールアドレス"
 
-#: modules/stats.php:534
-msgid "Report visibility"
-msgstr "表示状態を報告"
+#: modules/sharedaddy/sharing-sources.php:298
+msgid "Send Email"
+msgstr "メールを送信"
 
-#: modules/stats.php:536
-msgid "Select the roles that will be able to view stats reports."
-msgstr "統計レポートを表示できる権限グループを選択してください。"
+#: modules/sharedaddy/sharing-sources.php:299
+msgid "Cancel"
+msgstr "キャンセル"
 
-#: modules/stats.php:547
-msgid "Save configuration"
-msgstr "設定を保存"
+#: modules/sharedaddy/sharing-sources.php:302
+msgid "Post was not sent - check your email addresses!"
+msgstr "投稿を送信できませんでした。メールアドレスを確認してください。"
 
-#: modules/stats.php:603
-msgid "Stats"
-msgstr "統計情報"
+#: modules/sharedaddy/sharing-sources.php:306
+msgid "Email check failed, please try again"
+msgstr "メール送信チェックに失敗しました。もう一度お試しください。"
 
-#: modules/stats.php:605
-msgid "Views over 48 hours. Click for more Site Stats."
-msgstr "過去48時間のビュー数。クリックすれば統計情報の詳細を表示できます。"
+#: modules/sharedaddy/sharing-sources.php:310
+msgid "Sorry, your blog cannot share posts by email."
+msgstr "このブログではメールでの投稿共有はできません。"
 
-#: modules/stats.php:699
-msgid "day"
-msgstr "日"
+#: modules/sharedaddy/sharing-sources.php:330 modules/widgets/twitter.php:22
+msgid "Twitter"
+msgstr "Twitter"
 
-#: modules/stats.php:700
-msgid "week"
-msgstr "週"
+#: modules/sharedaddy/sharing-sources.php:376
+msgctxt "share to"
+msgid "Twitter"
+msgstr "Twitter"
 
-#: modules/stats.php:701
-msgid "month"
-msgstr "ヶ月"
+#: modules/sharedaddy/sharing-sources.php:376
+msgid "Click to share on Twitter"
+msgstr "クリックして Twitter で共有"
 
-#: modules/stats.php:704
-msgid "the past day"
-msgstr "過去1日"
+#: modules/sharedaddy/sharing-sources.php:451
+msgid "StumbleUpon"
+msgstr "StumbleUpon"
 
-#: modules/stats.php:705
-msgid "the past week"
-msgstr "過去1週間"
+#: modules/sharedaddy/sharing-sources.php:462
+msgctxt "share to"
+msgid "StumbleUpon"
+msgstr "StumbleUpon"
 
-#: modules/stats.php:706
-msgid "the past month"
-msgstr "過去1ヶ月間"
-
-#: modules/stats.php:707
-msgid "the past quarter"
-msgstr "現四半期"
+#: modules/sharedaddy/sharing-sources.php:462
+msgid "Click to share on StumbleUpon"
+msgstr "クリックして StumbleUpon で共有"
 
 #: modules/sharedaddy/sharing-sources.php:489
 #: modules/sharedaddy/sharing-sources.php:496
@@ -1078,59 +1089,64 @@ msgstr "クリックして Press This から投稿"
 msgid "Google +1"
 msgstr "Google +1"
 
-#: modules/sharedaddy/sharing-sources.php:926
+#: modules/sharedaddy/sharing-sources.php:846
+msgctxt "share to"
+msgid "Google +1"
+msgstr "Google +1"
+
+#: modules/sharedaddy/sharing-sources.php:846
+msgid "Click to share on Google+"
+msgstr "クリックして Google+ で共有"
+
+#: modules/sharedaddy/sharing-sources.php:935
 msgid "Click to share"
 msgstr "クリックして共有"
 
-#: modules/sharedaddy/sharing-sources.php:981
+#: modules/sharedaddy/sharing-sources.php:990
 msgid "URL"
 msgstr "URL"
 
-#: modules/sharedaddy/sharing-sources.php:986
+#: modules/sharedaddy/sharing-sources.php:995
 msgid "Icon"
 msgstr "アイコン"
 
-#: modules/sharedaddy/sharing-sources.php:993
+#: modules/sharedaddy/sharing-sources.php:1002
 msgid "Save"
 msgstr "保存"
 
-#: modules/sharedaddy/sharing-sources.php:994
+#: modules/sharedaddy/sharing-sources.php:1003
 msgid "Remove Service"
 msgstr "サービスを削除"
 
-#: modules/sharedaddy/sharing-sources.php:1073
+#: modules/sharedaddy/sharing-sources.php:1082
 msgid "Tumblr"
 msgstr "Tumblr"
 
-#: modules/sharedaddy/sharing-sources.php:1080
+#: modules/sharedaddy/sharing-sources.php:1093
 msgctxt "share to"
 msgid "Tumblr"
 msgstr "Tumblr"
 
-#: modules/sharedaddy/sharing-sources.php:1080
+#: modules/sharedaddy/sharing-sources.php:1093
 msgid "Click to share on Tumblr"
 msgstr "クリックして Tumblr で共有"
 
-#: modules/sharedaddy/sharing-sources.php:1115
+#: modules/sharedaddy/sharing-sources.php:1129
 msgid "Pinterest"
 msgstr "Pinterest"
 
-#: modules/sharedaddy/sharing-sources.php:1145
+#: modules/sharedaddy/sharing-sources.php:1159
 msgid "Pin It"
 msgstr "Pin It"
 
-#: modules/sharedaddy/sharing-sources.php:1147
+#: modules/sharedaddy/sharing-sources.php:1161
 msgctxt "share to"
 msgid "Pinterest"
 msgstr "Pinterest"
 
-#: modules/sharedaddy/sharing-sources.php:1147
+#: modules/sharedaddy/sharing-sources.php:1161
 msgid "Click to share on Pinterest"
 msgstr "クリックして Pinterest で共有"
-
-#: modules/sharedaddy/sharing.php:51 modules/sharedaddy/sharing.php:163
-msgid "Sharing Settings"
-msgstr "共有設定"
 
 #: modules/sharedaddy/sharing.php:153
 msgid "Warning! Multibyte support missing!"
@@ -1188,196 +1204,201 @@ msgstr "ライブプレビュー"
 msgid "Sharing is off. Add services above to enable."
 msgstr "共有が無効になっています。上記のサービスを追加して有効化してください。"
 
-#: modules/sharedaddy/sharing.php:300
-msgid "Button style"
-msgstr "ボタンのスタイル"
+#: modules/module-info.php:638
+msgid "When you write great content, all you really want is people to find it, right?"
+msgstr "良いコンテンツを公開したら、多くの人に見てもらいたいと思いますよね。"
 
-#: modules/sharedaddy/sharing.php:303
-msgid "Icon + text"
-msgstr "アイコンとテキスト"
+#: modules/module-info.php:640
+msgid "With the Infinite Scroll module and a supported theme, that's exactly what happens. Instead of the old way of navigating down a page by scrolling and then clicking a link to get to the next page, waiting for a page refresh&mdash;the document model of the web&mdash;infinite scrolling pulls the next set of posts automatically into view when the reader approaches the bottom of the page, more like an application."
+msgstr "無限スクロール機能を対応テーマ上で有効化すると、それが可能になります。ページの下部にスクロールダウンし、次のページヘのリンクをクリックし、ロードされるまで待つという今までの方法 (ドキュメント・モデル) ではなく、無限スクロール機能は読者がページの下部に近づくとアプリのように続きの投稿を自動的に表示してくれます。"
 
-#: modules/sharedaddy/sharing.php:304
-msgid "Icon only"
-msgstr "アイコンのみ"
+#: modules/module-info.php:643
+msgid "At this time, your theme, %s, doesn't support Infinite Scroll. Unlike other Jetpack modules, Infinite Scroll needs information from your theme to function properly."
+msgstr "現在お使いのテーマ「%s」は無限スクロールに対応していません。他の Jetpack モジュールとは異なり、この機能が適切に作動するにはテーマからの情報が必要です。"
 
-#: modules/sharedaddy/sharing.php:305
-msgid "Text only"
-msgstr "テキストのみ"
+#: modules/module-info.php:645
+msgid "Until your theme supports Infinite Scroll, you won't be able to activate this module."
+msgstr "お使いのテーマが無限スクロールに対応していない場合はこのモジュールを有効化できません。"
 
-#: modules/sharedaddy/sharing.php:306
-msgid "Official buttons"
-msgstr "公式ボタン"
+#: modules/module-info.php:655
+msgid "There is an update available for your theme. You may wish to check if this update adds Infinite Scroll support by visiting the <a href=\"%s\">WordPress Updates</a> page."
+msgstr "お使いのテーマには新しいバージョンがあります。<a href=\"%s\">WordPress 更新</a>ページでこのバージョンが無限スクロールに対応しているか確認することもできます。"
 
-#: modules/sharedaddy/sharing.php:311
-msgid "Sharing label"
-msgstr "共有ラベル"
+#: modules/module-info.php:675 modules/module-info.php:678
+#: modules/post-by-email.php:89
+msgid "Post by Email"
+msgstr "メール投稿"
 
-#: modules/sharedaddy/sharing.php:317
-msgid "Open links in"
-msgstr "リンクを開くウィンドウ"
+#: modules/module-info.php:680
+msgid "Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones."
+msgstr "メール投稿機能を使うと、メールで送ったコンテンツをブログに公開できます。どんなメールクライアントも使えますので、携帯電話などからもすばやく簡単に投稿できるようになります。"
 
-#: modules/sharedaddy/sharing.php:320
-msgid "New window"
-msgstr "新規ウィンドウ"
+#: modules/module-info.php:684
+msgid "Manage your Post By Email address from your <a href=\"%s\">profile settings</a>."
+msgstr "<a href=\"%s\">プロフィール設定</a>ページからメール投稿用アドレスを管理できます。"
 
-#: modules/sharedaddy/sharing.php:321
-msgid "Same window"
-msgstr "同一ウィンドウ"
+#: modules/module-info.php:688
+msgid "More information on sending emails, attachments, and customizing your posts."
+msgstr "メールの送信、添付ファイル、投稿のカスタマイズについての詳細情報。"
 
-#: modules/sharedaddy/sharing.php:326
-msgid "Show buttons on"
-msgstr "ボタン表示"
+#: modules/module-info.php:708
+msgid "Photon"
+msgstr "Photon"
 
-#: modules/sharedaddy/sharing.php:332
-msgid "Front Page, Archive Pages, and Search Results"
-msgstr "フロントページ、アーカイブページ、検索結果ページ"
+#: modules/module-info.php:710
+msgid "Give your site a boost by loading images in post and posts' featured images from the WordPress.com content delivery network. We cache your images and serve them from our super-fast network, reducing the burden on your web host with the click of a button."
+msgstr "投稿内の画像やアイキャッチ画像を WordPress.com のコンテンツ・デリバリー・ネットワーク (CDN) から読み込ませてサイトをスピードアップしましょう。非常に素早いネットワークから画像をキャッシュして提供し、お使いのホスティングへの負荷を軽減します。"
 
-#: modules/sharedaddy/sharing.php:348
-msgid "Save Changes"
-msgstr "変更を保存"
+#: modules/post-by-email.php:92 modules/subscriptions.php:596
+msgid "Email Address"
+msgstr "メールアドレス"
 
-#: modules/sharedaddy/sharing.php:359
-msgid "Service name"
-msgstr "サービス名"
+#: modules/post-by-email.php:107
+msgid "Enable Post By Email"
+msgstr "メール投稿を有効化"
 
-#: modules/sharedaddy/sharing.php:365
-msgid "Sharing URL"
-msgstr "共有 URL"
+#: modules/post-by-email.php:111 modules/shortcodes/videopress.php:926
+msgid "More information"
+msgstr "さらに詳しく"
 
-#: modules/sharedaddy/sharing.php:369
-msgid "You can add the following variables to your service sharing URL:"
-msgstr "サービスの共有 URL に以下の変数を利用できます。"
+#: modules/post-by-email.php:114
+msgid "Regenerate Address"
+msgstr "アドレスを再生成"
 
-#: modules/module-info.php:364
-msgid "allows you to easily add images to widget areas in your theme. It&#8217;s an easy way to add more visual interest to your site."
-msgstr "テーマのウィジェットエリアへ簡単に画像を追加できるようにします。手軽に視覚的変化をつけられます。"
+#: modules/post-by-email.php:115
+msgid "Disable Post By Email"
+msgstr "メール投稿を無効化"
 
-#: modules/module-info.php:377
-msgid "The RSS Links Widget"
-msgstr "RSS リンクウィジェット"
+#: modules/post-by-email.php:123
+msgid "To use Post By Email, you need to link your %s account to your WordPress.com account."
+msgstr "メール投稿機能を利用するには、%s アカウントを WordPress.com と連携する必要があります。"
 
-#: modules/module-info.php:377
-msgid "lets you easily add post and comment RSS feeds to a sidebar on your theme."
-msgstr "テーマのサイドバーに簡単に投稿・コメント RSS フィードを追加できます。"
+#: modules/post-by-email.php:126 modules/publicize/publicize-jetpack.php:58
+msgid "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds."
+msgstr "まだ WordPress.com アカウントをお持ちでない場合は、無料で簡単に登録できます。"
 
-#: modules/module-info.php:378
-msgid "The Twitter Widget"
-msgstr "Twitter ウィジェット"
+#: modules/post-by-email.php:167 modules/post-by-email.php:176
+msgid "Unable to create your Post By Email address. Please try again later."
+msgstr "メール投稿用のアドレスを生成できませんでした。後ほどもう一度お試しください。"
 
-#: modules/module-info.php:378
-msgid "shows your latest tweets within a sidebar on your theme."
-msgstr "テーマのサイドバーに簡単に最新のツイートを追加できます。"
+#: modules/post-by-email.php:195 modules/post-by-email.php:204
+msgid "Unable to regenerate your Post By Email address. Please try again later."
+msgstr "メール投稿用アドレスを再生成できませんでした。後ほどもう一度お試しください。"
 
-#: modules/module-info.php:379
-msgid "The Facebook Like Box Widget"
-msgstr "Facebook Like ボックスウィジェット"
+#: modules/post-by-email.php:223 modules/post-by-email.php:232
+msgid "Unable to disable your Post By Email address. Please try again later."
+msgstr "メール投稿用アドレスを無効化できませんでした。後ほどもう一度お試しください。"
 
-#: modules/module-info.php:379
-msgid "shows your Facebook Like Box within a sidebar on your theme."
-msgstr "Facebook Like ボックスウィジェットをテーマのサイドバーに表示します。"
+#: modules/publicize/publicize-jetpack.php:55
+msgid "To use Publicize, you'll need to link your %s account to your WordPress.com account using the button to the right."
+msgstr "パブリサイズ共有を使うには、右のボタンを使って %s アカウントを WordPress.com と連携する必要があります。"
 
-#: modules/module-info.php:380
-msgid "The Image Widget"
-msgstr "画像ウィジェット"
+#: modules/publicize/publicize-jetpack.php:165
+msgid "There was a problem connecting to %s to create an authorized connection. Please try again in a moment."
+msgstr "%s と連携して承認する際に問題が発生しました。後ほどもう一度お試しください。"
 
-#: modules/module-info.php:380
-msgid "lets you easily add images to a sidebar on your theme."
-msgstr "テーマのサイドバーに簡単に画像を追加できます。"
+#: modules/publicize/publicize-jetpack.php:167
+msgid "There was a problem connecting with Publicize. Please try again in a moment."
+msgstr "パブリサイズ共有連携の際に問題が発生しました。後ほどもう一度お試しください。"
 
-#: modules/module-info.php:382
-msgid "Each of these widgets has a number of customization options."
-msgstr "各ウィジェットにはさまざまなカスタマイズ設定が含まれています。"
+#: modules/publicize/publicize-jetpack.php:313
+#: modules/publicize/publicize-jetpack.php:329
+#: modules/publicize/publicize-jetpack.php:453
+msgid "Publicize to my %s:"
+msgstr "%s でパブリサイズ共有:"
 
-#: modules/module-info.php:382
-msgid "To use the widgets, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag them into one of your sidebars and configure away."
-msgstr "ウィジェットを使うには、外観 &#8594; <a href=\"%s\">ウィジェット</a>ページでサイドバーにウィジェットボックスをドラッグし、設定してください。"
+#: modules/publicize/publicize-jetpack.php:314
+msgid "Facebook Wall"
+msgstr "Facebook ウォール"
 
-#: modules/module-info.php:395
-msgid "Subsriptions Screenshot"
-msgstr "購読スクリーンショット"
+#: modules/publicize/publicize-jetpack.php:330
+msgid "Facebook Page"
+msgstr "Facebook ページ"
 
-msgid "Subscriptions"
-msgstr "購読"
+#: modules/publicize/publicize-jetpack.php:361
+#: modules/publicize/publicize-jetpack.php:473 modules/publicize/ui.php:214
+msgid "OK"
+msgstr "OK"
 
-#: modules/module-info.php:400
-msgid "Easily allow any visitor to subscribe to all of your posts via email through a widget in your blog&#8217;s sidebar.  Every time you publish a post, WordPress.com will send a notification to all your subscribers."
-msgstr "読者が投稿のメール通知を受け取れるようにするウィジェットをブログのサイドバーに簡単に設置できます。新しい投稿が公開されると、WordPress.com から購読者にメールが送信されます。"
+#: modules/publicize/publicize-jetpack.php:454
+msgid "Tumblr blog"
+msgstr "Tumblr ブログ"
 
-#: modules/module-info.php:401
-msgid "When leaving comments, your visitors can also subscribe to a post&#8217;s comments to keep up with the conversation."
-msgstr "読者がコメントを投稿する際、コメントを購読して今後つけられたコメントの通知を受け取ることもできます。"
+#: modules/publicize/ui.php:35 modules/publicize/ui.php:45
+#: modules/sharedaddy/sharing.php:57 modules/sharedaddy/sharing.php:163
+msgid "Sharing Settings"
+msgstr "共有設定"
 
-#: modules/module-info.php:406
-msgid "To use the Subscriptions widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away."
-msgstr "購読ウィジェットを使うには、「外観 &#8594; <a href=\"%s\">ウィジェット</a>」ページに移動します。「ブログ購読 (Jetpack)」という項目を右カラムにドラッグし、設定を変更してください。"
+#: modules/publicize/ui.php:76
+msgid "You have successfully connected your blog with your %s account."
+msgstr "ブログを %s アカウントに連携しました。"
 
-#: modules/module-info.php:407
-msgid "You can also make changes to your Subscription settings at the bottom of the <a href=\"%s\">Discussion Settings</a> page."
-msgstr "購読設定は<a href=\"%s\">ディスカッション設定</a>ページの下部からも変更できます。"
+#: modules/publicize/ui.php:91
+msgid "Connect your blog to popular social networking sites and automatically share new posts with your friends."
+msgstr "このブログをソーシャルネットワークサイトと連携し、新しい投稿を自動的に友達と共有しましょう。"
 
-msgid "Enhanced Distribution"
-msgstr "拡張配信"
+#: modules/publicize/ui.php:92
+msgid "You can make a connection for just yourself or for all users on your blog. Shared connections are marked with the (Shared) text."
+msgstr "自分だけで連携を利用するか、他のユーザーも同アカウントに連携できるようにするか選択できます。他のユーザーと共有している連携では (Shared) というテキストが表示されます。"
 
-#: modules/module-info.php:422
-msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
-msgstr "Jetpack はブログで公開されたコンテンツを即時に検索エンジンなどのサードパーティサービスと自動で共有します。これにより、リーチやトラフィックの増加につながります。"
+#: modules/publicize/ui.php:153
+msgid "Shared"
+msgstr "共有済"
 
-#: modules/module-info.php:469
-msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
-msgstr "コンタクトフォームを使えば、個人メールアドレスを知られることなく読者からのコメントを受け取る事ができます。"
+#: modules/publicize/ui.php:156 modules/publicize/ui.php:160
+msgid "Disconnect"
+msgstr "連携を解除"
 
-#: modules/module-info.php:472
-msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr "コンタクトフォームはそれぞれ、必要に応じてカスタマイズできます。ユーザーがフォームを送信すると、フィードバックがスパムでないことを確認するため <a href=\"http://akismet.com/\">Akismet</a> のフィルターが適用されます (有効化されている場合) 。チェックを通過した内容はメールで送られ、さらにフィードバック管理エリアにも保存されます。"
+#: modules/publicize/ui.php:169
+msgid "Add new %s connection."
+msgstr "%s 連携を新規追加する。"
 
-#: modules/module-info.php:489
-msgid "Jetpack Comments Screenshot"
-msgstr "Jetpack コメントのスクリーンショット"
+#: modules/publicize/ui.php:185
+msgid "Make this connection available to all users of this blog?"
+msgstr "このブログの他のユーザーもこの連携を利用できるようにしますか ?"
 
-#: modules/module-info.php:494
-msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
-msgstr "Jetpack コメントを使うと、読者が WordPress.com、Twitter、または Facebook アカウントでログインしてコメントを残せるようになります。"
+#: modules/publicize/ui.php:193
+msgid "There was a problem connecting to %s. Please disconnect and try again."
+msgstr "%s との連携の際に問題が発生しました。後ほどもう一度お試しください。"
 
-#: modules/module-info.php:499
-msgid "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page."
-msgstr "Jetpack はサイトの色調と自動で一致させるように試みますが、<a href='%s'>ディスカッション設定</a>画面の下部で手動調整することも可能です。"
+#: modules/publicize/ui.php:383
+msgid "Publicize:"
+msgstr "パブリサイズ共有:"
 
-#: modules/module-info.php:520
-msgid "Gallery Carousel Screenshot"
-msgstr "ギャラリーカルーセルのスクリーンショット"
+#: modules/publicize/ui.php:429
+msgctxt "Service: Account connected as"
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
 
-msgid "Carousel"
-msgstr "カルーセル"
+#: modules/publicize/ui.php:464
+msgid "Custom Message:"
+msgstr "カスタムメッセージ:"
 
-#: modules/module-info.php:525
-msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
-msgstr "カルーセルを有効化すると、投稿に埋め込んだ標準の WordPress ギャラリーの写真が美しいフルスクリーン表示で楽しめるようになります。コメントや EXIF メタ情報にも対応しています。"
+#: modules/publicize/ui.php:469 modules/publicize/ui.php:498
+#: modules/publicize/ui.php:500
+msgid "Hide"
+msgstr "隠す"
 
-msgid "Custom CSS"
-msgstr "カスタム CSS"
+#: modules/publicize/ui.php:478
+msgid "Not Connected"
+msgstr "未連携"
 
-#: modules/module-info.php:542
-msgid "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing."
-msgstr "カスタム CSS エディタを使うとテーマの CSS を追加または置き換えできるようになります。構文カラーリング、自動インデント、リアルタイムな CSS ルールチェック機能も含まれています。"
+#: modules/publicize/ui.php:485
+msgid "Connect to"
+msgstr "連携:"
 
-#: modules/module-info.php:543
-msgid "To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
-msgstr "CSS エディタを使うには「外観 &#8594; <a href=\"%s\">CSS 編集</a>」画面に移動してください。"
+#: modules/publicize/ui.php:490
+msgid "Connect and share your posts on %s"
+msgstr "%s と連携して投稿を共有"
 
-msgid "Mobile Theme"
-msgstr "モバイル用テーマ"
+#: modules/publicize/ui.php:513
+msgid "Show"
+msgstr "表示する"
 
-#: modules/module-info.php:564
-msgid "There's a good chance that visitors to your site will be using a smartphone, and it's important to provide them with a great reading experience while on the small screen."
-msgstr "スマートフォンからアクセスしている読者もたくさんいる可能性があります。小さな画面でも読みやすくしておくことも重要です。"
-
-#: modules/module-info.php:565
-msgid "Jetpack's mobile theme is optimized for small screens. It uses the header image, background, and widgets from your current theme for a great custom look. Post format support is included, so your photos and galleries will look fantastic on a smartphone."
-msgstr "Jetpack のモバイルテーマは小さな画面にも最適化されています。現在のテーマのヘッダー画像、背景、ウィジェットを使い、カスタム表示に対応します。投稿フォーマットにも対応しており、スマートフォンでも写真やギャラリーを美しく表示できます。"
-
-#: modules/module-info.php:566
-msgid "Visitors on iPhone, Android, Windows Phone, and other mobile devices will automatically see the mobile theme, with the option to view the full site. You can enable or disable the mobile theme by clicking the \"Activate\" or \"Deactive\" button above."
-msgstr "iPhone、Android、Windows Phone などのモバイルデバイス上の読者には、自動的に通常サイト表示オプション付きのモバイル対応テーマが提供されます。モバイル対応テーマは、上記のボタンから有効化・無効化できます。"
+#: modules/publicize.php:87
+msgctxt "word count: words or characters?"
+msgid "words"
+msgstr "characters"
 
 #: modules/sharedaddy/sharedaddy.php:18
 msgid "Shared Post"
@@ -1429,63 +1450,291 @@ msgstr "メールアドレス"
 msgid "Click to email this to a friend"
 msgstr "クリックして友達へメールで送信"
 
-#: modules/sharedaddy/sharing-sources.php:279
-msgid "Send to Email Address"
-msgstr "メールで送信"
+#: modules/module-info.php:315 modules/module-info.php:318
+#: modules/module-info.php:339 modules/publicize/ui.php:35
+#: modules/sharedaddy/sharedaddy.php:25 modules/sharedaddy/sharing.php:57
+msgid "Sharing"
+msgstr "共有"
 
-#: modules/sharedaddy/sharing-sources.php:287
-msgid "Your Name"
-msgstr "お名前"
+#: modules/module-info.php:319
+msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
+msgstr "投稿を Twitter、Facebook その他のサービスで共有しましょう。サービスをアイコン、テキスト、または両方で表示するよう設定できます。一部のサービスにはスマートボタンを表示する追加設定があります。例えば Twitter のスマートボタンでは、共有された回数を表示できます。"
 
-#: modules/sharedaddy/sharing-sources.php:290
-msgid "Your Email Address"
-msgstr "メールアドレス"
+#: modules/module-info.php:323
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr "以下のサービスが含まれています。Twitter、Facebook、Reddit、StumbleUpon、PressThis、Digg、LinkedIn、Google +1、印刷、メール送信"
 
-#: modules/sharedaddy/sharing-sources.php:298
-msgid "Send Email"
-msgstr "メールを送信"
+#: modules/module-info.php:325
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr "以下のサービスが含まれています:  Twitter、Facebook、Reddit、StumbleUpon、Digg、LinkedIn、Google +1、印刷、メール送信"
 
-#: modules/sharedaddy/sharing-sources.php:299
-msgid "Cancel"
-msgstr "キャンセル"
+#: modules/module-info.php:329
+msgid "Additionally you can define your own custom services."
+msgstr "また、カスタムサービスを定義することも可能です。"
 
-#: modules/sharedaddy/sharing-sources.php:302
-msgid "Post was not sent - check your email addresses!"
-msgstr "投稿を送信できませんでした。メールアドレスを確認してください。"
+#: modules/module-info.php:344
+msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
+msgstr "共有設定を変更するには、一般設定 &rarr;  <a href=\"%s\">共有</a> メニューを利用してください。"
 
-#: modules/sharedaddy/sharing-sources.php:306
-msgid "Email check failed, please try again"
-msgstr "メール送信チェックに失敗しました。再度お試しください。"
+#: modules/module-info.php:345
+msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
+msgstr "有効化セクションに共有サービスをドラッグ & ドロップし、サイトに表示させます。非表示セクションにドラッグすると、「共有」ボタンをクリックした際にのみ表示されます。"
 
-#: modules/sharedaddy/sharing-sources.php:310
-msgid "Sorry, your blog cannot share posts by email."
-msgstr "このブログではメールでの投稿共有はできません。"
+#: modules/module-info.php:351
+msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
+msgstr "詳しくは<a href=\"%s\">共有ツールサポートページ</a>をご覧ください。この動画で簡単な機能概要を見ていただくこともできます。"
 
-#: modules/sharedaddy/sharing-sources.php:330 modules/widgets/twitter.php:22
-msgid "Twitter"
-msgstr "Twitter"
+#: modules/module-info.php:366 modules/module-info.php:370
+msgid "Spelling and Grammar"
+msgstr "スペル＆文法チェック"
 
-#: modules/sharedaddy/sharing-sources.php:376
-msgctxt "share to"
-msgid "Twitter"
-msgstr "Twitter"
+#: modules/module-info.php:372
+msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
+msgstr "<a href='%s'>After&nbsp;the&nbsp;Deadline</a> 校正サービスを使えば、人工知能を使ったスマート・サジェスチョンで英語などのスペリングや文章スタイルを改善できます。"
 
-#: modules/sharedaddy/sharing-sources.php:376
-msgid "Click to share on Twitter"
-msgstr "クリックして Twitter で共有"
+#: modules/module-info.php:373
+msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
+msgstr "After the Deadline には、プロフィールページで変更できる<a href=\"%s\">カスタマイズ設定</a>が色々と用意されています。"
 
-#: modules/sharedaddy/sharing-sources.php:451
-msgid "StumbleUpon"
-msgstr "StumbleUpon"
+#: modules/module-info.php:387 modules/module-info.php:401
+msgid "Widgets Screenshot"
+msgstr "ウィジェットスクリーンショット"
 
-#: modules/sharedaddy/sharing-sources.php:462
-msgctxt "share to"
-msgid "StumbleUpon"
-msgstr "StumbleUpon"
+#: modules/module-info.php:390 modules/module-info.php:404
+msgid "Extra Sidebar Widgets"
+msgstr "追加ウィジェット"
 
-#: modules/sharedaddy/sharing-sources.php:462
-msgid "Click to share on StumbleUpon"
-msgstr "クリックして StumbleUpon で共有"
+#: modules/module-info.php:392
+msgid "The RSS Links Widget "
+msgstr "RSS リンクウィジェット"
+
+#: modules/module-info.php:392
+msgid "allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments."
+msgstr "リンクの投稿とコメント RSS フィードをサイドバーに追加できるようにします。読者が新しいコンテンツやコメントの更新をフォローしやすくなります。"
+
+#: modules/module-info.php:393
+msgid "The Twitter Widget "
+msgstr "Twitter ウィジェット "
+
+#: modules/module-info.php:393
+msgid "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options."
+msgstr "最新のツイートをテーマのサイドバーに表示します。簡単にもっと動的な要素をサイトへ追加できます。カスタマイズ設定も複数用意されています。"
+
+#: modules/module-info.php:393
+msgid "The Facebook Like Box Widget "
+msgstr "Facebook Like ボックスウィジェット"
+
+#: modules/module-info.php:393
+msgid "shows your Facebook Like Box within a sidebar on your theme. It&#8217;s a great way to let your readers show their support."
+msgstr "Facebook Like ボックスウィジェットをテーマのサイドバーに表示します。読者に応援されているサイトであることを知らせることができます。"
+
+#: modules/module-info.php:393
+msgid "The Image Widget "
+msgstr "画像ウィジェット"
+
+#: modules/module-info.php:393
+msgid "allows you to easily add images to widget areas in your theme. It&#8217;s an easy way to add more visual interest to your site."
+msgstr "テーマのウィジェットエリアへ簡単に画像を追加できるようにします。手軽に視覚的変化をつけられます。"
+
+#: modules/module-info.php:406
+msgid "The RSS Links Widget"
+msgstr "RSS リンクウィジェット"
+
+#: modules/module-info.php:406
+msgid "lets you easily add post and comment RSS feeds to a sidebar on your theme."
+msgstr "テーマのサイドバーに簡単に投稿・コメント RSS フィードを追加できます。"
+
+#: modules/module-info.php:407
+msgid "The Twitter Widget"
+msgstr "Twitter ウィジェット"
+
+#: modules/module-info.php:407
+msgid "shows your latest tweets within a sidebar on your theme."
+msgstr "テーマのサイドバーに簡単に最新のツイートを追加できます。"
+
+#: modules/module-info.php:408
+msgid "The Facebook Like Box Widget"
+msgstr "Facebook Like ボックスウィジェット"
+
+#: modules/module-info.php:408
+msgid "shows your Facebook Like Box within a sidebar on your theme."
+msgstr "Facebook Like ボックスウィジェットをテーマのサイドバーに表示します。"
+
+#: modules/module-info.php:409
+msgid "The Image Widget"
+msgstr "画像ウィジェット"
+
+#: modules/module-info.php:409
+msgid "lets you easily add images to a sidebar on your theme."
+msgstr "テーマのサイドバーに簡単に画像を追加できます。"
+
+#: modules/module-info.php:411
+msgid "Each of these widgets has a number of customization options."
+msgstr "各ウィジェットにはさまざまなカスタマイズ設定が含まれています。"
+
+#: modules/module-info.php:411
+msgid "To use the widgets, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag them into one of your sidebars and configure away."
+msgstr "ウィジェットを使うには、外観 &#8594; <a href=\"%s\">ウィジェット</a>ページでサイドバーにウィジェットボックスをドラッグし、設定してください。"
+
+#: modules/module-info.php:424
+msgid "Subsriptions Screenshot"
+msgstr "購読スクリーンショット"
+
+#: modules/module-info.php:427
+msgid "Subscriptions"
+msgstr "購読"
+
+#: modules/module-info.php:429
+msgid "Easily allow any visitor to subscribe to all of your posts via email through a widget in your blog&#8217;s sidebar.  Every time you publish a post, WordPress.com will send a notification to all your subscribers."
+msgstr "読者が投稿のメール通知を受け取れるようにするウィジェットをブログのサイドバーに簡単に設置できます。新しい投稿が公開されると、WordPress.com から購読者にメールが送信されます。"
+
+#: modules/module-info.php:430
+msgid "When leaving comments, your visitors can also subscribe to a post&#8217;s comments to keep up with the conversation."
+msgstr "読者がコメントを投稿する際、コメントを購読して今後つけられたコメントの通知を受け取ることもできます。"
+
+#: modules/module-info.php:435
+msgid "To use the Subscriptions widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away."
+msgstr "購読ウィジェットを使うには、「外観 &#8594; <a href=\"%s\">ウィジェット</a>」ページに移動します。「ブログ購読 (Jetpack)」という項目を右カラムにドラッグし、設定を変更してください。"
+
+#: modules/module-info.php:436
+msgid "You can also make changes to your Subscription settings at the bottom of the <a href=\"%s\">Discussion Settings</a> page."
+msgstr "購読設定は<a href=\"%s\">ディスカッション設定</a>ページの下部からも変更できます。"
+
+#: modules/module-info.php:449
+msgid "Enhanced Distribution"
+msgstr "拡張配信"
+
+#: modules/module-info.php:451
+msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
+msgstr "Jetpack はブログで公開されたコンテンツを即時に検索エンジンなどのサードパーティサービスと自動で共有します。これにより、リーチやトラフィックの増加につながります。"
+
+#: modules/module-info.php:466
+msgid "JSON API"
+msgstr "JSON API"
+
+#: modules/module-info.php:468
+msgid "Jetpack will allow you to authorize applications and services to securely connect to your blog and allow them to use your content in new ways and offer you new functionality."
+msgstr "Jetpack は、アプリケーションやサービスが安全にサイトと通信し、新しい方法でサイト上のコンテンツを活用したり、追加機能を提供したりできるようにします。"
+
+#: modules/module-info.php:470
+msgid "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
+msgstr "開発者は WordPress.com の <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> 認証システムおよび <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> を使ってサイトのコンテンツへのアクセス・管理ができます。"
+
+#: modules/module-info.php:498
+msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
+msgstr "コンタクトフォームを使えば、個人メールアドレスを知られることなく読者からのコメントを受け取る事ができます。"
+
+#: modules/module-info.php:501
+msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
+msgstr "コンタクトフォームはそれぞれ、必要に応じてカスタマイズできます。ユーザーがフォームを送信すると、フィードバックがスパムでないことを確認するため <a href=\"http://akismet.com/\">Akismet</a> のフィルターが適用されます (有効化されている場合) 。チェックを通過した内容はメールで送られ、さらにフィードバック管理エリアにも保存されます。"
+
+#: modules/module-info.php:518
+msgid "Jetpack Comments Screenshot"
+msgstr "Jetpack コメントのスクリーンショット"
+
+#: modules/module-info.php:523
+msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
+msgstr "Jetpack コメントを使うと、読者が WordPress.com、Twitter、または Facebook アカウントでログインしてコメントを残せるようになります。"
+
+#: modules/module-info.php:528
+msgid "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page."
+msgstr "Jetpack はサイトの色調と自動で一致させるように試みますが、<a href='%s'>ディスカッション設定</a>画面の下部で手動調整することも可能です。"
+
+#: modules/module-info.php:549
+msgid "Gallery Carousel Screenshot"
+msgstr "ギャラリーカルーセルのスクリーンショット"
+
+#: modules/module-info.php:552
+msgid "Carousel"
+msgstr "カルーセル"
+
+#: modules/module-info.php:554
+msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
+msgstr "カルーセルを有効化すると、投稿に埋め込んだ標準の WordPress ギャラリーの写真が美しいフルスクリーン表示で楽しめるようになります。コメントや EXIF メタ情報にも対応しています。"
+
+#: modules/module-info.php:567 modules/module-info.php:570
+msgid "Custom CSS"
+msgstr "カスタム CSS"
+
+#: modules/module-info.php:571
+msgid "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing."
+msgstr "カスタム CSS エディタを使うとテーマの CSS を追加または置き換えできるようになります。構文カラーリング、自動インデント、リアルタイムな CSS ルールチェック機能も含まれています。"
+
+#: modules/module-info.php:572
+msgid "To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
+msgstr "CSS エディタを使うには「外観 &#8594; <a href=\"%s\">CSS 編集</a>」画面に移動してください。"
+
+#: modules/module-info.php:589 modules/module-info.php:592
+msgid "Mobile Theme"
+msgstr "モバイル用テーマ"
+
+#: modules/module-info.php:593
+msgid "There's a good chance that visitors to your site will be using a smartphone, and it's important to provide them with a great reading experience while on the small screen."
+msgstr "スマートフォンからアクセスしている読者もたくさんいる可能性があります。小さな画面でも読みやすくしておくことも重要です。"
+
+#: modules/module-info.php:594
+msgid "Jetpack's mobile theme is optimized for small screens. It uses the header image, background, and widgets from your current theme for a great custom look. Post format support is included, so your photos and galleries will look fantastic on a smartphone."
+msgstr "Jetpack のモバイルテーマは小さな画面にも最適化されています。現在のテーマのヘッダー画像、背景、ウィジェットを使い、カスタム表示に対応します。投稿フォーマットにも対応しており、スマートフォンでも写真やギャラリーを美しく表示できます。"
+
+#: modules/module-info.php:595
+msgid "Visitors on iPhone, Android, Windows Phone, and other mobile devices will automatically see the mobile theme, with the option to view the full site. You can enable or disable the mobile theme by clicking the \"Activate\" or \"Deactive\" button above."
+msgstr "iPhone、Android、Windows Phone などのモバイルデバイス上の読者には、自動的に通常サイト表示オプション付きのモバイル対応テーマが提供されます。モバイル対応テーマは、上記のボタンから有効化・無効化できます。"
+
+#: modules/module-info.php:611 modules/module-info.php:614
+msgid "Mobile Push Notifications"
+msgstr "モバイルプッシュ通知"
+
+#: modules/module-info.php:616
+msgid "If you have your blog added to the <a href=\"http://ios.wordpress.org/\">WordPress for iOS app</a>, you’ll now be able to opt in to receive push notifications of new comments, which makes it easier than ever to keep up with your readers and moderate comments on the go."
+msgstr "ブログを <a href=\"http://ios.wordpress.org/\">WordPress for iOS アプリに</a>追加している場合、新しいコメントのプッシュ通知を受け取る設定を選ぶことができます。外出中でも読者のフィードバックをすぐに確認し、コメントの承認ができるようになります。"
+
+#: modules/module-info.php:635
+msgid "Infinite Scroll"
+msgstr "無限スクロール"
+
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:70
+msgid "Your comment is awaiting moderation."
+msgstr "あなたのコメントは承認待ちです。"
+
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:79
+msgid "Reply <span>&darr;</span>"
+msgstr "返信 <span>&darr;</span>"
+
+#: modules/minileven/theme/pub/minileven/inc/template-tags.php:93
+msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
+msgstr "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time class=\"entry-date\" datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
+
+#: modules/minileven/theme/pub/minileven/index.php:23
+msgid "Daily Archives: %s"
+msgstr "日別アーカイブ: %s"
+
+#: modules/minileven/theme/pub/minileven/index.php:25
+msgid "Monthly Archives: %s"
+msgstr "月別アーカイブ: %s"
+
+#: modules/minileven/theme/pub/minileven/index.php:27
+msgid "Yearly Archives: %s"
+msgstr "年別アーカイブ: %s"
+
+#: modules/minileven/theme/pub/minileven/index.php:29
+msgid "Posted in %s"
+msgstr "カテゴリー: %s"
+
+#: modules/minileven/theme/pub/minileven/index.php:31
+msgid "Tagged with %s"
+msgstr "タグ: %1$s"
+
+#: modules/minileven/theme/pub/minileven/index.php:33
+msgid "Posted by"
+msgstr "投稿者:"
+
+#: modules/minileven/theme/pub/minileven/index.php:35
+msgid "Blog Archives"
+msgstr "ブログアーカイブ"
+
+#: modules/minileven/theme/pub/minileven/index.php:43
+msgid "Search Results for: %s"
+msgstr "検索結果: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:57
 msgid "Nothing Found"
@@ -1515,11 +1764,11 @@ msgstr "フロントページとアーカイブページで全文を表示する
 
 #: modules/minileven.php:62
 msgid "Mobile App Promos"
-msgstr ""
+msgstr "モバイルアプリの広告"
 
 #: modules/minileven.php:66
 msgid "Show a promo for the WordPress mobile apps in the footer of the mobile theme."
-msgstr ""
+msgstr "WordPress モバイルアプリの広告をモバイルテーマのフッターに表示します。"
 
 #: modules/minileven.php:75
 msgid "Mobile Apps"
@@ -1533,6 +1782,7 @@ msgstr "どこにいても WordPress.com ブログを投稿・編集できます
 msgid "We have apps for <a href=\"%s\">iOS (iPhone, iPad, iPod Touch)</a>, <a href=\"%s\">Android</a>, <a href=\"%s\">BlackBerry</a>, <a href=\"%s\">Windows Phone</a>, and <a href=\"%s\">more</a>!"
 msgstr "<a href=\"%s\">iOS (iPhone、iPad、iPod Touch)</a>、<a href=\"%s\">Android</a>、<a href=\"%s\">BlackBerry</a>、<a href=\"%s\">Windows Phone</a>、<a href=\"%s\">その他</a>のアプリを用意しています。"
 
+#: modules/module-info.php:22 modules/module-info.php:26
 msgid "VaultPress"
 msgstr "VaultPress"
 
@@ -1586,6 +1836,8 @@ msgstr "Gravatar ホバーカードは、名前、プロフィール情報、写
 msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
 msgstr "ホバーカードを表示するには、ブログ内でコメントの付いている投稿に移動してください。コメント投稿者が Gravatar に連動したホバーカードを持っている場合、画像にマウスオーバーするとホバーカードが表示されます。ホバーカードを無効化するには、上記の「無効化」ボタンをクリックしてください。"
 
+#: modules/module-info.php:90 modules/module-info.php:94
+#: modules/module-info.php:103 modules/module-info.php:107
 msgid "Shortcode Embeds"
 msgstr "ショートコード埋め込み"
 
@@ -1601,6 +1853,8 @@ msgstr "投稿または固定ページエディターにショートコードを
 msgid "Available shortcodes are: %l."
 msgstr "利用出来るショートコード: %l"
 
+#: modules/module-info.php:147 modules/module-info.php:151
+#: modules/module-info.php:161 modules/module-info.php:165
 msgid "WP.me Shortlinks"
 msgstr "WP.me 短縮 URL"
 
@@ -1616,6 +1870,8 @@ msgstr "Twitter、Facebook、携帯の SMS やメールのような文字数制�
 msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
 msgstr "ショートリンクを利用するには、編集画面で投稿タイトルの下に表示される「短縮 URL を取得」ボタンをクリックします。ダイアログボックスが開くので、コピーして Twitter、Facebook など好きなところにペーストしましょう。"
 
+#: modules/module-info.php:182 modules/module-info.php:186
+#: modules/module-info.php:195 modules/module-info.php:199
 msgid "WordPress.com Stats"
 msgstr "WordPress.com 統計情報"
 
@@ -1627,147 +1883,95 @@ msgstr "統計情報を提供してくれるサービスは他にもあります
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
 msgstr "<a href=\"%s\">統計情報ダッシュボードはこちら</a>でご覧いただけます。"
 
-#: modules/module-info.php:250 modules/module-info.php:265
+#: modules/module-info.php:215 modules/module-info.php:219
+#: modules/publicize/ui.php:89
+msgid "Publicize"
+msgstr "パブリサイズ共有 "
+
+#: modules/module-info.php:220
+msgid "Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.\t You can make a connection for just yourself or for all users on your blog."
+msgstr "パブリサイズ共有を使うとブログを人気のソーシャルネットワークサイトに連携して新しい投稿を自動的に友人へシェアできます。→\t 自分だけまたはブログ上のすべてのユーザーとの連携を選択できます。"
+
+#: modules/module-info.php:221
+msgid "Publicize allows you to share your posts on Facebook, Twitter, Tumblr, Yahoo!, and Linkedin."
+msgstr "パブリサイズ共有を使うと、Facebook・Twitter・Tumblr・Yahoo!・Linkedin で投稿を共有できます。"
+
+#: modules/module-info.php:225
+msgid "Manage your <a href=\"%s\">Publicize settings</a>."
+msgstr "<a href=\"%s\">パブリサイズ共有設定</a>を管理できます。"
+
+#: modules/module-info.php:229 modules/publicize/ui.php:102
+msgid "More information on using Publicize."
+msgstr "パブリサイズ共有についての詳細情報。"
+
+#: modules/module-info.php:245 modules/module-info.php:249
+#: modules/module-info.php:258 modules/module-info.php:262
+#: modules/notes.php:106
+msgid "Notifications"
+msgstr "通知"
+
+#: modules/module-info.php:250 modules/module-info.php:263
+msgid "Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users."
+msgstr "あなたのサイト上のアクティビティをフォローし、他の WordPress.com ユーザーと交流しましょう。"
+
+#: modules/module-info.php:264
+msgid "You can view your notifications in the Toolbar and <a href=\"%s\">on WordPress.com</a>."
+msgstr "通知はツールバーと <a href=\"%s\">WordPress.com サイト上</a>で見ることができます。"
+
+#: modules/module-info.php:279 modules/module-info.php:294
 msgid "LaTeX"
 msgstr "LaTeX"
 
-#: modules/module-info.php:255 modules/module-info.php:270
+#: modules/module-info.php:284 modules/module-info.php:299
 msgid "%s is a powerful markup language for writing complex mathematical equations, formulas, etc."
 msgstr "%s は、複雑な方程式や数式を入力するのに適したパワフルなマークアップ言語です。"
 
-#: modules/module-info.php:256
+#: modules/module-info.php:285
 msgid "Jetpack combines the power of %s and the simplicity of WordPress to give you the ultimate in math blogging platforms."
 msgstr "Jetpack は %s のパワフルさと WordPress のシンプルさをかけ合わせ、最高のブログプラットフォームを提供します。"
 
-#: modules/module-info.php:257
+#: modules/module-info.php:286
 msgid "Wow, that sounds nerdy."
 msgstr "と、今のはちょっとオタクっぽかったですか。"
 
-#: modules/module-info.php:271
+#: modules/module-info.php:300
 msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
 msgstr "%s を含めるには、<code>$latex 【ここにコードを記入】$</code> または <code>[latex]【ここにコードを記入】[/latex]</code> という書式をコメントや投稿内でご利用ください。 <a href=\"%s\" target=\"_blank\">各種オプション</a>が用意されています。"
 
-msgid "Sharing"
-msgstr "共有"
-
-#: modules/module-info.php:290
-msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
-msgstr "投稿を Twitter、Facebook その他のサービスで共有しましょう。サービスをアイコン、テキスト、または両方で表示するよう設定できます。一部のサービスにはスマートボタンを表示する追加設定があります。例えば Twitter のスマートボタンでは、共有された回数を表示できます。"
-
-#: modules/module-info.php:294
-msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr "以下のサービスが含まれています。Twitter、Facebook、Reddit、StumbleUpon、PressThis、Digg、LinkedIn、Google +1、印刷、メール送信"
-
-#: modules/module-info.php:296
-msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr "以下のサービスが含まれています:  Twitter、Facebook、Reddit、StumbleUpon、Digg、LinkedIn、Google +1、印刷、メール送信"
-
-#: modules/module-info.php:300
-msgid "Additionally you can define your own custom services."
-msgstr "また、カスタムサービスを定義することも可能です。"
-
-#: modules/module-info.php:315
-msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
-msgstr "共有設定を変更するには、一般設定 &rarr;  <a href=\"%s\">共有</a> メニューを利用してください。"
-
-#: modules/module-info.php:316
-msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
-msgstr "有効化セクションに共有サービスをドラッグ & ドロップし、サイトに表示させます。非表示セクションにドラッグすると、「共有」ボタンをクリックした際にのみ表示されます。"
-
-#: modules/module-info.php:322
-msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
-msgstr "詳しくは<a href=\"%s\">共有ツールサポートページ</a>をご覧ください。この動画で簡単な機能概要を見ていただくこともできます。"
-
-msgid "Spelling and Grammar"
-msgstr "スペル＆文法チェック"
-
-#: modules/module-info.php:343
-msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
-msgstr "<a href='%s'>After&nbsp;the&nbsp;Deadline</a> 校正サービスを使えば、人工知能を使ったスマート・サジェスチョンで英語などのスペリングや文章スタイルを改善できます。"
-
-#: modules/module-info.php:344
-msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
-msgstr "After the Deadline には、プロフィールページで変更できる<a href=\"%s\">カスタマイズ設定</a>が色々と用意されています。"
-
-#: modules/module-info.php:358 modules/module-info.php:372
-msgid "Widgets Screenshot"
-msgstr "ウィジェットスクリーンショット"
-
-msgid "Extra Sidebar Widgets"
-msgstr "追加サイドバーウィジェット"
-
-#: modules/module-info.php:363
-msgid "The RSS Links Widget "
-msgstr "RSS リンクウィジェット"
-
-#: modules/module-info.php:363
-msgid "allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments."
-msgstr "リンクの投稿とコメント RSS フィードをサイドバーに追加できるようにします。読者が新しいコンテンツやコメントの更新をフォローしやすくなります。"
-
-#: modules/module-info.php:364
-msgid "The Twitter Widget "
-msgstr "Twitter ウィジェット "
-
-#: modules/module-info.php:364
-msgid "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options."
-msgstr "最新のツイートをテーマのサイドバーに表示します。簡単にもっと動的な要素をサイトへ追加できます。カスタマイズ設定も複数用意されています。"
-
-#: modules/module-info.php:364
-msgid "The Facebook Like Box Widget "
-msgstr "Facebook Like ボックスウィジェット"
-
-#: modules/module-info.php:364
-msgid "shows your Facebook Like Box within a sidebar on your theme. It&#8217;s a great way to let your readers show their support."
-msgstr "Facebook Like ボックスウィジェットをテーマのサイドバーに表示します。読者に応援されているサイトであることを知らせることができます。"
-
-#: modules/module-info.php:364
-msgid "The Image Widget "
-msgstr "画像ウィジェット"
-
-#: modules/custom-css/custom-css.php:774
-msgid "CSS Stylesheet Editor"
-msgstr "CSS スタイルシートエディター"
-
-#: modules/custom-css/custom-css.php:775
-msgid ""
-"New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions?\n"
-"\tAsk in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
-msgstr ""
-"CSS についてもっと知りたい場合は、<a href=\"http://www.tohoho-web.com/css/basic.htm\">入門用チュートリアル</a>をご覧ください。\n"
-"→\t質問があれば、<a href=\"http://ja.forums.wordpress.com/forum/3\">CSS カスタマイズフォーラム</a>でお尋ねください。"
-
-#: modules/custom-css/custom-css.php:795
+#: modules/custom-css/custom-css.php:865
 msgid "Preview"
 msgstr "プレビュー"
 
-#: modules/custom-css/custom-css.php:796
+#: modules/custom-css/custom-css.php:866
 msgid "Save Stylesheet &amp; Buy Upgrade"
 msgstr "スタイルシート保存 & アップグレード購入"
 
-#: modules/custom-css/custom-css.php:796
+#: modules/custom-css/custom-css.php:866
 msgid "Save Stylesheet"
 msgstr "スタイルシートを保存"
 
-#: modules/custom-css/custom-css.php:801
+#: modules/custom-css/custom-css.php:871
 msgid "CSS Settings"
 msgstr "CSS 設定"
 
-#: modules/custom-css/custom-css.php:808
+#: modules/custom-css/custom-css.php:878
 msgid "CSS Revisions"
 msgstr "CSS 変更履歴"
 
-#: modules/custom-css/custom-css.php:844
+#: modules/custom-css/custom-css.php:916
 msgid "Add my CSS to <strong>%s&apos;s</strong> CSS stylesheet."
 msgstr "このカスタム CSS を <strong>%s</strong> テーマのスタイルシートに追加する。"
 
-#: modules/custom-css/custom-css.php:845
+#: modules/custom-css/custom-css.php:917
 msgid "Don&apos;t use <strong>%s&apos;s</strong> CSS, and replace everything with my own CSS."
 msgstr "<strong>%s</strong> テーマのスタイルシートを使わず、このカスタム CSS ですべて上書きする。"
 
-#: modules/custom-css/custom-css.php:847
+#: modules/custom-css/custom-css.php:919
 msgid "<a href=\"%s\">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor."
 msgstr "<a href=\"%s\">元のスタイルシートを表示する</a>。これはリファレンスとして使い、すべてを CSS エディターにコピー・ペーストしないでください。"
 
+#: modules/gravatar-hovercards.php:44 modules/module-info.php:57
+#: modules/module-info.php:72
 msgid "Gravatar Hovercards"
 msgstr "Gravatar ホバーカード"
 
@@ -1779,9 +1983,53 @@ msgstr "Gravatar をマウスオーバーしたときにプロフィールを表
 msgid "Put your mouse over your Gravatar to check out your profile."
 msgstr "自分のプロフィールをチェックするには、Gravatar 上でマウスオーバーしてください。"
 
+#: modules/infinite-scroll/infinity.php:238
+msgid "To infinity and beyond"
+msgstr "無限スクロール"
+
+#: modules/infinite-scroll/infinity.php:247
+msgid "We've disabled this option for you since you have footer widgets in Appearance &rarr; Widgets, or because your theme does not support infinite scroll."
+msgstr "「外観 &rarr; ウィジェット」画面でフッターウィジェットを追加済みであるか、お使いのテーマが無限スクロールに対応していないため、このオプションを無効化しています。"
+
+#: modules/infinite-scroll/infinity.php:253
+msgid "Scroll Infinitely"
+msgstr "無限スクロール"
+
+#: modules/infinite-scroll/infinity.php:253
+msgid "(Shows %s posts on each load)"
+msgstr "(読みこむたびに投稿を%件表示)"
+
+#: modules/infinite-scroll/infinity.php:442
+msgid "Load more posts"
+msgstr "さらに記事を読み込む"
+
+#: modules/infinite-scroll/infinity.php:443
+msgid "Scroll back to top"
+msgstr "ページ上部へ戻る"
+
+#: modules/infinite-scroll/infinity.php:813
+msgid "Theme: %1$s."
+msgstr "テーマ: %1$s."
+
+#: modules/infinite-scroll.php:79
+msgid "Use Google Analytics with Infinite Scroll"
+msgstr "無限スクロールで Google アナリティクスを使用"
+
+#: modules/infinite-scroll.php:90
+msgid "Track each Infinite Scroll post load as a page view in Google Analytics"
+msgstr "無限スクロールが読み込まれた際に1ページビューとして Google アナリティクスでカウントする"
+
+#: modules/infinite-scroll.php:90
+msgid "By checking the box above, each new set of posts loaded via Infinite Scroll will be recorded as a page view in Google Analytics."
+msgstr "上のボックスをチェックすると、無限スクロールで読み込まれたページも Google アナリティクスで1PVとしてカウントされます。"
+
 #: modules/minileven/minileven.php:90
 msgid "View Mobile Site"
 msgstr "モバイルサイトを表示"
+
+#: modules/minileven/minileven.php:254
+msgid "Apply this CSS to the Mobile Theme"
+msgstr "この CSS をモバイルテーマに適用"
 
 #: modules/minileven/theme/pub/minileven/comments.php:15
 msgid "This post is password protected. Enter the password to view any comments."
@@ -1845,6 +2093,7 @@ msgstr "<b>%</b>件のフィードバック"
 #: modules/minileven/theme/pub/minileven/image.php:82
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:66
 #: modules/minileven/theme/pub/minileven/page.php:31
+#: modules/publicize/ui.php:511
 msgid "Edit"
 msgstr "編集"
 
@@ -1946,76 +2195,22 @@ msgstr "%2$s に %1$s より"
 msgid "%1$s at %2$s"
 msgstr "%1$s %2$s"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:70
-msgid "Your comment is awaiting moderation."
-msgstr "あなたのコメントは承認待ちです。"
+#: modules/contact-form/grunion-contact-form.php:1242
+msgid "%s is required"
+msgstr "%s は必須項目です。"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:79
-msgid "Reply <span>&darr;</span>"
-msgstr "返信 <span>&darr;</span>"
+#: modules/contact-form/grunion-contact-form.php:1289
+#: modules/contact-form/grunion-contact-form.php:1295
+#: modules/contact-form/grunion-contact-form.php:1300
+#: modules/contact-form/grunion-contact-form.php:1314
+#: modules/contact-form/grunion-contact-form.php:1320
+#: modules/contact-form/grunion-contact-form.php:1333
+msgid "(required)"
+msgstr "(必須)"
 
-#: modules/minileven/theme/pub/minileven/inc/template-tags.php:93
-msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
-msgstr "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time class=\"entry-date\" datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
-
-#: modules/minileven/theme/pub/minileven/index.php:23
-msgid "Daily Archives: %s"
-msgstr "日別アーカイブ: %s"
-
-#: modules/minileven/theme/pub/minileven/index.php:25
-msgid "Monthly Archives: %s"
-msgstr "月別アーカイブ: %s"
-
-#: modules/minileven/theme/pub/minileven/index.php:27
-msgid "Yearly Archives: %s"
-msgstr "年別アーカイブ: %s"
-
-#: modules/minileven/theme/pub/minileven/index.php:29
-msgid "Posted in %s"
-msgstr "カテゴリー: %s"
-
-#: modules/minileven/theme/pub/minileven/index.php:31
-msgid "Tagged with %s"
-msgstr "タグ: %1$s"
-
-#: modules/minileven/theme/pub/minileven/index.php:33
-msgid "Posted by"
-msgstr "投稿者:"
-
-#: modules/minileven/theme/pub/minileven/index.php:35
-msgid "Blog Archives"
-msgstr "ブログアーカイブ"
-
-#: modules/minileven/theme/pub/minileven/index.php:43
-msgid "Search Results for: %s"
-msgstr "検索結果: %s"
-
-#: modules/contact-form/grunion-contact-form.php:73
-#: modules/contact-form/grunion-form-view.php:136
-msgid "Feedbacks"
-msgstr "フィードバック"
-
-#: modules/contact-form/grunion-contact-form.php:74
-msgid "Feedback"
-msgstr "フィードバック"
-
-#: modules/contact-form/grunion-contact-form.php:75
-msgid "Search Feedback"
-msgstr "フィードバックを検索"
-
-#: modules/contact-form/grunion-contact-form.php:76
-#: modules/contact-form/grunion-contact-form.php:77
-msgid "No feedback found"
-msgstr "フィードバックが見つかりませんでした"
-
-#: modules/contact-form/grunion-contact-form.php:94
-msgid "Spam <span class=\"count\">(%s)</span>"
-msgid_plural "Spam <span class=\"count\">(%s)</span>"
-msgstr[0] "スパム <span class=\"count\">(%s)</span>"
-
-#: modules/contact-form/admin.php:27
-msgid "Add a custom form"
-msgstr "カスタムフォームを追加"
+#: modules/contact-form/grunion-contact-form.php:1313
+msgid "Yes"
+msgstr "はい"
 
 #: modules/contact-form/grunion-form-view.php:8
 msgctxt "Label for HTML form \"Name\" field in contact form builder"
@@ -2093,6 +2288,8 @@ msgstr " (必須) "
 msgid "Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost."
 msgstr "保存せずにフォームエディタから移動しますか ? これまでに加えた変更がすべて失われます。"
 
+#: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:491
+#: modules/module-info.php:495
 msgid "Contact Form"
 msgstr "コンタクトフォーム"
 
@@ -2151,7 +2348,7 @@ msgid "Edit this new field"
 msgstr "この新規フィールドを編集"
 
 #: modules/contact-form/grunion-form-view.php:148
-#: modules/sharedaddy/sharing-sources.php:976
+#: modules/sharedaddy/sharing-sources.php:985
 msgid "Label"
 msgstr "ラベル"
 
@@ -2231,53 +2428,51 @@ msgstr "件名はどのようなものがよいですか ?"
 msgid "Save and go back to form builder"
 msgstr "保存してフォームビルダーに戻る"
 
-#: modules/custom-css/custom-css.php:525
+#: modules/custom-css/custom-css.php:486
+msgid ""
+"Welcome to Custom CSS!\n"
+"\n"
+"CSS (Cascading Style Sheets) is a kind of code that tells the browser how to render a web page. You may delete these comments and get started with your customizations.\n"
+"\n"
+"By default, your stylesheet will be loaded after the theme stylesheets, which means that your rules can take precedence and override the theme CSS rules. Just write here what you want to change, you don't need to copy all your theme's stylesheet content."
+msgstr ""
+"カスタム CSS へようこそ!\n"
+"\n"
+"CSS (カスケーディングスタイルシート) は、ブラウザに対し Web ページの表示方法を指定するためのコードです。このコメントを削除し、カスタマイズを始めることができます。\n"
+"\n"
+"デフォルトでは、ここで指定したカスタムスタイルはテーマのスタイルシートが読み込まれた後に追加されます。つまり、デフォルトの CSS ルールを上書きできるということです。テーマのスタイルシートの内容をここにコピーする必要はありません。追加したい内容だけを書き込んでください。"
+
+#: modules/custom-css/custom-css.php:595
 msgid "Preview: changes must be saved or they will be lost"
 msgstr "プレビュー: 保存しなかった場合、変更点は失われます。"
 
-#: modules/custom-css/custom-css.php:553
+#: modules/custom-css/custom-css.php:623
 msgid "Edit CSS"
 msgstr "CSS 編集"
 
-#: modules/custom-css/custom-css.php:567
+#: modules/custom-css/custom-css.php:637
 msgid "CSS"
 msgstr "CSS"
 
-#: modules/custom-css/custom-css.php:606
+#: modules/custom-css/custom-css.php:676
 msgid "Custom CSS Stylesheet"
 msgstr "カスタム CSS スタイルシート"
 
-#: modules/custom-css/custom-css.php:766
+#: modules/custom-css/custom-css.php:836
 msgid "Stylesheet saved."
 msgstr "スタイルシートを保存しました。"
 
-#: modules/carousel/jetpack-carousel.php:360
-msgid "Image Gallery Carousel"
-msgstr "画像ギャラリーカルーセル"
+#: modules/custom-css/custom-css.php:844
+msgid "CSS Stylesheet Editor"
+msgstr "CSS スタイルシートエディター"
 
-#: modules/carousel/jetpack-carousel.php:363
-msgid "Enable carousel"
-msgstr "カルーセルを有効化"
-
-#: modules/carousel/jetpack-carousel.php:367
-msgid "Background color"
-msgstr "背景色"
-
-#: modules/carousel/jetpack-carousel.php:370
-msgid "Metadata"
-msgstr "メタデータ"
-
-#: modules/carousel/jetpack-carousel.php:427
-msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
-msgstr "写真のメタ情報 (<a href=\"http://ja.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) がある場合はカルーセル内に表示する。"
-
-#: modules/carousel/jetpack-carousel.php:435
-msgid "Show map of photo location in carousel, when available."
-msgstr "写真の位置情報がある場合はカルーセル内に表示する。"
-
-#: modules/carousel/jetpack-carousel.php:443
-msgid "Black"
-msgstr "黒"
+#: modules/custom-css/custom-css.php:845
+msgid ""
+"New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions?\n"
+"\tAsk in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
+msgstr ""
+"CSS についてもっと知りたい場合は、<a href=\"http://www.tohoho-web.com/css/basic.htm\">入門用チュートリアル</a>をご覧ください。\n"
+"→\t質問があれば、<a href=\"http://ja.forums.wordpress.com/forum/3\">CSS カスタマイズフォーラム</a>でお尋ねください。"
 
 #: modules/carousel/jetpack-carousel.php:443
 msgid "White"
@@ -2304,6 +2499,7 @@ msgstr "ダークカラー"
 msgid "Transparent"
 msgstr "透明"
 
+#: modules/comments/admin.php:72 modules/module-info.php:521
 msgid "Jetpack Comments"
 msgstr "Jetpack コメント"
 
@@ -2351,6 +2547,10 @@ msgstr "不正なセキュリティトークンです。"
 #: modules/comments/comments.php:412 modules/comments/comments.php:463
 msgid "Submitting Comment%s"
 msgstr "コメントを送信%s"
+
+#: modules/contact-form/admin.php:27
+msgid "Add a custom form"
+msgstr "カスタムフォームを追加"
 
 #: modules/contact-form/admin.php:129
 msgid "From"
@@ -2426,6 +2626,39 @@ msgstr "メッセージ"
 msgid "Spam"
 msgstr "スパム"
 
+#: modules/contact-form/grunion-contact-form.php:73
+#: modules/contact-form/grunion-form-view.php:136
+msgid "Feedbacks"
+msgstr "フィードバック"
+
+#: modules/contact-form/grunion-contact-form.php:74
+msgid "Feedback"
+msgstr "フィードバック"
+
+#: modules/contact-form/grunion-contact-form.php:75
+msgid "Search Feedback"
+msgstr "フィードバックを検索"
+
+#: modules/contact-form/grunion-contact-form.php:76
+#: modules/contact-form/grunion-contact-form.php:77
+msgid "No feedback found"
+msgstr "フィードバックが見つかりませんでした"
+
+#: modules/contact-form/grunion-contact-form.php:94
+msgid "Spam <span class=\"count\">(%s)</span>"
+msgid_plural "Spam <span class=\"count\">(%s)</span>"
+msgstr[0] "スパム <span class=\"count\">(%s)</span>"
+
+#: modules/contact-form/grunion-contact-form.php:514
+msgctxt "%1$s = blog name"
+msgid "%1$s Sidebar"
+msgstr "%1$s サイドバー"
+
+#: modules/contact-form/grunion-contact-form.php:521
+msgctxt "%1$s = blog name, %2$s = post title"
+msgid "%1$s %2$s"
+msgstr "%1$s %2$s"
+
 #: modules/contact-form/grunion-contact-form.php:546
 #: modules/contact-form/grunion-form-view.php:156
 msgid "Name"
@@ -2441,38 +2674,27 @@ msgstr "メールアドレス"
 msgid "Subject"
 msgstr "題名"
 
-#: modules/contact-form/grunion-contact-form.php:1289
-#: modules/contact-form/grunion-contact-form.php:1295
-#: modules/contact-form/grunion-contact-form.php:1300
-#: modules/contact-form/grunion-contact-form.php:1314
-#: modules/contact-form/grunion-contact-form.php:1320
-#: modules/contact-form/grunion-contact-form.php:1333
-msgid "(required)"
-msgstr "(必須)"
-
-#: modules/contact-form/grunion-contact-form.php:1313
-msgid "Yes"
-msgstr "はい"
-
-#: modules/contact-form/grunion-contact-form.php:1236
-msgid "%s requires a valid email address"
-msgstr "%s: 正しいメールアドレスが必要です。"
-
-#: modules/contact-form/grunion-contact-form.php:1242
-msgid "%s is required"
-msgstr "%s は必須項目です。"
-
 #: modules/contact-form/grunion-contact-form.php:633
 msgid "Error!"
 msgstr "エラーが発生しました。"
 
-#: modules/contact-form/grunion-contact-form.php:729
-msgid "Submit &#187;"
-msgstr "送信 &#187;"
-
 #: modules/contact-form/grunion-contact-form.php:647
 msgid "Message Sent"
 msgstr "メッセージを送信しました。"
+
+#: modules/contact-form/grunion-contact-form.php:648
+msgid "go back"
+msgstr "戻る"
+
+#: modules/contact-form/grunion-contact-form.php:683
+#: modules/contact-form/grunion-contact-form.php:699
+msgctxt "%1$s = form field label, %2$s = form field value"
+msgid "%1$s: %2$s"
+msgstr "%1$s: %2$s"
+
+#: modules/contact-form/grunion-contact-form.php:729
+msgid "Submit &#187;"
+msgstr "送信 &#187;"
 
 #: modules/contact-form/grunion-contact-form.php:971
 msgid "l F j, Y \\a\\t g:i a"
@@ -2498,36 +2720,9 @@ msgstr "認証済みの %s ユーザーから送信されました。"
 msgid "Sent by an unverified visitor to your site."
 msgstr "認証されていないサイト訪問者から送信されました。"
 
-#: modules/after-the-deadline/atd-l10n.php:26
-#: modules/after-the-deadline.php:224
-msgid "Proofread Writing"
-msgstr "文章の校正"
-
-#: modules/after-the-deadline/atd-l10n.php:28
-msgid "No writing errors were found."
-msgstr "文章の間違いは見つかりませんでした。"
-
-#: modules/after-the-deadline/atd-l10n.php:29
-msgid "There was a problem communicating with the Proofreading service. Try again in one minute."
-msgstr "After the Deadline サービスとの通信に問題が発生しました。1分ほど待ってもう一度お試しください。"
-
-#: modules/after-the-deadline/atd-l10n.php:30
-msgid "There was an error communicating with the proofreading service."
-msgstr "校正チェックサービスとの通信に問題が発生しました。"
-
-#: modules/after-the-deadline/atd-l10n.php:32
-msgid "Replace selection with:"
-msgstr "選択部分を入れ替える"
-
-#: modules/after-the-deadline/atd-l10n.php:33
-msgid ""
-"The proofreader has suggestions for this post. Are you sure you want to publish it?\n"
-"\n"
-"Press OK to publish your post, or Cancel to view the suggestions and edit your post."
-msgstr ""
-"校正ツールによるこの投稿へのアドバイスがあります。本当に公開しますか ?\n"
-"\n"
-"投稿を公開するには OK を、アドバイスを確認して投稿を編集するにはキャンセルをクリックしてください。"
+#: modules/contact-form/grunion-contact-form.php:1236
+msgid "%s requires a valid email address"
+msgstr "%s: 正しいメールアドレスが必要です。"
 
 #: modules/after-the-deadline/atd-l10n.php:34
 msgid ""
@@ -2636,75 +2831,75 @@ msgstr "追加"
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
 msgstr "変更を保存するには、この画面下の \"プロフィールを更新\" ボタンを必ずクリックしてください。"
 
-#: modules/carousel/jetpack-carousel.php:110
+#: modules/carousel/jetpack-carousel.php:103
 msgid "Comment"
 msgstr "コメント"
 
-#: modules/carousel/jetpack-carousel.php:111
+#: modules/carousel/jetpack-carousel.php:104
 msgid "Post Comment"
 msgstr "コメントを送信"
 
-#: modules/carousel/jetpack-carousel.php:112
+#: modules/carousel/jetpack-carousel.php:105
 msgid "Loading Comments..."
 msgstr "コメントを読み込んでいます…"
 
-#: modules/carousel/jetpack-carousel.php:113
+#: modules/carousel/jetpack-carousel.php:106
 msgid "View full size <span class=\"photo-size\">%1$s<span class=\"photo-size-times\">&times;</span>%2$s</span>"
 msgstr "フルサイズ表示 <span class=\"photo-size\">%1$s<span class=\"photo-size-times\">&times;</span>%2$s</span>"
 
-#: modules/carousel/jetpack-carousel.php:114
+#: modules/carousel/jetpack-carousel.php:107
 msgid "Please be sure to submit some text with your comment."
 msgstr "コメントのメッセージをご記入ください。"
 
-#: modules/carousel/jetpack-carousel.php:115
+#: modules/carousel/jetpack-carousel.php:108
 msgid "Please provide an email address to comment."
 msgstr "コメントするにはメールアドレスをご記入ください。"
 
-#: modules/carousel/jetpack-carousel.php:116
+#: modules/carousel/jetpack-carousel.php:109
 msgid "Please provide your name to comment."
 msgstr "コメントするにはお名前をご記入ください。"
 
-#: modules/carousel/jetpack-carousel.php:117
+#: modules/carousel/jetpack-carousel.php:110
 msgid "Sorry, but there was an error posting your comment. Please try again later."
 msgstr "コメント投稿の際にエラーが発生しました。後ほどもう一度お試しください。"
 
-#: modules/carousel/jetpack-carousel.php:118
+#: modules/carousel/jetpack-carousel.php:111
 msgid "Your comment was approved."
 msgstr "コメントが承認されました。"
 
-#: modules/carousel/jetpack-carousel.php:119
+#: modules/carousel/jetpack-carousel.php:112
 msgid "Your comment is in moderation."
 msgstr "コメントは承認待ち中です。"
 
-#: modules/carousel/jetpack-carousel.php:120
+#: modules/carousel/jetpack-carousel.php:113
 msgid "Camera"
 msgstr "カメラ"
 
-#: modules/carousel/jetpack-carousel.php:121
+#: modules/carousel/jetpack-carousel.php:114
 msgid "Aperture"
 msgstr "絞り"
 
-#: modules/carousel/jetpack-carousel.php:122
+#: modules/carousel/jetpack-carousel.php:115
 msgid "Shutter Speed"
 msgstr "シャッタースピード"
 
-#: modules/carousel/jetpack-carousel.php:123
+#: modules/carousel/jetpack-carousel.php:116
 msgid "Focal Length"
 msgstr "焦点距離"
 
-#: modules/carousel/jetpack-carousel.php:130
+#: modules/carousel/jetpack-carousel.php:123
 msgid "Commenting as %s"
 msgstr "%s としてコメント中"
 
-#: modules/carousel/jetpack-carousel.php:133
+#: modules/carousel/jetpack-carousel.php:126
 msgid "Email (Required)"
 msgstr "メールアドレス (必須)"
 
-#: modules/carousel/jetpack-carousel.php:135
+#: modules/carousel/jetpack-carousel.php:128
 msgid "Name (Required)"
 msgstr "お名前 (必須)"
 
-#: modules/carousel/jetpack-carousel.php:137
+#: modules/carousel/jetpack-carousel.php:130
 #: modules/contact-form/grunion-contact-form.php:548
 #: modules/contact-form/grunion-form-view.php:160
 msgid "Website"
@@ -2750,196 +2945,199 @@ msgstr "メールアドレスを入力してください。"
 msgid "Please provide a valid email address."
 msgstr "正しいメールアドレスを入力してください。"
 
-#: jetpack.php:1839
-msgid "The following modules have been updated: %l."
-msgstr "モジュールを更新しました: %l"
+#: modules/carousel/jetpack-carousel.php:360
+msgid "Image Gallery Carousel"
+msgstr "画像ギャラリーカルーセル"
 
-#: jetpack.php:1848
-msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
-msgstr "<strong>%s を有効化しました。</strong>無効にするには、モジュールカード内の「詳細」ボタンをクリックし、「停止」を選択して下さい。"
+#: modules/carousel/jetpack-carousel.php:363
+msgid "Enable carousel"
+msgstr "カルーセルを有効化"
 
-#: jetpack.php:1886
-msgid "<strong>Module settings were saved.</strong> "
-msgstr "<strong>モジュール設定を保存しました。</strong> "
+#: modules/carousel/jetpack-carousel.php:367
+msgid "Background color"
+msgstr "背景色"
 
-#: jetpack.php:1890
-msgid "<strong>Your Jetpack is already connected.</strong> "
-msgstr "<strong>Jetpack はすでに正常に連携されています。</strong> "
+#: modules/carousel/jetpack-carousel.php:370
+msgid "Metadata"
+msgstr "メタデータ"
 
-#: jetpack.php:1894 jetpack.php:1901
-msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
-msgstr "<strong>準備ができました !</strong> "
+#: modules/carousel/jetpack-carousel.php:427
+msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
+msgstr "写真のメタ情報 (<a href=\"http://ja.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) がある場合はカルーセル内に表示する。"
 
-#: jetpack.php:1896
-msgid "The features below are now active. Click the learn more buttons to explore each feature."
-msgstr "以下の機能が有効になっています。「詳細」ボタンをクリックし、各機能についてもっと詳しく知ることができます。"
+#: modules/carousel/jetpack-carousel.php:435
+msgid "Show map of photo location in carousel, when available."
+msgstr "写真の位置情報がある場合はカルーセル内に表示する。"
 
-#: jetpack.php:1907
-msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
-msgstr "<strong>アカウント (%s) と WordPress.com の連携を解除しました。</strong>"
+#: modules/carousel/jetpack-carousel.php:443
+msgid "Black"
+msgstr "黒"
 
-#: jetpack.php:1929
-msgid "Jetpack contains the most recent version of the old %l plugin."
-msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
-msgstr[0] "Jetpack には、最新バージョンの %l プラグインが含まれています。"
-
-#: jetpack.php:1938
-msgid "The old version has been deactivated and can be removed from your site."
-msgid_plural "The old versions have been deactivated and can be removed from your site."
-msgstr[0] "古いバージョンは無効化済みです。サイトから削除できます。"
-
-#: jetpack.php:2162
-msgid "Connected to WordPress.com"
-msgstr "WordPress.com と連携済み"
-
-#: jetpack.php:2162
-msgid "Disconnect from WordPress.com"
-msgstr "WordPress.com との連携を解除"
-
-#: jetpack.php:2167
+#: jetpack.php:2233
 msgid "User linked to WordPress.com"
 msgstr "WordPress.com と連携しているユーザー"
 
-#: jetpack.php:2167
+#: jetpack.php:2233
 msgid "Unlink user from WordPress.com"
 msgstr "WordPress.com とのユーザー連携を解除"
 
-#: jetpack.php:2183
+#: jetpack.php:2249
 msgid "Jetpack is network activated and notices can not be dismissed."
 msgstr "Jetpack はネットワーク全体で有効化されており、通知を非表示にすることはできません。"
 
-#: jetpack.php:2194
+#: jetpack.php:2260
 msgid "Dismiss this notice."
 msgstr "通知を非表示にする。"
 
-#: jetpack.php:2199
+#: jetpack.php:2265
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
 msgstr "すべての機能を有効化するには右のボタンを使って WordPress.com とサイトを連携する必要があります。接続を確立したら、以下の機能を有効化できます。"
 
-#: jetpack.php:2214
+#: jetpack.php:2280
 msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right."
 msgstr "Jetpack の全機能を有効化するには、WordPress.com アカウントとの連携が必要です。右下のボタンを使ってください。"
 
-#: jetpack.php:2240
+#: jetpack.php:2284 modules/post-by-email.php:129
+#: modules/publicize/publicize-jetpack.php:62
+msgid "Link account with WordPress.com"
+msgstr "アカウントを WordPress.com と連携"
+
+#: jetpack.php:2306
 msgid "Have feedback on Jetpack?"
 msgstr "Jetpack へのご意見・ご要望"
 
-#: jetpack.php:2242
+#: jetpack.php:2308
 msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
 msgstr "短いアンケートに答えて今後の開発にご協力ください。"
 
-#: jetpack.php:2245
+#: jetpack.php:2311
 msgid "Take Survey"
 msgstr "アンケートに答える"
 
-#: jetpack.php:2251
+#: jetpack.php:2317
 msgid "Checking email updates status&hellip;"
 msgstr "メール更新の状態を確認中&hellip;"
 
-#: jetpack.php:2257
+#: jetpack.php:2323
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr "現在ニュースメールを購読中です。 %s"
 
-#: jetpack.php:2258
+#: jetpack.php:2324
 msgid "Unsubscribe"
 msgstr "購読を解除"
 
-#: jetpack.php:2262
+#: jetpack.php:2328
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr "Jetpack 関連のニュースをメールで受け取りますか ? %s"
 
-#: jetpack.php:2263 modules/subscriptions.php:673
+#: jetpack.php:2329 modules/subscriptions.php:673
 msgid "Subscribe"
 msgstr "購読"
 
-#: jetpack.php:2270
+#: jetpack.php:2336
 msgid "You have been subscribed to receive email updates."
 msgstr "ニュースメールを受信するように設定しました。"
 
-#: jetpack.php:2272
+#: jetpack.php:2338
 msgid "You will no longer receive email updates about Jetpack."
 msgstr "Jetpack のニュースメール配信を停止しました。"
 
-#: jetpack.php:2285
+#: jetpack.php:2351
 msgid "An <span>Automattic</span> Airline"
 msgstr "An <span>Automattic</span> Airline"
 
-#: jetpack.php:2288
+#: jetpack.php:2354
 msgid "Privacy Policy"
 msgstr "個人情報保護方針"
 
-#: jetpack.php:2289
+#: jetpack.php:2355
 msgid "Terms of Service"
 msgstr "利用規約"
 
-#: jetpack.php:2291
+#: jetpack.php:2357
 msgid "Debug"
 msgstr "デバッグ"
 
-#: jetpack.php:2293 modules/sharedaddy/sharedaddy.php:82
+#: jetpack.php:2359 modules/sharedaddy/sharedaddy.php:82
 msgid "Support"
 msgstr "サポート"
 
-#: jetpack.php:2313
+#: jetpack.php:2379
 msgid "This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords."
 msgstr "これは機密情報です。BLOG_TOKEN または USER_TOKEN はパスワードのようなものですので、決して公開しないでください。"
 
-#: jetpack.php:2357
+#: jetpack.php:2423
 msgid "Configure %s"
 msgstr "%s設定"
 
-#: jetpack.php:2416
+#: jetpack.php:2482
 msgid "Deactivate"
 msgstr "停止"
 
-#: jetpack.php:2426
+#: jetpack.php:2492
 msgid "Activate"
 msgstr "有効化"
 
-#: jetpack.php:2443
+#: jetpack.php:2509
 msgid "Free"
 msgstr "無料"
 
-#: jetpack.php:2443
+#: jetpack.php:2509
 msgid "Purchase"
 msgstr "購入"
 
-#: jetpack.php:2451
+#: jetpack.php:2517
 msgid "New"
 msgstr "新"
 
-#: jetpack.php:2454
+#: jetpack.php:2520
 msgid "Updated"
 msgstr "更新しました"
 
-#: jetpack.php:2482
+#: jetpack.php:2548
 msgid "Configure"
 msgstr "設定"
 
-#: jetpack.php:2516
+#: jetpack.php:2582
 msgid "Coming soon&#8230;"
 msgstr "Coming soon&#8230;"
 
-#: jetpack.php:2669 jetpack.php:2671 jetpack.php:2673 jetpack.php:2676
-#: jetpack.php:3597
+#: jetpack.php:2735 jetpack.php:2737 jetpack.php:2739 jetpack.php:2742
+#: jetpack.php:3673
 msgid "Error Details: %s"
 msgstr "エラーの詳細： %s"
 
-#: jetpack.php:2832
+#: jetpack.php:2898
 msgid "Jetpack Plugin Version"
 msgstr "Jetpack プラグインバージョン"
 
-#: jetpack.php:2838
+#: jetpack.php:2904
 msgid "The Client ID/WP.com Blog ID of this site"
 msgstr "このサイトのクライアント ID / WP.com ブログ ID"
 
-#: jetpack.php:3553
+#: jetpack.php:3156
+msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
+msgstr "この機能を使うには Jetpack プラグインと WordPress.com アカウントの連携が必要です。"
+
+#: jetpack.php:3159
+msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
+msgstr "誰かがあなたのサイトへのアクセス権を不正に取得しようとしているか、何らかのバグが発生したようです。いずれの場合も、このウィンドウを閉じて構いません。"
+
+#: jetpack.php:3187
+msgid "The authorization process expired.  Please go back and try again."
+msgstr "認証処理の期限が切れています。前の画面に戻ってもう一度お試しください。"
+
+#: jetpack.php:3227
+msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
+msgstr "%s がサイトのデータにアクセスを試みています。ログインして認証してください。"
+
+#: jetpack.php:3626
 msgid "An administrator for this blog must set up the Jetpack connection."
 msgstr "ブログの管理者が Jetpack 連携を設定する必要があります。"
 
-#: jetpack.php:3558
+#: jetpack.php:3631
 msgid "You need to register your Jetpack before connecting it."
 msgstr "連携前に Jetpack を登録する必要があります。"
 
@@ -2988,184 +3186,304 @@ msgstr "校正"
 msgid "edit text"
 msgstr "テキスト編集"
 
-#: jetpack.php:1007
+#: modules/after-the-deadline/atd-l10n.php:26
+#: modules/after-the-deadline.php:224
+msgid "Proofread Writing"
+msgstr "文章の校正"
+
+#: modules/after-the-deadline/atd-l10n.php:28
+msgid "No writing errors were found."
+msgstr "文章の間違いは見つかりませんでした。"
+
+#: modules/after-the-deadline/atd-l10n.php:29
+msgid "There was a problem communicating with the Proofreading service. Try again in one minute."
+msgstr "After the Deadline サービスとの通信に問題が発生しました。1分ほど待ってもう一度お試しください。"
+
+#: modules/after-the-deadline/atd-l10n.php:30
+msgid "There was an error communicating with the proofreading service."
+msgstr "校正チェックサービスとの通信に問題が発生しました。"
+
+#: modules/after-the-deadline/atd-l10n.php:32
+msgid "Replace selection with:"
+msgstr "選択部分を入れ替える"
+
+#: modules/after-the-deadline/atd-l10n.php:33
+msgid ""
+"The proofreader has suggestions for this post. Are you sure you want to publish it?\n"
+"\n"
+"Press OK to publish your post, or Cancel to view the suggestions and edit your post."
+msgstr ""
+"校正ツールによるこの投稿へのアドバイスがあります。本当に公開しますか ?\n"
+"\n"
+"投稿を公開するには OK を、アドバイスを確認して投稿を編集するにはキャンセルをクリックしてください。"
+
+#: functions.opengraph.php:74
+msgid "(no title)"
+msgstr "(タイトルなし)"
+
+#: jetpack.php:1050
 msgid "Jetpack requires WordPress version %s or later."
 msgstr "Jetpack を使うには WordPress バージョン %s 以降が必要です。"
 
-#: jetpack.php:1203 jetpack.php:1219
+#: jetpack.php:1246 jetpack.php:1262
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
 msgstr "Jetpack には、最新バージョンの &#8220;%1$s&#8221; プラグインが含まれています。"
 
-#: jetpack.php:1240
+#: jetpack.php:1283
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] "%個の Jetpack モジュール"
 
-#: jetpack.php:1243
+#: jetpack.php:1286
 msgid "Jetpack"
 msgstr "Jetpack"
 
+#: jetpack.php:1438 jetpack.php:1462 jetpack.php:1473 jetpack.php:2238
+#: jetpack.php:2422
 msgid "Jetpack by WordPress.com"
 msgstr "Jetpack by WordPress.com"
 
-#: jetpack.php:1391 jetpack.php:1415 jetpack.php:2175
+#: jetpack.php:1439 jetpack.php:1463 jetpack.php:2241
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr "Jetpack は、WordPress.com クラウドの力を活用してインストール型サイトをパワーアップできる WordPress プラグインです。 "
 
-#: jetpack.php:1392 jetpack.php:1416
+#: jetpack.php:1440 jetpack.php:1464
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr "このページでは Jetpack 内で利用可能なモジュールを確認できます。詳細を確認し、必要なものを有効化・無効化してください。"
 
-#: jetpack.php:1393
+#: jetpack.php:1441
 msgid "Jetpack Module Options"
 msgstr "Jetpack モジュール設定"
 
-#: jetpack.php:1394
+#: jetpack.php:1442
 msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
 msgstr "<strong>モジュールの有効化 / 無効化</strong> - 「詳細」をクリックすると、有効化・無効化ボタンが表示されますのでクリックしてください。"
 
-#: jetpack.php:1395 jetpack.php:1438
+#: jetpack.php:1443 jetpack.php:1486
 msgid "For more information:"
 msgstr "詳細情報:"
 
-#: jetpack.php:1396 jetpack.php:1439
+#: jetpack.php:1444 jetpack.php:1487
 msgid "Jetpack FAQ"
 msgstr "Jetpack よくある質問"
 
-#: jetpack.php:1397 jetpack.php:1440
+#: jetpack.php:1445 jetpack.php:1488
 msgid "Jetpack Support"
 msgstr "Jetpack サポート"
 
-#: jetpack.php:1412
+#: jetpack.php:1460
 msgid "Overview"
 msgstr "概要"
 
-#: jetpack.php:1423
+#: jetpack.php:1471
 msgid "Modules"
 msgstr "モジュール"
 
-#: jetpack.php:1426
+#: jetpack.php:1474
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
 msgstr "各 Jetpack モジュールを必要に応じて有効化・無効化できます。"
 
-#: jetpack.php:1428
+#: jetpack.php:1476
 msgid "Find the component you want to manage"
 msgstr "管理したいコンポーネントを探す"
 
-#: jetpack.php:1429
+#: jetpack.php:1477
 msgid "Click on Learn More"
 msgstr "「さらに詳しく」をクリック"
 
-#: jetpack.php:1430
+#: jetpack.php:1478
 msgid "An Activate or Deactivate button will appear"
 msgstr "有効化・無効化ボタンが表示されます"
 
-#: jetpack.php:1431
+#: jetpack.php:1479
 msgid "If additional settings are available, a link to them will appear"
 msgstr "追加設定がある場合はリンクが表示されます"
 
-#: jetpack.php:1509 modules/sharedaddy/sharedaddy.php:74
-#: modules/sharedaddy/sharedaddy.php:81
+#: jetpack.php:1557 modules/publicize/ui.php:511
+#: modules/sharedaddy/sharedaddy.php:74 modules/sharedaddy/sharedaddy.php:81
 msgid "Settings"
 msgstr "設定"
 
-#: jetpack.php:1526
+#: jetpack.php:1574
 msgid "Dismiss this notice and deactivate Jetpack."
 msgstr "Jetpack を無効化し、通知を非表示にする。"
 
-#: jetpack.php:1532
+#: jetpack.php:1580
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Comments, Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
 msgstr "<strong>Jetpack の設定完了までもうすぐです</strong>。コメント・統計情報・お問い合せフォーム・メール購読機能を使うには、WordPress.com アカウントとの連携が必要です。"
 
-#: jetpack.php:1534
+#: jetpack.php:1582
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr "<strong>Jetpack のインストールが完了しました。</strong>これで、 WordPress.com のクラウドリソースを活用した機能をサイトに導入する準備ができました。"
 
-#: jetpack.php:1540 jetpack.php:2203
+#: jetpack.php:1588 jetpack.php:2269
 msgid "Connect to WordPress.com"
 msgstr "WordPress.com と連携"
 
-#: jetpack.php:1542 modules/module-info.php:45 modules/module-info.php:81
+#: jetpack.php:1590 modules/module-info.php:45 modules/module-info.php:81
 #: modules/module-info.php:138 modules/module-info.php:173
-#: modules/module-info.php:207 modules/module-info.php:241
-#: modules/module-info.php:277 modules/module-info.php:328
-#: modules/module-info.php:350 modules/module-info.php:388
-#: modules/module-info.php:413 modules/module-info.php:431
-#: modules/module-info.php:450 modules/module-info.php:456
-#: modules/module-info.php:483 modules/module-info.php:514
-#: modules/module-info.php:549 modules/module-info.php:571
-#: modules/module-info.php:593
+#: modules/module-info.php:207 modules/module-info.php:237
+#: modules/module-info.php:270 modules/module-info.php:306
+#: modules/module-info.php:357 modules/module-info.php:379
+#: modules/module-info.php:417 modules/module-info.php:442
+#: modules/module-info.php:460 modules/module-info.php:479
+#: modules/module-info.php:485 modules/module-info.php:512
+#: modules/module-info.php:543 modules/module-info.php:578
+#: modules/module-info.php:600 modules/module-info.php:622
+#: modules/module-info.php:666 modules/module-info.php:694
+#: modules/module-info.php:722
 msgid "Learn More"
 msgstr "さらに詳しく"
 
-#: jetpack.php:1555
+#: jetpack.php:1603
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr "<strong>Jetpack を有効化しました。</strong> ネットワーク上の各サイトでは、それぞれのサイトの管理者が連携設定を行う必要があります。"
 
-#: jetpack.php:1582
+#: jetpack.php:1630
 msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
 msgstr "Jetpack にコメント機能が加わりました。読者が WordPress.com、Twitter、Facebook アカウントを使ってログインし、サイト上でコメントできるようになっています。有効化するには、<a href=\"%s\">%s</a>。"
 
-#: jetpack.php:1590
+#: jetpack.php:1638
 msgid "click here"
 msgstr "ここをクリック"
 
-#: jetpack.php:1706
+#: jetpack.php:1769
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr "機能を有効化するにはサイトと WordPress.com との連携認証が必要です。"
 
-#: jetpack.php:1709
+#: jetpack.php:1772
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr "Jetpack の認証中は、WordPress.com にログインしている必要があります。ご注意ください。"
 
-#: jetpack.php:1713
+#: jetpack.php:1776
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr "間違った Jetpack をお使いのようです。一度停止して最有効化し、新しい Jetpack を取得しましょう。"
 
-#: jetpack.php:1716
+#: jetpack.php:1779
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr "Jetpack がぴったり合わないようです。最近なにか変わりましたか ? "
 
-#: jetpack.php:1720
+#: jetpack.php:1783
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr "Jetpack を利用するには、サイトが公開されていて、アクセス制限がかかっていない必要があります: %s"
 
-#: jetpack.php:1725
+#: jetpack.php:1788
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "<strong>重大なエラー</strong>が発生したため「%s」を有効化できませんでした。他にインストールしているプラグインと干渉している可能性があります。"
 
-#: jetpack.php:1727
+#: jetpack.php:1790
 msgid "Do you still have the %s plugin installed?"
 msgstr "%s プラグインをまだインストールしていますか ?"
 
-#: jetpack.php:1730
+#: jetpack.php:1793
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr "<strong>重大なエラー</strong>が発生したためモジュールを有効化できませんでした。他にインストールしているプラグインと干渉している可能性があります。"
 
-#: jetpack.php:1738
+#: jetpack.php:1801
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
 msgstr "<strong>Jetpack に問題が発生しました。</strong>WordPress.com と連携できません。サイトが非公開状態 (localhost) になっていませんか ?"
 
-#: jetpack.php:1744
+#: jetpack.php:1807
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
 msgstr "WordPress.com 側の問題により現在 Jetpack をご利用いただけません。後ほどもう一度お試しください。"
 
-#: jetpack.php:1748
+#: jetpack.php:1811
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
 msgstr "Jetpack は WordPress.com と連携できませんでした: %s これは通常、ホスティングサービス上の何らかの設定が間違っていることを意味しています。"
 
-#: jetpack.php:1788
+#: jetpack.php:1851
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr "<strong>Jetpack に問題が発生しました。</strong>予期しない問題が発生しました。ちょっと運が悪かったようです。%s"
 
-#: jetpack.php:1791
+#: jetpack.php:1854
 msgid "Try connecting again."
 msgstr "もう一度連携をお試しください。"
 
-#: jetpack.php:1815
+#: jetpack.php:1878
 msgid "Welcome to <strong>Jetpack %s</strong>!"
 msgstr "<strong>Jetpack %s</strong> へようこそ !"
 
-#: jetpack.php:1827
+#: jetpack.php:1890
 msgid "The following new modules have been activated: %l."
 msgstr "以下の新しいモジュールを有効化しました: %l"
+
+#: jetpack.php:1902
+msgid "The following modules have been updated: %l."
+msgstr "モジュールを更新しました: %l"
+
+#: jetpack.php:1911
+msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
+msgstr "<strong>%s を有効化しました。</strong>無効にするには、モジュールカード内の「詳細」ボタンをクリックし、「停止」を選択して下さい。"
+
+#: jetpack.php:1937
+msgctxt "%l = list of Jetpack module/feature names"
+msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
+msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate buttons on their module cards."
+msgstr[0] "<strong>%l を無効化しました。</strong>モジュールボックス内の「有効化」ボタンで、いつでも再び有効化できます。"
+
+#: jetpack.php:1949
+msgid "<strong>Module settings were saved.</strong> "
+msgstr "<strong>モジュール設定を保存しました。</strong> "
+
+#: jetpack.php:1953
+msgid "<strong>Your Jetpack is already connected.</strong> "
+msgstr "<strong>Jetpack はすでに正常に連携されています。</strong> "
+
+#: jetpack.php:1957 jetpack.php:1964
+msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
+msgstr "<strong>準備ができました !</strong> "
+
+#: jetpack.php:1959
+msgid "The features below are now active. Click the learn more buttons to explore each feature."
+msgstr "以下の機能が有効になっています。「詳細」ボタンをクリックし、各機能についてもっと詳しく知ることができます。"
+
+#: jetpack.php:1970
+msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
+msgstr "<strong>アカウント (%s) と WordPress.com の連携を解除しました。</strong>"
+
+#: jetpack.php:1992
+msgid "Jetpack contains the most recent version of the old %l plugin."
+msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
+msgstr[0] "Jetpack には、最新バージョンの %l プラグインが含まれています。"
+
+#: jetpack.php:2001
+msgid "The old version has been deactivated and can be removed from your site."
+msgid_plural "The old versions have been deactivated and can be removed from your site."
+msgstr[0] "古いバージョンは無効化済みです。サイトから削除できます。"
+
+#: jetpack.php:2067
+msgid "Is this site private?"
+msgstr "このサイトは非公開ですか ?"
+
+#: jetpack.php:2070
+msgctxt "%l = list of Jetpack module/feature names"
+msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
+msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
+msgstr[0] "サイトの RSS フィードと同様、%l はサードパーティによる投稿その他のコンテンツへのアクセスを許可します。"
+
+#: jetpack.php:2083
+msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
+msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
+msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
+msgstr[0] "公開サイトではない場合、<a href=\"%1$s\" title=\"%2$s\">機能を無効化してみてください</a>。"
+
+#: jetpack.php:2097
+msgctxt "%l = list of Jetpack module/feature names"
+msgid "Deactivate %l"
+msgstr "%l を無効化"
+
+#: jetpack.php:2228
+msgid "Connected to WordPress.com"
+msgstr "WordPress.com と連携済み"
+
+#: jetpack.php:2228
+msgid "Disconnect from WordPress.com"
+msgstr "WordPress.com との連携を解除"
+
+#: class.json-api-endpoints.php:1113
+msgid "This post is password protected."
+msgstr "この投稿はパスワードで保護されています。"
+
+#: class.json-api-endpoints.php:2633
+msgid "Comment cache problem?"
+msgstr "コメントキャッシュの問題が発生している場合"
