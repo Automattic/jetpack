@@ -20,6 +20,8 @@ class Publicize extends Publicize_Base {
 		add_action( 'wp_ajax_publicize_yahoo_options_save', array( $this, 'options_save_yahoo' ) );
 
 		add_action( 'load-settings_page_sharing', array( $this, 'force_user_connection' ) );
+
+		add_action( 'save_post', array( $this, 'save_publicized' ), 10, 2 );
 	}
 
 	function force_user_connection() {
@@ -66,7 +68,6 @@ class Publicize extends Publicize_Base {
 		<?php
 	}
 
-	// @todo only load current users conncetions and _user_id = 0
 	function get_connections( $service_name, $_blog_id = false, $_user_id = false ) {
 		$connections = Jetpack::get_option( 'publicize_connections' );
 		$connections_to_return = array();
@@ -282,11 +283,10 @@ class Publicize extends Publicize_Base {
 				'yahoo'    => array(),
 		);
 
-		$connected_services = array();
-
 		if ( 'all' == $filter ) {
 			return $services;
 		} else {
+			$connected_services = array();
 			foreach ( $services as $service => $empty ) {
 				$connections = $this->get_connections( $service );
 				if ( $connections )
@@ -297,11 +297,28 @@ class Publicize extends Publicize_Base {
 	}
 
 	function get_connection( $service, $id, $_blog_id = false, $_user_id = false ) {
-		// @todo implement
+		// Stub
 	}
 
 	function flag_post_for_publicize( $new_status, $old_status, $post ) {
 		// Stub only. Doesn't need to do anything on Jetpack Client
+	}
+
+	/**
+	 * Save a flag locally to indicate that this post has already been Publicized via the selected
+	 * connections.
+	 */
+	function save_publicized( $post_id, $post ) {
+		// Only do this when we're on the post editor
+		if ( isset( $_POST[$this->ADMIN_PAGE] ) ) {
+			$services = (array) $this->get_services( 'connected' );
+			foreach ( (array) $services as $service => $connections ) {
+				foreach ( (array) $connections as $connection ) {
+					// Intentionally disabling all connections, since Publicize is a one-time thing in Jetpack
+					update_post_meta( $post->ID, $this->POST_DONE . $connection['connection_data']['token_id'], true );
+				}
+			}
+		}
 	}
 
 	/**
