@@ -96,6 +96,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Bug Fix: Infinite Scroll: Check a child theme's parent theme for infinite scroll support.
 * Bug Fix: Publicize: Send the correct shortlink to Twitter (et al.) if your site uses a shortener other than wp.me.
 * Bug Fix: Sharing: Improved theme compatibility for the Google+ button.
+* Bug Fix: Notifications: Use locally installed Javascript libraries if available.
 
 = 2.0 =
 * Enhancement: Publicize: Connect your site to popular social networks and automatically share new posts with your friends.
