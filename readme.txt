@@ -94,6 +94,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Bug Fix: Photon: Fix warped images with un- or under-specified dimensions.
 * Bug Fix: Photon: Fix warped images with pre-photonized URLs; don't try to photonize them twice.
 * Bug Fix: Infinite Scroll: Check a child theme's parent theme for infinite scroll support.
+* Bug Fix: Infinite Scroll: Correct a bug with archives that resulted in posts appearing on archives that they didn't belong on.
 * Bug Fix: Publicize: Send the correct shortlink to Twitter (et al.) if your site uses a shortener other than wp.me.
 * Bug Fix: Sharing: Improved theme compatibility for the Google+ button.
 * Bug Fix: Notifications: Use locally-installed Javascript libraries if available.
