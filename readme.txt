@@ -33,7 +33,7 @@ Features include:
 * A CSS editor that lets you customize your site design without modifying your theme.
 * A mobile theme that automatically streamlines your site for visitors on mobile devices.
 * Mobile push notifications for new comments via WordPress mobile apps.
-* The ability to allow applications to securely authenticate and access your site with your permission. 
+* The ability to allow applications to securely authenticate and access your site with your permission.
 * and *many* more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.
@@ -106,7 +106,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Open Graph: Provides more detailed information about your posts to social networks.
 * Enhancement: JSON API: New parameters for creating and viewing posts.
 * Enhancement: Improved compatibility for the upcoming WordPress 3.5.
-* Bug Fix: Sharing: When you set your sharing buttons to use icon, text, or icon + text mode, the Google+ button will display accordingly. 
+* Bug Fix: Sharing: When you set your sharing buttons to use icon, text, or icon + text mode, the Google+ button will display accordingly.
 * Bug Fix: Gravatar Profile Widget: Allow basic HTML to be displayed.
 * Bug Fix: Twitter Widget: Error handling fixes.
 * Bug Fix: Sharing: Improved theme compatibility
@@ -257,7 +257,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 = 1.3.2 =
 * Bug Fix: Fix Jetpack menu so that Akismet and VaultPress submenus show up.
 
-= 1.3.1 = 
+= 1.3.1 =
 * Enhancement: Add a new widget, the Facebook Likebox
 * Bug Fix: Sharing: Sharing buttons can now be used on custom post types.
 * Bug Fix: Contact Forms: Make Contact Forms widget shortcode less aggressive about the shortcodes it converts.
