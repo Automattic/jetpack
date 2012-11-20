@@ -206,7 +206,7 @@ class Publicize extends Publicize_Base {
 				<?php endif; ?>
 			</div>
 		</div>
-		<?
+		<?php
 	}
 
 	function display_disconnected() {
