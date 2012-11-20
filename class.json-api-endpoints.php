@@ -199,7 +199,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		return $this->cast_and_filter( $return, $this->request_format, $return_default_values );
 	}
 
-	function cast_and_filter( $data, $documentation, $return_default_values = false ) {
+	function cast_and_filter( $data, $documentation, $return_default_values = false, $for_output = false ) {
 		$return_as_object = false;
 		if ( is_object( $data ) ) {
 			$data = (array) $data;
@@ -247,7 +247,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				continue;
 			}
 
-			$this->cast_and_filter_item( $return, $type, $key, $data[$key], $types );
+			$this->cast_and_filter_item( $return, $type, $key, $data[$key], $types, $for_output );
 		}
 
 		if ( $return_as_object ) {
@@ -268,7 +268,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 *
 	 * Handles object typing - object>post means an object of type post
 	 */
-	function cast_and_filter_item( &$return, $type, $key, $value, $types = array() ) {
+	function cast_and_filter_item( &$return, $type, $key, $value, $types = array(), $for_output = false ) {
 		if ( is_string( $type ) ) {
 			$type = compact( 'type' );
 		}
@@ -285,7 +285,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( is_array( $value ) ) {
 				if ( !empty( $types[0] ) ) {
 					$next_type = array_shift( $types );
-					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types );
+					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
 				}
 			}
 
@@ -293,7 +293,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( !is_string( $value ) ) {
 				if ( !empty( $types[0] ) && 'false' === $types[0]['type'] ) {
 					$next_type = array_shift( $types );
-					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types );
+					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
 				}
 			}
 			$return[$key] = (string) $value;
@@ -327,14 +327,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( is_string( $value ) ) {
 				if ( !empty( $types[0] ) ) {
 					$next_type = array_shift( $types );
-					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types );
+					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
 				}
 			}
 
 			if ( isset( $type['children'] ) ) {
 				$children = array();
 				foreach ( (array) $value as $k => $child ) {
-					$this->cast_and_filter_item( $children, $type['children'], $k, $child );
+					$this->cast_and_filter_item( $children, $type['children'], $k, $child, array(), $for_output );
 				}
 				$return[$key] = (array) $children;
 				break;
@@ -345,7 +345,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'iso 8601 datetime' :
 		case 'datetime' :
 			// (string)s
-			list( $return[$key], $return["{$key}_gmt"] ) = $this->parse_date( (string) $value );
+			$dates = $this->parse_date( (string) $value );
+			if ( $for_output ) {
+				$return[$key] = $this->format_date( $dates[1], $dates[0] );
+			} else {
+				list( $return[$key], $return["{$key}_gmt"] ) = $dates;
+			}
 			break;
 		case 'float' :
 			$return[$key] = (float) $value;
@@ -362,30 +367,30 @@ abstract class WPCOM_JSON_API_Endpoint {
 			// Fallback object -> false
 			if ( is_scalar( $value ) || is_null( $value ) ) {
 				if ( !empty( $types[0] ) && 'false' === $types[0]['type'] ) {
-					return $this->cast_and_filter_item( $return, 'false', $key, $value, $types );
+					return $this->cast_and_filter_item( $return, 'false', $key, $value, $types, $for_output );
 				}
 			}
 
 			if ( isset( $type['children'] ) ) {
 				$children = array();
 				foreach ( (array) $value as $k => $child ) {
-					$this->cast_and_filter_item( $children, $type['children'], $k, $child );
+					$this->cast_and_filter_item( $children, $type['children'], $k, $child, array(), $for_output );
 				}
 				$return[$key] = (object) $children;
 				break;
 			}
 
 			if ( isset( $type['subtype'] ) ) {
-				return $this->cast_and_filter_item( $return, $type['subtype'], $key, $value, $types );
+				return $this->cast_and_filter_item( $return, $type['subtype'], $key, $value, $types, $for_output );
 			}
 
 			$return[$key] = (object) $value;
 			break;
 		case 'post' :
-			$return[$key] = (object) $this->cast_and_filter( $value, $this->post_object_format );
+			$return[$key] = (object) $this->cast_and_filter( $value, $this->post_object_format, false, $for_output );
 			break;
 		case 'comment' :
-			$return[$key] = (object) $this->cast_and_filter( $value, $this->comment_object_format );
+			$return[$key] = (object) $this->cast_and_filter( $value, $this->comment_object_format, false, $for_output );
 			break;
 		case 'tag' :
 		case 'category' :
@@ -399,7 +404,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( 'category' === $type ) {
 				$docs['parent'] = '(int)';
 			}
-			$return[$key] = (object) $this->cast_and_filter( $value, $docs );
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
 		case 'post_reference' :
 		case 'comment_reference' :
@@ -408,7 +413,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'type' => '(string)',
 				'link' => '(URL)',
 			);
-			$return[$key] = (object) $this->cast_and_filter( $value, $docs );
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
 		case 'geo' :
 			$docs = array(
@@ -416,7 +421,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'longitude' => '(float)',
 				'address'   => '(string)',
 			);
-			$return[$key] = (object) $this->cast_and_filter( $value, $docs );
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
 		case 'author' :
 			$docs = array(
@@ -427,7 +432,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'avatar_URL'  => '(URL)',
 				'profile_URL' => '(URL)',
 			);
-			$return[$key] = (object) $this->cast_and_filter( $value, $docs );
+			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
 		case 'attachment' :
 			$docs = array(
@@ -439,7 +444,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'height'    => '(int)',
 				'duration'  => '(int)',
 			);
-			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_attachment_cast_and_filter', $docs ) );
+			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_attachment_cast_and_filter', $docs ), false, $for_output );
 			break;
 		default :
 			trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
