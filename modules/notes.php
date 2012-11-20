@@ -73,7 +73,7 @@ class Jetpack_Notifications {
 		if ( !has_filter( 'show_admin_bar', '__return_true' ) && !is_user_logged_in() )
 			return;
 		add_action( 'admin_bar_menu', array( &$this, 'admin_bar_menu'), 120 );
-		add_action( 'wp_head', array( &$this, 'styles_and_scripts') );
+		add_action( 'wp_head', array( &$this, 'styles_and_scripts'), 120 );
 		add_action( 'admin_head', array( &$this, 'styles_and_scripts') );
 	}
 
@@ -82,10 +82,35 @@ class Jetpack_Notifications {
 		wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 
 		$this->print_js();
+
+		// attempt to use core or plugin libraries if registered
+		if ( wp_script_is( 'mustache', 'registered' ) ) {
+			if ( !wp_script_is( 'mustache', 'queue' ) ) {
+				wp_enqueue_script( 'mustache' );
+			}
+		}
+		else {
+			wp_enqueue_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
+		}
+
+		if ( wp_script_is( 'underscore', 'registered' ) ) {
+			if ( !wp_script_is( 'underscore', 'queue' ) ) {
+				wp_enqueue_script( 'underscore' );
+			}
+		}
+		else {
+			wp_enqueue_script( 'underscore', $this->wpcom_static_url( '/wp-content/js/underscore.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
+		}
+		if ( wp_script_is( 'backbone', 'registered' ) ) {
+			if ( !wp_script_is( 'backbone', 'queue' ) ) {
+				wp_enqueue_script( 'backbone' );
+			}
+		}
+		else {
+			wp_enqueue_script( 'backbone', $this->wpcom_static_url( '/wp-content/js/backbone.js' ), array( 'jquery', 'underscore' ), JETPACK_NOTES__CACHE_BUSTER );
+		}
+
 		wp_enqueue_script( 'notes-postmessage', $this->wpcom_static_url( '/wp-content/js/postmessage.js' ), array(), JETPACK_NOTES__CACHE_BUSTER );
-		wp_enqueue_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
-		wp_enqueue_script( 'underscore', $this->wpcom_static_url( '/wp-content/js/underscore.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
-		wp_enqueue_script( 'backbone', $this->wpcom_static_url( '/wp-content/js/backbone.js' ), array( 'jquery', 'underscore' ), JETPACK_NOTES__CACHE_BUSTER );
 		wp_enqueue_script( 'notes-rest-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-rest-common.js' ), array( 'backbone', 'mustache', 'jquery.spin' ), JETPACK_NOTES__CACHE_BUSTER );
 		wp_enqueue_script( 'notes-admin-bar-rest', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-rest.js' ), array( 'jquery', 'underscore', 'backbone', 'jquery.spin' ), JETPACK_NOTES__CACHE_BUSTER );
 	}
