@@ -270,6 +270,7 @@ Scroller.prototype.refresh = function() {
 				// Increment the page number
 				self.page++;
 
+				// Record pageview in WP Stats, if available.
 				if ( stats )
 					new Image().src = document.location.protocol + '//stats.wordpress.com/g.gif?' + stats + '&post=0&baba=' + Math.random();
 
