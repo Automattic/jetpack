@@ -515,15 +515,22 @@ function safecss_style() {
 	if ( custom_css_is_customizer_preview() )
 		return;
 
+	$css    = '';
 	$option = safecss_is_preview() ? 'safecss_preview' : 'safecss';
 
 	if ( 'safecss' == $option ) {
 		if ( get_option( 'safecss_revision_migrated' ) ) {
 			$safecss_post = get_safecss_post();
-			$css = $safecss_post['post_content'];
+
+			if ( ! empty( $safecss_post['post_content'] ) ) {
+				$css = $safecss_post['post_content'];
+			}
 		} else {
 			$current_revision = get_current_revision();
-			$css = $current_revision['post_content'];
+
+			if ( ! empty( $current_revision['post_content'] ) ) {
+				$css = $current_revision['post_content'];
+			}
 		}
 
 		// Fix for un-migrated Custom CSS
@@ -537,7 +544,10 @@ function safecss_style() {
 
 	if ( 'safecss_preview' == $option ) {
 		$safecss_post = get_current_revision();
-		$css = $safecss_post['post_content'];
+
+		if ( !empty( $safecss_post['post_content'] ) ) {
+			$css = $safecss_post['post_content'];
+		}
 	}
 
 	$css = str_replace( array( '\\\00BB \\\0020', '\0BB \020', '0BB 020' ), '\00BB \0020', $css );
