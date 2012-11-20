@@ -391,8 +391,9 @@ jQuery( function($) {
 
 					<?php
 					// We can set an _all flag to indicate that this post is completely done as
-					// far as Publicize is concerned. Jetpack uses this approach.
-					$all_done = get_post_meta( $post->ID, $this->publicize->POST_DONE . 'all', true );
+					// far as Publicize is concerned. Jetpack uses this approach. All published posts in Jetpack
+					// have Publicize disabled.
+					$all_done = get_post_meta( $post->ID, $this->publicize->POST_DONE . 'all', true ) || ( $this->in_jetpack && 'publish' == $post->post_status );
 
 					foreach ( $services as $name => $connections ) {
 						foreach ( $connections as $connection ) {
@@ -424,9 +425,9 @@ jQuery( function($) {
 								$hidden_checkbox = true;
 							}
 
-							// Post was published prior to plugin activation
-							if ( $skip && 'publish' == $post->post_status && !$done )
-								$checked = false;
+							// Determine the state of the checkbox (on/off) and allow filtering
+							$checked = $skip != 1 || $done;
+							$checked = apply_filters( 'publicize_checkbox_default', $checked, $post->ID, $name, $connection );
 
 							// This post has been handled, so disable everything
 							if ( $all_done )
@@ -444,7 +445,7 @@ jQuery( function($) {
 							<li>
 								<label for="wpas-submit-<?php echo esc_attr( $unique_id ); ?>">
 									<input type="checkbox" name="wpas[submit][<?php echo $unique_id; ?>]" id="wpas-submit-<?php echo $unique_id; ?>" value="1" <?php
-										checked( true, $skip != 1 || $done );
+										checked( true, $checked );
 										echo $disabled;
 									?> />
 									<?php
