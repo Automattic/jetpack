@@ -395,6 +395,9 @@ jQuery( function($) {
 					// have Publicize disabled.
 					$all_done = get_post_meta( $post->ID, $this->publicize->POST_DONE . 'all', true ) || ( $this->in_jetpack && 'publish' == $post->post_status );
 
+					// We don't allow Publicizing to the same external id twice, to prevent spam
+					$service_id_done = (array) get_post_meta( $post_id, $this->publicize->POST_SERVICE_DONE, true );
+
 					foreach ( $services as $name => $connections ) {
 						foreach ( $connections as $connection ) {
 							if ( !$continue = apply_filters( 'wpas_submit_post?', true, $post->ID, $name ) )
@@ -406,7 +409,11 @@ jQuery( function($) {
 								$unique_id = $connection['connection_data']['token_id'];
 
 							// Should we be skipping this one?
-							$skip = get_post_meta( $post->ID, $this->publicize->POST_SKIP . $unique_id, true );
+							$skip = (
+								get_post_meta( $post->ID, $this->publicize->POST_SKIP . $unique_id, true )
+							||
+								( is_array( $connection ) && !empty( $service_id_done[ $name ][ $connection['connection_data']['external_id'] ] ) )
+							);
 
 							// Was this connections (OR, old-format service) already Publicized to?
 							$done = ( 1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $unique_id, true ) ||  1 == get_post_meta( $post->ID, $this->publicize->POST_DONE . $name, true ) ); // New and old style flags
