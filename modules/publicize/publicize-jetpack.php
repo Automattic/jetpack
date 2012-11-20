@@ -21,7 +21,7 @@ class Publicize extends Publicize_Base {
 
 		add_action( 'load-settings_page_sharing', array( $this, 'force_user_connection' ) );
 
-		add_action( 'save_post', array( $this, 'save_publicized' ), 10, 2 );
+		add_action( 'transition_post_status', array( $this, 'save_publicized' ), 10, 3 );
 	}
 
 	function force_user_connection() {
@@ -308,16 +308,10 @@ class Publicize extends Publicize_Base {
 	 * Save a flag locally to indicate that this post has already been Publicized via the selected
 	 * connections.
 	 */
-	function save_publicized( $post_id, $post ) {
-		// Only do this when we're on the post editor
-		if ( isset( $_POST[$this->ADMIN_PAGE] ) ) {
-			$services = (array) $this->get_services( 'connected' );
-			foreach ( (array) $services as $service => $connections ) {
-				foreach ( (array) $connections as $connection ) {
-					// Intentionally disabling all connections, since Publicize is a one-time thing in Jetpack
-					update_post_meta( $post->ID, $this->POST_DONE . $connection['connection_data']['token_id'], true );
-				}
-			}
+	function save_publicized( $new_status, $old_status, $post ) {
+		// Only do this when a post transitions to being published
+		if ( 'publish' == $new_status && 'publish' != $old_status ) {
+			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
 		}
 	}
 
