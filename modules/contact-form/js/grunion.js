@@ -311,6 +311,8 @@ FB.ContactForm = function() {
 				fbForm.fields = defaultFields;
 			} else {
 				jQuery.each(data.fields, function(index, value) {
+					if ( 1 == value.required )
+						value.required = 'true';
 					fbForm.fields[index] = value;
 				});
 				fbForm.to = data.to;
