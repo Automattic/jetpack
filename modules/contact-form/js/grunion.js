@@ -41,28 +41,28 @@ FB.ContactForm = function() {
 	'fields' : {}
 	};
 	var defaultFields = {
-		'name': { 
+		'name': {
 			'label' : GrunionFB_i18n.nameLabel,
 			'type' : 'name',
 			'required' : true,
 			'options' : [],
 			'order' : '1'
-		}, 
-		'email': { 
+		},
+		'email': {
 			'label' : GrunionFB_i18n.emailLabel,
 			'type' : 'email',
 			'required' : true,
 			'options' : [],
 			'order' : '2'
-		}, 
-		'url': { 
+		},
+		'url': {
 			'label' : GrunionFB_i18n.urlLabel,
 			'type' : 'url',
 			'required' : false,
 			'options' : [],
 			'order' : '3'
-		}, 
-		'comment': { 
+		},
+		'comment': {
 			'label' : GrunionFB_i18n.commentLabel,
 			'type' : 'textarea',
 			'required' : true,
@@ -76,7 +76,7 @@ FB.ContactForm = function() {
 	var optionsCache = {};
 	var optionsCount = 0; // increment for options
 	var shortcode;
-	
+
 	function addField () {
 		try {
 			grunionNewCount++;
@@ -113,7 +113,7 @@ FB.ContactForm = function() {
 		}
 	}
 	function addOption () {
-		try {	
+		try {
 			optionsCount++;
 			var thisId = jQuery('#fb-field-id').val();
 			var thisType = jQuery('#fb-new-type').val();
@@ -385,10 +385,10 @@ FB.ContactForm = function() {
 					}
 				}
 				var regexp = new RegExp("\\[contact-form\\b.*?\\/?\\](?:[\\s\\S]+?\\[\\/contact-form\\])?");
-				
+
 				// Remove new lines that cause BR tags to show up
 				response = response.replace(/\n/g,' ');
-				
+
 				// Add new shortcode
 				if (currentCode.match(regexp)) {
 					if (isVisual) {
@@ -557,11 +557,11 @@ FB.ContactForm = function() {
 					break;
 				case "email":
 					removeOptions();
-					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisRemove + thisLabel + thisText);					
+					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisRemove + thisLabel + thisText);
 					break;
 				case "name":
 					removeOptions();
-					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisRemove + thisLabel + thisText);					
+					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisRemove + thisLabel + thisText);
 					break;
 				case "radio":
 					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisLabel + thisRadioRemove + '<div fieldid="' + thisId + '" id="fb-custom-radio' + thisId + '"></div>');
@@ -590,7 +590,7 @@ FB.ContactForm = function() {
 					break;
 				case "text":
 					removeOptions();
-					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisRemove + thisLabel + thisText);					
+					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisRemove + thisLabel + thisText);
 					break;
 				case "textarea":
 					removeOptions();
@@ -598,7 +598,7 @@ FB.ContactForm = function() {
 					break;
 				case "url":
 					removeOptions();
-					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisRemove + thisLabel + thisText);					
+					jQuery('#fb-new-field' + thisId + ' .fb-fields').html(thisRemove + thisLabel + thisText);
 					break;
 			}
 			// update object
@@ -616,7 +616,7 @@ FB.ContactForm = function() {
 				var totalWidth = jQuery('body', window.parent.document).width();
 				var totalHeight = jQuery('body', window.parent.document).height();
 				var isIE6 = typeof document.body.style.maxHeight === "undefined";
-				
+
 				jQuery('#TB_window, #TB_iframeContent', window.parent.document).css('width', '768px');
 				jQuery('#TB_window', window.parent.document).css({ left: (totalWidth-768)/2 + 'px', top: '23px', position: 'absolute', marginLeft: '0' });
 				if ( ! isIE6 ) { // take away IE6
@@ -644,7 +644,7 @@ FB.ContactForm = function() {
 				post_id: postId,
 				content: contentSource
 			};
-			
+
 			jQuery.post(ajaxurl, data, function(response) {
 				// Setup fbForm
 				parseShortcode(jQuery.parseJSON(response));
