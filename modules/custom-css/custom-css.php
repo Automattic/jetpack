@@ -697,7 +697,7 @@ function safecss_post_title( $title, $post_id ) {
 function safe_css_enqueue_scripts() {
 	wp_enqueue_script( 'postbox' );
 	if ( defined('SAFECSS_USE_ACE') && SAFECSS_USE_ACE ) {
-		$url = plugins_url( 'safecss/js/', __FILE__ );
+		$url = plugins_url( 'custom-css/js/', __FILE__ );
 		wp_enqueue_script( 'jquery.spin' );
 		wp_enqueue_script( 'safecss-ace', $url . 'ace/ace.js', array(), false, true );
 		wp_enqueue_script( 'safecss-ace-css', $url . 'ace/mode-css.js', array( 'safecss-ace' ), false, true );
