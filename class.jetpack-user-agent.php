@@ -574,6 +574,10 @@ class Jetpack_User_Agent_Info {
 	 *
 	*/
 	function is_ipad( $type = 'ipad-any' ) {
+
+		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
+			return false;
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		$is_ipad = ( false !== strpos( $ua, 'ipad' ) );
