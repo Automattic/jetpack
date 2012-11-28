@@ -200,10 +200,10 @@ function get_current_revision() {
  * @return bool|int If nothing was saved, returns false. If a post
  *                  or revision was saved, returns the post ID.
  */
-function save_revision( $css, $is_preview = false ) {
+function save_revision( $css, $is_preview = false, $preprocessor = '' ) {
 	$safecss_post = get_safecss_post();
 
-	$compressed_css = custom_css_minify( $css );
+	$compressed_css = custom_css_minify( $css, $preprocessor );
 
 	// If null, there was no original safecss record, so create one
 	if ( null == $safecss_post ) {
@@ -371,13 +371,16 @@ function safecss_init() {
 		if ( $css != $prev )
 			$warnings[] = 'kses found stuff';
 
-		do_action( 'safecss_parse_pre', $csstidy, $css );
+		// if we're not using a preprocessor
+		if ( ! isset( $_POST['custom_css_preprocessor'] ) || empty( $_POST['custom_css_preprocessor'] ) ) {
+			do_action( 'safecss_parse_pre', $csstidy, $css );
 
-		$csstidy->parse($css);
+			$csstidy->parse($css);
 
-		do_action( 'safecss_parse_post', $csstidy, $warnings );
+			do_action( 'safecss_parse_post', $csstidy, $warnings );
 
-		$css = $csstidy->print->plain();
+			$css = $csstidy->print->plain();
+		}
 
 		if ( isset( $_POST['custom_content_width'] ) && intval($_POST['custom_content_width']) > 0 )
 			$custom_content_width = intval($_POST['custom_content_width']);
@@ -389,15 +392,18 @@ function safecss_init() {
 		else
 			$add_to_existing = 'no';
 
+		$preprocessor = isset( $_POST['custom_css_preprocessor'] ) ? $_POST['custom_css_preprocessor'] : '';
+
 		if ( $_POST['action'] == 'preview' || safecss_is_freetrial() ) {
 			// Save the CSS
-			$safecss_revision_id = save_revision( $css, true );
+			$safecss_revision_id = save_revision( $css, true, $preprocessor );
 
 			// Cache Buster
 			update_option('safecss_preview_rev', intval( get_option('safecss_preview_rev') ) + 1);
 
 			update_metadata( 'post', $safecss_revision_id, 'custom_css_add', $add_to_existing );
 			update_metadata( 'post', $safecss_revision_id, 'content_width', $custom_content_width );
+			update_metadata( 'post', $safecss_revision_id, 'custom_css_preprocessor', $preprocessor );
 
 			if ( $_POST['action'] == 'preview' ) {
 				wp_safe_redirect( add_query_arg( 'csspreview', 'true', get_option('home') ) );
@@ -408,7 +414,7 @@ function safecss_init() {
 		}
 
 		// Save the CSS
-		$safecss_post_id = save_revision( $css );
+		$safecss_post_id = save_revision( $css, false, $preprocessor );
 
 		$safecss_post_revision = get_current_revision();
 
@@ -416,8 +422,10 @@ function safecss_init() {
 
 		update_post_meta( $safecss_post_id, 'custom_css_add', $add_to_existing );
 		update_post_meta( $safecss_post_id, 'content_width', $custom_content_width );
+		update_post_meta( $safecss_post_id, 'custom_css_preprocessor', $preprocessor );
 		update_metadata( 'post', $safecss_post_revision['ID'], 'custom_css_add', $add_to_existing );
 		update_metadata( 'post', $safecss_post_revision['ID'], 'content_width', $custom_content_width );
+		update_metadata( 'post', $safecss_post_revision['ID'], 'custom_css_preprocessor', $preprocessor );
 
 		add_action('admin_notices', 'safecss_saved');
 	}
@@ -473,7 +481,7 @@ function safecss( $compressed = false ) {
 		$safecss_post = get_current_revision();
 		$css = $safecss_post['post_content'];
 		$css = stripslashes( $css );
-		$css = custom_css_minify( $css );
+		$css = custom_css_minify( $css, get_post_meta( $safecss_post['ID'], 'custom_css_preprocessor', true ) );
 	}
 
 	$css = str_replace( array( '\\\00BB \\\0020', '\0BB \020', '0BB 020' ), '\00BB \0020', $css );
@@ -929,6 +937,29 @@ function custom_css_meta_box() {
 	<p><?php printf( __( '<a href="%s">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor.', 'jetpack' ), apply_filters( 'safecss_theme_stylesheet_url', get_stylesheet_uri() ), $current_theme ); ?></p>
 	<?php
 
+	$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+
+	if ( ! empty( $preprocessors ) ) {
+		?>
+		<p>
+			<?php esc_html_e( 'Preprocessor:' ); ?>
+			<select name="custom_css_preprocessor">
+				<option value=""><?php esc_html_e( 'None' ); ?></option>
+				<?php
+
+				foreach ( $preprocessors as $preprocessor_key => $preprocessor ) {
+					?>
+					<option value="<?php echo esc_attr( $preprocessor_key ); ?>" <?php selected( get_post_meta( $safecss_post['ID'], 'custom_css_preprocessor', true ), $preprocessor_key ); ?>><?php echo esc_html( $preprocessor['name'] ); ?></option>
+					<?php
+				}
+
+				?>
+			</select>
+		</p>
+		<?php
+
+	}
+
 	do_action( 'custom_css_meta_fields' );
 
 }
@@ -1038,8 +1069,10 @@ function custom_css_reset() {
 
 	update_post_meta( $safecss_post_id, 'custom_css_add', 'yes' );
 	update_post_meta( $safecss_post_id, 'content_width', false );
+	update_post_meta( $safecss_post_id, 'custom_css_preprocessor', '' );
 	update_metadata( 'post', $safecss_revision['ID'], 'custom_css_add', 'yes' );
 	update_metadata( 'post', $safecss_revision['ID'], 'content_width', false );
+	update_metadata( 'post', $safecss_revision['ID'], 'custom_css_preprocessor', '' );
 }
 
 add_action( 'switch_theme', 'custom_css_reset' );
@@ -1051,9 +1084,17 @@ function custom_css_is_customizer_preview() {
 	return false;
 }
 
-function custom_css_minify( $css ) {
+function custom_css_minify( $css, $preprocessor = '' ) {
 	if ( ! $css )
 		return '';
+
+	if ( $preprocessor ) {
+		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+
+		if ( isset( $preprocessors[$preprocessor] ) ) {
+			$css = call_user_func( $preprocessors[$preprocessor]['callback'], $css );
+		}
+	}
 
 	safecss_class();
 	$csstidy = new csstidy();
@@ -1086,11 +1127,16 @@ function custom_css_restore_revision( $_post_id, $_revision_id ) {
 
 	$content_width = get_post_meta( $_revision_id, 'content_width', true );
 	$custom_css_add = get_post_meta( $_revision_id, 'custom_css_add', true );
+	$preprocessor = get_post_meta( $_revision_id, 'custom_css_preprocessor', true );
 
 	update_metadata( 'post', $safecss_revision['ID'], 'content_width', $content_width );
 	update_metadata( 'post', $safecss_revision['ID'], 'custom_css_add', $custom_css_add );
+	update_metadata( 'post', $safecss_revision['ID'], 'custom_css_preprocessor', $preprocessor );
 	update_post_meta( $_post->ID, 'content_width', $content_width );
 	update_post_meta( $_post->ID, 'custom_css_add', $custom_css_add );
+	update_post_meta( $_post->ID, 'custom_css_preprocessor', $preprocessor );
 }
 
 add_action( 'wp_restore_post_revision', 'custom_css_restore_revision', 10, 2 );
+
+include dirname( __FILE__ ) . '/custom-css/preprocessors.php';
