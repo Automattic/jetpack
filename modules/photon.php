@@ -202,6 +202,10 @@ class Jetpack_Photon {
 						$transform = 'fit';
 				}
 
+				// Detect if image source is for a custom-cropped thumbnail and prevent further URL manipulation.
+				if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode('|', $this->extensions ) . '){1}$#i', basename( $src ), $filename ) )
+					$fullsize_url = true;
+
 				// Build URL, first removing WP's resized string so we pass the original image to Photon
 				if ( ! $fullsize_url && preg_match( '#(-\d+x\d+)\.(' . implode('|', $this->extensions ) . '){1}$#i', $src, $src_parts ) )
 					$src = str_replace( $src_parts[1], '', $src );
