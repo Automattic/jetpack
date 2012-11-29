@@ -89,6 +89,7 @@ class Jetpack_Photon {
 			global $content_width;
 
 			$image_sizes = $this->image_sizes();
+			$upload_dir = wp_upload_dir();
 
 			foreach ( $images[0] as $index => $tag ) {
 				// Default to resize, though fit may be used in certain cases where a dimension cannot be ascertained
@@ -96,6 +97,9 @@ class Jetpack_Photon {
 
 				// Start with a clean attachment ID each time
 				$attachment_id = false;
+
+				// Flag if we need to munge a fullsize URL
+				$fullsize_url = false;
 
 				// Identify image source
 				$src = $src_orig = $images[4][ $index ];
@@ -122,25 +126,55 @@ class Jetpack_Photon {
 					$height = $height_string[1];
 
 				// Can't pass both a relative width and height, so unset the height in favor of not breaking the horizontal layout.
-				if ( false !== strpos( $width, '%' ) && false !== strpos( $width, '%' ) )
+				if ( false !== strpos( $width, '%' ) && false !== strpos( $height, '%' ) )
 					$width = $height = false;
 
-				// Classes
-				if ( preg_match( '#class=["|\']?([^"\']+)["|\']?#i', $images[3][ $index ], $classes ) ) {
-					// WP registered image size, only if width and height are needed
-					if ( false === $width && false === $height && preg_match( '#size-([^\s]+)#i', $classes[1], $size ) ) {
-						$size = array_pop( $size );
+				// Detect WP registered image size from HTML class
+				if ( preg_match( '#class=["|\']?[^"\']*size-([^"\'\s]+)[^"\']*["|\']?#i', $images[3][ $index ], $size ) ) {
+					$size = array_pop( $size );
 
-						if ( 'full' != $size && array_key_exists( $size, $image_sizes ) ) {
-							$width = (int) $image_sizes[ $size ]['width'];
-							$height = (int) $image_sizes[ $size ]['height'];
-							$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
+					if ( false === $width && false === $height && 'full' != $size && array_key_exists( $size, $image_sizes ) ) {
+						$width = (int) $image_sizes[ $size ]['width'];
+						$height = (int) $image_sizes[ $size ]['height'];
+						$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
+					}
+				}
+
+				// WP Attachment ID, if uploaded to this site
+				if ( preg_match( '#class=["|\']?[^"\']*wp-image-([\d]+)[^"\']*["|\']?#i', $images[3][ $index ], $attachment_id ) && ( 0 === strpos( $src, $upload_dir['baseurl'] ) || apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) ) ) ) {
+					$attachment_id = intval( array_pop( $attachment_id ) );
+
+					if ( $attachment_id ) {
+						$attachment = get_post( $attachment_id );
+
+						// Basic check on returned post object
+						if ( is_object( $attachment ) && ! is_wp_error( $attachment ) && 'attachment' == $attachment->post_type ) {
+							$src_per_wp = wp_get_attachment_image_src( $attachment_id, isset( $size ) ? $size : 'full' );
+
+							if ( $this->validate_image_url( $src_per_wp[0] ) ) {
+								$src = $src_per_wp[0];
+								$fullsize_url = true;
+
+								// Prevent image distortion if a detected dimension exceeds the image's natural dimensions
+								if ( ( false !== $width && $width > $src_per_wp[1] ) || ( false !== $height && $height > $src_per_wp[2] ) ) {
+									$width = false == $width ? false : min( $width, $src_per_wp[1] );
+									$height = false == $height ? false : min( $height, $src_per_wp[2] );
+								}
+
+								// If no width and height are found, max out at source image's natural dimensions
+								// Otherwise, respect registered image sizes' cropping setting
+								if ( false == $width && false == $height ) {
+									$width = $src_per_wp[1];
+									$height = $src_per_wp[2];
+									$transform = 'fit';
+								} elseif ( isset( $size ) && array_key_exists( $size, $image_sizes ) && isset( $image_sizes[ $size ]['crop'] ) ) {
+									$transform = (bool) $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
+								}
+							}
+						} else {
+							unset( $attachment );
 						}
 					}
-
-					// WP Attachment ID
-					if ( preg_match( '#wp-image-(\d+)#i', $classes[1], $attachment_id ) )
-						$attachment_id = intval( array_pop( $attachment_id ) );
 				}
 
 				// If image tag lacks width and height arguments, try to determine from strings WP appends to resized image filenames.
@@ -169,13 +203,13 @@ class Jetpack_Photon {
 				}
 
 				// Build URL, first removing WP's resized string so we pass the original image to Photon
-				if ( preg_match( '#(-\d+x\d+)\.(' . implode('|', $this->extensions ) . '){1}$#i', $src, $src_parts ) )
+				if ( ! $fullsize_url && preg_match( '#(-\d+x\d+)\.(' . implode('|', $this->extensions ) . '){1}$#i', $src, $src_parts ) )
 					$src = str_replace( $src_parts[1], '', $src );
 
 				// Build array of Photon args and expose to filter before passing to Photon URL function
 				$args = array();
 
-				if ( false !== $width && false !== $height )
+				if ( false !== $width && false !== $height && false === strpos( $width, '%' ) && false === strpos( $height, '%' ) )
 					$args[ $transform ] = $width . ',' . $height;
 				elseif ( false !== $width )
 					$args['w'] = $width;
