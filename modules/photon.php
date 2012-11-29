@@ -85,19 +85,24 @@ class Jetpack_Photon {
 	 * @return string
 	 */
 	public function filter_the_content( $content ) {
-		if ( false != preg_match_all( '#(<a.+?href=["|\'](.+?)["|\'].+?>\s*)?(<img.+?src=["|\'](.+?)["|\'].+?/?>){1}(\s*</a>)?#i', $content, $images ) ) {
+		if ( preg_match_all( '#(<a.+?href=["|\'](.+?)["|\'].+?>\s*)?(<img.+?src=["|\'](.+?)["|\'].+?/?>){1}(\s*</a>)?#i', $content, $images ) ) {
 			global $content_width;
+
+			$image_sizes = $this->image_sizes();
 
 			foreach ( $images[0] as $index => $tag ) {
 				// Default to resize, though fit may be used in certain cases where a dimension cannot be ascertained
 				$transform = 'resize';
+
+				// Start with a clean attachment ID each time
+				$attachment_id = false;
 
 				// Identify image source
 				$src = $src_orig = $images[4][ $index ];
 
 				// Support Automattic's Lazy Load plugin
 				// Can't modify $tag yet as we need unadulterated version later
-				if ( false != preg_match( '#data-lazy-src=["|\'](.+?)["|\']#i', $images[3][ $index ], $lazy_load_src ) ) {
+				if ( preg_match( '#data-lazy-src=["|\'](.+?)["|\']#i', $images[3][ $index ], $lazy_load_src ) ) {
 					$placeholder_src = $placeholder_src_orig = $src;
 					$src = $src_orig = $lazy_load_src[1];
 				}
@@ -110,25 +115,46 @@ class Jetpack_Photon {
 				$width = $height = false;
 
 				// First, check the image tag
-				if ( preg_match( '#width=["|\']?(\d+)["|\']?#i', $images[3][ $index ], $width_string ) )
-					$width = (int) $width_string[1];
+				if ( preg_match( '#width=["|\']?([\d%]+)["|\']?#i', $images[3][ $index ], $width_string ) )
+					$width = $width_string[1];
 
-				if ( preg_match( '#height=["|\']?(\d+)["|\']?#i', $images[3][ $index ], $height_string ) )
-					$height = (int) $height_string[1];
+				if ( preg_match( '#height=["|\']?([\d%]+)["|\']?#i', $images[3][ $index ], $height_string ) )
+					$height = $height_string[1];
+
+				// Can't pass both a relative width and height, so unset the height in favor of not breaking the horizontal layout.
+				if ( false !== strpos( $width, '%' ) && false !== strpos( $width, '%' ) )
+					$width = $height = false;
+
+				// Classes
+				if ( preg_match( '#class=["|\']?([^"\']+)["|\']?#i', $images[3][ $index ], $classes ) ) {
+					// WP registered image size, only if width and height are needed
+					if ( false === $width && false === $height && preg_match( '#size-([^\s]+)#i', $classes[1], $size ) ) {
+						$size = array_pop( $size );
+
+						if ( 'full' != $size && array_key_exists( $size, $image_sizes ) ) {
+							$width = (int) $image_sizes[ $size ]['width'];
+							$height = (int) $image_sizes[ $size ]['height'];
+							$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
+						}
+					}
+
+					// WP Attachment ID
+					if ( preg_match( '#wp-image-(\d+)#i', $classes[1], $attachment_id ) )
+						$attachment_id = intval( array_pop( $attachment_id ) );
+				}
 
 				// If image tag lacks width and height arguments, try to determine from strings WP appends to resized image filenames.
-				if ( false === $width && false === $height && false != preg_match( '#(-\d+x\d+)\.(' . implode('|', $this->extensions ) . '){1}$#i', $src, $width_height_string ) ) {
+				if ( false === $width && false === $height && preg_match( '#(-\d+x\d+)\.(' . implode('|', $this->extensions ) . '){1}$#i', $src, $width_height_string ) ) {
 					$width = (int) $width_height_string[1];
 					$height = (int) $width_height_string[2];
 				}
 
 				// If width is available, constrain to $content_width
-				if ( false !== $width && is_numeric( $content_width ) ) {
-					if ( $width > $content_width && false !== $height ) {
+				if ( false !== $width && false === strpos( $width, '%' ) && is_numeric( $content_width ) ) {
+					if ( $width > $content_width && false !== $height && false === strpos( $height, '%' ) ) {
 						$height = round( ( $content_width * $height ) / $width );
 						$width = $content_width;
-					}
-					elseif ( $width > $content_width ) {
+					} elseif ( $width > $content_width ) {
 						$width = $content_width;
 					}
 				}
@@ -143,7 +169,7 @@ class Jetpack_Photon {
 				}
 
 				// Build URL, first removing WP's resized string so we pass the original image to Photon
-				if ( false != preg_match( '#(-\d+x\d+)\.(' . implode('|', $this->extensions ) . '){1}$#i', $src, $src_parts ) )
+				if ( preg_match( '#(-\d+x\d+)\.(' . implode('|', $this->extensions ) . '){1}$#i', $src, $src_parts ) )
 					$src = str_replace( $src_parts[1], '', $src );
 
 				// Build array of Photon args and expose to filter before passing to Photon URL function
@@ -180,7 +206,7 @@ class Jetpack_Photon {
 					}
 
 					// Remove the width and height arguments from the tag to prevent distortion
-					$new_tag = preg_replace( '#(width|height)=["|\']?(\d+)["|\']?\s{1}#i', '', $new_tag );
+					$new_tag = preg_replace( '#(width|height)=["|\']?[\d%]+["|\']?\s{1}#i', '', $new_tag );
 
 					// If image is linked to an image (presumably itself, but who knows), pass link href to Photon sans arguments
 					if ( ! empty( $images[2][ $index ] ) && false !== strpos( $new_tag, $images[2][ $index ] ) && $this->validate_image_url( $images[2][ $index ] ) )
@@ -265,8 +291,7 @@ class Jetpack_Photon {
 					false,
 					false
 				);
-			}
-			elseif ( is_array( $size ) ) {
+			} elseif ( is_array( $size ) ) {
 				// Pull width and height values from the provided array, if possible
 				$width = isset( $size[0] ) ? (int) $size[0] : false;
 				$height = isset( $size[1] ) ? (int) $size[1] : false;
