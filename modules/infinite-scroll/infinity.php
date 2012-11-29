@@ -784,7 +784,7 @@ class The_Neverending_Home_Page {
 	 * @return string
 	 */
 	function render() {
-		while( have_posts() ) {
+		while ( have_posts() ) {
 			the_post();
 
 			get_template_part( 'content', get_post_format() );
@@ -794,11 +794,11 @@ class The_Neverending_Home_Page {
 	/**
 	 * Allow plugins to filter what archives Infinite Scroll supports
 	 *
-	 * @uses apply_filters, is_home, is_archive, self::get_settings
+	 * @uses apply_filters, current_theme_supports, is_home, is_archive, self::get_settings
 	 * @return bool
 	 */
-	private function archive_supports_infinity() {
-		return (bool) apply_filters( 'infinite_scroll_archive_supported', ( is_home() || is_archive() ), self::get_settings() );
+	public function archive_supports_infinity() {
+		return (bool) apply_filters( 'infinite_scroll_archive_supported', current_theme_supports( 'infinite-scroll' ) && ( is_home() || is_archive() ), self::get_settings() );
 	}
 
 	/**
