@@ -53,9 +53,8 @@ class Jetpack_Photon {
 		// Images in post content
 		add_filter( 'the_content', array( $this, 'filter_the_content' ), 999999 );
 
-		// Featured images aka post thumbnails
-		add_action( 'begin_fetch_post_thumbnail_html', array( $this, 'action_begin_fetch_post_thumbnail_html' ) );
-		add_action( 'end_fetch_post_thumbnail_html', array( $this, 'action_end_fetch_post_thumbnail_html' ) );
+		// Core image retrieval
+		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
 
 		// og:image URL
 		add_filter( 'jetpack_open_graph_tags', array( $this, 'filter_open_graph_tags' ), 10, 2 );
@@ -264,30 +263,8 @@ class Jetpack_Photon {
 	}
 
 	/**
-	 ** POST THUMBNAIL FUNCTIONS
+	 ** CORE IMAGE RETRIEVAL
 	 **/
-
-	/**
-	 * Apply Photon to WP image retrieval functions for post thumbnails
-	 *
-	 * @uses add_filter
-	 * @action begin_fetch_post_thumbnail_html
-	 * @return null
-	 */
-	public function action_begin_fetch_post_thumbnail_html() {
-		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
-	}
-
-	/**
-	 * Remove Photon from WP image functions when post thumbnail processing is finished
-	 *
-	 * @uses remove_filter
-	 * @action end_fetch_post_thumbnail_html
-	 * @return null
-	 */
-	public function action_end_fetch_post_thumbnail_html() {
-		remove_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
-	}
 
 	/**
 	 * Filter post thumbnail image retrieval, passing images through Photon
