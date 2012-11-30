@@ -104,6 +104,10 @@ class Jetpack_Photon {
 				// Identify image source
 				$src = $src_orig = $images[4][ $index ];
 
+				// Allow specific images to be skipped
+				if ( apply_filters( 'jetpack_photon_skip_image', false, $src, $tag ) )
+					continue;
+
 				// Support Automattic's Lazy Load plugin
 				// Can't modify $tag yet as we need unadulterated version later
 				if ( preg_match( '#data-lazy-src=["|\'](.+?)["|\']#i', $images[3][ $index ], $lazy_load_src ) ) {
