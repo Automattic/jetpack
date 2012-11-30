@@ -301,7 +301,7 @@ class Jetpack_Photon {
 	 */
 	public function filter_image_downsize( $image, $attachment_id, $size ) {
 		// Don't foul up the admin side of things, and provide plugins a way of preventing Photon from being applied to images.
-		if ( is_admin() && apply_filters( 'jetpack_photon_override_image_downsize', true, compact( 'image', 'attachment_id', 'size' ) ) )
+		if ( is_admin() || apply_filters( 'jetpack_photon_override_image_downsize', false, compact( 'image', 'attachment_id', 'size' ) ) )
 			return $image;
 
 		// Get the image URL and proceed with Photon-ification if successful
