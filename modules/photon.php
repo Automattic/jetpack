@@ -30,11 +30,18 @@ class Jetpack_Photon {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$__instance, 'Jetpack_Photon' ) )
+		if ( ! is_a( self::$__instance, 'Jetpack_Photon' ) ) {
 			self::$__instance = new Jetpack_Photon;
+			self::$__instance->setup();
+		}
 
 		return self::$__instance;
 	}
+
+	/**
+	 * Silence is golden.
+	 */
+	private function __construct() {}
 
 	/**
 	 * Register actions and filters, but only if basic Photon functions are available.
@@ -43,7 +50,7 @@ class Jetpack_Photon {
 	 * @uses add_action, add_filter
 	 * @return null
 	 */
-	private function __construct() {
+	private function setup() {
 		// Display warning if site is private
 		add_action( 'jetpack_activate_module_photon', array( $this, 'action_jetpack_activate_module_photon' ) );
 
