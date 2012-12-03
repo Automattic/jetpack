@@ -602,11 +602,11 @@ function wp_cache_get_ob(&$buffer) {
 				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Warning! The file $tmp_wpcache_filename was empty. Did not rename to {$blog_cache_dir}{$cache_filename}", 5 );
 				@unlink( $tmp_wpcache_filename );
 			} else {
-				if ( !rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename ) ) {
+				if ( !@rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename ) ) {
 					if ( false == is_dir( $blog_cache_dir ) )
 						@wp_mkdir_p( $blog_cache_dir );
-					unlink( $blog_cache_dir . $cache_filename );
-					rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename );
+					@unlink( $blog_cache_dir . $cache_filename );
+					@rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename );
 				}
 				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Renamed temp wp-cache file to {$blog_cache_dir}$cache_filename", 5 );
 				$added_cache = 1;
