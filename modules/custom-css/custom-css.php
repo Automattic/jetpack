@@ -742,13 +742,11 @@ class Jetpack_Custom_CSS {
 
 	static function admin() {
 		add_meta_box( 'submitdiv', __( 'Publish', 'jetpack' ), array( __CLASS__, 'publish_box' ), 'editcss', 'side' );
-		add_meta_box( 'settingsdiv', __( 'CSS Settings', 'jetpack' ), array( __CLASS__, 'meta_box' ), 'editcss', 'side' );
 
 		$safecss_post = Jetpack_Custom_CSS::get_post();
 
-		if ( ! empty( $safecss_post ) && 0 < $safecss_post['ID'] && wp_get_post_revisions( $safecss_post['ID'] ) ) {
-				add_meta_box( 'revisionsdiv', __( 'CSS Revisions', 'jetpack' ), array( __CLASS__, 'revisions_meta_box' ), 'editcss', 'side' );
-		}
+		if ( ! empty( $safecss_post ) && 0 < $safecss_post['ID'] && wp_get_post_revisions( $safecss_post['ID'] ) )
+			add_meta_box( 'revisionsdiv', __( 'CSS Revisions', 'jetpack' ), array( __CLASS__, 'revisions_meta_box' ), 'editcss', 'side' );
 
 		?>
 		<div class="wrap columns-2">
@@ -791,16 +789,19 @@ class Jetpack_Custom_CSS {
 	}
 
 	static function publish_box() {
-		$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
+		?>
+		<div id="minor-publishing">
+			<div id="misc-publishing-actions">
+				<?php
 
-		if ( ! empty( $preprocessors ) ) {
-			$safecss_post = Jetpack_Custom_CSS::get_current_revision();
-			$selected_preprocessor_key = get_post_meta( $safecss_post['ID'], 'custom_css_preprocessor', true );
-			$selected_preprocessor = isset( $preprocessors[$selected_preprocessor_key] ) ? $preprocessors[$selected_preprocessor_key] : null;
+				$preprocessors = apply_filters( 'jetpack_custom_css_preprocessors', array() );
 
-			?>
-			<div id="minor-publishing">
-				<div id="misc-publishing-actions">
+				if ( ! empty( $preprocessors ) ) {
+					$safecss_post = Jetpack_Custom_CSS::get_current_revision();
+					$selected_preprocessor_key = get_post_meta( $safecss_post['ID'], 'custom_css_preprocessor', true );
+					$selected_preprocessor = isset( $preprocessors[$selected_preprocessor_key] ) ? $preprocessors[$selected_preprocessor_key] : null;
+
+					?>
 					<div class="misc-pub-section">
 						<label><?php esc_html_e( 'Preprocessor:' ); ?></label>
 						<span id="preprocessor-display"><?php echo esc_html( $selected_preprocessor ? $selected_preprocessor['name'] : __( 'None', 'jetpack' ) ); ?></span>
@@ -823,14 +824,66 @@ class Jetpack_Custom_CSS {
 							<a class="cancel-preprocessor hide-if-no-js" href="#preprocessor"><?php esc_html_e( 'Cancel', 'jetpack' ); ?></a>
 						</div>
 					</div>
-					<?php do_action( 'custom_css_submitbox_misc_actions' ); ?>
+					<?php
+				}
+
+				$safecss_post = Jetpack_Custom_CSS::get_current_revision();
+
+				$add_css = ( get_post_meta( $safecss_post['ID'], 'custom_css_add', true ) != 'no' );
+
+				?>
+				<div class="misc-pub-section">
+					<label><?php esc_html_e( 'Mode:' ); ?></label>
+					<span id="css-mode-display"><?php echo esc_html( $add_css ? __( 'Add-on', 'jetpack' ) : __( 'Replacement', 'jetpack' ) ); ?></span>
+					<a class="edit-css-mode hide-if-no-js" href="#css-mode"><?php echo esc_html_e( 'Edit', 'jetpack' ); ?></a>
+					<div id="css-mode-select" class="hide-if-js">
+						<input type="hidden" name="add_to_existing" id="add_to_existing" value="<?php echo $add_css ? 'true' : 'false'; ?>" />
+						<p>
+							<label>
+								<input type="radio" name="add_to_existing_display" value="true" <?php checked( $add_css ); ?>/>
+								<?php _e( 'Add-on CSS <b>(Recommended)</b>', 'jetpack' ); ?>
+							</label>
+							<br />
+							<label>
+								<input type="radio" name="add_to_existing_display" value="false" <?php checked( ! $add_css ); ?>/>
+								<?php printf( __( 'Replace <a href="%s">theme\'s CSS</a> <b>(Advanced)</b>', 'jetpack' ), apply_filters( 'safecss_theme_stylesheet_url', get_stylesheet_uri() ) ); ?>
+							</label>
+						</p>
+						<a class="save-css-mode hide-if-no-js button" href="#css-mode"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
+						<a class="cancel-css-mode hide-if-no-js" href="#css-mode"><?php esc_html_e( 'Cancel', 'jetpack' ); ?></a>
+					</div>
+					<script type="text/javascript">
+						jQuery( function ( $ ) {
+							$( '.edit-css-mode' ).bind( 'click', function ( e ) {
+								e.preventDefault();
+
+								$( '#css-mode-select' ).slideDown();
+								$( this ).hide();
+							} );
+
+							$( '.cancel-css-mode' ).bind( 'click', function ( e ) {
+								e.preventDefault();
+
+								$( '#css-mode-select' ).slideUp( function () {
+									$( '.edit-css-mode' ).show();
+									$( 'input[name=add_to_existing_display][value=' + $( '#add_to_existing' ).val() + ']' ).attr( 'checked', true );
+								} );
+							} );
+
+							$( '.save-css-mode' ).bind( 'click', function ( e ) {
+								e.preventDefault();
+
+								$( '#css-mode-select' ).slideUp();
+								$( '#css-mode-display' ).text( $( 'input[name=add_to_existing_display]:checked' ).val() == 'true' ? 'Add-on' : 'Replacement' );
+								$( '#add_to_existing' ).val( $( 'input[name=add_to_existing_display]:checked' ).val() );
+								$( '.edit-css-mode' ).show();
+							} );
+						} );
+					</script>
 				</div>
+				<?php do_action( 'custom_css_submitbox_misc_actions' ); ?>
 			</div>
-			<?php
-
-		}
-
-		?>
+		</div>
 		<div id="major-publishing-actions">
 			<input type="button" class="button" id="preview" name="preview" value="<?php esc_attr_e( 'Preview', 'jetpack' ) ?>" />
 			<div id="publishing-action">
@@ -838,34 +891,6 @@ class Jetpack_Custom_CSS {
 			</div>
 		</div>
 		<?php
-	}
-
-	/**
-	 * Render CSS Settings metabox
-	 * Called by afecss_admin	 *
-	 * @uses get_option, checked, __, get_current_theme, apply_filters, get_stylesheet_uri, _e, esc_attr, wp_get_theme
-	 * @return string
-	 */
-	static function meta_box() {
-		if ( function_exists( 'wp_get_theme' ) ) {
-			$current_theme = wp_get_theme();
-			$current_theme = $current_theme->Name;
-		}
-		else {
-			$current_theme = get_current_theme();
-		}
-
-		$safecss_post = Jetpack_Custom_CSS::get_current_revision();
-
-		?>
-		<p class="css-settings">
-			<label><input type="radio" name="add_to_existing" value="true" <?php checked( get_post_meta( $safecss_post['ID'], 'custom_css_add', true ) != 'no' ); ?> /> <?php printf( __( 'Add my CSS to <strong>%s&apos;s</strong> CSS.', 'jetpack' ), $current_theme ); ?></label><br />
-			<label><input type="radio" name="add_to_existing" value="false" <?php checked( get_post_meta( $safecss_post['ID'], 'custom_css_add', true ) == 'no' ); ?> /> <?php printf( __( 'Replace <strong>%s&apos;s</strong> CSS with my own.', 'jetpack' ), $current_theme ); ?></label>
-			<p><?php printf( __( '<a href="%s">View the original stylesheet</a> for the %s theme. Use this as a reference and do not copy and paste all of it into the CSS Editor.', 'jetpack' ), apply_filters( 'safecss_theme_stylesheet_url', get_stylesheet_uri() ), $current_theme ); ?></p>
-		</p>
-		<?php
-
-		do_action( 'custom_css_meta_fields' );
 	}
 
 	/**
@@ -1322,9 +1347,7 @@ function safecss_admin() {
 }
 
 function custom_css_meta_box() {
-	_deprecated_function( __FUNCTION__, '2.1', 'Jetpack_Custom_CSS::meta_box()' );
-
-	return Jetpack_Custom_CSS::meta_box();
+	_deprecated_function( __FUNCTION__, '2.1', 'add_meta_box( $id, $title, $callback, \'editcss\', \'side\' )' );
 }
 
 function custom_css_post_revisions_meta_box( $safecss_post ) {
