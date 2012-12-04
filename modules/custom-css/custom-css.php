@@ -751,7 +751,7 @@ class Jetpack_Custom_CSS {
 		}
 
 		?>
-		<div class="wrap">
+		<div class="wrap columns-2">
 			<?php do_action( 'custom_design_header' ); ?>
 			<h2><?php _e( 'CSS Stylesheet Editor', 'jetpack' ); ?></h2>
 			<form id="safecssform" action="" method="post">
@@ -759,10 +759,13 @@ class Jetpack_Custom_CSS {
 				<?php wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false ); ?>
 				<?php wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false ); ?>
 				<input type="hidden" name="action" value="save" />
-				<div id="poststuff">
+				<div id="poststuff" class="metabox-holder has-right-sidebar">
 					<p class="css-support"><?php echo apply_filters( 'safecss_intro_text', __( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/">beginner tutorial</a>. Questions?
 		Ask in the <a href="http://wordpress.org/support/forum/themes-and-templates">Themes and Templates forum</a>.', 'jetpack' ) ); ?></p>
-					<div id="post-body" class="metabox-holder columns-2">
+					<div id="postbox-container-1" class="inner-sidebar">
+						<?php do_meta_boxes( 'editcss', 'side', $safecss_post ); ?>
+					</div>
+					<div id="post-body">
 						<div id="post-body-content">
 							<div class="postarea">
 								<?php if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) { ?>
@@ -778,9 +781,6 @@ class Jetpack_Custom_CSS {
 									<p><textarea id="safecss" name="safecss"><?php echo str_replace('</textarea>', '&lt;/textarea&gt', Jetpack_Custom_CSS::get_css()); ?></textarea></p>
 								<?php } ?>
 							</div>
-						</div>
-						<div id="postbox-container-1" class="postbox-container">
-							<?php do_meta_boxes( 'editcss', 'side', $safecss_post ); ?>
 						</div>
 					</div>
 					<br class="clear" />
