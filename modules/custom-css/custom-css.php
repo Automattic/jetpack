@@ -477,7 +477,7 @@ class Jetpack_Custom_CSS {
 		if ( Jetpack_Custom_CSS::is_freetrial() && ( ! Jetpack_Custom_CSS::is_preview() || ! current_user_can( 'switch_themes' ) ) )
 			return $current;
 		else if ( Jetpack_Custom_CSS::skip_stylesheet() )
-			return apply_filters( 'safecss_style_filter_url', 'http://' . $_SERVER['HTTP_HOST'] . '/wp-content/plugins/safecss/blank.css' );
+			return apply_filters( 'safecss_style_filter_url', plugins_url( 'custom-css/blank.css', __FILE__ ) );
 
 		return $current;
 	}
