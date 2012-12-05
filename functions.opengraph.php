@@ -11,8 +11,10 @@
 add_action( 'wp_head', 'jetpack_og_tags' );
 
 function jetpack_og_tags() {
-	if ( false === apply_filters( 'jetpack_enable_open_graph', true ) )
+	if ( false === apply_filters( 'jetpack_enable_opengraph', true ) ) {
+		_deprecated_function( 'jetpack_enable_opengraph', '2.0.3', 'jetpack_enable_open_graph' );
 		return;
+	}
 
 	$og_output = "\n<!-- Jetpack Open Graph Tags -->\n";
 	$tags = array();
