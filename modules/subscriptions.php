@@ -444,14 +444,14 @@ class Jetpack_Subscriptions {
 		if ( FALSE === has_filter( 'comment_form', 'show_subscription_checkbox' ) && 1 == get_option( 'stc_enabled', 1 ) ) {
 			// Subscribe to comments checkbox
 			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_comments" id="subscribe_comments" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $comments_checked . ' /> ';
-			$str .= '<label class="subscribe-label" id="subscribe-label" for="subscribe_comments">' . __( 'Notify me of follow-up comments by email.', 'jetpack' ) . '</label>';
+			$str .= '<label class="subscribe-label" id="subscribe-label" for="subscribe_comments" style="display: inline;">' . __( 'Notify me of follow-up comments by email.', 'jetpack' ) . '</label>';
 			$str .= '</p>';
 		}
 
 		if ( 1 == get_option( 'stb_enabled', 1 ) ) {
 			// Subscribe to blog checkbox
 			$str .= '<p class="comment-subscription-form"><input type="checkbox" name="subscribe_blog" id="subscribe_blog" value="subscribe" style="width: auto; -moz-appearance: checkbox; -webkit-appearance: checkbox;"' . $blog_checked . ' /> ';
-			$str .=	'<label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog">' . __( 'Notify me of new posts by email.', 'jetpack' ) . '</label>';
+			$str .=	'<label class="subscribe-label" id="subscribe-blog-label" for="subscribe_blog" style="display: inline;">' . __( 'Notify me of new posts by email.', 'jetpack' ) . '</label>';
 			$str .= '</p>';
 		}
 
