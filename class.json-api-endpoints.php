@@ -1093,6 +1093,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'pings_open'     => '(bool) Is the post open for pingbacks, trackbacks?',
 		'comment_count'  => '(int) The number of comments for this post.',
 		'like_count'     => '(int) The number of likes for this post.',
+		'featured_image' => '(URL) The URL to the featured image for this post if it has one.',
 		'format'         => array(), // see constructor
 		'geo'            => '(object>geo|false)',
 		'publicize_URLs' => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
@@ -1278,6 +1279,13 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'like_count' :
 				$response[$key] = (int) $this->api->post_like_count( array( 'post_id' => $post->ID, 'blog_id' => $blog_id ) );
+				break;
+			case 'featured_image' :
+				$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
+				if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) )
+					$response[$key] = (string) $image_attributes[0];
+				else
+					$response[$key] = '';
 				break;
 			case 'format' :
 				$response[$key] = (string) get_post_format( $post->ID );
@@ -1734,9 +1742,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			}
 		} else {
 			$input = $this->input( false );
+
 			if ( !is_array( $input ) || !$input ) {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 			}
+
 			$post = get_post( $post_id );
 			if ( !$post || is_wp_error( $post ) ) {
 				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
@@ -1744,6 +1754,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 			if ( !current_user_can( 'edit_post', $post->ID ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
+			}
+
+			if ( 'publish' === $input['status'] && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
+				$input['status'] = 'pending';
 			}
 
 			$post_type = get_post_type_object( $post->post_type );
@@ -3045,6 +3059,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"pings_open": true,
 	"comment_count": 0,
 	"like_count": 0,
+	"featured_image": "",
 	"format": "standard",
 	"geo": false,
 	"publicize_URLs": [
@@ -3169,6 +3184,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"pings_open": true,
 	"comment_count": 5,
 	"like_count": 0,
+	"featured_image": "",
 	"format": "standard",
 	"geo": false,
 	"publicize_URLs": [
@@ -3264,6 +3280,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"pings_open": true,
 	"comment_count": 5,
 	"like_count": 0,
+	"featured_image": "",
 	"format": "standard",
 	"geo": false,
 	"publicize_URLs": [
