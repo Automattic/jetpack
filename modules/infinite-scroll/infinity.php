@@ -715,6 +715,11 @@ class The_Neverending_Home_Page {
 			'order'          => $order
 		) );
 
+		// By default, don't query for a specific page of a paged post object.
+		// This argument comes from merging $wp_the_query.
+		// Since IS is only used on archives, we should always display the first page of any paged content.
+		unset( $query_args['page'] );
+
 		$query_args = apply_filters( 'infinite_scroll_query_args', $query_args );
 
 		// Add query filter that checks for posts below the date
