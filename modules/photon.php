@@ -65,6 +65,9 @@ class Jetpack_Photon {
 
 		// og:image URL
 		add_filter( 'jetpack_open_graph_tags', array( $this, 'filter_open_graph_tags' ), 10, 2 );
+
+		// Helpers for maniuplated images
+		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
 	}
 
 	/**
@@ -260,6 +263,10 @@ class Jetpack_Photon {
 					if ( ! empty( $images[2][ $index ] ) && false !== strpos( $new_tag, $images[2][ $index ] ) && $this->validate_image_url( $images[2][ $index ] ) )
 						$new_tag = str_replace( $images[2][ $index ], jetpack_photon_url( $images[2][ $index ] ), $new_tag );
 
+					// Tag an image for dimension checking
+					$new_tag = preg_replace( '#/?>(</a>)?$#i', 'data-recalc-dims="1" />', $new_tag );
+
+					// Replace original tag with modified version
 					$content = str_replace( $tag, $new_tag, $content );
 				}
 
@@ -462,6 +469,17 @@ class Jetpack_Photon {
 		}
 
 		return $tags;
+	}
+
+	/**
+	 * Enqueue Photon helper script
+	 *
+	 * @uses wp_enqueue_script, plugins_url
+	 * @action wp_enqueue_script
+	 * @return null
+	 */
+	public function action_wp_enqueue_scripts() {
+		wp_enqueue_script( 'jetpack-photon', plugins_url( 'photon/photon.js', __FILE__ ), array( 'jquery' ), 20121206, true );
 	}
 }
 
