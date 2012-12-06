@@ -756,7 +756,7 @@ jQuery(document).ready(function($) {
 					comments_opened = src_item.data('comments-opened') || 0,
 					image_meta      = src_item.data('image-meta') || {},
 					orig_size       = src_item.data('orig-size') || 0,
-					title           = src_item.attr('title') || src_item.attr('alt') || '',
+					title           = src_item.data('image-title') || '',
 					description     = src_item.data('image-description') || '',
 					caption         = src_item.parents('dl').find('dd.gallery-caption').html() || '',
 					src		= src_item.data('gallery-src') || '',
