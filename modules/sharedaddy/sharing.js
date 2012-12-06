@@ -40,14 +40,16 @@ var WPCOMSharing = {
 			return /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i.test( this.val() );
 		}
 	} );
-	
-	if ( 'undefined' != typeof WPCOM_sharing_counts ) {
-		for ( var url in WPCOM_sharing_counts ) {
-			WPCOMSharing.get_counts( url );
-		}
-	}
 
-	$( document ).on( 'ready post-load', function() {
+	$( document ).on( 'ready', WPCOMSharing_do );
+	$( document.body ).on( 'post-load', WPCOMSharing_do );
+
+	function WPCOMSharing_do() {
+		if ( 'undefined' != typeof WPCOM_sharing_counts ) {
+			for ( var url in WPCOM_sharing_counts ) {
+				WPCOMSharing.get_counts( url );
+			}
+		}
 		var $more_sharing_buttons = $( '.sharedaddy a.sharing-anchor' );
 
 		$more_sharing_buttons.click( function() {
@@ -58,7 +60,7 @@ var WPCOMSharing = {
 			if ( $( this ).attr( 'href' ) && $( this ).attr( 'href' ).indexOf( 'share=' ) != -1 )
 				$( this ).attr( 'href', $( this ).attr( 'href' ) + '&nb=1' );
 		} );
-		
+
 		// Show hidden buttons
 
 		// Touchscreen device: use click.
@@ -71,14 +73,14 @@ var WPCOMSharing = {
 				// We're in the middle of some other event's animation
 				return;
 			}
-		
+
 			if ( true === $more_sharing_pane.data( 'justSlid' ) ) {
 				// We just finished some other event's animation - don't process click event so that slow-to-react-clickers don't get confused
 				return;
 			}
-		
+
 			$( '#sharing_email' ).slideUp( 200 );
-		
+
 			$more_sharing_pane.css( {
 				left: $more_sharing_button.position().left + 'px',
 				top: $more_sharing_button.position().top + $more_sharing_button.height() + 3 + 'px'
@@ -95,7 +97,7 @@ var WPCOMSharing = {
 					// Create a timer to make the area appear if the mouse hovers for a period
 					var timer = setTimeout( function() {
 						$( '#sharing_email' ).slideUp( 200 );
-	
+
 						$more_sharing_pane.data( 'justSlid', true );
 						$more_sharing_pane.css( {
 							left: $more_sharing_button.position().left + 'px',
@@ -103,7 +105,7 @@ var WPCOMSharing = {
 						} ).slideDown( 200, function() {
 							// Mark the item as have being appeared by the hover
 							$more_sharing_button.data( 'hasoriginal', true ).data( 'hasitem', false );
-							
+
 							setTimeout( function() {
 								$more_sharing_pane.data( 'justSlid', false );
 							}, 300 );
@@ -116,36 +118,36 @@ var WPCOMSharing = {
 							$more_sharing_pane.mouseleave( handler_item_leave ).mouseenter( handler_item_enter );
 							$more_sharing_button.mouseleave( handler_original_leave ).mouseenter( handler_original_enter );
 						} );
-						
+
 						// The following handlers take care of the mouseenter/mouseleave for the share button and the share area - if both are left then we close the share area
 						var handler_item_leave = function() {
 							$more_sharing_button.data( 'hasitem', false );
-							
+
 							if ( $more_sharing_button.data( 'hasoriginal' ) === false ) {
 								var timer = setTimeout( close_it, 800 );
 								$more_sharing_button.data( 'timer2', timer );
 							}
 						};
-	
+
 						var handler_item_enter = function() {
 							$more_sharing_button.data( 'hasitem', true );
 							clearTimeout( $more_sharing_button.data( 'timer2' ) );
-						} 
-						
+						}
+
 						var handler_original_leave = function() {
 							$more_sharing_button.data( 'hasoriginal', false );
-							
+
 							if ( $more_sharing_button.data( 'hasitem' ) === false ) {
 								var timer = setTimeout( close_it, 800 );
 								$more_sharing_button.data( 'timer2', timer );
 							}
 						};
-						
+
 						var handler_original_enter = function() {
 							$more_sharing_button.data( 'hasoriginal', true );
 							clearTimeout( $more_sharing_button.data( 'timer2' ) );
 						};
-		
+
 						var close_it = function() {
 							$more_sharing_pane.data( 'justSlid', true );
 							$more_sharing_pane.slideUp( 200, function() {
@@ -153,36 +155,36 @@ var WPCOMSharing = {
 									$more_sharing_pane.data( 'justSlid', false );
 								}, 300 );
 							} );
-							
+
 							// Clear all hooks
 							$more_sharing_button.unbind( 'mouseleave', handler_original_leave ).unbind( 'mouseenter', handler_original_enter );
 							$more_sharing_pane.unbind( 'mouseleave', handler_item_leave ).unbind( 'mouseenter', handler_item_leave );
 							return false;
 						};
 					}, 200 );
-					
+
 					// Remember the timer so we can detect it on the mouseout
 					$more_sharing_button.data( 'timer', timer );
 				}
 			}, function() {
 				// Mouse out - remove any timer
-				$more_sharing_buttons.each( function() { 
+				$more_sharing_buttons.each( function() {
 					clearTimeout( $( this ).data( 'timer' ) );
 				} );
 				$more_sharing_buttons.data( 'timer', false );
 			} );
 		}
-		
+
 		// Add click functionality
 		$( '.sharedaddy ul' ).each( function( item ) {
 			printUrl = function ( uniqueId, urlToPrint ) {
 				$( 'body:first' ).append( '<iframe style="position:fixed;top:100;left:100;height:1px;width:1px;border:none;" id="printFrame-' + uniqueId + '" name="printFrame-' + uniqueId + '" src="' + urlToPrint + '" onload="frames[\'printFrame-' + uniqueId + '\'].focus();frames[\'printFrame-' + uniqueId + '\'].print();"></iframe>' )
 			};
-			
+
 			// Print button
 			$( this ).find( 'a.share-print' ).click( function() {
 				ref = $( this ).attr( 'href' );
-				
+
 				var do_print = function() {
 					if ( ref.indexOf( '#print' ) == -1 ) {
 						uid = new Date().getTime();
@@ -191,7 +193,7 @@ var WPCOMSharing = {
 					else
 						print();
 				}
-				
+
 				// Is the button in a dropdown?
 				if ( $( this ).parents( '.sharing-hidden' ).length > 0 ) {
 					$( this ).parents( '.inner' ).slideUp( 0, function() {
@@ -203,11 +205,11 @@ var WPCOMSharing = {
 
 				return false;
 			} );
-			
+
 			// Press This button
 			$( this ).find( 'a.share-press-this' ).click( function() {
 			 	var s = '';
-			 	
+
 			  if ( window.getSelection )
 			    s = window.getSelection();
 			  else if( document.getSelection )
@@ -218,7 +220,7 @@ var WPCOMSharing = {
 				if ( s )
 					$( this ).attr( 'href', $( this ).attr( 'href' ) + '&sel=' + encodeURI( s ) );
 
-				if ( !window.open( $( this ).attr( 'href' ), 't', 'toolbar=0,resizable=1,scrollbars=1,status=1,width=720,height=570' ) ) 
+				if ( !window.open( $( this ).attr( 'href' ), 't', 'toolbar=0,resizable=1,scrollbars=1,status=1,width=720,height=570' ) )
 					document.location.href = $( this ).attr( 'href' );
 
 				return false;
@@ -227,7 +229,7 @@ var WPCOMSharing = {
 			// Email button
 			$( this ).find( 'a.share-email' ).click( function() {
 				var url = $( this ).attr( 'href' ), key;
-				
+
 				if ( $( '#sharing_email' ).is( ':visible' ) )
 					$( '#sharing_email' ).slideUp( 200 );
 				else {
@@ -237,7 +239,7 @@ var WPCOMSharing = {
 					$( '#sharing_email form' ).show();
 					$( '#sharing_email form input[type=submit]' ).removeAttr( 'disabled' );
 					$( '#sharing_email form a.sharing_cancel' ).show();
-					
+
 					key = '';
 					if ( $( '#recaptcha_public_key' ).length > 0 )
 						key = $( '#recaptcha_public_key' ).val();
@@ -250,7 +252,7 @@ var WPCOMSharing = {
 						left: $( this ).offset().left + 'px',
 						top: $( this ).offset().top + $( this ).height() + 'px'
 					} ).slideDown( 200 );
-					
+
 					// Hook up other buttons
 					$( '#sharing_email a.sharing_cancel' ).unbind( 'click' ).click( function() {
 						$( '#sharing_email .errors' ).hide();
@@ -258,25 +260,25 @@ var WPCOMSharing = {
 						$( '#sharing_background' ).fadeOut();
 						return false;
 					} );
-					
+
 					// Submit validation
 					$( '#sharing_email input[type=submit]' ).unbind( 'click' ).click( function() {
 						var form = $( this ).parents( 'form' );
-						
+
 						// Disable buttons + enable loading icon
 						$( this ).prop( 'disabled', true );
 						form.find( 'a.sharing_cancel' ).hide();
 						form.find( 'img.loading' ).show();
-						
+
 						$( '#sharing_email .errors' ).hide();
 						$( '#sharing_email .error' ).removeClass( 'error' );
-						
+
 						if ( $( '#sharing_email input[name=source_email]' ).share_is_email() == false )
 							$( '#sharing_email input[name=source_email]' ).addClass( 'error' );
-							
+
 						if ( $( '#sharing_email input[name=target_email]' ).share_is_email() == false )
 							$( '#sharing_email input[name=target_email]' ).addClass( 'error' );
-						
+
 						if ( $( '#sharing_email .error' ).length == 0 ) {
 							// AJAX send the form
 							$.ajax( {
@@ -303,10 +305,10 @@ var WPCOMSharing = {
 									}
 								}
 							} );
-							
+
 							return false;
 						}
-						
+
 						form.find( 'img.loading' ).hide();
 						form.find( 'input[type=submit]' ).removeAttr( 'disabled' );
 						form.find( 'a.sharing_cancel' ).show();
@@ -315,13 +317,13 @@ var WPCOMSharing = {
 						return false;
 					} );
 				}
-				
+
 				return false;
 			} );
 		} );
-		
+
 		$( 'li.share-email, li.share-custom a.sharing-anchor' ).addClass( 'share-service-visible' );
-	} );
+	}
 })( jQuery );
 
 // Recaptcha code

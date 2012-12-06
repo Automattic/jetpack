@@ -148,6 +148,7 @@ class Sharing_Admin {
 
 		$shows = array_values( get_post_types( array( 'public' => true ) ) );
 		array_unshift( $shows, 'index' );
+		$shows[] = 'comments';
 
 		if ( false == function_exists( 'mb_stripos' ) ) {
 			echo '<div id="message" class="updated fade"><h3>' . __( 'Warning! Multibyte support missing!', 'jetpack' ) . '</h3>';
@@ -330,6 +331,10 @@ class Sharing_Admin {
 							foreach ( $shows as $show ) :
 								if ( 'index' == $show ) {
 									$label = __( 'Front Page, Archive Pages, and Search Results', 'jetpack' );
+								} else if ( 'comments' == $show ) {
+									if ( !is_automattician() )
+										continue; // @todo REMOVE FOR LAUNCH
+									$label = __( 'Individual comments (Twitter, LinkedIn &amp; PressThis only)', 'jetpack' );
 								} else {
 									$post_type_object = get_post_type_object( $show );
 									$label = $post_type_object->labels->name;

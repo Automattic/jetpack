@@ -274,6 +274,10 @@ Scroller.prototype.refresh = function() {
 				if ( stats )
 					new Image().src = document.location.protocol + '//stats.wordpress.com/g.gif?' + stats + '&post=0&baba=' + Math.random();
 
+				// Add new posts to the postflair object
+				if ( 'object' == typeof response.postflair && 'object' == typeof WPCOM_sharing_counts )
+					WPCOM_sharing_counts = $.extend( WPCOM_sharing_counts, response.postflair );
+
 				// Render the results
 				self.render.apply( self, arguments );
 
