@@ -29,5 +29,9 @@
 	 * Check both when page loads, and when IS is triggered.
 	 */
 	$( document ).ready( restore_dims );
-	$( document.body ).on( 'post-load', restore_dims );
+
+	if ( "on" in $.fn )
+		$( document.body ).on( 'post-load', restore_dims );
+	else
+		$( document ).delegate( 'body', 'post-load', restore_dims );
 })(jQuery);
