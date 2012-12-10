@@ -722,7 +722,7 @@ jQuery(document).ready(function($) {
 			// Calculate the new src.
 			items.each(function(i){
 				var src_item  = $(this),
-					orig_size = src_item.data('orig-size') || 0,
+					orig_size = src_item.data('orig-size') || '',
 					max       = gallery.jp_carousel('slideDimensions'),
 					parts     = orig_size.split(',');
 					orig_size = {width: parseInt(parts[0], 10), height: parseInt(parts[1], 10)},
@@ -755,7 +755,7 @@ jQuery(document).ready(function($) {
 					attachment_id   = src_item.data('attachment-id') || 0,
 					comments_opened = src_item.data('comments-opened') || 0,
 					image_meta      = src_item.data('image-meta') || {},
-					orig_size       = src_item.data('orig-size') || 0,
+					orig_size       = src_item.data('orig-size') || '',
 					title           = src_item.data('image-title') || '',
 					description     = src_item.data('image-description') || '',
 					caption         = src_item.parents('dl').find('dd.gallery-caption').html() || '',
@@ -768,38 +768,36 @@ jQuery(document).ready(function($) {
 				if ( tiledCaption )
 					caption = tiledCaption;
 
-				if ( !attachment_id || !orig_size )
-					return false; // break the loop if we are missing the data-* attributes
-				
-				title       = gallery.jp_carousel('texturize', title);
-				description = gallery.jp_carousel('texturize', description);
-				caption     = gallery.jp_carousel('texturize', caption);
-				
-				var slide = $('<div class="jp-carousel-slide"></div>')
-						.hide()
-						.css({
-							'position' : 'fixed',
-							'left'     : i < start_index ? -1000 : gallery.width()
-						})
-						.append($('<img>'))
-						.appendTo(gallery)
-						.data('src', src )
-						.data('title', title)
-						.data('desc', description)
-						.data('caption', caption)
-						.data('attachment-id', attachment_id)
-						.data('permalink', src_item.parents('a').attr('href'))
-						.data('orig-size', orig_size)
-						.data('comments-opened', comments_opened)
-						.data('image-meta', image_meta)
-						.data('medium-file', medium_file)
-						.data('large-file', large_file)
-						.data('orig-file', orig_file)
-						.jp_carousel('fitSlide', false);
+				if ( attachment_id && orig_size.length ) {
+					title       = gallery.jp_carousel('texturize', title);
+					description = gallery.jp_carousel('texturize', description);
+					caption     = gallery.jp_carousel('texturize', caption);
+					
+					var slide = $('<div class="jp-carousel-slide"></div>')
+							.hide()
+							.css({
+								'position' : 'fixed',
+								'left'     : i < start_index ? -1000 : gallery.width()
+							})
+							.append($('<img>'))
+							.appendTo(gallery)
+							.data('src', src )
+							.data('title', title)
+							.data('desc', description)
+							.data('caption', caption)
+							.data('attachment-id', attachment_id)
+							.data('permalink', src_item.parents('a').attr('href'))
+							.data('orig-size', orig_size)
+							.data('comments-opened', comments_opened)
+							.data('image-meta', image_meta)
+							.data('medium-file', medium_file)
+							.data('large-file', large_file)
+							.data('orig-file', orig_file)
+							.jp_carousel('fitSlide', false);
 
-				
-				// Preloading all images
-				slide.find('img').first().attr('src', src );
+					// Preloading all images
+					slide.find('img').first().attr('src', src );
+				}
 			});
 			return this;
 		},
