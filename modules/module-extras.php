@@ -51,3 +51,6 @@ function jetpack_can_activate_infinite_scroll( $can_activate ) {
 	return (bool) current_theme_supports( 'infinite-scroll' );
 }
 add_filter( 'jetpack_can_activate_infinite-scroll', 'jetpack_can_activate_infinite_scroll' );
+
+// Happy Holidays!
+require_once( dirname( __FILE__ ) . '/holiday-snow.php' );
