@@ -199,13 +199,11 @@ div.jp-carousel-buttons a:hover {
 .jp-carousel-close-hint {
 	color: #999;
 	cursor: default;
-	font: 16px/1 "Helvetica Neue", sans-serif !important;
-	font-weight: 600 !important;
 	letter-spacing: 0 !important;
-	padding:0.55em 0 0;
+	padding:0.35em 0 0;
+	position: absolute;
 	text-align: left;
 	width: 100%;
-	position: absolute;
 	-webkit-transition: color 200ms linear;
 	-moz-transition: color 200ms linear;
 	-o-transition: color 200ms linear;
@@ -213,16 +211,17 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-close-hint span {
-	cursor:pointer;
+	cursor: pointer;
 	background-color: black;
 	background-color: rgba(0,0,0,0.8);
-	height: 26px;
-	width: 26px;
 	display: block;
-	text-align: center;
-	vertical-align: middle;
+	height: 22px;
+	font: 400 24px/1 "Helvetica Neue", sans-serif !important;
 	line-height: 22px;
 	margin: 0 0 0 0.4em;
+	text-align: center;
+	vertical-align: middle;
+	width: 22px;
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;

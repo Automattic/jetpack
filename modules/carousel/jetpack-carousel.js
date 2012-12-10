@@ -709,6 +709,7 @@ jQuery(document).ready(function($) {
 		},
 
 		texturize : function(text) {
+				text = new String(text); // make sure we get a string. Title "1" came in as int 1, for example, which did not support .replace().
 				text = text.replace(/'/g, '&#8217;').replace(/&#039;/g, '&#8217;').replace(/[\u2019]/g, '&#8217;');
 				text = text.replace(/"/g, '&#8221;').replace(/&#034;/g, '&#8221;').replace(/&quot;/g, '&#8221;').replace(/[\u201D]/g, '&#8221;');
 				text = text.replace(/([\w]+)=&#[\d]+;(.+?)&#[\d]+;/g, '$1="$2"'); // untexturize allowed HTML tags params double-quotes
