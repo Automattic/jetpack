@@ -192,7 +192,7 @@ class Jetpack_Custom_CSS {
 	static function post_id() {
 		$custom_css_post_id = wp_cache_get( 'custom_css_post_id' );
 
-		if ( 1 || false === $custom_css_post_id ) {
+		if ( false === $custom_css_post_id ) {
 			$custom_css_post = array_shift( get_posts( array(
 				'posts_per_page' => 1,
 				'post_type' => 'safecss',
