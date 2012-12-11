@@ -16,9 +16,9 @@ class Jetpack_Publicize {
 		$this->in_jetpack = ( class_exists( 'Jetpack' ) && method_exists( 'Jetpack', 'enable_module_configurable' ) ) ? true : false;
 
 		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
-		        Jetpack::enable_module_configurable( __FILE__ );
-		        Jetpack::module_configuration_load( __FILE__, array( $this, 'jetpack_configuration_load' ) );
-		        Jetpack_Sync::sync_posts( __FILE__ );
+			Jetpack::enable_module_configurable( __FILE__ );
+			Jetpack::module_configuration_load( __FILE__, array( $this, 'jetpack_configuration_load' ) );
+			Jetpack_Sync::sync_posts( __FILE__ );
 		}
 
 		require_once dirname( __FILE__ ) . '/publicize/publicize.php';
@@ -38,7 +38,7 @@ class Jetpack_Publicize {
 		if ( $this->in_jetpack) {
 			add_action( 'jetpack_activate_module_publicize',   array( $this, 'module_state_toggle' ) );
 			add_action( 'jetpack_deactivate_module_publicize', array( $this, 'module_state_toggle' ) );
-			
+
 			// if sharedaddy isn't active, the sharing menu hasn't been added yet
 			$active = Jetpack::get_active_modules();
 			if ( in_array( 'publicize', $active ) && !in_array( 'sharedaddy', $active ) )
