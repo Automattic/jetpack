@@ -166,7 +166,7 @@ abstract class Publicize_Base {
 		// always show if no selection has been made for tumblr
 		if ( 'tumblr' == $service_name && empty ( $cmeta['connection_data']['meta']['tumblr_base_hostname'] ) )
 			return true;
-		
+
 		// if we have the specific conncetion info..
 		if ( isset( $_GET['id'] ) ) {
 			if ( $cmeta['connection_data']['id'] == $_GET['id'] )
