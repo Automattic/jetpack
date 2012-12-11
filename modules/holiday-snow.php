@@ -19,10 +19,13 @@ class Jetpack_Holiday_Snow_Settings {
 	}
 
 	public function blog_field_html() {
-		echo '<input type="checkbox" name="' . esc_attr( jetpack_holiday_snow_option_name() ) . '" value="letitsnow"';
-		if ( get_option( jetpack_holiday_snow_option_name() ) )
-			echo ' checked="checked"';
-		echo ' /> ' . __( 'Show falling snow on my blog until January 4<sup>th</sup>.' );
+		$id = esc_attr( jetpack_holiday_snow_option_name() );
+		?>
+			<label for="<?php echo $id; ?>">
+				<input type="checkbox" name="<?php echo $id; ?>" id="<?php echo $id; ?>" value="letitsnow"<?php checked( get_option( jetpack_holiday_snow_option_name() ), 'letitsnow' ); ?> />
+				<span><?php _e( 'Show falling snow on my blog until January 4<sup>th</sup>.' ); ?></span>
+			</label>
+		<?php
 	}
 
 	public function holiday_snow_option_updated() {
