@@ -4163,6 +4163,12 @@ class Jetpack_Sync {
 			'author_email' => get_the_author_meta( 'email', $post_obj->post_author ),
 		);
 
+		if ( $fid = get_post_thumbnail_id( $id ) ) {
+			$feature = wp_get_attachment_image_src( $fid, 'large' );
+			if ( !empty( $feature[0] ) )
+				$post['extra']['featured_image'] = $feature[0];
+		}
+
 		$post['permalink'] = get_permalink( $post_obj->ID );
 		$post['shortlink'] = wp_get_shortlink( $post_obj->ID );
 		return $post;
