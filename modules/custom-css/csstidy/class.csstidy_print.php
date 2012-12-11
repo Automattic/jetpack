@@ -188,8 +188,10 @@ class csstidy_print {
 
 		if (!empty($this->import)) {
 			for ($i = 0, $size = count($this->import); $i < $size; $i++) {
-				if (substr($this->import[$i], 0, 4) === 'url(' && substr($this->import[$i], -1, 1) === ')') {
-					$this->import[$i] = '\'' . substr($this->import[$i], 4, -1) . '\'';
+				$import_components = explode(' ', $this->import[$i]);
+				if (substr($import_components[0], 0, 4) === 'url(' && substr($import_components[0], -1, 1) === ')') {
+					$import_components[0] = '\'' . trim(substr($import_components[0], 4, -1), "'\"") . '\'';
+					$this->import[$i] = implode(' ', $import_components);
 					$this->parser->log('Optimised @import : Removed "url("', 'Information');
 				}
 				$output .= $template[0] . '@import ' . $template[5] . $this->import[$i] . $template[6];
