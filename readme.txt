@@ -2,7 +2,7 @@
 Contributors: automattic, apeatling, beaulebens, hugobaeta, Joen, mdawaffe, andy, designsimply, hew, westi, eoigal, tmoorewp, matt, pento, cfinke, daniloercoli, chellycat, gibrown, jblz, jshreve, barry, alternatekev, azaozz, ethitter, johnjamesjacoby, lancewillett, martinremy, nickmomrik, stephdau, yoavf, matveb
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest
 Requires at least: 3.2
-Tested up to: 3.4.2
+Tested up to: 3.5
 Stable tag: 2.0.2
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
