@@ -257,14 +257,14 @@ class Jetpack_Photon {
 					}
 
 					// Remove the width and height arguments from the tag to prevent distortion
-					$new_tag = preg_replace( '#(width|height)=["|\']?[\d%]+["|\']?\s{1}#i', '', $new_tag );
+					$new_tag = preg_replace( '#(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
 
 					// If image is linked to an image (presumably itself, but who knows), pass link href to Photon sans arguments
 					if ( ! empty( $images[2][ $index ] ) && false !== strpos( $new_tag, $images[2][ $index ] ) && $this->validate_image_url( $images[2][ $index ] ) )
 						$new_tag = str_replace( $images[2][ $index ], jetpack_photon_url( $images[2][ $index ] ), $new_tag );
 
 					// Tag an image for dimension checking
-					$new_tag = preg_replace( '#/?>(</a>)?$#i', 'data-recalc-dims="1" />\1', $new_tag );
+					$new_tag = preg_replace( '#(\s?/)?>(</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
 
 					// Replace original tag with modified version
 					$content = str_replace( $tag, $new_tag, $content );
