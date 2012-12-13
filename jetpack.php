@@ -4443,7 +4443,9 @@ $conflicting_plugins = array(
 							'socialize/socialize.php',                                              // Socialize
 							'simple-facebook-connect/sfc.php',                                      // Simple Facebook Connect
 							'social-sharing-toolkit/social_sharing_toolkit.php',                    // Social Sharing Toolkit
-							'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',                  // WP Facebook Oper Graph protocol
+							'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',                  // WP Facebook Open Graph protocol
+							'opengraph/opengraph.php',                                              // Open Graph
+							'sharepress/sharepress.php',                                            // SharePress
 						);
 
 foreach ( $conflicting_plugins as $plugin ) {
