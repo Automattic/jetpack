@@ -90,11 +90,13 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 == Changelog ==
 
 = 2.0.3 =
-* Enhancement: Infinite Scroll: support VideoPress plugin.
+* Enhancement: Infinite Scroll: support [VideoPress](http://wordpress.org/extend/plugins/video/) plugin.
+* Enhancement: Photon: Apply to all images retrieved from the Media Library.
 * Enhancement: Photon: Retina image support.
-* Bug Fix: Photon: Detect custom-cropped images and use those with Photon, rather than trying to use the original.
 * Enhancement: Custom CSS: Refined editor interface.
 * Enhancement: Custom CSS: Support [Sass](http://sass-lang.com/) and [LESS](http://lesscss.org/) with built-in preprocessors.
+* Bug Fix: Infinite Scroll: Respect relative image dimensions.
+* Bug Fix: Photon: Detect custom-cropped images and use those with Photon, rather than trying to use the original.
 
 = 2.0.2 =
 * Bug Fix: Remove an erroneous PHP short open tag with the full tag to correct fatal errors under certain PHP configurations.
