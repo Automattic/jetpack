@@ -97,6 +97,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Custom CSS: Support [Sass](http://sass-lang.com/) and [LESS](http://lesscss.org/) with built-in preprocessors.
 * Bug Fix: Infinite Scroll: Respect relative image dimensions.
 * Bug Fix: Photon: Detect custom-cropped images and use those with Photon, rather than trying to use the original.
+* Bug Fix: Custom CSS: Fix for bug preventing @import from working with url()-style URLs.
 
 = 2.0.2 =
 * Bug Fix: Remove an erroneous PHP short open tag with the full tag to correct fatal errors under certain PHP configurations.
