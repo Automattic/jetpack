@@ -4439,6 +4439,11 @@ $conflicting_plugins = array(
 							'shareaholic/sexy-bookmarks.php',                                       // Shareaholic
 							'social-discussions/social-discussions.php',                            // Social Discussions
 							'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',	// NextScripts SNAP
+							'wordbooker/wordbooker.php',                                            // Wordbooker
+							'socialize/socialize.php',                                              // Socialize
+							'simple-facebook-connect/sfc.php',                                      // Simple Facebook Connect
+							'social-sharing-toolkit/social_sharing_toolkit.php',                    // Social Sharing Toolkit
+							'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',                  // WP Facebook Oper Graph protocol
 						);
 
 foreach ( $conflicting_plugins as $plugin ) {
