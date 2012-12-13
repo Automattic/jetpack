@@ -4426,8 +4426,27 @@ if ( in_array( 'publicize', Jetpack::get_active_modules() ) || in_array( 'shared
 
 $active_plugins = get_option( 'active_plugins', array() );
 
-if ( in_array( 'facebook/facebook.php', $active_plugins ) )
-        add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );
+$conflicting_plugins = array(
+							'facebook/facebook.php',                                                // Official Facebook plugin
+							'wordpress-seo/wp-seo.php',                                             // WordPress SEO by Yoast
+							'add-link-to-facebook/add-link-to-facebook.php',                        // Add Link to Facebook
+							'facebook-awd/AWD_facebook.php',                                        // Facebook AWD All in one
+							'header-footer/plugin.php',                                             // Header and Footer
+							'nextgen-facebook/nextgen-facebook.php',                                // NextGEN Facebook OG
+							'seo-facebook-comments/seofacebook.php',                                // SEO Facebook Comments
+							'seo-ultimate/seo-ultimate.php',                                        // SEO Ultimate
+							'sexybookmarks/sexy-bookmarks.php',                                     // Shareaholic
+							'shareaholic/sexy-bookmarks.php',                                       // Shareaholic
+							'social-discussions/social-discussions.php',                            // Social Discussions
+							'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',	// NextScripts SNAP
+						);
+
+foreach ( $conflicting_plugins as $plugin ) {
+	if ( in_array( $plugin, $active_plugins ) ) {
+		add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );
+		break;
+	}
+}
 
 if ( apply_filters( 'jetpack_enable_open_graph', false ) )
         require_once dirname( __FILE__ ) . '/functions.opengraph.php';
