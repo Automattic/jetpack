@@ -14,7 +14,7 @@ class Jetpack_Holiday_Snow_Settings {
 
 	public function register_fields() {
 		register_setting( 'general', jetpack_holiday_snow_option_name(), 'esc_attr' );
-		add_settings_field( jetpack_holiday_snow_option_name(), '<label for="' . esc_attr( jetpack_holiday_snow_option_name() ) . '">' . __( 'Snow' ) . '</label>' , array( &$this, 'blog_field_html' ) , 'general' );
+		add_settings_field( jetpack_holiday_snow_option_name(), '<label for="' . esc_attr( jetpack_holiday_snow_option_name() ) . '">' . __( 'Snow' , 'jetpack') . '</label>' , array( &$this, 'blog_field_html' ) , 'general' );
 		add_action( 'update_option_' . jetpack_holiday_snow_option_name(), array( &$this, 'holiday_snow_option_updated' ) );
 	}
 
@@ -23,7 +23,7 @@ class Jetpack_Holiday_Snow_Settings {
 		?>
 			<label for="<?php echo $id; ?>">
 				<input type="checkbox" name="<?php echo $id; ?>" id="<?php echo $id; ?>" value="letitsnow"<?php checked( get_option( jetpack_holiday_snow_option_name() ), 'letitsnow' ); ?> />
-				<span><?php _e( 'Show falling snow on my blog until January 4<sup>th</sup>.' ); ?></span>
+				<span><?php _e( 'Show falling snow on my blog until January 4<sup>th</sup>.' , 'jetpack'); ?></span>
 			</label>
 		<?php
 	}
