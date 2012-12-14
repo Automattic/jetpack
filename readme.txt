@@ -95,6 +95,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Photon: Retina image support.
 * Enhancement: Custom CSS: Refined editor interface.
 * Enhancement: Custom CSS: Support [Sass](http://sass-lang.com/) and [LESS](http://lesscss.org/) with built-in preprocessors.
+* Enhancement: Open Graph: Better checks for other plugins that may be loading Open Graph tags to prevent Jetpack from doubling meta tag output.
 * Bug Fix: Infinite Scroll: Respect relative image dimensions.
 * Bug Fix: Photon: Detect custom-cropped images and use those with Photon, rather than trying to use the original.
 * Bug Fix: Custom CSS: Fix for bug preventing @import from working with url()-style URLs.
