@@ -232,6 +232,8 @@ class Jetpack {
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
 
 		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
+
+		add_action( 'plugins_loaded', array( $this, 'check_open_graph' ), 999 );
 	}
 
 	function require_jetpack_authentication() {
@@ -386,6 +388,53 @@ class Jetpack {
 
 		// Load module-specific code that is needed even when a module isn't active. Loaded here because code contained therein may need actions such as setup_theme.
 		require_once( dirname( __FILE__ ) . '/modules/module-extras.php' );
+	}
+
+	/**
+	 * Check if Jetpack's Open Graph tags should be used.
+	 * If certain plugins are active, Jetpack's og tags are suppressed.
+	 *
+	 * @uses Jetpack::get_active_modules, add_filter, get_option, apply_filters
+	 * @action plugins_loaded
+	 * @return null
+	 */
+	public function check_open_graph() {
+		if ( in_array( 'publicize', Jetpack::get_active_modules() ) || in_array( 'sharedaddy', Jetpack::get_active_modules() ) )
+			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
+
+		$active_plugins = get_option( 'active_plugins', array() );
+
+		$conflicting_plugins = array(
+			'facebook/facebook.php',                                                // Official Facebook plugin
+			'wordpress-seo/wp-seo.php',                                             // WordPress SEO by Yoast
+			'add-link-to-facebook/add-link-to-facebook.php',                        // Add Link to Facebook
+			'facebook-awd/AWD_facebook.php',                                        // Facebook AWD All in one
+			'header-footer/plugin.php',                                             // Header and Footer
+			'nextgen-facebook/nextgen-facebook.php',                                // NextGEN Facebook OG
+			'seo-facebook-comments/seofacebook.php',                                // SEO Facebook Comments
+			'seo-ultimate/seo-ultimate.php',                                        // SEO Ultimate
+			'sexybookmarks/sexy-bookmarks.php',                                     // Shareaholic
+			'shareaholic/sexy-bookmarks.php',                                       // Shareaholic
+			'social-discussions/social-discussions.php',                            // Social Discussions
+			'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',	// NextScripts SNAP
+			'wordbooker/wordbooker.php',                                            // Wordbooker
+			'socialize/socialize.php',                                              // Socialize
+			'simple-facebook-connect/sfc.php',                                      // Simple Facebook Connect
+			'social-sharing-toolkit/social_sharing_toolkit.php',                    // Social Sharing Toolkit
+			'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',                  // WP Facebook Open Graph protocol
+			'opengraph/opengraph.php',                                              // Open Graph
+			'sharepress/sharepress.php',                                            // SharePress
+		);
+
+		foreach ( $conflicting_plugins as $plugin ) {
+			if ( in_array( $plugin, $active_plugins ) ) {
+				add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );
+				break;
+			}
+		}
+
+		if ( apply_filters( 'jetpack_enable_open_graph', false ) )
+	        require_once dirname( __FILE__ ) . '/functions.opengraph.php';
 	}
 
 /* Jetpack Options API */
@@ -4420,43 +4469,6 @@ require_once dirname( __FILE__ ) . '/class.jetpack-user-agent.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-post-images.php';
 require dirname( __FILE__ ) . '/functions.photon.php';
 require dirname( __FILE__ ) . '/functions.compat.php';
-
-if ( in_array( 'publicize', Jetpack::get_active_modules() ) || in_array( 'sharedaddy', Jetpack::get_active_modules() ) )
-        add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
-
-$active_plugins = get_option( 'active_plugins', array() );
-
-$conflicting_plugins = array(
-							'facebook/facebook.php',                                                // Official Facebook plugin
-							'wordpress-seo/wp-seo.php',                                             // WordPress SEO by Yoast
-							'add-link-to-facebook/add-link-to-facebook.php',                        // Add Link to Facebook
-							'facebook-awd/AWD_facebook.php',                                        // Facebook AWD All in one
-							'header-footer/plugin.php',                                             // Header and Footer
-							'nextgen-facebook/nextgen-facebook.php',                                // NextGEN Facebook OG
-							'seo-facebook-comments/seofacebook.php',                                // SEO Facebook Comments
-							'seo-ultimate/seo-ultimate.php',                                        // SEO Ultimate
-							'sexybookmarks/sexy-bookmarks.php',                                     // Shareaholic
-							'shareaholic/sexy-bookmarks.php',                                       // Shareaholic
-							'social-discussions/social-discussions.php',                            // Social Discussions
-							'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',	// NextScripts SNAP
-							'wordbooker/wordbooker.php',                                            // Wordbooker
-							'socialize/socialize.php',                                              // Socialize
-							'simple-facebook-connect/sfc.php',                                      // Simple Facebook Connect
-							'social-sharing-toolkit/social_sharing_toolkit.php',                    // Social Sharing Toolkit
-							'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',                  // WP Facebook Open Graph protocol
-							'opengraph/opengraph.php',                                              // Open Graph
-							'sharepress/sharepress.php',                                            // SharePress
-						);
-
-foreach ( $conflicting_plugins as $plugin ) {
-	if ( in_array( $plugin, $active_plugins ) ) {
-		add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );
-		break;
-	}
-}
-
-if ( apply_filters( 'jetpack_enable_open_graph', false ) )
-        require_once dirname( __FILE__ ) . '/functions.opengraph.php';
 
 class Jetpack_Error extends WP_Error {}
 
