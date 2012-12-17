@@ -2476,7 +2476,7 @@ p {
 		</div><?php
 	}
 
-	function sort_modules( $a, $b ) {
+	public static function sort_modules( $a, $b ) {
 		if ( $a['sort'] == $b['sort'] )
 			return 0;
 
@@ -2676,17 +2676,16 @@ p {
 	/**
 	 * Returns the requested Jetpack API URL
 	 *
-	 * @static
 	 * @return string
 	 */
-	function api_url( $relative_url ) {
+	public static function api_url( $relative_url ) {
 		return trailingslashit( JETPACK__API_BASE . $relative_url  ) . JETPACK__API_VERSION . '/';
 	}
 
 	/**
 	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
 	 */
-	function fix_url_for_bad_hosts( $url, &$args ) {
+	public static function fix_url_for_bad_hosts( $url, &$args ) {
 		if ( 0 !== strpos( $url, 'https://' ) ) {
 			return $url;
 		}
@@ -2713,19 +2712,17 @@ p {
 	/**
 	 * Returns the Jetpack XML-RPC API
 	 *
-	 * @static
 	 * @return string
 	 */
-	function xmlrpc_api_url() {
+	public static function xmlrpc_api_url() {
 		$base = preg_replace( '#(https?://[^?/]+)(/?.*)?$#', '\\1', JETPACK__API_BASE );
 		return untrailingslashit( $base ) . '/xmlrpc.php';
 	}
 
 	/**
-	 * @static
 	 * @return bool|WP_Error
 	 */
-	function register() {
+	public static function register() {
 		Jetpack::update_option( 'register', wp_generate_password( 32, false ) . ':' . wp_generate_password( 32, false ) . ':' . ( time() + 600 ) );
 
 		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', Jetpack::get_option( 'register' ) );
