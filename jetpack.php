@@ -2990,7 +2990,7 @@ p {
 	 *
 	 * @static
 	 */
-	function state( $key = null, $value = null, $restate = false ) {
+	public static function state( $key = null, $value = null, $restate = false ) {
 		static $state = array();
 		static $path, $domain;
 		if ( !isset( $path ) ) {
