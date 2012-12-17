@@ -311,7 +311,7 @@ class Jetpack {
 			if ( !$master_user_id )
 				return; // this shouldn't happen
 
-			$this->xmlrpc_async_call( 'jetpack.updateRole', $user_id, $signed_role );
+			Jetpack::xmlrpc_async_call( 'jetpack.updateRole', $user_id, $signed_role );
 			//@todo retry on failure
 
 			//try to choose a new master if we're demoting the current one
@@ -3075,7 +3075,7 @@ p {
 	/**
 	 * Helper method for multicall XMLRPC.
 	 */
-	function xmlrpc_async_call() {
+	public static function xmlrpc_async_call() {
 		global $blog_id;
 		static $clients = array();
 
