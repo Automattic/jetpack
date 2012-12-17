@@ -515,7 +515,7 @@ class Jetpack {
 	 * @param string $name  Option name
 	 * @param mixed  $value Option value
 	 */
-	function update_option( $name, $value ) {
+	public static function update_option( $name, $value ) {
 		if ( in_array( $name, Jetpack::get_option_names( 'non_compact' ) ) ) {
 			return update_option( "jetpack_$name", $value );
 		} else if ( !in_array( $name, Jetpack::get_option_names() ) ) {
