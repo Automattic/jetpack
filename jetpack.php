@@ -3118,7 +3118,7 @@ p {
 		}
 	}
 
-	function staticize_subdomain( $url ) {
+	public static function staticize_subdomain( $url ) {
 		$host = parse_url( $url, PHP_URL_HOST );
 		if ( !preg_match( '/.?(?:wordpress|wp)\.com$/', $host ) ) {
 			return $url;
