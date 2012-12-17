@@ -774,14 +774,14 @@ class Jetpack {
 	/**
 	 * Extract a module's slug from its full path.
 	 */
-	function get_module_slug( $file ) {
+	public static function get_module_slug( $file ) {
 		return str_replace( '.php', '', basename( $file ) );
 	}
 
 	/**
 	 * Generate a module's path from its slug.
 	 */
-	function get_module_path( $slug ) {
+	public static function get_module_path( $slug ) {
 		return dirname( __FILE__ ) . "/modules/$slug.php";
 	}
 
@@ -790,7 +790,7 @@ class Jetpack {
 	 * plugin headers to avoid them being identified as standalone
 	 * plugins on the WordPress plugins page.
 	 */
-	function get_module( $module ) {
+	public static function get_module( $module ) {
 		$headers = array(
 			'name'        => 'Module Name',
 			'description' => 'Module Description',
