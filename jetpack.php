@@ -280,7 +280,7 @@ class Jetpack {
 	/**
 	 * Is a given user (or the current user if none is specified) linked to a WordPress.com user?
 	 */
-	function is_user_connected( $user_id = false ) {
+	public static function is_user_connected( $user_id = false ) {
 		$user_id = false === $user_id ? get_current_user_id() : absint( $user_id );
 		if ( !$user_id ) {
 			return false;
@@ -297,7 +297,7 @@ class Jetpack {
 	* Synchronize connected user role changes
 	*/
 	function user_role_change( $user_id ) {
-		if ( Jetpack::is_active() && $this->is_user_connected( $user_id ) ) {
+		if ( Jetpack::is_active() && Jetpack::is_user_connected( $user_id ) ) {
 
 			$current_user_id = get_current_user_id();
 			wp_set_current_user( $user_id );
@@ -326,7 +326,7 @@ class Jetpack {
 				$new_master = false;
 				foreach ( $query->results as $result ) {
 					$uid = absint( $result->id );
-					if ( $uid && $this->is_user_connected( $uid ) ) {
+					if ( $uid && Jetpack::is_user_connected( $uid ) ) {
 						$new_master = $uid;
 						break;
 					}
