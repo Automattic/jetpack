@@ -343,7 +343,7 @@ class Jetpack {
 	/**
 	 * Loads the currently active modules.
 	 */
-	function load_modules() {
+	public static function load_modules() {
 		if ( !Jetpack::is_active() ) {
 			return;
 		}
