@@ -1188,9 +1188,8 @@ p {
 
 	/**
 	 * Attempts Jetpack registration.  If it fail, a state flag is set: @see ::admin_page_load()
-	 * @static
 	 */
-	function try_registration() {
+	public static function try_registration() {
 		$result = Jetpack::register();
 
 		// If there was an error with registration and the site was not registered, record this so we can show a message.
@@ -1655,7 +1654,7 @@ p {
 		<?php
 	}
 
-	function jetpack_comment_notice() {
+	public static function jetpack_comment_notice() {
 		if ( in_array( 'comments', Jetpack::get_active_modules() ) ) {
 			return '';
 		}
