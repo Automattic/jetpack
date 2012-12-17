@@ -2640,7 +2640,7 @@ p {
 			exit;
 		}
 
-		$this->load_xml_rpc_client();
+		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => JETPACK_MASTER_USER,
 		) );
@@ -2658,7 +2658,7 @@ p {
 			exit;
 		}
 
-		$this->load_xml_rpc_client();
+		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => JETPACK_MASTER_USER,
 		) );
@@ -2813,7 +2813,7 @@ p {
 	/**
 	 * Loads the Jetpack XML-RPC client
 	 */
-	function load_xml_rpc_client() {
+	public static function load_xml_rpc_client() {
 		require_once ABSPATH . WPINC . '/class-IXR.php';
 		require_once dirname( __FILE__ ) . '/class.jetpack-ixr-client.php';
 	}
