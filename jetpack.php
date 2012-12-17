@@ -1137,7 +1137,7 @@ p {
 	 * Forgets all connection details and tells the Jetpack servers to do the same.
 	 * @static
 	 */
-	function disconnect( $update_activated_state = true ) {
+	public static function disconnect( $update_activated_state = true ) {
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
 		Jetpack::clean_nonces( true );
 
@@ -1787,7 +1787,7 @@ p {
 				exit;
 			case 'disconnect' :
 				check_admin_referer( 'jetpack-disconnect' );
-				$this->disconnect();
+				Jetapck::disconnect();
 				wp_safe_redirect( Jetpack::admin_url() );
 				exit;
 			case 'deactivate' :
