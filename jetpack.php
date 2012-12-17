@@ -1092,7 +1092,7 @@ p {
 	 * Attached to activate_{ plugin_basename( __FILES__ ) } by register_activation_hook()
 	 * @static
 	 */
-	function plugin_activation( $network_wide ) {
+	public static function plugin_activation( $network_wide ) {
 		Jetpack::update_option( 'activated', 1 );
 
 		if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
@@ -1109,7 +1109,7 @@ p {
 	 * Sets the internal version number and activation state.
 	 * @static
 	 */
-	function plugin_initialize() {
+	public static function plugin_initialize() {
 		if ( !Jetpack::get_option( 'activated' ) ) {
 			Jetpack::update_option( 'activated', 2 );
 		}
@@ -1128,7 +1128,7 @@ p {
 	 * Removes all connection options
 	 * @static
 	 */
-	function plugin_deactivation( $network_wide ) {
+	public static function plugin_deactivation( $network_wide ) {
 		Jetpack::disconnect( false );
 	}
 
