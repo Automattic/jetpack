@@ -600,7 +600,7 @@ class Jetpack {
 	 * @param string $token
 	 * return bool
 	 */
-	function update_user_token( $user_id, $token, $is_master_user ) {
+	public static function update_user_token( $user_id, $token, $is_master_user ) {
 		// not designed for concurrent updates
 		$user_tokens = Jetpack::get_option( 'user_tokens' );
 		if ( ! is_array( $user_tokens ) )
@@ -622,7 +622,7 @@ class Jetpack {
 	 * @param string $absolute_path The absolute path of the directory to search.
 	 * @return array Array of absolute paths to the PHP files.
 	 */
-	function glob_php( $absolute_path ) {
+	public static function glob_php( $absolute_path ) {
 		$absolute_path = untrailingslashit( $absolute_path );
 		$files = array();
 		if ( !$dir = @opendir( $absolute_path ) ) {
@@ -648,7 +648,7 @@ class Jetpack {
 		return $files;
 	}
 
-	function activate_new_modules() {
+	public static function activate_new_modules() {
 		if ( ! Jetpack::is_active() ) {
 			return;
 		}
@@ -700,7 +700,7 @@ class Jetpack {
 	 * List available Jetpack modules. Simply lists .php files in /modules/.
 	 * Make sure to tuck away module "library" files in a sub-directory.
 	 */
-	function get_available_modules( $min_version = false, $max_version = false ) {
+	public static function get_available_modules( $min_version = false, $max_version = false ) {
 		static $modules = null;
 
 		if ( !isset( $modules ) ) {
@@ -740,7 +740,7 @@ class Jetpack {
 	/**
 	 * Default modules loaded on activation.
 	 */
-	function get_default_modules( $min_version = false, $max_version = false ) {
+	public static function get_default_modules( $min_version = false, $max_version = false ) {
 		$return = array();
 
 		foreach ( Jetpack::get_available_modules( $min_version, $max_version ) as $module ) {
@@ -833,7 +833,7 @@ class Jetpack {
 		return array_unique( $active );
 	}
 
-	function is_module( $module ) {
+	public static function is_module( $module ) {
 		return !empty( $module ) && !validate_file( $module, Jetpack::get_available_modules() );
 	}
 
@@ -844,7 +844,7 @@ class Jetpack {
 	 *
 	 * @static
 	 */
-	function catch_errors( $catch ) {
+	public static function catch_errors( $catch ) {
 		static $display_errors, $error_reporting;
 
 		if ( $catch ) {
@@ -861,11 +861,11 @@ class Jetpack {
 	/**
 	 * Saves any generated PHP errors in ::state( 'php_errors', {errors} )
 	 */
-	function catch_errors_on_shutdown() {
+	public static function catch_errors_on_shutdown() {
 		Jetpack::state( 'php_errors', ob_get_clean() );
 	}
 
-	function activate_default_modules( $min_version = false, $max_version = false, $other_modules = array() ) {
+	public static function activate_default_modules( $min_version = false, $max_version = false, $other_modules = array() ) {
 		$jetpack = Jetpack::init();
 
 		$modules = Jetpack::get_default_modules( $min_version, $max_version );
@@ -952,7 +952,7 @@ class Jetpack {
 		do_action( 'jetpack_activate_default_modules', $min_version, $max_version, $other_modules );
 	}
 
-	function activate_module( $module ) {
+	public static function activate_module( $module ) {
 		$jetpack = Jetpack::init();
 
 		if ( !Jetpack::is_active() )
@@ -1008,7 +1008,7 @@ class Jetpack {
 		$this->sync->sync_all_module_options( $module );
 	}
 
-	function deactivate_module( $module ) {
+	public static function deactivate_module( $module ) {
 		$active = Jetpack::get_active_modules();
 		$new = array();
 		foreach ( $active as $check ) {
@@ -1020,27 +1020,27 @@ class Jetpack {
 		return Jetpack::update_option( 'active_modules', array_unique( $new ) );
 	}
 
-	function enable_module_configurable( $module ) {
+	public static function enable_module_configurable( $module ) {
 		$module = Jetpack::get_module_slug( $module );
 		add_filter( 'jetpack_module_configurable_' . $module, '__return_true' );
 	}
 
-	function module_configuration_url( $module ) {
+	public static function module_configuration_url( $module ) {
 		$module = Jetpack::get_module_slug( $module );
 		return Jetpack::admin_url( array( 'configure' => $module ) );
 	}
 
-	function module_configuration_load( $module, $method ) {
+	public static function module_configuration_load( $module, $method ) {
 		$module = Jetpack::get_module_slug( $module );
 		add_action( 'jetpack_module_configuration_load_' . $module, $method );
 	}
 
-	function module_configuration_head( $module, $method ) {
+	public static function module_configuration_head( $module, $method ) {
 		$module = Jetpack::get_module_slug( $module );
 		add_action( 'jetpack_module_configuration_head_' . $module, $method );
 	}
 
-	function module_configuration_screen( $module, $method ) {
+	public static function module_configuration_screen( $module, $method ) {
 		$module = Jetpack::get_module_slug( $module );
 		add_action( 'jetpack_module_configuration_screen_' . $module, $method );
 	}
