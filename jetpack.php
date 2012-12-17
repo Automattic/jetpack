@@ -212,7 +212,7 @@ class Jetpack {
 			}
  		}
 
-		add_action( 'jetpack_clean_nonces', array( $this, 'clean_nonces' ) );
+		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
 		if ( !wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
 		}
@@ -2953,7 +2953,7 @@ p {
 		return $options;
 	}
 
-	function clean_nonces( $all = false ) {
+	public static function clean_nonces( $all = false ) {
 		global $wpdb;
 
 		$sql = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
