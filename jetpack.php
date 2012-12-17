@@ -1047,7 +1047,7 @@ class Jetpack {
 
 /* Installation */
 
-	function bail_on_activation( $message, $deactivate = true ) {
+	public static function bail_on_activation( $message, $deactivate = true ) {
 ?>
 <!doctype html>
 <html>
@@ -1308,7 +1308,7 @@ p {
 
 		foreach ( $this->plugins_to_deactivate as $module => $deactivate_me ) {
 			if ( "plugin-activation-error_{$deactivate_me[0]}" == $action ) {
-				$this->bail_on_activation( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), $deactivate_me[1] ), false );
+				Jetpack::bail_on_activation( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), $deactivate_me[1] ), false );
 			}
 		}
 	}
