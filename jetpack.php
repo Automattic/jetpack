@@ -494,7 +494,7 @@ class Jetpack {
 	* Does some extra verification so urls (such as those to public-api, register, etc) cant just be crafted
 	* $name must be a registered option name.
 	*/
-	function create_nonce( $name ) {
+	public static function create_nonce( $name ) {
 		$secret = wp_generate_password( 32, false ) . ':' . wp_generate_password( 32, false ) . ':' . ( time() + 600 );
 
 		Jetpack::update_option( $name, $secret );
