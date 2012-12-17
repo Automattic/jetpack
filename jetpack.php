@@ -2983,8 +2983,6 @@ p {
 	 * @param string $key
 	 * @param string $value
 	 * @param bool $restate private
-	 *
-	 * @static
 	 */
 	public static function state( $key = null, $value = null, $restate = false ) {
 		static $state = array();
@@ -3034,14 +3032,11 @@ p {
 		}
 	}
 
-	/**
-	 * @static
-	 */
-	function restate() {
+	public static function restate() {
 		Jetpack::state( null, null, true );
 	}
 
-	static function check_privacy( $file ) {
+	public static function check_privacy( $file ) {
 		static $is_site_publicly_accessible = null;
 
 		if ( is_null( $is_site_publicly_accessible ) ) {
