@@ -538,7 +538,7 @@ class Jetpack {
  	 *
 	 * @param array $array array( option name => option value, ... )
 	 */
-	function update_options( $array ) {
+	public static function update_options( $array ) {
 		$names = array_keys( $array );
 
 		foreach ( array_diff( $names, Jetpack::get_option_names(), Jetpack::get_option_names( 'non_compact' ) ) as $unknown_name ) {
@@ -565,7 +565,7 @@ class Jetpack {
  	 *
 	 * @param string|array $names
 	 */
-	function delete_option( $names ) {
+	public static function delete_option( $names ) {
 		$names = (array) $names;
 
 		foreach ( array_diff( $names, Jetpack::get_option_names(), Jetpack::get_option_names( 'non_compact' ) ) as $unknown_name ) {
