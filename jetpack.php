@@ -439,7 +439,7 @@ class Jetpack {
 
 /* Jetpack Options API */
 
-	function get_option_names( $type = 'compact' ) {
+	public static function get_option_names( $type = 'compact' ) {
 		switch ( $type ) {
 		case 'non-compact' :
 		case 'non_compact' :
@@ -473,7 +473,7 @@ class Jetpack {
 	 * @param string $name    Option name
 	 * @param mixed  $default (optional)
 	 */
-	function get_option( $name, $default = false ) {
+	public static function get_option( $name, $default = false ) {
 		if ( in_array( $name, Jetpack::get_option_names( 'non_compact' ) ) ) {
 			return get_option( "jetpack_$name" );
 		} else if ( !in_array( $name, Jetpack::get_option_names() ) ) {
@@ -2952,7 +2952,7 @@ p {
 		$options['jetpack_client_id'] = array(
 				'desc'          => __( 'The Client ID/WP.com Blog ID of this site' , 'jetpack'),
 				'readonly'      => true,
-				'value'         => $this->get_option( 'id' ),
+				'value'         => Jetpack::get_option( 'id' ),
 		);
 		return $options;
 	}
