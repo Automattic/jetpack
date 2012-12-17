@@ -821,7 +821,7 @@ class Jetpack {
 	/**
 	 * Get a list of activated modules as an array of module slugs.
 	 */
-	function get_active_modules() {
+	public static function get_active_modules() {
 		$active = Jetpack::get_option( 'active_modules' );
 		if ( !is_array( $active ) )
 			$active = array();
@@ -2461,7 +2461,7 @@ p {
 	}
 
 	function admin_screen_configure_module( $module_id ) {
-		if ( !in_array( $module_id, $this->get_active_modules() ) || !current_user_can( 'manage_options' ) )
+		if ( !in_array( $module_id, Jetpack::get_active_modules() ) || !current_user_can( 'manage_options' ) )
 			return false; ?>
 
 		<div id="jp-settings-screen" style="position: relative">
