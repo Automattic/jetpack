@@ -2236,7 +2236,7 @@ p {
 		return $raw ? $url : esc_url( $url );
 	}
 
-	function admin_url( $args = null ) {
+	public static function admin_url( $args = null ) {
 		$url = admin_url( 'admin.php?page=jetpack' );
 		if ( is_array( $args ) )
 			$url = add_query_arg( $args, $url );
