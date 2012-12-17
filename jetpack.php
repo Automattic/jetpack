@@ -190,7 +190,7 @@ class Jetpack {
 
 			$this->require_jetpack_authentication();
 
-			if ( $this->is_active() ) {
+			if ( Jetpack::is_active() ) {
 				// Hack to preserve $HTTP_RAW_POST_DATA
 				add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
@@ -207,7 +207,7 @@ class Jetpack {
 			$this->require_jetpack_authentication();
 			$this->add_remote_request_handlers();
 		} else {
-			if ( $this->is_active() ) {
+			if ( Jetpack::is_active() ) {
 				add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
 			}
  		}
@@ -241,7 +241,7 @@ class Jetpack {
 		$_COOKIE = array();
 		remove_all_filters( 'authenticate' );
 
-		if ( $this->is_active() ) {
+		if ( Jetpack::is_active() ) {
 			// Allow Jetpack authentication
 			add_filter( 'authenticate', array( $this, 'authenticate_jetpack' ), 10, 3 );
 		}
@@ -273,7 +273,7 @@ class Jetpack {
 	/**
 	 * Is Jetpack active?
 	 */
-	function is_active() {
+	public static function is_active() {
 		return (bool) Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 	}
 
@@ -297,7 +297,7 @@ class Jetpack {
 	* Synchronize connected user role changes
 	*/
 	function user_role_change( $user_id ) {
-		if ( $this->is_active() && $this->is_user_connected( $user_id ) ) {
+		if ( Jetpack::is_active() && $this->is_user_connected( $user_id ) ) {
 
 			$current_user_id = get_current_user_id();
 			wp_set_current_user( $user_id );
@@ -649,7 +649,7 @@ class Jetpack {
 	}
 
 	function activate_new_modules() {
-		if ( !$this->is_active() ) {
+		if ( ! Jetpack::is_active() ) {
 			return;
 		}
 
@@ -1326,7 +1326,7 @@ p {
 		&&
 			( $new_modules_count = count( $new_modules ) )
 		&&
-			$this->is_active()
+			Jetpack::is_active()
 		) {
 			$new_modules_count_i18n = number_format_i18n( $new_modules_count );
 			$span_title = esc_attr( sprintf( _n( 'One New Jetpack Module', '%s New Jetpack Modules', $new_modules_count, 'jetpack' ), $new_modules_count_i18n ) );
