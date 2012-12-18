@@ -1136,6 +1136,11 @@ class Share_Pinterest extends Sharing_Source {
 		if ( function_exists('has_post_thumbnail') && has_post_thumbnail() ) {
 			$thumb_id = get_post_thumbnail_id();
 			$thumb = wp_get_attachment_image_src( $thumb_id );
+
+			// This shouldn't be necessary, since has_post_thumbnail() is true,
+			// but... see http://wordpress.org/support/topic/jetpack-youtube-embeds
+			if ( ! $thumb ) return '';
+
 			$image = remove_query_arg( array('w', 'h'), $thumb[0] ); 
 		} else if ( preg_match_all('/<img (.+?)>/', $content, $matches) ) {
 			foreach ( $matches[1] as $attrs ) {
