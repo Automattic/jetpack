@@ -232,7 +232,7 @@ class Publicize_Util {
 			bump_stats_extras( 'publicize_url', $bin );
 	}
 
-	function build_sprintf( $args ) {
+	public static function build_sprintf( $args ) {
 		$search = array();
 		$replace = array();
 		foreach ( $args as $k => $arg ) {
