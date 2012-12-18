@@ -151,6 +151,8 @@ class Jetpack_Photon {
 						$height = (int) $image_sizes[ $size ]['height'];
 						$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
 					}
+				} else {
+					unset( $size );
 				}
 
 				// WP Attachment ID, if uploaded to this site
@@ -185,6 +187,7 @@ class Jetpack_Photon {
 								}
 							}
 						} else {
+							unset( $attachment_id );
 							unset( $attachment );
 						}
 					}
