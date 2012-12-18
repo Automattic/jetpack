@@ -4,16 +4,21 @@
 	 */
 	var restore_dims = function() {
 		$( 'img[data-recalc-dims]' ).each( function() {
-			var width = this.width,
-				height = this.height;
+			if ( this.complete ) {
+				var width = this.width,
+					height = this.height;
 
-			if ( width && height ) {
-				$( this ).attr( {
-					width: width,
-					height: height
-				} );
+				if ( width && height ) {
+					$( this ).attr( {
+						width: width,
+						height: height
+					} );
 
-				reset_for_retina( this );
+					reset_for_retina( this );
+				}
+			}
+			else {
+				$( this ).load( arguments.callee );
 			}
 		} );
 	},
