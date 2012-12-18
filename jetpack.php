@@ -1786,7 +1786,7 @@ p {
 				exit;
 			case 'disconnect' :
 				check_admin_referer( 'jetpack-disconnect' );
-				Jetapck::disconnect();
+				Jetpack::disconnect();
 				wp_safe_redirect( Jetpack::admin_url() );
 				exit;
 			case 'deactivate' :
