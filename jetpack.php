@@ -3274,10 +3274,9 @@ class Jetpack_Client {
 	/**
 	 * Makes an authorized remote request using Jetpack_Signature
 	 *
-	 * @static
 	 * @return array|WP_Error WP HTTP response on success
 	 */
-	function remote_request( $args, $body = null ) {
+	public static function remote_request( $args, $body = null ) {
 		$defaults = array(
 			'url' => '',
 			'user_id' => 0,
@@ -3392,10 +3391,9 @@ class Jetpack_Client {
 	 * @todo: Better fallbacks (bundled certs?), feedback, UI, ....
 	 * @see Jetpack::fix_url_for_bad_hosts()
 	 *
-	 * @static
 	 * @return array|WP_Error WP HTTP response on success
 	 */
-	function _wp_remote_request( $url, $args, $set_fallback = false ) {
+	public static function _wp_remote_request( $url, $args, $set_fallback = false ) {
 		$fallback = Jetpack::get_option( 'fallback_no_verify_ssl_certs' );
 		if ( false === $fallback ) {
 			Jetpack::update_option( 'fallback_no_verify_ssl_certs', 0 );
@@ -3454,7 +3452,7 @@ class Jetpack_Client {
 		return $response;
 	}
 
-	function set_time_diff( &$response, $force_set = false ) {
+	public static function set_time_diff( &$response, $force_set = false ) {
 		$code = wp_remote_retrieve_response_code( $response );
 
 		// Only trust the Date header on some responses
@@ -3487,10 +3485,9 @@ class Jetpack_Data {
 	/**
 	 * Gets locally stored token
 	 *
-	 * @static
 	 * @return object|false
 	 */
-	function get_access_token( $user_id = false ) {
+	public static function get_access_token( $user_id = false ) {
 		if ( $user_id ) {
 			if ( !$tokens = Jetpack::get_option( 'user_tokens' ) ) {
 				return false;
@@ -3636,7 +3633,7 @@ class Jetpack_Client_Server {
 		exit;
 	}
 
-	function deactivate_plugin( $probable_file, $probable_title ) {
+	public static function deactivate_plugin( $probable_file, $probable_title ) {
 		if ( is_plugin_active( $probable_file ) ) {
 			deactivate_plugins( $probable_file );
 			return 1;
