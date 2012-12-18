@@ -94,7 +94,7 @@ class Jetpack_Photon {
 	 * @return string
 	 */
 	public function filter_the_content( $content ) {
-		if ( preg_match_all( '#(<a.+?href=["|\'](.+?)["|\'].+?>\s*)?(<img.+?src=["|\'](.+?)["|\'].+?/?>){1}(\s*</a>)?#i', $content, $images ) ) {
+		if ( preg_match_all( '#(<a.+?href=["|\'](.+?)["|\'].*?>\s*)?(<img.+?src=["|\'](.+?)["|\'].*?/?>){1}(\s*</a>)?#i', $content, $images ) ) {
 			global $content_width;
 
 			$image_sizes = $this->image_sizes();
