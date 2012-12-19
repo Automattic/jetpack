@@ -27,8 +27,13 @@ function jetpack_og_tags() {
 		$site_type = get_option( 'open_graph_protocol_site_type' );
 		$tags['og:type'] = ! empty( $site_type ) ? $site_type : 'blog';
 		$tags['og:title'] = get_bloginfo( 'name' );
-		$tags['og:url'] = is_home() ? get_permalink( get_option( 'page_for_posts' ) ) : home_url( '/' );
 		$tags['og:description'] = get_bloginfo( 'description' );
+
+		$front_page_id = get_option( 'page_for_posts' );
+		if ( $front_page_id && is_home() )
+			$tags['og:url'] = get_permalink( $front_page_id );
+		else
+			$tags['og:url'] = home_url( '/' );
 
 		// Associate a blog's root path with one or more Facebook accounts
 		$facebook_admins = get_option( 'facebook_admins' );
