@@ -469,7 +469,7 @@ class Jetpack_Custom_CSS {
 			$href = add_query_arg( 'csspreview', 'true', $href );
 
 		?>
-		<link rel="stylesheet" type="text/css" href="<?php echo esc_url( $href ); ?>" />
+		<link rel="stylesheet" id="custom-css-css" type="text/css" href="<?php echo esc_url( $href ); ?>" />
 		<?php
 	}
 
@@ -803,13 +803,13 @@ class Jetpack_Custom_CSS {
 
 					?>
 					<div class="misc-pub-section">
-						<label><?php esc_html_e( 'Preprocessor:' , 'jetpack'); ?></label>
+						<label><?php esc_html_e( 'Preprocessor:', 'jetpack' ); ?></label>
 						<span id="preprocessor-display"><?php echo esc_html( $selected_preprocessor ? $selected_preprocessor['name'] : __( 'None', 'jetpack' ) ); ?></span>
 						<a class="edit-preprocessor hide-if-no-js" href="#preprocessor"><?php echo esc_html_e( 'Edit', 'jetpack' ); ?></a>
 						<div id="preprocessor-select" class="hide-if-js">
 							<input type="hidden" name="custom_css_preprocessor" id="custom_css_preprocessor" value="<?php echo esc_attr( $selected_preprocessor_key ); ?>" />
 							<select id="preprocessor_choices">
-								<option value=""><?php esc_html_e( 'None' , 'jetpack'); ?></option>
+								<option value=""><?php esc_html_e( 'None', 'jetpack' ); ?></option>
 								<?php
 
 								foreach ( $preprocessors as $preprocessor_key => $preprocessor ) {
@@ -833,7 +833,7 @@ class Jetpack_Custom_CSS {
 
 				?>
 				<div class="misc-pub-section">
-					<label><?php esc_html_e( 'Mode:' , 'jetpack'); ?></label>
+					<label><?php esc_html_e( 'Mode:', 'jetpack' ); ?></label>
 					<span id="css-mode-display"><?php echo esc_html( $add_css ? __( 'Add-on', 'jetpack' ) : __( 'Replacement', 'jetpack' ) ); ?></span>
 					<a class="edit-css-mode hide-if-no-js" href="#css-mode"><?php echo esc_html_e( 'Edit', 'jetpack' ); ?></a>
 					<div id="css-mode-select" class="hide-if-js">
