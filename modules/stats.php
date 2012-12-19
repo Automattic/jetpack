@@ -376,7 +376,7 @@ function stats_reports_page() {
 		'data' => 'data',
 		'blog_subscribers' => 'int',
 		'comment_subscribers' => null,
-		'type' => array( 'email', 'pending' ),
+		'type' => array( 'wpcom', 'email', 'pending' ),
 		'pagenum' => 'int',
 	);
 	foreach ( $args as $var => $vals ) {
