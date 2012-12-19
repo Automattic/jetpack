@@ -28,6 +28,9 @@ class The_Neverending_Home_Page {
 		add_action( 'the_post',                       array( $this, 'preserve_more_tag' ) );
 		add_action( 'get_footer',                     array( $this, 'footer' ) );
 
+		// Plugin compatibility
+		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'filter_grunion_redirect_url' ) );
+
 		// Parse IS settings from theme
 		self::get_settings();
 	}
@@ -856,6 +859,31 @@ class The_Neverending_Home_Page {
 			</div>
 		</div><!-- #infinite-footer -->
 		<?php
+	}
+
+	/**
+	 * Ensure that IS doesn't interfere with Grunion by stripping IS query arguments from the Grunion redirect URL.
+	 * When arguments are present, Grunion redirects to the IS AJAX endpoint.
+	 *
+	 * @param string $url
+	 * @uses remove_query_arg
+	 * @filter grunion_contact_form_redirect_url
+	 * @return string
+	 */
+	public function filter_grunion_redirect_url( $url ) {
+		// Remove IS query args, if present
+		if ( false !== strpos( $url, 'infinity=scrolling' ) ) {
+			$url = remove_query_arg( array(
+				'infinity',
+				'action',
+				'page',
+				'order',
+				'scripts',
+				'styles'
+			), $url );
+		}
+
+		return $url;
 	}
 };
 
