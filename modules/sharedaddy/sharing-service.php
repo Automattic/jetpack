@@ -462,6 +462,13 @@ function sharing_display( $text = '' ) {
 		return $text;
 	}
 
+	// check whether we are viewing the front page and whether the front page option is checked
+	$options = get_option( 'sharing-options' );
+	$display_options = $options['global']['show'];
+
+	if ( is_front_page() && ! in_array( 'index', $display_options ) )
+		return $text;
+
 	if ( is_attachment() && in_array( 'the_excerpt', (array) $wp_current_filter ) ) {
 		// Many themes run the_excerpt() conditionally on an attachment page, then run the_content().
 		// We only want to output the sharing buttons once.  Let's stick with the_content().
