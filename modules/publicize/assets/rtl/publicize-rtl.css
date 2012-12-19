@@ -1,4 +1,4 @@
-/* This file was automatically generated on Oct 05 2012 14:17:24 */
+/* This file was automatically generated on Dec 18 2012 19:58:18 */
 
 div#publicize-services-block {
 	display: inline-block;
@@ -19,12 +19,11 @@ span.pub-logos {
 	vertical-align: top;
 }
 
-span#facebook { background: url( ../facebook.png ) 50% 25px no-repeat; }
-span#twitter { background: url( ../twitter.png?1 ) 50% 25px no-repeat; }
-span#yahoo { background: url( ../yahoo.png ) 50% 25px no-repeat; }
-span#pb-ms { background: url( ../msn.png ) 50% 25px no-repeat; }
-span#linkedin { background: url( ../linkedin.png ) 50% 25px no-repeat; }
-span#tumblr { background: url( ../tumblr.png ) 50% 25px no-repeat; }
+span#facebook { background: url( ../facebook-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
+span#twitter { background: url( ../twitter-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
+span#yahoo { background: url( ../yahoo-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
+span#linkedin { background: url( ../linkedin-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
+span#tumblr { background: url( ../tumblr-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
 
 a.publicize-profile-link, a.publicize-profile-link:visited {
 	text-decoration: none;
