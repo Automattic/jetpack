@@ -713,7 +713,7 @@ add_action( 'jetpack_learn_more_button_post-by-email', 'jetpack_post_by_email_mo
 function jetpack_photon_more_info() { ?>
 	<h4><?php esc_html_e( 'Photon' , 'jetpack' ); ?></h4>
 
-	<p><?php esc_html_e( "Give your site a boost by loading images in post and posts' featured images from the WordPress.com content delivery network. We cache your images and serve them from our super-fast network, reducing the burden on your web host with the click of a button.", 'jetpack' ); ?></p>
+	<p><?php esc_html_e( "Give your site a boost by loading images in posts from the WordPress.com content delivery network. We cache your images and serve them from our super-fast network, reducing the burden on your Web host with the click of a button.", 'jetpack' ); ?></p>
 <?php
 }
 add_action( 'jetpack_module_more_info_photon', 'jetpack_photon_more_info' );
