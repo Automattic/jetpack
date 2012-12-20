@@ -119,7 +119,7 @@ class Jetpack_Tiled_Gallery {
 
 		$output = $this->generate_carousel_container();
 		foreach ( $grouper->grouped_images as $row ) {
-			$output .= '<div class="gallery-row" style="' . esc_attr( 'height: ' . ( $row->height - 4 ) . 'px;' ) . '">';
+			$output .= '<div class="gallery-row" style="' . esc_attr( 'width: ' . $row->width . 'px; height: ' . ( $row->height - 4 ) . 'px;' ) . '">';
 			foreach( $row->groups as $group ) {
 				$count = count( $group->images );
 				$output .= '<div class="gallery-group images-' . esc_attr( $count ) . '" style="' . esc_attr( 'width: ' . $group->width . 'px; height: ' . $group->height . 'px;' ) . '">';
@@ -211,7 +211,7 @@ class Jetpack_Tiled_Gallery {
 	function generate_carousel_container() {
 		global $post;
 
-		$html = '<div '. $this->gallery_classes() . '>';
+		$html = '<div '. $this->gallery_classes() . ' data-original-width="' . esc_attr( self::get_content_width() ) . '">';
 		$blog_id = (int) get_current_blog_id();
 		$extra_data = array( 'data-carousel-extra' => array( 'blog_id' => $blog_id, 'permalink' => get_permalink( $post->ID ) ) );
 
@@ -458,9 +458,6 @@ class Jetpack_Tiled_Gallery_Grouper {
 	public function __construct( $attachments ) {
 		$content_width = Jetpack_Tiled_Gallery::get_content_width();
 		$ua_info = new Jetpack_User_Agent_Info();
-
-		if ( $ua_info->is_iphone_or_ipod() )
-			$content_width = 280;
 
 		$this->last_shape = '';
 		$this->images = $this->get_images_with_sizes( $attachments );
