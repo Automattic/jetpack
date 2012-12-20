@@ -55,7 +55,7 @@ class PolldaddyShortcode {
 			return '<!-- Polldaddy shortcode passed invalid attributes -->';
 		}
 		
-		$inline          = false;
+		$inline          = !in_the_loop();;
 		$no_script       = false;
 		$infinite_scroll = false;
 		
