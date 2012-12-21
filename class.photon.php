@@ -80,6 +80,30 @@ class Jetpack_Photon {
 	 **/
 
 	/**
+	 * Match all images and any relevant <a> tags in a block of HTML.
+	 *
+	 * @param string $content Some HTML.
+	 * @return array An array of $images matches, where $images[0] is
+	 *         an array of full matches, and the link_url, img_tag,
+	 *         and img_url keys are arrays of those matches.
+	 */
+	public static function parse_images_from_html( $content ) {
+		$images = array();
+
+		if ( preg_match_all( '#(?:<a.+?href=["|\'](?P<link_url>.+?)["|\'].*?>\s*)?(?P<img_tag><img.+?src=["|\'](?P<img_url>.+?)["|\'].*?>){1}(?:\s*</a>)?#is', $content, $images ) ) {
+			foreach ( $images as $key => $unused ) {
+				// Simplify the output as much as possible, mostly for confirming test results.
+				if ( is_numeric( $key ) && $key > 0 )
+					unset( $images[$key] );
+			}
+
+			return $images;
+		}
+
+		return array();
+	}
+
+	/**
 	 * Identify images in post content, and if images are local (uploaded to the current site), pass through Photon.
 	 *
 	 * @param string $content
@@ -88,7 +112,9 @@ class Jetpack_Photon {
 	 * @return string
 	 */
 	public static function filter_the_content( $content ) {
-		if ( preg_match_all( '#(<a.+?href=["|\'](.+?)["|\'].*?>\s*)?(<img.+?src=["|\'](.+?)["|\'].*?/?>){1}(\s*</a>)?#i', $content, $images ) ) {
+		$images = Jetpack_Photon::parse_images_from_html( $content );
+
+		if ( ! empty( $images ) ) {
 			global $content_width;
 
 			$image_sizes = self::image_sizes();
@@ -105,7 +131,7 @@ class Jetpack_Photon {
 				$fullsize_url = false;
 
 				// Identify image source
-				$src = $src_orig = $images[4][ $index ];
+				$src = $src_orig = $images['img_url'][ $index ];
 
 				// Allow specific images to be skipped
 				if ( apply_filters( 'jetpack_photon_skip_image', false, $src, $tag ) )
@@ -113,7 +139,7 @@ class Jetpack_Photon {
 
 				// Support Automattic's Lazy Load plugin
 				// Can't modify $tag yet as we need unadulterated version later
-				if ( preg_match( '#data-lazy-src=["|\'](.+?)["|\']#i', $images[3][ $index ], $lazy_load_src ) ) {
+				if ( preg_match( '#data-lazy-src=["|\'](.+?)["|\']#i', $images['img_tag'][ $index ], $lazy_load_src ) ) {
 					$placeholder_src = $placeholder_src_orig = $src;
 					$src = $src_orig = $lazy_load_src[1];
 				}
@@ -126,10 +152,10 @@ class Jetpack_Photon {
 				$width = $height = false;
 
 				// First, check the image tag
-				if ( preg_match( '#width=["|\']?([\d%]+)["|\']?#i', $images[3][ $index ], $width_string ) )
+				if ( preg_match( '#width=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $width_string ) )
 					$width = $width_string[1];
 
-				if ( preg_match( '#height=["|\']?([\d%]+)["|\']?#i', $images[3][ $index ], $height_string ) )
+				if ( preg_match( '#height=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $height_string ) )
 					$height = $height_string[1];
 
 				// Can't pass both a relative width and height, so unset the height in favor of not breaking the horizontal layout.
@@ -137,7 +163,7 @@ class Jetpack_Photon {
 					$width = $height = false;
 
 				// Detect WP registered image size from HTML class
-				if ( preg_match( '#class=["|\']?[^"\']*size-([^"\'\s]+)[^"\']*["|\']?#i', $images[3][ $index ], $size ) ) {
+				if ( preg_match( '#class=["|\']?[^"\']*size-([^"\'\s]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $size ) ) {
 					$size = array_pop( $size );
 
 					if ( false === $width && false === $height && 'full' != $size && array_key_exists( $size, $image_sizes ) ) {
@@ -150,7 +176,7 @@ class Jetpack_Photon {
 				}
 
 				// WP Attachment ID, if uploaded to this site
-				if ( preg_match( '#class=["|\']?[^"\']*wp-image-([\d]+)[^"\']*["|\']?#i', $images[3][ $index ], $attachment_id ) && ( 0 === strpos( $src, $upload_dir['baseurl'] ) || apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) ) ) ) {
+				if ( preg_match( '#class=["|\']?[^"\']*wp-image-([\d]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $attachment_id ) && ( 0 === strpos( $src, $upload_dir['baseurl'] ) || apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) ) ) ) {
 					$attachment_id = intval( array_pop( $attachment_id ) );
 
 					if ( $attachment_id ) {
@@ -257,8 +283,8 @@ class Jetpack_Photon {
 					$new_tag = preg_replace( '#(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
 
 					// If image is linked to an image (presumably itself, but who knows), pass link href to Photon sans arguments
-					if ( ! empty( $images[2][ $index ] ) && false !== strpos( $new_tag, $images[2][ $index ] ) && self::validate_image_url( $images[2][ $index ] ) )
-						$new_tag = str_replace( $images[2][ $index ], jetpack_photon_url( $images[2][ $index ] ), $new_tag );
+					if ( ! empty( $images['link_url'][ $index ] ) && false !== strpos( $new_tag, $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) )
+						$new_tag = str_replace( $images['link_url'][ $index ], jetpack_photon_url( $images['link_url'][ $index ] ), $new_tag );
 
 					// Tag an image for dimension checking
 					$new_tag = preg_replace( '#(\s?/)?>(</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
