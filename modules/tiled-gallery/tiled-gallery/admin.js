@@ -10,7 +10,7 @@
 			media.view.Settings.prototype.render.apply( this, arguments );
 
 			// Append the type template and update the settings.
-			this.$el.append( media.template( 'wpcom-tiled-gallery-settings' ) );
+			this.$el.append( media.template( 'jetpack-tiled-gallery-settings' ) );
 			media.gallery.defaults.type = 'default'; // lil hack that lets media know there's a type attribute.
 			this.update.apply( this, ['type'] );
 			return this;

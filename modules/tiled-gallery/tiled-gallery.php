@@ -327,20 +327,20 @@ class Jetpack_Tiled_Gallery {
 	 * Enqueues admin script
 	 */
 	function media_ui_enqueue_media() {
-		wp_enqueue_script( 'tiled-gallery-admin', plugins_url( 'tiled-gallery/admin.js', __FILE__ ), array( 'media-views' ) );
+		wp_enqueue_script( 'tiled-gallery-admin', plugins_url( 'tiled-gallery/admin.js', __FILE__ ), array( 'media-views' ), '20121225' );
 	}
 
 	/**
 	 * Outputs a view template which can be used with wp.media.template
 	 */
 	function media_ui_print_templates() {
-		$types = apply_filters( 'wpcom_gallery_types', array(
+		$types = apply_filters( 'jetpack_gallery_types', array(
 			'rectangular' => __( 'Tiles' ),
 			'square'      => __( 'Square Tiles' ),
 			'circle'      => __( 'Circles' ),
 		) );
 		?>
-		<script type="text/html" id="tmpl-wpcom-tiled-gallery-settings">
+		<script type="text/html" id="tmpl-jetpack-tiled-gallery-settings">
 			<label class="setting">
 				<span><?php _e( 'Type' ); ?></span>
 				<select class="type" name="type" data-setting="type">
