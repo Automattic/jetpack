@@ -35,8 +35,30 @@ TiledGallery.prototype.Captions = function() {
 TiledGallery.prototype.resize = function() {
 	var resizeableElements = '.tiled-gallery-item img, .gallery-group, .gallery-row';
 
-	this.gallery.each( function () {
-		var thisGallery = $( this );
+	this.gallery.each( function ( galleryIndex, galleryElement ) {
+		var thisGallery = $( galleryElement );
+
+		// All images must be loaded before proceeding.
+		var imagesLoaded = true;
+
+		thisGallery.find( 'img' ).each( function () {
+			if ( ! this.complete ) {
+				imagesLoaded = false;
+				return false;
+			}
+		} );
+
+		if ( ! imagesLoaded ) {
+			var loadCallback = arguments.callee;
+
+			// Once all of the images have loaded,
+			// re-call this containing function.
+			$( window ).load( function () {
+				loadCallback( null, thisGallery );
+			} );
+
+			return;
+		}
 
 		if ( ! thisGallery.data( 'sizes-set' ) ) {
 			// Maintain a record of the original widths and heights of these elements
