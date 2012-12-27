@@ -1,11 +1,17 @@
 var WPCOMSharing = {
+	done_urls : [],
 	get_counts : function( url ) {
+		if ( 'undefined' != typeof WPCOMSharing.done_urls[ WPCOM_sharing_counts[ url ] ] )
+			return;
+
 		if ( jQuery( '#sharing-facebook-' + WPCOM_sharing_counts[ url ] ).length )
 			jQuery.getScript( 'https://api.facebook.com/method/fql.query?query=' + encodeURIComponent( "SELECT total_count, url FROM link_stat WHERE url='" + url + "'" ) + '&format=json&callback=WPCOMSharing.update_facebook_count' );
 		if ( jQuery( '#sharing-twitter-' + WPCOM_sharing_counts[ url ] ).length )
 			jQuery.getScript( window.location.protocol + '//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' + encodeURIComponent( url ) );
 		if ( jQuery( '#sharing-linkedin-' + WPCOM_sharing_counts[ url ] ).length )
 			jQuery.getScript( window.location.protocol + '//www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' + encodeURIComponent( url ) );
+
+		WPCOMSharing.done_urls[ WPCOM_sharing_counts[ url ] ] = true;
 	},
 	update_facebook_count : function( data ) {
 		if ( 'undefined' != typeof data[0].total_count && ( data[0].total_count * 1 ) > 0 ) {
