@@ -466,7 +466,7 @@ function sharing_display( $text = '' ) {
 	$options = get_option( 'sharing-options' );
 	$display_options = $options['global']['show'];
 
-	if ( is_front_page() && ! in_array( 'index', $display_options ) )
+	if ( is_front_page() && ( is_array( $display_options ) && ! in_array( 'index', $display_options ) ) )
 		return $text;
 
 	if ( is_attachment() && in_array( 'the_excerpt', (array) $wp_current_filter ) ) {
