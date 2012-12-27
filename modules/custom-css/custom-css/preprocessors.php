@@ -23,7 +23,7 @@ function jetpack_register_css_preprocessors( $preprocessors ) {
 	);
 
 	$preprocessors['sass'] = array(
-		'name' => 'SASS (SCSS Syntax)',
+		'name' => 'Sass (SCSS Syntax)',
 		'callback' => 'jetpack_sass_css_preprocess'
 	);
 
