@@ -163,8 +163,8 @@ abstract class Sharing_Source {
 		$opts = implode( ',', $opts );
 		?>
 		<script type="text/javascript" charset="utf-8">
-		jQuery(document).ready(function(){
-			jQuery( 'a.share-<?php echo $name; ?>' ).click(function(){
+		jQuery(document).on( 'ready post-load', function(){
+			jQuery( 'a.share-<?php echo $name; ?>' ).on( 'click', function() {
 				window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
 				return false;
 			});
@@ -632,10 +632,20 @@ class Share_LinkedIn extends Sharing_Source {
 	}
 	
 	public function display_footer() {
-		if ( !$this->smart )
+		if ( !$this->smart ) {
 			$this->js_dialog( $this->shortname, array( 'width' => 580, 'height' => 450 ) );
-		else
-			echo '<script type="text/javascript" src="//platform.linkedin.com/in.js"></script>';
+		} else {
+			?><script type="text/javascript">
+			jQuery( document ).ready( function() {
+			    jQuery.getScript( 'http://platform.linkedin.com/in.js?async=true', function success() {
+			        IN.init();
+			    });
+			});
+			jQuery( document.body ).on( 'post-load', function() {
+				IN.parse();
+			});
+			</script><?php
+		}
 	}
 }
 
@@ -878,8 +888,11 @@ class Share_GooglePlus1 extends Sharing_Source {
 						data: obj
 					} );
 				}
+				jQuery( document.body ).on( 'post-load', function() {
+					gapi.plusone.go();
+				});
 			</script>
-			<script type="text/javascript" src="<?php echo $this->http(); ?>://apis.google.com/js/plusone.js"></script> <?php
+			<script type="text/javascript" src="//apis.google.com/js/plusone.js"></script> <?php
 		} else {
 			$this->js_dialog( 'google-plus-1', array( 'width' => 600, 'height' => 600 ) );
 		}
@@ -1133,15 +1146,22 @@ class Share_Pinterest extends Sharing_Source {
 	public function get_post_image( $content ) {
 		$image = '';
 
+		if ( class_exists( 'Jetpack_PostImages' ) ) {
+			global $post;
+			$img = Jetpack_PostImages::from_html( $post->ID );
+			if ( !empty( $img['src'] ) )
+				return $img['src'];
+		}
+
 		if ( function_exists('has_post_thumbnail') && has_post_thumbnail() ) {
 			$thumb_id = get_post_thumbnail_id();
-			$thumb = wp_get_attachment_image_src( $thumb_id );
+			$thumb = wp_get_attachment_image_src( $thumb_id, 'full' );
 
 			// This shouldn't be necessary, since has_post_thumbnail() is true,
 			// but... see http://wordpress.org/support/topic/jetpack-youtube-embeds
 			if ( ! $thumb ) return '';
 
-			$image = remove_query_arg( array('w', 'h'), $thumb[0] ); 
+			$image = remove_query_arg( array('w', 'h'), $thumb[0] );
 		} else if ( preg_match_all('/<img (.+?)>/', $content, $matches) ) {
 			foreach ( $matches[1] as $attrs ) {
 				$media = $img = array();
