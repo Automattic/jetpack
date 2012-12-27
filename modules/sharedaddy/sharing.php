@@ -322,7 +322,7 @@ class Sharing_Admin {
 	  						</select>
 	  					</td>
 	  				</tr>
-	  				<tr valign="top">
+	  				<?php echo apply_filters( 'sharing_show_buttons_on_row_start', '<tr valign="top">' ); ?>
 	  					<th scope="row"><label><?php _e( 'Show buttons on', 'jetpack' ); ?></label></th>
 	  					<td>
 						<?php
@@ -338,7 +338,7 @@ class Sharing_Admin {
 							<?php if ( $br ) echo '<br />'; ?><label><input type="checkbox"<?php checked( in_array( $show, $global['show'] ) ); ?> name="show[]" value="<?php echo esc_attr( $show ); ?>" /> <?php echo esc_html( $label ); ?></label>
 						<?php	$br = true; endforeach; ?>
 	  					</td>
-	  				</tr>
+	  				<?php echo apply_filters( 'sharing_show_buttons_on_row_end', '</tr>' ); ?>
 
 	  				<?php do_action( 'sharing_global_options' ); ?>
 	  			</tbody>
