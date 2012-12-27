@@ -95,54 +95,6 @@
 
 
 
-@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
-
-	.services ul li#facebook, #available-services .preview-facebook div.option-smart-off{background: #FFF url(images/facebook@2x.png) no-repeat 4px 5px;}
-	.services ul li#twitter, #available-services .preview-twitter div.option-smart-off{background: #FFF url(images/twitter@2x.png?1) no-repeat 4px 5px;}
-	.services ul li#wordpress, #available-services .preview-wordpress{background: #FFF url(images/wordpress@2x.png?1) no-repeat 4px 5px;}
-	.services ul li#digg, #available-services .preview-digg div.option-smart-off{background: #FFF url(images/digg@2x.png) no-repeat 4px 5px;}
-	.services ul li#reddit, #available-services .preview-reddit div.option-smart-off{background: #FFF url(images/reddit@2x.png) no-repeat 4px 5px;}
-	.services ul li#stumbleupon, #available-services .preview-stumbleupon div.option-smart-off{background: #FFF url(images/stumbleupon@2x.png) no-repeat 4px 5px;}
-	.services ul li#email, #available-services .preview-email{background: #FFF url(images/email@2x.png) no-repeat 4px 5px; padding-right: 10px;}
-	.services ul li#print, #available-services .preview-print{background: #FFF url(images/print@2x.png) no-repeat 4px 5px; padding-right: 10px;}
-	.services ul li#press-this, #available-services .preview-press-this{background: #FFF url(images/wordpress@2x.png) no-repeat 4px 5px; padding-right: 10px;}
-	.services ul li#linkedin, #available-services .preview-linkedin div.option-smart-off{background: #FFF url(images/linkedin@2x.png) no-repeat 4px 5px;}
-	.services ul li#tumblr,#available-services .preview-tumblr{background: #FFF url(images/tumblr@2x.png) no-repeat 4px 5px; padding-right: 10px;}
-	.services ul li#google-plus-1,#available-services .preview-google-plus-1{background: #FFF url(images/googleplus1@2x.png) no-repeat 4px 5px; padding-right: 10px;}
-	.services ul li#pinterest,#available-services .preview-pinterest{background: #FFF url(images/pinterest@2x.png) no-repeat 4px 5px; padding-right: 10px;}
-	.services ul li.share-custom, #available-services .preview-custom{background: #FFF url(images/custom@2x.png) no-repeat 4px 5px; no-repeat 4px 5px; padding-right: 10px;}
-
-	.services ul li#facebook, #available-services .preview-facebook div.option-smart-off,
-	.services ul li#twitter, #available-services .preview-twitter div.option-smart-off,
-	.services ul li#wordpress, #available-services .preview-wordpress,
-	.services ul li#digg, #available-services .preview-digg div.option-smart-off,
-	.services ul li#reddit, #available-services .preview-reddit div.option-smart-off,
-	.services ul li#stumbleupon, #available-services .preview-stumbleupon div.option-smart-off,
-	.services ul li#email, #available-services .preview-email,
-	.services ul li#print, #available-services .preview-print,
-	.services ul li#press-this, #available-services .preview-press-this,
-	.services ul li#linkedin, #available-services .preview-linkedin div.option-smart-off,
-	.services ul li#tumblr,#available-services .preview-tumblr,
-	.services ul li#google-plus-1,#available-services .preview-google-plus-1,
-	.services ul li#pinterest,#available-services .preview-pinterest,
-	.services ul li.share-custom, #available-services .preview-custom{
-		background-size: 16px 16px;
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
-}
-
-
 /****************************************************************************/
 
 .preview li.preview-item {
@@ -165,6 +117,7 @@
 
 .preview-digg .option-smart-on {
 	background: #FFF url(images/smart-digg.png) no-repeat top left;
+	background-size: 76px 17px;
 	width:76px;
 	height:17px;
 	margin-top: 2px;
@@ -172,12 +125,14 @@
 
 .preview-reddit .option-smart-on {
 	background: #FFF url(images/smart-reddit.png) no-repeat top left;
+	background-size: 104px 21px;
 	width:104px;
 	height:21px;
 }
 
 .preview-stumbleupon .option-smart-on {
 	background: #FFF url(images/smart-stumbleupon.png) no-repeat top left;
+	background-size: 74px 18px;
 	width: 74px;
 	height: 18px;
 	margin-top: 1px;
@@ -185,38 +140,43 @@
 
 .preview-facebook .option-smart-on {
 	background: #FFF url(images/smart-like.png) no-repeat top left;
+	background-size: 50px 20px;
 	width:50px;
 	height:20px;
 }
 
 .preview-twitter .option-smart-on {
 	background: #FFF url(images/smart-twitter.png?1) no-repeat top left;
+	background-size: 92px 20px;
 	width:92px;
 	height:20px;
 }
 
 .preview-linkedin .option-smart-on {
 	background: #FFF url(images/linkedin-smart.png) no-repeat top center;
+	background-size: 99px 18px;
 	width:99px;
-	height:22px;
+	height:18px;
 	margin-top: 1px;
 }
 
 .preview-google-plus-1 .option-smart-on {
 	background: #FFF url(images/smart-googleplus1.png) no-repeat top left;
-	max-width: 70px;
+	background-size: 60px 20px;
 	width: 60px;
 	height: 20px;
 }
 
 .preview-tumblr .option-smart-on {
 	background: #FFF url(images/smart-tumblr.png) no-repeat top left;
+	background-size: 62px 20px;
 	width: 62px;
 	height: 20px;
 }
 
 .preview-pinterest .option-smart-on {
 	background: #FFF url(images/smart-pinterest.png) no-repeat top left;
+	background-size: 58px 20px;
 	width: 58px;
 	height: 20px;
 }
@@ -387,4 +347,82 @@
 
 #services-config a.remove:hover {
 	background: #f00;
+}
+
+
+
+
+@media print,
+  (-o-min-device-pixel-ratio: 5/4),
+  (-webkit-min-device-pixel-ratio: 1.25),
+  (min-resolution: 120dpi) {
+
+	.services ul li#facebook, #available-services .preview-facebook div.option-smart-off{background: #FFF url(images/facebook@2x.png) no-repeat 4px 5px;}
+	.services ul li#twitter, #available-services .preview-twitter div.option-smart-off{background: #FFF url(images/twitter@2x.png?1) no-repeat 4px 5px;}
+	.services ul li#wordpress, #available-services .preview-wordpress{background: #FFF url(images/wordpress@2x.png?1) no-repeat 4px 5px;}
+	.services ul li#digg, #available-services .preview-digg div.option-smart-off{background: #FFF url(images/digg@2x.png) no-repeat 4px 5px;}
+	.services ul li#reddit, #available-services .preview-reddit div.option-smart-off{background: #FFF url(images/reddit@2x.png) no-repeat 4px 5px;}
+	.services ul li#stumbleupon, #available-services .preview-stumbleupon div.option-smart-off{background: #FFF url(images/stumbleupon@2x.png) no-repeat 4px 5px;}
+	.services ul li#email, #available-services .preview-email{background: #FFF url(images/email@2x.png) no-repeat 4px 5px; padding-right: 10px;}
+	.services ul li#print, #available-services .preview-print{background: #FFF url(images/print@2x.png) no-repeat 4px 5px; padding-right: 10px;}
+	.services ul li#press-this, #available-services .preview-press-this{background: #FFF url(images/wordpress@2x.png) no-repeat 4px 5px; padding-right: 10px;}
+	.services ul li#linkedin, #available-services .preview-linkedin div.option-smart-off{background: #FFF url(images/linkedin@2x.png) no-repeat 4px 5px;}
+	.services ul li#tumblr,#available-services .preview-tumblr{background: #FFF url(images/tumblr@2x.png) no-repeat 4px 5px; padding-right: 10px;}
+	.services ul li#google-plus-1,#available-services .preview-google-plus-1{background: #FFF url(images/googleplus1@2x.png) no-repeat 4px 5px; padding-right: 10px;}
+	.services ul li#pinterest,#available-services .preview-pinterest{background: #FFF url(images/pinterest@2x.png) no-repeat 4px 5px; padding-right: 10px;}
+	.services ul li.share-custom, #available-services .preview-custom{background: #FFF url(images/custom@2x.png) no-repeat 4px 5px; no-repeat 4px 5px; padding-right: 10px;}
+
+	.services ul li#facebook, #available-services .preview-facebook div.option-smart-off,
+	.services ul li#twitter, #available-services .preview-twitter div.option-smart-off,
+	.services ul li#wordpress, #available-services .preview-wordpress,
+	.services ul li#digg, #available-services .preview-digg div.option-smart-off,
+	.services ul li#reddit, #available-services .preview-reddit div.option-smart-off,
+	.services ul li#stumbleupon, #available-services .preview-stumbleupon div.option-smart-off,
+	.services ul li#email, #available-services .preview-email,
+	.services ul li#print, #available-services .preview-print,
+	.services ul li#press-this, #available-services .preview-press-this,
+	.services ul li#linkedin, #available-services .preview-linkedin div.option-smart-off,
+	.services ul li#tumblr,#available-services .preview-tumblr,
+	.services ul li#google-plus-1,#available-services .preview-google-plus-1,
+	.services ul li#pinterest,#available-services .preview-pinterest,
+	.services ul li.share-custom, #available-services .preview-custom{
+		background-size: 16px 16px;
+	}
+
+	.preview-digg .option-smart-on {
+		background-image: url(images/smart-digg@2x.png);
+	}
+
+	.preview-reddit .option-smart-on {
+		background-image: url(images/smart-reddit@2x.png);
+	}
+
+	.preview-stumbleupon .option-smart-on {
+		background-image: url(images/smart-stumbleupon@2x.png);
+	}
+
+	.preview-facebook .option-smart-on {
+		background-image: url(images/smart-like@2x.png);
+	}
+
+	.preview-twitter .option-smart-on {
+		background-image: url(images/smart-twitter@2x.png);
+	}
+
+	.preview-linkedin .option-smart-on {
+		background-image: url(images/linkedin-smart@2x.png);
+	}
+
+	.preview-google-plus-1 .option-smart-on {
+		background-image: url(images/smart-googleplus1@2x.png);
+	}
+
+	.preview-tumblr .option-smart-on {
+		background-image: url(images/smart-tumblr@2x.png);
+	}
+
+	.preview-pinterest .option-smart-on {
+		background-image: url(images/smart-pinterest@2x.png);
+	}
+
 }
