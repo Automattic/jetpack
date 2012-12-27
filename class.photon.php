@@ -502,6 +502,6 @@ class Jetpack_Photon {
 	 * @return null
 	 */
 	public function action_wp_enqueue_scripts() {
-		wp_enqueue_script( 'jetpack-photon', plugins_url( 'photon/photon.js', __FILE__ ), array( 'jquery' ), 20121206, true );
+		wp_enqueue_script( 'jetpack-photon', plugins_url( 'modules/photon/photon.js', __FILE__ ), array( 'jquery' ), 20121206, true );
 	}
 }
