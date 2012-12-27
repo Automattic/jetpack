@@ -40,6 +40,7 @@ div.sharedaddy h3,
 	border: none;
 }
 
+/* @noflip */
 .rtl div.sharedaddy h3, 
 .rtl #content div.sharedaddy h3,
 .rtl #main div.sharedaddy h3,
@@ -134,10 +135,12 @@ div.sharedaddy .sd-content li {
 	display: block;
 }
 
+/* @noflip */
 .rtl div.sharedaddy .sd-content {
 	float: right;
 }
 
+/* @noflip */
 .rtl div.sharedaddy .sd-content li {
 	float: right;
 	margin: 0 0 5px 5px !important;
@@ -204,6 +207,7 @@ a.sd-button:hover span {
 	margin-left: 5px;
 }
 
+/* @noflip */
 .rtl .sd-button span.share-count {
 	margin-right: 5px;
 }
@@ -249,17 +253,20 @@ div.sharedaddy .no-icon a span, div.sharedaddy li.no-icon div a span {
 	background-image: none;
 }
 
+/* @noflip */
 .rtl .sd-social-icon-text a.sd-button > span,
 .rtl a.sd-button > span {
 	padding: 3px 23px 3px 5px;
 	background-position: 98% center;
 }
 
+/* @noflip */
 .rtl .sd-social-text a.sd-button > span {
 	padding-left: 0;
 	padding-right: 5px
 }
 
+/* @noflip */
 .rtl div.sharedaddy .no-icon a span, .rtl div.sharedaddy li.no-icon div a span {
 	padding-left: 0;
 	padding-right: 5px
@@ -409,6 +416,7 @@ div.sharedaddy .sharing-hidden .inner {
 	box-shadow: 0px 2px 8px rgba(0, 0, 0, .2);
 }
 
+/* @noflip */
 .rtl div.sharedaddy .sharing-hidden .inner {
 	margin-left: 0;
 	margin-right: -100px;
@@ -486,23 +494,29 @@ div.sharedaddy.sharedaddy-dark #sharing_email {
 
 /* =RTL
 -------------------------------------------------------------- */
+/* @noflip */
 body.rtl .sharing ul {
 	float: right;
 }
+
+/* @noflip */
 body.rtl .sharing li {
 	margin: 0 0 0 10px !important;
 }
 
+/* @noflip */
 .rtl #sharing_email {
 	margin-left: -0px;
 	margin-right: -120px;
 	text-align: right
 }
 
+/* @noflip */
 .rtl #sharing_email label {
 	text-align: right
 }
 
+/* @noflip */
 .rtl #sharing_email .sharing_cancel {
 	padding: 0 10px 0 0;
 }
