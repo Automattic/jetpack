@@ -260,6 +260,9 @@ class Jetpack {
 
 		if ( ! wp_script_is( 'jquery.spin', 'registered' ) )
 			wp_register_script( 'jquery.spin', plugins_url( '_inc/jquery.spin.js', __FILE__ ) , array( 'jquery', 'spin' ) );
+
+		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) )
+			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/gallery-settings.js', __FILE__ ), array( 'media-views' ), '20121225' );
 	}
 
 	/**
@@ -4459,6 +4462,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-post-images.php';
 require_once dirname( __FILE__ ) . '/class.photon.php';
 require dirname( __FILE__ ) . '/functions.photon.php';
 require dirname( __FILE__ ) . '/functions.compat.php';
+require dirname( __FILE__ ) . '/functions.gallery.php';
 
 class Jetpack_Error extends WP_Error {}
 

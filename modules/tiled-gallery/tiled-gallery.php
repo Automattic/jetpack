@@ -7,8 +7,8 @@ include_once dirname( __FILE__ ) . '/math/class-constrained-array-rounding.php';
 class Jetpack_Tiled_Gallery {
 
 	public function __construct() {
-		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
+		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
 	}
 
 	public function tiles_enabled() {
@@ -294,6 +294,16 @@ class Jetpack_Tiled_Gallery {
 	}
 
 	/**
+	 * Media UI integration
+	 */
+	function jetpack_gallery_types( $types ) {
+		$types['rectangular'] = __( 'Tiles' );
+		$types['square'] = __( 'Square Tiles' );
+		$types['circle'] = __( 'Circles' );
+		return $types;
+	}
+
+	/**
 	 * Add a checkbox field to the Carousel section in Settings > Media
 	 * for setting tiled galleries as the default.
 	 */
@@ -314,44 +324,6 @@ class Jetpack_Tiled_Gallery {
 		echo '<label><input name="tiled_galleries" type="checkbox" value="1" ' .
 			checked( 1, '' != get_option( 'tiled_galleries' ), false ) . ' /> ' .
 			__( 'Display all your gallery pictures in a cool mosaic.' ) . '</br></label>';
-	}
-
-	function admin_init() {
-
-		// Media UI integration
-		add_action( 'wp_enqueue_media', array( $this, 'media_ui_enqueue_media' ) );
-		add_action( 'print_media_templates', array( $this, 'media_ui_print_templates' ) );
-	}
-
-	/**
-	 * Enqueues admin script
-	 */
-	function media_ui_enqueue_media() {
-		wp_enqueue_script( 'tiled-gallery-admin', plugins_url( 'tiled-gallery/admin.js', __FILE__ ), array( 'media-views' ), '20121225' );
-	}
-
-	/**
-	 * Outputs a view template which can be used with wp.media.template
-	 */
-	function media_ui_print_templates() {
-		$types = apply_filters( 'jetpack_gallery_types', array(
-			'rectangular' => __( 'Tiles' ),
-			'square'      => __( 'Square Tiles' ),
-			'circle'      => __( 'Circles' ),
-		) );
-		?>
-		<script type="text/html" id="tmpl-jetpack-tiled-gallery-settings">
-			<label class="setting">
-				<span><?php _e( 'Type' ); ?></span>
-				<select class="type" name="type" data-setting="type">
-					<option value="default" <?php selected( true ); ?>><?php _e( 'Default' ); ?></option>
-					<?php foreach ( $types as $value => $caption ) : ?>
-					<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $caption ); ?></option>
-					<?php endforeach; ?>
-				</select>
-			</label>
-		</script>
-		<?php
 	}
 }
 
