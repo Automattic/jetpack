@@ -297,9 +297,9 @@ class Jetpack_Tiled_Gallery {
 	 * Media UI integration
 	 */
 	function jetpack_gallery_types( $types ) {
-		$types['rectangular'] = __( 'Tiles' );
-		$types['square'] = __( 'Square Tiles' );
-		$types['circle'] = __( 'Circles' );
+		$types['rectangular'] = __( 'Tiles', 'jetpack' );
+		$types['square'] = __( 'Square Tiles', 'jetpack' );
+		$types['circle'] = __( 'Circles', 'jetpack' );
 		return $types;
 	}
 
@@ -316,14 +316,14 @@ class Jetpack_Tiled_Gallery {
 		else
 			$section = 'default';
 
-		add_settings_field( 'tiled_galleries', __( 'Tiled Galleries' ), array( $this, 'setting_html' ), 'media', $section );
+		add_settings_field( 'tiled_galleries', __( 'Tiled Galleries', 'jetpack' ), array( $this, 'setting_html' ), 'media', $section );
 		register_setting( 'media', 'tiled_galleries', 'esc_attr' );
 	}
 
 	function setting_html() {
 		echo '<label><input name="tiled_galleries" type="checkbox" value="1" ' .
 			checked( 1, '' != get_option( 'tiled_galleries' ), false ) . ' /> ' .
-			__( 'Display all your gallery pictures in a cool mosaic.' ) . '</br></label>';
+			__( 'Display all your gallery pictures in a cool mosaic.', 'jetpack' ) . '</br></label>';
 	}
 }
 

@@ -35,9 +35,9 @@ class Jetpack_Gallery_Settings {
 		?>
 		<script type="text/html" id="tmpl-jetpack-gallery-settings">
 			<label class="setting">
-				<span><?php _e( 'Type' ); ?></span>
+				<span><?php _e( 'Type', 'jetpack' ); ?></span>
 				<select class="type" name="type" data-setting="type">
-					<option value="default" <?php selected( true ); ?>><?php _e( 'Default' ); ?></option>
+					<option value="default" <?php selected( true ); ?>><?php _e( 'Default', 'jetpack' ); ?></option>
 					<?php foreach ( $this->gallery_types as $value => $caption ) : ?>
 					<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $caption ); ?></option>
 					<?php endforeach; ?>
