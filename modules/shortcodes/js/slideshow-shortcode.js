@@ -147,6 +147,10 @@ JetpackSlideshow.prototype.renderControls_ = function() {
 };
 
 JetpackSlideshow.prototype.onCyclePrevNextClick_ = function( isNext, i, slideElement ) {
+	// If blog_id not present don't track page views
+	if ( ! jetpackSlideshowSettings.blog_id )
+		return;
+
 	var postid = this.images[i].id;
 	var stats = new Image();
 	stats.src = document.location.protocol +

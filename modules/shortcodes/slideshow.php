@@ -207,16 +207,9 @@ class Jetpack_Slideshow_Shortcode {
 		wp_enqueue_script( 'jetpack-slideshow', plugins_url( '/js/slideshow-shortcode.js', __FILE__ ), array( 'jquery-cycle' ), '20121214.1', true );
 		wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/slideshow-shortcode.css', __FILE__ ) );
 
-
-		$blog_details = get_blog_details( get_current_blog_id() );
-		$blog_subdomain = str_replace( '.wordpress.com', '', $blog_details->domain );
-
-		wp_localize_script( 'jetpack-slideshow', 'jetpackSlideshowSettings', array(
+		wp_localize_script( 'jetpack-slideshow', 'jetpackSlideshowSettings', apply_filters( 'jetpack_js_slideshow_settings', array(
 			'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
-			'blog_id' => get_current_blog_id(),
-			'blog_subdomain' => $blog_subdomain,
-			'user_id' => get_current_user_id(),
-		) );
+		) ) );
 
 		$enqueued = true;
 	}
