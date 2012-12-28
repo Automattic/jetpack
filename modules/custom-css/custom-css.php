@@ -595,9 +595,9 @@ class Jetpack_Custom_CSS {
 		if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) {
 			$url = plugins_url( 'custom-css/js/', __FILE__ );
 			wp_enqueue_script( 'jquery.spin' );
-			wp_enqueue_script( 'safecss-ace', $url . 'ace/ace.js', array(), false, true );
-			wp_enqueue_script( 'safecss-ace-css', $url . 'ace/mode-css.js', array( 'safecss-ace' ), false, true );
-			wp_enqueue_script( 'safecss-ace-use', $url . 'safecss-ace.js', array( 'jquery', 'safecss-ace-css' ), false, true );
+			wp_enqueue_script( 'safecss-ace', $url . 'ace/ace.js', array(), '20121228', true );
+			wp_enqueue_script( 'safecss-ace-css', $url . 'ace/mode-css.js', array( 'safecss-ace' ), '20121228', true );
+			wp_enqueue_script( 'safecss-ace-use', $url . 'safecss-ace.js', array( 'jquery', 'safecss-ace-css' ), '20121228', true );
 		}
 	}
 

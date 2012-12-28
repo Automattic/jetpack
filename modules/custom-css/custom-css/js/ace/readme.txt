@@ -1,0 +1,1 @@
+The ACE editor files in this directory were pulled from https://github.com/ajaxorg/ace-builds/tree/master/src-min-noconflict, package 12.17.2012.

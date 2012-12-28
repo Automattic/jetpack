@@ -16,7 +16,7 @@
 		// Grab straight from the textarea
 		editor.getSession().setValue( $("#safecss").val() );
 		// We're editing CSS content
-		var CSSMode = require( 'ace/mode/css' ).Mode;
+		var CSSMode = ace.require( 'ace/mode/css' ).Mode;
 		editor.getSession().setMode( new CSSMode() );
 		// ace.js comes with the textmate coloring scheme already.
 		// kill the spinner
