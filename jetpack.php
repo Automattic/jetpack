@@ -753,6 +753,7 @@ class Jetpack {
 			case 'minileven':
 			case 'infinite-scroll' :
 			case 'photon' :
+			case 'tiled-gallery' :
 				break;
 
 			// These modules are default off if we think the site is a private one
