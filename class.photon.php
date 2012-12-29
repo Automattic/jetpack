@@ -145,154 +145,159 @@ class Jetpack_Photon {
 				}
 
 				// Check if image URL should be used with Photon
-				if ( ! self::validate_image_url( $src ) )
-					continue;
-
-				// Find the width and height attributes
-				$width = $height = false;
-
-				// First, check the image tag
-				if ( preg_match( '#width=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $width_string ) )
-					$width = $width_string[1];
-
-				if ( preg_match( '#height=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $height_string ) )
-					$height = $height_string[1];
-
-				// Can't pass both a relative width and height, so unset the height in favor of not breaking the horizontal layout.
-				if ( false !== strpos( $width, '%' ) && false !== strpos( $height, '%' ) )
+				if ( self::validate_image_url( $src ) ) {
+					// Find the width and height attributes
 					$width = $height = false;
 
-				// Detect WP registered image size from HTML class
-				if ( preg_match( '#class=["|\']?[^"\']*size-([^"\'\s]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $size ) ) {
-					$size = array_pop( $size );
+					// First, check the image tag
+					if ( preg_match( '#width=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $width_string ) )
+						$width = $width_string[1];
 
-					if ( false === $width && false === $height && 'full' != $size && array_key_exists( $size, $image_sizes ) ) {
-						$width = (int) $image_sizes[ $size ]['width'];
-						$height = (int) $image_sizes[ $size ]['height'];
-						$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
+					if ( preg_match( '#height=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $height_string ) )
+						$height = $height_string[1];
+
+					// Can't pass both a relative width and height, so unset the height in favor of not breaking the horizontal layout.
+					if ( false !== strpos( $width, '%' ) && false !== strpos( $height, '%' ) )
+						$width = $height = false;
+
+					// Detect WP registered image size from HTML class
+					if ( preg_match( '#class=["|\']?[^"\']*size-([^"\'\s]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $size ) ) {
+						$size = array_pop( $size );
+
+						if ( false === $width && false === $height && 'full' != $size && array_key_exists( $size, $image_sizes ) ) {
+							$width = (int) $image_sizes[ $size ]['width'];
+							$height = (int) $image_sizes[ $size ]['height'];
+							$transform = $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
+						}
+					} else {
+						unset( $size );
 					}
-				} else {
-					unset( $size );
-				}
 
-				// WP Attachment ID, if uploaded to this site
-				if ( preg_match( '#class=["|\']?[^"\']*wp-image-([\d]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $attachment_id ) && ( 0 === strpos( $src, $upload_dir['baseurl'] ) || apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) ) ) ) {
-					$attachment_id = intval( array_pop( $attachment_id ) );
+					// WP Attachment ID, if uploaded to this site
+					if ( preg_match( '#class=["|\']?[^"\']*wp-image-([\d]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $attachment_id ) && ( 0 === strpos( $src, $upload_dir['baseurl'] ) || apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) ) ) ) {
+						$attachment_id = intval( array_pop( $attachment_id ) );
 
-					if ( $attachment_id ) {
-						$attachment = get_post( $attachment_id );
+						if ( $attachment_id ) {
+							$attachment = get_post( $attachment_id );
 
-						// Basic check on returned post object
-						if ( is_object( $attachment ) && ! is_wp_error( $attachment ) && 'attachment' == $attachment->post_type ) {
-							$src_per_wp = wp_get_attachment_image_src( $attachment_id, isset( $size ) ? $size : 'full' );
+							// Basic check on returned post object
+							if ( is_object( $attachment ) && ! is_wp_error( $attachment ) && 'attachment' == $attachment->post_type ) {
+								$src_per_wp = wp_get_attachment_image_src( $attachment_id, isset( $size ) ? $size : 'full' );
 
-							if ( self::validate_image_url( $src_per_wp[0] ) ) {
-								$src = $src_per_wp[0];
-								$fullsize_url = true;
+								if ( self::validate_image_url( $src_per_wp[0] ) ) {
+									$src = $src_per_wp[0];
+									$fullsize_url = true;
 
-								// Prevent image distortion if a detected dimension exceeds the image's natural dimensions
-								if ( ( false !== $width && $width > $src_per_wp[1] ) || ( false !== $height && $height > $src_per_wp[2] ) ) {
-									$width = false == $width ? false : min( $width, $src_per_wp[1] );
-									$height = false == $height ? false : min( $height, $src_per_wp[2] );
+									// Prevent image distortion if a detected dimension exceeds the image's natural dimensions
+									if ( ( false !== $width && $width > $src_per_wp[1] ) || ( false !== $height && $height > $src_per_wp[2] ) ) {
+										$width = false == $width ? false : min( $width, $src_per_wp[1] );
+										$height = false == $height ? false : min( $height, $src_per_wp[2] );
+									}
+
+									// If no width and height are found, max out at source image's natural dimensions
+									// Otherwise, respect registered image sizes' cropping setting
+									if ( false == $width && false == $height ) {
+										$width = $src_per_wp[1];
+										$height = $src_per_wp[2];
+										$transform = 'fit';
+									} elseif ( isset( $size ) && array_key_exists( $size, $image_sizes ) && isset( $image_sizes[ $size ]['crop'] ) ) {
+										$transform = (bool) $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
+									}
 								}
-
-								// If no width and height are found, max out at source image's natural dimensions
-								// Otherwise, respect registered image sizes' cropping setting
-								if ( false == $width && false == $height ) {
-									$width = $src_per_wp[1];
-									$height = $src_per_wp[2];
-									$transform = 'fit';
-								} elseif ( isset( $size ) && array_key_exists( $size, $image_sizes ) && isset( $image_sizes[ $size ]['crop'] ) ) {
-									$transform = (bool) $image_sizes[ $size ]['crop'] ? 'resize' : 'fit';
-								}
+							} else {
+								unset( $attachment_id );
+								unset( $attachment );
 							}
-						} else {
-							unset( $attachment_id );
-							unset( $attachment );
 						}
 					}
-				}
 
-				// If image tag lacks width and height arguments, try to determine from strings WP appends to resized image filenames.
-				if ( false === $width && false === $height && preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $width_height_string ) ) {
-					$width = (int) $width_height_string[1];
-					$height = (int) $width_height_string[2];
-				}
+					// If image tag lacks width and height arguments, try to determine from strings WP appends to resized image filenames.
+					if ( false === $width && false === $height && preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $width_height_string ) ) {
+						$width = (int) $width_height_string[1];
+						$height = (int) $width_height_string[2];
+					}
 
-				// If width is available, constrain to $content_width
-				if ( false !== $width && false === strpos( $width, '%' ) && is_numeric( $content_width ) ) {
-					if ( $width > $content_width && false !== $height && false === strpos( $height, '%' ) ) {
-						$height = round( ( $content_width * $height ) / $width );
-						$width = $content_width;
-					} elseif ( $width > $content_width ) {
-						$width = $content_width;
+					// If width is available, constrain to $content_width
+					if ( false !== $width && false === strpos( $width, '%' ) && is_numeric( $content_width ) ) {
+						if ( $width > $content_width && false !== $height && false === strpos( $height, '%' ) ) {
+							$height = round( ( $content_width * $height ) / $width );
+							$width = $content_width;
+						} elseif ( $width > $content_width ) {
+							$width = $content_width;
+						}
+					}
+
+					// Set a width if none is found and $content_width is available
+					// If width is set in this manner and height is available, use `fit` instead of `resize` to prevent skewing
+					if ( false === $width && is_numeric( $content_width ) ) {
+						$width = (int) $content_width;
+
+						if ( false !== $height )
+							$transform = 'fit';
+					}
+
+					// Detect if image source is for a custom-cropped thumbnail and prevent further URL manipulation.
+					if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode('|', self::$extensions ) . '){1}$#i', basename( $src ), $filename ) )
+						$fullsize_url = true;
+
+					// Build URL, first removing WP's resized string so we pass the original image to Photon
+					if ( ! $fullsize_url && preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) )
+						$src = str_replace( $src_parts[1], '', $src );
+
+					// Build array of Photon args and expose to filter before passing to Photon URL function
+					$args = array();
+
+					if ( false !== $width && false !== $height && false === strpos( $width, '%' ) && false === strpos( $height, '%' ) )
+						$args[ $transform ] = $width . ',' . $height;
+					elseif ( false !== $width )
+						$args['w'] = $width;
+					elseif ( false !== $height )
+						$args['h'] = $height;
+
+					$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height' ) );
+
+					$photon_url = jetpack_photon_url( $src, $args );
+
+					// Modify image tag if Photon function provides a URL
+					// Ensure changes are only applied to the current image by copying and modifying the matched tag, then replacing the entire tag with our modified version.
+					if ( $src != $photon_url ) {
+						$new_tag = $tag;
+
+						// Supplant the original source value with our Photon URL
+						$photon_url = esc_url( $photon_url );
+						$new_tag = str_replace( $src_orig, $photon_url, $new_tag );
+
+						// If Lazy Load is in use, pass placeholder image through Photon
+						if ( isset( $placeholder_src ) && self::validate_image_url( $placeholder_src ) ) {
+							$placeholder_src = jetpack_photon_url( $placeholder_src );
+
+							if ( $placeholder_src != $placeholder_src_orig )
+								$new_tag = str_replace( $placeholder_src_orig, esc_url( $placeholder_src ), $new_tag );
+
+							unset( $placeholder_src );
+						}
+
+						// Remove the width and height arguments from the tag to prevent distortion
+						$new_tag = preg_replace( '#(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
+
+						// Tag an image for dimension checking
+						$new_tag = preg_replace( '#(\s?/)?>(</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
+
+						// Replace original tag with modified version
+						$content = str_replace( $tag, $new_tag, $content );
+
+						// Overwrite the originally-matched tag if this image is wrapped in a link
+						if ( ! empty( $images['link_url'][ $index ] ) )
+							$tag = $new_tag;
 					}
 				}
 
-				// Set a width if none is found and $content_width is available
-				// If width is set in this manner and height is available, use `fit` instead of `resize` to prevent skewing
-				if ( false === $width && is_numeric( $content_width ) ) {
-					$width = (int) $content_width;
-
-					if ( false !== $height )
-						$transform = 'fit';
-				}
-
-				// Detect if image source is for a custom-cropped thumbnail and prevent further URL manipulation.
-				if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode('|', self::$extensions ) . '){1}$#i', basename( $src ), $filename ) )
-					$fullsize_url = true;
-
-				// Build URL, first removing WP's resized string so we pass the original image to Photon
-				if ( ! $fullsize_url && preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) )
-					$src = str_replace( $src_parts[1], '', $src );
-
-				// Build array of Photon args and expose to filter before passing to Photon URL function
-				$args = array();
-
-				if ( false !== $width && false !== $height && false === strpos( $width, '%' ) && false === strpos( $height, '%' ) )
-					$args[ $transform ] = $width . ',' . $height;
-				elseif ( false !== $width )
-					$args['w'] = $width;
-				elseif ( false !== $height )
-					$args['h'] = $height;
-
-				$args = apply_filters( 'jetpack_photon_post_image_args', $args, compact( 'tag', 'src', 'src_orig', 'width', 'height' ) );
-
-				$photon_url = jetpack_photon_url( $src, $args );
-
-				// Modify image tag if Photon function provides a URL
-				// Ensure changes are only applied to the current image by copying and modifying the matched tag, then replacing the entire tag with our modified version.
-				if ( $src != $photon_url ) {
-					$new_tag = $tag;
-
-					// Supplant the original source value with our Photon URL
-					$photon_url = esc_url( $photon_url );
-					$new_tag = str_replace( $src_orig, $photon_url, $new_tag );
-
-					// If Lazy Load is in use, pass placeholder image through Photon
-					if ( isset( $placeholder_src ) && self::validate_image_url( $placeholder_src ) ) {
-						$placeholder_src = jetpack_photon_url( $placeholder_src );
-
-						if ( $placeholder_src != $placeholder_src_orig )
-							$new_tag = str_replace( $placeholder_src_orig, esc_url( $placeholder_src ), $new_tag );
-
-						unset( $placeholder_src );
-					}
-
-					// Remove the width and height arguments from the tag to prevent distortion
-					$new_tag = preg_replace( '#(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
-
-					// If image is linked to an image (presumably itself, but who knows), pass link href to Photon sans arguments
-					if ( ! empty( $images['link_url'][ $index ] ) && false !== strpos( $new_tag, $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) )
-						$new_tag = str_replace( $images['link_url'][ $index ], jetpack_photon_url( $images['link_url'][ $index ] ), $new_tag );
-
-					// Tag an image for dimension checking
-					$new_tag = preg_replace( '#(\s?/)?>(</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
-
-					// Replace original tag with modified version
+				// If image is linked to an image (presumably itself, but who knows), pass link href to Photon sans arguments.
+				// This change is only applied to the current tag so remaining matched tags aren't interfered with.
+				if ( ! empty( $images['link_url'][ $index ] ) && false !== strpos( $tag, $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
+					$new_tag = str_replace( $images['link_url'][ $index ], jetpack_photon_url( $images['link_url'][ $index ] ), $tag );
 					$content = str_replace( $tag, $new_tag, $content );
 				}
-
 			}
 		}
 
