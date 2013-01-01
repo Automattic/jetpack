@@ -85,7 +85,7 @@ Scroller = function( settings ) {
  */
 Scroller.prototype.check = function() {
 	var bottom = this.window.scrollTop() + this.window.height(),
-		threshold = this.element.offset().top + this.element.outerHeight() - this.window.height();
+		threshold = this.element.offset().top + this.element.outerHeight(false) - this.window.height();
 
 	return bottom > threshold;
 };
@@ -140,7 +140,7 @@ Scroller.prototype.thefooter = function() {
 
 	// Check if we have an id for the page wrapper
 	if ( $.type( this.footer.wrap ) === "string" ) {
-		width = $( 'body #' + this.footer.wrap ).outerWidth();
+		width = $( 'body #' + this.footer.wrap ).outerWidth( false );
 
 		// Make the footer match the width of the page
 		if ( width > 479 )
@@ -340,7 +340,7 @@ Scroller.prototype.ensureFilledViewport = function() {
 
 /**
  * Event handler for ensureFilledViewport(), tied to the post-load trigger.
- * Necessary to ensure that the variable `this` contains the scroller when used in ensureFilledViewport(). Since this function is tied to an event, `this` becomes the DOM element related the event is tied to.
+ * Necessary to ensure that the variable `this` contains the scroller when used in ensureFilledViewport(). Since this function is tied to an event, `this` becomes the DOM element the event is tied to.
  */
 Scroller.prototype.checkViewportOnLoad = function( ev ) {
 	ev.data.self.ensureFilledViewport();
@@ -361,14 +361,14 @@ Scroller.prototype.determineURL = function () {
 	$( '.' + self.wrapperClass ).each( function() {
 		var id         = $( this ).attr( 'id' ),
 			setTop     = $( this ).offset().top,
-			setHeight  = $( this ).outerHeight(),
+			setHeight  = $( this ).outerHeight( false ),
 			setBottom  = 0,
 			setPageNum = $( this ).data( 'page-num' );
 
 		// Account for containers that have no height because their children are floated elements.
 		if ( 0 == setHeight ) {
 			$( '> *', this ).each( function() {
-				setHeight += $( this ).outerHeight();
+				setHeight += $( this ).outerHeight( false );
 			} );
 		}
 
