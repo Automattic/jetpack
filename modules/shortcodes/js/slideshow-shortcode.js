@@ -163,3 +163,25 @@ JetpackSlideshow.prototype.onCyclePrevNextClick_ = function( isNext, i, slideEle
 		'&post=' + postid +
 		'&ref=' + escape( document.location );
 };
+
+( function ( $ ) {
+	function jetpack_slideshow_init() {
+		$( '.jetpack-slideshow-noscript' ).remove();
+
+		$( '.jetpack-slideshow' ).each( function () {
+			var container = $( this );
+
+			if ( container.data( 'processed' ) )
+				return;
+
+			var slideshow = new JetpackSlideshow( container, container.data( 'width' ), container.data( 'height' ), container.data( 'trans' ) );
+			slideshow.images = container.data( 'gallery' );
+			slideshow.init();
+
+			container.data( 'processed', true );
+		} );
+	}
+
+	$( document ).ready( jetpack_slideshow_init );
+	$( 'body' ).on( 'post-load', jetpack_slideshow_init );
+} )( jQuery );

@@ -157,30 +157,17 @@ class Jetpack_Slideshow_Shortcode {
 
 		$output = '';
 
-		$output .= '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . "</p>
-		<div id='{$attr['selector']}-slideshow' class='slideshow-window'></div>
+		$output .= '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . '</p>';
+		$output .= '<div id="' . esc_attr( $attr['selector'] . '-slideshow' ) . '"  class="slideshow-window jetpack-slideshow" data-width="' . esc_attr( $attr['width'] ) . '" data-height="' . esc_attr( $attr['height'] ) . '" data-trans="' . esc_attr( $attr['trans'] ) . '" data-gallery="' . esc_attr( json_encode( $attr['gallery'] ) ) . '"></div>';
 
+		$output .= "
 		<style>
 		#{$attr['selector']}-slideshow .slideshow-slide img {
-			max-height: {$attr['height']}px;
+			max-height: " . intval( $attr['height'] ) ."px;
 			/* Emulate max-height in IE 6 */
-			_height: expression(this.scrollHeight >= {$attr['height']} ? '{$attr['height']}px' : 'auto');
+			_height: expression(this.scrollHeight >= " . intval( $attr['height'] ) . " ? '" . intval( $attr['height'] ) . "px' : 'auto');
 		}
 		</style>
-
-		<script type='text/javascript' charset='utf-8'>
-		(function($){
-			$('.jetpack-slideshow-noscript').remove();
-			$(document).ready(function(){
-				if ( typeof JetpackSlideshow == 'undefined' )
-					return;
-
-				var slideshow = new JetpackSlideshow( $('#{$attr['selector']}-slideshow'), {$attr['width']}, {$attr['height']}, '" . esc_js( $attr['trans'] ) . "' );
-				slideshow.images = " . json_encode( $attr['gallery'] ) . ";
-				slideshow.init();
-			});
-		}(jQuery));
-		</script>
 		";
 
 		return $output;
