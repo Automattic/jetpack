@@ -617,15 +617,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			self::$last = $form;
 		}
 
-		// Output the grunion.css stylesheet if self::$style allows it
+		// Enqueue the grunion.css stylesheet if self::$style allows it
 		if ( self::$style && ( empty( $_REQUEST['action'] ) || $_REQUEST['action'] != 'grunion_shortcode_to_json' ) ) {
-			ob_start();
-			wp_print_styles( 'grunion.css' ); // wp_print_styles() will only ever print grunion.css once, regaurdless of how many times it is called.
-			$r = ob_get_clean();
-		} else {
-			$r = '';
+			// Enqueue the style here instead of printing it, because if some other plugin has run the_post()+rewind_posts(),
+			// (like VideoPress does), the style tag gets "printed" the first time and discarded, leaving the contact form unstyled.
+			// when WordPress does the real loop.
+			wp_enqueue_style( 'grunion.css' );
 		}
 
+		$r = '';
 		$r .= "<div id='contact-form-$id'>\n";
 	
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
