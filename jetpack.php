@@ -3202,7 +3202,7 @@ p {
 
 		$die_error = __( 'Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
 
-		$jetpack_signature =& new Jetpack_Signature( $token->secret, (int) Jetpack::get_option( 'time_diff' ) );
+		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack::get_option( 'time_diff' ) );
 		$signature = $jetpack_signature->sign_current_request( array( 'body' => null, 'method' => 'GET' ) );
 		if ( !$signature ) {
 			wp_die( $die_error );
