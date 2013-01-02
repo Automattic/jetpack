@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, apeatling, beaulebens, hugobaeta, Joen, mdawaffe, andy, designsimply, hew, westi, eoigal, tmoorewp, matt, pento, cfinke, daniloercoli, chellycat, gibrown, jblz, jshreve, barry, alternatekev, azaozz, ethitter, johnjamesjacoby, lancewillett, martinremy, nickmomrik, stephdau, yoavf, matveb
-Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest
-Requires at least: 3.2
+Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow
+Requires at least: 3.3
 Tested up to: 3.5
 Stable tag: 2.0.4
 
@@ -34,6 +34,7 @@ Features include:
 * A mobile theme that automatically streamlines your site for visitors on mobile devices.
 * Mobile push notifications for new comments via WordPress mobile apps.
 * The ability to allow applications to securely authenticate and access your site with your permission.
+* Creative formats for your image galleries: mosaic, circles, squares, and a slideshow view.
 * and *many* more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.
@@ -88,6 +89,23 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 8. Mobile Theme
 
 == Changelog ==
+
+= 2.1 =
+* Enhancement: Tiled Galleries: Show off your photos with a cool mosaic gallery.
+* Enhancement: Slideshow gallery type: Display any gallery as a slideshow.
+* Enhancement: Custom CSS: Allow zoom property.
+* Enhancement: Stats: Show WordPress.com subscribers in stats.
+* Bug Fix: Fix errors shown after connecting Jetpack to WordPress.com.
+* Bug Fix: Photon: Fix bug causing errors to be shown in some posts.
+* Bug Fix: Photon: Convert all images in posts when Photon is active.
+* Bug Fix: Infinite Scroll: Improved compatibility with the other modules.
+* Bug Fix: Custom CSS: Updated editor to fix missing file errors.
+* Bug Fix: Publicize: Don't show the Facebook profile option if this is a Page-only account.
+* Bug Fix: Photon: A fix for photos appearing shrunken if they didn't load quickly enough.
+* Bug Fix: Sharing: A compatibility fix for posts that only have partial featured image data.
+* Bug Fix: Publicize/Sharing: For sites without a static homepage, don't set the OpenGraph url value to the first post permalink.
+* Bug Fix: Mobile Theme: Better compatibility with the customizer on mobile devices.
+* Bug Fix: Sharing: Don't show sharing options on front page if that option is turned off.
 
 = 2.0.4 =
 * Bug Fix: Open Graph: Correct a bug that prevents Jetpack from being activated if the SharePress plugin isn't installed.
