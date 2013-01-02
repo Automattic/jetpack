@@ -396,7 +396,7 @@ jQuery( function($) {
 					$all_done = get_post_meta( $post->ID, $this->publicize->POST_DONE . 'all', true ) || ( $this->in_jetpack && 'publish' == $post->post_status );
 
 					// We don't allow Publicizing to the same external id twice, to prevent spam
-					$service_id_done = (array) get_post_meta( $post_id, $this->publicize->POST_SERVICE_DONE, true );
+					$service_id_done = (array) get_post_meta( $post->ID, $this->publicize->POST_SERVICE_DONE, true );
 
 					foreach ( $services as $name => $connections ) {
 						foreach ( $connections as $connection ) {
@@ -411,8 +411,17 @@ jQuery( function($) {
 							// Should we be skipping this one?
 							$skip = (
 								get_post_meta( $post->ID, $this->publicize->POST_SKIP . $unique_id, true )
-							||
-								( is_array( $connection ) && !empty( $service_id_done[ $name ][ $connection['connection_data']['external_id'] ] ) )
+								||
+								(
+									is_array( $connection )
+									&&
+									(
+										( isset( $connection['meta']['external_id'] ) && ! empty( $service_id_done[ $name ][ $connection['meta']['external_id'] ] ) )
+										||
+										// Jetpack's connection data looks a little different.
+										( isset( $connection['external_id'] ) && ! empty( $service_id_done[ $name ][ $connection['external_id'] ] ) )
+									)
+								)
 							);
 
 							// Was this connections (OR, old-format service) already Publicized to?
