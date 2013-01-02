@@ -629,6 +629,9 @@ p.jp-help {
 		#photon.jetpack-module div.module-image {
 			background-position: -2320px 5px;
 		}
+		#tiled-gallery.jetpack-module div.module-image {
+			background-position: -2400px 5px;
+		}
 
 		.jetpack-module div.module-image p {
 			background-color: #b4d278;
