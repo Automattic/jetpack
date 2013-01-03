@@ -91,7 +91,7 @@ add_filter( 'jetpack_photon_pre_args', 'jetpack_photon_parse_wpcom_query_args', 
 
 function jetpack_photon_parse_wpcom_query_args( $args, $image_url ) {
 	$image_url_parts = wp_parse_args( parse_url( $image_url ), array(
-		'host' => '',
+		'host'  => '',
 		'query' => ''
 	) );
 
