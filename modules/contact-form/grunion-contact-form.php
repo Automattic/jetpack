@@ -502,26 +502,21 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	static $style = false;
 
 	function __construct( $attributes, $content = null ) {
-		global $wp_query;
+		global $post;
 
 		// Set up the default subject and recipient for this form
 		$default_to = get_option( 'admin_email' );
 		$default_subject = "[" . get_option( 'blogname' ) . "]";
-		
+
 		if ( !empty( $attributes['widget'] ) && $attributes['widget'] ) {
 			$attributes['id'] = 'widget-' . $attributes['widget'];
 
 			$default_subject = sprintf( _x( '%1$s Sidebar', '%1$s = blog name', 'jetpack' ), $default_subject );
-		} else {
-			$attributes['id'] = get_the_ID();
-
-			$post = get_post( $attributes['id'] );
-
-			if ( $post ) {
-				$default_subject = sprintf( _x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack' ), $default_subject, Grunion_Contact_Form_Plugin::strip_tags( $post->post_title ) );
-				$post_author = get_userdata( $post->post_author );
-				$default_to = $post_author->user_email;
-			} 
+		} else if ( $post ) {
+			$attributes['id'] = $post->ID;
+			$default_subject = sprintf( _x( '%1$s %2$s', '%1$s = blog name, %2$s = post title', 'jetpack' ), $default_subject, Grunion_Contact_Form_Plugin::strip_tags( $post->post_title ) );
+			$post_author = get_userdata( $post->post_author );
+			$default_to = $post_author->user_email;
 		}
 
 		$this->defaults = array(
