@@ -90,7 +90,10 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 add_filter( 'jetpack_photon_pre_args', 'jetpack_photon_parse_wpcom_query_args', 10, 2 );
 
 function jetpack_photon_parse_wpcom_query_args( $args, $image_url ) {
-	$image_url_parts = parse_url( $image_url );
+	$image_url_parts = wp_parse_args( parse_url( $image_url ), array(
+		'host' => '',
+		'query' => ''
+	) );
 
 	if ( '.files.wordpress.com' != substr( $image_url_parts['host'], -20 ) )
 		return $args;
