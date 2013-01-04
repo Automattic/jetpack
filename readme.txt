@@ -91,7 +91,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 == Changelog ==
 
 = 2.1 =
-* Enhancement: Tiled Galleries: Show off your photos with a cool mosaic gallery.
+* Enhancement: Tiled Galleries: Show off your photos with cool mosaic galleries.
 * Enhancement: Slideshow gallery type: Display any gallery as a slideshow.
 * Enhancement: Custom CSS: Allow zoom property.
 * Enhancement: Stats: Show WordPress.com subscribers in stats.
@@ -106,6 +106,10 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Bug Fix: Publicize/Sharing: For sites without a static homepage, don't set the OpenGraph url value to the first post permalink.
 * Bug Fix: Mobile Theme: Better compatibility with the customizer on mobile devices.
 * Bug Fix: Sharing: Don't show sharing options on front page if that option is turned off.
+* Bug Fix: Contact Form: Fix PHP warning shown when adding a Contact Form in WordPress 3.5.
+* Bug Fix: Photon: Handle images with relative paths.
+* Bug Fix: Contact Form: Fix compatibility with the Shortcode Embeds module.
+
 
 = 2.0.4 =
 * Bug Fix: Open Graph: Correct a bug that prevents Jetpack from being activated if the SharePress plugin isn't installed.
