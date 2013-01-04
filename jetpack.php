@@ -651,7 +651,7 @@ class Jetpack {
 		return $files;
 	}
 
-	public static function activate_new_modules() {
+	public function activate_new_modules() {
 		if ( ! Jetpack::is_active() ) {
 			return;
 		}
@@ -1813,7 +1813,7 @@ p {
 		}
 
 		if ( !$error = $error ? $error : Jetpack::state( 'error' ) ) {
-			Jetpack::activate_new_modules();
+			$this->activate_new_modules();
 		}
 
 		switch ( $error ) {
