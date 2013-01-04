@@ -8,6 +8,12 @@
 	margin-bottom: 20px;
 }
 
+.slideshow-window, .slideshow-window * {
+	-moz-box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
+}
+
 .slideshow-loading {
 	height: 100%;
 	text-align: center;

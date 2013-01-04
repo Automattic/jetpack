@@ -1,4 +1,4 @@
-/* This file was automatically generated on Aug 09 2012 06:47:42 */
+/* This file was automatically generated on Jan 04 2013 02:16:54 */
 
 .slideshow-window {
 	background-color: #222;
@@ -8,6 +8,12 @@
 	-webkit-border-radius: 11px;
 	-khtml-border-radius: 11px;
 	margin-bottom: 20px;
+}
+
+.slideshow-window, .slideshow-window * {
+	-moz-box-sizing: content-box;
+	-webkit-box-sizing: content-box;
+	box-sizing: content-box;
 }
 
 .slideshow-loading {
@@ -105,7 +111,7 @@ body div div.slideshow-controls a:hover {
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
 	body div div.slideshow-controls a,
 	body div div.slideshow-controls a:hover {
-		background-image: url('../../slideshow-controls-2x.png') !important;
+		background-image: url('../../img/slideshow-controls-2x.png') !important;
 	}
 }
 
