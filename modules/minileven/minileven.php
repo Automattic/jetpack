@@ -183,8 +183,8 @@ function jetpack_mobile_theme_setup() {
 		add_action('option_template', 'jetpack_mobile_template');
 		add_action('option_stylesheet', 'jetpack_mobile_stylesheet');
 
-		if ( function_exists( 'disable_safecss_style' ) && ! get_option( 'wp_mobile_custom_css' ) )
-			add_action( 'init', 'disable_safecss_style', 11 );
+		if ( class_exists( 'Jetpack_Custom_CSS' ) && method_exists( 'Jetpack_Custom_CSS', 'disable' ) && ! get_option( 'wp_mobile_custom_css' ) )
+			add_action( 'init', array( 'Jetpack_Custom_CSS', 'disable' ), 11 );
 
 		do_action( 'mobile_setup' );
 	}
