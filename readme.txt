@@ -90,6 +90,9 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 2.1.1 =
+* Bug Fix: Fix for an error appearing for blogs updating from Jetpack 1.9.2 or earlier to 2.1.
+
 = 2.1 =
 * Enhancement: Tiled Galleries: Show off your photos with cool mosaic galleries.
 * Enhancement: Slideshow gallery type: Display any gallery as a slideshow.
