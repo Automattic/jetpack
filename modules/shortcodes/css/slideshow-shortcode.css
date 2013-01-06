@@ -26,6 +26,7 @@ body div.slideshow-window * img {
     padding: 0 !important;
     background-color: transparent !important;
     background-image: none !important;
+    max-width: 100%;
 }
 
 .slideshow-loading img {
