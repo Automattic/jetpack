@@ -251,7 +251,7 @@ class Jetpack_PostImages {
 
 		if ( is_object( $html ) ) {
 			if ( property_exists( $html, 'post_content' ) )
-				$html = $html->post_content;
+				$html = apply_filters( 'the_content', $html->post_content );
 			else
 				return $images;
 		}
