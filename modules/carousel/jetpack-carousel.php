@@ -156,7 +156,8 @@ class Jetpack_Carousel {
 			return $html;
 
 		$attachment_id   = intval( $attachment_id );
-		$orig_file       = wp_get_attachment_url( $attachment_id );
+		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
+		$orig_file       = isset( $orig_file[0] ) ? $orig_file[0] : wp_get_attachment_url( $attachment_id );
 		$meta            = wp_get_attachment_metadata( $attachment_id );
 		$size            = isset( $meta['width'] ) ? intval( $meta['width'] ) . ',' . intval( $meta['height'] ) : '';
 		$img_meta        = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
