@@ -18,7 +18,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	if ( empty( $image_url ) )
 		return $image_url;
 
-	$image_url_parts = parse_url( $image_url );
+	$image_url_parts = @parse_url( $image_url );
 
 	// Unable to parse
 	if ( ! is_array( $image_url_parts ) || empty( $image_url_parts['host'] ) || empty( $image_url_parts['path'] ) )
@@ -90,7 +90,12 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 add_filter( 'jetpack_photon_pre_args', 'jetpack_photon_parse_wpcom_query_args', 10, 2 );
 
 function jetpack_photon_parse_wpcom_query_args( $args, $image_url ) {
-	$image_url_parts = wp_parse_args( parse_url( $image_url ), array(
+	$parsed_url = @parse_url( $image_url );
+
+	if ( ! $parsed_url )
+		return $args;
+
+	$image_url_parts = wp_parse_args( $parsed_url, array(
 		'host'  => '',
 		'query' => ''
 	) );
