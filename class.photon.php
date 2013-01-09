@@ -405,8 +405,13 @@ class Jetpack_Photon {
 	 * @return bool
 	 */
 	protected static function validate_image_url( $url ) {
+		$parsed_url = @parse_url( $url );
+
+		if ( ! $parsed_url )
+			return false;
+
 		// Parse URL and ensure needed keys exist, since the array returned by `parse_url` only includes the URL components it finds.
-		$url_info = wp_parse_args( parse_url( $url ), array(
+		$url_info = wp_parse_args( $parsed_url, array(
 			'scheme' => null,
 			'host'   => null,
 			'port'   => null,
