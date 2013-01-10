@@ -4055,7 +4055,7 @@ class Jetpack_Sync {
 	function delete_post_action( $post_id ) {
 		$post = get_post( $post_id );
 		if ( !$post ) {
-			return $this->register( 'delete_post', (int) $id );
+			return $this->register( 'delete_post', (int) $post_id );
 		}
 
 		$this->transition_post_status_action( 'delete', $post->post_status, $post );
