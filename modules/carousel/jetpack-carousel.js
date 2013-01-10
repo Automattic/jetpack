@@ -231,7 +231,7 @@ jQuery(document).ready(function($) {
 					'right'      : 0,
 					'bottom'     : 0,
 					'left'       : 0,
-					'z-index'    : 999999,
+					'z-index'    : 2147483647,
 					'overflow-x' : 'hidden',
 					'overflow-y' : 'auto',
 					'direction'  : 'ltr'
@@ -362,6 +362,7 @@ jQuery(document).ready(function($) {
 				.bind('jp_carousel.afterOpen', function(){
 					$(window).bind('keydown', keyListener);
 					$(window).bind('resize', resizeListener);
+					gallery.opened = true;
 				})
 				.bind('jp_carousel.beforeClose', function(){
 					var scroll = $(window).scrollTop();
@@ -370,6 +371,7 @@ jQuery(document).ready(function($) {
 					$(window).unbind('resize', resizeListener);
 					document.location.hash = '';
 					$(window).scrollTop(scroll);
+					gallery.opened = false;
 				});
 
 				$('.jp-carousel').touchwipe({
@@ -400,6 +402,12 @@ jQuery(document).ready(function($) {
 			return true;
 		},
 
+		testIfOpened: function() {
+			if ( 'undefined' != typeof(gallery) && 'undefined' != typeof(gallery.opened) && true == gallery.opened )
+				return true;
+			return false;
+		},
+
 		open: function(options) {
 			var settings = {
 				'items_selector' : ".gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id]",
@@ -416,6 +424,10 @@ jQuery(document).ready(function($) {
 			$('body').css('overflow', 'hidden');
 
 			prepareGallery();
+			
+			if ( gallery.jp_carousel( 'testIfOpened' ) )
+				return; // don't open if already opened
+			
 			container.data('carousel-extra', data);
 
 			return this.each(function() {
@@ -1157,7 +1169,7 @@ jQuery(document).ready(function($) {
 
 	};
 
-	// register the event listener for staring the gallery
+	// register the event listener for starting the gallery
 	$( document.body ).on( 'click', 'div.gallery,div.tiled-gallery', function(e) {
 		if ( ! $(this).jp_carousel( 'testForData', e.currentTarget ) )
 			return;
@@ -1167,9 +1179,14 @@ jQuery(document).ready(function($) {
 		$(this).jp_carousel('open', {start_index: $(this).find('.gallery-item, .tiled-gallery-item').index($(e.target).parents('.gallery-item, .tiled-gallery-item'))});
 	});
 
-	// start on page load if hash exists
-	if ( document.location.hash && document.location.hash.match(/jp-carousel-(\d+)/) ) {
-		$(document).ready(function(){
+	// Set an interval on page load to load the carousel if hash exists and not already opened.
+	// Makes carousel work on page load and when back button leads to same URL with carousel hash (ie: no actual document.ready trigger)
+	$(document).ready(function(){
+		var jp_carousel_open_interval = window.setInterval(function(){
+			// We should have a URL hash by now.
+			if ( ! document.location.hash || ! document.location.hash.match(/jp-carousel-(\d+)/) )
+				return;
+
 			var gallery = $('div.gallery, div.tiled-gallery'), index = -1, n = document.location.hash.match(/jp-carousel-(\d+)/);
 
 			if ( ! $(this).jp_carousel( 'testForData', gallery ) )
@@ -1185,11 +1202,10 @@ jQuery(document).ready(function($) {
 			});
 
 			if ( index != -1 )
-				gallery.jp_carousel('open', {start_index: index});
-		});
-	}
+				gallery.jp_carousel('open', {start_index: index}); // open method checks if already opened
+		}, 1000);
+	});
 });
 
 // Swipe gesture detection
 (function($){$.fn.touchwipe=function(settings){var config={min_move_x:20,min_move_y:20,wipeLeft:function(){},wipeRight:function(){},wipeUp:function(){},wipeDown:function(){},preventDefaultEvents:true};if(settings)$.extend(config,settings);this.each(function(){var startX;var startY;var isMoving=false;function cancelTouch(){this.removeEventListener('touchmove',onTouchMove);startX=null;isMoving=false}function onTouchMove(e){if(config.preventDefaultEvents){e.preventDefault()}if(isMoving){var x=e.touches[0].pageX;var y=e.touches[0].pageY;var dx=startX-x;var dy=startY-y;if(Math.abs(dx)>=config.min_move_x){cancelTouch();if(dx>0){config.wipeLeft()}else{config.wipeRight()}}else if(Math.abs(dy)>=config.min_move_y){cancelTouch();if(dy>0){config.wipeDown()}else{config.wipeUp()}}}}function onTouchStart(e){if(e.touches.length==1){startX=e.touches[0].pageX;startY=e.touches[0].pageY;isMoving=true;this.addEventListener('touchmove',onTouchMove,false)}}if('ontouchstart'in document.documentElement){this.addEventListener('touchstart',onTouchStart,false)}});return this}})(jQuery);
-
