@@ -271,7 +271,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				}
 
 			} else {
-				$expire =
+				$expire = 900; // cache for 15 minutes
 				$profile = array();
 				set_transient( $cache_key . '-response-code', $response_code, $expire );
 			}
