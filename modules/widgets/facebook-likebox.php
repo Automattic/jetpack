@@ -26,7 +26,14 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	private $allowed_colorschemes = array( 'light', 'dark' );
 
 	function __construct() {
-		parent::__construct( 'facebook-likebox', __( 'Facebook Like Box', 'jetpack' ), array( 'classname' => 'widget_facebook_likebox', 'description' => __( 'Display a Facebook Like Box to connect visitors to your Facebook Page', 'jetpack' ) ) );
+		parent::__construct(
+			'facebook-likebox',
+			apply_filters( 'jetpack_widget_name', __( 'Facebook Like Box', 'jetpack' ) ),
+			array(
+				'classname' => 'widget_facebook_likebox',
+				'description' => __( 'Display a Facebook Like Box to connect visitors to your Facebook Page', 'jetpack' )
+			)
+		);
 	}
 
 	function widget( $args, $instance ) {

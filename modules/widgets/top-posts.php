@@ -32,7 +32,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			'top-posts',
-			__( 'Top Posts &amp; Pages', 'jetpack' ),
+			apply_filters( 'jetpack_widget_name', __( 'Top Posts &amp; Pages', 'jetpack' ) ),
 			array(
 				'description' => __( 'Shows your most viewed posts and pages.', 'jetpack' ),
 			)

@@ -19,7 +19,14 @@ function jetpack_twitter_widget_init() {
 class Jetpack_Widget_Twitter extends WP_Widget {
 
 	function __construct() {
-		parent::__construct( 'twitter', __( 'Twitter', 'jetpack' ), array( 'classname' => 'widget_twitter', 'description' => __( 'Display your Tweets from Twitter', 'jetpack' ) ) );
+		parent::__construct(
+			'twitter',
+			apply_filters( 'jetpack_widget_name', __( 'Twitter', 'jetpack' ) ),
+			array(
+				'classname' => 'widget_twitter',
+				'description' => __( 'Display your Tweets from Twitter', 'jetpack' )
+			)
+		);
 	}
 
 	function widget( $args, $instance ) {
