@@ -418,15 +418,15 @@ jQuery(document).ready(function($) {
 			if ( !data )
 				return; // don't run if the default gallery functions weren't used
 
-			// make sure to stop the page from scrolling behind the carousel overlay, so we don't trigger
-			// infiniscroll for it when enabled (Reader, theme infiniscroll, etc).
-			originalOverflow = $('body').css('overflow');
-			$('body').css('overflow', 'hidden');
-
 			prepareGallery();
 			
 			if ( gallery.jp_carousel( 'testIfOpened' ) )
 				return; // don't open if already opened
+
+			// make sure to stop the page from scrolling behind the carousel overlay, so we don't trigger
+			// infiniscroll for it when enabled (Reader, theme infiniscroll, etc).
+			originalOverflow = $('body').css('overflow');
+			$('body').css('overflow', 'hidden');
 			
 			container.data('carousel-extra', data);
 
