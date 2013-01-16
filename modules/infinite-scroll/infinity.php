@@ -397,11 +397,21 @@ class The_Neverending_Home_Page {
 
 	/**
 	 * Returns the Ajax url
+	 *
+	 * @global $wp
+	 * @uses home_url, is_ssl, add_query_arg, trailingslashit, apply_filters
+	 * @return string
 	 */
 	function ajax_url() {
 		global $wp;
 
-		$base_url = home_url( trailingslashit( $wp->request ), is_ssl() ? 'https' : 'http' );
+		// When using default permalinks, $wp->request will be null, so we reconstruct the request from the query arguments WP parsed.
+		if ( is_null( $wp->request ) ) {
+			$base_url = home_url( '/', is_ssl() ? 'https' : 'http' );
+			$base_url = add_query_arg( $wp->query_vars, $base_url );
+		} else {
+			$base_url = home_url( trailingslashit( $wp->request ), is_ssl() ? 'https' : 'http' );
+		}
 
 		$ajaxurl = add_query_arg( array( 'infinity' => 'scrolling' ), $base_url );
 
@@ -438,7 +448,7 @@ class The_Neverending_Home_Page {
 		// Base JS settings
 		$js_settings = array(
 			'id'               => self::get_settings()->container,
-			'ajaxurl'          => esc_js( esc_url_raw( self::ajax_url() ) ),
+			'ajaxurl'          => esc_url_raw( self::ajax_url() ),
 			'type'             => esc_js( self::get_settings()->type ),
 			'wrapper'          => self::has_wrapper(),
 			'wrapper_class'    => is_string( self::get_settings()->wrapper ) ? esc_js( self::get_settings()->wrapper ) : 'infinite-wrap',
