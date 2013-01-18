@@ -312,6 +312,10 @@ abstract class Publicize_Base {
 						delete_post_meta( $post_id, $this->POST_SKIP . $unique_id );
 					}
 				}
+
+				// Users may hook in here and do anything else they need to after meta is written,
+				// and before the post is processed for Publicize.
+				do_action( 'publicize_save_meta', $submit_post, $post_id, $service_name, $connection );
 			}
 		}
 
