@@ -232,9 +232,9 @@ function jetpack_mobile_app_promo()  {
 		if ( ! navigator.userAgent.match( /wp-(iphone|android|blackberry|nokia|windowsphone)/i ) ) {
 			if ( ( navigator.userAgent.match( /iphone/i ) ) || ( navigator.userAgent.match( /ipod/i ) ) )
 			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=ios">Download WordPress for iOS</a></span><br /><br />' );
-			else if ( ( navigator.userAgent.match( /android/i ) ) )
+			else if ( ( navigator.userAgent.match( /android/i ) ) && ( null == navigator.userAgent.match( /playbook/i ) && null == navigator.userAgent.match( /bb10/i ) ) )
 			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=android">Download WordPress for Android</a></span><br /><br />' );
-			else if ( ( navigator.userAgent.match( /blackberry/i ) ) )
+			else if ( ( navigator.userAgent.match( /blackberry/i ) ) || ( navigator.userAgent.match( /playbook/i ) ) || ( navigator.userAgent.match( /bb10/i ) ) )
 			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=blackberry">Download WordPress for BlackBerry</a></span><br /><br />' );
 			else if ( ( navigator.userAgent.match( /windows phone os/i ) ) )
 			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px; line-height: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=windowsphone">Download WordPress for <br />Windows Phone</a></span><br /><br />' );
