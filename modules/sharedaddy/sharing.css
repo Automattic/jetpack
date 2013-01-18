@@ -205,6 +205,7 @@ a.sd-button:hover span {
 	font-size: 90%;
 	color: #666;
 	margin-left: 5px;
+	line-height: 1;
 }
 
 /* @noflip */
