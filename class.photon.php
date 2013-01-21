@@ -104,6 +104,26 @@ class Jetpack_Photon {
 	}
 
 	/**
+	 * Try to determine height and width from strings WP appends to resized image filenames.
+	 *
+	 * @param string $src The image URL.
+	 * @return array An array consisting of width and height.
+	 */
+	public static function parse_dimensions_from_filename( $src ) {
+		$width_height_string = array();
+
+		if ( preg_match( '#-(\d+)x(\d+)\.(?:' . implode('|', self::$extensions ) . '){1}$#i', $src, $width_height_string ) ) {
+			$width = (int) $width_height_string[1];
+			$height = (int) $width_height_string[2];
+
+			if ( $width && $height )
+				return array( $width, $height );
+		}
+
+		return array( false, false );
+	}
+
+	/**
 	 * Identify images in post content, and if images are local (uploaded to the current site), pass through Photon.
 	 *
 	 * @param string $content
@@ -212,9 +232,8 @@ class Jetpack_Photon {
 					}
 
 					// If image tag lacks width and height arguments, try to determine from strings WP appends to resized image filenames.
-					if ( false === $width && false === $height && preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $width_height_string ) ) {
-						$width = (int) $width_height_string[1];
-						$height = (int) $width_height_string[2];
+					if ( false === $width && false === $height ) {
+						list( $width, $height ) = Jetpack_Photon::parse_dimensions_from_filename( $src );
 					}
 
 					// If width is available, constrain to $content_width
