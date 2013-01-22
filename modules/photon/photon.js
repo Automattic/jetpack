@@ -8,7 +8,7 @@
 				var width = this.width,
 					height = this.height;
 
-				if ( width && height ) {
+				if ( width && width > 0 && height && height > 0 ) {
 					$( this ).attr( {
 						width: width,
 						height: height
