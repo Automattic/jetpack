@@ -727,9 +727,7 @@ class Share_Facebook extends Sharing_Source {
 
 			$locale = $this->guess_locale_from_lang( get_locale() );
 			if ( $locale ) {
-				if ( 'en_US' != $locale ) {
-					$url .= '&amp;locale=' . $locale;
-				}
+				$url .= '&amp;locale=' . $locale;
 
 				if ( isset( $widths[$locale] ) ) {
 					$inner_w = $widths[$locale];
