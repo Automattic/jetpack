@@ -260,26 +260,33 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	}
 	
 	function guess_locale_from_lang( $lang ) {
-		$lang = strtolower( str_replace( '-', '_', $lang ) );
-
-		if ( 5 == strlen( $lang ) ) {
-			$lang = substr( $lang, 0, 3 ) . strtoupper( substr( $lang, 3, 2 ) );
-		} else if ( 3 == strlen( $lang ) ) {
-			$lang = $lang;
-		} else {
-			$lang = $lang . '_' . strtoupper( $lang );
+		if ( 'en' == $lang || 'en_US' == $lang || !$lang ) {
+			return 'en_US';
 		}
-	
-		if ( 'en_EN' == $lang ) {
-			$lang = 'en_US';
-		} else if ( 'he_HE' == $lang ) {
-			$lang = 'he_IL';
-		} else if ( 'ja_JA' == $lang )
-			$lang = 'ja_JP';
 
-		return $lang;
+		if ( !class_exists( 'GP_Locales' ) ) {
+			if ( !defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || !file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+				return false;
+			}
+
+			require JETPACK__GLOTPRESS_LOCALES_PATH;
+		}
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// WP.com: get_locale() returns 'it'
+			$locale = GP_Locales::by_slug( $lang );
+		} else {
+			// Jetpack: get_locale() returns 'it_IT';
+			$locale = GP_Locales::by_field( 'wp_locale', $lang );
+		}
+
+		if ( !$locale || empty( $locale->facebook_locale ) ) {
+			return false;
+		}
+
+		return $locale->facebook_locale;
 	}
-	
+
 	function get_locale() {
 		return $this->guess_locale_from_lang( get_locale() );
 	}
