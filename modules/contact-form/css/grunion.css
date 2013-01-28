@@ -1,4 +1,3 @@
-.textwidget input[type='text'], .textwidget input[type='email'], .textwidget textarea { width: 100% !important; }
 .contact-form .clear-form { clear: both; }
 .contact-form input[type='text'], .contact-form input[type='email'] { width: 300px; margin-bottom: 13px; }
 .contact-form select { margin-bottom: 13px; }
@@ -8,3 +7,4 @@
 .contact-form label.checkbox, .contact-form label.radio { margin-bottom: 3px; float: none; font-weight: bold; display: inline-block; }
 .contact-form label span { color: #AAA; margin-left: 4px; font-weight: normal; }
 .form-errors .form-error-message { color: red; }
+.textwidget input[type='text'], .textwidget input[type='email'], .textwidget textarea { width: 250px; }
