@@ -16,6 +16,9 @@ function jetpack_og_tags() {
 		return;
 	}
 
+	// Disable the widont filter on WP.com to avoid stray &nbsps
+	$disable_widont = remove_filter( 'the_title', 'widont' );
+
 	$og_output = "\n<!-- Jetpack Open Graph Tags -->\n";
 	$tags = array();
 
@@ -51,18 +54,18 @@ function jetpack_og_tags() {
 
 	} else if ( is_singular() ) {
 		global $post;
-		setup_postdata( $post );
+		$data = $post; // so that we don't accidentally explode the global
 
-		$tags['og:type'] = 'article';
-		$tags['og:title'] = get_the_title();
-		$tags['og:url'] = get_permalink();
-		$tags['og:description'] = strip_tags( get_the_excerpt() );
-
-		// Force a description, to avoid FB getting its own
-		if ( empty( $tags['og:description'] ) )
-			$tags['og:description'] = ' ';
-
+		$tags['og:type']        = 'article';
+		$tags['og:title']       = empty( $data->post_title ) ? ' ' : wp_kses( $data->post_title, array() ) ;
+		$tags['og:url']         = get_permalink( $data->ID );
+		$tags['og:description'] = ! empty( $data->post_excerpt ) ? wp_kses( $data->post_content, array() ) : wp_trim_words( wp_kses( $data->post_content, array() ) );
+		$tags['og:description'] = empty( $tags['og:description'] ) ? ' ' : $tags['og:description'];
 	}
+
+	// Re-enable widont if we had disabled it
+	if ( $disable_widont )
+		add_filter( 'the_title', 'widont' );
 
 	if ( empty( $tags ) )
 		return;
