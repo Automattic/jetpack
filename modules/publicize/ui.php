@@ -267,7 +267,7 @@ jQuery( function($) {
 
 				var defaultMessage = $.trim( '<?php printf( $default_prefix, 'url' ); printf( $default_message, '$("#title").val()', 'url' ); printf( $default_suffix, 'url' ); ?>' );
 
-				wpasTitle.append( defaultMessage );
+				wpasTitle.append( defaultMessage.replace( /<[^>]+>/g,'') );
 
 				var selBeg = defaultMessage.indexOf( $("#title").val() );
 				if ( selBeg < 0 ) {
