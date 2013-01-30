@@ -50,7 +50,12 @@ class WPCOM_JSON_API {
 		return false;
 	}
 
-	function __construct( $method = null, $url = null, $post_body = null ) {
+	function __construct() {
+		$args = func_get_args();
+		call_user_func_array( array( $this, 'setup_inputs' ), $args );
+	}
+
+	function setup_inputs( $method = null, $url = null, $post_body = null ) {
 		if ( is_null( $method ) ) {
 			$this->method = strtoupper( $_SERVER['REQUEST_METHOD'] );
 		} else {
