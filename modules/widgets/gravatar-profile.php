@@ -162,6 +162,12 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		$show_personal_links = isset( $instance['show_personal_links'] ) ? (bool) $instance['show_personal_links'] : '';
 		$show_account_links  = isset( $instance['show_account_links'] ) ? (bool) $instance['show_account_links'] : '';
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$profile_url = admin_url( 'profile.php' );
+		} else {
+			$profile_url = 'https://gravatar.com/profile/edit';
+		}
+
 		?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
@@ -208,7 +214,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			</label>
 		</p>
 
-		<p><a href="<?php echo admin_url( 'profile.php' ); ?>" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( 'Edit Your Profile', 'jetpack' )?></a> | <a href="http://gravatar.com" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( "What's a Gravatar?", 'jetpack' ); ?></a></p>
+		<p><a href="<?php echo esc_url( $profile_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( 'Edit Your Profile', 'jetpack' )?></a> | <a href="http://gravatar.com" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( "What's a Gravatar?", 'jetpack' ); ?></a></p>
 
 		<?php
 	}
@@ -245,15 +251,18 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			$instance['email'] = $user->user_email;
 		}
 
+		$hashed_email = md5( strtolower( trim( $instance['email'] ) ) );
+		$cache_key = 'grofile-' . $hashed_email;
+		delete_transient( $cache_key );
+
 		return $instance;
 	}
 
 	private function get_profile( $email ) {
 		$hashed_email = md5( strtolower( trim( $email ) ) );
-		$cache_key = 'widget-grofile-' . $hashed_email;
+		$cache_key = 'grofile-' . $hashed_email;
 
-		if( ! $profile = get_transient( $cache_key, 'widget' ) ) {
-
+		if( ! $profile = get_transient( $cache_key ) ) {
 			$profile_url = esc_url_raw( sprintf( '%s.gravatar.com/%s.php', ( is_ssl() ? 'https://secure' : 'http://www' ), $hashed_email ), array( 'http', 'https' ) );
 
 			$expire = 300;
@@ -267,13 +276,13 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 					$expire = 900; // cache for 15 minutes
 					$profile = $profile['entry'][0];
 				} else {
+					// Something strange happend.  Cache for 5 minutes.
 					$profile = array();
 				}
 
 			} else {
 				$expire = 900; // cache for 15 minutes
 				$profile = array();
-				set_transient( $cache_key . '-response-code', $response_code, $expire );
 			}
 
 			set_transient( $cache_key, $profile, $expire );
