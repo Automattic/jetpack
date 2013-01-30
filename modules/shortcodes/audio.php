@@ -316,10 +316,10 @@ SCRIPT;
 	 * If the theme uses infinite scroll, include jquery at the start
 	 */
 	function check_infinite() {
-		if ( current_theme_supports( 'infinite-scroll' ) ) {
+		if ( current_theme_supports( 'infinite-scroll' ) && class_exists( 'The_Neverending_Home_Page' ) && The_Neverending_Home_Page::archive_supports_infinity() )
 			wp_enqueue_script( 'jquery' );
-		}
 	}
+
 
 	/**
 	 * Dynamically load the .js, if needed
