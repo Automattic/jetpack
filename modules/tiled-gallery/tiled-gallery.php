@@ -135,7 +135,7 @@ class Jetpack_Tiled_Gallery {
 
 					$img_src = add_query_arg( array( 'w' => $image->width, 'h' => $image->height ), $orig_file );
 
-					$output .= '<div class="tiled-gallery-item ' . esc_attr( $size ) . '"><a href="' . esc_url( $link ) . '"><img ' . $this->generate_carousel_image_args( $image ) . ' src="' . esc_url( $img_src ) . '" width="' . esc_attr( $image->width ) . '" height="' . esc_attr( $image->height ) . '" align="left" title="' . esc_attr( $image_title ) . '" /></a>';
+					$output .= '<div class="tiled-gallery-item tiled-gallery-item-' . esc_attr( $size ) . '"><a href="' . esc_url( $link ) . '"><img ' . $this->generate_carousel_image_args( $image ) . ' src="' . esc_url( $img_src ) . '" width="' . esc_attr( $image->width ) . '" height="' . esc_attr( $image->height ) . '" align="left" title="' . esc_attr( $image_title ) . '" /></a>';
 
 					if ( $this->atts['grayscale'] == true ) {
 						$img_src_grayscale = jetpack_photon_url( $img_src, array( 'filter' => 'grayscale' ) );
