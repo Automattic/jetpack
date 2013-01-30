@@ -348,7 +348,7 @@ class WPCOM_JSON_API {
 		return $blog_id;
 	}
 
-	function post_like_count() {
+	function post_like_count( $blog_id, $post_id ) {
 		return 0;
 	}
 

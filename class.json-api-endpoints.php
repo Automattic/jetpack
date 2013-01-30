@@ -1281,7 +1281,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (int) $post->comment_count;
 				break;
 			case 'like_count' :
-				$response[$key] = (int) $this->api->post_like_count( array( 'post_id' => $post->ID, 'blog_id' => $blog_id ) );
+				$response[$key] = (int) $this->api->post_like_count( $blog_id, $post->ID );
 				break;
 			case 'featured_image' :
 				$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
