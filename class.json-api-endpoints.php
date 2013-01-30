@@ -2629,7 +2629,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 
 		$insert = array(
 			'comment_post_ID'      => $post->ID,
-			'user_id'              => $user->ID,
+			'user_ID'              => $user->ID,
 			'comment_author'       => $user->display_name,
 			'comment_author_email' => $user->user_email,
 			'comment_author_url'   => $user->user_url,
