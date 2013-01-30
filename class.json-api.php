@@ -22,6 +22,8 @@ class WPCOM_JSON_API {
 	var $exit = true;
 	var $public_api_scheme = 'https';
 
+	var $trapped_error = null;
+
 	static function init( $method = null, $url = null, $post_body = null ) {
 		if ( !self::$self ) {
 			$class = function_exists( 'get_called_class' ) ? get_called_class() : __CLASS__;
@@ -367,5 +369,70 @@ class WPCOM_JSON_API {
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Traps `wp_die()` calls and outputs a JSON response instead.
+	 * The result is always output, never returned.
+	 *
+	 * @param string|null $error_code.  Call with string to start the trapping.  Call with null to stop.
+	 */
+	function trap_wp_die( $error_code = null ) {
+		// Stop trapping
+		if ( is_null( $error_code ) ) {
+			$this->trapped_error = null;
+			remove_filter( 'wp_die_handler', array( $this, 'wp_die_handler_callback' ) );
+			return;
+		}
+
+		// If API called via PHP, bail: don't do our custom wp_die().  Do the normal wp_die().
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST ) {
+				return;
+			}
+		} else {
+			if ( ! defined( 'XMLRPC_REQUEST' ) || ! XMLRPC_REQUEST ) {
+				return;
+			}
+		}
+
+		// Start trapping
+		$this->trapped_error = array(
+			'status'  => 500,
+			'code'    => $error_code,
+			'message' => '',
+		);
+
+		add_filter( 'wp_die_handler', array( $this, 'wp_die_handler_callback' ) );
+	}
+
+	function wp_die_handler_callback() {
+		return array( $this, 'wp_die_handler' );
+	}
+
+	function wp_die_handler( $message, $title = '', $args = array() ) {
+		$args = wp_parse_args( $args, array(
+			'response' => 500,
+		) );
+
+		if ( $title ) {
+			$message = "$title: $message";
+		}
+
+		$this->trapped_error['status']  = $args['response'];
+		$this->trapped_error['message'] = wp_kses( $message, array() );
+
+		// We still want to exit so that code execution stops where it should.
+		// Attach the JSON output to WordPress' shutdown handler
+		add_action( 'shutdown', array( $this, 'output_trapped_error' ), 0 );
+		exit;
+	}
+
+	function output_trapped_error() {
+		$this->exit = false; // We're already exiting once.  Don't do it twice.
+		$this->output( $this->trapped_error['status'], (object) array(
+			'error'   => $this->trapped_error['code'],
+			'message' => $this->trapped_error['message'],
+		) );
 	}
 }
