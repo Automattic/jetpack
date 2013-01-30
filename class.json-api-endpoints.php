@@ -1149,10 +1149,13 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 			$posts = get_posts( array( 'name' => $post_id ) );
 			if ( !$posts || !isset( $posts[0]->ID ) || !$posts[0]->ID ) {
-				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+				$page = get_page_by_path( $post_id );
+				if ( !$page )
+					return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+				$post_id = $page->ID;
+			} else {
+				$post_id = (int) $posts[0]->ID;
 			}
-
-			$post_id = (int) $posts[0]->ID;
 			break;
 		default :
 			$post_id = (int) $post_id;
