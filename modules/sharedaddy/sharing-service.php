@@ -405,12 +405,15 @@ function sharing_add_footer() {
 	if ( apply_filters( 'sharing_js', true ) ) {
 
 		if ( is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
+			$sharing_post_urls = array_filter( $jetpack_sharing_counts );
+			if ( $sharing_post_urls ) :
 ?>
 
 	<script type="text/javascript">
-		WPCOM_sharing_counts = <?php echo json_encode( array_flip( $jetpack_sharing_counts ) ); ?>
+		WPCOM_sharing_counts = <?php echo json_encode( array_flip( $sharing_post_urls ) ); ?>
 	</script>
 <?php
+			endif;
 		endif;
 
 		wp_print_scripts( 'sharing-js' );
