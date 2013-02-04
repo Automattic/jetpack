@@ -373,7 +373,15 @@ class Jetpack_Photon {
 				// Expose determined arguments to a filter before passing to Photon
 				$transform = $image_args['crop'] ? 'resize' : 'fit';
 
-				$photon_args[ $transform ] = $image_args['width'] . ',' . $image_args['height'];
+				// Check specified image dimensions and account for possible zero values; photon fails to resize if a dimension is zero.
+				if ( 0 == $image_args['width'] || 0 == $image_args['height'] ) {
+					if ( 0 == $image_args['width'] && 0 < $image_args['height'] )
+						$photon_args['h'] = $image_args['height'];
+					elseif ( 0 == $image_args['height'] && 0 < $image_args['width'] )
+						$photon_args['w'] = $image_args['width'];
+				} else {
+					$photon_args[ $transform ] = $image_args['width'] . ',' . $image_args['height'];
+				}
 
 				$photon_args = apply_filters( 'jetpack_photon_image_downsize_string', $photon_args, compact( 'image_args', 'image_url', 'attachment_id', 'size', 'transform' ) );
 
