@@ -90,6 +90,45 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 2.1.2 =
+Enhancement: Infinite Scroll: Introduce filters for Infinite Scroll.
+Enhancement: Shortcodes: TED shortcode.
+Bug Fix: Carousel: Make sure to use large image sizes.
+Bug Fix: Carousel: Clicking the back button in your browser after exiting a carousel gallery brings you back to the gallery.
+Bug Fix: Carousel: Fix a scrollbar issue.
+Bug Fix: Comments: Move the get_avatar() function out of the base class.
+Bug Fix: Contact Form: Prevent the form from displaying i18n characters.
+Bug Fix: Contact Form: Remove the !important CSS rule.
+Bug Fix: Infinite Scroll: Main query arguments are not respected when using default permalink.
+Bug Fix: JSON API: Trap 'wp_die' for new comments and image uploads.
+Bug Fix: JSON API: Use a better array key for the user_ID.
+Bug Fix: JSON API: Make the class instantiable only once, but multi-use.
+Bug Fix: JSON API: Fix lookup of pages by page slug.
+Bug Fix: JSON API: Updates for post likes.
+Bug Fix: Mobile Theme: Remove Android download link for BB10 and Playbook.
+Bug Fix: Open Graph: Stop using Loop functions to get post data for meta tags.
+Bug Fix: Photon: Suppress and check for warnings when pasing_url and using it.
+Bug Fix: Photon: Ensure full image size can be used.
+Bug Fix: Photon: Resolve Photon / YouTube embed conflict.
+Bug Fix: Photon: Fix dimension parsing from URLs.
+Bug Fix: Photon: Make sure that width/height atts are greater than zero.
+Bug Fix: Sharedaddy: Layout fixes for share buttons.
+Bug Fix: Sharedaddy: Always send Facebook a language locale.
+Bug Fix: Sharedaddy: Don't look up share counts for empty URLs.
+Bug Fix: Shortcodes: Ensure that images don't overflow their containers in the slideshow shortcode.
+Bug Fix: Shortcodes: only enqueue jquery if archive supports Infinite Scroll in the Audio Shortcode.
+Bug Fix: Tiled Galleries: Use a more specific class for gallery item size to avoid conflicts.
+Bug Fix: Tiled Galleries: Fixing scrolling issue when tapping on a Tiled Gallery on Android.
+Bug Fix: Widgets: Gravatar profile widget typo.
+Bug Fix: Widgets: Add (Jetpack) to widget titles.
+Bug Fix: Widgets: Twitter wasn't wrapping links in the t.co shortener.
+Bug Fix: Widgets: Facebook Likebox updates to handling the language locale.
+Bug Fix: Widgets: Top Posts: Fixed a WP_DEBUG notice.
+Bug Fix: Widgets: Gravatar Profile Widget: transient names must be less than 45 characters long.
+Bug Fix: typo in delete_post_action function.
+Bug Fix: Load rendered LaTeX image on same protocol as its page.
+
+
 = 2.1.1 =
 * Bug Fix: Fix for an error appearing for blogs updating from Jetpack 1.9.2 or earlier to 2.1.
 
