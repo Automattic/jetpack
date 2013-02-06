@@ -282,6 +282,10 @@ class Jetpack_Photon {
 					if ( $src != $photon_url ) {
 						$new_tag = $tag;
 
+						// If present, replace the link href with a Photoned URL for the full-size image.
+						if ( ! empty( $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) )
+							$new_tag = preg_replace( '#(href=["|\'])' . $images['link_url'][ $index ] . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $new_tag, 1 );
+
 						// Supplant the original source value with our Photon URL
 						$photon_url = esc_url( $photon_url );
 						$new_tag = str_replace( $src_orig, $photon_url, $new_tag );
@@ -304,18 +308,7 @@ class Jetpack_Photon {
 
 						// Replace original tag with modified version
 						$content = str_replace( $tag, $new_tag, $content );
-
-						// Overwrite the originally-matched tag if this image is wrapped in a link
-						if ( ! empty( $images['link_url'][ $index ] ) )
-							$tag = $new_tag;
 					}
-				}
-
-				// If image is linked to an image (presumably itself, but who knows), pass link href to Photon sans arguments.
-				// This change is only applied to the current tag so remaining matched tags aren't interfered with.
-				if ( ! empty( $images['link_url'][ $index ] ) && false !== strpos( $tag, $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
-					$new_tag = str_replace( $images['link_url'][ $index ], jetpack_photon_url( $images['link_url'][ $index ] ), $tag );
-					$content = str_replace( $tag, $new_tag, $content );
 				}
 			}
 		}
