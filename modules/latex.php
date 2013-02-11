@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Beautiful Math
- * Module Description: Mark up your posts with the <img src="//l.wordpress.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2" alt="LaTeX logo" title="LaTeX" style="vertical-align: -25%" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery.
+ * Module Description: Mark up your posts with the <img src="//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2" alt="LaTeX logo" title="LaTeX" style="vertical-align: -25%" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery.
  * Sort Order: 12
  * First Introduced: 1.1
  */
@@ -64,11 +64,11 @@ function latex_entity_decode( $latex ) {
 }
 
 function latex_render( $latex, $fg, $bg, $s = 0 ) {
-	$url = ( is_ssl() ? 'https://s-ssl.wordpress.com' : 'http://s0.wp.com' ) . "/latex.php?latex=" . urlencode( $latex ) . "&bg=$bg&fg=$fg&s=$s";
+	$url = "//s0.wp.com/latex.php?latex=" . urlencode( $latex ) . "&bg=" . $bg . "&fg=" . $fg . "&s=" . $s;
 	$url = esc_url( $url );
 	$alt = str_replace( '\\', '&#92;', esc_attr( $latex ) );
 
-	return "<img src='$url' alt='$alt' title='$alt' class='latex' />";
+	return '<img src="' . $url . '" alt="' . $alt . '" title="' . $alt . '" class="latex" />';
 }
 
 /**
