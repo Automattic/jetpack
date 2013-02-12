@@ -90,6 +90,9 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= trunk =
+* Bug Fix: Stats: sync stats_options so server has roles array needed for view_stats cap check.
+
 = 2.1.2 =
 * Enhancement: Infinite Scroll: Introduce filters for Infinite Scroll.
 * Enhancement: Shortcodes: TED shortcode.
