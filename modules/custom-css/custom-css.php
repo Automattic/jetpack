@@ -595,9 +595,9 @@ class Jetpack_Custom_CSS {
 		if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) {
 			$url = plugins_url( 'custom-css/js/', __FILE__ );
 			wp_enqueue_script( 'jquery.spin' );
-			wp_enqueue_script( 'safecss-ace', $url . 'ace/ace.js', array(), '20121228', true );
-			wp_enqueue_script( 'safecss-ace-css', $url . 'ace/mode-css.js', array( 'safecss-ace' ), '20121228', true );
-			wp_enqueue_script( 'safecss-ace-use', $url . 'safecss-ace.js', array( 'jquery', 'safecss-ace-css' ), '20121228', true );
+			wp_enqueue_script( 'safecss-ace', $url . 'ace/ace.js', array(), '20130213', true );
+			wp_enqueue_script( 'safecss-ace-css', $url . 'ace/mode-css.js', array( 'safecss-ace' ), '20130213', true );
+			wp_enqueue_script( 'safecss-ace-use', $url . 'safecss-ace.js', array( 'jquery', 'safecss-ace-css' ), '20130213', true );
 		}
 	}
 
@@ -663,6 +663,14 @@ class Jetpack_Custom_CSS {
 		<script type="text/javascript">
 			/*<![CDATA[*/
 			var safecssResize, safecssInit;
+
+			<?php
+
+			if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) {
+					?>var safecssAceSrcPath = <?php echo json_encode( parse_url( plugins_url( 'custom-css/js/ace/', __FILE__ ), PHP_URL_PATH ) ); ?>;<?php
+			}
+
+			?>
 
 			( function ( $ ) {
 				var safe, win;

@@ -6,6 +6,10 @@
 	};
 	var loadAce = function() {
 		// Set up ACE editor
+		ace.config.set( 'modePath', safecssAceSrcPath );
+		ace.config.set( 'workerPath', safecssAceSrcPath );
+		ace.config.set( 'themePath', safecssAceSrcPath );
+
 		editor = ace.edit( 'safecss-ace' );
 		// Globalize it so we can access it other places
 		global.safecss_editor = editor;
