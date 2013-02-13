@@ -117,7 +117,7 @@ class Jetpack_Custom_CSS {
 				$css = $csstidy->print->plain();
 			}
 
-			if ( isset( $_POST['custom_content_width'] ) && intval( $_POST['custom_content_width'] ) > 0 )
+			if ( isset( $_POST['custom_content_width'] ) && intval( $_POST['custom_content_width'] ) > 0 && ( ! isset( $GLOBALS['content_width'] ) || $_POST['custom_content_width'] != $GLOBALS['content_width'] ) )
 				$custom_content_width = intval( $_POST['custom_content_width'] );
 			else
 				$custom_content_width = false;
