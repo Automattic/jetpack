@@ -18,7 +18,7 @@ Features include:
 * Simple, concise stats with no additional load on your server.  Previously provided by [WordPress.com Stats](http://wordpress.org/extend/plugins/stats/).
 * Email subscriptions for your blog's posts and your post's comments.
 * Social networking enabled comment system.
-* Likes powered by WordPress.com
+* Likes, allowing your readers to show their appreciation of your posts.
 * Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com.
 * Simple, Akismet-backed contact forms.
 * The [WP.me URL shortener](http://wp.me/sf2B5-shorten).
@@ -91,10 +91,25 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
-= 2.2  =
-* Enhancement: Likes.
-* Bug Fix: JSON API: Fix authorization problems.
+= 2.2 =
+* Enhancement: Likes: Allow your readers to show their appreciation of your posts.
+* Enhancement: Shortcodes: SoundCloud: Update to version 2.3 of the SoundCloud plugin (HTML5 default player, various fixes).
+* Enhancement: Shortcodes: Subscriptions: Add a shortcode to enable placement of a subscription signup form in a post or page.
+* Enhancement: Sharedaddy: Allow selecting multiple images from a post using the Pinterest share button.
+* Enhancement: Contact Form: Allow feedbacks to be marked spam in bulk.
+* Bug Fix: JSON API: Fix authorization problems that some users were experiencing.
 * Bug Fix: Stats: sync stats_options so server has roles array needed for view_stats cap check.
+* Bug Fix: Infinite Scroll: Display improvements.
+* Bug Fix: Infinite Scroll: WordPress compatibility fixes.
+* Bug Fix: Photon: Only rewrite iamge urls if the URL is compatible with Photon.
+* Bug Fix: Photon: Account for registered image sizes with one or more dimesions set to zero.
+* Bug Fix: Subscriptions: Make HTML markup more valid.
+* Bug Fix: Subscriptions: Fixed notices displayed in debug mode.
+* Bug Fix: Custom CSS: CSS warnings and errors should now work in environments where JavaScript is concatenated or otherwise modified before being served.
+* Bug Fix: Hovercards: WordPress compatibility fixes.
+* Bug Fix: Improved image handling for the Sharing and Publicize modules.
+* Bug Fix: Carousel: Display and Scrollbar fixes.
+* Bug Fix: Tiled Galleries: Restrict images in tiled galleries from being set larger than their containers.
 
 = 2.1.2 =
 * Enhancement: Infinite Scroll: Introduce filters for Infinite Scroll.
