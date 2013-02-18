@@ -90,6 +90,79 @@ color: #D98500;
 <?php
 }
 
+/**
+ * Hack a 'Bulk Spam' option for bulk edit
+ * There isn't a better way to do this until
+ * http://core.trac.wordpress.org/changeset/17297 is resolved
+ */
+add_action( 'admin_head', 'grunion_add_bulk_edit_option' );
+function grunion_add_bulk_edit_option() {
+
+	$screen = get_current_screen();
+
+	if ( 'edit-feedback' != $screen->id
+	|| ( ! empty( $_GET['post_status'] ) && 'spam' == $_GET['post_status'] ) )
+		return;
+
+	$spam_text = __( 'Mark Spam', 'jetpack' );
+	?>
+		<script type="text/javascript">
+			jQuery(document).ready(function($) {
+				$('#posts-filter .actions select[name=action] option:first-child').after('<option value="spam"><?php echo esc_attr( $spam_text ); ?></option>' );
+			})
+		</script>
+	<?php
+}
+
+/**
+ * Handle a bulk spam report
+ */
+add_action( 'admin_init', 'grunion_handle_bulk_spam' );
+function grunion_handle_bulk_spam() {
+	global $pagenow;
+
+	if ( 'edit.php' != $pagenow
+	|| ( empty( $_REQUEST['post_type'] ) || 'feedback' != $_REQUEST['post_type'] ) )
+		return;
+
+	// Slip in a success message
+	if ( ! empty( $_REQUEST['message'] ) && 'marked-spam' == $_REQUEST['message'] )
+		add_action( 'admin_notices', 'grunion_message_bulk_spam' );
+
+	if ( empty( $_REQUEST['action'] ) || 'spam' != $_REQUEST['action'] )
+		return;
+
+	check_admin_referer('bulk-posts');
+
+	if ( empty( $_REQUEST['post'] ) ) {
+		wp_safe_redirect( wp_get_referer() );
+		exit;
+	}
+
+	$post_ids = array_map( 'intval', $_REQUEST['post'] );
+
+	foreach( $post_ids as $post_id ) {
+		if ( ! current_user_can( "edit_page", $post_id ) )
+			wp_die( __( 'You are not allowed to manage this item.', 'jetpack' ) );
+
+		$post = array(
+				'ID'           => $post_id,
+				'post_status'  => 'spam',
+			);
+		$akismet_values = get_post_meta( $post_id, '_feedback_akismet_values', true );
+		wp_update_post( $post );
+		do_action( 'contact_form_akismet', 'spam', $akismet_values );
+	}
+
+	$redirect_url = add_query_arg( 'message', 'marked-spam', wp_get_referer() );
+	wp_safe_redirect( $redirect_url );
+	exit;
+}
+
+function grunion_message_bulk_spam() {
+	echo '<div class="updated"><p>' . __( 'Feedback(s) marked as spam', 'jetpack' ) . '</p></div>';
+}
+
 // remove admin UI parts that we don't support in feedback management
 add_action( 'admin_menu', 'grunion_admin_menu' );
 function grunion_admin_menu() {
