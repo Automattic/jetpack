@@ -4,7 +4,7 @@ jQuery(document).ready(function($) {
 	// gallery faded layer and container elements
 	var overlay, comments, gallery, container, nextButton, previousButton, info, title,
 	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval, buttons,
-	screenPadding = 110, originalOverflow = $('body').css('overflow'), proportion = 85, isMobile;
+	screenPadding = 110, originalOverflow = $('body').css('overflow'), originalHOverflow = $('html').css('overflow'), proportion = 85, isMobile;
 
 	isMobile = /Android|iPhone|iPod/i.test(navigator.userAgent);
 
@@ -179,7 +179,7 @@ jQuery(document).ready(function($) {
 				.css({
 					'position' : 'fixed',
 					'top'      : 0,
-					'right'    : 0,
+					'right'    : '15px',
 					'bottom'   : 0,
 					'width'    : screenPadding
 				});
@@ -427,6 +427,9 @@ jQuery(document).ready(function($) {
 			// infiniscroll for it when enabled (Reader, theme infiniscroll, etc).
 			originalOverflow = $('body').css('overflow');
 			$('body').css('overflow', 'hidden');
+			// prevent html from overflowing on some of the new themes.
+			originalHOverflow = $('html').css('overflow');
+			$('html').css('overflow', 'hidden');			
 			
 			container.data('carousel-extra', data);
 
@@ -463,6 +466,7 @@ jQuery(document).ready(function($) {
 		close : function(){
 			// make sure to let the page scroll again
 			$('body').css('overflow', originalOverflow);
+			$('html').css('overflow', originalHOverflow);
 			return container
 				.trigger('jp_carousel.beforeClose')
 				.fadeOut('fast', function(){
@@ -595,7 +599,7 @@ jQuery(document).ready(function($) {
 			// if advancing prepare the slide that will enter the screen
 			previous.jp_carousel('setSlidePosition', -previous.width() + (screenPadding * 0.75)).show();
 			next.jp_carousel('setSlidePosition', gallery.width() - (screenPadding * 0.75)).show();
-
+			next.css({'position': ''});
 			document.location.href = document.location.href.replace(/#.*/, '') + '#jp-carousel-' + current.data('attachment-id');
 			gallery.jp_carousel('resetButtons', current);
 			container.trigger('jp_carousel.selectSlide', [current]);
@@ -789,7 +793,7 @@ jQuery(document).ready(function($) {
 					var slide = $('<div class="jp-carousel-slide"></div>')
 							.hide()
 							.css({
-								'position' : 'fixed',
+								//'position' : 'fixed',
 								'left'     : i < start_index ? -1000 : gallery.width()
 							})
 							.append($('<img>'))
