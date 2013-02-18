@@ -453,7 +453,7 @@ class The_Neverending_Home_Page {
 			'wrapper'          => self::has_wrapper(),
 			'wrapper_class'    => is_string( self::get_settings()->wrapper ) ? esc_js( self::get_settings()->wrapper ) : 'infinite-wrap',
 			'footer'           => is_string( self::get_settings()->footer ) ? esc_js( self::get_settings()->footer ) : self::get_settings()->footer,
-			'text'             => esc_js( __( 'Load more posts', 'jetpack' ) ),
+			'text'             => esc_js( __( 'Older posts', 'jetpack' ) ),
 			'totop'            => esc_js( __( 'Scroll back to top', 'jetpack' ) ),
 			'order'            => 'DESC',
 			'scripts'          => array(),
@@ -850,7 +850,7 @@ class The_Neverending_Home_Page {
 	 * @uses apply_filters, current_theme_supports, is_home, is_archive, self::get_settings
 	 * @return bool
 	 */
-	public function archive_supports_infinity() {
+	public static function archive_supports_infinity() {
 		return (bool) apply_filters( 'infinite_scroll_archive_supported', current_theme_supports( 'infinite-scroll' ) && ( is_home() || is_archive() ), self::get_settings() );
 	}
 

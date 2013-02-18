@@ -15,26 +15,11 @@
 }
 #infinite-handle span {
 	background: #333;
-	border: 1px solid #303030;
-	border-radius: 2px;
-	color: #ccc;
+	border-radius: 1px;
+	color: #eee;
 	cursor: pointer;
 	font-size: 13px;
-	font-weight: 400;
-	padding: 6px 26px;
-}
-#infinite-handle span:before {
-	color: #bdbdbd;
-	content: '\2b07';
-	font-size: 12px;
-	font-weight: bold;
-	height: 14px;
-	line-height: 10px;
-	margin-right: 10px;
-	width: 14px;
-}
-#infinite-handle span:hover:before {
-	color: #fff;
+	padding: 6px 16px;
 }
 
 /**
