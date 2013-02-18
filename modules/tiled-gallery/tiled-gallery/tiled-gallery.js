@@ -9,22 +9,15 @@ var TiledGallery = function() {
 
 	$( window ).on( 'resize', function () {
 		clearTimeout( self.resizeTimeout );
-
+		
 		self.resizeTimeout = setTimeout( function () { self.resize(); }, 150 );
 	} );
 
     // Make any new galleries loaded by Infinite Scroll flexible
-    $( 'body' ).on( 'post-load', function () {
-		self.populate();
-
-		// After each image load, run resize in case all images in the gallery are loaded.
-		self.gallery.find( 'img' ).off( 'load.tiled-gallery' ).on( 'load.tiled-gallery', function () {
-			self.resize();
-		} );
-
-		// Run resize now in case all images loaded from cache.
-		self.resize();
-    } );
+    $( 'body' ).on( 'post-load', $.proxy( self.initialize, self ) );
+	
+	// Populate and set up captions on newdash galleries.
+	$( document ).on( 'page-rendered.wpcom-newdash', $.proxy( self.populate, self ) );
 
 	this.resize();
 };
@@ -35,6 +28,20 @@ TiledGallery.prototype.populate = function() {
 	this.caption = this.gallery.find( '.tiled-gallery-caption' );
 
 	this.Captions();
+};
+
+TiledGallery.prototype.initialize = function() {
+	var self = this;
+
+	self.populate();
+
+	// After each image load, run resize in case all images in the gallery are loaded.
+	self.gallery.find( 'img' ).off( 'load.tiled-gallery' ).on( 'load.tiled-gallery', function () {
+		self.resize();
+	} );
+
+	// Run resize now in case all images loaded from cache.
+	self.resize();
 };
 
 /**
@@ -50,11 +57,11 @@ TiledGallery.prototype.Captions = function() {
 };
 
 TiledGallery.prototype.resize = function() {
-	var resizeableElements = '.tiled-gallery-item img, .gallery-group, .gallery-row';
+	var resizeableElements = '.gallery-row, .gallery-group, .tiled-gallery-item img';
 
 	this.gallery.each( function ( galleryIndex, galleryElement ) {
 		var thisGallery = $( galleryElement );
-
+		
 		// All images must be loaded before proceeding.
 		var imagesLoaded = true;
 
@@ -92,9 +99,23 @@ TiledGallery.prototype.resize = function() {
 				var extraWidth = ( parseInt( thisGalleryElement.css( 'marginLeft' ), 10 ) || 0 ) + ( parseInt( thisGalleryElement.css( 'marginRight' ), 10 ) || 0 );
 				var extraHeight = ( parseInt( thisGalleryElement.css( 'marginTop' ), 10 ) || 0 ) + ( parseInt( thisGalleryElement.css( 'marginBottom' ), 10 ) || 0 )
 
+				// In some situations, tiled galleries in Firefox have shown scrollbars on the images because
+				// the .outerWidth() call on the image returns a value larger than the container. Restrict
+				// widths used in the resizing functions to the maximum width of the container.
+				var parentElement = $( thisGalleryElement.parents( resizeableElements ).get( 0 ) );
+
+				if ( parentElement && parentElement.data( 'original-width' ) ) {
+					thisGalleryElement
+						.data( 'original-width', Math.min( parentElement.data( 'original-width' ), thisGalleryElement.outerWidth( true ) ) )
+						.data( 'original-height', Math.min( parentElement.data( 'original-height' ), thisGalleryElement.outerHeight( true ) ) );
+				}
+				else {
+					thisGalleryElement
+						.data( 'original-width', thisGalleryElement.outerWidth( true ) )
+						.data( 'original-height', thisGalleryElement.outerHeight( true ) );
+				}
+
 				thisGalleryElement
-					.data( 'original-width', thisGalleryElement.outerWidth( true ) )
-					.data( 'original-height', thisGalleryElement.outerHeight( true ) )
 					.data( 'extra-width', extraWidth )
 					.data( 'extra-height', extraHeight );
 			} );
