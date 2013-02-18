@@ -141,7 +141,7 @@ function grofiles_get_avatar( $avatar, $author ) {
 		if ( false !== strpos( $author, '@' ) ) {
 			grofiles_gravatars_to_append( $author );
 		} else {
-			if ( $user = get_userdatabylogin( $author ) )
+			if ( $user = get_user_by( 'slug', $author ) )
 				grofiles_gravatars_to_append( $user->ID );
 		}
 	} else if ( isset( $author->comment_type ) ) {

@@ -1,5 +1,5 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, apeatling, beaulebens, hugobaeta, Joen, mdawaffe, andy, designsimply, hew, westi, eoigal, tmoorewp, matt, pento, cfinke, daniloercoli, chellycat, gibrown, jblz, jshreve, barry, alternatekev, azaozz, ethitter, johnjamesjacoby, lancewillett, martinremy, nickmomrik, stephdau, yoavf, matveb
+Contributors: automattic, apeatling, beaulebens, hugobaeta, Joen, mdawaffe, andy, designsimply, hew, westi, eoigal, tmoorewp, matt, pento, cfinke, daniloercoli, chellycat, gibrown, jblz, jshreve, barry, alternatekev, azaozz, ethitter, johnjamesjacoby, lancewillett, martinremy, nickmomrik, stephdau, yoavf, matveb, jeherve
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow
 Requires at least: 3.3
 Tested up to: 3.5
@@ -18,6 +18,7 @@ Features include:
 * Simple, concise stats with no additional load on your server.  Previously provided by [WordPress.com Stats](http://wordpress.org/extend/plugins/stats/).
 * Email subscriptions for your blog's posts and your post's comments.
 * Social networking enabled comment system.
+* Likes powered by WordPress.com
 * Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com.
 * Simple, Akismet-backed contact forms.
 * The [WP.me URL shortener](http://wp.me/sf2B5-shorten).
@@ -90,7 +91,9 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
-= trunk =
+= 2.2  =
+* Enhancement: Likes.
+* Bug Fix: JSON API: Fix authorization problems.
 * Bug Fix: Stats: sync stats_options so server has roles array needed for view_stats cap check.
 
 = 2.1.2 =
