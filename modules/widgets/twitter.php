@@ -93,7 +93,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 		}
 
 		echo $args['after_widget'];
-		do_action( 'jetpack_stats_extra', 'widgets', 'twitter' );
+		do_action( 'jetpack_bump_stats_extras', 'widget', 'twitter' );
 	}
 
 	function display_tweets( $show, $tweets, $hidepublicized, $before_tweet, $before_timesince, $account ) {
@@ -199,7 +199,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 					$tweets = json_decode( wp_remote_retrieve_body( $response ), true );
 
 					if ( ! is_array( $tweets ) || isset( $tweets['error'] ) ) {
-						do_action( 'jetpack_bump_stats_extras', 'twitter_widget', 'request-fail-$response_code-bad-data' );
+						do_action( 'jetpack_bump_stats_extras', 'twitter_widget', "request-fail-{$response_code}-bad-data" );
 						$the_error = '<p>' . esc_html__( 'Error: Twitter did not respond. Please wait a few minutes and refresh this page.', 'jetpack' ) . '</p>';
 						$tweet_cache_expire = 300;
 						break;
@@ -211,14 +211,14 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 					$tweet_cache_expire =  900; 
 					break;
 				case 401 : // display private stream notice
-					do_action( 'jetpack_bump_stats_extras', 'twitter_widget', 'request-fail-$response_code' );
+					do_action( 'jetpack_bump_stats_extras', 'twitter_widget', "request-fail-{$response_code}" );
 
 					$tweets = array();
 					$the_error = '<p>' . sprintf( esc_html__( 'Error: Please make sure the Twitter account is %1$spublic%2$s.', 'jetpack' ), '<a href="http://support.twitter.com/forums/10711/entries/14016">', '</a>' ) . '</p>';
 					$tweet_cache_expire = 300;
 					break;
 				default :  // display an error message
-					do_action( 'jetpack_bump_stats_extras', 'twitter_widget', 'request-fail-$response_code' );
+					do_action( 'jetpack_bump_stats_extras', 'twitter_widget', "request-fail-{$response_code}" );
 
 					$tweets = get_transient( 'widget-twitter-backup-' . $this->number );
 					$the_error = '<p>' . esc_html__( 'Error: Twitter did not respond. Please wait a few minutes and refresh this page.', 'jetpack' ) . '</p>';
