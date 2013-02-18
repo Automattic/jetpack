@@ -186,7 +186,7 @@ class Jetpack_PostImages {
 		* compare URLs to see if an image is attached AND inserted.
 		*/
 		$html_images = array();
-		$html_images = self::from_html( get_post( $post_id ) );
+		$html_images = self::from_html( $post_id );
 		$inserted_images = array();
 
 		foreach( $html_images as $html_image ) {
@@ -243,18 +243,22 @@ class Jetpack_PostImages {
 
 	/**
 	 * Very raw -- just parse the HTML and pull out any/all img tags and return their src
-	 * @param  str $html The HTML string to parse for images, or a post object
+	 * @param  mixed $html_or_id The HTML string to parse for images, or a post id
 	 * @return Array containing images
 	 */
-	static function from_html( $html ) {
+	static function from_html( $html_or_id ) {
 		$images = array();
 
-		if ( is_object( $html ) ) {
-			if ( property_exists( $html, 'post_content' ) )
-				$html = apply_filters( 'the_content', $html->post_content );
-			else
+		if ( is_numeric( $html_or_id ) ) {
+			$post = get_post( $html_or_id );
+
+			if ( !$post )
 				return $images;
+			$html = $post->post_content; // DO NOT apply the_content filters here, it will cause loops
 		}
+
+		if ( !$html )
+			return $images;
 
 		preg_match_all( '!<img.*src="([^"]+)".*/?>!iUs', $html, $matches );
 		if ( !empty( $matches[1] ) ) {
@@ -358,7 +362,9 @@ class Jetpack_PostImages {
 	 */
 	static function get_image( $post_id, $args = array() ) {
 		$image = '';
+		do_action( 'jetpack_postimages_pre_get_image', $post_id );
 		$media = self::get_images( $post_id, $args );
+
 
 		if ( is_array( $media ) ) {
 			foreach ( $media as $item ) {
@@ -369,6 +375,8 @@ class Jetpack_PostImages {
 			}
 		}
 
+		do_action( 'jetpack_postimages_post_get_image', $post_id );
+
 		return $image;
 	}
 
@@ -376,7 +384,7 @@ class Jetpack_PostImages {
 	 * Get an array containing a collection of possible images for this post, stopping once we hit a method
 	 * that returns something useful.
 	 * @param  int $post_id
-	 * @param  array  $args Optional args, curently only width and height required for images
+	 * @param  array  $args Optional args, see defaults list for details
 	 * @return Array containing images that would be good for representing this post
 	 */
 	static function get_images( $post_id, $args = array() ) {
@@ -388,23 +396,38 @@ class Jetpack_PostImages {
 			return $media;
 
 		$defaults = array(
-			'width'               => 200,  // Required minimum width (if possible to determine)
+			'width'               => 200, // Required minimum width (if possible to determine)
 			'height'              => 200, // Required minimum height (if possible to determine)
-			'avatar_size'         => 96,
-			'fallback_to_avatars' => false,
-			'gravatar_default'    => false,
+
+			'fallback_to_avatars' => false, // Optionally include Blavatar and Gravatar (in that order) in the image stack
+			'avatar_size'         => 96, // Used for both Grav and Blav
+			'gravatar_default'    => false, // Default image to use if we end up with no Gravatar
+
+			'from_thumbnail'      => true, // Use these flags to specifcy which methods to use to find an image
+			'from_slideshow'      => true,
+			'from_gallery'        => true,
+			'from_attachment'     => true,
+			'from_html'           => true,
+
+			'html_content'        => '' // HTML string to pass to from_html()
 		);
 		$args = wp_parse_args( $args, $defaults );
 
-		$media = self::from_thumbnail( $post_id, $args['width'], $args['height'] );
-		if ( !$media )
+		$media = false;
+		if ( $args['from_thumbnail'] )
+			$media = self::from_thumbnail( $post_id, $args['width'], $args['height'] );
+		if ( !$media && $args['from_slideshow'] )
 			$media = self::from_slideshow( $post_id, $args['width'], $args['height'] );
-		if ( !$media )
+		if ( !$media && $args['from_gallery'] )
 			$media = self::from_gallery( $post_id );
-		if ( !$media )
+		if ( !$media && $args['from_attachment'] )
 			$media = self::from_attachment( $post_id, $args['width'], $args['height'] );
-		if ( !$media )
-			$media = self::from_html( get_post( $post_id ) );
+		if ( !$media && $args['from_html'] ) {
+			if ( empty( $args['html_content'] ) )
+				$media = self::from_html( $post_id ); // Use the post_id, which will load the content
+			else
+				$media = self::from_html( $args['html_content'] ); // If html_content is provided, use that
+		}
 
 		if ( !$media && $args['fallback_to_avatars'] ) {
 			$media = self::from_blavatar( $post_id, $args['avatar_size'] );
