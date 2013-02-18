@@ -162,7 +162,7 @@ abstract class Sharing_Source {
 		}
 		$opts = implode( ',', $opts );
 		?>
-		<script type="text/javascript" charset="utf-8">
+		<script type="text/javascript">
 		jQuery(document).on( 'ready post-load', function(){
 			jQuery( 'a.share-<?php echo $name; ?>' ).on( 'click', function() {
 				window.open( jQuery(this).attr( 'href' ), 'wpcom<?php echo $name; ?>', '<?php echo $opts; ?>' );
@@ -275,7 +275,7 @@ class Share_Email extends Sharing_Source {
 		$visible = $status = false;
 ?>
 	<div id="sharing_email" style="display: none;">
-		<form action="" method="post">
+		<form action="<?php echo esc_url( $_SERVER['REQUEST_URI'] ); ?>" method="post">
 			<label for="target_email"><?php _e( 'Send to Email Address', 'jetpack' ) ?></label>
 			<input type="text" name="target_email" id="target_email" value="" />
 
@@ -642,7 +642,8 @@ class Share_LinkedIn extends Sharing_Source {
 			    });
 			});
 			jQuery( document.body ).on( 'post-load', function() {
-				IN.parse();
+				if ( typeof IN != 'undefined' )
+					IN.parse();
 			});
 			</script><?php
 		}
@@ -878,7 +879,7 @@ class Share_GooglePlus1 extends Sharing_Source {
 		global $post;
 
 		if ( $this->smart ) { ?>
-			<script type="text/javascript" charset="utf-8">
+			<script type="text/javascript">
 				function sharing_plusone( obj ) {
 					jQuery.ajax( {
 						url: '<?php echo get_permalink( $post->ID ) . '?share=google-plus-1'; ?>',
@@ -1145,12 +1146,14 @@ class Share_Pinterest extends Sharing_Source {
 		$image = '';
 
 		if ( class_exists( 'Jetpack_PostImages' ) ) {
-			global $post;
-			$img = Jetpack_PostImages::from_html( $post->ID );
+			// Use the full stack of methods to find an image, except for HTML, which can cause loops
+			$img = Jetpack_PostImages::get_image( $content->ID );
 			if ( !empty( $img['src'] ) )
 				return $img['src'];
 		}
 
+		// If we have to fall back to the following, we only do a few basic image checks
+		$content = $content->post_content;
 		if ( function_exists('has_post_thumbnail') && has_post_thumbnail() ) {
 			$thumb_id = get_post_thumbnail_id();
 			$thumb = wp_get_attachment_image_src( $thumb_id, 'full' );
@@ -1180,43 +1183,60 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url='. rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) . '&media=' . rawurlencode( esc_url_raw( $this->get_post_image( $post->post_content ) ) ) ) . '" class="pin-it-button" count-layout="horizontal"> '. __( 'Pin It', 'jetpack') .'</a></div>';
+			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url='. rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) . '&media=' . rawurlencode( esc_url_raw( $this->get_post_image( $post ) ) ) ) . '" class="pin-it-button" count-layout="horizontal"> '. __( 'Pin It', 'jetpack') .'</a></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest' );
 	}
 
 	public function process_request( $post, array $post_data ) {
-		$pinterest_url = esc_url_raw( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) . '&media=' . rawurlencode( esc_url_raw( $this->get_post_image( $post->post_content ) ) ) );
-
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		// Redirect to Pinterest
-		wp_redirect( $pinterest_url );
+		// If we're triggering the multi-select panel, then we don't need to redirect to Pinterest
+		if ( !isset( $_GET['js_only'] ) ) {
+			$pinterest_url = esc_url_raw( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) . '&media=' . rawurlencode( esc_url_raw( $this->get_post_image( $post ) ) ) );
+			wp_redirect( $pinterest_url );
+		} else {
+			echo '// share count bumped';
+		}
+
 		die();
 	}
 
 	public function display_footer() {
-		if ( !$this->smart ) {
-			$this->js_dialog( $this->shortname, array( 'width' => 650, 'height' => 280 ) );
-		} else {
-?>
-	<script type="text/javascript">
-	function pinterest_async_load() {
-		var s = document.createElement("script");
-		s.type = "text/javascript";
-		s.async = true;
-		s.src = window.location.protocol + "//assets.pinterest.com/js/pinit.js";
-		var x = document.getElementsByTagName("script")[0];
-		x.parentNode.insertBefore(s, x);
-	}
-	jQuery(document).on('ready post-load', function() {
-        	pinterest_async_load();
-	});
-	</script>
-<?php
-		}
-	}
+		?>
+		<?php if ( $this->smart ) : ?>
+			<script type="text/javascript">
+				// Pinterest shared resources
+				var s = document.createElement("script");
+				s.type = "text/javascript";
+				s.async = true;
+				s.src = window.location.protocol + "//assets.pinterest.com/js/pinit.js";
+				var x = document.getElementsByTagName("script")[0];
+				x.parentNode.insertBefore(s, x);
+			</script>
+		<?php else : ?>
+			<script type="text/javascript">
+			jQuery(document).on('ready', function(){
+				jQuery('body').on('click', 'a.share-pinterest', function(e){
+					e.preventDefault();
 
+					// Load Pinterest Bookmarklet code
+					var s = document.createElement("script");
+					s.type = "text/javascript";
+					s.src = window.location.protocol + "//assets.pinterest.com/js/pinmarklet.js?r=" + ( Math.random() * 99999999 );
+					var x = document.getElementsByTagName("script")[0];
+					x.parentNode.insertBefore(s, x);
 
+					// Trigger Stats
+					var s = document.createElement("script");
+					s.type = "text/javascript";
+					s.src = this + ( this.toString().indexOf( '?' ) ? '&' : '?' ) + 'js_only=1';
+					var x = document.getElementsByTagName("script")[0];
+					x.parentNode.insertBefore(s, x);
+				});
+			});
+			</script>
+		<?php endif;
+	}
 }
