@@ -20,13 +20,15 @@ function sharing_email_send_post( $data ) {
 
 function sharing_add_meta_box() {
 	$post_types = get_post_types( array( 'public' => true ) );
-
+	$title = apply_filters( 'sharing_meta_box_title', __( 'Sharing', 'jetpack' ) );
 	foreach( $post_types as $post_type ) {
-		add_meta_box( 'sharing_meta', __( 'Sharing', 'jetpack' ), 'sharing_meta_box_content', $post_type, 'advanced', 'high' );
+		add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'advanced', 'high' );
 	}
 }
 
 function sharing_meta_box_content( $post ) {
+	do_action( 'start_sharing_meta_box_content', $post );
+
 	$disabled = get_post_meta( $post->ID, 'sharing_disabled', true ); ?>
 
 	<p>
@@ -38,7 +40,7 @@ function sharing_meta_box_content( $post ) {
 	</p>
 
 	<?php
-
+	do_action( 'end_sharing_meta_box_content', $post );
 }
 
 function sharing_meta_box_save( $post_id ) {
@@ -137,7 +139,7 @@ add_action( 'init', 'sharing_init' );
 add_action( 'admin_init', 'sharing_add_meta_box' );
 add_action( 'save_post', 'sharing_meta_box_save' );
 add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
-add_action( 'sharing_global_options', 'sharing_global_resources' );
+add_action( 'sharing_global_options', 'sharing_global_resources', 30 );
 add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
 add_filter( 'sharing_services', 'sharing_restrict_to_single' );
 add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
