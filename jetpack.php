@@ -757,6 +757,7 @@ class Jetpack {
 			case 'infinite-scroll' :
 			case 'photon' :
 			case 'tiled-gallery' :
+			case 'likes' :
 				break;
 
 			// These modules are default off if we think the site is a private one
