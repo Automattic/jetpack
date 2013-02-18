@@ -1,4 +1,4 @@
-/* This file was automatically generated on Jan 10 2013 16:06:46 */
+/* This file was automatically generated on Jan 29 2013 22:51:19 */
 
 * {
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
@@ -205,7 +205,7 @@ div.jp-carousel-buttons a:hover {
 	padding:0.35em 0 0;
 	position: absolute;
 	text-align: right;
-	width: 100%;
+	width: 90%;
 	-webkit-transition: color 200ms linear;
 	-moz-transition: color 200ms linear;
 	-o-transition: color 200ms linear;
