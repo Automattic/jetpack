@@ -44,7 +44,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			add_action( 'wp_print_styles', array( $this, 'enqueue_style' ) );
 		}
 	}
-	
+
 	function enqueue_style() {
 		wp_register_style( 'widget-grid-and-list', plugins_url( 'widget-grid-and-list.css', __FILE__ ) );
 		wp_enqueue_style( 'widget-grid-and-list' );
@@ -55,7 +55,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( false === $title ) {
 			$title = $this->default_title;
 		}
-		
+
 		$count = isset( $instance['count'] ) ? (int) $instance['count'] : 10;
 		if ( $count < 1 || 20 < $count ) {
 			$count = 10;
@@ -99,7 +99,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( $instance['title'] === $this->default_title ) {
 			$instance['title'] = false; // Store as false in case of language change
 		}
-		
+
 		$instance['count'] = (int) $new_instance['count'];
 		if ( $instance['count'] < 1 || 20 < $instance['count'] ) {
 			$instance['count'] = 10;
@@ -175,7 +175,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		case 'grid' :
 			wp_enqueue_style( 'widget-grid-and-list' );
 			foreach ( $posts as &$post ) {
-				$image = Jetpack_PostImages::get_image( $post['post_id'], $get_image_options );
+				$image = Jetpack_PostImages::get_image( $post['post_id'] );
 				$post['image'] = $image['src'];
 				if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
 					$size = (int) $get_image_options['avatar_size'];
@@ -267,7 +267,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 			if ( !$post )
 				continue;
-		
+
 			// hide private and password protected posts
 			if ( 'publish' != $post->post_status || !empty( $post->post_password ) || empty( $post->ID ) )
 				continue;
@@ -280,12 +280,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			} else {
 				$title = $post->post_title;
 			}
-	
+
 			$permalink = get_permalink( $post->ID );
-	
+
 			$posts[] = compact( 'title', 'permalink', 'post_id' );
 			$counter++;
-		
+
 			if ( $counter == $count )
 				break; // only need to load and show x number of likes
 		}
