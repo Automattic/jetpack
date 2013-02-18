@@ -96,7 +96,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 			<?php
 
-			do_action( 'jetpack_stats_extra', 'widgets', 'grofile' );
+			do_action( 'jetpack_stats_extra', 'widget', 'grofile' );
 
 		} else {
 			if ( current_user_can( 'edit_theme_options' ) ) {
