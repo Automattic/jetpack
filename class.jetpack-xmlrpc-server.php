@@ -181,7 +181,7 @@ class Jetpack_XMLRPC_Server {
 		error_log( "VERIFY: $verify" );
 		*/
 
-		$jetpack_token = Jetpack_Data::get_access_token( 1 );
+		$jetpack_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 
 		$api_user_code = get_user_meta( $user_id, "jetpack_json_api_$client_id", true );
 		if ( !$api_user_code ) {

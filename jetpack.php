@@ -3202,7 +3202,7 @@ p {
 	function verify_json_api_authorization_request() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-signature.php';
 
-		$token = Jetpack_Data::get_access_token( 1 );
+		$token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 		if ( !$token || empty( $token->secret ) ) {
 			wp_die( __( 'You must connect your Jetpack plugin to WordPress.com to use this feature.' , 'jetpack') );
 		}
