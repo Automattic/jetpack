@@ -54,3 +54,5 @@ add_filter( 'jetpack_can_activate_infinite-scroll', 'jetpack_can_activate_infini
 
 // Happy Holidays!
 require_once( dirname( __FILE__ ) . '/holiday-snow.php' );
+
+require_once( dirname( __FILE__ ) . '/featured-content/featured-content.php' );
