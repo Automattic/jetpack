@@ -88,7 +88,7 @@ function minileven_show_background_and_header_color() {
 		#site-generator {
 			border: 0;
 		}
-	<?php if ( 'blank' != $header_text ) : ?>
+	<?php if ( 'blank' != $header_text && '1' != get_option( 'wp_mobile_header_color' ) ) : ?>
 		/* If The user has set a header text color, use that */
 		#site-title,
 		#site-title a {
