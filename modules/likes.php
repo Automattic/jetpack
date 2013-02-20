@@ -6,7 +6,7 @@
  * Sort Order: 4
  */
 class Jetpack_Likes {
-	var $version = '20130214';
+	var $version = '20130219';
 
 	function &init() {
 		static $instance = NULL;
@@ -676,21 +676,11 @@ class Jetpack_Likes {
 					jQuery.each( event.likers, function( i, liker ) {
 						$list.append( '<li class="' + liker.css_class + '"><a href="' + liker.profile_URL + '" class="wpl-liker" rel="nofollow" target="_parent"><img src="' + liker.avatar_URL + '" alt="' + liker.name + '" width="30" height="30" style="padding-right: 3px;" /></a></li>');
 					} );
-					
-					var $parent = jQuery( "[name='" + event.parent + "']" );
 
-					var left = 0;
-					var top = 0;
-					var elem = $parent[0];
-					do {
-      					if ( ! isNaN( elem.offsetLeft ) && ! isNaN( elem.offsetTop ) ) {
-          					left += elem.offsetLeft;
-          					top += elem.offsetTop;
-      					}
-    				} while( elem = elem.offsetParent );
+					var offset = jQuery( "[name='" + event.parent + "']" ).offset();
 
-					$container.css( 'left', left + event.position.left - 9 + 'px' );
-					$container.css( 'top', top + event.position.top - 2 + 'px' );
+					$container.css( 'left', offset.left + event.position.left - 10 + 'px' );
+					$container.css( 'top', offset.top + event.position.top - 33 + 'px' );
 
 					var rowLength = Math.floor( event.width / 37 );
 					var height = ( Math.ceil( event.likers.length / rowLength ) * 37 ) + 13;
