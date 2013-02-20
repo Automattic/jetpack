@@ -1,9 +1,9 @@
 <?php
 
 /**
- * Featured Content Plugin.
+ * Featured Content.
  *
- * This plugin will allow users to define a subset of posts
+ * This module will allow users to define a subset of posts
  * to be displayed in a theme-designated featured content area.
  *
  * This feature will only be activated for themes that declare
@@ -22,7 +22,6 @@
  * normal tags, users will have the ability to hide it from the
  * front-end of their site.
  */
-
 class Featured_Content {
 
 	/**
@@ -37,7 +36,7 @@ class Featured_Content {
 	public static $max_posts = 15;
 
 	/**
-	 * Instantiate the plugin.
+	 * Instantiate.
 	 *
 	 * All custom functionality will be hooked into the "init" action.
 	 */
@@ -48,7 +47,7 @@ class Featured_Content {
 	/**
 	 * Conditionally Hook into WordPress.
 	 *
-	 * Themes must declare that they support this plugin by adding
+	 * Themes must declare that they support this module by adding
 	 * add_theme_support( 'featured-content' ); during after_setup_theme.
 	 *
 	 * If no theme support is found there is no need to hook into
@@ -322,7 +321,7 @@ class Featured_Content {
 	 * @uses Featured_Content::validate_settings()
 	 */
 	public static function register_setting() {
-		add_settings_field( 'featured-content', __( 'Featured content' ), array( __class__, 'render_form' ), 'reading' );
+		add_settings_field( 'featured-content', __( 'Featured content', 'jetpack' ), array( __class__, 'render_form' ), 'reading' );
 		register_setting( 'reading', 'featured-content', array( __class__, 'validate_settings' ) );
 	}
 
@@ -341,17 +340,17 @@ class Featured_Content {
 		?>
 		<div id="featured-content-ui">
 			<p>
-				<label for="featured-content-tag-name"><?php echo _e( 'Tag name:' ); ?></label>
+				<label for="featured-content-tag-name"><?php echo _e( 'Tag name:', 'jetpack' ); ?></label>
 				<input type="text" id="featured-content-tag-name" name="featured-content[tag-name]" value="<?php echo esc_attr( $tag_name ); ?>">
 				<input type="hidden" id="featured-content-tag-id" name="featured-content[tag-id]" value="<?php echo esc_attr( $settings['tag-id'] ); ?>">
 			</p>
 			<p>
-				<label for="featured-content-quantity"><?php _e( 'Number of posts:' ); ?></label>
+				<label for="featured-content-quantity"><?php _e( 'Number of posts:', 'jetpack' ); ?></label>
 				<input class="small-text" type="number" step="1" min="1" max="<?php echo esc_attr( self::$max_posts ); ?>" id="featured-content-quantity" name="featured-content[quantity]" value="<?php echo esc_attr( $settings['quantity'] ); ?>">
 			</p>
 			<p>
 				<input type="checkbox" id="featured-content-hide-tag" name="featured-content[hide-tag]" <?php checked( $settings['hide-tag'], 1 ); ?>">
-				<label for="featured-content-hide-tag"><?php _e( 'Hide tag from displaying in post meta and tag clouds.' ); ?></label>
+				<label for="featured-content-hide-tag"><?php _e( 'Hide tag from displaying in post meta and tag clouds.', 'jetpack' ); ?></label>
 			</p>
 		</div>
 		<?php
@@ -360,7 +359,7 @@ class Featured_Content {
 	/**
 	 * Get Settings.
 	 *
-	 * Get all settings recognized by this plugin. This
+	 * Get all settings recognized by this module. This
 	 * function will return all settings whether or not
 	 * they have been stored in the database yet. This
 	 * ensures that all keys are available at all times.
