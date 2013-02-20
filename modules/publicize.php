@@ -112,6 +112,31 @@ class Publicize_Util {
 		return "$return\xE2\x80\xA6"; // ellipsis
 	}
 
+
+	/**
+	 * Returns an array of DOMNodes that are comments (including recursing child nodes)
+	 *
+	 * @param DOMNode $node
+	 * @return array
+	 */
+
+	function get_comment_nodes( $node ) {
+		$comment_nodes = array();
+		foreach ( $node->childNodes as $child ) {
+
+			if ( XML_COMMENT_NODE === $child->nodeType ) {
+					$comment_nodes[] = $child;
+			}
+
+			if ( $child->hasChildNodes() ) {
+				$child_comment_nodes = self::get_comment_nodes( $child );
+				$comment_nodes = array_merge( $comment_nodes, $child_comment_nodes );
+			}
+		}
+
+		return $comment_nodes;
+	}
+
 	/**
 	 * Truncates HTML so that its textContent (text without markup) is shorter than or equal to the length specified.
 	 * The length of the returned string may be larger than the specified length due to the markup.
@@ -146,14 +171,24 @@ class Publicize_Util {
 		$string = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', '', $string );
 		$string = wp_kses( $string, $tags );
 
-		if ( mb_strlen( $string, 'UTF-8' ) <= $length ) {
-			return $string;
-		}
-
 		$string = mb_convert_encoding( $string, 'HTML-ENTITIES', 'UTF-8' );
 		$dom = new DOMDocument( '1.0', 'UTF-8' );
 		@$dom->loadHTML( "<html><body>$string</body></html>" ); // suppress parser warning
 
+		// Strip comment nodes, if any
+		$comment_nodes = self::get_comment_nodes( $dom->documentElement );
+		foreach ( $comment_nodes as &$comment_node ) {
+			$comment_node->parentNode->removeChild( $comment_node );
+		}
+		if ( $comment_nodes ) {
+			// Update the $string (some return paths work from just $string)
+			$string = $dom->saveHTML();
+			$string = preg_replace( '/^<!DOCTYPE.+?>/', '', $string );
+			$string = str_replace( array('<html>', '</html>', '<body>', '</body>' ), array( '', '', '', '' ), $string );
+			$string = trim( $string );
+		}
+
+		// Find the body
 		$body = false;
 		foreach ( $dom->childNodes as $child ) {
 			if ( XML_ELEMENT_NODE === $child->nodeType && 'html' === strtolower( $child->tagName ) ) {
