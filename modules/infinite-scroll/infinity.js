@@ -473,17 +473,18 @@ $( document ).ready( function() {
 
 	// Initialize the scroller (with the ID of the element from the theme)
 	infiniteScroll.scroller = new Scroller( infiniteScroll.settings );
+
+	/**
+	 * Monitor user scroll activity to update URL to correspond to archive page for current set of IS posts
+	 * IE only supports pushState() in v10 and above, so don't bother if those conditions aren't met.
+	 */
+	if ( ! isIE || ( isIE && IEVersion >= 10 ) ) {
+		$( window ).bind( 'scroll', function() {
+			clearTimeout( timer );
+			timer = setTimeout( infiniteScroll.scroller.determineURL , 100 );
+		});
+	}
 });
 
-/**
- * Monitor user scroll activity to update URL to correspond to archive page for current set of IS posts
- * IE only supports pushState() in v10 and above, so don't bother if those conditions aren't met.
- */
-if ( ! isIE || ( isIE && IEVersion >= 10 ) ) {
-	$( window ).bind( 'scroll', function() {
-		clearTimeout( timer );
-		timer = setTimeout( infiniteScroll.scroller.determineURL , 100 );
-	});
-}
 
 })(jQuery); // Close closure
