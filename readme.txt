@@ -97,6 +97,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Shortcodes: Subscriptions: Add a shortcode to enable placement of a subscription signup form in a post or page.
 * Enhancement: Sharedaddy: Allow selecting multiple images from a post using the Pinterest share button.
 * Enhancement: Contact Form: Allow feedbacks to be marked spam in bulk.
+* Enhancement: Widgets: Readmill Widget: Give your visitors a link to send your book to their Readmill library.
 * Note: Notifications: Discontinue support for Internet Explorer 7 and below.
 * Bug Fix: JSON API: Fix authorization problems that some users were experiencing.
 * Bug Fix: Stats: sync stats_options so server has roles array needed for view_stats cap check.
@@ -111,6 +112,14 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Bug Fix: Improved image handling for the Sharing and Publicize modules.
 * Bug Fix: Carousel: Display and Scrollbar fixes.
 * Bug Fix: Tiled Galleries: Restrict images in tiled galleries from being set larger than their containers.
+* Bug Fix: Widgets: Gravatar Profile: CSS fixes.
+* Bug Fix: Publicize: Strip HTML comments from the data we send to the third party services.
+* Bug Fix: Notifications: Dropped support for IE7 and below in the notifications menu.
+* Bug Fix: Custom CSS Editor: Allow custom themes to save CSS more easily.
+* Bug Fix: Infinite Scroll: Waits until the DOM is ready before loading the scrolling code.
+* Bug Fix: Mobile Theme: If the user has disabled the custom header text color, show the default black header text color.
+* Bug Fix: Mobile Theme: Fix for the "View Full Site" link.
+* Bug Fix: Mobile Theme: Use a filter to modify the output of wp_title().
 
 = 2.1.2 =
 * Enhancement: Infinite Scroll: Introduce filters for Infinite Scroll.
