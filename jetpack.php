@@ -164,9 +164,6 @@ class Jetpack {
 				}
 			}
 		}
-
-		// On upgrade, sync the Twitter widget options, if available
-		Jetpack_Sync::sync_options( __FILE__, 'widget_twitter' );
 	}
 
 	/**
@@ -237,9 +234,6 @@ class Jetpack {
 		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
 
 		add_action( 'plugins_loaded', array( $this, 'check_open_graph' ), 999 );
-
-		add_filter( 'widget_update_callback', array( $this, 'sync_twitter_account_names' ), 10, 4 );
-
 	}
 
 	function require_jetpack_authentication() {
@@ -397,11 +391,6 @@ class Jetpack {
 
 		// Load module-specific code that is needed even when a module isn't active. Loaded here because code contained therein may need actions such as setup_theme.
 		require_once( dirname( __FILE__ ) . '/modules/module-extras.php' );
-	}
-
-	function sync_twitter_account_names( $instance, $new_instance, $old_instance, $t ) {
-		Jetpack_Sync::sync_options( __FILE__, 'widget_twitter' );
-		return $instance;
 	}
 
 	/**
@@ -4492,3 +4481,5 @@ register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) 
 add_action( 'init', array( 'Jetpack', 'init' ) );
 add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
+
+Jetpack_Sync::sync_options( __FILE__, 'widget_twitter' );
