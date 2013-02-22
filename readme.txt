@@ -97,6 +97,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Shortcodes: Subscriptions: Add a shortcode to enable placement of a subscription signup form in a post or page.
 * Enhancement: Sharedaddy: Allow selecting multiple images from a post using the Pinterest share button.
 * Enhancement: Contact Form: Allow feedbacks to be marked spam in bulk.
+* Note: Notifications: Discontinue support for Internet Explorer 7 and below.
 * Bug Fix: JSON API: Fix authorization problems that some users were experiencing.
 * Bug Fix: Stats: sync stats_options so server has roles array needed for view_stats cap check.
 * Bug Fix: Infinite Scroll: Display improvements.

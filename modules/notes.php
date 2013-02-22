@@ -69,9 +69,50 @@ class Jetpack_Notifications {
 		return $url;
 	}
 
+	// return the major version of Internet Explorer the viewer is using or false if it's not IE
+	public static function get_internet_explorer_version() {
+		static $version;
+		if ( isset( $version ) ) {
+			return $version;
+		}
+
+		preg_match( '/MSIE (\d+)/', $_SERVER['HTTP_USER_AGENT'], $matches );
+		$version = empty( $matches[1] ) ? null : $matches[1];
+		if ( empty( $version ) || !$version ) {
+			return false;
+		}
+		return $version;
+	}
+
+	public static function current_browser_is_supported() {
+		static $supported;
+
+		if ( isset( $supported ) ) {
+			return $supported;
+		}
+
+		$ie_version = self::get_internet_explorer_version();
+		if ( false === $ie_version ) {
+			return $supported = true;
+		}
+
+		if ( $ie_version < 8 ) {
+			return $supported = false;
+		}
+
+		return $supported = true;
+	}
+
 	function action_init() {
+		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
+			return;
+		
 		if ( !has_filter( 'show_admin_bar', '__return_true' ) && !is_user_logged_in() )
 			return;
+
+		if ( !self::current_browser_is_supported() )
+			return;
+
 		add_action( 'admin_bar_menu', array( &$this, 'admin_bar_menu'), 120 );
 		add_action( 'wp_head', array( &$this, 'styles_and_scripts'), 120 );
 		add_action( 'admin_head', array( &$this, 'styles_and_scripts') );
