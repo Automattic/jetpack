@@ -542,7 +542,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$show_subscribers_total = FALSE;
 
 		echo $args['before_widget'];
-		echo $args['$before_title'] . '<label for="subscribe-field">' . esc_attr( $instance['title'] ) . '</label>' . $args['after_title'] . "\n";
+		echo $args['before_title'] . '<label for="subscribe-field">' . esc_attr( $instance['title'] ) . '</label>' . $args['after_title'] . "\n";
 
 		$referer = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
