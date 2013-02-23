@@ -462,7 +462,7 @@ class Jetpack_Likes {
 		$name = sprintf( 'like-post-frame-%1$d-%2$d', $blog_id, $post->ID );
 		$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d', $blog_id, $post->ID );
 
-		$html  = "<div class='sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'><h3 class='sd-title'>" . esc_html__( 'Like this:', 'jetpack' ) . '</h3>';
+		$html  = "<div class='sharedaddy sd-block sd-like jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'><h3 class='sd-title'>" . esc_html__( 'Like this:', 'jetpack' ) . '</h3>';
 		$html .= "<div class='post-likes-widget-placeholder' style='height:55px'><span class='button'><span>" . esc_html__( 'Like', 'jetpack' ) . '</span></span> <span class="loading">' . esc_html__( 'Loading...', 'jetpack' ) . '</span></div>';
 		$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
 		$html .= '</div>';
