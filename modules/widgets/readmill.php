@@ -112,7 +112,7 @@ class Jetpack_Readmill_Widget extends WP_Widget {
 		$size      = isset( $instance['size'] )      ? $instance['size']      : $this->default_size;
 
 		if ( empty( $epub_link ) && current_user_can( 'edit_theme_options' ) ) :
-			?><p><?php esc_html_e( 'Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget.' ); ?></p><?php
+			?><p><?php esc_html_e( 'Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget.' , 'jetpack'); ?></p><?php
 		else :
 			?><a class="send-to-readmill" href="https://readmill.com" data-download-url="<?php echo esc_attr( $epub_link ); ?>" data-buy-url="<?php echo esc_attr( $epub_link ); ?>" data-display="<?php echo esc_attr( $size ); ?>">Send to Readmill</a><?php
 		endif;

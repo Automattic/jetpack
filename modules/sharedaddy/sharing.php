@@ -188,7 +188,7 @@ class Sharing_Admin {
 		  				</ul>
 						<?php
 			  				if ( -1 == get_option( 'blog_public' ) )
-								echo '<p><strong>'.__( 'Please note that your services have been restricted because your site is private.' ).'</strong></p>';
+								echo '<p><strong>'.__( 'Please note that your services have been restricted because your site is private.' , 'jetpack').'</strong></p>';
 		  				?>
 		  				<br class="clearing" />
 		  			</td>
