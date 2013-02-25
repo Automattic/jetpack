@@ -819,7 +819,13 @@ EOPHP;
 			return false;
 		}
 
-		$post_status_obj = get_post_status_object( $post->post_status );
+		if ( 'inherit' == $post->post_status ) {
+			$parent_post = get_post( $post->post_parent );
+			$post_status_obj = get_post_status_object( $parent_post->post_status );
+		} else {
+			$post_status_obj = get_post_status_object( $post->post_status );
+		}
+
 		if ( !$post_status_obj->public ) {
 			if ( is_user_logged_in() ) {
 				if ( $post_status_obj->protected ) {
