@@ -6,7 +6,7 @@
  * Sort Order: 4
  */
 class Jetpack_Likes {
-	var $version = '20130219';
+	var $version = '20130225c';
 
 	function &init() {
 		static $instance = NULL;
@@ -420,7 +420,6 @@ class Jetpack_Likes {
 		if ( $this->in_jetpack ) {
 			add_filter( 'the_content', array( &$this, 'post_likes' ), 30, 1 );
 			wp_enqueue_script( 'postmessage', plugins_url( '_inc/postmessage.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
-			wp_enqueue_script( 'jetpack_resize', plugins_url( '_inc/jquery.jetpack-resize.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, true );
 			wp_enqueue_script( 'jquery_inview', plugins_url( '_inc/jquery.inview.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
 		} else {
@@ -428,7 +427,6 @@ class Jetpack_Likes {
 			add_filter( 'post_flair_block_css', array( $this, 'post_flair_service_enabled_like' ) );
 
 			wp_enqueue_script( 'postmessage', '/wp-content/js/postmessage.js', array( 'jquery' ), JETPACK__VERSION, false );
-			wp_enqueue_script( 'jetpack_resize', '/wp-content/js/jquery/jquery.jetpack-resize.js', array( 'jquery' ), JETPACK__VERSION, true );
 			wp_enqueue_script( 'jquery_inview', '/wp-content/js/jquery/jquery.inview.js', array( 'jquery' ), JETPACK__VERSION, false );
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
 		}
@@ -458,7 +456,7 @@ class Jetpack_Likes {
 
 		add_filter( 'wp_footer', array( $this, 'likes_master' ) );
 
-		$src = sprintf( '%1$s://widgets.wp.com/#blog_id=%2$d&post_id=%3$d&origin=%1$s://%4$s', $protocol, $blog_id, $post->ID, $domain );
+		$src = sprintf( '%1$s://widgets.wp.com/likes/#blog_id=%2$d&post_id=%3$d&origin=%1$s://%4$s', $protocol, $blog_id, $post->ID, $domain );
 		$name = sprintf( 'like-post-frame-%1$d-%2$d', $blog_id, $post->ID );
 		$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d', $blog_id, $post->ID );
 
@@ -495,7 +493,7 @@ class Jetpack_Likes {
 
 		add_filter( 'wp_footer', array( $this, 'likes_master' ) );
 
-		$src = sprintf( '%1$s://widgets.wp.com/#blog_id=%2$d&comment_id=%3$d&origin=%1$s://%4$s', $protocol, $blog_id, $comment->comment_ID, $domain );
+		$src = sprintf( '%1$s://widgets.wp.com/likes/#blog_id=%2$d&comment_id=%3$d&origin=%1$s://%4$s', $protocol, $blog_id, $comment->comment_ID, $domain );
 		$name = sprintf( 'like-comment-frame-%1$d-%2$d', $blog_id, $comment->comment_ID );
 		$wrapper = sprintf( 'like-comment-wrapper-%1$d-%2$d', $blog_id, $comment->comment_ID );
 
@@ -535,7 +533,7 @@ class Jetpack_Likes {
 
 		add_filter( 'wp_footer', array( $this, 'likes_master' ) );
 
-		$src = sprintf( '%1$s://widgets.wp.com/#blog_id=%2$d&post_id=%3$d&origin=%1$s://%4$s', $protocol, $blog_id, $post->ID, $domain );
+		$src = sprintf( '%1$s://widgets.wp.com/likes/#blog_id=%2$d&post_id=%3$d&origin=%1$s://%4$s', $protocol, $blog_id, $post->ID, $domain );
 
 		$html = "<iframe class='admin-bar-likes-widget jetpack-likes-widget' frameBorder='0' name='admin-bar-likes-widget' src='$src'></iframe>";
 
@@ -555,7 +553,7 @@ class Jetpack_Likes {
 			$protocol = 'https';
 
 		$locale = ( '' == get_locale() || 'en' == get_locale() ) ? '' : '&lang=' . strtolower( substr( get_locale(), 0, 2 ) );
-		$src = sprintf( '%1$s://widgets.wp.com/master.html?ver=%2$s#ver=%2$s%3$s', $protocol, $this->version, $locale );
+		$src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s', $protocol, $this->version, $locale );
 
 		$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 ?>
@@ -701,6 +699,10 @@ class Jetpack_Likes {
 						$list.width( $list.width() + scrollbarWidth );
 					}
 				}
+
+				if ( 'failedLikesAjaxRequest' == event.event ) {
+					jQuery( '#' + event.id ).removeClass( 'jetpack-likes-widget-loading' ).addClass( 'jetpack-likes-widget-unloaded' );
+				}
 			}
 
 			pm.bind( 'likesMessage', function(e) { JetpackLikesMessageListener(e); } );
@@ -757,10 +759,6 @@ class Jetpack_Likes {
 					var $iframe = jQuery( e.target );
 					$wrapper.removeClass( 'jetpack-likes-widget-loading' ).addClass( 'jetpack-likes-widget-loaded' );
 
-					/*try {
-						$iframe.Jetpack( 'resizeable' );
-					}
-					catch ( error ) {}*/
 					JetpackLikespostMessage( { event: 'loadLikeWidget', name: $iframe.attr( 'name' ), width: $iframe.width() }, window.frames[ 'likes-master' ] );
 				});
 			}
