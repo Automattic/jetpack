@@ -6,7 +6,7 @@
  * Sort Order: 4
  */
 class Jetpack_Likes {
-	var $version = '20130225c';
+	var $version = '20130225e';
 
 	function &init() {
 		static $instance = NULL;
@@ -698,10 +698,6 @@ class Jetpack_Likes {
 						$container.width( $container.width() + scrollbarWidth );
 						$list.width( $list.width() + scrollbarWidth );
 					}
-				}
-
-				if ( 'failedLikesAjaxRequest' == event.event ) {
-					jQuery( '#' + event.id ).removeClass( 'jetpack-likes-widget-loading' ).addClass( 'jetpack-likes-widget-unloaded' );
 				}
 			}
 
