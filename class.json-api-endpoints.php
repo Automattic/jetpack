@@ -1591,9 +1591,10 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			is_array( $sticky )
 		) {
 			if ( $args['sticky'] ) {
-				$query['posts__in'] = $sticky;
+				$query['post__in'] = $sticky;
 			} else {
-				$query['posts__not_in'] = $sticky;
+				$query['post__not_in'] = $sticky;
+				$query['ignore_sticky_posts'] = 1;
 			}
 		}
 
