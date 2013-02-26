@@ -100,6 +100,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Widgets: Readmill Widget: Give your visitors a link to send your book to their Readmill library.
 * Note: Notifications: Discontinue support for Internet Explorer 7 and below.
 * Bug Fix: JSON API: Fix authorization problems that some users were experiencing.
+* Bug Fix: JSON API: Sticky posts were not being sorted correctly in /posts requests.
 * Bug Fix: Stats: sync stats_options so server has roles array needed for view_stats cap check.
 * Bug Fix: Infinite Scroll: Display improvements.
 * Bug Fix: Infinite Scroll: WordPress compatibility fixes.
@@ -120,6 +121,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Bug Fix: Mobile Theme: If the user has disabled the custom header text color, show the default black header text color.
 * Bug Fix: Mobile Theme: Fix for the "View Full Site" link.
 * Bug Fix: Mobile Theme: Use a filter to modify the output of wp_title().
+* Bug Fix: Publicize: Twitter: Re-enable character count turning red when more than 140 characters are typed.
 
 = 2.1.2 =
 * Enhancement: Infinite Scroll: Introduce filters for Infinite Scroll.
