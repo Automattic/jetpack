@@ -59,7 +59,8 @@ function jetpack_og_tags() {
 		$tags['og:type']        = 'article';
 		$tags['og:title']       = empty( $data->post_title ) ? ' ' : wp_kses( $data->post_title, array() ) ;
 		$tags['og:url']         = get_permalink( $data->ID );
-		$tags['og:description'] = ! empty( $data->post_excerpt ) ? strip_shortcodes( wp_kses( $data->post_excerpt, array() ) ) : wp_trim_words( strip_shortcodes( wp_kses( $data->post_content, array() ) ) );
+		if ( !post_password_required() )
+			$tags['og:description'] = ! empty( $data->post_excerpt ) ? strip_shortcodes( wp_kses( $data->post_excerpt, array() ) ) : wp_trim_words( strip_shortcodes( wp_kses( $data->post_content, array() ) ) );
 		$tags['og:description'] = empty( $tags['og:description'] ) ? ' ' : $tags['og:description'];
 	}
 
