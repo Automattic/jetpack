@@ -8,9 +8,9 @@ class Jetpack_Readmill_Widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 	 		'jetpack_readmill_widget', // Base ID
-			__( 'Send To Readmill', 'jetpack' ), // Name
+	 		apply_filters( 'jetpack_widget_name', esc_html__( 'Send To Readmill', 'jetpack' ) ),
 			array(
-				'description' => __( 'Give your visitors a link to send your book to their Readmill library.', 'jetpack' ),
+				'description' => esc_html__( 'Readmill is the best book reader for phones and tablets. With this widget you can enable users to send a book to their device with one click.', 'jetpack' ),
 			)
 		);
 
@@ -40,8 +40,11 @@ class Jetpack_Readmill_Widget extends WP_Widget {
 		}
 
 		$epub_link = isset( $instance['epub_link'] ) ? $instance['epub_link'] : '';
+		$buy_link  = isset( $instance['buy_link'] )  ? $instance['buy_link']  : '';
 		$size      = isset( $instance['size'] )      ? $instance['size']      : $this->default_size;
 		?>
+
+		<p><?php printf( __( "Just enter the URL to your book, make sure it's a PDF or EPUB file, and you are ready to go. For more help, head to <a href='%s'>the Readmill WordPress Widget support page</a>." ), 'http://en.support.wordpress.com/widgets/readmill/' ); ?></p>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
@@ -49,8 +52,13 @@ class Jetpack_Readmill_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'epub_link' ); ?>"><?php esc_html_e( 'ePub Link:', 'jetpack' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'epub_link' ); ?>"><?php esc_html_e( 'Download URL:', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'epub_link' ); ?>" name="<?php echo $this->get_field_name( 'epub_link' ); ?>" type="text" value="<?php echo esc_attr( $epub_link ); ?>" />
+		</p>
+
+		<p>
+			<label for="<?php echo $this->get_field_id( 'buy_link' ); ?>"><?php esc_html_e( 'Item URL:', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'buy_link' ); ?>" name="<?php echo $this->get_field_name( 'buy_link' ); ?>" type="text" value="<?php echo esc_attr( $buy_link ); ?>" />
 		</p>
 
 		<p>
@@ -78,6 +86,7 @@ class Jetpack_Readmill_Widget extends WP_Widget {
 		$instance = array();
 		$instance['title']     = wp_kses( $new_instance['title'],     array() );
 		$instance['epub_link'] = wp_kses( $new_instance['epub_link'], array() );
+		$instance['buy_link']  = wp_kses( $new_instance['buy_link'],  array() );
 		$instance['size']      = wp_kses( $new_instance['size'],      array() );
 
 		if ( $this->default_title === $instance['title'] ) {
@@ -109,10 +118,11 @@ class Jetpack_Readmill_Widget extends WP_Widget {
 			echo $args['before_title'] . $title . $args['after_title'];
 
 		$epub_link = isset( $instance['epub_link'] ) ? $instance['epub_link'] : '';
+		$buy_link  = isset( $instance['buy_link'] )  ? $instance['buy_link']  : '';
 		$size      = isset( $instance['size'] )      ? $instance['size']      : $this->default_size;
 
 		if ( empty( $epub_link ) && current_user_can( 'edit_theme_options' ) ) :
-			?><p><?php esc_html_e( 'Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget.' , 'jetpack'); ?></p><?php
+			?><p><?php esc_html_e( 'Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget.', 'jetpack' ); ?></p><?php
 		else :
 			?><a class="send-to-readmill" href="https://readmill.com" data-download-url="<?php echo esc_attr( $epub_link ); ?>" data-buy-url="<?php echo esc_attr( $epub_link ); ?>" data-display="<?php echo esc_attr( $size ); ?>">Send to Readmill</a><?php
 		endif;
