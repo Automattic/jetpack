@@ -6,7 +6,7 @@
  * Sort Order: 4
  */
 class Jetpack_Likes {
-	var $version = '20130225e';
+	var $version = '20130226';
 
 	function &init() {
 		static $instance = NULL;
@@ -659,6 +659,7 @@ class Jetpack_Likes {
 					setTimeout( JetpackLikesWidgetQueueHandler, 10 );
 					jQuery( '#' + event.id + ' .post-likes-widget-placeholder'  ).fadeOut( 'fast', function() {
 						jQuery( '#' + event.id + ' .post-likes-widget' ).fadeIn( 'fast' );
+						JetpackLikespostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, post_id: event.post_id }, window.frames['likes-master'] );
 					});
 				}
 

@@ -25,6 +25,7 @@ div.jetpack-likes-widget-wrapper {
 	filter: alpha(opacity=88);
 	box-shadow: 0 0 10px black;
 	min-width: 130px;
+	z-index: 1000;
 }
 
 #likes-other-gravatars .likes-text {
