@@ -452,7 +452,7 @@ function sharing_process_requests() {
 		}
 	}
 }
-add_action( 'template_redirect', 'sharing_process_requests' );
+add_action( 'template_redirect', 'sharing_process_requests', 9 );
 
 function sharing_display( $text = '' ) {
 	global $post, $wp_current_filter;
