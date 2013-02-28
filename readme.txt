@@ -91,6 +91,9 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 == Changelog ==
 
+= 2.2.1 =
+* Bug Fix: Sharing: Improved compatibility with other plugins including WP e-Commerce.
+
 = 2.2 =
 * Enhancement: Likes: Allow your readers to show their appreciation of your posts.
 * Enhancement: Shortcodes: SoundCloud: Update to version 2.3 of the SoundCloud plugin (HTML5 default player, various fixes).
