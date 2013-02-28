@@ -853,7 +853,7 @@ EOPHP;
 		}
 
 		if ( strlen( $post->post_password ) && !current_user_can( 'edit_post', $post->ID ) ) {
-			return new WP_Error( 'unauthorized', 'User cannot view password protected post', 403 );
+			return new WP_Error( 'unauthorized', 'User cannot view password protected post', array( 'status_code' => 403, 'error' => 'password_protected' ) );
 		}
 
 		return true;

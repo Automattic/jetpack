@@ -239,6 +239,10 @@ class WPCOM_JSON_API {
 			return $this->output( 500, '', 'text/plain' );
 		} elseif ( is_wp_error( $response ) ) {
 			$status_code = $response->get_error_data();
+
+			if ( is_array( $status_code ) )
+				$status_code = $status_code['status_code'];
+
 			if ( !$status_code ) {
 				$status_code = 400;
 			}
