@@ -6,7 +6,7 @@
  * Sort Order: 4
  */
 class Jetpack_Likes {
-	var $version = '20130226';
+	var $version = '20130226a';
 
 	function &init() {
 		static $instance = NULL;
@@ -827,6 +827,9 @@ class Jetpack_Likes {
 				// Otherwise, check and see if likes are enabled sitewide
 				$enabled = $this->is_enabled_sitewide();
 			}
+
+			if ( post_password_required() )
+				$enabled = false;
 
 			/** Other Checks ******************************************************/
 
