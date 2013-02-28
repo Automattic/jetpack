@@ -4,6 +4,7 @@
  * Module Description: Mark up your posts with the <img src="//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2" alt="LaTeX logo" title="LaTeX" style="vertical-align: -25%" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery.
  * Sort Order: 12
  * First Introduced: 1.1
+ * Requires Connection: Yes
  */
 
 /**

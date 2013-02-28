@@ -5,6 +5,7 @@
  * Module Description: Publish posts to your blog directly from your personal email account.
  * First Introduced: 2.0
  * Sort Order: 4
+ * Requires Connection: Yes
  */
 
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );

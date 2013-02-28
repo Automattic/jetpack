@@ -4,6 +4,7 @@
  * Module Description: Improve your spelling, style, and grammar with the <a href="http://www.afterthedeadline.com/">After&nbsp;the&nbsp;Deadline</a> Proofreading service.
  * Sort Order: 6
  * First Introduced: 1.1
+ * Requires Connection: Yes
  */
  
 add_action( 'jetpack_modules_loaded', 'AtD_load' );

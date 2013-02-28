@@ -6,6 +6,7 @@
  * Sort Order: 7
  * Deactivate: false
  * Free: false
+ * Requires Connection: Yes
  */
 
 add_action( 'jetpack_modules_loaded', 'vaultpress_jetpack_stub' );

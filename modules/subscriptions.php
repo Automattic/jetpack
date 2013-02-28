@@ -4,6 +4,7 @@
  * Module Description: Allow users to subscribe to your posts and comments to receive a notification via email.
  * Sort Order: 3
  * First Introduced: 1.2
+ * Requires Connection: Yes
  */
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );

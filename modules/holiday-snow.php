@@ -5,6 +5,7 @@
  * Adds falling snow to a blog starting December 1 and ending January 3.
  * Not a module that is activated/deactivated
  * First Introduced: 2.0.3 ??
+ * Requires Connection: No
  */
 
 class Jetpack_Holiday_Snow_Settings {

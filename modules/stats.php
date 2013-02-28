@@ -4,6 +4,7 @@
  * Module Description: Simple, concise site stats with no additional load on your server.
  * Sort Order: 1
  * First Introduced: 1.1
+ * Requires Connection: Yes
  */
 
 if ( defined( 'STATS_VERSION' ) ) {

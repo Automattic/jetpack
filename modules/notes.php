@@ -4,6 +4,7 @@
  * Module Description: Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com.
  * Sort Order: 1
  * First Introduced: 1.9
+ * Requires Connection: Yes
  */
 
 if ( !defined( 'JETPACK_NOTES__CACHE_BUSTER' ) ) define( 'JETPACK_NOTES__CACHE_BUSTER', JETPACK__VERSION . '-' . gmdate( 'oW' ) );

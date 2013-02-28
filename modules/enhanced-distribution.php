@@ -4,6 +4,7 @@
  * Module Description: Share your public posts and comments to search engines and other services in real-time.
  * Sort Order: 100
  * First Introduced: 1.2
+ * Requires Connection: Yes
  */
 
 Jetpack_Sync::sync_posts( __FILE__ );

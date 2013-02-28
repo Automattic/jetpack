@@ -6,6 +6,7 @@
  * Sort Order: 11
  * First Introduced: 1.1
  * Major Changes In: 1.2
+ * Requires Connection: No
  */
 
 /**

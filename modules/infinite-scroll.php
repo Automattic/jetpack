@@ -4,6 +4,7 @@
  * Module Description: Automatically pull the next set of posts into view when the reader approaches the bottom of the page.
  * Sort Order: 14
  * First Introduced: 2.0
+ * Requires Connection: No
  */
 
 /**

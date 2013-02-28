@@ -4,6 +4,7 @@
  * Module Description: Show a pop-up business card of your users' gravatar profiles in comments.
  * Sort Order: 8
  * First Introduced: 1.1
+ * Requires Connection: No
  */
 
 define( 'GROFILES__CACHE_BUSTER', gmdate( 'YM' ) . 'aa' ); // Break CDN cache, increment when gravatar.com/js/gprofiles.js changes

@@ -4,6 +4,7 @@
  * Module Description: Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar.
  * Sort Order: 13
  * First Introduced: 1.2
+ * Requires Connection: No
  */
 
 function jetpack_load_widgets() {
