@@ -6,7 +6,7 @@
  * Sort Order: 4
  */
 class Jetpack_Likes {
-	var $version = '20130226a';
+	var $version = '20130228';
 
 	function &init() {
 		static $instance = NULL;
@@ -22,6 +22,7 @@ class Jetpack_Likes {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 
 		add_action( 'init', array( &$this, 'action_init' ) );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( $this->in_jetpack ) {
 			add_action( 'jetpack_activate_module_likes',   array( $this, 'module_toggle' ) );
@@ -403,6 +404,15 @@ class Jetpack_Likes {
 		</form> <?php
 	}
 
+	function admin_init() {
+		add_filter( 'manage_posts_columns', array( $this, 'add_like_count_column' ) );
+		add_filter( 'manage_pages_columns', array( $this, 'add_like_count_column' ) );
+		add_action( 'manage_posts_custom_column', array( $this, 'likes_edit_column' ), 10, 2 );
+		add_action( 'manage_pages_custom_column', array( $this, 'likes_edit_column' ), 10, 2 );
+		add_action( 'admin_print_styles-edit.php', array( $this, 'load_admin_css' ) );
+		add_action( "admin_print_scripts-edit.php", array( $this, 'enqueue_admin_scripts' ) );
+	}
+
 	function action_init() {
 		if ( is_admin() )
 			return;
@@ -430,6 +440,71 @@ class Jetpack_Likes {
 			wp_enqueue_script( 'jquery_inview', '/wp-content/js/jquery/jquery.inview.js', array( 'jquery' ), JETPACK__VERSION, false );
 			wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
 		}
+	}
+
+	/**
+	* Load the CSS needed for the wp-admin area.
+	*/
+	function load_admin_css() { ?>
+		<style type="text/css">
+			.fixed .column-likes { width: 5em; padding-top: 8px; text-align: center !important; }
+			.fixed .column-stats { width: 5em; }
+			.fixed .column-likes .post-com-count { background-image: none; }
+			.fixed .column-likes .comment-count { background-color: #888; }
+			.fixed .column-likes .comment-count:hover { background-color: #D54E21; }
+		</style> <?php
+	}
+
+	/**
+	* Load the JS required for loading the like counts.
+	*/
+	function enqueue_admin_scripts() {
+		if ( empty( $_GET['post_type'] ) || 'page' == $_GET['post_type'] ) {
+			if ( $this->in_jetpack )
+				wp_enqueue_script( 'likes-post-count', plugins_url( 'modules/likes/post-count.js', dirname( __FILE__ ) ), array( 'jquery' ), JETPACK__VERSION );
+			else
+				wp_enqueue_script( 'likes-post-count', plugins_url( 'likes/post-count.js', dirname( __FILE__ ) ), array( 'jquery' ), JETPACK__VERSION );
+		}
+	}
+
+	/**
+	* Add "Likes" column data to the post edit table in wp-admin.
+	*
+	* @param string $column_name
+	* @param int $post_id
+	*/
+	function likes_edit_column( $column_name, $post_id ) {
+		if ( 'likes' == $column_name ) {
+
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$blog_id = get_current_blog_id();
+			} else {
+				$jetpack = Jetpack::init();
+				$blog_id = $jetpack->get_option( 'id' );
+			}
+
+			$permalink = get_permalink( get_the_ID() ); ?>
+			<a title="" data-post-id="<?php echo (int) $post_id; ?>" class="post-com-count post-like-count" id="post-like-count-<?php echo (int) $post_id; ?>" data-blog-id="<?php echo (int) $blog_id; ?>" href="<?php echo esc_url( $permalink ); ?>#like-<?php echo (int) $post_id; ?>">
+				<span class="comment-count">0</span>
+			</a>
+			<?php
+		}
+	}
+
+	/**
+	* Add a "Likes" column header to the post edit table in wp-admin.
+	*
+	* @param array $columns
+	* @return array
+	*/
+	function add_like_count_column( $columns ) {
+		$date = $columns['date'];
+		unset( $columns['date'] );
+
+		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes' ) . '" alt="' . esc_attr__( 'Likes' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
+		$columns['date'] = $date;
+
+		return $columns;
 	}
 
 	function post_likes( $content ) {
