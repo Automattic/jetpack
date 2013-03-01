@@ -92,7 +92,10 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 == Changelog ==
 
 = 2.2.1 =
+* Enhancement: Likes: Added the number of likes to the wp-admin/edit.php screens.
 * Bug Fix: Sharing: Improved compatibility with other plugins including WP e-Commerce.
+* Bug Fix: JSON API: Better error handling for the 'User cannot view password protected post' message.
+
 
 = 2.2 =
 * Enhancement: Likes: Allow your readers to show their appreciation of your posts.
