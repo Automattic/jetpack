@@ -93,6 +93,7 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 
 = 2.2.1 =
 * Enhancement: Likes: Added the number of likes to the wp-admin/edit.php screens.
+* Enhancement: Development Mode: Define the `JETPACK_DEV_DEBUG` constant to `true` to enable an offline mode for localhost development. Only modules that don't require a WordPress.com connection can be enabled in this mode.
 * Bug Fix: Sharing: Improved compatibility with other plugins including WP e-Commerce.
 * Bug Fix: JSON API: Better error handling for the 'User cannot view password protected post' message.
 

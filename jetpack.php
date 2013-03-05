@@ -294,7 +294,7 @@ class Jetpack {
 			$development_mode = true;
 		}
 
-		return $development_mode;
+		return apply_filters( 'jetpack_development_mode', $development_mode );
 	}
 
 	/**
