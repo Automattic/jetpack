@@ -2,15 +2,11 @@
 -------------------------------------------------------------- */
 
 .infinite-wrap {
-/*	border-top: 2px solid #444;
-	border-top: 2px solid rgba(68,68,68,0.8);
-	padding: 20px 0 0; */
 }
 .infinite-loader {
 	color: #000;
 	display: block;
 	height: 28px;
-	margin: 10px;
 	text-indent: -9999px;
 }
 #infinite-handle span {
