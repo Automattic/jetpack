@@ -372,15 +372,12 @@ class The_Neverending_Home_Page {
 	/**
 	 * Let's overwrite the default post_per_page setting to always display a fixed amount.
 	 *
-	 * @global $wp_the_query Used to provide compatibility back to WP 3.2
 	 * @param object $query
 	 * @uses self::archive_supports_infinity, self::get_settings
 	 * @return null
 	 */
 	function posts_per_page_query( $query ) {
-		global $wp_the_query;
-
-		if ( self::archive_supports_infinity() && $query === $wp_the_query ) // After 3.3, this line would be: if ( self::archive_supports_infinity() && $query->is_main_query() )
+		if ( self::archive_supports_infinity() && $query->is_main_query() )
 			$query->set( 'posts_per_page', self::get_settings()->posts_per_page );
 	}
 
