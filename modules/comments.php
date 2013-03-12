@@ -5,7 +5,7 @@
  * Module Description: A new comment system that has integrated social media login options.
  * First Introduced: 1.4
  * Sort Order: 2
- * Requires Connection: No
+ * Requires Connection: Yes
  */
 
 require dirname( __FILE__ ) . '/comments/comments.php';
