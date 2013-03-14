@@ -99,7 +99,7 @@ class Jetpack_Signature {
 				return new Jetpack_Error( 'invalid_body_hash', 'The body hash does not match.' );
 			}
 		} else {
-			if ( $verify_body_hash && jetpack_sha1_base64( $body ) != $body_hash ) {
+			if ( $verify_body_hash && jetpack_sha1_base64( $body ) !== $body_hash ) {
 				return new Jetpack_Error( 'invalid_body_hash', 'The body hash does not match.' );
 			}
 		}
