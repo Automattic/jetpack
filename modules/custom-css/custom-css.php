@@ -637,6 +637,8 @@ class Jetpack_Custom_CSS {
 			wp_enqueue_script( 'jquery.spin' );
 			wp_enqueue_script( 'safecss-ace', $url . 'ace/ace.js', array(), '20130213', true );
 			wp_enqueue_script( 'safecss-ace-css', $url . 'ace/mode-css.js', array( 'safecss-ace' ), '20130213', true );
+			wp_enqueue_script( 'safecss-ace-less', $url . 'ace/mode-less.js', array( 'safecss-ace' ), '20130213', true );
+			wp_enqueue_script( 'safecss-ace-scss', $url . 'ace/mode-scss.js', array( 'safecss-ace' ), '20130213', true );
 			wp_enqueue_script( 'safecss-ace-use', $url . 'safecss-ace.js', array( 'jquery', 'safecss-ace-css' ), '20130213', true );
 		}
 	}
@@ -775,7 +777,7 @@ class Jetpack_Custom_CSS {
 
 					$( '#preprocessor-select' ).slideUp();
 					$( '#preprocessor-display' ).text( $( '#preprocessor_choices option:selected' ).text() );
-					$( '#custom_css_preprocessor' ).val( $( '#preprocessor_choices' ).val() );
+					$( '#custom_css_preprocessor' ).val( $( '#preprocessor_choices' ).val() ).change();
 					$( '.edit-preprocessor' ).show();
 				} );
 			} );

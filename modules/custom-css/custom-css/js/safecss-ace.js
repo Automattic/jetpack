@@ -19,27 +19,30 @@
 		editor.setShowPrintMargin( false );
 		// Grab straight from the textarea
 		editor.getSession().setValue( $("#safecss").val() );
-		// We're editing CSS content
-		var CSSMode = ace.require( 'ace/mode/css' ).Mode;
-		editor.getSession().setMode( new CSSMode() );
-		// ace.js comes with the textmate coloring scheme already.
 		// kill the spinner
 		jQuery.fn.spin && $("#safecss-container").spin( false );
-		/*
-		// TODO: Add shortcuts for save and preview
-		editor.commands.addCommand({
-			name: 'cssPreview',
-			bindKey: {
-				win: 'Ctrl-P',
-				mac: 'Command-P',
-				sender: 'editor'
-			},
-			exec: function( env, args, request ) {
-				safecss_update_content();
-				jQuery( '#preview' ).click(); // this doesn't work :(
+
+		var preprocessorField = $( '#custom_css_preprocessor' );
+		function setCSSMode( preprocessor ) {
+			switch ( preprocessor ) {
+				case 'less':
+					var mode = ace.require( 'ace/mode/less' ).Mode;
+				break;
+				case 'sass':
+					var mode = ace.require( 'ace/mode/scss' ).Mode;
+				break;
+				default:
+					var mode = ace.require( 'ace/mode/css' ).Mode;
+				break;
 			}
+
+			editor.getSession().setMode( new mode() );
+		}
+
+		setCSSMode( preprocessorField.val() );
+		preprocessorField.on( 'change', function () {
+			setCSSMode( $( this ).val() );
 		} );
-		*/
 
 		// When submitting, make sure to include the updated CSS
 		// The Ace editor unfortunately doesn't handle this for us
@@ -65,5 +68,3 @@
 	global.aceSyncCSS = syncCSS;
 
 })(this, jQuery);
-
-
