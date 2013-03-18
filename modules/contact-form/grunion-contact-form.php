@@ -136,9 +136,10 @@ class Grunion_Contact_Form_Plugin {
 			// It's a form embedded in a text widget
 
 			$this->current_widget_id = substr( $id, 7 ); // remove "widget-"
-			
+			$widget_type = implode( '-', array_slice( explode( '-', $this->current_widget_id ), 0, -1 ) ); // Remove trailing -#
+
 			// Is the widget active?
-			$sidebar = is_active_widget( false, $this->current_widget_id, 'text' );
+			$sidebar = is_active_widget( false, $this->current_widget_id, $widget_type );
 
 			// This is lame - no core API for getting a widget by ID
 			$widget = isset( $GLOBALS['wp_registered_widgets'][$this->current_widget_id] ) ? $GLOBALS['wp_registered_widgets'][$this->current_widget_id] : false;
@@ -1327,6 +1328,14 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			}
 			$r .= "\t</select>\n";
 			$r .= "\t</div>\n";
+			break;
+		case 'date' :
+			$r .= "\n<div>\n";
+			$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label " . esc_attr( $field_type ) . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . __( "(required)", 'jetpack' ) . '</span>' : '' ) . "</label>\n";
+			$r .= "\t\t<input type='date' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' class='" . esc_attr( $field_type ) . "'/>\n";
+			$r .= "\t</div>\n";
+
+			wp_enqueue_script( 'grunion-frontend', plugins_url( 'js/grunion-frontend.js', __FILE__ ), array( 'jquery', 'jquery-ui-datepicker' ) );
 			break;
 		default : // text field
 			// note that any unknown types will produce a text input, so we can use arbitrary type names to handle
