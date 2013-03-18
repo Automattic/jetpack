@@ -12,7 +12,7 @@ class Jetpack_Custom_CSS {
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'revision_post_link' ), 10, 3 );
 
 		if ( ! is_admin() )
-			add_filter( 'style_loader_tag', array( __CLASS__, 'style_tag_filter' ) );
+			add_filter( 'stylesheet_uri', array( __CLASS__, 'style_filter' ) );
 
 		define( 'SAFECSS_USE_ACE', ! jetpack_is_mobile() && ! Jetpack_User_Agent_Info::is_ipad() && apply_filters( 'safecss_use_ace', true ) );
 
@@ -350,10 +350,13 @@ class Jetpack_Custom_CSS {
 	}
 
 	static function skip_stylesheet() {
-		if ( Jetpack_Custom_CSS::is_customizer_preview() ) {
+		$skip_stylesheet = apply_filters( 'safecss_skip_stylesheet', null );
+
+		if ( null !== $skip_stylesheet ) {
+			return $skip_stylesheet;
+		} elseif ( Jetpack_Custom_CSS::is_customizer_preview() ) {
 			return false;
-		}
-		else {
+		} else {
 			if ( Jetpack_Custom_CSS::is_preview() ) {
 				$safecss_post = Jetpack_Custom_CSS::get_current_revision();
 
@@ -510,14 +513,13 @@ class Jetpack_Custom_CSS {
 		<?php
 	}
 
-	static function style_tag_filter( $link_tag ) {
+	static function style_filter( $current ) {
 		if ( Jetpack_Custom_CSS::is_freetrial() && ( ! Jetpack_Custom_CSS::is_preview() || ! current_user_can( 'switch_themes' ) ) )
-			return $link_tag;
+			return $current;
+		else if ( Jetpack_Custom_CSS::skip_stylesheet() )
+			return apply_filters( 'safecss_style_filter_url', plugins_url( 'custom-css/blank.css', __FILE__ ) );
 
-		if ( Jetpack_Custom_CSS::skip_stylesheet() && strpos( $link_tag, get_stylesheet_uri() ) )
-			return preg_replace( '/rel=([\'"])stylesheet([\'"])/', 'rel=$1original-stylesheet$1', $link_tag );
-
-		return $link_tag;
+		return $current;
 	}
 
 	static function buffer( $html ) {
@@ -997,7 +999,7 @@ class Jetpack_Custom_CSS {
 	 */
 	static function disable() {
 		remove_action( 'wp_head', array( 'Jetpack_Custom_CSS', 'link_tag' ), 101 );
-		remove_filter( 'style_loader_tag', array( __CLASS__, 'style_tag_filter' ) );
+	    remove_filter( 'stylesheet_uri', array( 'Jetpack_Custom_CSS', 'style_filter' ) );
 	}
 
 	/**
