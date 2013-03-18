@@ -9,10 +9,10 @@ class Jetpack_Gallery_Settings {
 	}
 
 	function admin_init() {
-		$this->gallery_types = apply_filters( 'jetpack_gallery_types', array() );
+		$this->gallery_types = apply_filters( 'jetpack_gallery_types', array( 'default' => __( 'Thumbnail Grid', 'jetpack' ) ) );
 
 		// Enqueue the media UI only if needed.
-		if ( ! empty( $this->gallery_types ) ) {
+		if ( count( $this->gallery_types ) > 1 ) {
 			add_action( 'wp_enqueue_media', array( $this, 'wp_enqueue_media' ) );
 			add_action( 'print_media_templates', array( $this, 'print_media_templates' ) );
 		}
@@ -32,14 +32,15 @@ class Jetpack_Gallery_Settings {
 	 * Outputs a view template which can be used with wp.media.template
 	 */
 	function print_media_templates() {
+		$default_gallery_type = apply_filters( 'jetpack_default_gallery_type', 'default' );
+
 		?>
 		<script type="text/html" id="tmpl-jetpack-gallery-settings">
 			<label class="setting">
 				<span><?php _e( 'Type', 'jetpack' ); ?></span>
 				<select class="type" name="type" data-setting="type">
-					<option value="default" <?php selected( true ); ?>><?php _e( 'Default', 'jetpack' ); ?></option>
 					<?php foreach ( $this->gallery_types as $value => $caption ) : ?>
-					<option value="<?php echo esc_attr( $value ); ?>"><?php echo esc_html( $caption ); ?></option>
+						<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value, $default_gallery_type ); ?>><?php echo esc_html( $caption ); ?></option>
 					<?php endforeach; ?>
 				</select>
 			</label>

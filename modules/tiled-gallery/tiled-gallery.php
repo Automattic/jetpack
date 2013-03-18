@@ -9,6 +9,7 @@ class Jetpack_Tiled_Gallery {
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
+		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
 	}
 
 	public function tiles_enabled() {
@@ -297,10 +298,22 @@ class Jetpack_Tiled_Gallery {
 	 * Media UI integration
 	 */
 	function jetpack_gallery_types( $types ) {
-		$types['rectangular'] = __( 'Tiles', 'jetpack' );
+		if ( get_option( 'tiled_galleries' ) && isset( $types['default'] ) ) {
+			// Tiled is set as the default, meaning that type='default'
+			// will still display the mosaic.
+			$types['thumbnails'] = $types['default'];
+			unset( $types['default'] );
+		}
+
+		$types['rectangular'] = __( 'Tiled Mosaic', 'jetpack' );
 		$types['square'] = __( 'Square Tiles', 'jetpack' );
 		$types['circle'] = __( 'Circles', 'jetpack' );
+
 		return $types;
+	}
+
+	function jetpack_default_gallery_type( $default ) {
+		return ( get_option( 'tiled_galleries' ) ? 'rectangular' : 'default' );
 	}
 
 	/**
