@@ -62,8 +62,6 @@ function minileven_comment( $comment, $args, $depth ) {
 							)
 						);
 					?>
-
-					<?php edit_comment_link( __( 'Edit', 'jetpack' ), '<span class="edit-link">', '</span>' ); ?>
 				</div><!-- .comment-author .vcard -->
 
 				<?php if ( $comment->comment_approved == '0' ) : ?>
@@ -74,9 +72,8 @@ function minileven_comment( $comment, $args, $depth ) {
 			</footer>
 
 			<div class="comment-content"><?php comment_text(); ?></div>
-
 			<div class="reply">
-				<?php comment_reply_link( array_merge( $args, array( 'reply_text' => __( 'Reply <span>&darr;</span>', 'jetpack' ), 'depth' => $depth, 'max_depth' => $args['max_depth'] ) ) ); ?>
+				<?php comment_reply_link( array_merge( $args, array( 'reply_text' => __( 'Reply', 'jetpack' ), 'depth' => $depth, 'max_depth' => $args['max_depth'] ) ) ); ?>
 			</div><!-- .reply -->
 		</article><!-- #comment-## -->
 

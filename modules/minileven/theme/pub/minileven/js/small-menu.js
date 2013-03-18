@@ -1,41 +1,33 @@
 /**
- * Handles toggling the main navigation menu for small screens.
+ * navigation.js
+ *
+ * Handles toggling the navigation menu for small screens.
  */
-jQuery( document ).ready( function( $ ) {
-	var $subsidiary = $( '#branding' ),
-	    timeout = false;
+( function() {
+	var nav = document.getElementById( 'access' ), button, menu;
+	if ( ! nav )
+		return;
+	button = nav.getElementsByTagName( 'h3' )[0];
+	menu   = nav.getElementsByTagName( 'ul' )[0];
+	if ( ! button )
+		return;
 
-	$.fn.smallMenu = function() {
-		$subsidiary.find( '#access' ).addClass( 'main-small-navigation' );
-		$subsidiary.find( '#access h3' ).removeClass( 'assistive-text' ).addClass( 'menu-label' );
-		$subsidiary.find( '#access .menu-handle' ).addClass( 'menu-toggle' );
+	// Hide button if menu is missing or empty.
+	if ( ! menu || ! menu.childNodes.length ) {
+		button.style.display = 'none';
+		return;
+	}
 
-		$( '.menu-toggle' ).click( function() {
-			$subsidiary.find( '.menu' ).toggle();
-			$( this ).toggleClass( 'toggled-on' );
-		} );
+	button.onclick = function() {
+		if ( -1 == menu.className.indexOf( 'nav-menu' ) )
+			menu.className = 'nav-menu';
+
+		if ( -1 != button.className.indexOf( 'toggled-on' ) ) {
+			button.className = button.className.replace( ' toggled-on', '' );
+			menu.className = menu.className.replace( ' toggled-on', '' );
+		} else {
+			button.className += ' toggled-on';
+			menu.className += ' toggled-on';
+		}
 	};
-
-	// Check viewport width on first load.
-	if ( $( window ).width() < 4000 )
-		$.fn.smallMenu();
-
-	// Check viewport width when user resizes the browser window.
-	$( window ).resize( function() {
-		var browserWidth = $( window ).width();
-
-		if ( false !== timeout )
-			clearTimeout( timeout );
-
-		timeout = setTimeout( function() {
-			if ( browserWidth < 4000 ) {
-				$.fn.smallMenu();
-			} else {
-				$subsidiary.find( '#access' ).removeClass( 'main-small-navigation' );
-				$subsidiary.find( '#access h3' ).removeClass( 'menu-label' ).addClass( 'assistive-text' );
-				$subsidiary.find( '#access .menu-handle' ).removeClass( 'menu-toggle' );
-				$subsidiary.find( '.menu' ).removeAttr( 'style' );
-			}
-		}, 200 );
-	} );
-} );
+} )();

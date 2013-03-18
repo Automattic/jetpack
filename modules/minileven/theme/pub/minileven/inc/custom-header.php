@@ -31,20 +31,25 @@ function minileven_header() {
 	$header_image = minileven_get_header_image();
 	$header_text = minileven_header_text_display();
 
-	if ( 'blank' != $header_text ) : ?>
-		<hgroup>
-			<h1 id="site-title"><span><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></span></h1>
-			<h2 id="site-description"><?php bloginfo( 'description' ); ?></h2>
-		</hgroup>
-<?php endif;
+	if ( 'blank' != $header_text || false != $header_image ) : ?>
 
-	if ( false !== $header_image ) : ?>
-		<div id="header-img">
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
-				<img src="<?php echo $header_image; ?>" alt="" />
-			</a>
-		</div><!-- #header-img -->
-<?php endif; // end check for header image existence.
+		<header id="branding" role="banner">
+			<?php if ( 'blank' != $header_text ) : ?>
+					<hgroup>
+						<h1 id="site-title"><span><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></span></h1>
+						<h2 id="site-description"><?php bloginfo( 'description' ); ?></h2>
+					</hgroup>
+			<?php endif;
+
+			if ( false !== $header_image ) : ?>
+				<div id="header-img">
+					<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
+						<img src="<?php echo $header_image; ?>" alt="" />
+					</a>
+				</div><!-- #header-img -->
+			<?php endif; // end check for header image existence. ?>
+		</header><!-- #branding -->
+<?php endif; // end check for both header text and header image
 }
 
 /* This function displays the custom background image or color, and custom text color */
@@ -82,7 +87,8 @@ function minileven_show_background_and_header_color() {
 				<?php echo trim( $style ); ?>
 			}
 		<?php } ?>
-		#page {
+		#page,
+		#branding {
 			margin: 0.6em 0.6em 0.8em;
 		}
 		#site-generator {

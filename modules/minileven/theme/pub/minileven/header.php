@@ -18,25 +18,21 @@
 
 <body <?php body_class(); ?>>
 <div id="wrapper">
-<div id="page" class="hfeed">
-	<header id="branding" role="banner">
 	<?php
-		minileven_header();
 		$location = minileven_get_menu_location(); // get the menu locations from the current theme in use
 	?>
 		<div class="menu-search">
-			<nav id="access" role="navigation">
-				<div class="menu-handle">
-					<h3 class="assistive-text"><?php _e( 'Menu', 'jetpack' ); ?></h3>
-				</div><!-- .menu-handle -->
+			<nav id="access" class="site-navigation main-navigation" role="navigation">
+				<h3 class="menu-toggle"><?php _e( 'Menu', 'jetpack' ); ?></h3>
+
 				<?php /*  Allow screen readers / text browsers to skip the navigation menu and get right to the good stuff. */ ?>
 				<div class="skip-link"><a class="assistive-text" href="#content" title="<?php esc_attr_e( 'Skip to primary content', 'jetpack' ); ?>"><?php _e( 'Skip to primary content', 'minileven' , 'jetpack'); ?></a></div>
 				<?php /* Our navigation menu.  If one isn't filled out, wp_nav_menu falls back to wp_page_menu. The menu assiged to the primary position is the one used. If none is assigned, the menu with the lowest ID is used. */
 					if ( false !== $location ) :
 						$menu_id = array_shift( array_values( $location ) ); // acccess the ID of the menu assigned to that location. Using only the first menu ID returned in the array.
-						wp_nav_menu( array( 'theme_location' => 'primary', 'menu' => $menu_id ) );
+						wp_nav_menu( array( 'theme_location' => 'primary', 'container_class' => '', 'menu_class' => 'nav-menu', 'menu' => $menu_id ) );
 					else: // if the $location variable is false, wp_page_menu() is shown instead.
-						wp_nav_menu( array( 'theme_location' => 'primary' ) );
+						wp_nav_menu( array( 'theme_location' => 'primary', 'container_class' => '', 'menu_class' => 'nav-menu' ) );
 					endif;
 				?>
 			</nav><!-- #access -->
@@ -44,6 +40,8 @@
 				<?php get_search_form(); ?>
 			</div><!-- .search-form-->
 		</div><!-- .menu-search-->
-	</header><!-- #branding -->
 
-	<div id="main">
+	<?php minileven_header(); ?>
+
+	<div id="page" class="hfeed">
+		<div id="main">

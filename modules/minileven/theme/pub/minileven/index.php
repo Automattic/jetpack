@@ -70,4 +70,6 @@ get_header(); ?>
 			<?php minileven_content_nav( 'nav-below' ); ?>
 
 		</div><!-- #primary -->
+
+<?php get_sidebar(); ?>
 <?php get_footer(); ?>
