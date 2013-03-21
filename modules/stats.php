@@ -52,6 +52,8 @@ function stats_load() {
 
 	add_action( 'wp_head', 'stats_admin_bar_head', 100 );
 
+	add_action( 'wp_head', 'stats_hide_smile_css' );
+
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
 	add_action( 'wp_dashboard_setup', 'stats_register_dashboard_widget' );
@@ -155,9 +157,6 @@ function stats_template_redirect() {
 	else load_cmc();
 	</script>
 END;
-	if ( isset( $options['hide_smile'] ) && $options['hide_smile'] ) {
-		$stats_footer .= "\n<style type='text/css'>img#wpstats{display:none}</style>";
-	}
 }
 
 function stats_add_shutdown_action() {
@@ -551,6 +550,14 @@ function stats_configuration_screen() {
 		</form>
 	</div>
 	<?php
+}
+
+function stats_hide_smile_css() {
+	$options = stats_get_options();
+	if ( isset( $options['hide_smile'] ) && $options['hide_smile'] ) {
+	?>
+<style type='text/css'>img#wpstats{display:none}</style><?php
+	}
 }
 
 function stats_admin_bar_head() {
