@@ -309,6 +309,10 @@ class Jetpack_Photon {
 						// Replace original tag with modified version
 						$content = str_replace( $tag, $new_tag, $content );
 					}
+				} elseif ( preg_match( '#^http(s)?://i[\d]{1}.wp.com#', $src ) && ! empty( $images['link_url'][ $index ] ) && self::validate_image_url( $images['link_url'][ $index ] ) ) {
+					$new_tag = preg_replace( '#(href=["|\'])' . $images['link_url'][ $index ] . '(["|\'])#i', '\1' . jetpack_photon_url( $images['link_url'][ $index ] ) . '\2', $tag, 1 );
+
+					$content = str_replace( $tag, $new_tag, $content );
 				}
 			}
 		}
