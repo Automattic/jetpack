@@ -167,7 +167,7 @@ class Jetpack_Notifications {
 		$wp_admin_bar->add_menu( array(
 			'id'     => 'notes',
 			'title'  => '<span id="wpnt-notes-unread-count" class="' . esc_attr( $classes ) . '">
-					<span class="noticon noticon-notification" /></span>
+					<span class="noticon noticon-notification" />
 					</span>',
 			'meta'   => array(
 				'html'  => '<div id="wpnt-notes-panel" style="display:none"><div class="wpnt-notes-panel-header"><span class="wpnt-notes-header">' . __('Notifications', 'jetpack') . '</span><span class="wpnt-notes-panel-link"></span></div></div>',
