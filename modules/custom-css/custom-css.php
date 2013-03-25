@@ -65,7 +65,7 @@ class Jetpack_Custom_CSS {
 			check_admin_referer( 'safecss' );
 
 			$save_result = self::save( array(
-				'css' => $_POST['safecss'],
+				'css' => stripslashes( $_POST['safecss'] ),
 				'is_preview' => isset( $_POST['action'] ) && $_POST['action'] == 'preview',
 				'preprocessor' => isset( $_POST['custom_css_preprocessor'] ) ? $_POST['custom_css_preprocessor'] : '',
 				'add_to_existing' => isset( $_POST['add_to_existing'] ) ? $_POST['add_to_existing'] == 'true' : true,
@@ -132,7 +132,7 @@ class Jetpack_Custom_CSS {
 		$csstidy->set_cfg( 'preserve_css',               true );
 		$csstidy->set_cfg( 'template',                   dirname( __FILE__ ) . '/csstidy/wordpress-standard.tpl' );
 
-		$css = $orig = stripslashes( $args['css'] );
+		$css = $orig = $args['css'];
 
 		$css = preg_replace( '/\\\\([0-9a-fA-F]{4})/', '\\\\\\\\$1', $prev = $css );
 
@@ -360,7 +360,10 @@ class Jetpack_Custom_CSS {
 			if ( Jetpack_Custom_CSS::is_preview() ) {
 				$safecss_post = Jetpack_Custom_CSS::get_current_revision();
 
-				return (bool) ( get_option( 'safecss_preview_add' ) == 'no' || get_post_meta( $safecss_post['ID'], 'custom_css_add', true ) == 'no' );
+				if ( $safecss_post )
+					return (bool) ( get_post_meta( $safecss_post['ID'], 'custom_css_add', true ) == 'no' );
+				else
+					return (bool) ( get_option( 'safecss_preview_add' ) == 'no' );
 			}
 			else {
 				$custom_css_post_id = Jetpack_Custom_CSS::post_id();
@@ -680,8 +683,8 @@ class Jetpack_Custom_CSS {
 					border-radius: 3px;
 				}
 
-				#safecss-container .ace_editor {
-					font-family: Consolas, Monaco, Courier, monospace;
+				#safecss, #safecss-container .ace_editor, #safecss-container .ace_editor * {
+					font-family: Consolas, Monaco, Courier, monospace !important;
 				}
 
 				#safecss-ace {
