@@ -47,6 +47,8 @@ class Jetpack_Custom_CSS {
 			exit;
 		}
 
+		add_action( 'admin_enqueue_scripts', array( 'Jetpack_Custom_CSS', 'enqueue_scripts' ) );
+
 		if ( isset( $_GET['page'] ) && 'editcss' == $_GET['page'] && is_admin() ) {
 			// Do migration routine if necessary
 			Jetpack_Custom_CSS::upgrade();
@@ -577,7 +579,7 @@ class Jetpack_Custom_CSS {
 		$parent = 'themes.php';
 		$title = __( 'Edit CSS', 'jetpack' );
 		$hook = add_theme_page( $title, $title, 'edit_theme_options', 'editcss', array( 'Jetpack_Custom_CSS', 'admin' ) );
-		add_action( "admin_print_scripts-$hook", array( 'Jetpack_Custom_CSS', 'enqueue_scripts' ) );
+
 		add_action( "admin_head-$hook", array( 'Jetpack_Custom_CSS', 'admin_head' ) );
 		add_action( "load-revision.php", array( 'Jetpack_Custom_CSS', 'prettify_post_revisions' ) );
 		add_action( "load-$hook", array( 'Jetpack_Custom_CSS', 'update_title' ) );
@@ -594,26 +596,6 @@ class Jetpack_Custom_CSS {
 
 	static function prettify_post_revisions() {
 		add_filter( 'the_title', array( 'Jetpack_Custom_CSS', 'post_title' ), 10, 2 );
-		add_action( 'admin_head', array( 'Jetpack_Custom_CSS', 'remove_title_excerpt_from_revisions' ) );
-	}
-
-	static function remove_title_excerpt_from_revisions() {
-		global $post;
-
-		if ( !$post ) {
-			return;
-		}
-
-		if ( 'safecss' != $post->post_type ) {
-			return;
-		}
-	?>
-	<style type="text/css">
-	#revision-field-post_title, #revision-field-post_excerpt {
-		display: none;
-	}
-	</style>
-	<?php
 	}
 
 	static function post_title( $title, $post_id ) {
@@ -632,161 +614,39 @@ class Jetpack_Custom_CSS {
 		return __( 'Custom CSS Stylesheet', 'jetpack' );
 	}
 
-	static function enqueue_scripts() {
+	static function enqueue_scripts( $hook ) {
+		if ( 'appearance_page_editcss' != $hook )
+			return;
+
 		wp_enqueue_script( 'postbox' );
+		wp_enqueue_script( 'custom-css-editor', plugins_url( 'custom-css/js/css-editor.js', __FILE__ ), 'jquery', '20130325', true );
+		wp_enqueue_style( 'custom-css-editor', plugins_url( 'custom-css/css/css-editor.css', __FILE__ ) );
 
 		if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) {
 			$url = plugins_url( 'custom-css/js/', __FILE__ );
+
 			wp_enqueue_script( 'jquery.spin' );
 			wp_enqueue_script( 'safecss-ace', $url . 'ace/ace.js', array(), '20130213', true );
 			wp_enqueue_script( 'safecss-ace-css', $url . 'ace/mode-css.js', array( 'safecss-ace' ), '20130213', true );
 			wp_enqueue_script( 'safecss-ace-less', $url . 'ace/mode-less.js', array( 'safecss-ace' ), '20130213', true );
 			wp_enqueue_script( 'safecss-ace-scss', $url . 'ace/mode-scss.js', array( 'safecss-ace' ), '20130213', true );
 			wp_enqueue_script( 'safecss-ace-use', $url . 'safecss-ace.js', array( 'jquery', 'safecss-ace-css' ), '20130213', true );
+
+			wp_enqueue_style( 'custom-css-ace', plugins_url( 'custom-css/css/ace.css', __FILE__ ) );
 		}
 	}
 
 	static function admin_head() {
-		?>
-		<style type="text/css">
-			#safecssform {
-				position: relative;
-			}
-
-			#poststuff {
-				padding-top: 0;
-			}
-
-			#safecss {
-				min-height: 250px;
-				width: 100%;
-			}
-
-			.misc-pub-section > span {
-				font-weight: bold;
-			}
-
-			.misc-pub-section > div {
-				margin-top: 3px;
-			}
-
-			<?php
-
-			if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) {
-
-				?>
-				#safecss-container {
-					position: relative;
-					width: 99.5%;
-					height: 400px;
-					border: 1px solid #dfdfdf;
-					border-radius: 3px;
-				}
-
-				#safecss, #safecss-container .ace_editor, #safecss-container .ace_editor * {
-					font-family: Consolas, Monaco, Courier, monospace !important;
-				}
-
-				#safecss-ace {
-					width: 100%;
-					height: 100%;
-					display: none; /* Hide on load otherwise it looks weird */
-				}
-
-				#safecss-ace.ace_editor {
-					display: block;
-				}
-
-				#safecss-container .ace-tm .ace_gutter {
-					background-color: #ededed;
-				}
-				<?php
-			}
-
+		if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) {
 			?>
-		</style>
-		<script type="text/javascript">
-			/*<![CDATA[*/
-			var safecssResize, safecssInit;
-
+			<script type="text/javascript">
+				/*<![CDATA[*/
+				var SAFECSS_USE_ACE = true;
+				var safecssAceSrcPath = <?php echo json_encode( parse_url( plugins_url( 'custom-css/js/ace/', __FILE__ ), PHP_URL_PATH ) ); ?>;
+				/*]]>*/
+			</script>
 			<?php
-
-			if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) {
-					?>var safecssAceSrcPath = <?php echo json_encode( parse_url( plugins_url( 'custom-css/js/ace/', __FILE__ ), PHP_URL_PATH ) ); ?>;<?php
-			}
-
-			?>
-
-			( function ( $ ) {
-				var safe, win;
-
-				safecssResize = function () {
-					safe.height( win.height() - safe.offset().top - 250 );
-				};
-
-				safecssInit = function() {
-					safe = $('#safecss');
-					win  = $(window);
-
-					postboxes.add_postbox_toggles('editcss');
-					safecssResize();
-					var button = document.getElementById( 'preview' );
-					button.onclick = function ( event ) {
-						<?php
-
-						// hack for now for previewing.
-						// TODO: move all of this JS into its own file.
-						if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) { echo "\t\taceSyncCSS();\n"; }
-
-						?>
-						document.forms["safecssform"].target = "csspreview";
-						document.forms["safecssform"].action.value = 'preview';
-						document.forms["safecssform"].submit();
-						document.forms["safecssform"].target = "";
-						document.forms["safecssform"].action.value = 'save';
-
-						event = event || window.event;
-
-						if ( event.preventDefault )
-							event.preventDefault();
-
-						return false;
-					}
-				};
-
-				window.onresize = safecssResize;
-				addLoadEvent( safecssInit );
-			} )( jQuery );
-
-			jQuery( function ( $ ) {
-				$( '.edit-preprocessor' ).bind( 'click', function ( e ) {
-					e.preventDefault();
-
-					$( '#preprocessor-select' ).slideDown();
-					$( this ).hide();
-				} );
-
-				$( '.cancel-preprocessor' ).bind( 'click', function ( e ) {
-					e.preventDefault();
-
-					$( '#preprocessor-select' ).slideUp( function () {
-						$( '.edit-preprocessor' ).show();
-						$( '#preprocessor_choices' ).val( $( '#custom_css_preprocessor' ).val() );
-					} );
-				} );
-
-				$( '.save-preprocessor' ).bind( 'click', function ( e ) {
-					e.preventDefault();
-
-					$( '#preprocessor-select' ).slideUp();
-					$( '#preprocessor-display' ).text( $( '#preprocessor_choices option:selected' ).text() );
-					$( '#custom_css_preprocessor' ).val( $( '#preprocessor_choices' ).val() ).change();
-					$( '.edit-preprocessor' ).show();
-				} );
-			} );
-			/*]]>*/
-		</script>
-		<?php
+		}
 	}
 
 	static function saved_message() {
@@ -905,34 +765,6 @@ class Jetpack_Custom_CSS {
 						<a class="save-css-mode hide-if-no-js button" href="#css-mode"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
 						<a class="cancel-css-mode hide-if-no-js" href="#css-mode"><?php esc_html_e( 'Cancel', 'jetpack' ); ?></a>
 					</div>
-					<script type="text/javascript">
-						jQuery( function ( $ ) {
-							$( '.edit-css-mode' ).bind( 'click', function ( e ) {
-								e.preventDefault();
-
-								$( '#css-mode-select' ).slideDown();
-								$( this ).hide();
-							} );
-
-							$( '.cancel-css-mode' ).bind( 'click', function ( e ) {
-								e.preventDefault();
-
-								$( '#css-mode-select' ).slideUp( function () {
-									$( '.edit-css-mode' ).show();
-									$( 'input[name=add_to_existing_display][value=' + $( '#add_to_existing' ).val() + ']' ).attr( 'checked', true );
-								} );
-							} );
-
-							$( '.save-css-mode' ).bind( 'click', function ( e ) {
-								e.preventDefault();
-
-								$( '#css-mode-select' ).slideUp();
-								$( '#css-mode-display' ).text( $( 'input[name=add_to_existing_display]:checked' ).val() == 'true' ? 'Add-on' : 'Replacement' );
-								$( '#add_to_existing' ).val( $( 'input[name=add_to_existing_display]:checked' ).val() );
-								$( '.edit-css-mode' ).show();
-							} );
-						} );
-					</script>
 				</div>
 				<?php do_action( 'custom_css_submitbox_misc_actions' ); ?>
 			</div>

@@ -1,9 +1,11 @@
 (function(global, $){
 	// shared scope insied IIFE in case it's needed.
 	var editor;
-	var syncCSS = function() {
-		$("#safecss").val( editor.getSession().getValue() );
+
+	var syncCSS = function () {
+		$( "#safecss" ).val( editor.getSession().getValue() );
 	};
+
 	var loadAce = function() {
 		// Set up ACE editor
 		ace.config.set( 'modePath', safecssAceSrcPath );
@@ -64,7 +66,5 @@
 		$(global).load(loadAce);
 	}
 
-	// for now, expose the syncCSS function.
-	global.aceSyncCSS = syncCSS;
-
+	$( '#preview' ).on( 'click', syncCSS );
 })(this, jQuery);
