@@ -3,7 +3,7 @@ div#publicize-services-block {
 	clear: both;
 	margin-bottom: 25px;
 	background-color: #fff;
-	width: 100%;
+	padding: 25px 25px 5px 20px;
 }
 
 /* Add the logos for the Publicize services */

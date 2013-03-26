@@ -219,7 +219,7 @@ class Publicize extends Publicize_Base {
 		if ( 'on' == $_REQUEST['global'] ) {
 			$id = $_REQUEST['connection'];
 
-			if ( !current_user_can( Publicize::GLOBAL_CAP ) )
+			if ( !current_user_can( $this->GLOBAL_CAP ) )
 				return;
 
 			Jetpack::load_xml_rpc_client();

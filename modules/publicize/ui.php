@@ -152,7 +152,7 @@ class Publicize_UI {
 											<?php if ( 0 == $cmeta['connection_data']['user_id'] ) : ?>
 												<small>(<?php esc_html_e( 'Shared', 'jetpack' ); ?>)</small>
 
-												<?php if ( current_user_can( Publicize::GLOBAL_CAP ) ) : ?>
+												<?php if ( current_user_can( $this->publicize->GLOBAL_CAP ) ) : ?>
 													<a class="pub-disconnect-button" title="<?php esc_html_e( 'Disconnect', 'jetpack' ); ?>" href="<?php echo esc_url( $disconnect_url ); ?>">×</a>
 												<?php endif; ?>
 
@@ -170,6 +170,18 @@ class Publicize_UI {
 			  			</div>
 			  		</div>
 				<?php endforeach; ?>
+				<script>
+  				(function($){
+  					$('.pub-disconnect-button').on('click', function(e){
+							if ( confirm( '<?php echo esc_js( __( 'Are you sure you want to stop Publicizing posts to this connection?', 'jetpack' ) ); ?>' ) ) {
+								return true;
+							} else {
+  							e.preventDefault();
+  							return false;
+  						}
+  					})
+  				})(jQuery);
+  				</script>
 	  		</div>
 
 			<?php wp_nonce_field( "wpas_posts_{$_blog_id}", "_wpas_posts_{$_blog_id}_nonce" ); ?>
@@ -179,7 +191,8 @@ class Publicize_UI {
 	}
 
 	function global_checkbox( $service_name, $id ) {
-		if ( current_user_can( Publicize::GLOBAL_CAP ) ) : ?>
+		global $publicize;
+		if ( current_user_can( $publicize->GLOBAL_CAP ) ) : ?>
 			<p>
 				<input id="globalize_<?php echo $service_name; ?>" type="checkbox" name="global" value="<?php echo wp_create_nonce( 'publicize-globalize-' . $id ) ?>" />
 				<label for="globalize_<?php echo $service_name; ?>"><?php _e( 'Make this connection available to all users of this blog?', 'jetpack' ); ?></label>
@@ -436,7 +449,7 @@ jQuery( function($) {
 							// those connections, don't let them change it
 							$cmeta = $this->publicize->get_connection_meta( $connection );
 							$hidden_checkbox = false;
-							if ( !$done && ( 0 == $cmeta['connection_data']['user_id'] && !current_user_can( Publicize::GLOBAL_CAP ) ) ) {
+							if ( !$done && ( 0 == $cmeta['connection_data']['user_id'] && !current_user_can( $this->publicize->GLOBAL_CAP ) ) ) {
 								$disabled = ' disabled="disabled"';
 								$hidden_checkbox = true;
 							}
