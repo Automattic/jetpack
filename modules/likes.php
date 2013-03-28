@@ -501,7 +501,7 @@ class Jetpack_Likes {
 		$date = $columns['date'];
 		unset( $columns['date'] );
 
-		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes' ) . '" alt="' . esc_attr__( 'Likes' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
+		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes' , 'jetpack') . '" alt="' . esc_attr__( 'Likes' , 'jetpack') . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
 		$columns['date'] = $date;
 
 		return $columns;
