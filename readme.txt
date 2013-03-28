@@ -92,11 +92,37 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 == Changelog ==
 
 = 2.2.1 =
-* Enhancement: Likes: Added the number of likes to the wp-admin/edit.php screens.
 * Enhancement: Development Mode: Define the `JETPACK_DEV_DEBUG` constant to `true` to enable an offline mode for localhost development. Only modules that don't require a WordPress.com connection can be enabled in this mode.
-* Bug Fix: Sharing: Improved compatibility with other plugins including WP e-Commerce.
-* Bug Fix: JSON API: Better error handling for the 'User cannot view password protected post' message.
-
+* Enhancement: Likes: Added the number of likes to the wp-admin/edit.php screens.
+* Enhancement: Mobile Theme - design refresh
+* Enhancement: Shortcodes - Add a filter to the shortcode loading section so that a plugin can override what Jetpack loads for shortcodes
+* Enhancement: Widgets - Filter Jetpack's widgets so that a plugin can control which widgets get loaded
+* Bug Fix: Comments - Add in a wrapper div with id='commentform'
+* Bug Fix: Contact Form - Added date field with datepicker
+* Bug Fix: Contact Form - Allowed non-text widgets to use contact forms by running their output through the widget_text filter 
+* Bug Fix: Custom CSS - Allowing color values to be defined multiple times
+* Bug Fix: Custom CSS - Dynamically loading the correct CSS/LESS/SCSS mode for the CSS editor if the user changes the preprocessor
+* Bug Fix: Custom CSS - Using the unminified worker CSS
+* Bug Fix: Custom CSS - Added rule: reminder about using .custom-background on body selector 
+* Bug Fix: Custom CSS - Modified rule: Removed portion of overqualification rule that deems 'a.foo' overqualified if there are no other 'a' rules
+* Bug Fix: Custom CSS - Ensuring that the editor and the textarea behind it are using the same font so that the cursor appears in the correct location
+* Bug Fix: Custom CSS - Fix a bug that caused some sites to always ignore the base theme's CSS when in preview mode
+* Bug Fix: Custom CSS - Run stripslashes() before passing CSS to save()
+* Bug Fix: Custom CSS - Moving inline CSS and JavaScript into external files
+* Bug Fix: Infinite Scroll - Use the `is_main_query()` function and query method
+* Bug Fix: Infinite Scroll - Remove unused styles and an unnecessary margin setting
+* Bug Fix: Infinite Scroll - Allow the query used with IS to be filtered, so IS can be applied to a new query within a page template
+* Bug Fix: JSON API - Catch the 'User cannot view password protected post' error from can_view_post and bypass it for likes actions if the user has the password entered
+* Bug Fix: Likes - Bump cache buster, Don't show likes for password protected posts
+* Bug Fix: Notifications - Remove a redundant span closing tag
+* Bug Fix: Photon - If an image is already served from Photon but the anchor tag that surrounds it hasn't had its `href` value rewritten to use Photon, do so. Accounts for WP galleries whose individual items are linked to the original image files
+* Bug Fix: Publicize - Allows GLOBAL_CAP to be filtered, Adds an AYS to connection deletion, UI improvement for MP6 (and in general)
+* Bug Fix: Sharedaddy - Fire the sharing redirect earlier for increased plugin compatibility
+* Bug Fix: Stats - Move the display:none CSS output to wp_head so it gets written inside the HEAD tag if the option to hide the stats smilie is active
+* Bug Fix: Tiled Galleries - A more descriptive name for the default gallery type
+* Bug Fix: Tiled Galleries - Hide the Columns setting for gallery types that don't support it
+* Bug Fix: Run the admin_menu action late so that plugins hooking into it get a chance to run
+* Bug Fix: Prophylactic strict equality check
 
 = 2.2 =
 * Enhancement: Likes: Allow your readers to show their appreciation of your posts.
