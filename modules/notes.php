@@ -43,24 +43,6 @@ class Jetpack_Notifications {
 		$this->jetpack = Jetpack::init();
 
 		add_action( 'init', array( &$this, 'action_init' ) );
-
-		//post types that support comments
-		$filt_post_types = array();
-		foreach ( get_post_types() as $post_type ) {
-			if ( post_type_supports( $post_type, 'comments' ) ) {
-				$filt_post_types[] = $post_type;
-			}
-		}
-
-		Jetpack_Sync::sync_posts( __FILE__, array(
-			'post_types' => $filt_post_types,
-			'post_stati' => array( 'publish' ),
-		) );
-		Jetpack_Sync::sync_comments( __FILE__, array(
-			'post_types' => $filt_post_types,
-			'post_stati' => array( 'publish' ),
-			'comment_stati' => array( 'approve', 'approved', '1', 'hold', 'unapproved', 'unapprove', '0', 'spam', 'trash' ),
-		) );
 	}
 
 	function wpcom_static_url($file) {
@@ -105,6 +87,26 @@ class Jetpack_Notifications {
 	}
 
 	function action_init() {
+		//syncing must wait until after init so
+		//post types that support comments
+		$filt_post_types = array();
+		$all_post_types = get_post_types();
+		foreach ( $all_post_types as $post_type ) {
+			if ( post_type_supports( $post_type, 'comments' ) ) {
+				$filt_post_types[] = $post_type;
+			}
+		}
+
+		Jetpack_Sync::sync_posts( __FILE__, array(
+			'post_types' => $filt_post_types,
+			'post_stati' => array( 'publish' ),
+		) );
+		Jetpack_Sync::sync_comments( __FILE__, array(
+			'post_types' => $filt_post_types,
+			'post_stati' => array( 'publish' ),
+			'comment_stati' => array( 'approve', 'approved', '1', 'hold', 'unapproved', 'unapprove', '0', 'spam', 'trash' ),
+		) );
+
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
 			return;
 		
