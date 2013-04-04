@@ -13,6 +13,10 @@
 wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/view/id/.+!i', 'http://www.ted.com/talks/oembed.json', true );
 wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/[a-zA-Z\-\_]+\.html!i', 'http://www.ted.com/talks/oembed.json', true );
 
+function jetpack_shortcode_get_ted_id( $atts ) {
+	return ( ! empty( $atts['id'] ) ? $atts['id'] : 0 );
+}
+
 add_shortcode( 'ted', 'shortcode_ted' );
 function shortcode_ted( $atts, $content = '' ) {
 	global $wp_embed;
