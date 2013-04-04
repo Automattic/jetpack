@@ -15,14 +15,16 @@ class Jetpack_PostImages {
 	 * If a slideshow is embedded within a post, then parse out the images involved and return them
 	 */
 	static function from_slideshow( $post_id, $width = 200, $height = 200 ) {
+		$images = array();
+
 		$post = get_post( $post_id );
+		if ( !empty( $post->post_password ) )
+			return $images;
 
 		if ( false === strpos( $post->post_content, '[slideshow' ) )
 			return false; // no slideshow - bail
 
 		$permalink = get_permalink( $post->ID );
-
-		$images = array();
 
 		// Mechanic: Somebody set us up the bomb
 		$old_post = $GLOBALS['post'];
@@ -79,14 +81,16 @@ class Jetpack_PostImages {
 	 * If a gallery is detected, then get all the images from it.
 	 */
 	static function from_gallery( $post_id ) {
+		$images = array();
+
 		$post = get_post( $post_id );
+		if ( !empty( $post->post_password ) )
+			return $images;
 
 		if ( false === strpos( $post->post_content, '[gallery' ) )
 			return false; // no gallery - bail
 
 		$permalink = get_permalink( $post->ID );
-
-		$images = array();
 
 		// CATS: All your base are belong to us
 		$old_post = $GLOBALS['post'];
@@ -145,6 +149,11 @@ class Jetpack_PostImages {
 	 * their dimensions are at or above a required minimum.
 	 */
 	static function from_attachment( $post_id, $width = 200, $height = 200 ) {
+		$images = array();
+
+		$post = get_post( $post_id );
+		if ( !empty( $post->post_password ) )
+			return $images;
 
 		$post_images = get_posts( array(
 			'post_parent' => $post_id,   // Must be children of post
@@ -157,8 +166,6 @@ class Jetpack_PostImages {
 			return false;
 
 		$permalink = get_permalink( $post_id );
-
-		$images = array();
 
 		foreach ( $post_images as $post_image ) {
 			$meta = wp_get_attachment_metadata( $post_image->ID );
@@ -210,9 +217,12 @@ class Jetpack_PostImages {
 	static function from_thumbnail( $post_id, $width = 200, $height = 200 ) {
 		$images = array();
 
-		if ( !function_exists( 'get_post_thumbnail_id' ) ) {
+		$post = get_post( $post_id );
+		if ( !empty( $post->post_password ) )
 			return $images;
-		}
+
+		if ( !function_exists( 'get_post_thumbnail_id' ) )
+			return $images;
 
 		$thumb = get_post_thumbnail_id( $post_id );
 
@@ -251,9 +261,9 @@ class Jetpack_PostImages {
 
 		if ( is_numeric( $html_or_id ) ) {
 			$post = get_post( $html_or_id );
-
-			if ( !$post )
+			if ( empty( $post ) || !empty( $post->post_password ) )
 				return $images;
+
 			$html = $post->post_content; // DO NOT apply the_content filters here, it will cause loops
 		}
 
