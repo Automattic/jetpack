@@ -75,6 +75,10 @@ function jetpack_googlemaps_shortcode( $atts ) {
 			}
 		}
 		$url = substr( $url, 0, -5 );
+
+		if( is_ssl() )
+			$url = str_replace( 'http://', 'https://', $url );
+
 		$link_url = preg_replace( '!output=embed!', 'source=embed', $url );
 
 		return '<div class="googlemaps"><iframe width="' . $width . '" height="' . $height . '" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="' . $url . '"></iframe><br /><small><a href="' . $link_url . '" style="text-align:left">View Larger Map</a></small></div>';

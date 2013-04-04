@@ -50,7 +50,7 @@ window.audioshortcode = {
 		}
 
 		// bail if there are no more good files
-		if ( 0 == this[player_id].files.length ) {
+		if ( 0 === this[player_id].files.length ) {
 			return;
 		}
 		player.src = this[player_id].files[0];
@@ -64,7 +64,7 @@ window.audioshortcode = {
 			audioshortcode.remove_track( player_id, audioshortcode[player_id].i );
 			if ( 0 < audioshortcode[player_id].files.length ) {
 				audioshortcode[player_id].i--;
-				audioshortcode.next_track( player_id, false, loop );	
+				audioshortcode.next_track( player_id, false, loop );
 			}
 		}, false );
 
@@ -91,7 +91,7 @@ window.audioshortcode = {
 		this[player_id].titles.splice( index, 1 );
 
 		// get rid of player/controls if they can't be played
-		if ( 0 == this[player_id].files.length ) {
+		if ( 0 === this[player_id].files.length ) {
 			$( '#wp-as-' + player_id + '-container' ).html( $( '#wp-as-' + player_id + '-nope' ).html() );
 			$( '#wp-as-' + player_id + '-controls' ).html( '' );
 		} else if ( 1 == this[player_id].files.length ) {
@@ -115,9 +115,9 @@ window.audioshortcode = {
 	prev_track: function( player_id ) {
 		var player = $( '#wp-as-' + player_id ).get(0);
 		var files = this[player_id].files;
-		if ( player.paused || 0 == this[player_id].i ) { 
-			return 
-		};
+		if ( player.paused || 0 === this[player_id].i ) {
+			return;
+		}
 
 		player.pause();
 		if ( 0 < this[player_id].i ) {

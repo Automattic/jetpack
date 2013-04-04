@@ -23,6 +23,8 @@
 body div.slideshow-window * img {
     /* Override any styles that might be present in the page stylesheet */
     border-width: 0 !important;
+    margin-right: auto !important;
+    margin-left: auto !important;
     padding: 0 !important;
     background-color: transparent !important;
     background-image: none !important;

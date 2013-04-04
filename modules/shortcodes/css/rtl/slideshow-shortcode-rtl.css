@@ -1,4 +1,4 @@
-/* This file was automatically generated on Jan 06 2013 05:39:50 */
+/* This file was automatically generated on Mar 24 2013 21:32:09 */
 
 .slideshow-window {
 	background-color: #222;
@@ -25,6 +25,8 @@
 body div.slideshow-window * img {
     /* Override any styles that might be present in the page stylesheet */
     border-width: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
     padding: 0 !important;
     background-color: transparent !important;
     background-image: none !important;

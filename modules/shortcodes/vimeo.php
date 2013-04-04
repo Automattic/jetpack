@@ -9,6 +9,18 @@
 <iframe src="http://player.vimeo.com/video/18427511" width="400" height="225" frameborder="0"></iframe><p><a href="http://vimeo.com/18427511">Eskmo 'We Got More' (Official Video)</a> from <a href="http://vimeo.com/ninjatune">Ninja Tune</a> on <a href="http://vimeo.com">Vimeo</a>.</p>
 */
 
+function jetpack_shortcode_get_vimeo_id( $atts ) {
+	if ( isset( $atts[0] ) ) {
+		$atts[0] = trim( $atts[0] , '=' );
+		if ( is_numeric( $atts[0] ) )
+			$id = (int) $atts[0];
+		elseif ( preg_match( '|vimeo\.com/(\d+)/?$|i', $atts[0], $match ) )
+			$id = (int) $match[1];
+		return $id;
+	}
+	return 0;
+}
+
 /**
  * Convert a Vimeo shortcode into an embed code.
  *
@@ -24,13 +36,10 @@ function vimeo_shortcode( $atts ) {
 		'height' => 300
 	), $atts ) ) );
 
-	if ( isset( $atts[0] ) ) {
-		$atts[0] = trim( $atts[0] , '=' );
-		if ( is_numeric( $atts[0] ) )
-			$id = (int) $atts[0];
-		elseif ( preg_match( '|vimeo\.com/(\d+)/?$|i', $atts[0], $match ) )
-			$id = (int) $match[1];
-	}
+	if ( isset( $atts[0] ) )
+		$id = jetpack_shortcode_get_vimeo_id( $atts );
+
+	if ( ! $id ) return "<!-- vimeo error: not a vimeo video -->";
 
 	// [vimeo 141358 h=500&w=350]
 	$params = shortcode_new_to_old_params( $atts ); // h=500&w=350
@@ -60,8 +69,6 @@ function vimeo_shortcode( $atts ) {
 
 	if ( ! $height )
 		$height = round( ( $width / 640 ) * 360 );
-
-	if ( ! $id ) return "<!-- vimeo error: not a vimeo video -->";
 
 	$html = "<div class='embed-vimeo' style='text-align:center;'><iframe src='http://player.vimeo.com/video/$id' width='$width' height='$height' frameborder='0'></iframe></div>";
 	$html = apply_filters( 'video_embed_html', $html );
