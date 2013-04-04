@@ -517,7 +517,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'body'     => 'Request Parameters',
 			'response' => 'Response Parameters',
 		) as $doc_section_key => $label ) :
-			$doc_section = 'response' == $doc_section_key ? $doc['response']['body'] : $doc['request'][$doc_section_key];
+			$doc_section = 'response' === $doc_section_key ? $doc['response']['body'] : $doc['request'][$doc_section_key];
 			if ( !$doc_section ) {
 				continue;
 			}
@@ -570,7 +570,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( empty( $response ) ) {
 
 				// Only trust GET request
-				if ( 'GET' == $this->method ) {
+				if ( 'GET' === $this->method ) {
 					$response = wp_remote_get( $this->example_request );
 				}
 
@@ -771,7 +771,7 @@ EOPHP;
 						$type = '(string)';
 					}
 
-					if ( 'response_format' != $_property ) {
+					if ( 'response_format' !== $_property ) {
 						// hack - don't show "(default)" in response format
 						reset( $description );
 						$description_key = key( $description );
@@ -802,7 +802,7 @@ EOPHP;
 
 				$item = compact( 'type', 'description' );
 
-				if ( 'response_format' == $_property ) {
+				if ( 'response_format' === $_property ) {
 					$doc['response'][$doc_item][$key] = $item;
 				} else {
 					$doc['request'][$doc_item][$key] = $item;
@@ -819,7 +819,7 @@ EOPHP;
 			return false;
 		}
 
-		if ( 'inherit' == $post->post_status ) {
+		if ( 'inherit' === $post->post_status ) {
 			$parent_post = get_post( $post->post_parent );
 			$post_status_obj = get_post_status_object( $parent_post->post_status );
 		} else {
@@ -849,7 +849,7 @@ EOPHP;
 		}
 
 		if ( -1 == get_option( 'blog_public' ) && !current_user_can( 'read_post', $post->ID ) ) {
-			return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
+			return new WP_Error( 'unauthorized', 'User cannot view post', array( 'status_code' => 403, 'error' => 'private_blog' ) );
 		}
 
 		if ( strlen( $post->post_password ) && !current_user_can( 'edit_post', $post->ID ) ) {
@@ -944,7 +944,7 @@ EOPHP;
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
 
-		if ( 'category' == $taxonomy_type )
+		if ( 'category' === $taxonomy_type )
 			$response['parent'] = (int) $taxonomy->parent;
 
 		$response['meta'] = (object) array(
@@ -1038,7 +1038,7 @@ EOPHP;
 	}
 
 	function get_taxonomy_link( $blog_id, $taxonomy_id, $taxonomy_type, $path = '' ) {
-		if ( 'category' == $taxonomy_type )
+		if ( 'category' === $taxonomy_type )
 			return $this->get_link( '/sites/%d/categories/slug:%s', $blog_id, $taxonomy_id, $path );
 		else
 			return $this->get_link( '/sites/%d/tags/slug:%s', $blog_id, $taxonomy_id, $path );
@@ -1134,7 +1134,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$geo = false;
 		}
 
-		if ( 'display' == $context ) {
+		if ( 'display' === $context ) {
 			$args = $this->query_args();
 			if ( isset( $args['content_width'] ) && $args['content_width'] ) {
 				$GLOBALS['content_width'] = (int) $args['content_width'];
@@ -1200,7 +1200,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$post            = get_post( $post->ID, OBJECT, $context );
 		$GLOBALS['post'] = $post;
 
-		if ( 'display' == $context ) {
+		if ( 'display' === $context ) {
 			setup_postdata( $post );
 		}
 
@@ -1221,7 +1221,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) $this->format_date( $post->post_modified_gmt, $post->post_modified );
 				break;
 			case 'title' :
-				if ( 'display' == $context ) {
+				if ( 'display' === $context ) {
 					$response[$key] = (string) get_the_title( $post->ID );
 				} else {
 					$response[$key] = (string) $post->post_title;
@@ -1234,7 +1234,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) esc_url_raw( wp_get_shortlink( $post->ID ) );
 				break;
 			case 'content' :
-				if ( 'display' == $context ) {
+				if ( 'display' === $context ) {
 					add_filter( 'the_password_form', array( $this, 'the_password_form' ) );
 					$response[$key] = (string) $this->get_the_post_content_for_display();
 					remove_filter( 'the_password_form', array( $this, 'the_password_form' ) );
@@ -1243,7 +1243,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
 				break;
 			case 'excerpt' :
-				if ( 'display' == $context ) {
+				if ( 'display' === $context ) {
 					add_filter( 'the_password_form', array( $this, 'the_password_form' ) );
 					ob_start();
 					the_excerpt();
@@ -1462,7 +1462,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$size = 'win8app-column';
 
 		$id = intval( $id );
-		if ( 'RAND' == $order )
+		if ( 'RAND' === $order )
 			$orderby = 'none';
 
 		if ( !empty( $include ) ) {
@@ -1481,7 +1481,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		if ( ! empty( $attachments ) ) {
 			foreach ( $attachments as $id => $attachment ) {
-				$link = isset( $attr['link'] ) && 'file' == $attr['link'] ? wp_get_attachment_link( $id, $size, false, false ) : wp_get_attachment_link( $id, $size, true, false );
+				$link = isset( $attr['link'] ) && 'file' === $attr['link'] ? wp_get_attachment_link( $id, $size, false, false ) : wp_get_attachment_link( $id, $size, true, false );
 
 				if ( $captiontag && trim($attachment->post_excerpt) ) {
 					$output .= "<div class='wp-caption aligncenter'>$link
@@ -1509,8 +1509,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'URL'           => (string) wp_get_attachment_url( $attachment->ID ),
 			'guid'		=> (string) $attachment->guid,
 			'mime_type'	=> (string) $attachment->post_mime_type,
-			'width'		=> (int) $metadata['width'],
-			'height'	=> (int) $metadata['height'],
+			'width'		=> (int) isset( $metadata['width']  ) ? $metadata['width']  : 0,
+			'height'	=> (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
 		);
 
 		if ( isset( $metadata['duration'] ) ) {
@@ -1868,7 +1868,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		}
 
 		if ( !$post_id || is_wp_error( $post_id ) ) {
-			return null;
+			return $post_id;
 		}
 			
 		if ( $publicize === false ) {
@@ -2039,7 +2039,7 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 			return new WP_Error( 'unknown_taxonomy', 'A taxonomy with that name already exists', 404 );
 		}
 
-		if ( 'category' != $taxonomy_type )
+		if ( 'category' !== $taxonomy_type )
 			$input['parent'] = 0;
 
 		$data = wp_insert_term( addslashes( $input['name'] ), $taxonomy_type,
@@ -2081,7 +2081,7 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 		}
 
 		$update = array();
-		if ( 'category' == $taxonomy_type && !empty( $input['parent'] ) )
+		if ( 'category' === $taxonomy_type && !empty( $input['parent'] ) )
 			$update['parent'] = $input['parent'];
 
 		if ( !empty( $input['description'] ) )
@@ -2266,7 +2266,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) esc_url_raw( wp_get_shortlink( $post->ID ) . "%23comment-{$comment->comment_ID}" );
 				break;
 			case 'content' :
-				if ( 'display' == $context ) {
+				if ( 'display' === $context ) {
 					ob_start();
 					comment_text();
 					$response[$key] = (string) ob_get_clean();
@@ -2699,12 +2699,12 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 					$update['comment_approved'] = 0;
 					break;
 				case 'spam' :
-					if ( 'spam' != $comment_status ) {
+					if ( 'spam' !== $comment_status ) {
 						wp_spam_comment( $comment->comment_ID );
 					}
 					break;
 				case 'unspam' :
-					if ( 'spam' == $comment_status ) {
+					if ( 'spam' === $comment_status ) {
 						wp_unspam_comment( $comment->comment_ID );
 					}
 					break;
@@ -2713,12 +2713,12 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 						return new WP_Error( 'trash_disabled', 'Cannot trash comment', 403 );
 					}
 
-					if ( 'trash' != $comment_status ) { 
+					if ( 'trash' !== $comment_status ) { 
  						wp_trash_comment( $comment_id );
  					}
  					break;
 				case 'untrash' :
-					if ( 'trash' == $comment_status ) {
+					if ( 'trash' === $comment_status ) {
 						wp_untrash_comment( $comment->comment_ID );
 					}
 					break;
@@ -2847,7 +2847,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
  */
 new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'description' => 'Information about a site ID/domain',
-	'group'	      => 'Sites',
+	'group'	      => 'sites',
 	'stat'        => 'sites:X',
 
 	'method'      => 'GET',
@@ -2880,7 +2880,7 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
  */
 new WPCOM_JSON_API_List_Posts_Endpoint( array(
 	'description' => 'Return matching Posts',
-	'group'       => 'Posts',
+	'group'       => 'posts',
 	'stat'        => 'posts',
 
 	'method'      => 'GET',
@@ -2931,7 +2931,7 @@ new WPCOM_JSON_API_List_Posts_Endpoint( array(
 
 new WPCOM_JSON_API_Get_Post_Endpoint( array(
 	'description' => 'Return a single Post (by ID)',
-	'group'       => 'Posts',
+	'group'       => 'posts',
 	'stat'        => 'posts:1',
 
 	'method'      => 'GET',
@@ -2961,7 +2961,7 @@ new WPCOM_JSON_API_Get_Post_Endpoint( array(
 
 new WPCOM_JSON_API_Get_Post_Endpoint( array(
 	'description' => 'Return a single Post (by slug)',
-	'group'       => 'Posts',
+	'group'       => 'posts',
 	'stat'        => 'posts:slug',
 
 	'method'      => 'GET',
@@ -2976,7 +2976,7 @@ new WPCOM_JSON_API_Get_Post_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'description' => 'Create a Post',
-	'group'       => 'Posts',
+	'group'       => 'posts',
 	'stat'        => 'posts:new',
 
 	'method'      => 'POST',
@@ -3107,7 +3107,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'description' => 'Edit a Post',
-	'group'       => 'Posts',
+	'group'       => 'posts',
 	'stat'        => 'posts:1:POST',
 
 	'method'      => 'POST',
@@ -3233,7 +3233,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	'description' => 'Delete a Post',
-	'group'       => 'Posts',
+	'group'       => 'posts',
 	'stat'        => 'posts:1:delete',
 
 	'method'      => 'POST',
@@ -3332,7 +3332,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
  */
 new WPCOM_JSON_API_List_Comments_Endpoint( array(
 	'description' => 'Return recent Comments',
-	'group'       => 'Comments',
+	'group'       => 'comments',
 	'stat'        => 'comments',
 
 	'method'      => 'GET',
@@ -3346,7 +3346,7 @@ new WPCOM_JSON_API_List_Comments_Endpoint( array(
 
 new WPCOM_JSON_API_List_Comments_Endpoint( array(
 	'description' => 'Return recent Comments for a Post',
-	'group'       => 'Comments',
+	'group'       => 'comments',
 	'stat'        => 'posts:1:replies',
 
 	'method'      => 'GET',
@@ -3361,7 +3361,7 @@ new WPCOM_JSON_API_List_Comments_Endpoint( array(
 
 new WPCOM_JSON_API_Get_Comment_Endpoint( array(
 	'description' => 'Return a single Comment',
-	'group'       => 'Comments',
+	'group'       => 'comments',
 	'stat'        => 'comments:1',
 
 	'method'      => 'GET',
@@ -3376,7 +3376,7 @@ new WPCOM_JSON_API_Get_Comment_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 	'description' => 'Create a Comment on a Post',
-	'group'       => 'Comments',
+	'group'       => 'comments',
 	'stat'        => 'posts:1:replies:new',
 
 	'method'      => 'POST',
@@ -3447,7 +3447,7 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 	'description' => 'Create a Comment as a reply to another Comment',
-	'group'       => 'Comments',
+	'group'       => 'comments',
 	'stat'        => 'comments:1:replies:new',
 
 	'method'      => 'POST',
@@ -3517,7 +3517,7 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 	'description' => 'Edit a Comment',
-	'group'       => 'Comments',
+	'group'       => 'comments',
 	'stat'        => 'comments:1:POST',
 
 	'method'      => 'POST',
@@ -3592,7 +3592,7 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 	'description' => 'Delete a Comment',
-	'group'       => 'Comments',
+	'group'       => 'comments',
 	'stat'        => 'comments:1:delete',
 
 	'method'      => 'POST',
@@ -3654,7 +3654,7 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
  */
 new WPCOM_JSON_API_Get_Taxonomy_Endpoint( array(
 	'description' => 'Returns information on a single Category',
-	'group'       => 'Taxonomy',
+	'group'       => 'taxonomy',
 	'stat'        => 'categories:1',
 
 	'method'      => 'GET',
@@ -3669,7 +3669,7 @@ new WPCOM_JSON_API_Get_Taxonomy_Endpoint( array(
 
 new WPCOM_JSON_API_Get_Taxonomy_Endpoint( array(
 	'description' => 'Returns information on a single Tag',
-	'group'       => 'Taxonomy',
+	'group'       => 'taxonomy',
 	'stat'        => 'tags:1',
 
 	'method'      => 'GET',
@@ -3684,7 +3684,7 @@ new WPCOM_JSON_API_Get_Taxonomy_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	'description' => 'Create a new Category',
-	'group'       => 'Taxonomy',
+	'group'       => 'taxonomy',
 	'stat'        => 'categories:new',
 
 	'method'      => 'POST',
@@ -3727,7 +3727,7 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	'description' => 'Create a new Tag',
-	'group'       => 'Taxonomy',
+	'group'       => 'taxonomy',
 	'stat'        => 'tags:new',
 
 	'method'      => 'POST',
@@ -3769,7 +3769,7 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	'description' => 'Edit a Tag',
-	'group'       => 'Taxonomy',
+	'group'       => 'taxonomy',
 	'stat'        => 'tags:1:POST',
 
 	'method'      => 'POST',
@@ -3812,7 +3812,7 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	'description' => 'Edit a Category',
-	'group'       => 'Taxonomy',
+	'group'       => 'taxonomy',
 	'stat'        => 'categories:1:POST',
 
 	'method'      => 'POST',
@@ -3857,7 +3857,7 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	'description' => 'Delete a Category',
-	'group'       => 'Taxonomy',
+	'group'       => 'taxonomy',
 	'stat'        => 'categories:1:delete',
 
 	'method'      => 'POST',
@@ -3885,7 +3885,7 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 
 new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	'description' => 'Delete a Tag',
-	'group'       => 'Taxonomy',
+	'group'       => 'taxonomy',
 	'stat'        => 'tags:1:delete',
 
 	'method'      => 'POST',

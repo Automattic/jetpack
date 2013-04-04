@@ -78,7 +78,7 @@ class WPCOM_JSON_API {
 			$this->accept = $_SERVER['HTTP_ACCEPT'];
 		}
 
-		if ( 'POST' == $this->method ) {
+		if ( 'POST' === $this->method ) {
 			if ( is_null( $post_body ) ) {
 				$this->post_body = file_get_contents( 'php://input' );
 
