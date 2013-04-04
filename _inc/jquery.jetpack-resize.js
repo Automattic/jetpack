@@ -122,7 +122,7 @@
 
 			// Some browsers send structured data, some send JSON strings
 			if ( 'object' === typeof event.data ) {
-				data = event.data;
+				data = event.data.data;
 			} else {
 				try {
 					data = JSON.parse( event.data );
@@ -131,9 +131,12 @@
 				}
 			}
 
-			if ( !data ) {
+			if ( !data.data ) {
 				return;
 			}
+
+			// Un-nest
+			data = data.data;
 
 			// Is it a resize event?
 			if ( 'undefined' === typeof data.action || 'resize' !== data.action ) {
@@ -242,6 +245,10 @@
 
 				if ( 0 !== value ) {
 					target[variable]( value );
+					var container = target.parent();
+					if ( container.hasClass( 'slim-likes-widget' ) ) {
+						container[variable]( value );
+					}
 				}
 			} );
 
