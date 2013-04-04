@@ -15,6 +15,10 @@ div.jetpack-likes-widget-wrapper {
 	width: 100%;
 }
 
+div.jetpack-likes-widget-wrapper.slim-likes-widget {
+	width: 1px; /* initial default */
+}
+
 #likes-other-gravatars {
 	display: none;
 	position: absolute;
@@ -26,6 +30,10 @@ div.jetpack-likes-widget-wrapper {
 	box-shadow: 0 0 10px black;
 	min-width: 130px;
 	z-index: 1000;
+}
+
+#likes-other-gravatars * {
+	line-height: normal;
 }
 
 #likes-other-gravatars .likes-text {
@@ -162,6 +170,11 @@ h3.sd-title {
 	width: 82.125%;
 	display: none;
 	float: right;
+}
+
+.slim-likes-widget .post-likes-widget {
+	width: auto;
+	float: none;
 }
 
 /* Like Special cases (display on it's own) */
