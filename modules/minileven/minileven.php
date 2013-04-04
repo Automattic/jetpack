@@ -306,6 +306,23 @@ function jetpack_mobile_css_settings() {
 
 add_action( 'custom_css_submitbox_misc_actions', 'jetpack_mobile_css_settings' );
 
+function jetpack_mobile_customizer_controls( $wp_customize ) {
+	$wp_customize->add_setting( 'wp_mobile_custom_css' , array(
+		'default' => true,
+		'transport' => 'postMessage',
+		'type' => 'option'
+	) );
+
+	$wp_customize->add_control( 'jetpack_mobile_css_control', array(
+		'type' => 'checkbox',
+		'label' => __( 'Include this CSS in the Mobile Theme', 'jetpack' ),
+		'section' => 'jetpack_custom_css',
+		'settings' => 'wp_mobile_custom_css',
+	) );
+}
+
+add_action( 'jetpack_custom_css_customizer_controls', 'jetpack_mobile_customizer_controls' );
+
 function jetpack_mobile_save_css_settings() {
 	update_option( 'wp_mobile_custom_css', isset( $_POST['mobile_css'] ) && ! empty( $_POST['mobile_css'] ) );
 }

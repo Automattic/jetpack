@@ -538,7 +538,7 @@ a.comment-reply-link {
 	-webkit-font-smoothing: antialiased;
 	font: normal 18px/1 'Genericons';
 	margin-right: 0.1em;
-	vertical-align: top;	
+	vertical-align: top;
 }
 .entry-meta .comments-link a:before {
 	content: '\f300';
@@ -558,7 +558,7 @@ a.comment-reply-link:before {
 .entry-content {
 	font-size: 1em;
 	line-height: 1.538;
-	margin: 1.286em 0; 
+	margin: 1.286em 0;
 	padding: 0;
 }
 .entry-content h1,
@@ -1240,7 +1240,7 @@ a.comment-reply-link:before {
 	-webkit-font-smoothing: antialiased;
 	font: normal 13px/1 'Genericons';
 	margin: 0.2em 0.1em 0 0;
-	vertical-align: top;	
+	vertical-align: top;
 }
 a.comment-reply-link {
 	display: inline-block;
@@ -1322,10 +1322,10 @@ a.comment-reply-link > span {
 	-ms-box-shadow: inset 0 1px 0 rgba(120,200,230,0.5);
 	box-shadow: inset 0 1px 0 rgba(120,200,230,0.5);
 	border: none;
-	-moz-border-radius: 2px 0 0 0; 
+	-moz-border-radius: 2px 0 0 0;
 	-webkit-border-radius: 2px 0 0 0;
-	-o-border-radius: 2px 0 0 0; 
-	-ms-border-radius: 2px 0 0 0; 
+	-o-border-radius: 2px 0 0 0;
+	-ms-border-radius: 2px 0 0 0;
 	border-radius: 2px;
 	color: rgba( 255, 255, 255, 0.9 );
 	cursor: pointer;
@@ -1442,6 +1442,9 @@ p.comment-form-comment {
 /* =WP.com
 ----------------------------------------------- */
 
+.entry-content .twitter-tweet-rendered  {
+	max-width: 100% !important; /* Override the Twitter embed fixed width */
+}
 .video-player {
 	max-width: 100% !important;
 }
@@ -1498,7 +1501,7 @@ margin-left: -60px !important;
     border-top: 1px solid #ececec;
     padding-top: 1.5em !important;
 }
-.infinite-scroll .hentry:last-of-type, 
+.infinite-scroll .hentry:last-of-type,
 .infinite-scroll .hentry.last-before-infinite {
     margin-bottom: 0;
 }
