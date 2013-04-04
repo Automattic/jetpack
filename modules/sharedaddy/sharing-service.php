@@ -54,6 +54,7 @@ class Sharing_Service {
 			'google-plus-1' => 'Share_GooglePlus1',
 			'tumblr'        => 'Share_Tumblr',
 			'pinterest'     => 'Share_Pinterest',
+			'pocket'        => 'Share_Pocket',
 		);
 
 		// Add any custom services in
