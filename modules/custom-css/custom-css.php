@@ -110,6 +110,11 @@ class Jetpack_Custom_CSS {
 
 		$args = wp_parse_args( $args, $defaults );
 
+		if ( $args['content_width'] && intval( $args['content_width']) > 0 && ( ! isset( $GLOBALS['content_width'] ) || $args['content_width'] != $GLOBALS['content_width'] ) )
+			$args['content_width'] = intval( $args['content_width'] );
+		else
+			$args['content_width'] = false;
+
 		// Remove wp_filter_post_kses, this causes CSS escaping issues
 		remove_filter( 'content_save_pre', 'wp_filter_post_kses' );
 		remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' );
@@ -163,11 +168,6 @@ class Jetpack_Custom_CSS {
 			$css = $csstidy->print->plain();
 		}
 
-		if ( $args['content_width'] && intval( $args['content_width']) > 0 && ( ! isset( $GLOBALS['content_width'] ) || $args['content_width'] != $GLOBALS['content_width'] ) )
-			$custom_content_width = intval( $args['content_width'] );
-		else
-			$custom_content_width = false;
-
 		if ( $args['add_to_existing'] )
 			$add_to_existing = 'yes';
 		else
@@ -181,7 +181,7 @@ class Jetpack_Custom_CSS {
 			update_option( 'safecss_preview_rev', intval( get_option( 'safecss_preview_rev' ) ) + 1);
 
 			update_metadata( 'post', $safecss_revision_id, 'custom_css_add', $add_to_existing );
-			update_metadata( 'post', $safecss_revision_id, 'content_width', $custom_content_width );
+			update_metadata( 'post', $safecss_revision_id, 'content_width', $args['content_width'] );
 			update_metadata( 'post', $safecss_revision_id, 'custom_css_preprocessor', $args['preprocessor'] );
 
 			if ( $args['is_preview'] ) {
@@ -200,10 +200,10 @@ class Jetpack_Custom_CSS {
 		update_option( 'safecss_rev', intval( get_option( 'safecss_rev' ) ) + 1 );
 
 		update_post_meta( $safecss_post_id, 'custom_css_add', $add_to_existing );
-		update_post_meta( $safecss_post_id, 'content_width', $custom_content_width );
+		update_post_meta( $safecss_post_id, 'content_width', $args['content_width'] );
 		update_post_meta( $safecss_post_id, 'custom_css_preprocessor', $args['preprocessor'] );
 		update_metadata( 'post', $safecss_post_revision['ID'], 'custom_css_add', $add_to_existing );
-		update_metadata( 'post', $safecss_post_revision['ID'], 'content_width', $custom_content_width );
+		update_metadata( 'post', $safecss_post_revision['ID'], 'content_width', $args['content_width'] );
 		update_metadata( 'post', $safecss_post_revision['ID'], 'custom_css_preprocessor', $args['preprocessor'] );
 
 		return $safecss_post_id;
@@ -516,6 +516,8 @@ class Jetpack_Custom_CSS {
 		?>
 		<link rel="stylesheet" id="custom-css-css" type="text/css" href="<?php echo esc_url( $href ); ?>" />
 		<?php
+
+		do_action( 'safecss_link_tag_post' );
 	}
 
 	static function style_filter( $current ) {
