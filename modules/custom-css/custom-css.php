@@ -232,16 +232,16 @@ class Jetpack_Custom_CSS {
 		$custom_css_post_id = wp_cache_get( 'custom_css_post_id' );
 
 		if ( false === $custom_css_post_id ) {
-			$custom_css_post = array_shift( get_posts( array(
+			$custom_css_posts = get_posts( array(
 				'posts_per_page' => 1,
 				'post_type' => 'safecss',
 				'post_status' => 'publish',
 				'orderby' => 'date',
 				'order' => 'DESC'
-			) ) );
+			) );
 
-			if ( $custom_css_post )
-				$custom_css_post_id = $custom_css_post->ID;
+			if ( count( $custom_css_posts ) > 0 )
+				$custom_css_post_id = $custom_css_posts[0]->ID;
 			else
 				$custom_css_post_id = 0;
 
