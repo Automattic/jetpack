@@ -58,25 +58,12 @@ Jetpack requires a connection to [WordPress.com](http://wordpress.com/) to enabl
 
 Once you've installed Jetpack, your stats will be available via the "Site Stats" menu which appears in the new Jetpack menu (under your Dashboard menu within WordPress).
 
-= How do I embed media? =
+= How do I contribute to Jetpack? =
 
-Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media.  Currently, Jetpack provides the following shortcodes.
+Easy! There are a couple of ways (more coming soon):
 
-* [[archives]](http://support.wordpress.com/archives-shortcode/)
-* [[audio]](http://support.wordpress.com/audio/)
-* [[blip.tv]](http://support.wordpress.com/videos/bliptv/)
-* [[dailymotion]](http://support.wordpress.com/videos/dailymotion/)
-* [[digg]](http://support.wordpress.com/digg/)
-* [[flickr]](http://support.wordpress.com/videos/flickr-video/)
-* [[googlemaps]](http://en.support.wordpress.com/google-maps/)
-* [[googlevideo]](http://support.wordpress.com/videos/google-video/)
-* [[polldaddy]](http://support.polldaddy.com/wordpress-shortcodes/)
-* [[scribd]](http://support.wordpress.com/scribd/)
-* [[slideshare]](http://support.wordpress.com/slideshows/slideshare/)
-* [[soundcloud]](http://support.wordpress.com/audio/soundcloud-audio-player/)
-* [[videopress]](http://support.wordpress.com/videopress/)
-* [[vimeo]](http://support.wordpress.com/videos/vimeo/)
-* [[youtube]](http://support.wordpress.com/videos/youtube/)
+* Give us a hand answering questions in our [support forum](http://wordpress.org/support/plugin/jetpack)
+* Report bugs, with reproduction steps, or post patches on our [Trac](http://plugins.trac.wordpress.org/newticket?component=jetpack)
 
 == Screenshots ==
 
