@@ -73,14 +73,14 @@
             visiblePartX,
             visiblePartY,
             visiblePartsMerged;
-        
+
         // for the case where 'display:none' is used in place of 'visibility:hidden'
         // count and sum the above items to get and move closer to the correct values
         // IMPORTANT :: insert element into container empty
         if($element.css('display') == 'none')
         {
             var parentElement = $element.parent();
-  
+
             elementOffset.top = parentElement.offset().top;
             elementOffset.left = parentElement.offset().left;
             elementSize.height = parentElement.height();
@@ -98,7 +98,7 @@
         if (!viewportOffset || !viewportSize) {
           return;
         }
-        
+
         if (element.offsetWidth >= 0 && element.offsetHeight >= 0 && element.style.display != "none" &&
             elementOffset.top + elementSize.height > viewportOffset.top &&
             elementOffset.top < viewportOffset.top + viewportSize.height &&
@@ -124,7 +124,7 @@
   $(w).bind("scroll resize", function() {
     viewportSize = viewportOffset = null;
   });
-  
+
   // IE < 9 scrolls to focused elements without firing the "scroll" event
   if (!documentElement.addEventListener && documentElement.attachEvent) {
     documentElement.attachEvent("onfocusin", function() {

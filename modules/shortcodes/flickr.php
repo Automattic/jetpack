@@ -12,8 +12,8 @@
 
 */
 
-/* 
- * <object type="application/x-shockwave-flash" width="400" height="300" data="http://www.flickr.com/apps/video/stewart.swf?v=71377" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"> <param name="flashvars" value="intl_lang=en-us&photo_secret=846d9c1be9&photo_id=2345938910"></param> <param name="movie" value="http://www.flickr.com/apps/video/stewart.swf?v=71377"></param> <param name="bgcolor" value="#000000"></param> <param name="allowFullScreen" value="true"></param><embed type="application/x-shockwave-flash" src="http://www.flickr.com/apps/video/stewart.swf?v=71377" bgcolor="#000000" allowfullscreen="true" flashvars="intl_lang=en-us&photo_secret=846d9c1be9&photo_id=2345938910" height="300" width="400"></embed></object>  
+/*
+ * <object type="application/x-shockwave-flash" width="400" height="300" data="http://www.flickr.com/apps/video/stewart.swf?v=71377" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"> <param name="flashvars" value="intl_lang=en-us&photo_secret=846d9c1be9&photo_id=2345938910"></param> <param name="movie" value="http://www.flickr.com/apps/video/stewart.swf?v=71377"></param> <param name="bgcolor" value="#000000"></param> <param name="allowFullScreen" value="true"></param><embed type="application/x-shockwave-flash" src="http://www.flickr.com/apps/video/stewart.swf?v=71377" bgcolor="#000000" allowfullscreen="true" flashvars="intl_lang=en-us&photo_secret=846d9c1be9&photo_id=2345938910" height="300" width="400"></embed></object>
  */
 
 function flickr_embed_to_shortcode( $content ) {
@@ -94,7 +94,7 @@ function flickr_shortcode_handler( $atts ) {
 
 	if ( isset( $atts['video'] ) ) {
 		$showing = 'video';
-		$src = $atts['video'];	
+		$src = $atts['video'];
 	} elseif ( isset( $atts['photo'] ) ) {
 		$showing = 'photo';
 		$src = $atts['photo'];
@@ -113,7 +113,7 @@ function flickr_shortcode_handler( $atts ) {
 		elseif ( in_array( $atts['show_info'], array( 'false', 'no' ) ) )
 			$atts['show_info'] = 'false';
 
-    	if ( isset( $atts['secret'] ) ) 
+    	if ( isset( $atts['secret'] ) )
 		$atts['secret'] = preg_replace( '![^\w]+!i', '', $atts['secret'] );
 
 		return flickr_shortcode_video_markup( $atts );
@@ -125,7 +125,7 @@ function flickr_shortcode_handler( $atts ) {
 function flickr_shortcode_video_markup( $atts ) {
 	$atts = array_map( 'esc_attr', $atts );
 
-	$photo_vars = "photo_id=$atts[photo_id]";	
+	$photo_vars = "photo_id=$atts[photo_id]";
 	if ( isset( $atts['secret'] ) )
 		$photo_vars .= "&amp;photo_secret=$atts[secret]";
 

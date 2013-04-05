@@ -60,7 +60,7 @@
 	if ( 'undefined' === typeof $.fn.Jetpack ) {
 		/**
 		 * Dispatches calls to the correct namespace
-		 * 
+		 *
 		 * @param string namespace
 		 * @param ...
 		 * @return mixed|jQuery (chainable)
@@ -81,7 +81,7 @@
 			/**
 			 * Defines the Jetpack.resizeable() namespace.
 			 * See below for non-trivial definition for browsers with postMessage.
-			 */ 
+			 */
 			resizeable: function() {
 				$.error( 'Browser does not support window.postMessage' );
 			}
@@ -276,7 +276,7 @@
 				return methods.on.apply( this );
 			} else {
 				$.error( 'Method ' +  method + ' does not exist on Jetpack.resizeable' );
-			} 
+			}
 		}
 	} );
 })(jQuery);

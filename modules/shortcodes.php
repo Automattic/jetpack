@@ -22,7 +22,7 @@
  */
 function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 	$str = '';
-	
+
 	if ( $old_format_support && isset( $params[0] ) ) {
 		$str = ltrim( $params[0], '=' );
 	} elseif ( is_array( $params ) ) {
@@ -31,19 +31,19 @@ function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 				$str = $key . '=' . $params[$key];
 		}
 	}
-	
-	return str_replace( array( '&amp;', '&#038;' ), '&', $str );  
+
+	return str_replace( array( '&amp;', '&#038;' ), '&', $str );
 }
 
 function jetpack_load_shortcodes() {
 	$shortcode_includes = array();
-	
+
 	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/shortcodes' ) as $file ) {
 		$shortcode_includes[] = $file;
 	}
-	
+
 	$shortcode_includes = apply_filters( 'jetpack_shortcodes_to_include', $shortcode_includes );
-	
+
 	foreach ( $shortcode_includes as $include ) {
 		include $include;
 	}

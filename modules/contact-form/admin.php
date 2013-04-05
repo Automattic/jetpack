@@ -49,7 +49,7 @@ function grunion_admin_css() {
 ?>
 
 <style type='text/css'>
-.add-new-h2, .view-switch, body.no-js .tablenav select[name^=action], body.no-js #doaction, body.no-js #doaction2 { 
+.add-new-h2, .view-switch, body.no-js .tablenav select[name^=action], body.no-js #doaction, body.no-js #doaction2 {
 	display: none
 }
 
@@ -191,7 +191,7 @@ function grunion_admin_view_tabs( $views ) {
 	preg_match( '|post_type=feedback\'( class="current")?\>(.*)\<span class=|', $views['all'], $match );
 	if ( !empty( $match[2] ) )
 		$views['all'] = str_replace( $match[2], 'Messages ', $views['all'] );
-	
+
 	return $views;
 }
 
@@ -336,7 +336,7 @@ jQuery(document).ready( function($) {
 			function( r ) {
 				$('#post-<?php echo $post_id; ?>')
 					.css( {backgroundColor:'#FF7979'} )
-					.fadeOut(350, function() { 
+					.fadeOut(350, function() {
 						$(this).remove();
 						$('.subsubsub').html(r);
 				});
@@ -394,7 +394,7 @@ jQuery(document).ready( function($) {
 			function( r ) {
 				$('#post-<?php echo $post_id; ?>')
 					.css( {backgroundColor:'#59C859'} )
-					.fadeOut(350, function() { 
+					.fadeOut(350, function() {
 						$(this).remove();
 						$('.subsubsub').html(r);
 				});
@@ -473,7 +473,7 @@ function grunion_ajax_shortcode() {
 // and constructs a json object representing its contents and attributes
 function grunion_ajax_shortcode_to_json() {
 	global $post, $grunion_form;
-	
+
 	check_ajax_referer( 'grunion_shortcode_to_json' );
 
 	if ( !isset( $_POST['content'] ) || !is_numeric( $_POST['post_id'] ) ) {
@@ -583,7 +583,7 @@ function grunion_ajax_spam() {
 	$sql = "
 		SELECT post_status,
 			COUNT( * ) AS post_count
-		FROM `{$wpdb->posts}` 
+		FROM `{$wpdb->posts}`
 		WHERE post_type =  'feedback'
 		GROUP BY post_status
 	";

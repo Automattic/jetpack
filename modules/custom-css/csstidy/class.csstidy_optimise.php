@@ -19,7 +19,7 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU Lesser General Public License for more details.
- * 
+ *
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -627,7 +627,7 @@ class csstidy_optimise {
 		// don't try to explose background gradient !
 		if (stripos($str_value, "gradient(")!==FALSE)
 			return array('background'=>$str_value);
-		
+
 		$background_prop_default = & $GLOBALS['csstidy']['background_prop_default'];
 		$repeat = array('repeat', 'repeat-x', 'repeat-y', 'no-repeat', 'space');
 		$attachment = array('scroll', 'fixed', 'local');
@@ -713,7 +713,7 @@ class csstidy_optimise {
 		// if background properties is here and not empty, don't try anything
 		if (isset($input_css['background']) AND $input_css['background'])
 			return $input_css;
-		
+
 		for ($i = 0; $i < $number_of_values; $i++) {
 			foreach ($background_prop_default as $bg_property => $default_value) {
 				// Skip if property does not exist

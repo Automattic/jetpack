@@ -25,7 +25,7 @@
  * Project      : http://jquery-spellchecker.googlecode.com
  */
 
-#suggestmenu 
+#suggestmenu
 {
    min-width: 122px;
    background: #ebeaeb;
@@ -39,27 +39,27 @@
    font-family: Tahoma, Verdana, Arial, Helvetica;
 }
 
-#suggestmenu strong 
+#suggestmenu strong
 {
    background: #cccccc;
    font-weight: bold;
-   padding:3px 6px 3px 6px;    
-   display:block;               
+   padding:3px 6px 3px 6px;
+   display:block;
    border:1px solid #dddddd;
-   border-bottom: 1px solid #aaaaaa; 
+   border-bottom: 1px solid #aaaaaa;
    color: black;
 }
 
-#suggestmenu em 
+#suggestmenu em
 {
-   text-align:center;    
-   padding:3px 6px 3px 6px;    
-   display:block;               
+   text-align:center;
+   padding:3px 6px 3px 6px;
+   display:block;
    border-top:1px solid #ccc;
    border-left:1px solid #ccc;
 }
 
-#suggestmenu a, #suggestmenu a:visited 
+#suggestmenu a, #suggestmenu a:visited
 {
    background: #ebeaeb;
    border-left:1px solid #dddddd;
@@ -72,34 +72,34 @@
    outline:none
 }
 
-#suggestmenu a.first, #suggestmenu a.first:visited 
+#suggestmenu a.first, #suggestmenu a.first:visited
 {
    border-top:1px solid #dddddd;
 }
 
-.spell_sep_bottom 
+.spell_sep_bottom
 {
    border-bottom: 1px solid #dddddd;
 }
 
-.spell_sep_top 
+.spell_sep_top
 {
    border-top: 1px solid #aaaaaa;
 }
 
-#suggestmenu a:hover 
+#suggestmenu a:hover
 {
    color:#000;
    background: #f5f5f5;
 }
 
-#suggestmenu .foot 
+#suggestmenu .foot
 {
    border-top:1px solid #aaaaaa;
    background:#fff
 }
 
-#suggestmenu .foot a, #suggestmenu .foot a:visited 
+#suggestmenu .foot a, #suggestmenu .foot a:visited
 {
    outline:none
 }

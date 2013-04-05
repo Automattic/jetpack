@@ -2,7 +2,7 @@
 
 /**
  * Lets you round the numeric elements of an array to integers while preserving their sum.
- * 
+ *
  * Usage:
  *
  * Jetpack_Constrained_Array_Rounding::get_rounded_constrained_array( $bound_array )
@@ -20,14 +20,14 @@ class Jetpack_Constrained_Array_Rounding {
 		$bound_array = array_values( $bound_array );
 
 		$bound_array_int = self::get_int_floor_array( $bound_array );
-		
+
 		$lower_sum = array_sum( wp_list_pluck( $bound_array_int, 'floor' ) );
 		if ( ! $sum || ( $sum < $lower_sum ) ) {
 			// If value of sum is not supplied or is invalid, calculate the sum that the returned array is constrained to match
 			$sum = array_sum( $bound_array );
 		}
 		$diff_sum = $sum - $lower_sum;
-		
+
 		self::adjust_constrained_array( $bound_array_int, $diff_sum );
 
 		$bound_array_fin = wp_list_pluck( $bound_array_int, 'floor' );

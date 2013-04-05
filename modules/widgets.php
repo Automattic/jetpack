@@ -9,13 +9,13 @@
 
 function jetpack_load_widgets() {
 	$widgets_include = array();
-	
+
 	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/widgets' ) as $file ) {
 		$widgets_include[] = $file;
 	}
-	
+
 	$widgets_include = apply_filters( 'jetpack_widgets_to_include', $widgets_include );
-	
+
 	foreach( $widgets_include as $include ) {
 		include $include;
 	}

@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  *  Called by the TinyMCE plugin when Ignore Always is clicked (setup as an action through admin-ajax.php)
  */
 function AtD_ignore_call() {
@@ -24,7 +24,7 @@ function AtD_ignore_call() {
 	die();
 }
 
-/* 
+/*
  *  Called when a POST occurs, used to save AtD ignored phrases
  */
 function AtD_process_unignore_update() {
@@ -100,10 +100,10 @@ function atd_ignore () {
 
 	/* update the UI */
 	atd_show_phrases( ignored );
-	jQuery( '#AtD_add_ignore' ).val('');             
+	jQuery( '#AtD_add_ignore' ).val('');
 
 	/* show that nifteroo messaroo to the useroo */
-        jQuery( '#AtD_message' ).show(); 
+        jQuery( '#AtD_message' ).show();
 }
 
 function atd_ignore_init() {
@@ -124,7 +124,7 @@ else
    <input type="hidden" name="AtD_ignored_phrases" id="AtD_ignored_phrases" value="<?php echo esc_attr( $ignores ); ?>">
 
           <p style="font-weight: bold"><?php _e( 'Ignored Phrases', 'jetpack' ); ?></font>
-     
+
           <p><?php _e( 'Identify words and phrases to ignore while proofreading your posts and pages:', 'jetpack' ); ?></p>
 
           <p><input type="text" id="AtD_add_ignore" name="AtD_add_ignore"> <input type="button" value="<?php _e( 'Add', 'jetpack' ); ?>" onclick="javascript:atd_ignore()"></p>

@@ -136,7 +136,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			$type_text = __( 'Comments', 'jetpack' );
 			$rss_type = 'comments_rss2_url';
 		}
-		
+
 		$subscribe_to = sprintf( __( 'Subscribe to %s', 'jetpack'), $type_text );
 
 		$link_item = '';

@@ -3,7 +3,7 @@
 /*
  * Archives shortcode
  * @author bubel & nickmomrik
- * [archives limit=10] 
+ * [archives limit=10]
  */
 
 add_shortcode( 'archives', 'archives_shortcode' );

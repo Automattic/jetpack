@@ -2,10 +2,10 @@
 
 /**
  * Blip.tv embed code:
- * <embed src="http://blip.tv/play/g8sVgpfaCgI%2Em4v" type="application/x-shockwave-flash" width="480" height="255" allowscriptaccess="always" allowfullscreen="true"></embed> 
+ * <embed src="http://blip.tv/play/g8sVgpfaCgI%2Em4v" type="application/x-shockwave-flash" width="480" height="255" allowscriptaccess="always" allowfullscreen="true"></embed>
  * Blip.tv shortcode is: [blip.tv url-or-something-else]
  * */
-  
+
 function blip_embed_to_shortcode( $content ) {
 	if ( false === stripos( $content, '/blip.tv/play/' ) )
 		return $content;
@@ -47,7 +47,7 @@ function blip_shortcode( $atts ) {
 		return "<script type='text/javascript' src='http://blip.tv/syndication/write_player?skin=js&posts_id={$matches[1]}&cross_post_destination={$matches[2]}&view=full_js'></script>";
 	elseif ( preg_match( '|^http://blip.tv/play/[.\w]+$|', urldecode( $src ) ) ) // WLS
 		return "<embed src='$src' type='application/x-shockwave-flash' width='480' height='300' allowscriptaccess='never' allowfullscreen='true'></embed>";
-	
+
 
 	return "<!--blip.tv pattern not matched -->";
 }

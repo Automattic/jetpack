@@ -264,7 +264,7 @@ class Grunion_Contact_Form_Plugin {
 		foreach ( $_SERVER as $k => $value )
 			if ( !in_array( $k, $ignore ) && is_string( $value ) )
 				$form["$k"] = $value;
-			
+
 		return $form;
 	}
 
@@ -278,7 +278,7 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	function is_spam_akismet( $form ) {
 		global $akismet_api_host, $akismet_api_port;
-	
+
 		if ( !function_exists( 'akismet_http_post' ) )
 			return false;
 
@@ -623,7 +623,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$r = '';
 		$r .= "<div id='contact-form-$id'>\n";
-	
+
 		if ( is_wp_error( $form->errors ) && $form->errors->get_error_codes() ) {
 			// There are errors.  Display them
 			$r .= "<div class='form-error'>\n<h3>" . __( 'Error!', 'jetpack' ) . "</h3>\n<ul class='form-errors'>\n";
@@ -960,14 +960,14 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$headers = 	'From: ' . $comment_author  .' <' . $from_email_addr  . ">\r\n" .
 					'Reply-To: ' . $comment_author . ' <' . $reply_to_addr  . ">\r\n" .
-					"Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\""; 
+					"Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"";
 
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject );
 
 		$time = date_i18n( __( 'l F j, Y \a\t g:i a', 'jetpack' ), current_time( 'timestamp' ) );
-	
+
 		$extra_content = '';
-	
+
 		foreach ( $extra_values as $label => $value ) {
 			$extra_content .= $label . ': ' . trim( $value ) . "\n";
 		}

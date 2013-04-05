@@ -59,14 +59,14 @@ function sharing_meta_box_save( $post_id ) {
 			}
 		}
 	}
-  	
+
   	return $post_id;
 }
 
 function sharing_meta_box_protected( $protected, $meta_key, $meta_type ) {
 	if ( 'sharing_disabled' == $meta_key )
 		$protected = true;
-		
+
 	return $protected;
 }
 
@@ -83,7 +83,7 @@ function sharing_add_plugin_settings($links, $file) {
 		$links[] = '<a href="options-general.php?page=sharing.php">' . __( 'Settings', 'jetpack' ) . '</a>';
 		$links[] = '<a href="http://support.wordpress.com/sharing/">' . __( 'Support', 'jetpack' ) . '</a>';
 	}
-	
+
 	return $links;
 }
 

@@ -6,7 +6,7 @@
 	-webkit-border-radius: 6px;
 	margin-top:15px;
 	min-width: 700px;
-	width: 100%;	
+	width: 100%;
 	float: left;
 	margin-bottom: 25px;
 }
@@ -34,7 +34,7 @@
 }
 
 .description{
-	width: 180px;	
+	width: 180px;
 	vertical-align: top;
 }
 
@@ -237,7 +237,7 @@
 #live-preview h2{
 	font-size:20px;
 	font-weight: normal !important;
-	color: #e3e3e3;		
+	color: #e3e3e3;
 }
 
 #live-preview{
@@ -245,17 +245,17 @@
 	border-bottom-left-radius:6px 6px;
 	border-bottom-right-radius:6px 6px;
 	-moz-border-radius-bottomleft: 6px;
-	-moz-border-radius-bottomright: 6px;	
+	-moz-border-radius-bottomright: 6px;
 }
 
 .clearing{
 	clear: both;
 }
-	
+
 	.options .options-left{
 		float: left;
 	}
-	
+
 	.input label{
 		font-size: 11px;
 		line-height: 16px;
@@ -268,20 +268,20 @@
 		border-top: 1px #e3e3e3 solid;
 		margin-top:4px;
 	}
-	
+
 	.utility{
 		float: right;
 		padding-top:10px;
 		padding-right: 10px;
 		font-size: 10px;
 	}
-	
+
 	.advanced input[type=submit]{
 		float: left;
 		margin-top:10px;
 		margin-right: 10px;
 	}
-	
+
 .services li.dropzone {
 	border: 1px dashed #999;
 	background: #e3e3e3;
@@ -312,7 +312,7 @@
 #hidden-drop-target p {
 	font-size: 10px;
 	margin: 0 0 10px 0;
-	
+
 }
 
 .sharing-hidden .inner {
@@ -441,7 +441,7 @@
 	.preview-pinterest .option-smart-on {
 		background-image: url(images/smart-pinterest@2x.png);
 	}
-	
+
 	.preview-pocket .option-smart-on {
 		background-image: url(images/smart-pocket@2x.png);
 	}

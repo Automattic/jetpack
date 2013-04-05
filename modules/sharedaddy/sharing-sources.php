@@ -1262,7 +1262,7 @@ class Share_Pocket extends Sharing_Source {
 			$post_count = 'horizontal';
 		else
 			$post_count = 'none';
-  
+
 		$button = '';
 		$button .= '<div class="pocket_button">';
 		$button .= sprintf( '<a href="https://getpocket.com/save" class="pocket-btn" data-lang="%s" data-save-url="%s" data-pocket-count="%s" >%s</a>', 'en', esc_attr( $this->get_share_url( $post->ID ) ), $post_count, esc_attr__( 'Pocket', 'jetpack' ) );

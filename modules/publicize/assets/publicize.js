@@ -72,7 +72,7 @@ jQuery( function( $ ) {
 						tb_remove();
 						window.location = 'options-general.php?page=sharing';
 					} );
-					
+
 				} );
 			}
 

@@ -447,7 +447,7 @@ function stats_convert_image_urls( $html ) {
 }
 
 function stats_convert_chart_urls( $html ) {
-	$html = preg_replace_callback( '|https?://[-.a-z0-9]+/wp-includes/charts/([-.a-z0-9]+).php(\??)|', 
+	$html = preg_replace_callback( '|https?://[-.a-z0-9]+/wp-includes/charts/([-.a-z0-9]+).php(\??)|',
 			create_function(
 				'$matches',
 				// If there is a query string, change the beginning '?' to a '&' so it fits into the middle of this query string

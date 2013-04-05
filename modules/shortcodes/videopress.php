@@ -8,7 +8,7 @@
  * @license http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
  */
 
-/* 
+/*
 Plugin Name: VideoPress
 Plugin URI: http://wordpress.org/extend/plugins/video/
 Description: Upload new videos to <a href="http://videopress.com/">VideoPress</a>, edit metadata, and easily insert VideoPress videos into posts and pages using shortcodes. Requires a <a href="http://wordpress.com/">WordPress.com</a> account and a WordPress.com blog with the <a href="http://en.wordpress.com/products/#videopress">VideoPress upgrade</a> to store and serve uploaded videos.
@@ -113,7 +113,7 @@ class VideoPress {
 	public static function find_all_shortcodes( $content ) {
 		$r = preg_match_all( '/(.?)\[(wpvideo|videopress)\b(.*?)(?:(\/))?\](?:(.+?)\[\/\2\])?(.?)/s', $content, $matches, PREG_SET_ORDER );
 
-		if ( $r === false || $r === 0 ) 
+		if ( $r === false || $r === 0 )
 			return array();
 
 		$guids = array();
@@ -187,11 +187,11 @@ class VideoPress {
 		wp_enqueue_script( 'swfobject', $swfobject, false. '2.2' );
 		wp_enqueue_script( 'jquery', $jquery, false, '1.4.4' );
 		wp_enqueue_script( 'videopress', $vpjs, array( 'jquery','swfobject' ), '1.09' );
-		
+
 		$this->js_loaded = true;
 		return true;
 	}
-	
+
 	/**
 	 * Print the VideoPress JS files now.
 	 * Used to load the JS in the footer, if it hasn't already been loaded in the header.
@@ -218,7 +218,7 @@ class VideoPress {
 		$guid = $attr[0];
 		if ( ! self::is_valid_guid( $guid ) )
 			return '';
-			
+
 		if ( array_key_exists( $guid, $this->shown ) )
 			$this->shown[$guid]++;
 		else
@@ -238,7 +238,7 @@ class VideoPress {
 		 */
 		if ( $freedom === false && (bool) get_option( 'video_player_freedom', false ) )
 			$freedom = true;
-			
+
 		$forcestatic = get_option( 'video_player_static', false );
 
 		/**
@@ -360,7 +360,7 @@ class VideoPress_Video {
 	 *
 	 * @var int
 	 * @since 1.3
-	 */	
+	 */
 	public $calculated_height;
 
 	/**
@@ -787,7 +787,7 @@ class VideoPress_Player {
 	public function asXML() {
 		if ( empty( $this->video ) || is_wp_error( $this->video ) )
 			return '';
-		
+
 		if ( isset( $this->options['freedom'] ) && $this->options['freedom'] === true )
 			$content = $this->html5_static();
 		else
@@ -883,7 +883,7 @@ class VideoPress_Player {
 		 * @link https://developer.mozilla.org/en/JavaScript/Reference/global_objects/date Mozilla JavaScript Reference: Date
 		 */
 		$html .= '<select name="month" style="' . $inputs_style . '">';
-		
+
 		$months = array( __('January', 'jetpack'), __('February', 'jetpack'), __('March', 'jetpack'), __('April', 'jetpack'), __('May', 'jetpack'), __('June', 'jetpack'), __('July', 'jetpack'), __('August', 'jetpack'), __('September', 'jetpack'), __('October', 'jetpack'), __('November', 'jetpack'), __('December', 'jetpack') );
 		for( $i=0; $i<12; $i++ ) {
 			$html .= '<option value="' . esc_attr( $i ) . '">' . esc_html( $months[$i] )  . '</option>';

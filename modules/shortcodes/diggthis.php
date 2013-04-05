@@ -1,17 +1,17 @@
 <?php
 
 /**
- * Digg changed their button API. 
- * 
+ * Digg changed their button API.
+ *
  * The old style button was something like this:
  * [digg=http://digg.com/some-digg-permalink] - uses digg permalink as id.
- * 
+ *
  * The new style is:
- * [digg class="wide"] # The class options are: 'wide', 'medium', 'compact', 'icon' 
+ * [digg class="wide"] # The class options are: 'wide', 'medium', 'compact', 'icon'
  * and uses get_permalink() as id.
- * 
- * @author Veselin Nikolov  
- */ 
+ *
+ * @author Veselin Nikolov
+ */
 
 function digg_shortcode_js() {
 	echo '

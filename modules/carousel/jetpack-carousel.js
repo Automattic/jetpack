@@ -419,7 +419,7 @@ jQuery(document).ready(function($) {
 				return; // don't run if the default gallery functions weren't used
 
 			prepareGallery();
-			
+
 			if ( gallery.jp_carousel( 'testIfOpened' ) )
 				return; // don't open if already opened
 
@@ -429,8 +429,8 @@ jQuery(document).ready(function($) {
 			$('body').css('overflow', 'hidden');
 			// prevent html from overflowing on some of the new themes.
 			originalHOverflow = $('html').css('overflow');
-			$('html').css('overflow', 'hidden');			
-			
+			$('html').css('overflow', 'hidden');
+
 			container.data('carousel-extra', data);
 
 			return this.each(function() {

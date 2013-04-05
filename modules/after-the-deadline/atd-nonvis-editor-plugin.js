@@ -3,7 +3,7 @@ var AtD_qtbutton;
 function AtD_restore_text_area()
 {
 	/* clear the error HTML out of the preview div */
-	AtD.remove('content'); 
+	AtD.remove('content');
 
 	/* swap the preview div for the textarea, notice how I have to restore the appropriate class/id/style attributes */
     var content = jQuery('#content').html();
@@ -13,7 +13,7 @@ function AtD_restore_text_area()
 
 	jQuery('#content').replaceWith( AtD.content_canvas );
 	jQuery('#content').val( content.replace(/\&lt\;/g, '<').replace(/\&gt\;/g, '>').replace(/\&amp;/g, '&') );
-	jQuery('#content').height(AtD.height); 
+	jQuery('#content').height(AtD.height);
 
 	if ( AtD_qtbutton ) {
 		/* change the link text back to its original label */
@@ -42,7 +42,7 @@ if ( typeof(QTags) != 'undefined' && QTags.addButton ) {
 }
 
 function AtD_restore_if_proofreading() {
-	if ( AtD_qtbutton && jQuery(AtD_qtbutton).val() == AtD.getLang('button_edit_text', 'edit text') ) 
+	if ( AtD_qtbutton && jQuery(AtD_qtbutton).val() == AtD.getLang('button_edit_text', 'edit text') )
 		AtD_restore_text_area();
 }
 
@@ -84,8 +84,8 @@ function AtD_check(button) {
 
 	/* If the text of the link says edit comment, then restore the textarea so the user can edit the text */
 
-	if ( jQuery(AtD_qtbutton).val() == AtD.getLang('button_edit_text', 'edit text') ) {                               
-		AtD_restore_text_area(); 
+	if ( jQuery(AtD_qtbutton).val() == AtD.getLang('button_edit_text', 'edit text') ) {
+		AtD_restore_text_area();
 	} else {
 		/* initialize some of the stuff related to this plugin */
 		if ( !AtD.height ) {
@@ -124,7 +124,7 @@ function AtD_check(button) {
 		} else {
 			jQuery('#content').replaceWith('<div class="input" id="content">' + text + '</div>');
 			jQuery('#content').css( { 'overflow' : 'auto', 'background-color' : 'white', 'color' : 'black', 'white-space' : 'pre-wrap' } );
-			jQuery('#content').height(AtD.height); 
+			jQuery('#content').height(AtD.height);
 		}
 
 		/* kill autosave... :) */
@@ -144,16 +144,16 @@ function AtD_check(button) {
 			ready: function(errorCount) {
 				jQuery(AtD_qtbutton).attr('disabled', false);
 
-				if ( typeof callback === 'function' ) 
+				if ( typeof callback === 'function' )
 					callback( errorCount );
 			},
 
 			error: function(reason) {
 				jQuery(AtD_qtbutton).attr('disabled', false);
 
-				if ( typeof callback === 'function' ) 
+				if ( typeof callback === 'function' )
 					callback( -1 );
-				else 
+				else
 					alert( AtD.getLang('message_server_error', 'There was a problem communicating with the Proofreading service. Try again in one minute.') );
 
 				AtD_restore_if_proofreading();
@@ -164,7 +164,7 @@ function AtD_check(button) {
 
 				if ( text != null )
 					element.replaceWith( text );
-			}, 
+			},
 
 			explain: function(url) {
 				var left = (screen.width / 2) - (480 / 2);

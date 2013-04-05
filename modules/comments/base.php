@@ -102,22 +102,22 @@ class Highlander_Comments_Base {
  	 */
 	function comments_array( $comments ) {
 		global $wpdb, $post;
-	
+
 		$commenter = $this->get_current_commenter();
 
 		if ( !$commenter['user_id'] )
 			return $comments;
-	
+
 		if ( !$commenter['comment_author'] )
 			return $comments;
-	
+
 		$in_moderation_comments = $wpdb->get_results( $wpdb->prepare(
 			"SELECT * FROM `$wpdb->comments` WHERE `comment_post_ID` = %d AND `user_id` = 0 AND `comment_author` = %s AND `comment_author_email` = %s AND `comment_approved` = '0' ORDER BY `comment_date_gmt` /* Highlander_Comments_Base::comments_array() */",
 			$post->ID,
 			wp_specialchars_decode( $commenter['comment_author'], ENT_QUOTES ),
 			$commenter['comment_author_email']
 		) );
-	
+
 		if ( !$in_moderation_comments )
 			return $comments;
 
@@ -180,7 +180,7 @@ class Highlander_Comments_Base {
 	/**
 	 * Allows a logged out user to leave a comment as a facebook or twitter credentialed user.
 	 * Overrides WordPress' core comment_registration option to treat these commenters as "registered" (verified) users.
-	 * 
+	 *
 	 * @since JetpackComments (1.4)
 	 * @return If no
 	 */
@@ -256,12 +256,12 @@ class Highlander_Comments_Base {
 		if ( empty( $comment ) || is_wp_error( $comment ) ) {
 			return;
 		}
-	
+
 		$id_source = $this->is_highlander_comment_post();
 		if ( empty( $id_source ) ) {
 			return;
 		}
-	
+
 		// Set comment author cookies
 		if ( ( 'wordpress' != $id_source ) && is_user_logged_in() ) {
 			$comment_cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );

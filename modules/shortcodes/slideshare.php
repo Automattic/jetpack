@@ -1,8 +1,8 @@
 <?php
 /*
- * Slideshare shortcode format: 
+ * Slideshare shortcode format:
  * [slideshare id=5342235&doc=camprock-101002163655-phpapp01&w=300&h=200]
- **/  
+ **/
 
 function slideshare_shortcode( $atts ) {
 	global $content_width;

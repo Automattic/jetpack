@@ -78,7 +78,7 @@
 	/* Pointer dismiss button */
 	.wp-pointer-buttons a.close::before {
 		background-image: url('images/xit-2x.gif');
-		background-size: 20px 10px; 
+		background-size: 20px 10px;
 	}
 
 	/* Pointer icon */
@@ -101,7 +101,7 @@
 	body.admin-color-classic #screen-meta-links a.show-settings {
 		background-image: url('images/arrows-vs-2x.png') !important;
 	}
-	
+
 	/* Collapse button divs */
 	#collapse-button div {
 		background-image: url('images/arrows-2x.png') !important;
@@ -236,7 +236,7 @@
 		background-image: url("images/down_arrow-2x.gif") !important;
 		background-size: 10px 20px;
 	}
-	
+
 	/* Img overlay buttons */
 	#wp_editimgbtn, #wp_delimgbtn, #wp_editgallery, #wp_delgallery {
 		padding-top: 24px !important;
@@ -260,7 +260,7 @@
 	#wp_delimgbtn, #wp_delgallery {
 		background: #eee url("images/delete-2x.png") no-repeat center center !important;
 	}
-		
+
 	/* AJAX loading spinners */
 	img.ajax-loading, img.ajax-feedback {
 		width: 16px;

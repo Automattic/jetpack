@@ -16,7 +16,7 @@
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of
  *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *   GNU Lesser General Public License for more details.
- * 
+ *
  *   You should have received a copy of the GNU Lesser General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
@@ -128,7 +128,7 @@ $lang['de'][15] = 'Standard (Kompromiss zwischen Lesbarkeit und Größe)';
 $lang['de'][16] = 'Niedrig (höhere Lesbarkeit)';
 $lang['de'][17] = 'Benutzerdefiniert (unten eingeben)';
 $lang['de'][18] = 'Benutzerdefinierte <a href="http://csstidy.sourceforge.net/templates.php">Vorlage</a>';
-$lang['de'][19] = 'Optionen';   
+$lang['de'][19] = 'Optionen';
 $lang['de'][20] = 'Selektoren sortieren (Vorsicht)';
 $lang['de'][21] = 'Eigenschaften sortieren';
 $lang['de'][22] = 'Selektoren umgruppieren';
@@ -140,7 +140,7 @@ $lang['de'][27] = 'Kleinbuchstaben';
 $lang['de'][28] = 'Keine oder ungültige CSS Eingabe oder falsche URL!';
 $lang['de'][29] = 'Großbuchstaben';
 $lang['de'][30] = 'kleingeschriebene Elementnamen benötigt für XHTML';
-$lang['de'][31] = 'Unnötige Backslashes entfernen'; 
+$lang['de'][31] = 'Unnötige Backslashes entfernen';
 $lang['de'][32] = '!important-Hack konvertieren';
 $lang['de'][33] = 'Als Datei ausgeben';
 $lang['de'][34] = 'Größere Komprimierung augrund von kleineren Neuezeile-Zeichen';
@@ -271,7 +271,7 @@ $lang['zh'][24] = '壓縮色彩語法';
 $lang['zh'][25] = '改用小寫選擇符';
 $lang['zh'][26] = '屬性的字形:';
 $lang['zh'][27] = '小寫';
-$lang['zh'][28] = '沒有輸入CSS, 語法不符合規定, 或是網址錯誤!'; 
+$lang['zh'][28] = '沒有輸入CSS, 語法不符合規定, 或是網址錯誤!';
 $lang['zh'][29] = '大寫';
 $lang['zh'][30] = 'XHTML必須使用小寫的元素名稱';
 $lang['zh'][31] = '移除不必要的反斜線';

@@ -59,7 +59,7 @@
 	}
 	// syntaxy goodness.
 	else {
-		$( '#safecss-ace, #safecss-container' ).css( 'height', 
+		$( '#safecss-ace, #safecss-container' ).css( 'height',
 			Math.max( 250, $( window ).height() - $( '#safecss-container' ).offset().top - $( '#wpadminbar' ).height() )
 		);
 

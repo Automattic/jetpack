@@ -37,13 +37,13 @@ function AtD_submit_check_callback(count) {
 	} else {
 		var original_post_status = jQuery('#original_post_status').val()
 
-		/* Okay, the user has tried to publish/update already but there are still errors. Ask them what to do */ 
+		/* Okay, the user has tried to publish/update already but there are still errors. Ask them what to do */
 		var message;
 		if ( original_post_status == 'publish' )
 			message = AtD.getLang('dialog_confirm_post_publish', 'The proofreader has suggestions for this post. Are you sure you want to publish it?\n\nPress OK to publish your post, or Cancel to view the suggestions and edit your post.');
 		else
 			message = AtD.getLang('dialog_confirm_post_update', 'The proofreader has suggestions for this post. Are you sure you want to update it?\n\nPress OK to update your post, or Cancel to view the suggestions and edit your post.');
-			
+
 		if ( confirm( message ) ) {
 			AtD_update_post();
 		} else {
@@ -66,7 +66,7 @@ function AtD_kill_autoproofread() {
 function AtD_update_post() {
 
 	if ( typeof(tinyMCE) == 'undefined' || !tinyMCE.activeEditor || tinyMCE.activeEditor.isHidden() )
-		AtD_restore_if_proofreading(); 
+		AtD_restore_if_proofreading();
 
 	jQuery('#publish').unbind('click.AtD_submit_check').click();
 }

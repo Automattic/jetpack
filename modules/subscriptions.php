@@ -8,7 +8,7 @@
  */
 
 add_action( 'jetpack_modules_loaded', 'jetpack_subscriptions_load' );
- 
+
 Jetpack_Sync::sync_options( __FILE__,
 	'home',
 	'blogname',
@@ -102,7 +102,7 @@ class Jetpack_Subscriptions {
 	 *
 	 * Jetpack Subscriptions configuration screen.
 	 */
-	function configure() {	
+	function configure() {
 		// Create the section
 		add_settings_section(
 			'jetpack_subscriptions',
@@ -140,37 +140,37 @@ class Jetpack_Subscriptions {
 			'discussion',
 			'stc_enabled'
 		);
-		
+
 		/** Subscription Messaging Options ******************************************************/
-		
-		register_setting( 
-			'reading', 
-			'subscription_options', 
-			array( $this, 'validate_settings' ) 
+
+		register_setting(
+			'reading',
+			'subscription_options',
+			array( $this, 'validate_settings' )
 		);
 
-		add_settings_section( 
-			'email_settings', 
-			__( 'Follower Settings', 'jetpack' ), 
-			array( $this, 'reading_section' ), 
+		add_settings_section(
+			'email_settings',
+			__( 'Follower Settings', 'jetpack' ),
+			array( $this, 'reading_section' ),
 			'reading'
 		);
-		
+
 		add_settings_field(
 			'invitation',
-			__( 'Blog follow email text' , 'jetpack' ), 
-			array( $this, 'setting_invitation' ), 
-			'reading', 
+			__( 'Blog follow email text' , 'jetpack' ),
+			array( $this, 'setting_invitation' ),
+			'reading',
 			'email_settings'
 		);
 
 		add_settings_field(
 			'comment-follow',
-			__( 'Comment follow email text', 'jetpack' ), 
-			array( $this, 'setting_comment_follow' ), 
-			'reading', 
+			__( 'Comment follow email text', 'jetpack' ),
+			array( $this, 'setting_comment_follow' ),
+			'reading',
 			'email_settings'
-		);		
+		);
 	}
 
 	/**
@@ -256,11 +256,11 @@ class Jetpack_Subscriptions {
 			'comment_follow'  => __( "Howdy.\n\nYou recently followed one of my posts. This means you will receive an email when new comments are posted.\n\nTo activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again." , 'jetpack')
 		);
 	}
-		
+
 	function get_settings() {
 		return wp_parse_args( (array) get_option( 'subscription_options', array() ), $this->get_default_settings() );
 	}
-		
+
 	/**
 	 * Jetpack_Subscriptions::subscribe()
 	 *
@@ -681,7 +681,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		if ( 'failed' == $subs_fetch['status'] ) {
 			printf( '<div class="error inline"><p>' . __( '%s: %s', 'jetpack' ) . '</p></div>', esc_html( $subs_fetch['code'] ), esc_html( $subs_fetch['message'] ) );
-			
+
 		}
 		$subscribers_total = number_format_i18n( $subs_fetch['value'] );
 

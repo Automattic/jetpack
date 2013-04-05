@@ -6,20 +6,20 @@
  * First Introduced: 1.1
  * Requires Connection: Yes
  */
- 
+
 add_action( 'jetpack_modules_loaded', 'AtD_load' );
 
 function AtD_load() {
-	Jetpack::enable_module_configurable( __FILE__ ); 
-	Jetpack::module_configuration_load( __FILE__, 'AtD_configuration_load' );	
+	Jetpack::enable_module_configurable( __FILE__ );
+	Jetpack::module_configuration_load( __FILE__, 'AtD_configuration_load' );
 }
 
 function AtD_configuration_load() {
 	wp_safe_redirect( get_edit_profile_url( get_current_user_id() ) . '#atd' );
-	exit;	
+	exit;
 }
 
-/*  
+/*
  *  Load necessary include files
  */
 include( 'after-the-deadline/config-options.php' );
@@ -57,7 +57,7 @@ function AtD_addbuttons() {
 	/* Don't bother doing this stuff if the current user lacks permissions */
 	if ( ! AtD_is_allowed() )
 		return;
-   
+
 	/* Add only in Rich Editor mode */
 	if ( get_user_option( 'rich_editing' ) == 'true' ) {
 		add_filter( 'mce_external_plugins', 'add_AtD_tinymce_plugin' );
@@ -86,16 +86,16 @@ function register_AtD_button( $buttons ) {
 	array_push( $buttons, '|', 'AtD' );
 	return $buttons;
 }
- 
+
 /*
- * Load the TinyMCE plugin : editor_plugin.js (wp2.5) 
+ * Load the TinyMCE plugin : editor_plugin.js (wp2.5)
  */
 function add_AtD_tinymce_plugin( $plugin_array ) {
 	$plugin_array['AtD'] = plugins_url( 'after-the-deadline/tinymce/editor_plugin.js?v=' . ATD_VERSION, __FILE__ );
 	return $plugin_array;
 }
 
-/* 
+/*
  * Update the TinyMCE init block with AtD specific settings
  */
 function AtD_change_mce_settings( $init_array ) {
@@ -117,15 +117,15 @@ function AtD_change_mce_settings( $init_array ) {
 	return $init_array;
 }
 
-/* 
+/*
  * Sanitizes AtD AJAX data to acceptable chars, caller needs to make sure ' is escaped
  */
 function AtD_sanitize( $untrusted ) {
         return preg_replace( '/[^a-zA-Z0-9\-\',_ ]/i', "", $untrusted );
 }
 
-/* 
- * AtD HTML Editor Stuff 
+/*
+ * AtD HTML Editor Stuff
  */
 function AtD_settings() {
         $user = wp_get_current_user();
@@ -157,20 +157,20 @@ function AtD_load_javascripts() {
         	wp_enqueue_script( 'AtD_jquery', plugins_url( '/after-the-deadline/jquery.atd.js', __FILE__ ), array('jquery'), ATD_VERSION );
         	wp_enqueue_script( 'AtD_settings', admin_url() . 'admin-ajax.php?action=atd_settings', array('AtD_jquery'), ATD_VERSION );
 		wp_enqueue_script( 'AtD_autoproofread', plugins_url( '/after-the-deadline/atd-autoproofread.js', __FILE__ ), array('AtD_jquery'), ATD_VERSION );
-	}		
+	}
 }
 
 /* Spits out user options for auto-proofreading on publish/update */
 function AtD_load_submit_check_javascripts() {
 	global $pagenow;
-	
+
 	$user = wp_get_current_user();
 	if ( ! $user || $user->ID == 0 )
 		return;
-	
+
 	if ( AtD_should_load_on_page() ) {
 		$atd_check_when = AtD_get_setting( $user->ID, 'AtD_check_when' );
-		
+
 		if ( !empty( $atd_check_when ) ) {
 			$check_when = array();
 			/* Set up the options in json */
@@ -239,7 +239,7 @@ add_action( 'init', 'AtD_addbuttons' );
 
 /* setup hooks for our PHP functions we want to make available via an AJAX call */
 add_action( 'wp_ajax_proxy_atd', 'AtD_redirect_call' );
-add_action( 'wp_ajax_atd_ignore', 'AtD_ignore_call' );    
+add_action( 'wp_ajax_atd_ignore', 'AtD_ignore_call' );
 add_action( 'wp_ajax_atd_settings', 'AtD_settings' );
 
 /* load and install the localization stuff */

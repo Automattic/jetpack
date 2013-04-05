@@ -247,7 +247,7 @@ class Jetpack_Likes {
 		$like = $this->admin_likes_get_option( 'social_notifications_like' );
 ?>
 		<label><input type="checkbox" id="social_notifications_like" name="social_notifications_like" value="1" <?php checked( $like ); ?> /> <?php esc_html_e( 'Someone likes one of my posts' ); ?></label>
-<?php		
+<?php
 	}
 
 	function admin_discussion_likes_settings_validate( $input ) {
@@ -490,7 +490,7 @@ class Jetpack_Likes {
 
 		// Comment Likes widget has been disabled, pending performance improvements.
 		// add_filter( 'comment_text', array( &$this, 'comment_likes' ), 10, 2 );
-		
+
 		if ( $this->in_jetpack ) {
 			add_filter( 'the_content', array( &$this, 'post_likes' ), 30, 1 );
 			wp_enqueue_script( 'postmessage', plugins_url( '_inc/postmessage.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
@@ -726,7 +726,7 @@ class Jetpack_Likes {
 					target: target,
 					type: 'likesMessage',
 					data: message,
-					origin: '*'					
+					origin: '*'
 				} );
 			}
 

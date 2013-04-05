@@ -56,7 +56,7 @@ jetpack_post_by_email = {
 
 		jQuery.post( ajaxurl, data, jetpack_post_by_email.handle_regenerated );
 	},
-	
+
 	handle_regenerated: function( response ) {
 		var regenerated = false;
 		var error;

@@ -74,18 +74,18 @@ AtDCore.prototype.showTypes = function(string) {
         });
 
         this.map(this.ignore_types, function(string) {
-                if (types[string] != undefined) 
+                if (types[string] != undefined)
                         ignore_types.push(string);
         });
 
         this.ignore_types = ignore_types;
 };
 
-/* 
+/*
  * Error Parsing Code
  */
 
-AtDCore.prototype.makeError = function(error_s, tokens, type, seps, pre) {        
+AtDCore.prototype.makeError = function(error_s, tokens, type, seps, pre) {
 	var struct = new Object();
 	struct.type = type;
 	struct.string = error_s;
@@ -110,20 +110,20 @@ AtDCore.prototype.makeError = function(error_s, tokens, type, seps, pre) {
 };
 
 AtDCore.prototype.addToErrorStructure = function(errors, list, type, seps) {
-	var parent = this;                  
+	var parent = this;
 
 	this.map(list, function(error) {
 		var tokens = error["word"].split(/\s+/);
 		var pre    = error["pre"];
 		var first  = tokens[0];
 
-		if (errors['__' + first] == undefined) {      
+		if (errors['__' + first] == undefined) {
 			errors['__' + first] = new Object();
 			errors['__' + first].pretoks  = {};
 			errors['__' + first].defaults = new Array();
 		}
 
-		if (pre == "") {               
+		if (pre == "") {
 			errors['__' + first].defaults.push(parent.makeError(error["word"], tokens, type, seps, pre));
 		} else {
 			if (errors['__' + first].pretoks['__' + pre] == undefined)
@@ -138,7 +138,7 @@ AtDCore.prototype.buildErrorStructure = function(spellingList, enrichmentList, g
 	var seps   = this._getSeparators();
 	var errors = {};
 
-	this.addToErrorStructure(errors, spellingList, "hiddenSpellError", seps);            
+	this.addToErrorStructure(errors, spellingList, "hiddenSpellError", seps);
 	this.addToErrorStructure(errors, grammarList, "hiddenGrammarError", seps);
 	this.addToErrorStructure(errors, enrichmentList, "hiddenSuggestion", seps);
 	return errors;
@@ -153,7 +153,7 @@ AtDCore.prototype._getSeparators = function() {
 		re += '\\' + str.charAt(i);
 
 	return "(?:(?:[\xa0" + re  + "])|(?:\\-\\-))+";
-};        
+};
 
 AtDCore.prototype.processXML = function(responseXML) {
 
@@ -183,8 +183,8 @@ AtDCore.prototype.processXML = function(responseXML) {
 
 			var errorContext;
 
-			if (errors[i].getElementsByTagName('precontext').item(0).firstChild != null) 
-				errorContext = errors[i].getElementsByTagName('precontext').item(0).firstChild.data;   
+			if (errors[i].getElementsByTagName('precontext').item(0).firstChild != null)
+				errorContext = errors[i].getElementsByTagName('precontext').item(0).firstChild.data;
 			else
 				errorContext = "";
 
@@ -236,11 +236,11 @@ AtDCore.prototype.processXML = function(responseXML) {
 
 				if (errorDescription == "Repeated Word")
 					suggestion["description"] = this.getLang('menu_title_repeated_word', 'Repeated Word');
-				
+
 				if (errorDescription == "Did you mean...")
 					suggestion["description"] = this.getLang('menu_title_confused_word', 'Did you mean...');
 			} // end if ignore[errorString] == undefined
-		} // end if 
+		} // end if
 	} // end for loop
 
 	var errorStruct;
@@ -265,10 +265,10 @@ AtDCore.prototype.findSuggestion = function(element) {
 
 	var errorDescription = undefined;
 	var len = this.suggestions.length;
-   
+
 	for (var i = 0; i < len; i++) {
 		var key = this.suggestions[i]["string"];
-   
+
 		if ((context == "" || context == this.suggestions[i]["context"]) && this.suggestions[i]["matcher"].test(text)) {
 			errorDescription = this.suggestions[i];
 			break;
@@ -299,7 +299,7 @@ TokenIterator.prototype.next = function() {
 		if (current[0] == "'")
 			current = current.substring(1, current.length);
 
-		if (current[current.length - 1] == "'") 
+		if (current[current.length - 1] == "'")
 			current = current.substring(0, current.length - 1);
 	}
 
@@ -311,7 +311,7 @@ TokenIterator.prototype.hasNext = function() {
 };
 
 TokenIterator.prototype.hasNextN = function(n) {
-	return (this.index + n) < this.tokens.length;            
+	return (this.index + n) < this.tokens.length;
 };
 
 TokenIterator.prototype.skip = function(m, n) {
@@ -334,10 +334,10 @@ TokenIterator.prototype.peek = function(n) {
 	return peepers;
 };
 
-/* 
+/*
  *  code to manage highlighting of errors
  */
-AtDCore.prototype.markMyWords = function(container_nodes, errors) {           
+AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 	var seps  = new RegExp(this._getSeparators());
 	var nl = new Array();
 	var ecount = 0; /* track number of highlighted errors */
@@ -345,16 +345,16 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 
 	/* Collect all text nodes */
 	/* Our goal--ignore nodes that are already wrapped */
-   
+
 	this._walk(container_nodes, function(n) {
 		if (n.nodeType == 3 && !parent.isMarkedNode(n))
 			nl.push(n);
 	});
- 
-	/* walk through the relevant nodes */  
-   
+
+	/* walk through the relevant nodes */
+
 	var iterator;
-      
+
 	this.map(nl, function(n) {
 		var v;
 
@@ -431,7 +431,7 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 								return parent.create('<span class="mceItemHidden">&nbsp;</span>' + node.nodeValue.substr(1, node.nodeValue.length - 1).replace(regexp, result), false);
 							else
 								return parent.create(node.nodeValue.replace(regexp, result), false);
-						} 
+						}
 						else {
 							var contents = parent.contents(node);
 
@@ -462,8 +462,8 @@ AtDCore.prototype.markMyWords = function(container_nodes, errors) {
 
 				parent.replaceWith(n, newNode);
 			}
-		} 
-	}); 
+		}
+	});
 
 	return ecount;
 };
@@ -474,9 +474,9 @@ AtDCore.prototype._walk = function(elements, f) {
 		f.call(f, elements[i]);
 		this._walk(this.contents(elements[i]), f);
 	}
-};  
+};
 
-AtDCore.prototype.removeWords = function(node, w) {   
+AtDCore.prototype.removeWords = function(node, w) {
 	var count = 0;
 	var parent = this;
 
@@ -518,7 +518,7 @@ AtDCore.prototype.applySuggestion = function(element, suggestion) {
 	}
 };
 
-/* 
+/*
  * Check for an error
  */
 AtDCore.prototype.hasErrorMessage = function(xmlr) {

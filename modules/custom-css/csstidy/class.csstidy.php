@@ -736,7 +736,7 @@ class csstidy {
 
 										if (empty($this->sub_value_arr)) {
 											// Quote URLs in imports only if they're not already inside url() and not already quoted.
-											if (substr($this->sub_value, 0, 4) != 'url(') { 
+											if (substr($this->sub_value, 0, 4) != 'url(') {
 												if (!($this->sub_value{0} == substr($this->sub_value, -1) && in_array($this->sub_value{0}, array("'", '"')))) {
 													$this->sub_value = '"' . $this->sub_value . '"';
 												}
@@ -778,7 +778,7 @@ class csstidy {
 									}
 									else {
 										$this->sub_value = "format(";
-										
+
 										foreach ($format_strings as $format_string) {
 											$this->sub_value .= '"' . str_replace('"', '\\"', $format_string) . '",';
 										}
@@ -844,7 +844,7 @@ class csstidy {
 					$_cur_string = $this->cur_string[count($this->cur_string)-1];
 					$temp_add = $string{$i};
 
-					// Add another string to the stack. Strings can't be nested inside of quotes, only parentheses, but 
+					// Add another string to the stack. Strings can't be nested inside of quotes, only parentheses, but
 					// parentheticals can be nested more than once.
 					if ($_str_char === ")" && ($string{$i} === "(" || $string{$i} === '"' || $string{$i} === '\'') && !csstidy::escaped($string, $i)) {
 						$this->cur_string[] = $string{$i};

@@ -109,7 +109,7 @@ class Jetpack_Notifications {
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX )
 			return;
-		
+
 		if ( !has_filter( 'show_admin_bar', '__return_true' ) && !is_user_logged_in() )
 			return;
 

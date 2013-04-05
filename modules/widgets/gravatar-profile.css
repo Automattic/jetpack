@@ -11,7 +11,7 @@
 			list-style: none;
 			display: inline;
 		}
-		
+
 		.widget-grofile ul.grofile-accounts li::before {
 			content: "" !important; /* Kubrick :( */
 		}

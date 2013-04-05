@@ -4,7 +4,7 @@
  * Twitter widget class
  * Display the latest N tweets from a Twitter screenname as a widget
  * Customize screenname, maximum number of tweets displayed, show or hide @replies, and text displayed between tweet text and a timestamp
- * 
+ *
  */
 
 /**
@@ -80,7 +80,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 
 		if ( empty( $tweets['error'] ) ) {
 			$before_tweet     = isset( $instance['beforetweet'] ) ? stripslashes( wp_filter_post_kses( $instance['beforetweet'] ) ) : '';
-			$before_timesince = ( isset( $instance['beforetimesince'] ) && ! empty( $instance['beforetimesince'] ) ) ? esc_html( $instance['beforetimesince'] ) : ' ';			
+			$before_timesince = ( isset( $instance['beforetimesince'] ) && ! empty( $instance['beforetimesince'] ) ) ? esc_html( $instance['beforetimesince'] ) : ' ';
 
 			$this->display_tweets( $show, $tweets['data'], $hidepublicized, $before_tweet, $before_timesince, $account );
 
@@ -112,7 +112,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 
 			$tweet['text'] = esc_html( $tweet['text'] ); // escape here so that Twitter handles in Tweets don't get mangled
 			$tweet         = $this->expand_tco_links( $tweet );
-			$tweet['text'] = make_clickable( $tweet['text'] ); 
+			$tweet['text'] = make_clickable( $tweet['text'] );
 
 			/*
 			 * Create links from plain text based on Twitter patterns
@@ -148,7 +148,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 		$follow_colors        = isset( $themecolors['link'] ) ? " data-link-color='#{$themecolors['link']}'" : '';
 		$follow_colors       .= isset( $themecolors['text'] ) ? " data-text-color='#{$themecolors['text']}'" : '';
 		$follow_button_attrs  = " class='twitter-follow-button' data-show-count='false'{$follow_colors}";
-			 
+
 		?><a href="http://twitter.com/<?php echo esc_attr( $account ); ?>" <?php echo $follow_button_attrs; ?>>Follow @<?php echo esc_attr( $account ); ?></a><?php
 	}
 
@@ -156,10 +156,10 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 		if ( ! empty( $tweet['entities']['urls'] ) && is_array( $tweet['entities']['urls'] ) ) {
 			foreach ( $tweet['entities']['urls'] as $entity_url ) {
 				if ( ! empty( $entity_url['expanded_url'] ) ) {
-					$tweet['text'] = str_replace( 
-										$entity_url['url'], 
-										'<a href="' . esc_url( $entity_url['expanded_url'] ) . '"> ' . esc_html( $entity_url['display_url'] ) . '</a>', 
-										$tweet['text'] 
+					$tweet['text'] = str_replace(
+										$entity_url['url'],
+										'<a href="' . esc_url( $entity_url['expanded_url'] ) . '"> ' . esc_html( $entity_url['display_url'] ) . '</a>',
+										$tweet['text']
 									);
 				}
 			}
@@ -203,12 +203,12 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 						$the_error = '<p>' . esc_html__( 'Error: Twitter did not respond. Please wait a few minutes and refresh this page.', 'jetpack' ) . '</p>';
 						$tweet_cache_expire = 300;
 						break;
-					} else {				
+					} else {
 						set_transient( 'widget-twitter-backup-' . $this->number, $tweets, 86400 ); // A one day backup in case there is trouble talking to Twitter
 					}
 
 					do_action( 'jetpack_bump_stats_extras', 'twitter_widget', 'request-success' );
-					$tweet_cache_expire =  900; 
+					$tweet_cache_expire =  900;
 					break;
 				case 401 : // display private stream notice
 					do_action( 'jetpack_bump_stats_extras', 'twitter_widget', "request-fail-{$response_code}" );
@@ -303,7 +303,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'hidereplies' ); ?>">
-				<input id="<?php echo $this->get_field_id( 'hidereplies' );?>" class="checkbox" type="checkbox" name="<?php echo $this->get_field_name( 'hidereplies' ); ?>" <?php checked( $hidereplies, true ); ?> /> 
+				<input id="<?php echo $this->get_field_id( 'hidereplies' );?>" class="checkbox" type="checkbox" name="<?php echo $this->get_field_name( 'hidereplies' ); ?>" <?php checked( $hidereplies, true ); ?> />
 				<?php esc_html_e( 'Hide replies', 'jetpack' ); ?>
 			</label>
 		</p>
@@ -324,7 +324,7 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'followbutton' ); ?>">
-				<input id="<?php echo $this->get_field_id( 'followbutton' ); ?>" class="checkbox" type="checkbox" name="<?php echo $this->get_field_name( 'followbutton' ); ?>" <?php checked( $follow_button, 1 ); ?> /> 
+				<input id="<?php echo $this->get_field_id( 'followbutton' ); ?>" class="checkbox" type="checkbox" name="<?php echo $this->get_field_name( 'followbutton' ); ?>" <?php checked( $follow_button, 1 ); ?> />
 				<?php esc_html_e( 'Display Follow Button', 'jetpack' ); ?>
 			</label>
 		</p>

@@ -49,8 +49,8 @@ function AtD_display_options_form() {
 		 <td>
    <p><?php _e( 'Automatically proofread content when:', 'jetpack' ); ?>
 
-   <p><?php 
-		AtD_print_option( 'onpublish', __('a post or page is first published', 'jetpack'), $options_check_when ); 
+   <p><?php
+		AtD_print_option( 'onpublish', __('a post or page is first published', 'jetpack'), $options_check_when );
 		echo '<br />';
 		AtD_print_option( 'onupdate', __('a post or page is updated', 'jetpack'), $options_check_when );
    ?></p>
@@ -59,12 +59,12 @@ function AtD_display_options_form() {
 
    <p><?php _e('Enable proofreading for the following grammar and style rules when writing posts and pages:', 'jetpack'); ?></p>
 
-   <p><?php 
+   <p><?php
 		AtD_print_option( 'Bias Language', __('Bias Language', 'jetpack'), $options_show_types );
 		echo '<br />';
 		AtD_print_option( 'Cliches', __('Clich&eacute;s', 'jetpack'), $options_show_types );
 		echo '<br />';
-		AtD_print_option( 'Complex Expression', __('Complex Phrases', 'jetpack'), $options_show_types ); 
+		AtD_print_option( 'Complex Expression', __('Complex Phrases', 'jetpack'), $options_show_types );
 		echo '<br />';
 		AtD_print_option( 'Diacritical Marks', __('Diacritical Marks', 'jetpack'), $options_show_types );
 		echo '<br />';
@@ -72,15 +72,15 @@ function AtD_display_options_form() {
 		echo '<br />';
 		AtD_print_option( 'Hidden Verbs', __('Hidden Verbs', 'jetpack'), $options_show_types );
 		echo '<br />';
-		AtD_print_option( 'Jargon Language', __('Jargon', 'jetpack'), $options_show_types ); 
+		AtD_print_option( 'Jargon Language', __('Jargon', 'jetpack'), $options_show_types );
 		echo '<br />';
-		AtD_print_option( 'Passive voice', __('Passive Voice', 'jetpack'), $options_show_types ); 
+		AtD_print_option( 'Passive voice', __('Passive Voice', 'jetpack'), $options_show_types );
 		echo '<br />';
-		AtD_print_option( 'Phrases to Avoid', __('Phrases to Avoid', 'jetpack'), $options_show_types ); 
+		AtD_print_option( 'Phrases to Avoid', __('Phrases to Avoid', 'jetpack'), $options_show_types );
 		echo '<br />';
-		AtD_print_option( 'Redundant Expression', __('Redundant Phrases', 'jetpack'), $options_show_types ); 
+		AtD_print_option( 'Redundant Expression', __('Redundant Phrases', 'jetpack'), $options_show_types );
    ?></p>
-   <p><?php printf( __( '<a href="%s">Learn more</a> about these options.', 'jetpack' ), 'http://support.wordpress.com/proofreading/' ); 
+   <p><?php printf( __( '<a href="%s">Learn more</a> about these options.', 'jetpack' ), 'http://support.wordpress.com/proofreading/' );
 ?></p>
 
    <p style="font-weight: bold"><?php _e( 'Language', 'jetpack' ); ?></font>
@@ -103,14 +103,14 @@ function AtD_display_options_form() {
  */
 function AtD_get_options( $user_id, $name ) {
 	$options_raw = AtD_get_setting( $user_id, $name, 'single' );
-	
+
 	$options = array();
 	$options['name'] = $name;
 
 	if ( $options_raw )
-		foreach ( explode( ',', $options_raw ) as $option ) 
+		foreach ( explode( ',', $options_raw ) as $option )
 			$options[ $option ] = 1;
-	
+
 	return $options;
 }
 
@@ -125,6 +125,6 @@ function AtD_update_options( $user_id, $name ) {
 	} else {
 		AtD_update_setting( $user_id, AtD_sanitize( $name ), '');
 	}
-	
+
 	return;
 }

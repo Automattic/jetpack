@@ -5,7 +5,7 @@
  * Project     :  http://www.afterthedeadline.com/development.slp
  * Contact     : raffi@automattic.com
  *
- * Derived from: 
+ * Derived from:
  *
  * jquery.spellchecker.js - a simple jQuery Spell Checker
  * Copyright (c) 2008 Richard Willis
@@ -14,7 +14,7 @@
  * Contact      : willis.rh@gmail.com
  */
 
-var AtD = 
+var AtD =
 {
 	rpc : '', /* see the proxy.php that came with the AtD/TinyMCE plugin */
 	rpc_css : 'http://www.polishmywriting.com/atd-jquery/server/proxycss.php?data=', /* you may use this, but be nice! */
@@ -46,8 +46,8 @@ AtD.showTypes = function(string) {
 
 AtD.checkCrossAJAX = function(container_id, callback_f) {
 	/* checks if a global var for click stats exists and increments it if it does... */
-	if (typeof AtD_proofread_click_count != "undefined")  
-		AtD_proofread_click_count++; 
+	if (typeof AtD_proofread_click_count != "undefined")
+		AtD_proofread_click_count++;
 
 	AtD.callback_f = callback_f; /* remember the callback for later */
 	AtD.remove(container_id);
@@ -74,7 +74,7 @@ AtD.checkCrossAJAX = function(container_id, callback_f) {
 			xml = new ActiveXObject("Microsoft.XMLDOM");
 			xml.async = false;
 			xml.loadXML(response);
-		} 
+		}
 		else {
 			xml = (new DOMParser()).parseFromString(response, 'text/xml');
 		}
@@ -85,7 +85,7 @@ AtD.checkCrossAJAX = function(container_id, callback_f) {
 				AtD.callback_f.error(AtD.core.getErrorMessage(xml));
 
 			return;
-		} 
+		}
 
 		/* highlight the errors */
 
@@ -107,12 +107,12 @@ AtD.checkCrossAJAX = function(container_id, callback_f) {
 AtD.check = function(container_id, callback_f) {
 	/* checks if a global var for click stats exists and increments it if it does... */
 	if (typeof AtD_proofread_click_count != "undefined")
-		AtD_proofread_click_count++; 
+		AtD_proofread_click_count++;
 
 	AtD.callback_f = callback_f; /* remember the callback for later */
 
-	AtD.remove(container_id);	
-		
+	AtD.remove(container_id);
+
 	var container = jQuery('#' + container_id);
 
 	var html = container.html();
@@ -124,14 +124,14 @@ AtD.check = function(container_id, callback_f) {
 		type : "POST",
 		url : AtD.rpc + '/checkDocument',
 		data : 'key=' + AtD.api_key + '&data=' + text,
-		format : 'raw', 
+		format : 'raw',
 		dataType : (jQuery.browser.msie) ? "text" : "xml",
 
 		error : function(XHR, status, error) {
 			if (AtD.callback_f != undefined && AtD.callback_f.error != undefined)
  				AtD.callback_f.error(status + ": " + error);
 		},
-	
+
 		success : function(data) {
 			/* apparently IE likes to return XML as plain text-- work around from:
 			   http://docs.jquery.com/Specifying_the_Data_Type_for_AJAX_Requests */
@@ -141,7 +141,7 @@ AtD.check = function(container_id, callback_f) {
 				xml = new ActiveXObject("Microsoft.XMLDOM");
 				xml.async = false;
 				xml.loadXML(data);
-			} 
+			}
 			else {
 				xml = data;
 			}
@@ -169,7 +169,7 @@ AtD.check = function(container_id, callback_f) {
 		}
 	});
 };
-	
+
 AtD.remove = function(container_id) {
 	AtD._removeWords(container_id, null);
 };
@@ -182,7 +182,7 @@ AtD.clickListener = function(event) {
 AtD.processXML = function(container_id, responseXML) {
 
 	var results = AtD.core.processXML(responseXML);
-   
+
 	if (results.count > 0)
 		results.count = AtD.core.markMyWords(jQuery('#' + container_id).contents(), results.errors);
 
@@ -214,7 +214,7 @@ AtD.editSelection = function() {
 };
 
 AtD.ignoreSuggestion = function() {
-	AtD.core.removeParent(AtD.errorElement); 
+	AtD.core.removeParent(AtD.errorElement);
 
 	AtD.counter --;
 	if (AtD.counter == 0 && AtD.callback_f != undefined && AtD.callback_f.success != undefined)
@@ -253,7 +253,7 @@ AtD.suggest = function(element) {
 		suggest.hide();
 	}
 
-	/* find the correct suggestions object */          
+	/* find the correct suggestions object */
 
 	errorDescription = AtD.core.findSuggestion(element);
 
@@ -297,7 +297,7 @@ AtD.suggest = function(element) {
 			suggest.append('<a href="javascript:AtD.ignoreAll(\'' + AtD.container + '\')">' + AtD.getLang('menu_option_ignore_always', 'Ignore always') + '</a>');
 		else
 			suggest.append('<a href="javascript:AtD.ignoreAll(\'' + AtD.container + '\')">' + AtD.getLang('menu_option_ignore_all', 'Ignore all') + '</a>');
- 
+
 		suggest.append('<a href="javascript:AtD.editSelection(\'' + AtD.container + '\')" class="spell_sep_bottom spell_sep_top">' + AtD.getLang('menu_option_edit_selection', 'Edit Selection...') + '</a>');
 	}
 	else {
@@ -313,8 +313,8 @@ AtD.suggest = function(element) {
 	var width = jQuery(element).width();
 
         /* a sanity check for Internet Explorer--my favorite browser in every possible way */
-        if (width > 100) 
-                width = 50; 
+        if (width > 100)
+                width = 50;
 
 	jQuery(suggest).css({ left: (pos.left + width) + 'px', top: pos.top + 'px' });
 
@@ -327,13 +327,13 @@ AtD.suggest = function(element) {
 	setTimeout(function() {
 		jQuery("body").bind("click", function() {
 			if (!AtD.suggestShow)
-				jQuery('#suggestmenu').fadeOut(200);      
+				jQuery('#suggestmenu').fadeOut(200);
 		});
 	}, 1);
 
 	setTimeout(function() {
 		AtD.suggestShow = false;
-	}, 2); 
+	}, 2);
 };
 
 AtD._removeWords = function(container_id, w) {
@@ -341,7 +341,7 @@ AtD._removeWords = function(container_id, w) {
 };
 
 /*
- * Set prototypes used by AtD Core UI 
+ * Set prototypes used by AtD Core UI
  */
 AtD.initCoreModule = function() {
 	var core = new AtDCore();

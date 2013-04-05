@@ -30,7 +30,7 @@ class Jetpack_Comments_Settings {
 
 		return $instance;
 	}
-	
+
 	public function __construct( Highlander_Comments_Base $jetpack_comments ) {
 		$this->jetpack_comments = $jetpack_comments;
 

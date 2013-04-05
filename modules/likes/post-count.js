@@ -57,7 +57,7 @@ var wpPostLikeCount;
 				data: options.data,
 				success: function( response ) { options.success( response  ) },
 				error: function( response ) { options.error( response ) }
-			} )	
+			} )
 		}
 
 	};

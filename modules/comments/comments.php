@@ -141,19 +141,19 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			// it's not a comment - bail
 			return $avatar;
 		}
-	
+
 		if ( false === strpos( $comment->comment_author_url, '/www.facebook.com/' ) && false === strpos( $comment->comment_author_url, '/twitter.com/' ) ) {
 			// It's neither FB nor Twitter - bail
 			return $avatar;
 		}
-	
+
 		// It's a FB or Twitter avatar
 		$foreign_avatar = get_comment_meta( $comment->comment_ID, 'hc_avatar', true );
 		if ( empty( $foreign_avatar ) ) {
 			// Can't find the avatar details - bail
 			return $avatar;
 		}
-	
+
 		// Return the FB or Twitter avatar
 		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( $this->photon_avatar( $foreign_avatar, $size ) ) . '\\1', $avatar );
 	}
@@ -191,7 +191,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		if ( in_array( 'subscriptions', Jetpack::get_active_modules() ) ) {
 			$stb_enabled = get_option( 'stb_enabled', 1 );
 			$stb_enabled = empty( $stb_enabled ) ? 0 : 1;
-		
+
 			$stc_enabled = get_option( 'stc_enabled', 1 );
 			$stc_enabled = empty( $stc_enabled ) ? 0 : 1;
 		} else {

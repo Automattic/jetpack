@@ -6,13 +6,13 @@
 
 /**
  * Original codes:
- * 
+ *
  * <embed height="270" type="application/x-shockwave-flash" width="480" src="http&#58;//www.dailymotion.com/swf/video/xekmrq?additionalInfos=0" wmode="opaque" pluginspage="http&#58;//www.macromedia.com/go/getflashplayer" allowscriptaccess="never" allownetworking="internal" />
  *
  * <object width="480" height="240"><param name="movie" value="http://www.dailymotion.com/swf/video/xen4ms_ghinzu-cold-love-mirror-mirror_music?additionalInfos=0"></param><param name="allowFullScreen" value="true"></param><param name="allowScriptAccess" value="always"></param>
  * 	<embed type="application/x-shockwave-flash" src="http://www.dailymotion.com/swf/video/xen4ms_ghinzu-cold-love-mirror-mirror_music?additionalInfos=0" width="480" height="240" allowfullscreen="true" allowscriptaccess="always"></embed>
  * </object><br /><b><a href="http://www.dailymotion.com/video/xen4ms_ghinzu-cold-love-mirror-mirror_music">Ghinzu - Cold Love (Mirror Mirror)</a></b><br /><i>Uploaded by <a href="http://www.dailymotion.com/GhinzuTV">GhinzuTV</a>. - <a href="http://www.dailymotion.com/us/channel/music">Watch more music videos, in HD!</a></i>
- *   
+ *
  * Code as of 01.01.11:
  * <object width="560" height="421"><param name="movie" value="http://www.dailymotion.com/swf/video/xaose5?width=560&theme=denim&foreground=%2392ADE0&highlight=%23A2ACBF&background=%23202226&start=&animatedTitle=&iframe=0&additionalInfos=0&autoPlay=0&hideInfos=0"></param><param name="allowFullScreen" value="true"></param><param name="allowScriptAccess" value="always"></param><embed type="application/x-shockwave-flash" src="http://www.dailymotion.com/swf/video/xaose5?width=560&theme=denim&foreground=%2392ADE0&highlight=%23A2ACBF&background=%23202226&start=&animatedTitle=&iframe=0&additionalInfos=0&autoPlay=0&hideInfos=0" width="560" height="421" allowfullscreen="true" allowscriptaccess="always"></embed></object><br /><b><a href="http://www.dailymotion.com/video/xaose5_sexy-surprise_na">Sexy Surprise</a></b><br /><i>Uploaded by <a href="http://www.dailymotion.com/GilLavie">GilLavie</a>. - <a target="_self" href="http://www.dailymotion.com/channel/sexy/featured/1">Find more steamy, sexy videos.</a></i>
  * movie param enforces anti-xss protection
@@ -53,29 +53,29 @@ add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
 
 /**
  * DailyMotion shortcode
- * 
- * The documented shortcode is: 
- * [dailymotion id=x8oma9] 
- * 
+ *
+ * The documented shortcode is:
+ * [dailymotion id=x8oma9]
+ *
  * Possibilities, according to the old parsing regexp:
  * [dailymotion x8oma9]
- * [dailymotion=x8oma9]    
- * 
+ * [dailymotion=x8oma9]
+ *
  * Hypothetical option, according to the old shortcode function is
  * [dailymotion id=1&title=2&user=3&video=4]
- *  
- * The new style is now: 
- * [dailymotion id=x8oma9 title=2 user=3 video=4] 
- *   
- * @param array $atts
- * @return string html 
  *
- */  
+ * The new style is now:
+ * [dailymotion id=x8oma9 title=2 user=3 video=4]
+ *
+ * @param array $atts
+ * @return string html
+ *
+ */
 
 function dailymotion_shortcode( $atts ) {
 	global $content_width;
 
-	if ( isset( $atts[0] ) ) { 
+	if ( isset( $atts[0] ) ) {
 		$id = ltrim( $atts[0], '=' );
 		$atts['id'] = $id;
 	} else {
@@ -85,7 +85,7 @@ function dailymotion_shortcode( $atts ) {
 
 	if ( isset( $atts['id'] ) )
 		$id = $atts['id'];
-	else 
+	else
 		return '<!--Dailymotion error: bad or missing ID-->';
 
 	if ( !empty( $content_width ) )
