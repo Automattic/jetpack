@@ -55,7 +55,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	// Is this endpoint still in testing phase?  If so, not available to the public.
 	var $in_testing = false;
-	
+
 	/**
 	 * @var string Version of the API
 	 */
@@ -560,7 +560,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 <?php
 		// If no example was hardcoded in the doc, try to get some
-		if ( empty( $this->example_response ) ) { 
+		if ( empty( $this->example_response ) ) {
 
 			// Examples for endpoint documentation response
 			$response_key = 'dev_response_' . $this->version . '_' . $this->method . '_' . sanitize_title( $this->path );
@@ -1009,11 +1009,11 @@ EOPHP;
 
 		$gmt_offset = get_option( 'gmt_offset' );
 		$local_time = $time + $gmt_offset * 3600;
-		
+
 		$date = getdate( ( int ) $local_time );
 		$datetime->setDate( $date['year'], $date['mon'], $date['mday'] );
 		$datetime->setTime( $date['hours'], $date['minutes'], $date['seconds'] );
-        
+
 		$local      = $datetime->format( 'Y-m-d H:i:s' );
 		return array( (string) $local, (string) $gmt );
 	}
@@ -1802,9 +1802,9 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
  		}
 
 		unset( $input['tags'], $input['categories'] );
-		
+
 		$insert = array();
-		
+
 		if ( !empty( $input['slug'] ) ) {
 			$insert['post_name'] = $input['slug'];
 			unset( $input['slug'] );
@@ -1814,22 +1814,22 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$insert['comment_status'] = 'open';
 		else if ( false === $input['comments_open'] )
 			$insert['comment_status'] = 'closed';
-			
+
 		if ( true === $input['pings_open'] )
 			$insert['ping_status'] = 'open';
 		else if ( false === $input['pings_open'] )
 			$insert['ping_status'] = 'closed';
-			
+
 		unset( $input['comments_open'], $input['pings_open'] );
-		
+
 		$publicize = $input['publicize'];
 		$publicize_custom_message = $input['publicize_message'];
 		unset( $input['publicize'], $input['publicize_message'] );
-		
+
 		foreach ( $input as $key => $value ) {
 			$insert["post_$key"] = $value;
 		}
-		
+
 		$has_media = isset( $input['media'] ) && $input['media'] ? count( $input['media'] ) : false;
 
 		if ( $new ) {
@@ -1870,7 +1870,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		if ( !$post_id || is_wp_error( $post_id ) ) {
 			return $post_id;
 		}
-			
+
 		if ( $publicize === false ) {
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name, 1 );
@@ -1882,10 +1882,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				}
 			}
 		}
-		
+
 		if ( !empty( $publicize_custom_message ) )
-			update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS, trim( $publicize_custom_message ) ); 
-		
+			update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS, trim( $publicize_custom_message ) );
+
 		if ( is_array( $categories ) )
 			wp_set_object_terms( $post_id, $categories, 'category' );
 		if ( is_array( $tags ) )
@@ -2048,7 +2048,7 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 		  		'parent'      => $input['parent']
 			)
 		);
-	
+
 		$taxonomy = get_term_by( 'id', $data['term_id'], $taxonomy_type );
 		$return   = $this->get_taxonomy( $taxonomy->slug, $taxonomy_type, $args['context'] );
 		if ( !$return || is_wp_error( $return ) ) {
@@ -2093,7 +2093,7 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 
 		$data     = wp_update_term( $taxonomy->term_id, $taxonomy_type, $update );
 		$taxonomy = get_term_by( 'id', $data['term_id'], $taxonomy_type );
-		
+
 		$return   = $this->get_taxonomy( $taxonomy->slug, $taxonomy_type, $args['context'] );
 		if ( !$return || is_wp_error( $return ) ) {
 			return $return;
@@ -2713,7 +2713,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 						return new WP_Error( 'trash_disabled', 'Cannot trash comment', 403 );
 					}
 
-					if ( 'trash' !== $comment_status ) { 
+					if ( 'trash' !== $comment_status ) {
  						wp_trash_comment( $comment_id );
  					}
  					break;
@@ -3026,7 +3026,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			'title'      => 'Hello World',
 			'content'    => 'Hello. I am a test post. I was created by the API',
 			'tags'       => 'tests',
-			'categories' => 'API'			
+			'categories' => 'API'
 		)
 	),
 
@@ -3060,7 +3060,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"format": "standard",
 	"geo": false,
 	"publicize_URLs": [
-		
+
 	],
 	"tags": {
 		"tests": {
@@ -3151,7 +3151,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			'title'      => 'Hello World (Again)',
 			'content'    => 'Hello. I am an edited post. I was edited by the API',
 			'tags'       => 'tests',
-			'categories' => 'API'			
+			'categories' => 'API'
 		)
 	),
 
@@ -3185,7 +3185,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"format": "standard",
 	"geo": false,
 	"publicize_URLs": [
-		
+
 	],
 	"tags": {
 		"tests": {
@@ -3281,7 +3281,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"format": "standard",
 	"geo": false,
 	"publicize_URLs": [
-		
+
 	],
 	"tags": {
 		"tests": {

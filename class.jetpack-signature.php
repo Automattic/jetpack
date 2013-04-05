@@ -56,7 +56,7 @@ class Jetpack_Signature {
 			}
 		}
 
-		$method = isset( $override['method'] ) ? $override['method'] : $_SERVER['REQUEST_METHOD']; 
+		$method = isset( $override['method'] ) ? $override['method'] : $_SERVER['REQUEST_METHOD'];
 		return $this->sign_request( $a['token'], $a['timestamp'], $a['nonce'], $a['body-hash'], $method, $url, $body, true );
 	}
 

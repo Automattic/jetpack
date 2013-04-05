@@ -1551,7 +1551,7 @@ class GP_Locales {
 		$tg->google_code = 'tg';
 		$tg->nplurals = 2;
 		$tg->plural_expression = 'n != 1;';
-		
+
 		$th = new GP_Locale();
 		$th->english_name = 'Thai';
 		$th->native_name = 'ไทย';
@@ -1701,7 +1701,7 @@ class GP_Locales {
 		$yi->slug = 'yi';
 		$yi->google_code = 'yi';
 		$yi->rtl = true;
-		
+
 		$yo = new GP_Locale();
 		$yo->english_name = 'Yorùbá';
 		$yo->native_name = 'èdè Yorùbá';

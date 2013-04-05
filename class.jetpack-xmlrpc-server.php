@@ -30,7 +30,7 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.featuresEnabled'   => array( $this, 'features_enabled' ),
 				'jetpack.getPost'           => array( $this, 'get_post' ),
 				'jetpack.getPosts'          => array( $this, 'get_posts' ),
-				'jetpack.getComment'        => array( $this, 'get_comment' ), 
+				'jetpack.getComment'        => array( $this, 'get_comment' ),
 				'jetpack.getComments'       => array( $this, 'get_comments' ),
 			) );
 
@@ -158,7 +158,7 @@ class Jetpack_XMLRPC_Server {
 	function test_connection() {
 		return JETPACK__VERSION;
 	}
-	
+
 	function test_api_user_code( $args ) {
 		$client_id = (int) $args[0];
 		$user_id   = (int) $args[1];
@@ -279,7 +279,7 @@ class Jetpack_XMLRPC_Server {
 
 		return $sync_data;
 	}
-	
+
 	function update_attachment_parent( $args ) {
 		$attachment_id = (int) $args[0];
 		$parent_id     = (int) $args[1];

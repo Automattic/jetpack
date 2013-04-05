@@ -387,7 +387,7 @@ class Jetpack_User_Agent_Info {
 				||  self::is_TouchPad()
 		);
 	}
-	
+
 	/*
 	 *  Detects if the current UA is the default iPhone or iPod Touch Browser.
 	 *
@@ -438,7 +438,7 @@ class Jetpack_User_Agent_Info {
 			return $is_iphone;
 	}
 
-	
+
 	/*
 	*  Detects if the current UA is Chrome for iOS
 	*
@@ -448,51 +448,51 @@ class Jetpack_User_Agent_Info {
 	function is_chrome_for_iOS( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		if ( self::is_iphone_or_ipod( 'iphone-safari' ) === false ) return false;
-	
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-	
+
 		if ( strpos( $ua, 'crios/' ) !== false )
 			return true;
 		else
 			return false;
 	}
-	
-	
+
+
 	/*
 	 *  Detects if the current UA is Twitter for iPhone
-	 *  
+	 *
 	 * Mozilla/5.0 (iPhone; U; CPU iPhone OS 4_3_5 like Mac OS X; nb-no) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPhone
 	 * Mozilla/5.0 (iPhone; CPU iPhone OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 Twitter for iPhone
-	 * 
+	 *
 	 */
 	function is_twitter_for_iphone( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		if ( strpos( $ua, 'ipad' ) !== false )
 			return false;
-		
+
 		if ( strpos( $ua, 'twitter for iphone' ) !== false )
 			return true;
 		else
 			return false;
 	}
-	
+
 	/*
 	 * Detects if the current UA is Twitter for iPad
-	 * 
+	 *
 	 * Old version 4.X - Mozilla/5.0 (iPad; U; CPU OS 4_3_5 like Mac OS X; en-us) AppleWebKit/533.17.9 (KHTML, like Gecko) Mobile/8L1 Twitter for iPad
 	 * Ver 5.0 or Higher - Mozilla/5.0 (iPad; CPU OS 5_1_1 like Mac OS X) AppleWebKit/534.46 (KHTML, like Gecko) Mobile/9B206 Twitter for iPhone
-	 *  
+	 *
 	 */
 	function is_twitter_for_ipad( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		if ( strpos( $ua, 'twitter for ipad' ) !== false )
@@ -502,7 +502,7 @@ class Jetpack_User_Agent_Info {
 		else
 			return false;
 	}
-	
+
 
 	/*
 	 * Detects if the current UA is Facebook for iPhone
@@ -735,7 +735,7 @@ class Jetpack_User_Agent_Info {
 	function is_windows_phone_8() {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-			
+
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		if ( strpos( $ua, 'windows phone 8' ) === false ) {
 			return false;
@@ -743,8 +743,8 @@ class Jetpack_User_Agent_Info {
 			return true;
 		}
 	}
-	
-	
+
+
 	/*
 	 * Detects if the current browser is on a Palm device running the new WebOS. This EXCLUDES TouchPad.
 	 *
@@ -1062,7 +1062,7 @@ class Jetpack_User_Agent_Info {
 	function is_wordpress_for_win8( ) {
 		if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
 			return false;
-	
+
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		$pos   = strpos( $agent, 'wp-windows8' );
 		if ( $pos !== false )
@@ -1070,8 +1070,8 @@ class Jetpack_User_Agent_Info {
 		else
 			return false;
 	}
-	
-	
+
+
 	/*
 	 * is_blackberry_tablet() can be used to check the User Agent for a RIM blackberry tablet
 	 * The user agent of the BlackBerry® Tablet OS follows a format similar to the following:
@@ -1105,7 +1105,7 @@ class Jetpack_User_Agent_Info {
 			return false;
 
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
-		
+
 		$pos_blackberry = strpos( $agent, 'blackberry' );
 		if ( $pos_blackberry !== false ) {
 			if ( self::is_opera_mini() || self::is_opera_mobile() || self::is_firefox_mobile() )
@@ -1148,7 +1148,7 @@ class Jetpack_User_Agent_Info {
 
 		if ( self::is_blackberry_10() )
 			return 'blackberry-10';
-		
+
 		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 
 		$pos_blackberry = stripos( $agent, 'blackberry' );
@@ -1232,7 +1232,7 @@ class Jetpack_User_Agent_Info {
 
 		if ( self::is_blackberry_10() )
 			return 'blackberry-10';
-		
+
 		$pos_blackberry = strpos( $agent, 'blackberry' );
 		if ( $pos_blackberry === false ) {
 			//not a blackberry device

@@ -49,7 +49,7 @@ class Jetpack_IXR_Client extends IXR_Client {
 			$this->error = new IXR_Error( -32300, 'transport error - HTTP status code was not 200' );
 			return false;
 		}
-		
+
 		$content = wp_remote_retrieve_body( $response );
 
 		// Now parse what we've got back

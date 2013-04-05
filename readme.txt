@@ -111,11 +111,11 @@ Use [shortcodes](http://support.wordpress.com/shortcodes/) to embed your media. 
 * Enhancement: Widgets - Filter Jetpack's widgets so that a plugin can control which widgets get loaded
 * Bug Fix: Comments - Add in a wrapper div with id='commentform'
 * Bug Fix: Contact Form - Added date field with datepicker
-* Bug Fix: Contact Form - Allowed non-text widgets to use contact forms by running their output through the widget_text filter 
+* Bug Fix: Contact Form - Allowed non-text widgets to use contact forms by running their output through the widget_text filter
 * Bug Fix: Custom CSS - Allowing color values to be defined multiple times
 * Bug Fix: Custom CSS - Dynamically loading the correct CSS/LESS/SCSS mode for the CSS editor if the user changes the preprocessor
 * Bug Fix: Custom CSS - Using the unminified worker CSS
-* Bug Fix: Custom CSS - Added rule: reminder about using .custom-background on body selector 
+* Bug Fix: Custom CSS - Added rule: reminder about using .custom-background on body selector
 * Bug Fix: Custom CSS - Modified rule: Removed portion of overqualification rule that deems 'a.foo' overqualified if there are no other 'a' rules
 * Bug Fix: Custom CSS - Ensuring that the editor and the textarea behind it are using the same font so that the cursor appears in the correct location
 * Bug Fix: Custom CSS - Fix a bug that caused some sites to always ignore the base theme's CSS when in preview mode
