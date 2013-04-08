@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Contact Form
- * Module Description: Easily insert a contact form any where on your site.
+ * Module Description: Easily insert a contact form anywhere on your site.
  * Sort Order: 9
  * First Introduced: 1.3
  * Requires Connection: No
