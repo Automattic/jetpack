@@ -455,7 +455,7 @@ function sharing_process_requests() {
 }
 add_action( 'template_redirect', 'sharing_process_requests', 9 );
 
-function sharing_display( $text = '' ) {
+function sharing_display( $text = '', $echo = false ) {
 	global $post, $wp_current_filter;
 
 	if ( is_preview() ) {
@@ -519,7 +519,7 @@ function sharing_display( $text = '' ) {
 	$sharing_content = '';
 
 	if ( $show ) {
-		$enabled = $sharer->get_blog_services();
+		$enabled = apply_filters( 'sharing_enabled', $sharer->get_blog_services() );
 
 		if ( count( $enabled['all'] ) > 0 ) {
 			global $post;
@@ -585,7 +585,7 @@ function sharing_display( $text = '' ) {
 				$sharing_content .= '<li class="share-end"></li></ul></div></div>';
 			}
 
-			$sharing_content .= '<div class="sharing-clear"></div></div></div></div>';
+			$sharing_content .= '</div></div></div>';
 
 			// Register our JS
 			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), '20121205' );
@@ -593,7 +593,10 @@ function sharing_display( $text = '' ) {
 		}
 	}
 
-	return $text.$sharing_content;
+	if ( $echo )
+		echo $text.$sharing_content;
+	else
+		return $text.$sharing_content;
 }
 
 add_filter( 'the_content', 'sharing_display', 19 );

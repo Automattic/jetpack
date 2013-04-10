@@ -1257,21 +1257,33 @@ class Share_Pocket extends Sharing_Source {
 		return __( 'Pocket', 'jetpack' );
 	}
 
+	public function process_request( $post, array $post_data ) {
+		// Record stats
+		parent::process_request( $post, $post_data );
+
+		$pocket_url = esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $post->post_title ) );
+		wp_redirect( $pocket_url );
+		exit;
+	}
+
 	public function get_display( $post ) {
-		if ( $this->smart )
+		if ( $this->smart ) {
 			$post_count = 'horizontal';
-		else
-			$post_count = 'none';
 
-		$button = '';
-		$button .= '<div class="pocket_button">';
-		$button .= sprintf( '<a href="https://getpocket.com/save" class="pocket-btn" data-lang="%s" data-save-url="%s" data-pocket-count="%s" >%s</a>', 'en', esc_attr( $this->get_share_url( $post->ID ) ), $post_count, esc_attr__( 'Pocket', 'jetpack' ) );
-		$button .= '</div>';
+			$button = '';
+			$button .= '<div class="pocket_button">';
+			$button .= sprintf( '<a href="https://getpocket.com/save" class="pocket-btn" data-lang="%s" data-save-url="%s" data-pocket-count="%s" >%s</a>', 'en', esc_attr( $this->get_share_url( $post->ID ) ), $post_count, esc_attr__( 'Pocket', 'jetpack' ) );
+			$button .= '</div>';
 
-		return $button;
+			return $button;
+		} else {
+			return $this->get_link( get_permalink( $post->ID ), _x( 'Pocket', 'share to', 'jetpack' ), __( 'Click to share on Pocket', 'jetpack' ), 'share=pocket' );
+		}
+
 	}
 
 	function display_footer() {
+		if ( $this->smart ) :
 		?>
 		<script>
 		// Don't use Pocket's default JS as it we need to force init new Pocket share buttons loaded via JS.
@@ -1282,6 +1294,10 @@ class Share_Pocket extends Sharing_Source {
 		jQuery( document.body ).on( 'post-load', jetpack_sharing_pocket_init );
 		</script>
 		<?php
+		else :
+			$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
+		endif;
+
 	}
 
 }

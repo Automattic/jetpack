@@ -281,7 +281,6 @@ class Sharing_Admin {
 									endforeach; ?>
 									<li class="advanced"><a href="#" class="sharing-anchor sd-button share-more"><span><?php _e( 'More', 'jetpack' ); ?></span></a></li>
 								</ul>
-								<div class="sharing-clear"></div>
 							</div>
 						</div>
 						<br class="clearing" />
