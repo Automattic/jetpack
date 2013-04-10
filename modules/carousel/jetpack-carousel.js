@@ -832,11 +832,11 @@ jQuery(document).ready(function($) {
 			if ( 'undefined' == typeof args.medium_file || 'undefined' == typeof args.large_file )
 				return args.orig_file;
 
-			var medium_size       = args.medium_file.replace(/^https?:\/\/.+-([\d]+x[\d]+)\..+$/, '$1'),
+			var medium_size       = args.medium_file.replace(/-([\d]+x[\d]+)\..+$/, '$1'),
 				medium_size_parts = (medium_size != args.medium_file) ? medium_size.split('x') : [args.orig_width, 0],
 				medium_width      = parseInt( medium_size_parts[0], 10 ),
 				medium_height     = parseInt( medium_size_parts[1], 10 ),
-				large_size        = args.large_file.replace(/^https?:\/\/.+-([\d]+x[\d]+)\..+$/, '$1'),
+				large_size        = args.large_file.replace(/-([\d]+x[\d]+)\..+$/, '$1'),
 				large_size_parts  = (large_size != args.large_file) ? large_size.split('x') : [args.orig_width, 0],
 				large_width       = parseInt( large_size_parts[0], 10 ),
 				large_height      = parseInt( large_size_parts[1], 10 );
