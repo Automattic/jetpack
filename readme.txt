@@ -56,16 +56,20 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.2 =
-Lots of bugfixes, garbage collection improved, more details at http://ocaoimh.ie/y/3i
+= 1.3 =
+Fixed mfunc exploit due to user input, add support for LOGGED_IN_COOKIE
 
 == Changelog ==
+
+= 1.3 =
+* mfunc tags could be executed in comments. Fixed.
+* More support for sites that use the LOGGED_IN_COOKIE constant and custom cookies.
 
 = 1.2 =
 * Garbage collection of old cache files is significantly improved. I added a scheduled job that keeps an eye on things and restarts the job if necessary. Also, if you enable caching from the Easy page garbage collection will be enabled too.
 * Editors can delete single cached files from the admin bar now.
 * Fixed the cached page counter on the settings page.
-* Some sites that updated to 1.0 experienced too much garbage collection. There are still stragglers out there who haven.t upgraded but that.s fixed now!
+* Some sites that updated to 1.0 experienced too much garbage collection. There are still stragglers out there who haven't upgraded but that's fixed now!
 * Supercached mobile files are now used as there was a tiny little typo that needed fixing.
 * If your site is in a directory and you saw problems updating a page then that should be fixed now.
 * The deactivate hook has been changed so your configuration isn.t hosed when you upgrade. Unfortunately this will only happen after you do this upgrade.
