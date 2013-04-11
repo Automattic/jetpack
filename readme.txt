@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha, automattic
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 3.5
-Stable tag: 1.2
+Tested up to: 3.5.1
+Stable tag: 1.3
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
