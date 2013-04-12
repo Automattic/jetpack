@@ -58,7 +58,7 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 = 1.3.1 =
 Fixed XSS problem on the settings page. Upgrade recommended.
-Warning: if you use them, you will have to enable mfunc, mclude and dynamic-cached-content on the settings page in the next release.
+Warning: if you use them, you will have to enable mfunc, mclude and dynamic-cached-content on the settings page in the next major release (1.4).
 
 == Changelog ==
 
