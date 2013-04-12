@@ -56,10 +56,15 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.3 =
-Fixed mfunc exploit due to user input, add support for LOGGED_IN_COOKIE
+= 1.3.1 =
+Fixed XSS problem on the settings page. Upgrade recommended.
+Warning: if you use them, you will have to enable mfunc, mclude and dynamic-cached-content on the settings page in the next release.
 
 == Changelog ==
+
+= 1.3.1 =
+* Minor updates to documentation
+* Fixed XSS in settings page.
 
 = 1.3 =
 * mfunc tags could be executed in comments. Fixed.
@@ -365,6 +370,8 @@ Comments will show as soon as they are moderated, depending on the comment polic
 No, it will do the opposite. Super Cache files are compressed and stored that way so the heavy compression is done only once. These files are generally much smaller and are sent to a visitor's browser much more quickly than uncompressed html. As a result, your server spends less time talking over the network which saves CPU time and bandwidth, and can also serve the next request much more quickly.
 
 = How do I make certain parts of the page stay dynamic? =
+
+Note: from version 1.4 this functionality will be disabled by default. You will have to enable it on the settings page.
 
 There are 2 ways of doing this. You can use Javascript to draw the part of the page you want to keep dynamic. That's what Google Adsense and many widgets from external sites do. Or you can use a WP Super Cache tag to do the job but you can't use mod_rewrite mode caching. You have to switch to PHP or legacy caching.
 
