@@ -36,6 +36,8 @@ function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 }
 
 function jetpack_load_shortcodes() {
+	global $wp_version;
+
 	$shortcode_includes = array();
 
 	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/shortcodes' ) as $file ) {
@@ -45,7 +47,23 @@ function jetpack_load_shortcodes() {
 	$shortcode_includes = apply_filters( 'jetpack_shortcodes_to_include', $shortcode_includes );
 
 	foreach ( $shortcode_includes as $include ) {
+                if ( version_compare( $wp_version, '3.6', '>=' ) && stristr( $include, 'audio.php' ) )
+			continue;
+
 		include $include;
+	}
+}
+
+global $wp_version;
+
+if ( version_compare( $wp_version, '3.6', '>=' ) ) {
+	add_filter( 'shortcode_atts_audio', 'jetpack_audio_atts_handler', 10, 3 );
+
+	function jetpack_audio_atts_handler( $out, $pairs, $atts ) {
+		if( isset( $atts[0] ) )
+			$out['src'] = $atts[0];
+
+		return $out;
 	}
 }
 
