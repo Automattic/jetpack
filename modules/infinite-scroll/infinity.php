@@ -730,7 +730,7 @@ class The_Neverending_Home_Page {
 	 *
 	 * @global $wp_query
 	 * @global $wp_the_query
-	 * @uses current_user_can, get_option, self::set_last_post_time, current_user_can, apply_filters, self::get_settings, add_filter, WP_Query, remove_filter, have_posts, wp_head, do_action, add_action, this::render, this::has_wrapper, esc_attr, wp_footer, sharing_register_post_for_share_counts, get_the_id
+	 * @uses current_theme_supports, get_option, self::wp_query, self::set_last_post_time, current_user_can, apply_filters, self::get_settings, add_filter, WP_Query, remove_filter, have_posts, wp_head, do_action, add_action, this::render, this::has_wrapper, esc_attr, wp_footer, sharing_register_post_for_share_counts, get_the_id
 	 * @return string or null
 	 */
 	function query() {
@@ -738,7 +738,11 @@ class The_Neverending_Home_Page {
 			die;
 
 		$page = (int) $_GET['page'];
+
 		$sticky = get_option( 'sticky_posts' );
+		$post__not_in = self::wp_query()->get( 'post__not_in' );
+		if ( ! empty( $post__not_in ) )
+			$sticky = array_unique( array_merge( $sticky, $post__not_in ) );
 
 		if ( ! empty( $_GET['date'] ) )
 			self::set_last_post_time( $_GET['date'] );
