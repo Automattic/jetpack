@@ -154,7 +154,6 @@ class Jetpack_Notifications {
 			wp_enqueue_script( 'backbone', $this->wpcom_static_url( '/wp-content/js/backbone.js' ), array( 'jquery', 'underscore' ), JETPACK_NOTES__CACHE_BUSTER );
 		}
 
-		wp_enqueue_script( 'notes-postmessage', $this->wpcom_static_url( '/wp-content/js/postmessage.js' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 		wp_enqueue_script( 'notes-rest-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-rest-common.js' ), array( 'backbone', 'mustache', 'jquery.spin' ), JETPACK_NOTES__CACHE_BUSTER );
 		wp_enqueue_script( 'notes-admin-bar-rest', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-rest.js' ), array( 'jquery', 'underscore', 'backbone', 'jquery.spin' ), JETPACK_NOTES__CACHE_BUSTER );
 	}
