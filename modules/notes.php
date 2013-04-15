@@ -128,34 +128,18 @@ class Jetpack_Notifications {
 		$this->print_js();
 
 		// attempt to use core or plugin libraries if registered
-		if ( wp_script_is( 'mustache', 'registered' ) ) {
-			if ( !wp_script_is( 'mustache', 'queue' ) ) {
-				wp_enqueue_script( 'mustache' );
-			}
+		if ( !wp_script_is( 'mustache', 'registered' ) ) {
+			wp_register_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
 		}
-		else {
-			wp_enqueue_script( 'mustache', $this->wpcom_static_url( '/wp-content/js/mustache.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
+		if ( !wp_script_is( 'underscore', 'registered' ) ) {
+			wp_register_script( 'underscore', $this->wpcom_static_url( '/wp-includes/js/underscore.min.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
 		}
-
-		if ( wp_script_is( 'underscore', 'registered' ) ) {
-			if ( !wp_script_is( 'underscore', 'queue' ) ) {
-				wp_enqueue_script( 'underscore' );
-			}
-		}
-		else {
-			wp_enqueue_script( 'underscore', $this->wpcom_static_url( '/wp-content/js/underscore.js' ), null, JETPACK_NOTES__CACHE_BUSTER );
-		}
-		if ( wp_script_is( 'backbone', 'registered' ) ) {
-			if ( !wp_script_is( 'backbone', 'queue' ) ) {
-				wp_enqueue_script( 'backbone' );
-			}
-		}
-		else {
-			wp_enqueue_script( 'backbone', $this->wpcom_static_url( '/wp-content/js/backbone.js' ), array( 'jquery', 'underscore' ), JETPACK_NOTES__CACHE_BUSTER );
+		if ( !wp_script_is( 'backbone', 'registered' ) ) {
+			wp_register_script( 'backbone', $this->wpcom_static_url( '/wp-includes/js/backbone.min.js' ), array( 'underscore' ), JETPACK_NOTES__CACHE_BUSTER );
 		}
 
-		wp_enqueue_script( 'notes-rest-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-rest-common.js' ), array( 'backbone', 'mustache', 'jquery.spin' ), JETPACK_NOTES__CACHE_BUSTER );
-		wp_enqueue_script( 'notes-admin-bar-rest', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-rest.js' ), array( 'jquery', 'underscore', 'backbone', 'jquery.spin' ), JETPACK_NOTES__CACHE_BUSTER );
+		wp_register_script( 'notes-rest-common', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/notes-rest-common.js' ), array( 'jquery', 'underscore', 'backbone', 'mustache', 'jquery.spin' ), JETPACK_NOTES__CACHE_BUSTER );
+		wp_enqueue_script( 'notes-admin-bar-rest', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-rest.js' ), array( 'notes-rest-common' ), JETPACK_NOTES__CACHE_BUSTER );
 	}
 
 	function admin_bar_menu() {
