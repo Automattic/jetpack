@@ -20,7 +20,7 @@ class The_Neverending_Home_Page {
 	 *
 	 */
 	function __construct() {
-		add_filter( 'pre_get_posts',                  array( $this, 'posts_per_page_query' ) );
+		add_action( 'pre_get_posts',                  array( $this, 'posts_per_page_query' ) );
 
 		add_action( 'admin_init',                     array( $this, 'settings_api_init' ) );
 		add_action( 'template_redirect',              array( $this, 'action_template_redirect' ) );
@@ -385,11 +385,11 @@ class The_Neverending_Home_Page {
 	 * Let's overwrite the default post_per_page setting to always display a fixed amount.
 	 *
 	 * @param object $query
-	 * @uses self::archive_supports_infinity, self::get_settings
+	 * @uses is_admin, self::archive_supports_infinity, self::get_settings
 	 * @return null
 	 */
 	function posts_per_page_query( $query ) {
-		if ( self::archive_supports_infinity() && $query->is_main_query() )
+		if ( ! is_admin() && self::archive_supports_infinity() && $query->is_main_query() )
 			$query->set( 'posts_per_page', self::get_settings()->posts_per_page );
 	}
 
