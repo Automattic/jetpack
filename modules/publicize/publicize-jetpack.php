@@ -11,13 +11,11 @@ class Publicize extends Publicize_Base {
 		add_action( 'wp_ajax_publicize_facebook_options_page', array( $this, 'options_page_facebook' ) );
 		add_action( 'wp_ajax_publicize_twitter_options_page', array( $this, 'options_page_twitter' ) );
 		add_action( 'wp_ajax_publicize_linkedin_options_page', array( $this, 'options_page_linkedin' ) );
-		add_action( 'wp_ajax_publicize_yahoo_options_page', array( $this, 'options_page_yahoo' ) );
 
 		add_action( 'wp_ajax_publicize_tumblr_options_save', array( $this, 'options_save_tumblr' ) );
 		add_action( 'wp_ajax_publicize_facebook_options_save', array( $this, 'options_save_facebook' ) );
 		add_action( 'wp_ajax_publicize_twitter_options_save', array( $this, 'options_save_twitter' ) );
 		add_action( 'wp_ajax_publicize_linkedin_options_save', array( $this, 'options_save_linkedin' ) );
-		add_action( 'wp_ajax_publicize_yahoo_options_save', array( $this, 'options_save_yahoo' ) );
 
 		add_action( 'load-settings_page_sharing', array( $this, 'force_user_connection' ) );
 
@@ -280,7 +278,6 @@ class Publicize extends Publicize_Base {
 				'twitter'  => array(),
 				'linkedin' => array(),
 				'tumblr'   => array(),
-				'yahoo'    => array(),
 		);
 
 		if ( 'all' == $filter ) {
@@ -559,11 +556,9 @@ class Publicize extends Publicize_Base {
 
 	function options_page_twitter() { Publicize_UI::options_page_other( 'twitter' ); }
 	function options_page_linkedin() { Publicize_UI::options_page_other( 'linkedin' ); }
-	function options_page_yahoo() { Publicize_UI::options_page_other( 'yahoo' ); }
 
 	function options_save_twitter() { $this->options_save_other( 'twitter' ); }
 	function options_save_linkedin() { $this->options_save_other( 'linkedin' ); }
-	function options_save_yahoo() { $this->options_save_other( 'yahoo' ); }
 
 	function options_save_other( $service_name ) {
 		// Nonce check
