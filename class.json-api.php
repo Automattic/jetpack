@@ -156,7 +156,7 @@ class WPCOM_JSON_API {
 				$methods = $allowed_methods;
 				$find_all_matching_endpoints = true;
 				$four_oh_five = true;
-			}
+			} 
 		}
 
 		// Find which endpoint to serve
@@ -354,6 +354,18 @@ class WPCOM_JSON_API {
 
 	function post_like_count( $blog_id, $post_id ) {
 		return 0;
+	}
+
+	function is_liked( $blog_id, $post_id ) {
+		return false;
+	}
+
+	function is_reblogged( $blog_id, $post_id ) {
+		return false;
+	}
+
+	function is_following( $blog_id ) {
+		return false;
 	}
 
 	function get_avatar_url( $email ) {
