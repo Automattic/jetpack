@@ -3157,7 +3157,7 @@ function no_mfunc_in_comments( $comment_data ) {
 		$text = $comment_data;
 
 	if ( preg_match( '/<!--\s*mclude|<!--\s*mfunc|<!--\s*dynamic-cached-content/i', $text )) { 
-		$text = preg_replace( '#(<!--\s*(mclude|mfunc|dynamic-cached-content).*<!-+\s*/\s*(mfunc|mclude|dynamic-cached-content)\s*-+>)#ism','<!-- unsafe comment zapped -->', $text );
+		$text = preg_replace( '#(<!--\s*(mclude|mfunc|dynamic-cached-content)\s*-+>)#ism','<!-- unsafe comment zapped -->', $text );
 		if ( is_array( $comment_data ) )
 			$comment_data[ 'comment_content' ] = $text;
 		else
