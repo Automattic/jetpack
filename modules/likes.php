@@ -6,7 +6,7 @@
  * Sort Order: 4
  */
 class Jetpack_Likes {
-	var $version = '20130403';
+	var $version = '20130404';
 
 	function &init() {
 		static $instance = NULL;
@@ -778,7 +778,7 @@ class Jetpack_Likes {
 						jQuery( '.jetpack-likes-widget-wrapper' ).each( function( i ) {
 							var regex = /like-(post|comment)-wrapper-(\d+)-(\d+)-(\w+)/;
 							var match = regex.exec( this.id );
-							if ( ! match || match.length != 4 )
+							if ( ! match || match.length != 5 )
 								return;
 
 							var info = {
