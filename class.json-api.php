@@ -156,7 +156,7 @@ class WPCOM_JSON_API {
 				$methods = $allowed_methods;
 				$find_all_matching_endpoints = true;
 				$four_oh_five = true;
-			} 
+			}
 		}
 
 		// Find which endpoint to serve
