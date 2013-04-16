@@ -44,7 +44,7 @@ class Jetpack_Readmill_Widget extends WP_Widget {
 		$size      = isset( $instance['size'] )      ? $instance['size']      : $this->default_size;
 		?>
 
-		<p><?php printf( __( "Just enter the URL to your book, make sure it's a PDF or EPUB file, and you are ready to go. For more help, head to <a href='%s'>the Readmill WordPress Widget support page</a>." , 'jetpack'), 'http://en.support.wordpress.com/widgets/readmill/' ); ?></p>
+		<p><?php printf( __( "Just enter the URL to your book, make sure it's a PDF or EPUB file, and you are ready to go. For more help, head to <a href='%s'>the Readmill WordPress Widget support page</a>.", 'jetpack' ), 'http://en.support.wordpress.com/widgets/readmill/' ); ?></p>
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
