@@ -1,5 +1,5 @@
-if (!window.FB) {
-    window.FB = {};
+if ( ! window.FB ) {
+	window.FB = {};
 }
 
 GrunionFB_i18n = jQuery.extend( {
@@ -645,6 +645,8 @@ FB.ContactForm = function() {
 				content: contentSource
 			};
 
+			var $doc = jQuery(document);
+
 			jQuery.post(ajaxurl, data, function(response) {
 				// Setup fbForm
 				parseShortcode(jQuery.parseJSON(response));
@@ -666,7 +668,7 @@ FB.ContactForm = function() {
 			jQuery('#fb-new-required').click(function () {
 				updateRequired();
 			});
-			jQuery('.fb-remove').live('click', function () {
+			$doc.on('click', '.fb-remove', function () {
 				showDesc();
 				deleteField(jQuery(this));
 				grabShortcode();
@@ -680,13 +682,13 @@ FB.ContactForm = function() {
 					hidePopup();
 				}
 			});
-			jQuery('#fb-another-option').live('click', function () {
+			$doc.on('click', '#fb-another-option', function () {
 				addOption();
 			});
-			jQuery('.fb-options').live('keyup', function () {
+			$doc.on('keyup', '.fb-options', function () {
 				updateOption(jQuery(this));
 			});
-			jQuery('.fb-remove-option').live('click', function () {
+			$doc.on('click', function () {
 				removeOption(jQuery(this).attr('optionid'));
 			});
 			jQuery('#tab-preview a').click(function () {
@@ -708,21 +710,21 @@ FB.ContactForm = function() {
 			jQuery('#fb-field-subject').blur(function () {
 				updateSubject();
 			});
-			jQuery('.fb-form-case .fb-new-fields').live('mouseenter', function () {
+			$doc.on('mouseenter', '.fb-form-case .fb-new-fields', function () {
 				hideShowEditLink('show', jQuery(this));
 			});
-			jQuery('.fb-form-case .fb-new-fields').live('mouseleave', function () {
+			$doc.on('mouseleave', '.fb-form-case .fb-new-fields', function () {
 				hideShowEditLink('hide');
 				return false;
 			});
-			jQuery('.fb-edit-field').live('click', function () {
+			$doc.on('click', '.fb-edit-field', function () {
 				editField(jQuery(this));
 				return false;
 			});
-			jQuery('.fb-edit-field .fb-reorder').live('click', function () {
+			$doc.on('click', '.fb-edit-field .fb-reorder', function () {
 				return false;
 			});
-			jQuery('#fb-save-field').live('click', function () {
+			$doc.on('click', '#fb-save-field', function () {
 				showDesc();
 				showAndHideMessage();
 				return false;

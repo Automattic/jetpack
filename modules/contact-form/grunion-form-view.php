@@ -144,10 +144,10 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 		</div>
 		<div id="fb-add-field" style="display: none;">
 			<h3><?php esc_html_e( 'Edit this new field', 'jetpack' ); ?></h3>
-			
+
 			<label for="fb-new-label"><?php esc_html_e( 'Label', 'jetpack' ); ?></label>
 			<input type="text" id="fb-new-label" value="<?php esc_attr_e( 'New field', 'jetpack' ); ?>" />
-			
+
 			<label for="fb-new-label"><?php esc_html_e( 'Field type', 'jetpack' ); ?></label>
 			<select id="fb-new-type">
 				<option value="checkbox"><?php esc_html_e( 'Checkbox', 'jetpack' ); ?></option>
@@ -160,7 +160,7 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 				<option value="url"><?php esc_html_e( 'Website', 'jetpack' ); ?></option>
 			</select>
 			<div class="clear"></div>
-			
+
 			<div id="fb-options" style="display: none;">
 				<div id="fb-new-options">
 					<label for="fb-option0"><?php esc_html_e( 'Options', 'jetpack' ); ?></label>
@@ -170,14 +170,14 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 					<a href="#" id="fb-another-option"><?php esc_html_e( 'Add another option', 'jetpack' ); ?></a>
 				</div>
 			</div>
-			
+
 			<div class="fb-required">
 				<label for="fb-new-label"></label>
 				<input type="checkbox" id="fb-new-required" />
 				<label for="fb-new-label" class="fb-radio-label"><?php esc_html_e( 'Required?', 'jetpack' ); ?></label>
 				<div class="clear"></div>
 			</div>
-			
+
 			<input type="hidden" id="fb-field-id" />
 			<input type="submit" class="button" value="<?php esc_attr_e( 'Save this field', 'jetpack' ); ?>" id="fb-save-field" name="save">
 		</div>
@@ -186,9 +186,9 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 		<div id="fb-preview-form" class="fb-container">
 			<h1><?php esc_html_e( 'Here&#8217;s what your form will look like', 'jetpack' ); ?></h1>
 			<div id="sortable" class="fb-form-case">
-				
+
 				<div id="fb-extra-fields" class="fb-extra-fields"></div>
-				
+
 				<a href="#" id="fb-new-field" class="fb-add-field"><?php esc_html_e( 'Add a new field', 'jetpack' ); ?></a>
 			</div>
 			<input type="submit" class="button-primary" tabindex="4" value="<?php esc_attr_e( 'Add this form to my post', 'jetpack' ); ?>" id="fb-save-form" name="save">
