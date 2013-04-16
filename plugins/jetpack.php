@@ -21,8 +21,12 @@ function wp_super_cache_jetpack_admin() {
 	}
 	$id = 'jetpack-section';
 	?>
-		<fieldset id="<?php echo $id; ?>" class="options"> 
-		<h4><?php _e( 'Jetpack Mobile Theme', 'wp-super-cache' ); ?></h4>
+	<fieldset id="<?php echo $id; ?>" class="options"> 
+	<h4><?php _e( 'Jetpack Mobile Theme', 'wp-super-cache' ); ?></h4>
+	<?php
+	if ( false == file_exists( dirname( WPCACHEHOME ) . '/jetpack/class.jetpack-user-agent.php' ) ) {
+		echo "<strong>" . sprintf( __( "Jetpack not found in %s. Install it and enable the mobile theme and this helper plugin to cache visits by mobile visitors." ), dirname( WPCACHEHOME ) ) . "</strong>>";
+	} else { ?>
 		<form name="wp_manager" action="" method="post">
 		<label><input type="radio" name="cache_jetpack" value="1" <?php if( $cache_jetpack ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
 		<label><input type="radio" name="cache_jetpack" value="0" <?php if( !$cache_jetpack ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
@@ -35,10 +39,11 @@ function wp_super_cache_jetpack_admin() {
 				$status = __( "disabled" );
 			echo "<p><strong>" . sprintf( __( "Jetpack Mobile Theme support is now %s", 'wp-super-cache' ), $status ) . "</strong></p>";
 		}
-	echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
-	wp_nonce_field('wp-cache');
-	?>
-	</form>
+		echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
+		wp_nonce_field('wp-cache');
+		?>
+		</form>
+	<?php } ?>
 	</fieldset>
 	<?php
 }
