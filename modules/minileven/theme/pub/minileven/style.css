@@ -368,6 +368,7 @@ header img {
 		left: 0.5em;
 		top: 3em;
  	width: 100%;
+ 	z-index: 99999;
 }
 .main-small-navigation .menu {
 	background: #f9f9f9;
@@ -644,7 +645,7 @@ dl.gallery-item {
 	display: block;
 	height: auto;
 	margin: 0 auto;
-	max-width: 100%; /* Fluid images for posts, comments, and widgets */
+	max-width: 100% !important; /* Fluid images for posts, comments, and widgets */
 }
 #content .gallery-columns-3 .gallery-item img,
 #content .gallery-columns-4 .gallery-item img,
@@ -946,6 +947,7 @@ and remove the padding rules below.
 	border-bottom: 1px solid #ddd;
 	clear: both;
 	margin: 0;
+	overflow: hidden;
 	padding: 1em 0;
 }
 .widget:last-of-type {
