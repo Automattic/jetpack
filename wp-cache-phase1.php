@@ -337,13 +337,15 @@ function wp_cache_late_loader() {
 
 function wp_cache_get_cookies_values() {
 	$string = '';
+	$regex = "/^wp-postpass|^comment_author_";
 	if ( defined( 'LOGGED_IN_COOKIE' ) )
-		$logged_in_cookie = preg_quote( constant( 'LOGGED_IN_COOKIE' ) );
-	else	
-		$logged_in_cookie = 'wordpress_logged_in';
+		$regex .= "|^" . preg_quote( constant( 'LOGGED_IN_COOKIE' ) );
+	else
+		$regex .= "|^wordpress_logged_in_";
+	$regex .= "/";
 	while ($key = key($_COOKIE)) {
-		if ( preg_match( "/^wp-postpass|^" . $logged_in_cookie . "|^comment_author_/", $key ) ) {
-			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Cookie detected: $key", 5 );
+		if ( preg_match( $regex, $key ) ) {
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_get_cookies_values: $regex Cookie detected: $key", 5 );
 			$string .= $_COOKIE[ $key ] . ",";
 		}
 		next($_COOKIE);
