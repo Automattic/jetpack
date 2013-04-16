@@ -1,4 +1,4 @@
-li.share-print a.sd-button > spandiv.sharedaddy ul, 
+li.share-print a.sd-button > spandiv.sharedaddy ul,
 div.sharedaddy li {
 	margin: 0;
 	padding: 0;
@@ -7,15 +7,15 @@ div.sharedaddy li {
 	background: none;
 }
 
-div.sharedaddy, 
-#content div.sharedaddy, 
+div.sharedaddy,
+#content div.sharedaddy,
 #main div.sharedaddy {
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 	font-size: 12px;
 	clear: both;
 }
 
-div.sharedaddy, 
+div.sharedaddy,
 div.sharedaddy div {
 	-webkit-border-radius: 0 !important;
 	-moz-border-radius: 0 !important;
@@ -41,7 +41,7 @@ div.sharedaddy h3,
 }
 
 /* @noflip */
-.rtl div.sharedaddy h3, 
+.rtl div.sharedaddy h3,
 .rtl #content div.sharedaddy h3,
 .rtl #main div.sharedaddy h3,
 .rtl #primary div.sharedaddy h3 {
@@ -49,7 +49,7 @@ div.sharedaddy h3,
 	text-align: right;
 }
 
-div.sharedaddy ul, 
+div.sharedaddy ul,
 div.sharedaddy li {
 	margin: 0 !important;
 	padding: 0 !important;
@@ -65,19 +65,19 @@ div.sharedaddy div.pd-rating {
 	min-height: 23px;
 }
 
-div.sharedaddy a, 
-div.sharedaddy a:link, 
+div.sharedaddy a,
+div.sharedaddy a:link,
 div.sharedaddy a:visited {
 	font-style: normal;
 }
 
 /* ClearFix trick */
 
-div.sharedaddy:before, 
+div.sharedaddy:before,
 div.sharedaddy:after,
-div.sharedaddy .sd-block:before, 
+div.sharedaddy .sd-block:before,
 div.sharedaddy .sd-block:after,
-div.sharedaddy ul:before, 
+div.sharedaddy ul:before,
 div.sharedaddy ul:after {
 	content: "\0020";
 	display: block;
@@ -115,7 +115,7 @@ div.sharedaddy.sharedaddy-dark .sd-block {
 }
 
 div.sharedaddy .sd-content {
-	width: 82.125%; /* 530px / 640px */ 
+	width: 82.125%; /* 530px / 640px */
 	float: right;
 	margin: -2px 0 0 0;
 }
@@ -332,17 +332,17 @@ a.sd-button.share-more span {
 		background-image: url('images/facebook@2x.png');
 		background-size: 16px 16px;
 	}
-	
+
 	li.share-tumblr a.sd-button > span {
 		background-image: url('images/tumblr@2x.png');
 		background-size: 16px 16px;
 	}
-	
+
 	li.share-twitter a.sd-button > span {
 		background-image: url('images/twitter@2x.png?1');
 		background-size: 16px 16px;
 	}
-	
+
 	li.share-google-plus-1 a.sd-button > span {
 		background-image: url('images/googleplus1@2x.png');
 		background-size: 16px 16px;
@@ -352,47 +352,47 @@ a.sd-button.share-more span {
 		background-image: url('images/linkedin@2x.png');
 		background-size: 16px 16px;
 	}
-	
+
 	li.share-press-this a.sd-button > span {
 		background-image: url('images/wordpress@2x.png');
 		background-size: 16px 16px;
 	}
-	
+
 	li.share-digg a.sd-button > span {
 		background-image: url('images/digg@2x.png?1');
 		background-size: 16px 16px;
 	}
-	
+
 	li.share-stumbleupon a.sd-button > span {
 		background-image: url('images/stumbleupon@2x.png');
 		background-size: 16px 16px;
 	}
-	
+
 	li.share-reddit a.sd-button > span {
 		background-image: url('images/reddit@2x.png');
 		background-size: 16px 16px;
 	}
-	
+
 	li.share-pinterest a.sd-button > span {
 		background-image: url('images/pinterest@2x.png');
 		background-size: 16px 16px;
 	}
-	
+
 	li.share-pocket a.sd-button > span {
 		background-image: url('images/pocket@2x.png');
 		background-size: 16px 16px;
 	}
-	
+
 	li.share-email a.sd-button > span {
 		background-image: url('images/email@2x.png?1');
 		background-size: 16px 16px;
 	}
-	
+
 	li.share-print a.sd-button > span {
 		background-image: url('images/print@2x.png');
 		background-size: 16px 16px;
 	}
-	
+
 	a.sd-button.share-more span {
 		background-image: url('images/more@2x.png?1');
 		background-size: 16px 16px;
