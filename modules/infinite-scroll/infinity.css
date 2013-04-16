@@ -54,6 +54,7 @@
 	border-color: rgba( 0, 0, 0, 0.1 );
 	border-style: solid;
 	border-width: 1px 0 0;
+	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 	margin: 0 auto;
 	overflow: hidden;
