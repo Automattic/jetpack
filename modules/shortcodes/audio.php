@@ -264,7 +264,22 @@ CONTROLS;
 			$html5_audio = $not_supported;
 		}
 
-		$audio_tags = $html5_audio;
+		if ( $all_mp3 ) {
+			// process regular flash player, inserting HTML5 tags into object as fallback
+			$audio_tags = <<<FLASH
+				<object id='wp-as-{$post->ID}_{$ap_playerID}-flash' type='application/x-shockwave-flash' data='$swfurl' width='$width' height='24'>
+					<param name='movie' value='$swfurl' />
+					<param name='FlashVars' value='{$flash_vars}' />
+					<param name='quality' value='high' />
+					<param name='menu' value='false' />
+					<param name='bgcolor' value='$bgcolor' />
+					<param name='wmode' value='opaque' />
+					$html5_audio
+				</object>
+FLASH;
+		} else { // just HTML5 for non-mp3 versions
+			$audio_tags = $html5_audio;
+		}
 
 		// strip out all the bad files before it reaches .js
 		foreach ( $to_remove as $i ) {
