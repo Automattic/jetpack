@@ -401,12 +401,16 @@ function wp_cache_check_mobile( $cache_key ) {
 	if ( !isset( $wp_cache_mobile_enabled ) || false == $wp_cache_mobile_enabled )
 		return $cache_key;
 
+	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_check_mobile: $cache_key" );
+
 	// allow plugins to short circuit mobile check. Cookie, extra UA checks?
 	switch( do_cacheaction( 'wp_cache_check_mobile', $cache_key ) ) {
 	case "normal":
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_check_mobile: desktop user agent detected by wp_cache_check_mobile action" );
 		return $cache_key;
 		break;
 	case "mobile":
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_check_mobile: mobile user agent detected by wp_cache_check_mobile action" );
 		return $cache_key . "-mobile";
 		break;
 	}
@@ -415,8 +419,10 @@ function wp_cache_check_mobile( $cache_key ) {
 		return $cache_key;
 	}
 
-	if ( do_cacheaction( 'disable_mobile_check', false ) )
+	if ( do_cacheaction( 'disable_mobile_check', false ) ) {
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_cache_check_mobile: disable_mobile_check disabled mobile check" );
 		return $cache_key;
+	}
 
 	$browsers = explode( ',', $wp_cache_mobile_browsers );
 	$user_agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
@@ -645,7 +651,7 @@ function wp_supercache_cache_for_admins() {
 		reset( $cookie_keys );
 		foreach( $cookie_keys as $key ) {
 			if ( strpos( $cookie, $key ) !== FALSE ) {
-				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Removing auth from $_COOKIE to allow caching for logged user (' . $cookie . ')', 5 );
+				if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Removing auth from $_COOKIE to allow caching for logged in user (' . $cookie . ')', 5 );
 				unset( $_COOKIE[ $cookie ] );
 			}
 		}
