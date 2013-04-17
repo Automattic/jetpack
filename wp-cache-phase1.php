@@ -129,13 +129,13 @@ function wp_cache_serve_cache_file() {
 	}
 
 	if ( $wp_cache_no_cache_for_get && false == empty( $_GET ) ) {
-		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Non empty GET request. Caching disabled on settings page.", 1 );
+		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Non empty GET request. Caching disabled on settings page. " . print_r( $_GET, 1 ), 1 );
 		return false;
 	}
 
 	if ( $wp_cache_object_cache && wp_cache_get_cookies_values() == '' ) { 
 		if ( !empty( $_GET ) ) {
-			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Non empty GET request. Not serving request from object cache", 1 );
+			if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Non empty GET request. Not serving request from object cache. " . print_r( $_GET, 1 ), 1 );
 			return false;
 		}
 
