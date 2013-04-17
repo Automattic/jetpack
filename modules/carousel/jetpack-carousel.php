@@ -92,9 +92,11 @@ class Jetpack_Carousel {
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
 			$is_logged_in = is_user_logged_in();
 			$current_user = wp_get_current_user();
+			$comment_registration = intval( get_option( 'comment_registration' ) );
 			$localize_strings = array(
 				'widths'               => $this->prebuilt_widths,
 				'is_logged_in'         => $is_logged_in,
+				'lang'                 => strtolower( substr( get_locale(), 0, 2 ) ),
 				'ajaxurl'              => admin_url( 'admin-ajax.php', is_ssl() ? 'https' : 'http' ),
 				'nonce'                => wp_create_nonce( 'carousel_nonce' ),
 				'display_exif'         => $this->test_1or0_option( get_option( 'carousel_display_exif' ), true ),
@@ -114,6 +116,8 @@ class Jetpack_Carousel {
 				'aperture'             => __( 'Aperture', 'jetpack' ),
 				'shutter_speed'        => __( 'Shutter Speed', 'jetpack' ),
 				'focal_length'         => __( 'Focal Length', 'jetpack' ),
+				'comment_registration' => $comment_registration,
+				'login_url'            => wp_login_url( apply_filters( 'the_permalink', get_permalink() ) ),
 			);
 
 			if ( ! isset( $localize_strings['jetpack_comments_iframe_src'] ) || empty( $localize_strings['jetpack_comments_iframe_src'] ) ) {
@@ -122,13 +126,16 @@ class Jetpack_Carousel {
 				if ( $is_logged_in ) {
 					$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . sprintf( __( 'Commenting as %s', 'jetpack' ), $current_user->data->display_name ) . '</p>';
 				} else {
-					$localize_strings['local_comments_commenting_as'] = ''
-						. '<fieldset><label for="email">' . __( 'Email (Required)', 'jetpack' ) . '</label> '
-						. '<input type="text" name="email" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-email-field" /></fieldset>'
-						. '<fieldset><label for="author">' . __( 'Name (Required)', 'jetpack' ) . '</label> '
-						. '<input type="text" name="author" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-author-field" /></fieldset>'
-						. '<fieldset><label for="url">' . __( 'Website', 'jetpack' ) . '</label> '
-						. '<input type="text" name="url" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-url-field" /></fieldset>';
+					if ( $comment_registration )
+						$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . __( 'You must be <a href="#" class="jp-carousel-comment-login">logged in</a> to post a comment.' ) . '</p>';
+					else
+						$localize_strings['local_comments_commenting_as'] = ''
+							. '<fieldset><label for="email">' . __( 'Email (Required)', 'jetpack' ) . '</label> '
+							. '<input type="text" name="email" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-email-field" /></fieldset>'
+							. '<fieldset><label for="author">' . __( 'Name (Required)', 'jetpack' ) . '</label> '
+							. '<input type="text" name="author" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-author-field" /></fieldset>'
+							. '<fieldset><label for="url">' . __( 'Website', 'jetpack' ) . '</label> '
+							. '<input type="text" name="url" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-url-field" /></fieldset>';
 				}
 			}
 
@@ -225,7 +232,21 @@ class Jetpack_Carousel {
 
 		if ( isset( $post ) ) {
 			$blog_id = (int) get_current_blog_id();
-			$extra_data = array( 'data-carousel-extra' => array( 'blog_id' => $blog_id, 'permalink' => get_permalink( $post->ID ) ) );
+
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$likes_blog_id = $blog_id;
+			} else {
+				$jetpack = Jetpack::init();
+				$likes_blog_id = $jetpack->get_option( 'id' );
+			}
+
+			$extra_data = array(
+				'data-carousel-extra' => array(
+					'blog_id' => $blog_id,
+					'permalink' => get_permalink( $post->ID ),
+					'likes_blog_id' => $likes_blog_id
+					)
+				);
 
 			$extra_data = apply_filters( 'jp_carousel_add_data_to_container', $extra_data );
 			foreach ( (array) $extra_data as $data_key => $data_values ) {

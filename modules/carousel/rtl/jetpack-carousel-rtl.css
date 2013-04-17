@@ -1,4 +1,4 @@
-/* This file was automatically generated on Jan 29 2013 22:51:19 */
+/* This file was automatically generated on Apr 17 2013 14:28:54 */
 
 * {
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
@@ -135,7 +135,7 @@ div.jp-carousel-buttons a {
 	padding: 5px 0 5px 2px;
 	text-decoration: none !important;
 	text-shadow: none !important;
-	vertical-align: baseline !important;
+	vertical-align: middle;
 	-webkit-font-smoothing: subpixel-antialiased;
 }
 

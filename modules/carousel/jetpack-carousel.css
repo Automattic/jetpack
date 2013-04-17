@@ -133,7 +133,7 @@ div.jp-carousel-buttons a {
 	padding: 5px 2px 5px 0;
 	text-decoration: none !important;
 	text-shadow: none !important;
-	vertical-align: baseline !important;
+	vertical-align: middle;
 	-webkit-font-smoothing: subpixel-antialiased;
 }
 
