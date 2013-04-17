@@ -1761,7 +1761,15 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 			}
 
+			// default to post
+			if ( empty( $input['type'] ) )
+				$input['type'] = 'post';
+
 			$post_type = get_post_type_object( $input['type'] );
+
+			if ( ! $this->is_post_type_allowed( $input['type'] ) ) {
+				return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
+			}
 
 			if ( 'publish' === $input['status'] ) {
 				if ( !current_user_can( $post_type->cap->publish_posts ) ) {
@@ -1934,6 +1942,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		$post = get_post( $post_id );
 		if ( !$post || is_wp_error( $post ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+		}
+
+		if ( ! $this->is_post_type_allowed( $post->post_type ) ) {
+			return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
 		}
 
 		if ( !current_user_can( 'delete_post', $post->ID ) ) {
@@ -3024,10 +3036,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		),
 		'password'  => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'    => "(int) The post ID of the new post's parent.",
-		'type'      => array(
-			'post' => 'Create a blog post.',
-			'page' => 'Create a page.',
-		),
+		'type'      => "(string) The post type. Defaults to 'post'.",
 		'categories' => "(array|string) Comma separated list or array of categories (name or id)",
 		'tags'       => "(array|string) Comma separated list or array of tags (name or id)",
 		'format'     => get_post_format_strings(),
@@ -3260,7 +3269,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 ) );
 
 new WPCOM_JSON_API_Update_Post_Endpoint( array(
-	'description' => 'Delete a Post',
+	'description' => 'Delete a Post. Note: If the post object is of type post or page and the trash is enabled, this request will send the post to the trash. A second request will permanently delete the post.',
 	'group'       => 'posts',
 	'stat'        => 'posts:1:delete',
 
