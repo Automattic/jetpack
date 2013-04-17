@@ -397,12 +397,14 @@ jQuery(document).ready(function($) {
 								ajaxData['author'] = authorField.val();
 								ajaxData['url']    = urlField.val();
 
-								if ( ! ajaxData['email'].length || ! ajaxData['email'].match('@') ) {
-									gallery.jp_carousel('postCommentError', {'field': 'jp-carousel-comment-form-email-field', 'error': jetpackCarouselStrings.no_comment_email});
-									return;
-								} else if ( ! ajaxData['author'].length ) {
-									gallery.jp_carousel('postCommentError', {'field': 'jp-carousel-comment-form-author-field', 'error': jetpackCarouselStrings.no_comment_author});
-									return;
+								if ( 1 == jetpackCarouselStrings.require_name_email ) {
+									if ( ! ajaxData['email'].length || ! ajaxData['email'].match('@') ) {
+										gallery.jp_carousel('postCommentError', {'field': 'jp-carousel-comment-form-email-field', 'error': jetpackCarouselStrings.no_comment_email});
+										return;
+									} else if ( ! ajaxData['author'].length ) {
+										gallery.jp_carousel('postCommentError', {'field': 'jp-carousel-comment-form-author-field', 'error': jetpackCarouselStrings.no_comment_author});
+										return;
+									}
 								}
 							}
 

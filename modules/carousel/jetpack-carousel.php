@@ -93,6 +93,7 @@ class Jetpack_Carousel {
 			$is_logged_in = is_user_logged_in();
 			$current_user = wp_get_current_user();
 			$comment_registration = intval( get_option( 'comment_registration' ) );
+			$require_name_email   = intval( get_option( 'require_name_email' ) );
 			$localize_strings = array(
 				'widths'               => $this->prebuilt_widths,
 				'is_logged_in'         => $is_logged_in,
@@ -117,6 +118,7 @@ class Jetpack_Carousel {
 				'shutter_speed'        => __( 'Shutter Speed', 'jetpack' ),
 				'focal_length'         => __( 'Focal Length', 'jetpack' ),
 				'comment_registration' => $comment_registration,
+				'require_name_email'   => $require_name_email,
 				'login_url'            => wp_login_url( apply_filters( 'the_permalink', get_permalink() ) ),
 			);
 
@@ -126,16 +128,18 @@ class Jetpack_Carousel {
 				if ( $is_logged_in ) {
 					$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . sprintf( __( 'Commenting as %s', 'jetpack' ), $current_user->data->display_name ) . '</p>';
 				} else {
-					if ( $comment_registration )
+					if ( $comment_registration ) {
 						$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . __( 'You must be <a href="#" class="jp-carousel-comment-login">logged in</a> to post a comment.' ) . '</p>';
-					else
+					} else {
+						$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
 						$localize_strings['local_comments_commenting_as'] = ''
-							. '<fieldset><label for="email">' . __( 'Email (Required)', 'jetpack' ) . '</label> '
+							. '<fieldset><label for="email">' . sprintf( $required, __( 'Email', 'jetpack' ) ) . '</label> '
 							. '<input type="text" name="email" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-email-field" /></fieldset>'
-							. '<fieldset><label for="author">' . __( 'Name (Required)', 'jetpack' ) . '</label> '
+							. '<fieldset><label for="author">' . sprintf( $required, __( 'Name', 'jetpack' ) ) . '</label> '
 							. '<input type="text" name="author" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-author-field" /></fieldset>'
 							. '<fieldset><label for="url">' . __( 'Website', 'jetpack' ) . '</label> '
 							. '<input type="text" name="url" class="jp-carousel-comment-form-field jp-carousel-comment-form-text-field" id="jp-carousel-comment-form-url-field" /></fieldset>';
+						}
 				}
 			}
 
@@ -286,11 +290,10 @@ class Jetpack_Carousel {
 
 		// Can't just send the results, they contain the commenter's email address.
 		foreach ( $comments as $comment ) {
-			$author_markup   = '<a href="' . esc_url( $comment->comment_author_url ) . '">' . esc_html( $comment->comment_author ) . '</a>';
 			$out[] = array(
 				'id'              => $comment->comment_ID,
 				'parent_id'       => $comment->comment_parent,
-				'author_markup'   => $author_markup,
+				'author_markup'   => get_comment_author_link( $comment->comment_ID ),
 				'gravatar_markup' => get_avatar( $comment->comment_author_email, 64 ),
 				'date_gmt'        => $comment->comment_date_gmt,
 				'content'         => wpautop($comment->comment_content),
@@ -347,23 +350,26 @@ class Jetpack_Carousel {
 			$email        = $_POST['email'];
 			$url          = $_POST['url'];
 
-			if ( empty( $display_name ) )
-				die( json_encode( array( 'error' => __( 'Please provide your name.', 'jetpack' ) ) ) );
+			if ( get_option( 'require_name_email' ) ) {
+				if ( empty( $display_name ) )
+					die( json_encode( array( 'error' => __( 'Please provide your name.', 'jetpack' ) ) ) );
 
-			if ( empty( $email ) )
-				die( json_encode( array( 'error' => __( 'Please provide an email address.', 'jetpack' ) ) ) );
+				if ( empty( $email ) )
+					die( json_encode( array( 'error' => __( 'Please provide an email address.', 'jetpack' ) ) ) );
 
-			if ( ! is_email( $email ) )
-				die( json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
+				if ( ! is_email( $email ) )
+					die( json_encode( array( 'error' => __( 'Please provide a valid email address.', 'jetpack' ) ) ) );
+			}
 		}
 
 		$comment_data =  array(
-			'comment_content' => $comment,
-			'comment_post_ID' => $_post_id,
-			'comment_author' => $display_name,
+			'comment_content'      => $comment,
+			'comment_post_ID'      => $_post_id,
+			'comment_author'       => $display_name,
 			'comment_author_email' => $email,
-			'comment_author_url' => $url,
-			'comment_approved' => 0,
+			'comment_author_url'   => $url,
+			'comment_approved'     => 0,
+			'comment_type'         => '',
 		);
 
 		if ( ! empty( $user_id ) )
