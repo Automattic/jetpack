@@ -252,7 +252,7 @@ function wp_cache_manager_error_checks() {
 
 	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
 	// Check that garbage collection is running
-	if ( $valid_nonce && $_POST[ 'action' ] == 'dismiss_gc_warning' ) {
+	if ( $valid_nonce && isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'dismiss_gc_warning' ) {
 		wp_cache_replace_line('^ *\$dismiss_gc_warning', "\$dismiss_gc_warning = 1;", $wp_cache_config_file);
 		$dismiss_gc_warning = 1;
 	} elseif ( !isset( $dismiss_gc_warning ) ) {
@@ -279,7 +279,7 @@ function wp_cache_manager_error_checks() {
 
 	// Server could be running as the owner of the wp-content directory.  Therefore, if it's
 	// writable, issue a warning only if the permissions aren't 755.
-	if ( $valid_nonce && $_POST[ 'action' ] == 'dismiss_readable_warning' ) {
+	if ( $valid_nonce && isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'dismiss_readable_warning' ) {
 		wp_cache_replace_line('^ *\$dismiss_readable_warning', "\$dismiss_readable_warning = 1;", $wp_cache_config_file);
 		$dismiss_readable_warning = 1;
 	} elseif ( !isset( $dismiss_readable_warning ) ) {
@@ -352,7 +352,7 @@ function wp_cache_manager_error_checks() {
 		}
 	}
 
-	if ( $valid_nonce && $_POST[ 'action' ] == 'dismiss_htaccess_warning' ) {
+	if ( $valid_nonce && isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'dismiss_htaccess_warning' ) {
 		wp_cache_replace_line('^ *\$dismiss_htaccess_warning', "\$dismiss_htaccess_warning = 1;", $wp_cache_config_file);
 		$dismiss_htaccess_warning = 1;
 	} elseif ( !isset( $dismiss_htaccess_warning ) ) {
