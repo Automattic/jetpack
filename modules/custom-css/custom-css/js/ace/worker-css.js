@@ -7198,7 +7198,7 @@ CSSLint.addRule({
         parser.addListener("property", function(event){
             if (event.important === true){
                 count++;
-                reporter.report("Use of !important", event.line, event.col, rule);
+                reporter.report("Be careful when using !important declaration", event.line, event.col, rule);
             }
         });
         parser.addListener("endstylesheet", function(){
