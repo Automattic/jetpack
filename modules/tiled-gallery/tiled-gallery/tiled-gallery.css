@@ -17,6 +17,7 @@
 	float: left;
 	margin: 0;
 	position: relative;
+	width: inherit; /* prevents ie8 bug with inline width styles */
 }
 .tiled-gallery .gallery-row {
 	 overflow: hidden;

@@ -1,4 +1,4 @@
-/* This file was automatically generated on Jan 05 2013 15:45:53 */
+/* This file was automatically generated on Apr 04 2013 13:33:55 */
 
 /* =Tiled Gallery Default Styles
 -------------------------------------------------------------- */
@@ -13,13 +13,13 @@
 }
 .tiled-gallery .gallery-group {
 	float: right;
-	overflow-y: hidden;
 	position: relative;
 }
 .tiled-gallery .tiled-gallery-item {
 	float: right;
 	margin: 0;
 	position: relative;
+	width: inherit; /* prevents ie8 bug with inline width styles */
 }
 .tiled-gallery .gallery-row {
 	 overflow: hidden;
