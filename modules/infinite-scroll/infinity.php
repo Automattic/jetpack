@@ -374,7 +374,7 @@ class The_Neverending_Home_Page {
 		$operator = 'ASC' == $query->get( 'order' ) ? '>' : '<';
 
 		// Construct the date query using our timestamp
-		$clause = $wpdb->prepare( " AND post_date_gmt {$operator} %s", self::set_last_post_time() );
+		$clause = $wpdb->prepare( " AND {$wpdb->posts}.post_date_gmt {$operator} %s", self::set_last_post_time() );
 
 		$where .= apply_filters( 'infinite_scroll_posts_where', $clause, $query, $operator, self::set_last_post_time() );
 
