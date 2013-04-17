@@ -51,7 +51,7 @@ TiledGallery.prototype.Captions = function() {
 	/* Hide captions */
 	this.caption.hide();
 
-	this.item.on( 'hover', function() {
+	this.item.on( 'mouseenter mouseleave', function() {
 		$( this ).find( '.tiled-gallery-caption' ).slideToggle( 'fast' );
 	});
 };
