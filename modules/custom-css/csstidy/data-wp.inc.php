@@ -51,6 +51,14 @@ $GLOBALS['csstidy']['at_rules']['-moz-keyframes'] = 'at';
 $GLOBALS['csstidy']['at_rules']['-ms-keyframes'] = 'at';
 
 /**
+ * Non-standard viewport rule.
+ */
+$GLOBALS['csstidy']['at_rules']['viewport'] = 'is';
+$GLOBALS['csstidy']['at_rules']['-webkit-viewport'] = 'is';
+$GLOBALS['csstidy']['at_rules']['-moz-viewport'] = 'is';
+$GLOBALS['csstidy']['at_rules']['-ms-viewport'] = 'is';
+
+/**
  * Non-standard CSS properties.  They're not part of any spec, but we say
  * they're in all of them so that we can support them.
  */
