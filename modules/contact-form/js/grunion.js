@@ -688,7 +688,7 @@ FB.ContactForm = function() {
 			$doc.on('keyup', '.fb-options', function () {
 				updateOption(jQuery(this));
 			});
-			$doc.on('click', function () {
+			$doc.on('click', '.fb-remove-option', function () {
 				removeOption(jQuery(this).attr('optionid'));
 			});
 			jQuery('#tab-preview a').click(function () {
