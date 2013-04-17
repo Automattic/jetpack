@@ -214,7 +214,15 @@ class Jetpack_Tiled_Gallery {
 
 		$html = '<div '. $this->gallery_classes() . ' data-original-width="' . esc_attr( self::get_content_width() ) . '">';
 		$blog_id = (int) get_current_blog_id();
-		$extra_data = array( 'data-carousel-extra' => array( 'blog_id' => $blog_id, 'permalink' => get_permalink( $post->ID ) ) );
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$likes_blog_id = $blog_id;
+		} else {
+			$jetpack = Jetpack::init();
+			$likes_blog_id = $jetpack->get_option( 'id' );
+		}
+
+		$extra_data = array( 'data-carousel-extra' => array( 'blog_id' => $blog_id, 'permalink' => get_permalink( $post->ID ), 'likes_blog_id' => $likes_blog_id ) );
 
 		foreach ( (array) $extra_data as $data_key => $data_values ) {
 			$html = str_replace( '<div ', '<div ' . esc_attr( $data_key ) . "='" . json_encode( $data_values ) . "' ", $html );
