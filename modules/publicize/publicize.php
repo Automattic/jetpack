@@ -281,7 +281,9 @@ abstract class Publicize_Base {
 		 */
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
 			foreach ( $connections as $connection ) {
-				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $connection->get_meta( 'connection_data' ) ) ) {
+				$cmeta = $this->get_connection_meta( $connection );
+
+				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $cmeta['connection_data'] ) ) {
 					delete_post_meta( $post_id, $this->PENDING );
 					continue;
 				}
