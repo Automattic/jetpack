@@ -281,9 +281,13 @@ abstract class Publicize_Base {
 		 */
 		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
 			foreach ( $connections as $connection ) {
-				$cmeta = $this->get_connection_meta( $connection );
+				$connection_data = '';
+				if ( method_exists( $connection, 'get_meta' ) )
+					$connection_data = $connection->get_meta( 'connection_data' );
+				elseif ( ! empty( $connection['connection_data'] ) )
+					$connection_data = $connection['connection_data'];
 
-				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $cmeta['connection_data'] ) ) {
+				if ( false == apply_filters( 'wpas_submit_post?', $submit_post, $post_id, $service_name, $connection_data ) ) {
 					delete_post_meta( $post_id, $this->PENDING );
 					continue;
 				}

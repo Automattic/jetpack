@@ -413,9 +413,13 @@ jQuery( function($) {
 
 					foreach ( $services as $name => $connections ) {
 						foreach ( $connections as $connection ) {
-							$cmeta = $this->publicize->get_connection_meta( $connection );
+							$connection_data = '';
+							if ( method_exists( $connection, 'get_meta' ) )
+								$connection_data = $connection->get_meta( 'connection_data' );
+							elseif ( ! empty( $connection['connection_data'] ) )
+								$connection_data = $connection['connection_data'];
 							
-							if ( !$continue = apply_filters( 'wpas_submit_post?', true, $post->ID, $name, $cmeta['connection_data'] ) )
+							if ( !$continue = apply_filters( 'wpas_submit_post?', true, $post->ID, $name, $connection_data ) )
 								continue;
 
 							if ( !empty( $connection->unique_id ) )
