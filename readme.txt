@@ -36,6 +36,7 @@ Features include:
 * Mobile push notifications for new comments via WordPress mobile apps.
 * The ability to allow applications to securely authenticate and access your site with your permission.
 * Creative formats for your image galleries: mosaic, circles, squares, and a slideshow view.
+* Add post sliders and other highlights to your theme with Featured Content.
 * and *many* more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.
