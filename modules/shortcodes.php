@@ -47,7 +47,7 @@ function jetpack_load_shortcodes() {
 	$shortcode_includes = apply_filters( 'jetpack_shortcodes_to_include', $shortcode_includes );
 
 	foreach ( $shortcode_includes as $include ) {
-                if ( version_compare( $wp_version, '3.6', '>=' ) && stristr( $include, 'audio.php' ) )
+                if ( version_compare( $wp_version, '3.6-z', '>=' ) && stristr( $include, 'audio.php' ) )
 			continue;
 
 		include $include;
@@ -56,7 +56,7 @@ function jetpack_load_shortcodes() {
 
 global $wp_version;
 
-if ( version_compare( $wp_version, '3.6', '>=' ) ) {
+if ( version_compare( $wp_version, '3.6-z', '>=' ) ) {
 	add_filter( 'shortcode_atts_audio', 'jetpack_audio_atts_handler', 10, 3 );
 
 	function jetpack_audio_atts_handler( $out, $pairs, $atts ) {
