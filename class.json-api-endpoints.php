@@ -2733,8 +2733,15 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 
 		if ( isset( $update['comment_status'] ) ) {
 			switch ( $update['comment_status'] ) {
+				case 'approved' :
+					if ( 'approve' !== $comment_status ) {
+						wp_set_comment_status( $comment->comment_ID, 'approve' );
+					}
+					break;
 				case 'unapproved' :
-					$update['comment_approved'] = 0;
+					if ( 'hold' !== $comment_status ) {
+						wp_set_comment_status( $comment->comment_ID, 'hold' );
+					}
 					break;
 				case 'spam' :
 					if ( 'spam' !== $comment_status ) {
@@ -2767,9 +2774,10 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			unset( $update['comment_status'] );
 		}
 
-		$update['comment_ID'] = $comment->comment_ID;
-
-		wp_update_comment( add_magic_quotes( $update ) );
+		if ( ! empty( $update ) ) {
+			$update['comment_ID'] = $comment->comment_ID;
+			wp_update_comment( add_magic_quotes( $update ) );
+		}
 
 		$return = $this->get_comment( $comment->comment_ID, $args['context'] );
 		if ( !$return || is_wp_error( $return ) ) {
