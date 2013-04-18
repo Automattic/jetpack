@@ -135,17 +135,16 @@ function minileven_posts_per_page() {
 }
 add_filter('pre_option_posts_per_page', 'minileven_posts_per_page');
 
-/* This function determines the actual theme the user is using. */
+/**
+ * Determine the currently active theme.
+ */
 function minileven_actual_current_theme() {
-	if ( function_exists( 'jetpack_mobile_template' ) )
-		remove_action( 'option_template', 'jetpack_mobile_template' );
+	$removed = remove_action( 'option_stylesheet', 'jetpack_mobile_stylesheet' );
+	$stylesheet = get_option( 'stylesheet' );
+	if ( $removed )
+		add_action( 'option_stylesheet', 'jetpack_mobile_stylesheet' );
 
-	$template = get_option( 'template' );
-
-	if ( function_exists( 'jetpack_mobile_template' ) )
-		add_action( 'option_template', 'jetpack_mobile_template' );
-
-	return $template;
+	return $stylesheet;
 }
 
 /* This function grabs the location of the custom menus from the current theme. If no menu is set in a location
