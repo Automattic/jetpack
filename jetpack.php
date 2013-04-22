@@ -4519,6 +4519,9 @@ require dirname( __FILE__ ) . '/functions.photon.php';
 require dirname( __FILE__ ) . '/functions.compat.php';
 require dirname( __FILE__ ) . '/functions.gallery.php';
 
+if ( function_exists( 'bbpress' ) )
+	require_once dirname( __FILE__ ) . '/class.jetpack-bbpress-json-api-compat.php';
+
 class Jetpack_Error extends WP_Error {}
 
 register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
