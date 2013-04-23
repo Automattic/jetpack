@@ -15,6 +15,10 @@ div.jetpack-likes-widget-wrapper {
 	width: 100%;
 }
 
+div.jetpack-likes-widget-wrapper .sd-link-color {
+	font-size: 12px;
+}
+
 div.jetpack-likes-widget-wrapper.slim-likes-widget {
 	width: 1px; /* initial default */
 }
