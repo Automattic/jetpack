@@ -23,8 +23,8 @@ class bbPress_Jetpack_REST_API {
 	function allow_bbpress_post_types( $allowed_post_types ) {
 
 		// only run for REST API requests
-		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST || ! function_exists( 'bbpress' ) )
-			return;
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
+			return $allowed_post_types;
 
 		$allowed_post_types[] = 'forum';
 		$allowed_post_types[] = 'topic';
@@ -35,8 +35,8 @@ class bbPress_Jetpack_REST_API {
 	function allow_bbpress_public_metadata( $allowed_meta_keys ) {
 
 		// only run for REST API requests
-		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST || ! function_exists( 'bbpress' ) )
-			return;
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
+			return $allowed_meta_keys;
 
 		$allowed_meta_keys[] = '_bbp_forum_id';
 		$allowed_meta_keys[] = '_bbp_topic_id';
@@ -63,8 +63,8 @@ class bbPress_Jetpack_REST_API {
 	function adjust_meta_caps( $caps, $cap, $user_id, $args ) {
 
 		// only run for REST API requests
-		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST || ! function_exists( 'bbpress' ) )
-			return;
+		if ( ! defined( 'REST_API_REQUEST' ) || ! REST_API_REQUEST )
+			return $caps;
 
 		// only modify caps for meta caps and for bbPress meta keys
 		if ( ! in_array( $cap, array( 'edit_post_meta', 'delete_post_meta', 'add_post_meta' ) ) || empty( $args[1] ) || false === strpos( $args[1], '_bbp_' ) )
