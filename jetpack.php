@@ -4519,12 +4519,10 @@ require dirname( __FILE__ ) . '/functions.photon.php';
 require dirname( __FILE__ ) . '/functions.compat.php';
 require dirname( __FILE__ ) . '/functions.gallery.php';
 
-$_jetpack_rest_api_compat_includes = array();
+$_jetpack_rest_api_compat_includes = apply_filters( 'jetpack_rest_api_compat', array() );
 
 if ( function_exists( 'bbpress' ) )
 	$_jetpack_rest_api_compat_includes = dirname( __FILE__ ) . '/class.jetpack-bbpress-json-api-compat.php';
-
-$_jetpack_rest_api_compat_includes = apply_filters( 'jetpack_rest_api_compat', $_jetpack_rest_api_compat_includes );
 
 foreach ( $_jetpack_rest_api_compat_includes as $_jetpack_rest_api_compat_include )
 	require_once $_jetpack_rest_api_compat_include;
