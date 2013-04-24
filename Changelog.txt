@@ -1,3 +1,79 @@
+2013-04-24 19:53  donncha
+
+	* readme.txt, wp-cache.php: Bump version to 1.3.2
+
+2013-04-24 19:52  donncha
+
+	* readme.txt: Added upgrade notice and changelog for 1.3.2
+
+2013-04-17 13:06  donncha
+
+	* wp-cache.php: Fixed warnings on the action POST parameter, props
+	  @michiecat
+
+2013-04-17 10:31  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php: Dump the GET array if
+	  required.
+
+2013-04-16 12:17  donncha
+
+	* plugins/jetpack.php: Check if Jetpack is installed before showing
+	  helper form
+
+2013-04-16 12:05  donncha
+
+	* wp-cache-phase2.php: Need to pass this as a global variable so
+	  mfunc can be disabled!
+
+2013-04-16 12:03  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2013-04-16 11:59  donncha
+
+	* plugins/jetpack.php: Added plugin to provide support for the
+	  Jetpack Mobile Theme.
+
+2013-04-16 11:48  donncha
+
+	* plugins/wptouch.php: Minor change to text output
+
+2013-04-16 11:37  donncha
+
+	* wp-cache-phase1.php: Added debug logs to mobile detection code
+
+2013-04-16 11:31  donncha
+
+	* wp-cache-phase1.php: Re-org the comment check regex
+
+2013-04-16 08:27  donncha
+
+	* wp-cache.php: Remove just the leading mfunc tag to mangle dynamic
+	  code inserted into comments
+
+2013-04-15 10:18  donncha
+
+	* wp-cache.php: Remove ending mfunc etc tags to mangle
+	  multi-comment tags
+
+2013-04-12 14:00  donncha
+
+	* wp-cache-phase2.php: Escape urls in "last cached" list
+
+2013-04-12 13:59  donncha
+
+	* wp-cache-phase2.php, wp-cache.php: Disable mfunc and related
+	  tags. Add an option on the settings page.
+
+2013-04-12 11:39  donncha
+
+	* readme.txt: Slightly modified the warning in the upgrade notice
+
+2013-04-12 11:29  donncha
+
+	* Changelog.txt: Updated changelog
+
 2013-04-12 11:25  donncha
 
 	* readme.txt, wp-cache.php: Bump version to 1.3.1
