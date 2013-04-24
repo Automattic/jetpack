@@ -79,6 +79,13 @@ Easy! There are a couple of ways (more coming soon):
 
 == Changelog ==
 
+= 2.2.3 =
+* Enhancement: JSON API: Custom Post Type Support
+* Enhancement: JSON API: Meta Data Support
+* Enhancement: JSON API: Bundled Support for bbPress
+* Enhancement: JSON API: Additions of following, reblog, and like status for post endpoints.
+* Enhancement: Twitter Timeline Widget: New JavaScript based widget. Old one will discontinue May 7th. 
+
 = 2.2.2 =
 * Enhancement: Mobile Theme: Add controls for custom CSS.
 * Enhancement: Sharing: Add Pocket to the available services.
