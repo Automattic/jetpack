@@ -18,6 +18,8 @@ function jetpack_twitter_widget_init() {
 
 class Jetpack_Widget_Twitter extends WP_Widget {
 
+	var $twitter_v1_shutdown = 1367884800; //1367884800 = Tue, 07 May 2013 00:00:00 +0000
+
 	function __construct() {
 		parent::__construct(
 			'twitter',
@@ -45,6 +47,25 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 
 	function widget( $args, $instance ) {
 		$account = trim( urlencode( $instance['account'] ) );
+
+		/**
+		* After Twitter disables v1 API calls, show a message to admins/theme managers only that they can show Tweets using a different widget.
+		*/
+		if ( time() >= $this->twitter_v1_shutdown ) {
+			
+			if ( current_user_can('edit_theme_options') ) {
+				$title = apply_filters( 'widget_title', $instance['title'] );
+				if ( empty( $title ) )
+					$title = __( 'Twitter Updates', 'jetpack' );
+
+				echo $args['before_widget'];
+				echo "{$args['before_title']}<a href='" . esc_url( "http://twitter.com/{$account}" ) . "'>" . esc_html( $title ) . "</a>{$args['after_title']}";
+				echo '<p>' . sprintf( __( 'Due to changes with how we interact with Twitter, this widget can no longer display Tweets. Please switch to the <a href="%s">Twitter Timeline</a> widget instead.', 'jetpack' ), admin_url( 'widgets.php' ) ) . '</p>';
+				echo $args['after_widget'];
+			}
+
+			return;
+		}
 
 		if ( empty( $account ) ) {
 			if ( current_user_can('edit_theme_options') ) {
@@ -272,7 +293,13 @@ class Jetpack_Widget_Twitter extends WP_Widget {
 		$include_retweets = isset( $instance['includeretweets'] ) && ! empty( $instance['includeretweets'] ) ? (bool) $instance['includeretweets']      : false;
 		$follow_button    = isset( $instance['followbutton'] ) && ! empty( $instance['followbutton'] )       ? 1                                        : 0;
 		$before_timesince = isset( $instance['beforetimesince'] ) && ! empty( $instance['beforetimesince'] ) ? esc_attr( $instance['beforetimesince'] ) : '';
+
+		/**
+		* Show a notice at the top of the widget configuation that they need to switch widgets.
+		*/
 		?>
+		<p><em><?php printf( __( "On May 7th the twitter widget will stop operating due to <a href='%s'>API changes</a> that Twitter is making. To continue displaying your Tweets you should switch to the 'Twitter Timeline' widget.", 'jetpack' ), 'https://dev.twitter.com/blog/api-v1-retirement-final-dates' ); ?></em></p>
+		
 
 		<p>
 			<label for="<?php echo $this->get_field_id( 'title' ); ?>">
