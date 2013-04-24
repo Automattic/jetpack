@@ -1206,12 +1206,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$unescaped_label = preg_replace( '/[^a-zA-Z0-9.-_:]/', '', $unescaped_label );
 
 			if ( empty( $id ) ) {
-				$id = sanitize_title_with_dashes( 'g' + $form_id . '-' . $unescaped_label );
+				$id = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label );
 				$i = 0;
 				$max_tries = 24;
 				while ( isset( $form->fields[$id] ) ) {
 					$i++;
-					$id = sanitize_title_with_dashes( 'g' + $form_id . '-' . $unescaped_label . '-' . $i );
+					$id = sanitize_title_with_dashes( 'g' . $form_id . '-' . $unescaped_label . '-' . $i );
 
 					if ( $i > $max_tries ) {
 						break;
