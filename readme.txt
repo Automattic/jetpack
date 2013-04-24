@@ -56,11 +56,15 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.3.1 =
-Fixed XSS problem on the settings page. Upgrade recommended.
-Warning: if you use them, you will have to enable mfunc, mclude and dynamic-cached-content on the settings page in the next major release (1.4).
+= 1.3.2 =
+IMPORTANT - Dynamic cached content now disabled by default. See advanced settings page. Better mangling of the mfunc tag in comments. Jetpack Mobile Theme support.
 
 == Changelog ==
+
+= 1.3.2 =
+* Any mfunc/mclude/dynamic-cached-content tags in comments are now removed.
+* Dynamic cached content feature disabled by default and must be enabled on the Advanced Settings page.
+* Support for the mobile theme in Jetpack via helper plugin on script's Plugins tab.
 
 = 1.3.1 =
 * Minor updates to documentation
