@@ -198,7 +198,7 @@ function wp_cache_serve_cache_file() {
 						if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Fetched static page data from supercache file using PHP and gzipped it. File: $file" ); 
 					}
 				} else {
-					$cachefiledata = gzencode( file_get_contents( $file ), 6, FORCE_GZIP );
+					$cachefiledata = file_get_contents( $file );
 					if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Fetched static page data from supercache file using PHP. File: $file" ); 
 				}
 			} else {
