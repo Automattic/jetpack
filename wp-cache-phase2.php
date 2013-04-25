@@ -1026,6 +1026,9 @@ function wp_cache_post_edit($post_id) {
 	}
 
 	$post = get_post( $post_id );
+	if ( is_object( $post ) == false )
+		return $post_id;
+
 	// Some users are inexplicibly seeing this error on scheduled posts. 
 	// define this constant to disable the post status check.
 	if ( false == defined( 'WPSCFORCEUPDATE' ) && $post->post_status != 'publish' ) {
@@ -1080,7 +1083,7 @@ function wp_cache_post_id_gc( $siteurl, $post_id, $all = 'all' ) {
 }
 
 function wp_cache_post_change( $post_id ) {
-	global $file_prefix, $cache_path, $blog_id, $super_cache_enabled, $blog_cache_dir, $blogcacheid, $wp_cache_refresh_single_only;
+	global $file_prefix, $cache_path, $blog_id, $super_cache_enabled, $blog_cache_dir, $blogcacheid, $wp_cache_refresh_single_only, $wp_cache_object_cache;
 	static $last_processed = -1;
 
 	if ( $post_id == $last_processed ) {
