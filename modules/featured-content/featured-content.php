@@ -413,12 +413,14 @@ class Featured_Content {
 		if ( isset( $input['tag-id'] ) )
 			$output['tag-id'] = absint( $input['tag-id'] );
 
-		if ( isset( $input['tag-name'] ) ) {
+		if ( isset( $input['tag-name'] ) && ! empty( $input['tag-name'] ) ) {
 			$new_tag = wp_create_tag( $input['tag-name'] );
 			if ( ! is_wp_error( $new_tag ) && isset( $new_tag['term_id'] ) )
 				$tag = get_term( $new_tag['term_id'], 'post_tag' );
 			if ( isset( $tag->term_id ) )
 				$output['tag-id'] = $tag->term_id;
+		} else {
+			unset( $output['tag-id'] );
 		}
 
 		if ( isset( $input['quantity'] ) )
