@@ -5,7 +5,7 @@
  * Plugin URI: http://wordpress.org/extend/plugins/jetpack/
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 2.2.3
+ * Version: 2.2.4
  * Author URI: http://jetpack.me
  * License: GPL2+
  * Text Domain: jetpack
@@ -17,7 +17,7 @@ define( 'JETPACK__API_VERSION', 1 );
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.3' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
-define( 'JETPACK__VERSION', '2.2.3' );
+define( 'JETPACK__VERSION', '2.2.4' );
 define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) or define( 'JETPACK__GLOTPRESS_LOCALES_PATH', JETPACK__PLUGIN_DIR . 'locales.php' );
 
@@ -233,7 +233,12 @@ class Jetpack {
 
 		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
 
-		add_action( 'plugins_loaded', array( $this, 'check_open_graph' ), 999 );
+		/**
+		 * These actions run checks to load additional files.
+		 * They check for external files or plugins, so thef need to run as late as possible.
+		 */
+		add_action( 'plugins_loaded', array( $this, 'check_open_graph' ),       999 );
+		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 	}
 
 	function require_jetpack_authentication() {
@@ -423,6 +428,21 @@ class Jetpack {
 		// Load module-specific code that is needed even when a module isn't active. Loaded here because code contained therein may need actions such as setup_theme.
 		require_once( dirname( __FILE__ ) . '/modules/module-extras.php' );
 	}
+	
+	/**
+	 * Check if Jetpack's REST API compat file should be included
+	 * @action plugins_loaded
+	 * @return null
+	 */
+	 public function check_rest_api_compat() {
+		$_jetpack_rest_api_compat_includes = apply_filters( 'jetpack_rest_api_compat', array() );
+
+		if ( function_exists( 'bbpress' ) )
+			$_jetpack_rest_api_compat_includes[] = dirname( __FILE__ ) . '/class.jetpack-bbpress-json-api-compat.php';
+
+		foreach ( $_jetpack_rest_api_compat_includes as $_jetpack_rest_api_compat_include )
+			require_once $_jetpack_rest_api_compat_include;
+	 }
 
 	/**
 	 * Check if Jetpack's Open Graph tags should be used.
@@ -4525,14 +4545,6 @@ require_once dirname( __FILE__ ) . '/class.photon.php';
 require dirname( __FILE__ ) . '/functions.photon.php';
 require dirname( __FILE__ ) . '/functions.compat.php';
 require dirname( __FILE__ ) . '/functions.gallery.php';
-
-$_jetpack_rest_api_compat_includes = apply_filters( 'jetpack_rest_api_compat', array() );
-
-if ( function_exists( 'bbpress' ) )
-	$_jetpack_rest_api_compat_includes[] = dirname( __FILE__ ) . '/class.jetpack-bbpress-json-api-compat.php';
-
-foreach ( $_jetpack_rest_api_compat_includes as $_jetpack_rest_api_compat_include )
-	require_once $_jetpack_rest_api_compat_include;
 
 class Jetpack_Error extends WP_Error {}
 
