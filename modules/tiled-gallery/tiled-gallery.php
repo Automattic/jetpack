@@ -292,9 +292,7 @@ class Jetpack_Tiled_Gallery {
 	}
 
 	public static function get_content_width() {
-		global $content_width;
-
-		$tiled_gallery_content_width = $content_width;
+		$tiled_gallery_content_width = Jetpack::get_content_width();
 
 		if ( ! $tiled_gallery_content_width )
 			$tiled_gallery_content_width = 500;
@@ -369,8 +367,7 @@ class Jetpack_Tiled_Gallery_Shape {
 	}
 
 	public function is_wide_theme() {
-		global $content_width;
-		return $content_width > 1000;
+		return Jetpack::get_content_width() > 1000;
 	}
 
 	public static function set_last_shape( $last_shape ) {
