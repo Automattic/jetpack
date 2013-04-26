@@ -15,6 +15,9 @@
 	width: 34px;
 	height: 34px;
 }
+.sidebar .infinite-loader .spinner {
+	padding-right: 376px;
+}
 
 /* Click-to-load */
 #infinite-handle {
