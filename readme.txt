@@ -80,10 +80,49 @@ Easy! There are a couple of ways (more coming soon):
 == Changelog ==
 
 = 2.2.3 =
+
+* Enhancement: Comments - Add the reply-title H3 to the comment form so that themes or user CSS can style it
+* Enhancement: Custom CSS - Support for the CSS @viewport
+* Enhancement: JSON API - Support for i_like, is_following, and is_reblogged
 * Enhancement: JSON API: Custom Post Type Support
 * Enhancement: JSON API: Meta Data Support
 * Enhancement: JSON API: Bundled Support for bbPress
 * Enhancement: JSON API: Additions of following, reblog, and like status for post endpoints.
+* Enhancement: Shortcodes - Add Bandcamp shortcode
+* Enhancement: Tiled Galleries - Add code to get blog_id
+* Bug Fix: Carousel - Support relative image paths incase a plugin is filtering attachment URLs to be relative instead of absolute
+* Bug Fix: Carousel - Add likes widget to images / Respect comment settings for name/email
+* Bug Fix: Carousel - Make name and email optional if the setting in the admin area says they are
+* Bug Fix: Contact Form - Bug fixes, including a fix for WP-CLI
+* Bug Fix: Contact Form - Remove deprecated .live calls, delegate lazily to jQuery(document) since it's all in an iframe modal
+* Bug Fix: Contact Form - RTL styles
+* Bug Fix: Contact Form - Better handle MP6 icons
+* Bug Fix: Custom CSS - array_shift() took a variable by reference, so avoid passing it the result of a function
+* Bug Fix: Custom CSS - Allow case-insensitive CSS properties (<a href="http://wordpress.org/support/topic/two-issues-with-jetpack-css-module?replies=9">ref</a>)
+* Bug Fix: Infinite Scroll - Maintain main query's `post__not_in` values when querying posts for IS
+* Bug Fix: Infinite Scroll - Ensure that IS's `pre_get_posts` method isn't applied in the admin. Also fixes an incorrect use of `add_filter()` where `add_action()` was meant. Fixes #1696-plugins
+* Bug Fix: Infinite Scroll - CSS update - IS footer was too large in Firefox
+* Bug Fix: Infinite Scroll - Add bundled support for Twenty Thirteen default theme
+* Bug Fix: Infinite Scroll - Include posts table's prefix when modifying the SQL WordPress generates to retrieve posts for Infinite Scroll
+* Bug Fix: JSON API - Use wp_set_comment_status to change the comment status, to make sure actions are run where needed
+* Bug Fix: Likes - Update style and logic for matching id's
+* Bug Fix: Mobile Theme - Ensure that <code>minileven_actual_current_theme()</code> is child-theme compatible + other updates
+* Bug Fix: Mobile Theme - Update method for finding currently active theme.
+* Bug Fix: Notifications - Remove the postmessage.js enqueue since this feature solely supports native postMessage
+* Bug Fix: Notifications - Clean up script enqueues and use core versions of underscore and backbone on wpcom as fallbacks
+* Bug Fix: Notifications - Enqueue v2 scripts and style
+* Bug Fix: Notifications - Prefix module-specific scripts and style to prevent collision
+* Bug Fix: Notifications - Include lang and dir attributes on #wpnt-notes-panel so the notifications iframe can use these to display correctly
+* Bug Fix: Open Graph: Use the profile OG type instead of author. Add tags for first/last names
+* Bug Fix: Publicize - Remove the Yahoo! service because they stopped supporting that API entirely
+* Bug Fix: Publicize - fix fatal errors caused by using a method on a non-object. Props @ipstenu
+* Bug Fix: Sharing - Adding 2x graphics for Pocket sharing service
+* Bug Fix: Sharing - Bug fixes, and a new filter
+* Bug Fix: Shortcodes - Audio: make sure that the Jetpack audion shortcode does not override the 3.6 core audio shortcode. Also, we need to filter the old Jetpack-style shortcode to properly set the params for the Core audio shortcode.
+* Bug Fix: Shortcodes - Audio: Re-enable the flash player
+* Bug Fix: Shortcodes - Slideshow: RTL styling update
+* Bug Fix: Tiled Galleries - Fix IE8 display bug where it doesn't honor inline CSS for width on images
+* Bug Fix: Tiled Galleries - Remove depreacted hover call, use mouseenter mouseleave instead
 * Enhancement: Twitter Timeline Widget: New JavaScript based widget. Old one will discontinue May 7th. 
 
 = 2.2.2 =
