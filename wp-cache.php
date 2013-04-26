@@ -3145,24 +3145,4 @@ function supercache_admin_bar_render() {
 }
 add_action( 'wp_before_admin_bar_render', 'supercache_admin_bar_render' );
 
-add_filter( 'preprocess_comment','no_mfunc_in_comments' );
-add_filter( 'comment_text','no_mfunc_in_comments' );
-add_filter( 'comment_excerpt','no_mfunc_in_comments' );
-add_filter( 'comment_text_rss','no_mfunc_in_comments' );
-
-function no_mfunc_in_comments( $comment_data ) {
-	if ( is_array( $comment_data ) )
-		$text = $comment_data[ 'comment_content' ];
-	else
-		$text = $comment_data;
-
-	if ( preg_match( '/<!--\s*mclude|<!--\s*mfunc|<!--\s*dynamic-cached-content/i', $text )) { 
-		$text = preg_replace( '#(<!--\s*(mclude|mfunc|dynamic-cached-content))#ism','<!-- unsafe comment zapped -->', $text );
-		if ( is_array( $comment_data ) )
-			$comment_data[ 'comment_content' ] = $text;
-		else
-			$comment_data = $text;
-	}
-	return $comment_data;
-}
 ?>
