@@ -135,7 +135,7 @@ class Jetpack_Photon {
 		$images = Jetpack_Photon::parse_images_from_html( $content );
 
 		if ( ! empty( $images ) ) {
-			global $content_width;
+			$content_width = Jetpack::get_content_width();
 
 			$image_sizes = self::image_sizes();
 			$upload_dir = wp_upload_dir();
