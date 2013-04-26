@@ -80,7 +80,6 @@ Easy! There are a couple of ways (more coming soon):
 == Changelog ==
 
 = 2.2.3 =
-
 * Enhancement: Comments - Add the reply-title H3 to the comment form so that themes or user CSS can style it
 * Enhancement: Custom CSS - Support for the CSS @viewport
 * Enhancement: JSON API - Support for i_like, is_following, and is_reblogged
