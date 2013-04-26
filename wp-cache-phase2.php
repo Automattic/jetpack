@@ -524,6 +524,7 @@ function wp_cache_get_ob(&$buffer) {
 		} elseif ( true == $wp_cache_object_cache ) {
 			wp_cache_set( $oc_key, $buffer, 'supercache', $cache_max_time );
 		}
+		$wp_cache_meta[ 'dynamic' ] = true;
 		$buffer = do_cacheaction( 'wpsc_cachedata', $buffer ); // dynamic content for display
 
 		if ( $cache_compression && $wp_cache_gzip_encoding ) {
