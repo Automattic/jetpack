@@ -79,6 +79,9 @@ Easy! There are a couple of ways (more coming soon):
 
 == Changelog ==
 
+= 2.2.4 =
+* Bug Fix: JSON API compat file include was not assigning a variable correctly, thus throwing errors. This has been resolved.
+
 = 2.2.3 =
 * Enhancement: Comments - Add the reply-title H3 to the comment form so that themes or user CSS can style it
 * Enhancement: Custom CSS - Support for the CSS @viewport
