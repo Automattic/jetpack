@@ -207,10 +207,6 @@ jQuery(document).ready(function($) {
 				});
 
 			leftWidth = ( $(window).width() - ( screenPadding * 2 ) ) - (imageMeta.width() + 40);
-			if ( $.browser.mozilla )
-				leftWidth -= 55;
-			else if ( $.browser.msie )
-				leftWidth -= 20;
 			leftWidth += 'px';
 
 			if (isMobile)
@@ -448,7 +444,11 @@ jQuery(document).ready(function($) {
 
 					$(window).unbind('keydown', keyListener);
 					$(window).unbind('resize', resizeListener);
-					document.location.hash = '';
+					if ( history.pushState ) {
+						history.pushState("", document.title, window.location.pathname + window.location.search);
+					} else {
+						document.location.hash = '';
+					}
 					$(window).scrollTop(scroll);
 					gallery.opened = false;
 				});
