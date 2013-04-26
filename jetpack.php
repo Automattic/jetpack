@@ -3327,6 +3327,13 @@ p {
 			'<strong>' . esc_html( $this->json_api_authorization_request['client_title'] ) . '</strong>'
 		) . '<img src="' . esc_url( $this->json_api_authorization_request['client_image'] ) . '" /></p>';
 	}
+
+	/**
+	 * Get $content_width, but with a <s>twist</s> filter.
+	 */
+	public static function get_content_width() {
+		return apply_filters( 'jetpack_content_width', $GLOBALS['content_width'] );
+	}
 }
 
 class Jetpack_Client {
