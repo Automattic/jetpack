@@ -79,6 +79,9 @@ Easy! There are a couple of ways (more coming soon):
 
 == Changelog ==
 
+= trunk =
+* Enhancement: Stats: Counting of registered users' views can now be enabled for specific roles
+
 = 2.2.4 =
 * Bug Fix: JSON API compat file include was not assigning a variable correctly, thus throwing errors. This has been resolved.
 

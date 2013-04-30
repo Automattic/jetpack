@@ -11,7 +11,7 @@ if ( defined( 'STATS_VERSION' ) ) {
 	return;
 }
 
-define( 'STATS_VERSION', '8' );
+define( 'STATS_VERSION', '9' );
 defined( 'STATS_DASHBOARD_SERVER' ) or define( 'STATS_DASHBOARD_SERVER', 'dashboard.wordpress.com' );
 
 add_action( 'jetpack_modules_loaded', 'stats_load' );
@@ -88,7 +88,6 @@ function stats_ignore_db_version( $version ) {
  * @return array Possibly mapped capabilities for meta capability
  */
 function stats_map_meta_caps( $caps, $cap, $user_id, $args ) {
-
 	// Map view_stats to exists
 	if ( 'view_stats' == $cap ) {
 		$user        = new WP_User( $user_id );
@@ -111,11 +110,13 @@ function stats_template_redirect() {
 		return;
 
 	$options = stats_get_options();
-	// Ensure this is always setup for the check below
-	$options['reg_users'] = empty( $options['reg_users'] ) ? false : true;
 
-	if ( !$options['reg_users'] && !empty( $current_user->ID ) )
-		return;
+	// Should we be counting this user's views?
+	if ( !empty( $current_user->ID ) ) {
+		$count_roles = stats_get_option( 'count_roles' );
+		if ( ! array_intersect( $current_user->roles, $count_roles ) )
+			return;
+	}
 
 	add_action( 'wp_footer', 'stats_footer', 101 );
 	add_action( 'wp_head', 'stats_add_shutdown_action' );
@@ -207,10 +208,17 @@ function stats_upgrade_options( $options ) {
 	$defaults = array(
 		'admin_bar'    => true,
 		'roles'        => array( 'administrator' ),
+		'count_roles'  => array(),
 		'blog_id'      => Jetpack::get_option( 'id' ),
 		'do_not_track' => true, // @todo
 		'hide_smile'   => false,
 	);
+
+	if ( isset( $options['reg_users'] ) ) {
+		if ( $options['reg_users'] )
+			$options['count_roles'] = array_keys( get_editable_roles() );
+		unset( $options['reg_users'] );
+	}
 
 	if ( is_array( $options ) && !empty( $options ) )
 		$new_options = array_merge( $defaults, $options );
@@ -486,13 +494,17 @@ function stats_configuration_load() {
 	if ( isset( $_POST['action'] ) && $_POST['action'] == 'save_options' && $_POST['_wpnonce'] == wp_create_nonce( 'stats' ) ) {
 		$options = stats_get_options();
 		$options['admin_bar']  = isset( $_POST['admin_bar']  ) && $_POST['admin_bar'];
-		$options['reg_users']  = isset( $_POST['reg_users']  ) && $_POST['reg_users'];
 		$options['hide_smile'] = isset( $_POST['hide_smile'] ) && $_POST['hide_smile'];
 
 		$options['roles'] = array( 'administrator' );
 		foreach ( get_editable_roles() as $role => $details )
 			if ( isset( $_POST["role_$role"] ) && $_POST["role_$role"] )
 				$options['roles'][] = $role;
+
+		$options['count_roles'] = array();
+		foreach ( get_editable_roles() as $role => $details )
+			if ( isset( $_POST["count_role_$role"] ) && $_POST["count_role_$role"] )
+				$options['count_roles'][] = $role;
 
 		stats_set_options( $options );
 		stats_update_blog();
@@ -519,7 +531,6 @@ function stats_configuration_head() {
 
 function stats_configuration_screen() {
 	$options = stats_get_options();
-	$options['reg_users'] = empty( $options['reg_users'] ) ? false : true;
 	?>
 	<div class="narrow">
 		<p><?php printf( __( 'Visit <a href="%s">Site Stats</a> to see your stats.', 'jetpack' ), esc_url( menu_page_url( 'stats', false ) ) ); ?></p>
@@ -529,8 +540,18 @@ function stats_configuration_screen() {
 		<table id="menu" class="form-table">
 		<tr valign="top"><th scope="row"><label for="admin_bar"><?php _e( 'Admin bar' , 'jetpack' ); ?></label></th>
 		<td><label><input type='checkbox'<?php checked( $options['admin_bar'] ); ?> name='admin_bar' id='admin_bar' /> <?php _e( "Put a chart showing 48 hours of views in the admin bar.", 'jetpack' ); ?></label></td></tr>
-		<tr valign="top"><th scope="row"><label for="reg_users"><?php _e( 'Registered users', 'jetpack' ); ?></label></th>
-		<td><label><input type='checkbox'<?php checked( $options['reg_users'] ); ?> name='reg_users' id='reg_users' /> <?php _e( "Count the page views of registered users who are logged in.", 'jetpack' ); ?></label></td></tr>
+		<tr valign="top"><th scope="row"><?php _e( 'Registered users', 'jetpack' ); ?></th>
+		<td>
+			<?php _e( "Count the page views of registered users who are logged in.", 'jetpack' ); ?><br/>
+			<?php
+			$count_roles = stats_get_option( 'count_roles' );
+			foreach ( get_editable_roles() as $role => $details ) {
+				?>
+				<label><input type='checkbox' name='count_role_<?php echo $role; ?>'<?php checked( in_array( $role, $count_roles ) ); ?> /> <?php echo translate_user_role( $details['name'] ); ?></label><br/>
+				<?php
+			}
+			?>
+		</td></tr>
 		<tr valign="top"><th scope="row"><?php _e( 'Smiley' , 'jetpack' ); ?></th>
 		<td><label><input type='checkbox'<?php checked( isset( $options['hide_smile'] ) && $options['hide_smile'] ); ?> name='hide_smile' id='hide_smile' /> <?php _e( 'Hide the stats smiley face image.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden', 'jetpack' ); ?> <img class="stats-smiley" alt="<?php esc_attr_e( 'Smiley face', 'jetpack' ); ?>" src="<?php echo esc_url( plugins_url( '_inc/images/stats-smiley.gif', dirname( __FILE__ ) ) ); ?>" width="6" height="5" /></span></td></tr>
 		<tr valign="top"><th scope="row"><?php _e( 'Report visibility' , 'jetpack' ); ?></th>
@@ -544,7 +565,7 @@ function stats_configuration_screen() {
 				<?php
 			}
 			?>
-		</tr>
+		</td></tr>
 		</table>
 		<p class="submit"><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save configuration', 'jetpack' ) ); ?>' /></p>
 		</form>
