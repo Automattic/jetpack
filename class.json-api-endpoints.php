@@ -2012,34 +2012,31 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				if ( empty( $meta->operation ) )
 					$meta->operation = 'update';
 
-				if ( ! empty( $meta->key ) )
-					$meta->key = wp_unslash( $meta->key );
-
 				if ( ! empty( $meta->value ) ) {
 					if ( 'true' == $meta->value )
 						$meta->value = true;
 					if ( 'false' == $meta->value )
 						$meta->value = false;
-
-					$meta->value = wp_unslash( $meta->value );
 				}
-
-				if ( ! empty( $meta->previous_value ) )
-					$meta->previous_value = wp_unslash( $meta->previous_value );
 
 				if ( ! empty( $meta->id ) ) {
 					$meta->id = absint( $meta->id );
 					$existing_meta_item = get_metadata_by_mid( 'post', $meta->id );
 				}
 
+				$unslashed_meta_key = wp_unslash( $meta->key ); // should match what the final key will be
+				$meta->key = wp_slash( $meta->key );
+				$unslashed_existing_meta_key = wp_unslash( $existing_meta_item->meta_key );
+				$existing_meta_item->meta_key = wp_slash( $existing_meta_item->meta_key );
+
 				switch ( $meta->operation ) {
 					case 'delete':
 
-						if ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && current_user_can( 'delete_post_meta', $post_id, $existing_meta_item->meta_key ) ) {
+						if ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && current_user_can( 'delete_post_meta', $post_id, $unslashed_existing_meta_key ) ) {
 							delete_metadata_by_mid( 'post', $meta->id );
-						} elseif ( ! empty( $meta->key ) && ! empty( $meta->previous_value ) && current_user_can( 'delete_post_meta', $post_id, $meta->key ) ) {
+						} elseif ( ! empty( $meta->key ) && ! empty( $meta->previous_value ) && current_user_can( 'delete_post_meta', $post_id, $unslashed_meta_key ) ) {
 							delete_post_meta( $post_id, $meta->key, $meta->previous_value );
-						} elseif ( ! empty( $meta->key ) && current_user_can( 'delete_post_meta', $post_id, $meta->key ) ) {
+						} elseif ( ! empty( $meta->key ) && current_user_can( 'delete_post_meta', $post_id, $unslashed_meta_key ) ) {
 							delete_post_meta( $post_id, $meta->key );
 						}
 
@@ -2048,7 +2045,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 						if ( ! empty( $meta->id ) || ! empty( $meta->previous_value ) ) {
 							continue;
-						} elseif ( ! empty( $meta->key ) && ! empty( $meta->meta ) && current_user_can( 'add_post_meta', $post_id, $meta->key ) ) {
+						} elseif ( ! empty( $meta->key ) && ! empty( $meta->value ) && current_user_can( 'add_post_meta', $post_id, $unslashed_meta_key ) ) {
 							add_post_meta( $post_id, $meta->key, $meta->value );
 						}
 
@@ -2057,11 +2054,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 						if ( empty( $meta->value ) ) {
 							continue;
-						} elseif ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && current_user_can( 'edit_post_meta', $post_id, $existing_meta_item->meta_key ) ) {
+						} elseif ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && current_user_can( 'edit_post_meta', $post_id, $unslashed_existing_meta_key ) ) {
 							update_metadata_by_mid( 'post', $meta->id, $meta->value );
-						} elseif ( ! empty( $meta->key ) && ! empty( $meta->previous_value ) && current_user_can( 'edit_post_meta', $post_id, $meta->key ) ) {
+						} elseif ( ! empty( $meta->key ) && ! empty( $meta->previous_value ) && current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) ) {
 							update_post_meta( $post_id, $meta->key,$meta->value, $meta->previous_value );
-						} elseif ( ! empty( $meta->key ) && current_user_can( 'edit_post_meta', $post_id, $meta->key ) ) {
+						} elseif ( ! empty( $meta->key ) && current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) ) {
 							update_post_meta( $post_id, $meta->key, $meta->value );
 						}
 
