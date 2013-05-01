@@ -79,8 +79,12 @@ Easy! There are a couple of ways (more coming soon):
 
 == Changelog ==
 
-= trunk =
+= 2.2.5 =
 * Enhancement: Stats: Counting of registered users' views can now be enabled for specific roles
+* Bug Fix: Security tightening for metadata support in the REST API
+* Bug Fix: Update the method for checking Twitter Timeline widget_id and update coding standards
+* Bug Fix: Custom CSS: Allow the content width setting to be larger than the theme's content width
+* Bug Fix: Custom CSS: Fix possible missing argument warning.
 
 = 2.2.4 =
 * Bug Fix: JSON API compat file include was not assigning a variable correctly, thus throwing errors. This has been resolved.
