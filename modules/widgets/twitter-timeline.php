@@ -89,11 +89,13 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 * @return array Updated safe values to be saved.
 	 */
 	public function update( $new_instance, $old_instance ) {
-		$non_hex_regex      = '/[^a-f0-9]/';
-		$instance           = array();
-		$instance['title']  = wp_kses( $new_instance['title'],        array() );
-		$instance['width']  = (int) wp_kses( $new_instance['width'],  array() );
-		$instance['height'] = (int) wp_kses( $new_instance['height'], array() );
+		$non_hex_regex       = '/[^a-f0-9]/';
+		$instance            = array();
+		$instance['title']   = sanitize_text_field( $new_instance['title'] );
+		$instance['width']   = (int) $new_instance['width'];
+		$instance['height']  = (int) $new_instance['height'];
+		$instance['width']   = ( 0 === $instance['width'] )  ? $instance['width']  : 225;
+		$instance['height']  = ( 0 === $instance['height'] ) ? $instance['height'] : 400;
 
 		// If they entered something that might be a full URL, try to parse it out
 		if ( is_string( $new_instance['widget-id'] ) ) {
@@ -101,11 +103,12 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				$new_instance['widget-id'] = $matches[1];
 			}
 		}
-		$instance['widget-id'] = wp_kses( $new_instance['widget-id'], array() );
+		
+		$instance['widget-id'] = sanitize_text_field( $new_instance['widget-id'] );
 		$instance['widget-id'] = is_numeric( $instance['widget-id'] ) ? $instance['widget-id'] : '';
 		
 		foreach ( array( 'link-color', 'border-color' ) as $color ) {
-			$clean = preg_replace( $non_hex_regex, '', wp_kses( $new_instance[$color], array() ) );
+			$clean = preg_replace( $non_hex_regex, '', sanitize_text_field( $new_instance[$color] ) );
 			if ( $clean )
 				$instance[$color] = '#' . $clean;
 		}
@@ -166,10 +169,12 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		<p><small>
 			<?php
-			printf(
-				esc_html__( 'You need to <a href="%1$s" target="_blank">create a widget at Twitter.com</a>, and then enter your widget id (the long number found in the URL of your widget\'s config page) in the field below. <a href="%2$s" target="_blank">Read more</a>.' ),
-				'https://twitter.com/settings/widgets/new/user',
-				'http://support.wordpress.com/widgets/twitter-timeline-widget/'
+			echo wp_kses_post(
+				sprintf(
+					__( 'You need to <a href="%1$s" target="_blank">create a widget at Twitter.com</a>, and then enter your widget id (the long number found in the URL of your widget\'s config page) in the field below. <a href="%2$s" target="_blank">Read more</a>.', 'jetpack' ),
+					'https://twitter.com/settings/widgets/new/user',
+					'http://support.wordpress.com/widgets/twitter-timeline-widget/'
+				)
 			);
 			?>
 		</small></p>
