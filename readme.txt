@@ -56,10 +56,14 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.3.2 =
-IMPORTANT - Dynamic cached content now disabled by default. See advanced settings page. Better mangling of the mfunc tag in comments. Jetpack Mobile Theme support.
+= 1.3.3 =
+IMPORTANT - Dynamic cached content now disabled by default. See advanced settings page. mfunc replaced by wpsc_cachedata filter.
 
 == Changelog ==
+= 1.3.3 =
+* Replace legacy mfunc/mnclude/dynamic-cached-data functionality with a "wpsc_cachedata" cacheaction filter.
+* Added dynamic-cache-test.php plugin example wpsc_cachedata filter plugin.
+* Misc bugfixes.
 
 = 1.3.2 =
 * Any mfunc/mclude/dynamic-cached-content tags in comments are now removed.
