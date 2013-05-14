@@ -887,6 +887,9 @@ EOPHP;
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 		} else {
 			if ( isset( $author->post_author ) ) {
+				if ( 0 == $author->post_author )
+					return null;
+
 				$author = $author->post_author;
 			} elseif ( isset( $author->user_id ) && $author->user_id ) {
 				$author = $author->user_id;
@@ -1439,7 +1442,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$metadata[] = array(
 						'id'    => $meta['meta_id'],
 						'key'   => $meta['meta_key'],
-						'value' => $meta['meta_value']
+						'value' => maybe_unserialize( $meta['meta_value'] ),
 					);
 				}
 
