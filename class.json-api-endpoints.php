@@ -1153,7 +1153,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( empty( $key ) )
 			return false;
 
-		// whitelist of post types that can be accessed
+		// whitelist of metadata that can be accessed
  		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', array() ) ) )
 			return true;
 
@@ -2009,6 +2009,8 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		if ( ! empty( $metadata ) ) {
 			foreach ( (array) $metadata as $meta ) {
+
+				$meta = (object) $meta;
 
 				$existing_meta_item = new stdClass;
 
@@ -3111,7 +3113,7 @@ new WPCOM_JSON_API_List_Posts_Endpoint( array(
 		'author'   => "(int) Author's user ID",
 		'search'   => '(string) Search query',
 		'meta_key'   => '(string) Metadata key that the post should contain',
-		'meta_value'   => '(int|string) Metadata value that the post should contain. Will only be applied if a `meta_key` is also given',
+		'meta_value'   => '(string) Metadata value that the post should contain. Will only be applied if a `meta_key` is also given',
 	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/posts/?number=5&pretty=1'
