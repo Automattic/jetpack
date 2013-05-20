@@ -563,3 +563,4 @@ Translators who did a great job converting the text of the plugin to their nativ
 * [Nata Strazda](http://www.webhostingrating.com/) (Lithuanian)
 * [Alexander Alexandrov](http://www.designcontest.com/) (Belarusian)
 * [Michail Bogdanov](http://www.webhostinghub.com/) (Romanian)
+* [Anja Skrba](http://science.webhostinggeeks.com/wordpress-super-cache) (Serbo-Croatian)

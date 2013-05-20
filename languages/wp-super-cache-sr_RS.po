@@ -1,0 +1,2686 @@
+# Copyright (C) 2013 
+# This file is distributed under the same license as the  package.
+msgid ""
+msgstr ""
+"Project-Id-Version: WP super cache plugin\n"
+"Report-Msgid-Bugs-To: http://wordpress.org/tag/wp-super-cache\n"
+"POT-Creation-Date: 2013-04-16 12:02:02+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2013-05-07 19:00+0100\n"
+"Last-Translator: Anja Skrba <anjas@webhostinggeeks.com>\n"
+"Language-Team: Anja Skrba <anjas@webhostinggeeks.com>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"Language: Srpski / Serbian\n"
+"X-Generator: Poedit 1.5.5\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: ossdl-cdn.php:151
+msgid ""
+"Your website probably uses lots of static files. Image, Javascript and CSS "
+"files are usually static files that could just as easily be served from "
+"another site or CDN. Therefore this plugin replaces any links in the "
+"<code>wp-content</code> and <code>wp-includes</code> directories (except for "
+"PHP files) on your site with the URL you provide below. That way you can "
+"either copy all the static content to a dedicated host or mirror the files "
+"to a CDN by <a href=\"http://knowledgelayer.softlayer.com/questions/365/How"
+"+does+Origin+Pull+work%3F\" target=\"_blank\">origin pull</a>."
+msgstr ""
+"Vaš web sajt verovatno koristi dosta statičnih fajlova. Slikovni, Javascript "
+"i CSS fajlovi su obično statični fajlovi koji lako mogu da se &#34;"
+"povlače&#34; sa drugog sajta, ili CDN-a. Iz tog razloga ovaj WordPress "
+"dodatak zamenjuje sve linkove u <code>wp-content</code> i <code>wp-includes</"
+"code> direktorijumima (izuzev PHP fajlova) vašeg sajta, URL-om koji dajete "
+"dole. Na taj način možete, ili kopirati sav statičan sadržaj na poseban "
+"hosting server, ili &#34;preslikati&#34; (mirror) fajlove na CDN, pomoću <a "
+"href=\"http://knowledgelayer.softlayer.com/questions/365/How+does+Origin+Pull"
+"+work%3F\" target=\"_blank\">origin pull</a>-a."
+
+#: ossdl-cdn.php:152 wp-cache.php:1167
+msgid ""
+"The <a href=\"%1$s\">CDN Sync Tool</a> plugin will help upload files to "
+"Amazon S3/Cloudfront if you would rather not depend on origin pull. See the "
+"<a href=\"%2$s\">plugin support forum</a> if you have any queries about this "
+"plugin."
+msgstr ""
+"Dodatak <a href=\"%1$s\">CDN Sync Tool</a> će vam pomoći da prenesete "
+"fajlove na Amazon S3/Cloudfront, ako radije ne biste da zavisite od origin "
+"pull-a. Pogledajte <a href=\"%2$s\">forum za podršku dodatku</a>, ako imate "
+"bilo kakvih pitanja u vezi sa ovim dodatkom."
+
+#: ossdl-cdn.php:153
+msgid ""
+"<strong style=\"color: red\">WARNING:</strong> Test some static urls e.g., "
+"%s  to ensure your CDN service is fully working before saving changes."
+msgstr ""
+"<strong style=\"color: red\">UPOZORENJE:</strong> Pre nego snimite izmene, "
+"isprobajte nekoliko statičnih url-ova, npr. %s , da budete sigurni da vaš "
+"CDN servis radi u potpunosti."
+
+#: ossdl-cdn.php:154
+msgid "You can define different CDN URLs for each site on a multsite network."
+msgstr ""
+"Možete definisati različite CDN URL-ove za svaki sajt iz mreže višestrukih "
+"sajtova."
+
+#: ossdl-cdn.php:162
+msgid "Enable CDN Support"
+msgstr "Uključiti CDN podršku"
+
+#: ossdl-cdn.php:165
+msgid "Off-site URL"
+msgstr "Spoljašnji URL"
+
+#: ossdl-cdn.php:168
+msgid ""
+"The new URL to be used in place of %1$s for rewriting. No trailing <code>/</"
+"code> please.<br />Example: <code>%2$s</code>."
+msgstr ""
+"Novi URL koji će se koristiti umesto %1$s, za ponovno upisivanje. Bez "
+"prateće <code>/</code>, molim vas. Primer: <code>%2$s</code>."
+
+#: ossdl-cdn.php:172
+msgid "Include directories"
+msgstr "Uključiti direktorijume"
+
+#: ossdl-cdn.php:175
+msgid ""
+"Directories to include in static file matching. Use a comma as the "
+"delimiter. Default is <code>wp-content, wp-includes</code>, which will be "
+"enforced if this field is left empty."
+msgstr ""
+"Direktorijumi koje treba uključiti pri statičkom upoređivanju fajlova. "
+"Koristite zapetu kao razdvajač. Podrazumevani su <code>wp-content, wp-"
+"includes</code>, koji će se uključiti ako se ovo polje ostavi prazno."
+
+#: ossdl-cdn.php:179
+msgid "Exclude if substring"
+msgstr "Isključiti ako je pod-niz"
+
+#: ossdl-cdn.php:182
+msgid ""
+"Excludes something from being rewritten if one of the above strings is found "
+"in the match. Use a comma as the delimiter like this, <code>.php, .flv, .do</"
+"code>, and always include <code>.php</code> (default)."
+msgstr ""
+"Isključuje nešto da ne bude presnimljeno, ako se jedan od gornjih stringova "
+"pronađe među rezultatima koji se podudaraju. Upotrebite zapetu kao "
+"razdvajač, ovako: <code>.php, .flv, .do</code>, i uvek uključite <code>.php</"
+"code> (podrazumevano)."
+
+#: ossdl-cdn.php:186
+msgid "Additional CNAMES"
+msgstr "Dodatni CNAME zapisi"
+
+#: ossdl-cdn.php:189
+msgid ""
+"These <a href=\"http://en.wikipedia.org/wiki/CNAME_record\">CNAMES</a> will "
+"be used in place of %1$s for rewriting (in addition to the off-site URL "
+"above). Use a comma as the delimiter. For pages with a large number of "
+"static files, this can improve browser performance. CNAMEs may also need to "
+"be configured on your CDN.<br />Example: %2$s"
+msgstr ""
+"Ovi <a href=\"http://en.wikipedia.org/wiki/CNAME_record\">CNAME zapisi</a> "
+"će se koristiti umesto %1$s, za ponovno upisivanje (uz gornji spoljašnji "
+"URL). Koristite zapetu kao razdvajač. Za strane sa velikim brojem statičkih "
+"fajlova, ovo može poboljšati performanse pregledača. Takođe, možda treba "
+"konfigurisati CNAME zapise na vašem CDN-u.<br/>Primer: %2$s"
+
+#: ossdl-cdn.php:193
+msgid "Skip https URLs to avoid \"mixed content\" errors"
+msgstr ""
+"Preskočiti https URL-ove, da se izbegnu \"pomešani sadržaj (mixed content)\" "
+"greške"
+
+#: ossdl-cdn.php:197
+msgid "Save Changes"
+msgstr "Snimiti izmene"
+
+#: ossdl-cdn.php:199
+msgid ""
+"CDN functionality provided by <a href=\"http://wordpress.org/extend/plugins/"
+"ossdl-cdn-off-linker/\">OSSDL CDN Off Linker</a> by <a href=\"http://mark."
+"ossdl.de/\">Mark Kubacki</a>"
+msgstr ""
+"CDN funkcionalnost koju daje <a href=\"http://wordpress.org/extend/plugins/"
+"ossdl-cdn-off-linker/\">OSSDL CDN Off Linker</a> od <a href=\"http://mark."
+"ossdl.de/\">Mark Kubacki</a>-a"
+
+#: plugins/awaitingmoderation.php:4
+msgid "Your comment is awaiting moderation."
+msgstr "Vaš komentar čeka moderaciju."
+
+#: plugins/awaitingmoderation.php:32
+msgid "Awaiting Moderation"
+msgstr "Čekanje na moderaciju"
+
+#: plugins/awaitingmoderation.php:34 plugins/badbehaviour.php:65
+#: plugins/domain-mapping.php:75 plugins/jetpack.php:27
+#: plugins/searchengine.php:69 plugins/wptouch.php:22 wp-cache.php:1405
+msgid "Enabled"
+msgstr "Uključeno"
+
+#: plugins/awaitingmoderation.php:35 plugins/badbehaviour.php:66
+#: plugins/domain-mapping.php:76 plugins/jetpack.php:28
+#: plugins/searchengine.php:70 plugins/wptouch.php:23 wp-cache.php:1405
+msgid "Disabled"
+msgstr "Isključeno"
+
+#: plugins/awaitingmoderation.php:36
+msgid ""
+"Enables or disables plugin to Remove the text \"Your comment is awaiting "
+"moderation.\" when someone leaves a moderated comment."
+msgstr ""
+"Uključuje ili isključuje dodatak za uklanjanje teksta \"Vaš komentar čeka "
+"moderaciju (Your comment is awaiting moderation).\", kada neko ostavi "
+"moderisani komentar."
+
+#: plugins/awaitingmoderation.php:40 plugins/badbehaviour.php:71
+#: plugins/domain-mapping.php:81 plugins/jetpack.php:33
+#: plugins/searchengine.php:75 plugins/wptouch.php:28 wp-cache.php:1866
+#: wp-cache.php:1868
+msgid "enabled"
+msgstr "uključeno"
+
+#: plugins/awaitingmoderation.php:42 plugins/badbehaviour.php:73
+#: plugins/domain-mapping.php:83 plugins/jetpack.php:35
+#: plugins/searchengine.php:77 plugins/wptouch.php:30
+msgid "disabled"
+msgstr "isključeno"
+
+#: plugins/awaitingmoderation.php:43
+msgid "Awaiting Moderation is now %s"
+msgstr "Čekanje na moderaciju je sada %s"
+
+#: plugins/awaitingmoderation.php:45 plugins/badbehaviour.php:76
+#: plugins/domain-mapping.php:86 plugins/jetpack.php:38
+#: plugins/searchengine.php:80 plugins/wptouch.php:33
+msgid "Update"
+msgstr "Ažurirati"
+
+#: plugins/badbehaviour.php:47
+msgid "Bad Behaviour not found. Please check your install."
+msgstr "Bad Behaviour nije pronađen. Molim vas, proverite vašu instalaciju."
+
+#: plugins/badbehaviour.php:63
+msgid "Bad Behavior"
+msgstr "Bad Behaviour (nepristojno ponašanje)"
+
+#: plugins/badbehaviour.php:68
+msgid ""
+"(Only legacy caching supported, disabled compression and requires <a href="
+"\"http://www.bad-behavior.ioerror.us/\">Bad Behavior</a> in \"%s/plugins/bad-"
+"behavior/\") "
+msgstr ""
+"(Podržano je samo nasleđeno keširanje, kompresija je isključena, i traži se "
+"<a href=\"http://www.bad-behavior.ioerror.us/\">Bad Behaviour</a> u "
+"direktorijumu \"%s/plugins/bad-behavior/\") "
+
+#: plugins/badbehaviour.php:74
+msgid "Bad Behavior support is now %s"
+msgstr "Podrška za Bad Behaviour je sada %s"
+
+#: plugins/badbehaviour.php:83 wp-cache.php:1495 wp-cache.php:1500
+msgid "Warning!"
+msgstr "Upozorenje!"
+
+#: plugins/domain-mapping.php:73
+msgid "Domain Mapping"
+msgstr "Domain Mapping (mapiranje domena)"
+
+#: plugins/domain-mapping.php:78
+msgid ""
+"Provides support for <a href=\"http://wordpress.org/extend/plugins/wordpress-"
+"mu-domain-mapping/\">Domain Mapping</a> plugin to map multiple domains to a "
+"blog."
+msgstr ""
+"Obezbeđuje podršku za <a href=\"http://wordpress.org/extend/plugins/"
+"wordpress-mu-domain-mapping/\">Domain Mapping</a> dodatak, za uparivanje "
+"(mapiranje) više domena sa blogom."
+
+#: plugins/domain-mapping.php:84
+msgid "Domain Mapping support is now %s"
+msgstr "Podrška za Domain Mapping je sada %s"
+
+#: plugins/domain-mapping.php:98
+msgid ""
+"Domain Mapping plugin detected! Please go to the Supercache plugins page and "
+"enable the domain mapping helper plugin."
+msgstr ""
+"Pronađen je dodatak Domain Mapping! Molim vas, idite na stranu Supercache "
+"dodataka i uključite pomoćni dodatak za mapiranje domena."
+
+#: plugins/jetpack.php:25
+msgid "Jetpack Mobile Theme"
+msgstr "Jetpack tema za mobilne uređaje"
+
+#: plugins/jetpack.php:30
+msgid ""
+"Provides support for the <a href=\"http://wordpress.org/extend/plugins/"
+"jetpack/\">Jetpack</a> mobile theme and plugin. PHP caching mode and mobile "
+"support will be enabled too."
+msgstr ""
+"Obezbeđuje podršku za <a href=\"http://wordpress.org/extend/plugins/jetpack/"
+"\">Jetpack</a> temu, i dodatak, za mobilne uređaje."
+
+#: plugins/jetpack.php:36
+msgid "Jetpack Mobile Theme support is now %s"
+msgstr "Podrška za Jetpack temu za mobilne uređaje je sada %s"
+
+#: plugins/multisite.php:13
+msgid "Cached"
+msgstr "Keširano"
+
+#: plugins/multisite.php:31 wp-cache.php:1418
+msgid "Enable"
+msgstr "Uključiti"
+
+#: plugins/multisite.php:33 plugins/searchengine.php:61 wp-cache.php:1418
+msgid "Disable"
+msgstr "Isključiti"
+
+#: plugins/multisite.php:39
+msgid "Caching has been disabled on this blog on the Network Admin Sites page."
+msgstr ""
+"Keširanje na ovom blogu je isključeno na strani za mrežnu administraciju "
+"sajtova (Network Admin Sites)"
+
+#: plugins/searchengine.php:67
+msgid "No Adverts for Friends"
+msgstr "No Adverts for Friends (bez reklama za prijatelje)"
+
+#: plugins/searchengine.php:72
+msgid ""
+"Provides support for <a href=\"http://ocaoimh.ie/no-adverts-for-friends/"
+"\">No Adverts for Friends</a>."
+msgstr ""
+"Obezbeđuje podršku za <a href=\"http://ocaoimh.ie/no-adverts-for-friends/"
+"\">No Adverts for Friends</a>."
+
+#: plugins/searchengine.php:78
+msgid "No Adverts for Friends support is now %s"
+msgstr "Podrška za No Adverts for Friends je sada %s"
+
+#: plugins/wptouch.php:20
+msgid "WPTouch"
+msgstr "WPTouch"
+
+#: plugins/wptouch.php:25
+msgid ""
+"Provides support for <a href=\"http://wordpress.org/extend/plugins/wptouch/"
+"\">WPTouch</a> mobile theme and plugin."
+msgstr ""
+"Obezbeđuje podršku za <a href=\"http://wordpress.org/extend/plugins/wptouch/"
+"\">WPTouch</a> temu, i dodatak, za mobilne uređaje"
+
+#: plugins/wptouch.php:31
+msgid "WPTouch support is now %s"
+msgstr "Podrška za WPTouch je sada %s"
+
+#: plugins/wptouch.php:45
+msgid ""
+"WPTouch plugin detected! Please go to the Supercache plugins page and enable "
+"the WPTouch helper plugin."
+msgstr ""
+"Pronađen je dodatak WPTouch! Molim vas, idite na stranu Supercache dodataka "
+"i uključite pomoćni dodatak za WPTouch."
+
+#: wp-cache-phase2.php:1257
+msgid "Cache expiry cron job failed. Job will run again in 10 seconds."
+msgstr ""
+"Cron zadatak za istek keša nije uspeo. Zadatak će se ponovo pokrenuti za 10 "
+"sekundi."
+
+#: wp-cache-phase2.php:1261
+msgid ""
+"Cache expiry cron job took more than 30 seconds. You should probably run the "
+"garbage collector more often."
+msgstr ""
+"Cron zadatku za istek keša je trebalo više od 30 sekundi. Verovatno bi "
+"trebalo da češće pokrećete sakupljač smeća."
+
+#: wp-cache-phase2.php:1270
+msgid "[%1$s] WP Super Cache GC Report"
+msgstr "[%1$s] WP Super Cache izveštaj o sakupljanju smeća (GC Report)"
+
+#: wp-cache.php:99
+msgid ""
+"Please create %s /wp-cache-config.php from wp-super-cache/wp-cache-config-"
+"sample.php"
+msgstr ""
+"Molim vas, napravite fajl %s /wp-cache-config.php iz fajla wp-super-cache/wp-"
+"cache-config-sample.php"
+
+#: wp-cache.php:165
+msgid "Warning! PHP Safe Mode Enabled!"
+msgstr "Upozorenje! Uključen je PHP siguran način rada (safe mode)!"
+
+#: wp-cache.php:166
+msgid ""
+"You may experience problems running this plugin because SAFE MODE is enabled."
+msgstr ""
+"Možete imati problema pri radu sa ovim dodatkom, jer je uključen SIGURAN MOD "
+"(safe mode)."
+
+#: wp-cache.php:170
+msgid ""
+"Your server is set up to check the owner of PHP scripts before allowing them "
+"to read and write files."
+msgstr ""
+"Vaš server je podešen tako da proverava vlasnika PHP skripti, pre nego im "
+"dozvoli da čitaju i upisuju podatke u fajlove."
+
+#: wp-cache.php:171
+msgid ""
+"You or an administrator may be able to make it work by changing the group "
+"owner of the plugin scripts to match that of the web server user. The group "
+"owner of the %s/cache/ directory must also be changed. See the <a href="
+"\"http://php.net/features.safe-mode\">safe mode manual page</a> for further "
+"details."
+msgstr ""
+"Vi, ili administrator, možda možete učiniti da proradi, menjanjući grupnog "
+"vlasnika skripti tako da se poklopi sa korisnikom web servera. Grupni "
+"vlasnik direktorijuma %s/cache/ takođe mora da se promeni. Za još detalja "
+"pogledajte <a href=\"http://php.net/features.safe-mode\">stranu sa uputstvom "
+"za siguran mod</a>."
+
+#: wp-cache.php:173
+msgid ""
+"You or an administrator must disable this. See the <a href=\"http://php.net/"
+"features.safe-mode\">safe mode manual page</a> for further details. This "
+"cannot be disabled in a .htaccess file unfortunately. It must be done in the "
+"php.ini config file."
+msgstr ""
+"Vi, ili administrator, morate isključiti ovo. Za dalje informacije "
+"pogledajte <a href=\"http://php.net/features.safe-mode\">stranu sa uputstvom "
+"za siguran mod</a>. Na žalost, ovo se ne može isključiti u fajlu .htaccess. "
+"To se mora uraditi u konfiguracionom fajlu php.ini."
+
+#: wp-cache.php:179
+msgid "Permlink Structure Error"
+msgstr "Greška permalink strukture"
+
+#: wp-cache.php:180
+msgid ""
+"A custom url or permalink structure is required for this plugin to work "
+"correctly. Please go to the <a href=\"options-permalink.php\">Permalinks "
+"Options Page</a> to configure your permalinks."
+msgstr ""
+"Da bi ovaj dodatak pravilno radio, potreban je prilagođeni url, ili "
+"prilagođena permalink struktura. Molim vas, idite na <a href=\"options-"
+"permalink.php\">Stranu sa opcijama vezanim za permalinkove (Permalinks "
+"Options Page)</a>, da konfigurišete vaše permalinkove."
+
+#: wp-cache.php:192
+msgid "Warning! Your hostname \"%s\" resolves to %s"
+msgstr "Upozorenje! Vaše host ime \"%s\" ukazuje na %s"
+
+#: wp-cache.php:193
+msgid ""
+"Your server thinks your hostname resolves to %s. Some services such as "
+"garbage collection by this plugin, and WordPress scheduled posts may not "
+"operate correctly."
+msgstr ""
+"Vaš server \"misli\" da vaše host ime ukazuje na %s. Neki servisi, poput "
+"sakupljanja smeća od strane ovog dodatka, i WordPress zakazanih objava, "
+"možda ne funkcionišu ispravno."
+
+#: wp-cache.php:194 wp-cache.php:208
+msgid ""
+"Please see entry 16 in the <a href=\"%s\">Troubleshooting section</a> of the "
+"readme.txt"
+msgstr ""
+"Molim vas, pogledajte stavku 16 u <a href=\"%s\">Troubleshooting section "
+"(Sekciji o otklanjanju problema)</a> readme.txt fajla"
+
+#: wp-cache.php:207
+msgid ""
+"Unfortunately WordPress cannot find the file wp-cron.php. This script is "
+"required for the the correct operation of garbage collection by this plugin, "
+"WordPress scheduled posts as well as other critical activities."
+msgstr ""
+"Na žalost, WordPress ne može da pronađe fajl wp-cron.php. Ova skripta je "
+"potrebna za pravilno funkcionisanje sakupljanja smeća od strane ovog "
+"dodatka, WordPress zakazanih objava, i drugih kritičnih aktivnosti."
+
+#: wp-cache.php:221
+msgid "Cannot continue... fix previous problems and retry."
+msgstr ""
+"Nije moguće nastaviti... otklonite prethodne probleme i pokušajte ponovo."
+
+#: wp-cache.php:230
+msgid "Zlib Output Compression Enabled!"
+msgstr "Zlib izlazna kompresija je uključena!"
+
+#: wp-cache.php:231
+msgid ""
+"PHP is compressing the data sent to the visitors of your site. Disabling "
+"this is recommended as the plugin caches the compressed output once instead "
+"of compressing the same page over and over again. Also see #21 in the "
+"Troubleshooting section. See <a href=\"http://php.net/manual/en/zlib."
+"configuration.php\">this page</a> for instructions on modifying your php.ini."
+msgstr ""
+"PHP komprimuje podatke koji se šalju posetiocima vašeg sajta. Isključivanje "
+"ovoga se preporučuje, jer dodatak kešira komprimovani izlaz jednom, umesto "
+"komprimovanja iste strane iznova i iznova. Takođe pogledajte #21 u sekciji o "
+"otklanjanju problema (Troubleshooting section). Pogledajte <a href=\"http://"
+"php.net/manual/en/zlib.configuration.php\">ovu stranu</a> za instrukcije o "
+"modifikovanju vašeg php.ini fajla."
+
+#: wp-cache.php:235
+msgid "Mod rewrite may not be installed!"
+msgstr "Mod rewrite možda nije instaliran!"
+
+#: wp-cache.php:236
+msgid ""
+"It appears that mod_rewrite is not installed. Sometimes this check isn&#8217;"
+"t 100% reliable, especially if you are not using Apache. Please verify that "
+"the mod_rewrite module is loaded. It is required for serving Super Cache "
+"static files. You will still be able to use legacy or PHP modes."
+msgstr ""
+"Izgleda da mod_rewrite nije instaliran. Ponekad ova provera nije 100% "
+"pouzdana, posebno ako ne koristite Apache. Molim vas, potvrdite da je učitan "
+"modul mod_rewrite. On je potreban za serviranje Super Cache statičnih "
+"fajlova. I dalje ćete moći da koristite zastarele ili PHP modove."
+
+#: wp-cache.php:242
+msgid "Read Only Mode. Configuration cannot be changed."
+msgstr "Mod u kome je moguć samo pregled. Konfiguracija ne može da se menja."
+
+#: wp-cache.php:243
+msgid ""
+"The WP Super Cache configuration file is <code>%s/wp-cache-config.php</code> "
+"and cannot be modified. That file must be writeable by the webserver to make "
+"any changes."
+msgstr ""
+"WP Super Cache konfiguracioni fajl je <code>%s/wp-cache-config.php</code>, i "
+"ne može se menjati. U taj fajl mora da bude omogućen upis podataka od strane "
+"web servera, da bi se pravile bilo kakve izmene."
+
+#: wp-cache.php:244
+msgid ""
+"A simple way of doing that is by changing the permissions temporarily using "
+"the CHMOD command or through your ftp client. Make sure it&#8217;s globally "
+"writeable and it should be fine."
+msgstr ""
+"Jednostavan način da se to uradi je privremeno menjanje dozvola, koristeći "
+"naredbu CHMOD, ili preko vašeg ftp klijenta. Postarajte se da u njega "
+"globalno bude omogućen upis podataka, i trebalo bi sve da bude u redu."
+
+#: wp-cache.php:245 wp-cache.php:294
+msgid ""
+"<a href=\"http://codex.wordpress.org/Changing_File_Permissions\">This page</"
+"a> explains how to change file permissions."
+msgstr ""
+"<a href=\"http://codex.wordpress.org/Changing_File_Permissions\">Ova strana</"
+"a> objašnjava kako promeniti dozvole za fajlove."
+
+#: wp-cache.php:246
+msgid "Writeable:"
+msgstr "Moguć upis podataka:"
+
+#: wp-cache.php:247
+msgid "Readonly:"
+msgstr "Moguć samo pregled:"
+
+#: wp-cache.php:265
+msgid "Warning! Garbage collection is not scheduled!"
+msgstr "Upozorenje! Sakupljanje smeća nije zakazano!"
+
+#: wp-cache.php:266
+msgid ""
+"Garbage collection by this plugin clears out expired and old cached pages on "
+"a regular basis. Use <a href=\"#expirytime\">this form</a> to enable it."
+msgstr ""
+"Sakupljanje smeća od strane ovog dodatka redovno briše istekle i stare "
+"keširane strane. Upotrebite <a href=\"#expirytime\">ovaj obrazac</a> da ga "
+"uključite."
+
+#: wp-cache.php:271 wp-cache.php:299 wp-cache.php:369
+msgid "Dismiss"
+msgstr "Odbaciti"
+
+#: wp-cache.php:292
+msgid "Warning! %s is writeable!"
+msgstr "Pažnja! u %s je moguć upis podataka!"
+
+#: wp-cache.php:293
+msgid ""
+"You should change the permissions on %s and make it more restrictive. Use "
+"your ftp client, or the following command to fix things:"
+msgstr ""
+"Trebalo bi da na %s promenite dozvole, i učinite ih restriktivnijim. Da "
+"popravite stvari, upotrebite vaš ftp klijent, ili sledeću naredbu:"
+
+#: wp-cache.php:311
+msgid "Mobile rewrite rules detected"
+msgstr "Otkrivena su mobilna pravila za ponovni upis"
+
+#: wp-cache.php:312
+msgid ""
+"For best performance you should enable \"Mobile device support\" or delete "
+"the mobile rewrite rules in your .htaccess. Look for the 2 lines with the "
+"text \"2.0\\ MMP|240x320\" and delete those."
+msgstr ""
+"Za najbolje performanse treba da uključite \"Podršku za mobilne uređaje "
+"(Mobile device support)\", ili da obrišete mobilna pravila za ponovni upis u "
+"vašem fajlu .htaccess. Potražite 2 linije sa tekstom \"2.0\\ MMP|240x320\", "
+"i obrišite ih."
+
+#: wp-cache.php:312
+msgid ""
+"This will have no affect on ordinary users but mobile users will see "
+"uncached pages."
+msgstr ""
+"Ovo se neće odraziti na obične korisnike, ali mobilni korisnici će videti "
+"nekeširane strane."
+
+#: wp-cache.php:318 wp-cache.php:329
+msgid "Rewrite rules must be updated"
+msgstr "Pravila za ponovni upis moraju da se ažuriraju"
+
+#: wp-cache.php:319 wp-cache.php:330
+msgid "The rewrite rules required by this plugin have changed or are missing. "
+msgstr ""
+"Pravila za ponovni upis, koja zahteva ovaj dodatak, su izmenjena, ili "
+"nedostaju."
+
+#: wp-cache.php:320
+msgid ""
+"Mobile support requires extra rules in your .htaccess file, or you can set "
+"the plugin to legacy mode. Here are your options (in order of difficulty):"
+msgstr ""
+"Podrška za mobilne uređaje zahteva dodatna pravila u vašem fajlu .htaccess, "
+"ili možete podesiti dodatak na zastareli mod (legacy mode). Evo vaših opcija "
+"(poređanih po težini):"
+
+#: wp-cache.php:321
+msgid "Set the plugin to legacy mode and enable mobile support."
+msgstr ""
+"Podesite dodatak na zastareli mod i uključite podršku za mobilne uređaje."
+
+#: wp-cache.php:322 wp-cache.php:331
+msgid ""
+"Scroll down the Advanced Settings page and click the <strong>Update "
+"Mod_Rewrite Rules</strong> button."
+msgstr ""
+"Skrolujte na dole, na strani sa naprednim podešenjima (Advanced Settings), i "
+"kliknite na dugme <strong>Ažurirati mod_rewrite pravila (Update Mod_Rewrite "
+"Rules)</strong>."
+
+#: wp-cache.php:323
+msgid ""
+"Delete the plugin mod_rewrite rules in %s.htaccess enclosed by <code># BEGIN "
+"WPSuperCache</code> and <code># END WPSuperCache</code> and let the plugin "
+"regenerate them by reloading this page."
+msgstr ""
+"U %s.htaccess fajlu obrišite mod_rewrite pravila dodatka, smeštena između "
+"<code># BEGIN WPSuperCache</code> i <code># END WPSuperCache</code>, i "
+"pustite da ih dodatak opet generiše, učitavajući ponovo ovu stranu."
+
+#: wp-cache.php:324
+msgid ""
+"Add the rules yourself. Edit %s.htaccess and find the block of code enclosed "
+"by the lines <code># BEGIN WPSuperCache</code> and <code># END WPSuperCache</"
+"code>. There are two sections that look very similar. Just below the line "
+"<code>%%{HTTP:Cookie} !^.*(comment_author_|%s|wp-postpass_).*$</code> add "
+"these lines: (do it twice, once for each section)"
+msgstr ""
+"Sami dodajte pravila. Otvorite fajl %s.htaccess u uređivaču, i pronađite "
+"blok koda koji se nalazi između linija <code># BEGIN WPSuperCache</code> i "
+"<code># END WPSuperCache</code>. Tu se nalaze dve sekcije koje izgledaju "
+"vrlo slično. Odmah ispod linije <code>%%{HTTP:Cookie} !^.*(comment_author_|"
+"%s|wp-postpass_).*$</code> dodajte ove linije: (uradite to dva puta - za "
+"svaku sekciju)"
+
+#: wp-cache.php:337
+msgid "Required to serve compressed supercache files properly."
+msgstr "Potrebno da se pravilno serviraju komprimovani supercache fajlovi."
+
+#: wp-cache.php:337
+msgid ""
+"Required to set caching information on supercache pages. IE7 users will see "
+"old pages without this module."
+msgstr ""
+"Potrebno da bi se na supercache stranama postavile informacije o keširanju. "
+"Korisnici IE7 će videti stare strane, bez ovog modula."
+
+#: wp-cache.php:337
+msgid ""
+"Set the expiry date on supercached pages. Visitors may not see new pages "
+"when they refresh or leave comments without this module."
+msgstr ""
+"odešavanje datuma isteka na superkeširanim stranama. Posetioci mogu da ne "
+"vide nove strane kada osvežavaju sadržaj u pregledaču ili ostavljaju "
+"komentare, bez ovog modula."
+
+#: wp-cache.php:344
+msgid "Missing Apache Modules"
+msgstr "Nedostaju Apache moduli "
+
+#: wp-cache.php:345
+msgid ""
+"The following Apache modules are missing. The plugin will work in legacy "
+"mode without them. In full Supercache mode, your visitors may see corrupted "
+"pages or out of date content however."
+msgstr ""
+"Nedostaju sledeći Apache moduli. Bez njih će ovaj dodatak raditi u "
+"zastarelom modu. Međutim, u punom Supercache modu, vaši posetioci mogu da "
+"vide nepotpune strane, ili sadržaj koji više nije važeći."
+
+#: wp-cache.php:363
+msgid ".htaccess file may need to be moved"
+msgstr ".htaccess fajl možda treba da se premesti"
+
+#: wp-cache.php:364
+msgid ""
+"It appears you have WordPress installed in a sub directory as described <a "
+"href=\"http://codex.wordpress.org/Giving_WordPress_Its_Own_Directory\">here</"
+"a>. Unfortunately WordPress writes to the .htaccess in the install "
+"directory, not where your site is served from.<br />When you update the "
+"rewrite rules in this plugin you will have to copy the file to where your "
+"site is hosted. This will be fixed in the future."
+msgstr ""
+"Izgleda da vam je WordPress instaliran u pod-folderu, kao što je opisano <a "
+"href=\"http://codex.wordpress.org/Giving_WordPress_Its_Own_Directory\">ovde</"
+"a>. Na žalost, WordPress upisuje podatke u .htaccess fajl u instalacionom "
+"direktorijumu, a ne tamo odakle se vaš sajt servira.<br />Kada ažurirate "
+"pravila za ponovni upis u ovom dodatku, moraćete da kopirate ovaj fajl na "
+"lokaciju na kojoj se hostuje vaš sajt. Ovo će u budućnosti biti rešeno."
+
+#: wp-cache.php:597
+msgid ""
+"<strong>Warning!</strong> You attempted to enable compression but <code>zlib."
+"output_compression</code> is enabled. See #21 in the Troubleshooting section "
+"of the readme file."
+msgstr ""
+"<strong>Upozorenje!</strong> Pokušali ste da uključite kompresiju, ali je "
+"<code>zlib.output_compression</code> uključeno. Pogledajte #21 u sekciji o "
+"otklanjanju problema  (Troubleshooting section), readme fajla."
+
+#: wp-cache.php:693
+msgid "WP Super Cache Settings"
+msgstr "WP Super Cache podešenja"
+
+#: wp-cache.php:707
+msgid ""
+"Notice: <em>Mod_rewrite or Legacy caching enabled</em>. Showing Advanced "
+"Settings Page by default."
+msgstr ""
+"Obratite pažnju: <em>Uključeni su Mod_rewrite, ili zastarelo keširanje "
+"(Legacy caching)</em>. Podrazumevano je prikazivanje strane sa naprednim "
+"podešenjima (Advanced Settings)."
+
+#: wp-cache.php:718
+msgid ""
+"Configuration file changed, some values might be wrong. Load the page again "
+"from the \"Settings\" menu to reset them."
+msgstr ""
+"Konfiguracioni fajl je izmenjen, neke vrednosti bi mogle biti pogrešne. "
+"Učitajte stranu ponovo, iz menija \"Podešenja (Settings\", da ih resetujete."
+
+#: wp-cache.php:750
+msgid "Caching must be enabled to use this feature"
+msgstr "Da bi se koristilo ovo svojstvo, keširanje mora da bude uključeno"
+
+#: wp-cache.php:768 wp-cache.php:908
+msgid "Cancel Cache Preload"
+msgstr "Otkazati učitavanje keša unapred"
+
+#: wp-cache.php:776
+msgid ""
+"Scheduled preloading of cache almost cancelled. It may take up to a minute "
+"for it to cancel completely."
+msgstr ""
+"Zakazano učitavanje keša unapred je skoro otkazano. Može potrajati još "
+"najviše minut dok se ono potpuno otkaže."
+
+#: wp-cache.php:787
+msgid "Scheduled preloading of cache cancelled."
+msgstr "Zakazano učitavanje keša unapred je otkazano."
+
+#: wp-cache.php:819 wp-cache.php:906
+msgid "Preload Cache Now"
+msgstr "Učitati keš unapred sada"
+
+#: wp-cache.php:823
+msgid "Scheduled preloading of cache in 10 seconds."
+msgstr "Zakazano učitavanje keša unapred za 10 sekundi."
+
+#: wp-cache.php:828
+msgid "Scheduled preloading of cache in %d minutes"
+msgstr "Zakazano učitavanje keša unapred za %d minuta"
+
+#: wp-cache.php:832
+msgid ""
+"This will cache every published post and page on your site. It will create "
+"supercache static files so unknown visitors (including bots) will hit a "
+"cached page. This will probably help your Google ranking as they are using "
+"speed as a metric when judging websites now."
+msgstr ""
+"Ovo će keširati svaku objavljenu objavu, ili stranu, na vašem sajtu. "
+"Napraviće superkeš statične fajlove, tako da će nepoznati posetioci "
+"(uključujući i botove) pogoditi keširanu stranu. Ovo će vam verovatno pomoći "
+"kod Google rangiranja, pošto oni sada koriste brzinu kao meru, kada sude o "
+"web sajtovima."
+
+#: wp-cache.php:833
+msgid ""
+"Preloading creates lots of files however. Caching is done from the newest "
+"post to the oldest so please consider only caching the newest if you have "
+"lots (10,000+) of posts. This is especially important on shared hosting."
+msgstr ""
+"Međutim, učitavanje unapred kreira dosta fajlova. Keširanje se radi od "
+"najnovije do najstarije objave, tako da, molim vas, ako imate mnogo "
+"(10,000+) objava, razmislite o tome da keširate samo one najnovije. Ovo je "
+"naročito važno kod deljenog hostinga."
+
+#: wp-cache.php:834
+msgid ""
+"In &#8217;Preload Mode&#8217; regular garbage collection will only clean out "
+"old legacy files for known users, not the preloaded supercache files. This "
+"is a recommended setting when the cache is preloaded."
+msgstr ""
+"U &#8217;Modu za učitavanje unapred (Preload Mode&)#8217; redovno "
+"sakupljanje smeća će očistiti samo stare zaostale (legacy) fajlove, za "
+"poznate korisnike., a ne unapred učitane superkeš fajlove. Ovo je "
+"podrazumevano podešenje, onda kada se keš učitava unapred."
+
+#: wp-cache.php:838
+msgid ""
+"Refresh preloaded cache files every %s minutes. (0 to disable, minimum %d "
+"minutes.)"
+msgstr ""
+"Osvežavati unapred učitane keš fajlove svakih %s minuta. (0 za "
+"isključivanje, najmanje %d minuta.)"
+
+#: wp-cache.php:851
+msgid "all"
+msgstr "sve"
+
+#: wp-cache.php:864
+msgid "Preload %s posts."
+msgstr "Unapred učitati %s objava."
+
+#: wp-cache.php:871
+msgid ""
+"Preload mode (garbage collection only on legacy cache files. Recommended.)"
+msgstr ""
+"Mod za učitavanje unapred (Preload mode) (sakupljanje smeća samo nad "
+"zastarelim keš fajlovima. Preporučeno.)"
+
+#: wp-cache.php:874
+msgid "Preload tags, categories and other taxonomies."
+msgstr "Unapred učitati oznake (tags), kategorije i druge taksonomije."
+
+#: wp-cache.php:877
+msgid "Send me status emails when files are refreshed."
+msgstr "Slati mi e-mailove kada se fajlovi osvežavaju."
+
+#: wp-cache.php:882
+msgid "Many emails, 2 emails per 100 posts."
+msgstr "Mnogo e-mailova, 2 e-maila na 100 objava."
+
+#: wp-cache.php:885
+msgid "Medium, 1 email per 100 posts."
+msgstr "Srednje, 1 e-mail na 100 objava."
+
+#: wp-cache.php:888
+msgid "Less emails, 1 at the start and 1 at the end of preloading all posts."
+msgstr ""
+"Manje e-mailova, 1 na početku i 1 na kraju prethodnog učitavanja svih objava."
+
+#: wp-cache.php:892
+msgid "Refresh of cache in %d hours %d minutes and %d seconds."
+msgstr "Osvežavanje keša za %d časova, %d minuta i %d sekundi."
+
+#: wp-cache.php:893
+msgid "Full refresh of cache in %d hours %d minutes and %d seconds."
+msgstr "Potpuno osvežavanje keša za %d časova, %d minuta i %d sekundi."
+
+#: wp-cache.php:899
+msgid "Currently caching from post %d to %d."
+msgstr "Trenutno se keširaju objave od %d do %d."
+
+#: wp-cache.php:903
+msgid "<strong>Page last cached:</strong> %s"
+msgstr "<strong>Poslednja keširana strana:</strong> %s"
+
+#: wp-cache.php:906
+msgid "Update Settings"
+msgstr "Ažurirati podešenja"
+
+#: wp-cache.php:914
+msgid ""
+"Preloading of cache disabled. Please disable legacy page caching or talk to "
+"your host administrator."
+msgstr ""
+"Isključeno je učitavanje keša unapred. Molim vas, isključite keširanje "
+"zastarelih strana, ili razgovarajte sa vašim hosting administratorom."
+
+#: wp-cache.php:931 wp-cache.php:1043
+msgid "Caching"
+msgstr "Keširanje"
+
+#: wp-cache.php:935
+msgid "Cache hits to this website for quick access."
+msgstr "Keš pogoci na ovom web sajtu, za brzi pristup."
+
+#: wp-cache.php:935 wp-cache.php:936 wp-cache.php:953 wp-cache.php:962
+#: wp-cache.php:969 wp-cache.php:972 wp-cache.php:990 wp-cache.php:1046
+msgid "Recommended"
+msgstr "Preporučeno"
+
+#: wp-cache.php:936
+msgid "Use mod_rewrite to serve cache files."
+msgstr "Koristiti mod_rewrite za serviranje keš fajlova."
+
+#: wp-cache.php:937
+msgid "Use PHP to serve cache files."
+msgstr "Koristiti PHP za serviranje keš fajlova."
+
+#: wp-cache.php:938
+msgid "Legacy page caching."
+msgstr "Staro keširanje strana (legacy page caching)."
+
+#: wp-cache.php:939
+msgid ""
+"Mod_rewrite is fastest, PHP is almost as fast and easier to get working, "
+"while legacy caching is slower again, but more flexible and also easy to get "
+"working. New users should use PHP caching."
+msgstr ""
+"Mod_rewrite je najbrži, PHP je skoro isto tako brz, a jednostavniji za "
+"stavljanje u rad, dok je, opet, staro keširanje (legacy caching) sporije, "
+"ali je fleksibilnije i, takođe, jednostavnije za stavljanje u rad. Novi "
+"korisnici bi trebalo da koriste PHP keširanje."
+
+#: wp-cache.php:945
+msgid "Miscellaneous"
+msgstr "Razno"
+
+#: wp-cache.php:951
+msgid "Warning! Compression is disabled as gzencode() function not found."
+msgstr ""
+"Upozorenje! Kompresija je isključena, jer nije pronađena funkcija gzencode()."
+
+#: wp-cache.php:953
+msgid "Compress pages so they&#8217;re served more quickly to visitors."
+msgstr "Komprimovati strane, tako da se brže serviraju posetiocima."
+
+#: wp-cache.php:954
+msgid ""
+"Compression is disabled by default because some hosts have problems with "
+"compressed files. Switching it on and off clears the cache."
+msgstr ""
+"Kompresija je u startu isključena, jer neki hostinzi imaju problema sa "
+"komprimovanim fajlovima. Njeno uključivanje i isključivanje brišu keš."
+
+#: wp-cache.php:962
+msgid ""
+"304 Not Modified browser caching. Indicate when a page has not been modified "
+"since last requested."
+msgstr ""
+"304 Ne modifikovano (Not Modified) keširanje od strane pregledača. Ukazuje "
+"kada strana nije izmenjena od poslednjeg zahteva."
+
+#: wp-cache.php:965
+msgid ""
+"Warning! 304 browser caching is only supported when not using mod_rewrite "
+"caching."
+msgstr ""
+"Upozorenje! 304 keširanje od strane pregledača je podržano samo kada se ne "
+"koristi mod_rewrite keširanje."
+
+#: wp-cache.php:967
+msgid ""
+"304 support is disabled by default because some hosts have had problems with "
+"the headers used in the past."
+msgstr ""
+"Podrška za 304 je u startu isključena, jer neki hostinzi imaju problema sa "
+"zaglavljima korišćenim u prošlosti."
+
+#: wp-cache.php:969
+msgid ""
+"Don&#8217;t cache pages for <acronym title=\"Logged in users and those that "
+"comment\">known users</acronym>."
+msgstr ""
+"Ne keširati strane za <acronym title=\"Logged in users and those that comment"
+"\">poznate korisnike</acronym>."
+
+#: wp-cache.php:970
+msgid "Don&#8217;t cache pages with GET parameters. (?x=y at the end of a url)"
+msgstr "Ne keširati strane sa GETparametrima. (?x=y, na kraju url-a)"
+
+#: wp-cache.php:971
+msgid ""
+"Make known users anonymous so they&#8217;re served supercached static files."
+msgstr ""
+"Učiniti poznate korisnike anonimnim, tako da im se serviraju superkeširani "
+"statički fajlovi."
+
+#: wp-cache.php:972
+msgid ""
+"Cache rebuild. Serve a supercache file to anonymous users while a new file "
+"is being generated."
+msgstr ""
+"Ponovna izgradnja keša. Servirati anonimnim korisnicima superkeširani fajl, "
+"dok se generiše novi fajl."
+
+#: wp-cache.php:973
+msgid ""
+"Proudly tell the world your server is <a href=\"%s\">Stephen Fry proof</a>! "
+"(places a message in your blog&#8217;s footer)"
+msgstr ""
+"Ponosno recite svetu da je vaš server <a href=\"%s\">Stephen Fry proof</a>! "
+"(postavlja poruku u podnožju vašeg bloga)"
+
+#: wp-cache.php:979 wp-cache.php:1256 wp-cache.php:1875
+msgid "Advanced"
+msgstr "Napredno"
+
+#: wp-cache.php:983
+msgid ""
+"Enable dynamic caching (mfunc, mclude, dynamic-cached-content). See the <a "
+"href=\"http://wordpress.org/extend/plugins/wp-super-cache/faq/\">FAQ</a> for "
+"further details.)"
+msgstr ""
+"Uključiti dinamičko keširanje (mfunc, mclude, dynamic-cached-content). "
+"Pogledajte <a href=\"http://wordpress.org/extend/plugins/wp-super-cache/faq/"
+"\">često postavljana pitanja (FAQ)</a> za više detalja.)"
+
+#: wp-cache.php:984
+msgid ""
+"Mobile device support. (External plugin or theme required. See the <a href="
+"\"http://wordpress.org/extend/plugins/wp-super-cache/faq/\">FAQ</a> for "
+"further details.)"
+msgstr ""
+"Podrška za mobilne uređaje. (Potreban je spoljni dodatak, ili tema. "
+"Pogledajte <a href=\"http://wordpress.org/extend/plugins/wp-super-cache/faq/"
+"\">često postavljana pitanja (FAQ)</a> za više detalja.)"
+
+#: wp-cache.php:986
+msgid "Mobile Browsers"
+msgstr "Mobilni pregledači"
+
+#: wp-cache.php:986
+msgid "Mobile Prefixes"
+msgstr "Mobilni prefiksi"
+
+#: wp-cache.php:988
+msgid ""
+"Remove UTF8/blog charset support from .htaccess file. Only necessary if you "
+"see odd characters or punctuation looks incorrect. Requires rewrite rules "
+"update."
+msgstr ""
+"Ukloniti UTF8/blog karakter-set podršku iz .htaccess fajla. Potrebno je samo "
+"ako vidite neobične karaktere, ili interpunkcija izgleda nepravilno. Zahteva "
+"ažuriranje pravila ponovnog upisa (rewrite rules)."
+
+#: wp-cache.php:989
+msgid "Clear all cache files when a post or page is published or updated."
+msgstr ""
+"Obrisati sve keš fajlove, onda kada se objava ili strana objavi ili ažurira."
+
+#: wp-cache.php:990
+msgid "Extra homepage checks. (Very occasionally stops homepage caching)"
+msgstr ""
+"Dodatne provere početne strane. (Veoma retko zaustavlja keširanje početne "
+"strane)"
+
+#: wp-cache.php:991
+msgid "Only refresh current page when comments made."
+msgstr "Osvežiti aktuelnu stranu samo kada se ostave komentari."
+
+#: wp-cache.php:992
+msgid "List the newest cached pages on this page."
+msgstr "Prikazati listu poslednjih keširanih strana na ovoj strani."
+
+#: wp-cache.php:994
+msgid ""
+"Coarse file locking. You probably don&#8217;t need this but it may help if "
+"your server is underpowered. Warning! <em>May cause your server to lock up "
+"in very rare cases!</em>"
+msgstr ""
+"Grubo zaključavanje fajlova. Ovo vam verovatno ne treba, ali može pomoći ako "
+"je vaš server slabijih mogućnosti. Upozorenje! <em>U vrlo retkim slučajevima "
+"može izazvati zaključavanje servera!</em>"
+
+#: wp-cache.php:996
+msgid ""
+"Late init. Display cached files after WordPress has loaded. Most useful in "
+"legacy mode."
+msgstr ""
+"Kasna inicijalizacija. Prikazuje keširane fajlove nakon što se učita "
+"WordPress. Najkorisnije u starom modu (legacy mode)."
+
+#: wp-cache.php:998
+msgid "Use object cache to store cached files."
+msgstr "Koristiti objektni keš (object cache) za čuvaje keširanih fajlova."
+
+#: wp-cache.php:998
+msgid "(Experimental)"
+msgstr "(Eksperimentalno)"
+
+#: wp-cache.php:1000
+msgid "<strong>DO NOT CACHE PAGE</strong> secret key: <a href=\"%s\">%s</a>"
+msgstr "<strong>NE KEŠIRATI STRANU</strong> tajni ključ: <a href=\"%s\">%s</a>"
+
+#: wp-cache.php:1006
+msgid "Note:"
+msgstr "Napomena:"
+
+#: wp-cache.php:1008
+msgid ""
+"Uninstall this plugin on the plugins page. It will automatically clean up "
+"after itself. If manual intervention is required then simple instructions "
+"are provided."
+msgstr ""
+"De-instalirati ovaj dodatak na strani sa dodacima (plugins). On će "
+"automatski počistiti za sobom. Ako je potrebna manuelna intervencija, "
+"obezbedeđene su jednostavne instrukcije."
+
+#: wp-cache.php:1009
+msgid ""
+"If uninstalling this plugin, make sure the directory <em>%s</em> is "
+"writeable by the webserver so the files <em>advanced-cache.php</em> and "
+"<em>cache-config.php</em> can be deleted automatically. (Making sure those "
+"files are writeable too is probably a good idea!)"
+msgstr ""
+"Ako de-instalirate ovaj dodatak, postarajte se da u direktorijum <em>%s</em> "
+"bude omogućen upis od strane web servera, tako da fajlovi <em>advanced-cache."
+"php</em> i <em>cache-config.php</em> mogu automatski da budu obrisani. "
+"(Osiguravanje da i u ove fajlove bude moguć upis je verovatno dobra ideja!)"
+
+#: wp-cache.php:1010
+msgid ""
+"Please see the <a href=\"%1$s/wp-super-cache/readme.txt\">readme.txt</a> for "
+"instructions on uninstalling this script. Look for the heading, \"How to "
+"uninstall WP Super Cache\"."
+msgstr ""
+"Molim vas, pogledajte <a href=\"%1$s/wp-super-cache/readme.txt\">readme.txt</"
+"a> fajl, za instrukcije o de-instaliranju ove skripte. otražite naslov \"How "
+"to uninstall WP Super Cache (Kako de-instalirati WP Super Cache)\"."
+
+#: wp-cache.php:1011
+msgid ""
+"Need help? Check the <a href=\"%1$s\">Super Cache readme file</a>. It "
+"includes installation documentation, a FAQ and Troubleshooting tips. The <a "
+"href=\"%2$s\">support forum</a> is also available. Your question may already "
+"have been answered."
+msgstr ""
+"Treba vam pomoć? Pogledajte <a href=\"%1$s\">Super Cache readme fajl</a>. On "
+"uključuje instalacionu dokumentaciju, često postavljana pitanja (FAQ) i "
+"savete za otklanjanje problema. Takođe je dostupan i <a href=\"%2$s\">forum "
+"za podršku</a>. Na vaše pitanje je možda već odgovoreno."
+
+#: wp-cache.php:1014 wp-cache.php:1061
+msgid "Update Status"
+msgstr "Ažurirati status"
+
+#: wp-cache.php:1021
+msgid "Accepted Filenames &amp; Rejected URIs"
+msgstr "Prihvaćena imena fajlova i odbačeni URI-ji"
+
+#: wp-cache.php:1046
+msgid "Caching On"
+msgstr "Keširanje uključeno"
+
+#: wp-cache.php:1047
+msgid "Caching Off"
+msgstr "Keširanje isključeno"
+
+#: wp-cache.php:1048
+msgid "Note: enables PHP caching, cache rebuild, and mobile support"
+msgstr ""
+"Napomena: uključuje PHP keširanje, ponovnu izgradnju keša i podršku za "
+"mobilne uređaje"
+
+#: wp-cache.php:1058
+msgid ""
+"Notice: PHP caching enabled but Supercache mod_rewrite rules detected. "
+"Cached files will be served using those rules. If your site is working ok "
+"please ignore this message or you can edit the .htaccess file in the root of "
+"your install and remove the SuperCache rules."
+msgstr ""
+"Obratite pažnju: Uključeno je PHP keširanje, ali su pronađena Supercache "
+"mod_rewrite pravila za ponovni upis. Keširani fajlovi će biti servirani "
+"koristeći ta pravila. Ako vaš sajt dobro funkcioniše, molim vas, ignorišite "
+"ovu poruku, ili možete urediti .htaccess fajl u osnovnom direktorijumu vaše "
+"instalacije i ukloniti SuperCache pravila."
+
+#: wp-cache.php:1063
+msgid "Cache Tester"
+msgstr "Proverivač keša"
+
+#: wp-cache.php:1064
+msgid "Test your cached website by clicking the test button below."
+msgstr "Proverite svoj keširani web sajt, klikom na donje dugme za proveru."
+
+#: wp-cache.php:1070
+msgid "Fetching %s to prime cache: "
+msgstr "Preuzimanje %s u primarni keš:"
+
+#: wp-cache.php:1072 wp-cache.php:1081 wp-cache.php:1093
+msgid "OK"
+msgstr "U redu"
+
+#: wp-cache.php:1075
+msgid "Fetching first copy of %s: "
+msgstr "Preuzimanje prve kopije %s:"
+
+#: wp-cache.php:1084 wp-cache.php:1095
+msgid "FAILED"
+msgstr "NIJE USPELO"
+
+#: wp-cache.php:1087
+msgid "Fetching second copy of %s: "
+msgstr "Preuzimanje druge kopije %s:"
+
+#: wp-cache.php:1099
+msgid "One or more page requests failed:"
+msgstr "Jedan ili više zahteva za stranu nije uspelo:"
+
+#: wp-cache.php:1118 wp-cache.php:1119
+msgid "Page %d: %d (%s)"
+msgstr "Strana %d: %d (%s)"
+
+#: wp-cache.php:1125
+msgid "Page 1: %s"
+msgstr "Strana 1: %s"
+
+#: wp-cache.php:1126
+msgid "Page 2: %s"
+msgstr "Strana 2: %s"
+
+#: wp-cache.php:1127
+msgid "The timestamps on both pages match!"
+msgstr "Vremenske oznake (timestamps) na obe strane se podudaraju!"
+
+#: wp-cache.php:1129
+msgid "The pages do not match! Timestamps differ or were not found!"
+msgstr ""
+"Strane se ne podudaraju! Vremenske oznake (timestamps) se razlikuju, ili "
+"nisu pronađene!"
+
+#: wp-cache.php:1130
+msgid "Things you can do:"
+msgstr "Stvari koje možete uraditi:"
+
+#: wp-cache.php:1131
+msgid ""
+"Load your homepage in a logged out browser, check the timestamp at the end "
+"of the html source. Load the page again and compare the timestamp. Caching "
+"is working if the timestamps match."
+msgstr ""
+"Učitajte vašu početnu stranu u odjavljen pregledač i proverite vremensku "
+"oznaku na kraju html izvornog koda. Učitajte istu stranu ponovo, i uporedite "
+"vremensku oznaku. Keširanje funkcioniše ako se vremenske oznake podudaraju."
+
+#: wp-cache.php:1132
+msgid ""
+"Enable logging on the Debug page here. That should help you track down the "
+"problem."
+msgstr ""
+"Omogućiti prijavu na strani za otklanjanje programskih grešaka (Debugging "
+"page), ovde. To bi trebalo da vam pomogne da pronađete problem."
+
+#: wp-cache.php:1133
+msgid ""
+"You should check Page 1 and Page 2 above for errors. Your local server "
+"configuration may not allow your website to access itself."
+msgstr ""
+"Trebalo bi da proverite ima li grešaka na strani 1 i strani 2, gore. "
+"Konfiguracija vašeg lokalnog servera možda ne dozvoljava vašem web sajtu da "
+"pristupa sam sebi."
+
+#: wp-cache.php:1141
+msgid "Send non-secure (non https) request for homepage"
+msgstr "Slati neobezbeđene (koji nisu https) zahteve za početnu stranu"
+
+#: wp-cache.php:1142
+msgid "Test Cache"
+msgstr "Proveriti keš"
+
+#: wp-cache.php:1146
+msgid "Delete Cached Pages"
+msgstr "Obrisati keširane strane"
+
+#: wp-cache.php:1147
+msgid ""
+"Cached pages are stored on your server as html and PHP files. If you need to "
+"delete them use the button below."
+msgstr ""
+"Keširane strane se čuvaju na vašem serveru, kao html i PHP fajlovi. Ako "
+"morate da ih obrišete, upotrebite donje dugme."
+
+#: wp-cache.php:1150 wp-cache.php:2416 wp-cache.php:2435 wp-cache.php:2606
+#: wp-cache.php:3141
+msgid "Delete Cache"
+msgstr "Obrisati keš"
+
+#: wp-cache.php:1157 wp-cache.php:2422
+msgid "Delete Cache On All Blogs"
+msgstr "Obrisati keš na svim blogovima"
+
+#: wp-cache.php:1162
+msgid "Recommended Links and Plugins"
+msgstr "Preporučeni linkovi i dodaci"
+
+#: wp-cache.php:1163
+msgid ""
+"Caching is only one part of making a website faster. Here are some other "
+"plugins that will help:"
+msgstr ""
+"Keširanje je samo jedan deo ubrzavanja web sajta. Evo i nekih drugih "
+"dodataka koji će pomoći:"
+
+#: wp-cache.php:1164
+msgid ""
+"<a href=\"%s\">WPSCMin</a>, a Supercache plugin that minifies cached pages "
+"by removing whitespaces and extra characters "
+msgstr ""
+"<a href=\"%s\">WPSCMin</a>, Supercache dodatak koji minimizira keširane "
+"strane, uklanjajući prazan prostor i višak karaktera"
+
+#: wp-cache.php:1165
+msgid ""
+"<a href=\"%s\">Yahoo! Yslow</a> is an extension for the Firefox add-on "
+"Firebug. It analyzes web pages and suggests ways to improve their "
+"performance based on a set of rules for high performance web pages. Also try "
+"the performance tools online at <a href=\"%s\">GTMetrix</a>."
+msgstr ""
+"<a href=\"%s\">Yahoo! Yslow</a> je proširenje za Firefox nadgradnju, "
+"Firebug. Ono analizira web strane i predlaže načine za unapređivanje "
+"njihovih performansi, prema pravilima za web strane visokih performansi. "
+"Takođe probajte onlajn alate za performanse, na <a href=\"%s\">GTMetrix</a>."
+
+#: wp-cache.php:1166
+msgid ""
+"<a href=\"%s\">Use Google Libraries</a> allows you to load some commonly "
+"used Javascript libraries from Google webservers. Ironically it may reduce "
+"your Yslow score."
+msgstr ""
+"<a href=\"%s\">Use Google Libraries</a> vam omogućava da učitate neke često "
+"korišćene Javascript biblioteke sa Google web servera. Ironija je što to "
+"može umanjiti vaš Yslow rezultat."
+
+#: wp-cache.php:1168
+msgid ""
+"<strong>Advanced users only:</strong> <a href=\"%s\">Speed up your site with "
+"Caching and cache-control</a> explains how to make your site more cacheable "
+"with .htaccess rules."
+msgstr ""
+"<strong>Samo za napredne korisnike:</strong> <a href=\"%s\">Speed up your "
+"site with Caching and cache-control (Ubrzajte vaš sajt pomoću keširanja i "
+"kontrole keša)</a> objašnjava kako da vaš sajt učinite pogodnijim za "
+"keširanje, pomoću .htaccess pravila."
+
+#: wp-cache.php:1169
+msgid ""
+"<strong>Advanced users only:</strong> Install an object cache. Choose from "
+"<a href=\"%s\">Memcached</a>, <a href=\"%s\">XCache</a>, <a href=\"%s"
+"\">eAcccelerator</a> and others."
+msgstr ""
+"<strong>Samo za napredne korisnike:</strong> Instalirajte neki objektni keš. "
+"Odaberite između <a href=\"%s\">Memcached</a>, <a href=\"%s\">XCache</a>, <a "
+"href=\"%s\">eAcccelerator</a> i drugih."
+
+#: wp-cache.php:1170
+msgid ""
+"<a href=\"%s\">Cron View</a> is a useful plugin to use when trying to debug "
+"garbage collection and preload problems."
+msgstr ""
+"<a href=\"%s\">Cron View</a> je koristan dodatak, za korišćenje onda kada "
+"pokušavate da otklonite programske greške koje prave probleme sa uklanjanjem "
+"smeća i učitavanjem unapred."
+
+#: wp-cache.php:1181
+msgid "Make WordPress Faster"
+msgstr "Učinite WordPress bržim"
+
+#: wp-cache.php:1182
+msgid ""
+"%1$s is maintained and developed by %2$s with contributions from many others."
+msgstr "%1$s je održavan i razvijen od strane %2$s, uz doprinos mnogih drugih."
+
+#: wp-cache.php:1183
+msgid "He blogs at %1$s and posts photos at %2$s."
+msgstr "On bloguje na %1$s i objavljuje fotografije na %2$s."
+
+#: wp-cache.php:1184
+msgid "Please say hi to him on %s too!"
+msgstr "Molim vas, pozdravite i njega, na %s!"
+
+#: wp-cache.php:1185
+msgid "Need Help?"
+msgstr "Treba vam pomoć?"
+
+#: wp-cache.php:1187
+msgid ""
+"Use the debug system in the Debug tab above. It will tell you what the "
+"plugin is doing."
+msgstr ""
+"Koristite sistem za otklanjanje grešaka u gornjoj kartici Otklanjanje "
+"grešaka (Debug). On će vam reći šta dodatak radi."
+
+#: wp-cache.php:1188
+msgid "<a href=\"%1$s\">Installation Help</a>"
+msgstr "<a href=\"%1$s\">Pomoć oko instalacije</a>"
+
+#: wp-cache.php:1189
+msgid "<a href=\"%1$s\">Frequently Asked Questions</a>"
+msgstr "<a href=\"%1$s\">Često postavljana pitanja (FAQ)</a>"
+
+#: wp-cache.php:1190
+msgid "<a href=\"%1$s\">Support Forum</a>"
+msgstr "<a href=\"%1$s\">forum za podršku</a>"
+
+#: wp-cache.php:1191
+msgid "<a href=\"%1$s\">Development Version</a>"
+msgstr "<a href=\"%1$s\">razvojna verzija</a>"
+
+#: wp-cache.php:1193
+msgid "Rate This Plugin!"
+msgstr "Ocenite ovaj dodatak!"
+
+#: wp-cache.php:1194
+msgid ""
+"Please <a href=\"%s\">rate</a> this plugin and tell me if it works for you "
+"or not. It really helps development."
+msgstr ""
+"Molim vas, <a href=\"%s\">ocenite</a> ovaj dodatak i recite mi da li, u "
+"vašem slučaju, funkcioniše, ili ne. Ovo stvarno pomaže razvoju."
+
+#: wp-cache.php:1203
+msgid "Cached pages since %1$s : <strong>%2$s</strong>"
+msgstr "Keširano strana, od %1$s : <strong>%2$s</strong>"
+
+#: wp-cache.php:1204
+msgid "Newest Cached Pages:"
+msgstr "Najnovije keširane strane:"
+
+#: wp-cache.php:1208
+msgid "Cached %s seconds ago"
+msgstr "Keširano pre %s sekundi"
+
+#: wp-cache.php:1211
+msgid "(may not always be accurate on busy sites)"
+msgstr "(može biti neprecizno kod opterećenih sajtova)"
+
+#: wp-cache.php:1227
+msgid ""
+"Cache plugins are PHP scripts that live in a plugins folder inside the wp-"
+"super-cache folder. They are loaded when Supercache loads, much sooner than "
+"regular WordPress plugins."
+msgstr ""
+"Keš dodaci su PHP skripte koje se nalaze u folderu sa dodacima (plugins), "
+"unutar  wp-super-cache foldera. One se učitavaju kada se učitava Supercache, "
+"mnogo pre nego obični WordPress dodaci."
+
+#: wp-cache.php:1228
+msgid ""
+"This is strictly an advanced feature only and knowledge of both PHP and "
+"WordPress actions is required to create them."
+msgstr ""
+"Ovo je, striktno, samo jedno napredno svojstvo, i potrebno je poznavanje i "
+"PHP i WordPress akcija, da bi se ona kreirala."
+
+#: wp-cache.php:1229
+msgid ""
+"<strong>Warning</strong>! Due to the way WordPress upgrades plugins the "
+"plugins you upload to wp-super-cache/plugins/ will be deleted when you "
+"upgrade WP Super Cache. You can avoid this by loading the plugins from "
+"elsewhere. Set <strong>$wp_cache_plugins_dir</strong> to the new location in "
+"wp-config.php and WP Super Cache will look there instead.<br />More info "
+"available in the <a href=\"http://ocaoimh.ie/wp-super-cache-developers/"
+"\">developer documentation</a>."
+msgstr ""
+"<strong>Upozorenje!</strong> Zbog načina na koji WordPress unapređuje "
+"dodatke, dodaci koje prenesete u wp-super-cache/plugins/ će biti obrisani "
+"kada unapredite WP Super Cache. Ovo možete izbeći učitavanjem dodataka sa "
+"neke druge lokacije. U fajlu wp-config.php podesite <strong>"
+"$wp_cache_plugins_dir</strong> na novu lokaciju, i WP Super Cache će tražiti "
+"tu, umesto na staroj lokaciji.<br />Više informacija je dostupno u <a href="
+"\"http://ocaoimh.ie/wp-super-cache-developers/\">dokumentaciji za "
+"programere</a>."
+
+#: wp-cache.php:1239
+msgid "Available Plugins"
+msgstr "Raspoloživi dodaci"
+
+#: wp-cache.php:1256
+msgid "Easy"
+msgstr "Jednostavno"
+
+#: wp-cache.php:1256
+msgid "CDN"
+msgstr "CDN"
+
+#: wp-cache.php:1256
+msgid "Contents"
+msgstr "Sadržaji"
+
+#: wp-cache.php:1256
+msgid "Preload"
+msgstr "Učitavanje unapred"
+
+#: wp-cache.php:1256
+msgid "Plugins"
+msgstr "Dodaci"
+
+#: wp-cache.php:1256
+msgid "Debug"
+msgstr "Otklanjanje programskih grešaka"
+
+#: wp-cache.php:1291
+msgid ""
+"Notice: WP Super Cache mod_rewrite rule checks disabled unless running on <a "
+"href=\"%s\">the main site</a> of this network."
+msgstr ""
+"Obratite pažnju:  Provere WP Super Cache mod_rewrite pravila su iksljučene, "
+"osim ako vam <a href=\"%s\">glavni sajt</a> radi na ovoj mreži."
+
+#: wp-cache.php:1300
+msgid "Mod Rewrite Rules"
+msgstr "Mod Rewrite pravila"
+
+#: wp-cache.php:1306
+msgid "WordPress MU Detected"
+msgstr "Pronađen je WordPress MU"
+
+#: wp-cache.php:1306
+msgid ""
+"Unfortunately the rewrite rules cannot be updated automatically when running "
+"WordPress MU. Please open your .htaccess and add the following mod_rewrite "
+"rules above any other rules in that file."
+msgstr ""
+"Na žalost, pravila za ponovni upis ne mogu da se ažuriraju automatski, kada "
+"se koristi WordPress MU. Molim vas, otvorite .htaccess i dodajte sledeća "
+"mod_rewrite pravila, iznad svih drugih pravila u tom fajlu."
+
+#: wp-cache.php:1308
+msgid "Mod Rewrite rules cannot be updated!"
+msgstr "Mod Rewrite pravila ne mogu da se ažuriraju!"
+
+#: wp-cache.php:1309
+msgid ""
+"You must have <strong>BEGIN</strong> and <strong>END</strong> markers in %s."
+"htaccess for the auto update to work. They look like this and surround the "
+"main WordPress mod_rewrite rules:"
+msgstr ""
+"Da bi automatsko ažuriranje funkcionisalo, morate imati <strong>BEGIN</"
+"strong> i <strong>END</strong> markere u %s.htaccess fajlu. Oni izgledaju "
+"ovako, i okružuju glavna WordPress mod_rewrite pravila:"
+
+#: wp-cache.php:1311
+msgid "Refresh this page when you have updated your .htaccess file."
+msgstr "Kada ažurirate vaš .htaccess fajl, osvežite ovu stranu."
+
+#: wp-cache.php:1315
+msgid "Thank you for upgrading."
+msgstr "Hvala vam za unapređivanje."
+
+#: wp-cache.php:1315
+msgid ""
+"The mod_rewrite rules changed since you last installed this plugin. "
+"Unfortunately you must remove the old supercache rules before the new ones "
+"are updated. Refresh this page when you have edited your .htaccess file. If "
+"you wish to manually upgrade, change the following line: %1$s so it looks "
+"like this: %2$s The only changes are \"HTTP_COOKIE\" becomes \"HTTP:Cookie\" "
+"and \"wordpressuser\" becomes \"wordpress\". This is a WordPress 2.5 change "
+"but it&#8217;s backwards compatible with older versions if you&#8217;re "
+"brave enough to use them."
+msgstr ""
+"Mod_rewrite pravila su se promenila od kada ste poslednji put instalirali "
+"ovaj dodatak. Na žalost, morate ukloniti stara superkeš pravila pre nego se "
+"nova ažuriraju. Kada završite uređivanje vašeg .htaccess fajla, osvežite ovu "
+"stranu. Ako želite da uradite manuelno unapređivanje, izmenite sledeću "
+"liniju: %1$s, da izgleda ovako: %2$s Jedine izmene su to što \"HTTP_COOKIE\" "
+"postaje \"HTTP:Cookie\" i \"wordpressuser\" postaje \"wordpress\". Ovo je "
+"WordPress 2.5 izmena, ali ona je komaptibilna unazad sa starijim verzijama, "
+"ako ste dovoljno hrabri da ih koristite."
+
+#: wp-cache.php:1319
+msgid "Trailing slash check required."
+msgstr "Potrebna je provera prateće kose crte."
+
+#: wp-cache.php:1319
+msgid ""
+"It looks like your blog has URLs that end with a \"/\". Unfortunately since "
+"you installed this plugin a duplicate content bug has been found where URLs "
+"not ending in a \"/\" end serve the same content as those with the \"/\" and "
+"do not redirect to the proper URL. To fix, you must edit your .htaccess file "
+"and add these two rules to the two groups of Super Cache rules:"
+msgstr ""
+"Izgleda da vaš blog ima URL-ove koji završavaju sa \"/\". Na žalost, pošto "
+"ste instalirali ovaj dodatak, programska greška sa dupliranim sadržajem se "
+"pojavljuje tamo gde URL-ovi ne završavaju sa \"/\", i servira se isti "
+"sadržaj kao za one sa \"/\", a ne vrši se usmeravanje na odgovarajući URL. "
+"Da popravite ovo, morate urediti vaš .htaccess fajl, i dodati ova pravila "
+"dvema grupama Super Cache pravila:"
+
+#: wp-cache.php:1321
+msgid ""
+"You can see where the rules go and examine the complete rules by clicking "
+"the \"View mod_rewrite rules\" link below."
+msgstr ""
+"Možete videti gde pravila idu, i ispitati kompletna pravila, klikom na donji "
+"link \"Pregledati mod_rewrite pravila (View mod_rewrite rules)\"."
+
+#: wp-cache.php:1335
+msgid "Mod Rewrite rules updated!"
+msgstr "Mod Rewrite pravila su ažurirana!"
+
+#: wp-cache.php:1336
+msgid ""
+"%s.htaccess has been updated with the necessary mod_rewrite rules. Please "
+"verify they are correct. They should look like this:"
+msgstr ""
+"%s.htaccess je dopunjen sa neophodnim mod_rewrite pravilima. Molim vas, "
+"potvrdite da su ona ispravna. Trebalo bi da ovako izgledaju:"
+
+#: wp-cache.php:1338
+msgid "Mod Rewrite rules must be updated!"
+msgstr "Mod Rewrite pravila moraju da budu ažurirana!"
+
+#: wp-cache.php:1339
+msgid ""
+"Your %s.htaccess is not writable by the webserver and must be updated with "
+"the necessary mod_rewrite rules. The new rules go above the regular "
+"WordPress rules as shown in the code below:"
+msgstr ""
+"U vaš %s.htaccess fajl nije omogućen upis podataka od strane web servera, a "
+"on se mora ažurirati sa neophodnim mod_rewrite pravilima. Nova pravila "
+"dolaze iznad uobičajenih WordPress pravila, kao što je prikazano u donjem "
+"kodu:"
+
+#: wp-cache.php:1344
+msgid ""
+"WP Super Cache mod rewrite rules were detected in your %s.htaccess file.<br /"
+"> Click the following link to see the lines added to that file. If you have "
+"upgraded the plugin make sure these rules match."
+msgstr ""
+"U vašem %s.htaccess fajlu su pronađena WP Super Cache mod rewrite pravila."
+"<br/> Kliknite na sledeći link da vidite linije koje su dodate u taj fajl. "
+"Ako ste unapredili dodatak, postarajte se da se ova pravila poklapaju."
+
+#: wp-cache.php:1347
+msgid ""
+"A difference between the rules in your .htaccess file and the plugin rewrite "
+"rules has been found. This could be simple whitespace differences but you "
+"should compare the rules in the file with those below as soon as possible. "
+"Click the &#8217;Update Mod_Rewrite Rules&#8217; button to update the rules."
+msgstr ""
+"Pronađena je razlika između pravila u vašem .htaccess fajlu i pravila "
+"dodatka, za ponovni upis. Ovo može biti jednostavno razlika u praznom "
+"prostoru, ali bi što pre trebalo da uporedite pravila u fajlu sa ovim "
+"donjim. Da ažurirate pravila, kliknite na dugme &#8217;Ažurirati Mod_Rewrite "
+"pravila (Update Mod_Rewrite Rules)&#8217;."
+
+#: wp-cache.php:1349
+msgid "View Mod_Rewrite Rules"
+msgstr "Pregledati Mod_Rewrite pravila"
+
+#: wp-cache.php:1355 wp-cache.php:2722
+msgid "Rules must be added to %s too:"
+msgstr "Pravila se takođe moraju dodati u %s:"
+
+#: wp-cache.php:1362
+msgid "Gzip encoding rules in %s.htaccess created."
+msgstr "U %s.htaccess fajlu su kreirana pravila za Gzip kodiranje."
+
+#: wp-cache.php:1369
+msgid "Fix Configuration"
+msgstr "Popraviti konfiguraciju"
+
+#: wp-cache.php:1372
+msgid "Restore Default Configuration"
+msgstr "Vratiti podrazumevanu konfiguraciju"
+
+#: wp-cache.php:1380
+msgid ""
+"Comment moderation is enabled. Your comment may take some time to appear."
+msgstr ""
+"Uključena je moderacija komentara. Vašem komentaru može biti potrebno "
+"određeno vreme da se pojavi."
+
+#: wp-cache.php:1405
+msgid "Lock Down:"
+msgstr "Zaključati:"
+
+#: wp-cache.php:1406
+msgid ""
+"Prepare your server for an expected spike in traffic by enabling the lock "
+"down. When this is enabled, new comments on a post will not refresh the "
+"cached static files."
+msgstr ""
+"Pripremite vaš server za neočekivani saobraćajni špic, omogućivši "
+"zaključavanje. Kada je ono uključeno, novi komentari na objave neće "
+"osvežavati keširane statičke fajlove."
+
+#: wp-cache.php:1407
+msgid ""
+"Developers: Make your plugin lock down compatible by checking the "
+"\"WPLOCKDOWN\" constant. The following code will make sure your plugin "
+"respects the WPLOCKDOWN setting."
+msgstr ""
+"Programeri: Učinite vaš dodatak kompatibilnim sa zaključavanjem, čekiravši "
+"\"WPLOCKDOWN\" konstantu. Sledeći kod će se postarati da vaš dodatak poštuje "
+"WPLOCKDOWN podešenje."
+
+#: wp-cache.php:1409
+msgid "Sorry. My blog is locked down. Updates will appear shortly"
+msgstr ""
+"Žao mi je. Moj blog je zaključan. Ispravke/dopune će se pojaviti uskoro"
+
+#: wp-cache.php:1413
+msgid ""
+"WordPress is locked down. Super Cache static files will not be deleted when "
+"new comments are made."
+msgstr ""
+"WordPress je zaključan. Super Cache statički fajlovi se neće brisati kada se "
+"postave novi komentari."
+
+#: wp-cache.php:1415
+msgid ""
+"WordPress is not locked down. New comments will refresh Super Cache static "
+"files as normal."
+msgstr ""
+"WordPress nije zaključan. Novi komentari će osvežavati Super Cache statičke "
+"fajlove, kao i obično."
+
+#: wp-cache.php:1421
+msgid "Lock Down"
+msgstr "Zaključati"
+
+#: wp-cache.php:1429
+msgid "Directly Cached Files"
+msgstr "Direktno keširani fajlovi"
+
+#: wp-cache.php:1487
+msgid "%s removed!"
+msgstr "%s uklonjeno!"
+
+#: wp-cache.php:1495
+msgid ""
+"You must make %s writable to enable this feature. As this is a security risk "
+"please make it readonly after your page is generated."
+msgstr ""
+"Morate omogućiti upis podataka u %s, da biste omogućili ovo svojstvo. Pošto "
+"je to sigurnosni rizik, molim vas da ponovo onemogućite upis podataka u "
+"fajl, nakon što se vaša strana generiše."
+
+#: wp-cache.php:1500
+msgid ""
+"%s is writable. Please make it readonly after your page is generated as this "
+"is a security risk."
+msgstr ""
+"U %s je moguć upis podataka. Molim vas, onemogućite upis podataka u ovaj "
+"fajl, nakon što se generiše vaša strana, jer je to sigurnosni rizik."
+
+#: wp-cache.php:1515
+msgid "Existing direct page"
+msgstr "Postojeća direktna strana"
+
+#: wp-cache.php:1515
+msgid "Delete cached file"
+msgstr "Obrisati keširani fajl"
+
+#: wp-cache.php:1520
+msgid "Add direct page:"
+msgstr "Dodati direktnu stranu:"
+
+#: wp-cache.php:1522
+msgid ""
+"Directly cached files are files created directly off %s where your blog "
+"lives. This feature is only useful if you are expecting a major Digg or "
+"Slashdot level of traffic to one post or page."
+msgstr ""
+"Direktno keširani fajlovi se kreiraju direktno iz %s, gde se nalazi vaš "
+"blog. Ovo svojstvo je korisno samo ako očekujete značajan nivo Digg ili "
+"Slashdot saobraćaja ka jednoj objavi, ili strani."
+
+#: wp-cache.php:1524
+msgid ""
+"For example: to cache <em>%1$sabout/</em>, you would enter %1$sabout/ or /"
+"about/. The cached file will be generated the next time an anonymous user "
+"visits that page."
+msgstr ""
+"Na primer: da keširate <em>%1$sabout/</em>, unećete %1$sabout/ ili /about/. "
+"Keširani fajl će se generisati sledeći put kada anonimni posetilac poseti tu "
+"stranu."
+
+#: wp-cache.php:1525
+msgid ""
+"Make the textbox blank to remove it from the list of direct pages and delete "
+"the cached file."
+msgstr ""
+"Ispraznite tekstualno polje, da ga uklonite sa liste direktnih strana, i "
+"obrišete keširani fajl."
+
+#: wp-cache.php:1530
+msgid "Update Direct Pages"
+msgstr "Ažurirati direktne strane"
+
+#: wp-cache.php:1558
+msgctxt "timezone date format"
+msgid "Y-m-d G:i:s"
+msgstr "Y-m-d (G-m-d) G:i:s"
+
+#: wp-cache.php:1620
+msgid "Expiry Time &amp; Garbage Collection"
+msgstr "Vreme isteka i sakupljanje smeća"
+
+#: wp-cache.php:1622
+msgid ""
+"<abbr title=\"Coordinated Universal Time\">UTC</abbr> time is <code>%s</code>"
+msgstr ""
+"<abbr title=\"Coordinated Universal Time\">UTC (usklađeno univerzalno vreme)"
+"</abbr> vreme je <code>%s</code>"
+
+#: wp-cache.php:1625
+msgid "Local time is <code>%1$s</code>"
+msgstr "Lokalno vreme je <code>%1$s</code>"
+
+#: wp-cache.php:1629
+msgid "Next scheduled garbage collection will be at <strong>%s UTC</strong>"
+msgstr "Sledeće zakazano sakupljanje smeća će biti u <strong>%s UTC</strong>"
+
+#: wp-cache.php:1633
+msgid ""
+"Warning! <strong>PRELOAD MODE</strong> activated. Supercache files will not "
+"be deleted regardless of age."
+msgstr ""
+"Upozorenje! <strong>PRELOAD MODE (mod za učitavanje unapred)</strong> je "
+"aktiviran. Superkeš fajlovi se neće brisati, nevezano za starost."
+
+#: wp-cache.php:1650
+msgid "Cache Timeout"
+msgstr "Vreme isteka keša"
+
+#: wp-cache.php:1651 wp-cache.php:1654
+msgid "seconds"
+msgstr "sekundi"
+
+#: wp-cache.php:1652
+msgid ""
+"How long should cached pages remain fresh? Set to 0 to disable garbage "
+"collection. A good starting point is 3600 seconds."
+msgstr ""
+"Koliko dugo keširane strane treba da ostanu sveže? Da isključite sakupljanje "
+"smeća, postavite vrednost 0. Dobra polazna tačka je 3600 sekundi."
+
+#: wp-cache.php:1653
+msgid "Scheduler"
+msgstr "Planer"
+
+#: wp-cache.php:1653
+msgid "Timer:"
+msgstr "Tajmer:"
+
+#: wp-cache.php:1654
+msgid "Check for stale cached files every <em>interval</em> seconds."
+msgstr ""
+"Tražiti keširane fajlove koji se ne koriste, svakih <em>interval</em> "
+"sekundi."
+
+#: wp-cache.php:1655
+msgid "Clock:"
+msgstr "Sat:"
+
+#: wp-cache.php:1656
+msgid "HH:MM"
+msgstr "HH:MM"
+
+#: wp-cache.php:1656
+msgid ""
+"Check for stale cached files at this time <strong>(UTC)</strong> or starting "
+"at this time every <em>interval</em> below."
+msgstr ""
+"Tražiti keširane fajlove koji se ne koriste u ovo vreme <strong>(UTC)</"
+"strong>, ili, počevši od ovog vremena, svakih  <em>interval</em> nadalje."
+
+#: wp-cache.php:1658
+msgid "Interval:"
+msgstr "Interval:"
+
+#: wp-cache.php:1664
+msgid "Notification Emails"
+msgstr "E-mailovi sa obaveštenjima"
+
+#: wp-cache.php:1665
+msgid "Email me when the garbage collection runs."
+msgstr "Obavestiti me e-mailom kada se pokrene sakupljanje smeća."
+
+#: wp-cache.php:1667
+msgid "Garbage Collection"
+msgstr "Sakupljanje smeća"
+
+#: wp-cache.php:1668
+msgid ""
+"<em>Garbage collection</em> is the simple act of throwing out your garbage. "
+"For this plugin that would be old or <em>stale</em> cached files that may be "
+"out of date. New cached files are described as <em>fresh</em>."
+msgstr ""
+"<em>Sakupljanje smeća</em> je jednostavno čin izbacivanja vašeg smeća. Za "
+"ovaj dodatak, to bi bili stari, ili <em>nekorišćeni</em> keširani fajlovi "
+"koji bi mogli biti zastareli. Novi keširani fajlovi se nazivaju <em>svežim</"
+"em>."
+
+#: wp-cache.php:1669
+msgid ""
+"Cached files are fresh for a limited length of time. You can set that time "
+"in the <em>Cache Timeout</em> text box on this page."
+msgstr ""
+"Keširani fajlovi ostaju sveži ograničeno vreme. To vreme možete podesiti u "
+"tekstualnom polju <em>Vreme isteka keša (Cache Timeout)</em>, na ovoj strani."
+
+#: wp-cache.php:1670
+msgid ""
+"Stale cached files are not removed as soon as they become stale. They have "
+"to be removed by the garbage collecter. That is why you have to tell the "
+"plugin when the garbage collector should run."
+msgstr ""
+"Keširani fajlovi koji se ne koriste, ne uklanjaju se čim postanu \"ustajali"
+"\". Njih mora da ukloni sakupljač smeća. Zato morate reći dodatku kada "
+"sakupljač smeća treba da se pokrene."
+
+#: wp-cache.php:1671
+msgid ""
+"Use the <em>Timer</em> or <em>Clock</em> schedulers to define when the "
+"garbage collector should run."
+msgstr ""
+"Koristite planere <em>Tajmer (Timer)</em> ili <em>Sat (Clock)</em>, da "
+"definišete kada sakupljač smeća treba da se pokrene."
+
+#: wp-cache.php:1672
+msgid ""
+"The <em>Timer</em> scheduler tells the plugin to run the garbage collector "
+"at regular intervals. When one garbage collection is done, the next run is "
+"scheduled."
+msgstr ""
+"<em>Tajmer (Timer)</em> planer govori dodatku da pokreće sakupljač smeća u "
+"pravilnim intervalima. Kada jedan sakupljač smeća završi sa radom, zakazuje "
+"se sledeće pokretanje."
+
+#: wp-cache.php:1673
+msgid ""
+"Or, the <em>Clock</em> scheduler allows the garbage collection to run at "
+"specific times. If set to run hourly or twicedaily the garbage collector "
+"will be first scheduled for the time you enter here. It will then run again "
+"at the indicated interval. If set to run daily it will run once a day at the "
+"time specified."
+msgstr ""
+"Ili, <em>Sat (Clock)</em> planer, koji omogućava da se sakupljač smeća "
+"pokreće u određeno vreme. Ako je podešen da radi na svaki sat, ili dva puta "
+"na dan, pokretanje sakupljača smeća će prvo biti zakazano u vreme koje "
+"unesete ovde. Nakon toga će biti pokretan u navedenim intervalima. Ako je "
+"podešen da se pokreće jednom dnevno, on će se pokretati jednom dnevno - u "
+"navedeno vreme."
+
+#: wp-cache.php:1675
+msgid ""
+"There are no best garbage collection settings but here are a few scenarios. "
+"Garbage collection is separate to other actions that clear our cached files "
+"like leaving a comment or publishing a post."
+msgstr ""
+"Ne postoje najbolja podešenja za sakupljanje smeća, ali evo nekoliko "
+"scenarija. Sakupljanje smeća je odvojeno od drugih akcija koje brišu "
+"keširane fajlove, kao što je ostavljanje komentara, ili objavljivanje objave."
+
+#: wp-cache.php:1677
+msgid ""
+"Sites that want to serve lots of newly generated data should set the "
+"<em>Cache Timeout</em> to 60 and use the <em>Timer</em> scheduler set to 90 "
+"seconds."
+msgstr ""
+"Sajtovi koji žele da pruže dosta novo generisanih podataka, treba da podese "
+"<em>Vreme isteka keša (Cache Timeout)</em> na 60, i da koriste <em>Tajmer "
+"(Timer)</em>, podešen na 90 sekundi."
+
+#: wp-cache.php:1678
+msgid ""
+"Sites with widgets and rss feeds in their sidebar should probably use a "
+"timeout of 3600 seconds and set the timer to 600 seconds. Stale files will "
+"be caught within 10 minutes of going stale."
+msgstr ""
+"Sajtovi sa vidžetima i sa rss tokovima u svojoj bočnoj traci, verovatno "
+"treba da koriste vreme isteka od 3600 sekundi, i da podese tajmer na 600 "
+"sekundi. Fajlovi koji se ne koriste će se uhvatiti u roku od 10 minuta, od "
+"kako postanu \"ustajali\"."
+
+#: wp-cache.php:1679
+msgid ""
+"Sites with lots of static content, no widgets or rss feeds in their sidebar "
+"can use a timeout of 86400 seconds or even more and set the timer to "
+"something equally long."
+msgstr ""
+"Sajtovi sa dosta statičkog sadržaja, bez vidžeta i rss tokova u svojoj "
+"bočnoj traci, mogu da koriste vreme isteka od 86400 sekundi, pa čak i više, "
+"i da podese tajmer na neko podjednako dugo vreme."
+
+#: wp-cache.php:1680
+msgid ""
+"Sites where an external data source updates at a particular time every day "
+"should set the timeout to 86400 seconds and use the Clock scheduler set "
+"appropriately."
+msgstr ""
+"Sajtovi čiji se neki spoljni izvor podataka ažurira svakog dana u isto "
+"vreme, treba da podese vreme isteka na 86400 sekundi, i da koriste Sat "
+"(Clock) planer u skladu sa tim."
+
+#: wp-cache.php:1682
+msgid ""
+"Checking for and deleting expired files is expensive, but it&#8217;s "
+"expensive leaving them there too. On a very busy site you should set the "
+"expiry time to <em>600 seconds</em>. Experiment with different values and "
+"visit this page to see how many expired files remain at different times "
+"during the day. If you are using legacy caching aim to have less than 500 "
+"cached files if possible. You can have many times more cached files when "
+"using mod_rewrite or PHP caching."
+msgstr ""
+"Traženje i brisanje isteklih fajlova je skupo, ali je takođe skupo "
+"ostavljati ih gde jesu. Na veoma posećenom sajtu, trebalo bi da podesite "
+"vreme isteka na <em>600 sekundi</em>. Eksperimentišite sa različitim "
+"vrednostima i posećujte ovu stranu, da vidite koliko isteklih fajlova ostaje "
+"u različito vreme, tokom dana. Ako koristite staro keširanje (legacy "
+"caching), ciljajte na to da imate manje od 500 keširanih fajlova, ako je to "
+"moguće. Kada koristite mod_rewrite ili PHP keširanje, možete imati mnogo "
+"više keširanih fajlova."
+
+#: wp-cache.php:1683
+msgid "Set the expiry time to 0 seconds to disable garbage collection."
+msgstr "Da isključite sakupljanje smeća, podesite vreme isteka na 0 sekundi."
+
+#: wp-cache.php:1684
+msgid "Change Expiration"
+msgstr "Izmeniti isticanje"
+
+#: wp-cache.php:1728
+msgid "Rejected User Agents"
+msgstr "Odbačeni korisnički agenti"
+
+#: wp-cache.php:1729
+msgid ""
+"Strings in the HTTP &#8217;User Agent&#8217; header that prevent WP-Cache "
+"from caching bot, spiders, and crawlers&#8217; requests. Note that super "
+"cached files are still sent to these agents if they already exists."
+msgstr ""
+"Stringovi u HTTP &#8217;User Agent&#8217; zaglavlju, koji sprečavaju WP-"
+"Cache da kešira zahteve botova, tragača (spiders) i pretraživača (crawlers). "
+"Imajte na umu da se superkeširani fajlovi i dalje šalju ovim agentima, ako "
+"već postoje."
+
+#: wp-cache.php:1736
+msgid "Save UA Strings"
+msgstr "Sačuvati UA stringove"
+
+#: wp-cache.php:1759
+msgid ""
+"Do not cache the following page types. See the <a href=\"http://codex."
+"wordpress.org/Conditional_Tags\">Conditional Tags</a> documentation for a "
+"complete discussion on each type."
+msgstr ""
+"Ne keširati sledeće tipove strana. Pogledajte dokumentaciju o <a href="
+"\"http://codex.wordpress.org/Conditional_Tags\">Uslovnim tagovima "
+"(Conditional Tags)</a>, za kompletnu diskusiju o svakom tipu."
+
+#: wp-cache.php:1762
+msgid "Single Posts"
+msgstr "Pojedinačne objave"
+
+#: wp-cache.php:1763
+msgid "Pages"
+msgstr "Strane"
+
+#: wp-cache.php:1764
+msgid "Front Page"
+msgstr "Prva strana"
+
+#: wp-cache.php:1765
+msgid "Home"
+msgstr "Početna strana"
+
+#: wp-cache.php:1766
+msgid "Archives"
+msgstr "Arhive"
+
+#: wp-cache.php:1767
+msgid "Tags"
+msgstr "Oznake (tags)"
+
+#: wp-cache.php:1768
+msgid "Category"
+msgstr "Kategorija"
+
+#: wp-cache.php:1769
+msgid "Feeds"
+msgstr "Izvori podataka (feeds)"
+
+#: wp-cache.php:1770
+msgid "Search Pages"
+msgstr "Strane za pretragu"
+
+#: wp-cache.php:1771
+msgid "Author Pages"
+msgstr "Strane o autorima"
+
+#: wp-cache.php:1773 wp-cache.php:1885
+msgid "Save"
+msgstr "Sačuvati"
+
+#: wp-cache.php:1790
+msgid ""
+"Add here strings (not a filename) that forces a page not to be cached. For "
+"example, if your URLs include year and you dont want to cache last year "
+"posts, it&#8217;s enough to specify the year, i.e. &#8217;/2004/&#8217;. WP-"
+"Cache will search if that string is part of the URI and if so, it will not "
+"cache that page."
+msgstr ""
+"Ovde dodajte stringove (ne ime fajla), koji forsiraju da strana ne bude "
+"keširana. Na primer, ako vaši URL-ovi uključuju godinu, a ne želite da "
+"keširate prošlogodišnje objave, dovoljno je navesti godinu, npr. "
+"&#8217;/2004/&#8217;. WP-Cache će tražiti da li je taj string deo URI-ja, i "
+"ako jeste, neće keširati tu stranu."
+
+#: wp-cache.php:1796
+msgid "Save Strings"
+msgstr "Sačuvati stringove"
+
+#: wp-cache.php:1812
+msgid ""
+"Add here those filenames that can be cached, even if they match one of the "
+"rejected substring specified above."
+msgstr ""
+"Ovde dodajte imena fajlova koji mogu da se keširaju, čak i ako sadrže neki "
+"od gornjih stringova za odbacivanje."
+
+#: wp-cache.php:1818
+msgid "Save Files"
+msgstr "Sačuvati fajlove"
+
+#: wp-cache.php:1859
+msgid "Currently logging to: %s"
+msgstr "Trenutno se prijavljuje na: %s"
+
+#: wp-cache.php:1862
+msgid ""
+"Fix problems with the plugin by debugging it here. It can log them to a file "
+"in your cache directory."
+msgstr ""
+"Rešava probleme sa dodatkom, otklanjajući ovde programske greške. Može "
+"napraviti dnevnički zapis o njima u vašem keš direktorijumu."
+
+#: wp-cache.php:1866
+msgid "Debugging"
+msgstr "Otklanjanje programskih grešaka"
+
+#: wp-cache.php:1867
+msgid "IP Address"
+msgstr "IP adrese"
+
+#: wp-cache.php:1867
+msgid "(only log requests from this IP address. Your IP is %s)"
+msgstr "(zahtevi za logove samo sa ove IP adrese. Vaša IP adresa je %s)"
+
+#: wp-cache.php:1868
+msgid "Cache Status Messages"
+msgstr "Poruke o statusu keša"
+
+#: wp-cache.php:1869
+msgid "Display comments at the end of every page like this:"
+msgstr "Prikazivati komentare na kraju svake strane, ovako:"
+
+#: wp-cache.php:1875
+msgid ""
+"In very rare cases two problems may arise on some blogs:<ol><li> The front "
+"page may start downloading as a zip file.</li><li> The wrong page is "
+"occasionally cached as the front page if your blog uses a static front page "
+"and the permalink structure is <em>/%category%/%postname%/</em>.</li></ol>"
+msgstr ""
+"U veoma retkim slučajevima, na nekim blogovima se mogu pojaviti dva problema:"
+"<ol><li> Prva strana može da počne da se preuzima kao zip fajl.</li><li> "
+"Povremeno se kao prva strana kešira pogrešna strana, ako vaš blog koristi "
+"statičnu prvu stranu, a permalink struktura teme je <em>/%category%/%postname"
+"%/</em>.</li></ol>"
+
+#: wp-cache.php:1876
+msgid ""
+"I&#8217;m 99% certain that they aren&#8217;t bugs in WP Super Cache and they "
+"only happen in very rare cases but you can run a simple check once every 5 "
+"minutes to verify that your site is ok if you&#8217;re worried. You will be "
+"emailed if there is a problem."
+msgstr ""
+"99% sam siguran da to nisu programske greške u WP Super Cache-u, i do njih "
+"dolazi samo u veoma retkim slučajevima, ali možete pokrenuti jednostavnu "
+"proveru svakih 5 minuta, da potvrdite da je vaš sajt u redu, ako ste "
+"zabrinuti. Biće vam poslat e-mail ako bude problema."
+
+#: wp-cache.php:1878
+msgid "Check front page every 5 minutes."
+msgstr "Proveravati prvu stranu svakih 5 minuta."
+
+#: wp-cache.php:1879
+msgid "Front page text"
+msgstr "Tekst prve strane"
+
+#: wp-cache.php:1879
+msgid ""
+"Text to search for on your front page. If this text is missing the cache "
+"will be cleared. Leave blank to disable."
+msgstr ""
+"Tekst za traženje na prvoj strani. Ako ovaj tekst nedostaje, keš će biti "
+"obrisa. Da isključite, ostavite prazno."
+
+#: wp-cache.php:1880
+msgid "Clear cache on error."
+msgstr "Obrisati keš u slučaju greške."
+
+#: wp-cache.php:1881
+msgid "Email the blog admin when checks are made. (useful for testing)"
+msgstr ""
+"Poslati e-amil administratoru bloga, kada se urade provere. (korisno za "
+"proveru)"
+
+#: wp-cache.php:1895
+msgid ""
+"Error: GZIP compression is enabled, disable it if you want to enable wp-"
+"cache."
+msgstr ""
+"Greška: GZIP kompresija je uključena, isključite je ako hoćete da uključite "
+"wp-cache."
+
+#: wp-cache.php:1945 wp-cache.php:2086 wp-cache.php:2122
+msgid "Warning"
+msgstr "Upozorenje"
+
+#: wp-cache.php:1945
+msgid ""
+"GZIP compression is enabled in WordPress, wp-cache will be bypassed until "
+"you disable gzip compression."
+msgstr ""
+"GZIP kompresija je uključena u WordPress-u, wp-cache će biti zaobilažen dok "
+"ne isključite gzip kompresiju."
+
+#: wp-cache.php:2007 wp-cache.php:2012 wp-cache.php:2045 wp-cache.php:2050
+#: wp-cache.php:2056
+msgid "Error"
+msgstr "Greška"
+
+#: wp-cache.php:2007
+msgid ""
+"Your cache directory (<strong>%1$s</strong>) did not exist and couldn&#8217;"
+"t be created by the web server. Check %1$s permissions."
+msgstr ""
+"Vaš keš direktorijum (<strong>%1$s</strong>) ne postoji, i nije mogao da "
+"bude kreiran od strane web servera. Proverite %1$-ove dozvole."
+
+#: wp-cache.php:2012
+msgid ""
+"Your cache directory (<strong>%1$s</strong>) or <strong>%2$s</strong> need "
+"to be writable for this plugin to work. Double-check it."
+msgstr ""
+"Upis u vaš keš direktorijum (<strong>%1$s</strong>), ili <strong>%2$s</"
+"strong>, mora da bude omogućen da bi ovaj dodatak funkcionisao. Proverite ga "
+"dva puta."
+
+#: wp-cache.php:2045
+msgid ""
+"Your WP-Cache config file (<strong>%s</strong>) is out of date and not "
+"writable by the Web server.Please delete it and refresh this page."
+msgstr ""
+"Vaš WP-Cache konfiguracioni fajl (<strong>%s</strong>) je star i web server "
+"ne može da vrši upis u njega. Molim vas, obrišite ga i osvežite ovu stranu."
+
+#: wp-cache.php:2050
+msgid ""
+"Configuration file missing and %1$s  directory (<strong>%2$s</strong>) is "
+"not writable by the Web server.Check its permissions."
+msgstr ""
+"Konfiguracioni fajl nedostaje, a u %1$-ov direktorijum (<strong>%2$s</"
+"strong>) nije moguć upis podataka od strane web servera. Proverite njegove "
+"dozvole."
+
+#: wp-cache.php:2056
+msgid ""
+"Sample WP-Cache config file (<strong>%s</strong>) does not exist.Verify you "
+"installation."
+msgstr ""
+"WP-Cache konfiguracioni fajl - primer (<strong>%s</strong>) ne postoji. "
+"Proverite vašu instalaciju."
+
+#: wp-cache.php:2086
+msgid "Could not update %s!</em> WPCACHEHOME must be set in config file."
+msgstr ""
+"%s nije mogao da se ažurira!</em>  WPCACHEHOME mora da se podesi u "
+"konfiguracionom fajlu."
+
+#: wp-cache.php:2122
+msgid "%s/advanced-cache.php</em> does not exist or cannot be updated."
+msgstr "%s/advanced-cache.php</em> ne postoji i ne može da se ažurira."
+
+#: wp-cache.php:2123
+msgid "1. If it already exists please delete the file first."
+msgstr "1. Ako već postoji, molim vas da ga prvo obrišete."
+
+#: wp-cache.php:2124
+msgid ""
+"2. Make %1$s writable using the chmod command through your ftp or server "
+"software. (<em>chmod 777 %1$s</em>) and refresh this page. This is only a "
+"temporary measure and you&#8217;ll have to make it read only afterwards "
+"again. (Change 777 to 755 in the previous command)"
+msgstr ""
+"2. Omogućite upis podataka u %s-e, koristeći naredbu chmod, preko vašeg ftp, "
+"ili serverskog softvera. (<em>chmod 777 %1$s</em>) i osvežite ovu stranu. "
+"Ovo je samo privremena mera, i moraćete posle da opet onemogućite upis u "
+"njega. (U prethodnoj naredbi promenite 777 u 755)"
+
+#: wp-cache.php:2125
+msgid "3. Refresh this page to update <em>%s/advanced-cache.php</em>"
+msgstr "3. Osvežite ovu stranu da ažurirate <em>%s/advanced-cache.php</em>"
+
+#: wp-cache.php:2126
+msgid ""
+"If that doesn&#8217;t work, make sure the file <em>%s/advanced-cache.php</"
+"em> doesn&#8217;t exist:"
+msgstr ""
+"Ako to ne funkcioniše, proverite da li fajl <em>%s/advanced-cache.php</em> "
+"postoji:"
+
+#: wp-cache.php:2127
+msgid ""
+"<li>1. Open <em>%1$s$wp_cache_file</em> in a text editor.</li><li>2. Change "
+"the text <em>CACHEHOME</em> to <em>%2$s</em></li><li>3. Save the file and "
+"copy it to <em>%3$s</em> and refresh this page.</li>"
+msgstr ""
+"<li>1. Otvorite fajl <em>%1$s$wp_cache_file</em> u nekom uređivaču teksta.</"
+"li><li>2. Izmenite tekst <em>CACHEHOME</em> u <em>%2$s</em></li><li>3. "
+"Sačuvajte fajl i kopirajte ga u <em>%3$s</em>, a zatim osvežite ovu stranu.</"
+"li>"
+
+#: wp-cache.php:2150
+msgid ""
+"<h3>WP_CACHE constant set to false</h3><p>The WP_CACHE constant is used by "
+"WordPress to load the code that serves cached pages. Unfortunately it is set "
+"to false. Please edit your wp-config.php and add or edit the following line "
+"above the final require_once command:<br /><br /><code>define('WP_CACHE', "
+"true);</code></p>"
+msgstr ""
+"<h3>WP_CACHE konstanta je podešena na vrednost false</h3><p>WP_CACHE "
+"konstantu WordPress koristi da učita kod koji servira keširane strane. Na "
+"žalost, ona je podešena na vrednost false. Molim vas, uredite vaš wp-config."
+"php fajl i dodajte ili uredite sledeće linije, iznad završne naredbe "
+"require_once:<br /><br /><code>define('WP_CACHE', true);</code></p>"
+
+#: wp-cache.php:2152
+msgid ""
+"<strong>Error: WP_CACHE is not enabled</strong> in your <code>wp-config.php</"
+"code> file and I couldn&#8217;t modify it."
+msgstr ""
+"<strong>Greška: WP_CACHE nije uključen</strong> u vašem <code>wp-config.php</"
+"code> fajlu, i ne mogu da ga izmenim."
+
+#: wp-cache.php:2153
+msgid ""
+"Edit <code>%s</code> and add the following line:<br /> <code>define"
+"('WP_CACHE', true);</code><br />Otherwise, <strong>WP-Cache will not be "
+"executed</strong> by WordPress core. "
+msgstr ""
+"Uredite <code>%s</code> i dodajte sledeću liniju:<br /> <code>define"
+"('WP_CACHE', true);</code><br />U suprotnom, <strong>WP-Cache se neće "
+"izvršiti</strong> od strane WordPress jezgra. "
+
+#: wp-cache.php:2157
+msgid ""
+"<h3>WP_CACHE constant added to wp-config.php</h3><p>If you continue to see "
+"this warning message please see point 5 of the <a href=\"http://wordpress."
+"org/extend/plugins/wp-super-cache/faq/\">Troubleshooting Guide</a>. The "
+"WP_CACHE line must be moved up."
+msgstr ""
+"<h3>WP_CACHE konstanta je dodata u wp-config.php</h3><p>Ako i dalje budete "
+"videli ovu poruku sa upozorenjem, molim vas, pogledajte tačku 5 <a href="
+"\"http://wordpress.org/extend/plugins/wp-super-cache/faq/\">Vodiča za "
+"otklanjanje problema (Troubleshooting Guide)</a>. WP_CACHE linija se mora "
+"pomeriti na gore."
+
+#: wp-cache.php:2185
+msgid "Cache Contents"
+msgstr "Sadržaj keša"
+
+#: wp-cache.php:2188
+msgid "Object cache in use. No cache listing available."
+msgstr "U upotrebi je objektni keš. Nije dostupan listing keša."
+
+#: wp-cache.php:2212
+msgid "Deleting supercache file: <strong>%s</strong><br />"
+msgstr "Brisanje superkeš fajla: <strong>%s</strong><br />"
+
+#: wp-cache.php:2229
+msgid "Deleting wp-cache file: <strong>%s</strong><br />"
+msgstr "Brisanje wp-cache fajla: <strong>%s</strong><br />"
+
+#: wp-cache.php:2294
+msgid ""
+"Cache stats are not automatically generated. You must click the link below "
+"to regenerate the stats on this page."
+msgstr ""
+"Statistike keša se ne generišu automatski. Morate kliknuti na donji link da "
+"na ovoj strani generišete statistike."
+
+#: wp-cache.php:2295
+msgid "Regenerate cache stats"
+msgstr "Ponovo generisati statistike keša"
+
+#: wp-cache.php:2297
+msgid "Cache stats last generated: %s minutes ago."
+msgstr "Poslednje generisanje statistika keša: pre %s minuta."
+
+#: wp-cache.php:2303
+msgid "WP-Cache"
+msgstr "WP-Cache"
+
+#: wp-cache.php:2304 wp-cache.php:2319
+msgid "%s Cached Pages"
+msgstr "%s keširanih strana"
+
+#: wp-cache.php:2305 wp-cache.php:2324
+msgid "%s Expired Pages"
+msgstr "%s isteklih strana"
+
+#: wp-cache.php:2318
+msgid "WP-Super-Cache"
+msgstr "WP-Super-Cache"
+
+#: wp-cache.php:2328
+msgid "Fresh WP-Cached Files"
+msgstr "Sveži WP-Cache fajlovi"
+
+#: wp-cache.php:2329 wp-cache.php:2345 wp-cache.php:2361 wp-cache.php:2377
+msgid "URI"
+msgstr "URI"
+
+#: wp-cache.php:2329 wp-cache.php:2345
+msgid "Key"
+msgstr "Ključ"
+
+#: wp-cache.php:2329 wp-cache.php:2345 wp-cache.php:2361 wp-cache.php:2377
+msgid "Age"
+msgstr "Starost"
+
+#: wp-cache.php:2329 wp-cache.php:2345 wp-cache.php:2361 wp-cache.php:2377
+msgid "Delete"
+msgstr "Obrisati"
+
+#: wp-cache.php:2344
+msgid "Stale WP-Cached Files"
+msgstr "WP-keširani fajlovi koji se ne koriste"
+
+#: wp-cache.php:2360
+msgid "Fresh Super Cached Files"
+msgstr "Sveži superkeširani fajlovi"
+
+#: wp-cache.php:2376
+msgid "Stale Super Cached Files"
+msgstr "Superkeširani fajlovi koji se ne koriste"
+
+#: wp-cache.php:2392
+msgid "Hide file list"
+msgstr "Sakriti listu fajlova"
+
+#: wp-cache.php:2394
+msgid "Too many cached files, no listing possible."
+msgstr "Previše keširanih fajlova, nije moguć prikaz liste"
+
+#: wp-cache.php:2396
+msgid "List all cached files"
+msgstr "Prikazati listu svih keširanih fajlova"
+
+#: wp-cache.php:2399
+msgid ""
+"Expired files are files older than %s seconds. They are still used by the "
+"plugin and are deleted periodically."
+msgstr ""
+"Istekli fajlovi su stariji od %s sekundi. Oni se i dalje koriste od strane "
+"dodatka, i brišu se periodično."
+
+#: wp-cache.php:2410
+msgid "Delete Expired"
+msgstr "Obrisati isteklo"
+
+#: wp-cache.php:2435
+msgid "Delete Super Cache cached files (opens in new window)"
+msgstr "Obrisati Super Cache keširane fajlove (otvara se u novom prozoru)"
+
+#: wp-cache.php:2582
+msgid "%1$s is Stephen Fry proof thanks to caching by %2$s"
+msgstr ""
+"%1$s je Stephen Fry proveren (Stephen Fry proof), zahvaljujući keširanju od "
+"strane %2$s"
+
+#: wp-cache.php:2615
+msgid ""
+"WP Super Cache must be configured. Go to <a href=\"%s\">the admin page</a> "
+"to enable and configure the plugin."
+msgstr ""
+"WP Super Cache mora biti konfigurisan. Idite na <a href=\"%s\">stranu za "
+"administraciju</a>, da uključite i konfigurišete ovaj dodatak."
+
+#: wp-cache.php:2621
+msgid "Settings"
+msgstr "Podešavanja"
+
+#: wp-cache.php:2631
+msgid ""
+"WP Super Cache is disabled. Please go to the <a href=\"%s\">plugin admin "
+"page</a> to enable caching."
+msgstr ""
+"WP Super Cache je isključen. Molim vas, idite na <a href=\"%s\">stranu za "
+"administraciju dodataka</a>, da omogućite keširanje."
+
+#: wp-cache.php:2634
+msgid ""
+"Warning! WP Super Cache caching broken! The script advanced-cache.php could "
+"not load wp-cache-phase1.php.<br /><br />Please edit %1$s/advanced-cache.php "
+"and make sure the path to %2$swp-cache-phase1.php is correct."
+msgstr ""
+"Upozorenje! WP Super Cache keširanje je neispravno! Skriptin fajl advanced-"
+"cache.php nije mogao da učita wp-cache-phase1.php.<br /><br />Molim vas, "
+"uredite %1$s/advanced-cache.php fajl i postarajte se da putanja ka %2$swp-"
+"cache-phase1.php fajlu bude ispravna."
+
+#: wp-cache.php:2653
+msgid "[%s] Front page is gzipped! Please clear cache!"
+msgstr "[%s] Prva strana je gzip-ovana! Molim vas, obrišite keš!"
+
+#: wp-cache.php:2653
+msgid ""
+"Please visit %s to clear the cache as the front page of your site is now "
+"downloading!"
+msgstr ""
+"Molim vas, posetite %s da obrišete keš, pošto se prva strana vašeg sajta "
+"sada preuzima."
+
+#: wp-cache.php:2656
+msgid "[%s] Front page is gzipped! Cache Cleared!"
+msgstr "[%s] Prva strana je gzip-ovana! Keš je obrisan!"
+
+#: wp-cache.php:2656
+msgid ""
+"The cache on your blog has been cleared because the front page of your site "
+"is now downloading. Please visit %s to verify the cache has been cleared."
+msgstr ""
+"Keš na vašem blogu je obrisan, pošto se prva strana vašeg sajta sada "
+"preuzima. Molim vas, posetite %s, da potvrdite da je keš obrisan."
+
+#: wp-cache.php:2663
+msgid "[%s] Front page is not correct! Please clear cache!"
+msgstr "[%s] Prva strana nije ispravna! Molim vas, obrišite keš!"
+
+#: wp-cache.php:2663
+msgid ""
+"Please visit %1$s to clear the cache as the front page of your site is not "
+"correct and missing the text, \"%2$s\"!"
+msgstr ""
+"Molim vas, posetite %1$s da obrišete keš, pošto prva strana vašeg sajta nije "
+"ispravna, i nedostaje joj tekst, \"%2$s\"!"
+
+#: wp-cache.php:2666
+msgid "[%s] Front page is not correct! Cache Cleared!"
+msgstr "[%s] Prva strana nije ispravna! Keš je obrisan!"
+
+#: wp-cache.php:2666
+msgid ""
+"The cache on your blog has been cleared because the front page of your site "
+"is missing the text \"%2$s\". Please visit %1$s to verify the cache has been "
+"cleared."
+msgstr ""
+"Keš na vašem blogu je obrisan, pošto na prvoj strani vašeg sajta nedostaje "
+"tekst \"%2$s\". Molim vas, posetite %1$s, da potvrdite da je keš obrisan."
+
+#: wp-cache.php:2671
+msgid "[%s] Front page check!"
+msgstr "[%s] Provera prve strane!"
+
+#: wp-cache.php:2671
+msgid ""
+"WP Super Cache has checked the front page of your blog. Please visit %s if "
+"you would like to disable this."
+msgstr ""
+"WP Super Cache je proverio prvu stranu vašeg bloga. Molim vas, posetite %s, "
+"ako želite da ovo isključite."
+
+#: wp-cache.php:2714
+msgid "Cannot update .htaccess"
+msgstr "Fajl .htaccess ne može da se ažurira"
+
+#: wp-cache.php:2714
+msgid ""
+"The file <code>%s.htaccess</code> cannot be modified by the web server. "
+"Please correct this using the chmod command or your ftp client."
+msgstr ""
+"Fajl <code>%s.htaccess</code> nije mogao da bude izmenjen od strane web "
+"servera. Molim vas, ispravite ovo, koristeći naredbu chmod, ili vaš ftp "
+"klijent."
+
+#: wp-cache.php:2714
+msgid "Refresh this page when the file permissions have been modified."
+msgstr "Osvežiti ovu stranu kada se dozvole fajla izmene."
+
+#: wp-cache.php:2714
+msgid ""
+"Alternatively, you can edit your <code>%s.htaccess</code> file manually and "
+"add the following code (before any WordPress rules):"
+msgstr ""
+"Alternativno, možete manuelno urediti vaš fajl <code>%s.htaccess</code>, i "
+"dodati sledeći kod (pre bilo kakvih WordPress pravila):"
+
+#: wp-cache.php:2718
+msgid ""
+"To serve static html files your server must have the correct mod_rewrite "
+"rules added to a file called <code>%s.htaccess</code>"
+msgstr ""
+"Da bi servirao statičke html fajlove, vaš server mora imati ispravna "
+"mod_rewrite pravila, dodata u fajl pod nazivom <code>%s.htaccess</code>"
+
+#: wp-cache.php:2719
+msgid "You can edit the file yourself add the following rules."
+msgstr "Možete sami urediti fajl, dodajte sledeća pravila."
+
+#: wp-cache.php:2720
+msgid " Make sure they appear before any existing WordPress rules. "
+msgstr ""
+"Postarajte se da se ona pojave pre bilo kakvih postojećih WordPress pravila."
+
+#: wp-cache.php:2728
+msgid "Update Mod_Rewrite Rules"
+msgstr "Ažurirati Mod_Rewrite pravila"
+
+#: wp-cache.php:2891
+msgid "[%1$s] Cache Preload Started"
+msgstr "[%1$s] Učitavanje keša unapred je počelo"
+
+#: wp-cache.php:2921
+msgid "[%1$s] Refreshing %2$s taxonomy from %3$d to %4$d"
+msgstr "[%1$s] Osvežavanje %2$s taksonomije od %3$d do %4$d"
+
+#: wp-cache.php:2967
+msgid "[%1$s] Refreshing posts from %2$d to %3$d"
+msgstr "[%1$s] Osvežavanje objava od %2$d do %3$d"
+
+#: wp-cache.php:2988
+msgid "[%1$s] Cache Preload Stopped"
+msgstr "[%1$s] Učitavanje keša unapred je zaustavljeno"
+
+#: wp-cache.php:2998
+msgid "[%1$s] %2$d posts refreshed"
+msgstr "[%1$s] %2$d objava je osveženo"
+
+#: wp-cache.php:2998
+msgid "Refreshed the following posts:"
+msgstr "Osvežene su sledeće objave:"
+
+#: wp-cache.php:3008
+msgid "Scheduling next preload refresh in %d minutes."
+msgstr "Sledeće osvežavanje učitavanja unapred se zakazuje za %d minuta"
+
+#: wp-cache.php:3019
+msgid "[%s] Cache Preload Completed"
+msgstr "[%s] Učitavanje keša unapred je završeno"
+
+#: wp-cache.php:3019
+msgid "Cleaning up old supercache files."
+msgstr "Brisanje starih superkeš fajlova."
+
+#: wp-cache.php:3062
+msgid "[%s] Preload may have stalled."
+msgstr "[%s] Učitavanje unapred je možda zastalo."
+
+#: wp-cache.php:3062
+msgid ""
+"Preload has been restarted.\n"
+"%s"
+msgstr ""
+"Učitavanje unapred je ponovo započeto.\n"
+"%s"
+
+#: wp-cache.php:3105
+msgid "Supercache Uninstall Problems"
+msgstr "Problemi sa de-instaliranjem Supercache-a"
+
+#: wp-cache.php:3105
+msgid ""
+"Dear User,\n"
+"\n"
+"WP Super Cache was removed from your blog but the mod_rewrite rules\n"
+"in your .htaccess were not.\n"
+"\n"
+"Please edit the following file and remove the code\n"
+"between 'BEGIN WPSuperCache' and 'END WPSuperCache'. Please backup the file "
+"first!\n"
+"\n"
+"%s\n"
+"\n"
+"Regards,\n"
+"WP Super Cache Plugin\n"
+"http://wordpress.org/extend/plugins/wp-super-cache/"
+msgstr ""
+"Dragi korisniče,\n"
+"\n"
+"WP Super Cache je uklonjen sa vašeg bloga, ali mod_rewrite pravila\n"
+"u vašem .htaccess nisu.\n"
+"\n"
+"Molim vas, uredite sledeći fajl i uklonite kod\n"
+"između 'BEGIN WPSuperCache' i 'END WPSuperCache'. Molim vas, prvo napravite "
+"backup kopiju fajla!\n"
+"\n"
+"%s\n"
+"\n"
+"Sa poštovanjem,\n"
+"WP Super Cache dodatak\n"
+"http://wordpress.org/extend/plugins/wp-super-cache/"
+
+#: wp-cache.php:3142
+msgid "Delete cache of the current page"
+msgstr "Obrisati keš aktuelne strane"
