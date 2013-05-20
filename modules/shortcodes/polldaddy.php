@@ -219,6 +219,9 @@ CONTAINER;
 						$title = $link_text;
 				}
 
+				if ( $type == 'banner' || $type == 'slider' )
+					$inline = false;
+
 				$survey      = preg_replace( '/[^a-f0-9]/i', '', $survey );
 				$survey_url  = esc_url( "http://polldaddy.com/s/{$survey}" );
 				$survey_link = sprintf( '<a href="%s">%s</a>', $survey_url, esc_html( $title ) );
