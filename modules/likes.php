@@ -8,7 +8,7 @@
 class Jetpack_Likes {
 	var $version = '20130404';
 
-	function &init() {
+	public static function init() {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
@@ -680,7 +680,7 @@ class Jetpack_Likes {
 		}
 
 		add_filter( 'wp_footer', array( $this, 'likes_master' ) );
-
+		
 		$src = sprintf( '%1$s://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post->ID, $domain );
 
 		$html = "<iframe class='admin-bar-likes-widget jetpack-likes-widget' frameBorder='0' name='admin-bar-likes-widget' src='$src'></iframe>";
@@ -700,8 +700,12 @@ class Jetpack_Likes {
 		if ( is_ssl() )
 			$protocol = 'https';
 
+		$mp6_enabled = 0;
+		if ( 'yes' == get_user_attribute( get_current_user_id(), 'load_mp6' ) )
+			$mp6_enabled = 1;
+
 		$locale = ( '' == get_locale() || 'en' == get_locale() ) ? '' : '&amp;lang=' . strtolower( substr( get_locale(), 0, 2 ) );
-		$src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s', $protocol, $this->version, $locale );
+		$src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, $mp6_enabled );
 
 		$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 ?>

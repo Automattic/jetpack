@@ -43,7 +43,7 @@ class Jetpack_Subscriptions {
 	 * Singleton
 	 * @static
 	 */
-	function init() {
+	static function init() {
 		static $instance = false;
 
 		if ( !$instance ) {
@@ -659,7 +659,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		return $instance;
 	}
 
-	function defaults() {
+	public static function defaults() {
 		return array(
 			'title'               	 => esc_html__( 'Subscribe to Blog via Email', 'jetpack' ),
 			'subscribe_text'      	 => esc_html__( 'Enter your email address to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' ),

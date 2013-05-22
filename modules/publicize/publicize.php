@@ -138,7 +138,7 @@ abstract class Publicize_Base {
 		}
 	}
 
-	function get_service_label( $service_name ) {
+	public static function get_service_label( $service_name ) {
 		switch ( $service_name ) {
 			case 'linkedin':
 				return 'LinkedIn';

@@ -26,7 +26,7 @@ class GP_Locale {
 
 	function combined_name() {
 		/* translators: combined name for locales: 1: name in English, 2: native name */
-		return sprintf( _x( '%1$s/%2$s', 'locales', 'jetpack' ), $this->english_name, $this->native_name );
+		return sprintf( _x( '%1$s/%2$s', 'locales' ), $this->english_name, $this->native_name );
 	}
 
 	function numbers_for_index( $index, $how_many = 3, $test_up_to = 1000 ) {
@@ -1551,7 +1551,7 @@ class GP_Locales {
 		$tg->google_code = 'tg';
 		$tg->nplurals = 2;
 		$tg->plural_expression = 'n != 1;';
-
+		
 		$th = new GP_Locale();
 		$th->english_name = 'Thai';
 		$th->native_name = 'ไทย';
@@ -1701,7 +1701,7 @@ class GP_Locales {
 		$yi->slug = 'yi';
 		$yi->google_code = 'yi';
 		$yi->rtl = true;
-
+		
 		$yo = new GP_Locale();
 		$yo->english_name = 'Yorùbá';
 		$yo->native_name = 'èdè Yorùbá';
@@ -1773,28 +1773,28 @@ class GP_Locales {
 		}
 	}
 
-	function &instance() {
+	static function instance() {
 		if ( !isset( $GLOBALS['gp_locales'] ) )
 			$GLOBALS['gp_locales'] = new GP_Locales;
 		return $GLOBALS['gp_locales'];
 	}
 
-	function locales() {
+	static function locales() {
 		$instance = GP_Locales::instance();
 		return $instance->locales;
 	}
 
-	function exists( $slug ) {
+	static function exists( $slug ) {
 		$instance = GP_Locales::instance();
 		return isset( $instance->locales[$slug] );
 	}
 
-	function by_slug( $slug ) {
+	static function by_slug( $slug ) {
 		$instance = GP_Locales::instance();
 		return isset( $instance->locales[$slug] )? $instance->locales[$slug] : null;
 	}
 
-	function by_field( $field_name, $field_value ) {
+	static function by_field( $field_name, $field_value ) {
 		$instance = GP_Locales::instance();
 		$result = false;
 		foreach( $instance->locales() as $locale ) {

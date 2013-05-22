@@ -29,7 +29,7 @@ class Jetpack_Notifications {
 	 * Singleton
 	 * @static
 	 */
-	function &init() {
+	public static function init() {
 		static $instance = array();
 
 		if ( !$instance ) {

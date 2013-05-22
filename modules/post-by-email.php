@@ -26,7 +26,7 @@ Jetpack::enable_module_configurable( __FILE__ );
 Jetpack::module_configuration_load( __FILE__, array( 'Jetpack_Post_By_Email', 'configuration_redirect' ) );
 
 class Jetpack_Post_By_Email {
-	function &init() {
+	public static function init() {
 		static $instance = NULL;
 
 		if ( !$instance ) {
