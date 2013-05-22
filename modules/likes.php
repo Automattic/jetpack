@@ -700,12 +700,8 @@ class Jetpack_Likes {
 		if ( is_ssl() )
 			$protocol = 'https';
 
-		$mp6_enabled = 0;
-		if ( 'yes' == get_user_attribute( get_current_user_id(), 'load_mp6' ) )
-			$mp6_enabled = 1;
-
 		$locale = ( '' == get_locale() || 'en' == get_locale() ) ? '' : '&amp;lang=' . strtolower( substr( get_locale(), 0, 2 ) );
-		$src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, $mp6_enabled );
+        $src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s', $protocol, $this->version, $locale );
 
 		$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 ?>
