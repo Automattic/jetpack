@@ -892,6 +892,18 @@ class Jetpack {
 		return array_unique( $active );
 	}
 
+	/**
+	 * Check whether or not a Jetpack module is active.
+	 *
+	 * @param string $module The slug of a Jetpack module.
+	 * @return bool
+	 *
+	 * @static
+	 */
+	public static function is_module_active( $module ) {
+		return in_array( $module, self::get_active_modules() );
+	}
+
 	public static function is_module( $module ) {
 		return !empty( $module ) && !validate_file( $module, Jetpack::get_available_modules() );
 	}
