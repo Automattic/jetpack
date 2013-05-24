@@ -35,10 +35,10 @@ function minileven_header() {
 
 		<header id="branding" role="banner">
 			<?php if ( 'blank' != $header_text ) : ?>
-					<hgroup>
+					<div class="site-branding">
 						<h1 id="site-title"><span><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" rel="home"><?php bloginfo( 'name' ); ?></a></span></h1>
 						<h2 id="site-description"><?php bloginfo( 'description' ); ?></h2>
-					</hgroup>
+					</div>
 			<?php endif;
 
 			if ( false !== $header_image ) : ?>

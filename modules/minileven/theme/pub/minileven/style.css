@@ -68,7 +68,7 @@ a img {
 	border: 0;
 }
 article, aside, details, figcaption, figure,
-footer, header, hgroup, menu, nav, section {
+footer, header, menu, nav, section {
 	display: block;
 }
 
@@ -286,7 +286,7 @@ object {
 /* =Header
 ----------------------------------------------- */
 
-#branding hgroup {
+#branding .site-branding {
 	margin-bottom: 1.3em;
 }
 #site-title,
@@ -514,6 +514,10 @@ body.singular .hentry {
 .entry-meta .entry-gallery {
 	display: block;
 	float: left;
+}
+.entry-meta .author-link {
+	display: block;
+	margin-top: 0.7em;
 }
 .entry-meta .comments-link {
 	display: block;
@@ -751,8 +755,15 @@ and remove the padding rules below.
 	text-transform: uppercase;
 	top: -5px;
 }
-.entry-header hgroup .entry-title {
+.entry-header .entry-heading .entry-title {
 	padding-top: 0.8em;
+}
+.entry-header .entry-heading {
+	position: relative;
+}
+.entry-thumbnail {
+	margin-bottom: 0.7em;
+	text-align: center;
 }
 
 /* Singular content styles for Posts and Pages */
