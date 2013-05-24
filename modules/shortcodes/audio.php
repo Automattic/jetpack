@@ -41,7 +41,12 @@ class AudioShortcode {
 		}
 
 		if ( ! isset( $atts[0] ) ) {
-			return '<!-- Audio shortcode source not set -->';
+			if ( isset( $atts['src'] ) ) {
+				$atts[0] = $atts['src'];
+				unset( $atts['src'] );
+			} else {
+				return '<!-- Audio shortcode source not set -->';
+			}
 		}
 
 		// add the special .js
