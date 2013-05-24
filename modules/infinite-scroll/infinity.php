@@ -17,7 +17,10 @@ License URI: http://www.gnu.org/licenses/gpl-2.0.html
  */
 class The_Neverending_Home_Page {
 	/**
+	 * Register actions and filters, plus parse IS settings
 	 *
+	 * @uses add_action, add_filter, self::get_settings
+	 * @return null
 	 */
 	function __construct() {
 		add_action( 'pre_get_posts',                  array( $this, 'posts_per_page_query' ) );
@@ -27,7 +30,7 @@ class The_Neverending_Home_Page {
 		add_action( 'template_redirect',              array( $this, 'ajax_response' ) );
 		add_action( 'custom_ajax_infinite_scroll',    array( $this, 'query' ) );
 		add_action( 'the_post',                       array( $this, 'preserve_more_tag' ) );
-		add_action( 'get_footer',                     array( $this, 'footer' ) );
+		add_action( 'wp_footer',                      array( $this, 'footer' ) );
 
 		// Plugin compatibility
 		add_filter( 'grunion_contact_form_redirect_url', array( $this, 'filter_grunion_redirect_url' ) );
@@ -55,14 +58,15 @@ class The_Neverending_Home_Page {
 			$css_pattern = '#[^A-Z\d\-_]#i';
 
 			$settings = $defaults = array(
-				'type'           => 'scroll', // scroll | click
-				'requested_type' => 'scroll', // store the original type for use when logic overrides it
-				'footer_widgets' => false, // true | false | sidebar_id | array of sidebar_ids -- last two are checked with is_active_sidebar
-				'container'      => 'content', // container html id
-				'wrapper'        => true, // true | false | html class
-				'render'         => false, // optional function, otherwise the `content` template part will be used
-				'footer'         => true, // boolean to enable or disable the infinite footer | string to provide an html id to derive footer width from
-				'posts_per_page' => false // int | false to set based on IS type
+				'type'            => 'scroll', // scroll | click
+				'requested_type'  => 'scroll', // store the original type for use when logic overrides it
+				'footer_widgets'  => false, // true | false | sidebar_id | array of sidebar_ids -- last two are checked with is_active_sidebar
+				'container'       => 'content', // container html id
+				'wrapper'         => true, // true | false | html class
+				'render'          => false, // optional function, otherwise the `content` template part will be used
+				'footer'          => true, // boolean to enable or disable the infinite footer | string to provide an html id to derive footer width from
+				'footer_callback' => false, // function to be called to render the IS footer, in place of the default
+				'posts_per_page'  => false // int | false to set based on IS type
 			);
 
 			// Validate settings passed through add_theme_support()
@@ -120,6 +124,14 @@ class The_Neverending_Home_Page {
 									if ( ! empty( $value ) )
 										$settings[ $key ] = $value;
 								}
+
+								break;
+
+							case 'footer_callback' :
+								if ( is_callable( $value ) )
+									$settings[ $key ] = $value;
+								else
+									$settings[ $key ] = false;
 
 								break;
 
@@ -292,7 +304,7 @@ class The_Neverending_Home_Page {
 		add_filter( 'body_class', array( $this, 'body_class' ) );
 
 		// Add our scripts.
-		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '20130101' );
+		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '20130523' );
 
 		// Add our default styles.
 		wp_enqueue_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20120612' );
@@ -869,7 +881,7 @@ class The_Neverending_Home_Page {
 	/**
 	 * The Infinite Blog Footer
 	 *
-	 * @uses self::get_settings, self::set_last_post_time, self::archive_supports_infinity, __, wp_get_theme, get_current_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
+	 * @uses self::get_settings, self::set_last_post_time, self::archive_supports_infinity, self::default_footer
 	 * @return string or null
 	 */
 	function footer() {
@@ -885,6 +897,20 @@ class The_Neverending_Home_Page {
 		if ( 'scroll' != self::get_settings()->type || ! self::archive_supports_infinity() )
 			return;
 
+		// Display a footer, either user-specified or a default
+		if ( false !== self::get_settings()->footer_callback && is_callable( self::get_settings()->footer_callback ) )
+			call_user_func( self::get_settings()->footer_callback, self::get_settings() );
+		else
+			self::default_footer();
+	}
+
+	/**
+	 * Render default IS footer
+	 *
+	 * @uses __, wp_get_theme, get_current_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
+	 * @return string
+	 */
+	private function default_footer() {
 		$credits = '<a href="http://wordpress.org/" rel="generator">Proudly powered by WordPress</a> ';
 		$credits .= sprintf( __( 'Theme: %1$s.', 'jetpack' ), function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme() );
 		$credits = apply_filters( 'infinite_scroll_credit', $credits );
