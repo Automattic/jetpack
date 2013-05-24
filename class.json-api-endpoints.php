@@ -2073,6 +2073,8 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			}
 		}
 
+		do_action( 'rest_api_inserted_post', $post_id, $insert, $new );
+
 		$return = $this->get_post_by( 'ID', $post_id, $args['context'] );
 		if ( !$return || is_wp_error( $return ) ) {
 			return $return;
