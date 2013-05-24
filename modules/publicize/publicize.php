@@ -108,11 +108,15 @@ abstract class Publicize_Base {
 
 			$profile_url_query = parse_url( $cmeta['connection_data']['meta']['profile_url'], PHP_URL_QUERY );
 			wp_parse_str( $profile_url_query, $profile_url_query_args );
-			if ( !isset( $profile_url_query_args['key'] ) ) {
+			if ( isset( $profile_url_query_args['key'] ) ) {
+				$id = $profile_url_query_args['key'];
+			} elseif ( isset( $profile_url_query_args['id'] ) ) {
+				$id = $profile_url_query_args['id'];
+			} else {
 				return false;
 			}
 
-			return esc_url_raw( add_query_arg( 'id', urlencode( $profile_url_query_args['key'] ), 'http://www.linkedin.com/profile/view' ) );
+			return esc_url_raw( add_query_arg( 'id', urlencode( $id ), 'http://www.linkedin.com/profile/view' ) );
 		} else {
 			return false; // no fallback. we just won't link it
 		}
