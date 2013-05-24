@@ -265,6 +265,8 @@ class Jetpack_PostImages {
 				return $images;
 
 			$html = $post->post_content; // DO NOT apply the_content filters here, it will cause loops
+		} else {
+			$html = $html_or_id;
 		}
 
 		if ( !$html )
