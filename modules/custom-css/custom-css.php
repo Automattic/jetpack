@@ -58,6 +58,9 @@ class Jetpack_Custom_CSS {
 
 		add_action( 'wp_head', array( 'Jetpack_Custom_CSS', 'link_tag' ), 101 );
 
+		add_filter( 'jetpack_content_width', array( 'Jetpack_Custom_CSS', 'jetpack_content_width' ) );
+		add_filter( 'editor_max_image_size', array( 'Jetpack_Custom_CSS', 'editor_max_image_size' ), 10, 3 );
+
 		if ( !current_user_can( 'switch_themes' ) && !is_super_admin() )
 			return;
 
@@ -86,9 +89,6 @@ class Jetpack_Custom_CSS {
 		// Modify all internal links so that preview state persists
 		if ( Jetpack_Custom_CSS::is_preview() )
 			ob_start( array( 'Jetpack_Custom_CSS', 'buffer' ) );
-
-		add_filter( 'jetpack_content_width', array( 'Jetpack_Custom_CSS', 'jetpack_content_width' ) );
-		add_filter( 'editor_max_image_size', array( 'Jetpack_Custom_CSS', 'editor_max_image_size' ), 10, 3 );
 	}
 
 	/**
@@ -187,6 +187,9 @@ class Jetpack_Custom_CSS {
 			update_metadata( 'post', $safecss_revision_id, 'content_width', $args['content_width'] );
 			update_metadata( 'post', $safecss_revision_id, 'custom_css_preprocessor', $args['preprocessor'] );
 
+			delete_option( 'safecss_add' );
+			delete_option( 'safecss_content_width' );
+
 			if ( $args['is_preview'] ) {
 				return $safecss_revision_id;
 			}
@@ -205,9 +208,15 @@ class Jetpack_Custom_CSS {
 		update_post_meta( $safecss_post_id, 'custom_css_add', $add_to_existing );
 		update_post_meta( $safecss_post_id, 'content_width', $args['content_width'] );
 		update_post_meta( $safecss_post_id, 'custom_css_preprocessor', $args['preprocessor'] );
+
+		delete_option( 'safecss_add' );
+		delete_option( 'safecss_content_width' );
+
 		update_metadata( 'post', $safecss_post_revision['ID'], 'custom_css_add', $add_to_existing );
 		update_metadata( 'post', $safecss_post_revision['ID'], 'content_width', $args['content_width'] );
 		update_metadata( 'post', $safecss_post_revision['ID'], 'custom_css_preprocessor', $args['preprocessor'] );
+
+		delete_option( 'safecss_preview_add' );
 
 		return $safecss_post_id;
 	}
@@ -373,10 +382,17 @@ class Jetpack_Custom_CSS {
 			else {
 				$custom_css_post_id = Jetpack_Custom_CSS::post_id();
 
-				if ( $custom_css_post_id )
-					return (bool) ( get_post_meta( $custom_css_post_id, 'custom_css_add', true ) == 'no' );
-				else
-					return (bool) ( get_option( 'safecss_add' ) == 'no' );
+				if ( $custom_css_post_id ) {
+					$custom_css_add = get_post_meta( $custom_css_post_id, 'custom_css_add', true );
+
+					// It is possible for the CSS to be stored in a post but for the safecss_add option
+					// to have not been upgraded yet if the user hasn't opened their Custom CSS editor
+					// since October 2012.
+					if ( ! empty( $custom_css_add ) )
+						return (bool) ( $custom_css_add === 'no' );
+				}
+
+				return (bool) ( get_option( 'safecss_add' ) == 'no' );
 			}
 		}
 	}
@@ -957,9 +973,15 @@ class Jetpack_Custom_CSS {
 		update_post_meta( $safecss_post_id, 'custom_css_add', 'yes' );
 		update_post_meta( $safecss_post_id, 'content_width', false );
 		update_post_meta( $safecss_post_id, 'custom_css_preprocessor', '' );
+
+		delete_option( 'safecss_add' );
+		delete_option( 'safecss_content_width' );
+
 		update_metadata( 'post', $safecss_revision['ID'], 'custom_css_add', 'yes' );
 		update_metadata( 'post', $safecss_revision['ID'], 'content_width', false );
 		update_metadata( 'post', $safecss_revision['ID'], 'custom_css_preprocessor', '' );
+
+		delete_option( 'safecss_preview_add' );
 	}
 
 	static function is_customizer_preview() {
@@ -1017,9 +1039,15 @@ class Jetpack_Custom_CSS {
 		update_metadata( 'post', $safecss_revision['ID'], 'content_width', $content_width );
 		update_metadata( 'post', $safecss_revision['ID'], 'custom_css_add', $custom_css_add );
 		update_metadata( 'post', $safecss_revision['ID'], 'custom_css_preprocessor', $preprocessor );
+
+		delete_option( 'safecss_add' );
+		delete_option( 'safecss_content_width' );
+
 		update_post_meta( $_post->ID, 'content_width', $content_width );
 		update_post_meta( $_post->ID, 'custom_css_add', $custom_css_add );
 		update_post_meta( $_post->ID, 'custom_css_preprocessor', $preprocessor );
+
+		delete_option( 'safecss_preview_add' );
 	}
 
 	/**
