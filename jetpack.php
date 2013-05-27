@@ -459,25 +459,26 @@ class Jetpack {
 		$active_plugins = get_option( 'active_plugins', array() );
 
 		$conflicting_plugins = array(
-			'facebook/facebook.php',                                                // Official Facebook plugin
-			'wordpress-seo/wp-seo.php',                                             // WordPress SEO by Yoast
-			'add-link-to-facebook/add-link-to-facebook.php',                        // Add Link to Facebook
-			'facebook-awd/AWD_facebook.php',                                        // Facebook AWD All in one
-			'header-footer/plugin.php',                                             // Header and Footer
-			'nextgen-facebook/nextgen-facebook.php',                                // NextGEN Facebook OG
-			'seo-facebook-comments/seofacebook.php',                                // SEO Facebook Comments
-			'seo-ultimate/seo-ultimate.php',                                        // SEO Ultimate
-			'sexybookmarks/sexy-bookmarks.php',                                     // Shareaholic
-			'shareaholic/sexy-bookmarks.php',                                       // Shareaholic
-			'social-discussions/social-discussions.php',                            // Social Discussions
-			'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',	// NextScripts SNAP
-			'wordbooker/wordbooker.php',                                            // Wordbooker
-			'socialize/socialize.php',                                              // Socialize
-			'simple-facebook-connect/sfc.php',                                      // Simple Facebook Connect
-			'social-sharing-toolkit/social_sharing_toolkit.php',                    // Social Sharing Toolkit
-			'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',                  // WP Facebook Open Graph protocol
-			'opengraph/opengraph.php',                                              // Open Graph
-			'sharepress/sharepress.php',                                            // SharePress
+			'facebook/facebook.php',                                                			// Official Facebook plugin
+			'wordpress-seo/wp-seo.php',                                             			// WordPress SEO by Yoast
+			'add-link-to-facebook/add-link-to-facebook.php',                        			// Add Link to Facebook
+			'facebook-awd/AWD_facebook.php',                                        			// Facebook AWD All in one
+			'header-footer/plugin.php',                                             			// Header and Footer
+			'nextgen-facebook/nextgen-facebook.php',                                			// NextGEN Facebook OG
+			'seo-facebook-comments/seofacebook.php',                                			// SEO Facebook Comments
+			'seo-ultimate/seo-ultimate.php',                                        			// SEO Ultimate
+			'sexybookmarks/sexy-bookmarks.php',                                     			// Shareaholic
+			'shareaholic/sexy-bookmarks.php',                                       			// Shareaholic
+			'social-discussions/social-discussions.php',                            			// Social Discussions
+			'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',				// NextScripts SNAP
+			'wordbooker/wordbooker.php',                                            			// Wordbooker
+			'socialize/socialize.php',                                              			// Socialize
+			'simple-facebook-connect/sfc.php',                                      			// Simple Facebook Connect
+			'social-sharing-toolkit/social_sharing_toolkit.php',                    			// Social Sharing Toolkit
+			'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',                  			// WP Facebook Open Graph protocol
+			'opengraph/opengraph.php',                                              			// Open Graph
+			'sharepress/sharepress.php',                                            			// SharePress
+			'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',	// WP Facebook Like Send & Open Graph Meta
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
