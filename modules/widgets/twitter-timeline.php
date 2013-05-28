@@ -103,10 +103,10 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				$new_instance['widget-id'] = $matches[1];
 			}
 		}
-		
+
 		$instance['widget-id'] = sanitize_text_field( $new_instance['widget-id'] );
 		$instance['widget-id'] = is_numeric( $instance['widget-id'] ) ? $instance['widget-id'] : '';
-		
+
 		foreach ( array( 'link-color', 'border-color' ) as $color ) {
 			$clean = preg_replace( $non_hex_regex, '', sanitize_text_field( $new_instance[$color] ) );
 			if ( $clean )
@@ -120,7 +120,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		$instance['chrome'] = array();
 		if ( isset( $new_instance['chrome'] ) ) {
 			foreach ( $new_instance['chrome'] as $chrome ) {
-				if ( in_array( $chrome, array( 'noheader', 'nofooter', 'noborders', 'transparent' ) ) ) {
+				if ( in_array( $chrome, array( 'noheader', 'nofooter', 'noborders', 'noscrollbar', 'transparent' ) ) ) {
 					$instance['chrome'][] = $chrome;
 				}
 			}
@@ -148,7 +148,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'theme'        => 'light',
 			'chrome'       => array(),
 		);
-		
+
 		$instance = wp_parse_args( (array) $instance, $defaults );
 		?>
 
@@ -188,6 +188,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			<input type="checkbox"<?php checked( in_array( 'noheader', $instance['chrome'] ) ); ?> id="<?php echo $this->get_field_id( 'chrome-noheader' ); ?>" name="<?php echo $this->get_field_name( 'chrome' ); ?>[]" value="noheader" /> <label for="<?php echo $this->get_field_id( 'chrome-noheader' ); ?>"><?php esc_html_e( 'No Header', 'jetpack' ); ?></label><br />
 			<input type="checkbox"<?php checked( in_array( 'nofooter', $instance['chrome'] ) ); ?> id="<?php echo $this->get_field_id( 'chrome-nofooter' ); ?>" name="<?php echo $this->get_field_name( 'chrome' ); ?>[]" value="nofooter" /> <label for="<?php echo $this->get_field_id( 'chrome-nofooter' ); ?>"><?php esc_html_e( 'No Footer', 'jetpack' ); ?></label><br />
 			<input type="checkbox"<?php checked( in_array( 'noborders', $instance['chrome'] ) ); ?> id="<?php echo $this->get_field_id( 'chrome-noborders' ); ?>" name="<?php echo $this->get_field_name( 'chrome' ); ?>[]" value="noborders" /> <label for="<?php echo $this->get_field_id( 'chrome-noborders' ); ?>"><?php esc_html_e( 'No Borders', 'jetpack' ); ?></label><br />
+            <input type="checkbox"<?php checked( in_array( 'noscrollbar', $instance['chrome'] ) ); ?> id="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>" name="<?php echo $this->get_field_name( 'chrome' ); ?>[]" value="noscrollbar" /> <label for="<?php echo $this->get_field_id( 'chrome-noscrollbar' ); ?>"><?php esc_html_e( 'No Scrollbar', 'jetpack' ); ?></label><br />
 			<input type="checkbox"<?php checked( in_array( 'transparent', $instance['chrome'] ) ); ?> id="<?php echo $this->get_field_id( 'chrome-transparent' ); ?>" name="<?php echo $this->get_field_name( 'chrome' ); ?>[]" value="transparent" /> <label for="<?php echo $this->get_field_id( 'chrome-transparent' ); ?>"><?php esc_html_e( 'Transparent Background', 'jetpack' ); ?></label>
 		</p>
 
