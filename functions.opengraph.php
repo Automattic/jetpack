@@ -103,7 +103,7 @@ function jetpack_og_tags() {
 	echo $og_output;
 }
 
-function jetpack_og_get_image( $width = 50, $height = 50, $max_images = 4 ) { // Facebook requires thumbnails to be a minimum of 50x50
+function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { // Facebook requires thumbnails to be a minimum of 200x200
 	$image = '';
 
 	if ( is_singular() && !is_home() && !is_front_page() ) {
