@@ -3377,6 +3377,7 @@ p {
 	 * @param int|string|object $id_or_email A user ID,  email address, or comment object
 	 * @param int $size Size of the avatar image
 	 * @param string $default URL to a default image to use if no avatar is available
+	 * @param bool $force_display Whether to force it to return an avatar even if show_avatars is disabled
 	 * 
 	 * @return array First element is the URL, second is the class.
 	 */
