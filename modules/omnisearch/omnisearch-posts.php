@@ -18,8 +18,8 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 		$this->post_type_obj = get_post_type_object( $this->post_type );
 
 		$search_url = esc_url( admin_url( sprintf( 'edit.php?post_type=%s&s=%s', urlencode( $this->post_type_obj->name ), urlencode( $search_term ) ) ) );
-		$search_link = sprintf( ' <a href="%s" class="add-new-h2">%s</a>', $search_url, $this->post_type_obj->labels->search_items );
-		$html = '<h2>' . $this->post_type_obj->labels->name . $search_link .'</h2>';
+		$search_link = sprintf( ' <a href="%s" class="add-new-h2">%s</a>', $search_url, esc_html( $this->post_type_obj->labels->search_items ) );
+		$html = '<h2>' . esc_html( $this->post_type_obj->labels->name ) . $search_link .'</h2>';
 
 		$this->posts = get_posts( array( 's' => $search_term, 'post_type' => $this->post_type, 'posts_per_page' => Jetpack_Omnisearch::$num_results, 'post_status' => 'any' ) );
 
@@ -54,12 +54,12 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 	function column_post_title( $post ) {
 		$actions = array();
 		if ( current_user_can( $this->post_type_obj->cap->edit_post, $post ) ) {
-			$actions['edit'] = sprintf( '<a href="%s">%s</a>', get_edit_post_link( $post->ID ), $this->post_type_obj->labels->edit_item );
+			$actions['edit'] = sprintf( '<a href="%s">%s</a>', esc_url( get_edit_post_link( $post->ID ) ), esc_html( $this->post_type_obj->labels->edit_item ) );
 		}
 		if ( current_user_can( $this->post_type_obj->cap->delete_post, $post ) ) {
-			$actions['delete'] = sprintf( '<a href="%s">%s</a>', get_delete_post_link( $post->ID ), __('Trash') );
+			$actions['delete'] = sprintf( '<a href="%s">%s</a>', esc_url( get_delete_post_link( $post->ID ) ), esc_html__( 'Trash' ) );
 		}
-		$actions['view'] = sprintf( '<a href="%s">%s</a>', get_permalink( $post->ID ), $this->post_type_obj->labels->view_item );
+		$actions['view'] = sprintf( '<a href="%s">%s</a>', esc_url( get_permalink( $post->ID ) ), esc_html( $this->post_type_obj->labels->view_item ) );
 		return wptexturize( $post->post_title ) . $this->row_actions( $actions );
 	}
 
@@ -82,17 +82,17 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 				$h_time = mysql2date( __( 'Y/m/d' ), $m_time );
 		}
 
-		$html .= '<abbr title="' . $t_time . '">' . $h_time . '</abbr>';
+		$html .= '<abbr title="' . esc_attr( $t_time ) . '">' . esc_html( $h_time ) . '</abbr>';
 		$html .= '<br />';
 		if ( 'publish' == $post->post_status ) {
-			$html .= __( 'Published' );
+			$html .= esc_html__( 'Published' );
 		} elseif ( 'future' == $post->post_status ) {
 			if ( $time_diff > 0 )
-				$html .= '<strong class="attention">' . __( 'Missed schedule' ) . '</strong>';
+				$html .= '<strong class="attention">' . esc_html__( 'Missed schedule' ) . '</strong>';
 			else
-				$html .= __( 'Scheduled' );
+				$html .= esc_html__( 'Scheduled' );
 		} else {
-			$html .= __( 'Last Modified' );
+			$html .= esc_html__( 'Last Modified' );
 		}
 		return $html;
 	}
@@ -113,5 +113,4 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 				return print_r( $post, true );
 		}
 	}
-
 }

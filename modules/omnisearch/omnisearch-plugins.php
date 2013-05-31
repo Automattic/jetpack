@@ -17,10 +17,10 @@ class Jetpack_Omnisearch_Plugins extends WP_Plugin_Install_List_Table {
 		add_thickbox();
 
 		$search_url = esc_url( admin_url( sprintf( 'plugin-install.php?tab=search&s=%s', urlencode( $search_term ) ) ) );
-		$search_link = sprintf( ' <a href="%s" class="add-new-h2">%s</a>', $search_url, __('Search Plugins') );
-		$html = '<h2>' . __('Plugins') . $search_link . '</h2>';
+		$search_link = sprintf( ' <a href="%s" class="add-new-h2">%s</a>', $search_url, esc_html__('Search Plugins') );
+		$html = '<h2>' . esc_html__('Plugins') . $search_link . '</h2>';
 
-		$html .= '<div id="' . __CLASS__ . '_results">' . __('Loading &hellip;') . '</div>';
+		$html .= '<div id="' . __CLASS__ . '_results">' . esc_html__('Loading &hellip;') . '</div>';
 		$html .= '<script>jQuery("#' . __CLASS__ . '_results").load(ajaxurl,{action:"omnisearch_plugins",search_term:search_term,num_results:num_results});</script>';
 
 		$results[ __CLASS__ ] = $html;
@@ -55,8 +55,5 @@ class Jetpack_Omnisearch_Plugins extends WP_Plugin_Install_List_Table {
 		return array();
 	}
 
-	function pagination() {
-		
-	}
-
+	function pagination() {}
 }

@@ -56,23 +56,23 @@ class Jetpack_Omnisearch {
 		}
 		?>
 		<div class="wrap">
-			<h2 class="page-title"><?php _e('Jetpack Omnisearch'); ?></h2>
+			<h2 class="page-title"><?php esc_html_e('Jetpack Omnisearch'); ?></h2>
 			<br class="clear" />
-			<form action="<?php echo admin_url( 'admin.php' ); ?>" method="get" class="omnisearch-form">
+			<form action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" method="get" class="omnisearch-form">
 				<input type="hidden" name="page" value="omnisearch" />
-				<input type="search" name="s" class="omnisearch" placeholder="<?php _e('Search Everything'); ?>" value="<?php echo esc_attr( $s ); ?>" />
-				<button type="submit" class="omnisearch-submit"><span><?php _e('Search'); ?></span></button>
+				<input type="search" name="s" class="omnisearch" placeholder="<?php esc_attr_e('Search Everything'); ?>" value="<?php echo esc_attr( $s ); ?>" />
+				<button type="submit" class="omnisearch-submit"><span><?php esc_html_e('Search'); ?></span></button>
 			</form>
 			<?php if( ! empty( $results ) ): ?>
-				<h3 id="results-title"><?php _e('Results:'); ?></h3>
-				<div class="jump-to"><strong><?php _e('Jump to:'); ?></strong></div>
+				<h3 id="results-title"><?php esc_html_e('Results:'); ?></h3>
+				<div class="jump-to"><strong><?php esc_html_e('Jump to:'); ?></strong></div>
 				<br class="clear" />
-				<script>var search_term = <?php echo json_encode( $s ); ?>, num_results = <?php echo json_encode( self::$num_results ); ?>;</script>
+				<script>var search_term = '<?php echo esc_js( $s ); ?>', num_results = <?php echo intval( self::$num_results ); ?>;</script>
 				<ul class="omnisearch-results">
 					<?php foreach( $results as $id => $result ) : ?>
 						<li id="result-<?php echo $id; ?>">
 							<?php echo $result; ?>
-							<a class="back-to-top" href="#results-title"><?php _e('Back to Top &uarr;'); ?></a>
+							<a class="back-to-top" href="#results-title"><?php esc_html_e('Back to Top &uarr;'); ?></a>
 						</li>
 					<?php endforeach; ?>
 				</ul>
@@ -110,6 +110,5 @@ class Jetpack_Omnisearch {
 			)
 		) );
 	}
-
 }
 new Jetpack_Omnisearch;
