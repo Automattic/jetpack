@@ -175,7 +175,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		case 'grid' :
 			wp_enqueue_style( 'widget-grid-and-list' );
 			foreach ( $posts as &$post ) {
-				$image = Jetpack_PostImages::get_image( $post['post_id'] );
+				$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true ) );
 				$post['image'] = $image['src'];
 				if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
 					$size = (int) $get_image_options['avatar_size'];
@@ -266,6 +266,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$post = get_post( $post_id );
 
 			if ( !$post )
+				continue;
+
+			// Only posts and pages, no attachments
+			if ( 'attachment' == $post->post_type )
 				continue;
 
 			// hide private and password protected posts
