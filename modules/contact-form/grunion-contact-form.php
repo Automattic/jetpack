@@ -546,11 +546,12 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		$this->defaults = array(
-			'to'           => $default_to,
-			'subject'      => $default_subject,
-			'show_subject' => 'no', // only used in back-compat mode
-			'widget'       => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
-			'id'           => null, // Not exposed to the user. Set above.
+			'to'                 => $default_to,
+			'subject'            => $default_subject,
+			'show_subject'       => 'no', // only used in back-compat mode
+			'widget'             => 0,    // Not exposed to the user. Works with Grunion_Contact_Form_Plugin::widget_atts()
+			'id'                 => null, // Not exposed to the user. Set above.
+			'submit_button_text' => __( 'Submit &#187;', 'jetpack' ),
 		);
 
 		$attributes = shortcode_atts( $this->defaults, $attributes );
@@ -692,7 +693,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='contact-form commentsblock'>\n";
 			$r .= $form->body;
 			$r .= "\t<p class='contact-submit'>\n";
-			$r .= "\t\t<input type='submit' value='" . esc_attr__( 'Submit &#187;', 'jetpack' ) . "' class='pushbutton-wide'/>\n";
+			$r .= "\t\t<input type='submit' value='" . esc_attr( $form->get_attribute( 'submit_button_text' ) ) . "' class='pushbutton-wide'/>\n";
 			$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer
 			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
