@@ -134,33 +134,33 @@ function jetpack_debug_menu_display_handler() {
 			$debug_info .= $test_name . ': ' . $status . "\r\n";
 			$debug_raw_info .= "\r\n\r\n" . $test_name . "\r\n" . esc_html( print_r( $test_result, 1 ) );
 			?>
-			<div class="jetpack-test-results <?php echo $test_class; ?>">
+			<div class="jetpack-test-results <?php esc_html_e( $test_class ); ?>">
 				<p>
-					<a class="jetpack-test-heading" href="#"><?php echo $test_name; ?>: <?php echo $status; ?>
+					<a class="jetpack-test-heading" href="#"><?php esc_html_e( $test_name ); ?>: <?php esc_html_e( $status ); ?>
 					<span class="noticon noticon-collapse"></span>
 					</a>
 				</p>
-				<pre class="jetpack-test-details"><?php echo esc_html( $result ); ?></pre>
+				<pre class="jetpack-test-details"><?php esc_html_e( $result ); ?></pre>
 			</div>
 		<?php endforeach; 
 			$debug_info .= "\r\n\r\nRAW TEST RESULTS:" . $debug_raw_info ."\r\n";
 		?>
 		</div>
 		<div class="entry-content">
-			<h3><?php _e( 'Trouble with Jetpack?', 'jetpack' ); ?></h3>
-			<h4><?php _e( 'It may be caused by one of these issues, which you can diagnose yourself:', 'jetpack' ); ?></h4>
+			<h3><?php esc_html_e( 'Trouble with Jetpack?', 'jetpack' ); ?></h3>
+			<h4><?php esc_html_e( 'It may be caused by one of these issues, which you can diagnose yourself:', 'jetpack' ); ?></h4>
 			<ol>
-				<li><b><em><?php _e( 'A known issue.', 'jetpack' ); ?></em></b> <?php echo sprintf( __( 'Some themes and plugins have <a href="%s" target="_blank">known conflicts</a> with Jetpack – check the <a href="%s" target="_blank">list</a>. (You can also browse the <a href="%s">Jetpack support pages</a> or <a href="%s">Jetpack support forum</a> to see if others have experienced and solved the problem.)', 'jetpack' ), 'http://jetpack.me/known-issues/', 'http://jetpack.me/known-issues/', 'http://jetpack.me/support/', 'http://wordpress.org/support/plugin/jetpack'); ?></li>
-				<li><b><em><?php _e( 'An incompatible plugin.', 'jetpack' ); ?></em></b> <?php _e( "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help.", 'jetpack' ); ?></li>
-				<li><b><em><?php _e( 'A theme conflict.', 'jetpack' ); ?></em></b> <?php _e( "If your problem isn't known or caused by a plugin, try activating Twenty Twelve (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?></li>
-				<li><b><em><?php _e( 'A problem with your XMLRPC file.', 'jetpack' ); ?></em></b> <?php echo sprintf( __( 'Load your <a href="%s">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', 'jetpack' ),  site_url( 'xmlrpc.php' ) ); ?>
+				<li><b><em><?php esc_html_e( 'A known issue.', 'jetpack' ); ?></em></b>  <?php echo sprintf( esc_html_x( 'Some themes and plugins have %s with Jetpack – check the %s. (You can also browse the %s or %s to see if others have experienced and solved the problem.)', '%s\'s = "known conflicts", "list", "Jetpack support pages", "Jetpack support forum"', 'jetpack' ), '<a href="http://jetpack.me/known-issues/" target="_blank">' . esc_html__( 'known conflicts', 'jetpack' ) . '</a>', '<a href="http://jetpack.me/known-issues/" target="_blank">' . esc_html__( 'list', 'jetpack' ) . '</a>', '<a href="http://jetpack.me/support/">' . esc_html__( 'Jetpack support pages', 'jetpack' ) . '</a>', '<a href="http://wordpress.org/support/plugin/jetpack">' . esc_html__( 'Jetpack support forum', 'jetpack' ) . '</a>' ); ?></li>
+				<li><b><em><?php esc_html_e( 'An incompatible plugin.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help.", 'jetpack' ); ?></li>
+				<li><b><em><?php esc_html_e( 'A theme conflict.', 'jetpack' ); ?></em></b>  <?php esc_html_e( "If your problem isn't known or caused by a plugin, try activating Twenty Twelve (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know.", 'jetpack' ); ?></li>
+				<li><b><em><?php esc_html_e( 'A problem with your XMLRPC file.', 'jetpack' ); ?></em></b>  <?php echo sprintf( esc_html_x( 'Load your %s. It should say “XML-RPC server accepts POST requests only.” on a line by itself.', '%s = XMLRPC file', 'jetpack' ), '<a href="' . site_url( 'xmlrpc.php' ) . '">' . esc_html__( 'XMLRPC file', 'jetpack' ) . '</a>'  ); ?>
 					<ul>
-						<li>- <?php _e( "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3.", 'jetpack' ); ?></li>
-						<li>- <?php _e( "If you get a 404 message, contact your web host. Their security may block XMLRPC.", 'jetpack' ); ?></li>
+						<li>- <?php esc_html_e( "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3.", 'jetpack' ); ?></li>
+						<li>- <?php esc_html_e( "If you get a 404 message, contact your web host. Their security may block XMLRPC.", 'jetpack' ); ?></li>
 					</ul>
 				</li>
 			</ol>
-			<p><?php _e( 'If none of these help you find a solution,', 'jetpack' ); ?> <a class="jetpack-show-contact-form" href="#"><?php _e( 'click here to contact Jetpack support', 'jetpack' ); ?></a>. <?php _e( "Tell us as much as you can about the issue and what steps you've tried to resolve it, and one of our Happiness Engineers will be in touch to help.", 'jetpack' ); ?></li>
+			<p><?php esc_html_e( 'If none of these help you find a solution,', 'jetpack' ); ?> <a class="jetpack-show-contact-form" href="#"><?php esc_html_e( 'click here to contact Jetpack support', 'jetpack' ); ?></a>. <?php esc_html_e( "Tell us as much as you can about the issue and what steps you've tried to resolve it, and one of our Happiness Engineers will be in touch to help.", 'jetpack' ); ?></li>
 			</p>
 		</div>
 		<div id="contact-message" style="display:none">
@@ -173,28 +173,28 @@ function jetpack_debug_menu_display_handler() {
 				<input type="hidden" name="blog_url" id="blog_url" value="<?php echo esc_attr( site_url() ); ?>">
 				<input type="hidden" name="subject" id="subject" value="from: <?php echo esc_attr( site_url() ); ?> Jetpack contact form">
 				<div class="formbox">
-					<label for="message" class="h"><?php _e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
+					<label for="message" class="h"><?php esc_html_e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
 					<textarea name="message" cols="40" rows="7" id="did"></textarea>
 				</div>
 		
 				<div id="name_div" class="formbox">
-					<label class="h" for="your_name">Name</label>
-		  			<span class="errormsg"><?php echo _e( 'Let us know your name.', 'jetpack' ); ?></span>
-					<input name="your_name" type="text" id="your_name" value="<?php echo $current_user->display_name; ?>" size="40">
+					<label class="h" for="your_name"><?php esc_html_e( 'Name', 'jetpack' ); ?></label>
+		  			<span class="errormsg"><?php esc_html_e( 'Let us know your name.', 'jetpack' ); ?></span>
+					<input name="your_name" type="text" id="your_name" value="<?php esc_html_e( $current_user->display_name ); ?>" size="40">
 				</div>
 		
 				<div id="email_div" class="formbox">
-					<label class="h" for="your_email">E-mail</label>
-		  			<span class="errormsg"><?php echo _e( 'Use a valid email address.', 'jetpack' ); ?></span>
-					<input name="your_email" type="text" id="your_email" value="<?php echo $current_user->user_email; ?>" size="40">
+					<label class="h" for="your_email"><?php esc_html_e( 'E-mail', 'jetpack' ); ?></label>
+		  			<span class="errormsg"><?php esc_html_e( 'Use a valid email address.', 'jetpack' ); ?></span>
+					<input name="your_email" type="text" id="your_email" value="<?php esc_html_e( $current_user->user_email ); ?>" size="40">
 				</div>
 
 				<div id="toggle_debug_info" class="formbox">
-					<p><?php echo _e( 'The test results and some other useful debug information will be sent to the support team. Please fill free to <a href="#">review/modify</a> this information. ', 'jetpack' ); ?></p>
+					<p><?php echo sprintf( esc_html_x( 'The test results and some other useful debug information will be sent to the support team. Please fill free to %s this information. ', '%s = review/modify', 'jetpack' ), '<a href="#">' . esc_html__( 'review/modify' ) . '</a>' ); ?></p>
 				</div>
 				
 				<div id="debug_info_div" class="formbox" style="display:none">
-					<label class="h" for="debug_info"><?php echo _e( 'Debug Info', 'jetpack' ); ?></label>
+					<label class="h" for="debug_info"><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></label>
 		  			<textarea name="debug_info" cols="40" rows="7" id="debug_info"><?php echo esc_attr( $debug_info ); ?></textarea>
 				</div>
 
