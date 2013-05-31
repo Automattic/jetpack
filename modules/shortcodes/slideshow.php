@@ -102,7 +102,7 @@ class Jetpack_Slideshow_Shortcode {
 		foreach ( $attachments as $attachment ) {
 			$attachment_image_src = wp_get_attachment_image_src( $attachment->ID, 'full' );
 			$attachment_image_src = $attachment_image_src[0]; // [url, width, height]
-			$caption = wptexturize( strip_tags( $attachment->post_excerpt ) );
+			$caption = apply_filters( 'jetpack_slideshow_slide_caption', wptexturize( strip_tags( $attachment->post_excerpt ) ), $attachment->ID );
 
 			$gallery[] = (object) array(
 				'src'     => (string) esc_url_raw( $attachment_image_src ),
