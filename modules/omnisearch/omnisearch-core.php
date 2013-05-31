@@ -56,7 +56,7 @@ class Jetpack_Omnisearch {
 		}
 		?>
 		<div class="wrap">
-			<h2 class="page-title"><?php _e('Jetpack Omnisearch Prototype'); ?></h2>
+			<h2 class="page-title"><?php _e('Jetpack Omnisearch'); ?></h2>
 			<br class="clear" />
 			<form action="<?php echo admin_url( 'admin.php' ); ?>" method="get" class="omnisearch-form">
 				<input type="hidden" name="page" value="omnisearch" />
