@@ -110,8 +110,12 @@ class Jetpack {
 	public static function init() {
 		static $instance = false;
 
-		if ( !$instance ) {
-			load_plugin_textdomain( 'jetpack', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		if ( ! $instance ) {
+			if ( did_action( 'plugins_loaded' ) )
+				self::plugin_textdomain();
+			else
+				add_action( 'plugins_loaded', array( __CLASS__, 'plugin_textdomain' ) );
+
 			$instance = new Jetpack;
 
 			$instance->plugin_upgrade();
@@ -250,6 +254,13 @@ class Jetpack {
 			// Allow Jetpack authentication
 			add_filter( 'authenticate', array( $this, 'authenticate_jetpack' ), 10, 3 );
 		}
+	}
+
+	/**
+	 * Load language files
+	 */
+	public static function plugin_textdomain() {
+		load_plugin_textdomain( 'jetpack', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
 	}
 
 	/**
