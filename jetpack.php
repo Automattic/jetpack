@@ -383,7 +383,15 @@ class Jetpack {
 	 * Loads the currently active modules.
 	 */
 	public static function load_modules() {
+		
 		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+			if ( ! did_action( 'jetpack_module_loaded_debug' ) && ! did_action( 'jetpack_activate_module_debug' ) ) {
+				require Jetpack::get_module_path( 'debug' );
+				do_action( 'jetpack_activate_module', 'debug' );
+				$active = Jetpack::get_active_modules();
+				$active[] = 'debug';
+				Jetpack::update_option( 'active_modules', array_unique( $active ) );
+			}
 			return;
 		}
 
@@ -543,6 +551,7 @@ class Jetpack {
 			'fallback_no_verify_ssl_certs', // (int)    Flag for determining if this host must skip SSL Certificate verification due to misconfigured SSL.
 			'time_diff',                    // (int)    Offset between Jetpack server's clocks and this server's clocks. Jetpack Server Time = time() + (int) Jetpack::get_option( 'time_diff' )
 			'public',                       // (int|bool) If we think this site is public or not (1, 0), false if we haven't yet tried to figure it out.
+			'is_network_site',              // (int|bool) If we think this site is a network or a single blog (1, 0), false if we haven't yet tried to figue it out.
 		);
 	}
 
@@ -1001,6 +1010,11 @@ class Jetpack {
 		Jetpack::restate();
 		Jetpack::catch_errors( true );
 		foreach ( $modules as $module ) {
+			if ( did_action( "jetpack_activate_module_$module" ) ) {
+				$active[] = $module;
+				Jetpack::update_option( 'active_modules', array_unique( $active ) );
+				continue;
+			}
 			$active = Jetpack::get_active_modules();
 			if ( in_array( $module, $active ) ) {
 				$module_info = Jetpack::get_module( $module );

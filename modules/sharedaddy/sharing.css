@@ -1,4 +1,4 @@
-li.share-print a.sd-button > spandiv.sharedaddy ul,
+li.share-print a.sd-button > spandiv.sharedaddy ul, 
 div.sharedaddy li {
 	margin: 0;
 	padding: 0;
@@ -383,6 +383,11 @@ a.sd-button.share-more span {
 		background-size: 16px 16px;
 	}
 
+	li.share-pocket a.sd-button > span {
+		background-image: url('images/pocket@2x.png');
+		background-size: 16px 16px;
+	}
+	
 	li.share-email a.sd-button > span {
 		background-image: url('images/email@2x.png?1');
 		background-size: 16px 16px;
