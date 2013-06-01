@@ -35,10 +35,10 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 
 	function get_columns() {
 		$columns = array(
-		#	'id' => __('ID'),
-			'post_title' => __('Title'),
-			'snippet' => __('Snippet'),
-			'date' => __('Date'),
+		#	'id' => __('ID', 'jetpack'),
+			'post_title' => __('Title', 'jetpack'),
+			'snippet' => __('Snippet', 'jetpack'),
+			'date' => __('Date', 'jetpack'),
 		);
 		return $columns;
 	}
@@ -57,7 +57,7 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 			$actions['edit'] = sprintf( '<a href="%s">%s</a>', esc_url( get_edit_post_link( $post->ID ) ), esc_html( $this->post_type_obj->labels->edit_item ) );
 		}
 		if ( current_user_can( $this->post_type_obj->cap->delete_post, $post ) ) {
-			$actions['delete'] = sprintf( '<a href="%s">%s</a>', esc_url( get_delete_post_link( $post->ID ) ), esc_html__( 'Trash' ) );
+			$actions['delete'] = sprintf( '<a href="%s">%s</a>', esc_url( get_delete_post_link( $post->ID ) ), esc_html__('Trash', 'jetpack') );
 		}
 		$actions['view'] = sprintf( '<a href="%s">%s</a>', esc_url( get_permalink( $post->ID ) ), esc_html( $this->post_type_obj->labels->view_item ) );
 		return wptexturize( $post->post_title ) . $this->row_actions( $actions );
@@ -67,32 +67,32 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 		$html = '';
 
 		if ( '0000-00-00 00:00:00' == $post->post_date ) {
-			$t_time = $h_time = __( 'Unpublished' );
+			$t_time = $h_time = __('Unpublished', 'jetpack');
 			$time_diff = 0;
 		} else {
-			$t_time = date( __( 'Y/m/d g:i:s A' ), mysql2date( 'G', $post->post_date ) );
+			$t_time = date( __('Y/m/d g:i:s A', 'jetpack'), mysql2date( 'G', $post->post_date ) );
 			$m_time = $post->post_date;
 			$time = get_post_time( 'G', true, $post );
 
 			$time_diff = time() - $time;
 
 			if ( $time_diff > 0 && $time_diff < DAY_IN_SECONDS )
-				$h_time = sprintf( __( '%s ago' ), human_time_diff( $time ) );
+				$h_time = sprintf( __('%s ago', 'jetpack'), human_time_diff( $time ) );
 			else
-				$h_time = mysql2date( __( 'Y/m/d' ), $m_time );
+				$h_time = mysql2date( __('Y/m/d', 'jetpack'), $m_time );
 		}
 
 		$html .= '<abbr title="' . esc_attr( $t_time ) . '">' . esc_html( $h_time ) . '</abbr>';
 		$html .= '<br />';
 		if ( 'publish' == $post->post_status ) {
-			$html .= esc_html__( 'Published' );
+			$html .= esc_html__('Published', 'jetpack');
 		} elseif ( 'future' == $post->post_status ) {
 			if ( $time_diff > 0 )
-				$html .= '<strong class="attention">' . esc_html__( 'Missed schedule' ) . '</strong>';
+				$html .= '<strong class="attention">' . esc_html__('Missed schedule', 'jetpack') . '</strong>';
 			else
-				$html .= esc_html__( 'Scheduled' );
+				$html .= esc_html__('Scheduled', 'jetpack');
 		} else {
-			$html .= esc_html__( 'Last Modified' );
+			$html .= esc_html__('Last Modified', 'jetpack');
 		}
 		return $html;
 	}

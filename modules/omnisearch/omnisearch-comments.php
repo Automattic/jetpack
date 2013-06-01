@@ -14,8 +14,8 @@ class Jetpack_Omnisearch_Comments extends WP_Comments_List_Table {
 
 	function search( $results, $search_term ) {
 		$search_url = esc_url( admin_url( sprintf( 'edit-comments.php?s=%s', urlencode( $search_term ) ) ) );
-		$search_link = sprintf( ' <a href="%s" class="add-new-h2">%s</a>', $search_url, esc_html__('Search Comments') );
-		$html = '<h2>' . esc_html__('Comments') . $search_link . '</h2>';
+		$search_link = sprintf( ' <a href="%s" class="add-new-h2">%s</a>', $search_url, esc_html__('Search Comments', 'jetpack') );
+		$html = '<h2>' . esc_html__('Comments', 'jetpack') . $search_link . '</h2>';
 		parent::__construct();
 
 		ob_start();

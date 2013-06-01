@@ -39,7 +39,7 @@ class Jetpack_Omnisearch {
 	}
 
 	function jetpack_admin_menu() {
-		$slug = add_submenu_page( 'jetpack', __('Omnisearch'), __('Omnisearch'), 'edit_posts', 'omnisearch', array( $this, 'omnisearch_page' ) );
+		$slug = add_submenu_page( 'jetpack', __('Omnisearch', 'jetpack'), __('Omnisearch', 'jetpack'), 'edit_posts', 'omnisearch', array( $this, 'omnisearch_page' ) );
 
 		add_action( "admin_print_styles-{$slug}", array( $this, 'admin_print_styles' ) );
 	}
@@ -56,23 +56,23 @@ class Jetpack_Omnisearch {
 		}
 		?>
 		<div class="wrap">
-			<h2 class="page-title"><?php esc_html_e('Jetpack Omnisearch'); ?></h2>
+			<h2 class="page-title"><?php esc_html_e('Jetpack Omnisearch', 'jetpack'); ?></h2>
 			<br class="clear" />
 			<form action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" method="get" class="omnisearch-form">
 				<input type="hidden" name="page" value="omnisearch" />
-				<input type="search" name="s" class="omnisearch" placeholder="<?php esc_attr_e('Search Everything'); ?>" value="<?php echo esc_attr( $s ); ?>" />
-				<button type="submit" class="omnisearch-submit"><span><?php esc_html_e('Search'); ?></span></button>
+				<input type="search" name="s" class="omnisearch" placeholder="<?php esc_attr_e('Search Everything', 'jetpack'); ?>" value="<?php echo esc_attr( $s ); ?>" />
+				<button type="submit" class="omnisearch-submit"><span><?php esc_html_e('Search', 'jetpack'); ?></span></button>
 			</form>
 			<?php if( ! empty( $results ) ): ?>
-				<h3 id="results-title"><?php esc_html_e('Results:'); ?></h3>
-				<div class="jump-to"><strong><?php esc_html_e('Jump to:'); ?></strong></div>
+				<h3 id="results-title"><?php esc_html_e('Results:', 'jetpack'); ?></h3>
+				<div class="jump-to"><strong><?php esc_html_e('Jump to:', 'jetpack'); ?></strong></div>
 				<br class="clear" />
 				<script>var search_term = '<?php echo esc_js( $s ); ?>', num_results = <?php echo intval( self::$num_results ); ?>;</script>
 				<ul class="omnisearch-results">
 					<?php foreach( $results as $id => $result ) : ?>
 						<li id="result-<?php echo $id; ?>">
 							<?php echo $result; ?>
-							<a class="back-to-top" href="#results-title"><?php esc_html_e('Back to Top &uarr;'); ?></a>
+							<a class="back-to-top" href="#results-title"><?php esc_html_e('Back to Top &uarr;', 'jetpack'); ?></a>
 						</li>
 					<?php endforeach; ?>
 				</ul>
@@ -96,8 +96,8 @@ class Jetpack_Omnisearch {
 
 		$form  = '<form action="' . esc_url( admin_url( 'admin.php' ) ) . '" method="get" id="adminbarsearch">';
 		$form .= '<input type="hidden" name="page" value="omnisearch" />';
-		$form .= '<input class="adminbar-input" name="s" id="adminbar-search" type="search" value="' . $search_terms . '" maxlength="150" placeholder="' . __('Search Everything') . '" />';
-		$form .= '<input type="submit" class="adminbar-button" value="' . __('Search') . '"/>';
+		$form .= '<input class="adminbar-input" name="s" id="adminbar-search" type="search" value="' . $search_terms . '" maxlength="150" placeholder="' . __('Search Everything', 'jetpack') . '" />';
+		$form .= '<input type="submit" class="adminbar-button" value="' . __('Search', 'jetpack') . '"/>';
 		$form .= '</form>';
 
 		$wp_admin_bar->add_menu( array(
