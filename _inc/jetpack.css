@@ -42,9 +42,7 @@
 	position: relative;
 	background: transparent url(images/header-clouds.png) -315px 100% repeat-x;
 	padding-top: 110px;
-	-webkit-border-radius: 3px;
-	-moz-border-radius:    3px;
-	border-radius:         3px;
+	border-radius: 3px;
 }
 
 #jp-header.small #jp-clouds {
@@ -75,12 +73,8 @@
 	color: #fff;
 	text-decoration: none;
 	border: 1px solid #7a943d;
-	-webkit-border-radius: 5px;
-	-moz-border-radius:    5px;
-	border-radius:         5px;
-	-webkit-box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.4);
-	-moz-box-shadow:    inset 0 0 2px rgba(255, 255, 255, 0.4);
-	box-shadow:         inset 0 0 2px rgba(255, 255, 255, 0.4);
+	border-radius: 5px;
+	box-shadow: inset 0 0 2px rgba(255, 255, 255, 0.4);
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
 }
 
@@ -207,17 +201,11 @@
 	margin: 8px 0 0 20px;
 	display: inline-block;
 	background: #69acce;
-	-webkit-box-shadow: inset 0 0 2px #fff,
-	                    0 1px 5px rgba(0, 0, 0, 0.3);
-	-moz-box-shadow:    inset 0 0 2px #fff,
-	                    0 1px 5px rgba(0, 0, 0, 0.3);
-	box-shadow:         inset 0 0 2px #fff,
-	                    0 1px 5px rgba(0, 0, 0, 0.3);
+	box-shadow: inset 0 0 2px #fff,
+	            0 1px 5px rgba(0, 0, 0, 0.3);
 	padding: 12px 20px;
 	border: 1px solid #2a8cba;
-	-webkit-border-radius: 5px;
-	-moz-border-radius:    5px;
-	border-radius:         5px;
+	border-radius: 5px;
 	line-height: 100%;
 	color: #fff;
 	text-align: center;
@@ -226,9 +214,6 @@
 	text-decoration: none;
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 	-webkit-transition-duration: 0.3s;
-	-moz-transition-duration:    0.3s;
-	-ms-transition-duration:     0.3s;
-	-o-transition-duration:      0.3s;
 	transition-duration:         0.3s;
 	cursor: pointer;
 }
@@ -238,26 +223,18 @@
 	background-color: #f0a000;
 	border-color: #c87800;
 	outline: none;
-	-webkit-box-shadow: inset 0 0 2px #fff,
-	                    0 1px 7px rgba(240, 160, 0, 0.5);
-	-moz-box-shadow:    inset 0 0 2px #fff,
-	                    0 1px 7px rgba(240, 160, 0, 0.5);
-	box-shadow:         inset 0 0 2px #fff,
-	                    0 1px 7spx rgba(240, 160, 0, 0.5);
+	box-shadow: inset 0 0 2px #fff,
+	            0 1px 7px rgba(240, 160, 0, 0.5);
 }
 
 .jetpack-message {
 	position: relative;
 	z-index: 100;
 	border: 1px solid #2a8cba !important;
-	-webkit-border-radius: 3px;
-	-moz-border-radius:    3px;
-	border-radius:         3px;
+	border-radius: 3px;
 	background: url(images/alertbox-clouds.png) 100% 100% no-repeat;
 	background-color: #6aafcf !important;
-	-webkit-box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.04);
-	-moz-box-shadow:    inset 0 0 15px rgba(0, 0, 0, 0.04);
-	box-shadow:         inset 0 0 15px rgba(0, 0, 0, 0.04);
+	box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.04);
 	padding: 18px 90px 8px 15px !important;
 	overflow: hidden;
 	line-height: 180%;
@@ -298,9 +275,7 @@
 	font-weight: normal;
 	color: #fff;
 	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
-	-webkit-border-radius: 5px;
-	-moz-border-radius:    5px;
-	border-radius:         5px;
+	border-radius: 5px;
 	display: inline-block;
 }
 
@@ -345,22 +320,13 @@
 	text-align: center;
 	font-size: 20px;
 	text-decoration: none;
-	-webkit-border-radius: 5px;
-	-moz-border-radius:    5px;
-	border-radius:         5px;
+	border-radius: 5px;
 	border: 1px solid #8caa46;
 	background: #b4d278;
-	-webkit-box-shadow: inset 0 0 2px #fff,
-	                    0 1px 1px rgba(0, 0, 0, 0.1);
-	-moz-box-shadow:    inset 0 0 2px #fff,
-	                    0 1px 1px rgba(0, 0, 0, 0.1);
-	box-shadow:         inset 0 0 2px #fff,
-	                    0 1px 1px rgba(0, 0, 0, 0.1);
+	box-shadow: inset 0 0 2px #fff,
+	            0 1px 1px rgba(0, 0, 0, 0.1);
 	text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.3);
 	-webkit-transition-duration: 0.3s;
-	-moz-transition-duration:    0.3s;
-	-ms-transition-duration:     0.3s;
-	-o-transition-duration:      0.3s;
 	transition-duration:         0.3s;
 	cursor: pointer;
 }
@@ -390,12 +356,8 @@
 	background-color: #f0f0f0 !important;
 	border-color: #dcdcdc !important;
 	text-shadow: 0 1px 0 #fff;
-	-webkit-box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05),
-	                    0 1px 2px rgba(0, 0, 0, 0.1);
-	-moz-box-shadow:    inset 0 0 20px rgba(0, 0, 0, 0.05),
-	                    0 1px 2px rgba(0, 0, 0, 0.1);
-	box-shadow:         inset 0 0 20px rgba(0, 0, 0, 0.05),
-	                    0 1px 2px rgba(0, 0, 0, 0.1);
+	box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05),
+	            0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* Retina moreinfo bg clouds */
@@ -484,15 +446,9 @@
 	line-height: 20px;
 	padding: 0 6px 0 6px;
 	font-weight: bold !important;
-	-webkit-border-radius: 3px;
-	-moz-border-radius:    3px;
-	border-radius:         3px;
-	-webkit-border-top-right-radius: 0;
-	-moz-border-radius-topright:     0;
-	border-top-right-radius:         0;
-	-webkit-border-bottom-right-radius: 0;
-	-moz-border-radius-bottomright:     0;
-	border-bottom-right-radius:         0;
+	border-radius: 3px;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
 	cursor: pointer;
 	text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
 }
@@ -547,9 +503,7 @@
 	color: #666;
 	background: rgba(255, 255, 255, 0.75);
 	padding: 7px 10px 6px;
-	-webkit-border-radius: 5px;
-	-moz-border-radius:    5px;
-	border-radius:         5px;
+	border-radius: 5px;
 	display: inline-block;
 }
 
@@ -571,12 +525,8 @@
 	height: 214px;
 	background: url(images/jp-enabled-clouds.png) bottom left no-repeat;
 	z-index: 0;
-	-webkit-border-bottom-right-radius: 5px;
-	-moz-border-radius-bottomright:     5px;
-	border-bottom-right-radius:         5px;
-	-webkit-box-shadow: inset -7px -7px 10px rgba(0, 0, 0, 0.05);
-	-moz-box-shadow:    inset -7px -7px 10px rgba(0, 0, 0, 0.05);
-	box-shadow:         inset -7px -7px 10px rgba(0, 0, 0, 0.05);
+	border-bottom-right-radius: 5px;
+	box-shadow: inset -7px -7px 10px rgba(0, 0, 0, 0.05);
 }
 
 p.jp-help {
@@ -598,37 +548,21 @@ p.jp-help {
 	max-height: 220px;
 	margin: 0 0 15px 15px;
 	border: 1px solid #dedede;
-	-webkit-border-radius: 3px;
-	-moz-border-radius:    3px;
-	border-radius:         3px;
+	border-radius: 3px;
 	background: #fff;
 	padding: 15px 0 35px 15px;
-	-webkit-box-shadow: inset 0 1px 0 #fff,
-	                    inset 0 0 20px rgba(0, 0, 0, 0.05),
-	                    0 1px 2px rgba(0, 0, 0, 0.1);
-	-moz-box-shadow:    inset 0 1px 0 #fff,
-	                    inset 0 0 20px rgba(0, 0, 0, 0.05),
-	                    0 1px 2px rgba(0, 0, 0, 0.1);
-	box-shadow:         inset 0 1px 0 #fff,
-	                    inset 0 0 20px rgba(0, 0, 0, 0.05),
-	                    0 1px 2px rgba(0, 0, 0, 0.1);
+	box-shadow: inset 0 1px 0 #fff,
+	            inset 0 0 20px rgba(0, 0, 0, 0.05),
+	            0 1px 2px rgba(0, 0, 0, 0.1);
 	-webkit-transition-duration: 0.4s;
-	-moz-transition-duration:    0.4s;
-	-ms-transition-duration:     0.4s;
-	-o-transition-duration:      0.4s;
 	transition-duration:         0.4s;
 }
 
 /*
 .jetpack-module:hover {
 	border-color: #bbb;
-	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-	-moz-box-shadow:    0 1px 2px rgba(0, 0, 0, 0.2);
-	box-shadow:         0 1px 2px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 	-webkit-transition-duration: 0.4s;
-	-moz-transition-duration:    0.4s;
-	-ms-transition-duration:     0.4s;
-	-o-transition-duration:      0.4s;
 	transition-duration:         0.4s;
 }
 */
@@ -639,12 +573,8 @@ p.jp-help {
 	padding: 60px 0 0;
 	background: #cbe0a1;
 	width: 80px;
-	-webkit-border-top-left-radius: 3px;
-	-moz-border-radius-topleft:     3px;
-	border-top-left-radius:         3px;
-	-webkit-border-bottom-left-radius: 3px;
-	-moz-border-radius-bottomleft:     3px;
-	border-bottom-left-radius:         3px;
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
 	background-repeat: no-repeat;
 	background-image: url(images/module-icons-sprite.png);
 	background-size: 2555px 50px; /* remember to update this every time a new module is added! */
@@ -771,9 +701,7 @@ p.jp-help {
 	clear: both;
 	font-weight: bold;
 	-webkit-font-smoothing: antialiased;
-	-webkit-border-bottom-left-radius: 2px;
-	-moz-border-radius-bottomleft:     2px;
-	border-bottom-left-radius:         2px;
+	border-bottom-left-radius: 2px;
 }
 
 .jetpack-new-module div.module-image p {
@@ -857,9 +785,6 @@ p.jp-help {
 .jetpack-inactive *,
 jetpack-inactive:hover * {
 	-webkit-transition-duration: 0.4s;
-	-moz-transition-duration:    0.4s;
-	-ms-transition-duration:     0.4s;
-	-o-transition-duration:      0.4s;
 	transition-duration:         0.4s;
 }
 
@@ -1035,13 +960,9 @@ p#news-sub {
 	position: relative;
 	z-index: 100;
 	border: 1px solid #ccc !important;
-	-webkit-border-radius: 3px;
-	-moz-border-radius:    3px;
-	border-radius:         3px;
+	border-radius: 3px;
 	background-color: #efefef !important;
-	-webkit-box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.04);
-	-moz-box-shadow:    inset 0 0 15px rgba(0, 0, 0, 0.04);
-	box-shadow:         inset 0 0 15px rgba(0, 0, 0, 0.04);
+	box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.04);
 	padding: 18px 90px 8px 15px !important;
 	overflow: hidden;
 	line-height: 180%;
@@ -1057,9 +978,7 @@ p#news-sub {
 	font-weight: normal;
 	color: #333;
 	text-shadow: 0 1px 0 #fff;
-	-webkit-border-radius: 5px;
-	-moz-border-radius:    5px;
-	border-radius:         5px;
+	border-radius: 5px;
 	display: block;
 	float: left;
 }
@@ -1100,18 +1019,9 @@ p#news-sub {
 	text-indent: -9999px;
 	background: transparent url(images/alertbox-closeicon.png) no-repeat center center;
 	border: 0 none;
-	-webkit-border-radius: 0 0 0 5px;
-	-moz-border-radius:    0 0 0 5px;
-	-ms-border-radius:     0 0 0 5px;
-	-o-border-radius:      0 0 0 5px;
-	border-radius:         0 0 0 5px;
-	-webkit-box-shadow: none;
-	-moz-box-shadow:    none;
-	box-shadow:         none;
+	border-radius: 0 0 0 5px;
+	box-shadow: none;
 	-webkit-transition-duration: 0.3s;
-	-moz-transition-duration:    0.3s;
-	-ms-transition-duration:     0.3s;
-	-o-transition-duration:      0.3s;
 	transition-duration:         0.3s;
 	cursor: pointer;
 }
@@ -1133,9 +1043,6 @@ p#news-sub {
 	border: 0 none;
 	outline: none;
 	-webkit-transition-duration: 0.3s;
-	-moz-transition-duration:    0.3s;
-	-ms-transition-duration:     0.3s;
-	-o-transition-duration:      0.3s;
 	transition-duration:         0.3s;
 }
 
@@ -1143,9 +1050,6 @@ p#news-sub {
 	background-color: #efefef;
 	border: 0 none;
 	-webkit-transition-duration: 0.3s;
-	-moz-transition-duration:    0.3s;
-	-ms-transition-duration:     0.3s;
-	-o-transition-duration:      0.3s;
 	transition-duration:         0.3s;
 }
 
@@ -1166,17 +1070,11 @@ p#news-sub {
 	float: right;
 	display: inline-block;
 	background: #b4d278;
-	-webkit-box-shadow: inset 0 0 2px #fff,
-	                    0 1px 5px rgba(0, 0, 0, 0.3);
-	-moz-box-shadow:    inset 0 0 2px #fff,
-	                    0 1px 5px rgba(0, 0, 0, 0.3);
-	box-shadow:         inset 0 0 2px #fff,
-	                    0 1px 5px rgba(0, 0, 0, 0.3);
+	box-shadow: inset 0 0 2px #fff,
+	            0 1px 5px rgba(0, 0, 0, 0.3);
 	padding: 8px 15px;
 	border: 1px solid #2a8cba;
-	-webkit-border-radius: 5px;
-	-moz-border-radius:    5px;
-	border-radius:         5px;
+	border-radius: 5px;
 	line-height: 1.3;
 	color: #fff;
 	text-align: center;
@@ -1185,9 +1083,6 @@ p#news-sub {
 	text-decoration: none;
 	text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 	-webkit-transition-duration: 0.3s;
-	-moz-transition-duration:    0.3s;
-	-ms-transition-duration:     0.3s;
-	-o-transition-duration:      0.3s;
 	transition-duration:         0.3s;
 	cursor: pointer;
 }
@@ -1197,19 +1092,13 @@ p#news-sub {
 	background-color: #f0a000;
 	border-color: #c87800;
 	outline: none;
-	-webkit-box-shadow: inset 0 0 2px #fff,
-	                    0 1px 7px rgba(240, 160, 0, 0.5);
-	-moz-box-shadow:    inset 0 0 2px #fff,
-	                    0 1px 7px rgba(240, 160, 0, 0.5);
-	box-shadow:         inset 0 0 2px #fff,
-	                    0 1px 7px rgba(240, 160, 0, 0.5);
+	box-shadow: inset 0 0 2px #fff,
+	            0 1px 7px rgba(240, 160, 0, 0.5);
 }
 
 .jetpack-inline-error, .jetpack-inline-message {
 	padding: 0.5em 1em 0.5em 1em;
-	-webkit-border-radius: 3px;
-	-moz-border-radius:    3px;
-	border-radius:         3px;
+	border-radius: 3px;
 	border-width: 1px;
 	border-style: solid;
 	color: #333;
