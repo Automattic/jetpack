@@ -1361,9 +1361,9 @@ p {
 
 			// Add retina images hotfix to admin
 			global $wp_db_version;
-			if ( $wp_db_version > 19470  ) {
+			if ( ( $wp_db_version > 19470 ) && ( $wp_db_version < 22441 ) ) {
 				// WP 3.4.x
-				// TODO will need to add && $wp_db_version < xxxxx when 3.5 comes out.
+				// DB Version 22441 = WP 3.5
 				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
 				// /wp-admin/customize.php omits the action above.
 				add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
