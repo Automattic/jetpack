@@ -6,6 +6,7 @@
  * First Introduced: 2.3
  * Sort Order: 999
  * Requires Connection: No
+ * Requires Development Mode: No
  */
 
 // 1. Determine if we are on a network site or not

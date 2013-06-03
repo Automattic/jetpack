@@ -384,17 +384,12 @@ class Jetpack {
 	 */
 	public static function load_modules() {
 		
+		/*
 		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
-			if ( ! did_action( 'jetpack_module_loaded_debug' ) && ! did_action( 'jetpack_activate_module_debug' ) ) {
-				require Jetpack::get_module_path( 'debug' );
-				do_action( 'jetpack_activate_module', 'debug' );
-				$active = Jetpack::get_active_modules();
-				$active[] = 'debug';
-				Jetpack::update_option( 'active_modules', array_unique( $active ) );
-			}
 			return;
 		}
-
+		*/
+		
 		$version = Jetpack::get_option( 'version' );
 		if ( !$version ) {
 			$version = $old_version = JETPACK__VERSION . ':' . time();
@@ -427,13 +422,11 @@ class Jetpack {
 
 		foreach ( $modules as $module ) {
 			// If not connected and we're in dev mode, disable modules requiring a connection
-			if ( ! Jetpack::is_active() && Jetpack::is_development_mode() ) {
+			if ( ! Jetpack::is_active() ) {
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = Jetpack::get_module( $module );
 				}
-
-				if ( $modules_data[ $module ]['requires_connection'] ) {
-					Jetpack::deactivate_module( $module );
+				if ( $modules_data[ $module ]['requires_connection'] || ( $modules_data[ $module ]['requires_dev_mode'] && ! Jetpack::is_development_mode() ) ) {
 					continue;
 				}
 			}
@@ -441,6 +434,7 @@ class Jetpack {
 			if ( did_action( 'jetpack_module_loaded_' . $module ) ) {
 				continue;
 			}
+
 			require Jetpack::get_module_path( $module );
 			do_action( 'jetpack_module_loaded_' . $module );
 		}
@@ -839,6 +833,7 @@ class Jetpack {
 			// These modules are default off: they change things blog-side
 			case 'comments' :
 			case 'carousel' :
+			case 'debug' :
 			case 'minileven':
 			case 'infinite-scroll' :
 			case 'photon' :
@@ -891,6 +886,7 @@ class Jetpack {
 			'deactivate'          => 'Deactivate',
 			'free'                => 'Free',
 			'requires_connection' => 'Requires Connection',
+			'requires_dev_mode' => 'Requires Development Mode',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
@@ -908,6 +904,7 @@ class Jetpack {
 		$mod['deactivate'] = empty( $mod['deactivate'] );
 		$mod['free'] = empty( $mod['free'] );
 		$mod['requires_connection'] = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
+		$mod['requires_dev_mode'] = ( ! empty( $mod['requires_dev_mode'] ) && 'No' == $mod['requires_dev_mode'] ) ? false : true;
 		return $mod;
 	}
 
@@ -1011,7 +1008,7 @@ class Jetpack {
 		Jetpack::restate();
 		Jetpack::catch_errors( true );
 		foreach ( $modules as $module ) {
-			if ( did_action( "jetpack_activate_module_$module" ) ) {
+			if ( did_action( "jetpack_module_loaded_$module" ) ) {
 				$active[] = $module;
 				Jetpack::update_option( 'active_modules', array_unique( $active ) );
 				continue;
@@ -1065,9 +1062,6 @@ class Jetpack {
 	public static function activate_module( $module ) {
 		$jetpack = Jetpack::init();
 
-		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() )
-			return false;
-
 		if ( ! strlen( $module ) )
 			return false;
 
@@ -1081,13 +1075,15 @@ class Jetpack {
 				return true;
 		}
 
-		// If we're not connected but in development mode, make sure the module doesn't require a connection
-		if ( ! Jetpack::is_active() && Jetpack::is_development_mode() ) {
-			$module_data = Jetpack::get_module( $module );
-
-			if ( $module_data['requires_connection'] ) {
+		$module_data = Jetpack::get_module( $module );
+		
+		if ( ! Jetpack::is_active() ) {	
+			if ( ! Jetpack::is_development_mode() && $module_data['requires_dev_mode'] )
 				return false;
-			}
+
+			// If we're not connected but in development mode, make sure the module doesn't require a connection
+			if ( Jetpack::is_development_mode() && $module_data['requires_connection'] )
+					return false;
 		}
 
 		// Check and see if the old plugin is active
@@ -2707,7 +2703,7 @@ p {
 				</div>
 
 				<div class="jetpack-module-actions">
-				<?php if ( $jetpack_connected || ( Jetpack::is_development_mode() && ! $module_data['requires_connection'] ) ) : ?>
+				<?php if ( $jetpack_connected || ( Jetpack::is_development_mode() && ! $module_data['requires_connection'] ) || ! $module_data['requires_dev_mode'] ) : ?>
 					<?php if ( !$activated && current_user_can( 'manage_options' ) && apply_filters( 'jetpack_can_activate_' . $module, true ) ) : ?>
 						<a href="<?php echo esc_url( $toggle_url ); ?>" class="<?php echo ( 'inactive' == $css ? ' button-primary' : ' button-secondary' ); ?>"><?php echo $toggle; ?></a>&nbsp;
 					<?php endif; ?>
