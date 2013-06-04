@@ -396,6 +396,10 @@
 	background: url(images/arrow.png) top left no-repeat;
 }
 
+.more-info .arrow:after {
+	display: none;
+}
+
 /* Retina module more info arrow */
 @media only screen and (-moz-min-device-pixel-ratio: 1.5),
 	only screen and (-o-min-device-pixel-ratio: 3/2),
