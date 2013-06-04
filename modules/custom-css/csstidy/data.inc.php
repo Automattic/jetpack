@@ -587,7 +587,7 @@ $GLOBALS['csstidy']['quoted_string_properties'] = array('content', 'font', 'font
  *
  * @global array $GLOBALS['csstidy']['quoted_string_properties']
  */
-$GLOBALS['csstidy']['multiple_properties'] = array_merge( $GLOBALS['csstidy']['color_values'], $GLOBALS['csstidy']['unit_values'], array('transition') );
+$GLOBALS['csstidy']['multiple_properties'] = array_merge( $GLOBALS['csstidy']['color_values'], $GLOBALS['csstidy']['unit_values'], array( 'transition', 'background-image', 'border-image', 'list-style-image' ) );
 
 /**
  * An array containing all predefined templates.
