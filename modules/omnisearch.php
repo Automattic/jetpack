@@ -7,4 +7,6 @@
  * Requires Connection: No
  */
 
-require_once( dirname( __FILE__ ) . '/omnisearch/omnisearch-core.php' );
+// Only do Jetpack Omnisearch if there isn't already a Core WP_Omnisearch Class.
+if ( ! class_exists( 'WP_Omnisearch' ) )
+	require_once( dirname( __FILE__ ) . '/omnisearch/omnisearch-core.php' );
