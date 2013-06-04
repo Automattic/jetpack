@@ -12,6 +12,7 @@ class WPCOM_JSON_API {
 	var $method = '';
 	var $url = '';
 	var $path = '';
+	var $version = null;
 	var $query = array();
 	var $post_body = null;
 	var $files = null;
@@ -124,9 +125,11 @@ class WPCOM_JSON_API {
 
 		$this->initialize();
 
-		// Normalize path
+		// Normalize path and extract API version
 		$this->path = untrailingslashit( $this->path );
-		$this->path = preg_replace( '#^/rest/v1#', '', $this->path );
+		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
+		$this->path = substr( $this->path, strlen( $matches[0] ) );
+		$this->version = $matches[1];
 
 		$allowed_methods = array( 'GET', 'POST' );
 		$four_oh_five = false;
