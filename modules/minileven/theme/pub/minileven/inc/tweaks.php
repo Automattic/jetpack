@@ -13,7 +13,6 @@
 *
 */
 function minileven_excerpt( $count ) {
-	$permalink = get_permalink( $post->ID );
 	$excerpt = get_the_content();
 	$excerpt = strip_tags( $excerpt );
 	$excerpt = strip_shortcodes( $excerpt );
