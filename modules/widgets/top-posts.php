@@ -57,7 +57,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		$count = isset( $instance['count'] ) ? (int) $instance['count'] : 10;
-		if ( $count < 1 || 20 < $count ) {
+		if ( $count < 1 || 10 < $count ) {
 			$count = 10;
 		}
 
@@ -101,7 +101,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		}
 
 		$instance['count'] = (int) $new_instance['count'];
-		if ( $instance['count'] < 1 || 20 < $instance['count'] ) {
+		if ( $instance['count'] < 1 || 10 < $instance['count'] ) {
 			$instance['count'] = 10;
 		}
 
@@ -121,7 +121,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', $title );
 
 		$count = isset( $instance['count'] ) ? (int) $instance['count'] : false;
-		if ( $count < 1 || 20 < $count ) {
+		if ( $count < 1 || 10 < $count ) {
 			$count = 10;
 		}
 
