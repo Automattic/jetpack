@@ -178,7 +178,15 @@ Scroller.prototype.refresh = function() {
 	color = loader.css( 'color' );
 
 	try {
-		loader.spin( 'medium-left', color );
+		loader.spin( {
+			lines:  8,
+			length: 4,
+			width:  3,
+			radius: 5,
+			trail:  60,
+			speed:  1.3,
+			left:   5
+		}, color );
 	} catch ( error ) { }
 
 	// Generate our query vars.

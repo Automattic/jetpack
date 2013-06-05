@@ -272,10 +272,10 @@ class Jetpack {
 	 */
 	public function register_assets() {
 		if ( ! wp_script_is( 'spin', 'registered' ) )
-			wp_register_script( 'spin', plugins_url( '_inc/spin.js', __FILE__ ), false, '1.2.4' );
+			wp_register_script( 'spin', plugins_url( '_inc/spin.js', __FILE__ ), false, '1.3' );
 
 		if ( ! wp_script_is( 'jquery.spin', 'registered' ) )
-			wp_register_script( 'jquery.spin', plugins_url( '_inc/jquery.spin.js', __FILE__ ) , array( 'jquery', 'spin' ) );
+			wp_register_script( 'jquery.spin', plugins_url( '_inc/jquery.spin.js', __FILE__ ) , array( 'jquery', 'spin' ), '1.3' );
 
 		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) )
 			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/gallery-settings.js', __FILE__ ), array( 'media-views' ), '20121225' );
