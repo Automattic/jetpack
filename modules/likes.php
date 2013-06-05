@@ -206,8 +206,8 @@ class Jetpack_Likes {
 
 	function admin_discussion_likes_settings_init() {
 		// Add a temporary section, until we can move the setting out of there and with the rest of the email notification settings
-		add_settings_section( 'likes-notifications', __( 'Likes Notifications' ), array( $this, 'admin_discussion_likes_settings_section' ), 'discussion' );
-		add_settings_field( 'social-notifications', __( 'Email me whenever' ), array( $this, 'admin_discussion_likes_settings_field' ), 'discussion', 'likes-notifications' );
+		add_settings_section( 'likes-notifications', __( 'Likes Notifications' , 'jetpack'), array( $this, 'admin_discussion_likes_settings_section' ), 'discussion' );
+		add_settings_field( 'social-notifications', __( 'Email me whenever' , 'jetpack'), array( $this, 'admin_discussion_likes_settings_field' ), 'discussion', 'likes-notifications' );
 		// Register the setting
 		register_setting( 'discussion', 'social_notifications_like', array( $this, 'admin_discussion_likes_settings_validate' ) );
 	}
@@ -246,7 +246,7 @@ class Jetpack_Likes {
 	function admin_discussion_likes_settings_field() {
 		$like = $this->admin_likes_get_option( 'social_notifications_like' );
 ?>
-		<label><input type="checkbox" id="social_notifications_like" name="social_notifications_like" value="1" <?php checked( $like ); ?> /> <?php esc_html_e( 'Someone likes one of my posts' ); ?></label>
+		<label><input type="checkbox" id="social_notifications_like" name="social_notifications_like" value="1" <?php checked( $like ); ?> /> <?php esc_html_e( 'Someone likes one of my posts' , 'jetpack'); ?></label>
 <?php
 	}
 
@@ -568,7 +568,7 @@ class Jetpack_Likes {
 		$date = $columns['date'];
 		unset( $columns['date'] );
 
-		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes' ) . '" alt="' . esc_attr__( 'Likes' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
+		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes' , 'jetpack') . '" alt="' . esc_attr__( 'Likes' , 'jetpack') . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
 		$columns['date'] = $date;
 
 		return $columns;

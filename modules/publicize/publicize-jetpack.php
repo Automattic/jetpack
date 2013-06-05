@@ -614,7 +614,7 @@ class Publicize extends Publicize_Base {
 						if ( !$expired_tokens ) {
 							?>
 							<div class="error below-h2 publicize-token-refresh-message">
-							<p><?php echo esc_html( __( 'Before you hit Publish, please refresh your connection to make sure we can Publicize your post:' ) ); ?></p>
+							<p><?php echo esc_html( __( 'Before you hit Publish, please refresh your connection to make sure we can Publicize your post:' , 'jetpack') ); ?></p>
 							<?php
 							$expired_tokens = true;
 						}
@@ -624,7 +624,7 @@ class Publicize extends Publicize_Base {
 						?>
 						<p style="text-align: center;" id="publicize-token-refresh-<?php echo esc_attr( $name ); ?>" class="publicize-token-refresh-button">
 							<a href="<?php echo esc_url( $url ); ?>" class="button" target="_refresh_<?php echo esc_attr( $name ); ?>">
-								<?php printf( __( 'Refresh connection with %s' ), Publicize::get_service_label( $name ) ); ?>
+								<?php printf( __( 'Refresh connection with %s' , 'jetpack'), Publicize::get_service_label( $name ) ); ?>
 							</a>
 						</p><?php
 					}

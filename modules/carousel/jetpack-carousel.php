@@ -129,7 +129,7 @@ class Jetpack_Carousel {
 					$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . sprintf( __( 'Commenting as %s', 'jetpack' ), $current_user->data->display_name ) . '</p>';
 				} else {
 					if ( $comment_registration ) {
-						$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . __( 'You must be <a href="#" class="jp-carousel-comment-login">logged in</a> to post a comment.' ) . '</p>';
+						$localize_strings['local_comments_commenting_as'] = '<p id="jp-carousel-commenting-as">' . __( 'You must be <a href="#" class="jp-carousel-comment-login">logged in</a> to post a comment.' , 'jetpack') . '</p>';
 					} else {
 						$required = ( $require_name_email ) ? __( '%s (Required)', 'jetpack' ) : '%s';
 						$localize_strings['local_comments_commenting_as'] = ''

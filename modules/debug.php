@@ -135,13 +135,13 @@ function jetpack_debug_menu_display_handler() {
 			$debug_info .= $test_name . ': ' . $status . "\r\n";
 			$debug_raw_info .= "\r\n\r\n" . $test_name . "\r\n" . esc_html( print_r( $test_result, 1 ) );
 			?>
-			<div class="jetpack-test-results <?php esc_html_e( $test_class ); ?>">
+			<div class="jetpack-test-results <?php esc_html_e( $test_class , 'jetpack'); ?>">
 				<p>
-					<a class="jetpack-test-heading" href="#"><?php esc_html_e( $test_name ); ?>: <?php esc_html_e( $status ); ?>
+					<a class="jetpack-test-heading" href="#"><?php esc_html_e( $test_name , 'jetpack'); ?>: <?php esc_html_e( $status , 'jetpack'); ?>
 					<span class="noticon noticon-collapse"></span>
 					</a>
 				</p>
-				<pre class="jetpack-test-details"><?php esc_html_e( $result ); ?></pre>
+				<pre class="jetpack-test-details"><?php esc_html_e( $result , 'jetpack'); ?></pre>
 			</div>
 		<?php endforeach; 
 			$debug_info .= "\r\n\r\nRAW TEST RESULTS:" . $debug_raw_info ."\r\n";
@@ -181,17 +181,17 @@ function jetpack_debug_menu_display_handler() {
 				<div id="name_div" class="formbox">
 					<label class="h" for="your_name"><?php esc_html_e( 'Name', 'jetpack' ); ?></label>
 		  			<span class="errormsg"><?php esc_html_e( 'Let us know your name.', 'jetpack' ); ?></span>
-					<input name="your_name" type="text" id="your_name" value="<?php esc_html_e( $current_user->display_name ); ?>" size="40">
+					<input name="your_name" type="text" id="your_name" value="<?php esc_html_e( $current_user->display_name , 'jetpack'); ?>" size="40">
 				</div>
 		
 				<div id="email_div" class="formbox">
 					<label class="h" for="your_email"><?php esc_html_e( 'E-mail', 'jetpack' ); ?></label>
 		  			<span class="errormsg"><?php esc_html_e( 'Use a valid email address.', 'jetpack' ); ?></span>
-					<input name="your_email" type="text" id="your_email" value="<?php esc_html_e( $current_user->user_email ); ?>" size="40">
+					<input name="your_email" type="text" id="your_email" value="<?php esc_html_e( $current_user->user_email , 'jetpack'); ?>" size="40">
 				</div>
 
 				<div id="toggle_debug_info" class="formbox">
-					<p><?php echo sprintf( esc_html_x( 'The test results and some other useful debug information will be sent to the support team. Please fill free to %s this information. ', '%s = review/modify', 'jetpack' ), '<a href="#">' . esc_html__( 'review/modify' ) . '</a>' ); ?></p>
+					<p><?php echo sprintf( esc_html_x( 'The test results and some other useful debug information will be sent to the support team. Please fill free to %s this information. ', '%s = review/modify', 'jetpack' ), '<a href="#">' . esc_html__( 'review/modify' , 'jetpack') . '</a>' ); ?></p>
 				</div>
 				
 				<div id="debug_info_div" class="formbox" style="display:none">

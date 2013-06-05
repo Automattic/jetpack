@@ -247,7 +247,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		?>
 
 		<div id="respond">
-			<h3 id="reply-title"><?php comment_form_title( __( 'Leave a Reply' ), __( 'Leave a Reply to %s' ) ); ?> <small><?php cancel_comment_reply_link( __( 'Cancel reply' ) ); ?></small></h3>
+			<h3 id="reply-title"><?php comment_form_title( __( 'Leave a Reply' , 'jetpack'), __( 'Leave a Reply to %s' , 'jetpack') ); ?> <small><?php cancel_comment_reply_link( __( 'Cancel reply' , 'jetpack') ); ?></small></h3>
 			<div id="commentform">
 				<iframe src="<?php echo esc_url( $url ); ?>" allowtransparency="<?php echo $transparent; ?>" style="width:100%; height: <?php echo $height; ?>px;border:0px;" frameBorder="0" scrolling="no" name="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>
 			</div>
