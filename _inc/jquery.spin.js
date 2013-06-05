@@ -80,6 +80,12 @@ $('#el').spin('flower', 'red');
 }));
 
 // Jetpack Presets Overrides:
-jQuery.fn.spin.presets.small =  { lines: 8, length: 2, width: 2, radius: 3, trail: 60, speed: 1.3 };
-jQuery.fn.spin.presets.medium = { lines: 8, length: 4, width: 3, radius: 5, trail: 60, speed: 1.3 };
-jQuery.fn.spin.presets.large = { lines: 10, length: 6, width: 4, radius: 7, trail: 60, speed: 1.3 };
+(function($){
+	$.fn.spin.presets.wp = { trail: 60, speed: 1.3 };
+	$.fn.spin.presets.small  = $.extend( { lines:  8, length: 2, width: 2, radius: 3 }, $.fn.spin.presets.wp );
+	$.fn.spin.presets.medium = $.extend( { lines:  8, length: 4, width: 3, radius: 5 }, $.fn.spin.presets.wp );
+	$.fn.spin.presets.large  = $.extend( { lines: 10, length: 6, width: 4, radius: 7 }, $.fn.spin.presets.wp );
+	$.fn.spin.presets['small-left']   = $.extend( { left: 5 }, $.fn.spin.presets.small );
+	$.fn.spin.presets['medium-left']  = $.extend( { left: 5 }, $.fn.spin.presets.medium );
+	$.fn.spin.presets['large-left']   = $.extend( { left: 5 }, $.fn.spin.presets.large );
+})(jQuery);
