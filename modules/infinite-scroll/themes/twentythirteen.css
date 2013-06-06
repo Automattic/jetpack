@@ -18,6 +18,10 @@
 .sidebar .infinite-loader .spinner {
 	padding-right: 376px;
 }
+.rtl.sidebar .infinite-loader .spinner {
+	padding-left: 376px;
+	padding-right: 0;
+}
 
 /* Click-to-load */
 #infinite-handle {
@@ -27,6 +31,10 @@
 }
 .sidebar #infinite-handle {
 	padding-right: 376px;
+}
+.rtl.sidebar #infinite-handle {
+	padding-left: 376px;
+	padding-right: 0;
 }
 #infinite-handle span {
 	background: #e05d22; /* Old browsers */
@@ -65,4 +73,18 @@
 /* Hooks to infinity-end body class to restore footer. */
 .infinity-end.neverending #colophon {
 	display: block;
+}
+
+/* For small viewports. */
+@media (max-width: 999px) {
+	.sidebar .infinite-loader .spinner,
+	.rtl.sidebar .infinite-loader .spinner {
+		padding-right: 0;
+		padding-left: 0;
+	}
+	.infinite-scroll #infinite-handle,
+	.rtl.sidebar #infinite-handle {
+		padding-right: 0;
+		padding-left: 0;
+	}
 }
