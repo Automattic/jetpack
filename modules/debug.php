@@ -88,7 +88,7 @@ function jetpack_debug_menu_display_handler() {
 		'OLD_VERSION' => 'old_version',
 		'PUBLIC'      => 'public',
 	) as $label => $option_name ) {
-		$debug_info .= esc_html( $label . ": " . Jetpack::get_option( $option_name ) );
+		$debug_info .= "\r\n" . esc_html( $label . ": " . Jetpack::get_option( $option_name ) );
 	}
 	
 	$debug_info .= "\r\n" . esc_html( "USER_ID: " . $user_id );
