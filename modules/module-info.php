@@ -782,13 +782,13 @@ function jetpack_debug_more_info() { ?>
 
 	<h4><?php esc_html_e( 'Debug' , 'jetpack' ); ?></h4>
 
-	<p><?php esc_html_e( 'A debugging platform for the Jetpack plugin. Find out why Jetpack isn’t working for you and submit a help request direct from your Dashboard.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( "A debugging platform for the Jetpack plugin. Find out why Jetpack isn't working for you and submit a help request direct from your Dashboard.", 'jetpack' ); ?></p>
 
 <?php
 }
 
 function jetpack_debug_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/post-by-email/">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/debug/">' . __( 'Learn More', 'jetpack' ) . '</a>';
 }
 
 add_action( 'jetpack_module_more_info_debug', 'jetpack_debug_more_info' );
