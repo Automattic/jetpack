@@ -66,6 +66,16 @@ $('#el').spin('flower', 'red');
           { color: color || $this.css('color') },
           $.fn.spin.presets[opts] || opts
         )
+        // Begin WordPress Additions
+        // To use opts.right, you need to have specified a length, width, and radius.
+        if ( typeof opts.right !== 'undefined' && typeof opts.length !== 'undefined'
+          && typeof opts.width !== 'undefined' && typeof opts.radius !== 'undefined' ) {
+          var pad = $this.css( 'padding-left' );
+          pad = ( typeof pad === 'undefined' ) ? 0 : parseInt( pad, 10 );
+          opts.left = $this.outerWidth() - ( 2 * ( opts.length + opts.width + opts.radius ) ) - pad - opts.right;
+          delete opts.right;
+        }
+        // End WordPress Additions
         data.spinner = new Spinner(opts).spin(this)
       }
     })
@@ -85,7 +95,10 @@ $('#el').spin('flower', 'red');
 	$.fn.spin.presets.small  = $.extend( { lines:  8, length: 2, width: 2, radius: 3 }, $.fn.spin.presets.wp );
 	$.fn.spin.presets.medium = $.extend( { lines:  8, length: 4, width: 3, radius: 5 }, $.fn.spin.presets.wp );
 	$.fn.spin.presets.large  = $.extend( { lines: 10, length: 6, width: 4, radius: 7 }, $.fn.spin.presets.wp );
-	$.fn.spin.presets['small-left']   = $.extend( { left: 5 }, $.fn.spin.presets.small );
-	$.fn.spin.presets['medium-left']  = $.extend( { left: 5 }, $.fn.spin.presets.medium );
-	$.fn.spin.presets['large-left']   = $.extend( { left: 5 }, $.fn.spin.presets.large );
+	$.fn.spin.presets['small-left']   = $.extend( { left:  5 }, $.fn.spin.presets.small );
+	$.fn.spin.presets['small-right']  = $.extend( { right: 5 }, $.fn.spin.presets.small );
+	$.fn.spin.presets['medium-left']  = $.extend( { left:  5 }, $.fn.spin.presets.medium );
+	$.fn.spin.presets['medium-right'] = $.extend( { right: 5 }, $.fn.spin.presets.medium );
+	$.fn.spin.presets['large-left']   = $.extend( { left:  5 }, $.fn.spin.presets.large );
+	$.fn.spin.presets['large-right']  = $.extend( { right: 5 }, $.fn.spin.presets.large );
 })(jQuery);
