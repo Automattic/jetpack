@@ -110,5 +110,16 @@ class Jetpack_Omnisearch {
 			)
 		) );
 	}
+
+	static function get_omnisearch_form( $args = array() ) {
+		$form = '<form action="' . esc_url( admin_url( 'admin.php' ) ) . '" method="get">'
+			  . '<input type="hidden" name="page" value="omnisearch" />'
+			  . '<input name="s" type="search" />'
+			  . '<input type="submit" class="button" value="' . __('Search', 'jetpack') . '" />'
+			  . '</form>';
+
+		return apply_filters( 'get_omnisearch_form', $form, $args );
+	}
+
 }
 new Jetpack_Omnisearch;
