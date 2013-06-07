@@ -70,7 +70,7 @@ class Social_Links {
 	}
 
 	/**
-	 * Add social link dropdowna to the Customizer.
+	 * Add social link dropdown to the Customizer.
 	 *
 	 * @param WP_Customize_Manager $wp_customize Theme Customizer object.
 	 */
