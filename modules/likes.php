@@ -916,8 +916,9 @@ class Jetpack_Likes {
 						$wrapper.find( 'iframe' ).Jetpack( 'resizeable' );
 					}
 				});
+				setTimeout( JetpackLikesWidgetQueueHandler, 250 );
 			}
-			setInterval( JetpackLikesWidgetQueueHandler, 250 );
+			JetpackLikesWidgetQueueHandler();
 		//]]>
 		</script>
 <?php
