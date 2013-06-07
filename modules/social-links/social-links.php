@@ -41,15 +41,16 @@ class Social_Links {
 			return;
 		}
 
+		global $publicize;
 		$theme_support = get_theme_support( 'social-links' );
 
 		/* An array of named arguments must be passed as the second parameter
 		 * of add_theme_support().
 		 */
-		if ( ! isset( $theme_support[0] ) || empty( $theme_support[0] ) )
+		if ( ! isset( $theme_support[0] ) || empty( $theme_support[0] ) || ! isset( $publicize ) )
 			return;
 
-		$this->publicize = new Publicize;
+		$this->publicize = $publicize;
 
 		$this->services  = array_intersect(
 			array_keys( $this->publicize->get_services( 'connected' ) ),
