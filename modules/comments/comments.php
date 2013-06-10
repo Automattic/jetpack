@@ -209,6 +209,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			'show_avatars'         => ( get_option( 'show_avatars' )         ? '1' : '0' ),
 			'avatar_default'       => get_option( 'avatar_default' ),
 			'greeting'             => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),
+			'greeting_reply'       => apply_filters( 'jetpack_comment_form_prompt_reply', __( 'Leave a Reply to %s' , 'jetpack' ) ),
 			'color_scheme'         => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
 			'lang'                 => get_bloginfo( 'language' ),
 			'jetpack_version'      => JETPACK__VERSION,
@@ -247,7 +248,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		?>
 
 		<div id="respond">
-			<h3 id="reply-title"><?php comment_form_title( __( 'Leave a Reply' , 'jetpack'), __( 'Leave a Reply to %s' , 'jetpack') ); ?> <small><?php cancel_comment_reply_link( __( 'Cancel reply' , 'jetpack') ); ?></small></h3>
+			<h3 id="reply-title"><?php comment_form_title( esc_html( $params['greeting'] ), esc_html( $params['greeting_reply'] ) ); ?> <small><?php cancel_comment_reply_link( esc_html__( 'Cancel reply' , 'jetpack') ); ?></small></h3>
 			<div id="commentform">
 				<iframe src="<?php echo esc_url( $url ); ?>" allowtransparency="<?php echo $transparent; ?>" style="width:100%; height: <?php echo $height; ?>px;border:0px;" frameBorder="0" scrolling="no" name="jetpack_remote_comment" id="jetpack_remote_comment"></iframe>
 			</div>
