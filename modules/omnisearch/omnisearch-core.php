@@ -81,7 +81,7 @@ class Jetpack_Omnisearch {
 		<script>
 		jQuery(document).ready(function($){
 			$('.omnisearch-results > li').each(function(){
-				label = $(this).find('h2').first().clone().children().remove().end().text();
+				label = $(this).find('h2').first().clone().children().remove().end().text().replace(/^\s+|\s+$/g,'');
 				$('.jump-to').append(' <a href="#' + $(this).attr('id') + '">' + label + '</a>');
 			});
 		});
