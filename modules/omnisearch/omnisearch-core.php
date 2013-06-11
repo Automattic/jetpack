@@ -58,11 +58,12 @@ class Jetpack_Omnisearch {
 		<div class="wrap">
 			<h2 class="page-title"><?php esc_html_e('Jetpack Omnisearch', 'jetpack'); ?></h2>
 			<br class="clear" />
-			<form action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" method="get" class="omnisearch-form">
-				<input type="hidden" name="page" value="omnisearch" />
-				<input type="search" name="s" class="omnisearch" placeholder="<?php esc_attr_e('Search Everything', 'jetpack'); ?>" value="<?php echo esc_attr( $s ); ?>" />
-				<button type="submit" class="omnisearch-submit"><span><?php esc_html_e('Search', 'jetpack'); ?></span></button>
-			</form>
+			<?php echo self::get_omnisearch_form( array(
+							'form_class'       => 'omnisearch-form',
+							'search_class'     => 'omnisearch',
+							'submit_class'     => 'omnisearch-submit',
+							'alternate_submit' => true,
+						) ); ?>
 			<?php if( ! empty( $results ) ): ?>
 				<h3 id="results-title"><?php esc_html_e('Results:', 'jetpack'); ?></h3>
 				<div class="jump-to"><strong><?php esc_html_e('Jump to:', 'jetpack'); ?></strong></div>
@@ -92,13 +93,12 @@ class Jetpack_Omnisearch {
 	function admin_bar_search( $wp_admin_bar ) {
 		if( ! is_admin() ) return;
 
-		$search_terms = isset( $_GET[ 's' ] ) ? esc_attr( $_GET['s'] ) : '';
-
-		$form  = '<form action="' . esc_url( admin_url( 'admin.php' ) ) . '" method="get" id="adminbarsearch">';
-		$form .= '<input type="hidden" name="page" value="omnisearch" />';
-		$form .= '<input class="adminbar-input" name="s" id="adminbar-search" type="search" value="' . $search_terms . '" maxlength="150" placeholder="' . __('Search Everything', 'jetpack') . '" />';
-		$form .= '<input type="submit" class="adminbar-button" value="' . __('Search', 'jetpack') . '"/>';
-		$form .= '</form>';
+		$form = self::get_omnisearch_form( array(
+			'form_id'      => 'adminbarsearch',
+			'search_id'    => 'adminbar-search',
+			'search_class' => 'adminbar-input',
+			'submit_class' => 'adminbar-button',
+		) );
 
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'top-secondary',
@@ -112,13 +112,40 @@ class Jetpack_Omnisearch {
 	}
 
 	static function get_omnisearch_form( $args = array() ) {
-		$form = '<form action="' . esc_url( admin_url( 'admin.php' ) ) . '" method="get">'
-			  . '<input type="hidden" name="page" value="omnisearch" />'
-			  . '<input name="s" type="search" />'
-			  . '<input type="submit" class="button" value="' . __('Search', 'jetpack') . '" />'
-			  . '</form>';
+		$defaults = array(
+			'form_id'            => null,
+			'form_class'         => null,
+			'search_class'       => null,
+			'search_id'          => null,
+			'search_value'       => isset( $_REQUEST['s'] ) ? $_REQUEST['s'] : null,
+			'search_placeholder' => __( 'Search Everything', 'jetpack' ),
+			'submit_class'       => 'button',
+			'submit_value'       => __( 'Search', 'jetpack' ),
+			'alternate_submit'   => false,
+		);
+		extract( array_map( 'esc_attr', wp_parse_args( $args, $defaults ) ) );
 
-		return apply_filters( 'get_omnisearch_form', $form, $args );
+		$rand = rand();
+		if( empty( $form_id ) )
+			$form_id = "omnisearch_form_$rand";
+		if( empty( $search_id ) )
+			$search_id = "omnisearch_search_$rand";
+
+		ob_start();
+		?>
+
+		<form action="<?php echo esc_url( admin_url( 'admin.php' ) ); ?>" method="get" class="<?php echo $form_class; ?>" id="<?php echo $form_id; ?>">
+			<input type="hidden" name="page" value="omnisearch" />
+			<input name="s" type="search" class="<?php echo $search_class; ?>" id="<?php echo $search_id; ?>" value="<?php echo $search_value; ?>" placeholder="<?php echo $search_placeholder; ?>" />
+			<?php if ( $alternate_submit ) : ?>
+				<button type="submit" class="<?php echo $submit_class; ?>"><span><?php echo $submit_value; ?></span></button>
+			<?php else : ?>
+				<input type="submit" class="<?php echo $submit_class; ?>" value="<?php echo $submit_value; ?>" />
+			<?php endif; ?>
+		</form>
+
+		<?php
+		return apply_filters( 'get_omnisearch_form', ob_get_clean(), $args, $defaults );
 	}
 
 }
