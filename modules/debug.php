@@ -191,7 +191,7 @@ function jetpack_debug_menu_display_handler() {
 				</div>
 
 				<div id="toggle_debug_info" class="formbox">
-					<p><?php echo sprintf( esc_html_x( 'The test results and some other useful debug information will be sent to the support team. Please fill free to %s this information. ', '%s = review/modify', 'jetpack' ), '<a href="#">' . esc_html__( 'review/modify' , 'jetpack') . '</a>' ); ?></p>
+					<p><?php echo sprintf( esc_html_x( 'The test results and some other useful debug information will be sent to the support team. Please feel free to %s this information. ', '%s = review/modify', 'jetpack' ), '<a href="#">' . esc_html__( 'review/modify' , 'jetpack') . '</a>' ); ?></p>
 				</div>
 				
 				<div id="debug_info_div" class="formbox" style="display:none">
