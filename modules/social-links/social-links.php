@@ -58,7 +58,13 @@ class Social_Links {
 		);
 
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
-		add_action( 'switch_theme',       array( $this, 'update_theme_mods'  ) );
+
+		foreach ( $this->services as $service ) {
+			// Enable the `get_option( 'jetpack-service' );` shortcut
+			add_filter( "pre_option_jetpack-{$service}", array( $this, 'get_social_link_filter' ) );
+			// Enable the `get_theme_mod( 'jetpack-service' );` shortcut
+			add_filter( "theme_mod_jetpack-{$service}", array( $this, 'get_social_link_filter' ) );
+		}
 	}
 
 	/**
@@ -82,30 +88,20 @@ class Social_Links {
 		) );
 
 		foreach ( $this->services as $service ) {
-			$wp_customize->add_setting( "jetpack-$service", array(
+			$wp_customize->add_setting( "jetpack_options[social_links][$service]", array(
+				'type'              => 'option',
 				'default'           => '',
 				'sanitize_callback' => 'esc_url_raw',
 			) );
 
 			$wp_customize->add_control( "jetpack-$service", array(
-				'label'   => $this->publicize->get_service_label( $service ),
-				'section' => 'jetpack_social_links',
-				'type'    => 'select',
-				'choices' => $this->get_customize_select( $service ),
+				'label'    => $this->publicize->get_service_label( $service ),
+				'section'  => 'jetpack_social_links',
+				'settings' => "jetpack_options[social_links][$service]",
+				'type'     => 'select',
+				'choices'  => $this->get_customize_select( $service ),
 			) );
 		}
-	}
-
-	/**
-	 * Transfers user selected social links from theme to theme.
-	 */
-	public function update_theme_mods() {
-		$old_name = get_option( 'theme_switched' );
-		$old_mods = (array) get_option( "mods_$old_name" );
-
-		foreach ( array_keys( $this->publicize->get_services() ) as $service )
-			if ( isset( $old_mods[ "jetpack-$service" ] ) )
-				set_theme_mod( "jetpack-$service", $old_mods[ "jetpack-$service" ] );
 	}
 
 	/**
@@ -126,6 +122,40 @@ class Social_Links {
 
 		return $choices;
 	}
+
+	/**
+	 * Short-circuits get_option and get_theme_mod calls.
+	 * add_filter( "pre_option_jetpack-{$service}", array( $this, 'get_social_link_filter' ) );
+	 * add_filter( "theme_mod_jetpack-{$service}", array( $this, 'get_social_link_filter' ) );
+	 *
+	 * @param $link The incoming value to be replaced.
+	 * @returns $link The social link that we've got.
+	 */
+	public function get_social_link_filter( $link ) {
+		if ( preg_match( '/_jetpack-(.+)$/i', current_filter(), $matches ) ) {
+			$service = $matches[1];
+			if ( in_array( $service, $this->services ) ) {
+				$link = $this->get_link( $service );
+			}
+		}
+		return $link;
+	}
+
+	/**
+	 * Just a shortcut to the serialized Jetpack options.
+	 *
+	 * @param string $service The name of the service that we're looking for.
+	 * @param string $default The data to return if we've not got anything on file.
+	 * @returns string $link The social link that we've got, or the default if not.
+	 */
+	private function get_link( $service, $default = '' ) {
+		$links = Jetpack::get_option( 'social_links', array() );
+		if( ! empty( $links[ $service ] ) )
+			return $links[ $service ];
+
+		return $default;
+	}
+
 }
 
 $jetpack_social_links = new Social_Links;
