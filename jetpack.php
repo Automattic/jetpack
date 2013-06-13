@@ -3420,7 +3420,10 @@ class Jetpack_Client {
 		);
 
 		if ( false !== strpos( $args['url'], 'xmlrpc.php' ) ) {
-			$url_args = array( 'for' => 'jetpack' );
+			$url_args = array(
+				'for'     => 'jetpack',
+				'blog_id' => $args['blog_id'],
+			);
 		} else {
 			$url_args = array();
 		}
