@@ -1001,7 +1001,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject );
 
-		$time = date_i18n( __( 'l F j, Y \a\t g:i a', 'jetpack' ), current_time( 'timestamp' ) );
+		$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
+		$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
+		$time = date_i18n( $date_time_format, current_time( 'timestamp' ) );
 
 		$extra_content = '';
 
@@ -1423,7 +1425,7 @@ function grunion_delete_old_spam() {
 	# nothing special about 5000 or 11
 	# just trying to periodically recover deleted rows
 	$random_num = mt_rand( 1, 5000 );
-	if ( apply_filters( 'grunion_optimize_table', ( $random_number == 11 ) ) ) {
+	if ( apply_filters( 'grunion_optimize_table', ( $random_num == 11 ) ) ) {
 		$wpdb->query( "OPTIMIZE TABLE $wpdb->posts" );
 	}
 
