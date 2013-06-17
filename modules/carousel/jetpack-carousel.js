@@ -444,12 +444,14 @@ jQuery(document).ready(function($) {
 
 					$(window).unbind('keydown', keyListener);
 					$(window).unbind('resize', resizeListener);
+					$(window).scrollTop(scroll);
+				})
+				.bind('jp_carousel.afterClose', function(){
 					if ( history.pushState ) {
 						history.pushState("", document.title, window.location.pathname + window.location.search);
 					} else {
 						document.location.hash = '';
 					}
-					$(window).scrollTop(scroll);
 					gallery.opened = false;
 				});
 
