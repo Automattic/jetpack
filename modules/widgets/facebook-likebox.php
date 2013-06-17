@@ -61,7 +61,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 		$like_args['force_wall'] = (bool) $like_args['force_wall']         ? 'true' : 'false';
 		$like_args['show_border']= (bool) $like_args['show_border']        ? 'true' : 'false';
 		$like_args['header']     = (bool) $like_args['header']             ? 'true' : 'false';
-		$like_bg_colour          = ( 'dark' == $like_args['colorscheme'] ) ? '#000' : '#fff';
+		$like_bg_colour          = apply_filters( 'jetpack_fb_likebox_bg', ( 'dark' == $like_args['colorscheme'] ? '#000' : '#fff' ), $like_args['colorscheme'] );
 
 		$locale = $this->get_locale();
 		if ( $locale && 'en_US' != $locale )
