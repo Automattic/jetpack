@@ -29,7 +29,7 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 		$this->display();
 		$html .= ob_get_clean();
 
-		$results[ __CLASS__ . "_{$this->post_type}" ] = $html;
+		$results[ $this->post_type_obj->labels->name ] = $html;
 		return $results;
 	}
 

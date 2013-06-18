@@ -23,7 +23,8 @@ class Jetpack_Omnisearch_Plugins extends WP_Plugin_Install_List_Table {
 		$html .= '<div id="' . __CLASS__ . '_results">' . esc_html__('Loading &hellip;', 'jetpack') . '</div>';
 		$html .= '<script>jQuery("#' . __CLASS__ . '_results").load(ajaxurl,{action:"omnisearch_plugins",search_term:search_term,num_results:num_results});</script>';
 
-		$results[ __CLASS__ ] = $html;
+		$label = __( 'Plugins', 'jetpack' );
+		$results[ $label ] = $html;
 		return $results;
 	}
 

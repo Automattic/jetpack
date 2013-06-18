@@ -24,7 +24,8 @@ class Jetpack_Omnisearch_Comments extends WP_Comments_List_Table {
 		$this->display();
 		$html .= ob_get_clean();
 
-		$results[ __CLASS__ ] = $html;
+		$label = __( 'Comments', 'jetpack' );
+		$results[ $label ] = $html;
 		return $results;
 	}
 

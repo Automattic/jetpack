@@ -70,8 +70,8 @@ class Jetpack_Omnisearch {
 				<br class="clear" />
 				<script>var search_term = '<?php echo esc_js( $s ); ?>', num_results = <?php echo intval( self::$num_results ); ?>;</script>
 				<ul class="omnisearch-results">
-					<?php foreach( $results as $id => $result ) : ?>
-						<li id="result-<?php echo $id; ?>">
+					<?php foreach( $results as $label => $result ) : ?>
+						<li id="result-<?php echo sanitize_title( $label ); ?>" data-label="<?php echo esc_attr( $label ); ?>">
 							<?php echo $result; ?>
 							<a class="back-to-top" href="#results-title"><?php esc_html_e('Back to Top &uarr;', 'jetpack'); ?></a>
 						</li>
@@ -82,8 +82,7 @@ class Jetpack_Omnisearch {
 		<script>
 		jQuery(document).ready(function($){
 			$('.omnisearch-results > li').each(function(){
-				label = $(this).find('h2').first().clone().children().remove().end().text().replace(/^\s+|\s+$/g,'');
-				$('.jump-to').append(' <a href="#' + $(this).attr('id') + '">' + label + '</a>');
+				$('.jump-to').append(' <a href="#' + $(this).attr('id') + '">' + $(this).attr('data-label') + '</a>');
 			});
 		});
 		</script>
