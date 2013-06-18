@@ -27,6 +27,11 @@ class Jetpack_Omnisearch {
 		if( is_admin() ) {
 			add_action( 'admin_bar_menu', array( $this, 'admin_bar_search' ), 4 );
 		}
+		add_filter( 'omnisearch_num_results', array( $this, 'omnisearch_num_results' ) );
+	}
+
+	static function omnisearch_num_results( $num ) {
+		return self::$num_results;
 	}
 
 	function wp_loaded() {
@@ -72,7 +77,7 @@ class Jetpack_Omnisearch {
 					<?php endforeach; ?>
 				</div>
 				<br class="clear" />
-				<script>var search_term = '<?php echo esc_js( $s ); ?>', num_results = <?php echo intval( self::$num_results ); ?>;</script>
+				<script>var search_term = '<?php echo esc_js( $s ); ?>', num_results = <?php echo intval( apply_filters( 'omnisearch_num_results', 5 ) ); ?>;</script>
 				<ul class="omnisearch-results">
 					<?php foreach( $results as $label => $result ) : ?>
 						<li id="result-<?php echo sanitize_title( $label ); ?>" data-label="<?php echo esc_attr( $label ); ?>">

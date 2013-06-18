@@ -21,7 +21,9 @@ class Jetpack_Omnisearch_Posts extends WP_List_Table {
 		$search_link = sprintf( ' <a href="%s" class="add-new-h2">%s</a>', $search_url, esc_html( $this->post_type_obj->labels->search_items ) );
 		$html = '<h2>' . esc_html( $this->post_type_obj->labels->name ) . $search_link .'</h2>';
 
-		$this->posts = get_posts( array( 's' => $search_term, 'post_type' => $this->post_type, 'posts_per_page' => Jetpack_Omnisearch::$num_results, 'post_status' => 'any' ) );
+		$num_results = apply_filters( 'omnisearch_num_results', 5 );
+
+		$this->posts = get_posts( array( 's' => $search_term, 'post_type' => $this->post_type, 'posts_per_page' => $num_results, 'post_status' => 'any' ) );
 
 		$this->prepare_items();
 

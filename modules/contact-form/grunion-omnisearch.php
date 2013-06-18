@@ -42,10 +42,11 @@ class Jetpack_Omnisearch_Grunion extends WP_List_Table {
 
 	function prepare_items( $search_term = '' ) {
 		$this->_column_headers = array( $this->get_columns(), array(), array() );
+		$num_results = apply_filters( 'omnisearch_num_results', 5 );
 		$this->items = get_posts( array(
 			's' => $search_term,
 			'post_type' => $this->post_type,
-			'posts_per_page' => Jetpack_Omnisearch::$num_results,
+			'posts_per_page' => $num_results,
 		) );
 	}
 
