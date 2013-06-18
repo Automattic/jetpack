@@ -66,7 +66,11 @@ class Jetpack_Omnisearch {
 						) ); ?>
 			<?php if( ! empty( $results ) ): ?>
 				<h3 id="results-title"><?php esc_html_e('Results:', 'jetpack'); ?></h3>
-				<div class="jump-to"><strong><?php esc_html_e('Jump to:', 'jetpack'); ?></strong></div>
+				<div class="jump-to"><strong><?php esc_html_e('Jump to:', 'jetpack'); ?></strong>
+					<?php foreach( $results as $label => $result ) : ?>
+						<a href="#result-<?php echo sanitize_title( $label ); ?>"><?php echo esc_html( $label ); ?></a>
+					<?php endforeach; ?>
+				</div>
 				<br class="clear" />
 				<script>var search_term = '<?php echo esc_js( $s ); ?>', num_results = <?php echo intval( self::$num_results ); ?>;</script>
 				<ul class="omnisearch-results">
@@ -79,13 +83,6 @@ class Jetpack_Omnisearch {
 				</ul>
 			<?php endif; ?>
 		</div><!-- /wrap -->
-		<script>
-		jQuery(document).ready(function($){
-			$('.omnisearch-results > li').each(function(){
-				$('.jump-to').append(' <a href="#' + $(this).attr('id') + '">' + $(this).attr('data-label') + '</a>');
-			});
-		});
-		</script>
 		<?php
 	}
 
