@@ -86,8 +86,9 @@ Easy! There are a couple of ways (more coming soon):
 * Enhancement: Social Links: this module is a canonical source, based on Publicize, that themes can use to let users specify where social icons should link to
 * Enhancement: It’s now easier to find out if a module is active or note, thanks to the new Jetpack::is_module_active()
 * Enhancement: Contact Form: You are now able to customize the submit button text thanks to the submit_button_text parameter
-* Enhancement: Tiled Galleries: You can now customize the captions, thanks to the jetpack_slideshow_slide_caption filter
 * Enhancement: Comments: We've added a filter to let users customize the Comment Reply label, and users can now also customize the prompt on the comment form again.
+* Enhancement: Mobile Theme: Add genericons.css and registering it so it’s easily accessible to other modules that may want it
+* Enhancement: Tiled Galleries: You can now customize the captions, thanks to the jetpack_slideshow_slide_caption filter
 * Enhancement: Widgets: Twitter Timeline: Add the noscrollbar option
 * Enhancement: Widgets: Facebook Like Box Widget: add a show_border attribute
 * Enhancement: Widgets: FB Like Box: let Jetpack users override the iframe background color set in an inline style attribute by using the jetpack_fb_likebox_bg filter
@@ -109,8 +110,6 @@ Easy! There are a couple of ways (more coming soon):
 * Bug Fix: Likes: Fix ‘Call to undefined function’
 * Bug Fix: Likes: Add scrolling no to iframe to make sure that like button in admin bar does not show scrollbars
 * Bug Fix: Likes: Remove setInterval( JetpackLikesWidgetQueueHandler, 250 ) call that was causing heavy CPU load
-* Bug Fix: Mobile Theme: Add an option to display featured images on the front page and on archive pages
-* Bug Fix: Mobile Theme: Add genericons.css and registering it so it’s easily accessible to other modules that may want it
 * Bug Fix: Mobile Theme: Remove unused variable & function call
 * Bug Fix: Publicize: Fix LinkedIn profile URL generation
 * Bug Fix: Publicize: Better refresh handling for services such as LinkedIn and Facebook
