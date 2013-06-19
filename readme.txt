@@ -37,7 +37,7 @@ Features include:
 * The ability to allow applications to securely authenticate and access your site with your permission.
 * Creative formats for your image galleries: mosaic, circles, squares, and a slideshow view.
 * Add post sliders and other highlights to your theme with Featured Content.
-* Search once, get results from everything! A single search box, that lets you search posts, pages, comments, and plugins
+* Search once, get results from everything! A single search box that lets you search posts, pages, comments, and plugins
 * and *many* more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.
@@ -81,18 +81,20 @@ Easy! There are a couple of ways (more coming soon):
 == Changelog ==
 
 = 2.3 =
-* Enhancement: Omnisearch: is a single search box, that lets you search many different things
+* Enhancement: Omnisearch: Search once, get results from everything! Omnisearch is a single search box that lets you search many different things
 * Enhancement: Debugger: this module helps you debug connection issues right from your dashboard, and contact the Jetpack support team if needed
-* Enhancement: Social Links: is a canonical source, based on Publicize, that themes can use to let users specify where social icons should link to
-* Enhancement: it’s now easier to find out if a module is active or note, thanks to the new Jetpack::is_module_active()
-* Enhancement: Contact Form: You are now able to customize the submit button text
-* Enhancement: Tiled Galleries: You can customize the captions, thanks to the jetpack_slideshow_slide_caption filter
-* Enhancement: Comments: Let users customize the prompt on the comment form again, and adding a filter to let them customize the Comment Reply label as well
-* Bug Fix: Tiled Galleries: Fixing bug where double-clicking a gallery thumbnail broke carousel functionality
+* Enhancement: Social Links: this module is a canonical source, based on Publicize, that themes can use to let users specify where social icons should link to
+* Enhancement: It’s now easier to find out if a module is active or note, thanks to the new Jetpack::is_module_active()
+* Enhancement: Contact Form: You are now able to customize the submit button text thanks to the submit_button_text parameter
+* Enhancement: Tiled Galleries: You can now customize the captions, thanks to the jetpack_slideshow_slide_caption filter
+* Enhancement: Comments: We've added a filter to let users customize the Comment Reply label, and users can now also customize the prompt on the comment form again.
+* Enhancement: Widgets: Twitter Timeline: Add the noscrollbar option
+* Enhancement: Widgets: Facebook Like Box Widget: add a show_border attribute
+* Enhancement: Widgets: FB Like Box: let Jetpack users override the iframe background color set in an inline style attribute by using the jetpack_fb_likebox_bg filter
+* Bug Fix: Carousel: Fix a bug where double-clicking a gallery thumbnail broke the carousel functionality
 * Bug Fix: Comments: Change “must-log-in” to class from ID
 * Bug Fix: Contact Form: Make the Add Contact Form link a button, ala Add Media in core
 * Bug Fix: Contact Form: Fix encoding of field labels
-* Bug Fix: Contact Form: Shortcode parameter to customize the submit button text
 * Bug Fix: Contact Form: Remove references to missing images
 * Bug Fix: Fix 2 XSS vulnerabilities
 * Bug Fix: JSON API: Minor fixes for bbPress compatibility
@@ -107,21 +109,17 @@ Easy! There are a couple of ways (more coming soon):
 * Bug Fix: Likes: Fix ‘Call to undefined function’
 * Bug Fix: Likes: Add scrolling no to iframe to make sure that like button in admin bar does not show scrollbars
 * Bug Fix: Likes: Remove setInterval( JetpackLikesWidgetQueueHandler, 250 ) call that was causing heavy CPU load
-* Bug Fix: Mobile Theme: Adding an option to display featured images on the front page and on archive pages
-* Bug Fix: Mobile Theme: Adding genericons.css and registering it so it’s easily accessible to other modules that may want it
+* Bug Fix: Mobile Theme: Add an option to display featured images on the front page and on archive pages
+* Bug Fix: Mobile Theme: Add genericons.css and registering it so it’s easily accessible to other modules that may want it
 * Bug Fix: Mobile Theme: Remove unused variable & function call
 * Bug Fix: Publicize: Fix LinkedIn profile URL generation
 * Bug Fix: Publicize: Better refresh handling for services such as LinkedIn and Facebook
 * Bug Fix: Shortcodes: Audio shortcode: Treat src as element 0. Fixes audio shortcodes created by wp_embed_register_handler when an audio url is on a line by itself
-* Bug Fix: Slideshow: Add filter for slideshow slide captions
 * Bug Fix: Bandcamp: Updates to the Bandcamp shortcode
 * Bug Fix: Stats: Fix missing function get_editable_roles on non-admin page loads
 * Bug Fix: Widgets: Twitter Timeline: Fix HTML links in admin; set default values for width/height; change some of the sanitization functions
-* Bug Fix: Widgets: Twitter Timeline: Add the noscrollbar option
 * Bug Fix: Widgets: Top Posts Widget: Exclude attachments
 * Bug Fix: Widgets: Top Posts Widget: fix data validation for number of posts
-* Bug Fix: Widgets: Facebook Like Box Widget: add a show_border attribute
-* Bug Fix: Widgets: FB Like Box: let Jetpack users override the iframe background color set in an inline style attribute by using the jetpack_fb_likebox_bg filter
 * Bug Fix: Fix PHP warnings non-static method called dynamically
 * Bug Fix: Fixed an issue in image extraction from HTML content
 * Bug Fix: Open Graph: Change default minimum size for og:image too 200×200
