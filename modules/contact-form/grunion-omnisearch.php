@@ -65,4 +65,3 @@ class Jetpack_Omnisearch_Grunion extends WP_List_Table {
 }
 
 new Jetpack_Omnisearch_Grunion;
-

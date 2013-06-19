@@ -36,7 +36,7 @@ function display_form_view() {
 add_action( 'admin_print_styles', 'grunion_admin_css' );
 function grunion_admin_css() {
 	global $current_screen;
-	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'jetpack_page_omnisearch' ) ) )
+	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'jetpack_page_omnisearch', 'dashboard_page_omnisearch' ) ) )
 		return;
 
 	wp_enqueue_script( 'wp-lists' );
