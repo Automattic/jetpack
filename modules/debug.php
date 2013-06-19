@@ -29,7 +29,7 @@ add_action( 'jetpack_admin_menu', 'jetpack_debug_add_menu_handler' );
 
 function jetpack_debug_add_menu_handler() {
 	if ( current_user_can( 'manage_options' ) ) {
-		$hook = add_submenu_page( 'jetpack', 'Debug', 'Debug', 'manage_options', 'jetpack-debugger', 'jetpack_debug_menu_display_handler' );
+		$hook = add_submenu_page( 'jetpack', esc_html__( 'Debug', 'jetpack' ), esc_html__( 'Debug', 'jetpack' ), 'manage_options', 'jetpack-debugger', 'jetpack_debug_menu_display_handler' );
 		add_action( 'admin_head-'.$hook, 'jetpack_debug_admin_head' );
 	}
 }
@@ -107,7 +107,7 @@ function jetpack_debug_menu_display_handler() {
 	<div class="wrap">
 		<h2><?php esc_html_e( 'Jetpack Debugging Center', 'jetpack' ); ?></h2>
 		<h3><?php _e( "Tests your site's compatibily with Jetpack.", 'jetpack' ); ?></h3>
-		<h3>Tests</h3>
+		<h3><?php _e( 'Tests:', 'jetpack' ); ?></h3>
 		<div class="jetpack-debug-test-container">
 		<?php foreach ( $tests as $test_name => $test_result ) : 
 			$result = '';
