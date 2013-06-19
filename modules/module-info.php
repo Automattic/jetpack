@@ -783,7 +783,10 @@ function jetpack_debug_more_info() { ?>
 	<h4><?php esc_html_e( 'Debug' , 'jetpack' ); ?></h4>
 
 	<p><?php esc_html_e( "A debugging platform for the Jetpack plugin. Find out why Jetpack isn't working for you and submit a help request direct from your Dashboard.", 'jetpack' ); ?></p>
+	<?php if ( Jetpack::is_module_active( 'debug' ) ) : ?>
+		<p><a href="<?php echo admin_url( 'admin.php?page=jetpack-debugger' ); ?>"><?php esc_html_e( "Click here to start debugging.", 'jetpack' ); ?></a></p>
 
+	<?php endif; ?>
 <?php
 }
 
