@@ -105,7 +105,8 @@ class Jetpack_Omnisearch {
 	}
 
 	function admin_bar_search( $wp_admin_bar ) {
-		if( ! is_admin() ) return;
+		if( ! is_admin() || ! current_user_can( 'edit_posts' ) )
+			return;
 
 		$form = self::get_omnisearch_form( array(
 			'form_id'      => 'adminbarsearch',
