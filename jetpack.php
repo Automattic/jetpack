@@ -2572,6 +2572,7 @@ p {
 					"jetpack_activate-$module"
 				);
 			}
+			$can_deactivate = false;
 
 			if ( $counter % 4 == 0 ) {
 				$classes = $css . ' jetpack-newline';
@@ -2621,12 +2622,15 @@ p {
 					if ( current_user_can( 'manage_options' ) && apply_filters( 'jetpack_module_configurable_' . $module, false ) ) {
 						echo '<a href="' . esc_attr( Jetpack::module_configuration_url( $module ) ) . '" class="jetpack-configure-button button-secondary">' . __( 'Configure', 'jetpack' ) . '</a>';
 					}
-					?><?php if ( $activated && $module_data['deactivate'] && current_user_can( 'manage_options' ) ) : ?><a style="display: none;" href="<?php echo esc_url( $toggle_url ); ?>" class="jetpack-deactivate-button button-secondary"><?php echo $toggle; ?></a>&nbsp;<?php endif; ?>
+					?><?php if ( $activated && $module_data['deactivate'] && current_user_can( 'manage_options' ) ) : ?><a style="display: none;" href="<?php echo esc_url( $toggle_url ); ?>" class="jetpack-deactivate-button button-secondary"><?php echo $toggle; ?></a>&nbsp;<?php $can_deactivate = true; endif; ?>
 
 				<?php else : ?>
 					<?php do_action( 'jetpack_learn_more_button_' . $module ) ?>
 				<?php endif; ?>
 				</div>
+				<?php if ( $can_deactivate ) : ?>
+					<a class="jetpack-deactivate-x" href="<?php echo esc_url( $toggle_url ); ?>" title="<?php echo esc_attr( $toggle ); ?>">&times;</a>
+				<?php endif; ?>
 			</div>
 			<?php if ( 'inactive' == $css && $jetpack_connected ) : ?>
 			<script type="text/javascript">

@@ -834,6 +834,22 @@ jetpack-inactive:hover * {
 	opacity: 0.75;
 }
 
+.jetpack-active .jetpack-deactivate-x {
+	display: block;
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 1.5em;
+	padding-bottom: .2em;
+	text-align: center;
+	text-decoration: none;
+	font-weight: 700;
+	background: #dfdfdf;
+	color: #fff;
+	border-radius: 0 2px 0 2px;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+
 .placeholder {
 	border-color: #eee !important;
 	cursor: default !important;
