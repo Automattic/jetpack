@@ -4,15 +4,18 @@ if( ! class_exists( 'WP_List_Table' ) )
 	require_once( ABSPATH . 'wp-admin/includes/class-wp-list-table.php' );
 
 class Jetpack_Omnisearch_Posts extends WP_List_Table {
-	static $instance;
-	var $post_type = 'post';
+	var $post_type = 'post',
+	    $post_type_object;
 
-	function __construct() {
-		self::$instance = $this;
+	function __construct( $post_type = 'post' ) {
+		$this->post_type = $post_type;
 		add_filter( 'omnisearch_results', array( $this, 'search'), 10, 2 );
 	}
 
 	function search( $results, $search_term ) {
+		if( ! post_type_exists( $this->post_type ) )
+			return $results;
+
 		parent::__construct();
 
 		$this->post_type_obj = get_post_type_object( $this->post_type );
