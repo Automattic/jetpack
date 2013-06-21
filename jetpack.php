@@ -227,6 +227,8 @@ class Jetpack {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
 
+		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
+
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
 
@@ -1276,6 +1278,15 @@ p {
 				add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
 			}
 		}
+	}
+
+	function admin_body_class( $admin_body_class = '' ) {
+		if ( self::is_active() ) {
+			$admin_body_class .= ' jetpack-connected';
+		} else {
+			$admin_body_class .= ' jetpack-disconnected';
+		}
+		return $admin_body_class;
 	}
 
 	function prepare_connect_notice() {
