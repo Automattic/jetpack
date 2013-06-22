@@ -30,70 +30,70 @@
  */
 
 /* Force the menu not to be sticky, so we can color the arrow. */
-.admin-color-mp6.sticky-menu #adminmenuwrap {
+.toplevel_page_jetpack.admin-color-mp6.sticky-menu #adminmenuwrap {
 	position: relative;
 	z-index: auto;
 	top: 0;
 }
 
-.admin-color-mp6 ul#adminmenu a.wp-has-current-submenu:after,
-.admin-color-mp6 ul#adminmenu > li.current > a.current:after {
-	border-right-color:#8da94c;
+.toplevel_page_jetpack.admin-color-mp6 ul#adminmenu a.wp-has-current-submenu:after,
+.toplevel_page_jetpack.admin-color-mp6 ul#adminmenu > li.current > a.current:after {
+	border-right-color:#8fad4b;
 }
 
-.jetpack-disconnected #wpwrap {
+.toplevel_page_jetpack.jetpack-disconnected #wpwrap {
 	background: url(images/header-clouds.png) -150px -60px repeat-x;
 }
 
-.jetpack-disconnected.admin-color-mp6 #wpwrap {
+.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6 #wpwrap {
 	background-position: -143px -60px;
 }
 
-.jetpack-disconnected.folded #wpwrap {
+.toplevel_page_jetpack.jetpack-disconnected.folded #wpwrap {
 	background-position: -263px -60px;
 }
 
-.jetpack-disconnected.admin-color-mp6.folded #wpwrap {
+.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6.folded #wpwrap {
 	background-position: -257px -60px;
 }
 
-.jetpack-connected #wpwrap {
+.toplevel_page_jetpack.jetpack-connected #wpwrap {
 	background: url(images/header-clouds-small.png) 45px 0 repeat-x;
 }
 
-.jetpack-connected.admin-color-mp6 #wpwrap {
+.toplevel_page_jetpack.jetpack-connected.admin-color-mp6 #wpwrap {
 	background-position: 52px 0;
 }
 
-.jetpack-connected.folded #wpwrap {
+.toplevel_page_jetpack.jetpack-connected.folded #wpwrap {
 	background-position: -68px 0;
 }
 
-.jetpack-connected.admin-color-mp6.folded #wpwrap {
+.toplevel_page_jetpack.jetpack-connected.admin-color-mp6.folded #wpwrap {
 	background-position: -62px 0;
 }
 
 @media only screen and (max-width: 900px) {
 
-	.jetpack-disconnected.auto-fold #wpwrap {
+	.toplevel_page_jetpack.jetpack-disconnected.auto-fold #wpwrap {
 		background-position: -263px -60px;
 	}
 
-	.jetpack-disconnected.admin-color-mp6.auto-fold #wpwrap {
+	.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6.auto-fold #wpwrap {
 		background-position: -257px -60px;
 	}
 
-	.jetpack-connected.auto-fold #wpwrap {
+	.toplevel_page_jetpack.jetpack-connected.auto-fold #wpwrap {
 		background-position: -68px 0;
 	}
 
-	.jetpack-connected.admin-color-mp6.auto-fold #wpwrap {
+	.toplevel_page_jetpack.jetpack-connected.admin-color-mp6.auto-fold #wpwrap {
 		background-position: -62px 0;
 	}
 
 }
 
-.screen-meta-wrap {
+.toplevel_page_jetpack.screen-meta-wrap {
 	position: absolute;
 	top: 0;
 	width: 100%;
@@ -170,12 +170,12 @@
 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
 	only screen and (min-device-pixel-ratio: 1.5) {
 
-	.jetpack-disconnected #wpwrap {
+	.toplevel_page_jetpack.jetpack-disconnected #wpwrap {
 		background-image: url(images/header-clouds-2x.png);
 		background-size: 1600px 400px;
 	}
 
-	.jetpack-connected #wpwrap {
+	.toplevel_page_jetpack.jetpack-connected #wpwrap {
 		background-image: url(images/header-clouds-small-2x.png);
 		background-size: 980px 140px;
 	}
