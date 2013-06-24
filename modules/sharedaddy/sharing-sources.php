@@ -317,6 +317,9 @@ class Share_Email extends Sharing_Source {
 
 class Share_Twitter extends Sharing_Source {
 	var $shortname = 'twitter';
+	// 'https://dev.twitter.com/docs/api/1.1/get/help/configuration' ( 2013/06/24 ) short_url_length is 22
+	var $short_url_length = 24;
+
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
 
@@ -402,8 +405,8 @@ class Share_Twitter extends Sharing_Source {
 			$sig     = '';
 		}
 
-		$suffix_length = $strlen( " {$post_link}{$sig}" );
 
+		$suffix_length = $this->short_url_length + $strlen( " {$sig}" );
 		// $sig is handled by twitter in their 'via' argument.
 		// $post_link is handled by twitter in their 'url' argument.
 		if ( 140 < $strlen( $post_title ) + $suffix_length ) {
