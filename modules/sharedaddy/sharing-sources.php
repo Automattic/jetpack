@@ -603,28 +603,14 @@ class Share_LinkedIn extends Sharing_Source {
 
 	public function process_request( $post, array $post_data ) {
 
-		setup_postdata( $post );
-
 		$post_link = $this->get_share_url( $post->ID );
 
-		// http://www.linkedin.com/shareArticle?mini=true&url={articleUrl}&title={articleTitle}&summary={articleSummary}&source={articleSource}
-
-		$encoded_title = rawurlencode( $post->post_title );
-		if( strlen( $encoded_title ) > 200 )
-			$encoded_title = substr( $encoded_title, 0, 197 ) . '...';
-
-		$encoded_summary = rawurlencode( strip_tags( get_the_excerpt() ) );
-		if( strlen( $encoded_summary ) > 256 )
-			$encoded_summary = substr( $encoded_summary, 0, 253 ) . '...';
-
-		$source = get_bloginfo( 'name' );
+		// Using the same URL as the official button, which is *not* LinkedIn's documented sharing link
+		// http://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
 
 		$linkedin_url = add_query_arg( array(
-			'title' => $encoded_title,
 			'url' => rawurlencode( $post_link ),
-			'source' => rawurlencode( $source ),
-			'summary' => $encoded_summary,
-		), 'http://www.linkedin.com/shareArticle?mini=true' );
+		), 'http://www.linkedin.com/cws/share?token=&isFramed=false' );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
