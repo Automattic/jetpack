@@ -1217,6 +1217,8 @@ class Share_Pinterest extends Sharing_Source {
 				s.src = window.location.protocol + "//assets.pinterest.com/js/pinit.js";
 				var x = document.getElementsByTagName("script")[0];
 				x.parentNode.insertBefore(s, x);
+				// if 'Pin it' button has 'counts' make container wider
+				jQuery(window).load( function(){ jQuery( 'li.share-pinterest a span:visible' ).closest( '.share-pinterest' ).width( '80px' ); } );
 			</script>
 		<?php else : ?>
 			<script type="text/javascript">
