@@ -41,7 +41,7 @@ class Jetpack_Omnisearch_Comments extends WP_Comments_List_Table {
 		return array();
 	}
 
-	function pagination() {}
+	function pagination( $which ) {}
 
 	function extra_tablenav( $which ) {}
 }
