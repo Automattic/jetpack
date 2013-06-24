@@ -2738,7 +2738,12 @@ p {
 		$jetpack = Jetpack::init();
 
 		// Yay! Your host is good!
-		if ( wp_http_supports( array( 'ssl' => true ) ) ) {
+		if ( false === ( $jetpack_https_test = get_transient( 'jetpack_https_test' ) ) ) {
+			$jetpack_https_test = ( is_wp_error( wp_remote_get( JETPACK__API_BASE . '.test/1/' ) ) ? 0 : 1 );
+			set_transient( 'jetpack_https_test', $jetpack_https_test, HOUR_IN_SECONDS );
+	 	}
+		
+		if ( $jetpack_https_test && wp_http_supports( array( 'ssl' => true ) ) ) {
 			return $url;
 		}
 
