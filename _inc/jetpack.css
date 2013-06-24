@@ -30,64 +30,79 @@
  */
 
 /* Force the menu not to be sticky, so we can color the arrow. */
-.toplevel_page_jetpack.admin-color-mp6.sticky-menu #adminmenuwrap {
+.toplevel_page_jetpack.admin-color-mp6.sticky-menu #adminmenuwrap,
+body[class*=" jetpack_page_jetpack_"].admin-color-mp6.sticky-menu #adminmenuwrap {
 	position: relative;
 	z-index: auto;
 	top: 0;
 }
 
 .toplevel_page_jetpack.admin-color-mp6 ul#adminmenu a.wp-has-current-submenu:after,
-.toplevel_page_jetpack.admin-color-mp6 ul#adminmenu > li.current > a.current:after {
+.toplevel_page_jetpack.admin-color-mp6 ul#adminmenu > li.current > a.current:after,
+body[class*=" jetpack_page_jetpack_"].admin-color-mp6 ul#adminmenu a.wp-has-current-submenu:after,
+body[class*=" jetpack_page_jetpack_"].admin-color-mp6 ul#adminmenu > li.current > a.current:after {
 	border-right-color:#8fad4b;
 }
 
-.toplevel_page_jetpack.jetpack-disconnected #wpwrap {
+.toplevel_page_jetpack.jetpack-disconnected #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-disconnected #wpwrap {
 	background: url(images/header-clouds.png) -150px -60px repeat-x;
 }
 
-.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6 #wpwrap {
+.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6 #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.admin-color-mp6 #wpwrap {
 	background-position: -143px -60px;
 }
 
-.toplevel_page_jetpack.jetpack-disconnected.folded #wpwrap {
+.toplevel_page_jetpack.jetpack-disconnected.folded #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.folded #wpwrap {
 	background-position: -263px -60px;
 }
 
-.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6.folded #wpwrap {
+.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6.folded #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.admin-color-mp6.folded #wpwrap {
 	background-position: -257px -60px;
 }
 
-.toplevel_page_jetpack.jetpack-connected #wpwrap {
+.toplevel_page_jetpack.jetpack-connected #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-connected #wpwrap {
 	background: url(images/header-clouds-small.png) 45px 0 repeat-x;
 }
 
-.toplevel_page_jetpack.jetpack-connected.admin-color-mp6 #wpwrap {
+.toplevel_page_jetpack.jetpack-connected.admin-color-mp6 #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-connected.admin-color-mp6 #wpwrap {
 	background-position: 52px 0;
 }
 
-.toplevel_page_jetpack.jetpack-connected.folded #wpwrap {
+.toplevel_page_jetpack.jetpack-connected.folded #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-connected.folded #wpwrap {
 	background-position: -68px 0;
 }
 
-.toplevel_page_jetpack.jetpack-connected.admin-color-mp6.folded #wpwrap {
+.toplevel_page_jetpack.jetpack-connected.admin-color-mp6.folded #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-connected.admin-color-mp6.folded #wpwrap {
 	background-position: -62px 0;
 }
 
 @media only screen and (max-width: 900px) {
 
-	.toplevel_page_jetpack.jetpack-disconnected.auto-fold #wpwrap {
+	.toplevel_page_jetpack.jetpack-disconnected.auto-fold #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.auto-fold #wpwrap {
 		background-position: -263px -60px;
 	}
 
-	.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6.auto-fold #wpwrap {
+	.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6.auto-fold #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.admin-color-mp6.auto-fold #wpwrap {
 		background-position: -257px -60px;
 	}
 
-	.toplevel_page_jetpack.jetpack-connected.auto-fold #wpwrap {
+	.toplevel_page_jetpack.jetpack-connected.auto-fold #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-connected.auto-fold #wpwrap {
 		background-position: -68px 0;
 	}
 
-	.toplevel_page_jetpack.jetpack-connected.admin-color-mp6.auto-fold #wpwrap {
+	.toplevel_page_jetpack.jetpack-connected.admin-color-mp6.auto-fold #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-connected.admin-color-mp6.auto-fold #wpwrap {
 		background-position: -62px 0;
 	}
 
@@ -170,12 +185,14 @@
 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
 	only screen and (min-device-pixel-ratio: 1.5) {
 
-	.toplevel_page_jetpack.jetpack-disconnected #wpwrap {
+	.toplevel_page_jetpack.jetpack-disconnected #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-disconnected #wpwrap {
 		background-image: url(images/header-clouds-2x.png);
 		background-size: 1600px 400px;
 	}
 
-	.toplevel_page_jetpack.jetpack-connected #wpwrap {
+	.toplevel_page_jetpack.jetpack-connected #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-connected #wpwrap {
 		background-image: url(images/header-clouds-small-2x.png);
 		background-size: 980px 140px;
 	}
