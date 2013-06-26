@@ -376,7 +376,7 @@ jQuery( function($) {
 	function post_page_metabox() {
 		global $post;
 
-		if ( 'post' != $post->post_type )
+		if ( ! $this->publicize->post_type_is_publicizeable( $post->post_type ) )
 			return;
 
 		$user_id = empty( $post->post_author ) ? $GLOBALS['user_ID'] : $post->post_author;
