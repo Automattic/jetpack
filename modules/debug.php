@@ -35,9 +35,10 @@ function jetpack_debug_add_menu_handler() {
 }
 
 function is_jetpack_support_open() {
-	try { 
-		$response = wp_remote_retrieve_body( wp_remote_request( "http://jetpack.me/is-support-open" ) );
-		$json = json_decode( $response );
+	try {
+		$response = wp_remote_request( "http://jetpack.me/is-support-open" );
+		$body = wp_remote_retrieve_body( $response );
+		$json = json_decode( $body );
 		return ( ( bool )$json->is_support_open );
 	}
 	catch ( Exception $e ) {
