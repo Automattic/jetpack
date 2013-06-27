@@ -80,6 +80,18 @@ Easy! There are a couple of ways (more coming soon):
 
 == Changelog ==
 
+= 2.3.1 =
+* Enhancement: Social Links: Retooling the class for better consistency and performance behind the scenes.
+* Enhancement: Omnisearch: Make it easier to search Custom Post Types.  No longer need to extend the class, if all you want is a basic display.  Just call `new Jetpack_Omnisearch_Posts( 'cpt' );`
+* Enhancement: Sharing Buttons: LinkedIn: Use the official button's sharing link on the Jetpack implementation for a more consistent sharing experience and produce better results on LinkedIn's end.
+* Enhancement: Debug / Connection: Better logic in determining whether the server can use SSL to connect to WPCOM servers.
+* Enhancement: Sharing: Twitter: Calculate the size of the Tweet based on the short URL rather than the full URL size.
+* Bug Fix: Omnisearch: Modify some child class functions to match the parent's parameters and avoid strict notices in newer versions of PHP.
+* Bug Fix: Omnisearch: Hide the search form in the module description if the current user can't use it.
+* Bug Fix: Twitter Timeline Widget: Additional testing of values and casting to default if they are nonconforming.
+* Bug Fix: Sharing: Pinterest: Make the button wider if there's a count to avoid overlapping with others.
+* Bug Fix: Stuff
+
 = 2.3 =
 * Enhancement: Omnisearch: Search once, get results from everything! Omnisearch is a single search box that lets you search many different things
 * Enhancement: Debugger: this module helps you debug connection issues right from your dashboard, and contact the Jetpack support team if needed
