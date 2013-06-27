@@ -94,8 +94,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		$instance['title']   = sanitize_text_field( $new_instance['title'] );
 		$instance['width']   = (int) $new_instance['width'];
 		$instance['height']  = (int) $new_instance['height'];
-		$instance['width']   = ( 0 === $instance['width'] )  ? $instance['width']  : 225;
-		$instance['height']  = ( 0 === $instance['height'] ) ? $instance['height'] : 400;
+		$instance['width']   = ( 0 !== (int) $instance['width'] )  ? (int) $instance['width']  : 225;
+		$instance['height']  = ( 0 !== (int) $instance['height'] ) ? (int) $instance['height'] : 400;
 
 		// If they entered something that might be a full URL, try to parse it out
 		if ( is_string( $new_instance['widget-id'] ) ) {

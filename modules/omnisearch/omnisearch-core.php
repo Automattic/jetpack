@@ -4,9 +4,7 @@
 // be pulled in elsewhere if desired without activating them.
 require_once( dirname(__FILE__) . '/omnisearch-posts.php' );
 new Jetpack_Omnisearch_Posts;
-
-require_once( dirname(__FILE__) . '/omnisearch-pages.php' );
-new Jetpack_Omnisearch_Pages;
+new Jetpack_Omnisearch_Posts( 'page' );
 
 require_once( dirname(__FILE__) . '/omnisearch-comments.php' );
 new Jetpack_Omnisearch_Comments;
