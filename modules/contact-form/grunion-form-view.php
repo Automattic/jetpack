@@ -132,8 +132,8 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 			); ?></p>
 			<h3 style="margin-top: 21px;"><?php esc_html_e( 'Can I view my feedback within WordPress?', 'jetpack' ); ?></h3>
 			<p><?php printf(
-				esc_html( _x( 'Yep, you can read your feedback at any time by clicking the "%1$s" link in the admin menu.', '%1$s = "Feedbacks" in an HTML link', 'jetpack' ) ),
-				'<a id="fb-feedback" href="' . admin_url( 'edit.php?post_type=feedback' ) . '">' . esc_html__( 'Feedbacks', 'jetpack' ) . '</a>'
+				esc_html( _x( 'Yep, you can read your feedback at any time by clicking the "%1$s" link in the admin menu.', '%1$s = "Feedback" in an HTML link', 'jetpack' ) ),
+				'<a id="fb-feedback" href="' . admin_url( 'edit.php?post_type=feedback' ) . '">' . esc_html__( 'Feedback', 'jetpack' ) . '</a>'
 			); ?></p>
 			<div class="clear"></div>
 		</div>
