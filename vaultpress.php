@@ -905,23 +905,44 @@ class VaultPress {
 		) );
 	}
 
-	function update_firewall() {
+	function request_firewall_update( $external_services = false ) {
 		$args     = array( 'timeout' => $this->get_option( 'timeout' ), 'sslverify' => true );
 		$hostname = $this->get_option( 'hostname' );
-		$data     = wp_remote_get( "https://$hostname/service-ips", $args );
+		$path = $external_services ? 'service-ips-external' : 'service-ips';
 
-		if ( $data )
-			$data = @unserialize( $data['body'] );
+		$last_error = null;
+		$retry = 3;
+		do {
+			$retry--;
+			$r = wp_remote_get( sprintf( "https://%s/%s", $hostname, $path ), $args );
+			if ( 200 == wp_remote_retrieve_response_code( $r ) ) {
+				if ( 99 == $this->get_option( 'connection_error_code' ) )
+					$this->clear_connection();
+				return @unserialize( wp_remote_retrieve_body( $r ) );
+			}
+			$last_error = $r;
+			usleep( 100 );
+		} while( $retry > 0 );
 
+		$error_message = sprintf( 'Unexpected HTTP response code %s', wp_remote_retrieve_response_code( $r ) );
+		if ( is_wp_error( $last_error ) )
+			$error_message = $last_error->get_error_message();
+			
+		$this->update_option( 'connection', time() );
+		$this->update_option( 'connection_error_code', 99 );
+		$this->update_option( 'connection_error_message', sprintf( __('Cannot connect to the VaultPress servers to update the internal firewall information. The request failed with the following error: "%s". If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ), $error_message, 'http://vaultpress.com/contact/' ) );
+
+		return false;
+	}
+
+	function update_firewall() {
+		$data = $this->request_firewall_update();
 		if ( $data ) {
 			$newval = array( 'updated' => time(), 'data' => $data );
 			$this->update_option( 'service_ips', $newval );
 		}
 
-		$external_data = wp_remote_get( "https://$hostname/service-ips-external", $args );
-		if ( $external_data )
-			$external_data = @unserialize( $external_data['body'] );
-
+		$external_data = $this->request_firewall_update( false );
 		if ( $external_data ) {
 			$external_newval = array( 'updated' => time(), 'data' => $external_data );
 			update_option( 'vaultpress_service_ips_external', $external_newval );
