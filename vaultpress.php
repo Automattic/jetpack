@@ -930,7 +930,7 @@ class VaultPress {
 			
 		$this->update_option( 'connection', time() );
 		$this->update_option( 'connection_error_code', 99 );
-		$this->update_option( 'connection_error_message', sprintf( __('Cannot connect to the VaultPress servers to update the internal firewall information. The request failed with the following error: "%s". If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ), $error_message, 'http://vaultpress.com/contact/' ) );
+		$this->update_option( 'connection_error_message', sprintf( __('Cannot connect to the VaultPress servers to update the internal firewall information. The request failed with the following error: "%s". If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ), esc_html( $error_message ), 'http://vaultpress.com/contact/' ) );
 
 		return false;
 	}
