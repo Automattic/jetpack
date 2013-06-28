@@ -1,18 +1,7 @@
 <?php
 
-// Declare the new instances here, so that the classes can
-// be pulled in elsewhere if desired without activating them.
+// Include this here so that other plugins can extend it if they like.
 require_once( dirname(__FILE__) . '/omnisearch-posts.php' );
-new Jetpack_Omnisearch_Posts;
-new Jetpack_Omnisearch_Posts( 'page' );
-
-require_once( dirname(__FILE__) . '/omnisearch-comments.php' );
-new Jetpack_Omnisearch_Comments;
-
-if ( function_exists( 'wp_get_current_user' ) && current_user_can( 'install_plugins' ) ) {
-	require_once( dirname(__FILE__) . '/omnisearch-plugins.php' );
-	new Jetpack_Omnisearch_Plugins;
-}
 
 class Jetpack_Omnisearch {
 	static $instance;
@@ -20,13 +9,30 @@ class Jetpack_Omnisearch {
 
 	function __construct() {
 		self::$instance = $this;
-		add_action( 'wp_loaded', array( $this, 'wp_loaded' ) );
+		add_action( 'wp_loaded',          array( $this, 'wp_loaded' ) );
+		add_action( 'admin_init',         array( $this, 'add_providers' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'jetpack_admin_menu' ) );
-		add_action( 'admin_menu', array( $this, 'admin_menu' ), 20 );
+		add_action( 'admin_menu',         array( $this, 'admin_menu' ), 20 );
 		if( is_admin() ) {
 			add_action( 'admin_bar_menu', array( $this, 'admin_bar_search' ), 4 );
 		}
 		add_filter( 'omnisearch_num_results', array( $this, 'omnisearch_num_results' ) );
+	}
+
+	static function add_providers() {
+		// omnisearch-posts.php is included above, so that other plugins can more easily extend it.
+		new Jetpack_Omnisearch_Posts;
+		new Jetpack_Omnisearch_Posts( 'page' );
+
+		require_once( dirname(__FILE__) . '/omnisearch-comments.php' );
+		new Jetpack_Omnisearch_Comments;
+
+		if ( current_user_can( 'install_plugins' ) ) {
+			require_once( dirname(__FILE__) . '/omnisearch-plugins.php' );
+			new Jetpack_Omnisearch_Plugins;
+		}
+
+		do_action( 'omnisearch_add_providers' );
 	}
 
 	static function omnisearch_num_results( $num ) {
