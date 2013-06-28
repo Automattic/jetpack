@@ -9,22 +9,6 @@
  * Requires Development Mode: No
  */
 
-// 1. Determine if we are on a network site or not
-// if ( is_multisite() )
-// 	Jetpack::update_option( 'is_network_site', 1 );
-// else
-// 	Jetpack::update_option( 'is_network_site', 0 );
-//
-// 2. Since these are some of the common issues, let's start the debug process by syncing some common details.
-// Jetpack_Sync::sync_options( __FILE__,
-// 	'home',
-// 	'siteurl',
-// 	'blogname',
-// 	'gmt_offset',
-// 	'timezone_string',
-// 	'is_network_site',
-// );
-
 add_action( 'jetpack_admin_menu', 'jetpack_debug_add_menu_handler' );
 
 function jetpack_debug_add_menu_handler() {
