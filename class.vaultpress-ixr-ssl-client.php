@@ -39,7 +39,7 @@ class VaultPress_IXR_SSL_Client extends IXR_Client {
 				'method' => 'POST',
 				'body' => $xml,
 				'headers' => $this->headers,
-				'sslverify' => true,
+				'sslverify' => $this->ssl,
 				);
 			if ( $this->timeout )
 				$args['timeout'] = $this->timeout;
