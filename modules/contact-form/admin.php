@@ -625,3 +625,12 @@ function grunion_ajax_spam() {
 	echo $status_html;
 	exit;
 }
+
+add_action( 'omnisearch_add_providers', 'grunion_omnisearch_add_providers' );
+function grunion_omnisearch_add_providers() {
+	// Feedback uses capability_type 'page'
+	if ( current_user_can( 'edit_page' ) ) {
+		require_once( GRUNION_PLUGIN_DIR . '/grunion-omnisearch.php' );
+		new Jetpack_Omnisearch_Grunion;
+	}
+}

@@ -86,6 +86,8 @@ Easy! There are a couple of ways (more coming soon):
 * Enhancement: Sharing Buttons: LinkedIn: Use the official button's sharing link on the Jetpack implementation for a more consistent sharing experience and produce better results on LinkedIn's end.
 * Enhancement: Debug / Connection: Better logic in determining whether the server can use SSL to connect to WPCOM servers.
 * Enhancement: Sharing: Twitter: Calculate the size of the Tweet based on the short URL rather than the full URL size.
+* Enhancement: Debug: More readable and understandable messages.
+* Bug Fix: Omnisearch: Don't load everything initially, run the providers off admin_init, and then issue an action for folks to hook into.
 * Bug Fix: Omnisearch: Modify some child class functions to match the parent's parameters and avoid strict notices in newer versions of PHP.
 * Bug Fix: Omnisearch: Hide the search form in the module description if the current user can't use it.
 * Bug Fix: Twitter Timeline Widget: Additional testing of values and casting to default if they are nonconforming.
