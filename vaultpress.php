@@ -912,20 +912,19 @@ class VaultPress {
 
 		$data = false;
 		$https_error = null;
-		$retry = 3;
+		$retry = 2;
 		do {
 			$retry--;
-			$protocol = $retry > 0 ? 'https' : 'http';
+			$protocol = 'http'; 
 			$args['sslverify'] = 'https' == $protocol ? true : false;
-			$http = new WP_Http();
-			$r = $http->request( $url=sprintf( "%s://%s/%s", $protocol, $hostname, $path ), $args );
+			$r = wp_remote_get( $url=sprintf( "%s://%s/%s", $protocol, $hostname, $path ), $args );
 			if ( 200 == wp_remote_retrieve_response_code( $r ) ) {
 				if ( 99 == $this->get_option( 'connection_error_code' ) )
 					$this->clear_connection();
 				$data = @unserialize( wp_remote_retrieve_body( $r ) );
 				break;
 			}
-			if ( $retry )
+			if ( 'https' == $protocol )
 				$https_error = $r;
 			usleep( 100 );
 		} while( $retry > 0 );
