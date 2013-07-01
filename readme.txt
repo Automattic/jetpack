@@ -12,6 +12,8 @@ VaultPress is a subscription service offering realtime backup, automated securit
 
 [VaultPress](http://vaultpress.com/?utm_source=plugin-readme&utm_medium=description&utm_campaign=1.0) is a real-time backup and security scanning service designed and built by [Automattic](http://automattic.com/), the same company that operates 25+ million sites on WordPress.com.
 
+The VaultPress plugin provides the required functionality to backup and synchronize every post, comment, media file, revision and dashboard settings on our servers. To start safeguarding your site, you need to sign up for VaultPress subscription.
+
 [wpvideo TxdSIdpO]
 
 For more information, check out [VaultPress.com](http://vaultpress.com/).
