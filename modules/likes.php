@@ -6,7 +6,7 @@
  * Sort Order: 4
  */
 class Jetpack_Likes {
-	var $version = '20130523';
+	var $version = '20130620a';
 
 	public static function init() {
 		static $instance = NULL;
@@ -29,7 +29,7 @@ class Jetpack_Likes {
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'module_toggle' ) );
 
 			Jetpack::enable_module_configurable( __FILE__ );
-			Jetpack::module_configuration_load( __FILE__, array( 'Jetpack_Likes', 'configuration_redirect' ) );
+			Jetpack::module_configuration_load( __FILE__, array( $this, 'configuration_redirect' ) );
 
 			add_action('admin_print_scripts-settings_page_sharing', array( &$this, 'load_jp_css' ) );
 			add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
@@ -206,8 +206,8 @@ class Jetpack_Likes {
 
 	function admin_discussion_likes_settings_init() {
 		// Add a temporary section, until we can move the setting out of there and with the rest of the email notification settings
-		add_settings_section( 'likes-notifications', __( 'Likes Notifications' , 'jetpack'), array( $this, 'admin_discussion_likes_settings_section' ), 'discussion' );
-		add_settings_field( 'social-notifications', __( 'Email me whenever' , 'jetpack'), array( $this, 'admin_discussion_likes_settings_field' ), 'discussion', 'likes-notifications' );
+		add_settings_section( 'likes-notifications', __( 'Likes Notifications', 'jetpack' ), array( $this, 'admin_discussion_likes_settings_section' ), 'discussion' );
+		add_settings_field( 'social-notifications', __( 'Email me whenever', 'jetpack' ), array( $this, 'admin_discussion_likes_settings_field' ), 'discussion', 'likes-notifications' );
 		// Register the setting
 		register_setting( 'discussion', 'social_notifications_like', array( $this, 'admin_discussion_likes_settings_validate' ) );
 	}
@@ -246,7 +246,7 @@ class Jetpack_Likes {
 	function admin_discussion_likes_settings_field() {
 		$like = $this->admin_likes_get_option( 'social_notifications_like' );
 ?>
-		<label><input type="checkbox" id="social_notifications_like" name="social_notifications_like" value="1" <?php checked( $like ); ?> /> <?php esc_html_e( 'Someone likes one of my posts' , 'jetpack'); ?></label>
+		<label><input type="checkbox" id="social_notifications_like" name="social_notifications_like" value="1" <?php checked( $like ); ?> /> <?php esc_html_e( 'Someone likes one of my posts', 'jetpack' ); ?></label>
 <?php
 	}
 
@@ -519,6 +519,11 @@ class Jetpack_Likes {
 			.fixed .column-likes .post-com-count { background-image: none; }
 			.fixed .column-likes .comment-count { background-color: #888; }
 			.fixed .column-likes .comment-count:hover { background-color: #D54E21; }
+			.admin-color-mp6 .fixed .column-likes .post-com-count::after { border: none !important; }
+			.admin-color-mp6 .fixed .column-likes .comment-count { background-color: #bbb; }
+			.admin-color-mp6 .fixed .column-likes .comment-count:hover { background-color: #2ea2cc; }
+			.admin-color-mp6 .fixed .column-likes .vers img { display: none; }
+			.admin-color-mp6 .fixed .column-likes .vers:before {font:20px/1 dashicons;content: '\f155';-webkit-font-smoothing:antialiased;}
 		</style> <?php
 	}
 
@@ -568,7 +573,7 @@ class Jetpack_Likes {
 		$date = $columns['date'];
 		unset( $columns['date'] );
 
-		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes' , 'jetpack') . '" alt="' . esc_attr__( 'Likes' , 'jetpack') . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
+		$columns['likes'] = '<span class="vers"><img title="' . esc_attr__( 'Likes', 'jetpack' ) . '" alt="' . esc_attr__( 'Likes', 'jetpack' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
 		$columns['date'] = $date;
 
 		return $columns;
