@@ -3,36 +3,16 @@
 // Include this here so that other plugins can extend it if they like.
 require_once( dirname(__FILE__) . '/omnisearch-posts.php' );
 
-<<<<<<< .working
-=======
-require_once( dirname(__FILE__) . '/omnisearch-pages.php' );
-new Jetpack_Omnisearch_Pages;
-
-require_once( dirname(__FILE__) . '/omnisearch-comments.php' );
-new Jetpack_Omnisearch_Comments;
-
-if ( function_exists( 'wp_get_current_user' ) && current_user_can( 'install_plugins' ) ) {
-	require_once( dirname(__FILE__) . '/omnisearch-plugins.php' );
-	new Jetpack_Omnisearch_Plugins;
-}
-
->>>>>>> .merge-right.r728539
 class Jetpack_Omnisearch {
 	static $instance;
 	static $num_results = 5;
 
 	function __construct() {
 		self::$instance = $this;
-<<<<<<< .working
 		add_action( 'wp_loaded',          array( $this, 'wp_loaded' ) );
 		add_action( 'admin_init',         array( $this, 'add_providers' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'jetpack_admin_menu' ) );
 		add_action( 'admin_menu',         array( $this, 'admin_menu' ), 20 );
-=======
-		add_action( 'wp_loaded', array( $this, 'wp_loaded' ) );
-		add_action( 'jetpack_admin_menu', array( $this, 'jetpack_admin_menu' ) );
-		add_action( 'admin_menu', array( $this, 'admin_menu' ), 20 );
->>>>>>> .merge-right.r728539
 		if( is_admin() ) {
 			add_action( 'admin_bar_menu', array( $this, 'admin_bar_search' ), 4 );
 		}
