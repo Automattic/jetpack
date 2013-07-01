@@ -45,3 +45,4 @@ class Jetpack_Omnisearch_Comments extends WP_Comments_List_Table {
 
 	function extra_tablenav( $which ) {}
 }
+

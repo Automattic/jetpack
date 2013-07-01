@@ -63,3 +63,8 @@ class Jetpack_Omnisearch_Grunion extends WP_List_Table {
 		}
 	}
 }
+<<<<<<< .working
+=======
+
+new Jetpack_Omnisearch_Grunion;
+>>>>>>> .merge-right.r728539
