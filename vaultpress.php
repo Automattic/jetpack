@@ -198,32 +198,6 @@ class VaultPress {
 					add_action( $filter, array( $this, 'error_notice' ) );
 			}
 		}
-	?>
-
-		<style type="text/css">
-			#toplevel_page_vaultpress div.wp-menu-image {
-				background: url(<?php echo esc_url( $this->server_url() ); ?>images/vp-icon-sprite.png?20111216) center top no-repeat;
-				background-size: 28px 84px;
-			}
-
-			.admin-color-classic #toplevel_page_vaultpress div.wp-menu-image {
-				background-position: center -28px;
-			}
-
-			#toplevel_page_vaultpress.current div.wp-menu-image,
-			#toplevel_page_vaultpress:hover div.wp-menu-image {
-				background-position: center bottom;
-			}
-
-			@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
-				#toplevel_page_vaultpress div.wp-menu-image {
-					background-image: url(<?php echo esc_url( $this->server_url() ); ?>images/vp-icon-sprite-2x.png?20111216);
-				}
-			}
-		</style>
-
-	<?php
-
 	}
 
 	function admin_menu() {
@@ -249,8 +223,10 @@ class VaultPress {
 		if ( !current_user_can( 'manage_options' ) || !is_admin() )
 			return;
 
-		// force the cache to bust every day
-		wp_enqueue_style( 'vaultpress', $this->server_url() . 'css/plugin.css' , false, date( 'Ymd' ) );
+		wp_enqueue_style( 'vaultpress-nav', plugins_url( '/nav-styles.css', __FILE__ ), false, date( 'Ymd' ) );
+
+		if ( isset( $_GET['page'] ) && 'vaultpress' == $_GET['page'] )
+			wp_enqueue_style( 'vaultpress', plugins_url( '/styles.css', __FILE__ ), false, date( 'Ymd' ) );
 	}
 
 	// display a security threat notice if one exists

@@ -1,0 +1,19 @@
+#toplevel_page_vaultpress div.wp-menu-image {
+	background: url(images/vp-icon-sprite.png) center top no-repeat;
+	background-size: 28px 84px;
+}
+
+.admin-color-classic #toplevel_page_vaultpress div.wp-menu-image {
+	background-position: center -28px;
+}
+
+#toplevel_page_vaultpress.current div.wp-menu-image,
+#toplevel_page_vaultpress:hover div.wp-menu-image {
+	background-position: center bottom;
+}
+
+@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
+	#toplevel_page_vaultpress div.wp-menu-image {
+		background-image: url(images/vp-icon-sprite-2x.png);
+	}
+}
