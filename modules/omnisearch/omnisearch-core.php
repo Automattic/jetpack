@@ -13,7 +13,7 @@ class Jetpack_Omnisearch {
 		add_action( 'admin_init',         array( $this, 'add_providers' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'jetpack_admin_menu' ) );
 		add_action( 'admin_menu',         array( $this, 'admin_menu' ), 20 );
-		if( is_admin() ) {
+		if( ! jetpack_is_mobile() ) {
 			add_action( 'admin_bar_menu', array( $this, 'admin_bar_search' ), 4 );
 		}
 		add_filter( 'omnisearch_num_results', array( $this, 'omnisearch_num_results' ) );
