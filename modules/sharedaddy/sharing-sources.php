@@ -197,7 +197,7 @@ class Share_Email extends Sharing_Source {
 	}
 
 	public function get_name() {
-		return __( 'Email', 'jetpack' );
+		return _x( 'Email', 'as sharing source', 'jetpack' );
 	}
 
 	// Default does nothing
@@ -1292,3 +1292,4 @@ class Share_Pocket extends Sharing_Source {
 	}
 
 }
+
