@@ -1266,6 +1266,10 @@ p {
 			);
 		}
 
+		if( current_user_can( 'manage_options' ) && self::check_identity_crisis() ) {
+			add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
+		}
+
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'admin_head', array( $this, 'admin_menu_css' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
@@ -2303,6 +2307,11 @@ p {
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
 		}
 
+		return $raw ? $url : esc_url( $url );
+	}
+
+	function build_reconnect_url( $raw = false, $redirect = false ) {
+		$url = $this->admin_url( 'action=reconnect' );
 		return $raw ? $url : esc_url( $url );
 	}
 
@@ -3459,6 +3468,91 @@ p {
 			$class = wp_specialchars_decode( $class_matches[1], ENT_QUOTES );
 
 		return array( $url, $class );
+	}
+
+	/*
+	 * Just a placeholder at the moment.  Will check the synced options to make sure everything matches up.
+	 *
+	 * @param string|array $option_names The option names to request from the WordPress.com Mirror Site
+	 *
+	 * @return array An associative array of the option values as stored in the WordPress.com Mirror Site
+	 */
+	public static function get_cloud_site_options( $option_names ) {
+		$cloud_site_options = array();
+		$option_names = array_filter( (array) $option_names, 'is_string' );
+		foreach( $option_names as $option_name ) {
+			$cloud_site_options[ $option_name ] = get_option( $option_name ); # Until the API is ready, just use the local site options instead.
+		}
+		// If we want to intentionally jumble the results to test it ...
+		if( isset( $_GET['spoof_identity_crisis'] ) ) {
+			foreach( $cloud_site_options as $key => $value ) {
+				$cloud_site_options[ $key ] = wp_generate_password();
+			}
+		}
+		return $cloud_site_options;
+	}
+
+	/*
+	 * Checks to make sure that local options have the same values as remote options.  Will cache the results for up to 24 hours.
+	 *
+	 * @param bool $force_recheck Whether to ignore any cached transient and manually re-check.
+	 *
+	 * @return array An array of options that do not match.  If everything is good, it will evaluate to false.
+	 */
+	public static function check_identity_crisis( $force_recheck = false ) {
+		if ( ! current_user_can( 'manage_options' ) )
+			return false;
+
+		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() )
+			return false;
+
+		if ( isset( $_GET['spoof_identity_crisis'] ) )
+			$force_recheck = true;
+
+		if ( $force_recheck || false === ( $errors = get_transient( 'jetpack_has_identity_crisis' ) ) ) {
+			$options_to_check = array(
+				'siteurl',
+				'home',
+			);
+			$cloud_options = self::get_cloud_site_options( $options_to_check );
+			$errors = array();
+			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+				if ( $cloud_value !== get_option( $cloud_key ) ) {
+					$errors[ $cloud_key ] = $cloud_value;
+				}
+			}
+			// Make sure if we're spoofing it, that we don't let the spoof spill over.
+			if ( ! isset( $_GET['spoof_identity_crisis'] ) ) {
+				set_transient( 'jetpack_has_identity_crisis', $errors, DAY_IN_SECONDS );
+			}
+		}
+		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
+	}
+
+	/*
+	 * Displays an admin_notice, alerting the user to an identity crisis.
+	 */
+	public function alert_identity_crisis() {
+		if ( ! current_user_can( 'manage_options' ) )
+			return;
+
+		if ( ! $errors = self::check_identity_crisis() )
+			return;
+		?>
+
+		<div id="message" class="updated jetpack-message jp-identity-crisis">
+			<div class="jetpack-wrap-container">
+				<div class="jetpack-text-container">
+					<h3><?php _e( 'Something has gotten mixed up!', 'jetpack' ); ?></h3>
+					<?php foreach ( $errors as $key => $value ) : ?>
+						<p><?php printf( __( 'Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!', 'jetpack' ), $key, (string) get_option( $key ), $value ); ?></p>
+					<?php endforeach; ?>
+					<p><?php _e( 'This problem can often be resolved by disconnecting, then reconnecting to WordPress.com.', 'jetpack' ); ?> <a href="<?php echo $this->build_reconnect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Disconnect and Reconnect to WordPress.com', 'jetpack' ); ?></a></p>
+				</div>
+			</div>
+		</div>
+
+		<?php
 	}
 }
 
