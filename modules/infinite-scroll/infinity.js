@@ -456,7 +456,7 @@ Scroller.prototype.updateURL = function( page ) {
  */
 $( document ).ready( function() {
 	// Check for our variables
-	if ( ! infiniteScroll )
+	if ( 'object' != typeof infiniteScroll ) 
 		return;
 
 	// Set ajaxurl (for brevity)
