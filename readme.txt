@@ -383,8 +383,8 @@ Note: this functionality is disabled by default. You will have to enable it on t
 
 There are 2 ways of doing this. You can use Javascript to draw the part of the page you want to keep dynamic. That's what Google Adsense and many widgets from external sites do and is the recommended way. Or you can use a WP Super Cache filter to do the job but you can't use mod_rewrite mode caching. You have to switch to PHP or legacy caching.
 
-WP Super Cache 1.4 introduced a cacheaction filter called wpsc_cachedata. The cached page to be displayed goes through this filter and allows modification of the page. If the page contains a placeholder tag the filter can be used to replace that tag with your dynamicly generated html.
-The function that hooks on to the wpsc_cachedata filter should be put in a file in the plugins folder unless you use the late_init feature. An example plugin is included. Edit [dynamic-cache-test.php](http://svn.wp-plugins.org/wp-super-cache/trunk/plugins/dynamic-cache-test.php) and uncomment the code, and set the constant 'DYNAMIC_CACHE_TEST_TAG' to a random string that will not appear on your website. Change to PHP or legacy caching and activate dynamic caching on the Advanced Settings page and clear the cache. You should see the current server time in a html comment in the source code of your page. More details [in this post](http://ocaoimh.ie/2013/05/01/mfunc-in-wp-super-cache-1-4-and-beyond/).
+WP Super Cache 1.4 introduced a cacheaction filter called wpsc_cachedata. The cached page to be displayed goes through this filter and allows modification of the page. If the page contains a placeholder tag the filter can be used to replace that tag with your dynamically generated html.
+The function that hooks on to the wpsc_cachedata filter should be put in a file in the plugins folder unless you use the late_init feature. An example plugin is included. Edit [dynamic-cache-test.php](http://svn.wp-plugins.org/wp-super-cache/trunk/plugins/dynamic-cache-test.php) and uncomment the code, and set the constant 'DYNAMIC_CACHE_TEST_TAG' to a random string that will not appear on your website. Change to PHP or legacy caching and activate dynamic caching on the Advanced Settings page and clear the cache. You should see the current server time in a html comment in the source code of your page. More details [in this post](http://ocaoimh.ie/y/5b).
 To execute WordPress functions you must enable the 'Late init' feature on the advanced settings page.
 
 = How do I use WordPress functions in cached dynamic pages? =
@@ -393,11 +393,11 @@ See the next qestion, you have to load WordPress before the cached file is serve
 
 = How do I delay serving the cache until the "init" action fires? =
 
-Cached files are served before almost all of WordPress is loaded. While that's great for performance it's a pain when you want to extend the plugin using a core part of WordPress. Set $wp_super_cache_late_init to "1" in wp-content/wp-cache-config.php and cached files will be served when "init" fires. WordPress and it's plugins will be loaded now. This is very useful when you are using the mfunc tag in your theme.
+Cached files are served before almost all of WordPress is loaded. While that's great for performance it's a pain when you want to extend the plugin using a core part of WordPress. Enable 'Late init' mode on the Advanced settings page and cached files will be served when "init" fires. WordPress and it's plugins will be loaded now.
 
 = Why don't WP UserOnline, Popularity Contest, WP Postratings or plugin X not work or update on my blog now? =
 
-This plugin caches entire pages but some plugins think they can run PHP code every time a page loads. To fix this, the plugin needs to use Javascript/AJAX methods or the dynamic-cached-content/mfunc/mclude code described in the previous answer to update or display dynamic information.
+This plugin caches entire pages but some plugins think they can run PHP code every time a page loads. To fix this, the plugin needs to use Javascript/AJAX methods or the wpsc_cachedata filter described in the previous answer to update or display dynamic information.
 
 = Why do my WP Super Cache plugin disappear when I upgrade the plugin? =
 
