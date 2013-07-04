@@ -516,6 +516,9 @@ function wp_cache_get_ob(&$buffer) {
 	 * the wpsc_cachedata filter. Buffer is then returned to the visitor.
 	 */
 	if ( $wp_cache_mfunc_enabled == 1 ) {
+		if ( preg_match( '/<!--mclude|<!--mfunc|<!--dynamic-cached-content-->/', $buffer ) ) //Dynamic content
+			wp_cache_add_to_buffer( $buffer, "Warning! Obsolete mfunc/mclude/dynamic-cached-content tags found. Please update your theme. See http://ocaoimh.ie/y/5b for more information." );
+
 		global $wp_super_cache_late_init;
 		if ( false == isset( $wp_super_cache_late_init ) || ( isset( $wp_super_cache_late_init ) && $wp_super_cache_late_init == 0 ) )
 			wp_cache_add_to_buffer( $buffer, 'Super Cache dynamic page detected but $wp_super_cache_late_init not set. See the readme.txt for further details.' );
