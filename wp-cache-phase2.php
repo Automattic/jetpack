@@ -454,7 +454,7 @@ function wp_cache_get_ob(&$buffer) {
 			global $wp_super_cache_late_init;
 			if ( false == isset( $wp_super_cache_late_init ) || ( isset( $wp_super_cache_late_init ) && $wp_super_cache_late_init == 0 ) )
 				wp_cache_add_to_buffer( $buffer, 'Super Cache dynamic page detected but $wp_super_cache_late_init not set. See the readme.txt for further details.' );
-			$buffer = do_cacheaction( 'wpsc_cachedata', $buffer ); // dynamic content for display
+			return do_cacheaction( 'wpsc_cachedata', $buffer ); // dynamic content for display
 		}
 
 		return $buffer;
@@ -512,7 +512,7 @@ function wp_cache_get_ob(&$buffer) {
 	wp_cache_append_tag( $buffer );
 
 	/*
-	 * Dynamic content found: write the buffer to a file and then process any templates found using
+	 * Dynamic content enabled: write the buffer to a file and then process any templates found using
 	 * the wpsc_cachedata filter. Buffer is then returned to the visitor.
 	 */
 	if ( $wp_cache_mfunc_enabled == 1 ) {
@@ -522,7 +522,7 @@ function wp_cache_get_ob(&$buffer) {
 
 		if ( $fr ) { // legacy caching
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Writing dynamic buffer to legacy file." );
-			wp_cache_add_to_buffer( $buffer, "Legacy Super Cache" );
+			wp_cache_add_to_buffer( $buffer, "Dynamic Legacy Super Cache" );
 			fputs( $fr, $buffer );
 		} elseif ( isset( $fr2 ) ) { // supercache active
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Writing dynamic buffer to supercache file." );
