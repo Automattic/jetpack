@@ -2290,7 +2290,7 @@ p {
 
 	function build_connect_url( $raw = false, $redirect = false ) {
 		if ( !Jetpack::get_option( 'blog_token' ) ) {
-			$url = wp_nonce_url( add_query_arg( 'action', 'register', menu_page_url( 'jetpack', false ) ), 'jetpack-register' );
+			$url = wp_nonce_url( add_query_arg( 'action', 'register', $this->admin_url() ), 'jetpack-register' );
 		} else {
 			$role = $this->translate_current_user_to_role();
 			$signed_role = $this->sign_role( $role );
