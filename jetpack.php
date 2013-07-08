@@ -3481,7 +3481,7 @@ p {
 		$option_names = array_filter( (array) $option_names, 'is_string' );
 
 		Jetpack::load_xml_rpc_client();
-		$xml =& new Jetpack_IXR_Client( array(
+		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id(),
 		) );
 		$xml->query( 'jetpack.fetchSiteOptions', $option_names );
