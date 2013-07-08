@@ -2290,7 +2290,7 @@ p {
 
 	function build_connect_url( $raw = false, $redirect = false ) {
 		if ( !Jetpack::get_option( 'blog_token' ) ) {
-			$url = wp_nonce_url( add_query_arg( 'action', 'register', $this->admin_url() ), 'jetpack-register' );
+			$url = $this->nonce_url_no_esc( $this->admin_url( 'action=register' ), 'jetpack-register' );
 		} else {
 			$role = $this->translate_current_user_to_role();
 			$signed_role = $this->sign_role( $role );
@@ -2329,6 +2329,11 @@ p {
 		$args = wp_parse_args( $args, array( 'page' => 'jetpack' ) );
 		$url = add_query_arg( $args, admin_url( 'admin.php' ) );
 		return $url;
+	}
+
+	public static function nonce_url_no_esc( $actionurl, $action = -1, $name = '_wpnonce' ) {
+		$actionurl = str_replace( '&amp;', '&', $actionurl );
+		return add_query_arg( $name, wp_create_nonce( $action ), $actionurl );
 	}
 
 	function dismiss_jetpack_notice() {
