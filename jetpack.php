@@ -3471,18 +3471,25 @@ p {
 	}
 
 	/*
-	 * Just a placeholder at the moment.  Will check the synced options to make sure everything matches up.
+	 * Pings the WordPress.com Mirror Site for the specified options.
 	 *
 	 * @param string|array $option_names The option names to request from the WordPress.com Mirror Site
 	 *
 	 * @return array An associative array of the option values as stored in the WordPress.com Mirror Site
 	 */
 	public static function get_cloud_site_options( $option_names ) {
-		$cloud_site_options = array();
 		$option_names = array_filter( (array) $option_names, 'is_string' );
-		foreach( $option_names as $option_name ) {
-			$cloud_site_options[ $option_name ] = get_option( $option_name ); # Until the API is ready, just use the local site options instead.
+
+		Jetpack::load_xml_rpc_client();
+		$xml =& new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id(),
+		) );
+		$xml->query( 'jetpack.fetchSiteOptions', $option_names );
+		if ( $xml->isError() ) {
+			return array_flip( $option_names );
 		}
+		$cloud_site_options = $xml->getResponse();
+
 		// If we want to intentionally jumble the results to test it ...
 		if( isset( $_GET['spoof_identity_crisis'] ) ) {
 			foreach( $cloud_site_options as $key => $value ) {
