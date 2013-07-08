@@ -1855,6 +1855,16 @@ p {
 				Jetpack::disconnect();
 				wp_safe_redirect( Jetpack::admin_url() );
 				exit;
+			case 'reconnect' :
+				if ( ! current_user_can( 'manage_options' ) ) {
+					$error = 'cheatin';
+					break;
+				}
+
+				check_admin_referer( 'jetpack-reconnect' );
+				$this->disconnect();
+				wp_redirect( $this->build_connect_url( true ) );
+				exit;
 			case 'deactivate' :
 				if ( ! current_user_can( 'activate_plugins' ) ) {
 					$error = 'cheatin';
@@ -2310,8 +2320,8 @@ p {
 		return $raw ? $url : esc_url( $url );
 	}
 
-	function build_reconnect_url( $raw = false, $redirect = false ) {
-		$url = $this->admin_url( 'action=reconnect' );
+	function build_reconnect_url( $raw = false ) {
+		$url = wp_nonce_url( $this->admin_url( 'action=reconnect' ), 'jetpack-reconnect' );
 		return $raw ? $url : esc_url( $url );
 	}
 
