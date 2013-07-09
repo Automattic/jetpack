@@ -32,19 +32,21 @@ defined( 'DAY_IN_SECONDS' )    or define( 'DAY_IN_SECONDS',    24 * HOUR_IN_SECO
 defined( 'WEEK_IN_SECONDS' )   or define( 'WEEK_IN_SECONDS',    7 * DAY_IN_SECONDS    );
 defined( 'YEAR_IN_SECONDS' )   or define( 'YEAR_IN_SECONDS',  365 * DAY_IN_SECONDS    );
 
-require_once dirname( __FILE__ ) . '/class.jetpack.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-client.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-data.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-client-server.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-sync.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-options.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-user-agent.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-post-images.php';
-require_once dirname( __FILE__ ) . '/class.jetpack-error.php';
-require_once dirname( __FILE__ ) . '/class.photon.php';
-require_once dirname( __FILE__ ) . '/functions.photon.php';
-require_once dirname( __FILE__ ) . '/functions.compat.php';
-require_once dirname( __FILE__ ) . '/functions.gallery.php';
+// @todo: Abstract out the admin functions, and only include them if is_admin()
+// @todo: Only include things like class.jetpack-sync.php if we're connected.
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-sync.php'          );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-error.php'         );
+require_once( JETPACK__PLUGIN_DIR . 'class.photon.php'                );
+require_once( JETPACK__PLUGIN_DIR . 'functions.photon.php'            );
+require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
+require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
 
 register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
