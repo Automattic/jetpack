@@ -486,6 +486,7 @@ class Jetpack {
 			'sharepress/sharepress.php',                                            			// SharePress
 			'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',		// WP Facebook Like Send & Open Graph Meta
 			'network-publisher/networkpub.php',								// Network Publisher
+			'wp-ogp/wp-ogp.php',										// WP-OGP
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
