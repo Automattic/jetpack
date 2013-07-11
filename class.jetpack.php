@@ -214,7 +214,7 @@ class Jetpack {
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
 
-		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_modules' ) );
+		// add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_modules' ) );
 
 		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
 
@@ -664,7 +664,7 @@ class Jetpack {
 
 		Jetpack::state( 'message', 'modules_activated' );
 		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules );
-		wp_safe_redirect( Jetpack::admin_url( 'page=jetpack_modules' ) );
+		wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 		exit;
 	}
 
@@ -885,7 +885,7 @@ class Jetpack {
 			$url = add_query_arg( array(
 				'action' => 'activate_default_modules',
 				'_wpnonce' => wp_create_nonce( 'activate_default_modules' ),
-			), add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), Jetpack::admin_url( 'page=jetpack_modules' ) ) );
+			), add_query_arg( compact( 'min_version', 'max_version', 'other_modules' ), Jetpack::admin_url( 'page=jetpack' ) ) );
 			wp_safe_redirect( $url );
 			exit;
 		}
@@ -924,7 +924,7 @@ class Jetpack {
 			}
 
 			// we'll override this later if the plugin can be included without fatal error
-			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack_modules' ) );
+			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 			Jetpack::state( 'error', 'module_activation_failed' );
 			Jetpack::state( 'module', $module );
 			ob_start();
@@ -990,7 +990,7 @@ class Jetpack {
 		// Check the file for fatal errors, a la wp-admin/plugins.php::activate
 		Jetpack::state( 'module', $module );
 		Jetpack::state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error
-		wp_safe_redirect( Jetpack::admin_url( 'page=jetpack_modules' ) );
+		wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 
 		Jetpack::catch_errors( true );
 		ob_start();
@@ -1031,7 +1031,7 @@ class Jetpack {
 
 	public static function module_configuration_url( $module ) {
 		$module = Jetpack::get_module_slug( $module );
-		return Jetpack::admin_url( array( 'page' => 'jetpack_modules', 'configure' => $module ) );
+		return Jetpack::admin_url( array( 'page' => 'jetpack', 'configure' => $module ) );
 	}
 
 	public static function module_configuration_load( $module, $method ) {
@@ -1372,7 +1372,7 @@ p {
 
 		do_action( 'jetpack_admin_menu' );
 	}
-
+/*
 	function admin_menu_modules() {
 		$hook = add_submenu_page( 'jetpack', __( 'Jetpack Modules', 'jetpack' ), __( 'Modules', 'jetpack' ), 'edit_posts', 'jetpack_modules', array( $this, 'admin_page_modules' ) );
 
@@ -1382,7 +1382,7 @@ p {
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );		
 	}
-
+/**/
 	function add_remote_request_handlers() {
 		add_action( 'wp_ajax_nopriv_jetpack_upload_file', array( $this, 'remote_request_handlers' ) );
 	}
@@ -1705,7 +1705,7 @@ p {
 			__( 'Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href="%s">%s</a>.', 'jetpack' ),
 			wp_nonce_url(
 				Jetpack::admin_url( array(
-					'page'   => 'jetpack_modules',
+					'page'   => 'jetpack',
 					'action' => 'activate',
 					'module' => 'comments',
 				) ),
@@ -1807,7 +1807,7 @@ p {
 				check_admin_referer( "jetpack_activate-$module" );
 				Jetpack::activate_module( $module );
 				// The following two lines will rarely happen, as Jetpack::activate_module normally exits at the end.
-				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack_modules' ) );
+				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				exit;
 			case 'activate_default_modules' :
 				check_admin_referer( 'activate_default_modules' );
@@ -1816,7 +1816,7 @@ p {
 				$max_version = isset( $_GET['max_version'] ) ? $_GET['max_version'] : false;
 				$other_modules = isset( $_GET['other_modules'] ) && is_array( $_GET['other_modules'] ) ? $_GET['other_modules'] : array();
 				Jetpack::activate_default_modules( $min_version, $max_version, $other_modules );
-				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack_modules' ) );
+				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				exit;
 			case 'disconnect' :
 				check_admin_referer( 'jetpack-disconnect' );
@@ -1846,7 +1846,7 @@ p {
 					Jetpack::state( 'message', 'module_deactivated' );
 				}
 				Jetpack::state( 'module', $modules );
-				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack_modules' ) );
+				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				exit;
 			case 'unlink' :
 				check_admin_referer( 'jetpack-unlink' );
@@ -2189,7 +2189,7 @@ p {
 				),
 				wp_nonce_url(
 					Jetpack::admin_url( array(
-						'page'   => 'jetpack_modules',
+						'page'   => 'jetpack',
 						'action' => 'deactivate',
 						'module' => urlencode( $module_slugs ),
 					) ),
@@ -2404,9 +2404,13 @@ p {
 				<?php endif; ?>
 			<?php endif; // ! Jetpack::is_development_mode() ?>
 
-			<!-- Jetpack Landing Page Content To Go Here -->
-
-
+			<?php
+			if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) ) {
+				$this->admin_screen_configure_module( $_GET['configure'] );
+			} else {
+				$this->admin_screen_list_modules();
+			}
+			?>
 
 			<div id="survey" class="jp-survey">
 				<div class="jp-survey-container">
@@ -2473,7 +2477,7 @@ p {
 		</div>
 	<?php
 	}
-
+/*
 	function admin_page_modules() {
 		global $current_user;
 
@@ -2558,8 +2562,8 @@ p {
 					</div>
 				</div>
 
-				<?php else /* blog and user are connected */ : ?>
-					<?php /* TODO: if not master user, show user disconnect button? */ ?>
+				<?php else: // blog and user are connected ?>
+					<?php // TODO: if not master user, show user disconnect button? ?>
 				<?php endif; ?>
 			<?php endif; // ! Jetpack::is_development_mode() ?>
 
@@ -2574,7 +2578,7 @@ p {
 		</div>
 	<?php
 	}
-
+/**/
 	function ajax_debug() {
 		nocache_headers();
 
@@ -2690,7 +2694,7 @@ p {
 				$toggle     = __( 'Deactivate', 'jetpack' );
 				$toggle_url = wp_nonce_url(
 					Jetpack::admin_url( array(
-						'page'   => 'jetpack_modules',
+						'page'   => 'jetpack',
 						'action' => 'deactivate',
 						'module' => $module
 					) ),
@@ -2701,7 +2705,7 @@ p {
 				$toggle     = __( 'Activate', 'jetpack' );
 				$toggle_url = wp_nonce_url(
 					Jetpack::admin_url( array(
-						'page'   => 'jetpack_modules',
+						'page'   => 'jetpack',
 						'action' => 'activate',
 						'module' => $module
 					) ),
