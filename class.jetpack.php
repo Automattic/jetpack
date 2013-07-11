@@ -1234,11 +1234,11 @@ p {
 				true
 			);
 		}
-
+/* Toggle this off as it's not ready for prime time just yet.
 		if( current_user_can( 'manage_options' ) && self::check_identity_crisis() ) {
 			add_action( 'admin_notices', array( $this, 'alert_identity_crisis' ) );
 		}
-
+/**/
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
 		add_action( 'admin_head', array( $this, 'admin_menu_css' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
