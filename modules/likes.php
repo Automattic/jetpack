@@ -4,6 +4,7 @@
  * Module Description: Likes are a way for people to show their appreciation for content you have written. It’s also a way for you to show the world how popular your content has become.
  * First Introduced: 2.2
  * Sort Order: 4
+ * Requires Connection: Yes
  */
 class Jetpack_Likes {
 	var $version = '20130620a';
