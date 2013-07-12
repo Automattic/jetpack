@@ -35,7 +35,7 @@
 		</header><!-- .entry-header -->
 
 		<div class="entry-content">
-		<?php if ( '1' == get_option( 'wp_mobile_excerpt' ) && is_home() || is_search() || is_archive() ) : ?>
+		<?php if ( '1' == get_option( 'wp_mobile_excerpt' ) && ( is_home() || is_search() || is_archive() ) ) : ?>
 			<?php echo minileven_excerpt( 300 ); ?>
 		<?php else : ?>
 			<?php the_content( __( 'Continue reading <span class="meta-nav">&rarr;</span>', 'jetpack' ) ); ?>

@@ -218,10 +218,19 @@ input#s {
 	border-radius: 2px;
 	height: 1.692em;
 	line-height: 1.2;
-	padding: 0.4em 0.6em;
+	padding: 0.4em 0.6em 0.29em;
+}
+input#s:focus {
+	padding-bottom: 0.3em;
 }
 input#searchsubmit {
 	display: none;
+}
+input#s:focus,
+input[type=text]:focus,
+input[type=email]:focus,
+textarea:focus {
+	font-size: 1.231em;
 }
 
 /* Links */
