@@ -24,6 +24,7 @@ class WPCOM_JSON_API {
 	var $public_api_scheme = 'https';
 
 	var $trapped_error = null;
+	var $did_output = false;
 
 	static function init( $method = null, $url = null, $post_body = null ) {
 		if ( !self::$self ) {
@@ -123,11 +124,15 @@ class WPCOM_JSON_API {
 
 		add_filter( 'comment_edit_pre', array( $this, 'comment_edit_pre' ) );
 
-		$this->initialize();
+		$initialization = $this->initialize();
+		if ( is_wp_error( $initialization ) ) {
+			$this->output_error( $initialization );
+			return;
+		}
 
 		// Normalize path and extract API version
 		$this->path = untrailingslashit( $this->path );
-		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
+		preg_match( '#^/rest/v1(\.\d+)*#', $this->path, $matches );
 		$this->path = substr( $this->path, strlen( $matches[0] ) );
 		$this->version = $matches[1];
 
@@ -241,29 +246,37 @@ class WPCOM_JSON_API {
 		if ( !$response ) {
 			return $this->output( 500, '', 'text/plain' );
 		} elseif ( is_wp_error( $response ) ) {
-			$status_code = $response->get_error_data();
-
-			if ( is_array( $status_code ) )
-				$status_code = $status_code['status_code'];
-
-			if ( !$status_code ) {
-				$status_code = 400;
-			}
-			$response = array(
-				'error'   => $response->get_error_code(),
-				'message' => $response->get_error_message(),
-			);
-			return $this->output( $status_code, $response );
+			return $this->output_error( $response );
 		}
 
 		return $this->output( 200, $response );
 	}
 
 	function process_request( WPCOM_JSON_API_Endpoint $endpoint, $path_pieces ) {
+		$this->endpoint = $endpoint;
 		return call_user_func_array( array( $endpoint, 'callback' ), $path_pieces );
 	}
 
+	function output_early( $status_code, $response = null, $content_type = 'application/json' ) {
+		$exit = $this->exit;
+		$this->exit = false;
+		if ( is_wp_error( $response ) )
+			$this->output_error( $response );
+		else
+			$this->output( $status_code, $response, $content_type );
+		$this->exit = $exit;
+		$this->finish_request();
+	}
+
 	function output( $status_code, $response = null, $content_type = 'application/json' ) {
+		// In case output() was called before the callback returned
+		if ( $this->did_output ) {
+			if ( $this->exit )
+				exit;
+			return $content_type;
+		}
+		$this->did_output = true;
+
 		if ( is_null( $response ) ) {
 			$response = new stdClass;
 		}
@@ -315,6 +328,22 @@ class WPCOM_JSON_API {
 		}
 
 		return $content_type;
+	}
+
+	function output_error( $error ) {
+		$status_code = $error->get_error_data();
+
+		if ( is_array( $status_code ) )
+			$status_code = $status_code['status_code'];
+
+		if ( !$status_code ) {
+			$status_code = 400;
+		}
+		$response = array(
+			'error'   => $error->get_error_code(),
+			'message' => $error->get_error_message(),
+		);
+		return $this->output( $status_code, $response );
 	}
 
 	function ensure_http_scheme_of_home_url( $url, $path, $original_scheme ) {
@@ -458,5 +487,10 @@ class WPCOM_JSON_API {
 			'error'   => $this->trapped_error['code'],
 			'message' => $this->trapped_error['message'],
 		) );
+	}
+
+	function finish_request() {
+		if ( function_exists( 'fastcgi_finish_request' ) )
+			return fastcgi_finish_request();
 	}
 }
