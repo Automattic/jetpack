@@ -2870,12 +2870,20 @@ p {
 
 		$jetpack = Jetpack::init();
 
-		// Yay! Your host is good!
 		if ( false === ( $jetpack_https_test = get_transient( 'jetpack_https_test' ) ) ) {
-			$jetpack_https_test = ( is_wp_error( wp_remote_get( JETPACK__API_BASE . '.test/1/' ) ) ? 0 : 1 );
+			$response = wp_remote_get( JETPACK__API_BASE . '.test/1/' );
+			$jetpack_https_test = 0;
+			if ( ! is_wp_error( $response ) ) {
+				$body = wp_remote_retrieve_body( $response );
+				// Bad request, $body should be 'OK'
+				if ( ! empty( $body ) ) {
+					$jetpack_https_test = 1;
+				} 
+			}
 			set_transient( 'jetpack_https_test', $jetpack_https_test, HOUR_IN_SECONDS );
 	 	}
-		
+
+		// Yay! Your host is good!
 		if ( $jetpack_https_test && wp_http_supports( array( 'ssl' => true ) ) ) {
 			return $url;
 		}
