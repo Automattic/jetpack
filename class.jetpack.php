@@ -945,7 +945,7 @@ class Jetpack {
 		do_action( 'jetpack_activate_default_modules', $min_version, $max_version, $other_modules );
 	}
 
-	public static function activate_module( $module ) {
+	public static function activate_module( $module, $exit = true ) {
 		$jetpack = Jetpack::init();
 
 		if ( ! strlen( $module ) )
@@ -1000,7 +1000,10 @@ class Jetpack {
 		Jetpack::state( 'module', $module );
 		ob_end_clean();
 		Jetpack::catch_errors( false );
-		exit;
+
+		if ( $exit ) {
+			exit;
+		}
 	}
 
 	function activate_module_actions( $module ) {
