@@ -19,17 +19,7 @@ class Jetpack_Publicize {
 		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'jetpack_configuration_load' ) );
-
-			$publicizeable_post_types = array( 'post' );
-
-			foreach ( get_post_types() as $post_type ) {
-				if ( post_type_supports( $post_type, 'publicize' ) )
-					$publicizeable_post_types[] = $post_type;
-			}
-
-			Jetpack_Sync::sync_posts( __FILE__, array( 'post_types' => $publicizeable_post_types ) );
-
-			add_action( 'registered_post_type', array( $this, 'registered_post_type' ) );
+			Jetpack_Sync::sync_posts( __FILE__ );
 		}
 
 		require_once dirname( __FILE__ ) . '/publicize/publicize.php';
@@ -68,21 +58,6 @@ class Jetpack_Publicize {
 	function jetpack_configuration_load() {
 		wp_safe_redirect( menu_page_url( 'sharing', false ) );
 		exit;
-	}
-
-	/**
-	 * When a new post type is registered, and it supports Publicize,
-	 * sync its posts so that they're available for publicizeation.
-	 *
-	 * Note that 'publicize' support must be declared in the
-	 * register_post_type call, not in add_post_type_support, since
-	 * there's no action for add_post_type_support.
-	 *
-	 * @param string $post_type The newly registered post type slug.
-	 */
-	function registered_post_type( $post_type ) {
-		if ( post_type_supports( $post_type, 'publicize' ) )
-			Jetpack_Sync::sync_posts( __FILE__, array( $post_type ) );
 	}
 }
 
