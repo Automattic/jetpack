@@ -161,7 +161,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 	// Get POST body data
 	function input( $return_default_values = true, $cast_and_filter = true ) {
 		$input = trim( $this->api->post_body );
-
 		switch ( $this->api->content_type ) {
 		case 'application/json; charset=utf-8' :
 		case 'application/json' :
@@ -170,7 +169,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'text/x-javascript' :
 		case 'text/x-json' :
 		case 'text/json' :
-			$return = json_decode( $input );
+			$return = json_decode( $input, true );
+
 			if ( function_exists( 'json_last_error' ) ) {
 				if ( JSON_ERROR_NONE !== json_last_error() ) {
 					return null;
@@ -181,9 +181,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 				}
 			}
 
-			if ( is_object( $return ) ) {
-				$return = (array) $return;
-			}
 			break;
 		case 'multipart/form-data' :
 			$return = array_merge( stripslashes_deep( $_POST ), $_FILES );
@@ -203,6 +200,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	function cast_and_filter( $data, $documentation, $return_default_values = false, $for_output = false ) {
 		$return_as_object = false;
 		if ( is_object( $data ) ) {
+			// @todo this should probably be a deep copy if $data can ever have nested objects
 			$data = (array) $data;
 			$return_as_object = true;
 		} elseif ( !is_array( $data ) ) {
@@ -575,25 +573,22 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 			// Examples for endpoint documentation response
 			$response_key = 'dev_response_' . $this->version . '_' . $this->method . '_' . sanitize_title( $this->path );
-			$response     = get_option( $response_key );
+			$response     = wp_cache_get( $response_key );
 
 			// Response doesn't exist, so run the request
-			if ( empty( $response ) ) {
+			if ( false === $response ) {
 
 				// Only trust GET request
 				if ( 'GET' === $this->method ) {
-					$response = wp_remote_get( $this->example_request );
-				}
+					$response      = wp_remote_get( $this->example_request );
+					$response_body = wp_remote_retrieve_body( $response );
 
-				// Set as false if it's an error
-				if ( is_wp_error( $response ) ) {
-					$response = false;
-				}
-
-				// Only update the option if there's a result
-				if ( !empty( $response ) ) {
-					$response = $response['body'];
-					update_option( $response_key, $response );
+					// Only cache if there's a result
+					if ( strlen( $response_body ) ) {
+						wp_cache_set( $response_key, $response );
+					} else {
+						wp_cache_delete( $response_key );
+					}
 				}
 			}
 
@@ -2880,6 +2875,10 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		}
 
 		if ( isset( $update['comment_status'] ) ) {
+			if ( count( $update ) === 1 ) {
+				// We are only here to update the comment status so let's respond ASAP
+				add_action( 'wp_set_comment_status', array( $this, 'output_comment' ), 0, 1 );
+			}
 			switch ( $update['comment_status'] ) {
 				case 'approved' :
 					if ( 'approve' !== $comment_status ) {
@@ -2964,6 +2963,12 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 
 		return $this->get_comment( $comment->comment_ID, $args['context'] );
 	}
+
+	function output_comment( $comment_id ) {
+		$args  = $this->query_args();
+		$output = $this->get_comment( $comment_id, $args['context'] );
+		$this->api->output_early( 200, $output );
+	}
 }
 
 class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
@@ -3032,9 +3037,13 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 }
 
+
+
 /*
  * Set up endpoints
  */
+
+
 
 /*
  * Site endpoints
