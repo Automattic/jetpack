@@ -407,7 +407,7 @@ class Jetpack {
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = Jetpack::get_module( $module );
 				}
-				if ( $modules_data[ $module ]['requires_connection'] || ( $modules_data[ $module ]['requires_dev_mode'] && ! Jetpack::is_development_mode() ) ) {
+				if ( $modules_data[ $module ]['requires_connection'] || ! Jetpack::is_development_mode() ) {
 					continue;
 				}
 			}
@@ -722,7 +722,6 @@ class Jetpack {
 			// These modules are default off: they change things blog-side
 			case 'comments' :
 			case 'carousel' :
-			case 'debug' :
 			case 'minileven':
 			case 'infinite-scroll' :
 			case 'photon' :
@@ -775,7 +774,6 @@ class Jetpack {
 			'deactivate'          => 'Deactivate',
 			'free'                => 'Free',
 			'requires_connection' => 'Requires Connection',
-			'requires_dev_mode' => 'Requires Development Mode',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
@@ -793,7 +791,6 @@ class Jetpack {
 		$mod['deactivate'] = empty( $mod['deactivate'] );
 		$mod['free'] = empty( $mod['free'] );
 		$mod['requires_connection'] = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
-		$mod['requires_dev_mode'] = ( ! empty( $mod['requires_dev_mode'] ) && 'No' == $mod['requires_dev_mode'] ) ? false : true;
 		return $mod;
 	}
 
@@ -967,7 +964,7 @@ class Jetpack {
 		$module_data = Jetpack::get_module( $module );
 		
 		if ( ! Jetpack::is_active() ) {	
-			if ( ! Jetpack::is_development_mode() && $module_data['requires_dev_mode'] )
+			if ( ! Jetpack::is_development_mode() )
 				return false;
 
 			// If we're not connected but in development mode, make sure the module doesn't require a connection
@@ -1243,8 +1240,6 @@ p {
 		add_action( 'admin_head', array( $this, 'admin_menu_css' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( __FILE__ ), array( $this, 'plugin_action_links' ) );
 
-		add_action( 'wp_ajax_jetpack_debug', array( $this, 'ajax_debug' ) );
-
 		if ( Jetpack::is_active() || Jetpack::is_development_mode() ) {
 			// Artificially throw errors in certain whitelisted cases during plugin activation
 			add_action( 'activate_plugin', array( $this, 'throw_error_on_activate_plugin' ) );
@@ -1352,6 +1347,10 @@ p {
 		}
 
 		$hook = add_menu_page( 'Jetpack', $title, 'read', 'jetpack', array( $this, 'admin_page' ), 'div' );
+		
+		$debugger_hook = add_submenu_page( 'jetpack', 'Jetpack Debugging Center', '', 'manage_options', 'jetpack-debugger', array( $this, 'debugger_page' ) );
+		add_action( "admin_head-$debugger_hook", 'jetpack_debug_admin_head' );
+
 
 		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
 
@@ -1560,7 +1559,9 @@ p {
 		$current_screen->set_help_sidebar(
 			'<p><strong>' . __( 'For more information:', 'jetpack' ) . '</strong></p>' .
 			'<p><a href="http://jetpack.me/faq/" target="_blank">'     . __( 'Jetpack FAQ',     'jetpack' ) . '</a></p>' .
-			'<p><a href="http://jetpack.me/support/" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>'
+			'<p><a href="http://jetpack.me/support/" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
+			'<p><a href="' . Jetpack::admin_url( array(	'page'   => 'jetpack-debugger' )  ) .'">' . __( 'Jetpack Debugging Center', 'jetpack' ) . '</a></p>' 
+			
 		);
 	}
 
@@ -2465,7 +2466,7 @@ p {
 					<a href="http://automattic.com/privacy/" target="_blank"><?php _e( 'Privacy Policy', 'jetpack' ); ?></a> |
 					<a href="http://wordpress.com/tos/" target="_blank"><?php _e( 'Terms of Service', 'jetpack' ); ?></a> |
 <?php if ( current_user_can( 'manage_options' ) ) : ?>
-					<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin-ajax.php?action=jetpack_debug' ), 'jetpack_debug' ) ); ?>" id="jp-debug"><?php _e( 'Debug', 'jetpack' ); ?></a> |
+					<a href="<?php echo Jetpack::admin_url( array(	'page'   => 'jetpack-debugger' ) ); ?>"><?php _e( 'Debug', 'jetpack' ); ?></a> |
 <?php endif; ?>
 					<a href="http://jetpack.me/support/" target="_blank"><?php _e( 'Support', 'jetpack' ); ?></a>
 				</p>
@@ -2579,47 +2580,12 @@ p {
 	<?php
 	}
 /**/
-	function ajax_debug() {
+	function debugger_page() {
 		nocache_headers();
-
-		check_ajax_referer( 'jetpack_debug' );
-
 		if ( !current_user_can( 'manage_options' ) ) {
 			die( '-1' );
 		}
-?>
-		<p><?php esc_html_e( 'This is sensitive information.  Please do not post your BLOG_TOKEN or USER_TOKEN publicly; they are like passwords.', 'jetpack' ); ?></p>
-		<ul>
-		<?php
-		// Extract the current_user's token
-		$user_id = get_current_user_id();
-		$user_tokens = Jetpack::get_option( 'user_tokens' );
-		if ( is_array( $user_tokens ) && array_key_exists( $user_id, $user_tokens ) ) {
-			$user_token = $user_tokens[$user_id];
-		} else {
-			$user_token = '[this user has no token]';
-		}
-		unset( $user_tokens );
-
-		foreach ( array(
-			'CLIENT_ID'   => 'id',
-			'BLOG_TOKEN'  => 'blog_token',
-			'MASTER_USER' => 'master_user',
-			'CERT'        => 'fallback_no_verify_ssl_certs',
-			'TIME_DIFF'   => 'time_diff',
-			'VERSION'     => 'version',
-			'OLD_VERSION' => 'old_version',
-			'PUBLIC'      => 'public',
-		) as $label => $option_name ) :
-		?>
-			<li><?php echo esc_html( $label ); ?>: <code><?php echo esc_html( Jetpack::get_option( $option_name ) ); ?></code></li>
-		<?php endforeach; ?>
-			<li>USER_ID: <code><?php echo esc_html( $user_id ); ?></code></li>
-			<li>USER_TOKEN: <code><?php echo esc_html( $user_token ); ?></code></li>
-			<li>PHP_VERSION: <code><?php echo esc_html( PHP_VERSION ); ?></code></li>
-			<li>WORDPRESS_VERSION: <code><?php echo esc_html( $GLOBALS['wp_version'] ); ?></code></li>
-		</ul>
-<?php
+		jetpack_debug_display_handler();
 		exit;
 	}
 
@@ -2750,7 +2716,7 @@ p {
 				</div>
 
 				<div class="jetpack-module-actions">
-				<?php if ( $jetpack_connected || ( Jetpack::is_development_mode() && ! $module_data['requires_connection'] ) || ! $module_data['requires_dev_mode'] ) : ?>
+				<?php if ( $jetpack_connected || ( Jetpack::is_development_mode() && ! $module_data['requires_connection'] ) ) : ?>
 					<?php if ( !$activated && current_user_can( 'manage_options' ) && apply_filters( 'jetpack_can_activate_' . $module, true ) ) : ?>
 						<a href="<?php echo esc_url( $toggle_url ); ?>" class="<?php echo ( 'inactive' == $css ? ' button-primary' : ' button-secondary' ); ?>"><?php echo $toggle; ?></a>&nbsp;
 					<?php endif; ?>
