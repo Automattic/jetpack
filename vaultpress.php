@@ -928,7 +928,7 @@ class VaultPress {
 			$this->update_option( 'service_ips', $newval );
 		}
 
-		$external_data = $this->request_firewall_update( false );
+		$external_data = $this->request_firewall_update( true );
 		if ( $external_data ) {
 			$external_newval = array( 'updated' => time(), 'data' => $external_data );
 			update_option( 'vaultpress_service_ips_external', $external_newval );
