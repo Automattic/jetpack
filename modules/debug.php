@@ -30,6 +30,12 @@ function is_jetpack_support_open() {
 	}
 }
 
+function jetpack_increase_timeout($time) {
+	$time = 20; //seconds 
+	return $time; 
+}
+
+
 function jetpack_debug_menu_display_handler() {
 	if ( ! current_user_can( 'manage_options' ) )
 		wp_die( esc_html__('You do not have sufficient permissions to access this page.', 'jetpack' ) );
@@ -75,23 +81,24 @@ function jetpack_debug_menu_display_handler() {
 
 	$tests = array();
 
-	$tests['HTTP']['result'] = wp_remote_get( 'http://jetpack.wordpress.com/jetpack.test/1/' );
+	$tests['HTTP']['result'] = wp_remote_get( preg_replace( '/^https:/', 'http:', JETPACK__API_BASE ) . 'test/1/' );
 	$tests['HTTP']['fail_message'] = esc_html__( 'Your site isn’t reaching the Jetpack servers.', 'jetpack' );
 
-	$tests['HTTPS']['result'] = wp_remote_get( 'https://jetpack.wordpress.com/jetpack.test/1/' );
+	$tests['HTTPS']['result'] = wp_remote_get( preg_replace( '/^http:/', 'https:', JETPACK__API_BASE ) . 'test/1/' );
 	$tests['HTTPS']['fail_message'] = esc_html__( 'Your site isn’t securely reaching the Jetpack servers.', 'jetpack' );
 
-	$tests['SELF']['fail_message'] = esc_html__( 'It looks like your site can not communicate properly with Jetpack.', 'jetpack' );
 
 	$self_xml_rpc_url = site_url( 'xmlrpc.php' );
+	
+	$args = array();
+	$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=', $args );
 
-	if ( preg_match( '/^https:/', $self_xml_rpc_url ) ) {
-		$tests['SELF']['result']     = wp_remote_get( preg_replace( '/^https:/', 'http:', $self_xml_rpc_url ) );
-		$tests['SELF-SEC']['result'] = wp_remote_get( $self_xml_rpc_url, array( 'sslverify' => true ) );
-		$tests['SELF-SEC']['fail_message'] = esc_html__( 'It looks like your site can not communicate properly with Jetpack.', 'jetpack' );
-	} else {
-		$tests['SELF']['result'] = wp_remote_get( $self_xml_rpc_url );
-	}
+	add_filter( 'http_request_timeout', 'jetpack_increase_timeout' );
+
+	$tests['SELF']['result'] = wp_remote_get( $testsite_url . $self_xml_rpc_url );
+	$tests['SELF']['fail_message'] = esc_html__( 'It looks like your site can not communicate properly with Jetpack.', 'jetpack' );
+	
+	remove_filter( 'http_request_timeout', 'jetpack_increase_timeout' );
 
 	?>
 	<div class="wrap">
