@@ -16,8 +16,8 @@ function shortcode_handler_bandcamp( $atts ) {
 		'bgcol'			=> 'FFFFFF',	// hex, no '#' prefix
 		'linkcol'		=> null,		// hex, no '#' prefix
 		'layout'		=> null,		// encoded layout url
-		'width'			=> null,		// integer
-		'height'		=> null,		// integer
+		'width'			=> null,		// integer with optional "%"
+		'height'		=> null,		// integer with optional "%"
 		'notracklist'	=> null,		// may be string "true" (defaults false)
 		'artwork'		=> null,		// may be string "false" (defaults true)
 		'theme'			=> null,		// may be theme identifier string ("light"|"dark" so far)
@@ -40,6 +40,8 @@ function shortcode_handler_bandcamp( $atts ) {
 	);
 
 	$sizekey = $attributes['size'];
+	$height = null;
+	$width = null;
 
 	// Build iframe url.  Args are appended as
 	// extra path segments for historical reasons having to
@@ -72,19 +74,30 @@ function shortcode_handler_bandcamp( $atts ) {
 		$attributes['size'] = 'venti';
 	}
 
-	$height = absint( $attributes['height'] ); //|| $sizes[$sizekey]['height'];
-	$width = absint( $attributes['width'] ); //|| $sizes[$sizekey]['width'];
-
-	if ( $height ) {
-		$url .= "/height={$height}";
-	} else {
-		$height = $sizes[$sizekey]['height'];
+	// use strict regex for digits + optional % instead of absint for height/width
+	// 'width' and 'height' params in the iframe url get the exact string from the shortcode
+	// args, whereas the inline style attribute must have "px" added to it if it has no "%"
+	if ( isset( $attributes['width'] ) && preg_match( "|^([0-9]+)(%)?$|", $attributes['width'], $matches ) ) {
+		$width = $csswidth = $attributes['width'];
+		if ( sizeof( $matches ) < 3 ) {
+			$csswidth .= "px";
+		}
+	}
+	if ( isset( $attributes['height'] ) && preg_match( "|^([0-9]+)(%)?$|", $attributes['height'], $matches ) ) {
+		$height = $cssheight = $attributes['height'];
+		if ( sizeof( $matches ) < 3 ) {
+			$cssheight .= "px";
+		}
 	}
 
-	if ( $width ) {
-		$url .= "/width={$width}";
-	} else {
+	if ( !$height ) {
+		$height = $sizes[$sizekey]['height'];
+		$cssheight = $height . "px";
+	}
+
+	if ( !$width ) {
 		$width = $sizes[$sizekey]['width'];
+		$csswidth = $width . "px";
 	}
 
 	if ( isset( $attributes['layout'] ) ) {
@@ -123,7 +136,7 @@ function shortcode_handler_bandcamp( $atts ) {
 
 	$url .= '/';
 
-	return "<iframe width='" . esc_attr( $width ) . "' height='" . esc_attr( $height ) . "' style='position: relative; display: block; width: " . esc_attr( $width ) . "px; height: " . esc_attr( $height ) . "px;' src='" . esc_url( $url ) . "' allowtransparency='true' frameborder='0'></iframe>";
+	return "<iframe width='" . esc_attr( $width ) . "' height='" . esc_attr( $height ) . "' style='position: relative; display: block; width: " . esc_attr( $csswidth ) . "; height: " . esc_attr( $cssheight ) . ";' src='" . esc_url( $url ) . "' allowtransparency='true' frameborder='0'></iframe>";
 }
 
 add_shortcode( 'bandcamp', 'shortcode_handler_bandcamp' );
