@@ -3,7 +3,7 @@ Contributors: automattic, apokalyptik, briancolinger, josephscott, shaunandrews,
 Tags: security, malware, virus, backups, scanning
 Requires at least: 2.9.2
 Tested up to: 3.5.2
-Stable tag: 1.4.7
+Stable tag: 1.4.8
 License: GPLv2
 
 VaultPress is a subscription service offering realtime backup, automated security scanning, and support from WordPress experts.
@@ -51,6 +51,9 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
+= 1.4.8 =
+* Feature: Include styles and images with the plugin instead of loading them externally.
+
 = 1.4.7 =
 * Bugfix: Some servers have SSL configuration problems, which breaks the plugin when SSL verification is enforced.
 
