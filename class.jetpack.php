@@ -2278,7 +2278,7 @@ p {
 		);
 		$args = wp_parse_args( $args, $defaults );
 		$base_url = apply_filters( 'jetpack_stats_base_url', ( is_ssl() ? 'https' : 'http' ) . '://stats.wordpress.com/g.gif' );
-		$url = add_query_args( $args, $base_url );
+		$url = add_query_arg( $args, $base_url );
 		return $url;
 	}
 
