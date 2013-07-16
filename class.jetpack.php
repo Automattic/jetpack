@@ -226,6 +226,15 @@ class Jetpack {
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 	}
 
+	/**
+	 * If there are any stats that need to be pushed, but haven't been, push them now.
+	 */
+	function __destruct() {
+		if ( ! empty( $this->stats ) ) {
+			$this->do_stats( 'server_side' );
+		}
+	}
+
 	function require_jetpack_authentication() {
 		// Don't let anyone authenticate
 		$_COOKIE = array();
@@ -2220,17 +2229,18 @@ p {
 	/**
 	 * Load stats pixels. $group is auto-prefixed with "x_jetpack-"
 	 */
-	function do_stats( $client_side = true ) {
+	function do_stats( $method = '' ) {
 		if ( is_array( $this->stats ) && count( $this->stats ) ) {
 			foreach ( $this->stats as $group => $stats ) {
 				if ( is_array( $stats ) && count( $stats ) ) {
 					$args = array( "x_jetpack-{$group}" => implode( ',', $stats ) );
-					if ( $client_side ) {
-						echo '<img src="' . esc_url( self::build_stats_url( $args ) ) . '" width="1" height="1" style="display:none;" />';
-					} else {
+					if ( 'server_side' === $method ) {
 						self::do_server_side_stat( $args );
+					} else {
+						echo '<img src="' . esc_url( self::build_stats_url( $args ) ) . '" width="1" height="1" style="display:none;" />';
 					}
 				}
+				unset( $this->stats[ $group ] );
 			}
 		}
 	}
