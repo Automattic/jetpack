@@ -731,8 +731,7 @@ class VaultPress {
 
 	function verify_table( $table ) {
 		global $wpdb;
-		$table = $wpdb->escape( $table );
-		$status = $wpdb->get_row( "SHOW TABLE STATUS WHERE Name = '$table'" );
+		$status = $wpdb->get_row( $wpdb->prepare( "SHOW TABLE STATUS WHERE Name = %s", $table ) );
 		if ( !$status || !$status->Update_time || !$status->Comment || $status->Engine != 'MyISAM' )
 			return true;
 		if ( preg_match( '/([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})/', $status->Comment, $m ) )
@@ -1863,7 +1862,8 @@ JS;
 				}
 				return;
 			case 'db':
-				$subtype = array_shift( array_keys( $data ) );
+				$_keys = array_keys( $data );
+				$subtype = array_shift( $_keys );
 				if ( !isset( $vaultpress_pings[$type][$subtype] ) )
 					$vaultpress_pings[$type][$subtype] = array();
 				if ( in_array( $data, $vaultpress_pings[$type][$subtype] ) )

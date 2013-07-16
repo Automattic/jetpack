@@ -237,7 +237,8 @@ class VaultPress_Hotfixes {
 			return $query;
 
 		// Pull the post_id which is the last thing in the origin query, after a space, no quotes
-		$post_id = array_pop( explode( " ", $query ) );
+		$query_parts = explode( " ", $query );
+		$post_id = array_pop( $query_parts );
 
 		// Chop off the beginning and end of the original query to get our unsanitized $tb_ping
 		$tb_ping = substr(
