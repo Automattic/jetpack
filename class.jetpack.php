@@ -2209,7 +2209,7 @@ p {
 	}
 
 	/**
-	 * Record a stat for later output
+	 * Record a stat for later output.  This will only currently output in the admin_footer.
 	 */
 	function stat( $group, $detail ) {
 		if ( !isset( $this->stats[ $group ] ) )
@@ -2218,15 +2218,58 @@ p {
 	}
 
 	/**
-	 * Load stats pixels. $group is auto-prefixed with "jetpack-"
+	 * Load stats pixels. $group is auto-prefixed with "x_jetpack-"
 	 */
-	function do_stats() {
+	function do_stats( $client_side = true ) {
 		if ( is_array( $this->stats ) && count( $this->stats ) ) {
 			foreach ( $this->stats as $group => $stats ) {
-				if ( is_array( $stats ) && count( $stats ) )
-					echo '<img src="' . ( is_ssl() ? 'https' : 'http' ) . '://stats.wordpress.com/g.gif?v=wpcom2&x_jetpack-' . esc_attr( $group ) . '=' . esc_attr( implode( ',', $stats ) ) . '&rand=' . md5( mt_rand( 0, 999 ) . time() ) . '" width="1" height="1" style="display:none;" />';
+				if ( is_array( $stats ) && count( $stats ) ) {
+					$args = array( "x_jetpack-{$group}" => implode( ',', $stats ) );
+					if ( $client_side ) {
+						echo '<img src="' . esc_url( self::build_stats_url( $args ) ) . '" width="1" height="1" style="display:none;" />';
+					} else {
+						self::do_server_side_stat( $args );
+					}
+				}
 			}
 		}
+	}
+
+	/**
+	 * Runs stats code for a one-off, server-side.
+	 *
+	 * @param $args array|string The arguments to append to the URL. Should include `x_jetpack-{$group}={$stats}` or whatever we want to store.
+	 *
+	 * @return bool If it worked.
+	 */
+	static function do_server_side_stat( $args ) {
+		$response = wp_remote_head( self::build_stats_url( $args ) );
+
+		if ( is_wp_error( $response ) )
+			return false;
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) )
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * Builds the stats url.
+	 *
+	 * @param $args array|string The arguments to append to the URL.
+	 *
+	 * @return string The URL to be pinged.
+	 */
+	static function build_stats_url( $args ) {
+		$defaults = array(
+			'v'    => 'wpcom2',
+			'rand' => md5( mt_rand( 0, 999 ) . time() ),
+		);
+		$args = wp_parse_args( $args, $defaults );
+		$base_url = apply_filters( 'jetpack_stats_base_url', ( is_ssl() ? 'https' : 'http' ) . '://stats.wordpress.com/g.gif' );
+		$url = add_query_args( $args, $base_url );
+		return $url;
 	}
 
 	function translate_current_user_to_role() {
