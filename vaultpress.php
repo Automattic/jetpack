@@ -1712,7 +1712,7 @@ JS;
 		if ( $sig[0] === $signature )
 			return true;
 
-		$__vp_validate_error = array( 'error' => 'invalid_signed_data', 'detail' => array( 'actual' => $sig[0], 'needed' => $signature ) );
+		$__vp_validate_error = array( 'error' => 'invalid_signed_data' );
 		return false;
 	}
 
