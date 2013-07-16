@@ -38,7 +38,7 @@ Features include:
 * Creative formats for your image galleries: mosaic, circles, squares, and a slideshow view.
 * Add post sliders and other highlights to your theme with Featured Content.
 * Search once, get results from everything! A single search box that lets you search posts, pages, comments, and plugins
-* and *many* more to come!
+* and many more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.
 
