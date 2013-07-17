@@ -175,6 +175,10 @@ SCRIPT;
 							$margins = 'margin: 0px 0px 0px 10px';
 					}
 
+					if ( get_current_theme() == 'Breathe' ) {
+						$inline = true;
+					}
+
 					if ( $cb === false && !$inline ) {
 						if ( self::$scripts === false )
 							self::$scripts = array();
