@@ -1,7 +1,7 @@
 <?php
 
 class Jetpack_Heartbeat {
-	
+
 	/**
 	 * Jetpack object
 	 * 
@@ -9,7 +9,7 @@ class Jetpack_Heartbeat {
 	 * @var Jetpack 
 	 */
 	var $jetpack = null;
-	
+
 	/**
 	 * Holds the singleton instance of this class
 	 * 
@@ -17,7 +17,7 @@ class Jetpack_Heartbeat {
 	 * @var Jetpack_Heartbeat 
 	 */
 	static $instance = false;
-	
+
 	private $cron_name = 'jetpack_heartbeat';
 
 	/**
@@ -62,8 +62,7 @@ class Jetpack_Heartbeat {
 	 * @global string $wp_version 
 	 */
 	public function cron_exec() {
-		global $wp_version;
-		
+
 		/*
 		 * Check for an identity crisis
 		 * 
@@ -71,9 +70,9 @@ class Jetpack_Heartbeat {
 		 * - Bump stat for ID crisis
 		 * - Email site admin about potential ID crisis
 		 */ 
-		
-		
-		
+
+
+
 		/**
 		 * Setup an array of items that will eventually be stringified
 		 * and sent off to the Jetpack API 
@@ -82,14 +81,28 @@ class Jetpack_Heartbeat {
 		 * - values should be an array that will be imploded to a string
 		 */
 
-		$this->jetpack->stat( 'active-modules', implode( ',', $this->jetpack->get_active_modules() ) );
-		$this->jetpack->stat( 'active', JETPACK__VERSION );
-		$this->jetpack->stat( 'wp-version', $wp_version );
-		$this->jetpack->stat( 'php-version', PHP_VERSION );
-		// DATABASE AND VERSION?
-		$this->jetpack->stat( 'ssl',  Jetpack::permit_ssl() );
-		
-		$this->jetpack->do_stats( 'server_side' );
+		$jetpack = $this->jetpack;
+
+		$jetpack->stat( 'active-modules', implode( ',', $this->jetpack->get_active_modules() ) );
+		$jetpack->stat( 'active',         JETPACK__VERSION                                     );
+		$jetpack->stat( 'wp-version',     get_bloginfo( 'version' )                            );
+		$jetpack->stat( 'php-version',    PHP_VERSION                                          );
+		$jetpack->stat( 'ssl',            $jetpack->permit_ssl()                               );
+		$jetpack->stat( 'language',       get_bloginfo( 'language' )                           );
+		$jetpack->stat( 'charset',        get_bloginfo( 'charset' )                            );
+		$jetpack->stat( 'qty-posts',      wp_count_posts()->publish                            );
+		$jetpack->stat( 'qty-pages',      wp_count_posts( 'page' )->publish                    );
+		$jetpack->stat( 'qty-comments',   wp_count_comments()->approved                        );
+
+		// Only check a few plugins, to see if they're currently active.
+		$plugins_to_check = array(
+			'vaultpress/vaultpress.php',
+			'akismet/akismet.php',
+			'wp-super-cache/wp-cache.php',
+		);
+		$jetpack->stat( 'plugins', array_intersect( $plugins_to_check, get_option( 'active_plugins', array() ) );
+
+		$jetpack->do_stats( 'server_side' );
 	}
 
 	/**
@@ -105,7 +118,7 @@ class Jetpack_Heartbeat {
 		);
 		return $schedules;
 	}
-	
+
 	public function deactivate() {
 		$timestamp = wp_next_scheduled( $this->cron_name );
 		wp_unschedule_event($timestamp, $this->cron_name );
