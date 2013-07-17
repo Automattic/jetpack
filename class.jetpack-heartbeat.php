@@ -1,22 +1,66 @@
 <?php
 
 class Jetpack_Heartbeat {
+	
+	/**
+	 * Jetpack object
+	 * 
+	 * @since 2.3.3
+	 * @var Jetpack 
+	 */
 	var $jetpack = null;
+	
+	/**
+	 * Holds the singleton instance of this class
+	 * 
+	 * @since 2.3.3
+	 * @var Jetpack_Heartbeat 
+	 */
+	static $instance = false;
+	
+	private $cron_name = 'jetpack_heartbeat';
 
-	public function __construct() {
+	/**
+	 * Singleton
+	 * 
+	 * @since 2.3.3
+	 * @static
+	 * @return Jetpack_Heartbeat
+	 */
+	public static function init() {
+		if ( ! self::$instance ) {
+			self::$instance = new Jetpack_Heartbeat;
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Constructor for singleton
+	 * 
+	 * @since 2.3.3
+	 * @return Jetpack_Heartbeat 
+	 */
+	private function __construct() {
 		$this->jetpack = Jetpack::init();
 
 		// Add weekly interval for wp-cron
-		add_filter('cron_schedules', array($this, 'add_cron_intervals'));
+		add_filter('cron_schedules', array( $this, 'add_cron_intervals' ) );
 
 		// Schedule the task
-		add_action('jetpack_heartbeat', array( $this, 'cron_exec' ) );
+		add_action( $this->cron_name, array( $this, 'cron_exec' ) );
 
-		if (!wp_next_scheduled('jetpack_heartbeat')) {
-			wp_schedule_event(time(), 'jetpack_weekly', 'jetpack_heartbeat');
+		if (!wp_next_scheduled( $this->cron_name ) ) {
+			wp_schedule_event( time(), 'jetpack_weekly', $this->cron_name );
 		}
 	}
 	
+	/**
+	 * Method that gets executed on the wp-cron call
+	 * 
+	 * @since 2.3.3
+	 * @global string $wp_version 
+	 */
 	public function cron_exec() {
 		global $wp_version;
 		
@@ -26,7 +70,6 @@ class Jetpack_Heartbeat {
 		 * If one exists:
 		 * - Bump stat for ID crisis
 		 * - Email site admin about potential ID crisis
-		 * - Abort the rest of the heartbeat
 		 */ 
 		
 		
@@ -44,13 +87,14 @@ class Jetpack_Heartbeat {
 		$this->jetpack->stat( 'wp-version', $wp_version );
 		$this->jetpack->stat( 'php-version', PHP_VERSION );
 		// DATABASE AND VERSION?
-		$this->jetpack->stat( 'ssl',  Jetpack::is_ssl() );
-
-		// For the future - $data = apply_filters( 'jetpack_heartbeat_data', $data );
+		$this->jetpack->stat( 'ssl',  Jetpack::permit_ssl() );
+		
+		$this->jetpack->do_stats( 'server_side' );
 	}
 
 	/**
-	 *
+	 * Adds additional Jetpack specific intervals to wp-cron
+	 * 
 	 * @since 2.3.3
 	 * @return array 
 	 */
@@ -61,7 +105,10 @@ class Jetpack_Heartbeat {
 		);
 		return $schedules;
 	}
+	
+	public function deactivate() {
+		$timestamp = wp_next_scheduled( $this->cron_name );
+		wp_unschedule_event($timestamp, $this->cron_name );
+	}
 
-}
-
-// end class
+}// end class

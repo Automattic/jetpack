@@ -79,26 +79,31 @@ class Jetpack {
 	 * Verified data for JSON authorization request
 	 */
 	var $json_api_authorization_request = array();
+	
+	/**
+	 * Holds the singleton instance of this class
+	 * @since 2.3.3
+	 * @var Jetpack 
+	 */
+	static $instance = false;
 
 	/**
 	 * Singleton
 	 * @static
 	 */
 	public static function init() {
-		static $instance = false;
-
-		if ( ! $instance ) {
+		if ( ! self::$instance ) {
 			if ( did_action( 'plugins_loaded' ) )
 				self::plugin_textdomain();
 			else
 				add_action( 'plugins_loaded', array( __CLASS__, 'plugin_textdomain' ) );
 
-			$instance = new Jetpack;
+			self::$instance = new Jetpack;
 
-			$instance->plugin_upgrade();
+			self::$instance->plugin_upgrade();
 		}
 
-		return $instance;
+		return self::$instance;
 	}
 
 	/**
@@ -150,7 +155,8 @@ class Jetpack {
 	/**
 	 * Constructor.  Initializes WordPress hooks
 	 */
-	function Jetpack() {
+	private function Jetpack() {		
+		
 		$this->sync = new Jetpack_Sync;
 
 		// Modules should do Jetpack_Sync::sync_options( __FILE__, $option, ... ); instead
@@ -1141,8 +1147,10 @@ p {
 	 * Removes all connection options
 	 * @static
 	 */
-	public static function plugin_deactivation( $network_wide ) {
+	public static function plugin_deactivation( ) {
 		Jetpack::disconnect( false );
+		
+		Jetpack_Heartbeat::init()->deactivate();
 	}
 
 	/**
@@ -2258,8 +2266,7 @@ p {
 	 * @return bool If it worked.
 	 */
 	static function do_server_side_stat( $args ) {
-		$response = wp_remote_head( self::build_stats_url( $args ) );
-
+        $response = wp_remote_get( self::build_stats_url( $args ) );
 		if ( is_wp_error( $response ) )
 			return false;
 

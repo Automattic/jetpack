@@ -44,6 +44,7 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-error.php'         );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-debugger.php'      );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-heartbeat.php'               );
 require_once( JETPACK__PLUGIN_DIR . 'class.photon.php'                );
 require_once( JETPACK__PLUGIN_DIR . 'functions.photon.php'            );
 require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
@@ -53,6 +54,7 @@ register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
 
 add_action( 'init', array( 'Jetpack', 'init' ) );
+add_action( 'init', array( 'Jetpack_Heartbeat', 'init' ), 100 );
 add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
 
@@ -60,6 +62,6 @@ add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
 if ( is_admin() && ! Jetpack::check_identity_crisis() ) {
 	Jetpack_Sync::sync_options( __FILE__, 'db_version', 'jetpack_active_modules', 'active_plugins' );
 }
-/**/
+ */
 
 Jetpack_Sync::sync_options( __FILE__, 'widget_twitter' );
