@@ -100,7 +100,7 @@ class Jetpack_Heartbeat {
 			'akismet/akismet.php',
 			'wp-super-cache/wp-cache.php',
 		);
-		$jetpack->stat( 'plugins', array_intersect( $plugins_to_check, get_option( 'active_plugins', array() ) );
+		$jetpack->stat( 'plugins', array_intersect( $plugins_to_check, get_option( 'active_plugins', array() ) ) );
 
 		$jetpack->do_stats( 'server_side' );
 	}
