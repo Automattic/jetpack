@@ -155,8 +155,7 @@ class Jetpack {
 	/**
 	 * Constructor.  Initializes WordPress hooks
 	 */
-	private function Jetpack() {		
-		
+	private function Jetpack() {
 		$this->sync = new Jetpack_Sync;
 
 		// Modules should do Jetpack_Sync::sync_options( __FILE__, $option, ... ); instead
@@ -1149,7 +1148,7 @@ p {
 	 */
 	public static function plugin_deactivation( ) {
 		Jetpack::disconnect( false );
-		
+
 		Jetpack_Heartbeat::init()->deactivate();
 	}
 
@@ -2266,7 +2265,7 @@ p {
 	 * @return bool If it worked.
 	 */
 	static function do_server_side_stat( $args ) {
-        $response = wp_remote_get( self::build_stats_url( $args ) );
+		$response = wp_remote_get( self::build_stats_url( $args ) );
 		if ( is_wp_error( $response ) )
 			return false;
 
