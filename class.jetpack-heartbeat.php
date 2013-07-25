@@ -93,6 +93,7 @@ class Jetpack_Heartbeat {
 		$jetpack->stat( 'qty-posts',      wp_count_posts()->publish                            );
 		$jetpack->stat( 'qty-pages',      wp_count_posts( 'page' )->publish                    );
 		$jetpack->stat( 'qty-comments',   wp_count_comments()->approved                        );
+		$jetpack->stat( 'is-multisite',   is_multisite() ? 'multisite' : 'singlesite'          );
 
 		// Only check a few plugins, to see if they're currently active.
 		$plugins_to_check = array(
@@ -100,7 +101,10 @@ class Jetpack_Heartbeat {
 			'akismet/akismet.php',
 			'wp-super-cache/wp-cache.php',
 		);
-		$jetpack->stat( 'plugins', array_intersect( $plugins_to_check, get_option( 'active_plugins', array() ) ) );
+		$plugins = array_intersect( $plugins_to_check, get_option( 'active_plugins', array() ) );
+		foreach( $plugins as $plugin ) {
+			$jetpack->stat( 'plugins', $plugin );
+		}
 
 		$jetpack->do_stats( 'server_side' );
 	}
