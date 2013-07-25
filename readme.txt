@@ -80,6 +80,11 @@ Easy! There are a couple of ways (more coming soon):
 
 == Changelog ==
 
+= 2.3.2 =
+* Bug Fix: Fixed an issue where Facebook Pages were not available when connecting a Publicize account.
+* Bug Fix: For some web hosts, fixed an issue where 'Jetpack ID' error would occur consistently on connecting to WordPress.com.
+* Enhancement: Adding some new stats and heartbeat checking to Jetpack.
+
 = 2.3.1 =
 * Enhancement: Social Links: Retooling the class for better consistency and performance behind the scenes.
 * Enhancement: Omnisearch: Make it easier to search Custom Post Types.  No longer need to extend the class, if all you want is a basic display.  Just call `new Jetpack_Omnisearch_Posts( 'cpt' );`
