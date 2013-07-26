@@ -80,6 +80,11 @@ Easy! There are a couple of ways (more coming soon):
 
 == Changelog ==
 
+= 2.3.3 =
+* Bug Fix: We were inadvertently overwriting cron schedules with our Jetpack heartbeat. This should now be fixed.
+* Enhancement: New Facebook Sharing icons.
+* Enhancement: Minor update to the Minileven stylesheet.
+
 = 2.3.2 =
 * Bug Fix: Fixed an issue where Facebook Pages were not available when connecting a Publicize account.
 * Bug Fix: For some web hosts, fixed an issue where 'Jetpack ID' error would occur consistently on connecting to WordPress.com.
