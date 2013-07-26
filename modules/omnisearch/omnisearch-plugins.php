@@ -56,5 +56,6 @@ class Jetpack_Omnisearch_Plugins extends WP_Plugin_Install_List_Table {
 		return array();
 	}
 
-	function pagination() {}
+	function pagination( $which ) {}
 }
+

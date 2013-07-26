@@ -613,7 +613,7 @@ function jetpack_mobile_push_notifications_more_info() { ?>
 
 	<h4><?php esc_html_e( 'Mobile Push Notifications' , 'jetpack' ); ?></h4>
 
-	<p><?php _e( 'If you have your blog added to the <a href="http://ios.wordpress.org/">WordPress for iOS app</a>, you’ll now be able to opt in to receive push notifications of new comments, which makes it easier than ever to keep up with your readers and moderate comments on the go.', 'jetpack' ); ?></p>
+	<p><?php echo sprintf( __( 'If you use <a href="%1$s">WordPress for iOS</a> or <a href="%2$s">WordPress for Android</a>, you’ll now be able to opt in to receive push notifications of new comments, which makes it easier than ever to keep up with your readers and moderate comments on the go.', 'jetpack' ), 'http://ios.wordpress.org/', 'http://android.wordpress.org/' ); ?></p>
 
 <?php
 }
@@ -808,7 +808,7 @@ function jetpack_omnisearch_more_info() { ?>
 
 	<p><?php esc_html_e( 'Omnisearch plays nice with other plugins by letting other providers offer results as well.', 'jetpack' ); ?></p>
 
-	<?php if( class_exists( 'Jetpack_Omnisearch' ) ): ?>
+	<?php if( class_exists( 'Jetpack_Omnisearch' ) && current_user_can( 'edit_posts' ) ): ?>
 		<?php echo Jetpack_Omnisearch::get_omnisearch_form(); ?>
 	<?php endif; ?>
 

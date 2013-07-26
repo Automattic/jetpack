@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Social Links.
  *
@@ -10,8 +11,14 @@
  *     'facebook', 'twitter', 'linkedin', 'tumblr',
  * ) );
  */
-
 class Social_Links {
+
+	/**
+	 * The links the user set for each service.
+	 *
+	 * @var array
+	 */
+	private $links;
 
 	/**
 	 * A Publicize object.
@@ -26,54 +33,42 @@ class Social_Links {
 	 *
 	 * @var array
 	 */
-	private $services;
+	private $services = array();
 
 	/**
-	 * Conditionally hook into WordPress.
-	 *
-	 * If Publicise is not activated, there is no need to hook into WordPress.
-	 * We'll just return early instead.
+	 * Constructor.
 	 */
 	public function __construct() {
-
-		if ( ! class_exists( 'Publicize' ) ) {
-			add_action( 'admin_notices', array( $this, 'admin_notice' ) );
-			return;
-		}
-
-		global $publicize;
 		$theme_support = get_theme_support( 'social-links' );
 
 		/* An array of named arguments must be passed as the second parameter
 		 * of add_theme_support().
 		 */
-		if ( ! isset( $theme_support[0] ) || empty( $theme_support[0] ) || ! isset( $publicize ) )
+		if ( ! isset( $theme_support[0] ) || empty( $theme_support[0] ) )
 			return;
 
-		$this->publicize = $publicize;
+		$this->links = Jetpack_Options::get_option( 'social_links', array() );
 
-		$this->services  = array_intersect(
-			array_keys( $this->publicize->get_services( 'connected' ) ),
-			$theme_support[0]
-		);
+		global $publicize;
 
-		add_action( 'customize_register', array( $this, 'customize_register' ) );
+		if ( is_a( $publicize, 'Publicize' ) ) {
+			$this->publicize = $publicize;
+			$this->services  = array_intersect(
+				array_keys( $this->publicize->get_services( 'connected' ) ),
+				$theme_support[0]
+			);
 
-		foreach ( $this->services as $service ) {
-			// Enable the `get_option( 'jetpack-service' );` shortcut
-			add_filter( "pre_option_jetpack-{$service}", array( $this, 'get_social_link_filter' ) );
-			// Enable the `get_theme_mod( 'jetpack-service' );` shortcut
-			add_filter( "theme_mod_jetpack-{$service}", array( $this, 'get_social_link_filter' ) );
+			add_action( 'customize_register', array( $this, 'customize_register' ) );
+			add_filter( 'sanitize_option_jetpack_options', array( $this, 'sanitize_link' ) );
 		}
-	}
 
-	/**
-	 * Let the user know about activation Publicize - otherwise the theme lacks
-	 * social links.
-	 */
-	public function admin_notice() {
-		add_settings_error( 'jetpack_social_links', 'publicize-not-activated', __( "Your theme supports Jetpack's Social Links. Please activate Publicize to start connecting services.", 'jetpack' ), 'updated' );
-		settings_errors( 'jetpack_social_links' );
+		add_filter( 'jetpack_has_social_links', array( $this, 'has_social_links' ) );
+		add_filter( 'jetpack_get_social_links', array( $this, 'get_social_links' ) );
+
+		foreach ( $theme_support[0] as $service ) {
+			add_filter( "pre_option_jetpack-$service", array( $this, 'get_social_link_filter' ) ); // get_option( 'jetpack-service' );
+			add_filter( "theme_mod_jetpack-$service",  array( $this, 'get_social_link_filter' ) ); // get_theme_mod( 'jetpack-service' );
+		}
 	}
 
 	/**
@@ -89,9 +84,8 @@ class Social_Links {
 
 		foreach ( $this->services as $service ) {
 			$wp_customize->add_setting( "jetpack_options[social_links][$service]", array(
-				'type'              => 'option',
-				'default'           => '',
-				'sanitize_callback' => 'esc_url_raw',
+				'type'    => 'option',
+				'default' => '',
 			) );
 
 			$wp_customize->add_control( "jetpack-$service", array(
@@ -102,6 +96,54 @@ class Social_Links {
 				'choices'  => $this->get_customize_select( $service ),
 			) );
 		}
+	}
+
+	/**
+	 * Sanitizes social links.
+	 *
+	 * @param array $option The incoming values to be sanitized.
+	 * @returns array
+	 */
+	public function sanitize_link( $option ) {
+		foreach ( $this->services as $service ) {
+			if ( ! empty( $option['social_links'][ $service ] ) )
+				$option['social_links'][ $service ] = esc_url_raw( $option['social_links'][ $service ] );
+			else
+				unset( $option['social_links'][ $service ] );
+		}
+
+		return $option;
+	}
+
+	/**
+	 * Returns whether there are any social links set.
+	 *
+	 * @returns bool
+	 */
+	public function has_social_links() {
+		return ! empty( $this->links );
+	}
+
+	/**
+	 * Return available social links.
+	 *
+	 * @returns array
+	 */
+	public function get_social_links() {
+		return $this->links;
+	}
+
+	/**
+	 * Short-circuits get_option and get_theme_mod calls.
+	 *
+	 * @param string $link The incoming value to be replaced.
+	 * @returns string $link The social link that we've got.
+	 */
+	public function get_social_link_filter( $link ) {
+		if ( preg_match( '/_jetpack-(.+)$/i', current_filter(), $matches ) && ! empty( $this->links[ $matches[1] ] ) )
+			return $this->links[ $matches[1] ];
+
+		return $link;
 	}
 
 	/**
@@ -122,40 +164,6 @@ class Social_Links {
 
 		return $choices;
 	}
-
-	/**
-	 * Short-circuits get_option and get_theme_mod calls.
-	 * add_filter( "pre_option_jetpack-{$service}", array( $this, 'get_social_link_filter' ) );
-	 * add_filter( "theme_mod_jetpack-{$service}", array( $this, 'get_social_link_filter' ) );
-	 *
-	 * @param $link The incoming value to be replaced.
-	 * @returns $link The social link that we've got.
-	 */
-	public function get_social_link_filter( $link ) {
-		if ( preg_match( '/_jetpack-(.+)$/i', current_filter(), $matches ) ) {
-			$service = $matches[1];
-			if ( in_array( $service, $this->services ) ) {
-				$link = $this->get_link( $service );
-			}
-		}
-		return $link;
-	}
-
-	/**
-	 * Just a shortcut to the serialized Jetpack options.
-	 *
-	 * @param string $service The name of the service that we're looking for.
-	 * @param string $default The data to return if we've not got anything on file.
-	 * @returns string $link The social link that we've got, or the default if not.
-	 */
-	private function get_link( $service, $default = '' ) {
-		$links = Jetpack::get_option( 'social_links', array() );
-		if( ! empty( $links[ $service ] ) )
-			return $links[ $service ];
-
-		return $default;
-	}
-
 }
 
 $jetpack_social_links = new Social_Links;

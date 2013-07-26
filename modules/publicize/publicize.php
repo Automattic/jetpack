@@ -211,8 +211,7 @@ abstract class Publicize_Base {
 		$cron_user = null;
 		$submit_post = true;
 
-		// don't do anything if its not actually a post
-		if ( 'post' !== $post->post_type )
+		if ( ! $this->post_type_is_publicizeable( $post->post_type ) )
 			return;
 
 		// Don't Publicize during certain contexts:
@@ -330,5 +329,21 @@ abstract class Publicize_Base {
 		}
 
 		// Next up will be ::publicize_post()
+	}
+
+	/**
+	 * Is a given post type Publicize-able?
+	 *
+	 * Not every CPT lends itself to Publicize-ation.  Allow CPTs to register by adding their CPT via
+	 * the publicize_post_types array filter.
+	 *
+	 * @param string $post_type The post type to check.
+	 * $return bool True if the post type can be Publicized.
+	 */
+	function post_type_is_publicizeable( $post_type ) {
+		if ( 'post' == $post_type )
+			return true;
+
+		return post_type_supports( $post_type, 'publicize' );
 	}
 }

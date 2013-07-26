@@ -707,7 +707,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 <p>
 	<label for="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>">
 		<input type="checkbox" id="<?php echo $this->get_field_id( 'show_subscribers_total' ); ?>" name="<?php echo $this->get_field_name( 'show_subscribers_total' ); ?>" value="1"<?php echo $show_subscribers_total; ?> />
-		<?php echo esc_html( sprintf( _n( 'Show total number of subscribers? (%s subscriber)', 'Show total number of subscribers? (%s subscribers)', $subscribers_total, 'jetpack' ), number_format_i18n( $subscribers_total ) ) ); ?>
+		<?php echo esc_html( sprintf( _n( 'Show total number of subscribers? (%s subscriber)', 'Show total number of subscribers? (%s subscribers)', $subscribers_total, 'jetpack' ), $subscribers_total ) ); ?>
 	</label>
 </p>
 <?php

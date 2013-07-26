@@ -273,7 +273,7 @@ class Jetpack_Tiled_Gallery {
 	}
 
 	public function gallery_classes() {
-		$classes = 'class="tiled-gallery type-' . esc_attr( $this->atts['type'] ) . '"';
+		$classes = 'class="tiled-gallery type-' . esc_attr( $this->atts['type'] ) . ' tiled-gallery-unresized"';
 		return $classes;
 	}
 

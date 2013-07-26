@@ -51,9 +51,10 @@ TiledGallery.prototype.Captions = function() {
 	/* Hide captions */
 	this.caption.hide();
 
-	this.item.on( 'mouseenter mouseleave', function() {
-		$( this ).find( '.tiled-gallery-caption' ).slideToggle( 'fast' );
-	});
+	this.item.hover(
+		function() { $( this ).find( '.tiled-gallery-caption' ).slideDown( 'fast' ); },
+		function() { $( this ).find( '.tiled-gallery-caption' ).slideUp( 'fast' ); }
+	);
 };
 
 TiledGallery.prototype.resize = function() {
@@ -134,6 +135,8 @@ TiledGallery.prototype.resize = function() {
 				.width( Math.floor( resizeRatio * thisGalleryElement.data( 'original-width' ) ) - thisGalleryElement.data( 'extra-width' ) )
 				.height( Math.floor( resizeRatio * thisGalleryElement.data( 'original-height' ) ) - thisGalleryElement.data( 'extra-height' ) );
 		} );
+
+		thisGallery.removeClass( 'tiled-gallery-unresized' );
 	} );
 };
 

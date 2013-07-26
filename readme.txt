@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, lancewillett, martinremy, matt, matveb, mdawaffe, migueluy, nickmomrik, pento, stephdau, tmoorewp, viper007bond, westi, yoavf
+Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, lancewillett, martinremy, matt, matveb, mdawaffe, migueluy, nickmomrik, pento, stephdau, tmoorewp, Viper007Bond, westi, yoavf
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow
 Requires at least: 3.3
 Tested up to: 3.5
-Stable tag: 2.3
+Stable tag: 2.3.2
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
 
@@ -79,6 +79,30 @@ Easy! There are a couple of ways (more coming soon):
 8. Mobile Theme
 
 == Changelog ==
+
+= 2.3.2 =
+* Bug Fix: Fixed an issue where Facebook Pages were not available when connecting a Publicize account.
+* Bug Fix: For some web hosts, fixed an issue where 'Jetpack ID' error would occur consistently on connecting to WordPress.com.
+* Enhancement: Adding some new stats and heartbeat checking to Jetpack.
+
+= 2.3.1 =
+* Enhancement: Social Links: Retooling the class for better consistency and performance behind the scenes.
+* Enhancement: Omnisearch: Make it easier to search Custom Post Types.  No longer need to extend the class, if all you want is a basic display.  Just call `new Jetpack_Omnisearch_Posts( 'cpt' );`
+* Enhancement: Sharing Buttons: LinkedIn: Use the official button's sharing link on the Jetpack implementation for a more consistent sharing experience and produce better results on LinkedIn's end.
+* Enhancement: Debug / Connection: Better logic in determining whether the server can use SSL to connect to WPCOM servers.
+* Enhancement: Sharing: Twitter: Calculate the size of the Tweet based on the short URL rather than the full URL size.
+* Enhancement: Debug: More readable and understandable messages.
+* Enhancement: Likes: Including some MP6 styles.
+* Enhancement: Comments: Add new core classes to comment form.  See http://core.trac.wordpress.org/changeset/24525
+* Bug Fix: Omnisearch: Don't load everything initially, run the providers off admin_init, and then issue an action for folks to hook into.
+* Bug Fix: Omnisearch: Modify some child class functions to match the parent's parameters and avoid strict notices in newer versions of PHP.
+* Bug Fix: Omnisearch: Hide the search form in the module description if the current user can't use it.
+* Bug Fix: Comment Form: Use edit_pages, not edit_page (fixes glitch in previous beta, never publicly released).
+* Bug Fix: Twitter Timeline Widget: Additional testing of values and casting to default if they are nonconforming.
+* Bug Fix: Sharing: Pinterest: Make the button wider if there's a count to avoid overlapping with others.
+* Bug Fix: Post By Email: Change configuration_redirect to static.
+* Bug Fix: Likes: Don't call configuration_redirect as a static, do it as a method.
+* Bug Fix: Add some further security measures to module activation.
 
 = 2.3 =
 * Enhancement: Omnisearch: Search once, get results from everything! Omnisearch is a single search box that lets you search many different things

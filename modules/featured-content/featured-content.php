@@ -41,7 +41,7 @@ class Featured_Content {
 	 * All custom functionality will be hooked into the "init" action.
 	 */
 	public static function setup() {
-		add_action( 'init', array( __class__, 'init' ) );
+		add_action( 'init', array( __class__, 'init' ), 30 );
 	}
 
 	/**

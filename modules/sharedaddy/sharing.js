@@ -256,7 +256,7 @@ var WPCOMSharing = {
 						key = $( '#recaptcha_public_key' ).val();
 
 					// Update the recaptcha
-					Recaptcha.create( key, 'sharing_recaptcha' );
+					Recaptcha.create( key, 'sharing_recaptcha', { lang : recaptcha_options.lang } );
 
 					// Show dialog
 					$( '#sharing_email' ).css( {

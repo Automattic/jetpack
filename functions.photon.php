@@ -80,7 +80,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 
 	return jetpack_photon_url_scheme( $photon_url, $scheme );
 }
-
+add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
 
 /**
  * WordPress.com

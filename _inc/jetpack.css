@@ -28,6 +28,93 @@
 /*
  * Jetpack:
  */
+
+/* Force the menu not to be sticky, so we can color the arrow. */
+.toplevel_page_jetpack.admin-color-mp6.sticky-menu #adminmenuwrap,
+body[class*=" jetpack_page_jetpack_"].admin-color-mp6.sticky-menu #adminmenuwrap {
+	position: relative;
+	z-index: auto;
+	top: 0;
+}
+
+.toplevel_page_jetpack.admin-color-mp6 ul#adminmenu a.wp-has-current-submenu:after,
+.toplevel_page_jetpack.admin-color-mp6 ul#adminmenu > li.current > a.current:after,
+body[class*=" jetpack_page_jetpack_"].admin-color-mp6 ul#adminmenu a.wp-has-current-submenu:after,
+body[class*=" jetpack_page_jetpack_"].admin-color-mp6 ul#adminmenu > li.current > a.current:after {
+	border-right-color:#8fad4b;
+}
+
+.toplevel_page_jetpack.jetpack-disconnected #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-disconnected #wpwrap {
+	background: url(images/header-clouds.png) -150px -60px repeat-x;
+}
+
+.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6 #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.admin-color-mp6 #wpwrap {
+	background-position: -143px -60px;
+}
+
+.toplevel_page_jetpack.jetpack-disconnected.folded #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.folded #wpwrap {
+	background-position: -263px -60px;
+}
+
+.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6.folded #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.admin-color-mp6.folded #wpwrap {
+	background-position: -257px -60px;
+}
+
+.toplevel_page_jetpack.jetpack-connected #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-connected #wpwrap {
+	background: url(images/header-clouds-small.png) 45px 0 repeat-x;
+}
+
+.toplevel_page_jetpack.jetpack-connected.admin-color-mp6 #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-connected.admin-color-mp6 #wpwrap {
+	background-position: 52px 0;
+}
+
+.toplevel_page_jetpack.jetpack-connected.folded #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-connected.folded #wpwrap {
+	background-position: -68px 0;
+}
+
+.toplevel_page_jetpack.jetpack-connected.admin-color-mp6.folded #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-connected.admin-color-mp6.folded #wpwrap {
+	background-position: -62px 0;
+}
+
+@media only screen and (max-width: 900px) {
+
+	.toplevel_page_jetpack.jetpack-disconnected.auto-fold #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.auto-fold #wpwrap {
+		background-position: -263px -60px;
+	}
+
+	.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6.auto-fold #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.admin-color-mp6.auto-fold #wpwrap {
+		background-position: -257px -60px;
+	}
+
+	.toplevel_page_jetpack.jetpack-connected.auto-fold #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-connected.auto-fold #wpwrap {
+		background-position: -68px 0;
+	}
+
+	.toplevel_page_jetpack.jetpack-connected.admin-color-mp6.auto-fold #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-connected.admin-color-mp6.auto-fold #wpwrap {
+		background-position: -62px 0;
+	}
+
+}
+
+.toplevel_page_jetpack.screen-meta-wrap {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	z-index: 2;
+}
+
 #jp-header {
 	min-width: 741px;
 	z-index: 0;
@@ -35,18 +122,15 @@
 }
 
 #jp-header.small {
-	margin-bottom: 50px;
+	margin: 20px 0 50px;
 }
 
 #jp-header #jp-clouds {
 	position: relative;
-	background: transparent url(images/header-clouds.png) -315px 100% repeat-x;
 	padding-top: 110px;
-	border-radius: 3px;
 }
 
 #jp-header.small #jp-clouds {
-	background: transparent url(images/header-clouds-small.png) -120px 100% repeat-x;
 	padding: 50px 0 0 0;
 	height: 70px;
 }
@@ -101,23 +185,25 @@
 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
 	only screen and (min-device-pixel-ratio: 1.5) {
 
-	#jp-header #jp-clouds {
-		background: transparent url(images/header-clouds-2x.png) -315px 100% repeat-x;
+	.toplevel_page_jetpack.jetpack-disconnected #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-disconnected #wpwrap {
+		background-image: url(images/header-clouds-2x.png);
 		background-size: 1600px 400px;
 	}
 
-	#jp-header.small #jp-clouds {
-		background: transparent url(images/header-clouds-small-2x.png) -120px 100% repeat-x;
+	.toplevel_page_jetpack.jetpack-connected #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-connected #wpwrap {
+		background-image: url(images/header-clouds-small-2x.png);
 		background-size: 980px 140px;
 	}
 
 	#jp-header #jp-clouds .jp-disconnect a {
-		background: #8caa46 url(images/status-light-2x.png) 3px 85% no-repeat;
+		background-image: url(images/status-light-2x.png);
 		background-size: 25px 57px;
 	}
 
 	#jp-header #jp-clouds .jp-disconnect a:hover {
-		background: #8caa46 url(images/status-light-2x.png) 3px -2% no-repeat;
+		background-image: url(images/status-light-2x.png);
 		background-size: 25px 57px;
 	}
 
@@ -150,12 +236,12 @@
 	only screen and (min-device-pixel-ratio: 1.5) {
 
 	#jp-header h3 {
-		background: transparent url(images/logo-2x.png) top left no-repeat;
+		background-image: url(images/logo-2x.png);
 		background-size: 250px 200px;
 	}
 
 	#jp-header.small h3 {
-		background: transparent url(images/logo-small-2x.png) top left no-repeat;
+		background-image: url(images/logo-small-2x.png);
 		background-size: 150px 120px;
 	}
 
@@ -247,7 +333,7 @@
 	only screen and (min-device-pixel-ratio: 1.5) {
 
 	.jetpack-message {
-		background: url(images/alertbox-clouds-2x.png) 100% 100% no-repeat;
+		background-image: url(images/alertbox-clouds-2x.png);
 		background-size: 95px 55px;
 	}
 
@@ -367,7 +453,7 @@
 	only screen and (min-device-pixel-ratio: 1.5) {
 
 	.more-info {
-		background: transparent url(images/module-clouds-2x.png) bottom left repeat-x;
+		background-image: url(images/module-clouds-2x.png);
 		background-size: 980px 140px;
 	}
 
@@ -407,7 +493,7 @@
 	only screen and (min-device-pixel-ratio: 1.5) {
 
 	.more-info .arrow {
-		background: url(images/arrow-2x.png) top left no-repeat;
+		background-image: url(images/arrow-2x.png);
 		background-size: 29px 16px;
 	}
 
@@ -855,7 +941,7 @@ jetpack-inactive:hover * {
 	only screen and (min-device-pixel-ratio: 1.5) {
 
 	.placeholder h3  {
-		background: transparent url(images/icon-comingsoon-2x.png) top center no-repeat;
+		background-image: url(images/icon-comingsoon-2x.png);
 		background-size: 32px 32px;
 	}
 
@@ -889,7 +975,7 @@ p#news-sub {
 	only screen and (min-device-pixel-ratio: 1.5) {
 
 	#jp-footer  {
-		background: url(images/footer-clouds-2x.png) top center no-repeat;
+		background-image: url(images/footer-clouds-2x.png);
 		background-size: 700px 150px;
 	}
 
@@ -925,7 +1011,7 @@ p#news-sub {
 	only screen and (min-device-pixel-ratio: 1.5) {
 
 	#jp-footer .automattic span  {
-		background: url(images/automattic-2x.png) center top no-repeat;
+		background-image: url(images/automattic-2x.png);
 		background-size: 165px 14px;
 	}
 
@@ -1029,7 +1115,7 @@ p#news-sub {
 	width: 16px;
 	height: 16px;
 	text-indent: -9999px;
-	background: transparent url(images/alertbox-closeicon.png) no-repeat center center;
+	background: transparent url(images/alertbox-closeicon.png) center center no-repeat;
 	border: 0 none;
 	border-radius: 0 0 0 5px;
 	box-shadow: none;
@@ -1044,7 +1130,7 @@ p#news-sub {
 	only screen and (min-device-pixel-ratio: 1.5) {
 
 	.jetpack-close-button  {
-		background: transparent url(images/alertbox-closeicon-2x.png) no-repeat center center;
+		background-image: url(images/alertbox-closeicon-2x.png);
 		background-size: 16px 16px;
 	}
 

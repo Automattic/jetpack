@@ -1,4 +1,4 @@
-/* This file was automatically generated on Jun 04 2013 12:42:26 */
+/* This file was automatically generated on Jun 19 2013 15:20:57 */
 
 #menu-posts-feedback .wp-menu-image img {
 	display: none;
@@ -14,18 +14,17 @@
 	background: url(../../images/grunion-menu.png) no-repeat 7px 7px !important;
 }
 
-body.admin-color-mp6 #adminmenu .menu-icon-feedback div.wp-menu-image {
-	background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMjBweCIgaGVpZ2h0PSIyMHB4IiB2aWV3Qm94PSItNDc5LjUgMzAwLjUgMjAgMjAiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgLTQ3OS41IDMwMC41IDIwIDIwIiB4bWw6c3BhY2U9InByZXNlcnZlIj48c3R5bGU+LnN0eWxlMHtmaWxsOgkjOTk5OTk5O308L3N0eWxlPjxwYXRoIGQ9Ik0tNDcxLjUgMzA3LjVoNnYzaC02VjMwNy41eiBNLTQ3MS41IDMxMS41aDZ2M2gtNlYzMTEuNXogTS00NzQuNSAzMDcuNWgydjFoLTJWMzA3LjV6IE0tNDc0LjUgMzExLjVoMnYxaC0yIFYzMTEuNXogTS00NjMuNSAzMDEuNWgtMTNjLTAuNDg5IDAtMSAwLjUxMi0xIDF2MTRjMCAwLjUgMC41IDEgMSAxaDEzYzAuNDg5IDAgMS0wLjUxMiAxLTF2LTE0IEMtNDYyLjUgMzAyLjAxMi00NjMuMDExIDMwMS41LTQ2My41IDMwMS41eiBNLTQ2NC41IDMxNS41aC0xMXYtOWgxMVYzMTUuNXoiIGNsYXNzPSJzdHlsZTAiLz48L3N2Zz4=) no-repeat 7px 7px !important;
-	background-size: 20px 20px !important;
+body.admin-color-mp6 #adminmenu .toplevel_page_feedback div.wp-menu-image img {
+	display: none;
 }
 
-body.admin-color-mp6 #adminmenu .menu-icon-feedback:hover div.wp-menu-image {
-	background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMjBweCIgaGVpZ2h0PSIyMHB4IiB2aWV3Qm94PSItNDc5LjUgMzAwLjUgMjAgMjAiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgLTQ3OS41IDMwMC41IDIwIDIwIiB4bWw6c3BhY2U9InByZXNlcnZlIj48c3R5bGU+LnN0eWxlMHtmaWxsOgkjMkVBMkNDO308L3N0eWxlPjxwYXRoIGQ9Ik0tNDcxLjUgMzA3LjVoNnYzaC02VjMwNy41eiBNLTQ3MS41IDMxMS41aDZ2M2gtNlYzMTEuNXogTS00NzQuNSAzMDcuNWgydjFoLTJWMzA3LjV6IE0tNDc0LjUgMzExLjVoMnYxaC0yIFYzMTEuNXogTS00NjMuNSAzMDEuNWgtMTNjLTAuNDg5IDAtMSAwLjUxMi0xIDF2MTRjMCAwLjUgMC41IDEgMSAxaDEzYzAuNDg5IDAgMS0wLjUxMiAxLTF2LTE0IEMtNDYyLjUgMzAyLjAxMi00NjMuMDExIDMwMS41LTQ2My41IDMwMS41eiBNLTQ2NC41IDMxNS41aC0xMXYtOWgxMVYzMTUuNXoiIGNsYXNzPSJzdHlsZTAiLz48L3N2Zz4=) no-repeat 7px 7px !important;
+body.admin-color-mp6 #adminmenu .menu-icon-feedback div.wp-menu-image, body.admin-color-mp6 #adminmenu .toplevel_page_feedback div.wp-menu-image {
+	background: none !important;
 }
 
-body.admin-color-mp6 #adminmenu .menu-icon-feedback.wp-has-current-submenu div.wp-menu-image,
-body.admin-color-mp6 #adminmenu .menu-icon-feedback.current div.wp-menu-image {
-	background: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMjBweCIgaGVpZ2h0PSIyMHB4IiB2aWV3Qm94PSItNDc5LjUgMzAwLjUgMjAgMjAiIGVuYWJsZS1iYWNrZ3JvdW5kPSJuZXcgLTQ3OS41IDMwMC41IDIwIDIwIiB4bWw6c3BhY2U9InByZXNlcnZlIj48c3R5bGU+LnN0eWxlMHtmaWxsOgkjRkZGRkZGO308L3N0eWxlPjxwYXRoIGQ9Ik0tNDcxLjUgMzA3LjVoNnYzaC02VjMwNy41eiBNLTQ3MS41IDMxMS41aDZ2M2gtNlYzMTEuNXogTS00NzQuNSAzMDcuNWgydjFoLTJWMzA3LjV6IE0tNDc0LjUgMzExLjVoMnYxaC0yIFYzMTEuNXogTS00NjMuNSAzMDEuNWgtMTNjLTAuNDg5IDAtMSAwLjUxMi0xIDF2MTRjMCAwLjUgMC41IDEgMSAxaDEzYzAuNDg5IDAgMS0wLjUxMiAxLTF2LTE0IEMtNDYyLjUgMzAyLjAxMi00NjMuMDExIDMwMS41LTQ2My41IDMwMS41eiBNLTQ2NC41IDMxNS41aC0xMXYtOWgxMVYzMTUuNXoiIGNsYXNzPSJzdHlsZTAiLz48L3N2Zz4=) no-repeat 7px 7px !important;
+body.admin-color-mp6 #adminmenu .menu-icon-feedback div.wp-menu-image:before, body.admin-color-mp6 #adminmenu .toplevel_page_feedback div.wp-menu-image:before {
+	content: '\f175';
+	margin-right: -1px;
 }
 
 .jetpack-contact-form-icon {

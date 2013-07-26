@@ -524,7 +524,7 @@ class Jetpack_Custom_CSS {
 		if ( $css == '' )
 			return;
 
-		$href = trailingslashit( site_url() );
+		$href = home_url( '/' );
 		$href = add_query_arg( 'custom-css', 1, $href );
 		$href = add_query_arg( 'csblog', $blog_id, $href );
 		$href = add_query_arg( 'cscache', 6, $href );

@@ -262,8 +262,7 @@ class csstidy_optimise {
 	 */
 	function compress_important(&$string) {
 		if (csstidy::is_important($string)) {
-			$string = csstidy::gvw_important($string) . '!important';
-		}
+			$string = csstidy::gvw_important($string) . ' !important';		}
 		return $string;
 	}
 

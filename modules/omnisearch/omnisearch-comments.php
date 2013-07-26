@@ -29,7 +29,7 @@ class Jetpack_Omnisearch_Comments extends WP_Comments_List_Table {
 		return $results;
 	}
 
-	function get_per_page( $comment_status ) {
+	function get_per_page( $comment_status = 'all' ) {
 		return apply_filters( 'omnisearch_num_results', 5 );
 	}
 
@@ -41,7 +41,8 @@ class Jetpack_Omnisearch_Comments extends WP_Comments_List_Table {
 		return array();
 	}
 
-	function pagination() {}
+	function pagination( $which ) {}
 
 	function extra_tablenav( $which ) {}
 }
+
