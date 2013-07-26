@@ -1483,8 +1483,11 @@ p.comment-form-comment {
 	display: block;
 }
 #wpl-mustlogin {
-width: 240px !important;
-margin-left: -60px !important;
+	width: 240px !important;
+	margin-left: -60px !important;
+}
+img.latex {
+	display: inline;
 }
 
 /* WP.com comment form */
