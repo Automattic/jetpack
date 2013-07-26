@@ -115,7 +115,7 @@ class Jetpack_Heartbeat {
 	 * @since 2.3.3
 	 * @return array 
 	 */
-	public function add_cron_intervals() {
+	public function add_cron_intervals( $schedules ) {
 		$schedules['jetpack_weekly'] = array(
 		    'interval' => WEEK_IN_SECONDS,
 		    'display' => __('Jetpack weekly')
