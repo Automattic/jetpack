@@ -54,7 +54,6 @@ register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
 
 add_action( 'init', array( 'Jetpack', 'init' ) );
-add_action( 'init', array( 'Jetpack_Heartbeat', 'init' ), 100 );
 add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
 

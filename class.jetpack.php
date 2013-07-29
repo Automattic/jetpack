@@ -229,6 +229,10 @@ class Jetpack {
 		 */
 		add_action( 'plugins_loaded', array( $this, 'check_open_graph' ),       999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
+
+		if ( Jetpack::is_active() ) {
+			Jetpack_Heartbeat::init();
+		}
 	}
 
 	/**
