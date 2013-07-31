@@ -1,11 +1,11 @@
-/* This file was automatically generated on Jul 03 2013 18:11:40 */
+/* This file was automatically generated on Jul 31 2013 21:21:12 */
 
 /* =Tiled Gallery Default Styles
 -------------------------------------------------------------- */
 
 .tiled-gallery {
 	clear: both;
-	margin: 0;
+	margin: 0 0 20px;
 	overflow: hidden;
 }
 .tiled-gallery img {
