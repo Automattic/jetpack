@@ -3,14 +3,6 @@
 class Jetpack_Heartbeat {
 
 	/**
-	 * Jetpack object
-	 * 
-	 * @since 2.3.3
-	 * @var Jetpack 
-	 */
-	var $jetpack = null;
-
-	/**
 	 * Holds the singleton instance of this class
 	 * 
 	 * @since 2.3.3
@@ -42,8 +34,6 @@ class Jetpack_Heartbeat {
 	 * @return Jetpack_Heartbeat 
 	 */
 	private function __construct() {
-		$this->jetpack = Jetpack::init();
-
 		// Add weekly interval for wp-cron
 		add_filter('cron_schedules', array( $this, 'add_cron_intervals' ) );
 
@@ -81,7 +71,7 @@ class Jetpack_Heartbeat {
 		 * - values should be an array that will be imploded to a string
 		 */
 
-		$jetpack = $this->jetpack;
+		$jetpack = Jetpack::init();
 
 		$jetpack->stat( 'active-modules', implode( ',', $this->jetpack->get_active_modules() ) );
 		$jetpack->stat( 'active',         JETPACK__VERSION                                     );
@@ -128,4 +118,4 @@ class Jetpack_Heartbeat {
 		wp_unschedule_event($timestamp, $this->cron_name );
 	}
 
-}// end class
+}

@@ -198,6 +198,10 @@ class Jetpack {
 			}
  		}
 
+		if ( Jetpack::is_active() ) {
+			Jetpack_Heartbeat::init();
+		}
+
 		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
 		if ( !wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
