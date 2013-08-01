@@ -51,8 +51,9 @@ class Jetpack_Photon {
 		if ( ! function_exists( 'jetpack_photon_url' ) )
 			return;
 
-		// Images in post content
+		// Images in post content and galleries
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
+		add_filter( 'get_post_gallery', array( __CLASS__, 'filter_the_content' ), 999999 );
 
 		// Core image retrieval
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
