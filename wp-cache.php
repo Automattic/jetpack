@@ -1274,6 +1274,9 @@ function wpsc_admin_tabs( $current = 0 ) {
 function wsc_mod_rewrite() {
 	global $cache_enabled, $super_cache_enabled, $valid_nonce, $cache_path, $wp_cache_mod_rewrite, $wpmu_version;
 
+	if ( defined( 'WPSC_DISABLE_HTACCESS_UPDATE' ) )
+		return false;
+
 	if ( !$wp_cache_mod_rewrite )
 		return false;
 
