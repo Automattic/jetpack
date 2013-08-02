@@ -41,6 +41,7 @@ function wp_cache_phase2() {
 		add_action( 'clean_post_cache', 'wp_cache_post_edit' );
 		add_filter( 'supercache_filename_str', 'wp_cache_check_mobile' );
 		add_action( 'wp_cache_gc_watcher', 'wp_cache_gc_watcher' );
+		add_action( 'transition_post_status', 'wpsc_post_transition', 10, 3 );
 
 		do_cacheaction( 'add_cacheaction' );
 	}
@@ -973,6 +974,44 @@ function wp_cache_clear_cache( $blog_id = 0 ) {
 			prune_super_cache( get_supercache_dir( $blog_id ), true );
 			prune_super_cache( $cache_path . 'blogs/', true );
 		}
+	}
+}
+
+function wpsc_delete_cats_tags( $post ) {
+	$post = get_post($post);
+	$categories = get_the_category($post->ID);
+	if ( $categories ) {
+		$category_base = get_option( 'category_base');
+		if ( $category_base == '' )
+			$category_base = '/category/';
+		$category_base = trailingslashit( $category_base ); // paranoid much?
+		foreach ($categories as $cat) {
+			prune_super_cache ( get_supercache_dir() . $category_base . $cat->slug . '/', true );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wpsc_post_transition: deleting category: " . get_supercache_dir() . $category_base . $cat->slug . '/' );
+		}
+	}
+	$posttags = get_the_tags($post->ID);
+	if ( $posttags ) {
+		$tag_base = get_option( 'tag_base' );
+		if ( $tag_base == '' )
+			$tag_base = '/tag/';
+		$tag_base = trailingslashit( str_replace( '..', '', $tag_base ) ); // maybe!
+		foreach ($posttags as $tag) {
+			prune_super_cache( get_supercache_dir() . $tag_base . $tag->slug . '/', true );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wpsc_post_transition: deleting tag: " . get_supercache_dir() . $tag_base . $tag->slug . '/' );
+		}
+	}
+}
+
+function wpsc_post_transition( $new_status, $old_status, $post ) {
+	if (
+		($old_status == 'publish' && $new_status != 'publish' ) // post unpublished
+		||
+		($old_status != 'publish' && $new_status == 'publish') // post published
+	) {
+		wpsc_delete_cats_tags( $post );
+		prune_super_cache( get_supercache_dir() . '/' . $post->post_name . '/', true );
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wpsc_post_transition: deleting post: " . get_supercache_dir() . '/' . $post->post_name . '/' );
 	}
 }
 
