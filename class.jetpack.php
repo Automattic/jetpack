@@ -1813,7 +1813,7 @@ p {
 				wp_redirect( $this->build_connect_url( true ) );
 				exit;
 			case 'activate' :
-				if ( ! current_user_can( 'activate_plugins' ) ) {
+				if ( ! current_user_can( 'manage_options' ) ) {
 					$error = 'cheatin';
 					break;
 				}
@@ -1849,7 +1849,7 @@ p {
 				wp_redirect( $this->build_connect_url( true ) );
 				exit;
 			case 'deactivate' :
-				if ( ! current_user_can( 'activate_plugins' ) ) {
+				if ( ! current_user_can( 'manage_options' ) ) {
 					$error = 'cheatin';
 					break;
 				}
