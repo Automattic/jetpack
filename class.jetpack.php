@@ -280,7 +280,7 @@ class Jetpack {
 			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/gallery-settings.js', __FILE__ ), array( 'media-views' ), '20121225' );
 
 		if ( ! wp_style_is( 'genericons', 'registered' ) )
-			wp_register_style( 'genericons', plugins_url( '_inc/genericons.css', __FILE__ ), false, JETPACK__VERSION );
+			wp_register_style( 'genericons', plugins_url( '_inc/genericons.css', __FILE__ ), false, '2.09' );
 	}
 
 	/**
