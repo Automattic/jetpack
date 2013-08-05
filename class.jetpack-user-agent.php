@@ -1335,24 +1335,42 @@ class Jetpack_User_Agent_Info {
 		static $is_bot = null;
 
 		if ( is_null( $is_bot ) ) {
-			$is_bot = false;
-
-			$bot_agents = array(
-				'alexa', 'altavista', 'ask jeeves', 'attentio', 'baiduspider', 'bingbot', 'chtml generic', 'crawler', 'fastmobilecrawl',
-				'feedfetcher-google', 'firefly', 'froogle', 'gigabot', 'googlebot', 'googlebot-mobile', 'heritrix', 'ia_archiver', 'irlbot',
-				'infoseek', 'jumpbot', 'lycos', 'mediapartners', 'mediobot', 'motionbot', 'msnbot', 'mshots', 'openbot',
-				'pythumbnail', 'scooter', 'slurp', 'snapbot', 'spider', 'surphace scout', 'taptubot', 'technoratisnoop',
-				'teoma', 'twiceler', 'yahooseeker', 'yahooysmcm', 'yammybot',
-			);
-
-			foreach ( $bot_agents as $bot_agent ) {
-				if ( false !== stripos( $_SERVER['HTTP_USER_AGENT'], $bot_agent ) ) {
-					$is_bot = true;
-					break;
-				}
-			}
+			$is_bot = Jetpack_User_Agent_Info::is_bot_user_agent( $_SERVER['HTTP_USER_AGENT'] );
 		}
 
 		return $is_bot;
 	}
+
+	/**
+	 * Is the given user-agent a known bot?
+	 * If you want an is_bot check for the current request's UA, use is_bot() instead of passing a user-agent to this method.
+	 *
+	 * @param $ua (string) A user-agent string
+	 * @return boolean
+	 */
+	static function is_bot_user_agent( $ua = null ) {
+
+		if ( empty( $ua ) )
+			return false;
+
+		$bot_agents = array(
+			'alexa', 'altavista', 'ask jeeves', 'attentio', 'baiduspider', 'bingbot', 'chtml generic', 'crawler', 'fastmobilecrawl',
+			'feedfetcher-google', 'firefly', 'froogle', 'gigabot', 'googlebot', 'googlebot-mobile', 'heritrix', 'ia_archiver', 'irlbot',
+			'infoseek', 'jumpbot', 'lycos', 'mediapartners', 'mediobot', 'motionbot', 'msnbot', 'mshots', 'openbot',
+			'pss-webkit-request', // See http://systemsrequests.wordpress.com/2013/07/30/log-request-to-help-us-with-this-issue
+			'pythumbnail', 'scooter', 'slurp', 'snapbot', 'spider', 'taptubot', 'technoratisnoop',
+			'teoma', 'twiceler', 'yahooseeker', 'yahooysmcm', 'yammybot',
+		);
+
+		foreach ( $bot_agents as $bot_agent ) {
+			if ( false !== stripos( $ua, $bot_agent ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+
+
 }
