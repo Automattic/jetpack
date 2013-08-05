@@ -1326,23 +1326,16 @@ class Jetpack_User_Agent_Info {
 		return false;
 	}
 
+	/**
+	 * Was the current request made by a known bot?
+	 *
+	 * @return boolean
+	 */
 	static function is_bot() {
-		static $is_bot = false;
-		static $first_run = true;
+		static $is_bot = null;
 
-		if ( $first_run ) {
-			$first_run = false;
-
-		/*
-			$bot_ips = array( );
-
-			foreach ( $bot_ips as $bot_ip ) {
-				if ( $_SERVER['REMOTE_ADDR'] == $bot_ip )
-					$is_bot = true;
-			}
-		*/
-
-			$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
+		if ( is_null( $is_bot ) ) {
+			$is_bot = false;
 
 			$bot_agents = array(
 				'alexa', 'altavista', 'ask jeeves', 'attentio', 'baiduspider', 'bingbot', 'chtml generic', 'crawler', 'fastmobilecrawl',
@@ -1353,8 +1346,10 @@ class Jetpack_User_Agent_Info {
 			);
 
 			foreach ( $bot_agents as $bot_agent ) {
-				if ( false !== strpos( $agent, $bot_agent ) )
+				if ( false !== stripos( $_SERVER['HTTP_USER_AGENT'], $bot_agent ) ) {
 					$is_bot = true;
+					break;
+				}
 			}
 		}
 
