@@ -80,6 +80,17 @@ Easy! There are a couple of ways (more coming soon):
 
 == Changelog ==
 
+= 2.3.4 =
+* Bug Fix: Correct when output occurs with CSV export for feedback.
+* Bug Fix: Tidy up the Heartbeat API.
+* Enhancement: User Agent: Improve detecting of bots.
+* Enhancement: Genericons: Make sure we're pulling the freshest version from genericons.com on each release.
+* Enhancement: JSON API: Open up replies/new endpoints so that users can comment on blogs that are not in their access token.
+* Enhancement: Photon: Apply to `get_post_gallery()` function as well.
+* Enhancement: Tiled Galleries: Add a default bottom margin to be more robust out of the box.
+* Translations: Adding in fresher translation files.
+* Deprecation: Removing the retinization code for 3.4, as it was included in WordPress trunk from 3.5 onwards.
+
 = 2.3.3 =
 * Bug Fix: We were inadvertently overwriting cron schedules with our Jetpack heartbeat. This should now be fixed.
 * Enhancement: New Facebook Sharing icons.
