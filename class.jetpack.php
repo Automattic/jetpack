@@ -1367,7 +1367,7 @@ p {
 		$hook = add_menu_page( 'Jetpack', $title, 'read', 'jetpack', array( $this, 'admin_page' ), 'div' );
 		
 		$debugger_hook = add_submenu_page( 'jetpack', 'Jetpack Debugging Center', '', 'manage_options', 'jetpack-debugger', array( $this, 'debugger_page' ) );
-		add_action( "admin_head-$debugger_hook", 'jetpack_debug_admin_head' );
+		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
 
 
 		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
@@ -2642,7 +2642,7 @@ p {
 		if ( !current_user_can( 'manage_options' ) ) {
 			die( '-1' );
 		}
-		jetpack_debug_display_handler();
+		Jetpack_Debugger::jetpack_debug_display_handler();
 		exit;
 	}
 
