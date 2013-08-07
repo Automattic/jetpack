@@ -620,7 +620,7 @@ function get_base_recaptcha_lang_code() {
 		'tr'    => 'tr'
 	);
 
-	$blog_lang_code = function_exists( 'get_blog_lang_code' ) ? get_blog_lang_code() : get_bloginfo( 'language' ); 
+	$blog_lang_code = function_exists( 'get_blog_lang_code' ) ? get_blog_lang_code() : get_bloginfo( 'language' );
 	if( isset( $base_recaptcha_lang_code_mapping[ $blog_lang_code ] ) )
 		return $base_recaptcha_lang_code_mapping[ $blog_lang_code ];
 
