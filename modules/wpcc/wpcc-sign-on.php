@@ -37,7 +37,7 @@ class WPCC_Sign_On {
 		$this->authenticate_url  = 'https://public-api.wordpress.com/oauth2/authenticate';
 		$this->user_data_url     = 'https://public-api.wordpress.com/rest/v1/me/';
 		$this->new_app_url_base  = 'https://developer.wordpress.com/apps/new/';
-		$this->options_prefix    = class_exists( 'Jetpack_Options' ) ? 'jetpack_' : '';
+		$this->options_prefix    = $this->in_jetpack() ? 'jetpack_' : '';
 		$this->options           = $this->fetch_options();
 		$this->client_id         = $this->options['client_id'];
 		$this->client_secret     = $this->options['client_secret'];
@@ -56,8 +56,12 @@ class WPCC_Sign_On {
 		add_action( 'login_form',            array( $this, 'login_form' )            );
 	}
 
+	function in_jetpack() {
+		return '/modules/wpcc' == substr( dirname( __FILE__ ), ( 0 - strlen( '/modules/wpcc' ) ) );
+	}
+
 	function fetch_options() {
-		$options = class_exists( 'Jetpack_Options' ) ? Jetpack_Options::get_option( 'wpcc_options' ) : get_option( 'wpcc_options' );
+		$options = $this->in_jetpack() ? Jetpack_Options::get_option( 'wpcc_options' ) : get_option( 'wpcc_options' );
 		return wp_parse_args( $options, $this->default_options() );
 	}
 
@@ -298,7 +302,7 @@ class WPCC_Sign_On {
 
 			update_user_meta( get_current_user_id(), 'wpcom_user_id', $user_data->ID );
 			update_user_meta( get_current_user_id(), 'wpcom_user_data', $user_data );
-	
+
 			wp_safe_redirect( admin_url( 'profile.php' ) );
 			exit;
 		}
@@ -333,6 +337,10 @@ class WPCC_Sign_On {
 		);
 
 		$args = wp_parse_args( $args, $defaults );
+
+		if ( ! empty( $_REQUEST['redirect_to'] ) ) {
+			$args['redirect_uri'] = add_query_arg( 'redirect_to', $_REQUEST['redirect_to'], $args['redirect_uri'] );
+		}
 
 		$url = add_query_arg( $args, $this->authenticate_url );
 
@@ -381,8 +389,9 @@ class WPCC_Sign_On {
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
 			wp_set_auth_cookie( $user->ID );
 
-			$redirect_to = ! empty( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : site_url();
-			wp_safe_redirect( apply_filters( 'wpcc_sign_on_redirect', $redirect_to ) );
+			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : home_url();
+			wp_safe_redirect( apply_filters( 'login_redirect', $redirect_to, $_request_redirect_to, $user ) );
 			exit;
 		}
 
