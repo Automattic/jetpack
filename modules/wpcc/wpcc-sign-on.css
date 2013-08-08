@@ -1,0 +1,11 @@
+
+#loginform {
+	overflow: hidden;
+	padding-bottom: 26px;
+}
+
+#wpcc-sign-on {
+	display: block;
+	float: right;
+	margin:1em 0 0;
+}

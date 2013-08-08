@@ -13,6 +13,7 @@ class Jetpack_Options {
 				'do_activate',
 				'publicize',
 				'widget_twitter',
+				'wpcc_options',
 			);
 		}
 
