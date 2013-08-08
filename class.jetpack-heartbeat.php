@@ -73,7 +73,7 @@ class Jetpack_Heartbeat {
 
 		$jetpack = Jetpack::init();
 
-		$jetpack->stat( 'active-modules', implode( ',', $this->jetpack->get_active_modules() ) );
+		$jetpack->stat( 'active-modules', implode( ',', $jetpack->get_active_modules() )       );
 		$jetpack->stat( 'active',         JETPACK__VERSION                                     );
 		$jetpack->stat( 'wp-version',     get_bloginfo( 'version' )                            );
 		$jetpack->stat( 'php-version',    PHP_VERSION                                          );
