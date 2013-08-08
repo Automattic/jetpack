@@ -15,6 +15,7 @@ class WPCC_Sign_On {
 		$authenticate_url,  // Fixed URL.
 		$user_data_url,     // Fixed URL.
 		$new_app_url_base,  // Fixed URL.
+		$options_prefix,    // Where the options are in the DB.
 		$options,           // Options Array.
 		$client_id,         // Option.
 		$client_secret,     // Option.
@@ -36,6 +37,7 @@ class WPCC_Sign_On {
 		$this->authenticate_url  = 'https://public-api.wordpress.com/oauth2/authenticate';
 		$this->user_data_url     = 'https://public-api.wordpress.com/rest/v1/me/';
 		$this->new_app_url_base  = 'https://developer.wordpress.com/apps/new/';
+		$this->options_prefix    = class_exists( 'Jetpack_Options' ) ? 'jetpack_' : '';
 		$this->options           = $this->fetch_options();
 		$this->client_id         = $this->options['client_id'];
 		$this->client_secret     = $this->options['client_secret'];
@@ -106,7 +108,7 @@ class WPCC_Sign_On {
 			'wpcc'
 		);
 
-		register_setting( 'general', 'wpcc_options', array( $this, 'sanitize_options' ) );
+		register_setting( 'general', "{$this->options_prefix}wpcc_options", array( $this, 'sanitize_options' ) );
 
 		if ( ! empty( $this->client_id ) ) {
 			add_action( 'show_user_profile', array( $this, 'edit_profile_fields' ) ); // For their own profile
@@ -147,23 +149,23 @@ class WPCC_Sign_On {
 	}
 
 	function wpcc_sign_on_client_id_cb() {
-		echo '<input class="regular-text code" autocomplete="off" type="text" id="wpcc_sign_on_client_id" name="wpcc_options[client_id]" value="' . esc_attr( $this->client_id ) . '" />';
+		echo '<input class="regular-text code" autocomplete="off" type="text" id="wpcc_sign_on_client_id" name="' . $this->options_prefix . 'wpcc_options[client_id]" value="' . esc_attr( $this->client_id ) . '" />';
 	}
 
 	function wpcc_sign_on_client_secret_cb() {
-		echo '<input class="regular-text code" autocomplete="off" type="text" id="wpcc_sign_on_client_secret" name="wpcc_options[client_secret]" value="' . esc_attr( $this->client_secret ) . '" />';
+		echo '<input class="regular-text code" autocomplete="off" type="text" id="wpcc_sign_on_client_secret" name="' . $this->options_prefix . 'wpcc_options[client_secret]" value="' . esc_attr( $this->client_secret ) . '" />';
 		if ( empty( $this->client_id ) || empty( $this->client_secret ) ) {
 			printf( '<h2 style="display:inline; margin-left:1em;"><a href="%1$s">%2$s</a></h2>', esc_url( $this->get_new_app_url() ), __( 'Get client keys &rarr;', 'jetpack' ) );
 		}
 	}
 
 	function wpcc_new_user_override_cb() {
-		echo '<input type="checkbox" id="wpcc_new_user_override" name="wpcc_options[new_user_override]" value="1" ' . checked( 1, $this->new_user_override, false ) . '  />';
+		echo '<input type="checkbox" id="wpcc_new_user_override" name="' . $this->options_prefix . 'wpcc_options[new_user_override]" value="1" ' . checked( 1, $this->new_user_override, false ) . '  />';
 		printf( ' <em>%1$s</em>', __( 'If you do not ordinarily <a href="#users_can_register">let users register</a> above, this will override that and let them register through <abbr title="WordPress.com Connect">WPCC</abbr>.', 'jetpack' ) );
 	}
 
 	function wpcc_match_by_email_cb() {
-		echo '<input type="checkbox" id="wpcc_match_by_email" name="wpcc_options[match_by_email]" value="1" ' . checked( 1, $this->match_by_email, false ) . '  />';
+		echo '<input type="checkbox" id="wpcc_match_by_email" name="' . $this->options_prefix . 'wpcc_options[match_by_email]" value="1" ' . checked( 1, $this->match_by_email, false ) . '  />';
 		printf( ' <em>%1$s</em>', __( 'Should the user be permitted to log on if their local account email address is a match to their verified WordPress.com account email address?', 'jetpack' ) );
 	}
 
@@ -311,8 +313,8 @@ class WPCC_Sign_On {
 	}
 
 	function login_enqueue_scripts() {
-		wp_enqueue_style( 'jetpack', plugins_url( 'wpcc-sign-on.css', __FILE__ ), 0, filemtime( dirname( __FILE__ ) . '/wpcc-sign-on.css' ) );
-		wp_enqueue_script( 'jetpack', plugins_url( 'wpcc-sign-on.js', __FILE__ ), array( 'jquery' ), filemtime( dirname( __FILE__ ) . '/wpcc-sign-on.js'  ) );
+		wp_enqueue_style( 'wpcc-sign-on', plugins_url( 'wpcc-sign-on.css', __FILE__ ), 0, filemtime( dirname( __FILE__ ) . '/wpcc-sign-on.css' ) );
+		wp_enqueue_script( 'wpcc-sign-on', plugins_url( 'wpcc-sign-on.js', __FILE__ ), array( 'jquery' ), filemtime( dirname( __FILE__ ) . '/wpcc-sign-on.js'  ) );
 	}
 
 	function login_form() {
