@@ -402,7 +402,12 @@ jQuery(document).ready( function($) {
 			break;
 
 		case 'feedback_date':
-			echo get_the_date( __( 'Y-m-d @ g:i:s A', 'jetpack' ) );
+			
+			$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
+			$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
+			$time = date_i18n( $date_time_format, current_time( 'timestamp' ) );
+		
+			echo $time;
 			break;
 	}
 }
