@@ -2,6 +2,7 @@
 /**
 * Class wrapper for polldaddy shortcodes
 */
+
 class PolldaddyShortcode {
 
 	static $add_script = false;
@@ -15,6 +16,44 @@ class PolldaddyShortcode {
 			add_shortcode( 'polldaddy', array( $this, 'polldaddy_shortcode' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
 		add_action( 'infinite_scroll_render', array( $this, 'polldaddy_shortcode_infinite' ), 11 );
+	}
+
+	private function get_async_code( array $settings, $survey_link ) {
+		$embed_src     = 'http://i0.poll.fm/survey.js';
+		$embed_src_ssl = 'https://polldaddy.com/survey.js';
+
+		// While testing, set the live URL to the same development version
+		$embed_src = $embed_src_ssl;
+
+		$include = <<<CONTAINER
+( function( d, c, j ) {
+  if ( !document.getElementById( j ) ) {
+    var pd = d.createElement( c ), s;
+    pd.id = j;
+    pd.src = ( 'https:' == document.location.protocol ) ? '{$embed_src_ssl}' : '{$embed_src}';
+    s = document.getElementsByTagName( c )[0];
+    s.parentNode.insertBefore( pd, s );
+  }
+}( document, 'script', 'pd-embed' ) );
+CONTAINER;
+
+		// Compress it a bit
+		$include = str_replace( array( "\n", "\t", "\r" ), '', $include );
+		$include = preg_replace( '/\s*([,:\?\{;\-=\(\)])\s*/', '$1', $include );
+
+		$placeholder = '<div class="pd-embed" data-settings="'.esc_attr( json_encode( $settings ) ).'"></div>';
+		if ( $type === 'button' )
+			$placeholder = '<a class="pd-embed" href="'.esc_attr( $survey_link ).'" data-settings="'.esc_attr( json_encode( $settings ) ).'">'.esc_html( $settings['title'] ).'</a>';
+
+		$js_include = $placeholder."\n";
+		$js_include .= '<script type="text/javascript"><!--//--><![CDATA[//><!--'."\n";
+		$js_include .= $include."\n";
+		$js_include .= "//--><!]]></script>\n";
+
+		if ( $type !== 'button' )
+			$js_include .= '<noscript>'.$survey_link."</noscript>\n";
+
+		return $js_include;
 	}
 
 	/**
@@ -145,13 +184,18 @@ CONTAINER;
 					if( !in_array( $visit, array( 'single', 'multiple' ) ) )
 						$visit = 'single';
 
-					$settings = json_encode( array(
+					$settings = array(
 						'type'  => 'slider',
 						'embed' => 'poll',
 						'delay' => intval( $delay ),
 						'visit' => $visit,
 						'id'    => intval( $poll )
-					) );
+					);
+
+					if ( is_automattician() )
+						return $this->get_async_code( $settings, $poll_link );
+
+					$settings = json_encode( $settings );
 
 					return <<<SCRIPT
 <script type="text/javascript" charset="UTF-8" src="http://i0.poll.fm/survey.js"></script>
@@ -175,9 +219,9 @@ SCRIPT;
 							$margins = 'margin: 0px 0px 0px 10px';
 					}
 
-					if ( get_current_theme() == 'Breathe' ) {
+					// Force the normal style embed on single posts/pages otherwise it's not rendered on infinite scroll themed blogs ('infinite_scroll_render' isn't fired)
+					if ( is_singular() )
 						$inline = true;
-					}
 
 					if ( $cb === false && !$inline ) {
 						if ( self::$scripts === false )
@@ -230,7 +274,8 @@ CONTAINER;
 				$survey_url  = esc_url( "http://polldaddy.com/s/{$survey}" );
 				$survey_link = sprintf( '<a href="%s">%s</a>', $survey_url, esc_html( $title ) );
 
-				if ( $no_script || $inline || $infinite_scroll )
+				// Do we want a full embed code or a link? Remove the is_automattician() bit entirely when IS testing is complete
+				if ( $no_script || $inline || ( is_automattician() === false && $infinite_scroll ) )
 					return $survey_link;
 
 				if ( $type == 'iframe' ) {
@@ -266,12 +311,12 @@ CONTAINER;
 						$domain   = $auto_src['host'].'/s/';
 						$id       = str_ireplace( '/s/', '', $auto_src['path'] );
 
-						$settings = json_encode( array(
+						$settings = array(
 							'type'       => $type,
 							'auto'       => true,
 							'domain'     => $domain,
 							'id'         => $id
-						) );
+						) ;
 					}
 				}
 				else {
@@ -288,7 +333,7 @@ CONTAINER;
 					$body   = wp_strip_all_tags( $body );
 					$button = wp_strip_all_tags( $button );
 
-					$settings = json_encode( array_filter( array(
+					$settings = array_filter( array(
 						'title'      => $title,
 						'type'       => $type,
 						'body'       => $body,
@@ -298,8 +343,13 @@ CONTAINER;
 						'align'      => $align,
 						'style'      => $style,
 						'id'         => $survey
-					) ) );
+					) );
 				}
+
+				if ( is_automattician() )
+					return $this->get_async_code( $settings, $survey_link );
+
+				$settings = json_encode( $settings );
 				return <<<CONTAINER
 <script type="text/javascript" charset="UTF-8" src="http://i0.poll.fm/survey.js"></script>
 <script type="text/javascript" charset="UTF-8"><!--//--><![CDATA[//><!--
@@ -386,7 +436,7 @@ new PolldaddyShortcode();
 
 // http://polldaddy.com/poll/1562975/?view=results&msg=voted
 function polldaddy_link( $content ) {
-	return preg_replace( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' language='javascript' charset='utf-8' src='http://static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content );
+	return preg_replace( '!(?:\n|\A)http://polldaddy.com/poll/([0-9]+?)/(.+)?(?:\n|\Z)!i', "\n<script type='text/javascript' charset='utf-8' src='http://static.polldaddy.com/p/$1.js'></script><noscript> <a href='http://polldaddy.com/poll/$1/'>View Poll</a></noscript>\n", $content );
 }
 
 // higher priority because we need it before auto-link and autop get to it
