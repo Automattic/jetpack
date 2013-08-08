@@ -1,5 +1,5 @@
 <?php
-
+ 
 class Jetpack_Comic {
 	const POST_TYPE = 'jetpack-comic';
 
@@ -302,7 +302,7 @@ class Jetpack_Comic {
 	}
 
 	private function _site_supports_comics() {
-		return ( site_vertical() == 'comics' || current_theme_supports( self::POST_TYPE ) );
+		return ( ( function_exists( 'site_vertical' ) && 'comics' == site_vertical() ) || current_theme_supports( self::POST_TYPE ) );
 	}
 
 	/**
