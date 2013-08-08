@@ -390,7 +390,7 @@ class WPCC_Sign_On {
 			wp_set_auth_cookie( $user->ID );
 
 			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
-			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : home_url();
+			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : admin_url( 'profile.php' );
 			wp_safe_redirect( apply_filters( 'login_redirect', $redirect_to, $_request_redirect_to, $user ) );
 			exit;
 		}
