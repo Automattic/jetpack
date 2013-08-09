@@ -82,7 +82,9 @@ class Jetpack_Subscriptions {
 			return false;
 		}
 
-		return 'publish' === $post->post_status && strlen( (string) $post->post_password ) < 1;
+		if ( 'publish' === $post->post_status && strlen( (string) $post->post_password ) < 1 ) {
+			return apply_filters( 'jetpack_is_post_mailable', true );
+		}
 	}
 
 	/**
