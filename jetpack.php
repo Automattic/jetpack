@@ -62,5 +62,3 @@ if ( is_admin() && ! Jetpack::check_identity_crisis() ) {
 	Jetpack_Sync::sync_options( __FILE__, 'db_version', 'jetpack_active_modules', 'active_plugins' );
 }
 */
-
-Jetpack_Sync::sync_options( __FILE__, 'widget_twitter' );
