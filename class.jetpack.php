@@ -198,6 +198,10 @@ class Jetpack {
 			}
  		}
 
+		if ( Jetpack::is_active() ) {
+			Jetpack_Heartbeat::init();
+		}
+
 		add_action( 'jetpack_clean_nonces', array( 'Jetpack', 'clean_nonces' ) );
 		if ( !wp_next_scheduled( 'jetpack_clean_nonces' ) ) {
 			wp_schedule_event( time(), 'hourly', 'jetpack_clean_nonces' );
@@ -276,7 +280,7 @@ class Jetpack {
 			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/gallery-settings.js', __FILE__ ), array( 'media-views' ), '20121225' );
 
 		if ( ! wp_style_is( 'genericons', 'registered' ) )
-			wp_register_style( 'genericons', plugins_url( '_inc/genericons.css', __FILE__ ), false, JETPACK__VERSION );
+			wp_register_style( 'genericons', plugins_url( '_inc/genericons.css', __FILE__ ), false, '2.09' );
 	}
 
 	/**
@@ -1270,16 +1274,6 @@ p {
 
 			// Kick off synchronization of user role when it changes
 			add_action( 'set_user_role', array( $this, 'user_role_change' ) );
-
-			// Add retina images hotfix to admin
-			global $wp_db_version;
-			if ( ( $wp_db_version > 19470 ) && ( $wp_db_version < 22441 ) ) {
-				// WP 3.4.x
-				// DB Version 22441 = WP 3.5
-				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
-				// /wp-admin/customize.php omits the action above.
-				add_action( 'customize_controls_enqueue_scripts', array( $this, 'enqueue_retina_scripts' ) );
-			}
 		}
 	}
 
@@ -1648,10 +1642,6 @@ p {
 		add_action( 'admin_footer', array( $this, 'do_stats' ) );
 	}
 
-	function enqueue_retina_scripts() {
-		wp_enqueue_style( 'jetpack-retina', plugins_url( basename( dirname( __FILE__ ) ) . '/_inc/jetpack-retina.css' ), false, JETPACK__VERSION . '-20120730' );
-	}
-
 	function plugin_action_links( $actions ) {
 		return array_merge(
 			array( 'settings' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url(), __( 'Settings', 'jetpack' ) ) ),
@@ -1823,7 +1813,7 @@ p {
 				wp_redirect( $this->build_connect_url( true ) );
 				exit;
 			case 'activate' :
-				if ( ! current_user_can( 'activate_plugins' ) ) {
+				if ( ! current_user_can( 'manage_options' ) ) {
 					$error = 'cheatin';
 					break;
 				}
@@ -1859,7 +1849,7 @@ p {
 				wp_redirect( $this->build_connect_url( true ) );
 				exit;
 			case 'deactivate' :
-				if ( ! current_user_can( 'activate_plugins' ) ) {
+				if ( ! current_user_can( 'manage_options' ) ) {
 					$error = 'cheatin';
 					break;
 				}

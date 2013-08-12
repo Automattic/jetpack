@@ -3,7 +3,7 @@
 
 .tiled-gallery {
 	clear: both;
-	margin: 0;
+	margin: 0 0 20px;
 	overflow: hidden;
 }
 .tiled-gallery img {
