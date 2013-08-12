@@ -62,10 +62,13 @@ Once you've installed Jetpack, your stats will be available via the "Site Stats"
 
 = How do I contribute to Jetpack? =
 
-Easy! There are a couple of ways (more coming soon):
+Easy! There are opportunities for developers at all levels to contribute:
 
+* Join our Beta Test group
 * Give us a hand answering questions in our [support forum](http://wordpress.org/support/plugin/jetpack)
 * Report bugs, with reproduction steps, or post patches on our [Trac](http://plugins.trac.wordpress.org/newticket?component=jetpack)
+
+Learn more (and get detailed instructions) in our [contribute guide](http://jetpack.me/contribute/).
 
 == Screenshots ==
 
