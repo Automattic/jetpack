@@ -3,7 +3,7 @@
 class Jetpack_Comic {
 	const POST_TYPE = 'jetpack-comic';
 
-	function init() {
+	static function init() {
 		static $instance = false;
 
 		if ( ! $instance )

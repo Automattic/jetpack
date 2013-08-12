@@ -14,7 +14,7 @@ class Jetpack_Testimonial {
 
 	var $version = '0.1';
 
-	function init() {
+	static function init() {
 		static $instance = false;
 
 		if ( ! $instance )
