@@ -822,3 +822,22 @@ function jetpack_omnisearch_more_link() {
 add_action( 'jetpack_module_more_info_omnisearch',  'jetpack_omnisearch_more_info' );
 add_action( 'jetpack_learn_more_button_omnisearch', 'jetpack_omnisearch_more_link' );
 // Omnisearch: STOP
+
+// Widget Visibility: START
+function jetpack_widget_visibility_more_info() { ?>
+	<h4><?php esc_html_e( 'Widget Visibility' , 'jetpack' ); ?></h4>
+
+	<p><?php esc_html_e( 'Control which pages your widgets appear on with Widget Visibility.' ); ?></p>
+	<p><?php esc_html_e( 'To control visibility, expand the widget and click the Visibility button next to the Save button, and then, choose a set of visibility options.' ); ?></p>
+	<p><?php esc_html_e( 'For example, if you wanted the Archives widget to only appear on category archives and error pages, choose "Show" from the first dropdown and then add two rules: "Page is 404 Error Page" and "Category is All Category Pages."' ); ?></p>
+	<p><?php esc_html_e( 'You can also hide widgets based on the current page. For example, if you don\'t want the Archives widget to appear on search results pages, choose "Hide" and "Page is Search results."' ); ?></p>
+<?php
+}
+
+function jetpack_widget_visibility_more_link() {
+	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/widget-visibility/">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+
+add_action( 'jetpack_module_more_info_widget-visibility',  'jetpack_widget_visibility_more_info' );
+add_action( 'jetpack_learn_more_button_widget-visibility', 'jetpack_widget_visibility_more_link' );
+// Widget Visibility: STOP
