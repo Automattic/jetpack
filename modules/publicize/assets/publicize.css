@@ -21,6 +21,7 @@ span#facebook { background: url( facebook-logo.png ) 50% 19px no-repeat; backgro
 span#twitter { background: url( twitter-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
 span#linkedin { background: url( linkedin-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
 span#tumblr { background: url( tumblr-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
+span#path { background: url( path-logo.png ) 50% 19px no-repeat; background-size: 85px 32px; }
 
 a.publicize-profile-link, a.publicize-profile-link:visited {
 	text-decoration: none;
