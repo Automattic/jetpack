@@ -777,44 +777,7 @@ function jetpack_likes_more_link() {
 add_action( 'jetpack_learn_more_button_likes', 'jetpack_likes_more_link' );
 // Likes: STOP
 
-// Debug: START
-function jetpack_debug_more_info() { ?>
-
-	<h4><?php esc_html_e( 'Debug' , 'jetpack' ); ?></h4>
-
-	<p><?php esc_html_e( "A debugging platform for the Jetpack plugin. Find out why Jetpack isn't working for you and submit a help request direct from your Dashboard.", 'jetpack' ); ?></p>
-	<?php if ( Jetpack::is_module_active( 'debug' ) ) : ?>
-		<p><a href="<?php echo admin_url( 'admin.php?page=jetpack-debugger' ); ?>"><?php esc_html_e( "Click here to start debugging.", 'jetpack' ); ?></a></p>
-
-	<?php endif; ?>
-<?php
-}
-
-function jetpack_debug_more_link() {
-	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/debug/">' . __( 'Learn More', 'jetpack' ) . '</a>';
-}
-
-add_action( 'jetpack_module_more_info_debug', 'jetpack_debug_more_info' );
-add_action( 'jetpack_module_more_info_connected_debug', 'jetpack_debug_more_info' );
-add_action( 'jetpack_learn_more_button_debug', 'jetpack_debug_more_link' );
-// Debug: STOP
-
 // Omnisearch: START
-function jetpack_omnisearch_more_info() { ?>
-
-	<h4><?php esc_html_e( 'Omnisearch' , 'jetpack' ); ?></h4>
-
-	<p><?php esc_html_e( 'Search once, get results from everything! Currently supports searching posts, pages, comments, and plugins.', 'jetpack' ); ?></p>
-
-	<p><?php esc_html_e( 'Omnisearch plays nice with other plugins by letting other providers offer results as well.', 'jetpack' ); ?></p>
-
-	<?php if( class_exists( 'Jetpack_Omnisearch' ) && current_user_can( 'edit_posts' ) ): ?>
-		<?php echo Jetpack_Omnisearch::get_omnisearch_form(); ?>
-	<?php endif; ?>
-
-<?php
-}
-
 function jetpack_omnisearch_more_link() {
 	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/omnisearch/">' . __( 'Learn More', 'jetpack' ) . '</a>';
 }
@@ -825,12 +788,12 @@ add_action( 'jetpack_learn_more_button_omnisearch', 'jetpack_omnisearch_more_lin
 
 // Widget Visibility: START
 function jetpack_widget_visibility_more_info() { ?>
-	<h4><?php esc_html_e( 'Widget Visibility' , 'jetpack' ); ?></h4>
+	<h4><?php esc_html_e( 'Widget Visibility', 'jetpack' ); ?></h4>
 
-	<p><?php esc_html_e( 'Control which pages your widgets appear on with Widget Visibility.' ); ?></p>
-	<p><?php esc_html_e( 'To control visibility, expand the widget and click the Visibility button next to the Save button, and then, choose a set of visibility options.' ); ?></p>
-	<p><?php esc_html_e( 'For example, if you wanted the Archives widget to only appear on category archives and error pages, choose "Show" from the first dropdown and then add two rules: "Page is 404 Error Page" and "Category is All Category Pages."' ); ?></p>
-	<p><?php esc_html_e( 'You can also hide widgets based on the current page. For example, if you don\'t want the Archives widget to appear on search results pages, choose "Hide" and "Page is Search results."' ); ?></p>
+	<p><?php esc_html_e( 'Control which pages your widgets appear on with Widget Visibility.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'To control visibility, expand the widget and click the Visibility button next to the Save button, and then, choose a set of visibility options.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'For example, if you wanted the Archives widget to only appear on category archives and error pages, choose "Show" from the first dropdown and then add two rules: "Page is 404 Error Page" and "Category is All Category Pages."', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'You can also hide widgets based on the current page. For example, if you don\'t want the Archives widget to appear on search results pages, choose "Hide" and "Page is Search results."', 'jetpack' ); ?></p>
 <?php
 }
 
@@ -841,3 +804,29 @@ function jetpack_widget_visibility_more_link() {
 add_action( 'jetpack_module_more_info_widget-visibility',  'jetpack_widget_visibility_more_info' );
 add_action( 'jetpack_learn_more_button_widget-visibility', 'jetpack_widget_visibility_more_link' );
 // Widget Visibility: STOP
+
+
+// WordPress.com Connect: START
+function jetpack_wpcc_more_info() { ?>
+	<h4><?php esc_html_e( 'WordPress.com Connect' , 'jetpack' ); ?></h4>
+
+	<p><?php esc_html_e( 'Using the same log-in credentials you use for WordPress.com, you\'ll now be able to sign in to third party sites that integrate with WordPress.com Connect.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'By integrating with WordPress.com Connect, you can make it safe and secure for millions of WordPress.com users to "connect" their WordPress.com accounts and profile information to your website.', 'jetpack' ); ?></p>
+
+	<h4><?php esc_html_e( 'Benefits:' , 'jetpack' ); ?></h4>
+	<ul>
+		<li><?php _e( '<strong>Millions of users</strong>: By adding WordPress.com Connect, you’ll become part of a large family that makes it easy for WordPress.com users to explore new services.', 'jetpack' ); ?></li>
+		<li><?php _e( '<strong>Compatible with your existing sign-in system</strong>: WordPress.com Connect can be used on its own or as a complementary sign-in option to your existing registration system. Once a user connects, you’ll get access to their profile information, which you can use in your own app.', 'jetpack' ); ?></li>
+		<li><?php _e( '<strong>Trusted relationship</strong>: Allow users to sign-in with the same credentials they use every day on WordPress.com. This takes the pain out of having to remember and manage a new log-in for another service.', 'jetpack' ); ?></li>
+	</ul>
+
+<?php
+}
+
+function jetpack_wpcc_more_link() {
+	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/wpcc/">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+
+add_action( 'jetpack_module_more_info_wpcc',  'jetpack_wpcc_more_info' );
+add_action( 'jetpack_learn_more_button_wpcc', 'jetpack_wpcc_more_link' );
+// WordPress.com Connect: STOP
