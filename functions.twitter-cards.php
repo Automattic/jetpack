@@ -1,4 +1,5 @@
 <?php
+
 /* Twitter Cards
  *
  * Hooks onto the Open Graph protocol and extends it by adding only the tags
