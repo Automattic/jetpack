@@ -1,4 +1,4 @@
-/* This file was automatically generated on Jun 19 2013 20:38:31 */
+/* This file was automatically generated on Aug 15 2013 16:01:51 */
 
 
 h2.page-title small {
@@ -115,8 +115,20 @@ button.omnisearch-submit span {
 	width: 15%;
 }
 
-.comments .column-author {
+.wp-list-table.comments .column-author {
 	width: 20%;
+}
+
+.wp-list-table.media th {
+	white-space: nowrap;
+}
+
+.wp-list-table.media .column-parent {
+	width: 15%;
+}
+
+.wp-list-table.media .column-comments span.vers {
+	display: block;
 }
 
 .tablenav {
@@ -126,3 +138,4 @@ button.omnisearch-submit span {
 .omnisearch-results .tablenav.top {
 	margin: 5px 0;
 }
+

@@ -43,3 +43,4 @@ class Jetpack_Omnisearch_Media extends WP_Media_List_Table {
 	function extra_tablenav( $which ) {}
 }
 
+
