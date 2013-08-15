@@ -27,6 +27,9 @@ class Jetpack_Omnisearch {
 		require_once( dirname(__FILE__) . '/omnisearch-comments.php' );
 		new Jetpack_Omnisearch_Comments;
 
+		require_once( dirname(__FILE__) . '/omnisearch-media.php' );
+		new Jetpack_Omnisearch_Media;
+
 		if ( current_user_can( 'install_plugins' ) ) {
 			require_once( dirname(__FILE__) . '/omnisearch-plugins.php' );
 			new Jetpack_Omnisearch_Plugins;

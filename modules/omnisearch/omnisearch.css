@@ -113,8 +113,20 @@ button.omnisearch-submit span {
 	width: 15%;
 }
 
-.comments .column-author {
+.wp-list-table.comments .column-author {
 	width: 20%;
+}
+
+.wp-list-table.media th {
+	white-space: nowrap;
+}
+
+.wp-list-table.media .column-parent {
+	width: 15%;
+}
+
+.wp-list-table.media .column-comments span.vers {
+	display: block;
 }
 
 .tablenav {
