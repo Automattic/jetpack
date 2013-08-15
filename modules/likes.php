@@ -586,10 +586,6 @@ class Jetpack_Likes {
 		if ( ! $this->is_likes_visible() )
 			return $content;
 
-		$protocol = 'http';
-		if ( is_ssl() )
-			$protocol = 'https';
-
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$blog_id = get_current_blog_id();
 			$bloginfo = get_blog_details( (int) $blog_id );
@@ -610,7 +606,7 @@ class Jetpack_Likes {
 		*/
 		$uniqid = uniqid();
 
-		$src = sprintf( '%1$s://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s&amp;obj_id=%2$d-%3$d-%5$s', $protocol, $blog_id, $post->ID, $domain, $uniqid );
+		$src = sprintf( '//widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $post->ID, $domain, $uniqid );
 		$name = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post->ID, $uniqid );
 		$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post->ID, $uniqid );
 
