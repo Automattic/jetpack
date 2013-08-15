@@ -65,6 +65,14 @@ function change_twitter_site_param( $og_tags ) {
 	return $og_tags;
 }
 
+/**
+ * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
+ *
+ * See: http://jetpack.me/2013/07/11/photon-and-themes/
+ */
+if ( Jetpack::init()->is_module_active( 'photon' ) )
+	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
+
 /*
 if ( is_admin() && ! Jetpack::check_identity_crisis() ) {
 	Jetpack_Sync::sync_options( __FILE__, 'db_version', 'jetpack_active_modules', 'active_plugins' );
