@@ -222,7 +222,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 	function get_by_views( $count ) {
 		global $wpdb;
-		$post_view_posts = stats_get_csv( 'postviews', array( 'days' => 2, 'limit' => 10 ) );
+		$post_view_posts = stats_get_csv( 'postviews', array( 'days' => 2, 'limit' => 11 ) );
 		if ( !$post_view_posts ) {
 			return array();
 		}
