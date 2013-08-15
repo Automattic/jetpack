@@ -70,8 +70,11 @@ function change_twitter_site_param( $og_tags ) {
  *
  * See: http://jetpack.me/2013/07/11/photon-and-themes/
  */
-if ( Jetpack::init()->is_module_active( 'photon' ) )
+if ( Jetpack::init()->is_module_active( 'photon' ) ) {
 	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
+} else {
+	remove_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
+}
 
 /*
 if ( is_admin() && ! Jetpack::check_identity_crisis() ) {
