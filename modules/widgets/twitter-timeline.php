@@ -49,7 +49,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		if ( $instance['title'] )
 			echo $args['before_title'] . apply_filters( 'widget_title', $instance['title'] ) . $args['after_title'];
 
-		$data_attribs = array( 'widget-id', 'theme', 'link-color', 'border-color', 'chrome' );
+		$data_attribs = array( 'widget-id', 'theme', 'link-color', 'border-color', 'chrome', 'tweet-limit' );
 		$attribs      = array( 'width', 'height', 'lang' );
 
 		// Start tag output
@@ -57,6 +57,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
 		foreach ( $data_attribs as $att ) {
 			if ( !empty( $instance[$att] ) ) {
+				if ( 'tweet-limit' == $att && 0 === $instance[$att] )
+					continue;
+
 				if ( is_array( $instance[$att] ) )
 					echo ' data-' . esc_attr( $att ) . '="' . esc_attr( join( ' ', $instance['chrome'] ) ) . '"';
 				else
@@ -94,8 +97,9 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		$instance['title']   = sanitize_text_field( $new_instance['title'] );
 		$instance['width']   = (int) $new_instance['width'];
 		$instance['height']  = (int) $new_instance['height'];
-		$instance['width']   = ( 0 !== (int) $instance['width'] )  ? (int) $instance['width']  : 225;
-		$instance['height']  = ( 0 !== (int) $instance['height'] ) ? (int) $instance['height'] : 400;
+		$instance['width']   = ( 0 !== (int) $new_instance['width'] )  ? (int) $new_instance['width']  : 225;
+		$instance['height']  = ( 0 !== (int) $new_instance['height'] ) ? (int) $new_instance['height'] : 400;
+		$instance['tweet-limit']   = (int) $new_instance['tweet-limit']; 
 
 		// If they entered something that might be a full URL, try to parse it out
 		if ( is_string( $new_instance['widget-id'] ) ) {
@@ -166,6 +170,11 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'height' ); ?>"><?php esc_html_e( 'Height (px):', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'height' ); ?>" name="<?php echo $this->get_field_name( 'height' ); ?>" type="text" value="<?php echo esc_attr( $instance['height'] ); ?>" />
 		</p>
+
+                <p>
+                        <label for="<?php echo $this->get_field_id( 'tweet-limit' ); ?>"><?php esc_html_e( '# of Tweets Shown:', 'jetpack' ); ?></label>
+                        <input class="widefat" id="<?php echo $this->get_field_id( 'tweet-limit' ); ?>" name="<?php echo $this->get_field_name( 'tweet-limit' ); ?>" type="text" value="<?php echo esc_attr( $instance['tweet-limit'] ); ?>" />
+                </p>
 
 		<p><small>
 			<?php
