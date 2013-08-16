@@ -31,7 +31,7 @@ class Jetpack_Widget_Conditions {
 		switch ( $major ) {
 			case 'category':
 				?>
-				<option value=""><?php _e( 'All category pages' ); ?></option>
+				<option value=""><?php _e( 'All category pages', 'jetpack' ); ?></option>
 				<?php
 
 				$categories = get_categories( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
@@ -47,7 +47,7 @@ class Jetpack_Widget_Conditions {
 			break;
 			case 'author':
 				?>
-				<option value=""><?php _e( 'All author pages' ); ?></option>
+				<option value=""><?php _e( 'All author pages', 'jetpack' ); ?></option>
 				<?php
 
 				foreach ( get_users( array( 'orderby' => 'name', 'exclude_admin' => true ) ) as $author ) {
@@ -58,7 +58,7 @@ class Jetpack_Widget_Conditions {
 			break;
 			case 'tag':
 				?>
-				<option value=""><?php _e( 'All tag pages' ); ?></option>
+				<option value=""><?php _e( 'All tag pages', 'jetpack' ); ?></option>
 				<?php
 
 				$tags = get_tags( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
@@ -74,10 +74,10 @@ class Jetpack_Widget_Conditions {
 			break;
 			case 'date':
 				?>
-				<option value="" <?php selected( '', $minor ); ?>><?php _e( 'All date archives' ); ?></option>
-				<option value="day"<?php selected( 'day', $minor ); ?>><?php _e( 'Daily archives' ); ?></option>
-				<option value="month"<?php selected( 'month', $minor ); ?>><?php _e( 'Monthly archives' ); ?></option>
-				<option value="year"<?php selected( 'year', $minor ); ?>><?php _e( 'Yearly archives' ); ?></option>
+				<option value="" <?php selected( '', $minor ); ?>><?php _e( 'All date archives', 'jetpack' ); ?></option>
+				<option value="day"<?php selected( 'day', $minor ); ?>><?php _e( 'Daily archives', 'jetpack' ); ?></option>
+				<option value="month"<?php selected( 'month', $minor ); ?>><?php _e( 'Monthly archives', 'jetpack' ); ?></option>
+				<option value="year"<?php selected( 'year', $minor ); ?>><?php _e( 'Yearly archives', 'jetpack' ); ?></option>
 				<?php
 			break;
 			case 'page':
@@ -88,10 +88,10 @@ class Jetpack_Widget_Conditions {
 					$minor = 'post_type-post';
 
 				?>
-				<option value="posts" <?php selected( 'posts', $minor ); ?>><?php _e( 'Posts page' ); ?></option>
-				<option value="404" <?php selected( '404', $minor ); ?>><?php _e( '404 error page' ); ?></option>
-				<option value="search" <?php selected( 'search', $minor ); ?>><?php _e( 'Search results' ); ?></option>
-				<optgroup label="<?php esc_attr_e( 'Post type:' ); ?>">
+				<option value="posts" <?php selected( 'posts', $minor ); ?>><?php _e( 'Posts page', 'jetpack' ); ?></option>
+				<option value="404" <?php selected( '404', $minor ); ?>><?php _e( '404 error page', 'jetpack' ); ?></option>
+				<option value="search" <?php selected( 'search', $minor ); ?>><?php _e( 'Search results', 'jetpack' ); ?></option>
+				<optgroup label="<?php esc_attr_e( 'Post type:', 'jetpack' ); ?>">
 					<?php
 
 					$post_types = get_post_types( array( 'public' => true ), 'objects' );
@@ -104,7 +104,7 @@ class Jetpack_Widget_Conditions {
 
 					?>
 				</optgroup>
-				<optgroup label="<?php esc_attr_e( 'Static page:' ); ?>">
+				<optgroup label="<?php esc_attr_e( 'Static page:', 'jetpack' ); ?>">
 					<?php
 
 					echo str_replace( ' value="' . esc_attr( $minor ) . '"', ' value="' . esc_attr( $minor ) . '" selected="selected"', preg_replace( '/<\/?select[^>]*?>/i', '', wp_dropdown_pages( array( 'echo' => false ) ) ) );
@@ -146,10 +146,10 @@ class Jetpack_Widget_Conditions {
 		?>
 		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
 			<input type="hidden" name="widget-conditions-visible" value="<?php if ( isset( $_POST['widget-conditions-visible'] ) ) { echo esc_attr( $_POST['widget-conditions-visible'] ); } else { ?>0<?php } ?>" />
-			<?php if ( ! isset( $_POST['widget-conditions-visible'] ) ) { ?><a href="#" class="button display-options"><?php _e( 'Visibility' ); ?></a><?php } ?>
+			<?php if ( ! isset( $_POST['widget-conditions-visible'] ) ) { ?><a href="#" class="button display-options"><?php _e( 'Visibility', 'jetpack' ); ?></a><?php } ?>
 			<div class="widget-conditional-inner">
 				<div class="condition-top">
-					<?php printf( _x( '%s if:', 'placeholder: dropdown menu to select widget visibility; hide if or show if' ), '<select name="conditions[action]"><option value="show" ' . selected( $conditions['action'], 'show', false ) . '>' . esc_html_x( 'Show', 'Used in the "%s if:" translation for the widget visibility dropdown' ) . '</option><option value="hide" ' . selected( $conditions['action'], 'hide', false ) . '>' . esc_html_x( 'Hide', 'Used in the "%s if:" translation for the widget visibility dropdown' ) . '</option></select>' ); ?>
+					<?php printf( _x( '%s if:', 'placeholder: dropdown menu to select widget visibility; hide if or show if', 'jetpack' ), '<select name="conditions[action]"><option value="show" ' . selected( $conditions['action'], 'show', false ) . '>' . esc_html_x( 'Show', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option><option value="hide" ' . selected( $conditions['action'], 'hide', false ) . '>' . esc_html_x( 'Hide', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option></select>' ); ?>
 				</div><!-- .condition-top -->
 
 				<div class="conditions">
@@ -160,21 +160,21 @@ class Jetpack_Widget_Conditions {
 						<div class="condition">
 							<div class="alignleft">
 								<select class="conditions-rule-major" name="conditions[rules_major][]">
-									<option value="" <?php selected( "", $rule['major'] ); ?>><?php echo esc_html_x( '-- Select --', 'Used as the default option in a dropdown list' ); ?></option>
-									<option value="category" <?php selected( "category", $rule['major'] ); ?>><?php esc_html_e( 'Category' ); ?></option>
-									<option value="author" <?php selected( "author", $rule['major'] ); ?>><?php echo esc_html_x( 'Author', 'Noun, as in: "The author of this post is..."' ); ?></option>
-									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."' ); ?></option>
-									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."' ); ?></option>
-									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.' ); ?></option>
+									<option value="" <?php selected( "", $rule['major'] ); ?>><?php echo esc_html_x( '-- Select --', 'Used as the default option in a dropdown list', 'jetpack' ); ?></option>
+									<option value="category" <?php selected( "category", $rule['major'] ); ?>><?php esc_html_e( 'Category', 'jetpack' ); ?></option>
+									<option value="author" <?php selected( "author", $rule['major'] ); ?>><?php echo esc_html_x( 'Author', 'Noun, as in: "The author of this post is..."', 'jetpack' ); ?></option>
+									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
+									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
+									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
 								</select>
 								is
-								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...' ); ?>">
+								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
 									<?php self::widget_conditions_options_echo( $rule['major'], $rule['minor'] ); ?>
 								</select>
-								<span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.' ); ?></span>
+								<span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
 							</div>
 							<div class="condition-control alignright">
-								<a href="#" class="delete-condition"><?php esc_html_e( 'Delete' ); ?></a> | <a href="#" class="add-condition"><?php esc_html_e( 'Add' ); ?></a>
+								<a href="#" class="delete-condition"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a> | <a href="#" class="add-condition"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
 							</div>
 							<br class="clear" />
 						</div><!-- .condition -->
