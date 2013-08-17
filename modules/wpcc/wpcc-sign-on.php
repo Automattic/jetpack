@@ -62,15 +62,20 @@ class WPCC_Sign_On {
 
 	function fetch_options() {
 		$options = $this->in_jetpack() ? Jetpack_Options::get_option( 'wpcc_options' ) : get_option( 'wpcc_options' );
-		return wp_parse_args( $options, $this->default_options() );
+		$args = wp_parse_args( $options, $this->default_options() );
+
+		$args['new_user_override'] = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? WPCC_NEW_USER_OVERRIDE : false;
+		$args['match_by_email'] = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : true;
+
+		return $args;
 	}
 
 	function default_options() {
 		return array(
-			'client_id'         => null,
-			'client_secret'     => null,
-			'new_user_override' => null,
-			'match_by_email'    => null,
+			'client_id'         => '',
+			'client_secret'     => '',
+			'new_user_override' => false,
+			'match_by_email'    => true,
 		);
 	}
 
@@ -78,7 +83,7 @@ class WPCC_Sign_On {
 		// Create the section
 		add_settings_section(
 			'wpcc',
-			sprintf( '<a href="%1$s">%2$s</a>', esc_url( 'http://developer.wordpress.com/docs/wpcc/' ), esc_html__( 'WordPress.com Connect', 'jetpack' ) ),
+			esc_html__( 'WordPress.com Connect', 'jetpack' ),
 			array( $this, 'wpcc_settings_section' ),
 			'general'
 		);
@@ -97,31 +102,27 @@ class WPCC_Sign_On {
 			'general',
 			'wpcc'
 		);
-		add_settings_field(
-			'wpcc_new_user_override',
-			sprintf( '<label for="wpcc_new_user_override">%1$s</label>', __( 'New User Registration', 'jetpack' ) ),
-			array( $this, 'wpcc_new_user_override_cb' ),
-			'general',
-			'wpcc'
-		);
-		add_settings_field(
-			'wpcc_match_by_email',
-			sprintf( '<label for="wpcc_match_by_email">%1$s</label>', __( 'Match By Email', 'jetpack' ) ),
-			array( $this, 'wpcc_match_by_email_cb' ),
-			'general',
-			'wpcc'
-		);
 
 		register_setting( 'general', "{$this->options_prefix}wpcc_options", array( $this, 'sanitize_options' ) );
 
-		if ( ! empty( $this->client_id ) ) {
+		if ( ! empty( $this->client_id ) && ! empty( $this->client_secret ) ) {
 			add_action( 'show_user_profile', array( $this, 'edit_profile_fields' ) ); // For their own profile
 			add_action( 'edit_user_profile', array( $this, 'edit_profile_fields' ) ); // For folks editing others profiles
+		} else {
+			add_action( 'admin_notices', array( $this, 'no_credentials_admin_notice' ) );
 		}
 
 		if ( $user_ID = get_current_user_id() ) {
 			$this->wpcc_state = "localuser{$user_ID}";
 		}
+	}
+
+	function no_credentials_admin_notice() {
+		?>
+		<div id="wpcc-needs-config" class="updated">
+			<p><?php printf( __( '<strong>Almost done.</strong> Before WordPress.com Connect can finish activating, you\'ll need to <a href="%s">register your website as an application on WordPress.com</a>', 'jetpack' ), esc_url( admin_url( 'options-general.php#wpcc-sign-on-section' ) ) ); ?></p>
+		</div>
+		<?php
 	}
 
 	function sanitize_options( $options ) {
@@ -133,47 +134,33 @@ class WPCC_Sign_On {
 			$options['client_secret'] = sanitize_text_field( $options['client_secret'] );
 		}
 
-		if ( isset( $options['new_user_override'] ) ) {
-			$options['new_user_override'] = intval( $options['new_user_override'] );
-		}
-
-		if ( isset( $options['match_by_email'] ) ) {
-			$options['match_by_email'] = intval( $options['match_by_email'] );
-		}
-
 		return $options;
 	}
 
 	function wpcc_settings_section() {
 		?>
 
-		<p id="wpcc-sign-on-section"><?php _e( 'Sign-on with your WordPress.com account!', 'jetpack' ); ?></p>
+		<p id="wpcc-sign-on-section">
+			<?php
+				printf( __( 'Log-in with <a href="%s">WordPress.com Connect</a>.', 'jetpack' ), 'http://en.blog.wordpress.com/2013/08/13/introducing-wordpress-com-connect/' );
+				echo ' ';
+				if ( empty( $this->client_id ) || empty( $this->client_secret ) ) {
+					printf( __( 'Visit WordPress.com to <a href="%s">register a new WPCC client id and secret key</a>.', 'jetpack' ), $this->get_new_app_url() );
+				} else {
+					printf( __( 'Visit WordPress.com to <a href="%s">manage your WPCC client settings</a>.', 'jetpack' ), $this->get_edit_app_url() );
+				}
+			?>
+		</p>
 
 		<?php
 	}
 
 	function wpcc_sign_on_client_id_cb() {
 		echo '<input class="regular-text code" autocomplete="off" type="text" id="wpcc_sign_on_client_id" name="' . $this->options_prefix . 'wpcc_options[client_id]" value="' . esc_attr( $this->client_id ) . '" />';
-		if ( ! empty( $this->client_id ) ) {
-			printf( '<h2 style="display:inline; margin-left:1em;"><a href="%1$s">%2$s</a></h2>', esc_url( $this->get_edit_app_url( $this->client_id ) ), __( 'Edit app settings &rarr;', 'jetpack' ) );
-		}
 	}
 
 	function wpcc_sign_on_client_secret_cb() {
 		echo '<input class="regular-text code" autocomplete="off" type="text" id="wpcc_sign_on_client_secret" name="' . $this->options_prefix . 'wpcc_options[client_secret]" value="' . esc_attr( $this->client_secret ) . '" />';
-		if ( empty( $this->client_id ) || empty( $this->client_secret ) ) {
-			printf( '<h2 style="display:inline; margin-left:1em;"><a href="%1$s">%2$s</a></h2>', esc_url( $this->get_new_app_url() ), __( 'Get client keys &rarr;', 'jetpack' ) );
-		}
-	}
-
-	function wpcc_new_user_override_cb() {
-		echo '<input type="checkbox" id="wpcc_new_user_override" name="' . $this->options_prefix . 'wpcc_options[new_user_override]" value="1" ' . checked( 1, $this->new_user_override, false ) . '  />';
-		printf( ' <em>%1$s</em>', __( 'If you do not ordinarily <a href="#users_can_register">let users register</a> above, this will override that and let them register through <abbr title="WordPress.com Connect">WPCC</abbr>.', 'jetpack' ) );
-	}
-
-	function wpcc_match_by_email_cb() {
-		echo '<input type="checkbox" id="wpcc_match_by_email" name="' . $this->options_prefix . 'wpcc_options[match_by_email]" value="1" ' . checked( 1, $this->match_by_email, false ) . '  />';
-		printf( ' <em>%1$s</em>', __( 'Should the user be permitted to log on if their local account email address is a match to their verified WordPress.com account email address?', 'jetpack' ) );
 	}
 
 	function edit_profile_fields( $user ) {
@@ -413,7 +400,10 @@ class WPCC_Sign_On {
 	}
 
 	function cant_find_user( $message ) {
-		$err_format = __( 'We couldn\'t find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address.', 'jetpack' );
+		$err_format = __( 'We couldn\'t find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page.', 'jetpack' );
+		if ( ! $this->match_by_email ) {
+			$err_format = __( 'We couldn\'t find any account on <strong>%2$s</strong> that is linked to your WordPress.com account to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that you have connected to WordPress.com on your profile page.', 'jetpack' );
+		}
 		$err = sprintf( $err_format, $this->user_data->email, get_bloginfo( 'name' ) );
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
 		return $message;
@@ -429,7 +419,10 @@ class WPCC_Sign_On {
 		return add_query_arg( $args, $this->new_app_url_base );
 	}
 
-	function get_edit_app_url( $client_id ) {
+	function get_edit_app_url( $client_id = null ) {
+		if ( empty( $client_id ) ) {
+			$client_id = $this->client_id;
+		}
 		return sprintf( 'https://developer.wordpress.com/apps/%d/', $client_id );
 	}
 }

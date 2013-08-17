@@ -810,15 +810,8 @@ add_action( 'jetpack_learn_more_button_widget-visibility', 'jetpack_widget_visib
 function jetpack_wpcc_more_info() { ?>
 	<h4><?php esc_html_e( 'WordPress.com Connect' , 'jetpack' ); ?></h4>
 
-	<p><?php esc_html_e( 'Using the same log-in credentials you use for WordPress.com, you\'ll now be able to sign in to third party sites that integrate with WordPress.com Connect.', 'jetpack' ); ?></p>
-	<p><?php esc_html_e( 'By integrating with WordPress.com Connect, you can make it safe and secure for millions of WordPress.com users to "connect" their WordPress.com accounts and profile information to your website.', 'jetpack' ); ?></p>
-
-	<h4><?php esc_html_e( 'Benefits:' , 'jetpack' ); ?></h4>
-	<ul>
-		<li><?php _e( '<strong>Millions of users</strong>: By adding WordPress.com Connect, you’ll become part of a large family that makes it easy for WordPress.com users to explore new services.', 'jetpack' ); ?></li>
-		<li><?php _e( '<strong>Compatible with your existing sign-in system</strong>: WordPress.com Connect can be used on its own or as a complementary sign-in option to your existing registration system. Once a user connects, you’ll get access to their profile information, which you can use in your own app.', 'jetpack' ); ?></li>
-		<li><?php _e( '<strong>Trusted relationship</strong>: Allow users to sign-in with the same credentials they use every day on WordPress.com. This takes the pain out of having to remember and manage a new log-in for another service.', 'jetpack' ); ?></li>
-	</ul>
+	<p><?php esc_html_e( 'With WordPress.com Connect, your users will be able to log into your WordPress admin with the same credentials they use to log into WordPress.com.  It\'s safe and secure.' , 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'Once enabled, a "Connect with WordPress.com" option will be added to your existing log-in form.' , 'jetpack' ); ?></p>
 
 <?php
 }
