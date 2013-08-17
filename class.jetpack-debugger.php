@@ -102,7 +102,7 @@ class Jetpack_Debugger {
 							</a>
 						</p>
 						<pre class="jetpack-test-details"><?php esc_html_e( $test_name , 'jetpack'); ?>: 
-	<?php esc_html_e( is_wp_error( $test_info['result'] ) ? $test_info['result']->get_error_message() : print_r( $test_info['result'], 1 ) ); ?></pre>
+	<?php esc_html_e( is_wp_error( $test_info['result'] ) ? $test_info['result']->get_error_message() : print_r( $test_info['result'], 1 ), 'jetpack' ); ?></pre>
 					</div><?php
 				} else {
 					$debug_info .= $test_name . ": PASS\r\n";

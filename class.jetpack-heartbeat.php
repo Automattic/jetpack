@@ -108,14 +108,14 @@ class Jetpack_Heartbeat {
 	public function add_cron_intervals( $schedules ) {
 		$schedules['jetpack_weekly'] = array(
 		    'interval' => WEEK_IN_SECONDS,
-		    'display' => __('Jetpack weekly')
+		    'display' => __( 'Jetpack weekly', 'jetpack' ),
 		);
 		return $schedules;
 	}
 
 	public function deactivate() {
 		$timestamp = wp_next_scheduled( $this->cron_name );
-		wp_unschedule_event($timestamp, $this->cron_name );
+		wp_unschedule_event( $timestamp, $this->cron_name );
 	}
 
 }

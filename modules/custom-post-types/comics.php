@@ -78,13 +78,13 @@ class Jetpack_Comic {
 				<?php if ( ! $post_type || 'post' == $post_type ) { ?>
 					$( '<option>' )
 						.val( 'post2comic' )
-						.text( <?php echo json_encode( __( 'Convert to Comic' ) ); ?> )
+						.text( <?php echo json_encode( __( 'Convert to Comic', 'jetpack' ) ); ?> )
 						.appendTo( "select[name='action'], select[name='action2']" );
 				<?php } ?>
 				<?php if ( ! $post_type || self::POST_TYPE == $post_type ) { ?>
 					$( '<option>' )
 						.val( 'comic2post' )
-						.text( <?php echo json_encode( __( 'Convert to Post' ) ); ?> )
+						.text( <?php echo json_encode( __( 'Convert to Post', 'jetpack' ) ); ?> )
 						.appendTo( "select[name='action'], select[name='action2']" );
 				<?php } ?>
 
@@ -108,7 +108,7 @@ class Jetpack_Comic {
 
 		if ( 'post2comic' == $action || 'comic2post' == $action ) {
 			if ( ! current_user_can( 'publish_posts' ) )
-				wp_die( __( 'You are not allowed to make this change.' ) );
+				wp_die( __( 'You are not allowed to make this change.', 'jetpack' ) );
 
 			$post_ids = array_map( 'intval', $_REQUEST['post'] );
 
@@ -155,7 +155,7 @@ class Jetpack_Comic {
 
 		if ( 'edit.php' == $pagenow && ! empty( $_GET['post_type_changed'] ) ) {
 			?><div id="message" class="updated below-h2 jetpack-comic-post-type-conversion" style="display: none;"><p><?php
-			printf( _n( 'Post converted.', '%s posts converted', $_GET['post_type_changed'] ), number_format_i18n( $_GET['post_type_changed'] ) );
+			printf( _n( 'Post converted.', '%s posts converted', $_GET['post_type_changed'], 'jetpack' ), number_format_i18n( $_GET['post_type_changed'] ) );
 			?></p></div><?php
 		}
 	}
@@ -171,7 +171,7 @@ class Jetpack_Comic {
 				'dragging' => __( 'Drop images to upload', 'jetpack' ),
 				'uploading' => __( 'Uploading...', 'jetpack' ),
 				'processing' => __( 'Processing...', 'jetpack' ),
-				'unsupported' => __( "Sorry, your browser isn't supported. Upgrade at browsehappy.com." ),
+				'unsupported' => __( "Sorry, your browser isn't supported. Upgrade at browsehappy.com.", 'jetpack' ),
 				'invalidUpload' => __( 'Only images can be uploaded here.', 'jetpack' ),
 				'error' => __( "Your upload didn't complete; try again later or cross your fingers and try again right now.", 'jetpack' ),
 			)
@@ -279,7 +279,7 @@ class Jetpack_Comic {
 			8  => sprintf( __( 'Comic submitted. <a target="_blank" href="%s">Preview comic</a>', 'jetpack'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
 			9  => sprintf( __( 'Comic scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview comic</a>', 'jetpack' ),
 			// translators: Publish box date format, see http://php.net/date
-			date_i18n( __( 'M j, Y @ G:i' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post->ID) ) ),
+			date_i18n( __( 'M j, Y @ G:i', 'jetpack' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post->ID) ) ),
 			10 => sprintf( __( 'Comic draft updated. <a target="_blank" href="%s">Preview comic</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
 		);
 
@@ -341,7 +341,7 @@ class Jetpack_Comic {
 		header( 'Content-Type: application/json' );
 
 		if ( ! wp_verify_nonce( $_REQUEST['nonce'], 'jetpack_comic_upload_nonce' ) )
-			die( json_encode( array( 'error' => __( 'Invalid or expired nonce.' ) ) ) );
+			die( json_encode( array( 'error' => __( 'Invalid or expired nonce.', 'jetpack' ) ) ) );
 
 		$_POST['action'] = 'wp_handle_upload';
 
@@ -457,7 +457,7 @@ Your webcomic's new site is ready to go. Get started by <a href=\"BLOG_URLwp-adm
 Looking for more help with setting up your site? Check out the WordPress.com <a href=\"http://learn.wordpress.com/\">beginner's tutorial</a> and the <a href=\"http://en.support.wordpress.com/comics/\">guide to comics on WordPress.com</a>. Dive right in by <a href=\"BLOG_URLwp-admin/customize.php#title\">publishing your first strip!</a>
 
 Lots of laughs,
-The WordPress.com Team" );
+The WordPress.com Team", 'jetpack' );
 	}
 
 	return $welcome_email;

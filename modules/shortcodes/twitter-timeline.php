@@ -14,12 +14,12 @@ function twitter_timeline_shortcode( $attr ) {
 	$attr = shortcode_atts( $default_atts, $attr );
 
 	if ( $attr['username'] != preg_replace( '/[^A-Za-z0-9_]+/', '', $attr['username'] ) )
-		return '<!--' . __( 'Invalid username' ) . '-->';
+		return '<!--' . __( 'Invalid username', 'jetpack' ) . '-->';
 
 	if ( ! is_numeric( $attr['id'] ) )
-		return '<!--' . __( 'Invalid id' ) . '-->';
+		return '<!--' . __( 'Invalid id', 'jetpack' ) . '-->';
 
-	$tweets_by = sprintf( __( 'Tweets by @%s' ), $attr['username'] );
+	$tweets_by = sprintf( __( 'Tweets by @%s', 'jetpack' ), $attr['username'] );
 	$output = '<a class="twitter-timeline" width="' . (int)$attr['width'] . '" height="' . (int)$attr['width'] . '" href="' . esc_url( 'https://twitter.com/'. $attr['username'] ) . '" data-widget-id="' . (int)$attr['id'] . '">' . esc_html( $tweets_by ) . '</a>';
 	add_action( 'wp_footer', 'twitter_timeline_js' );
 
