@@ -32,6 +32,9 @@ function AtD_process_unignore_update() {
 	if ( ! AtD_is_allowed() )
 		return;
 
+	if ( ! isset( $_POST['AtD_ignored_phrases'] ) )
+		return;
+
         $user = wp_get_current_user();
 
         if ( ! $user || $user->ID == 0 )
