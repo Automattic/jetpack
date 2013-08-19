@@ -35,9 +35,7 @@ class Jetpack_Widget_Conditions {
 				<?php
 
 				$categories = get_categories( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
-				usort( $categories, function ( $a, $b ) {
-					return strcasecmp( $a->name, $b->name );
-				} );
+				usort( $categories, array( __CLASS__, 'strcasecmp_name' ) );
 
 				foreach ( $categories as $category ) {
 					?>
@@ -62,9 +60,7 @@ class Jetpack_Widget_Conditions {
 				<?php
 
 				$tags = get_tags( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
-				usort( $tags, function ( $a, $b ) {
-					return strcasecmp( $a->name, $b->name );
-				} );
+				usort( $tags, array( __CLASS__, 'strcasecmp_name' ) );
 
 				foreach ( $tags as $tag ) {
 					?>
@@ -372,6 +368,10 @@ class Jetpack_Widget_Conditions {
 			return false;
 
 		return $instance;
+	}
+
+	public static function strcasecmp_name( $a, $b ) {
+		return strcasecmp( $a->name, $b->name );
 	}
 }
 
