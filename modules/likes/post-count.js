@@ -1,8 +1,8 @@
-var wpPostLikeCount;
+var wpPostLikeCount = wpPostLikeCount || {};
 
 (function($) {
 
-	wpPostLikeCount = {
+	wpPostLikeCount = jQuery.extend( wpPostLikeCount, {
 
 		jsonAPIbase: 'https://public-api.wordpress.com/rest/v1',
 		APIqueue:    [],
@@ -47,20 +47,8 @@ var wpPostLikeCount;
 			}
 
 			wpPostLikeCount.request( batchRequest );
-		},
-
-		request: function( options ) {
-			return $.ajax( {
-				type: 'GET',
-				url: wpPostLikeCount.jsonAPIbase + options.path,
-				dataType : "jsonp",
-				data: options.data,
-				success: function( response ) { options.success( response  ) },
-				error: function( response ) { options.error( response ) }
-			} )
 		}
-
-	};
+	} );
 
 })(jQuery);
 
