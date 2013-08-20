@@ -2390,7 +2390,7 @@ p {
 
 			<div id="jp-header"<?php if ( $is_connected ) : ?> class="small"<?php endif; ?>>
 				<div id="jp-clouds">
-					<?php if ( $is_connected &&  ) : ?>
+					<?php if ( $is_connected ) : ?>
 					<div id="jp-disconnectors">
 						<?php if ( current_user_can( 'manage_options' ) ) : ?>
 						<div id="jp-disconnect" class="jp-disconnect">
