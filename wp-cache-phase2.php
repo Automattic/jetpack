@@ -4,6 +4,7 @@ function wp_cache_phase2() {
 	global $cache_filename, $cache_acceptable_files, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_last_gc;
 	global $cache_max_time, $wp_cache_request_uri, $super_cache_enabled, $wp_cache_object_cache, $cache_time_interval, $wp_cache_no_cache_for_get;
 	global $cache_enabled, $wp_cache_gmt_offset, $wp_cache_blog_charset, $cache_schedule_type, $cache_scheduled_time, $cache_schedule_interval;
+	global $wp_cache_mfunc_enabled;
 
 	if ( $cache_enabled == false ) {
 		if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug ) wp_cache_debug( "Caching disabled! quiting!", 1 );
@@ -90,6 +91,11 @@ function wp_cache_phase2() {
 	else
 		header('Vary: Cookie');
 	ob_start( 'wp_cache_ob_callback' ); 
+
+	// cannot use output buffers in an output buffer callback so move the action to a shutdown function if using dynamic caching.
+	if ( $wp_cache_mfunc_enabled == 1 )
+		add_action( 'shutdown', 'wpcache_shutdown' );
+
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Created output buffer', 4 );
 
 	// restore old supercache file temporarily
@@ -101,6 +107,33 @@ function wp_cache_phase2() {
 	}
 
 	schedule_wp_gc();
+}
+
+function wpcache_shutdown() {
+	global $wpsc_cached_data, $cache_compression, $wp_cache_gzip_encoding, $wp_cache_mfunc_enabled;
+	if ( isset( $wpsc_cached_data ) && $wpsc_cached_data != '' ) {
+		$wpsc_cachedata = do_cacheaction( 'wpsc_cachedata', $wpsc_cached_data ); // dynamic content for display
+
+		if ( !isset( $wp_cache_mfunc_enabled ) )
+			$wp_cache_mfunc_enabled = 0;
+
+		// For some reason the first dynamic cached request for a page can't 
+		// be gzipped as the browser shows gzipped data but my testing shows
+		// the browser still receives it gzipped even with this code commented out.
+		// Since this function is only called when dynamic caching is enabled
+		// this check effectively always returns false and it only sends
+		// uncompressed data when a page is generated
+		if ( !$wp_cache_mfunc_enabled && $cache_compression && $wp_cache_gzip_encoding ) {
+			wp_cache_add_to_buffer( $wpsc_cached_data, "Compression = gzip" );
+			$gzdata = gzencode( $wpsc_cached_data, 6, FORCE_GZIP );
+			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Gzipping dynamic buffer for display: " . strlen( $wpsc_cached_data ) . " " . strlen( $gzdata ) );
+			wpsc_send_headers( $gzdata );
+			echo $gzdata;
+		} else {
+			wpsc_send_headers( $wpsc_cached_data );
+			echo $wpsc_cached_data;
+		}
+	}
 }
 
 function wpcache_do_rebuild( $dir ) {
@@ -268,7 +301,7 @@ function wp_super_cache_query_vars() {
 }
 
 function wp_cache_ob_callback( $buffer ) {
-	global $wp_cache_pages, $wp_query, $wp_super_cache_query;
+	global $wp_cache_pages, $wp_query, $wp_super_cache_query, $wp_cache_mfunc_enabled;
 	$buffer = apply_filters( 'wp_cache_ob_callback_filter', $buffer );
 	if( defined( 'DONOTCACHEPAGE' ) ) {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'DONOTCACHEPAGE defined. Caching disabled.', 2 );
@@ -314,6 +347,15 @@ function wp_cache_ob_callback( $buffer ) {
 
 	$buffer = &wp_cache_get_ob( $buffer );
 	wp_cache_shutdown_callback();
+	// cannot use output buffers in an output buffer callback so move the action to a shutdown function.
+	if ( $wp_cache_mfunc_enabled == 1 ) {
+		global $wp_super_cache_late_init;
+		if ( false == isset( $wp_super_cache_late_init ) || ( isset( $wp_super_cache_late_init ) && $wp_super_cache_late_init == 0 ) )
+			wp_cache_add_to_buffer( $buffer, 'Super Cache dynamic page detected but late init not enabled. See the readme.txt for further details.' );
+		global $wpsc_cached_data;
+		$wpsc_cached_data = $buffer;
+		return '';
+	}
 	return $buffer;
 }
 
@@ -455,7 +497,6 @@ function wp_cache_get_ob(&$buffer) {
 			global $wp_super_cache_late_init;
 			if ( false == isset( $wp_super_cache_late_init ) || ( isset( $wp_super_cache_late_init ) && $wp_super_cache_late_init == 0 ) )
 				wp_cache_add_to_buffer( $buffer, 'Super Cache dynamic page detected but $wp_super_cache_late_init not set. See the readme.txt for further details.' );
-			return do_cacheaction( 'wpsc_cachedata', $buffer ); // dynamic content for display
 		}
 
 		return $buffer;
@@ -536,14 +577,7 @@ function wp_cache_get_ob(&$buffer) {
 			wp_cache_set( $oc_key, $buffer, 'supercache', $cache_max_time );
 		}
 		$wp_cache_meta[ 'dynamic' ] = true;
-		$buffer = do_cacheaction( 'wpsc_cachedata', $buffer ); // dynamic content for display
-
-		if ( $cache_compression && $wp_cache_gzip_encoding ) {
-			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Gzipping dynamic buffer for display.", 5 );
-			wp_cache_add_to_buffer( $buffer, "Compression = gzip" );
-			$gzdata = gzencode( $buffer, 6, FORCE_GZIP );
-			$gzsize = function_exists( 'mb_strlen' ) ? mb_strlen( $gzdata, '8bit' ) : strlen( $gzdata );
-		}
+		// see wpcache_shutdown()
 	} else {
 		if ( $gz || $wp_cache_gzip_encoding ) {
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Gzipping buffer.", 5 );
@@ -643,16 +677,28 @@ function wp_cache_get_ob(&$buffer) {
 		update_option( 'supercache_last_cached', $last_urls );
 	}
 	wp_cache_writers_exit();
-	if ( !headers_sent() && $wp_cache_gzip_encoding && $gzdata) {
-		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Writing gzip content headers. Sending buffer to browser", 5 );
+	if ( $wp_cache_mfunc_enabled == 0 ) {
+		if ( $gzdata && $wp_cache_gzip_encoding )
+			return wpsc_send_headers( $gzdata );
+		else
+			return wpsc_send_headers( $buffer );
+	} else {
+		return $buffer;
+	}
+}
+
+function wpsc_send_headers( &$buffer ) {
+	global $wp_cache_gzip_encoding;
+	if ( $wp_cache_gzip_encoding ) {
+		$gzsize = function_exists( 'mb_strlen' ) ? mb_strlen( $buffer, '8bit' ) : strlen( $buffer );
 		header( 'Content-Encoding: ' . $wp_cache_gzip_encoding );
 		header( 'Vary: Accept-Encoding, Cookie' );
 		header( 'Content-Length: ' . $gzsize );
-		return $gzdata;
+		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Writing gzip content headers. Sending buffer to browser: $wp_cache_gzip_encoding, $gzsize", 5 );
 	} else {
 		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "Sending buffer to browser", 5 );
-		return $buffer;
 	}
+	return $buffer;
 }
 
 function wp_cache_phase2_clean_cache($file_prefix) {
