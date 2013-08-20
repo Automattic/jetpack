@@ -901,14 +901,25 @@ class Jetpack_Custom_CSS {
 
 	/**
 	 * Render metabox listing CSS revisions and the themes that correspond to the revisions.
-	 * Called by afecss_admin	 *
-	 * @param array $safecss_post
+	 * Called by safecss_admin
+	 *
 	 * @global $post
-	 * @uses WP_Query, wp_post_revision_title, esc_html, add_query_arg, menu_page_url, wp_reset_query
+	 * @param array $safecss_post
+	 * @uses wp_revisions_to_keep
+	 * @uses WP_Query
+	 * @uses wp_post_revision_title
+	 * @uses esc_html
+	 * @uses add_query_arg
+	 * @uses menu_page_url
+	 * @uses wp_reset_query
 	 * @return string
 	 */
 	static function revisions_meta_box( $safecss_post ) {
-		$max_revisions = defined( 'WP_POST_REVISIONS' ) && is_numeric( WP_POST_REVISIONS ) ? (int) WP_POST_REVISIONS : 25;
+		if ( function_exists( 'wp_revisions_to_keep' ) )
+			$max_revisions = wp_revisions_to_keep( $safecss_post );
+		else
+			$max_revisions = defined( 'WP_POST_REVISIONS' ) && is_numeric( WP_POST_REVISIONS ) ? (int) WP_POST_REVISIONS : 25;
+
 		$posts_per_page = isset( $_GET['show_all_rev'] ) ? $max_revisions : 6;
 
 		$revisions = new WP_Query( array(
