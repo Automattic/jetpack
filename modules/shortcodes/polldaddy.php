@@ -274,6 +274,8 @@ CONTAINER;
 				$survey_url  = esc_url( "http://polldaddy.com/s/{$survey}" );
 				$survey_link = sprintf( '<a href="%s">%s</a>', $survey_url, esc_html( $title ) );
 
+				$settings = array();
+
 				// Do we want a full embed code or a link? Remove the is_automattician() bit entirely when IS testing is complete
 				if ( $no_script || $inline || ( is_automattician() === false && $infinite_scroll ) )
 					return $survey_link;
@@ -316,7 +318,7 @@ CONTAINER;
 							'auto'       => true,
 							'domain'     => $domain,
 							'id'         => $id
-						) ;
+						);
 					}
 				}
 				else {
@@ -345,6 +347,9 @@ CONTAINER;
 						'id'         => $survey
 					) );
 				}
+
+				if ( empty( $settings ) )
+					return '<!-- no polldaddy output -->';
 
 				if ( is_automattician() )
 					return $this->get_async_code( $settings, $survey_link );
