@@ -83,7 +83,7 @@ class Jetpack {
 	/**
 	 * Holds the singleton instance of this class
 	 * @since 2.3.3
-	 * @var Jetpack 
+	 * @var Jetpack
 	 */
 	static $instance = false;
 
@@ -983,7 +983,7 @@ class Jetpack {
 
 		$module_data = Jetpack::get_module( $module );
 		
-		if ( ! Jetpack::is_active() ) {	
+		if ( ! Jetpack::is_active() ) {
 			if ( ! Jetpack::is_development_mode() )
 				return false;
 
@@ -1398,7 +1398,7 @@ p {
 		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
-		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );		
+		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
 	}
 /**/
 	function add_remote_request_handlers() {
@@ -1579,7 +1579,7 @@ p {
 			'<p><strong>' . __( 'For more information:', 'jetpack' ) . '</strong></p>' .
 			'<p><a href="http://jetpack.me/faq/" target="_blank">'     . __( 'Jetpack FAQ',     'jetpack' ) . '</a></p>' .
 			'<p><a href="http://jetpack.me/support/" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
-			'<p><a href="' . Jetpack::admin_url( array(	'page'   => 'jetpack-debugger' )  ) .'">' . __( 'Jetpack Debugging Center', 'jetpack' ) . '</a></p>' 
+			'<p><a href="' . Jetpack::admin_url( array(	'page'   => 'jetpack-debugger' )  ) .'">' . __( 'Jetpack Debugging Center', 'jetpack' ) . '</a></p>'
 			
 		);
 	}
@@ -1660,7 +1660,7 @@ p {
 			return;
 		?>
 
-		<div id="message" class="updated jetpack-message jp-connect">
+		<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 			<div id="jp-dismiss" class="jetpack-close-button-container">
 				<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"><?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?></a>
 			</div>
@@ -2427,7 +2427,7 @@ p {
 			?>
 				<?php if ( ! $is_connected ) : ?>
 
-				<div id="message" class="updated jetpack-message jp-connect">
+				<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 					<div id="jp-dismiss" class="jetpack-close-button-container">
 						<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss" title="<?php _e( 'Dismiss this notice.', 'jetpack' ); ?>"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
 					</div>
@@ -2445,7 +2445,7 @@ p {
 
 				<?php elseif ( ! $is_user_connected ) : ?>
 
-				<div id="message" class="updated jetpack-message jp-connect">
+				<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 					<div class="jetpack-wrap-container">
 						<div class="jetpack-text-container">
 							<h4>
@@ -2905,9 +2905,9 @@ p {
 
 	/**
 	 * Checks to see if the URL is using SSL to connect with Jetpack
-	 * 
+	 *
 	 * @since 2.3.3
-	 * @return boolean 
+	 * @return boolean
 	 */
 	public static function permit_ssl( $force_recheck = false ) {
 		// Do some fancy tests to see if ssl is being supported
@@ -2927,7 +2927,7 @@ p {
 						break;
 				}
 
-				// If it's not 'NEVER', test to see 
+				// If it's not 'NEVER', test to see
 				if ( $ssl ) {
 					$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
 					if ( is_wp_error( $response ) || ( 'OK' !== wp_remote_retrieve_body( $response ) ) ) {
@@ -3550,7 +3550,7 @@ p {
 	 * @param int $size Size of the avatar image
 	 * @param string $default URL to a default image to use if no avatar is available
 	 * @param bool $force_display Whether to force it to return an avatar even if show_avatars is disabled
-	 * 
+	 *
 	 * @return array First element is the URL, second is the class.
 	 */
 	public static function get_avatar_url( $id_or_email, $size = 96, $default = '', $force_display = false ) {
