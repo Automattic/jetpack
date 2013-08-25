@@ -483,28 +483,35 @@ class Jetpack {
 		}
 
 		$conflicting_plugins = array(
-			'facebook/facebook.php',                                                			// Official Facebook plugin
-			'wordpress-seo/wp-seo.php',                                             			// WordPress SEO by Yoast
-			'add-link-to-facebook/add-link-to-facebook.php',                        			// Add Link to Facebook
-			'facebook-awd/AWD_facebook.php',                                        			// Facebook AWD All in one
-			'header-footer/plugin.php',                                             			// Header and Footer
-			'nextgen-facebook/nextgen-facebook.php',                                			// NextGEN Facebook OG
-			'seo-facebook-comments/seofacebook.php',                                			// SEO Facebook Comments
-			'seo-ultimate/seo-ultimate.php',                                        			// SEO Ultimate
-			'sexybookmarks/sexy-bookmarks.php',                                     			// Shareaholic
-			'shareaholic/sexy-bookmarks.php',                                       			// Shareaholic
-			'social-discussions/social-discussions.php',                            			// Social Discussions
-			'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',				// NextScripts SNAP
-			'wordbooker/wordbooker.php',                                            			// Wordbooker
-			'socialize/socialize.php',                                              			// Socialize
-			'simple-facebook-connect/sfc.php',                                      			// Simple Facebook Connect
-			'social-sharing-toolkit/social_sharing_toolkit.php',                    			// Social Sharing Toolkit
-			'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',                  			// WP Facebook Open Graph protocol
-			'opengraph/opengraph.php',                                              			// Open Graph
-			'sharepress/sharepress.php',                                            			// SharePress
-			'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',		// WP Facebook Like Send & Open Graph Meta
-			'network-publisher/networkpub.php',								// Network Publisher
-			'wp-ogp/wp-ogp.php',										// WP-OGP
+			'facebook/facebook.php',                                                								// Official Facebook plugin
+			'wordpress-seo/wp-seo.php',                                             								// WordPress SEO by Yoast
+			'add-link-to-facebook/add-link-to-facebook.php',                        								// Add Link to Facebook
+			'facebook-awd/AWD_facebook.php',                                        								// Facebook AWD All in one
+			'header-footer/plugin.php',                                             								// Header and Footer
+			'nextgen-facebook/nextgen-facebook.php',                                								// NextGEN Facebook OG
+			'seo-facebook-comments/seofacebook.php',                                								// SEO Facebook Comments
+			'seo-ultimate/seo-ultimate.php',                                        								// SEO Ultimate
+			'sexybookmarks/sexy-bookmarks.php',                                     								// Shareaholic
+			'shareaholic/sexy-bookmarks.php',                                       								// Shareaholic
+			'social-discussions/social-discussions.php',                            								// Social Discussions
+			'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',									// NextScripts SNAP
+			'wordbooker/wordbooker.php',                                            								// Wordbooker
+			'socialize/socialize.php',                                              								// Socialize
+			'simple-facebook-connect/sfc.php',                                      								// Simple Facebook Connect
+			'social-sharing-toolkit/social_sharing_toolkit.php',                    								// Social Sharing Toolkit
+			'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',                  								// WP Facebook Open Graph protocol
+			'opengraph/opengraph.php',                                              								// Open Graph
+			'sharepress/sharepress.php',                                            								// SharePress
+			'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',							// WP Facebook Like Send & Open Graph Meta
+			'network-publisher/networkpub.php',													// Network Publisher
+			'wp-ogp/wp-ogp.php',															// WP-OGP
+			'twitter-cards/twitter-cards.php',													// Twitter Cards
+			'twitter-cards-meta/twitter-cards-meta.php',												// Twitter Cards Meta
+			'ig-twitter-cards/ig-twitter-cards.php',												// IG:Twitter Cards
+			'kevinjohn-gallagher-pure-web-brilliants-social-graph-twitter-cards-extention/kevinjohn_gallagher___social_graph_twitter_output.php',	// Pure Web Brilliant's Social Graph Twitter Cards Extention
+			'jm-twitter-cards/jm-twitter-cards.php',												// JM Twitter Cards
+			'wp-twitter-cards/twitter_cards.php',													// WP Twitter Cards
+			'eewee-twitter-card/index.php',														// eewee twitter card
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
