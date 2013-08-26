@@ -73,9 +73,8 @@ class Jetpack_Subscriptions {
 		// Set up the comment subscription checkboxes
 		add_action( 'comment_form', array( $this, 'comment_subscribe_init' ) );
 
-		// Catch comment posts or approvals; check for subscriptions.
-		add_action( 'comment_post',                   array( $this, 'comment_subscribe_submit' ),        50, 2 );
-		add_action( 'comment_unapproved_to_approved', array( $this, 'comment_subscribe_on_transition' ), 50, 2 );
+		// Catch comment posts and check for subscriptions.
+		add_action( 'comment_post', array( $this, 'comment_subscribe_submit' ), 50, 2 );
 	}
 
 	function post_is_public( $the_post ) {
@@ -463,19 +462,19 @@ class Jetpack_Subscriptions {
 	 }
 
 	/**
-	* Jetpack_Subscriptions::comment_subscribe_submit()
-	*
-	* When a user checks the comment subscribe box and submits a comment, subscribe them to the comment thread.
-	*/
-	function comment_subscribe_submit( $comment_id, $approved ) {
-		if ( 1 !== $approved || 'approve' !== $approved ) { // if the comment is not approved, spam, or held, do not sync it
+	 * Jetpack_Subscriptions::comment_subscribe_init()
+	 *
+	 * When a user checks the comment subscribe box and submits a comment, subscribe them to the comment thread.
+	 */
+	 function comment_subscribe_submit( $comment_id, $approved ) {
+		if ( 'spam' === $approved ) {
 			return;
 		}
 
 		// Set cookies for this post/comment
 		$this->set_cookies( isset( $_REQUEST['subscribe_comments'] ), isset( $_REQUEST['subscribe_blog'] ) );
 
-		if ( !isset( $_REQUEST['subscribe_comments'] ) && !isset( $_REQUEST['subscribe_blog'] ) )
+	 	if ( !isset( $_REQUEST['subscribe_comments'] ) && !isset( $_REQUEST['subscribe_blog'] ) )
 			return;
 
 		$comment = get_comment( $comment_id );
@@ -488,14 +487,7 @@ class Jetpack_Subscriptions {
 			$post_ids[] = 0;
 
 		Jetpack_Subscriptions::subscribe( $comment->comment_author_email, $post_ids );
-	}
-
-	function comment_subscribe_on_transition( $comment_id, $comment ) {
-		if ( ! is_object( $comment ) )
-			return;
-			
-		Jetpack_Subscriptions::comment_subscribe_submit( (int) $comment_id, $comment->comment_approved );
-	}
+	 }
 
 	/**
 	 * Jetpack_Subscriptions::set_cookies()
