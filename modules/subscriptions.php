@@ -370,9 +370,7 @@ class Jetpack_Subscriptions {
 	 */
 	function widget_submit() {
 		// Check the nonce.
-		if ( is_user_logged_in() ) {
-			check_admin_referer( 'blogsub_subscribe_' . get_current_blog_id() );
-		}
+		check_admin_referer( 'blogsub_subscribe_' . get_current_blog_id() );
 
 		if ( empty( $_REQUEST['email'] ) )
 			return false;
@@ -531,8 +529,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 
 		$source = 'widget';
 
-		extract( $args );
-
 		$instance            	= wp_parse_args( (array) $instance, $this->defaults() );
 		$title               	= isset( $instance['title'] )               ? stripslashes( $instance['title'] )               : '';
 		$subscribe_text      	= isset( $instance['subscribe_text'] )      ? stripslashes( $instance['subscribe_text'] )      : '';
@@ -545,7 +541,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			$show_subscribers_total = FALSE;
 
 		echo $args['before_widget'];
-		echo $args['before_title'] . '<label for="subscribe-field">' . esc_attr( $instance['title'] ) . '</label>' . $args['after_title'] . "\n";
+		echo $args['before_title'] . '<label for="subscribe-field">' . esc_attr( apply_filters( 'widget_title', $instance['title'] ) ) . '</label>' . $args['after_title'] . "\n";
 
 		$referer = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
@@ -595,11 +591,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>" />
 				<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>" />
 				<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $widget_id ); ?>" />
-				<?php
-					if ( is_user_logged_in() ) {
-						wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false );
-					}
-				?>
+				<?php wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false ); ?>
 				<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>" name="jetpack_subscriptions_widget" />
 			</p>
 		</form>
