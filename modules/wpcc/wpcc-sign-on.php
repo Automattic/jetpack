@@ -411,6 +411,7 @@ class WPCC_Sign_On {
 
 	function get_new_app_url() {
 		$args = array(
+			'for'          => 'jetpack',
 			'title'        => urlencode( get_bloginfo( 'name' ) ),
 			'description'  => urlencode( get_bloginfo( 'description' ) ),
 			'url'          => urlencode( site_url() ),
