@@ -282,7 +282,7 @@ class Jetpack_Subscriptions {
 	 *	unknown         : strange error.  Jetpack servers at WordPress.com returned something malformed.
 	 *	unknown_status  : strange error.  Jetpack servers at WordPress.com returned something I didn't understand.
 	 */
-	function subscribe( $email, $post_ids = 0, $async = true, $submitter_ip_address = '' ) {
+	function subscribe( $email, $post_ids = 0, $async = true, $extra_data = array() ) {
 		if ( !is_email( $email ) ) {
 			return new Jetpack_Error( 'invalid_email' );
 		}
@@ -301,9 +301,9 @@ class Jetpack_Subscriptions {
 			}
 
 			if ( $async ) {
-				Jetpack::xmlrpc_async_call( 'jetpack.subscribeToSite', $email, $post_id, $submitter_ip_address );
+				Jetpack::xmlrpc_async_call( 'jetpack.subscribeToSite', $email, $post_id, serialize( $extra_data ) );
 			} else {
-				$xml->addCall( 'jetpack.subscribeToSite', $email, $post_id, $submitter_ip_address );
+				$xml->addCall( 'jetpack.subscribeToSite', $email, $post_id, serialize( $extra_data) );
 			}
 		}
 
@@ -385,7 +385,17 @@ class Jetpack_Subscriptions {
 			$redirect_fragment = 'subscribe-blog';
 		}
 
-		$subscribe = Jetpack_Subscriptions::subscribe( $_REQUEST['email'], 0, false, $_SERVER['REMOTE_ADDR'] );
+		$subscribe = Jetpack_Subscriptions::subscribe( 
+												$_REQUEST['email'], 
+												0, 
+												false, 
+												array( 
+													'source'         => 'widget', 
+													'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no', 
+													'comment_status' => '', 
+													'server_data'    => $_SERVER,
+												)
+		);
 
 		if ( is_wp_error( $subscribe ) ) {
 			$error = $subscribe->get_error_code();
@@ -486,7 +496,17 @@ class Jetpack_Subscriptions {
 		if ( isset( $_REQUEST['subscribe_blog'] ) )
 			$post_ids[] = 0;
 
-		Jetpack_Subscriptions::subscribe( $comment->comment_author_email, $post_ids );
+		Jetpack_Subscriptions::subscribe( 
+									$comment->comment_author_email, 
+									$post_ids,
+									true,
+									array( 
+										'source'         => 'comment-form', 
+										'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no', 
+										'comment_status' => $approved, 
+										'server_data'    => $_SERVER,
+									)
+		);
 	 }
 
 	/**
