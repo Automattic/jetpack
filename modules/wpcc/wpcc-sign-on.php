@@ -149,6 +149,9 @@ class WPCC_Sign_On {
 				}
 			?>
 		</p>
+		<script>
+			jQuery('#wpcc-sign-on-section a').attr( 'target', '_blank' );
+		</script>
 
 		<?php
 	}
