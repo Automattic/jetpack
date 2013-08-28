@@ -83,7 +83,30 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
-= 2.3.5 = 
+= 2.4 =
+* Enhancement: WordPress.com Connect (WPCC): New Module.
+* Enhancement: Widget Visibility: New Module.
+* Enhancement: Shortcode: Addition of new Twitter Timeline shortcode.
+* Enhancement: Shortcode: Addition of new Presentation shortcode.
+* Enhancement: Shortcode: Addition of new Vine shortcode.
+* Enhancement: Custom Post Types: CPTs are available.
+* Enhancement: Subscriptions: Add 'jetpack_is_post_mailable' filter.
+* Enhancement: OpenGraph: Add Twitter Cards meta tags as well.
+* Enhancement: Custom CSS: Update lessc and scssc preprocessors to 0.4.0 and 0.0.7 respectively.
+* Enhancement: Omnisearch: Add Media results.
+* Enhancement: Likes: Use a protocol-agnostic iframe, instead of forced HTTPS.
+* Enhancement: Top Posts: Increase post limit.
+* Enhancement: Publicize: Updated JS and UI.
+* Enhancement: Photon: New filter to let site admins/owners enable photon for HTTPS urls.
+* Enhancement: New jetpack_get_available_modules filter.
+* Enhancement: Subscriptions: Antispam measures.
+* Bug Fix: Add inline style to keep plugins/themes from inadvertently hiding the Connect box.
+* Bug Fix: Custom CSS: Respect the new wp_revisions_to_keep filter.
+* Bug Fix: Photon: Only hook jetpack_photon_url into the filter if the user has Photon active.
+* Bug Fix: Heartbeat: Used wrong object, occasinally fatal-erroring out for the cron.
+* Bug Fix: Add an empty debug.php file to the /modules/ folder, to solve some update issues where it never got deleted.
+
+= 2.3.5 =
 * Enhancement: Added Path support to Publicize.
 
 = 2.3.4 =
@@ -229,7 +252,7 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Bug Fix: Shortcodes - Slideshow: RTL styling update
 * Bug Fix: Tiled Galleries - Fix IE8 display bug where it doesn't honor inline CSS for width on images
 * Bug Fix: Tiled Galleries - Remove depreacted hover call, use mouseenter mouseleave instead
-* Enhancement: Twitter Timeline Widget: New JavaScript based widget. Old one will discontinue May 7th. 
+* Enhancement: Twitter Timeline Widget: New JavaScript based widget. Old one will discontinue May 7th.
 
 = 2.2.2 =
 * Enhancement: Mobile Theme: Add controls for custom CSS.
