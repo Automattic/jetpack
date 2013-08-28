@@ -142,8 +142,6 @@ class WPCC_Sign_On {
 
 		<p id="wpcc-sign-on-section">
 			<?php
-				printf( __( 'Log-in with <a href="%s">WordPress.com Connect</a>.', 'jetpack' ), 'http://en.blog.wordpress.com/2013/08/13/introducing-wordpress-com-connect/' );
-				echo ' ';
 				if ( empty( $this->client_id ) || empty( $this->client_secret ) ) {
 					printf( __( 'Visit WordPress.com to <a href="%s">register a new WPCC client id and secret key</a>.', 'jetpack' ), $this->get_new_app_url() );
 				} else {
