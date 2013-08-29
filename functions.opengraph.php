@@ -84,7 +84,9 @@ function jetpack_og_tags() {
 		$tags['og:title'] = __( '(no title)', 'jetpack' );
 
 	// Shorten the description if it's too long
-	$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '...' : $tags['og:description'];
+	if ( isset( $tags['og:description'] ) ) {
+		$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '...' : $tags['og:description'];
+	}
 
 	// Add any additional tags here, or modify what we've come up with
 	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
