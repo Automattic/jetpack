@@ -11,7 +11,7 @@ Supercharge your WordPress site with powerful features previously only available
 
 [Jetpack](http://jetpack.me/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
 
-For more information, check out [Jetpack.me](http://jetpack.me/). 
+For more information, check out [Jetpack.me](http://jetpack.me/).
 
 Features include:
 
