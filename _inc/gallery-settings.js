@@ -13,14 +13,14 @@
 
 			// Append the type template and update the settings.
 			$el.append( media.template( 'jetpack-gallery-settings' ) );
-			media.gallery.defaults.type = 'thumbnails'; // lil hack that lets media know there's a type attribute.
+			media.gallery.defaults.type = 'default'; // lil hack that lets media know there's a type attribute.
 			this.update.apply( this, ['type'] );
 
 			// Hide the Columns setting for all types except Default
 			$el.find( 'select[name=type]' ).on( 'change', function () {
 				var columnSetting = $el.find( 'select[name=columns]' ).closest( 'label.setting' );
 
-				if ( 'thumbnails' == $( this ).val() )
+				if ( 'default' == $( this ).val() )
 					columnSetting.show();
 				else
 					columnSetting.hide();
