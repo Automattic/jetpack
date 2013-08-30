@@ -5,6 +5,7 @@
  * First Introduced: 2.2
  * Sort Order: 4
  * Requires Connection: Yes
+ * Auto Activate: No
  */
 class Jetpack_Likes {
 	var $version = '20130620a';

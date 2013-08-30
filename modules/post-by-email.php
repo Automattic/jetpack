@@ -6,6 +6,7 @@
  * First Introduced: 2.0
  * Sort Order: 4
  * Requires Connection: Yes
+ * Auto Activate: Yes
  */
 
 add_action( 'jetpack_modules_loaded', array( 'Jetpack_Post_By_Email', 'init' ) );

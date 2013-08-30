@@ -5,6 +5,7 @@
  * Sort Order: 12
  * First Introduced: 1.1
  * Requires Connection: Yes
+ * Auto Activate: Yes
  */
 
 /**

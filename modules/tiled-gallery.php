@@ -5,6 +5,7 @@
  * Module Description: Create elegant magazine-style mosaic layouts for your photos without using an external graphic editor.
  * First Introduced: 2.1
  * Requires Connection: Yes
+ * Auto Activate: No
  */
 
 function jetpack_load_tiled_gallery() {

@@ -6,6 +6,7 @@
  * Sort Order: 4
  * First Introduced: 1.5
  * Requires Connection: No
+ * Auto Activate: No
  */
 
 include dirname( __FILE__ ) . '/carousel/jetpack-carousel.php';

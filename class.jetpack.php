@@ -744,34 +744,25 @@ class Jetpack {
 		$return = array();
 
 		foreach ( Jetpack::get_available_modules( $min_version, $max_version ) as $module ) {
-			// Add special cases here for modules to avoid auto-activation
-			switch ( $module ) {
+			$module_data = Jetpack::get_module( $module );
 
-			// These modules are default off: they change things blog-side
-			case 'comments' :
-			case 'carousel' :
-			case 'minileven':
-			case 'infinite-scroll' :
-			case 'photon' :
-			case 'tiled-gallery' :
-			case 'likes' :
-			case 'wpcc' :
-				break;
-
-			// These modules are default off if we think the site is a private one
-			case 'enhanced-distribution' :
-			case 'json-api' :
-				if ( !Jetpack::get_option( 'public' ) ) {
+			switch ( strtolower( $module_data['auto_activate'] ) ) {
+				case 'yes' :
+					$return[] = $module;
 					break;
-				}
-				// else no break
-			// The rest are default on
-			default :
-				$return[] = $module;
+				case 'public' :
+					if ( Jetpack::get_option( 'public' ) ) {
+						$return[] = $module;
+					}
+					break;
+				case 'no' :
+				default :
+					break;
 			}
+
 		}
 
-		return $return;
+		return apply_filters( 'jetpack_get_default_modules', $return, $min_version, $max_version );
 	}
 
 	/**
@@ -803,6 +794,7 @@ class Jetpack {
 			'deactivate'          => 'Deactivate',
 			'free'                => 'Free',
 			'requires_connection' => 'Requires Connection',
+			'auto_activate'       => 'Auto Activate',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
@@ -820,6 +812,13 @@ class Jetpack {
 		$mod['deactivate'] = empty( $mod['deactivate'] );
 		$mod['free'] = empty( $mod['free'] );
 		$mod['requires_connection'] = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
+
+		if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ) ) ) {
+			$mod['auto_activate'] = 'No';
+		} else {
+			$mod['auto_activate'] = (string) $mod['auto_activate'];
+		}
+
 		return $mod;
 	}
 

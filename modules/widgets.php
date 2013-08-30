@@ -5,6 +5,7 @@
  * Sort Order: 13
  * First Introduced: 1.2
  * Requires Connection: No
+ * Auto Activate: Yes
  */
 
 function jetpack_load_widgets() {

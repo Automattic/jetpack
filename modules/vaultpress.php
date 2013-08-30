@@ -7,6 +7,7 @@
  * Deactivate: false
  * Free: false
  * Requires Connection: Yes
+ * Auto Activate: Yes
  */
 
 add_action( 'jetpack_modules_loaded', 'vaultpress_jetpack_stub' );
