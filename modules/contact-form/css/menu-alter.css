@@ -12,11 +12,11 @@
 	background: url(../images/grunion-menu.png) no-repeat 7px 7px !important;
 }
 
-body.admin-color-mp6 #adminmenu .menu-icon-feedback div.wp-menu-image {
+body.mp6 #adminmenu .menu-icon-feedback div.wp-menu-image {
 	background: none !important;
 }
 
-body.admin-color-mp6 #adminmenu .menu-icon-feedback div.wp-menu-image:before {
+body.mp6 #adminmenu .menu-icon-feedback div.wp-menu-image:before {
 	content: '\f175';
 	margin-left: -1px;
 }

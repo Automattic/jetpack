@@ -21,7 +21,7 @@ input.omnisearch {
 	width: 100%;
 }
 
-.admin-color-mp6 input.omnisearch {
+.mp6 input.omnisearch {
 	line-height: 1.35;
 }
 
@@ -42,7 +42,7 @@ button.omnisearch-submit {
 	bottom: 0;
 }
 
-.admin-color-mp6 button.omnisearch-submit {
+.mp6 button.omnisearch-submit {
 	padding: 0.3em 0.5em 0.1em;
 }
 
