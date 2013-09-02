@@ -172,7 +172,7 @@ class Jetpack {
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
 
-			require_once dirname( JETPACK__PLUGIN_DIR . 'jetpack.php' ) . '/class.jetpack-xmlrpc-server.php';
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
 			$this->xmlrpc_server = new Jetpack_XMLRPC_Server();
 
 			$this->require_jetpack_authentication();
