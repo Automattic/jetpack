@@ -3,6 +3,8 @@
  * Module Name: VideoPress
  * Module Description: Quite possibly the easiest way to upload beautiful videos to your blog.
  * First Introduced: 2.5
+ * Free: false
+ * Requires Connection: Yes
  * Sort Order: 100
  */
 
