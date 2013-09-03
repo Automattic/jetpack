@@ -11,7 +11,7 @@ Supercharge your WordPress site with powerful features previously only available
 
 [Jetpack](http://jetpack.me/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
 
-For more information, check out [Jetpack.me](http://jetpack.me/). 
+For more information, check out [Jetpack.me](http://jetpack.me/).
 
 Features include:
 
@@ -82,6 +82,15 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 8. Mobile Theme
 
 == Changelog ==
+
+= 2.4.1b1 =
+* Enhancement: Converted to module headers to detect Auto-Activating modules.
+* Enhancemeht: WPCC: Added 'Close' link to deactivate WPCC in the admin nag.
+* Bug Fix: Contact Form: Stopped using a short tag.
+* Bug Fix: Changed CSS selector to catch MP6 stylings.
+* Bug Fix: Dropped __FILE__ references in class.jetpack.php in favor of JETPACK__PLUGIN_DIR constant, now code that deactivates the plugin from the connect nag works again.
+* Bug Fix: Random Redirect: Add random-redirect to the plugins overriden list, in case someone is using Matt's Random Redirect plugin.
+* Bug Fix: Tiled Gallery: Revert r757178 relating to tiled gallery defaults.
 
 = 2.4 =
 * Enhancement: WordPress.com Connect (WPCC): New Module.
