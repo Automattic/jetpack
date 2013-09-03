@@ -30,17 +30,17 @@
  */
 
 /* Force the menu not to be sticky, so we can color the arrow. */
-.toplevel_page_jetpack.admin-color-mp6.sticky-menu #adminmenuwrap,
-body[class*=" jetpack_page_jetpack_"].admin-color-mp6.sticky-menu #adminmenuwrap {
+.toplevel_page_jetpack.mp6.sticky-menu #adminmenuwrap,
+body[class*=" jetpack_page_jetpack_"].mp6.sticky-menu #adminmenuwrap {
 	position: relative;
 	z-index: auto;
 	top: 0;
 }
 
-.toplevel_page_jetpack.admin-color-mp6 ul#adminmenu a.wp-has-current-submenu:after,
-.toplevel_page_jetpack.admin-color-mp6 ul#adminmenu > li.current > a.current:after,
-body[class*=" jetpack_page_jetpack_"].admin-color-mp6 ul#adminmenu a.wp-has-current-submenu:after,
-body[class*=" jetpack_page_jetpack_"].admin-color-mp6 ul#adminmenu > li.current > a.current:after {
+.toplevel_page_jetpack.mp6 ul#adminmenu a.wp-has-current-submenu:after,
+.toplevel_page_jetpack.mp6 ul#adminmenu > li.current > a.current:after,
+body[class*=" jetpack_page_jetpack_"].mp6 ul#adminmenu a.wp-has-current-submenu:after,
+body[class*=" jetpack_page_jetpack_"].mp6 ul#adminmenu > li.current > a.current:after {
 	border-right-color:#8fad4b;
 }
 
@@ -49,8 +49,8 @@ body[class*=" jetpack_page_jetpack_"].jetpack-disconnected #wpwrap {
 	background: url(images/header-clouds.png) -150px -60px repeat-x;
 }
 
-.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6 #wpwrap,
-body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.admin-color-mp6 #wpwrap {
+.toplevel_page_jetpack.jetpack-disconnected.mp6 #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.mp6 #wpwrap {
 	background-position: -143px -60px;
 }
 
@@ -59,8 +59,8 @@ body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.folded #wpwrap {
 	background-position: -263px -60px;
 }
 
-.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6.folded #wpwrap,
-body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.admin-color-mp6.folded #wpwrap {
+.toplevel_page_jetpack.jetpack-disconnected.mp6.folded #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.mp6.folded #wpwrap {
 	background-position: -257px -60px;
 }
 
@@ -69,8 +69,8 @@ body[class*=" jetpack_page_jetpack_"].jetpack-connected #wpwrap {
 	background: url(images/header-clouds-small.png) 45px 0 repeat-x;
 }
 
-.toplevel_page_jetpack.jetpack-connected.admin-color-mp6 #wpwrap,
-body[class*=" jetpack_page_jetpack_"].jetpack-connected.admin-color-mp6 #wpwrap {
+.toplevel_page_jetpack.jetpack-connected.mp6 #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-connected.mp6 #wpwrap {
 	background-position: 52px 0;
 }
 
@@ -79,8 +79,8 @@ body[class*=" jetpack_page_jetpack_"].jetpack-connected.folded #wpwrap {
 	background-position: -68px 0;
 }
 
-.toplevel_page_jetpack.jetpack-connected.admin-color-mp6.folded #wpwrap,
-body[class*=" jetpack_page_jetpack_"].jetpack-connected.admin-color-mp6.folded #wpwrap {
+.toplevel_page_jetpack.jetpack-connected.mp6.folded #wpwrap,
+body[class*=" jetpack_page_jetpack_"].jetpack-connected.mp6.folded #wpwrap {
 	background-position: -62px 0;
 }
 
@@ -91,8 +91,8 @@ body[class*=" jetpack_page_jetpack_"].jetpack-connected.admin-color-mp6.folded #
 		background-position: -263px -60px;
 	}
 
-	.toplevel_page_jetpack.jetpack-disconnected.admin-color-mp6.auto-fold #wpwrap,
-	body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.admin-color-mp6.auto-fold #wpwrap {
+	.toplevel_page_jetpack.jetpack-disconnected.mp6.auto-fold #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-disconnected.mp6.auto-fold #wpwrap {
 		background-position: -257px -60px;
 	}
 
@@ -101,8 +101,8 @@ body[class*=" jetpack_page_jetpack_"].jetpack-connected.admin-color-mp6.folded #
 		background-position: -68px 0;
 	}
 
-	.toplevel_page_jetpack.jetpack-connected.admin-color-mp6.auto-fold #wpwrap,
-	body[class*=" jetpack_page_jetpack_"].jetpack-connected.admin-color-mp6.auto-fold #wpwrap {
+	.toplevel_page_jetpack.jetpack-connected.mp6.auto-fold #wpwrap,
+	body[class*=" jetpack_page_jetpack_"].jetpack-connected.mp6.auto-fold #wpwrap {
 		background-position: -62px 0;
 	}
 

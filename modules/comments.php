@@ -6,6 +6,7 @@
  * First Introduced: 1.4
  * Sort Order: 2
  * Requires Connection: Yes
+ * Auto Activate: No
  */
 
 require dirname( __FILE__ ) . '/comments/comments.php';

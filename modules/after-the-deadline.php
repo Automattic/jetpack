@@ -5,6 +5,7 @@
  * Sort Order: 6
  * First Introduced: 1.1
  * Requires Connection: Yes
+ * Auto Activate: Yes
  */
 
 add_action( 'jetpack_modules_loaded', 'AtD_load' );

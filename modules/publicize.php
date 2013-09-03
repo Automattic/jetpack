@@ -5,6 +5,7 @@
  * Sort Order: 1
  * First Introduced: 2.0
  * Requires Connection: Yes
+ * Auto Activate: Yes
  */
 
 class Jetpack_Publicize {

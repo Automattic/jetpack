@@ -5,6 +5,7 @@
  * First Introduced: 2.2
  * Sort Order: 4
  * Requires Connection: Yes
+ * Auto Activate: No
  */
 class Jetpack_Likes {
 	var $version = '20130620a';
@@ -520,11 +521,11 @@ class Jetpack_Likes {
 			.fixed .column-likes .post-com-count { background-image: none; }
 			.fixed .column-likes .comment-count { background-color: #888; }
 			.fixed .column-likes .comment-count:hover { background-color: #D54E21; }
-			.admin-color-mp6 .fixed .column-likes .post-com-count::after { border: none !important; }
-			.admin-color-mp6 .fixed .column-likes .comment-count { background-color: #bbb; }
-			.admin-color-mp6 .fixed .column-likes .comment-count:hover { background-color: #2ea2cc; }
-			.admin-color-mp6 .fixed .column-likes .vers img { display: none; }
-			.admin-color-mp6 .fixed .column-likes .vers:before {font:20px/1 dashicons;content: '\f155';-webkit-font-smoothing:antialiased;}
+			.mp6 .fixed .column-likes .post-com-count::after { border: none !important; }
+			.mp6 .fixed .column-likes .comment-count { background-color: #bbb; }
+			.mp6 .fixed .column-likes .comment-count:hover { background-color: #2ea2cc; }
+			.mp6 .fixed .column-likes .vers img { display: none; }
+			.mp6 .fixed .column-likes .vers:before {font:20px/1 dashicons;content: '\f155';-webkit-font-smoothing:antialiased;}
 		</style> <?php
 	}
 

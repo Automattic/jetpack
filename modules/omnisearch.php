@@ -6,6 +6,7 @@
  * Sort Order: 8
  * First Introduced: 2.3
  * Requires Connection: No
+ * Auto Activate: Yes
  */
 
 // Only do Jetpack Omnisearch if there isn't already a Core WP_Omnisearch Class.

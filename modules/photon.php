@@ -5,6 +5,7 @@
  * Sort Order: 15
  * First Introduced: 2.0
  * Requires Connection: Yes
+ * Auto Activate: No
  */
 
 Jetpack_Photon::instance();

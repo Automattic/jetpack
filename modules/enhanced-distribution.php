@@ -5,6 +5,7 @@
  * Sort Order: 100
  * First Introduced: 1.2
  * Requires Connection: Yes
+ * Auto Activate: Public
  */
 
 Jetpack_Sync::sync_posts( __FILE__ );
