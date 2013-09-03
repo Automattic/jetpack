@@ -36,6 +36,7 @@ class Jetpack {
 		'contact-form' => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
 		'custom-css' => array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
 		'random-redirect' => array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
+		'videopress' => array( 'video/video.php', 'VideoPress' ),
 	);
 
 	var $capability_translations = array(
