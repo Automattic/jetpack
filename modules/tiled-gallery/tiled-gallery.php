@@ -59,6 +59,11 @@ class Jetpack_Tiled_Gallery {
 			foreach ( $_attachments as $key => $val ) {
 				$attachments[$val->ID] = $_attachments[$key];
 			}
+		} elseif ( 0 == $id ) {
+			// Should NEVER Happen but infinite_scroll_load_other_plugins_scripts means it does
+			// Querying with post_parent == 0 can generate stupidly memcache sets on sites with 10000's of unattached attachments as get_children puts every post in the cache.
+			// TODO Fix this properly
+			$attachments = array();
 		} elseif ( !empty( $exclude ) ) {
 			$exclude = preg_replace( '/[^0-9,]+/', '', $exclude );
 			$attachments = get_children( array('post_parent' => $id, 'exclude' => $exclude, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby) );
