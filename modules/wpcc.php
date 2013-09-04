@@ -6,7 +6,7 @@
  * Sort Order: 50
  * First Introduced: 2.4
  * Requires Connection: No
- * Auto Activate: Yes
+ * Auto Activate: No
  */
 
 if ( ! class_exists( 'WPCC_Sign_On' ) )
