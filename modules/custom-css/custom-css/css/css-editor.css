@@ -22,3 +22,6 @@
 .misc-pub-section > div {
 	margin-top: 3px;
 }
+#safecss-ace .ace_gutter {
+	z-index: 1;
+}
