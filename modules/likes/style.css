@@ -1,7 +1,7 @@
 #wpadminbar li#wp-admin-bar-admin-bar-likes-widget {
 	width: 61px;
+	overflow: hidden;
 }
-
 #wpadminbar iframe.admin-bar-likes-widget {
 	width: 61px;
 	height: 28px;

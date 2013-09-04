@@ -40,6 +40,11 @@ function minileven_setup() {
 	 */
 	require( get_template_directory() . '/inc/tweaks.php' );
 
+	/**
+	 * Implement the Custom Header functions
+	 */
+	require( get_template_directory() . '/inc/custom-header.php' );
+
 	/* Make Minileven available for translation.
 	 * Translations can be added to the /languages/ directory.
 	 * If you're building a theme based on Minileven, use a find and replace
@@ -175,11 +180,6 @@ function minileven_get_background() {
 	}
 	return false;
 }
-
-/**
- * Implement the Custom Header functions
- */
-require( get_template_directory() . '/inc/custom-header.php' );
 
 /**
  * If the user has set a static front page, show all posts on the front page, instead of a static page.

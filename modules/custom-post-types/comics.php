@@ -142,7 +142,7 @@ class Jetpack_Comic {
 			$pagenum = $wp_list_table->get_pagenum();
 			$sendback = add_query_arg( array( 'paged' => $pagenum, 'post_type_changed' => $modified_count ), $sendback );
 
-			wp_redirect( $sendback );
+			wp_safe_redirect( $sendback );
 			exit();
 		}
 	}
