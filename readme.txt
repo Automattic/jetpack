@@ -3,7 +3,7 @@ Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebe
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow
 Requires at least: 3.5
 Tested up to: 3.6
-Stable tag: 2.4
+Stable tag: 2.4.1
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
 
@@ -83,7 +83,7 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
-= 2.4.1 =
+= 2.4.2 =
 * Enhancement: Converted to module headers to detect Auto-Activating modules.
 * Enhancemeht: WPCC: Added 'Close' link to deactivate WPCC in the admin nag.
 * Bug Fix: Contact Form: Stopped using a short tag.
@@ -91,6 +91,9 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Bug Fix: Dropped __FILE__ references in class.jetpack.php in favor of JETPACK__PLUGIN_DIR constant, now code that deactivates the plugin from the connect nag works again.
 * Bug Fix: Random Redirect: Add random-redirect to the plugins overriden list, in case someone is using Matt's Random Redirect plugin.
 * Bug Fix: Tiled Gallery: Revert r757178 relating to tiled gallery defaults.
+
+= 2.4.1 =
+* Enhancement: Don't auto-activate WPCC.
 
 = 2.4 =
 * Enhancement: WordPress.com Connect (WPCC): New Module.
