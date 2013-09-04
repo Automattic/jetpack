@@ -21,7 +21,6 @@ class WPCC_Sign_On {
 		$client_secret,     // Option.
 		$new_user_override, // Option.
 		$match_by_email,    // Option.
-		$redirect_url,
 		$wpcc_state,
 		$secret,
 		$user_data;
@@ -43,7 +42,6 @@ class WPCC_Sign_On {
 		$this->client_secret     = $this->options['client_secret'];
 		$this->new_user_override = $this->options['new_user_override'];
 		$this->match_by_email    = $this->options['match_by_email'];
-		$this->redirect_url      = wp_login_url();
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
@@ -226,7 +224,7 @@ class WPCC_Sign_On {
 
 		<?php elseif ( get_current_user_id() == $user->ID ) : ?>
 
-			<?php echo $this->button( array( 'redirect_uri' => add_query_arg( 'for', 'profile', $this->redirect_url ) ) ); ?>
+			<?php echo $this->button( array( 'redirect_uri' => add_query_arg( 'for', 'profile', wp_login_url() ) ) ); ?>
 
 		<?php else : ?>
 
@@ -235,7 +233,7 @@ class WPCC_Sign_On {
 		<?php endif;
 	}
 
-	function verify_connection() {
+	function verify_connection( $get_args = array() ) {
 		if ( empty( $_GET['state'] ) ) {
 			wp_die( __( 'Warning! State variable missing after authentication.', 'jetpack' ) );
 		}
@@ -244,9 +242,15 @@ class WPCC_Sign_On {
 			wp_die( __( 'Warning! State mismatch. Authentication attempt may have been compromised.', 'jetpack' ) );
 		}
 
+		$redirect_uri = wp_login_url();
+
+		if ( $get_args ) {
+			$redirect_uri = add_query_arg( $get_args, $redirect_uri );
+		}
+
 		$args = array(
 			'client_id'     => $this->client_id,
-			'redirect_uri'  => $this->redirect_url,
+			'redirect_uri'  => $redirect_uri,
 			'client_secret' => $this->client_secret,
 			'code'          => sanitize_text_field( $_GET['code'] ), // The code from the previous request
 			'grant_type'    => 'authorization_code',
@@ -289,9 +293,8 @@ class WPCC_Sign_On {
 		if ( isset( $_GET['for'] ) && ( 'profile' == $_GET['for'] ) ) {
 			$user_ID = get_current_user_id();
 
-			$this->redirect_url = add_query_arg( 'for', 'profile', $this->redirect_url );
 			$this->wpcc_state = "localuser{$user_ID}";
-			$user_data = $this->verify_connection();
+			$user_data = $this->verify_connection( array( 'for' => 'profile' ) );
 
 			update_user_meta( get_current_user_id(), 'wpcom_user_id', $user_data->ID );
 			update_user_meta( get_current_user_id(), 'wpcom_user_data', $user_data );
@@ -326,7 +329,7 @@ class WPCC_Sign_On {
 			'response_type' => 'code',
 			'client_id'     => $this->client_id,
 			'state'         => $this->wpcc_state,
-			'redirect_uri'  => $this->redirect_url,
+			'redirect_uri'  => wp_login_url(),
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -418,7 +421,7 @@ class WPCC_Sign_On {
 			'title'        => urlencode( get_bloginfo( 'name' ) ),
 			'description'  => urlencode( get_bloginfo( 'description' ) ),
 			'url'          => urlencode( site_url() ),
-			'redirect_uri' => urlencode( $this->redirect_url ),
+			'redirect_uri' => urlencode( wp_login_url() ),
 		);
 		return add_query_arg( $args, $this->new_app_url_base );
 	}
