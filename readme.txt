@@ -91,6 +91,7 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Bug Fix: Dropped __FILE__ references in class.jetpack.php in favor of JETPACK__PLUGIN_DIR constant, now code that deactivates the plugin from the connect nag works again.
 * Bug Fix: Random Redirect: Add random-redirect to the plugins overriden list, in case someone is using Matt's Random Redirect plugin.
 * Bug Fix: Tiled Gallery: Revert r757178 relating to tiled gallery defaults.
+* Bug Fix: Return false, not zero, if $GLOBALS['content_width'] isn't defined.
 
 = 2.4.1 =
 * Enhancement: Don't auto-activate WPCC.
