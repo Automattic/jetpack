@@ -13,19 +13,19 @@ class Jetpack_Debugger {
 			return true;
 		}
 	}
-	
+
 	public static function jetpack_increase_timeout($time) {
-		$time = 20; //seconds 
-		return $time; 
+		$time = 20; //seconds
+		return $time;
 	}
-	
+
 	public static function jetpack_debug_display_handler() {
 		if ( ! current_user_can( 'manage_options' ) )
 			wp_die( esc_html__('You do not have sufficient permissions to access this page.', 'jetpack' ) );
-	
+
 		global $current_user;
 		get_currentuserinfo();
-		
+
 		$user_id = get_current_user_id();
 		$user_tokens = Jetpack::get_option( 'user_tokens' );
 		if ( is_array( $user_tokens ) && array_key_exists( $user_id, $user_tokens ) ) {
@@ -34,7 +34,7 @@ class Jetpack_Debugger {
 			$user_token = '[this user has no token]';
 		}
 		unset( $user_tokens );
-	
+
 		$debug_info = "\r\n";
 		foreach ( array(
 			'CLIENT_ID'   => 'id',
@@ -48,7 +48,7 @@ class Jetpack_Debugger {
 		) as $label => $option_name ) {
 			$debug_info .= "\r\n" . esc_html( $label . ": " . Jetpack::get_option( $option_name ) );
 		}
-		
+
 		$debug_info .= "\r\n" . esc_html( "USER_ID: " . $user_id );
 		$debug_info .= "\r\n" . esc_html( "USER_TOKEN: " . $user_token );
 		$debug_info .= "\r\n" . esc_html( "PHP_VERSION: " . PHP_VERSION );
@@ -57,37 +57,37 @@ class Jetpack_Debugger {
 		$debug_info .= "\r\n" . esc_html( "JETPACK__PLUGIN_DIR: " . JETPACK__PLUGIN_DIR );
 		$debug_info .= "\r\n" . esc_html( "SITE_URL: " . site_url() );
 		$debug_info .= "\r\n" . esc_html( "HOME_URL: " . home_url() );
-	
+
 		$debug_info .= "\r\n\r\nTEST RESULTS:\r\n\r\n";
 		$debug_raw_info = '';
-	
-	
+
+
 		$tests = array();
-	
+
 		$tests['HTTP']['result'] = wp_remote_get( preg_replace( '/^https:/', 'http:', JETPACK__API_BASE ) . 'test/1/' );
 		$tests['HTTP']['fail_message'] = esc_html__( 'Your site isn’t reaching the Jetpack servers.', 'jetpack' );
-	
+
 		$tests['HTTPS']['result'] = wp_remote_get( preg_replace( '/^http:/', 'https:', JETPACK__API_BASE ) . 'test/1/' );
 		$tests['HTTPS']['fail_message'] = esc_html__( 'Your site isn’t securely reaching the Jetpack servers.', 'jetpack' );
-	
+
 		$self_xml_rpc_url = home_url( 'xmlrpc.php' );
-		
+
 		$args = array();
-		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=', $args );
-	
+		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
+
 		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
-	
+
 		$tests['SELF']['result'] = wp_remote_get( $testsite_url . $self_xml_rpc_url );
 		$tests['SELF']['fail_message'] = esc_html__( 'It looks like your site can not communicate properly with Jetpack.', 'jetpack' );
-		
+
 		remove_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
-	
+
 		?>
 		<div class="wrap">
 			<h2><?php esc_html_e( 'Jetpack Debugging Center', 'jetpack' ); ?></h2>
 			<h3><?php _e( "Testing your site's compatibily with Jetpack...", 'jetpack' ); ?></h3>
 			<div class="jetpack-debug-test-container">
-			<?php 
+			<?php
 			ob_start();
 			foreach ( $tests as $test_name => $test_info ) :
 				if ( is_wp_error( $test_info['result'] ) ||
@@ -101,17 +101,17 @@ class Jetpack_Debugger {
 							<span class="noticon noticon-collapse"></span>
 							</a>
 						</p>
-						<pre class="jetpack-test-details"><?php esc_html_e( $test_name , 'jetpack'); ?>: 
+						<pre class="jetpack-test-details"><?php esc_html_e( $test_name , 'jetpack'); ?>:
 	<?php esc_html_e( is_wp_error( $test_info['result'] ) ? $test_info['result']->get_error_message() : print_r( $test_info['result'], 1 ), 'jetpack' ); ?></pre>
 					</div><?php
 				} else {
 					$debug_info .= $test_name . ": PASS\r\n";
-				} 
+				}
 				$debug_raw_info .= "\r\n\r\n" . $test_name . "\r\n" . esc_html( print_r( $test_info['result'], 1 ) );
 				?>
-			<?php endforeach; 
+			<?php endforeach;
 			$html = ob_get_clean();
-	
+
 			if ( '' == trim( $html ) ) {
 				echo '<div class="jetpack-tests-succed">' . esc_html__( 'Your Jetpack setup looks a-okay!', 'jetpack' ) . '</div>';
 			}
@@ -136,7 +136,7 @@ class Jetpack_Debugger {
 						</ul>
 					</li>
 				</ol>
-				<p class="jetpack-show-contact-form"><?php _e( 'If none of these help you find a solution, <a href="#">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ); ?> 
+				<p class="jetpack-show-contact-form"><?php _e( 'If none of these help you find a solution, <a href="#">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ); ?>
 				</p>
 			</div>
 			<div id="contact-message" style="display:none">
@@ -144,7 +144,7 @@ class Jetpack_Debugger {
 				<form id="contactme" method="post" action="http://jetpack.me/contact-support/">
 					<input type="hidden" name="action" value="submit">
 					<input type="hidden" name="jetpack" value="needs-service">
-					
+
 					<input type="hidden" name="contact_form" id="contact_form" value="1">
 					<input type="hidden" name="blog_url" id="blog_url" value="<?php echo esc_attr( site_url() ); ?>">
 					<input type="hidden" name="subject" id="subject" value="from: <?php echo esc_attr( site_url() ); ?> Jetpack contact form">
@@ -152,30 +152,30 @@ class Jetpack_Debugger {
 						<label for="message" class="h"><?php esc_html_e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
 						<textarea name="message" cols="40" rows="7" id="did"></textarea>
 					</div>
-			
+
 					<div id="name_div" class="formbox">
 						<label class="h" for="your_name"><?php esc_html_e( 'Name', 'jetpack' ); ?></label>
 			  			<span class="errormsg"><?php esc_html_e( 'Let us know your name.', 'jetpack' ); ?></span>
 						<input name="your_name" type="text" id="your_name" value="<?php esc_html_e( $current_user->display_name , 'jetpack'); ?>" size="40">
 					</div>
-			
+
 					<div id="email_div" class="formbox">
 						<label class="h" for="your_email"><?php esc_html_e( 'E-mail', 'jetpack' ); ?></label>
 			  			<span class="errormsg"><?php esc_html_e( 'Use a valid email address.', 'jetpack' ); ?></span>
 						<input name="your_email" type="text" id="your_email" value="<?php esc_html_e( $current_user->user_email , 'jetpack'); ?>" size="40">
 					</div>
-	
+
 					<div id="toggle_debug_info" class="formbox">
 						<p><?php _e( 'The test results and some other useful debug information will be sent to the support team. Please feel free to <a href="#">review/modify</a> this information.', 'jetpack' ); ?></p>
 					</div>
-					
+
 					<div id="debug_info_div" class="formbox" style="display:none">
 						<label class="h" for="debug_info"><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></label>
 			  			<textarea name="debug_info" cols="40" rows="7" id="debug_info"><?php echo esc_attr( $debug_info ); ?></textarea>
 					</div>
-	
+
 					<div style="clear: both;"></div>
-			
+
 					<div id="blog_div" class="formbox">
 						<div id="submit_div" class="contact-support">
 						<input type="submit" name="submit" value="Contact Support">
@@ -188,51 +188,51 @@ class Jetpack_Debugger {
 		</div>
 	<?php
 	}
-	
+
 	public static function jetpack_debug_admin_head() {
 		?>
 		<style type="text/css">
-			
+
 			.jetpack-debug-test-container {
 				margin-top: 20px;
 				margin-bottom: 30px;
 			}
-			
+
 			.jetpack-tests-succed {
 				font-size: large;
 				color: #8BAB3E;
 			}
-			
+
 			.jetpack-test-details {
 				margin: 4px 6px;
 				padding: 10px;
 				overflow: auto;
 				display: none;
 			}
-	
+
 			.jetpack-test-error {
 				margin-bottom: 10px;
 				background: #FFEBE8;
 				border: solid 1px #C00;
 				border-radius: 3px;
 			}
-	
+
 			.jetpack-test-error p {
 				margin: 0;
 				padding: 0;
 			}
-	
+
 			.jetpack-test-error a.jetpack-test-heading {
 				padding: 4px 6px;
 				display: block;
 				text-decoration: none;
 				color: inherit;
 			}
-	
+
 			.jetpack-test-error .noticon {
 				float: right;
 			}
-					
+
 			form#contactme {
 				border: 1px solid #dfdfdf;
 				background: #eaf3fa;
@@ -243,7 +243,7 @@ class Jetpack_Debugger {
 				font-size: 15px;
 				font-family: "Open Sans", "Helvetica Neue", sans-serif;
 			}
-			
+
 			form#contactme label.h {
 				color: #444;
 				display: block;
@@ -251,11 +251,11 @@ class Jetpack_Debugger {
 				margin: 0 0 7px 10px;
 				text-shadow: 1px 1px 0 #fff;
 			}
-			
+
 			.formbox {
 				margin: 0 0 25px 0;
 			}
-			
+
 			.formbox input[type="text"], .formbox input[type="email"], .formbox input[type="url"], .formbox textarea {
 				border: 1px solid #e5e5e5;
 				border-radius: 11px;
@@ -284,48 +284,48 @@ class Jetpack_Debugger {
 				text-align: center;
 				text-decoration: none;
 			}
-	
+
 			.formbox span.errormsg {
 				margin: 0 0 10px 10px;
 				color: #d00;
 				display: none;
 			}
-			
+
 			.formbox.error span.errormsg {
 				display: block;
 			}
-			
+
 			#contact-message ul {
 				margin: 0 0 20px 10px;
 			}
-			
+
 			#contact-message li {
 				margin: 0 0 10px 10px;
 				list-style: disc;
 				display: list-item;
 			}
-			
+
 		</style>
 		<script type="text/javascript">
 		jQuery( document ).ready( function($) {
-			
+
 			$('#debug_info').prepend('jQuery version: ' + jQuery.fn.jquery + "\r\n");
-			
+
 			$( '.jetpack-test-error .jetpack-test-heading' ).on( 'click', function() {
 				$( this ).parents( '.jetpack-test-error' ).find( '.jetpack-test-details' ).slideToggle();
 				return false;
 			} );
-	
+
 			$( '.jetpack-show-contact-form a' ).on( 'click', function() {
 				$('#contact-message').slideToggle();
 				return false;
 			} );
-			
+
 			$( '#toggle_debug_info a' ).on( 'click', function() {
 				$('#debug_info_div').slideToggle();
 				return false;
 			} );
-			
+
 			$('form#contactme').on("submit", function(e){
 				var form = $(this);
 				var message = form.find('#did');
@@ -341,12 +341,12 @@ class Jetpack_Debugger {
 					validation_error = true;
 				}
 				if ( validation_error ) {
-					return false;				
+					return false;
 				}
 				message.val(message.val() + "\r\n\r\n----------------------------------------------\r\n\r\nDEBUG INFO:\r\n" + $('#debug_info').val()  );
 				return true;
 	    	});
-	    	
+
 		} );
 		</script>
 		<?php

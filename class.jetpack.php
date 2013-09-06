@@ -1265,7 +1265,7 @@ p {
 			// Check and see if host can verify the Jetpack servers' SSL certificate
 			$args = array();
 			Jetpack_Client::_wp_remote_request(
-				Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'test' ), $args ),
+				Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'test' ) ),
 				$args,
 				true
 			);
@@ -2929,7 +2929,7 @@ p {
 	/**
 	 * Some hosts disable the OpenSSL extension and so cannot make outgoing HTTPS requsets
 	 */
-	public static function fix_url_for_bad_hosts( $url, &$args ) {
+	public static function fix_url_for_bad_hosts( $url ) {
 		if ( 0 !== strpos( $url, 'https://' ) ) {
 			return $url;
 		}
@@ -3067,7 +3067,7 @@ p {
 			),
 			'timeout' => $timeout,
 		);
-		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ), $args ), $args, true );
+		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), $args, true );
 
 		if ( is_wp_error( $response ) ) {
 			return new Jetpack_Error( 'register_http_request_failed', $response->get_error_message() );
