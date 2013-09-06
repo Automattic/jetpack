@@ -1351,7 +1351,7 @@ p {
 			return;
 		}
 
-		foreach ( $this->plugins_to_deactivate as $module => $deactivate_me ) {
+		foreach ( $this->plugins_to_deactivate as $deactivate_me ) {
 			if ( "plugin-activation-error_{$deactivate_me[0]}" == $action ) {
 				Jetpack::bail_on_activation( sprintf( __( 'Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin.', 'jetpack' ), $deactivate_me[1] ), false );
 			}
@@ -2421,12 +2421,10 @@ p {
 	function admin_page() {
 		global $current_user;
 
-		$role              = $this->translate_current_user_to_role();
 		$is_connected      = Jetpack::is_active();
 		$user_token        = Jetpack_Data::get_access_token( $current_user->ID );
 		$is_user_connected = $user_token && ! is_wp_error( $user_token );
 		$is_master_user    = $current_user->ID == Jetpack::get_option( 'master_user' );
-		$module            = false;
 	?>
 		<div class="wrap" id="jetpack-settings">
 
@@ -2943,8 +2941,6 @@ p {
 				return self::force_url_to_non_ssl( $url );
 			// default : case 'AUTO' :
 		}
-
-		$jetpack = Jetpack::init();
 
 		// Yay! Your host is good!
 		if ( self::permit_ssl() && wp_http_supports( array( 'ssl' => true ) ) ) {
