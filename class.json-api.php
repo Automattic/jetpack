@@ -112,7 +112,7 @@ class WPCOM_JSON_API {
 	}
 
 	function initialize() {
-		$this->token_details['blog_id'] = Jetpack::get_option( 'id' );
+		$this->token_details['blog_id'] = Jetpack_Options::get_option( 'id' );
 	}
 
 	function serve( $exit = true ) {

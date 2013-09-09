@@ -47,7 +47,7 @@ class Jetpack_Client {
 
 		require_once dirname( __FILE__ ) . '/class.jetpack-signature.php';
 
-		$time_diff = (int) Jetpack::get_option( 'time_diff' );
+		$time_diff = (int) Jetpack_Options::get_option( 'time_diff' );
 		$jetpack_signature = new Jetpack_Signature( $token->secret, $time_diff );
 
 		$timestamp = time() + $time_diff;
@@ -127,9 +127,9 @@ class Jetpack_Client {
 	 * @return array|WP_Error WP HTTP response on success
 	 */
 	public static function _wp_remote_request( $url, $args, $set_fallback = false ) {
-		$fallback = Jetpack::get_option( 'fallback_no_verify_ssl_certs' );
+		$fallback = Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' );
 		if ( false === $fallback ) {
-			Jetpack::update_option( 'fallback_no_verify_ssl_certs', 0 );
+			Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', 0 );
 		}
 
 		if ( (int) $fallback ) {
@@ -178,7 +178,7 @@ class Jetpack_Client {
 
 		if ( !is_wp_error( $response ) ) {
 			// The request went through this time, flag for future fallbacks
-			Jetpack::update_option( 'fallback_no_verify_ssl_certs', time() );
+			Jetpack_Options::update_option( 'fallback_no_verify_ssl_certs', time() );
 			Jetpack_Client::set_time_diff( $response, $set_fallback );
 		}
 
@@ -204,11 +204,11 @@ class Jetpack_Client {
 		$time_diff = $time - time();
 
 		if ( $force_set ) { // during register
-			Jetpack::update_option( 'time_diff', $time_diff );
+			Jetpack_Options::update_option( 'time_diff', $time_diff );
 		} else { // otherwise
-			$old_diff = Jetpack::get_option( 'time_diff' );
+			$old_diff = Jetpack_Options::get_option( 'time_diff' );
 			if ( false === $old_diff || abs( $time_diff - (int) $old_diff ) > 10 ) {
-				Jetpack::update_option( 'time_diff', $time_diff );
+				Jetpack_Options::update_option( 'time_diff', $time_diff );
 			}
 		}
 	}

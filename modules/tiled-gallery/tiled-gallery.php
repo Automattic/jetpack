@@ -223,8 +223,7 @@ class Jetpack_Tiled_Gallery {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$likes_blog_id = $blog_id;
 		} else {
-			$jetpack = Jetpack::init();
-			$likes_blog_id = $jetpack->get_option( 'id' );
+			$likes_blog_id = Jetpack_Options::get_option( 'id' );
 		}
 
 		$extra_data = array( 'data-carousel-extra' => array( 'blog_id' => $blog_id, 'permalink' => get_permalink( $post->ID ), 'likes_blog_id' => $likes_blog_id ) );

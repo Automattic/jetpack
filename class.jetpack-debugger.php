@@ -27,7 +27,7 @@ class Jetpack_Debugger {
 		get_currentuserinfo();
 
 		$user_id = get_current_user_id();
-		$user_tokens = Jetpack::get_option( 'user_tokens' );
+		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
 		if ( is_array( $user_tokens ) && array_key_exists( $user_id, $user_tokens ) ) {
 			$user_token = $user_tokens[$user_id];
 		} else {
@@ -46,7 +46,7 @@ class Jetpack_Debugger {
 			'OLD_VERSION' => 'old_version',
 			'PUBLIC'      => 'public',
 		) as $label => $option_name ) {
-			$debug_info .= "\r\n" . esc_html( $label . ": " . Jetpack::get_option( $option_name ) );
+			$debug_info .= "\r\n" . esc_html( $label . ": " . Jetpack_Options::get_option( $option_name ) );
 		}
 
 		$debug_info .= "\r\n" . esc_html( "USER_ID: " . $user_id );

@@ -8,11 +8,11 @@ class Jetpack_Data {
 	 */
 	public static function get_access_token( $user_id = false ) {
 		if ( $user_id ) {
-			if ( !$tokens = Jetpack::get_option( 'user_tokens' ) ) {
+			if ( !$tokens = Jetpack_Options::get_option( 'user_tokens' ) ) {
 				return false;
 			}
 			if ( $user_id === JETPACK_MASTER_USER ) {
-				if ( !$user_id = Jetpack::get_option( 'master_user' ) ) {
+				if ( !$user_id = Jetpack_Options::get_option( 'master_user' ) ) {
 					return false;
 				}
 			}
@@ -28,7 +28,7 @@ class Jetpack_Data {
 			}
 			$token = "{$token_chunks[0]}.{$token_chunks[1]}";
 		} else {
-			$token = Jetpack::get_option( 'blog_token' );
+			$token = Jetpack_Options::get_option( 'blog_token' );
 			if ( empty( $token ) ) {
 				return false;
 			}

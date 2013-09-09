@@ -33,7 +33,7 @@ if ( !function_exists( 'wpme_dec2sixtwo' ) ) {
 function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 	global $wp_query;
 
-	$blog_id = Jetpack::get_option( 'id' );
+	$blog_id = Jetpack_Options::get_option( 'id' );
 
 	if ( 'query' == $context ) {
 		if ( is_singular() ) {

@@ -200,7 +200,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 
 		$params  = array(
-			'blogid'               => Jetpack::get_option( 'id' ),
+			'blogid'               => Jetpack_Options::get_option( 'id' ),
 			'postid'               => get_the_ID(),
 			'comment_registration' => ( get_option( 'comment_registration' ) ? '1' : '0' ), // Need to explicitly send a '1' or a '0' for these
 			'require_name_email'   => ( get_option( 'require_name_email' )   ? '1' : '0' ),
@@ -227,7 +227,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				$params['_wp_unfiltered_html_comment'] = wp_create_nonce( 'unfiltered-html-comment_' . get_the_ID() );
 		}
 
-		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack::get_option( 'blog_token' ) );
+		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack_Options::get_option( 'blog_token' ) );
 		if ( is_wp_error( $signature ) ) {
 			$signature = 'error';
 		}
@@ -377,7 +377,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		if ( FALSE !== strpos( $post_array['hc_avatar'], '.gravatar.com' ) )
 			$post_array['hc_avatar'] = htmlentities( $post_array['hc_avatar'] );
 
-		$check = Jetpack_Comments::sign_remote_comment_parameters( $post_array, Jetpack::get_option( 'blog_token' ) );
+		$check = Jetpack_Comments::sign_remote_comment_parameters( $post_array, Jetpack_Options::get_option( 'blog_token' ) );
 		if ( is_wp_error( $check ) ) {
 			wp_die( $check );
 		}

@@ -94,7 +94,7 @@ class Jetpack_VideoPress {
 			),
 		);
 
-		$options = Jetpack::get_option( $this->option_name, array() );
+		$options = Jetpack_Options::get_option( $this->option_name, array() );
 
 		// If options have not been saved yet, check for older VideoPress plugin options.
 		if ( empty( $options ) ) {
@@ -110,7 +110,7 @@ class Jetpack_VideoPress {
 	 * Update VideoPress options
 	 */
 	function update_options( $options ) {
-		Jetpack::update_option( $this->option_name, $options );
+		Jetpack_Options::update_option( $this->option_name, $options );
 	}
 
 	/**
@@ -138,7 +138,7 @@ class Jetpack_VideoPress {
 	 * Runs when the VideoPress module is deactivated.
 	 */
 	function jetpack_module_deactivated() {
-		Jetpack::delete_option( $this->option_name );
+		Jetpack_Options::delete_option( $this->option_name );
 	}
 
 	/**

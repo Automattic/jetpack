@@ -425,7 +425,7 @@ class Jetpack_Sync {
 		);
 
 		if ( $this->is_post_public( $post ) ) {
-			$post['post_is_public'] = Jetpack::get_option( 'public' );
+			$post['post_is_public'] = Jetpack_Options::get_option( 'public' );
 		} else {
 			//obscure content
 			$post['post_content'] = '';

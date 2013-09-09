@@ -4,7 +4,7 @@
 Options:
 jetpack_options (array)
 	An array of options.
-	@see Jetpack::get_option_names()
+	@see Jetpack_Options::get_option_names()
 
 jetpack_register (string)
 	Temporary verification secrets.
@@ -116,14 +116,14 @@ class Jetpack {
 		if ( get_option( 'jetpack_id' ) ) {
 			// Move individual jetpack options to single array of options
 			$options = array();
-			foreach ( Jetpack::get_option_names() as $option ) {
+			foreach ( Jetpack_Options::get_option_names() as $option ) {
 				if ( false !== $value = get_option( "jetpack_$option" ) ) {
 					$options[$option] = $value;
 				}
 			}
 
 			if ( $options ) {
-				Jetpack::update_options( $options );
+				Jetpack_Options::update_options( $options );
 
 				foreach ( array_keys( $options ) as $option ) {
 					delete_option( "jetpack_$option" );
@@ -131,21 +131,21 @@ class Jetpack {
 			}
 
 			// Add missing version and old_version options
-			if ( ! $version = Jetpack::get_option( 'version' ) ) {
+			if ( ! $version = Jetpack_Options::get_option( 'version' ) ) {
 				$version = $old_version = '1.1:' . time();
-				Jetpack::update_options( compact( 'version', 'old_version' ) );
+				Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 			}
 		}
 
 		// Upgrade from a single user token to a user_id-indexed array and a master_user ID
-		if ( ! Jetpack::get_option( 'user_tokens' ) ) {
-			if ( $user_token = Jetpack::get_option( 'user_token' ) ) {
+		if ( ! Jetpack_Options::get_option( 'user_tokens' ) ) {
+			if ( $user_token = Jetpack_Options::get_option( 'user_token' ) ) {
 				$token_parts = explode( '.', $user_token );
 				if ( isset( $token_parts[2] ) ) {
 					$master_user = $token_parts[2];
 					$user_tokens = array( $master_user => $user_token );
-					Jetpack::update_options( compact( 'master_user', 'user_tokens' ) );
-					Jetpack::delete_option( 'user_token' );
+					Jetpack_Options::update_options( compact( 'master_user', 'user_tokens' ) );
+					Jetpack_Options::delete_option( 'user_token' );
 				} else {
 					// @todo: is this even possible?
 					trigger_error( sprintf( 'Jetpack::plugin_upgrade found no user_id in user_token "%s"', $user_token ), E_USER_WARNING );
@@ -374,7 +374,7 @@ class Jetpack {
 				}
 
 				if ( $new_master ) {
-					Jetpack::update_option( 'master_user', $new_master );
+					Jetpack_Options::update_option( 'master_user', $new_master );
 				}
 				// else disconnect..?
 			}
@@ -392,10 +392,10 @@ class Jetpack {
 		}
 		*/
 
-		$version = Jetpack::get_option( 'version' );
+		$version = Jetpack_Options::get_option( 'version' );
 		if ( ! $version ) {
 			$version = $old_version = JETPACK__VERSION . ':' . time();
-			Jetpack::update_options( compact( 'version', 'old_version' ) );
+			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 		list( $version ) = explode( ':', $version );
 
@@ -552,8 +552,8 @@ class Jetpack {
 	public static function create_nonce( $name ) {
 		$secret = wp_generate_password( 32, false ) . ':' . wp_generate_password( 32, false ) . ':' . ( time() + 600 );
 
-		Jetpack::update_option( $name, $secret );
-		@list( $secret_1, $secret_2, $eol ) = explode( ':', Jetpack::get_option( $name ) );
+		Jetpack_Options::update_option( $name, $secret );
+		@list( $secret_1, $secret_2, $eol ) = explode( ':', Jetpack_Options::get_option( $name ) );
 		if ( empty( $secret_1 ) || empty( $secret_2 ) || $eol < time() )
 			return new Jetpack_Error( 'missing_secrets' );
 
@@ -602,7 +602,7 @@ class Jetpack {
 	 */
 	public static function update_user_token( $user_id, $token, $is_master_user ) {
 		// not designed for concurrent updates
-		$user_tokens = Jetpack::get_option( 'user_tokens' );
+		$user_tokens = Jetpack_Options::get_option( 'user_tokens' );
 		if ( ! is_array( $user_tokens ) )
 			$user_tokens = array();
 		$user_tokens[$user_id] = $token;
@@ -612,7 +612,7 @@ class Jetpack {
 		} else {
 			$options = compact( 'user_tokens' );
 		}
-		return Jetpack::update_options( $options );
+		return Jetpack_Options::update_options( $options );
 	}
 
 	/**
@@ -653,10 +653,10 @@ class Jetpack {
 			return;
 		}
 
-		$jetpack_old_version = Jetpack::get_option( 'version' ); // [sic]
+		$jetpack_old_version = Jetpack_Options::get_option( 'version' ); // [sic]
 		if ( ! $jetpack_old_version ) {
 			$jetpack_old_version = $version = $old_version = '1.1:' . time();
-			Jetpack::update_options( compact( 'version', 'old_version' ) );
+			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 
 		list( $jetpack_version ) = explode( ':', $jetpack_old_version ); // [sic]
@@ -685,7 +685,7 @@ class Jetpack {
 			add_action( 'jetpack_activate_default_modules', array( $this->sync, 'sync_all_registered_options' ), 1000 );
 		}
 
-		Jetpack::update_options(
+		Jetpack_Options::update_options(
 			array(
 				'version'     => JETPACK__VERSION . ':' . time(),
 				'old_version' => $jetpack_old_version,
@@ -755,7 +755,7 @@ class Jetpack {
 					$return[] = $module;
 					break;
 				case 'public' :
-					if ( Jetpack::get_option( 'public' ) ) {
+					if ( Jetpack_Options::get_option( 'public' ) ) {
 						$return[] = $module;
 					}
 					break;
@@ -828,7 +828,7 @@ class Jetpack {
 	 * Get a list of activated modules as an array of module slugs.
 	 */
 	public static function get_active_modules() {
-		$active = Jetpack::get_option( 'active_modules' );
+		$active = Jetpack_Options::get_option( 'active_modules' );
 		if ( ! is_array( $active ) )
 			$active = array();
 		if ( is_admin() ) {
@@ -928,7 +928,7 @@ class Jetpack {
 		foreach ( $modules as $module ) {
 			if ( did_action( "jetpack_module_loaded_$module" ) ) {
 				$active[] = $module;
-				Jetpack::update_option( 'active_modules', array_unique( $active ) );
+				Jetpack_Options::update_option( 'active_modules', array_unique( $active ) );
 				continue;
 			}
 			$active = Jetpack::get_active_modules();
@@ -968,7 +968,7 @@ class Jetpack {
 			}
 			$active_state[] = $module;
 			Jetpack::state( $state, implode( ',', $active_state ) );
-			Jetpack::update_option( 'active_modules', array_unique( $active ) );
+			Jetpack_Options::update_option( 'active_modules', array_unique( $active ) );
 			ob_end_clean();
 		}
 		Jetpack::state( 'error', false );
@@ -1026,7 +1026,7 @@ class Jetpack {
 		require Jetpack::get_module_path( $module );
 		do_action( 'jetpack_activate_module', $module );
 		$active[] = $module;
-		Jetpack::update_option( 'active_modules', array_unique( $active ) );
+		Jetpack_Options::update_option( 'active_modules', array_unique( $active ) );
 		Jetpack::state( 'error', false ); // the override
 		Jetpack::state( 'message', 'module_activated' );
 		Jetpack::state( 'module', $module );
@@ -1053,7 +1053,7 @@ class Jetpack {
 		}
 
 		do_action( "jetpack_deactivate_module_$module" );
-		return Jetpack::update_option( 'active_modules', array_unique( $new ) );
+		return Jetpack_Options::update_option( 'active_modules', array_unique( $new ) );
 	}
 
 	public static function enable_module_configurable( $module ) {
@@ -1129,7 +1129,7 @@ p {
 	 * @static
 	 */
 	public static function plugin_activation( $network_wide ) {
-		Jetpack::update_option( 'activated', 1 );
+		Jetpack_Options::update_option( 'activated', 1 );
 
 		if ( version_compare( $GLOBALS['wp_version'], JETPACK__MINIMUM_WP_VERSION, '<' ) ) {
 			Jetpack::bail_on_activation( sprintf( __( 'Jetpack requires WordPress version %s or later.', 'jetpack' ), JETPACK__MINIMUM_WP_VERSION ) );
@@ -1146,18 +1146,18 @@ p {
 	 * @static
 	 */
 	public static function plugin_initialize() {
-		if ( ! Jetpack::get_option( 'activated' ) ) {
-			Jetpack::update_option( 'activated', 2 );
+		if ( ! Jetpack_Options::get_option( 'activated' ) ) {
+			Jetpack_Options::update_option( 'activated', 2 );
 		}
 
-		if ( ! Jetpack::get_option( 'version' ) ) {
+		if ( ! Jetpack_Options::get_option( 'version' ) ) {
 			$version = $old_version = JETPACK__VERSION . ':' . time();
-			Jetpack::update_options( compact( 'version', 'old_version' ) );
+			Jetpack_Options::update_options( compact( 'version', 'old_version' ) );
 		}
 
 		Jetpack::load_modules();
 
-		Jetpack::delete_option( 'do_activate' );
+		Jetpack_Options::delete_option( 'do_activate' );
 	}
 
 	/**
@@ -1183,7 +1183,7 @@ p {
 		$xml = new Jetpack_IXR_Client();
 		$xml->query( 'jetpack.deregister' );
 
-		Jetpack::delete_option(
+		Jetpack_Options::delete_option(
 			array(
 				'register',
 				'blog_token',
@@ -1196,7 +1196,7 @@ p {
 		);
 
 		if ( $update_activated_state ) {
-			Jetpack::update_option( 'activated', 4 );
+			Jetpack_Options::update_option( 'activated', 4 );
 		}
 	}
 
@@ -1204,12 +1204,12 @@ p {
 	 * Unlinks the current user from the linked WordPress.com user
 	 */
 	function unlink_user() {
-		if ( ! $tokens = Jetpack::get_option( 'user_tokens' ) )
+		if ( ! $tokens = Jetpack_Options::get_option( 'user_tokens' ) )
 			return false;
 
 		$user_id = get_current_user_id();
 
-		if ( Jetpack::get_option( 'master_user' ) == $user_id )
+		if ( Jetpack_Options::get_option( 'master_user' ) == $user_id )
 			return false;
 
 		if ( ! isset( $tokens[$user_id] ) )
@@ -1221,7 +1221,7 @@ p {
 
 		unset( $tokens[$user_id] );
 
-		Jetpack::update_option( 'user_tokens', $tokens );
+		Jetpack_Options::update_option( 'user_tokens', $tokens );
 
 		return true;
 	}
@@ -1246,21 +1246,21 @@ p {
 		// If the plugin is not connected, display a connect message.
 		if (
 			// the plugin was auto-activated and needs its candy
-			Jetpack::get_option( 'do_activate' )
+			Jetpack_Options::get_option( 'do_activate' )
 		||
 			// the plugin is active, but was never activated.  Probably came from a site-wide network activation
-			! Jetpack::get_option( 'activated' )
+			! Jetpack_Options::get_option( 'activated' )
 		) {
 			Jetpack::plugin_initialize();
 		}
 
 		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
-			if ( 4 != Jetpack::get_option( 'activated' ) ) {
+			if ( 4 != Jetpack_Options::get_option( 'activated' ) ) {
 				// Show connect notice on dashboard and plugins pages
 				add_action( 'load-index.php', array( $this, 'prepare_connect_notice' ) );
 				add_action( 'load-plugins.php', array( $this, 'prepare_connect_notice' ) );
 			}
-		} elseif ( false === Jetpack::get_option( 'fallback_no_verify_ssl_certs' ) ) {
+		} elseif ( false === Jetpack_Options::get_option( 'fallback_no_verify_ssl_certs' ) ) {
 			// Upgrade: 1.1 -> 1.1.1
 			// Check and see if host can verify the Jetpack servers' SSL certificate
 			$args = array();
@@ -1359,7 +1359,7 @@ p {
 	}
 
 	function admin_menu() {
-		list( $jetpack_version ) = explode( ':', Jetpack::get_option( 'version' ) );
+		list( $jetpack_version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 		if (
 			$jetpack_version
 		&&
@@ -1693,7 +1693,7 @@ p {
 			<div class="jetpack-wrap-container">
 				<div class="jetpack-text-container">
 					<h4>
-						<?php if ( 1 == Jetpack::get_option( 'activated' ) ) : ?>
+						<?php if ( 1 == Jetpack_Options::get_option( 'activated' ) ) : ?>
 							<p><?php _e( '<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!', 'jetpack' ); ?></p>
 						<?php else : ?>
 							<p><?php _e( '<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
@@ -1701,7 +1701,7 @@ p {
 					</h4>
 				</div>
 				<div class="jetpack-install-container">
-					<?php if ( 1 == Jetpack::get_option( 'activated' ) ) : ?>
+					<?php if ( 1 == Jetpack_Options::get_option( 'activated' ) ) : ?>
 						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
 					<?php else : ?>
 						<p class="submit"><a href="<?php echo Jetpack::admin_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a></p>
@@ -1728,8 +1728,8 @@ p {
 			return '';
 		}
 
-		$jetpack_old_version = explode( ':', Jetpack::get_option( 'old_version' ) );
-		$jetpack_new_version = explode( ':', Jetpack::get_option( 'version' ) );
+		$jetpack_old_version = explode( ':', Jetpack_Options::get_option( 'old_version' ) );
+		$jetpack_new_version = explode( ':', Jetpack_Options::get_option( 'version' ) );
 
 		if ( $jetpack_old_version ) {
 			if ( version_compare( $jetpack_old_version[0], '1.4', '>=' ) ) {
@@ -2355,7 +2355,7 @@ p {
 	}
 
 	function build_connect_url( $raw = false, $redirect = false ) {
-		if ( ! Jetpack::get_option( 'blog_token' ) ) {
+		if ( ! Jetpack_Options::get_option( 'blog_token' ) ) {
 			$url = $this->nonce_url_no_esc( $this->admin_url( 'action=register' ), 'jetpack-register' );
 		} else {
 			$role = $this->translate_current_user_to_role();
@@ -2368,7 +2368,7 @@ p {
 			$args = urlencode_deep(
 				array(
 					'response_type' => 'code',
-					'client_id'     => Jetpack::get_option( 'id' ),
+					'client_id'     => Jetpack_Options::get_option( 'id' ),
 					'redirect_uri'  => add_query_arg(
 						array(
 							'action'   => 'authorize',
@@ -2424,7 +2424,7 @@ p {
 		$is_connected      = Jetpack::is_active();
 		$user_token        = Jetpack_Data::get_access_token( $current_user->ID );
 		$is_user_connected = $user_token && ! is_wp_error( $user_token );
-		$is_master_user    = $current_user->ID == Jetpack::get_option( 'master_user' );
+		$is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 	?>
 		<div class="wrap" id="jetpack-settings">
 
@@ -2586,7 +2586,7 @@ p {
 		$is_connected = Jetpack::is_active();
 		$user_token = Jetpack_Data::get_access_token($current_user->ID);
 		$is_user_connected = $user_token && !is_wp_error($user_token);
-		$is_master_user = $current_user->ID == Jetpack::get_option( 'master_user' );
+		$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 		$module = false;
 	?>
 		<div class="wrap" id="jetpack-settings">
@@ -2736,7 +2736,7 @@ p {
 		}
 		unset( $avail_raw );
 		usort( $available, array( 'Jetpack', 'sort_modules' ) );
-		$jetpack_version = Jetpack::get_option( 'version' );
+		$jetpack_version = Jetpack_Options::get_option( 'version' );
 		if ( $jetpack_version ) {
 			list( $jetpack_version, $jetpack_version_time ) = explode( ':', $jetpack_version );
 		} else {
@@ -2744,7 +2744,7 @@ p {
 			$jetpack_version_time = 0;
 		}
 
-		$jetpack_old_version = Jetpack::get_option( 'old_version' );
+		$jetpack_old_version = Jetpack_Options::get_option( 'old_version' );
 		if ( $jetpack_old_version ) {
 			list( $jetpack_old_version ) = explode( ':', $jetpack_old_version );
 		} else {
@@ -3029,9 +3029,9 @@ p {
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
-		Jetpack::update_option( 'register', wp_generate_password( 32, false ) . ':' . wp_generate_password( 32, false ) . ':' . ( time() + 600 ) );
+		Jetpack_Options::update_option( 'register', wp_generate_password( 32, false ) . ':' . wp_generate_password( 32, false ) . ':' . ( time() + 600 ) );
 
-		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', Jetpack::get_option( 'register' ) );
+		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', Jetpack_Options::get_option( 'register' ) );
 		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() )
 			return new Jetpack_Error( 'missing_secrets' );
 
@@ -3111,7 +3111,7 @@ p {
 			$jetpack_public = false;
 		}
 
-		Jetpack::update_options(
+		Jetpack_Options::update_options(
 			array(
 				'id'         => (int)    $json->jetpack_id,
 				'blog_token' => (string) $json->jetpack_secret,
@@ -3168,7 +3168,7 @@ p {
 
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
 
-		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack::get_option( 'time_diff' ) );
+		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
 		if ( isset( $_POST['_jetpack_is_multipart'] ) ) {
 			$post_data   = $_POST;
 			$file_hashes = array();
@@ -3265,7 +3265,7 @@ p {
 		$options['jetpack_client_id'] = array(
 				'desc'          => __( 'The Client ID/WP.com Blog ID of this site', 'jetpack' ),
 				'readonly'      => true,
-				'value'         => Jetpack::get_option( 'id' ),
+				'value'         => Jetpack_Options::get_option( 'id' ),
 		);
 		return $options;
 	}
@@ -3370,7 +3370,7 @@ p {
 				}
 			}
 
-			Jetpack::update_option( 'public', (int) $is_site_publicly_accessible );
+			Jetpack_Options::update_option( 'public', (int) $is_site_publicly_accessible );
 		}
 
 		if ( $is_site_publicly_accessible ) {
@@ -3518,7 +3518,7 @@ p {
 
 		$die_error = __( 'Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
 
-		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack::get_option( 'time_diff' ) );
+		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
 		$signature = $jetpack_signature->sign_current_request( array( 'body' => null, 'method' => 'GET' ) );
 		if ( ! $signature ) {
 			wp_die( $die_error );
