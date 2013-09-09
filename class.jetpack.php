@@ -282,8 +282,13 @@ class Jetpack {
 		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) )
 			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/gallery-settings.js', __FILE__ ), array( 'media-views' ), '20121225' );
 
-		if ( ! wp_style_is( 'genericons', 'registered' ) )
-			wp_register_style( 'genericons', plugins_url( '_inc/genericons.css', __FILE__ ), false, '2.09' );
+		/**
+		 * As jetpack_register_genericons is by default fired off a hook,
+		 * the hook may have already fired by this point.
+		 * So, let's just trigger it manually.
+		 */
+		require_once( JETPACK__PLUGIN_DIR . '_inc/genericons.php' );
+		jetpack_register_genericons();
 	}
 
 	/**
