@@ -460,6 +460,9 @@ add_action( 'template_redirect', 'sharing_process_requests', 9 );
 function sharing_display( $text = '', $echo = false ) {
 	global $post, $wp_current_filter;
 
+	if ( empty( $post ) )
+		return $text;
+
 	if ( is_preview() ) {
 		return $text;
 	}
