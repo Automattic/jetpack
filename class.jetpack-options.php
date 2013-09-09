@@ -33,6 +33,7 @@ class Jetpack_Options {
 			'is_network_site',              // (int|bool) If we think this site is a network or a single blog (1, 0), false if we haven't yet tried to figue it out.
 			'social_links',                 // (array)  The specified links for each social networking site.
 			'identity_crisis_whitelist',    // (array)  An array of options, each having an array of the values whitelisted for it.
+			'gplus_authors',                // (array)  The Google+ authorship information for connected users.
 		);
 	}
 
