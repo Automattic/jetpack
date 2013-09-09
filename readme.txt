@@ -83,6 +83,12 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 2.5 =
+* Enhancement: Connect your Google+ profile and WordPress site to prove authorship of posts.
+* Enhancement: Improved sharing buttons display.
+* Enhancement: Comment on your posts using Google+ to signin.
+* Enhancement: Embed Google+ posts into your posts.
+
 = 2.4.2 =
 * Enhancement: Converted to module headers to detect Auto-Activating modules.
 * Enhancement: WPCC: Added 'Close' link to deactivate WPCC in the admin nag.
