@@ -31,7 +31,8 @@ class Jetpack_Options {
 			'public',                       // (int|bool) If we think this site is public or not (1, 0), false if we haven't yet tried to figure it out.
 			'videopress',                   // (array)  VideoPress options array.
 			'is_network_site',              // (int|bool) If we think this site is a network or a single blog (1, 0), false if we haven't yet tried to figue it out.
-			'social_links',                 // (array)    The specified links for each social networking site.
+			'social_links',                 // (array)  The specified links for each social networking site.
+			'identity_crisis_whitelist',    // (array)  An array of options, each having an array of the values whitelisted for it.
 		);
 	}
 

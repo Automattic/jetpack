@@ -3636,7 +3636,7 @@ p {
 		return array( $url, $class );
 	}
 
-	/*
+	/**
 	 * Pings the WordPress.com Mirror Site for the specified options.
 	 *
 	 * @param string|array $option_names The option names to request from the WordPress.com Mirror Site
@@ -3654,16 +3654,23 @@ p {
 		}
 		$cloud_site_options = $xml->getResponse();
 
-		// If we want to intentionally jumble the results to test it ...
-		if ( isset( $_GET['spoof_identity_crisis'] ) ) {
-			foreach ( $cloud_site_options as $key => $value ) {
-				$cloud_site_options[ $key ] = wp_generate_password();
-			}
-		}
 		return $cloud_site_options;
 	}
 
-	/*
+	/**
+	 * Fetch the filtered array of options that we should compare to determine an identity crisis.
+	 *
+	 * @return array An array of options to check.
+	 */
+	public static function identity_crisis_options_to_check() {
+		$options = array(
+			'siteurl',
+			'home',
+		);
+		return apply_filters( 'jetpack_identity_crisis_options_to_check', $options );
+	}
+
+	/**
 	 * Checks to make sure that local options have the same values as remote options.  Will cache the results for up to 24 hours.
 	 *
 	 * @param bool $force_recheck Whether to ignore any cached transient and manually re-check.
@@ -3677,30 +3684,64 @@ p {
 		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() )
 			return false;
 
-		if ( isset( $_GET['spoof_identity_crisis'] ) )
-			$force_recheck = true;
-
 		if ( $force_recheck || false === ( $errors = get_transient( 'jetpack_has_identity_crisis' ) ) ) {
-			$options_to_check = array(
-				'siteurl',
-				'home',
-			);
+			$options_to_check = self::identity_crisis_options_to_check();
 			$cloud_options = self::get_cloud_site_options( $options_to_check );
 			$errors        = array();
 			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
+				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
-					$errors[ $cloud_key ] = $cloud_value;
+					// And it's not been added to the whitelist...
+					if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
+						// Then kick an error!
+						$errors[ $cloud_key ] = $cloud_value;
+					}
 				}
-			}
-			// Make sure if we're spoofing it, that we don't let the spoof spill over.
-			if ( ! isset( $_GET['spoof_identity_crisis'] ) ) {
-				set_transient( 'jetpack_has_identity_crisis', $errors, DAY_IN_SECONDS );
 			}
 		}
 		return apply_filters( 'jetpack_has_identity_crisis', $errors, $force_recheck );
 	}
 
-	/*
+	/**
+	 * Adds a value to the whitelist for the specified key.
+	 *
+	 * @param string $key The option name that we're whitelisting the value for.
+	 * @param string $value The value that we're intending to add to the whitelist.
+	 *
+	 * @return bool Whether the value was added to the whitelist, or false if it was already there.
+	 */
+	public static function whitelist_identity_crisis_value( $key, $value ) {
+		if ( self::is_identity_crisis_url_whitelisted( $key, $value ) ) {
+			return false;
+		}
+
+		$whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist', array() );
+		if ( empty( $whitelist[ $key ] ) || ! is_array( $whitelist[ $key ] ) ) {
+			$whitelist[ $key ] = array();
+		}
+		array_push( $whitelist[ $key ], $value );
+
+		Jetpack_Options::update_option( 'identity_crisis_whitelist', $whitelist );
+		return true;
+	}
+
+	/**
+	 * Checks whether a value is already whitelisted.
+	 *
+	 * @param string $key The option name that we're checking the value for.
+	 * @param string $value The value that we're curious to see if it's on the whitelist.
+	 *
+	 * @return bool Whether the value is whitelisted.
+	 */
+	public static function is_identity_crisis_value_whitelisted( $key, $value ) {
+		$whitelist = Jetpack_Options::get_option( 'identity_crisis_whitelist', array() );
+		if ( ! empty( $whitelist[ $key ] ) && is_array( $whitelist[ $key ] ) && in_array( $value, $whitelist[ $key ] ) ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
 	 * Displays an admin_notice, alerting the user to an identity crisis.
 	 */
 	public function alert_identity_crisis() {
@@ -3718,7 +3759,9 @@ p {
 					<?php foreach ( $errors as $key => $value ) : ?>
 						<p><?php printf( __( 'Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!', 'jetpack' ), $key, (string) get_option( $key ), $value ); ?></p>
 					<?php endforeach; ?>
-					<p><?php _e( 'This problem can often be resolved by disconnecting, then reconnecting to WordPress.com.', 'jetpack' ); ?> <a href="<?php echo $this->build_reconnect_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Disconnect and Reconnect to WordPress.com', 'jetpack' ); ?></a></p>
+					<p><a href="<?php echo $this->build_reconnect_url() ?>"><?php _e( 'The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings.', 'jetpack' ); ?></a></p>
+					<p><a href="#"><?php _e( 'Ignore the difference. This is just a staging site for the real site referenced above.', 'jetpack' ); ?></a></p>
+					<p><a href="#"><?php _e( 'That used to be my URL for this site before I changed it. Update the WordPress.com Cloud\'s data to match my current settings.', 'jetpack' ); ?></a></p>
 				</div>
 			</div>
 		</div>
