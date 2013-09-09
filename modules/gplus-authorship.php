@@ -5,6 +5,7 @@
 * Sort Order: 10
 * First Introduced: 2.5
 * Requires Connection: Yes
+* Auto Activate: Yes
 */
 add_action( 'init', function() {
 	new GPlus_Authorship;
