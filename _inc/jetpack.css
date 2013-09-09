@@ -667,7 +667,7 @@ p.jp-help {
 	border-bottom-left-radius: 3px;
 	background-repeat: no-repeat;
 	background-image: url(images/module-icons-sprite.png);
-	background-size: 2885px 50px; /* remember to update this every time a new module is added! */
+	background-size: 2956px 50px; /* remember to update this every time a new module is added! */
 }
 
 @media only screen and (-moz-min-device-pixel-ratio: 1.5),
@@ -795,6 +795,10 @@ p.jp-help {
 
 #widget-visibility.jetpack-module div.module-image {
 	background-position: -2800px 5px;
+}
+
+#videopress.jetpack-module div.module-image {
+	background-position: -2874px 5px;
 }
 
 .jetpack-module div.module-image p {
