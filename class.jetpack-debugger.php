@@ -70,6 +70,16 @@ class Jetpack_Debugger {
 		$tests['HTTPS']['result'] = wp_remote_get( preg_replace( '/^http:/', 'https:', JETPACK__API_BASE ) . 'test/1/' );
 		$tests['HTTPS']['fail_message'] = esc_html__( 'Your site isn’t securely reaching the Jetpack servers.', 'jetpack' );
 
+		$identity_crisis_message = '';
+		if ( $identity_crisis = Jetpack::check_identity_crisis( true ) ) {
+			foreach( $identity_crisis as $key => $value ) {
+				$identity_crisis_message .= sprintf( __( 'Your `%1$s` option is set up as `%2$s`, but your WordPress.com connection lists it as `%3$s`!', 'jetpack' ), $key, (string) get_option( $key ), $value ) . "\r\n";
+			}
+			$identity_crisis = new WP_Error( 'identity-crisis', $identity_crisis_message, $identity_crisis );
+		}
+		$tests['IDENTITY_CRISIS']['result'] = $identity_crisis;
+		$tests['IDENTITY_CRISIS']['fail_message'] = esc_html__( 'Something has gotten mixed up in your Jetpack Connection!', 'jetpack' );
+
 		$self_xml_rpc_url = home_url( 'xmlrpc.php' );
 
 		$args = array();
@@ -101,13 +111,13 @@ class Jetpack_Debugger {
 							<span class="noticon noticon-collapse"></span>
 							</a>
 						</p>
-						<pre class="jetpack-test-details"><?php esc_html_e( $test_name , 'jetpack'); ?>:
-	<?php esc_html_e( is_wp_error( $test_info['result'] ) ? $test_info['result']->get_error_message() : print_r( $test_info['result'], 1 ), 'jetpack' ); ?></pre>
+						<pre class="jetpack-test-details"><?php echo esc_html( $test_name ); ?>:
+	<?php echo esc_html( $test_info['result']->get_error_message() ); ?></pre>
 					</div><?php
 				} else {
 					$debug_info .= $test_name . ": PASS\r\n";
 				}
-				$debug_raw_info .= "\r\n\r\n" . $test_name . "\r\n" . esc_html( print_r( $test_info['result'], 1 ) );
+				$debug_raw_info .= "\r\n\r\n" . $test_name . "\r\n" . esc_html( is_wp_error( $test_info['result'] ) ? $test_info['result']->get_error_message() : print_r( $test_info['result'], 1 ) );
 				?>
 			<?php endforeach;
 			$html = ob_get_clean();
