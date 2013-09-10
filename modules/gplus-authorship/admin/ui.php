@@ -135,9 +135,9 @@ class GPlus_Authorship_Admin {
 		global $publicize;
 		if ( !empty( $_GET['disconnect'] ) && 'gplus' == $_GET['disconnect'] ) {
 			if ( $publicize->disconnected_from_authorship ) { ?>
-				<div class="updated"><p><?php _e( sprintf( "Your Google+ profile and WordPress.com accounts have been disconnected, including your Publicize connections. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>.", 'http://plus.google.com/me/about/edit/co' ) ); ?></p></div><?php
+				<div class="updated"><p><?php _e( sprintf( "Your Google+ profile and WordPress.com accounts have been disconnected, including your Publicize connections. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>.", 'http://plus.google.com/me/about/edit/co' ) , 'jetpack' ); ?></p></div><?php
 			} else { ?>
-				<div class="updated"><p><?php _e( sprintf( "Your Google+ profile and WordPress.com accounts have been disconnected. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>.", 'http://plus.google.com/me/about/edit/co' ) ); ?></p></div><?php
+				<div class="updated"><p><?php _e( sprintf( "Your Google+ profile and WordPress.com accounts have been disconnected. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>.", 'http://plus.google.com/me/about/edit/co' ) , 'jetpack' ); ?></p></div><?php
 			}
 		}
 	}
