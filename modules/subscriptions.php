@@ -386,14 +386,14 @@ class Jetpack_Subscriptions {
 			$redirect_fragment = 'subscribe-blog';
 		}
 
-		$subscribe = Jetpack_Subscriptions::subscribe( 
-												$_REQUEST['email'], 
-												0, 
-												false, 
-												array( 
-													'source'         => 'widget', 
-													'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no', 
-													'comment_status' => '', 
+		$subscribe = Jetpack_Subscriptions::subscribe(
+												$_REQUEST['email'],
+												0,
+												false,
+												array(
+													'source'         => 'widget',
+													'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
+													'comment_status' => '',
 													'server_data'    => $_SERVER,
 												)
 		);
@@ -497,14 +497,14 @@ class Jetpack_Subscriptions {
 		if ( isset( $_REQUEST['subscribe_blog'] ) )
 			$post_ids[] = 0;
 
-		Jetpack_Subscriptions::subscribe( 
-									$comment->comment_author_email, 
+		Jetpack_Subscriptions::subscribe(
+									$comment->comment_author_email,
 									$post_ids,
 									true,
-									array( 
-										'source'         => 'comment-form', 
-										'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no', 
-										'comment_status' => $approved, 
+									array(
+										'source'         => 'comment-form',
+										'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
+										'comment_status' => $approved,
 										'server_data'    => $_SERVER,
 									)
 		);
@@ -558,6 +558,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$subscribe_logged_in 	= isset( $instance['subscribe_logged_in'] ) ? stripslashes( $instance['subscribe_logged_in'] ) : '';
 		$show_subscribers_total = (bool) $instance['show_subscribers_total'];
 		$subscribers_total      = $this->fetch_subscriber_count();
+		$widget_id              = esc_attr( !empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ) );
 
 		if ( ! is_array( $subscribers_total ) )
 			$show_subscribers_total = FALSE;
@@ -595,7 +596,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		endif;
 
 		// Display a subscribe form ?>
-		<form action="" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo !empty( $args['widget_id'] ) ? esc_attr( $args['widget_id'] ) : mt_rand( 450, 550 ); ?>">
+		<form action="" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
 			<?php
 			if ( ! isset ( $_GET['subscribe'] ) ) {
 				?><p><?php echo $subscribe_text ?></p><?php
@@ -612,10 +613,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 				<input type="hidden" name="action" value="subscribe" />
 				<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>" />
 				<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>" />
-				<input type="hidden" name="redirect_fragment" value="<?php echo esc_attr( $widget_id ); ?>" />
-				<?php 
+				<input type="hidden" name="redirect_fragment" value="<?php echo $widget_id; ?>" />
+				<?php
 					if ( is_user_logged_in() ) {
-						wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false ); 
+						wp_nonce_field( 'blogsub_subscribe_'. get_current_blog_id(), '_wpnonce', false );
 					}
 				?>
 				<input type="submit" value="<?php echo esc_attr( $subscribe_button ); ?>" name="jetpack_subscriptions_widget" />
