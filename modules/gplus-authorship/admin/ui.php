@@ -1,8 +1,9 @@
 <?php
-add_action( 'init', function() {
+function jetpack_init_gplus_authorship_admin() {
 	$gplus_admin = new GPlus_Authorship_Admin;
 	add_action( 'save_post', array( 'GPlus_Authorship_Admin', 'save_post_meta' ) );
-} );
+}
+add_action( 'init', 'jetpack_init_gplus_authorship_admin' );
 
 class GPlus_Authorship_Admin {
 
@@ -164,7 +165,10 @@ class GPlus_Authorship_Admin {
 		add_meta_box( 'gplus_authorship', __( 'Google+', 'jetpack' ), array( $this, 'post_screen_meta_box' ), 'post', 'advanced', 'high' );
 	}
 
-	function should_we_show_the_meta_box() {
+	function should_we_show_the_meta_box( $page ) {
+		if ( 'post' != $page )
+			return;
+
 		global $post;
 		$gplus_connections = GPlus_Authorship_Utils::get_all_gplus_authors();
 		if ( empty( $gplus_connections ) || count( $gplus_connections ) < 1 )

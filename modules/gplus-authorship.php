@@ -7,9 +7,10 @@
 * Requires Connection: Yes
 * Auto Activate: Yes
 */
-add_action( 'init', function() {
+function jetpack_init_gplus_authorship() {
 	new GPlus_Authorship;
-} );
+}
+add_action( 'init', 'jetpack_init_gplus_authorship' );
 
 class GPlus_Authorship {
 
@@ -18,7 +19,7 @@ class GPlus_Authorship {
 		if ( $this->in_jetpack ) {
 			require "gplus-authorship/admin/ui.php";
 			$gplus_admin = new GPlus_Authorship_Admin;
-			add_action( 'save_post', array( GPlus_Authorship_Admin, 'save_post_meta' ) );
+			add_action( 'save_post', array( 'GPlus_Authorship_Admin', 'save_post_meta' ) );
 			add_action( 'wp_ajax_save_gplus_profile_data', array( $this, 'save_profile_data' ) );
 			add_filter( 'the_content', array( $this, 'post_output_wrapper' ), 22, 1 );
 		} else {
