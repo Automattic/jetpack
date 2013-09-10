@@ -1,4 +1,4 @@
-/* This file was automatically generated on Jun 19 2013 15:20:57 */
+/* This file was automatically generated on Sep 05 2013 19:17:52 */
 
 #menu-posts-feedback .wp-menu-image img {
 	display: none;
@@ -14,15 +14,11 @@
 	background: url(../../images/grunion-menu.png) no-repeat 7px 7px !important;
 }
 
-body.mp6 #adminmenu .toplevel_page_feedback div.wp-menu-image img {
-	display: none;
-}
-
-body.mp6 #adminmenu .menu-icon-feedback div.wp-menu-image, body.mp6 #adminmenu .toplevel_page_feedback div.wp-menu-image {
+body.mp6 #adminmenu .menu-icon-feedback div.wp-menu-image {
 	background: none !important;
 }
 
-body.mp6 #adminmenu .menu-icon-feedback div.wp-menu-image:before, body.mp6 #adminmenu .toplevel_page_feedback div.wp-menu-image:before {
+body.mp6 #adminmenu .menu-icon-feedback div.wp-menu-image:before {
 	content: '\f175';
 	margin-right: -1px;
 }
