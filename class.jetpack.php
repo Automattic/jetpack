@@ -226,13 +226,15 @@ class Jetpack {
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
 
+		add_filter( 'jetpack_require_lib_dir', array( $this, 'require_lib_dir' ) );
+
 		// add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_modules' ) );
 
 		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
 
 		/**
 		 * These actions run checks to load additional files.
-		 * They check for external files or plugins, so thef need to run as late as possible.
+		 * They check for external files or plugins, so they need to run as late as possible.
 		 */
 		add_action( 'plugins_loaded', array( $this, 'check_open_graph' ),       999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
@@ -298,6 +300,16 @@ class Jetpack {
 	function devicepx() {
 		wp_enqueue_script( 'devicepx', ( is_ssl() ? 'https' : 'http' ) . '://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
 	}
+
+	/*
+	 * Returns the location of Jetpack's lib directory. This filter is applied  
+	 * in require_lib(). 
+	 * 
+	 * @filter require_lib_dir  
+	 */ 
+	function require_lib_dir( $lib_dir ) { 
+		return JETPACK__PLUGIN_DIR . 'lib'; 
+	} 
 
 	/**
 	 * Is Jetpack active?
