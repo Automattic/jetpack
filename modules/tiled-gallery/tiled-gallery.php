@@ -23,7 +23,7 @@ class Jetpack_Tiled_Gallery {
 		$this->atts = shortcode_atts( array(
 			'order'      => 'ASC',
 			'orderby'    => 'menu_order ID',
-			'id'         => $post->ID,
+			'id'         => isset( $post->ID ) ? $post->ID : 0,
 			'include'    => '',
 			'exclude'    => '',
 			'type'       => '',
@@ -226,7 +226,7 @@ class Jetpack_Tiled_Gallery {
 			$likes_blog_id = Jetpack_Options::get_option( 'id' );
 		}
 
-		$extra_data = array( 'data-carousel-extra' => array( 'blog_id' => $blog_id, 'permalink' => get_permalink( $post->ID ), 'likes_blog_id' => $likes_blog_id ) );
+		$extra_data = array( 'data-carousel-extra' => array( 'blog_id' => $blog_id, 'permalink' => get_permalink( isset( $post->ID ) ? $post->ID : 0 ), 'likes_blog_id' => $likes_blog_id ) );
 
 		foreach ( (array) $extra_data as $data_key => $data_values ) {
 			$html = str_replace( '<div ', '<div ' . esc_attr( $data_key ) . "='" . json_encode( $data_values ) . "' ", $html );
@@ -433,7 +433,7 @@ class Jetpack_Tiled_Gallery_One_Three extends Jetpack_Tiled_Gallery_Shape {
 	public $shape = array( 1, 3 );
 
 	public function is_possible() {
-		return $this->is_not_as_previous() && $this->images_left >= 3 &&
+		return $this->is_not_as_previous() && $this->images_left > 3 &&
 			$this->images[0]->ratio < 0.8 && $this->images[1]->ratio >=0.9 && $this->images[2]->ratio >= 0.9 && $this->images[3]->ratio >= 0.9;
 	}
 }
