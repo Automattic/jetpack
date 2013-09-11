@@ -221,6 +221,7 @@ class VideoPress_Player {
 	 * @return string HTML markup
 	 */
 	private function html_age_gate() {
+		global $wp_locale;
 		$text_align = 'left';
 		if ( $this->video->text_direction === 'rtl' )
 			$text_align = 'right';
@@ -242,12 +243,10 @@ class VideoPress_Player {
 		 */
 		$html .= '<select name="month" style="' . $inputs_style . '">';
 
-		$months = array( __('January'), __('February'), __('March'), __('April'), __('May'), __('June'), __('July'), __('August'), __('September'), __('October'), __('November'), __('December') );
 		for( $i=0; $i<12; $i++ ) {
-			$html .= '<option value="' . esc_attr( $i ) . '">' . esc_html( $months[$i] )  . '</option>';
+			$html .= '<option value="' . esc_attr( $i ) . '">' . esc_html( $wp_locale->get_month( $i + 1 ) )  . '</option>';
 		}
 		$html .= '</select>';
-		unset( $months );
 
 		/**
 		 * todo: numdays variance by month
@@ -380,7 +379,7 @@ class VideoPress_Player {
 			}
 			$html .= '<img class="videopress-poster" alt="';
 			if ( ! empty( $this->video->title ) )
-				$html .= esc_attr( $this->video->title ) . '" title="' . esc_attr( sprintf( _x( 'Watch: %s', 'watch a video title', 'video' ), $this->video->title ) );
+				$html .= esc_attr( $this->video->title ) . '" title="' . esc_attr( sprintf( _x( 'Watch: %s', 'watch a video title', 'jetpack' ), $this->video->title ) );
 			$html .= '" src="' . esc_url( $this->video->poster_frame_uri, array( 'http', 'https' ) ) . '" width="' . $width . '" height="' . $height . '" />' . PHP_EOL;
 
 			//style a play button hovered over the poster frame
@@ -505,7 +504,7 @@ class VideoPress_Player {
 			}
 			unset( $vid_type );
 		}
-		$html .= '<noscript><p>' . sprintf( _x( 'JavaScript required to play %s.', 'Play as in playback or view a movie', 'video' ), $noun ) . '</p></noscript>';
+		$html .= '<noscript><p>' . sprintf( _x( 'JavaScript required to play %s.', 'Play as in playback or view a movie', 'jetpack' ), $noun ) . '</p></noscript>';
 
 		return $html;
 	}
