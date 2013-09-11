@@ -1026,6 +1026,11 @@ class Jetpack_Likes {
 			}
 		}
 
+		// Check that the post is a public, published post.
+		if ( 'publish' != $post->post_status ) {
+			$enabled = false;
+		}
+
 		// Run through the sharing filters
 		$enabled = apply_filters( 'sharing_show', $enabled, $post );
 
