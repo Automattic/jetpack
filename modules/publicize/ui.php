@@ -77,6 +77,12 @@ class Publicize_UI {
 		</div><?php
 	}
 
+	public static function denied_notice() { ?>
+		<div class='updated'>
+			<p><?php _e ( "You have chosen not to connect your blog. Please click 'accept' when prompted if you wish to connect your accounts.", 'jetpack' ); ?></p>
+		</div><?php
+	}
+
 	/**
 	* Lists the current user's publicized accounts for the blog
 	* looks exactly like Publicize v1 for now, UI and functionality updates will come after the move to keyring
@@ -87,6 +93,12 @@ class Publicize_UI {
 
   		<form action="" id="publicize-form">
 	  		<h3 id="publicize"><?php _e( 'Publicize', 'jetpack' ) ?></h3>
+
+	  		<?php
+	  			if ( !empty( $_GET['action'] ) && 'deny' == $_GET['action'] )
+	  				$this->denied_notice();
+	  		?>
+
 	  		<p>
 	  			<?php esc_html_e( 'Connect your blog to popular social networking sites and automatically share new posts with your friends.', 'jetpack' ) ?>
 	  			<?php esc_html_e( 'You can make a connection for just yourself or for all users on your blog. Shared connections are marked with the (Shared) text.', 'jetpack' ); ?>
@@ -167,6 +179,12 @@ class Publicize_UI {
 				  				</ul>
 				  			<?php endif; ?>
 							<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection" href="<?php echo esc_url( $connect_url); ?>" target="_top"><?php echo esc_html( sprintf( __( 'Add new %s connection.', 'jetpack' ), $this->publicize->get_service_label( $name ) ) ); ?></a>
+							<?php
+							$help = apply_filters( 'publicize_help_text_' . $name, false );
+							if ( $help ) {
+								echo ' <a href="javascript:void(0);" title="' . esc_attr( $help ) . '" class="publicize-info">?</a>';
+							}
+							?>
 			  			</div>
 			  		</div>
 				<?php endforeach; ?>
