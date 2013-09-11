@@ -17,11 +17,12 @@ span.pub-logos {
 	vertical-align: top;
 }
 
-span#facebook { background: url( facebook-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
+span#facebook { background: url( facebook-logo.png ) 50% 19px no-repeat; background-size: 125px 41px; }
 span#twitter { background: url( twitter-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
 span#linkedin { background: url( linkedin-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
 span#tumblr { background: url( tumblr-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
 span#path { background: url( path-logo.png ) 50% 19px no-repeat; background-size: 85px 32px; }
+span#google_plus { background: url( gplus.png ) 50% 19px no-repeat; background-size: 125px; }
 
 a.publicize-profile-link, a.publicize-profile-link:visited {
 	text-decoration: none;
@@ -32,8 +33,6 @@ a.publicize-profile-link:hover {
 }
 
 a.publicize-add-connection, a.publicize-add-connection:visited {
-	display: block;
-	vertical-align: middle;
 	text-decoration: none;
 }
 
@@ -72,6 +71,17 @@ div.publicize-service-right ul {
 
 div.publicize-service-right li {
 	list-style-type: none;
+}
+
+.publicize-info {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	background-image: url( info-2x.png );
+	background-size: 16px 16px;
+	text-indent: -99999px;
+	float: right;
+	cursor: help;
 }
 
 .pub-disconnect-button {
@@ -147,25 +157,25 @@ table#option-profile td.details {
 	font-weight: bold; color: #333333
 }
 
-table#option-fb-fanpage td {
+table#option-fb-fanpage td, table#option-fanpage td {
 	font-family: "Lucida Grande",Verdana,Arial,sans-serif;
 	vertical-align: middle;
 }
 
-table#option-fb-fanpage td.thumbnail {
+table#option-fb-fanpage td.thumbnail, table#option-fanpage td.thumbnail  {
 	padding: 5px 20px 5px 20px;
 }
 
-table#option-fb-fanpage td.details {
+table#option-fb-fanpage td.details, table#option-fanpage td.details {
 	width: 130px;
 	padding-right: 10px;
 }
 
-table#option-fb-fanpage td.details span.name {
+table#option-fb-fanpage td.details span.name, table#option-fanpage td.details span.name {
 	font-weight: bold; color: #333333;
 }
 
-table#option-fb-fanpage td.details span.category {
+table#option-fb-fanpage td.details span.category, table#option-fanpage td.details span.category {
 	font-size: 10px; color: #888888;
 }
 
