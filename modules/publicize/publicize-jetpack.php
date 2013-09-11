@@ -335,7 +335,7 @@ class Publicize extends Publicize_Base {
 	function options_page_facebook() {
 		$connected_services = Jetpack_Options::get_option( 'publicize_connections' );
 		$connection = $connected_services['facebook'][$_REQUEST['connection']];
-		$options_to_show = $connection['connection_data']['meta']['options_responses'];
+		$options_to_show = ( ! empty( $connection['connection_data']['meta']['options_responses'] ) ? $connection['connection_data']['meta']['options_responses'] : false );
 
 		// Nonce check
 		check_admin_referer( 'options_page_facebook_' . $_REQUEST['connection'] );
