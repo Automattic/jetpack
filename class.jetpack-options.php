@@ -11,6 +11,7 @@ class Jetpack_Options {
 				'activated',
 				'active_modules',
 				'do_activate',
+				'log',
 				'publicize',
 				'widget_twitter',
 				'wpcc_options',

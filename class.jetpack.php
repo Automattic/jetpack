@@ -1257,6 +1257,41 @@ p {
 		}
 	}
 
+	/**
+	 * Tracking an internal event log. Try not to put too much chaff in here.
+	 *
+	 * [Everyone Loves a Log!](http://www.youtube.com/watch?v=8L6Dpq5kY_A)
+	 */
+	public static function log( $code, $data = null ) {
+		$log = Jetpack_Options::get_option( 'log', array() );
+
+		// Append our event to the log
+		$log_entry = array(
+			'time'    => time(),
+			'user_id' => get_current_user_id(),
+			'blog_id' => Jetpack_Options::get_option( 'id' ),
+			'code'    => $code,
+		);
+		// Don't bother storing it unless we've got some.
+		if ( ! is_null( $data ) ) {
+			$log_entry['data'] = $data;
+		}
+		$log[] = $log_entry;
+
+		// Try add_option first, to make sure it's not autoloaded.
+		// @todo: Add an add_option method to Jetpack_Options
+		if ( ! add_option( 'jetpack_log', $log, null, 'no' ) ) {
+			Jetpack_Options::update_option( 'log', $log );
+		}
+	}
+
+	/**
+	 * Get the internal event log.
+	 */
+	public static function get_log() {
+		return Jetpack_Options::get_option( 'log', array() );
+	}
+
 /* Admin Pages */
 
 	function admin_init() {
@@ -1844,11 +1879,13 @@ p {
 					wp_safe_redirect( Jetpack::admin_url() );
 					exit;
 				}
+				Jetpack::log( 'authorize' );
 				$client_server = new Jetpack_Client_Server;
 				$client_server->authorize();
 				exit;
 			case 'register' :
 				check_admin_referer( 'jetpack-register' );
+				Jetpack::log( 'register' );
 				$registered = Jetpack::try_registration();
 				if ( is_wp_error( $registered ) ) {
 					$error = $registered->get_error_code();
@@ -1866,12 +1903,14 @@ p {
 
 				$module = stripslashes( $_GET['module'] );
 				check_admin_referer( "jetpack_activate-$module" );
+				Jetpack::log( 'activate' );
 				Jetpack::activate_module( $module );
 				// The following two lines will rarely happen, as Jetpack::activate_module normally exits at the end.
 				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				exit;
 			case 'activate_default_modules' :
 				check_admin_referer( 'activate_default_modules' );
+				Jetpack::log( 'activate_default_modules' );
 				Jetpack::restate();
 				$min_version   = isset( $_GET['min_version'] ) ? $_GET['min_version'] : false;
 				$max_version   = isset( $_GET['max_version'] ) ? $_GET['max_version'] : false;
@@ -1881,6 +1920,7 @@ p {
 				exit;
 			case 'disconnect' :
 				check_admin_referer( 'jetpack-disconnect' );
+				Jetpack::log( 'disconnect' );
 				Jetpack::disconnect();
 				wp_safe_redirect( Jetpack::admin_url() );
 				exit;
@@ -1891,6 +1931,7 @@ p {
 				}
 
 				check_admin_referer( 'jetpack-reconnect' );
+				Jetpack::log( 'reconnect' );
 				$this->disconnect();
 				wp_redirect( $this->build_connect_url( true ) );
 				exit;
@@ -1902,6 +1943,7 @@ p {
 
 				$modules = stripslashes( $_GET['module'] );
 				check_admin_referer( "jetpack_deactivate-$modules" );
+				Jetpack::log( 'deactivate' );
 				foreach ( explode( ',', $modules ) as $module ) {
 					Jetpack::deactivate_module( $module );
 					Jetpack::state( 'message', 'module_deactivated' );
@@ -1911,6 +1953,7 @@ p {
 				exit;
 			case 'unlink' :
 				check_admin_referer( 'jetpack-unlink' );
+				Jetpack::log( 'unlink' );
 				$this->unlink_user();
 				Jetpack::state( 'message', 'unlinked' );
 				wp_safe_redirect( Jetpack::admin_url() );
