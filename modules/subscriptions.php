@@ -41,6 +41,8 @@ function jetpack_subscriptions_configuration_load() {
 class Jetpack_Subscriptions {
 	var $jetpack = false;
 
+	public static $hash;
+
 	/**
 	 * Singleton
 	 * @static
@@ -57,6 +59,10 @@ class Jetpack_Subscriptions {
 
 	function Jetpack_Subscriptions() {
 		$this->jetpack = Jetpack::init();
+
+		// Don't use COOKIEHASH as it could be shared across installs && is non-unique in multisite.
+		// @see: https://twitter.com/nacin/status/378246957451333632
+		self::$hash = md5( get_option( 'siteurl' ) );
 
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
@@ -446,10 +452,10 @@ class Jetpack_Subscriptions {
 		$blog_checked     = '';
 
 		// Check for a comment / blog submission and set a cookie to retain the setting and check the boxes.
-		if ( isset( $_COOKIE[ 'jetpack_comments_subscribe_' . COOKIEHASH ] ) && $_COOKIE[ 'jetpack_comments_subscribe_' . COOKIEHASH ] == $post->ID )
+		if ( isset( $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash ] ) && $_COOKIE[ 'jetpack_comments_subscribe_' . self::$hash ] == $post->ID )
 			$comments_checked = ' checked="checked"';
 
-		if ( isset( $_COOKIE[ 'jetpack_blog_subscribe_' . COOKIEHASH ] ) )
+		if ( isset( $_COOKIE[ 'jetpack_blog_subscribe_' . self::$hash ] ) )
 			$blog_checked = ' checked="checked"';
 
 		// Some themes call this function, don't show the checkbox again
@@ -525,14 +531,14 @@ class Jetpack_Subscriptions {
 		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
 
 		if ( $comments )
-			setcookie( 'jetpack_comments_subscribe_' . COOKIEHASH, $post->ID, time() + $cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash, $post->ID, time() + $cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
 		else
-			setcookie( 'jetpack_comments_subscribe_' . COOKIEHASH, '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash, '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
 
 		if ( $posts )
-			setcookie( 'jetpack_blog_subscribe_' . COOKIEHASH, 1, time() + $cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
 		else
-			setcookie( 'jetpack_blog_subscribe_' . COOKIEHASH, '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
 	}
 }
 
