@@ -84,10 +84,17 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 == Changelog ==
 
 = 2.5 =
-* Enhancement: Connect your Google+ profile and WordPress site to prove authorship of posts.
+* Enhancement: Connect your Google+ profile and WordPress site to prove authorship of posts. 
 * Enhancement: Improved sharing buttons display.
 * Enhancement: Comment on your posts using Google+ to signin.
 * Enhancement: Embed Google+ posts into your posts.
+* Enhancement: Added event logging capabilities for debugging
+* Enhancement: LaTeX is now available in dev mode
+* Enhancement: Introduced gallery widget
+* Enhancement: Added new module: VideoPress
+* Enhancement: Updated identity crisis checker
+* Enhancement: Tiled Gallery widget added
+* Enhancement: Google +1 button changed to Google+ Share button, to avoid confusion
 
 = 2.4.2 =
 * Enhancement: Converted to module headers to detect Auto-Activating modules.
