@@ -238,6 +238,8 @@ class Jetpack {
 		 */
 		add_action( 'plugins_loaded', array( $this, 'check_open_graph' ),       999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
+
+		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 	}
 
 	/**
@@ -247,6 +249,16 @@ class Jetpack {
 		if ( ! empty( $this->stats ) ) {
 			$this->do_stats( 'server_side' );
 		}
+	}
+
+	function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
+		switch( $cap ) {
+			case 'jetpack_disconnect' :
+			case 'jetpack_reconnect' :
+				$caps = array( 'manage_options' );
+				break;
+		}
+		return $caps;
 	}
 
 	function require_jetpack_authentication() {
@@ -1919,13 +1931,18 @@ p {
 				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				exit;
 			case 'disconnect' :
+				if ( ! current_user_can( 'jetpack_disconnect' ) ) {
+					$error = 'cheatin';
+					break;
+				}
+
 				check_admin_referer( 'jetpack-disconnect' );
 				Jetpack::log( 'disconnect' );
 				Jetpack::disconnect();
 				wp_safe_redirect( Jetpack::admin_url() );
 				exit;
 			case 'reconnect' :
-				if ( ! current_user_can( 'manage_options' ) ) {
+				if ( ! current_user_can( 'jetpack_reconnect' ) ) {
 					$error = 'cheatin';
 					break;
 				}
@@ -2494,7 +2511,7 @@ p {
 				<div id="jp-clouds">
 					<?php if ( $is_connected ) : ?>
 					<div id="jp-disconnectors">
-						<?php if ( current_user_can( 'manage_options' ) ) : ?>
+						<?php if ( current_user_can( 'jetpack_disconnect' ) ) : ?>
 						<div id="jp-disconnect" class="jp-disconnect">
 							<a href="<?php echo wp_nonce_url( Jetpack::admin_url( 'action=disconnect' ), 'jetpack-disconnect' ); ?>"><div class="deftext"><?php _e( 'Connected to WordPress.com', 'jetpack' ); ?></div><div class="hovertext"><?php _e( 'Disconnect from WordPress.com', 'jetpack' ) ?></div></a>
 						</div>
