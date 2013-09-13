@@ -2505,8 +2505,6 @@ p {
 	?>
 		<div class="wrap" id="jetpack-settings">
 
-			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
-
 			<div id="jp-header"<?php if ( $is_connected ) : ?> class="small"<?php endif; ?>>
 				<div id="jp-clouds">
 					<?php if ( $is_connected ) : ?>
@@ -2531,6 +2529,8 @@ p {
 					<?php endif; ?>
 				</div>
 			</div>
+
+			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
 
 			<?php if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] ) : ?>
 				<div id="message" class="error">
