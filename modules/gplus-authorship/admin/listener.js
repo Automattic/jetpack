@@ -24,7 +24,7 @@ jQuery( function( $ ) {
 					state: result.state
 				}, function() {
 					$( GooglePlusMessageHandler.outputContainer ).text( GPlusL10n.connected );
-					window.location.href = '/wp-admin/options-general.php?page=sharing&r=' + Math.round( Math.random()*100000 ) + '#gplus';
+					window.location.href = 'options-general.php?page=sharing&r=' + Math.round( Math.random()*100000 ) + '#gplus';
 				}
 			);
 		},

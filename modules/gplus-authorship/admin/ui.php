@@ -122,7 +122,7 @@ class GPlus_Authorship_Admin {
 	}
 
 	private function disconnect_button() { ?>
-		<a href="<?php echo wp_nonce_url( '/wp-admin/options-general.php?page=sharing&disconnect=gplus', 'disconnect-gplus' ); ?>" id="disconnect-gplus" class="pub-disconnect-button" title="<?php _e( 'Disconnect', 'jetpack'); ?>">&times;</a><?php
+		<a href="<?php echo wp_nonce_url( 'options-general.php?page=sharing&disconnect=gplus', 'disconnect-gplus' ); ?>" id="disconnect-gplus" class="pub-disconnect-button" title="<?php _e( 'Disconnect', 'jetpack'); ?>">&times;</a><?php
 	}
 
 	private function connect_button() { ?>
@@ -135,9 +135,9 @@ class GPlus_Authorship_Admin {
 		global $publicize;
 		if ( !empty( $_GET['disconnect'] ) && 'gplus' == $_GET['disconnect'] ) {
 			if ( $publicize->disconnected_from_authorship ) { ?>
-				<div class="updated"><p><?php _e( sprintf( "Your Google+ profile and WordPress.com accounts have been disconnected, including your Publicize connections. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>.", 'http://plus.google.com/me/about/edit/co' ) , 'jetpack' ); ?></p></div><?php
+				<div class="updated"><p><?php _e( sprintf( "Your Google+ profile and WordPress.com accounts have been disconnected, including your Publicize connections. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>.", 'http://plus.google.com/me/about/edit/co' ) ); ?></p></div><?php
 			} else { ?>
-				<div class="updated"><p><?php _e( sprintf( "Your Google+ profile and WordPress.com accounts have been disconnected. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>.", 'http://plus.google.com/me/about/edit/co' ) , 'jetpack' ); ?></p></div><?php
+				<div class="updated"><p><?php _e( sprintf( "Your Google+ profile and WordPress.com accounts have been disconnected. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>.", 'http://plus.google.com/me/about/edit/co' ) ); ?></p></div><?php
 			}
 		}
 	}
