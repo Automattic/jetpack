@@ -528,17 +528,19 @@ class Jetpack_Subscriptions {
 	function set_cookies( $comments = true, $posts = true ) {
 		global $post;
 
-		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime', 30000000 );
+		$cookie_lifetime = apply_filters( 'comment_cookie_lifetime',       30000000 );
+		$cookie_path     = apply_filters( 'jetpack_comment_cookie_path',   COOKIEPATH );
+		$cookie_domain   = apply_filters( 'jetpack_comment_cookie_domain', COOKIE_DOMAIN );
 
 		if ( $comments )
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash, $post->ID, time() + $cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash, $post->ID, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
 		else
-			setcookie( 'jetpack_comments_subscribe_' . self::$hash, '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'jetpack_comments_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
 
 		if ( $posts )
-			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'jetpack_blog_subscribe_' . self::$hash, 1, time() + $cookie_lifetime, $cookie_path, $cookie_domain );
 		else
-			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN );
+			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
 	}
 }
 
