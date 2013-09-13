@@ -5,13 +5,14 @@
  * Represents a color value, and converts between RGB/HSV/XYZ/Lab/HSL
  *
  * Example:
- * $color = new Color(0xFFFFFF);
+ * $color = new Jetpack_Color(0xFFFFFF);
  *
  * @author Harold Asbridge <hasbridge@gmail.com>
  * @author Matt Wiebe <wiebe@automattic.com>
  * @license http://www.opensource.org/licenses/MIT
  */
-class Color {
+
+class Jetpack_Color {
 	/**
 	 * @var int
 	 */
@@ -559,7 +560,7 @@ class Color {
 
 	public function getMaxContrastColor() {
 		$lum = $this->toLuminosity();
-		$color = new Color;
+		$color = new Jetpack_Color;
 		$hex = ( $lum >= 0.5 ) ? '000000' : 'ffffff';
 		return $color->fromHex( $hex );
 	}
@@ -659,7 +660,7 @@ class Color {
 		$matchKey = null;
 		foreach($colors as $key => $color) {
 			if (false === ($color instanceof Color)) {
-				$c = new Color($color);
+				$c = new Jetpack_Color($color);
 			}
 			$dist = $this->getDistanceLabFrom($c);
 			if ($dist < $matchDist) {
@@ -746,4 +747,4 @@ class Color {
 		return $this->fromHsl( $h, $s, $l );
 	}
 
-} // class Color
+} // class Jetpack_Color

@@ -17,7 +17,7 @@ class Tonesque {
 	private $color = '';
 
 	function __construct( $image_url ) {
-		if ( ! class_exists( 'Color' ) )
+		if ( ! class_exists( 'Jetpack_Color' ) )
 			jetpack_require_lib( 'class.color' );
 
 		$this->image_url = esc_url_raw( $image_url );
@@ -165,9 +165,9 @@ class Tonesque {
 	 *
 	 * @return string
 	 *
- 	 */
+	 */
 	function get_color( $color, $type ) {
-		$c = new Color( $color, 'rgb' );
+		$c = new Jetpack_Color( $color, 'rgb' );
 		$this->color = $c;
 
 		switch ( $type ) {
