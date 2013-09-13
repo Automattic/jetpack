@@ -76,6 +76,8 @@ class Jetpack_Debugger {
 				$identity_crisis_message .= sprintf( __( 'Your `%1$s` option is set up as `%2$s`, but your WordPress.com connection lists it as `%3$s`!', 'jetpack' ), $key, (string) get_option( $key ), $value ) . "\r\n";
 			}
 			$identity_crisis = new WP_Error( 'identity-crisis', $identity_crisis_message, $identity_crisis );
+		} else {
+			$identity_crisis = 'PASS';
 		}
 		$tests['IDENTITY_CRISIS']['result'] = $identity_crisis;
 		$tests['IDENTITY_CRISIS']['fail_message'] = esc_html__( 'Something has gotten mixed up in your Jetpack Connection!', 'jetpack' );
@@ -100,9 +102,9 @@ class Jetpack_Debugger {
 			<?php
 			ob_start();
 			foreach ( $tests as $test_name => $test_info ) :
-				if ( is_wp_error( $test_info['result'] ) ||
+				if ( 'PASS' !== $test_info['result'] && ( is_wp_error( $test_info['result'] ) ||
 					false == ( $response_code = wp_remote_retrieve_response_code( $test_info['result'] ) )  ||
-					'200' != $response_code ) {
+					'200' != $response_code ) ) {
 					$debug_info .= $test_name . ": FAIL\r\n";
 					?>
 					<div class="jetpack-test-error">
