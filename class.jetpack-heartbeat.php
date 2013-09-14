@@ -84,6 +84,7 @@ class Jetpack_Heartbeat {
 		$jetpack->stat( 'qty-pages',      wp_count_posts( 'page' )->publish                    );
 		$jetpack->stat( 'qty-comments',   wp_count_comments()->approved                        );
 		$jetpack->stat( 'is-multisite',   is_multisite() ? 'multisite' : 'singlesite'          );
+		$jetpack->stat( 'identitycrisis', Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no'   );
 
 		// Only check a few plugins, to see if they're currently active.
 		$plugins_to_check = array(
