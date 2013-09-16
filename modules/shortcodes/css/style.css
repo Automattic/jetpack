@@ -45,6 +45,7 @@ body.presentation-wrapper-fullscreen-parent {
 .presentation-wrapper {
 	margin: 20px auto;
 	border: 1px solid #e5e5e5;
+	overflow: hidden;
 }
 
 .presentation {
@@ -137,4 +138,50 @@ body.presentation-wrapper-fullscreen-parent {
 
 .presentation-wrapper-fullscreen .nav-fullscreen-button {
 	background-image: url(../images/collapse.png);
+}
+
+/**
+ * 4. Styles for the autoplay overlay
+ */
+.presentation .autoplay-overlay {
+	height: 15%;
+	width: 80%;
+	margin: 30% 10%;
+	position: relative;
+	z-index: 100;
+	display: table;
+	border-radius: 50px;
+	background-color: #e5e5e5;
+	background-color: rgba(0, 0, 0, 0.75);
+
+	-webkit-transition : opacity .5s;
+	-moz-transition    : opacity .5s;
+	-ms-transition     : opacity .5s;
+	-o-transition      : opacity .5s;
+	transition         : opacity .5s;
+}
+
+.presentation .autoplay-overlay .overlay-msg {
+	position: relative;
+	display: table-cell;
+	text-align: center;
+	vertical-align: middle;
+	color: #fff;
+}
+
+/**
+ * 5. Styles for fading steps
+ */
+.presentation .will-fade {
+	opacity: 0;
+}
+
+.presentation .do-fade {
+	opacity: 1;
+
+	-webkit-transition : opacity .5s;
+	-moz-transition    : opacity .5s;
+	-ms-transition     : opacity .5s;
+	-o-transition      : opacity .5s;
+	transition         : opacity .5s;
 }
