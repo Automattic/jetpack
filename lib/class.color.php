@@ -58,7 +58,7 @@ class Jetpack_Color {
 	 *
 	 * @param string $hexValue
 	 *
-	 * @return Color
+	 * @return Jetpack_Color
 	 */
 	public function fromHex($hexValue) {
 		$hexValue = str_replace( '#', '', $hexValue );
@@ -91,7 +91,7 @@ class Jetpack_Color {
 	 * @param int $green
 	 * @param int $blue
 	 *
-	 * @return Color
+	 * @return Jetpack_Color
 	 */
 	public function fromRgbInt($red, $green, $blue)
 	{
@@ -116,7 +116,7 @@ class Jetpack_Color {
 	 * @param string $green
 	 * @param string $blue
 	 *
-	 * @return Color
+	 * @return Jetpack_Color
 	 */
 	public function fromRgbHex($red, $green, $blue)
 	{
@@ -148,7 +148,7 @@ class Jetpack_Color {
 	}
 
 	/**
-	 * Helper function for Color::fromHsl()
+	 * Helper function for Jetpack_Color::fromHsl()
 	 */
 	private function hue2rgb( $p, $q, $t ) {
 		if ( $t < 0 ) $t += 1;
@@ -164,7 +164,7 @@ class Jetpack_Color {
 	 *
 	 * @param int $intValue
 	 *
-	 * @return Color
+	 * @return Jetpack_Color
 	 */
 	public function fromInt($intValue)
 	{
@@ -496,11 +496,11 @@ class Jetpack_Color {
 	/**
 	 * Get the distance between this color and the given color
 	 *
-	 * @param Color $color
+	 * @param Jetpack_Color $color
 	 *
 	 * @return int
 	 */
-	public function getDistanceRgbFrom(Color $color)
+	public function getDistanceRgbFrom(Jetpack_Color $color)
 	{
 		$rgb1 = $this->toRgbInt();
 		$rgb2 = $color->toRgbInt();
@@ -517,11 +517,11 @@ class Jetpack_Color {
 	/**
 	 * Get distance from the given color using the Delta E method
 	 *
-	 * @param Color $color
+	 * @param Jetpack_Color $color
 	 *
 	 * @return float
 	 */
-	public function getDistanceLabFrom(Color $color)
+	public function getDistanceLabFrom(Jetpack_Color $color)
 	{
 		$lab1 = $this->toLabCie();
 		$lab2 = $color->toLabCie();
@@ -544,10 +544,10 @@ class Jetpack_Color {
 	 * Get distance between colors using luminance.
 	 * Should be more than 5 for readable contrast
 	 *
-	 * @param  Color  $color Another color
+	 * @param  Jetpack_Color  $color Another color
 	 * @return float
 	 */
-	public function getDistanceLuminosityFrom(Color $color) {
+	public function getDistanceLuminosityFrom(Jetpack_Color $color) {
 		$L1 = $this->toLuminosity();
 		$L2 = $color->toLuminosity();
 		if ( $L1 > $L2 ) {
@@ -595,7 +595,7 @@ class Jetpack_Color {
 	 * @return object                A Color object, an increased contrast $this compared against $bg_color
 	 */
 	public function getReadableContrastingColor( $bg_color = false, $min_contrast = 5 ) {
-		if ( ! $bg_color || ! is_a( $bg_color, 'Color' ) ) {
+		if ( ! $bg_color || ! is_a( $bg_color, 'Jetpack_Color' ) ) {
 			return $this;
 		}
 		// you shouldn't use less than 5, but you might want to.
@@ -650,7 +650,7 @@ class Jetpack_Color {
 	/**
 	 * Get the closest matching color from the given array of colors
 	 *
-	 * @param array $colors array of integers or Color objects
+	 * @param array $colors array of integers or Jetpack_Color objects
 	 *
 	 * @return mixed the array key of the matched color
 	 */
@@ -659,7 +659,7 @@ class Jetpack_Color {
 		$matchDist = 10000;
 		$matchKey = null;
 		foreach($colors as $key => $color) {
-			if (false === ($color instanceof Color)) {
+			if (false === ($color instanceof Jetpack_Color)) {
 				$c = new Jetpack_Color($color);
 			}
 			$dist = $this->getDistanceLabFrom($c);
