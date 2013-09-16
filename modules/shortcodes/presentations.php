@@ -48,6 +48,9 @@ presentation unless overridden by individual slides.
    - duration: transition durations, default is one second.
    - height:   content height, default is 400px
    - width:    content width, default is 550px
+   - autoplay: delay between transitions in seconds, default 3s
+               when set the presentation will automatically transition between slides
+               as long as the presentation remains in focus
 
 - [slide] settings:
 	- transition: specifies where the next slide will be placed relative
@@ -67,6 +70,9 @@ presentation unless overridden by individual slides.
 
     - bgimg:	  specifies an image url which will fill the background. Image is
                   set to fill the background 100% width and height
+
+    - fadebullets: any html <li> tags will start out with an opacity of 0 and any
+                   subsequent slide transitions will show the bullets one by one
 */
 
 if ( ! class_exists( 'Presentations' ) ) :
@@ -139,12 +145,14 @@ class Presentations {
 			'width'      => '',
 			'bgcolor'    => '',
 			'bgimg'      => '',
+			'autoplay'   => '',
 
 			// Settings
 			'transition' => '',
 			'scale'      => '',
 			'rotate'     => '',
 			'fade'       => '',
+			'fadebullets'=> '',
 		), $atts );
 
 		$this->presentation_settings = array(
@@ -173,11 +181,20 @@ class Presentations {
 		if ( '' != trim( $atts['fade'] ) )
 			$this->presentation_settings['fade'] = $atts['fade'];
 
+		if ( '' != trim( $atts['fadebullets'] ) )
+			$this->presentation_settings['fadebullets'] = $atts['fadebullets'];
+
 		// Set any settings the slides don't care about
 		if ( '' != trim( $atts['duration'] ) )
 			$duration = floatval( $atts['duration'] ) . 's';
 		else
 			$duration = '1s';
+
+		// Autoplay durations are set in milliseconds
+		if ( '' != trim( $atts['autoplay'] ) )
+			$autoplay = floatval( $atts['autoplay'] ) * 1000;
+		else
+			$autoplay = 0; // No autoplay
 
 		// Set the presentation size as specified or with some nicely sized dimensions
 		if ( '' != trim( $atts['width'] ) )
@@ -206,14 +223,26 @@ class Presentations {
 		// Not supported message style is inlined incase the style sheet doesn't get included
 		$out = "<section class='presentation-wrapper'>";
 		$out.= "<p class='not-supported-msg' style='display: inherit; padding: 25%; text-align: center;'>";
-		$out.= __( 'This slideshow could not be started. Try refreshing the page or viewing it in another browser.', 'jetpack' ) . '</p>';
+		$out.= __( 'This slideshow could not be started. Try refreshing the page or viewing it in another browser.' ) . '</p>';
 
 		// Bail out unless the scripts were added
 		if ( $this->scripts_and_style_included ) {
-			$out.= "<div class='presentation' duration='$duration' style='$style'>";
+			$out.= sprintf(
+				'<div class="presentation" duration="%s" data-autoplay="%s" style="%s">',
+				esc_attr( $duration ),
+				esc_attr( $autoplay ),
+				esc_attr( $style )
+			);
 			$out.= "<div class='nav-arrow-left'></div>";
 			$out.= "<div class='nav-arrow-right'></div>";
 			$out.= "<div class='nav-fullscreen-button'></div>";
+
+			if ( $autoplay ) {
+				$out.= "<div class='autoplay-overlay' style='display: none'><p class='overlay-msg'>";
+				$out.= __( 'Click to autoplay the presentation!' );
+				$out.= "</p></div>";
+			}
+
 			$out.= do_shortcode( $content );
 			$out.= "</section>";
 		}
@@ -234,6 +263,7 @@ class Presentations {
 			'scale'      => '',
 			'rotate'     => '',
 			'fade'       => '',
+			'fadebullets'=> '',
 			'bgcolor'    => '',
 			'bgimg'      => '',
 		), $atts );
@@ -272,6 +302,15 @@ class Presentations {
 		else
 			$fade = '';
 
+		// Setting if bullets should fade on step changes
+		if ( '' == trim( $atts['fadebullets'] ) )
+			$atts['fadebullets'] = $this->presentation_settings['fadebullets'];
+
+		if ( 'on' == $atts['fadebullets'] || 'true' == $atts['fadebullets'] )
+			$fadebullets = 'fadebullets';
+		else
+			$fadebullets = '';
+
 		$coords = $this->get_coords( array(
 			'transition' => $atts['transition'],
 			'scale'      => $scale,
@@ -292,7 +331,17 @@ class Presentations {
 		}
 
 		// Put everything together and let jmpress do the magic!
-		$out = "<div class='step $fade' data-x='$x' data-y='$y' data-scale='$scale' data-rotate='$rotate' style='$style'>";
+		$out = sprintf(
+			'<div class="step %s %s" data-x="%s" data-y="%s" data-scale="%s" data-rotate="%s" style="%s">',
+			esc_attr( $fade ),
+			esc_attr( $fadebullets ),
+			esc_attr( $x ),
+			esc_attr( $y ),
+			esc_attr( $scale ),
+			esc_attr( $rotate ),
+			esc_attr( $style )
+		);
+
 		$out.= "<div class='slide-content'>";
 		$out.= do_shortcode( $content );
 		$out.= "</div></div>";

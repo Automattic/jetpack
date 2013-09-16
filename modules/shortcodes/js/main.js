@@ -6,7 +6,10 @@
 		keyboard         : { use : true },
 		animation        : { transitionDuration : '1s' },
 		presentationMode : false,
-		stepSelector     : '.step'
+		stepSelector     : '.step',
+		duration : {
+			defaultValue: 0
+		}
 	};
 
 	/**
@@ -22,7 +25,10 @@
 		_self.navLeft      = $('.nav-arrow-left', wrapper);
 		_self.navRight     = $('.nav-arrow-right', wrapper);
 		_self.expandButton = $('.nav-fullscreen-button', wrapper);
-		_self.fullscreen = false;
+		_self.overlay      = $('.autoplay-overlay', wrapper);
+		_self.fullscreen   = false;
+		_self.autoPlaying  = false;
+		_self.autoplayTime = parseFloat(_self.slideshow.attr('data-autoplay'), 10) || 0;
 
 		// The wrapper is scaled to the contents' size so that its border wraps tightly
 		_self.wrapper.css({
@@ -32,6 +38,11 @@
 
 		duration = _self.slideshow.attr('duration') || '1s';
 		jmpressOpts.animation.transitionDuration = duration;
+
+		// Compensate for transition times
+		if( _self.autoplayTime ) {
+			_self.autoplayTime += parseFloat(duration, 10) * 1000;
+		}
 
 		// Set the opacity transition duration
 		// as it is delegated by css and not jmpress
@@ -50,6 +61,12 @@
 			$(step).css(new_css);
 		});
 
+		// Apply attribute to allow fading individual bullets here,
+		// otherwise wp_kses will strip the attribute out
+		$('.step.fadebullets li', _self.slideshow).each(function(i, step) {
+			$(step).attr('data-jmpress', 'fade');
+		});
+
 		// Register resizing to window when fullscreen
 		$(window).resize(function() {
 			if ( _self.fullscreen )
@@ -59,22 +76,36 @@
 		// Register the nav bars to move the slides
 		_self.navLeft.on('click', function(){
 			_self.slideshow.jmpress('prev');
+			_self.overlay.css('opacity', 0);
+			return false;
 		});
 
 		_self.navRight.on('click', function(){
 			_self.slideshow.jmpress('next');
+			_self.overlay.css('opacity', 0);
+			return false;
+		});
+
+		_self.slideshow.on('click', function() {
+			_self.setAutoplay(true);
+			return false;
+		});
+
+		_self.slideshow.on('focusout', function() {
+			_self.setAutoplay(false);
 		});
 
 		// Register toggling fullscreen except for IE 9 or lower
 		ie_regex = /MSIE\s(\d+)\.\d+/;
 		matches = ie_regex.exec(navigator.userAgent);
 
-		if ( matches && parseInt(matches[1]) < 10 ) {
+		if ( matches && parseInt(matches[1], 10) < 10 ) {
 			_self.expandButton.remove();
 			_self.expandButton = null;
 		} else {
 			_self.expandButton.on('click', function() {
 				_self.setFullscreen( !_self.fullscreen );
+				return false;
 			});
 		}
 
@@ -90,6 +121,7 @@
 		// Make content visible and remove error message on jmpress success
 		if ( _self.slideshow.jmpress('initialized') ) {
 			_self.slideshow.css('display', '');
+			_self.overlay.css('display', '');
 			$('.not-supported-msg', _self.wrapper).remove();
 		}
 
@@ -162,11 +194,17 @@
 
 		setFullscreen: function ( on ) {
 			this.fullscreen = on;
+			this.setAutoplay(false);
 
 			// Save the scroll positions before going into fullscreen mode
 			if ( on ) {
 				this.scrollVert  = $(window).scrollTop();
 				this.scrollHoriz = $(window).scrollLeft();
+
+				// Chrome Bug: Force scroll to be at top
+				// otherwise the presentation can end up offscreen
+				$(window).scrollTop(0);
+				$(window).scrollLeft(0);
 			}
 
 			$('html').toggleClass('presentation-global-fullscreen', on);
@@ -185,6 +223,26 @@
 				$(window).scrollTop(this.scrollVert);
 				$(window).scrollLeft(this.scrollHoriz);
 			}
+		},
+
+		setAutoplay: function ( on ) {
+			var _self = this, newAutoplayTime;
+
+			if ( _self.autoPlaying == on )
+				return;
+
+			newAutoplayTime = (on && _self.autoplayTime > 0) ? _self.autoplayTime : 0;
+			_self.slideshow.jmpress('settings').duration.defaultValue = newAutoplayTime;
+
+			// Move to the next slide when activating autoplay
+			if( newAutoplayTime ) {
+				_self.slideshow.jmpress('next');
+				_self.overlay.css('opacity', 0);
+			} else {
+				_self.slideshow.jmpress('reselect');
+			}
+
+			_self.autoPlaying = on;
 		}
 	});
 
