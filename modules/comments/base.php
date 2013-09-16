@@ -233,12 +233,18 @@ class Highlander_Comments_Base {
 			}
 		}
 
+		$author_change = false;
 		foreach ( array( 'comment_author' => 'author', 'comment_author_email' => 'email', 'comment_author_url' => 'url' ) as $comment_field => $post_field ) {
+			if ( $comment_data[$comment_field] != $_POST[$post_field] && 'url' != $post_field ) {
+				$author_change = true;
+			}
 			$comment_data[$comment_field] = $_POST[$post_field];
 		}
 
-		// Mark as guest comment
-		$comment_data['user_id'] = $comment_data['user_ID'] = 0;
+		// Mark as guest comment if name or email were changed
+		if ( $author_change ) {
+			$comment_data['user_id'] = $comment_data['user_ID'] = 0;
+		}
 
 		return $comment_data;
 	}
