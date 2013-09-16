@@ -204,6 +204,8 @@ class GPlus_Authorship_Admin {
 			return $post_id;
 		global $post;
 		$authors = get_option( 'gplus_authors', array() );
+		if ( empty( $authors ) || empty( $post ) )
+			return $post_id;
 		if ( empty( $authors[ $post->post_author ] ) )
 			return $post_id;
 		if ( isset( $_POST['post_type'] ) && ( 'post' == $_POST['post_type'] ) ) {
