@@ -223,7 +223,7 @@ class Presentations {
 		// Not supported message style is inlined incase the style sheet doesn't get included
 		$out = "<section class='presentation-wrapper'>";
 		$out.= "<p class='not-supported-msg' style='display: inherit; padding: 25%; text-align: center;'>";
-		$out.= __( 'This slideshow could not be started. Try refreshing the page or viewing it in another browser.' ) . '</p>';
+		$out.= __( 'This slideshow could not be started. Try refreshing the page or viewing it in another browser.' , 'jetpack' ) . '</p>';
 
 		// Bail out unless the scripts were added
 		if ( $this->scripts_and_style_included ) {
@@ -239,7 +239,7 @@ class Presentations {
 
 			if ( $autoplay ) {
 				$out.= "<div class='autoplay-overlay' style='display: none'><p class='overlay-msg'>";
-				$out.= __( 'Click to autoplay the presentation!' );
+				$out.= __( 'Click to autoplay the presentation!' , 'jetpack' );
 				$out.= "</p></div>";
 			}
 
