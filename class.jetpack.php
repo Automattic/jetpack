@@ -3304,7 +3304,7 @@ p {
 
 		// This should always have gone through Jetpack_Signature::sign_request() first to check $timestamp an $nonce
 		$timestamp = (int) $timestamp;
-		$nonce     = $wpdb->escape( $nonce );
+        $nonce       = esc_sql( $nonce );
 
 		// Raw query so we can avoid races: add_option will also update
 		$show_errors = $wpdb->show_errors( false );
