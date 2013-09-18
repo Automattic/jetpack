@@ -6,7 +6,7 @@
 class Jetpack_VideoPress {
 	public $module = 'videopress';
 	public $option_name = 'videopress';
-	public $version = 3;
+	public $version = 4;
 
 	/**
 	 * Singleton
@@ -660,7 +660,11 @@ class Jetpack_VideoPress {
 
 			<label class="setting vp-setting vp-preview">
 				<span><?php _e( 'Preview', 'jetpack' ); ?></span>
+				<# if ( ! data.vp_thumbnail_url ) { #>
+					<span class="videopress-preview-unavailable"><?php esc_html_e( 'The preview is unavailable while this video is being processed.', 'jetpack' ); ?></span>
+				<# } else { #>
 				<a href="#" class="videopress-preview" id="videopress-thumbnail-{{ data.vp_guid }}" data-videopress-guid="{{ data.vp_guid }}"><img src="{{ data.vp_thumbnail_url }}" /></a>
+				<# } #>
 			</label>
 		</script>
 

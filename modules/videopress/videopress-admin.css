@@ -44,6 +44,13 @@
 	text-decoration: none;
 }
 
+.vp-preview span.videopress-preview-unavailable {
+	width: 65%;
+	float: right;
+	text-align: left;
+	margin-right: 0;
+}
+
 .videopress-preview img {
 	float: left;
 	width: 100%;
