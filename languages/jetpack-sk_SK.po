@@ -2,13 +2,29 @@
 # This file is distributed under the same license as the 2.5 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-09-11 22:52:24+0000\n"
+"PO-Revision-Date: 2013-09-19 15:16:37+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 2.5\n"
+
+#: modules/videopress/videopress.php:664
+msgid "The preview is unavailable while this video is being processed."
+msgstr ""
+
+#: modules/shortcodes/presentations.php:242
+msgid "Click to autoplay the presentation!"
+msgstr ""
+
+#: modules/gplus-authorship/admin/ui.php:138
+msgid "Your Google+ profile and WordPress.com accounts have been disconnected, including your Publicize connections. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>."
+msgstr ""
+
+#: modules/gplus-authorship/admin/ui.php:140
+msgid "Your Google+ profile and WordPress.com accounts have been disconnected. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>."
+msgstr ""
 
 msgid "Likes are a way for people to show their appreciation for content you have written. It’s also a way for you to show the world how popular your content has become."
 msgstr ""
@@ -120,16 +136,16 @@ msgid "We couldn't find any account on <strong>%2$s</strong> that is linked to y
 msgstr ""
 
 msgid "http://wordpress.org/extend/plugins/jetpack/"
-msgstr ""
+msgstr "http://wordpress.org/extend/plugins/jetpack/"
 
 msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
 msgstr ""
 
 msgid "Automattic"
-msgstr ""
+msgstr "Automattic"
 
 msgid "http://jetpack.me"
-msgstr ""
+msgstr "http://jetpack.me"
 
 msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
 msgstr ""
@@ -169,7 +185,7 @@ msgstr ""
 
 #: modules/widgets/top-posts.php:35 modules/widgets/top-posts.php:41
 msgid "Top Posts &amp; Pages"
-msgstr ""
+msgstr "Najlepšie články a strany"
 
 #: modules/widgets/top-posts.php:37
 msgid "Shows your most viewed posts and pages."
@@ -181,19 +197,19 @@ msgstr ""
 
 #: modules/widgets/top-posts.php:83
 msgid "Display as:"
-msgstr ""
+msgstr "Zobraziť ako:"
 
 #: modules/widgets/top-posts.php:85
 msgid "Text List"
-msgstr ""
+msgstr "Textový zoznam"
 
 #: modules/widgets/top-posts.php:86
 msgid "Image List"
-msgstr ""
+msgstr "Obrazový zoznam"
 
 #: modules/widgets/top-posts.php:87
 msgid "Image Grid"
-msgstr ""
+msgstr "Obrazová mriežka"
 
 #: modules/widgets/top-posts.php:91
 msgid "Top Posts &amp; Pages by views are calculated from 24-48 hours of stats. They take a while to change."
@@ -205,15 +221,15 @@ msgstr ""
 
 #: modules/widgets/twitter-timeline.php:24
 msgid "Twitter Timeline"
-msgstr ""
+msgstr "Twitter timeline"
 
 #: modules/widgets/twitter-timeline.php:27
 msgid "Display an official Twitter Embedded Timeline widget."
-msgstr ""
+msgstr "Zobrazí oficálny Twitter embedded timeline widget"
 
 #: modules/widgets/twitter-timeline.php:75
 msgid "My Tweets"
-msgstr ""
+msgstr "Moje tweety"
 
 #: modules/widgets/twitter-timeline.php:146
 msgid "Follow me on Twitter"
@@ -245,15 +261,15 @@ msgstr ""
 
 #: modules/widgets/twitter-timeline.php:197
 msgid "No Header"
-msgstr ""
+msgstr "Bez hlavičky"
 
 #: modules/widgets/twitter-timeline.php:198
 msgid "No Footer"
-msgstr ""
+msgstr "Bez pätičky"
 
 #: modules/widgets/twitter-timeline.php:199
 msgid "No Borders"
-msgstr ""
+msgstr "Bez okrajov"
 
 #: modules/widgets/twitter-timeline.php:200
 msgid "No Scrollbar"
@@ -269,15 +285,15 @@ msgstr ""
 
 #: modules/widgets/twitter-timeline.php:210
 msgid "Border Color (hex):"
-msgstr ""
+msgstr "Farba okrajov (hex):"
 
 #: modules/widgets/twitter-timeline.php:215
 msgid "Timeline Theme:"
-msgstr ""
+msgstr "Téma timeline:"
 
 #: modules/widgets.php:49
 msgid "%s (Jetpack)"
-msgstr ""
+msgstr "%s (Jetpack)"
 
 #: modules/wpcc/wpcc-sign-on.php:91
 msgid "WPCC Client ID"
@@ -301,11 +317,11 @@ msgstr ""
 
 #: modules/widgets/readmill.php:67 modules/widgets/rsslinks-widget.php:101
 msgid "Large"
-msgstr ""
+msgstr "Veľký"
 
 #: modules/widgets/readmill.php:68 modules/widgets/rsslinks-widget.php:99
 msgid "Small"
-msgstr ""
+msgstr "Malý"
 
 #: modules/widgets/readmill.php:125
 msgid "Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget."
@@ -322,7 +338,7 @@ msgstr ""
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
 msgid "Posts"
-msgstr ""
+msgstr "Články"
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
@@ -354,7 +370,7 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:100
 msgid "Medium"
-msgstr ""
+msgstr "Stredný"
 
 #: modules/widgets/rsslinks-widget.php:103
 msgid "Image Size:"
@@ -362,35 +378,35 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:113
 msgid "Red"
-msgstr ""
+msgstr "Červená"
 
 #: modules/widgets/rsslinks-widget.php:114
 msgid "Orange"
-msgstr ""
+msgstr "Oranžová"
 
 #: modules/widgets/rsslinks-widget.php:115
 msgid "Green"
-msgstr ""
+msgstr "Zelená"
 
 #: modules/widgets/rsslinks-widget.php:116
 msgid "Blue"
-msgstr ""
+msgstr "Modrá"
 
 #: modules/widgets/rsslinks-widget.php:117
 msgid "Purple"
-msgstr ""
+msgstr "Fialová"
 
 #: modules/widgets/rsslinks-widget.php:118
 msgid "Pink"
-msgstr ""
+msgstr "Ružová"
 
 #: modules/widgets/rsslinks-widget.php:119
 msgid "Silver"
-msgstr ""
+msgstr "Strieborná"
 
 #: modules/widgets/rsslinks-widget.php:121
 msgid "Image Color:"
-msgstr ""
+msgstr "Farba obrázka:"
 
 #: modules/widgets/rsslinks-widget.php:140
 msgid "Subscribe to %s"
@@ -415,7 +431,7 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:184
 msgid "Custom"
-msgstr ""
+msgstr "Vlastné"
 
 #: modules/widgets/gravatar-profile.php:194
 msgid "Custom Email Address"
@@ -475,27 +491,27 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:125
 msgid "Left"
-msgstr ""
+msgstr "Vľavo"
 
 #: modules/widgets/image-widget.php:126
 msgid "Center"
-msgstr ""
+msgstr "Center"
 
 #: modules/widgets/image-widget.php:127
 msgid "Right"
-msgstr ""
+msgstr "Vpravo"
 
 #: modules/widgets/image-widget.php:129
 msgid "Image Alignment:"
-msgstr ""
+msgstr "Zarovnanie obrázka:"
 
 #: modules/widgets/image-widget.php:139
 msgid "Width:"
-msgstr ""
+msgstr "Šírka:"
 
 #: modules/widgets/image-widget.php:142
 msgid "Height:"
-msgstr ""
+msgstr "Výška:"
 
 #: modules/widgets/image-widget.php:145
 msgid "If empty, we will attempt to determine the image size."
@@ -531,15 +547,15 @@ msgstr ""
 
 #: modules/widgets/facebook-likebox.php:134
 msgid "The Like Box only works with <a href=\"http://www.facebook.com/help/?faq=174987089221178\">Facebook Pages</a>."
-msgstr ""
+msgstr "Like Box spolupracuje iba s <a href=\"http://www.facebook.com/help/?faq=174987089221178\">Facebook stránkami</a>"
 
 #: modules/widgets/facebook-likebox.php:140
 msgid "Width"
-msgstr ""
+msgstr "Šírka"
 
 #: modules/widgets/facebook-likebox.php:147
 msgid "Height"
-msgstr ""
+msgstr "Výška"
 
 #: modules/widgets/facebook-likebox.php:165
 msgid "Show Faces"
@@ -577,7 +593,7 @@ msgstr ""
 #: modules/widgets/rsslinks-widget.php:62 modules/widgets/top-posts.php:73
 #: modules/widgets/twitter-timeline.php:160
 msgid "Title:"
-msgstr ""
+msgstr "Nadpis:"
 
 #: modules/widgets/gallery/templates/form.php:10
 msgid "Images:"
@@ -605,7 +621,7 @@ msgstr ""
 
 #: modules/widgets/gallery.php:335
 msgid "Attachment Page"
-msgstr ""
+msgstr "Stránka s prílohou"
 
 #: modules/widgets/gallery.php:336
 msgid "Media File"
@@ -631,15 +647,15 @@ msgstr ""
 msgid "Error loading profile"
 msgstr ""
 
-#: modules/videopress/videopress.php:669
+#: modules/videopress/videopress.php:673
 msgid "Video Preview:"
 msgstr ""
 
-#: modules/videopress/videopress.php:703
+#: modules/videopress/videopress.php:707
 msgid "Use the form below to upload a video to your VideoPress Library. The following video formats are supported: %s. Maximum upload file size is %d%s."
 msgstr ""
 
-#: modules/videopress/videopress.php:706
+#: modules/videopress/videopress.php:710
 msgid "Upload Video"
 msgstr ""
 
@@ -665,7 +681,7 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:75
 msgid "Monthly archives"
-msgstr ""
+msgstr "Mesačný archív"
 
 #: modules/widget-visibility/widget-conditions.php:76
 msgid "Yearly archives"
@@ -755,7 +771,7 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:174
 msgid "Delete"
-msgstr ""
+msgstr "Zmazať"
 
 #: modules/videopress/videopress.php:278
 msgid "Only videos from the selected blog will be available in your media library."
@@ -852,11 +868,11 @@ msgstr ""
 
 #: modules/videopress/videopress.php:595
 msgid "Insert Video"
-msgstr ""
+msgstr "Vložiť video"
 
 #: modules/videopress/videopress.php:628
 msgid "Ogg File URL"
-msgstr ""
+msgstr "Adresa súboru Ogg"
 
 #: modules/videopress/videopress.php:630
 msgid "Location of the Ogg video file."
@@ -868,37 +884,37 @@ msgstr ""
 
 #: modules/videopress/videopress.php:644
 msgid "Rating"
-msgstr ""
+msgstr "Hodnotenie"
 
 #: modules/videopress/videopress.php:657
 msgid "Shortcode"
 msgstr ""
 
-#: modules/subscriptions.php:686
+#: modules/subscriptions.php:694
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
 msgstr ""
 
-#: modules/subscriptions.php:688
+#: modules/subscriptions.php:696
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
 msgstr ""
 
-#: modules/subscriptions.php:704
+#: modules/subscriptions.php:712
 msgid "%s: %s"
 msgstr ""
 
-#: modules/subscriptions.php:711 modules/widgets/image-widget.php:107
+#: modules/subscriptions.php:719 modules/widgets/image-widget.php:107
 msgid "Widget title:"
 msgstr ""
 
-#: modules/subscriptions.php:717
+#: modules/subscriptions.php:725
 msgid "Optional text to display to your readers:"
 msgstr ""
 
-#: modules/subscriptions.php:723
+#: modules/subscriptions.php:731
 msgid "Subscribe Button:"
 msgstr ""
 
-#: modules/subscriptions.php:730
+#: modules/subscriptions.php:738
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] ""
@@ -923,7 +939,7 @@ msgstr ""
 
 #: modules/vaultpress.php:24
 msgid "Active"
-msgstr ""
+msgstr "Aktívny"
 
 #: modules/videopress/class.videopress-player.php:195
 msgid "%s Error"
@@ -939,7 +955,7 @@ msgstr ""
 
 #: modules/videopress/class.videopress-player.php:280
 msgid "Submit"
-msgstr ""
+msgstr "Zaslať"
 
 #: modules/videopress/class.videopress-player.php:326
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
@@ -953,7 +969,7 @@ msgstr ""
 #: modules/videopress/class.videopress-player.php:478
 #: modules/videopress/class.videopress-player.php:500
 msgid "this video"
-msgstr ""
+msgstr "toto video"
 
 #: modules/videopress/class.videopress-player.php:507
 msgctxt "Play as in playback or view a movie"
@@ -966,7 +982,7 @@ msgstr ""
 
 #: modules/videopress/class.videopress-player.php:661
 msgid "Loading video..."
-msgstr ""
+msgstr "Nahrávam video..."
 
 #: modules/videopress/class.videopress-video.php:306
 msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
@@ -1002,7 +1018,7 @@ msgstr ""
 
 #: modules/stats.php:971
 msgid "Top Searches"
-msgstr ""
+msgstr "Najčastejšie vyhľadávané"
 
 #: modules/stats.php:999
 msgid "We were unable to get your stats just now. Please reload this page to try again."
@@ -1012,55 +1028,55 @@ msgstr ""
 msgid "We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href=\"%1$s\">contact support</a>. In your report please include the information below."
 msgstr ""
 
-#: modules/subscriptions.php:116
+#: modules/subscriptions.php:122
 msgid "Jetpack Subscriptions Settings"
 msgstr ""
 
-#: modules/subscriptions.php:125
+#: modules/subscriptions.php:131
 msgid "Follow Blog"
 msgstr ""
 
-#: modules/subscriptions.php:140
+#: modules/subscriptions.php:146
 msgid "Follow Comments"
 msgstr ""
 
-#: modules/subscriptions.php:161
+#: modules/subscriptions.php:167
 msgid "Follower Settings"
 msgstr ""
 
-#: modules/subscriptions.php:168
+#: modules/subscriptions.php:174
 msgid "Blog follow email text"
 msgstr ""
 
-#: modules/subscriptions.php:176
+#: modules/subscriptions.php:182
 msgid "Comment follow email text"
 msgstr ""
 
-#: modules/subscriptions.php:190
+#: modules/subscriptions.php:196
 msgid "Change whether your visitors can subscribe to your posts or comments or both."
 msgstr ""
 
-#: modules/subscriptions.php:205
+#: modules/subscriptions.php:211
 msgid "Show a <em>'follow blog'</em> option in the comment form"
 msgstr ""
 
-#: modules/subscriptions.php:220
+#: modules/subscriptions.php:226
 msgid "Show a <em>'follow comments'</em> option in the comment form"
 msgstr ""
 
-#: modules/subscriptions.php:245
+#: modules/subscriptions.php:251
 msgid "These settings change emails sent from your blog to followers."
 msgstr ""
 
-#: modules/subscriptions.php:251
+#: modules/subscriptions.php:257
 msgid "Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)"
 msgstr ""
 
-#: modules/subscriptions.php:257
+#: modules/subscriptions.php:263
 msgid "Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)"
 msgstr ""
 
-#: modules/subscriptions.php:262
+#: modules/subscriptions.php:268
 msgid ""
 "Howdy.\n"
 "\n"
@@ -1069,7 +1085,7 @@ msgid ""
 "To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
 msgstr ""
 
-#: modules/subscriptions.php:263
+#: modules/subscriptions.php:269
 msgid ""
 "Howdy.\n"
 "\n"
@@ -1078,46 +1094,46 @@ msgid ""
 "To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
 msgstr ""
 
-#: modules/subscriptions.php:465
+#: modules/subscriptions.php:471
 msgid "Notify me of follow-up comments by email."
 msgstr ""
 
-#: modules/subscriptions.php:472
+#: modules/subscriptions.php:478
 msgid "Notify me of new posts by email."
 msgstr ""
 
-#: modules/subscriptions.php:548
+#: modules/subscriptions.php:556
 msgid "Add an email signup form to allow people to subscribe to your blog."
 msgstr ""
 
-#: modules/subscriptions.php:551
+#: modules/subscriptions.php:559
 msgid "Blog Subscriptions (Jetpack)"
 msgstr ""
 
-#: modules/subscriptions.php:577
+#: modules/subscriptions.php:585
 msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
 msgstr ""
 
-#: modules/subscriptions.php:586
+#: modules/subscriptions.php:594
 msgid "The email you entered was invalid, please check and try again."
-msgstr ""
+msgstr "E-mail, ktorý ste zadali je nesprávny, skontrolujte ho a skúste znova."
 
-#: modules/subscriptions.php:589
+#: modules/subscriptions.php:597
 msgid "You have already subscribed to this site, please check your inbox."
 msgstr ""
 
-#: modules/subscriptions.php:595
+#: modules/subscriptions.php:603
 msgid "There was an error when subscribing, please try again."
 msgstr ""
 
-#: modules/subscriptions.php:608
+#: modules/subscriptions.php:616
 msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: modules/subscriptions.php:685
+#: modules/subscriptions.php:693
 msgid "Subscribe to Blog via Email"
 msgstr ""
 
@@ -1139,7 +1155,7 @@ msgstr ""
 
 #: modules/stats.php:546
 msgid "Registered users"
-msgstr ""
+msgstr "Registrovaný užívatelia"
 
 #: modules/stats.php:548
 msgid "Count the page views of registered users who are logged in."
@@ -1171,59 +1187,59 @@ msgstr ""
 
 #: modules/stats.php:573
 msgid "Save configuration"
-msgstr ""
+msgstr "Uložiť konfiguráciu"
 
 #: modules/stats.php:637
 msgid "Stats"
-msgstr ""
+msgstr "Štatistiky"
 
 #: modules/stats.php:639
 msgid "Views over 48 hours. Click for more Site Stats."
-msgstr ""
+msgstr "Prezretí za 48 hodín. Pre viac kliknite na Štatistiky stránky."
 
 #: modules/stats.php:706
 msgid "day"
-msgstr ""
+msgstr "deň"
 
 #: modules/stats.php:707
 msgid "week"
-msgstr ""
+msgstr "týždeň"
 
 #: modules/stats.php:708
 msgid "month"
-msgstr ""
+msgstr "mesiac"
 
 #: modules/stats.php:711
 msgid "the past day"
-msgstr ""
+msgstr "minulý deň"
 
 #: modules/stats.php:712
 msgid "the past week"
-msgstr ""
+msgstr "minulý týždeň"
 
 #: modules/stats.php:713
 msgid "the past month"
-msgstr ""
+msgstr "Minulý mesiac"
 
 #: modules/stats.php:714
 msgid "the past quarter"
-msgstr ""
+msgstr "minulý trištvrťrok"
 
 #: modules/stats.php:715
 msgid "the past year"
-msgstr ""
+msgstr "minulý rok"
 
 #: modules/stats.php:737
 msgid "Chart stats by"
-msgstr ""
+msgstr "Tabuľkové štatistiky od"
 
 #: modules/stats.php:750
 msgid "Show top posts over"
-msgstr ""
+msgstr "Zobraziť najlepšie články navrchu."
 
 #: modules/stats.php:763
 msgid "Show top search terms over"
-msgstr ""
+msgstr "Zobraziť hore najčastejšie vyhľadávané spojenia"
 
 #: modules/stats.php:922
 msgid "%1$s %2$s Views"
@@ -1231,23 +1247,23 @@ msgstr ""
 
 #: modules/stats.php:943
 msgid "View All"
-msgstr ""
+msgstr "Ukázať všetko"
 
 #: modules/stats.php:947
 msgid "Top Posts"
-msgstr ""
+msgstr "Najlepšie články"
 
 #: modules/sharedaddy/sharing.php:307
 msgid "Icon + text"
-msgstr ""
+msgstr "Ikona + text"
 
 #: modules/sharedaddy/sharing.php:308
 msgid "Icon only"
-msgstr ""
+msgstr "Len ikona"
 
 #: modules/sharedaddy/sharing.php:309
 msgid "Text only"
-msgstr ""
+msgstr "Len text"
 
 #: modules/sharedaddy/sharing.php:310
 msgid "Official buttons"
@@ -1263,15 +1279,15 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:324
 msgid "New window"
-msgstr ""
+msgstr "Nové okno"
 
 #: modules/sharedaddy/sharing.php:325
 msgid "Same window"
-msgstr ""
+msgstr "Rovnaké okno"
 
 #: modules/sharedaddy/sharing.php:363
 msgid "Service name"
-msgstr ""
+msgstr "Meno služby"
 
 #: modules/sharedaddy/sharing.php:369
 msgid "Sharing URL"
@@ -1305,7 +1321,7 @@ msgstr ""
 msgid "Download: <a href=\"%s\">%s</a><br />"
 msgstr ""
 
-#: modules/shortcodes/presentations.php:209
+#: modules/shortcodes/presentations.php:226
 msgid "This slideshow could not be started. Try refreshing the page or viewing it in another browser."
 msgstr ""
 
@@ -1323,7 +1339,7 @@ msgstr ""
 
 #: modules/shortcodes/twitter-timeline.php:17
 msgid "Invalid username"
-msgstr ""
+msgstr "Neplatné užívateľské meno"
 
 #: modules/shortcodes/twitter-timeline.php:20
 msgid "Invalid id"
@@ -1339,11 +1355,11 @@ msgstr ""
 
 #: modules/social-links/social-links.php:157
 msgid "&mdash; Select &mdash;"
-msgstr ""
+msgstr "&mdash; Vybrať &mdash;"
 
 #: modules/stats.php:265 modules/stats.php:685
 msgid "Site Stats"
-msgstr ""
+msgstr "Štatistiky stránky"
 
 #: modules/stats.php:356
 msgid "Loading&hellip;"
@@ -1359,15 +1375,15 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:985
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: modules/sharedaddy/sharing-sources.php:990
 msgid "Icon"
-msgstr ""
+msgstr "Ikona"
 
 #: modules/sharedaddy/sharing-sources.php:997
 msgid "Save"
-msgstr ""
+msgstr "Uložiť"
 
 #: modules/sharedaddy/sharing-sources.php:998
 msgid "Remove Service"
@@ -1431,7 +1447,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:177
 msgid "Available Services"
-msgstr ""
+msgstr "Dostupné služby"
 
 #: modules/sharedaddy/sharing.php:178
 msgid "Drag and drop the services you'd like to enable into the box below."
@@ -1439,7 +1455,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:179
 msgid "Add a new service"
-msgstr ""
+msgstr "Pridať novú službu"
 
 #: modules/sharedaddy/sharing.php:192
 msgid "Please note that your services have been restricted because your site is private."
@@ -1447,7 +1463,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:203
 msgid "Enabled Services"
-msgstr ""
+msgstr "Povolené služby"
 
 #: modules/sharedaddy/sharing.php:206
 msgid "Services dragged here will appear individually."
@@ -1463,7 +1479,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:235
 msgid "Live Preview"
-msgstr ""
+msgstr "Živý náhľad"
 
 #: modules/sharedaddy/sharing.php:238
 msgid "Sharing is off. Add services above to enable."
@@ -1487,7 +1503,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:333
 msgid "Twitter"
-msgstr ""
+msgstr "Twitter"
 
 #: modules/sharedaddy/sharing-sources.php:379
 msgctxt "share to"
@@ -1558,11 +1574,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:733
 msgid "Share on Facebook"
-msgstr ""
+msgstr "Zdielať na Facebooku"
 
 #: modules/sharedaddy/sharing-sources.php:764
 msgid "Print"
-msgstr ""
+msgstr "Tlačiť"
 
 #: modules/sharedaddy/sharing-sources.php:768
 msgctxt "share to"
@@ -1575,7 +1591,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:784
 msgid "Press This"
-msgstr ""
+msgstr "Press This"
 
 #: modules/sharedaddy/sharing-sources.php:812
 msgctxt "share to"
@@ -1627,7 +1643,7 @@ msgstr ""
 #: modules/publicize/ui.php:534 modules/publicize/ui.php:563
 #: modules/publicize/ui.php:565
 msgid "Hide"
-msgstr ""
+msgstr "Skryť"
 
 #: modules/publicize/ui.php:543
 msgid "Not Connected"
@@ -1643,7 +1659,7 @@ msgstr ""
 
 #: modules/publicize/ui.php:578
 msgid "Show"
-msgstr ""
+msgstr "Ukázať"
 
 #: modules/publicize.php:89
 msgctxt "word count: words or characters?"
@@ -1656,7 +1672,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:114
 msgid "Disable CSS and JS"
-msgstr ""
+msgstr "Zablokovať CSS a JS"
 
 #: modules/sharedaddy/sharedaddy.php:116
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
@@ -1664,17 +1680,17 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-service.php:12
 msgid "Share this:"
-msgstr ""
+msgstr "Zdieľaj tento článok:"
 
 #: modules/sharedaddy/sharing-service.php:551
 #: modules/sharedaddy/sharing.php:250 modules/sharedaddy/sharing.php:283
 msgid "More"
-msgstr ""
+msgstr "Viac"
 
 #: modules/sharedaddy/sharing-service.php:553
 #: modules/videopress/videopress.php:635
 msgid "Share"
-msgstr ""
+msgstr "Zdieľať"
 
 #: modules/sharedaddy/sharing-sources.php:200
 msgctxt "as sharing source"
@@ -1690,9 +1706,9 @@ msgid "You have shared this post with %s"
 msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:244
-#: modules/videopress/videopress.php:672 modules/wpcc/wpcc-sign-on.php:122
+#: modules/videopress/videopress.php:676 modules/wpcc/wpcc-sign-on.php:122
 msgid "Close"
-msgstr ""
+msgstr "Zatvoriť"
 
 #: modules/sharedaddy/sharing-sources.php:266
 msgctxt "share to"
@@ -1855,14 +1871,14 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-comments.php:17
 msgid "Search Comments"
-msgstr ""
+msgstr "Hľadať v komentároch"
 
 #: modules/omnisearch/omnisearch-comments.php:18
 #: modules/omnisearch/omnisearch-comments.php:27
 #: modules/widgets/rsslinks-widget.php:68
 #: modules/widgets/rsslinks-widget.php:136
 msgid "Comments"
-msgstr ""
+msgstr "Komentáre"
 
 #: modules/omnisearch/omnisearch-core.php:85
 msgid "search everything"
@@ -1886,21 +1902,21 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-media.php:16
 msgid "Search Media"
-msgstr ""
+msgstr "Hľadať súbor"
 
 #: modules/omnisearch/omnisearch-media.php:17
 #: modules/omnisearch/omnisearch-media.php:28
 msgid "Media"
-msgstr ""
+msgstr "Multimédiá"
 
 #: modules/omnisearch/omnisearch-plugins.php:20
 msgid "Search Plugins"
-msgstr ""
+msgstr "Hľadať moduly"
 
 #: modules/omnisearch/omnisearch-plugins.php:21
 #: modules/omnisearch/omnisearch-plugins.php:26
 msgid "Plugins"
-msgstr ""
+msgstr "Moduly"
 
 #: modules/omnisearch/omnisearch-plugins.php:23
 msgid "Loading &hellip;"
@@ -1910,7 +1926,7 @@ msgstr ""
 #: modules/widgets/facebook-likebox.php:124
 #: modules/widgets/gravatar-profile.php:174
 msgid "Title"
-msgstr ""
+msgstr "Nadpis"
 
 #: modules/omnisearch/omnisearch-posts.php:45
 msgid "Snippet"
@@ -1918,39 +1934,39 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-posts.php:75
 msgid "Unpublished"
-msgstr ""
+msgstr "Nepublikované"
 
 #: modules/omnisearch/omnisearch-posts.php:78
 msgid "Y/m/d g:i:s A"
-msgstr ""
+msgstr "j. F. Y, G:i"
 
 #: modules/omnisearch/omnisearch-posts.php:85
 msgid "%s ago"
-msgstr ""
+msgstr "%s dozadu"
 
 #: modules/omnisearch/omnisearch-posts.php:87
 msgid "Y/m/d"
-msgstr ""
+msgstr "j. F Y"
 
 #: modules/omnisearch/omnisearch-posts.php:93
 msgid "Published"
-msgstr ""
+msgstr "Publikované"
 
 #: modules/omnisearch/omnisearch-posts.php:96
 msgid "Missed schedule"
-msgstr ""
+msgstr "Zmeškané naplánovanie"
 
 #: modules/omnisearch/omnisearch-posts.php:98
 msgid "Scheduled"
-msgstr ""
+msgstr "Naplánované"
 
 #: modules/omnisearch/omnisearch-posts.php:100
 msgid "Last Modified"
-msgstr ""
+msgstr "Posledná zmena"
 
-#: modules/post-by-email.php:94 modules/subscriptions.php:612
+#: modules/post-by-email.php:94 modules/subscriptions.php:620
 msgid "Email Address"
-msgstr ""
+msgstr "E-mailová adresa"
 
 #: modules/post-by-email.php:109
 msgid "Enable Post By Email"
@@ -1959,7 +1975,7 @@ msgstr ""
 #: modules/post-by-email.php:113
 #: modules/videopress/class.videopress-player.php:283
 msgid "More information"
-msgstr ""
+msgstr "Viac informácií"
 
 #: modules/module-info.php:642
 msgid "With the Infinite Scroll module and a supported theme, that's exactly what happens. Instead of the old way of navigating down a page by scrolling and then clicking a link to get to the next page, waiting for a page refresh&mdash;the document model of the web&mdash;infinite scrolling pulls the next set of posts automatically into view when the reader approaches the bottom of the page, more like an application."
@@ -2152,7 +2168,7 @@ msgstr ""
 
 #: modules/module-info.php:567 modules/module-info.php:570
 msgid "Custom CSS"
-msgstr ""
+msgstr "Vlastné CSS"
 
 #: modules/module-info.php:571
 msgid "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing."
@@ -2312,7 +2328,7 @@ msgstr ""
 
 #: modules/module-info.php:427
 msgid "Subscriptions"
-msgstr ""
+msgstr "Odoberanie"
 
 #: modules/module-info.php:75
 msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
@@ -2355,7 +2371,7 @@ msgstr ""
 #: modules/module-info.php:182 modules/module-info.php:186
 #: modules/module-info.php:195 modules/module-info.php:199
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "Štatistika WordPress.com"
 
 #: modules/module-info.php:187 modules/module-info.php:200
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
@@ -2434,11 +2450,11 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:27
 msgid "Yearly Archives: %s"
-msgstr ""
+msgstr "Ročné Archívy: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:29
 msgid "Posted in %s"
-msgstr ""
+msgstr "Kategória: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:31
 msgid "Tagged with %s"
@@ -2446,11 +2462,11 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:33
 msgid "Posted by"
-msgstr ""
+msgstr "Publikoval(a)"
 
 #: modules/minileven/theme/pub/minileven/index.php:35
 msgid "Blog Archives"
-msgstr ""
+msgstr "Archívy blogu"
 
 #: modules/minileven/theme/pub/minileven/index.php:43
 msgid "Search Results for: %s"
@@ -2458,7 +2474,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:57
 msgid "Nothing Found"
-msgstr ""
+msgstr "Nič sa nenašlo"
 
 #: modules/minileven/theme/pub/minileven/index.php:61
 msgid "Apologies, but no results were found for the requested archive. Perhaps searching will help find a related post."
@@ -2469,7 +2485,7 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/searchform.php:11
 #: modules/omnisearch/omnisearch-core.php:156
 msgid "Search"
-msgstr ""
+msgstr "Hľadať"
 
 #: modules/minileven.php:50
 msgid "Excerpts"
@@ -2505,7 +2521,7 @@ msgstr ""
 
 #: modules/module-info.php:22 modules/module-info.php:26
 msgid "VaultPress"
-msgstr ""
+msgstr "VaultPress"
 
 #: modules/module-info.php:28
 msgid "Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support."
@@ -2518,7 +2534,7 @@ msgstr ""
 
 #: modules/module-info.php:29
 msgid "VaultPress dashboard"
-msgstr ""
+msgstr "Nástenka VaultPress"
 
 #: modules/module-info.php:31
 msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks."
@@ -2559,7 +2575,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:30
 msgid "%s"
-msgstr ""
+msgstr "%s"
 
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
@@ -2574,11 +2590,11 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/content.php:60
 #: modules/minileven/theme/pub/minileven/image.php:88
 msgid "&laquo; Previous"
-msgstr ""
+msgstr "&laquo; Predošlá"
 
 #: modules/minileven/theme/pub/minileven/content.php:61
 msgid "Next &raquo;"
-msgstr ""
+msgstr "Ďalej &raquo;"
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "http://wordpress.org/"
@@ -2612,7 +2628,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/header.php:26
 msgid "Menu"
-msgstr ""
+msgstr "Menu"
 
 #: modules/minileven/theme/pub/minileven/header.php:29
 msgid "Skip to primary content"
@@ -2644,35 +2660,35 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:55
 msgid "%1$s on %2$s"
-msgstr ""
+msgstr "%1$s na %2$s"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:61
 msgid "%1$s at %2$s"
-msgstr ""
+msgstr "%1$s o %2$s"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:68
 msgid "Your comment is awaiting moderation."
-msgstr ""
+msgstr "Váš komentár čaká na schválenie."
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:76
 msgid "Reply"
-msgstr ""
+msgstr "Odpovedať"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:90
 msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
-msgstr ""
+msgstr "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
 
 #: modules/minileven/theme/pub/minileven/inc/tweaks.php:94
 msgid "Page %s"
-msgstr ""
+msgstr "Stránka %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:23
 msgid "Daily Archives: %s"
-msgstr ""
+msgstr "Denný archív: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:25
 msgid "Monthly Archives: %s"
-msgstr ""
+msgstr "Mesačné archívy: %s"
 
 #: modules/likes.php:251
 msgid "Someone likes one of my posts"
@@ -2696,11 +2712,11 @@ msgstr ""
 
 #: modules/likes.php:317 modules/sharedaddy/sharing.php:336
 msgid "Front Page, Archive Pages, and Search Results"
-msgstr ""
+msgstr "Predná Strana, Archív Stránok a Výsledky Hľadania"
 
 #: modules/likes.php:450 modules/sharedaddy/sharing.php:158
 msgid "Settings have been saved"
-msgstr ""
+msgstr "Nastavenia boli uložené"
 
 #: modules/likes.php:457 modules/sharedaddy/sharing.php:170
 msgid "Sharing Buttons"
@@ -2708,11 +2724,11 @@ msgstr ""
 
 #: modules/likes.php:466 modules/sharedaddy/sharing.php:352
 msgid "Save Changes"
-msgstr ""
+msgstr "Uložiť zmeny"
 
 #: modules/likes.php:616
 msgid "Like this:"
-msgstr ""
+msgstr "Páči sa mi:"
 
 #: modules/likes.php:617
 msgid "Like"
@@ -2720,7 +2736,7 @@ msgstr ""
 
 #: modules/likes.php:617 modules/widget-visibility/widget-conditions.php:168
 msgid "Loading..."
-msgstr ""
+msgstr "Nahrávam..."
 
 #: modules/likes.php:709
 msgid "<span>%d</span> bloggers like this:"
@@ -2736,7 +2752,7 @@ msgstr ""
 
 #: modules/minileven/minileven.php:261
 msgid "No"
-msgstr ""
+msgstr "Nie"
 
 #: modules/minileven/minileven.php:267 modules/minileven/minileven.php:318
 msgid "Include this CSS in the Mobile Theme"
@@ -2744,7 +2760,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/comments.php:15
 msgid "This post is password protected. Enter the password to view any comments."
-msgstr ""
+msgstr "Článok je chránený heslom. Prosím vložte heslo pre zobrazenie komentárov."
 
 #: modules/minileven/theme/pub/minileven/comments.php:45
 msgid "Comment navigation"
@@ -2764,18 +2780,18 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/content.php:18
 #: modules/minileven/theme/pub/minileven/content.php:22
 msgid "Permalink to %s"
-msgstr ""
+msgstr "Trvalý odkaz na %s"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:15
 #: modules/widgets/gallery.php:26
 msgid "Gallery"
-msgstr ""
+msgstr "Galéria"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:21
 #: modules/minileven/theme/pub/minileven/content.php:41
 #: modules/minileven/theme/pub/minileven/inc/tweaks.php:30
 msgid "Continue reading <span class=\"meta-nav\">&rarr;</span>"
-msgstr ""
+msgstr "Čítať ďalej <span class=\"meta-nav\">&rarr;</span>"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:57
 msgid "This gallery contains <a %1$s>%2$s photo</a>."
@@ -2789,7 +2805,7 @@ msgstr[2] ""
 #: modules/minileven/theme/pub/minileven/image.php:64
 #: modules/minileven/theme/pub/minileven/page.php:27
 msgid "Pages:"
-msgstr ""
+msgstr "Stránky:"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 #: modules/minileven/theme/pub/minileven/content.php:51
@@ -2805,7 +2821,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:19
 msgid "Featured"
-msgstr ""
+msgstr "Odporúčané"
 
 #: modules/gplus-authorship/admin/ui.php:125 modules/publicize/ui.php:168
 #: modules/publicize/ui.php:172
@@ -2879,7 +2895,7 @@ msgstr ""
 
 #: modules/infinite-scroll/infinity.php:478
 msgid "Older posts"
-msgstr ""
+msgstr "Staršie články"
 
 #: modules/infinite-scroll/infinity.php:479
 msgid "Scroll back to top"
@@ -2887,7 +2903,7 @@ msgstr ""
 
 #: modules/infinite-scroll/infinity.php:915
 msgid "Theme: %1$s."
-msgstr ""
+msgstr "Téma: %1$s."
 
 #: modules/infinite-scroll.php:85
 msgid "Use Google Analytics with Infinite Scroll"
@@ -2903,12 +2919,12 @@ msgstr ""
 
 #: modules/likes.php:112
 msgid "Likes and Shares"
-msgstr ""
+msgstr "Páči sa a zdieľania"
 
 #: modules/likes.php:123 modules/likes.php:581 modules/module-info.php:759
 #: modules/module-info.php:763
 msgid "Likes"
-msgstr ""
+msgstr "Páči sa"
 
 #: modules/likes.php:183
 msgid "Show likes."
@@ -3020,7 +3036,7 @@ msgstr ""
 #: modules/publicize/ui.php:45 modules/sharedaddy/sharing.php:57
 #: modules/sharedaddy/sharing.php:163
 msgid "Sharing Settings"
-msgstr ""
+msgstr "Nastavenia zdielania"
 
 #: modules/gplus-authorship/admin/ui.php:54 modules/likes.php:427
 #: modules/module-info.php:315 modules/module-info.php:318
@@ -3049,7 +3065,7 @@ msgstr ""
 #: modules/custom-post-types/comics.php:200
 #: modules/custom-post-types/testimonial.php:60
 msgid "Add New"
-msgstr ""
+msgstr "Pridať nový"
 
 #: modules/custom-post-types/comics.php:201
 msgid "Add New Comic"
@@ -3086,12 +3102,12 @@ msgstr ""
 #: modules/custom-post-types/comics.php:277
 #: modules/custom-post-types/testimonial.php:121
 msgid "Custom field updated."
-msgstr ""
+msgstr "Vlastné pole bolo aktualizované."
 
 #: modules/custom-post-types/comics.php:278
 #: modules/custom-post-types/testimonial.php:122
 msgid "Custom field deleted."
-msgstr ""
+msgstr "Vlastné pole zmazané."
 
 #: modules/custom-post-types/comics.php:279
 msgid "Comic updated."
@@ -3120,7 +3136,7 @@ msgstr ""
 #: modules/custom-post-types/comics.php:287
 #: modules/custom-post-types/testimonial.php:131
 msgid "M j, Y @ G:i"
-msgstr ""
+msgstr "j. F Y, G:i"
 
 #: modules/custom-post-types/comics.php:288
 msgid "Comic draft updated. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
@@ -3185,7 +3201,7 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/page.php:31
 #: modules/publicize/ui.php:576
 msgid "Edit"
-msgstr ""
+msgstr "Upraviť"
 
 #: modules/custom-css/custom-css.php:754
 msgid "Limit width to %1$s pixels for videos, full size images, and other shortcodes. (<a href=\"%2$s\">More info</a>.)"
@@ -3200,13 +3216,13 @@ msgstr ""
 #: modules/publicize/publicize-jetpack.php:429
 #: modules/publicize/publicize-jetpack.php:541 modules/publicize/ui.php:245
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: modules/custom-css/custom-css.php:776 modules/custom-css/custom-css.php:858
 #: modules/custom-css/custom-css.php:887 modules/minileven/minileven.php:271
 #: modules/sharedaddy/sharing-sources.php:299
 msgid "Cancel"
-msgstr ""
+msgstr "Zrušiť"
 
 #: modules/custom-css/custom-css.php:840
 msgid "Preprocessor:"
@@ -3215,7 +3231,7 @@ msgstr ""
 #: modules/custom-css/custom-css.php:841 modules/custom-css/custom-css.php:846
 #: modules/videopress/videopress.php:273 modules/widgets/image-widget.php:124
 msgid "None"
-msgstr ""
+msgstr "Žiadne"
 
 #: modules/custom-css/custom-css.php:870
 msgid "Mode:"
@@ -3241,7 +3257,7 @@ msgstr ""
 #: modules/custom-post-types/comics.php:238
 #: modules/videopress/videopress.php:662
 msgid "Preview"
-msgstr ""
+msgstr "Náhľad"
 
 #: modules/custom-css/custom-css.php:896
 msgid "Save &amp; Buy Upgrade"
@@ -3322,7 +3338,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:158
 msgid "Text"
-msgstr ""
+msgstr "Text"
 
 #: modules/contact-form/grunion-form-view.php:159
 msgid "Textarea"
@@ -3330,7 +3346,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:166
 msgid "Options"
-msgstr ""
+msgstr "Možnosti"
 
 #: modules/contact-form/grunion-form-view.php:167
 msgid "First option"
@@ -3342,7 +3358,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:177
 msgid "Required?"
-msgstr ""
+msgstr "Povinné?"
 
 #: modules/contact-form/grunion-form-view.php:182
 msgid "Save this field"
@@ -3366,7 +3382,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:199
 msgid "Enter your email address"
-msgstr ""
+msgstr "Zadaj tvoju emailovú adresu"
 
 #: modules/contact-form/grunion-form-view.php:202
 msgid "What should the subject line be?"
@@ -3387,11 +3403,11 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:576
 msgid "Preview: changes must be saved or they will be lost"
-msgstr ""
+msgstr "Náhľad: zmeny musia byť uložené, ináč sa stratia"
 
 #: modules/custom-css/custom-css.php:604
 msgid "Edit CSS"
-msgstr ""
+msgstr "Upraviť CSS"
 
 #: modules/custom-css/custom-css.php:618
 msgid "CSS"
@@ -3403,11 +3419,11 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:677
 msgid "Stylesheet saved."
-msgstr ""
+msgstr "Štýlový dokument bol uložený."
 
 #: modules/custom-css/custom-css.php:681
 msgid "Publish"
-msgstr ""
+msgstr "Publikovať"
 
 #: modules/custom-css/custom-css.php:687
 msgid "CSS Revisions"
@@ -3429,7 +3445,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:746
 msgid "Default"
-msgstr ""
+msgstr "Základný"
 
 #: modules/custom-css/custom-css.php:746
 msgid "%s px"
@@ -3488,7 +3504,7 @@ msgstr ""
 #: modules/contact-form/grunion-form-view.php:21
 msgctxt "This HTML form field is marked as required by the user in contact form builder"
 msgid "(required)"
-msgstr ""
+msgstr "(povinné)"
 
 #: modules/contact-form/grunion-form-view.php:22
 msgid "Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost."
@@ -3551,7 +3567,7 @@ msgstr ""
 #: modules/contact-form/grunion-form-view.php:148
 #: modules/sharedaddy/sharing-sources.php:980
 msgid "Label"
-msgstr ""
+msgstr "Označenie"
 
 #: modules/contact-form/grunion-form-view.php:149
 msgid "New field"
@@ -3568,7 +3584,7 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:85
 #: modules/contact-form/grunion-contact-form.php:86
 msgid "No feedback found"
-msgstr ""
+msgstr "Nenájdené žiadne spätné ohlasy"
 
 #: modules/contact-form/grunion-contact-form.php:103
 msgid "Spam <span class=\"count\">(%s)</span>"
@@ -3584,7 +3600,7 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:198
 #: modules/contact-form/grunion-contact-form.php:851
 msgid "Message Sent"
-msgstr ""
+msgstr "Správa odoslaná"
 
 #: modules/contact-form/grunion-contact-form.php:356
 msgid "Export feedback as CSV"
@@ -3621,15 +3637,15 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:736
 msgid "Submit &#187;"
-msgstr ""
+msgstr "Odoslať &#187;"
 
 #: modules/contact-form/grunion-contact-form.php:756
 msgid "Subject"
-msgstr ""
+msgstr "Predmet"
 
 #: modules/contact-form/grunion-contact-form.php:837
 msgid "Error!"
-msgstr ""
+msgstr "Chyba!"
 
 #: modules/contact-form/grunion-contact-form.php:852
 msgid "go back"
@@ -3647,7 +3663,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1206
 msgid "IP Address:"
-msgstr ""
+msgstr "IP Adresa:"
 
 #: modules/contact-form/grunion-contact-form.php:1214
 msgid "Contact Form URL:"
@@ -3659,7 +3675,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1223
 msgid "Sent by an unverified visitor to your site."
-msgstr ""
+msgstr "Odoslané neovereným návštevníkom na tvojej stránke."
 
 #: modules/contact-form/grunion-contact-form.php:1461
 msgid "%s requires a valid email address"
@@ -3667,7 +3683,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1467
 msgid "%s is required"
-msgstr ""
+msgstr "%s je povinné pole"
 
 #: modules/contact-form/grunion-contact-form.php:1514
 #: modules/contact-form/grunion-contact-form.php:1520
@@ -3677,12 +3693,12 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:1556
 #: modules/contact-form/grunion-contact-form.php:1566
 msgid "(required)"
-msgstr ""
+msgstr "(povinné)"
 
 #: modules/contact-form/grunion-contact-form.php:1538
 #: modules/minileven/minileven.php:261
 msgid "Yes"
-msgstr ""
+msgstr "Áno"
 
 #: modules/contact-form/grunion-form-view.php:8
 msgctxt "Label for HTML form \"Name\" field in contact form builder"
@@ -3705,11 +3721,11 @@ msgstr ""
 
 #: modules/comments/comments.php:212
 msgid "Leave a Reply to %s"
-msgstr ""
+msgstr "Napísať odpoveď pre %s"
 
 #: modules/comments/comments.php:251
 msgid "Cancel reply"
-msgstr ""
+msgstr "Zrušiť odpoveď"
 
 #: modules/comments/comments.php:387
 msgid "Invalid security token."
@@ -3729,7 +3745,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:101
 msgid "Mark Spam"
-msgstr ""
+msgstr "Označiť ako spam"
 
 #: modules/contact-form/admin.php:140 modules/contact-form/admin.php:534
 msgid "You are not allowed to manage this item."
@@ -3748,29 +3764,29 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:760
 #: modules/contact-form/grunion-omnisearch.php:37
 msgid "Message"
-msgstr ""
+msgstr "Správa"
 
 #: modules/contact-form/admin.php:198
 #: modules/contact-form/grunion-omnisearch.php:38
 #: modules/omnisearch/omnisearch-posts.php:46
 msgid "Date"
-msgstr ""
+msgstr "Dátum"
 
 #: modules/contact-form/admin.php:268
 msgid "Restore this item from the Trash"
-msgstr ""
+msgstr "Obnoviť túto položku z koša"
 
 #: modules/contact-form/admin.php:270
 msgid "Restore"
-msgstr ""
+msgstr "Obnoviť"
 
 #: modules/contact-form/admin.php:273 modules/contact-form/admin.php:372
 msgid "Delete this item permanently"
-msgstr ""
+msgstr "Zmazať túto položku natrvalo"
 
 #: modules/contact-form/admin.php:275 modules/contact-form/admin.php:374
 msgid "Delete Permanently"
-msgstr ""
+msgstr "Zmazať natrvalo"
 
 #: modules/contact-form/admin.php:306
 msgid "Mark this message as spam"
@@ -3780,7 +3796,7 @@ msgstr ""
 #: modules/contact-form/admin.php:612
 #: modules/omnisearch/omnisearch-posts.php:65
 msgid "Trash"
-msgstr ""
+msgstr "Kôš"
 
 #: modules/contact-form/admin.php:366
 msgid "Mark this message as NOT spam"
@@ -3794,19 +3810,19 @@ msgstr ""
 
 #: modules/contact-form/admin.php:568
 msgid "You are not allowed to move this item out of the Trash."
-msgstr ""
+msgstr "Nie je vám dovolené presunúť túto položku z koša."
 
 #: modules/contact-form/admin.php:571
 msgid "Error in restoring from Trash."
-msgstr ""
+msgstr "Chyba pri obnovovaní z koša."
 
 #: modules/contact-form/admin.php:575
 msgid "You are not allowed to move this item to the Trash."
-msgstr ""
+msgstr "Nemáte povolené presunúť túto položku do koša."
 
 #: modules/contact-form/admin.php:578
 msgid "Error in moving to Trash."
-msgstr ""
+msgstr "Chyba pri presune do koša."
 
 #: modules/contact-form/admin.php:602
 msgid "Messages"
@@ -3814,17 +3830,17 @@ msgstr ""
 
 #: modules/contact-form/admin.php:625
 msgid "Spam"
-msgstr ""
+msgstr "Spam"
 
 #: modules/contact-form/grunion-contact-form.php:82
 #: modules/contact-form/grunion-contact-form.php:83
 #: modules/contact-form/grunion-form-view.php:136
 msgid "Feedback"
-msgstr ""
+msgstr "Spätné ohlasy"
 
 #: modules/contact-form/grunion-contact-form.php:84
 msgid "Search Feedback"
-msgstr ""
+msgstr "Vyhľadať spätné ohlasy"
 
 #: modules/carousel/jetpack-carousel.php:317
 msgid "Missing target blog ID."
@@ -3884,11 +3900,11 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:472
 msgid "Black"
-msgstr ""
+msgstr "Čierna"
 
 #: modules/carousel/jetpack-carousel.php:472
 msgid "White"
-msgstr ""
+msgstr "Biela"
 
 #: modules/carousel/jetpack-carousel.php:480
 msgid "Display images in full-size carousel slideshow."
@@ -3897,17 +3913,17 @@ msgstr ""
 #: modules/comments/admin.php:50 modules/comments/comments.php:211
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 msgid "Leave a Reply"
-msgstr ""
+msgstr "Pridaj komentár"
 
 #: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:156
 #: modules/widgets/twitter-timeline.php:217
 msgid "Light"
-msgstr ""
+msgstr "Jasná"
 
 #: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:157
 #: modules/widgets/twitter-timeline.php:218
 msgid "Dark"
-msgstr ""
+msgstr "Tmavá"
 
 #: modules/comments/admin.php:56
 msgid "Transparent"
@@ -3940,11 +3956,11 @@ msgstr ""
 
 #: modules/comments/base.php:230
 msgid "Error: please fill the required fields (name, email)."
-msgstr ""
+msgstr "Chyba: Zadajte, prosím, požadované údaje (meno, e-mail)."
 
 #: modules/comments/base.php:232
 msgid "Error: please enter a valid email address."
-msgstr ""
+msgstr "Chyba: Prosím, zadajte korektnú e-mailovú adresu."
 
 #: modules/after-the-deadline/config-options.php:83
 msgid "<a href=\"%s\">Learn more</a> about these options."
@@ -3952,7 +3968,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Language"
-msgstr ""
+msgstr "Jazyk"
 
 #: modules/after-the-deadline/config-options.php:89
 msgctxt "%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG"
@@ -3974,7 +3990,7 @@ msgstr ""
 #: modules/after-the-deadline/config-unignore.php:133
 #: modules/widget-visibility/widget-conditions.php:174
 msgid "Add"
-msgstr ""
+msgstr "Pridať"
 
 #: modules/after-the-deadline/config-unignore.php:138
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
@@ -3986,7 +4002,7 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:107
 msgid "Post Comment"
-msgstr ""
+msgstr "Pridať komentár"
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Loading Comments..."
@@ -4046,19 +4062,19 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:134
 msgid "%s (Required)"
-msgstr ""
+msgstr "%s (povinné)"
 
 #: modules/carousel/jetpack-carousel.php:136
 #: modules/contact-form/grunion-contact-form.php:751
 #: modules/contact-form/grunion-form-view.php:155
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: modules/carousel/jetpack-carousel.php:140
 #: modules/contact-form/grunion-contact-form.php:752
 #: modules/contact-form/grunion-form-view.php:160
 msgid "Website"
-msgstr ""
+msgstr "Adresa webu"
 
 #: modules/carousel/jetpack-carousel.php:273
 msgid "Missing attachment ID."
@@ -4074,11 +4090,11 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:19
 msgid "Ignore always"
-msgstr ""
+msgstr "Vždy ignorovať"
 
 #: modules/after-the-deadline/atd-l10n.php:20
 msgid "Ignore all"
-msgstr ""
+msgstr "Ignorovať všetko"
 
 #: modules/after-the-deadline/atd-l10n.php:22
 msgid "Edit Selection..."
@@ -4191,85 +4207,85 @@ msgstr ""
 msgid "Redundant Phrases"
 msgstr ""
 
-#: class.jetpack.php:2892
+#: class.jetpack.php:2909
 msgid "Configure"
-msgstr ""
+msgstr "Nastaviť"
 
-#: class.jetpack.php:2930
+#: class.jetpack.php:2947
 msgid "Coming soon&#8230;"
 msgstr ""
 
-#: class.jetpack.php:3069
+#: class.jetpack.php:3086
 msgid "Something is being cranky!"
 msgstr ""
 
-#: class.jetpack.php:3070
+#: class.jetpack.php:3087
 msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
 msgstr ""
 
-#: class.jetpack.php:3158
+#: class.jetpack.php:3175
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
 msgstr ""
 
-#: class.jetpack.php:3160
+#: class.jetpack.php:3177
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
 msgstr ""
 
-#: class.jetpack.php:3162
+#: class.jetpack.php:3179
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
 msgstr ""
 
-#: class.jetpack.php:3320
+#: class.jetpack.php:3337
 msgid "Jetpack Plugin Version"
 msgstr ""
 
-#: class.jetpack.php:3326
+#: class.jetpack.php:3343
 msgid "The Client ID/WP.com Blog ID of this site"
 msgstr ""
 
-#: class.jetpack.php:3576
+#: class.jetpack.php:3593
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
 msgstr ""
 
-#: class.jetpack.php:3579
+#: class.jetpack.php:3596
 msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
 msgstr ""
 
-#: class.jetpack.php:3607
+#: class.jetpack.php:3624
 msgid "The authorization process expired.  Please go back and try again."
 msgstr ""
 
-#: class.jetpack.php:3647
+#: class.jetpack.php:3664
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
 msgstr ""
 
-#: class.jetpack.php:3818
+#: class.jetpack.php:3835
 msgid "Something has gotten mixed up!"
 msgstr ""
 
-#: class.jetpack.php:3820
+#: class.jetpack.php:3837
 msgid "Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!"
 msgstr ""
 
-#: class.jetpack.php:3822
+#: class.jetpack.php:3839
 msgid "The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings."
 msgstr ""
 
-#: class.jetpack.php:3823
+#: class.jetpack.php:3840
 msgid "Ignore the difference. This is just a staging site for the real site referenced above."
 msgstr ""
 
-#: class.jetpack.php:3824
+#: class.jetpack.php:3841
 msgid "That used to be my URL for this site before I changed it. Update the WordPress.com Cloud's data to match my current settings."
 msgstr ""
 
 #: class.json-api-endpoints.php:1162
 msgid "This post is password protected."
-msgstr ""
+msgstr "Tento príspevok je chránený heslom."
 
 #: class.json-api-endpoints.php:2850
 msgid "Comment cache problem?"
-msgstr ""
+msgstr "Komentovať problém s cache?"
 
 #: functions.gallery.php:12
 msgid "Thumbnail Grid"
@@ -4277,11 +4293,11 @@ msgstr ""
 
 #: functions.gallery.php:40
 msgid "Type"
-msgstr ""
+msgstr "Typ"
 
 #: functions.opengraph.php:81
 msgid "(no title)"
-msgstr ""
+msgstr "(bez názvu)"
 
 #: locales.php:29
 msgctxt "locales"
@@ -4298,192 +4314,192 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:15
 msgid "No suggestions"
-msgstr ""
+msgstr "Žiadne návrhy"
 
 #: modules/after-the-deadline/atd-l10n.php:17
 msgid "Explain..."
 msgstr ""
 
-#: class.jetpack.php:2504
+#: class.jetpack.php:2519
 msgid "User linked to WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:2504
+#: class.jetpack.php:2519
 msgid "Unlink user from WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:2520
+#: class.jetpack.php:2537
 msgid "Jetpack is network activated and notices can not be dismissed."
 msgstr ""
 
-#: class.jetpack.php:2534
+#: class.jetpack.php:2551
 msgid "Dismiss this notice."
 msgstr ""
 
-#: class.jetpack.php:2539
+#: class.jetpack.php:2556
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
 msgstr ""
 
-#: class.jetpack.php:2554
+#: class.jetpack.php:2571
 msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right."
 msgstr ""
 
-#: class.jetpack.php:2558 modules/post-by-email.php:131
+#: class.jetpack.php:2575 modules/post-by-email.php:131
 #: modules/publicize/publicize-jetpack.php:66
 msgid "Link account with WordPress.com"
 msgstr ""
 
-#: class.jetpack.php:2579
+#: class.jetpack.php:2596
 msgid "Have feedback on Jetpack?"
 msgstr ""
 
-#: class.jetpack.php:2581
+#: class.jetpack.php:2598
 msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
 msgstr ""
 
-#: class.jetpack.php:2584
+#: class.jetpack.php:2601
 msgid "Take Survey"
 msgstr ""
 
-#: class.jetpack.php:2590
+#: class.jetpack.php:2607
 msgid "Checking email updates status&hellip;"
 msgstr ""
 
-#: class.jetpack.php:2596
+#: class.jetpack.php:2613
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
 msgstr ""
 
-#: class.jetpack.php:2597
+#: class.jetpack.php:2614
 msgid "Unsubscribe"
 msgstr ""
 
-#: class.jetpack.php:2601
+#: class.jetpack.php:2618
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
 msgstr ""
 
-#: class.jetpack.php:2602 modules/subscriptions.php:687
+#: class.jetpack.php:2619 modules/subscriptions.php:695
 msgid "Subscribe"
-msgstr ""
+msgstr "Odoberať"
 
-#: class.jetpack.php:2609
+#: class.jetpack.php:2626
 msgid "You have been subscribed to receive email updates."
 msgstr ""
 
-#: class.jetpack.php:2611
+#: class.jetpack.php:2628
 msgid "You will no longer receive email updates about Jetpack."
 msgstr ""
 
-#: class.jetpack.php:2623
+#: class.jetpack.php:2640
 msgid "An <span>Automattic</span> Airline"
 msgstr ""
 
-#: class.jetpack.php:2626
+#: class.jetpack.php:2643
 msgid "Privacy Policy"
 msgstr ""
 
-#: class.jetpack.php:2627
+#: class.jetpack.php:2644
 msgid "Terms of Service"
-msgstr ""
+msgstr "Podmienky poskytovania služby"
 
-#: class.jetpack.php:2629
+#: class.jetpack.php:2646
 msgid "Debug"
 msgstr ""
 
-#: class.jetpack.php:2631 modules/sharedaddy/sharedaddy.php:84
+#: class.jetpack.php:2648 modules/sharedaddy/sharedaddy.php:84
 msgid "Support"
-msgstr ""
+msgstr "Podpora"
 
-#: class.jetpack.php:2761
+#: class.jetpack.php:2778
 msgid "Configure %s"
 msgstr ""
 
-#: class.jetpack.php:2820
+#: class.jetpack.php:2837
 msgid "Deactivate"
-msgstr ""
+msgstr "Vypnúť"
 
-#: class.jetpack.php:2833
+#: class.jetpack.php:2850
 msgid "Activate"
-msgstr ""
+msgstr "Aktivovať"
 
-#: class.jetpack.php:2853
+#: class.jetpack.php:2870
 msgid "Free"
-msgstr ""
+msgstr "Zadarmo"
 
-#: class.jetpack.php:2853
+#: class.jetpack.php:2870
 msgid "Purchase"
 msgstr ""
 
-#: class.jetpack.php:2861
+#: class.jetpack.php:2878
 msgid "New"
 msgstr ""
 
-#: class.jetpack.php:2864
+#: class.jetpack.php:2881
 msgid "Updated"
-msgstr ""
+msgstr "Aktualizovaný"
 
-#: class.jetpack.php:1980
+#: class.jetpack.php:1997
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
 msgstr ""
 
-#: class.jetpack.php:1983
+#: class.jetpack.php:2000
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
 msgstr ""
 
-#: class.jetpack.php:1987
+#: class.jetpack.php:2004
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
 msgstr ""
 
-#: class.jetpack.php:1992
+#: class.jetpack.php:2009
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr ""
 
-#: class.jetpack.php:1994
+#: class.jetpack.php:2011
 msgid "Do you still have the %s plugin installed?"
 msgstr ""
 
-#: class.jetpack.php:1997
+#: class.jetpack.php:2014
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
 msgstr ""
 
-#: class.jetpack.php:2005
+#: class.jetpack.php:2022
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
 msgstr ""
 
-#: class.jetpack.php:2011
+#: class.jetpack.php:2028
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
 msgstr ""
 
-#: class.jetpack.php:2015
+#: class.jetpack.php:2032
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
 msgstr ""
 
-#: class.jetpack.php:2055
+#: class.jetpack.php:2072
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
 msgstr ""
 
-#: class.jetpack.php:2058
+#: class.jetpack.php:2075
 msgid "Try connecting again."
-msgstr ""
+msgstr "Pokúsiť sa znovu pripojiť."
 
-#: class.jetpack.php:2082
+#: class.jetpack.php:2099
 msgid "Welcome to <strong>Jetpack %s</strong>!"
 msgstr ""
 
-#: class.jetpack.php:2094
+#: class.jetpack.php:2111
 msgid "The following new modules have been activated: %l."
 msgstr ""
 
-#: class.jetpack.php:2106
+#: class.jetpack.php:2123
 msgid "The following modules have been updated: %l."
 msgstr ""
 
-#: class.jetpack.php:2115
+#: class.jetpack.php:2132
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
 msgstr ""
 
-#: class.jetpack.php:2141
+#: class.jetpack.php:2158
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate buttons on their module cards."
@@ -4491,45 +4507,45 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: class.jetpack.php:2153
+#: class.jetpack.php:2170
 msgid "<strong>Module settings were saved.</strong> "
 msgstr ""
 
-#: class.jetpack.php:2157
+#: class.jetpack.php:2174
 msgid "<strong>Your Jetpack is already connected.</strong> "
 msgstr ""
 
-#: class.jetpack.php:2161 class.jetpack.php:2168
+#: class.jetpack.php:2178 class.jetpack.php:2185
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
 msgstr ""
 
-#: class.jetpack.php:2163
+#: class.jetpack.php:2180
 msgid "The features below are now active. Click the learn more buttons to explore each feature."
 msgstr ""
 
-#: class.jetpack.php:2174
+#: class.jetpack.php:2191
 msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
 msgstr ""
 
-#: class.jetpack.php:2197
+#: class.jetpack.php:2214
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: class.jetpack.php:2208
+#: class.jetpack.php:2225
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: class.jetpack.php:2273
+#: class.jetpack.php:2290
 msgid "Is this site private?"
 msgstr ""
 
-#: class.jetpack.php:2278
+#: class.jetpack.php:2295
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
@@ -4537,7 +4553,7 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: class.jetpack.php:2295
+#: class.jetpack.php:2312
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
 msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
 msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
@@ -4545,113 +4561,113 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: class.jetpack.php:2312
+#: class.jetpack.php:2329
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
 msgstr ""
 
-#: class.jetpack.php:2499
+#: class.jetpack.php:2514
 msgid "Connected to WordPress.com"
-msgstr ""
+msgstr "Prepojený s WordPress.com"
 
-#: class.jetpack.php:2499
+#: class.jetpack.php:2514
 msgid "Disconnect from WordPress.com"
-msgstr ""
+msgstr "Odhlásiť sa z WordPress.com"
 
-#: class.jetpack.php:1429
+#: class.jetpack.php:1441
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: class.jetpack.php:1432
+#: class.jetpack.php:1444
 msgid "Jetpack"
-msgstr ""
+msgstr "Jetpack"
 
-#: class.jetpack.php:1602 class.jetpack.php:1627 class.jetpack.php:1640
-#: class.jetpack.php:2509 class.jetpack.php:2760
+#: class.jetpack.php:1614 class.jetpack.php:1639 class.jetpack.php:1652
+#: class.jetpack.php:2524 class.jetpack.php:2777
 msgid "Jetpack by WordPress.com"
-msgstr ""
+msgstr "Jetpack od WordPress.com"
 
-#: class.jetpack.php:1603 class.jetpack.php:1628 class.jetpack.php:2512
+#: class.jetpack.php:1615 class.jetpack.php:1640 class.jetpack.php:2527
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
 msgstr ""
 
-#: class.jetpack.php:1604 class.jetpack.php:1629
+#: class.jetpack.php:1616 class.jetpack.php:1641
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
 msgstr ""
 
-#: class.jetpack.php:1605
+#: class.jetpack.php:1617
 msgid "Jetpack Module Options"
-msgstr ""
+msgstr "Nastavenia Jetpack modulu"
 
-#: class.jetpack.php:1606
+#: class.jetpack.php:1618
 msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
 msgstr ""
 
-#: class.jetpack.php:1607 class.jetpack.php:1654
+#: class.jetpack.php:1619 class.jetpack.php:1666
 msgid "For more information:"
-msgstr ""
+msgstr "Pre viac informácií:"
 
-#: class.jetpack.php:1608 class.jetpack.php:1655
+#: class.jetpack.php:1620 class.jetpack.php:1667
 msgid "Jetpack FAQ"
-msgstr ""
+msgstr "Často kladené otázky o JetPack"
 
-#: class.jetpack.php:1609 class.jetpack.php:1656
+#: class.jetpack.php:1621 class.jetpack.php:1668
 msgid "Jetpack Support"
-msgstr ""
+msgstr "Podpora Jetpack"
 
-#: class.jetpack.php:1625
+#: class.jetpack.php:1637
 msgid "Overview"
 msgstr ""
 
-#: class.jetpack.php:1638
+#: class.jetpack.php:1650
 msgid "Modules"
 msgstr ""
 
-#: class.jetpack.php:1641
+#: class.jetpack.php:1653
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
-msgstr ""
+msgstr "Môžete aktivovať alebo deaktivovať jednotlivé moduly Jetpacku, aby vyhovoval vašim potrebám."
 
-#: class.jetpack.php:1643
+#: class.jetpack.php:1655
 msgid "Find the component you want to manage"
-msgstr ""
+msgstr "Vyberte komponent, ktorý si prajete spravovať."
 
-#: class.jetpack.php:1644
+#: class.jetpack.php:1656
 msgid "Click on Learn More"
-msgstr ""
+msgstr "Kliknite na Dozvedieť sa viac"
 
-#: class.jetpack.php:1645
+#: class.jetpack.php:1657
 msgid "An Activate or Deactivate button will appear"
-msgstr ""
+msgstr "zobrazí sa tlačidlo Aktivovať alebo Deaktivovať"
 
-#: class.jetpack.php:1646
+#: class.jetpack.php:1658
 msgid "If additional settings are available, a link to them will appear"
 msgstr ""
 
-#: class.jetpack.php:1726 modules/publicize/ui.php:576
+#: class.jetpack.php:1738 modules/publicize/ui.php:576
 #: modules/sharedaddy/sharedaddy.php:76 modules/sharedaddy/sharedaddy.php:83
 msgid "Settings"
-msgstr ""
+msgstr "Nastavenia"
 
-#: class.jetpack.php:1743
+#: class.jetpack.php:1755
 msgid "Dismiss this notice and deactivate Jetpack."
 msgstr ""
 
-#: class.jetpack.php:1749
+#: class.jetpack.php:1761
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
 msgstr ""
 
-#: class.jetpack.php:1751
+#: class.jetpack.php:1763
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
 msgstr ""
 
-#: class.jetpack.php:1757 class.jetpack.php:2543
+#: class.jetpack.php:1769 class.jetpack.php:2560
 msgid "Connect to WordPress.com"
-msgstr ""
+msgstr "Pripojit na WordPress.com"
 
-#: class.jetpack.php:1759 modules/module-info.php:45 modules/module-info.php:81
+#: class.jetpack.php:1771 modules/module-info.php:45 modules/module-info.php:81
 #: modules/module-info.php:138 modules/module-info.php:173
 #: modules/module-info.php:207 modules/module-info.php:237
 #: modules/module-info.php:270 modules/module-info.php:306
@@ -4667,147 +4683,147 @@ msgstr ""
 #: modules/module-info.php:824 modules/module-info.php:843
 #: modules/module-info.php:862 modules/module-info.php:879
 msgid "Learn More"
-msgstr ""
+msgstr "Zistiť viac"
 
-#: class.jetpack.php:1772
+#: class.jetpack.php:1784
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
 msgstr ""
 
-#: class.jetpack.php:1799
+#: class.jetpack.php:1811
 msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
 msgstr ""
 
-#: class.jetpack.php:1810
+#: class.jetpack.php:1822
 msgid "click here"
 msgstr ""
 
-#: class.jetpack.php:1970
+#: class.jetpack.php:1987
 msgid "Cheatin&#8217; uh?"
-msgstr ""
+msgstr "Podvádzame?"
 
-#: class.jetpack.php:1973
+#: class.jetpack.php:1990
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
 msgstr ""
 
-#: class.jetpack.php:1976
+#: class.jetpack.php:1993
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
 msgstr ""
 
-#: class.jetpack-debugger.php:81
+#: class.jetpack-debugger.php:83
 msgid "Something has gotten mixed up in your Jetpack Connection!"
 msgstr ""
 
-#: class.jetpack-debugger.php:91
+#: class.jetpack-debugger.php:93
 msgid "It looks like your site can not communicate properly with Jetpack."
 msgstr ""
 
-#: class.jetpack-debugger.php:97 class.jetpack.php:1437 class.jetpack.php:1657
+#: class.jetpack-debugger.php:99 class.jetpack.php:1449 class.jetpack.php:1669
 msgid "Jetpack Debugging Center"
 msgstr ""
 
-#: class.jetpack-debugger.php:98
+#: class.jetpack-debugger.php:100
 msgid "Testing your site's compatibily with Jetpack..."
 msgstr ""
 
-#: class.jetpack-debugger.php:126
+#: class.jetpack-debugger.php:128
 msgid "Your Jetpack setup looks a-okay!"
 msgstr ""
 
-#: class.jetpack-debugger.php:129
+#: class.jetpack-debugger.php:131
 msgid "There seems to be a problem with your site’s ability to communicate with Jetpack!"
 msgstr ""
 
-#: class.jetpack-debugger.php:136
+#: class.jetpack-debugger.php:138
 msgid "Trouble with Jetpack?"
 msgstr ""
 
-#: class.jetpack-debugger.php:137
+#: class.jetpack-debugger.php:139
 msgid "It may be caused by one of these issues, which you can diagnose yourself:"
 msgstr ""
 
-#: class.jetpack-debugger.php:139
+#: class.jetpack-debugger.php:141
 msgid "A known issue."
 msgstr ""
 
-#: class.jetpack-debugger.php:139
+#: class.jetpack-debugger.php:141
 msgid "Some themes and plugins have <a href=\"%1$s\" target=\"_blank\">known conflicts</a> with Jetpack – check the <a href=\"%2$s\" target=\"_blank\">list</a>. (You can also browse the <a href=\"%3$s\">Jetpack support pages</a> or <a href=\"%4$s\">Jetpack support forum</a> to see if others have experienced and solved the problem.)"
 msgstr ""
 
-#: class.jetpack-debugger.php:140
+#: class.jetpack-debugger.php:142
 msgid "An incompatible plugin."
 msgstr ""
 
-#: class.jetpack-debugger.php:140
+#: class.jetpack-debugger.php:142
 msgid "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help."
 msgstr ""
 
-#: class.jetpack-debugger.php:141
+#: class.jetpack-debugger.php:143
 msgid "A theme conflict."
 msgstr ""
 
-#: class.jetpack-debugger.php:141
+#: class.jetpack-debugger.php:143
 msgid "If your problem isn't known or caused by a plugin, try activating Twenty Twelve (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know."
 msgstr ""
 
-#: class.jetpack-debugger.php:142
+#: class.jetpack-debugger.php:144
 msgid "A problem with your XMLRPC file."
 msgstr ""
 
-#: class.jetpack-debugger.php:142
+#: class.jetpack-debugger.php:144
 msgid "Load your <a href=\"%s\">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself."
 msgstr ""
 
-#: class.jetpack-debugger.php:144
+#: class.jetpack-debugger.php:146
 msgid "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3."
 msgstr ""
 
-#: class.jetpack-debugger.php:145
+#: class.jetpack-debugger.php:147
 msgid "If you get a 404 message, contact your web host. Their security may block XMLRPC."
 msgstr ""
 
-#: class.jetpack-debugger.php:149
+#: class.jetpack-debugger.php:151
 msgid "If none of these help you find a solution, <a href=\"#\">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you've tried to resolve it, and one of our Happiness Engineers will be in touch to help."
 msgstr ""
 
-#: class.jetpack-debugger.php:162
+#: class.jetpack-debugger.php:164
 msgid "Please describe the problem you are having."
 msgstr ""
 
-#: class.jetpack-debugger.php:167 modules/carousel/jetpack-carousel.php:138
+#: class.jetpack-debugger.php:169 modules/carousel/jetpack-carousel.php:138
 #: modules/contact-form/grunion-contact-form.php:750
 #: modules/contact-form/grunion-form-view.php:156
 msgid "Name"
-msgstr ""
+msgstr "Meno"
 
-#: class.jetpack-debugger.php:168
+#: class.jetpack-debugger.php:170
 msgid "Let us know your name."
 msgstr ""
 
-#: class.jetpack-debugger.php:173
+#: class.jetpack-debugger.php:175
 msgid "E-mail"
-msgstr ""
+msgstr "E-mail"
 
-#: class.jetpack-debugger.php:174
+#: class.jetpack-debugger.php:176
 msgid "Use a valid email address."
 msgstr ""
 
-#: class.jetpack-debugger.php:179
+#: class.jetpack-debugger.php:181
 msgid "The test results and some other useful debug information will be sent to the support team. Please feel free to <a href=\"#\">review/modify</a> this information."
 msgstr ""
 
-#: class.jetpack-debugger.php:183
+#: class.jetpack-debugger.php:185
 msgid "Debug Info"
 msgstr ""
 
-#: class.jetpack-heartbeat.php:111
+#: class.jetpack-heartbeat.php:112
 msgid "Jetpack weekly"
 msgstr ""
 
-#: class.jetpack.php:1152
+#: class.jetpack.php:1164
 msgid "Jetpack requires WordPress version %s or later."
-msgstr ""
+msgstr "Jetpack vyzaduje WordPress verzie %s alebo novší."
 
-#: class.jetpack.php:1392 class.jetpack.php:1408
+#: class.jetpack.php:1404 class.jetpack.php:1420
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
 msgstr ""
 
@@ -4819,14 +4835,14 @@ msgstr ""
 msgid "You need to register your Jetpack before connecting it."
 msgstr ""
 
-#: class.jetpack-client-server.php:188 class.jetpack.php:3146
-#: class.jetpack.php:3148 class.jetpack.php:3150 class.jetpack.php:3153
+#: class.jetpack-client-server.php:188 class.jetpack.php:3163
+#: class.jetpack.php:3165 class.jetpack.php:3167 class.jetpack.php:3170
 msgid "Error Details: %s"
 msgstr ""
 
 #: class.jetpack-debugger.php:24
 msgid "You do not have sufficient permissions to access this page."
-msgstr ""
+msgstr "Nemáte dostatočné práva na prístup k tejto stránke."
 
 #: class.jetpack-debugger.php:68
 msgid "Your site isn’t reaching the Jetpack servers."

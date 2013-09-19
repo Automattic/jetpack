@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 2.5 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-09-11 22:52:19+0000\n"
+"PO-Revision-Date: 2013-09-19 15:16:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -10,1055 +10,1071 @@ msgstr ""
 "X-Generator: GlotPress/0.1\n"
 "Project-Id-Version: 2.5\n"
 
-msgid "Likes are a way for people to show their appreciation for content you have written. It’s also a way for you to show the world how popular your content has become."
+#: modules/videopress/videopress.php:664
+msgid "The preview is unavailable while this video is being processed."
 msgstr ""
+
+#: modules/shortcodes/presentations.php:242
+msgid "Click to autoplay the presentation!"
+msgstr ""
+
+#: modules/gplus-authorship/admin/ui.php:138
+msgid "Your Google+ profile and WordPress.com accounts have been disconnected, including your Publicize connections. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>."
+msgstr ""
+
+#: modules/gplus-authorship/admin/ui.php:140
+msgid "Your Google+ profile and WordPress.com accounts have been disconnected. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>."
+msgstr ""
+
+msgid "Likes are a way for people to show their appreciation for content you have written. It’s also a way for you to show the world how popular your content has become."
+msgstr "좋아요는 작성한 콘텐츠에 대해 사람들이 표현하는 감사의 표시 방법입니다. 이것은 또한 콘텐츠가 얼마나 인기가 있는지 세상에 보여줄 수 있는 방법이 되기도 합니다."
 
 msgid "Automatically optimize your site for mobile devices."
-msgstr ""
+msgstr "사이트를 모바일 기기에 자동으로 최적화합니다."
 
 msgid "Receive notifications on your mobile device."
-msgstr ""
+msgstr "모바일 기기에서 알림을 받습니다."
 
 msgid "Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com."
-msgstr ""
+msgstr "자신의 툴바와 워드프레스닷컴에서 자신의 사이트 활동을 알림을 통해 모니터링하거나 관리하기"
 
 msgid "A single search box, that lets you search many different things."
-msgstr ""
+msgstr "단일 검색 박스, 많은 다른 것을 검색하도록 합니다."
 
 msgid "Give your site a boost by loading images from the WordPress.com content delivery network."
-msgstr ""
+msgstr "워드프레스닷컴 컨텐트 전송 네트워크에서 이미지를 받는 서비스로 사이트를 향상시키세요."
 
 msgid "Publish posts to your blog directly from your personal email account."
-msgstr ""
+msgstr "블로그 글을 개인 이메일 계정에서 바로 발행하세요."
 
 msgid "Connect your site to popular social networks and automatically share new posts with your friends."
-msgstr ""
+msgstr "사이트를 인기있는 소셜 네트워크에 연결하고 친구들과 새 글을 자동으로 공유하세요. "
 
 msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
-msgstr ""
+msgstr "인터넷의 굉장한 공유 툴. 페이스북, 트위터, 더 많은 것과 콘텐츠를 공유합니다."
 
 msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
-msgstr ""
+msgstr "비디오 그리고 유투브, 비미오, 슬라이드세어 같은 사이트에서 더 많은 것을 쉽게 임베드합니다."
 
 msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
-msgstr ""
+msgstr "모든 글과 페이지의 쉬운 공유를 위해 WP.me가 지원하는 짧은 링크를 활성화합니다."
 
 msgid "Simple, concise site stats with no additional load on your server."
-msgstr ""
+msgstr "추가적인 서버 로딩이 필요없는 간단 명료한 통계 "
 
 msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
-msgstr ""
+msgstr "사용자가 글과 댓글을 구독하여 이메일을 통해 알림을 받을 수 있도록 허용합니다."
 
 msgid "Create elegant magazine-style mosaic layouts for your photos without using an external graphic editor."
-msgstr ""
+msgstr "외부 그래픽 에디터를 사용하지 않고 우아한 잡지 스타일의 모자이크 레이아웃 포토 갤러리를 만드세요."
 
 msgid "Realtime backup and security scanning for your WordPress site."
-msgstr ""
+msgstr "워드프레스 사이트를 위한 실시간 백업과 보안 점검."
 
 msgid "Quite possibly the easiest way to upload beautiful videos to your blog."
-msgstr ""
+msgstr "아마도 블로그에 아름다운 비디오를 업로드하는데 가장 쉬운 방법일 것입니다."
 
 msgid "Control what pages your widgets appear on."
-msgstr ""
+msgstr "위젯이 어떤 페이지에 나타나게 할지 제어합니다."
 
 msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
-msgstr ""
+msgstr "쉬운 이미지 추가, 트위터 업데이트, 그리고 테마 사이드바에 사이트의 RSS 링크"
 
 msgid "Let users login with their WordPress.com Credentials, through <a href=\"http://jetpack.me/support/wpcc/\">WordPress.com Connect</a>"
-msgstr ""
+msgstr "<a href=\"http://jetpack.me/support/wpcc/\">워드프레스닷컴 연결</a>을 통해서 사용자에게 워드프레스닷컴 인증서로 로그인하도록 하세요."
 
 #: modules/wpcc/wpcc-sign-on.php:98
 msgid "WPCC Client Secret"
-msgstr ""
+msgstr "WPCC 클라이언트 비밀번호"
 
 #: modules/wpcc/wpcc-sign-on.php:123
 msgid "<strong>Almost done.</strong> Before WordPress.com Connect can finish activating, you'll need to <a href=\"%s\">register your website as an application on WordPress.com</a>"
-msgstr ""
+msgstr "<strong>거의 다 됐습니다.</strong> 워드프레스닷컴 연결이 활성화를 끝내기 전에 <a href=\"%s\">워드프레스닷컴에 당신의 사이트를 앱으로 등록</a>해야 합니다."
 
 #: modules/wpcc/wpcc-sign-on.php:146
 msgid "Visit WordPress.com to <a href=\"%s\">register a new WPCC client id and secret key</a>."
-msgstr ""
+msgstr "<a href=\"%s\">새로운 WPCC 클라이언트 아이디와 비밀 키를 등록하기 위해서</a> 워드프레스닷컴에 방문하기."
 
 #: modules/wpcc/wpcc-sign-on.php:148
 msgid "Visit WordPress.com to <a href=\"%s\">manage your WPCC client settings</a>."
-msgstr ""
+msgstr "<a href=\"%s\">WPCC 클라이언트 설정을 관리하기 위해</a> 워드프레스닷컴 방문하기"
 
 #: modules/wpcc/wpcc-sign-on.php:175
 msgid "Connecting with WordPress.com Connect enables you to log on via your WordPress.com account."
-msgstr ""
+msgstr "WordPress.com Connect와 연결하면 워드프레스닷컴 계정을 통해 로그인이 가능해집니다."
 
 #: modules/wpcc/wpcc-sign-on.php:188
 msgid "Unlink This Account"
-msgstr ""
+msgstr "이 계정을 링크 해제하기"
 
 #: modules/wpcc/wpcc-sign-on.php:231
 msgid "This profile is not currently linked to a WordPress.com Profile."
-msgstr ""
+msgstr "이 프로필은 현재 워드프레스닷컴 프로필에 링크돼있지 않습니다."
 
 #: modules/wpcc/wpcc-sign-on.php:238
 msgid "Warning! State variable missing after authentication."
-msgstr ""
+msgstr "주의! 인증 후에 상태 변수가 없습니다."
 
 #: modules/wpcc/wpcc-sign-on.php:242
 msgid "Warning! State mismatch. Authentication attempt may have been compromised."
-msgstr ""
+msgstr "주의! 상태가 일치하지 않습니다. 인증 시도 제대로 실행되지 않았습니다."
 
 #: modules/wpcc/wpcc-sign-on.php:262
 msgid "Warning! Could not confirm request token url!"
-msgstr ""
+msgstr "주의! 요청 토큰 url을 확인할 수 없습니다!"
 
 #: modules/wpcc/wpcc-sign-on.php:276
 msgid "Warning! Could not fetch user data!"
-msgstr ""
+msgstr "주의! 사용자 데이터를 가져올 수 없습니다!"
 
 #: modules/wpcc/wpcc-sign-on.php:409
 msgid "We couldn't find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page."
-msgstr ""
+msgstr "로그인하기 위해 이메일 <strong><code>%1$s</code></strong>로 된 계정을 찾을 수 없습니다. 이미 <strong>%2$s</strong>에 계정이 있는 경우, <strong><code>%1$s</code></strong>이 이메일 주소로 환경설정 됐는지, 또는 워드프레스닷컴 프로필 페이지에 연결이 됐는지 확인하세요."
 
 #: modules/wpcc/wpcc-sign-on.php:411
 msgid "We couldn't find any account on <strong>%2$s</strong> that is linked to your WordPress.com account to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that you have connected to WordPress.com on your profile page."
-msgstr ""
+msgstr "로그인하기 위해 워드프레스닷컴 계정과 연결된 <strong>%2$s</strong>에서 계정을 찾을 수 없습니다. <strong>%2$s</strong>에 이미 계정이 있는 경우, 워드프레스닷컴 프로필 페이지에 연결했는지 확인하세요."
 
 msgid "http://wordpress.org/extend/plugins/jetpack/"
-msgstr ""
+msgstr "http://wordpress.org/extend/plugins/jetpack/"
 
 msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
-msgstr ""
+msgstr "워드프레스닷컴 클라우드의 능력을 워드프레스 사이트에 가져옵니다. 젯팩은 블로그를 워드프레스닷컴 계정과 연결하여 워드프레스닷컴 사용자만 가능한 강력한 기능을 사용하도록 합니다."
 
 msgid "Automattic"
-msgstr ""
+msgstr "Automattic"
 
 msgid "http://jetpack.me"
-msgstr ""
+msgstr "http://jetpack.me"
 
 msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
-msgstr ""
+msgstr "<a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> 교정 서비스로 철자, 스타일, 문법을 향상시킵니다(한글 지원 안됨)."
 
 msgid "Transform your standard image galleries into an immersive full-screen experience."
-msgstr ""
+msgstr "표준 이미지 갤러리를 멋진 전체화면으로 경험할 수 있도록 전환합니다."
 
 msgid "A new comment system that has integrated social media login options."
-msgstr ""
+msgstr "소셜 미디어 로그인 옵션과 연계한 새로운 댓글 시스템"
 
 msgid "Easily insert a contact form anywhere on your site."
-msgstr ""
+msgstr "사이트의 어느 곳에서든 연락 폼을 쉽게 추가할 수 있습니다."
 
 msgid "Customize the appearance of your site using CSS but without modifying your theme."
-msgstr ""
+msgstr "CSS를 사용하면서 테마를 수정하지 않고 사이트의 외모를 사용자 정의합니다."
 
 msgid "Share your public posts and comments to search engines and other services in real-time."
-msgstr ""
+msgstr "공개 글과 댓글을 검색 엔진과 다른 서비스에 실시간으로 공유합니다."
 
 msgid "Show a link to your Google+ in the sharing area of your posts and add your blog URL to your Google+ profile."
-msgstr ""
+msgstr "글의 공유 영역에서 구글플러스에 링크를 보이게 하고 구글플러스 프로필에 블로그 URL을 추가하세요."
 
 msgid "Show a pop-up business card of your users' gravatar profiles in comments."
-msgstr ""
+msgstr "댓글에 사용자 그라바타 프로필의 팝업 명함을 보이기"
 
 msgid "Automatically pull the next set of posts into view when the reader approaches the bottom of the page."
-msgstr ""
+msgstr "방문자가 페이지의 하단에 이르면 다음 글들을 자동으로 나타나게 합니다."
 
 msgid "Allow applications to securely access your content through the cloud."
-msgstr ""
+msgstr "애플리게이션이 클라우드를 통해 자신의 콘텐츠에 안전하게 접근 허용하기."
 
 msgid "Beautiful Math"
-msgstr ""
+msgstr "아름다운 수학"
 
 msgid "Mark up your posts with the <img src=\"//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
-msgstr ""
+msgstr "<img src=\"//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> 마크업 언어로 포스트를 작성하세요, 복잡한 수학 방정식이나 다른 기괴한 것을 작성하는데 완벽합니다."
 
 #: modules/widgets/top-posts.php:35 modules/widgets/top-posts.php:41
 msgid "Top Posts &amp; Pages"
-msgstr ""
+msgstr "상위 글 및 페이지"
 
 #: modules/widgets/top-posts.php:37
 msgid "Shows your most viewed posts and pages."
-msgstr ""
+msgstr "가장 많이 본 글과 페이지 보이기"
 
 #: modules/widgets/top-posts.php:78
 msgid "Maximum number of posts to show (no more than 10):"
-msgstr ""
+msgstr "보여줄 최대 글 수 (10 이하):"
 
 #: modules/widgets/top-posts.php:83
 msgid "Display as:"
-msgstr ""
+msgstr "다음으로 표시하기:"
 
 #: modules/widgets/top-posts.php:85
 msgid "Text List"
-msgstr ""
+msgstr "텍스트 목록"
 
 #: modules/widgets/top-posts.php:86
 msgid "Image List"
-msgstr ""
+msgstr "이미지 목록"
 
 #: modules/widgets/top-posts.php:87
 msgid "Image Grid"
-msgstr ""
+msgstr "이미지 그리드"
 
 #: modules/widgets/top-posts.php:91
 msgid "Top Posts &amp; Pages by views are calculated from 24-48 hours of stats. They take a while to change."
-msgstr ""
+msgstr "상위 노출 글 &amp; 페이지는 통계에서 24-48 시간 동안 계산 됩니다. 이들은 변경되는데 시간이 걸립니다."
 
 #: modules/widgets/top-posts.php:164
 msgid "There are no posts to display. <a href=\"%s\">Want more traffic?</a>"
-msgstr ""
+msgstr "표시할 글이 없습니다. <a href=\"%s\">트래픽을 더 원하시나요?</a>"
 
 #: modules/widgets/twitter-timeline.php:24
 msgid "Twitter Timeline"
-msgstr ""
+msgstr "트위터 타임라인"
 
 #: modules/widgets/twitter-timeline.php:27
 msgid "Display an official Twitter Embedded Timeline widget."
-msgstr ""
+msgstr "공식 트위터 임베드 타임라인 위젯 표시하기."
 
 #: modules/widgets/twitter-timeline.php:75
 msgid "My Tweets"
-msgstr ""
+msgstr "내 트윗"
 
 #: modules/widgets/twitter-timeline.php:146
 msgid "Follow me on Twitter"
-msgstr ""
+msgstr "Twitter에서 저를 팔로우하세요"
 
 #: modules/widgets/twitter-timeline.php:165
 msgid "Width (px):"
-msgstr ""
+msgstr "폭 (px):"
 
 #: modules/widgets/twitter-timeline.php:170
 msgid "Height (px):"
-msgstr ""
+msgstr "높이 (px):"
 
 #: modules/widgets/twitter-timeline.php:175
 msgid "# of Tweets Shown:"
-msgstr ""
+msgstr "트윗이 나타나는 곳의 #:"
 
 #: modules/widgets/twitter-timeline.php:183
 msgid "You need to <a href=\"%1$s\" target=\"_blank\">create a widget at Twitter.com</a>, and then enter your widget id (the long number found in the URL of your widget's config page) in the field below. <a href=\"%2$s\" target=\"_blank\">Read more</a>."
-msgstr ""
+msgstr "<a href=\"%1$s\" target=\"_blank\">트위터닷컴에서 위젯을 생성</a>해야 합니다, 그런 다음 위젯 아이디를 아래의 입력란에 입력하세요 (위젯 설정 페이지의 URL에서 볼 수 있는 긴 숫자). <a href=\"%2$s\" target=\"_blank\">더 보기</a>."
 
 #: modules/widgets/twitter-timeline.php:191
 msgid "Widget ID:"
-msgstr ""
+msgstr "위젯 아이디:"
 
 #: modules/widgets/twitter-timeline.php:196
 msgid "Layout Options:"
-msgstr ""
+msgstr "레이아웃 옵션:"
 
 #: modules/widgets/twitter-timeline.php:197
 msgid "No Header"
-msgstr ""
+msgstr "헤더 없음"
 
 #: modules/widgets/twitter-timeline.php:198
 msgid "No Footer"
-msgstr ""
+msgstr "푸터 없음"
 
 #: modules/widgets/twitter-timeline.php:199
 msgid "No Borders"
-msgstr ""
+msgstr "테두리 없음"
 
 #: modules/widgets/twitter-timeline.php:200
 msgid "No Scrollbar"
-msgstr ""
+msgstr "스크롤바 없음"
 
 #: modules/widgets/twitter-timeline.php:201
 msgid "Transparent Background"
-msgstr ""
+msgstr "투명 배경"
 
 #: modules/widgets/twitter-timeline.php:205
 msgid "Link Color (hex):"
-msgstr ""
+msgstr "링크 색상 (hex):"
 
 #: modules/widgets/twitter-timeline.php:210
 msgid "Border Color (hex):"
-msgstr ""
+msgstr "테두리 색상 (hex):"
 
 #: modules/widgets/twitter-timeline.php:215
 msgid "Timeline Theme:"
-msgstr ""
+msgstr "타임라인 테마:"
 
 #: modules/widgets.php:49
 msgid "%s (Jetpack)"
-msgstr ""
+msgstr "%s (젯팩)"
 
 #: modules/wpcc/wpcc-sign-on.php:91
 msgid "WPCC Client ID"
-msgstr ""
+msgstr "WPCC 클라이언트 아이디"
 
 #: modules/widgets/readmill.php:47
 msgid "Just enter the URL to your book, make sure it's a PDF or EPUB file, and you are ready to go. For more help, head to <a href='%s'>the Readmill WordPress Widget support page</a>."
-msgstr ""
+msgstr "PDF나 EPUB 파일인 것을 확인하고 자신의 책 URL을 입력하기만 하면 됩니다. 도움이 더 필요하면 <a href='%s'>리드밀 워드프레스 위젯 지원 페이지</a>로 이동하세요."
 
 #: modules/widgets/readmill.php:55
 msgid "Download URL:"
-msgstr ""
+msgstr "내려받기 URL:"
 
 #: modules/widgets/readmill.php:60
 msgid "Item URL:"
-msgstr ""
+msgstr "아이템 URL:"
 
 #: modules/widgets/readmill.php:65
 msgid "What size icon?"
-msgstr ""
+msgstr "어떤 사이즈의 아이콘인가요?"
 
 #: modules/widgets/readmill.php:67 modules/widgets/rsslinks-widget.php:101
 msgid "Large"
-msgstr ""
+msgstr "큰"
 
 #: modules/widgets/readmill.php:68 modules/widgets/rsslinks-widget.php:99
 msgid "Small"
-msgstr ""
+msgstr "소"
 
 #: modules/widgets/readmill.php:125
 msgid "Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget."
-msgstr ""
+msgstr "이펍 링크가 비어있습니다. 리드밀 위젯에 보내기를 표시할 이펍 링크를 제공하세요."
 
 #: modules/widgets/rsslinks-widget.php:12
 msgid "Links to your blog's RSS feeds"
-msgstr ""
+msgstr "블로그 RSS 피드의 링크"
 
 #: modules/widgets/rsslinks-widget.php:13
 msgid "RSS Links (Jetpack)"
-msgstr ""
+msgstr "RSS 링크 (젯팩)"
 
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
 msgid "Posts"
-msgstr ""
+msgstr "글"
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
-msgstr ""
+msgstr "글 및 댓글"
 
 #: modules/widgets/rsslinks-widget.php:71
 msgid "Feed(s) to Display:"
-msgstr ""
+msgstr "표시할 피드:"
 
 #: modules/widgets/rsslinks-widget.php:81
 msgid "Text Link"
-msgstr ""
+msgstr "텍스트 링크"
 
 #: modules/widgets/rsslinks-widget.php:82
 msgid "Image Link"
-msgstr ""
+msgstr "이미지 링크"
 
 #: modules/widgets/rsslinks-widget.php:83
 msgid "Text & Image Links"
-msgstr ""
+msgstr "텍스트 및 이미지 링크"
 
 #: modules/widgets/rsslinks-widget.php:85
 msgid "Format:"
-msgstr ""
+msgstr "포맷:"
 
 #: modules/widgets/rsslinks-widget.php:96
 msgid "Image Settings:"
-msgstr ""
+msgstr "이미지 설정:"
 
 #: modules/widgets/rsslinks-widget.php:100
 msgid "Medium"
-msgstr ""
+msgstr "보통"
 
 #: modules/widgets/rsslinks-widget.php:103
 msgid "Image Size:"
-msgstr ""
+msgstr "이미지 크기:"
 
 #: modules/widgets/rsslinks-widget.php:113
 msgid "Red"
-msgstr ""
+msgstr "빨간색"
 
 #: modules/widgets/rsslinks-widget.php:114
 msgid "Orange"
-msgstr ""
+msgstr "주황색"
 
 #: modules/widgets/rsslinks-widget.php:115
 msgid "Green"
-msgstr ""
+msgstr "녹색"
 
 #: modules/widgets/rsslinks-widget.php:116
 msgid "Blue"
-msgstr ""
+msgstr "파랑"
 
 #: modules/widgets/rsslinks-widget.php:117
 msgid "Purple"
-msgstr ""
+msgstr "보라색"
 
 #: modules/widgets/rsslinks-widget.php:118
 msgid "Pink"
-msgstr ""
+msgstr "분홍색"
 
 #: modules/widgets/rsslinks-widget.php:119
 msgid "Silver"
-msgstr ""
+msgstr "은색"
 
 #: modules/widgets/rsslinks-widget.php:121
 msgid "Image Color:"
-msgstr ""
+msgstr "이미지 색깔:"
 
 #: modules/widgets/rsslinks-widget.php:140
 msgid "Subscribe to %s"
-msgstr ""
+msgstr "%s에 구독하기"
 
 #: modules/widgets/gravatar-profile.php:115
 msgid "Personal Links"
-msgstr ""
+msgstr "개인 링크"
 
 #: modules/widgets/gravatar-profile.php:135
 msgid "Verified Services"
-msgstr ""
+msgstr "확인된 서비스"
 
 #: modules/widgets/gravatar-profile.php:146
 msgctxt "1: User Name, 2: Service Name (Facebook, Twitter, ...)"
 msgid "%1$s on %2$s"
-msgstr ""
+msgstr "%2$s %1$s"
 
 #: modules/widgets/gravatar-profile.php:180
 msgid "Select a user or pick \"custom\" and enter a custom email address."
-msgstr ""
+msgstr "사용자를 선택하거나 \"custom\"을 선택하고 사용자 정의 이메일 주소를 입력하세요."
 
 #: modules/widgets/gravatar-profile.php:184
 msgid "Custom"
-msgstr ""
+msgstr "사용자정의 메뉴"
 
 #: modules/widgets/gravatar-profile.php:194
 msgid "Custom Email Address"
-msgstr ""
+msgstr "사용자 정의 이메일 주소"
 
 #: modules/widgets/gravatar-profile.php:202
 msgid "Show Personal Links"
-msgstr ""
+msgstr "개인 링크 표시"
 
 #: modules/widgets/gravatar-profile.php:204
 msgid "Links to your websites, blogs, or any other sites that help describe who you are."
-msgstr ""
+msgstr "귀하를 소개하는 데 도움이 되는 웹사이트, 블로그 또는 기타 사이트의 링크."
 
 #: modules/widgets/gravatar-profile.php:211
 msgid "Show Account Links"
-msgstr ""
+msgstr "계정 링크 표시"
 
 #: modules/widgets/gravatar-profile.php:213
 msgid "Links to services that you use across the web."
-msgstr ""
+msgstr "웹에서 사용하는 서비스의 링크"
 
 #: modules/widgets/gravatar-profile.php:217
 msgid "Opens in new window"
-msgstr ""
+msgstr "새 창에서 열립니다"
 
 #: modules/widgets/gravatar-profile.php:217
 msgid "Edit Your Profile"
-msgstr ""
+msgstr "프로필 편집"
 
 #: modules/widgets/gravatar-profile.php:217
 msgid "What's a Gravatar?"
-msgstr ""
+msgstr "Gravatar란?"
 
 #: modules/widgets/image-widget.php:12
 msgid "Display an image in your sidebar"
-msgstr ""
+msgstr "사이드바에 이미지 표시"
 
 #: modules/widgets/image-widget.php:14
 msgid "Image (Jetpack)"
-msgstr ""
+msgstr "이미지(젯팩)"
 
 #: modules/widgets/image-widget.php:110
 msgid "Image URL:"
-msgstr ""
+msgstr "이미지 URL:"
 
 #: modules/widgets/image-widget.php:113
 msgid "Alternate text:"
-msgstr ""
+msgstr "대체 텍스트:"
 
 #: modules/widgets/image-widget.php:116
 msgid "Image title:"
-msgstr ""
+msgstr "이미지 제목:"
 
 #: modules/widgets/image-widget.php:119
 msgid "Caption:"
-msgstr ""
+msgstr "캡션:"
 
 #: modules/widgets/image-widget.php:125
 msgid "Left"
-msgstr ""
+msgstr "왼쪽"
 
 #: modules/widgets/image-widget.php:126
 msgid "Center"
-msgstr ""
+msgstr "중앙"
 
 #: modules/widgets/image-widget.php:127
 msgid "Right"
-msgstr ""
+msgstr "오른쪽"
 
 #: modules/widgets/image-widget.php:129
 msgid "Image Alignment:"
-msgstr ""
+msgstr "이미지 정렬:"
 
 #: modules/widgets/image-widget.php:139
 msgid "Width:"
-msgstr ""
+msgstr "폭:"
 
 #: modules/widgets/image-widget.php:142
 msgid "Height:"
-msgstr ""
+msgstr "높이:"
 
 #: modules/widgets/image-widget.php:145
 msgid "If empty, we will attempt to determine the image size."
-msgstr ""
+msgstr "비어 있는 경우, 저희가 이미지 크기를 결정합니다."
 
 #: modules/widgets/image-widget.php:146
 msgid "Link URL (when the image is clicked):"
-msgstr ""
+msgstr "링크 URL(이미지 클릭 시):"
 
 #: modules/widgets/readmill.php:11 modules/widgets/readmill.php:21
 msgid "Send To Readmill"
-msgstr ""
+msgstr "리드밀에 보내기"
 
 #: modules/widgets/readmill.php:13
 msgid "Readmill is the best book reader for phones and tablets. With this widget you can enable users to send a book to their device with one click."
-msgstr ""
+msgstr "리드밀은 휴대폰과 태블릿에 최적의 책 읽기 프로그램입니다. 이 위젯을 이용하면 사용자가 한번의 클릭으로 자신의 기기에 책을 보낼 수 있습니다."
 
 #: modules/widgets/facebook-likebox.php:31
 msgid "Facebook Like Box"
-msgstr ""
+msgstr "Facebook 좋아요 박스"
 
 #: modules/widgets/facebook-likebox.php:34
 msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
-msgstr ""
+msgstr "방문자를 Facebook 페이지로 연결하기 위해 Facebook 좋아요 상자를 표시합니다"
 
 #: modules/widgets/facebook-likebox.php:48
 msgid "It looks like your Facebook URL is incorrectly configured. Please check it in your <a href=\"%s\">widget settings</a>."
-msgstr ""
+msgstr "페이스북 URL이 제대로 설정되지 않은 것 같습니다. <a href=\"%s\">위젯 설정</a>에서 점검하세요."
 
 #: modules/widgets/facebook-likebox.php:131
 msgid "Facebook Page URL"
-msgstr ""
+msgstr "Facebook 페이지 URL"
 
 #: modules/widgets/facebook-likebox.php:134
 msgid "The Like Box only works with <a href=\"http://www.facebook.com/help/?faq=174987089221178\">Facebook Pages</a>."
-msgstr ""
+msgstr "좋아요 상자는 <a href=\"http://www.facebook.com/help/?faq=174987089221178\">Facebook 페이지</a>에서만 사용 가능합니다."
 
 #: modules/widgets/facebook-likebox.php:140
 msgid "Width"
-msgstr ""
+msgstr "폭"
 
 #: modules/widgets/facebook-likebox.php:147
 msgid "Height"
-msgstr ""
+msgstr "높이"
 
 #: modules/widgets/facebook-likebox.php:165
 msgid "Show Faces"
-msgstr ""
+msgstr "얼굴 표시"
 
 #: modules/widgets/facebook-likebox.php:167
 msgid "Show profile photos in the plugin."
-msgstr ""
+msgstr "플러그인에 프로필 사진을 표시합니다."
 
 #: modules/widgets/facebook-likebox.php:174
 msgid "Show Stream"
-msgstr ""
+msgstr "스트림 표시"
 
 #: modules/widgets/facebook-likebox.php:176
 msgid "Show the profile stream for the public profile."
-msgstr ""
+msgstr "공개 프로필의 프로필 스트림 표시."
 
 #: modules/widgets/facebook-likebox.php:183
 msgid "Show Border"
-msgstr ""
+msgstr "테두리 보이기"
 
 #: modules/widgets/facebook-likebox.php:185
 msgid "Show a border around the plugin."
-msgstr ""
+msgstr "플러그인 주위에 테두리 보이기."
 
 #: modules/widgets/facebook-likebox.php:192
 msgid "Show Wall"
-msgstr ""
+msgstr "월 보이기"
 
 #: modules/widgets/facebook-likebox.php:194
 msgid "Show the wall for a Places page rather than friend activity."
-msgstr ""
+msgstr "친구 활동 보다는 플레이스 페이지 벽 보이기"
 
 #: modules/widgets/gallery/templates/form.php:2 modules/widgets/readmill.php:50
 #: modules/widgets/rsslinks-widget.php:62 modules/widgets/top-posts.php:73
 #: modules/widgets/twitter-timeline.php:160
 msgid "Title:"
-msgstr ""
+msgstr "제목:"
 
 #: modules/widgets/gallery/templates/form.php:10
 msgid "Images:"
-msgstr ""
+msgstr "이미지:"
 
 #: modules/widgets/gallery/templates/form.php:43
 msgid "Link To:"
-msgstr ""
+msgstr "링크:"
 
 #: modules/widgets/gallery/templates/form.php:58
 msgid "Random Order:"
-msgstr ""
+msgstr "랜덤 순서:"
 
 #: modules/widgets/gallery/templates/form.php:69
 msgid "Style:"
-msgstr ""
+msgstr "스타일:"
 
 #: modules/widgets/gallery.php:20
 msgid "Display a photo gallery or slideshow"
-msgstr ""
+msgstr "사진 갤러리 또는 슬라이드쇼 보이기"
 
 #: modules/widgets/gallery.php:327
 msgid "Tiles"
-msgstr ""
+msgstr "타일"
 
 #: modules/widgets/gallery.php:335
 msgid "Attachment Page"
-msgstr ""
+msgstr "첨부 페이지"
 
 #: modules/widgets/gallery.php:336
 msgid "Media File"
-msgstr ""
+msgstr "미디어 파일"
 
 #: modules/widgets/gravatar-profile.php:21
 msgid "Gravatar Profile"
-msgstr ""
+msgstr "그라바타 프로필"
 
 #: modules/widgets/gravatar-profile.php:24
 msgid "Display a mini version of your Gravatar Profile"
-msgstr ""
+msgstr "Gravatar 프로필의 미니 버전 표시"
 
 #: modules/widgets/gravatar-profile.php:41
 msgid "You need to select what to show in this <a href=\"%s\">Gravatar Profile widget</a>."
-msgstr ""
+msgstr "이 <a href=\"%s\">그라바타 프로필 위젯</a>에 보여줄 것을 선택해야 합니다."
 
 #: modules/widgets/gravatar-profile.php:95
 msgid "View Full Profile &rarr;"
-msgstr ""
+msgstr "전체 프로필 보기 &rarr;"
 
 #: modules/widgets/gravatar-profile.php:103
 msgid "Error loading profile"
-msgstr ""
+msgstr "프로필 로드 오류"
 
-#: modules/videopress/videopress.php:669
+#: modules/videopress/videopress.php:673
 msgid "Video Preview:"
-msgstr ""
+msgstr "비디오 미리보기:"
 
-#: modules/videopress/videopress.php:703
+#: modules/videopress/videopress.php:707
 msgid "Use the form below to upload a video to your VideoPress Library. The following video formats are supported: %s. Maximum upload file size is %d%s."
-msgstr ""
+msgstr "비디오프레스 라이브러리에 비디오를 업로드 하려면 아래의 폼을 사용하세요. 다음의 비디오 형식이 지원됩니다: %s. 최대 업로드 파일 사이즈는 %d%s입니다."
 
-#: modules/videopress/videopress.php:706
+#: modules/videopress/videopress.php:710
 msgid "Upload Video"
-msgstr ""
+msgstr "비디오 업로드"
 
 #: modules/widget-visibility/widget-conditions.php:34
 msgid "All category pages"
-msgstr ""
+msgstr "모든 카테고리 페이지"
 
 #: modules/widget-visibility/widget-conditions.php:48
 msgid "All author pages"
-msgstr ""
+msgstr "모든 글쓴이 페이지"
 
 #: modules/widget-visibility/widget-conditions.php:59
 msgid "All tag pages"
-msgstr ""
+msgstr "모든 태그 페이지"
 
 #: modules/widget-visibility/widget-conditions.php:73
 msgid "All date archives"
-msgstr ""
+msgstr "모든 날짜 글 보관함"
 
 #: modules/widget-visibility/widget-conditions.php:74
 msgid "Daily archives"
-msgstr ""
+msgstr "날짜별 글 보관함"
 
 #: modules/widget-visibility/widget-conditions.php:75
 msgid "Monthly archives"
-msgstr ""
+msgstr "월별 보관물"
 
 #: modules/widget-visibility/widget-conditions.php:76
 msgid "Yearly archives"
-msgstr ""
+msgstr "년도별 글 보관함"
 
 #: modules/widget-visibility/widget-conditions.php:87
 msgid "Front page"
-msgstr ""
+msgstr "전면 페이지"
 
 #: modules/widget-visibility/widget-conditions.php:88
 msgid "Posts page"
-msgstr ""
+msgstr "글 페이지"
 
 #: modules/widget-visibility/widget-conditions.php:89
 msgid "404 error page"
-msgstr ""
+msgstr "404 에러 페이지"
 
 #: modules/widget-visibility/widget-conditions.php:90
 msgid "Search results"
-msgstr ""
+msgstr "검색 결과"
 
 #: modules/widget-visibility/widget-conditions.php:91
 msgid "Post type:"
-msgstr ""
+msgstr "글 형식:"
 
 #: modules/widget-visibility/widget-conditions.php:104
 msgid "Static page:"
-msgstr ""
+msgstr "정적인 페이지:"
 
 #: modules/widget-visibility/widget-conditions.php:146
 msgid "Visibility"
-msgstr ""
+msgstr "가시성"
 
 #: modules/widget-visibility/widget-conditions.php:149
 msgctxt "placeholder: dropdown menu to select widget visibility; hide if or show if"
 msgid "%s if:"
-msgstr ""
+msgstr "%s 다음의 경우:"
 
 #: modules/widget-visibility/widget-conditions.php:149
 msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
 msgid "Show"
-msgstr ""
+msgstr "보이기"
 
 #: modules/widget-visibility/widget-conditions.php:149
 msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
 msgid "Hide"
-msgstr ""
+msgstr "감추기"
 
 #: modules/widget-visibility/widget-conditions.php:160
 msgctxt "Used as the default option in a dropdown list"
 msgid "-- Select --"
-msgstr ""
+msgstr "-- 선택하기 --"
 
 #: modules/widget-visibility/widget-conditions.php:161
 msgid "Category"
-msgstr ""
+msgstr "카테고리"
 
 #: modules/widget-visibility/widget-conditions.php:162
 msgctxt "Noun, as in: \"The author of this post is...\""
 msgid "Author"
-msgstr ""
+msgstr "글쓴이"
 
 #: modules/widget-visibility/widget-conditions.php:163
 msgctxt "Noun, as in: \"This post has one tag.\""
 msgid "Tag"
-msgstr ""
+msgstr "태그"
 
 #: modules/widget-visibility/widget-conditions.php:164
 msgctxt "Noun, as in: \"This page is a date archive.\""
 msgid "Date"
-msgstr ""
+msgstr "날짜"
 
 #: modules/widget-visibility/widget-conditions.php:165
 msgctxt "Example: The user is looking at a page, not a post."
 msgid "Page"
-msgstr ""
+msgstr "페이지"
 
 #: modules/widget-visibility/widget-conditions.php:167
 msgctxt "Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}"
 msgid "is"
-msgstr ""
+msgstr "는(은)"
 
 #: modules/widget-visibility/widget-conditions.php:171
 msgctxt "Shown between widget visibility conditions."
 msgid "or"
-msgstr ""
+msgstr "또는"
 
 #: modules/widget-visibility/widget-conditions.php:174
 msgid "Delete"
-msgstr ""
+msgstr "삭제"
 
 #: modules/videopress/videopress.php:278
 msgid "Only videos from the selected blog will be available in your media library."
-msgstr ""
+msgstr "선택된 블로그의 비디오만 미디어 라이브러리에서 가능합니다."
 
 #: modules/videopress/videopress.php:279
 msgid "<a href=\"%s\">Click here</a> to refresh this list."
-msgstr ""
+msgstr "이 목록을 새로고침 하려면 <a href=\"%s\">여기를 클릭하세요.</a>"
 
 #: modules/videopress/videopress.php:285
 msgid "Video Library Access"
-msgstr ""
+msgstr "비디오 라이브러리 접근"
 
 #: modules/videopress/videopress.php:289
 msgid "Do not allow other users to access my VideoPress library"
-msgstr ""
+msgstr "다른 사용자가 내 비디오프레스 라이브러리 접근을 허용하지 않음"
 
 #: modules/videopress/videopress.php:291
 msgid "Allow users to access my videos"
-msgstr ""
+msgstr "사용자가 내 비디오 접근을 허용함"
 
 #: modules/videopress/videopress.php:293
 msgid "Allow users to access and edit my videos"
-msgstr ""
+msgstr "사용자가 내 비디오 접근과 편집을 허용함"
 
 #: modules/videopress/videopress.php:295
 msgid "Allow users to access, edit, and delete my videos"
-msgstr ""
+msgstr "사용자가 내 비디오 접근, 편집, 삭제를 허용함"
 
 #: modules/videopress/videopress.php:298
 msgid "Allow users to upload videos"
-msgstr ""
+msgstr "사용자가 비디오 업로드를 허용함"
 
 #: modules/videopress/videopress.php:303
 msgid "Free formats"
-msgstr ""
+msgstr "무료 형식"
 
 #: modules/videopress/videopress.php:307
 msgid "Only display videos in free software formats"
-msgstr ""
+msgstr "무료 소프트웨어 형식의 비디오만 표시함"
 
 #: modules/videopress/videopress.php:308
 msgid "Ogg file container with Theora video and Vorbis audio. Note that some browsers are unable to play free software video formats, including Internet Explorer and Safari."
-msgstr ""
+msgstr "Theora 비디오와 Vorbis 오디오가 있는 Ogg 파일 콘테이너. 인터넷 익스플로러나 사파리 같은 브라우저는 무료 소프트웨어 비디오 포맷을 실행 할 수 없다는 것을 알아두세요. "
 
 #: modules/videopress/videopress.php:313
 msgid "Default quality"
-msgstr ""
+msgstr "기본 품질"
 
 #: modules/videopress/videopress.php:317
 msgid "Display higher quality video by default."
-msgstr ""
+msgstr "기본으로 고급 품질의 비디오 실행하기."
 
 #: modules/videopress/videopress.php:318
 msgid "This setting may be overridden for individual videos."
-msgstr ""
+msgstr "이 설정은 개별 비디오에서 덮어쓰기 할 수 있습니다."
 
 #: modules/videopress/videopress.php:330 modules/videopress/videopress.php:339
 #: modules/videopress/videopress.php:593
 msgid "VideoPress Library"
-msgstr ""
+msgstr "비디오프레스 라이브러리"
 
 #: modules/videopress/videopress.php:340
 msgid "Use the button below to browse your VideoPress Library. Note that you can also browse your VideoPress Library while editing a post or page by using the <strong>Add Media</strong> button in the post editor."
-msgstr ""
+msgstr "비디오프레스 라이브러리를 둘러보려면 아래의 버튼을 사용하세요. 글 편집기에 있는 <strong>미디어 추가</strong> 버튼을 사용하면 글이나 페이지를 편집하면서 비디오프레스 라이브러리를 둘러볼 수도 있다는 것을 알아두세요."
 
 #: modules/videopress/videopress.php:341
 msgid "Browse Your VideoPress Library"
-msgstr ""
+msgstr "비디오프레스 라이브러리 둘러보기"
 
 #: modules/videopress/videopress.php:342
 msgid "Please enable JavaScript support in your browser to use VideoPress."
-msgstr ""
+msgstr "비디오프레스를 사용하려면 브라우저에서 자바스크립트 지원을 활성화하세요."
 
 #: modules/videopress/videopress.php:589
 msgid "Please select a video file to upload."
-msgstr ""
+msgstr "업로드할 비디오를 선택하세요."
 
 #: modules/videopress/videopress.php:590
 msgid "Your video is uploading... Please do not close this window."
-msgstr ""
+msgstr "비디오가 업로드중입니다... 이 창을 닫지 마세요."
 
 #: modules/videopress/videopress.php:591
 msgid "An unknown error has occurred. Please try again later."
-msgstr ""
+msgstr "알수없는 에러가 발생했습니다. 나중에 다시 해주세요."
 
 #: modules/videopress/videopress.php:592
 msgid "Your video has successfully been uploaded. It will appear in your VideoPress Library shortly."
-msgstr ""
+msgstr "비디오가 성공적으로 업로드 됐습니다. 잠시후에 비디오프레스 라이브러리에 나타날 것입니다."
 
 #: modules/videopress/videopress.php:594
 msgid "Upload a Video"
-msgstr ""
+msgstr "비디오 업로드하기"
 
 #: modules/videopress/videopress.php:595
 msgid "Insert Video"
-msgstr ""
+msgstr "비디어 삽입하기"
 
 #: modules/videopress/videopress.php:628
 msgid "Ogg File URL"
-msgstr ""
+msgstr "Ogg 파일 URL"
 
 #: modules/videopress/videopress.php:630
 msgid "Location of the Ogg video file."
-msgstr ""
+msgstr "Ogg 비디오 파일 위치."
 
 #: modules/videopress/videopress.php:638
 msgid "Display share menu and allow viewers to embed or download this video"
-msgstr ""
+msgstr "공유 메뉴를 보이고 사용자가 이 비디오를 임베드하거나 내려받을 수 있도록 허용함"
 
 #: modules/videopress/videopress.php:644
 msgid "Rating"
-msgstr ""
+msgstr "평가"
 
 #: modules/videopress/videopress.php:657
 msgid "Shortcode"
-msgstr ""
+msgstr "숏코드"
 
-#: modules/subscriptions.php:686
+#: modules/subscriptions.php:694
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
-msgstr ""
+msgstr "이 블로그를 구독하고 이메일로 새글의 알림을 받으려면 이메일 주소를 입력하세요"
 
-#: modules/subscriptions.php:688
+#: modules/subscriptions.php:696
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
-msgstr ""
+msgstr "이 블로그에 구독하고 이메일로 새 글 알림을 받으려면 클릭하세요."
 
-#: modules/subscriptions.php:704
+#: modules/subscriptions.php:712
 msgid "%s: %s"
-msgstr ""
+msgstr "%s: %s"
 
-#: modules/subscriptions.php:711 modules/widgets/image-widget.php:107
+#: modules/subscriptions.php:719 modules/widgets/image-widget.php:107
 msgid "Widget title:"
-msgstr ""
+msgstr "위젯 제목:"
 
-#: modules/subscriptions.php:717
+#: modules/subscriptions.php:725
 msgid "Optional text to display to your readers:"
-msgstr ""
+msgstr "방문자에게 보일 옵션 글자:"
 
-#: modules/subscriptions.php:723
+#: modules/subscriptions.php:731
 msgid "Subscribe Button:"
-msgstr ""
+msgstr "구독 버튼:"
 
-#: modules/subscriptions.php:730
+#: modules/subscriptions.php:738
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
-msgstr[0] ""
+msgstr[0] "구독자 총 수를 보일까요? (%s 구독자)"
 
 #: modules/tiled-gallery/tiled-gallery.php:318
 msgid "Tiled Mosaic"
-msgstr ""
+msgstr "타일 모자이크"
 
 #: modules/tiled-gallery/tiled-gallery.php:319 modules/widgets/gallery.php:328
 msgid "Square Tiles"
-msgstr ""
+msgstr "정사각형 타일"
 
 #: modules/tiled-gallery/tiled-gallery.php:320 modules/widgets/gallery.php:329
 msgid "Circles"
-msgstr ""
+msgstr "원형"
 
 #: modules/tiled-gallery/tiled-gallery.php:349
 msgid "Display all your gallery pictures in a cool mosaic."
-msgstr ""
+msgstr "모든 갤러리 사진을 참신한 모자이크 형식으로 표현하기."
 
 #: modules/vaultpress.php:24
 msgid "Active"
-msgstr ""
+msgstr "활성"
 
 #: modules/videopress/class.videopress-player.php:195
 msgid "%s Error"
-msgstr ""
+msgstr "%s 에러"
 
 #: modules/videopress/class.videopress-player.php:230
 msgid "This video is intended for mature audiences."
-msgstr ""
+msgstr "이 비디오는 성인용입니다."
 
 #: modules/videopress/class.videopress-player.php:230
 msgid "Please verify your birthday."
-msgstr ""
+msgstr "생일을 확인하세요."
 
 #: modules/videopress/class.videopress-player.php:280
 msgid "Submit"
-msgstr ""
+msgstr "전송"
 
 #: modules/videopress/class.videopress-player.php:326
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
-msgstr ""
+msgstr "이 비디오를 볼 수 있는 충분한 <a rel=\"nofollow\" href=\"%s\">자유 레벨</a>이 없지만 무료 소프트웨어와 업그레이드를 지원합니다."
 
 #: modules/videopress/class.videopress-player.php:382
 msgctxt "watch a video title"
 msgid "Watch: %s"
-msgstr ""
+msgstr "지켜보기: %s"
 
 #: modules/videopress/class.videopress-player.php:478
 #: modules/videopress/class.videopress-player.php:500
 msgid "this video"
-msgstr ""
+msgstr "이 비디오는"
 
 #: modules/videopress/class.videopress-player.php:507
 msgctxt "Play as in playback or view a movie"
 msgid "JavaScript required to play %s."
-msgstr ""
+msgstr "%s를 플레이 하려면 자바스크립트가 필요합니다."
 
 #: modules/videopress/class.videopress-player.php:654
 msgid "This video requires <a rel=\"nofollow\" href=\"%s\">Adobe Flash</a> for playback."
-msgstr ""
+msgstr "이 비디오는 플레이 하려면 <a rel=\"nofollow\" href=\"%s\">어도비 플래시</a>가 필요합니다."
 
 #: modules/videopress/class.videopress-player.php:661
 msgid "Loading video..."
-msgstr ""
+msgstr "비디오 로드 중..."
 
 #: modules/videopress/class.videopress-video.php:306
 msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
-msgstr ""
+msgstr "비디오프레스 플러그인이 비디오프레스 서버와 통신할 수 없습니다. 이 에러는 대부분의 경우 환경 설정이 잘못된 플러그인으로 인한 것입니다. 재설치 하거나 업그레이드하세요."
 
 #: modules/videopress/class.videopress-video.php:308
 msgid "<strong>%s</strong> is not an allowed embed site."
-msgstr ""
+msgstr "<strong>%s</strong>는 허용된 임베드 사이트가 아닙니다."
 
 #: modules/videopress/class.videopress-video.php:308
 msgid "Publisher limits playback of video embeds."
-msgstr ""
+msgstr "공개자가 비디오 임베드의 플레이를 제한하고 있습니다."
 
 #: modules/videopress/class.videopress-video.php:310
 msgid "No data found for VideoPress identifier: <strong>%s</strong>."
-msgstr ""
+msgstr "비디오프레스 인식자를 위한 데이터가 없습니다: <strong>%s</strong>."
 
 #: modules/videopress/videopress.php:72 modules/videopress/videopress.php:76
 msgid "Could not obtain a VideoPress upload token. Please try again later."
-msgstr ""
+msgstr "비디오프레스 업로드 토큰을 가져올 수 없습니다. 나중에 다시 해주세요."
 
 #: modules/videopress/videopress.php:264
 msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>.</p>"
-msgstr ""
+msgstr "비디오프레스 모듈이 활성화 된 <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">비디오프레스 구독</a>이 있는 워드프레스닷컴 계정을 필요로 합니다.</p>"
 
 #: modules/videopress/videopress.php:269
 msgid "Connected WordPress.com Blog"
-msgstr ""
+msgstr "워드프레스닷컴 블로그 연결됨"
 
 #: modules/stats.php:951 modules/stats.php:975
 msgid "Sorry, nothing to report."
-msgstr ""
+msgstr "죄송합니다, 보고할 것이 없습니다."
 
 #: modules/stats.php:971
 msgid "Top Searches"
-msgstr ""
+msgstr "상위 검색"
 
 #: modules/stats.php:999
 msgid "We were unable to get your stats just now. Please reload this page to try again."
-msgstr ""
+msgstr "현재 통계를 가져올 수 없습니다. 이 페이지를 새로 고침 하고 다시 하세요."
 
 #: modules/stats.php:1006
 msgid "We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href=\"%1$s\">contact support</a>. In your report please include the information below."
-msgstr ""
+msgstr "지금은 통계를 가져올 수 없습니다. 다시 하려면 이 페이지를 새로고침하세요. 에러가 계속 발생하면  <a href=\"%1$s\">지원 연결</a>하세요. 보고서에서 아래의 정보를 포함시키세요."
 
-#: modules/subscriptions.php:116
+#: modules/subscriptions.php:122
 msgid "Jetpack Subscriptions Settings"
-msgstr ""
+msgstr "젯팩 구독 설정"
 
-#: modules/subscriptions.php:125
+#: modules/subscriptions.php:131
 msgid "Follow Blog"
-msgstr ""
+msgstr "블로그 팔로우"
 
-#: modules/subscriptions.php:140
+#: modules/subscriptions.php:146
 msgid "Follow Comments"
-msgstr ""
+msgstr "댓글 팔로우"
 
-#: modules/subscriptions.php:161
+#: modules/subscriptions.php:167
 msgid "Follower Settings"
-msgstr ""
+msgstr "팔로워 설정"
 
-#: modules/subscriptions.php:168
+#: modules/subscriptions.php:174
 msgid "Blog follow email text"
-msgstr ""
+msgstr "블로그 팔로우 이메일 텍스트"
 
-#: modules/subscriptions.php:176
+#: modules/subscriptions.php:182
 msgid "Comment follow email text"
-msgstr ""
+msgstr "댓글 팔로우 이메일 텍스트"
 
-#: modules/subscriptions.php:190
+#: modules/subscriptions.php:196
 msgid "Change whether your visitors can subscribe to your posts or comments or both."
-msgstr ""
+msgstr "방문자가 글이나 댓글을 구독할 수 있도록 변경하세요."
 
-#: modules/subscriptions.php:205
+#: modules/subscriptions.php:211
 msgid "Show a <em>'follow blog'</em> option in the comment form"
-msgstr ""
+msgstr "댓글 양식에 <em>'블로그 팔로우'</em> 옵션 표시"
 
-#: modules/subscriptions.php:220
+#: modules/subscriptions.php:226
 msgid "Show a <em>'follow comments'</em> option in the comment form"
-msgstr ""
-
-#: modules/subscriptions.php:245
-msgid "These settings change emails sent from your blog to followers."
-msgstr ""
+msgstr "댓글 폼에 <em>'댓글 팔로우'</em>옵션을 보여줍니다."
 
 #: modules/subscriptions.php:251
-msgid "Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)"
-msgstr ""
+msgid "These settings change emails sent from your blog to followers."
+msgstr "블로그에서 팔로워에게 이 설정 변경 이메일을 전송하였습니다."
 
 #: modules/subscriptions.php:257
-msgid "Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)"
-msgstr ""
+msgid "Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)"
+msgstr "누군가가 귀하의 블로그를 팔로우하면 소개 텍스트가 전송됩니다. (사이트 및 확인 세부정보는 자동으로 귀하에게 추가됩니다.)"
 
-#: modules/subscriptions.php:262
+#: modules/subscriptions.php:263
+msgid "Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)"
+msgstr "누군가가 귀하의 블로그에 있는 글을 팔로우하면 소개 텍스트가 전송됩니다. (귀하에게 사이트 및 확인 세부정보가 자동으로 추가됩니다.)"
+
+#: modules/subscriptions.php:268
 msgid ""
 "Howdy.\n"
 "\n"
@@ -1066,8 +1082,13 @@ msgid ""
 "\n"
 "To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
 msgstr ""
+"안녕하세요.\n"
+"\n"
+"최근에 이 블로그 글을 팔로우 하셨습니다. 이것은 이메일을 통해 새로운 글을 구독하는 것을 의미합니다.\n"
+"\n"
+"활성화하려면, 아래에서 확인을 클릭하세요. 이것이 에러라고 생각하시면, 이 메시지를 무시하시고 다음부터는 귀찮게 하지 않겠습니다."
 
-#: modules/subscriptions.php:263
+#: modules/subscriptions.php:269
 msgid ""
 "Howdy.\n"
 "\n"
@@ -1075,1684 +1096,1689 @@ msgid ""
 "\n"
 "To activate, click confirm below. If you believe this is an error, ignore this message and we'll never bother you again."
 msgstr ""
+"안녕하세요.\n"
+"\n"
+"최근에 저의 블로그 글을 팔로우 하셨습니다. 이것은 새로운 댓글이 있으면 이메일을 받는 것을 의미합니다.\n"
+"\n"
+"활성화하려면, 아래에서 확인을 클릭하세요. 이것이 에러라고 생각하시면, 이 메시지를 무시하시고 다음부터는 귀찮게 하지 않겠습니다."
 
-#: modules/subscriptions.php:465
+#: modules/subscriptions.php:471
 msgid "Notify me of follow-up comments by email."
-msgstr ""
+msgstr "댓글 알림 이메일 받기"
 
-#: modules/subscriptions.php:472
+#: modules/subscriptions.php:478
 msgid "Notify me of new posts by email."
-msgstr ""
+msgstr "새 글 알림 이메일 받기"
 
-#: modules/subscriptions.php:548
+#: modules/subscriptions.php:556
 msgid "Add an email signup form to allow people to subscribe to your blog."
-msgstr ""
+msgstr "블로그에 구독하려는 방문자에게 이메일 등록 폼을 추가하기"
 
-#: modules/subscriptions.php:551
+#: modules/subscriptions.php:559
 msgid "Blog Subscriptions (Jetpack)"
-msgstr ""
+msgstr "블로그 구독(젯팩)"
 
-#: modules/subscriptions.php:577
+#: modules/subscriptions.php:585
 msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
-msgstr ""
+msgstr "구독을 확인하는 이메일을 보냈습니다. 지금 이메일을 확인하고 활성화를 클릭하여 구독을 시작하세요."
 
-#: modules/subscriptions.php:586
+#: modules/subscriptions.php:594
 msgid "The email you entered was invalid, please check and try again."
-msgstr ""
+msgstr "입력한 이메일이 유효하지 않으니, 점검하고 다시 하세요."
 
-#: modules/subscriptions.php:589
+#: modules/subscriptions.php:597
 msgid "You have already subscribed to this site, please check your inbox."
-msgstr ""
+msgstr "이 사이트에 이미 구독 중이니, 받은 메일을 점검하세요."
 
-#: modules/subscriptions.php:595
+#: modules/subscriptions.php:603
 msgid "There was an error when subscribing, please try again."
-msgstr ""
+msgstr "구독하는 중 에러가 발생했습니다. 다시 하세요."
 
-#: modules/subscriptions.php:608
+#: modules/subscriptions.php:616
 msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
-msgstr[0] ""
+msgstr[0] "%s 다른 구독자 가입"
 
-#: modules/subscriptions.php:685
+#: modules/subscriptions.php:693
 msgid "Subscribe to Blog via Email"
-msgstr ""
+msgstr "이메일로 블로그 구독하기"
 
 #: modules/stats.php:358
 msgid "View Site Stats without Javascript"
-msgstr ""
+msgstr "자바스크립트 없이 사이트 통계 보기"
 
 #: modules/stats.php:539
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
-msgstr ""
+msgstr "통계를 보려면 <a href=\"%s\">사이트 통계</a>를 방문하세요."
 
 #: modules/stats.php:544
 msgid "Admin bar"
-msgstr ""
+msgstr "관리자 바"
 
 #: modules/stats.php:545
 msgid "Put a chart showing 48 hours of views in the admin bar."
-msgstr ""
+msgstr "관리자 바에 48시간 보기 차트를 넣으세요."
 
 #: modules/stats.php:546
 msgid "Registered users"
-msgstr ""
+msgstr "등록된 사용자"
 
 #: modules/stats.php:548
 msgid "Count the page views of registered users who are logged in."
-msgstr ""
+msgstr "로그인한 등록된 사용자의 페이지 뷰 계산하기"
 
 #: modules/stats.php:558
 msgid "Smiley"
-msgstr ""
+msgstr "스마일리"
 
 #: modules/stats.php:559
 msgid "Hide the stats smiley face image."
-msgstr ""
+msgstr "통계 스마일리 얼굴 이미지 감추기"
 
 #: modules/stats.php:559
 msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
-msgstr ""
+msgstr "이미지는 통계를 수집하고 <strong>세상을 더 나은 곳으로 만드는</strong>데 도움이 되지만 숨겨져 있을 경우에도 작동됩니다."
 
 #: modules/stats.php:559
 msgid "Smiley face"
-msgstr ""
+msgstr "스마일리 얼굴"
 
 #: modules/stats.php:560
 msgid "Report visibility"
-msgstr ""
+msgstr "보고서 열람"
 
 #: modules/stats.php:562
 msgid "Select the roles that will be able to view stats reports."
-msgstr ""
+msgstr "통계 보고서를 볼 수 있는 역할을 선택하세요."
 
 #: modules/stats.php:573
 msgid "Save configuration"
-msgstr ""
+msgstr "환경설정 저장하기"
 
 #: modules/stats.php:637
 msgid "Stats"
-msgstr ""
+msgstr "통계"
 
 #: modules/stats.php:639
 msgid "Views over 48 hours. Click for more Site Stats."
-msgstr ""
+msgstr "48시간 보기. 더 많은 사이트 통계는 클릭하세요."
 
 #: modules/stats.php:706
 msgid "day"
-msgstr ""
+msgstr "일"
 
 #: modules/stats.php:707
 msgid "week"
-msgstr ""
+msgstr "주"
 
 #: modules/stats.php:708
 msgid "month"
-msgstr ""
+msgstr "월"
 
 #: modules/stats.php:711
 msgid "the past day"
-msgstr ""
+msgstr "지난 날"
 
 #: modules/stats.php:712
 msgid "the past week"
-msgstr ""
+msgstr "저번 주"
 
 #: modules/stats.php:713
 msgid "the past month"
-msgstr ""
+msgstr "지난달"
 
 #: modules/stats.php:714
 msgid "the past quarter"
-msgstr ""
+msgstr "지난 분기"
 
 #: modules/stats.php:715
 msgid "the past year"
-msgstr ""
+msgstr "작년"
 
 #: modules/stats.php:737
 msgid "Chart stats by"
-msgstr ""
+msgstr "다음의 차트 통계:"
 
 #: modules/stats.php:750
 msgid "Show top posts over"
-msgstr ""
+msgstr "상위 글 표시"
 
 #: modules/stats.php:763
 msgid "Show top search terms over"
-msgstr ""
+msgstr "상위 검색어 표시"
 
 #: modules/stats.php:922
 msgid "%1$s %2$s Views"
-msgstr ""
+msgstr "%1$s %2$s 뷰"
 
 #: modules/stats.php:943
 msgid "View All"
-msgstr ""
+msgstr "모두 보기"
 
 #: modules/stats.php:947
 msgid "Top Posts"
-msgstr ""
+msgstr "인기 게시물"
 
 #: modules/sharedaddy/sharing.php:307
 msgid "Icon + text"
-msgstr ""
+msgstr "아이콘 + 텍스트"
 
 #: modules/sharedaddy/sharing.php:308
 msgid "Icon only"
-msgstr ""
+msgstr "아이콘만"
 
 #: modules/sharedaddy/sharing.php:309
 msgid "Text only"
-msgstr ""
+msgstr "텍스트만"
 
 #: modules/sharedaddy/sharing.php:310
 msgid "Official buttons"
-msgstr ""
+msgstr "공식 버튼"
 
 #: modules/sharedaddy/sharing.php:315
 msgid "Sharing label"
-msgstr ""
+msgstr "공유 레이블"
 
 #: modules/sharedaddy/sharing.php:321
 msgid "Open links in"
-msgstr ""
+msgstr "다음에서 링크 열기:"
 
 #: modules/sharedaddy/sharing.php:324
 msgid "New window"
-msgstr ""
+msgstr "새 창"
 
 #: modules/sharedaddy/sharing.php:325
 msgid "Same window"
-msgstr ""
+msgstr "같은 창"
 
 #: modules/sharedaddy/sharing.php:363
 msgid "Service name"
-msgstr ""
+msgstr "서비스 이름"
 
 #: modules/sharedaddy/sharing.php:369
 msgid "Sharing URL"
-msgstr ""
+msgstr "공유 URL"
 
 #: modules/sharedaddy/sharing.php:373
 msgid "You can add the following variables to your service sharing URL:"
-msgstr ""
+msgstr "다음의 변수를 서비스 공유 URL에 추가할 수 있습니다:"
 
 #: modules/sharedaddy/sharing.php:378
 msgid "Icon URL"
-msgstr ""
+msgstr "아이콘 URL"
 
 #: modules/sharedaddy/sharing.php:381
 msgid "Enter the URL of a 16x16px icon you want to use for this service."
-msgstr ""
+msgstr "이 서비스를 사용할 16x16px 아이콘의 URL을 입력하세요."
 
 #: modules/sharedaddy/sharing.php:387
 msgid "Create Share Button"
-msgstr ""
+msgstr "공유 버튼 생성"
 
 #: modules/sharedaddy/sharing.php:399
 msgid "An error occurred creating your new sharing service - please check you gave valid details."
-msgstr ""
+msgstr "새로운 공유 서비스를 생성하는 데 오류가 발생했습니다. 유효한 세부정보를 입력했는지 확인하세요."
 
 #: modules/shortcodes/archives.php:50
 msgid "Your blog does not currently have any published posts."
-msgstr ""
+msgstr "현재 블로그에 게시된 글이 없습니다."
 
 #: modules/shortcodes/audio.php:202
 msgid "Download: <a href=\"%s\">%s</a><br />"
-msgstr ""
+msgstr "내려받기: <a href=\"%s\">%s</a><br />"
 
-#: modules/shortcodes/presentations.php:209
+#: modules/shortcodes/presentations.php:226
 msgid "This slideshow could not be started. Try refreshing the page or viewing it in another browser."
-msgstr ""
+msgstr "이 슬라이드쇼는 시작할 수 없습니다. 페이지를 새로고침하거나 다른 브라우저에서 보기를 해보세요."
 
 #: modules/shortcodes/slideshow.php:58 modules/widgets/gallery.php:330
 msgid "Slideshow"
-msgstr ""
+msgstr "슬라이드 쇼"
 
 #: modules/shortcodes/slideshow.php:131
 msgid "Click to view slideshow."
-msgstr ""
+msgstr "슬라이드 쇼를 보려면 클릭하세요."
 
 #: modules/shortcodes/slideshow.php:160
 msgid "This slideshow requires JavaScript."
-msgstr ""
+msgstr "이 슬라이드 쇼에는 JavaScript가 필요합니다."
 
 #: modules/shortcodes/twitter-timeline.php:17
 msgid "Invalid username"
-msgstr ""
+msgstr "유효하지 않은 사용자 이름"
 
 #: modules/shortcodes/twitter-timeline.php:20
 msgid "Invalid id"
-msgstr ""
+msgstr "유효하지 않은 아이디"
 
 #: modules/shortcodes/twitter-timeline.php:22
 msgid "Tweets by @%s"
-msgstr ""
+msgstr "@%s의 트윗"
 
 #: modules/social-links/social-links.php:81
 msgid "Connect"
-msgstr ""
+msgstr "연결하기"
 
 #: modules/social-links/social-links.php:157
 msgid "&mdash; Select &mdash;"
-msgstr ""
+msgstr "&mdash; 선택하기 &mdash;"
 
 #: modules/stats.php:265 modules/stats.php:685
 msgid "Site Stats"
-msgstr ""
+msgstr "사이트 통계"
 
 #: modules/stats.php:356
 msgid "Loading&hellip;"
-msgstr ""
+msgstr "로드 중&hellip;"
 
 #: modules/stats.php:357
 msgid "Your Site Stats work better with Javascript enabled."
-msgstr ""
+msgstr "사이트 통계는 자바스크립트가 활성화되면 더 잘 작동합니다."
 
 #: modules/sharedaddy/sharing-sources.php:930
 msgid "Click to share"
-msgstr ""
+msgstr "공유하기"
 
 #: modules/sharedaddy/sharing-sources.php:985
 msgid "URL"
-msgstr ""
+msgstr "URL"
 
 #: modules/sharedaddy/sharing-sources.php:990
 msgid "Icon"
-msgstr ""
+msgstr "아이콘"
 
 #: modules/sharedaddy/sharing-sources.php:997
 msgid "Save"
-msgstr ""
+msgstr "저장하기"
 
 #: modules/sharedaddy/sharing-sources.php:998
 msgid "Remove Service"
-msgstr ""
+msgstr "서비스 제거"
 
 #: modules/sharedaddy/sharing-sources.php:1077
 msgid "Tumblr"
-msgstr ""
+msgstr "텀블러"
 
 #: modules/sharedaddy/sharing-sources.php:1088
 msgctxt "share to"
 msgid "Tumblr"
-msgstr ""
+msgstr "Tumblr"
 
 #: modules/sharedaddy/sharing-sources.php:1088
 msgid "Click to share on Tumblr"
-msgstr ""
+msgstr "Tumblr로 공유하기"
 
 #: modules/sharedaddy/sharing-sources.php:1124
 msgid "Pinterest"
-msgstr ""
+msgstr "Pinterest"
 
 #: modules/sharedaddy/sharing-sources.php:1168
 msgid "Pin It"
-msgstr ""
+msgstr "핀 꽂기"
 
 #: modules/sharedaddy/sharing-sources.php:1170
 msgctxt "share to"
 msgid "Pinterest"
-msgstr ""
+msgstr "Pinterest"
 
 #: modules/sharedaddy/sharing-sources.php:1170
 msgid "Click to share on Pinterest"
-msgstr ""
+msgstr "Pinterest에서 공유하려면 클릭하세요"
 
 #: modules/sharedaddy/sharing-sources.php:1241
 #: modules/sharedaddy/sharing-sources.php:1259
 msgid "Pocket"
-msgstr ""
+msgstr "포켓"
 
 #: modules/sharedaddy/sharing-sources.php:1264
 msgctxt "share to"
 msgid "Pocket"
-msgstr ""
+msgstr "포켓"
 
 #: modules/sharedaddy/sharing-sources.php:1264
 msgid "Click to share on Pocket"
-msgstr ""
+msgstr "포켓에 공유하려면 클릭하세요"
 
 #: modules/sharedaddy/sharing.php:153
 msgid "Warning! Multibyte support missing!"
-msgstr ""
+msgstr "경고! 멀티바이스 지원이 없습니다!"
 
 #: modules/sharedaddy/sharing.php:154
 msgid "This plugin will work without it, but multibyte support is used <a href=\"%s\">if available</a>. You may see minor problems with Tweets and other sharing services."
-msgstr ""
+msgstr "이 플러그인은 없어도 작동이 되지만 다중 바이트 지원이 <a href=\"%s\">이용 가능한 경우</a> 사용됩니다. 트윗과 다른 공유 서비스에서 작은 문제가 있을 수 있습니다."
 
 #: modules/sharedaddy/sharing.php:171
 msgid "Add sharing buttons to your blog and allow your visitors to share posts with their friends."
-msgstr ""
+msgstr "블로그에 공유 버튼을 추가하고 방문자들이 친구들과 글을 공유하도록 허용하세요."
 
 #: modules/sharedaddy/sharing.php:177
 msgid "Available Services"
-msgstr ""
+msgstr "이용 가능한 서비스"
 
 #: modules/sharedaddy/sharing.php:178
 msgid "Drag and drop the services you'd like to enable into the box below."
-msgstr ""
+msgstr "사용하려는 서비스를 끌어다 아래의 상자에 놓으세요."
 
 #: modules/sharedaddy/sharing.php:179
 msgid "Add a new service"
-msgstr ""
+msgstr "새 서비스 추가"
 
 #: modules/sharedaddy/sharing.php:192
 msgid "Please note that your services have been restricted because your site is private."
-msgstr ""
+msgstr "사이트가 비공개 상태이기 때문에 서비스가 제한되었습니다."
 
 #: modules/sharedaddy/sharing.php:203
 msgid "Enabled Services"
-msgstr ""
+msgstr "켜진 서비스"
 
 #: modules/sharedaddy/sharing.php:206
 msgid "Services dragged here will appear individually."
-msgstr ""
+msgstr "이곳에 드래그된 서비스는 개별적으로 표시됩니다."
 
 #: modules/sharedaddy/sharing.php:209
 msgid "Drag and drop available services here."
-msgstr ""
+msgstr "이용 가능한 서비스를 여기로 끌어다 놓으세요."
 
 #: modules/sharedaddy/sharing.php:220
 msgid "Services dragged here will be hidden behind a share button."
-msgstr ""
+msgstr "여기로 드래그한 서비스는 공유 버튼 뒤로 숨겨집니다."
 
 #: modules/sharedaddy/sharing.php:235
 msgid "Live Preview"
-msgstr ""
+msgstr "실시간 미리보기"
 
 #: modules/sharedaddy/sharing.php:238
 msgid "Sharing is off. Add services above to enable."
-msgstr ""
+msgstr "공유 기능이 꺼졌습니다. 기능을 켜려면 위의 서비스를 추가하세요."
 
 #: modules/sharedaddy/sharing.php:304
 msgid "Button style"
-msgstr ""
+msgstr "버튼 스타일"
 
 #: modules/sharedaddy/sharing-sources.php:302
 msgid "Post was not sent - check your email addresses!"
-msgstr ""
+msgstr "글이 전송되지 않았습니다. 이메일 주소를 확인하세요!"
 
 #: modules/sharedaddy/sharing-sources.php:306
 msgid "Email check failed, please try again"
-msgstr ""
+msgstr "이메일 확인에 실패했습니다. 다시 시도하세요"
 
 #: modules/sharedaddy/sharing-sources.php:310
 msgid "Sorry, your blog cannot share posts by email."
-msgstr ""
+msgstr "죄송합니다. 귀하의 블로그에서 이메일로 글을 공유할 수 없습니다."
 
 #: modules/sharedaddy/sharing-sources.php:333
 msgid "Twitter"
-msgstr ""
+msgstr "트위터"
 
 #: modules/sharedaddy/sharing-sources.php:379
 msgctxt "share to"
 msgid "Twitter"
-msgstr ""
+msgstr "트위터"
 
 #: modules/sharedaddy/sharing-sources.php:379
 msgid "Click to share on Twitter"
-msgstr ""
+msgstr "트위터로 공유하기"
 
 #: modules/sharedaddy/sharing-sources.php:454
 msgid "StumbleUpon"
-msgstr ""
+msgstr "StumbleUpon"
 
 #: modules/sharedaddy/sharing-sources.php:465
 msgctxt "share to"
 msgid "StumbleUpon"
-msgstr ""
+msgstr "StumbleUpon"
 
 #: modules/sharedaddy/sharing-sources.php:465
 msgid "Click to share on StumbleUpon"
-msgstr ""
+msgstr "StumbleUpon으로 공유하기"
 
 #: modules/sharedaddy/sharing-sources.php:492
 #: modules/sharedaddy/sharing-sources.php:499
 msgid "Reddit"
-msgstr ""
+msgstr "Reddit"
 
 #: modules/sharedaddy/sharing-sources.php:499
 msgid "Click to share on Reddit"
-msgstr ""
+msgstr "Reddit으로 공유하기"
 
 #: modules/sharedaddy/sharing-sources.php:526
 msgid "Digg"
-msgstr ""
+msgstr "Digg"
 
 #: modules/sharedaddy/sharing-sources.php:535
 #: modules/sharedaddy/sharing-sources.php:538
 msgid "Click to Digg this post"
-msgstr ""
+msgstr "이 글 Digg하기"
 
 #: modules/sharedaddy/sharing-sources.php:538
 msgctxt "share to"
 msgid "Digg"
-msgstr ""
+msgstr "Digg"
 
 #: modules/sharedaddy/sharing-sources.php:582
 msgid "LinkedIn"
-msgstr ""
+msgstr "LinkedIn"
 
 #: modules/sharedaddy/sharing-sources.php:596
 msgctxt "share to"
 msgid "LinkedIn"
-msgstr ""
+msgstr "LinkedIn"
 
 #: modules/sharedaddy/sharing-sources.php:596
 msgid "Click to share on LinkedIn"
-msgstr ""
+msgstr "LinkedIn으로 공유하기"
 
 #: modules/sharedaddy/sharing-sources.php:659
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: modules/sharedaddy/sharing-sources.php:733
 msgctxt "share to"
 msgid "Facebook"
-msgstr ""
+msgstr "Facebook"
 
 #: modules/sharedaddy/sharing-sources.php:733
 msgid "Share on Facebook"
-msgstr ""
+msgstr "Facebook으로 공유하기"
 
 #: modules/sharedaddy/sharing-sources.php:764
 msgid "Print"
-msgstr ""
+msgstr "인쇄"
 
 #: modules/sharedaddy/sharing-sources.php:768
 msgctxt "share to"
 msgid "Print"
-msgstr ""
+msgstr "인쇄"
 
 #: modules/sharedaddy/sharing-sources.php:768
 msgid "Click to print"
-msgstr ""
+msgstr "인쇄하기"
 
 #: modules/sharedaddy/sharing-sources.php:784
 msgid "Press This"
-msgstr ""
+msgstr "끌어오기"
 
 #: modules/sharedaddy/sharing-sources.php:812
 msgctxt "share to"
 msgid "Press This"
-msgstr ""
+msgstr "WordPress.com"
 
 #: modules/sharedaddy/sharing-sources.php:812
 msgid "Click to Press This!"
-msgstr ""
+msgstr "클릭하여 Press This를 이용하세요!"
 
 #: modules/sharedaddy/sharing-sources.php:830
 msgid "Google"
-msgstr ""
+msgstr "구글"
 
 #: modules/sharedaddy/sharing-sources.php:843
 msgctxt "share to"
 msgid "Google"
-msgstr ""
+msgstr "구글"
 
 #: modules/sharedaddy/sharing-sources.php:843
 msgid "Click to share on Google+"
-msgstr ""
+msgstr "구글 +1에서 공유하려면 클릭하세요"
 
 #: modules/publicize/ui.php:194
 msgid "Are you sure you want to stop Publicizing posts to this connection?"
-msgstr ""
+msgstr "이 연결에 글 홍보하기를 중지하시겠습니까?"
 
 #: modules/publicize/ui.php:216
 msgid "Make this connection available to all users of this blog?"
-msgstr ""
+msgstr "해당 연결이 이 블로그의 모든 사용자에게 가능하게 할까요?"
 
 #: modules/publicize/ui.php:224
 msgid "There was a problem connecting to %s. Please disconnect and try again."
-msgstr ""
+msgstr "%s에 연결하는데 문제가 발생했습니다. 연결을 끊고 다시 해보세요."
 
 #: modules/publicize/ui.php:414
 msgid "Publicize:"
-msgstr ""
+msgstr "공개:"
 
 #: modules/publicize/ui.php:494
 msgctxt "Service: Account connected as"
 msgid "%1$s: %2$s"
-msgstr ""
+msgstr "%1$s: %2$s"
 
 #: modules/publicize/ui.php:529
 msgid "Custom Message:"
-msgstr ""
+msgstr "사용자 정의 메시지:"
 
 #: modules/publicize/ui.php:534 modules/publicize/ui.php:563
 #: modules/publicize/ui.php:565
 msgid "Hide"
-msgstr ""
+msgstr "숨기기"
 
 #: modules/publicize/ui.php:543
 msgid "Not Connected"
-msgstr ""
+msgstr "연결되지 않음"
 
 #: modules/publicize/ui.php:550
 msgid "Connect to"
-msgstr ""
+msgstr "다음에 연결"
 
 #: modules/publicize/ui.php:555
 msgid "Connect and share your posts on %s"
-msgstr ""
+msgstr "글을 %s에 연결하고 공유하기"
 
 #: modules/publicize/ui.php:578
 msgid "Show"
-msgstr ""
+msgstr "보기"
 
 #: modules/publicize.php:89
 msgctxt "word count: words or characters?"
 msgid "words"
-msgstr ""
+msgstr "단어들"
 
 #: modules/sharedaddy/sharedaddy.php:18
 msgid "Shared Post"
-msgstr ""
+msgstr "공유된 글"
 
 #: modules/sharedaddy/sharedaddy.php:114
 msgid "Disable CSS and JS"
-msgstr ""
+msgstr "CSS와 자바스크립트 비활성화"
 
 #: modules/sharedaddy/sharedaddy.php:116
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
-msgstr ""
+msgstr "고급. 이 옵션에 체크되면 공유 링크가 작동하기 위해서 테마에 이들 파일을 수동으로 추가해야합니다. "
 
 #: modules/sharedaddy/sharing-service.php:12
 msgid "Share this:"
-msgstr ""
+msgstr "이 글 공유하기:"
 
 #: modules/sharedaddy/sharing-service.php:551
 #: modules/sharedaddy/sharing.php:250 modules/sharedaddy/sharing.php:283
 msgid "More"
-msgstr ""
+msgstr "더"
 
 #: modules/sharedaddy/sharing-service.php:553
 #: modules/videopress/videopress.php:635
 msgid "Share"
-msgstr ""
+msgstr "공유"
 
 #: modules/sharedaddy/sharing-sources.php:200
 msgctxt "as sharing source"
 msgid "Email"
-msgstr ""
+msgstr "이메일"
 
 #: modules/sharedaddy/sharing-sources.php:242
 msgid "This post has been shared!"
-msgstr ""
+msgstr "이 글이 공유되었습니다!"
 
 #: modules/sharedaddy/sharing-sources.php:243
 msgid "You have shared this post with %s"
-msgstr ""
+msgstr "%s님과 이 글을 공유했습니다"
 
 #: modules/sharedaddy/sharing-sources.php:244
-#: modules/videopress/videopress.php:672 modules/wpcc/wpcc-sign-on.php:122
+#: modules/videopress/videopress.php:676 modules/wpcc/wpcc-sign-on.php:122
 msgid "Close"
-msgstr ""
+msgstr "닫기"
 
 #: modules/sharedaddy/sharing-sources.php:266
 msgctxt "share to"
 msgid "Email"
-msgstr ""
+msgstr "전자우편"
 
 #: modules/sharedaddy/sharing-sources.php:266
 msgid "Click to email this to a friend"
-msgstr ""
+msgstr "친구에게 전자우편으로 보내기"
 
 #: modules/sharedaddy/sharing-sources.php:279
 msgid "Send to Email Address"
-msgstr ""
+msgstr "이메일 주소로 전송"
 
 #: modules/sharedaddy/sharing-sources.php:287
 msgid "Your Name"
-msgstr ""
+msgstr "이름"
 
 #: modules/sharedaddy/sharing-sources.php:290
 msgid "Your Email Address"
-msgstr ""
+msgstr "귀하의 이메일 주소"
 
 #: modules/sharedaddy/sharing-sources.php:298
 msgid "Send Email"
-msgstr ""
+msgstr "이메일 전송"
 
 #: modules/post-by-email.php:116
 msgid "Regenerate Address"
-msgstr ""
+msgstr "주소 재생성하기"
 
 #: modules/post-by-email.php:117
 msgid "Disable Post By Email"
-msgstr ""
+msgstr "이메일 글 발행 비활성화"
 
 #: modules/post-by-email.php:125
 msgid "To use Post By Email, you need to link your %s account to your WordPress.com account."
-msgstr ""
+msgstr "이메일 글 발행을 사용하려면 %s 계정을 워드프레스닷컴 계정에 연결해야 합니다."
 
 #: modules/post-by-email.php:128 modules/publicize/publicize-jetpack.php:62
 msgid "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds."
-msgstr ""
+msgstr "아직 워드프레스닷컴 계정이 없다면 몇 초만에 무료로 등록할 수 있습니다. "
 
 #: modules/post-by-email.php:169 modules/post-by-email.php:178
 msgid "Unable to create your Post By Email address. Please try again later."
-msgstr ""
+msgstr "이메일 글 발행 주소를 생성할 수 없습니다. 나중에 다시 해보세요."
 
 #: modules/post-by-email.php:197 modules/post-by-email.php:206
 msgid "Unable to regenerate your Post By Email address. Please try again later."
-msgstr ""
+msgstr "이메일 글 발행 주소를 재생성 할 수 없습니다. 나중에 다시 해보세요."
 
 #: modules/post-by-email.php:225 modules/post-by-email.php:234
 msgid "Unable to disable your Post By Email address. Please try again later."
-msgstr ""
+msgstr "이메일 글 발행 주소를 비활성화 할 수 없습니다. 나중에 다시 해보세요."
 
 #: modules/publicize/publicize-jetpack.php:59
 msgid "To use Publicize, you'll need to link your %s account to your WordPress.com account using the button to the right."
-msgstr ""
+msgstr "홍보하기를 사용하려면 오른쪽에 있는 버튼을 사용해서 %s 계정을 워드프레스닷컴 계정에 연결해야 합니다."
 
 #: modules/publicize/publicize-jetpack.php:176
 msgid "There was a problem connecting to %s to create an authorized connection. Please try again in a moment."
-msgstr ""
+msgstr "인증된 연결을 생성하기 위해서 %s에 연결하는데 문제가 발생했습니다. 나중에 다시 해보세요."
 
 #: modules/publicize/publicize-jetpack.php:182
 msgid "An invalid request was made. This normally means that something intercepted or corrupted the request from your server to the Jetpack Server. Try again and see if it works this time."
-msgstr ""
+msgstr "유효하지 않은 리퀘스트가 발생했습니다. 이것은 보통 서버에서 젯팩 서버로의 리퀘스트가 무언가 방해됐거나 망가졌다는 것을 의미합니다. 다시 해보시고 이번에는 작동되는지 확인하세요."
 
 #: modules/publicize/publicize-jetpack.php:185
 msgid "We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server."
-msgstr ""
+msgstr "사용 중인 서버가 권한 있는 요청을 하고 있는지 인증 할 수 없습니다. 다시 시도해보고 서버에서 젯팩  서버로 리퀘스트 하는데 방해되는 것이 없는지 확인하세요."
 
 #: modules/publicize/publicize-jetpack.php:188
 msgid "No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Publicize again."
-msgstr ""
+msgstr "리퀘스트에 blog_id가 포함되지 않았습니다. 워드프레스닷컴의 젯팩을 연결을 끊고 다시 연결하세요. 그런 다음 홍보하기를 다시 연결하세요."
 
 #: modules/publicize/publicize-jetpack.php:191
 msgid "No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href=\"%s\">Jetpack page</a> within wp-admin."
-msgstr ""
+msgstr "리퀘스트에 사용자 정보가 포함되지 않았습니다. 사용자 계정이 젯팩에 연결됐는지 확인하세요. 관리자 화면의  <a href=\"%s\">젯팩 페이지</a>로 가서 사용자 계정을 연결하세요."
 
 #: modules/publicize/publicize-jetpack.php:194
 msgid "Something which should never happen, happened. Sorry about that. If you try again, maybe it will work."
-msgstr ""
+msgstr "발생하지 말아야할 것이 발생했습니다. 이점에 대해 죄송합니다. 다시 시도한다면 작동할 수도 있습니다."
 
 #: modules/publicize/publicize-jetpack.php:198
 msgid "There was a problem connecting with Publicize. Please try again in a moment."
-msgstr ""
+msgstr "홍보하기와 연결하는데 문제가 발생했습니다. 나중에 다시 해보세요."
 
 #: modules/publicize/publicize-jetpack.php:207
 msgid "Error code: %s"
-msgstr ""
+msgstr "에러 코드: %s"
 
 #: modules/publicize/publicize-jetpack.php:216
 msgid "That connection has been removed."
-msgstr ""
+msgstr "해당 연결은 제거됐습니다."
 
 #: modules/publicize/publicize-jetpack.php:381
 #: modules/publicize/publicize-jetpack.php:398
 #: modules/publicize/publicize-jetpack.php:521
 msgid "Publicize to my %s:"
-msgstr ""
+msgstr "나의 %s에게 홍보하기:"
 
 #: modules/publicize/publicize-jetpack.php:382
 msgid "Facebook Wall"
-msgstr ""
+msgstr "페이스북 월"
 
 #: modules/publicize/publicize-jetpack.php:399
 msgid "Facebook Page"
-msgstr ""
+msgstr "페이스북 페이지"
 
 #: modules/publicize/publicize-jetpack.php:522
 msgid "Tumblr blog"
-msgstr ""
+msgstr "텀블러 블로그"
 
 #: modules/publicize/publicize-jetpack.php:623
 msgid "Before you hit Publish, please refresh your connection to make sure we can Publicize your post:"
-msgstr ""
+msgstr "공개하기를 클릭하기 전에, 글을 홍보하기 할 수 있는지 확실히 하도록 연결을 새로고침 해주세요."
 
 #: modules/publicize/publicize-jetpack.php:633
 msgid "Refresh connection with %s"
-msgstr ""
+msgstr "%s 연결 새로고침"
 
 #: modules/publicize/ui.php:76
 msgid "You have successfully connected your blog with your %s account."
-msgstr ""
+msgstr "블로그를 %s 계정에 성공적으로 연결했습니다."
 
 #: modules/publicize/ui.php:82
 msgid "You have chosen not to connect your blog. Please click 'accept' when prompted if you wish to connect your accounts."
-msgstr ""
+msgstr "블로그에 연결하지 않기로 선택했습니다. 계정 연결을 원할 경우 창이 뜨면 'accept'를 클릭하세요."
 
 #: modules/publicize/ui.php:103
 msgid "Connect your blog to popular social networking sites and automatically share new posts with your friends."
-msgstr ""
+msgstr "블로그를 인기 있는 소셜 네트워크 사이트에 연결하고 친구들과 새 글을 자동으로 공유하세요."
 
 #: modules/publicize/ui.php:104
 msgid "You can make a connection for just yourself or for all users on your blog. Shared connections are marked with the (Shared) text."
-msgstr ""
+msgstr "자신 또는 블로그의 모든 사용자를 위해서 연결을 할 수 있습니다. 공유된 연결은 (공유됨) 글자로 표시됩니다."
 
 #: modules/publicize/ui.php:165
 msgid "Shared"
-msgstr ""
+msgstr "공유됨"
 
 #: modules/publicize/ui.php:181
 msgid "Add new %s connection."
-msgstr ""
+msgstr "새 %s 연결 추가."
 
 #: modules/module-info.php:855
 msgid "With WordPress.com Connect, your users will be able to log into your WordPress admin with the same credentials they use to log into WordPress.com.  It's safe and secure."
-msgstr ""
+msgstr "워드프레스닷컴 연결을 사용하면, 사이트 사용자는 워드프레스닷컴에 로그인할 때 사용하는 같은 인증서로 당신의 워드프레스 관리자로 로그인할 수 있습니다. 안전합니다."
 
 #: modules/module-info.php:856
 msgid "Once enabled, a \"Connect with WordPress.com\" option will be added to your existing log-in form."
-msgstr ""
+msgstr "활성화되면, \"워드프레스닷컴 연결\" 옵션이 기존의 로그인 폼에 추가됩니다."
 
 #: modules/module-info.php:872 modules/videopress/videopress.php:330
 msgid "VideoPress"
-msgstr ""
+msgstr "비디오프레스"
 
 #: modules/module-info.php:873
 msgid "With the VideoPress module you can easily upload videos to your WordPress site and embed them in your posts and pages. This module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
-msgstr ""
+msgstr "비디오프레스 모듈로 워드프레스 사이트에 비디오를 쉽게 업로드하고 글이나 페이지에 임베드할 수 있습니다. 이 모듈은 활성화된 <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">비디오프레스 구독</a>이 있는 워드프레스닷컴 계정을 필요로 합니다."
 
 #: modules/omnisearch/omnisearch-comments.php:17
 msgid "Search Comments"
-msgstr ""
+msgstr "댓글 검색"
 
 #: modules/omnisearch/omnisearch-comments.php:18
 #: modules/omnisearch/omnisearch-comments.php:27
 #: modules/widgets/rsslinks-widget.php:68
 #: modules/widgets/rsslinks-widget.php:136
 msgid "Comments"
-msgstr ""
+msgstr "답글"
 
 #: modules/omnisearch/omnisearch-core.php:85
 msgid "search everything"
-msgstr ""
+msgstr "모든 것을 검색합니다"
 
 #: modules/omnisearch/omnisearch-core.php:95
 msgid "Results:"
-msgstr ""
+msgstr "결과:"
 
 #: modules/omnisearch/omnisearch-core.php:96
 msgid "Jump to:"
-msgstr ""
+msgstr "바로 가기:"
 
 #: modules/omnisearch/omnisearch-core.php:107
 msgid "Back to Top &uarr;"
-msgstr ""
+msgstr "상단으로 돌아가기 &uarr;"
 
 #: modules/omnisearch/omnisearch-core.php:154
 msgid "Search Everything"
-msgstr ""
+msgstr "모두 검색"
 
 #: modules/omnisearch/omnisearch-media.php:16
 msgid "Search Media"
-msgstr ""
+msgstr "미디어 검색"
 
 #: modules/omnisearch/omnisearch-media.php:17
 #: modules/omnisearch/omnisearch-media.php:28
 msgid "Media"
-msgstr ""
+msgstr "미디어"
 
 #: modules/omnisearch/omnisearch-plugins.php:20
 msgid "Search Plugins"
-msgstr ""
+msgstr "플러그인 검색"
 
 #: modules/omnisearch/omnisearch-plugins.php:21
 #: modules/omnisearch/omnisearch-plugins.php:26
 msgid "Plugins"
-msgstr ""
+msgstr "플러그인"
 
 #: modules/omnisearch/omnisearch-plugins.php:23
 msgid "Loading &hellip;"
-msgstr ""
+msgstr "로드 중 &hellip;"
 
 #: modules/omnisearch/omnisearch-posts.php:44
 #: modules/widgets/facebook-likebox.php:124
 #: modules/widgets/gravatar-profile.php:174
 msgid "Title"
-msgstr ""
+msgstr "제목"
 
 #: modules/omnisearch/omnisearch-posts.php:45
 msgid "Snippet"
-msgstr ""
+msgstr "스니핏"
 
 #: modules/omnisearch/omnisearch-posts.php:75
 msgid "Unpublished"
-msgstr ""
+msgstr "미공개됨"
 
 #: modules/omnisearch/omnisearch-posts.php:78
 msgid "Y/m/d g:i:s A"
-msgstr ""
+msgstr "Y/m/d g:i:s A"
 
 #: modules/omnisearch/omnisearch-posts.php:85
 msgid "%s ago"
-msgstr ""
+msgstr "%s 전"
 
 #: modules/omnisearch/omnisearch-posts.php:87
 msgid "Y/m/d"
-msgstr ""
+msgstr "Y-m-d"
 
 #: modules/omnisearch/omnisearch-posts.php:93
 msgid "Published"
-msgstr ""
+msgstr "발행됨"
 
 #: modules/omnisearch/omnisearch-posts.php:96
 msgid "Missed schedule"
-msgstr ""
+msgstr "놓친 예약"
 
 #: modules/omnisearch/omnisearch-posts.php:98
 msgid "Scheduled"
-msgstr ""
+msgstr "예약됨"
 
 #: modules/omnisearch/omnisearch-posts.php:100
 msgid "Last Modified"
-msgstr ""
+msgstr "최종 수정일"
 
-#: modules/post-by-email.php:94 modules/subscriptions.php:612
+#: modules/post-by-email.php:94 modules/subscriptions.php:620
 msgid "Email Address"
-msgstr ""
+msgstr "전자 우편 주소"
 
 #: modules/post-by-email.php:109
 msgid "Enable Post By Email"
-msgstr ""
+msgstr "이메일 글 발행 활성화"
 
 #: modules/post-by-email.php:113
 #: modules/videopress/class.videopress-player.php:283
 msgid "More information"
-msgstr ""
+msgstr "추가 정보"
 
 #: modules/module-info.php:642
 msgid "With the Infinite Scroll module and a supported theme, that's exactly what happens. Instead of the old way of navigating down a page by scrolling and then clicking a link to get to the next page, waiting for a page refresh&mdash;the document model of the web&mdash;infinite scrolling pulls the next set of posts automatically into view when the reader approaches the bottom of the page, more like an application."
-msgstr ""
+msgstr "무한 스크롤 모듈과 지원 테마로 인해서 가능한 일입니다. 옛날 방식의 스크롤해서 페이지를 내리고 다음 페이지로 가기 위해 링크를 클릭하는 대신에 페이지가 새로고침 되기를 기다리는&mdash;웹의 문서 모델&mdash;무한 스크롤은 독자가 페이지의 하단에 이르렀을 때 다음 글들이 자동으로 나타나게 해서 앱처럼 보이게 합니다."
 
 #: modules/module-info.php:645
 msgid "At this time, your theme, %s, doesn't support Infinite Scroll. Unlike other Jetpack modules, Infinite Scroll needs information from your theme to function properly."
-msgstr ""
+msgstr "현재 테마, %s는 무한 스크롤을 지원하지 않습니다. 다른 젯팩 모듈과는 달리, 무한 스크롤은 제대로 작동하기 위해 테마로부터 오는 정보가 필요합니다."
 
 #: modules/module-info.php:647
 msgid "Until your theme supports Infinite Scroll, you won't be able to activate this module."
-msgstr ""
+msgstr "테마가 무한 스크롤을 지원하기 전에는 이 모듈을 활성화할 수 없습니다."
 
 #: modules/module-info.php:657
 msgid "There is an update available for your theme. You may wish to check if this update adds Infinite Scroll support by visiting the <a href=\"%s\">WordPress Updates</a> page."
-msgstr ""
+msgstr "테마 업데이트가 가능합니다. 해당 업데이트가 <a href=\"%s\">워드프레스 업데이트</a> 페이지를 방문해서 무한 스크롤 지원을 추가할 수 있다면 확인하고 싶을겁니다."
 
 #: modules/module-info.php:681 modules/module-info.php:684
 #: modules/post-by-email.php:91
 msgid "Post by Email"
-msgstr ""
+msgstr "이메일로 게시"
 
 #: modules/module-info.php:686
 msgid "Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones."
-msgstr ""
+msgstr "이메일 글 발행은 말 그대로 이메일을 통해서 블로그에 글을 발행하는 것입니다. 어떤 이메일이라도 이메일을 보내는데 사용할 수 있습니다. 휴대폰과 같은 기기에서 쉽고 빠르게 글을 발행하도록 합니다. "
 
 #: modules/module-info.php:690
 msgid "Manage your Post By Email address from your <a href=\"%s\">profile settings</a>."
-msgstr ""
+msgstr "<a href=\"%s\">프로필 설정</a>에서 이메일 글 발행을 관리하세요."
 
 #: modules/module-info.php:694
 msgid "More information on sending emails, attachments, and customizing your posts."
-msgstr ""
+msgstr "이메일 보내기, 첨부, 글 사용자 정의하기에 대한 더 많은 정보."
 
 #: modules/module-info.php:714
 msgid "Photon"
-msgstr ""
+msgstr "포톤"
 
 #: modules/module-info.php:716
 msgid "Give your site a boost by loading images in posts from the WordPress.com content delivery network. We cache your images and serve them from our super-fast network, reducing the burden on your Web host with the click of a button."
-msgstr ""
+msgstr "워드프레스닷컴의 컨텐트 전달 네트워크로부터 이미지를 글에 로드하는 서비스로 사이트에 힘을 주세요. 우리는 한번의 클릭으로 당신의 이미지를 저장하고 웹호스팅 서버의 부담을 줄여서 초스피드 네트워크에서 사진을 서비스합니다. "
 
 #: modules/module-info.php:735 modules/module-info.php:738
 #: modules/tiled-gallery/tiled-gallery.php:342
 msgid "Tiled Galleries"
-msgstr ""
+msgstr "타일 갤러리"
 
 #: modules/module-info.php:741
 msgid "Create elegant magazine-style mosaic layouts for your photos without having to use an external graphic editor."
-msgstr ""
+msgstr "외부 그래픽 에디터를 사용하지 않고 우아한 잡지 스타일의 모자이크 레이아웃 포토 갤러리를 만드세요."
 
 #: modules/module-info.php:742
 msgid "When adding a gallery to your post, you now have the option to select a layout style for your images. We've added support for Rectangular, Square, and Circular galleries. By default, galleries will continue to display using the standard thumbnail grid layout. To make the rectangular layout the default for all of your site's galleries, head over to <a href=\"%s\">Settings &rarr; Media</a> and check the box next to \"Display all your gallery pictures in a cool mosaic.\""
-msgstr ""
+msgstr "글에 갤러리를 추가할 때 이미지의 레이아웃 스타일을 선택할 수 있는 옵션이 있습니다. 직사각형, 정사각형, 원형 갤러리를 지원합니다. 갤러리는 기본적으로 표준 썸네일 그리드 레이아웃을 사용해서 표현합니다. 사이트의 갤러리를  직사각형의 기본적인 레이아웃으로 만들려면, <a href=\"%s\">설정 &rarr; 미디어</a> 로 가서 \"모든 갤러리 사진을 참신한 모자이크로 표시하기\" 옆에 있는 체크박스에 체크하세요."
 
 #: modules/module-info.php:743
 msgid "Note: Images in tiled galleries require extra-special processing, so they will be served from WordPress.com's CDN even if the Photon module is disabled."
-msgstr ""
+msgstr "주의: 타일된 갤러리의 이미지는 추가적으로 특별한 작업이 필요합니다. 그래야 Photon 모듈이 비활성화 되더라도 워드프레스닷컴의 CDN 에서 서비스를 받을 수 있습니다."
 
 #: modules/module-info.php:765
 msgid "Likes allow your readers to show their appreciation for your posts and other published content using their WordPress.com accounts. Your readers will then be able to review their liked posts from WordPress.com."
-msgstr ""
+msgstr "좋아요는 워드프레스닷컴 계정을 통해 독자가 글이나 다른 발행된 콘텐츠에 대한 감사를 표시할 수 있도록 합니다. 그러면 독자들은 워드프레스닷컴에서 좋아요 표시가 된 글을 리뷰할 수 있게 됩니다."
 
 #: modules/module-info.php:766
 msgid "Displayed below your posts will be how many people have liked your posts and the Gravatars of those who have liked them."
-msgstr ""
+msgstr "글 아래에 표시된 것은 얼마나 많은 사람들이 당신의 글을 좋아하는지 갯수와 독자들의 그라바타입니다."
 
 #: modules/module-info.php:768
 msgid "More information on using Likes."
-msgstr ""
+msgstr "좋아요 사용하기 더 많은 정보."
 
 #: modules/module-info.php:791
 msgid "The Google+ profile module allows you to connect your blog and Google+ accounts."
-msgstr ""
+msgstr "구글플러스 모듈은 블로그와 구글플러스 계정을 연결할 수 있도록 합니다."
 
 #: modules/module-info.php:792
 msgid "Displayed below your posts will be a link back to your Google+ profile and a Google+ follow button. A link will also be added to your Google+ profile."
-msgstr ""
+msgstr "글 아래 나타나는 것은 구글플러그 프로필과 구글플러스 팔로우 버튼으로 가는 링크입니다. 링크는 구글플러스 프로필에도 추가될 것입니다."
 
 #: modules/module-info.php:794
 msgid "More information on using Google+ Profile."
-msgstr ""
+msgstr "구글플러스 프로필 사용에 관한 더 많은 정보."
 
 #: modules/module-info.php:810 modules/omnisearch/omnisearch-core.php:59
 #: modules/omnisearch/omnisearch-core.php:64
 #: modules/omnisearch/omnisearch-core.php:85
 msgid "Omnisearch"
-msgstr ""
+msgstr "옴니서치"
 
 #: modules/module-info.php:812
 msgid "Search once, get results from everything! Currently supports searching posts, pages, comments, and plugins."
-msgstr ""
+msgstr "한번 검색에 모든 결과를 얻을 수 있습니다! 현재 지원되는 검색은 글, 페이지, 댓글, 플러그인입니다."
 
 #: modules/module-info.php:814
 msgid "Omnisearch plays nice with other plugins by letting other providers offer results as well."
-msgstr ""
+msgstr "옴니서치는 플러그인 제작자가 허용한다면 다른 플러그인과도 잘 작동됩니다. "
 
 #: modules/module-info.php:833
 msgid "Widget Visibility"
-msgstr ""
+msgstr "위젯 가시성"
 
 #: modules/module-info.php:835
 msgid "Control which pages your widgets appear on with Widget Visibility."
-msgstr ""
+msgstr "위젯이 어떤 페이지에 나타나게 할지 위젯 가시성으로 제어합니다."
 
 #: modules/module-info.php:836
 msgid "To control visibility, expand the widget and click the Visibility button next to the Save button, and then, choose a set of visibility options."
-msgstr ""
+msgstr "가시성을 제어하려면 위젯을 펼치고 저장하기 버튼 옆에 있는 가시성 버튼을 클릭하세요. 그런 다음 여러 개의 가시성 옵션을 선택하세요."
 
 #: modules/module-info.php:837
 msgid "For example, if you wanted the Archives widget to only appear on category archives and error pages, choose \"Show\" from the first dropdown and then add two rules: \"Page is 404 Error Page\" and \"Category is All Category Pages.\""
-msgstr ""
+msgstr "예를 들면, 글 보관함 위젯이 카테고리 글 보관함과 에러 페이지에만 나타나기를 원할 경우, 첫번째 드랍다운에서 \"보이기\"를 선택하고 난 다음 두가지 규칙을 추가합니다: \"페이지는 404 에러 페이지\"와 \"카테고리는 모든 카테고리 페이지\""
 
 #: modules/module-info.php:838
 msgid "You can also hide widgets based on the current page. For example, if you don't want the Archives widget to appear on search results pages, choose \"Hide\" and \"Page is Search results.\""
-msgstr ""
+msgstr "현재 페이지를 기준으로 위젯을 감출 수도 있습니다. 예를 들면, 검색 결과 페이지에 글 보관함 위젯이 나오기를 원치 않는다면 \"감추기\"와 \"페이지는 검색 결과\"를 선택하세요. "
 
 #: modules/module-info.php:853 modules/wpcc/wpcc-sign-on.php:84
 #: modules/wpcc/wpcc-sign-on.php:174
 msgid "WordPress.com Connect"
-msgstr ""
+msgstr "WordPress.com Connect"
 
 #: modules/module-info.php:429
 msgid "Easily allow any visitor to subscribe to all of your posts via email through a widget in your blog&#8217;s sidebar.  Every time you publish a post, WordPress.com will send a notification to all your subscribers."
-msgstr ""
+msgstr "방문자로 하여금 블로그의 사이드바에서 위젯을 통해 이메일로 모든 글에 구독할 수 있게 합니다. 글을 공개할 때마다 워드프레스닷컴은 독자들에게 알림을 보냅니다."
 
 #: modules/module-info.php:430
 msgid "When leaving comments, your visitors can also subscribe to a post&#8217;s comments to keep up with the conversation."
-msgstr ""
+msgstr "댓글이 있을 경우 방문자는 댓글에 참여할 수 있도록 구독할 수 있습니다."
 
 #: modules/module-info.php:435
 msgid "To use the Subscriptions widget, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away."
-msgstr ""
+msgstr "구독 위젯을 사용하려면 외모 &#8594; <a href=\"%s\">위젯</a>으로 가세요. &#8220;블로그 구독 (젯팩)&#8221;이라고 돼 있는 위젯을 끌어서 사이드바에 배치하고 환경설정합니다."
 
 #: modules/module-info.php:436
 msgid "You can also make changes to your Subscription settings at the bottom of the <a href=\"%s\">Discussion Settings</a> page."
-msgstr ""
+msgstr "<a href=\"%s\">토론 설정</a> 페이지의 하단에서 구독 설정을 변경할 수도 있습니다."
 
 #: modules/module-info.php:449
 msgid "Enhanced Distribution"
-msgstr ""
+msgstr "향상된 배포"
 
 #: modules/module-info.php:451
 msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
-msgstr ""
+msgstr "젯팩은 블로그나 사이트에서 발행된 콘텐츠를 자동으로 가져다가 검색엔진과 같은 제3자 서비스와 바로 공유하여 접근과 트래픽을 상승시킵니다."
 
 #: modules/module-info.php:466
 msgid "JSON API"
-msgstr ""
+msgstr "JSON API"
 
 #: modules/module-info.php:468
 msgid "Jetpack will allow you to authorize applications and services to securely connect to your blog and allow them to use your content in new ways and offer you new functionality."
-msgstr ""
+msgstr "젯팩은 앱과 서비스가 블로그에 안전하게 접속할 수 있도록 권한을 부여할 것입니다. 그리고 이들이 콘텐츠를 새로운 방법으로 사용하도록 허용하고 새로운 기능을 제공할 것입니다."
 
 #: modules/module-info.php:470
 msgid "Developers can use WordPress.com's <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> authentication system and <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> to manage and access your site's content."
-msgstr ""
+msgstr "개발자는 사이트 콘텐츠를 관리하고 접근하기 위해서 WordPress.com의 <a href='http://developer.wordpress.com/docs/oauth2/'>OAuth2</a> 인증 시스템과 <a href='http://developer.wordpress.com/docs/api/'>WordPress.com REST API</a> 를 사용할 수 있습니다."
 
 #: modules/module-info.php:498
 msgid "A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address."
-msgstr ""
+msgstr "연락 폼은 이메일 주소를 제공하지 않고 독자들에게 서로 연락할 수 있는 기능을 제공하는 훌륭한 방법입니다. "
 
 #: modules/module-info.php:501
 msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr ""
+msgstr "각 연락 폼은 필요에 따라서 쉽게 사용자 정의할 수 있습니다. 방문자가 연락 폼을 등록하면 피드백은 <a href=\"http://akismet.com/\">Akismet</a>을 통해 스팸을 제한하여 필터링 됩니다(사이트에 활성화돼 있을 경우). 정상적인 피드백은 이메일로 전달되고 피드백 관리 영역에 추가됩니다. "
 
 #: modules/module-info.php:518
 msgid "Jetpack Comments Screenshot"
-msgstr ""
+msgstr "젯팩 댓글 스크린샷"
 
 #: modules/module-info.php:523
 msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
-msgstr ""
+msgstr "젯팩 댓글은 방문자가 사이트에 댓글을 달 때 워드프레스닷컴, 트위터, 또는 페이스북을 사용하도록 합니다."
 
 #: modules/module-info.php:528
 msgid "Jetpack tries to match your site's color scheme automatically, but you can make manual adjustments at the bottom of the <a href='%s'>Discussion Settings</a> page."
-msgstr ""
+msgstr "젯팩은 사이트의 색상 구조를 자동으로 맞추기 위해 노력하지만 <a href='%s'>토론 설정</a> 페이지의 하단에서 수동으로 맞출 수 있습니다."
 
 #: modules/module-info.php:549
 msgid "Gallery Carousel Screenshot"
-msgstr ""
+msgstr "갤러리 캐러젤 스크린샷"
 
 #: modules/module-info.php:552 modules/widgets/gallery.php:334
 msgid "Carousel"
-msgstr ""
+msgstr "캐러젤"
 
 #: modules/module-info.php:554
 msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
-msgstr ""
+msgstr "캐러젤이 활성화 되면 글과 페이지에 워드프레스로 만든 표준 갤러리는 댓글과 EXIF 메타데이터가 있는 전체 화면으로 사진을 둘러볼 수 있는 최상의 경험을 제공합니다. "
 
 #: modules/module-info.php:567 modules/module-info.php:570
 msgid "Custom CSS"
-msgstr ""
+msgstr "사용자 정의 CSS"
 
 #: modules/module-info.php:571
 msgid "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing."
-msgstr ""
+msgstr "사용자 정의 CSS 편집기는 테마의 CSS에 추가하거나 교체할 수 있는 기능을 제공합니다. 코드의 색상화를 제공하고 자동 줄맞춤과 작성하는 CSS의 유효성을 즉시 피드백합니다."
 
 #: modules/module-info.php:572
 msgid "To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
-msgstr ""
+msgstr "CSS 편집기를 사용하려면 외모로 가세요 &#8594; <a href=\"%s\">CSS 편집</a>."
 
 #: modules/module-info.php:589 modules/module-info.php:592
 msgid "Mobile Theme"
-msgstr ""
+msgstr "모바일 테마"
 
 #: modules/module-info.php:593
 msgid "There's a good chance that visitors to your site will be using a smartphone, and it's important to provide them with a great reading experience while on the small screen."
-msgstr ""
+msgstr "사이트의 방문자가 스마트폰을 사용할 가능성이 많습니다. 그러니 작은 화면에서 보면서 글을 잘 읽은 수 있는 환경을 제공하는 것이 무엇보다 중요합니다."
 
 #: modules/module-info.php:594
 msgid "Jetpack's mobile theme is optimized for small screens. It uses the header image, background, and widgets from your current theme for a great custom look. Post format support is included, so your photos and galleries will look fantastic on a smartphone."
-msgstr ""
+msgstr "젯팩의 모바일 테마는 작은 화면에 최적화 됐습니다. 테마에서 헤더 이미지, 배경, 위젯을 사용하여 탁월한 비주얼 환경을 제공합니다. 글 형식 지원이 포함돼서 사진과 갤러리가 스마트폰에서 환상적으로 보입니다."
 
 #: modules/module-info.php:595
 msgid "Visitors on iPhone, Android, Windows Phone, and other mobile devices will automatically see the mobile theme, with the option to view the full site. You can enable or disable the mobile theme by clicking the \"Activate\" or \"Deactive\" button above."
-msgstr ""
+msgstr "아이폰, 안드로이드, 윈도우폰이나 다른 모바일 기기를 이용한 방문자는 자동으로  전체 사이트를 볼 수 있는 옵션이 있는 모바일용 테마를 보게 됩니다. "
 
 #: modules/module-info.php:611 modules/module-info.php:614
 msgid "Mobile Push Notifications"
-msgstr ""
+msgstr "모바일 푸시 알림"
 
 #: modules/module-info.php:616
 msgid "If you use <a href=\"%1$s\">WordPress for iOS</a> or <a href=\"%2$s\">WordPress for Android</a>, you’ll now be able to opt in to receive push notifications of new comments, which makes it easier than ever to keep up with your readers and moderate comments on the go."
-msgstr ""
+msgstr "<a href=\"%1$s\">iOS용 워드프레스</a> 또는 <a href=\"%2$s\">안드로이드용 워드프레스</a>를 사용 중인 경우, 이제 새 댓글 푸시 알림을 받을 수 있습니다. 이로 인해 독자와의 관계 유지와 댓글 검토 관리가 더욱 용이해졌습니다."
 
 #: modules/module-info.php:634
 msgid "If you are a theme author, you can learn about adding support for Infinite Scroll at <a href=\"%1$s\">%1$s</a>."
-msgstr ""
+msgstr "테마 디자이너라면 <a href=\"%1$s\">%1$s</a>에서 무한 스크롤 지원에 대해 더 배울 수 있습니다."
 
 #: modules/module-info.php:637
 msgid "Infinite Scroll"
-msgstr ""
+msgstr "무한 스크롤"
 
 #: modules/module-info.php:640
 msgid "When you write great content, all you really want is people to find it, right?"
-msgstr ""
+msgstr "굉장한 컨텐트를 작성했을 때 진정으로 원하는 것은 다른 사람들이 그것을 찾아주기를 원하는 것 맞죠?"
 
 #: modules/module-info.php:329
 msgid "Additionally you can define your own custom services."
-msgstr ""
+msgstr "추가로 자신만의 사용자 정의 서비스를 설정할 수 있습니다."
 
 #: modules/module-info.php:344
 msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
-msgstr ""
+msgstr "공유 설정을 하려면 설정 &rarr; <a href=\"%s\">공유</a> 메뉴로 갑니다."
 
 #: modules/module-info.php:345
 msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
-msgstr ""
+msgstr "공유 서비스를 끌어서 활성화 섹션에 놓으면 사이트에 나타납니다. 그리고 숨겨진 섹션에 끌어놓으면 더보기 버튼 뒤에 숨겨집니다."
 
 #: modules/module-info.php:351
 msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
-msgstr ""
+msgstr "전체 상세 정보는 <a href=\"%s\">공유 지원 페이지</a>에서 찾을 수 있습니다. 이 비디오는 공유 기능을 사용하는 방법을 짧게 소개합니다. HD로 즐길 수 있습니다."
 
 #: modules/module-info.php:366 modules/module-info.php:370
 msgid "Spelling and Grammar"
-msgstr ""
+msgstr "철자와 문법"
 
 #: modules/module-info.php:372
 msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
-msgstr ""
+msgstr "<a href='%s'>After&nbsp;the&nbsp;Deadline</a> 교정 서비스는 인공지능을 이용하여 에러를 찾아내고 올바른 제안을 해서 글 작성을 향상시킵니다(한글 안됨)."
 
 #: modules/module-info.php:373
 msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
-msgstr ""
+msgstr "After the Deadline은 많은 <a href=\"%s\">사용자 정의 옵션</a>을 제공하며 프로필에서 편집할 수 있습니다."
 
 #: modules/module-info.php:387 modules/module-info.php:401
 msgid "Widgets Screenshot"
-msgstr ""
+msgstr "위젯 스크린샷"
 
 #: modules/module-info.php:390 modules/module-info.php:404
 msgid "Extra Sidebar Widgets"
-msgstr ""
+msgstr "추가 사이드바 위젯"
 
 #: modules/module-info.php:392
 msgid "The RSS Links Widget "
-msgstr ""
+msgstr "RSS 링크 위젯"
 
 #: modules/module-info.php:392
 msgid "allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments."
-msgstr ""
+msgstr "사이드바에 있는 블로그의 글과 댓글 RSS 피드에 링크를 추가합니다. 새 글을 올리거나 새 댓글이 있을 경우 독자들에게 쉽게 업데이트 됩니다."
 
 #: modules/module-info.php:393
 msgid "The Twitter Widget "
-msgstr ""
+msgstr "트위터 위젯"
 
 #: modules/module-info.php:393
 msgid "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options."
-msgstr ""
+msgstr "테마의 사이드바에 있는 최근 트윗을 보여줍니다. 사이트의 더 많은 활동을 추가하는 쉬운 방법입니다.또한 많은 사용자 정의 옵션이 있습니다."
 
 #: modules/module-info.php:393
 msgid "The Facebook Like Box Widget "
-msgstr ""
+msgstr "페이스북 좋아요 박스 위젯"
 
 #: modules/module-info.php:393
 msgid "shows your Facebook Like Box within a sidebar on your theme. It&#8217;s a great way to let your readers show their support."
-msgstr ""
+msgstr "테마의 사이드바에 페이스북 좋아요 박스를 보여줍니다. 독자들의 지원을 보여주는 훌륭한 방법입니다."
 
 #: modules/module-info.php:393
 msgid "The Image Widget "
-msgstr ""
+msgstr "이미지 위젯"
 
 #: modules/module-info.php:393
 msgid "allows you to easily add images to widget areas in your theme. It&#8217;s an easy way to add more visual interest to your site."
-msgstr ""
+msgstr "테마의 위젯 영역에 이미지를 추가하는 쉬운 방법입니다. 사이트에 비주얼 효과를 더해주는 쉬운 방법입니다."
 
 #: modules/module-info.php:406
 msgid "The RSS Links Widget"
-msgstr ""
+msgstr "RSS 링크 위젯"
 
 #: modules/module-info.php:406
 msgid "lets you easily add post and comment RSS feeds to a sidebar on your theme."
-msgstr ""
+msgstr "테마의 사이드바에 글과 댓글 RSS 피드를 쉽게 추가할 수 있습니다."
 
 #: modules/module-info.php:407
 msgid "The Twitter Widget"
-msgstr ""
+msgstr "트위터 위젯"
 
 #: modules/module-info.php:407
 msgid "shows your latest tweets within a sidebar on your theme."
-msgstr ""
+msgstr "테마의 사이드바에 최근 트윗을 보여줍니다."
 
 #: modules/module-info.php:408
 msgid "The Facebook Like Box Widget"
-msgstr ""
+msgstr "페이스북 좋아요 박스 위젯"
 
 #: modules/module-info.php:408
 msgid "shows your Facebook Like Box within a sidebar on your theme."
-msgstr ""
+msgstr "테마에서 사이드바에 페이스북 좋아요 박스를 보여줍니다."
 
 #: modules/module-info.php:409
 msgid "The Image Widget"
-msgstr ""
+msgstr "이미지 위젯"
 
 #: modules/module-info.php:409
 msgid "lets you easily add images to a sidebar on your theme."
-msgstr ""
+msgstr "테마의 사이드바에 이미지 추가를 쉽게 합니다."
 
 #: modules/module-info.php:411
 msgid "Each of these widgets has a number of customization options."
-msgstr ""
+msgstr "이들 위젯은 다양한 사용자 정의 옵션이 있습니다."
 
 #: modules/module-info.php:411
 msgid "To use the widgets, go to Appearance &#8594; <a href=\"%s\">Widgets</a>. Drag them into one of your sidebars and configure away."
-msgstr ""
+msgstr "위젯을 사용하려면 외모 &#8594; <a href=\"%s\">위젯</a>으로 가세요. 사이드바로 끌어놓고 환경설정하세요. "
 
 #: modules/module-info.php:424
 msgid "Subsriptions Screenshot"
-msgstr ""
+msgstr "구독하기 스크린샷"
 
 #: modules/module-info.php:427
 msgid "Subscriptions"
-msgstr ""
+msgstr "구독"
 
 #: modules/module-info.php:75
 msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
-msgstr ""
+msgstr "호버카드를 보려면 블로그에서 댓글이 있는 글을 보세요. 댓글 작성자가 그라바타에 호버카드가 연결돼 있다면 이미지에 마우스를 올렸을 때 호버카드가 나타납니다. 호버카드를 끄려면 위의 비활성화 버튼을 클릭하세요."
 
 #: modules/module-info.php:90 modules/module-info.php:94
 #: modules/module-info.php:103 modules/module-info.php:107
 msgid "Shortcode Embeds"
-msgstr ""
+msgstr "숏코드 임베드"
 
 #: modules/module-info.php:95 modules/module-info.php:108
 msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
-msgstr ""
+msgstr "숏코드는 다른 사이트에서 사이트에 미디어를 쉽고 안전하게 임베드합니다. 단순한 하나의 코드만으로 워드프레스에 유투브, 플리커, 다른 미디어를 임베드할 수 있습니다."
 
 #: modules/module-info.php:109
 msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
-msgstr ""
+msgstr "미디어를 임베드하려면 글/페이지 편집기에 숏코드를 바로 입력하세요. 방법을 보려면 아래의 링크를 따라가세요."
 
 #: modules/module-info.php:132
 msgid "Available shortcodes are: %l."
-msgstr ""
+msgstr "가능한 숏코드는: %l."
 
 #: modules/module-info.php:147 modules/module-info.php:151
 #: modules/module-info.php:161 modules/module-info.php:165
 msgid "WP.me Shortlinks"
-msgstr ""
+msgstr "WP.me 짧은 링크"
 
 #: modules/module-info.php:152 modules/module-info.php:166
 msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
-msgstr ""
+msgstr "글자를 입력하거나 긴 URL을 복사 붙여넣기하는 대신에 숏코드로 글과 페이지에 간단하게 링크를 만들 수 있습니다. 아주 간단한 wp.me라는 도메인 이름을 사용하며 안전하고 신뢰성 있는 URL을 사용할 수 있습니다."
 
 #: modules/module-info.php:153
 msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
-msgstr ""
+msgstr "트위터, 페이스북 그리고 모든 글자가 중요한 휴대폰 문자 메시지 사용에 완벽합니다."
 
 #: modules/module-info.php:167
 msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
-msgstr ""
+msgstr "짧은 링크를 사용하려면 이미 발행된 글로 가세요(아니면 새로 발행하세요!). 글 제목아래 &#8220;짧은 링크 얻기&#8221; 버튼이 보일겁니다. 클릭하면 짧은 링크가 있는 박스가 나타나고 복사해서 트위터, 페이스북, 또는 원하는 곳에 붙여넣으세요."
 
 #: modules/module-info.php:182 modules/module-info.php:186
 #: modules/module-info.php:195 modules/module-info.php:199
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "WordPress.com 통계"
 
 #: modules/module-info.php:187 modules/module-info.php:200
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
-msgstr ""
+msgstr "통계를 제공하는 많은 플러그인과 서비스가 있지만 데이터가 방대합니다. 워드프레스닷컴의 통계는 가장 인기 있는 메트릭스를 사용하여 명확하고 매력적인 인터페이스를 통해 이해하기 쉽도록 합니다."
 
 #: modules/module-info.php:201
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
-msgstr ""
+msgstr "<a href=\"%s\">여기에서 통계 대시보드를 볼 수 있습니다</a>."
 
 #: modules/module-info.php:215 modules/module-info.php:219
 #: modules/publicize/ui.php:95
 msgid "Publicize"
-msgstr ""
+msgstr "공개"
 
 #: modules/module-info.php:220
 msgid "Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.\t You can make a connection for just yourself or for all users on your blog."
-msgstr ""
+msgstr "홍보하기는 블로그를 인기있는 소셜 네트워킹 사이트에 연결해서 자동으로 새로운 글을 친구들과 공유할 수 있게 합니다.→     자신만을 위해서나 블로그의 모든 사용자를 위해서 연결할 수 있습니다."
 
 #: modules/module-info.php:221
 msgid "Publicize allows you to share your posts on Facebook, Twitter, Tumblr, Yahoo!, and Linkedin."
-msgstr ""
+msgstr "홍보하기는 글을 페이스북, 트위터, 텀블러, 야후!, 링트인에서 공유할 수 있게 합니다."
 
 #: modules/module-info.php:225
 msgid "Manage your <a href=\"%s\">Publicize settings</a>."
-msgstr ""
+msgstr " <a href=\"%s\">홍보하기 설정</a> 관리하기"
 
 #: modules/module-info.php:229 modules/publicize/ui.php:114
 msgid "More information on using Publicize."
-msgstr ""
+msgstr "홍보하기 사용에 대한 더 많은 정보."
 
 #: modules/module-info.php:245 modules/module-info.php:249
 #: modules/module-info.php:258 modules/module-info.php:262
 #: modules/notes.php:159
 msgid "Notifications"
-msgstr ""
+msgstr "알림"
 
 #: modules/module-info.php:250 modules/module-info.php:263
 msgid "Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users."
-msgstr ""
+msgstr "자신의 모든 워드프레스 사이트에서 벌어지는 최근의 일들을 유지관리하고 다른 워드프레스닷컴 사용자와 관계를 가지세요."
 
 #: modules/module-info.php:264
 msgid "You can view your notifications in the Toolbar and <a href=\"%s\">on WordPress.com</a>."
-msgstr ""
+msgstr "툴바와 <a href=\"%s\">WordPress.com</a>에서 자신의 알림을 볼 수 있습니다."
 
 #: modules/module-info.php:279 modules/module-info.php:294
 msgid "LaTeX"
-msgstr ""
+msgstr "라텍스"
 
 #: modules/module-info.php:284 modules/module-info.php:299
 msgid "%s is a powerful markup language for writing complex mathematical equations, formulas, etc."
-msgstr ""
+msgstr "%s는 복잡한 수학 방정식, 공식, 기타를 쓸 수 있는 마크업 언어입니다. "
 
 #: modules/module-info.php:285
 msgid "Jetpack combines the power of %s and the simplicity of WordPress to give you the ultimate in math blogging platforms."
-msgstr ""
+msgstr "젯팩은 %s와 워드프레스의 단순함을 결합하여 최상의 수학 블로그 플랫폼을 제공합니다."
 
 #: modules/module-info.php:286
 msgid "Wow, that sounds nerdy."
-msgstr ""
+msgstr "와우, 머리가 아플려고 해요."
 
 #: modules/module-info.php:300
 msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
-msgstr ""
+msgstr "글과 댓글에 %s를 삽입하려면 <code>$latex 라텍스 코드를 여기에$</code> 또는 <code>[latex] 라텍스 코드를 여기에[/latex]</code>를 사용하세요. <a href=\"%s\" target=\"_blank\">모든 종류의 옵션</a>이 가능합니다."
 
 #: modules/module-info.php:319
 msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
-msgstr ""
+msgstr "글을 트위터, 페이스북, 다른 서비스와 공유하세요. 서비스를 아이콘, 글자, 또는 둘다 나타나게 설정할 수 있습니다. 어떤 서비스는 스마트 버튼을 표시하기 위해 추가 옵션이 있습니다. 예를 들면 트위터인데 글이 공유된 회수를 업데이트 합니다."
 
 #: modules/module-info.php:323
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr ""
+msgstr "다음 서비스가 포함됩니다: 트위터, 페이스북, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, 그리고 이메일입니다."
 
 #: modules/module-info.php:325
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr ""
+msgstr "다음 서비스가 포함됩니다: 트위터, 페이스북, Reddit, StumbleUpon,  Digg, LinkedIn, Google +1, Print, 그리고 이메일입니다."
 
 #: modules/minileven/theme/pub/minileven/index.php:27
 msgid "Yearly Archives: %s"
-msgstr ""
+msgstr "연간 보관물: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:29
 msgid "Posted in %s"
-msgstr ""
+msgstr "%s에 게시됨"
 
 #: modules/minileven/theme/pub/minileven/index.php:31
 msgid "Tagged with %s"
-msgstr ""
+msgstr "태그 %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:33
 msgid "Posted by"
-msgstr ""
+msgstr "게시자:"
 
 #: modules/minileven/theme/pub/minileven/index.php:35
 msgid "Blog Archives"
-msgstr ""
+msgstr "블로그 보관물"
 
 #: modules/minileven/theme/pub/minileven/index.php:43
 msgid "Search Results for: %s"
-msgstr ""
+msgstr "검색 결과: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:57
 msgid "Nothing Found"
-msgstr ""
+msgstr "찾지 못함"
 
 #: modules/minileven/theme/pub/minileven/index.php:61
 msgid "Apologies, but no results were found for the requested archive. Perhaps searching will help find a related post."
-msgstr ""
+msgstr "죄송합니다, 하지만 요청하신 보관물을 찾을 수 없습니다. 검색이 관련된 글을 찾는데 도움이 될 수도 있습니다."
 
 #: modules/minileven/theme/pub/minileven/searchform.php:9
 #: modules/minileven/theme/pub/minileven/searchform.php:10
 #: modules/minileven/theme/pub/minileven/searchform.php:11
 #: modules/omnisearch/omnisearch-core.php:156
 msgid "Search"
-msgstr ""
+msgstr "검색"
 
 #: modules/minileven.php:50
 msgid "Excerpts"
-msgstr ""
+msgstr "요약"
 
 #: modules/minileven.php:54
 msgid "Enable excerpts on front page and on archive pages"
-msgstr ""
+msgstr "전면 페이지와 글 보관함 페이지에 요약 활성화"
 
 #: modules/minileven.php:59
 msgid "Show full posts on front page and on archive pages"
-msgstr ""
+msgstr "전면 페이지와 글 보관함 페이지에 글 전체 보이기"
 
 #: modules/minileven.php:64
 msgid "Mobile App Promos"
-msgstr ""
+msgstr "모바일 앱 광고"
 
 #: modules/minileven.php:68
 msgid "Show a promo for the WordPress mobile apps in the footer of the mobile theme."
-msgstr ""
+msgstr "모바일 테마의 푸터에 워드프레스 모바일 앱 광고 보이기"
 
 #: modules/minileven.php:77
 msgid "Mobile Apps"
-msgstr ""
+msgstr "모바일 앱"
 
 #: modules/minileven.php:78
 msgid "Take WordPress with you."
-msgstr ""
+msgstr "WordPress를 이용하세요."
 
 #: modules/minileven.php:80
 msgid "We have apps for <a href=\"%s\">iOS (iPhone, iPad, iPod Touch)</a>, <a href=\"%s\">Android</a>, <a href=\"%s\">BlackBerry</a>, <a href=\"%s\">Windows Phone</a>, and <a href=\"%s\">more</a>!"
-msgstr ""
+msgstr "저희는 <a href=\"%s\">iOS(iPhone, iPad, iPod Touch)</a>, <a href=\"%s\">Android</a>, <a href=\"%s\">BlackBerry</a>, <a href=\"%s\">Windows Phone</a> <a href=\"%s\">등</a>에서 사용할 수 있는 앱을 제공합니다!"
 
 #: modules/module-info.php:22 modules/module-info.php:26
 msgid "VaultPress"
-msgstr ""
+msgstr "볼트프레스(VaultPress)"
 
 #: modules/module-info.php:28
 msgid "Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support."
-msgstr ""
+msgstr "설치한 워드프레스는 현재 세계적으로 가장 우수한 보안, 백업, 그리고 지원으로 보호되고 있습니다."
 
 #: modules/module-info.php:29
 msgctxt "Visit your _VaultPress_dashboard_."
 msgid "To check your backups, see any security alerts, or check your VaultPress Vitality, visit your %s."
-msgstr ""
+msgstr "백업을 점검하려면 보안 경고를 보거나, VaultPress Vitality를 점검하거나 %s를 방문하세요."
 
 #: modules/module-info.php:29
 msgid "VaultPress dashboard"
-msgstr ""
+msgstr "볼트프레스 대시보드"
 
 #: modules/module-info.php:31
 msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks."
-msgstr ""
+msgstr "월별 구독으로 VaultPress 플러그인은 사이트의 콘텐츠, 테마, 플러그인을 실시간으로 백업합니다. 뿐만 아니라 일반적인 위협이나 공격에 대비해 정기적인 보안 점검을 실시하고 있습니다."
 
 #: modules/module-info.php:32
 msgctxt "View _Plans_&_Pricing_. (VaultPress)"
 msgid "View %s."
-msgstr ""
+msgstr "%s 보기"
 
 #: modules/module-info.php:32
 msgid "Plans & Pricing"
-msgstr ""
+msgstr "계획 & 가격"
 
 #: modules/module-info.php:53 modules/module-info.php:68
 msgid "Gravatar Hovercard"
-msgstr ""
+msgstr "그라바타 호버카드"
 
 #: modules/module-info.php:58 modules/module-info.php:73
 msgid "What&#8217;s a Hovercard?"
-msgstr ""
+msgstr "호버카드가 무엇인가요?"
 
 #: modules/module-info.php:59
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services they use on the web like Twitter, Facebook, or LinkedIn."
-msgstr ""
+msgstr "호버카드는 단순한 그라바타 이미지에 사용자의 정보를 추가하여 향상시킵니다. 이름, 생일, 사진, 연락처, 그리고 웹에서 사용하는 트위터, 페이스북, 또는 링트인 서비스와 같은 정보를 포함합니다."
 
 #: modules/module-info.php:60
 msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
-msgstr ""
+msgstr "호버카드는 인터넷에 존재하고 있다는 것을 보여주는 훌륭한 방법이며 사람들이 블로그를 찾는데 도움을 줍니다. "
 
 #: modules/module-info.php:74
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
-msgstr ""
+msgstr "호버카드는 단순한 그라바타 이미지에 사용자의 정보를 추가하여 향상시킵니다. 이름, 생일, 사진, 연락처, 그리고 다른 서비스를 포함합니다."
 
 #: modules/minileven/theme/pub/minileven/content.php:28
 msgid "Posted by "
-msgstr ""
+msgstr "글쓴이"
 
 #: modules/minileven/theme/pub/minileven/content.php:30
 msgid "%s"
-msgstr ""
+msgstr "%s"
 
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "Leave a reply"
-msgstr ""
+msgstr "댓글 남기기"
 
 #: modules/minileven/theme/pub/minileven/content.php:59
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:19
 msgid "Post navigation"
-msgstr ""
+msgstr "글 네비게이션"
 
 #: modules/minileven/theme/pub/minileven/content.php:60
 #: modules/minileven/theme/pub/minileven/image.php:88
 msgid "&laquo; Previous"
-msgstr ""
+msgstr "&laquo; 이전"
 
 #: modules/minileven/theme/pub/minileven/content.php:61
 msgid "Next &raquo;"
-msgstr ""
+msgstr "다음 &raquo;"
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "http://wordpress.org/"
-msgstr ""
+msgstr "http://wordpress.org/"
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "Semantic Personal Publishing Platform"
-msgstr ""
+msgstr "시맨틱 개인 출판 플랫폼"
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "Proudly powered by %s"
-msgstr ""
+msgstr "Proudly powered by %s"
 
 #: modules/minileven/theme/pub/minileven/functions.php:59
 msgid "Primary Menu"
-msgstr ""
+msgstr "기본 메뉴"
 
 #: modules/minileven/theme/pub/minileven/functions.php:96
 msgctxt "Open Sans font: on or off"
 msgid "on"
-msgstr ""
+msgstr "끄기"
 
 #: modules/minileven/theme/pub/minileven/functions.php:102
 msgctxt "Open Sans font: add new subset (greek, cyrillic, vietnamese)"
 msgid "no-subset"
-msgstr ""
+msgstr "한글"
 
 #: modules/minileven/theme/pub/minileven/functions.php:128
 msgid "Main Sidebar"
-msgstr ""
+msgstr "메인 사이드바"
 
 #: modules/minileven/theme/pub/minileven/header.php:26
 msgid "Menu"
-msgstr ""
+msgstr "메뉴"
 
 #: modules/minileven/theme/pub/minileven/header.php:29
 msgid "Skip to primary content"
-msgstr ""
+msgstr "첫번째 컨텐츠로 뛰어넘기"
 
 #: modules/minileven/theme/pub/minileven/image.php:73
 msgid "<span class=\"entry-gallery\">&laquo; <a href=\"%1$s\" title=\"Back to %2$s\" rel=\"gallery\">Back to Gallery</a></span>"
-msgstr ""
+msgstr "<span class=\"entry-gallery\">&laquo; <a href=\"%1$s\" title=\"Back to %2$s\" rel=\"gallery\">갤러리로 돌아가기</a></span>"
 
 #: modules/minileven/theme/pub/minileven/image.php:87
 msgid "Image navigation"
-msgstr ""
+msgstr "이미지 네비게이션"
 
 #: modules/minileven/theme/pub/minileven/image.php:89
 msgid "Next &raquo; "
-msgstr ""
+msgstr "다음 &raquo; "
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:20
 msgid "<span class=\"meta-nav\">&laquo;</span> Older"
-msgstr ""
+msgstr "<span class=\"meta-nav\">&laquo;</span> 이전"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:21
 msgid "Newer <span class=\"meta-nav\">&raquo;</span>"
-msgstr ""
+msgstr "다음 <span class=\"meta-nav\">&raquo;</span>"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:38
 msgid "Pingback:"
-msgstr ""
+msgstr "핑백:"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:55
 msgid "%1$s on %2$s"
-msgstr ""
+msgstr "%2$s의 %1$s"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:61
 msgid "%1$s at %2$s"
-msgstr ""
+msgstr "%1$s %2$s"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:68
 msgid "Your comment is awaiting moderation."
-msgstr ""
+msgstr "당신의 댓글은 검토중입니다."
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:76
 msgid "Reply"
-msgstr ""
+msgstr "댓글달기"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:90
 msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
-msgstr ""
+msgstr "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
 
 #: modules/minileven/theme/pub/minileven/inc/tweaks.php:94
 msgid "Page %s"
-msgstr ""
+msgstr "페이지 %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:23
 msgid "Daily Archives: %s"
-msgstr ""
+msgstr "일간 보관물: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:25
 msgid "Monthly Archives: %s"
-msgstr ""
+msgstr "월간 보관물: %s"
 
 #: modules/likes.php:251
 msgid "Someone likes one of my posts"
-msgstr ""
+msgstr "누군가가 내 글 중 하나를 좋아합니다"
 
 #: modules/likes.php:270
 msgid "WordPress.com Likes are"
-msgstr ""
+msgstr "워드프레스닷컴 좋아요는"
 
 #: modules/likes.php:276
 msgid "On for all posts"
-msgstr ""
+msgstr "모든 글에 표시하기"
 
 #: modules/likes.php:282
 msgid "Turned on per post"
-msgstr ""
+msgstr "글별로 켜놓기"
 
 #: modules/likes.php:308 modules/sharedaddy/sharing.php:330
 msgid "Show buttons on"
-msgstr ""
+msgstr "다음에 버튼 표시:"
 
 #: modules/likes.php:317 modules/sharedaddy/sharing.php:336
 msgid "Front Page, Archive Pages, and Search Results"
-msgstr ""
+msgstr "프론트 페이지, 보관물 페이지 및 검색 결과"
 
 #: modules/likes.php:450 modules/sharedaddy/sharing.php:158
 msgid "Settings have been saved"
-msgstr ""
+msgstr "설정이 저장되었습니다"
 
 #: modules/likes.php:457 modules/sharedaddy/sharing.php:170
 msgid "Sharing Buttons"
-msgstr ""
+msgstr "공유 버튼"
 
 #: modules/likes.php:466 modules/sharedaddy/sharing.php:352
 msgid "Save Changes"
-msgstr ""
+msgstr "변경 사항 저장"
 
 #: modules/likes.php:616
 msgid "Like this:"
-msgstr ""
+msgstr "이것이 좋아요:"
 
 #: modules/likes.php:617
 msgid "Like"
-msgstr ""
+msgstr "좋아하기"
 
 #: modules/likes.php:617 modules/widget-visibility/widget-conditions.php:168
 msgid "Loading..."
-msgstr ""
+msgstr "가져오는 중..."
 
 #: modules/likes.php:709
 msgid "<span>%d</span> bloggers like this:"
-msgstr ""
+msgstr "<span>%d</span> 블로거가 이것을 좋아합니다:"
 
 #: modules/minileven/minileven.php:93
 msgid "View Mobile Site"
-msgstr ""
+msgstr "모바일 사이트 보기"
 
 #: modules/minileven/minileven.php:260
 msgid "Mobile-compatible:"
-msgstr ""
+msgstr "모바일-호환:"
 
 #: modules/minileven/minileven.php:261
 msgid "No"
-msgstr ""
+msgstr "아니오"
 
 #: modules/minileven/minileven.php:267 modules/minileven/minileven.php:318
 msgid "Include this CSS in the Mobile Theme"
-msgstr ""
+msgstr "이 CSS를 모바일 테마에 포함하기"
 
 #: modules/minileven/theme/pub/minileven/comments.php:15
 msgid "This post is password protected. Enter the password to view any comments."
-msgstr ""
+msgstr "이 글은 비밀글입니다. 댓글을 보기 위해 비밀번호를 입력하세요."
 
 #: modules/minileven/theme/pub/minileven/comments.php:45
 msgid "Comment navigation"
-msgstr ""
+msgstr "댓글 네비게이션"
 
 #: modules/minileven/theme/pub/minileven/comments.php:46
 msgid "&larr; Older Comments"
-msgstr ""
+msgstr "&larr; 예전 댓글"
 
 #: modules/minileven/theme/pub/minileven/comments.php:47
 msgid "Newer Comments &rarr;"
-msgstr ""
+msgstr "새로운 댓글 &rarr;"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:14
 #: modules/minileven/theme/pub/minileven/content-gallery.php:58
@@ -2760,253 +2786,253 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/content.php:18
 #: modules/minileven/theme/pub/minileven/content.php:22
 msgid "Permalink to %s"
-msgstr ""
+msgstr "%s 의 고유링크"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:15
 #: modules/widgets/gallery.php:26
 msgid "Gallery"
-msgstr ""
+msgstr "갤러리"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:21
 #: modules/minileven/theme/pub/minileven/content.php:41
 #: modules/minileven/theme/pub/minileven/inc/tweaks.php:30
 msgid "Continue reading <span class=\"meta-nav\">&rarr;</span>"
-msgstr ""
+msgstr "계속 읽기 <span class=\"meta-nav\">&rarr;</span>"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:57
 msgid "This gallery contains <a %1$s>%2$s photo</a>."
 msgid_plural "This gallery contains <a %1$s>%2$s photos</a>."
-msgstr[0] ""
+msgstr[0] "이 갤러리는 <a %1$s>%2$s 개의 사진을</a>포함하고 있습니다."
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:65
 #: modules/minileven/theme/pub/minileven/content.php:43
 #: modules/minileven/theme/pub/minileven/image.php:64
 #: modules/minileven/theme/pub/minileven/page.php:27
 msgid "Pages:"
-msgstr ""
+msgstr "페이지:"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "<b>1</b> Reply"
-msgstr ""
+msgstr "<b>1</b>개의 댓글"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "<b>%</b> Replies"
-msgstr ""
+msgstr "<b>%</b>개의 댓글"
 
 #: modules/minileven/theme/pub/minileven/content.php:19
 msgid "Featured"
-msgstr ""
+msgstr "추천"
 
 #: modules/gplus-authorship/admin/ui.php:125 modules/publicize/ui.php:168
 #: modules/publicize/ui.php:172
 msgid "Disconnect"
-msgstr ""
+msgstr "연결 끊기"
 
 #: modules/gplus-authorship/admin/ui.php:129
 msgid "Connect your WordPress account to Google+ to add this blog to your Google+ profile and improve the visibility of your blog posts on Google."
-msgstr ""
+msgstr "이 블로그를 구글플러스 프로필에 추가하고 블로그 글이 구글에서 가시성을 증가시키도록 하려면 워드프레스 계정을 구글플러스와 연결하세요."
 
 #: modules/gplus-authorship/admin/ui.php:131
 msgid "Need help?"
-msgstr ""
+msgstr "도움이 필요하신가요?"
 
 #: modules/gplus-authorship/admin/ui.php:147
 msgid "Your Google+ profile name and URL will be displayed in the sharing area of your posts."
-msgstr ""
+msgstr "구글플러스 프로필 이름과 URL이 글의 공유 영역에 보일 것입니다."
 
 #: modules/gplus-authorship/admin/ui.php:155 modules/wpcc/wpcc-sign-on.php:185
 msgid "Connected"
-msgstr ""
+msgstr "연결됨"
 
 #: modules/gplus-authorship/admin/ui.php:165 modules/gplus-authorship.php:191
 msgid "Google+"
-msgstr ""
+msgstr "구글플러스"
 
 #: modules/gplus-authorship/admin/ui.php:191
 msgid "Show Google+ infomation with this post"
-msgstr ""
+msgstr "이 글에 구글플러스 정보 보이기"
 
 #: modules/gplus-authorship.php:150
 msgid "on Google+"
-msgstr ""
+msgstr "구글플러스"
 
 #: modules/gravatar-hovercards.php:46 modules/module-info.php:57
 #: modules/module-info.php:72
 msgid "Gravatar Hovercards"
-msgstr ""
+msgstr "Gravatar 호버카드"
 
 #: modules/gravatar-hovercards.php:58
 msgid "View people's profiles when you mouse over their Gravatars"
-msgstr ""
+msgstr "Gravatar에 마우스를 올렸을 때 사용자의 프로필 보기"
 
 #: modules/gravatar-hovercards.php:85
 msgid "Put your mouse over your Gravatar to check out your profile."
-msgstr ""
+msgstr "Gravatar에 마우스를 올려 프로필을 확인하세요."
 
 #: modules/holiday-snow.php:19
 msgid "Snow"
-msgstr ""
+msgstr "눈"
 
 #: modules/holiday-snow.php:28
 msgid "Show falling snow on my blog until January 4<sup>th</sup>."
-msgstr ""
+msgstr "1월 4<sup></sup>일까지 내 블로그에 눈발을 표시합니다."
 
 #: modules/infinite-scroll/infinity.php:262
 msgid "To infinity and beyond"
-msgstr ""
+msgstr "무한"
 
 #: modules/infinite-scroll/infinity.php:271
 msgid "We've disabled this option for you since you have footer widgets in Appearance &rarr; Widgets, or because your theme does not support infinite scroll."
-msgstr ""
+msgstr "외모 &rarr; 위젯에서 푸터 위젯을 설정했거나 테마가 무한 스크롤을 지원하지 않으므로 해당 옵션을 비활성화 했습니다."
 
 #: modules/infinite-scroll/infinity.php:277
 msgid "Scroll Infinitely"
-msgstr ""
+msgstr "무한 스크롤"
 
 #: modules/infinite-scroll/infinity.php:277
 msgid "(Shows %s posts on each load)"
-msgstr ""
+msgstr "(새로고침 할 때 %s 글 보이기)"
 
 #: modules/infinite-scroll/infinity.php:478
 msgid "Older posts"
-msgstr ""
+msgstr "이전 글"
 
 #: modules/infinite-scroll/infinity.php:479
 msgid "Scroll back to top"
-msgstr ""
+msgstr "스크롤해서 다시 올라가기"
 
 #: modules/infinite-scroll/infinity.php:915
 msgid "Theme: %1$s."
-msgstr ""
+msgstr "테마: %1$s."
 
 #: modules/infinite-scroll.php:85
 msgid "Use Google Analytics with Infinite Scroll"
-msgstr ""
+msgstr "무한 스크롤에서 구글 애널리틱스 사용하기"
 
 #: modules/infinite-scroll.php:96
 msgid "Track each Infinite Scroll post load as a page view in Google Analytics"
-msgstr ""
+msgstr "각 무한 스크롤 글 보기를 구글 애널리틱스에서 페이지 뷰로 추적하기"
 
 #: modules/infinite-scroll.php:96
 msgid "By checking the box above, each new set of posts loaded via Infinite Scroll will be recorded as a page view in Google Analytics."
-msgstr ""
+msgstr "위의 박스를 체크하면 무한 스크롤을 통해 나타난 각 새로운 글들이 구글 애널리틱스에서 페이지 뷰로 기록됩니다."
 
 #: modules/likes.php:112
 msgid "Likes and Shares"
-msgstr ""
+msgstr "좋아요 및 공유"
 
 #: modules/likes.php:123 modules/likes.php:581 modules/module-info.php:759
 #: modules/module-info.php:763
 msgid "Likes"
-msgstr ""
+msgstr "좋아요"
 
 #: modules/likes.php:183
 msgid "Show likes."
-msgstr ""
+msgstr "좋아요 보여주기."
 
 #: modules/likes.php:199 modules/sharedaddy/sharedaddy.php:37
 msgid "Show sharing buttons."
-msgstr ""
+msgstr "공유 버튼 보이기"
 
 #: modules/likes.php:211
 msgid "Likes Notifications"
-msgstr ""
+msgstr "좋아요 알림"
 
 #: modules/likes.php:212
 msgid "Email me whenever"
-msgstr ""
+msgstr "아무 때나 우편받기"
 
 #: modules/custom-post-types/testimonial.php:65
 msgid "Search Testimonials"
-msgstr ""
+msgstr "추천 글 검색"
 
 #: modules/custom-post-types/testimonial.php:66
 msgid "No Testimonials found"
-msgstr ""
+msgstr "추천 글을 찾을 수 없습니다"
 
 #: modules/custom-post-types/testimonial.php:67
 msgid "No Testimonials found in Trash"
-msgstr ""
+msgstr "휴지통에서 추천 글을 찾을 수 없습니다"
 
 #: modules/custom-post-types/testimonial.php:98
 msgid "Enter the customer's name here"
-msgstr ""
+msgstr "고객의 이름을 여기에 입력하세요"
 
 #: modules/custom-post-types/testimonial.php:107
 msgid "Customer Name"
-msgstr ""
+msgstr "고객 이름"
 
 #: modules/custom-post-types/testimonial.php:120
 msgid "Testimonial updated. <a href=\"%s\">View testimonial</a>"
-msgstr ""
+msgstr "추천 글 업데이트됨. <a href=\"%s\">추천 글 보기</a>"
 
 #: modules/custom-post-types/testimonial.php:123
 msgid "Testimonial updated."
-msgstr ""
+msgstr "추천 글 업데이트됨. "
 
 #: modules/custom-post-types/testimonial.php:125
 msgid "Testimonial restored to revision from %s"
-msgstr ""
+msgstr "추천 글이 %s에서 리비전으로 복구됐습니다"
 
 #: modules/custom-post-types/testimonial.php:126
 msgid "Testimonial published. <a href=\"%s\">View testimonial</a>"
-msgstr ""
+msgstr "추천 글이 발행됐습니다. <a href=\"%s\">추천 글 보기</a>"
 
 #: modules/custom-post-types/testimonial.php:127
 msgid "Testimonial saved."
-msgstr ""
+msgstr "추천 글이 저장됐습니다."
 
 #: modules/custom-post-types/testimonial.php:128
 msgid "Testimonial submitted. <a target=\"_blank\" href=\"%s\">Preview testimonial</a>"
-msgstr ""
+msgstr "추천 글이 제출됐습니다. <a target=\"_blank\" href=\"%s\">추천 글 미리보기</a>"
 
 #: modules/custom-post-types/testimonial.php:129
 msgid "Testimonial scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview testimonial</a>"
-msgstr ""
+msgstr "추천 글 예약: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">추천 글 미리보기</a>"
 
 #: modules/custom-post-types/testimonial.php:132
 msgid "Testimonial draft updated. <a target=\"_blank\" href=\"%s\">Preview testimonial</a>"
-msgstr ""
+msgstr "추천 임시글 업데이트됨. <a target=\"_blank\" href=\"%s\">추천 글 미리보기</a>"
 
 #: modules/custom-post-types/testimonial.php:168
 msgid "Customize Testimonials Archive"
-msgstr ""
+msgstr "추천 글 보관함 사용자 정의"
 
 #: modules/custom-post-types/testimonial.php:169
 msgid "Customize"
-msgstr ""
+msgstr "사용자 정의하기"
 
 #: modules/custom-post-types/testimonial.php:193
 msgid "Testimonial Page Title"
-msgstr ""
+msgstr "추천 글 페이지 제목"
 
 #: modules/custom-post-types/testimonial.php:205
 msgid "Testimonial Page Content"
-msgstr ""
+msgstr "추천 글 페이지 내용"
 
 #: modules/custom-post-types/testimonial.php:216
 msgid "Testimonial Page Featured Image"
-msgstr ""
+msgstr "추천 글 페이지 특성 이미지"
 
 #: modules/featured-content/featured-content.php:324
 msgid "Featured content"
-msgstr ""
+msgstr "특성 콘텐츠"
 
 #: modules/featured-content/featured-content.php:343
 msgid "Tag name:"
-msgstr ""
+msgstr "태그 이름:"
 
 #: modules/featured-content/featured-content.php:348
 msgid "Number of posts:"
-msgstr ""
+msgstr "글의 수:"
 
 #: modules/featured-content/featured-content.php:353
 msgid "Hide tag from displaying in post meta and tag clouds."
-msgstr ""
+msgstr "글 메타와 태그 클라우드에 태그를 감추기."
 
 #: modules/gplus-authorship/admin/ui.php:54
 #: modules/gplus-authorship/admin/ui.php:65 modules/likes.php:427
@@ -3014,115 +3040,115 @@ msgstr ""
 #: modules/publicize/ui.php:45 modules/sharedaddy/sharing.php:57
 #: modules/sharedaddy/sharing.php:163
 msgid "Sharing Settings"
-msgstr ""
+msgstr "공유 설정"
 
 #: modules/gplus-authorship/admin/ui.php:54 modules/likes.php:427
 #: modules/module-info.php:315 modules/module-info.php:318
 #: modules/module-info.php:339 modules/publicize/ui.php:35
 #: modules/sharedaddy/sharedaddy.php:23 modules/sharedaddy/sharing.php:57
 msgid "Sharing"
-msgstr ""
+msgstr "공유"
 
 #: modules/gplus-authorship/admin/ui.php:79
 msgid "Your Google+ account has been connected."
-msgstr ""
+msgstr "구글플러스 계정이 연결됐습니다."
 
 #: modules/gplus-authorship/admin/ui.php:80
 msgid "There was a problem connecting your Google+ account. Please try again."
-msgstr ""
+msgstr "구글플러스 계정을 연결하는데 문제가 있습니다. 다시 해주세요."
 
 #: modules/gplus-authorship/admin/ui.php:81
 msgid "You must click 'Accept' in the Google+ dialog to connect your account."
-msgstr ""
+msgstr "계정을 연결하려면 구글플러스 창에서 Accept를 클릭해야 합니다."
 
 #: modules/gplus-authorship/admin/ui.php:113 modules/module-info.php:785
 #: modules/module-info.php:789
 msgid "Google+ Profile"
-msgstr ""
+msgstr "구글플러스 프로필"
 
 #: modules/custom-post-types/comics.php:200
 #: modules/custom-post-types/testimonial.php:60
 msgid "Add New"
-msgstr ""
+msgstr "새로 추가"
 
 #: modules/custom-post-types/comics.php:201
 msgid "Add New Comic"
-msgstr ""
+msgstr "새 코믹 추가하기"
 
 #: modules/custom-post-types/comics.php:202
 msgid "Edit Comic"
-msgstr ""
+msgstr "코믹 편집"
 
 #: modules/custom-post-types/comics.php:203
 msgid "New Comic"
-msgstr ""
+msgstr "새 코믹"
 
 #: modules/custom-post-types/comics.php:204
 msgid "View Comic"
-msgstr ""
+msgstr "코믹 보기"
 
 #: modules/custom-post-types/comics.php:205
 msgid "Search Comics"
-msgstr ""
+msgstr "코믹 검색"
 
 #: modules/custom-post-types/comics.php:206
 msgid "No Comics found"
-msgstr ""
+msgstr "코믹을 찾을 수 없습니다"
 
 #: modules/custom-post-types/comics.php:207
 msgid "No Comics found in Trash"
-msgstr ""
+msgstr "휴지통에서 코믹을 찾을 수 없습니다"
 
 #: modules/custom-post-types/comics.php:276
 msgid "Comic updated. <a href=\"%s\">View comic</a>"
-msgstr ""
+msgstr "코믹이 업데이트됐습니다. <a href=\"%s\">코믹 보기</a>"
 
 #: modules/custom-post-types/comics.php:277
 #: modules/custom-post-types/testimonial.php:121
 msgid "Custom field updated."
-msgstr ""
+msgstr "사용자 정의 필드가 업데이트 되었습니다."
 
 #: modules/custom-post-types/comics.php:278
 #: modules/custom-post-types/testimonial.php:122
 msgid "Custom field deleted."
-msgstr ""
+msgstr "사용자 정의 필드가 삭제되었습니다."
 
 #: modules/custom-post-types/comics.php:279
 msgid "Comic updated."
-msgstr ""
+msgstr "코믹이 업데이트됐습니다. "
 
 #: modules/custom-post-types/comics.php:281
 msgid "Comic restored to revision from %s"
-msgstr ""
+msgstr "코믹이 %s에서 리비전으로 복구됐습니다"
 
 #: modules/custom-post-types/comics.php:282
 msgid "Comic published. <a href=\"%s\">View comic</a>"
-msgstr ""
+msgstr "코믹이 발행됐습니다. <a href=\"%s\">코믹 보기</a>"
 
 #: modules/custom-post-types/comics.php:283
 msgid "Comic saved."
-msgstr ""
+msgstr "코믹이 저장됐습니다."
 
 #: modules/custom-post-types/comics.php:284
 msgid "Comic submitted. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
-msgstr ""
+msgstr "코믹이 제출됐습니다. <a target=\"_blank\" href=\"%s\">코믹 미리보기</a>"
 
 #: modules/custom-post-types/comics.php:285
 msgid "Comic scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview comic</a>"
-msgstr ""
+msgstr "코믹 예약: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">코믹 미리보기</a>"
 
 #: modules/custom-post-types/comics.php:287
 #: modules/custom-post-types/testimonial.php:131
 msgid "M j, Y @ G:i"
-msgstr ""
+msgstr "Y-m-d g:i a"
 
 #: modules/custom-post-types/comics.php:288
 msgid "Comic draft updated. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
-msgstr ""
+msgstr "코믹 임시글 업데이트됨. <a target=\"_blank\" href=\"%s\">코믹 미리보기</a>"
 
 #: modules/custom-post-types/comics.php:349
 msgid "Invalid or expired nonce."
-msgstr ""
+msgstr "유효하지 않거나 만료된 용어"
 
 #: modules/custom-post-types/comics.php:458
 msgid ""
@@ -3135,41 +3161,49 @@ msgid ""
 "Lots of laughs,\n"
 "The WordPress.com Team"
 msgstr ""
+"환영합니다. 첫번째 웹툰을 발행할 준비가 됐나요?\n"
+"\n"
+"웹코믹 새로운 사이트를 시작할 준비가 됐습니다. 독자들이 뭔지 알 수 있도록 <a href=\"BLOG_URLwp-admin/customize.php#title\">코믹 제목 및 태그라인 설정</a>부터 시작하세요.\n"
+"\n"
+"사이트 설정에 대해 도움이 필요하신가요? 워드프레스닷컴에서 <a href=\"http://learn.wordpress.com/\">초보자 가이드</a>와 <a href=\"http://en.support.wordpress.com/comics/\">워드프레스닷컴 코믹 가이드</a>를 참고하세요. <a href=\"BLOG_URLwp-admin/customize.php#title\">첫번째 웹툰을 발행해서</a> 바로 시작하세요!\n"
+"\n"
+"ㅎㅎㅎ,\n"
+"워드프레스닷컴 팀"
 
 #: modules/custom-post-types/testimonial.php:54
 msgid "Customer Testimonials"
-msgstr ""
+msgstr "고객 추천 글"
 
 #: modules/custom-post-types/testimonial.php:56
 #: modules/custom-post-types/testimonial.php:58
 #: modules/custom-post-types/testimonial.php:182
 #: modules/custom-post-types/testimonial.php:187
 msgid "Testimonials"
-msgstr ""
+msgstr "추천 글"
 
 #: modules/custom-post-types/testimonial.php:57
 msgid "Testimonial"
-msgstr ""
+msgstr "추천 글"
 
 #: modules/custom-post-types/testimonial.php:59
 msgid "All Testimonials"
-msgstr ""
+msgstr "모든 추천 글"
 
 #: modules/custom-post-types/testimonial.php:61
 msgid "Add New Testimonial"
-msgstr ""
+msgstr "새 추천 글 추가"
 
 #: modules/custom-post-types/testimonial.php:62
 msgid "Edit Testimonial"
-msgstr ""
+msgstr "추천 글 편집"
 
 #: modules/custom-post-types/testimonial.php:63
 msgid "New Testimonial"
-msgstr ""
+msgstr "새 추천 글"
 
 #: modules/custom-post-types/testimonial.php:64
 msgid "View Testimonial"
-msgstr ""
+msgstr "추천 글 보기"
 
 #: modules/custom-css/custom-css.php:747 modules/custom-css/custom-css.php:842
 #: modules/custom-css/custom-css.php:872 modules/minileven/minileven.php:262
@@ -3179,194 +3213,194 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/page.php:31
 #: modules/publicize/ui.php:576
 msgid "Edit"
-msgstr ""
+msgstr "편집"
 
 #: modules/custom-css/custom-css.php:754
 msgid "Limit width to %1$s pixels for videos, full size images, and other shortcodes. (<a href=\"%2$s\">More info</a>.)"
-msgstr ""
+msgstr "비디오, 전체 폭 이미지, 다른 숏코드에 대해서는 %1$s 픽셀로 폭을 제한하세요. (<a href=\"%2$s\">더 알아보기</a>.)"
 
 #: modules/custom-css/custom-css.php:770
 msgid "The default content width for the %s theme is %d pixels."
-msgstr ""
+msgstr "%s 테마의 기본 컨텐츠 폭은 %d픽셀입니다."
 
 #: modules/custom-css/custom-css.php:775 modules/custom-css/custom-css.php:857
 #: modules/custom-css/custom-css.php:886 modules/minileven/minileven.php:270
 #: modules/publicize/publicize-jetpack.php:429
 #: modules/publicize/publicize-jetpack.php:541 modules/publicize/ui.php:245
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: modules/custom-css/custom-css.php:776 modules/custom-css/custom-css.php:858
 #: modules/custom-css/custom-css.php:887 modules/minileven/minileven.php:271
 #: modules/sharedaddy/sharing-sources.php:299
 msgid "Cancel"
-msgstr ""
+msgstr "취소"
 
 #: modules/custom-css/custom-css.php:840
 msgid "Preprocessor:"
-msgstr ""
+msgstr "프리 프로세서:"
 
 #: modules/custom-css/custom-css.php:841 modules/custom-css/custom-css.php:846
 #: modules/videopress/videopress.php:273 modules/widgets/image-widget.php:124
 msgid "None"
-msgstr ""
+msgstr "없음"
 
 #: modules/custom-css/custom-css.php:870
 msgid "Mode:"
-msgstr ""
+msgstr "모드:"
 
 #: modules/custom-css/custom-css.php:871
 msgid "Add-on"
-msgstr ""
+msgstr "애드온"
 
 #: modules/custom-css/custom-css.php:871
 msgid "Replacement"
-msgstr ""
+msgstr "대체"
 
 #: modules/custom-css/custom-css.php:878
 msgid "Add-on CSS <b>(Recommended)</b>"
-msgstr ""
+msgstr "애드온 CSS <b>(추천됨)</b>"
 
 #: modules/custom-css/custom-css.php:883
 msgid "Replace <a href=\"%s\">theme's CSS</a> <b>(Advanced)</b>"
-msgstr ""
+msgstr "교체 <a href=\"%s\">테마의 CSS</a> <b>(고급)</b>"
 
 #: modules/custom-css/custom-css.php:894
 #: modules/custom-post-types/comics.php:238
 #: modules/videopress/videopress.php:662
 msgid "Preview"
-msgstr ""
+msgstr "미리보기"
 
 #: modules/custom-css/custom-css.php:896
 msgid "Save &amp; Buy Upgrade"
-msgstr ""
+msgstr "저장 &amp; 업그레이드 구매하기"
 
 #: modules/custom-css/custom-css.php:896
 msgid "Save Stylesheet"
-msgstr ""
+msgstr "스타일시트 저장"
 
 #: modules/custom-css/custom-css.php:958
 msgid "Show more"
-msgstr ""
+msgstr "더 보기"
 
 #: modules/custom-post-types/comics.php:86
 msgid "Convert to Comic"
-msgstr ""
+msgstr "코믹으로 변환하기"
 
 #: modules/custom-post-types/comics.php:92
 msgid "Convert to Post"
-msgstr ""
+msgstr "글로 변환하기"
 
 #: modules/custom-post-types/comics.php:116
 msgid "You are not allowed to make this change."
-msgstr ""
+msgstr "이것을 변경할 권한이 없습니다."
 
 #: modules/custom-post-types/comics.php:163
 msgid "Post converted."
 msgid_plural "%s posts converted"
-msgstr[0] ""
+msgstr[0] "글이 변환됐습니다."
 
 #: modules/custom-post-types/comics.php:176
 msgid "Drop images to upload"
-msgstr ""
+msgstr "업로드 하려면 이미지를 올려놓으세요"
 
 #: modules/custom-post-types/comics.php:177
 msgid "Uploading..."
-msgstr ""
+msgstr "업로드 중..."
 
 #: modules/custom-post-types/comics.php:178
 msgid "Processing..."
-msgstr ""
+msgstr "처리 중..."
 
 #: modules/custom-post-types/comics.php:179
 msgid "Sorry, your browser isn't supported. Upgrade at browsehappy.com."
-msgstr ""
+msgstr "죄송합니다. 브라우저가 지원하지 않습니다. browsehappy.com에서 업그레이드 하세요."
 
 #: modules/custom-post-types/comics.php:180
 msgid "Only images can be uploaded here."
-msgstr ""
+msgstr "여기에는 이미지만 업로드할 수 있습니다."
 
 #: modules/custom-post-types/comics.php:181
 msgid "Your upload didn't complete; try again later or cross your fingers and try again right now."
-msgstr ""
+msgstr "업로드가 완료되지 않았습니다; 나중에 다시 하거나 성공을 기원하며 지금 다시 해보세요."
 
 #: modules/custom-post-types/comics.php:194
 #: modules/custom-post-types/comics.php:196
 #: modules/custom-post-types/comics.php:198
 msgid "Comics"
-msgstr ""
+msgstr "코믹"
 
 #: modules/custom-post-types/comics.php:197
 msgid "Comic"
-msgstr ""
+msgstr "코믹"
 
 #: modules/custom-post-types/comics.php:199
 msgid "All Comics"
-msgstr ""
+msgstr "모든 코믹"
 
 #: modules/contact-form/grunion-form-view.php:154
 msgid "Drop down"
-msgstr ""
+msgstr "드랍다운"
 
 #: modules/contact-form/grunion-form-view.php:157
 msgid "Radio"
-msgstr ""
+msgstr "라디오버튼"
 
 #: modules/contact-form/grunion-form-view.php:158
 msgid "Text"
-msgstr ""
+msgstr "텍스트"
 
 #: modules/contact-form/grunion-form-view.php:159
 msgid "Textarea"
-msgstr ""
+msgstr "긴 글자 박스"
 
 #: modules/contact-form/grunion-form-view.php:166
 msgid "Options"
-msgstr ""
+msgstr "옵션"
 
 #: modules/contact-form/grunion-form-view.php:167
 msgid "First option"
-msgstr ""
+msgstr "첫 번째 옵션"
 
 #: modules/contact-form/grunion-form-view.php:170
 msgid "Add another option"
-msgstr ""
+msgstr "다른 옵션 추가하기"
 
 #: modules/contact-form/grunion-form-view.php:177
 msgid "Required?"
-msgstr ""
+msgstr "필수인가요?"
 
 #: modules/contact-form/grunion-form-view.php:182
 msgid "Save this field"
-msgstr ""
+msgstr "이 필드 저장하기"
 
 #: modules/contact-form/grunion-form-view.php:187
 msgid "Here&#8217;s what your form will look like"
-msgstr ""
+msgstr "이것이 폼의 미리보기입니다."
 
 #: modules/contact-form/grunion-form-view.php:192
 msgid "Add a new field"
-msgstr ""
+msgstr "새 필드 추가하기"
 
 #: modules/contact-form/grunion-form-view.php:194
 msgid "Add this form to my post"
-msgstr ""
+msgstr "이 폼을 내 글에 추가하기"
 
 #: modules/contact-form/grunion-form-view.php:197
 msgid "Email settings"
-msgstr ""
+msgstr "이메일 설정"
 
 #: modules/contact-form/grunion-form-view.php:199
 msgid "Enter your email address"
-msgstr ""
+msgstr "이메일 주소 입력"
 
 #: modules/contact-form/grunion-form-view.php:202
 msgid "What should the subject line be?"
-msgstr ""
+msgstr "제목 줄은 어떻게 할까요?"
 
 #: modules/contact-form/grunion-form-view.php:205
 msgid "Save and go back to form builder"
-msgstr ""
+msgstr "저장하고 폼 생성기로 돌아가기"
 
 #: modules/custom-css/custom-css.php:455
 msgid ""
@@ -3376,288 +3410,297 @@ msgid ""
 "\n"
 "By default, your stylesheet will be loaded after the theme stylesheets, which means that your rules can take precedence and override the theme CSS rules. Just write here what you want to change, you don't need to copy all your theme's stylesheet content."
 msgstr ""
+"사용자 정의 CSS에 오신 것을 환영합니다!\n"
+"\n"
+"CSS (Cascading Style Sheets) 는 웹브라우저가 웹페이지를 어떻게 보여줄지 명령하는 일종의 코드입니다. 이 글을 지우고 자신만의 사용자 정의를 시작할 수 있습니다.\n"
+"\n"
+"기본적으로 스타일시트는 테마 스타일시트 다음에 로드됩니다. 이것은 이미 만든 규칙이 테마의 CSS 규칙에 우선하고 덮어쓰는 것을 의미합니다. 변경하고자 하는 것을 이곳에 작성하세요. 테마의 모든 스타일시트를 복사할 필요는 없습니다."
 
 #: modules/custom-css/custom-css.php:576
 msgid "Preview: changes must be saved or they will be lost"
-msgstr ""
+msgstr "미리보기: 변경사항을 저장하지 않으면 손실됩니다"
 
 #: modules/custom-css/custom-css.php:604
 msgid "Edit CSS"
-msgstr ""
+msgstr "CSS 편집"
 
 #: modules/custom-css/custom-css.php:618
 msgid "CSS"
-msgstr ""
+msgstr "CSS"
 
 #: modules/custom-css/custom-css.php:638
 msgid "Custom CSS Stylesheet"
-msgstr ""
+msgstr "사용자 정의 CSS 스타일시트"
 
 #: modules/custom-css/custom-css.php:677
 msgid "Stylesheet saved."
-msgstr ""
+msgstr "스타일시트가 저장되었습니다."
 
 #: modules/custom-css/custom-css.php:681
 msgid "Publish"
-msgstr ""
+msgstr "공개하기"
 
 #: modules/custom-css/custom-css.php:687
 msgid "CSS Revisions"
-msgstr ""
+msgstr "CSS 개정"
 
 #: modules/custom-css/custom-css.php:691
 msgid "CSS Stylesheet Editor"
-msgstr ""
+msgstr "CSS 스타일시트 편집기"
 
 #: modules/custom-css/custom-css.php:698
 msgid ""
 "New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions?\n"
 "\t\tAsk in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
 msgstr ""
+"CSS가 처음이세요? <a href=\"http://www.htmldog.com/guides/cssbeginner/\">초보자 강좌</a>로 시작하세요. 질문은?\n"
+"→\t→\t<a href=\"http://wordpress.org/support/forum/themes-and-templates\">테마 및 템플릿 포럼</a>에서 질문하세요."
 
 #: modules/custom-css/custom-css.php:745
 msgid "Content Width:"
-msgstr ""
+msgstr "콘텐츠 폭:"
 
 #: modules/custom-css/custom-css.php:746
 msgid "Default"
-msgstr ""
+msgstr "기본"
 
 #: modules/custom-css/custom-css.php:746
 msgid "%s px"
-msgstr ""
+msgstr "%s px"
 
 #: modules/contact-form/grunion-form-view.php:11
 msgctxt "Label for HTML form \"Comment/Response\" field in contact form builder"
 msgid "Comment"
-msgstr ""
+msgstr "댓글"
 
 #: modules/contact-form/grunion-form-view.php:12
 msgctxt "Default label for new HTML form field in contact form builder"
 msgid "New Field"
-msgstr ""
+msgstr "새 입력란"
 
 #: modules/contact-form/grunion-form-view.php:13
 msgctxt "Label for the set of options to be included in a user-created dropdown in contact form builder"
 msgid "Options"
-msgstr ""
+msgstr "옵션"
 
 #: modules/contact-form/grunion-form-view.php:14
 msgctxt "Label for an option to be included in a user-created dropdown in contact form builder"
 msgid "Option"
-msgstr ""
+msgstr "옵션"
 
 #: modules/contact-form/grunion-form-view.php:15
 msgctxt "Default label for the first option to be included in a user-created dropdown in contact form builder"
 msgid "First option"
-msgstr ""
+msgstr "첫 옵션"
 
 #: modules/contact-form/grunion-form-view.php:16
 msgctxt "error message in contact form builder"
 msgid "Oops, there was a problem generating your form.  You'll likely need to try again."
-msgstr ""
+msgstr "오, 폼을 생성중 문제가 발생했습니다. 다시 해야할 것 같습니다."
 
 #: modules/contact-form/grunion-form-view.php:17
 msgid ""
 "Drag up or down\n"
 "to re-arrange"
 msgstr ""
+"재정렬하기 위해\n"
+"끌어 올리기나 내리기"
 
 #: modules/contact-form/grunion-form-view.php:18
 msgctxt "Label to drag HTML form fields around to change their order in contact form builder"
 msgid "move"
-msgstr ""
+msgstr "이동하기"
 
 #: modules/contact-form/grunion-form-view.php:19
 msgctxt "Link to edit an HTML form field in contact form builder"
 msgid "edit"
-msgstr ""
+msgstr "편집"
 
 #: modules/contact-form/grunion-form-view.php:20
 msgid "Saved successfully"
-msgstr ""
+msgstr "성공적으로 저장됐습니다."
 
 #: modules/contact-form/grunion-form-view.php:21
 msgctxt "This HTML form field is marked as required by the user in contact form builder"
 msgid "(required)"
-msgstr ""
+msgstr "(필수)"
 
 #: modules/contact-form/grunion-form-view.php:22
 msgid "Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost."
-msgstr ""
+msgstr "정말로 저장하지 않고 폼 편집기를 나가시겠습니까? 변경 사항은 저장되지 않습니다."
 
 #: modules/contact-form/grunion-form-view.php:118
 msgid "Your new field was saved successfully"
-msgstr ""
+msgstr "새 필드가 성공적으로 저장됐습니다."
 
 #: modules/contact-form/grunion-form-view.php:120
 msgid "Form builder"
-msgstr ""
+msgstr "폼 생성기"
 
 #: modules/contact-form/grunion-form-view.php:121
 msgid "Email notifications"
-msgstr ""
+msgstr "이메일 알림"
 
 #: modules/contact-form/grunion-form-view.php:126
 msgid "How does this work?"
-msgstr ""
+msgstr "이것은 어떻게 작동되는지?"
 
 #: modules/contact-form/grunion-form-view.php:127
 msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
-msgstr ""
+msgstr "연락 폼을 추가하면 방문자는 피드백을 제출할 수 있습니다. 모든 피드백은 스팸 방지를 위해 자동으로 점검하며, 정상적인 피드백만 이메일로 보내집니다."
 
 #: modules/contact-form/grunion-form-view.php:128
 msgid "Can I add more fields?"
-msgstr ""
+msgstr "입력란을 더 추가할 수 있나요?"
 
 #: modules/contact-form/grunion-form-view.php:130
 msgctxt "%1$s = \"Click here\" in an HTML link"
 msgid "Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field."
-msgstr ""
+msgstr "그럼요. 새로운 글자 박스, 긴 글자 박스, 라디오버튼, 체크박스, 또는 드랍다운 란을 추가하려면 %1$s."
 
 #: modules/contact-form/grunion-form-view.php:131
 msgid "Click here"
-msgstr ""
+msgstr "여기를 클릭하세요"
 
 #: modules/contact-form/grunion-form-view.php:133
 msgid "Can I view my feedback within WordPress?"
-msgstr ""
+msgstr "워드프레스 안에서 나의 피드백을 볼 수 있나요?"
 
 #: modules/contact-form/grunion-form-view.php:135
 msgctxt "%1$s = \"Feedback\" in an HTML link"
 msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
-msgstr ""
+msgstr "네, 관리자 메뉴에서 \"%1$s\" 링크를 클릭하면 언제든지 피드백을 볼 수 있습니다."
 
 #: modules/contact-form/grunion-form-view.php:141
 msgid "Do I need to fill this out?"
-msgstr ""
+msgstr "이것을 다 작성해야하나요?"
 
 #: modules/contact-form/grunion-form-view.php:142
 msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
-msgstr ""
+msgstr "아뇨. 하지만 피드백이 어디로 보내지는지 또는 제목 글을 수정하려면 입력하는 것이 좋습니다. 여기서 변경을 하지 않으면 피드백은 페이지/글의 글쓴이에게 보내지고 제목은 페이지/글의 이름이 될 것입니다."
 
 #: modules/contact-form/grunion-form-view.php:146
 msgid "Edit this new field"
-msgstr ""
+msgstr "이 새 필드를 편집하기"
 
 #: modules/contact-form/grunion-form-view.php:148
 #: modules/sharedaddy/sharing-sources.php:980
 msgid "Label"
-msgstr ""
+msgstr "라벨"
 
 #: modules/contact-form/grunion-form-view.php:149
 msgid "New field"
-msgstr ""
+msgstr "새 필드"
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Field type"
-msgstr ""
+msgstr "필드 형태"
 
 #: modules/contact-form/grunion-form-view.php:153
 msgid "Checkbox"
-msgstr ""
+msgstr "체크박스"
 
 #: modules/contact-form/grunion-contact-form.php:85
 #: modules/contact-form/grunion-contact-form.php:86
 msgid "No feedback found"
-msgstr ""
+msgstr "피드백을 찾을 수 없습니다"
 
 #: modules/contact-form/grunion-contact-form.php:103
 msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
-msgstr[0] ""
+msgstr[0] "스팸<span class=\"count\">(%s)</span>"
 
 #: modules/contact-form/grunion-contact-form.php:190
 msgid "An error occurred. Please try again later."
-msgstr ""
+msgstr "에러가 발생했습니다. 나중에 다시 해주세요."
 
 #: modules/contact-form/grunion-contact-form.php:198
 #: modules/contact-form/grunion-contact-form.php:851
 msgid "Message Sent"
-msgstr ""
+msgstr "메시지 전송됨"
 
 #: modules/contact-form/grunion-contact-form.php:356
 msgid "Export feedback as CSV"
-msgstr ""
+msgstr "피드백을 CSV로 내보내기"
 
 #: modules/contact-form/grunion-contact-form.php:362
 msgid "Select feedback to download"
-msgstr ""
+msgstr "내려받을 피드백을 선택하세요"
 
 #: modules/contact-form/grunion-contact-form.php:364
 msgid "All posts"
-msgstr ""
+msgstr "모든 글"
 
 #: modules/contact-form/grunion-contact-form.php:369
 msgid "Download"
-msgstr ""
+msgstr "다운로드"
 
 #: modules/contact-form/grunion-contact-form.php:416
 #: modules/contact-form/grunion-contact-form.php:508
 #: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:491
 #: modules/module-info.php:495
 msgid "Contact Form"
-msgstr ""
+msgstr "연락 폼"
 
 #: modules/contact-form/grunion-contact-form.php:722
 msgctxt "%1$s = blog name"
 msgid "%1$s Sidebar"
-msgstr ""
+msgstr "%1$s 사이드바"
 
 #: modules/contact-form/grunion-contact-form.php:725
 msgctxt "%1$s = blog name, %2$s = post title"
 msgid "%1$s %2$s"
-msgstr ""
+msgstr "%1$s %2$s"
 
 #: modules/contact-form/grunion-contact-form.php:736
 msgid "Submit &#187;"
-msgstr ""
+msgstr "전송 &#187;"
 
 #: modules/contact-form/grunion-contact-form.php:756
 msgid "Subject"
-msgstr ""
+msgstr "주제"
 
 #: modules/contact-form/grunion-contact-form.php:837
 msgid "Error!"
-msgstr ""
+msgstr "오류!"
 
 #: modules/contact-form/grunion-contact-form.php:852
 msgid "go back"
-msgstr ""
+msgstr "돌아가기"
 
 #: modules/contact-form/grunion-contact-form.php:924
 #: modules/contact-form/grunion-contact-form.php:940
 msgctxt "%1$s = form field label, %2$s = form field value"
 msgid "%1$s: %2$s"
-msgstr ""
+msgstr "%1$s: %2$s"
 
 #: modules/contact-form/grunion-contact-form.php:1205
 msgid "Time:"
-msgstr ""
+msgstr "시간:"
 
 #: modules/contact-form/grunion-contact-form.php:1206
 msgid "IP Address:"
-msgstr ""
+msgstr "IP 주소:"
 
 #: modules/contact-form/grunion-contact-form.php:1214
 msgid "Contact Form URL:"
-msgstr ""
+msgstr "연락 양식 URL:"
 
 #: modules/contact-form/grunion-contact-form.php:1219
 msgid "Sent by a verified %s user."
-msgstr ""
+msgstr "인증된 %s 사용자가 전송했습니다."
 
 #: modules/contact-form/grunion-contact-form.php:1223
 msgid "Sent by an unverified visitor to your site."
-msgstr ""
+msgstr "확인되지 않은 사이트 방문자가 보냄."
 
 #: modules/contact-form/grunion-contact-form.php:1461
 msgid "%s requires a valid email address"
-msgstr ""
+msgstr "%s에는 유효한 이메일 주소가 필요합니다"
 
 #: modules/contact-form/grunion-contact-form.php:1467
 msgid "%s is required"
-msgstr ""
+msgstr "%s이(가) 필요합니다"
 
 #: modules/contact-form/grunion-contact-form.php:1514
 #: modules/contact-form/grunion-contact-form.php:1520
@@ -3667,441 +3710,441 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:1556
 #: modules/contact-form/grunion-contact-form.php:1566
 msgid "(required)"
-msgstr ""
+msgstr "(필수)"
 
 #: modules/contact-form/grunion-contact-form.php:1538
 #: modules/minileven/minileven.php:261
 msgid "Yes"
-msgstr ""
+msgstr "예"
 
 #: modules/contact-form/grunion-form-view.php:8
 msgctxt "Label for HTML form \"Name\" field in contact form builder"
 msgid "Name"
-msgstr ""
+msgstr "이름"
 
 #: modules/contact-form/grunion-form-view.php:9
 msgctxt "Label for HTML form \"Email\" field in contact form builder"
 msgid "Email"
-msgstr ""
+msgstr "이메일"
 
 #: modules/contact-form/grunion-form-view.php:10
 msgctxt "Label for HTML form \"URL/Website\" field in contact form builder"
 msgid "Website"
-msgstr ""
+msgstr "웹사이트"
 
 #: modules/comments/comments.php:187
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
-msgstr ""
+msgstr "댓글을 달려면 <a href=\"%s\">로그인</a>해야 합니다."
 
 #: modules/comments/comments.php:212
 msgid "Leave a Reply to %s"
-msgstr ""
+msgstr "%s 에 응답 남기기"
 
 #: modules/comments/comments.php:251
 msgid "Cancel reply"
-msgstr ""
+msgstr "응답 취소"
 
 #: modules/comments/comments.php:387
 msgid "Invalid security token."
-msgstr ""
+msgstr "유효하지 않은 보안 토큰"
 
 #: modules/comments/comments.php:448 modules/comments/comments.php:499
 msgid "Submitting Comment%s"
-msgstr ""
+msgstr "댓글 %s 제출중"
 
 #: modules/contact-form/admin.php:16
 msgid "Add a custom form"
-msgstr ""
+msgstr "사용자 정의 양식 추가"
 
 #: modules/contact-form/admin.php:21 modules/contact-form/admin.php:22
 msgid "Add Contact Form"
-msgstr ""
+msgstr "연락 폼 추가하기"
 
 #: modules/contact-form/admin.php:101
 msgid "Mark Spam"
-msgstr ""
+msgstr "스팸 표시"
 
 #: modules/contact-form/admin.php:140 modules/contact-form/admin.php:534
 msgid "You are not allowed to manage this item."
-msgstr ""
+msgstr "이 항목을 관리할 수 없습니다."
 
 #: modules/contact-form/admin.php:157
 msgid "Feedback(s) marked as spam"
-msgstr ""
+msgstr "스팸으로 표시된 피드백"
 
 #: modules/contact-form/admin.php:196
 #: modules/contact-form/grunion-omnisearch.php:36
 msgid "From"
-msgstr ""
+msgstr "발신:"
 
 #: modules/contact-form/admin.php:197
 #: modules/contact-form/grunion-contact-form.php:760
 #: modules/contact-form/grunion-omnisearch.php:37
 msgid "Message"
-msgstr ""
+msgstr "메시지"
 
 #: modules/contact-form/admin.php:198
 #: modules/contact-form/grunion-omnisearch.php:38
 #: modules/omnisearch/omnisearch-posts.php:46
 msgid "Date"
-msgstr ""
+msgstr "일자"
 
 #: modules/contact-form/admin.php:268
 msgid "Restore this item from the Trash"
-msgstr ""
+msgstr "이 아이템을 휴지통에서 복원"
 
 #: modules/contact-form/admin.php:270
 msgid "Restore"
-msgstr ""
+msgstr "복원"
 
 #: modules/contact-form/admin.php:273 modules/contact-form/admin.php:372
 msgid "Delete this item permanently"
-msgstr ""
+msgstr "이 아이템을 영구적으로 삭제"
 
 #: modules/contact-form/admin.php:275 modules/contact-form/admin.php:374
 msgid "Delete Permanently"
-msgstr ""
+msgstr "영구 삭제"
 
 #: modules/contact-form/admin.php:306
 msgid "Mark this message as spam"
-msgstr ""
+msgstr "이 메시지를 스팸으로 표시"
 
 #: modules/contact-form/admin.php:313 modules/contact-form/admin.php:315
 #: modules/contact-form/admin.php:612
 #: modules/omnisearch/omnisearch-posts.php:65
 msgid "Trash"
-msgstr ""
+msgstr "휴지통"
 
 #: modules/contact-form/admin.php:366
 msgid "Mark this message as NOT spam"
-msgstr ""
+msgstr "이 메시지를 스팸 아님으로 표시"
 
 #: modules/contact-form/admin.php:406
 #: modules/contact-form/grunion-contact-form.php:1183
 msgctxt "{$date_format} \\a\\t {$time_format}"
 msgid "%1$s \\a\\t %2$s"
-msgstr ""
+msgstr "%1$s %2$s"
 
 #: modules/contact-form/admin.php:568
 msgid "You are not allowed to move this item out of the Trash."
-msgstr ""
+msgstr "당신은 이 아이템을 휴지통에서 꺼낼 수 없습니다."
 
 #: modules/contact-form/admin.php:571
 msgid "Error in restoring from Trash."
-msgstr ""
+msgstr "휴지통에서 복원 중에 문제가 생겼습니다."
 
 #: modules/contact-form/admin.php:575
 msgid "You are not allowed to move this item to the Trash."
-msgstr ""
+msgstr "당신은 이 아이템을 휴지통으로 이동시킬 수 없습니다."
 
 #: modules/contact-form/admin.php:578
 msgid "Error in moving to Trash."
-msgstr ""
+msgstr "휴지통으로 이동 중에 문제가 생겼습니다."
 
 #: modules/contact-form/admin.php:602
 msgid "Messages"
-msgstr ""
+msgstr "메시지"
 
 #: modules/contact-form/admin.php:625
 msgid "Spam"
-msgstr ""
+msgstr "스팸"
 
 #: modules/contact-form/grunion-contact-form.php:82
 #: modules/contact-form/grunion-contact-form.php:83
 #: modules/contact-form/grunion-form-view.php:136
 msgid "Feedback"
-msgstr ""
+msgstr "피드백"
 
 #: modules/contact-form/grunion-contact-form.php:84
 msgid "Search Feedback"
-msgstr ""
+msgstr "피드백 검색"
 
 #: modules/carousel/jetpack-carousel.php:317
 msgid "Missing target blog ID."
-msgstr ""
+msgstr "대상 블로그 ID 없음"
 
 #: modules/carousel/jetpack-carousel.php:320
 msgid "Missing target post ID."
-msgstr ""
+msgstr "대상 글 ID 없음"
 
 #: modules/carousel/jetpack-carousel.php:323
 msgid "No comment text was submitted."
-msgstr ""
+msgstr "댓글 글자가 제출된 것이 없습니다."
 
 #: modules/carousel/jetpack-carousel.php:335
 msgid "Comments on this post are closed."
-msgstr ""
+msgstr "이 글의 댓글달기가 닫혔습니다."
 
 #: modules/carousel/jetpack-carousel.php:345
 msgid "Sorry, but we could not authenticate your request."
-msgstr ""
+msgstr "죄송합니다. 요청을 인증할 수 없었습니다."
 
 #: modules/carousel/jetpack-carousel.php:354
 msgid "Please provide your name."
-msgstr ""
+msgstr "이름을 입력하세요."
 
 #: modules/carousel/jetpack-carousel.php:357
 msgid "Please provide an email address."
-msgstr ""
+msgstr "이메일 주소를 제공해주세요."
 
 #: modules/carousel/jetpack-carousel.php:360
 msgid "Please provide a valid email address."
-msgstr ""
+msgstr "유효한 이메일 주소를 제공해주세요."
 
 #: modules/carousel/jetpack-carousel.php:389
 msgid "Image Gallery Carousel"
-msgstr ""
+msgstr "이미지 갤러리 캐러젤"
 
 #: modules/carousel/jetpack-carousel.php:392
 msgid "Enable carousel"
-msgstr ""
+msgstr "캐러젤 활성화"
 
 #: modules/carousel/jetpack-carousel.php:396
 msgid "Background color"
-msgstr ""
+msgstr "배경 색상"
 
 #: modules/carousel/jetpack-carousel.php:399
 msgid "Metadata"
-msgstr ""
+msgstr "메타데이터"
 
 #: modules/carousel/jetpack-carousel.php:456
 msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
-msgstr ""
+msgstr "가능한 경우 캐러젤에 사진 메타데이터 (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) 보이기"
 
 #: modules/carousel/jetpack-carousel.php:464
 msgid "Show map of photo location in carousel, when available."
-msgstr ""
+msgstr "가능한 경우 캐러젝의 사진 위치 지도를 보여주세요."
 
 #: modules/carousel/jetpack-carousel.php:472
 msgid "Black"
-msgstr ""
+msgstr "검정"
 
 #: modules/carousel/jetpack-carousel.php:472
 msgid "White"
-msgstr ""
+msgstr "흰색"
 
 #: modules/carousel/jetpack-carousel.php:480
 msgid "Display images in full-size carousel slideshow."
-msgstr ""
+msgstr "풀사이즈 캐러젤 슬라이드로 이미지를 보여주기"
 
 #: modules/comments/admin.php:50 modules/comments/comments.php:211
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 msgid "Leave a Reply"
-msgstr ""
+msgstr "댓글 남기기"
 
 #: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:156
 #: modules/widgets/twitter-timeline.php:217
 msgid "Light"
-msgstr ""
+msgstr "밝음"
 
 #: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:157
 #: modules/widgets/twitter-timeline.php:218
 msgid "Dark"
-msgstr ""
+msgstr "어둠"
 
 #: modules/comments/admin.php:56
 msgid "Transparent"
-msgstr ""
+msgstr "투명"
 
 #: modules/comments/admin.php:72 modules/module-info.php:521
 msgid "Jetpack Comments"
-msgstr ""
+msgstr "젯팩 댓글"
 
 #: modules/comments/admin.php:81
 msgid "Greeting Text"
-msgstr ""
+msgstr "인사 글"
 
 #: modules/comments/admin.php:97 modules/comments/admin.php:168
 #: modules/widgets/facebook-likebox.php:154
 msgid "Color Scheme"
-msgstr ""
+msgstr "색상표"
 
 #: modules/comments/admin.php:118
 msgid "Adjust your Jetpack Comments form with a clever greeting and color-scheme."
-msgstr ""
+msgstr "재치있는 인사와 색상 구조가 있는 젯팩 댓글 폼을 조정하세요."
 
 #: modules/comments/admin.php:134
 msgid "A few catchy words to motivate your readers to comment"
-msgstr ""
+msgstr "방문자가 댓글을 달 수 있도록 독려하는 몇개의 단어"
 
 #: modules/comments/base.php:83
 msgid "Invalid request"
-msgstr ""
+msgstr "유효하지 않은 요청"
 
 #: modules/comments/base.php:230
 msgid "Error: please fill the required fields (name, email)."
-msgstr ""
+msgstr "에러: 꼭 필요한 항목(이름, 이메일)을 입력해주세요."
 
 #: modules/comments/base.php:232
 msgid "Error: please enter a valid email address."
-msgstr ""
+msgstr "에러: 올바른 이메일 주소를 입력해주세요."
 
 #: modules/after-the-deadline/config-options.php:83
 msgid "<a href=\"%s\">Learn more</a> about these options."
-msgstr ""
+msgstr "이 옵션들에 대해 <a href=\"%s\">자세히 알아보세요</a>."
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Language"
-msgstr ""
+msgstr "언어"
 
 #: modules/after-the-deadline/config-options.php:89
 msgctxt "%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG"
 msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your <a href=\"%1$s\">%2$s</a> value is the default proofreading language."
-msgstr ""
+msgstr "교정기는 영어, 불어, 독일어, 포르투갈어, 스페인어를 지원합니다. <a href=\"%1$s\">%2$s</a> 값은 기본 교정기 언어입니다."
 
 #: modules/after-the-deadline/config-options.php:95
 msgid "Use automatically detected language to proofread posts and pages"
-msgstr ""
+msgstr "자동 감지된 언어를 사용하여 글과 페이지 교정"
 
 #: modules/after-the-deadline/config-unignore.php:129
 msgid "Ignored Phrases"
-msgstr ""
+msgstr "무시된 구문"
 
 #: modules/after-the-deadline/config-unignore.php:131
 msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
-msgstr ""
+msgstr "글 및 페이지 교정 시 무시할 단어와 구절 확인:"
 
 #: modules/after-the-deadline/config-unignore.php:133
 #: modules/widget-visibility/widget-conditions.php:174
 msgid "Add"
-msgstr ""
+msgstr "추가"
 
 #: modules/after-the-deadline/config-unignore.php:138
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
-msgstr ""
+msgstr "변경 사항을 저장하려면 화면의 하단에 있는 \"프로필 갱신하기\"를 클릭하십시오."
 
 #: modules/carousel/jetpack-carousel.php:106
 msgid "Comment"
-msgstr ""
+msgstr "댓글"
 
 #: modules/carousel/jetpack-carousel.php:107
 msgid "Post Comment"
-msgstr ""
+msgstr "댓글 달기"
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Loading Comments..."
-msgstr ""
+msgstr "댓글 로드중..."
 
 #: modules/carousel/jetpack-carousel.php:109
 msgid "View full size <span class=\"photo-size\">%1$s<span class=\"photo-size-times\">&times;</span>%2$s</span>"
-msgstr ""
+msgstr "전체 크기 <span class=\"photo-size\">%1$s<span class=\"photo-size-times\">&times;</span>%2$s</span> 보기"
 
 #: modules/carousel/jetpack-carousel.php:110
 msgid "Please be sure to submit some text with your comment."
-msgstr ""
+msgstr "댓글로 몇개의 글자를 꼭 올려주세요."
 
 #: modules/carousel/jetpack-carousel.php:111
 msgid "Please provide an email address to comment."
-msgstr ""
+msgstr "댓글에 이메일 주소를 넣어주세요."
 
 #: modules/carousel/jetpack-carousel.php:112
 msgid "Please provide your name to comment."
-msgstr ""
+msgstr "댓글에 이름을 넣어주세요."
 
 #: modules/carousel/jetpack-carousel.php:113
 msgid "Sorry, but there was an error posting your comment. Please try again later."
-msgstr ""
+msgstr "죄송합니다. 댓글을 올리는데 에러가 발생했습니다. 나중에 다시 해주세요."
 
 #: modules/carousel/jetpack-carousel.php:114
 msgid "Your comment was approved."
-msgstr ""
+msgstr "댓글이 승인됐습니다."
 
 #: modules/carousel/jetpack-carousel.php:115
 msgid "Your comment is in moderation."
-msgstr ""
+msgstr "댓글이 승인 관리 중입니다."
 
 #: modules/carousel/jetpack-carousel.php:116
 msgid "Camera"
-msgstr ""
+msgstr "카메라"
 
 #: modules/carousel/jetpack-carousel.php:117
 msgid "Aperture"
-msgstr ""
+msgstr "조리개"
 
 #: modules/carousel/jetpack-carousel.php:118
 msgid "Shutter Speed"
-msgstr ""
+msgstr "셔터 속도"
 
 #: modules/carousel/jetpack-carousel.php:119
 msgid "Focal Length"
-msgstr ""
+msgstr "촛점 거리"
 
 #: modules/carousel/jetpack-carousel.php:129
 msgid "Commenting as %s"
-msgstr ""
+msgstr "%s로 댓글"
 
 #: modules/carousel/jetpack-carousel.php:132
 msgid "You must be <a href=\"#\" class=\"jp-carousel-comment-login\">logged in</a> to post a comment."
-msgstr ""
+msgstr "댓글을 달려면 <a href=\"#\" class=\"jp-carousel-comment-login\">로그인</a>해야 합니다."
 
 #: modules/carousel/jetpack-carousel.php:134
 msgid "%s (Required)"
-msgstr ""
+msgstr "%s (필수)"
 
 #: modules/carousel/jetpack-carousel.php:136
 #: modules/contact-form/grunion-contact-form.php:751
 #: modules/contact-form/grunion-form-view.php:155
 msgid "Email"
-msgstr ""
+msgstr "이메일"
 
 #: modules/carousel/jetpack-carousel.php:140
 #: modules/contact-form/grunion-contact-form.php:752
 #: modules/contact-form/grunion-form-view.php:160
 msgid "Website"
-msgstr ""
+msgstr "웹사이트"
 
 #: modules/carousel/jetpack-carousel.php:273
 msgid "Missing attachment ID."
-msgstr ""
+msgstr "첨부 ID 없음."
 
 #: modules/carousel/jetpack-carousel.php:310
 msgid "Nonce verification failed."
-msgstr ""
+msgstr "임시 단어 인증 실패"
 
 #: modules/after-the-deadline/atd-l10n.php:18
 msgid "Ignore suggestion"
-msgstr ""
+msgstr "제안 무시"
 
 #: modules/after-the-deadline/atd-l10n.php:19
 msgid "Ignore always"
-msgstr ""
+msgstr "항상 무시"
 
 #: modules/after-the-deadline/atd-l10n.php:20
 msgid "Ignore all"
-msgstr ""
+msgstr "모두 무시"
 
 #: modules/after-the-deadline/atd-l10n.php:22
 msgid "Edit Selection..."
-msgstr ""
+msgstr "선택 편집..."
 
 #: modules/after-the-deadline/atd-l10n.php:24
 msgid "proofread"
-msgstr ""
+msgstr "교정"
 
 #: modules/after-the-deadline/atd-l10n.php:25
 msgid "edit text"
-msgstr ""
+msgstr "텍스트 편집"
 
 #: modules/after-the-deadline/atd-l10n.php:26
 #: modules/after-the-deadline.php:226
 msgid "Proofread Writing"
-msgstr ""
+msgstr "글 교정"
 
 #: modules/after-the-deadline/atd-l10n.php:28
 msgid "No writing errors were found."
-msgstr ""
+msgstr "작성 오류를 찾을 수 없습니다."
 
 #: modules/after-the-deadline/atd-l10n.php:29
 msgid "There was a problem communicating with the Proofreading service. Try again in one minute."
-msgstr ""
+msgstr "교정 서비스와 통신하는 데 문제가 발생했습니다. 1분 후에 다시 시도하세요."
 
 #: modules/after-the-deadline/atd-l10n.php:30
 msgid "There was an error communicating with the proofreading service."
-msgstr ""
+msgstr "교정 서비스와 통신하는 중에 오류가 발생했습니다."
 
 #: modules/after-the-deadline/atd-l10n.php:32
 msgid "Replace selection with:"
-msgstr ""
+msgstr "선택사항을 다음으로 교체:"
 
 #: modules/after-the-deadline/atd-l10n.php:33
 msgid ""
@@ -4109,6 +4152,9 @@ msgid ""
 "\n"
 "Press OK to publish your post, or Cancel to view the suggestions and edit your post."
 msgstr ""
+"교정자는 이 글에 대해 제안을 하였습니다. 정말로 게시하시겠습니까?\n"
+"\n"
+"확인을 눌러 글을 게시하거나 취소를 눌러 제안을 보고 글을 편집하세요."
 
 #: modules/after-the-deadline/atd-l10n.php:34
 msgid ""
@@ -4116,520 +4162,523 @@ msgid ""
 "\n"
 "Press OK to update your post, or Cancel to view the suggestions and edit your post."
 msgstr ""
+"교정자는 이 글에 대해 제안을 하였습니다. 정말로 업데이트하시겠습니까?\n"
+"\n"
+"확인을 눌러 글을 업데이트하거나 취소를 눌러 제안을 보고 글을 편집하세요."
 
 #: modules/after-the-deadline/config-options.php:48
 msgid "Proofreading"
-msgstr ""
+msgstr "교정"
 
 #: modules/after-the-deadline/config-options.php:50
 msgid "Automatically proofread content when:"
-msgstr ""
+msgstr "다음의 경우 자동으로 컨텐츠 교정:"
 
 #: modules/after-the-deadline/config-options.php:53
 msgid "a post or page is first published"
-msgstr ""
+msgstr "글 또는 페이지가 처음 게시되었습니다"
 
 #: modules/after-the-deadline/config-options.php:55
 msgid "a post or page is updated"
-msgstr ""
+msgstr "글 또는 페이지가 업데이트되었습니다"
 
 #: modules/after-the-deadline/config-options.php:58
 msgid "English Options"
-msgstr ""
+msgstr "영어 옵션"
 
 #: modules/after-the-deadline/config-options.php:60
 msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
-msgstr ""
+msgstr "글 및 페이지를 작성할 때 다음의 문법 및 스타일 규칙에 대한 교정 기능을 켜세요."
 
 #: modules/after-the-deadline/config-options.php:63
 msgid "Bias Language"
-msgstr ""
+msgstr "차별적 언어"
 
 #: modules/after-the-deadline/config-options.php:65
 msgid "Clich&eacute;s"
-msgstr ""
+msgstr "클리셰"
 
 #: modules/after-the-deadline/config-options.php:67
 msgid "Complex Phrases"
-msgstr ""
+msgstr "복잡한 구문"
 
 #: modules/after-the-deadline/config-options.php:69
 msgid "Diacritical Marks"
-msgstr ""
+msgstr "구별 부호"
 
 #: modules/after-the-deadline/config-options.php:71
 msgid "Double Negatives"
-msgstr ""
+msgstr "이중 부정"
 
 #: modules/after-the-deadline/config-options.php:73
 msgid "Hidden Verbs"
-msgstr ""
+msgstr "숨은 동사"
 
 #: modules/after-the-deadline/config-options.php:75
 msgid "Jargon"
-msgstr ""
+msgstr "전문용어"
 
 #: modules/after-the-deadline/config-options.php:77
 msgid "Passive Voice"
-msgstr ""
+msgstr "수동태"
 
 #: modules/after-the-deadline/config-options.php:79
 msgid "Phrases to Avoid"
-msgstr ""
+msgstr "금칙어"
 
 #: modules/after-the-deadline/config-options.php:81
 msgid "Redundant Phrases"
-msgstr ""
+msgstr "중복 구문"
 
-#: class.jetpack.php:2892
+#: class.jetpack.php:2909
 msgid "Configure"
-msgstr ""
+msgstr "설정"
 
-#: class.jetpack.php:2930
+#: class.jetpack.php:2947
 msgid "Coming soon&#8230;"
-msgstr ""
+msgstr "곧 나옵니다."
 
-#: class.jetpack.php:3069
+#: class.jetpack.php:3086
 msgid "Something is being cranky!"
-msgstr ""
+msgstr "뭔자 잘못됐습니다!"
 
-#: class.jetpack.php:3070
+#: class.jetpack.php:3087
 msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
-msgstr ""
+msgstr "사이트가 젯팩에  SSL 연결만 허용하도록 설정됐습니다. 그런데 SSL 연결이 기능을 제대로 하고 있는 것같지 않습니다! "
 
-#: class.jetpack.php:3158
+#: class.jetpack.php:3175
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
-msgstr ""
+msgstr "에러 상세: 젯팩 아이디가 비어있습니다. 이 에러 메시지를 공개적으로 발행하지 마세요! %s"
 
-#: class.jetpack.php:3160
+#: class.jetpack.php:3177
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
-msgstr ""
+msgstr "에러 상세: 젯팩 아이디가 스칼라입니다. 이 에러 메시지를 공개적으로 발생하지 마세요! %s"
 
-#: class.jetpack.php:3162
+#: class.jetpack.php:3179
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
-msgstr ""
+msgstr "에러 상세: 젯팩 아이디가 숫자로 시작합니다. 이 에러 메시지를 공개적으로 발생하지 마세요! %s"
 
-#: class.jetpack.php:3320
+#: class.jetpack.php:3337
 msgid "Jetpack Plugin Version"
-msgstr ""
+msgstr "젯팩 플러그인 버전"
 
-#: class.jetpack.php:3326
+#: class.jetpack.php:3343
 msgid "The Client ID/WP.com Blog ID of this site"
-msgstr ""
+msgstr "이 사이트의 클라이언트 ID/WP.com 블로그 아이디"
 
-#: class.jetpack.php:3576
+#: class.jetpack.php:3593
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
-msgstr ""
+msgstr "이 기능을 사용하려면 워드프레스닷컴에 젯팩 플러그인을 연결해야합니다."
 
-#: class.jetpack.php:3579
+#: class.jetpack.php:3596
 msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
-msgstr ""
+msgstr "누군가 사이트에 접근할 수 있도록 트릭을 사용할 수도 있습니다. 혹은 버그를 만날 수도 있습니다.^^ 어쨌든, 이 창을 닫으세요. "
 
-#: class.jetpack.php:3607
+#: class.jetpack.php:3624
 msgid "The authorization process expired.  Please go back and try again."
-msgstr ""
+msgstr "권한 부여 과정이 취소됐습니다. 돌아가서 다시 시도하세요."
 
-#: class.jetpack.php:3647
+#: class.jetpack.php:3664
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
-msgstr ""
+msgstr "%s가 사이트 데이터에 접근하기를 원합니다.  로그인해서 해당 접근에 권한을 부여하세요."
 
-#: class.jetpack.php:3818
+#: class.jetpack.php:3835
 msgid "Something has gotten mixed up!"
-msgstr ""
+msgstr "뭔가 혼란이 일어났습니다!"
 
-#: class.jetpack.php:3820
+#: class.jetpack.php:3837
 msgid "Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!"
-msgstr ""
+msgstr "<code>%1$s</code> 옵션이 <strong>%2$s</strong>로 설정됐습니다, 워드프레스닷컴 연결 목록은 <strong>%3$s</strong>로 돼있습니다!"
 
-#: class.jetpack.php:3822
+#: class.jetpack.php:3839
 msgid "The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings."
-msgstr ""
+msgstr "위에 있는 데이터는 현재 나의 사이트를 위한 것이 아닙니다. 이 사이트가 현재의 내 설정을 사용하도록 하려면 연결을 끊고 워드프레스닷컴에 다시 연결하세요."
 
-#: class.jetpack.php:3823
+#: class.jetpack.php:3840
 msgid "Ignore the difference. This is just a staging site for the real site referenced above."
-msgstr ""
+msgstr "차이 무시. 이것은 위에서 참조한 실제 사이트를 위한 준비 사이트일 뿐입니다."
 
-#: class.jetpack.php:3824
+#: class.jetpack.php:3841
 msgid "That used to be my URL for this site before I changed it. Update the WordPress.com Cloud's data to match my current settings."
-msgstr ""
+msgstr "그것은 변경하기 전의 이 사이트 URL이었습니다. 나의 현재 설정과 일치시키기 위해서 워드프레스닷컴 클라우드 데이터를 업데이트하세요."
 
 #: class.json-api-endpoints.php:1162
 msgid "This post is password protected."
-msgstr ""
+msgstr "이 글은 비밀번호로 보호되어 있습니다."
 
 #: class.json-api-endpoints.php:2850
 msgid "Comment cache problem?"
-msgstr ""
+msgstr "댓글 캐시 문제가 있나요?"
 
 #: functions.gallery.php:12
 msgid "Thumbnail Grid"
-msgstr ""
+msgstr "썸네일 그리드"
 
 #: functions.gallery.php:40
 msgid "Type"
-msgstr ""
+msgstr "타입"
 
 #: functions.opengraph.php:81
 msgid "(no title)"
-msgstr ""
+msgstr "(제목 없음)"
 
 #: locales.php:29
 msgctxt "locales"
 msgid "%1$s/%2$s"
-msgstr ""
+msgstr "%1$s/%2$s"
 
 #: modules/after-the-deadline/atd-l10n.php:12
 msgid "Spelling"
-msgstr ""
+msgstr "철자"
 
 #: modules/after-the-deadline/atd-l10n.php:13
 msgid "Repeated Word"
-msgstr ""
+msgstr "반복된 단어"
 
 #: modules/after-the-deadline/atd-l10n.php:15
 msgid "No suggestions"
-msgstr ""
+msgstr "제안없음"
 
 #: modules/after-the-deadline/atd-l10n.php:17
 msgid "Explain..."
-msgstr ""
+msgstr "설명..."
 
-#: class.jetpack.php:2504
+#: class.jetpack.php:2519
 msgid "User linked to WordPress.com"
-msgstr ""
+msgstr "사용자가 WordPress.com에 연결됐습니다"
 
-#: class.jetpack.php:2504
+#: class.jetpack.php:2519
 msgid "Unlink user from WordPress.com"
-msgstr ""
+msgstr "WordPress.com과 사용자 연결 끊기"
 
-#: class.jetpack.php:2520
+#: class.jetpack.php:2537
 msgid "Jetpack is network activated and notices can not be dismissed."
-msgstr ""
+msgstr "젯팩이 네트워크 활성화됐고 알림은 무시할 수 없습니다."
 
-#: class.jetpack.php:2534
+#: class.jetpack.php:2551
 msgid "Dismiss this notice."
-msgstr ""
+msgstr "이 알림 무시하기"
 
-#: class.jetpack.php:2539
+#: class.jetpack.php:2556
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr ""
+msgstr "모든 젯팩 기능을 활성화 하려면 오른쪽 버튼을 사용해서 사이트를 워드프레스닷컴에 연결해야합니다. 연결한 이후에는 아래의 모든 재미있는 기능을 활성화할 것입니다."
 
-#: class.jetpack.php:2554
+#: class.jetpack.php:2571
 msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right."
-msgstr ""
+msgstr "젯팩의 모든 기능을 활성화하려면 우측의 버튼을 이용해서 이곳의 계정과  WordPress.com 계정을 연결해야합니다."
 
-#: class.jetpack.php:2558 modules/post-by-email.php:131
+#: class.jetpack.php:2575 modules/post-by-email.php:131
 #: modules/publicize/publicize-jetpack.php:66
 msgid "Link account with WordPress.com"
-msgstr ""
-
-#: class.jetpack.php:2579
-msgid "Have feedback on Jetpack?"
-msgstr ""
-
-#: class.jetpack.php:2581
-msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
-msgstr ""
-
-#: class.jetpack.php:2584
-msgid "Take Survey"
-msgstr ""
-
-#: class.jetpack.php:2590
-msgid "Checking email updates status&hellip;"
-msgstr ""
+msgstr "워드프레스닷컴에 계정 연결하기"
 
 #: class.jetpack.php:2596
-msgctxt "%s = Unsubscribe link"
-msgid "You are currently subscribed to email updates. %s"
-msgstr ""
+msgid "Have feedback on Jetpack?"
+msgstr "젯팩에 피드백을 해주시겠어요?"
 
-#: class.jetpack.php:2597
-msgid "Unsubscribe"
-msgstr ""
+#: class.jetpack.php:2598
+msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
+msgstr "우리가 잘 하고 있는지, 나중에 무엇을 추가해야 할지 알기 위해 간단한 설문에 답해주세요."
 
 #: class.jetpack.php:2601
+msgid "Take Survey"
+msgstr "설문 참여하기"
+
+#: class.jetpack.php:2607
+msgid "Checking email updates status&hellip;"
+msgstr "이메일 업데이트 상태 점검&hellip;"
+
+#: class.jetpack.php:2613
+msgctxt "%s = Unsubscribe link"
+msgid "You are currently subscribed to email updates. %s"
+msgstr "현재 이메일 업데이트에 구독한 상태입니다. %s"
+
+#: class.jetpack.php:2614
+msgid "Unsubscribe"
+msgstr "구독끊기"
+
+#: class.jetpack.php:2618
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
-msgstr ""
+msgstr "이메일로 젯팩 업데이트를 받으시겠습니까? %s"
 
-#: class.jetpack.php:2602 modules/subscriptions.php:687
+#: class.jetpack.php:2619 modules/subscriptions.php:695
 msgid "Subscribe"
-msgstr ""
-
-#: class.jetpack.php:2609
-msgid "You have been subscribed to receive email updates."
-msgstr ""
-
-#: class.jetpack.php:2611
-msgid "You will no longer receive email updates about Jetpack."
-msgstr ""
-
-#: class.jetpack.php:2623
-msgid "An <span>Automattic</span> Airline"
-msgstr ""
+msgstr "구독"
 
 #: class.jetpack.php:2626
+msgid "You have been subscribed to receive email updates."
+msgstr "이메일 업데이트를 받기로 구독했습니다."
+
+#: class.jetpack.php:2628
+msgid "You will no longer receive email updates about Jetpack."
+msgstr "젯팩 관련하여 이메일 업데이트를 더이상 받지 않을 것입니다."
+
+#: class.jetpack.php:2640
+msgid "An <span>Automattic</span> Airline"
+msgstr "An <span>Automattic</span> Airline"
+
+#: class.jetpack.php:2643
 msgid "Privacy Policy"
-msgstr ""
+msgstr "개인정보 보호정책"
 
-#: class.jetpack.php:2627
+#: class.jetpack.php:2644
 msgid "Terms of Service"
-msgstr ""
+msgstr "이용 약관"
 
-#: class.jetpack.php:2629
+#: class.jetpack.php:2646
 msgid "Debug"
-msgstr ""
+msgstr "디버그"
 
-#: class.jetpack.php:2631 modules/sharedaddy/sharedaddy.php:84
+#: class.jetpack.php:2648 modules/sharedaddy/sharedaddy.php:84
 msgid "Support"
-msgstr ""
+msgstr "지원"
 
-#: class.jetpack.php:2761
+#: class.jetpack.php:2778
 msgid "Configure %s"
-msgstr ""
+msgstr "환경설정 %s"
 
-#: class.jetpack.php:2820
+#: class.jetpack.php:2837
 msgid "Deactivate"
-msgstr ""
+msgstr "비활성화"
 
-#: class.jetpack.php:2833
+#: class.jetpack.php:2850
 msgid "Activate"
-msgstr ""
+msgstr "활성화"
 
-#: class.jetpack.php:2853
+#: class.jetpack.php:2870
 msgid "Free"
-msgstr ""
+msgstr "무료"
 
-#: class.jetpack.php:2853
+#: class.jetpack.php:2870
 msgid "Purchase"
-msgstr ""
+msgstr "구매"
 
-#: class.jetpack.php:2861
+#: class.jetpack.php:2878
 msgid "New"
-msgstr ""
+msgstr "신규"
 
-#: class.jetpack.php:2864
+#: class.jetpack.php:2881
 msgid "Updated"
-msgstr ""
-
-#: class.jetpack.php:1980
-msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
-msgstr ""
-
-#: class.jetpack.php:1983
-msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
-msgstr ""
-
-#: class.jetpack.php:1987
-msgid "Your website needs to be publicly accessible to use Jetpack: %s"
-msgstr ""
-
-#: class.jetpack.php:1992
-msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr ""
-
-#: class.jetpack.php:1994
-msgid "Do you still have the %s plugin installed?"
-msgstr ""
+msgstr "업데이트됨"
 
 #: class.jetpack.php:1997
-msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr ""
+msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
+msgstr "발송인에게 되돌림. 이런! 메일에 틀린 젯팩을 갖고 있는 듯합니다.; 비활성화 한 다음 새것을 받기 위해 다시 활성화하세요. "
 
-#: class.jetpack.php:2005
-msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
-msgstr ""
+#: class.jetpack.php:2000
+msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
+msgstr "틀린 사이즈입니다. 흠&#8230; 젯팩이 잘 맞지 않는 것 같습니다. 몸무게를 줄이셨나보군요. 젯팩에 맞추려면  &#8220; WordPress.com을 다시 클릭하세요&#8221;"
+
+#: class.jetpack.php:2004
+msgid "Your website needs to be publicly accessible to use Jetpack: %s"
+msgstr "젯팩을 사용하려면 사이트는 공개적으로 접근 가능해야 합니다: %s"
+
+#: class.jetpack.php:2009
+msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "<strong>치명적인 에러</strong>로 인해서  %s은 활성화 될 수 없습니다. 이미 설치한 다른 플러그인과 충돌이 있는 것 같습니다. "
 
 #: class.jetpack.php:2011
+msgid "Do you still have the %s plugin installed?"
+msgstr "아직 %s 플러그인이 설치돼 있는가요?"
+
+#: class.jetpack.php:2014
+msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "<strong>치명적인 에러</strong>로 인해서  모듈이 활성화 될 수 없습니다. 이미 설치한 다른 플러그인과 충돌이 있는 것 같습니다. "
+
+#: class.jetpack.php:2022
+msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
+msgstr "<strong>젯팩이 작은 문제가 있습니다.</strong> 이 사이트를 워드프레스닷컴과 연결할 수 없습니다. 이것은 사이트가 공개적으로 접근이 불가능하다는 의미입니다 (localhost)."
+
+#: class.jetpack.php:2028
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
-msgstr ""
+msgstr "워드프레스닷컴이 지금 문제가 있어서 젯팩을 도울 수 없습니다. 나중에 다시 해보세요."
 
-#: class.jetpack.php:2015
+#: class.jetpack.php:2032
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
-msgstr ""
+msgstr "젯팩이 워드프레스닷컴에 연결할 수 없습니다: %s. 이것은 보통 웹호스팅에서 설정이 잘못됐다는 것을 의미합니다."
 
-#: class.jetpack.php:2055
+#: class.jetpack.php:2072
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
-msgstr ""
+msgstr "<strong>젯팩이 작은 문제가 있습니다.</strong> 발생하지 말았어야할 뭔가가 문제가 있습니다. 행운이 있을지도 모르겠습니다: %s"
 
-#: class.jetpack.php:2058
+#: class.jetpack.php:2075
 msgid "Try connecting again."
-msgstr ""
+msgstr "연결을 다시 해보세요."
 
-#: class.jetpack.php:2082
+#: class.jetpack.php:2099
 msgid "Welcome to <strong>Jetpack %s</strong>!"
-msgstr ""
+msgstr "<strong>젯팩 %s</strong>에 오신 것을 환영합니다!"
 
-#: class.jetpack.php:2094
+#: class.jetpack.php:2111
 msgid "The following new modules have been activated: %l."
-msgstr ""
+msgstr "다음의 새로운 모듈이 활성화 됐습니다: %l."
 
-#: class.jetpack.php:2106
+#: class.jetpack.php:2123
 msgid "The following modules have been updated: %l."
-msgstr ""
+msgstr "다음의 모듈이 업데이트됐습니다: %l."
 
-#: class.jetpack.php:2115
+#: class.jetpack.php:2132
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
-msgstr ""
+msgstr "<strong>%s 화성화 됐습니다!</strong> 더 배우기를 클릭해서 언제든 비활성화 할 수 있고 모듈카드를 비활성화 할 수 있습니다."
 
-#: class.jetpack.php:2141
+#: class.jetpack.php:2158
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate buttons on their module cards."
-msgstr[0] ""
+msgstr[0] "<strong>%l가 비활성화 됐습니다!</strong> 모듈 카드에 있는 활성화 버튼을 사용해서 언제든 다시 활성화할 수 있습니다."
 
-#: class.jetpack.php:2153
+#: class.jetpack.php:2170
 msgid "<strong>Module settings were saved.</strong> "
-msgstr ""
-
-#: class.jetpack.php:2157
-msgid "<strong>Your Jetpack is already connected.</strong> "
-msgstr ""
-
-#: class.jetpack.php:2161 class.jetpack.php:2168
-msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
-msgstr ""
-
-#: class.jetpack.php:2163
-msgid "The features below are now active. Click the learn more buttons to explore each feature."
-msgstr ""
+msgstr "<strong>모듈 설정이 저장됐습니다.</strong>"
 
 #: class.jetpack.php:2174
-msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
-msgstr ""
+msgid "<strong>Your Jetpack is already connected.</strong> "
+msgstr "<strong>젯팩은 이미 연결됐습니다.</strong>"
 
-#: class.jetpack.php:2197
+#: class.jetpack.php:2178 class.jetpack.php:2185
+msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
+msgstr "<strong>연료가 채워졌으니 이제 출발하세요.</strong>"
+
+#: class.jetpack.php:2180
+msgid "The features below are now active. Click the learn more buttons to explore each feature."
+msgstr "아래의 기능이 현재 활성 상태입니다. 각 기능을 경험하려면 더 배우기 버튼을 클릭하세요."
+
+#: class.jetpack.php:2191
+msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
+msgstr "<strong>WordPress.com과 계정 (%s) 이 연결돼 있지 않습니다.</strong>"
+
+#: class.jetpack.php:2214
 msgid "Jetpack contains the most recent version of the old %l plugin."
 msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
-msgstr[0] ""
+msgstr[0] "젯팩은 이전 %l 플러그인의 최신 버전을 포함하고 있습니다."
 
-#: class.jetpack.php:2208
+#: class.jetpack.php:2225
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
-msgstr[0] ""
+msgstr[0] "이전 버전은 비활성화 됐으며 사이트에서 제거할 수 있습니다."
 
-#: class.jetpack.php:2273
+#: class.jetpack.php:2290
 msgid "Is this site private?"
-msgstr ""
+msgstr "이 사이트는 비공개인가요?"
 
-#: class.jetpack.php:2278
+#: class.jetpack.php:2295
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
 msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
-msgstr[0] ""
+msgstr[0] "자신의 사이트  RSS 피드와 마찬가지로, %l는 글와 다른 콘텐츠를 제 3자에게 접근할 수 있도록 합니다."
 
-#: class.jetpack.php:2295
+#: class.jetpack.php:2312
 msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
 msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
 msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
-msgstr[0] ""
+msgstr[0] "자신의 사이트가 공개적으로 접근이 불가능하다면, <a href=\"%1$s\" title=\"%2$s\">이 기능을 비활성화하기</a>를 고려해보세요."
 
-#: class.jetpack.php:2312
+#: class.jetpack.php:2329
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
-msgstr ""
+msgstr "비활성화 %l"
 
-#: class.jetpack.php:2499
+#: class.jetpack.php:2514
 msgid "Connected to WordPress.com"
-msgstr ""
+msgstr "WordPress.com에 연결됨"
 
-#: class.jetpack.php:2499
+#: class.jetpack.php:2514
 msgid "Disconnect from WordPress.com"
-msgstr ""
+msgstr "WordPress.com과 연결 끊기"
 
-#: class.jetpack.php:1429
+#: class.jetpack.php:1441
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
-msgstr[0] ""
+msgstr[0] "한개의 새로운 젯팩 모듈"
 
-#: class.jetpack.php:1432
+#: class.jetpack.php:1444
 msgid "Jetpack"
-msgstr ""
+msgstr "젯팩"
 
-#: class.jetpack.php:1602 class.jetpack.php:1627 class.jetpack.php:1640
-#: class.jetpack.php:2509 class.jetpack.php:2760
+#: class.jetpack.php:1614 class.jetpack.php:1639 class.jetpack.php:1652
+#: class.jetpack.php:2524 class.jetpack.php:2777
 msgid "Jetpack by WordPress.com"
-msgstr ""
+msgstr "Jetpack by WordPress.com"
 
-#: class.jetpack.php:1603 class.jetpack.php:1628 class.jetpack.php:2512
+#: class.jetpack.php:1615 class.jetpack.php:1640 class.jetpack.php:2527
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
-msgstr ""
+msgstr "젯팩은 워드프레스닷컴의 놀라운 클라우드 기능으로 사이트에 힘을 더할 것입니다. "
 
-#: class.jetpack.php:1604 class.jetpack.php:1629
+#: class.jetpack.php:1616 class.jetpack.php:1641
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
-msgstr ""
+msgstr "이 페이지에서 잿팩으로 가능한 모듈을 볼 수 있습니다. 이들에 대해 더 알 수 있고 필요에 따라 활성화 하거나 비활성화 할 수 있습니다."
 
-#: class.jetpack.php:1605
+#: class.jetpack.php:1617
 msgid "Jetpack Module Options"
-msgstr ""
+msgstr "잿팩 모듈 옵션"
 
-#: class.jetpack.php:1606
+#: class.jetpack.php:1618
 msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
-msgstr ""
+msgstr "<strong>모듈을 화성화/비활성화 하려면</strong> - 더 배우기를 클릭하세요. 더 배우기 버튼 옆에 활성화 또는 비활성화 버튼이 나타납니다. 버튼을 클릭하세요."
 
-#: class.jetpack.php:1607 class.jetpack.php:1654
+#: class.jetpack.php:1619 class.jetpack.php:1666
 msgid "For more information:"
-msgstr ""
+msgstr "더 많은 정보:"
 
-#: class.jetpack.php:1608 class.jetpack.php:1655
+#: class.jetpack.php:1620 class.jetpack.php:1667
 msgid "Jetpack FAQ"
-msgstr ""
+msgstr "젯팩 자주 찾는 질문 "
 
-#: class.jetpack.php:1609 class.jetpack.php:1656
+#: class.jetpack.php:1621 class.jetpack.php:1668
 msgid "Jetpack Support"
-msgstr ""
+msgstr "젯팩 지원"
 
-#: class.jetpack.php:1625
+#: class.jetpack.php:1637
 msgid "Overview"
-msgstr ""
+msgstr "개요"
 
-#: class.jetpack.php:1638
+#: class.jetpack.php:1650
 msgid "Modules"
-msgstr ""
+msgstr "모듈"
 
-#: class.jetpack.php:1641
+#: class.jetpack.php:1653
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
-msgstr ""
+msgstr "필요에 따라 개별 젯팩 모듈을 활성화 하거나 비활성화 할 수 있습니다."
 
-#: class.jetpack.php:1643
+#: class.jetpack.php:1655
 msgid "Find the component you want to manage"
-msgstr ""
+msgstr "관리하려는 요소를 찾으세요"
 
-#: class.jetpack.php:1644
+#: class.jetpack.php:1656
 msgid "Click on Learn More"
-msgstr ""
+msgstr "더 배우기를 클릭하세요"
 
-#: class.jetpack.php:1645
+#: class.jetpack.php:1657
 msgid "An Activate or Deactivate button will appear"
-msgstr ""
+msgstr "활성화 또는 비활성화 버튼이 나타날 것입니다."
 
-#: class.jetpack.php:1646
+#: class.jetpack.php:1658
 msgid "If additional settings are available, a link to them will appear"
-msgstr ""
+msgstr "추가 설정이 필요할 경우 옆에 링크가 나타날 것입니다."
 
-#: class.jetpack.php:1726 modules/publicize/ui.php:576
+#: class.jetpack.php:1738 modules/publicize/ui.php:576
 #: modules/sharedaddy/sharedaddy.php:76 modules/sharedaddy/sharedaddy.php:83
 msgid "Settings"
-msgstr ""
+msgstr "설정"
 
-#: class.jetpack.php:1743
+#: class.jetpack.php:1755
 msgid "Dismiss this notice and deactivate Jetpack."
-msgstr ""
+msgstr "이 안내를 무시하고 젯팩을 비활성화 하기"
 
-#: class.jetpack.php:1749
+#: class.jetpack.php:1761
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
-msgstr ""
+msgstr "<strong>젯팩이 거의 준비가 됐습니다</strong> &#8211; 통계, 연락 폼, 구독하기와 같은 기능을 활성화하기 위해 워드프레스닷컴에 연결이 필요합니다. 시작하려면 지금 연결하세요!"
 
-#: class.jetpack.php:1751
+#: class.jetpack.php:1763
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
-msgstr ""
+msgstr "<strong>젯팩이 설치됐습니다</strong> 그리고 워드프레스 닷컴의 굉장한 클래우드 기능을 사이트에서 경험할 준비가 됐습니다."
 
-#: class.jetpack.php:1757 class.jetpack.php:2543
+#: class.jetpack.php:1769 class.jetpack.php:2560
 msgid "Connect to WordPress.com"
-msgstr ""
+msgstr "WordPress.com 연결하기"
 
-#: class.jetpack.php:1759 modules/module-info.php:45 modules/module-info.php:81
+#: class.jetpack.php:1771 modules/module-info.php:45 modules/module-info.php:81
 #: modules/module-info.php:138 modules/module-info.php:173
 #: modules/module-info.php:207 modules/module-info.php:237
 #: modules/module-info.php:270 modules/module-info.php:306
@@ -4645,175 +4694,175 @@ msgstr ""
 #: modules/module-info.php:824 modules/module-info.php:843
 #: modules/module-info.php:862 modules/module-info.php:879
 msgid "Learn More"
-msgstr ""
+msgstr "더 알아보기"
 
-#: class.jetpack.php:1772
+#: class.jetpack.php:1784
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
-msgstr ""
+msgstr "<strong>젯팩이 활성화됐습니다!</strong> 네트워크의 각 사이트는 해당 사이트의 관리자에 의해 개별적으로 연결돼 있어야합니다."
 
-#: class.jetpack.php:1799
+#: class.jetpack.php:1811
 msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
-msgstr ""
+msgstr "젯팩은 이제 젯팩 댓글을 포함합니다. 이것은 방문자가 자신의 워드프레스닷컴, 트위터, 또는 페이스북 계정이 있으면 해당 계정으로 사이트에서 사용할 수 있습니다. 젯팩 댓글을 활성화 하려면, <a href=\"%s\">%s</a>."
 
-#: class.jetpack.php:1810
+#: class.jetpack.php:1822
 msgid "click here"
-msgstr ""
+msgstr "여기를 클릭하세요"
 
-#: class.jetpack.php:1970
+#: class.jetpack.php:1987
 msgid "Cheatin&#8217; uh?"
-msgstr ""
+msgstr "누구를 속이시려고?"
 
-#: class.jetpack.php:1973
+#: class.jetpack.php:1990
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
-msgstr ""
+msgstr "대단한 기능을 활성화하려면 사이트와 워드프레스닷컴을 젯팩으로 연결하도록 권한을 줘야합니다."
 
-#: class.jetpack.php:1976
+#: class.jetpack.php:1993
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
-msgstr ""
+msgstr "선을 넘지 마세요! 젯팩에 권한을 주려면 워드프레스 블로그에 로그인돼 있어야합니다."
 
-#: class.jetpack-debugger.php:81
+#: class.jetpack-debugger.php:83
 msgid "Something has gotten mixed up in your Jetpack Connection!"
-msgstr ""
+msgstr "젯팩 연결에 뭔가 혼란이 있습니다!"
 
-#: class.jetpack-debugger.php:91
+#: class.jetpack-debugger.php:93
 msgid "It looks like your site can not communicate properly with Jetpack."
-msgstr ""
+msgstr "사이트가 젯팩과 적절한 통신을 할 수 없는 것 같습니다."
 
-#: class.jetpack-debugger.php:97 class.jetpack.php:1437 class.jetpack.php:1657
+#: class.jetpack-debugger.php:99 class.jetpack.php:1449 class.jetpack.php:1669
 msgid "Jetpack Debugging Center"
-msgstr ""
+msgstr "젯팩 디버깅 센터"
 
-#: class.jetpack-debugger.php:98
+#: class.jetpack-debugger.php:100
 msgid "Testing your site's compatibily with Jetpack..."
-msgstr ""
+msgstr "사이트가 젯팩과 호환성을 테스트하고 있습니다..."
 
-#: class.jetpack-debugger.php:126
+#: class.jetpack-debugger.php:128
 msgid "Your Jetpack setup looks a-okay!"
-msgstr ""
+msgstr "젯팩 설정이 완벽한 것 같습니다!"
 
-#: class.jetpack-debugger.php:129
+#: class.jetpack-debugger.php:131
 msgid "There seems to be a problem with your site’s ability to communicate with Jetpack!"
-msgstr ""
+msgstr "사이트가 젯팩과 통신하는데 문제가 있는 것 같습니다!"
 
-#: class.jetpack-debugger.php:136
+#: class.jetpack-debugger.php:138
 msgid "Trouble with Jetpack?"
-msgstr ""
+msgstr "젯팩에 문제가 있나요?"
 
-#: class.jetpack-debugger.php:137
+#: class.jetpack-debugger.php:139
 msgid "It may be caused by one of these issues, which you can diagnose yourself:"
-msgstr ""
+msgstr "다음 문제가 원인일 수 있으며 직접 진단할 수 있습니다:"
 
-#: class.jetpack-debugger.php:139
+#: class.jetpack-debugger.php:141
 msgid "A known issue."
-msgstr ""
+msgstr "알려진 문제."
 
-#: class.jetpack-debugger.php:139
+#: class.jetpack-debugger.php:141
 msgid "Some themes and plugins have <a href=\"%1$s\" target=\"_blank\">known conflicts</a> with Jetpack – check the <a href=\"%2$s\" target=\"_blank\">list</a>. (You can also browse the <a href=\"%3$s\">Jetpack support pages</a> or <a href=\"%4$s\">Jetpack support forum</a> to see if others have experienced and solved the problem.)"
-msgstr ""
+msgstr "어떤 테마나 플러그인은 젯팩과 <a href=\"%1$s\" target=\"_blank\">알려진 충돌</a>이 있습니다 - <a href=\"%2$s\" target=\"_blank\">목록</a>을 점검하세요. (다른 사람들이 문제를 경험하였거나 해결한 것이 있는지 알아보려면 <a href=\"%3$s\">젯팩 지원 페이지</a> 또는 <a href=\"%4$s\">젯팩 지원 포럼</a>에서 찾아보세요.)"
 
-#: class.jetpack-debugger.php:140
+#: class.jetpack-debugger.php:142
 msgid "An incompatible plugin."
-msgstr ""
+msgstr "호환불가 플러그인."
 
-#: class.jetpack-debugger.php:140
+#: class.jetpack-debugger.php:142
 msgid "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help."
-msgstr ""
+msgstr "젯팩을 제외한 모든 플러그인을 비활성화해서 찾으세요. 문제가 지속되면 플러그인 문제가 아닙니다. 문제가 해결되면 해당 문제가 다시 나타날 때까지 플러그인을 하나씩 활성화하세요 - 범인을 찾으면 우리에게 알려주세요. 도와드리겠습니다. "
 
-#: class.jetpack-debugger.php:141
+#: class.jetpack-debugger.php:143
 msgid "A theme conflict."
-msgstr ""
+msgstr "테마 충돌."
 
-#: class.jetpack-debugger.php:141
+#: class.jetpack-debugger.php:143
 msgid "If your problem isn't known or caused by a plugin, try activating Twenty Twelve (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know."
-msgstr ""
-
-#: class.jetpack-debugger.php:142
-msgid "A problem with your XMLRPC file."
-msgstr ""
-
-#: class.jetpack-debugger.php:142
-msgid "Load your <a href=\"%s\">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself."
-msgstr ""
+msgstr "문제가 알려진 것이 아니거나 플러그인이 원인이라면 Twenty Twelve 테마(워드프레스 기본 테마)를 활성화 해보세요. 문제가 해결되면 해당 테마에서 뭔가 깨진 것입니다 - 테마 제작자에게 알려주세요."
 
 #: class.jetpack-debugger.php:144
+msgid "A problem with your XMLRPC file."
+msgstr "XMLRPC 파일 문제."
+
+#: class.jetpack-debugger.php:144
+msgid "Load your <a href=\"%s\">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself."
+msgstr "<a href=\"%s\">XMLRPC 파일</a> 을 로드하세요. \"XML-RPC 서버는 POST 요청만을 받습니다\"라고 나올겁니다. "
+
+#: class.jetpack-debugger.php:146
 msgid "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3."
-msgstr ""
+msgstr "나타나지 않는다면 테마나 플러그인이 다른 글자를 보여줄겁니다. 2 단계와 3단계를 해보세요."
 
-#: class.jetpack-debugger.php:145
+#: class.jetpack-debugger.php:147
 msgid "If you get a 404 message, contact your web host. Their security may block XMLRPC."
-msgstr ""
+msgstr "404 메시지가 나오면 웹호스팅에 연락하세요. 보안 시스템이 XMLRPC을 차단한 것일 수도 있습니다."
 
-#: class.jetpack-debugger.php:149
+#: class.jetpack-debugger.php:151
 msgid "If none of these help you find a solution, <a href=\"#\">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you've tried to resolve it, and one of our Happiness Engineers will be in touch to help."
-msgstr ""
+msgstr "이런 것들이 해결책을 찾는데 전혀 도움이 안된다면 <a href=\"#\">젯팩 지원에 연락하기 위해서 여기를 클릭하세요</a>. 문제와 이를 해결하기 위해서 어떤 과정을 시도했는지 가능한한 많은 것을 알려주세요. 우리의 해피니스 기술자들이 도움을 주기위해 연락할 것입니다."
 
-#: class.jetpack-debugger.php:162
+#: class.jetpack-debugger.php:164
 msgid "Please describe the problem you are having."
-msgstr ""
+msgstr "갖고 있는 문제를 기술해주세요."
 
-#: class.jetpack-debugger.php:167 modules/carousel/jetpack-carousel.php:138
+#: class.jetpack-debugger.php:169 modules/carousel/jetpack-carousel.php:138
 #: modules/contact-form/grunion-contact-form.php:750
 #: modules/contact-form/grunion-form-view.php:156
 msgid "Name"
-msgstr ""
+msgstr "이름"
 
-#: class.jetpack-debugger.php:168
+#: class.jetpack-debugger.php:170
 msgid "Let us know your name."
-msgstr ""
+msgstr "이름을 알려주세요."
 
-#: class.jetpack-debugger.php:173
+#: class.jetpack-debugger.php:175
 msgid "E-mail"
-msgstr ""
+msgstr "전자우편"
 
-#: class.jetpack-debugger.php:174
+#: class.jetpack-debugger.php:176
 msgid "Use a valid email address."
-msgstr ""
+msgstr "유효한 이메일 주소를 사용하세요."
 
-#: class.jetpack-debugger.php:179
+#: class.jetpack-debugger.php:181
 msgid "The test results and some other useful debug information will be sent to the support team. Please feel free to <a href=\"#\">review/modify</a> this information."
-msgstr ""
+msgstr "실험 결과와 다른 유용한 디버그 정보는 지원 팀에 보내질 것입니다. 이 정보를 자유롭게 <a href=\"#\">보기/수정</a> 해주세요."
 
-#: class.jetpack-debugger.php:183
+#: class.jetpack-debugger.php:185
 msgid "Debug Info"
-msgstr ""
+msgstr "디버그 정보"
 
-#: class.jetpack-heartbeat.php:111
+#: class.jetpack-heartbeat.php:112
 msgid "Jetpack weekly"
-msgstr ""
+msgstr "젯팩 주간지"
 
-#: class.jetpack.php:1152
+#: class.jetpack.php:1164
 msgid "Jetpack requires WordPress version %s or later."
-msgstr ""
+msgstr "젯팩은 워드프레스 버전 %s 이상이 필요합니다."
 
-#: class.jetpack.php:1392 class.jetpack.php:1408
+#: class.jetpack.php:1404 class.jetpack.php:1420
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
-msgstr ""
+msgstr "젯팩은 이전 &#8220;%1$s&#8221; 플러그인의 최신버전이 포함돼 있습니다."
 
 #: class.jetpack-client-server.php:141
 msgid "An administrator for this blog must set up the Jetpack connection."
-msgstr ""
+msgstr "이 블로그이 관리자가 젯팩 연결을 설정해야합니다."
 
 #: class.jetpack-client-server.php:146
 msgid "You need to register your Jetpack before connecting it."
-msgstr ""
+msgstr "연결하기 전에 젯팩을 등록해야합니다."
 
-#: class.jetpack-client-server.php:188 class.jetpack.php:3146
-#: class.jetpack.php:3148 class.jetpack.php:3150 class.jetpack.php:3153
+#: class.jetpack-client-server.php:188 class.jetpack.php:3163
+#: class.jetpack.php:3165 class.jetpack.php:3167 class.jetpack.php:3170
 msgid "Error Details: %s"
-msgstr ""
+msgstr "에러 상세: %s"
 
 #: class.jetpack-debugger.php:24
 msgid "You do not have sufficient permissions to access this page."
-msgstr ""
+msgstr "당신은 이 페이지에 접근할 권한이 없습니다."
 
 #: class.jetpack-debugger.php:68
 msgid "Your site isn’t reaching the Jetpack servers."
-msgstr ""
+msgstr "사이트가 젯팩 서버에 신호를 보내지 못하고 있습니다."
 
 #: class.jetpack-debugger.php:71
 msgid "Your site isn’t securely reaching the Jetpack servers."
-msgstr ""
+msgstr "사이트가 젯팩 서버에 안전하게 신호를 보내고 있지 않습니다."
 
 #: class.jetpack-debugger.php:76
 msgid "Your `%1$s` option is set up as `%2$s`, but your WordPress.com connection lists it as `%3$s`!"
-msgstr ""
+msgstr "`%1$s` 옵션이 `%2$s로 설정됐지만 워드프레스닷컴 연결은 그것을 `%3$s`로 표시하고 있습니다!"
