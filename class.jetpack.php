@@ -48,20 +48,6 @@ class Jetpack {
 	);
 
 	/**
-	 * Map of modules that have conflicts with plugins and should not be
-	 * auto-activated.
-	 *
-	 * Element example
-	 *	'contact-form-7/wp-contact-form-7.php' => array(
-	 *		'module' => 'contact-form',
-	 *	)
-	 * @var array
-	 */
-	private $incompatible_modules_map = array(
-		'contact-form-7/wp-contact-form-7.php' => array( 'module' => 'contact-form' )
-	);
-
-	/**
 	 * Message to display in admin_notice
 	 * @var string
 	 */
@@ -254,31 +240,6 @@ class Jetpack {
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
-
-		add_filter( 'jetpack_get_available_modules', array( $this, 'catch_incompatible_modules' ) );
-	}
-
-
-	/**
-	 * Checks activated plugins during auto-activation to determine
-	 * if any of those plugins are in the list with a corresponding module
-	 * that is not compatible with the plugin. The module will not be allowed
-	 * to auto-activate.
-	 *
-	 * E.G: Jetpack Contact Forms is not compatible with Contact Forms 7
-	 *
-	 * @since 3.6
-	 * @uses jetpack_get_available_modules filter
-	 * @param array $modules
-	 * @return array
-	 */
-	function catch_incompatible_modules( $modules ) {
-		foreach( $this->incompatible_modules_map AS $k => $v ) {
-			if( is_plugin_active( $k ) ) {
-				unset( $modules[ $v['module'] ] );
-			}
-		}
-		return $modules;
 	}
 
 	/**
@@ -353,14 +314,14 @@ class Jetpack {
 	}
 
 	/*
-	 * Returns the location of Jetpack's lib directory. This filter is applied
-	 * in require_lib().
-	 *
-	 * @filter require_lib_dir
-	 */
-	function require_lib_dir( $lib_dir ) {
-		return JETPACK__PLUGIN_DIR . 'lib';
-	}
+	 * Returns the location of Jetpack's lib directory. This filter is applied  
+	 * in require_lib(). 
+	 * 
+	 * @filter require_lib_dir  
+	 */ 
+	function require_lib_dir( $lib_dir ) { 
+		return JETPACK__PLUGIN_DIR . 'lib'; 
+	} 
 
 	/**
 	 * Is Jetpack active?
