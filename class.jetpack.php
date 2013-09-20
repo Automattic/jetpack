@@ -275,6 +275,9 @@ class Jetpack {
 	function catch_incompatible_modules( $modules ) {
 		if( !is_admin() ) return $modules;
 
+		if( !function_exists( 'is_plugin_active' ) )
+			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+
 		foreach( $this->incompatible_modules_map AS $k => $v ) {
 			if( is_plugin_active( $k ) ) {
 				unset( $modules[ $v['module'] ] );
