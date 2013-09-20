@@ -273,7 +273,7 @@ class Jetpack {
 	 * @return array
 	 */
 	function catch_incompatible_modules( $modules ) {
-		if( !is_admin() ) return $modules;
+		if( !is_admin() || ( isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) ) return $modules;
 
 		if( !function_exists( 'is_plugin_active' ) )
 			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
