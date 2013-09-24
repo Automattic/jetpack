@@ -276,7 +276,7 @@ class Jetpack {
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 
-		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ), );
+		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 	}
 
 	/**
