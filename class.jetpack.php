@@ -48,17 +48,38 @@ class Jetpack {
 	);
 
 	/**
-	 * Map of modules that have conflicts with plugins and should not be
-	 * auto-activated.
+	 * Map of modules that have conflicts with plugins and should not be auto-activated
+	 * if the plugins are active.  Used by filter_default_modules
 	 *
-	 * Element example
-	 *	'contact-form-7/wp-contact-form-7.php' => array(
-	 *		'module' => 'contact-form',
-	 *	)
 	 * @var array
 	 */
-	private $incompatible_modules_map = array(
-		'wordpress-seo/wp-seo.php' => array( 'module' => 'gplus-authorship' )
+	private $conflicting_plugins = array(
+		'comments'          => array(
+			'Intense Debate'      => 'intensedebate/intensedebate.php',
+			'Disqus'              => 'disqus-comment-system/disqus.php',
+		),
+		'contact-form'      => array(
+			'Contact Form 7'      => 'contact-form-7/wp-contact-form-7.php',
+			'Gravity Forms'       => 'gravityforms/gravityforms.php',
+			'Contact Form Plugin' => 'contact-form-plugin/contact_form.php',
+			'Easy Contact Forms'  => 'easy-contact-forms/easy-contact-forms.php',
+		),
+		'gplus-authorship'  => array(
+			'WP SEO by Yoast'     => 'wordpress-seo/wp-seo.php',
+		),
+		'minileven'         => array(
+			'WPtouch'             => 'wptouch/wptouch.php',
+		),
+		'sharedaddy'        => array(
+			'AddThis'             => 'addthis/addthis_social_widget.php',
+			'Add To Any'          => 'add-to-any/add-to-any.php',
+			'ShareThis'           => 'share-this/sharethis.php',
+			'Shareaholic'         => 'shareaholic/shareaholic.php',
+		),
+		'widget-visibility' => array(
+			'Widget Logic'        => 'widget-logic/widget_logic.php',
+			'Dynamic Widgets'     => 'dynamic-widgets/dynamic-widgets.php',
+		),
 	);
 
 	/**
@@ -255,35 +276,7 @@ class Jetpack {
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 
-		add_filter( 'jetpack_get_available_modules', array( $this, 'catch_incompatible_modules' ) );
-	}
-
-
-	/**
-	 * Checks activated plugins during auto-activation to determine
-	 * if any of those plugins are in the list with a corresponding module
-	 * that is not compatible with the plugin. The module will not be allowed
-	 * to auto-activate.
-	 *
-	 * E.G: Jetpack Contact Forms is not compatible with Contact Forms 7
-	 *
-	 * @since 3.6
-	 * @uses jetpack_get_available_modules filter
-	 * @param array $modules
-	 * @return array
-	 */
-	function catch_incompatible_modules( $modules ) {
-		if( !is_admin() || ( isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) ) return $modules;
-
-		if( !function_exists( 'is_plugin_active' ) )
-			include_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-
-		foreach( $this->incompatible_modules_map AS $k => $v ) {
-			if( is_plugin_active( $k ) ) {
-				unset( $modules[ $v['module'] ] );
-			}
-		}
-		return $modules;
+		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ), );
 	}
 
 	/**
@@ -838,6 +831,47 @@ class Jetpack {
 			}
 		}
 		return apply_filters( 'jetpack_get_default_modules', $return, $min_version, $max_version );
+	}
+
+	/**
+	 * Checks activated plugins during auto-activation to determine
+	 * if any of those plugins are in the list with a corresponding module
+	 * that is not compatible with the plugin. The module will not be allowed
+	 * to auto-activate.
+	 *
+	 * @since 2.6
+	 * @uses jetpack_get_default_modules filter
+	 * @param array $modules
+	 * @return array
+	 */
+	function filter_default_modules( $modules ) {
+		$active_plugins = get_option( 'active_plugins', array() );
+		if ( is_multisite() ) {
+			// Due to legacy code, active_sitewide_plugins stores them in the keys,
+			// whereas active_plugins stores them in the values.
+			$network_plugins = array_keys( get_site_option( 'active_sitewide_plugins', array() ) );
+			if ( $network_plugins ) {
+				$active_plugins = array_merge( $active_plugins, $network_plugins );
+			}
+		}
+		sort( $active_plugins );
+
+		// For each module we'd like to auto-activate...
+		foreach ( $modules as $key => $module ) {
+			// If there are potential conflicts for it...
+			if ( ! empty( $this->conflicting_plugins[ $module ] ) ) {
+				// For each potential conflict...
+				foreach ( $this->conflicting_plugins[ $module ] as $title => $plugin ) {
+					// If that conflicting plugin is active...
+					if ( in_array( $plugin, $active_plugins ) ) {
+						// Remove that item from being auto-activated.
+						unset( $modules[ $key ] );
+					}
+				}
+			}
+		}
+
+		return $modules;
 	}
 
 	/**
