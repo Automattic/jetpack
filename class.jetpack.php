@@ -51,6 +51,14 @@ class Jetpack {
 	 * Map of modules that have conflicts with plugins and should not be auto-activated
 	 * if the plugins are active.  Used by filter_default_modules
 	 *
+	 * Plugin Authors: If you'd like to prevent a single module from auto-activating,
+	 * change `module-slug` and add this to your plugin:
+	 *
+	 * add_filter( 'jetpack_get_default_modules', 'my_jetpack_get_default_modules' );
+	 * function my_jetpack_get_default_modules( $modules ) {
+	 *     return array_diff( $modules, array( 'module-slug' ) );
+	 * }
+	 *
 	 * @var array
 	 */
 	private $conflicting_plugins = array(
