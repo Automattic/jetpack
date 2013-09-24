@@ -407,7 +407,7 @@ class Featured_Content {
 	 * @uses Featured_Content::self::sanitize_quantity()
 	 * @uses Featured_Content::self::delete_transient()
 	 */
-	function validate_settings( $input ) {
+	public static function validate_settings( $input ) {
 		$output = array();
 
 		if ( isset( $input['tag-id'] ) )
