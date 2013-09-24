@@ -107,10 +107,12 @@ Scroller.prototype.render = function( response ) {
  */
 Scroller.prototype.query = function() {
 	return {
-		page:  this.page,
-		order: this.order,
-		scripts: window.infiniteScroll.settings.scripts,
-		styles: window.infiniteScroll.settings.styles
+		page           : this.page + ( this.offset > 0 ? this.offset - 1 : 0 ),
+		order          : this.order,
+		scripts        : window.infiniteScroll.settings.scripts,
+		styles         : window.infiniteScroll.settings.styles,
+		query_args     : window.infiniteScroll.settings.query_args,
+		last_post_date : window.infiniteScroll.settings.last_post_date,
 	};
 };
 
@@ -196,7 +198,6 @@ Scroller.prototype.refresh = function() {
 
 	// Success handler
 	jqxhr.done( function( response ) {
-
 			// On success, let's hide the loader circle.
 			loader.hide();
 
@@ -433,7 +434,7 @@ Scroller.prototype.determineURL = function () {
 	// -1 indicates that the original requested URL should be used.
 	if ( 'number' == typeof pageNum ) {
 		if ( pageNum != -1 )
-			pageNum += ( 0 == self.offset ) ? 1 : self.offset;
+			pageNum++;
 
 		self.updateURL( pageNum );
 	}
@@ -441,11 +442,11 @@ Scroller.prototype.determineURL = function () {
 
 /**
  * Update address bar to reflect archive page URL for a given page number.
- * Checks if URL is different to prevent polution of browser history.
+ * Checks if URL is different to prevent pollution of browser history.
  */
 Scroller.prototype.updateURL = function( page ) {
 	var self = this,
-		pageSlug = -1 == page ? self.origURL : window.location.protocol + '//' + self.history.host + self.history.path.replace( /%d/, page );
+		pageSlug = -1 == page ? self.origURL : window.location.protocol + '//' + self.history.host + self.history.path.replace( /%d/, page ) + self.history.parameters;
 
 	if ( window.location.href != pageSlug )
 		history.pushState( null, null, pageSlug );
