@@ -20,9 +20,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 	public function __construct() {
 		parent::__construct(
 			'jetpack_display_posts_widget', // internal id
-			__( 'Display WordPress Posts Widget', 'display-posts-widget' ), // wp-admin title
+			__( 'Display WordPress Posts (Jetpack)', 'jetpack' ), // wp-admin title
 			array(
-				'description' => __( 'Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog.', 'display-posts-widget' ), // description
+				'description' => __( 'Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog.', 'jetpack' ), // description
 			)
 		);
 	}
@@ -33,11 +33,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		wp_enqueue_style( 'jetpack_display_posts_widget', plugins_url( 'wordpress-post-widget/style.css' ) );
-			
+
 		$site = $instance['url'];
 		$site = urlencode( $site );
 		$api_url = "https://public-api.wordpress.com/rest/v1/sites/" . $site;
-		
+
 		$data_from_cache = get_transient( 'wp-site-info-' . $instance['url'], 'display-posts-widget' );
 		if ( false === $data_from_cache ) {
 			$response = wp_remote_get( $api_url );
@@ -45,11 +45,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		} else {
 			$response = $data_from_cache;
 		}
-		
+
 		$site_info = json_decode( $response ['body'] );
 		
 		if ( empty( $site_info->ID ) ) {
-			echo "<p>" . __( 'We cannot load blog data at this time.', 'display-posts-widget' ) . "</p>";
+			echo "<p>" . __( 'We cannot load blog data at this time.', 'jetpack' ) . "</p>";
 			echo $args['after_widget'];
 			return;
 		}
@@ -63,7 +63,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		}
 
 		$number_of_posts = $instance['number_of_posts'];
-		
+
 		$data_from_cache = get_transient( 'wp-post-info-' . $instance['url'], 'display-posts-widget' );
 		if ( false === $data_from_cache ) {
 			$response = wp_remote_get( $api_url . '/posts' );
@@ -71,13 +71,13 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		} else {
 			$response = $data_from_cache;
 		}
-		
+
 		$posts_info = json_decode( $response['body'] );
-		
+
 		echo "<div class='jetpack-display-remote-posts'>";
-		
+
 		if ( isset( $posts_info->error ) && 'jetpack_error' == $posts_info->error ) {
-			echo '<p>' . __( 'We cannot display posts for this blog.', 'display-posts-widget' ) . '</p>';
+			echo '<p>' . __( 'We cannot display posts for this blog.', 'jetpack' ) . '</p>';
 			echo $args['after_widget'];
 			return;
 		}
@@ -85,20 +85,20 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		for ( $i = 0; $i < $number_of_posts; $i++ ) {
 			$single_post = $posts_info->posts[$i];
 			$post_title = ( $single_post->title ) ? esc_html( $single_post->title ) : '( No Title )';
-		
+
 			echo "<h4><a href='" . esc_url( $single_post->URL ) . "'>". $post_title . "</a></h4>" . "\n";
 			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post->featured_image) ) ) {
 				$featured_image = ( $single_post->featured_image ) ? $single_post->featured_image  : '';
 				echo "<img src='" . $featured_image . "'>";
 			}		
-			
+
 			if ( $instance['show_excerpts'] == true ) {
 				$post_excerpt = ( $single_post->excerpt ) ? $single_post->excerpt  : '';
 				echo $post_excerpt;
 			}
-		
+
 		}
-			
+
 		echo "</div>";
 	}
 
@@ -106,9 +106,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		if ( isset( $instance[ 'title' ] ) ) {
 			$title = $instance[ 'title' ];
 		} else {
-			$title = "Recent Posts";
+			$title = __( 'Recent Posts', 'jetpack' );
 		}
-		
+
 		if ( isset( $instance[ 'url' ] ) ) {
 			$url = $instance[ 'url' ];
 		} else {
@@ -126,7 +126,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		} else {
 			$featured_image = false;
 		}
-		
+
 		if ( isset( $instance[ 'show_excerpts'] ) ) {
 			$show_excerpts = $instance[ 'show_excerpts'];
 		} else {
@@ -135,19 +135,19 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		?>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'display-posts-widget' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title:', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" />
 		</p>
 
 		<p>
-			<label for="<?php echo $this->get_field_id( 'url' ); ?>"><?php _e( 'Blog URL:', 'display-posts-widget' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'url' ); ?>"><?php _e( 'Blog URL:', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'url' ); ?>" name="<?php echo $this->get_field_name( 'url' ); ?>" type="text" value="<?php echo esc_attr( $url ); ?>" />
 			<p>
-			<?php _e( "Enter a WordPress.com or Jetpack WordPress site URL.", 'display-posts-widget' ); ?>
+			<?php _e( "Enter a WordPress.com or Jetpack WordPress site URL.", 'jetpack' ); ?>
 			</p>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'number_of_posts' ); ?>"><?php _e( 'Number of Posts to Display:', 'display-posts-widget' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'number_of_posts' ); ?>"><?php _e( 'Number of Posts to Display:', 'jetpack' ); ?></label>
 			<select name="<?php echo $this->get_field_name( 'number_of_posts' ); ?>">
 				<?php
 					for ($i = 1; $i <= 10; $i++) {
@@ -157,15 +157,15 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			</select>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'featured_image' ); ?>"><?php _e( 'Show Featured Image:', 'display-posts-widget' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'featured_image' ); ?>"><?php _e( 'Show Featured Image:', 'jetpack' ); ?></label>
 			<input type="checkbox" name="<?php echo $this->get_field_name( 'featured_image' ); ?>" <?php checked( $featured_image, 1 ); ?> />
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'show_excerpts' ); ?>"><?php _e( 'Show Excerpts:', 'display-posts-widget' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'show_excerpts' ); ?>"><?php _e( 'Show Excerpts:', 'jetpack' ); ?></label>
 			<input type="checkbox" name="<?php echo $this->get_field_name( 'show_excerpts' ); ?>" <?php checked( $show_excerpts, 1 ); ?> />
 		</p>
 
-		<?php		
+		<?php
 	}
 
 	public function update( $new_instance, $old_instance ) {
