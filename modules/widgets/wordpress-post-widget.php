@@ -72,6 +72,12 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$response = $data_from_cache;
 		}
 
+		if ( is_a( $response, 'WP_Error' ) ) {
+			echo "<p>" . __( 'We cannot load blog data at this time.', 'display-posts-widget' ) . "</p>";
+			echo $args['after_widget'];
+			return;
+		}
+		
 		$posts_info = json_decode( $response['body'] );
 
 		echo "<div class='jetpack-display-remote-posts'>";
