@@ -115,13 +115,24 @@ class Publicize_UI {
 
 	  		<div id="publicize-services-block">
 		  		<?php
-		  		foreach ( $this->publicize->get_services( 'all' ) as $name => $service ) :
+		  		$services = $this->publicize->get_services( 'all' );
+		  		$total_num_of_services = count ( $services );
+		  		$service_num = 0;?>
+		  		
+		  		<div class='left'>
+		  		
+		  		<?php 
+		  		foreach ( $services as $name => $service ) :
 		  			$connect_url = $this->publicize->connect_url( $name );
+		  			if ( $service_num == ( round ( ( $total_num_of_services / 2 ), 0 ) ) )
+		  				echo "</div><div class='right'>";
+		  			$service_num++;
 		  			?>
-		  			<div class="publicize-service-entry">
+		  			<div class="publicize-service-entry" <?php if ( $service_num > 0 ): ?>class="connected"<?php endif; ?> >
 			  			<div id="<?php echo esc_attr( $name ); ?>" class="publicize-service-left">
-			  				<a href="<?php echo esc_url( $connect_url ); ?>" target="_top"><span class="pub-logos" id="<?php echo esc_attr( $name ); ?>">&nbsp;</span></a>
+			  				<a href="<?php echo esc_url( $connect_url ); ?>" id="service-link-<?php echo esc_attr( $name ); ?>" target="_top"><?php echo $this->publicize->get_service_label( $name ); ?></a>
 			  			</div>
+
 
 			  			<div class="publicize-service-right">
 			  				<?php if ( $this->publicize->is_enabled( $name ) && $connections = $this->publicize->get_connections( $name ) ) : ?>
@@ -150,9 +161,12 @@ class Publicize_UI {
 										</script>
 										<?php endif; ?>
 
-										<li>
+										<li class="publicize-connection" data-connection-id="<?php echo esc_attr( $id ); ?>">
 											<?php
 											if ( !empty( $profile_link ) ) : ?>
+
+											</style>
+												<?php echo esc_html( __( 'Connected as: ') ); ?>
 												<a class="publicize-profile-link" href="<?php echo esc_url( $profile_link ); ?>" target="_top">
 													<?php echo esc_html( $connection_display ); ?>
 												</a><?php
@@ -171,6 +185,10 @@ class Publicize_UI {
 											<?php else : ?>
 												<a class="pub-disconnect-button" title="<?php esc_html_e( 'Disconnect', 'jetpack' ); ?>" href="<?php echo esc_url( $disconnect_url ); ?>" target="_top">×</a>
 											<?php endif; ?>
+
+											<br/>
+											<div class="pub-connection-test test-in-progress" id="pub-connection-test-<?php echo esc_attr( $id ); ?>" >
+											</div>
 										</li>
 
 										<?php
@@ -178,7 +196,18 @@ class Publicize_UI {
 				  					?>
 				  				</ul>
 				  			<?php endif; ?>
-							<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection" href="<?php echo esc_url( $connect_url); ?>" target="_top"><?php echo esc_html( sprintf( __( 'Add new %s connection.', 'jetpack' ), $this->publicize->get_service_label( $name ) ) ); ?></a>
+				  			
+				  			
+
+				  			<?php
+				  				 $connections = $this->publicize->get_connections( $name );
+				  				if ( empty ( $connections ) ) { ?>
+									<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection button" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Connect', 'jetpack' ) ); ?></a>
+			  					<?php } else { ?>
+									<a id="<?php echo esc_attr( $name ); ?>" class="publicize-add-connection button add-new" href="<?php echo esc_url( $connect_url ); ?>" target="_top"><?php echo esc_html( __( 'Add New', 'jetpack' ) ); ?></a>
+			  					<?php } ?>
+			  					
+
 							<?php
 							$help = apply_filters( 'publicize_help_text_' . $name, false );
 							if ( $help ) {
@@ -188,10 +217,10 @@ class Publicize_UI {
 			  			</div>
 			  		</div>
 				<?php endforeach; ?>
+				</div>
 				<script>
   				(function($){
-  					$('.pub-disconnect-button').on('click', function(e){
-							if ( confirm( '<?php echo esc_js( __( 'Are you sure you want to stop Publicizing posts to this connection?', 'jetpack' ) ); ?>' ) ) {
+  					$('.pub-disconnect-button').on('click', function(e){ if ( confirm( '<?php echo esc_js( __( 'Are you sure you want to stop Publicizing posts to this connection?', 'jetpack' ) ); ?>' ) ) {
 								return true;
 							} else {
   							e.preventDefault();
@@ -350,6 +379,78 @@ jQuery( function($) {
 		    fakebox = '<input id="wpas-submit-' + service + '" type="hidden" value="1" name="wpas[submit][' + service + ']" />';
 		$( '#add-publicize-check' ).append( fakebox );
 	} );
+
+	publicizeConnTestStart = function() {
+		$( '#pub-connection-tests' )
+			.removeClass( 'below-h2' )
+			.removeClass( 'error' )
+			.removeClass( 'publicize-token-refresh-message' )
+			.addClass( 'test-in-progress' )
+			.html( '' );
+		$.post( ajaxurl, { action: 'test_publicize_conns' }, publicizeConnTestComplete );
+	}
+
+	publicizeConnRefreshClick = function( event ) {
+		event.preventDefault();
+		var popupURL = event.currentTarget.href;
+		var popupTitle = event.currentTarget.title;
+		// open a popup window
+		// when it is closed, kick off the tests again
+		var popupWin = window.open( popupURL, popupTitle, '' );
+		var popupWinTimer= window.setInterval( function() {
+			if ( popupWin.closed !== false ) {
+				window.clearInterval( popupWinTimer );
+				publicizeConnTestStart();
+			}
+		}, 500 );
+	}
+
+	publicizeConnTestComplete = function( response ) {
+		var testsSelector = $( '#pub-connection-tests' );
+		testsSelector
+			.removeClass( 'test-in-progress' )
+			.removeClass( 'below-h2' )
+			.removeClass( 'error' )
+			.removeClass( 'publicize-token-refresh-message' )
+			.html( '' );
+
+		// If any of the tests failed, show some stuff
+		var somethingShownAlready = false;
+		$.each( response.data, function( index, testResult ) {
+			// find the li for this connection
+			if ( ! testResult.connectionTestPassed ) {
+				if ( ! somethingShownAlready ) {
+					testsSelector
+						.addClass( 'below-h2' )
+						.addClass( 'error' )
+						.addClass( 'publicize-token-refresh-message' )
+						.append( "<p><?php echo esc_html( __( 'Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:', 'jetpack' ) ); ?></p>" );
+					somethingShownAlready = true;
+				}
+
+				if ( testResult.userCanRefresh ) {
+					testsSelector.append( '<p/>' );
+					$( '<a/>', {
+						'class'  : 'pub-refresh-button button',
+						'title'  : testResult.refreshText,
+						'href'   : testResult.refreshURL,
+						'text'   : testResult.refreshText,
+						'target' : '_refresh_' + testResult.serviceName
+					} )
+						.appendTo( testsSelector.children().last() )
+						.click( publicizeConnRefreshClick );
+				}
+			}
+		} );
+	}
+
+	$( document ).ready( function() {
+		// If we have the #pub-connection-tests div present, kick off the connection test
+		if ( $( '#pub-connection-tests' ).length ) {
+			publicizeConnTestStart();
+		}
+	} );
+
 } );
 </script>
 
@@ -534,9 +635,9 @@ jQuery( function($) {
 					<a href="#" class="hide-if-no-js" id="publicize-form-hide"><?php _e( 'Hide', 'jetpack' ); ?></a>
 					<input type="hidden" name="wpas[0]" value="1" />
 
-				</div> <?php // #publicize-form
-
-				$this->publicize->refresh_tokens_message();
+				</div>
+				<div id="pub-connection-tests"></div>
+				<?php // #publicize-form
 
 				$publicize_form = ob_get_clean();
 			else :

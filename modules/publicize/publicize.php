@@ -67,6 +67,9 @@ abstract class Publicize_Base {
 		// then check meta and publicze based on that. stage 3 implemented on wpcom
 		add_action( 'transition_post_status', array( $this, 'flag_post_for_publicize' ), 10, 3 );
 		add_action( 'save_post', array( &$this, 'save_meta' ), 20, 2 );
+
+		// Connection test callback
+		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
 	}
 
 	/**
@@ -80,6 +83,7 @@ abstract class Publicize_Base {
 	abstract function get_connections( $service, $_blog_id = false, $_user_id = false );
 	abstract function get_connection( $service, $id, $_blog_id = false, $_user_id = false );
 	abstract function flag_post_for_publicize( $new_status, $old_status, $post );
+	abstract function test_connection( $service_name, $connection );
 
 	/**
 	* Shared Functions
@@ -101,6 +105,10 @@ abstract class Publicize_Base {
 			 return 'http://' . $cmeta['connection_data']['meta']['tumblr_base_hostname'];
 		} elseif ( 'twitter' == $service_name ) {
 			return 'http://twitter.com/' . substr( $cmeta['external_display'], 1 ); // Has a leading '@'
+		} elseif ( 'google_plus' == $service_name && isset( $cmeta['connection_data']['meta']['google_plus_page'] ) ) {
+			return 'https://plus.google.com/' . $cmeta['connection_data']['meta']['google_plus_page'];
+		} elseif ( 'google_plus' == $service_name ) {
+			return 'https://plus.google.com/' . $cmeta['external_id'];
 		} else if ( 'linkedin' == $service_name ) {
 			if ( !isset( $cmeta['connection_data']['meta']['profile_url'] ) ) {
 				return false;
@@ -146,6 +154,9 @@ abstract class Publicize_Base {
 		switch ( $service_name ) {
 			case 'linkedin':
 				return 'LinkedIn';
+				break;
+			case 'google_plus':
+				return  'Google+';
 				break;
 			case 'twitter':
 			case 'facebook':
@@ -345,5 +356,52 @@ abstract class Publicize_Base {
 			return true;
 
 		return post_type_supports( $post_type, 'publicize' );
+	}
+
+	/**
+	 * Runs tests on all the connections and returns the results to the caller
+	 */
+	function test_publicize_conns() {
+		$test_results = array();
+
+		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
+			foreach ( $connections as $connection ) {
+
+				$id = $this->get_connection_id( $connection );
+
+				$connection_test_passed = true;
+				$connection_test_message = __( 'This connection is working correctly.' , 'jetpack' );
+				$user_can_refresh = false;
+				$refresh_text = '';
+				$refresh_url = '';
+
+				$connection_test_result = true;
+				if ( method_exists( $this, 'test_connection' ) ) {
+					$connection_test_result = $this->test_connection( $service_name, $connection );
+				}
+
+				if ( is_wp_error( $connection_test_result ) ) {
+					$connection_test_passed = false;
+					$connection_test_message = $connection_test_result->get_error_message();
+					$error_data = $connection_test_result->get_error_data();
+
+					$user_can_refresh = $error_data['user_can_refresh'];
+					$refresh_text = $error_data['refresh_text'];
+					$refresh_url = $error_data['refresh_url'];
+				}
+
+				$test_results[] = array(
+					'connectionID'          => $id,
+					'serviceName'           => $service_name,
+					'connectionTestPassed'  => $connection_test_passed,
+					'connectionTestMessage' => esc_attr( $connection_test_message ),
+					'userCanRefresh'        => $user_can_refresh,
+					'refreshText'           => esc_attr( $refresh_text ),
+					'refreshURL'            => $refresh_url
+				);
+			}
+		}
+
+		wp_send_json_success( $test_results );
 	}
 }

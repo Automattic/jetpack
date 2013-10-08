@@ -1,4 +1,4 @@
-/* This file was automatically generated on Sep 07 2013 23:01:10 */
+/* This file was automatically generated on Oct 08 2013 18:28:14 */
 
 div#publicize-services-block {
 	display: inline-block;
@@ -184,4 +184,8 @@ table#option-fb-fanpage td.details span.category, table#option-fanpage td.detail
 input.fb-options {
 	font-family: "Lucida Grande",Verdana,Arial,sans-serif;
 	font-size: 12px;
+}
+
+.pub-connection-error {
+	color: #ff0000;
 }

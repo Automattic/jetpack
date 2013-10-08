@@ -266,12 +266,12 @@ class Publicize extends Publicize_Base {
 	function refresh_url( $service_name ) {
 		return add_query_arg( array(
 			'action'   => 'request',
-			'service'  =>  $service_name,
+			'service'  => $service_name,
 			'kr_nonce' => wp_create_nonce( 'keyring-request' ),
 			'refresh'  => 1,
 			'for'      => 'publicize',
 			'nonce'    => wp_create_nonce( "keyring-request-$service_name" ),
-		), menu_page_url( 'sharing', false ) );
+		), admin_url( 'options-general.php?page=sharing' ) );
 	}
 
 	function disconnect_url( $service_name, $id ) {
@@ -315,6 +315,45 @@ class Publicize extends Publicize_Base {
 
 	function flag_post_for_publicize( $new_status, $old_status, $post ) {
 		// Stub only. Doesn't need to do anything on Jetpack Client
+	}
+
+	function test_connection( $service_name, $connection ) {
+		$connection_test_passed = true;
+		$connection_test_message = '';
+		$user_can_refresh = false;
+
+		$id = $this->get_connection_id( $connection );
+
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client();
+		$xml->query( 'jetpack.testPublicizeConnection', $id );
+
+		if ( $xml->isError() ) {
+			$xml_response = $xml->getResponse();
+			$connection_test_message = $xml_response['faultString'];
+			$connection_test_passed = false;
+		}
+
+		// Bail if all is well
+		if ( $connection_test_passed ) {
+			return true;
+		} 
+
+		// Set up refresh if the user can
+		$user_can_refresh = current_user_can( $this->GLOBAL_CAP );
+		if ( $user_can_refresh ) {
+			$nonce = wp_create_nonce( "keyring-request-" . $service_name );
+			$refresh_text = sprintf( __( 'Refresh connection with %s' ), $this->get_service_label( $service_name ) );
+			$refresh_url = $this->refresh_url( $service_name );
+		}
+
+		$error_data = array(
+			'user_can_refresh' => $user_can_refresh,
+			'refresh_text' => $refresh_text,
+			'refresh_url' => $refresh_url
+		);
+
+		return new WP_Error( 'pub_conn_test_failed', $connection_test_message, $error_data );
 	}
 
 	/**
@@ -583,66 +622,6 @@ class Publicize extends Publicize_Base {
 		$this->globalization();
 	}
 
-	function is_expired( $expires  = false ) {
-		$hour_in_seconds = 3600;
-		if ( !$expires )
-			return false; // No expires value, assume it's a permanent token
-		if ( '0000-00-00 00:00:00' == $expires )
-			return false; // Doesn't expire
-		if ( ( time() + $hour_in_seconds ) > strtotime( $expires ) )
-			return true; // Token's expiry time has passed, or will pass before $window
-		return false;
-	}
-
-	function refresh_tokens_message() {
-		global $post;
-		$post_id = $post ? $post->ID : 0;
-
-		$services = $this->get_services( 'all' );
-
-		// Same core nonce works for all services
-		$keyring_nonce = wp_create_nonce( 'keyring-request' );
-		$expired_tokens = false;
-
-		if ( is_array( $services ) && count( $services ) ) {
-			foreach ( $services as $name => $service ) {
-				if ( $connections = $this->get_connections( $name ) ) {
-			
-					foreach ( $connections as $connection ) {
-
-						$cmeta = $this->get_connection_meta( $connection );
-
-						// If the token for this connection is expired, or expires soon, then warn
-						if ( !$this->is_expired( $cmeta['expires'] ) ) {
-							continue;
-						}
-
-						if ( !$expired_tokens ) {
-							?>
-							<div class="error below-h2 publicize-token-refresh-message">
-							<p><?php echo esc_html( __( 'Before you hit Publish, please refresh your connection to make sure we can Publicize your post:' , 'jetpack') ); ?></p>
-							<?php
-							$expired_tokens = true;
-						}
-						// No need to request for a specific token id, since the token store detects duplication and updates a single token per service
-						$nonce = wp_create_nonce( "keyring-request-" . $name );
-						$url = $this->refresh_url( $name );
-						?>
-						<p style="text-align: center;" id="publicize-token-refresh-<?php echo esc_attr( $name ); ?>" class="publicize-token-refresh-button">
-							<a href="<?php echo esc_url( $url ); ?>" class="button" target="_refresh_<?php echo esc_attr( $name ); ?>">
-								<?php printf( __( 'Refresh connection with %s' , 'jetpack'), Publicize::get_service_label( $name ) ); ?>
-							</a>
-						</p><?php
-					}
-				}
-			}
-		}
-
-		if ( $expired_tokens ) {
-			echo '</div>';
-		}
-	}
-	
 	/** 
 	* Already-published posts should not be Publicized by default. This filter sets checked to 
 	* false if a post has already been published. 
