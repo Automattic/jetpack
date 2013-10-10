@@ -9,7 +9,7 @@ function atd_sprintf(format, values) {
 /* init the autoproofread options */
 function install_atd_l10n() {
 	/* install L10n strings into TinyMCE if it's present */
-	if ( typeof( tinyMCE ) != 'undefined' && typeof( tinyMCEPreInit ) != 'undefined' )
+	if ( typeof( tinyMCE ) != 'undefined' && typeof( tinyMCEPreInit ) != 'undefined' && typeof( tinyMCEPreInit.mceInit ) !== 'undefined' )
 		tinyMCE.addI18n(tinyMCEPreInit.mceInit.language + '.AtD', AtD_l10n_r0ar);
 
 	/* set the AtD l10n instance */
