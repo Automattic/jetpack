@@ -20,10 +20,6 @@ class VaultPress {
 	var $db_version     = 3;
 	var $plugin_version = '1.4.8';
 
-	function VaultPress() {
-		$this->__construct();
-	}
-
 	function __construct() {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
 		register_deactivation_hook( __FILE__, array( $this, 'deactivate' ) );

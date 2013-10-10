@@ -45,9 +45,6 @@ function apply_filters_ref_array($tag, $args) {
 endif;
 
 class VP_Site_Scanner {
-	function VP_Site_Scanner() {
-		self::__construct();
-	}
 	function __construct() {
 		// Only scan once in multisites.
 		if( function_exists( 'is_main_site' ) && !is_main_site() )

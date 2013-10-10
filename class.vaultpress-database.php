@@ -5,10 +5,6 @@ class VaultPress_Database {
 	var $table = null;
 	var $pks = null;
 
-	function VaultPress_Database() {
-		$this->__construct();
-	}
-
 	function __construct() {
 	}
 

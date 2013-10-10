@@ -1,10 +1,6 @@
 <?php
 
 class VaultPress_Hotfixes {
-	function VaultPress_Hotfixes() {
-		$this->__construct();
-	}
-
 	function __construct() {
 		global $wp_version;
 

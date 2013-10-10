@@ -6,10 +6,6 @@ class VaultPress_Filesystem {
 	var $dir  = null;
 	var $keys = array( 'ino', 'uid', 'gid', 'size', 'mtime', 'blksize', 'blocks' );
 
-	function VaultPress_Filesystem() {
-		$this->__construct();
-	}
-
 	function __construct() {
 	}
 
