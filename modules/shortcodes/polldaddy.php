@@ -15,31 +15,27 @@ class PolldaddyShortcode {
 		if ( defined( 'GLOBAL_TAGS' ) == false )
 			add_shortcode( 'polldaddy', array( $this, 'polldaddy_shortcode' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
-		add_action( 'infinite_scroll_render', array( $this, 'polldaddy_shortcode_infinite' ), 11 );
+//		add_action( 'infinite_scroll_render', array( $this, 'polldaddy_shortcode_infinite' ), 11 );
 	}
 
 	private function get_async_code( array $settings, $survey_link ) {
 		$embed_src     = 'http://i0.poll.fm/survey.js';
 		$embed_src_ssl = 'https://polldaddy.com/survey.js';
 
-		// While testing, set the live URL to the same development version
-		$embed_src = $embed_src_ssl;
-
 		$include = <<<CONTAINER
 ( function( d, c, j ) {
-  if ( !document.getElementById( j ) ) {
+  if ( !d.getElementById( j ) ) {
     var pd = d.createElement( c ), s;
     pd.id = j;
-    pd.src = ( 'https:' == document.location.protocol ) ? '{$embed_src_ssl}' : '{$embed_src}';
-    s = document.getElementsByTagName( c )[0];
+    pd.src = ( 'https:' == d.location.protocol ) ? '{$embed_src_ssl}' : '{$embed_src}';
+    s = d.getElementsByTagName( c )[0];
     s.parentNode.insertBefore( pd, s );
   }
 }( document, 'script', 'pd-embed' ) );
 CONTAINER;
 
 		// Compress it a bit
-		$include = str_replace( array( "\n", "\t", "\r" ), '', $include );
-		$include = preg_replace( '/\s*([,:\?\{;\-=\(\)])\s*/', '$1', $include );
+		$include = $this->compress_it( $include );
 
 		$placeholder = '<div class="pd-embed" data-settings="'.esc_attr( json_encode( $settings ) ).'"></div>';
 		if ( $type === 'button' )
@@ -54,6 +50,12 @@ CONTAINER;
 			$js_include .= '<noscript>'.$survey_link."</noscript>\n";
 
 		return $js_include;
+	}
+
+	private function compress_it( $js ) {
+		$js = str_replace( array( "\n", "\t", "\r" ), '', $js );
+		$js = preg_replace( '/\s*([,:\?\{;\-=\(\)])\s*/', '$1', $js );
+		return $js;
 	}
 
 	/**
@@ -192,18 +194,7 @@ CONTAINER;
 						'id'    => intval( $poll )
 					);
 
-					if ( is_automattician() )
-						return $this->get_async_code( $settings, $poll_link );
-
-					$settings = json_encode( $settings );
-
-					return <<<SCRIPT
-<script type="text/javascript" charset="UTF-8" src="http://i0.poll.fm/survey.js"></script>
-<script type="text/javascript" charset="UTF-8"><!--//--><![CDATA[//><!--
-polldaddy.add( {$settings} );
-//--><!]]></script>
-<noscript>{$poll_link}</noscript>
-SCRIPT;
+					return $this->get_async_code( $settings, $poll_link );
 				}
 				else {
 					$cb      = ( $cb == 1 ? '?cb='.mktime() : false );
@@ -229,18 +220,37 @@ SCRIPT;
 
 						$data = array( 'url' => $poll_js );
 
-						self::$scripts['poll'][] = $data;
-
-						add_action( 'wp_footer', array( $this, 'generate_scripts' ) );
+						self::$scripts['poll'][intval( $poll )] = $data;
 
 						$data = esc_attr( json_encode( $data ) );
 
-						return <<<CONTAINER
+						$script_url = esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) );
+
+						$str = <<<CONTAINER
 <a name="pd_a_{$poll}"></a>
 <div class="PDS_Poll" id="PDI_container{$poll}" data-settings="{$data}" style="display:inline-block;{$float}{$margins}"></div>
 <div id="PD_superContainer"></div>
 <noscript>{$poll_link}</noscript>
 CONTAINER;
+
+$loader = <<<SCRIPT
+( function( d, c, j ) {
+  if ( !d.getElementById( j ) ) {
+    var pd = d.createElement( c ), s;
+    pd.id = j;
+    pd.src = '{$script_url}';
+    s = d.getElementsByTagName( c )[0];
+    s.parentNode.insertBefore( pd, s );
+  }
+  else if ( typeof jQuery !== 'undefined' )
+  	jQuery( d.body ).trigger( 'pd-script-load' );
+}( document, 'script', 'pd-polldaddy-loader' ) );
+SCRIPT;
+
+						$loader = $this->compress_it( $loader );
+						$loader = "<script type='text/javascript'>\n".$loader."\n</script>";
+
+						return $str.$loader;
 					}
 					else {
 						if ( $inline )
@@ -351,17 +361,7 @@ CONTAINER;
 				if ( empty( $settings ) )
 					return '<!-- no polldaddy output -->';
 
-				if ( is_automattician() )
-					return $this->get_async_code( $settings, $survey_link );
-
-				$settings = json_encode( $settings );
-				return <<<CONTAINER
-<script type="text/javascript" charset="UTF-8" src="http://i0.poll.fm/survey.js"></script>
-<script type="text/javascript" charset="UTF-8"><!--//--><![CDATA[//><!--
-polldaddy.add( {$settings} );
-//--><!]]></script>
-<noscript>{$survey_link}</noscript>
-CONTAINER;
+				return $this->get_async_code( $settings, $survey_link );
 			}
 		}
 		else
