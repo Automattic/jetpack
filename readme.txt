@@ -2,7 +2,7 @@
 Contributors: automattic, apokalyptik, briancolinger, josephscott, shaunandrews, xknown, thingalon
 Tags: security, malware, virus, backups, scanning
 Requires at least: 2.9.2
-Tested up to: 3.5.2
+Tested up to: 3.7
 Stable tag: 1.4.9
 License: GPLv2
 
