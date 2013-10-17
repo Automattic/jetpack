@@ -47,8 +47,6 @@ class Jetpack_Comic {
 
 		if ( function_exists( 'queue_publish_post' ) ) {
 			add_action( 'publish_jetpack-comic', 'queue_publish_post', 10, 2 );
-		} else {
-			add_action( 'publish_jetpack-comic', 'publish_post', 10, 2 );
 		}
 
 		add_action( 'pre_get_posts', array( $this, 'include_in_feeds' ) );
