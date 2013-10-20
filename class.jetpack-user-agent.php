@@ -1357,7 +1357,7 @@ class Jetpack_User_Agent_Info {
 			'alexa', 'altavista', 'ask jeeves', 'attentio', 'baiduspider', 'bingbot', 'chtml generic', 'crawler', 'fastmobilecrawl',
 			'feedfetcher-google', 'firefly', 'froogle', 'gigabot', 'googlebot', 'googlebot-mobile', 'heritrix', 'ia_archiver', 'irlbot',
 			'infoseek', 'jumpbot', 'lycos', 'mediapartners', 'mediobot', 'motionbot', 'msnbot', 'mshots', 'openbot',
-			'pss-webkit-request', // See http://systemsrequests.wordpress.com/2013/07/30/log-request-to-help-us-with-this-issue
+			'pss-webkit-request',
 			'pythumbnail', 'scooter', 'slurp', 'snapbot', 'spider', 'taptubot', 'technoratisnoop',
 			'teoma', 'twiceler', 'yahooseeker', 'yahooysmcm', 'yammybot',
 		);
