@@ -37,7 +37,7 @@ Features include:
 * The ability to allow applications to securely authenticate and access your site with your permission.
 * Creative formats for your image galleries: mosaic, circles, squares, and a slideshow view.
 * Add post sliders and other highlights to your theme with Featured Content.
-* Search once, get results from everything! A single search box that lets you search posts, pages, comments, and plugins
+* Search once, get results from everything! A single search box that lets you search posts, pages, comments, media, and plugins
 * and *many* more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.

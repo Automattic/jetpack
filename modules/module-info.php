@@ -809,7 +809,7 @@ function jetpack_omnisearch_more_info() {
 
 	<h4><?php esc_html_e( 'Omnisearch' , 'jetpack' ); ?></h4>
 
-	<p><?php esc_html_e( 'Search once, get results from everything! Currently supports searching posts, pages, comments, and plugins.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'Search once, get results from everything! Currently supports searching posts, pages, comments, media, and plugins.', 'jetpack' ); ?></p>
 
 	<p><?php esc_html_e( 'Omnisearch plays nice with other plugins by letting other providers offer results as well.', 'jetpack' ); ?></p>
 
