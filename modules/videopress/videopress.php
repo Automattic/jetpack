@@ -261,7 +261,7 @@ class Jetpack_VideoPress {
 				<table id="menu" class="form-table">
 					<tr>
 						<th scope="row" colspan="2">
-							<p><?php _e( 'Please note that the VideoPress module requires a WordPress.com account with an active <a href="http://store.wordpress.com/premium-upgrades/videopress/" target="_blank">VideoPress subscription</a>.</p>', 'jetpack' ); ?></p>
+							<p><?php _e( 'Please note that the VideoPress module requires a WordPress.com account with an active <a href="http://store.wordpress.com/premium-upgrades/videopress/" target="_blank">VideoPress subscription</a>.', 'jetpack' ); ?></p>
 						</th>
 					</tr>
 					<tr>
