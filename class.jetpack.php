@@ -3810,7 +3810,7 @@ p {
 		$option_names = array_filter( (array) $option_names, 'is_string' );
 
 		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id(), ) );
+		$xml = new Jetpack_IXR_Client( array( 'user_id' => JETPACK_MASTER_USER, ) );
 		$xml->query( 'jetpack.fetchSiteOptions', $option_names );
 		if ( $xml->isError() ) {
 			return array_flip( $option_names );
@@ -3841,9 +3841,6 @@ p {
 	 * @return array An array of options that do not match.  If everything is good, it will evaluate to false.
 	 */
 	public static function check_identity_crisis( $force_recheck = false ) {
-		if ( ! current_user_can( 'manage_options' ) )
-			return false;
-
 		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() )
 			return false;
 
