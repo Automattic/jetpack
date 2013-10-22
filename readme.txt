@@ -61,7 +61,7 @@ IMPORTANT - Dynamic cached content now disabled by default. mfunc replaced by wp
 
 == Changelog ==
 = 1.4 =
-* Replace legacy mfunc/mnclude/dynamic-cached-data functionality with a "wpsc_cachedata" cacheaction filter.
+* Replace legacy mfunc/mnclude/dynamic-cached-content functionality with a "wpsc_cachedata" cacheaction filter.
 * Added dynamic-cache-test.php plugin example wpsc_cachedata filter plugin.
 * Misc bugfixes.
 
@@ -384,13 +384,11 @@ Note: this functionality is disabled by default. You will have to enable it on t
 There are 2 ways of doing this. You can use Javascript to draw the part of the page you want to keep dynamic. That's what Google Adsense and many widgets from external sites do and is the recommended way. Or you can use a WP Super Cache filter to do the job but you can't use mod_rewrite mode caching. You have to switch to PHP or legacy caching.
 
 WP Super Cache 1.4 introduced a cacheaction filter called wpsc_cachedata. The cached page to be displayed goes through this filter and allows modification of the page. If the page contains a placeholder tag the filter can be used to replace that tag with your dynamically generated html.
-The function that hooks on to the wpsc_cachedata filter should be put in a file in the plugins folder unless you use the late_init feature. An example plugin is included. Edit [dynamic-cache-test.php](http://svn.wp-plugins.org/wp-super-cache/trunk/plugins/dynamic-cache-test.php) and uncomment the code, and set the constant 'DYNAMIC_CACHE_TEST_TAG' to a random string that will not appear on your website. Change to PHP or legacy caching and activate dynamic caching on the Advanced Settings page and clear the cache. You should see the current server time in a html comment in the source code of your page. More details [in this post](http://ocaoimh.ie/y/5b).
+The function that hooks on to the wpsc_cachedata filter should be put in a file in the WP Super Cache plugins folder unless you use the late_init feature. An example plugin is included. Edit [dynamic-cache-test.php](http://svn.wp-plugins.org/wp-super-cache/trunk/plugins/dynamic-cache-test.php) to see the example code.
+There are two example functions there. There's a simple function that replaces a string (or tag) you define when the cached page is served. The other example function uses an output buffer to generate the dynamic content. Due to a limitation in how PHP works the output buffer code MUST run before the wpsc_cachedata filter is hit, at least for when a page is cached. It doesn't matter when serving cached pages. See [this post](http://ocaoimh.ie/y/6j) for a more technical and longer explanation.
 To execute WordPress functions you must enable the 'Late init' feature on the advanced settings page.
 
 = How do I use WordPress functions in cached dynamic pages? =
-
-See the next qestion, you have to load WordPress before the cached file is served.
-
 = How do I delay serving the cache until the "init" action fires? =
 
 Cached files are served before almost all of WordPress is loaded. While that's great for performance it's a pain when you want to extend the plugin using a core part of WordPress. Enable 'Late init' mode on the Advanced settings page and cached files will be served when "init" fires. WordPress and it's plugins will be loaded now.
