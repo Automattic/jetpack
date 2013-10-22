@@ -15,7 +15,7 @@ class PolldaddyShortcode {
 		if ( defined( 'GLOBAL_TAGS' ) == false )
 			add_shortcode( 'polldaddy', array( $this, 'polldaddy_shortcode' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
-//		add_action( 'infinite_scroll_render', array( $this, 'polldaddy_shortcode_infinite' ), 11 );
+		add_action( 'infinite_scroll_render', array( $this, 'polldaddy_shortcode_infinite' ), 11 );
 	}
 
 	private function get_async_code( array $settings, $survey_link ) {
@@ -409,25 +409,24 @@ CONTAINER;
 	function polldaddy_shortcode_infinite() {
 		// only try to load if a shortcode has been called and theme supports infinite scroll
 		if( self::$add_script ) {
-			$script_url = json_encode( esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) ) );
+			$script_url = esc_url_raw( plugins_url( 'js/polldaddy-shortcode.js', __FILE__ ) );
 
 			// if the script hasn't been loaded, load it
 			// if the script loads successfully, fire an 'pd-script-load' event
 			echo <<<SCRIPT
 				<script type='text/javascript'>
 				//<![CDATA[
-				if ( typeof window.polldaddyshortcode === 'undefined' ) {
-					var wp_pd_js = document.createElement( 'script' );
-					wp_pd_js.type = 'text/javascript';
-					wp_pd_js.src = $script_url;
-					wp_pd_js.async = true;
-					wp_pd_js.onload = function() {
-						jQuery( document.body ).trigger( 'pd-script-load' );
-					};
-					document.getElementsByTagName( 'head' )[0].appendChild( wp_pd_js );
-				} else {
-					jQuery( document.body ).trigger( 'pd-script-load' );
-				}
+				( function( d, c, j ) {
+				  if ( !d.getElementById( j ) ) {
+				    var pd = d.createElement( c ), s;
+				    pd.id = j;
+				    pd.src = '{$script_url}';
+				    s = d.getElementsByTagName( c )[0];
+				    s.parentNode.insertBefore( pd, s );
+				  }
+				  else if ( typeof jQuery !== 'undefined' )
+				  	jQuery( d.body ).trigger( 'pd-script-load' );
+				}( document, 'script', 'pd-polldaddy-loader' ) );
 				//]]>
 				</script>
 SCRIPT;
