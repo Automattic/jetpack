@@ -88,6 +88,9 @@ class Jetpack {
 			'Widget Logic'        => 'widget-logic/widget_logic.php',
 			'Dynamic Widgets'     => 'dynamic-widgets/dynamic-widgets.php',
 		),
+		'random-redirect' => array(
+			'Random Redirect 2'        => 'random-redirect-2/random-redirect.php',
+		),
 	);
 
 	/**
