@@ -312,7 +312,7 @@ function wp_cache_ob_callback( $buffer ) {
 
 	if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'Output buffer callback', 4 );
 
-	$buffer = &wp_cache_get_ob( $buffer );
+	$buffer = wp_cache_get_ob( $buffer );
 	wp_cache_shutdown_callback();
 	return $buffer;
 }
