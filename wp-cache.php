@@ -34,6 +34,18 @@ if( !defined('WP_CONTENT_DIR') )
 
 $wp_cache_config_file = WP_CONTENT_DIR . '/wp-cache-config.php';
 
+if ( !defined( 'WPCACHEHOME' ) ) {
+	define( 'WPCACHEHOME', dirname( __FILE__ ) . '/' );
+	$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
+	$wp_cache_file = WPCACHEHOME . 'advanced-cache.php';
+} elseif ( WPCACHEHOME != dirname( __FILE__ ) . '/' ) {
+	$wp_cache_config_file_sample = dirname( __FILE__ ) . '/wp-cache-config-sample.php';
+	$wp_cache_file = dirname( __FILE__ ) . '/advanced-cache.php';
+} else {
+	$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
+	$wp_cache_file = WPCACHEHOME . 'advanced-cache.php';
+}
+
 if( !@include($wp_cache_config_file) ) {
 	get_wpcachehome();
 	$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
@@ -42,9 +54,7 @@ if( !@include($wp_cache_config_file) ) {
 	get_wpcachehome();
 }
 
-$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
 $wp_cache_link = WP_CONTENT_DIR . '/advanced-cache.php';
-$wp_cache_file = WPCACHEHOME . 'advanced-cache.php';
 
 if( !defined( 'WP_CACHE' ) || ( defined( 'WP_CACHE' ) && constant( 'WP_CACHE' ) == false ) ) {
 	$wp_cache_check_wp_config = true;
@@ -2084,7 +2094,7 @@ function wp_cache_create_advanced_cache() {
 		$global_config_file = dirname(ABSPATH) . '/wp-config.php';
 	}
 
-	$line = 'define( \'WPCACHEHOME\', \'' . constant( 'WPCACHEHOME' ) . '\' );';
+	$line = 'define( \'WPCACHEHOME\', \'' . dirname( __FILE__ ) . '/\' );';
 	if ( !is_writeable_ACLSafe($global_config_file) || !wp_cache_replace_line('define *\( *\'WPCACHEHOME\'', $line, $global_config_file ) ) {
 			echo '<div id="message" class="updated fade"><h3>' . __( 'Warning', 'wp-super-cache' ) . "! <em>" . sprintf( __( 'Could not update %s!</em> WPCACHEHOME must be set in config file.', 'wp-super-cache' ), $global_config_file ) . "</h3>";
 			return false;
@@ -2629,12 +2639,14 @@ function wp_cache_plugin_actions( $links, $file ) {
 add_filter( 'plugin_action_links', 'wp_cache_plugin_actions', 10, 2 );
 
 function wp_cache_admin_notice() {
-	global $cache_enabled;
+	global $cache_enabled, $wp_cache_phase1_loaded;
 	if( substr( $_SERVER["PHP_SELF"], -11 ) == 'plugins.php' && !$cache_enabled && function_exists( "admin_url" ) )
 		echo '<div class="error"><p><strong>' . sprintf( __('WP Super Cache is disabled. Please go to the <a href="%s">plugin admin page</a> to enable caching.', 'wp-super-cache' ), admin_url( 'options-general.php?page=wpsupercache' ) ) . '</strong></p></div>';
 
-	if ( defined( 'ADVANCEDCACHEPROBLEM' ) )
-		echo '<div class="error"><p><strong>' . sprintf( __( 'Warning! WP Super Cache caching broken! The script advanced-cache.php could not load wp-cache-phase1.php.<br /><br />Please edit %1$s/advanced-cache.php and make sure the path to %2$swp-cache-phase1.php is correct.', 'wp-super-cache' ), WP_CONTENT_DIR, WPCACHEHOME ) . '</strong></p></div>';
+	if ( defined( 'ADVANCEDCACHEPROBLEM' ) || ( $cache_enabled && false == isset( $wp_cache_phase1_loaded ) ) ) {
+		echo '<div class="error"><p>' . sprintf( __( 'Warning! WP Super Cache caching <strong>was</strong> broken but has been <strong>fixed</strong>! The script advanced-cache.php could not load wp-cache-phase1.php.<br /><br />The file %1$s/advanced-cache.php has been recreated and WPCACHEHOME fixed in your wp-config.php. Reload to hide this message.', 'wp-super-cache' ), WP_CONTENT_DIR ) . '</p></div>';
+		wp_cache_create_advanced_cache();
+	}
 }
 add_action( 'admin_notices', 'wp_cache_admin_notice' );
 

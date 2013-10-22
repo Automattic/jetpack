@@ -19,6 +19,8 @@ if( $blogcacheid != '' ) {
 	$blog_cache_dir = $cache_path;
 }
 
+$wp_cache_phase1_loaded = true;
+
 $mutex_filename  = 'wp_cache_mutex.lock';
 $new_cache = false;
 
