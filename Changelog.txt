@@ -1,3 +1,33 @@
+2013-10-23 10:49  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2013-10-23 10:35  donncha
+
+	* readme.txt: Updated changelog
+
+2013-10-22 20:26  donncha
+
+	* wp-cache-phase1.php, wp-cache.php: Handle site migration more
+	  gracefully. Recreate advanced-cache.php and WPCACHEHOME if
+	  wp-cache-phase1.php wasn't loaded when admin loaded.
+
+2013-10-22 20:24  donncha
+
+	* wp-cache-phase2.php: Minor change to text of buffer warning when
+	  late init not set on dynamic pages
+
+2013-10-22 12:06  donncha
+
+	* wp-cache-phase2.php: No assign by reference here, not allowed any
+	  more. Ref:
+	  http://wordpress.org/support/topic/php-strict-standards-2?replies=1
+
+2013-10-22 11:58  donncha
+
+	* Changelog.txt: Updated and truncated Changelog. It was getting
+	  way too big
+
 2013-10-22 11:52  donncha
 
 	* readme.txt: Updated docs, mostly in the dynamic content section
