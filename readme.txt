@@ -57,12 +57,14 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 == Upgrade Notice ==
 
 = 1.4 =
-IMPORTANT - Dynamic cached content now disabled by default. mfunc replaced by wpsc_cachedata filter. http://ocaoimh.ie/y/5b
+Dynamic cached content now disabled by default. mfunc replaced by wpsc_cachedata filter. Read http://ocaoimh.ie/y/6j before updating if you use mfunc/mclude/dynamic-cached-content.
 
 == Changelog ==
 = 1.4 =
 * Replace legacy mfunc/mnclude/dynamic-cached-content functionality with a "wpsc_cachedata" cacheaction filter.
 * Added dynamic-cache-test.php plugin example wpsc_cachedata filter plugin.
+* Delete post, tag and category cache when a post changes from draft to publish or vice versa. Props @Biranit.
+* Update advanced-cache.php and wp-config.php if wp-cache-phase1.php doesn't load, usually happening after migrating to a new hosting service.
 * Misc bugfixes.
 
 = 1.3.2 =
