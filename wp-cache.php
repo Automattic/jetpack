@@ -392,7 +392,7 @@ function admin_bar_delete_page() {
 	if ( function_exists('current_user_can') && false == current_user_can('delete_others_posts') )
 		return false;
 	if ( isset( $_GET[ 'action' ] ) && $_GET[ 'action' ] == 'delcachepage' && ( isset( $_GET[ '_wpnonce' ] ) ? wp_verify_nonce( $_REQUEST[ '_wpnonce' ], 'delete-cache' ) : false ) ) {
-		$path = get_supercache_dir() . preg_replace( '/:.*$/', '', $_GET[ 'path' ] );
+		$path = trailingslashit( get_supercache_dir() . preg_replace( '/:.*$/', '', $_GET[ 'path' ] ) );
 		$files = get_all_supercache_filenames( $path );
 		foreach( $files as $cache_file )
 			prune_super_cache( $path . $cache_file, true ); 
