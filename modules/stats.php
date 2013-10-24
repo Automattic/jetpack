@@ -780,14 +780,21 @@ function stats_dashboard_head() { ?>
 /* <![CDATA[ */
 jQuery(window).load( function() {
 	jQuery( function($) {
-		var dashStats = $( '#dashboard_stats.postbox div.inside' );
+		resizeChart();
+		jQuery(window).resize( _.debounce( function(){
+			resizeChart();
+		}, 100) );
+	} );
+	
+	function resizeChart() {
+		var dashStats = jQuery( '#dashboard_stats.postbox div.inside' );
 
-		if ( dashStats.find( '.dashboard-widget-control-form' ).size() ) {
+		if ( dashStats.find( '.dashboard-widget-control-form' ).length ) {
 			return;
 		}
 
-		if ( ! dashStats.size() ) {
-			dashStats = $( '#dashboard_stats div.dashboard-widget-content' );
+		if ( ! dashStats.length ) {
+			dashStats = jQuery( '#dashboard_stats div.dashboard-widget-content' );
 			var h = parseInt( dashStats.parent().height() ) - parseInt( dashStats.prev().height() );
 			var args = 'width=' + dashStats.width() + '&height=' + h.toString();
 		} else {
@@ -795,7 +802,7 @@ jQuery(window).load( function() {
 		}
 
 		dashStats.not( '.dashboard-widget-control' ).load( 'admin.php?page=stats&noheader&dashboard&' + args );
-	} );
+	}
 } );
 /* ]]> */
 </script>
