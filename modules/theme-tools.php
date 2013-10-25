@@ -60,5 +60,6 @@ require_once( dirname( __FILE__ ) . '/tonesque.php' );
 // Custom Post Types - we don't want a module card for these (yet)
 require_once( dirname( __FILE__ ) . '/custom-post-types/comics.php' );
 require_once( dirname( __FILE__ ) . '/custom-post-types/testimonial.php' );
+require_once( dirname( __FILE__ ) . '/custom-post-types/nova.php' );
 
 require_once( dirname( __FILE__ ) . '/random-redirect.php' );
