@@ -490,8 +490,8 @@ class Jetpack_Tiled_Gallery_Grouper {
 
 		foreach ( $attachments as $image ) {
 			$meta  = wp_get_attachment_metadata( $image->ID );
-			$image->width_orig = ( $meta['width'] > 0 )? $meta['width'] : 1;
-			$image->height_orig = ( $meta['height'] > 0 )? $meta['height'] : 1;
+			$image->width_orig = ( isset( $meta['width'] ) && $meta['width'] > 0 )? $meta['width'] : 1;
+			$image->height_orig = ( isset( $meta['height'] ) && $meta['height'] > 0 )? $meta['height'] : 1;
 			$image->ratio = $image->width_orig / $image->height_orig;
 			$image->ratio = $image->ratio? $image->ratio : 1;
 			$images_with_sizes[] = $image;
