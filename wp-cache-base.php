@@ -19,6 +19,8 @@ if ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_AL
 	if( defined( 'SUBDOMAIN_INSTALL' ) && constant( 'SUBDOMAIN_INSTALL' ) == true ) {
 		$blogcacheid = $WPSC_HTTP_HOST;
 	} else {
+		if ( isset( $base ) == false )
+			$base = '';
 		$request_uri = preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', str_replace( '..', '', $_SERVER['REQUEST_URI'] ) );
 		if( strpos( $request_uri, '/', 1 ) ) {
 			if( $base == '/' ) {
