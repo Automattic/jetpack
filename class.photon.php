@@ -359,13 +359,14 @@ class Jetpack_Photon {
 				// To ensure filter receives consistent data regardless of requested size, `$image_args` is overridden with dimensions of original image.
 				if ( 'full' == $size ) {
 					$image_meta = wp_get_attachment_metadata( $attachment_id );
-
-					// 'crop' is true so Photon's `resize` method is used
-					$image_args = array(
-						'width'  => $image_meta['width'],
-						'height' => $image_meta['height'],
-						'crop'   => true
-					);
+					if ( isset( $image_meta['width'], $image_meta['height'] ) ) {
+						// 'crop' is true so Photon's `resize` method is used
+						$image_args = array(
+							'width'  => $image_meta['width'],
+							'height' => $image_meta['height'],
+							'crop'   => true
+						);
+					}
 				}
 
 				// Expose determined arguments to a filter before passing to Photon
