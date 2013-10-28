@@ -59,7 +59,6 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 body {
 	background: #fff;
 	line-height: 1;
-	-webkit-overflow-scrolling: touch;
 }
 ol, ul {
 	list-style: none;
@@ -363,10 +362,6 @@ header img {
 #access h3.toggled-on {
 	opacity: 0.8;
 }
-#access {
- 	position: relative;
- 	z-index: 99999;
- }
 #access ul.nav-menu {
 	background: #fff;
 	-webkit-box-shadow: 0 0 2px rgba(0, 0, 0, 0.15), 0 3px 8px rgba(0, 0, 0, 0.1);
@@ -655,9 +650,7 @@ dl.gallery-item {
 .entry-content img,
 .comment-content img,
 .widget img {
-	display: block;
 	height: auto;
-	margin: 0 auto;
 	max-width: 100% !important; /* Fluid images for posts, comments, and widgets */
 }
 #content .gallery-columns-3 .gallery-item img,
@@ -676,6 +669,12 @@ img.size-large {
 	max-width: 100%;
 	width: auto; /* Prevent stretching of full-size and large-size images with height and width attributes in IE8 */
 	height: auto; /* Make sure images with WordPress-added height and width attributes are scaled correctly */
+}
+img.size-full,
+img.size-large,
+img.size-medium {
+	display: block;
+	margin: 0 auto;
 }
 .entry-content img.wp-smiley {
 	border: none;
