@@ -335,7 +335,7 @@
 		} ).change();
 
 		$( 'input[name=sharing_label]' ).blur( function() {
-			$('#live-preview h3.sd-title').html( $( '<div/>' ).text( $( this ).val() ).html() );
+			$('#live-preview h3.sd-title').text( $( '<div/>' ).text( $( this ).val() ).html() );
 		} );
 
 		init_handlers();
