@@ -14,6 +14,8 @@ add_action( 'init', 'jetpack_init_gplus_authorship' );
 
 class GPlus_Authorship {
 
+	private $byline_displayed = false;
+
 	function __construct() {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 		if ( $this->in_jetpack ) {
@@ -33,6 +35,8 @@ class GPlus_Authorship {
 	function show_on_this_post() {
 		global $post;
 		$show = apply_filters( 'gplus_authorship_show', true, $post );
+		if ( !is_main_query() )
+			$show = false;
 		$author = $this->information( $post->post_author );
 		if ( empty( $author ) )
 			$show = false;
@@ -132,7 +136,7 @@ class GPlus_Authorship {
 
 	function byline( $post ) {
 		$author = $this->information( $post->post_author );
-		$image = '<img src="' . esc_url( $author['profile_image'] ) . '?sz=40" alt="' . esc_html( $author['name'] ) . '" width="20" height="20" align="absmiddle" /> ';
+		$image = '<img src="' . esc_url( $author['profile_image'] ) . '?sz=40" alt="" width="20" height="20" align="absmiddle" /> ';
 		$byline = sprintf( '<a href="%1$s">%2$s</a><a rel="author" href="%1$s" class="gplus-profile">%3$s</a>', esc_url( $author['url'] ), $image, esc_html( $author['name'] ) );
 		return apply_filters( 'gplus_authorship_byline', $byline, $post );
 	}
@@ -168,6 +172,8 @@ class GPlus_Authorship {
 			return $text;
 		if  ( get_post_type() != 'post' )
 			return $text;
+		if ( true === $this->byline_displayed )
+			return $text;
 		$author = $this->information( $post->post_author );
 		if ( empty( $author ) )
 			return $text;
@@ -194,6 +200,8 @@ class GPlus_Authorship {
 		$output .= $this->follow_button( $post );
 		$output .= '</div>';
 		$output .= '</div>';
+
+		$this->byline_displayed = true;
 
 		if ( $echo )
 			echo $text . $output;
