@@ -203,13 +203,13 @@ class The_Neverending_Home_Page {
 					$settings['type'] = 'click';
 			}
 
-			// Ignore posts_per_page theme setting for [click] type 
-			if ( 'click' == $settings['type'] ) 
-				$settings['posts_per_page'] = (int) get_option( 'posts_per_page' ); 
+			// Ignore posts_per_page theme setting for [click] type
+			if ( 'click' == $settings['type'] )
+				$settings['posts_per_page'] = (int) get_option( 'posts_per_page' );
 
 			// Backwards compatibility for posts_per_page setting
-			elseif ( false === $settings['posts_per_page'] ) 
-				$settings['posts_per_page'] = 7; 
+			elseif ( false === $settings['posts_per_page'] )
+				$settings['posts_per_page'] = 7;
 
 			// Store final settings in a class static to avoid reparsing
 			self::$settings = apply_filters( 'infinite_scroll_settings', $settings );
@@ -235,6 +235,13 @@ class The_Neverending_Home_Page {
 	 */
 	static function got_infinity() {
 		return isset( $_GET[ 'infinity' ] );
+	}
+
+	/**
+	 * Is this guaranteed to be the last batch of posts?
+	 */
+	static function is_last_batch() {
+		return (bool) ( count( self::wp_query()->posts ) < self::get_settings()->posts_per_page );
 	}
 
 	/**
@@ -302,18 +309,22 @@ class The_Neverending_Home_Page {
 		if ( empty( $id ) )
 			return;
 
+		// Make sure there are enough posts for IS
+		if ( 'click' == self::get_settings()->type && self::is_last_batch() )
+			return;
+
 		// Add a class to the body.
 		add_filter( 'body_class', array( $this, 'body_class' ) );
 
 		// Add our scripts.
-		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '20130822' );
+		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '20131015', true );
 
 		// Add our default styles.
 		wp_enqueue_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20120612' );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_spinner_scripts' ) );
 
-		add_action( 'wp_head', array( $this, 'action_wp_head' ), 2 );
+		add_action( 'wp_footer', array( $this, 'action_wp_footer_settings' ), 2 );
 
 		add_action( 'wp_footer', array( $this, 'action_wp_footer' ), 99999999 );
 
@@ -358,10 +369,10 @@ class The_Neverending_Home_Page {
 			self::wp_query()->query_vars['orderby'] : '';
 		switch ( $orderby ) {
 			case 'modified':
-				return $post->post_modified_gmt;
+				return $post->post_modified;
 			case 'date':
 			case '':
-				return $post->post_date_gmt;
+				return $post->post_date;
 			default:
 				return false;
 		}
@@ -381,10 +392,10 @@ class The_Neverending_Home_Page {
 
 		switch ( $query->query_vars['orderby'] ) {
 			case 'modified':
-				return 'post_modified_gmt';
+				return 'post_modified';
 			case 'date':
 			case '':
-				return 'post_date_gmt';
+				return 'post_date';
 			default:
 				return false;
 		}
@@ -399,7 +410,6 @@ class The_Neverending_Home_Page {
 	 * @param string $where
 	 * @param object $query
 	 * @uses apply_filters
-	 * @uses self::get_last_post_date
 	 * @filter posts_where
 	 * @return string
 	 */
@@ -422,8 +432,8 @@ class The_Neverending_Home_Page {
 			$clause = $wpdb->prepare( " AND {$wpdb->posts}.{$sort_field} {$operator} %s", $last_post_date );
 
 			$where .= apply_filters( 'infinite_scroll_posts_where', $clause, $query, $operator, $last_post_date );
-
 		}
+
 		return $where;
 	}
 
@@ -483,14 +493,24 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
+	 * Alias for renamed class method.
+	 *
+	 * Previously, JS settings object was unnecessarily output in the document head.
+	 * When the hook was changed, the method name no longer made sense.
+	 */
+	function action_wp_head() {
+		$this->action_wp_footer_settings();
+	}
+
+	/**
 	 * Prints the relevant infinite scroll settings in JS.
 	 *
 	 * @global $wp_rewrite
 	 * @uses self::get_settings, esc_js, esc_url_raw, self::has_wrapper, __, apply_filters, do_action
-	 * @action wp_head
+	 * @action wp_footer
 	 * @return string
 	 */
-	function action_wp_head() {
+	function action_wp_footer_settings() {
 		global $wp_rewrite;
 
 		// Base JS settings
@@ -869,6 +889,10 @@ class The_Neverending_Home_Page {
 			wp_footer();
 			ob_end_clean();
 
+			if ( 'success' == $results['type'] ) {
+				$results['lastbatch'] = self::is_last_batch();
+			}
+
 			// Loop through posts to capture sharing data for new posts loaded via Infinite Scroll
 			if ( 'success' == $results['type'] && function_exists( 'sharing_register_post_for_share_counts' ) ) {
 				global $jetpack_sharing_counts;
@@ -891,7 +915,7 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
-	 * Update the $allowed_vars array with the standard WP public and private 
+	 * Update the $allowed_vars array with the standard WP public and private
 	 * query vars, as well as taxonomy vars
 	 *
 	 * @global $wp

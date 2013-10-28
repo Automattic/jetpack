@@ -107,7 +107,7 @@ Scroller.prototype.render = function( response ) {
  */
 Scroller.prototype.query = function() {
 	return {
-		page           : this.page + ( this.offset > 0 ? this.offset - 1 : 0 ),
+		page           : this.page,
 		order          : this.order,
 		scripts        : window.infiniteScroll.settings.scripts,
 		styles         : window.infiniteScroll.settings.styles,
@@ -281,8 +281,8 @@ Scroller.prototype.refresh = function() {
 				// Render the results
 				self.render.apply( self, arguments );
 
-				// If 'click' type, add back the handle
-				if ( type == 'click' )
+				// If 'click' type and there are still posts to fetch, add back the handle
+				if ( type == 'click' && !response.lastbatch )
 					self.element.append( self.handle );
 
 				// Fire Google Analytics pageview
@@ -446,7 +446,8 @@ Scroller.prototype.determineURL = function () {
  */
 Scroller.prototype.updateURL = function( page ) {
 	var self = this,
-		pageSlug = -1 == page ? self.origURL : window.location.protocol + '//' + self.history.host + self.history.path.replace( /%d/, page ) + self.history.parameters;
+		offset = self.offset > 0 ? self.offset - 1 : 0,
+		pageSlug = -1 == page ? self.origURL : window.location.protocol + '//' + self.history.host + self.history.path.replace( /%d/, page + offset ) + self.history.parameters;
 
 	if ( window.location.href != pageSlug )
 		history.pushState( null, null, pageSlug );
