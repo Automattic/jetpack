@@ -40,7 +40,7 @@ function vine_embed_video( $matches, $attr, $url, $rawattr ) {
 	}
 
 	$url = 'https://vine.co/v/' . $matches[1] . '/embed/' . $type;
-	$vine_html = sprintf( '<iframe class="vine-embed" src="%s" width="%s" height="%s" frameborder="0"></iframe>', esc_url( $url ), (int) $vine_size, (int) $vine_size );
+	$vine_html = sprintf( '<span class="embed-vine" style="display: block;"><iframe class="vine-embed" src="%s" width="%s" height="%s" frameborder="0"></iframe></span>', esc_url( $url ), (int) $vine_size, (int) $vine_size );
 
 	if ( $vine_flag_embedded_script !== true ) {
 		$vine_html .= '<script async src="//platform.vine.co/static/scripts/embed.js" charset="utf-8"></script>';
