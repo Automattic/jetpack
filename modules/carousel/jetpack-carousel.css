@@ -56,12 +56,15 @@ only screen and (min-device-pixel-ratio: 1.5) {
 
 .jp-carousel-photo-info {
 	position: relative;
+	left: 25%;
+	width: 50%;
+}
+
+.jp-carousel-transitions .jp-carousel-photo-info {
 	-webkit-transition: 400ms ease-out;
 	-moz-transition: 400ms ease-out;
 	-o-transition: 400ms ease-out;
 	transition: 400ms ease-out;
-	left: 25%;
-	width: 50%;
 }
 
 .jp-carousel-info h2 {
@@ -96,6 +99,10 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	zoom: 1;
 	filter: alpha(opacity=20);
 	opacity: 0.2;
+}
+
+.jp-carousel-transitions .jp-carousel-next-button span,
+.jp-carousel-transitions .jp-carousel-previous-button span {
 	-webkit-transition: 500ms opacity ease-out;
 	-moz-transition: 500ms opacity ease-out;
 	-o-transition: 500ms opacity ease-out;
@@ -140,6 +147,9 @@ div.jp-carousel-buttons a {
 div.jp-carousel-buttons a:hover {
 	color: #68c9e8;
 	border: none !important;
+}
+
+.jp-carousel-transitions div.jp-carousel-buttons a:hover {
 	-webkit-transition: none !important;
 	-moz-transition: none !important;
 	-o-transition: none !important;
@@ -155,7 +165,7 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-slide {
-	position:absolute;
+	position:fixed;
 	width:0;
 	bottom:0;
 	background-color:#000;
@@ -164,10 +174,22 @@ div.jp-carousel-buttons a:hover {
 	-moz-border-radius:2px;
 	-ms-border-radius:2px;
 	-o-border-radius:2px;
-	-webkit-transition: 400ms ease-out;
-	-moz-transition: 400ms ease-out;
-	-o-transition: 400ms ease-out;
-	transition: 400ms ease-out;
+}
+
+.jp-carousel-transitions .jp-carousel-slide {
+	-webkit-transition: 300ms ease-out;
+	-moz-transition: 300ms ease-out;
+	-o-transition: 300ms ease-out;
+	transition: 300ms ease-out;
+}
+
+.jp-carousel-slide.selected {
+	position: absolute;
+}
+
+.jp-carousel-slide {
+	filter: alpha(opacity=25);
+	opacity: 0.25;
 }
 
 .jp-carousel-slide img {
@@ -183,15 +205,16 @@ div.jp-carousel-buttons a:hover {
 	-moz-box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 	box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 	zoom: 1;
-	filter: alpha(opacity=25);
-	opacity: 0.25;
+}
+
+.jp-carousel-transitions .jp-carousel-slide {
 	-webkit-transition: opacity 400ms linear;
 	-moz-transition: opacity 400ms linear;
 	-o-transition: opacity 400ms linear;
 	transition: opacity 400ms linear;
 }
 
-.jp-carousel-slide.selected img {
+.jp-carousel-slide.selected {
 	filter: alpha(opacity=100);
 	opacity: 1;
 }
@@ -204,6 +227,9 @@ div.jp-carousel-buttons a:hover {
 	position: absolute;
 	text-align: left;
 	width: 90%;
+}
+
+.jp-carousel-transitions .jp-carousel-close-hint {
 	-webkit-transition: color 200ms linear;
 	-moz-transition: color 200ms linear;
 	-o-transition: color 200ms linear;
@@ -225,6 +251,9 @@ div.jp-carousel-buttons a:hover {
 	-moz-border-radius: 4px;
 	-webkit-border-radius: 4px;
 	border-radius: 4px;
+}
+
+.jp-carousel-transitions .jp-carousel-close-hint span {
 	-webkit-transition: border-color 200ms linear;
 	-moz-transition: border-color 200ms linear;
 	-o-transition: border-color 200ms linear;
