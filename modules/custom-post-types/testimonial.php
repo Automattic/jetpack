@@ -270,7 +270,8 @@ function jetpack_testimonial_custom_control_classes() {
 		}
 
 		public function attachment_guid_to_id( $value ) {
-			if ( is_numeric( $value ) )
+
+			if ( is_numeric( $value ) || empty( $value ) )
 				return $value;
 
 			$matches = get_posts( array( 'post_type' => 'attachment', 'guid' => $value ) );
