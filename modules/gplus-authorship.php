@@ -136,7 +136,7 @@ class GPlus_Authorship {
 
 	function byline( $post ) {
 		$author = $this->information( $post->post_author );
-		$image = '<img src="' . esc_url( $author['profile_image'] ) . '?sz=40" alt="" width="20" height="20" align="absmiddle" /> ';
+		$image = '<img src="' . esc_url( $author['profile_image'] ) . '?sz=40" alt="' . esc_attr( $author['name'] ) . '" width="20" height="20" align="absmiddle" /> ';
 		$byline = sprintf( '<a href="%1$s">%2$s</a><a rel="author" href="%1$s" class="gplus-profile">%3$s</a>', esc_url( $author['url'] ), $image, esc_html( $author['name'] ) );
 		return apply_filters( 'gplus_authorship_byline', $byline, $post );
 	}
