@@ -63,6 +63,13 @@ ____ _  _ ____ _  _ ____ ____ _    ____ ____
 |    |__| |__| |\ | | __ |___ |    |  | | __ 
 |___ |  | |  | | \| |__] |___ |___ |__| |__] 
 
+V3.0.1: 
+Mostly maintenance. 
+- Fixed an issue with the example page that showed an old "top" icon instead of the actual NEW "refresh" icon.
+- Added inverse Google+ and Path.
+- Replaced tabs with spaces in the helper CSS.
+- Changed the Genericons.com copy/paste tool to serve span's instead of div's for casual icon insertion. It's being converted to "inline-block" anyway.
+
 V3.0:
 Mainly maintenance and a few new icons.
 - Fast forward, rewind, PollDaddy, Notice, Info, Help, Portfolio
