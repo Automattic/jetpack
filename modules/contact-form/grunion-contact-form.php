@@ -1286,10 +1286,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
 		}
 
-		if ( $is_spam !== TRUE )
+		if ( $is_spam !== TRUE && true === apply_filters( 'grunion_should_send_email', true, $post_id ) ) {
 			wp_mail( $to, "{$spam}{$subject}", $message, $headers );
-		elseif ( apply_filters( 'grunion_still_email_spam', FALSE ) == TRUE ) // don't send spam by default.  Filterable.
+		} elseif ( true === $is_spam && apply_filters( 'grunion_still_email_spam', FALSE ) == TRUE ) { // don't send spam by default.  Filterable.
 			wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+		}
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return self::success_message( $post_id, $this );
@@ -1568,7 +1569,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$r .= "\t</div>\n";
 		}
 
-		return $r;
+		return apply_filters( 'grunion_contact_form_field_html', $r, $field_label, get_the_ID() );
 	}
 }
 
