@@ -244,7 +244,6 @@ class Presentations {
 			}
 
 			$out.= do_shortcode( $content );
-			$out.= "</section>";
 		}
 
 		$out.= "</section>";
