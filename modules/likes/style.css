@@ -13,6 +13,7 @@
 
 div.jetpack-likes-widget-wrapper {
 	width: 100%;
+	min-height: 60px;
 }
 
 div.jetpack-likes-widget-wrapper .sd-link-color {
@@ -21,6 +22,7 @@ div.jetpack-likes-widget-wrapper .sd-link-color {
 
 div.jetpack-likes-widget-wrapper.slim-likes-widget {
 	width: 1px; /* initial default */
+	min-height: 0;
 }
 
 #likes-other-gravatars {
