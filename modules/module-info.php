@@ -879,3 +879,22 @@ function jetpack_sso_more_link() {
 add_action( 'jetpack_module_more_info_sso',  'jetpack_sso_more_info' );
 add_action( 'jetpack_learn_more_button_sso', 'jetpack_sso_more_link' );
 // SSO: STOP
+
+// Monitor: START
+function jetpack_monitor_more_info() { ?>
+	<h4><?php esc_html_e( 'Monitor' , 'jetpack' ); ?></h4>
+
+	<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
+
+	<p><?php esc_html_e( 'We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime.', 'jetpack'); ?></p>
+
+<?php
+}
+add_action( 'jetpack_module_more_info_monitor', 'jetpack_monitor_more_info' );
+
+function jetpack_monitor_more_link() {
+	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/monitor/">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_action( 'jetpack_learn_more_button_monitor', 'jetpack_monitor_more_link' );
+// Monitor: STOP
+
