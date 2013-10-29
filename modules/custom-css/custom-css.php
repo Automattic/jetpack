@@ -604,7 +604,6 @@ class Jetpack_Custom_CSS {
 		$title = __( 'Edit CSS', 'jetpack' );
 		$hook = add_theme_page( $title, $title, 'edit_theme_options', 'editcss', array( 'Jetpack_Custom_CSS', 'admin' ) );
 
-		add_action( "admin_head-$hook", array( 'Jetpack_Custom_CSS', 'admin_head' ) );
 		add_action( "load-revision.php", array( 'Jetpack_Custom_CSS', 'prettify_post_revisions' ) );
 		add_action( "load-$hook", array( 'Jetpack_Custom_CSS', 'update_title' ) );
 	}
@@ -647,29 +646,11 @@ class Jetpack_Custom_CSS {
 		wp_enqueue_style( 'custom-css-editor', plugins_url( 'custom-css/css/css-editor.css', __FILE__ ) );
 
 		if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) {
-			$url = plugins_url( 'custom-css/js/', __FILE__ );
+			wp_register_style( 'jetpack-css-codemirror', plugins_url( 'custom-css/css/codemirror.css', __FILE__ ), array(), '20120905' );
+			wp_enqueue_style( 'jetpack-css-use-codemirror', plugins_url( 'custom-css/css/use-codemirror.css', __FILE__ ), array( 'jetpack-css-codemirror' ), '20120905' );
 
-			wp_enqueue_script( 'jquery.spin' );
-			wp_enqueue_script( 'safecss-ace', $url . 'ace/ace.js', array(), '20130213', true );
-			wp_enqueue_script( 'safecss-ace-css', $url . 'ace/mode-css.js', array( 'safecss-ace' ), '20130213', true );
-			wp_enqueue_script( 'safecss-ace-less', $url . 'ace/mode-less.js', array( 'safecss-ace' ), '20130213', true );
-			wp_enqueue_script( 'safecss-ace-scss', $url . 'ace/mode-scss.js', array( 'safecss-ace' ), '20130213', true );
-			wp_enqueue_script( 'safecss-ace-use', $url . 'safecss-ace.js', array( 'jquery', 'safecss-ace-css' ), '20130213', true );
-
-			wp_enqueue_style( 'custom-css-ace', plugins_url( 'custom-css/css/ace.css', __FILE__ ) );
-		}
-	}
-
-	static function admin_head() {
-		if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) {
-			?>
-			<script type="text/javascript">
-				/*<![CDATA[*/
-				var SAFECSS_USE_ACE = true;
-				var safecssAceSrcPath = <?php echo json_encode( parse_url( plugins_url( 'custom-css/js/ace/', __FILE__ ), PHP_URL_PATH ) ); ?>;
-				/*]]>*/
-			</script>
-			<?php
+			wp_register_script( 'jetpack-css-codemirror', plugins_url( 'custom-css/js/codemirror.min.js', __FILE__ ), array(), '3.16', true );
+			wp_enqueue_script( 'jetpack-css-use-codemirror', plugins_url( 'custom-css/js/use-codemirror.js', __FILE__ ), array( 'jquery', 'underscore', 'jetpack-css-codemirror' ), '20131009', true );
 		}
 	}
 
@@ -703,18 +684,8 @@ class Jetpack_Custom_CSS {
 					<div id="post-body">
 						<div id="post-body-content">
 							<div class="postarea">
-								<?php if ( defined( 'SAFECSS_USE_ACE' ) && SAFECSS_USE_ACE ) { ?>
-									<div id="safecss-container">
-										<div id="safecss-ace"></div>
-									</div>
-									<script type="text/javascript">
-										jQuery.fn.spin && jQuery("#safecss-container").spin( 'large' );
-									</script>
-									<textarea id="safecss" name="safecss" class="hide-if-js"><?php echo esc_textarea( Jetpack_Custom_CSS::get_css() ); ?></textarea>
-									<div class="clear"></div>
-								<?php } else { ?>
-									<p><textarea id="safecss" name="safecss"><?php echo str_replace('</textarea>', '&lt;/textarea&gt', Jetpack_Custom_CSS::get_css()); ?></textarea></p>
-								<?php } ?>
+								<textarea id="safecss" name="safecss"<?php if ( SAFECSS_USE_ACE ) echo ' class="hide-if-js"'; ?>><?php echo esc_textarea( Jetpack_Custom_CSS::get_css() ); ?></textarea>
+								<div class="clear"></div>
 							</div>
 						</div>
 					</div>

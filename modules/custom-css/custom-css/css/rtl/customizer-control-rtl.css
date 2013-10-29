@@ -1,0 +1,60 @@
+/* This file was automatically generated on Sep 10 2013 23:18:59 */
+
+.for-codemirror, .CodeMirror {
+	font-family: Consolas, Monaco, monospace;
+	font-size: 12px;
+	line-height: 16px;
+	margin: 16px 0;
+}
+.CodeMirror {
+	margin-right: -19px;
+	margin-left: -19px;
+}
+.for-codemirror {
+	width: 98%;
+	height: 300px;
+}
+#customize-control-jetpack_css_mode_control,
+#customize-control-jetpack_mobile_css_control {
+	clear: none;
+	width: 50%;
+	margin: 10px 0 20px;
+	float: right;
+	position: relative;
+}
+#customize-control-wpcom_custom_css_content_width_control > label {
+	position: relative;
+	float: right;
+	width: 100px;
+}
+#customize-control-wpcom_custom_css_content_width_control .customize-control-title {
+	padding-bottom: 6px;
+}
+#customize-control-wpcom_custom_css_content_width_control input[type="text"] {
+	width: 64px;
+	padding-left: 22px;
+	text-align: left;
+}
+#customize-control-wpcom_custom_css_content_width_control input[type="text"] + span {
+	position: absolute;
+	right: 43px;
+	padding-top: 8px;
+	opacity: .8;
+}
+#customize-control-wpcom_custom_css_content_width_control input[type="text"]:focus + span {
+	opacity: 1;
+}
+
+#customize-control-wpcom_custom_css_content_width_control .description {
+	display: block;
+	margin: 28px 100px 0 0;
+	color: #aaa;
+}
+#customize-control-wpcom_custom_css_content_width_control .description strong {
+	font-style: normal;
+}
+#revisions-link {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+}
