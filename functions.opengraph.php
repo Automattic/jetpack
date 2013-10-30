@@ -169,7 +169,10 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 	// Fallback to Mshot
 	if ( empty( $image ) ) {
-		$image = 'http://s.wordpress.com/mshots/v1/' . urlencode( get_permalink( $post->ID ) );
+		if ( is_singular() )
+			$image = 'http://s.wordpress.com/mshots/v1/' . urlencode( get_permalink( $post->ID ) );
+		else
+			$image = 'http://s.wordpress.com/mshots/v1/' . urlencode( site_url() );
 	}
 
 	return $image;
