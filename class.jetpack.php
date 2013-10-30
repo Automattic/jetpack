@@ -869,7 +869,7 @@ class Jetpack {
 		);
 
 		foreach ( $deprecated_modules as $module => $replacement ) {
-			if ( in_array( $module, $active_modules ) ) {
+			if ( Jetpack::is_module_active( $module ) ) {
 				self::deactivate_module( $module );
 				if ( $replacement ) {
 					$modules[] = $replacement;
