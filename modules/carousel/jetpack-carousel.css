@@ -1129,5 +1129,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 	.jp-carousel-left-column-wrapper {
 		padding: 0;
+		width: 100% !important;
+	}
+
+	.jp-carousel-photo-info {
+		left: 0 !important;
+		width: 100% !important;
 	}
 }

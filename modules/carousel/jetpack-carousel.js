@@ -5,10 +5,14 @@ jQuery(document).ready(function($) {
 	var overlay, comments, gallery, container, nextButton, previousButton, info, title, transitionBegin,
 	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval,
 	screenPadding = 110, originalOverflow = $('body').css('overflow'), originalHOverflow = $('html').css('overflow'), proportion = 85,
-	isMobile = /Android|iPhone|iPod/i.test( navigator.userAgent ), last_known_location_hash = '';
+	last_known_location_hash = '';
 
-	if (isMobile)
-		screenPadding = 0;
+	if ( window.innerWidth <= 760 ) {
+		screenPadding = Math.round( ( window.innerWidth / 760 ) * 110 );
+
+		if ( screenPadding < 40 && ( ( 'ontouchstart' in window ) || window.DocumentTouch && document instanceof DocumentTouch ) )
+			screenPadding = 0;
+	}
 
 	var keyListener = function(e){
 		switch(e.which){
@@ -141,9 +145,6 @@ jQuery(document).ready(function($) {
 			leftWidth = ( $(window).width() - ( screenPadding * 2 ) ) - (imageMeta.width() + 40);
 			leftWidth += 'px';
 
-			if (isMobile)
-				leftWidth = '100%';
-
 			leftColWrapper = $('<div></div>')
 				.addClass('jp-carousel-left-column-wrapper')
 				.css({
@@ -165,13 +166,15 @@ jQuery(document).ready(function($) {
 					'right' : screenPadding
 				})
 				.append(photo_info)
-				.append(imageMeta)
-				.append(leftColWrapper);
+				.append(imageMeta);
 
-			if (isMobile)
-				info.prepend(leftColWrapper);
-			else
-				info.append(leftColWrapper);
+			if ( window.innerWidth <= 760 ) {
+				photo_info.remove().insertAfter( titleAndDescription );
+				info.prepend( leftColWrapper );
+			}
+			else {
+				info.append( leftColWrapper );
+			}
 
 			targetBottomPos = ( $(window).height() - parseInt( info.css('top'), 10 ) ) + 'px';
 
@@ -393,13 +396,17 @@ jQuery(document).ready(function($) {
 					}
 				} );
 
-				$('.jp-carousel').touchwipe({
-				     wipeLeft: function() { gallery.jp_carousel('next'); },
-				     wipeRight: function() { gallery.jp_carousel('previous'); },
-				     min_move_x: 20,
-				     min_move_y: 20,
-				     preventDefaultEvents: true
-				});
+				$( '.jp-carousel-wrap' ).touchwipe( {
+					wipeLeft : function ( e ) {
+						e.preventDefault();
+						gallery.jp_carousel( 'next' );
+					},
+					wipeRight : function ( e ) {
+						e.preventDefault();
+						gallery.jp_carousel( 'previous' );
+					},
+					preventDefaultEvents : false
+				} );
 
 			$( '.jetpack-likes-widget-unloaded' ).each( function() {
 				jetpackLikesWidgetQueue.push( this.id );
@@ -714,11 +721,6 @@ jQuery(document).ready(function($) {
 				'left'  : Math.floor( (info.width() - size.width) * 0.5 ),
 				'width' : Math.floor( size.width )
 			});
-
-			if (isMobile){
-				photo_info.css('left', '0px');
-				photo_info.css('top', '-20px');
-			}
 
 			return this;
 		},
@@ -1365,5 +1367,82 @@ jQuery(document).ready(function($) {
 		$( window ).trigger( 'hashchange' );
 });
 
-// Swipe gesture detection
-(function($){$.fn.touchwipe=function(settings){var config={min_move_x:20,min_move_y:20,wipeLeft:function(){},wipeRight:function(){},wipeUp:function(){},wipeDown:function(){},preventDefaultEvents:true};if(settings)$.extend(config,settings);this.each(function(){var startX;var startY;var isMoving=false;function cancelTouch(){this.removeEventListener('touchmove',onTouchMove);startX=null;isMoving=false}function onTouchMove(e){if(config.preventDefaultEvents){e.preventDefault()}if(isMoving){var x=e.touches[0].pageX;var y=e.touches[0].pageY;var dx=startX-x;var dy=startY-y;if(Math.abs(dx)>=config.min_move_x){cancelTouch();if(dx>0){config.wipeLeft()}else{config.wipeRight()}}else if(Math.abs(dy)>=config.min_move_y){cancelTouch();if(dy>0){config.wipeDown()}else{config.wipeUp()}}}}function onTouchStart(e){if(e.touches.length==1){startX=e.touches[0].pageX;startY=e.touches[0].pageY;isMoving=true;this.addEventListener('touchmove',onTouchMove,false)}}if('ontouchstart'in document.documentElement){this.addEventListener('touchstart',onTouchStart,false)}});return this}})(jQuery);
+/**
+ * jQuery Plugin to obtain touch gestures from iPhone, iPod Touch and iPad, should also work with Android mobile phones (not tested yet!)
+ * Common usage: wipe images (left and right to show the previous or next image)
+ *
+ * @author Andreas Waltl, netCU Internetagentur (http://www.netcu.de)
+ * Version 1.1.1, modified to pass the touchmove event to the callbacks.
+ */
+(function($) {
+$.fn.touchwipe = function(settings) {
+	var config = {
+			min_move_x: 20,
+			min_move_y: 20,
+			wipeLeft: function(e) { },
+			wipeRight: function(e) { },
+			wipeUp: function(e) { },
+			wipeDown: function(e) { },
+			preventDefaultEvents: true
+	};
+
+	if (settings) $.extend(config, settings);
+
+	this.each(function() {
+		var startX;
+		var startY;
+		var isMoving = false;
+
+		function cancelTouch() {
+			this.removeEventListener('touchmove', onTouchMove);
+			startX = null;
+			isMoving = false;
+		}
+
+		function onTouchMove(e) {
+			if(config.preventDefaultEvents) {
+				e.preventDefault();
+			}
+			if(isMoving) {
+				var x = e.touches[0].pageX;
+				var y = e.touches[0].pageY;
+				var dx = startX - x;
+				var dy = startY - y;
+				if(Math.abs(dx) >= config.min_move_x) {
+					cancelTouch();
+					if(dx > 0) {
+						config.wipeLeft(e);
+					}
+					else {
+						config.wipeRight(e);
+					}
+				}
+				else if(Math.abs(dy) >= config.min_move_y) {
+						cancelTouch();
+						if(dy > 0) {
+							config.wipeDown(e);
+						}
+						else {
+							config.wipeUp(e);
+						}
+					}
+			}
+		}
+
+		function onTouchStart(e)
+		{
+			if (e.touches.length == 1) {
+				startX = e.touches[0].pageX;
+				startY = e.touches[0].pageY;
+				isMoving = true;
+				this.addEventListener('touchmove', onTouchMove, false);
+			}
+		}
+		if ('ontouchstart' in document.documentElement) {
+			this.addEventListener('touchstart', onTouchStart, false);
+		}
+	});
+
+	return this;
+};
+})(jQuery);

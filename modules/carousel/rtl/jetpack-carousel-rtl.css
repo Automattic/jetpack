@@ -1,4 +1,4 @@
-/* This file was automatically generated on Oct 08 2013 04:36:47 */
+/* This file was automatically generated on Oct 30 2013 05:46:54 */
 
 * {
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
@@ -1131,5 +1131,11 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 
 	.jp-carousel-left-column-wrapper {
 		padding: 0;
+		width: 100% !important;
+	}
+
+	.jp-carousel-photo-info {
+		right: 0 !important;
+		width: 100% !important;
 	}
 }
