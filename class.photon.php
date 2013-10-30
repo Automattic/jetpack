@@ -58,9 +58,6 @@ class Jetpack_Photon {
 		// Core image retrieval
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
 
-		// og:image URL
-		add_filter( 'jetpack_open_graph_tags', array( $this, 'filter_open_graph_tags' ), 10, 2 );
-
 		// Helpers for maniuplated images
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ), 9 );
 	}
