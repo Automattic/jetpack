@@ -185,6 +185,16 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'multipart/form-data' :
 			$return = array_merge( stripslashes_deep( $_POST ), $_FILES );
 			break;
+		case 'application/x-www-form-urlencoded' :
+		case 'application/x-www-form-urlencoded; charset=UTF-8' :
+			//attempt JSON first, since probably a curl command
+			$return = json_decode( $input, true );
+
+			if ( is_null( $return ) ) {
+				wp_parse_str( $input, $return );
+			}
+
+			break;
 		default :
 			wp_parse_str( $input, $return );
 			break;
@@ -2055,7 +2065,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 						break;
 					case 'update':
 
-						if ( empty( $meta->value ) ) {
+						if ( ! isset( $meta->value ) ) {
 							continue;
 						} elseif ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && current_user_can( 'edit_post_meta', $post_id, $unslashed_existing_meta_key ) ) {
 							update_metadata_by_mid( 'post', $meta->id, $meta->value );
@@ -3017,8 +3027,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) home_url();
 				break;
 			case 'jetpack' :
-				if ( $is_user_logged_in )
-					$response[$key] = false; // magic
+				$response[$key] = false; // magic
 				break;
 			case 'post_count' :
 				if ( $is_user_logged_in )
@@ -3028,6 +3037,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( $is_user_logged_in )
 					$response[$key] = (string) get_bloginfo( 'language' );
 				break;
+            case 'subscribers_count' :
+                $total_wpcom_subs = wpcom_subs_total_wpcom_subscribers(
+                    array(
+                        'blog_id' => $blog_id,
+                    )
+                );
+                $response[$key] = $total_wpcom_subs;
+                break;
 			case 'meta' :
 				$response[$key] = (object) array(
 					'links' => (object) array(
@@ -3080,6 +3097,7 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
  		'URL'         => '(string) Full URL to the blog',
  		'jetpack'     => '(bool)  Whether the blog is a Jetpack blog or not',
  		'post_count'  => '(int) The number of posts the blog has',
+        'subscribers_count'  => '(int) The number of subscribers the blog has',
 		'lang'        => '(string) Primary language code of the blog',
 		'meta'        => '(object) Meta data',
 	),
