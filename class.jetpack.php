@@ -288,6 +288,7 @@ class Jetpack {
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
+		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 	}
 
 	/**
@@ -845,6 +846,41 @@ class Jetpack {
 	}
 
 	/**
+	 * Checks activated modules during auto-activation to determine
+	 * if any of those modules are being deprecated.  If so, close
+	 * them out, and add any replacement modules.
+	 *
+	 * Runs at priority 99 by default.
+	 *
+	 * This is run late, so that it can still activate a module if
+	 * the new module is a replacement for another that the user
+	 * currently has active, even if something at the normal priority
+	 * would kibosh everything.
+	 *
+	 * @since 2.6
+	 * @uses jetpack_get_default_modules filter
+	 * @param array $modules
+	 * @return array
+	 */
+	function handle_deprecated_modules( $modules ) {
+		$deprecated_modules = array(
+			'debug' => null,  // Closed out and moved to ./class.jetpack-debugger.php
+			'wpcc'  => 'sso', // Closed out in 2.6 -- SSO provides the same functionality.
+		);
+
+		foreach ( $deprecated_modules as $module => $replacement ) {
+			if ( in_array( $module, $active_modules ) ) {
+				self::deactivate_module( $module );
+				if ( $replacement ) {
+					$modules[] = $replacement;
+				}
+			}
+		}
+
+		return array_unique( $modules );
+	}
+
+	/**
 	 * Checks activated plugins during auto-activation to determine
 	 * if any of those plugins are in the list with a corresponding module
 	 * that is not compatible with the plugin. The module will not be allowed
@@ -1164,11 +1200,7 @@ class Jetpack {
 
 	public static function deactivate_module( $module ) {
 		$active = Jetpack::get_active_modules();
-		$new    = array();
-		foreach ( $active as $check ) {
-			if ( ! empty( $check ) && $module != $check )
-				$new[] = $check;
-		}
+		$new    = array_filter( array_diff( $active, (array) $module ) );
 
 		do_action( "jetpack_deactivate_module_$module" );
 		return Jetpack_Options::update_option( 'active_modules', array_unique( $new ) );
