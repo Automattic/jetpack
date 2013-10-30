@@ -50,7 +50,7 @@ require_once( JETPACK__PLUGIN_DIR . 'functions.photon.php'            );
 require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
 require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
 require_once( JETPACK__PLUGIN_DIR . 'functions.twitter-cards.php'     );
-require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 ); 
+require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 );
 
 register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );

@@ -4,9 +4,9 @@ class Jetpack_Heartbeat {
 
 	/**
 	 * Holds the singleton instance of this class
-	 * 
+	 *
 	 * @since 2.3.3
-	 * @var Jetpack_Heartbeat 
+	 * @var Jetpack_Heartbeat
 	 */
 	static $instance = false;
 
@@ -14,7 +14,7 @@ class Jetpack_Heartbeat {
 
 	/**
 	 * Singleton
-	 * 
+	 *
 	 * @since 2.3.3
 	 * @static
 	 * @return Jetpack_Heartbeat
@@ -29,44 +29,58 @@ class Jetpack_Heartbeat {
 
 	/**
 	 * Constructor for singleton
-	 * 
+	 *
 	 * @since 2.3.3
-	 * @return Jetpack_Heartbeat 
+	 * @return Jetpack_Heartbeat
 	 */
 	private function __construct() {
+		if ( ! Jetpack::is_active() )
+			return;
+
 		// Add weekly interval for wp-cron
-		add_filter('cron_schedules', array( $this, 'add_cron_intervals' ) );
+		add_filter( 'cron_schedules', array( $this, 'add_cron_intervals' ) );
 
 		// Schedule the task
 		add_action( $this->cron_name, array( $this, 'cron_exec' ) );
 
-		if (!wp_next_scheduled( $this->cron_name ) ) {
+		if ( ! wp_next_scheduled( $this->cron_name ) ) {
 			wp_schedule_event( time(), 'jetpack_weekly', $this->cron_name );
 		}
 	}
 	
 	/**
 	 * Method that gets executed on the wp-cron call
-	 * 
+	 *
 	 * @since 2.3.3
-	 * @global string $wp_version 
+	 * @global string $wp_version
 	 */
 	public function cron_exec() {
 
 		/*
+		 * This should run weekly.  Figuring in for variances in
+		 * WP_CRON, don't let it run more than every six days at most.
+		 *
+		 * i.e. if it ran less than six days ago, fail out.
+		 */
+		$last = (int) Jetpack_Options::get_option( 'last_heartbeat' );
+		if ( $last && ( $last + WEEK_IN_SECONDS - DAY_IN_SECONDS > time() ) ) {
+			return;
+		}
+
+		/*
 		 * Check for an identity crisis
-		 * 
+		 *
 		 * If one exists:
 		 * - Bump stat for ID crisis
 		 * - Email site admin about potential ID crisis
-		 */ 
+		 */
 
 
 
 		/**
 		 * Setup an array of items that will eventually be stringified
-		 * and sent off to the Jetpack API 
-		 * 
+		 * and sent off to the Jetpack API
+		 *
 		 * Associative array with format group => values
 		 * - values should be an array that will be imploded to a string
 		 */
@@ -97,14 +111,16 @@ class Jetpack_Heartbeat {
 			$jetpack->stat( 'plugins', $plugin );
 		}
 
+		Jetpack_Options::update_option( 'last_heartbeat', time() );
+
 		$jetpack->do_stats( 'server_side' );
 	}
 
 	/**
 	 * Adds additional Jetpack specific intervals to wp-cron
-	 * 
+	 *
 	 * @since 2.3.3
-	 * @return array 
+	 * @return array
 	 */
 	public function add_cron_intervals( $schedules ) {
 		$schedules['jetpack_weekly'] = array(
