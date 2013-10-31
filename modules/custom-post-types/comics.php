@@ -289,6 +289,9 @@ class Jetpack_Comic {
 		return $messages;
 	}
 
+	/**
+	 * Should this Custom Post Type be made available?
+	 */
 	public function site_supports_comics() {
 		if ( 'blog-rss.php' == substr( $_SERVER['PHP_SELF'], -12 ) && count( $_SERVER['argv'] ) > 1 ) {
 			// blog-rss.php isn't run in the context of the target blog when the init action fires,
@@ -299,13 +302,17 @@ class Jetpack_Comic {
 			restore_current_blog();
 			return $supports_comics;
 		}
-		else {
-			return $this->_site_supports_comics();
-		}
-	}
 
-	private function _site_supports_comics() {
-		return ( ( function_exists( 'site_vertical' ) && 'comics' == site_vertical() ) || current_theme_supports( self::POST_TYPE ) );
+		// If we're on WordPress.com, and it has the menu site vertical.
+		if ( function_exists( 'site_vertical' ) && 'comics' == site_vertical() )
+			return true;
+
+		// Else, if the current theme requests it.
+		if ( current_theme_supports( self::POST_TYPE ) )
+			return true;
+
+		// Otherwise, say no unless something wants to filter us to say yes.
+		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::POST_TYPE );
 	}
 
 	/**

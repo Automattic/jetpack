@@ -34,7 +34,7 @@ class Jetpack_Testimonial {
 	 */
 	function __construct() {
 		// Return early if theme does not support Jetpack Testimonial.
-		if ( ! current_theme_supports( self::TESTIMONIAL_POST_TYPE ) )
+		if ( ! $this->site_supports_testimonial() )
 			return;
 
 		$this->register_post_types();
@@ -46,6 +46,18 @@ class Jetpack_Testimonial {
 		$num_testimonials = self::count_testimonials();
 		if ( ! empty( $num_testimonials ) )
 			add_action( 'admin_menu', array( $this, 'add_customize_page' ) );
+	}
+
+	/**
+	* Should this Custom Post Type be made available?
+	*/
+	function site_supports_testimonial() {
+		// If the current theme requests it.
+		if ( current_theme_supports( self::TESTIMONIAL_POST_TYPE ) )
+			return true;
+
+		// Otherwise, say no unless something wants to filter us to say yes.
+		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::TESTIMONIAL_POST_TYPE );
 	}
 
 	/* Setup */

@@ -72,6 +72,9 @@ class Nova_Restaurant {
 	}
 
 	function __construct() {
+		if ( ! $this->site_supports_nova() )
+			return;
+
 		$this->register_taxonomies();
 		$this->register_post_types();
 		add_action( 'admin_menu', array( $this, 'add_admin_menus' ) );
@@ -86,6 +89,22 @@ class Nova_Restaurant {
 
 		// Only output our Menu Item Loop Marup on a real blog view.  Not feeds, XML-RPC, admin, etc.
 		add_filter( 'template_include', array( $this, 'setup_menu_item_loop_markup__in_filter' ) );
+	}
+
+	/**
+	* Should this Custom Post Type be made available?
+	*/
+	function site_supports_nova() {
+		// If we're on WordPress.com, and it has the menu site vertical.
+		if ( function_exists( 'site_vertical' ) && 'nova_menu' == site_vertical() )
+			return true;
+
+		// Else, if the current theme requests it.
+		if ( current_theme_supports( self::MENU_ITEM_POST_TYPE ) )
+			return true;
+
+		// Otherwise, say no unless something wants to filter us to say yes.
+		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::MENU_ITEM_POST_TYPE );
 	}
 
 /* Setup */
