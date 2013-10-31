@@ -87,7 +87,7 @@ function jetpack_og_tags() {
 	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
 	
 	// secure_urls need to go right after each og:image to work properly so we will abstract them here
-	$secure = $tags['og:image:secure_url'];
+	$secure = $tags['og:image:secure_url'] = ( empty( $tags['og:image:secure_url'] ) ) ? '' : $tags['og:image:secure_url'];
 	unset( $tags['og:image:secure_url'] );
 	$secure_image_num = 0;
 
@@ -167,13 +167,66 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		}
 	}
 
-	// Fallback to Mshot
-	if ( empty( $image ) ) {
-		if ( is_singular() )
-			$image = 'http://s.wordpress.com/mshots/v1/' . urlencode( get_permalink( $post->ID ) );
-		else
-			$image = 'http://s.wordpress.com/mshots/v1/' . urlencode( site_url() );
+	if ( empty( $image ) )
+		$image = array();
+	else if ( !is_array( $image ) )
+		$image = array( $image );
+
+	// First fall back, mshots
+	if ( is_singular() )
+		$image[] = 'http://s.wordpress.com/mshots/v1/' . urlencode( get_permalink( $post->ID ) );
+	else
+		$image[] = 'http://s.wordpress.com/mshots/v1/' . urlencode( site_url() );
+
+	// Second fall back, blavatar
+	if ( function_exists( 'blavatar_domain' ) ) {
+		$blavatar_domain = blavatar_domain( site_url() );
+		if ( blavatar_exists( $blavatar_domain ) )
+			$image[] = blavatar_url( $blavatar_domain, 'img', $width );
 	}
 
+	// Third fall back, gravatar
+	if ( is_singular() && !is_home() && !is_front_page() && !empty( $post->post_author ) ) {
+		$image[] = jetpack_og_get_image_gravatar( get_user_by( 'id', $post->post_author )->user_email, $width );
+	}
+
+	// Fourth fall back, blank image
+	$image[] = "http://wordpress.com/i/blank.jpg";
+
+	return $image;
+}
+
+/**
+* @param $email
+* @param $width
+* @return array|bool|mixed|string
+*/
+function jetpack_og_get_image_gravatar( $email, $width ) {
+	$image = '';
+	if ( function_exists( 'get_avatar_url' ) ) {
+		$avatar = get_avatar_url($email, $width);
+		if ( ! empty( $avatar ) ) {
+			if ( is_array( $avatar ) )
+				$image = $avatar[0];
+			else
+				$image = $avatar;
+		}
+	} else {
+		$has_filter = has_filter( 'pre_option_show_avatars', '__return_true' );
+		if ( !$has_filter ) {
+			add_filter( 'pre_option_show_avatars', '__return_true' );
+		}
+		$avatar = get_avatar( $email, $width );
+		
+		if ( !$has_filter ) {
+			remove_filter( 'pre_option_show_avatars', '__return_true' );
+		}
+
+		if ( !empty( $avatar ) && !is_wp_error( $avatar ) ) {
+			if ( preg_match( '/src=["\']([^"\']+)["\']/', $avatar, $matches ) )
+				$image = wp_specialchars_decode($matches[1], ENT_QUOTES);
+		}
+	}
+	
 	return $image;
 }
