@@ -3037,7 +3037,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( $is_user_logged_in )
 					$response[$key] = (string) get_bloginfo( 'language' );
 				break;
-            case 'subscribers_count' :
+			case 'subscribers_count' :
 				if ( function_exists( 'wpcom_subs_total_wpcom_subscribers' ) ) {
 					$total_wpcom_subs = wpcom_subs_total_wpcom_subscribers(
 						array(
@@ -3048,7 +3048,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				} else {
 					$response[$key] = 0; // magic
 				}
-                break;
+				break;
 			case 'meta' :
 				$response[$key] = (object) array(
 					'links' => (object) array(
