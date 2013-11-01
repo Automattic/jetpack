@@ -173,7 +173,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		$image = array( $image );
 
 	// First fall back, mshots
-	if ( is_singular() )
+	if ( is_singular() && ! empty( $post ) && is_object( $post ) )
 		$image[] = 'http://s.wordpress.com/mshots/v1/' . urlencode( get_permalink( $post->ID ) );
 	else
 		$image[] = 'http://s.wordpress.com/mshots/v1/' . urlencode( site_url() );
