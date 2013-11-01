@@ -3038,12 +3038,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = (string) get_bloginfo( 'language' );
 				break;
             case 'subscribers_count' :
-                $total_wpcom_subs = wpcom_subs_total_wpcom_subscribers(
-                    array(
-                        'blog_id' => $blog_id,
-                    )
-                );
-                $response[$key] = $total_wpcom_subs;
+				if ( function_exists( 'wpcom_subs_total_wpcom_subscribers' ) ) {
+					$total_wpcom_subs = wpcom_subs_total_wpcom_subscribers(
+						array(
+							'blog_id' => $blog_id,
+						)
+					);
+					$response[$key] = $total_wpcom_subs;
+				} else {
+					$response[$key] = 0; // magic
+				}
                 break;
 			case 'meta' :
 				$response[$key] = (object) array(
