@@ -52,6 +52,11 @@ require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
 require_once( JETPACK__PLUGIN_DIR . 'functions.twitter-cards.php'     );
 require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 );
 
+// Play nice with http://wp-cli.org/
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php'       );
+}
+
 register_activation_hook( __FILE__, array( 'Jetpack', 'plugin_activation' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) );
 
