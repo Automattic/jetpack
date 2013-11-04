@@ -2036,7 +2036,7 @@ p {
 
 				$module = stripslashes( $_GET['module'] );
 				check_admin_referer( "jetpack_activate-$module" );
-				Jetpack::log( 'activate' );
+				Jetpack::log( 'activate', $module );
 				Jetpack::activate_module( $module );
 				// The following two lines will rarely happen, as Jetpack::activate_module normally exits at the end.
 				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
@@ -2081,8 +2081,8 @@ p {
 
 				$modules = stripslashes( $_GET['module'] );
 				check_admin_referer( "jetpack_deactivate-$modules" );
-				Jetpack::log( 'deactivate' );
 				foreach ( explode( ',', $modules ) as $module ) {
+					Jetpack::log( 'deactivate', $module );
 					Jetpack::deactivate_module( $module );
 					Jetpack::state( 'message', 'module_deactivated' );
 				}

@@ -85,11 +85,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch ( $action ) {
 			case 'blog':
+				Jetpack::log( 'disconnect' );
 				Jetpack::disconnect();
 				WP_CLI::success( __( 'Jetpack has been successfully disconnected.', 'jetpack' ) );
 				break;
 			case 'user':
 				if ( Jetpack::unlink_user( $user->ID ) ) {
+					Jetpack::log( 'unlink', $user->ID );
 					WP_CLI::success( sprintf( __( '%s has been successfully disconnected.', 'jetpack' ), $action ) );
 				} else {
 					WP_CLI::error( sprintf( __( '%s could not be disconnected.  Are you sure they\'re connected currently?', 'jetpack' ), "{$user->login} <{$user->email}>" ) );
@@ -156,11 +158,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 			case 'activate':
 				$module = Jetpack::get_module( $module_slug );
+				Jetpack::log( 'activate', $module_slug );
 				Jetpack::activate_module( $module_slug, false );
 				WP_CLI::success( sprintf( __( '%s has been activated.', 'jetpack' ), $module['name'] ) );
 				break;
 			case 'deactivate':
 				$module = Jetpack::get_module( $module_slug );
+				Jetpack::log( 'deactivate', $module_slug );
 				Jetpack::deactivate_module( $module_slug );
 				WP_CLI::success( sprintf( __( '%s has been deactivated.', 'jetpack' ), $module['name'] ) );
 				break;
