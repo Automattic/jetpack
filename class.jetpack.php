@@ -1587,7 +1587,7 @@ p {
 
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
 
-		do_action( 'jetpack_admin_menu' );
+		do_action( 'jetpack_admin_menu', $hook );
 	}
 /*
 	function admin_menu_modules() {
