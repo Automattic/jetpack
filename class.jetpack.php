@@ -1509,6 +1509,10 @@ p {
 		return $admin_body_class;
 	}
 
+	static function add_jetpack_pagestyles( $admin_body_class = '' ) {
+		return $admin_body_class . ' jetpack-pagestyles';
+	}
+
 	function prepare_connect_notice() {
 		add_action( 'admin_print_styles', array( $this, 'admin_styles' ) );
 
@@ -2005,6 +2009,9 @@ p {
 	 */
 	function admin_page_load() {
 		$error = false;
+
+		// Make sure we have the right body class to hook stylings for subpages off of.
+		add_filter( 'admin_body_class', array( __CLASS__, 'add_jetpack_pagestyles' ) );
 
 		if ( ! empty( $_GET['jetpack_restate'] ) ) {
 			// Should only be used in intermediate redirects to preserve state across redirects
