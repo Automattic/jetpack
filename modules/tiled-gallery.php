@@ -6,6 +6,7 @@
  * First Introduced: 2.1
  * Requires Connection: Yes
  * Auto Activate: No
+ * Module Tags: Photos and Videos
  */
 
 function jetpack_load_tiled_gallery() {

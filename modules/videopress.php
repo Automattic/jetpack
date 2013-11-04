@@ -6,6 +6,7 @@
  * Free: false
  * Requires Connection: Yes
  * Sort Order: 100
+ * Module Tags: Photos and Videos
  */
 
 function jetpack_load_videopress() {

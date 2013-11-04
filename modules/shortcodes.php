@@ -8,6 +8,7 @@
  * Major Changes In: 1.2
  * Requires Connection: No
  * Auto Activate: Yes
+ * Module Tags: Photos and Videos, Social, Writing, Appearance
  */
 
 /**

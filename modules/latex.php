@@ -6,6 +6,7 @@
  * First Introduced: 1.1
  * Requires Connection: No
  * Auto Activate: Yes
+ * Module Tags: Writing
  */
 
 /**

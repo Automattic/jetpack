@@ -6,6 +6,7 @@
  * Sort Order: 4
  * Requires Connection: Yes
  * Auto Activate: No
+ * Module Tags: Social
  */
 class Jetpack_Likes {
 	var $version = '20131028';

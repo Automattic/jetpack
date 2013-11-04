@@ -951,6 +951,7 @@ class Jetpack {
 			'free'                => 'Free',
 			'requires_connection' => 'Requires Connection',
 			'auto_activate'       => 'Auto Activate',
+			'module_tags'         => 'Module Tags',
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
@@ -973,6 +974,13 @@ class Jetpack {
 			$mod['auto_activate'] = 'No';
 		} else {
 			$mod['auto_activate'] = (string) $mod['auto_activate'];
+		}
+
+		if ( $mod['module_tags'] ) {
+			$mod['module_tags'] = explode( ',', $mod['module_tags'] );
+			$mod['module_tags'] = array_map( 'trim', $mod['module_tags'] );
+		} else {
+			$mod['module_tags'] = array();
 		}
 
 		return $mod;

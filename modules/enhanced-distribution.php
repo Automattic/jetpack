@@ -6,6 +6,7 @@
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Auto Activate: Public
+ * Module Tags: Writing
  */
 
 Jetpack_Sync::sync_posts( __FILE__ );

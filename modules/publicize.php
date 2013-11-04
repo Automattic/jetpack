@@ -6,6 +6,7 @@
  * First Introduced: 2.0
  * Requires Connection: Yes
  * Auto Activate: Yes
+ * Module Tags: Social
  */
 
 class Jetpack_Publicize {

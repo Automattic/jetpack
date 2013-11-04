@@ -6,6 +6,7 @@
  * First Introduced: 2.0
  * Requires Connection: Yes
  * Auto Activate: No
+ * Module Tags: Photos and Videos, Appearance
  */
 
 Jetpack_Photon::instance();
