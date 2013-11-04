@@ -962,12 +962,11 @@ class Jetpack {
 		if ( empty( $mod['name'] ) )
 			return false;
 
-		$mod['name'] = translate( $mod['name'], 'jetpack' );
-		$mod['description'] = translate( $mod['description'], 'jetpack' );
-		if ( empty( $mod['sort'] ) )
-			$mod['sort'] = 10;
-		$mod['deactivate'] = empty( $mod['deactivate'] );
-		$mod['free'] = empty( $mod['free'] );
+		$mod['name']                = translate( $mod['name'], 'jetpack' );
+		$mod['description']         = translate( $mod['description'], 'jetpack' );
+		$mod['sort']                = empty( $mod['sort'] ) ? 10 : (int) $mod['sort'];
+		$mod['deactivate']          = empty( $mod['deactivate'] );
+		$mod['free']                = empty( $mod['free'] );
 		$mod['requires_connection'] = ( ! empty( $mod['requires_connection'] ) && 'No' == $mod['requires_connection'] ) ? false : true;
 
 		if ( empty( $mod['auto_activate'] ) || ! in_array( strtolower( $mod['auto_activate'] ), array( 'yes', 'no', 'public' ) ) ) {
@@ -979,11 +978,26 @@ class Jetpack {
 		if ( $mod['module_tags'] ) {
 			$mod['module_tags'] = explode( ',', $mod['module_tags'] );
 			$mod['module_tags'] = array_map( 'trim', $mod['module_tags'] );
+			$mod['module_tags'] = array_map( array( __CLASS__, 'translate_module_tag' ), $mod['module_tags'] );
 		} else {
-			$mod['module_tags'] = array();
+			$mod['module_tags'] = array( self::translate_module_tag( 'Other' ) );
 		}
 
 		return $mod;
+	}
+
+	public static function translate_module_tag( $untranslated_tag ) {
+		return _x( $untranslated_tag, 'Module Tag', 'jetpack' );
+
+		// Calls here are to populate translation files.
+		_x( 'Photos and Videos',   'Module Tag', 'jetpack' );
+		_x( 'Social',              'Module Tag', 'jetpack' );
+		_x( 'WordPress.com Stats', 'Module Tag', 'jetpack' );
+		_x( 'Writing',             'Module Tag', 'jetpack' );
+		_x( 'Appearance',          'Module Tag', 'jetpack' );
+		_x( 'Developers',          'Module Tag', 'jetpack' );
+		_x( 'Mobile',              'Module Tag', 'jetpack' );
+		_x( 'Other',               'Module Tag', 'jetpack' );
 	}
 
 	/**
