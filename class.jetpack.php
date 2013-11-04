@@ -1154,6 +1154,8 @@ class Jetpack {
 	}
 
 	public static function activate_module( $module, $exit = true ) {
+		do_action( 'jetpack_pre_activate_module', $module, $exit );
+
 		$jetpack = Jetpack::init();
 
 		if ( ! strlen( $module ) )
@@ -1221,6 +1223,8 @@ class Jetpack {
 	}
 
 	public static function deactivate_module( $module ) {
+		do_action( 'jetpack_pre_deactivate_module', $module );
+
 		$active = Jetpack::get_active_modules();
 		$new    = array_filter( array_diff( $active, (array) $module ) );
 
