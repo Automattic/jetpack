@@ -2129,6 +2129,8 @@ p {
 				Jetpack::state( 'message', 'unlinked' );
 				wp_safe_redirect( Jetpack::admin_url() );
 				exit;
+			default:
+				do_action( 'jetpack_unrecognized_action', sanitize_key( $_GET['action'] ) );
 			}
 		}
 
