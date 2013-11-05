@@ -24,6 +24,8 @@ class Publicize extends Publicize_Base {
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 4 );
 
 		add_action( 'transition_post_status', array( $this, 'save_publicized' ), 10, 3 );
+
+		include_once ( JETPACK__PLUGIN_DIR . 'modules/publicize/enhanced-open-graph.php' );
 	}
 
 	function force_user_connection() {
