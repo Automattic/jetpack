@@ -116,6 +116,7 @@ function youtube_link_callback( $matches ) {
  * @param string $url
  * @return string The normalized URL
  */
+if ( !function_exists( 'youtube_sanitize_url' ) ) :
 function youtube_sanitize_url( $url ) {
 	$url = trim( $url, ' "' );
 	$url = trim( $url );
@@ -130,6 +131,7 @@ function youtube_sanitize_url( $url ) {
 
 	return $url;
 }
+endif;
 
 /*
  * url can be:
@@ -153,6 +155,7 @@ function jetpack_shortcode_get_youtube_id( $url ) {
  * @param $url Can be just the $url or the whole $atts array
  * @return bool|mixed The Youtube video ID
  */
+if ( !function_exists( 'get_youtube_id' ) ) :
 function get_youtube_id( $url ) {
 
 	// Do we have an $atts array?  Get first att
@@ -179,6 +182,7 @@ function get_youtube_id( $url ) {
 
 	return $id;
 }
+endif;
 
 /**
  * Converts a YouTube URL into an embedded YouTube video.
