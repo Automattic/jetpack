@@ -61,6 +61,12 @@ function enhanced_og_video( $tags ) {
 	if ( 'video' != $summary['type'] )
 		return $tags;
 
+	// Don't pick the OG video stuff over a featured image
+	$featured = Jetpack_PostImages::from_thumbnail( $post->ID, 200, 200 );
+	if ( !empty( $featured ) && count( $featured ) > 0 ) {
+		return $tags;
+	}
+
 	$tags['og:image']            = $summary['image'];
 	$tags['og:image:secure_url'] = $summary['secure']['image'];
 	$tags['og:video:type']       = 'application/x-shockwave-flash';
