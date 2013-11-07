@@ -667,7 +667,25 @@ function stats_get_blog() {
 	);
 	$blog = array_merge( stats_get_options(), $blog );
 	unset( $blog['roles'], $blog['blog_id'] );
-	return array_map( 'esc_html', $blog );
+	return stats_esc_html_deep( $blog );
+}
+
+/**
+ * Modified from stripslashes_deep()
+ */
+function stats_esc_html_deep( $value ) {
+	if ( is_array( $value ) ) {
+		$value = array_map( 'stats_esc_html_deep', $value );
+	} elseif ( is_object( $value ) ) {
+		$vars = get_object_vars( $value );
+		foreach ( $vars as $key => $data ) {
+			$value->{$key} = stats_esc_html_deep( $data );
+		}
+	} elseif ( is_string( $value ) ) {
+		$value = esc_html( $value );
+	}
+
+	return $value;
 }
 
 function stats_xmlrpc_methods( $methods ) {
