@@ -193,12 +193,12 @@ class Jetpack_Media_Meta_Extractor {
 
 			// @todo Get the text inside the links?
 
+			// To hold the extracted stuff we find
+			$links = array();
+
 			// Grab any links, whether in <a href="..." or not, but subtract those from shortcodes and images
 			// (we treat embed links as just another link)
 			if ( preg_match_all( '#(?:^|\s|"|\')(https?://([^\s()<>]+(?:\([\w\d]+\)|([^[:punct:]\s]|/))))#', $content, $matches ) ) {
-
-				// To hold the extracted stuff we find
-				$links = array();
 
 				foreach ( $matches[1] as $link_raw ) {
 					$url = parse_url( $link_raw );
@@ -235,7 +235,7 @@ class Jetpack_Media_Meta_Extractor {
 					}
 
 					// @todo Check unique before adding
-					$links[] = array( 
+					$links[] = array(
 						'url' => $link_all_but_proto,
 						'host_reversed' => $host_reversed,
 						'host' => $url['host'],
