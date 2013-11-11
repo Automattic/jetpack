@@ -400,6 +400,10 @@ class WPCOM_JSON_API {
 		return false;
 	}
 
+	function add_global_ID( $blog_id, $post_id ) {
+		return '';
+	}
+
 	function get_avatar_url( $email ) {
 		add_filter( 'pre_option_show_avatars', '__return_true', 999 );
 		$_SERVER['HTTPS'] = 'off';
