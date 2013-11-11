@@ -22,16 +22,15 @@ class Jetpack_Media_Summary {
 
 		$post      = get_post( $post_id );
 		$permalink = get_permalink( $post_id );
-		$mshot     = sprintf( 'http://s.wordpress.com/mshots/v1/%s?w=534&h=400', urlencode( $permalink ) );
 
 		$return = array(
 			'type'       => 'standard',
 			'permalink'  => $permalink,
-			'image'      => $mshot,
+			'image'      => '',
 			'excerpt'    => '',
 			'word_count' => 0,
 			'secure'     => array(
-				'image'  => str_replace( 'http://s.', 'https://s-ssl.', $mshot ),
+				'image'  => '',
 			),
 			'count'       => array(
 				'image' => 0,
@@ -113,6 +112,28 @@ class Jetpack_Media_Summary {
 					$return['count']['video']++;
 				}
 			}
+		}
+
+		// Do we really want to make the video the primary focus of the post?
+		if ( 'video' == $return['type'] ) {
+			$content = wpautop( strip_tags( $post->post_content ) );
+			$paragraphs = explode( '</p>', $content );
+			$number_of_paragraphs = 0;
+
+			foreach ( $paragraphs as $i => $paragraph ) {
+				// Don't include blank lines as a paragraph
+				if ( '' == trim( $paragraph ) ) {
+					unset( $paragraphs[$i] );
+					continue;
+				}
+				$number_of_paragraphs++;
+			}
+
+			$number_of_paragraphs = $number_of_paragraphs - $return['count']['video']; // subtract amount for videos..
+
+			// More than 1 paragraph? The video is not the primary focus so we can do some more analysis
+			if ( $number_of_paragraphs > 1 )
+				$return['type'] = 'standard';
 		}
 
 		// If we don't have any prioritized embed...
