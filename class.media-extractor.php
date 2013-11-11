@@ -191,10 +191,10 @@ class Jetpack_Media_Meta_Extractor {
 
 		if ( self::LINKS & $what_to_extract ) {
 
-			// @todo Get the text inside the links?
-
 			// To hold the extracted stuff we find
 			$links = array();
+
+			// @todo Get the text inside the links?
 
 			// Grab any links, whether in <a href="..." or not, but subtract those from shortcodes and images
 			// (we treat embed links as just another link)
@@ -205,8 +205,10 @@ class Jetpack_Media_Meta_Extractor {
 
 					// Build a simple form of the URL so we can compare it to ones we found in IMAGES or SHORTCODES and exclude those
 					$simple_url = $url['scheme'] . '://' . $url['host'] . $url['path'];
-					if ( in_array( $simple_url, (array) $extracted['image']['url'] ) )
-						continue;
+					if ( isset( $extracted['image']['url'] ) ) {
+						if ( in_array( $simple_url, (array) $extracted['image']['url'] ) )
+							continue;
+					}
 
 					list( $proto, $link_all_but_proto ) = explode( '://', $link_raw );
 
