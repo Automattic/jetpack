@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Module Name: Monitor
  * Module Description: Jetpack Monitor will keep tabs on your site, and alert you the moment that downtime is detected.
@@ -21,5 +20,3 @@ function jetpack_monitor_toggle() {
 add_action( 'jetpack_activate_module_monitor', 'jetpack_monitor_toggle' );
 add_action( 'jetpack_deactivate_module_monitor', 'jetpack_monitor_toggle' );
 
-if ( $_SERVER['HTTP_USER_AGENT'] == 'jetmon' )
-	@header( 'Jetpack: 1' );
