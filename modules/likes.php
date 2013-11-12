@@ -6,10 +6,9 @@
  * Sort Order: 4
  * Requires Connection: Yes
  * Auto Activate: No
- * Module Tags: Social
  */
 class Jetpack_Likes {
-	var $version = '20131028';
+	var $version = '20131104';
 
 	public static function init() {
 		static $instance = NULL;
