@@ -41,7 +41,9 @@
 			</div><!-- .search-form-->
 		</div><!-- .menu-search-->
 
-	<?php minileven_header(); ?>
+	<?php if ( function_exists( 'minileven_header' ) )
+		minileven_header();
+	?>
 
 	<div id="page" class="hfeed">
 		<div id="main">
