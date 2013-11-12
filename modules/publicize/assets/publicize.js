@@ -69,8 +69,14 @@ jQuery( function( $ ) {
 					}
 
 					$.post( ajaxurl, 'action=publicize_'+ service + '_options_save&connection=' + connection + '&selected_id=' + id + '&token=' + token + '&type=' + type + '&_wpnonce=' + nonce + '&global=' + global_conn + '&global_nonce=' + global_nonce, function( response ) {
+						var frameNonce;
 						tb_remove();
-						top.location = 'options-general.php?page=sharing';
+						frameNonce = document.location.search.match( /frame-nonce=([^&]+)/ );
+						if ( /inside-newdash=1/.test( document.location.search ) && frameNonce ) {
+							document.location = 'options-general.php?page=sharing&inside-newdash=1&frame-nonce' + frameNonce[1];
+						} else {
+							top.location = 'options-general.php?page=sharing';
+						}
 					} );
 
 				} );
