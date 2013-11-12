@@ -1108,3 +1108,10 @@ function the_neverending_home_page_theme_support() {
 		require_once( $customization_file );
 }
 add_action( 'after_setup_theme', 'the_neverending_home_page_theme_support', 5 );
+
+/**
+ * Don't load the admin bar when doing the AJAX response.
+ */
+if ( The_Neverending_Home_Page::got_infinity() ) {
+	show_admin_bar( false );
+}
