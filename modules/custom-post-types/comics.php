@@ -39,7 +39,6 @@ class Jetpack_Comic {
 		// available.
 
 		// Enable Omnisearch for Comic posts.
-		// @see http://themedevp2.wordpress.com/2013/06/21/howdy-cainm-id-like-to // @wpcom
 		if ( class_exists( 'Jetpack_Omnisearch_Posts' ) )
 			new Jetpack_Omnisearch_Posts( self::POST_TYPE );
 
