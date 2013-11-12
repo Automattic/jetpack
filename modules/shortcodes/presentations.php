@@ -140,32 +140,31 @@ class Presentations {
 		$this->presentation_initialized = true;
 
 		$atts = shortcode_atts( array(
-			'duration'    => '',
-			'height'      => '',
-			'width'       => '',
-			'bgcolor'     => '',
-			'bgimg'       => '',
-			'autoplay'    => '',
+			'duration'   => '',
+			'height'     => '',
+			'width'      => '',
+			'bgcolor'    => '',
+			'bgimg'      => '',
+			'autoplay'   => '',
 
 			// Settings
-			'transition'  => '',
-			'scale'       => '',
-			'rotate'      => '',
-			'fade'        => '',
-			'fadebullets' => '',
+			'transition' => '',
+			'scale'      => '',
+			'rotate'     => '',
+			'fade'       => '',
+			'fadebullets'=> '',
 		), $atts );
 
 		$this->presentation_settings = array(
-			'transition'  => 'down',
-			'scale'       => 1,
-			'rotate'      => 0,
-			'fade'        => 'on',
-			'fadebullets' => 0,
-			'last'        => array(
-				'x'       => 0,
-				'y'       => 0,
-				'scale'   => 1,
-				'rotate'  => 0,
+			'transition' => 'down',
+			'scale'      => 1,
+			'rotate'     => 0,
+			'fade'       => 'on',
+			'last'       => array(
+				'x'      => 0,
+				'y'      => 0,
+				'scale'  => 1,
+				'rotate' => 0,
 			),
 		);
 

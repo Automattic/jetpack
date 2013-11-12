@@ -66,6 +66,7 @@ add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
  *
  * The new style is now:
  * [dailymotion id=x8oma9 title=2 user=3 video=4]
+ * @todo: Update code to sniff for iframe embeds and convert those to shortcodes.
  *
  * @param array $atts
  * @return string html
@@ -96,10 +97,9 @@ function dailymotion_shortcode( $atts ) {
 	$height = ( 425 == $width ) ? 334 : ( $width / 425 ) * 334;
 	$id = urlencode( $id );
 
-	$output = '<object width="' . $width . '" height="' . $height . '"><param name="movie" value="http://www.dailymotion.com/swf/';
-	$after = '';
-	if ( preg_match( '/^[a-z0-9]+$/', $id ) ) {
-		$output .= $id;
+	if ( preg_match( '/^[A-Za-z0-9]+$/', $id ) ) {
+		$output = '<iframe width="' . $width . '" height="' . $height . '" src="http://www.dailymotion.com/embed/video/' . $id . '" frameborder="0"></iframe>';
+		$after = '';
 
 		if ( array_key_exists( 'video', $atts ) && $video = preg_replace( '/[^-a-z0-9_]/i', '', $atts['video'] ) && array_key_exists( 'title', $atts ) && $title = wp_kses( $atts['title'], array() ) )
 			$after .= '<br /><strong><a href="http://www.dailymotion.com/video/' . $video . '">' . $title . '</a></strong>';
@@ -107,8 +107,6 @@ function dailymotion_shortcode( $atts ) {
 		if ( array_key_exists( 'user', $atts ) && $user = preg_replace( '/[^-a-z0-9_]/i', '', $atts['user'] ) )
 			$after .= '<br /><em>Uploaded by <a href="http://www.dailymotion.com/' . $user . '">' . $user . '</a></em>';
 	}
-
-	$output .=  '"></param><param name="allowfullscreen" value="true"></param><param name="wmode" value="opaque"></param><embed src="http://www.dailymotion.com/swf/' . $id . '" width="' . $width . '" height="' . $height . '" allowfullscreen="true" wmode="opaque"></embed></object>';
 
 	return $output . $after;
 }
