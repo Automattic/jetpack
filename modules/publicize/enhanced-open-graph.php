@@ -12,6 +12,12 @@ function enhanced_og_image( $tags ) {
 	global $post;
 	$summary = Jetpack_Media_Summary::get( $post->ID );
 
+	// Don't pick the OG video stuff over a featured image
+	$featured = Jetpack_PostImages::from_thumbnail( $post->ID, 200, 200 );
+	if ( !empty( $featured ) && count( $featured ) > 0 ) {
+		return $tags;
+	}
+
 	if ( 'image' != $summary['type'] )
 		return $tags;
 
@@ -58,12 +64,17 @@ function enhanced_og_video( $tags ) {
 	global $post;
 	$summary = Jetpack_Media_Summary::get( $post->ID );
 
-	if ( 'video' != $summary['type'] )
-		return $tags;
-
 	// Don't pick the OG video stuff over a featured image
 	$featured = Jetpack_PostImages::from_thumbnail( $post->ID, 200, 200 );
 	if ( !empty( $featured ) && count( $featured ) > 0 ) {
+		return $tags;
+	}
+
+	if ( 'video' != $summary['type'] ) {
+		if ( $summary['count']['video'] > 0 && $summary['count']['image'] < 1 ) {
+			$tags['og:image']            = $summary['image'];
+			$tags['og:image:secure_url'] = $summary['secure']['image'];
+		}
 		return $tags;
 	}
 
