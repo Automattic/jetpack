@@ -14,6 +14,7 @@
  *     'featured_content_filter' => 'mytheme_get_featured_content',
  *     'description' => 'Describe the featured content area.',
  *     'max_posts' => 20,
+ *     'additional_post_types' => 'page',
  * ) );
  *
  * For maximum compatibility with different methods of posting
@@ -34,6 +35,17 @@ class Featured_Content {
 	 * @see Featured_Content::init()
 	 */
 	public static $max_posts = 15;
+
+	/**
+	 * The registered post types supported by Featured
+	 * Content. Themes can add Featured Content support
+	 * for additional registered post types by defining an
+	 * 'additional_post_types' argument (string|array) in
+	 * the call to add_theme_support( 'featured-content' ).
+	 *
+	 * @see Featured_Content::init()
+	 */
+	public static $additional_post_types = array( 'post' );
 
 	/**
 	 * Instantiate.
@@ -88,6 +100,16 @@ class Featured_Content {
 			add_filter( 'get_terms',     array( __CLASS__, 'hide_featured_term' ), 10, 2 );
 			add_filter( 'get_the_terms', array( __CLASS__, 'hide_the_featured_term' ), 10, 3 );
 		}
+
+		// Themes can allow Featured Content pages
+		if ( isset( $theme_support[0]['additional_post_types'] ) ) {
+			self::$additional_post_types = array_merge( self::$additional_post_types, (array) $theme_support[0]['additional_post_types'] );
+
+			// register post_tag support for each post type
+			foreach ( self::$additional_post_types as $post_type ) {
+				register_taxonomy_for_object_type( 'post_tag', $post_type );
+			}
+		}
 	}
 
 	/**
@@ -117,7 +139,8 @@ class Featured_Content {
 
 		$featured_posts = get_posts( array(
 			'include'        => $post_ids,
-			'posts_per_page' => count( $post_ids )
+			'posts_per_page' => count( $post_ids ),
+			'post_type'      => self::$additional_post_types,
 		) );
 
 		return $featured_posts;
@@ -148,7 +171,7 @@ class Featured_Content {
 
 		// Query for featured posts.
 		$featured = get_posts( array(
-			'numberposts' => $settings['quantity'],
+			'posts_per_page' => $settings['quantity'],
 			'tax_query'   => array(
 				array(
 					'field'    => 'term_id',
@@ -156,6 +179,7 @@ class Featured_Content {
 					'terms'    => $tag,
 				),
 			),
+			'post_type'   => self::$additional_post_types,
 		) );
 
 		// Return empty array if no featured content exists.
