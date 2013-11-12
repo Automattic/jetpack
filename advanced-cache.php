@@ -1,6 +1,10 @@
 <?php
 # WP SUPER CACHE 1.2
 function wpcache_broken_message() {
+	global $wp_cache_config_file;
+	if ( isset( $wp_cache_config_file ) == false )
+		return '';
+
 	if ( false == strpos( $_SERVER[ 'REQUEST_URI' ], 'wp-admin' ) )
 		echo "<!-- WP Super Cache is installed but broken. The constant WPCACHEHOME must be set in the file wp-config.php and point at the WP Super Cache plugin directory. -->";
 }
