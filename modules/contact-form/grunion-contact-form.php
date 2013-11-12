@@ -1569,7 +1569,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$r .= "\t</div>\n";
 		}
 
-		return apply_filters( 'grunion_contact_form_field_html', $r, $field_label, get_the_ID() );
+		return apply_filters( 'grunion_contact_form_field_html', $r, $field_label );
 	}
 }
 
