@@ -142,6 +142,8 @@ class Jetpack_Media_Meta_Extractor {
 					$attr = shortcode_parse_atts( $matches[3][ $key ] );
 
 					$shortcode_total_count++;
+					if ( ! isset( $shortcode_type_counts[$shortcode_name] ) )
+						$shortcode_type_counts[$shortcode_name] = 0; 
 					$shortcode_type_counts[$shortcode_name]++;
 
 					// Store (uniquely) presence of all shortcode regardless of whether it's a keeper (for those, get ID below)
@@ -329,6 +331,7 @@ class Jetpack_Media_Meta_Extractor {
 
 		$image_list = array();
 		$image_booleans = array();
+		$image_booleans['gallery'] = 0;
 
 		$from_slideshow = Jetpack_PostImages::from_slideshow( $post->ID, $args['width'], $args['height'] );
 		if ( !empty( $from_slideshow ) ) {
