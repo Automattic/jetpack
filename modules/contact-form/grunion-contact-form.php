@@ -135,7 +135,9 @@ class Grunion_Contact_Form_Plugin {
 	function process_form_submission() {
 		$id = stripslashes( $_POST['contact-form-id'] );
 
-		check_admin_referer( "contact-form_{$id}" );
+		if ( is_user_logged_in() ) {
+			check_admin_referer( "contact-form_{$id}" );
+		}
 
 		$is_widget = 0 === strpos( $id, 'widget-' );
 
@@ -876,7 +878,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= $form->body;
 			$r .= "\t<p class='contact-submit'>\n";
 			$r .= "\t\t<input type='submit' value='" . esc_attr( $form->get_attribute( 'submit_button_text' ) ) . "' class='pushbutton-wide'/>\n";
-			$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer
+			if ( is_user_logged_in() ) {
+				$r .= "\t\t" . wp_nonce_field( 'contact-form_' . $id, '_wpnonce', true, false ) . "\n"; // nonce and referer
+			}
 			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
 			$r .= "\t</p>\n";
