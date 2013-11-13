@@ -610,7 +610,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		<form action="" method="post" accept-charset="utf-8" id="subscribe-blog-<?php echo $widget_id; ?>">
 			<?php
 			if ( ! isset ( $_GET['subscribe'] ) ) {
-				?><p><?php echo $subscribe_text ?></p><?php
+				?><p id="subscribe-text"><?php echo $subscribe_text ?></p><?php
 			}
 
 			if ( $show_subscribers_total && 0 < $subscribers_total['value'] ) {
@@ -618,9 +618,9 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			}
 			?>
 
-			<p><input type="text" name="email" style="width: 95%; padding: 1px 2px" value="<?php echo !empty( $current_user->user_email ) ? esc_attr( $current_user->user_email ) : esc_html__( 'Email Address', 'jetpack' ); ?>" id="subscribe-field" onclick="if ( this.value == '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>' ) { this.value = ''; }" onblur="if ( this.value == '' ) { this.value = '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>'; }" /></p>
+			<p id="subscribe-email"><input type="text" name="email" style="width: 95%; padding: 1px 2px" value="<?php echo !empty( $current_user->user_email ) ? esc_attr( $current_user->user_email ) : esc_html__( 'Email Address', 'jetpack' ); ?>" id="subscribe-field" onclick="if ( this.value == '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>' ) { this.value = ''; }" onblur="if ( this.value == '' ) { this.value = '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>'; }" /></p>
 
-			<p>
+			<p id="subscribe-submit">
 				<input type="hidden" name="action" value="subscribe" />
 				<input type="hidden" name="source" value="<?php echo esc_url( $referer ); ?>" />
 				<input type="hidden" name="sub-type" value="<?php echo esc_attr( $source ); ?>" />
