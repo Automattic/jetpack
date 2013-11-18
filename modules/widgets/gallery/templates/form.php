@@ -1,5 +1,5 @@
 <p>
-	<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:' , 'jetpack' ); ?>
+	<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?>
 		<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>"
 			type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
 	</label>
@@ -7,7 +7,7 @@
 
 <p>
 	<label>
-		<?php esc_html_e( 'Images:' , 'jetpack' ); ?>
+		<?php esc_html_e( 'Images:', 'jetpack' ); ?>
 	</label>
 </p>
 
@@ -40,7 +40,7 @@
 </p>
 
 <p class="gallery-widget-link-wrapper">
-	<label for="<?php echo $this->get_field_id( 'link' ); ?>"><?php esc_html_e( 'Link To:' , 'jetpack' ); ?></label>
+	<label for="<?php echo $this->get_field_id( 'link' ); ?>"><?php esc_html_e( 'Link To:', 'jetpack' ); ?></label>
 	<select name="<?php echo $this->get_field_name( 'link' ); ?>" id="<?php echo $this->get_field_id( 'link' ); ?>" class="widefat">
 		<?php foreach ( $allowed_values['link'] as $key => $label ) {
 			$selected = '';
@@ -49,13 +49,13 @@
 				$selected = "selected='selected' ";
 			} ?>
 
-			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php esc_html_e( $label , 'jetpack' ); ?></option>
+			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php esc_html_e( $label, 'jetpack' ); ?></option>
 		<?php } ?>
 	</select>
 </p>
 
 <p>
-	<label for="<?php echo $this->get_field_id( 'random' ); ?>"><?php esc_html_e( 'Random Order:' , 'jetpack' ); ?></label>
+	<label for="<?php echo $this->get_field_id( 'random' ); ?>"><?php esc_html_e( 'Random Order:', 'jetpack' ); ?></label>
 	<?php $checked = '';
 
 	if ( isset( $instance['random'] ) && $instance['random'] )
@@ -66,7 +66,7 @@
 </p>
 
 <p class="gallery-widget-style-wrapper">
-	<label for="<?php echo $this->get_field_id( 'type' ); ?>"><?php esc_html_e( 'Style:' , 'jetpack' ); ?></label>
+	<label for="<?php echo $this->get_field_id( 'type' ); ?>"><?php esc_html_e( 'Style:', 'jetpack' ); ?></label>
 	<select name="<?php echo $this->get_field_name( 'type' ); ?>" id="<?php echo $this->get_field_id( 'type' ); ?>" class="widefat gallery-widget-style">
 		<?php foreach ( $allowed_values['type'] as $key => $label ) {
 			$selected = '';
