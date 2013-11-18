@@ -143,7 +143,7 @@ class Jetpack_Media_Meta_Extractor {
 
 					$shortcode_total_count++;
 					if ( ! isset( $shortcode_type_counts[$shortcode_name] ) )
-						$shortcode_type_counts[$shortcode_name] = 0; 
+						$shortcode_type_counts[$shortcode_name] = 0;
 					$shortcode_type_counts[$shortcode_name]++;
 
 					// Store (uniquely) presence of all shortcode regardless of whether it's a keeper (for those, get ID below)
