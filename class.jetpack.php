@@ -2198,6 +2198,27 @@ p {
 				$this->error .= $php_errors;
 			}
 			break;
+		case 'master_user_required' :
+			$module = Jetpack::state( 'module' );
+			$module_name = '';
+			if ( ! empty( $module ) && $mod = Jetpack::get_module( $module ) ) {
+				$module_name = $mod['name'];
+			}
+
+			$master_user = Jetpack_Options::get_option( 'master_user' );
+			$master_userdata = get_userdata( $master_user ) ;
+			if ( $master_userdata ) {
+				if ( ! in_array( $module, Jetpack::get_active_modules() ) ) {
+					$this->error = sprintf( __( '%s was not activated.' , 'jetpack' ), $module_name );
+				} else {
+					$this->error = sprintf( __( '%s was not deactivated.' , 'jetpack' ), $module_name );
+				}
+				$this->error .= '  ' . sprintf( __( 'This module can only be altered by %s, the user who initiated the Jetpack connection on this site.' , 'jetpack' ), esc_html( $master_userdata->display_name ) );
+
+			} else {
+				$this->error = sprintf( __( 'Only the user who initiated the Jetpack connection on this site can toggle %s, but that user no longer exists. This should not happen.' ), $module_name );
+			}
+			break;
 		case 'not_public' :
 			$this->error = __( '<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost).', 'jetpack' );
 			break;
