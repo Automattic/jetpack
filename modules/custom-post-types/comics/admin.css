@@ -1,4 +1,4 @@
-body.mp6 #adminmenu #menu-posts-jetpack-comic .menu-icon-post div.wp-menu-image:before {
+#adminmenu #menu-posts-jetpack-comic .menu-icon-post div.wp-menu-image:before {
 	content: '\f125';
 }
 

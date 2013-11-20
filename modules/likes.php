@@ -514,19 +514,30 @@ class Jetpack_Likes {
 	/**
 	* Load the CSS needed for the wp-admin area.
 	*/
-	function load_admin_css() { ?>
+	function load_admin_css() {
+		include( ABSPATH . 'wp-includes/version.php' );
+		?>
 		<style type="text/css">
 			.fixed .column-likes { width: 5em; padding-top: 8px; text-align: center !important; }
 			.fixed .column-stats { width: 5em; }
 			.fixed .column-likes .post-com-count { background-image: none; }
 			.fixed .column-likes .comment-count { background-color: #888; }
 			.fixed .column-likes .comment-count:hover { background-color: #D54E21; }
-			.mp6 .fixed .column-likes .post-com-count::after { border: none !important; }
-			.mp6 .fixed .column-likes .comment-count { background-color: #bbb; }
-			.mp6 .fixed .column-likes .comment-count:hover { background-color: #2ea2cc; }
-			.mp6 .fixed .column-likes .vers img { display: none; }
-			.mp6 .fixed .column-likes .vers:before {font:20px/1 dashicons;content: '\f155';-webkit-font-smoothing:antialiased;}
-		</style> <?php
+		<?php if ( version_compare( $wp_version, '3.8-alpha', '>=' ) ) : ?>
+			.fixed .column-likes .post-com-count::after { border: none !important; }
+			.fixed .column-likes .comment-count { background-color: #bbb; }
+			.fixed .column-likes .comment-count:hover { background-color: #2ea2cc; }
+			.fixed .column-likes .vers img { display: none; }
+			.fixed .column-likes .vers:before {
+				font: normal 20px/1 dashicons;
+				content: '\f155';
+				speak: none;
+				-webkit-font-smoothing: antialiased;
+				-moz-osx-font-smoothing: grayscale;
+			}
+		<?php endif; ?>
+		</style>
+		<?php
 	}
 
 	/**

@@ -1508,12 +1508,17 @@ p {
 	}
 
 	function admin_body_class( $admin_body_class = '' ) {
-		if ( self::is_active() ) {
-			$admin_body_class .= ' jetpack-connected';
-		} else {
-			$admin_body_class .= ' jetpack-disconnected';
+		$classes = explode( ' ', trim( $admin_body_class ) );
+
+		$classes[] = self::is_active() ? 'jetpack-connected' : 'jetpack-disconnected';
+
+		// Handle pre-mp6 styling by adding a 'pre-mp6' body class.
+		include( ABSPATH . 'wp-includes/version.php' );
+		if ( version_compare( $wp_version, '3.8-alpha', '<' ) ) {
+			$classes[] = 'pre-mp6';
 		}
-		return $admin_body_class;
+
+		return implode( ' ', array_unique( $classes ) );
 	}
 
 	static function add_jetpack_pagestyles( $admin_body_class = '' ) {
