@@ -37,7 +37,7 @@
 	display: none;
 }
 
-.pre-mp6.jetpack-contact-form-icon {
+.pre-mp6 .jetpack-contact-form-icon {
 	background: url(../images/grunion-form.png) no-repeat;
 	width: 16px;
 	height: 16px;
@@ -46,7 +46,7 @@
 	background-size: 13px 12px !important;
 }
 
-.pre-mp6.jetpack-contact-form-icon:before {
+.pre-mp6 .jetpack-contact-form-icon:before {
 	display: none;
 }
 
