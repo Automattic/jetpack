@@ -33,6 +33,10 @@
 	background-size: 15px 16px !important;
 }
 
+.pre-mp6 #adminmenu .menu-icon-feedback div.wp-menu-image:before {
+	display: none;
+}
+
 .pre-mp6.jetpack-contact-form-icon {
 	background: url(../images/grunion-form.png) no-repeat;
 	width: 16px;
