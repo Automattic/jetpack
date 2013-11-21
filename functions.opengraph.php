@@ -172,30 +172,22 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	else if ( !is_array( $image ) )
 		$image = array( $image );
 
-	$mshot_url_pattern = 'http://s.wordpress.com/mshots/v1/%s?w=534&h=400'; // over twice FB's min size (200), with aspect ratio
-
-	// First fall back, mshots
-	/*
-	 if ( is_singular() )
-		$image[] = sprintf( $mshot_url_pattern, urlencode( get_permalink( $post->ID ) ) );
-	else
-		$image[] = sprintf( $mshot_url_pattern, urlencode( site_url() ) );
-	*/
-
-	// Second fall back, blavatar
-	if ( function_exists( 'blavatar_domain' ) ) {
+	// First fall back, blavatar
+	if ( empty( $image ) && function_exists( 'blavatar_domain' ) ) {
 		$blavatar_domain = blavatar_domain( site_url() );
 		if ( blavatar_exists( $blavatar_domain ) )
 			$image[] = blavatar_url( $blavatar_domain, 'img', $width );
 	}
 
-	// Third fall back, gravatar
-	if ( is_singular() && !is_home() && !is_front_page() && !empty( $post->post_author ) ) {
+	// Second fall back, gravatar
+	if ( empty( $image ) && is_singular() && !is_home() && !is_front_page() && !empty( $post->post_author ) ) {
 		$image[] = jetpack_og_get_image_gravatar( get_user_by( 'id', $post->post_author )->user_email, $width );
 	}
 
-	// Fourth fall back, blank image
-	$image[] = "http://wordpress.com/i/blank.jpg";
+	// Third fall back, blank image
+	if ( empty( $image ) ) {
+		$image[] = "http://wordpress.com/i/blank.jpg";
+	}
 
 	return $image;
 }
