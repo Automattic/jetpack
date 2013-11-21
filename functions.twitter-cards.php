@@ -9,52 +9,114 @@
  * @see https://dev.twitter.com/docs/cards
  */
 function wpcom_twitter_cards_tags( $og_tags ) {
-	global $post, $wpdb;
+	global $post;
+
+	if ( apply_filters( 'jetpack_disable_twitter_cards', false ) )
+		return $og_tags;
+
+	/*
+	 * These tags apply to any page (home, archives, etc)
+	 */
 
 	$og_tags['twitter:site'] = '@wordpressdotcom';
 
 	if ( ! is_singular() || ! empty( $og_tags['twitter:card'] ) )
 		return $og_tags;
 
-	$img_count = 0;
-	foreach ( $og_tags as $key => $value ) {
-		if ( 'og:image' != $key || ! is_array( $value ) || empty( $value[0] ) )
-			continue;
+	/*
+	 * The following tags only apply to single pages.
+	 */
 
-		$img_count = 0;
-		foreach ( (array) $value as $counter => $image ) {
-			$og_tags['twitter:image' . $counter] = $image;
-			$img_count++;
-			if ( $img_count >= 4 )
-				break; // Only 4 images allowed
+	$card = 'summary';
+
+	// Try to give priority to featured images
+	if ( class_exists('Jetpack_PostImages') ) {
+		$featured = Jetpack_PostImages::from_thumbnail( $post->ID, 240, 240 );
+		if ( !empty( $featured ) && count( $featured ) > 0 ) {
+			if ( (int) $featured[0]['src_width'] >= 280 && (int) $featured[0]['src_height'] >= 150 ) {
+				$card = 'summary_large_image';
+				$og_tags['twitter:image:src'] = add_query_arg( 'w', 640, $featured[0]['src'] );
+			} else {
+				$og_tags['twitter:image'] = add_query_arg( 'w', 240, $featured[0]['src'] );
+			}
 		}
 	}
 
-	// Figure out what kind of card this is, based on the number of images found
-	if ( 0 == $img_count ) {
-		// No images = summary
-		$card = 'summary';
-	} else if ( $img_count <= 3 ) {
-		// < 4 images = photo
-		$card = 'photo';
-		$og_tags['twitter:image'] = $og_tags['twitter:image0']; // Rename back to photo format (from gallery)
-		unset( $og_tags['twitter:image0'] );
-		for ( $i = 1; $i < 4; $i++ ) {
-			unset( $og_tags['twitter:image' . $i] ); // Remove >0 image references
+	// Only proceed with media analysis if a featured image has not superseded it already.
+	if ( empty( $og_tags['twitter:image'] ) && empty( $og_tags['twitter:image:src'] ) ) {
+		if ( ! class_exists( 'Jetpack_Media_Summary' ) && defined('IS_WPCOM') && IS_WPCOM )
+			include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
+
+		// Test again, class should already be auto-loaded in Jetpack.
+		// If not, skip extra media analysis and stick with a summary card
+		if ( class_exists( 'Jetpack_Media_Summary' ) ) {
+			$extract = Jetpack_Media_Summary::get( $post->ID );
+
+			if ( 'gallery' == $extract['type'] ) {
+				$card = 'gallery';
+				$og_tags = wpcom_twitter_cards_gallery( $extract, $og_tags );
+			} else if ( 'video' == $extract['type'] ) {
+				// Leave as summary, but with large pict of poster frame (we know those comply to Twitter's size requirements)
+				$card = 'summary_large_image';
+				$og_tags['twitter:image:src'] = add_query_arg( 'w', 640, $extract['image'] );
+			} else {
+				$img_count = $extract['count']['image'];
+
+				if ( empty( $img_count ) ) {
+					// No images, use Blavatar as a thumbnail for the summary type.
+					if ( function_exists( 'blavatar_domain' ) ) {
+						$blavatar_domain = blavatar_domain( site_url() );
+						if ( blavatar_exists( $blavatar_domain ) )
+							$og_tags['twitter:image'] = blavatar_url( $blavatar_domain, 'img', 240 );
+					}
+					// Not falling back on Gravatar, because there's no way to know if we end up with an auto-generated one.
+				} else if ( 1 == $img_count && 'image' == $extract['type'] ) {
+						// 1 image = photo
+						$card = 'photo';
+						$og_tags['twitter:image'] = add_query_arg( 'w', 1400, $extract['image'] );
+				} else if ( $img_count <= 3 ) {
+					// 2-3 images = summary with small to large thumbnail
+					$og_tags['twitter:image'] = add_query_arg( 'w', 240, $extract['image'] );
+				} else if ( $img_count >= 4 ) {
+					// >= 4 images = gallery
+					$card = 'gallery';
+					$og_tags = wpcom_twitter_cards_gallery( $extract, $og_tags );
+				}
+			}
 		}
-	} else if ( $img_count >= 4 ) {
-		// >= 4 images = gallery
-		$card = 'gallery';
 	}
+
 	$og_tags['twitter:card'] = $card;
 
 	// If we have information on the author/creator, then include that as well
 	if ( ! empty( $post ) && ! empty( $post->post_author ) ) {
 		$handle = apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID );
-		if ( !empty( $handle ) )
+		if ( !empty( $handle ) && 'wordpressdotcom' != $handle )
 			$og_tags['twitter:creator'] = '@' . $handle;
 	}
 
+	// Make sure we have a description for Twitter, their validator isn't happy without some content (single space not valid).
+	if ( ! isset( $og_tags['og:description'] ) || '' == trim( $og_tags['og:description'] ) ) { // empty( trim( $og_tags['og:description'] ) ) isn't valid php
+		$has_creator = ( !empty($og_tags['twitter:creator']) && '@wordpressdotcom' != $og_tags['twitter:creator'] ) ? true : false;
+		if ( 'photo' == $card )
+			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('Photo post by %s.'), $og_tags['twitter:creator'] ) : __('Photo post.');
+		else if ( !empty( $extract ) && 'video' == $extract['type'] ) // use $extract['type'] since $card is 'summary' for video posts
+			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('Video post by %s.'), $og_tags['twitter:creator'] ) : __('Video post.');
+		else if ( 'gallery' == $card )
+			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('Gallery post by %s.'), $og_tags['twitter:creator'] ) : __('Gallery post.');
+		else
+			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('Blog post by %s.'), $og_tags['twitter:creator'] ) : __('Blog post.');
+	}
+
+	return $og_tags;
+}
+
+function wpcom_twitter_cards_gallery( $extract, $og_tags ) {
+	foreach( $extract['images'] as $key => $value ) {
+		if ( $key > 3 )
+			break; // Can only send a max of 4 picts (https://dev.twitter.com/docs/cards/types/gallery-card)
+		$og_tags[ 'twitter:image' . $key ] = add_query_arg( 'w', 640, $value['url'] );
+	}
 	return $og_tags;
 }
 

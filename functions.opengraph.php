@@ -85,7 +85,7 @@ function jetpack_og_tags() {
 
 	// Add any additional tags here, or modify what we've come up with
 	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
-	
+
 	// secure_urls need to go right after each og:image to work properly so we will abstract them here
 	$secure = $tags['og:image:secure_url'] = ( empty( $tags['og:image:secure_url'] ) ) ? '' : $tags['og:image:secure_url'];
 	unset( $tags['og:image:secure_url'] );
@@ -172,11 +172,15 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	else if ( !is_array( $image ) )
 		$image = array( $image );
 
+	$mshot_url_pattern = 'http://s.wordpress.com/mshots/v1/%s?w=534&h=400'; // over twice FB's min size (200), with aspect ratio
+
 	// First fall back, mshots
-	if ( is_singular() && ! empty( $post ) && is_object( $post ) )
-		$image[] = 'http://s.wordpress.com/mshots/v1/' . urlencode( get_permalink( $post->ID ) );
+	/*
+	 if ( is_singular() )
+		$image[] = sprintf( $mshot_url_pattern, urlencode( get_permalink( $post->ID ) ) );
 	else
-		$image[] = 'http://s.wordpress.com/mshots/v1/' . urlencode( site_url() );
+		$image[] = sprintf( $mshot_url_pattern, urlencode( site_url() ) );
+	*/
 
 	// Second fall back, blavatar
 	if ( function_exists( 'blavatar_domain' ) ) {
@@ -217,7 +221,7 @@ function jetpack_og_get_image_gravatar( $email, $width ) {
 			add_filter( 'pre_option_show_avatars', '__return_true' );
 		}
 		$avatar = get_avatar( $email, $width );
-		
+
 		if ( !$has_filter ) {
 			remove_filter( 'pre_option_show_avatars', '__return_true' );
 		}
@@ -227,6 +231,6 @@ function jetpack_og_get_image_gravatar( $email, $width ) {
 				$image = wp_specialchars_decode($matches[1], ENT_QUOTES);
 		}
 	}
-	
+
 	return $image;
 }
