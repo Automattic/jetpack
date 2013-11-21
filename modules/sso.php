@@ -30,6 +30,7 @@ class Jetpack_SSO {
 		add_action( 'login_form',   array( $this, 'login_form' ) );
 		add_action( 'login_footer', array( $this, 'login_footer' ) );
 		wp_enqueue_script( 'jquery' );
+		wp_enqueue_style( 'genericons' );
 
 		if ( isset( $_GET['action'] ) && 'jetpack-sso' == $_GET['action'] ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
@@ -237,15 +238,15 @@ class Jetpack_SSO {
 		}
 		.jetpack-sso.button:before {
 			display: block;
-			width: 20px;
-			height: 20px;
-			padding: 4px 4px 4px 6px;
+			width: 22px;
+			height: 22px;
+			padding: 3px 4px;
 			position: absolute;
 			top: -1px;
 			left: -1px;
 			border-radius: 2px 0 0 2px;
-			font: normal 18px/1.2 'dashicons' !important;
-			content: '\\f120';
+			font: normal 22px/1 Genericons !important;
+			content: '\\f205';
 			background: #0074a2;
 			color: #fff;
 			-webkit-font-smoothing: antialiased;
