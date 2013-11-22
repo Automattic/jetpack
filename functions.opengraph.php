@@ -179,12 +179,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 			$image[] = blavatar_url( $blavatar_domain, 'img', $width );
 	}
 
-	// Second fall back, gravatar
-	if ( empty( $image ) && is_singular() && !is_home() && !is_front_page() && !empty( $post->post_author ) ) {
-		$image[] = jetpack_og_get_image_gravatar( get_user_by( 'id', $post->post_author )->user_email, $width );
-	}
-
-	// Third fall back, blank image
+	// Second fall back, blank image
 	if ( empty( $image ) ) {
 		$image[] = "http://wordpress.com/i/blank.jpg";
 	}
