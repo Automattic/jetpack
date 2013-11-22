@@ -283,6 +283,7 @@ class Jetpack {
 		 * They check for external files or plugins, so they need to run as late as possible.
 		 */
 		add_action( 'plugins_loaded', array( $this, 'check_open_graph' ),       999 );
+		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ),     999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
@@ -567,35 +568,28 @@ class Jetpack {
 		}
 
 		$conflicting_plugins = array(
-			'facebook/facebook.php',                                                								// Official Facebook plugin
-			'wordpress-seo/wp-seo.php',                                             								// WordPress SEO by Yoast
-			'add-link-to-facebook/add-link-to-facebook.php',                        								// Add Link to Facebook
-			'facebook-awd/AWD_facebook.php',                                        								// Facebook AWD All in one
-			'header-footer/plugin.php',                                             								// Header and Footer
-			'nextgen-facebook/nextgen-facebook.php',                                								// NextGEN Facebook OG
-			'seo-facebook-comments/seofacebook.php',                                								// SEO Facebook Comments
-			'seo-ultimate/seo-ultimate.php',                                        								// SEO Ultimate
-			'sexybookmarks/sexy-bookmarks.php',                                     								// Shareaholic
-			'shareaholic/sexy-bookmarks.php',                                       								// Shareaholic
-			'social-discussions/social-discussions.php',                            								// Social Discussions
-			'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',									// NextScripts SNAP
-			'wordbooker/wordbooker.php',                                            								// Wordbooker
-			'socialize/socialize.php',                                              								// Socialize
-			'simple-facebook-connect/sfc.php',                                      								// Simple Facebook Connect
-			'social-sharing-toolkit/social_sharing_toolkit.php',                    								// Social Sharing Toolkit
-			'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',                  								// WP Facebook Open Graph protocol
-			'opengraph/opengraph.php',                                              								// Open Graph
-			'sharepress/sharepress.php',                                            								// SharePress
-			'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',							// WP Facebook Like Send & Open Graph Meta
-			'network-publisher/networkpub.php',													// Network Publisher
-			'wp-ogp/wp-ogp.php',															// WP-OGP
-			'twitter-cards/twitter-cards.php',													// Twitter Cards
-			'twitter-cards-meta/twitter-cards-meta.php',												// Twitter Cards Meta
-			'ig-twitter-cards/ig-twitter-cards.php',												// IG:Twitter Cards
-			'kevinjohn-gallagher-pure-web-brilliants-social-graph-twitter-cards-extention/kevinjohn_gallagher___social_graph_twitter_output.php',	// Pure Web Brilliant's Social Graph Twitter Cards Extention
-			'jm-twitter-cards/jm-twitter-cards.php',												// JM Twitter Cards
-			'wp-twitter-cards/twitter_cards.php',													// WP Twitter Cards
-			'eewee-twitter-card/index.php',														// eewee twitter card
+			'facebook/facebook.php',                                                		// Official Facebook plugin
+			'wordpress-seo/wp-seo.php',                                             		// WordPress SEO by Yoast
+			'add-link-to-facebook/add-link-to-facebook.php',                        		// Add Link to Facebook
+			'facebook-awd/AWD_facebook.php',                                        		// Facebook AWD All in one
+			'header-footer/plugin.php',                                             		// Header and Footer
+			'nextgen-facebook/nextgen-facebook.php',                                		// NextGEN Facebook OG
+			'seo-facebook-comments/seofacebook.php',                                		// SEO Facebook Comments
+			'seo-ultimate/seo-ultimate.php',                                        		// SEO Ultimate
+			'sexybookmarks/sexy-bookmarks.php',                                     		// Shareaholic
+			'shareaholic/sexy-bookmarks.php',                                       		// Shareaholic
+			'social-discussions/social-discussions.php',                            		// Social Discussions
+			'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',			// NextScripts SNAP
+			'wordbooker/wordbooker.php',                                            		// Wordbooker
+			'socialize/socialize.php',                                              		// Socialize
+			'simple-facebook-connect/sfc.php',                                      		// Simple Facebook Connect
+			'social-sharing-toolkit/social_sharing_toolkit.php',                    		// Social Sharing Toolkit
+			'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',                  		// WP Facebook Open Graph protocol
+			'opengraph/opengraph.php',                                              		// Open Graph
+			'sharepress/sharepress.php',                                            		// SharePress
+			'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',	// WP Facebook Like Send & Open Graph Meta
+			'network-publisher/networkpub.php',							// Network Publisher
+			'wp-ogp/wp-ogp.php',									// WP-OGP
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
@@ -607,6 +601,48 @@ class Jetpack {
 
 		if ( apply_filters( 'jetpack_enable_open_graph', false ) )
 			require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
+	}
+
+	/**
+	 * Check if Jetpack's Twitter tags should be used.
+	 * If certain plugins are active, Jetpack's twitter tags are suppressed.
+	 *
+	 * @uses Jetpack::get_active_modules, add_filter, get_option, apply_filters
+	 * @action plugins_loaded
+	 * @return null
+	 */
+	public function check_twitter_tags() {
+
+		$active_plugins = get_option( 'active_plugins', array() );
+
+		if ( is_multisite() ) {
+			// Due to legacy code, active_sitewide_plugins stores them in the keys,
+			// whereas active_plugins stores them in the values.
+			$network_plugins = array_keys( get_site_option( 'active_sitewide_plugins', array() ) );
+			if ( $network_plugins ) {
+				$active_plugins = array_merge( $active_plugins, $network_plugins );
+			}
+		}
+
+		$conflicting_plugins = array(
+			'twitter-cards/twitter-cards.php',		// Twitter Cards
+			'twitter-cards-meta/twitter-cards-meta.php',	// Twitter Cards Meta
+			'ig-twitter-cards/ig-twitter-cards.php',	// IG:Twitter Cards
+			'jm-twitter-cards/jm-twitter-cards.php',	// JM Twitter Cards
+			'wp-twitter-cards/twitter_cards.php',		// WP Twitter Cards
+			'eewee-twitter-card/index.php',			// Eewee Twitter Card
+			'kevinjohn-gallagher-pure-web-brilliants-social-graph-twitter-cards-extention/kevinjohn_gallagher___social_graph_twitter_output.php',	// Pure Web Brilliant's Social Graph Twitter Cards Extention
+		);
+
+		foreach ( $conflicting_plugins as $plugin ) {
+			if ( in_array( $plugin, $active_plugins ) ) {
+				add_filter( 'jetpack_disable_twitter_cards', '__return_true', 99 );
+				break;
+			}
+		}
+
+		if ( apply_filters( 'jetpack_disable_twitter_cards', true ) )
+			require_once JETPACK__PLUGIN_DIR . 'functions.twitter-cards.php';
 	}
 
 /* Jetpack Options API */

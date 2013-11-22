@@ -51,7 +51,6 @@ require_once( JETPACK__PLUGIN_DIR . 'class.photon.php'                );
 require_once( JETPACK__PLUGIN_DIR . 'functions.photon.php'            );
 require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
 require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
-require_once( JETPACK__PLUGIN_DIR . 'functions.twitter-cards.php'     );
 require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 );
 
 // Play nice with http://wp-cli.org/
@@ -65,13 +64,6 @@ register_deactivation_hook( __FILE__, array( 'Jetpack', 'plugin_deactivation' ) 
 add_action( 'init', array( 'Jetpack', 'init' ) );
 add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
-
-add_filter( 'jetpack_open_graph_tags', 'change_twitter_site_param' );
-
-function change_twitter_site_param( $og_tags ) {
-	$og_tags['twitter:site'] = '@jetpack';
-	return $og_tags;
-}
 
 /**
  * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.
