@@ -871,6 +871,14 @@ class Jetpack {
 			'wpcc'  => 'sso', // Closed out in 2.6 -- SSO provides the same functionality.
 		);
 
+		// Don't activate SSO if they never completed activating WPCC.
+		if ( Jetpack::is_module_active( 'wpcc' ) ) {
+			$wpcc_options = Jetpack_Options::get_option( 'wpcc_options' );
+			if ( empty( $wpcc_options ) || empty( $wpcc_options['client_id'] ) || empty( $wpcc_options['client_id'] ) ) {
+				$deprecated_modules['wpcc'] = null;
+			}
+		}
+
 		foreach ( $deprecated_modules as $module => $replacement ) {
 			if ( Jetpack::is_module_active( $module ) ) {
 				self::deactivate_module( $module );
