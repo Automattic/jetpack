@@ -18,7 +18,7 @@ function wpcom_twitter_cards_tags( $og_tags ) {
 	 * These tags apply to any page (home, archives, etc)
 	 */
 
-	$og_tags['twitter:site'] = '@wordpressdotcom';
+	$og_tags['twitter:site'] = ( defined('IS_WPCOM') && IS_WPCOM ) ? '@wordpressdotcom' : '@jetpack';
 
 	if ( ! is_singular() || ! empty( $og_tags['twitter:card'] ) )
 		return $og_tags;
