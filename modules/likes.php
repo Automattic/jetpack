@@ -715,8 +715,17 @@ class Jetpack_Likes {
 		if ( is_ssl() )
 			$protocol = 'https';
 
+		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '>=' ) ) {
+			add_filter( 'mp6_enabled', '__return_true', 97 );
+		}
+
 		$locale = ( '' == get_locale() || 'en' == get_locale() ) ? '' : '&amp;lang=' . strtolower( substr( get_locale(), 0, 2 ) );
         $src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, apply_filters( 'mp6_enabled', 0 ) );
+
+		// Tidy up after ourselves.
+		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '>=' ) ) {
+			remove_filter( 'mp6_enabled', '__return_true', 97 );
+		}
 
         $likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 ?>
