@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 2.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-14 20:09:35+0000\n"
+"PO-Revision-Date: 2013-11-25 20:13:07+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,119 +12,119 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Write a comment..."
-msgstr ""
+msgstr "コメントをどうぞ"
 
 #: class.jetpack.php:999
 msgctxt "Module Tag"
 msgid "Mobile"
-msgstr ""
+msgstr "モバイル"
 
 #: class.jetpack.php:1000
 msgctxt "Module Tag"
 msgid "Other"
-msgstr ""
+msgstr "その他"
 
 #: class.jetpack-cli.php:169
 msgid "%s has been deactivated."
-msgstr ""
+msgstr "%s を無効化しました。"
 
 #: class.jetpack.php:993
 msgctxt "Module Tag"
 msgid "Photos and Videos"
-msgstr ""
+msgstr "写真と動画"
 
 #: class.jetpack.php:994
 msgctxt "Module Tag"
 msgid "Social"
-msgstr ""
+msgstr "ソーシャル"
 
 #: class.jetpack.php:995
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "WordPress.com Stats"
 
 #: class.jetpack.php:996
 msgctxt "Module Tag"
 msgid "Writing"
-msgstr ""
+msgstr "執筆"
 
 #: class.jetpack.php:997
 msgctxt "Module Tag"
 msgid "Appearance"
-msgstr ""
+msgstr "外観"
 
 #: class.jetpack.php:998
 msgctxt "Module Tag"
 msgid "Developers"
-msgstr ""
+msgstr "開発者"
 
 #: class.jetpack-cli.php:82
 msgid "Please specify a user."
-msgstr ""
+msgstr "ユーザーを指定してください。"
 
 #: class.jetpack-cli.php:163
 msgid "%s has been activated."
-msgstr ""
+msgstr "%s を無効化しました。"
 
 #: class.jetpack-cli.php:155
 msgid "Inactive"
-msgstr ""
+msgstr "無効"
 
 #: class.jetpack-cli.php:151
 msgid "Available Modules:"
-msgstr ""
+msgstr "利用可能なモジュール:"
 
 #: class.jetpack-cli.php:144
 msgid "Please specify a valid module."
-msgstr ""
+msgstr "有効なモジュールを指定してください。"
 
 #: class.jetpack-cli.php:138
 msgid "%s is not a valid module."
-msgstr ""
+msgstr "%s は無効なモジュールです。"
 
 #: class.jetpack-cli.php:101
 msgid "Please specify if you would like to disconnect a blog or user."
-msgstr ""
+msgstr "ブログまたはユーザー、どちらの連携を解除するか指定してください。"
 
 #: class.jetpack-cli.php:97
 msgid "%s could not be disconnected.  Are you sure they're connected currently?"
-msgstr ""
+msgstr "%s の連携を解除できませんでした。現在すでに連携済みかどうか確認して下さい。"
 
 #: class.jetpack-cli.php:95
 msgid "%s has been successfully disconnected."
-msgstr ""
+msgstr "%s の連携を解除しました。"
 
 #: class.jetpack-cli.php:90
 msgid "Jetpack has been successfully disconnected."
-msgstr ""
+msgstr "Jetpack の連携を解除しました。"
 
 #: class.jetpack-cli.php:79
 msgid "Please specify a valid user."
-msgstr ""
+msgstr "有効なユーザーを指定してください。"
 
 #: class.jetpack-cli.php:62 class.jetpack-cli.php:131
 msgid "%s is not a valid command."
-msgstr ""
+msgstr "%s は無効なコマンドです。"
 
 #: class.jetpack-cli.php:57
 msgid "You cannot disconnect, without having first connected."
-msgstr ""
+msgstr "連携が確立されていない場合、連携の解除は行えません。"
 
 #: class.jetpack-cli.php:25
 msgid "Jetpack is currently connected to WordPress.com"
-msgstr ""
+msgstr "現在 Jetpack は WordPress.com アカウントに連携済みです"
 
 #: class.jetpack-cli.php:26
 msgid "The Jetpack Version is %s"
-msgstr ""
+msgstr "Jetpack バージョンは %s です"
 
 #: class.jetpack-cli.php:27
 msgid "The WordPress.com blog_id is %d"
-msgstr ""
+msgstr "WordPress.com blog_id は %d です"
 
 #: class.jetpack-cli.php:29
 msgid "Jetpack is not currently connected to WordPress.com"
-msgstr ""
+msgstr "現在 Jetpack は WordPress.com アカウントと連携されていません"
 
 msgid "A single search box, that lets you search many different things."
 msgstr "さまざまなコンテンツを一カ所で探すことができる検索ボックスです。"
@@ -1891,7 +1891,7 @@ msgstr "モニター"
 
 #: modules/module-info.php:887
 msgid "Nobody likes downtime, and that's why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!"
-msgstr "サイトが落ちるのは嫌なものです。Jetpack モニターを使ってサイトを監視しましょう。ダウンタイムが検知され次第、メール通知で問題を知らせるアラートが届きます。サイトの問題をすぐに知ることで、回復のための作業に取りかかることができます。"
+msgstr "サイトが落ちていないかどうか、Jetpack モニターを使って監視しましょう。ダウンタイムを検知すると問題を通知するアラートが届きます。サイトの障害をいち早く知ることで、すぐに復旧作業に取りかかることができます。"
 
 #: modules/module-info.php:889
 msgid "We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime."
@@ -5049,7 +5049,7 @@ msgstr "<strong>%s を有効化しました。</strong>無効にするには、�
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate buttons on their module cards."
-msgstr[0] "<strong>%l を無効化しました。</strong>モジュールボックス内の「有効化」ボタンで、いつでも再び有効化できます。"
+msgstr[0] "<strong>%l を無効化しました。</strong>モジュールボックス内の「有効化」ボタンで、いつでも再有効化できます。"
 
 #: class.jetpack.php:2326
 msgid "<strong>Module settings were saved.</strong> "

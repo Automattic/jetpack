@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 2.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-14 20:09:38+0000\n"
+"PO-Revision-Date: 2013-11-25 20:13:08+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,119 +12,119 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Write a comment..."
-msgstr ""
+msgstr "Laisser un commentaire..."
 
 #: class.jetpack.php:999
 msgctxt "Module Tag"
 msgid "Mobile"
-msgstr ""
+msgstr "Mobile"
 
 #: class.jetpack.php:1000
 msgctxt "Module Tag"
 msgid "Other"
-msgstr ""
+msgstr "Autre"
 
 #: class.jetpack-cli.php:169
 msgid "%s has been deactivated."
-msgstr ""
+msgstr "%s a été désactivé."
 
 #: class.jetpack.php:993
 msgctxt "Module Tag"
 msgid "Photos and Videos"
-msgstr ""
+msgstr "Photos et vidéos"
 
 #: class.jetpack.php:994
 msgctxt "Module Tag"
 msgid "Social"
-msgstr ""
+msgstr "Social"
 
 #: class.jetpack.php:995
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "Stats WordPress.com"
 
 #: class.jetpack.php:996
 msgctxt "Module Tag"
 msgid "Writing"
-msgstr ""
+msgstr "Rédaction"
 
 #: class.jetpack.php:997
 msgctxt "Module Tag"
 msgid "Appearance"
-msgstr ""
+msgstr "Apparence"
 
 #: class.jetpack.php:998
 msgctxt "Module Tag"
 msgid "Developers"
-msgstr ""
+msgstr "Développeurs"
 
 #: class.jetpack-cli.php:82
 msgid "Please specify a user."
-msgstr ""
+msgstr "Merci de préciser un utilisateur."
 
 #: class.jetpack-cli.php:163
 msgid "%s has been activated."
-msgstr ""
+msgstr "%s a été activé."
 
 #: class.jetpack-cli.php:155
 msgid "Inactive"
-msgstr ""
+msgstr "désactivé"
 
 #: class.jetpack-cli.php:151
 msgid "Available Modules:"
-msgstr ""
+msgstr "Modules disponibles :"
 
 #: class.jetpack-cli.php:144
 msgid "Please specify a valid module."
-msgstr ""
+msgstr "Merci de préciser un module valide."
 
 #: class.jetpack-cli.php:138
 msgid "%s is not a valid module."
-msgstr ""
+msgstr "%s n&rsquo;est pas un module valide."
 
 #: class.jetpack-cli.php:101
 msgid "Please specify if you would like to disconnect a blog or user."
-msgstr ""
+msgstr "Merci de préciser si vous souhaitez déconnecter un blog ou un utilisateur."
 
 #: class.jetpack-cli.php:97
 msgid "%s could not be disconnected.  Are you sure they're connected currently?"
-msgstr ""
+msgstr "%s n&rsquo;a pas pu être déconnecté. Etes-vous certain que cet utilisateur n&rsquo;est pas connecté en ce moment-même ?"
 
 #: class.jetpack-cli.php:95
 msgid "%s has been successfully disconnected."
-msgstr ""
+msgstr "%s a été déconnecté."
 
 #: class.jetpack-cli.php:90
 msgid "Jetpack has been successfully disconnected."
-msgstr ""
+msgstr "Jetpack a été déconnecté."
 
 #: class.jetpack-cli.php:79
 msgid "Please specify a valid user."
-msgstr ""
+msgstr "Merci de préciser un utilisateur valide."
 
 #: class.jetpack-cli.php:62 class.jetpack-cli.php:131
 msgid "%s is not a valid command."
-msgstr ""
+msgstr "%s n&rsquo;est pas une commande valide."
 
 #: class.jetpack-cli.php:57
 msgid "You cannot disconnect, without having first connected."
-msgstr ""
+msgstr "Vous ne pouvez pas déconnecter sans vous être connecté auparavant."
 
 #: class.jetpack-cli.php:25
 msgid "Jetpack is currently connected to WordPress.com"
-msgstr ""
+msgstr "Jetpack est connecté à WordPress.com"
 
 #: class.jetpack-cli.php:26
 msgid "The Jetpack Version is %s"
-msgstr ""
+msgstr "La version de Jetpack est %s"
 
 #: class.jetpack-cli.php:27
 msgid "The WordPress.com blog_id is %d"
-msgstr ""
+msgstr "Le blog_id WordPress.com est %d"
 
 #: class.jetpack-cli.php:29
 msgid "Jetpack is not currently connected to WordPress.com"
-msgstr ""
+msgstr "Jetpack n&rsquo;est pas connecté à WordPress.com"
 
 msgid "A single search box, that lets you search many different things."
 msgstr "Un moteur de recherche qui vous permettra de chercher tout ce que vous voulez !"
@@ -148,7 +148,7 @@ msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easie
 msgstr "Activez les liens courts WP.me pour tous vos articles et pages, afin de faciliter leur partage."
 
 msgid "Jetpack Single Sign On"
-msgstr "Authentification unique Jetpack"
+msgstr "Authentification unique"
 
 msgid "Let users login with their WordPress.com Credentials"
 msgstr "Grâce à ce module, vos utilisateurs pourront se connecter à votre site en utilisant leur compte WordPress.com."
@@ -1355,7 +1355,7 @@ msgstr "Nous n&rsquo;avons pas pu obtenir de Token pour l&rsquo;ajout d&rsquo;un
 
 #: modules/videopress/videopress.php:264
 msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
-msgstr ""
+msgstr "Merci de noter que le module VideoPress nécessite un compte WordPress.com avec une <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">souscription VideoPress</a> active."
 
 #: modules/videopress/videopress.php:269
 msgid "Connected WordPress.com Blog"
@@ -1775,19 +1775,19 @@ msgstr "&mdash; Sélectionner &mdash;"
 
 #: modules/sso.php:39
 msgid "Error: This site's Jetpack connection is currently experiencing problems."
-msgstr ""
+msgstr "Erreur : la connection Jetpack de ce site est défectueuse."
 
 #: modules/sso.php:124
 msgid "Error, invalid response data."
-msgstr ""
+msgstr "Erreur, données de réponse invalides."
 
 #: modules/sso.php:167
 msgid "Error: Couldn't create suitable username."
-msgstr ""
+msgstr "Erreur : nous n&rsquo;avons pas pu créé ce nom d&rsquo;utilisateur."
 
 #: modules/sso.php:261
 msgid "Log in with WordPress.com"
-msgstr ""
+msgstr "Se connecter avec WordPress.com"
 
 #: modules/sso.php:294
 msgid "We couldn't find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page."
@@ -1841,7 +1841,7 @@ msgstr "Omnisearch"
 
 #: modules/module-info.php:812
 msgid "Search once, get results from everything! Currently supports searching posts, pages, comments, media, and plugins."
-msgstr ""
+msgstr "Lancez une seule recherche, obtenez tous les résultats ! Omnisearch recherche parmi vos articles, pages, commentaires, médias, et extensions."
 
 #: modules/module-info.php:814
 msgid "Omnisearch plays nice with other plugins by letting other providers offer results as well."
@@ -1877,27 +1877,27 @@ msgstr "Grâce au module VideoPress, vous pouvez facilement télécharger des vi
 
 #: modules/module-info.php:867
 msgid "Single Sign On"
-msgstr ""
+msgstr "Authentification Unique"
 
 #: modules/module-info.php:869
 msgid "With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
-msgstr ""
+msgstr "Grâce au module d&rsquo;Authentification Unique, vos utilisateurs pourront se connecter ou s&rsquo;enregistrer sur votre site en utilisant les informations de leur compte WordPress.com. Cette solution d&rsquo;authentification est sûre et sécurisée."
 
 #: modules/module-info.php:870
 msgid "Once enabled, a \"Log in with WordPress.com\" option will be added to your existing log in form."
-msgstr ""
+msgstr "Une fois que vous aurez activé ce module, une option \"Se connecter avec WordPress.com\" sera ajoutée à votre formulaire de connection."
 
 #: modules/module-info.php:885
 msgid "Monitor"
-msgstr ""
+msgstr "Monitor"
 
 #: modules/module-info.php:887
 msgid "Nobody likes downtime, and that's why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!"
-msgstr ""
+msgstr "Le Jetpack Monitor garde un oeil sur votre site. Dès que le Monitor détecte que vote site est indisponible, vous recevez un email vous prévenant du problème afin que vous puissiez agir rapidement !"
 
 #: modules/module-info.php:889
 msgid "We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime."
-msgstr ""
+msgstr "Nous nous préviendrons aussi lorsque votre site sera à nouveau opérationnel. Vous saurez ainsi exactement combien de temps votre site était indisponible."
 
 #: modules/omnisearch/omnisearch-comments.php:17
 msgid "Search Comments"
@@ -2099,7 +2099,7 @@ msgstr "Blog Tumblr"
 
 #: modules/publicize/publicize.php:373
 msgid "This connection is working correctly."
-msgstr ""
+msgstr "Cette connexion fonctionne correctement."
 
 #: modules/publicize/ui.php:76
 msgid "You have successfully connected your blog with your %s account."
@@ -2119,7 +2119,7 @@ msgstr "Vous pouvez cr&eacute;er une connexion pour vous seul, ou la partager av
 
 #: modules/publicize/ui.php:169
 msgid "Connected as: "
-msgstr ""
+msgstr "Connecté en tant que :"
 
 #: modules/publicize/ui.php:179
 msgid "Shared"
@@ -2143,7 +2143,7 @@ msgstr "Un probl&egrave;me est survenu lors de la connexion &agrave; %s. Veuille
 
 #: modules/publicize/ui.php:427
 msgid "Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:"
-msgstr ""
+msgstr "Avant de cliquer sur \"Publier\", merci de rafraîchir les connexions suivantes afin de vous assurer que Publicize fonctionnera correctement :"
 
 #: modules/publicize/ui.php:515
 msgid "Publicize:"
@@ -3148,7 +3148,7 @@ msgstr "Modifier une entrée du menu"
 
 #: modules/custom-post-types/nova.php:172
 msgid "New Menu Item"
-msgstr ""
+msgstr "Nouveau élément de menu"
 
 #: modules/custom-post-types/nova.php:173
 msgid "View Menu Item"
@@ -3174,7 +3174,7 @@ msgstr "Ajouter de nombreux éléments"
 
 #: modules/custom-post-types/nova.php:313
 msgid "Menu Items re-ordered."
-msgstr ""
+msgstr "Eléments de menu réarrangés."
 
 #: modules/custom-post-types/nova.php:332
 msgid "Labels"
@@ -3194,7 +3194,7 @@ msgstr "Ordre"
 #: modules/custom-post-types/nova.php:390
 #: modules/custom-post-types/nova.php:442
 msgid "Re-order"
-msgstr ""
+msgstr "Réarranger"
 
 #: modules/custom-post-types/nova.php:637
 msgid "Move menu section up"
@@ -3210,7 +3210,7 @@ msgstr "Déplacer la section du menu vers le bas"
 
 #: modules/custom-post-types/nova.php:639
 msgid "DOWN"
-msgstr ""
+msgstr "INDISPONIBLE"
 
 #: modules/custom-post-types/nova.php:726
 msgid "Use the <kbd>TAB</kbd> key on your keyboard to move between colums and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next."

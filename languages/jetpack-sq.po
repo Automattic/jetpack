@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 2.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-14 20:09:58+0000\n"
+"PO-Revision-Date: 2013-11-25 20:13:08+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,122 +12,122 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Write a comment..."
-msgstr ""
+msgstr "Shkruani një koment..."
 
 #: class.jetpack.php:999
 msgctxt "Module Tag"
 msgid "Mobile"
-msgstr ""
+msgstr "Celular"
 
 #: class.jetpack.php:1000
 msgctxt "Module Tag"
 msgid "Other"
-msgstr ""
+msgstr "Tjetër"
 
 #: class.jetpack-cli.php:169
 msgid "%s has been deactivated."
-msgstr ""
+msgstr "%s u çaktivizua."
 
 #: class.jetpack.php:993
 msgctxt "Module Tag"
 msgid "Photos and Videos"
-msgstr ""
+msgstr "Foto dhe Video"
 
 #: class.jetpack.php:994
 msgctxt "Module Tag"
 msgid "Social"
-msgstr ""
+msgstr "Shoqërore"
 
 #: class.jetpack.php:995
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "Statistika WordPress.com"
 
 #: class.jetpack.php:996
 msgctxt "Module Tag"
 msgid "Writing"
-msgstr ""
+msgstr "Shkrim"
 
 #: class.jetpack.php:997
 msgctxt "Module Tag"
 msgid "Appearance"
-msgstr ""
+msgstr "Dukje"
 
 #: class.jetpack.php:998
 msgctxt "Module Tag"
 msgid "Developers"
-msgstr ""
+msgstr "Zhvillues"
 
 #: class.jetpack-cli.php:82
 msgid "Please specify a user."
-msgstr ""
+msgstr "Ju lutemi, tregoni një përdorues."
 
 #: class.jetpack-cli.php:163
 msgid "%s has been activated."
-msgstr ""
+msgstr "% është aktivizuar."
 
 #: class.jetpack-cli.php:155
 msgid "Inactive"
-msgstr ""
+msgstr "Joveprues"
 
 #: class.jetpack-cli.php:151
 msgid "Available Modules:"
-msgstr ""
+msgstr "Module të Passhëm:"
 
 #: class.jetpack-cli.php:144
 msgid "Please specify a valid module."
-msgstr ""
+msgstr "Ju lutemi, tregoni një modul të vlefshëm."
 
 #: class.jetpack-cli.php:138
 msgid "%s is not a valid module."
-msgstr ""
+msgstr " nuk është një modul të vlefshëm."
 
 #: class.jetpack-cli.php:101
 msgid "Please specify if you would like to disconnect a blog or user."
-msgstr ""
+msgstr "Ju lutemi, tregoni nëse dëshironi të shkëputet një blog apo një përdorues."
 
 #: class.jetpack-cli.php:97
 msgid "%s could not be disconnected.  Are you sure they're connected currently?"
-msgstr ""
+msgstr "%s nuk u shkëput dot.  Jeni të sigurt se qenë të lidhur?"
 
 #: class.jetpack-cli.php:95
 msgid "%s has been successfully disconnected."
-msgstr ""
+msgstr "%s u shkëput me sukses."
 
 #: class.jetpack-cli.php:90
 msgid "Jetpack has been successfully disconnected."
-msgstr ""
+msgstr "Jetpack-u u shkëput me sukses."
 
 #: class.jetpack-cli.php:79
 msgid "Please specify a valid user."
-msgstr ""
+msgstr "Ju lutemi përcaktoni një përdorues të vlefshëm."
 
 #: class.jetpack-cli.php:62 class.jetpack-cli.php:131
 msgid "%s is not a valid command."
-msgstr ""
+msgstr "%s nuk është urdhër i vlefshëm."
 
 #: class.jetpack-cli.php:57
 msgid "You cannot disconnect, without having first connected."
-msgstr ""
+msgstr "Nuk mund të shkëputeni, pa u lidhur më parë."
 
 #: class.jetpack-cli.php:25
 msgid "Jetpack is currently connected to WordPress.com"
-msgstr ""
+msgstr "Jetpack-u tani është i lidhur te WordPress.com"
 
 #: class.jetpack-cli.php:26
 msgid "The Jetpack Version is %s"
-msgstr ""
+msgstr "Versioni i Jetpack-ut është %s"
 
 #: class.jetpack-cli.php:27
 msgid "The WordPress.com blog_id is %d"
-msgstr ""
+msgstr "WordPress.com blog_id është %d"
 
 #: class.jetpack-cli.php:29
 msgid "Jetpack is not currently connected to WordPress.com"
-msgstr ""
+msgstr "Jetpack-u tani nuk është i lidhur me WordPress.com"
 
 msgid "A single search box, that lets you search many different things."
-msgstr ""
+msgstr "Një kuti e vetme kërkimesh, që ju lejon të kërkoni shumë gjëra të ndryshme."
 
 msgid "Give your site a boost by loading images from the WordPress.com content delivery network."
 msgstr "Jepini një hop site-it tuaj duke ngarkuar figura prej rrjetit të shpërndarjes së lëndës së WordPress.com-it."
@@ -151,7 +151,7 @@ msgid "Jetpack Single Sign On"
 msgstr ""
 
 msgid "Let users login with their WordPress.com Credentials"
-msgstr ""
+msgstr "Lejoji përdoruesi të hyjnë me Kredencialet e tyre të WordPress.com-it"
 
 msgid "Simple, concise site stats with no additional load on your server."
 msgstr "Statistika të thjeshta, të përpikta, mbi site-in, pa ngarkesë shtesë mbi shërbyesin tuaj."
@@ -166,10 +166,10 @@ msgid "Realtime backup and security scanning for your WordPress site."
 msgstr "Kopjeruajtje e atëçastshme dhe kontrolle sigurie për site-in tuaj WordPress."
 
 msgid "Quite possibly the easiest way to upload beautiful videos to your blog."
-msgstr ""
+msgstr "Me shumë gjasa mënyra më e lehtë për të ngarkuar video të hijshme në blogun tuaj."
 
 msgid "Control what pages your widgets appear on."
-msgstr ""
+msgstr "Kontrolloni te cilat faqe shfaqen widget-et tuaj."
 
 msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
 msgstr "Shtoni lehtësisht te anështylla e temës suaj figura, përditësime Twitter, dhe lidhjet për RSS-të e site-it tuaj."
@@ -216,27 +216,27 @@ msgstr "URL Lidhjeje (kur klikohet mbi figurën):"
 
 #: modules/widgets/readmill.php:11 modules/widgets/readmill.php:21
 msgid "Send To Readmill"
-msgstr ""
+msgstr "Dërgojeni Te Readmill"
 
 #: modules/widgets/readmill.php:13
 msgid "Readmill is the best book reader for phones and tablets. With this widget you can enable users to send a book to their device with one click."
-msgstr ""
+msgstr "Readmill është programi më i mirë për lexim librash në telefonë dhe tablete. Me këtë widget mund t'i bëni të aftë përdoruesit të dërgojnë një libër te pajisja e tyre me vetëm një klikim."
 
 #: modules/widgets/readmill.php:47
 msgid "Just enter the URL to your book, make sure it's a PDF or EPUB file, and you are ready to go. For more help, head to <a href='%s'>the Readmill WordPress Widget support page</a>."
-msgstr ""
+msgstr "Thjesht jepni URL-në e librit tuaj, sigurohuni që është një kartelë PDF ose EPUB, dhe jeni gati. Për më tepër ndihmë, shkoni te <a href='%s'>faqja e asistencës së Widget-it WordPress Redmill</a>."
 
 #: modules/widgets/readmill.php:55
 msgid "Download URL:"
-msgstr ""
+msgstr "URL Shkarkimi:"
 
 #: modules/widgets/readmill.php:60
 msgid "Item URL:"
-msgstr ""
+msgstr "URL objekti:"
 
 #: modules/widgets/readmill.php:65
 msgid "What size icon?"
-msgstr ""
+msgstr "Çfarë madhësi ikone?"
 
 #: modules/widgets/readmill.php:67 modules/widgets/rsslinks-widget.php:101
 msgid "Large"
@@ -248,7 +248,7 @@ msgstr "E vogël"
 
 #: modules/widgets/readmill.php:125
 msgid "Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget."
-msgstr ""
+msgstr "Lidhja për ePub-in tuaj është e zbrazët. Jepni një lidhje ePub që të shfaqet widget-i Send to Readmill ."
 
 #: modules/widgets/rsslinks-widget.php:12
 msgid "Links to your blog's RSS feeds"
@@ -345,7 +345,7 @@ msgstr "Shfaq postimet dhe faqet tuaja më të vizituara."
 
 #: modules/widgets/top-posts.php:78
 msgid "Maximum number of posts to show (no more than 10):"
-msgstr ""
+msgstr "Numër maksimum fotosh për shfaqje (jo më shumë se 10):"
 
 #: modules/widgets/top-posts.php:83
 msgid "Display as:"
@@ -373,27 +373,27 @@ msgstr "Nuk ka postime për shfaqje. <a href=\"%s\">Dëshironi më shumë trafik
 
 #: modules/widgets/twitter-timeline.php:24
 msgid "Twitter Timeline"
-msgstr ""
+msgstr "Rrjedhë Kohore Twitter-i"
 
 #: modules/widgets/twitter-timeline.php:27
 msgid "Display an official Twitter Embedded Timeline widget."
-msgstr ""
+msgstr "Shfaqni një widget zyrtar Rrjedhë Kohore e Trupëzuar Twitter-i."
 
 #: modules/widgets/twitter-timeline.php:75
 msgid "My Tweets"
-msgstr ""
+msgstr "Cicërimat e Mia"
 
 #: modules/widgets/twitter-timeline.php:146
 msgid "Follow me on Twitter"
-msgstr ""
+msgstr "Ndiqmëni në Twitter"
 
 #: modules/widgets/twitter-timeline.php:165
 msgid "Width (px):"
-msgstr ""
+msgstr "Gjerësi (px):"
 
 #: modules/widgets/twitter-timeline.php:170
 msgid "Height (px):"
-msgstr ""
+msgstr "Lartësi (px):"
 
 #: modules/widgets/twitter-timeline.php:175
 msgid "# of Tweets Shown:"
@@ -401,64 +401,64 @@ msgstr ""
 
 #: modules/widgets/twitter-timeline.php:183
 msgid "You need to <a href=\"%1$s\" target=\"_blank\">create a widget at Twitter.com</a>, and then enter your widget id (the long number found in the URL of your widget's config page) in the field below. <a href=\"%2$s\" target=\"_blank\">Read more</a>."
-msgstr ""
+msgstr "Lypset të <a href=\"%1$s\" target=\"_blank\">krijoni një widget te Twitter.com</a>, e mandej të jepni id-në e widget-it tuaj (numrin e madh që gjeni te URL-ja e faqes së formësimit të widget-it tuaj) te fusha më poshtë. <a href=\"%2$s\" target=\"_blank\">Lexoni më tepër</a>."
 
 #: modules/widgets/twitter-timeline.php:191
 msgid "Widget ID:"
-msgstr ""
+msgstr "ID Widget-i:"
 
 #: modules/widgets/twitter-timeline.php:196
 msgid "Layout Options:"
-msgstr ""
+msgstr "Mundësi Skeme:"
 
 #: modules/widgets/twitter-timeline.php:197
 msgid "No Header"
-msgstr ""
+msgstr "Pa Krye"
 
 #: modules/widgets/twitter-timeline.php:198
 msgid "No Footer"
-msgstr ""
+msgstr "Pa Fundfaqe"
 
 #: modules/widgets/twitter-timeline.php:199
 msgid "No Borders"
-msgstr ""
+msgstr "Pa Anë"
 
 #: modules/widgets/twitter-timeline.php:200
 msgid "No Scrollbar"
-msgstr ""
+msgstr "Pa Rrëshqitës"
 
 #: modules/widgets/twitter-timeline.php:201
 msgid "Transparent Background"
-msgstr ""
+msgstr "Sfond i Tejdukshëm"
 
 #: modules/widgets/twitter-timeline.php:205
 msgid "Link Color (hex):"
-msgstr ""
+msgstr "Ngjyrë Lidhjesh (hex):"
 
 #: modules/widgets/twitter-timeline.php:210
 msgid "Border Color (hex):"
-msgstr ""
+msgstr "Ngjyrë Anësh (hex):"
 
 #: modules/widgets/twitter-timeline.php:215
 msgid "Timeline Theme:"
-msgstr ""
+msgstr "Temë Rrjedhe Kohore:"
 
 #: modules/widgets/wordpress-post-widget.php:23
 msgid "Display WordPress Posts (Jetpack)"
-msgstr ""
+msgstr "Shfaq Postime WordPress.com (Jetpack)"
 
 #: modules/widgets/wordpress-post-widget.php:25
 msgid "Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog."
-msgstr ""
+msgstr "Shfaq një listë të postimeve më të reja prej një blogu WordPress.com-i ose Jetpack-u."
 
 #: modules/widgets/wordpress-post-widget.php:52
 #: modules/widgets/wordpress-post-widget.php:76
 msgid "We cannot load blog data at this time."
-msgstr ""
+msgstr "Në këtë kohë nuk ngarkojmë dot të dhëna blogu."
 
 #: modules/widgets/wordpress-post-widget.php:86
 msgid "We cannot display posts for this blog."
-msgstr ""
+msgstr "Nuk shfaqim dot postime për këtë blog."
 
 #: modules/widgets/wordpress-post-widget.php:115
 msgid "Recent Posts"
@@ -470,23 +470,23 @@ msgstr "URL Blogu:"
 
 #: modules/widgets/wordpress-post-widget.php:152
 msgid "Enter a WordPress.com or Jetpack WordPress site URL."
-msgstr ""
+msgstr "Jepni një URL site-i WordPress.com ose Jetpack WordPress."
 
 #: modules/widgets/wordpress-post-widget.php:156
 msgid "Number of Posts to Display:"
-msgstr ""
+msgstr "Numër Postimesh për Shfaqje:"
 
 #: modules/widgets/wordpress-post-widget.php:166
 msgid "Show Featured Image:"
-msgstr ""
+msgstr "Shfaqe Figurën e Zgjedhur:"
 
 #: modules/widgets/wordpress-post-widget.php:170
 msgid "Show Excerpts:"
-msgstr ""
+msgstr "Shfaq Copëza:"
 
 #: modules/widgets.php:50
 msgid "%s (Jetpack)"
-msgstr ""
+msgstr "%s (Jetpack)"
 
 msgid "http://wordpress.org/extend/plugins/jetpack/"
 msgstr "http://wordpress.org/extend/plugins/jetpack/"
@@ -510,7 +510,7 @@ msgid "A new comment system that has integrated social media login options."
 msgstr "Një sistem i ri komentesh që ka integruar mundësi hyrje drejt e nga sisteme mediash shoqërore."
 
 msgid "Easily insert a contact form anywhere on your site."
-msgstr ""
+msgstr "Fusni lehtësish një formular kontakti kudo qoftë te site-i juaj."
 
 msgid "Customize the appearance of your site using CSS but without modifying your theme."
 msgstr "Personalizoni pamjen e site-it tuaj duke përdorur CSS-në, por pa modifikuar temën tuaj grafike."
@@ -519,7 +519,7 @@ msgid "Share your public posts and comments to search engines and other services
 msgstr "Ndani me të tjerët postimet tuaja publike dhe komentet me ndihmën e motorëve të kërkimit dhe të tjera shërbimeve në kohë reale."
 
 msgid "Show a link to your Google+ in the sharing area of your posts and add your blog URL to your Google+ profile."
-msgstr ""
+msgstr "Shfaqni te fusha për ndarje me të tjerët e postimeve tuaja një lidhje te Google+ juaj dhe shtoni te profili juaj Google+ URL-në e blogut tuaj."
 
 msgid "Show a pop-up business card of your users' gravatar profiles in comments."
 msgstr "Shfaqni te komentet diçka të ngjashme me një teserë profili gravatar të përdoruesve tuaj."
@@ -534,30 +534,30 @@ msgid "Beautiful Math"
 msgstr "Matematikë e Hijshme"
 
 msgid "Mark up your posts with the <img src=\"//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
-msgstr ""
+msgstr "Përdorni në postimet tuaja gjuhën markup <img src=\"//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" />, e përsosur për ekuacione matematike dhe të tjera efekte &#252;ber-geek-ësh."
 
 msgid "Likes are a way for people to show their appreciation for content you have written. It’s also a way for you to show the world how popular your content has become."
-msgstr ""
+msgstr "Pëlqimet janë një mënyrë që njerëzit të shfaqin vlerësimin e tyre për lëndën që keni shkruajtur. Është gjithashtu një rrugë për t&#8217;i treguar botës se sa popullore është bërë lënda juaj."
 
 msgid "Automatically optimize your site for mobile devices."
 msgstr "Optimizojeni automatikisht site-in tuaj për pajisje celulare."
 
 msgid "Receive notifications on your mobile device."
-msgstr ""
+msgstr "Merrni njoftime te pajisja juaj celulare."
 
 msgid "Jetpack Monitor will keep tabs on your site, and alert you the moment that downtime is detected."
-msgstr ""
+msgstr "Monitori Jetpack do të mbajë te site-i juaj skeda, dhe do t&#8217;ju njoftojë në çastin kur zbulon ndalesa."
 
 msgid "Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com."
-msgstr "Mbikëqyrni dhe administroni veprimtarinë te site-i juaj përmes Njoftimeve te Paneli juaj  dhe në WordPress.com."
+msgstr "Mbikëqyrni dhe administroni veprimtarinë te site-i juaj përmes Njoftimeve te Paneli juaj dhe në WordPress.com."
 
 #: modules/videopress/videopress.php:295
 msgid "Allow users to access, edit, and delete my videos"
-msgstr ""
+msgstr "Lejoju përdoruesve të hapin, përpunojnë, dhe fshijnë videot e mia"
 
 #: modules/videopress/videopress.php:298
 msgid "Allow users to upload videos"
-msgstr ""
+msgstr "Lejoju përdoruesve të ngarkojnë video"
 
 #: modules/videopress/videopress.php:303
 msgid "Free formats"
@@ -569,11 +569,11 @@ msgstr "Shfaq vetëm video në formate <em>software</em>-i të lirë"
 
 #: modules/videopress/videopress.php:308
 msgid "Ogg file container with Theora video and Vorbis audio. Note that some browsers are unable to play free software video formats, including Internet Explorer and Safari."
-msgstr ""
+msgstr "Kartelë ogg me video Theora dhe audio Vorbis. Kini parasysh që disa shfletues nuk janë në gjendje të luajnë formate video software-i të lirë, përfshi Internet Explorer-in dhe Safari-n."
 
 #: modules/videopress/videopress.php:313
 msgid "Default quality"
-msgstr ""
+msgstr "Cilësi parazgjedhje"
 
 #: modules/videopress/videopress.php:317
 msgid "Display higher quality video by default."
@@ -581,44 +581,44 @@ msgstr "Si parazgjedhje, shfaq videot me cilësi më të lartë."
 
 #: modules/videopress/videopress.php:318
 msgid "This setting may be overridden for individual videos."
-msgstr ""
+msgstr "Ky rregullim mund të anashkalohet për video të veçanta."
 
 #: modules/videopress/videopress.php:330 modules/videopress/videopress.php:339
 #: modules/videopress/videopress.php:593
 msgid "VideoPress Library"
-msgstr ""
+msgstr "Bibliotekë VideoPress"
 
 #: modules/videopress/videopress.php:340
 msgid "Use the button below to browse your VideoPress Library. Note that you can also browse your VideoPress Library while editing a post or page by using the <strong>Add Media</strong> button in the post editor."
-msgstr ""
+msgstr "Përdorni butonin më poshtë që të shfletoni Bibliotekën tuaj VideoPress. Mbani parasysh që mundeni të shfletoni Bibliotekën tuaj VideoPress edhe kur jeni duke përpunuar një postim ose faqe, duke përdorur butonin <strong>Shtoni Media</strong> te përpunuesi i postimeve."
 
 #: modules/videopress/videopress.php:341
 msgid "Browse Your VideoPress Library"
-msgstr ""
+msgstr "Shfletoni Bibliotekën Tuaj VideoPress"
 
 #: modules/videopress/videopress.php:342
 msgid "Please enable JavaScript support in your browser to use VideoPress."
-msgstr ""
+msgstr "Ju lutemi, që të përdorni VideoPress-in, aktivizoni mbulimin e JavaScript-it nga shfletuesi juaj."
 
 #: modules/videopress/videopress.php:589
 msgid "Please select a video file to upload."
-msgstr ""
+msgstr "Ju lutemi, përzgjidhni një kartelë video për ngarkim."
 
 #: modules/videopress/videopress.php:590
 msgid "Your video is uploading... Please do not close this window."
-msgstr ""
+msgstr "Videoja juaj po ngarkohet... Ju lutemi, mos e mbyllni këtë dritare."
 
 #: modules/videopress/videopress.php:591
 msgid "An unknown error has occurred. Please try again later."
-msgstr ""
+msgstr "Ndodhi një gabim i panjohur. Ju lutemi, riprovoni më vonë."
 
 #: modules/videopress/videopress.php:592
 msgid "Your video has successfully been uploaded. It will appear in your VideoPress Library shortly."
-msgstr ""
+msgstr "Videoja juaj u ngarkua me sukses. Do të shfaqet te Biblioteka juaj VideoPress pas pak."
 
 #: modules/videopress/videopress.php:594
 msgid "Upload a Video"
-msgstr ""
+msgstr "Ngarkoni një Video"
 
 #: modules/videopress/videopress.php:595
 msgid "Insert Video"
@@ -642,43 +642,43 @@ msgstr "Vlerësim"
 
 #: modules/videopress/videopress.php:657
 msgid "Shortcode"
-msgstr ""
+msgstr "Kod i shkurtër"
 
 #: modules/videopress/videopress.php:664
 msgid "The preview is unavailable while this video is being processed."
-msgstr ""
+msgstr "Paraparja nuk është gati, sa kohë që kjo video po përpunohet."
 
 #: modules/videopress/videopress.php:673
 msgid "Video Preview:"
-msgstr ""
+msgstr "Paraparje e Videos:"
 
 #: modules/videopress/videopress.php:707
 msgid "Use the form below to upload a video to your VideoPress Library. The following video formats are supported: %s. Maximum upload file size is %d%s."
-msgstr ""
+msgstr "Përdorni formularin më poshtë që të ngarkoni një video te Biblioteka juaj VideoPress. Mbulohen formatet vijuese për videon: %s. Madhësia maksimum për kartela që ngarkohen është %d%s."
 
 #: modules/videopress/videopress.php:710
 msgid "Upload Video"
-msgstr ""
+msgstr "Ngarkoni Videon"
 
 #: modules/widget-visibility/widget-conditions.php:34
 msgid "All category pages"
-msgstr ""
+msgstr "Krejt faqet e kategorive"
 
 #: modules/widget-visibility/widget-conditions.php:48
 msgid "All author pages"
-msgstr ""
+msgstr "Krejt faqet e autorëve"
 
 #: modules/widget-visibility/widget-conditions.php:59
 msgid "All tag pages"
-msgstr ""
+msgstr "Krejt faqet e etiketave"
 
 #: modules/widget-visibility/widget-conditions.php:73
 msgid "All date archives"
-msgstr ""
+msgstr "Krejt arkivat e datave"
 
 #: modules/widget-visibility/widget-conditions.php:74
 msgid "Daily archives"
-msgstr ""
+msgstr "Arkiva të përditshme"
 
 #: modules/widget-visibility/widget-conditions.php:75
 msgid "Monthly archives"
@@ -686,19 +686,19 @@ msgstr "Arkiva mujorë"
 
 #: modules/widget-visibility/widget-conditions.php:76
 msgid "Yearly archives"
-msgstr ""
+msgstr "Arkiva të përvitshme"
 
 #: modules/widget-visibility/widget-conditions.php:87
 msgid "Front page"
-msgstr ""
+msgstr "Faqja ballore"
 
 #: modules/widget-visibility/widget-conditions.php:88
 msgid "Posts page"
-msgstr ""
+msgstr "Faqe postimesh"
 
 #: modules/widget-visibility/widget-conditions.php:89
 msgid "404 error page"
-msgstr ""
+msgstr "Faqe gabimi 404"
 
 #: modules/widget-visibility/widget-conditions.php:90
 msgid "Search results"
@@ -706,69 +706,69 @@ msgstr "Përfundime kërkimi"
 
 #: modules/widget-visibility/widget-conditions.php:91
 msgid "Post type:"
-msgstr ""
+msgstr "Lloj postimi:"
 
 #: modules/widget-visibility/widget-conditions.php:104
 msgid "Static page:"
-msgstr ""
+msgstr "Faqe statike:"
 
 #: modules/widget-visibility/widget-conditions.php:146
 msgid "Visibility"
-msgstr ""
+msgstr "Dukshmëri"
 
 #: modules/widget-visibility/widget-conditions.php:149
 msgctxt "placeholder: dropdown menu to select widget visibility; hide if or show if"
 msgid "%s if:"
-msgstr ""
+msgstr "%s nëse:"
 
 #: modules/widget-visibility/widget-conditions.php:149
 msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
 msgid "Show"
-msgstr ""
+msgstr "Shfaqe"
 
 #: modules/widget-visibility/widget-conditions.php:149
 msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
 msgid "Hide"
-msgstr ""
+msgstr "Fshihe"
 
 #: modules/widget-visibility/widget-conditions.php:160
 msgctxt "Used as the default option in a dropdown list"
 msgid "-- Select --"
-msgstr ""
+msgstr "-- Përzgjidhni --"
 
 #: modules/widget-visibility/widget-conditions.php:161
 msgid "Category"
-msgstr ""
+msgstr "Kategori"
 
 #: modules/widget-visibility/widget-conditions.php:162
 msgctxt "Noun, as in: \"The author of this post is...\""
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: modules/widget-visibility/widget-conditions.php:163
 msgctxt "Noun, as in: \"This post has one tag.\""
 msgid "Tag"
-msgstr ""
+msgstr "Etiketë"
 
 #: modules/widget-visibility/widget-conditions.php:164
 msgctxt "Noun, as in: \"This page is a date archive.\""
 msgid "Date"
-msgstr ""
+msgstr "Datë"
 
 #: modules/widget-visibility/widget-conditions.php:165
 msgctxt "Example: The user is looking at a page, not a post."
 msgid "Page"
-msgstr ""
+msgstr "Faqe"
 
 #: modules/widget-visibility/widget-conditions.php:167
 msgctxt "Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}"
 msgid "is"
-msgstr ""
+msgstr "është"
 
 #: modules/widget-visibility/widget-conditions.php:171
 msgctxt "Shown between widget visibility conditions."
 msgid "or"
-msgstr ""
+msgstr "ose"
 
 #: modules/widget-visibility/widget-conditions.php:174
 msgid "Delete"
@@ -820,11 +820,11 @@ msgstr "Shfaq për profilin publik rrjedhën e profilit."
 
 #: modules/widgets/facebook-likebox.php:183
 msgid "Show Border"
-msgstr ""
+msgstr "Shfaq Anë"
 
 #: modules/widgets/facebook-likebox.php:185
 msgid "Show a border around the plugin."
-msgstr ""
+msgstr "Shfaq një anë përqark shtojcës."
 
 #: modules/widgets/facebook-likebox.php:192
 msgid "Show Wall"
@@ -843,23 +843,23 @@ msgstr "Titull:"
 
 #: modules/widgets/gallery/templates/form.php:10
 msgid "Images:"
-msgstr ""
+msgstr "Figura:"
 
 #: modules/widgets/gallery/templates/form.php:43
 msgid "Link To:"
-msgstr ""
+msgstr "Lidhje Te:"
 
 #: modules/widgets/gallery/templates/form.php:58
 msgid "Random Order:"
-msgstr ""
+msgstr "Kuturu:"
 
 #: modules/widgets/gallery/templates/form.php:69
 msgid "Style:"
-msgstr ""
+msgstr "Stil:"
 
 #: modules/widgets/gallery.php:20
 msgid "Display a photo gallery or slideshow"
-msgstr ""
+msgstr "Shfaqni një galeri fotosh ose diapozitiva"
 
 #: modules/widgets/gallery.php:327
 msgid "Tiles"
@@ -871,7 +871,7 @@ msgstr "Faqe Bashkangjitje"
 
 #: modules/widgets/gallery.php:336
 msgid "Media File"
-msgstr ""
+msgstr "Kartelë Media"
 
 #: modules/widgets/gravatar-profile.php:21
 msgid "Gravatar Profile"
@@ -968,15 +968,15 @@ msgstr ""
 
 #: modules/sso.php:326
 msgid "Connecting with WordPress.com SSO enables you to log in via your WordPress.com account."
-msgstr ""
+msgstr "Lidhja me WordPress.com SSO ju mundëson të bëni hyrje përmes llogarisë suaj WordPress.com."
 
 #: modules/sso.php:339
 msgid "Unlink This Account"
-msgstr ""
+msgstr "Hiqe Lidhjen e Kësaj Llogarie"
 
 #: modules/sso.php:384
 msgid "This profile is not currently linked to a WordPress.com Profile."
-msgstr ""
+msgstr "Ky profil nuk është i lidhur te ndonjë Profil WordPress.com."
 
 #: modules/stats.php:266 modules/stats.php:701
 msgid "Site Stats"
@@ -1351,39 +1351,39 @@ msgstr "Nuk u gjetën të dhëna për identifikues VideoPress: <strong>%s</stron
 
 #: modules/videopress/videopress.php:72 modules/videopress/videopress.php:76
 msgid "Could not obtain a VideoPress upload token. Please try again later."
-msgstr ""
+msgstr "Nuk mori dot një token ngarkimi VideoPress-i. Ju lutemi, riprovoni më vonë."
 
 #: modules/videopress/videopress.php:264
 msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
-msgstr ""
+msgstr "Ju lutemi, kini parasysh që moduli VideoPress lyp një llogari WordPress.com me një <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">pajtim VideoPress</a> aktiv."
 
 #: modules/videopress/videopress.php:269
 msgid "Connected WordPress.com Blog"
-msgstr ""
+msgstr "Blog WordPress.com i Lidhur"
 
 #: modules/videopress/videopress.php:278
 msgid "Only videos from the selected blog will be available in your media library."
-msgstr ""
+msgstr "Te biblioteja juaj media do të mund të kihen vetëm video prej blogut të përzgjedhur."
 
 #: modules/videopress/videopress.php:279
 msgid "<a href=\"%s\">Click here</a> to refresh this list."
-msgstr ""
+msgstr "<a href=\"%s\">Klikoni këtu</a> që rifreskohet kjo listë."
 
 #: modules/videopress/videopress.php:285
 msgid "Video Library Access"
-msgstr ""
+msgstr "Hyrje te Librari Videosh"
 
 #: modules/videopress/videopress.php:289
 msgid "Do not allow other users to access my VideoPress library"
-msgstr ""
+msgstr "Mos u lejo përdoruesve të tjerë të hyjnë te biblioteka ime VideoPress"
 
 #: modules/videopress/videopress.php:291
 msgid "Allow users to access my videos"
-msgstr ""
+msgstr "Lejoju përdoruesve hyrje te videota e mia"
 
 #: modules/videopress/videopress.php:293
 msgid "Allow users to access and edit my videos"
-msgstr ""
+msgstr "Lejoju përdoruesve të hyjnë dhe përpunojnë videot e mia"
 
 #: modules/sharedaddy/sharing-sources.php:242
 msgid "This post has been shared!"
@@ -1543,7 +1543,7 @@ msgstr "Google"
 #: modules/sharedaddy/sharing-sources.php:843
 msgctxt "share to"
 msgid "Google"
-msgstr ""
+msgstr "Google"
 
 #: modules/sharedaddy/sharing-sources.php:843
 msgid "Click to share on Google+"
@@ -1602,16 +1602,16 @@ msgstr "Klikoni që të ndahet me të tjerët përmes Pinterest-it"
 #: modules/sharedaddy/sharing-sources.php:1241
 #: modules/sharedaddy/sharing-sources.php:1259
 msgid "Pocket"
-msgstr ""
+msgstr "Pocket"
 
 #: modules/sharedaddy/sharing-sources.php:1264
 msgctxt "share to"
 msgid "Pocket"
-msgstr ""
+msgstr "Pocket"
 
 #: modules/sharedaddy/sharing-sources.php:1264
 msgid "Click to share on Pocket"
-msgstr ""
+msgstr "Klikoni që të ndahet me të tjerët përmes Pocket-i"
 
 #: modules/sharedaddy/sharing.php:153
 msgid "Warning! Multibyte support missing!"
@@ -1619,7 +1619,7 @@ msgstr "Sinjalizim! Mungon mbulimi për multibajt!"
 
 #: modules/sharedaddy/sharing.php:154
 msgid "This plugin will work without it, but multibyte support is used <a href=\"%s\">if available</a>. You may see minor problems with Tweets and other sharing services."
-msgstr "Kjo shtojcë do të punojë pa të, por mbulimi për multibajt përdoret  <a href=\"%s\">në qoftë i mundshëm</a>. Mund të shihni probleme të vogla me Tweets dhe shërbime të tjera shkëmbimesh."
+msgstr "Kjo shtojcë do të punojë pa të, por mbulimi për multibajt përdoret <a href=\"%s\">në qoftë i mundshëm</a>. Mund të shihni probleme të vogla me Tweets dhe shërbime të tjera shkëmbimesh."
 
 #: modules/sharedaddy/sharing.php:171
 msgid "Add sharing buttons to your blog and allow your visitors to share posts with their friends."
@@ -1739,11 +1739,11 @@ msgstr "Shkarkim: <a href=\"%s\">%s</a><br />"
 
 #: modules/shortcodes/presentations.php:226
 msgid "This slideshow could not be started. Try refreshing the page or viewing it in another browser."
-msgstr ""
+msgstr "Shfaqja e këtyre diapozitivave nuk u fillua dot. Provoni të rifreskoni faqen ose ta shihni nga një tjetër shfletues."
 
 #: modules/shortcodes/presentations.php:242
 msgid "Click to autoplay the presentation!"
-msgstr ""
+msgstr "Klikoni që të vetëluhet prezantimi!"
 
 #: modules/shortcodes/slideshow.php:58 modules/widgets/gallery.php:330
 msgid "Slideshow"
@@ -1763,11 +1763,11 @@ msgstr "Emër përdoruesi i pavlefshëm"
 
 #: modules/shortcodes/twitter-timeline.php:20
 msgid "Invalid id"
-msgstr ""
+msgstr "Id e pavlefshme"
 
 #: modules/shortcodes/twitter-timeline.php:22
 msgid "Tweets by @%s"
-msgstr ""
+msgstr "Cicërima nga @%s"
 
 #: modules/social-links/social-links.php:157
 msgid "&mdash; Select &mdash;"
@@ -1775,27 +1775,27 @@ msgstr "&mdash; Përzgjidhni &mdash;"
 
 #: modules/sso.php:39
 msgid "Error: This site's Jetpack connection is currently experiencing problems."
-msgstr ""
+msgstr "Gabim: Lidhja Jetpack e këtij site-i po ka hëpërhë probleme."
 
 #: modules/sso.php:124
 msgid "Error, invalid response data."
-msgstr ""
+msgstr "Gabim të dhëna të pavlefshme përgjigjeje."
 
 #: modules/sso.php:167
 msgid "Error: Couldn't create suitable username."
-msgstr ""
+msgstr "Gabim: Nuk krijoi dot emër të përshtatshëm përdoruesi."
 
 #: modules/sso.php:261
 msgid "Log in with WordPress.com"
-msgstr ""
+msgstr "Hyni me WordPress.com-in"
 
 #: modules/sso.php:294
 msgid "We couldn't find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page."
-msgstr ""
+msgstr "Nuk gjetëm dot një llogari me email-in <strong><code>%1$s</code></strong> me të cilin të bëjmë hyrjen tuaj.  Nëse keni tashmë një llogari te <strong>%2$s</strong>, ju lutemi, kontrolloni te faqja e profilit tuaj që <strong><code>%1$s</code></strong> është formësuar si adresa email, ose që jeni i lidhur me WordPress.com."
 
 #: modules/sso.php:296
 msgid "We couldn't find any account on <strong>%2$s</strong> that is linked to your WordPress.com account to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that you have connected to WordPress.com on your profile page."
-msgstr ""
+msgstr "Te <strong><code>%2$s</code></strong> nuk gjetëm dot ndonjë llogari që të jetë e lidhur te llogaria juaj WordPress.com, me të cilin të bëjmë hyrjen tuaj. Nëse keni tashmë një llogari te <strong>%2$s</strong>, ju lutemi, kontrolloni te faqja e profilit tuaj që jeni i lidhur me WordPress.com.  "
 
 #: modules/module-info.php:741
 msgid "Create elegant magazine-style mosaic layouts for your photos without having to use an external graphic editor."
@@ -1811,61 +1811,61 @@ msgstr "Shënim: Figurat në galeri të tjegullëzuara kërkojnë përpunim ekst
 
 #: modules/module-info.php:765
 msgid "Likes allow your readers to show their appreciation for your posts and other published content using their WordPress.com accounts. Your readers will then be able to review their liked posts from WordPress.com."
-msgstr ""
+msgstr "Pëlqimet janë një mënyrë që njerëzit, duke përdorur llogaritë e tyre te WordPress.com, të shfaqin vlerësimin për postimet dhe tjetër lëndë tuajën të botuar. Lexuesit tuaj do të jenë mandej në gjendje të shqyrtojnë postimet që kanë pëlqyer në WordPress.com."
 
 #: modules/module-info.php:766
 msgid "Displayed below your posts will be how many people have liked your posts and the Gravatars of those who have liked them."
-msgstr ""
+msgstr "Shfaqur nën postimet tuaja do të duket se sa persona i kanë pëlqyer postimet tuaja dhe gravataret e atyre që i kanë pëlqyer ato."
 
 #: modules/module-info.php:768
 msgid "More information on using Likes."
-msgstr ""
+msgstr "Më tepër informacion mbi përdorimin e Pëlqimeve."
 
 #: modules/module-info.php:791
 msgid "The Google+ profile module allows you to connect your blog and Google+ accounts."
-msgstr ""
+msgstr "Profili Google+ ju lejon të lidhni blogun tuaj me llogari Google+."
 
 #: modules/module-info.php:792
 msgid "Displayed below your posts will be a link back to your Google+ profile and a Google+ follow button. A link will also be added to your Google+ profile."
-msgstr ""
+msgstr "Shfaqur nën postimet tuaja do të duket një lidhje për te profili juaj Google+ dhe një buton ndjekjeje te Google+. Do të shtohet edhe një lidhje te profili juaj Google+."
 
 #: modules/module-info.php:794
 msgid "More information on using Google+ Profile."
-msgstr ""
+msgstr "Më tepër informacion mbi përdorimin e Profileve Google+."
 
 #: modules/module-info.php:810 modules/omnisearch/omnisearch-core.php:59
 #: modules/omnisearch/omnisearch-core.php:64
 #: modules/omnisearch/omnisearch-core.php:85
 msgid "Omnisearch"
-msgstr ""
+msgstr "Omnisearch"
 
 #: modules/module-info.php:812
 msgid "Search once, get results from everything! Currently supports searching posts, pages, comments, media, and plugins."
-msgstr ""
+msgstr "Kërkoni një herë vetëm, merrni përfundime prej gjithçkaje! Hëpërhë mbulon kërkime në postime, faqe, komente, media, dhe shtojca."
 
 #: modules/module-info.php:814
 msgid "Omnisearch plays nice with other plugins by letting other providers offer results as well."
-msgstr ""
+msgstr "Omnisearch-i sillet mirë me shtojcat e tjera duke u lejuar furnizuesve të tjerë të sjellin edhe ata përfundime."
 
 #: modules/module-info.php:833
 msgid "Widget Visibility"
-msgstr ""
+msgstr "Dukshmëri Widget-i"
 
 #: modules/module-info.php:835
 msgid "Control which pages your widgets appear on with Widget Visibility."
-msgstr ""
+msgstr "Kontrolloni te cilat faqe shfaqen widget-et tuaja, përmes Dukshmëri Widget-esh."
 
 #: modules/module-info.php:836
 msgid "To control visibility, expand the widget and click the Visibility button next to the Save button, and then, choose a set of visibility options."
-msgstr ""
+msgstr "Që të kontrolloni dukshmërinë, zgjerojeni widget-in dhe klikoni mbi butonin Dukshmëri në krah të butonit Ruaje, dhe mandej, zgjidhni një grup mundësish dukshmërie."
 
 #: modules/module-info.php:837
 msgid "For example, if you wanted the Archives widget to only appear on category archives and error pages, choose \"Show\" from the first dropdown and then add two rules: \"Page is 404 Error Page\" and \"Category is All Category Pages.\""
-msgstr ""
+msgstr "Për shembull, nëse doni që widget-i i Arkivave të shfaqet vetëm te faqet e arkivave dhe gabimeve, zgjidhni \"Shfaq\" prej menusë së parë hapmbyll dhe mandej shtoni dy rregullat: \"Page is 404 Error Page\" dhe \"Category is All Category Pages.\""
 
 #: modules/module-info.php:838
 msgid "You can also hide widgets based on the current page. For example, if you don't want the Archives widget to appear on search results pages, choose \"Hide\" and \"Page is Search results.\""
-msgstr ""
+msgstr "Mundeni edhe të fshihni widget-e duke u bazuar bë faqen e tanishme. Për shembull, nëse nuk doni që widget-i Arkiva të shfaqet te faqe përfundimesh kërkimi, zgjidhni \"Fshih\" dhe \"Page is Search results.\""
 
 #: modules/module-info.php:853 modules/videopress/videopress.php:330
 msgid "VideoPress"
@@ -1873,7 +1873,7 @@ msgstr "VideoPress"
 
 #: modules/module-info.php:854
 msgid "With the VideoPress module you can easily upload videos to your WordPress site and embed them in your posts and pages. This module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
-msgstr ""
+msgstr "Me modulin VideoPress mund të ngarkoni lehtë video te site-i juaj WordPress site dhe t&#8217;i trupëzoni në postimet dhe faqet tuaja. Ky modul lyp një llogari WordPress.com me një <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">pajtim VideoPress</a> aktiv."
 
 #: modules/module-info.php:867
 msgid "Single Sign On"
@@ -1881,23 +1881,23 @@ msgstr ""
 
 #: modules/module-info.php:869
 msgid "With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
-msgstr ""
+msgstr "Me WordPress.com Single Sign On, përdoruesit tuaj do të jenë në gjendje të hyjnë ose të regjistrehen te site-i juaj WordPress me të njëjtat kredenciale që përdorin te WordPress.com.  Është e parrezik dhe e sigurt."
 
 #: modules/module-info.php:870
 msgid "Once enabled, a \"Log in with WordPress.com\" option will be added to your existing log in form."
-msgstr ""
+msgstr "Sapo të jetë aktivizuar, te formulari juaj për hyrjen në site do të shtohet një mundësi \"Hyni me WordPress.com\"."
 
 #: modules/module-info.php:885
 msgid "Monitor"
-msgstr ""
+msgstr "Monitor"
 
 #: modules/module-info.php:887
 msgid "Nobody likes downtime, and that's why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!"
-msgstr ""
+msgstr "Askujt nuk i pëlqejnë ndalesat, dhe për këtë punon Jetpack Monitor, që mban skeda te site-i juaj. Sapo kapet një ndalesë, do të merrni një njoftim me email që ju sinjalizon problemin. Në këtë mënyrë mund të veproni shpejt, që site-i juaj të rikthehet sërish online!"
 
 #: modules/module-info.php:889
 msgid "We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime."
-msgstr ""
+msgstr "Do t&#8217;ju njoftojmë gjithashtu kur site-i juaj të jetë duke funksionuar, që kështu të vëzhgoni ndalesat në tërësi."
 
 #: modules/omnisearch/omnisearch-comments.php:17
 msgid "Search Comments"
@@ -1912,23 +1912,23 @@ msgstr "Komente"
 
 #: modules/omnisearch/omnisearch-core.php:85
 msgid "search everything"
-msgstr ""
+msgstr "kërkoni çdo gjë"
 
 #: modules/omnisearch/omnisearch-core.php:95
 msgid "Results:"
-msgstr ""
+msgstr "Përfundime:"
 
 #: modules/omnisearch/omnisearch-core.php:96
 msgid "Jump to:"
-msgstr ""
+msgstr "Hidhu te:"
 
 #: modules/omnisearch/omnisearch-core.php:107
 msgid "Back to Top &uarr;"
-msgstr ""
+msgstr "Mbrapsh Sipër &uarr;"
 
 #: modules/omnisearch/omnisearch-core.php:154
 msgid "Search Everything"
-msgstr ""
+msgstr "Kërkoni Çdo Gjë"
 
 #: modules/omnisearch/omnisearch-media.php:16
 msgid "Search Media"
@@ -1950,7 +1950,7 @@ msgstr "Shtojca"
 
 #: modules/omnisearch/omnisearch-plugins.php:23
 msgid "Loading &hellip;"
-msgstr ""
+msgstr "Po ngarkohet &hellip;"
 
 #: modules/omnisearch/omnisearch-posts.php:44
 #: modules/widgets/facebook-likebox.php:124
@@ -1960,7 +1960,7 @@ msgstr "Titull"
 
 #: modules/omnisearch/omnisearch-posts.php:45
 msgid "Snippet"
-msgstr ""
+msgstr "Copëz"
 
 #: modules/omnisearch/omnisearch-posts.php:75
 msgid "Unpublished"
@@ -2077,7 +2077,7 @@ msgstr "Kjo lidhje është hequr."
 
 #: modules/publicize/publicize-jetpack.php:348
 msgid "Refresh connection with %s"
-msgstr ""
+msgstr "Rifreskoni lidhjen me %s"
 
 #: modules/publicize/publicize-jetpack.php:422
 #: modules/publicize/publicize-jetpack.php:439
@@ -2099,7 +2099,7 @@ msgstr "Blog Tumblr"
 
 #: modules/publicize/publicize.php:373
 msgid "This connection is working correctly."
-msgstr ""
+msgstr "Kjo lidhje po punon si duhet."
 
 #: modules/publicize/ui.php:76
 msgid "You have successfully connected your blog with your %s account."
@@ -2107,7 +2107,7 @@ msgstr "E lidhët me sukses blogun tuaj me llogarinë tuaj %s."
 
 #: modules/publicize/ui.php:82
 msgid "You have chosen not to connect your blog. Please click 'accept' when prompted if you wish to connect your accounts."
-msgstr ""
+msgstr "Keni zgjedhur të mos e lidhni blogun tuaj. Ju lutemi, klikoni mbi 'pranoj' kur t&#8217;ju kërkohet, nëse doni që të lidhni llogaritë tuaja."
 
 #: modules/publicize/ui.php:103
 msgid "Connect your blog to popular social networking sites and automatically share new posts with your friends."
@@ -2119,7 +2119,7 @@ msgstr "Lidhjen mund ta bëni vetëm për vete ose për krejt përdoruesit në b
 
 #: modules/publicize/ui.php:169
 msgid "Connected as: "
-msgstr ""
+msgstr "I lidhur si: "
 
 #: modules/publicize/ui.php:179
 msgid "Shared"
@@ -2127,11 +2127,11 @@ msgstr "E përbashkët"
 
 #: modules/publicize/ui.php:205 modules/social-links/social-links.php:81
 msgid "Connect"
-msgstr ""
+msgstr "Lidhu"
 
 #: modules/publicize/ui.php:223
 msgid "Are you sure you want to stop Publicizing posts to this connection?"
-msgstr ""
+msgstr "Jeni i sigurt që doni të reshtni Publicizim postimesh te kjo lidhje?"
 
 #: modules/publicize/ui.php:245
 msgid "Make this connection available to all users of this blog?"
@@ -2143,7 +2143,7 @@ msgstr "Pati një problem gjatë lidhjes me %s. Ju lutemi, shkëputuni dhe ripro
 
 #: modules/publicize/ui.php:427
 msgid "Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:"
-msgstr ""
+msgstr "Përpara se të klikoni mbi Botoje, ju lutemi rifreskoni lidhjen(t) vijuese, që të siguroheni se mund ta Publicizojmë postimin tuaj:"
 
 #: modules/publicize/ui.php:515
 msgid "Publicize:"
@@ -2213,7 +2213,7 @@ msgstr "Ndarje"
 #: modules/sharedaddy/sharing-sources.php:200
 msgctxt "as sharing source"
 msgid "Email"
-msgstr ""
+msgstr "Email"
 
 #: modules/module-info.php:60
 msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
@@ -2251,7 +2251,7 @@ msgstr "Lidhje të shkurtra WP.me"
 
 #: modules/module-info.php:152 modules/module-info.php:166
 msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
-msgstr "Në vend që të shtypni apo kopjoni dhe hidhni URL të gjata, tani mund të merrni një lidhje të shkurtuar dhe  të thjeshtuar për te faqet dhe postimet tuaja. Ajo do të përdorë emrin super kompakt të përkatësisë wp.me, dhe do t&#8217;ju japë për përdorim një URL unike, të sigurt dhe të qëndrueshme."
+msgstr "Në vend që të shtypni apo kopjoni dhe hidhni URL të gjata, tani mund të merrni një lidhje të shkurtuar dhe të thjeshtuar për te faqet dhe postimet tuaja. Ajo do të përdorë emrin super kompakt të përkatësisë wp.me, dhe do t&#8217;ju japë për përdorim një URL unike, të sigurt dhe të qëndrueshme."
 
 #: modules/module-info.php:153
 msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
@@ -2259,7 +2259,7 @@ msgstr "Është i përsosur për ta përdorur me Twitter, Facebook, dhe mesazhe 
 
 #: modules/module-info.php:167
 msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
-msgstr "Që të përdorni lidhje të shkurtuara, shkoni te cilido postim i botuar (ose botoni diçka të re!). Poshtë titullit të Postimit do të shihni  një buton &#8220;Merrni Lidhje të Shkurtuar&#8221;. Kur klikoni mbi të, do të shfaqet një kuti dialogu me një lidhje të shkurtuar në të dhe të cilën mund ta kopjoni dhe ta hidhni në Twitter, Facebook ose kudo që jua do shpyrti."
+msgstr "Që të përdorni lidhje të shkurtuara, shkoni te cilido postim i botuar (ose botoni diçka të re!). Poshtë titullit të Postimit do të shihni një buton &#8220;Merrni Lidhje të Shkurtuar&#8221;. Kur klikoni mbi të, do të shfaqet një kuti dialogu me një lidhje të shkurtuar në të dhe të cilën mund ta kopjoni dhe ta hidhni në Twitter, Facebook ose kudo që jua do shpyrti."
 
 #: modules/module-info.php:182 modules/module-info.php:186
 #: modules/module-info.php:195 modules/module-info.php:199
@@ -2479,7 +2479,7 @@ msgstr "Shpërndarje e thelluar"
 
 #: modules/module-info.php:451
 msgid "Jetpack will automatically take the great published content from your blog or website and share it instantly with third party services like search engines, increasing your reach and traffic."
-msgstr "Jetpack-u do të marrë vetvetiu lëndë të botuar te blogu apo site-i juaj  dhe do ta ndajë në çast me shërbime palësh të treta, të tillë si motorë kërkimesh, duke shtuar kështu shtrirjen dhe trafikun për ju."
+msgstr "Jetpack-u do të marrë vetvetiu lëndë të botuar te blogu apo site-i juaj dhe do ta ndajë në çast me shërbime palësh të treta, të tillë si motorë kërkimesh, duke shtuar kështu shtrirjen dhe trafikun për ju."
 
 #: modules/module-info.php:466
 msgid "JSON API"
@@ -2543,7 +2543,7 @@ msgstr "Temë Celulari"
 
 #: modules/module-info.php:593
 msgid "There's a good chance that visitors to your site will be using a smartphone, and it's important to provide them with a great reading experience while on the small screen."
-msgstr "Ka plot shanse që vizitorët te site-i juaj të jenë duke përdorur një telefon të mençur, dhe është e rëndësishme t&#8217;u jepet  mundësia e një leximi të përshtatshëm kur përdorin ekran të vogël."
+msgstr "Ka plot shanse që vizitorët te site-i juaj të jenë duke përdorur një telefon të mençur, dhe është e rëndësishme t&#8217;u jepet mundësia e një leximi të përshtatshëm kur përdorin ekran të vogël."
 
 #: modules/module-info.php:594
 msgid "Jetpack's mobile theme is optimized for small screens. It uses the header image, background, and widgets from your current theme for a great custom look. Post format support is included, so your photos and galleries will look fantastic on a smartphone."
@@ -2559,7 +2559,7 @@ msgstr "Njoftime Hedhjesh Në Celular"
 
 #: modules/module-info.php:616
 msgid "If you use <a href=\"%1$s\">WordPress for iOS</a> or <a href=\"%2$s\">WordPress for Android</a>, you’ll now be able to opt in to receive push notifications of new comments, which makes it easier than ever to keep up with your readers and moderate comments on the go."
-msgstr ""
+msgstr "Nëse përdorni <a href=\"%1$s\">WordPress-in për iOS</a> ose <a href=\"%2$s\">WordPress-in për Android</a>, tani do të jeni në gjendje të zgjidhni për marrjen e njoftimeve të mbërritjes së komenteve të reja, çka e bën më të lehtë se kurrë kontaktin me lexuesit tuaj dhe moderimin e komenteve nga kudo."
 
 #: modules/module-info.php:634
 msgid "If you are a theme author, you can learn about adding support for Infinite Scroll at <a href=\"%1$s\">%1$s</a>."
@@ -2579,7 +2579,7 @@ msgstr "Me modulin e Rrëshiqtjes Pa Fund dhe një temë që e mbulon atë, kjo 
 
 #: modules/module-info.php:645
 msgid "At this time, your theme, %s, doesn't support Infinite Scroll. Unlike other Jetpack modules, Infinite Scroll needs information from your theme to function properly."
-msgstr "Hëpërhë, tema juaj, %s, nuk e mbulon Rrëshqitjen Pa Fund. Ndryshe nga modulet e tjera Jetpack, Rrëshqitja Pa Fund lyp  të dhëna të temës suaj që të funksionojë si duhet."
+msgstr "Hëpërhë, tema juaj, %s, nuk e mbulon Rrëshqitjen Pa Fund. Ndryshe nga modulet e tjera Jetpack, Rrëshqitja Pa Fund lyp të dhëna të temës suaj që të funksionojë si duhet."
 
 #: modules/module-info.php:647
 msgid "Until your theme supports Infinite Scroll, you won't be able to activate this module."
@@ -2662,7 +2662,7 @@ msgstr "E pëlqen"
 
 #: modules/likes.php:183
 msgid "Show likes."
-msgstr ""
+msgstr "Shfaqi pëlqimet."
 
 #: modules/likes.php:199 modules/sharedaddy/sharedaddy.php:37
 msgid "Show sharing buttons."
@@ -2670,27 +2670,27 @@ msgstr "Shfaq butona ndarjeje me të tjerët."
 
 #: modules/likes.php:211
 msgid "Likes Notifications"
-msgstr ""
+msgstr "Njoftime Pëlqimesh"
 
 #: modules/likes.php:212
 msgid "Email me whenever"
-msgstr ""
+msgstr "Dërgomë email kurdo që"
 
 #: modules/likes.php:251
 msgid "Someone likes one of my posts"
-msgstr ""
+msgstr "Dikujt i pëlqen një nga postimet e mia"
 
 #: modules/likes.php:270
 msgid "WordPress.com Likes are"
-msgstr ""
+msgstr "Pëlqeimet te WordPress.com janë"
 
 #: modules/likes.php:276
 msgid "On for all posts"
-msgstr ""
+msgstr "On për krejt postimet"
 
 #: modules/likes.php:282
 msgid "Turned on per post"
-msgstr ""
+msgstr "Aktivizuar sipas postimi"
 
 #: modules/likes.php:308 modules/sharedaddy/sharing.php:330
 msgid "Show buttons on"
@@ -2714,7 +2714,7 @@ msgstr "Ruaji Ndryshimet"
 
 #: modules/likes.php:616
 msgid "Like this:"
-msgstr ""
+msgstr "Pëlqejeni këtë:"
 
 #: modules/likes.php:617
 msgid "Like"
@@ -2726,7 +2726,7 @@ msgstr "Po ngarkohet..."
 
 #: modules/likes.php:709
 msgid "<span>%d</span> bloggers like this:"
-msgstr ""
+msgstr "Këtë e pëlqejnë <span>%d</span> bloguesa:"
 
 #: modules/minileven/minileven.php:93
 msgid "View Mobile Site"
@@ -2854,7 +2854,7 @@ msgstr "Menuja Parësore"
 #: modules/minileven/theme/pub/minileven/functions.php:96
 msgctxt "Open Sans font: on or off"
 msgid "on"
-msgstr ""
+msgstr "on"
 
 #: modules/minileven/theme/pub/minileven/functions.php:102
 msgctxt "Open Sans font: add new subset (greek, cyrillic, vietnamese)"
@@ -2911,7 +2911,7 @@ msgstr "Komenti juaj po pret moderimin."
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:76
 msgid "Reply"
-msgstr ""
+msgstr "Përgjigjuni"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:90
 msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
@@ -3044,77 +3044,77 @@ msgstr "Kartelat Gravatar thellojnë figurat e thjeshta Gravatar me të dhëna r
 
 #: modules/custom-post-types/nova.php:120
 msgid "Edit Menu Item Label"
-msgstr ""
+msgstr "Përpunoni Etiketë Zëri Menuje"
 
 #: modules/custom-post-types/nova.php:121
 msgid "View Menu Item Label"
-msgstr ""
+msgstr "Shihni Etiketë Zëri Menuje"
 
 #: modules/custom-post-types/nova.php:122
 msgid "Update Menu Item Label"
-msgstr ""
+msgstr "Përditësoni Etiketë Zëri Menuje"
 
 #: modules/custom-post-types/nova.php:123
 msgid "Add New Menu Item Label"
-msgstr ""
+msgstr "Shtoni Etiketë të Re Zëri Menuje"
 
 #: modules/custom-post-types/nova.php:124
 msgid "New Menu Item Label Name"
-msgstr ""
+msgstr "Emër Etikete të Re Zëri Menuje"
 
 #: modules/custom-post-types/nova.php:125
 #: modules/custom-post-types/nova.php:759
 msgid "Separate Labels with commas"
-msgstr ""
+msgstr "Ndajini Etiketat me presje"
 
 #: modules/custom-post-types/nova.php:126
 msgid "Add or remove Labels"
-msgstr ""
+msgstr "Shtoni ose hiqni Etiketa"
 
 #: modules/custom-post-types/nova.php:127
 msgid "Choose from the most used Labels"
-msgstr ""
+msgstr "Zgjidhni prej Etiketave më të përdorura"
 
 #: modules/custom-post-types/nova.php:129
 msgid "No Labels found"
-msgstr ""
+msgstr "Nuk u gjetën Etiketa"
 
 #: modules/custom-post-types/nova.php:136
 #: modules/custom-post-types/nova.php:167
 msgid "Food Menus"
-msgstr ""
+msgstr "Menu Ushqimesh"
 
 #: modules/custom-post-types/nova.php:137
 msgid "Food Menu"
-msgstr ""
+msgstr "Menu Ushqimesh"
 
 #: modules/custom-post-types/nova.php:138
 msgid "Search Menus"
-msgstr ""
+msgstr "Menu Kërkimesh"
 
 #: modules/custom-post-types/nova.php:139
 msgid "All Menus"
-msgstr ""
+msgstr "Krejt Menutë"
 
 #: modules/custom-post-types/nova.php:140
 msgid "Parent Menu"
-msgstr ""
+msgstr "Menu Mëmë"
 
 #: modules/custom-post-types/nova.php:141
 msgid "Parent Menu:"
-msgstr ""
+msgstr "Menu Mëmë:"
 
 #: modules/custom-post-types/nova.php:142
 msgid "Edit Menu"
-msgstr ""
+msgstr "Përpunoni Menu"
 
 #: modules/custom-post-types/nova.php:143
 msgid "View Menu"
-msgstr ""
+msgstr "Shiheni Menunë"
 
 #: modules/custom-post-types/nova.php:144
 msgid "Update Menu"
-msgstr ""
+msgstr "Përditësojeni Menunë"
 
 #: modules/custom-post-types/nova.php:145
 msgid "Add New Menu"
@@ -3122,16 +3122,16 @@ msgstr "Shtoni Menu të Re"
 
 #: modules/custom-post-types/nova.php:146
 msgid "New Menu Name"
-msgstr ""
+msgstr "Emër Menuje të Re"
 
 #: modules/custom-post-types/nova.php:162
 msgid "Items on your restaurant's menu"
-msgstr ""
+msgstr "Zëra në menunë e restaurantit tuaj"
 
 #: modules/custom-post-types/nova.php:165
 #: modules/custom-post-types/nova.php:168
 msgid "Menu Items"
-msgstr ""
+msgstr "Zëra Menuje"
 
 #: modules/custom-post-types/nova.php:166
 msgid "Menu Item"
@@ -3140,7 +3140,7 @@ msgstr "Objekt Menuje "
 #: modules/custom-post-types/nova.php:169
 #: modules/custom-post-types/nova.php:170
 msgid "Add One Item"
-msgstr ""
+msgstr "Shtoni Një Zë"
 
 #: modules/custom-post-types/nova.php:171
 msgid "Edit Menu Item"
@@ -3148,44 +3148,44 @@ msgstr "Përpunoni Element Menuje "
 
 #: modules/custom-post-types/nova.php:172
 msgid "New Menu Item"
-msgstr ""
+msgstr "Zë i Ri Menuje"
 
 #: modules/custom-post-types/nova.php:173
 msgid "View Menu Item"
-msgstr ""
+msgstr "Shihni Zë Menuje "
 
 #: modules/custom-post-types/nova.php:174
 msgid "Search Menu Items"
-msgstr ""
+msgstr "Kërkoni Për Zëra Menuje"
 
 #: modules/custom-post-types/nova.php:175
 msgid "No Menu Items found"
-msgstr ""
+msgstr "Nuk u Gjetën Zëra Menuje"
 
 #: modules/custom-post-types/nova.php:176
 msgid "No Menu Items found in Trash"
-msgstr ""
+msgstr "Nuk u Gjetën Zëra Menuje te Hedhurinat"
 
 #: modules/custom-post-types/nova.php:277
 #: modules/custom-post-types/nova.php:278
 #: modules/custom-post-types/nova.php:724
 msgid "Add Many Items"
-msgstr ""
+msgstr "Shtoni Shumë Zëra"
 
 #: modules/custom-post-types/nova.php:313
 msgid "Menu Items re-ordered."
-msgstr ""
+msgstr "Zërat e menusë u rirenditën."
 
 #: modules/custom-post-types/nova.php:332
 msgid "Labels"
-msgstr ""
+msgstr "Etiketa"
 
 #: modules/custom-post-types/nova.php:333
 #: modules/custom-post-types/nova.php:742
 #: modules/custom-post-types/nova.php:778
 #: modules/custom-post-types/nova.php:784
 msgid "Price"
-msgstr ""
+msgstr "Çmim"
 
 #: modules/custom-post-types/nova.php:334
 msgid "Order"
@@ -3194,27 +3194,27 @@ msgstr "Rend"
 #: modules/custom-post-types/nova.php:390
 #: modules/custom-post-types/nova.php:442
 msgid "Re-order"
-msgstr ""
+msgstr "Rirenditini"
 
 #: modules/custom-post-types/nova.php:637
 msgid "Move menu section up"
-msgstr ""
+msgstr "Ngjite sipër pjesën e menusë"
 
 #: modules/custom-post-types/nova.php:637
 msgid "UP"
-msgstr ""
+msgstr "SIPËR"
 
 #: modules/custom-post-types/nova.php:639
 msgid "Move menu section down"
-msgstr ""
+msgstr "Zbrite poshtë pjesën e menusë"
 
 #: modules/custom-post-types/nova.php:639
 msgid "DOWN"
-msgstr ""
+msgstr "POSHTË"
 
 #: modules/custom-post-types/nova.php:726
 msgid "Use the <kbd>TAB</kbd> key on your keyboard to move between colums and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next."
-msgstr ""
+msgstr "Përdorni tastin <kbd>TAB</kbd> te tastiera juaj që të lëvizni nëpër shtylla dhe tastin <kbd>ENTER</kbd> ose <kbd>RETURN</kbd> që të ruani çdo rrjesht dhe kaloni te pasuesi."
 
 #: modules/custom-post-types/nova.php:741
 msgid "Description"
@@ -3222,112 +3222,112 @@ msgstr "Përshkrim"
 
 #: modules/custom-post-types/nova.php:743
 msgid "Labels: <small>spicy, favorite, etc.</small>"
-msgstr ""
+msgstr "Etiketa: <small>djegës, i parapëlqyer, etj.</small>"
 
 #: modules/custom-post-types/nova.php:765
 msgid "Add These New Menu Items"
-msgstr ""
+msgstr "Shtoji Këta Zëra të Rinj Menuje"
 
 #: modules/custom-post-types/nova.php:847
 #: modules/custom-post-types/nova.php:866
 msgctxt "Nova label separator"
 msgid ", "
-msgstr ""
+msgstr ", "
 
 #: modules/custom-post-types/nova.php:868
 msgid "No Labels"
-msgstr ""
+msgstr "Pa Etiketa"
 
 #: modules/custom-post-types/testimonial.php:66
 msgid "Customer Testimonials"
-msgstr ""
+msgstr "Dëshmi Klientësh"
 
 #: modules/custom-post-types/testimonial.php:68
 #: modules/custom-post-types/testimonial.php:70
 #: modules/custom-post-types/testimonial.php:194
 #: modules/custom-post-types/testimonial.php:199
 msgid "Testimonials"
-msgstr ""
+msgstr "Dëshmi"
 
 #: modules/custom-post-types/testimonial.php:69
 msgid "Testimonial"
-msgstr ""
+msgstr "Dëshmi"
 
 #: modules/custom-post-types/testimonial.php:71
 msgid "All Testimonials"
-msgstr ""
+msgstr "Krejt Dëshmitë"
 
 #: modules/custom-post-types/testimonial.php:73
 msgid "Add New Testimonial"
-msgstr ""
+msgstr "Shtoni Dëshmi të Re"
 
 #: modules/custom-post-types/testimonial.php:74
 msgid "Edit Testimonial"
-msgstr ""
+msgstr "Përpunoni Dëshmi"
 
 #: modules/custom-post-types/testimonial.php:75
 msgid "New Testimonial"
-msgstr ""
+msgstr "Dëshmi e Re"
 
 #: modules/custom-post-types/testimonial.php:76
 msgid "View Testimonial"
-msgstr ""
+msgstr "Shihni Dëshminë"
 
 #: modules/custom-post-types/testimonial.php:77
 msgid "Search Testimonials"
-msgstr ""
+msgstr "Kërkoni Dëshmi"
 
 #: modules/custom-post-types/testimonial.php:78
 msgid "No Testimonials found"
-msgstr ""
+msgstr "Nuk u gjetën Dëshmi"
 
 #: modules/custom-post-types/testimonial.php:79
 msgid "No Testimonials found in Trash"
-msgstr ""
+msgstr "S&#8217;u gjetën Dëshmi te Hedhurinat"
 
 #: modules/custom-post-types/testimonial.php:110
 msgid "Enter the customer's name here"
-msgstr ""
+msgstr "Jepni këtu emër klienti"
 
 #: modules/custom-post-types/testimonial.php:119
 msgid "Customer Name"
-msgstr ""
+msgstr "Emër Klienti"
 
 #: modules/custom-post-types/testimonial.php:132
 msgid "Testimonial updated. <a href=\"%s\">View testimonial</a>"
-msgstr ""
+msgstr "Dëshmia u përditësua. <a href=\"%s\">Shiheni dëshminë</a>"
 
 #: modules/custom-post-types/testimonial.php:135
 msgid "Testimonial updated."
-msgstr ""
+msgstr "Dëshmia përditësua."
 
 #: modules/custom-post-types/testimonial.php:137
 msgid "Testimonial restored to revision from %s"
-msgstr ""
+msgstr "Dëshmia u kthye te rishikimi prej %s"
 
 #: modules/custom-post-types/testimonial.php:138
 msgid "Testimonial published. <a href=\"%s\">View testimonial</a>"
-msgstr ""
+msgstr "Dëshmia u botua. <a href=\"%s\">Shiheni dëshminë</a>"
 
 #: modules/custom-post-types/testimonial.php:139
 msgid "Testimonial saved."
-msgstr ""
+msgstr "Dëshmia u ruajt."
 
 #: modules/custom-post-types/testimonial.php:140
 msgid "Testimonial submitted. <a target=\"_blank\" href=\"%s\">Preview testimonial</a>"
-msgstr ""
+msgstr "Dëshmia u parashtrua. <a target=\"_blank\" href=\"%s\">Parashiheni dëshminë</a>"
 
 #: modules/custom-post-types/testimonial.php:141
 msgid "Testimonial scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview testimonial</a>"
-msgstr ""
+msgstr "Dëshmi e planifikuar për: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Parashiheni dëshminë</a>"
 
 #: modules/custom-post-types/testimonial.php:144
 msgid "Testimonial draft updated. <a target=\"_blank\" href=\"%s\">Preview testimonial</a>"
-msgstr ""
+msgstr "Skica e dëshmisë u përditësua. <a target=\"_blank\" href=\"%s\">Parashiheni dëshminë</a>"
 
 #: modules/custom-post-types/testimonial.php:180
 msgid "Customize Testimonials Archive"
-msgstr ""
+msgstr "Personalizoni Aarkivë Dëshmi"
 
 #: modules/custom-post-types/testimonial.php:181
 msgid "Customize"
@@ -3335,11 +3335,11 @@ msgstr "Personalizojeni"
 
 #: modules/custom-post-types/testimonial.php:205
 msgid "Testimonial Page Title"
-msgstr ""
+msgstr "Titull Faqeje Dëshmish"
 
 #: modules/custom-post-types/testimonial.php:217
 msgid "Testimonial Page Content"
-msgstr ""
+msgstr "Lëndë Faqeje Dëshmish"
 
 #: modules/custom-post-types/testimonial.php:228
 msgid "Testimonial Page Featured Image"
@@ -3347,11 +3347,11 @@ msgstr ""
 
 #: modules/featured-content/featured-content.php:348
 msgid "Featured content"
-msgstr ""
+msgstr "Lëndë e zgjedhur"
 
 #: modules/featured-content/featured-content.php:367
 msgid "Tag name:"
-msgstr ""
+msgstr "Emër etikete:"
 
 #: modules/featured-content/featured-content.php:372
 msgid "Number of posts:"
@@ -3359,7 +3359,7 @@ msgstr "Numër postimesh:"
 
 #: modules/featured-content/featured-content.php:377
 msgid "Hide tag from displaying in post meta and tag clouds."
-msgstr ""
+msgstr "Fshihe etiketën për të mos u shfaqur në tejtëdhëna postimi dhe re etiketash."
 
 #: modules/gplus-authorship/admin/ui.php:54
 #: modules/gplus-authorship/admin/ui.php:65 modules/likes.php:427
@@ -3378,20 +3378,20 @@ msgstr "Ndarje me të tjerët"
 
 #: modules/gplus-authorship/admin/ui.php:79
 msgid "Your Google+ account has been connected."
-msgstr ""
+msgstr "U kontaktua llogaria juaj Google+."
 
 #: modules/gplus-authorship/admin/ui.php:80
 msgid "There was a problem connecting your Google+ account. Please try again."
-msgstr ""
+msgstr "Pati një problem në lidhjen me llogarinë tuaj Google+. Ju lutemi, riprovoni."
 
 #: modules/gplus-authorship/admin/ui.php:81
 msgid "You must click 'Accept' in the Google+ dialog to connect your account."
-msgstr ""
+msgstr "Duhet të klikoni mbi 'Accept' te dialogu Google+ që të lidhet llogaria juaj."
 
 #: modules/gplus-authorship/admin/ui.php:113 modules/module-info.php:785
 #: modules/module-info.php:789
 msgid "Google+ Profile"
-msgstr ""
+msgstr "Google+ Profile"
 
 #: modules/gplus-authorship/admin/ui.php:125 modules/publicize/ui.php:182
 #: modules/publicize/ui.php:186
@@ -3400,7 +3400,7 @@ msgstr "Shkëputu"
 
 #: modules/gplus-authorship/admin/ui.php:129
 msgid "Connect your WordPress account to Google+ to add this blog to your Google+ profile and improve the visibility of your blog posts on Google."
-msgstr ""
+msgstr "Lidheni llogarinë tuaj WordPress te Google+ që ta shtoni këtë blog te profili juaj Google+ dhe të përmirësoni dukshmërinë te Google të postimeve në blogun tuaj."
 
 #: modules/gplus-authorship/admin/ui.php:131
 msgid "Need help?"
@@ -3408,15 +3408,15 @@ msgstr "Ju duhet ndihmë?"
 
 #: modules/gplus-authorship/admin/ui.php:138
 msgid "Your Google+ profile and WordPress.com accounts have been disconnected, including your Publicize connections. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>."
-msgstr ""
+msgstr "Profili juaj Google+ dhe llogaritë tuaja WordPress.com nuk janë më të lidhura, përfshi lidhjet tuaja Publicize. Nëse nuk dëshironi më të jeni i përshoqëruar me këtë blog në Google, ju këshillojmë të hiqni edhe URL-në e blogut prej <a href='%s' target='_blank'>profilit tuaj Google+</a>."
 
 #: modules/gplus-authorship/admin/ui.php:140
 msgid "Your Google+ profile and WordPress.com accounts have been disconnected. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>."
-msgstr ""
+msgstr "Profili juaj Google+ dhe llogaritë tuaja WordPress.com nuk janë më të lidhura. Nëse nuk dëshironi më të jeni i përshoqëruar me këtë blog në Google, ju këshillojmë të hiqni edhe URL-në e blogut prej <a href='%s' target='_blank'>profilit tuaj Google+</a>."
 
 #: modules/gplus-authorship/admin/ui.php:147
 msgid "Your Google+ profile name and URL will be displayed in the sharing area of your posts."
-msgstr ""
+msgstr "Emri juaj sipas profilit Google+ dhe URL-ja do të shfaqen te zona e ndarjeve me të tjerët e postimeve tuaja."
 
 #: modules/gplus-authorship/admin/ui.php:155 modules/sso.php:336
 msgid "Connected"
@@ -3424,15 +3424,15 @@ msgstr "I lidhur"
 
 #: modules/gplus-authorship/admin/ui.php:165 modules/gplus-authorship.php:175
 msgid "Google+"
-msgstr ""
+msgstr "Google+"
 
 #: modules/gplus-authorship/admin/ui.php:191
 msgid "Show Google+ infomation with this post"
-msgstr ""
+msgstr "Shfaq të dhëna Google+ me këtë postim"
 
 #: modules/gplus-authorship.php:132
 msgid "on Google+"
-msgstr ""
+msgstr "te Google+"
 
 #: modules/gravatar-hovercards.php:47 modules/module-info.php:57
 #: modules/module-info.php:72
@@ -3495,7 +3495,7 @@ msgstr "A mund t'i shoh përshtypjet e mia brenda WordPress-it?"
 #: modules/contact-form/grunion-form-view.php:135
 msgctxt "%1$s = \"Feedback\" in an HTML link"
 msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
-msgstr ""
+msgstr "Ëhë, mund t&38217;i lexoni përshtypjet tuaja kurdo, duke klikuar mbi lidhjen \"%1$s\" te menuja e përgjegjësit."
 
 #: modules/contact-form/grunion-form-view.php:141
 msgid "Do I need to fill this out?"
@@ -3641,10 +3641,12 @@ msgid ""
 "New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions?\n"
 "\t\tAsk in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
 msgstr ""
+"Rishtar te CSS-ja? Fillojani me një <a href=\"http://www.htmldog.com/guides/cssbeginner/\">përkujdesore fillestarësh</a>. Pyetje?\n"
+"\t\tBëjini te <a href=\"http://wordpress.org/support/forum/themes-and-templates\">forumi i Temave dhe Gjedheve</a>."
 
 #: modules/custom-css/custom-css.php:716
 msgid "Content Width:"
-msgstr ""
+msgstr "Gjerësi Lënde"
 
 #: modules/custom-css/custom-css.php:717
 msgid "Default"
@@ -3652,7 +3654,7 @@ msgstr "Parazgjedhje"
 
 #: modules/custom-css/custom-css.php:717
 msgid "%s px"
-msgstr ""
+msgstr "%s px"
 
 #: modules/custom-css/custom-css.php:718 modules/custom-css/custom-css.php:813
 #: modules/custom-css/custom-css.php:843 modules/minileven/minileven.php:262
@@ -3666,7 +3668,7 @@ msgstr "Përpunoni"
 
 #: modules/custom-css/custom-css.php:725
 msgid "Limit width to %1$s pixels for videos, full size images, and other shortcodes. (<a href=\"%2$s\">More info</a>.)"
-msgstr ""
+msgstr "Për video, figura në madhësi të plotë, dhe të tjerë kode të shkurtër, kufizojeni gjerësinë në %1$s piksel. (<a href=\"%2$s\">Më tepër të dhëna</a>.)"
 
 #: modules/custom-css/custom-css.php:741
 msgid "The default content width for the %s theme is %d pixels."
@@ -3734,59 +3736,59 @@ msgstr "Shfaq më tepër"
 
 #: modules/custom-post-types/comics.php:83
 msgid "Convert to Comic"
-msgstr ""
+msgstr "Shndërroje në Tregim me Figura"
 
 #: modules/custom-post-types/comics.php:89
 msgid "Convert to Post"
-msgstr ""
+msgstr "Shndërroje në Postim"
 
 #: modules/custom-post-types/comics.php:113
 msgid "You are not allowed to make this change."
-msgstr ""
+msgstr "Nuk ju lejohet ta bëni këtë ndryshim."
 
 #: modules/custom-post-types/comics.php:160
 msgid "Post converted."
 msgid_plural "%s posts converted"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Postimi u shndërruan."
+msgstr[1] "U shndërruan %s postime"
 
 #: modules/custom-post-types/comics.php:173
 msgid "Drop images to upload"
-msgstr ""
+msgstr "Lini figura që të ngarkohen"
 
 #: modules/custom-post-types/comics.php:174
 msgid "Uploading..."
-msgstr ""
+msgstr "Po ngarkohet..."
 
 #: modules/custom-post-types/comics.php:175
 msgid "Processing..."
-msgstr ""
+msgstr "Po përpuno..."
 
 #: modules/custom-post-types/comics.php:176
 msgid "Sorry, your browser isn't supported. Upgrade at browsehappy.com."
-msgstr ""
+msgstr "Na ndjeni, shfletuesi juaj nuk mbulohet. Përmirësojeni te browsehappy.com."
 
 #: modules/custom-post-types/comics.php:177
 msgid "Only images can be uploaded here."
-msgstr ""
+msgstr "Këtu mund të ngarkohen vetëm figura."
 
 #: modules/custom-post-types/comics.php:178
 msgid "Your upload didn't complete; try again later or cross your fingers and try again right now."
-msgstr ""
+msgstr "Ngarkimi juaj nuk u plotësua; riprovoni më vonë ose lutuni dhe riprovoni menjëherë."
 
 #: modules/custom-post-types/comics.php:191
 #: modules/custom-post-types/comics.php:193
 #: modules/custom-post-types/comics.php:195
 msgid "Comics"
-msgstr ""
+msgstr "Tregime me Figura"
 
 #: modules/custom-post-types/comics.php:194
 msgid "Comic"
-msgstr ""
+msgstr "Tregim me Figura"
 
 #: modules/custom-post-types/comics.php:196
 msgid "All Comics"
-msgstr ""
+msgstr "Krejt Tregimet me Figura"
 
 #: modules/custom-post-types/comics.php:197
 #: modules/custom-post-types/testimonial.php:72 modules/publicize/ui.php:207
@@ -3795,35 +3797,35 @@ msgstr "Shto të Ri"
 
 #: modules/custom-post-types/comics.php:198
 msgid "Add New Comic"
-msgstr ""
+msgstr "Shtoni Tregim të Ri me Figura"
 
 #: modules/custom-post-types/comics.php:199
 msgid "Edit Comic"
-msgstr ""
+msgstr "Përpunoni Tregim me Figura"
 
 #: modules/custom-post-types/comics.php:200
 msgid "New Comic"
-msgstr ""
+msgstr "Tregim i Ri me Figura"
 
 #: modules/custom-post-types/comics.php:201
 msgid "View Comic"
-msgstr ""
+msgstr "Shihni Tregimin me Figura"
 
 #: modules/custom-post-types/comics.php:202
 msgid "Search Comics"
-msgstr ""
+msgstr "Kërkoni Tregim me Figura"
 
 #: modules/custom-post-types/comics.php:203
 msgid "No Comics found"
-msgstr ""
+msgstr "Nuk u gjet Tregim me Figura"
 
 #: modules/custom-post-types/comics.php:204
 msgid "No Comics found in Trash"
-msgstr ""
+msgstr "Nuk u gjet Tregim me Figura te Hedhurinat"
 
 #: modules/custom-post-types/comics.php:273
 msgid "Comic updated. <a href=\"%s\">View comic</a>"
-msgstr ""
+msgstr "Tregim me Figura u përditësua. <a href=\"%s\">Shiheni tregim me figura</a>"
 
 #: modules/custom-post-types/comics.php:274
 #: modules/custom-post-types/testimonial.php:133
@@ -3837,27 +3839,27 @@ msgstr "Fusha vetjake u fshi."
 
 #: modules/custom-post-types/comics.php:276
 msgid "Comic updated."
-msgstr ""
+msgstr "Tregimi me Figura u përditësua."
 
 #: modules/custom-post-types/comics.php:278
 msgid "Comic restored to revision from %s"
-msgstr ""
+msgstr "Tregimi me Figura u rikthye te rishikimi prej %s"
 
 #: modules/custom-post-types/comics.php:279
 msgid "Comic published. <a href=\"%s\">View comic</a>"
-msgstr ""
+msgstr "Tregimi me Figura u botua. <a href=\"%s\">Shiheni tregimin me figura</a>"
 
 #: modules/custom-post-types/comics.php:280
 msgid "Comic saved."
-msgstr ""
+msgstr "Tregimi me Figura u ruajt."
 
 #: modules/custom-post-types/comics.php:281
 msgid "Comic submitted. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
-msgstr ""
+msgstr "Tregimi me Figura u parashtrua. <a target=\"_blank\" href=\"%s\">Parashiheni tregimin me figura</a>"
 
 #: modules/custom-post-types/comics.php:282
 msgid "Comic scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview comic</a>"
-msgstr ""
+msgstr "Tregimi me Figura është vënë në plan për: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Parashiheni tregimin me figura</a>"
 
 #: modules/custom-post-types/comics.php:284
 #: modules/custom-post-types/testimonial.php:143
@@ -3866,11 +3868,11 @@ msgstr "j M, Y @ G:i"
 
 #: modules/custom-post-types/comics.php:285
 msgid "Comic draft updated. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
-msgstr ""
+msgstr "Skica e tregimit me figura u përditësua. <a target=\"_blank\" href=\"%s\">Parashiheni tregimin me figura</a>"
 
 #: modules/custom-post-types/comics.php:353
 msgid "Invalid or expired nonce."
-msgstr ""
+msgstr "I pavlefshëm ose i skaduar"
 
 #: modules/custom-post-types/comics.php:462
 msgid ""
@@ -3883,26 +3885,34 @@ msgid ""
 "Lots of laughs,\n"
 "The WordPress.com Team"
 msgstr ""
+"Mirë se vini! Gati për të botuar të parin tregim tuajin me figura?\n"
+"\n"
+"Site-i juaj i ri për tregime me figura është gati. Fillojani me <a href=\"BLOG_URLwp-admin/customize.php#title\">caktimin e titullit dhe motos së tij</a> që lexuesit tuaj të marrin vesh se përse bën fjalë.\n"
+"\n"
+"Ju duhet më tepër ndihmë në rregullimin e site-it tuaj? Hidhini një sy <a href=\"http://learn.wordpress.com/\">përkujdesores për fillestarët</a> te WordPress.com dhe <a href=\"http://en.support.wordpress.com/comics/\">udhërrëfyesit për tregime me figura te WordPress.com</a>. Hidhuni me kokë që tani <a href=\"BLOG_URLwp-admin/customize.php#title\">duke botuar tregimin tuaj të parë!</a>\n"
+"\n"
+"Gaz paçi,\n"
+"Ekipi i WordPress.com-it"
 
 #: modules/custom-post-types/nova.php:115
 msgid "Menu Item Labels"
-msgstr ""
+msgstr "Etiketa Zëri Menush"
 
 #: modules/custom-post-types/nova.php:116
 msgid "Menu Item Label"
-msgstr ""
+msgstr "Etiketë Zëri Menush"
 
 #: modules/custom-post-types/nova.php:117
 msgid "Search Menu Item Labels"
-msgstr ""
+msgstr "Kërkoni te Etiketa Zëri Menush"
 
 #: modules/custom-post-types/nova.php:118
 msgid "Popular Labels"
-msgstr ""
+msgstr "Etiketa Popullore"
 
 #: modules/custom-post-types/nova.php:119
 msgid "All Menu Item Labels"
-msgstr ""
+msgstr "Krejt Etiketat Zëri Menush"
 
 #: modules/carousel/jetpack-carousel.php:336
 msgid "Comments on this post are closed."
@@ -4038,11 +4048,11 @@ msgstr "Shtoni një formular të përshtatur"
 
 #: modules/contact-form/admin.php:21 modules/contact-form/admin.php:22
 msgid "Add Contact Form"
-msgstr ""
+msgstr "Shtoni Formular Kontakti"
 
 #: modules/contact-form/admin.php:101
 msgid "Mark Spam"
-msgstr ""
+msgstr "Shënoje si Të pavlerë"
 
 #: modules/contact-form/admin.php:140 modules/contact-form/admin.php:534
 msgid "You are not allowed to manage this item."
@@ -4050,7 +4060,7 @@ msgstr "Nuk ju lejohet ta administroni këtë objekt."
 
 #: modules/contact-form/admin.php:157
 msgid "Feedback(s) marked as spam"
-msgstr ""
+msgstr "Përshtypjeve iu vu shenjë si hedhurinë"
 
 #: modules/contact-form/admin.php:196
 #: modules/contact-form/grunion-omnisearch.php:36
@@ -4103,7 +4113,7 @@ msgstr "Shënoje këtë mesazh si JO të pavlerë"
 #: modules/contact-form/grunion-contact-form.php:1187
 msgctxt "{$date_format} \\a\\t {$time_format}"
 msgid "%1$s \\a\\t %2$s"
-msgstr ""
+msgstr "%1$s \\a\\t %2$s"
 
 #: modules/contact-form/admin.php:568
 msgid "You are not allowed to move this item out of the Trash."
@@ -4152,7 +4162,7 @@ msgstr[1] "<span class=\"count\">(%s)</span> të pavlerë"
 
 #: modules/contact-form/grunion-contact-form.php:192
 msgid "An error occurred. Please try again later."
-msgstr ""
+msgstr "Ndodhi një gabim. Ju lutemi, riprovoni më vonë."
 
 #: modules/contact-form/grunion-contact-form.php:200
 #: modules/contact-form/grunion-contact-form.php:853
@@ -4161,11 +4171,11 @@ msgstr "Mesazhi u Dërgua"
 
 #: modules/contact-form/grunion-contact-form.php:358
 msgid "Export feedback as CSV"
-msgstr ""
+msgstr "Eksportoji përshtypjes si CSV"
 
 #: modules/contact-form/grunion-contact-form.php:364
 msgid "Select feedback to download"
-msgstr ""
+msgstr "Përzgjidhni përshtypjet për shkarkim"
 
 #: modules/contact-form/grunion-contact-form.php:366
 msgid "All posts"
@@ -4173,7 +4183,7 @@ msgstr "Tërë postimet"
 
 #: modules/contact-form/grunion-contact-form.php:371
 msgid "Download"
-msgstr ""
+msgstr "Shkarkojeni"
 
 #: modules/contact-form/grunion-contact-form.php:418
 #: modules/contact-form/grunion-contact-form.php:510
@@ -4391,23 +4401,23 @@ msgstr "Së Shpejti&#8230;"
 
 #: class.jetpack.php:3242
 msgid "Something is being cranky!"
-msgstr ""
+msgstr "Diçka nuk po punon si duhet!"
 
 #: class.jetpack.php:3243
 msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
-msgstr ""
+msgstr "Site-i juaj është formësuar të lejojë vetëm lidhje SSL te Jetpack-u, por nuk duket se funksionojnë lidhjet SSL!"
 
 #: class.jetpack.php:3331
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
-msgstr ""
+msgstr "Hollësi Gabimi: ID-ja e Jetpack-ut është e zbrazët. Mos e postoni publikisht këtë gabim mesazhi! %s"
 
 #: class.jetpack.php:3333
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
-msgstr ""
+msgstr "Hollësi Gabimi: ID-ja e Jetpack-ut nuk është numër. Mos e postoni publikisht këtë gabim mesazhi! %s"
 
 #: class.jetpack.php:3335
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
-msgstr ""
+msgstr "Hollësi Gabimi: ID-ja e Jetpack-ut fillon me një numër. Mos e postoni publikisht këtë gabim mesazhi! %s"
 
 #: class.jetpack.php:3493
 msgid "Jetpack Plugin Version"
@@ -4435,23 +4445,23 @@ msgstr "%s dëshiron të hyjë në të dhënat e site-it tuaj.  Hyni që të aut
 
 #: class.jetpack.php:3988
 msgid "Something has gotten mixed up!"
-msgstr ""
+msgstr "Diç është bërë lëmsh!"
 
 #: class.jetpack.php:3990
 msgid "Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!"
-msgstr ""
+msgstr "Mundësisë <code>%1$s</code> i është dhënë vlera <strong>%2$s</strong>, por lidhja juaj WordPress.com e tregon si <strong>%3$s</strong>!"
 
 #: class.jetpack.php:3992
 msgid "The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings."
-msgstr ""
+msgstr "Të dhënat e treguara më sipër nuk janë për site-in tim të tanishëm. Ju lutemi, shkëputmëni, dhe mandej krijoni një lidhje të re te WordPress.com për këtë site duke përdorur rregullimet e mia të tanishme."
 
 #: class.jetpack.php:3993
 msgid "Ignore the difference. This is just a staging site for the real site referenced above."
-msgstr ""
+msgstr "Shpërfille ndryshimin. Ky është një site provë për site-in real të treguar më sipër."
 
 #: class.jetpack.php:3994
 msgid "That used to be my URL for this site before I changed it. Update the WordPress.com Cloud's data to match my current settings."
-msgstr ""
+msgstr "Kjo ka qenë URL-ja ime për këtë site përpara se ta ndryshoja. Përditësoni të dhënat për WordPress.com Cloud që të përputhen me rregullimet e mia të tanishme."
 
 #: class.json-api-endpoints.php:1174
 msgid "This post is password protected."
@@ -4463,7 +4473,7 @@ msgstr "Problem me ruajtjen e komentit?"
 
 #: functions.gallery.php:12
 msgid "Thumbnail Grid"
-msgstr ""
+msgstr "Rrjetë Miniaturash"
 
 #: functions.gallery.php:40
 msgid "Type"
@@ -4687,7 +4697,7 @@ msgstr "Ju lutemi, jepni emrin tuaj që të komentoni."
 
 #: modules/carousel/jetpack-carousel.php:114
 msgid "Sorry, but there was an error posting your comment. Please try again later."
-msgstr "Na ndjeni, por pati një gabim gjatë postimit të komentit tuaj.  Ju lutemi, riprovoni më vonë."
+msgstr "Na ndjeni, por pati një gabim gjatë postimit të komentit tuaj. Ju lutemi, riprovoni më vonë."
 
 #: modules/carousel/jetpack-carousel.php:115
 msgid "Your comment was approved."
@@ -4719,11 +4729,11 @@ msgstr "Po komentoni si %s"
 
 #: modules/carousel/jetpack-carousel.php:133
 msgid "You must be <a href=\"#\" class=\"jp-carousel-comment-login\">logged in</a> to post a comment."
-msgstr ""
+msgstr "Duhet të jeni <a href=\"#\" class=\"jp-carousel-comment-login\">i futur</a> që të postoni një koment."
 
 #: modules/carousel/jetpack-carousel.php:135
 msgid "%s (Required)"
-msgstr ""
+msgstr "%s (E domosdoshme)"
 
 #: modules/carousel/jetpack-carousel.php:137
 #: modules/contact-form/grunion-contact-form.php:753
@@ -4759,55 +4769,55 @@ msgstr "Nuk u parashtrua ndonjë tekst komenti."
 
 #: class.jetpack-debugger.php:139
 msgid "It may be caused by one of these issues, which you can diagnose yourself:"
-msgstr ""
+msgstr "Mund të vijë nga një prej këtyre çështjeve, të cilat mund t&#8217;i diagnostikoni ju vetë."
 
 #: class.jetpack-debugger.php:141
 msgid "A known issue."
-msgstr ""
+msgstr "Çështje e njohur."
 
 #: class.jetpack-debugger.php:141
 msgid "Some themes and plugins have <a href=\"%1$s\" target=\"_blank\">known conflicts</a> with Jetpack – check the <a href=\"%2$s\" target=\"_blank\">list</a>. (You can also browse the <a href=\"%3$s\">Jetpack support pages</a> or <a href=\"%4$s\">Jetpack support forum</a> to see if others have experienced and solved the problem.)"
-msgstr ""
+msgstr "Disa tema dhe shotjca kanë <a href=\"%1$s\" target=\"_blank\">konflikte të njohura</a> me Jetpack-un – kontrolloni te <a href=\"%2$s\" target=\"_blank\">lista</a>. (Mund edhe të shfletoni <a href=\"%3$s\">faqet e asistencës për Jetpack-un</a> ose <a href=\"%4$s\">forumet e asistencës për Jetpack-un</a> që të shihni nëse të tjerët e kanë pasur dhe zgjidhur problemin.)"
 
 #: class.jetpack-debugger.php:142
 msgid "An incompatible plugin."
-msgstr ""
+msgstr "Shtojcë e papërfillshme."
 
 #: class.jetpack-debugger.php:142
 msgid "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help."
-msgstr ""
+msgstr "Shihni pse, përmes çaktivizimit të krejt shtojcave, hiq Jetpack-un. Nëse problemi vazhdon, nuk është problem shtojce. Nëse problemi zgjidhet, aktivizoni shtojcat një nga një deri sa problemi të shfaqet sërish – ja kush është fajtori! Na e tregoni, dhe do të përpiqemi t&#8217;ju ndihmojmë."
 
 #: class.jetpack-debugger.php:143
 msgid "A theme conflict."
-msgstr ""
+msgstr "Kundërshti teme."
 
 #: class.jetpack-debugger.php:143
 msgid "If your problem isn't known or caused by a plugin, try activating Twenty Twelve (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know."
-msgstr ""
+msgstr "Nëse problemi juaj nuk njihet ose nuk është shkaktuar nga ndonjë shtojcë, provoni të vini në punë temën Twenty Twelve (tema parazgjedhje e WordPress-it).Nëse kjo e zgjidh problemin, diçka te tema juaj i bie të jetë e dëmtuar – bëjani të ditur autorit të temës."
 
 #: class.jetpack-debugger.php:144
 msgid "A problem with your XMLRPC file."
-msgstr ""
+msgstr "Problem me kartelën tuaj XMLRPC."
 
 #: class.jetpack-debugger.php:144
 msgid "Load your <a href=\"%s\">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself."
-msgstr ""
+msgstr "Ngarkoni <a href=\"%s\">kartelën tuaj XMLRPC</a>. Do të duhej të thoshte “Shërbyesi XML-RPC pranon vetëm kërkesa POST.” në një rresht më vete."
 
 #: class.jetpack-debugger.php:146
 msgid "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3."
-msgstr ""
+msgstr "Nëse nuk është rresht më vete, një temë ose shtojcë po shfaq shenja ekstra. Provoni hapat 2 dhe 3."
 
 #: class.jetpack-debugger.php:147
 msgid "If you get a 404 message, contact your web host. Their security may block XMLRPC."
-msgstr ""
+msgstr "Nëse merrni një mesazh 404, lidhuni me strehuesin tuaj në web. Rregullat e tyre të sigurisë mund të bllokojnë XMLRPC-në."
 
 #: class.jetpack-debugger.php:152
 msgid "If none of these help you find a solution, <a href=\"#\">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you've tried to resolve it, and one of our Happiness Engineers will be in touch to help."
-msgstr ""
+msgstr "Nëse asgjë prej këtyre nuk ju ndih të gjeni një zgjidhje, <a href=\"#\">klikoni këtu që të lidheni me asistencën e Jetpack-ut</a>. Na tregoni sa më shumë të mundeni rreth problemit dhe çfarë hapash provuat për ta zgjidhur, dhe një nga Inxhinierët tanë të Lumturisë do të lidhet me ju që t&#8217;ju ndihmojë."
 
 #: class.jetpack-debugger.php:166
 msgid "Please describe the problem you are having."
-msgstr ""
+msgstr "Ju lutemi, përshkruani problemin që keni."
 
 #: class.jetpack-debugger.php:171 modules/carousel/jetpack-carousel.php:139
 #: modules/contact-form/grunion-contact-form.php:752
@@ -4818,7 +4828,7 @@ msgstr "Emër"
 
 #: class.jetpack-debugger.php:172
 msgid "Let us know your name."
-msgstr ""
+msgstr "Na bëni të ditur emrin tuaj."
 
 #: class.jetpack-debugger.php:177
 msgid "E-mail"
@@ -4826,19 +4836,19 @@ msgstr "E-mail"
 
 #: class.jetpack-debugger.php:178
 msgid "Use a valid email address."
-msgstr ""
+msgstr "Përdorni një adresë email të vlefshme."
 
 #: class.jetpack-debugger.php:183
 msgid "The test results and some other useful debug information will be sent to the support team. Please feel free to <a href=\"#\">review/modify</a> this information."
-msgstr ""
+msgstr "Përfundimet e testimit dhe disa të dhëna të tjera të dobishme diagnostikimi do t&#8217;i dërgohen ekipit të asistencës. Mos ngurroni t&#8217;i <a href=\"#\">review/modifikoni</a> këto të dhëna."
 
 #: class.jetpack-debugger.php:187
 msgid "Debug Info"
-msgstr ""
+msgstr "Të dhëna Diagnostikimi"
 
 #: class.jetpack-heartbeat.php:128
 msgid "Jetpack weekly"
-msgstr ""
+msgstr "Jetpack-u përjavshëm"
 
 #: class.jetpack.php:1311
 msgid "Jetpack requires WordPress version %s or later."
@@ -4930,7 +4940,7 @@ msgstr "Shpërfille këtë shënim dhe çaktivizoje Jetpack-un."
 
 #: class.jetpack.php:1912
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
-msgstr ""
+msgstr "<strong>Jetpack-u juaj është thuajse gati</strong> &#8211; Për aktivizimin e anëve të tilla si Statistika, Formularë Kontaktesh dhe Pajtime, lypset një lidhje me WordPress.com-in . Lidhuni tani që të mbushni serbatorin!"
 
 #: class.jetpack.php:1914
 msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
@@ -4977,7 +4987,7 @@ msgstr "Po bëni me hile, hë?"
 
 #: class.jetpack.php:2146
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
-msgstr "Lypset të autorizoni lidhjen përmes Jetpack-ut  të site-it tuaj dhe WordPress.com-it që të aktivizohen fuksionet e mahnitshme."
+msgstr "Lypset të autorizoni lidhjen përmes Jetpack-ut të site-it tuaj dhe WordPress.com-it që të aktivizohen fuksionet e mahnitshme."
 
 #: class.jetpack.php:2149
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
@@ -5211,40 +5221,40 @@ msgstr "Nuk keni leje të mjaftueshme për të hyrë në këtë faqe."
 
 #: class.jetpack-debugger.php:68
 msgid "Your site isn’t reaching the Jetpack servers."
-msgstr ""
+msgstr "Site-i juaj nuk po kap shërbyesit e Jetpack-ut."
 
 #: class.jetpack-debugger.php:71
 msgid "Your site isn’t securely reaching the Jetpack servers."
-msgstr ""
+msgstr "Site-i juaj nuk po kap në mënyrë të sigurt shërbyesit e Jetpack-ut."
 
 #: class.jetpack-debugger.php:76
 msgid "Your `%1$s` option is set up as `%2$s`, but your WordPress.com connection lists it as `%3$s`!"
-msgstr ""
+msgstr "Mundësisë `%1$s` i është dhëna vlera `%2$s`, por lidhja juaj mer WordPress.com-in e tregon si `%3$s`!"
 
 #: class.jetpack-debugger.php:83
 msgid "Something has gotten mixed up in your Jetpack Connection!"
-msgstr ""
+msgstr "Diç është përzierë me Lidhjen tuaj Jetpack!"
 
 #: class.jetpack-debugger.php:93
 msgid "It looks like your site can not communicate properly with Jetpack."
-msgstr ""
+msgstr "Duket sikur site-i juaj nuk komunikon si duhet me Jetpack-un."
 
 #: class.jetpack-debugger.php:99 class.jetpack.php:1600 class.jetpack.php:1820
 msgid "Jetpack Debugging Center"
-msgstr ""
+msgstr "Qendër Diagnostikimi Jetpack-u"
 
 #: class.jetpack-debugger.php:100
 msgid "Testing your site's compatibily with Jetpack..."
-msgstr ""
+msgstr "Po provohet përputhshmëria e site-it tuaj me Jetpack-un..."
 
 #: class.jetpack-debugger.php:128
 msgid "Your Jetpack setup looks a-okay!"
-msgstr ""
+msgstr "Rregullimi i Jetpack-ut tuaj duke OK!"
 
 #: class.jetpack-debugger.php:131
 msgid "There seems to be a problem with your site’s ability to communicate with Jetpack!"
-msgstr ""
+msgstr "Duket se ka një problem me aftësinë e site-it tuaj për të komunikuar me Jetpack-un!"
 
 #: class.jetpack-debugger.php:138
 msgid "Trouble with Jetpack?"
-msgstr ""
+msgstr "Problem me Jetpack-un?"

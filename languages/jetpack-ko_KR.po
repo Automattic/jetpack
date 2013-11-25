@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 2.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-14 20:09:33+0000\n"
+"PO-Revision-Date: 2013-11-25 20:13:08+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,119 +12,119 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Write a comment..."
-msgstr ""
+msgstr "댓글 달기..."
 
 #: class.jetpack.php:999
 msgctxt "Module Tag"
 msgid "Mobile"
-msgstr ""
+msgstr "모바일"
 
 #: class.jetpack.php:1000
 msgctxt "Module Tag"
 msgid "Other"
-msgstr ""
+msgstr "기타"
 
 #: class.jetpack-cli.php:169
 msgid "%s has been deactivated."
-msgstr ""
+msgstr "%s가 비활성화 됐습니다."
 
 #: class.jetpack.php:993
 msgctxt "Module Tag"
 msgid "Photos and Videos"
-msgstr ""
+msgstr "사진 및 비디오"
 
 #: class.jetpack.php:994
 msgctxt "Module Tag"
 msgid "Social"
-msgstr ""
+msgstr "소셜"
 
 #: class.jetpack.php:995
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "워드프레스닷컴 통계"
 
 #: class.jetpack.php:996
 msgctxt "Module Tag"
 msgid "Writing"
-msgstr ""
+msgstr "쓰기"
 
 #: class.jetpack.php:997
 msgctxt "Module Tag"
 msgid "Appearance"
-msgstr ""
+msgstr "외모"
 
 #: class.jetpack.php:998
 msgctxt "Module Tag"
 msgid "Developers"
-msgstr ""
-
-#: class.jetpack-cli.php:163
-msgid "%s has been activated."
-msgstr ""
-
-#: class.jetpack-cli.php:155
-msgid "Inactive"
-msgstr ""
-
-#: class.jetpack-cli.php:151
-msgid "Available Modules:"
-msgstr ""
-
-#: class.jetpack-cli.php:144
-msgid "Please specify a valid module."
-msgstr ""
-
-#: class.jetpack-cli.php:138
-msgid "%s is not a valid module."
-msgstr ""
-
-#: class.jetpack-cli.php:101
-msgid "Please specify if you would like to disconnect a blog or user."
-msgstr ""
-
-#: class.jetpack-cli.php:97
-msgid "%s could not be disconnected.  Are you sure they're connected currently?"
-msgstr ""
-
-#: class.jetpack-cli.php:95
-msgid "%s has been successfully disconnected."
-msgstr ""
-
-#: class.jetpack-cli.php:90
-msgid "Jetpack has been successfully disconnected."
-msgstr ""
+msgstr "개발자"
 
 #: class.jetpack-cli.php:82
 msgid "Please specify a user."
-msgstr ""
+msgstr "사용자를 특정해주세요."
+
+#: class.jetpack-cli.php:163
+msgid "%s has been activated."
+msgstr "%s가 활성화 됐습니다."
+
+#: class.jetpack-cli.php:155
+msgid "Inactive"
+msgstr "비활성화"
+
+#: class.jetpack-cli.php:151
+msgid "Available Modules:"
+msgstr "가능한 모듈:"
+
+#: class.jetpack-cli.php:144
+msgid "Please specify a valid module."
+msgstr "유효한 모듈을 특정해주세요."
+
+#: class.jetpack-cli.php:138
+msgid "%s is not a valid module."
+msgstr "%s는 유효한 모듈이 아닙니다."
+
+#: class.jetpack-cli.php:101
+msgid "Please specify if you would like to disconnect a blog or user."
+msgstr "블로그나 사용자 연결을 차단하려면 특정해주세요."
+
+#: class.jetpack-cli.php:97
+msgid "%s could not be disconnected.  Are you sure they're connected currently?"
+msgstr "%s는 연결을 차단할 수 없습니다. 현재 연결이 돼있는지 확인하세요."
+
+#: class.jetpack-cli.php:95
+msgid "%s has been successfully disconnected."
+msgstr "%s가 성공적으로 연결이 차단됐습니다."
+
+#: class.jetpack-cli.php:90
+msgid "Jetpack has been successfully disconnected."
+msgstr "젯팩이 성공적으로 연결이 차단됐습니다."
 
 #: class.jetpack-cli.php:79
 msgid "Please specify a valid user."
-msgstr ""
+msgstr "유효한 사용자를 특정해주세요."
 
 #: class.jetpack-cli.php:62 class.jetpack-cli.php:131
 msgid "%s is not a valid command."
-msgstr ""
+msgstr "%s는 유효한 명령이 아닙니다."
 
 #: class.jetpack-cli.php:57
 msgid "You cannot disconnect, without having first connected."
-msgstr ""
+msgstr "우선 연결이 되지 않은 상태에서는 연결을 차단할 수 없습니다."
 
 #: class.jetpack-cli.php:25
 msgid "Jetpack is currently connected to WordPress.com"
-msgstr ""
+msgstr "젯팩이 현재 워드프레스닷컴에 연결돼 있습니다."
 
 #: class.jetpack-cli.php:26
 msgid "The Jetpack Version is %s"
-msgstr ""
+msgstr "젯팩 버전은 %s입니다."
 
 #: class.jetpack-cli.php:27
 msgid "The WordPress.com blog_id is %d"
-msgstr ""
+msgstr "워드프레스닷컴 blog_id는 %d입니다."
 
 #: class.jetpack-cli.php:29
 msgid "Jetpack is not currently connected to WordPress.com"
-msgstr ""
+msgstr "젯팩이 현재 워드프레스닷컴에 연결되지 않았습니다."
 
 msgid "A single search box, that lets you search many different things."
 msgstr "단일 검색 박스, 많은 다른 것을 검색하도록 합니다."

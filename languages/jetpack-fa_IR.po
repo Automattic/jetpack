@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 2.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-14 20:10:10+0000\n"
+"PO-Revision-Date: 2013-11-25 20:13:12+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,119 +12,119 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Write a comment..."
-msgstr ""
+msgstr "دیدگاهتان را بیان کنید..."
 
 #: class.jetpack.php:999
 msgctxt "Module Tag"
 msgid "Mobile"
-msgstr ""
+msgstr "تلفن همراه"
 
 #: class.jetpack.php:1000
 msgctxt "Module Tag"
 msgid "Other"
-msgstr ""
+msgstr "موارد دیگر"
 
 #: class.jetpack-cli.php:169
 msgid "%s has been deactivated."
-msgstr ""
+msgstr "%s غیرفعال شده است."
 
 #: class.jetpack.php:993
 msgctxt "Module Tag"
 msgid "Photos and Videos"
-msgstr ""
+msgstr "عکس‌ها و فیلم‌ها"
 
 #: class.jetpack.php:994
 msgctxt "Module Tag"
 msgid "Social"
-msgstr ""
+msgstr "اجتماعی"
 
 #: class.jetpack.php:995
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "آمار وردپرس.کام"
 
 #: class.jetpack.php:996
 msgctxt "Module Tag"
 msgid "Writing"
-msgstr ""
+msgstr "نوشتن"
 
 #: class.jetpack.php:997
 msgctxt "Module Tag"
 msgid "Appearance"
-msgstr ""
+msgstr "نما"
 
 #: class.jetpack.php:998
 msgctxt "Module Tag"
 msgid "Developers"
-msgstr ""
+msgstr "توسعه‌دهندگان"
 
 #: class.jetpack-cli.php:82
 msgid "Please specify a user."
-msgstr ""
+msgstr "لطفاً یک کاربر را مشخص کنید."
 
 #: class.jetpack-cli.php:163
 msgid "%s has been activated."
-msgstr ""
+msgstr "%s فعال شده است."
 
 #: class.jetpack-cli.php:155
 msgid "Inactive"
-msgstr ""
+msgstr "غیرفعال"
 
 #: class.jetpack-cli.php:151
 msgid "Available Modules:"
-msgstr ""
+msgstr "پودمان‌های دردسترس:"
 
 #: class.jetpack-cli.php:144
 msgid "Please specify a valid module."
-msgstr ""
+msgstr "لطفاً یک پودمان معتبر ذکر کنید."
 
 #: class.jetpack-cli.php:138
 msgid "%s is not a valid module."
-msgstr ""
+msgstr "%s پودمان معتبری نیست."
 
 #: class.jetpack-cli.php:101
 msgid "Please specify if you would like to disconnect a blog or user."
-msgstr ""
+msgstr "لطفاً اگر می‌خواهید وب‌نوشت یا کاربری را جدا کنید، آن را مشخص نمایید."
 
 #: class.jetpack-cli.php:97
 msgid "%s could not be disconnected.  Are you sure they're connected currently?"
-msgstr ""
+msgstr "امکان جداکردن %s نبود.  مطمئنید که هم‌اکنون متصل هستند؟"
 
 #: class.jetpack-cli.php:95
 msgid "%s has been successfully disconnected."
-msgstr ""
+msgstr "%s با موفقیت جدا شد."
 
 #: class.jetpack-cli.php:90
 msgid "Jetpack has been successfully disconnected."
-msgstr ""
+msgstr "جت‌پک با موفقیت جدا شد."
 
 #: class.jetpack-cli.php:79
 msgid "Please specify a valid user."
-msgstr ""
+msgstr "لطفاً کاربر معتبری وارد کنید."
 
 #: class.jetpack-cli.php:62 class.jetpack-cli.php:131
 msgid "%s is not a valid command."
-msgstr ""
+msgstr "%s دستور معتبری نیست."
 
 #: class.jetpack-cli.php:57
 msgid "You cannot disconnect, without having first connected."
-msgstr ""
+msgstr "نمی‌توانید پیش از متصل‌شدن جدا شوید."
 
 #: class.jetpack-cli.php:25
 msgid "Jetpack is currently connected to WordPress.com"
-msgstr ""
+msgstr "جت‌پک هم‌اکنون به وردپرس.کام متصل شده است"
 
 #: class.jetpack-cli.php:26
 msgid "The Jetpack Version is %s"
-msgstr ""
+msgstr "نسخهٔ جت‌پک: %s"
 
 #: class.jetpack-cli.php:27
 msgid "The WordPress.com blog_id is %d"
-msgstr ""
+msgstr "blog_id وردپرس.کام: %d"
 
 #: class.jetpack-cli.php:29
 msgid "Jetpack is not currently connected to WordPress.com"
-msgstr ""
+msgstr "جت‌پک هم‌اکنون به وردپرس.کام متصل شده است"
 
 msgid "A single search box, that lets you search many different things."
 msgstr "یک جعبهٔ جستجوی یکتا که اجازه می‌دهد بسیاری از چیزهای متفاوت را جست‌وجو کنید."

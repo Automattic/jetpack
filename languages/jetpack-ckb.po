@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 2.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-14 20:10:39+0000\n"
+"PO-Revision-Date: 2013-11-25 20:13:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,119 +12,119 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Write a comment..."
-msgstr ""
+msgstr "سەرنجێک بنوسە..."
 
 #: class.jetpack.php:999
 msgctxt "Module Tag"
 msgid "Mobile"
-msgstr ""
+msgstr "مۆبایل"
 
 #: class.jetpack.php:1000
 msgctxt "Module Tag"
 msgid "Other"
-msgstr ""
+msgstr "دیکە"
 
 #: class.jetpack-cli.php:169
 msgid "%s has been deactivated."
-msgstr ""
+msgstr "%s ناچالاککرا."
 
 #: class.jetpack.php:993
 msgctxt "Module Tag"
 msgid "Photos and Videos"
-msgstr ""
+msgstr "وێنە و ڤیدیۆ"
 
 #: class.jetpack.php:994
 msgctxt "Module Tag"
 msgid "Social"
-msgstr ""
+msgstr "کۆمەڵایەتی"
 
 #: class.jetpack.php:995
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "زانیاری WordPress.com"
 
 #: class.jetpack.php:996
 msgctxt "Module Tag"
 msgid "Writing"
-msgstr ""
+msgstr "نوسین"
 
 #: class.jetpack.php:997
 msgctxt "Module Tag"
 msgid "Appearance"
-msgstr ""
+msgstr "دەرکەوتن"
 
 #: class.jetpack.php:998
 msgctxt "Module Tag"
 msgid "Developers"
-msgstr ""
+msgstr "پێشخەرەکان"
 
 #: class.jetpack-cli.php:82
 msgid "Please specify a user."
-msgstr ""
+msgstr "تکایە بەکارهێنەرێک دیاریبکە"
 
 #: class.jetpack-cli.php:163
 msgid "%s has been activated."
-msgstr ""
+msgstr "%s چالاککرا."
 
 #: class.jetpack-cli.php:155
 msgid "Inactive"
-msgstr ""
+msgstr "ناچالاک"
 
 #: class.jetpack-cli.php:151
 msgid "Available Modules:"
-msgstr ""
+msgstr "مۆدیولە بەردەستەکان:"
 
 #: class.jetpack-cli.php:144
 msgid "Please specify a valid module."
-msgstr ""
+msgstr "تکایە مۆدیولێکی دروست دیاریبکە."
 
 #: class.jetpack-cli.php:138
 msgid "%s is not a valid module."
-msgstr ""
+msgstr "%s مۆدیولەکە دروست نییە."
 
 #: class.jetpack-cli.php:101
 msgid "Please specify if you would like to disconnect a blog or user."
-msgstr ""
+msgstr "تکایە دیاریبکە ئەگەر ئەتەوێت بلۆگێک یان بەکارهێنەرێک لاببەیت."
 
 #: class.jetpack-cli.php:97
 msgid "%s could not be disconnected.  Are you sure they're connected currently?"
-msgstr ""
+msgstr "%s نەتوانرا پەیوەندییەکە بپچڕێنرێت. دڵنیایت ئێستا پەیوەندی هەیە؟"
 
 #: class.jetpack-cli.php:95
 msgid "%s has been successfully disconnected."
-msgstr ""
+msgstr "%s بە سەرکەوتووی پچڕێنرا."
 
 #: class.jetpack-cli.php:90
 msgid "Jetpack has been successfully disconnected."
-msgstr ""
+msgstr "پەیوەندی جێتپاک بە سەرکەوتوویی پچڕێنرا."
 
 #: class.jetpack-cli.php:79
 msgid "Please specify a valid user."
-msgstr ""
+msgstr "تکایە بەکارهێنەرێکی دروست دیاریبکە."
 
 #: class.jetpack-cli.php:62 class.jetpack-cli.php:131
 msgid "%s is not a valid command."
-msgstr ""
+msgstr "%s فەرمانێکی هەڵەیە."
 
 #: class.jetpack-cli.php:57
 msgid "You cannot disconnect, without having first connected."
-msgstr ""
+msgstr "ناتوانیت پەیوەندییەکە بپچڕێنیت، لە کاتێکدا پەیوەندییەکە دروستنەکراوە."
 
 #: class.jetpack-cli.php:25
 msgid "Jetpack is currently connected to WordPress.com"
-msgstr ""
+msgstr "جێتپاک بەستراوەتەوە بە WordPress.com"
 
 #: class.jetpack-cli.php:26
 msgid "The Jetpack Version is %s"
-msgstr ""
+msgstr "ڤێرژنی جێتپاکەکەت %s"
 
 #: class.jetpack-cli.php:27
 msgid "The WordPress.com blog_id is %d"
-msgstr ""
+msgstr "blog_idی WordPress.com  ئەمەیە %d"
 
 #: class.jetpack-cli.php:29
 msgid "Jetpack is not currently connected to WordPress.com"
-msgstr ""
+msgstr "جێتپاک نەبەستراوەتەوە بە WordPress.com"
 
 msgid "A single search box, that lets you search many different things."
 msgstr "بۆکسێکی گەڕان، کە ئەیەڵێت بگەڕێی بە ناو زۆر شتدا."
@@ -148,7 +148,7 @@ msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easie
 msgstr "WP.me-powered چالاک بکە بۆ دروستکردنی لینکی کورت بۆ بابەتەکانت تا بە ئاسانی بڵاویان بکەیتەوە."
 
 msgid "Jetpack Single Sign On"
-msgstr ""
+msgstr "چونە ژوورەوە لەگەڵ جێتپاک"
 
 msgid "Let users login with their WordPress.com Credentials"
 msgstr "بەکارهێنەران دەتوانن لە ڕێیی هەژماری وۆردپرێسەوە بێنە ناو ماڵپەرەکەتەوە"
@@ -220,11 +220,11 @@ msgstr "بینێرە بۆ ڕیدمیڵ"
 
 #: modules/widgets/readmill.php:13
 msgid "Readmill is the best book reader for phones and tablets. With this widget you can enable users to send a book to their device with one click."
-msgstr ""
+msgstr "ڕێدمیل باشترین خوێنەرەوەی کتێبە بۆ مۆبایل و تابلێت. لەگەڵ ئەم ویدجێتەدا دەتوانی ڕیگە بدەی بە بەکارهێنەرەکانت بە یەک کلیک کتێب بنێرن بۆ ئامێرەکانیان."
 
 #: modules/widgets/readmill.php:47
 msgid "Just enter the URL to your book, make sure it's a PDF or EPUB file, and you are ready to go. For more help, head to <a href='%s'>the Readmill WordPress Widget support page</a>."
-msgstr ""
+msgstr "تەنها لینکی کتێبەکەت دابنێ و , دڵنیابە کە فایلی  PDF یان  EPUB, ئیتر ئامادەی بۆ ڕۆشتن. بۆ یارمەتی زیاتر, بڕۆ بۆ <a href='%s'>بەشی یارمەتی ویدجێتی ڕیدمیڵ بۆ وۆردپرێس</a>."
 
 #: modules/widgets/readmill.php:55
 msgid "Download URL:"
@@ -248,11 +248,11 @@ msgstr "بچووک"
 
 #: modules/widgets/readmill.php:125
 msgid "Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget."
-msgstr ""
+msgstr "لینکی ePub بەتاڵە. لینکێکی ePub دابنێ ویدجێتی بینێرە بۆ ڕیدمیڵ پیشانبدات"
 
 #: modules/widgets/rsslinks-widget.php:12
 msgid "Links to your blog's RSS feeds"
-msgstr ""
+msgstr "لینکەکانی RSS بۆ بلۆگەکەت"
 
 #: modules/widgets/rsslinks-widget.php:13
 msgid "RSS Links (Jetpack)"
@@ -269,7 +269,7 @@ msgstr "بابەتەکان & سەرنجەکان"
 
 #: modules/widgets/rsslinks-widget.php:71
 msgid "Feed(s) to Display:"
-msgstr ""
+msgstr "هەواڵەکان بۆ پیشاندان:"
 
 #: modules/widgets/rsslinks-widget.php:81
 msgid "Text Link"
@@ -333,19 +333,19 @@ msgstr "ڕەنگی وێنە:"
 
 #: modules/widgets/rsslinks-widget.php:140
 msgid "Subscribe to %s"
-msgstr ""
+msgstr "بەشداربە بۆ %s"
 
 #: modules/widgets/top-posts.php:35 modules/widgets/top-posts.php:41
 msgid "Top Posts &amp; Pages"
-msgstr ""
+msgstr "گەرمترین بابەتەکان &amp; پەڕەکان"
 
 #: modules/widgets/top-posts.php:37
 msgid "Shows your most viewed posts and pages."
-msgstr ""
+msgstr "ئەو بابەت و پەڕانەت پیشاندەدات کە زۆرترین جار سەیرکراون."
 
 #: modules/widgets/top-posts.php:78
 msgid "Maximum number of posts to show (no more than 10):"
-msgstr ""
+msgstr "زۆرترین ژمارەی بابەت بۆ پیشاندان (زیاتر نەبێت لە ١٠(:"
 
 #: modules/widgets/top-posts.php:83
 msgid "Display as:"
@@ -361,23 +361,23 @@ msgstr "لیستی وێنەکان"
 
 #: modules/widgets/top-posts.php:87
 msgid "Image Grid"
-msgstr ""
+msgstr "شێوەی وێنە"
 
 #: modules/widgets/top-posts.php:91
 msgid "Top Posts &amp; Pages by views are calculated from 24-48 hours of stats. They take a while to change."
-msgstr ""
+msgstr "گەرمترین بابەتەکان &amp; پەڕەکان بە پێی سەیرکردنیان لە ماوەی ٢٤-٤٨ کاتژمێردا. کاتێکی زۆری پێ دەچێت تا دەگۆڕێت."
 
 #: modules/widgets/top-posts.php:164
 msgid "There are no posts to display. <a href=\"%s\">Want more traffic?</a>"
-msgstr ""
+msgstr "هیچ بابەتێک نییە بۆ پیشاندان. <a href=\"%s\">سەردانکەری زیاترت دەوێت؟</a>"
 
 #: modules/widgets/twitter-timeline.php:24
 msgid "Twitter Timeline"
-msgstr ""
+msgstr "ویدجێتی تویتەر"
 
 #: modules/widgets/twitter-timeline.php:27
 msgid "Display an official Twitter Embedded Timeline widget."
-msgstr ""
+msgstr "ویدجێتێکی تویتەر پیشانبدە."
 
 #: modules/widgets/twitter-timeline.php:75
 msgid "My Tweets"
@@ -401,7 +401,7 @@ msgstr "# تویت نیشاندرا:"
 
 #: modules/widgets/twitter-timeline.php:183
 msgid "You need to <a href=\"%1$s\" target=\"_blank\">create a widget at Twitter.com</a>, and then enter your widget id (the long number found in the URL of your widget's config page) in the field below. <a href=\"%2$s\" target=\"_blank\">Read more</a>."
-msgstr ""
+msgstr "پێویستە <a href=\"%1$s\" target=\"_blank\">ویدجێتێک دروستبکەیت لە Twitter.com</a>,پاشان ژمارەی ویدجێتەکەی داخڵ بکە(ژمارەیەکی درێژە کە لە لینکی پەڕەی دەستکاری ویدجێتەکەدایە( لە خانەکەی خوارەوە <a href=\"%2$s\" target=\"_blank\">زیاتر بخوێنەرەوە</a>."
 
 #: modules/widgets/twitter-timeline.php:191
 msgid "Widget ID:"
@@ -425,7 +425,7 @@ msgstr "بێ سنوور"
 
 #: modules/widgets/twitter-timeline.php:200
 msgid "No Scrollbar"
-msgstr ""
+msgstr "بێ سکرۆڵبار"
 
 #: modules/widgets/twitter-timeline.php:201
 msgid "Transparent Background"
@@ -441,24 +441,24 @@ msgstr "ڕەنگی سنوور (hex):"
 
 #: modules/widgets/twitter-timeline.php:215
 msgid "Timeline Theme:"
-msgstr ""
+msgstr "تایملاینی بەرگ:"
 
 #: modules/widgets/wordpress-post-widget.php:23
 msgid "Display WordPress Posts (Jetpack)"
-msgstr ""
+msgstr "بابەتەکانی وۆردپرێس پیشانبدە (Jetpack)"
 
 #: modules/widgets/wordpress-post-widget.php:25
 msgid "Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog."
-msgstr ""
+msgstr "لیستی نوێترین بابەتەکان پیشانبدە لە ماڵپەرێکی دیکەی وۆردپرێس یان بلۆگێکی جالاککراوی جێتپاک."
 
 #: modules/widgets/wordpress-post-widget.php:52
 #: modules/widgets/wordpress-post-widget.php:76
 msgid "We cannot load blog data at this time."
-msgstr ""
+msgstr "ناتوانی زانیارییەکانی بلۆگ بخەینە بەردەست لەم کاتەدا."
 
 #: modules/widgets/wordpress-post-widget.php:86
 msgid "We cannot display posts for this blog."
-msgstr ""
+msgstr "ناتوانین بابەتەکانی ئەم بلۆگە پیشانبدەین."
 
 #: modules/widgets/wordpress-post-widget.php:115
 msgid "Recent Posts"
@@ -470,7 +470,7 @@ msgstr "لینکی بلۆگ:"
 
 #: modules/widgets/wordpress-post-widget.php:152
 msgid "Enter a WordPress.com or Jetpack WordPress site URL."
-msgstr ""
+msgstr "لینکی مالپەرێکی وۆردپرێس یان جێتپاک تۆمار بکە."
 
 #: modules/widgets/wordpress-post-widget.php:156
 msgid "Number of Posts to Display:"
@@ -492,7 +492,7 @@ msgid "http://wordpress.org/extend/plugins/jetpack/"
 msgstr "http://wordpress.org/extend/plugins/jetpack/"
 
 msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
-msgstr ""
+msgstr "توانا و بەهێزی مالپەری وۆردپرێس بهێنە ناو ماڵپەرەکەتەوە. جێتپاک یارمەتیت دەدات بلۆگەکەت ببەستیتەوە بە هەژماری ماڵپەری وۆردپرێسەوە تا بتوانیت ئەو خزمەتگوزارییانەت دەستبکەوێت کە تەنها بەردەستە بۆ بەکارهێنەرانی ماڵپەری وۆردپرێس."
 
 msgid "Automattic"
 msgstr "ئۆتۆماتیکی"
@@ -501,37 +501,37 @@ msgid "http://jetpack.me"
 msgstr "http://jetpack.me"
 
 msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
-msgstr ""
+msgstr "نوسینت پێشبخە, شێوازەکەی, وە ڕێزمانەکەی لەگەڵ <a href=\"http://www.afterthedeadline.com/\">لە&nbsp;کۆتاییدا</a> خزمەتگوزاری ڕێککردنەوە نوسین."
 
 msgid "Transform your standard image galleries into an immersive full-screen experience."
-msgstr ""
+msgstr "گالەرییە ئاساییەکەت بگۆرە بۆ گالەرییەکی پڕ شاشەی شایستە."
 
 msgid "A new comment system that has integrated social media login options."
-msgstr ""
+msgstr "سیستەمێکی نوێی سەرنجدان کە ڕێت دەدات لە ڕیگەت تۆڕە کۆمەڵایەتییەکانەوە سەرنج بنوسیت."
 
 msgid "Easily insert a contact form anywhere on your site."
-msgstr ""
+msgstr "زۆر بە ئاسانی فۆرمێکی پەیوەندی دابنێ لە ماڵپەرەکەتدا."
 
 msgid "Customize the appearance of your site using CSS but without modifying your theme."
-msgstr ""
+msgstr "دەستکاری شێوازی دەرکەوتنی ماڵپەرەکەت بکە لە ڕێی CSS وە بێ ئەوەی دەستکاری بەرگی ماڵپەرەکەت بکەیت."
 
 msgid "Share your public posts and comments to search engines and other services in real-time."
-msgstr ""
+msgstr "بابەت و سەرنجە بڵاوکراوەکانت بڵاوبکەرەوە لەگەڵ ئامێرەکانی گەڕان و خزمەتگوزارییەکانی تردا ڕاستەوخۆ."
 
 msgid "Show a link to your Google+ in the sharing area of your posts and add your blog URL to your Google+ profile."
-msgstr ""
+msgstr "لینکێک پیشانبدە بۆ هەژماری گووگڵ+ لە بەشی بڵاوکردنەوەی بابەتەکانتدا وە لینکی بلۆگەکەشت پیشانبدە لە هەژماری گووگڵەکەتدا."
 
 msgid "Show a pop-up business card of your users' gravatar profiles in comments."
-msgstr ""
+msgstr "کارتێکی بازرگانی بەکارهێنەرەکانت پیسانبدە کاتیک سەرنج دەدەن لە بابەتێکی بە بەکارهێنانی ماڵپەری گراڤاتار."
 
 msgid "Automatically pull the next set of posts into view when the reader approaches the bottom of the page."
 msgstr ""
 
 msgid "Allow applications to securely access your content through the cloud."
-msgstr ""
+msgstr "ڕێگەبدە بە بەرنامەکان بە شێوەیەکی ئاسایش سود لە پێکهاتەکانت وەرگرن لە ڕێی هەورەوە."
 
 msgid "Beautiful Math"
-msgstr ""
+msgstr "بیرکارییەکی جوان"
 
 msgid "Mark up your posts with the <img src=\"//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-2\" alt=\"LaTeX logo\" title=\"LaTeX\" style=\"vertical-align: -25%\" /> markup language, perfect for complex mathematical equations and other &#252;ber-geekery."
 msgstr ""
@@ -540,10 +540,10 @@ msgid "Likes are a way for people to show their appreciation for content you hav
 msgstr ""
 
 msgid "Automatically optimize your site for mobile devices."
-msgstr ""
+msgstr "خۆکارانە ماڵپەرەکەت ڕێکبخە لەگەڵ ئامێری مۆبایل."
 
 msgid "Receive notifications on your mobile device."
-msgstr ""
+msgstr "لە ڕێی مۆبایلەکەتەوە ئاگاداری ماڵپەرەکەت بە."
 
 msgid "Jetpack Monitor will keep tabs on your site, and alert you the moment that downtime is detected."
 msgstr ""
@@ -553,7 +553,7 @@ msgstr ""
 
 #: modules/videopress/videopress.php:295
 msgid "Allow users to access, edit, and delete my videos"
-msgstr ""
+msgstr "ڕیگە بدە بتوانن دەستکاری ڤیدیۆ بکەن یان بیسڕنەوە."
 
 #: modules/videopress/videopress.php:298
 msgid "Allow users to upload videos"
@@ -626,15 +626,15 @@ msgstr "ڤیدیۆ دابنێ"
 
 #: modules/videopress/videopress.php:628
 msgid "Ogg File URL"
-msgstr ""
+msgstr "لینکی فایلی Ogg"
 
 #: modules/videopress/videopress.php:630
 msgid "Location of the Ogg video file."
-msgstr ""
+msgstr "شوینی فایلی ڤیدیۆکانی Ogg"
 
 #: modules/videopress/videopress.php:638
 msgid "Display share menu and allow viewers to embed or download this video"
-msgstr ""
+msgstr "مێنیوی بڵاوکردنەوە پیشانبدە و ڕێگەبدە بە بەکارهێنەرەکانت ڤیدیۆکانت ئێمبد بکەن یان دایبگرن"
 
 #: modules/videopress/videopress.php:644
 msgid "Rating"
@@ -646,7 +646,7 @@ msgstr "کۆدی کورت"
 
 #: modules/videopress/videopress.php:664
 msgid "The preview is unavailable while this video is being processed."
-msgstr ""
+msgstr "پیشاندان بونی نییە کاتێک ڤیدیۆکە لە پرۆسەدایە."
 
 #: modules/videopress/videopress.php:673
 msgid "Video Preview:"
@@ -654,7 +654,7 @@ msgstr "نیشاندانی ڤیدیۆ:"
 
 #: modules/videopress/videopress.php:707
 msgid "Use the form below to upload a video to your VideoPress Library. The following video formats are supported: %s. Maximum upload file size is %d%s."
-msgstr ""
+msgstr "ئەم فۆرمەی خوارەوە بەکاربێنە بۆ بەرزکردنەوەی ڤیدیۆ بۆ کتێبخانەی ڤیدیۆپرێس. ئەم جۆری فایلە ڤیدیۆییانە ئەتوانیت بەرزبکەیتەوە: %s. گەورەترین قەبارە بۆ بەرزکردنەوە %d%s."
 
 #: modules/videopress/videopress.php:710
 msgid "Upload Video"
@@ -776,23 +776,23 @@ msgstr "سڕینەوە"
 
 #: modules/widgets/facebook-likebox.php:31
 msgid "Facebook Like Box"
-msgstr ""
+msgstr "بۆکسی لایکی فەیسبووک"
 
 #: modules/widgets/facebook-likebox.php:34
 msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
-msgstr ""
+msgstr "بۆکسیکی لایکی فەیسبووک پیشانبدە بۆ ئەوەی بەکارهێنەرەکانت ببەستیتەوە بە پەرەی فەیسبووکەکەتەوە."
 
 #: modules/widgets/facebook-likebox.php:48
 msgid "It looks like your Facebook URL is incorrectly configured. Please check it in your <a href=\"%s\">widget settings</a>."
-msgstr ""
+msgstr "وا دیارە لینکی فەیسبووکەکەت هەڵەیە. . تکایە سەیری بکەرەوە لە <a href=\"%s\">هەڵبژاردنەکانی ویدجێتدا</a>."
 
 #: modules/widgets/facebook-likebox.php:131
 msgid "Facebook Page URL"
-msgstr ""
+msgstr "لینکی پەڕەی فەیسبووکەکەت."
 
 #: modules/widgets/facebook-likebox.php:134
 msgid "The Like Box only works with <a href=\"http://www.facebook.com/help/?faq=174987089221178\">Facebook Pages</a>."
-msgstr ""
+msgstr "بۆکسی لایک تەنها کار دەکات لەگەڵ <a href=\"http://www.facebook.com/help/?faq=174987089221178\">پەڕەی فەیسبووک</a>."
 
 #: modules/widgets/facebook-likebox.php:140
 msgid "Width"
@@ -808,7 +808,7 @@ msgstr "دەموچاوەکان پیشانبدە"
 
 #: modules/widgets/facebook-likebox.php:167
 msgid "Show profile photos in the plugin."
-msgstr ""
+msgstr "وێنەی پرۆفایلەکان پیسانبدە لە لکێنراوەکەدا،"
 
 #: modules/widgets/facebook-likebox.php:174
 msgid "Show Stream"
@@ -828,7 +828,7 @@ msgstr "سنورێک لە دەوری لکێنراوەکان پیشانبدە."
 
 #: modules/widgets/facebook-likebox.php:192
 msgid "Show Wall"
-msgstr ""
+msgstr "دیوارەکان پیشانبدە"
 
 #: modules/widgets/facebook-likebox.php:194
 msgid "Show the wall for a Places page rather than friend activity."
@@ -859,15 +859,15 @@ msgstr "شێوە:"
 
 #: modules/widgets/gallery.php:20
 msgid "Display a photo gallery or slideshow"
-msgstr ""
+msgstr "گالەری یان سلایدشۆ پیشانبدە"
 
 #: modules/widgets/gallery.php:327
 msgid "Tiles"
-msgstr ""
+msgstr "خشتەکان"
 
 #: modules/widgets/gallery.php:335
 msgid "Attachment Page"
-msgstr ""
+msgstr "پەڕەی لکێندراوەکان"
 
 #: modules/widgets/gallery.php:336
 msgid "Media File"
@@ -899,7 +899,7 @@ msgstr "لینکی تایبەتی"
 
 #: modules/widgets/gravatar-profile.php:135
 msgid "Verified Services"
-msgstr ""
+msgstr "خزمەتگوزارییە دانپێدانراوەکان"
 
 #: modules/widgets/gravatar-profile.php:146
 msgctxt "1: User Name, 2: Service Name (Facebook, Twitter, ...)"
@@ -912,27 +912,27 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:184
 msgid "Custom"
-msgstr ""
+msgstr "درووستکراو"
 
 #: modules/widgets/gravatar-profile.php:194
 msgid "Custom Email Address"
-msgstr ""
+msgstr "ئیمەیڵی دروستکراو"
 
 #: modules/widgets/gravatar-profile.php:202
 msgid "Show Personal Links"
-msgstr ""
+msgstr "لینکی تایبەت پیشانبدە"
 
 #: modules/widgets/gravatar-profile.php:204
 msgid "Links to your websites, blogs, or any other sites that help describe who you are."
-msgstr ""
+msgstr "لینکی ئەو ماڵپەرانەی، یان بلۆگانەی، یان هەر ماڵپەرێک کە پێناسەی تۆ دەکات."
 
 #: modules/widgets/gravatar-profile.php:211
 msgid "Show Account Links"
-msgstr ""
+msgstr "لینکی هەژمارەکان پیشانبدە"
 
 #: modules/widgets/gravatar-profile.php:213
 msgid "Links to services that you use across the web."
-msgstr ""
+msgstr "لینکی ئەو خزمەتگوزارییانەی بەکاریاندینیت لە ناو وێبدا."
 
 #: modules/widgets/gravatar-profile.php:217
 msgid "Opens in new window"
@@ -948,7 +948,7 @@ msgstr "گراڤاتار چییە؟"
 
 #: modules/widgets/image-widget.php:12
 msgid "Display an image in your sidebar"
-msgstr ""
+msgstr "وێنەیەک پیشانبدە لە سایدبارەکەت"
 
 #: modules/widgets/image-widget.php:14
 msgid "Image (Jetpack)"
@@ -960,11 +960,11 @@ msgstr "لینکی وێنە:"
 
 #: modules/widgets/image-widget.php:113
 msgid "Alternate text:"
-msgstr ""
+msgstr "نوسینی جێگرەوە:"
 
 #: modules/sso.php:325
 msgid "WordPress.com Single Sign On"
-msgstr ""
+msgstr "چونە ژوورەوە لەگەڵ ماڵپەری وۆردپرێس"
 
 #: modules/sso.php:326
 msgid "Connecting with WordPress.com SSO enables you to log in via your WordPress.com account."
@@ -972,15 +972,15 @@ msgstr ""
 
 #: modules/sso.php:339
 msgid "Unlink This Account"
-msgstr ""
+msgstr "ئەم هەژمارە بپچڕێنە"
 
 #: modules/sso.php:384
 msgid "This profile is not currently linked to a WordPress.com Profile."
-msgstr ""
+msgstr "ئەم هەژمارە ئێستا نەلکێنراوە بە مالثەری وۆردپریسەوە."
 
 #: modules/stats.php:266 modules/stats.php:701
 msgid "Site Stats"
-msgstr ""
+msgstr "زانیاری ماڵپەر"
 
 #: modules/stats.php:354
 msgid "Loading&hellip;"
@@ -988,27 +988,27 @@ msgstr ""
 
 #: modules/stats.php:355
 msgid "Your Site Stats work better with Javascript enabled."
-msgstr ""
+msgstr "زانیاری ماڵپەر کاتێک باشتر کار دەکات کە جاڤاسکریپت چالاککرابیت."
 
 #: modules/stats.php:356
 msgid "View Site Stats without Javascript"
-msgstr ""
+msgstr "سەیری زانیاری ماڵپەر بکە بێ چالاکردنی جاڤاسکریپت"
 
 #: modules/stats.php:537
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
-msgstr ""
+msgstr "سەردانی <a href=\"%s\">زانیاری ماڵپەر بکە</a> بۆ بینینی زانیارییەکانت."
 
 #: modules/stats.php:542
 msgid "Admin bar"
-msgstr ""
+msgstr "باڕی بەڕێوەبەر"
 
 #: modules/stats.php:543
 msgid "Put a chart showing 48 hours of views in the admin bar."
-msgstr ""
+msgstr " چارتێک پیشانبدە لە باری بەڕێوەبەردا کە هەموو ئەو بابەتانە نیشانبدات کە لە ماوەی ٤٨ کاژێری ڕابردوودا سەیرکراون."
 
 #: modules/stats.php:544
 msgid "Registered users"
-msgstr ""
+msgstr "بەکارهێنەرە تۆمارکراوەکان"
 
 #: modules/stats.php:546
 msgid "Count the page views of registered users who are logged in."
@@ -1028,7 +1028,7 @@ msgstr ""
 
 #: modules/stats.php:557
 msgid "Smiley face"
-msgstr ""
+msgstr "دەموچاوی پێکەنیناوی"
 
 #: modules/stats.php:558
 msgid "Report visibility"
@@ -1036,19 +1036,19 @@ msgstr ""
 
 #: modules/stats.php:560
 msgid "Select the roles that will be able to view stats reports."
-msgstr ""
+msgstr "ئەو ڕۆڵانە دیاری بکە کە ئەتوانن ڕاپۆرتی زانیارییەکانی ماڵپەرەکەت ببینن."
 
 #: modules/stats.php:571
 msgid "Save configuration"
-msgstr ""
+msgstr "دەستکارییەکان پاشەکەوتبکە"
 
 #: modules/stats.php:635
 msgid "Stats"
-msgstr ""
+msgstr "زانیاری"
 
 #: modules/stats.php:637
 msgid "Views over 48 hours. Click for more Site Stats."
-msgstr ""
+msgstr "سەیرکردنەوکان لە ماوەی ٤٨ کاژێری ڕابردوودا. کلیک بکە بۆ زانیاری زیاتر."
 
 #: modules/stats.php:722
 msgid "day"
@@ -1084,39 +1084,39 @@ msgstr "ساڵی ڕابردوو"
 
 #: modules/stats.php:753
 msgid "Chart stats by"
-msgstr ""
+msgstr "چارتی زانیاری بە پێی"
 
 #: modules/stats.php:766
 msgid "Show top posts over"
-msgstr ""
+msgstr "گەرمترین بابەتەکان پیشانبدە"
 
 #: modules/stats.php:779
 msgid "Show top search terms over"
-msgstr ""
+msgstr "زۆرترین ئەو ووشانە پیشانبدە کە لە گەڕاندا بەکارهێنراون"
 
 #: modules/stats.php:945
 msgid "%1$s %2$s Views"
-msgstr ""
+msgstr "%1$s %2$s سەیرکراوە"
 
 #: modules/stats.php:966
 msgid "View All"
-msgstr ""
+msgstr "سەیری هەمووی بکە"
 
 #: modules/stats.php:970
 msgid "Top Posts"
-msgstr ""
+msgstr "گەرمترین بابەتەکان"
 
 #: modules/stats.php:974 modules/stats.php:998
 msgid "Sorry, nothing to report."
-msgstr ""
+msgstr "ببورە، هیچ زانیارییەک نییە بۆ پیشاندان."
 
 #: modules/stats.php:994
 msgid "Top Searches"
-msgstr ""
+msgstr "زۆرترین گەڕاوەکان"
 
 #: modules/stats.php:1022
 msgid "We were unable to get your stats just now. Please reload this page to try again."
-msgstr ""
+msgstr "نەمانتوانی زانیارییەکانت بخەینە بەر دەست لەم کاتەدا. تکایە پەڕەکە دووبارە نوێ بکەرەوە و دووبارەی بکەرەوە."
 
 #: modules/stats.php:1029
 msgid "We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href=\"%1$s\">contact support</a>. In your report please include the information below."
@@ -1124,7 +1124,7 @@ msgstr ""
 
 #: modules/subscriptions.php:123
 msgid "Jetpack Subscriptions Settings"
-msgstr ""
+msgstr "هەڵبژاردەکانی بەشداریکردنی جێتپاک"
 
 #: modules/subscriptions.php:132
 msgid "Follow Blog"
@@ -1136,27 +1136,27 @@ msgstr "دوای سەرنجەکان بکەوە"
 
 #: modules/subscriptions.php:168
 msgid "Follower Settings"
-msgstr ""
+msgstr "هەڵبژاردەکانی دواکەوتەکان"
 
 #: modules/subscriptions.php:175
 msgid "Blog follow email text"
-msgstr ""
+msgstr "نوسینی دواکەوتنی بلۆگ بە ئیمەیڵ"
 
 #: modules/subscriptions.php:183
 msgid "Comment follow email text"
-msgstr ""
+msgstr "نوسینی دواکەوتنی سەرنج بە ئیمەیڵ"
 
 #: modules/subscriptions.php:197
 msgid "Change whether your visitors can subscribe to your posts or comments or both."
-msgstr ""
+msgstr "دەستکاری ئەوە بکە ئایا بەکارهێنەرەکانت ئەتوانن بەشداری بابەتەکان بکەن یان سەرنجەکان یان هەردووکیان."
 
 #: modules/subscriptions.php:212
 msgid "Show a <em>'follow blog'</em> option in the comment form"
-msgstr ""
+msgstr "هەڵبژاردەی <em>'دوای بلۆگ بکەوە'</em> پێسانبدە لەگەڵ فۆرمی سەرنجەکاندا"
 
 #: modules/subscriptions.php:227
 msgid "Show a <em>'follow comments'</em> option in the comment form"
-msgstr ""
+msgstr "هەڵبژاردەی <em>'دوای سەرنجەکان بکەوە'</em> پیشانبدە لەگەڵ فۆرمی سەرنجەکاندا"
 
 #: modules/subscriptions.php:252
 msgid "These settings change emails sent from your blog to followers."
@@ -1190,53 +1190,53 @@ msgstr ""
 
 #: modules/subscriptions.php:472
 msgid "Notify me of follow-up comments by email."
-msgstr ""
+msgstr "ئاگادارم بکەرەوە لە سەرنجەکانی داهاتوو بە ئیمەیڵ."
 
 #: modules/subscriptions.php:479
 msgid "Notify me of new posts by email."
-msgstr ""
+msgstr ".ئاگادارم بکەرەوە لە بابەتە نوێکان بە ئیمەیڵ"
 
 #: modules/subscriptions.php:557
 msgid "Add an email signup form to allow people to subscribe to your blog."
-msgstr ""
+msgstr "فۆرمێکی بەشداربوون دابنێ تا ڕێگە بدەیت بە خەڵک ئاگاین لە بلۆگەکەت بێت."
 
 #: modules/subscriptions.php:560
 msgid "Blog Subscriptions (Jetpack)"
-msgstr ""
+msgstr "بەشداربوونی بلۆگ (Jetpack)"
 
 #: modules/subscriptions.php:586
 msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
-msgstr ""
+msgstr "ئیمەیڵێک نێردرا تا دڵنیا بینەوە لە بەشداربوونەکەت. تکایە ئیمەیڵەکە بدۆزەرەوە و کلیکی چالاککردن بکە بۆ ئەوەی بەشداربیت."
 
 #: modules/subscriptions.php:595
 msgid "The email you entered was invalid, please check and try again."
-msgstr ""
+msgstr "ئەو ئیمەیڵەی داتناوە هەڵەیە، تکایە سەیری بکەرەوە و دووبارە هەوڵبدەرەوە."
 
 #: modules/subscriptions.php:598
 msgid "You have already subscribed to this site, please check your inbox."
-msgstr ""
+msgstr "لەوەوپێش بەشداری ئەم ماڵپەرەت کردووە، تکایە سەیری سندوقی نامەکانت بکە."
 
 #: modules/subscriptions.php:604
 msgid "There was an error when subscribing, please try again."
-msgstr ""
+msgstr "هەڵەیەک هەبوو لە کاتی بەشداریکردندا، تکایە دووبارە هەوڵبدەرەوە."
 
 #: modules/subscriptions.php:617
 msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "بچۆ ڕیزی %s بەشداربووی ترەوە"
+msgstr[1] "بچۆ ڕیزی %s بەشداربووی ترەوە"
 
 #: modules/subscriptions.php:694
 msgid "Subscribe to Blog via Email"
-msgstr ""
+msgstr "بەشداری ئەم بلۆگە بکە لە ڕێی ئیمەیڵەوە"
 
 #: modules/subscriptions.php:695
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
-msgstr ""
+msgstr "ئیمەیڵەکەت تۆمار بکە تا بەشداری ئەم بلۆگە بکەیت و ئاگاداری نوێترین بابەتەکان بیت لە ڕێی ئیمەیڵەوە."
 
 #: modules/subscriptions.php:697
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
-msgstr ""
+msgstr "کلیک بکەوە بەشداری ئەم بلۆگە بکە تا زانیاریو پێ بگات دەربارەی بابەتە نوێکان بە ئیمەیڵ."
 
 #: modules/subscriptions.php:713
 msgid "%s: %s"
@@ -1248,25 +1248,25 @@ msgstr "ناونیشانی ویدجێت:"
 
 #: modules/subscriptions.php:726
 msgid "Optional text to display to your readers:"
-msgstr ""
+msgstr "نوسینێک کە پیشانی خوینەرەکانتی ئەدەیت:"
 
 #: modules/subscriptions.php:732
 msgid "Subscribe Button:"
-msgstr ""
+msgstr "دوگمەی بەشداربوون:"
 
 #: modules/subscriptions.php:739
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "کۆی گشتی بەشداربووان پیشانبدە؟  (%s بەشداربوو)"
+msgstr[1] "کۆی گشتی بەشداربووان پیشانبدە؟  (%s بەشداربوو)"
 
 #: modules/tiled-gallery/tiled-gallery.php:318
 msgid "Tiled Mosaic"
-msgstr ""
+msgstr "زەخرەفە"
 
 #: modules/tiled-gallery/tiled-gallery.php:319 modules/widgets/gallery.php:328
 msgid "Square Tiles"
-msgstr ""
+msgstr "شێوازی خشتەیی"
 
 #: modules/tiled-gallery/tiled-gallery.php:320 modules/widgets/gallery.php:329
 msgid "Circles"
@@ -1274,7 +1274,7 @@ msgstr "بازنەکان"
 
 #: modules/tiled-gallery/tiled-gallery.php:349
 msgid "Display all your gallery pictures in a cool mosaic."
-msgstr ""
+msgstr "هەموو وێنەکانی گەلەرییەکەت پیشانبدە لە مۆسایکێکی جواندا."
 
 #: class.jetpack-cli.php:155 modules/vaultpress.php:24
 msgid "Active"
@@ -1290,7 +1290,7 @@ msgstr ""
 
 #: modules/videopress/class.videopress-player.php:230
 msgid "Please verify your birthday."
-msgstr ""
+msgstr "تکایە رۆژی لە دایکبوونەکەت دڵنیابکەرەوە."
 
 #: modules/videopress/class.videopress-player.php:280
 msgid "Submit"
@@ -1303,7 +1303,7 @@ msgstr ""
 #: modules/videopress/class.videopress-player.php:382
 msgctxt "watch a video title"
 msgid "Watch: %s"
-msgstr ""
+msgstr "سەیرکردن: %s"
 
 #: modules/videopress/class.videopress-player.php:478
 #: modules/videopress/class.videopress-player.php:500
@@ -1313,15 +1313,15 @@ msgstr "ئەم ڤیدیۆیە"
 #: modules/videopress/class.videopress-player.php:507
 msgctxt "Play as in playback or view a movie"
 msgid "JavaScript required to play %s."
-msgstr ""
+msgstr "بۆ پلەی کردن پێویستت بە جاڤاسکریپتە %s."
 
 #: modules/videopress/class.videopress-player.php:654
 msgid "This video requires <a rel=\"nofollow\" href=\"%s\">Adobe Flash</a> for playback."
-msgstr ""
+msgstr "ئەم ڤیدیۆیە پێویستی بە <a rel=\"nofollow\" href=\"%s\">Adobe Flash</a> بۆ لێدانی."
 
 #: modules/videopress/class.videopress-player.php:661
 msgid "Loading video..."
-msgstr ""
+msgstr "ئامادەکردنی ڤیدیۆ..."
 
 #: modules/videopress/class.videopress-video.php:306
 msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
@@ -1357,7 +1357,7 @@ msgstr ""
 
 #: modules/videopress/videopress.php:279
 msgid "<a href=\"%s\">Click here</a> to refresh this list."
-msgstr ""
+msgstr "<a href=\"%s\">کلیک لێرە بکە</a> تا لیستەکە نوێ بێتەوە."
 
 #: modules/videopress/videopress.php:285
 msgid "Video Library Access"
@@ -1365,23 +1365,23 @@ msgstr ""
 
 #: modules/videopress/videopress.php:289
 msgid "Do not allow other users to access my VideoPress library"
-msgstr ""
+msgstr "ڕێگە مەدە بە بەکارهێنەرانی تر بێنە ناو کتێبخانەی ڤیدیۆپرێس"
 
 #: modules/videopress/videopress.php:291
 msgid "Allow users to access my videos"
-msgstr ""
+msgstr "ڕی بدە بە بەکارهێنەران ڤیدیۆکانم ببینن"
 
 #: modules/videopress/videopress.php:293
 msgid "Allow users to access and edit my videos"
-msgstr ""
+msgstr "رێ بدە بە بەکارهێنەران دەستکاری ڤیۆکان بکەن"
 
 #: modules/sharedaddy/sharing-sources.php:242
 msgid "This post has been shared!"
-msgstr ""
+msgstr "ئەم بابەتە بڵاو کرایەوە"
 
 #: modules/sharedaddy/sharing-sources.php:243
 msgid "You have shared this post with %s"
-msgstr ""
+msgstr "تۆ ئەم بابەتەت بڵاو کردەوە %s"
 
 #: modules/sharedaddy/sharing-sources.php:244
 #: modules/videopress/videopress.php:676
@@ -1415,15 +1415,15 @@ msgstr "ئیمەیڵ بنێرە"
 
 #: modules/sharedaddy/sharing-sources.php:302
 msgid "Post was not sent - check your email addresses!"
-msgstr ""
+msgstr "بابەت نەنێردرا - سەیری ئیمەیڵەکەت بکەرەوە!"
 
 #: modules/sharedaddy/sharing-sources.php:306
 msgid "Email check failed, please try again"
-msgstr ""
+msgstr "چێککردنەوەی ئیمەیڵ سەرکەوتوو نەبو، تکایە دووبارەی بکەرەوە"
 
 #: modules/sharedaddy/sharing-sources.php:310
 msgid "Sorry, your blog cannot share posts by email."
-msgstr ""
+msgstr "ببورە، بلۆگەکەت ناتوانێت بابەت بڵاو بکاتەوە بە ئیمەیڵ."
 
 #: modules/sharedaddy/sharing-sources.php:333
 msgid "Twitter"
@@ -1524,7 +1524,7 @@ msgstr "Press This"
 
 #: modules/sharedaddy/sharing-sources.php:812
 msgid "Click to Press This!"
-msgstr ""
+msgstr "کلیک بکە بۆ پرێس زس!"
 
 #: modules/sharedaddy/sharing-sources.php:830
 msgid "Google"
@@ -1625,47 +1625,47 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:179
 msgid "Add a new service"
-msgstr ""
+msgstr "خزمەتگوزارییەکی نوێ دابنێ"
 
 #: modules/sharedaddy/sharing.php:192
 msgid "Please note that your services have been restricted because your site is private."
-msgstr ""
+msgstr "تکایە ئاگاداربە کە خزمەتگوزارییەکانت سنوردارن چونکە ماڵپەرەکەت تایبەتە بۆ خۆت."
 
 #: modules/sharedaddy/sharing.php:203
 msgid "Enabled Services"
-msgstr ""
+msgstr "خزمەتگوزارییە چالاککراوەکان"
 
 #: modules/sharedaddy/sharing.php:206
 msgid "Services dragged here will appear individually."
-msgstr ""
+msgstr "ئەو خزمەتگوزارییانەی ڕادەکێشرێنە ئێرەوە ڕاستەوخۆ دەردەکەون."
 
 #: modules/sharedaddy/sharing.php:209
 msgid "Drag and drop available services here."
-msgstr ""
+msgstr "خزمەتگوزارییەکان ڕابکێشەرە ئێرەوە."
 
 #: modules/sharedaddy/sharing.php:220
 msgid "Services dragged here will be hidden behind a share button."
-msgstr ""
+msgstr "ئەو خزمەتگوزارییانەی دەخرێنە ئێرەوە ئەکەونە پشتی دوگمەی بڵاوکردنەوەوە."
 
 #: modules/sharedaddy/sharing.php:235
 msgid "Live Preview"
-msgstr ""
+msgstr "نیشاندانی ڕاستەوخۆ"
 
 #: modules/sharedaddy/sharing.php:238
 msgid "Sharing is off. Add services above to enable."
-msgstr ""
+msgstr "بڵاوکردنەوە داخراوە. خزمەتگوزارییەکانی سەرەوە دابنێ بۆ ئەوەی چالاک بێت."
 
 #: modules/sharedaddy/sharing.php:304
 msgid "Button style"
-msgstr ""
+msgstr "شێوازی دوگمە"
 
 #: modules/sharedaddy/sharing.php:307
 msgid "Icon + text"
-msgstr ""
+msgstr "ئایکۆن + نوسین"
 
 #: modules/sharedaddy/sharing.php:308
 msgid "Icon only"
-msgstr ""
+msgstr "تەنها ئایکۆن"
 
 #: modules/sharedaddy/sharing.php:309
 msgid "Text only"
@@ -1673,31 +1673,31 @@ msgstr "تەنها نوسین"
 
 #: modules/sharedaddy/sharing.php:310
 msgid "Official buttons"
-msgstr ""
+msgstr "دوگمە بنەڕەتییەکان"
 
 #: modules/sharedaddy/sharing.php:315
 msgid "Sharing label"
-msgstr ""
+msgstr "نوسینی بڵاوکردنەوە"
 
 #: modules/sharedaddy/sharing.php:321
 msgid "Open links in"
-msgstr ""
+msgstr "لینکەکەنا بکەرەوە لە"
 
 #: modules/sharedaddy/sharing.php:324
 msgid "New window"
-msgstr ""
+msgstr "پەنجەرەی نوێ"
 
 #: modules/sharedaddy/sharing.php:325
 msgid "Same window"
-msgstr ""
+msgstr "هەمان پەنجەرە"
 
 #: modules/sharedaddy/sharing.php:363
 msgid "Service name"
-msgstr ""
+msgstr "ناوی خزمەتگوزاری"
 
 #: modules/sharedaddy/sharing.php:369
 msgid "Sharing URL"
-msgstr ""
+msgstr "لینکی بڵاوکردنەوە"
 
 #: modules/sharedaddy/sharing.php:373
 msgid "You can add the following variables to your service sharing URL:"
@@ -1705,7 +1705,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:378
 msgid "Icon URL"
-msgstr ""
+msgstr "لینکی ئایکۆن"
 
 #: modules/sharedaddy/sharing.php:381
 msgid "Enter the URL of a 16x16px icon you want to use for this service."
@@ -1713,7 +1713,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:387
 msgid "Create Share Button"
-msgstr ""
+msgstr "دوگمەی بڵاوکردنەوە دروستبکە"
 
 #: modules/sharedaddy/sharing.php:399
 msgid "An error occurred creating your new sharing service - please check you gave valid details."
@@ -1721,11 +1721,11 @@ msgstr ""
 
 #: modules/shortcodes/archives.php:58
 msgid "Your blog does not currently have any published posts."
-msgstr ""
+msgstr "بلۆگەکەت هیچ بابەتێکی بڵاوکراوەی نییە."
 
 #: modules/shortcodes/audio.php:202
 msgid "Download: <a href=\"%s\">%s</a><br />"
-msgstr ""
+msgstr "داگرتن: <a href=\"%s\">%s</a><br />"
 
 #: modules/shortcodes/presentations.php:226
 msgid "This slideshow could not be started. Try refreshing the page or viewing it in another browser."
@@ -1733,19 +1733,19 @@ msgstr ""
 
 #: modules/shortcodes/presentations.php:242
 msgid "Click to autoplay the presentation!"
-msgstr ""
+msgstr "کلیک بکە بۆ ئەوەی خۆکارانە پرێسنتەیشنەکەت بکرێتەوە!"
 
 #: modules/shortcodes/slideshow.php:58 modules/widgets/gallery.php:330
 msgid "Slideshow"
-msgstr ""
+msgstr "سلایدشۆو"
 
 #: modules/shortcodes/slideshow.php:131
 msgid "Click to view slideshow."
-msgstr ""
+msgstr "کلیک بکو بۆ بینینی سلایدشۆو"
 
 #: modules/shortcodes/slideshow.php:160
 msgid "This slideshow requires JavaScript."
-msgstr ""
+msgstr "سلایدشۆو پێویستی بە جاڤاسکریپتە"
 
 #: modules/shortcodes/twitter-timeline.php:17
 msgid "Invalid username"
@@ -1761,7 +1761,7 @@ msgstr "تویتەکانی @%s"
 
 #: modules/social-links/social-links.php:157
 msgid "&mdash; Select &mdash;"
-msgstr ""
+msgstr "&mdash; دیاریکردن &mdash;"
 
 #: modules/sso.php:39
 msgid "Error: This site's Jetpack connection is currently experiencing problems."
@@ -1773,11 +1773,11 @@ msgstr ""
 
 #: modules/sso.php:167
 msgid "Error: Couldn't create suitable username."
-msgstr ""
+msgstr "هەڵە: نەتوانرا ناوێکی دروست دروستبکرێت."
 
 #: modules/sso.php:261
 msgid "Log in with WordPress.com"
-msgstr ""
+msgstr "بچۆ ژوورەوە لەگەڵ هەژماری وۆردپرێس"
 
 #: modules/sso.php:294
 msgid "We couldn't find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page."
@@ -1809,11 +1809,11 @@ msgstr ""
 
 #: modules/module-info.php:768
 msgid "More information on using Likes."
-msgstr ""
+msgstr "زانیاری زیاتر لەسەر بەکارهێنانی لایک."
 
 #: modules/module-info.php:791
 msgid "The Google+ profile module allows you to connect your blog and Google+ accounts."
-msgstr ""
+msgstr "مۆدیولی پرۆفایلی گووگڵ+ ڕێگەتە پێدەدات بلۆگەکەت ببەستیتەوە بە هەژمارەکانی (گووگڵ+)ەوە."
 
 #: modules/module-info.php:792
 msgid "Displayed below your posts will be a link back to your Google+ profile and a Google+ follow button. A link will also be added to your Google+ profile."
@@ -1821,13 +1821,13 @@ msgstr ""
 
 #: modules/module-info.php:794
 msgid "More information on using Google+ Profile."
-msgstr ""
+msgstr "زانیاری زیاتر لەسەر بەکارهێنانیپرۆفایلی گووگڵ+"
 
 #: modules/module-info.php:810 modules/omnisearch/omnisearch-core.php:59
 #: modules/omnisearch/omnisearch-core.php:64
 #: modules/omnisearch/omnisearch-core.php:85
 msgid "Omnisearch"
-msgstr ""
+msgstr "Omnisearch"
 
 #: modules/module-info.php:812
 msgid "Search once, get results from everything! Currently supports searching posts, pages, comments, media, and plugins."
@@ -1839,7 +1839,7 @@ msgstr ""
 
 #: modules/module-info.php:833
 msgid "Widget Visibility"
-msgstr ""
+msgstr "دەرکەوتنی ویدجێت"
 
 #: modules/module-info.php:835
 msgid "Control which pages your widgets appear on with Widget Visibility."
@@ -1867,7 +1867,7 @@ msgstr ""
 
 #: modules/module-info.php:867
 msgid "Single Sign On"
-msgstr ""
+msgstr "یەک چوونە ژورەوە"
 
 #: modules/module-info.php:869
 msgid "With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
@@ -1879,7 +1879,7 @@ msgstr ""
 
 #: modules/module-info.php:885
 msgid "Monitor"
-msgstr ""
+msgstr "چاودێری"
 
 #: modules/module-info.php:887
 msgid "Nobody likes downtime, and that's why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!"
@@ -1974,11 +1974,11 @@ msgstr "بڵاوکراوە"
 
 #: modules/omnisearch/omnisearch-posts.php:96
 msgid "Missed schedule"
-msgstr ""
+msgstr "بەرنامە لە دەستچووەکان"
 
 #: modules/omnisearch/omnisearch-posts.php:98
 msgid "Scheduled"
-msgstr ""
+msgstr "خراوەتە بەرنامەوە"
 
 #: modules/omnisearch/omnisearch-posts.php:100
 msgid "Last Modified"
@@ -1990,7 +1990,7 @@ msgstr "ناونیشانی ئیمەیڵ"
 
 #: modules/post-by-email.php:110
 msgid "Enable Post By Email"
-msgstr ""
+msgstr "بابەت ناردن بە ئیمەیڵ چالاک بکە"
 
 #: modules/post-by-email.php:114
 #: modules/videopress/class.videopress-player.php:283
@@ -1999,11 +1999,11 @@ msgstr "زانیاری زیاتر"
 
 #: modules/post-by-email.php:117
 msgid "Regenerate Address"
-msgstr ""
+msgstr "ناونیشان دووبارە دروستبکەرەوە"
 
 #: modules/post-by-email.php:118
 msgid "Disable Post By Email"
-msgstr ""
+msgstr "بابەت ناردن بە ئیمەیڵ ناچالاک بکە"
 
 #: modules/post-by-email.php:126
 msgid "To use Post By Email, you need to link your %s account to your WordPress.com account."
@@ -2011,15 +2011,15 @@ msgstr ""
 
 #: modules/post-by-email.php:129 modules/publicize/publicize-jetpack.php:64
 msgid "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds."
-msgstr ""
+msgstr "ئەگەر تا ئیشتا هەژماری ماڵپەری وۆردپرێست نییە، ئەتوانیت ئێستا دروستیبکەیت بە خۆڕایی لە ماوەی چەند چرکەیەکدا."
 
 #: modules/post-by-email.php:170 modules/post-by-email.php:179
 msgid "Unable to create your Post By Email address. Please try again later."
-msgstr ""
+msgstr "نەتوانرا بابەتەکەت دروستبکرێت لە ڕێی ئیمەیڵەوە. تکایە هەوڵبدەرەوە."
 
 #: modules/post-by-email.php:198 modules/post-by-email.php:207
 msgid "Unable to regenerate your Post By Email address. Please try again later."
-msgstr ""
+msgstr "نەتوانرا دووبارە بابەتەکەت دروستبکرێتەوە لە ڕێی ئیمەیڵەوە. تکایە دواتر هەوڵبدەرەوە."
 
 #: modules/post-by-email.php:226 modules/post-by-email.php:235
 msgid "Unable to disable your Post By Email address. Please try again later."
@@ -2059,37 +2059,37 @@ msgstr ""
 
 #: modules/publicize/publicize-jetpack.php:209
 msgid "Error code: %s"
-msgstr ""
+msgstr "کۆدی هەڵە: %s"
 
 #: modules/publicize/publicize-jetpack.php:218
 msgid "That connection has been removed."
-msgstr ""
+msgstr "پەیوەندییەکە سڕدرایەوە"
 
 #: modules/publicize/publicize-jetpack.php:348
 msgid "Refresh connection with %s"
-msgstr ""
+msgstr "پەیوەندییەکە نوێبکەرەوە لەگەڵ %s"
 
 #: modules/publicize/publicize-jetpack.php:422
 #: modules/publicize/publicize-jetpack.php:439
 #: modules/publicize/publicize-jetpack.php:562
 msgid "Publicize to my %s:"
-msgstr ""
+msgstr "بڵاوی بکەرەوە بۆ ناو %s:"
 
 #: modules/publicize/publicize-jetpack.php:423
 msgid "Facebook Wall"
-msgstr ""
+msgstr "دیواری فەیسبووک"
 
 #: modules/publicize/publicize-jetpack.php:440
 msgid "Facebook Page"
-msgstr ""
+msgstr "پەڕەی فەیسبووک"
 
 #: modules/publicize/publicize-jetpack.php:563
 msgid "Tumblr blog"
-msgstr ""
+msgstr "بلۆگی تەمبڵەر"
 
 #: modules/publicize/publicize.php:373
 msgid "This connection is working correctly."
-msgstr ""
+msgstr "ئەم پەیوەندییە بە تەواوی کار دەکات"
 
 #: modules/publicize/ui.php:76
 msgid "You have successfully connected your blog with your %s account."
@@ -2109,7 +2109,7 @@ msgstr ""
 
 #: modules/publicize/ui.php:169
 msgid "Connected as: "
-msgstr ""
+msgstr "بەستراوە وەک:"
 
 #: modules/publicize/ui.php:179
 msgid "Shared"
@@ -2121,11 +2121,11 @@ msgstr "بیبەستە"
 
 #: modules/publicize/ui.php:223
 msgid "Are you sure you want to stop Publicizing posts to this connection?"
-msgstr ""
+msgstr "دڵنیایت ئەتەوێت بڵاوکردنەوەی بابەتەکانت ڕاگریت بۆ ئەم پەیوەندییە؟"
 
 #: modules/publicize/ui.php:245
 msgid "Make this connection available to all users of this blog?"
-msgstr ""
+msgstr "ئەم پەیوەندییە بخەمە بەردەست هەموو بەکارهێنەرانی ئەم بلۆگە؟"
 
 #: modules/publicize/ui.php:253
 msgid "There was a problem connecting to %s. Please disconnect and try again."
@@ -2137,16 +2137,16 @@ msgstr ""
 
 #: modules/publicize/ui.php:515
 msgid "Publicize:"
-msgstr ""
+msgstr "بڵاوکردنەوە:"
 
 #: modules/publicize/ui.php:595
 msgctxt "Service: Account connected as"
 msgid "%1$s: %2$s"
-msgstr ""
+msgstr "%1$s: %2$s"
 
 #: modules/publicize/ui.php:630
 msgid "Custom Message:"
-msgstr ""
+msgstr "نامەی دروستکراو:"
 
 #: modules/publicize/ui.php:635 modules/publicize/ui.php:664
 #: modules/publicize/ui.php:666
@@ -2163,7 +2163,7 @@ msgstr "بیبەستەرەوە بە"
 
 #: modules/publicize/ui.php:656
 msgid "Connect and share your posts on %s"
-msgstr ""
+msgstr "بابەتەکانت بڵاو بکەرەوە و بیبەستەرەوە لەسەر %s"
 
 #: modules/publicize/ui.php:679
 msgid "Show"
@@ -2232,12 +2232,12 @@ msgstr ""
 
 #: modules/module-info.php:132
 msgid "Available shortcodes are: %l."
-msgstr ""
+msgstr "لینکە کورتە بەردەستەکان ئەمانەن: %l."
 
 #: modules/module-info.php:147 modules/module-info.php:151
 #: modules/module-info.php:161 modules/module-info.php:165
 msgid "WP.me Shortlinks"
-msgstr ""
+msgstr "لینکی کورتی WP.me"
 
 #: modules/module-info.php:152 modules/module-info.php:166
 msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
@@ -2254,7 +2254,7 @@ msgstr ""
 #: modules/module-info.php:182 modules/module-info.php:186
 #: modules/module-info.php:195 modules/module-info.php:199
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "WordPress.com زانیاری"
 
 #: modules/module-info.php:187 modules/module-info.php:200
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
@@ -2267,7 +2267,7 @@ msgstr ""
 #: modules/module-info.php:215 modules/module-info.php:219
 #: modules/publicize/ui.php:95
 msgid "Publicize"
-msgstr ""
+msgstr "بڵاوکردنەوە"
 
 #: modules/module-info.php:220
 msgid "Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.\t You can make a connection for just yourself or for all users on your blog."
@@ -2275,21 +2275,21 @@ msgstr ""
 
 #: modules/module-info.php:221
 msgid "Publicize allows you to share your posts on Facebook, Twitter, Tumblr, Yahoo!, and Linkedin."
-msgstr ""
+msgstr "بڵاو کردنەوە ڕێگەتدەدات بابەتەکانت بڵاو بکەیتەوە لەسەر فەیسبووک، تویتەر، تەمبڵەر، یاهوو! وە لینکدئین."
 
 #: modules/module-info.php:225
 msgid "Manage your <a href=\"%s\">Publicize settings</a>."
-msgstr ""
+msgstr "لێرەوە <a href=\"%s\">ڕێکخستنی بڵاوکردنەوە چاک بکە</a>."
 
 #: modules/module-info.php:229 modules/publicize/ui.php:114
 msgid "More information on using Publicize."
-msgstr ""
+msgstr "زانیاری زیاتر لەسەر بڵاوکردنەوە."
 
 #: modules/module-info.php:245 modules/module-info.php:249
 #: modules/module-info.php:258 modules/module-info.php:262
 #: modules/notes.php:160
 msgid "Notifications"
-msgstr ""
+msgstr "ئاگادارکردنەوە"
 
 #: modules/module-info.php:250 modules/module-info.php:263
 msgid "Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users."
@@ -2301,7 +2301,7 @@ msgstr ""
 
 #: modules/module-info.php:279 modules/module-info.php:294
 msgid "LaTeX"
-msgstr ""
+msgstr "LaTeX"
 
 #: modules/module-info.php:284 modules/module-info.php:299
 msgid "%s is a powerful markup language for writing complex mathematical equations, formulas, etc."
@@ -2325,19 +2325,19 @@ msgstr ""
 
 #: modules/module-info.php:323
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr ""
+msgstr "ئەم خزمەتگوزارییانەی لە خۆگرتووە: تویتەر، فەیسبووک، رێدئت، ستەمبڵئەپئۆن، پرێسزس، دیگ، لینکدئین، گووگڵ +١، پرینت، وە ئیمەیڵ."
 
 #: modules/module-info.php:325
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr ""
+msgstr "ئەم خزمەتگوزارییانەی تیایە: تویتەر، فەیسبووک، ڕێدئت، ستەمبڵئەپئۆن، دیگ، لینکدئین، گووگڵ +١، پرینت، وە ئیمەیڵ."
 
 #: modules/module-info.php:329
 msgid "Additionally you can define your own custom services."
-msgstr ""
+msgstr "ئەشتوانی خۆت خزمەتگوزاری تر دابنێیت."
 
 #: modules/module-info.php:344
 msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
-msgstr ""
+msgstr "بۆ دەستکاریکردنی ڕێکخستنەکانی بڵاوکردنەوە, بڕۆ بۆ ڕێکخستنی &rarr; <a href=\"%s\">بڵاوکردنەوە</a> مێنیوی."
 
 #: modules/module-info.php:345
 msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
@@ -2349,7 +2349,7 @@ msgstr ""
 
 #: modules/module-info.php:366 modules/module-info.php:370
 msgid "Spelling and Grammar"
-msgstr ""
+msgstr "نوسین و ڕێزمان"
 
 #: modules/module-info.php:372
 msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
@@ -2361,15 +2361,15 @@ msgstr ""
 
 #: modules/module-info.php:387 modules/module-info.php:401
 msgid "Widgets Screenshot"
-msgstr ""
+msgstr "نموونەی ویدجێت"
 
 #: modules/module-info.php:390 modules/module-info.php:404
 msgid "Extra Sidebar Widgets"
-msgstr ""
+msgstr "سایدباری زیادەی ویدجێتەکان"
 
 #: modules/module-info.php:392
 msgid "The RSS Links Widget "
-msgstr ""
+msgstr "ویدجێتی لینکەکانی RSS"
 
 #: modules/module-info.php:392
 msgid "allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments."
@@ -2377,7 +2377,7 @@ msgstr ""
 
 #: modules/module-info.php:393
 msgid "The Twitter Widget "
-msgstr ""
+msgstr "ویدجێتی تویتەر"
 
 #: modules/module-info.php:393
 msgid "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options."
@@ -2385,7 +2385,7 @@ msgstr ""
 
 #: modules/module-info.php:393
 msgid "The Facebook Like Box Widget "
-msgstr ""
+msgstr "ویدجێتی فەیسبووک"
 
 #: modules/module-info.php:393
 msgid "shows your Facebook Like Box within a sidebar on your theme. It&#8217;s a great way to let your readers show their support."
@@ -2393,7 +2393,7 @@ msgstr ""
 
 #: modules/module-info.php:393
 msgid "The Image Widget "
-msgstr ""
+msgstr "ویدجێتی وێنە"
 
 #: modules/module-info.php:393
 msgid "allows you to easily add images to widget areas in your theme. It&#8217;s an easy way to add more visual interest to your site."
@@ -2401,31 +2401,31 @@ msgstr ""
 
 #: modules/module-info.php:406
 msgid "The RSS Links Widget"
-msgstr ""
+msgstr "ویدجێتی لینکەکانی RSS"
 
 #: modules/module-info.php:406
 msgid "lets you easily add post and comment RSS feeds to a sidebar on your theme."
-msgstr ""
+msgstr "بە ئاسانی RSSی بابەتاکنت و سەرنجەکانت دابنێ لە سایدباڕی بەرگی ماڵپەرەکەتدا."
 
 #: modules/module-info.php:407
 msgid "The Twitter Widget"
-msgstr ""
+msgstr "ویدجێتی تویتەر"
 
 #: modules/module-info.php:407
 msgid "shows your latest tweets within a sidebar on your theme."
-msgstr ""
+msgstr "دواترین تویتەکانت پیشانبدە لە سایدباڕی بەرگی ماڵپەرەکەتدا."
 
 #: modules/module-info.php:408
 msgid "The Facebook Like Box Widget"
-msgstr ""
+msgstr "ویدجێتی فەیسبووک"
 
 #: modules/module-info.php:408
 msgid "shows your Facebook Like Box within a sidebar on your theme."
-msgstr ""
+msgstr "بۆکسی لایکی فەیسبووک پیشانبدە لە سایدباری بەرگی ماڵپەرەکەتدا،"
 
 #: modules/module-info.php:409
 msgid "The Image Widget"
-msgstr ""
+msgstr "ویدجێتی وێنە"
 
 #: modules/module-info.php:409
 msgid "lets you easily add images to a sidebar on your theme."
@@ -2441,11 +2441,11 @@ msgstr ""
 
 #: modules/module-info.php:424
 msgid "Subsriptions Screenshot"
-msgstr ""
+msgstr "نموونەی بەشداریکردن"
 
 #: modules/module-info.php:427
 msgid "Subscriptions"
-msgstr ""
+msgstr "بەشداریکردن"
 
 #: modules/module-info.php:429
 msgid "Easily allow any visitor to subscribe to all of your posts via email through a widget in your blog&#8217;s sidebar.  Every time you publish a post, WordPress.com will send a notification to all your subscribers."
@@ -2473,7 +2473,7 @@ msgstr ""
 
 #: modules/module-info.php:466
 msgid "JSON API"
-msgstr ""
+msgstr "JSON API"
 
 #: modules/module-info.php:468
 msgid "Jetpack will allow you to authorize applications and services to securely connect to your blog and allow them to use your content in new ways and offer you new functionality."
@@ -2493,7 +2493,7 @@ msgstr ""
 
 #: modules/module-info.php:518
 msgid "Jetpack Comments Screenshot"
-msgstr ""
+msgstr "نموونەی سەرنجەکانی جێتپاک"
 
 #: modules/module-info.php:523
 msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
@@ -2517,7 +2517,7 @@ msgstr ""
 
 #: modules/module-info.php:567 modules/module-info.php:570
 msgid "Custom CSS"
-msgstr ""
+msgstr "CSSی دروستکراو"
 
 #: modules/module-info.php:571
 msgid "The Custom CSS editor gives you the ability to add to or replace your theme's CSS, all while supplying syntax coloring, auto-indentation, and immediate feedback on the validity of the CSS you're writing."
@@ -2529,7 +2529,7 @@ msgstr ""
 
 #: modules/module-info.php:589 modules/module-info.php:592
 msgid "Mobile Theme"
-msgstr ""
+msgstr "بەرگی مۆبایک"
 
 #: modules/module-info.php:593
 msgid "There's a good chance that visitors to your site will be using a smartphone, and it's important to provide them with a great reading experience while on the small screen."
@@ -2545,7 +2545,7 @@ msgstr ""
 
 #: modules/module-info.php:611 modules/module-info.php:614
 msgid "Mobile Push Notifications"
-msgstr ""
+msgstr "ئاگادارکردنەوە لە ڕێی مۆبایلەوە"
 
 #: modules/module-info.php:616
 msgid "If you use <a href=\"%1$s\">WordPress for iOS</a> or <a href=\"%2$s\">WordPress for Android</a>, you’ll now be able to opt in to receive push notifications of new comments, which makes it easier than ever to keep up with your readers and moderate comments on the go."
@@ -2557,11 +2557,11 @@ msgstr ""
 
 #: modules/module-info.php:637
 msgid "Infinite Scroll"
-msgstr ""
+msgstr "سکرۆڵی بێ کۆتایی"
 
 #: modules/module-info.php:640
 msgid "When you write great content, all you really want is people to find it, right?"
-msgstr ""
+msgstr "کاتێک بابەتێکی باش دەنوسیت ئەوەی ئەتەوێت ئەوەیە خەڵک بیدۆزێتەوە، وایە؟"
 
 #: modules/module-info.php:642
 msgid "With the Infinite Scroll module and a supported theme, that's exactly what happens. Instead of the old way of navigating down a page by scrolling and then clicking a link to get to the next page, waiting for a page refresh&mdash;the document model of the web&mdash;infinite scrolling pulls the next set of posts automatically into view when the reader approaches the bottom of the page, more like an application."
@@ -2582,7 +2582,7 @@ msgstr ""
 #: modules/module-info.php:681 modules/module-info.php:684
 #: modules/post-by-email.php:92
 msgid "Post by Email"
-msgstr ""
+msgstr "بابەت ناردن لە ڕێی ئیمەیڵەوە"
 
 #: modules/module-info.php:686
 msgid "Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones."
@@ -2598,7 +2598,7 @@ msgstr ""
 
 #: modules/module-info.php:714
 msgid "Photon"
-msgstr ""
+msgstr "فۆتۆن"
 
 #: modules/module-info.php:716
 msgid "Give your site a boost by loading images in posts from the WordPress.com content delivery network. We cache your images and serve them from our super-fast network, reducing the burden on your Web host with the click of a button."
@@ -2623,11 +2623,11 @@ msgstr "بابەتە کۆنەکان"
 
 #: modules/infinite-scroll/infinity.php:525
 msgid "Scroll back to top"
-msgstr ""
+msgstr "بگەڕێوە بۆ سەرەوە"
 
 #: modules/infinite-scroll/infinity.php:1042
 msgid "Theme: %1$s."
-msgstr ""
+msgstr "بەرگ: %1$s."
 
 #: modules/infinite-scroll.php:86
 msgid "Use Google Analytics with Infinite Scroll"
@@ -2656,11 +2656,11 @@ msgstr "لایکەکان پیشانبدە"
 
 #: modules/likes.php:199 modules/sharedaddy/sharedaddy.php:37
 msgid "Show sharing buttons."
-msgstr ""
+msgstr "دوگمەکانی بڵاوکردنەوە پیشانبدە."
 
 #: modules/likes.php:211
 msgid "Likes Notifications"
-msgstr ""
+msgstr "ئاگادارکردنەوەی لایک"
 
 #: modules/likes.php:212
 msgid "Email me whenever"
@@ -2672,31 +2672,31 @@ msgstr "کەسێک لایکی بابەتێکم دەکات"
 
 #: modules/likes.php:270
 msgid "WordPress.com Likes are"
-msgstr ""
+msgstr "لایکی وۆردپرێس ئەوەیە"
 
 #: modules/likes.php:276
 msgid "On for all posts"
-msgstr ""
+msgstr "کراوە بۆ هەموو بابەتەکان"
 
 #: modules/likes.php:282
 msgid "Turned on per post"
-msgstr ""
+msgstr "بە پێی بابەت بیکەرەوە"
 
 #: modules/likes.php:308 modules/sharedaddy/sharing.php:330
 msgid "Show buttons on"
-msgstr ""
+msgstr "دوگمەکان پیشانبدە لەسەر"
 
 #: modules/likes.php:317 modules/sharedaddy/sharing.php:336
 msgid "Front Page, Archive Pages, and Search Results"
-msgstr ""
+msgstr "پەڕەی سەرەکەی، پەڕەکانی ئەرشیڤ، وە ئەنجامەکانی گەڕان"
 
 #: modules/likes.php:450 modules/sharedaddy/sharing.php:158
 msgid "Settings have been saved"
-msgstr ""
+msgstr "دەستکارییەکان پاشەکەوتکران"
 
 #: modules/likes.php:457 modules/sharedaddy/sharing.php:170
 msgid "Sharing Buttons"
-msgstr ""
+msgstr "دوگمەکانی بڵاوکردنەوە"
 
 #: modules/likes.php:466 modules/sharedaddy/sharing.php:352
 msgid "Save Changes"
@@ -2712,19 +2712,19 @@ msgstr "لایک"
 
 #: modules/likes.php:617 modules/widget-visibility/widget-conditions.php:168
 msgid "Loading..."
-msgstr ""
+msgstr "ئامادەکردن..."
 
 #: modules/likes.php:709
 msgid "<span>%d</span> bloggers like this:"
-msgstr ""
+msgstr "<span>%d</span> هاوشێوەی ئەم بلۆگەرانە:"
 
 #: modules/minileven/minileven.php:93
 msgid "View Mobile Site"
-msgstr ""
+msgstr "مۆبایل ڤێرژن"
 
 #: modules/minileven/minileven.php:260
 msgid "Mobile-compatible:"
-msgstr ""
+msgstr "گونجاو لەگەڵ مۆبایل:"
 
 #: modules/minileven/minileven.php:261
 msgid "No"
@@ -2732,11 +2732,11 @@ msgstr "نەخێر"
 
 #: modules/minileven/minileven.php:267 modules/minileven/minileven.php:318
 msgid "Include this CSS in the Mobile Theme"
-msgstr ""
+msgstr "ئەم فایلی سی ئێس ئێسە بکەرە ناو بەرگی مۆبایلەوە"
 
 #: modules/minileven/theme/pub/minileven/comments.php:15
 msgid "This post is password protected. Enter the password to view any comments."
-msgstr ""
+msgstr "ئەم بابەتە بە تێپەڕەووشە پارێزراوە. تێپەڕەووشەکەت بنووسە تا سەرنجەکان ببینیت."
 
 #: modules/minileven/theme/pub/minileven/comments.php:45
 msgid "Comment navigation"
@@ -2744,11 +2744,11 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/comments.php:46
 msgid "&larr; Older Comments"
-msgstr ""
+msgstr "&larr; سەرنجە کۆنەکان"
 
 #: modules/minileven/theme/pub/minileven/comments.php:47
 msgid "Newer Comments &rarr;"
-msgstr ""
+msgstr "سەرنجە نوێکان &rarr;"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:14
 #: modules/minileven/theme/pub/minileven/content-gallery.php:58
@@ -2767,13 +2767,13 @@ msgstr "گالەری"
 #: modules/minileven/theme/pub/minileven/content.php:41
 #: modules/minileven/theme/pub/minileven/inc/tweaks.php:30
 msgid "Continue reading <span class=\"meta-nav\">&rarr;</span>"
-msgstr ""
+msgstr "بەردەوام بە لە خوێندنەوە <span class=\"meta-nav\">&rarr;</span>"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:57
 msgid "This gallery contains <a %1$s>%2$s photo</a>."
 msgid_plural "This gallery contains <a %1$s>%2$s photos</a>."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "ئەم گالەرییە پێکهاتووە لە <a %1$s>%2$s وێنە</a>."
+msgstr[1] "ئەم گالەرییە پێکهاتووە لە <a %1$s>%2$s وینە</a>."
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:65
 #: modules/minileven/theme/pub/minileven/content.php:43
@@ -2796,7 +2796,7 @@ msgstr "<b>%</b> وەڵامەکان"
 
 #: modules/minileven/theme/pub/minileven/content.php:19
 msgid "Featured"
-msgstr ""
+msgstr "تایبەتکرا"
 
 #: modules/minileven/theme/pub/minileven/content.php:28
 msgid "Posted by "
@@ -2835,11 +2835,11 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "Proudly powered by %s"
-msgstr ""
+msgstr "بە شانازییەوە بەهێزکراوە لەلایەن %s"
 
 #: modules/minileven/theme/pub/minileven/functions.php:59
 msgid "Primary Menu"
-msgstr ""
+msgstr "مێنیوی سەرەکی"
 
 #: modules/minileven/theme/pub/minileven/functions.php:96
 msgctxt "Open Sans font: on or off"
@@ -2853,11 +2853,11 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/functions.php:128
 msgid "Main Sidebar"
-msgstr ""
+msgstr "سایدباری سەرەکی"
 
 #: modules/minileven/theme/pub/minileven/header.php:26
 msgid "Menu"
-msgstr ""
+msgstr "مێنیو"
 
 #: modules/minileven/theme/pub/minileven/header.php:29
 msgid "Skip to primary content"
@@ -2865,11 +2865,11 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/image.php:73
 msgid "<span class=\"entry-gallery\">&laquo; <a href=\"%1$s\" title=\"Back to %2$s\" rel=\"gallery\">Back to Gallery</a></span>"
-msgstr ""
+msgstr "<span class=\"entry-gallery\">&laquo; <a href=\"%1$s\" title=\"Back to %2$s\" rel=\"gallery\">گەڕانەوە بۆ گالەری</a></span>"
 
 #: modules/minileven/theme/pub/minileven/image.php:87
 msgid "Image navigation"
-msgstr ""
+msgstr "شوێنی وێنە"
 
 #: modules/minileven/theme/pub/minileven/image.php:89
 msgid "Next &raquo; "
@@ -2897,7 +2897,7 @@ msgstr "%1$s لە %2$s"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:68
 msgid "Your comment is awaiting moderation."
-msgstr ""
+msgstr "سەرنجەکەت لە ژێر پێداچونەوەدایە."
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:76
 msgid "Reply"
@@ -2929,7 +2929,7 @@ msgstr "بڵاوکراوەتەوە لە %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:31
 msgid "Tagged with %s"
-msgstr ""
+msgstr "تاگ کراوە لەگەڵ %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:33
 msgid "Posted by"
@@ -3005,7 +3005,7 @@ msgstr ""
 
 #: modules/module-info.php:29
 msgid "VaultPress dashboard"
-msgstr ""
+msgstr "داشبۆردی ڤاوڵتپرێس"
 
 #: modules/module-info.php:31
 msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks."
@@ -3014,15 +3014,15 @@ msgstr ""
 #: modules/module-info.php:32
 msgctxt "View _Plans_&_Pricing_. (VaultPress)"
 msgid "View %s."
-msgstr ""
+msgstr "سەیرکردن %s."
 
 #: modules/module-info.php:32
 msgid "Plans & Pricing"
-msgstr ""
+msgstr "پلان & نرخ"
 
 #: modules/module-info.php:53 modules/module-info.php:68
 msgid "Gravatar Hovercard"
-msgstr ""
+msgstr "کارتی گراڤاتار"
 
 #: modules/module-info.php:58 modules/module-info.php:73
 msgid "What&#8217;s a Hovercard?"
@@ -3034,85 +3034,85 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:120
 msgid "Edit Menu Item Label"
-msgstr ""
+msgstr "دەستکاری پێناسەی دانەی مێنیو بکە"
 
 #: modules/custom-post-types/nova.php:121
 msgid "View Menu Item Label"
-msgstr ""
+msgstr "سەیری پێناسەی دانەی مێنیو بکە"
 
 #: modules/custom-post-types/nova.php:122
 msgid "Update Menu Item Label"
-msgstr ""
+msgstr "پێناسەی دانەی مێنیو نوێبکەرەوە"
 
 #: modules/custom-post-types/nova.php:123
 msgid "Add New Menu Item Label"
-msgstr ""
+msgstr "پێناسەیەک بۆ دانەی مێنیو بکە"
 
 #: modules/custom-post-types/nova.php:124
 msgid "New Menu Item Label Name"
-msgstr ""
+msgstr "ناوی دانەی نوێی مێنیو"
 
 #: modules/custom-post-types/nova.php:125
 #: modules/custom-post-types/nova.php:759
 msgid "Separate Labels with commas"
-msgstr ""
+msgstr "پێناسەکان جیا بکەرەوە بە هۆی کۆماوە"
 
 #: modules/custom-post-types/nova.php:126
 msgid "Add or remove Labels"
-msgstr ""
+msgstr "پێناسە زیادبکە یان بیسڕەوە"
 
 #: modules/custom-post-types/nova.php:127
 msgid "Choose from the most used Labels"
-msgstr ""
+msgstr "هەڵبژێرە لە ناو زۆرترین پێناسە بەکارهاتووەکاندا"
 
 #: modules/custom-post-types/nova.php:129
 msgid "No Labels found"
-msgstr ""
+msgstr "هیچ پێناسەیەک نەدۆزرایەوە"
 
 #: modules/custom-post-types/nova.php:136
 #: modules/custom-post-types/nova.php:167
 msgid "Food Menus"
-msgstr ""
+msgstr "مێنیوکانی خواردن"
 
 #: modules/custom-post-types/nova.php:137
 msgid "Food Menu"
-msgstr ""
+msgstr "مێنیوی خواردن"
 
 #: modules/custom-post-types/nova.php:138
 msgid "Search Menus"
-msgstr ""
+msgstr "بە ناو مێنیوەکاندا بگەڕێ"
 
 #: modules/custom-post-types/nova.php:139
 msgid "All Menus"
-msgstr ""
+msgstr "هەموو مێنیوکان"
 
 #: modules/custom-post-types/nova.php:140
 msgid "Parent Menu"
-msgstr ""
+msgstr "مێنیوی باوک"
 
 #: modules/custom-post-types/nova.php:141
 msgid "Parent Menu:"
-msgstr ""
+msgstr "مێنیوی باوک:"
 
 #: modules/custom-post-types/nova.php:142
 msgid "Edit Menu"
-msgstr ""
+msgstr "دەستکاری مێنیو"
 
 #: modules/custom-post-types/nova.php:143
 msgid "View Menu"
-msgstr ""
+msgstr "سەیری مێنیو"
 
 #: modules/custom-post-types/nova.php:144
 msgid "Update Menu"
-msgstr ""
+msgstr "نوێکردنەوەی مێنیو"
 
 #: modules/custom-post-types/nova.php:145
 msgid "Add New Menu"
-msgstr ""
+msgstr "مێنیویەکی نوێ دابنی"
 
 #: modules/custom-post-types/nova.php:146
 msgid "New Menu Name"
-msgstr ""
+msgstr "ناوی مێنیوی نوێ"
 
 #: modules/custom-post-types/nova.php:162
 msgid "Items on your restaurant's menu"
@@ -3121,54 +3121,54 @@ msgstr ""
 #: modules/custom-post-types/nova.php:165
 #: modules/custom-post-types/nova.php:168
 msgid "Menu Items"
-msgstr ""
+msgstr "دانەکانی مێنیو"
 
 #: modules/custom-post-types/nova.php:166
 msgid "Menu Item"
-msgstr ""
+msgstr "مێنیو"
 
 #: modules/custom-post-types/nova.php:169
 #: modules/custom-post-types/nova.php:170
 msgid "Add One Item"
-msgstr ""
+msgstr "یەک دانە دابنێ"
 
 #: modules/custom-post-types/nova.php:171
 msgid "Edit Menu Item"
-msgstr ""
+msgstr "دەستکاری دانەی مێنیە بکە"
 
 #: modules/custom-post-types/nova.php:172
 msgid "New Menu Item"
-msgstr ""
+msgstr "مێنیویەکی نوێ"
 
 #: modules/custom-post-types/nova.php:173
 msgid "View Menu Item"
-msgstr ""
+msgstr "سەیری مێنیو بکە"
 
 #: modules/custom-post-types/nova.php:174
 msgid "Search Menu Items"
-msgstr ""
+msgstr "بە ناو مێنیوکاندا بگەڕێ"
 
 #: modules/custom-post-types/nova.php:175
 msgid "No Menu Items found"
-msgstr ""
+msgstr "هیچ مێنیویەک نەدۆزرایەوە"
 
 #: modules/custom-post-types/nova.php:176
 msgid "No Menu Items found in Trash"
-msgstr ""
+msgstr "هیچ مێنیویەک نەدۆزرایەوە لە زبڵداندا"
 
 #: modules/custom-post-types/nova.php:277
 #: modules/custom-post-types/nova.php:278
 #: modules/custom-post-types/nova.php:724
 msgid "Add Many Items"
-msgstr ""
+msgstr "چەند دانەیەک دابنێ"
 
 #: modules/custom-post-types/nova.php:313
 msgid "Menu Items re-ordered."
-msgstr ""
+msgstr "دانەکانی مێنیو ڕێکخرانەوە."
 
 #: modules/custom-post-types/nova.php:332
 msgid "Labels"
-msgstr ""
+msgstr "نوسینەکان"
 
 #: modules/custom-post-types/nova.php:333
 #: modules/custom-post-types/nova.php:742
@@ -3188,7 +3188,7 @@ msgstr "دووبارە ڕێکخستنەوە"
 
 #: modules/custom-post-types/nova.php:637
 msgid "Move menu section up"
-msgstr ""
+msgstr "ئەم بەشەی مێنیو ببە سەرەوە"
 
 #: modules/custom-post-types/nova.php:637
 msgid "UP"
@@ -3196,7 +3196,7 @@ msgstr "سەرەوە"
 
 #: modules/custom-post-types/nova.php:639
 msgid "Move menu section down"
-msgstr ""
+msgstr "مێنیو ببەرە خوارەوە"
 
 #: modules/custom-post-types/nova.php:639
 msgid "DOWN"
@@ -3216,7 +3216,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:765
 msgid "Add These New Menu Items"
-msgstr ""
+msgstr "ئەم دانە نوێیانەی مێنیو دابنێ"
 
 #: modules/custom-post-types/nova.php:847
 #: modules/custom-post-types/nova.php:866
@@ -3277,11 +3277,11 @@ msgstr ""
 
 #: modules/custom-post-types/testimonial.php:110
 msgid "Enter the customer's name here"
-msgstr ""
+msgstr "ناوی کڕیار لێرە بنووسە"
 
 #: modules/custom-post-types/testimonial.php:119
 msgid "Customer Name"
-msgstr ""
+msgstr "ناوی کڕیار"
 
 #: modules/custom-post-types/testimonial.php:132
 msgid "Testimonial updated. <a href=\"%s\">View testimonial</a>"
@@ -3321,7 +3321,7 @@ msgstr ""
 
 #: modules/custom-post-types/testimonial.php:181
 msgid "Customize"
-msgstr ""
+msgstr "دەستکاری"
 
 #: modules/custom-post-types/testimonial.php:205
 msgid "Testimonial Page Title"
@@ -3337,15 +3337,15 @@ msgstr ""
 
 #: modules/featured-content/featured-content.php:348
 msgid "Featured content"
-msgstr ""
+msgstr "پێکهاتەی تایبەت"
 
 #: modules/featured-content/featured-content.php:367
 msgid "Tag name:"
-msgstr ""
+msgstr "ناوی تاگ:"
 
 #: modules/featured-content/featured-content.php:372
 msgid "Number of posts:"
-msgstr ""
+msgstr "ژمارەی بابەتەکان:"
 
 #: modules/featured-content/featured-content.php:377
 msgid "Hide tag from displaying in post meta and tag clouds."
@@ -3357,7 +3357,7 @@ msgstr ""
 #: modules/publicize/ui.php:45 modules/sharedaddy/sharing.php:57
 #: modules/sharedaddy/sharing.php:163
 msgid "Sharing Settings"
-msgstr ""
+msgstr "هەڵبژاردەکانی بڵاوکردنەوە"
 
 #: modules/gplus-authorship/admin/ui.php:54 modules/likes.php:427
 #: modules/module-info.php:315 modules/module-info.php:318
@@ -3368,25 +3368,25 @@ msgstr "بڵاوکردنەوە"
 
 #: modules/gplus-authorship/admin/ui.php:79
 msgid "Your Google+ account has been connected."
-msgstr ""
+msgstr "هەژماری گووگڵەکەت بەسترا."
 
 #: modules/gplus-authorship/admin/ui.php:80
 msgid "There was a problem connecting your Google+ account. Please try again."
-msgstr ""
+msgstr "کێشەیەک هەبوو لە کاتی بەستنەوەی هەژماری گووگڵەکەت. تکایە هەوڵبدەرەوە."
 
 #: modules/gplus-authorship/admin/ui.php:81
 msgid "You must click 'Accept' in the Google+ dialog to connect your account."
-msgstr ""
+msgstr "دەبێت کلیکی 'ڕازیبوون' بکەی لە دیالۆگی گووگڵ++ تا هەژمارەکەت ببەستیتەوە."
 
 #: modules/gplus-authorship/admin/ui.php:113 modules/module-info.php:785
 #: modules/module-info.php:789
 msgid "Google+ Profile"
-msgstr ""
+msgstr "پرۆفایلی گووگڵ+"
 
 #: modules/gplus-authorship/admin/ui.php:125 modules/publicize/ui.php:182
 #: modules/publicize/ui.php:186
 msgid "Disconnect"
-msgstr ""
+msgstr "بیپچڕینە"
 
 #: modules/gplus-authorship/admin/ui.php:129
 msgid "Connect your WordPress account to Google+ to add this blog to your Google+ profile and improve the visibility of your blog posts on Google."
@@ -3418,24 +3418,24 @@ msgstr "Google+"
 
 #: modules/gplus-authorship/admin/ui.php:191
 msgid "Show Google+ infomation with this post"
-msgstr ""
+msgstr "زانیاری گووگڵ+ پیشان بدە لەگەڵ ئەم بابەتەدا"
 
 #: modules/gplus-authorship.php:132
 msgid "on Google+"
-msgstr ""
+msgstr "لە گووگڵ+"
 
 #: modules/gravatar-hovercards.php:47 modules/module-info.php:57
 #: modules/module-info.php:72
 msgid "Gravatar Hovercards"
-msgstr ""
+msgstr "کارتی گراڤاتار"
 
 #: modules/gravatar-hovercards.php:59
 msgid "View people's profiles when you mouse over their Gravatars"
-msgstr ""
+msgstr "سەیری هەژماری خەڵک بکە کاتێک ماوسەکەت دەخەیتە سەر گاراڤاتارەکانیان"
 
 #: modules/gravatar-hovercards.php:86
 msgid "Put your mouse over your Gravatar to check out your profile."
-msgstr ""
+msgstr "ماوسەکەت بخە سەر گراڤاتارەکەت تا سەیری هەژمارەکەت بکەیت."
 
 #: modules/holiday-snow.php:19
 msgid "Snow"
@@ -3447,7 +3447,7 @@ msgstr ""
 
 #: modules/infinite-scroll/infinity.php:275
 msgid "To infinity and beyond"
-msgstr ""
+msgstr "بەرەو پشتی ناکۆتا"
 
 #: modules/infinite-scroll/infinity.php:284
 msgid "We've disabled this option for you since you have footer widgets in Appearance &rarr; Widgets, or because your theme does not support infinite scroll."
@@ -3455,11 +3455,11 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:121
 msgid "Email notifications"
-msgstr ""
+msgstr "ئاگادارکرنەوەی ئیمەیڵ"
 
 #: modules/contact-form/grunion-form-view.php:126
 msgid "How does this work?"
-msgstr ""
+msgstr "ئەمە چۆن کار دەکات؟"
 
 #: modules/contact-form/grunion-form-view.php:127
 msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
@@ -3467,7 +3467,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:128
 msgid "Can I add more fields?"
-msgstr ""
+msgstr "ئەتوانم خانەی زیاتر دابنێم؟"
 
 #: modules/contact-form/grunion-form-view.php:130
 msgctxt "%1$s = \"Click here\" in an HTML link"
@@ -3489,7 +3489,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:141
 msgid "Do I need to fill this out?"
-msgstr ""
+msgstr "پێویستە ئەمە پڕ بکەمەوە؟"
 
 #: modules/contact-form/grunion-form-view.php:142
 msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
@@ -3497,52 +3497,52 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:146
 msgid "Edit this new field"
-msgstr ""
+msgstr "دەستکاری ئەم خانە نوێیە بکە"
 
 #: modules/contact-form/grunion-form-view.php:148
 #: modules/sharedaddy/sharing-sources.php:980
 msgid "Label"
-msgstr ""
+msgstr "نوسین"
 
 #: modules/contact-form/grunion-form-view.php:149
 msgid "New field"
-msgstr ""
+msgstr "خانەی نوێ"
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Field type"
-msgstr ""
+msgstr "شێوەی خانە"
 
 #: modules/contact-form/grunion-form-view.php:153
 msgid "Checkbox"
-msgstr ""
+msgstr "چێکبۆکس"
 
 #: modules/contact-form/grunion-form-view.php:154
 msgid "Drop down"
-msgstr ""
+msgstr "درۆپداون"
 
 #: modules/contact-form/grunion-form-view.php:157
 msgid "Radio"
-msgstr ""
+msgstr "ڕادیۆ"
 
 #: modules/contact-form/grunion-form-view.php:158
 msgid "Text"
-msgstr ""
+msgstr "نوسین"
 
 #: modules/contact-form/grunion-form-view.php:159
 msgid "Textarea"
-msgstr ""
+msgstr "ناوچەی نوسین"
 
 #: modules/contact-form/grunion-form-view.php:166
 msgid "Options"
-msgstr ""
+msgstr "هەڵبژاردنەکان"
 
 #: modules/contact-form/grunion-form-view.php:167
 msgid "First option"
-msgstr ""
+msgstr "یەکەم هەڵبژاردە"
 
 #: modules/contact-form/grunion-form-view.php:170
 msgid "Add another option"
-msgstr ""
+msgstr "هەڵبژاردەیەکی تر دابنێ"
 
 #: modules/contact-form/grunion-form-view.php:177
 msgid "Required?"
@@ -3550,7 +3550,7 @@ msgstr "پێویستە؟"
 
 #: modules/contact-form/grunion-form-view.php:182
 msgid "Save this field"
-msgstr ""
+msgstr "ئەم خانەیە پاشەکەوت بکە"
 
 #: modules/contact-form/grunion-form-view.php:187
 msgid "Here&#8217;s what your form will look like"
@@ -3558,19 +3558,19 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:192
 msgid "Add a new field"
-msgstr ""
+msgstr "خانەیەکی نوێ دابنێ"
 
 #: modules/contact-form/grunion-form-view.php:194
 msgid "Add this form to my post"
-msgstr ""
+msgstr "ئەم فؤرمە بخە ناو بابەتەکەمەوە"
 
 #: modules/contact-form/grunion-form-view.php:197
 msgid "Email settings"
-msgstr ""
+msgstr "هەڵبژاردەکانی ئیمەیڵ"
 
 #: modules/contact-form/grunion-form-view.php:199
 msgid "Enter your email address"
-msgstr ""
+msgstr "ناونیشانی ئیمەیڵەکەت داخڵ بکە"
 
 #: modules/contact-form/grunion-form-view.php:202
 msgid "What should the subject line be?"
@@ -3578,7 +3578,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:205
 msgid "Save and go back to form builder"
-msgstr ""
+msgstr "پاشەکەوتی بکە و بگەڕێوە بۆ دروستکەری فۆڕم"
 
 #: modules/custom-css/custom-css.php:455
 msgid ""
@@ -3591,7 +3591,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:576
 msgid "Preview: changes must be saved or they will be lost"
-msgstr ""
+msgstr "نیشاندان: پێویستە گۆڕانکارییەکان پاشەکەت بکرێن ئەگینا ئەفەوتێن"
 
 #: modules/custom-css/custom-css.php:604
 msgid "Edit CSS"
@@ -3603,11 +3603,11 @@ msgstr "CSS"
 
 #: modules/custom-css/custom-css.php:637
 msgid "Custom CSS Stylesheet"
-msgstr ""
+msgstr "ستایلشیتی تایبەت"
 
 #: modules/custom-css/custom-css.php:658
 msgid "Stylesheet saved."
-msgstr ""
+msgstr "ستایلشییت پاشەکەوتکرا."
 
 #: modules/custom-css/custom-css.php:662
 msgid "Publish"
@@ -3619,7 +3619,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:672
 msgid "CSS Stylesheet Editor"
-msgstr ""
+msgstr "دەستکاریکەی ستایلشیتی CSS"
 
 #: modules/custom-css/custom-css.php:679
 msgid ""
@@ -3629,15 +3629,15 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:716
 msgid "Content Width:"
-msgstr ""
+msgstr "درێژی پێکهاتە:"
 
 #: modules/custom-css/custom-css.php:717
 msgid "Default"
-msgstr ""
+msgstr "ئاسایی"
 
 #: modules/custom-css/custom-css.php:717
 msgid "%s px"
-msgstr ""
+msgstr "%s px"
 
 #: modules/custom-css/custom-css.php:718 modules/custom-css/custom-css.php:813
 #: modules/custom-css/custom-css.php:843 modules/minileven/minileven.php:262
@@ -3672,7 +3672,7 @@ msgstr "ڕەتکردنەوە"
 
 #: modules/custom-css/custom-css.php:811
 msgid "Preprocessor:"
-msgstr ""
+msgstr "پڕۆسێسەر:"
 
 #: modules/custom-css/custom-css.php:812 modules/custom-css/custom-css.php:817
 #: modules/videopress/videopress.php:273 modules/widgets/image-widget.php:124
@@ -3681,15 +3681,15 @@ msgstr "هیچ"
 
 #: modules/custom-css/custom-css.php:841
 msgid "Mode:"
-msgstr ""
+msgstr "شێواز:"
 
 #: modules/custom-css/custom-css.php:842
 msgid "Add-on"
-msgstr ""
+msgstr "سەرخراو"
 
 #: modules/custom-css/custom-css.php:842
 msgid "Replacement"
-msgstr ""
+msgstr "جێگرتنەوە"
 
 #: modules/custom-css/custom-css.php:849
 msgid "Add-on CSS <b>(Recommended)</b>"
@@ -3703,7 +3703,7 @@ msgstr ""
 #: modules/custom-post-types/comics.php:235
 #: modules/videopress/videopress.php:662
 msgid "Preview"
-msgstr ""
+msgstr "نیشاندان:"
 
 #: modules/custom-css/custom-css.php:867
 msgid "Save &amp; Buy Upgrade"
@@ -3711,7 +3711,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:867
 msgid "Save Stylesheet"
-msgstr ""
+msgstr "ستایلشیت پاشەکەوتبکە"
 
 #: modules/custom-css/custom-css.php:929
 msgid "Show more"
@@ -3723,7 +3723,7 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:89
 msgid "Convert to Post"
-msgstr ""
+msgstr "بیگۆڕە بۆ بابەت"
 
 #: modules/custom-post-types/comics.php:113
 msgid "You are not allowed to make this change."
@@ -3732,12 +3732,12 @@ msgstr ""
 #: modules/custom-post-types/comics.php:160
 msgid "Post converted."
 msgid_plural "%s posts converted"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "بابەت گۆڕدرا"
+msgstr[1] "%s بابەت گۆڕدرا"
 
 #: modules/custom-post-types/comics.php:173
 msgid "Drop images to upload"
-msgstr ""
+msgstr "وێنەکانت فڕێبدە بۆ بەرزکردنەوە"
 
 #: modules/custom-post-types/comics.php:174
 msgid "Uploading..."
@@ -3753,7 +3753,7 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:177
 msgid "Only images can be uploaded here."
-msgstr ""
+msgstr "تەنها دەتوانرێت وێنە بەرزبکرێتەوە."
 
 #: modules/custom-post-types/comics.php:178
 msgid "Your upload didn't complete; try again later or cross your fingers and try again right now."
@@ -3776,7 +3776,7 @@ msgstr ""
 #: modules/custom-post-types/comics.php:197
 #: modules/custom-post-types/testimonial.php:72 modules/publicize/ui.php:207
 msgid "Add New"
-msgstr ""
+msgstr "نوێ"
 
 #: modules/custom-post-types/comics.php:198
 msgid "Add New Comic"
@@ -3813,12 +3813,12 @@ msgstr ""
 #: modules/custom-post-types/comics.php:274
 #: modules/custom-post-types/testimonial.php:133
 msgid "Custom field updated."
-msgstr ""
+msgstr "خانەی دروستکراو نوێکرایەوە."
 
 #: modules/custom-post-types/comics.php:275
 #: modules/custom-post-types/testimonial.php:134
 msgid "Custom field deleted."
-msgstr ""
+msgstr "خانەی دروستکراو سڕدرایەوە."
 
 #: modules/custom-post-types/comics.php:276
 msgid "Comic updated."
@@ -3847,7 +3847,7 @@ msgstr ""
 #: modules/custom-post-types/comics.php:284
 #: modules/custom-post-types/testimonial.php:143
 msgid "M j, Y @ G:i"
-msgstr ""
+msgstr "M j, Y @ G:i"
 
 #: modules/custom-post-types/comics.php:285
 msgid "Comic draft updated. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
@@ -3871,43 +3871,43 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:115
 msgid "Menu Item Labels"
-msgstr ""
+msgstr "پێناسەکانی دانەکانی مێنیو"
 
 #: modules/custom-post-types/nova.php:116
 msgid "Menu Item Label"
-msgstr ""
+msgstr "پێناسەی دانەی مێنیو"
 
 #: modules/custom-post-types/nova.php:117
 msgid "Search Menu Item Labels"
-msgstr ""
+msgstr "بە ناو پێناسەی دانەکانی مێنیودا بگەڕێ"
 
 #: modules/custom-post-types/nova.php:118
 msgid "Popular Labels"
-msgstr ""
+msgstr "پێناسە بەناوبانگەکان"
 
 #: modules/custom-post-types/nova.php:119
 msgid "All Menu Item Labels"
-msgstr ""
+msgstr "پێانسی هەموو دانەکانی مێنیو"
 
 #: modules/carousel/jetpack-carousel.php:336
 msgid "Comments on this post are closed."
-msgstr ""
+msgstr "سەرنجدان لەم بابەتە داخراوە."
 
 #: modules/carousel/jetpack-carousel.php:346
 msgid "Sorry, but we could not authenticate your request."
-msgstr ""
+msgstr "ببورە، نەمانتوانی داواکەت بناسینەوە."
 
 #: modules/carousel/jetpack-carousel.php:355
 msgid "Please provide your name."
-msgstr ""
+msgstr "تکایە ناوت بنووسە."
 
 #: modules/carousel/jetpack-carousel.php:358
 msgid "Please provide an email address."
-msgstr ""
+msgstr "تکایە ئیمەیڵەکەت بنووسە."
 
 #: modules/carousel/jetpack-carousel.php:361
 msgid "Please provide a valid email address."
-msgstr ""
+msgstr "تکایە ئیمەیڵێکی دروست بنوسە."
 
 #: modules/carousel/jetpack-carousel.php:390
 msgid "Image Gallery Carousel"
@@ -3923,7 +3923,7 @@ msgstr "ڕەنگی باکگراوند"
 
 #: modules/carousel/jetpack-carousel.php:400
 msgid "Metadata"
-msgstr ""
+msgstr "مێتاداتا"
 
 #: modules/carousel/jetpack-carousel.php:457
 msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
@@ -3966,16 +3966,16 @@ msgstr "ئاوی"
 
 #: modules/comments/admin.php:72 modules/module-info.php:521
 msgid "Jetpack Comments"
-msgstr ""
+msgstr "سەرنجەکانی جێتپاک"
 
 #: modules/comments/admin.php:81
 msgid "Greeting Text"
-msgstr ""
+msgstr "نوسینی بەخێرهاتن"
 
 #: modules/comments/admin.php:97 modules/comments/admin.php:168
 #: modules/widgets/facebook-likebox.php:154
 msgid "Color Scheme"
-msgstr ""
+msgstr "بۆکسی ڕەنگەکان"
 
 #: modules/comments/admin.php:118
 msgid "Adjust your Jetpack Comments form with a clever greeting and color-scheme."
@@ -4015,7 +4015,7 @@ msgstr ""
 
 #: modules/comments/comments.php:448 modules/comments/comments.php:499
 msgid "Submitting Comment%s"
-msgstr ""
+msgstr "دانانی سەرنج%s"
 
 #: modules/contact-form/admin.php:16
 msgid "Add a custom form"
@@ -4023,19 +4023,19 @@ msgstr ""
 
 #: modules/contact-form/admin.php:21 modules/contact-form/admin.php:22
 msgid "Add Contact Form"
-msgstr ""
+msgstr "فۆڕمی پەیوەندی دابنێ"
 
 #: modules/contact-form/admin.php:101
 msgid "Mark Spam"
-msgstr ""
+msgstr "وەک خراپ دایریبکە"
 
 #: modules/contact-form/admin.php:140 modules/contact-form/admin.php:534
 msgid "You are not allowed to manage this item."
-msgstr ""
+msgstr "تۆ ڕێگەت پێنەدراوە ئەم دانەیە بەڕێوە ببەیت."
 
 #: modules/contact-form/admin.php:157
 msgid "Feedback(s) marked as spam"
-msgstr ""
+msgstr "ئەو فیدباکانەی وەک خراپ دیاریکراون"
 
 #: modules/contact-form/admin.php:196
 #: modules/contact-form/grunion-omnisearch.php:36
@@ -4056,7 +4056,7 @@ msgstr "رۆژ"
 
 #: modules/contact-form/admin.php:268
 msgid "Restore this item from the Trash"
-msgstr ""
+msgstr "ئەم دانەیە بگەڕێنەوە لە زبڵدانەوە"
 
 #: modules/contact-form/admin.php:270
 msgid "Restore"
@@ -4072,17 +4072,17 @@ msgstr "بە تەواوی بیسڕەوە"
 
 #: modules/contact-form/admin.php:306
 msgid "Mark this message as spam"
-msgstr ""
+msgstr "ئەم نامەیە دیاریبکە وەک خراپ"
 
 #: modules/contact-form/admin.php:313 modules/contact-form/admin.php:315
 #: modules/contact-form/admin.php:612
 #: modules/omnisearch/omnisearch-posts.php:65
 msgid "Trash"
-msgstr ""
+msgstr "زبڵدان"
 
 #: modules/contact-form/admin.php:366
 msgid "Mark this message as NOT spam"
-msgstr ""
+msgstr "ئەم نامەیە دایریبکە کە خراپ نییە"
 
 #: modules/contact-form/admin.php:406
 #: modules/contact-form/grunion-contact-form.php:1187
@@ -4092,19 +4092,19 @@ msgstr ""
 
 #: modules/contact-form/admin.php:568
 msgid "You are not allowed to move this item out of the Trash."
-msgstr ""
+msgstr "ڕێگەت پێنەدراوە ئەم دانەیە ببەیتە دەر لە زبڵدان."
 
 #: modules/contact-form/admin.php:571
 msgid "Error in restoring from Trash."
-msgstr ""
+msgstr "هەڵە لە کاتی گەڕانەوەی لە زبڵدانەوە."
 
 #: modules/contact-form/admin.php:575
 msgid "You are not allowed to move this item to the Trash."
-msgstr ""
+msgstr "ڕێگەت پێنەدراوە ئەم دانەیە بخەیتە زبڵدانەوە."
 
 #: modules/contact-form/admin.php:578
 msgid "Error in moving to Trash."
-msgstr ""
+msgstr "هەڵە لە کاتی گواستنەوەی بۆ زبڵدان."
 
 #: modules/contact-form/admin.php:602
 msgid "Messages"
@@ -4112,32 +4112,32 @@ msgstr "نامەکان"
 
 #: modules/contact-form/admin.php:625
 msgid "Spam"
-msgstr ""
+msgstr "خراپ"
 
 #: modules/contact-form/grunion-contact-form.php:82
 #: modules/contact-form/grunion-contact-form.php:83
 #: modules/contact-form/grunion-form-view.php:136
 msgid "Feedback"
-msgstr ""
+msgstr "فیدباک"
 
 #: modules/contact-form/grunion-contact-form.php:84
 msgid "Search Feedback"
-msgstr ""
+msgstr "بە ناو فیدباکەکاندا بگەڕێ"
 
 #: modules/contact-form/grunion-contact-form.php:85
 #: modules/contact-form/grunion-contact-form.php:86
 msgid "No feedback found"
-msgstr ""
+msgstr "هیچ فیدباکێک نەدۆزرایەوە"
 
 #: modules/contact-form/grunion-contact-form.php:103
 msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "خراپ <span class=\"count\">(%s)</span>"
+msgstr[1] "خراپ <span class=\"count\">(%s)</span>"
 
 #: modules/contact-form/grunion-contact-form.php:192
 msgid "An error occurred. Please try again later."
-msgstr ""
+msgstr "هەڵەیەک ڕویدا. تکایە دواتر هەوڵبدەرەوە."
 
 #: modules/contact-form/grunion-contact-form.php:200
 #: modules/contact-form/grunion-contact-form.php:853
@@ -4146,11 +4146,11 @@ msgstr "نامە نێردرا"
 
 #: modules/contact-form/grunion-contact-form.php:358
 msgid "Export feedback as CSV"
-msgstr ""
+msgstr "فیدباکەکان بگۆڕە بۆ CSV"
 
 #: modules/contact-form/grunion-contact-form.php:364
 msgid "Select feedback to download"
-msgstr ""
+msgstr "ئەم فیدباکە دیاریبکە بۆ داگرتن"
 
 #: modules/contact-form/grunion-contact-form.php:366
 msgid "All posts"
@@ -4170,7 +4170,7 @@ msgstr "فۆڕمی پەیوەندی"
 #: modules/contact-form/grunion-contact-form.php:724
 msgctxt "%1$s = blog name"
 msgid "%1$s Sidebar"
-msgstr ""
+msgstr "%1$s سایدبار"
 
 #: modules/contact-form/grunion-contact-form.php:727
 msgctxt "%1$s = blog name, %2$s = post title"
@@ -4183,7 +4183,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:758
 msgid "Subject"
-msgstr ""
+msgstr "بابەت"
 
 #: modules/contact-form/grunion-contact-form.php:839
 msgid "Error!"
@@ -4209,19 +4209,19 @@ msgstr "IP Address:"
 
 #: modules/contact-form/grunion-contact-form.php:1218
 msgid "Contact Form URL:"
-msgstr ""
+msgstr "لینکی فۆڕمی پەیوەندی:"
 
 #: modules/contact-form/grunion-contact-form.php:1223
 msgid "Sent by a verified %s user."
-msgstr ""
+msgstr "نێردراوە لە لایەن %s بەکارهێنەرێکی دانپێدانراوەوە."
 
 #: modules/contact-form/grunion-contact-form.php:1227
 msgid "Sent by an unverified visitor to your site."
-msgstr ""
+msgstr "نێردراوە لە لایەن بەکارهێنەرێکی دانپێدانەنراوەوە بۆ ماڵپەرەکەت."
 
 #: modules/contact-form/grunion-contact-form.php:1466
 msgid "%s requires a valid email address"
-msgstr ""
+msgstr "%s پێویستی بە ئیمەیڵێکی دروستە"
 
 #: modules/contact-form/grunion-contact-form.php:1472
 msgid "%s is required"
@@ -4265,33 +4265,35 @@ msgstr "سەرنج"
 #: modules/contact-form/grunion-form-view.php:12
 msgctxt "Default label for new HTML form field in contact form builder"
 msgid "New Field"
-msgstr ""
+msgstr "خانەیەکی نوێ"
 
 #: modules/contact-form/grunion-form-view.php:13
 msgctxt "Label for the set of options to be included in a user-created dropdown in contact form builder"
 msgid "Options"
-msgstr ""
+msgstr "هەڵبژاردەکان"
 
 #: modules/contact-form/grunion-form-view.php:14
 msgctxt "Label for an option to be included in a user-created dropdown in contact form builder"
 msgid "Option"
-msgstr ""
+msgstr "هەڵبژاردەکان"
 
 #: modules/contact-form/grunion-form-view.php:15
 msgctxt "Default label for the first option to be included in a user-created dropdown in contact form builder"
 msgid "First option"
-msgstr ""
+msgstr "یەکەم هەڵبژاردن"
 
 #: modules/contact-form/grunion-form-view.php:16
 msgctxt "error message in contact form builder"
 msgid "Oops, there was a problem generating your form.  You'll likely need to try again."
-msgstr ""
+msgstr "ئۆو، هەڵەیەک ڕویدا لە کاتی دروستکردنی فۆڕمەکەتدا. ئەبێت دووبارە هەوڵبدەیتەوە."
 
 #: modules/contact-form/grunion-form-view.php:17
 msgid ""
 "Drag up or down\n"
 "to re-arrange"
 msgstr ""
+"بەرز و نزمی بکە\n"
+"بۆ دووبارە ڕێکخستنەوەی"
 
 #: modules/contact-form/grunion-form-view.php:18
 msgctxt "Label to drag HTML form fields around to change their order in contact form builder"
@@ -4318,11 +4320,11 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:118
 msgid "Your new field was saved successfully"
-msgstr ""
+msgstr "خانە نوێکەت بە سەرکەوتویی پاشەکەوتکرا"
 
 #: modules/contact-form/grunion-form-view.php:120
 msgid "Form builder"
-msgstr ""
+msgstr "دروستکەری فۆرم"
 
 #: class.jetpack.php:2800
 msgid "Terms of Service"
@@ -4330,15 +4332,15 @@ msgstr ""
 
 #: class.jetpack.php:2802
 msgid "Debug"
-msgstr ""
+msgstr "Debug"
 
 #: class.jetpack.php:2804 modules/sharedaddy/sharedaddy.php:84
 msgid "Support"
-msgstr ""
+msgstr "پشتگیری"
 
 #: class.jetpack.php:2934
 msgid "Configure %s"
-msgstr ""
+msgstr "سازدان %s"
 
 #: class.jetpack.php:2993
 msgid "Deactivate"
@@ -4366,7 +4368,7 @@ msgstr "نوێکرایەوە"
 
 #: class.jetpack.php:3065
 msgid "Configure"
-msgstr ""
+msgstr "سازدان"
 
 #: class.jetpack.php:3103
 msgid "Coming soon&#8230;"
@@ -4394,7 +4396,7 @@ msgstr ""
 
 #: class.jetpack.php:3493
 msgid "Jetpack Plugin Version"
-msgstr ""
+msgstr "ڤێرژنی پێوەکراوی جێتپاک"
 
 #: class.jetpack.php:3499
 msgid "The Client ID/WP.com Blog ID of this site"
@@ -4438,7 +4440,7 @@ msgstr ""
 
 #: class.json-api-endpoints.php:1174
 msgid "This post is password protected."
-msgstr ""
+msgstr "ئەم بابەتە بە تێپەڕەووشە پارێزراوە."
 
 #: class.json-api-endpoints.php:2865
 msgid "Comment cache problem?"
@@ -4463,7 +4465,7 @@ msgstr "%1$s/%2$s"
 
 #: modules/after-the-deadline/atd-l10n.php:12
 msgid "Spelling"
-msgstr ""
+msgstr "نوسین"
 
 #: modules/after-the-deadline/atd-l10n.php:13
 msgid "Repeated Word"
@@ -4471,27 +4473,27 @@ msgstr "ووشە دوبارەکان"
 
 #: modules/after-the-deadline/atd-l10n.php:15
 msgid "No suggestions"
-msgstr ""
+msgstr "هیچ پێشنیارێک نییە"
 
 #: modules/after-the-deadline/atd-l10n.php:17
 msgid "Explain..."
-msgstr ""
+msgstr "ڕونکردنەوە..."
 
 #: modules/after-the-deadline/atd-l10n.php:18
 msgid "Ignore suggestion"
-msgstr ""
+msgstr "ڕونکردنەوە پشتگوێبخە"
 
 #: modules/after-the-deadline/atd-l10n.php:19
 msgid "Ignore always"
-msgstr ""
+msgstr "هەردەم پشتگوێی بخە"
 
 #: modules/after-the-deadline/atd-l10n.php:20
 msgid "Ignore all"
-msgstr ""
+msgstr "هەمووی پشتگوێ بخە"
 
 #: modules/after-the-deadline/atd-l10n.php:22
 msgid "Edit Selection..."
-msgstr ""
+msgstr "دەستکاری دیاریکراوەکە بکە..."
 
 #: modules/after-the-deadline/atd-l10n.php:24
 msgid "proofread"
@@ -4499,7 +4501,7 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:25
 msgid "edit text"
-msgstr ""
+msgstr "دەستکاری نوسین"
 
 #: modules/after-the-deadline/atd-l10n.php:26
 #: modules/after-the-deadline.php:227
@@ -4520,7 +4522,7 @@ msgstr ""
 
 #: modules/after-the-deadline/atd-l10n.php:32
 msgid "Replace selection with:"
-msgstr ""
+msgstr "ئەم بەشە بگۆڕە لەگەڵ:"
 
 #: modules/after-the-deadline/atd-l10n.php:33
 msgid ""
@@ -4546,15 +4548,15 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:53
 msgid "a post or page is first published"
-msgstr ""
+msgstr "بابەتێک یان پەڕەیەک بۆ یەکەم جار بڵاوکرایەوە"
 
 #: modules/after-the-deadline/config-options.php:55
 msgid "a post or page is updated"
-msgstr ""
+msgstr "بابەتێک یان پەڕەیەک نوێکرایەوە"
 
 #: modules/after-the-deadline/config-options.php:58
 msgid "English Options"
-msgstr ""
+msgstr "هەڵبژاردنەکانی ئینگلیزی"
 
 #: modules/after-the-deadline/config-options.php:60
 msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
@@ -4602,7 +4604,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:83
 msgid "<a href=\"%s\">Learn more</a> about these options."
-msgstr ""
+msgstr "<a href=\"%s\">زیاتر بزانە</a> دەربارەی ئەم هەڵبژاردنە."
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Language"
@@ -4619,7 +4621,7 @@ msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:129
 msgid "Ignored Phrases"
-msgstr ""
+msgstr "دەقە پشتگوێخراوەکان"
 
 #: modules/after-the-deadline/config-unignore.php:131
 msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
@@ -4632,7 +4634,7 @@ msgstr "زیادکردن"
 
 #: modules/after-the-deadline/config-unignore.php:138
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
-msgstr ""
+msgstr "دڵنیابەرەوە لە کلیک کردنی \"نوێکردنەوەی پرۆفایل\" لە خوارەوەی شاشەکەدا بۆ ئەوەی گۆڕانکارییەکانت پاشەکەوت بکەیت."
 
 #: modules/carousel/jetpack-carousel.php:106
 msgid "Comment"
@@ -4644,19 +4646,19 @@ msgstr "سەرنج بنێرە"
 
 #: modules/carousel/jetpack-carousel.php:109
 msgid "Loading Comments..."
-msgstr ""
+msgstr "ئامادەکردنی سەرنجەکان..."
 
 #: modules/carousel/jetpack-carousel.php:110
 msgid "View full size <span class=\"photo-size\">%1$s<span class=\"photo-size-times\">&times;</span>%2$s</span>"
-msgstr ""
+msgstr "قەبارەی ڕاستەقینە ببینە <span class=\"photo-size\">%1$s<span class=\"photo-size-times\">&times;</span>%2$s</span>"
 
 #: modules/carousel/jetpack-carousel.php:111
 msgid "Please be sure to submit some text with your comment."
-msgstr ""
+msgstr "تکایە دڵنیا بە لەوەی چەند نوسینێک ئەنوسیت لەگەڵ سەرنجەکەتدا."
 
 #: modules/carousel/jetpack-carousel.php:112
 msgid "Please provide an email address to comment."
-msgstr ""
+msgstr "تکایە ناونیشانێکی ئیمەیڵ بنوسە تا سەرنجەکەت بنوسیت."
 
 #: modules/carousel/jetpack-carousel.php:113
 msgid "Please provide your name to comment."
@@ -4684,7 +4686,7 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:119
 msgid "Shutter Speed"
-msgstr ""
+msgstr "خیرایی شەتەر"
 
 #: modules/carousel/jetpack-carousel.php:120
 msgid "Focal Length"
@@ -4732,7 +4734,7 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:324
 msgid "No comment text was submitted."
-msgstr ""
+msgstr "هیچ نوسینێک بۆ سەرنجەکەت نەنوسراوە."
 
 #: class.jetpack-debugger.php:139
 msgid "It may be caused by one of these issues, which you can diagnose yourself:"
@@ -4740,7 +4742,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:141
 msgid "A known issue."
-msgstr ""
+msgstr "هەڵەیەکی زانراو."
 
 #: class.jetpack-debugger.php:141
 msgid "Some themes and plugins have <a href=\"%1$s\" target=\"_blank\">known conflicts</a> with Jetpack – check the <a href=\"%2$s\" target=\"_blank\">list</a>. (You can also browse the <a href=\"%3$s\">Jetpack support pages</a> or <a href=\"%4$s\">Jetpack support forum</a> to see if others have experienced and solved the problem.)"
@@ -4756,7 +4758,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:143
 msgid "A theme conflict."
-msgstr ""
+msgstr "پێکدادانی بەرگ."
 
 #: class.jetpack-debugger.php:143
 msgid "If your problem isn't known or caused by a plugin, try activating Twenty Twelve (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know."
@@ -4815,7 +4817,7 @@ msgstr ""
 
 #: class.jetpack-heartbeat.php:128
 msgid "Jetpack weekly"
-msgstr ""
+msgstr "هەفتانەی جێتپاک"
 
 #: class.jetpack.php:1311
 msgid "Jetpack requires WordPress version %s or later."
@@ -4828,17 +4830,17 @@ msgstr ""
 #: class.jetpack.php:1592
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "مۆدیولێکی نویی جێتپاک"
+msgstr[1] "%s مۆدیولی نوێی جێتپاک"
 
 #: class.jetpack.php:1595
 msgid "Jetpack"
-msgstr ""
+msgstr "جێتپاک"
 
 #: class.jetpack.php:1765 class.jetpack.php:1790 class.jetpack.php:1803
 #: class.jetpack.php:2680 class.jetpack.php:2933
 msgid "Jetpack by WordPress.com"
-msgstr ""
+msgstr "Jetpack by WordPress.com"
 
 #: class.jetpack.php:1766 class.jetpack.php:1791 class.jetpack.php:2683
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
@@ -4850,7 +4852,7 @@ msgstr ""
 
 #: class.jetpack.php:1768
 msgid "Jetpack Module Options"
-msgstr ""
+msgstr "هەڵبژاردەی مۆدیولی جێتپاک"
 
 #: class.jetpack.php:1769
 msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
@@ -4858,23 +4860,23 @@ msgstr ""
 
 #: class.jetpack.php:1770 class.jetpack.php:1817
 msgid "For more information:"
-msgstr ""
+msgstr "بۆ زانیاری زیاتر:"
 
 #: class.jetpack.php:1771 class.jetpack.php:1818
 msgid "Jetpack FAQ"
-msgstr ""
+msgstr "پرسیار و وەڵامی جێتپاک"
 
 #: class.jetpack.php:1772 class.jetpack.php:1819
 msgid "Jetpack Support"
-msgstr ""
+msgstr "پشتگیری جێتپاک"
 
 #: class.jetpack.php:1788
 msgid "Overview"
-msgstr ""
+msgstr "بە گشتی"
 
 #: class.jetpack.php:1801
 msgid "Modules"
-msgstr ""
+msgstr "مۆدیولەکان"
 
 #: class.jetpack.php:1804
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
@@ -4882,15 +4884,15 @@ msgstr ""
 
 #: class.jetpack.php:1806
 msgid "Find the component you want to manage"
-msgstr ""
+msgstr "ئەو پێکهاتەیە بدۆزەرەوە کە ئەتەوێت بەڕێوەی ببەیت"
 
 #: class.jetpack.php:1807
 msgid "Click on Learn More"
-msgstr ""
+msgstr "کلیک بکە لە زانینی زیاتر"
 
 #: class.jetpack.php:1808
 msgid "An Activate or Deactivate button will appear"
-msgstr ""
+msgstr "دوگمەیەکی چالاککردن و ناچالاککردن دەردەکەوێت"
 
 #: class.jetpack.php:1809
 msgid "If additional settings are available, a link to them will appear"
@@ -4899,11 +4901,11 @@ msgstr ""
 #: class.jetpack.php:1889 modules/publicize/ui.php:677
 #: modules/sharedaddy/sharedaddy.php:76 modules/sharedaddy/sharedaddy.php:83
 msgid "Settings"
-msgstr ""
+msgstr "ڕێکخستنەکان"
 
 #: class.jetpack.php:1906
 msgid "Dismiss this notice and deactivate Jetpack."
-msgstr ""
+msgstr "ئەم ئاگادارییە لابەو جێتپاک ناچالاک بکە."
 
 #: class.jetpack.php:1912
 msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
@@ -4915,7 +4917,7 @@ msgstr ""
 
 #: class.jetpack.php:1920 class.jetpack.php:2716
 msgid "Connect to WordPress.com"
-msgstr ""
+msgstr "بیبەستەوە بە ماڵپەری وۆرپرێسەوە"
 
 #: class.jetpack.php:1922 modules/module-info.php:45 modules/module-info.php:81
 #: modules/module-info.php:138 modules/module-info.php:173
@@ -4978,7 +4980,7 @@ msgstr ""
 
 #: class.jetpack.php:2167
 msgid "Do you still have the %s plugin installed?"
-msgstr ""
+msgstr "هێشتا ئەم پێوەکراوەت %s ماوە؟"
 
 #: class.jetpack.php:2170
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
@@ -5002,19 +5004,19 @@ msgstr ""
 
 #: class.jetpack.php:2231
 msgid "Try connecting again."
-msgstr ""
+msgstr "هەوڵبدە دووبارە بیبەستیتەوە."
 
 #: class.jetpack.php:2255
 msgid "Welcome to <strong>Jetpack %s</strong>!"
-msgstr ""
+msgstr "بەخێربێیت بۆ <strong>Jetpack %s</strong>!"
 
 #: class.jetpack.php:2267
 msgid "The following new modules have been activated: %l."
-msgstr ""
+msgstr "ئەم مۆدیولە نوێیە چالاککرا: %l."
 
 #: class.jetpack.php:2279
 msgid "The following modules have been updated: %l."
-msgstr ""
+msgstr "ئەم مۆدیولە نوێکرایەوە: %l."
 
 #: class.jetpack.php:2288
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
@@ -5029,11 +5031,11 @@ msgstr[1] ""
 
 #: class.jetpack.php:2326
 msgid "<strong>Module settings were saved.</strong> "
-msgstr ""
+msgstr "<strong>ڕێکخستنەکانی مۆدیول پاشەکەوتکران.</strong> "
 
 #: class.jetpack.php:2330
 msgid "<strong>Your Jetpack is already connected.</strong> "
-msgstr ""
+msgstr "<strong>جیتپاکەکەت بەستراوەتەوە.</strong> "
 
 #: class.jetpack.php:2334 class.jetpack.php:2341
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
@@ -5061,7 +5063,7 @@ msgstr[1] ""
 
 #: class.jetpack.php:2446
 msgid "Is this site private?"
-msgstr ""
+msgstr "ئەمە تایبەتە؟"
 
 #: class.jetpack.php:2451
 msgctxt "%l = list of Jetpack module/feature names"
@@ -5080,23 +5082,23 @@ msgstr[1] ""
 #: class.jetpack.php:2485
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "Deactivate %l"
-msgstr ""
+msgstr "ناچالاکی بکە %l"
 
 #: class.jetpack.php:2670
 msgid "Connected to WordPress.com"
-msgstr ""
+msgstr "بیبەستەرەوە لەگەڵ ماڵپەری وۆردپرێس"
 
 #: class.jetpack.php:2670
 msgid "Disconnect from WordPress.com"
-msgstr ""
+msgstr "بیپچڕینە لەگەڵ ماڵپەری وۆردپرێش"
 
 #: class.jetpack.php:2675
 msgid "User linked to WordPress.com"
-msgstr ""
+msgstr "بەکارهێنەر بەسترایەوە بە ماڵپەری وۆردپرێس"
 
 #: class.jetpack.php:2675
 msgid "Unlink user from WordPress.com"
-msgstr ""
+msgstr "بەکارهێنەر بپچڕێنە لەگەڵ ماڵپەری وۆردپرێس"
 
 #: class.jetpack.php:2693
 msgid "Jetpack is network activated and notices can not be dismissed."
@@ -5104,7 +5106,7 @@ msgstr ""
 
 #: class.jetpack.php:2707
 msgid "Dismiss this notice."
-msgstr ""
+msgstr "ئەم ئاگادارییە لابە."
 
 #: class.jetpack.php:2712
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
@@ -5117,11 +5119,11 @@ msgstr ""
 #: class.jetpack.php:2731 modules/post-by-email.php:132
 #: modules/publicize/publicize-jetpack.php:68
 msgid "Link account with WordPress.com"
-msgstr ""
+msgstr "هەژمارەکەت ببەستەوە بە ماڵپەری وۆردپرێسەوە"
 
 #: class.jetpack.php:2752
 msgid "Have feedback on Jetpack?"
-msgstr ""
+msgstr "شتێکت پێیە بۆ جێتپاک؟"
 
 #: class.jetpack.php:2754
 msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
@@ -5142,7 +5144,7 @@ msgstr ""
 
 #: class.jetpack.php:2770
 msgid "Unsubscribe"
-msgstr ""
+msgstr "بەشدارمەبە"
 
 #: class.jetpack.php:2774
 msgctxt "%s = Subscribe link"
@@ -5151,7 +5153,7 @@ msgstr ""
 
 #: class.jetpack.php:2775 modules/subscriptions.php:696
 msgid "Subscribe"
-msgstr ""
+msgstr "بەشداربە"
 
 #: class.jetpack.php:2782
 msgid "You have been subscribed to receive email updates."
@@ -5159,7 +5161,7 @@ msgstr ""
 
 #: class.jetpack.php:2784
 msgid "You will no longer receive email updates about Jetpack."
-msgstr ""
+msgstr "لەمەودوا ئیمەیڵت پێناگات دەربارەی گۆڕانکارییەکانی جێتپاک."
 
 #: class.jetpack.php:2796
 msgid "An <span>Automattic</span> Airline"
@@ -5180,7 +5182,7 @@ msgstr ""
 #: class.jetpack-client-server.php:188 class.jetpack.php:3319
 #: class.jetpack.php:3321 class.jetpack.php:3323 class.jetpack.php:3326
 msgid "Error Details: %s"
-msgstr ""
+msgstr "زانیاری هەڵە: %s"
 
 #: class.jetpack-debugger.php:24
 msgid "You do not have sufficient permissions to access this page."
@@ -5204,7 +5206,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:93
 msgid "It looks like your site can not communicate properly with Jetpack."
-msgstr ""
+msgstr "وا دیارە کە ماڵپەرەکەت ناتوانێت بە تەواوی پەیوەست ببێت بە جێتپاکەوە."
 
 #: class.jetpack-debugger.php:99 class.jetpack.php:1600 class.jetpack.php:1820
 msgid "Jetpack Debugging Center"
@@ -5216,7 +5218,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:128
 msgid "Your Jetpack setup looks a-okay!"
-msgstr ""
+msgstr "ڕێکخستنەکانی جێتپاک باش دەردەکەون!"
 
 #: class.jetpack-debugger.php:131
 msgid "There seems to be a problem with your site’s ability to communicate with Jetpack!"
@@ -5224,4 +5226,4 @@ msgstr ""
 
 #: class.jetpack-debugger.php:138
 msgid "Trouble with Jetpack?"
-msgstr ""
+msgstr "کێشەت هەیە لەگەڵ جێتپاک؟"

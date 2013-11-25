@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 2.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-14 20:09:46+0000\n"
+"PO-Revision-Date: 2013-11-25 20:13:09+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,119 +12,119 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Write a comment..."
-msgstr ""
+msgstr "Escribe un comentario..."
 
 #: class.jetpack.php:999
 msgctxt "Module Tag"
 msgid "Mobile"
-msgstr ""
+msgstr "Móvil"
 
 #: class.jetpack.php:1000
 msgctxt "Module Tag"
 msgid "Other"
-msgstr ""
+msgstr "Otros"
 
 #: class.jetpack-cli.php:169
 msgid "%s has been deactivated."
-msgstr ""
+msgstr "%s ha sido desactivado."
 
 #: class.jetpack.php:993
 msgctxt "Module Tag"
 msgid "Photos and Videos"
-msgstr ""
+msgstr "Fotos y Videos"
 
 #: class.jetpack.php:994
 msgctxt "Module Tag"
 msgid "Social"
-msgstr ""
+msgstr "Social"
 
 #: class.jetpack.php:995
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "Estadísticas WordPress.com"
 
 #: class.jetpack.php:996
 msgctxt "Module Tag"
 msgid "Writing"
-msgstr ""
+msgstr "Escribir"
 
 #: class.jetpack.php:997
 msgctxt "Module Tag"
 msgid "Appearance"
-msgstr ""
+msgstr "Apariencia"
 
 #: class.jetpack.php:998
 msgctxt "Module Tag"
 msgid "Developers"
-msgstr ""
+msgstr "Desarrolladores"
 
 #: class.jetpack-cli.php:82
 msgid "Please specify a user."
-msgstr ""
+msgstr "Por favor especifique un usuario."
 
 #: class.jetpack-cli.php:163
 msgid "%s has been activated."
-msgstr ""
+msgstr "%s ha sido activado."
 
 #: class.jetpack-cli.php:155
 msgid "Inactive"
-msgstr ""
+msgstr "Inactivo"
 
 #: class.jetpack-cli.php:151
 msgid "Available Modules:"
-msgstr ""
+msgstr "Modulos Disponibles:"
 
 #: class.jetpack-cli.php:144
 msgid "Please specify a valid module."
-msgstr ""
+msgstr "Por favor especifique un modulo valido."
 
 #: class.jetpack-cli.php:138
 msgid "%s is not a valid module."
-msgstr ""
+msgstr "%s no es un modulo valido."
 
 #: class.jetpack-cli.php:101
 msgid "Please specify if you would like to disconnect a blog or user."
-msgstr ""
+msgstr "Por favor especifique si desea desconectar un blog o un usuario."
 
 #: class.jetpack-cli.php:97
 msgid "%s could not be disconnected.  Are you sure they're connected currently?"
-msgstr ""
+msgstr "%s no ha podido ser desconectado. ¿Está usted seguro de que están conectados actualmente?"
 
 #: class.jetpack-cli.php:95
 msgid "%s has been successfully disconnected."
-msgstr ""
+msgstr "%s ha sido desconectado con éxito."
 
 #: class.jetpack-cli.php:90
 msgid "Jetpack has been successfully disconnected."
-msgstr ""
+msgstr "Jetpack ha sido desconectado con éxito."
 
 #: class.jetpack-cli.php:79
 msgid "Please specify a valid user."
-msgstr ""
+msgstr "Por favor especifique un usuario valido."
 
 #: class.jetpack-cli.php:62 class.jetpack-cli.php:131
 msgid "%s is not a valid command."
-msgstr ""
+msgstr "%s no es un comando valido."
 
 #: class.jetpack-cli.php:57
 msgid "You cannot disconnect, without having first connected."
-msgstr ""
+msgstr "No puedes desconectar. sin haber conectado previamente."
 
 #: class.jetpack-cli.php:25
 msgid "Jetpack is currently connected to WordPress.com"
-msgstr ""
+msgstr "Jetpack esta actualmente conectado a WordPress.com"
 
 #: class.jetpack-cli.php:26
 msgid "The Jetpack Version is %s"
-msgstr ""
+msgstr "La Versión de Jetpack es %s"
 
 #: class.jetpack-cli.php:27
 msgid "The WordPress.com blog_id is %d"
-msgstr ""
+msgstr "El blog_id de WordPress.com es %d"
 
 #: class.jetpack-cli.php:29
 msgid "Jetpack is not currently connected to WordPress.com"
-msgstr ""
+msgstr "Jetpack no esta conectado actualmente a WordPress.com"
 
 msgid "A single search box, that lets you search many different things."
 msgstr "Un sólo campo de búsqueda que te permite buscar muchas cosas."
@@ -151,7 +151,7 @@ msgid "Jetpack Single Sign On"
 msgstr ""
 
 msgid "Let users login with their WordPress.com Credentials"
-msgstr ""
+msgstr "Permite a los usuarios conectarse con las Credenciales de WordPress.com"
 
 msgid "Simple, concise site stats with no additional load on your server."
 msgstr "Estadísticas simples y concisas sin carga adicional a tu servidor."
@@ -397,7 +397,7 @@ msgstr "Altura (px):"
 
 #: modules/widgets/twitter-timeline.php:175
 msgid "# of Tweets Shown:"
-msgstr ""
+msgstr "# de Tweets visibles:"
 
 #: modules/widgets/twitter-timeline.php:183
 msgid "You need to <a href=\"%1$s\" target=\"_blank\">create a widget at Twitter.com</a>, and then enter your widget id (the long number found in the URL of your widget's config page) in the field below. <a href=\"%2$s\" target=\"_blank\">Read more</a>."
@@ -546,7 +546,7 @@ msgid "Receive notifications on your mobile device."
 msgstr "Recibir notificaciones en tu dispositivo móvil."
 
 msgid "Jetpack Monitor will keep tabs on your site, and alert you the moment that downtime is detected."
-msgstr ""
+msgstr "Jetpack Monitor vigilará tu sitio, y te avisamos el momento en que detectamos periodos de inactividad."
 
 msgid "Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com."
 msgstr "Controle y gestione la actividad de su sitio con Notificaciones en la Barra de herramientas y en WordPress.com."
@@ -1889,7 +1889,7 @@ msgstr ""
 
 #: modules/module-info.php:885
 msgid "Monitor"
-msgstr ""
+msgstr "Monitor"
 
 #: modules/module-info.php:887
 msgid "Nobody likes downtime, and that's why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!"

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 2.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-14 20:10:13+0000\n"
+"PO-Revision-Date: 2013-11-25 20:13:13+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,167 +12,167 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Write a comment..."
-msgstr ""
+msgstr "Lascia un commento..."
 
 #: class.jetpack.php:999
 msgctxt "Module Tag"
 msgid "Mobile"
-msgstr ""
+msgstr "Mobile"
 
 #: class.jetpack.php:1000
 msgctxt "Module Tag"
 msgid "Other"
-msgstr ""
+msgstr "Altro"
 
 #: class.jetpack-cli.php:169
 msgid "%s has been deactivated."
-msgstr ""
+msgstr "%s è stato disattivato."
 
 #: class.jetpack.php:993
 msgctxt "Module Tag"
 msgid "Photos and Videos"
-msgstr ""
+msgstr "Foto e Video"
 
 #: class.jetpack.php:994
 msgctxt "Module Tag"
 msgid "Social"
-msgstr ""
+msgstr "Social"
 
 #: class.jetpack.php:995
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "Statistiche WordPress.com"
 
 #: class.jetpack.php:996
 msgctxt "Module Tag"
 msgid "Writing"
-msgstr ""
+msgstr "Scrittura"
 
 #: class.jetpack.php:997
 msgctxt "Module Tag"
 msgid "Appearance"
-msgstr ""
+msgstr "Aspetto"
 
 #: class.jetpack.php:998
 msgctxt "Module Tag"
 msgid "Developers"
-msgstr ""
+msgstr "Sviluppatori"
 
 #: class.jetpack-cli.php:82
 msgid "Please specify a user."
-msgstr ""
+msgstr "Specificare un utente."
 
 #: class.jetpack-cli.php:163
 msgid "%s has been activated."
-msgstr ""
+msgstr "%s è stato attivato."
 
 #: class.jetpack-cli.php:155
 msgid "Inactive"
-msgstr ""
+msgstr "Inattivo"
 
 #: class.jetpack-cli.php:151
 msgid "Available Modules:"
-msgstr ""
+msgstr "Moduli disponibili:"
 
 #: class.jetpack-cli.php:144
 msgid "Please specify a valid module."
-msgstr ""
+msgstr "Specificare un modulo valido."
 
 #: class.jetpack-cli.php:138
 msgid "%s is not a valid module."
-msgstr ""
+msgstr "%s non è un modulo valido."
 
 #: class.jetpack-cli.php:101
 msgid "Please specify if you would like to disconnect a blog or user."
-msgstr ""
+msgstr "Specificare se si desidera disconnettere un blog o un utente."
 
 #: class.jetpack-cli.php:97
 msgid "%s could not be disconnected.  Are you sure they're connected currently?"
-msgstr ""
+msgstr "%s non può essere disconnesso. Sei certo che è connesso?"
 
 #: class.jetpack-cli.php:95
 msgid "%s has been successfully disconnected."
-msgstr ""
+msgstr "%s è stato disconnesso con successo."
 
 #: class.jetpack-cli.php:90
 msgid "Jetpack has been successfully disconnected."
-msgstr ""
+msgstr "Jetpack è stato disconnesso con successo."
 
 #: class.jetpack-cli.php:79
 msgid "Please specify a valid user."
-msgstr ""
+msgstr "Specificare un utente valido."
 
 #: class.jetpack-cli.php:62 class.jetpack-cli.php:131
 msgid "%s is not a valid command."
-msgstr ""
+msgstr "%s non è un comando valido."
 
 #: class.jetpack-cli.php:57
 msgid "You cannot disconnect, without having first connected."
-msgstr ""
+msgstr "Impossibile disconnettersi senza prima essere connessi."
 
 #: class.jetpack-cli.php:25
 msgid "Jetpack is currently connected to WordPress.com"
-msgstr ""
+msgstr "Jetpack è attualmente connesso a WordPress.com"
 
 #: class.jetpack-cli.php:26
 msgid "The Jetpack Version is %s"
-msgstr ""
+msgstr "La versione di Jetpack è %s"
 
 #: class.jetpack-cli.php:27
 msgid "The WordPress.com blog_id is %d"
-msgstr ""
+msgstr "Il blog_id di WordPress.com è %d"
 
 #: class.jetpack-cli.php:29
 msgid "Jetpack is not currently connected to WordPress.com"
-msgstr ""
+msgstr "Jetpack non è attualmente connesso a WordPress.com"
 
 msgid "A single search box, that lets you search many different things."
 msgstr "Un unico form di ricerca, che ti permette di trovare molte cose diverse."
 
 msgid "Give your site a boost by loading images from the WordPress.com content delivery network."
-msgstr ""
+msgstr "Accelera il tuo sito caricando le immagini dalla rete di distribuzione dei contenuti di WordPress.com."
 
 msgid "Publish posts to your blog directly from your personal email account."
-msgstr ""
+msgstr "Pubblica post nel tuo blog direttamente dal tuo account email personale."
 
 msgid "Connect your site to popular social networks and automatically share new posts with your friends."
-msgstr ""
+msgstr "Connetti il tuo sito ai social network più popolari e condividi automaticamente i nuovi articoli con i tuoi amici."
 
 msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
-msgstr ""
+msgstr "Il migliore strumento di condivisione nel web. Condividi contenuti su Facebook, Twitter e molti altri."
 
 msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
 msgstr "Includi facilmente i video e altre cose da siti come YouTube, Vimeo e SlideShare."
 
 msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
-msgstr ""
+msgstr "Abilita shortlink generati da WP.me per tutti gli articoli e le pagine per una condivisione più semplice."
 
 msgid "Jetpack Single Sign On"
 msgstr ""
 
 msgid "Let users login with their WordPress.com Credentials"
-msgstr ""
+msgstr "Permetti agli utenti di autenticarsi con le loro credenziali WordPress.com"
 
 msgid "Simple, concise site stats with no additional load on your server."
-msgstr ""
+msgstr "Statistiche semplici e concise, senza consumi di risorse addizionali nel tuo server."
 
 msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
-msgstr ""
+msgstr "Permetti agli utenti di iscriversi ai tuoi articoli e commenti per ricevere notifiche via email."
 
 msgid "Create elegant magazine-style mosaic layouts for your photos without using an external graphic editor."
-msgstr ""
+msgstr "Crea eleganti layout a mosaico in stile magazine per le tue foto senza usare un editor grafico esterno."
 
 msgid "Realtime backup and security scanning for your WordPress site."
-msgstr ""
+msgstr "Backup e scanner di sicurezza in tempo reale per il tuo sito WordPress."
 
 msgid "Quite possibly the easiest way to upload beautiful videos to your blog."
-msgstr ""
+msgstr "Probabilmente il modo più semplice per caricare spettacolari video nel tuo blog."
 
 msgid "Control what pages your widgets appear on."
-msgstr ""
+msgstr "Controlla le pagine in cui i tuoi widget appaiono."
 
 msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
-msgstr ""
+msgstr "Aggiungi facilmente immagini, aggiornamenti Twitter e link RSS del tuo sito nella sidebar del tuo tema."
 
 #: modules/widgets/image-widget.php:116
 msgid "Image title:"
@@ -216,27 +216,27 @@ msgstr "URL link (quando l'immagine viene cliccata):"
 
 #: modules/widgets/readmill.php:11 modules/widgets/readmill.php:21
 msgid "Send To Readmill"
-msgstr ""
+msgstr "Invia a Readmill"
 
 #: modules/widgets/readmill.php:13
 msgid "Readmill is the best book reader for phones and tablets. With this widget you can enable users to send a book to their device with one click."
-msgstr ""
+msgstr "Readmill è il miglior lettore di libri per telefoni e tablet. Con questo widget puoi permettere agli utenti di inviare un libro al proprio dispositivo con un solo click."
 
 #: modules/widgets/readmill.php:47
 msgid "Just enter the URL to your book, make sure it's a PDF or EPUB file, and you are ready to go. For more help, head to <a href='%s'>the Readmill WordPress Widget support page</a>."
-msgstr ""
+msgstr "Inserisci l'URL al tuo libro, assicurandoti che sia un file PDF o EPUB, e hai finito. Per ulteriore supporto vai nella <a href='%s'>pagina di supporto del Widget WordPress Readmill</a>."
 
 #: modules/widgets/readmill.php:55
 msgid "Download URL:"
-msgstr ""
+msgstr "URL download:"
 
 #: modules/widgets/readmill.php:60
 msgid "Item URL:"
-msgstr ""
+msgstr "URL oggetto:"
 
 #: modules/widgets/readmill.php:65
 msgid "What size icon?"
-msgstr ""
+msgstr "Dimensioni dell'icona?"
 
 #: modules/widgets/readmill.php:67 modules/widgets/rsslinks-widget.php:101
 msgid "Large"
@@ -248,7 +248,7 @@ msgstr "Piccolo"
 
 #: modules/widgets/readmill.php:125
 msgid "Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget."
-msgstr ""
+msgstr "Il link ePub è vuoto. Inserisci un link ePub per mostrare il widget Invia a Readmill."
 
 #: modules/widgets/rsslinks-widget.php:12
 msgid "Links to your blog's RSS feeds"
@@ -256,7 +256,7 @@ msgstr "Link al feed RSS del blog"
 
 #: modules/widgets/rsslinks-widget.php:13
 msgid "RSS Links (Jetpack)"
-msgstr ""
+msgstr "Link RSS (Jetpack)"
 
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
@@ -345,7 +345,7 @@ msgstr "Mostra gli articoli e le pagine più visitati."
 
 #: modules/widgets/top-posts.php:78
 msgid "Maximum number of posts to show (no more than 10):"
-msgstr ""
+msgstr "Massimo numero di articoli da mostrare (non più di 10):"
 
 #: modules/widgets/top-posts.php:83
 msgid "Display as:"
@@ -373,15 +373,15 @@ msgstr "Nessun articolo da mostrare. <a href=\"%s\">Vuoi più traffico?</a>"
 
 #: modules/widgets/twitter-timeline.php:24
 msgid "Twitter Timeline"
-msgstr ""
+msgstr "Timeline Twitter"
 
 #: modules/widgets/twitter-timeline.php:27
 msgid "Display an official Twitter Embedded Timeline widget."
-msgstr ""
+msgstr "Mostra un widget con la Twitter Timeline ufficiale."
 
 #: modules/widgets/twitter-timeline.php:75
 msgid "My Tweets"
-msgstr ""
+msgstr "I miei Tweet"
 
 #: modules/widgets/twitter-timeline.php:146
 msgid "Follow me on Twitter"
@@ -389,67 +389,67 @@ msgstr "Seguimi su Twitter"
 
 #: modules/widgets/twitter-timeline.php:165
 msgid "Width (px):"
-msgstr ""
+msgstr "Larghezza (px):"
 
 #: modules/widgets/twitter-timeline.php:170
 msgid "Height (px):"
-msgstr ""
+msgstr "Altezza (px):"
 
 #: modules/widgets/twitter-timeline.php:175
 msgid "# of Tweets Shown:"
-msgstr ""
+msgstr "# di Tweet visibili:"
 
 #: modules/widgets/twitter-timeline.php:183
 msgid "You need to <a href=\"%1$s\" target=\"_blank\">create a widget at Twitter.com</a>, and then enter your widget id (the long number found in the URL of your widget's config page) in the field below. <a href=\"%2$s\" target=\"_blank\">Read more</a>."
-msgstr ""
+msgstr "Devi <a href=\"%1$s\" target=\"_blank\">creare un widget su Twitter.com</a> e inserire il tuo widget id (il numero lungo presente nella URL della pagina di configurazione del tuo widget) nel campo sottostante. <a href=\"%2$s\" target=\"_blank\">Leggi tutto</a>."
 
 #: modules/widgets/twitter-timeline.php:191
 msgid "Widget ID:"
-msgstr ""
+msgstr "Widget ID:"
 
 #: modules/widgets/twitter-timeline.php:196
 msgid "Layout Options:"
-msgstr ""
+msgstr "Opzioni layout:"
 
 #: modules/widgets/twitter-timeline.php:197
 msgid "No Header"
-msgstr ""
+msgstr "Senza testata"
 
 #: modules/widgets/twitter-timeline.php:198
 msgid "No Footer"
-msgstr ""
+msgstr "Senza footer"
 
 #: modules/widgets/twitter-timeline.php:199
 msgid "No Borders"
-msgstr ""
+msgstr "Senza bordi"
 
 #: modules/widgets/twitter-timeline.php:200
 msgid "No Scrollbar"
-msgstr ""
+msgstr "Senza barra di scorrimento"
 
 #: modules/widgets/twitter-timeline.php:201
 msgid "Transparent Background"
-msgstr ""
+msgstr "Sfondo trasparente"
 
 #: modules/widgets/twitter-timeline.php:205
 msgid "Link Color (hex):"
-msgstr ""
+msgstr "Colore link (hex):"
 
 #: modules/widgets/twitter-timeline.php:210
 msgid "Border Color (hex):"
-msgstr ""
+msgstr "Colore bordi (hex):"
 
 #: modules/widgets/twitter-timeline.php:215
 msgid "Timeline Theme:"
-msgstr ""
+msgstr "Tema Timeline:"
 
 #: modules/widgets/wordpress-post-widget.php:23
 msgid "Display WordPress Posts (Jetpack)"
-msgstr ""
+msgstr "Mostra articoli WordPress (Jetpack)"
 
 #: modules/widgets/wordpress-post-widget.php:25
 msgid "Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog."
-msgstr ""
+msgstr "Mostra una lista di articoli recenti da un altro blog WordPress.com o accessibile a Jetpack."
 
 #: modules/widgets/wordpress-post-widget.php:52
 #: modules/widgets/wordpress-post-widget.php:76

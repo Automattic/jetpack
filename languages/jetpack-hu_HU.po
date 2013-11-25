@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 2.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-14 20:09:51+0000\n"
+"PO-Revision-Date: 2013-11-25 20:13:09+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,75 +12,75 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Write a comment..."
-msgstr ""
+msgstr "Hozzászólás"
 
 #: class.jetpack.php:999
 msgctxt "Module Tag"
 msgid "Mobile"
-msgstr ""
+msgstr "Mobil"
 
 #: class.jetpack.php:1000
 msgctxt "Module Tag"
 msgid "Other"
-msgstr ""
+msgstr "Egyéb"
 
 #: class.jetpack-cli.php:169
 msgid "%s has been deactivated."
-msgstr ""
+msgstr "%s kikapcsolásra került."
 
 #: class.jetpack.php:993
 msgctxt "Module Tag"
 msgid "Photos and Videos"
-msgstr ""
+msgstr "Képek és Videók"
 
 #: class.jetpack.php:994
 msgctxt "Module Tag"
 msgid "Social"
-msgstr ""
+msgstr "Közösség"
 
 #: class.jetpack.php:995
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "WordPress.com Statisztika"
 
 #: class.jetpack.php:996
 msgctxt "Module Tag"
 msgid "Writing"
-msgstr ""
+msgstr "Írás"
 
 #: class.jetpack.php:997
 msgctxt "Module Tag"
 msgid "Appearance"
-msgstr ""
+msgstr "Megjelenés"
 
 #: class.jetpack.php:998
 msgctxt "Module Tag"
 msgid "Developers"
-msgstr ""
+msgstr "Fejlesztők"
 
 #: class.jetpack-cli.php:82
 msgid "Please specify a user."
-msgstr ""
+msgstr "Adjunk meg egy felhasználót."
 
 #: class.jetpack-cli.php:163
 msgid "%s has been activated."
-msgstr ""
+msgstr "%s aktiválásra került."
 
 #: class.jetpack-cli.php:155
 msgid "Inactive"
-msgstr ""
+msgstr "Inaktív"
 
 #: class.jetpack-cli.php:151
 msgid "Available Modules:"
-msgstr ""
+msgstr "Elérhető modulok:"
 
 #: class.jetpack-cli.php:144
 msgid "Please specify a valid module."
-msgstr ""
+msgstr "Adjunk meg egy valós modult."
 
 #: class.jetpack-cli.php:138
 msgid "%s is not a valid module."
-msgstr ""
+msgstr "%s nem valós modul."
 
 #: class.jetpack-cli.php:101
 msgid "Please specify if you would like to disconnect a blog or user."
@@ -112,7 +112,7 @@ msgstr ""
 
 #: class.jetpack-cli.php:25
 msgid "Jetpack is currently connected to WordPress.com"
-msgstr ""
+msgstr "Jetpack kapcsolódik a WordPress.comhoz"
 
 #: class.jetpack-cli.php:26
 msgid "The Jetpack Version is %s"
@@ -261,7 +261,7 @@ msgstr "RSS hivatkozások (Jetpack)"
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
 msgid "Posts"
-msgstr "Bejegyzések"
+msgstr "Bejegyzés"
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
@@ -458,7 +458,7 @@ msgstr ""
 
 #: modules/widgets/wordpress-post-widget.php:86
 msgid "We cannot display posts for this blog."
-msgstr ""
+msgstr "Nem lehetséges bejegyzéseket mutatni ehhez a bloghoz."
 
 #: modules/widgets/wordpress-post-widget.php:115
 msgid "Recent Posts"
@@ -474,7 +474,7 @@ msgstr ""
 
 #: modules/widgets/wordpress-post-widget.php:156
 msgid "Number of Posts to Display:"
-msgstr "Megjelenítendő bejegyzések száma:"
+msgstr "A megjelenítendő bejegyzések száma:"
 
 #: modules/widgets/wordpress-post-widget.php:166
 msgid "Show Featured Image:"
@@ -553,11 +553,11 @@ msgstr "Tartsuk szemmel és kezeljük honlapjaink történéseit az Értesítés
 
 #: modules/videopress/videopress.php:295
 msgid "Allow users to access, edit, and delete my videos"
-msgstr ""
+msgstr "Minden felhasználó hozzáférhet, szerkesztheti, és törölheti a videóimat"
 
 #: modules/videopress/videopress.php:298
 msgid "Allow users to upload videos"
-msgstr ""
+msgstr "Minden felhasználó tölthet fel videót"
 
 #: modules/videopress/videopress.php:303
 msgid "Free formats"
@@ -565,7 +565,7 @@ msgstr "Szabad formátumok"
 
 #: modules/videopress/videopress.php:307
 msgid "Only display videos in free software formats"
-msgstr ""
+msgstr "Csak szabad szoftver formátumokban mutassunk videót"
 
 #: modules/videopress/videopress.php:308
 msgid "Ogg file container with Theora video and Vorbis audio. Note that some browsers are unable to play free software video formats, including Internet Explorer and Safari."
@@ -573,11 +573,11 @@ msgstr ""
 
 #: modules/videopress/videopress.php:313
 msgid "Default quality"
-msgstr ""
+msgstr "Alapértelmezett minőség"
 
 #: modules/videopress/videopress.php:317
 msgid "Display higher quality video by default."
-msgstr ""
+msgstr "Jó minőségű videó mutatása alapértelmezetten."
 
 #: modules/videopress/videopress.php:318
 msgid "This setting may be overridden for individual videos."
@@ -594,23 +594,23 @@ msgstr ""
 
 #: modules/videopress/videopress.php:341
 msgid "Browse Your VideoPress Library"
-msgstr "VideoPress könyvtár böngészés"
+msgstr "Saját VideoPress könyvtár böngészés"
 
 #: modules/videopress/videopress.php:342
 msgid "Please enable JavaScript support in your browser to use VideoPress."
-msgstr ""
+msgstr "A Javasripteket engedélyezni kell a böngészőben a videopress használatához."
 
 #: modules/videopress/videopress.php:589
 msgid "Please select a video file to upload."
-msgstr "Válasszuk ki a feltölteni kívánt videó fájlt."
+msgstr "Válasszuk ki a feltölteni kívánt video fájlt."
 
 #: modules/videopress/videopress.php:590
 msgid "Your video is uploading... Please do not close this window."
-msgstr "A videó feltöltés alatt áll... Ne zárjuk be ezt az ablakot."
+msgstr "A video feltöltés alatt... Ne zárjuk be az ablakot."
 
 #: modules/videopress/videopress.php:591
 msgid "An unknown error has occurred. Please try again later."
-msgstr "Ismeretlen hiba történt. Próbáljuk meg később."
+msgstr "Ismeretlen hiba történt. Próbáljuk meg késöbb."
 
 #: modules/videopress/videopress.php:592
 msgid "Your video has successfully been uploaded. It will appear in your VideoPress Library shortly."
@@ -618,7 +618,7 @@ msgstr "A videó sikeresen feltöltött. A feltöltés hamarosan megjelenik a Vi
 
 #: modules/videopress/videopress.php:594
 msgid "Upload a Video"
-msgstr "Videó feltöltés"
+msgstr "Video feltöltés"
 
 #: modules/videopress/videopress.php:595
 msgid "Insert Video"
@@ -642,7 +642,7 @@ msgstr "Értékelés"
 
 #: modules/videopress/videopress.php:657
 msgid "Shortcode"
-msgstr "Rövid kód"
+msgstr "Rövidkód"
 
 #: modules/videopress/videopress.php:664
 msgid "The preview is unavailable while this video is being processed."
@@ -650,7 +650,7 @@ msgstr "Az előnézet jelenleg nem érhető el mivel a videó feldolgozás alatt
 
 #: modules/videopress/videopress.php:673
 msgid "Video Preview:"
-msgstr "Videó előnézet:"
+msgstr "Video előnézet:"
 
 #: modules/videopress/videopress.php:707
 msgid "Use the form below to upload a video to your VideoPress Library. The following video formats are supported: %s. Maximum upload file size is %d%s."
@@ -658,7 +658,7 @@ msgstr ""
 
 #: modules/videopress/videopress.php:710
 msgid "Upload Video"
-msgstr "Videó feltöltés"
+msgstr "Video feltöltés"
 
 #: modules/widget-visibility/widget-conditions.php:34
 msgid "All category pages"
@@ -690,7 +690,7 @@ msgstr "Éves archívumok"
 
 #: modules/widget-visibility/widget-conditions.php:87
 msgid "Front page"
-msgstr "Címlap"
+msgstr "Kezdőoldal"
 
 #: modules/widget-visibility/widget-conditions.php:88
 msgid "Posts page"
@@ -702,7 +702,7 @@ msgstr "404-es hiba oldal"
 
 #: modules/widget-visibility/widget-conditions.php:90
 msgid "Search results"
-msgstr "Találatok"
+msgstr "Keresési eredményeknél"
 
 #: modules/widget-visibility/widget-conditions.php:91
 msgid "Post type:"
@@ -738,7 +738,7 @@ msgstr "-- Kiválasztás --"
 
 #: modules/widget-visibility/widget-conditions.php:161
 msgid "Category"
-msgstr "Kategória"
+msgstr "kategória"
 
 #: modules/widget-visibility/widget-conditions.php:162
 msgctxt "Noun, as in: \"The author of this post is...\""
@@ -843,19 +843,19 @@ msgstr "Cím:"
 
 #: modules/widgets/gallery/templates/form.php:10
 msgid "Images:"
-msgstr ""
+msgstr "Képek:"
 
 #: modules/widgets/gallery/templates/form.php:43
 msgid "Link To:"
-msgstr ""
+msgstr "Hivatkozás:"
 
 #: modules/widgets/gallery/templates/form.php:58
 msgid "Random Order:"
-msgstr ""
+msgstr "Véletlen sorrend:"
 
 #: modules/widgets/gallery/templates/form.php:69
 msgid "Style:"
-msgstr ""
+msgstr "Stílus:"
 
 #: modules/widgets/gallery.php:20
 msgid "Display a photo gallery or slideshow"
@@ -912,7 +912,7 @@ msgstr "Válassz egy felhasználót vagy az \"Egyedi\" opciót és adj meg egy e
 
 #: modules/widgets/gravatar-profile.php:184
 msgid "Custom"
-msgstr "Egyéni"
+msgstr "egyéni"
 
 #: modules/widgets/gravatar-profile.php:194
 msgid "Custom Email Address"
@@ -940,7 +940,7 @@ msgstr "Új ablakban nyílik meg"
 
 #: modules/widgets/gravatar-profile.php:217
 msgid "Edit Your Profile"
-msgstr "Saját profil szerkesztése"
+msgstr "Saját adatlap szerkesztése"
 
 #: modules/widgets/gravatar-profile.php:217
 msgid "What's a Gravatar?"
@@ -972,7 +972,7 @@ msgstr ""
 
 #: modules/sso.php:339
 msgid "Unlink This Account"
-msgstr ""
+msgstr "Fiók leválasztása"
 
 #: modules/sso.php:384
 msgid "This profile is not currently linked to a WordPress.com Profile."
@@ -1304,7 +1304,7 @@ msgstr "Kérlek, erősítsd meg a születésnapod."
 
 #: modules/videopress/class.videopress-player.php:280
 msgid "Submit"
-msgstr "Beküldés"
+msgstr "Küldés"
 
 #: modules/videopress/class.videopress-player.php:326
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
@@ -1359,7 +1359,7 @@ msgstr ""
 
 #: modules/videopress/videopress.php:269
 msgid "Connected WordPress.com Blog"
-msgstr "Kapcsolódva a WordPress.com bloghoz"
+msgstr "Kapcsolódva: WordPress.com"
 
 #: modules/videopress/videopress.php:278
 msgid "Only videos from the selected blog will be available in your media library."
@@ -1367,11 +1367,11 @@ msgstr ""
 
 #: modules/videopress/videopress.php:279
 msgid "<a href=\"%s\">Click here</a> to refresh this list."
-msgstr "<a href=\"%s\">Kattintás ide</a> a lista frissítéséhez."
+msgstr "A lista frissítéséhez kattintsunk <a href=\"%s\">ide</a>."
 
 #: modules/videopress/videopress.php:285
 msgid "Video Library Access"
-msgstr "Videó könyvtár hozzáférés"
+msgstr "Video könyvtár hozzáférés"
 
 #: modules/videopress/videopress.php:289
 msgid "Do not allow other users to access my VideoPress library"
@@ -1379,11 +1379,11 @@ msgstr ""
 
 #: modules/videopress/videopress.php:291
 msgid "Allow users to access my videos"
-msgstr ""
+msgstr "Minden felhasználó hozzáférhet a videóimhoz"
 
 #: modules/videopress/videopress.php:293
 msgid "Allow users to access and edit my videos"
-msgstr ""
+msgstr "Minden felhasználó hozzáférhet és szerkesztheti a videoimat"
 
 #: modules/sharedaddy/sharing-sources.php:242
 msgid "This post has been shared!"
@@ -1543,7 +1543,7 @@ msgstr "Google"
 #: modules/sharedaddy/sharing-sources.php:843
 msgctxt "share to"
 msgid "Google"
-msgstr ""
+msgstr "Google"
 
 #: modules/sharedaddy/sharing-sources.php:843
 msgid "Click to share on Google+"
@@ -1555,7 +1555,7 @@ msgstr "Kattints ide a megosztáshoz"
 
 #: modules/sharedaddy/sharing-sources.php:985
 msgid "URL"
-msgstr "Webcím"
+msgstr "URL"
 
 #: modules/sharedaddy/sharing-sources.php:990
 msgid "Icon"
@@ -1779,11 +1779,11 @@ msgstr ""
 
 #: modules/sso.php:124
 msgid "Error, invalid response data."
-msgstr ""
+msgstr "Hibás válasz adat."
 
 #: modules/sso.php:167
 msgid "Error: Couldn't create suitable username."
-msgstr ""
+msgstr "Hiba: Nem sikerült létrehozni a megfelelő felhasználónevet."
 
 #: modules/sso.php:261
 msgid "Log in with WordPress.com"
@@ -1823,7 +1823,7 @@ msgstr "További információk a Tetszik gomb használatáról."
 
 #: modules/module-info.php:791
 msgid "The Google+ profile module allows you to connect your blog and Google+ accounts."
-msgstr ""
+msgstr "A Google+ profil modullal lehetővé válik a blogunk és a Google+ fiókunk összekötése."
 
 #: modules/module-info.php:792
 msgid "Displayed below your posts will be a link back to your Google+ profile and a Google+ follow button. A link will also be added to your Google+ profile."
@@ -1831,7 +1831,7 @@ msgstr ""
 
 #: modules/module-info.php:794
 msgid "More information on using Google+ Profile."
-msgstr ""
+msgstr "További információ a Google+ profilok használatáról."
 
 #: modules/module-info.php:810 modules/omnisearch/omnisearch-core.php:59
 #: modules/omnisearch/omnisearch-core.php:64
@@ -1841,7 +1841,7 @@ msgstr "Globális kereső"
 
 #: modules/module-info.php:812
 msgid "Search once, get results from everything! Currently supports searching posts, pages, comments, media, and plugins."
-msgstr ""
+msgstr "Keressünk egyszer, kapjunk eredményt mindenről! Jelenleg bejegyzésekben, oldalakban, hozzászólásokban, médiatárban és bővítményekben keres."
 
 #: modules/module-info.php:814
 msgid "Omnisearch plays nice with other plugins by letting other providers offer results as well."
@@ -1877,7 +1877,7 @@ msgstr ""
 
 #: modules/module-info.php:867
 msgid "Single Sign On"
-msgstr ""
+msgstr "Egyszerűsített bejelentkezés"
 
 #: modules/module-info.php:869
 msgid "With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
@@ -1937,7 +1937,7 @@ msgstr "Médiafájl keresése"
 #: modules/omnisearch/omnisearch-media.php:17
 #: modules/omnisearch/omnisearch-media.php:28
 msgid "Media"
-msgstr "Média"
+msgstr "Médiatár"
 
 #: modules/omnisearch/omnisearch-plugins.php:20
 msgid "Search Plugins"
@@ -1964,19 +1964,19 @@ msgstr "Részlet"
 
 #: modules/omnisearch/omnisearch-posts.php:75
 msgid "Unpublished"
-msgstr "Nem publikált"
+msgstr "Nincs közzétéve"
 
 #: modules/omnisearch/omnisearch-posts.php:78
 msgid "Y/m/d g:i:s A"
-msgstr "Y/m/d g:i:s A"
+msgstr "Y-m-d  H:i"
 
 #: modules/omnisearch/omnisearch-posts.php:85
 msgid "%s ago"
-msgstr "%s telt el"
+msgstr "%s telt el a bejegyzés óta"
 
 #: modules/omnisearch/omnisearch-posts.php:87
 msgid "Y/m/d"
-msgstr "Y/m/d"
+msgstr "Y-m-d"
 
 #: modules/omnisearch/omnisearch-posts.php:93
 msgid "Published"
@@ -1992,7 +1992,7 @@ msgstr "Ütemezve"
 
 #: modules/omnisearch/omnisearch-posts.php:100
 msgid "Last Modified"
-msgstr "Utolsó módosítás"
+msgstr "Módosítva"
 
 #: modules/post-by-email.php:95 modules/subscriptions.php:621
 msgid "Email Address"
@@ -2005,7 +2005,7 @@ msgstr "Engedélyezzük az e-mailen keresztüli bejegyzéseket"
 #: modules/post-by-email.php:114
 #: modules/videopress/class.videopress-player.php:283
 msgid "More information"
-msgstr "További információ"
+msgstr "Bővebb információ"
 
 #: modules/post-by-email.php:117
 msgid "Regenerate Address"
@@ -2099,7 +2099,7 @@ msgstr "Tumblr blog"
 
 #: modules/publicize/publicize.php:373
 msgid "This connection is working correctly."
-msgstr ""
+msgstr "A kapcsolat megfelelően működik."
 
 #: modules/publicize/ui.php:76
 msgid "You have successfully connected your blog with your %s account."
@@ -2161,7 +2161,7 @@ msgstr "Egyedi üzenet:"
 #: modules/publicize/ui.php:635 modules/publicize/ui.php:664
 #: modules/publicize/ui.php:666
 msgid "Hide"
-msgstr "Rejtve"
+msgstr "Elrejtés"
 
 #: modules/publicize/ui.php:644
 msgid "Not Connected"
@@ -2177,7 +2177,7 @@ msgstr "Regisztrálj és oszd meg bejegyzéseid: %s"
 
 #: modules/publicize/ui.php:679
 msgid "Show"
-msgstr "Látszik"
+msgstr "Mutat"
 
 #: modules/publicize.php:90
 msgctxt "word count: words or characters?"
@@ -2203,7 +2203,7 @@ msgstr "Megosztás:"
 #: modules/sharedaddy/sharing-service.php:551
 #: modules/sharedaddy/sharing.php:250 modules/sharedaddy/sharing.php:283
 msgid "More"
-msgstr "Tovább"
+msgstr "(tovább...)"
 
 #: modules/sharedaddy/sharing-service.php:553
 #: modules/videopress/videopress.php:635
@@ -2217,7 +2217,7 @@ msgstr "Email"
 
 #: modules/module-info.php:60
 msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
-msgstr ""
+msgstr "A lebegőnévjegy egy nagyszerű módja az internetes jelenlétünk bemutatásnak, és hogy segítsünk az embereknek megtalálni a blogunkat."
 
 #: modules/module-info.php:74
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
@@ -2710,7 +2710,7 @@ msgstr "Megosztó gombok"
 
 #: modules/likes.php:466 modules/sharedaddy/sharing.php:352
 msgid "Save Changes"
-msgstr "Változások mentése"
+msgstr "Módosítások mentése"
 
 #: modules/likes.php:616
 msgid "Like this:"
@@ -2754,11 +2754,11 @@ msgstr "Hozzászólás navigáció"
 
 #: modules/minileven/theme/pub/minileven/comments.php:46
 msgid "&larr; Older Comments"
-msgstr "&larr; Korábbi hozzászólások"
+msgstr "&larr; Korábbi hozzászólás"
 
 #: modules/minileven/theme/pub/minileven/comments.php:47
 msgid "Newer Comments &rarr;"
-msgstr "Újabb hozzászólások &rarr;"
+msgstr "Újabb hozzászólás &rarr;"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:14
 #: modules/minileven/theme/pub/minileven/content-gallery.php:58
@@ -2766,7 +2766,7 @@ msgstr "Újabb hozzászólások &rarr;"
 #: modules/minileven/theme/pub/minileven/content.php:18
 #: modules/minileven/theme/pub/minileven/content.php:22
 msgid "Permalink to %s"
-msgstr "%s bejegyzéshez közvetlen hivatkozás"
+msgstr "%s bejegyzés közvetlen hivatkozása"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:15
 #: modules/widgets/gallery.php:26
@@ -2777,7 +2777,7 @@ msgstr "Galéria"
 #: modules/minileven/theme/pub/minileven/content.php:41
 #: modules/minileven/theme/pub/minileven/inc/tweaks.php:30
 msgid "Continue reading <span class=\"meta-nav\">&rarr;</span>"
-msgstr "Folytatás <span class=\"meta-nav\">&rarr;</span>"
+msgstr "Bővebben... <span class=\"meta-nav\">&rarr;</span>"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:57
 msgid "This gallery contains <a %1$s>%2$s photo</a>."
@@ -2819,12 +2819,12 @@ msgstr "%s"
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "Leave a reply"
-msgstr "Vélemény?"
+msgstr "Hozzászólás"
 
 #: modules/minileven/theme/pub/minileven/content.php:59
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:19
 msgid "Post navigation"
-msgstr "Bejegyzés navigáció"
+msgstr "Bejegyzések navigációja"
 
 #: modules/minileven/theme/pub/minileven/content.php:60
 #: modules/minileven/theme/pub/minileven/image.php:88
@@ -2837,15 +2837,15 @@ msgstr "Következő &raquo;"
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "http://wordpress.org/"
-msgstr "http://wphu.org/"
+msgstr "http://wphu.org"
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "Semantic Personal Publishing Platform"
-msgstr "Szemantikus személyes publikációs platform"
+msgstr "Személyes Publikációs Platform"
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "Proudly powered by %s"
-msgstr "Köszönjük %s! | <small>Fordítás: <a href=\"http://djz.hu\" target=\"_blank\">DjZoNe</a> és <a href=\"http://www.wordpress2you.com\" target=\"_blank\">FYGureout</a></small>"
+msgstr "Működteti %s"
 
 #: modules/minileven/theme/pub/minileven/functions.php:59
 msgid "Primary Menu"
@@ -2859,7 +2859,7 @@ msgstr "on"
 #: modules/minileven/theme/pub/minileven/functions.php:102
 msgctxt "Open Sans font: add new subset (greek, cyrillic, vietnamese)"
 msgid "no-subset"
-msgstr "hungarian"
+msgstr "no-subset"
 
 #: modules/minileven/theme/pub/minileven/functions.php:128
 msgid "Main Sidebar"
@@ -2923,15 +2923,15 @@ msgstr "%s oldal"
 
 #: modules/minileven/theme/pub/minileven/index.php:23
 msgid "Daily Archives: %s"
-msgstr "%s nap bejegyzései"
+msgstr "%s napi bejegyzések"
 
 #: modules/minileven/theme/pub/minileven/index.php:25
 msgid "Monthly Archives: %s"
-msgstr "%s hónap bejegyzései"
+msgstr "%s havi bejegyzések"
 
 #: modules/minileven/theme/pub/minileven/index.php:27
 msgid "Yearly Archives: %s"
-msgstr "%s. év bejegyzései"
+msgstr "%s. évi bejegyzések"
 
 #: modules/minileven/theme/pub/minileven/index.php:29
 msgid "Posted in %s"
@@ -2951,11 +2951,11 @@ msgstr "Valamennyi bejegyzés"
 
 #: modules/minileven/theme/pub/minileven/index.php:43
 msgid "Search Results for: %s"
-msgstr "%s kifejezésre történő keresés eredménye:"
+msgstr "%s kifejezésre történő keresés eredménye"
 
 #: modules/minileven/theme/pub/minileven/index.php:57
 msgid "Nothing Found"
-msgstr "Nincs találat!"
+msgstr "Nincs megfelelő találat"
 
 #: modules/minileven/theme/pub/minileven/index.php:61
 msgid "Apologies, but no results were found for the requested archive. Perhaps searching will help find a related post."
@@ -3178,7 +3178,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:332
 msgid "Labels"
-msgstr ""
+msgstr "Feliratok"
 
 #: modules/custom-post-types/nova.php:333
 #: modules/custom-post-types/nova.php:742
@@ -3194,7 +3194,7 @@ msgstr "Rendelés"
 #: modules/custom-post-types/nova.php:390
 #: modules/custom-post-types/nova.php:442
 msgid "Re-order"
-msgstr ""
+msgstr "Újra rendezés"
 
 #: modules/custom-post-types/nova.php:637
 msgid "Move menu section up"
@@ -3236,7 +3236,7 @@ msgstr ","
 
 #: modules/custom-post-types/nova.php:868
 msgid "No Labels"
-msgstr ""
+msgstr "Nincsenek feliratok"
 
 #: modules/custom-post-types/testimonial.php:66
 msgid "Customer Testimonials"
@@ -3359,7 +3359,7 @@ msgstr "Bejegyzések száma:"
 
 #: modules/featured-content/featured-content.php:377
 msgid "Hide tag from displaying in post meta and tag clouds."
-msgstr ""
+msgstr "Címke elrejtése a bejegyzés címkéi közül és a címke felhőből."
 
 #: modules/gplus-authorship/admin/ui.php:54
 #: modules/gplus-authorship/admin/ui.php:65 modules/likes.php:427
@@ -3378,7 +3378,7 @@ msgstr "Megosztás"
 
 #: modules/gplus-authorship/admin/ui.php:79
 msgid "Your Google+ account has been connected."
-msgstr ""
+msgstr "A Google+ fiók kapcsolódott."
 
 #: modules/gplus-authorship/admin/ui.php:80
 msgid "There was a problem connecting your Google+ account. Please try again."
@@ -3400,7 +3400,7 @@ msgstr "Szétkapcsolás"
 
 #: modules/gplus-authorship/admin/ui.php:129
 msgid "Connect your WordPress account to Google+ to add this blog to your Google+ profile and improve the visibility of your blog posts on Google."
-msgstr ""
+msgstr "A WordPress.com és a Google+ kapcsolat segítségével közzé tehetjük bejegyzéseinket a Google+ oldalon."
 
 #: modules/gplus-authorship/admin/ui.php:131
 msgid "Need help?"
@@ -3520,7 +3520,7 @@ msgstr "Új mező"
 
 #: modules/contact-form/grunion-form-view.php:151
 msgid "Field type"
-msgstr "Mező típusa"
+msgstr "Mező típus"
 
 #: modules/contact-form/grunion-form-view.php:153
 msgid "Checkbox"
@@ -3621,7 +3621,7 @@ msgstr "Stíluslap elmentve."
 
 #: modules/custom-css/custom-css.php:662
 msgid "Publish"
-msgstr "Közzététele"
+msgstr "Közzététel"
 
 #: modules/custom-css/custom-css.php:668
 msgid "CSS Revisions"
@@ -3659,7 +3659,7 @@ msgstr "%s px"
 #: modules/minileven/theme/pub/minileven/page.php:31
 #: modules/publicize/ui.php:677
 msgid "Edit"
-msgstr "Szerkeszt"
+msgstr "Szerkesztés"
 
 #: modules/custom-css/custom-css.php:725
 msgid "Limit width to %1$s pixels for videos, full size images, and other shortcodes. (<a href=\"%2$s\">More info</a>.)"
@@ -3680,7 +3680,7 @@ msgstr "OK"
 #: modules/custom-css/custom-css.php:858 modules/minileven/minileven.php:271
 #: modules/sharedaddy/sharing-sources.php:299
 msgid "Cancel"
-msgstr "Mégse"
+msgstr "Megszakítás"
 
 #: modules/custom-css/custom-css.php:811
 msgid "Preprocessor:"
@@ -3689,7 +3689,7 @@ msgstr "Előfeldolgozó:"
 #: modules/custom-css/custom-css.php:812 modules/custom-css/custom-css.php:817
 #: modules/videopress/videopress.php:273 modules/widgets/image-widget.php:124
 msgid "None"
-msgstr "Nincs"
+msgstr "Egyik sem"
 
 #: modules/custom-css/custom-css.php:841
 msgid "Mode:"
@@ -3735,21 +3735,21 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:89
 msgid "Convert to Post"
-msgstr ""
+msgstr "Bejegyzéssé alakítás"
 
 #: modules/custom-post-types/comics.php:113
 msgid "You are not allowed to make this change."
-msgstr ""
+msgstr "Ez a változást nem hajthatjuk végre."
 
 #: modules/custom-post-types/comics.php:160
 msgid "Post converted."
 msgid_plural "%s posts converted"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "A bejegyzés átalakítva."
+msgstr[1] "%s bejegyzés átalakítva."
 
 #: modules/custom-post-types/comics.php:173
 msgid "Drop images to upload"
-msgstr ""
+msgstr "Ejtsünk ide képeket a feltöltéshez."
 
 #: modules/custom-post-types/comics.php:174
 msgid "Uploading..."
@@ -3757,7 +3757,7 @@ msgstr "Feltőltés..."
 
 #: modules/custom-post-types/comics.php:175
 msgid "Processing..."
-msgstr "Feldolgozás…"
+msgstr "Feldolgozás..."
 
 #: modules/custom-post-types/comics.php:176
 msgid "Sorry, your browser isn't supported. Upgrade at browsehappy.com."
@@ -3765,25 +3765,25 @@ msgstr "Sajnáljuk, az ön böngészőjét nem támogatjuk. Javasoljuk, frissít
 
 #: modules/custom-post-types/comics.php:177
 msgid "Only images can be uploaded here."
-msgstr ""
+msgstr "Itt csak képek feltöltése lehetséges."
 
 #: modules/custom-post-types/comics.php:178
 msgid "Your upload didn't complete; try again later or cross your fingers and try again right now."
-msgstr ""
+msgstr "A feltöltés nem sikerült, próbáljuk meg később, vagy próbáljuk újra most, és szorítsunk érte."
 
 #: modules/custom-post-types/comics.php:191
 #: modules/custom-post-types/comics.php:193
 #: modules/custom-post-types/comics.php:195
 msgid "Comics"
-msgstr ""
+msgstr "Képregények"
 
 #: modules/custom-post-types/comics.php:194
 msgid "Comic"
-msgstr ""
+msgstr "Képregény"
 
 #: modules/custom-post-types/comics.php:196
 msgid "All Comics"
-msgstr ""
+msgstr "Összes képregény"
 
 #: modules/custom-post-types/comics.php:197
 #: modules/custom-post-types/testimonial.php:72 modules/publicize/ui.php:207
@@ -3792,31 +3792,31 @@ msgstr "Új hozzáadása"
 
 #: modules/custom-post-types/comics.php:198
 msgid "Add New Comic"
-msgstr ""
+msgstr "Új képregény hozzáadása"
 
 #: modules/custom-post-types/comics.php:199
 msgid "Edit Comic"
-msgstr ""
+msgstr "Képregény szerkesztése"
 
 #: modules/custom-post-types/comics.php:200
 msgid "New Comic"
-msgstr ""
+msgstr "Új képregény"
 
 #: modules/custom-post-types/comics.php:201
 msgid "View Comic"
-msgstr ""
+msgstr "Képregény megtekintése"
 
 #: modules/custom-post-types/comics.php:202
 msgid "Search Comics"
-msgstr ""
+msgstr "Képregények keresése"
 
 #: modules/custom-post-types/comics.php:203
 msgid "No Comics found"
-msgstr ""
+msgstr "Nem találhatóak képregények"
 
 #: modules/custom-post-types/comics.php:204
 msgid "No Comics found in Trash"
-msgstr ""
+msgstr "Nincsenek képregények a Lomtárban."
 
 #: modules/custom-post-types/comics.php:273
 msgid "Comic updated. <a href=\"%s\">View comic</a>"
@@ -3834,7 +3834,7 @@ msgstr "Egyedi mező törölve."
 
 #: modules/custom-post-types/comics.php:276
 msgid "Comic updated."
-msgstr ""
+msgstr "Képregény frissítve."
 
 #: modules/custom-post-types/comics.php:278
 msgid "Comic restored to revision from %s"
@@ -3846,11 +3846,11 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:280
 msgid "Comic saved."
-msgstr ""
+msgstr "Képregények elmentve."
 
 #: modules/custom-post-types/comics.php:281
 msgid "Comic submitted. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
-msgstr ""
+msgstr "Képregény elküldve. <a target=\"_blank\" href=\"%s\">Képregény megtekintése</a>"
 
 #: modules/custom-post-types/comics.php:282
 msgid "Comic scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview comic</a>"
@@ -3859,7 +3859,7 @@ msgstr ""
 #: modules/custom-post-types/comics.php:284
 #: modules/custom-post-types/testimonial.php:143
 msgid "M j, Y @ G:i"
-msgstr "M j, Y @ G:i"
+msgstr "Y. F j.  l -  H:i"
 
 #: modules/custom-post-types/comics.php:285
 msgid "Comic draft updated. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
@@ -4064,19 +4064,19 @@ msgstr "Üzenet"
 #: modules/contact-form/grunion-omnisearch.php:38
 #: modules/omnisearch/omnisearch-posts.php:46
 msgid "Date"
-msgstr "Dátum"
+msgstr "Közzétéve"
 
 #: modules/contact-form/admin.php:268
 msgid "Restore this item from the Trash"
-msgstr "Elem visszaállítás a lomtárból"
+msgstr "Ezen tétel helyreállítása a lomtárból"
 
 #: modules/contact-form/admin.php:270
 msgid "Restore"
-msgstr "Visszaállítás"
+msgstr "Helyreállítás"
 
 #: modules/contact-form/admin.php:273 modules/contact-form/admin.php:372
 msgid "Delete this item permanently"
-msgstr "Elem végleges törlése"
+msgstr "Ezen tétel végleges törlése"
 
 #: modules/contact-form/admin.php:275 modules/contact-form/admin.php:374
 msgid "Delete Permanently"
@@ -4100,7 +4100,7 @@ msgstr "Megjelölés NEM spam-ként."
 #: modules/contact-form/grunion-contact-form.php:1187
 msgctxt "{$date_format} \\a\\t {$time_format}"
 msgid "%1$s \\a\\t %2$s"
-msgstr ""
+msgstr "%1$s \\a\\t %2$s"
 
 #: modules/contact-form/admin.php:568
 msgid "You are not allowed to move this item out of the Trash."
@@ -4144,8 +4144,8 @@ msgstr "Nem találhatóak visszajelzések"
 #: modules/contact-form/grunion-contact-form.php:103
 msgid "Spam <span class=\"count\">(%s)</span>"
 msgid_plural "Spam <span class=\"count\">(%s)</span>"
-msgstr[0] "Spam <span class=\"count\">(%s)</span>"
-msgstr[1] ""
+msgstr[0] "<span class=\"count\">(%s)</span> spam"
+msgstr[1] "<span class=\"count\">(%s)</span> spam"
 
 #: modules/contact-form/grunion-contact-form.php:192
 msgid "An error occurred. Please try again later."
@@ -4247,7 +4247,7 @@ msgstr "%s megadása kötelező"
 #: modules/contact-form/grunion-contact-form.php:1561
 #: modules/contact-form/grunion-contact-form.php:1571
 msgid "(required)"
-msgstr "(szükséges)"
+msgstr "(kötelező)"
 
 #: modules/contact-form/grunion-contact-form.php:1543
 #: modules/minileven/minileven.php:261
@@ -4360,7 +4360,7 @@ msgstr "Kikapcsol"
 
 #: class.jetpack.php:3006
 msgid "Activate"
-msgstr "Kiválasztás"
+msgstr "Bekapcsol"
 
 #: class.jetpack.php:3026
 msgid "Free"
@@ -4376,7 +4376,7 @@ msgstr "Új"
 
 #: class.jetpack.php:3037
 msgid "Updated"
-msgstr "Frissítve"
+msgstr "frissítve"
 
 #: class.jetpack.php:3065
 msgid "Configure"
@@ -4642,7 +4642,7 @@ msgstr "Határozza meg azokat a szavakat és kifejezéseket, melyeket figyelmen 
 #: modules/after-the-deadline/config-unignore.php:133
 #: modules/widget-visibility/widget-conditions.php:174
 msgid "Add"
-msgstr "Hozzáadás"
+msgstr "Hozzáad"
 
 #: modules/after-the-deadline/config-unignore.php:138
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
@@ -4650,7 +4650,7 @@ msgstr "Ügyeljen arra, hogy kattintson az \"Profil frissítése\" gombra a kép
 
 #: modules/carousel/jetpack-carousel.php:106
 msgid "Comment"
-msgstr "Hozzászólás"
+msgstr "hozzászólás"
 
 #: modules/carousel/jetpack-carousel.php:107
 msgid "Post Comment"
@@ -4720,7 +4720,7 @@ msgstr "%s (Kötelező)"
 #: modules/contact-form/grunion-contact-form.php:753
 #: modules/contact-form/grunion-form-view.php:155
 msgid "Email"
-msgstr "E-mail cím"
+msgstr "Email"
 
 #: modules/carousel/jetpack-carousel.php:141
 #: modules/contact-form/grunion-contact-form.php:754
@@ -4754,7 +4754,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:141
 msgid "A known issue."
-msgstr ""
+msgstr "Egy ismert probléma."
 
 #: class.jetpack-debugger.php:141
 msgid "Some themes and plugins have <a href=\"%1$s\" target=\"_blank\">known conflicts</a> with Jetpack – check the <a href=\"%2$s\" target=\"_blank\">list</a>. (You can also browse the <a href=\"%3$s\">Jetpack support pages</a> or <a href=\"%4$s\">Jetpack support forum</a> to see if others have experienced and solved the problem.)"
@@ -4762,7 +4762,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:142
 msgid "An incompatible plugin."
-msgstr ""
+msgstr "Inkompatibilis bővítmény."
 
 #: class.jetpack-debugger.php:142
 msgid "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help."
@@ -4770,7 +4770,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:143
 msgid "A theme conflict."
-msgstr ""
+msgstr "Sablon hiba."
 
 #: class.jetpack-debugger.php:143
 msgid "If your problem isn't known or caused by a plugin, try activating Twenty Twelve (the default WordPress theme). If this solves the problem, something in your theme is probably broken – let the theme's author know."
@@ -4778,7 +4778,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:144
 msgid "A problem with your XMLRPC file."
-msgstr ""
+msgstr "XMLRPC fájl probléma."
 
 #: class.jetpack-debugger.php:144
 msgid "Load your <a href=\"%s\">XMLRPC file</a>. It should say “XML-RPC server accepts POST requests only.” on a line by itself."
@@ -4813,7 +4813,7 @@ msgstr "Adjunk meg egy nevet."
 
 #: class.jetpack-debugger.php:177
 msgid "E-mail"
-msgstr "Email"
+msgstr "Email cím"
 
 #: class.jetpack-debugger.php:178
 msgid "Use a valid email address."
@@ -4964,7 +4964,7 @@ msgstr "kattintson ide"
 
 #: class.jetpack.php:2143
 msgid "Cheatin&#8217; uh?"
-msgstr "Csalni próbálsz?"
+msgstr "Csalunk? Csalunk?"
 
 #: class.jetpack.php:2146
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
@@ -5202,11 +5202,11 @@ msgstr "Nincs megfelelő jogosultság az oldal megtekintéséhez."
 
 #: class.jetpack-debugger.php:68
 msgid "Your site isn’t reaching the Jetpack servers."
-msgstr ""
+msgstr "A webhely nem éri el a Jetpack kiszolgálókat."
 
 #: class.jetpack-debugger.php:71
 msgid "Your site isn’t securely reaching the Jetpack servers."
-msgstr ""
+msgstr "A webhely nem éri el biztonságosan a Jetpack kiszolgálókat."
 
 #: class.jetpack-debugger.php:76
 msgid "Your `%1$s` option is set up as `%2$s`, but your WordPress.com connection lists it as `%3$s`!"
@@ -5214,28 +5214,28 @@ msgstr ""
 
 #: class.jetpack-debugger.php:83
 msgid "Something has gotten mixed up in your Jetpack Connection!"
-msgstr ""
+msgstr "Valami összekeveredett a Jetpack kapcsolatban!"
 
 #: class.jetpack-debugger.php:93
 msgid "It looks like your site can not communicate properly with Jetpack."
-msgstr ""
+msgstr "Úgy tűnik, hogy a webhely nem képes helyesen kommunikálni a Jetpackel."
 
 #: class.jetpack-debugger.php:99 class.jetpack.php:1600 class.jetpack.php:1820
 msgid "Jetpack Debugging Center"
-msgstr ""
+msgstr "Jetpack Hibakeresés Központ"
 
 #: class.jetpack-debugger.php:100
 msgid "Testing your site's compatibily with Jetpack..."
-msgstr ""
+msgstr "Jetpack webhely kompatibilitás tesztelés..."
 
 #: class.jetpack-debugger.php:128
 msgid "Your Jetpack setup looks a-okay!"
-msgstr ""
+msgstr "A Jetpack telepítés nem tartalmaz hibát!"
 
 #: class.jetpack-debugger.php:131
 msgid "There seems to be a problem with your site’s ability to communicate with Jetpack!"
-msgstr ""
+msgstr "Úgy tűnik, hogy hiba van a webhely kommunikációs képességeivel a Jetpack kiszolgálók irányába."
 
 #: class.jetpack-debugger.php:138
 msgid "Trouble with Jetpack?"
-msgstr ""
+msgstr "Hiba lépett fel a Jetpack használata közben?"

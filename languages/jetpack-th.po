@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 2.6 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-14 20:10:51+0000\n"
+"PO-Revision-Date: 2013-11-25 20:13:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -261,7 +261,7 @@ msgstr ""
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
 msgid "Posts"
-msgstr "ข้อความ"
+msgstr "เรื่อง"
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
@@ -2057,7 +2057,7 @@ msgstr ""
 
 #: modules/publicize/publicize-jetpack.php:209
 msgid "Error code: %s"
-msgstr ""
+msgstr "โค้ดผิดพลาด: %s"
 
 #: modules/publicize/publicize-jetpack.php:218
 msgid "That connection has been removed."
@@ -2898,7 +2898,7 @@ msgstr "ความเห็นของคุณกำลังรอตรว
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:76
 msgid "Reply"
-msgstr ""
+msgstr "ตอบกลับ"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:90
 msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
@@ -3205,7 +3205,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:741
 msgid "Description"
-msgstr "คำอธิบาย"
+msgstr "คำขยายความ"
 
 #: modules/custom-post-types/nova.php:743
 msgid "Labels: <small>spicy, favorite, etc.</small>"
@@ -3809,12 +3809,12 @@ msgstr ""
 #: modules/custom-post-types/comics.php:274
 #: modules/custom-post-types/testimonial.php:133
 msgid "Custom field updated."
-msgstr "อัปเดตช่องปรับแต่งแล้ว"
+msgstr "Custom field ถูกปรับปรุง"
 
 #: modules/custom-post-types/comics.php:275
 #: modules/custom-post-types/testimonial.php:134
 msgid "Custom field deleted."
-msgstr "ลบช่องปรับแต่งแล้ว"
+msgstr "Custom field ถูกลบ"
 
 #: modules/custom-post-types/comics.php:276
 msgid "Comic updated."
@@ -4056,7 +4056,7 @@ msgstr "กู้คืนสิ่งนี้จากถังขยะ"
 
 #: modules/contact-form/admin.php:270
 msgid "Restore"
-msgstr "ย้อนกลับ"
+msgstr "กู้คืน"
 
 #: modules/contact-form/admin.php:273 modules/contact-form/admin.php:372
 msgid "Delete this item permanently"
@@ -4064,7 +4064,7 @@ msgstr "ลบสิ่งนี้ถาวร"
 
 #: modules/contact-form/admin.php:275 modules/contact-form/admin.php:374
 msgid "Delete Permanently"
-msgstr "ลบถาวร"
+msgstr "ลบอย่างถาวร"
 
 #: modules/contact-form/admin.php:306
 msgid "Mark this message as spam"
