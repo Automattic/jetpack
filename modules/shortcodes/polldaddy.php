@@ -90,7 +90,7 @@ CONTAINER;
 			'visit'      => 'single',
 			'domain'     => '',
 			'id'         => ''
-		), $atts ) );
+		), $atts, 'polldaddy' ) );
 
 		if ( ! is_array( $atts ) ) {
 			return '<!-- Polldaddy shortcode passed invalid attributes -->';
