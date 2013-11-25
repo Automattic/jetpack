@@ -1889,6 +1889,7 @@ p {
 				}
 				#adminmenu #menu-posts-feedback div.wp-menu-image {
 					background: none !important;
+					background-repeat: no-repeat;
 				}";
 		} else {
 			$css = "
