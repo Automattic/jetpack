@@ -72,7 +72,7 @@ function minileven_configuration_screen() {
 			</tr>
 		</table>
 		<p class="submit">
-			<input type="submit" class="button-primary" value="<?php esc_attr_e( __( 'Save configuration', 'jetpack' ) ); ?>" />
+			<input type="submit" class="button-primary" value="<?php esc_attr_e( 'Save configuration', 'jetpack' ); ?>" />
 		</p>
 	</form>
 	<h3><?php _e( 'Mobile Apps', 'jetpack' ); ?></h3>
