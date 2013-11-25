@@ -131,8 +131,8 @@ class Jetpack_Media_Summary {
 
 			$number_of_paragraphs = $number_of_paragraphs - $return['count']['video']; // subtract amount for videos..
 
-			// More than 1 paragraph? The video is not the primary focus so we can do some more analysis
-			if ( $number_of_paragraphs > 1 )
+			// More than 2 paragraph? The video is not the primary focus so we can do some more analysis
+			if ( $number_of_paragraphs > 2 )
 				$return['type'] = 'standard';
 		}
 
@@ -170,8 +170,8 @@ class Jetpack_Media_Summary {
 				$return['secure']['image'] = self::ssl_img( $return['image'] );
 				$return['count']['image']++;
 
-				if ( $number_of_paragraphs <= 1 ) {
-					// If we have some text, let's not treat it as an image post, but return its first image
+				if ( $number_of_paragraphs <= 2 ) {
+					// If we have lots of text, let's not treat it as an image post, but return its first image
 					$return['type']  = 'image';
 				}
 			}
