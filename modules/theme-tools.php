@@ -1,8 +1,26 @@
 <?php
 /*
  * Load code specific to themes or theme tools
+ * This file is special, and is not an actual `module` as such.
+ * It is included by ./module-extras.php
  */
- 
+
+function jetpack_load_theme_tools() {
+	if ( current_theme_supports( 'social-links' ) ) {
+		require_once( JETPACK__PLUGIN_DIR . 'modules/theme-tools/social-links.php' );
+	}
+
+	if ( current_theme_supports( 'tonesque' ) ) {
+		jetpack_require_lib( 'tonesque' );
+	}
+
+	require_once( JETPACK__PLUGIN_DIR . 'modules/theme-tools/random-redirect.php' );
+}
+add_action( 'init', 'jetpack_load_theme_tools', 30 );
+
+// Featured Content has an internal check for theme support in the constructor.
+require_once( JETPACK__PLUGIN_DIR . 'modules/theme-tools/featured-content.php' );
+
 /**
  * INFINITE SCROLL
  */
@@ -51,15 +69,8 @@ function jetpack_can_activate_infinite_scroll( $can_activate ) {
 }
 add_filter( 'jetpack_can_activate_infinite-scroll', 'jetpack_can_activate_infinite_scroll' );
 
-require_once( dirname( __FILE__ ) . '/featured-content/featured-content.php' );
-
-require_once( dirname( __FILE__ ) . '/social-links.php' );
-
-require_once( dirname( __FILE__ ) . '/tonesque.php' ); 
-
 // Custom Post Types - we don't want a module card for these (yet)
-require_once( dirname( __FILE__ ) . '/custom-post-types/comics.php' );
-require_once( dirname( __FILE__ ) . '/custom-post-types/testimonial.php' );
-require_once( dirname( __FILE__ ) . '/custom-post-types/nova.php' );
+require_once( JETPACK__PLUGIN_DIR . 'modules/custom-post-types/comics.php' );
+require_once( JETPACK__PLUGIN_DIR . 'modules/custom-post-types/testimonial.php' );
+require_once( JETPACK__PLUGIN_DIR . 'modules/custom-post-types/nova.php' );
 
-require_once( dirname( __FILE__ ) . '/random-redirect.php' );
