@@ -2,7 +2,7 @@
 Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, lancewillett, martinremy, matt, matveb, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, richardmtl, stephdau, tmoorewp, Viper007Bond, westi, yoavf
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow
 Requires at least: 3.5
-Tested up to: 3.6
+Tested up to: 3.7.1
 Stable tag: 2.6
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
@@ -85,9 +85,9 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 = 2.6 =
 * Enhancement: WPCC / now called [SSO](http://jetpack.me/support/sso/): refactored.
-* Enhancement: Monitor: new module which will notify you if your site goes down(http://jetpack.me/support/monitor/). 
+* Enhancement: Monitor: new module which will notify you if your site goes down(http://jetpack.me/support/monitor/).
 * Enhancement: Custom CSS: replace Ace editor with Codemirror.
-* Enhancement: Widgets: new “Display Posts” widget. 
+* Enhancement: Widgets: new “Display Posts” widget.
 * Enhancement: WP-CLI: add commands to disconnect a site and manage modules.
 * Enhancement: Contact Form: new filters, `grunion_contact_form_field_html` and `grunion_should_send_email`.
 * Enhancement: Custom Post Types: new restaurant post type.
@@ -110,7 +110,7 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Bug Fix: Google Authorship: support apostrophes in Google+ profiles.
 * Bug Fix: Google Authorship: use a regexp Instead of using `mb_convert_encoding`, which doesn’t enjoy universal support.
 * Bug Fix: Heartbeat: ensure that it never triggers more than once per week.
-* Bug Fix: JSON API: add new `?meta=` parameter that allows you to expand the data found in the `meta->links` responses. 
+* Bug Fix: JSON API: add new `?meta=` parameter that allows you to expand the data found in the `meta->links` responses.
 * Bug Fix: JSON API: add new `is_private` response to the sites endpoint and `global_ID` response to the reader and post endpoints.
 * Bug Fix: Mobile Theme: allow small images to display inline.
 * Bug Fix: Mobile Theme: fix fatal errors for missing `minileven_header` function.
@@ -119,7 +119,7 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Bug Fix: Tiled Galleries: improve display of panoramic images and fix errors when an image is not uploaded properly.
 
 = 2.5 =
-* Enhancement: Connect your Google+ profile and WordPress site to prove authorship of posts. 
+* Enhancement: Connect your Google+ profile and WordPress site to prove authorship of posts.
 * Enhancement: Improved sharing buttons display.
 * Enhancement: Comment on your posts using Google+ to signin.
 * Enhancement: Embed Google+ posts into your posts.
