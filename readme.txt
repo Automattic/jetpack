@@ -3,7 +3,7 @@ Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebe
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow
 Requires at least: 3.5
 Tested up to: 3.6
-Stable tag: 2.5
+Stable tag: 2.6
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
 
@@ -85,7 +85,7 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 = 2.6 =
 * Enhancement: WPCC / now called [SSO](http://jetpack.me/support/sso/): refactored.
-* Enhancement: Monitor: new module which will notify you if your site goes down. 
+* Enhancement: Monitor: new module which will notify you if your site goes down(http://jetpack.me/support/monitor/). 
 * Enhancement: Custom CSS: replace Ace editor with Codemirror.
 * Enhancement: Widgets: new “Display Posts” widget. 
 * Enhancement: WP-CLI: add commands to disconnect a site and manage modules.
