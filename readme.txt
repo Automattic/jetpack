@@ -85,7 +85,7 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 = 2.6 =
 * Enhancement: WPCC / now called [SSO](http://jetpack.me/support/sso/): refactored.
-* Enhancement: Monitor: new module which will notify you if your site goes down. 
+* Enhancement: Monitor: new module which will notify you if your site goes down(http://jetpack.me/support/monitor/). 
 * Enhancement: Custom CSS: replace Ace editor with Codemirror.
 * Enhancement: Widgets: new “Display Posts” widget. 
 * Enhancement: WP-CLI: add commands to disconnect a site and manage modules.
