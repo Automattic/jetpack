@@ -84,29 +84,39 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 == Changelog ==
 
 = 2.6 =
-* Enhancement: WPCC / now called SSO: Refactored.
-* Enhancement: Monitor: New module which will notify you if your site goes down. 
-* Enhancement: Custom CSS: Replace Ace editor with Codemirror.
-* Enhancement: Carousel: Many improvements to the module.
-* Enhancement: Widgets: Display Posts: New widget. 
-* Enhancement: Open Graph: Add a screenshot of the page as an image meta tag if you haven’t added any images to your post
-* Enhancement: Contact Form: Add new filters, grunion_contact_form_field_html and grunion_should_send_email
-* Enhancement: Better handling of conflicts with other plugins.
-* Enhancement: Genericons: Update to v3.0.1
-* Enhancement: Custom Post Types: Add the restaurant post type.
-* Enhancement: Google Authorship: Update module icon.
-* Enhancement: Google Authorship: Add an alt tag to the G+ Authorship image.
-* Enhancement: Infinite Scroll: Many improvements and fixes.
-* Enhancement: Likes: Performance improvements.
-* Enhancement: Publicize: Add background token tests for connected publicize services and display problems on settings sharing and add new post
-* Bug Fix: After the Deadline: Add a typeof check for tinyMCEPreInit.mceInit to prevent js errors.
-* Bug Fix: Custom Post Types: Testimonials: Return if featured image is empty so it can be removed after it’s been set.
-* Bug Fix: Google Authorship: Use a regexp Instead of using mb_convert_encoding, which doesn’t enjoy universal support.
-* Bug Fix: Minileven: Allow small images to display inline.
-* Bug Fix: Photon: Fix errors when an image is not uploaded properly.
-* Bug Fix: Shortcodes: Improvements to Archives, Google+, Presentations and Vine.
-* Bug Fix: Tiled Galleries: Improve display of panoramic images and fix errors when an image is not uploaded properly.
-* Bug Fix: Heartbeat: Ensure that it never triggers more than once per week.
+* Enhancement: WPCC / now called [SSO](http://jetpack.me/support/sso/): refactored.
+* Enhancement: Monitor: new module which will notify you if your site goes down. 
+* Enhancement: Custom CSS: replace Ace editor with Codemirror.
+* Enhancement: Widgets: new “Display Posts” widget. 
+* Enhancement: WP-CLI: add commands to disconnect a site and manage modules.
+* Enhancement: Contact Form: new filters, `grunion_contact_form_field_html` and `grunion_should_send_email`.
+* Enhancement: Custom Post Types: new restaurant post type.
+* Enhancement: Genericons: update to version 3.0.2.
+* Enhancement: Infinite Scroll: many improvements and fixes.
+* Enhancement: Likes: performance improvements.
+* Enhancement: MP6: Jetpack icons are now compatible with WordPress 3.8.
+* Enhancement: Open Graph: better descriptions, fallback images, and media extraction from video posts.
+* Enhancement: Publicize: new background token tests for connected publicize services and display problems on settings sharing and add new post.
+* Enhancement: Shortcodes: updated Bandcamp shortcode to support the `tracklist` and `minimal` attributes, as well as more `artwork` attribute values.
+* Enhancement: Shortlinks: add Custom Post Type support.
+* Enhancement: Subscriptions: add more ways to customize the subscriptions widget.
+* Enhancement: Twitter Cards: better media management and card type detection, and better handling of conflicts with other Twitter Cards plugins.
+* Enhancement: better handling of conflicts with other plugins.
+* Bug Fix: After the Deadline: add a typeof check for `tinyMCEPreInit.mceInit` to prevent js errors.
+* Bug Fix: Carousel: speed improvements and several bugfixes.
+* Bug Fix: Contact Form: remove nonce creating issues with caching plugins.
+* Bug Fix: Custom Post Types: Testimonials: return if featured image is empty so it can be removed after it’s been set.
+* Bug Fix: Featured Content: add additional post type support through the `additional_post_types` argument.
+* Bug Fix: Google Authorship: support apostrophes in Google+ profiles.
+* Bug Fix: Google Authorship: use a regexp Instead of using `mb_convert_encoding`, which doesn’t enjoy universal support.
+* Bug Fix: Heartbeat: ensure that it never triggers more than once per week.
+* Bug Fix: JSON API: add new `?meta=` parameter that allows you to expand the data found in the `meta->links` responses. 
+* Bug Fix: JSON API: add new `is_private` response to the sites endpoint and `global_ID` response to the reader and post endpoints.
+* Bug Fix: Mobile Theme: allow small images to display inline.
+* Bug Fix: Mobile Theme: fix fatal errors for missing `minileven_header` function.
+* Bug Fix: Photon: fix errors when an image is not uploaded properly.
+* Bug Fix: Shortcodes: improvements to Archives, Google+, Presentations, Vine and Youtube.
+* Bug Fix: Tiled Galleries: improve display of panoramic images and fix errors when an image is not uploaded properly.
 
 = 2.5 =
 * Enhancement: Connect your Google+ profile and WordPress site to prove authorship of posts. 
