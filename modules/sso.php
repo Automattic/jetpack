@@ -238,26 +238,38 @@ class Jetpack_SSO {
 		}
 		.jetpack-sso.button:before {
 			display: block;
-			width: 22px;
-			height: 22px;
 			padding: 3px 4px;
 			position: absolute;
 			top: -1px;
 			left: -1px;
 			border-radius: 2px 0 0 2px;
-			font: normal 22px/1 Genericons !important;
 			content: '\\f205';
 			background: #0074a2;
 			color: #fff;
 			-webkit-font-smoothing: antialiased;
+			width: 22px;
+			height: 22px;
+			font: normal 22px/1 Genericons !important;
+			text-shadow: none;
 		}
 		.jetpack-sso.button:active:before {
 			padding-top: 4px;
 		}
 		.jetpack-sso.button:hover {
 			border: 1px solid #aaa;
+		}";
+		
+		if ( version_compare( $wp_version, '3.8-alpha', '<' ) ) {
+			$css .= "
+			.jetpack-sso.button:before {
+				width: 18px;
+				height: 18px;
+				font-size: 18px !important;
+			}
+			";
 		}
-		</style>";
+
+		$css .= "</style>";
 
 		return sprintf( '<a href="%1$s" class="jetpack-sso button">%2$s</a>', esc_url( $url ), esc_html__( 'Log in with WordPress.com', 'jetpack' ) ) . $css;
 	}
