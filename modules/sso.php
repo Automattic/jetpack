@@ -258,8 +258,8 @@ class Jetpack_SSO {
 		.jetpack-sso.button:hover {
 			border: 1px solid #aaa;
 		}";
-		
-		if ( version_compare( $wp_version, '3.8-alpha', '<' ) ) {
+
+		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '<' ) ) {
 			$css .= "
 			.jetpack-sso.button:before {
 				width: 18px;
