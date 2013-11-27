@@ -83,6 +83,13 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 2.6.1 =
+* Bug Fix: minor styling fix in pre- and post-MP6/3.8 UI changes.
+* Bug Fix: Stats: spinner gif url fix when the user is viewing it over https.
+* Bug Fix: Media Extractor: some hosts don't compile unicode for preg_match_all, so we temporarily removed the block that depended on it.
+* Bug Fix: Twitter Cards: treat single-image galleries as a photo-type.
+* Bug Fix: Correct max supported version number -- had been 3.6, update to 3.7.1
+
 = 2.6 =
 * Enhancement: WPCC / now called [SSO](http://jetpack.me/support/sso/): refactored.
 * Enhancement: Monitor: new module which will notify you if your site goes down(http://jetpack.me/support/monitor/).
