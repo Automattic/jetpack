@@ -1893,6 +1893,9 @@ p {
 					font-family: 'Jetpack' !important;
 					content: '\\e600';
 				}
+				#toplevel_page_jetpack .wp-menu-image {
+					background-repeat: no-repeat;
+				}
 				#menu-posts-feedback .wp-menu-image:before {
 					font-family: dashicons !important;
 					content: '\\f175';
