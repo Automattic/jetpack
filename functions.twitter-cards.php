@@ -101,14 +101,15 @@ function wpcom_twitter_cards_define_type_based_on_image_count( $og_tags, $extrac
 				$og_tags['twitter:image'] = blavatar_url( $blavatar_domain, 'img', 240);
 		}
 		// Not falling back on Gravatar, because there's no way to know if we end up with an auto-generated one.
-	} else if (1 == $img_count && 'image' == $extract['type']) {
+	} else if  ( 1 == $img_count && ( 'image' == $extract['type'] || 'gallery' == $extract['type'] ) ) {
 		// 1 image = photo
+		// Test for $extract['type'] to limit to image and gallery, so we don't send a potential fallback image like a Gravatar as a photo post.
 		$card_type = 'photo';
 		$og_tags['twitter:image'] = add_query_arg( 'w', 1400, ( empty( $extract['images'] ) ) ? $extract['image'] : $extract['images'][0]['url'] );
-	} else if ($img_count <= 3) {
+	} else if ( $img_count <= 3 ) {
 		// 2-3 images = summary with small thumbnail
 		$og_tags['twitter:image'] = add_query_arg( 'w', 240, ( empty( $extract['images'] ) ) ? $extract['image'] : $extract['images'][0]['url'] );
-	} else if ($img_count >= 4) {
+	} else if ( $img_count >= 4 ) {
 		// >= 4 images = gallery
 		$card_type = 'gallery';
 		$og_tags = wpcom_twitter_cards_gallery( $extract, $og_tags );
