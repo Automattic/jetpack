@@ -600,6 +600,7 @@ class Jetpack {
 			'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',	// WP Facebook Like Send & Open Graph Meta
 			'network-publisher/networkpub.php',							// Network Publisher
 			'wp-ogp/wp-ogp.php',									// WP-OGP
+			'open-graph-protocol-framework/open-graph-protocol-framework.php',			// Open Graph Protocol Framework
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
