@@ -601,6 +601,7 @@ class Jetpack {
 			'network-publisher/networkpub.php',							// Network Publisher
 			'wp-ogp/wp-ogp.php',									// WP-OGP
 			'open-graph-protocol-framework/open-graph-protocol-framework.php',			// Open Graph Protocol Framework
+			'all-in-one-seo-pack/all_in_one_seo_pack.php',						// All in One SEO Pack
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
