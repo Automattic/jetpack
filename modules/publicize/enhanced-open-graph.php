@@ -11,11 +11,9 @@ function enhanced_og_image( $tags ) {
 
 	global $post;
 
-	// Don't pick the OG video stuff over a featured image
-	$featured = Jetpack_PostImages::from_thumbnail( $post->ID, 200, 200 );
-	if ( !empty( $featured ) && count( $featured ) > 0 ) {
+	// Always favor featured images.
+	if ( enhanced_og_has_featured_image( $post->ID ) )
 		return $tags;
-	}
 
 	$summary = Jetpack_Media_Summary::get( $post->ID );
 
@@ -37,6 +35,11 @@ function enhanced_og_gallery( $tags ) {
 		return $tags;
 
 	global $post;
+
+	// Always favor featured images.
+	if ( enhanced_og_has_featured_image( $post->ID ) )
+		return $tags;
+
 	$summary = Jetpack_Media_Summary::get( $post->ID );
 
 	if ( 'gallery' != $summary['type'] )
@@ -64,11 +67,9 @@ function enhanced_og_video( $tags ) {
 
 	global $post;
 
-	// Don't pick the OG video stuff over a featured image
-	$featured = Jetpack_PostImages::from_thumbnail( $post->ID, 200, 200 );
-	if ( !empty( $featured ) && count( $featured ) > 0 ) {
+	// Always favor featured images.
+	if ( enhanced_og_has_featured_image( $post->ID ) )
 		return $tags;
-	}
 
 	$summary = Jetpack_Media_Summary::get( $post->ID );
 
@@ -104,8 +105,15 @@ function enhanced_og_video( $tags ) {
 	$tags['og:video:secure_url'] = $secure_video_url;
 
 	if ( empty( $post->post_title ) )
-		$tags['og:title'] = __( sprintf( 'Video on %s', get_option( 'blogname' ) ) );
+		$tags['og:title'] = sprintf( __( 'Video on %s', 'jetpack' ), get_option( 'blogname' ) );
 
 	return $tags;
 }
 add_filter( 'jetpack_open_graph_tags', 'enhanced_og_video' );
+
+function enhanced_og_has_featured_image( $post_id ) {
+	$featured = Jetpack_PostImages::from_thumbnail( $post_id, 200, 200 );
+	if ( !empty( $featured ) && count( $featured ) > 0 )
+		return true;
+	return false;
+}
