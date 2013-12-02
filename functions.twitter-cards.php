@@ -77,13 +77,13 @@ function wpcom_twitter_cards_tags( $og_tags ) {
 	if ( ! isset( $og_tags['og:description'] ) || '' == trim( $og_tags['og:description'] ) ) { // empty( trim( $og_tags['og:description'] ) ) isn't valid php
 		$has_creator = ( !empty($og_tags['twitter:creator']) && '@wordpressdotcom' != $og_tags['twitter:creator'] ) ? true : false;
 		if ( 'photo' == $card_type )
-			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('Photo post by %s.'), $og_tags['twitter:creator'] ) : __('Photo post.');
+			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('Photo post by %s.', 'jetpack'), $og_tags['twitter:creator'] ) : __('Photo post.', 'jetpack');
 		else if ( !empty( $extract ) && 'video' == $extract['type'] ) // use $extract['type'] since $card_type is 'summary' for video posts
-			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('Video post by %s.'), $og_tags['twitter:creator'] ) : __('Video post.');
+			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('Video post by %s.', 'jetpack'), $og_tags['twitter:creator'] ) : __('Video post.', 'jetpack');
 		else if ( 'gallery' == $card_type )
-			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('Gallery post by %s.'), $og_tags['twitter:creator'] ) : __('Gallery post.');
+			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('Gallery post by %s.', 'jetpack'), $og_tags['twitter:creator'] ) : __('Gallery post.', 'jetpack');
 		else
-			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('Blog post by %s.'), $og_tags['twitter:creator'] ) : __('Blog post.');
+			$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __('New post by %s.', 'jetpack'), $og_tags['twitter:creator'] ) : __('New post.', 'jetpack');
 	}
 
 	return $og_tags;
