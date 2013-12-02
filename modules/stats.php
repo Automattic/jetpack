@@ -410,7 +410,7 @@ function stats_reports_page() {
 
 	if ( isset( $_REQUEST['chart'] ) ) {
 		if ( preg_match( '/^[a-z0-9-]+$/', $_REQUEST['chart'] ) )
-			$url = 'http://' . STATS_DASHBOARD_SERVER . "/wp-includes/charts/{$_GET['chart']}.php";
+			$url = 'http://' . STATS_DASHBOARD_SERVER . "/wp-includes/charts/{$_REQUEST['chart']}.php";
 	} else {
 		$url = 'http://' . STATS_DASHBOARD_SERVER . "/wp-admin/index.php";
 	}
