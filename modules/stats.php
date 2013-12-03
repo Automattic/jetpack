@@ -1028,9 +1028,9 @@ function stats_print_wp_remote_error( $get, $url ) {
 	<div class="wrap">
 	<p><?php printf( __( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s">contact support</a>. In your report please include the information below.', 'jetpack' ), 'http://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
 	<pre>
-	User Agent: "<?php print htmlspecialchars( $_SERVER['HTTP_USER_AGENT'] ); ?>"
-	Page URL: "http<?php print (is_ssl()?'s':'') . '://' . htmlspecialchars( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ); ?>"
-	API URL: "<?php print clean_url( $url ); ?>"
+	User Agent: "<?php echo esc_html( $_SERVER['HTTP_USER_AGENT'] ); ?>"
+	Page URL: "http<?php echo (is_ssl()?'s':'') . '://' . esc_html( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ); ?>"
+	API URL: "<?php echo clean_url( $url ); ?>"
 <?php
 	if ( is_wp_error( $get ) ) {
 		foreach ( $get->get_error_codes() as $code ) {
