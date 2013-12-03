@@ -1,9 +1,9 @@
-=== Jetpack by WordPress.com === 
+=== Jetpack by WordPress.com ===
 Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, lancewillett, martinremy, matt, matveb, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, richardmtl, stephdau, tmoorewp, Viper007Bond, westi, yoavf
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow
 Requires at least: 3.6
 Tested up to: 3.7.1
-Stable tag: 2.6
+Stable tag: 2.6.1
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
 
@@ -90,8 +90,11 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 = 2.6.1 =
 * Bug Fix: minor styling fix in pre- and post-MP6/3.8 UI changes.
 * Bug Fix: Stats: spinner gif url fix when the user is viewing it over https.
+* Bug Fix: Stats: Switch to esc_html from htmlspecialchars in error message -- better to be native
 * Bug Fix: Media Extractor: some hosts don't compile unicode for preg_match_all, so we temporarily removed the block that depended on it.
+* Bug Fix: Media Extractor: Add in some error handling for malformed URLs.
 * Bug Fix: Twitter Cards: treat single-image galleries as a photo-type.
+* Bug Fix: Update conflicting plugins for OG tags and Twitter Cards.
 * Bug Fix: Correct max supported version number -- had been 3.6, update to 3.7.1
 
 = 2.6 =
