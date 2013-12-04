@@ -72,8 +72,7 @@ class Jetpack_VideoPress_Shortcode {
 		) );
 
 		// Enqueue VideoPress scripts
-		$js_url = ( is_ssl() ) ? 'https://v0.wordpress.com/js/videopress.js' : 'http://s0.videopress.com/js/videopress.js';
-		wp_enqueue_script( 'videopress', $js_url, array( 'jquery', 'swfobject' ), '1.09' );
+		self::enqueue_scripts();
 
 		require_once( dirname( __FILE__ ) . '/class.videopress-video.php' );
 		require_once( dirname( __FILE__ ) . '/class.videopress-player.php' );
@@ -98,6 +97,18 @@ class Jetpack_VideoPress_Shortcode {
 			return true;
 		else
 			return false;
+	}
+
+	/**
+	 * Enqueue scripts needed to play VideoPress videos
+	 *
+	 * @uses is_ssl()
+	 * @uses wp_enqueue_script()
+	 * @return null
+	 */
+	public static function enqueue_scripts() {
+		$js_url = ( is_ssl() ) ? 'https://v0.wordpress.com/js/videopress.js' : 'http://s0.videopress.com/js/videopress.js';
+		wp_enqueue_script( 'videopress', $js_url, array( 'jquery', 'swfobject' ), '1.09' );
 	}
 }
 

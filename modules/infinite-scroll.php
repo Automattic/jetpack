@@ -181,9 +181,16 @@ class Jetpack_Infinite_Scroll_Extras {
 	 * @return null
 	 */
 	public function action_wp_enqueue_scripts() {
+		// Stand-alone plugin
 		global $videopress;
-		if ( ! empty( $videopress ) && The_Neverending_Home_Page::archive_supports_infinity() && is_a( $videopress, 'VideoPress' ) && method_exists( $videopress, 'enqueue_scripts' ) )
+		if ( ! empty( $videopress ) && The_Neverending_Home_Page::archive_supports_infinity() && is_a( $videopress, 'VideoPress' ) && method_exists( $videopress, 'enqueue_scripts' ) ) {
 			$videopress->enqueue_scripts();
+		}
+
+		// Jetpack module
+		if ( Jetpack::is_module_active( 'videopress' ) ) {
+			Jetpack_VideoPress_Shortcode::enqueue_scripts();
+		}
 	}
 }
 Jetpack_Infinite_Scroll_Extras::instance();
