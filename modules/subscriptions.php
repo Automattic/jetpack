@@ -558,10 +558,21 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$control_ops = array( 'width' => 300 );
 
 		$this->WP_Widget( 'blog_subscription', __( 'Blog Subscriptions (Jetpack)', 'jetpack' ), $widget_ops, $control_ops );
+
+		add_action( 'init', array( $this, 'maybe_add_style' ) );
+	}
+
+	function maybe_add_style() {
+	    if ( is_active_widget( false, false, $this->id_base, true ) ) {
+		wp_register_style( 'jetpack-subscriptions', plugins_url( 'subscriptions/subscriptions.css', __FILE__ ) );
+		wp_enqueue_style( 'jetpack-subscriptions' );
+	    }
 	}
 
 	function widget( $args, $instance ) {
 		global $current_user;
+
+		
 
 		$source                 = 'widget';
 		$instance            	= wp_parse_args( (array) $instance, $this->defaults() );
@@ -621,7 +632,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			}
 			?>
 
-			<p id="subscribe-email"><input type="text" name="email" style="width: 95%; padding: 1px 2px" value="<?php echo !empty( $current_user->user_email ) ? esc_attr( $current_user->user_email ) : esc_html__( 'Email Address', 'jetpack' ); ?>" id="<?php echo esc_attr($subscribe_field_id) ?>" onclick="if ( this.value == '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>' ) { this.value = ''; }" onblur="if ( this.value == '' ) { this.value = '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>'; }" /></p>
+			<p id="subscribe-email"><input type="text" name="email" value="<?php echo !empty( $current_user->user_email ) ? esc_attr( $current_user->user_email ) : esc_html__( 'Email Address', 'jetpack' ); ?>" id="<?php echo esc_attr($subscribe_field_id) ?>" onclick="if ( this.value == '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>' ) { this.value = ''; }" onblur="if ( this.value == '' ) { this.value = '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>'; }" /></p>
 
 			<p id="subscribe-submit">
 				<input type="hidden" name="action" value="subscribe" />
