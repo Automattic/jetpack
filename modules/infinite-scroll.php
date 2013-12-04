@@ -49,6 +49,7 @@ class Jetpack_Infinite_Scroll_Extras {
 
 		add_filter( 'infinite_scroll_js_settings', array( $this, 'filter_infinite_scroll_js_settings' ) );
 
+		add_action( 'infinite_scroll_wp_head', array( $this, 'action_infinite_scroll_wp_head' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ) );
 	}
 
@@ -171,6 +172,25 @@ class Jetpack_Infinite_Scroll_Extras {
 		$settings['google_analytics'] = (bool) get_option( $this->option_name_google_analytics );
 
 		return $settings;
+	}
+
+	/**
+	 * Ensure certain Jetpack modules' scripts are loaded when IS is active, otherwise modules may not function.
+	 *
+	 * @uses do_action
+	 * @action infinite_scroll_wp_head
+	 * @return null
+	 */
+	public function action_infinite_scroll_wp_head() {
+		// Fire the post_gallery action early so Carousel scripts are present.
+		if ( Jetpack::is_module_active( 'carousel' ) ) {
+			do_action( 'post_gallery', '', '' );
+		}
+
+		// Always enqueue Tiled Gallery scripts when both IS and Tiled Galleries are enabled
+		if ( Jetpack::is_module_active( 'tiled-gallery' ) ) {
+			Jetpack_Tiled_Gallery::default_scripts_and_styles();
+		}
 	}
 
 	/**

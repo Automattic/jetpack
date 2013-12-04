@@ -80,7 +80,7 @@ class Jetpack_Tiled_Gallery {
 			return get_attachment_link( $attachment_id );
 	}
 
-	public function default_scripts_and_styles() {
+	public static function default_scripts_and_styles() {
 		wp_enqueue_script( 'tiled-gallery', plugins_url( 'tiled-gallery/tiled-gallery.js', __FILE__ ), array( 'jquery' ) );
 		wp_enqueue_style( 'tiled-gallery', plugins_url( 'tiled-gallery/tiled-gallery.css', __FILE__ ), array(), '2012-09-21' );
 	}
@@ -102,7 +102,7 @@ class Jetpack_Tiled_Gallery {
 
 		if ( method_exists( $this, $this->atts['type'] . '_talavera' ) ) {
 			// Enqueue styles and scripts
-			$this->default_scripts_and_styles();
+			self::default_scripts_and_styles();
 			$gallery_html = call_user_func_array( array( $this, $this->atts['type'] . '_talavera' ), array( $attachments ) );
 
 			if ( $gallery_html && class_exists( 'Jetpack' ) && class_exists( 'Jetpack_Photon' ) ) {
