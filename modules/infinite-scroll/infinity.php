@@ -390,7 +390,9 @@ class The_Neverending_Home_Page {
 		if ( empty( $query ) )
 			$query = self::wp_query();
 
-		switch ( $query->query_vars['orderby'] ) {
+		$orderby = isset( $query->query_vars['orderby'] ) ? $query->query_vars['orderby'] : '';
+
+		switch ( $orderby ) {
 			case 'modified':
 				return 'post_modified';
 			case 'date':
