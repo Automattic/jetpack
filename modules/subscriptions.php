@@ -574,8 +574,11 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( ! is_array( $subscribers_total ) )
 			$show_subscribers_total = FALSE;
 
+		// Give the input element a unique ID  
+		$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id ); 
+
 		echo $args['before_widget'];
-		echo $args['before_title'] . '<label for="subscribe-field">' . esc_attr( apply_filters( 'widget_title', $instance['title'] ) ) . '</label>' . $args['after_title'] . "\n";
+		echo $args['before_title'] . '<label for="' . esc_attr( $subscribe_field_id ) . '">' . esc_attr( $instance['title'] ) . '</label>' . $args['after_title'] . "\n"; 
 
 		$referer = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
@@ -618,7 +621,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 			}
 			?>
 
-			<p id="subscribe-email"><input type="text" name="email" style="width: 95%; padding: 1px 2px" value="<?php echo !empty( $current_user->user_email ) ? esc_attr( $current_user->user_email ) : esc_html__( 'Email Address', 'jetpack' ); ?>" id="subscribe-field" onclick="if ( this.value == '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>' ) { this.value = ''; }" onblur="if ( this.value == '' ) { this.value = '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>'; }" /></p>
+			<p id="subscribe-email"><input type="text" name="email" style="width: 95%; padding: 1px 2px" value="<?php echo !empty( $current_user->user_email ) ? esc_attr( $current_user->user_email ) : esc_html__( 'Email Address', 'jetpack' ); ?>" id="<?php echo esc_attr($subscribe_field_id) ?>" onclick="if ( this.value == '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>' ) { this.value = ''; }" onblur="if ( this.value == '' ) { this.value = '<?php esc_html_e( 'Email Address', 'jetpack' ) ?>'; }" /></p>
 
 			<p id="subscribe-submit">
 				<input type="hidden" name="action" value="subscribe" />
