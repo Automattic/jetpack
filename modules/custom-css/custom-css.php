@@ -60,6 +60,7 @@ class Jetpack_Custom_CSS {
 
 		add_filter( 'jetpack_content_width', array( 'Jetpack_Custom_CSS', 'jetpack_content_width' ) );
 		add_filter( 'editor_max_image_size', array( 'Jetpack_Custom_CSS', 'editor_max_image_size' ), 10, 3 );
+		add_filter( 'undo_switch_theme', array( 'Jetpack_Custom_CSS', 'undo_switch_theme' ), 10, 2 );
 
 		if ( !current_user_can( 'switch_themes' ) && !is_super_admin() )
 			return;
@@ -98,6 +99,7 @@ class Jetpack_Custom_CSS {
 	 * @param array $args Array of arguments:
 	 *        string $css The CSS (or LESS or Sass)
 	 *        bool $is_preview Whether this CSS is preview or published
+	 *        string preprocessor Which CSS preprocessor to use
 	 *        bool $add_to_existing Whether this CSS replaces the theme's CSS or supplements it.
 	 *        int $content_width A custom $content_width to go along with this CSS.
 	 * @return int The post ID of the saved Custom CSS post.
@@ -1164,6 +1166,48 @@ class Jetpack_Custom_CSS {
 	}
 
 	/**
+	 * Include support for properly reverting when a theme switch is undone.
+	 */
+	static function undo_switch_theme( $undoer, $stylesheet ) {
+		$current_revision = Jetpack_Custom_CSS::get_current_revision();
+
+		if ( ! $current_revision )
+			return;
+
+		$custom_css_post = Jetpack_Custom_CSS::get_post();
+
+		$is_preview = ( $custom_css_post['date_modified'] < $current_revision['date_modified'] );
+
+		if ( $is_preview ) {
+			// If the current revision at the time of the theme switch was just a preview,
+			// restore whatever revision was active too.
+			$undoer['functions'][] = array(
+				array( 'Jetpack_Custom_CSS', 'save' ),
+				array(
+					'css' => $custom_css_post['post_content'],
+					'is_preview' => false,
+					'preprocessor' => get_metadata( 'post', $custom_css_post['ID'], 'custom_css_preprocessor', true ),
+					'add_to_existing' => get_metadata( 'post', $custom_css_post['ID'], 'custom_css_add', true ) != 'no',
+					'content_width' => get_metadata( 'post', $custom_css_post['ID'], 'content_width', true ),
+				)
+			);
+		}
+
+		$undoer['functions'][] = array(
+			array( 'Jetpack_Custom_CSS', 'save' ),
+			array(
+				'css' => $current_revision['post_content'],
+				'is_preview' => $is_preview,
+				'preprocessor' => get_metadata( 'post', $current_revision['ID'], 'custom_css_preprocessor', true ),
+				'add_to_existing' => get_metadata( 'post', $current_revision['ID'], 'custom_css_add', true ) != 'no',
+				'content_width' => get_metadata( 'post', $current_revision['ID'], 'content_width', true ),
+			)
+		);
+
+		return $undoer;
+	}
+
+	/**
 	 * Override the content_width with a custom value if one is set.
 	 */
 	static function jetpack_content_width( $content_width ) {
@@ -1417,7 +1461,7 @@ function custom_css_minify( $css, $preprocessor = '' ) {
 function custom_css_restore_revision( $_post_id, $_revision_id ) {
 	_deprecated_function( __FUNCTION__, '2.1', 'Jetpack_Custom_CSS::restore_revision()' );
 
-	return Jetpack_Custom_CSS::restore_revision( $_post_id, $_revision_id );;
+	return Jetpack_Custom_CSS::restore_revision( $_post_id, $_revision_id );
 }
 
 function safecss_class() {
