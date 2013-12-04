@@ -12,12 +12,14 @@ class Publicize extends Publicize_Base {
 		add_action( 'wp_ajax_publicize_twitter_options_page', array( $this, 'options_page_twitter' ) );
 		add_action( 'wp_ajax_publicize_linkedin_options_page', array( $this, 'options_page_linkedin' ) );
 		add_action( 'wp_ajax_publicize_path_options_page', array( $this, 'options_page_path' ) );
+		add_action( 'wp_ajax_publicize_google_plus_options_page', array( $this, 'options_page_google_plus' ) );
 
 		add_action( 'wp_ajax_publicize_tumblr_options_save', array( $this, 'options_save_tumblr' ) );
 		add_action( 'wp_ajax_publicize_facebook_options_save', array( $this, 'options_save_facebook' ) );
 		add_action( 'wp_ajax_publicize_twitter_options_save', array( $this, 'options_save_twitter' ) );
 		add_action( 'wp_ajax_publicize_linkedin_options_save', array( $this, 'options_save_linkedin' ) );
 		add_action( 'wp_ajax_publicize_path_options_save', array( $this, 'options_save_path' ) );
+		add_action( 'wp_ajax_publicize_google_plus_options_save', array( $this, 'options_save_google_plus' ) ); 
 
 		add_action( 'load-settings_page_sharing', array( $this, 'force_user_connection' ) );
 		
@@ -291,11 +293,12 @@ class Publicize extends Publicize_Base {
 			$filter = 'all';
 
 		$services = array(
-				'facebook' => array(),
-				'twitter'  => array(),
-				'linkedin' => array(),
-				'tumblr'   => array(),
-				'path'     => array(),
+				'facebook'        => array(),
+				'twitter'         => array(),
+				'linkedin'        => array(),
+				'tumblr'          => array(),
+				'path'            => array(),
+				'google_plus'     => array(),
 		);
 
 		if ( 'all' == $filter ) {
@@ -613,10 +616,12 @@ class Publicize extends Publicize_Base {
 	function options_page_twitter() { Publicize_UI::options_page_other( 'twitter' ); }
 	function options_page_linkedin() { Publicize_UI::options_page_other( 'linkedin' ); }
 	function options_page_path() { Publicize_UI::options_page_other( 'path' ); }
+	function options_page_google_plus() { Publicize_UI::options_page_other( 'google_plus' ); }
 
 	function options_save_twitter() { $this->options_save_other( 'twitter' ); }
 	function options_save_linkedin() { $this->options_save_other( 'linkedin' ); }
 	function options_save_path() { $this->options_save_other( 'path' ); }
+	function options_save_google_plus() { $this->options_save_other( 'google_plus' ); }
 
 	function options_save_other( $service_name ) {
 		// Nonce check
