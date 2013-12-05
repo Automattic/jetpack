@@ -84,8 +84,25 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 == Changelog ==
 
 = 2.7 =
-* Enhancement:
-* Bug Fix:
+* Enhancement: Google+ Publicize
+* Enhancement: Add Cloudup as an oEmbed provider
+* Enhancement: Subscriptions: Add subscribe_field_id filter to allow updated ids when using multiple widgets
+* Enhancement: Infinite Scroll: TwentyFourteen Support
+* Bug Fix: Theme Tools: Fix glitch where random-redirect.php also showed as a plugin being deleted if you were deleting Jetpack
+* Bug Fix: Subscriptions: Moved inline styles from widget email input to seperate css file
+* Bug Fix: Infinite Scroll: prevent Undefined index notice that can cause IS to fail when user has WP_DEBUG set to true
+* Bug Fix: Ensure VideoPress scripts are loaded when using Infinite Scroll
+* Bug Fixes: Featured Content: Moving Settings to Customizer, provide option to set default tag as fallback, specify all supported post-types rather than just additional ones. Description Updates
+* Bug Fix: Shortcodes: Support Ineternational Google domains for maps
+* Bug Fix: Shortcodes: Facebook Embeds: Register alternate permalink.php URL for posts
+* Bug Fix: Infinite Scroll: Improved compatibility with Carousel and Tiled Galleries
+* Bug Fix: GlotPress: Merge with latest GlotPress
+* Bug Fix: Sharing: Add new translation width for share button, and Google Plus icons
+* Bug Fix: Misc internationalization & RTL updates
+* Bug Fix: Contact Form: Fix warning when form is called outside the loop
+* Bug Fix: Mobile Theme: Display password field for Gallery format protected posts
+* Bug Fix: Featured Content: Make sure $term is an object before we treat it as one
+* Bug Fix: Likes: Stop manually including version.php and trust the global. Some whitespace fixes, and if it's an attachment, follow the post_status of the parent post
 
 = 2.6.1 =
 * Bug Fix: minor styling fix in pre- and post-MP6/3.8 UI changes.
