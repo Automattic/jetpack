@@ -49,7 +49,6 @@ class Jetpack_Infinite_Scroll_Extras {
 
 		add_filter( 'infinite_scroll_js_settings', array( $this, 'filter_infinite_scroll_js_settings' ) );
 
-		add_action( 'infinite_scroll_wp_head', array( $this, 'action_infinite_scroll_wp_head' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ) );
 	}
 
@@ -175,13 +174,28 @@ class Jetpack_Infinite_Scroll_Extras {
 	}
 
 	/**
-	 * Ensure certain Jetpack modules' scripts are loaded when IS is active, otherwise modules may not function.
+	 * Always load certain scripts when IS is enabled, as they can't be loaded after `document.ready` fires, meaning they can't leverage IS's script loader.
 	 *
-	 * @uses do_action
-	 * @action infinite_scroll_wp_head
+	 * @global $videopress
+	 * @uses do_action()
+	 * @uses apply_filters()
+	 * @uses wp_enqueue_style()
+	 * @uses wp_enqueue_script()
+	 * @action wp_enqueue_scripts
 	 * @return null
 	 */
-	public function action_infinite_scroll_wp_head() {
+	public function action_wp_enqueue_scripts() {
+		// VideoPress stand-alone plugin
+		global $videopress;
+		if ( ! empty( $videopress ) && The_Neverending_Home_Page::archive_supports_infinity() && is_a( $videopress, 'VideoPress' ) && method_exists( $videopress, 'enqueue_scripts' ) ) {
+			$videopress->enqueue_scripts();
+		}
+
+		// VideoPress Jetpack module
+		if ( Jetpack::is_module_active( 'videopress' ) ) {
+			Jetpack_VideoPress_Shortcode::enqueue_scripts();
+		}
+
 		// Fire the post_gallery action early so Carousel scripts are present.
 		if ( Jetpack::is_module_active( 'carousel' ) ) {
 			do_action( 'post_gallery', '', '' );
@@ -191,25 +205,16 @@ class Jetpack_Infinite_Scroll_Extras {
 		if ( Jetpack::is_module_active( 'tiled-gallery' ) ) {
 			Jetpack_Tiled_Gallery::default_scripts_and_styles();
 		}
-	}
 
-	/**
-	 * Load VideoPress scripts if plugin is active.
-	 *
-	 * @global $videopress
-	 * @action wp_enqueue_scripts
-	 * @return null
-	 */
-	public function action_wp_enqueue_scripts() {
-		// Stand-alone plugin
-		global $videopress;
-		if ( ! empty( $videopress ) && The_Neverending_Home_Page::archive_supports_infinity() && is_a( $videopress, 'VideoPress' ) && method_exists( $videopress, 'enqueue_scripts' ) ) {
-			$videopress->enqueue_scripts();
+		// Core's Audio and Video Shortcodes
+		if ( 'mediaelement' === apply_filters( 'wp_audio_shortcode_library', 'mediaelement' ) ) {
+			wp_enqueue_style( 'wp-mediaelement' );
+			wp_enqueue_script( 'wp-mediaelement' );
 		}
 
-		// Jetpack module
-		if ( Jetpack::is_module_active( 'videopress' ) ) {
-			Jetpack_VideoPress_Shortcode::enqueue_scripts();
+		if ( 'mediaelement' === apply_filters( 'wp_video_shortcode_library', 'mediaelement' ) ) {
+			wp_enqueue_style( 'wp-mediaelement' );
+			wp_enqueue_script( 'wp-mediaelement' );
 		}
 	}
 }
