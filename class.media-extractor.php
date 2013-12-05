@@ -376,10 +376,20 @@ class Jetpack_Media_Meta_Extractor {
 		if ( !empty( $from_html ) ) {
 			$srcs = wp_list_pluck( $from_html, 'src' );
 			foreach( $srcs as $image_url ) {
-				$src = parse_url( $image_url );
-				$queryless = $src['scheme'] . '://' . $src['host'] . $src['path']; // strip off any query strings
-				if ( !in_array( $queryless, $image_list ) )
+				if ( $src = parse_url( $image_url ) ) {
+					// Rebuild the URL without the query string
+					$queryless = $src['scheme'] . '://' . $src['host'] . $src['path'];
+				} elseif ( $length = strpos( $image_url, '?' ) ) {
+					// If parse_url() didn't work, strip off theh query string the old fashioned way
+					$queryless = substr( $image_url, 0, $length );
+				} else {
+					// Failing that, there was no spoon! Err ... query string!
+					$queryless = $image_url;
+				}
+
+				if ( ! in_array( $queryless, $image_list ) ) {
 					$image_list[] = $queryless;
+				}
 			}
 		}
 		return $image_list;
@@ -393,5 +403,3 @@ class Jetpack_Media_Meta_Extractor {
 		return $clean_content;
 	}
 }
-
-?>
