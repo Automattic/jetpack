@@ -450,7 +450,7 @@ class Grunion_Contact_Form_Plugin {
 		// Get the feedbacks' parents' post IDs
 		$feedbacks = get_posts( array(
 			'fields'           => 'id=>parent',
-			'posts_per_page'   => -1,
+			'posts_per_page'   => 100000,
 			'post_type'        => 'feedback',
 			'post_status'      => 'publish',
 			'suppress_filters' => false,
@@ -459,7 +459,7 @@ class Grunion_Contact_Form_Plugin {
 
 		$posts = get_posts( array(
 			'orderby'          => 'ID',
-			'posts_per_page'   => -1,
+			'posts_per_page'   => 1000,
 			'post_type'        => 'any',
 			'post__in'         => array_values( $parents ),
 			'suppress_filters' => false,
@@ -1573,7 +1573,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$r .= "\t</div>\n";
 		}
 
-		return apply_filters( 'grunion_contact_form_field_html', $r, $field_label );
+		return apply_filters( 'grunion_contact_form_field_html', $r, $field_label, ( in_the_loop() ? get_the_ID() : null ) );
 	}
 }
 
