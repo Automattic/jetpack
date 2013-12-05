@@ -184,7 +184,7 @@ function grunion_admin_view_tabs( $views ) {
 
 	preg_match( '|post_type=feedback\'( class="current")?\>(.*)\<span class=|', $views['all'], $match );
 	if ( !empty( $match[2] ) )
-		$views['all'] = str_replace( $match[2], 'Messages ', $views['all'] );
+		$views['all'] = str_replace( $match[2], __( 'Messages', 'jetpack' ) . ' ', $views['all'] );
 
 	return $views;
 }
