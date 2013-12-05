@@ -323,7 +323,7 @@ class Featured_Content {
 		}
 
 		foreach( $terms as $order => $term ) {
-			if ( self::get_setting( 'tag-id' ) == $term->term_id && 'post_tag' == $term->taxonomy ) {
+			if ( is_object( $term ) && self::get_setting( 'tag-id' ) == $term->term_id && 'post_tag' == $term->taxonomy ) {
 				unset( $terms[ $order ] );
 			}
 		}
