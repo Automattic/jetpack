@@ -515,7 +515,7 @@ class Jetpack_Likes {
 	/**
 	* Load the CSS needed for the wp-admin area.
 	*/
-	function load_admin_css() { ?>
+	function load_admin_css() {
 		?>
 		<style type="text/css">
 			.fixed .column-likes { width: 5em; padding-top: 8px; text-align: center !important; }
