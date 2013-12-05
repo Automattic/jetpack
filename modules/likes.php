@@ -9,7 +9,7 @@
  * Module Tags: Social
  */
 class Jetpack_Likes {
-	var $version = '20131104';
+	var $version = '20131201';
 
 	public static function init() {
 		static $instance = NULL;
@@ -515,8 +515,7 @@ class Jetpack_Likes {
 	/**
 	* Load the CSS needed for the wp-admin area.
 	*/
-	function load_admin_css() {
-		include( ABSPATH . WPINC . '/version.php' );
+	function load_admin_css() { ?>
 		?>
 		<style type="text/css">
 			.fixed .column-likes { width: 5em; padding-top: 8px; text-align: center !important; }
@@ -524,7 +523,7 @@ class Jetpack_Likes {
 			.fixed .column-likes .post-com-count { background-image: none; }
 			.fixed .column-likes .comment-count { background-color: #888; }
 			.fixed .column-likes .comment-count:hover { background-color: #D54E21; }
-		<?php if ( version_compare( $wp_version, '3.8-alpha', '>=' ) ) : ?>
+		<?php if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '>=' ) ) : ?>
 			.fixed .column-likes .post-com-count::after { border: none !important; }
 			.fixed .column-likes .comment-count { background-color: #bbb; }
 			.fixed .column-likes .comment-count:hover { background-color: #2ea2cc; }
@@ -720,14 +719,14 @@ class Jetpack_Likes {
 		}
 
 		$locale = ( '' == get_locale() || 'en' == get_locale() ) ? '' : '&amp;lang=' . strtolower( substr( get_locale(), 0, 2 ) );
-        $src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, apply_filters( 'mp6_enabled', 0 ) );
+		$src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, apply_filters( 'mp6_enabled', 0 ) );
 
 		// Tidy up after ourselves.
 		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '>=' ) ) {
 			remove_filter( 'mp6_enabled', '__return_true', 97 );
 		}
 
-        $likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
+		$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 ?>
 		<iframe src='<?php echo $src; ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
 		<div id='likes-other-gravatars'><div class="likes-text"><?php echo $likersText; ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
@@ -1065,7 +1064,12 @@ class Jetpack_Likes {
 		}
 
 		// Check that the post is a public, published post.
-		if ( 'publish' != $post->post_status ) {
+		if ( 'attachment' == $post->post_type ) {
+			$post_status = get_post_status( $post->post_parent );
+		} else {
+			$post_status = $post->post_status;
+		}
+		if ( 'publish' != $post_status ) {
 			$enabled = false;
 		}
 
