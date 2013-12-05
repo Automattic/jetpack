@@ -141,7 +141,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			'link' 		=> $instance['link'],
 		) );
 
-		$widget_tiled_gallery::default_scripts_and_styles();
+		$widget_tiled_gallery->default_scripts_and_styles();
 
 		$html = $widget_tiled_gallery->rectangular_talavera( $instance['attachments'] );
 
@@ -166,7 +166,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			//'columns'	=> $instance['columns']
 		) );
 
-		$widget_tiled_gallery::default_scripts_and_styles();
+		$widget_tiled_gallery->default_scripts_and_styles();
 
 		$html = $widget_tiled_gallery->circle_talavera( $instance['attachments'] );
 
@@ -193,7 +193,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			'type'		=> 'circle'
 		) );
 
-		$widget_tiled_gallery::default_scripts_and_styles();
+		$widget_tiled_gallery->default_scripts_and_styles();
 
 		$html = $widget_tiled_gallery->circle_talavera( $instance['attachments'] );
 
