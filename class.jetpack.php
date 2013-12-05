@@ -2286,7 +2286,7 @@ p {
 				$this->error .= '  ' . sprintf( __( 'This module can only be altered by %s, the user who initiated the Jetpack connection on this site.' , 'jetpack' ), esc_html( $master_userdata->display_name ) );
 
 			} else {
-				$this->error = sprintf( __( 'Only the user who initiated the Jetpack connection on this site can toggle %s, but that user no longer exists. This should not happen.' ), $module_name );
+				$this->error = sprintf( __( 'Only the user who initiated the Jetpack connection on this site can toggle %s, but that user no longer exists. This should not happen.', 'jetpack' ), $module_name );
 			}
 			break;
 		case 'not_public' :

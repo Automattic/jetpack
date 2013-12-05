@@ -166,7 +166,7 @@ class Publicize_UI {
 											if ( !empty( $profile_link ) ) : ?>
 
 											</style>
-												<?php echo esc_html( __( 'Connected as: ') ); ?>
+												<?php esc_html_e( 'Connected as:', 'jetpack' ); ?>
 												<a class="publicize-profile-link" href="<?php echo esc_url( $profile_link ); ?>" target="_top">
 													<?php echo esc_html( $connection_display ); ?>
 												</a><?php

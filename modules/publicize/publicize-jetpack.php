@@ -348,7 +348,7 @@ class Publicize extends Publicize_Base {
 		$user_can_refresh = current_user_can( $this->GLOBAL_CAP );
 		if ( $user_can_refresh ) {
 			$nonce = wp_create_nonce( "keyring-request-" . $service_name );
-			$refresh_text = sprintf( __( 'Refresh connection with %s' ), $this->get_service_label( $service_name ) );
+			$refresh_text = sprintf( _x( 'Refresh connection with %s', 'Refresh connection with {social media service}', 'jetpack' ), $this->get_service_label( $service_name ) );
 			$refresh_url = $this->refresh_url( $service_name );
 		}
 
