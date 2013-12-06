@@ -37,7 +37,12 @@ Features include:
 * The ability to allow applications to securely authenticate and access your site with your permission.
 * Creative formats for your image galleries: mosaic, circles, squares, and a slideshow view.
 * Add post sliders and other highlights to your theme with Featured Content.
-* Search once, get results from everything! A single search box that lets you search posts, pages, comments, media, and plugins
+* Search once, get results from everything! A single search box that lets you search posts, pages, comments, media, and plugins.
+* Configure widgets to appear only on certain pages with the [Widget Visibility module](http://jetpack.me/support/widget-visibility/).
+* Upload and insert videos into your posts thanks to [VideoPress](http://jetpack.me/support/videopress/).
+* [Link Jetpack and your Google+ Profile](http://jetpack.me/support/google-plus/) to add mutliple Google features to your site.
+* Sign in to your self-hosted WordPress site using your WordPress.com log-in credentials.
+* Jetpack Monitor will keep tabs on your site, and alert you the moment that downtime is detected.
 * and *many* more to come!
 
 Note: The stats portion of Jetpack uses Quantcast to enhance its data.
@@ -88,21 +93,20 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Enhancement: Add Cloudup as an oEmbed provider
 * Enhancement: Subscriptions: Add subscribe_field_id filter to allow updated ids when using multiple widgets
 * Enhancement: Infinite Scroll: TwentyFourteen Support
-* Bug Fix: Theme Tools: Fix glitch where random-redirect.php also showed as a plugin being deleted if you were deleting Jetpack
-* Bug Fix: Subscriptions: Moved inline styles from widget email input to seperate css file
+* Bug Fix: Contact Form: Fix warning when form is called outside the loop
+* Bug Fix: Featured Content: Moving Settings to Customizer, provide option to set default tag as fallback, specify all supported post-types rather than just additional ones. Description Updates
+* Bug Fix: Featured Content: Make sure $term is an object before we treat it as one
+* Bug Fix: GlotPress: Merge with latest GlotPress
 * Bug Fix: Infinite Scroll: prevent Undefined index notice that can cause IS to fail when user has WP_DEBUG set to true
-* Bug Fix: Ensure VideoPress scripts are loaded when using Infinite Scroll
-* Bug Fixes: Featured Content: Moving Settings to Customizer, provide option to set default tag as fallback, specify all supported post-types rather than just additional ones. Description Updates
+* Bug Fix: Infinite Scroll: Improved compatibility with Carousel, Tiled Galleries, VideoPress, and the `[audio]` and `[video]` shortcodes 
+* Bug Fix: Likes: Stop manually including version.php and trust the global. Some whitespace fixes, and if it's an attachment, follow the post_status of the parent post
+* Bug Fix: Mobile Theme: Display password field for Gallery format protected posts
+* Bug Fix: Sharing: Add new translation width for share button, and Google Plus icons
 * Bug Fix: Shortcodes: Support Ineternational Google domains for maps
 * Bug Fix: Shortcodes: Facebook Embeds: Register alternate permalink.php URL for posts
-* Bug Fix: Infinite Scroll: Improved compatibility with Carousel and Tiled Galleries
-* Bug Fix: GlotPress: Merge with latest GlotPress
-* Bug Fix: Sharing: Add new translation width for share button, and Google Plus icons
+* Bug Fix: Subscriptions: Moved inline styles from widget email input to seperate css file
+* Bug Fix: Theme Tools: Fix glitch where random-redirect.php also showed as a plugin being deleted if you were deleting Jetpack
 * Bug Fix: Misc internationalization & RTL updates
-* Bug Fix: Contact Form: Fix warning when form is called outside the loop
-* Bug Fix: Mobile Theme: Display password field for Gallery format protected posts
-* Bug Fix: Featured Content: Make sure $term is an object before we treat it as one
-* Bug Fix: Likes: Stop manually including version.php and trust the global. Some whitespace fixes, and if it's an attachment, follow the post_status of the parent post
 
 = 2.6.1 =
 * Bug Fix: minor styling fix in pre- and post-MP6/3.8 UI changes.
