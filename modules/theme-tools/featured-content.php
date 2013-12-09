@@ -11,16 +11,15 @@
  * "after_setup_theme" action:
  *
  * add_theme_support( 'featured-content', array(
- *     'featured_content_filter' => 'mytheme_get_featured_content',
- *     'description' => 'Describe the featured content area.',
- *     'max_posts' => 20,
- *     'post_types' => array( 'post', 'page'),
+ *     'filter'     => 'mytheme_get_featured_content',
+ *     'max_posts'  => 20,
+ *     'post_types' => array( 'post', 'page' ),
  * ) );
  *
  * For maximum compatibility with different methods of posting users will
- * designate a featured post tag to associate posts with. Since this tag now
- * has special meaning beyond that of a normal tags, users will have the
- * ability to hide it from the front-end of their site.
+ * designate a featured post tag to associate posts with. Since this tag now has
+ * special meaning beyond that of a normal tags, users will have the ability to
+ * hide it from the front-end of their site.
  */
 class Featured_Content {
 
@@ -36,9 +35,9 @@ class Featured_Content {
 
 	/**
 	 * The registered post types supported by Featured Content. Themes can add
-	 * Featured Content support for additional registered post types by defining an
-	 * 'additional_post_types' argument (string|array) in
-	 * the call to add_theme_support( 'featured-content' ).
+	 * Featured Content support for registered post types by defining a
+	 * 'post_types' argument (string|array) in the call to
+	 * add_theme_support( 'featured-content' ).
 	 *
 	 * @see Featured_Content::init()
 	 */
@@ -59,8 +58,8 @@ class Featured_Content {
 	 * Themes must declare that they support this module by adding
 	 * add_theme_support( 'featured-content' ); during after_setup_theme.
 	 *
-	 * If no theme support is found there is no need to hook into
-	 * WordPress. We'll just return early instead.
+	 * If no theme support is found there is no need to hook into WordPress. We'll
+	 * just return early instead.
 	 *
 	 * @uses Featured_Content::$max_posts
 	 */
@@ -80,19 +79,22 @@ class Featured_Content {
 			return;
 		}
 
-		// Return early if "featured_content_filter" has not been defined.
-		if ( ! isset( $theme_support[0]['featured_content_filter'] ) ) {
-			return;
+		if ( isset( $theme_support[0]['featured_content_filter'] ) ) {
+			$theme_support[0]['filter'] = $theme_support[0]['featured_content_filter'];
+			unset( $theme_support[0]['featured_content_filter'] );
 		}
 
-		$filter = $theme_support[0]['featured_content_filter'];
+		// Return early if "filter" has not been defined.
+		if ( ! isset( $theme_support[0]['filter'] ) ) {
+			return;
+		}
 
 		// Theme can override the number of max posts.
 		if ( isset( $theme_support[0]['max_posts'] ) ) {
 			self::$max_posts = absint( $theme_support[0]['max_posts'] );
 		}
 
-		add_filter( $filter,                              array( __CLASS__, 'get_featured_posts' )    );
+		add_filter( $theme_support[0]['filter'],          array( __CLASS__, 'get_featured_posts' )    );
 		add_action( 'customize_register',                 array( __CLASS__, 'customize_register' ), 9 );
 		add_action( 'admin_init',                         array( __CLASS__, 'register_setting'   )    );
 		add_action( 'save_post',                          array( __CLASS__, 'delete_transient'   )    );
@@ -101,6 +103,11 @@ class Featured_Content {
 		add_action( 'pre_get_posts',                      array( __CLASS__, 'pre_get_posts'      )    );
 		add_action( 'switch_theme',                       array( __CLASS__, 'switch_theme'       )    );
 		add_action( 'wp_loaded',                          array( __CLASS__, 'wp_loaded'          )    );
+
+		if ( isset( $theme_support[0]['additional_post_types'] ) ) {
+			$theme_support[0]['post_types'] = array_merge( array( 'post' ), (array) $theme_support[0]['additional_post_types'] );
+			unset( $theme_support[0]['additional_post_types'] );
+		}
 
 		// Themes can allow Featured Content pages
 		if ( isset( $theme_support[0]['post_types'] ) ) {
@@ -129,12 +136,10 @@ class Featured_Content {
 	/**
 	 * Get featured posts
 	 *
-	 * This method is not intended to be called directly.
-	 * Theme developers should place a filter directly in
-	 * their theme and then pass its name as a value of the
-	 * "featured_content_filter" key in the array passed as
-	 * the $args parameter during the call to:
-	 * add_theme_support( 'featured-content', $args ).
+	 * This method is not intended to be called directly. Theme developers should
+	 * place a filter directly in their theme and then pass its name as a value of
+	 * the "filter" key in the array passed as the $args parameter during the call
+	 * to: add_theme_support( 'featured-content', $args ).
 	 *
 	 * @uses Featured_Content::get_featured_post_ids()
 	 *
@@ -160,8 +165,8 @@ class Featured_Content {
 	/**
 	 * Get featured post IDs
 	 *
-	 * This function will return the an array containing the
-	 * post IDs of all featured posts.
+	 * This function will return the an array containing the post IDs of all
+	 * featured posts.
 	 *
 	 * Sets the "featured_content_ids" transient.
 	 *
@@ -229,9 +234,9 @@ class Featured_Content {
 	/**
 	 * Exclude featured posts from the blog query when the blog is the front-page.
 	 *
-	 * Filter the home page posts, and remove any featured post ID's from it. Hooked
-	 * onto the 'pre_get_posts' action, this changes the parameters of the query
-	 * before it gets any posts.
+	 * Filter the home page posts, and remove any featured post ID's from it.
+	 * Hooked onto the 'pre_get_posts' action, this changes the parameters of the
+	 * query before it gets any posts.
 	 *
 	 * @uses Featured_Content::get_featured_post_ids();
 	 * @param WP_Query $query
@@ -295,7 +300,8 @@ class Featured_Content {
 	}
 
 	/**
-	 * Hide featured tag from displaying when global terms are queried from the front-end.
+	 * Hide featured tag from displaying when global terms are queried from
+	 * the front-end.
 	 *
 	 * Hooks into the "get_terms" filter.
 	 *
@@ -332,8 +338,8 @@ class Featured_Content {
 	}
 
 	/**
-	 * Hide featured tag from displaying when terms associated with
-	 * a post object are queried from the front-end.
+	 * Hide featured tag from displaying when terms associated with a post object
+	 * are queried from the front-end.
 	 *
 	 * Hooks into the "get_the_terms" filter.
 	 *
@@ -442,12 +448,12 @@ class Featured_Content {
 	/**
 	 * Get settings
 	 *
-	 * Get all settings recognized by this module. This function will return
-	 * all settings whether or not they have been stored in the database yet.
-	 * This ensures that all keys are available at all times.
+	 * Get all settings recognized by this module. This function will return all
+	 * settings whether or not they have been stored in the database yet. This
+	 * ensures that all keys are available at all times.
 	 *
-	 * In the event that you only require one setting, you may pass its name
-	 * as the first parameter to the function and only that value will be returned.
+	 * In the event that you only require one setting, you may pass its name as the
+	 * first parameter to the function and only that value will be returned.
 	 *
 	 * @param string $key The key of a recognized setting.
 	 * @return mixed Array of all settings by default. A single value if passed as first parameter.
@@ -474,9 +480,8 @@ class Featured_Content {
 	/**
 	 * Validate settings
 	 *
-	 * Make sure that all user supplied content is in an
-	 * expected format before saving to the database. This
-	 * function will also delete the transient set in
+	 * Make sure that all user supplied content is in an expected format before
+	 * saving to the database. This function will also delete the transient set in
 	 * Featured_Content::get_featured_content().
 	 *
 	 * @uses Featured_Content::delete_transient()
