@@ -95,6 +95,7 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Enhancement: Infinite Scroll: TwentyFourteen Support
 * Bug Fix: Contact Form: Fix warning when form is called outside the loop
 * Bug Fix: Featured Content: Moving Settings to Customizer, provide option to set default tag as fallback, specify all supported post-types rather than just additional ones. Description Updates
+* Bug Fix: Featured Content: Compat with 'additional_post_types' theme support argument. Comment updates
 * Bug Fix: Featured Content: Make sure $term is an object before we treat it as one
 * Bug Fix: GlotPress: Merge with latest GlotPress
 * Bug Fix: Infinite Scroll: prevent Undefined index notice that can cause IS to fail when user has WP_DEBUG set to true
@@ -106,7 +107,8 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Bug Fix: Shortcodes: Facebook Embeds: Register alternate permalink.php URL for posts
 * Bug Fix: Subscriptions: Moved inline styles from widget email input to seperate css file
 * Bug Fix: Theme Tools: Fix glitch where random-redirect.php also showed as a plugin being deleted if you were deleting Jetpack
-* Bug Fix: Misc internationalization & RTL updates
+* Bug Fix: Misc: Internationalization & RTL updates
+* Bug Fix: Misc: Prevent collisions with 'Facebook Featured Image & OG Meta Tags' plugin
 
 = 2.6.1 =
 * Bug Fix: minor styling fix in pre- and post-MP6/3.8 UI changes.
