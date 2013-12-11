@@ -42,6 +42,7 @@ class Jetpack {
 		'sharedaddy'		 => array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
 		'omnisearch'		 => array( 'jetpack-omnisearch/omnisearch.php', 'Jetpack Omnisearch' ),
 		'gravatar-hovercards'	 => array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
+		'latex'			 => array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
 	);
 
 	var $capability_translations = array(
@@ -68,30 +69,37 @@ class Jetpack {
 	 */
 	private $conflicting_plugins = array(
 		'comments'          => array(
-			'Intense Debate'      => 'intensedebate/intensedebate.php',
-			'Disqus'              => 'disqus-comment-system/disqus.php',
+			'Intense Debate'	  => 'intensedebate/intensedebate.php',
+			'Disqus'		  => 'disqus-comment-system/disqus.php',
 		),
 		'contact-form'      => array(
-			'Contact Form 7'      => 'contact-form-7/wp-contact-form-7.php',
-			'Gravity Forms'       => 'gravityforms/gravityforms.php',
-			'Contact Form Plugin' => 'contact-form-plugin/contact_form.php',
-			'Easy Contact Forms'  => 'easy-contact-forms/easy-contact-forms.php',
+			'Contact Form 7'	  => 'contact-form-7/wp-contact-form-7.php',
+			'Gravity Forms'		  => 'gravityforms/gravityforms.php',
+			'Contact Form Plugin'	  => 'contact-form-plugin/contact_form.php',
+			'Easy Contact Forms'	  => 'easy-contact-forms/easy-contact-forms.php',
 		),
 		'gplus-authorship'  => array(
-			'WP SEO by Yoast'     => 'wordpress-seo/wp-seo.php',
+			'WP SEO by Yoast'	  => 'wordpress-seo/wp-seo.php',
 		),
 		'minileven'         => array(
-			'WPtouch'             => 'wptouch/wptouch.php',
+			'WPtouch'		  => 'wptouch/wptouch.php',
 		),
+		'latex'		    => array(
+			'LaTeX for WordPress'	  => 'latex/latex.php',
+			'Youngwhans Simple Latex' => 'youngwhans-simple-latex/yw-latex.php',
+			'Easy WP LaTeX'		  => 'easy-wp-latex-lite/easy-wp-latex-lite.php',
+			'MathJax-LaTeX'		  => 'mathjax-latex/mathjax-latex.php',
+			'Enable Latex'		  => 'enable-latex/enable-latex.php',
+			'WP QuickLaTeX'		  => 'wp-quicklatex/wp-quicklatex.php',
 		'sharedaddy'        => array(
-			'AddThis'             => 'addthis/addthis_social_widget.php',
-			'Add To Any'          => 'add-to-any/add-to-any.php',
-			'ShareThis'           => 'share-this/sharethis.php',
-			'Shareaholic'         => 'shareaholic/shareaholic.php',
+			'AddThis'		  => 'addthis/addthis_social_widget.php',
+			'Add To Any'		  => 'add-to-any/add-to-any.php',
+			'ShareThis'		  => 'share-this/sharethis.php',
+			'Shareaholic'		  => 'shareaholic/shareaholic.php',
 		),
 		'widget-visibility' => array(
-			'Widget Logic'        => 'widget-logic/widget_logic.php',
-			'Dynamic Widgets'     => 'dynamic-widgets/dynamic-widgets.php',
+			'Widget Logic'		  => 'widget-logic/widget_logic.php',
+			'Dynamic Widgets'	  => 'dynamic-widgets/dynamic-widgets.php',
 		),
 		'random-redirect' => array(
 			'Random Redirect 2'	  => 'random-redirect-2/random-redirect.php',
