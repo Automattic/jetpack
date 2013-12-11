@@ -8,7 +8,12 @@ Author: Matt Mullenweg
 Author URI: http://photomatt.net/
 */
 
-function matt_random_redirect() {
+function jetpack_matt_random_redirect() {
+	// Verify that the Random Redirect plugin this code is from is not active
+	// See http://plugins.trac.wordpress.org/ticket/1898
+	require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+	if( is_plugin_active( 'random-redirect/random-redirect.php' ) ) return;
+
 	// Acceptables URL formats: /[...]/?random=[post type], /?random, /&random, /&random=1
 	if ( ! isset( $_GET['random'] ) && ! in_array( strtolower( $_SERVER['REQUEST_URI'] ), array( '/&random', '/&random=1' ) ) )
 		return;
@@ -25,7 +30,7 @@ function matt_random_redirect() {
 	$post_type = get_post_type();
 
 	// /?random should always show a random post, even if the home page is a static page.
-	if ( '/' == $_SERVER['DOCUMENT_URI'] )
+	if ( isset( $_SERVER['DOCUMENT_URI'] ) && '/' == $_SERVER['DOCUMENT_URI'] )
 		$post_type = 'post';
 	else
 		$post_type = get_post_type();
@@ -40,4 +45,4 @@ function matt_random_redirect() {
 	exit;
 }
 
-add_action( 'template_redirect', 'matt_random_redirect' );
+add_action( 'template_redirect', 'jetpack_matt_random_redirect' );
