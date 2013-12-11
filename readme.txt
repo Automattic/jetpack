@@ -88,6 +88,8 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 2.8 =
+
 = 2.7 =
 * Enhancement: Google+ Publicize
 * Enhancement: Add Cloudup as an oEmbed provider
