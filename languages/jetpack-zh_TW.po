@@ -1,363 +1,14 @@
-# Translation of 2.6 in Chinese (Taiwan)
-# This file is distributed under the same license as the 2.6 package.
+# Translation of 2.7 in Chinese (Taiwan)
+# This file is distributed under the same license as the 2.7 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2013-11-25 20:13:11+0000\n"
+"PO-Revision-Date: 2013-12-06 12:52:10+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "X-Generator: GlotPress/0.1\n"
-"Project-Id-Version: 2.6\n"
-
-#: modules/carousel/jetpack-carousel.php:108
-msgid "Write a comment..."
-msgstr ""
-
-#: class.jetpack.php:999
-msgctxt "Module Tag"
-msgid "Mobile"
-msgstr ""
-
-#: class.jetpack.php:1000
-msgctxt "Module Tag"
-msgid "Other"
-msgstr ""
-
-#: class.jetpack-cli.php:169
-msgid "%s has been deactivated."
-msgstr ""
-
-#: class.jetpack.php:993
-msgctxt "Module Tag"
-msgid "Photos and Videos"
-msgstr ""
-
-#: class.jetpack.php:994
-msgctxt "Module Tag"
-msgid "Social"
-msgstr ""
-
-#: class.jetpack.php:995
-msgctxt "Module Tag"
-msgid "WordPress.com Stats"
-msgstr ""
-
-#: class.jetpack.php:996
-msgctxt "Module Tag"
-msgid "Writing"
-msgstr ""
-
-#: class.jetpack.php:997
-msgctxt "Module Tag"
-msgid "Appearance"
-msgstr ""
-
-#: class.jetpack.php:998
-msgctxt "Module Tag"
-msgid "Developers"
-msgstr ""
-
-#: class.jetpack-cli.php:82
-msgid "Please specify a user."
-msgstr ""
-
-#: class.jetpack-cli.php:163
-msgid "%s has been activated."
-msgstr ""
-
-#: class.jetpack-cli.php:155
-msgid "Inactive"
-msgstr ""
-
-#: class.jetpack-cli.php:151
-msgid "Available Modules:"
-msgstr ""
-
-#: class.jetpack-cli.php:144
-msgid "Please specify a valid module."
-msgstr ""
-
-#: class.jetpack-cli.php:138
-msgid "%s is not a valid module."
-msgstr ""
-
-#: class.jetpack-cli.php:101
-msgid "Please specify if you would like to disconnect a blog or user."
-msgstr ""
-
-#: class.jetpack-cli.php:97
-msgid "%s could not be disconnected.  Are you sure they're connected currently?"
-msgstr ""
-
-#: class.jetpack-cli.php:95
-msgid "%s has been successfully disconnected."
-msgstr ""
-
-#: class.jetpack-cli.php:90
-msgid "Jetpack has been successfully disconnected."
-msgstr ""
-
-#: class.jetpack-cli.php:79
-msgid "Please specify a valid user."
-msgstr ""
-
-#: class.jetpack-cli.php:62 class.jetpack-cli.php:131
-msgid "%s is not a valid command."
-msgstr ""
-
-#: class.jetpack-cli.php:57
-msgid "You cannot disconnect, without having first connected."
-msgstr ""
-
-#: class.jetpack-cli.php:25
-msgid "Jetpack is currently connected to WordPress.com"
-msgstr ""
-
-#: class.jetpack-cli.php:26
-msgid "The Jetpack Version is %s"
-msgstr ""
-
-#: class.jetpack-cli.php:27
-msgid "The WordPress.com blog_id is %d"
-msgstr ""
-
-#: class.jetpack-cli.php:29
-msgid "Jetpack is not currently connected to WordPress.com"
-msgstr ""
-
-msgid "A single search box, that lets you search many different things."
-msgstr ""
-
-msgid "Give your site a boost by loading images from the WordPress.com content delivery network."
-msgstr "從 WordPress.com 的內容傳送網絡來為你的網站增加提升圖片載入速度的功能。"
-
-msgid "Publish posts to your blog directly from your personal email account."
-msgstr "直接透過你個人電子郵件帳戶在你的部落格發表文章。"
-
-msgid "Connect your site to popular social networks and automatically share new posts with your friends."
-msgstr "連結你的網站到受歡迎的社交網絡並自動向你的朋友們分享你網站的最新文章。"
-
-msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
-msgstr "在網際網路上更多好用的分享工具，分享內容到 Facebook、Twitter 或者是其他更多的社群。"
-
-msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
-msgstr "輕鬆插入的影片網站如 YouTube、Vimeo 和 SlideShare。"
-
-msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
-msgstr "使用 WP.me 短網址，讓你的文章與頁面更容易分享出去。"
-
-msgid "Jetpack Single Sign On"
-msgstr ""
-
-msgid "Let users login with their WordPress.com Credentials"
-msgstr ""
-
-msgid "Simple, concise site stats with no additional load on your server."
-msgstr "簡單，簡潔的網站流量數計統計。不會造成伺服器上的額外負載。"
-
-msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
-msgstr "允許用戶利用電子郵件訂閱你的文章和評論。"
-
-msgid "Create elegant magazine-style mosaic layouts for your photos without using an external graphic editor."
-msgstr ""
-
-msgid "Realtime backup and security scanning for your WordPress site."
-msgstr "幫你的 WordPress 網站 即時備份和安全掃描。"
-
-msgid "Quite possibly the easiest way to upload beautiful videos to your blog."
-msgstr ""
-
-msgid "Control what pages your widgets appear on."
-msgstr ""
-
-msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
-msgstr "輕鬆加入圖像、Twitter 的更新，以及網站 RSS 連結到主題的側邊欄。"
-
-#: modules/widgets/image-widget.php:116
-msgid "Image title:"
-msgstr "圖片標題:"
-
-#: modules/widgets/image-widget.php:119
-msgid "Caption:"
-msgstr "標題:"
-
-#: modules/widgets/image-widget.php:125
-msgid "Left"
-msgstr "左"
-
-#: modules/widgets/image-widget.php:126
-msgid "Center"
-msgstr "置中"
-
-#: modules/widgets/image-widget.php:127
-msgid "Right"
-msgstr "靠右"
-
-#: modules/widgets/image-widget.php:129
-msgid "Image Alignment:"
-msgstr "圖片對齊方式："
-
-#: modules/widgets/image-widget.php:139
-msgid "Width:"
-msgstr "寬:"
-
-#: modules/widgets/image-widget.php:142
-msgid "Height:"
-msgstr "高:"
-
-#: modules/widgets/image-widget.php:145
-msgid "If empty, we will attempt to determine the image size."
-msgstr "如果為空，我們將試圖確認圖片的大小。"
-
-#: modules/widgets/image-widget.php:146
-msgid "Link URL (when the image is clicked):"
-msgstr "連結 URL（單擊圖片時）："
-
-#: modules/widgets/readmill.php:11 modules/widgets/readmill.php:21
-msgid "Send To Readmill"
-msgstr ""
-
-#: modules/widgets/readmill.php:13
-msgid "Readmill is the best book reader for phones and tablets. With this widget you can enable users to send a book to their device with one click."
-msgstr ""
-
-#: modules/widgets/readmill.php:47
-msgid "Just enter the URL to your book, make sure it's a PDF or EPUB file, and you are ready to go. For more help, head to <a href='%s'>the Readmill WordPress Widget support page</a>."
-msgstr ""
-
-#: modules/widgets/readmill.php:55
-msgid "Download URL:"
-msgstr ""
-
-#: modules/widgets/readmill.php:60
-msgid "Item URL:"
-msgstr ""
-
-#: modules/widgets/readmill.php:65
-msgid "What size icon?"
-msgstr ""
-
-#: modules/widgets/readmill.php:67 modules/widgets/rsslinks-widget.php:101
-msgid "Large"
-msgstr "大"
-
-#: modules/widgets/readmill.php:68 modules/widgets/rsslinks-widget.php:99
-msgid "Small"
-msgstr "小"
-
-#: modules/widgets/readmill.php:125
-msgid "Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget."
-msgstr ""
-
-#: modules/widgets/rsslinks-widget.php:12
-msgid "Links to your blog's RSS feeds"
-msgstr "連結你的網站 RSS Feeds"
-
-#: modules/widgets/rsslinks-widget.php:13
-msgid "RSS Links (Jetpack)"
-msgstr "RSS 連結 (Jetpack)"
-
-#: modules/widgets/rsslinks-widget.php:67
-#: modules/widgets/rsslinks-widget.php:133
-msgid "Posts"
-msgstr "文章"
-
-#: modules/widgets/rsslinks-widget.php:69
-msgid "Posts & Comments"
-msgstr "文章及迴響"
-
-#: modules/widgets/rsslinks-widget.php:71
-msgid "Feed(s) to Display:"
-msgstr "Feed(s) 顯示："
-
-#: modules/widgets/rsslinks-widget.php:81
-msgid "Text Link"
-msgstr "文字連結"
-
-#: modules/widgets/rsslinks-widget.php:82
-msgid "Image Link"
-msgstr "圖片連結"
-
-#: modules/widgets/rsslinks-widget.php:83
-msgid "Text & Image Links"
-msgstr "文字和圖片連結"
-
-#: modules/widgets/rsslinks-widget.php:85
-msgid "Format:"
-msgstr "格式:"
-
-#: modules/widgets/rsslinks-widget.php:96
-msgid "Image Settings:"
-msgstr "圖片設定："
-
-#: modules/widgets/rsslinks-widget.php:100
-msgid "Medium"
-msgstr "中"
-
-#: modules/widgets/rsslinks-widget.php:103
-msgid "Image Size:"
-msgstr "圖片大小:"
-
-#: modules/widgets/rsslinks-widget.php:113
-msgid "Red"
-msgstr "紅"
-
-#: modules/widgets/rsslinks-widget.php:114
-msgid "Orange"
-msgstr "橘"
-
-#: modules/widgets/rsslinks-widget.php:115
-msgid "Green"
-msgstr "綠"
-
-#: modules/widgets/rsslinks-widget.php:116
-msgid "Blue"
-msgstr "藍"
-
-#: modules/widgets/rsslinks-widget.php:117
-msgid "Purple"
-msgstr "紫"
-
-#: modules/widgets/rsslinks-widget.php:118
-msgid "Pink"
-msgstr "粉紅"
-
-#: modules/widgets/rsslinks-widget.php:119
-msgid "Silver"
-msgstr "銀"
-
-#: modules/widgets/rsslinks-widget.php:121
-msgid "Image Color:"
-msgstr "圖片顏色:"
-
-#: modules/widgets/rsslinks-widget.php:140
-msgid "Subscribe to %s"
-msgstr "訂閱 %s"
-
-#: modules/widgets/top-posts.php:35 modules/widgets/top-posts.php:41
-msgid "Top Posts &amp; Pages"
-msgstr "熱門文章與頁面︰"
-
-#: modules/widgets/top-posts.php:37
-msgid "Shows your most viewed posts and pages."
-msgstr "顯示最多瀏覽人次的文章和分頁。"
-
-#: modules/widgets/top-posts.php:78
-msgid "Maximum number of posts to show (no more than 10):"
-msgstr ""
-
-#: modules/widgets/top-posts.php:83
-msgid "Display as:"
-msgstr "顯示為："
-
-#: modules/widgets/top-posts.php:85
-msgid "Text List"
-msgstr "文字列表"
-
-#: modules/widgets/top-posts.php:86
-msgid "Image List"
-msgstr "圖片列表"
+"Project-Id-Version: 2.7\n"
 
 #: modules/widgets/top-posts.php:87
 msgid "Image Grid"
@@ -551,180 +202,53 @@ msgstr ""
 msgid "Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com."
 msgstr "在你網站的工具欄通知功能和 WordPress.com 中，監控和管理你網站的活動。"
 
-#: modules/videopress/videopress.php:295
-msgid "Allow users to access, edit, and delete my videos"
+msgid "A single search box, that lets you search many different things."
 msgstr ""
 
-#: modules/videopress/videopress.php:298
-msgid "Allow users to upload videos"
+msgid "Give your site a boost by loading images from the WordPress.com content delivery network."
+msgstr "從 WordPress.com 的內容傳送網絡來為你的網站增加提升圖片載入速度的功能。"
+
+msgid "Publish posts to your blog directly from your personal email account."
+msgstr "直接透過你個人電子郵件帳戶在你的部落格發表文章。"
+
+msgid "Connect your site to popular social networks and automatically share new posts with your friends."
+msgstr "連結你的網站到受歡迎的社交網絡並自動向你的朋友們分享你網站的最新文章。"
+
+msgid "The most super duper sharing tool on the interwebs. Share content with Facebook, Twitter, and many more."
+msgstr "在網際網路上更多好用的分享工具，分享內容到 Facebook、Twitter 或者是其他更多的社群。"
+
+msgid "Easily embed videos and more from sites like YouTube, Vimeo, and SlideShare."
+msgstr "輕鬆插入的影片網站如 YouTube、Vimeo 和 SlideShare。"
+
+msgid "Enable WP.me-powered shortlinks for all of your Posts and Pages for easier sharing."
+msgstr "使用 WP.me 短網址，讓你的文章與頁面更容易分享出去。"
+
+msgid "Jetpack Single Sign On"
 msgstr ""
 
-#: modules/videopress/videopress.php:303
-msgid "Free formats"
+msgid "Let users login with their WordPress.com Credentials"
 msgstr ""
 
-#: modules/videopress/videopress.php:307
-msgid "Only display videos in free software formats"
+msgid "Simple, concise site stats with no additional load on your server."
+msgstr "簡單，簡潔的網站流量數計統計。不會造成伺服器上的額外負載。"
+
+msgid "Allow users to subscribe to your posts and comments to receive a notification via email."
+msgstr "允許用戶利用電子郵件訂閱你的文章和評論。"
+
+msgid "Create elegant magazine-style mosaic layouts for your photos without using an external graphic editor."
 msgstr ""
 
-#: modules/videopress/videopress.php:308
-msgid "Ogg file container with Theora video and Vorbis audio. Note that some browsers are unable to play free software video formats, including Internet Explorer and Safari."
+msgid "Realtime backup and security scanning for your WordPress site."
+msgstr "幫你的 WordPress 網站 即時備份和安全掃描。"
+
+msgid "Quite possibly the easiest way to upload beautiful videos to your blog."
 msgstr ""
 
-#: modules/videopress/videopress.php:313
-msgid "Default quality"
+msgid "Control what pages your widgets appear on."
 msgstr ""
 
-#: modules/videopress/videopress.php:317
-msgid "Display higher quality video by default."
-msgstr ""
-
-#: modules/videopress/videopress.php:318
-msgid "This setting may be overridden for individual videos."
-msgstr ""
-
-#: modules/videopress/videopress.php:330 modules/videopress/videopress.php:339
-#: modules/videopress/videopress.php:593
-msgid "VideoPress Library"
-msgstr ""
-
-#: modules/videopress/videopress.php:340
-msgid "Use the button below to browse your VideoPress Library. Note that you can also browse your VideoPress Library while editing a post or page by using the <strong>Add Media</strong> button in the post editor."
-msgstr ""
-
-#: modules/videopress/videopress.php:341
-msgid "Browse Your VideoPress Library"
-msgstr ""
-
-#: modules/videopress/videopress.php:342
-msgid "Please enable JavaScript support in your browser to use VideoPress."
-msgstr ""
-
-#: modules/videopress/videopress.php:589
-msgid "Please select a video file to upload."
-msgstr ""
-
-#: modules/videopress/videopress.php:590
-msgid "Your video is uploading... Please do not close this window."
-msgstr ""
-
-#: modules/videopress/videopress.php:591
-msgid "An unknown error has occurred. Please try again later."
-msgstr ""
-
-#: modules/videopress/videopress.php:592
-msgid "Your video has successfully been uploaded. It will appear in your VideoPress Library shortly."
-msgstr ""
-
-#: modules/videopress/videopress.php:594
-msgid "Upload a Video"
-msgstr ""
-
-#: modules/videopress/videopress.php:595
-msgid "Insert Video"
-msgstr "插入影片"
-
-#: modules/videopress/videopress.php:628
-msgid "Ogg File URL"
-msgstr ""
-
-#: modules/videopress/videopress.php:630
-msgid "Location of the Ogg video file."
-msgstr ""
-
-#: modules/videopress/videopress.php:638
-msgid "Display share menu and allow viewers to embed or download this video"
-msgstr ""
-
-#: modules/videopress/videopress.php:644
-msgid "Rating"
-msgstr "評分"
-
-#: modules/videopress/videopress.php:657
-msgid "Shortcode"
-msgstr ""
-
-#: modules/videopress/videopress.php:664
-msgid "The preview is unavailable while this video is being processed."
-msgstr ""
-
-#: modules/videopress/videopress.php:673
-msgid "Video Preview:"
-msgstr ""
-
-#: modules/videopress/videopress.php:707
-msgid "Use the form below to upload a video to your VideoPress Library. The following video formats are supported: %s. Maximum upload file size is %d%s."
-msgstr ""
-
-#: modules/videopress/videopress.php:710
-msgid "Upload Video"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:34
-msgid "All category pages"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:48
-msgid "All author pages"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:59
-msgid "All tag pages"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:73
-msgid "All date archives"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:74
-msgid "Daily archives"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:75
-msgid "Monthly archives"
-msgstr "月份文章彙整"
-
-#: modules/widget-visibility/widget-conditions.php:76
-msgid "Yearly archives"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:87
-msgid "Front page"
-msgstr "首頁頁面"
-
-#: modules/widget-visibility/widget-conditions.php:88
-msgid "Posts page"
-msgstr "文章列表頁面"
-
-#: modules/widget-visibility/widget-conditions.php:89
-msgid "404 error page"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:90
-msgid "Search results"
-msgstr "搜尋結果"
-
-#: modules/widget-visibility/widget-conditions.php:91
-msgid "Post type:"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:104
-msgid "Static page:"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:146
-msgid "Visibility"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:149
-msgctxt "placeholder: dropdown menu to select widget visibility; hide if or show if"
-msgid "%s if:"
-msgstr ""
-
-#: modules/widget-visibility/widget-conditions.php:149
-msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
-msgid "Show"
-msgstr ""
+msgid "Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar."
+msgstr "輕鬆加入圖像、Twitter 的更新，以及網站 RSS 連結到主題的側邊欄。"
 
 #: modules/widget-visibility/widget-conditions.php:149
 msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
@@ -738,7 +262,7 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:161
 msgid "Category"
-msgstr ""
+msgstr "分類"
 
 #: modules/widget-visibility/widget-conditions.php:162
 msgctxt "Noun, as in: \"The author of this post is...\""
@@ -962,185 +486,190 @@ msgstr "圖片位址:"
 msgid "Alternate text:"
 msgstr "替代文字："
 
-#: modules/sso.php:325
-msgid "WordPress.com Single Sign On"
+#: modules/widgets/image-widget.php:116
+msgid "Image title:"
+msgstr "圖片標題:"
+
+#: modules/widgets/image-widget.php:119
+msgid "Caption:"
+msgstr "標題:"
+
+#: modules/widgets/image-widget.php:125
+msgid "Left"
+msgstr "左"
+
+#: modules/widgets/image-widget.php:126
+msgid "Center"
+msgstr "置中"
+
+#: modules/widgets/image-widget.php:127
+msgid "Right"
+msgstr "靠右"
+
+#: modules/widgets/image-widget.php:129
+msgid "Image Alignment:"
+msgstr "圖片對齊方式："
+
+#: modules/widgets/image-widget.php:139
+msgid "Width:"
+msgstr "寬:"
+
+#: modules/widgets/image-widget.php:142
+msgid "Height:"
+msgstr "高:"
+
+#: modules/widgets/image-widget.php:145
+msgid "If empty, we will attempt to determine the image size."
+msgstr "如果為空，我們將試圖確認圖片的大小。"
+
+#: modules/widgets/image-widget.php:146
+msgid "Link URL (when the image is clicked):"
+msgstr "連結 URL（單擊圖片時）："
+
+#: modules/widgets/readmill.php:11 modules/widgets/readmill.php:21
+msgid "Send To Readmill"
 msgstr ""
 
-#: modules/sso.php:326
-msgid "Connecting with WordPress.com SSO enables you to log in via your WordPress.com account."
+#: modules/widgets/readmill.php:13
+msgid "Readmill is the best book reader for phones and tablets. With this widget you can enable users to send a book to their device with one click."
 msgstr ""
 
-#: modules/sso.php:339
-msgid "Unlink This Account"
+#: modules/widgets/readmill.php:47
+msgid "Just enter the URL to your book, make sure it's a PDF or EPUB file, and you are ready to go. For more help, head to <a href='%s'>the Readmill WordPress Widget support page</a>."
 msgstr ""
 
-#: modules/sso.php:384
-msgid "This profile is not currently linked to a WordPress.com Profile."
+#: modules/widgets/readmill.php:55
+msgid "Download URL:"
 msgstr ""
 
-#: modules/stats.php:266 modules/stats.php:701
-msgid "Site Stats"
-msgstr "網誌統計"
-
-#: modules/stats.php:354
-msgid "Loading&hellip;"
-msgstr "讀取 &hellip;"
-
-#: modules/stats.php:355
-msgid "Your Site Stats work better with Javascript enabled."
-msgstr "啟用 JavaScript，你網站的統計工作更方便。"
-
-#: modules/stats.php:356
-msgid "View Site Stats without Javascript"
-msgstr "沒有 JavaScript的網站統計"
-
-#: modules/stats.php:537
-msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
-msgstr "點擊 <a href=\"%s\">網站統計</a> 查看你的統計"
-
-#: modules/stats.php:542
-msgid "Admin bar"
-msgstr "管理者工具欄"
-
-#: modules/stats.php:543
-msgid "Put a chart showing 48 hours of views in the admin bar."
-msgstr "把48小時內的點擊繪成圖表呈現在管理者工具欄"
-
-#: modules/stats.php:544
-msgid "Registered users"
-msgstr "註冊用戶"
-
-#: modules/stats.php:546
-msgid "Count the page views of registered users who are logged in."
-msgstr "註冊用戶登錄的頁面瀏覽量計數"
-
-#: modules/stats.php:556
-msgid "Smiley"
-msgstr "笑臉"
-
-#: modules/stats.php:557
-msgid "Hide the stats smiley face image."
-msgstr "隱藏統計笑臉圖片。"
-
-#: modules/stats.php:557
-msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
-msgstr "圖像有助於 <strong> 讓世界變得美好</strong> 但仍然應該工作時隱藏起來。"
-
-#: modules/stats.php:557
-msgid "Smiley face"
-msgstr "笑臉"
-
-#: modules/stats.php:558
-msgid "Report visibility"
-msgstr "報告能見度"
-
-#: modules/stats.php:560
-msgid "Select the roles that will be able to view stats reports."
-msgstr "選擇帳號類型，將能夠以查看統計報告。"
-
-#: modules/stats.php:571
-msgid "Save configuration"
-msgstr "保存配置"
-
-#: modules/stats.php:635
-msgid "Stats"
-msgstr "統計"
-
-#: modules/stats.php:637
-msgid "Views over 48 hours. Click for more Site Stats."
-msgstr "超過 48 小時的意見。點擊更多的網站統計。"
-
-#: modules/stats.php:722
-msgid "day"
-msgstr "天"
-
-#: modules/stats.php:723
-msgid "week"
-msgstr "週"
-
-#: modules/stats.php:724
-msgid "month"
-msgstr "月"
-
-#: modules/stats.php:727
-msgid "the past day"
-msgstr "過去的一天"
-
-#: modules/stats.php:728
-msgid "the past week"
-msgstr "上星期"
-
-#: modules/stats.php:729
-msgid "the past month"
-msgstr "上個月"
-
-#: modules/stats.php:730
-msgid "the past quarter"
-msgstr "過去一季"
-
-#: modules/stats.php:731
-msgid "the past year"
-msgstr "去年"
-
-#: modules/stats.php:753
-msgid "Chart stats by"
-msgstr "圖表統計由"
-
-#: modules/stats.php:766
-msgid "Show top posts over"
-msgstr "顯示熱門文章"
-
-#: modules/stats.php:779
-msgid "Show top search terms over"
-msgstr "熱門的搜尋字詞"
-
-#: modules/stats.php:945
-msgid "%1$s %2$s Views"
-msgstr "%1$s %2$s 點擊"
-
-#: modules/stats.php:966
-msgid "View All"
-msgstr "檢視全部"
-
-#: modules/stats.php:970
-msgid "Top Posts"
-msgstr "熱門文章"
-
-#: modules/stats.php:974 modules/stats.php:998
-msgid "Sorry, nothing to report."
-msgstr "對不起，沒有報告。"
-
-#: modules/stats.php:994
-msgid "Top Searches"
-msgstr "熱門關鍵字"
-
-#: modules/stats.php:1022
-msgid "We were unable to get your stats just now. Please reload this page to try again."
+#: modules/widgets/readmill.php:60
+msgid "Item URL:"
 msgstr ""
 
-#: modules/stats.php:1029
-msgid "We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href=\"%1$s\">contact support</a>. In your report please include the information below."
-msgstr "目前無法取得你的統計資料，請重新整理這個頁面並且再試一次。假如錯誤仍然存在，請<a href=\"%1$s\">聯絡客服</a>。在回報中，請包含下列資訊。"
+#: modules/widgets/readmill.php:65
+msgid "What size icon?"
+msgstr ""
 
-#: modules/subscriptions.php:123
-msgid "Jetpack Subscriptions Settings"
-msgstr "Jetpack 訂閱設定"
+#: modules/widgets/readmill.php:67 modules/widgets/rsslinks-widget.php:101
+msgid "Large"
+msgstr "大"
 
-#: modules/subscriptions.php:132
-msgid "Follow Blog"
-msgstr "追蹤部落格"
+#: modules/widgets/readmill.php:68 modules/widgets/rsslinks-widget.php:99
+msgid "Small"
+msgstr "小"
 
-#: modules/subscriptions.php:147
-msgid "Follow Comments"
-msgstr "追蹤迴響"
+#: modules/widgets/readmill.php:125
+msgid "Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget."
+msgstr ""
 
-#: modules/subscriptions.php:168
-msgid "Follower Settings"
-msgstr "追蹤設定"
+#: modules/widgets/rsslinks-widget.php:12
+msgid "Links to your blog's RSS feeds"
+msgstr "連結你的網站 RSS Feeds"
 
-#: modules/subscriptions.php:175
-msgid "Blog follow email text"
-msgstr "追蹤部落格文章的電子郵件文字"
+#: modules/widgets/rsslinks-widget.php:13
+msgid "RSS Links (Jetpack)"
+msgstr "RSS 連結 (Jetpack)"
+
+#: modules/widgets/rsslinks-widget.php:67
+#: modules/widgets/rsslinks-widget.php:133
+msgid "Posts"
+msgstr "文章"
+
+#: modules/widgets/rsslinks-widget.php:69
+msgid "Posts & Comments"
+msgstr "文章及迴響"
+
+#: modules/widgets/rsslinks-widget.php:71
+msgid "Feed(s) to Display:"
+msgstr "Feed(s) 顯示："
+
+#: modules/widgets/rsslinks-widget.php:81
+msgid "Text Link"
+msgstr "文字連結"
+
+#: modules/widgets/rsslinks-widget.php:82
+msgid "Image Link"
+msgstr "圖片連結"
+
+#: modules/widgets/rsslinks-widget.php:83
+msgid "Text & Image Links"
+msgstr "文字和圖片連結"
+
+#: modules/widgets/rsslinks-widget.php:85
+msgid "Format:"
+msgstr "格式:"
+
+#: modules/widgets/rsslinks-widget.php:96
+msgid "Image Settings:"
+msgstr "圖片設定："
+
+#: modules/widgets/rsslinks-widget.php:100
+msgid "Medium"
+msgstr "中"
+
+#: modules/widgets/rsslinks-widget.php:103
+msgid "Image Size:"
+msgstr "圖片大小:"
+
+#: modules/widgets/rsslinks-widget.php:113
+msgid "Red"
+msgstr "紅"
+
+#: modules/widgets/rsslinks-widget.php:114
+msgid "Orange"
+msgstr "橘"
+
+#: modules/widgets/rsslinks-widget.php:115
+msgid "Green"
+msgstr "綠"
+
+#: modules/widgets/rsslinks-widget.php:116
+msgid "Blue"
+msgstr "藍"
+
+#: modules/widgets/rsslinks-widget.php:117
+msgid "Purple"
+msgstr "紫"
+
+#: modules/widgets/rsslinks-widget.php:118
+msgid "Pink"
+msgstr "粉紅"
+
+#: modules/widgets/rsslinks-widget.php:119
+msgid "Silver"
+msgstr "銀"
+
+#: modules/widgets/rsslinks-widget.php:121
+msgid "Image Color:"
+msgstr "圖片顏色:"
+
+#: modules/widgets/rsslinks-widget.php:140
+msgid "Subscribe to %s"
+msgstr "訂閱 %s"
+
+#: modules/widgets/top-posts.php:35 modules/widgets/top-posts.php:41
+msgid "Top Posts &amp; Pages"
+msgstr "熱門文章與頁面︰"
+
+#: modules/widgets/top-posts.php:37
+msgid "Shows your most viewed posts and pages."
+msgstr "顯示最多瀏覽人次的文章和分頁。"
+
+#: modules/widgets/top-posts.php:78
+msgid "Maximum number of posts to show (no more than 10):"
+msgstr ""
+
+#: modules/widgets/top-posts.php:83
+msgid "Display as:"
+msgstr "顯示為："
+
+#: modules/widgets/top-posts.php:85
+msgid "Text List"
+msgstr "文字列表"
+
+#: modules/widgets/top-posts.php:86
+msgid "Image List"
+msgstr "圖片列表"
 
 #: modules/subscriptions.php:183
 msgid "Comment follow email text"
@@ -1215,59 +744,84 @@ msgstr "新增電子郵件的註冊表格，讓人們訂閱你的網站。"
 msgid "Blog Subscriptions (Jetpack)"
 msgstr "部落格訂閱 (Jetpack)"
 
-#: modules/subscriptions.php:586
+#: modules/subscriptions.php:600
 msgid "An email was just sent to confirm your subscription. Please find the email now and click activate to start subscribing."
 msgstr "只是發送一封電子郵件，以確認你的訂閱。請現在找到的這封郵件，並點擊啟用開始訂閱。"
 
-#: modules/subscriptions.php:595
+#: modules/subscriptions.php:609
 msgid "The email you entered was invalid, please check and try again."
 msgstr "你輸入的電子郵件是無效的，請檢查並再試一次。"
 
-#: modules/subscriptions.php:598
+#: modules/subscriptions.php:612
 msgid "You have already subscribed to this site, please check your inbox."
 msgstr "你已經訂閱此網站，請檢查你的收件箱。"
 
-#: modules/subscriptions.php:604
+#: modules/subscriptions.php:618
 msgid "There was an error when subscribing, please try again."
 msgstr "當訂閱時出現錯誤，請再試一次。"
 
-#: modules/subscriptions.php:617
+#: modules/subscriptions.php:631
 msgid "Join %s other subscriber"
 msgid_plural "Join %s other subscribers"
 msgstr[0] "訂閱 %s 其他用戶 "
 
-#: modules/subscriptions.php:694
+#: modules/subscriptions.php:708
 msgid "Subscribe to Blog via Email"
 msgstr "適用電子郵件訂閱網站"
 
-#: modules/subscriptions.php:695
+#: modules/subscriptions.php:709
 msgid "Enter your email address to subscribe to this blog and receive notifications of new posts by email."
 msgstr "輸入你的電子郵件地址訂閱網站的新文章，使用電子郵件接收新通知。"
 
-#: modules/subscriptions.php:697
+#: modules/subscriptions.php:711
 msgid "Click to subscribe to this blog and receive notifications of new posts by email."
 msgstr "點擊訂閱，利用電子郵件接收新文章與通知。"
 
-#: modules/subscriptions.php:713
+#: modules/subscriptions.php:727
 msgid "%s: %s"
 msgstr "%s: %s"
 
-#: modules/subscriptions.php:720 modules/widgets/image-widget.php:107
+#: modules/subscriptions.php:734 modules/widgets/image-widget.php:107
 msgid "Widget title:"
 msgstr "側邊欄標題:"
 
-#: modules/subscriptions.php:726
+#: modules/subscriptions.php:740
 msgid "Optional text to display to your readers:"
 msgstr "可選文字顯示給你的讀者："
 
-#: modules/subscriptions.php:732
+#: modules/subscriptions.php:746
 msgid "Subscribe Button:"
 msgstr "訂閱按鈕："
 
-#: modules/subscriptions.php:739
+#: modules/subscriptions.php:753
 msgid "Show total number of subscribers? (%s subscriber)"
 msgid_plural "Show total number of subscribers? (%s subscribers)"
 msgstr[0] "顯示訂閱的用戶數?"
+
+#: modules/theme-tools/featured-content.php:382
+#: modules/theme-tools/featured-content.php:393
+msgid "Featured Content"
+msgstr ""
+
+#: modules/theme-tools/featured-content.php:394
+msgid "Easily feature all posts with the <a href=\"%1$s\">\"featured\" tag</a> or a tag of your choice. Your theme supports up to %2$s posts in its featured content area."
+msgstr ""
+
+#: modules/theme-tools/featured-content.php:414
+msgid "Tag name"
+msgstr "標籤名稱"
+
+#: modules/theme-tools/featured-content.php:420
+msgid "Hide tag from displaying in post meta and tag clouds."
+msgstr ""
+
+#: modules/theme-tools/featured-content.php:439
+msgid "The settings for Featured Content have <a href=\"%s\">moved to Appearance &rarr; Customize</a>."
+msgstr ""
+
+#: modules/theme-tools/social-links.php:157
+msgid "&mdash; Select &mdash;"
+msgstr "&mdash; 選擇 &mdash;"
 
 #: modules/tiled-gallery/tiled-gallery.php:318
 msgid "Tiled Mosaic"
@@ -1284,10 +838,6 @@ msgstr ""
 #: modules/tiled-gallery/tiled-gallery.php:349
 msgid "Display all your gallery pictures in a cool mosaic."
 msgstr ""
-
-#: class.jetpack-cli.php:155 modules/vaultpress.php:24
-msgid "Active"
-msgstr "執行套用"
 
 #: modules/videopress/class.videopress-player.php:195
 msgid "%s Error"
@@ -1384,231 +934,230 @@ msgstr ""
 msgid "Allow users to access and edit my videos"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:242
-msgid "This post has been shared!"
-msgstr "文章已經分享!"
-
-#: modules/sharedaddy/sharing-sources.php:243
-msgid "You have shared this post with %s"
-msgstr "你已經分享這篇文章 %s"
-
-#: modules/sharedaddy/sharing-sources.php:244
-#: modules/videopress/videopress.php:676
-msgid "Close"
-msgstr "關閉"
-
-#: modules/sharedaddy/sharing-sources.php:266
-msgctxt "share to"
-msgid "Email"
-msgstr "電子郵件"
-
-#: modules/sharedaddy/sharing-sources.php:266
-msgid "Click to email this to a friend"
-msgstr "點這裡寄給朋友"
-
-#: modules/sharedaddy/sharing-sources.php:279
-msgid "Send to Email Address"
-msgstr "寄到電子郵件位址"
-
-#: modules/sharedaddy/sharing-sources.php:287
-msgid "Your Name"
-msgstr "帳號"
-
-#: modules/sharedaddy/sharing-sources.php:290
-msgid "Your Email Address"
-msgstr "你的Email"
-
-#: modules/sharedaddy/sharing-sources.php:298
-msgid "Send Email"
-msgstr "寄送電子郵件"
-
-#: modules/sharedaddy/sharing-sources.php:302
-msgid "Post was not sent - check your email addresses!"
-msgstr "文章沒有送出-請確認你的Email位置"
-
-#: modules/sharedaddy/sharing-sources.php:306
-msgid "Email check failed, please try again"
-msgstr "Email確認失敗,請稍後再試."
-
-#: modules/sharedaddy/sharing-sources.php:310
-msgid "Sorry, your blog cannot share posts by email."
-msgstr "抱歉，你的網誌無法透過電子郵件分享"
-
-#: modules/sharedaddy/sharing-sources.php:333
-msgid "Twitter"
-msgstr "Twitter "
-
-#: modules/sharedaddy/sharing-sources.php:379
-msgctxt "share to"
-msgid "Twitter"
-msgstr "Twitter"
-
-#: modules/sharedaddy/sharing-sources.php:379
-msgid "Click to share on Twitter"
-msgstr "分享到Twitter"
-
-#: modules/sharedaddy/sharing-sources.php:454
-msgid "StumbleUpon"
-msgstr "StumbleUpon"
-
-#: modules/sharedaddy/sharing-sources.php:465
-msgctxt "share to"
-msgid "StumbleUpon"
-msgstr "StumbleUpon"
-
-#: modules/sharedaddy/sharing-sources.php:465
-msgid "Click to share on StumbleUpon"
-msgstr "點擊分享到 StumbleUpon"
-
-#: modules/sharedaddy/sharing-sources.php:492
-#: modules/sharedaddy/sharing-sources.php:499
-msgid "Reddit"
-msgstr "Reddit"
-
-#: modules/sharedaddy/sharing-sources.php:499
-msgid "Click to share on Reddit"
-msgstr "分享到Reddit"
-
-#: modules/sharedaddy/sharing-sources.php:526
-msgid "Digg"
-msgstr "Digg"
-
-#: modules/sharedaddy/sharing-sources.php:535
-#: modules/sharedaddy/sharing-sources.php:538
-msgid "Click to Digg this post"
-msgstr "點擊分享到 Digg"
-
-#: modules/sharedaddy/sharing-sources.php:538
-msgctxt "share to"
-msgid "Digg"
-msgstr "Digg"
-
-#: modules/sharedaddy/sharing-sources.php:582
-msgid "LinkedIn"
-msgstr "LinkedIn"
-
-#: modules/sharedaddy/sharing-sources.php:596
-msgctxt "share to"
-msgid "LinkedIn"
-msgstr "LinkedIn"
-
-#: modules/sharedaddy/sharing-sources.php:596
-msgid "Click to share on LinkedIn"
-msgstr "點擊分享到 LinkedIn"
-
-#: modules/sharedaddy/sharing-sources.php:659
-msgid "Facebook"
-msgstr "Facebook"
-
-#: modules/sharedaddy/sharing-sources.php:733
-msgctxt "share to"
-msgid "Facebook"
-msgstr "Facebook"
-
-#: modules/sharedaddy/sharing-sources.php:733
-msgid "Share on Facebook"
-msgstr "分享到Facebook"
-
-#: modules/sharedaddy/sharing-sources.php:764
-msgid "Print"
-msgstr "列印"
-
-#: modules/sharedaddy/sharing-sources.php:768
-msgctxt "share to"
-msgid "Print"
-msgstr "列印"
-
-#: modules/sharedaddy/sharing-sources.php:768
-msgid "Click to print"
-msgstr "點這裡列印"
-
-#: modules/sharedaddy/sharing-sources.php:784
-msgid "Press This"
-msgstr "發表至網誌"
-
-#: modules/sharedaddy/sharing-sources.php:812
-msgctxt "share to"
-msgid "Press This"
-msgstr "點這"
-
-#: modules/sharedaddy/sharing-sources.php:812
-msgid "Click to Press This!"
-msgstr "按下此！"
-
-#: modules/sharedaddy/sharing-sources.php:830
-msgid "Google"
-msgstr "Google"
-
-#: modules/sharedaddy/sharing-sources.php:843
-msgctxt "share to"
-msgid "Google"
+#: modules/videopress/videopress.php:295
+msgid "Allow users to access, edit, and delete my videos"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:843
-msgid "Click to share on Google+"
-msgstr "點擊分享到 Google+"
+#: modules/videopress/videopress.php:298
+msgid "Allow users to upload videos"
+msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:930
-msgid "Click to share"
-msgstr "點擊分享"
+#: modules/videopress/videopress.php:303
+msgid "Free formats"
+msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:985
-msgid "URL"
-msgstr "鏈結網址"
+#: modules/videopress/videopress.php:307
+msgid "Only display videos in free software formats"
+msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:990
-msgid "Icon"
-msgstr "圖示"
+#: modules/videopress/videopress.php:308
+msgid "Ogg file container with Theora video and Vorbis audio. Note that some browsers are unable to play free software video formats, including Internet Explorer and Safari."
+msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:997
+#: modules/videopress/videopress.php:313
+msgid "Default quality"
+msgstr ""
+
+#: modules/videopress/videopress.php:317
+msgid "Display higher quality video by default."
+msgstr ""
+
+#: modules/videopress/videopress.php:318
+msgid "This setting may be overridden for individual videos."
+msgstr ""
+
+#: modules/videopress/videopress.php:330 modules/videopress/videopress.php:339
+#: modules/videopress/videopress.php:593
+msgid "VideoPress Library"
+msgstr ""
+
+#: modules/videopress/videopress.php:340
+msgid "Use the button below to browse your VideoPress Library. Note that you can also browse your VideoPress Library while editing a post or page by using the <strong>Add Media</strong> button in the post editor."
+msgstr ""
+
+#: modules/videopress/videopress.php:341
+msgid "Browse Your VideoPress Library"
+msgstr ""
+
+#: modules/videopress/videopress.php:342
+msgid "Please enable JavaScript support in your browser to use VideoPress."
+msgstr ""
+
+#: modules/videopress/videopress.php:589
+msgid "Please select a video file to upload."
+msgstr ""
+
+#: modules/videopress/videopress.php:590
+msgid "Your video is uploading... Please do not close this window."
+msgstr ""
+
+#: modules/videopress/videopress.php:591
+msgid "An unknown error has occurred. Please try again later."
+msgstr ""
+
+#: modules/videopress/videopress.php:592
+msgid "Your video has successfully been uploaded. It will appear in your VideoPress Library shortly."
+msgstr ""
+
+#: modules/videopress/videopress.php:594
+msgid "Upload a Video"
+msgstr ""
+
+#: modules/videopress/videopress.php:595
+msgid "Insert Video"
+msgstr "插入影片"
+
+#: modules/videopress/videopress.php:628
+msgid "Ogg File URL"
+msgstr ""
+
+#: modules/videopress/videopress.php:630
+msgid "Location of the Ogg video file."
+msgstr ""
+
+#: modules/videopress/videopress.php:638
+msgid "Display share menu and allow viewers to embed or download this video"
+msgstr ""
+
+#: modules/videopress/videopress.php:644
+msgid "Rating"
+msgstr "評分"
+
+#: modules/videopress/videopress.php:657
+msgid "Shortcode"
+msgstr ""
+
+#: modules/videopress/videopress.php:664
+msgid "The preview is unavailable while this video is being processed."
+msgstr ""
+
+#: modules/videopress/videopress.php:673
+msgid "Video Preview:"
+msgstr ""
+
+#: modules/videopress/videopress.php:707
+msgid "Use the form below to upload a video to your VideoPress Library. The following video formats are supported: %s. Maximum upload file size is %d%s."
+msgstr ""
+
+#: modules/videopress/videopress.php:710
+msgid "Upload Video"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:34
+msgid "All category pages"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:48
+msgid "All author pages"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:59
+msgid "All tag pages"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:73
+msgid "All date archives"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:74
+msgid "Daily archives"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:75
+msgid "Monthly archives"
+msgstr "月份文章彙整"
+
+#: modules/widget-visibility/widget-conditions.php:76
+msgid "Yearly archives"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:87
+msgid "Front page"
+msgstr "首頁頁面"
+
+#: modules/widget-visibility/widget-conditions.php:88
+msgid "Posts page"
+msgstr "文章列表頁面"
+
+#: modules/widget-visibility/widget-conditions.php:89
+msgid "404 error page"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:90
+msgid "Search results"
+msgstr "搜尋結果"
+
+#: modules/widget-visibility/widget-conditions.php:91
+msgid "Post type:"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:104
+msgid "Static page:"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:146
+msgid "Visibility"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:149
+msgctxt "placeholder: dropdown menu to select widget visibility; hide if or show if"
+msgid "%s if:"
+msgstr ""
+
+#: modules/widget-visibility/widget-conditions.php:149
+msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
+msgid "Show"
+msgstr ""
+
+#: modules/sharedaddy/sharing-sources.php:998
 msgid "Save"
 msgstr "儲存"
 
-#: modules/sharedaddy/sharing-sources.php:998
+#: modules/sharedaddy/sharing-sources.php:999
 msgid "Remove Service"
 msgstr "移除服務"
 
-#: modules/sharedaddy/sharing-sources.php:1077
+#: modules/sharedaddy/sharing-sources.php:1078
 msgid "Tumblr"
 msgstr "Tumblr"
 
-#: modules/sharedaddy/sharing-sources.php:1088
+#: modules/sharedaddy/sharing-sources.php:1089
 msgctxt "share to"
 msgid "Tumblr"
 msgstr "Tumblr"
 
-#: modules/sharedaddy/sharing-sources.php:1088
+#: modules/sharedaddy/sharing-sources.php:1089
 msgid "Click to share on Tumblr"
 msgstr "點擊分享到 Tumblr"
 
-#: modules/sharedaddy/sharing-sources.php:1124
+#: modules/sharedaddy/sharing-sources.php:1125
 msgid "Pinterest"
 msgstr "Pinterest"
 
-#: modules/sharedaddy/sharing-sources.php:1168
+#: modules/sharedaddy/sharing-sources.php:1169
 msgid "Pin It"
 msgstr "Pin It"
 
-#: modules/sharedaddy/sharing-sources.php:1170
+#: modules/sharedaddy/sharing-sources.php:1171
 msgctxt "share to"
 msgid "Pinterest"
 msgstr "Pinterest"
 
-#: modules/sharedaddy/sharing-sources.php:1170
+#: modules/sharedaddy/sharing-sources.php:1171
 msgid "Click to share on Pinterest"
 msgstr "點擊分享到 Pinterest"
 
-#: modules/sharedaddy/sharing-sources.php:1241
-#: modules/sharedaddy/sharing-sources.php:1259
+#: modules/sharedaddy/sharing-sources.php:1242
+#: modules/sharedaddy/sharing-sources.php:1260
 msgid "Pocket"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1264
+#: modules/sharedaddy/sharing-sources.php:1265
 msgctxt "share to"
 msgid "Pocket"
 msgstr ""
 
-#: modules/sharedaddy/sharing-sources.php:1264
+#: modules/sharedaddy/sharing-sources.php:1265
 msgid "Click to share on Pocket"
 msgstr ""
 
@@ -1736,11 +1285,11 @@ msgstr "你的網誌目前還沒有任何發表的文章。"
 msgid "Download: <a href=\"%s\">%s</a><br />"
 msgstr "下載：<a href=\"%s\">%s</a><br />"
 
-#: modules/shortcodes/presentations.php:226
+#: modules/shortcodes/presentations.php:227
 msgid "This slideshow could not be started. Try refreshing the page or viewing it in another browser."
 msgstr ""
 
-#: modules/shortcodes/presentations.php:242
+#: modules/shortcodes/presentations.php:243
 msgid "Click to autoplay the presentation!"
 msgstr ""
 
@@ -1768,206 +1317,205 @@ msgstr ""
 msgid "Tweets by @%s"
 msgstr ""
 
-#: modules/social-links/social-links.php:157
-msgid "&mdash; Select &mdash;"
-msgstr "&mdash; 選擇 &mdash;"
-
-#: modules/sso.php:39
+#: modules/sso.php:40
 msgid "Error: This site's Jetpack connection is currently experiencing problems."
 msgstr ""
 
-#: modules/sso.php:124
+#: modules/sso.php:125
 msgid "Error, invalid response data."
 msgstr ""
 
-#: modules/sso.php:167
+#: modules/sso.php:168
 msgid "Error: Couldn't create suitable username."
 msgstr ""
 
-#: modules/sso.php:261
+#: modules/sso.php:274
 msgid "Log in with WordPress.com"
 msgstr ""
 
-#: modules/sso.php:294
+#: modules/sso.php:307
 msgid "We couldn't find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page."
 msgstr ""
 
-#: modules/sso.php:296
+#: modules/sso.php:309
 msgid "We couldn't find any account on <strong>%2$s</strong> that is linked to your WordPress.com account to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that you have connected to WordPress.com on your profile page."
 msgstr ""
 
-#: modules/module-info.php:741
-msgid "Create elegant magazine-style mosaic layouts for your photos without having to use an external graphic editor."
+#: modules/sso.php:338
+msgid "WordPress.com Single Sign On"
 msgstr ""
 
-#: modules/module-info.php:742
-msgid "When adding a gallery to your post, you now have the option to select a layout style for your images. We've added support for Rectangular, Square, and Circular galleries. By default, galleries will continue to display using the standard thumbnail grid layout. To make the rectangular layout the default for all of your site's galleries, head over to <a href=\"%s\">Settings &rarr; Media</a> and check the box next to \"Display all your gallery pictures in a cool mosaic.\""
+#: modules/sso.php:339
+msgid "Connecting with WordPress.com SSO enables you to log in via your WordPress.com account."
 msgstr ""
 
-#: modules/module-info.php:743
-msgid "Note: Images in tiled galleries require extra-special processing, so they will be served from WordPress.com's CDN even if the Photon module is disabled."
+#: modules/sso.php:352
+msgid "Unlink This Account"
 msgstr ""
 
-#: modules/module-info.php:765
-msgid "Likes allow your readers to show their appreciation for your posts and other published content using their WordPress.com accounts. Your readers will then be able to review their liked posts from WordPress.com."
+#: modules/sso.php:397
+msgid "This profile is not currently linked to a WordPress.com Profile."
 msgstr ""
 
-#: modules/module-info.php:766
-msgid "Displayed below your posts will be how many people have liked your posts and the Gravatars of those who have liked them."
+#: modules/stats.php:266 modules/stats.php:703
+msgid "Site Stats"
+msgstr "網誌統計"
+
+#: modules/stats.php:354
+msgid "Loading&hellip;"
+msgstr "讀取 &hellip;"
+
+#: modules/stats.php:355
+msgid "Your Site Stats work better with Javascript enabled."
+msgstr "啟用 JavaScript，你網站的統計工作更方便。"
+
+#: modules/stats.php:356
+msgid "View Site Stats without Javascript"
+msgstr "沒有 JavaScript的網站統計"
+
+#: modules/stats.php:539
+msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
+msgstr "點擊 <a href=\"%s\">網站統計</a> 查看你的統計"
+
+#: modules/stats.php:544
+msgid "Admin bar"
+msgstr "管理者工具欄"
+
+#: modules/stats.php:545
+msgid "Put a chart showing 48 hours of views in the admin bar."
+msgstr "把48小時內的點擊繪成圖表呈現在管理者工具欄"
+
+#: modules/stats.php:546
+msgid "Registered users"
+msgstr "註冊用戶"
+
+#: modules/stats.php:548
+msgid "Count the page views of registered users who are logged in."
+msgstr "註冊用戶登錄的頁面瀏覽量計數"
+
+#: modules/stats.php:558
+msgid "Smiley"
+msgstr "笑臉"
+
+#: modules/stats.php:559
+msgid "Hide the stats smiley face image."
+msgstr "隱藏統計笑臉圖片。"
+
+#: modules/stats.php:559
+msgid "The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden"
+msgstr "圖像有助於 <strong> 讓世界變得美好</strong> 但仍然應該工作時隱藏起來。"
+
+#: modules/stats.php:559
+msgid "Smiley face"
+msgstr "笑臉"
+
+#: modules/stats.php:560
+msgid "Report visibility"
+msgstr "報告能見度"
+
+#: modules/stats.php:562
+msgid "Select the roles that will be able to view stats reports."
+msgstr "選擇帳號類型，將能夠以查看統計報告。"
+
+#: modules/stats.php:637
+msgid "Stats"
+msgstr "統計"
+
+#: modules/stats.php:639
+msgid "Views over 48 hours. Click for more Site Stats."
+msgstr "超過 48 小時的意見。點擊更多的網站統計。"
+
+#: modules/stats.php:724
+msgid "day"
+msgstr "天"
+
+#: modules/stats.php:725
+msgid "week"
+msgstr "週"
+
+#: modules/stats.php:726
+msgid "month"
+msgstr "月"
+
+#: modules/stats.php:729
+msgid "the past day"
+msgstr "過去的一天"
+
+#: modules/stats.php:730
+msgid "the past week"
+msgstr "上星期"
+
+#: modules/stats.php:731
+msgid "the past month"
+msgstr "上個月"
+
+#: modules/stats.php:732
+msgid "the past quarter"
+msgstr "過去一季"
+
+#: modules/stats.php:733
+msgid "the past year"
+msgstr "去年"
+
+#: modules/stats.php:755
+msgid "Chart stats by"
+msgstr "圖表統計由"
+
+#: modules/stats.php:768
+msgid "Show top posts over"
+msgstr "顯示熱門文章"
+
+#: modules/stats.php:781
+msgid "Show top search terms over"
+msgstr "熱門的搜尋字詞"
+
+#: modules/stats.php:947
+msgid "%1$s %2$s Views"
+msgstr "%1$s %2$s 點擊"
+
+#: modules/stats.php:968
+msgid "View All"
+msgstr "檢視全部"
+
+#: modules/stats.php:972
+msgid "Top Posts"
+msgstr "熱門文章"
+
+#: modules/stats.php:976 modules/stats.php:1000
+msgid "Sorry, nothing to report."
+msgstr "對不起，沒有報告。"
+
+#: modules/stats.php:996
+msgid "Top Searches"
+msgstr "熱門關鍵字"
+
+#: modules/stats.php:1024
+msgid "We were unable to get your stats just now. Please reload this page to try again."
 msgstr ""
 
-#: modules/module-info.php:768
-msgid "More information on using Likes."
-msgstr ""
+#: modules/stats.php:1031
+msgid "We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href=\"%1$s\">contact support</a>. In your report please include the information below."
+msgstr "目前無法取得你的統計資料，請重新整理這個頁面並且再試一次。假如錯誤仍然存在，請<a href=\"%1$s\">聯絡客服</a>。在回報中，請包含下列資訊。"
 
-#: modules/module-info.php:791
-msgid "The Google+ profile module allows you to connect your blog and Google+ accounts."
-msgstr ""
+#: modules/subscriptions.php:123
+msgid "Jetpack Subscriptions Settings"
+msgstr "Jetpack 訂閱設定"
 
-#: modules/module-info.php:792
-msgid "Displayed below your posts will be a link back to your Google+ profile and a Google+ follow button. A link will also be added to your Google+ profile."
-msgstr ""
+#: modules/subscriptions.php:132
+msgid "Follow Blog"
+msgstr "追蹤部落格"
 
-#: modules/module-info.php:794
-msgid "More information on using Google+ Profile."
-msgstr ""
+#: modules/subscriptions.php:147
+msgid "Follow Comments"
+msgstr "追蹤迴響"
 
-#: modules/module-info.php:810 modules/omnisearch/omnisearch-core.php:59
-#: modules/omnisearch/omnisearch-core.php:64
-#: modules/omnisearch/omnisearch-core.php:85
-msgid "Omnisearch"
-msgstr ""
+#: modules/subscriptions.php:168
+msgid "Follower Settings"
+msgstr "追蹤設定"
 
-#: modules/module-info.php:812
-msgid "Search once, get results from everything! Currently supports searching posts, pages, comments, media, and plugins."
-msgstr ""
-
-#: modules/module-info.php:814
-msgid "Omnisearch plays nice with other plugins by letting other providers offer results as well."
-msgstr ""
-
-#: modules/module-info.php:833
-msgid "Widget Visibility"
-msgstr ""
-
-#: modules/module-info.php:835
-msgid "Control which pages your widgets appear on with Widget Visibility."
-msgstr ""
-
-#: modules/module-info.php:836
-msgid "To control visibility, expand the widget and click the Visibility button next to the Save button, and then, choose a set of visibility options."
-msgstr ""
-
-#: modules/module-info.php:837
-msgid "For example, if you wanted the Archives widget to only appear on category archives and error pages, choose \"Show\" from the first dropdown and then add two rules: \"Page is 404 Error Page\" and \"Category is All Category Pages.\""
-msgstr ""
-
-#: modules/module-info.php:838
-msgid "You can also hide widgets based on the current page. For example, if you don't want the Archives widget to appear on search results pages, choose \"Hide\" and \"Page is Search results.\""
-msgstr ""
-
-#: modules/module-info.php:853 modules/videopress/videopress.php:330
-msgid "VideoPress"
-msgstr ""
-
-#: modules/module-info.php:854
-msgid "With the VideoPress module you can easily upload videos to your WordPress site and embed them in your posts and pages. This module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
-msgstr ""
-
-#: modules/module-info.php:867
-msgid "Single Sign On"
-msgstr ""
-
-#: modules/module-info.php:869
-msgid "With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
-msgstr ""
-
-#: modules/module-info.php:870
-msgid "Once enabled, a \"Log in with WordPress.com\" option will be added to your existing log in form."
-msgstr ""
-
-#: modules/module-info.php:885
-msgid "Monitor"
-msgstr ""
-
-#: modules/module-info.php:887
-msgid "Nobody likes downtime, and that's why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!"
-msgstr ""
-
-#: modules/module-info.php:889
-msgid "We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime."
-msgstr ""
-
-#: modules/omnisearch/omnisearch-comments.php:17
-msgid "Search Comments"
-msgstr "搜尋迴響"
-
-#: modules/omnisearch/omnisearch-comments.php:18
-#: modules/omnisearch/omnisearch-comments.php:27
-#: modules/widgets/rsslinks-widget.php:68
-#: modules/widgets/rsslinks-widget.php:136
-msgid "Comments"
-msgstr "迴響"
-
-#: modules/omnisearch/omnisearch-core.php:85
-msgid "search everything"
-msgstr ""
-
-#: modules/omnisearch/omnisearch-core.php:95
-msgid "Results:"
-msgstr ""
-
-#: modules/omnisearch/omnisearch-core.php:96
-msgid "Jump to:"
-msgstr ""
-
-#: modules/omnisearch/omnisearch-core.php:107
-msgid "Back to Top &uarr;"
-msgstr ""
-
-#: modules/omnisearch/omnisearch-core.php:154
-msgid "Search Everything"
-msgstr ""
-
-#: modules/omnisearch/omnisearch-media.php:16
-msgid "Search Media"
-msgstr "搜尋媒體"
-
-#: modules/omnisearch/omnisearch-media.php:17
-#: modules/omnisearch/omnisearch-media.php:28
-msgid "Media"
-msgstr "媒體"
-
-#: modules/omnisearch/omnisearch-plugins.php:20
-msgid "Search Plugins"
-msgstr "搜尋外掛"
-
-#: modules/omnisearch/omnisearch-plugins.php:21
-#: modules/omnisearch/omnisearch-plugins.php:26
-msgid "Plugins"
-msgstr "外掛"
-
-#: modules/omnisearch/omnisearch-plugins.php:23
-msgid "Loading &hellip;"
-msgstr ""
-
-#: modules/omnisearch/omnisearch-posts.php:44
-#: modules/widgets/facebook-likebox.php:124
-#: modules/widgets/gravatar-profile.php:174
-msgid "Title"
-msgstr "標題"
-
-#: modules/omnisearch/omnisearch-posts.php:45
-msgid "Snippet"
-msgstr ""
-
-#: modules/omnisearch/omnisearch-posts.php:75
-msgid "Unpublished"
-msgstr "未發表"
-
-#: modules/omnisearch/omnisearch-posts.php:78
-msgid "Y/m/d g:i:s A"
-msgstr "Y-m-d H:i:s"
+#: modules/subscriptions.php:175
+msgid "Blog follow email text"
+msgstr "追蹤部落格文章的電子郵件文字"
 
 #: modules/omnisearch/omnisearch-posts.php:85
 msgid "%s ago"
@@ -1993,7 +1541,7 @@ msgstr "已排程"
 msgid "Last Modified"
 msgstr "最後修改"
 
-#: modules/post-by-email.php:95 modules/subscriptions.php:621
+#: modules/post-by-email.php:95 modules/subscriptions.php:635
 msgid "Email Address"
 msgstr "電子郵件位址"
 
@@ -2018,7 +1566,7 @@ msgstr "關閉電子郵件發表文章的功能"
 msgid "To use Post By Email, you need to link your %s account to your WordPress.com account."
 msgstr "要使用電子郵件發送文章的功能，你需要與你的 WordPress.com 連結你的 %s 帳戶。"
 
-#: modules/post-by-email.php:129 modules/publicize/publicize-jetpack.php:64
+#: modules/post-by-email.php:129 modules/publicize/publicize-jetpack.php:66
 msgid "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds."
 msgstr "如果你還沒有 WordPress.com 的帳號，你可以用幾秒鐘的時間註冊一個免費的。"
 
@@ -2034,65 +1582,70 @@ msgstr "無法重新產生啟用透過電子郵件地址發表你的文章的功
 msgid "Unable to disable your Post By Email address. Please try again later."
 msgstr "無法停用透過電子郵件地址發表文章的功能。請稍後再試一次。"
 
-#: modules/publicize/publicize-jetpack.php:61
+#: modules/publicize/enhanced-open-graph.php:108
+msgid "Video on %s"
+msgstr ""
+
+#: modules/publicize/publicize-jetpack.php:63
 msgid "To use Publicize, you'll need to link your %s account to your WordPress.com account using the button to the right."
 msgstr "要使用「宣傳」的功能，你需要使用右方按鈕連結你的 %s  WordPress.com 帳戶。"
 
-#: modules/publicize/publicize-jetpack.php:178
+#: modules/publicize/publicize-jetpack.php:180
 msgid "There was a problem connecting to %s to create an authorized connection. Please try again in a moment."
 msgstr "在建立一個經授權的連結時發了一個  %s  問題，請稍後再試一次。"
 
-#: modules/publicize/publicize-jetpack.php:184
+#: modules/publicize/publicize-jetpack.php:186
 msgid "An invalid request was made. This normally means that something intercepted or corrupted the request from your server to the Jetpack Server. Try again and see if it works this time."
 msgstr ""
 
-#: modules/publicize/publicize-jetpack.php:187
+#: modules/publicize/publicize-jetpack.php:189
 msgid "We could not verify that your server is making an authorized request. Please try again, and make sure there is nothing interfering with requests from your server to the Jetpack Server."
 msgstr ""
 
-#: modules/publicize/publicize-jetpack.php:190
+#: modules/publicize/publicize-jetpack.php:192
 msgid "No blog_id was included in your request. Please try disconnecting Jetpack from WordPress.com and then reconnecting it. Once you have done that, try connecting Publicize again."
 msgstr ""
 
-#: modules/publicize/publicize-jetpack.php:193
+#: modules/publicize/publicize-jetpack.php:195
 msgid "No user information was included in your request. Please make sure that your user account has connected to Jetpack. Connect your user account by going to the <a href=\"%s\">Jetpack page</a> within wp-admin."
 msgstr ""
 
-#: modules/publicize/publicize-jetpack.php:196
+#: modules/publicize/publicize-jetpack.php:198
 msgid "Something which should never happen, happened. Sorry about that. If you try again, maybe it will work."
 msgstr ""
 
-#: modules/publicize/publicize-jetpack.php:200
+#: modules/publicize/publicize-jetpack.php:202
 msgid "There was a problem connecting with Publicize. Please try again in a moment."
 msgstr "在連結「宣傳」功能時發生了一個問題，請稍後再試一次。"
 
-#: modules/publicize/publicize-jetpack.php:209
+#: modules/publicize/publicize-jetpack.php:211
 msgid "Error code: %s"
 msgstr ""
 
-#: modules/publicize/publicize-jetpack.php:218
+#: modules/publicize/publicize-jetpack.php:220
 msgid "That connection has been removed."
 msgstr ""
 
-#: modules/publicize/publicize-jetpack.php:348
+#: modules/publicize/publicize-jetpack.php:351
+msgctxt "Refresh connection with {social media service}"
 msgid "Refresh connection with %s"
 msgstr ""
 
-#: modules/publicize/publicize-jetpack.php:422
-#: modules/publicize/publicize-jetpack.php:439
-#: modules/publicize/publicize-jetpack.php:562
+#: modules/publicize/publicize-jetpack.php:425
+#: modules/publicize/publicize-jetpack.php:442
+#: modules/publicize/publicize-jetpack.php:565
 msgid "Publicize to my %s:"
 msgstr "宣傳我的 %s:"
 
-#: modules/publicize/publicize-jetpack.php:423
+#: modules/publicize/publicize-jetpack.php:426
 msgid "Facebook Wall"
 msgstr "Facebook 塗鴉牆"
 
-#: modules/publicize/publicize-jetpack.php:440
+#: modules/publicize/publicize-jetpack.php:443
 msgid "Facebook Page"
 msgstr "Facebook 專頁"
 
-#: modules/publicize/publicize-jetpack.php:563
+#: modules/publicize/publicize-jetpack.php:566
 msgid "Tumblr blog"
 msgstr "Tumblr 部落格"
 
@@ -2117,14 +1670,14 @@ msgid "You can make a connection for just yourself or for all users on your blog
 msgstr "你可以讓連結只能自己使用或讓這個網誌的所有帳號都可以使用。共享連結將被標示為「共享」。"
 
 #: modules/publicize/ui.php:169
-msgid "Connected as: "
+msgid "Connected as:"
 msgstr ""
 
 #: modules/publicize/ui.php:179
 msgid "Shared"
 msgstr "已分享"
 
-#: modules/publicize/ui.php:205 modules/social-links/social-links.php:81
+#: modules/publicize/ui.php:205 modules/theme-tools/social-links.php:81
 msgid "Connect"
 msgstr ""
 
@@ -2214,167 +1767,181 @@ msgctxt "as sharing source"
 msgid "Email"
 msgstr ""
 
-#: modules/module-info.php:60
-msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
-msgstr "Hovercards 提供一個呈現方式來表現你在網際網路上的資訊，並幫助人們找到他們的Blog"
+#: modules/sharedaddy/sharing-sources.php:242
+msgid "This post has been shared!"
+msgstr "文章已經分享!"
 
-#: modules/module-info.php:74
-msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
-msgstr "Hovercards 是藉由 Gravatar 圖像 加強一個人的資訊：姓名、個人簡歷、圖片、聯絡信息，及其他服務。"
+#: modules/sharedaddy/sharing-sources.php:243
+msgid "You have shared this post with %s"
+msgstr "你已經分享這篇文章 %s"
 
-#: modules/module-info.php:75
-msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
-msgstr "在你的網誌要看到Hovercards。當任何網誌文章有評論時，如果評論者已經新增自己的圖像到自己的Gravatar，滑鼠移到圖像時 Hovercard會出現。要關閉 Hovercards，點擊 \"停用\"按鈕。"
+#: modules/sharedaddy/sharing-sources.php:244
+#: modules/videopress/videopress.php:676
+msgid "Close"
+msgstr "關閉"
 
-#: modules/module-info.php:90 modules/module-info.php:94
-#: modules/module-info.php:103 modules/module-info.php:107
-msgid "Shortcode Embeds"
-msgstr "短碼嵌入"
+#: modules/sharedaddy/sharing-sources.php:266
+msgctxt "share to"
+msgid "Email"
+msgstr "電子郵件"
 
-#: modules/module-info.php:95 modules/module-info.php:108
-msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
-msgstr "簡碼讓你可以輕鬆地和安全地插入其他地方的媒體在你的網站上。只是一個簡單的代碼，你可以使用 WordPress 插入 YouTube、Flickr和其他媒體。"
+#: modules/sharedaddy/sharing-sources.php:266
+msgid "Click to email this to a friend"
+msgstr "點這裡寄給朋友"
 
-#: modules/module-info.php:109
-msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
-msgstr "直接在文章/分頁頁面上，使用編輯器添加任一媒體的代碼。詳細說明請參照下面的連結。"
+#: modules/sharedaddy/sharing-sources.php:279
+msgid "Send to Email Address"
+msgstr "寄到電子郵件位址"
 
-#: modules/module-info.php:132
-msgid "Available shortcodes are: %l."
-msgstr "可用的代碼有：%l."
+#: modules/sharedaddy/sharing-sources.php:287
+msgid "Your Name"
+msgstr "帳號"
 
-#: modules/module-info.php:147 modules/module-info.php:151
-#: modules/module-info.php:161 modules/module-info.php:165
-msgid "WP.me Shortlinks"
-msgstr "WP.me 短網址"
+#: modules/sharedaddy/sharing-sources.php:290
+msgid "Your Email Address"
+msgstr "你的Email"
 
-#: modules/module-info.php:152 modules/module-info.php:166
-msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
-msgstr "不用再輸入或複製貼上的長網址，你現在可以得到一個簡短好記的網址連到你的文章和頁面。使用超短的 wp.me 域名，並為你提供了一個唯一的URL，你可以安心的使用它。"
+#: modules/sharedaddy/sharing-sources.php:298
+msgid "Send Email"
+msgstr "寄送電子郵件"
 
-#: modules/module-info.php:153
-msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
-msgstr "他可以完美的使用在Twitter、Facebook與手機簡訊上，受限於特定的字數。"
+#: modules/sharedaddy/sharing-sources.php:302
+msgid "Post was not sent - check your email addresses!"
+msgstr "文章沒有送出-請確認你的Email位置"
 
-#: modules/module-info.php:167
-msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
-msgstr "要使用短網址，去任何已發表的文章（或發表新的頁面！）。將文章標題下可見 \"取得短網址\"按鈕。當你點擊它，會出現一個對話框連接，可以複製貼到Twitter，Facebook或其他地方，可滿足你的需求。"
+#: modules/sharedaddy/sharing-sources.php:306
+msgid "Email check failed, please try again"
+msgstr "Email確認失敗,請稍後再試."
 
-#: modules/module-info.php:182 modules/module-info.php:186
-#: modules/module-info.php:195 modules/module-info.php:199
-msgid "WordPress.com Stats"
-msgstr "WordPress.com 統計"
+#: modules/sharedaddy/sharing-sources.php:310
+msgid "Sorry, your blog cannot share posts by email."
+msgstr "抱歉，你的網誌無法透過電子郵件分享"
 
-#: modules/module-info.php:187 modules/module-info.php:200
-msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
-msgstr "有很多的插件和服務，提供統計數據，但數據可以被作假。 WordPress.com統計，最流行的衡量指標，提供一個明確的和有吸引力的的界面使用者容易理解。"
+#: modules/sharedaddy/sharing-sources.php:333
+msgid "Twitter"
+msgstr "Twitter "
 
-#: modules/module-info.php:201
-msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
-msgstr "你可以 <a href=\"%s\">點擊查看你的網站統計</a>."
+#: modules/sharedaddy/sharing-sources.php:379
+msgctxt "share to"
+msgid "Twitter"
+msgstr "Twitter"
 
-#: modules/module-info.php:215 modules/module-info.php:219
-#: modules/publicize/ui.php:95
-msgid "Publicize"
-msgstr "宣傳"
+#: modules/sharedaddy/sharing-sources.php:379
+msgid "Click to share on Twitter"
+msgstr "分享到Twitter"
 
-#: modules/module-info.php:220
-msgid "Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.\t You can make a connection for just yourself or for all users on your blog."
-msgstr "「宣傳」允許你連結你的部落格到各種受歡迎的社交網絡並自動語你的朋友們分享新文章。\t 你可以在你的部落格裡只連結你自己或所有註冊會員。"
+#: modules/sharedaddy/sharing-sources.php:454
+msgid "StumbleUpon"
+msgstr "StumbleUpon"
 
-#: modules/module-info.php:221
-msgid "Publicize allows you to share your posts on Facebook, Twitter, Tumblr, Yahoo!, and Linkedin."
-msgstr "「宣傳」允許你在 Facebook, Twitter, Tumblr, Yahoo! 和 Linkedin 分享你的文章。"
+#: modules/sharedaddy/sharing-sources.php:465
+msgctxt "share to"
+msgid "StumbleUpon"
+msgstr "StumbleUpon"
 
-#: modules/module-info.php:225
-msgid "Manage your <a href=\"%s\">Publicize settings</a>."
-msgstr "管理你的 <a href=\"%s\">「宣傳」設定</a> 。"
+#: modules/sharedaddy/sharing-sources.php:465
+msgid "Click to share on StumbleUpon"
+msgstr "點擊分享到 StumbleUpon"
 
-#: modules/module-info.php:229 modules/publicize/ui.php:114
-msgid "More information on using Publicize."
-msgstr "更多資訊在使用 「宣傳」功能。"
+#: modules/sharedaddy/sharing-sources.php:492
+#: modules/sharedaddy/sharing-sources.php:499
+msgid "Reddit"
+msgstr "Reddit"
 
-#: modules/module-info.php:245 modules/module-info.php:249
-#: modules/module-info.php:258 modules/module-info.php:262
-#: modules/notes.php:160
-msgid "Notifications"
-msgstr "通知"
+#: modules/sharedaddy/sharing-sources.php:499
+msgid "Click to share on Reddit"
+msgstr "分享到Reddit"
 
-#: modules/module-info.php:250 modules/module-info.php:263
-msgid "Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users."
-msgstr "隨時掌握你所有的 WordPress 網站動態和其他 WordPress.com 會員們保持互動。"
+#: modules/sharedaddy/sharing-sources.php:526
+msgid "Digg"
+msgstr "Digg"
 
-#: modules/module-info.php:264
-msgid "You can view your notifications in the Toolbar and <a href=\"%s\">on WordPress.com</a>."
-msgstr "你可以在後台工具欄和 <a href=\"%s\">WordPress.com</a> 觀看你所有的通知。"
+#: modules/sharedaddy/sharing-sources.php:535
+#: modules/sharedaddy/sharing-sources.php:538
+msgid "Click to Digg this post"
+msgstr "點擊分享到 Digg"
 
-#: modules/module-info.php:279 modules/module-info.php:294
-msgid "LaTeX"
-msgstr "「LaTeX」功能"
+#: modules/sharedaddy/sharing-sources.php:538
+msgctxt "share to"
+msgid "Digg"
+msgstr "Digg"
 
-#: modules/module-info.php:284 modules/module-info.php:299
-msgid "%s is a powerful markup language for writing complex mathematical equations, formulas, etc."
-msgstr "%s 是一個強大的標記語言與編寫複雜的數學公式 功能。"
+#: modules/sharedaddy/sharing-sources.php:582
+msgid "LinkedIn"
+msgstr "LinkedIn"
 
-#: modules/module-info.php:285
-msgid "Jetpack combines the power of %s and the simplicity of WordPress to give you the ultimate in math blogging platforms."
-msgstr "Jetpack 包含的功能 %s  給你在 WordPress 上的一些小功能。"
+#: modules/sharedaddy/sharing-sources.php:596
+msgctxt "share to"
+msgid "LinkedIn"
+msgstr "LinkedIn"
 
-#: modules/module-info.php:286
-msgid "Wow, that sounds nerdy."
-msgstr "WOW!聽起來太棒了(超給力)"
+#: modules/sharedaddy/sharing-sources.php:596
+msgid "Click to share on LinkedIn"
+msgstr "點擊分享到 LinkedIn"
 
-#: modules/module-info.php:300
-msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
-msgstr "使用 <code>$latex your latex code here$</code> 或 <code>[latex]your latex code here[/latex]</code> 加入 %s 到你的文章或評論。共有這些 <a href=\"%s\" target=\"_blank\">運算式</a> 可以使用。"
+#: modules/sharedaddy/sharing-sources.php:659
+msgid "Facebook"
+msgstr "Facebook"
 
-#: modules/module-info.php:319
-msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
-msgstr "分享你的文章，與 Twitter，Facebook和其他服務的主機。你可以配置服務，以顯示為圖標，文本，或兩者兼而有之。某些服務有更多的選項，以顯示智能按鈕，如Twitter，這將更新後已共享的次數。"
+#: modules/sharedaddy/sharing-sources.php:734
+msgctxt "share to"
+msgid "Facebook"
+msgstr "Facebook"
 
-#: modules/module-info.php:323
-msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr "包括以下服務的Twitter，Facebook，書籤訂閱，StumbleUpon，PressThis，Digg，LinkedIn，Google +1，印列，和電子郵件。"
+#: modules/sharedaddy/sharing-sources.php:734
+msgid "Share on Facebook"
+msgstr "分享到Facebook"
 
-#: modules/module-info.php:325
-msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
-msgstr "包括以下服務的Twitter，Facebook，書籤訂閱，StumbleUpon，PressThis，Digg，LinkedIn，Google +1，印列，和電子郵件。"
+#: modules/sharedaddy/sharing-sources.php:765
+msgid "Print"
+msgstr "列印"
 
-#: modules/module-info.php:329
-msgid "Additionally you can define your own custom services."
-msgstr "此外，你可以定義自己的自定義服務。"
+#: modules/sharedaddy/sharing-sources.php:769
+msgctxt "share to"
+msgid "Print"
+msgstr "列印"
 
-#: modules/module-info.php:344
-msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
-msgstr "設定你的分享配置，前往設定 &rarr; <a href=\"%s\">Sharing</a> 選單"
+#: modules/sharedaddy/sharing-sources.php:769
+msgid "Click to print"
+msgstr "點這裡列印"
 
-#: modules/module-info.php:345
-msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
-msgstr "拖放分享到啟用部分服務，將它們顯示在你的網站上，並將其拖動到隱藏的部分，他們會隱藏按鈕。"
+#: modules/sharedaddy/sharing-sources.php:785
+msgid "Press This"
+msgstr "發表至網誌"
 
-#: modules/module-info.php:351
-msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
-msgstr "詳細細節都在 <a href=\"%s\">Sharing support page</a> 這影片說明了 swish 如何使用 Sharing ，在snazz上 有高畫質的說明影片。"
+#: modules/sharedaddy/sharing-sources.php:813
+msgctxt "share to"
+msgid "Press This"
+msgstr "點這"
 
-#: modules/module-info.php:366 modules/module-info.php:370
-msgid "Spelling and Grammar"
-msgstr "拼寫和語法"
+#: modules/sharedaddy/sharing-sources.php:813
+msgid "Click to Press This!"
+msgstr "按下此！"
 
-#: modules/module-info.php:372
-msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
-msgstr "<a href='%s'>After&nbsp;the&nbsp;Deadline</a> 提供校對服務，提高你的寫作，通過使用人工智能，找到你的錯誤，並提供智能建議。"
+#: modules/sharedaddy/sharing-sources.php:831
+msgid "Google"
+msgstr "Google"
 
-#: modules/module-info.php:373
-msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
-msgstr "在文章發佈後提供了一些校正更改，點擊<a href=\"%s\"> 個人資訊</a>，你可以編輯你的個人資料。"
+#: modules/sharedaddy/sharing-sources.php:844
+msgctxt "share to"
+msgid "Google"
+msgstr ""
 
-#: modules/module-info.php:387 modules/module-info.php:401
-msgid "Widgets Screenshot"
-msgstr "模組截圖"
+#: modules/sharedaddy/sharing-sources.php:844
+msgid "Click to share on Google+"
+msgstr "點擊分享到 Google+"
 
-#: modules/module-info.php:390 modules/module-info.php:404
-msgid "Extra Sidebar Widgets"
-msgstr "額外的邊欄小工具"
+#: modules/sharedaddy/sharing-sources.php:931
+msgid "Click to share"
+msgstr "點擊分享"
+
+#: modules/sharedaddy/sharing-sources.php:986
+msgid "URL"
+msgstr "鏈結網址"
+
+#: modules/sharedaddy/sharing-sources.php:991
+msgid "Icon"
+msgstr "圖示"
 
 #: modules/module-info.php:392
 msgid "The RSS Links Widget "
@@ -2618,154 +2185,178 @@ msgstr ""
 msgid "Tiled Galleries"
 msgstr ""
 
-#: modules/infinite-scroll/infinity.php:290
-msgid "Scroll Infinitely"
-msgstr "無限滾動"
-
-#: modules/infinite-scroll/infinity.php:290
-msgid "(Shows %s posts on each load)"
-msgstr "(每次載入時顯示 %s 篇文章)"
-
-#: modules/infinite-scroll/infinity.php:524
-msgid "Older posts"
+#: modules/module-info.php:741
+msgid "Create elegant magazine-style mosaic layouts for your photos without having to use an external graphic editor."
 msgstr ""
 
-#: modules/infinite-scroll/infinity.php:525
-msgid "Scroll back to top"
-msgstr "滾動返回頁首"
-
-#: modules/infinite-scroll/infinity.php:1042
-msgid "Theme: %1$s."
-msgstr "樣版: %1$s."
-
-#: modules/infinite-scroll.php:86
-msgid "Use Google Analytics with Infinite Scroll"
-msgstr "和 Google Analytics 一起使用無限滾動"
-
-#: modules/infinite-scroll.php:97
-msgid "Track each Infinite Scroll post load as a page view in Google Analytics"
-msgstr "在 Google Analytics 網頁檢視中追蹤每一次無限滾動所載入的文章 PV 數"
-
-#: modules/infinite-scroll.php:97
-msgid "By checking the box above, each new set of posts loaded via Infinite Scroll will be recorded as a page view in Google Analytics."
-msgstr "透過無限滾動，檢查上面方框中每一篇新文章載入時，在 Google Analytics 記錄一次網頁檢視。"
-
-#: modules/likes.php:112
-msgid "Likes and Shares"
+#: modules/module-info.php:742
+msgid "When adding a gallery to your post, you now have the option to select a layout style for your images. We've added support for Rectangular, Square, and Circular galleries. By default, galleries will continue to display using the standard thumbnail grid layout. To make the rectangular layout the default for all of your site's galleries, head over to <a href=\"%s\">Settings &rarr; Media</a> and check the box next to \"Display all your gallery pictures in a cool mosaic.\""
 msgstr ""
 
-#: modules/likes.php:123 modules/likes.php:581 modules/module-info.php:759
-#: modules/module-info.php:763
-msgid "Likes"
+#: modules/module-info.php:743
+msgid "Note: Images in tiled galleries require extra-special processing, so they will be served from WordPress.com's CDN even if the Photon module is disabled."
 msgstr ""
 
-#: modules/likes.php:183
-msgid "Show likes."
+#: modules/module-info.php:765
+msgid "Likes allow your readers to show their appreciation for your posts and other published content using their WordPress.com accounts. Your readers will then be able to review their liked posts from WordPress.com."
 msgstr ""
 
-#: modules/likes.php:199 modules/sharedaddy/sharedaddy.php:37
-msgid "Show sharing buttons."
-msgstr "顯示「分享」功能的按鈕。"
-
-#: modules/likes.php:211
-msgid "Likes Notifications"
+#: modules/module-info.php:766
+msgid "Displayed below your posts will be how many people have liked your posts and the Gravatars of those who have liked them."
 msgstr ""
 
-#: modules/likes.php:212
-msgid "Email me whenever"
+#: modules/module-info.php:768
+msgid "More information on using Likes."
 msgstr ""
 
-#: modules/likes.php:251
-msgid "Someone likes one of my posts"
+#: modules/module-info.php:791
+msgid "The Google+ profile module allows you to connect your blog and Google+ accounts."
 msgstr ""
 
-#: modules/likes.php:270
-msgid "WordPress.com Likes are"
+#: modules/module-info.php:792
+msgid "Displayed below your posts will be a link back to your Google+ profile and a Google+ follow button. A link will also be added to your Google+ profile."
 msgstr ""
 
-#: modules/likes.php:276
-msgid "On for all posts"
+#: modules/module-info.php:794
+msgid "More information on using Google+ Profile."
 msgstr ""
 
-#: modules/likes.php:282
-msgid "Turned on per post"
+#: modules/module-info.php:810 modules/omnisearch/omnisearch-core.php:59
+#: modules/omnisearch/omnisearch-core.php:64
+#: modules/omnisearch/omnisearch-core.php:85
+msgid "Omnisearch"
 msgstr ""
 
-#: modules/likes.php:308 modules/sharedaddy/sharing.php:330
-msgid "Show buttons on"
-msgstr "顯示按鈕在"
-
-#: modules/likes.php:317 modules/sharedaddy/sharing.php:336
-msgid "Front Page, Archive Pages, and Search Results"
-msgstr "首頁、作者頁與搜尋結果頁"
-
-#: modules/likes.php:450 modules/sharedaddy/sharing.php:158
-msgid "Settings have been saved"
-msgstr "設定值已經儲存"
-
-#: modules/likes.php:457 modules/sharedaddy/sharing.php:170
-msgid "Sharing Buttons"
-msgstr "分享按鈕"
-
-#: modules/likes.php:466 modules/sharedaddy/sharing.php:352
-msgid "Save Changes"
-msgstr "儲存變更"
-
-#: modules/likes.php:616
-msgid "Like this:"
+#: modules/module-info.php:812
+msgid "Search once, get results from everything! Currently supports searching posts, pages, comments, media, and plugins."
 msgstr ""
 
-#: modules/likes.php:617
-msgid "Like"
-msgstr "喜歡"
-
-#: modules/likes.php:617 modules/widget-visibility/widget-conditions.php:168
-msgid "Loading..."
-msgstr "載入中..."
-
-#: modules/likes.php:709
-msgid "<span>%d</span> bloggers like this:"
+#: modules/module-info.php:814
+msgid "Omnisearch plays nice with other plugins by letting other providers offer results as well."
 msgstr ""
 
-#: modules/minileven/minileven.php:93
-msgid "View Mobile Site"
-msgstr "觀看手機版網站"
-
-#: modules/minileven/minileven.php:260
-msgid "Mobile-compatible:"
+#: modules/module-info.php:833
+msgid "Widget Visibility"
 msgstr ""
 
-#: modules/minileven/minileven.php:261
-msgid "No"
-msgstr "否"
-
-#: modules/minileven/minileven.php:267 modules/minileven/minileven.php:318
-msgid "Include this CSS in the Mobile Theme"
+#: modules/module-info.php:835
+msgid "Control which pages your widgets appear on with Widget Visibility."
 msgstr ""
 
-#: modules/minileven/theme/pub/minileven/comments.php:15
-msgid "This post is password protected. Enter the password to view any comments."
-msgstr "這篇文章受到密碼保護，請輸入密碼閱讀留言。"
+#: modules/module-info.php:836
+msgid "To control visibility, expand the widget and click the Visibility button next to the Save button, and then, choose a set of visibility options."
+msgstr ""
 
-#: modules/minileven/theme/pub/minileven/comments.php:45
-msgid "Comment navigation"
-msgstr "評論分頁導航"
+#: modules/module-info.php:837
+msgid "For example, if you wanted the Archives widget to only appear on category archives and error pages, choose \"Show\" from the first dropdown and then add two rules: \"Page is 404 Error Page\" and \"Category is All Category Pages.\""
+msgstr ""
 
-#: modules/minileven/theme/pub/minileven/comments.php:46
-msgid "&larr; Older Comments"
-msgstr "&larr; 較早的評論"
+#: modules/module-info.php:838
+msgid "You can also hide widgets based on the current page. For example, if you don't want the Archives widget to appear on search results pages, choose \"Hide\" and \"Page is Search results.\""
+msgstr ""
 
-#: modules/minileven/theme/pub/minileven/comments.php:47
-msgid "Newer Comments &rarr;"
-msgstr "較新的評論 &rarr;"
+#: modules/module-info.php:853 modules/videopress/videopress.php:330
+msgid "VideoPress"
+msgstr ""
 
-#: modules/minileven/theme/pub/minileven/content-gallery.php:14
-#: modules/minileven/theme/pub/minileven/content-gallery.php:58
-#: modules/minileven/theme/pub/minileven/content.php:13
-#: modules/minileven/theme/pub/minileven/content.php:18
-#: modules/minileven/theme/pub/minileven/content.php:22
-msgid "Permalink to %s"
-msgstr "%s 的固定網址"
+#: modules/module-info.php:854
+msgid "With the VideoPress module you can easily upload videos to your WordPress site and embed them in your posts and pages. This module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
+msgstr ""
+
+#: modules/module-info.php:867
+msgid "Single Sign On"
+msgstr ""
+
+#: modules/module-info.php:869
+msgid "With WordPress.com Single Sign On, your users will be able to log in to or register for your WordPress site with the same credentials they use on WordPress.com.  It's safe and secure."
+msgstr ""
+
+#: modules/module-info.php:870
+msgid "Once enabled, a \"Log in with WordPress.com\" option will be added to your existing log in form."
+msgstr ""
+
+#: modules/module-info.php:885
+msgid "Monitor"
+msgstr ""
+
+#: modules/module-info.php:887
+msgid "Nobody likes downtime, and that's why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!"
+msgstr ""
+
+#: modules/module-info.php:889
+msgid "We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime."
+msgstr ""
+
+#: modules/omnisearch/omnisearch-comments.php:17
+msgid "Search Comments"
+msgstr "搜尋迴響"
+
+#: modules/omnisearch/omnisearch-comments.php:18
+#: modules/omnisearch/omnisearch-comments.php:27
+#: modules/widgets/rsslinks-widget.php:68
+#: modules/widgets/rsslinks-widget.php:136
+msgid "Comments"
+msgstr "迴響"
+
+#: modules/omnisearch/omnisearch-core.php:85
+msgid "search everything"
+msgstr ""
+
+#: modules/omnisearch/omnisearch-core.php:95
+msgid "Results:"
+msgstr ""
+
+#: modules/omnisearch/omnisearch-core.php:96
+msgid "Jump to:"
+msgstr ""
+
+#: modules/omnisearch/omnisearch-core.php:107
+msgid "Back to Top &uarr;"
+msgstr ""
+
+#: modules/omnisearch/omnisearch-core.php:154
+msgid "Search Everything"
+msgstr ""
+
+#: modules/omnisearch/omnisearch-media.php:16
+msgid "Search Media"
+msgstr "搜尋媒體"
+
+#: modules/omnisearch/omnisearch-media.php:17
+#: modules/omnisearch/omnisearch-media.php:28
+msgid "Media"
+msgstr "媒體"
+
+#: modules/omnisearch/omnisearch-plugins.php:20
+msgid "Search Plugins"
+msgstr "搜尋外掛"
+
+#: modules/omnisearch/omnisearch-plugins.php:21
+#: modules/omnisearch/omnisearch-plugins.php:26
+msgid "Plugins"
+msgstr "外掛"
+
+#: modules/omnisearch/omnisearch-plugins.php:23
+msgid "Loading &hellip;"
+msgstr ""
+
+#: modules/omnisearch/omnisearch-posts.php:44
+#: modules/widgets/facebook-likebox.php:124
+#: modules/widgets/gravatar-profile.php:174
+msgid "Title"
+msgstr "標題"
+
+#: modules/omnisearch/omnisearch-posts.php:45
+msgid "Snippet"
+msgstr ""
+
+#: modules/omnisearch/omnisearch-posts.php:75
+msgid "Unpublished"
+msgstr "未發表"
+
+#: modules/omnisearch/omnisearch-posts.php:78
+msgid "Y/m/d g:i:s A"
+msgstr "Y-m-d H:i:s"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:15
 #: modules/widgets/gallery.php:26
@@ -2909,7 +2500,7 @@ msgstr "你的留言正在審核中。"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:76
 msgid "Reply"
-msgstr ""
+msgstr "回覆"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:90
 msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
@@ -2986,6 +2577,10 @@ msgstr "手機 App 促銷活動"
 msgid "Show a promo for the WordPress mobile apps in the footer of the mobile theme."
 msgstr "在手機主題的頁尾對 WordPress 手機 apps 顯示一則促銷活動"
 
+#: modules/minileven.php:75 modules/stats.php:573
+msgid "Save configuration"
+msgstr "保存配置"
+
 #: modules/minileven.php:78
 msgid "Mobile Apps"
 msgstr "手機 Apps"
@@ -3040,121 +2635,167 @@ msgstr "什麼是Hovercard？"
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services they use on the web like Twitter, Facebook, or LinkedIn."
 msgstr "Hovercards 的 Gravatar圖像加強與一個人的訊息：姓名，簡介，圖片，他們的聯絡方式，跟在使用Twitter，Facebook或LinkedIn一樣。"
 
-#: modules/custom-post-types/nova.php:120
-msgid "Edit Menu Item Label"
-msgstr ""
+#: modules/module-info.php:60
+msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
+msgstr "Hovercards 提供一個呈現方式來表現你在網際網路上的資訊，並幫助人們找到他們的Blog"
 
-#: modules/custom-post-types/nova.php:121
-msgid "View Menu Item Label"
-msgstr ""
+#: modules/module-info.php:74
+msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
+msgstr "Hovercards 是藉由 Gravatar 圖像 加強一個人的資訊：姓名、個人簡歷、圖片、聯絡信息，及其他服務。"
 
-#: modules/custom-post-types/nova.php:122
-msgid "Update Menu Item Label"
-msgstr ""
+#: modules/module-info.php:75
+msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
+msgstr "在你的網誌要看到Hovercards。當任何網誌文章有評論時，如果評論者已經新增自己的圖像到自己的Gravatar，滑鼠移到圖像時 Hovercard會出現。要關閉 Hovercards，點擊 \"停用\"按鈕。"
 
-#: modules/custom-post-types/nova.php:123
-msgid "Add New Menu Item Label"
-msgstr ""
+#: modules/module-info.php:90 modules/module-info.php:94
+#: modules/module-info.php:103 modules/module-info.php:107
+msgid "Shortcode Embeds"
+msgstr "短碼嵌入"
 
-#: modules/custom-post-types/nova.php:124
-msgid "New Menu Item Label Name"
-msgstr ""
+#: modules/module-info.php:95 modules/module-info.php:108
+msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
+msgstr "簡碼讓你可以輕鬆地和安全地插入其他地方的媒體在你的網站上。只是一個簡單的代碼，你可以使用 WordPress 插入 YouTube、Flickr和其他媒體。"
 
-#: modules/custom-post-types/nova.php:125
-#: modules/custom-post-types/nova.php:759
-msgid "Separate Labels with commas"
-msgstr ""
+#: modules/module-info.php:109
+msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
+msgstr "直接在文章/分頁頁面上，使用編輯器添加任一媒體的代碼。詳細說明請參照下面的連結。"
 
-#: modules/custom-post-types/nova.php:126
-msgid "Add or remove Labels"
-msgstr ""
+#: modules/module-info.php:132
+msgid "Available shortcodes are: %l."
+msgstr "可用的代碼有：%l."
 
-#: modules/custom-post-types/nova.php:127
-msgid "Choose from the most used Labels"
-msgstr ""
+#: modules/module-info.php:147 modules/module-info.php:151
+#: modules/module-info.php:161 modules/module-info.php:165
+msgid "WP.me Shortlinks"
+msgstr "WP.me 短網址"
 
-#: modules/custom-post-types/nova.php:129
-msgid "No Labels found"
-msgstr ""
+#: modules/module-info.php:152 modules/module-info.php:166
+msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
+msgstr "不用再輸入或複製貼上的長網址，你現在可以得到一個簡短好記的網址連到你的文章和頁面。使用超短的 wp.me 域名，並為你提供了一個唯一的URL，你可以安心的使用它。"
 
-#: modules/custom-post-types/nova.php:136
-#: modules/custom-post-types/nova.php:167
-msgid "Food Menus"
-msgstr ""
+#: modules/module-info.php:153
+msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
+msgstr "他可以完美的使用在Twitter、Facebook與手機簡訊上，受限於特定的字數。"
 
-#: modules/custom-post-types/nova.php:137
-msgid "Food Menu"
-msgstr ""
+#: modules/module-info.php:167
+msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
+msgstr "要使用短網址，去任何已發表的文章（或發表新的頁面！）。將文章標題下可見 \"取得短網址\"按鈕。當你點擊它，會出現一個對話框連接，可以複製貼到Twitter，Facebook或其他地方，可滿足你的需求。"
 
-#: modules/custom-post-types/nova.php:138
-msgid "Search Menus"
-msgstr ""
+#: modules/module-info.php:182 modules/module-info.php:186
+#: modules/module-info.php:195 modules/module-info.php:199
+msgid "WordPress.com Stats"
+msgstr "WordPress.com 統計"
 
-#: modules/custom-post-types/nova.php:139
-msgid "All Menus"
-msgstr ""
+#: modules/module-info.php:187 modules/module-info.php:200
+msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
+msgstr "有很多的插件和服務，提供統計數據，但數據可以被作假。 WordPress.com統計，最流行的衡量指標，提供一個明確的和有吸引力的的界面使用者容易理解。"
 
-#: modules/custom-post-types/nova.php:140
-msgid "Parent Menu"
-msgstr ""
+#: modules/module-info.php:201
+msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
+msgstr "你可以 <a href=\"%s\">點擊查看你的網站統計</a>."
 
-#: modules/custom-post-types/nova.php:141
-msgid "Parent Menu:"
-msgstr ""
+#: modules/module-info.php:215 modules/module-info.php:219
+#: modules/publicize/ui.php:95
+msgid "Publicize"
+msgstr "宣傳"
 
-#: modules/custom-post-types/nova.php:142
-msgid "Edit Menu"
-msgstr ""
+#: modules/module-info.php:220
+msgid "Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.\t You can make a connection for just yourself or for all users on your blog."
+msgstr "「宣傳」允許你連結你的部落格到各種受歡迎的社交網絡並自動語你的朋友們分享新文章。\t 你可以在你的部落格裡只連結你自己或所有註冊會員。"
 
-#: modules/custom-post-types/nova.php:143
-msgid "View Menu"
-msgstr ""
+#: modules/module-info.php:221
+msgid "Publicize allows you to share your posts on Facebook, Twitter, Tumblr, Yahoo!, and Linkedin."
+msgstr "「宣傳」允許你在 Facebook, Twitter, Tumblr, Yahoo! 和 Linkedin 分享你的文章。"
 
-#: modules/custom-post-types/nova.php:144
-msgid "Update Menu"
-msgstr ""
+#: modules/module-info.php:225
+msgid "Manage your <a href=\"%s\">Publicize settings</a>."
+msgstr "管理你的 <a href=\"%s\">「宣傳」設定</a> 。"
 
-#: modules/custom-post-types/nova.php:145
-msgid "Add New Menu"
-msgstr "新增選單"
+#: modules/module-info.php:229 modules/publicize/ui.php:114
+msgid "More information on using Publicize."
+msgstr "更多資訊在使用 「宣傳」功能。"
 
-#: modules/custom-post-types/nova.php:146
-msgid "New Menu Name"
-msgstr ""
+#: modules/module-info.php:245 modules/module-info.php:249
+#: modules/module-info.php:258 modules/module-info.php:262
+#: modules/notes.php:160
+msgid "Notifications"
+msgstr "通知"
 
-#: modules/custom-post-types/nova.php:162
-msgid "Items on your restaurant's menu"
-msgstr "你的餐廳上的菜單項目"
+#: modules/module-info.php:250 modules/module-info.php:263
+msgid "Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users."
+msgstr "隨時掌握你所有的 WordPress 網站動態和其他 WordPress.com 會員們保持互動。"
 
-#: modules/custom-post-types/nova.php:165
-#: modules/custom-post-types/nova.php:168
-msgid "Menu Items"
-msgstr ""
+#: modules/module-info.php:264
+msgid "You can view your notifications in the Toolbar and <a href=\"%s\">on WordPress.com</a>."
+msgstr "你可以在後台工具欄和 <a href=\"%s\">WordPress.com</a> 觀看你所有的通知。"
 
-#: modules/custom-post-types/nova.php:166
-msgid "Menu Item"
-msgstr "選單項目"
+#: modules/module-info.php:279 modules/module-info.php:294
+msgid "LaTeX"
+msgstr "「LaTeX」功能"
 
-#: modules/custom-post-types/nova.php:169
-#: modules/custom-post-types/nova.php:170
-msgid "Add One Item"
-msgstr ""
+#: modules/module-info.php:284 modules/module-info.php:299
+msgid "%s is a powerful markup language for writing complex mathematical equations, formulas, etc."
+msgstr "%s 是一個強大的標記語言與編寫複雜的數學公式 功能。"
 
-#: modules/custom-post-types/nova.php:171
-msgid "Edit Menu Item"
-msgstr "編輯選單項目"
+#: modules/module-info.php:285
+msgid "Jetpack combines the power of %s and the simplicity of WordPress to give you the ultimate in math blogging platforms."
+msgstr "Jetpack 包含的功能 %s  給你在 WordPress 上的一些小功能。"
 
-#: modules/custom-post-types/nova.php:172
-msgid "New Menu Item"
-msgstr ""
+#: modules/module-info.php:286
+msgid "Wow, that sounds nerdy."
+msgstr "WOW!聽起來太棒了(超給力)"
 
-#: modules/custom-post-types/nova.php:173
-msgid "View Menu Item"
-msgstr ""
+#: modules/module-info.php:300
+msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
+msgstr "使用 <code>$latex your latex code here$</code> 或 <code>[latex]your latex code here[/latex]</code> 加入 %s 到你的文章或評論。共有這些 <a href=\"%s\" target=\"_blank\">運算式</a> 可以使用。"
 
-#: modules/custom-post-types/nova.php:174
-msgid "Search Menu Items"
-msgstr ""
+#: modules/module-info.php:319
+msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
+msgstr "分享你的文章，與 Twitter，Facebook和其他服務的主機。你可以配置服務，以顯示為圖標，文本，或兩者兼而有之。某些服務有更多的選項，以顯示智能按鈕，如Twitter，這將更新後已共享的次數。"
+
+#: modules/module-info.php:323
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr "包括以下服務的Twitter，Facebook，書籤訂閱，StumbleUpon，PressThis，Digg，LinkedIn，Google +1，印列，和電子郵件。"
+
+#: modules/module-info.php:325
+msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, Digg, LinkedIn, Google +1, Print, and Email."
+msgstr "包括以下服務的Twitter，Facebook，書籤訂閱，StumbleUpon，PressThis，Digg，LinkedIn，Google +1，印列，和電子郵件。"
+
+#: modules/module-info.php:329
+msgid "Additionally you can define your own custom services."
+msgstr "此外，你可以定義自己的自定義服務。"
+
+#: modules/module-info.php:344
+msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
+msgstr "設定你的分享配置，前往設定 &rarr; <a href=\"%s\">Sharing</a> 選單"
+
+#: modules/module-info.php:345
+msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
+msgstr "拖放分享到啟用部分服務，將它們顯示在你的網站上，並將其拖動到隱藏的部分，他們會隱藏按鈕。"
+
+#: modules/module-info.php:351
+msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
+msgstr "詳細細節都在 <a href=\"%s\">Sharing support page</a> 這影片說明了 swish 如何使用 Sharing ，在snazz上 有高畫質的說明影片。"
+
+#: modules/module-info.php:366 modules/module-info.php:370
+msgid "Spelling and Grammar"
+msgstr "拼寫和語法"
+
+#: modules/module-info.php:372
+msgid "The <a href='%s'>After&nbsp;the&nbsp;Deadline</a> Proofreading service improves your writing by using artificial intelligence to find your errors and offer smart suggestions."
+msgstr "<a href='%s'>After&nbsp;the&nbsp;Deadline</a> 提供校對服務，提高你的寫作，通過使用人工智能，找到你的錯誤，並提供智能建議。"
+
+#: modules/module-info.php:373
+msgid "After the Deadline provides a number of <a href=\"%s\">customization options</a>, which you can edit in your profile."
+msgstr "在文章發佈後提供了一些校正更改，點擊<a href=\"%s\"> 個人資訊</a>，你可以編輯你的個人資料。"
+
+#: modules/module-info.php:387 modules/module-info.php:401
+msgid "Widgets Screenshot"
+msgstr "模組截圖"
+
+#: modules/module-info.php:390 modules/module-info.php:404
+msgid "Extra Sidebar Widgets"
+msgstr "額外的邊欄小工具"
 
 #: modules/custom-post-types/nova.php:175
 msgid "No Menu Items found"
@@ -3343,31 +2984,15 @@ msgstr ""
 msgid "Testimonial Page Featured Image"
 msgstr ""
 
-#: modules/featured-content/featured-content.php:348
-msgid "Featured content"
-msgstr ""
-
-#: modules/featured-content/featured-content.php:367
-msgid "Tag name:"
-msgstr ""
-
-#: modules/featured-content/featured-content.php:372
-msgid "Number of posts:"
-msgstr ""
-
-#: modules/featured-content/featured-content.php:377
-msgid "Hide tag from displaying in post meta and tag clouds."
-msgstr ""
-
 #: modules/gplus-authorship/admin/ui.php:54
-#: modules/gplus-authorship/admin/ui.php:65 modules/likes.php:427
-#: modules/likes.php:439 modules/publicize/ui.php:35
+#: modules/gplus-authorship/admin/ui.php:65 modules/likes.php:428
+#: modules/likes.php:440 modules/publicize/ui.php:35
 #: modules/publicize/ui.php:45 modules/sharedaddy/sharing.php:57
 #: modules/sharedaddy/sharing.php:163
 msgid "Sharing Settings"
 msgstr "分享設定"
 
-#: modules/gplus-authorship/admin/ui.php:54 modules/likes.php:427
+#: modules/gplus-authorship/admin/ui.php:54 modules/likes.php:428
 #: modules/module-info.php:315 modules/module-info.php:318
 #: modules/module-info.php:339 modules/publicize/ui.php:35
 #: modules/sharedaddy/sharedaddy.php:23 modules/sharedaddy/sharing.php:57
@@ -3416,11 +3041,11 @@ msgstr ""
 msgid "Your Google+ profile name and URL will be displayed in the sharing area of your posts."
 msgstr ""
 
-#: modules/gplus-authorship/admin/ui.php:155 modules/sso.php:336
+#: modules/gplus-authorship/admin/ui.php:155 modules/sso.php:349
 msgid "Connected"
 msgstr ""
 
-#: modules/gplus-authorship/admin/ui.php:165 modules/gplus-authorship.php:175
+#: modules/gplus-authorship/admin/ui.php:165 modules/gplus-authorship.php:171
 msgid "Google+"
 msgstr ""
 
@@ -3428,7 +3053,7 @@ msgstr ""
 msgid "Show Google+ infomation with this post"
 msgstr ""
 
-#: modules/gplus-authorship.php:132
+#: modules/gplus-authorship.php:130
 msgid "on Google+"
 msgstr ""
 
@@ -3445,11 +3070,11 @@ msgstr "滑鼠移到 Gravatars 頭像上顯示資料"
 msgid "Put your mouse over your Gravatar to check out your profile."
 msgstr "滑鼠移置Gravatar上，查看個人資料。"
 
-#: modules/holiday-snow.php:19
+#: modules/holiday-snow.php:51 modules/holiday-snow.php:60
 msgid "Snow"
 msgstr ""
 
-#: modules/holiday-snow.php:28
+#: modules/holiday-snow.php:69
 msgid "Show falling snow on my blog until January 4<sup>th</sup>."
 msgstr ""
 
@@ -3461,112 +3086,154 @@ msgstr "外部無限滾動"
 msgid "We've disabled this option for you since you have footer widgets in Appearance &rarr; Widgets, or because your theme does not support infinite scroll."
 msgstr "我們已經對你禁用此選項，因為你在頁尾（footer）有小工具模組（widgets），或因為你的主題不支援無限滾動。"
 
-#: modules/contact-form/grunion-form-view.php:121
-msgid "Email notifications"
-msgstr "電子郵件通知"
+#: modules/infinite-scroll/infinity.php:290
+msgid "Scroll Infinitely"
+msgstr "無限滾動"
 
-#: modules/contact-form/grunion-form-view.php:126
-msgid "How does this work?"
-msgstr "它如何運作？"
+#: modules/infinite-scroll/infinity.php:290
+msgid "(Shows %s posts on each load)"
+msgstr "(每次載入時顯示 %s 篇文章)"
 
-#: modules/contact-form/grunion-form-view.php:127
-msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
-msgstr "透過建立一個聯絡表單，你的讀者群將可以向你提出反饋意見。所有反饋意見會自動掃描垃圾郵件，並且透過電子郵件對你發送合乎標準的反饋意見。"
-
-#: modules/contact-form/grunion-form-view.php:128
-msgid "Can I add more fields?"
-msgstr "我可以新增更多欄位嗎？"
-
-#: modules/contact-form/grunion-form-view.php:130
-msgctxt "%1$s = \"Click here\" in an HTML link"
-msgid "Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field."
-msgstr "當然可以。%1$s 建立一個新的單行文字區塊、多行文字欄位、單選框、複選框或下拉式選單的欄位。"
-
-#: modules/contact-form/grunion-form-view.php:131
-msgid "Click here"
-msgstr "點擊此處"
-
-#: modules/contact-form/grunion-form-view.php:133
-msgid "Can I view my feedback within WordPress?"
-msgstr "我可以透過 WordPress 後台瀏覽我的反饋意見嗎？"
-
-#: modules/contact-form/grunion-form-view.php:135
-msgctxt "%1$s = \"Feedback\" in an HTML link"
-msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
+#: modules/infinite-scroll/infinity.php:526
+msgid "Older posts"
 msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:141
-msgid "Do I need to fill this out?"
-msgstr "我需要填寫這張表嗎？"
+#: modules/infinite-scroll/infinity.php:527
+msgid "Scroll back to top"
+msgstr "滾動返回頁首"
 
-#: modules/contact-form/grunion-form-view.php:142
-msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
-msgstr "不需要。然而，如果你想要修改發送給你的反饋意見，或主旨行，那你還是填寫一下吧。如果你不想在這裡做任何改變，反饋意見將會發送給該文章 / 分頁的作者，並且主旨將會是此文章 / 分頁的名稱。"
+#: modules/infinite-scroll/infinity.php:1044
+msgid "Theme: %1$s."
+msgstr "樣版: %1$s."
 
-#: modules/contact-form/grunion-form-view.php:146
-msgid "Edit this new field"
-msgstr "編輯這個新欄位"
+#: modules/infinite-scroll.php:87
+msgid "Use Google Analytics with Infinite Scroll"
+msgstr "和 Google Analytics 一起使用無限滾動"
 
-#: modules/contact-form/grunion-form-view.php:148
-#: modules/sharedaddy/sharing-sources.php:980
-msgid "Label"
-msgstr "命名"
+#: modules/infinite-scroll.php:98
+msgid "Track each Infinite Scroll post load as a page view in Google Analytics"
+msgstr "在 Google Analytics 網頁檢視中追蹤每一次無限滾動所載入的文章 PV 數"
 
-#: modules/contact-form/grunion-form-view.php:149
-msgid "New field"
-msgstr "新欄位"
+#: modules/infinite-scroll.php:98
+msgid "By checking the box above, each new set of posts loaded via Infinite Scroll will be recorded as a page view in Google Analytics."
+msgstr "透過無限滾動，檢查上面方框中每一篇新文章載入時，在 Google Analytics 記錄一次網頁檢視。"
 
-#: modules/contact-form/grunion-form-view.php:151
-msgid "Field type"
-msgstr "欄位類型"
+#: modules/likes.php:113
+msgid "Likes and Shares"
+msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:153
-msgid "Checkbox"
-msgstr "複選框"
+#: modules/likes.php:124 modules/likes.php:592 modules/module-info.php:759
+#: modules/module-info.php:763
+msgid "Likes"
+msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:154
-msgid "Drop down"
-msgstr "下拉選單"
+#: modules/likes.php:184
+msgid "Show likes."
+msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:157
-msgid "Radio"
-msgstr "單選框"
+#: modules/likes.php:200 modules/sharedaddy/sharedaddy.php:37
+msgid "Show sharing buttons."
+msgstr "顯示「分享」功能的按鈕。"
 
-#: modules/contact-form/grunion-form-view.php:158
-msgid "Text"
-msgstr "文字"
+#: modules/likes.php:212
+msgid "Likes Notifications"
+msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:159
-msgid "Textarea"
-msgstr "多行文字欄位"
+#: modules/likes.php:213
+msgid "Email me whenever"
+msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:166
-msgid "Options"
-msgstr "選項"
+#: modules/likes.php:252
+msgid "Someone likes one of my posts"
+msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:167
-msgid "First option"
-msgstr "第一選項"
+#: modules/likes.php:271
+msgid "WordPress.com Likes are"
+msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:170
-msgid "Add another option"
-msgstr "新增其他選項"
+#: modules/likes.php:277
+msgid "On for all posts"
+msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:177
-msgid "Required?"
-msgstr "必填？"
+#: modules/likes.php:283
+msgid "Turned on per post"
+msgstr ""
 
-#: modules/contact-form/grunion-form-view.php:182
-msgid "Save this field"
-msgstr "儲存此欄位"
+#: modules/likes.php:309 modules/sharedaddy/sharing.php:330
+msgid "Show buttons on"
+msgstr "顯示按鈕在"
 
-#: modules/contact-form/grunion-form-view.php:187
-msgid "Here&#8217;s what your form will look like"
-msgstr "你的表單將會類似這樣"
+#: modules/likes.php:318 modules/sharedaddy/sharing.php:336
+msgid "Front Page, Archive Pages, and Search Results"
+msgstr "首頁、作者頁與搜尋結果頁"
 
-#: modules/contact-form/grunion-form-view.php:192
-msgid "Add a new field"
-msgstr "新增一個欄位"
+#: modules/likes.php:451 modules/sharedaddy/sharing.php:158
+msgid "Settings have been saved"
+msgstr "設定值已經儲存"
+
+#: modules/likes.php:458 modules/sharedaddy/sharing.php:170
+msgid "Sharing Buttons"
+msgstr "分享按鈕"
+
+#: modules/likes.php:467 modules/sharedaddy/sharing.php:352
+msgid "Save Changes"
+msgstr "儲存變更"
+
+#: modules/likes.php:627
+msgid "Like this:"
+msgstr ""
+
+#: modules/likes.php:628
+msgid "Like"
+msgstr "喜歡"
+
+#: modules/likes.php:628 modules/widget-visibility/widget-conditions.php:168
+msgid "Loading..."
+msgstr "載入中..."
+
+#: modules/likes.php:729
+msgid "<span>%d</span> bloggers like this:"
+msgstr ""
+
+#: modules/minileven/minileven.php:93
+msgid "View Mobile Site"
+msgstr "觀看手機版網站"
+
+#: modules/minileven/minileven.php:260
+msgid "Mobile-compatible:"
+msgstr ""
+
+#: modules/minileven/minileven.php:261
+msgid "No"
+msgstr "否"
+
+#: modules/minileven/minileven.php:267 modules/minileven/minileven.php:318
+msgid "Include this CSS in the Mobile Theme"
+msgstr ""
+
+#: modules/minileven/theme/pub/minileven/comments.php:15
+msgid "This post is password protected. Enter the password to view any comments."
+msgstr "這篇文章受到密碼保護，請輸入密碼閱讀留言。"
+
+#: modules/minileven/theme/pub/minileven/comments.php:45
+msgid "Comment navigation"
+msgstr "評論分頁導航"
+
+#: modules/minileven/theme/pub/minileven/comments.php:46
+msgid "&larr; Older Comments"
+msgstr "&larr; 較早的評論"
+
+#: modules/minileven/theme/pub/minileven/comments.php:47
+msgid "Newer Comments &rarr;"
+msgstr "較新的評論 &rarr;"
+
+#: modules/minileven/theme/pub/minileven/content-gallery.php:14
+#: modules/minileven/theme/pub/minileven/content-gallery.php:58
+#: modules/minileven/theme/pub/minileven/content.php:13
+#: modules/minileven/theme/pub/minileven/content.php:18
+#: modules/minileven/theme/pub/minileven/content.php:22
+msgid "Permalink to %s"
+msgstr "%s 的固定網址"
 
 #: modules/contact-form/grunion-form-view.php:194
 msgid "Add this form to my post"
@@ -3672,8 +3339,8 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:746 modules/custom-css/custom-css.php:828
 #: modules/custom-css/custom-css.php:857 modules/minileven/minileven.php:270
-#: modules/publicize/publicize-jetpack.php:470
-#: modules/publicize/publicize-jetpack.php:582 modules/publicize/ui.php:274
+#: modules/publicize/publicize-jetpack.php:473
+#: modules/publicize/publicize-jetpack.php:585 modules/publicize/ui.php:274
 msgid "OK"
 msgstr "確定"
 
@@ -3901,88 +3568,121 @@ msgstr ""
 msgid "All Menu Item Labels"
 msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:336
-msgid "Comments on this post are closed."
-msgstr "此文的迴響功能已關閉。"
+#: modules/custom-post-types/nova.php:120
+msgid "Edit Menu Item Label"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:346
-msgid "Sorry, but we could not authenticate your request."
-msgstr "抱歉，但我們無法驗證並授權你的申請。"
+#: modules/custom-post-types/nova.php:121
+msgid "View Menu Item Label"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:355
-msgid "Please provide your name."
-msgstr "請提供你的姓名。"
+#: modules/custom-post-types/nova.php:122
+msgid "Update Menu Item Label"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:358
-msgid "Please provide an email address."
-msgstr "請提供一個電子郵件地址。"
+#: modules/custom-post-types/nova.php:123
+msgid "Add New Menu Item Label"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:361
-msgid "Please provide a valid email address."
-msgstr "請提供一個有效的電子郵件地址。"
+#: modules/custom-post-types/nova.php:124
+msgid "New Menu Item Label Name"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:390
-msgid "Image Gallery Carousel"
-msgstr "圖片藝廊輪播"
+#: modules/custom-post-types/nova.php:125
+#: modules/custom-post-types/nova.php:759
+msgid "Separate Labels with commas"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:393
-msgid "Enable carousel"
-msgstr "開啟輪播功能"
+#: modules/custom-post-types/nova.php:126
+msgid "Add or remove Labels"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:397
-msgid "Background color"
-msgstr "背景顏色"
+#: modules/custom-post-types/nova.php:127
+msgid "Choose from the most used Labels"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:400
-msgid "Metadata"
-msgstr "主數據資料"
+#: modules/custom-post-types/nova.php:129
+msgid "No Labels found"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:457
-msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
-msgstr "在輪播時顯示可用的相片  (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) 數據資料。"
+#: modules/custom-post-types/nova.php:136
+#: modules/custom-post-types/nova.php:167
+msgid "Food Menus"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:465
-msgid "Show map of photo location in carousel, when available."
-msgstr "在輪播時顯示可用的相片定位資訊。"
+#: modules/custom-post-types/nova.php:137
+msgid "Food Menu"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:473
-msgid "Black"
-msgstr "黑"
+#: modules/custom-post-types/nova.php:138
+msgid "Search Menus"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:473
-msgid "White"
-msgstr "白"
+#: modules/custom-post-types/nova.php:139
+msgid "All Menus"
+msgstr ""
 
-#: modules/carousel/jetpack-carousel.php:481
-msgid "Display images in full-size carousel slideshow."
-msgstr "在輪播幻燈片中顯示圖片的原始尺寸。"
+#: modules/custom-post-types/nova.php:140
+msgid "Parent Menu"
+msgstr ""
 
-#: modules/comments/admin.php:50 modules/comments/comments.php:211
-#: modules/minileven/theme/pub/minileven/content-gallery.php:71
-msgid "Leave a Reply"
-msgstr "發表迴響"
+#: modules/custom-post-types/nova.php:141
+msgid "Parent Menu:"
+msgstr ""
 
-#: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:156
-#: modules/widgets/twitter-timeline.php:217
-msgid "Light"
-msgstr "淡色系"
+#: modules/custom-post-types/nova.php:142
+msgid "Edit Menu"
+msgstr ""
 
-#: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:157
-#: modules/widgets/twitter-timeline.php:218
-msgid "Dark"
-msgstr "深色系"
+#: modules/custom-post-types/nova.php:143
+msgid "View Menu"
+msgstr ""
 
-#: modules/comments/admin.php:56
-msgid "Transparent"
-msgstr "透明的"
+#: modules/custom-post-types/nova.php:144
+msgid "Update Menu"
+msgstr ""
 
-#: modules/comments/admin.php:72 modules/module-info.php:521
-msgid "Jetpack Comments"
-msgstr "Jetpack 評論"
+#: modules/custom-post-types/nova.php:145
+msgid "Add New Menu"
+msgstr "新增選單"
 
-#: modules/comments/admin.php:81
-msgid "Greeting Text"
-msgstr "問候語"
+#: modules/custom-post-types/nova.php:146
+msgid "New Menu Name"
+msgstr ""
+
+#: modules/custom-post-types/nova.php:162
+msgid "Items on your restaurant's menu"
+msgstr "你的餐廳上的菜單項目"
+
+#: modules/custom-post-types/nova.php:165
+#: modules/custom-post-types/nova.php:168
+msgid "Menu Items"
+msgstr ""
+
+#: modules/custom-post-types/nova.php:166
+msgid "Menu Item"
+msgstr "選單項目"
+
+#: modules/custom-post-types/nova.php:169
+#: modules/custom-post-types/nova.php:170
+msgid "Add One Item"
+msgstr ""
+
+#: modules/custom-post-types/nova.php:171
+msgid "Edit Menu Item"
+msgstr "編輯選單項目"
+
+#: modules/custom-post-types/nova.php:172
+msgid "New Menu Item"
+msgstr ""
+
+#: modules/custom-post-types/nova.php:173
+msgid "View Menu Item"
+msgstr ""
+
+#: modules/custom-post-types/nova.php:174
+msgid "Search Menu Items"
+msgstr ""
 
 #: modules/comments/admin.php:97 modules/comments/admin.php:168
 #: modules/widgets/facebook-likebox.php:154
@@ -4048,6 +3748,10 @@ msgstr "你不被允許管理這個項目。"
 #: modules/contact-form/admin.php:157
 msgid "Feedback(s) marked as spam"
 msgstr ""
+
+#: modules/contact-form/admin.php:187 modules/contact-form/admin.php:602
+msgid "Messages"
+msgstr "迴響"
 
 #: modules/contact-form/admin.php:196
 #: modules/contact-form/grunion-omnisearch.php:36
@@ -4117,10 +3821,6 @@ msgstr "你不可將本項目移至回收桶。"
 #: modules/contact-form/admin.php:578
 msgid "Error in moving to Trash."
 msgstr "移至回收桶時發生錯誤。"
-
-#: modules/contact-form/admin.php:602
-msgid "Messages"
-msgstr "迴響"
 
 #: modules/contact-form/admin.php:625
 msgid "Spam"
@@ -4337,115 +4037,122 @@ msgstr "你新建的欄位已儲存成功"
 msgid "Form builder"
 msgstr "表單建立器"
 
-#: class.jetpack.php:2800
-msgid "Terms of Service"
-msgstr "使用規定"
+#: modules/contact-form/grunion-form-view.php:121
+msgid "Email notifications"
+msgstr "電子郵件通知"
 
-#: class.jetpack.php:2802
-msgid "Debug"
-msgstr "偵錯"
+#: modules/contact-form/grunion-form-view.php:126
+msgid "How does this work?"
+msgstr "它如何運作？"
 
-#: class.jetpack.php:2804 modules/sharedaddy/sharedaddy.php:84
-msgid "Support"
-msgstr "支援"
+#: modules/contact-form/grunion-form-view.php:127
+msgid "By adding a contact form, your readers will be able to submit feedback to you. All feedback is automatically scanned for spam, and the legitimate feedback will be emailed to you."
+msgstr "透過建立一個聯絡表單，你的讀者群將可以向你提出反饋意見。所有反饋意見會自動掃描垃圾郵件，並且透過電子郵件對你發送合乎標準的反饋意見。"
 
-#: class.jetpack.php:2934
-msgid "Configure %s"
-msgstr "設定 %s"
+#: modules/contact-form/grunion-form-view.php:128
+msgid "Can I add more fields?"
+msgstr "我可以新增更多欄位嗎？"
 
-#: class.jetpack.php:2993
-msgid "Deactivate"
-msgstr "停用"
+#: modules/contact-form/grunion-form-view.php:130
+msgctxt "%1$s = \"Click here\" in an HTML link"
+msgid "Sure thing. %1$s to add a new text box, textarea, radio, checkbox, or dropdown field."
+msgstr "當然可以。%1$s 建立一個新的單行文字區塊、多行文字欄位、單選框、複選框或下拉式選單的欄位。"
 
-#: class.jetpack.php:3006
-msgid "Activate"
-msgstr "啟用"
+#: modules/contact-form/grunion-form-view.php:131
+msgid "Click here"
+msgstr "點擊此處"
 
-#: class.jetpack.php:3026
-msgid "Free"
-msgstr "免費"
+#: modules/contact-form/grunion-form-view.php:133
+msgid "Can I view my feedback within WordPress?"
+msgstr "我可以透過 WordPress 後台瀏覽我的反饋意見嗎？"
 
-#: class.jetpack.php:3026
-msgid "Purchase"
-msgstr "購買"
-
-#: class.jetpack.php:3034
-msgid "New"
-msgstr "新功能"
-
-#: class.jetpack.php:3037
-msgid "Updated"
-msgstr "已更新"
-
-#: class.jetpack.php:3065
-msgid "Configure"
-msgstr "設定"
-
-#: class.jetpack.php:3103
-msgid "Coming soon&#8230;"
-msgstr "即將推出 &#8230;"
-
-#: class.jetpack.php:3242
-msgid "Something is being cranky!"
+#: modules/contact-form/grunion-form-view.php:135
+msgctxt "%1$s = \"Feedback\" in an HTML link"
+msgid "Yep, you can read your feedback at any time by clicking the \"%1$s\" link in the admin menu."
 msgstr ""
 
-#: class.jetpack.php:3243
-msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
-msgstr ""
+#: modules/contact-form/grunion-form-view.php:141
+msgid "Do I need to fill this out?"
+msgstr "我需要填寫這張表嗎？"
 
-#: class.jetpack.php:3331
-msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
-msgstr ""
+#: modules/contact-form/grunion-form-view.php:142
+msgid "Nope.  However, if you&#8217;d like to modify where your feedback is sent, or the subject line you can.  If you don&#8217;t make any changes here, feedback will be sent to the author of the page/post and the subject will be the name of this page/post."
+msgstr "不需要。然而，如果你想要修改發送給你的反饋意見，或主旨行，那你還是填寫一下吧。如果你不想在這裡做任何改變，反饋意見將會發送給該文章 / 分頁的作者，並且主旨將會是此文章 / 分頁的名稱。"
 
-#: class.jetpack.php:3333
-msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
-msgstr ""
+#: modules/contact-form/grunion-form-view.php:146
+msgid "Edit this new field"
+msgstr "編輯這個新欄位"
 
-#: class.jetpack.php:3335
-msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
-msgstr ""
+#: modules/contact-form/grunion-form-view.php:148
+#: modules/sharedaddy/sharing-sources.php:981
+msgid "Label"
+msgstr "命名"
 
-#: class.jetpack.php:3493
-msgid "Jetpack Plugin Version"
-msgstr "Jetpack 外掛版本"
+#: modules/contact-form/grunion-form-view.php:149
+msgid "New field"
+msgstr "新欄位"
 
-#: class.jetpack.php:3499
-msgid "The Client ID/WP.com Blog ID of this site"
-msgstr "此網站客戶端的 ID 帳號 / WP.com 的部落格 ID 帳號。"
+#: modules/contact-form/grunion-form-view.php:151
+msgid "Field type"
+msgstr "欄位類型"
 
-#: class.jetpack.php:3749
-msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
-msgstr "你必須與 WordPress.com 進行連結，才能使用 Jetpack 外掛的此項功能。"
+#: modules/contact-form/grunion-form-view.php:153
+msgid "Checkbox"
+msgstr "複選框"
 
-#: class.jetpack.php:3752
-msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
-msgstr "有人可能試圖欺騙你給他們權限存取你的網站。或者這可能是你遇到的錯誤 :) 。無論如何，請關閉此視窗。"
+#: modules/contact-form/grunion-form-view.php:154
+msgid "Drop down"
+msgstr "下拉選單"
 
-#: class.jetpack.php:3780
-msgid "The authorization process expired.  Please go back and try again."
-msgstr "此授權程序已過期。 請返回或再試一次。"
+#: modules/contact-form/grunion-form-view.php:157
+msgid "Radio"
+msgstr "單選框"
 
-#: class.jetpack.php:3820
-msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
-msgstr "%s 想存取你網站的 &#8217;s 資料。登入已批准該訪問權。"
+#: modules/contact-form/grunion-form-view.php:158
+msgid "Text"
+msgstr "文字"
 
-#: class.jetpack.php:3988
-msgid "Something has gotten mixed up!"
-msgstr ""
+#: modules/contact-form/grunion-form-view.php:159
+msgid "Textarea"
+msgstr "多行文字欄位"
 
-#: class.jetpack.php:3990
-msgid "Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!"
-msgstr ""
+#: modules/contact-form/grunion-form-view.php:166
+msgid "Options"
+msgstr "選項"
 
-#: class.jetpack.php:3992
+#: modules/contact-form/grunion-form-view.php:167
+msgid "First option"
+msgstr "第一選項"
+
+#: modules/contact-form/grunion-form-view.php:170
+msgid "Add another option"
+msgstr "新增其他選項"
+
+#: modules/contact-form/grunion-form-view.php:177
+msgid "Required?"
+msgstr "必填？"
+
+#: modules/contact-form/grunion-form-view.php:182
+msgid "Save this field"
+msgstr "儲存此欄位"
+
+#: modules/contact-form/grunion-form-view.php:187
+msgid "Here&#8217;s what your form will look like"
+msgstr "你的表單將會類似這樣"
+
+#: modules/contact-form/grunion-form-view.php:192
+msgid "Add a new field"
+msgstr "新增一個欄位"
+
+#: class.jetpack.php:4107
 msgid "The data listed above is not for my current site. Please disconnect, and then form a new connection to WordPress.com for this site using my current settings."
 msgstr ""
 
-#: class.jetpack.php:3993
+#: class.jetpack.php:4108
 msgid "Ignore the difference. This is just a staging site for the real site referenced above."
 msgstr ""
 
-#: class.jetpack.php:3994
+#: class.jetpack.php:4109
 msgid "That used to be my URL for this site before I changed it. Update the WordPress.com Cloud's data to match my current settings."
 msgstr ""
 
@@ -4468,6 +4175,38 @@ msgstr "Type"
 #: functions.opengraph.php:81
 msgid "(no title)"
 msgstr "（無標題）"
+
+#: functions.twitter-cards.php:80
+msgid "Photo post by %s."
+msgstr ""
+
+#: functions.twitter-cards.php:80
+msgid "Photo post."
+msgstr ""
+
+#: functions.twitter-cards.php:82
+msgid "Video post by %s."
+msgstr ""
+
+#: functions.twitter-cards.php:82
+msgid "Video post."
+msgstr ""
+
+#: functions.twitter-cards.php:84
+msgid "Gallery post by %s."
+msgstr ""
+
+#: functions.twitter-cards.php:84
+msgid "Gallery post."
+msgstr ""
+
+#: functions.twitter-cards.php:86
+msgid "New post by %s."
+msgstr ""
+
+#: functions.twitter-cards.php:86
+msgid "New post."
+msgstr ""
 
 #: locales.php:29
 msgctxt "locales"
@@ -4661,6 +4400,10 @@ msgstr "迴響"
 msgid "Post Comment"
 msgstr "張貼迴響"
 
+#: modules/carousel/jetpack-carousel.php:108
+msgid "Write a Comment..."
+msgstr ""
+
 #: modules/carousel/jetpack-carousel.php:109
 msgid "Loading Comments..."
 msgstr "載入迴響中..."
@@ -4753,6 +4496,662 @@ msgstr "遺失文章 ID"
 msgid "No comment text was submitted."
 msgstr "沒有迴響文字被送出。"
 
+#: modules/carousel/jetpack-carousel.php:336
+msgid "Comments on this post are closed."
+msgstr "此文的迴響功能已關閉。"
+
+#: modules/carousel/jetpack-carousel.php:346
+msgid "Sorry, but we could not authenticate your request."
+msgstr "抱歉，但我們無法驗證並授權你的申請。"
+
+#: modules/carousel/jetpack-carousel.php:355
+msgid "Please provide your name."
+msgstr "請提供你的姓名。"
+
+#: modules/carousel/jetpack-carousel.php:358
+msgid "Please provide an email address."
+msgstr "請提供一個電子郵件地址。"
+
+#: modules/carousel/jetpack-carousel.php:361
+msgid "Please provide a valid email address."
+msgstr "請提供一個有效的電子郵件地址。"
+
+#: modules/carousel/jetpack-carousel.php:390
+msgid "Image Gallery Carousel"
+msgstr "圖片藝廊輪播"
+
+#: modules/carousel/jetpack-carousel.php:393
+msgid "Enable carousel"
+msgstr "開啟輪播功能"
+
+#: modules/carousel/jetpack-carousel.php:397
+msgid "Background color"
+msgstr "背景顏色"
+
+#: modules/carousel/jetpack-carousel.php:400
+msgid "Metadata"
+msgstr "主數據資料"
+
+#: modules/carousel/jetpack-carousel.php:457
+msgid "Show photo metadata (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) in carousel, when available."
+msgstr "在輪播時顯示可用的相片  (<a href=\"http://en.wikipedia.org/wiki/Exchangeable_image_file_format\" target=\"_blank\">Exif</a>) 數據資料。"
+
+#: modules/carousel/jetpack-carousel.php:465
+msgid "Show map of photo location in carousel, when available."
+msgstr "在輪播時顯示可用的相片定位資訊。"
+
+#: modules/carousel/jetpack-carousel.php:473
+msgid "Black"
+msgstr "黑"
+
+#: modules/carousel/jetpack-carousel.php:473
+msgid "White"
+msgstr "白"
+
+#: modules/carousel/jetpack-carousel.php:481
+msgid "Display images in full-size carousel slideshow."
+msgstr "在輪播幻燈片中顯示圖片的原始尺寸。"
+
+#: modules/comments/admin.php:50 modules/comments/comments.php:211
+#: modules/minileven/theme/pub/minileven/content-gallery.php:71
+msgid "Leave a Reply"
+msgstr "發表迴響"
+
+#: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:156
+#: modules/widgets/twitter-timeline.php:217
+msgid "Light"
+msgstr "淡色系"
+
+#: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:157
+#: modules/widgets/twitter-timeline.php:218
+msgid "Dark"
+msgstr "深色系"
+
+#: modules/comments/admin.php:56
+msgid "Transparent"
+msgstr "透明的"
+
+#: modules/comments/admin.php:72 modules/module-info.php:521
+msgid "Jetpack Comments"
+msgstr "Jetpack 評論"
+
+#: modules/comments/admin.php:81
+msgid "Greeting Text"
+msgstr "問候語"
+
+#: class.jetpack.php:1835 class.jetpack.php:1860 class.jetpack.php:2798
+msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
+msgstr "Jetpack 是一個 WordPress 外掛，可以做網站有權使用的雲端服務，這是 WordPress.com 非常優異的服務。"
+
+#: class.jetpack.php:1836 class.jetpack.php:1861
+msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
+msgstr "在這個頁面，你可以查看的模組內 Jetpack，了解他們的更多，他們需要啟動或停用。"
+
+#: class.jetpack.php:1837
+msgid "Jetpack Module Options"
+msgstr "Jetpack 模組設定"
+
+#: class.jetpack.php:1838
+msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
+msgstr "<strong>要 啟用/停用 一個模組</strong> - 點擊「更多資訊」。「啟用」或「停用」按鈕將會在點擊後出現於「更多資訊」按鈕後面。"
+
+#: class.jetpack.php:1839 class.jetpack.php:1886
+msgid "For more information:"
+msgstr "取得更多資訊："
+
+#: class.jetpack.php:1840 class.jetpack.php:1887
+msgid "Jetpack FAQ"
+msgstr "Jetpack 常見問題"
+
+#: class.jetpack.php:1841 class.jetpack.php:1888
+msgid "Jetpack Support"
+msgstr "Jetpack 幫助"
+
+#: class.jetpack.php:1857
+msgid "Overview"
+msgstr "概述"
+
+#: class.jetpack.php:1870
+msgid "Modules"
+msgstr "功能模組"
+
+#: class.jetpack.php:1873
+msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
+msgstr "你可以啟用或停用個別的 Jetpack 功能模組，以滿足你的需求。"
+
+#: class.jetpack.php:1875
+msgid "Find the component you want to manage"
+msgstr "尋找你想要管理的元件"
+
+#: class.jetpack.php:1876
+msgid "Click on Learn More"
+msgstr "點擊此處了解更多"
+
+#: class.jetpack.php:1877
+msgid "An Activate or Deactivate button will appear"
+msgstr "啟用或停用，按鈕將會出現"
+
+#: class.jetpack.php:1878
+msgid "If additional settings are available, a link to them will appear"
+msgstr "如果有附加設定的情況下，將會出現其鏈結"
+
+#: class.jetpack.php:1983 modules/publicize/ui.php:677
+#: modules/sharedaddy/sharedaddy.php:76 modules/sharedaddy/sharedaddy.php:83
+msgid "Settings"
+msgstr "設定"
+
+#: class.jetpack.php:2000
+msgid "Dismiss this notice and deactivate Jetpack."
+msgstr "取消此通知，並停用 Jetpack。"
+
+#: class.jetpack.php:2006
+msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
+msgstr ""
+
+#: class.jetpack.php:2008
+msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
+msgstr "<strong>Jetpack 已經安裝</strong> 使用WordPress.com 雲為你的網站帶來強大功能"
+
+#: class.jetpack.php:2014 class.jetpack.php:2831
+msgid "Connect to WordPress.com"
+msgstr "連結 WordPress.com"
+
+#: class.jetpack.php:2016 modules/module-info.php:45 modules/module-info.php:81
+#: modules/module-info.php:138 modules/module-info.php:173
+#: modules/module-info.php:207 modules/module-info.php:237
+#: modules/module-info.php:270 modules/module-info.php:306
+#: modules/module-info.php:357 modules/module-info.php:379
+#: modules/module-info.php:417 modules/module-info.php:442
+#: modules/module-info.php:460 modules/module-info.php:479
+#: modules/module-info.php:485 modules/module-info.php:512
+#: modules/module-info.php:543 modules/module-info.php:578
+#: modules/module-info.php:600 modules/module-info.php:622
+#: modules/module-info.php:672 modules/module-info.php:700
+#: modules/module-info.php:728 modules/module-info.php:749
+#: modules/module-info.php:775 modules/module-info.php:801
+#: modules/module-info.php:824 modules/module-info.php:843
+#: modules/module-info.php:860 modules/module-info.php:876
+#: modules/module-info.php:896
+msgid "Learn More"
+msgstr "瞭解更多"
+
+#: class.jetpack.php:2029
+msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
+msgstr "<strong>Jetpack 啟用中！</strong> 每一個網站都應該連結到該站的管理者身上。"
+
+#: class.jetpack.php:2056
+msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
+msgstr "Jetpack 目前包括 Jetpack 迴響功能，讓你網站的訪客發表迴響時可以使用他們的 WordPress.com、Twitter 或 Facebook 帳號。現在就啟用 Jetpack 迴響功能，<a href=\"%s\">%s</a>。"
+
+#: class.jetpack.php:2067
+msgid "click here"
+msgstr "點擊此處"
+
+#: class.jetpack.php:2237
+msgid "Cheatin&#8217; uh?"
+msgstr "喂！你想幹麼？"
+
+#: class.jetpack.php:2240
+msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
+msgstr "你需要授權 Jetpack 與網站間的連結並登入 WordPress.com 來使用這個強大的功能。"
+
+#: class.jetpack.php:2243
+msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
+msgstr "Don&#8217;t cross the streams!  你必須登入你的 WordPress blog 才能與 Jetpack 進行串接"
+
+#: class.jetpack.php:2247
+msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
+msgstr "返回給發件人。哎呀！它看起來像你在郵件的錯誤 Jetpack;停用然後重新得到一個新的Jetpack插件。"
+
+#: class.jetpack.php:2250
+msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
+msgstr "錯誤的空間大小。嗯......似乎不太適合你的Jetpack。你已經清出一些空間？點擊\"連接到WordPress.com\" 再次得到你的Jetpack調整。"
+
+#: class.jetpack.php:2254
+msgid "Your website needs to be publicly accessible to use Jetpack: %s"
+msgstr "使用 Jetpack 你的網站需要公開訪問："
+
+#: class.jetpack.php:2259
+msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "%s 不能運作了！因為它引起了<strong>嚴重錯誤</strong>。或許它與一個外掛相衝？"
+
+#: class.jetpack.php:2261
+msgid "Do you still have the %s plugin installed?"
+msgstr "你仍然安裝了外掛「%s』？"
+
+#: class.jetpack.php:2264
+msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
+msgstr "模組不能啟用，因為它引發了 <strong>嚴重的錯誤</strong> 。或許是因為與其他外掛造成相衝？"
+
+#: class.jetpack.php:2282
+msgid "%s was not activated."
+msgstr ""
+
+#: class.jetpack.php:2284
+msgid "%s was not deactivated."
+msgstr ""
+
+#: class.jetpack.php:2286
+msgid "This module can only be altered by %s, the user who initiated the Jetpack connection on this site."
+msgstr ""
+
+#: class.jetpack.php:2289
+msgid "Only the user who initiated the Jetpack connection on this site can toggle %s, but that user no longer exists. This should not happen."
+msgstr ""
+
+#: class.jetpack.php:2293
+msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
+msgstr "<strong>你的 Jetpack 有問題</strong> 無法連結 這網站與WordPress.com。這代表著你的網站非公開(有可能是本機位址)"
+
+#: class.jetpack.php:2299
+msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
+msgstr "WordPress.com目前有問題，無法啟動你Jetpack。請稍後再試。"
+
+#: class.jetpack.php:2303
+msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
+msgstr "Jetpack 無法聯繫 WordPress.com：%s 這通常意味著你虛擬主機上的設定不正確。"
+
+#: class.jetpack.php:2343
+msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
+msgstr "<strong>你的 Jetpack 有一個小故障 </strong> 如果從來沒出問題代表你非常幸運：%s"
+
+#: class.jetpack.php:2346
+msgid "Try connecting again."
+msgstr "嘗試再一次連結"
+
+#: class.jetpack.php:2370
+msgid "Welcome to <strong>Jetpack %s</strong>!"
+msgstr "歡迎使用 <strong>Jetpack %s</strong>！"
+
+#: class.jetpack.php:2382
+msgid "The following new modules have been activated: %l."
+msgstr "以下新的模組已啟用： %l"
+
+#: class.jetpack.php:2394
+msgid "The following modules have been updated: %l."
+msgstr "已更新以下模組：%l"
+
+#: class.jetpack.php:2403
+msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
+msgstr "<strong>%s 啟用！</strong> 你可以再一次的在模組面板上點擊「停用」停止此功能。"
+
+#: class.jetpack.php:2429
+msgctxt "%l = list of Jetpack module/feature names"
+msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
+msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate buttons on their module cards."
+msgstr[0] "<strong>%l 停用！</strong> 你可再一次的在模組面板上點擊「啟用」開啟此功能。"
+
+#: class.jetpack.php:2441
+msgid "<strong>Module settings were saved.</strong> "
+msgstr "<strong>模組設定已儲存</strong> "
+
+#: class.jetpack.php:2445
+msgid "<strong>Your Jetpack is already connected.</strong> "
+msgstr "<strong>你的 Jetpack 已經連接</strong> "
+
+#: class.jetpack.php:2449 class.jetpack.php:2456
+msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
+msgstr "<strong>你可以完美的運行，快去使用！</strong> "
+
+#: class.jetpack.php:2451
+msgid "The features below are now active. Click the learn more buttons to explore each feature."
+msgstr "下面的功能處於啟用狀態。點擊「了解更多」的按鈕，探索每個功能。"
+
+#: class.jetpack.php:2462
+msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
+msgstr "<strong>你尚未鏈結你的 WordPress.com 帳戶(%s).</strong>"
+
+#: class.jetpack.php:2485
+msgid "Jetpack contains the most recent version of the old %l plugin."
+msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
+msgstr[0] "Jetpack 有舊的 %l 版本存在"
+
+#: class.jetpack.php:2496
+msgid "The old version has been deactivated and can be removed from your site."
+msgid_plural "The old versions have been deactivated and can be removed from your site."
+msgstr[0] "已停用舊版本，並可以從你的網站中刪除。"
+
+#: class.jetpack.php:2561
+msgid "Is this site private?"
+msgstr "這是私人網站嗎？"
+
+#: class.jetpack.php:2566
+msgctxt "%l = list of Jetpack module/feature names"
+msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
+msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
+msgstr[0] "允許第三方存取你的文章和其他內容，%l 像是你網站的 RSS 訂閱來源。"
+
+#: class.jetpack.php:2583
+msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
+msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
+msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
+msgstr[0] "如果你的網站是不公開的，請考慮 <a href=\"%1$s\" title=\"%2$s\">停用此功能</a>。"
+
+#: class.jetpack.php:2600
+msgctxt "%l = list of Jetpack module/feature names"
+msgid "Deactivate %l"
+msgstr "停用 %"
+
+#: class.jetpack.php:2785
+msgid "Connected to WordPress.com"
+msgstr "已連結 WordPress.com"
+
+#: class.jetpack.php:2785
+msgid "Disconnect from WordPress.com"
+msgstr "停止 與 WordPress.com 連結"
+
+#: class.jetpack.php:2790
+msgid "User linked to WordPress.com"
+msgstr "用戶已連結 WordPress.com"
+
+#: class.jetpack.php:2790
+msgid "Unlink user from WordPress.com"
+msgstr "用戶停止連結到 WordPress.com "
+
+#: class.jetpack.php:2808
+msgid "Jetpack is network activated and notices can not be dismissed."
+msgstr "Jetpack 是無法取消網絡啟用和通知的。"
+
+#: class.jetpack.php:2822
+msgid "Dismiss this notice."
+msgstr "取消此通知。"
+
+#: class.jetpack.php:2827
+msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
+msgstr "為了讓所有的Jetpack功能運作，你需要連接你的網站 與 WordPress.com ，點擊按鈕。一旦你連接你會開啟下面的所有令人愉快的功能。"
+
+#: class.jetpack.php:2842
+msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right."
+msgstr "為了讓所有的 Jetpack 功能正常運作，你的帳戶需要與 WordPress.com 進行連結的動作 ，請點擊右側按鈕以便開始連結。"
+
+#: class.jetpack.php:2846 modules/post-by-email.php:132
+#: modules/publicize/publicize-jetpack.php:70
+msgid "Link account with WordPress.com"
+msgstr "與 WordPress.com 進行帳戶連結"
+
+#: class.jetpack.php:2867
+msgid "Have feedback on Jetpack?"
+msgstr "對 Jetpack 有任何意見與建議?"
+
+#: class.jetpack.php:2869
+msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
+msgstr "請給我們一個建議或心得，讓我們知道現在做得如何，未來可以改進。"
+
+#: class.jetpack.php:2872
+msgid "Take Survey"
+msgstr "意見調查"
+
+#: class.jetpack.php:2878
+msgid "Checking email updates status&hellip;"
+msgstr "檢查電子郵件更新狀態&hellip;"
+
+#: class.jetpack.php:2884
+msgctxt "%s = Unsubscribe link"
+msgid "You are currently subscribed to email updates. %s"
+msgstr "你目前訂閱的電子郵件更新。 %s"
+
+#: class.jetpack.php:2885
+msgid "Unsubscribe"
+msgstr "取消訂閱"
+
+#: class.jetpack.php:2889
+msgctxt "%s = Subscribe link"
+msgid "Want to receive updates about Jetpack by email? %s"
+msgstr "使用電子郵件接收 Jetpack 的更新消息？ %s"
+
+#: class.jetpack.php:2890 modules/subscriptions.php:710
+msgid "Subscribe"
+msgstr "訂閱"
+
+#: class.jetpack.php:2897
+msgid "You have been subscribed to receive email updates."
+msgstr "你已經成功訂閱更新消息。"
+
+#: class.jetpack.php:2899
+msgid "You will no longer receive email updates about Jetpack."
+msgstr "你將不再收到有關 Jetpack 的電子郵件更新。"
+
+#: class.jetpack.php:2911
+msgid "An <span>Automattic</span> Airline"
+msgstr "一個 <span>Automattic</span> 主公司"
+
+#: class.jetpack.php:2914
+msgid "Privacy Policy"
+msgstr "隱私權保護政策"
+
+#: class.jetpack.php:2915
+msgid "Terms of Service"
+msgstr "使用規定"
+
+#: class.jetpack.php:2917
+msgid "Debug"
+msgstr "偵錯"
+
+#: class.jetpack.php:2919 modules/sharedaddy/sharedaddy.php:84
+msgid "Support"
+msgstr "支援"
+
+#: class.jetpack.php:3049
+msgid "Configure %s"
+msgstr "設定 %s"
+
+#: class.jetpack.php:3108
+msgid "Deactivate"
+msgstr "停用"
+
+#: class.jetpack.php:3121
+msgid "Activate"
+msgstr "啟用"
+
+#: class.jetpack.php:3141
+msgid "Free"
+msgstr "免費"
+
+#: class.jetpack.php:3141
+msgid "Purchase"
+msgstr "購買"
+
+#: class.jetpack.php:3149
+msgid "New"
+msgstr "新功能"
+
+#: class.jetpack.php:3152
+msgid "Updated"
+msgstr "已更新"
+
+#: class.jetpack.php:3180
+msgid "Configure"
+msgstr "設定"
+
+#: class.jetpack.php:3218
+msgid "Coming soon&#8230;"
+msgstr "即將推出 &#8230;"
+
+#: class.jetpack.php:3357
+msgid "Something is being cranky!"
+msgstr ""
+
+#: class.jetpack.php:3358
+msgid "Your site is configured to only permit SSL connections to Jetpack, but SSL connections don't seem to be functional!"
+msgstr ""
+
+#: class.jetpack.php:3446
+msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
+msgstr ""
+
+#: class.jetpack.php:3448
+msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
+msgstr ""
+
+#: class.jetpack.php:3450
+msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
+msgstr ""
+
+#: class.jetpack.php:3608
+msgid "Jetpack Plugin Version"
+msgstr "Jetpack 外掛版本"
+
+#: class.jetpack.php:3614
+msgid "The Client ID/WP.com Blog ID of this site"
+msgstr "此網站客戶端的 ID 帳號 / WP.com 的部落格 ID 帳號。"
+
+#: class.jetpack.php:3864
+msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
+msgstr "你必須與 WordPress.com 進行連結，才能使用 Jetpack 外掛的此項功能。"
+
+#: class.jetpack.php:3867
+msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
+msgstr "有人可能試圖欺騙你給他們權限存取你的網站。或者這可能是你遇到的錯誤 :) 。無論如何，請關閉此視窗。"
+
+#: class.jetpack.php:3895
+msgid "The authorization process expired.  Please go back and try again."
+msgstr "此授權程序已過期。 請返回或再試一次。"
+
+#: class.jetpack.php:3935
+msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
+msgstr "%s 想存取你網站的 &#8217;s 資料。登入已批准該訪問權。"
+
+#: class.jetpack.php:4103
+msgid "Something has gotten mixed up!"
+msgstr ""
+
+#: class.jetpack.php:4105
+msgid "Your <code>%1$s</code> option is set up as <strong>%2$s</strong>, but your WordPress.com connection lists it as <strong>%3$s</strong>!"
+msgstr ""
+
+#: class.jetpack-cli.php:82
+msgid "Please specify a user."
+msgstr ""
+
+#: class.jetpack-cli.php:90
+msgid "Jetpack has been successfully disconnected."
+msgstr ""
+
+#: class.jetpack-cli.php:79
+msgid "Please specify a valid user."
+msgstr ""
+
+#: class.jetpack-cli.php:62 class.jetpack-cli.php:131
+msgid "%s is not a valid command."
+msgstr ""
+
+#: class.jetpack-cli.php:25
+msgid "Jetpack is currently connected to WordPress.com"
+msgstr ""
+
+#: class.jetpack-cli.php:26
+msgid "The Jetpack Version is %s"
+msgstr ""
+
+#: class.jetpack-cli.php:27
+msgid "The WordPress.com blog_id is %d"
+msgstr ""
+
+#: class.jetpack-cli.php:29
+msgid "Jetpack is not currently connected to WordPress.com"
+msgstr ""
+
+#: class.jetpack-cli.php:138
+msgid "%s is not a valid module."
+msgstr ""
+
+#: class.jetpack-cli.php:144
+msgid "Please specify a valid module."
+msgstr ""
+
+#: class.jetpack-cli.php:101
+msgid "Please specify if you would like to disconnect a blog or user."
+msgstr ""
+
+#: class.jetpack-cli.php:151
+msgid "Available Modules:"
+msgstr ""
+
+#: class.jetpack-cli.php:57
+msgid "You cannot disconnect, without having first connected."
+msgstr ""
+
+#: class.jetpack-cli.php:95
+msgid "%s has been successfully disconnected."
+msgstr ""
+
+#: class.jetpack-cli.php:97
+msgid "%s could not be disconnected.  Are you sure they're connected currently?"
+msgstr ""
+
+#: class.jetpack-cli.php:155 modules/vaultpress.php:24
+msgid "Active"
+msgstr "執行套用"
+
+#: class.jetpack-cli.php:155
+msgid "Inactive"
+msgstr "不啟用"
+
+#: class.jetpack-cli.php:163
+msgid "%s has been activated."
+msgstr ""
+
+#: class.jetpack-cli.php:169
+msgid "%s has been deactivated."
+msgstr ""
+
+#: class.jetpack-client-server.php:141
+msgid "An administrator for this blog must set up the Jetpack connection."
+msgstr "你必須設定連接 Jetpack 的網站管理員。"
+
+#: class.jetpack-client-server.php:146
+msgid "You need to register your Jetpack before connecting it."
+msgstr "你需要註冊才連接 Jetpack。"
+
+#: class.jetpack-client-server.php:188 class.jetpack.php:3434
+#: class.jetpack.php:3436 class.jetpack.php:3438 class.jetpack.php:3441
+msgid "Error Details: %s"
+msgstr "錯誤詳細信息："
+
+#: class.jetpack-debugger.php:24
+msgid "You do not have sufficient permissions to access this page."
+msgstr "你沒有足夠的權限編輯此頁面。"
+
+#: class.jetpack-debugger.php:68
+msgid "Your site isn’t reaching the Jetpack servers."
+msgstr ""
+
+#: class.jetpack-debugger.php:71
+msgid "Your site isn’t securely reaching the Jetpack servers."
+msgstr ""
+
+#: class.jetpack-debugger.php:76
+msgid "Your `%1$s` option is set up as `%2$s`, but your WordPress.com connection lists it as `%3$s`!"
+msgstr ""
+
+#: class.jetpack-debugger.php:83
+msgid "Something has gotten mixed up in your Jetpack Connection!"
+msgstr ""
+
+#: class.jetpack-debugger.php:93
+msgid "It looks like your site can not communicate properly with Jetpack."
+msgstr ""
+
+#: class.jetpack-debugger.php:99 class.jetpack.php:1669 class.jetpack.php:1889
+msgid "Jetpack Debugging Center"
+msgstr ""
+
+#: class.jetpack-debugger.php:100
+msgid "Testing your site's compatibily with Jetpack..."
+msgstr ""
+
+#: class.jetpack-debugger.php:128
+msgid "Your Jetpack setup looks a-okay!"
+msgstr ""
+
+#: class.jetpack-debugger.php:131
+msgid "There seems to be a problem with your site’s ability to communicate with Jetpack!"
+msgstr ""
+
+#: class.jetpack-debugger.php:138
+msgid "Trouble with Jetpack?"
+msgstr ""
+
 #: class.jetpack-debugger.php:139
 msgid "It may be caused by one of these issues, which you can diagnose yourself:"
 msgstr ""
@@ -4836,405 +5235,64 @@ msgstr ""
 msgid "Jetpack weekly"
 msgstr ""
 
-#: class.jetpack.php:1311
+#: class.jetpack.php:1057
+msgctxt "Module Tag"
+msgid "Photos and Videos"
+msgstr ""
+
+#: class.jetpack.php:1058
+msgctxt "Module Tag"
+msgid "Social"
+msgstr ""
+
+#: class.jetpack.php:1059
+msgctxt "Module Tag"
+msgid "WordPress.com Stats"
+msgstr ""
+
+#: class.jetpack.php:1060
+msgctxt "Module Tag"
+msgid "Writing"
+msgstr ""
+
+#: class.jetpack.php:1061
+msgctxt "Module Tag"
+msgid "Appearance"
+msgstr ""
+
+#: class.jetpack.php:1062
+msgctxt "Module Tag"
+msgid "Developers"
+msgstr ""
+
+#: class.jetpack.php:1063
+msgctxt "Module Tag"
+msgid "Mobile"
+msgstr ""
+
+#: class.jetpack.php:1064
+msgctxt "Module Tag"
+msgid "Other"
+msgstr ""
+
+#: class.jetpack.php:1375
 msgid "Jetpack requires WordPress version %s or later."
 msgstr "Jetpack 需要的 WordPress 版本 %s 有可能太舊"
 
-#: class.jetpack.php:1555 class.jetpack.php:1571
+#: class.jetpack.php:1624 class.jetpack.php:1640
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
 msgstr "Jetpack 的最新版本中多了一個新的『%1$s』外掛。"
 
-#: class.jetpack.php:1592
+#: class.jetpack.php:1661
 msgid "One New Jetpack Module"
 msgid_plural "%s New Jetpack Modules"
 msgstr[0] "一個新的 Jetpack 模組"
 
-#: class.jetpack.php:1595
+#: class.jetpack.php:1664
 msgid "Jetpack"
 msgstr "Jetpack"
 
-#: class.jetpack.php:1765 class.jetpack.php:1790 class.jetpack.php:1803
-#: class.jetpack.php:2680 class.jetpack.php:2933
+#: class.jetpack.php:1834 class.jetpack.php:1859 class.jetpack.php:1872
+#: class.jetpack.php:2795 class.jetpack.php:3048
 msgid "Jetpack by WordPress.com"
 msgstr "Jetpack 由 WordPress.com 團隊開發"
-
-#: class.jetpack.php:1766 class.jetpack.php:1791 class.jetpack.php:2683
-msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
-msgstr "Jetpack 是一個 WordPress 外掛，可以做網站有權使用的雲端服務，這是 WordPress.com 非常優異的服務。"
-
-#: class.jetpack.php:1767 class.jetpack.php:1792
-msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
-msgstr "在這個頁面，你可以查看的模組內 Jetpack，了解他們的更多，他們需要啟動或停用。"
-
-#: class.jetpack.php:1768
-msgid "Jetpack Module Options"
-msgstr "Jetpack 模組設定"
-
-#: class.jetpack.php:1769
-msgid "<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button."
-msgstr "<strong>要 啟用/停用 一個模組</strong> - 點擊「更多資訊」。「啟用」或「停用」按鈕將會在點擊後出現於「更多資訊」按鈕後面。"
-
-#: class.jetpack.php:1770 class.jetpack.php:1817
-msgid "For more information:"
-msgstr "取得更多資訊："
-
-#: class.jetpack.php:1771 class.jetpack.php:1818
-msgid "Jetpack FAQ"
-msgstr "Jetpack 常見問題"
-
-#: class.jetpack.php:1772 class.jetpack.php:1819
-msgid "Jetpack Support"
-msgstr "Jetpack 幫助"
-
-#: class.jetpack.php:1788
-msgid "Overview"
-msgstr "概述"
-
-#: class.jetpack.php:1801
-msgid "Modules"
-msgstr "功能模組"
-
-#: class.jetpack.php:1804
-msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
-msgstr "你可以啟用或停用個別的 Jetpack 功能模組，以滿足你的需求。"
-
-#: class.jetpack.php:1806
-msgid "Find the component you want to manage"
-msgstr "尋找你想要管理的元件"
-
-#: class.jetpack.php:1807
-msgid "Click on Learn More"
-msgstr "點擊此處了解更多"
-
-#: class.jetpack.php:1808
-msgid "An Activate or Deactivate button will appear"
-msgstr "啟用或停用，按鈕將會出現"
-
-#: class.jetpack.php:1809
-msgid "If additional settings are available, a link to them will appear"
-msgstr "如果有附加設定的情況下，將會出現其鏈結"
-
-#: class.jetpack.php:1889 modules/publicize/ui.php:677
-#: modules/sharedaddy/sharedaddy.php:76 modules/sharedaddy/sharedaddy.php:83
-msgid "Settings"
-msgstr "設定"
-
-#: class.jetpack.php:1906
-msgid "Dismiss this notice and deactivate Jetpack."
-msgstr "取消此通知，並停用 Jetpack。"
-
-#: class.jetpack.php:1912
-msgid "<strong>Your Jetpack is almost ready</strong> &#8211; A connection to WordPress.com is needed to enable features like Stats, Contact Forms, and Subscriptions. Connect now to get fueled up!"
-msgstr ""
-
-#: class.jetpack.php:1914
-msgid "<strong>Jetpack is installed</strong> and ready to bring awesome, WordPress.com cloud-powered features to your site."
-msgstr "<strong>Jetpack 已經安裝</strong> 使用WordPress.com 雲為你的網站帶來強大功能"
-
-#: class.jetpack.php:1920 class.jetpack.php:2716
-msgid "Connect to WordPress.com"
-msgstr "連結 WordPress.com"
-
-#: class.jetpack.php:1922 modules/module-info.php:45 modules/module-info.php:81
-#: modules/module-info.php:138 modules/module-info.php:173
-#: modules/module-info.php:207 modules/module-info.php:237
-#: modules/module-info.php:270 modules/module-info.php:306
-#: modules/module-info.php:357 modules/module-info.php:379
-#: modules/module-info.php:417 modules/module-info.php:442
-#: modules/module-info.php:460 modules/module-info.php:479
-#: modules/module-info.php:485 modules/module-info.php:512
-#: modules/module-info.php:543 modules/module-info.php:578
-#: modules/module-info.php:600 modules/module-info.php:622
-#: modules/module-info.php:672 modules/module-info.php:700
-#: modules/module-info.php:728 modules/module-info.php:749
-#: modules/module-info.php:775 modules/module-info.php:801
-#: modules/module-info.php:824 modules/module-info.php:843
-#: modules/module-info.php:860 modules/module-info.php:876
-#: modules/module-info.php:896
-msgid "Learn More"
-msgstr "瞭解更多"
-
-#: class.jetpack.php:1935
-msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
-msgstr "<strong>Jetpack 啟用中！</strong> 每一個網站都應該連結到該站的管理者身上。"
-
-#: class.jetpack.php:1962
-msgid "Jetpack now includes Jetpack Comments, which enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site. To activate Jetpack Comments, <a href=\"%s\">%s</a>."
-msgstr "Jetpack 目前包括 Jetpack 迴響功能，讓你網站的訪客發表迴響時可以使用他們的 WordPress.com、Twitter 或 Facebook 帳號。現在就啟用 Jetpack 迴響功能，<a href=\"%s\">%s</a>。"
-
-#: class.jetpack.php:1973
-msgid "click here"
-msgstr "點擊此處"
-
-#: class.jetpack.php:2143
-msgid "Cheatin&#8217; uh?"
-msgstr "喂！你想幹麼？"
-
-#: class.jetpack.php:2146
-msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
-msgstr "你需要授權 Jetpack 與網站間的連結並登入 WordPress.com 來使用這個強大的功能。"
-
-#: class.jetpack.php:2149
-msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
-msgstr "Don&#8217;t cross the streams!  你必須登入你的 WordPress blog 才能與 Jetpack 進行串接"
-
-#: class.jetpack.php:2153
-msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
-msgstr "返回給發件人。哎呀！它看起來像你在郵件的錯誤 Jetpack;停用然後重新得到一個新的Jetpack插件。"
-
-#: class.jetpack.php:2156
-msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
-msgstr "錯誤的空間大小。嗯......似乎不太適合你的Jetpack。你已經清出一些空間？點擊\"連接到WordPress.com\" 再次得到你的Jetpack調整。"
-
-#: class.jetpack.php:2160
-msgid "Your website needs to be publicly accessible to use Jetpack: %s"
-msgstr "使用 Jetpack 你的網站需要公開訪問："
-
-#: class.jetpack.php:2165
-msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr "%s 不能運作了！因為它引起了<strong>嚴重錯誤</strong>。或許它與一個外掛相衝？"
-
-#: class.jetpack.php:2167
-msgid "Do you still have the %s plugin installed?"
-msgstr "你仍然安裝了外掛「%s』？"
-
-#: class.jetpack.php:2170
-msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr "模組不能啟用，因為它引發了 <strong>嚴重的錯誤</strong> 。或許是因為與其他外掛造成相衝？"
-
-#: class.jetpack.php:2178
-msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
-msgstr "<strong>你的 Jetpack 有問題</strong> 無法連結 這網站與WordPress.com。這代表著你的網站非公開(有可能是本機位址)"
-
-#: class.jetpack.php:2184
-msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
-msgstr "WordPress.com目前有問題，無法啟動你Jetpack。請稍後再試。"
-
-#: class.jetpack.php:2188
-msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
-msgstr "Jetpack 無法聯繫 WordPress.com：%s 這通常意味著你虛擬主機上的設定不正確。"
-
-#: class.jetpack.php:2228
-msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
-msgstr "<strong>你的 Jetpack 有一個小故障 </strong> 如果從來沒出問題代表你非常幸運：%s"
-
-#: class.jetpack.php:2231
-msgid "Try connecting again."
-msgstr "嘗試再一次連結"
-
-#: class.jetpack.php:2255
-msgid "Welcome to <strong>Jetpack %s</strong>!"
-msgstr "歡迎使用 <strong>Jetpack %s</strong>！"
-
-#: class.jetpack.php:2267
-msgid "The following new modules have been activated: %l."
-msgstr "以下新的模組已啟用： %l"
-
-#: class.jetpack.php:2279
-msgid "The following modules have been updated: %l."
-msgstr "已更新以下模組：%l"
-
-#: class.jetpack.php:2288
-msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
-msgstr "<strong>%s 啟用！</strong> 你可以再一次的在模組面板上點擊「停用」停止此功能。"
-
-#: class.jetpack.php:2314
-msgctxt "%l = list of Jetpack module/feature names"
-msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate button on the module card."
-msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate buttons on their module cards."
-msgstr[0] "<strong>%l 停用！</strong> 你可再一次的在模組面板上點擊「啟用」開啟此功能。"
-
-#: class.jetpack.php:2326
-msgid "<strong>Module settings were saved.</strong> "
-msgstr "<strong>模組設定已儲存</strong> "
-
-#: class.jetpack.php:2330
-msgid "<strong>Your Jetpack is already connected.</strong> "
-msgstr "<strong>你的 Jetpack 已經連接</strong> "
-
-#: class.jetpack.php:2334 class.jetpack.php:2341
-msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
-msgstr "<strong>你可以完美的運行，快去使用！</strong> "
-
-#: class.jetpack.php:2336
-msgid "The features below are now active. Click the learn more buttons to explore each feature."
-msgstr "下面的功能處於啟用狀態。點擊「了解更多」的按鈕，探索每個功能。"
-
-#: class.jetpack.php:2347
-msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
-msgstr "<strong>你尚未鏈結你的 WordPress.com 帳戶(%s).</strong>"
-
-#: class.jetpack.php:2370
-msgid "Jetpack contains the most recent version of the old %l plugin."
-msgid_plural "Jetpack contains the most recent versions of the old %l plugins."
-msgstr[0] "Jetpack 有舊的 %l 版本存在"
-
-#: class.jetpack.php:2381
-msgid "The old version has been deactivated and can be removed from your site."
-msgid_plural "The old versions have been deactivated and can be removed from your site."
-msgstr[0] "已停用舊版本，並可以從你的網站中刪除。"
-
-#: class.jetpack.php:2446
-msgid "Is this site private?"
-msgstr "這是私人網站嗎？"
-
-#: class.jetpack.php:2451
-msgctxt "%l = list of Jetpack module/feature names"
-msgid "Like your site's RSS feeds, %l allows access to your posts and other content to third parties."
-msgid_plural "Like your site's RSS feeds, %l allow access to your posts and other content to third parties."
-msgstr[0] "允許第三方存取你的文章和其他內容，%l 像是你網站的 RSS 訂閱來源。"
-
-#: class.jetpack.php:2468
-msgctxt "%1$s = deactivation URL, %2$s = \"Deactivate {list of Jetpack module/feature names}"
-msgid "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating this feature</a>."
-msgid_plural "If your site is not publicly accessible, consider <a href=\"%1$s\" title=\"%2$s\">deactivating these features</a>."
-msgstr[0] "如果你的網站是不公開的，請考慮 <a href=\"%1$s\" title=\"%2$s\">停用此功能</a>。"
-
-#: class.jetpack.php:2485
-msgctxt "%l = list of Jetpack module/feature names"
-msgid "Deactivate %l"
-msgstr "停用 %"
-
-#: class.jetpack.php:2670
-msgid "Connected to WordPress.com"
-msgstr "已連結 WordPress.com"
-
-#: class.jetpack.php:2670
-msgid "Disconnect from WordPress.com"
-msgstr "停止 與 WordPress.com 連結"
-
-#: class.jetpack.php:2675
-msgid "User linked to WordPress.com"
-msgstr "用戶已連結 WordPress.com"
-
-#: class.jetpack.php:2675
-msgid "Unlink user from WordPress.com"
-msgstr "用戶停止連結到 WordPress.com "
-
-#: class.jetpack.php:2693
-msgid "Jetpack is network activated and notices can not be dismissed."
-msgstr "Jetpack 是無法取消網絡啟用和通知的。"
-
-#: class.jetpack.php:2707
-msgid "Dismiss this notice."
-msgstr "取消此通知。"
-
-#: class.jetpack.php:2712
-msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr "為了讓所有的Jetpack功能運作，你需要連接你的網站 與 WordPress.com ，點擊按鈕。一旦你連接你會開啟下面的所有令人愉快的功能。"
-
-#: class.jetpack.php:2727
-msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right."
-msgstr "為了讓所有的 Jetpack 功能正常運作，你的帳戶需要與 WordPress.com 進行連結的動作 ，請點擊右側按鈕以便開始連結。"
-
-#: class.jetpack.php:2731 modules/post-by-email.php:132
-#: modules/publicize/publicize-jetpack.php:68
-msgid "Link account with WordPress.com"
-msgstr "與 WordPress.com 進行帳戶連結"
-
-#: class.jetpack.php:2752
-msgid "Have feedback on Jetpack?"
-msgstr "對 Jetpack 有任何意見與建議?"
-
-#: class.jetpack.php:2754
-msgid "Answer a short survey to let us know how we&#8217;re doing and what to add in the future."
-msgstr "請給我們一個建議或心得，讓我們知道現在做得如何，未來可以改進。"
-
-#: class.jetpack.php:2757
-msgid "Take Survey"
-msgstr "意見調查"
-
-#: class.jetpack.php:2763
-msgid "Checking email updates status&hellip;"
-msgstr "檢查電子郵件更新狀態&hellip;"
-
-#: class.jetpack.php:2769
-msgctxt "%s = Unsubscribe link"
-msgid "You are currently subscribed to email updates. %s"
-msgstr "你目前訂閱的電子郵件更新。 %s"
-
-#: class.jetpack.php:2770
-msgid "Unsubscribe"
-msgstr "取消訂閱"
-
-#: class.jetpack.php:2774
-msgctxt "%s = Subscribe link"
-msgid "Want to receive updates about Jetpack by email? %s"
-msgstr "使用電子郵件接收 Jetpack 的更新消息？ %s"
-
-#: class.jetpack.php:2775 modules/subscriptions.php:696
-msgid "Subscribe"
-msgstr "訂閱"
-
-#: class.jetpack.php:2782
-msgid "You have been subscribed to receive email updates."
-msgstr "你已經成功訂閱更新消息。"
-
-#: class.jetpack.php:2784
-msgid "You will no longer receive email updates about Jetpack."
-msgstr "你將不再收到有關 Jetpack 的電子郵件更新。"
-
-#: class.jetpack.php:2796
-msgid "An <span>Automattic</span> Airline"
-msgstr "一個 <span>Automattic</span> 主公司"
-
-#: class.jetpack.php:2799
-msgid "Privacy Policy"
-msgstr "隱私權保護政策"
-
-#: class.jetpack-client-server.php:141
-msgid "An administrator for this blog must set up the Jetpack connection."
-msgstr "你必須設定連接 Jetpack 的網站管理員。"
-
-#: class.jetpack-client-server.php:146
-msgid "You need to register your Jetpack before connecting it."
-msgstr "你需要註冊才連接 Jetpack。"
-
-#: class.jetpack-client-server.php:188 class.jetpack.php:3319
-#: class.jetpack.php:3321 class.jetpack.php:3323 class.jetpack.php:3326
-msgid "Error Details: %s"
-msgstr "錯誤詳細信息："
-
-#: class.jetpack-debugger.php:24
-msgid "You do not have sufficient permissions to access this page."
-msgstr "你沒有足夠的權限編輯此頁面。"
-
-#: class.jetpack-debugger.php:68
-msgid "Your site isn’t reaching the Jetpack servers."
-msgstr ""
-
-#: class.jetpack-debugger.php:71
-msgid "Your site isn’t securely reaching the Jetpack servers."
-msgstr ""
-
-#: class.jetpack-debugger.php:76
-msgid "Your `%1$s` option is set up as `%2$s`, but your WordPress.com connection lists it as `%3$s`!"
-msgstr ""
-
-#: class.jetpack-debugger.php:83
-msgid "Something has gotten mixed up in your Jetpack Connection!"
-msgstr ""
-
-#: class.jetpack-debugger.php:93
-msgid "It looks like your site can not communicate properly with Jetpack."
-msgstr ""
-
-#: class.jetpack-debugger.php:99 class.jetpack.php:1600 class.jetpack.php:1820
-msgid "Jetpack Debugging Center"
-msgstr ""
-
-#: class.jetpack-debugger.php:100
-msgid "Testing your site's compatibily with Jetpack..."
-msgstr ""
-
-#: class.jetpack-debugger.php:128
-msgid "Your Jetpack setup looks a-okay!"
-msgstr ""
-
-#: class.jetpack-debugger.php:131
-msgid "There seems to be a problem with your site’s ability to communicate with Jetpack!"
-msgstr ""
-
-#: class.jetpack-debugger.php:138
-msgid "Trouble with Jetpack?"
-msgstr ""
