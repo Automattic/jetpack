@@ -91,6 +91,7 @@ class Jetpack {
 			'MathJax-LaTeX'		  => 'mathjax-latex/mathjax-latex.php',
 			'Enable Latex'		  => 'enable-latex/enable-latex.php',
 			'WP QuickLaTeX'		  => 'wp-quicklatex/wp-quicklatex.php',
+		),
 		'sharedaddy'        => array(
 			'AddThis'		  => 'addthis/addthis_social_widget.php',
 			'Add To Any'		  => 'add-to-any/add-to-any.php',
