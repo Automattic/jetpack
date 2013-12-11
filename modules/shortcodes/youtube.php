@@ -308,6 +308,6 @@ function wpcom_youtube_embed_crazy_url_init() {
 add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
 
 // higher priority because we need it before auto-link and autop get to it
-if ( get_option('embed_autourls') ) {
+if ( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls') ) ) {
 	add_filter( 'comment_text', 'youtube_link', 1 );
 }
