@@ -563,10 +563,10 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	}
 
 	function maybe_add_style() {
-	    if ( is_active_widget( false, false, $this->id_base, true ) ) {
+	    //if ( is_active_widget( false, false, $this->id_base, true ) ) {
 		wp_register_style( 'jetpack-subscriptions', plugins_url( 'subscriptions/subscriptions.css', __FILE__ ) );
 		wp_enqueue_style( 'jetpack-subscriptions' );
-	    }
+	    //}
 	}
 
 	function widget( $args, $instance ) {
