@@ -92,7 +92,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 			?>
 
-			<h4><a href="<?php echo esc_url( $profile['profileUrl'] ); ?>" class="grofile-full-link"><?php esc_html_e( 'View Full Profile &rarr;', 'jetpack' ); ?></a></h4>
+			<h4><a href="<?php echo esc_url( $profile['profileUrl'] ); ?>" class="grofile-full-link"><?php esc_html_e( apply_filters( 'jetpack_gravatar_full_profile_title', 'View Full Profile &rarr;' ), 'jetpack' );  ?></a></h4>
 
 			<?php
 
@@ -112,13 +112,16 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			return;
 		?>
 
-			<h4><?php esc_html_e( 'Personal Links', 'jetpack' ); ?></h4>
+			<h4><?php esc_html_e( apply_filters( 'jetpack_gravatar_personal_links_title', 'Personal Links' ), 'jetpack' ); ?></h4>
 			<ul class="grofile-urls grofile-links">
 
 			<?php foreach( $personal_links as $personal_link ) : ?>
 				<li>
 					<a href="<?php echo esc_url( $personal_link['value'] ); ?>">
-						<?php echo esc_html( $personal_link['title'] ); ?>
+                        <?php 
+                            $link_title = ( !empty( $personal_link['title'] ) )? $personal_link['title']: $personal_link['value'];
+                            echo esc_html( $link_title); 
+                        ?>
 					</a>
 				</li>
 			<?php endforeach; ?>
@@ -132,7 +135,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			return;
 		?>
 
-		<h4><?php esc_html_e( 'Verified Services', 'jetpack' ); ?></h4>
+		<h4><?php esc_html_e( apply_filters( 'jetpack_gravatar_verified_services_title', 'Verified Services' ), 'jetpack' ); ?></h4>
 		<ul class="grofile-urls grofile-accounts">
 
 		<?php foreach( $accounts as $account ) :
