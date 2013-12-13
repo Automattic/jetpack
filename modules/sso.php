@@ -119,10 +119,27 @@ class Jetpack_SSO {
 		return ( isset( $input['remove_login_form'] ) )? 1: 0;
 	}
 
+	/**
+	 * Removes 'Lost your password?' text from the login form if user 
+	 * does not want to show the login form
+	 *
+	 * @since 2.7
+	 * @return string
+	 **/
+	public function remove_lost_password_text( $text ) {
+		if( 'Lost your password?' == $text )
+			$text = '';
+		return $text;
+	}
+
 	function login_init() {
-		//add_action( 'login_form',   array( $this, 'login_form' ) );
 		add_action( 'login_footer',   array( $this, 'login_form' ) );
 		add_action( 'login_footer', array( $this, 'login_footer' ) );
+
+		if( get_option( 'jetpack_sso_remove_login_form' ) ) {
+			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
+		}
+
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_style( 'genericons' );
 
