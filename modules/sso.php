@@ -22,12 +22,106 @@ class Jetpack_SSO {
 		self::$instance = $this;
 
 		add_action( 'admin_init',  array( $this, 'admin_init' ) );
+		add_action( 'admin_init',  array( $this, 'register_settings' ) );
 		add_action( 'login_init',  array( $this, 'login_init' ) );
 		add_action( 'delete_user', array( $this, 'delete_connection_for_user' ) );
 	}
 
+	/**
+	 * Adds settings fields to Settings > General > Single Sign On that allows users to
+	 * turn off the login form on wp-login.php
+	 *
+	 * @since 2.7
+	 **/
+	public function register_settings() {
+
+		add_settings_section(
+			'jetpack_sso_settings',
+			__( 'Jetpack Single Sign On' ),
+			'__return_false',
+			'general'
+		);
+
+		/*
+		 * Settings > General > Jetpack Single Sign On
+		 * Checkbox for Remove default login form
+		 */
+		register_setting(
+			'general',
+			'jetpack_sso_remove_login_form',
+			array( $this, 'validate_settings_remove_login_form_checkbox' )
+		);
+		
+		add_settings_field(
+			'jetpack_sso_remove_login_form',
+			__( 'Remove default login form?' ),
+			array( $this, 'render_remove_login_form_checkbox' ),
+			'general',
+			'jetpack_sso_settings'
+		);
+
+		/*
+		 * Settings > General > Jetpack Single Sign On
+		 * Require two factor authentication
+		 */
+		register_setting(
+			'general',
+			'jetpack_sso_require_two_factor',
+			array( $this, 'validate_settings_require_two_factor' )
+		);
+
+		add_settings_field(
+			'jetpack_sso_require_two_factor',
+			__( 'Require Two-Factor Authentication?' ),
+			array( $this, 'render_require_two_factor' ),
+			'general',
+			'jetpack_sso_settings'
+		);
+	}
+
+	/**
+	 * Builds the display for the checkbox allowing user to require two factor
+	 * auth be enabled on WordPress.com accounts before login. Displays in Settings > General
+	 *
+	 * @since 2.7
+	 **/
+	public function render_require_two_factor() {
+		echo '<input type="checkbox" name="jetpack_sso_require_two_factor[require_two_factor]" ' . checked( 1 == get_option( 'jetpack_sso_require_two_factor' ), true, false ) . '>';
+	}
+
+	/**
+	 * Validate the require  two factor checkbox in Settings > General
+	 *
+	 * @since 2.7
+	 * @return boolean
+	 **/
+	public function validate_settings_require_two_factor( $input ) {
+		return ( isset( $input['require_two_factor'] ) )? 1: 0;
+	}
+
+	/**
+	 * Builds the display for the checkbox allowing users to remove the default
+	 * WordPress login form from wp-login.php. Displays in Settings > General
+	 *
+	 * @since 2.7
+	 **/
+	public function render_remove_login_form_checkbox() {
+		echo '<input type="checkbox" name="jetpack_sso_remove_login_form[remove_login_form]" ' . checked( 1 == get_option( 'jetpack_sso_remove_login_form' ), true, false ) . '>';
+	}
+
+	/**
+	 * Validate settings input from Settings > General
+	 *
+	 * @since 2.7
+	 * @return boolean
+	 **/
+	public function validate_settings_remove_login_form_checkbox( $input ) {
+		return ( isset( $input['remove_login_form'] ) )? 1: 0;
+	}
+
 	function login_init() {
-		add_action( 'login_form',   array( $this, 'login_form' ) );
+		//add_action( 'login_form',   array( $this, 'login_form' ) );
+		add_action( 'login_footer',   array( $this, 'login_form' ) );
 		add_action( 'login_footer', array( $this, 'login_footer' ) );
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_style( 'genericons' );
@@ -52,23 +146,32 @@ class Jetpack_SSO {
 	}
 
 	function login_footer() {
+		$hide_login_form = apply_filters( 'jetpack_remove_login_form', get_option( 'jetpack_sso_remove_login_form' ) );
 		?>
 		<style>
 			#loginform {
 				overflow: hidden;
 				padding-bottom: 26px;
 			}
-			.jetpack-sso-wrap {
-				display: block;
+			.jetpack-sso-wrap { 
 				float: right;
-				clear: right;
 				margin:1em 0 0;
+				clear: right;
+				display: block;
 			}
 		</style>
 		<script>
 			jQuery(document).ready(function($){
+				<?php
+				if( $hide_login_form ) {
+					echo "jQuery( '#loginform' ).empty();";
+				}
+				?>
+			
 				$( '#loginform' ).append( $( '.jetpack-sso-wrap' ) );
 			});
+
+			
 		</script>
 		<?php
 	}
@@ -129,6 +232,15 @@ class Jetpack_SSO {
 		$user = null;
 		do_action( 'jetpack_sso_pre_handle_login', $user_data );
 
+		// Check to see if having two factor enable on wpcom is a requirement to login here
+		$require_two_factor = apply_filters( 'jetpack_sso_require_two_factor', get_option( 'jetpack_sso_require_two_factor' ) );
+		if( $require_two_factor && 0 == (int) $user_data->two_factor_enabled ) {
+			$this->user_data = $user_data;
+			do_action( 'wp_login_failed', $user_data->login );
+			add_action( 'login_message', array( $this, 'error_msg_enable_two_factor' ) );
+			return;
+		}
+
 		if ( isset( $_GET['state'] ) && ( 0 < strpos( $_GET['state'], '|' ) ) ) {
 			list( $state, $nonce ) = explode( '|', $_GET['state'] );
 
@@ -188,7 +300,13 @@ class Jetpack_SSO {
 		if ( $user ) {
 			// Cache the user's details, so we can present it back to them on their user screen.
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
-			wp_set_auth_cookie( $user->ID );
+			
+			// Set remember me value
+			$remember = apply_filters( 'jetpack_remember_login', false );
+			wp_set_auth_cookie( $user->ID, $remember );
+
+			// Run the WP core login action
+			do_action( 'wp_login', $user->user_login, $user );
 
 			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
@@ -197,6 +315,7 @@ class Jetpack_SSO {
 		}
 
 		$this->user_data = $user_data;
+		do_action( 'wp_login_failed', $user_data->login );
 		add_action( 'login_message', array( $this, 'cant_find_user' ) );
 	}
 
@@ -302,6 +421,21 @@ class Jetpack_SSO {
 		return $users ? array_shift( $users ) : null;
 	}
 
+	/**
+	 * Error message displayed on the login form when two step is required and 
+	 * the user's account on WordPress.com does not have two step enabled.
+	 *
+	 * @since 2.7
+	 * @return string
+	 **/
+	function error_msg_enable_two_factor( $message ) {
+		$err = __( sprintf( 'This site requires two step authentication be enabled for your user account on WordPress.com. Please visit the <a href="%1$s"> Security Settings</a> page to enable two step', 'https://wordpress.com/settings/security/' ) );
+
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
+		
+		return $message;
+	}
+
 	function cant_find_user( $message ) {
 		if ( self::match_by_email() ) {
 			$err_format = __( 'We couldn\'t find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page.', 'jetpack' );
@@ -348,6 +482,16 @@ class Jetpack_SSO {
 								<?php echo get_avatar( $user_data->email ); ?>
 								<p class="connected"><strong><?php _e( 'Connected', 'jetpack' ); ?></strong></p>
 								<p><?php echo esc_html( $user_data->login ); ?></p>
+								<span class="two_factor">
+									<?php 
+										if( $user_data->two_factor_enabled ) {
+											?> <p class="enabled"><a href="https://wordpress.com/settings/security/"><?php _e( 'Two Factor Enabled', 'jetpack' ); ?></a></p> <?php
+										} else {
+											?> <p class="disabled"><a href="https://wordpress.com/settings/security/"><?php _e( 'Two Factor Disabled', 'jetpack' ); ?></a></p> <?php
+										}
+									?>
+								</span>
+
 							</div>
 							<p><a class="button button-secondary" href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'jetpack_sso', 'purge' ), 'jetpack_sso_purge' ) ); ?>"><?php _e( 'Unlink This Account', 'jetpack' ); ?></a></p>
 						</td>
@@ -385,6 +529,16 @@ class Jetpack_SSO {
 			.jetpack-sso-form-table .profile-card p {
 				margin-top: 0.7em;
 				font-size: 1.2em;
+			}
+
+			.jetpack-sso-form-table .profile-card .two_factor .enabled a {
+				float: right;
+				color: #0a0;
+			}
+
+			.jetpack-sso-form-table .profile-card .two_factor .disabled a {
+				float: right;
+				color: red;
 			}
 			</style>
 
