@@ -171,7 +171,14 @@ class Jetpack_SSO {
 				padding-bottom: 26px;
 			}
 			.jetpack-sso-wrap { 
-				float: right;
+				<?php 
+				if( $hide_login_form ) {
+				?>
+					text-align: center;
+				<?php } else {
+				?>
+					float: right;
+				<?php } ?>
 				margin:1em 0 0;
 				clear: right;
 				display: block;
