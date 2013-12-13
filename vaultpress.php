@@ -517,6 +517,10 @@ class VaultPress {
 				$val = $this->get_post_meta_name_ignore( true );
 				update_option( '_vp_config_post_meta_name_ignore', $val );
 				break;
+			case '_vp_config_should_ignore_files':
+				$val = $this->get_should_ignore_files( true );
+				update_option( '_vp_config_should_ignore_files', $val );
+				break;
 		}
 		return $val;
 	}
@@ -546,6 +550,44 @@ class VaultPress {
 		if ( $return_defaults )
 			return $defaults;
 		$ignore_names = $this->get_config( '_vp_config_post_meta_name_ignore' );
+		return array_unique( array_merge( $defaults, $ignore_names ) );
+	}
+
+	// file name patterns to ignore
+	function get_should_ignore_files( $return_defaults = false ) {
+		$defaults = array(
+			'@.*/404\.log\.txt$@',
+			'@.*/\.DS_Store$@',
+			'@.*/debug\.log$@',
+			'@.*\.timthumb\.txt$@',
+			'@.*timthumb[A-Za-z0-9]*$@',
+			'@.*wp-content/contents/cache/@',
+			'@.*wp-content/content/cache/@',
+			'@.*wp-content/cache/@',
+			'@.*wp-content/old-cache/@',
+			'@.*cache/@',
+			'@.*wp-content/w3tc/@',
+			'@.*owa/owa-data/caches/@',
+			'@.*gt-cache@',
+			'@.*/wpclicks/tracker/cache/@',
+			'@.*amember/data/new_rewrite@',
+			'@.*sucuri/blocks/@',
+			'@.*/_sucuribackup.*@',
+			'@.*sess_[0-9a-zA-Z]{32,}@',
+			'@.*wp-content/backups.*@',
+			'@.*mwp_backups/@',
+			'@.*managewp/backups/@',
+			'@.*wp-snapshots/@',
+			'@.*error_log.*@',
+			'@.*/error-log.*@',
+			'@.*/error\.log$@',
+			'@.*/captcha/tmp.*@',
+			'@.*\.mt_backup_[0-9a-z:_]*$@i',
+			'@.*vp-uploaded-restore-.*@',
+		);
+		if ( $return_defaults )
+			return $defaults;
+		$ignore_names = (array) $this->get_config( '_vp_config_should_ignore_files' );
 		return array_unique( array_merge( $defaults, $ignore_names ) );
 	}
 

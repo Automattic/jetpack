@@ -113,6 +113,8 @@ class VaultPress_Filesystem {
 			$limit = $offset + (int)$limit;
 			foreach ( (array)$this->scan_dir( $path ) as $i ) {
 				$current++;
+				if ( !$this->should_backup_file( $i ) )
+					continue;
 				if ( $offset >= $current )
 					continue;
 				if ( $limit && $limit < $current )
@@ -126,6 +128,20 @@ class VaultPress_Filesystem {
 			}
 			return $entries;
 		}
+	}
+
+	function should_backup_file( $filepath ) {
+		$vp = VaultPress::init();
+		if ( is_dir( $filepath ) )
+			$filepath = trailingslashit( $filepath );
+		$regex_patterns = $vp->get_should_ignore_files();
+		foreach ( $regex_patterns as $pattern ) {
+			$matches = array();
+			if ( preg_match( $pattern, $filepath, $matches ) ) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	function validate( $file ) {
