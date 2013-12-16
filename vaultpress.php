@@ -1579,6 +1579,11 @@ JS;
 				else
 					$recursive = false;
 
+				if ( isset( $_POST['full_list'] ) )
+					$full_list = (bool)$_POST['full_list'];
+				else
+					$full_list = false;
+
 				switch ( array_pop( explode( ':', $_GET['action'] ) ) ) {
 					default:
 						die( "naughty naughty" );
@@ -1592,7 +1597,7 @@ JS;
 					case 'get':
 						$bfs->fdump( $bfs->dir.$path );
 					case 'ls':
-						$this->response( $bfs->ls( $path, $md5, $sha1, $limit, $offset ) );
+						$this->response( $bfs->ls( $path, $md5, $sha1, $limit, $offset, $full_list ) );
 				}
 				break;
 			case 'config:get':

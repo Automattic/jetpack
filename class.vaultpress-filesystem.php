@@ -93,7 +93,7 @@ class VaultPress_Filesystem {
 		return $rval;
 	}
 
-	function ls( $what, $md5=false, $sha1=false, $limit=null, $offset=null ) {
+	function ls( $what, $md5=false, $sha1=false, $limit=null, $offset=null, $full_list=false ) {
 		clearstatcache();
 		$path = realpath($this->dir . $what);
 		$dir = $this->dir;
@@ -113,7 +113,7 @@ class VaultPress_Filesystem {
 			$limit = $offset + (int)$limit;
 			foreach ( (array)$this->scan_dir( $path ) as $i ) {
 				$current++;
-				if ( !$this->should_backup_file( $i ) )
+				if ( !$full_list && !$this->should_backup_file( $i ) )
 					continue;
 				if ( $offset >= $current )
 					continue;
