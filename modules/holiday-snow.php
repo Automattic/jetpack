@@ -11,54 +11,13 @@
 
 class Jetpack_Holiday_Snow_Settings {
 	function __construct() {
-		add_filter( 'admin_init',     array( $this , 'register_fields' ) );
-		add_action( 'admin_bar_menu', array( $this, 'admin_bar_reminder' ) );
-	}
-
-	function admin_bar_reminder( $wp_admin_bar ) {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		if ( ! get_option( jetpack_holiday_snow_option_name() ) ) {
-			return;
-		}
-
-		$css = "
-		@-webkit-keyframes spin {
-			from { -webkit-transform: rotate(0deg);   }
-			to   { -webkit-transform: rotate(360deg); }
-		}
-		@keyframes spin {
-			from { transform: rotate(0deg);   }
-			to   { transform: rotate(360deg); }
-		}
-		#wpadminbar .adminbar-holiday-snowflake * {
-			color: #fff;
-		}
-		.adminbar-holiday-snowflake .ab-item:hover span {
-			display: block;
-			-webkit-animation: spin 6s linear infinite;
-			animation:         spin 6s linear infinite;
-		}";
-
-		$wp_admin_bar->add_node( array(
-				'id'     => 'holiday-snow-reminder',
-				'title'  => '<span>&#xFF0A;</span>',
-				'href'   => admin_url( 'options-general.php#jetpack_holiday_snow_enabled' ),
-				'parent' => 'top-secondary',
-				'meta'   => array(
-					'title' => __( 'Snow' , 'jetpack'),
-					'class' => 'adminbar-holiday-snowflake',
-					'html'  => "<style>$css</style>",
-				),
-		) );
+		add_filter( 'admin_init' , array( &$this , 'register_fields' ) );
 	}
 
 	public function register_fields() {
 		register_setting( 'general', jetpack_holiday_snow_option_name(), 'esc_attr' );
-		add_settings_field( jetpack_holiday_snow_option_name(), '<label for="' . esc_attr( jetpack_holiday_snow_option_name() ) . '">' . __( 'Snow' , 'jetpack') . '</label>' , array( $this, 'blog_field_html' ) , 'general' );
-		add_action( 'update_option_' . jetpack_holiday_snow_option_name(), array( $this, 'holiday_snow_option_updated' ) );
+		add_settings_field( jetpack_holiday_snow_option_name(), '<label for="' . esc_attr( jetpack_holiday_snow_option_name() ) . '">' . __( 'Snow' , 'jetpack') . '</label>' , array( &$this, 'blog_field_html' ) , 'general' );
+		add_action( 'update_option_' . jetpack_holiday_snow_option_name(), array( &$this, 'holiday_snow_option_updated' ) );
 	}
 
 	public function blog_field_html() {
