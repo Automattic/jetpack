@@ -74,3 +74,45 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/custom-post-types/comics.php' );
 require_once( JETPACK__PLUGIN_DIR . 'modules/custom-post-types/testimonial.php' );
 require_once( JETPACK__PLUGIN_DIR . 'modules/custom-post-types/nova.php' );
 
+/**
+ * Load theme compat file if it exists.
+ *
+ * A theme could add its own compat files here if they like. For example:
+ *
+ * add_filter( 'jetpack_theme_compat_files', 'mytheme_jetpack_compat_file' );
+ * function mytheme_jetpack_compat_file( $files ) {
+ *     $files['mytheme'] = locate_template( 'jetpack-compat.php' );
+ *     return $files;
+ * }
+ */
+function jetpack_load_theme_compat() {
+	$found = 0;
+	$theme = wp_get_theme();
+	$to_check = array(
+		'stylesheet' => $theme->stylesheet,
+		'template'   => $theme->template,
+	);
+
+	// Filter to let other plugins or themes add or remove compat files on their own if they like.
+	$compat_files = apply_filters( 'jetpack_theme_compat_files', array(
+		'twentyfourteen' => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentyfourteen.php',
+	) );
+
+	foreach ( $compat_files as $theme_slug => $file ) {
+		// If we're expecting a compat file,
+		if ( in_array( $theme_slug, $compat_files ) ) {
+			// And the compat file that we're expecting is actually there,
+			if ( is_readable( $file ) ) {
+				// Use it!
+				require_once( $file );
+				$found++;
+			} else {
+				// Otherwise wtf^^?
+				return false;
+			}
+		}
+	}
+
+	return $found;
+}
+add_action( 'after_setup_theme', 'jetpack_load_theme_compat', -1 );
