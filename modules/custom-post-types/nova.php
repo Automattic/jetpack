@@ -89,8 +89,9 @@ class Nova_Restaurant {
 		// Only output our Menu Item Loop Markup on a real blog view.  Not feeds, XML-RPC, admin, etc.
 		add_filter( 'template_include', array( $this, 'setup_menu_item_loop_markup__in_filter' ) );
 
-		add_filter( 'enter_title_here',      array( $this, 'change_default_title' ) );
-		add_filter( 'post_updated_messages', array( $this, 'updated_messages'     ) );
+		add_filter( 'enter_title_here',       array( $this, 'change_default_title' ) );
+		add_filter( 'post_updated_messages',  array( $this, 'updated_messages'     ) );
+		add_filter( 'dashboard_glance_items', array( $this, 'add_to_dashboard'     ) );
 	}
 
 
@@ -234,6 +235,28 @@ class Nova_Restaurant {
 			$title = esc_html__( "Enter the menu item's name here", 'jetpack' );
 
 		return $title;
+	}
+
+
+	/**
+	 * Add to Dashboard At A Glance
+	 */
+	function add_to_dashboard() {
+		$number_menu_items = wp_count_posts( self::MENU_ITEM_POST_TYPE );
+		$number_menu_items_published = sprintf( '%1s %2s',
+			number_format_i18n( $number_menu_items->publish ),
+			_n( 'Food Menu Item', 'Food Menu Items', intval( $number_menu_items->publish ) )
+		);
+
+		if ( current_user_can( 'administrator' ) ) {
+			$number_menu_items_published = sprintf( '<a href="%1s">%2s %3s</a>',
+				esc_url( get_admin_url( get_current_blog_id(), 'edit.php?post_type=' . self::MENU_ITEM_POST_TYPE ) ),
+				number_format_i18n( $number_menu_items->publish ),
+				_n( 'Food Menu Item', 'Food Menu Items', intval( $number_menu_items->publish ) )
+			);
+		}
+
+		echo '<li class="nova-menu-count">' . $number_menu_items_published . '</li>';
 	}
 
 
