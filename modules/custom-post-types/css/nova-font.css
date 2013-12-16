@@ -10,7 +10,8 @@
 	font-style: normal;
 }
 
-#menu-posts-nova_menu_item:before {
+#menu-posts-nova_menu_item:before,
+#dashboard_right_now .nova-menu-count a:before {
 	font-family: 'nova-font';
 	speak: none;
 	font-style: normal;
@@ -22,4 +23,7 @@
 	/* Better Font Rendering =========== */
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+}
+#dashboard_right_now .nova-menu-count a:before {
+	content: '\e603';
 }
