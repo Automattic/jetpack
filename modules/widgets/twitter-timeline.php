@@ -151,6 +151,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'border-color' => '#e8e8e8',
 			'theme'        => 'light',
 			'chrome'       => array(),
+			'tweet-limit'  => '0',
 		);
 
 		$instance = wp_parse_args( (array) $instance, $defaults );
