@@ -19,7 +19,10 @@ function jetpack_load_theme_tools() {
 add_action( 'init', 'jetpack_load_theme_tools', 30 );
 
 // Featured Content has an internal check for theme support in the constructor.
-require_once( JETPACK__PLUGIN_DIR . 'modules/theme-tools/featured-content.php' );
+// This could already be defined by Twenty Fourteen if it's loaded first.
+if ( ! class_exists( 'Featured_Content' ) ) {
+	require_once( JETPACK__PLUGIN_DIR . 'modules/theme-tools/featured-content.php' );
+}
 
 /**
  * INFINITE SCROLL
