@@ -89,33 +89,29 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/custom-post-types/nova.php' );
  * }
  */
 function jetpack_load_theme_compat() {
-	$found = 0;
-	$theme = wp_get_theme();
-	$to_check = array(
-		'stylesheet' => $theme->stylesheet,
-		'template'   => $theme->template,
-	);
-
-	// Filter to let other plugins or themes add or remove compat files on their own if they like.
 	$compat_files = apply_filters( 'jetpack_theme_compat_files', array(
 		'twentyfourteen' => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentyfourteen.php',
 	) );
 
-	foreach ( $compat_files as $theme_slug => $file ) {
-		// If we're expecting a compat file,
-		if ( in_array( $theme_slug, $compat_files ) ) {
-			// And the compat file that we're expecting is actually there,
-			if ( is_readable( $file ) ) {
-				// Use it!
-				require_once( $file );
-				$found++;
-			} else {
-				// Otherwise wtf^^?
-				return false;
-			}
-		}
-	}
+	_jetpack_require_compat_file( get_stylesheet(), $compat_files );
 
-	return $found;
+	if ( is_child_theme() ) {
+		_jetpack_require_compat_file( get_template(), $compat_files );
+	}
 }
 add_action( 'after_setup_theme', 'jetpack_load_theme_compat', -1 );
+
+
+/**
+ * Requires a file once, if the passed key exists in the files array.
+ *
+ * @access private
+ * @param string $key
+ * @param array $files
+ * @return void
+ */
+function _jetpack_require_compat_file( $key, $files ) {
+	if ( array_key_exists( $key, $files ) && is_readable( $files[ $key ] ) ) {
+		require_once $files[ $key ];
+	}
+}
