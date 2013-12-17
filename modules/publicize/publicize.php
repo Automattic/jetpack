@@ -276,10 +276,6 @@ abstract class Publicize_Base {
 		// don't publish password protected posts
 		if ( '' !== $post->post_password )
 			$submit_post = false;
-			
-		// allow plugins to avoid Publicize
-		if ( ! apply_filters( 'jetpack_no_publicize_post', true ) )
-			$submit_post = false;
 
 		// Did this request happen via wp-admin?
 		$from_web = 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) && isset( $_POST[$this->ADMIN_PAGE] );
