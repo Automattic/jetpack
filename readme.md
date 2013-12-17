@@ -29,7 +29,6 @@ Legacy contributions (that may not be credited properly due to the import from S
 * @hugobaeta
 * @jasmussen
 * @jblz
-* @jeherve
 * @jkudish
 * @johnjamesjacoby
 * @justinshreve
