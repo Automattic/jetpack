@@ -16,6 +16,17 @@ function twentyfourteen_featured_content_post_ids( $featured_ids ) {
 add_action( 'featured_content_post_ids', 'twentyfourteen_featured_content_post_ids' );
 
 /**
+ * Set the default tag name for Featured Content.
+ *
+ * @param WP_Customize_Manager $wp_customize Theme Customizer object.
+ * @return void
+ */
+function twentyfourteen_customizer_default( $wp_customize ) {
+	$wp_customize->get_setting( 'featured-content[tag-name]' )->default = 'featured';
+}
+add_action( 'customize_register', 'twentyfourteen_customizer_default' );
+
+/**
  * Sets a default tag of 'featured' for Featured Content.
  *
  * @param array $settings
