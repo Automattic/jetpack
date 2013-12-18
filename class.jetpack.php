@@ -620,6 +620,7 @@ class Jetpack {
 			'facebook-featured-image-and-open-graph-meta-tags/fb-featured-image.php',		// Facebook Featured Image & OG Meta Tags
 			'add-meta-tags/add-meta-tags.php',							// Add Meta Tags
 			'only-tweet-like-share-and-google-1/tweet-like-plusone.php',				// Tweet, Like, Google +1 and Share
+			'easy-facebook-share-thumbnails/esft.php',						// Easy Facebook Share Thumbnail
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
