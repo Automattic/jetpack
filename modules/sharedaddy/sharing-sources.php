@@ -496,7 +496,7 @@ class Share_Reddit extends Sharing_Source {
 		if ( $this->smart )
 			return '<div class="reddit_button"><iframe src="http://www.reddit.com/static/button/button1.html?width=120&amp;url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $post->post_title ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
 		else
-			return $this->get_link( get_permalink( $post->ID ), __( 'Reddit', 'share to', 'jetpack' ), __( 'Click to share on Reddit', 'jetpack' ), 'share=reddit' );
+			return $this->get_link( get_permalink( $post->ID ), _x( 'Reddit', 'share to', 'jetpack' ), __( 'Click to share on Reddit', 'jetpack' ), 'share=reddit' );
 	}
 
 	public function process_request( $post, array $post_data ) {
