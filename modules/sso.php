@@ -62,41 +62,41 @@ class Jetpack_SSO {
 
 		/*
 		 * Settings > General > Jetpack Single Sign On
-		 * Require two factor authentication
+		 * Require two step authentication
 		 */
 		register_setting(
 			'general',
-			'jetpack_sso_require_two_factor',
-			array( $this, 'validate_settings_require_two_factor' )
+			'jetpack_sso_require_two_step',
+			array( $this, 'validate_settings_require_two_step' )
 		);
 
 		add_settings_field(
-			'jetpack_sso_require_two_factor',
-			__( 'Require Two-Factor Authentication?' ),
-			array( $this, 'render_require_two_factor' ),
+			'jetpack_sso_require_two_step',
+			__( 'Require Two-Step Authentication?' ),
+			array( $this, 'render_require_two_step' ),
 			'general',
 			'jetpack_sso_settings'
 		);
 	}
 
 	/**
-	 * Builds the display for the checkbox allowing user to require two factor
+	 * Builds the display for the checkbox allowing user to require two step
 	 * auth be enabled on WordPress.com accounts before login. Displays in Settings > General
 	 *
 	 * @since 2.7
 	 **/
-	public function render_require_two_factor() {
-		echo '<input type="checkbox" name="jetpack_sso_require_two_factor[require_two_factor]" ' . checked( 1 == get_option( 'jetpack_sso_require_two_factor' ), true, false ) . '>';
+	public function render_require_two_step() {
+		echo '<input type="checkbox" name="jetpack_sso_require_two_step[require_two_step]" ' . checked( 1 == get_option( 'jetpack_sso_require_two_step' ), true, false ) . '>';
 	}
 
 	/**
-	 * Validate the require  two factor checkbox in Settings > General
+	 * Validate the require  two step checkbox in Settings > General
 	 *
 	 * @since 2.7
 	 * @return boolean
 	 **/
-	public function validate_settings_require_two_factor( $input ) {
-		return ( isset( $input['require_two_factor'] ) )? 1: 0;
+	public function validate_settings_require_two_step( $input ) {
+		return ( isset( $input['require_two_step'] ) )? 1: 0;
 	}
 
 	/**
@@ -256,12 +256,12 @@ class Jetpack_SSO {
 		$user = null;
 		do_action( 'jetpack_sso_pre_handle_login', $user_data );
 
-		// Check to see if having two factor enable on wpcom is a requirement to login here
-		$require_two_factor = apply_filters( 'jetpack_sso_require_two_factor', get_option( 'jetpack_sso_require_two_factor' ) );
-		if( $require_two_factor && 0 == (int) $user_data->two_factor_enabled ) {
+		// Check to see if having two step enable on wpcom is a requirement to login here
+		$require_two_step = apply_filters( 'jetpack_sso_require_two_step', get_option( 'jetpack_sso_require_two_step' ) );
+		if( $require_two_step && 0 == (int) $user_data->two_step_enabled ) {
 			$this->user_data = $user_data;
 			do_action( 'wp_login_failed', $user_data->login );
-			add_action( 'login_message', array( $this, 'error_msg_enable_two_factor' ) );
+			add_action( 'login_message', array( $this, 'error_msg_enable_two_step' ) );
 			return;
 		}
 
@@ -452,7 +452,7 @@ class Jetpack_SSO {
 	 * @since 2.7
 	 * @return string
 	 **/
-	function error_msg_enable_two_factor( $message ) {
+	function error_msg_enable_two_step( $message ) {
 		$err = __( sprintf( 'This site requires two step authentication be enabled for your user account on WordPress.com. Please visit the <a href="%1$s"> Security Settings</a> page to enable two step', 'https://wordpress.com/settings/security/' ) );
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
@@ -506,12 +506,12 @@ class Jetpack_SSO {
 								<?php echo get_avatar( $user_data->email ); ?>
 								<p class="connected"><strong><?php _e( 'Connected', 'jetpack' ); ?></strong></p>
 								<p><?php echo esc_html( $user_data->login ); ?></p>
-								<span class="two_factor">
+								<span class="two_step">
 									<?php 
-										if( $user_data->two_factor_enabled ) {
-											?> <p class="enabled"><a href="https://wordpress.com/settings/security/"><?php _e( 'Two Factor Enabled', 'jetpack' ); ?></a></p> <?php
+										if( $user_data->two_step_enabled ) {
+											?> <p class="enabled"><a href="https://wordpress.com/settings/security/"><?php _e( 'Two step Enabled', 'jetpack' ); ?></a></p> <?php
 										} else {
-											?> <p class="disabled"><a href="https://wordpress.com/settings/security/"><?php _e( 'Two Factor Disabled', 'jetpack' ); ?></a></p> <?php
+											?> <p class="disabled"><a href="https://wordpress.com/settings/security/"><?php _e( 'Two step Disabled', 'jetpack' ); ?></a></p> <?php
 										}
 									?>
 								</span>
@@ -555,12 +555,12 @@ class Jetpack_SSO {
 				font-size: 1.2em;
 			}
 
-			.jetpack-sso-form-table .profile-card .two_factor .enabled a {
+			.jetpack-sso-form-table .profile-card .two_step .enabled a {
 				float: right;
 				color: #0a0;
 			}
 
-			.jetpack-sso-form-table .profile-card .two_factor .disabled a {
+			.jetpack-sso-form-table .profile-card .two_step .disabled a {
 				float: right;
 				color: red;
 			}
