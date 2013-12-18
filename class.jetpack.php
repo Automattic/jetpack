@@ -619,6 +619,7 @@ class Jetpack {
 			'all-in-one-seo-pack/all_in_one_seo_pack.php',						// All in One SEO Pack
 			'facebook-featured-image-and-open-graph-meta-tags/fb-featured-image.php',		// Facebook Featured Image & OG Meta Tags
 			'add-meta-tags/add-meta-tags.php',							// Add Meta Tags
+			'only-tweet-like-share-and-google-1/tweet-like-plusone.php',				// Tweet, Like, Google +1 and Share
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
