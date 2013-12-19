@@ -219,9 +219,15 @@ class Nova_Restaurant {
 	/**
 	 * Nova Styles and Scripts
 	 */
-	function enqueue_nova_styles() {
+	function enqueue_nova_styles( $hook ) {
+		global $post_type;
+		$pages = array( 'edit.php', 'post.php', 'post-new.php' );
+
+		if ( in_array( $hook, $pages ) && $post_type == self::MENU_ITEM_POST_TYPE ) {
+			wp_enqueue_style( 'nova-style', plugins_url( 'css/nova.css', __FILE__ ),      array(), $this->version );
+		}
+
 		wp_enqueue_style( 'nova-font',  plugins_url( 'css/nova-font.css', __FILE__ ), array(), $this->version );
-		wp_enqueue_style( 'nova-style', plugins_url( 'css/nova.css', __FILE__ ),      array(), $this->version );
 	}
 
 
