@@ -826,19 +826,38 @@ jQuery(window).load( function() {
 </script>
 <style type="text/css">
 /* <![CDATA[ */
-#stat-chart {
-	background: none !important;
+#dashboard_stats a.button {
+	margin-left: 12px;
 }
 #dashboard_stats .inside {
+	margin: 0;
+	padding: 0;
+}
+.pre-mp6 #dashboard_stats .inside {
 	margin: 10px 0 0 0 !important;
+	padding: auto;
+}
+#dashboard_stats .wrap {
+	margin-left: 12px;
+}
+.pre-mp6 #dashboard_stats .wrap {
+	margin-left: 2px;
+}
+#stat-chart {
+	background: none !important;
+	margin: 12px 12px 10px;
+}
+.pre-mp6 #stat-chart {
+	background: none !important;
+	margin: auto;
 }
 #dashboard_stats #stats-graph {
 	margin: 0;
 }
 #stats-info {
 	border-top: 1px solid #dfdfdf;
-	margin: 7px -10px 0 -10px;
-	padding: 10px;
+	margin: 12px 0 8px;
+	padding: 10px 10px 0;
 	background: #fcfcfc;
 	-moz-box-shadow:inset 0 1px 0 #fff;
 	-webkit-box-shadow:inset 0 1px 0 #fff;
@@ -848,6 +867,10 @@ jQuery(window).load( function() {
 	-webkit-border-radius: 0 0 2px 2px;
 	-moz-border-radius: 0 0 2px 2px;
 	-khtml-border-radius: 0 0 2px 2px;
+}
+.pre-mp6 #stats-info {
+	margin: 7px -10px 0 -10px;
+	padding: 10px;
 }
 #stats-info #top-posts, #stats-info #top-search {
 	float: left;
