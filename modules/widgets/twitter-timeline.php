@@ -175,7 +175,6 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
                 <p>
                         <label for="<?php echo $this->get_field_id( 'tweet-limit' ); ?>"><?php esc_html_e( '# of Tweets Shown:', 'jetpack' ); ?></label>
                         <input class="widefat" id="<?php echo $this->get_field_id( 'tweet-limit' ); ?>" name="<?php echo $this->get_field_name( 'tweet-limit' ); ?>" type="text" value="<?php echo esc_attr( $instance['tweet-limit'] ); ?>" />
-                        <small><?php _e( '0 means no limit.', 'jetpack' ); ?></small>
                 </p>
 
 		<p><small>
