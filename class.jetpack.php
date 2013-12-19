@@ -621,6 +621,7 @@ class Jetpack {
 			'add-meta-tags/add-meta-tags.php',							// Add Meta Tags
 			'only-tweet-like-share-and-google-1/tweet-like-plusone.php',				// Tweet, Like, Google +1 and Share
 			'easy-facebook-share-thumbnails/esft.php',						// Easy Facebook Share Thumbnail
+			'2-click-socialmedia-buttons/2-click-socialmedia-buttons.php',				// 2 Click Social Media Buttons
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
