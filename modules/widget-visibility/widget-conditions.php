@@ -319,7 +319,11 @@ class Jetpack_Widget_Conditions {
 							$condition_result = is_home();
 						break;
 						case 'front':
-							$condition_result = is_front_page();
+							if ( current_theme_supports( 'infinite-scroll' ) )
+								$condition_result = is_front_page();
+							else {
+								$condition_result = is_front_page() && !is_paged();
+							}
 						break;
 						default:
 							if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' )
