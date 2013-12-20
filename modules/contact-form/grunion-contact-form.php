@@ -319,7 +319,7 @@ class Grunion_Contact_Form_Plugin {
 
 		$response = akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
 		$result = false;
-		if ( 'true' == trim( $response[1] ) ) // 'true' is spam
+		if ( isset( $response[1] ) && 'true' == trim( $response[1] ) ) // 'true' is spam
 			$result = true;
 		return apply_filters( 'contact_form_is_spam_akismet', $result, $form );
 	}
