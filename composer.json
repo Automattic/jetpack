@@ -1,0 +1,10 @@
+{
+    "name"       : "automattic/jetpack",
+    "description": "Jetpack supercharges your self‑hosted WordPress site with the awesome cloud power of WordPress.com",
+    "homepage"   : "http://jetpack.me/",
+    "type"       : "wordpress-plugin",
+    "license"    : "GPL-2.0+",
+    "require"    : {
+        "composer/installers": "~1.0"
+    }
+}
