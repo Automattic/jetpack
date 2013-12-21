@@ -48,8 +48,9 @@ class Jetpack_Photon {
 		// Display warning if site is private
 		add_action( 'jetpack_activate_module_photon', array( $this, 'action_jetpack_activate_module_photon' ) );
 
-		if ( ! function_exists( 'jetpack_photon_url' ) )
+		if ( ! function_exists( 'jetpack_photon_url' ) ) {
 			return;
+		}
 
 		// Images in post content and galleries
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
@@ -152,8 +153,9 @@ class Jetpack_Photon {
 				$src = $src_orig = $images['img_url'][ $index ];
 
 				// Allow specific images to be skipped
-				if ( apply_filters( 'jetpack_photon_skip_image', false, $src, $tag ) )
+				if ( apply_filters( 'jetpack_photon_skip_image', false, $src, $tag ) ) {
 					continue;
+				}
 
 				// Support Automattic's Lazy Load plugin
 				// Can't modify $tag yet as we need unadulterated version later
@@ -168,15 +170,18 @@ class Jetpack_Photon {
 					$width = $height = false;
 
 					// First, check the image tag
-					if ( preg_match( '#width=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $width_string ) )
+					if ( preg_match( '#width=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $width_string ) ) {
 						$width = $width_string[1];
+					}
 
-					if ( preg_match( '#height=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $height_string ) )
+					if ( preg_match( '#height=["|\']?([\d%]+)["|\']?#i', $images['img_tag'][ $index ], $height_string ) ) {
 						$height = $height_string[1];
+					}
 
 					// Can't pass both a relative width and height, so unset the height in favor of not breaking the horizontal layout.
-					if ( false !== strpos( $width, '%' ) && false !== strpos( $height, '%' ) )
+					if ( false !== strpos( $width, '%' ) && false !== strpos( $height, '%' ) ) {
 						$width = $height = false;
+					}
 
 					// Detect WP registered image size from HTML class
 					if ( preg_match( '#class=["|\']?[^"\']*size-([^"\'\s]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $size ) ) {
@@ -254,18 +259,21 @@ class Jetpack_Photon {
 					}
 
 					// Detect if image source is for a custom-cropped thumbnail and prevent further URL manipulation.
-					if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode('|', self::$extensions ) . '){1}$#i', basename( $src ), $filename ) )
+					if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode('|', self::$extensions ) . '){1}$#i', basename( $src ), $filename ) ) {
 						$fullsize_url = true;
+					}
 
 					// Build URL, first removing WP's resized string so we pass the original image to Photon
-					if ( ! $fullsize_url && preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) )
+					if ( ! $fullsize_url && preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) ) {
 						$src = str_replace( $src_parts[1], '', $src );
+					}
 
 					// Build array of Photon args and expose to filter before passing to Photon URL function
 					$args = array();
 
-					if ( false !== $width && false !== $height && false === strpos( $width, '%' ) && false === strpos( $height, '%' ) )
+					if ( false !== $width && false !== $height && false === strpos( $width, '%' ) && false === strpos( $height, '%' ) ) {
 						$args[ $transform ] = $width . ',' . $height;
+					}
 					elseif ( false !== $width )
 						$args['w'] = $width;
 					elseif ( false !== $height )
@@ -292,8 +300,9 @@ class Jetpack_Photon {
 						if ( isset( $placeholder_src ) && self::validate_image_url( $placeholder_src ) ) {
 							$placeholder_src = jetpack_photon_url( $placeholder_src );
 
-							if ( $placeholder_src != $placeholder_src_orig )
+							if ( $placeholder_src != $placeholder_src_orig ) {
 								$new_tag = str_replace( $placeholder_src_orig, esc_url( $placeholder_src ), $new_tag );
+							}
 
 							unset( $placeholder_src );
 						}
