@@ -92,14 +92,14 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	 * @return array Updated safe values to be saved.
 	 */
 	public function update( $new_instance, $old_instance ) {
-		$non_hex_regex       = '/[^a-f0-9]/';
-		$instance            = array();
-		$instance['title']   = sanitize_text_field( $new_instance['title'] );
-		$instance['width']   = (int) $new_instance['width'];
-		$instance['height']  = (int) $new_instance['height'];
-		$instance['width']   = ( 0 !== (int) $new_instance['width'] )  ? (int) $new_instance['width']  : 225;
-		$instance['height']  = ( 0 !== (int) $new_instance['height'] ) ? (int) $new_instance['height'] : 400;
-		$instance['tweet-limit']   = (int) $new_instance['tweet-limit']; 
+		$non_hex_regex             = '/[^a-f0-9]/';
+		$instance                  = array();
+		$instance['title']         = sanitize_text_field( $new_instance['title'] );
+		$instance['width']         = (int) $new_instance['width'];
+		$instance['height']        = (int) $new_instance['height'];
+		$instance['width']         = ( 0 !== (int) $new_instance['width'] )  ? (int) $new_instance['width']  : 225;
+		$instance['height']        = ( 0 !== (int) $new_instance['height'] ) ? (int) $new_instance['height'] : 400;
+		$instance['tweet-limit']   = ( 0 !== (int) $new_instance['tweet-limit'] ) ? (int) $new_instance['tweet-limit'] : null;
 
 		// If they entered something that might be a full URL, try to parse it out
 		if ( is_string( $new_instance['widget-id'] ) ) {
@@ -151,6 +151,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			'border-color' => '#e8e8e8',
 			'theme'        => 'light',
 			'chrome'       => array(),
+			'tweet-limit'  => null,
 		);
 
 		$instance = wp_parse_args( (array) $instance, $defaults );
@@ -173,7 +174,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 
                 <p>
                         <label for="<?php echo $this->get_field_id( 'tweet-limit' ); ?>"><?php esc_html_e( '# of Tweets Shown:', 'jetpack' ); ?></label>
-                        <input class="widefat" id="<?php echo $this->get_field_id( 'tweet-limit' ); ?>" name="<?php echo $this->get_field_name( 'tweet-limit' ); ?>" type="text" value="<?php echo esc_attr( $instance['tweet-limit'] ); ?>" />
+                        <input class="widefat" id="<?php echo $this->get_field_id( 'tweet-limit' ); ?>" name="<?php echo $this->get_field_name( 'tweet-limit' ); ?>" type="number" min="1" max="20" value="<?php echo esc_attr( $instance['tweet-limit'] ); ?>" />
                 </p>
 
 		<p><small>
