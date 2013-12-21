@@ -86,7 +86,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$img_url    = esc_url( $instance['img_url'], null, 'display' );
 		$alt_text   = esc_attr( $instance['alt_text'] );
 		$img_title  = esc_attr( $instance['img_title'] );
-		$caption 	= esc_textarea( $instance['caption'] );
+		$caption    = esc_textarea( $instance['caption'] );
 		$align      = esc_attr( $instance['align'] );
 		$img_width  = esc_attr( $instance['img_width'] );
 		$img_height = esc_attr( $instance['img_height'] );
