@@ -112,38 +112,38 @@ class Nova_Restaurant {
 	function register_taxonomies() {
 		register_taxonomy( self::MENU_ITEM_LABEL_TAX, self::MENU_ITEM_POST_TYPE, array(
 			'labels' => array(
-				'name'                       => __( 'Menu Item Labels', 'nova' ),
-				'singular_name'              => __( 'Menu Item Label', 'nova' ),
-				'search_items'               => __( 'Search Menu Item Labels', 'nova' ),
-				'popular_items'              => __( 'Popular Labels', 'nova' ),
-				'all_items'                  => __( 'All Menu Item Labels', 'nova' ),
-				'edit_item'                  => __( 'Edit Menu Item Label', 'nova' ),
-				'view_item'                  => __( 'View Menu Item Label', 'nova' ),
-				'update_item'                => __( 'Update Menu Item Label', 'nova' ),
-				'add_new_item'               => __( 'Add New Menu Item Label', 'nova' ),
-				'new_item_name'              => __( 'New Menu Item Label Name', 'nova' ),
-				'separate_items_with_commas' => __( 'Separate Labels with commas', 'nova' ),
-				'add_or_remove_items'        => __( 'Add or remove Labels', 'nova' ),
-				'choose_from_most_used'      => __( 'Choose from the most used Labels', 'nova' ),
+				'name'                       => __( 'Menu Item Labels', 'jetpack' ),
+				'singular_name'              => __( 'Menu Item Label', 'jetpack' ),
+				'search_items'               => __( 'Search Menu Item Labels', 'jetpack' ),
+				'popular_items'              => __( 'Popular Labels', 'jetpack' ),
+				'all_items'                  => __( 'All Menu Item Labels', 'jetpack' ),
+				'edit_item'                  => __( 'Edit Menu Item Label', 'jetpack' ),
+				'view_item'                  => __( 'View Menu Item Label', 'jetpack' ),
+				'update_item'                => __( 'Update Menu Item Label', 'jetpack' ),
+				'add_new_item'               => __( 'Add New Menu Item Label', 'jetpack' ),
+				'new_item_name'              => __( 'New Menu Item Label Name', 'jetpack' ),
+				'separate_items_with_commas' => __( 'Separate Labels with commas', 'jetpack' ),
+				'add_or_remove_items'        => __( 'Add or remove Labels', 'jetpack' ),
+				'choose_from_most_used'      => __( 'Choose from the most used Labels', 'jetpack' ),
 			),
-			'no_tagcloud' => __( 'No Labels found', 'nova' ),
+			'no_tagcloud' => __( 'No Labels found', 'jetpack' ),
 
 			'hierarchical'  => false,
 		) );
 
 		register_taxonomy( self::MENU_TAX, self::MENU_ITEM_POST_TYPE, array(
 			'labels' => array(
-				'name'               => __( 'Food Menus', 'nova' ),
-				'singular_name'      => __( 'Food Menu', 'nova' ),
-				'search_items'       => __( 'Search Menus', 'nova' ),
-				'all_items'          => __( 'All Menus', 'nova' ),
-				'parent_item'        => __( 'Parent Menu', 'nova' ),
-				'parent_item_colon'  => __( 'Parent Menu:', 'nova' ),
-				'edit_item'          => __( 'Edit Menu', 'nova' ),
-				'view_item'          => __( 'View Menu', 'nova' ),
-				'update_item'        => __( 'Update Menu', 'nova' ),
-				'add_new_item'       => __( 'Add New Menu', 'nova' ),
-				'new_item_name'      => __( 'New Menu Name', 'nova' ),
+				'name'               => __( 'Food Menus', 'jetpack' ),
+				'singular_name'      => __( 'Food Menu', 'jetpack' ),
+				'search_items'       => __( 'Search Menus', 'jetpack' ),
+				'all_items'          => __( 'All Menus', 'jetpack' ),
+				'parent_item'        => __( 'Parent Menu', 'jetpack' ),
+				'parent_item_colon'  => __( 'Parent Menu:', 'jetpack' ),
+				'edit_item'          => __( 'Edit Menu', 'jetpack' ),
+				'view_item'          => __( 'View Menu', 'jetpack' ),
+				'update_item'        => __( 'Update Menu', 'jetpack' ),
+				'add_new_item'       => __( 'Add New Menu', 'jetpack' ),
+				'new_item_name'      => __( 'New Menu Name', 'jetpack' ),
 			),
 			'rewrite' => array(
 				'slug'         => 'menu',
@@ -159,21 +159,21 @@ class Nova_Restaurant {
 
 	function register_post_types() {
 		register_post_type( self::MENU_ITEM_POST_TYPE, array(
-			'description' => __( "Items on your restaurant's menu", 'nova' ),
+			'description' => __( "Items on your restaurant's menu", 'jetpack' ),
 
 			'labels' => array(
-				'name'               => __( 'Menu Items', 'nova' ),
-				'singular_name'      => __( 'Menu Item', 'nova' ),
-				'menu_name'          => __( 'Food Menus', 'nova' ),
-				'all_items'          => __( 'Menu Items', 'nova' ),
-				'add_new'            => __( 'Add One Item', 'nova' ),
-				'add_new_item'       => __( 'Add One Item', 'nova' ),
-				'edit_item'          => __( 'Edit Menu Item', 'nova' ),
-				'new_item'           => __( 'New Menu Item', 'nova' ),
-				'view_item'          => __( 'View Menu Item', 'nova' ),
-				'search_items'       => __( 'Search Menu Items', 'nova' ),
-				'not_found'          => __( 'No Menu Items found', 'nova' ),
-				'not_found_in_trash' => __( 'No Menu Items found in Trash', 'nova' ),
+				'name'               => __( 'Menu Items', 'jetpack' ),
+				'singular_name'      => __( 'Menu Item', 'jetpack' ),
+				'menu_name'          => __( 'Food Menus', 'jetpack' ),
+				'all_items'          => __( 'Menu Items', 'jetpack' ),
+				'add_new'            => __( 'Add One Item', 'jetpack' ),
+				'add_new_item'       => __( 'Add One Item', 'jetpack' ),
+				'edit_item'          => __( 'Edit Menu Item', 'jetpack' ),
+				'new_item'           => __( 'New Menu Item', 'jetpack' ),
+				'view_item'          => __( 'View Menu Item', 'jetpack' ),
+				'search_items'       => __( 'Search Menu Items', 'jetpack' ),
+				'not_found'          => __( 'No Menu Items found', 'jetpack' ),
+				'not_found_in_trash' => __( 'No Menu Items found in Trash', 'jetpack' ),
 			),
 			'supports' => array(
 				'title',
@@ -274,8 +274,8 @@ class Nova_Restaurant {
 	function add_admin_menus() {
 		$hook = add_submenu_page(
 			'edit.php?post_type=' . self::MENU_ITEM_POST_TYPE,
-			__( 'Add Many Items', 'nova' ),
-			__( 'Add Many Items', 'nova' ),
+			__( 'Add Many Items', 'jetpack' ),
+			__( 'Add Many Items', 'jetpack' ),
 			'edit_pages',
 			'add_many_nova_items',
 			array( $this, 'add_many_new_items_page' )
@@ -310,7 +310,7 @@ class Nova_Restaurant {
 
 	function admin_notices() {
 		if ( isset( $_GET['nova_reordered'] ) )
-			printf( '<div class="updated"><p>%s</p></div>', __('Menu Items re-ordered.', 'nova' ) );
+			printf( '<div class="updated"><p>%s</p></div>', __('Menu Items re-ordered.', 'jetpack' ) );
 	}
 
 	function no_title_sorting( $columns ) {
@@ -329,9 +329,9 @@ class Nova_Restaurant {
 	function menu_item_columns( $columns ) {
 		unset( $columns['date'], $columns['likes'] );
 
-		$columns['labels'] = __( 'Labels', 'nova' );
-		$columns['price']  = __( 'Price',  'nova' );
-		$columns['order']  = __( 'Order',  'nova' );
+		$columns['labels'] = __( 'Labels', 'jetpack' );
+		$columns['price']  = __( 'Price',  'jetpack' );
+		$columns['order']  = __( 'Order',  'jetpack' );
 
 		return $columns;
 	}
@@ -387,7 +387,7 @@ class Nova_Restaurant {
 	 */
 	function maybe_reorder_menu_items() {
 		// make sure we clicked our button
-		if ( ! ( isset( $_REQUEST['menu_reorder_submit'] ) && $_REQUEST['menu_reorder_submit'] === __( 'Re-order', 'nova' ) ) )
+		if ( ! ( isset( $_REQUEST['menu_reorder_submit'] ) && $_REQUEST['menu_reorder_submit'] === __( 'Re-order', 'jetpack' ) ) )
 			return;
 		;
 
@@ -439,7 +439,7 @@ class Nova_Restaurant {
 		wp_localize_script( 'nova-drag-drop', '_novaDragDrop', array(
 			'nonce' => wp_create_nonce( 'drag-drop-reorder' ),
 			'nonceName' => 'drag-drop-reorder',
-			'reorder' => __( 'Re-order', 'nova' ),
+			'reorder' => __( 'Re-order', 'jetpack' ),
 			'reorderName' => 'menu_reorder_submit'
 		) );
 		add_action( 'the_post', array( $this, 'show_menu_titles_in_menu_item_list' ) );
@@ -721,9 +721,9 @@ class Nova_Restaurant {
 	function add_many_new_items_page() {
 ?>
 	<div class="wrap">
-		<h2><?php esc_html_e( 'Add Many Items', 'nova' ); ?></h2>
+		<h2><?php esc_html_e( 'Add Many Items', 'jetpack' ); ?></h2>
 
-		<p><?php _e( 'Use the <kbd>TAB</kbd> key on your keyboard to move between colums and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next.', 'nova' ); ?></p>
+		<p><?php _e( 'Use the <kbd>TAB</kbd> key on your keyboard to move between colums and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next.', 'jetpack' ); ?></p>
 
 		<form method="post" action="" enctype="multipart/form-data">
 			<p><?php wp_dropdown_categories( array(
@@ -737,10 +737,10 @@ class Nova_Restaurant {
 			<table class="many-items-table wp-list-table widefat">
 				<thead>
 					<tr>
-						<th scope="col"><?php esc_html_e( 'Name', 'nova' ); ?></th>
-						<th scope="col"><?php esc_html_e( 'Description', 'nova' ); ?></th>
-						<th scope="col"><?php esc_html_e( 'Price', 'nova' ); ?></th>
-						<th scope="col"><?php _e( 'Labels: <small>spicy, favorite, etc.</small>', 'nova' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Name', 'jetpack' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Description', 'jetpack' ); ?></th>
+						<th scope="col"><?php esc_html_e( 'Price', 'jetpack' ); ?></th>
+						<th scope="col"><?php _e( 'Labels: <small>spicy, favorite, etc.</small>', 'jetpack' ); ?></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -756,13 +756,13 @@ class Nova_Restaurant {
 						<th></th>
 						<th></th>
 						<th></th>
-						<th scope="col"><em><?php esc_html_e( 'Separate Labels with commas', 'nova' ); ?></em></th>
+						<th scope="col"><em><?php esc_html_e( 'Separate Labels with commas', 'jetpack' ); ?></em></th>
 					</tr>
 				</tfoot>
 			</table>
 
 			<p class="submit">
-				<input type="submit" class="button-primary" value="<?php esc_attr_e( 'Add These New Menu Items', 'nova' ); ?>" />
+				<input type="submit" class="button-primary" value="<?php esc_attr_e( 'Add These New Menu Items', 'jetpack' ); ?>" />
 				<?php wp_nonce_field( 'nova_many_items' ); ?>
 			</p>
 		</form>
@@ -775,13 +775,13 @@ class Nova_Restaurant {
 	function register_menu_item_meta_boxes() {
 		wp_enqueue_script( 'nova-menu-checkboxes' );
 
-		add_meta_box( 'menu_item_price', __( 'Price', 'nova' ), array( $this, 'menu_item_price_meta_box' ), null, 'side', 'high' );
+		add_meta_box( 'menu_item_price', __( 'Price', 'jetpack' ), array( $this, 'menu_item_price_meta_box' ), null, 'side', 'high' );
 	}
 
 	function menu_item_price_meta_box( $post, $meta_box ) {
 		$price = $this->get_price( $post->ID );
 ?>
-	<label for="nova-price-<?php echo (int) $post->ID; ?>" class="screen-reader-text"><?php esc_html_e( 'Price', 'nova' ); ?></label>
+	<label for="nova-price-<?php echo (int) $post->ID; ?>" class="screen-reader-text"><?php esc_html_e( 'Price', 'jetpack' ); ?></label>
 	<input type="text" id="nova-price-<?php echo (int) $post->ID; ?>" class="widefat" name="nova_price[<?php echo (int) $post->ID; ?>]" value="<?php echo esc_attr( $price ); ?>" />
 <?php
 	}
@@ -844,7 +844,7 @@ class Nova_Restaurant {
 
 	function list_labels( $post_id = 0 ) {
 		$post = get_post( $post_id );
-		echo get_the_term_list( $post->ID, self::MENU_ITEM_LABEL_TAX, '', _x( ', ', 'Nova label separator', 'nova' ), '' );
+		echo get_the_term_list( $post->ID, self::MENU_ITEM_LABEL_TAX, '', _x( ', ', 'Nova label separator', 'jetpack' ), '' );
 	}
 
 	function list_admin_labels( $post_id = 0 ) {
@@ -863,9 +863,9 @@ class Nova_Restaurant {
 				);
 			}
 
-			echo join( _x( ', ', 'Nova label separator', 'nova' ), $out );
+			echo join( _x( ', ', 'Nova label separator', 'jetpack' ), $out );
 		} else {
-			esc_html_e( 'No Labels', 'nova' );
+			esc_html_e( 'No Labels', 'jetpack' );
 		}
 	}
 
