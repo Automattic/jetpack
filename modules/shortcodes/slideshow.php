@@ -28,6 +28,10 @@ class Jetpack_Slideshow_Shortcode {
 			add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_scripts' ), 1 );
 	}
 
+if ( is_admin() ) {
+			// Register the Slideshow-related setting
+			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
+
 	/**
 	 * Responds to the [gallery] shortcode, but not an actual shortcode callback.
 	 *
@@ -57,6 +61,18 @@ class Jetpack_Slideshow_Shortcode {
 	function add_gallery_type( $types = array() ) {
 		$types['slideshow'] = esc_html__( 'Slideshow', 'jetpack' );
 		return $types;
+	}
+
+	function register_settings() {
+		add_settings_section('slideshow_section', __( 'Image Gallery Slideshow', 'jetpack' ), array( $this, 'slideshow_section_callback' ), 'media');
+
+		add_settings_field('slideshow_background_color', __( 'Background color', 'jetpack' ), array( $this, 'slideshow_background_color_callback' ), 'media', 'slideshow_section' );
+		register_setting( 'media', 'slideshow_background_color', array( $this, 'slideshow_background_color_sanitize' ) );
+	}
+
+	// Fulfill the settings section callback requirement by returning nothing
+	function slideshow_section_callback() {
+		return;
 	}
 
 	function shortcode_callback( $attr, $content = null ) {
@@ -116,7 +132,7 @@ class Jetpack_Slideshow_Shortcode {
 		if ( intval( $content_width ) > 0 )
 			$max_width = min( intval( $content_width ), $max_width );
 
-		$color = get_option( 'jetpack_slideshow_color', 'black');
+		$color = get_option( 'slideshow_background_color', 'black');
 
 		$js_attr = array(
 			'gallery'  => $gallery,
