@@ -1,5 +1,4 @@
 .slideshow-window {
-	background-color: #222;
 	border: 20px solid #222;
 	border-radius: 11px;
 	-moz-border-radius: 11px;
@@ -9,8 +8,12 @@
 	height: 410px;
 }
 
-.slideshow-window .white {
+.slideshow-white {
 	background-color: #fff;
+}
+
+.slideshow-black {
+	background-color: #222;
 }
 
 .slideshow-window, .slideshow-window * {
