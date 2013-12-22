@@ -116,7 +116,7 @@ class Jetpack_Slideshow_Shortcode {
 		if ( intval( $content_width ) > 0 )
 			$max_width = min( intval( $content_width ), $max_width );
 
-		$color = get_option( 'jetpack_slideshow_color', 'black' );
+		$color = get_option( 'jetpack_slideshow_color', 'black');
 
 		$js_attr = array(
 			'gallery'  => $gallery,
