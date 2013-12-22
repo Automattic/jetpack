@@ -31,6 +31,7 @@ class Jetpack_Slideshow_Shortcode {
 if ( is_admin() ) {
 			// Register the Slideshow-related setting
 			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
+		}
 
 	/**
 	 * Responds to the [gallery] shortcode, but not an actual shortcode callback.
