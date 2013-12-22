@@ -116,12 +116,15 @@ class Jetpack_Slideshow_Shortcode {
 		if ( intval( $content_width ) > 0 )
 			$max_width = min( intval( $content_width ), $max_width );
 
+		$color = get_option( 'jetpack_slideshow_color', 'black' );
+
 		$js_attr = array(
 			'gallery'  => $gallery,
 			'selector' => $gallery_instance,
 			'width'    => $max_width,
 			'height'   => $max_height,
 			'trans'    => $attr['trans'] ? $attr['trans'] : 'fade',
+			'color'    => $color,
 		 );
 
 		// Show a link to the gallery in feeds.
@@ -158,7 +161,7 @@ class Jetpack_Slideshow_Shortcode {
 		$output = '';
 
 		$output .= '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . '</p>';
-		$output .= '<div id="' . esc_attr( $attr['selector'] . '-slideshow' ) . '"  class="slideshow-window jetpack-slideshow" data-width="' . esc_attr( $attr['width'] ) . '" data-height="' . esc_attr( $attr['height'] ) . '" data-trans="' . esc_attr( $attr['trans'] ) . '" data-gallery="' . esc_attr( json_encode( $attr['gallery'] ) ) . '"></div>';
+		$output .= '<div id="' . esc_attr( $attr['selector'] . '-slideshow' ) . '"  class="slideshow-window jetpack-slideshow slideshow-' . esc_attr( $attr['color'] ) . '" data-width="' . esc_attr( $attr['width'] ) . '" data-height="' . esc_attr( $attr['height'] ) . '" data-trans="' . esc_attr( $attr['trans'] ) . '" data-gallery="' . esc_attr( json_encode( $attr['gallery'] ) ) . '"></div>';
 
 		$output .= "
 		<style>
