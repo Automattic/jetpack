@@ -82,6 +82,27 @@ class Jetpack_Slideshow_Shortcode {
 		$this->settings_select( 'slideshow_background_color', array( 'black' => __( 'Black', 'jetpack' ), 'white' => __( 'White', 'jetpack', 'jetpack' ) ) );
 	}
 
+	function settings_select($name, $values, $extra_text = '') {
+		if ( empty( $name ) || ! is_array( $values ) || empty( $values ) )
+			return;
+		$option = get_option( $name );
+		echo '<fieldset>';
+		echo '<select name="'.esc_attr($name).'" id="'.esc_attr($name).'">';
+		foreach( $values as $key => $value ) {
+			echo '<option value="'.esc_attr($key).'" ';
+			selected( $key, $option );
+			echo '>'.esc_html($value).'</option>';
+		}
+		echo '</select>';
+		if ( ! empty( $extra_text ) )
+			echo '<p class="description">'.$extra_text.'</p>';
+		echo '</fieldset>';
+	}
+
+	function carousel_background_color_sanitize( $value ) {
+		return ( 'white' == $value ) ? 'white' : 'black';
+	}
+
 	function shortcode_callback( $attr, $content = null ) {
 		global $post, $content_width;
 
