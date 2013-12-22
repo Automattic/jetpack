@@ -99,7 +99,7 @@ class Jetpack_Slideshow_Shortcode {
 		echo '</fieldset>';
 	}
 
-	function carousel_background_color_sanitize( $value ) {
+	function slideshow_background_color_sanitize( $value ) {
 		return ( 'white' == $value ) ? 'white' : 'black';
 	}
 
