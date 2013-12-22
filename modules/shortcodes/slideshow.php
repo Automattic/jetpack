@@ -78,6 +78,10 @@ class Jetpack_Slideshow_Shortcode {
 		return;
 	}
 
+	function slideshow_background_color_callback() {
+		$this->settings_select( 'slideshow_background_color', array( 'black' => __( 'Black', 'jetpack' ), 'white' => __( 'White', 'jetpack', 'jetpack' ) ) );
+	}
+
 	function shortcode_callback( $attr, $content = null ) {
 		global $post, $content_width;
 
