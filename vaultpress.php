@@ -565,7 +565,6 @@ class VaultPress {
 			'@.*wp-content/content/cache/@',
 			'@.*wp-content/cache/@',
 			'@.*wp-content/old-cache/@',
-			'@.*cache/@',
 			'@.*wp-content/w3tc/@',
 			'@.*owa/owa-data/caches/@',
 			'@.*gt-cache@',
