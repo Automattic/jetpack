@@ -381,7 +381,7 @@ class Share_Twitter extends Sharing_Source {
 	}
 
 	public function process_request( $post, array $post_data ) {
-		$post_title = $post->post_title;
+		$post_title = wp_kses( $post->post_title, null );
 		$post_link = $this->get_share_url( $post->ID );
 
 		if ( function_exists( 'mb_stripos' ) ) {
