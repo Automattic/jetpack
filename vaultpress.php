@@ -569,6 +569,8 @@ class VaultPress {
 			'@.*owa/owa-data/caches/@',
 			'@.*gt-cache@',
 			'@.*/wpclicks/tracker/cache/@',
+			'@/wp-content/[^/]+cache.*/@',
+			'@(?<!plugins)\/cache@',
 			'@.*amember/data/new_rewrite@',
 			'@.*sucuri/blocks/@',
 			'@.*/_sucuribackup.*@',
