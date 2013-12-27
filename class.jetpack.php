@@ -613,15 +613,14 @@ class Jetpack {
 			'opengraph/opengraph.php',                                              		// Open Graph
 			'sharepress/sharepress.php',                                            		// SharePress
 			'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',	// WP Facebook Like Send & Open Graph Meta
-			'network-publisher/networkpub.php',							                    // Network Publisher
-			'wp-ogp/wp-ogp.php',									                        // WP-OGP
-			'open-graph-protocol-framework/open-graph-protocol-framework.php',			    // Open Graph Protocol Framework
-			'all-in-one-seo-pack/all_in_one_seo_pack.php',						            // All in One SEO Pack
+			'network-publisher/networkpub.php',							// Network Publisher
+			'wp-ogp/wp-ogp.php',									// WP-OGP
+			'open-graph-protocol-framework/open-graph-protocol-framework.php',			// Open Graph Protocol Framework
+			'all-in-one-seo-pack/all_in_one_seo_pack.php',						// All in One SEO Pack
 			'facebook-featured-image-and-open-graph-meta-tags/fb-featured-image.php',		// Facebook Featured Image & OG Meta Tags
-			'add-meta-tags/add-meta-tags.php',							                    // Add Meta Tags
-			'only-tweet-like-share-and-google-1/tweet-like-plusone.php',				    // Tweet, Like, Google +1 and Share
-			'easy-facebook-share-thumbnails/esft.php',						                // Easy Facebook Share Thumbnail
-			'facebook-thumb-fixer/_facebook-thumb-fixer.php',                               // Facebook Thumb Fixer
+			'add-meta-tags/add-meta-tags.php',							// Add Meta Tags
+			'only-tweet-like-share-and-google-1/tweet-like-plusone.php',				// Tweet, Like, Google +1 and Share
+			'easy-facebook-share-thumbnails/esft.php',						// Easy Facebook Share Thumbnail
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
