@@ -221,13 +221,15 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	}
 
 	function get_by_views( $count ) {
-		$days = apply_filters( 'jetpack_top_posts_days', 2 );
+		$days = (int) apply_filters( 'jetpack_top_posts_days', 2 );
 
-		if ( $days < 1 )
-			$days = 1;
+		if ( $days < 1 ) {
+			$days = 2;
+		}
 
-		if ( $days > 10 )
+		if ( $days > 10 ) {
 			$days = 10;
+		}
 
 		$post_view_posts = stats_get_csv( 'postviews', array( 'days' => absint( $days ), 'limit' => 11 ) );
 		if ( !$post_view_posts ) {
