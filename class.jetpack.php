@@ -622,6 +622,7 @@ class Jetpack {
 			'only-tweet-like-share-and-google-1/tweet-like-plusone.php',				// Tweet, Like, Google +1 and Share
 			'easy-facebook-share-thumbnails/esft.php',						// Easy Facebook Share Thumbnail
 			'2-click-socialmedia-buttons/2-click-socialmedia-buttons.php',				// 2 Click Social Media Buttons
+			'facebook-thumb-fixer/_facebook-thumb-fixer.php',					// Facebook Thumb Fixer
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
