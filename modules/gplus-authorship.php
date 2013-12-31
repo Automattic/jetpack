@@ -89,7 +89,7 @@ class GPlus_Authorship {
 		if ( !is_numeric( $_POST['id'] ) )
 			return;
 		$connections = get_option( 'gplus_authors', array() );
-		$connections[ $current_user->ID ]['name'] = $_POST['name'];
+		$connections[ $current_user->ID ]['name'] = stripslashes( $_POST['name'] );
 		$connections[ $current_user->ID ]['id'] = $_POST['id'];
 		$connections[ $current_user->ID ]['url'] = esc_url_raw( $_POST['url'] );
 		$connections[ $current_user->ID ]['profile_image'] = esc_url_raw( $_POST['profile_image'] );
