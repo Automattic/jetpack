@@ -9,6 +9,11 @@
  * Module Tags: Writing
  */
 
+if ( version_compare( substr( $GLOBALS['tinymce_version'], 0, 1 ), '4', '>=' ) ) {
+	// AtD isn't yet compatible with some API changes in TinyMCE v4.x
+	return;
+}
+
 add_action( 'jetpack_modules_loaded', 'AtD_load' );
 
 function AtD_load() {
