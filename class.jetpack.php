@@ -390,7 +390,7 @@ class Jetpack {
 	 * @filter require_lib_dir
 	 */
 	function require_lib_dir( $lib_dir ) {
-		return JETPACK__PLUGIN_DIR . 'lib';
+		return JETPACK__PLUGIN_DIR . '_inc/lib';
 	}
 
 	/**
