@@ -9,7 +9,7 @@
  * Module Tags: Social
  */
 class Jetpack_Likes {
-	var $version = '20131201';
+	var $version = '20140101';
 
 	public static function init() {
 		static $instance = NULL;
@@ -694,7 +694,7 @@ class Jetpack_Likes {
 		}
 
 		add_filter( 'wp_footer', array( $this, 'likes_master' ) );
-		
+
 		$src = sprintf( '%1$s://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post->ID, $domain );
 
 		$html = "<iframe class='admin-bar-likes-widget jetpack-likes-widget' scrolling='no' frameBorder='0' name='admin-bar-likes-widget' src='$src'></iframe>";
@@ -802,7 +802,8 @@ class Jetpack_Likes {
 							JetpackLikespostMessage( { event: 'adminBarEnabled' }, window.frames[ 'likes-master' ] );
 
 							stylesData.adminBarStyles = {
-								background: jQuery( '#wpadminbar .quicklinks li#wp-admin-bar-wpl-like > a' ).css( 'background' )
+								background: jQuery( '#wpadminbar .quicklinks li#wp-admin-bar-wpl-like > a' ).css( 'background' ),
+								isRtl: ( 'rtl' == jQuery( '#wpadminbar' ).css( 'direction' ) )
 							};
 						}
 
