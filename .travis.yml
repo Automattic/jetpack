@@ -52,4 +52,5 @@ before_script:
 script: phpunit
 
 notifications:
-   email: false
+   email:
+       - blobaugh@automattic.com
