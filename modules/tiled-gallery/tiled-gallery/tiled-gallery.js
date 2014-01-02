@@ -52,8 +52,8 @@ TiledGallery.prototype.Captions = function() {
 	this.caption.hide();
 
 	this.item.hover(
-		function() { $( this ).find( '.tiled-gallery-caption' ).slideDown( 'fast' ); },
-		function() { $( this ).find( '.tiled-gallery-caption' ).slideUp( 'fast' ); }
+		function() { $( this ).find( '.tiled-gallery-caption' ).stop(true, true).slideDown( 'fast' ); },
+		function() { $( this ).find( '.tiled-gallery-caption' ).stop(true, true).slideUp( 'fast' ); }
 	);
 };
 
