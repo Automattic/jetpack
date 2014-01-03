@@ -74,7 +74,9 @@ class Jetpack_Sync {
 	function register( $object, $id = false, array $settings = null ) {
 		// Since we've registered something for sync, hook it up to execute on shutdown if we haven't already
 		if ( !$this->sync ) {
-			ignore_user_abort( true );
+			if ( function_exists( 'ignore_user_abort' ) ) {
+				ignore_user_abort( true );
+			}
 			add_action( 'shutdown', array( $this, 'sync' ), 9 ); // Right before async XML-RPC
 		}
 
