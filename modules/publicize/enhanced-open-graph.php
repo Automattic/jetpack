@@ -6,7 +6,7 @@ if ( ! class_exists( 'Jetpack_Media_Summary' ) && defined('IS_WPCOM') && IS_WPCO
  * Better OG Image Tags for Image Post Formats
  */
 function enhanced_og_image( $tags ) {
-	if ( !is_singular() )
+	if ( !is_singular() || post_password_required() )
 		return $tags;
 
 	global $post;
@@ -31,7 +31,7 @@ add_filter( 'jetpack_open_graph_tags', 'enhanced_og_image' );
  * Better OG Image Tags for Gallery Post Formats
  */
 function enhanced_og_gallery( $tags ) {
-	if ( !is_singular() )
+	if ( !is_singular() || post_password_required() )
 		return $tags;
 
 	global $post;
@@ -62,7 +62,7 @@ add_filter( 'jetpack_open_graph_tags', 'enhanced_og_gallery' );
  * Allows VideoPress, YouTube, and Vimeo videos to play inline on Facebook
  */
 function enhanced_og_video( $tags ) {
-	if ( !is_singular() )
+	if ( !is_singular() || post_password_required() )
 		return $tags;
 
 	global $post;
