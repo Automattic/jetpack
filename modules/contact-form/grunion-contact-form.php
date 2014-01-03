@@ -1362,13 +1362,13 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 */
 	function __construct( $attributes, $content = null, $form = null ) {
 		$attributes = shortcode_atts( array(
-			'label'    => null,
-			'type'     => 'text',
-			'required' => false,
-			'options'  => array(),
-			'id'       => null,
-			'default'  => null,
-            'placeholder'   => null,
+			'label'       => null,
+			'type'        => 'text',
+			'required'    => false,
+			'options'     => array(),
+			'id'          => null,
+			'default'     => null,
+			'placeholder' => null,
 		), $attributes );
 
 		// special default for subject field
@@ -1485,13 +1485,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 		$r = '';
 
-		$field_id        = $this->get_attribute( 'id' );
-		$field_type      = $this->get_attribute( 'type' );
-		$field_label     = $this->get_attribute( 'label' );
-		$field_required  = $this->get_attribute( 'required' );
-       
-		$placeholder = $this->get_attribute( 'placeholder' );
-		$field_placeholder = ( !empty( $placeholder ) )? "placeholder='$placeholder'": '';
+		$field_id          = $this->get_attribute( 'id' );
+		$field_type        = $this->get_attribute( 'type' );
+		$field_label       = $this->get_attribute( 'label' );
+		$field_required    = $this->get_attribute( 'required' );
+		$placeholder       = $this->get_attribute( 'placeholder' );
+		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='$placeholder'" : '';
 
 		if ( isset( $_POST[$field_id] ) ) {
 			$this->value = stripslashes( (string) $_POST[$field_id] );

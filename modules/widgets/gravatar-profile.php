@@ -118,10 +118,10 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			<?php foreach( $personal_links as $personal_link ) : ?>
 				<li>
 					<a href="<?php echo esc_url( $personal_link['value'] ); ?>">
-                        <?php 
-                            $link_title = ( !empty( $personal_link['title'] ) )? $personal_link['title']: $personal_link['value'];
-                            echo esc_html( $link_title); 
-                        ?>
+						<?php
+							$link_title = ( ! empty( $personal_link['title'] ) ) ? $personal_link['title'] : $personal_link['value'];
+							echo esc_html( $link_title ); 
+						?>
 					</a>
 				</li>
 			<?php endforeach; ?>
