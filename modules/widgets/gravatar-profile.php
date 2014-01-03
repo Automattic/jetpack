@@ -112,7 +112,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			return;
 		?>
 
-			<h4><?php esc_html_e( apply_filters( 'jetpack_gravatar_personal_links_title', 'Personal Links' ), 'jetpack' ); ?></h4>
+			<h4><?php echo esc_html( apply_filters( 'jetpack_gravatar_personal_links_title', __( 'Personal Links', 'jetpack' ) ) ); ?></h4>
 			<ul class="grofile-urls grofile-links">
 
 			<?php foreach( $personal_links as $personal_link ) : ?>
@@ -135,7 +135,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			return;
 		?>
 
-		<h4><?php esc_html_e( apply_filters( 'jetpack_gravatar_verified_services_title', 'Verified Services' ), 'jetpack' ); ?></h4>
+		<h4><?php echo esc_html( apply_filters( 'jetpack_gravatar_verified_services_title', __( 'Verified Services', 'jetpack' ) ) ); ?></h4>
 		<ul class="grofile-urls grofile-accounts">
 
 		<?php foreach( $accounts as $account ) :
