@@ -56,6 +56,7 @@ abstract class Sharing_Source {
 			$klasses[] = 'no-text';
 		}
 
+		$url = apply_filters( 'sharing_display_link', $url );
 		if ( !empty( $query ) ) {
 			if ( stripos( $url, '?' ) === false )
 				$url .= '?'.$query;
