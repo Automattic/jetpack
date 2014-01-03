@@ -35,6 +35,12 @@ abstract class Sharing_Source {
 		return apply_filters( 'sharing_permalink', get_permalink( $post_id ), $post_id, $this->id );
 	}
 
+	public function get_share_title( $post_id ) {
+		$post = get_post( $post_id );
+
+		return apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
+	}
+
 	public function has_custom_button_style() {
 		return false;
 	}
@@ -50,6 +56,7 @@ abstract class Sharing_Source {
 			$klasses[] = 'no-text';
 		}
 
+		$url = apply_filters( 'sharing_display_link', $url );
 		if ( !empty( $query ) ) {
 			if ( stripos( $url, '?' ) === false )
 				$url .= '?'.$query;
@@ -370,9 +377,10 @@ class Share_Twitter extends Sharing_Source {
 		}
 
 		$share_url = $this->get_share_url( $post->ID );
+		$post_title = $this->get_share_title( $post->ID );
 
 		if ( $this->smart ) {
-			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $share_url ) . '&counturl=' . rawurlencode( str_replace( 'https://', 'http://', get_permalink( $post->ID ) ) ) . '&count=horizontal&text=' . rawurlencode( $post->post_title . ':' ) . $via ) . '" style="width:101px; height:20px;"></iframe></div>';
+			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $share_url ) . '&counturl=' . rawurlencode( str_replace( 'https://', 'http://', get_permalink( $post->ID ) ) ) . '&count=horizontal&text=' . rawurlencode( $post_title . ':' ) . $via ) . '" style="width:101px; height:20px;"></iframe></div>';
 		} else {
 			if ( 'icon-text' == $this->button_style || 'text' == $this->button_style )
 				sharing_register_post_for_share_counts( $post->ID );
@@ -381,7 +389,7 @@ class Share_Twitter extends Sharing_Source {
 	}
 
 	public function process_request( $post, array $post_data ) {
-		$post_title = wp_kses( $post->post_title, null );
+		$post_title = wp_kses( $this->get_share_title( $post->ID ), null );
 		$post_link = $this->get_share_url( $post->ID );
 
 		if ( function_exists( 'mb_stripos' ) ) {
@@ -460,13 +468,13 @@ class Share_Stumbleupon extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="stumbleupon_button"><iframe src="http://www.stumbleupon.com/badge/embed/1/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $post->post_title ) . '" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:74px; height: 18px;" allowTransparency="true"></iframe></div>';
+			return '<div class="stumbleupon_button"><iframe src="http://www.stumbleupon.com/badge/embed/1/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:74px; height: 18px;" allowTransparency="true"></iframe></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'StumbleUpon', 'share to', 'jetpack' ), __( 'Click to share on StumbleUpon', 'jetpack' ), 'share=stumbleupon' );
 	}
 
 	public function process_request( $post, array $post_data ) {
-		$stumbleupon_url = $this->http() . '://www.stumbleupon.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $post->post_title );
+		$stumbleupon_url = $this->http() . '://www.stumbleupon.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -494,13 +502,13 @@ class Share_Reddit extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="reddit_button"><iframe src="http://www.reddit.com/static/button/button1.html?width=120&amp;url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $post->post_title ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
+			return '<div class="reddit_button"><iframe src="http://www.reddit.com/static/button/button1.html?width=120&amp;url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
 		else
-			return $this->get_link( get_permalink( $post->ID ), __( 'Reddit', 'share to', 'jetpack' ), __( 'Click to share on Reddit', 'jetpack' ), 'share=reddit' );
+			return $this->get_link( get_permalink( $post->ID ), _x( 'Reddit', 'share to', 'jetpack' ), __( 'Click to share on Reddit', 'jetpack' ), 'share=reddit' );
 	}
 
 	public function process_request( $post, array $post_data ) {
-		$reddit_url = 'http://reddit.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $post->post_title );
+		$reddit_url = 'http://reddit.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -532,7 +540,7 @@ class Share_Digg extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart ) {
-			$url = $this->get_link( 'http://digg.com/submit?url='. rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $post->post_title ), 'Digg', __( 'Click to Digg this post', 'jetpack' ) );
+			$url = $this->get_link( 'http://digg.com/submit?url='. rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ), 'Digg', __( 'Click to Digg this post', 'jetpack' ) );
 			return '<div class="digg_button">' . str_replace( 'class="', 'class="DiggThisButton DiggCompact ', $url ) . '</div>';
 		} else {
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Digg', 'share to', 'jetpack' ), __( 'Click to Digg this post', 'jetpack' ), 'share=digg' );
@@ -540,7 +548,7 @@ class Share_Digg extends Sharing_Source {
 	}
 
 	public function process_request( $post, array $post_data ) {
-		$digg_url = 'http://digg.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $post->post_title );
+		$digg_url = 'http://digg.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -736,7 +744,7 @@ class Share_Facebook extends Sharing_Source {
 	}
 
 	public function process_request( $post, array $post_data ) {
-		$fb_url = $this->http() . '://www.facebook.com/sharer.php?u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $post->post_title );
+		$fb_url = $this->http() . '://www.facebook.com/sharer.php?u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $this->get_share_title( $post->ID ) );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -797,7 +805,7 @@ class Share_PressThis extends Sharing_Source {
 
 		$blog = current( $blogs );
 
-		$url = $blog->siteurl.'/wp-admin/press-this.php?u='.rawurlencode( $this->get_share_url( $post->ID ) ).'&t='.rawurlencode( $post->post_title ).'&v=4';
+		$url = $blog->siteurl.'/wp-admin/press-this.php?u='.rawurlencode( $this->get_share_url( $post->ID ) ).'&t='.rawurlencode( $this->get_share_title( $post->ID ) ).'&v=4';
 
 		if ( isset( $_GET['sel'] ) )
 			$url .= '&s='.rawurlencode( $_GET['sel'] );
@@ -937,7 +945,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 		$url = str_replace( '&amp;', '&', $this->url );
 		$url = str_replace( '%post_url%', rawurlencode( $this->get_share_url( $post->ID ) ), $url );
 		$url = str_replace( '%post_full_url%', rawurlencode( get_permalink( $post->ID ) ), $url );
-		$url = str_replace( '%post_title%', rawurlencode( $post->post_title ), $url );
+		$url = str_replace( '%post_title%', rawurlencode( $this->get_share_title( $post->ID ) ), $url );
 
 		if ( strpos( $url, '%post_tags%' ) !== false ) {
 			$tags   = get_the_tags( $post->ID );
@@ -1085,7 +1093,7 @@ class Share_Tumblr extends Sharing_Source {
 			if ( 'new' == $this->open_links )
 				$target = '_blank';
 
-			return '<a target="' . $target . '" href="http://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $post->post_title ) . '" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+			return '<a target="' . $target . '" href="http://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'http://platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">Share on Tumblr</a>';
 		 } else {
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Tumblr', 'share to', 'jetpack' ), __( 'Click to share on Tumblr', 'jetpack' ), 'share=tumblr' );
 		}
@@ -1096,7 +1104,7 @@ class Share_Tumblr extends Sharing_Source {
 		parent::process_request( $post, $post_data );
 
 		// Redirect to Tumblr's sharing endpoint (a la their bookmarklet)
-		$url = 'http://www.tumblr.com/share?v=3&u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $post->post_title ) . '&s=';
+		$url = 'http://www.tumblr.com/share?v=3&u=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&t=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '&s=';
 		wp_redirect( $url );
 		die();
 	}
@@ -1167,7 +1175,7 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url='. rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) . '&media=' . rawurlencode( esc_url_raw( $this->get_post_image( $post ) ) ) ) . '" class="pin-it-button" count-layout="horizontal"> '. __( 'Pin It', 'jetpack') .'</a></div>';
+			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url='. rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '&media=' . rawurlencode( esc_url_raw( $this->get_post_image( $post ) ) ) ) . '" class="pin-it-button" count-layout="horizontal"> '. __( 'Pin It', 'jetpack') .'</a></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest' );
 	}
@@ -1178,7 +1186,7 @@ class Share_Pinterest extends Sharing_Source {
 
 		// If we're triggering the multi-select panel, then we don't need to redirect to Pinterest
 		if ( !isset( $_GET['js_only'] ) ) {
-			$pinterest_url = esc_url_raw( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) . '&media=' . rawurlencode( esc_url_raw( $this->get_post_image( $post ) ) ) );
+			$pinterest_url = esc_url_raw( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '&media=' . rawurlencode( esc_url_raw( $this->get_post_image( $post ) ) ) );
 			wp_redirect( $pinterest_url );
 		} else {
 			echo '// share count bumped';
@@ -1247,7 +1255,7 @@ class Share_Pocket extends Sharing_Source {
 		// Record stats
 		parent::process_request( $post, $post_data );
 
-		$pocket_url = esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $post->post_title ) );
+		$pocket_url = esc_url_raw( 'https://getpocket.com/save/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
 		wp_redirect( $pocket_url );
 		exit;
 	}

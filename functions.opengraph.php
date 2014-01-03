@@ -78,7 +78,9 @@ function jetpack_og_tags() {
 		return;
 
 	$tags['og:site_name'] = get_bloginfo( 'name' );
-	$tags['og:image']     = jetpack_og_get_image( $image_width, $image_height );
+
+	if ( !post_password_required() )
+		$tags['og:image']     = jetpack_og_get_image( $image_width, $image_height );
 
 	// Facebook whines if you give it an empty title
 	if ( empty( $tags['og:title'] ) )
@@ -121,7 +123,6 @@ function jetpack_og_tags() {
 			}
 		}
 	}
-
 	echo $og_output;
 }
 

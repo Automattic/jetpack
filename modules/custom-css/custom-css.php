@@ -98,6 +98,7 @@ class Jetpack_Custom_CSS {
 	 * @param array $args Array of arguments:
 	 *        string $css The CSS (or LESS or Sass)
 	 *        bool $is_preview Whether this CSS is preview or published
+	 *        string preprocessor Which CSS preprocessor to use
 	 *        bool $add_to_existing Whether this CSS replaces the theme's CSS or supplements it.
 	 *        int $content_width A custom $content_width to go along with this CSS.
 	 * @return int The post ID of the saved Custom CSS post.
@@ -1417,7 +1418,7 @@ function custom_css_minify( $css, $preprocessor = '' ) {
 function custom_css_restore_revision( $_post_id, $_revision_id ) {
 	_deprecated_function( __FUNCTION__, '2.1', 'Jetpack_Custom_CSS::restore_revision()' );
 
-	return Jetpack_Custom_CSS::restore_revision( $_post_id, $_revision_id );;
+	return Jetpack_Custom_CSS::restore_revision( $_post_id, $_revision_id );
 }
 
 function safecss_class() {

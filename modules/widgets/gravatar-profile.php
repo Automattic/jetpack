@@ -76,7 +76,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			);
 
 			?>
-			<img src="<?php echo esc_url( $gravatar_url ); ?>" class="grofile-thumbnail no-grav" style="width: auto; max-width: 200px;" alt="<?php echo esc_html( $profile['displayName'] ); ?>" />
+			<img src="<?php echo esc_url( $gravatar_url ); ?>" class="grofile-thumbnail no-grav" style="width: auto; max-width: 200px;" alt="<?php echo esc_attr( $profile['displayName'] ); ?>" />
 			<div class="grofile-meta">
 				<h4><a href="<?php echo esc_url( $profile['profileUrl'] ); ?>"><?php echo esc_html( $profile['displayName'] ); ?></a></h4>
 				<p><?php echo wp_kses_data( $profile['aboutMe'] ); ?></p>
@@ -112,16 +112,16 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			return;
 		?>
 
-			<h4><?php esc_html_e( apply_filters( 'jetpack_gravatar_personal_links_title', 'Personal Links' ), 'jetpack' ); ?></h4>
+			<h4><?php echo esc_html( apply_filters( 'jetpack_gravatar_personal_links_title', __( 'Personal Links', 'jetpack' ) ) ); ?></h4>
 			<ul class="grofile-urls grofile-links">
 
 			<?php foreach( $personal_links as $personal_link ) : ?>
 				<li>
 					<a href="<?php echo esc_url( $personal_link['value'] ); ?>">
-                        <?php 
-                            $link_title = ( !empty( $personal_link['title'] ) )? $personal_link['title']: $personal_link['value'];
-                            echo esc_html( $link_title); 
-                        ?>
+						<?php
+							$link_title = ( ! empty( $personal_link['title'] ) ) ? $personal_link['title'] : $personal_link['value'];
+							echo esc_html( $link_title ); 
+						?>
 					</a>
 				</li>
 			<?php endforeach; ?>
@@ -135,7 +135,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			return;
 		?>
 
-		<h4><?php esc_html_e( apply_filters( 'jetpack_gravatar_verified_services_title', 'Verified Services' ), 'jetpack' ); ?></h4>
+		<h4><?php echo esc_html( apply_filters( 'jetpack_gravatar_verified_services_title', __( 'Verified Services', 'jetpack' ) ) ); ?></h4>
 		<ul class="grofile-urls grofile-accounts">
 
 		<?php foreach( $accounts as $account ) :
