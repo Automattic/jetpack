@@ -623,6 +623,7 @@ class Jetpack {
 			'easy-facebook-share-thumbnails/esft.php',						// Easy Facebook Share Thumbnail
 			'2-click-socialmedia-buttons/2-click-socialmedia-buttons.php',				// 2 Click Social Media Buttons
 			'facebook-thumb-fixer/_facebook-thumb-fixer.php',					// Facebook Thumb Fixer
+			'zoltonorg-social-plugin/zosp.php',												// Zolton.org Social Plugin
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
