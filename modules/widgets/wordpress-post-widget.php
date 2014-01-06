@@ -47,14 +47,15 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		}
 
 		$site_info = json_decode( $response ['body'] );
-		
+
+		echo $args['before_widget'];
+
 		if ( empty( $site_info->ID ) ) {
 			echo "<p>" . __( 'We cannot load blog data at this time.', 'jetpack' ) . "</p>";
 			echo $args['after_widget'];
 			return;
 		}
 
-		echo $args['before_widget'];
 		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . esc_html( $title . ": " . $site_info->name ) . $args['after_title'];
 		}
@@ -77,7 +78,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			echo $args['after_widget'];
 			return;
 		}
-		
+
 		$posts_info = json_decode( $response['body'] );
 
 		echo "<div class='jetpack-display-remote-posts'>";
@@ -96,7 +97,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post->featured_image) ) ) {
 				$featured_image = ( $single_post->featured_image ) ? $single_post->featured_image  : '';
 				echo "<img src='" . $featured_image . "'>";
-			}		
+			}
 
 			if ( $instance['show_excerpts'] == true ) {
 				$post_excerpt = ( $single_post->excerpt ) ? $single_post->excerpt  : '';
@@ -106,6 +107,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		}
 
 		echo "</div>";
+
+		echo $args['after_widget'];
 	}
 
 	public function form( $instance ) {
