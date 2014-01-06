@@ -35,6 +35,7 @@ defined( 'YEAR_IN_SECONDS' )   or define( 'YEAR_IN_SECONDS',  365 * DAY_IN_SECON
 // @todo: Abstract out the admin functions, and only include them if is_admin()
 // @todo: Only include things like class.jetpack-sync.php if we're connected.
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
