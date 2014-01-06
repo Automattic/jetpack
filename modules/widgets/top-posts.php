@@ -39,6 +39,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		);
 
 		$this->default_title =  __( 'Top Posts &amp; Pages', 'jetpack' );
+		$this->post_types = array_values( get_post_types( array( 'public' => true ) ) );
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
 			add_action( 'wp_print_styles', array( $this, 'enqueue_style' ) );
@@ -67,6 +68,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$display = 'text';
 		}
 
+		if ( isset( $instance['type'] ) && in_array( $instance['type'], $this->post_types ) ) {
+			$type = $instance['type'];
+		} else {
+			$type = $this->post_types;
+		}
+
 		?>
 
 		<p>
@@ -85,6 +92,21 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-text" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="text" <?php checked( 'text', $display ); ?> /> <?php esc_html_e( 'Text List', 'jetpack' ); ?></label></li>
 				<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-list" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="list" <?php checked( 'list', $display ); ?> /> <?php esc_html_e( 'Image List', 'jetpack' ); ?></label></li>
 				<li><label><input id="<?php echo $this->get_field_id( 'display' ); ?>-grid" name="<?php echo $this->get_field_name( 'display' ); ?>" type="radio" value="grid" <?php checked( 'grid', $display ); ?> /> <?php esc_html_e( 'Image Grid', 'jetpack' ); ?></label></li>
+			</ul>
+		</p>
+
+		<p>
+			<label><?php esc_html_e( 'Types of Pages to display:', 'jetpack' ); ?></label>
+			<ul>
+				<?php
+				$types = $this->post_types;
+
+				foreach ( $types as $type ) :
+					$post_type_object = get_post_type_object( $type );
+					$label = $post_type_object->labels->name;
+				?>
+				<li><label><input type="checkbox"<?php checked( in_array( $type, $instance['type'] ) ); ?> id="<?php echo $this->get_field_id( $type ); ?>" name="<?php echo $this->get_field_name( 'type' ); ?>[]" value="<?php echo esc_attr( $type ); ?>"/> <?php echo esc_html( $label ); ?></label></li>
+				<?php endforeach; ?>
 			</ul>
 		</p>
 
@@ -109,6 +131,17 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$instance['display'] = $new_instance['display'];
 		} else {
 			$instance['display'] = 'text';
+		}
+
+		$instance['type'] = array();
+		if ( isset( $new_instance['type'] ) ) {
+			foreach ( $new_instance['type'] as $type ) {
+				if ( in_array( $type, $this->post_types ) ) {
+					$instance['type'][] = $type;
+				}
+			}
+		} else {
+			$instance['type'] = $this->post_types;
 		}
 
 		return $instance;
@@ -148,7 +181,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$get_image_options = apply_filters( 'jetpack_top_posts_widget_image_options', $get_image_options );
 		}
 
-		$posts = $this->get_by_views( $count );
+		if ( isset( $instance['type'] ) && in_array( $instance['type'], $this->post_types ) ) {
+			$type = $instance['type'];
+		} else {
+			$type = $this->post_types;
+		}
+
+
+		$posts = $this->get_by_views( $count, $type );
 
 		if ( !$posts ) {
 			$posts = $this->get_fallback_posts();
@@ -220,7 +260,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		echo $args['after_widget'];
 	}
 
-	function get_by_views( $count ) {
+	function get_by_views( $count, $type ) {
 		$days = (int) apply_filters( 'jetpack_top_posts_days', 2 );
 
 		if ( $days < 1 ) {
@@ -241,7 +281,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			return array();
 		}
 
-		return $this->get_posts( $post_view_ids, $count );
+		return $this->get_posts( $post_view_ids, $count, $type );
 	}
 
 	function get_fallback_posts() {
@@ -249,12 +289,18 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			return array();
 		}
 
+		if ( isset( $instance['type'] ) && in_array( $instance['type'], $this->post_types ) ) {
+			$type = $instance['type'];
+		} else {
+			$type = $this->post_types;
+		}
+
 		$post_query = new WP_Query;
 
 		$posts = $post_query->query( array(
 			'posts_per_page' => 1,
 			'post_status' => 'publish',
-			'post_type' => array( 'post', 'page' ),
+			'post_type' => $type,
 			'no_found_rows' => true,
 		) );
 
@@ -267,8 +313,14 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		return $this->get_posts( $post->ID, 1 );
 	}
 
-	function get_posts( $post_ids, $count ) {
+	function get_posts( $post_ids, $count, $type ) {
 		$counter = 0;
+
+		if ( isset( $instance['type'] ) && in_array( $instance['type'], $this->post_types ) ) {
+			$type = $instance['type'];
+		} else {
+			$type = $this->post_types;
+		}
 
 		$posts = array();
 		foreach ( (array) $post_ids as $post_id ) {
@@ -277,8 +329,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			if ( !$post )
 				continue;
 
-			// Only posts and pages, no attachments
-			if ( 'attachment' == $post->post_type )
+			// Only the post types we've selected in the widget options
+			if ( !in_array( $post->post_type, $type ) )
 				continue;
 
 			// hide private and password protected posts
