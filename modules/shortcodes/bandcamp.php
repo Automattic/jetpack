@@ -52,14 +52,14 @@ function shortcode_handler_bandcamp( $atts ) {
 
 	$url = "http://bandcamp.com/EmbeddedPlayer/v=2/";
 	if ( isset( $attributes['track'] ) ) {
-		$track = (int) $attributes['track'];
+		$track = esc_attr( $attributes['track'] );
 		$url .= "track={$track}";
 
 		if ( $sizekey == 'tall' ) {
 			$sizekey .= '_track';
 		}
 	} elseif ( isset( $attributes['album'] ) ) {
-		$album = (int) $attributes['album'];
+		$album = esc_attr( $attributes['album'] );
 		$url .= "album={$album}";
 		$type = 'album';
 
