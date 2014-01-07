@@ -75,7 +75,7 @@ class Jetpack_Network {
 		     */
 		    if( $this->get_option( 'auto-connect' ) == 1 ) {
 			//add_action( 'admin_init', array( $this, 'do_automatically_add_new_site' ) );
-			//add_action( 'wpmu_new_blog', array( $this, 'do_automatically_add_new_site' ) );
+			add_action( 'wpmu_new_blog', array( $this, 'do_automatically_add_new_site' ) );
 		    }
 		}
 		    
@@ -535,6 +535,9 @@ class Jetpack_Network {
 		    ), 
 		    $is_master_user 
 	    );
+
+	    Jetpack::activate_default_modules();
+
 	    restore_current_blog();
 	}
 	
@@ -704,6 +707,16 @@ class Jetpack_Network {
 	public function render_network_admin_settings_page() {
 		$this->network_admin_page_header();
 		$options = wp_parse_args( get_site_option( $this->settings_name ), $this->setting_defaults );
+
+		$modules = array();
+		$module_slugs = Jetpack::get_available_modules();
+		usort( $module_slugs, array( 'Jetpack', 'sort_modules' ) );
+		foreach ( $module_slugs as $slug ) {
+			$module = Jetpack::get_module( $slug );
+			$module['module'] = $slug;
+			$modules[] = $module;
+		}
+
 		require( 'views/admin/network-settings.php' );
 		$this->network_admin_page_footer();
 	}
@@ -789,32 +802,6 @@ class Jetpack_Network {
 
 		return $site_results;
 	}
-
-	/**
-	 * Gets a list of all modules available in Jetpack
-	 *
-	 * @since 2.5
-	 * @todo Look at merging into Jetpack class
-	 * @return array
-	 */
-	public function list_modules() {
-		$modules = null;
-		if ( ! isset( $modules ) ) {
-			$files = Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules' );
-
-			$modules = array();
-
-			foreach ( $files as $file ) {
-				if ( ! $headers = Jetpack::get_module( $file ) ) {
-					continue;
-				}
-				$modules[] = $headers;
-				//$modules[ Jetpack::get_module_slug( $file ) ] = $headers['introduced'];
-			}
-		}
-		return $modules;
-	}
-
 }
 
 // end class
