@@ -333,7 +333,7 @@ class Jetpack_Photon {
 	 * @return string|bool
 	 */
 	public function filter_image_downsize( $image, $attachment_id, $size ) {
-		// Don't foul up the admin side of things, and provide plugins a way of preventing Photon from being applied to images.
+		// Don't foul up the admin side of things, don't break BuddyPress' avatar cropping process, and provide plugins a way of preventing Photon from being applied to images.
 		if ( is_admin() || bp_is_user_change_avatar() || bp_is_group_admin_page( 'group-avatar' ) || apply_filters( 'jetpack_photon_override_image_downsize', false, compact( 'image', 'attachment_id', 'size' ) ) )
 			return $image;
 
