@@ -24,7 +24,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
     public function test_get_url_returns_null_for_invalid_input() {
 	    $jpms = Jetpack_Network::init();
 
-	    $this->assertNull( $jpms->get_url( 1234 );
+	    $this->assertNull( $jpms->get_url( 1234 ) );
     }
 
     /**
