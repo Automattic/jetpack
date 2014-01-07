@@ -42,7 +42,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
     public function test_set_auto_activated_modules_returns_array() {
 		$jpms = Jetpack_Network::init();
 
-		$this->assertInternalType( 'array', $jpms->set_auto_activated_modules( array() );
+		$this->assertInternalType( 'array', $jpms->set_auto_activated_modules( array() ) );
     }
 
     /**
