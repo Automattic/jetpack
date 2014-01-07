@@ -83,7 +83,6 @@ class Jetpack_Network {
 	}
 
 	public function set_auto_activated_modules( $modules ) {
-		echo '<pre>'; var_dump($this->get_option( 'modules' ) ); echo '</pre>'; die();
 		return (array) $this->get_option( 'modules' );
 	}
 
