@@ -66,4 +66,6 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 		$this->assertTrue( in_array( 'network-admin', $classes ) );
     }
+
+
 } // end class

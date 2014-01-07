@@ -371,40 +371,61 @@ class Jetpack_Network {
 	    $jp = Jetpack::init();
 
 	    if( isset( $_GET['action'] ) ) {
-		switch( $_GET['action'] ) {
-		    case 'subsiteregister':
-			/*
-			 * @todo check_admin_referer( 'jetpack-subsite-register' );
-			 */
-			Jetpack::log( 'subsiteregister' );
-			 
-			// If !$_GET['site_id'] stop registration and error
-			if( !isset( $_GET['site_id'] ) || empty( $_GET['site_id'] ) ) {
-			   // Log error to state cookie for display later
-			   /**
-			    * @todo Make state messages show on Jetpack NA pages
-			    **/
-			   Jetpack::state( 'missing_site_id', 'Site ID must be provided to register a sub-site' );
-			    break;
+			switch( $_GET['action'] ) {
+		    	case 'subsiteregister':
+					/*
+			 	 	 * @todo check_admin_referer( 'jetpack-subsite-register' );
+			 	 	 */
+					Jetpack::log( 'subsiteregister' );
+			 	 	 
+					// If !$_GET['site_id'] stop registration and error
+					if( !isset( $_GET['site_id'] ) || empty( $_GET['site_id'] ) ) {
+			   	   	   // Log error to state cookie for display later
+			   	   	   /**
+			    		* @todo Make state messages show on Jetpack NA pages
+			    		**/
+			   	   	   Jetpack::state( 'missing_site_id', 'Site ID must be provided to register a sub-site' );
+			    		break;
+					}
+
+					// Send data to register endpoint and retrieve shadow blog details
+					$result = $this->do_subsiteregister();
+					$url = $this->get_url( 'network_admin_page' );
+					if( is_wp_error( $result ) ) {		
+						$url = add_query_arg( 'action', 'connection_failed', $url );
+					} else {
+						$url = add_query_arg( 'action', 'connected', $url );
+					}
+					
+					wp_safe_redirect( $url );
+					break;
+		    	case 'subsitedisconnect':
+					Jetpack::log( 'subsitedisconnect' );
+
+					if( !isset( $_GET['site_id'] ) || empty( $_GET['site_id'] ) ) {    
+			    		Jetpack::state( 'missing_site_id', 'Site ID must be provided to disconnect a sub-site' );   
+			    		break;
+					}
+
+					$this->do_subsitedisconnect();
+					break;
+				case 'connected':
+				case 'connection_failed':
+					add_action( 'jetpack_notices', array( $this, 'show_jetpack_notice' ) );
+					break;
 			}
-
-			// Send data to register endpoint and retrieve shadow blog details
-			$this->do_subsiteregister();
-
-			break;
-		    case 'subsitedisconnect':
-			Jetpack::log( 'subsitedisconnect' );
-
-			if( !isset( $_GET['site_id'] ) || empty( $_GET['site_id'] ) ) {    
-			    Jetpack::state( 'missing_site_id', 'Site ID must be provided to disconnect a sub-site' );   
-			    break;
-			}
-
-			$this->do_subsitedisconnect();
-			break;
-
-		}
 	    }
+	}
+
+	public function show_jetpack_notice() {
+		
+		if( isset( $_GET['action'] ) && 'connected' == $_GET['action'] ) {
+			$notice = 'Blog successfully connected';
+		} else if( isset( $_GET['action'] ) && 'connection_failed' == $_GET['action'] )	{
+			$notice = 'Blog connection <strong>failed</strong>';
+		}
+
+		require_once( 'views/admin/network-admin-alert.php' );
 	}
 
 	/**
@@ -628,24 +649,8 @@ class Jetpack_Network {
 		$user_token        = Jetpack_Data::get_access_token( $current_user->ID );
 		$is_user_connected = $user_token && ! is_wp_error( $user_token );
 		$is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
-	?>
-		<div class="wrap" id="jetpack-settings">
 
-			<div id="jp-header"<?php if ( $is_connected ) : ?> class="small"<?php endif; ?>>
-				<div id="jp-clouds">
-					<h3><?php _e( 'Jetpack by WordPress.com', 'jetpack' ) ?></h3>
-				</div>
-			</div>
-
-			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
-
-			<?php if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] ) : ?>
-				<div id="message" class="error">
-					<p><?php _e( 'Jetpack is network activated and notices can not be dismissed.', 'jetpack' ); ?></p>
-				</div>
-			<?php endif; ?>
-
-			<?php do_action( 'jetpack_notices' ); 
+		require_once( 'views/admin/network-admin-header.php' );
 	}
 	
 	/**
