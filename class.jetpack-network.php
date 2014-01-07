@@ -82,10 +82,25 @@ class Jetpack_Network {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'set_auto_activated_modules' ) );
 	}
 
+	/**
+	 * Sets which modules get activated by default on subsite connection.
+	 * Modules can be set in Network Admin > Jetpack > Settings
+	 *
+	 * @since 2.5
+	 * @param array $modules
+	 * @return array
+	 **/
 	public function set_auto_activated_modules( $modules ) {
 		return (array) $this->get_option( 'modules' );
 	}
 
+	/**
+	 * Displays the Jetpack connection status on the Network Admin > Sites
+	 * page.
+	 *
+	 * @param string $column_name
+	 * @param int $blog_id
+	 **/
 	public function render_jetpack_sites_column( $column_name, $blog_id ) {
 	    $jp = Jetpack::init();
 
@@ -111,22 +126,29 @@ class Jetpack_Network {
 		echo '<a href="' . $url . '">Connect</a>';
 		return;
 	}
+
+	/**
+	 * Add the column for Jetpack connection status to the
+	 * Network Admin > Sites list
+	 *
+	 * @since 2.5
+	 * @param array $columns
+	 * @return array
+	 **/
 	public function add_jetpack_sites_column( $columns ) {
 	    $columns['jetpack_connection'] = __( 'Jetpack' );
 	    return $columns;
 	}
 
+	/**
+	 * Registers new sites upon creation
+	 *
+	 * @since 2.5
+	 * @uses wpmu_new_blog
+	 * @param int $blog_id
+	 **/
 	public function do_automatically_add_new_site( $blog_id ) {
 	    $this->do_subsiteregister( $blog_id );
-	    /*if(
-		strpos( $_SERVER['REQUEST_URI'], '/network/site-new.php' ) // Ensure we are on the wp-admin/network/site-new.php page
-		&& isset( $_GET['update'] )
-		&& 'added' == $_GET['update'] // Make sure action added site
-		&& isset( $_GET['id'] )
-		&& is_numeric( $_GET['id'] )
-	    ) {
-		$this->do_subsiteregister( $_GET['id'] );
-	    }*/
 	}
 	
 	/**
@@ -142,6 +164,8 @@ class Jetpack_Network {
 
 	/**
 	 * Provides access to an instance of Jetpack_Network
+	 *
+	 * This is how the Jetpack_Network object should *always* be accessed
 	 *
 	 * @since 2.5
 	 * @return Jetpack_Network
@@ -540,7 +564,10 @@ class Jetpack_Network {
 
 	    restore_current_blog();
 	}
-	
+
+	/**
+	 * Add css styles needed for the Network Admin area
+	 **/
 	function network_admin_styles() {
 		global $wp_styles;
 		wp_enqueue_style( 'jetpack', plugins_url( '_inc/jetpack.css', __FILE__ ), false, JETPACK__VERSION . '-20121016' );
@@ -627,39 +654,7 @@ class Jetpack_Network {
 	 * @since 2.6
 	 */
 	function network_admin_page_footer() {
-		?>
-
-			<div id="survey" class="jp-survey">
-				<div class="jp-survey-container">
-					<div class="jp-survey-text">
-						<h4><?php _e( 'Have feedback on Jetpack?', 'jetpack' ); ?></h4>
-						<br />
-						<?php _e( 'Answer a short survey to let us know how we&#8217;re doing and what to add in the future.', 'jetpack' ); ?>
-					</div>
-					<div class="jp-survey-button-container">
-						<p class="submit"><?php printf( '<a id="jp-survey-button" class="button-primary" target="_blank" href="%1$s">%2$s</a>', 'http://jetpack.me/survey/?rel=' . JETPACK__VERSION, __( 'Take Survey', 'jetpack' ) ); ?></p>
-					</div>
-				</div>
-			</div>
-
-			<div id="jp-footer">
-				<p class="automattic"><?php _e( 'An <span>Automattic</span> Airline', 'jetpack' ) ?></p>
-				<p class="small">
-					<a href="http://jetpack.me/" target="_blank">Jetpack <?php echo esc_html( JETPACK__VERSION ); ?></a> |
-					<a href="http://automattic.com/privacy/" target="_blank"><?php _e( 'Privacy Policy', 'jetpack' ); ?></a> |
-					<a href="http://wordpress.com/tos/" target="_blank"><?php _e( 'Terms of Service', 'jetpack' ); ?></a> |
-<?php if ( current_user_can( 'manage_options' ) ) : ?>
-					<a href="<?php echo Jetpack::admin_url( array(	'page' => 'jetpack-debugger' ) ); ?>"><?php _e( 'Debug', 'jetpack' ); ?></a> |
-<?php endif; ?>
-					<a href="http://jetpack.me/support/" target="_blank"><?php _e( 'Support', 'jetpack' ); ?></a>
-				</p>
-			</div>
-
-			<div id="jetpack-configuration" style="display:none;">
-				<p><img width="16" src="<?php echo esc_url( plugins_url( '_inc/images/wpspin_light-2x.gif', __FILE__ ) ); ?>" alt="Loading ..." /></p>
-			</div>
-		</div>
-	<?php
+		require_once( 'views/admin/network-admin-footer.php' );
 	}
 
 	/**
