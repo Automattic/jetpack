@@ -75,7 +75,7 @@ class Jetpack_Network {
 		     */
 		    if( $this->get_option( 'auto-connect' ) == 1 ) {
 			//add_action( 'admin_init', array( $this, 'do_automatically_add_new_site' ) );
-			//add_action( 'wpmu_new_blog', array( $this, 'do_automatically_add_new_site' ) );
+			add_action( 'wpmu_new_blog', array( $this, 'do_automatically_add_new_site' ) );
 		    }
 		}
 		    
@@ -535,6 +535,9 @@ class Jetpack_Network {
 		    ), 
 		    $is_master_user 
 	    );
+
+	    Jetpack::activate_default_modules();
+
 	    restore_current_blog();
 	}
 	
