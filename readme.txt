@@ -45,8 +45,6 @@ Features include:
 * Jetpack Monitor will keep tabs on your site, and alert you the moment that downtime is detected.
 * and *many* more to come!
 
-Note: The stats portion of Jetpack uses Quantcast to enhance its data.
-
 == Installation ==
 
 1. Install Jetpack either via the WordPress.org plugin directory, or by uploading the files to your server
