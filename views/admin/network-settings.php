@@ -45,14 +45,11 @@
 				-->
 			</thead>
 			<tbody>
-				<?php foreach( $this->list_modules() AS $module ) { ?>
-				<?php
-				$module_name = $module['name'];
-				$module_slug = strtolower( preg_replace( "/[^a-zA-Z0-9]+/", "", $module_name ) );
-				?>
+
+				<?php foreach( $modules AS $module ) {  ?>
 				<tr>
-					<td><input type="checkbox" name="modules[]" value="<?php echo $module_slug; ?>" id="<?php echo $module_slug; ?>" <?php checked( in_array( $module_slug, $options['modules'] ) ); ?>/></td>
-					<td><label for="<?php echo $module_slug; ?>"><?php echo $module_name; ?></label></td>
+					<td><input type="checkbox" name="modules[]" value="<?php echo $module['module']; ?>" id="<?php echo $module['module']; ?>" <?php checked( in_array( $module['module'], $options['modules'] ) ); ?>/></td>
+					<td><label for="<?php echo $module['module']; ?>"><?php echo $module['name']; ?></label></td>
 				</tr>
 
 				<?php } ?>

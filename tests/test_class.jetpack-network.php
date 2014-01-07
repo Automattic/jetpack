@@ -28,13 +28,4 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 	    $this->assertNull( $jpms->get_url( 1234 );
     }
-
-    /**
-     * @since 2.5
-     */
-    public function test_list_modules_returns_array() {
-	$jpms = Jetpack_Network::init();
-
-	$this->assertInternalType( 'array', $jpms->list_modules() );
-    }
 } // end class
