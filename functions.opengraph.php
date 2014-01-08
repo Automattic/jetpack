@@ -182,7 +182,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 	// Second fall back, blank image
 	if ( empty( $image ) ) {
-		$image[] = "http://wordpress.com/i/blank.jpg";
+		$image[] = apply_filters( 'jetpack_open_graph_image_default', "http://wordpress.com/i/blank.jpg" );
 	}
 
 	return $image;
