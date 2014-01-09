@@ -10,7 +10,6 @@
  * Module Tags: Developers
  */
 
-
 class Jetpack_SSO {
 	static $instance = null;
 
@@ -107,6 +106,7 @@ class Jetpack_SSO {
 	 **/
 	public function render_remove_login_form_checkbox() {
 		echo '<input type="checkbox" name="jetpack_sso_remove_login_form[remove_login_form]" ' . checked( 1 == get_option( 'jetpack_sso_remove_login_form' ), true, false ) . '>';
+		echo '<p class="description">Removes default login form and disallows login via POST</p>';
 	}
 
 	/**
@@ -137,6 +137,14 @@ class Jetpack_SSO {
 		add_action( 'login_footer', array( $this, 'login_footer' ) );
 
 		if( get_option( 'jetpack_sso_remove_login_form' ) ) {
+			/**
+	 	 	 * Check to see if the user is attempting to login via the default login form.
+	 	 	 * If so we need to deny it and forward elsewhere.
+	 	 	 **/
+			if( isset( $_REQUEST['wp-submit'] ) && 'Log In' == $_REQUEST['wp-submit']
+	  	  	  ) {
+				wp_die( 'Login not permitted by this method. ');
+			}
 			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 		}
 
@@ -450,6 +458,7 @@ class Jetpack_SSO {
 	 * the user's account on WordPress.com does not have two step enabled.
 	 *
 	 * @since 2.7
+	 * @param string $message
 	 * @return string
 	 **/
 	function error_msg_enable_two_step( $message ) {
@@ -460,6 +469,20 @@ class Jetpack_SSO {
 		return $message;
 	}
 
+	/**
+	 * Error message displayed on the login form when the user attempts
+	 * to post to the login form and it is disabled.
+	 *
+	 * @since 2.8
+	 * @param string $message
+	 * @param string
+	 **/
+	function error_msg_login_method_not_allowed( $message ) {
+		$err = __( 'Login method not allowed' );
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
+		
+		return $message;
+	}
 	function cant_find_user( $message ) {
 		if ( self::match_by_email() ) {
 			$err_format = __( 'We couldn\'t find an account with the email <strong><code>%1$s</code></strong> to log you in with.  If you already have an account on <strong>%2$s</strong>, please make sure that <strong><code>%1$s</code></strong> is configured as the email address, or that you have connected to WordPress.com on your profile page.', 'jetpack' );
