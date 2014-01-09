@@ -132,12 +132,51 @@ class Jetpack_SSO {
 		return $text;
 	}
 
+	/**
+	 * Checks to determine if the user wants to login on wp-login
+	 *
+	 * This function mostly exists to cover the exceptions to login 
+	 * that may exist as other parameters to $_GET[action] as $_GET[action]
+	 * does not have to exist. By default WordPress assumes login if an action
+	 * is not set, however this may not be true, as in the case of logout
+	 * where $_GET[loggedout] is instead set
+	 *
+	 * @return boolean
+	 **/
+	private function wants_to_login() {
+		$wants_to_login = false;
+
+		// Cover default WordPress behavior
+		$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : 'login';
+
+		// And now the exceptions
+		$action = isset( $_GET['loggedout'] ) ? 'loggedout' : $action;
+
+		if( 'login' == $action ) {
+			$wants_to_login = true;
+		}
+
+		return $wants_to_login;
+	}
+
 	function login_init() {
+		/*
+		 * Check to see if the site admin wants to automagically forward the user
+		 * to the WordPress.com login page AND  that the request to wp-login.php
+		 * is not something other than login (Like logout!)
+		 */
+		if( 
+			$this->wants_to_login()
+			&& apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false ) 
+		) {
+			wp_redirect( $this->build_sso_url() );
+		}
+
 		add_action( 'login_footer',   array( $this, 'login_form' ) );
 		add_action( 'login_footer', array( $this, 'login_footer' ) );
 
 		if( get_option( 'jetpack_sso_remove_login_form' ) ) {
-			/**
+			/*
 	 	 	 * Check to see if the user is attempting to login via the default login form.
 	 	 	 * If so we need to deny it and forward elsewhere.
 	 	 	 **/
