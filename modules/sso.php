@@ -24,6 +24,10 @@ class Jetpack_SSO {
 		add_action( 'admin_init',  array( $this, 'register_settings' ) );
 		add_action( 'login_init',  array( $this, 'login_init' ) );
 		add_action( 'delete_user', array( $this, 'delete_connection_for_user' ) );
+
+		if( $this->should_hide_login_form() && apply_filters( 'jetpack_sso_display_disclaimer', true ) ) {
+			add_action( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
+		}
 	}
 
 	/**
@@ -494,7 +498,8 @@ class Jetpack_SSO {
 
 		$css .= "</style>";
 
-		return sprintf( '<a href="%1$s" class="jetpack-sso button">%2$s</a>', esc_url( $url ), esc_html__( 'Log in with WordPress.com', 'jetpack' ) ) . $css;
+		$button = sprintf( '<a href="%1$s" class="jetpack-sso button">%2$s</a>', esc_url( $url ), esc_html__( 'Log in with WordPress.com', 'jetpack' ) ); 
+		return $button . $css;
 	}
 
 	function build_sso_url( $args = array() ) {
@@ -533,11 +538,29 @@ class Jetpack_SSO {
 	 * @param string $message
 	 * @return string
 	 **/
-	function error_msg_enable_two_step( $message ) {
+	public function error_msg_enable_two_step( $message ) {
 		$err = __( sprintf( 'This site requires two step authentication be enabled for your user account on WordPress.com. Please visit the <a href="%1$s"> Security Settings</a> page to enable two step', 'https://wordpress.com/settings/security/' ) );
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
 		
+		return $message;
+	}
+
+	/**
+	 * Message displayed when the site admin has disabled the default WordPress
+	 * login form in Settings > General > Single Sign On
+	 *
+	 * @since 2.7
+	 * @param string $message
+	 * @return string
+	 **/
+	public function msg_login_by_jetpack( $message ) {
+		
+		$msg = __( sprintf( 'Jetpack authenticates through WordPress.com — to log in, enter your WordPress.com username and password, or <a href="%1$s">visit WordPress.com</a> to create a free account now.', 'http://wordpress.com/signup' ) );
+
+		$msg = apply_filters( 'jetpack_sso_disclaimer_message', $msg );
+
+		$message .= sprintf( '<p class="message">%s</p>', $msg );
 		return $message;
 	}
 
@@ -549,7 +572,7 @@ class Jetpack_SSO {
 	 * @param string $message
 	 * @param string
 	 **/
-	function error_msg_login_method_not_allowed( $message ) {
+	public function error_msg_login_method_not_allowed( $message ) {
 		$err = __( 'Login method not allowed' );
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
 		
