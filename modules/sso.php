@@ -205,12 +205,29 @@ class Jetpack_SSO {
 		}
 	}
 
+	/**
+ 	 * Determing if the login form should be hidden or not
+	 *
+	 * Method is private only because it is only used in this class so far.
+	 * Feel free to change it later
+	 *
+	 * @return bool
+	 **/
+	private function should_hide_login_form() {
+		return apply_filters( 'jetpack_remove_login_form', get_option( 'jetpack_sso_remove_login_form' ) );
+	}
+
 	function login_form() {
-		echo '<div class="jetpack-sso-wrap">' . $this->button() . '</div>';
+		$classes = '';
+		
+		if( $this->should_hide_login_form() ) {
+			$classes .= ' forced-sso';
+		}
+		echo '<div class="jetpack-sso-wrap' . $classes . '">' . $this->button() . '</div>';
 	}
 
 	function login_footer() {
-		$hide_login_form = apply_filters( 'jetpack_remove_login_form', get_option( 'jetpack_sso_remove_login_form' ) );
+		$hide_login_form = $this->should_hide_login_form();
 		?>
 		<style>
 			#loginform {
@@ -230,6 +247,22 @@ class Jetpack_SSO {
 				clear: right;
 				display: block;
 			}
+
+			<?php if( $hide_login_form ) { ?>
+			.forced-sso .jetpack-sso.button {
+				font-size: 16px;
+    			line-height: 27px;
+    			height: 37px;
+    			padding: 5px 12px 6px 47px;
+			}
+			.forced-sso .jetpack-sso.button:before {
+    			font-size: 28px !important;
+    			height: 28px;
+    			padding: 5px 5px 4px;
+    			width: 28px;
+			}
+
+			<?php } ?>
 		</style>
 		<script>
 			jQuery(document).ready(function($){
