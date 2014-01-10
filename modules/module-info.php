@@ -898,3 +898,19 @@ function jetpack_monitor_more_link() {
 add_action( 'jetpack_learn_more_button_monitor', 'jetpack_monitor_more_link' );
 // Monitor: STOP
 
+// Markdown: START
+function jetpack_markdown_more_info() { ?>
+	<h4><?php esc_html_e( 'Markdown' , 'jetpack' ); ?></h4>
+
+	<p><?php esc_html_e( 'Markdown lets you compose posts and comments with links, lists, and other styles using regular characters and punctuation marks. Markdown is used by writers and bloggers who want a quick and easy way to write rich text, without having to take their hands off the keyboard, and without learning a lot of complicated codes and shortcuts.', 'jetpack' ); ?></p>
+
+<?php
+}
+add_action( 'jetpack_module_more_info_markdown', 'jetpack_markdown_more_info' );
+
+function jetpack_markdown_more_link() {
+	echo '<a class="button-secondary more-info-link" href="http://en.support.wordpress.com/markdown/">' . esc_html__( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_action( 'jetpack_learn_more_button_markdown', 'jetpack_markdown_more_link' );
+// Markdown: STOP
+
