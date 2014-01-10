@@ -147,6 +147,7 @@ class Jetpack_Debugger {
 							<li>- <?php esc_html_e( "If you get a 404 message, contact your web host. Their security may block XMLRPC.", 'jetpack' ); ?></li>
 						</ul>
 					</li>
+					<li><b><em><?php esc_html_e( 'A missmatch of synchronized posts', 'jetpack' ); ?></em></b>  <?php _e( "Some Jetpack modules depend on the WordPress.com infrastructure and requires public content be mirrored there. If you are seeing intermittent issues that only effect certain posts try requesting a <a id='jetpack-sync-reindex-trigger' href=''>reindex of your site</a>. <span id='jetpack-sync-reindex-status' style='display:none'>Reindexing status: <b></b></span>", 'jetpack' ); ?></li>
 				</ol>
 				<?php if ( self::is_jetpack_support_open() ): ?>
 				<p class="jetpack-show-contact-form"><?php _e( 'If none of these help you find a solution, <a href="#">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ); ?>
@@ -361,6 +362,49 @@ class Jetpack_Debugger {
 				return true;
 	    	});
 
+			$( '#jetpack-sync-reindex-trigger' ).on( 'click', function( event ) {
+				event.preventDefault();
+
+				var self = $( this );
+
+				if ( true == self.data( 'running' ) )
+					return;
+
+				self.data( 'running', true );
+				$( '#jetpack-sync-reindex-status' )
+					.show()
+					.children( 'b' )
+					.html( '&hellip;' );
+
+				if ( true !== self.data( 'triggered' ) ) {
+					self.data( 'triggered', true );
+					$.getJSON(
+						ajaxurl,
+						{ action:'jetpack-sync-reindex-trigger' },
+						function( data ) {
+							$( '#jetpack-sync-reindex-status' )
+								.show()
+								.children( 'b' )
+								.text( data.status );
+
+							setTimeout( function(){ self.data( 'running', false ); }, 30000 );
+						}
+					);
+				} else {
+					$.getJSON(
+						ajaxurl,
+						{ action:'jetpack-sync-reindex-status' },
+						function( data ) {
+							$( '#jetpack-sync-reindex-status' )
+								.show()
+								.children( 'b' )
+								.text( data.status );
+
+							setTimeout( function(){ self.data( 'running', false ); }, 30000 );
+						}
+					);
+				}
+			} );
 		} );
 		</script>
 		<?php
