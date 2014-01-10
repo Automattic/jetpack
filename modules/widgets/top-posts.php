@@ -29,6 +29,13 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	var $alt_option_name = 'widget_stats_topposts';
 	var $default_title = '';
 
+	private $default_settings = array(
+		'title' => '',
+		'count' => 10,
+		'display' => 'text',
+		'type' => array()
+	);
+
 	function __construct() {
 		parent::__construct(
 			'top-posts',
@@ -38,8 +45,11 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			)
 		);
 
-		$this->default_title =  __( 'Top Posts &amp; Pages', 'jetpack' );
-		$this->post_types = array_values( get_post_types( array( 'public' => true ) ) );
+		$this->default_title =  __( 'Top Posts &amp; Pages', 'jetpack' );// Refactor to remove this line
+		$this->default_settings['title'] = $this->default_title;
+
+		$this->post_types = array_values( get_post_types( array( 'public' => true ) ) );// Refactor to remove this line
+		$this->default_settings['type'] = $this->post_types;
 
 		if ( is_active_widget( false, false, $this->id_base ) ) {
 			add_action( 'wp_print_styles', array( $this, 'enqueue_style' ) );
@@ -52,28 +62,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	}
 
 	function form( $instance ) {
-		$title = isset( $instance['title' ] ) ? $instance['title'] : false;
-		if ( false === $title ) {
-			$title = $this->default_title;
-		}
-
-		$count = isset( $instance['count'] ) ? (int) $instance['count'] : 10;
-		if ( $count < 1 || 10 < $count ) {
-			$count = 10;
-		}
-
-		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
-			$display = $instance['display'];
-		} else {
-			$display = 'text';
-		}
-
-		if ( isset( $instance['type'] ) && in_array( $instance['type'], $this->post_types ) ) {
-			$type = $instance['type'];
-		} else {
-			$type = $this->post_types;
-		}
-
+		$instance = wp_parse_args( $instance, $this->default_settings );
+		extract( $instance ); // Bad idea! Limit the amount of black magic by updating below to use $instance instead
 		?>
 
 		<p>
@@ -100,7 +90,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			<ul>
 				<?php
 				$types = $this->post_types;
-
 				foreach ( $types as $type ) :
 					$post_type_object = get_post_type_object( $type );
 					$label = $post_type_object->labels->name;
@@ -133,6 +122,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			$instance['display'] = 'text';
 		}
 
+		/*
+		 * There MUST be at least one post type set. If there is not then
+		 * lets select ALL the post type. Ha! :P
+		 */
 		$instance['type'] = array();
 		if ( isset( $new_instance['type'] ) ) {
 			foreach ( $new_instance['type'] as $type ) {
@@ -313,7 +306,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		return $this->get_posts( $post->ID, 1 );
 	}
 
-	function get_posts( $post_ids, $count, $type ) {
+	function get_posts( $post_ids, $count/*, $type */) {
 		$counter = 0;
 
 		if ( isset( $instance['type'] ) && in_array( $instance['type'], $this->post_types ) ) {
