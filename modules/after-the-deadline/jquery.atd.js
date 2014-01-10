@@ -20,20 +20,17 @@ var AtD =
 	rpc_css : 'http://www.polishmywriting.com/atd-jquery/server/proxycss.php?data=', /* you may use this, but be nice! */
 	rpc_css_lang : 'en',
 	api_key : '',
-	i18n : {},
+	i18n : {}, // Back-compat
 	listener : {}
 };
 
-AtD.getLang = function(key, defaultk) {
-	if (AtD.i18n[key] == undefined)
-		return defaultk;
-
-	return AtD.i18n[key];
+AtD.getLang = function( key, defaultk ) {
+	return ( window.AtD_l10n_r0ar && window.AtD_l10n_r0ar[key] ) || defaultk;
 };
 
-AtD.addI18n = function(localizations) {
-	AtD.i18n = localizations;
-	AtD.core.addI18n(localizations);
+AtD.addI18n = function( obj ) {
+	// Back-compat
+	window.AtD_l10n_r0ar = obj;
 };
 
 AtD.setIgnoreStrings = function(string) {

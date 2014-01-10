@@ -60,6 +60,10 @@ function AtD_addbuttons() {
 	if ( ! AtD_is_allowed() )
 		return;
 
+	if ( ! defined( 'ATD_TINYMCE_4' ) ) {
+		define( 'ATD_TINYMCE_4', ( ! empty( $GLOBALS['tinymce_version'] ) && substr( $GLOBALS['tinymce_version'], 0, 1 ) >= 4 ) );
+	}
+
 	/* Add only in Rich Editor mode */
 	if ( get_user_option( 'rich_editing' ) == 'true' ) {
 		add_filter( 'mce_external_plugins', 'add_AtD_tinymce_plugin' );
@@ -75,6 +79,14 @@ function AtD_addbuttons() {
  * Hook into the TinyMCE buttons and replace the current spellchecker
  */
 function register_AtD_button( $buttons ) {
+	if ( ATD_TINYMCE_4 ) {
+		// Use the default icon in TinyMCE 4.0 (replaced by dashicons in editor.css)
+		if ( ! in_array( 'spellchecker', $buttons, true ) ) {
+			$buttons[] = 'spellchecker';
+		}
+
+		return $buttons;
+	}
 
 	/* kill the spellchecker.. don't need no steenkin PHP spell checker */
 	foreach ( $buttons as $key => $button ) {
@@ -90,10 +102,12 @@ function register_AtD_button( $buttons ) {
 }
 
 /*
- * Load the TinyMCE plugin : editor_plugin.js (wp2.5)
+ * Load the TinyMCE plugin : editor_plugin.js (TinyMCE 3.x) | plugin.js (TinyMCE 4.0)
  */
 function add_AtD_tinymce_plugin( $plugin_array ) {
-	$plugin_array['AtD'] = plugins_url( 'after-the-deadline/tinymce/editor_plugin.js?v=' . ATD_VERSION, __FILE__ );
+	$plugin = ATD_TINYMCE_4 ? 'plugin' : 'editor_plugin';
+
+	$plugin_array['AtD'] = plugins_url( 'after-the-deadline/tinymce/' . $plugin . '.js?v=' . ATD_VERSION, __FILE__ );
 	return $plugin_array;
 }
 
@@ -155,10 +169,37 @@ function AtD_settings() {
 function AtD_load_javascripts() {
 	if ( AtD_should_load_on_page() ) {
 		wp_enqueue_script( 'AtD_core', plugins_url( '/after-the-deadline/atd.core.js', __FILE__ ), array(), ATD_VERSION );
-	        wp_enqueue_script( 'AtD_quicktags', plugins_url( '/after-the-deadline/atd-nonvis-editor-plugin.js', __FILE__ ), array('quicktags'), ATD_VERSION );
-        	wp_enqueue_script( 'AtD_jquery', plugins_url( '/after-the-deadline/jquery.atd.js', __FILE__ ), array('jquery'), ATD_VERSION );
-        	wp_enqueue_script( 'AtD_settings', admin_url() . 'admin-ajax.php?action=atd_settings', array('AtD_jquery'), ATD_VERSION );
+		wp_enqueue_script( 'AtD_quicktags', plugins_url( '/after-the-deadline/atd-nonvis-editor-plugin.js', __FILE__ ), array('quicktags'), ATD_VERSION );
+		wp_enqueue_script( 'AtD_jquery', plugins_url( '/after-the-deadline/jquery.atd.js', __FILE__ ), array('jquery'), ATD_VERSION );
+		wp_enqueue_script( 'AtD_settings', admin_url() . 'admin-ajax.php?action=atd_settings', array('AtD_jquery'), ATD_VERSION );
 		wp_enqueue_script( 'AtD_autoproofread', plugins_url( '/after-the-deadline/atd-autoproofread.js', __FILE__ ), array('AtD_jquery'), ATD_VERSION );
+
+		/* load localized strings for AtD */
+		wp_localize_script( 'AtD_core', 'AtD_l10n_r0ar', array (
+			'menu_title_spelling'         => __( 'Spelling', 'jetpack' ),
+			'menu_title_repeated_word'    => __( 'Repeated Word', 'jetpack' ),
+
+			'menu_title_no_suggestions'   => __( 'No suggestions', 'jetpack' ),
+
+			'menu_option_explain'         => __( 'Explain...', 'jetpack' ),
+			'menu_option_ignore_once'     => __( 'Ignore suggestion', 'jetpack' ),
+			'menu_option_ignore_always'   => __( 'Ignore always', 'jetpack' ),
+			'menu_option_ignore_all'      => __( 'Ignore all', 'jetpack' ),
+
+			'menu_option_edit_selection'  => __( 'Edit Selection...', 'jetpack' ),
+
+			'button_proofread'            => __( 'proofread', 'jetpack' ),
+			'button_edit_text'            => __( 'edit text', 'jetpack' ),
+			'button_proofread_tooltip'    => __( 'Proofread Writing', 'jetpack' ),
+
+			'message_no_errors_found'     => __( 'No writing errors were found.', 'jetpack' ),
+			'message_server_error'        => __( 'There was a problem communicating with the Proofreading service. Try again in one minute.', 'jetpack' ),
+			'message_server_error_short'  => __( 'There was an error communicating with the proofreading service.', 'jetpack' ),
+
+			'dialog_replace_selection'    => __( 'Replace selection with:', 'jetpack' ),
+			'dialog_confirm_post_publish' => __( "The proofreader has suggestions for this post. Are you sure you want to publish it?\n\nPress OK to publish your post, or Cancel to view the suggestions and edit your post.", 'jetpack' ),
+			'dialog_confirm_post_update'  => __( "The proofreader has suggestions for this post. Are you sure you want to update it?\n\nPress OK to update your post, or Cancel to view the suggestions and edit your post.", 'jetpack' ),
+		) );
 	}
 }
 
@@ -202,7 +243,7 @@ function AtD_is_allowed() {
 
 function AtD_load_css() {
 	if ( AtD_should_load_on_page() )
-	        wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/atd.css', __FILE__ ), null, ATD_VERSION, 'screen' );
+		wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/atd.css', __FILE__ ), null, ATD_VERSION, 'screen' );
 }
 
 /* Helper used to check if javascript should be added to page. Helps avoid bloat in admin */
@@ -232,9 +273,9 @@ function AtD_fullscreen($buttons) {
 add_filter( 'tiny_mce_before_init', 'AtD_change_mce_settings' );
 
 /* load some stuff for non-visual editor */
-add_action( 'admin_print_scripts', 'AtD_load_javascripts' );
-add_action( 'admin_print_scripts', 'AtD_load_submit_check_javascripts' );
-add_action( 'admin_print_styles', 'AtD_load_css' );
+add_action( 'admin_enqueue_scripts', 'AtD_load_javascripts' );
+add_action( 'admin_enqueue_scripts', 'AtD_load_submit_check_javascripts' );
+add_action( 'admin_enqueue_scripts', 'AtD_load_css' );
 
 /* init process for button control */
 add_action( 'init', 'AtD_addbuttons' );
@@ -243,6 +284,3 @@ add_action( 'init', 'AtD_addbuttons' );
 add_action( 'wp_ajax_proxy_atd', 'AtD_redirect_call' );
 add_action( 'wp_ajax_atd_ignore', 'AtD_ignore_call' );
 add_action( 'wp_ajax_atd_settings', 'AtD_settings' );
-
-/* load and install the localization stuff */
-include( 'after-the-deadline/atd-l10n.php' );
