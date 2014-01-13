@@ -61,11 +61,20 @@ class Jetpack_SSO {
 	 * the next time the user visits the site.
 	 **/
 	public function xmlrpc_user_disconnect( $user_id ) {
-		$user = wp_set_current_user( (int)$user_id );
+		$user_query = new WP_User_Query(
+			array(
+				'meta_key' => 'wpcom_user_id',
+				'meta_value' => $user_id
+			)
+		);
+		$user = $user_query->get_results();
+		$user = $user[0];
+
 
 		if( $user instanceof WP_User ) {
-			update_user_meta( (int)$user_id, 'jetpack_force_logout', '1' );
-			self::delete_connection_for_user( $user_id );
+			$user = wp_set_current_user( $user->ID );
+			update_user_meta( $user->ID, 'jetpack_force_logout', '1' );
+			self::delete_connection_for_user( $user->ID );
 			return true;
 		}
 		return false;
