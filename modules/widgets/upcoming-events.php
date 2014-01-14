@@ -2,7 +2,13 @@
 
 class Upcoming_Events_Widget extends WP_Widget {
 	function __construct() {
-		parent::__construct( 'upcoming_events_widget', __( 'Upcoming Events', 'jetpack' ), array( 'description' => __( 'Display upcoming events from an iCalendar feed.', 'jetpack' ) ) );
+		parent::__construct(
+			'upcoming_events_widget',
+			apply_filters( 'jetpack_widget_name', __( 'Upcoming Events', 'jetpack' ) ),
+			array(
+				'description' => __( 'Display upcoming events from an iCalendar feed.', 'jetpack' ),
+			)
+		);
 		if ( is_active_widget( false, false, $this->id_base ) ) {
 			add_action( 'wp_head', array( $this, 'css' ) );
 		}
