@@ -898,3 +898,22 @@ function jetpack_monitor_more_link() {
 add_action( 'jetpack_learn_more_button_monitor', 'jetpack_monitor_more_link' );
 // Monitor: STOP
 
+// Related Posts: START
+function jetpack_related_posts_more_info() {
+	$template = <<<EOT
+		<h4>%s</h4>
+		<p>%s</p>
+EOT;
+	printf(
+		$template,
+		esc_html__( 'Related Posts' , 'jetpack' ),
+		esc_html__( "The Related Posts feature pulls relevant content from your blog to display at the bottom of your posts. If the feature is enabled, a section of related posts appears just underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).", 'jetpack' )
+	);
+}
+add_action( 'jetpack_module_more_info_related-posts', 'jetpack_related_posts_more_info' );
+
+function jetpack_related_posts_more_button() {
+	echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_action( 'jetpack_learn_more_button_related-posts', 'jetpack_related_posts_more_button' );
+// Related Posts: STOP
