@@ -257,9 +257,10 @@ class Jetpack_Photon {
 					if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode('|', self::$extensions ) . '){1}$#i', basename( $src ), $filename ) )
 						$fullsize_url = true;
 
-					// Build URL, first removing WP's resized string so we pass the original image to Photon
-					if ( ! $fullsize_url && preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) )
-						$src = str_replace( $src_parts[1], '', $src );
+					// Build URL, first maybe removing WP's resized string so we pass the original image to Photon
+					if ( ! $fullsize_url ) {
+						$src = self::strip_image_dimensions_maybe( $src );
+					}
 
 					// Build array of Photon args and expose to filter before passing to Photon URL function
 					$args = array();
@@ -316,6 +317,48 @@ class Jetpack_Photon {
 		}
 
 		return $content;
+	}
+
+	/**
+	 * Filter image source if it seems to be a resized version of a larger image that exists.
+	 *
+	 * @param string $src The image URL
+	 * @param int $weeks The number of weeks to cache the result
+	 * @uses Jetpack_Options::get_option, Jetpack_Options::update_option, apply_filters, wp_remote_head, wp_remote_retrieve_response_code, self::$extensions
+	 * @return string
+	 */
+	static function strip_image_dimensions_maybe( $src, $weeks = 2 ) {
+		$raw_src = $stripped_src = $src;
+
+		// Build URL, first removing WP's resized string so we pass the original image to Photon
+		if ( preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) ) {
+			$stripped_src = str_replace( $src_parts[1], '', $src );
+			$valid        = Jetpack_Options::get_option( 'photon_valid_sources', array() );
+			$invalid      = Jetpack_Options::get_option( 'photon_invalid_sources', array() );
+
+			// Use isset() because it's quicker than array_key_exists().
+			if ( isset( $valid[ $stripped_src ] ) && ( $valid[ $stripped_src ] > time() - ( $weeks * WEEK_IN_SECONDS ) ) ) {
+				// If we recognize it, and it was valid within the last two weeks ...
+				$src = $stripped_src;
+			} elseif ( isset( $invalid[ $stripped_src ] ) && ( $invalid[ $stripped_src ] > time() - ( $weeks * WEEK_IN_SECONDS ) ) ) {
+				// If we recognize it, and it was invalid within the last two weeks ...
+				$src = $raw_src;
+			} else {
+				// Otherwise, test to see if the $stripped_src exists!
+				$head = wp_remote_head( $stripped_src );
+				if ( '200' == wp_remote_retrieve_response_code( $head ) ) {
+					$src = $stripped_src;
+					$valid[ $stripped_src ] = time();
+					Jetpack_Options::update_option( 'photon_valid_sources', $valid );
+				} else {
+					$src = $raw_src;
+					$invalid[ $stripped_src ] = time();
+					Jetpack_Options::update_option( 'photon_invalid_sources', $invalid );
+				}
+			}
+		}
+
+		return apply_filters( 'photon_strip_image_dimensions_maybe', $src, $raw_src, $stripped_src, $weeks );
 	}
 
 	/**
