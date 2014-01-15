@@ -625,6 +625,7 @@ class Jetpack {
 			'facebook-thumb-fixer/_facebook-thumb-fixer.php',					// Facebook Thumb Fixer
 			'zoltonorg-social-plugin/zosp.php',							// Zolton.org Social Plugin
 			'wp-caregiver/wp-caregiver.php',							// WP Caregiver
+			'facebook-revised-open-graph-meta-tag/index.php',					// Facebook Revised Open Graph Meta Tag
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
