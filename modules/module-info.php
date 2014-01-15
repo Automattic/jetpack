@@ -910,6 +910,9 @@ function jetpack_related_posts_more_info() {
 		<h4>%s</h4>
 		<p>%s</p>
 		<p>&rarr; <a href="http://jetpack.me/support/related-posts/">%s</a></p>
+		<hr />
+		<p>%s</p>
+		%s
 EOT;
 	printf(
 		$template,
@@ -917,7 +920,9 @@ EOT;
 		esc_attr__( 'Related Posts', 'jetpack' ),
 		esc_html__( 'Related Posts', 'jetpack' ),
 		esc_html__( 'The Related Posts feature pulls relevant content from your blog to display at the bottom of your posts. If the feature is enabled, a section of related posts appears just underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).', 'jetpack' ),
-		esc_html__( 'More information on using Related Posts.', 'jetpack' )
+		esc_html__( 'More information on using Related Posts.', 'jetpack' ),
+		esc_html__( 'Related posts depends on the WordPress.com infrastructure and requires public content be mirrored there. If you are seeing intermittent issues that only effect certain posts try requesting a reindex of your posts.', 'jetpack' ),
+		Jetpack::init()->sync->reindex_ui()
 	);
 }
 add_action( 'jetpack_module_more_info_related-posts', 'jetpack_related_posts_more_info' );
