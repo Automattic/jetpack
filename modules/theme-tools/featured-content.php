@@ -395,17 +395,21 @@ class Featured_Content {
 	 * @param WP_Customize_Manager $wp_customize Theme Customizer object.
 	 */
 	public static function customize_register( $wp_customize ) {
+		
+		$term = get_term_by( 'id', self::get_setting( 'tag-id' ), 'post_tag' );
+		
+		$term->name = $term ? $term->name : 'featured';
+		
 		$wp_customize->add_section( 'featured_content', array(
 			'title'          => __( 'Featured Content', 'jetpack' ),
-			'description'    => sprintf( __( 'Easily feature all posts with the <a href="%1$s">"featured" tag</a> or a tag of your choice. Your theme supports up to %2$s posts in its featured content area.', 'jetpack' ), admin_url( '/edit.php?tag=featured' ), absint( self::$max_posts ) ),
+			'description'    => sprintf( __( 'Easily feature all posts with the <a href="%1$s">"'.$term->name.'" tag</a> or a tag of your choice. Your theme supports up to %2$s posts in its featured content area.', 'jetpack' ), admin_url( '/edit.php?tag='.$term->name ), absint( self::$max_posts ) ),
 			'priority'       => 130,
 			'theme_supports' => 'featured-content',
 		) );
 
 		// Add Featured Content settings.
-		$term = get_term_by( 'id', self::get_setting( 'tag-id' ), 'post_tag' );
 		$wp_customize->add_setting( 'featured-content[tag-name]', array(
-			'default'              => $term ? $term->name : 'featured',
+			'default'              => $term->name,
 			'type'                 => 'option',
 			'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
 		) );
@@ -435,7 +439,7 @@ class Featured_Content {
 	 * Enqueue the tag suggestion script.
 	 */
 	public static function enqueue_scripts() {
-		wp_enqueue_script( 'featured-content-suggest', plugins_url( 'js/suggest.js', __FILE__ ), array( 'suggest' ), '20131022', true );
+		wp_enqueue_script( 'featured-content-suggest', plugins_url( 'featured-content-admin.js', __FILE__ ), array( 'suggest' ), '20131022', true );
 	}
 
 	/**
