@@ -360,6 +360,7 @@ class Jetpack_Debugger {
 				message.val(message.val() + "\r\n\r\n----------------------------------------------\r\n\r\nDEBUG INFO:\r\n" + $('#debug_info').val()  );
 				return true;
 	    	});
+
 		} );
 		</script>
 		<?php
