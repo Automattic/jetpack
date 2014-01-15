@@ -901,13 +901,23 @@ add_action( 'jetpack_learn_more_button_monitor', 'jetpack_monitor_more_link' );
 // Related Posts: START
 function jetpack_related_posts_more_info() {
 	$template = <<<EOT
+		<div class="jp-info-img">
+			<a href="http://jetpack.me/support/related-posts/">
+				<img class="jp-info-img" src="%s" alt="%s" width="300" height="98" />
+			</a>
+		</div>
+
 		<h4>%s</h4>
 		<p>%s</p>
+		<p>&rarr; <a href="http://jetpack.me/support/related-posts/">%s</a></p>
 EOT;
 	printf(
 		$template,
-		esc_html__( 'Related Posts' , 'jetpack' ),
-		esc_html__( "The Related Posts feature pulls relevant content from your blog to display at the bottom of your posts. If the feature is enabled, a section of related posts appears just underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).", 'jetpack' )
+		plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/related-posts.png' ),
+		esc_attr__( 'Related Posts', 'jetpack' ),
+		esc_html__( 'Related Posts', 'jetpack' ),
+		esc_html__( 'The Related Posts feature pulls relevant content from your blog to display at the bottom of your posts. If the feature is enabled, a section of related posts appears just underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).', 'jetpack' ),
+		esc_html__( 'More information on using Related Posts.', 'jetpack' )
 	);
 }
 add_action( 'jetpack_module_more_info_related-posts', 'jetpack_related_posts_more_info' );
