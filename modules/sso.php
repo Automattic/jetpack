@@ -24,6 +24,59 @@ class Jetpack_SSO {
 		add_action( 'admin_init',  array( $this, 'register_settings' ) );
 		add_action( 'login_init',  array( $this, 'login_init' ) );
 		add_action( 'delete_user', array( $this, 'delete_connection_for_user' ) );
+		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
+		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
+	}
+
+	/**
+	 * If jetpack_force_logout == 1 in current user meta the user will be forced
+	 * to logout and reauthenticate with the site.
+	 **/
+	public function maybe_logout_user() {
+		global $current_user;
+
+		if( 1 == $current_user->jetpack_force_logout ) {
+			delete_user_meta( $current_user->ID, 'jetpack_force_logout' );
+			self::delete_connection_for_user( $current_user->ID );
+			wp_logout();
+			wp_safe_redirect( wp_login_url() );
+		}
+	}
+
+
+	/**
+	 * Adds additional methods the WordPress xmlrpc API for handling SSO specific features
+	 *
+	 * @param array $methods
+	 * @return array
+	 **/
+	public function xmlrpc_methods( $methods ) {
+		$methods['jetpack.userDisconnect'] = array( $this, 'xmlrpc_user_disconnect' );
+		return $methods;
+	}
+
+	/**
+	 * Marks a user's profile for disconnect from WordPress.com and forces a logout
+	 * the next time the user visits the site.
+	 **/
+	public function xmlrpc_user_disconnect( $user_id ) {
+		$user_query = new WP_User_Query(
+			array(
+				'meta_key' => 'wpcom_user_id',
+				'meta_value' => $user_id
+			)
+		);
+		$user = $user_query->get_results();
+		$user = $user[0];
+
+
+		if( $user instanceof WP_User ) {
+			$user = wp_set_current_user( $user->ID );
+			update_user_meta( $user->ID, 'jetpack_force_logout', '1' );
+			self::delete_connection_for_user( $user->ID );
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -253,7 +306,7 @@ class Jetpack_SSO {
 		}
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
+			'user_id' => $user_id
 		) );
 		$xml->query( 'jetpack.sso.removeUser', $wpcom_user_id );
 
