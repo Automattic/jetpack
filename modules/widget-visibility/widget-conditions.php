@@ -248,14 +248,29 @@ class Jetpack_Widget_Conditions {
 
 			foreach ( $widgets as $position => $widget_id ) {
 				// Find the conditions for this widget.
-				list( $basename, $suffix ) = explode( "-", $widget_id, 2 );
+				if ( preg_match( '/^(.+?)-(\d+)$/', $widget_id, $matches ) ) {
+					$id_base = $matches[1];
+					$widget_number = intval( $matches[2] );
+				}
+				else {
+					$id_base = $widget_id;
+					$widget_number = null;
+				}
 
-				if ( ! isset( $settings[$basename] ) )
-					$settings[$basename] = get_option( 'widget_' . $basename );
+				if ( ! isset( $settings[$id_base] ) ) {
+					$settings[$id_base] = get_option( 'widget_' . $id_base );
+				}
 
-				if ( isset( $settings[$basename][$suffix] ) ) {
-					if ( false === self::filter_widget( $settings[$basename][$suffix] ) )
+				// New multi widget (WP_Widget)
+				if ( ! is_null( $widget_number ) ) {
+					if ( isset( $settings[$id_base][$widget_number] ) && false === self::filter_widget( $settings[$id_base][$widget_number] ) ) {
 						unset( $widget_areas[$widget_area][$position] );
+					}
+				}
+
+				// Old single widget
+				else if ( false === self::filter_widget( $settings[$id_base] ) ) {
+					unset( $widget_areas[$widget_area][$position] );
 				}
 			}
 		}
