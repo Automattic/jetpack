@@ -45,7 +45,7 @@ class Jetpack_RelatedPosts_Module {
 	public function action_on_activate() {
 		// Trigger reindex if we have a post count mismatch
 		if ( $this->_get_post_count_local() != $this->_get_post_count_cloud() ) {
-			Jetpack::init()->sync_reindex_trigger();
+			Jetpack::init()->sync->reindex_trigger();
 		}
 	}
 
