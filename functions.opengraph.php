@@ -70,11 +70,14 @@ function jetpack_og_tags() {
 			$tags['article:author'] = get_author_posts_url( $data->post_author );
 	}
 
+	// Allow plugins to inject additional template-specific open graph tags
+	$tags = apply_filters( 'jetpack_open_graph_base_tags', $tags, compact( 'image_width', 'image_height' ) );
+
 	// Re-enable widont if we had disabled it
 	if ( $disable_widont )
 		add_filter( 'the_title', 'widont' );
 
-	if ( empty( $tags ) )
+	if ( empty( $tags ) && apply_filters( 'jetpack_open_graph_return_if_empty', true ) )
 		return;
 
 	$tags['og:site_name'] = get_bloginfo( 'name' );
@@ -87,7 +90,9 @@ function jetpack_og_tags() {
 		$tags['og:title'] = __( '(no title)', 'jetpack' );
 
 	// Shorten the description if it's too long
-	$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '...' : $tags['og:description'];
+	if ( isset( $tags['og:description'] ) ) {
+		$tags['og:description'] = strlen( $tags['og:description'] ) > $description_length ? mb_substr( $tags['og:description'], 0, $description_length ) . '...' : $tags['og:description'];
+	}
 
 	// Add any additional tags here, or modify what we've come up with
 	$tags = apply_filters( 'jetpack_open_graph_tags', $tags, compact( 'image_width', 'image_height' ) );
