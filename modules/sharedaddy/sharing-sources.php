@@ -37,8 +37,9 @@ abstract class Sharing_Source {
 
 	public function get_share_title( $post_id ) {
 		$post = get_post( $post_id );
+		$title = apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
 
-		return apply_filters( 'sharing_title', $post->post_title, $post_id, $this->id );
+		return html_entity_decode( wp_kses( $title, null ) );
 	}
 
 	public function has_custom_button_style() {
@@ -389,7 +390,7 @@ class Share_Twitter extends Sharing_Source {
 	}
 
 	public function process_request( $post, array $post_data ) {
-		$post_title = html_entity_decode( wp_kses( $this->get_share_title( $post->ID ), null ) );
+		$post_title = $this->get_share_title( $post->ID );
 		$post_link = $this->get_share_url( $post->ID );
 
 		if ( function_exists( 'mb_stripos' ) ) {
