@@ -3285,41 +3285,19 @@ p {
 
 	function sync_reindex_trigger() {
 		if ( $this->current_user_is_connection_owner() && current_user_can( 'manage_options' ) ) {
-
-			Jetpack::load_xml_rpc_client();
-			$client = new Jetpack_IXR_Client( array(
-				'user_id' => JETPACK_MASTER_USER,
-			) );
-
-			$client->query( 'jetpack.reindexTrigger' );
-
-			if ( !$client->isError() ) {
-				echo json_encode( $client->getResponse() );
-				exit;
-			}
+			echo json_encode( $this->sync->reindex_trigger() );
+		} else {
+			echo '{"status":"ERROR"}';
 		}
-
-		echo '{"status":"ERROR"}';
 		exit;
 	}
 
 	function sync_reindex_status(){
 		if ( $this->current_user_is_connection_owner() && current_user_can( 'manage_options' ) ) {
-
-			Jetpack::load_xml_rpc_client();
-			$client = new Jetpack_IXR_Client( array(
-				'user_id' => JETPACK_MASTER_USER,
-			) );
-
-			$client->query( 'jetpack.reindexStatus' );
-
-			if ( !$client->isError() ) {
-				echo json_encode( $client->getResponse() );
-				exit;
-			}
+			echo json_encode( $this->sync->reindex_status() );
+		} else {
+			echo '{"status":"ERROR"}';
 		}
-
-		echo '{"status":"ERROR"}';
 		exit;
 	}
 

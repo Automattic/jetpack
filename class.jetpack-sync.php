@@ -712,4 +712,47 @@ class Jetpack_Sync {
 			wp_schedule_single_event( time(), 'jetpack_sync_all_registered_options', array( $this->sync_options ) );
 		}
 	}
+
+	public function reindex_trigger() {
+		$response = array( 'status' => 'ERROR' );
+
+		Jetpack::load_xml_rpc_client();
+		$client = new Jetpack_IXR_Client( array(
+			'user_id' => JETPACK_MASTER_USER,
+		) );
+
+		$client->query( 'jetpack.reindexTrigger' );
+
+		if ( !$client->isError() ) {
+			$response = $client->getResponse();
+			add_option( 'jetpack_sync_bulk_reindexing', true );
+		}
+
+		return $response;
+	}
+
+	public function reindex_status() {
+		$response = array( 'status' => 'ERROR' );
+
+		// Assume reindexing is done if it was not triggered in the first place
+		if ( false === get_option( 'jetpack_sync_bulk_reindexing' ) ) {
+			return array( 'status' => 'DONE' );
+		}
+
+		Jetpack::load_xml_rpc_client();
+		$client = new Jetpack_IXR_Client( array(
+			'user_id' => JETPACK_MASTER_USER,
+		) );
+
+		$client->query( 'jetpack.reindexStatus' );
+
+		if ( !$client->isError() ) {
+			$response = $client->getResponse();
+			if ( 'DONE' == $response['status'] ) {
+				delete_option( 'jetpack_sync_bulk_reindexing' );
+			}
+		}
+
+		return $response;
+	}
 }
