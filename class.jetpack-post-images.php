@@ -272,7 +272,7 @@ class Jetpack_PostImages {
 		if ( !$html )
 			return $images;
 
-		preg_match_all( '!<img.*src="([^"]+)".*/?>!iUs', $html, $matches );
+		preg_match_all( '!<img.*src=[\'"]([^"]+)[\'"].*/?>!iUs', $html, $matches );
 		if ( !empty( $matches[1] ) ) {
 			foreach ( $matches[1] as $match ) {
 				if ( stristr( $match, '/smilies/' ) )
