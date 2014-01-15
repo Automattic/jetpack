@@ -41,7 +41,8 @@ class Jetpack_Image_Widget extends WP_Widget {
 			if ( '' != $instance['link'] )
 				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
 			if ( '' != $instance['caption'] )
-				$output = '[caption align="align' .  esc_attr( $instance['align'] ) . '" width="' . esc_attr( $instance['img_width'] ) .'" caption="' . esc_attr( $instance['caption'] ) . '"]' . $output . '[/caption]';
+				$caption = apply_filters( 'widget_text', $instance['caption'] );
+				$output = '[caption align="align' .  esc_attr( $instance['align'] ) . '" width="' . esc_attr( $instance['img_width'] ) .'"]' . $output . ' ' . $caption . '[/caption]'; // wp_kses_post caption on update 
 
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
 		}
@@ -50,13 +51,25 @@ class Jetpack_Image_Widget extends WP_Widget {
 	}
 
 	function update( $new_instance, $old_instance ) {
+		 $allowed_caption_html = array( 
+		 	'a' => array( 
+		 		'href' => array(), 
+		 		'title' => array(),
+		 		), 
+		 	'b' => array(), 
+		 	'em' => array(), 
+		 	'i' => array(), 
+		 	'p' => array(), 
+		 	'strong' => array() 
+		 	);
+
 		$instance = $old_instance;
 
 		$instance['title']      = strip_tags( $new_instance['title'] );
 		$instance['img_url']    = esc_url( $new_instance['img_url'], null, 'display' );
 		$instance['alt_text']   = strip_tags( $new_instance['alt_text'] );
 		$instance['img_title']  = strip_tags( $new_instance['img_title'] );
-		$instance['caption']    = strip_tags( $new_instance['caption'] );
+		$instance['caption']    = wp_kses( stripslashes($new_instance['caption'] ), $allowed_caption_html ); 
 		$instance['align']      = $new_instance['align'];
 		$instance['img_width']  = absint( $new_instance['img_width'] );
 		$instance['img_height'] = absint( $new_instance['img_height'] );
@@ -73,7 +86,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$img_url    = esc_url( $instance['img_url'], null, 'display' );
 		$alt_text   = esc_attr( $instance['alt_text'] );
 		$img_title  = esc_attr( $instance['img_title'] );
-		$caption    = esc_attr( $instance['caption'] );
+		$caption    = esc_textarea( $instance['caption'] );
 		$align      = esc_attr( $instance['align'] );
 		$img_width  = esc_attr( $instance['img_width'] );
 		$img_height = esc_attr( $instance['img_height'] );
@@ -117,7 +130,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 			<input class="widefat" id="' . $this->get_field_id( 'img_title' ) . '" name="' . $this->get_field_name( 'img_title' ) . '" type="text" value="' . $img_title . '" />
 			</label></p>
 			<p><label for="' . $this->get_field_id( 'caption' ) . '">' . esc_html__( 'Caption:', 'jetpack' ) . ' <a href="http://support.wordpress.com/widgets/image-widget/#image-widget-caption" target="_blank">( ? )</a>
-			<input class="widefat" id="' . $this->get_field_id( 'caption' ) . '" name="' . $this->get_field_name( 'caption' ) . '" type="text" value="' . $caption . '" />
+			<textarea class="widefat" id="' . $this->get_field_id( 'caption' ) . '" name="' . $this->get_field_name( 'caption' ) . '" rows="2" cols="20">' . $caption . '</textarea> 
 			</label></p>';
 
 		$alignments = array(
