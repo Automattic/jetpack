@@ -15,6 +15,7 @@ class Jetpack_Options {
 				'publicize',
 				'widget_twitter',
 				'wpcc_options',
+				'relatedposts',
 			);
 		}
 

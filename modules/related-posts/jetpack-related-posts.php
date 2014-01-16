@@ -15,7 +15,7 @@ class Jetpack_RelatedPosts {
 				$instance = WPCOM_RelatedPosts::init();
 			} else {
 				$instance = new Jetpack_RelatedPosts(
-					Jetpack::init()->get_option( 'id' )
+					Jetpack_Options::get_option( 'id' )
 				);
 			}
 		}
@@ -36,7 +36,7 @@ class Jetpack_RelatedPosts {
 				$instance = WPCOM_RelatedPosts::init_raw();
 			} else {
 				$instance = new Jetpack_RelatedPosts_Raw(
-					Jetpack::init()->get_option( 'id' )
+					Jetpack_Options::get_option( 'id' )
 				);
 			}
 		}
@@ -156,12 +156,12 @@ EOT;
 	/**
 	 * Gets options set for Jetpack_RelatedPosts and merge with defaults.
 	 *
-	 * @uses get_option, apply_filters
+	 * @uses Jetpack_Options::get_option, apply_filters
 	 * @return array
 	 */
 	public function get_options() {
 		if ( null === $this->_options ) {
-			$this->_options = get_option( 'jetpack_relatedposts' );
+			$this->_options = Jetpack_Options::get_option( 'relatedposts' );
 			if ( !is_array( $this->_options ) )
 				$this->_options = array();
 			if ( !isset( $this->_options['enabled'] ) )
