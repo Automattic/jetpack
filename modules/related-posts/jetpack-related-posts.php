@@ -46,6 +46,7 @@ class Jetpack_RelatedPosts {
 
 	protected $_blog_id;
 	protected $_options;
+	protected $_allow_feature_toggle;
 	protected $_blog_charset;
 	protected $_convert_charset;
 
@@ -53,7 +54,7 @@ class Jetpack_RelatedPosts {
 	 * Constructor for Jetpack_RelatedPosts.
 	 *
 	 * @param int $blog_id
-	 * @uses get_option, add_action
+	 * @uses get_option, add_action, apply_filters
 	 * @return null
 	 */
 	public function __construct( $blog_id ) {
@@ -210,45 +211,65 @@ EOT;
 	/**
 	 * HTML for admin settings page.
 	 *
-	 * @uses self::get_options, checked, __
+	 * @uses self::get_options, checked, esc_html__
 	 * @returns null
 	 */
 	public function print_setting_html() {
 		$options = $this->get_options();
-		$template = <<<EOT
+
+		$ui_settings_template = <<<EOT
+<ul id="settings-reading-relatedposts-customize">
+	<li>
+		<label><input name="jetpack_relatedposts[show_headline]" type="checkbox" value="1" %s /> %s</label>
+	</li>
+	<li>
+		<label><input name="jetpack_relatedposts[show_thumbnails]" type="checkbox" value="1" %s /> %s</label>
+	</li>
+</ul>
+<div id='settings-reading-relatedposts-preview'>
+	%s
+	<div class='jp-relatedposts'></div>
+</div>
+EOT;
+		$ui_settings = sprintf(
+			$ui_settings_template,
+			checked( $options['show_headline'], true, false ),
+			esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
+			checked( $options['show_thumbnails'], true, false ),
+			esc_html__( 'Show thumbnails for related posts', 'jetpack' ),
+			esc_html__( 'Preview:', 'jetpack' )
+		);
+
+		if ( !$this->_allow_feature_toggle() ) {
+			$template = <<<EOT
+<input type="hidden" name="jetpack_relatedposts[enabled]" value="1" />
+%s
+EOT;
+			printf(
+				$template,
+				$ui_settings
+			);
+		} else {
+			$template = <<<EOT
 <ul id="settings-reading-relatedposts">
 	<li>
         <label><input type="radio" name="jetpack_relatedposts[enabled]" value="0" class="tog" %s /> %s</label>
 	</li>
 	<li>
         <label><input type="radio" name="jetpack_relatedposts[enabled]" value="1" class="tog" %s /> %s</label>
-		<ul id="settings-reading-relatedposts-customize">
-			<li>
-				<label><input name="jetpack_relatedposts[show_headline]" type="checkbox" value="1" %s /> %s</label>
-			</li>
-			<li>
-				<label><input name="jetpack_relatedposts[show_thumbnails]" type="checkbox" value="1" %s /> %s</label>
-			</li>
-		</ul>
-		<div id='settings-reading-relatedposts-preview'>
-			%s
-			<div class='jp-relatedposts'></div>
-		</div>
+		%s
 	</li>
 </ul>
 EOT;
-		printf(
-			$template,
-			checked( $options['enabled'], false, false ),
-			__( 'Hide related content after posts', 'jetpack' ),
-			checked( $options['enabled'], true, false ),
-			__( 'Show related content after posts', 'jetpack' ),
-			checked( $options['show_headline'], true, false ),
-			__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
-			checked( $options['show_thumbnails'], true, false ),
-			__( 'Show thumbnails for related posts', 'jetpack' ),
-			__( 'Preview:', 'jetpack' )
-		);
+			printf(
+				$template,
+				checked( $options['enabled'], false, false ),
+				esc_html__( 'Hide related content after posts', 'jetpack' ),
+				checked( $options['enabled'], true, false ),
+				esc_html__( 'Show related content after posts', 'jetpack' ),
+				$ui_settings
+			);
+		}
 	}
 
 	/**
@@ -264,16 +285,29 @@ EOT;
 		);
 		$related_with_images = '<p class="jp-relatedposts-post jp-relatedposts-post0" data-post-format="false"><img width="48" src="http://en.blog.files.wordpress.com/2012/08/1-wpios-ipad-3-1-viewsite.png?w=48&amp;h=48&amp;crop=1" alt="Big iPhone/iPad Update Now&nbsp;Available" scale="0"><strong><a href="#" rel="nofollow">Big iPhone/iPad Update Now Available</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1" data-post-format="false"><img width="48" src="http://en.blog.files.wordpress.com/2013/04/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=48&amp;h=48&amp;crop=1" alt="The WordPress for Android App Gets a Big&nbsp;Facelift" scale="0"><strong><a href="#" rel="nofollow">The WordPress for Android App Gets a Big Facelift</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2" data-post-format="false"><img width="48" src="http://en.blog.files.wordpress.com/2013/01/videopresswedding.jpg?w=48&amp;h=48&amp;crop=1" alt="Upgrade Focus: VideoPress For&nbsp;Weddings" scale="0"><strong><a href="#" rel="nofollow">Upgrade Focus: VideoPress For Weddings</a></strong><br><span>In "Upgrade"</span></p>';
 		$related_without_images = '<p class="jp-relatedposts-post jp-relatedposts-post0" data-post-format="false"><strong><a href="#" rel="nofollow">Big iPhone/iPad Update Now Available</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1" data-post-format="false"><strong><a href="#" rel="nofollow">The WordPress for Android App Gets a Big Facelift</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2" data-post-format="false"><strong><a href="#" rel="nofollow">Upgrade Focus: VideoPress For Weddings</a></strong><br><span>In "Upgrade"</span></p>';
+
+		if ( $this->_allow_feature_toggle() ) {
+			$extra_css = '#settings-reading-relatedposts-customize { padding-left:2em; margin-top:.5em; }';
+		} else {
+			$extra_css = '';
+		}
+
 		echo <<<EOT
 <style type="text/css">
-	#settings-reading-relatedposts-customize { padding-left:2em; margin-top:.5em; }
 	#settings-reading-relatedposts .disabled { opacity:.5; filter:Alpha(opacity=50); }
 	#settings-reading-relatedposts-preview .jp-relatedposts { background:#fff; padding:.5em; width:75%; }
+	$extra_css
 </style>
 <script type="text/javascript">
 	jQuery( document ).ready( function($) {
 		var update_ui = function() {
-			if ( '1' == $( 'input[name="jetpack_relatedposts[enabled]"]:checked' ).val() ) {
+			var is_enabled = true;
+			if ( 'radio' == $( 'input[name="jetpack_relatedposts[enabled]"]' ).attr('type') ) {
+				if ( '0' == $( 'input[name="jetpack_relatedposts[enabled]"]:checked' ).val() ) {
+					is_enabled = false;
+				}
+			}
+			if ( is_enabled ) {
 				$( '#settings-reading-relatedposts-customize' )
 					.removeClass( 'disabled' )
 					.find( 'input' )
@@ -813,6 +847,13 @@ EOT;
 			wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), array( 'jquery' ), self::VERSION );
 		if ( $style )
 			wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
+	}
+
+	protected function _allow_feature_toggle() {
+		if ( null === $this->_allow_feature_toggle ) {
+			$this->_allow_feature_toggle = apply_filters( 'jetpack_relatedposts_filter_allow_feature_toggle', false );
+		}
+		return $this->_allow_feature_toggle;
 	}
 }
 
