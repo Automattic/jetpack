@@ -725,7 +725,7 @@ class Jetpack_Sync {
 
 		if ( !$client->isError() ) {
 			$response = $client->getResponse();
-			add_option( 'jetpack_sync_bulk_reindexing', true );
+			Jetpack_Options::update_option( 'sync_bulk_reindexing', true );
 		}
 
 		return $response;
@@ -735,7 +735,7 @@ class Jetpack_Sync {
 		$response = array( 'status' => 'ERROR' );
 
 		// Assume reindexing is done if it was not triggered in the first place
-		if ( false === get_option( 'jetpack_sync_bulk_reindexing' ) ) {
+		if ( false === Jetpack_Options::get_option( 'sync_bulk_reindexing' ) ) {
 			return array( 'status' => 'DONE' );
 		}
 
@@ -749,7 +749,7 @@ class Jetpack_Sync {
 		if ( !$client->isError() ) {
 			$response = $client->getResponse();
 			if ( 'DONE' == $response['status'] ) {
-				delete_option( 'jetpack_sync_bulk_reindexing' );
+				Jetpack_Options::delete_option( 'sync_bulk_reindexing' );
 			}
 		}
 
