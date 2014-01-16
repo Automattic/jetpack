@@ -137,3 +137,15 @@ function wpcom_twitter_cards_output( $og_tag ) {
 }
 
 add_filter( 'jetpack_open_graph_output', 'wpcom_twitter_cards_output' );
+
+function jetpack_twitter_cards_site_setting() {
+	if ( current_user_can( 'manage_options') ) { ?>
+		<div id="site-twitter"></div>
+			<div class="twitter-sharing-screen">
+				<h3><?php _e( 'Twitter Handle', 'jetpack' ) ?></h3>
+				<p>Set the Twitter handle to be displayed on <a href="https://dev.twitter.com/docs/cards" target="_blank">Twitter Cards</a> when sharing posts or pages from this blog.</p>
+			</div><?php
+	}
+}
+
+// add_action( 'pre_admin_screen_sharing', 'jetpack_twitter_cards_site_setting');
