@@ -25,7 +25,7 @@ jQuery( document ).ready( function($) {
 				var status = strings[response.status]['status'];
 
 				if ( 'INDEXING' == response.status ) {
-					status += ' (' + Math.floor( response.posts.imported / response.posts.total ) + '%)';
+					status += ' (' + Math.floor( 100 * response.posts.imported / response.posts.total ) + '%)';
 				}
 
 				self
