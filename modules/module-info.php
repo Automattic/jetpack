@@ -919,9 +919,9 @@ EOT;
 		plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/related-posts.png' ),
 		esc_attr__( 'Related Posts', 'jetpack' ),
 		esc_html__( 'Related Posts', 'jetpack' ),
-		esc_html__( 'The related posts feature pulls relevant content from your site to display at the bottom of your posts. If the feature is enabled, a section of related posts appears just underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).', 'jetpack' ),
+		esc_html__( '"Related Posts" shows additional relevant links from your site under your posts. If the feature is enabled, links appear underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).', 'jetpack' ),
 		esc_html__( 'More information on using Related Posts.', 'jetpack' ),
-		esc_html__( 'Related posts depends on the WordPress.com infrastructure and requires public content be mirrored there. If you are seeing intermittent issues that only effect certain posts try requesting a reindex of your posts.', 'jetpack' ),
+		esc_html__( 'This feature uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only effecting certain posts, request a reindex of your posts.', 'jetpack' ),
 		Jetpack::init()->sync->reindex_ui()
 	);
 }
