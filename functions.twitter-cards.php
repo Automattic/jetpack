@@ -23,6 +23,10 @@ function wpcom_twitter_cards_tags( $og_tags ) {
 
 	$og_tags['twitter:site'] = ( defined('IS_WPCOM') && IS_WPCOM ) ? '@wordpressdotcom' : '@jetpack';
 
+	if ( ! get_option( 'jetpack_twitter_site_handle' ) ) {
+		$og_tags['twitter:site'] = '@' . get_option( 'jetpack_twitter_site_handle' );
+	}
+
 	if ( ! is_singular() || ! empty( $og_tags['twitter:card'] ) )
 		return $og_tags;
 
@@ -145,7 +149,8 @@ function jetpack_twitter_cards_site_setting() {
 				<h3><?php _e( 'Twitter Handle', 'jetpack' ) ?></h3>
 				<p>Set the Twitter handle to be displayed on <a href="https://dev.twitter.com/docs/cards" target="_blank">Twitter Cards</a> when sharing posts or pages from this blog.</p>
 			</div><?php
+			// use 'jetpack_twitter_site_handle' for the setting name. Should match in function above.
 	}
 }
 
-// add_action( 'pre_admin_screen_sharing', 'jetpack_twitter_cards_site_setting');
+// add_action( 'pre_admin_screen_sharing', 'jetpack_twitter_cards_site_setting' );
