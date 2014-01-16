@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Related Posts
- * Module Description: Uses the WordPress.com Elasticsearch infrastructure to find related posts.
+ * Module Description: Displays links to related content within your site under posts.
  * First Introduced: 2.8
  * Sort Order: 10
  * Requires Connection: Yes
