@@ -1,0 +1,272 @@
+<?php
+/**
+ * GitHub-Flavoured Markdown. Inspired by Evan's plugin, but modified.
+ *
+ * @author Evan Solomon
+ * @author Matt Wiebe <wiebe@automattic.com>
+ * @link https://github.com/evansolomon/wp-github-flavored-markdown-comments
+ *
+ * Add a few extras from GitHub's Markdown implementation. Must be used
+ * in a WordPress environment if the $preserve_shortcodes member is set to true,
+ * which will be auto-detected initially on __construct()
+ */
+
+class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
+
+	/**
+	 * Hooray somewhat arbitrary numbers that are fearful of 1.0.x.
+	 */
+	const WPCOM_GHF_MARDOWN_VERSION = '0.9.0';
+
+	/**
+	 * Use a [code] shortcode when encountering a fenced code block
+	 * @var boolean
+	 */
+	public $use_code_shortcode = true;
+
+	/**
+	 * Preserve shortcodes, untouched by Markdown.
+	 * This requires use within a WordPress installation.
+	 * @var boolean
+	 */
+	public $preserve_shortcodes = true;
+
+	/**
+	 * Preserve the legacy $latex your-latex-code-here$ style
+	 * LaTeX markup
+	 */
+	public $preserve_latex = true;
+
+	/**
+	 * Strip paragraphs from the output. This is the right default for WordPress,
+	 * which generally wants to create its own paragraphs with `wpautop`
+	 * @var boolean
+	 */
+	public $strip_paras = true;
+
+	// Will run through sprintf - you can supply your own syntax if you want
+	public $shortcode_start = '[code lang=%s]';
+	public $shortcode_end   = '[/code]';
+
+	// Stores shortcodes we remove and then replace
+	protected $preserve_text_hash = array();
+
+	/**
+	 * Set environment defaults based on presence of key functions/classes.
+	 */
+	public function __construct() {
+		$this->use_code_shortcode  = class_exists( 'SyntaxHighlighter' );
+		$this->preserve_shortcodes = function_exists( 'get_shortcode_regex' );
+		$this->preserve_latex      = function_exists( 'latex_markup' );
+		$this->strip_paras         = function_exists( 'wpautop' );
+
+		parent::MarkdownExtra_Parser();
+	}
+
+	/**
+	 * Overload to specify heading styles only if the hash has space(s) after it. This is actually in keeping with
+	 * the documentation and eases the semantic overload of the hash character.
+	 * #Will Not Produce a Heading 1
+	 * # This Will Produce a Heading 1
+	 *
+	 * @param  string $text Markdown text
+	 * @return string       HTML-transformed text
+	 */
+	public function transform( $text ) {
+		// Remove all shortcodes so their interiors are left intact
+		if ( $this->preserve_shortcodes ) {
+			$text = $this->shortcode_preserve( $text );
+		}
+		// Remove legacy LaTeX so it's left intact
+		if ( $this->preserve_latex ) {
+			$text = $this->latex_preserve( $text );
+		}
+
+		// escape line-beginning # chars that do not have a space after them.
+		$text = preg_replace_callback( '|^#{1,6}( )?|um', array( $this, '_doEscapeForHashWithoutSpacing' ), $text );
+
+		// run through core Markdown
+		$text = parent::transform( $text );
+
+		// put start-of-line # chars back in place
+		$text = preg_replace( "/^(<p>)?(&#35;|\\\\#)/um", "$1#", $text );
+
+		// Restore shortcodes/LaTeX
+		$text = $this->shortcode_restore( $text );
+
+		// Strip paras if set
+		if ( $this->strip_paras ) {
+			$text = $this->unp( $text );
+		}
+
+		return $text;
+	}
+
+	/**
+	 * Called to preserve legacy LaTeX like $latex some-latex-text $
+	 * @param  string $text Text in which to preserve LaTeX
+	 * @return string       Text with LaTeX replaced by a hash that will be restored later
+	 */
+	protected function latex_preserve( $text ) {
+		// regex from latex_remove()
+		$regex = '%
+			\$latex(?:=\s*|\s+)
+			((?:
+				[^$]+ # Not a dollar
+			|
+				(?<=(?<!\\\\)\\\\)\$ # Dollar preceded by exactly one slash
+			)+)
+			(?<!\\\\)\$ # Dollar preceded by zero slashes
+		%ix';
+		$text = preg_replace_callback( $regex, array( $this, '_doRemoveText'), $text );
+		return $text;
+	}
+
+	/**
+	 * Called to preserve WP shortcodes from being formatted by Markdown in any way.
+	 * @param  string $text Text in which to preserve shortcodes
+	 * @return string       Text with shortcodes replaced by a hash that will be restored later
+	 */
+	protected function shortcode_preserve( $text ) {
+		$text = preg_replace_callback( $this->get_shortcode_regex(), array( $this, '_doRemoveText' ), $text );
+		return $text;
+	}
+
+	/**
+	 * Restores any text preserved by $this->latex_preserve() or $this->shortcode_preserve()
+	 * @param  string $text Text that may have hashed preservation placeholders
+	 * @return string       Text with hashed preseravtion placeholders replaced by original text
+	 */
+	protected function shortcode_restore( $text ) {
+		foreach( $this->preserve_text_hash as $hash => $value ) {
+			$placeholder = $this->hash_maker( $hash );
+			$text = str_replace( $placeholder, $value, $text );
+		}
+		// reset the hash
+		$this->preserve_text_hash = array();
+		return $text;
+	}
+
+	/**
+	 * Regex callback for text preservation
+	 * @param  array $m  Regex $matches array
+	 * @return string    A placeholder that will later be replaced by the original text
+	 */
+	protected function _doRemoveText( $m ) {
+		$hash = md5( $m[0] );
+		$this->preserve_text_hash[ $hash ] = $m[0];
+		$placeholder = $this->hash_maker( $hash );
+		return $placeholder;
+	}
+
+	/**
+	 * Less glamorous than the Keymaker
+	 * @param  string $hash An md5 hash
+	 * @return string       A placeholder hash
+	 */
+	protected function hash_maker( $hash ) {
+		return 'MARDOWN_HASH' . $hash . 'MARKDOWN_HASH';
+	}
+
+	/**
+	 * Remove bare <p> elements. <p>s with attributes will be preserved.
+	 * @param  string $text HTML content
+	 * @return string       <p>-less content
+	 */
+	public function unp( $text ) {
+		return preg_replace( "#<p>(.*?)</p>(\n|$)#ums", '$1$2', $text );
+	}
+
+	/**
+	 * A regex of all shortcodes currently registered by the current
+	 * WordPress installation
+	 * @uses   get_shortcode_regex()
+	 * @return string A regex for grabbing shortcodes.
+	 */
+	protected function get_shortcode_regex() {
+		$pattern = get_shortcode_regex();
+		return "/$pattern/s";
+	}
+
+	/**
+	 * Overload to support ```-fenced code blocks for pre-Markdown Extra 1.2.8
+	 * https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks
+	 */
+	public function doFencedCodeBlocks( $text ) {
+		// If we're at least at 1.2.8, native fenced code blocks are in.
+		// Below is just copied from it in case we somehow got loaded on
+		// top of someone else's Markdown Extra
+		if ( version_compare( MARKDOWNEXTRA_VERSION, '1.2.8', '>=' ) )
+			return parent::doFencedCodeBlocks( $text );
+
+		#
+		# Adding the fenced code block syntax to regular Markdown:
+		#
+		# ~~~
+		# Code block
+		# ~~~
+		#
+		$less_than_tab = $this->tab_width;
+
+		$text = preg_replace_callback('{
+				(?:\n|\A)
+				# 1: Opening marker
+				(
+					(?:~{3,}|`{3,}) # 3 or more tildes/backticks.
+				)
+				[ ]*
+				(?:
+					\.?([-_:a-zA-Z0-9]+) # 2: standalone class name
+				|
+					'.$this->id_class_attr_catch_re.' # 3: Extra attributes
+				)?
+				[ ]* \n # Whitespace and newline following marker.
+
+				# 4: Content
+				(
+					(?>
+						(?!\1 [ ]* \n)	# Not a closing marker.
+						.*\n+
+					)+
+				)
+
+				# Closing marker.
+				\1 [ ]* (?= \n )
+			}xm',
+			array($this, '_doFencedCodeBlocks_callback'), $text);
+
+		return $text;
+	}
+
+	/**
+	 * Callback for pre-processing start of line hashes to slyly escape headings that don't
+	 * have a leading space
+	 * @param  array $m  preg_match matches
+	 * @return string    possibly escaped start of line hash
+	 */
+	public function _doEscapeForHashWithoutSpacing( $m ) {
+		if ( ! isset( $m[1] ) )
+			$m[0] = '\\' . $m[0];
+		return $m[0];
+	}
+
+	/**
+	 * Overload to support Viper's [code] shortcode. Because awesome.
+	 */
+	public function _doFencedCodeBlocks_callback( $matches ) {
+		// just MarkdownExtra_Parser if we're not going ultra-deluxe, or if
+		// there wasn't a language class passed
+		if ( ! $this->use_code_shortcode || empty( $matches[2] ) )
+			return parent::_doFencedCodeBlocks_callback( $matches );
+
+		$classname =& $matches[2];
+		$codeblock = preg_replace_callback('/^\n+/', array( $this, '_doFencedCodeBlocks_newlines' ), $matches[4] );
+
+		if ( $classname{0} == '.' )
+			$classname = substr( $classname, 1 );
+
+		$codeblock = sprintf( $this->shortcode_start, $classname ) . "\n{$codeblock}" . $this->shortcode_end;
+		return "\n\n" . $this->hashBlock( $codeblock ). "\n\n";
+	}
+
+}

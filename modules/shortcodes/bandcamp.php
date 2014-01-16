@@ -51,15 +51,15 @@ function shortcode_handler_bandcamp( $atts ) {
 	// to contain no querystring
 
 	$url = "http://bandcamp.com/EmbeddedPlayer/v=2/";
-	if ( isset( $attributes['track'] ) ) {
-		$track = (int) $attributes['track'];
+	if ( isset( $attributes['track'] ) && is_numeric( $attributes['track'] ) ) {
+		$track = esc_attr( $attributes['track'] );
 		$url .= "track={$track}";
 
 		if ( $sizekey == 'tall' ) {
 			$sizekey .= '_track';
 		}
-	} elseif ( isset( $attributes['album'] ) ) {
-		$album = (int) $attributes['album'];
+	} elseif ( isset( $attributes['album'] ) && is_numeric( $attributes['album'] ) ) {
+		$album = esc_attr( $attributes['album'] );
 		$url .= "album={$album}";
 		$type = 'album';
 

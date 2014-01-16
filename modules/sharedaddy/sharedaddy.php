@@ -15,7 +15,9 @@ function sharing_email_send_post( $data ) {
 	$content .= $data['post']->post_title."\n";
 	$content .= get_permalink( $data['post']->ID )."\n";
 
-	wp_mail( $data['target'], '['.__( 'Shared Post', 'jetpack' ).'] '.$data['post']->post_title, $content );
+	$headers[] = sprintf( 'From: %1$s <%2$s>', $data['name'], $data['source'] );
+
+	wp_mail( $data['target'], '['.__( 'Shared Post', 'jetpack' ).'] '.$data['post']->post_title, $content, $headers );
 }
 
 function sharing_add_meta_box() {
