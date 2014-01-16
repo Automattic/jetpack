@@ -14,6 +14,7 @@
  *     'filter'     => 'mytheme_get_featured_content',
  *     'max_posts'  => 20,
  *     'post_types' => array( 'post', 'page' ),
+ *     'include_featured' => false,
  * ) );
  *
  * For maximum compatibility with different methods of posting users will
@@ -100,9 +101,13 @@ class Featured_Content {
 		add_action( 'save_post',                          array( __CLASS__, 'delete_transient'   )    );
 		add_action( 'delete_post_tag',                    array( __CLASS__, 'delete_post_tag'    )    );
 		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'enqueue_scripts'    )    );
-		add_action( 'pre_get_posts',                      array( __CLASS__, 'pre_get_posts'      )    );
 		add_action( 'switch_theme',                       array( __CLASS__, 'switch_theme'       )    );
 		add_action( 'wp_loaded',                          array( __CLASS__, 'wp_loaded'          )    );
+		
+		// Exclude featured posts from the blog query when the blog is the front-page. 
+ 		if ( ! isset( $theme_support[0]['include_featured'] ) || false == $theme_support[0]['include_featured'] ) {
+ 			add_action( 'pre_get_posts', array( __CLASS__, 'pre_get_posts' ) );
+ 		}
 
 		if ( isset( $theme_support[0]['additional_post_types'] ) ) {
 			$theme_support[0]['post_types'] = array_merge( array( 'post' ), (array) $theme_support[0]['additional_post_types'] );
