@@ -70,7 +70,11 @@ class Jetpack_Slideshow_Shortcode {
 	}
 
 	function slideshow_background_color_callback() {
-		$this->settings_select( 'slideshow_background_color', array( 'black' => __( 'Black', 'jetpack' ), 'white' => __( 'White', 'jetpack', 'jetpack' ) ) );
+		$options = array(
+			'black' => __( 'Black', 'jetpack' ),
+			'white' => __( 'White', 'jetpack' ),
+		);
+		$this->settings_select( 'slideshow_background_color', $options );
 	}
 
 	function settings_select($name, $values, $extra_text = '') {
