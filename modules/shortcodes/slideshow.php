@@ -64,9 +64,9 @@ class Jetpack_Slideshow_Shortcode {
 	function register_settings() {
 		add_settings_section( 'slideshow_section', __( 'Image Gallery Slideshow', 'jetpack' ), '__return_empty_string', 'media' );
 
-		add_settings_field( 'slideshow_background_color', __( 'Background color', 'jetpack' ), array( $this, 'slideshow_background_color_callback' ), 'media', 'slideshow_section' );
+		add_settings_field( 'jetpack_slideshow_background_color', __( 'Background color', 'jetpack' ), array( $this, 'slideshow_background_color_callback' ), 'media', 'slideshow_section' );
 
-		register_setting( 'media', 'slideshow_background_color', array( $this, 'slideshow_background_color_sanitize' ) );
+		register_setting( 'media', 'jetpack_slideshow_background_color', array( $this, 'slideshow_background_color_sanitize' ) );
 	}
 
 	function slideshow_background_color_callback() {
@@ -74,7 +74,7 @@ class Jetpack_Slideshow_Shortcode {
 			'black' => __( 'Black', 'jetpack' ),
 			'white' => __( 'White', 'jetpack' ),
 		);
-		$this->settings_select( 'slideshow_background_color', $options );
+		$this->settings_select( 'jetpack_slideshow_background_color', $options );
 	}
 
 	function settings_select( $name, $values, $extra_text = '' ) {
@@ -159,7 +159,7 @@ class Jetpack_Slideshow_Shortcode {
 		if ( intval( $content_width ) > 0 )
 			$max_width = min( intval( $content_width ), $max_width );
 
-		$color = get_option( 'slideshow_background_color', 'black' );
+		$color = Jetpack_Options::get_option( 'slideshow_background_color', 'black' );
 
 		$js_attr = array(
 			'gallery'  => $gallery,
