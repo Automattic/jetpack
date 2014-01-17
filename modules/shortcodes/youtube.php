@@ -38,7 +38,7 @@ function youtube_embed_to_short_code( $content ) {
 	$old_regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $old_regexp, ENT_NOQUOTES ) );
 
 	//new code
-	$ifr_regexp = '!<iframe((?:\s+\w+="[^"]*")*?)\s+src="(http:|https:)?//(?:www\.)*youtube.com/embed/([^"]+)".*?</iframe>!i';
+	$ifr_regexp = '!<iframe((?:\s+\w+="[^"]*")*?)\s+src="(https?:)?//(?:www\.)*youtube.com/embed/([^"]+)".*?</iframe>!i';
 	$ifr_regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $ifr_regexp, ENT_NOQUOTES ) );
 
 	if ( is_ssl() )
