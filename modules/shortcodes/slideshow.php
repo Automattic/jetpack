@@ -78,7 +78,7 @@ class Jetpack_Slideshow_Shortcode {
 	}
 
 	function settings_select($name, $values, $extra_text = '') {
-		if ( empty( $name ) || ! is_array( $values ) || empty( $values ) )
+		if ( empty( $name ) || empty( $values ) || ! is_array( $values ) )
 			return;
 		$option = get_option( $name );
 		echo '<fieldset>';
