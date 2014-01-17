@@ -64,7 +64,8 @@ class Jetpack_Slideshow_Shortcode {
 	function register_settings() {
 		add_settings_section( 'slideshow_section', __( 'Image Gallery Slideshow', 'jetpack' ), '__return_empty_string', 'media' );
 
-		add_settings_field('slideshow_background_color', __( 'Background color', 'jetpack' ), array( $this, 'slideshow_background_color_callback' ), 'media', 'slideshow_section' );
+		add_settings_field( 'slideshow_background_color', __( 'Background color', 'jetpack' ), array( $this, 'slideshow_background_color_callback' ), 'media', 'slideshow_section' );
+
 		register_setting( 'media', 'slideshow_background_color', array( $this, 'slideshow_background_color_sanitize' ) );
 	}
 
