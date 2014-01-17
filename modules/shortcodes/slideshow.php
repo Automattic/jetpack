@@ -92,7 +92,7 @@ class Jetpack_Slideshow_Shortcode {
 				<?php endforeach; ?>
 			</select>
 			<?php if ( ! empty( $extra_text ) ) : ?>
-				<p class="description"><?php echo $extra_text; ?></p>
+				<p class="description"><?php echo esc_html( $extra_text ); ?></p>
 			<?php endif; ?>
 		</fieldset>
 		<?php
