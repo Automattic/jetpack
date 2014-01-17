@@ -82,22 +82,20 @@ class Jetpack_Slideshow_Shortcode {
 			return;
 		}
 		$option = get_option( $name );
-
-		echo '<fieldset>';
-
-		echo '<select name="' . esc_attr( $name ) . '" id="' . esc_attr( $name ) . '">';
-		foreach ( $values as $key => $value ) {
-			echo '<option value="' . esc_attr( $key ) . '" ';
-			selected( $key, $option );
-			echo '>' . esc_html( $value ) . '</option>';
-		}
-		echo '</select>';
-
-		if ( ! empty( $extra_text ) ) {
-			echo '<p class="description">' . $extra_text . '</p>';
-		}
-
-		echo '</fieldset>';
+		?>
+		<fieldset>
+			<select name="<?php echo esc_attr( $name ); ?>" id="<?php esc_attr( $name ); ?>">
+				<?php foreach ( $values as $key => $value ) : ?>
+					<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $key, $option ); ?>>
+						<?php echo esc_html( $value ); ?>
+					</option>
+				<?php endforeach; ?>
+			</select>
+			<?php if ( ! empty( $extra_text ) ) : ?>
+				<p class="description"><?php echo $extra_text; ?></p>
+			<?php endif; ?>
+		</fieldset>
+		<?php
 	}
 
 	function slideshow_background_color_sanitize( $value ) {
