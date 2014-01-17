@@ -590,14 +590,12 @@ EOT;
 	/**
 	 * Generates the thumbnail image to be used for the post.
 	 * Order of importance:
-	 *   - Featured image
-	 *   - First image extracted from the post (WPCOM/Jetpack Only)
-	 *   - Author avatar if more then 10 authors on site
-	 *   - mShot of site as fallback
+	 *   - Image as returned by Jetpack_PostImages::get_image()
+	 *   - Author avatar as fallback
 	 *
 	 * @param int $blog_id
 	 * @param int $post_id
-	 * @uses self::get_options, apply_filters, has_post_thumbnail, get_the_post_thumbnail, Jetpack_Media_Meta_Extractor::extract, add_query_arg, jetpack_photon_url, get_the_title, count_users, get_post, get_avatar, get_permalink, get_the_title
+	 * @uses self::get_options, apply_filters, Jetpack_PostImages::get_image, Jetpack_PostImages::square_image_url, get_the_title, get_post, get_avatar
 	 * @return string
 	 */
 	protected function _generate_related_post_image( $blog_id, $post_id ) {
@@ -607,33 +605,20 @@ EOT;
 			return '';
 		}
 
-		$thumbnail_size = 48;
-		$thumbnail_size = apply_filters( 'jetpack_relatedposts_filter_thumbnail_size', $thumbnail_size );
+		$thumbnail_size = apply_filters( 'jetpack_relatedposts_filter_thumbnail_size', 48 );
 
-		// Try for featured image
-		if ( has_post_thumbnail( $post_id ) ) {
-			return get_the_post_thumbnail( $post_id, array( $thumbnail_size, $thumbnail_size ) );
-		}
+		// Try to get post image
+		if ( class_exists( 'Jetpack_PostImages' ) ) {
+			$post_image = Jetpack_PostImages::get_image(
+				$post_id,
+				array( 'width' => $thumbnail_size, 'height' => $thumbnail_size )
+			);
 
-		// Try for first image on post
-		if ( class_exists( 'Jetpack_Media_Meta_Extractor' ) ) {
-			$images = Jetpack_Media_Meta_Extractor::extract( $blog_id, $post_id, Jetpack_Media_Meta_Extractor::IMAGES );
-			if ( !empty( $images['image'] ) && is_array( $images['image'] ) ) {
-				$img_url = $images['image'][0]['url'];
-				$img_host = parse_url( $img_url, PHP_URL_HOST );
-
-				if ( '.files.wordpress.com' == substr( $img_host, -20 ) ) {
-					$img_url = add_query_arg( array( 'w' => $thumbnail_size, 'h' => $thumbnail_size, 'crop' => 1 ), $img_url );
-				} elseif( function_exists( 'jetpack_photon_url' ) ) {
-					$img_url = jetpack_photon_url( $img_url, array( 'lb' => "$thumbnail_size,$thumbnail_size" ) );
-				} else {
-					// Arg... no way to resize image using WordPress.com infrastructure!
-				}
-
+			if ( is_array($post_image) ) {
 				return sprintf(
 					'<img width="%u" src="%s" alt="%s" />',
 					$thumbnail_size,
-					$img_url,
+					Jetpack_PostImages::square_image_url( $post_image['src'], 2 * $thumbnail_size ),
 					get_the_title( $post_id )
 				);
 			}
