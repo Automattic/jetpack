@@ -233,7 +233,7 @@ class Jetpack_Testimonial {
 
 function jetpack_testimonial_custom_control_classes() {
 	class Jetpack_Testimonial_Title_Control extends WP_Customize_Control {
-		public function sanitize_content( $value ) {
+		public static function sanitize_content( $value ) {
 			if ( '' != $value )
 				$value = trim( convert_chars( wptexturize( $value ) ) );
 
@@ -253,7 +253,7 @@ function jetpack_testimonial_custom_control_classes() {
 			<?php
  		}
 
-		public function sanitize_content( $value ) {
+		public static function sanitize_content( $value ) {
 			if ( ! empty( $value ) )
 				$value = apply_filters( 'the_content', $value );
 
@@ -274,14 +274,14 @@ function jetpack_testimonial_custom_control_classes() {
 			parent::__construct( $manager, $id, $args );
 		}
 
-		public function get_img_url( $attachment_id = 0 ) {
+		public static function get_img_url( $attachment_id = 0 ) {
 			if ( is_numeric( $attachment_id ) && wp_attachment_is_image( $attachment_id ) )
 				list( $image, $x, $y ) = wp_get_attachment_image_src( $attachment_id );
 
 			return ! empty( $image ) ? $image : $attachment_id;
 		}
 
-		public function attachment_guid_to_id( $value ) {
+		public static function attachment_guid_to_id( $value ) {
 
 			if ( is_numeric( $value ) || empty( $value ) )
 				return $value;
