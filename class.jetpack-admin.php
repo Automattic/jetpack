@@ -170,12 +170,35 @@ class Jetpack_Admin {
 		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
 	}
 
+	function admin_page_top() {
+		?>
+
+		<div class="wrap" id="jetpack-settings">
+
+			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
+
+		<?php
+		do_action( 'jetpack_notices' );
+	}
+
+	function admin_page_bottom() {
+		?>
+
+		</div>
+
+		<?php
+	}
+
 	function admin_page() {
 		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
 	}
 
 	function admin_page_modules() {
-		
+		$this->admin_page_top();
+		?>
+
+		<?php
+		$this->admin_page_bottom();
 	}
 
 }
