@@ -52,7 +52,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			<% var i = 0;
 			_.each( items, function( item, key, list ) {
 				%>
-				<tr class="jetpack-module <% if ( ++i % 2 ) { %> alternate<% } %><% if ( item.activated ) { %> active<% } %><% if ( item.unavailable ) { %> unavailable<% } %>" id="<%= item.module %>">
+				<tr class="jetpack-module <% if ( ++i % 2 ) { %> alternate<% } %><% if ( item.activated ) { %> active<% } %><% if ( ! item.available ) { %> unavailable<% } %>" id="<%= item.module %>">
 					<th scope="row" class="check-column">
 						<input type="checkbox" name="modules[]" value="<%= item.module %>" />
 					</th>
@@ -88,7 +88,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				$module_array['activated']         = in_array( $module, $active_modules );
 				$module_array['deactivate_nonce']  = wp_create_nonce( 'jetpack_deactivate-' . $module );
 				$module_array['activate_nonce']    = wp_create_nonce( 'jetpack_activate-' . $module );
-				$module_array['unavailable']       = ! self::is_module_available( $module_array );
+				$module_array['available']         = self::is_module_available( $module_array );
 				$module_array['short_description'] = apply_filters( 'jetpack_short_module_description', $module_array['description'], $module );
 				$module_array['configure_url'] = Jetpack::module_configuration_url( $module );
 
