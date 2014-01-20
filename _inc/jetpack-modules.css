@@ -43,6 +43,30 @@ table.jetpack-modules {
 	float: right;
 }
 
+.jetpack-modules .jetpack-module .row-actions a {
+	display: inline-block;
+	width: 16px;
+	height: 16px;
+	overflow: hidden;
+}
+
+.jetpack-modules .jetpack-module .row-actions a:before {
+	font-family: 'genericons';
+	font-size: 16px;
+}
+
+.jetpack-modules .jetpack-module .row-actions .activate a:before {
+	content: '\f418';
+}
+
+.jetpack-modules .jetpack-module .row-actions .delete a:before {
+	content: '\f405';
+}
+
+.jetpack-modules .jetpack-module .row-actions .configure a:before {
+	content: '\f445';
+}
+
 /**
  * Lightbox Hijinks Ensue
  * jQuery( document.body ).addClass('jetpack-lb').append('<div class="jetpack-light-box-wrap"><div class="jetpack-light-box">Foo</div></div>');
