@@ -3,6 +3,10 @@
 	max-width: 45%;
 }
 
+.tablenav {
+	clear: none;
+}
+
 table.jetpack-modules {
 	max-width: 50%;
 }
