@@ -3,7 +3,8 @@
 	max-width: 45%;
 }
 
-.tablenav {
+.tablenav,
+.widefat {
 	clear: none;
 }
 
