@@ -66,31 +66,61 @@ class Jetpack_Admin {
 	}
 
 	function debugger_page() {
-		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+		nocache_headers();
+		if ( ! current_user_can( 'manage_options' ) ) {
+			die( '-1' );
+		}
+		Jetpack_Debugger::jetpack_debug_display_handler();
+		exit;
 	}
 
 	function admin_page_load() {
+		// This is big.  For the moment, just call the existing one.
 		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
 	}
 
 	function admin_head() {
-		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+		if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) ) {
+			do_action( 'jetpack_module_configuration_head_' . $_GET['configure'] );
+		}
 	}
 
 	function admin_menu_order() {
-		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+		return true;
 	}
 
-	function jetpack_menu_order() {
-		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+	function jetpack_menu_order( $menu_order ) {
+		$jp_menu_order = array();
+
+		foreach ( $menu_order as $index => $item ) {
+			if ( $item != 'jetpack' )
+				$jp_menu_order[] = $item;
+
+			if ( $index == 0 )
+				$jp_menu_order[] = 'jetpack';
+		}
+
+		return $jp_menu_order;
 	}
 
 	function admin_styles() {
-		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+		global $wp_styles;
+		wp_enqueue_style( 'jetpack', plugins_url( '_inc/jetpack.css', __FILE__ ), false, JETPACK__VERSION . '-20121016' );
+		$wp_styles->add_data( 'jetpack', 'rtl', true );
 	}
 
 	function admin_scripts() {
-		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jetpack.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
+		wp_localize_script(
+			'jetpack-js',
+			'jetpackL10n',
+			array(
+				'ays_disconnect' => "This will deactivate all Jetpack modules.\nAre you sure you want to disconnect?",
+				'ays_unlink'     => "This will prevent user-specific modules such as Publicize, Notifications and Post By Email from working.\nAre you sure you want to unlink?",
+				'ays_dismiss'    => "This will deactivate Jetpack.\nAre you sure you want to deactivate Jetpack?",
+			)
+		);
+		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
 	}
 
 	function admin_page() {
