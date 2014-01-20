@@ -56,16 +56,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 					<th scope="row" class="check-column">
 						<input type="checkbox" name="modules[]" value="<%= item.module %>" />
 					</th>
-					<td class='icon column-icon'>
-						<a href="#TB_inline?width=600&height=550&inlineId=module-settings-modal" class="thickbox">
-							<div class="module-image">
-								<p>
-									<span class="module-image-badge"></span>
-									<span class="module-image-free" style="display: none"></span>
-								</p>
-							</div>
-						</a>
-					</td>
 					<td class='name column-name'>
 						<%= item.name %>
 						<div class="row-actions">
@@ -77,18 +67,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<% if ( item.configurable ) { %>
 							<span class='configure'><%= item.configurable %></span>
 						<% } %>
-						</div>
-					</td>
-					<td class='module_tags column-module_tags'>
-					<% _.each( item.module_tags, function( tag, tag_key, tag_list ) { %>
-						<a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack_modules&#038;list_table=true&#038;module_tag=<%= encodeURIComponent( tag ) %>" data-title="<%- tag %>"><%= tag %></a><% if ( tag_key + 1 < tag_list.length ) { %>, <% } %>
-					<% } ); %>
-					</td>
-					<td class='description column-description'>
-						<%= item.short_description %>
-						<%= item.learn_more_button %>
-						<div id="more-info-<%= item.module %>" class="more-info">
-							<%= item.long_description %>
 						</div>
 					</td>
 				</tr>
@@ -210,10 +188,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	function get_columns() {
 		$columns = array(
 			'cb'          => '<input type="checkbox" />',
-			'icon'        => '',
-			'name'        => __( 'Name',        'jetpack' ),
-			'module_tags' => __( 'Module Tags', 'jetpack' ),
-			'description' => __( 'Description', 'jetpack' ),
+			'name'        => __( 'Name', 'jetpack' ),
 		);
 		return $columns;
 	}
