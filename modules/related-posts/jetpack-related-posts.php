@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20140114';
+	const VERSION = '20140117';
 
 	/**
 	 * Creates and returns a static instance of Jetpack_RelatedPosts.
@@ -236,7 +236,7 @@ EOT;
 			checked( $options['show_headline'], true, false ),
 			esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
 			checked( $options['show_thumbnails'], true, false ),
-			esc_html__( 'Show thumbnails for related posts', 'jetpack' ),
+			esc_html__( 'Show thumbnails for related posts when available', 'jetpack' ),
 			esc_html__( 'Preview:', 'jetpack' )
 		);
 
