@@ -32,3 +32,89 @@ function jetpack_monitor_toggle() {
 add_action( 'jetpack_activate_module_monitor', 'jetpack_monitor_toggle' );
 add_action( 'jetpack_deactivate_module_monitor', 'jetpack_monitor_toggle' );
 
+class Jetpack_Monitor {
+
+	public $module = 'monitor';
+
+	function __construct() {
+		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
+	}
+
+	public function jetpack_modules_loaded() {
+		Jetpack::enable_module_configurable( $this->module );
+		Jetpack::module_configuration_load( $this->module, array( $this, 'jetpack_configuration_load' ) );
+		Jetpack::module_configuration_screen( $this->module, array( $this, 'jetpack_configuration_screen' ) );
+	}
+
+	public function jetpack_configuration_load() {
+                if ( ! empty( $_POST['action'] ) && $_POST['action'] == 'monitor-save' ) {
+                        check_admin_referer( 'monitor-settings' );
+			$this->update_option_receive_jetpack_monitor_notification( isset( $_POST['receive_jetpack_monitor_notification'] ) );
+
+                        Jetpack::state( 'message', 'module_configured' );
+                        wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
+                }
+	}
+
+	public function jetpack_configuration_screen() {
+		?>
+		<div class="narrow">
+		<?php if ( Jetpack::is_user_connected() ) : ?>
+                        <form method="post" id="monitor-settings">
+                                <input type="hidden" name="action" value="monitor-save" />
+                                <?php wp_nonce_field( 'monitor-settings' ); ?>
+
+				<table id="menu" class="form-table">
+						<tr>
+						<th scope="row">
+							<?php _e( 'Notifications', 'jetpack' ); ?>
+						</th>
+						<td>
+							<label for="receive_jetpack_monitor_notification">
+									<input type="checkbox" name="receive_jetpack_monitor_notification" id="receive_jetpack_monitor_notification" value="receive_jetpack_monitor_notification"<?php checked( $this->user_receives_notifications() ); ?> />
+								<span><?php _e( 'Receive Monitor Email Notifications.' , 'jetpack'); ?></span>
+							</label>
+							<p class="description"><?php _e( 'Receive Monitor Notifications to the email associated with your connected WordPress.com account.', 'jetpack' ); ?></p>
+						</td>
+					</tr>
+				</table>
+				<?php submit_button(); ?>
+			</form>
+		<?php else : ?>
+			<p><?php _e( 'This profile is not currently linked to a WordPress.com Profile.', 'jetpack' ); ?></p>
+		<?php endif; ?>
+		</div>
+		<?php
+	}
+	
+	public function update_option_receive_jetpack_monitor_notification( $value ) {
+		
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+                        'user_id' => get_current_user_id()
+                ) );
+		$xml->query( 'jetpack.monitor.setNotifications', (bool) $value );
+
+		if ( $xml->isError() ) {
+			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+		}
+		return true;
+	}
+
+        public function user_receives_notifications() {
+                Jetpack::load_xml_rpc_client();
+                $xml = new Jetpack_IXR_Client( array(   
+                        'user_id' => get_current_user_id()
+                ) );
+                $xml->query( 'jetpack.monitor.IsUserInNotifications' );
+
+                if ( $xml->isError() ) {
+                        wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+                }
+                return $xml->getResponse();
+        }
+
+}
+
+
+new Jetpack_Monitor;
