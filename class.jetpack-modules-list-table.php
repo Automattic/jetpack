@@ -57,7 +57,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<input type="checkbox" name="modules[]" value="<%= item.module %>" />
 					</th>
 					<td class='name column-name'>
-						<%= item.name %>
 						<div class="row-actions">
 						<% if ( item.activated ) { %>
 							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module=<%= item.module %>&#038;_wpnonce=<%= item.deactivate_nonce %>"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
@@ -68,6 +67,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 							<span class='configure'><%= item.configurable %></span>
 						<% } %>
 						</div>
+						<%= item.name %>
 					</td>
 				</tr>
 				<%
@@ -269,7 +269,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			$actions['configure'] = $item['configurable'];
 		}
 
-		return wptexturize( $item['name'] ) . $this->row_actions( $actions );
+		return $this->row_actions( $actions ) . wptexturize( $item['name'] );
 	}
 
 	function column_description( $item ) {

@@ -39,6 +39,10 @@ table.jetpack-modules {
 	background: #f9f9f9;
 }
 
+.jetpack-modules .jetpack-module .row-actions {
+	float: right;
+}
+
 /**
  * Lightbox Hijinks Ensue
  * jQuery( document.body ).addClass('jetpack-lb').append('<div class="jetpack-light-box-wrap"><div class="jetpack-light-box">Foo</div></div>');
