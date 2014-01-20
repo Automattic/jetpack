@@ -152,6 +152,8 @@ class Jetpack_Admin {
 		global $wp_styles;
 		wp_enqueue_style( 'jetpack', plugins_url( '_inc/jetpack.css', __FILE__ ), false, JETPACK__VERSION . '-20121016' );
 		$wp_styles->add_data( 'jetpack', 'rtl', true );
+
+		wp_enqueue_style( 'jetpack-modules', plugins_url( '_inc/jetpack-modules.css', __FILE__ ) );
 	}
 
 	function admin_scripts() {
