@@ -149,9 +149,15 @@ class Jetpack_Admin {
 	}
 
 	function admin_styles() {
-
-		wp_enqueue_style( 'jetpack-modules', plugins_url( '_inc/jetpack-modules.css', __FILE__ ) );
 		wp_enqueue_style( 'jetpack', plugins_url( '_inc/jetpack-admin.css', __FILE__ ) );
+
+		switch ( get_current_screen()->id ) {
+			case 'jetpack_page_jetpack_modules' :
+				wp_enqueue_style( 'jetpack-modules', plugins_url( '_inc/jetpack-modules.css', __FILE__ ) );
+				break;
+			default :
+				break;
+		}
 	}
 
 	function admin_scripts() {
