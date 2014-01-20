@@ -469,6 +469,7 @@ class Jetpack_Sync {
 
 		$post['permalink'] = get_permalink( $post_obj->ID );
 		$post['shortlink'] = wp_get_shortlink( $post_obj->ID );
+		$post['module_custom_data'] = apply_filters( 'jetpack_sync_post_module_custom_data', array(), $post_obj );
 		return $post;
 	}
 

@@ -1070,7 +1070,6 @@ p#news-sub {
 .error,
 .updated {
 	position: relative;
-	z-index: 100;
 }
 
 .toplevel_page_jetpack .wrap {
