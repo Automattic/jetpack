@@ -3,7 +3,7 @@
  * Module Name: Related Posts
  * Module Description: Display links to related site content under your posts.
  * First Introduced: 2.8
- * Sort Order: 10
+ * Sort Order: 5
  * Requires Connection: Yes
  * Auto Activate: No
  */
