@@ -2,13 +2,17 @@
 
 class Jetpack_Admin {
 
+	var $jetpack;
+
 	function __construct() {
-		add_action( 'admin_menu', array( $this, 'admin_menu' ), 998 );
+		$this->jetpack = Jetpack::init();
+		add_action( 'admin_menu',         array( $this, 'admin_menu' ), 998 );
+		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 	}
 
 	function admin_menu() {
 		// @todo: Remove in Jetpack class itself.
-		remove_action( 'admin_menu', array( Jetpack::init(), 'admin_menu' ), 999 );
+		remove_action( 'admin_menu', array( $this->jetpack, 'admin_menu' ), 999 );
 
 		list( $jetpack_version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 		if (
@@ -35,17 +39,19 @@ class Jetpack_Admin {
 
 		$hook = add_menu_page( 'Jetpack', $title, 'read', 'jetpack', array( $this, 'admin_page' ), 'div' );
 
-		$debugger_hook = add_submenu_page( null, __( 'Jetpack Debugging Center', 'jetpack' ), '', 'manage_options', 'jetpack-debugger', array( Jetpack::init(), 'debugger_page' ) );
-		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
-
-		add_action( "load-$hook",                array( Jetpack::init(), 'admin_page_load' ) );
-		add_action( "admin_head-$hook",          array( Jetpack::init(), 'admin_head' ) );
-		add_filter( 'custom_menu_order',         array( Jetpack::init(), 'admin_menu_order' ) );
-		add_filter( 'menu_order',                array( Jetpack::init(), 'jetpack_menu_order' ) );
-		add_action( "admin_print_styles-$hook",  array( Jetpack::init(), 'admin_styles' ) );
-		add_action( "admin_print_scripts-$hook", array( Jetpack::init(), 'admin_scripts' ) );
-
+		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
+		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
+		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
+		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
 		do_action( 'jetpack_admin_menu', $hook );
+		add_filter( 'custom_menu_order',         array( $this, 'admin_menu_order'   ) );
+		add_filter( 'menu_order',                array( $this, 'jetpack_menu_order' ) );
+	function admin_menu_debugger() {
+		$debugger_hook = add_submenu_page( null, __( 'Jetpack Debugging Center', 'jetpack' ), '', 'manage_options', 'jetpack-debugger', array( $this, 'debugger_page' ) );
+		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
+	}
+
+
 
 	}
 
