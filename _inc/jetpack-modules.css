@@ -1,21 +1,9 @@
-.jetpack-modules #icon {
-	width: 80px;
+table.jetpack-modules {
+	width: 50%;
 }
 
-.jetpack-modules #name {
-	width: 15%;
-}
-
-.jetpack-modules #module_tags {
-	width: 15%;
-}
-
-.jetpack-modules .description .more-info-link {
-
-}
-
-.jetpack-modules .description .more-info {
-	display: none;
+.jetpack-modules #cb {
+	width: 20px;
 }
 
 .jetpack-modules .jetpack-module {
@@ -40,19 +28,6 @@
 
 .jetpack-modules .jetpack-module.alternate {
 	background: #f9f9f9;
-}
-
-.jetpack-modules .jetpack-module .module-image {
-	margin: 0;
-}
-
-.jetpack-modules .more-info {
-	margin: 0 0 5px;
-	background: none;
-	background-color: transparent !important;
-	border: none !important;
-	height: auto;
-	box-shadow: none !important;
 }
 
 /**
