@@ -54,6 +54,10 @@ require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
 require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
 require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 );
 
+if ( is_admin() ) {
+	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );
+}
+
 // Play nice with http://wp-cli.org/
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php'       );
