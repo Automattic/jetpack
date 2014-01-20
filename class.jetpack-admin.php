@@ -6,9 +6,54 @@ class Jetpack_Admin {
 
 	function __construct() {
 		$this->jetpack = Jetpack::init();
-		add_action( 'admin_menu',         array( $this, 'admin_menu' ), 998 );
-		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_modules' ) );
-		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
+		add_action( 'admin_menu',                    array( $this, 'admin_menu' ), 998 );
+		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_modules' ) );
+		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
+		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ) );
+		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ) );
+		add_action( 'jetpack_unrecognized_action',   array( $this, 'handle_unrecognized_action' ) );
+	}
+
+	function handle_unrecognized_action( $action ) {
+		switch( $action ) {
+			case 'bulk-activate' :
+				if ( ! current_user_can( 'manage_options' ) )
+					break;
+
+				$modules = (array) $_GET['modules'];
+				$modules = array_map( 'sanitize_key', $modules );
+				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
+				foreach( $modules as $module ) {
+					Jetpack::log( 'activate', $module );
+					Jetpack::activate_module( $module, false );
+				}
+				// The following two lines will rarely happen, as Jetpack::activate_module normally exits at the end.
+				wp_safe_redirect( wp_get_referer() );
+				exit;
+			case 'bulk-deactivate' :
+				if ( ! current_user_can( 'manage_options' ) )
+					break;
+
+				$modules = (array) $_GET['modules'];
+				$modules = array_map( 'sanitize_key', $modules );
+				check_admin_referer( 'bulk-jetpack_page_jetpack_modules' );
+				foreach ( $modules as $module ) {
+					Jetpack::log( 'deactivate', $module );
+					Jetpack::deactivate_module( $module );
+					Jetpack::state( 'message', 'module_deactivated' );
+				}
+				Jetpack::state( 'module', $modules );
+				wp_safe_redirect( wp_get_referer() );
+				exit;
+			default:
+				return;
+		}
+	}
+
+	function fix_redirect() {
+		if ( wp_get_referer() ) {
+			add_filter( 'wp_redirect', 'wp_get_referer' );
+		}
 	}
 
 	function admin_menu() {
