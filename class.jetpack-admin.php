@@ -205,14 +205,20 @@ class Jetpack_Admin {
 		$this->admin_page_top();
 		?>
 
-		<?php $list_table->views(); ?>
 		<form method="get">
+
 			<input type="hidden" name="page" value="jetpack_modules" />
 			<?php if ( ! empty( $_GET['module_tag'] ) ) : ?>
 				<input type="hidden" name="module_tag" value="<?php echo esc_attr( $_GET['module_tag'] ); ?>" />
 			<?php endif; ?>
-			<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'search_modules' ); ?>
+
+			<div class="module-filters">
+				<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'search_modules' ); ?>
+				<?php $list_table->views(); ?>
+			</div>
+
 			<?php $list_table->display(); ?>
+
 		</form>
 
 		<?php
