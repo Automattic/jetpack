@@ -713,4 +713,88 @@ class Jetpack_Sync {
 			wp_schedule_single_event( time(), 'jetpack_sync_all_registered_options', array( $this->sync_options ) );
 		}
 	}
+
+	public function reindex_trigger() {
+		$response = array( 'status' => 'ERROR' );
+
+		Jetpack::load_xml_rpc_client();
+		$client = new Jetpack_IXR_Client( array(
+			'user_id' => JETPACK_MASTER_USER,
+		) );
+
+		$client->query( 'jetpack.reindexTrigger' );
+
+		if ( !$client->isError() ) {
+			$response = $client->getResponse();
+			Jetpack_Options::update_option( 'sync_bulk_reindexing', true );
+		}
+
+		return $response;
+	}
+
+	public function reindex_status() {
+		$response = array( 'status' => 'ERROR' );
+
+		// Assume reindexing is done if it was not triggered in the first place
+		if ( false === Jetpack_Options::get_option( 'sync_bulk_reindexing' ) ) {
+			return array( 'status' => 'DONE' );
+		}
+
+		Jetpack::load_xml_rpc_client();
+		$client = new Jetpack_IXR_Client( array(
+			'user_id' => JETPACK_MASTER_USER,
+		) );
+
+		$client->query( 'jetpack.reindexStatus' );
+
+		if ( !$client->isError() ) {
+			$response = $client->getResponse();
+			if ( 'DONE' == $response['status'] ) {
+				Jetpack_Options::delete_option( 'sync_bulk_reindexing' );
+			}
+		}
+
+		return $response;
+	}
+
+	public function reindex_ui() {
+		$strings = json_encode( array(
+			'WAITING' => array(
+				'action' => __( 'Refresh Status', 'jetpack' ),
+				'status' => __( 'Indexing posts&hellip;', 'jetpack' ),
+			),
+			'INDEXING' => array(
+				'action' => __( 'Refresh Status', 'jetpack' ),
+				'status' => __( 'Indexing posts', 'jetpack' ),
+			),
+			'DONE' => array(
+				'action' => __( 'Reindex Posts', 'jetpack' ),
+				'status' => __( 'Posts indexed.', 'jetpack' ),
+			),
+			'ERROR' => array(
+				'action' => __( 'Refresh Status', 'jetpack' ),
+				'status' => __( 'Status unknown.', 'jetpack' ),
+			),
+		) );
+
+		wp_enqueue_script(
+			'jetpack_sync_reindex_control',
+			plugins_url( '_inc/jquery.jetpack-sync.js', __FILE__ ),
+			array( 'jquery' ),
+			JETPACK__VERSION
+		);
+
+		$template = <<<EOT
+			<p class="jetpack_sync_reindex_control" id="jetpack_sync_reindex_control" data-strings="%s">
+				<input type="submit" class="jetpack_sync_reindex_control_action button" value="%s" disabled />
+				<span class="jetpack_sync_reindex_control_status">&hellip;</span>
+			</p>
+EOT;
+
+		return sprintf(
+			$template,
+			esc_attr( $strings ),
+			esc_attr__( 'Refresh Status', 'jetpack' )
+		);
+	}
 }

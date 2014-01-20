@@ -667,7 +667,7 @@ p.jp-help {
 	border-bottom-left-radius: 3px;
 	background-repeat: no-repeat;
 	background-image: url(images/module-icons-sprite.png?v2.8);
-	background-size: 3235px 50px; /* remember to update this every time a new module is added! */
+	background-size: 3315px 50px; /* remember to update this every time a new module is added! */
 }
 
 @media only screen and (-moz-min-device-pixel-ratio: 1.5),
@@ -806,12 +806,16 @@ p.jp-help {
 	background-position: -2980px 5px;
 }
 
-
 #sso.jetpack-module div.module-image {
 	background-position: -3070px 5px;
 }
+
 #markdown.jetpack-module div.module-image {
 	background-position: -3161px 5px;
+}
+
+#related-posts.jetpack-module div.module-image {
+	background-position: -3235px 5px;
 }
 
 .jetpack-module div.module-image p {

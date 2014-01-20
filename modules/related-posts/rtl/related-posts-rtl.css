@@ -1,0 +1,144 @@
+/* This file was automatically generated on Jan 14 2014 19:04:19 */
+
+/**
+ * Styles for Jetpack related posts
+ */
+
+div.jp-relatedposts {
+	display: none;
+	padding-top: 1em;
+	margin: 1em 0;
+	position: relative;
+}
+
+div.jp-relatedposts p {
+	line-height: 1.2;
+	font-size: 9pt;
+	margin-bottom: 1em;
+}
+
+div.jp-relatedposts:after {
+	content: '';
+	display: block;
+	clear: both;
+}
+
+div.jp-relatedposts .jp-relatedposts-headline {
+	margin: 0 0 1em 0;
+	display: inline-block;
+	float: right;
+}
+
+div.jp-relatedposts .jp-relatedposts-headline em:before {
+	content: "";
+	display: block;
+	width: 100%;
+	min-width: 30px;
+	border-top: 1px solid #ddd;
+	border-top: 1px solid rgba(0,0,0,.2);
+	margin-bottom: 1em;
+}
+
+div.jp-relatedposts .jp-relatedposts-headline em {
+	font-style: normal;
+	font-weight: bold;
+}
+
+div.jp-relatedposts .jp-relatedposts-post {
+	float: right;
+	width: 33%;
+	box-sizing: border-box;
+	-moz-box-sizing:border-box;
+	-webkit-box-sizing:border-box;
+}
+
+div.jp-relatedposts .jp-relatedposts-post.jp-relatedposts-post0 {
+	clear: right;
+}
+
+div.jp-relatedposts .jp-relatedposts-post strong {
+	font-weight: normal;
+}
+
+div.jp-relatedposts .jp-relatedposts-post a {
+	font-weight: normal;
+	text-decoration: none;
+	white-space: nowrap;
+	overflow: hidden;
+	display: inline-block;
+	text-overflow: ellipsis;
+	max-width: 90%;
+	opacity: 1;
+}
+
+div.jp-relatedposts .jp-relatedposts-post img {
+	display: block;
+	width: 48px;
+	float: right;
+	margin: 0 0 0 .5em;
+	border: 0;
+}
+
+div.jp-relatedposts .jp-relatedposts-post a:hover {
+	text-decoration: underline;
+}
+
+div.jp-relatedposts .jp-relatedposts-post span {
+	opacity: .4;
+}
+
+/* Behavior when there are thumbnails */
+div.jp-relatedposts .jp-relatedposts-post img + strong,
+div.jp-relatedposts .jp-relatedposts-post img + strong + br + span {
+	float: right;
+	text-align: right;
+	max-width: 80%;
+	max-width: calc(100% - 60px);
+	width: 100%;
+}
+
+/**
+ * Responsive
+ */
+
+@media only screen and (max-width: 640px) {
+
+	/* Show as list */
+	div.jp-relatedposts .jp-relatedposts-post {
+		float: none;
+		width: 100%;
+	}
+
+	div.jp-relatedposts .jp-relatedposts-post.jp-relatedposts-post1 {
+		text-align: right;
+	}
+
+	div.jp-relatedposts .jp-relatedposts-post.jp-relatedposts-post2 {
+		float: none;
+		text-align: right;
+	}
+
+	div.jp-relatedposts .jp-relatedposts-post a {
+		display: inline;
+		white-space: normal;
+		margin-left: 10px;
+	}
+
+	div.jp-relatedposts .jp-relatedposts-post span:before {
+		content: "\2014";
+		margin-left: 5px;
+	}
+
+	div.jp-relatedposts .jp-relatedposts-post br {
+		display: none;
+	}
+
+	/* Behavior when thumbnails */
+	div.jp-relatedposts .jp-relatedposts-post {
+		clear: both;
+	}
+	div.jp-relatedposts .jp-relatedposts-post img {
+		margin: 0 0 10px .5em;
+	}
+
+}

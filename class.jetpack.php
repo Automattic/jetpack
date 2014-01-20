@@ -282,6 +282,9 @@ class Jetpack {
 		add_action( 'wp_ajax_jetpack-check-news-subscription', array( $this, 'check_news_subscription' ) );
 		add_action( 'wp_ajax_jetpack-subscribe-to-news', array( $this, 'subscribe_to_news' ) );
 
+		add_action( 'wp_ajax_jetpack-sync-reindex-trigger', array( $this, 'sync_reindex_trigger' ) );
+		add_action( 'wp_ajax_jetpack-sync-reindex-status', array( $this, 'sync_reindex_status' ) );
+
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -3278,6 +3281,24 @@ p {
 			printf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() );
 		} else {
 			print_r( $xml->getResponse() );
+		}
+		exit;
+	}
+
+	function sync_reindex_trigger() {
+		if ( $this->current_user_is_connection_owner() && current_user_can( 'manage_options' ) ) {
+			echo json_encode( $this->sync->reindex_trigger() );
+		} else {
+			echo '{"status":"ERROR"}';
+		}
+		exit;
+	}
+
+	function sync_reindex_status(){
+		if ( $this->current_user_is_connection_owner() && current_user_can( 'manage_options' ) ) {
+			echo json_encode( $this->sync->reindex_status() );
+		} else {
+			echo '{"status":"ERROR"}';
 		}
 		exit;
 	}
