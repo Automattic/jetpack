@@ -50,7 +50,7 @@ class Jetpack_Admin {
 	}
 
 	function admin_page() {
-		
+		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
 	}
 
 	function modules_page() {
