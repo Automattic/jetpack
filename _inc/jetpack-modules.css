@@ -55,6 +55,10 @@ table.jetpack-modules {
 	font-size: 16px;
 }
 
+.jetpack-modules .jetpack-module .row-actions .info a:before {
+	content: '\f455';
+}
+
 .jetpack-modules .jetpack-module .row-actions .activate a:before {
 	content: '\f418';
 }
