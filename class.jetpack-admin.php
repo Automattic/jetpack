@@ -7,6 +7,7 @@ class Jetpack_Admin {
 	function __construct() {
 		$this->jetpack = Jetpack::init();
 		add_action( 'admin_menu',         array( $this, 'admin_menu' ), 998 );
+		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_modules' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 	}
 
@@ -43,23 +44,60 @@ class Jetpack_Admin {
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
+
 		do_action( 'jetpack_admin_menu', $hook );
+
 		add_filter( 'custom_menu_order',         array( $this, 'admin_menu_order'   ) );
 		add_filter( 'menu_order',                array( $this, 'jetpack_menu_order' ) );
+	}
+
+	function admin_menu_modules() {
+		$hook = add_submenu_page( 'jetpack', __( 'Jetpack Modules', 'jetpack' ), __( 'Modules', 'jetpack' ), 'manage_options', 'jetpack_modules', array( $this, 'admin_page_modules' ) );
+
+		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
+		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
+		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
+		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
+	}
+
 	function admin_menu_debugger() {
 		$debugger_hook = add_submenu_page( null, __( 'Jetpack Debugging Center', 'jetpack' ), '', 'manage_options', 'jetpack-debugger', array( $this, 'debugger_page' ) );
 		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
 	}
 
+	function debugger_page() {
+		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+	}
 
+	function admin_page_load() {
+		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+	}
 
+	function admin_head() {
+		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+	}
+
+	function admin_menu_order() {
+		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+	}
+
+	function jetpack_menu_order() {
+		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+	}
+
+	function admin_styles() {
+		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
+	}
+
+	function admin_scripts() {
+		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
 	}
 
 	function admin_page() {
 		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
 	}
 
-	function modules_page() {
+	function admin_page_modules() {
 		
 	}
 
