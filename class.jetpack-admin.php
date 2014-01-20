@@ -153,7 +153,7 @@ class Jetpack_Admin {
 
 		switch ( get_current_screen()->id ) {
 			case 'jetpack_page_jetpack_modules' :
-				wp_enqueue_style( 'jetpack-modules', plugins_url( '_inc/jetpack-modules.css', __FILE__ ) );
+				wp_enqueue_style( 'jetpack-modules', plugins_url( '_inc/jetpack-modules.css', __FILE__ ), array( 'genericons' ) );
 				break;
 			default :
 				break;
