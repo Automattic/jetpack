@@ -194,8 +194,22 @@ class Jetpack_Admin {
 	}
 
 	function admin_page_modules() {
+		add_filter( 'jetpack_short_module_description', 'wpautop' );
+		include_once( JETPACK__PLUGIN_DIR . 'modules/module-info.php' );
+		include_once( 'class.jetpack-modules-list-table.php' );
+		$list_table = new Jetpack_Modules_List_Table;
 		$this->admin_page_top();
 		?>
+
+		<?php $list_table->views(); ?>
+		<form method="get">
+			<input type="hidden" name="page" value="jetpack_modules" />
+			<?php if ( ! empty( $_GET['module_tag'] ) ) : ?>
+				<input type="hidden" name="module_tag" value="<?php echo esc_attr( $_GET['module_tag'] ); ?>" />
+			<?php endif; ?>
+			<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'search_modules' ); ?>
+			<?php $list_table->display(); ?>
+		</form>
 
 		<?php
 		$this->admin_page_bottom();
