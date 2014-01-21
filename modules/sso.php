@@ -194,9 +194,14 @@ class Jetpack_SSO {
 	 * @since 2.7
 	 **/
 	public function render_remove_login_form_checkbox() {
-		echo '<a name="configure-sso"></a>';
-		echo '<input type="checkbox" name="jetpack_sso_remove_login_form[remove_login_form]" ' . checked( 1 == get_option( 'jetpack_sso_remove_login_form' ), true, false ) . '>';
-		echo '<p class="description">Removes default login form and disallows login via POST</p>';
+		if( $this->is_user_connected( get_current_user_id() ) ) {
+			echo '<a name="configure-sso"></a>';
+			echo '<input type="checkbox" name="jetpack_sso_remove_login_form[remove_login_form]" ' . checked( 1 == get_option( 'jetpack_sso_remove_login_form' ), true, false ) . '>';
+			echo '<p class="description">Removes default login form and disallows login via POST</p>';
+		} else {
+			echo 'Your account must be connected to WordPress.com before disabling the login form.';
+			echo '<br/>' . $this->button();
+		}
 	}
 
 	/**
@@ -694,14 +699,36 @@ class Jetpack_SSO {
 		}
 	}
 
+	/**
+	 * Determines if a local user is connected to WordPress.com
+	 *
+	 * @since 2.8
+	 * @param integer $user_id - Local user id
+	 * @return boolean
+	 **/
+	public function is_user_connected( $user_id ) {
+		return $this->get_user_data( $user_id ) ;
+	}
+
+	/**
+	 * Retrieves a user's WordPress.com data
+	 *
+	 * @since 2.8
+	 * @param integer $user_id - Local user id
+	 * @return mixed null or stdClass
+	 **/
+	public function get_user_data( $user_id ) {
+		return get_user_meta( $user_id, 'wpcom_user_data', true );
+	}
+
 	function edit_profile_fields( $user ) {
 		?>
 
 		<h3><?php _e( 'WordPress.com Single Sign On', 'jetpack' ); ?></h3>
 		<p><?php _e( 'Connecting with WordPress.com SSO enables you to log in via your WordPress.com account.', 'jetpack' ); ?></p>
 
-		<?php if ( ( $user_data = get_user_meta( $user->ID, 'wpcom_user_data', true ) ) && ! empty( $user_data->ID ) ) : /* If the user is currently connected... */ ?>
-
+		<?php if ( $this->is_user_connected( $user->ID ) ) : /* If the user is currently connected... */ ?>
+			<?php $user_data = $this->get_user_data( $user->ID ); ?>
 			<table class="form-table jetpack-sso-form-table">
 				<tbody>
 					<tr>
