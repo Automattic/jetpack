@@ -9,6 +9,11 @@
 	height: 410px;
 }
 
+.slideshow-white {
+	background-color: #fff;
+	border: 20px solid #fff;
+}
+
 .slideshow-window, .slideshow-window * {
 	-moz-box-sizing: content-box;
 	-webkit-box-sizing: content-box;

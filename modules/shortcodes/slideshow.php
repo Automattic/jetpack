@@ -26,7 +26,14 @@ class Jetpack_Slideshow_Shortcode {
 
 		if ( $needs_scripts )
 			add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_scripts' ), 1 );
+
+		if ( is_admin() ) {
+			// Register the Slideshow-related setting
+			add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
+		}
 	}
+
+		
 
 	/**
 	 * Responds to the [gallery] shortcode, but not an actual shortcode callback.
@@ -57,6 +64,43 @@ class Jetpack_Slideshow_Shortcode {
 	function add_gallery_type( $types = array() ) {
 		$types['slideshow'] = esc_html__( 'Slideshow', 'jetpack' );
 		return $types;
+	}
+
+	function register_settings() {
+		add_settings_section('slideshow_section', __( 'Image Gallery Slideshow', 'jetpack' ), array( $this, 'slideshow_section_callback' ), 'media');
+
+		add_settings_field('slideshow_background_color', __( 'Background color', 'jetpack' ), array( $this, 'slideshow_background_color_callback' ), 'media', 'slideshow_section' );
+		register_setting( 'media', 'slideshow_background_color', array( $this, 'slideshow_background_color_sanitize' ) );
+	}
+
+	// Fulfill the settings section callback requirement by returning nothing
+	function slideshow_section_callback() {
+		return;
+	}
+
+	function slideshow_background_color_callback() {
+		$this->settings_select( 'slideshow_background_color', array( 'black' => __( 'Black', 'jetpack' ), 'white' => __( 'White', 'jetpack', 'jetpack' ) ) );
+	}
+
+	function settings_select($name, $values, $extra_text = '') {
+		if ( empty( $name ) || ! is_array( $values ) || empty( $values ) )
+			return;
+		$option = get_option( $name );
+		echo '<fieldset>';
+		echo '<select name="'.esc_attr($name).'" id="'.esc_attr($name).'">';
+		foreach( $values as $key => $value ) {
+			echo '<option value="'.esc_attr($key).'" ';
+			selected( $key, $option );
+			echo '>'.esc_html($value).'</option>';
+		}
+		echo '</select>';
+		if ( ! empty( $extra_text ) )
+			echo '<p class="description">'.$extra_text.'</p>';
+		echo '</fieldset>';
+	}
+
+	function slideshow_background_color_sanitize( $value ) {
+		return ( 'white' == $value ) ? 'white' : 'black';
 	}
 
 	function shortcode_callback( $attr, $content = null ) {
@@ -116,12 +160,15 @@ class Jetpack_Slideshow_Shortcode {
 		if ( intval( $content_width ) > 0 )
 			$max_width = min( intval( $content_width ), $max_width );
 
+		$color = get_option( 'slideshow_background_color', 'black');
+
 		$js_attr = array(
 			'gallery'  => $gallery,
 			'selector' => $gallery_instance,
 			'width'    => $max_width,
 			'height'   => $max_height,
 			'trans'    => $attr['trans'] ? $attr['trans'] : 'fade',
+			'color'    => $color,
 		 );
 
 		// Show a link to the gallery in feeds.
@@ -158,7 +205,10 @@ class Jetpack_Slideshow_Shortcode {
 		$output = '';
 
 		$output .= '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . '</p>';
-		$output .= '<div id="' . esc_attr( $attr['selector'] . '-slideshow' ) . '"  class="slideshow-window jetpack-slideshow" data-width="' . esc_attr( $attr['width'] ) . '" data-height="' . esc_attr( $attr['height'] ) . '" data-trans="' . esc_attr( $attr['trans'] ) . '" data-gallery="' . esc_attr( json_encode( $attr['gallery'] ) ) . '"></div>';
+		$output .= '<div id="' . esc_attr( $attr['selector'] . '-slideshow' ) . '"  class="slideshow-window jetpack-slideshow'; 
+		if ( $attr['color'] == 'white' )
+			$output .= ' slideshow-white';
+		$output .= '" data-width="' . esc_attr( $attr['width'] ) . '" data-height="' . esc_attr( $attr['height'] ) . '" data-trans="' . esc_attr( $attr['trans'] ) . '" data-gallery="' . esc_attr( json_encode( $attr['gallery'] ) ) . '"></div>';
 
 		$output .= "
 		<style>
