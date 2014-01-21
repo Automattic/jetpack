@@ -286,8 +286,8 @@ CONTAINER;
 
 				$settings = array();
 
-				// Do we want a full embed code or a link? Remove the is_automattician() bit entirely when IS testing is complete
-				if ( $no_script || $inline || ( is_automattician() === false && $infinite_scroll ) )
+				// Do we want a full embed code or a link?
+				if ( $no_script || $inline )
 					return $survey_link;
 
 				if ( $type == 'iframe' ) {
