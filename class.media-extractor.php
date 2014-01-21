@@ -377,7 +377,7 @@ class Jetpack_Media_Meta_Extractor {
 		if ( !empty( $from_html ) ) {
 			$srcs = wp_list_pluck( $from_html, 'src' );
 			foreach( $srcs as $image_url ) {
-				if ( $src = parse_url( $image_url ) ) {
+				if ( ( $src = parse_url( $image_url ) ) && isset( $src['scheme'], $src['host'], $src['path'] ) ) {
 					// Rebuild the URL without the query string
 					$queryless = $src['scheme'] . '://' . $src['host'] . $src['path'];
 				} elseif ( $length = strpos( $image_url, '?' ) ) {
