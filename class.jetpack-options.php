@@ -13,6 +13,7 @@ class Jetpack_Options {
 				'do_activate',
 				'log',
 				'publicize',
+				'slideshow_background_color',
 				'widget_twitter',
 				'wpcc_options',
 				'relatedposts',
