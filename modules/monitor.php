@@ -60,6 +60,7 @@ class Jetpack_Monitor {
 		?>
 		<div class="narrow">
 		<?php if ( Jetpack::is_user_connected() ) : ?>
+			<?php $user_email = Jetpack::get_connected_user_email(); ?>
                         <form method="post" id="monitor-settings">
                                 <input type="hidden" name="action" value="monitor-save" />
                                 <?php wp_nonce_field( 'monitor-settings' ); ?>
@@ -74,7 +75,7 @@ class Jetpack_Monitor {
 									<input type="checkbox" name="receive_jetpack_monitor_notification" id="receive_jetpack_monitor_notification" value="receive_jetpack_monitor_notification"<?php checked( $this->user_receives_notifications() ); ?> />
 								<span><?php _e( 'Receive Monitor Email Notifications.' , 'jetpack'); ?></span>
 							</label>
-							<p class="description"><?php _e( 'Receive Monitor Notifications to the email associated with your connected WordPress.com account.', 'jetpack' ); ?></p>
+							<p class="description"><?php printf( __( 'Emails will be sent to %s (<a href="%s">Edit</a>)', 'jetpack' ), $user_email, 'https://wordpress.com/settings/account/'); ?></p>
 						</td>
 					</tr>
 				</table>
