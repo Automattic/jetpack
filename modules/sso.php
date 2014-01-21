@@ -10,6 +10,11 @@
  * Module Tags: Developers
  */
 
+function module_configure_button_clicked() {
+	$sso = Jetpack_SSO::get_instance();
+
+	$sso->module_configure_button_clicked();
+}
 class Jetpack_SSO {
 	static $instance = null;
 
@@ -26,10 +31,37 @@ class Jetpack_SSO {
 		add_action( 'delete_user', array( $this, 'delete_connection_for_user' ) );
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
+		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
 
 		if( $this->should_hide_login_form() && apply_filters( 'jetpack_sso_display_disclaimer', true ) ) {
 			add_action( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
 		}
+	}
+
+	/**
+	 * Returns the single instance of the Jetpack_SSO object
+	 *
+	 * @since 2.8
+	 * @return Jetpack_SSO
+	 **/
+	public static function get_instance() {
+		if( !is_null( self::$instance ) ) 
+			return self::$instance;
+
+		return self::$instance = new Jetpack_SSO;
+	}
+
+	/**
+	 * Add configure button and functionality to the module card on the Jetpack screen
+	 **/
+	public function module_configure_button() {
+		Jetpack::enable_module_configurable( __FILE__ );
+		Jetpack::module_configuration_load( __FILE__, 'module_configure_button_clicked' );
+	}
+
+	public function module_configure_button_clicked() {
+		wp_safe_redirect( admin_url( 'options-general.php#configure-sso' ) );
+		exit;
 	}
 
 	/**
@@ -162,6 +194,7 @@ class Jetpack_SSO {
 	 * @since 2.7
 	 **/
 	public function render_remove_login_form_checkbox() {
+		echo '<a name="configure-sso"></a>';
 		echo '<input type="checkbox" name="jetpack_sso_remove_login_form[remove_login_form]" ' . checked( 1 == get_option( 'jetpack_sso_remove_login_form' ), true, false ) . '>';
 		echo '<p class="description">Removes default login form and disallows login via POST</p>';
 	}
