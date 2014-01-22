@@ -159,7 +159,7 @@ class Jetpack {
 			if ( did_action( 'plugins_loaded' ) )
 				self::plugin_textdomain();
 			else
-				add_action( 'plugins_loaded', array( __CLASS__, 'plugin_textdomain' ) );
+				add_action( 'plugins_loaded', array( __CLASS__, 'plugin_textdomain' ), 100 );
 
 			self::$instance = new Jetpack;
 
