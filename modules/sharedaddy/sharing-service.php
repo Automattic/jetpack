@@ -202,7 +202,8 @@ class Sharing_Service {
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
 			'show'          => array( 'post', 'page' ),
-			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array()
+			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array(),
+			'twitter_site'	=> '',
 		);
 
 		$options['global'] = apply_filters( 'sharing_default_global', $options['global'] );
@@ -244,6 +245,10 @@ class Sharing_Service {
 			}
 		} else {
 			$options['global']['show'] = array();
+		}
+
+		if ( isset( $data['twitter_site'] ) ) {
+			$options['global']['twitter_site'] = str_replace("@", "", trim( wp_kses( stripslashes( $data['twitter_site'] ), array() ) ) );
 		}
 
 		update_option( 'sharing-options', $options );

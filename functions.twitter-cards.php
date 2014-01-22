@@ -23,11 +23,13 @@ function wpcom_twitter_cards_tags( $og_tags ) {
 	 */
 
 	$og_tags['twitter:site'] = ( defined('IS_WPCOM') && IS_WPCOM ) ? '@wordpressdotcom' : '@jetpack';
+	$options = get_option( 'sharing-options' );
+	if ( Jetpack::is_module_active( 'sharedaddy' ) && isset($options['global']['twitter_site'] ) && !empty($options['global']['twitter_site']) ) {
+		$twitter_handle = esc_attr( $options['global']['twitter_site'] );
+		$og_tags['twitter:site'] = '@' . $twitter_handle;
+	}
 
-	/*if ( !empty( get_option( 'jetpack_twitter_site_handle' ) ) ) {
-		$og_tags['twitter:site'] = '@' . get_option( 'jetpack_twitter_site_handle' );
-	}*/
-	if ( Jetpack::is_module_active( 'publicize' ) && $publicize->is_enabled( 'twitter' ) ) {
+	elseif ( Jetpack::is_module_active( 'publicize' ) && $publicize->is_enabled( 'twitter' ) ) {
 		$connections = $publicize->get_connections( 'twitter' );
 		foreach( $connections as $c ) {
 			$twitter_handles[] = $publicize->get_display_name('twitter', $c);
@@ -151,14 +153,15 @@ function wpcom_twitter_cards_output( $og_tag ) {
 add_filter( 'jetpack_open_graph_output', 'wpcom_twitter_cards_output' );
 
 function jetpack_twitter_cards_site_setting() {
-	if ( current_user_can( 'manage_options') ) { ?>
-		<div id="site-twitter"></div>
-			<div class="twitter-sharing-screen">
-				<h3><?php _e( 'Twitter Handle', 'jetpack' ) ?></h3>
-				<p>Set the Twitter handle to be displayed on <a href="https://dev.twitter.com/docs/cards" target="_blank">Twitter Cards</a> when sharing posts or pages from this blog.</p>
-			</div><?php
-			// use 'jetpack_twitter_site_handle' for the setting name. Should match in function above.
+	if ( current_user_can( 'manage_options') ) {
+		$options = get_option( 'sharing-options' ); ?>
+		<tr valign="top" id="site-twitter">
+			<th scope="row"><label><?php _e( 'Twitter Handle', 'jetpack' ) ?></label></th>
+			<td><input type="text" name="twitter_site" value="<?php echo esc_attr( $options['global']['twitter_site'] ); ?>" />
+				<small><em>Set the Twitter handle to be displayed on <a href="https://dev.twitter.com/docs/cards" target="_blank">Twitter Cards</a> and when sharing posts or pages from this blog.</em></small>
+			</td>
+		</tr><?php
 	}
 }
 
-// add_action( 'pre_admin_screen_sharing', 'jetpack_twitter_cards_site_setting' );
+add_action( 'sharing_global_options', 'jetpack_twitter_cards_site_setting', 50 );
