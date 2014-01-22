@@ -10,6 +10,7 @@
  */
 function wpcom_twitter_cards_tags( $og_tags ) {
 	global $post;
+	global $publicize;
 
 	if( post_password_required() )
 		return $og_tags;
@@ -23,8 +24,15 @@ function wpcom_twitter_cards_tags( $og_tags ) {
 
 	$og_tags['twitter:site'] = ( defined('IS_WPCOM') && IS_WPCOM ) ? '@wordpressdotcom' : '@jetpack';
 
-	if ( ! get_option( 'jetpack_twitter_site_handle' ) ) {
+	/*if ( !empty( get_option( 'jetpack_twitter_site_handle' ) ) ) {
 		$og_tags['twitter:site'] = '@' . get_option( 'jetpack_twitter_site_handle' );
+	}*/
+	if ( Jetpack::is_module_active( 'publicize' ) && $publicize->is_enabled( 'twitter' ) ) {
+		$connections = $publicize->get_connections( 'twitter' );
+		foreach( $connections as $c ) {
+			$twitter_handles[] = $publicize->get_display_name('twitter', $c);
+		}
+		$og_tags['twitter:site'] = ($twitter_handles[0]);
 	}
 
 	if ( ! is_singular() || ! empty( $og_tags['twitter:card'] ) )
