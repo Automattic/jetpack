@@ -20,6 +20,8 @@ class Jetpack_Carousel {
 
 	var $first_run = true;
 
+	var $in_gallery = false;
+
 	var $in_jetpack = true;
 
 	function __construct() {
@@ -52,6 +54,7 @@ class Jetpack_Carousel {
 			// If on front-end, do the Carousel thang.
 			$this->prebuilt_widths = apply_filters( 'jp_carousel_widths', $this->prebuilt_widths );
 			add_filter( 'post_gallery', array( $this, 'enqueue_assets' ), 1000, 2 ); // load later than other callbacks hooked it
+			add_filter( 'post_gallery', array( $this, 'set_in_gallery' ), -1000 );
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
 			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
 		}
@@ -164,9 +167,14 @@ class Jetpack_Carousel {
 		return $output;
 	}
 
+	function set_in_gallery( $output ) {
+		$this->in_gallery = true;
+		return $output;
+	}
+
 	function add_data_to_images( $attr, $attachment = null ) {
 
-		if ( $this->first_run ) // not in a gallery
+		if ( $this->in_gallery ) // not in a gallery
 			return $attr;
 
 		$attachment_id   = intval( $attachment->ID );
