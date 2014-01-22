@@ -374,6 +374,9 @@ header img {
  	width: 100%;
  	z-index: 99999;
 }
+.admin-bar #access ul.nav-menu {
+	top: 6.6em;
+}
 .main-small-navigation .menu {
 	background: #f9f9f9;
 	border: 1px solid #e9e9e9;
