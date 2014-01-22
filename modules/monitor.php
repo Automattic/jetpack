@@ -44,11 +44,6 @@ class Jetpack_Monitor {
                 if ( ! empty( $_POST['action'] ) && $_POST['action'] == 'monitor-save' ) {
                         check_admin_referer( 'monitor-settings' );
 			$this->update_option_receive_jetpack_monitor_notification( isset( $_POST['receive_jetpack_monitor_notification'] ) );
-			if ( isset( $_POST['jetpack_monitor_active'] ) ) {
-				$this->activate_monitor();
-			} else {
-				$this->deactivate_monitor();
-			}
                         Jetpack::state( 'message', 'module_configured' );
                         wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
                 }
@@ -57,26 +52,13 @@ class Jetpack_Monitor {
 	public function jetpack_configuration_screen() {
 		?>
 		<div class="narrow">
-		<?php if ( Jetpack::is_user_connected() ) : ?>
+		<?php if ( Jetpack::is_user_connected() && current_user_can( 'manage_options' ) ) : ?>
 			<?php $user_email = Jetpack::get_connected_user_email(); ?>
                         <form method="post" id="monitor-settings">
                                 <input type="hidden" name="action" value="monitor-save" />
                                 <?php wp_nonce_field( 'monitor-settings' ); ?>
 
 				<table id="menu" class="form-table">
-					<?php if ( current_user_can( 'manage_options' ) ) : ?>
-                                                <tr>
-                                                <th scope="row">
-                                                        <?php _e( 'Activation', 'jetpack' ); ?>
-                                                </th>
-                                                <td>   
-                                                        <label for="jetpack_monitor_active">
-                                                                        <input type="checkbox" name="jetpack_monitor_active" id="jetpack_monitor_active" value="jetpack_monitor_active"<?php checked( $this->is_active() ); ?> />
-                                                                <span><?php _e( 'Monitor On/Off.' , 'jetpack'); ?></span>
-                                                        </label>
-                                                        <p class="description"><?php _e( 'While the Monitor is Off no users will receive notifications', 'jetpack' ); ?></p>
-                                                </td>
-					<?php endif; ?>
 						<tr>
 						<th scope="row">
 							<?php _e( 'Notifications', 'jetpack' ); ?>
