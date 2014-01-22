@@ -9,7 +9,7 @@
  * Module Tags: Social
  */
 class Jetpack_Likes {
-	var $version = '20140101';
+	var $version = '20140110';
 
 	public static function init() {
 		static $instance = NULL;
@@ -71,6 +71,7 @@ class Jetpack_Likes {
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_likes' ), 60 );
 
 		add_action( 'save_post', array( $this, 'meta_box_save' ) );
+		add_action( 'edit_attachment', array( $this, 'meta_box_save' ) );
 		add_action( 'sharing_global_options', array( $this, 'admin_settings_init' ), 20 );
 		add_action( 'sharing_admin_update',   array( $this, 'admin_settings_callback' ), 20 );
 	}
