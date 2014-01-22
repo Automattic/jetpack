@@ -12,13 +12,13 @@ function jetpack_googlemaps_embed_to_short_code( $content ) {
 	// IE and TinyMCE format things differently
 	// &lt;iframe width="425" height="350" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="<a href="https://maps.google.co.uk/maps/ms?msa=0&amp;amp;msid=206216869547772496318.0004bf5f0ff25aea47bd9&amp;amp;hl=en&amp;amp;ie=UTF8&amp;amp;t=m&amp;amp;ll=50.91917,-1.398808&amp;amp;spn=0.013225,0.011794&amp;amp;output=embed&quot;&gt;&lt;/iframe&gt;&lt;br">https://maps.google.co.uk/maps/ms?msa=0&amp;amp;msid=206216869547772496318.0004bf5f0ff25aea47bd9&amp;amp;hl=en&amp;amp;ie=UTF8&amp;amp;t=m&amp;amp;ll=50.91917,-1.398808&amp;amp;spn=0.013225,0.011794&amp;amp;output=embed"&gt;&lt;/iframe&gt;&lt;br</a> /&gt;&lt;small&gt;View &lt;a href="<a href="https://maps.google.co.uk/maps/ms?msa=0&amp;amp;msid=206216869547772496318.0004bf5f0ff25aea47bd9&amp;amp;hl=en&amp;amp;ie=UTF8&amp;amp;t=m&amp;amp;ll=50.91917,-1.398808&amp;amp;spn=0.013225,0.011794&amp;amp;source=embed">https://maps.google.co.uk/maps/ms?msa=0&amp;amp;msid=206216869547772496318.0004bf5f0ff25aea47bd9&amp;amp;hl=en&amp;amp;ie=UTF8&amp;amp;t=m&amp;amp;ll=50.91917,-1.398808&amp;amp;spn=0.013225,0.011794&amp;amp;source=embed</a>" style="color:#0000FF;text-align:left"&gt;OARA Membership Discount Map&lt;/a&gt; in a larger map&lt;/small&gt;
 	if ( strpos( $content, 'src="<a href="' ) !== false ) {
-		$content = preg_replace_callback( '#&lt;iframe\s[^&]*?(?:&(?!gt;)[^&]*?)*?src="<a href="https?://.*?\.google\.(.*?)/(.*?)\?(.+?)&quot;[^&]*?(?:&(?!gt;)[^&]*?)*?&gt;\s*&lt;/iframe&gt;&lt;br">[^"]*?"&gt;\s*&lt;/iframe&gt;&lt;br</a>\s*/&gt;\s*&lt;small&gt;.*?&lt;/small&gt;#i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
+		$content = preg_replace_callback( '#&lt;iframe\s[^&]*?(?:&(?!gt;)[^&]*?)*?src="<a href="https?://.*?\.google\.(.*?)/(.*?)\?(.+?)&quot;[^&]*?(?:&(?!gt;)[^&]*?)*?&gt;\s*&lt;/iframe&gt;&lt;br">[^"]*?"&gt;\s*&lt;/iframe&gt;(?:&lt;br</a>\s*/&gt;\s*&lt;small&gt;.*?&lt;/small&gt;)?#i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
 		return $content;
 	}
 
-	$content = preg_replace_callback( '!\<iframe\s[^>]*?src="https?://.*?\.google\.(.*?)/(.*?)\?(.+?)"[^>]*?\>\s*\</iframe\>\s*(?:\<br\s*/?\>)?\s*\<small\>.*?\</small\>!i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
+	$content = preg_replace_callback( '!\<iframe\s[^>]*?src="https?://.*?\.google\.(.*?)/(.*?)\?(.+?)"[^>]*?\>\s*\</iframe\>(?:\s*(?:\<br\s*/?\>)?\s*\<small\>.*?\</small\>)?!i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
 
-	$content = preg_replace_callback( '#&lt;iframe\s[^&]*?(?:&(?!gt;)[^&]*?)*?src="https?://.*?\.google\.(.*?)/(.*?)\?(.+?)"[^&]*?(?:&(?!gt;)[^&]*?)*?&gt;\s*&lt;/iframe&gt;\s*(?:&lt;br\s*/?&gt;)?\s*&lt;small&gt;.*?&lt;/small&gt;#i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
+	$content = preg_replace_callback( '#&lt;iframe\s[^&]*?(?:&(?!gt;)[^&]*?)*?src="https?://.*?\.google\.(.*?)/(.*?)\?(.+?)"[^&]*?(?:&(?!gt;)[^&]*?)*?&gt;\s*&lt;/iframe&gt;(?:\s*(?:&lt;br\s*/?&gt;)?\s*&lt;small&gt;.*?&lt;/small&gt;)?#i', 'jetpack_googlemaps_embed_to_short_code_callback', $content );
 
 	return $content;
 }

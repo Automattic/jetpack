@@ -9,7 +9,7 @@
  * Module Tags: Social
  */
 class Jetpack_Likes {
-	var $version = '20140101';
+	var $version = '20140110';
 
 	public static function init() {
 		static $instance = NULL;
@@ -71,6 +71,7 @@ class Jetpack_Likes {
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_likes' ), 60 );
 
 		add_action( 'save_post', array( $this, 'meta_box_save' ) );
+		add_action( 'edit_attachment', array( $this, 'meta_box_save' ) );
 		add_action( 'sharing_global_options', array( $this, 'admin_settings_init' ), 20 );
 		add_action( 'sharing_admin_update',   array( $this, 'admin_settings_callback' ), 20 );
 	}
@@ -133,7 +134,7 @@ class Jetpack_Likes {
 
 		// Record sharing disable. Only needs to be done for WPCOM
 		if ( ! $this->in_jetpack ) {
-			if ( isset( $_POST['post_type'] ) && ( 'post' == $_POST['post_type'] || 'page' == $_POST['post_type'] ) ) {
+			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ) ) ) {
 				if ( isset( $_POST['wpl_sharing_status_hidden'] ) && !isset( $_POST['wpl_enable_post_sharing'] ) ) {
 					update_post_meta( $post_id, 'sharing_disabled', 1 );
 				} else {

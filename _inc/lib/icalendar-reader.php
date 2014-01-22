@@ -93,7 +93,7 @@ class iCalendarReader {
 
 			$date_from_ics = strtotime( $event['DTSTART'] );
 
-			if ( isset( $event['RRULE'] ) && $this->timezone->getName() ) {
+			if ( isset( $event['RRULE'] ) && $this->timezone->getName() && 8 != strlen( $event['DTSTART'] ) ) {
 				$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone('UTC') );
 				$adjusted_time->setTimeZone( new DateTimeZone( $this->timezone->getName() ) );
 				$event['DTSTART'] = $adjusted_time->format('Ymd\THis');
@@ -130,28 +130,48 @@ class iCalendarReader {
 					case 'DAILY':
 						$frequency = 'day';
 						if ( $date_from_ics >= $current ) {
-							$echo_limit = 1;
-							$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] ) );
-							$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] ) );
+							$echo_limit = 10;
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$recurring_event_date_start = date( "Ymd", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "Ymd", strtotime( $event['DTEND'] ) );
+							} else {
+								$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] ) );
+							}
 						} else {
 							$echo_limit = 10;
 							$current_date = date( 'Ymd' );
-							$recurring_event_date_start = $current_date . date( "\THis", strtotime( $event['DTSTART'] ) );
-							$recurring_event_date_end = $current_date . date( "\THis", strtotime( $event['DTEND'] ) );
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$recurring_event_date_start = $current_date;
+								$recurring_event_date_end = $current_date;
+							} else {
+								$recurring_event_date_start = $current_date . date( "\THis", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = $current_date . date( "\THis", strtotime( $event['DTEND'] ) );
+							}
 						}
 						break;
 
 					case 'WEEKLY':
 						$frequency = 'week';
 						if ( $date_from_ics >= $current ) {
-							$echo_limit = 1;
-							$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] ) );
-							$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] ) );
+							$echo_limit = 2;
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$recurring_event_date_start = date( "Ymd", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "Ymd", strtotime( $event['DTEND'] ) );
+							} else {
+								$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] ) );
+							}
 						} else {
 							$echo_limit = 3;
 							$current_date = date( 'Ym' );
-							$recurring_event_date_start = $current_date . date( "d\THis", strtotime( $event['DTSTART'] ) );
-							$recurring_event_date_end = $current_date . date( "d\THis", strtotime( $event['DTEND'] ) );
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$recurring_event_date_start = date( "d", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "d", strtotime( $event['DTEND'] ) );
+							} else {
+								$recurring_event_date_start = $current_date . date( "d\THis", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = $current_date . date( "d\THis", strtotime( $event['DTEND'] ) );
+							}
 						}
 
 						// Build list of days of week to add events
@@ -163,13 +183,23 @@ class iCalendarReader {
 						$frequency = 'month';
 						if ( $date_from_ics >= $current ) {
 							$echo_limit = 1;
-							$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] ) );
-							$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] ) );
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$recurring_event_date_start = date( "Ymd", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "Ymd", strtotime( $event['DTEND'] ) );
+							} else {
+								$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] ) );
+							}
 						} else {
 							$echo_limit = 2;
 							$current_date = date( 'Ym' );
-							$recurring_event_date_start = $current_date . date( "d\THis", strtotime( $event['DTSTART'] ) );
-							$recurring_event_date_end = $current_date . date( "d\THis", strtotime( $event['DTEND'] ) );
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$recurring_event_date_start = date( "d", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "d", strtotime( $event['DTEND'] ) );
+							} else {
+								$recurring_event_date_start = $current_date . date( "d\THis", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = $current_date . date( "d\THis", strtotime( $event['DTEND'] ) );
+							}
 						}
 						break;
 
@@ -177,13 +207,23 @@ class iCalendarReader {
 						$frequency = 'year';
 						if ( $date_from_ics >= $current ) {
 							$echo_limit = 1;
-							$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] ) );
-							$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] ) );
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$recurring_event_date_start = date( "Ymd", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "Ymd", strtotime( $event['DTEND'] ) );
+							} else {
+								$recurring_event_date_start = date( "Ymd\THis", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "Ymd\THis", strtotime( $event['DTEND'] ) );
+							}
 						} else {
 							$echo_limit = 1;
 							$current_date = date( 'Y' );
-							$recurring_event_date_start = $current_date . date( "md\THis", strtotime( $event['DTSTART'] ) );
-							$recurring_event_date_end = $current_date . date( "md\THis", strtotime( $event['DTEND'] ) );
+							if ( 8 == strlen( $event['DTSTART'] ) ) {
+								$recurring_event_date_start = date( "md", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = date( "md", strtotime( $event['DTEND'] ) );
+							} else {
+								$recurring_event_date_start = $current_date . date( "md\THis", strtotime( $event['DTSTART'] ) );
+								$recurring_event_date_end = $current_date . date( "md\THis", strtotime( $event['DTEND'] ) );
+							}
 						}
 						break;
 
@@ -215,21 +255,38 @@ class iCalendarReader {
 						$event_start = strtotime( $recurring_event_date_start );
 						$event_end = strtotime( $recurring_event_date_end );
 						$until = ( isset( $rrule_array['UNTIL'] ) ) ? strtotime( $rrule_array['UNTIL'] ) : strtotime( '+1 year' );
+						$exdate = ( isset( $event['EXDATE;VALUE=DATE'] ) ) ? $event['EXDATE;VALUE=DATE'] : null;
 
 						if ( isset( $rrule_array['BYDAY'] ) && $frequency === 'week' ) {
-							$byday_event_date_start = date( "Ymd\T", strtotime( 'last Sunday', strtotime( $recurring_event_date_start ) ) ) . date( "His", strtotime( $recurring_event_date_start) );
-							$byday_event_date_end = date( "Ymd\T", strtotime( 'last Sunday', strtotime( $recurring_event_date_end ) ) ) . date( "His", strtotime( $recurring_event_date_end) );
+							if ( $rrule_array['BYDAY'] === "SU" ) {
+								if ( 8 == strlen( $event['DTSTART'] ) ) {
+									$byday_event_date_start = date( "Ymd", strtotime( "last Sunday", strtotime( $recurring_event_date_start ) ) );
+									$byday_event_date_end = date( "Ymd", strtotime( "last Sunday", strtotime( $recurring_event_date_start ) ) );
+								} else {
+									$byday_event_date_start = date( "Ymd\T", strtotime( "last Sunday", strtotime( $recurring_event_date_start ) ) ) . date( "His", strtotime( $recurring_event_date_start) );
+									$byday_event_date_end = date( "Ymd\T", strtotime( "last Sunday", strtotime( $recurring_event_date_end ) ) ) . date( "His", strtotime( $recurring_event_date_end) );
+								}
+							} else {
+								if ( 8 == strlen( $event['DTSTART'] ) ) {
+									$byday_event_date_start = date( "Ymd", strtotime( "last Sunday", strtotime( $recurring_event_date_start ) ) );
+									$byday_event_date_end = date( "Ymd", strtotime( "last Sunday", strtotime( $recurring_event_date_end ) ) );
+								} else {
+									$byday_event_date_start = date( "Ymd\T", strtotime( "last Sunday", strtotime( $recurring_event_date_start ) ) ) . date( "His", strtotime( $recurring_event_date_start) );
+									$byday_event_date_end = date( "Ymd\T", strtotime( "last Sunday", strtotime( $recurring_event_date_end ) ) ) . date( "His", strtotime( $recurring_event_date_end) );
+								}
+							}
 							$byday_event_start = strtotime( $byday_event_date_start );
 							$byday_event_end = strtotime( $byday_event_date_end );
+
 							foreach ( $weekdays as $day ) {
 								// Check if day should be added
-								if ( in_array( $day, $bydays ) && $byday_event_end >= $current && $byday_event_end <= $until && $count_counter <= $rrule_count && $byday_event_start >= $date_from_ics ) {
+								if ( in_array( $day, $bydays ) && $byday_event_end >= $current && $byday_event_end <= $until && $count_counter <= $rrule_count && $byday_event_start >= $date_from_ics && $byday_event_date_start != $exdate ) {
 
 									// Add event to day
 									$event['DTSTART'] = $byday_event_date_start;
 									$event['DTEND'] = $byday_event_date_end;
 
-									if ( $this->timezone->getName() ) {
+									if ( $this->timezone->getName() && 8 != strlen( $event['DTSTART'] ) ) {
 										$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone( $this->timezone->getName() ) );
 										$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
 										$event['DTSTART'] = $adjusted_time->format('Ymd\THis');
@@ -248,8 +305,16 @@ class iCalendarReader {
 									$event['DTEND'] = $byday_event_date_end;
 								}
 								// Move forward a day
-								$byday_event_date_start = date( "Ymd\THis", strtotime( $byday_event_date_start . '+1 day' ) );
-								$byday_event_date_end = date( "Ymd\THis", strtotime( $byday_event_date_end . '+1 day' ) );
+								if ( 8 == strlen( $event['DTSTART'] ) ) {
+									$byday_event_date_start = date( "Ymd", strtotime( $byday_event_date_start . '+1 day' ) );
+									$byday_event_date_end = date( "Ymd", strtotime( $byday_event_date_end . '+1 day' ) );
+								} else {
+									$byday_event_date_start = date( "Ymd\THis", strtotime( $byday_event_date_start . '+1 day' ) );
+									$byday_event_date_end = date( "Ymd\THis", strtotime( $byday_event_date_end . '+1 day' ) );
+								}
+								$byday_event_start = strtotime( $byday_event_date_start );
+								$byday_event_end = strtotime( $byday_event_date_end );
+								
 							}
 
 						} elseif ( isset( $rrule_array['BYDAY'] ) && $frequency === 'month' ) {
@@ -261,11 +326,17 @@ class iCalendarReader {
 							$weekdays = array( 'SU' => 'sunday', 'MO' => 'monday', 'TU' => 'tuesday', 'WE' => 'wednesday', 'TH' => 'thursday', 'FR' => 'friday', 'SA' => 'saturday' );
 							$event_start_desc = "{$day_cardinals[$day_number]} {$weekdays[$week_day]} of " . date( 'F', $byday_monthly_date_start ) . " " . date( 'Y', $byday_monthly_date_start ) . " " . date( 'H:i:s', $byday_monthly_date_start );
 							$event_start_timestamp = strtotime( $event_start_desc );
+							$exdate_compare = date( "Ymd", strtotime( $event_start_desc ) );
 
-							if ( $event_start_timestamp > $current && $event_start_timestamp < $until  && $count_counter <= $rrule_count && $event_start_timestamp >= $date_from_ics ) {
-								$event['DTSTART'] = date( 'Ymd\T', $event_start_timestamp ) . $start_time;
-								$event['DTEND'] = date( 'Ymd\THis', strtotime( $event['DTEND'] ) . "+" . $interval . " " . $frequency . "s" );
-								if ( $this->timezone->getName() ) {
+							if ( $event_start_timestamp > $current && $event_start_timestamp < $until  && $count_counter <= $rrule_count && $event_start_timestamp >= $date_from_ics && $exdate_compare != $exdate ) {
+								if ( 8 == strlen( $event['DTSTART'] ) ) {
+									$event['DTSTART'] = date( 'Ymd', $event_start_timestamp );
+									$event['DTEND'] = date( 'Ymd', strtotime( $event['DTEND'] ) . "+" . $interval . " " . $frequency . "s" );
+								} else {
+									$event['DTSTART'] = date( 'Ymd\T', $event_start_timestamp ) . $start_time;
+									$event['DTEND'] = date( 'Ymd\THis', strtotime( $event['DTEND'] ) . "+" . $interval . " " . $frequency . "s" );
+								}
+								if ( $this->timezone->getName() && 8 != strlen( $event['DTSTART'] ) ) {
 									$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone( $this->timezone->getName() ) );
 									$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
 									$event['DTSTART'] = $adjusted_time->format('Ymd\THis');
@@ -277,13 +348,20 @@ class iCalendarReader {
 								$upcoming[] = $event;
 								$count_counter++;
 							} else {
-								$event['DTSTART'] = date( 'Ymd\T', $event_start_timestamp ) . $start_time;
-								$event['DTEND'] = date( 'Ymd\THis', strtotime( $event['DTEND'] ) . "+" . $interval . " " . $frequency . "s" );
+								if ( 8 == strlen( $event['DTSTART'] ) ) {
+									$event['DTSTART'] = date( 'Ymd', $event_start_timestamp );
+									$event['DTEND'] = date( 'Ymd', strtotime( $event['DTEND'] ) . "+" . $interval . " " . $frequency . "s" );
+								} else {
+									$event['DTSTART'] = date( 'Ymd\T', $event_start_timestamp ) . $start_time;
+									$event['DTEND'] = date( 'Ymd\THis', strtotime( $event['DTEND'] ) . "+" . $interval . " " . $frequency . "s" );
+								}
 							}
 
 						} elseif ( $event_start >= $date_from_ics && $event_end >= $current && $event_end <= $until && $count_counter <= $rrule_count ) {
 							$event['DTSTART'] = $recurring_event_date_start;
 							$event['DTEND'] = $recurring_event_date_end;
+
+							$exdate_compare = date( "Ymd", strtotime( $recurring_event_date_start ) );
 
 							if ( $this->timezone->getName() ) {
 								$adjusted_time = new DateTime( $event['DTSTART'], new DateTimeZone( $this->timezone->getName() ) );
@@ -294,8 +372,10 @@ class iCalendarReader {
 								$adjusted_time->setTimeZone( new DateTimeZone( 'UTC' ) );
 								$event['DTEND'] = $adjusted_time->format('Ymd\THis');
 							}
-							$upcoming[] = $event;
-							$count_counter++;
+							if ( $exdate_compare != $exdate ) {
+								$upcoming[] = $event;
+								$count_counter++;
+							}
 						} else {
 							$event['DTSTART'] = $recurring_event_date_start;
 							$event['DTEND'] = $recurring_event_date_end;
@@ -470,7 +550,7 @@ class iCalendarReader {
 			 * I.e: "DTSTART;TZID=America/Los_Angeles:20130124T173000"
 			 * Since we're already adjusting the timezone on presentation, let's normalize all times to default UTC now
 			 */
-			if ( isset( $keyword[1] ) ) {
+			if ( strpos( $keyword[1], "TZID") !== false ) {
 				$tzid = explode( '=', $keyword[1] );
 				$tzid = $this->timezone_from_string( $tzid[1] );
 				if ( $tzid ) {
