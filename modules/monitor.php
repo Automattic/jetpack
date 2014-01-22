@@ -41,6 +41,12 @@ class Jetpack_Monitor {
 	}
 
 	public function jetpack_configuration_load() {
+		if ( ! self::is_active() ) {
+			Jetpack::deactivate_module( $this->module );
+			Jetpack::state( 'message', 'module_deactivated' );
+			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
+			die();
+		}
                 if ( ! empty( $_POST['action'] ) && $_POST['action'] == 'monitor-save' ) {
                         check_admin_referer( 'monitor-settings' );
 			$this->update_option_receive_jetpack_monitor_notification( isset( $_POST['receive_jetpack_monitor_notification'] ) );
@@ -148,7 +154,6 @@ class Jetpack_Monitor {
 	}
 
 }
-
 
 new Jetpack_Monitor;
 
