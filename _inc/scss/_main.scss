@@ -1,0 +1,1071 @@
+// ==========================================================================
+// Main Layout
+// ==========================================================================
+
+#adminmenuback {
+	position: fixed;
+}
+#adminmenuwrap,
+.sticky-menu #adminmenuwrap {
+	position: absolute;
+}
+ul#adminmenu a.wp-has-current-submenu:after,
+ul#adminmenu > li.current > a.current:after {
+	border-right-color: #81a844;
+}
+#wpcontent {
+	margin-left: 160px;
+}
+#wpfooter {
+	display: none;
+}
+
+.jp-content {
+	margin: 0;
+	position: absolute;
+	width: 100%;
+	-webkit-font-smoothing: antialiased;	
+}
+.jp-frame {
+	position: relative;
+}
+
+// ==========================================================================
+// Main author styles
+// ==========================================================================
+
+html,
+body {
+	// Prevents a really wide page because of the full-width bar on .featured
+	overflow-x: hidden;
+}
+html {
+	background: $clouds;
+	margin-top: 0 !important;
+}
+.header-nav,
+.wrap.inner,
+.page-content  {
+	max-width: 950px;
+	margin: 0 auto;
+}
+
+.page-content.about {
+	margin-top: -60px;
+	position: relative;
+	z-index: 10;
+}
+
+.footer nav {
+	max-width: 550px;
+	margin: 0 auto;
+}
+
+.wrap.inner li,
+.page-content li {
+	line-height: 23px;
+}
+
+// ==========================================================================
+// Main navigation
+// ==========================================================================
+
+.header {
+	background: #31621b;
+	left: 0;
+	position: relative;
+	right: 0;
+	z-index: 2;
+}
+.header-nav {
+	.current {
+		background: $green;
+	}
+	a {
+		padding: 0 em(15);
+		color: #fff;
+		line-height: 46px;
+
+		&:hover {
+			background: $green;
+		}
+	}
+	.jetpack-logo {
+		color: #fff;
+		line-height: 50px;
+		font-weight: normal;
+		height: 46px;
+		margin-top: -2px;
+		padding: 0 em(8) 0 em(6);
+	
+		&:before {
+			font-family: 'Jetpack' !important;
+			content: '\e600';
+			position: relative;
+			margin-right: 8px;
+			font-size: 31px;
+		}
+		
+	}
+}
+.main-nav {
+	float: left;
+	
+	li {
+		margin: 0;
+	}
+	.jetpack-logo {
+		font: normal 400 24px/50px $sans;
+		margin-left: 10px;
+		text-shadow: 0 1px 1px rgba(0,0,0,.15);
+		
+		span {
+			float: right;
+			margin-top: -3px;
+		}
+	}
+}
+.user-nav {
+	float: right;
+}
+
+
+// ==========================================================================
+// Masthead
+// ==========================================================================
+
+// NOTE: .download-jetpack is in _buttons.scss
+.masthead {
+	$start: $green; // top gradient color and fallback
+	$end: lighten($green, 5%); // bottom gradient color
+
+	position: relative;
+	text-align: center;
+	z-index: 1;
+	background-color: $start;
+	background-image: -webkit-gradient(linear, left top, left bottom, from($start),to($end));
+	background-image: -webkit-linear-gradient(top, $start, $end);
+	background-image: -moz-linear-gradient(top, $start, $end);
+	background-image: -o-linear-gradient(top, $start, $end);
+	background-image: -ms-linear-gradient(top, $start, $end);
+	background-image: linear-gradient(top, $start, $end);
+
+	h1,
+	h2 {
+		margin: 0 auto;
+	}
+	h1 {
+		padding: em(90, 36) 0 em(40, 36);
+		max-width: em(790, 36);
+		color: #fff;
+		font: 300 2.5714285714em/1.4em $proxima; // 36/14 (the em() function breaks in font shorthand)
+		text-shadow: 0 1px 1px rgba(0,0,0,.12);
+	}
+	&.hasbutton {
+		.flyer {
+			bottom: -270px;
+		}
+		.subhead {
+			margin-top: 175px;
+		}
+	}
+}
+.flyby {
+	position: relative;
+	max-width: 1200px;
+	margin: 0 auto;
+}
+.flyer {
+	position: absolute;
+	bottom: -200px;
+	left: 4%;
+	z-index: 1;
+	@include animation(flyer 3.4s 2s ease-in-out);
+
+	&:nth-child(2) {
+		left: 49%;
+		width: 120px;
+		height: 131px;
+		@include animation-delay(4.6s);
+		@include animation-duration(2.4s);
+	}
+	&:nth-child(3) {
+		left: 23%;
+		width: 60px;
+		height: 66px;
+		@include animation-delay(5.8s);
+		@include animation-duration(4.5s);
+	}
+}
+.subhead {
+	position: relative;
+	margin-top: 105px;
+	padding: 4em 0 3.2em;
+	background: $clouds;
+	z-index: 2;
+
+	h2 {
+		max-width: 460px;
+		color: #5d6d74;
+		font: 400 1.5714285714em/1.4em $proxima; // 22/14
+		text-shadow: 0 1px 1px #fff;
+	}
+	&:after {
+		content: '';
+		position: absolute;
+		bottom: 100%;
+		left: 0;
+		margin-bottom: -1px; // Removes subpixel gap on retina landscape
+		width: 100%;
+		height: 228px;
+		background: url('img/the-cloud.svg') center bottom repeat-x;
+		pointer-events: none;
+		z-index: -1;
+	}
+}
+.clouds-sm {
+	$start: $green; // top gradient color and fallback
+	$end: lighten($green, 3%); // bottom gradient color
+	
+	height: 100px;
+	position: relative;
+	text-align: center;
+	z-index: 1;
+	background-color: $start;
+	background-image: -webkit-gradient(linear, left top, left bottom, from($start),to($end));
+	background-image: -webkit-linear-gradient(top, $start, $end);
+	background-image: -moz-linear-gradient(top, $start, $end);
+	background-image: -o-linear-gradient(top, $start, $end);
+	background-image: -ms-linear-gradient(top, $start, $end);
+	background-image: linear-gradient(top, $start, $end);
+	
+	&:after {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		margin-bottom: -1px; // Removes subpixel gap on retina landscape
+		width: 100%;
+		height: 137px;
+		background: url('img/the-cloud-sm.svg') center bottom repeat-x;
+		pointer-events: none;
+		z-index: 2;
+	}
+}
+
+// ==========================================================================
+// Featured
+// ==========================================================================
+
+.featured h2,
+.module-grid h2 {
+	margin-top: em(22, 36);
+	color: #5d6d74;
+	font: 300 2.5714285714em/1.4em $proxima; // 36/14
+	text-align: center;
+	text-shadow: 0 1px 1px #fff;
+}
+.features {
+	margin: 0 -5px; // For centering features
+	@extend %clearfix;
+}
+.feature, 
+.module {
+	position: relative;
+	float: left;
+	margin: 0 5px 5px;
+	width: 310px;
+	@include transition(all .2s ease-in-out);
+}
+.feature {
+	h3 {
+		margin: 0 0 em(10, 17);
+		color: #697b84;
+		font-size: em(17);
+		line-height: 1em;
+		font-weight: 800;
+	}
+	p {
+		margin: 0;
+		color: #6e818a;
+	}
+	&:hover {
+		top: -5px;
+		@include box-shadow(0 5px 0 rgba(0,0,0,.02));
+
+		h3 {
+			color: #1a8dba;
+		}
+		.feature-img {
+			border: 1px solid #ccc;
+			border-bottom: none;
+		}
+		.no-border {
+			border: none;
+		}
+		.feature-description {
+			background: #fff;
+			border: 1px solid #ccc;
+		}
+	}
+}
+.feature-img {
+	padding-top: 52%; // For flexible scaling
+	width: 100%;
+	height: auto;
+	border: 1px solid #ddd;
+	border-bottom: none;
+}
+.custom-css {
+	background: url('img/custom-css.jpg') no-repeat;
+	background-size: 100% auto;
+
+	@media print,
+	(-webkit-min-device-pixel-ratio: 1.25),
+	(min--moz-device-pixel-ratio: 1.25),
+	(-o-min-device-pixel-ratio: 5/4),
+	(min-resolution: 120dpi) {
+		background-image: url('img/custom-css@2x.jpg');
+	}
+}
+.wordpress-connect {
+	background: url('img/wordpress-connect.jpg') no-repeat;
+	background-size: 100% auto;
+
+	@media print,
+	(-webkit-min-device-pixel-ratio: 1.25),
+	(min--moz-device-pixel-ratio: 1.25),
+	(-o-min-device-pixel-ratio: 5/4),
+	(min-resolution: 120dpi) {
+		background-image: url('img/wordpress-connect@2x.jpg');
+	}
+}
+.wordpress-stats {
+	background: url('img/wordpress-stats.jpg') no-repeat;
+	background-size: 100% auto;
+
+	@media print,
+	(-webkit-min-device-pixel-ratio: 1.25),
+	(min--moz-device-pixel-ratio: 1.25),
+	(-o-min-device-pixel-ratio: 5/4),
+	(min-resolution: 120dpi) {
+		background-image: url('img/wordpress-stats@2x.jpg');
+	}
+}
+.no-border {
+	// For when you have images that look better without a border.
+	// Make those images two pixels wider and one taller.
+	border: none;
+	padding-bottom: 1px; // makes up for lost border pixel
+}
+.feature-description {
+	display: block;
+	padding: em(14) em(15) em(15);
+	border: 1px solid #ddd;
+	background: #f5f5f5;
+	@include transition(all .2s ease-in-out);
+}
+
+// ==========================================================================
+// Module grid
+// ==========================================================================
+
+.module-grid {
+	text-align: center;
+
+	h2 {
+		// Font size is 36
+		margin: em(45, 36) 0 em(25, 36);
+	}
+}
+#module-search {
+	position: relative;
+	width: 100%;
+	max-width: em(570);
+	margin: 0 auto em(15);
+	overflow: hidden;
+}
+.module-search {
+	width: 100%;
+	padding: 11px 0 11px 16px;
+	color: #5c6671;
+	border: 1px solid #c9ced0;
+	background: #fff;
+	@include border-radius(3px);
+
+	&:focus {
+		color: #5c6671;
+		outline: none;
+
+		+ label {
+			background: transparent;
+			opacity: .3;
+		}
+	}
+	&::-webkit-input-placeholder {
+		color: #a8acae;
+	}
+	:-moz-placeholder { // Firefox 18-
+		color: #a8acae;
+	}
+	&::-moz-placeholder { // Firefox 19+
+		color: #a8acae;
+	}
+	&:-ms-input-placeholder {
+		color: #a8acae;
+	}
+	+ label {
+		position: absolute;
+		top: 1px;
+		right: 1px;
+		bottom: 1px;
+		width: 48px;
+		color: #abafb1;
+		text-indent: -9999px;
+		pointer-events: none;
+		background: rgba(255,255,255,.85);
+		@include border-radius(3px);
+		@include transition(all .2s ease-in-out);
+
+		&:after {
+			content: '\f400';
+			position: absolute;
+			right: 11px;
+			text-align: right;
+			top: 4px;
+			font-size: em(24);
+			font-weight: normal;
+			font-family: $g8s;
+		}
+	}
+}
+.jp-filter {
+	margin-bottom: em(40);
+	color: #6f7476;
+
+	a {
+		display: inline-block;
+		position: relative;
+		padding: 0.76923em 1.46154em;
+		color: #aaa;
+		font: 600 0.92857em/1 "Open Sans", Helvetica, Arial, sans-serif;
+		text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
+		background: #eee;
+		-webkit-border-radius: 3px;
+		border-radius: 3px;
+		-webkit-background-clip: padding-box;
+		-moz-background-clip: padding;
+		background-clip: padding-box;
+		
+		&.selected,
+		&:hover,
+		&:focus {
+			color: #efefef;
+			text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+			background: #6f7476;
+		}
+	}
+	
+}
+.modules {
+	@extend .features; // Clearfix and margin
+}
+.module {
+	display: block;
+	padding: em(10) em(15) em(14);
+	text-align: left;
+	border: 1px solid #dae0e2;
+	background: #fff;
+	@include box-shadow(0 0 0 rgba(0,0,0,.03));
+	@include transition(opacity 2s ease-in);
+
+	h3 {
+		margin: 0 0 em(7);
+		color: #1a8dba;
+		font-size: em(16);
+		line-height: 1.4em;
+		font-weight: 700;
+	}
+	p {
+		margin: 0;
+		color: #686f72;
+		font-size: em(12);
+	}
+	&:hover {
+		border-color: #8ac9e8;
+		background: #f8fcfe;
+	}
+	&:nth-of-type(n+10) {
+		display: none;
+	}
+}
+.new {
+	$size: 32px; // 'NEW' badge size
+
+	position: relative;
+
+	&:after {
+		content: 'NEW';
+		position: absolute;
+		top: -8px;
+		right: -8px;
+		padding-top: 10px;
+		width: $size;
+		height: $size;
+		color: #fff;
+		font-size: 8px;
+		font-weight: 800;
+		text-align: center;
+		text-shadow: 0 -1px 0 rgba(0,0,0,.2);
+		background: url('img/new-badge.svg') center center no-repeat;
+		background-size: 100%;
+		@include border-radius(50%);
+	}
+}
+.paid { // 'Paid' label
+	display: inline-block;
+	position: relative;
+	top: 5px;
+	margin-left: 10px;
+	padding: 1px 6px 0 4px;
+	height: 13px;
+	color: #fff;
+	font: 700 10px/1 $sans;
+	text-shadow: 0 -1px 0 rgba(0,0,0,.05);
+	background: #d0d0d0;
+	vertical-align: top;
+
+	&:before,
+	&:after {
+		position: absolute;
+		top: 0;
+		right: 100%;
+		font: normal 14px/14px $g8s; 
+	}
+	&:before {
+		content: '\f503'; // Genericons leftarrow
+		color: #d0d0d0;
+		text-shadow: none;
+	}
+	&:after {
+		content: '\f428'; // Genericons dot
+		margin-right: -5px;
+		font-size: 11px;
+	}
+}
+.load-more {
+	// NOTE: .button styling is in _buttons.scss
+	@extend %clearfix;
+	margin: em(38) 0 em(80, 13);
+}
+
+// The show/hide CSS to fake loading more modules
+.set {
+	display: none;
+}
+.show.set {
+	display: block;
+}
+
+// ==========================================================================
+// Modal
+// ==========================================================================
+
+.loading {
+	bottom: 50%;
+	position: absolute;
+	top: 50%;
+	width: 100%;
+	
+	span {
+		color: #999;
+	}
+}
+.modal {
+	background: #fff; 
+	bottom: 10%;
+	display: none;
+	left: 10%;
+	margin-left: 160px;
+	position: fixed;
+	right: 10%;
+	text-align: center;
+	top: 10%;
+	z-index: 10;
+	@include box-shadow(0 1px 20px 5px rgba(0, 0, 0, 0.1));
+	
+	header {
+		border-bottom: 1px solid #ddd;
+		height: 47px;
+		overflow: hidden;
+		text-align: left;
+		
+		li {
+			color: #999;
+			display: inline-block;
+			font-size: em(22);
+			font-weight: normal;
+			padding-left: em(10);
+			list-style: none;
+			margin-top: em(5);
+			
+			a.active {
+				color: #555;
+				cursor: default;
+				text-decoration: none;
+			}
+		}
+		ul {
+			margin: 0;
+			padding: 0;
+		}
+		.close {
+			border-left: 1px solid #ddd;
+			float: right;
+			font: 300 em(24) 'genericons' !important;
+			color: #777;
+			content: '\f405';
+			display: inline-block;
+			padding: em(4) em(10) em(6);
+			
+			&:hover {
+				background: #eee;
+				opacity: 0.8;
+			}
+			&:active {
+				background: #eee;
+				opacity: 0.4;
+			}
+		}
+	}
+	#jp-post-flair {
+		display: none;
+	}
+	.content-container {
+		bottom: 0;
+		left: 0;
+		overflow: auto;
+		padding: 0 em(20) em(10);
+		position: absolute;
+		right: 0;
+		text-align: center;
+		top: 47px;
+	}
+	.content {
+		margin: 0 auto;
+		max-width: 900px;
+		text-align: left;
+		
+		h3, h4 {
+			margin-top: em(22, 36);
+			color: #5d6d74;
+			font: 300 1.4em $proxima; // 36/14
+			text-shadow: 0 1px 1px #fff;
+		}
+	}
+}
+.shade { 
+	background: #000;
+	bottom: 0;
+	cursor: pointer;
+	display: none;
+	left: 0;
+	opacity: 0.2;
+	position: fixed;
+	right: 0;
+	top: 0;
+	z-index: 9;
+}
+
+// ==========================================================================
+// Secondary pages
+// ==========================================================================
+
+.entry-title,
+.page-template-default h1 {
+	margin-top: em(22, 36);
+	color: #5d6d74;
+	font: 300 2.5714285714em/1.4em $proxima; // 36/14
+	text-shadow: 0 1px 1px #fff;
+}
+
+.blog h3,
+.single h3,
+.page-template-default h2 {
+	margin-top: em(22, 36);
+	color: #5d6d74;
+	font: 300 1.9em $proxima; // 36/14
+	text-shadow: 0 1px 1px #fff;
+}
+
+.page-template-default p { 
+	line-height: em(24);
+}
+
+.blog .type-post,
+.page-template-default .type-page,
+.single .type-post,
+.single .type-jetpack_support {
+	float: left;
+	width: 70%;
+}
+
+// ==========================================================================
+// Plugin configure page
+// ==========================================================================
+
+.page-content.configure {
+	margin-top: 0;
+}
+
+.configure .frame {
+	
+	&.top {
+		border: none;
+		box-shadow: none;
+		padding-top: em(20);
+		position: relative;
+		top: auto;
+		
+		&.fixed {
+			background: #f9f9f9;
+			border-bottom: 1px solid #e9e9e9;
+			padding-left: 160px;
+			position: fixed;
+			right: 0;
+			top: 32px;
+			width: 100%;
+			z-index: 4;
+			@include box-shadow(0 2px 2px -2px #eee);
+			
+			.wrap {
+				max-width: 950px; 
+				margin: 0 auto;
+			}
+		}
+	}
+}
+.filter-search {
+	display: none;
+	float: right;
+}
+.search-bar {
+	max-width: 300px;
+}
+.table-bordered {
+	margin-bottom: 0;
+	
+	td {
+		border-bottom: 1px solid #eee;
+		line-height: 26px;
+		margin: 0;
+		padding: 6px 10px 10px 10px;
+		
+		&:first-child {
+			border-left: 4px solid #fff;
+		}
+	}
+	th {
+		margin: 0;
+		padding: 6px 10px 10px 10px;
+		text-align: left;
+		
+		&:first-child {
+			border-left: 4px solid #f9f9f9;
+		}
+	}
+	tr {
+		&:hover {
+			.genericon {
+				display: inline-block;
+			}
+		}
+	}
+	tr.active {
+		td {
+			background: #f7fcfe;
+			
+			&:first-child {
+				border-left: 4px solid #2ea2cc;
+			}
+		}
+	}
+	&>thead>tr>th {
+		border: 0;
+		vertical-align: middle;
+		
+		&:last-child {
+			padding-right: 0;
+		}
+	}
+	td {
+		background: #fff;
+	}
+	.genericon {
+		color: #999;
+		display: none;
+		margin: 7px 3px 0;
+	}
+	.med {
+		width: 70px;
+	}
+	.sm {
+		width: 30px;
+	}
+}
+.showFilter {
+	a {
+		display: block;
+		line-height: 24px;
+		
+		&.active {
+			color: #333;
+			cursor: default;
+			font-weight: bold;
+			text-decoration: none;
+		}
+	}
+}
+.wrap {
+	padding: 0 1.5em 1em;
+	overflow: hidden;
+	
+	h2 {
+		font-size: 24px;
+		font-weight: 400;
+	}
+	.manage-left {
+		float: left;
+		margin: 0;
+		padding: 0;
+		width: 63%;
+		
+		table {
+			width: 100%;
+		}
+	}
+	.manage-right {
+		margin: 15px 0 0;
+		padding: 0;
+		position: absolute;
+		right: 0;
+		width: 35%;
+		z-index: 1;
+		
+		p {
+			font-size: 12px;
+			font-weight: bold;
+			color: #bbb;
+			padding-top: 2px;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
+		.bumper {
+			margin-left: 33px;
+		}
+		&.show {
+			display: block;
+			position: fixed;
+		}
+	}
+}
+
+// ==========================================================================
+// Footer Navigation
+// ==========================================================================
+
+// NOTE: .download-jetpack is in _buttons.scss
+.footer {
+	margin-top: em(20);
+	position: relative;
+	padding: em(140) 0 em(60);
+	text-align: center;
+	@include gradient(lighten($green, 5%), $green);
+
+	&:before,
+	&:after {
+		content: '';
+		position: absolute;
+		left: 0;
+		pointer-events: none;
+	}
+	&:before {
+		top: 0;
+		margin-top: -1px; // Removes subpixel gap on retina landscape
+		width: 100%;
+		height: 195px;
+		background: url('img/the-undercloud.svg') center top repeat-x;
+	}
+	&:after {
+		bottom: 0;
+		width: 100%;
+		height: 50px;
+		background: url('img/the-footcloud.svg') center bottom no-repeat;
+		background-size: auto 45px;
+		z-index: 1;
+	}
+}
+.fly {
+	position: relative;
+	margin: 5em 0 5em;
+
+	&:before {
+		$height: 225px;
+
+		content: '';
+		display: none;
+		position: absolute;
+		bottom: $height * -1 - 50;
+		left: 0;
+		width: 100%;
+		height: $height;
+		background: url('img/rocketeer.svg') center bottom no-repeat;
+		pointer-events: none;
+		@include transform(translate3d(0px, 0px, 0px));
+		@include transition(all 4s ease-in-out);
+	}
+	&:hover {
+		&:before {
+			@include transform(translate3d(0px, -40px, 0px));
+		}
+	}
+}
+.footer nav {
+	color: #c8e3a2;
+
+	a,
+	a:visited {
+		padding: 4px 6px;
+		color: #c8e3a2;
+
+		&:hover,
+		&:focus {
+			color: #fff;
+		}
+	}
+}
+.primary {
+	padding: 25px 15px 10px 15px;
+	border-bottom: 1px solid #6c954d;
+}
+.primary-footer,
+.secondary-footer,
+.footer-links {
+	margin: 0 auto;
+
+	li {
+		margin-right: 5px;
+	}
+}
+.a8c-attribution,
+.a8c-services {
+	margin: 0 auto;
+}
+.footer .a8c-attribution {
+	margin-top: 6px;
+	padding: 0 6px;
+	font-size: em(11);
+	font-family: $gill;
+	text-transform: uppercase;
+
+	a {
+		// This may look janky, but if you highlight from
+		// "AN" to "TEAM," copy and paste, you'll get the whole
+		// "An AUTOMATTIC TEAM" phrase.
+		display: inline-block;
+		position: relative;
+		padding: 4px 16px;
+		right: 9999px;
+		outline: 0;
+
+		&:after {
+			content: $a11s-automattic;
+			position: absolute;
+			top: 2px;
+			right: -9999px;
+			height: 100%;
+			color: #fff;
+			font-size: em(17, 11);
+			font-family: $a11s;
+			text-align: center;
+		}
+		&:hover {
+			&:after {
+				@include animation(candy .4s ease-in-out);
+			}
+		}
+	}
+}
+.primary-footer {
+	font-size: em(15);
+	font-weight: 600;
+}
+.secondary {
+	padding: 14px 15px 0 15px;
+	border-top: 1px solid #8eb345;
+}
+.a8c-services {
+	font-size: em(13);
+	font-family: $calluna;
+
+	a {
+		&:before {
+			display: inline-block;
+			position: relative;
+			top: -2px;
+			margin-right: 6px;
+			font: normal 16px/1 $a11s;
+			vertical-align: middle;
+		}
+		&[href*='wordpress.com']:before {
+			content: $a11s-wordpress;
+		}
+		&[href*='vaultpress.com']:before {
+			content: $a11s-vaultpress;
+		}
+		&[href*='akismet.com']:before {
+			content: $a11s-akismet;
+		}
+		&[href*='polldaddy.com']:before {
+			content: $a11s-polldaddy;
+		}
+	}
+}
+
+
+// ==========================================================================
+// Icons
+// ==========================================================================
+
+.icon {
+	&:before {
+		display: inline-block;
+		position: relative;
+		top: 1px;
+		left: -3px;
+		margin-right: 4px;
+		font: normal  1.25em/1em $g8s;
+		vertical-align: top;
+	}
+}
+.a11s-vaultpress {
+	&:before {
+		content: $a11s-vaultpress;
+		font-family: $a11s;
+	}
+}
+.a11s-gravatar {
+	&:before {
+		content: $a11s-gravatar;
+		font-family: $a11s;
+	}
+}
+.dashicons {
+	&:before {
+		display: inline-block;
+		position: relative;
+		top: 4px;
+		margin-right: 4px;
+		font: normal 1.25em/1em 'dashicons';
+	}
+}
