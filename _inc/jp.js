@@ -1,0 +1,284 @@
+(function($) {
+	
+	///////////////////////////////////////
+	// INIT
+	///////////////////////////////////////
+	
+	$(document).ready(function () {
+		initEvents();
+		loadModules();
+		updateModuleCount();
+		
+		if ($('.configure').length !== 0) {
+			configFixedElements();
+		}
+	});
+	
+	///////////////////////////////////////
+	// FUNCTIONS
+	///////////////////////////////////////
+	
+	function closeShadeToggle() {
+		// Clicking outside modal, or close X closes modal
+		$('.shade, .modal header .close').on('click', function () {
+			$('.shade, .modal').hide();
+			$('.manage-right').removeClass('show');
+			return false;
+		});
+	}
+	
+	function configFixedElements() {
+		var jpTopFrame = $(".frame.top"),
+		topOffset80 = jpTopFrame.offset().top - 80;
+		
+		$(window).scroll(function(){
+			// Top Frame
+			if ($(this).scrollTop() <= jpTopFrame.offset().top - 25 && $(this).scrollTop() >= topOffset80) {
+		    	jpTopFrame.addClass('fixed');
+		    }
+		    if ($(this).scrollTop() < topOffset80) {
+		    	jpTopFrame.removeClass('fixed');
+		    }
+		    // Filters and search
+		    
+		});
+	}
+	
+	function filterModules(prop) {
+		
+		// Mapping prior to sorting improves performance by over 50%
+		var map = [],
+			result = [],
+			val = '';
+		
+		// create the map
+		for (var i=0, length = modules.length; i < length; i++) {
+			
+			// Prep value
+			if ('name' === prop) {
+				val = modules[i][prop].toLowerCase();
+			} else {
+				val = parseInt(modules[i][prop]);
+			}
+
+			map.push({
+				index: i,
+				value: val
+			});
+		}
+		
+		// sort the map
+		map.sort(function(a, b) {
+			if ('name' === prop) {
+				return a.value > b.value ? 1 : -1;
+			} else {
+				return b.value > a.value ? 1 : -1;
+			}
+		});
+		
+		// copy values in right order
+		for (var i=0, length = map.length; i < length; i++) {
+			result.push(modules[map[i].index]);
+		}
+		
+		// Replace old object, with newly sorted object
+		modules = result;
+		
+		// Reload the DOM based on this new sort order
+		loadModules();
+		
+		// If all modules are already showing, make sure they stay expanded
+		if (!$('.load-more').is(':visible'))
+			$('.module').fadeIn();
+	}
+	
+	function initEvents () {
+		// DOPS toggle
+		$('#a8c-service-toggle, .dops-close').click(function() {
+			$('.a8c-dops').toggleClass('show');
+			$('#a8c-service-toggle .genericon').toggleClass('genericon-downarrow').toggleClass('genericon-uparrow');
+			return false;
+		});
+	
+		// Load more
+		$('.load-more').click(function() {
+			$('.module').fadeIn();
+			$('.load-more').hide();
+			return false;
+		});
+		
+		// Module filtering
+		$('#newest, #alphabetical, #popular').on('click', function () {
+			var $this = $(this),
+				prop = $this.data('filter');
+			
+			// Reset selected filter
+			$('.jp-filter a').removeClass('selected');
+			$this.addClass('selected');
+			
+			// Rearrange modules
+			filterModules(prop);
+			return false;
+		});
+		
+		// Search modules
+		$('#jetpack-search').on('keydown', function (event) {
+			var term = $(this).val();
+			if (8 === event.keyCode && 1 === term.length) {
+				searchModules('');
+			}
+			if (13 === event.keyCode) {
+				searchModules(term);
+				return false;
+			}
+		});
+		
+		// Modal events
+		$(document).ready(function () {
+			initModalEvents();
+		});
+		
+		// Debounce the resize event
+		var pauseResize = false;
+		window.onresize = function(event) {
+			if ( !pauseResize ) {
+				pauseResize = true;
+				recalculateModuleHeights();
+				setTimeout(function () {
+					pauseResize = false;
+				},100);
+			}
+		};
+		
+		// toggle search and filters at mobile resolution
+			$('.filter-search').on('click', function () {
+				$(this).toggleClass('active');
+				$('.manage-right').toggleClass('show');
+				$('.shade').toggle();
+			});
+		
+		// Close shade toggle
+		closeShadeToggle();
+		
+		// Toggle all checkboxes
+		$('.checkall').on('click', function () {
+	        $('.table-bordered').find(':checkbox').prop('checked', this.checked);
+	    });
+	    
+	    // Show specific category of modules
+	    $('.showFilter a').on('click', function () {
+	    	$('.showFilter a').removeClass('active');
+	    	$(this).addClass('active');
+	    	
+	    	// TODO Do sorting here
+	    	
+	    	return false;
+	    });
+	}
+	
+	function initModalEvents() {
+		var $modal = $('.modal');
+		$('.module, .feature a, .configs a').on('click', function () {
+			$('.shade').show();
+			
+			// Show loading message on init
+			$modal.html(ich.modalLoading({}, true)).fadeIn();
+			
+			// Load & populate with content
+			var $url = $(this).prop('href'),
+				$name = $(this).data('name');
+			//$.get( $url, function( content ) {
+				setTimeout(function() {
+					$modal.html(ich.modalTemplate({}, true));
+					//$modal.find('header li').first().text($name);
+					$modal.find('.content').html('');
+					//$modal.find('.content').html(content);
+				
+					closeShadeToggle();
+					
+					// Modal header links
+					$('.modal header li a').on('click', function () {
+						$('.modal header li a').removeClass('active');
+						$(this).addClass('active');
+						
+						// TODO Add contents
+						
+						return false;
+					});
+				}, 600);
+			//});
+			
+			return false;
+		});
+	}
+	
+	function loadModules() {
+		var html = '';	
+
+		if ($('.configure').length !== 0) {
+			// Config page
+			for (var i=0; i<modules.length; i++) {
+				html += ich.modconfig(modules[i], true);
+			}
+			
+			$('table tbody').html(html);
+		} else {
+			// About page
+			for (var i=0; i<modules.length; i++) {
+				html += ich.mod(modules[i], true);
+			}
+			
+			$('.modules').html(html);
+		
+			recalculateModuleHeights();
+			initModalEvents();
+		}
+	}
+	
+	function recalculateModuleHeights () {
+		
+		// Resize module heights based on screen resolution
+		var module = $('.module, .jp-support-column-left .widget-text'),
+			tallest = 0,
+			thisHeight;
+		
+		// Remove heights
+		module.css('height', 'auto');
+		
+		// Determine new height
+		module.each(function() {
+			
+			thisHeight = $(this).outerHeight();
+			
+			if (thisHeight > tallest) {
+				tallest = thisHeight;
+			}
+		});
+		
+		// Apply new height
+		module.css('height', tallest + 'px');
+	}
+	
+	function searchModules (term) {
+		var html = '';
+		for (var i=0; i<modules.length; i++) {
+			var lowercaseDesc = modules[i].desc.toLowerCase(),
+				lowercaseName = modules[i].name.toLowerCase()
+				lowercaseTerm = term.toLowerCase();
+			if (lowercaseName.indexOf(lowercaseTerm) !== -1 || lowercaseDesc.indexOf(lowercaseTerm) !== -1) {
+				html += ich.mod(modules[i], true);
+			}	
+		}
+		if ('' === html) {
+			html = 'Sorry, no modules were found for the search term "' + term + '".';
+		}
+		$('.modules').html(html);
+		recalculateModuleHeights();
+		initModalEvents();
+	}
+	
+	function updateModuleCount () {
+		$('.load-more').text('View all Jetpack features');
+	}
+
+})(jQuery);

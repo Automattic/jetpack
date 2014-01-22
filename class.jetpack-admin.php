@@ -149,7 +149,8 @@ class Jetpack_Admin {
 	}
 
 	function admin_styles() {
-		wp_enqueue_style( 'jetpack', plugins_url( '_inc/jetpack-admin.css', __FILE__ ) );
+		wp_enqueue_style( 'jetpack-google-fonts', 'http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700,600,800' );
+		wp_enqueue_style( 'jetpack', plugins_url( '_inc/jetpack.css', __FILE__ ), false, JETPACK__VERSION . '-20121016' );
 
 		switch ( get_current_screen()->id ) {
 			case 'jetpack_page_jetpack_modules' :
@@ -161,7 +162,8 @@ class Jetpack_Admin {
 	}
 
 	function admin_scripts() {
-		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jetpack.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
+		wp_enqueue_script( 'jetpack-icanhaz', plugins_url( '_inc/icanhaz.js', __FILE__ ), array( ), JETPACK__VERSION . '-20121111' );
+		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
 		wp_localize_script(
 			'jetpack-js',
 			'jetpackL10n',
@@ -176,7 +178,6 @@ class Jetpack_Admin {
 
 	function admin_page_top() {
 		?>
-
 		<div class="wrap" id="jetpack-settings">
 
 			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
