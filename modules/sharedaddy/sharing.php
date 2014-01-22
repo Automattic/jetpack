@@ -176,7 +176,7 @@ class Sharing_Admin {
 		  			<td class="description">
 		  				<h3><?php _e( 'Available Services', 'jetpack' ); ?></h3>
 		  				<p><?php _e( "Drag and drop the services you'd like to enable into the box below.", 'jetpack' ); ?></p>
-		  				<p><a href="#TB_inline?height=395&amp;width=600&amp;inlineId=new-service" title="<?php echo esc_attr( __( 'Add a new service', 'jetpack' ) ); ?>" class="thickbox" id="add-a-new-service"><?php _e( 'Add a new service', 'jetpack' ); ?></a></p>
+		  				<p><a href="#TB_inline?height=395&amp;width=600&amp;inlineId=new-service" class="thickbox" id="add-a-new-service"><?php _e( 'Add a new service', 'jetpack' ); ?></a></p>
 		  			</td>
 		  			<td class="services">
 		  				<ul class="services-available" style="height: 100px;">
