@@ -269,7 +269,7 @@ class Jetpack_Widget_Conditions {
 				}
 
 				// Old single widget
-				else if ( false === self::filter_widget( $settings[$id_base] ) ) {
+				else if ( ! empty( $settings[ $id_base ] ) && false === self::filter_widget( $settings[$id_base] ) ) {
 					unset( $widget_areas[$widget_area][$position] );
 				}
 			}
