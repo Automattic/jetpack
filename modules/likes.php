@@ -133,7 +133,7 @@ class Jetpack_Likes {
 
 		// Record sharing disable. Only needs to be done for WPCOM
 		if ( ! $this->in_jetpack ) {
-			if ( isset( $_POST['post_type'] ) && ( 'post' == $_POST['post_type'] || 'page' == $_POST['post_type'] ) ) {
+			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ) ) ) {
 				if ( isset( $_POST['wpl_sharing_status_hidden'] ) && !isset( $_POST['wpl_enable_post_sharing'] ) ) {
 					update_post_meta( $post_id, 'sharing_disabled', 1 );
 				} else {
