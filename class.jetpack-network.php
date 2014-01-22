@@ -716,7 +716,12 @@ class Jetpack_Network {
 			$module['module'] = $slug;
 			$modules[] = $module;
 		}
+		
 
+		if( !isset( $options['modules'] ) ) {
+			$options['modules'] = $modules;
+		}
+		
 		require( 'views/admin/network-settings.php' );
 		$this->network_admin_page_footer();
 	}
