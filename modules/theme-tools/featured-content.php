@@ -403,9 +403,7 @@ class Featured_Content {
 		) );
 
 		// Add Featured Content settings.
-		$term = get_term_by( 'id', self::get_setting( 'tag-id' ), 'post_tag' );
 		$wp_customize->add_setting( 'featured-content[tag-name]', array(
-			'default'              => $term ? $term->name : 'featured',
 			'type'                 => 'option',
 			'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
 		) );
