@@ -154,11 +154,14 @@ add_filter( 'jetpack_open_graph_output', 'wpcom_twitter_cards_output' );
 
 function jetpack_twitter_cards_site_setting() {
 	if ( current_user_can( 'manage_options') ) {
-		$options = get_option( 'sharing-options' ); ?>
+		$options = get_option( 'sharing-options' );
+		$url = 'https://dev.twitter.com/docs/cards';
+		$description = sprintf( __('Set the Twitter handle to be displayed on <a href="%s" target="_blank">Twitter Cards</a> and when sharing posts or pages from this blog.', 'jetpack' ), $url ); ?>
+		?>
 		<tr valign="top" id="site-twitter">
 			<th scope="row"><label><?php _e( 'Twitter Handle', 'jetpack' ) ?></label></th>
 			<td><input type="text" name="twitter_site" value="<?php echo esc_attr( $options['global']['twitter_site'] ); ?>" />
-				<small><em>Set the Twitter handle to be displayed on <a href="https://dev.twitter.com/docs/cards" target="_blank">Twitter Cards</a> and when sharing posts or pages from this blog.</em></small>
+				<small><em><?php echo $description; ?></em></small>
 			</td>
 		</tr><?php
 	}
