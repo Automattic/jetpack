@@ -91,7 +91,11 @@ class Jetpack_Network {
 	 * @return array
 	 **/
 	public function set_auto_activated_modules( $modules ) {
-		return (array) $this->get_option( 'modules' );
+		if( 1 == $this->get_option( 'manage_auto_activated_modules' ) ) {
+			return (array) $this->get_option( 'modules' );
+		} else {
+			return $modules;
+		}
 	}
 
 	/**

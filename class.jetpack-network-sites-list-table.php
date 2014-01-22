@@ -53,7 +53,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
                          '<a href="' . 
                          get_site_url( $item->blog_id, '', 'admin' ) .
                          '">' .
-                         $item->path .
+                         str_replace( array( 'http://', 'https://' ), '', get_site_url( $item->blog_id, '', 'admin' ) ) .
                          '</a>';
 	}
 
