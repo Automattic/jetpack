@@ -50,7 +50,11 @@ class Jetpack_Monitor {
                 if ( ! empty( $_POST['action'] ) && $_POST['action'] == 'monitor-save' ) {
                         check_admin_referer( 'monitor-settings' );
 			$this->update_option_receive_jetpack_monitor_notification( isset( $_POST['receive_jetpack_monitor_notification'] ) );
-
+			if ( isset( $_POST['jetpack_monitor_active'] ) ) {
+				$this->activate_monitor();
+			} else {
+				$this->deactivate_monitor();
+			}
                         Jetpack::state( 'message', 'module_configured' );
                         wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
                 }
@@ -66,6 +70,19 @@ class Jetpack_Monitor {
                                 <?php wp_nonce_field( 'monitor-settings' ); ?>
 
 				<table id="menu" class="form-table">
+					<?php if ( current_user_can( 'manage_options' ) ) : ?>
+                                                <tr>
+                                                <th scope="row">
+                                                        <?php _e( 'Activation', 'jetpack' ); ?>
+                                                </th>
+                                                <td>   
+                                                        <label for="jetpack_monitor_active">
+                                                                        <input type="checkbox" name="jetpack_monitor_active" id="jetpack_monitor_active" value="jetpack_monitor_active"<?php checked( $this->is_active() ); ?> />
+                                                                <span><?php _e( 'Monitor On/Off.' , 'jetpack'); ?></span>
+                                                        </label>
+                                                        <p class="description"><?php _e( 'While the Monitor is Off no users will receive notifications', 'jetpack' ); ?></p>
+                                                </td>
+					<?php endif; ?>
 						<tr>
 						<th scope="row">
 							<?php _e( 'Notifications', 'jetpack' ); ?>
@@ -87,9 +104,20 @@ class Jetpack_Monitor {
 		</div>
 		<?php
 	}
+
+        public function is_active() {
+                Jetpack::load_xml_rpc_client();
+                $xml = new Jetpack_IXR_Client( array(   
+                        'user_id' => get_current_user_id()
+                ) );
+                $xml->query( 'jetpack.monitor.isActive' );
+                if ( $xml->isError() ) {
+                        wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+                }
+                return $xml->getResponse();
+        }
 	
 	public function update_option_receive_jetpack_monitor_notification( $value ) {
-		
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
                         'user_id' => get_current_user_id()
@@ -107,7 +135,7 @@ class Jetpack_Monitor {
                 $xml = new Jetpack_IXR_Client( array(   
                         'user_id' => get_current_user_id()
                 ) );
-                $xml->query( 'jetpack.monitor.IsUserInNotifications' );
+                $xml->query( 'jetpack.monitor.isUserInNotifications' );
 
                 if ( $xml->isError() ) {
                         wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
@@ -115,7 +143,36 @@ class Jetpack_Monitor {
                 return $xml->getResponse();
         }
 
+	public function activate_monitor() {
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id()
+		) );
+
+		$xml->query( 'jetpack.monitor.activate' );
+
+		if ( $xml->isError() ) {
+			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+		}
+		return true;
+	}
+
+	public function deactivate_monitor() {
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array(
+			'user_id' => get_current_user_id()
+		) );
+
+		$xml->query( 'jetpack.monitor.deactivate' );
+
+		if ( $xml->isError() ) {
+			wp_die( sprintf( '%s: %s', $xml->getErrorCode(), $xml->getErrorMessage() ) );
+		}
+		return true;
+	}
+
 }
 
 
 new Jetpack_Monitor;
+
