@@ -1172,13 +1172,13 @@ class Jetpack_Custom_CSS {
 		$current_revision = Jetpack_Custom_CSS::get_current_revision();
 
 		if ( ! $current_revision )
-			return;
+			return $undoer;
 
 		$custom_css_post = Jetpack_Custom_CSS::get_post();
 
 		$is_preview = ( $custom_css_post['date_modified'] < $current_revision['date_modified'] );
 
-		if ( $is_preview ) {
+		if ( $is_preview && trim( $custom_css_post['post_content'] ) ) {
 			// If the current revision at the time of the theme switch was just a preview,
 			// restore whatever revision was active too.
 			$undoer['functions'][] = array(
@@ -1193,16 +1193,18 @@ class Jetpack_Custom_CSS {
 			);
 		}
 
-		$undoer['functions'][] = array(
-			array( 'Jetpack_Custom_CSS', 'save' ),
-			array(
-				'css' => $current_revision['post_content'],
-				'is_preview' => $is_preview,
-				'preprocessor' => get_metadata( 'post', $current_revision['ID'], 'custom_css_preprocessor', true ),
-				'add_to_existing' => get_metadata( 'post', $current_revision['ID'], 'custom_css_add', true ) != 'no',
-				'content_width' => get_metadata( 'post', $current_revision['ID'], 'content_width', true ),
-			)
-		);
+		if ( trim( $current_revision['post_content'] ) ) {
+			$undoer['functions'][] = array(
+				array( 'Jetpack_Custom_CSS', 'save' ),
+				array(
+					'css' => $current_revision['post_content'],
+					'is_preview' => $is_preview,
+					'preprocessor' => get_metadata( 'post', $current_revision['ID'], 'custom_css_preprocessor', true ),
+					'add_to_existing' => get_metadata( 'post', $current_revision['ID'], 'custom_css_add', true ) != 'no',
+					'content_width' => get_metadata( 'post', $current_revision['ID'], 'content_width', true ),
+				)
+			);
+		}
 
 		return $undoer;
 	}
