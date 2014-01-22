@@ -339,19 +339,17 @@ function stats_reports_page() {
 	if ( isset( $_GET['dashboard'] ) )
 		return stats_dashboard_widget_content();
 
+	$blog_id = stats_get_option( 'blog_id' );
+
 	if ( !isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) && empty( $_COOKIE['stnojs'] ) ) {
 		$nojs_url = add_query_arg( 'nojs', '1' );
 		$http = is_ssl() ? 'https' : 'http';
 		// Loading message
 		// No JS fallback message
 ?>
-<style type="text/css">
-@media only screen and (-moz-min-device-pixel-ratio: 1.5), only screen and (-o-min-device-pixel-ratio: 3/2), only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min-device-pixel-ratio: 1.5) {
-	img.wpcom-loading-64 { width: 32px; height: 32px; }
-}
-</style>
 <div id="stats-loading-wrap" class="wrap">
-<p class="hide-if-no-js"><img class="wpcom-loading-64" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" ) ); ?>" /></p>
+<p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" ) ); ?>" /></p>
+<p style="font-size: 11pt; margin: 0;"><a href="http://wordpress.com/my-stats/?blog=<?php echo $blog_id; ?>">View stats on WordPress.com right now</a></p>
 <p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with Javascript enabled.', 'jetpack' ); ?><br />
 <a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without Javascript', 'jetpack' ); ?></a>.</p>
 </div>
@@ -359,7 +357,6 @@ function stats_reports_page() {
 		return;
 	}
 
-	$blog_id = stats_get_option( 'blog_id' );
 	$day = isset( $_GET['day'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_GET['day'] ) ? $_GET['day'] : false;
 	$q = array(
 		'noheader' => 'true',
@@ -826,38 +823,19 @@ jQuery(window).load( function() {
 </script>
 <style type="text/css">
 /* <![CDATA[ */
-#dashboard_stats a.button {
-	margin-left: 12px;
-}
-#dashboard_stats .inside {
-	margin: 0;
-	padding: 0;
-}
-.pre-mp6 #dashboard_stats .inside {
-	margin: 10px 0 0 0 !important;
-	padding: auto;
-}
-#dashboard_stats .wrap {
-	margin-left: 12px;
-}
-.pre-mp6 #dashboard_stats .wrap {
-	margin-left: 2px;
-}
 #stat-chart {
 	background: none !important;
-	margin: 12px 12px 10px;
 }
-.pre-mp6 #stat-chart {
-	background: none !important;
-	margin: auto;
+#dashboard_stats .inside {
+	margin: 10px 0 0 0 !important;
 }
 #dashboard_stats #stats-graph {
 	margin: 0;
 }
 #stats-info {
 	border-top: 1px solid #dfdfdf;
-	margin: 12px 0 8px;
-	padding: 10px 10px 0;
+	margin: 7px -10px 0 -10px;
+	padding: 10px;
 	background: #fcfcfc;
 	-moz-box-shadow:inset 0 1px 0 #fff;
 	-webkit-box-shadow:inset 0 1px 0 #fff;
@@ -867,10 +845,6 @@ jQuery(window).load( function() {
 	-webkit-border-radius: 0 0 2px 2px;
 	-moz-border-radius: 0 0 2px 2px;
 	-khtml-border-radius: 0 0 2px 2px;
-}
-.pre-mp6 #stats-info {
-	margin: 7px -10px 0 -10px;
-	padding: 10px;
 }
 #stats-info #top-posts, #stats-info #top-search {
 	float: left;
