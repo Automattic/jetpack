@@ -130,7 +130,7 @@ class Jetpack_RelatedPosts {
 
 		if ( $options['show_headline'] ) {
 			$headline = sprintf(
-				'<p class="jp-relatedposts-headline"><em>%s</em></p>',
+				'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
 				esc_html__( 'Related', 'jetpack' )
 			);
 		} else {
