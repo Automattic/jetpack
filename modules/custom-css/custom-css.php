@@ -887,12 +887,12 @@ class Jetpack_Custom_CSS {
 	 * @return string
 	 */
 	static function revisions_meta_box( $safecss_post ) {
-		if ( function_exists( 'wp_revisions_to_keep' ) )
-			$max_revisions = wp_revisions_to_keep( $safecss_post );
-		else
-			$max_revisions = defined( 'WP_POST_REVISIONS' ) && is_numeric( WP_POST_REVISIONS ) ? (int) WP_POST_REVISIONS : 25;
 
-		$posts_per_page = isset( $_GET['show_all_rev'] ) ? $max_revisions : 6;
+		$show_all_revisions = isset( $_GET['show_all_rev'] );
+		
+		$max_revisions = defined( 'WP_POST_REVISIONS' ) && is_numeric( WP_POST_REVISIONS ) ? (int) WP_POST_REVISIONS : 25;
+
+		$posts_per_page = $show_all_revisions ? $max_revisions : 6;
 
 		$revisions = new WP_Query( array(
 			'posts_per_page' => $posts_per_page,
@@ -924,7 +924,7 @@ class Jetpack_Custom_CSS {
 
 			?></ul><?php
 
-			if ( $revisions->found_posts > 6 ) {
+			if ( $revisions->found_posts > 6 && !$show_all_revisions ) {
 				?>
 				<br>
 				<a href="<?php echo add_query_arg( 'show_all_rev', 'true', menu_page_url( 'editcss', false ) ); ?>"><?php esc_html_e( 'Show more', 'jetpack' ); ?></a>
