@@ -36,7 +36,7 @@
 </div>
 
 <p>
-	<a class="button gallery-widget-choose-images" title="Choose Images"><span class="wp-media-buttons-icon"></span> Choose Images</a>
+	<a class="button gallery-widget-choose-images"><span class="wp-media-buttons-icon"></span> Choose Images</a>
 </p>
 
 <p class="gallery-widget-link-wrapper">
