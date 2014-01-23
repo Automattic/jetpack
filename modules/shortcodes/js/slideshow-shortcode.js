@@ -94,40 +94,43 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 	this.renderControls_();
 
 	var self = this;
-	// Initialize Cycle instance.
-	this.element.cycle( {
-		fx: this.transition,
-		prev: this.controls.prev,
-		next: this.controls.next,
-		slideExpr: '.slideshow-slide',
-		onPrevNextEvent: function() {
-			return self.onCyclePrevNextClick_.apply( self, arguments );
-		}
-	} );
+	if ( this.images.length > 1 ) {
+		// Initialize Cycle instance.
+		this.element.cycle( {
+			fx: this.transition,
+			prev: this.controls.prev,
+			next: this.controls.next,
+			slideExpr: '.slideshow-slide',
+			onPrevNextEvent: function() {
+				return self.onCyclePrevNextClick_.apply( self, arguments );
+			}
+		} );
 
-	var slideshow = this.element;
-	jQuery( this.controls.stop ).click( function() {
-		var button = jQuery(this);
-		if ( ! button.hasClass( 'paused' ) ) {
-			slideshow.cycle( 'pause' );
-			button.removeClass( 'running' );
-			button.addClass( 'paused' );
-		} else {
-			button.addClass( 'running' );
-			button.removeClass( 'paused' );
-			slideshow.cycle( 'resume', true );
-		}
-		return false;
-	} );
+		var slideshow = this.element;
+		jQuery( this.controls.stop ).click( function() {
+			var button = jQuery(this);
+			if ( ! button.hasClass( 'paused' ) ) {
+				slideshow.cycle( 'pause' );
+				button.removeClass( 'running' );
+				button.addClass( 'paused' );
+			} else {
+				button.addClass( 'running' );
+				button.removeClass( 'paused' );
+				slideshow.cycle( 'resume', true );
+			}
+			return false;
+		} );
 
-	var controls = jQuery( this.controlsDiv_ );
-	slideshow.mouseenter( function() {
-		controls.fadeIn();
-	} );
-	slideshow.mouseleave( function() {
-		controls.fadeOut();
-	} );
-
+		var controls = jQuery( this.controlsDiv_ );
+		slideshow.mouseenter( function() {
+			controls.fadeIn();
+		} );
+		slideshow.mouseleave( function() {
+			controls.fadeOut();
+		} );
+	} else {
+		this.element.children(":first").show();
+	}
 	this.initialized_ = true;
 };
 
