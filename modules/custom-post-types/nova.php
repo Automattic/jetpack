@@ -426,7 +426,7 @@ class Nova_Restaurant {
 
 		switch ( $column ) {
 			case 'thumbnail':
-				echo get_the_post_thumbnail( $post->ID, array( 50, 50 ) );
+				echo get_the_post_thumbnail( $post_id, array( 50, 50 ) );
 				break;
 			case 'labels' :
 				$this->list_admin_labels( $post_id );
