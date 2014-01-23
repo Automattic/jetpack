@@ -2795,15 +2795,16 @@ p {
 		$is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 	?>
 	<?php include_once( '_inc/header.php' ); ?>
-			<?php if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] ) : ?>
-				<div id="message" class="error">
-					<p><?php _e( 'Jetpack is network activated and notices can not be dismissed.', 'jetpack' ); ?></p>
-				</div>
-			<?php endif; ?>
-
-			<?php do_action( 'jetpack_notices' ) ?>
-			
 			<div class="masthead <?php if ( ! $is_connected ) { ?>hasbutton<?php } ?>">
+				
+				<?php if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] ) : ?>
+					<div id="message" class="error">
+						<p><?php _e( 'Jetpack is network activated and notices can not be dismissed.', 'jetpack' ); ?></p>
+					</div>
+				<?php endif; ?>
+	
+				<?php do_action( 'jetpack_notices' ) ?>
+				
 				<h1>Jetpack supercharges your self-hosted WordPress site with the power of WordPress.com.</h1>
 
 				<?php if ( ! $is_connected || ! $is_user_connected ) : ?>
@@ -2846,107 +2847,8 @@ p {
 				<a href="#" class="load-more jp-button">Load more</a>
 			</div><!-- .module-grid --></div><!-- .page -->
 		<?php include_once( '_inc/footer.php' ); ?>
-			
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		<?php /* <div class="wrap" id="jetpack-settings">
 
-			
-
-			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
-
-			
-
-			
-
-			
-
-			
-
-			<?php if ( $is_connected && $this->current_user_is_connection_owner() ) : ?>
-				<p id="news-sub"><?php _e( 'Checking email updates status&hellip;', 'jetpack' ); ?></p>
-				<script type="text/javascript">
-				jQuery(document).ready(function($){
-					$.get( ajaxurl, { action: 'jetpack-check-news-subscription', rand: jQuery.now().toString() + Math.random().toString() }, function( data ) {
-						if ( 'subscribed' == data ) {
-							$( '#news-sub' ).html( '<?php printf(
-														esc_js( _x( 'You are currently subscribed to email updates. %s', '%s = Unsubscribe link', 'jetpack' ) ),
-														'<a href="#" class="jp-news-link button">' . esc_js( __( 'Unsubscribe', 'jetpack' ) ) . '</a>'
-													); ?>' );
-						} else {
-							$( '#news-sub' ).html( '<?php printf(
-														esc_js( _x( 'Want to receive updates about Jetpack by email? %s', '%s = Subscribe link', 'jetpack' ) ),
-														'<a href="#" class="jp-news-link button-primary">' . esc_js( __( 'Subscribe', 'jetpack' ) ) . '</a>'
-													); ?>' );
-						}
-						$( '.jp-news-link' ).click( function() {
-							$( '#news-sub' ).append( ' <img src="<?php echo esc_js( esc_url( admin_url( 'images/loading.gif' ) ) ); ?>" align="absmiddle" id="jp-news-loading" />' );
-							$.get( ajaxurl, { action: 'jetpack-subscribe-to-news', rand: jQuery.now().toString() + Math.random().toString() }, function( data ) {
-								if ( 'subscribed' == data ) {
-									$( '#news-sub' ).text( '<?php echo esc_js( __( 'You have been subscribed to receive email updates.', 'jetpack' ) ); ?>' );
-								} else {
-									$( '#news-sub' ).text( '<?php echo esc_js( __( 'You will no longer receive email updates about Jetpack.', 'jetpack' ) ); ?>' );
-								}
-								$( '#jp-news-loading' ).remove();
-							} );
-							return false;
-						} );
-					} );
-				} );
-				</script>
-			<?php endif; ?>
-
-			<div id="jp-footer">
-				<p class="automattic"><?php _e( 'An <span>Automattic</span> Airline', 'jetpack' ) ?></p>
-				<p class="small">
-					<a href="http://jetpack.me/" target="_blank">Jetpack <?php echo esc_html( JETPACK__VERSION ); ?></a> |
-					<a href="http://automattic.com/privacy/" target="_blank"><?php _e( 'Privacy Policy', 'jetpack' ); ?></a> |
-					<a href="http://wordpress.com/tos/" target="_blank"><?php _e( 'Terms of Service', 'jetpack' ); ?></a> |
-<?php if ( current_user_can( 'manage_options' ) ) : ?>
-					<a href="<?php echo Jetpack::admin_url( array(	'page' => 'jetpack-debugger' ) ); ?>"><?php _e( 'Debug', 'jetpack' ); ?></a> |
-<?php endif; ?>
-					<a href="http://jetpack.me/support/" target="_blank"><?php _e( 'Support', 'jetpack' ); ?></a>
-				</p>
-			</div>
-
-			<div id="jetpack-configuration" style="display:none;">
-				<p><img width="16" src="<?php echo esc_url( plugins_url( '_inc/images/wpspin_light-2x.gif', __FILE__ ) ); ?>" alt="Loading ..." /></p>
-			</div>
-		</div>
-	<?php */
+	<?php
 	}
 
 	function debugger_page() {

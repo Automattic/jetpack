@@ -36,6 +36,7 @@
 	color: #fff;
 	font: 400 2em/1 $proxima; // 28/14
 	background: #518d2a;
+	z-index: 2;
 	@include border-radius(6px);
 	@include box-shadow(
 		0 6px 0 #3e6c20,
