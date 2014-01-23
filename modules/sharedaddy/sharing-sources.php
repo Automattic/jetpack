@@ -46,7 +46,7 @@ abstract class Sharing_Source {
 		return false;
 	}
 
-	public function get_link( $url, $text, $query = '', $id = false ) {
+	public function get_link( $url, $text, $title = '', $query = '', $id = false ) {
 		$klasses = array( 'share-'.$this->get_class(), 'sd-button' );
 
 		if ( $this->button_style == 'icon' || $this->button_style == 'icon-text' )
