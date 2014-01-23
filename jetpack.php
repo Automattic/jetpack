@@ -81,3 +81,5 @@ if ( is_admin() && ! Jetpack::check_identity_crisis() ) {
 	Jetpack_Sync::sync_options( __FILE__, 'db_version', 'jetpack_active_modules', 'active_plugins' );
 }
 */
+
+require_once( JETPACK__PLUGIN_DIR . '3rd-party/3rd-party.php' );
