@@ -5293,18 +5293,6 @@ msgstr ""
 #: modules/widgets.php:50
 msgid "%s (Jetpack)"
 msgstr ""
-
-#: tools/wordpress-i18n/pomo/sample/app.php:56
-msgid "Welcome %s!"
-msgstr ""
-
-#: tools/wordpress-i18n/pomo/sample/app.php:60
-msgid "A string with low priority!"
-msgstr ""
-
-#: tools/wordpress-i18n/pomo/sample/app.php:62
-msgid "Bye\n"
-msgstr ""
 #. Plugin Name of the plugin/theme
 msgid "Jetpack by WordPress.com"
 msgstr ""
