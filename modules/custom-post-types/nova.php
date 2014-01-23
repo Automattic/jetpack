@@ -634,9 +634,9 @@ class Nova_Restaurant {
 				?></h3>
 			</td>
 			<td>
-				<a class="nova-move-menu-up" title="<?php esc_attr_e( 'Move menu section up' ); ?>" href="<?php echo esc_url( $up_url ); ?>"><?php esc_html_e( 'UP' ); ?></a>
+				<a class="nova-move-menu-up" title="<?php esc_attr_e( 'Move menu section up', 'jetpack' ); ?>" href="<?php echo esc_url( $up_url ); ?>"><?php esc_html_e( 'UP', 'jetpack' ); ?></a>
 				<br />
-				<a class="nova-move-menu-down" title="<?php esc_attr_e( 'Move menu section down' ); ?>" href="<?php echo esc_url( $down_url ); ?>"><?php esc_html_e( 'DOWN' ); ?></a>
+				<a class="nova-move-menu-down" title="<?php esc_attr_e( 'Move menu section down', 'jetpack' ); ?>" href="<?php echo esc_url( $down_url ); ?>"><?php esc_html_e( 'DOWN', 'jetpack' ); ?></a>
 			</td>
 		</tr>
 <?php

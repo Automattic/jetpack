@@ -209,9 +209,9 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function register_setting() {
-		add_settings_field( self::POST_OPTION, __( 'Markdown' ), array( $this, 'post_field' ), 'writing' );
+		add_settings_field( self::POST_OPTION, __( 'Markdown', 'jetpack' ), array( $this, 'post_field' ), 'writing' );
 		register_setting( 'writing', self::POST_OPTION, array( $this, 'sanitize_setting') );
-		add_settings_field( self::COMMENT_OPTION, __( 'Markdown' ), array( $this, 'comment_field' ), 'discussion' );
+		add_settings_field( self::COMMENT_OPTION, __( 'Markdown', 'jetpack' ), array( $this, 'comment_field' ), 'discussion' );
 		register_setting( 'discussion', self::COMMENT_OPTION, array( $this, 'sanitize_setting') );
 	}
 
@@ -234,8 +234,8 @@ class WPCom_Markdown {
 			self::POST_OPTION,
 			self::POST_OPTION,
 			checked( $this->is_posting_enabled(), true, false ),
-			esc_html__( 'Use Markdown for posts and pages.' ),
-			sprintf( '<a href="%s">%s</a>', esc_url( $this->get_support_url() ), esc_html__( 'Learn more about Markdown.' ) )
+			esc_html__( 'Use Markdown for posts and pages.', 'jetpack' ),
+			sprintf( '<a href="%s">%s</a>', esc_url( $this->get_support_url() ), esc_html__( 'Learn more about Markdown.', 'jetpack' ) )
 		);
 	}
 
@@ -249,8 +249,8 @@ class WPCom_Markdown {
 			self::COMMENT_OPTION,
 			self::COMMENT_OPTION,
 			checked( $this->is_commenting_enabled(), true, false ),
-			esc_html__( 'Use Markdown for comments.' ),
-			sprintf( '<a href="%s">%s</a>', esc_url( $this->get_support_url() ), esc_html__( 'Learn more about Markdown.' ) )
+			esc_html__( 'Use Markdown for comments.', 'jetpack' ),
+			sprintf( '<a href="%s">%s</a>', esc_url( $this->get_support_url() ), esc_html__( 'Learn more about Markdown.', 'jetpack' ) )
 		);
 	}
 
@@ -504,7 +504,7 @@ class WPCom_Markdown {
 	 * @return array          Modified array to include post_content_filtered
 	 */
 	public function _wp_post_revision_fields( $fields ) {
-		$fields['post_content_filtered'] = __( 'Markdown content' );
+		$fields['post_content_filtered'] = __( 'Markdown content', 'jetpack' );
 		return $fields;
 	}
 
