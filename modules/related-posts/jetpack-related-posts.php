@@ -703,8 +703,8 @@ EOT;
 
 		$results = json_decode( wp_remote_retrieve_body( $response ), true );
 		$related_posts = array();
-		if ( is_array( $results ) && !empty( $results['results']['hits'] ) ) {
-			foreach( $results['results']['hits'] as $hit ) {
+		if ( is_array( $results ) && !empty( $results['hits'] ) ) {
+			foreach( $results['hits'] as $hit ) {
 				$related_posts[] = array(
 					'id' => $hit['fields']['post_id'],
 				);
