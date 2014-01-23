@@ -139,6 +139,7 @@ html {
 	$start: $green; // top gradient color and fallback
 	$end: lighten($green, 5%); // bottom gradient color
 
+	overflow: hidden;
 	position: relative;
 	text-align: center;
 	z-index: 1;
@@ -1029,6 +1030,45 @@ html {
 		&[href*='polldaddy.com']:before {
 			content: $a11s-polldaddy;
 		}
+	}
+}
+
+// ==========================================================================
+// Messages & Errors
+// ==========================================================================
+
+.jetpack-message {
+	margin-top: 2em;
+	position: relative;
+	z-index: 2;
+	
+	h4 {
+		margin-top: 0;
+	}
+	.squeezer {
+		background: #E4F4D5;
+		border-left: 4px solid #E4F4D5;
+		margin: 0 auto;
+		max-width: 906px;
+		padding: 23px 23px 23px 97px;
+		position: relative;
+		text-align: left;
+		
+		&:before {
+			color: #dd3d36;
+			content: '\f414';
+			font-family: 'Genericons';
+			font-size: 50px;
+			left: 23px;
+			opacity: 0.4;
+			position: absolute;
+			top: 18px;
+		}
+	}
+}
+.jetpack-err {
+	.squeezer {
+		border-left: 4px solid #dd3d36;
 	}
 }
 
