@@ -2029,17 +2029,17 @@ p {
 				<div class="jetpack-install-container">
 					<?php if ( 1 == Jetpack_Options::get_option( 'activated' ) ) : ?>
 						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="download-jetpack" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
-						<p><?php _e( '<strong>Your Jetpack is almost ready!</strong>', 'jetpack' ); ?></p>
 					<?php else : ?>
 						<p class="submit"><a href="<?php echo Jetpack::admin_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a></p>
-						<p><?php _e( '<strong>Jetpack is installed</strong>', 'jetpack' ) ?></p>
 					<?php endif; ?>
 				</div>
 				<div class="jetpack-text-container">
 					<?php if ( 1 == Jetpack_Options::get_option( 'activated' ) ) : ?>
-						<p><?php _e( 'Connect to WordPress.com to enable features like Stats, Contact Forms, Likes, and Social Sharing. Connect now to get fueled up!', 'jetpack' ); ?></p>
+						<p><?php _e( '<strong>Your Jetpack is almost ready!</strong>', 'jetpack' ); ?></p>
+						<p><?php _e( 'Connect now to enable features like Stats, Likes, and Social Sharing.', 'jetpack' ); ?></p>
 					<?php else : ?>
-						<p><?php _e( '<strong>Jetpack is installed</strong> It\'s ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
+						<p><?php _e( '<strong>Jetpack is installed</strong>', 'jetpack' ) ?></p>
+						<p><?php _e( 'It\'s ready to bring awesome, WordPress.com cloud-powered features to your site.', 'jetpack' ) ?></p>
 					<?php endif; ?>
 				</div>
 			</div>
