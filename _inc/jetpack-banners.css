@@ -1,5 +1,5 @@
 /* line 6, scss/partials/_buttons.scss */
-.button,
+.jp-button,
 .download-jetpack {
   -webkit-transition: all 0.1s ease-in-out;
   -moz-transition: all 0.1s ease-in-out;
@@ -63,7 +63,7 @@
 /* line 50, scss/partials/_buttons.scss */
 .download-jetpack:hover, .download-jetpack:focus {
   color: #fff;
-  background: #57972d;
+  background: #569237;
   -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   -moz-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
@@ -235,7 +235,7 @@
 }
 /* line 95, scss/_banners.scss */
 #message.jp-connect .jetpack-text-container {
-  color: #daffbc;
+  color: #ebffe0;
   float: left;
   margin-top: -4px;
 }
@@ -272,10 +272,9 @@
   /* line 128, scss/_banners.scss */
   #message.jp-connect .jetpack-text-container p strong {
     font-size: 14px;
-    font-weight: bold;
   }
 }
-@media (max-width: 530px) {
+@media (max-width: 420px) {
   /* line 138, scss/_banners.scss */
   #message.jp-connect .jetpack-install-container .download-jetpack {
     font-size: 16px;
