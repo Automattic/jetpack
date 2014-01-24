@@ -50,7 +50,6 @@ require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-debugger.php'      );
 require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-heartbeat.php'     );
 require_once( JETPACK__PLUGIN_DIR . 'class.photon.php'                );
 require_once( JETPACK__PLUGIN_DIR . 'functions.photon.php'            );
-require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
 require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
 require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 );
 
