@@ -32,7 +32,16 @@ function jetpack_og_tags() {
 		$tags['og:title']       = get_bloginfo( 'name' );
 		$tags['og:description'] = get_bloginfo( 'description' );
 
-		$front_page_id = get_option( 'page_for_posts' );
+		/*
+		 * Need to check to see if the admin has set a static page
+		 * as the home page instead of the default list of posts
+		 */
+		if( 'page' == get_option( 'show_on_front' ) ) {
+			$front_page_id = get_option( 'page_for_posts' );
+		} else {
+			$front_page_id = 0;
+		}
+
 		if ( $front_page_id && is_home() )
 			$tags['og:url'] = get_permalink( $front_page_id );
 		else
