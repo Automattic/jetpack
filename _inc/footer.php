@@ -1,9 +1,9 @@
 			<div class="footer">
-				<?php if ( ! $is_connected || ! $is_user_connected ) : ?>
+				<?php /* if ( ! $is_connected || ! $is_user_connected ) : ?>
 				<div class="fly">
 					<a href="<?php echo $this->build_connect_url() ?>" class="download-jetpack">Connect to WordPress.com</a>
 				</div>
-				<?php endif; ?>
+				<?php endif; */?>
 			
 				<nav class="primary nav-horizontal">
 					<div class="a8c-attribution">

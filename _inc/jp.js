@@ -9,7 +9,7 @@
 		loadModules();
 		updateModuleCount();
 		
-		if ($('.configure').length !== 0) {
+		if ($('.jetpack_page_jetpack_modules').length !== 0) {
 			configFixedElements();
 		}
 	});
@@ -28,19 +28,20 @@
 	}
 	
 	function configFixedElements() {
-		var jpTopFrame = $(".frame.top"),
-		topOffset80 = jpTopFrame.offset().top - 80;
-		
-		$(window).scroll(function(){
+		var jpBottomFrame = $(".frame.bottom"),
+			jpTopFrame = $(".frame.top");
+
+		$('body').scroll(function(e){
+			var frameBottom = jpBottomFrame.offset().top,
+				frameTop = jpTopFrame.offset().top;
+
 			// Top Frame
-			if ($(this).scrollTop() <= jpTopFrame.offset().top - 25 && $(this).scrollTop() >= topOffset80) {
+			if (frameTop < 33) {
 		    	jpTopFrame.addClass('fixed');
 		    }
-		    if ($(this).scrollTop() < topOffset80) {
+		    if (frameBottom >= 120){
 		    	jpTopFrame.removeClass('fixed');
 		    }
-		    // Filters and search
-		    
 		});
 	}
 	

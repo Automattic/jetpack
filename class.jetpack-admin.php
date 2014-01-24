@@ -151,14 +151,6 @@ class Jetpack_Admin {
 	function admin_styles() {
 		wp_enqueue_style( 'jetpack-google-fonts', 'http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700,600,800' );
 		wp_enqueue_style( 'jetpack', plugins_url( '_inc/jetpack.css', __FILE__ ), false, JETPACK__VERSION . '-20121016' );
-
-		switch ( get_current_screen()->id ) {
-			case 'jetpack_page_jetpack_modules' :
-				wp_enqueue_style( 'jetpack-modules', plugins_url( '_inc/jetpack-modules.css', __FILE__ ), array( 'genericons' ) );
-				break;
-			default :
-				break;
-		}
 	}
 
 	function admin_scripts() {
@@ -176,30 +168,99 @@ class Jetpack_Admin {
 		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
 	}
 
-	function admin_page_top() {
-		?>
-		<div class="wrap" id="jetpack-settings">
-
-			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
-
-		<?php
-		do_action( 'jetpack_notices' );
-	}
-
-	function admin_page_bottom() {
-		?>
-
-		</div>
-
-		<?php
-	}
-
 	function admin_page() {
 		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
 	}
 
-	function admin_page_modules() {
-		add_filter( 'jetpack_short_module_description', 'wpautop' );
+	function admin_page_modules() { 
+		global $current_user;
+
+		$is_connected      = Jetpack::is_active();
+		$user_token        = Jetpack_Data::get_access_token( $current_user->ID );
+		$is_user_connected = $user_token && ! is_wp_error( $user_token );
+		$is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
+	?>
+	<?php
+	include_once( '_inc/header.php' );
+	?>
+	<div class="clouds-sm"></div>
+	<div class="page-content configure">
+		<div class="frame top">
+			<div class="wrap">
+				<div class="manage-left">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th class="sm"><input type="checkbox" class="checkall"></th>
+								<th colspan="2">
+									<span class="filter-search">
+										<button type="button" class="btn btn-default">Search/Filter</button>
+									</span>
+									<select>
+										<option>Actions</option>
+										<option>Activate</option>
+										<option>Deactivate</option>
+									</select>
+								</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div><!-- /.wrap -->
+		</div><!-- /.frame -->
+		<div class="frame bottom">
+			<div class="wrap">
+				<div class="manage-right">
+					<div class="bumper">
+						<form class="navbar-form" role="search">
+							<div class="input-group search-bar">
+								<input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+							</div>
+							<p>View:</p>
+							<div class="button-group">
+								<button type="button" class="button active">All</button>
+								<button type="button" class="button">Active</button>
+								<button type="button" class="button">Inactive</button>
+							</div>
+							<p>Sort by:</p>
+							<div class="button-group">
+								<button type="button" class="button active">Alphabetical</button>
+								<button type="button" class="button">Newest</button>
+								<button type="button" class="button">Popular</button>
+							</div>
+							<p>Show:</p>
+								<div class="showFilter">
+									<a href="#" data-show="all" class="active">All</a>
+									<a href="#" data-show="appearance">Appearance</a>
+									<a href="#" data-show="mobile">Mobile</a>
+									<a href="#" data-show="photos">Photos and Videos</a>
+									<a href="#" data-show="social">Social</a>
+									<a href="#" data-show="stats">Stats</a>
+									<a href="#" data-show="utilities">Utilities</a>
+									<a href="#" data-show="writing">Writing</a>
+								</div>
+						</form>
+					</div>
+				</div>
+				<div class="manage-left">
+					<table class="table table-bordered">
+						<tbody></tbody>
+					</table>
+				</div>
+			</div><!-- /.wrap -->
+		</div><!-- /.frame -->
+	</div><!-- /.content -->
+	<?php include_once( '_inc/footer.php' ); ?>
+		
+		
+		
+		
+		
+		
+		
+		
+		<?
+		/*add_filter( 'jetpack_short_module_description', 'wpautop' );
 		include_once( JETPACK__PLUGIN_DIR . 'modules/module-info.php' );
 		include_once( 'class.jetpack-modules-list-table.php' );
 		$list_table = new Jetpack_Modules_List_Table;
@@ -223,7 +284,7 @@ class Jetpack_Admin {
 		</form>
 
 		<?php
-		$this->admin_page_bottom();
+		$this->admin_page_bottom();*/
 	}
 
 }
