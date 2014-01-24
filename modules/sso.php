@@ -125,7 +125,7 @@ class Jetpack_SSO {
 
 		add_settings_section(
 			'jetpack_sso_settings',
-			__( 'Jetpack Single Sign On' ),
+			__( 'Jetpack Single Sign On' , 'jetpack' ),
 			'__return_false',
 			'general'
 		);
@@ -142,7 +142,7 @@ class Jetpack_SSO {
 		
 		add_settings_field(
 			'jetpack_sso_remove_login_form',
-			__( 'Remove default login form?' ),
+			__( 'Remove default login form?' , 'jetpack' ),
 			array( $this, 'render_remove_login_form_checkbox' ),
 			'general',
 			'jetpack_sso_settings'
@@ -160,7 +160,7 @@ class Jetpack_SSO {
 
 		add_settings_field(
 			'jetpack_sso_require_two_step',
-			__( 'Require Two-Step Authentication?' ),
+			__( 'Require Two-Step Authentication?' , 'jetpack' ),
 			array( $this, 'render_require_two_step' ),
 			'general',
 			'jetpack_sso_settings'
@@ -630,7 +630,7 @@ class Jetpack_SSO {
 	 * @return string
 	 **/
 	public function error_msg_enable_two_step( $message ) {
-		$err = __( sprintf( 'This site requires two step authentication be enabled for your user account on WordPress.com. Please visit the <a href="%1$s"> Security Settings</a> page to enable two step', 'https://wordpress.com/settings/security/' ) );
+		$err = __( sprintf( 'This site requires two step authentication be enabled for your user account on WordPress.com. Please visit the <a href="%1$s"> Security Settings</a> page to enable two step', 'https://wordpress.com/settings/security/' ) , 'jetpack' );
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
 		
@@ -647,7 +647,7 @@ class Jetpack_SSO {
 	 **/
 	public function msg_login_by_jetpack( $message ) {
 		
-		$msg = __( sprintf( 'Jetpack authenticates through WordPress.com — to log in, enter your WordPress.com username and password, or <a href="%1$s">visit WordPress.com</a> to create a free account now.', 'http://wordpress.com/signup' ) );
+		$msg = __( sprintf( 'Jetpack authenticates through WordPress.com — to log in, enter your WordPress.com username and password, or <a href="%1$s">visit WordPress.com</a> to create a free account now.', 'http://wordpress.com/signup' ) , 'jetpack' );
 
 		$msg = apply_filters( 'jetpack_sso_disclaimer_message', $msg );
 
@@ -664,7 +664,7 @@ class Jetpack_SSO {
 	 * @param string
 	 **/
 	public function error_msg_login_method_not_allowed( $message ) {
-		$err = __( 'Login method not allowed' );
+		$err = __( 'Login method not allowed' , 'jetpack' );
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
 		
 		return $message;

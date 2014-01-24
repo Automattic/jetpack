@@ -53,7 +53,7 @@ class Upcoming_Events_Widget extends WP_Widget {
 			while ( $i <= 10 ) { ?>
 				<option <?php selected( $instance['count'], $i ) ?>><?php echo $i; ?></option>
 			<?php $i++; } ?>
-			<option value="0" <?php selected( $instance['count'], 0 ) ?>><?php _e( 'All' ) ?></option>
+			<option value="0" <?php selected( $instance['count'], 0 ) ?>><?php _e( 'All' , 'jetpack' ) ?></option>
 		</select>
 		</p>
 <?php
