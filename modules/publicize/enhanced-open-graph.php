@@ -2,6 +2,9 @@
 if ( ! class_exists( 'Jetpack_Media_Summary' ) && defined('IS_WPCOM') && IS_WPCOM )
 	include WP_CONTENT_DIR . '/lib/class.wpcom-media-summary.php';
 
+// Add Youtube utilities
+jetpack_require_lib( 'youtube' );
+
 /**
  * Better OG Image Tags for Image Post Formats
  */
@@ -90,7 +93,7 @@ function enhanced_og_video( $tags ) {
 
 	if ( preg_match( '/((youtube|vimeo)\.com|youtu.be)/', $video_url ) ) {
 		if ( strstr( $video_url, 'youtube' ) ) {
-			$id = get_youtube_id( $video_url );
+			$id = jetpack_get_youtube_id( $video_url );
 			$video_url = 'http://www.youtube.com/v/' . $id . '?version=3&autohide=1';
 			$secure_video_url = 'https://www.youtube.com/v/' . $id . '?version=3&autohide=1';
 		} else if ( strstr( $video_url, 'vimeo' ) ) {

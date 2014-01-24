@@ -1,16 +1,16 @@
 <?php
 
-if ( !function_exists( 'get_youtube_id' ) ) :
+if ( !function_exists( 'jetpack_get_youtube_id' ) ) :
 /**
 * @param $url Can be just the $url or the whole $atts array
 * @return bool|mixed The Youtube video ID
 */
-function get_youtube_id( $url ) {
+function jetpack_jetpack_get_youtube_id( $url ) {
 	// Do we have an $atts array?  Get first att
 	if ( is_array( $url ) )
 		$url = $url[0];
 
-	$url = youtube_sanitize_url( $url );
+	$url = jetpack_youtube_sanitize_url( $url );
 	$url = parse_url( $url );
 	$id  = false;
 
@@ -32,14 +32,14 @@ function get_youtube_id( $url ) {
 }
 endif;
 
-if ( !function_exists( 'youtube_sanitize_url' ) ) :
+if ( !function_exists( 'jetpack_youtube_sanitize_url' ) ) :
 /**
 * Normalizes a YouTube URL to include a v= parameter and a query string free of encoded ampersands.
 *
 * @param string $url
 * @return string The normalized URL
 */
-function youtube_sanitize_url( $url ) {
+function jetpack_youtube_sanitize_url( $url ) {
 	$url = trim( $url, ' "' );
 	$url = trim( $url );
 	$url = str_replace( array( 'youtu.be/', '/v/', '#!v=', '&amp;', '&#038;', 'playlist' ), array( 'youtu.be/?v=', '/?v=', '?v=', '&', '&', 'videoseries' ), $url );
