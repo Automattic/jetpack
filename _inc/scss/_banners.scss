@@ -1,9 +1,9 @@
 #message.jp-connect {
 	background: #81a844;
 	border: none;
-	box-shadow: none;
 	color: #fff;
 	overflow: hidden;
+	margin-bottom: 26px;
 	padding: 20px;
 	position: relative;
 
@@ -28,49 +28,40 @@
 	}
 
 	.jetpack-install-container {
+		float: left;
 		overflow: hidden;
-		
-		p {
-			float: left;
-			
-			strong {
-				display: block;
-				font-size: 170%;
-				font-weight: normal;
-			}
-		}
 		
 		.submit {
 			margin: 0;
 		}
 		.download-jetpack {
 			font-size: 1.5em;
-			margin: 0 20px 0 0;
+			margin: 0 18px 0 0;
 			padding: em(12, 21) em(18, 21) em(8, 21) em(12, 21);
-			@include border-radius(4px);
+			@include border-radius(0);
 			@include box-shadow(
 				0 4px 0 #3e6c20,
-				0 4px 3px rgba(0,0,0,.4)
+				0 2px 3px rgba(0,0,0,.2)
 			);
 	
 			&:hover,
 			&:focus {
 				@include box-shadow(
 					0 4px 0 #3e6c20,
-					0 4px 3px rgba(0,0,0,.4)
+					0 2px 3px rgba(0,0,0,.2)
 				);
 			}
 			&:active {
 				outline: none;
-				top: 4px;
+				top: 2px;
 				@include box-shadow(
 					0 0px 0 #3e6c20,
-					0 0 0 rgba(0,0,0,.4)
+					0 0 0 rgba(0,0,0,.2)
 				);
 		
 				&:after {
 					// fixes buggy clicks
-					top: -4px;
+					top: -2px;
 				}
 			}
 			&:before {
@@ -84,10 +75,11 @@
 	.jetpack-close-button-container {
 		right: 18px;
 		position: absolute;
-		top: 13px;
+		top: 18px;
 		
 		a {
 			&:before {
+				color: #a7c979;
 				content: '\f158';
 				font: normal 20px/1 'dashicons';
 			}
@@ -101,12 +93,58 @@
 		}
 	}
 	.jetpack-text-container {
-		margin-top: 13px;
-		padding-right: 50px;
+		color: #daffbc;
+		float: left;
+		margin-top: -4px;
 		
 		p {
 			margin: 0;
 			padding: 0;
+			
+			strong {
+				color: #fff;
+				display: block;
+				font-size: 170%;
+				font-weight: normal;
+			}
+		}
+	}
+}
+@media (max-width: 1130px) {
+	#message.jp-connect {
+		.jetpack-install-container {
+			float: none;
+		}
+		.jetpack-text-container {
+			float: none;
+			margin-top: 18px;
+			padding-right: 30px;
+			
+			p {
+				float: left;
+				font-size: 14px;
+				margin-right: 4px;
+				
+				strong {
+					font-size: 14px;
+					font-weight: bold;
+				}
+			}
+		}
+	}
+}
+@media (max-width: 530px) {
+	#message.jp-connect {
+		.jetpack-install-container .download-jetpack {
+			font-size: 16px;
+			letter-spacing: -0.05em;
+			padding: 9px 8px;
+			text-align: center;
+			width: 80%;
+			
+			&:before {
+				display: none;
+			}
 		}
 	}
 }

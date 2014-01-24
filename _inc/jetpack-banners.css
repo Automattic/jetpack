@@ -137,9 +137,9 @@
 #message.jp-connect {
   background: #81a844;
   border: none;
-  box-shadow: none;
   color: #fff;
   overflow: hidden;
+  margin-bottom: 26px;
   padding: 20px;
   position: relative;
 }
@@ -166,88 +166,126 @@
 }
 /* line 30, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container {
+  float: left;
   overflow: hidden;
 }
-/* line 33, scss/_banners.scss */
-#message.jp-connect .jetpack-install-container p {
-  float: left;
-}
-/* line 36, scss/_banners.scss */
-#message.jp-connect .jetpack-install-container p strong {
-  display: block;
-  font-size: 170%;
-  font-weight: normal;
-}
-/* line 43, scss/_banners.scss */
+/* line 34, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .submit {
   margin: 0;
 }
-/* line 46, scss/_banners.scss */
+/* line 37, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .download-jetpack {
   font-size: 1.5em;
-  margin: 0 20px 0 0;
+  margin: 0 18px 0 0;
   padding: 0.57143em 0.85714em 0.38095em 0.57143em;
-  -webkit-border-radius: 4px;
-  border-radius: 4px;
+  -webkit-border-radius: 0;
+  border-radius: 0;
   -webkit-background-clip: padding-box;
   -moz-background-clip: padding;
   background-clip: padding-box;
-  -webkit-box-shadow: 0 4px 0 #3e6c20, 0 4px 3px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0 4px 0 #3e6c20, 0 4px 3px rgba(0, 0, 0, 0.4);
-  box-shadow: 0 4px 0 #3e6c20, 0 4px 3px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
-/* line 57, scss/_banners.scss */
+/* line 48, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .download-jetpack:hover, #message.jp-connect .jetpack-install-container .download-jetpack:focus {
-  -webkit-box-shadow: 0 4px 0 #3e6c20, 0 4px 3px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0 4px 0 #3e6c20, 0 4px 3px rgba(0, 0, 0, 0.4);
-  box-shadow: 0 4px 0 #3e6c20, 0 4px 3px rgba(0, 0, 0, 0.4);
+  -webkit-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
-/* line 63, scss/_banners.scss */
+/* line 54, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .download-jetpack:active {
   outline: none;
-  top: 4px;
-  -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
-  box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
+  top: 2px;
+  -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
 }
-/* line 71, scss/_banners.scss */
+/* line 62, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .download-jetpack:active:after {
-  top: -4px;
+  top: -2px;
 }
-/* line 76, scss/_banners.scss */
+/* line 67, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .download-jetpack:before {
   top: -2px;
   margin-right: 13px;
   width: 22px;
   height: 22px;
 }
-/* line 84, scss/_banners.scss */
+/* line 75, scss/_banners.scss */
 #message.jp-connect .jetpack-close-button-container {
   right: 18px;
   position: absolute;
-  top: 13px;
+  top: 18px;
 }
-/* line 90, scss/_banners.scss */
+/* line 81, scss/_banners.scss */
 #message.jp-connect .jetpack-close-button-container a:before {
+  color: #a7c979;
   content: '\f158';
   font: normal 20px/1 "dashicons";
 }
-/* line 94, scss/_banners.scss */
+/* line 86, scss/_banners.scss */
 #message.jp-connect .jetpack-close-button-container a:hover {
   opacity: 0.8;
 }
-/* line 97, scss/_banners.scss */
+/* line 89, scss/_banners.scss */
 #message.jp-connect .jetpack-close-button-container a:active {
   opacity: 1;
   outline: none;
 }
-/* line 103, scss/_banners.scss */
+/* line 95, scss/_banners.scss */
 #message.jp-connect .jetpack-text-container {
-  margin-top: 13px;
-  padding-right: 50px;
+  color: #daffbc;
+  float: left;
+  margin-top: -4px;
 }
-/* line 107, scss/_banners.scss */
+/* line 100, scss/_banners.scss */
 #message.jp-connect .jetpack-text-container p {
   margin: 0;
   padding: 0;
+}
+/* line 104, scss/_banners.scss */
+#message.jp-connect .jetpack-text-container p strong {
+  color: #fff;
+  display: block;
+  font-size: 170%;
+  font-weight: normal;
+}
+
+@media (max-width: 1130px) {
+  /* line 115, scss/_banners.scss */
+  #message.jp-connect .jetpack-install-container {
+    float: none;
+  }
+  /* line 118, scss/_banners.scss */
+  #message.jp-connect .jetpack-text-container {
+    float: none;
+    margin-top: 18px;
+    padding-right: 30px;
+  }
+  /* line 123, scss/_banners.scss */
+  #message.jp-connect .jetpack-text-container p {
+    float: left;
+    font-size: 14px;
+    margin-right: 4px;
+  }
+  /* line 128, scss/_banners.scss */
+  #message.jp-connect .jetpack-text-container p strong {
+    font-size: 14px;
+    font-weight: bold;
+  }
+}
+@media (max-width: 530px) {
+  /* line 138, scss/_banners.scss */
+  #message.jp-connect .jetpack-install-container .download-jetpack {
+    font-size: 16px;
+    letter-spacing: -0.05em;
+    padding: 9px 8px;
+    text-align: center;
+    width: 80%;
+  }
+  /* line 145, scss/_banners.scss */
+  #message.jp-connect .jetpack-install-container .download-jetpack:before {
+    display: none;
+  }
 }
