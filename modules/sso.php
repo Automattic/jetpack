@@ -18,10 +18,7 @@ function module_configure_button_clicked() {
 class Jetpack_SSO {
 	static $instance = null;
 
-	function __construct() {
-		if ( self::$instance ) {
-			return self::$instance;
-		}
+	private function __construct() {
 
 		self::$instance = $this;
 
@@ -809,4 +806,4 @@ class Jetpack_SSO {
 	}
 }
 
-new Jetpack_SSO;
+Jetpack_SSO::get_instance();
