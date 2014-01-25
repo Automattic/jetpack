@@ -813,6 +813,11 @@ html {
 	.sm {
 		width: 30px;
 	}
+	.jetpack-module {
+		.row-actions {
+			float: right;
+		}
+	}
 }
 .showFilter {
 	margin-top: 0;
