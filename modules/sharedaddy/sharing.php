@@ -156,6 +156,10 @@ class Sharing_Admin {
 
 		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' )
 			echo '<div class="updated"><p>'.__( 'Settings have been saved', 'jetpack' ).'</p></div>';
+
+		if( !isset( $global['sharing_label'] ) || '' == $global['sharing_label']  ) {
+			$global['sharing_label'] = __( 'Share this:', 'jetpack' );
+		}
 ?>
 
 	<div class="wrap">
@@ -237,7 +241,7 @@ class Sharing_Admin {
 					<td class="services">
 						<h2<?php if ( count( $enabled['all'] ) > 0 ) echo ' style="display: none"'; ?>><?php _e( 'Sharing is off. Add services above to enable.', 'jetpack' ); ?></h2>
 						<div class="sharedaddy sd-sharing-enabled">
-							<?php if ( count( $enabled['all'] ) > 0 && isset( $global['sharing_label'] ) ) : ?>
+							<?php if ( count( $enabled['all'] ) > 0 ) : ?>
 							<h3 class="sd-title"><?php echo esc_html( $global['sharing_label'] ); ?></h3>
 							<?php endif; ?>
 							<div class="sd-content">
@@ -314,7 +318,7 @@ class Sharing_Admin {
 	  				<tr valign="top">
 	  					<th scope="row"><label><?php _e( 'Sharing label', 'jetpack' ); ?></label></th>
 	  					<td>
-	  						<input type="text" name="sharing_label" value="<?php if ( isset( $global['sharing_label'] ) ) echo esc_attr( $global['sharing_label'] ); ?>" />
+	  						<input type="text" name="sharing_label" value="<?php echo $global['sharing_label']; ?>" />
 	  					</td>
 	  				</tr>
 	  				<tr valign="top">
