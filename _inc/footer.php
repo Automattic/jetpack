@@ -13,7 +13,7 @@
 			
 				<nav class="secondary nav-horizontal">
 					<div class="secondary-footer">
-						<a href="http://jetpack.me">Jetpack 2.7</a>
+						<a href="http://jetpack.me">Jetpack <?php echo JETPACK__VERSION; ?></a>
 						<a href="http://wordpress.com/tos/">Terms</a>
 						<a href="http://automattic.com/privacy/">Privacy</a>
 						<a href="admin.php?page=jetpack-debugger" title="Contact the Jetpack Happiness Squad.">Debug</a>
