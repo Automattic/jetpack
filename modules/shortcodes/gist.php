@@ -32,6 +32,6 @@ function github_gist_shortcode( $atts, $content = '' ) {
 
 	if ( ! empty( $atts['file'] ) )
 		$embed_url = add_query_arg( 'file', urlencode( $atts['file'] ), $embed_url );
-
-	return '<script src="' . esc_url( $embed_url ) . '"></script>';
+	// inline style to prevent the bottom margin to the embed that themes like TwentyTen, et al., add to tables
+	return '<style>.gist table { margin-bottom: 0; }</style>' . '<script src="' . esc_url( $embed_url ) . '"></script>';
 }
