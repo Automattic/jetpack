@@ -14,7 +14,7 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 			* modules.raw data, as well as any filters or sorting that may be in effect.
 			*/
 			filter_and_sort : function() {
-				var subsubsub = $('.subsubsub .current');
+				var subsubsub = $('.showFilter .current');
 				if ( subsubsub.closest('li').hasClass( 'all' ) ) {
 					this.set( 'items', this.get( 'raw' ) );
 				} else {
