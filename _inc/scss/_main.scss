@@ -815,6 +815,11 @@ html {
 	}
 }
 .showFilter {
+	margin-top: 0;
+	padding-left: 0;
+	li {
+		margin-bottom: 0;
+	}
 	a {
 		display: block;
 		line-height: 24px;
@@ -824,6 +829,9 @@ html {
 			cursor: default;
 			font-weight: bold;
 			text-decoration: none;
+		}
+		.count {
+			color: #444;
 		}
 	}
 }

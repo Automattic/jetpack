@@ -2481,20 +2481,22 @@ html {
   width: 30px;
 }
 
-/* line 826, scss/_main.scss */
-.showFilter a {
-  display: block;
-  line-height: 24px;
-}
-/* line 830, scss/_main.scss */
-.showFilter a.active {
-  color: #333;
-  cursor: default;
-  font-weight: bold;
-  text-decoration: none;
-}
-
 /* line 838, scss/_main.scss */
+.showFilter {
+  margin-top: 0;
+  padding-left: 0; }
+  .showFilter li {
+    margin-bottom: 0; }
+  .showFilter a {
+    display: block;
+    line-height: 24px; }
+    .showFilter a.active {
+      color: #333;
+      cursor: default;
+      font-weight: bold;
+      text-decoration: none; }
+    .showFilter a .count {
+      color: #444; }
 .wrap {
   margin: 0;
   padding: 0 1.5em 1em;
