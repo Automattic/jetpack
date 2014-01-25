@@ -46,6 +46,16 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		add_action( 'admin_footer', array( $this, 'js_templates' ), 9 );
 	}
 
+	function search_box( $text, $input_id = 'srch-term' ) {
+		?>
+		<div class="input-group search-bar">
+			<label class="screen-reader-text" for="<?php echo $input_id ?>"><?php echo esc_html( $text ); ?>:</label>
+			<input type="search" class="form-control" placeholder="<?php echo esc_attr( $text ); ?>" id="srch-term" name="s" value="<?php _admin_search_query(); ?>" />
+			<?php submit_button( $text, 'button hide-if-js', false, false, array( 'id' => 'search-submit' ) ); ?>
+		</div>
+		<?php
+	}
+
 	function js_templates() {
 		?>
 		<script type="text/html" id="Jetpack_Modules_List_Table_Template">
@@ -123,6 +133,21 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		}
 
 		return $modules;
+	}
+
+	function views() {
+		$views = $this->get_views();
+		$views = apply_filters( "views_{$this->screen->id}", $views );
+
+		if ( empty( $views ) ) {
+			return;
+		}
+
+		echo "<ul class='showFilter'>\n";
+		foreach ( $views as $class => $view ) {
+				echo "\t<li class='$class'>$view</li>\n";
+		}
+		echo "</ul>";
 	}
 
 	function get_views() {
