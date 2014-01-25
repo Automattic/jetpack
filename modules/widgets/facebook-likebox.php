@@ -17,10 +17,10 @@ function jetpack_facebook_likebox_init() {
 class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 
 	private $default_height       = 432;
-	private $default_width        = 200;
-	private $max_width            = 400;
-	private $min_width            = 0;
-	private $max_height           = 999;
+	private $default_width        = 300;
+	private $max_width            = 9999;
+	private $min_width            = 292;
+	private $max_height           = 9999;
 	private $min_height           = 100;
 	private $default_colorscheme  = 'light';
 	private $allowed_colorschemes = array( 'light', 'dark' );
