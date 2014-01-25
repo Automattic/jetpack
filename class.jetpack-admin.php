@@ -154,17 +154,19 @@ class Jetpack_Admin {
 	}
 
 	function admin_scripts() {
-		wp_enqueue_script( 'jetpack-icanhaz', plugins_url( '_inc/icanhaz.js', __FILE__ ), array( ), JETPACK__VERSION . '-20121111' );
-		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
-		wp_localize_script(
-			'jetpack-js',
-			'jetpackL10n',
-			array(
-				'ays_disconnect' => "This will deactivate all Jetpack modules.\nAre you sure you want to disconnect?",
-				'ays_unlink'     => "This will prevent user-specific modules such as Publicize, Notifications and Post By Email from working.\nAre you sure you want to unlink?",
-				'ays_dismiss'    => "This will deactivate Jetpack.\nAre you sure you want to deactivate Jetpack?",
-			)
-		);
+		if ( 'jetpack' == $_GET['page'] ) {
+			wp_enqueue_script( 'jetpack-icanhaz', plugins_url( '_inc/icanhaz.js', __FILE__ ), array( ), JETPACK__VERSION . '-20121111' );
+			wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
+			wp_localize_script(
+				'jetpack-js',
+				'jetpackL10n',
+				array(
+					'ays_disconnect' => "This will deactivate all Jetpack modules.\nAre you sure you want to disconnect?",
+					'ays_unlink'     => "This will prevent user-specific modules such as Publicize, Notifications and Post By Email from working.\nAre you sure you want to unlink?",
+					'ays_dismiss'    => "This will deactivate Jetpack.\nAre you sure you want to deactivate Jetpack?",
+				)
+			);
+		}
 		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
 	}
 
