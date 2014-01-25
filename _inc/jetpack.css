@@ -2482,6 +2482,8 @@ html {
 }
 
 /* line 838, scss/_main.scss */
+  .table-bordered .jetpack-module .row-actions {
+    float: right; }
 .showFilter {
   margin-top: 0;
   padding-left: 0; }
