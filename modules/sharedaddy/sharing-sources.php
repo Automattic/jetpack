@@ -285,7 +285,7 @@ class Share_Email extends Sharing_Source {
 	<div id="sharing_email" style="display: none;">
 		<form action="<?php echo esc_url( $_SERVER['REQUEST_URI'] ); ?>" method="post">
 			<label for="target_email"><?php _e( 'Send to Email Address', 'jetpack' ) ?></label>
-			<input type="text" name="target_email" id="target_email" value="" />
+			<input type="email" name="target_email" id="target_email" value="" />
 
 			<?php if ( is_user_logged_in() ) : ?>
 				<input type="hidden" name="source_name" value="<?php echo esc_attr( $current_user->display_name ); ?>" />
@@ -296,7 +296,7 @@ class Share_Email extends Sharing_Source {
 				<input type="text" name="source_name" id="source_name" value="" />
 
 				<label for="source_email"><?php _e( 'Your Email Address', 'jetpack' ) ?></label>
-				<input type="text" name="source_email" id="source_email" value="" />
+				<input type="email" name="source_email" id="source_email" value="" />
 
 			<?php endif; ?>
 
