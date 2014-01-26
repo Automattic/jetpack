@@ -25,6 +25,9 @@
 		margin-top: -80px;
 		padding: 15px;
 	}
+	.page-content.configure {
+		background: #f9f9f9;
+	}
 	.masthead {
 		h1 {
 			padding-top: em(55, 30);
@@ -167,7 +170,8 @@
 	#wpcontent,
 	.auto-fold #wpcontent, 
 	.auto-fold #wpfooter,
-	.modal {
+	.modal,
+	.configure .frame.top.fixed {
 		margin-left: 36px;
 		padding-left: 0;
 	}
@@ -268,6 +272,9 @@
 	.modal {
 		margin-left: 0;
 	}
+	.configure .frame.top.fixed {
+		padding-left: 0;
+	}
 	.masthead {
 		h1 {
 			max-width: 600px;
@@ -290,6 +297,23 @@
 	}
 	.sidebar {
 		display: none;
+	}
+	.frame.top.fixed {
+		border: none;
+		box-shadow: none;
+		padding-top: em(20);
+		position: relative;
+		top: auto;
+	}
+	.wrap .manage-right p.search-box input[type='search'] {
+		float: left;
+		padding: 9px 8px;
+		width: auto;
+	}
+}
+@media (max-width: 600px) {
+	.configure .frame.top.fixed {
+		top: 0;
 	}
 }
 @media (max-width: 530px) {

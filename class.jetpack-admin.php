@@ -181,6 +181,21 @@ class Jetpack_Admin {
 	function admin_page() {
 		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
 	}
+	
+	// Clone of $list_table->views() without the " |" appended to each item
+	function views() {
+		include_once( 'class.jetpack-modules-list-table.php' );
+		$list_table = new Jetpack_Modules_List_Table;
+		$views = $list_table->get_views();
+		
+		?>
+		<ul class='subsubsub'>
+		<?php foreach ( $views as $class => $view ) { ?>
+			<li class='<?php echo $class; ?>'><?php echo $view; ?></li>
+		<?php } ?>
+		</ul>
+		<?php
+	}
 
 	function admin_page_modules() {
 		global $current_user;
@@ -193,7 +208,87 @@ class Jetpack_Admin {
 		$user_token        = Jetpack_Data::get_access_token( $current_user->ID );
 		$is_user_connected = $user_token && ! is_wp_error( $user_token );
 		$is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
-
+	?>
+	<?php
+	include_once( JETPACK__PLUGIN_DIR . 'modules/module-info.php' );
+	include_once( 'class.jetpack-modules-list-table.php' );
+	$list_table = new Jetpack_Modules_List_Table;
+	include_once( '_inc/header.php' );
+	?>
+	<div class="clouds-sm"></div>
+	<div class="page-content configure">
+		<div class="frame top">
+			<div class="wrap">
+				<div class="manage-left">
+					<table class="table table-bordered">
+						<thead>
+							<tr>
+								<th class="sm"><input type="checkbox" class="checkall"></th>
+								<th colspan="2">
+									<span class="filter-search">
+										<button type="button" class="button">Filters</button>
+									</span>
+									<select>
+										<option>Actions</option>
+										<option>Activate</option>
+										<option>Deactivate</option>
+									</select>
+								</th>
+							</tr>
+						</thead>
+					</table>
+				</div>
+			</div><!-- /.wrap -->
+		</div><!-- /.frame -->
+		<div class="frame bottom">
+			<div class="wrap">
+				<div class="manage-right">
+					<div class="bumper">
+						<form class="navbar-form" role="search">
+							<div class="input-group search-bar">
+								<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'search_modules' ); ?>
+							</div>
+							<p>View:</p>
+							<div class="button-group">
+								<button type="button" class="button active">All</button>
+								<button type="button" class="button">Active</button>
+								<button type="button" class="button">Inactive</button>
+							</div>
+							<p>Sort by:</p>
+							<div class="button-group">
+								<button type="button" class="button active">Alphabetical</button>
+								<button type="button" class="button">Newest</button>
+								<button type="button" class="button">Popular</button>
+							</div>
+							<p>Show:</p>
+								<div class="showFilter">
+									<?php $this->views(); ?>
+								</div>
+						</form>
+					</div>
+				</div>
+				<div class="manage-left">
+					<table class="table table-bordered">
+						<tbody></tbody>
+					</table>
+				</div>
+			</div><!-- /.wrap -->
+		</div><!-- /.frame -->
+	</div><!-- /.content -->
+	<?php include_once( '_inc/footer.php' ); ?>
+		
+		
+		
+		
+		
+		
+		
+		
+		<?
+		/*add_filter( 'jetpack_short_module_description', 'wpautop' );
+		include_once( JETPACK__PLUGIN_DIR . 'modules/module-info.php' );
+		include_once( 'class.jetpack-modules-list-table.php' );
+		$list_table = new Jetpack_Modules_List_Table;
 		$this->admin_page_top();
 		?>
 		<div class="clouds-sm"></div>
