@@ -171,6 +171,21 @@ class Jetpack_Admin {
 	function admin_page() {
 		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
 	}
+	
+	// Clone of $list_table->views() without the " |" appended to each item
+	function views() {
+		include_once( 'class.jetpack-modules-list-table.php' );
+		$list_table = new Jetpack_Modules_List_Table;
+		$views = $list_table->get_views();
+		
+		?>
+		<ul class='subsubsub'>
+		<?php foreach ( $views as $class => $view ) { ?>
+			<li class='<?php echo $class; ?>'><?php echo $view; ?></li>
+		<?php } ?>
+		</ul>
+		<?php
+	}
 
 	function admin_page_modules() { 
 		global $current_user;
@@ -181,6 +196,9 @@ class Jetpack_Admin {
 		$is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 	?>
 	<?php
+	include_once( JETPACK__PLUGIN_DIR . 'modules/module-info.php' );
+	include_once( 'class.jetpack-modules-list-table.php' );
+	$list_table = new Jetpack_Modules_List_Table;
 	include_once( '_inc/header.php' );
 	?>
 	<div class="clouds-sm"></div>
@@ -194,7 +212,7 @@ class Jetpack_Admin {
 								<th class="sm"><input type="checkbox" class="checkall"></th>
 								<th colspan="2">
 									<span class="filter-search">
-										<button type="button" class="btn btn-default">Search/Filter</button>
+										<button type="button" class="button">Filters</button>
 									</span>
 									<select>
 										<option>Actions</option>
@@ -214,7 +232,7 @@ class Jetpack_Admin {
 					<div class="bumper">
 						<form class="navbar-form" role="search">
 							<div class="input-group search-bar">
-								<input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+								<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'search_modules' ); ?>
 							</div>
 							<p>View:</p>
 							<div class="button-group">
@@ -230,14 +248,7 @@ class Jetpack_Admin {
 							</div>
 							<p>Show:</p>
 								<div class="showFilter">
-									<a href="#" data-show="all" class="active">All</a>
-									<a href="#" data-show="appearance">Appearance</a>
-									<a href="#" data-show="mobile">Mobile</a>
-									<a href="#" data-show="photos">Photos and Videos</a>
-									<a href="#" data-show="social">Social</a>
-									<a href="#" data-show="stats">Stats</a>
-									<a href="#" data-show="utilities">Utilities</a>
-									<a href="#" data-show="writing">Writing</a>
+									<?php $this->views(); ?>
 								</div>
 						</form>
 					</div>

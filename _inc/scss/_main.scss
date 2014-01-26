@@ -715,6 +715,10 @@ html {
 // Plugin configure page
 // ==========================================================================
 
+#adminmenuback {
+	z-index: 5;
+}
+
 .page-content.configure {
 	margin-top: 0;
 }
@@ -828,6 +832,7 @@ html {
 	}
 }
 .wrap {
+	margin: 0;
 	padding: 0 1.5em 1em;
 	overflow: hidden;
 	
@@ -846,7 +851,7 @@ html {
 		}
 	}
 	.manage-right {
-		margin: 15px 0 0;
+		margin: 0;
 		padding: 0;
 		position: absolute;
 		right: 0;
@@ -866,7 +871,34 @@ html {
 		}
 		&.show {
 			display: block;
-			position: fixed;
+			overflow-y: auto;
+			overflow-x: hidden;
+			position: absolute;
+		}
+		.search-bar {
+			margin-bottom: 18px;
+		}
+		p.search-box {
+			float: none;
+			height: auto;
+			margin-bottom: 0;
+			position: relative;
+			
+			input[type='search'] {
+				padding: 0 8px;
+			}
+		}
+		.subsubsub {
+			margin: 0;
+			padding: 0;
+			
+			a {
+				padding: 0;
+			}
+			li {
+				display: block;
+				text-align: left;
+			}
 		}
 	}
 }
