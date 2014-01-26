@@ -2462,7 +2462,6 @@ html {
 .table-bordered .sm {
   width: 30px;
 }
-
 /* line 822, scss/_main.scss */
 .showFilter a {
   display: block;
@@ -2475,8 +2474,6 @@ html {
   font-weight: bold;
   text-decoration: none;
 }
-
-/* line 834, scss/_main.scss */
 .wrap {
   margin: 0;
   padding: 0 1.5em 1em;
