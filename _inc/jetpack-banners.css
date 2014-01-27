@@ -1,4 +1,3 @@
-/* line 6, scss/partials/_buttons.scss */
 .button,
 .download-jetpack {
   -webkit-transition: all 0.1s ease-in-out;
@@ -8,7 +7,6 @@
   transition: all 0.1s ease-in-out;
 }
 
-/* line 9, scss/partials/_buttons.scss */
 .jp-button {
   display: inline-block;
   position: relative;
@@ -23,22 +21,18 @@
   -moz-background-clip: padding;
   background-clip: padding-box;
 }
-/* line 19, scss/partials/_buttons.scss */
 .jp-button:visited {
   color: #efefef;
 }
-/* line 23, scss/partials/_buttons.scss */
 .jp-button:hover, .jp-button:focus {
   color: #fff;
   background: #57972d;
 }
-/* line 27, scss/partials/_buttons.scss */
 .jp-button:active {
   background: #57972d;
   opacity: 0.8;
 }
 
-/* line 32, scss/partials/_buttons.scss */
 .download-jetpack {
   display: inline-block;
   position: relative;
@@ -56,11 +50,9 @@
   -moz-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
-/* line 46, scss/partials/_buttons.scss */
 .download-jetpack:visited {
   color: #fff;
 }
-/* line 50, scss/partials/_buttons.scss */
 .download-jetpack:hover, .download-jetpack:focus {
   color: #fff;
   background: #57972d;
@@ -68,18 +60,15 @@
   -moz-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
-/* line 58, scss/partials/_buttons.scss */
 .download-jetpack:active {
   top: 6px;
   -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
   -moz-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
 }
-/* line 65, scss/partials/_buttons.scss */
 .download-jetpack:active:after {
   top: -6px;
 }
-/* line 70, scss/partials/_buttons.scss */
 .download-jetpack:before {
   content: '';
   display: inline-block;
@@ -92,7 +81,6 @@
   background: url("img/connect-plug.svg") center center no-repeat;
   background-size: 100%;
 }
-/* line 82, scss/partials/_buttons.scss */
 .download-jetpack:after {
   content: '';
   position: absolute;
@@ -102,7 +90,6 @@
   height: 100%;
 }
 
-/* line 92, scss/partials/_buttons.scss */
 #searchsubmit {
   display: inline-block;
   border: none;
@@ -119,21 +106,17 @@
   -moz-background-clip: padding;
   background-clip: padding-box;
 }
-/* line 104, scss/partials/_buttons.scss */
 #searchsubmit:visited {
   color: #efefef;
 }
-/* line 108, scss/partials/_buttons.scss */
 #searchsubmit:hover, #searchsubmit:focus {
   color: #fff;
   background: #2aa0d5;
 }
-/* line 112, scss/partials/_buttons.scss */
 #searchsubmit:active {
   opacity: 0.7;
 }
 
-/* line 1, scss/_banners.scss */
 #message.jp-connect {
   background: #81a844;
   border: none;
@@ -143,7 +126,6 @@
   padding: 20px;
   position: relative;
 }
-/* line 10, scss/_banners.scss */
 #message.jp-connect:after {
   bottom: 0;
   content: '';
@@ -155,25 +137,20 @@
   width: 100%;
   z-index: 1;
 }
-/* line 22, scss/_banners.scss */
 #message.jp-connect a {
   color: #fff;
 }
-/* line 25, scss/_banners.scss */
 #message.jp-connect h4 {
   margin: 0;
   padding: 0;
 }
-/* line 30, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container {
   float: left;
   overflow: hidden;
 }
-/* line 34, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .submit {
   margin: 0;
 }
-/* line 37, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .download-jetpack {
   font-size: 1.5em;
   margin: 0 18px 0 0;
@@ -187,13 +164,11 @@
   -moz-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
-/* line 48, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .download-jetpack:hover, #message.jp-connect .jetpack-install-container .download-jetpack:focus {
   -webkit-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
   -moz-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
-/* line 54, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .download-jetpack:active {
   outline: none;
   top: 2px;
@@ -201,50 +176,41 @@
   -moz-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
 }
-/* line 62, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .download-jetpack:active:after {
   top: -2px;
 }
-/* line 67, scss/_banners.scss */
 #message.jp-connect .jetpack-install-container .download-jetpack:before {
   top: -2px;
   margin-right: 13px;
   width: 22px;
   height: 22px;
 }
-/* line 75, scss/_banners.scss */
 #message.jp-connect .jetpack-close-button-container {
   right: 18px;
   position: absolute;
   top: 18px;
 }
-/* line 81, scss/_banners.scss */
 #message.jp-connect .jetpack-close-button-container a:before {
   color: #a7c979;
   content: '\f158';
   font: normal 20px/1 'dashicons';
 }
-/* line 86, scss/_banners.scss */
 #message.jp-connect .jetpack-close-button-container a:hover {
   opacity: 0.8;
 }
-/* line 89, scss/_banners.scss */
 #message.jp-connect .jetpack-close-button-container a:active {
   opacity: 1;
   outline: none;
 }
-/* line 95, scss/_banners.scss */
 #message.jp-connect .jetpack-text-container {
   color: #daffbc;
   float: left;
   margin-top: -4px;
 }
-/* line 100, scss/_banners.scss */
 #message.jp-connect .jetpack-text-container p {
   margin: 0;
   padding: 0;
 }
-/* line 104, scss/_banners.scss */
 #message.jp-connect .jetpack-text-container p strong {
   color: #fff;
   display: block;
@@ -253,30 +219,25 @@
 }
 
 @media (max-width: 1130px) {
-  /* line 115, scss/_banners.scss */
   #message.jp-connect .jetpack-install-container {
     float: none;
   }
-  /* line 118, scss/_banners.scss */
   #message.jp-connect .jetpack-text-container {
     float: none;
     margin-top: 18px;
     padding-right: 30px;
   }
-  /* line 123, scss/_banners.scss */
   #message.jp-connect .jetpack-text-container p {
     float: left;
     font-size: 14px;
     margin-right: 4px;
   }
-  /* line 128, scss/_banners.scss */
   #message.jp-connect .jetpack-text-container p strong {
     font-size: 14px;
     font-weight: bold;
   }
 }
 @media (max-width: 420px) {
-  /* line 139, scss/_banners.scss */
   #message.jp-connect .jetpack-install-container .download-jetpack {
     font-size: 16px;
     letter-spacing: -0.05em;
@@ -284,7 +245,6 @@
     text-align: center;
     width: 80%;
   }
-  /* line 146, scss/_banners.scss */
   #message.jp-connect .jetpack-install-container .download-jetpack:before {
     display: none;
   }
