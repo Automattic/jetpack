@@ -9,7 +9,7 @@
  * Module Tags: Social
  */
 class Jetpack_Likes {
-	var $version = '20140110';
+	var $version = '20140127';
 
 	public static function init() {
 		static $instance = NULL;
@@ -846,6 +846,10 @@ class Jetpack_Likes {
 							JetpackLikespostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, post_id: event.post_id, obj_id: event.obj_id }, window.frames['likes-master'] );
 						});
 					});
+				}
+
+				if ( 'clickReblogFlair' == event.event ) {
+					wpcom_reblog.toggle_reblog_box_flair( event.obj_id );
 				}
 
 				if ( 'showOtherGravatars' == event.event ) {
