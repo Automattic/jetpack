@@ -1,3 +1,2 @@
 /vendor/
-.DS_Store
-.sass-cache
+/.sass-cache/
