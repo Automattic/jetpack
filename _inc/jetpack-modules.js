@@ -4,7 +4,7 @@
 
 	var modules, list_table, handle_module_tag_click, $the_table;
 
-	$the_table = $('.table.jetpack-modules');
+	$the_table = $('.wp-list-table.jetpack-modules');
 
 	modules = new models.Modules( {
 		items : items
@@ -18,7 +18,7 @@
 	modules.trigger( 'change' );
 
 	handle_module_tag_click = function( event ) {
-		$('.showFilter').find('a[data-title="' + $(this).data('title') + '"]').addClass('current')
+		$('.subsubsub').find('a[data-title="' + $(this).data('title') + '"]').addClass('current')
 			.closest('li').siblings().find('a.current').removeClass('current');
 
 		if ( window.history.replaceState ) {
@@ -28,7 +28,7 @@
 		event.preventDefault();
 		event.data.modules.filter_and_sort();
 	}
-	$('.showFilter a').on( 'click', { modules : modules }, handle_module_tag_click );
+	$('.subsubsub a').on( 'click', { modules : modules }, handle_module_tag_click );
 	$the_table.on( 'click', '.module_tags a', { modules : modules }, handle_module_tag_click );
 
 	$the_table.on( 'click', '.more-info-link', function( event ) {

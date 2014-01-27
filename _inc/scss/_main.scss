@@ -715,10 +715,6 @@ html {
 // Plugin configure page
 // ==========================================================================
 
-#adminmenuback {
-	z-index: 5;
-}
-
 .page-content.configure {
 	margin-top: 0;
 }
@@ -817,18 +813,8 @@ html {
 	.sm {
 		width: 30px;
 	}
-	.jetpack-module {
-		.row-actions {
-			float: right;
-		}
-	}
 }
 .showFilter {
-	margin-top: 0;
-	padding-left: 0;
-	li {
-		margin-bottom: 0;
-	}
 	a {
 		display: block;
 		line-height: 24px;
@@ -839,13 +825,9 @@ html {
 			font-weight: bold;
 			text-decoration: none;
 		}
-		.count {
-			color: #444;
-		}
 	}
 }
 .wrap {
-	margin: 0;
 	padding: 0 1.5em 1em;
 	overflow: hidden;
 	
@@ -864,7 +846,7 @@ html {
 		}
 	}
 	.manage-right {
-		margin: 0;
+		margin: 15px 0 0;
 		padding: 0;
 		position: absolute;
 		right: 0;
@@ -884,34 +866,7 @@ html {
 		}
 		&.show {
 			display: block;
-			overflow-y: auto;
-			overflow-x: hidden;
-			position: absolute;
-		}
-		.search-bar {
-			margin-bottom: 18px;
-		}
-		p.search-box {
-			float: none;
-			height: auto;
-			margin-bottom: 0;
-			position: relative;
-			
-			input[type='search'] {
-				padding: 0 8px;
-			}
-		}
-		.subsubsub {
-			margin: 0;
-			padding: 0;
-			
-			a {
-				padding: 0;
-			}
-			li {
-				display: block;
-				text-align: left;
-			}
+			position: fixed;
 		}
 	}
 }
