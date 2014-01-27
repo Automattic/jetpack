@@ -9,7 +9,7 @@
  * Module Tags: Social
  */
 class Jetpack_Likes {
-	var $version = '20140127b';
+	var $version = '20140127c';
 
 	public static function init() {
 		static $instance = NULL;
