@@ -49,6 +49,8 @@ foreach ( $files as $this_file ) {
 		$css = file_get_contents( $path );
 
 		$tidied_css = tidy_css( $css );
+		$tidied_css = str_replace( ",\n\t  ", ",\n\t", $tidied_css ); // Handle indents on sequential selectors
+		$tidied_css = str_replace( "\n\t\n",  "\n\n",  $tidied_css ); // Clear trailing indents
 		file_put_contents( $path, $tidied_css );
 
 		$min_path = str_replace( '.css', '.min.css', $path );

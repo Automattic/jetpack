@@ -250,19 +250,19 @@
 	#message.jp-connect .jetpack-install-container {
 		float: none;
 	}
-	
+
 	#message.jp-connect .jetpack-text-container {
 		float: none;
 		margin-top: 18px;
 		padding-right: 30px;
 	}
-	
+
 	#message.jp-connect .jetpack-text-container p {
 		float: left;
 		font-size: 14px;
 		margin-right: 4px;
 	}
-	
+
 	#message.jp-connect .jetpack-text-container p strong {
 		font-size: 14px;
 		font-weight: bold;
@@ -277,7 +277,7 @@
 		text-align: center;
 		width: 80%;
 	}
-	
+
 	#message.jp-connect .jetpack-install-container .download-jetpack:before {
 		display: none;
 	}
