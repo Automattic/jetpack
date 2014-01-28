@@ -27,6 +27,27 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		);
 	}
 
+	public function get_site_info( $site ) {
+		$data_from_cache = get_transient( 'wp-site-info-' . $site, 'jetpack' );
+		if ( false === $data_from_cache ) {
+			$response = wp_remote_get( sprintf( 'https://public-api.wordpress.com/rest/v1/sites/%s', urlencode( $site ) ) );
+			set_transient( 'wp-site-info-' . $site, $response, 'display-posts-widget', ( 10 * MINUTE_IN_SECONDS ) );
+		} else {
+			$response = $data_from_cache;
+		}
+
+		if ( is_wp_error( $response ) ) {
+			return false;
+		}
+
+		$site_info = json_decode( $response ['body'] );
+		if ( ! isset( $site_info->ID ) ) {
+			return false;
+		}
+
+		return $site_info;
+	}
+
 	/*
 	 * Set up the widget display on the front end
 	 */
@@ -35,31 +56,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		wp_enqueue_style( 'jetpack_display_posts_widget', plugins_url( 'wordpress-post-widget/style.css', __FILE__ ) );
 
-		$site = $instance['url'];
-		$site = urlencode( $site );
-		$api_url = 'https://public-api.wordpress.com/rest/v1/sites/' . $site;
-
-		$data_from_cache = get_transient( 'wp-site-info-' . $instance['url'], 'display-posts-widget' );
-		if ( false === $data_from_cache ) {
-			$response = wp_remote_get( $api_url );
-			set_transient( 'wp-site-info-' . $instance['url'], $response, 'display-posts-widget', ( 10 * MINUTE_IN_SECONDS ) );
-		} else {
-			$response = $data_from_cache;
-		}
-
-		if ( is_wp_error( $response ) ) {
-			$site_id = false;
-		} else {
-			$site_info = json_decode( $response ['body'] );
-			if ( isset( $site_info->ID ) )
-				$site_id = $site_info->ID;
-			else
-				$site_id = false;
-		}
+		$site_info = $this->get_site_info( $instance['url'] );
 
 		echo $args['before_widget'];
 
-		if ( false === $site_id ) {
+		if ( false === $site_info ) {
 			echo '<p>' . __( 'We cannot load blog data at this time.', 'jetpack' ) . '</p>';
 			echo $args['after_widget'];
 			return;
@@ -75,7 +76,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		$data_from_cache = get_transient( 'wp-post-info-' . $instance['url'], 'display-posts-widget' );
 		if ( false === $data_from_cache ) {
-			$response = wp_remote_get( $api_url . '/posts' );
+			$response = wp_remote_get( sprintf( 'https://public-api.wordpress.com/rest/v1/sites/%d/posts/', $site_info->ID ) );
 			set_transient( 'wp-post-info-' . $instance['url'], $response, 'display-posts-widget', ( 10 * MINUTE_IN_SECONDS ) );
 		} else {
 			$response = $data_from_cache;
@@ -190,6 +191,16 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$instance['url'] = ( ! empty( $new_instance['url'] ) ) ? strip_tags( $new_instance['url'] ) : '';
 		$instance['url'] = str_replace( "http://", "", $instance['url'] );
 		$instance['url'] = untrailingslashit( $instance['url'] );
+
+		// Normalize www.
+		$site_info = $this->get_site_info( $instance['url'] );
+		if ( ! $site_info && 'www.' === substr( $instance['url'], 0, 4 ) ) {
+			$site_info = $this->get_site_info( substr( $instance['url'], 4 ) );
+			if ( $site_info ) {
+				$instance['url'] = substr( $instance['url'], 4 );
+			}
+		}
+
 		$instance['number_of_posts'] = ( ! empty( $new_instance['number_of_posts'] ) ) ? intval( $new_instance['number_of_posts'] ) : '';
 		$instance['featured_image'] = ( ! empty( $new_instance['featured_image'] ) ) ? true : '';
 		$instance['show_excerpts'] = ( ! empty( $new_instance['show_excerpts'] ) ) ? true : '';
