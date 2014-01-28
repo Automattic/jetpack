@@ -27,11 +27,21 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		);
 	}
 
+	/**
+	 * Expiring transients have a name length maximum of 45 characters,
+	 * so this function returns an abbreviated MD5 hash to use instead of
+	 * the full URI.
+	 */
+	public function get_site_hash( $site ) {
+		return substr( md5( $site ), 0, 21 );
+	}
+
 	public function get_site_info( $site ) {
-		$data_from_cache = get_transient( 'wp-site-info-' . $site, 'jetpack' );
+		$site_hash = $this->get_site_hash( $site );
+		$data_from_cache = get_transient( 'display_posts_site_info_' . $site_hash );
 		if ( false === $data_from_cache ) {
 			$response = wp_remote_get( sprintf( 'https://public-api.wordpress.com/rest/v1/sites/%s', urlencode( $site ) ) );
-			set_transient( 'wp-site-info-' . $site, $response, 'display-posts-widget', ( 10 * MINUTE_IN_SECONDS ) );
+			set_transient( 'display_posts_site_info_' . $site_hash, $response, 10 * MINUTE_IN_SECONDS );
 		} else {
 			$response = $data_from_cache;
 		}
@@ -72,10 +82,11 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			echo $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];
 		}
 
-		$data_from_cache = get_transient( 'wp-post-info-' . $instance['url'], 'display-posts-widget' );
+		$site_hash = $this->get_site_hash( $instance['url'] );
+		$data_from_cache = get_transient( 'display_posts_post_info_' . $site_hash );
 		if ( false === $data_from_cache ) {
 			$response = wp_remote_get( sprintf( 'https://public-api.wordpress.com/rest/v1/sites/%d/posts/', $site_info->ID ) );
-			set_transient( 'wp-post-info-' . $instance['url'], $response, 'display-posts-widget', ( 10 * MINUTE_IN_SECONDS ) );
+			set_transient( 'display_posts_post_info_' . $site_hash, $response, 10 * MINUTE_IN_SECONDS );
 		} else {
 			$response = $data_from_cache;
 		}
