@@ -114,8 +114,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		}
 
-		echo "</div>";
-
+		echo "</div><!-- .jetpack-display-remote-posts -->";
 		echo $args['after_widget'];
 	}
 
