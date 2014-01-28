@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Display Recent WordPress Posts Widget
- * Description: Displays recent posts from a WordPress.com or Jetpack-enabled self-hosted WordPress site. 
+ * Description: Displays recent posts from a WordPress.com or Jetpack-enabled self-hosted WordPress site.
  * Version: 1.0
  * Author: Brad Angelcyk, Kathryn Presner, Justin Shreve, Carolyn Sonnek
  * Author URI: http://automattic.com
@@ -12,9 +12,9 @@ function jetpack_display_posts_widget() {
 	 register_widget( 'Jetpack_Display_Posts_Widget' );
 }
 
-/**
-* Displays a list of recent posts from a WordPress.com or Jetpack-enabled blog.
-*/
+/*
+ * Display a list of recent posts from a WordPress.com or Jetpack-enabled blog.
+ */
 class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 	public function __construct() {
@@ -27,8 +27,9 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		);
 	}
 
-	/** Set up the widget display on the front end
-	*/
+	/*
+	 * Set up the widget display on the front end
+	 */
 	public function widget( $args, $instance ) {
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
@@ -36,7 +37,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		$site = $instance['url'];
 		$site = urlencode( $site );
-		$api_url = "https://public-api.wordpress.com/rest/v1/sites/" . $site;
+		$api_url = 'https://public-api.wordpress.com/rest/v1/sites/' . $site;
 
 		$data_from_cache = get_transient( 'wp-site-info-' . $instance['url'], 'display-posts-widget' );
 		if ( false === $data_from_cache ) {
@@ -59,15 +60,14 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		echo $args['before_widget'];
 
 		if ( false === $site_id ) {
-			echo "<p>" . __( 'We cannot load blog data at this time.', 'jetpack' ) . "</p>";
+			echo '<p>' . __( 'We cannot load blog data at this time.', 'jetpack' ) . '</p>';
 			echo $args['after_widget'];
 			return;
 		}
 
 		if ( ! empty( $title ) ) {
-			echo $args['before_title'] . esc_html( $title . ": " . $site_info->name ) . $args['after_title'];
-		}
-		else {
+			echo $args['before_title'] . esc_html( $title . ': ' . $site_info->name ) . $args['after_title'];
+		} else {
 			echo $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];
 		}
 
@@ -82,14 +82,14 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		}
 
 		if ( is_wp_error( $response ) ) {
-			echo "<p>" . __( 'We cannot load blog data at this time.', 'jetpack' ) . "</p>";
+			echo '<p>' . __( 'We cannot load blog data at this time.', 'jetpack' ) . '</p>';
 			echo $args['after_widget'];
 			return;
 		}
 
 		$posts_info = json_decode( $response['body'] );
 
-		echo "<div class='jetpack-display-remote-posts'>";
+		echo '<div class="jetpack-display-remote-posts">';
 
 		if ( isset( $posts_info->error ) && 'jetpack_error' == $posts_info->error ) {
 			echo '<p>' . __( 'We cannot display posts for this blog.', 'jetpack' ) . '</p>';
@@ -101,10 +101,10 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$single_post = $posts_info->posts[$i];
 			$post_title = ( $single_post->title ) ? esc_html( $single_post->title ) : '( No Title )';
 
-			echo "<h4><a href='" . esc_url( $single_post->URL ) . "'>". $post_title . "</a></h4>" . "\n";
+			echo '<h4><a href="' . esc_url( $single_post->URL ) . '">' . $post_title . '</a></h4>' . "\n";
 			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post->featured_image) ) ) {
 				$featured_image = ( $single_post->featured_image ) ? $single_post->featured_image  : '';
-				echo "<img src='" . $featured_image . "'>";
+				echo '<img src="' . $featured_image . '">';
 			}
 
 			if ( $instance['show_excerpts'] == true ) {
@@ -114,7 +114,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		}
 
-		echo "</div><!-- .jetpack-display-remote-posts -->";
+		echo '</div><!-- .jetpack-display-remote-posts -->';
 		echo $args['after_widget'];
 	}
 
@@ -128,7 +128,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		if ( isset( $instance[ 'url' ] ) ) {
 			$url = $instance[ 'url' ];
 		} else {
-			$url = "";
+			$url = '';
 		}
 
 		if ( isset( $instance[ 'number_of_posts' ] ) ) {
@@ -195,6 +195,4 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		$instance['show_excerpts'] = ( ! empty( $new_instance['show_excerpts'] ) ) ? true : '';
 		return $instance;
 	}
-
 }
-?>
