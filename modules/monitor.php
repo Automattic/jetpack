@@ -31,7 +31,9 @@ class Jetpack_Monitor {
 	}
 
 	public function activate_module() {
-		self::update_option_receive_jetpack_monitor_notification( true );
+		if ( Jetpack::is_user_connected() ) {
+			self::update_option_receive_jetpack_monitor_notification( true );
+		}
 	}
 
 	public function jetpack_modules_loaded() {
@@ -41,7 +43,7 @@ class Jetpack_Monitor {
 	}
 
 	public function jetpack_configuration_load() {
-		if ( ! self::is_active() ) {
+		if ( Jetpack::is_user_connected() && ! self::is_active() ) {
 			Jetpack::deactivate_module( $this->module );
 			Jetpack::state( 'message', 'module_deactivated' );
 			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
