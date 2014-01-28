@@ -46,11 +46,19 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$response = $data_from_cache;
 		}
 
-		$site_info = json_decode( $response ['body'] );
+		if ( is_wp_error( $response ) ) {
+			$site_id = false;
+		} else {
+			$site_info = json_decode( $response ['body'] );
+			if ( isset( $site_info->ID ) )
+				$site_id = $site_info->ID;
+			else
+				$site_id = false;
+		}
 
 		echo $args['before_widget'];
 
-		if ( empty( $site_info->ID ) ) {
+		if ( false === $site_id ) {
 			echo "<p>" . __( 'We cannot load blog data at this time.', 'jetpack' ) . "</p>";
 			echo $args['after_widget'];
 			return;
@@ -73,7 +81,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			$response = $data_from_cache;
 		}
 
-		if ( is_a( $response, 'WP_Error' ) ) {
+		if ( is_wp_error( $response ) ) {
 			echo "<p>" . __( 'We cannot load blog data at this time.', 'jetpack' ) . "</p>";
 			echo $args['after_widget'];
 			return;
