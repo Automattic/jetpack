@@ -285,20 +285,22 @@ class Jetpack_Likes {
 					</label>
 				<div>
 			</td>
-		</tr> <?php /*
+		</tr>
+		<?php if ( ! $this->in_jetpack && ( is_automattician() || ( defined( 'WPCOM_SANDBOXED' ) && WPCOM_SANDBOXED ) ) ) : ?>
 		<tr>
 			<th scope="row">
-				<label><?php esc_html_e( 'Comment Likes', 'jetpack' ); ?></label>
+				<label><?php esc_html_e( 'Comment Likes are', 'jetpack' ); ?></label>
 			</th>
 			<td>
 				<div>
 					<label>
 						<input type="checkbox" class="code" name="jetpack_comment_likes_enabled" value="1" <?php checked( $this->is_comments_enabled(), true ); ?> />
-						<?php esc_html_e( 'Allow people to like comments', 'jetpack' ); ?>
+						<?php esc_html_e( 'On for all comments', 'jetpack' ); ?>
 					</label>
 				</div>
 			</td>
-		</tr> */ ?>
+		</tr>
+		<?php endif; ?>
 		</tbody> <?php // closes the tbody attached to sharing_show_buttons_on_row_start... ?>
 	<?php }
 
