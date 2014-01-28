@@ -72,8 +72,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			echo $args['before_title'] . esc_html( $site_info->name ) . $args['after_title'];
 		}
 
-		$number_of_posts = $instance['number_of_posts'];
-
 		$data_from_cache = get_transient( 'wp-post-info-' . $instance['url'], 'display-posts-widget' );
 		if ( false === $data_from_cache ) {
 			$response = wp_remote_get( sprintf( 'https://public-api.wordpress.com/rest/v1/sites/%d/posts/', $site_info->ID ) );
@@ -97,6 +95,8 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			echo $args['after_widget'];
 			return;
 		}
+
+		$number_of_posts = min( $instance['number_of_posts'], count( $posts_info->posts ) );
 
 		for ( $i = 0; $i < $number_of_posts; $i++ ) {
 			$single_post = $posts_info->posts[$i];
