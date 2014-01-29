@@ -20,7 +20,9 @@ add_action( 'init', 'jetpack_load_theme_tools', 30 );
 
 // Featured Content has an internal check for theme support in the constructor.
 // This could already be defined by Twenty Fourteen if it's loaded first.
-if ( ! class_exists( 'Featured_Content' ) ) {
+// Be sure to not load this on the plugin page in case another plugin is activating
+// with the same class name in an attempt to override Jetpack's Featured_Content
+if ( ! class_exists( 'Featured_Content' ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 	require_once( JETPACK__PLUGIN_DIR . 'modules/theme-tools/featured-content.php' );
 }
 
