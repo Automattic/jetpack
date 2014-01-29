@@ -421,6 +421,7 @@ function jetpack_widgets_more_info_connected() { ?>
 	<p><strong><?php esc_html_e( 'The Gallery Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'provides you with a simple way to display a photo gallery or slideshow in your blog’s sidebar.', 'jetpack' ) ?></p>
 	<p><strong><?php esc_html_e( 'The Display WordPress Posts Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'lets you display up to ten recent posts from another WordPress.com blog, or a self-hosted WordPress site with Jetpack enabled.', 'jetpack' ) ?></p>
 	<p><strong><?php esc_html_e( 'The Readmill Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'allows your readers to send a book to their device with one click.', 'jetpack' ) ?></p>
+	<p><strong><?php esc_html_e( 'The Upcoming Events Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'allows you to use an iCalendar link to display a list of events on your site.', 'jetpack' ) ?></p>
 
 	<p><?php esc_html_e( 'Each of these widgets has a number of customization options.', 'jetpack' ); ?>  <?php printf( __( 'To use the widgets, go to Appearance &#8594; <a href="%s">Widgets</a>. Drag them into one of your sidebars and configure away.', 'jetpack' ), admin_url( 'widgets.php' ) ); ?></p>
 <?php
