@@ -116,7 +116,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 			echo '<h4><a href="' . esc_url( $single_post->URL ) . '">' . $post_title . '</a></h4>' . "\n";
 			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post->featured_image) ) ) {
 				$featured_image = ( $single_post->featured_image ) ? $single_post->featured_image  : '';
-				echo '<img src="' . $featured_image . '">';
+				echo '<img src="' . $featured_image . '"/>';
 			}
 
 			if ( $instance['show_excerpts'] == true ) {
