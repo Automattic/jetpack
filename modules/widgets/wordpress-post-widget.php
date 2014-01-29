@@ -19,10 +19,12 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 	public function __construct() {
 		parent::__construct(
-			'jetpack_display_posts_widget', // internal id
-			__( 'Display WordPress Posts (Jetpack)', 'jetpack' ), // wp-admin title
+			// internal id
+			'jetpack_display_posts_widget',
+			// wp-admin title
+			apply_filters( 'jetpack_widget_name', __( 'Display WordPress Posts', 'jetpack' ) ),
 			array(
-				'description' => __( 'Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog.', 'jetpack' ), // description
+				'description' => __( 'Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog.', 'jetpack' ),
 			)
 		);
 	}
@@ -123,7 +125,6 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				$post_excerpt = ( $single_post->excerpt ) ? $single_post->excerpt  : '';
 				echo $post_excerpt;
 			}
-
 		}
 
 		echo '</div><!-- .jetpack-display-remote-posts -->';
