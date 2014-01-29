@@ -113,12 +113,12 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		for ( $i = 0; $i < $number_of_posts; $i++ ) {
 			$single_post = $posts_info->posts[$i];
-			$post_title = ( $single_post->title ) ? esc_html( $single_post->title ) : '( No Title )';
+			$post_title = ( $single_post->title ) ? $single_post->title : '( No Title )';
 
-			echo '<h4><a href="' . esc_url( $single_post->URL ) . '">' . $post_title . '</a></h4>' . "\n";
+			echo '<h4><a href="' . esc_url( $single_post->URL ) . '">' . esc_html( $post_title ) . '</a></h4>' . "\n";
 			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post->featured_image) ) ) {
 				$featured_image = ( $single_post->featured_image ) ? $single_post->featured_image  : '';
-				echo '<img src="' . $featured_image . '"/>';
+				echo '<img src="' . $featured_image . '" alt="' . esc_attr( $post_title ) . '"/>';
 			}
 
 			if ( $instance['show_excerpts'] == true ) {
