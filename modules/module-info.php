@@ -125,6 +125,7 @@ function jetpack_shortcodes_more_info_connected() { ?>
 		'soundcloud' => 'http://support.wordpress.com/audio/soundcloud-audio-player/',
 		'ted' => 'http://en.support.wordpress.com/videos/ted-talks/',
 		'twitter-timeline' => 'http://en.support.wordpress.com/widgets/twitter-timeline-widget/#embedding-with-a-shortcode',
+		'upcomingevents' => 'http://en.support.wordpress.com/widgets/upcoming-events/#events-list-shortcode',
 		'vimeo' => 'http://support.wordpress.com/videos/vimeo/',
 		'vine' => 'http://en.support.wordpress.com/videos/vine/',
 		'youtube' => 'http://support.wordpress.com/videos/youtube/',
