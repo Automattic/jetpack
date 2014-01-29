@@ -110,15 +110,24 @@ function jetpack_shortcodes_more_info_connected() { ?>
 	<?php
 	$codes = array( 'archives' => 'http://support.wordpress.com/archives-shortcode/',
 		'audio' => 'http://support.wordpress.com/audio/',
+		'bandcamp' => 'http://en.support.wordpress.com/audio/bandcamp/',
 		'blip.tv' => 'http://support.wordpress.com/videos/bliptv/',
 		'dailymotion' => 'http://support.wordpress.com/videos/dailymotion/',
+		'facebook' => 'http://en.support.wordpress.com/facebook-integration/facebook-embeds/',
 		'flickr' => 'http://support.wordpress.com/videos/flickr-video/',
+		'googlemaps' => 'http://support.wordpress.com/google-maps/',
+		'jetpack_subscription_form' => 'http://jetpack.me/support/subscriptions/#display',
+		'polldaddy' => 'http://support.polldaddy.com/wordpress-shortcodes/',
+		'presentation' => 'http://en.support.wordpress.com/presentations/',
 		'scribd' => 'http://support.wordpress.com/scribd/',
 		'slideshare' => 'http://support.wordpress.com/slideshows/slideshare/',
+		'slideshow' => 'http://en.support.wordpress.com/slideshows/',
 		'soundcloud' => 'http://support.wordpress.com/audio/soundcloud-audio-player/',
+		'ted' => 'http://en.support.wordpress.com/videos/ted-talks/',
+		'twitter-timeline' => 'http://en.support.wordpress.com/widgets/twitter-timeline-widget/#embedding-with-a-shortcode',
 		'vimeo' => 'http://support.wordpress.com/videos/vimeo/',
+		'vine' => 'http://en.support.wordpress.com/videos/vine/',
 		'youtube' => 'http://support.wordpress.com/videos/youtube/',
-		'polldaddy' => 'http://support.polldaddy.com/wordpress-shortcodes/',
 	);
 
 	$codes['wpvideo (VideoPress)'] = 'http://en.support.wordpress.com/videopress/';
