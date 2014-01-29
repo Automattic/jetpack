@@ -159,7 +159,7 @@ function jetpack_twitter_cards_site_setting() {
 		$description = sprintf( __('Set the Twitter handle to be displayed on <a href="%s" target="_blank">Twitter Cards</a> and when sharing posts or pages from this blog.', 'jetpack' ), $url ); ?>
 		<tr valign="top" id="site-twitter">
 			<th scope="row"><label><?php _e( 'Twitter Handle', 'jetpack' ) ?></label></th>
-			<td><input type="text" name="twitter_site" value="<?php echo esc_attr( $options['global']['twitter_site'] ); ?>" />
+			<td><input type="text" name="twitter_site" value="<?php echo esc_attr( isset( $options['global']['twitter_site'] ) ? $options['global']['twitter_site'] : '' ); ?>" />
 				<small><em><?php echo $description; ?></em></small>
 			</td>
 		</tr><?php
