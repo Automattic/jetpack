@@ -343,7 +343,9 @@ class Share_Twitter extends Sharing_Source {
 
 	function sharing_twitter_via( $post ) {
 		$options = get_option( 'sharing-options' );
-		$handle = $options['global']['twitter_site'];
+		if ( isset( $options['global']['twitter_site'] ) ) {
+			$handle = $options['global']['twitter_site'];
+		}
 		if ( empty( $handle ) ) {
 			$handle = "Jetpack";
 		}
