@@ -1,8 +1,8 @@
-# Translation of 2.8 in Galician
+# Translation of 2.8 in Telugu
 # This file is distributed under the same license as the 2.8 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-01-25 22:45:54+0000\n"
+"PO-Revision-Date: 2014-01-24 12:49:34+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -87,11 +87,11 @@ msgstr ""
 
 #: modules/widgets/wordpress-post-widget.php:118
 msgid "Recent Posts"
-msgstr "Artigos recentes"
+msgstr "ఇటీవలి టపాలు"
 
 #: modules/widgets/wordpress-post-widget.php:152
 msgid "Blog URL:"
-msgstr "URL do blogue"
+msgstr "బ్లాగు యూఆర్‌ఎల్:"
 
 #: modules/widgets/wordpress-post-widget.php:155
 msgid "Enter a WordPress.com or Jetpack WordPress site URL."
@@ -114,16 +114,16 @@ msgid "%s (Jetpack)"
 msgstr ""
 
 msgid "http://wordpress.org/extend/plugins/jetpack/"
-msgstr "http://wordpress.org/extend/plugins/jetpack/"
+msgstr ""
 
 msgid "Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users."
-msgstr "Traia o poder da nube de WordPress.com para o seu propio WordPress. Jetpack permite conectar o seu blogue a unha conta do WordPress.com para usar as súas poderosas funcionalidades normalmente dispoñibles só para usuarios de WordPress.com."
+msgstr ""
 
 msgid "Automattic"
-msgstr "Automattic"
+msgstr ""
 
 msgid "http://jetpack.me"
-msgstr "http://jetpack.me"
+msgstr ""
 
 msgid "Improve your spelling, style, and grammar with the <a href=\"http://www.afterthedeadline.com/\">After&nbsp;the&nbsp;Deadline</a> Proofreading service."
 msgstr ""
@@ -183,7 +183,7 @@ msgstr ""
 
 #: modules/widgets/twitter-timeline.php:146
 msgid "Follow me on Twitter"
-msgstr "Seguirme no Twiter"
+msgstr ""
 
 #: modules/widgets/twitter-timeline.php:166
 msgid "Width (px):"
@@ -259,7 +259,7 @@ msgstr ""
 
 #: modules/widgets/upcoming-events.php:56
 msgid "All"
-msgstr "Todo"
+msgstr "అన్నీ"
 
 #: modules/widgets/wordpress-post-widget.php:23
 msgid "Display WordPress Posts (Jetpack)"
@@ -271,7 +271,7 @@ msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:12
 msgid "Links to your blog's RSS feeds"
-msgstr "Ligazóns aos feeds RSS do blog"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:13
 msgid "RSS Links (Jetpack)"
@@ -280,75 +280,75 @@ msgstr ""
 #: modules/widgets/rsslinks-widget.php:67
 #: modules/widgets/rsslinks-widget.php:133
 msgid "Posts"
-msgstr "Artigos"
+msgstr "టపాలు"
 
 #: modules/widgets/rsslinks-widget.php:69
 msgid "Posts & Comments"
-msgstr "Artigos e comentarios"
+msgstr "టపాలు & వ్యాఖ్యలు"
 
 #: modules/widgets/rsslinks-widget.php:71
 msgid "Feed(s) to Display:"
-msgstr "Feed(s) a mostrar:"
+msgstr "చూపించాల్సిన ఫీడులు:"
 
 #: modules/widgets/rsslinks-widget.php:81
 msgid "Text Link"
-msgstr ""
+msgstr "పాఠ్యపు లంకె"
 
 #: modules/widgets/rsslinks-widget.php:82
 msgid "Image Link"
-msgstr ""
+msgstr "బొమ్మ లంకె"
 
 #: modules/widgets/rsslinks-widget.php:83
 msgid "Text & Image Links"
-msgstr ""
+msgstr "పాఠ్యం & బొమ్మ లంకెలు"
 
 #: modules/widgets/rsslinks-widget.php:85
 msgid "Format:"
-msgstr "Formato:"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:96
 msgid "Image Settings:"
-msgstr ""
+msgstr "బొమ్మ అమరికలు:"
 
 #: modules/widgets/rsslinks-widget.php:100
 msgid "Medium"
-msgstr "Medio"
+msgstr "మధ్యమం"
 
 #: modules/widgets/rsslinks-widget.php:103
 msgid "Image Size:"
-msgstr ""
+msgstr "బొమ్మ పరిమాణం:"
 
 #: modules/widgets/rsslinks-widget.php:113
 msgid "Red"
-msgstr "Vermello"
+msgstr "ఎరుపు"
 
 #: modules/widgets/rsslinks-widget.php:114
 msgid "Orange"
-msgstr "Laranxa"
+msgstr "నారింజ"
 
 #: modules/widgets/rsslinks-widget.php:115
 msgid "Green"
-msgstr "Verde"
+msgstr "ఆకుపచ్చ"
 
 #: modules/widgets/rsslinks-widget.php:116
 msgid "Blue"
-msgstr "Azul"
+msgstr "నీలం"
 
 #: modules/widgets/rsslinks-widget.php:117
 msgid "Purple"
-msgstr "Púrpura"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:118
 msgid "Pink"
-msgstr "Rosa"
+msgstr "గులాబి"
 
 #: modules/widgets/rsslinks-widget.php:119
 msgid "Silver"
-msgstr "Prata"
+msgstr ""
 
 #: modules/widgets/rsslinks-widget.php:121
 msgid "Image Color:"
-msgstr ""
+msgstr "బొమ్మ రంగు:"
 
 #: modules/widgets/rsslinks-widget.php:140
 msgid "Subscribe to %s"
@@ -356,7 +356,7 @@ msgstr ""
 
 #: modules/widgets/top-posts.php:35 modules/widgets/top-posts.php:41
 msgid "Top Posts &amp; Pages"
-msgstr "O máis visto"
+msgstr "ఉత్తమ టపాలు &amp; పేజీలు"
 
 #: modules/widgets/top-posts.php:37
 msgid "Shows your most viewed posts and pages."
@@ -400,7 +400,7 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:12
 msgid "Display an image in your sidebar"
-msgstr "Mostra unha imaxe na barra lateral"
+msgstr ""
 
 #: modules/widgets/image-widget.php:14
 msgid "Image (Jetpack)"
@@ -408,51 +408,51 @@ msgstr ""
 
 #: modules/widgets/image-widget.php:123
 msgid "Image URL:"
-msgstr "URL da imaxe:"
+msgstr ""
 
 #: modules/widgets/image-widget.php:126
 msgid "Alternate text:"
-msgstr "Texto alternativo:"
+msgstr "ప్రత్యామ్నాయ పాఠ్యం:"
 
 #: modules/widgets/image-widget.php:129
 msgid "Image title:"
-msgstr "Título da imaxe:"
+msgstr ""
 
 #: modules/widgets/image-widget.php:132
 msgid "Caption:"
-msgstr "Lenda:"
+msgstr "వ్యాఖ్య:"
 
 #: modules/widgets/image-widget.php:138
 msgid "Left"
-msgstr "Esquerda"
+msgstr "ఎడమ"
 
 #: modules/widgets/image-widget.php:139
 msgid "Center"
-msgstr "Centro"
+msgstr "మధ్యన"
 
 #: modules/widgets/image-widget.php:140
 msgid "Right"
-msgstr "Dereita"
+msgstr "కుడి"
 
 #: modules/widgets/image-widget.php:142
 msgid "Image Alignment:"
-msgstr "Aliñamento da imaxe:"
+msgstr ""
 
 #: modules/widgets/image-widget.php:152
 msgid "Width:"
-msgstr "Largura:"
+msgstr "వెడల్పు:"
 
 #: modules/widgets/image-widget.php:155
 msgid "Height:"
-msgstr "Altura:"
+msgstr "ఎత్తు:"
 
 #: modules/widgets/image-widget.php:158
 msgid "If empty, we will attempt to determine the image size."
-msgstr ""
+msgstr "ఖాళీగా వదిలేస్తే, మేమే పరిమాణాన్ని నిర్ణయించడానికి ప్రయత్నిస్తాం."
 
 #: modules/widgets/image-widget.php:159
 msgid "Link URL (when the image is clicked):"
-msgstr "URL da ligazón (cando se preme na imaxe):"
+msgstr ""
 
 #: modules/widgets/readmill.php:11 modules/widgets/readmill.php:21
 msgid "Send To Readmill"
@@ -480,11 +480,11 @@ msgstr ""
 
 #: modules/widgets/readmill.php:67 modules/widgets/rsslinks-widget.php:101
 msgid "Large"
-msgstr "Enorme"
+msgstr "పెద్ద"
 
 #: modules/widgets/readmill.php:68 modules/widgets/rsslinks-widget.php:99
 msgid "Small"
-msgstr "Pequeno"
+msgstr "చిన్న"
 
 #: modules/widgets/readmill.php:125
 msgid "Your ePub link is empty. Provide an ePub link to display the Send to Readmill widget."
@@ -512,7 +512,7 @@ msgstr ""
 #: modules/widgets/upcoming-events.php:40
 #: modules/widgets/wordpress-post-widget.php:147
 msgid "Title:"
-msgstr "Título:"
+msgstr "శీర్షిక:"
 
 #: modules/widgets/gallery/templates/form.php:10
 msgid "Images:"
@@ -544,11 +544,11 @@ msgstr ""
 
 #: modules/widgets/gallery.php:335
 msgid "Attachment Page"
-msgstr "Páxina do anexo"
+msgstr "జోడింపు పేజీ"
 
 #: modules/widgets/gallery.php:336
 msgid "Media File"
-msgstr "Ficheiro"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:21
 msgid "Gravatar Profile"
@@ -581,7 +581,7 @@ msgstr ""
 #: modules/widgets/gravatar-profile.php:149
 msgctxt "1: User Name, 2: Service Name (Facebook, Twitter, ...)"
 msgid "%1$s on %2$s"
-msgstr "%1$s en %2$s"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:183
 msgid "Select a user or pick \"custom\" and enter a custom email address."
@@ -589,7 +589,7 @@ msgstr ""
 
 #: modules/widgets/gravatar-profile.php:187
 msgid "Custom"
-msgstr "Personalizado"
+msgstr ""
 
 #: modules/widgets/gravatar-profile.php:197
 msgid "Custom Email Address"
@@ -609,7 +609,7 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:90
 msgid "Search results"
-msgstr "Resultados da busca"
+msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:91
 msgid "Post type:"
@@ -621,22 +621,22 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:146
 msgid "Visibility"
-msgstr "Visibilidade"
+msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:149
 msgctxt "placeholder: dropdown menu to select widget visibility; hide if or show if"
 msgid "%s if:"
-msgstr "%s se:"
+msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:149
 msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
 msgid "Show"
-msgstr "Mostrar"
+msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:149
 msgctxt "Used in the \"%s if:\" translation for the widget visibility dropdown"
 msgid "Hide"
-msgstr "Ocultar"
+msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:160
 msgctxt "Used as the default option in a dropdown list"
@@ -645,7 +645,7 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:161
 msgid "Category"
-msgstr "Categoría"
+msgstr "వర్గం"
 
 #: modules/widget-visibility/widget-conditions.php:162
 msgctxt "Noun, as in: \"The author of this post is...\""
@@ -670,16 +670,16 @@ msgstr ""
 #: modules/widget-visibility/widget-conditions.php:167
 msgctxt "Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}"
 msgid "is"
-msgstr "é"
+msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:171
 msgctxt "Shown between widget visibility conditions."
 msgid "or"
-msgstr "ou"
+msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:174
 msgid "Delete"
-msgstr "Eliminar"
+msgstr "తొలగించు  "
 
 #: modules/widgets/facebook-likebox.php:31
 msgid "Facebook Like Box"
@@ -703,11 +703,11 @@ msgstr ""
 
 #: modules/widgets/facebook-likebox.php:140
 msgid "Width"
-msgstr "Largura"
+msgstr "వెడల్పు"
 
 #: modules/widgets/facebook-likebox.php:147
 msgid "Height"
-msgstr "Altura"
+msgstr "ఎత్తు"
 
 #: modules/widgets/facebook-likebox.php:165
 msgid "Show Faces"
@@ -759,11 +759,11 @@ msgstr ""
 
 #: modules/videopress/videopress.php:595
 msgid "Insert Video"
-msgstr "Inserir video"
+msgstr ""
 
 #: modules/videopress/videopress.php:628
 msgid "Ogg File URL"
-msgstr "URL do ficheiro OGG"
+msgstr ""
 
 #: modules/videopress/videopress.php:630
 msgid "Location of the Ogg video file."
@@ -771,11 +771,11 @@ msgstr ""
 
 #: modules/videopress/videopress.php:638
 msgid "Display share menu and allow viewers to embed or download this video"
-msgstr "Mostrar o menú compartir e permitir incrustar ou descargar este vídeo"
+msgstr ""
 
 #: modules/videopress/videopress.php:644
 msgid "Rating"
-msgstr "Valoración"
+msgstr "గణ్యత"
 
 #: modules/videopress/videopress.php:657
 msgid "Shortcode"
@@ -819,7 +819,7 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:75
 msgid "Monthly archives"
-msgstr "Arquivos mensuais"
+msgstr "నెలవారీ టపాలు"
 
 #: modules/widget-visibility/widget-conditions.php:76
 msgid "Yearly archives"
@@ -827,11 +827,11 @@ msgstr ""
 
 #: modules/widget-visibility/widget-conditions.php:87
 msgid "Front page"
-msgstr "Páxina de inicio"
+msgstr "మొదటి పేజీ"
 
 #: modules/widget-visibility/widget-conditions.php:88
 msgid "Posts page"
-msgstr "Páxina dos artigos"
+msgstr "టపాల పేజీ"
 
 #: modules/widget-visibility/widget-conditions.php:89
 msgid "404 error page"
@@ -858,7 +858,7 @@ msgstr ""
 
 #: modules/videopress/class.videopress-player.php:661
 msgid "Loading video..."
-msgstr "Cargando vídeo"
+msgstr ""
 
 #: modules/videopress/class.videopress-video.php:306
 msgid "The VideoPress plugin could not communicate with the VideoPress servers. This error is most likely caused by a misconfigured plugin. Please reinstall or upgrade."
@@ -922,11 +922,11 @@ msgstr ""
 
 #: modules/videopress/videopress.php:303
 msgid "Free formats"
-msgstr "Formatos libres"
+msgstr ""
 
 #: modules/videopress/videopress.php:307
 msgid "Only display videos in free software formats"
-msgstr "Mostrar só vídeos en formatos de software libre"
+msgstr ""
 
 #: modules/videopress/videopress.php:308
 msgid "Ogg file container with Theora video and Vorbis audio. Note that some browsers are unable to play free software video formats, including Internet Explorer and Safari."
@@ -989,7 +989,7 @@ msgstr ""
 
 #: modules/subscriptions.php:734 modules/widgets/image-widget.php:120
 msgid "Widget title:"
-msgstr "Título do widget:"
+msgstr "విడ్జెజ్ పేరు:"
 
 #: modules/subscriptions.php:740
 msgid "Optional text to display to your readers:"
@@ -1016,7 +1016,7 @@ msgstr ""
 
 #: modules/theme-tools/featured-content.php:418
 msgid "Tag name"
-msgstr "Nome da etiqueta"
+msgstr "ట్యాగు పేరు"
 
 #: modules/theme-tools/featured-content.php:424
 msgid "Hide tag from displaying in post meta and tag clouds."
@@ -1028,7 +1028,7 @@ msgstr ""
 
 #: modules/theme-tools/social-links.php:157
 msgid "&mdash; Select &mdash;"
-msgstr "&mdash; Escoller &mdash;"
+msgstr "&mdash; ఎంచుకోండి &mdash;"
 
 #: modules/tiled-gallery/tiled-gallery.php:319
 msgid "Tiled Mosaic"
@@ -1060,7 +1060,7 @@ msgstr ""
 
 #: modules/videopress/class.videopress-player.php:280
 msgid "Submit"
-msgstr "Enviar"
+msgstr "దాఖలుచేయి"
 
 #: modules/videopress/class.videopress-player.php:326
 msgid "You do not have sufficient <a rel=\"nofollow\" href=\"%s\">freedom levels</a> to view this video. Support free software and upgrade."
@@ -1068,31 +1068,31 @@ msgstr ""
 
 #: modules/stats.php:765
 msgid "Show top posts over"
-msgstr "Amosar enriba os Top Posts"
+msgstr ""
 
 #: modules/stats.php:778
 msgid "Show top search terms over"
-msgstr "Amosa enriba os termos máis buscados"
+msgstr ""
 
 #: modules/stats.php:944
 msgid "%1$s %2$s Views"
-msgstr "Vistas %1$s %2$s"
+msgstr ""
 
 #: modules/stats.php:965
 msgid "View All"
-msgstr "Ver todo"
+msgstr "అన్నీ చూడండి"
 
 #: modules/stats.php:969
 msgid "Top Posts"
-msgstr "Artigos destacados"
+msgstr "ఉత్తమ టపాలు"
 
 #: modules/stats.php:973 modules/stats.php:997
 msgid "Sorry, nothing to report."
-msgstr "Sentímolo, non hai nada que sinalar."
+msgstr ""
 
 #: modules/stats.php:993
 msgid "Top Searches"
-msgstr "O máis buscado"
+msgstr "ప్రసిద్ధ అన్వేషణలు"
 
 #: modules/stats.php:1021
 msgid "We were unable to get your stats just now. Please reload this page to try again."
@@ -1108,11 +1108,11 @@ msgstr ""
 
 #: modules/subscriptions.php:132
 msgid "Follow Blog"
-msgstr "Seguir este blog"
+msgstr ""
 
 #: modules/subscriptions.php:147
 msgid "Follow Comments"
-msgstr "Seguir os comentarios"
+msgstr "వ్యాఖ్యల్ని అనుసరించండి"
 
 #: modules/subscriptions.php:168
 msgid "Follower Settings"
@@ -1132,7 +1132,7 @@ msgstr ""
 
 #: modules/subscriptions.php:212
 msgid "Show a <em>'follow blog'</em> option in the comment form"
-msgstr "Mostrar a opción <em>'Seguir este blogue'</em> no formulario de comentarios"
+msgstr ""
 
 #: modules/subscriptions.php:227
 msgid "Show a <em>'follow comments'</em> option in the comment form"
@@ -1140,7 +1140,7 @@ msgstr ""
 
 #: modules/subscriptions.php:252
 msgid "These settings change emails sent from your blog to followers."
-msgstr "Estas opcións cambian as mensaxes enviadas por correo desde o blogue aos seguidores."
+msgstr ""
 
 #: modules/subscriptions.php:258
 msgid "Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)"
@@ -1194,11 +1194,11 @@ msgstr ""
 
 #: modules/stats.php:266 modules/stats.php:700
 msgid "Site Stats"
-msgstr "Estatísticas do sitio"
+msgstr "సైటు గణాంకాలు"
 
 #: modules/stats.php:351
 msgid "Loading&hellip;"
-msgstr ""
+msgstr "లోడవుతూంది&hellip;"
 
 #: modules/stats.php:353
 msgid "Your Site Stats work better with Javascript enabled."
@@ -1210,23 +1210,23 @@ msgstr ""
 
 #: modules/stats.php:536
 msgid "Visit <a href=\"%s\">Site Stats</a> to see your stats."
-msgstr "Visite <a href=\"%s\">Estatísticas do sitio</a> para ver as súas estatísticas."
+msgstr ""
 
 #: modules/stats.php:541
 msgid "Admin bar"
-msgstr "Barra de administración"
+msgstr ""
 
 #: modules/stats.php:542
 msgid "Put a chart showing 48 hours of views in the admin bar."
-msgstr "Engada un gráfico que mostre 48 horas de vistas na barra de administración."
+msgstr ""
 
 #: modules/stats.php:543
 msgid "Registered users"
-msgstr "Usuarios/as rexistrados/as"
+msgstr ""
 
 #: modules/stats.php:545
 msgid "Count the page views of registered users who are logged in."
-msgstr "Contar as páxinas vistas de usuarios/as rexistrados/as que iniciaron sesión."
+msgstr ""
 
 #: modules/stats.php:555
 msgid "Smiley"
@@ -1246,67 +1246,67 @@ msgstr ""
 
 #: modules/stats.php:557
 msgid "Report visibility"
-msgstr "Informe de visibilidade"
+msgstr ""
 
 #: modules/stats.php:559
 msgid "Select the roles that will be able to view stats reports."
-msgstr "Seleccione os roles que poderán ver os informes estatísticos."
+msgstr ""
 
 #: modules/stats.php:634
 msgid "Stats"
-msgstr "Estatísticas"
+msgstr "గణాంకాలు"
 
 #: modules/stats.php:636
 msgid "Views over 48 hours. Click for more Site Stats."
-msgstr "Vistas sobre 48 horas. Prema para obter máis Estatísticas do sitio."
+msgstr ""
 
 #: modules/stats.php:721
 msgid "day"
-msgstr "día"
+msgstr "రోజు"
 
 #: modules/stats.php:722
 msgid "week"
-msgstr "semana"
+msgstr "వారం"
 
 #: modules/stats.php:723
 msgid "month"
-msgstr "mes"
+msgstr "నెల"
 
 #: modules/stats.php:726
 msgid "the past day"
-msgstr "no último día"
+msgstr "నిన్నటి"
 
 #: modules/stats.php:727
 msgid "the past week"
-msgstr "na última semana"
+msgstr "గత వారం"
 
 #: modules/stats.php:728
 msgid "the past month"
-msgstr "o mes pasado"
+msgstr "గత నెల"
 
 #: modules/stats.php:729
 msgid "the past quarter"
-msgstr "o trimestre  pasado"
+msgstr "గత త్రైమాసికం"
 
 #: modules/stats.php:730
 msgid "the past year"
-msgstr "o ano pasado"
+msgstr "గత సంవత్సరం"
 
 #: modules/stats.php:752
 msgid "Chart stats by"
-msgstr "Gráfica de estatísticas por"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:387
 msgid "Create Share Button"
-msgstr "Crear un botón de compartir"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:399
 msgid "An error occurred creating your new sharing service - please check you gave valid details."
-msgstr "Houbo un erro ao crear o novo servizo de compartir. Comproba se os datos introducidos son válidos."
+msgstr ""
 
 #: modules/shortcodes/archives.php:58
 msgid "Your blog does not currently have any published posts."
-msgstr "O teu blogue non ten artigo ningún publicado."
+msgstr ""
 
 #: modules/shortcodes/audio.php:202
 msgid "Download: <a href=\"%s\">%s</a><br />"
@@ -1322,7 +1322,7 @@ msgstr ""
 
 #: modules/shortcodes/slideshow.php:60 modules/widgets/gallery.php:330
 msgid "Slideshow"
-msgstr "Presentación de diapositivas"
+msgstr ""
 
 #: modules/shortcodes/slideshow.php:65
 msgid "Image Gallery Slideshow"
@@ -1334,7 +1334,7 @@ msgstr ""
 
 #: modules/shortcodes/slideshow.php:206
 msgid "This slideshow requires JavaScript."
-msgstr ""
+msgstr "ఈ స్లైడ్ ప్రదర్శన కోసం జావాస్క్రిప్ట్ అవసరం."
 
 #: modules/shortcodes/twitter-timeline.php:17
 msgid "Invalid username"
@@ -1407,15 +1407,15 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1275
 msgid "Click to share on Pocket"
-msgstr "Compartir en Pocket"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:153
 msgid "Warning! Multibyte support missing!"
-msgstr "Atención! Falta o soporte a Multibyte!"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:154
 msgid "This plugin will work without it, but multibyte support is used <a href=\"%s\">if available</a>. You may see minor problems with Tweets and other sharing services."
-msgstr "Este plugin funcionará sen el, pero úsase o soporte multibyte <a href=\"%s\">se está dispoñible</a>. Pode ver pequenos problemas con Tweets e outros servizos de compartición."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:171
 msgid "Add sharing buttons to your blog and allow your visitors to share posts with their friends."
@@ -1423,27 +1423,27 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:177
 msgid "Available Services"
-msgstr "Servizos dispoñibles"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:178
 msgid "Drag and drop the services you'd like to enable into the box below."
-msgstr "Arrastra e solta na caixa de embaixo os servizos que queiras activar."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:179
 msgid "Add a new service"
-msgstr "Engadir un servizo novo"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:192
 msgid "Please note that your services have been restricted because your site is private."
-msgstr "Ten en conta que estes servizos están reducidos por ser este blog privado."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:203
 msgid "Enabled Services"
-msgstr "Servizos activados"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:206
 msgid "Services dragged here will appear individually."
-msgstr "Os servizos situados aquí aparecerán individualmente."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:209
 msgid "Drag and drop available services here."
@@ -1451,11 +1451,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:220
 msgid "Services dragged here will be hidden behind a share button."
-msgstr "Os servizos situados aquí quedarán ocultos baixo un botón Compartir."
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:235
 msgid "Live Preview"
-msgstr "Vista previa"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:238
 msgid "Sharing is off. Add services above to enable."
@@ -1463,106 +1463,106 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:304
 msgid "Button style"
-msgstr "Estilo do botón"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:307
 msgid "Icon + text"
-msgstr "Icona + texto"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:308
 msgid "Icon only"
-msgstr "Só icona"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:309
 msgid "Text only"
-msgstr "Só texto"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:310
 msgid "Official buttons"
-msgstr "Botóns oficiais"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:315
 msgid "Sharing label"
-msgstr "Lenda"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:321
 msgid "Open links in"
-msgstr "Abrir as ligazóns en"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:324
 msgid "New window"
-msgstr "Xanela nova"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:325
 msgid "Same window"
-msgstr "Mesma xanela"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:363
 msgid "Service name"
-msgstr "Nome do servizo"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:369
 msgid "Sharing URL"
-msgstr "URL do servizo"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:373
 msgid "You can add the following variables to your service sharing URL:"
-msgstr "Podes engadir as variables seguintes ao URL do servizo para compartir:"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:378
 msgid "Icon URL"
-msgstr "URL da icona"
+msgstr ""
 
 #: modules/sharedaddy/sharing.php:381
 msgid "Enter the URL of a 16x16px icon you want to use for this service."
-msgstr "Introduce o URL dunha icona de 16x16px que queiras usar para este servizo."
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:605
 msgid "Click to share on LinkedIn"
-msgstr "Compartir en Linkedin"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:668
 msgid "Facebook"
-msgstr "Facebook"
+msgstr "ఫేస్‌బుక్"
 
 #: modules/sharedaddy/sharing-sources.php:744
 msgctxt "share to"
 msgid "Facebook"
-msgstr "Facebook"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:744
 msgid "Share on Facebook"
-msgstr "Compartir en Facebook"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:775
 msgid "Print"
-msgstr "Imprimir"
+msgstr "ముద్రించు"
 
 #: modules/sharedaddy/sharing-sources.php:779
 msgctxt "share to"
 msgid "Print"
-msgstr "Imprimir"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:779
 msgid "Click to print"
-msgstr "Imprimir"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:795
 msgid "Press This"
-msgstr "Publicar isto"
+msgstr "దీన్ని ప్రచురించు"
 
 #: modules/sharedaddy/sharing-sources.php:823
 msgctxt "share to"
 msgid "Press This"
-msgstr "Compartir con Press This"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:823
 msgid "Click to Press This!"
-msgstr "Preme aquí para publicar isto!"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:841
 msgid "Google"
-msgstr ""
+msgstr "గూగుల్"
 
 #: modules/sharedaddy/sharing-sources.php:854
 msgctxt "share to"
@@ -1571,11 +1571,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:854
 msgid "Click to share on Google+"
-msgstr "Compartir en Google+"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:941
 msgid "Click to share"
-msgstr "Preme para compartir"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:996
 msgid "URL"
@@ -1583,19 +1583,19 @@ msgstr "URL"
 
 #: modules/sharedaddy/sharing-sources.php:1001
 msgid "Icon"
-msgstr "Icona"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1008
 msgid "Save"
-msgstr "Gardar"
+msgstr "భద్రపరచు"
 
 #: modules/sharedaddy/sharing-sources.php:1009
 msgid "Remove Service"
-msgstr "Eliminar o servizo"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1088
 msgid "Tumblr"
-msgstr ""
+msgstr "టంబ్లర్"
 
 #: modules/sharedaddy/sharing-sources.php:1099
 msgctxt "share to"
@@ -1604,7 +1604,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1099
 msgid "Click to share on Tumblr"
-msgstr "Compartir en Tumblr"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1135
 msgid "Pinterest"
@@ -1621,7 +1621,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1181
 msgid "Click to share on Pinterest"
-msgstr "Compartir en Pinterest"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1252
 #: modules/sharedaddy/sharing-sources.php:1270
@@ -1636,7 +1636,7 @@ msgstr ""
 #: modules/sharedaddy/sharing-service.php:553
 #: modules/videopress/videopress.php:635
 msgid "Share"
-msgstr "Compartir"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:208
 msgctxt "as sharing source"
@@ -1645,83 +1645,83 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:250
 msgid "This post has been shared!"
-msgstr "Artigo compartido."
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:251
 msgid "You have shared this post with %s"
-msgstr "Compartiches este artigo con %s"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:252
 #: modules/videopress/videopress.php:676
 msgid "Close"
-msgstr "Pechar"
+msgstr "మూసివేయి"
 
 #: modules/sharedaddy/sharing-sources.php:274
 msgctxt "share to"
 msgid "Email"
-msgstr "Correo-e"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:274
 msgid "Click to email this to a friend"
-msgstr "Enviar isto a unha amizade"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:287
 msgid "Send to Email Address"
-msgstr "Enviar a este enderezo"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:295
 msgid "Your Name"
-msgstr "Nome"
+msgstr "మీ పేరు"
 
 #: modules/sharedaddy/sharing-sources.php:298
 msgid "Your Email Address"
-msgstr "O teu enderezo de correo-e"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:306
 msgid "Send Email"
-msgstr "Enviar"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:310
 msgid "Post was not sent - check your email addresses!"
-msgstr "A entrada non se enviou - comproba os teus enderezos de correo electrónico!"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:314
 msgid "Email check failed, please try again"
-msgstr "Fallou a verificación do correo-e, téntao outra vez."
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:318
 msgid "Sorry, your blog cannot share posts by email."
-msgstr "Sentímolo, o teu blog non pode compartir artigos por correo electrónico."
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:341
 msgid "Twitter"
-msgstr "Twitter"
+msgstr "ట్విట్టర్"
 
 #: modules/sharedaddy/sharing-sources.php:388
 msgctxt "share to"
 msgid "Twitter"
-msgstr "Twitter"
+msgstr "ట్విట్టర్"
 
 #: modules/sharedaddy/sharing-sources.php:388
 msgid "Click to share on Twitter"
-msgstr "Compartir en Twitter"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:463
 msgid "StumbleUpon"
-msgstr "StumbleUpon"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:474
 msgctxt "share to"
 msgid "StumbleUpon"
-msgstr "StumbleUpon"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:474
 msgid "Click to share on StumbleUpon"
-msgstr "Compartir en StumbleUpon"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:501
 msgid "Reddit"
-msgstr "Reddit"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:508
 msgctxt "share to"
@@ -1730,21 +1730,21 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:508
 msgid "Click to share on Reddit"
-msgstr "Compartir en Reddit"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:535
 msgid "Digg"
-msgstr "Digg"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:544
 #: modules/sharedaddy/sharing-sources.php:547
 msgid "Click to Digg this post"
-msgstr "Preme aquí para enviar este artigo a Digg"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:547
 msgctxt "share to"
 msgid "Digg"
-msgstr "Digg"
+msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:591
 msgid "LinkedIn"
@@ -1769,7 +1769,7 @@ msgstr ""
 
 #: modules/publicize/ui.php:515
 msgid "Publicize:"
-msgstr "Divulgar:"
+msgstr ""
 
 #: modules/publicize/ui.php:595
 msgctxt "Service: Account connected as"
@@ -1778,20 +1778,20 @@ msgstr ""
 
 #: modules/publicize/ui.php:630
 msgid "Custom Message:"
-msgstr "Mensaxe personalizada:"
+msgstr ""
 
 #: modules/publicize/ui.php:635 modules/publicize/ui.php:664
 #: modules/publicize/ui.php:666
 msgid "Hide"
-msgstr "Ocultar"
+msgstr "దాచు"
 
 #: modules/publicize/ui.php:644
 msgid "Not Connected"
-msgstr "Sen conexións"
+msgstr ""
 
 #: modules/publicize/ui.php:651
 msgid "Connect to"
-msgstr "Conectar a"
+msgstr ""
 
 #: modules/publicize/ui.php:656
 msgid "Connect and share your posts on %s"
@@ -1799,12 +1799,12 @@ msgstr ""
 
 #: modules/publicize/ui.php:679
 msgid "Show"
-msgstr "Mostrar"
+msgstr "చూపించు"
 
 #: modules/publicize.php:111
 msgctxt "word count: words or characters?"
 msgid "words"
-msgstr ""
+msgstr "words"
 
 #: modules/related-posts/jetpack-related-posts.php:87
 msgid "Related posts"
@@ -1813,7 +1813,7 @@ msgstr ""
 #: modules/related-posts/jetpack-related-posts.php:134
 #: modules/related-posts/jetpack-related-posts.php:284
 msgid "Related"
-msgstr "Relacionado"
+msgstr ""
 
 #: modules/related-posts/jetpack-related-posts.php:237
 msgid "Show a \"Related\" header to more clearly separate the related section from posts"
@@ -1839,7 +1839,7 @@ msgstr ""
 #: modules/related-posts/jetpack-related-posts.php:746
 msgctxt "in {category/tag name}"
 msgid "In \"%s\""
-msgstr "En \"%s\""
+msgstr ""
 
 #: modules/related-posts/jetpack-related-posts.php:756
 msgid "With 1 comment"
@@ -1853,11 +1853,11 @@ msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:21
 msgid "Shared Post"
-msgstr "Artigo compartido"
+msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:117
 msgid "Disable CSS and JS"
-msgstr "Desactivar CSS e JS"
+msgstr ""
 
 #: modules/sharedaddy/sharedaddy.php:119
 msgid "Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work."
@@ -1865,12 +1865,12 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-service.php:12
 msgid "Share this:"
-msgstr "Compartir:"
+msgstr ""
 
 #: modules/sharedaddy/sharing-service.php:551
 #: modules/sharedaddy/sharing.php:250 modules/sharedaddy/sharing.php:283
 msgid "More"
-msgstr "Máis"
+msgstr "మరిన్ని"
 
 #: modules/post-by-email.php:198 modules/post-by-email.php:207
 msgid "Unable to regenerate your Post By Email address. Please try again later."
@@ -1961,7 +1961,7 @@ msgstr ""
 
 #: modules/publicize/ui.php:103
 msgid "Connect your blog to popular social networking sites and automatically share new posts with your friends."
-msgstr "Conecta o teu blogue coas redes sociais para compartir os artigos novos coas túas amizades de maneira automática."
+msgstr ""
 
 #: modules/publicize/ui.php:104
 msgid "You can make a connection for just yourself or for all users on your blog. Shared connections are marked with the (Shared) text."
@@ -1977,7 +1977,7 @@ msgstr ""
 
 #: modules/publicize/ui.php:205 modules/theme-tools/social-links.php:81
 msgid "Connect"
-msgstr "Conéctate"
+msgstr ""
 
 #: modules/publicize/ui.php:223
 msgid "Are you sure you want to stop Publicizing posts to this connection?"
@@ -2005,21 +2005,21 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-media.php:16
 msgid "Search Media"
-msgstr "Buscar ficheiros multimedia"
+msgstr ""
 
 #: modules/omnisearch/omnisearch-media.php:17
 #: modules/omnisearch/omnisearch-media.php:28
 msgid "Media"
-msgstr "Multimedia"
+msgstr "మాధ్యమాలు"
 
 #: modules/omnisearch/omnisearch-plugins.php:20
 msgid "Search Plugins"
-msgstr ""
+msgstr "ప్లగ్ ఇన్ ల కోసం వెతకండి"
 
 #: modules/omnisearch/omnisearch-plugins.php:21
 #: modules/omnisearch/omnisearch-plugins.php:26
 msgid "Plugins"
-msgstr "Plugins"
+msgstr "ప్లగిన్లు"
 
 #: modules/omnisearch/omnisearch-plugins.php:23
 msgid "Loading &hellip;"
@@ -2029,7 +2029,7 @@ msgstr ""
 #: modules/widgets/facebook-likebox.php:124
 #: modules/widgets/gravatar-profile.php:177
 msgid "Title"
-msgstr "Título"
+msgstr "శీర్షిక"
 
 #: modules/omnisearch/omnisearch-posts.php:45
 msgid "Snippet"
@@ -2037,23 +2037,23 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-posts.php:75
 msgid "Unpublished"
-msgstr "Non publicado"
+msgstr "అప్రచురితం"
 
 #: modules/omnisearch/omnisearch-posts.php:78
 msgid "Y/m/d g:i:s A"
-msgstr "d/m/Y g:i:s A"
+msgstr "Y/m/d g:i:s A"
 
 #: modules/omnisearch/omnisearch-posts.php:85
 msgid "%s ago"
-msgstr "hai %s"
+msgstr "%s క్రితం"
 
 #: modules/omnisearch/omnisearch-posts.php:87
 msgid "Y/m/d"
-msgstr "d/m/Y"
+msgstr "Y/m/d"
 
 #: modules/omnisearch/omnisearch-posts.php:93
 msgid "Published"
-msgstr "Publicado"
+msgstr "ప్రచురించబడింది"
 
 #: modules/omnisearch/omnisearch-posts.php:96
 msgid "Missed schedule"
@@ -2061,15 +2061,15 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-posts.php:98
 msgid "Scheduled"
-msgstr "Programado"
+msgstr "నిర్దేశిఁచబడ్డది"
 
 #: modules/omnisearch/omnisearch-posts.php:100
 msgid "Last Modified"
-msgstr "Última modificación"
+msgstr "చివరి మార్పు"
 
 #: modules/post-by-email.php:95 modules/subscriptions.php:635
 msgid "Email Address"
-msgstr "Enderezo de correo electrónico"
+msgstr "ఈ-మెయిల్ చిరునామా"
 
 #: modules/post-by-email.php:110
 msgid "Enable Post By Email"
@@ -2078,7 +2078,7 @@ msgstr ""
 #: modules/post-by-email.php:114
 #: modules/videopress/class.videopress-player.php:283
 msgid "More information"
-msgstr ""
+msgstr "మరికొంత సమాచారం"
 
 #: modules/post-by-email.php:117
 msgid "Regenerate Address"
@@ -2140,7 +2140,7 @@ msgstr ""
 
 #: modules/module-info.php:853 modules/videopress/videopress.php:330
 msgid "VideoPress"
-msgstr ""
+msgstr "వీడియోప్రెస్"
 
 #: modules/module-info.php:854
 msgid "With the VideoPress module you can easily upload videos to your WordPress site and embed them in your posts and pages. This module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
@@ -2172,7 +2172,7 @@ msgstr ""
 
 #: modules/module-info.php:920 modules/module-info.php:921
 msgid "Related Posts"
-msgstr "Artigos relacionados"
+msgstr ""
 
 #: modules/module-info.php:922
 msgid "\"Related Posts\" shows additional relevant links from your site under your posts. If the feature is enabled, links appear underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on)."
@@ -2204,14 +2204,14 @@ msgstr ""
 
 #: modules/omnisearch/omnisearch-comments.php:17
 msgid "Search Comments"
-msgstr "Buscar comentarios"
+msgstr "వ్యాఖ్యలను వెతుకు"
 
 #: modules/omnisearch/omnisearch-comments.php:18
 #: modules/omnisearch/omnisearch-comments.php:27
 #: modules/widgets/rsslinks-widget.php:68
 #: modules/widgets/rsslinks-widget.php:136
 msgid "Comments"
-msgstr "Comentarios"
+msgstr "వ్యాఖ్యలు"
 
 #: modules/module-info.php:589 modules/module-info.php:592
 msgid "Mobile Theme"
@@ -2353,7 +2353,7 @@ msgstr ""
 
 #: modules/module-info.php:427
 msgid "Subscriptions"
-msgstr "Subscricións"
+msgstr "చందాలు"
 
 #: modules/module-info.php:429
 msgid "Easily allow any visitor to subscribe to all of your posts via email through a widget in your blog&#8217;s sidebar.  Every time you publish a post, WordPress.com will send a notification to all your subscribers."
@@ -2441,7 +2441,7 @@ msgstr ""
 
 #: modules/module-info.php:286
 msgid "Wow, that sounds nerdy."
-msgstr "Guau, iso soa nerd."
+msgstr ""
 
 #: modules/module-info.php:300
 msgid "Use <code>$latex your latex code here$</code> or <code>[latex]your latex code here[/latex]</code> to include %s in your posts and comments. There are <a href=\"%s\" target=\"_blank\">all sorts of options</a> available."
@@ -2449,7 +2449,7 @@ msgstr ""
 
 #: modules/module-info.php:319
 msgid "Share your posts with Twitter, Facebook, and a host of other services. You can configure services to appear as icons, text, or both. Some services have additional options to display smart buttons, such as Twitter, which will update the number of times the post has been shared."
-msgstr "Comparta os seus artigos en Twitter, Facebook e noutros servizos. Vostede pode configurar os servizos para aparecer como iconas, texto ou ambos. Algúns servizos teñen opcións adicionais para amosar botóns intelixentes, como Twitter, que actualizará o número de veces que se comparta o artigo."
+msgstr ""
 
 #: modules/module-info.php:323
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
@@ -2461,7 +2461,7 @@ msgstr ""
 
 #: modules/module-info.php:329
 msgid "Additionally you can define your own custom services."
-msgstr "Ademais, pode definir os seus propios servizos personalizados."
+msgstr ""
 
 #: modules/module-info.php:344
 msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
@@ -2469,7 +2469,7 @@ msgstr ""
 
 #: modules/module-info.php:345
 msgid "Drag and drop sharing services into the enabled section to have them show up on your site, and drag them into the hidden section to have them hidden behind a button."
-msgstr "Arrastre e solte os servizos de compartir na sección de activación para que aparezan na súa páxina web, e arrastreos para a sección agochada para telos ocultos detrás dun botón."
+msgstr ""
 
 #: modules/module-info.php:351
 msgid "Full details can be found on the <a href=\"%s\">Sharing support page</a>. This video also gives a swish run-down of how to use the Sharing feature. Watch it in HD for extra snazz!"
@@ -2549,57 +2549,57 @@ msgstr ""
 
 #: modules/module-info.php:53 modules/module-info.php:68
 msgid "Gravatar Hovercard"
-msgstr "Gravatar Hovercard"
+msgstr ""
 
 #: modules/module-info.php:58 modules/module-info.php:73
 msgid "What&#8217;s a Hovercard?"
-msgstr "Que é Hovercard?"
+msgstr ""
 
 #: modules/module-info.php:59
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services they use on the web like Twitter, Facebook, or LinkedIn."
-msgstr "Hovercards mellora as imaxes simples de Gravatar con información sobre a persoa: nome, biografía, fotos, información de contacto e outros servizos que empregan a rede, como Twitter, Facebook ou LinkedIn."
+msgstr ""
 
 #: modules/module-info.php:60
 msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
-msgstr "Hovercards ofrece unha boa forma de mostrar a súa presenza en Internet e axuda á xente a atopar o seu propio blogue."
+msgstr ""
 
 #: modules/module-info.php:74
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
-msgstr "Hovercards mellorara as imaxes simples de Gravatar con información sobre a persoa: nome, biografía, fotos, información de contacto e outros servizos."
+msgstr ""
 
 #: modules/module-info.php:75
 msgid "To see hovercards, look at any blog post on your blog that has comments. If the commenter has a hovercard associated with their gravatar, mouse over their image and the hovercard will appear. To turn hovercards off, click the Deactivate button above."
-msgstr "Para ver hovercards, busque calquera artigo no seu blogue que teña comentarios. Se o ou a comentarista ten un hovercard asociado ao seu gravatar, faga clic sobre a imaxe e o hovercard aparecerá. Para desactivar hovercards, prema no botón Desactivar superior."
+msgstr ""
 
 #: modules/module-info.php:90 modules/module-info.php:94
 #: modules/module-info.php:103 modules/module-info.php:107
 msgid "Shortcode Embeds"
-msgstr "Códigos curtos embebidos"
+msgstr ""
 
 #: modules/module-info.php:95 modules/module-info.php:108
 msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
-msgstr "Os códugos curtos permítenlle incoprar medios de outros lugares no seu sitio de forma fácil e segura. Con só un código simple, pode dicirlle a WordPress que incorpore YouTube, Flickr e outros soportes."
+msgstr ""
 
 #: modules/module-info.php:109
 msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
-msgstr "Introduza un código curto directamente no editor do Artigo/Páxina para incorporar os medios embebidos. Para obter instruccións específicas siga as ligazóns inferiores."
+msgstr ""
 
 #: modules/module-info.php:132
 msgid "Available shortcodes are: %l."
-msgstr "Os códigos curtos dispoñibles son: %l."
+msgstr ""
 
 #: modules/module-info.php:147 modules/module-info.php:151
 #: modules/module-info.php:161 modules/module-info.php:165
 msgid "WP.me Shortlinks"
-msgstr "Ligazóns curtas con WP.me"
+msgstr ""
 
 #: modules/module-info.php:152 modules/module-info.php:166
 msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
-msgstr "En vez de escribir ou copiar e pegar URLs longos, agora pode obter unha ligazón curta e sinxela para os seus artigos e páxinas. Iso usa o nome de dominio super compacto wp.me, e dálle un URL exclusivo que pode usar e que vai ser seguro e de confianza."
+msgstr ""
 
 #: modules/module-info.php:153
 msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
-msgstr "É perfecto para usar en Twitter, Facebook e mensaxes de texto por teléfono móbil onde cada caracter conta."
+msgstr ""
 
 #: modules/module-info.php:167
 msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
@@ -2608,20 +2608,20 @@ msgstr ""
 #: modules/module-info.php:182 modules/module-info.php:186
 #: modules/module-info.php:195 modules/module-info.php:199
 msgid "WordPress.com Stats"
-msgstr "WordPress.com Stats"
+msgstr ""
 
 #: modules/module-info.php:187 modules/module-info.php:200
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
-msgstr "Existen moitos plugins e servizos que proporcionan estatísticas, pero os datos poden ser abrumadores. WordPress.com Stats fai as métricas máis populares de fácil comprensión a través dunha interface clara e atractiva."
+msgstr ""
 
 #: modules/module-info.php:201
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
-msgstr "Pode <a href=\"%s\"> ver o seu panel de estatísticas aquí</a>."
+msgstr ""
 
 #: modules/module-info.php:215 modules/module-info.php:219
 #: modules/publicize/ui.php:95
 msgid "Publicize"
-msgstr "Divulgar"
+msgstr "బహిరంగపరచండి"
 
 #: modules/module-info.php:220
 msgid "Publicize allows you to connect your blog to popular social networking sites and automatically share new posts with your friends.\t You can make a connection for just yourself or for all users on your blog."
@@ -2643,7 +2643,7 @@ msgstr ""
 #: modules/module-info.php:258 modules/module-info.php:262
 #: modules/monitor.php:70 modules/notes.php:160
 msgid "Notifications"
-msgstr "Notificacións"
+msgstr ""
 
 #: modules/module-info.php:250 modules/module-info.php:263
 msgid "Keep up with the latest happenings on all your WordPress sites and interact with other WordPress.com users."
@@ -2655,7 +2655,7 @@ msgstr ""
 
 #: modules/module-info.php:279 modules/module-info.php:294
 msgid "LaTeX"
-msgstr "LaTeX"
+msgstr ""
 
 #: modules/module-info.php:284 modules/module-info.php:299
 msgid "%s is a powerful markup language for writing complex mathematical equations, formulas, etc."
@@ -2663,23 +2663,23 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/inc/tweaks.php:94
 msgid "Page %s"
-msgstr "Páxina %s"
+msgstr "పేజీ %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:23
 msgid "Daily Archives: %s"
-msgstr "Arquivo por días: %s"
+msgstr "రోజువారీ భండారాలు: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:25
 msgid "Monthly Archives: %s"
-msgstr "Arquivo por meses: %s"
+msgstr "నెలవారీ భాండారాలు: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:27
 msgid "Yearly Archives: %s"
-msgstr "Arquivo por anos: %s"
+msgstr "సాంవత్సరిక భాండారాలు: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:29
 msgid "Posted in %s"
-msgstr "Publicado en %s"
+msgstr "%s లో రాసారు"
 
 #: modules/minileven/theme/pub/minileven/index.php:31
 msgid "Tagged with %s"
@@ -2687,30 +2687,30 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:33
 msgid "Posted by"
-msgstr "Publicado por"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:35
 msgid "Blog Archives"
-msgstr "Arquivo do blog"
+msgstr "బ్లాగు భాండాగారం"
 
 #: modules/minileven/theme/pub/minileven/index.php:43
 msgid "Search Results for: %s"
-msgstr "Resultados da procura de: %s"
+msgstr "వెతుకుడు ఫలితాలు: %s"
 
 #: modules/minileven/theme/pub/minileven/index.php:57
 msgid "Nothing Found"
-msgstr "Non se atopou nada"
+msgstr "ఏమీ దొరకలేదు"
 
 #: modules/minileven/theme/pub/minileven/index.php:61
 msgid "Apologies, but no results were found for the requested archive. Perhaps searching will help find a related post."
-msgstr "Sentímolo, pero non houbo resultado ningún para o ficheiro requirido. Quizais unha procura axude a atopar un artigo relacionado."
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/searchform.php:9
 #: modules/minileven/theme/pub/minileven/searchform.php:10
 #: modules/minileven/theme/pub/minileven/searchform.php:11
 #: modules/omnisearch/omnisearch-core.php:156
 msgid "Search"
-msgstr "Procura"
+msgstr "వెతుకు"
 
 #: modules/minileven.php:51
 msgid "Excerpts"
@@ -2734,7 +2734,7 @@ msgstr ""
 
 #: modules/minileven.php:75 modules/stats.php:570
 msgid "Save configuration"
-msgstr "Gardar a configuración"
+msgstr ""
 
 #: modules/minileven.php:78
 msgid "Mobile Apps"
@@ -2782,11 +2782,11 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "<b>%</b> Replies"
-msgstr "<b>%</b> respostas"
+msgstr "<b>%</b> స్పందనలు"
 
 #: modules/minileven/theme/pub/minileven/content.php:19
 msgid "Featured"
-msgstr "Destacado"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:28
 msgid "Posted by "
@@ -2799,25 +2799,25 @@ msgstr "%s"
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "Leave a reply"
-msgstr "Deixar unha resposta"
+msgstr "స్పందించండి"
 
 #: modules/minileven/theme/pub/minileven/content.php:59
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:19
 msgid "Post navigation"
-msgstr "Navegación de artigos"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:60
 #: modules/minileven/theme/pub/minileven/image.php:88
 msgid "&laquo; Previous"
-msgstr "&laquo; Anteriores"
+msgstr "&laquo; గత"
 
 #: modules/minileven/theme/pub/minileven/content.php:61
 msgid "Next &raquo;"
-msgstr "Seguintes &raquo;"
+msgstr "తరువాతి &raquo;"
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "http://wordpress.org/"
-msgstr "http://gl.wordpress.org/"
+msgstr "http://wordpress.org/"
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "Semantic Personal Publishing Platform"
@@ -2825,11 +2825,11 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "Proudly powered by %s"
-msgstr "Fornecido con orgullo por %s"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/functions.php:59
 msgid "Primary Menu"
-msgstr "Menú primario"
+msgstr "ప్రధాన మెనూ"
 
 #: modules/minileven/theme/pub/minileven/functions.php:96
 msgctxt "Open Sans font: on or off"
@@ -2843,15 +2843,15 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/functions.php:128
 msgid "Main Sidebar"
-msgstr "Barra lateral principal"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/header.php:26
 msgid "Menu"
-msgstr "Menú"
+msgstr "మెనూ"
 
 #: modules/minileven/theme/pub/minileven/header.php:29
 msgid "Skip to primary content"
-msgstr "Saltar ao contido principal"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/image.php:73
 msgid "<span class=\"entry-gallery\">&laquo; <a href=\"%1$s\" title=\"Back to %2$s\" rel=\"gallery\">Back to Gallery</a></span>"
@@ -2880,15 +2880,15 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:55
 msgid "%1$s on %2$s"
-msgstr "%1$s en %2$s"
+msgstr "%2$s పై %1$s"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:68
 msgid "Your comment is awaiting moderation."
-msgstr "O teu comentario está á espera de moderación."
+msgstr "మీ వ్యాఖ్య అనుమతికై వేచివుంది."
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:76
 msgid "Reply"
-msgstr "Resposta"
+msgstr "స్పందించండి"
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:90
 msgid "<span class=\"entry-date\"><a href=\"%1$s\" title=\"%2$s\" rel=\"bookmark\"><time datetime=\"%3$s\" pubdate>%4$s</time></a></span>"
@@ -2896,15 +2896,15 @@ msgstr ""
 
 #: modules/likes.php:310 modules/sharedaddy/sharing.php:330
 msgid "Show buttons on"
-msgstr "Mostrar os botóns en"
+msgstr ""
 
 #: modules/likes.php:319 modules/sharedaddy/sharing.php:336
 msgid "Front Page, Archive Pages, and Search Results"
-msgstr "Páxina de inicio, páxinas de arquivos e resultados de procuras"
+msgstr ""
 
 #: modules/likes.php:452 modules/sharedaddy/sharing.php:158
 msgid "Settings have been saved"
-msgstr "As opcións están gardadas"
+msgstr ""
 
 #: modules/likes.php:459 modules/sharedaddy/sharing.php:170
 msgid "Sharing Buttons"
@@ -2912,19 +2912,19 @@ msgstr ""
 
 #: modules/likes.php:468 modules/sharedaddy/sharing.php:352
 msgid "Save Changes"
-msgstr "Gardar os cambios"
+msgstr "మార్పులను భద్రపరచు"
 
 #: modules/likes.php:628
 msgid "Like this:"
-msgstr ""
+msgstr "దీన్ని మెచ్చుకోండి:"
 
 #: modules/likes.php:629
 msgid "Like"
-msgstr ""
+msgstr "ఇష్టం"
 
 #: modules/likes.php:629 modules/widget-visibility/widget-conditions.php:168
 msgid "Loading..."
-msgstr "Cargando..."
+msgstr ""
 
 #: modules/likes.php:730
 msgid "<span>%d</span> bloggers like this:"
@@ -2954,7 +2954,7 @@ msgstr ""
 
 #: modules/minileven/minileven.php:93
 msgid "View Mobile Site"
-msgstr "Ver sitio para móbiles "
+msgstr ""
 
 #: modules/minileven/minileven.php:260
 msgid "Mobile-compatible:"
@@ -2962,7 +2962,7 @@ msgstr ""
 
 #: modules/minileven/minileven.php:261
 msgid "No"
-msgstr "Non"
+msgstr "కాదు"
 
 #: modules/minileven/minileven.php:267 modules/minileven/minileven.php:318
 msgid "Include this CSS in the Mobile Theme"
@@ -2970,19 +2970,19 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/comments.php:15
 msgid "This post is password protected. Enter the password to view any comments."
-msgstr "Ese artigo está protexido con contrasinal. Introduce o contrasinal para ver os comentarios."
+msgstr "ఈ టపాను సంకేతపదంతో సంరక్షించారు. వ్యాఖ్యలను చూడడానికి సంకేతపదాన్ని ఇవ్వండి."
 
 #: modules/minileven/theme/pub/minileven/comments.php:45
 msgid "Comment navigation"
-msgstr "Navegación de comentarios"
+msgstr "వ్యాఖ్యల మార్గదర్శకం"
 
 #: modules/minileven/theme/pub/minileven/comments.php:46
 msgid "&larr; Older Comments"
-msgstr "&larr; Comentarios máis antigos"
+msgstr "&larr; పాత వ్యాఖ్యలు"
 
 #: modules/minileven/theme/pub/minileven/comments.php:47
 msgid "Newer Comments &rarr;"
-msgstr "Comentarios máis recentes &rarr;"
+msgstr "కొత్త వ్యాఖ్యలు &rarr;"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:14
 #: modules/minileven/theme/pub/minileven/content-gallery.php:58
@@ -2990,37 +2990,37 @@ msgstr "Comentarios máis recentes &rarr;"
 #: modules/minileven/theme/pub/minileven/content.php:18
 #: modules/minileven/theme/pub/minileven/content.php:22
 msgid "Permalink to %s"
-msgstr "Ligazón permanente a %s"
+msgstr "%sకి స్థిరలంకె"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:15
 #: modules/widgets/gallery.php:26
 msgid "Gallery"
-msgstr "Galería"
+msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:21
 #: modules/minileven/theme/pub/minileven/content.php:41
 #: modules/minileven/theme/pub/minileven/inc/tweaks.php:30
 msgid "Continue reading <span class=\"meta-nav\">&rarr;</span>"
-msgstr "Seguir lendo <span class=\"meta-nav\">&rarr;</span>"
+msgstr "చదవడం కొనసాగించండి <span class=\"meta-nav\">&rarr;</span>"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:57
 msgid "This gallery contains <a %1$s>%2$s photo</a>."
 msgid_plural "This gallery contains <a %1$s>%2$s photos</a>."
-msgstr[0] "Esta galería contén <a %1$s>%2$s foto</a>."
-msgstr[1] "Esta galería contén <a %1$s>%2$s fotos</a>."
+msgstr[0] ""
+msgstr[1] ""
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:65
 #: modules/minileven/theme/pub/minileven/content.php:43
 #: modules/minileven/theme/pub/minileven/image.php:64
 #: modules/minileven/theme/pub/minileven/page.php:27
 msgid "Pages:"
-msgstr "Páxinas:"
+msgstr "పేజీలు:"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "<b>1</b> Reply"
-msgstr "<b>1</b> resposta"
+msgstr "<b>1</b> స్పందన"
 
 #: modules/gplus-authorship/admin/ui.php:191
 msgid "Show Google+ infomation with this post"
@@ -3033,15 +3033,15 @@ msgstr ""
 #: modules/gravatar-hovercards.php:47 modules/module-info.php:57
 #: modules/module-info.php:72
 msgid "Gravatar Hovercards"
-msgstr "Tarxetas flotantes de Gravatar"
+msgstr ""
 
 #: modules/gravatar-hovercards.php:59
 msgid "View people's profiles when you mouse over their Gravatars"
-msgstr "Mostrar os perfiles de usuario cando se sitúe o cursor sobre o Gravatar"
+msgstr ""
 
 #: modules/gravatar-hovercards.php:86
 msgid "Put your mouse over your Gravatar to check out your profile."
-msgstr "Sitúa o cursor sobre o teu Gravatar para ver o teu perfil."
+msgstr ""
 
 #: modules/holiday-snow.php:19
 msgid "Snow"
@@ -3069,7 +3069,7 @@ msgstr ""
 
 #: modules/infinite-scroll/infinity.php:527
 msgid "Older posts"
-msgstr "Artigos máis antigos"
+msgstr "పాత టపాలు"
 
 #: modules/infinite-scroll/infinity.php:528
 msgid "Scroll back to top"
@@ -3077,7 +3077,7 @@ msgstr ""
 
 #: modules/infinite-scroll/infinity.php:1054
 msgid "Theme: %1$s."
-msgstr "Tema: %1$s."
+msgstr "అలంకారం: %1$s."
 
 #: modules/infinite-scroll.php:86
 msgid "Use Google Analytics with Infinite Scroll"
@@ -3106,7 +3106,7 @@ msgstr ""
 
 #: modules/likes.php:201 modules/sharedaddy/sharedaddy.php:40
 msgid "Show sharing buttons."
-msgstr "Mostrar os botóns de compartir"
+msgstr ""
 
 #: modules/likes.php:213
 msgid "Likes Notifications"
@@ -3170,7 +3170,7 @@ msgstr ""
 
 #: modules/custom-post-types/testimonial.php:181
 msgid "Customize"
-msgstr "Personalizar"
+msgstr "అనుకూలపరచు"
 
 #: modules/custom-post-types/testimonial.php:205
 msgid "Testimonial Page Title"
@@ -3190,14 +3190,14 @@ msgstr ""
 #: modules/publicize/ui.php:45 modules/sharedaddy/sharing.php:57
 #: modules/sharedaddy/sharing.php:163
 msgid "Sharing Settings"
-msgstr "Opcións de Compartir"
+msgstr ""
 
 #: modules/gplus-authorship/admin/ui.php:54 modules/likes.php:429
 #: modules/module-info.php:315 modules/module-info.php:318
 #: modules/module-info.php:339 modules/publicize/ui.php:35
 #: modules/sharedaddy/sharedaddy.php:26 modules/sharedaddy/sharing.php:57
 msgid "Sharing"
-msgstr "Compartir"
+msgstr ""
 
 #: modules/gplus-authorship/admin/ui.php:79
 msgid "Your Google+ account has been connected."
@@ -3262,11 +3262,11 @@ msgstr ""
 #: modules/custom-post-types/nova.php:778
 #: modules/custom-post-types/nova.php:784
 msgid "Price"
-msgstr ""
+msgstr "ధర"
 
 #: modules/custom-post-types/nova.php:334
 msgid "Order"
-msgstr "Ordenar"
+msgstr "క్రమం"
 
 #: modules/custom-post-types/nova.php:390
 #: modules/custom-post-types/nova.php:442
@@ -3295,7 +3295,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:741
 msgid "Description"
-msgstr "Descrición"
+msgstr "వివరణ"
 
 #: modules/custom-post-types/nova.php:743
 msgid "Labels: <small>spicy, favorite, etc.</small>"
@@ -3317,7 +3317,7 @@ msgstr ""
 
 #: modules/custom-post-types/testimonial.php:66
 msgid "Customer Testimonials"
-msgstr ""
+msgstr "ఖాతాదారుల ప్రశంసలు"
 
 #: modules/custom-post-types/testimonial.php:68
 #: modules/custom-post-types/testimonial.php:70
@@ -3364,11 +3364,11 @@ msgstr ""
 
 #: modules/custom-post-types/testimonial.php:110
 msgid "Enter the customer's name here"
-msgstr ""
+msgstr "ఖాతాదారు పేరు ఇక్కడ ఇవ్వండి"
 
 #: modules/custom-post-types/testimonial.php:119
 msgid "Customer Name"
-msgstr ""
+msgstr "ఖాతాదారు పేరు"
 
 #: modules/custom-post-types/nova.php:124
 msgid "New Menu Item Label Name"
@@ -3430,7 +3430,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:145
 msgid "Add New Menu"
-msgstr "Engadir menú"
+msgstr ""
 
 #: modules/custom-post-types/nova.php:146
 msgid "New Menu Name"
@@ -3447,7 +3447,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:166
 msgid "Menu Item"
-msgstr "Elemento do menú"
+msgstr ""
 
 #: modules/custom-post-types/nova.php:169
 #: modules/custom-post-types/nova.php:170
@@ -3456,7 +3456,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:171
 msgid "Edit Menu Item"
-msgstr "Editar elemento do menu"
+msgstr ""
 
 #: modules/custom-post-types/nova.php:172
 msgid "New Menu Item"
@@ -3515,12 +3515,12 @@ msgstr ""
 #: modules/custom-post-types/comics.php:274
 #: modules/custom-post-types/testimonial.php:133
 msgid "Custom field updated."
-msgstr ""
+msgstr "కస్టమ్ ఫీల్డును తాజాకరించాం"
 
 #: modules/custom-post-types/comics.php:275
 #: modules/custom-post-types/testimonial.php:134
 msgid "Custom field deleted."
-msgstr "Eliminado o campo personalizado."
+msgstr "సామాన్య విభాగము తొలగింపబడినది "
 
 #: modules/custom-post-types/comics.php:276
 msgid "Comic updated."
@@ -3549,7 +3549,7 @@ msgstr ""
 #: modules/custom-post-types/comics.php:284
 #: modules/custom-post-types/testimonial.php:143
 msgid "M j, Y @ G:i"
-msgstr "j M Y @ G:i"
+msgstr "M j, Y @ G:i"
 
 #: modules/custom-post-types/comics.php:285
 msgid "Comic draft updated. <a target=\"_blank\" href=\"%s\">Preview comic</a>"
@@ -3611,7 +3611,7 @@ msgstr ""
 #: modules/custom-css/custom-css.php:859 modules/minileven/minileven.php:271
 #: modules/sharedaddy/sharing-sources.php:307
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "రద్దుచేయి"
 
 #: modules/custom-css/custom-css.php:812
 msgid "Preprocessor:"
@@ -3620,7 +3620,7 @@ msgstr ""
 #: modules/custom-css/custom-css.php:813 modules/custom-css/custom-css.php:818
 #: modules/videopress/videopress.php:273 modules/widgets/image-widget.php:137
 msgid "None"
-msgstr "Ningún"
+msgstr "ఏదీకాదు"
 
 #: modules/custom-css/custom-css.php:842
 msgid "Mode:"
@@ -3646,7 +3646,7 @@ msgstr ""
 #: modules/custom-post-types/comics.php:235
 #: modules/videopress/videopress.php:662
 msgid "Preview"
-msgstr "Vista previa"
+msgstr "మునుజూపు"
 
 #: modules/custom-css/custom-css.php:868
 msgid "Save &amp; Buy Upgrade"
@@ -3658,7 +3658,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:930
 msgid "Show more"
-msgstr "Mostrar máis"
+msgstr "ఇంకా చూపించు"
 
 #: modules/custom-post-types/comics.php:83
 msgid "Convert to Comic"
@@ -3684,7 +3684,7 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:174
 msgid "Uploading..."
-msgstr ""
+msgstr "ఎక్కించబడుతోంది..."
 
 #: modules/custom-post-types/comics.php:175
 msgid "Processing..."
@@ -3719,7 +3719,7 @@ msgstr ""
 #: modules/custom-post-types/comics.php:197
 #: modules/custom-post-types/testimonial.php:72 modules/publicize/ui.php:207
 msgid "Add New"
-msgstr "Engadir"
+msgstr "కొత్తవి చేర్చు"
 
 #: modules/custom-post-types/comics.php:198
 msgid "Add New Comic"
@@ -3776,11 +3776,11 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:577
 msgid "Preview: changes must be saved or they will be lost"
-msgstr "Vista previa: débense gardar os cambios, senón perderanse."
+msgstr "మునుజూపు: మార్పులు భద్రపరచండి లేకపోతే వాటిని కోల్పోతారు"
 
 #: modules/custom-css/custom-css.php:605
 msgid "Edit CSS"
-msgstr "Editar CSS"
+msgstr "CSS ని మార్చు"
 
 #: modules/custom-css/custom-css.php:618
 msgid "CSS"
@@ -3792,11 +3792,11 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:659
 msgid "Stylesheet saved."
-msgstr ""
+msgstr "శైలిపత్రం భద్రపరిచాం."
 
 #: modules/custom-css/custom-css.php:663
 msgid "Publish"
-msgstr "Publicar"
+msgstr "ప్రచురించు"
 
 #: modules/custom-css/custom-css.php:669
 msgid "CSS Revisions"
@@ -3818,7 +3818,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:718
 msgid "Default"
-msgstr "Predeterminado"
+msgstr "అప్రమేయం"
 
 #: modules/custom-css/custom-css.php:718
 msgid "%s px"
@@ -3832,7 +3832,7 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/page.php:31
 #: modules/publicize/ui.php:677
 msgid "Edit"
-msgstr "Editar"
+msgstr "మార్చు"
 
 #: modules/custom-css/custom-css.php:726
 msgid "Limit width to %1$s pixels for videos, full size images, and other shortcodes. (<a href=\"%2$s\">More info</a>.)"
@@ -3840,14 +3840,14 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:742
 msgid "The default content width for the %s theme is %d pixels."
-msgstr "A largura predeterminada dos contidos para o tema %s é %d píxeles."
+msgstr ""
 
 #: modules/custom-css/custom-css.php:747 modules/custom-css/custom-css.php:829
 #: modules/custom-css/custom-css.php:858 modules/minileven/minileven.php:270
 #: modules/publicize/publicize-jetpack.php:473
 #: modules/publicize/publicize-jetpack.php:585 modules/publicize/ui.php:274
 msgid "OK"
-msgstr "Aceptar"
+msgstr "సరే"
 
 #: modules/contact-form/grunion-form-view.php:18
 msgctxt "Label to drag HTML form fields around to change their order in contact form builder"
@@ -3929,7 +3929,7 @@ msgstr ""
 #: modules/contact-form/grunion-form-view.php:148
 #: modules/sharedaddy/sharing-sources.php:991
 msgid "Label"
-msgstr "Rótulo"
+msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:149
 msgid "New field"
@@ -3953,7 +3953,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:158
 msgid "Text"
-msgstr "Texto"
+msgstr "పాఠ్యం"
 
 #: modules/contact-form/grunion-form-view.php:159
 msgid "Textarea"
@@ -3961,7 +3961,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:166
 msgid "Options"
-msgstr "Opcións"
+msgstr "ఎంపికలు"
 
 #: modules/contact-form/grunion-form-view.php:167
 msgid "First option"
@@ -3986,15 +3986,15 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:738
 msgid "Submit &#187;"
-msgstr "Enviar &#187; "
+msgstr "దాఖలుచేయి &#187; "
 
 #: modules/contact-form/grunion-contact-form.php:758
 msgid "Subject"
-msgstr ""
+msgstr "విషయం"
 
 #: modules/contact-form/grunion-contact-form.php:839
 msgid "Error!"
-msgstr "Erro!"
+msgstr "పొరపాటు!"
 
 #: modules/contact-form/grunion-contact-form.php:854
 msgid "go back"
@@ -4008,11 +4008,11 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1209
 msgid "Time:"
-msgstr ""
+msgstr "సమయం:"
 
 #: modules/contact-form/grunion-contact-form.php:1210
 msgid "IP Address:"
-msgstr "Enderezo IP:"
+msgstr "ఐపీ చిరునామా:"
 
 #: modules/contact-form/grunion-contact-form.php:1218
 msgid "Contact Form URL:"
@@ -4024,7 +4024,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1227
 msgid "Sent by an unverified visitor to your site."
-msgstr ""
+msgstr "గుర్తు తెలియని వ్యక్తి మీ సైట్ కి పంపినారు"
 
 #: modules/contact-form/grunion-contact-form.php:1467
 msgid "%s requires a valid email address"
@@ -4032,7 +4032,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1473
 msgid "%s is required"
-msgstr "%s é obrigatorio"
+msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:1522
 #: modules/contact-form/grunion-contact-form.php:1528
@@ -4042,12 +4042,12 @@ msgstr "%s é obrigatorio"
 #: modules/contact-form/grunion-contact-form.php:1564
 #: modules/contact-form/grunion-contact-form.php:1574
 msgid "(required)"
-msgstr "(obrigatorio)"
+msgstr "(తప్పనిసరి)"
 
 #: modules/contact-form/grunion-contact-form.php:1546
 #: modules/minileven/minileven.php:261
 msgid "Yes"
-msgstr "Si"
+msgstr "అవును"
 
 #: modules/contact-form/grunion-form-view.php:8
 msgctxt "Label for HTML form \"Name\" field in contact form builder"
@@ -4106,7 +4106,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:187 modules/contact-form/admin.php:602
 msgid "Messages"
-msgstr "Mensaxes"
+msgstr ""
 
 #: modules/contact-form/admin.php:196
 #: modules/contact-form/grunion-omnisearch.php:36
@@ -4117,43 +4117,43 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:762
 #: modules/contact-form/grunion-omnisearch.php:37
 msgid "Message"
-msgstr "Mensaxe"
+msgstr "సందేశం"
 
 #: modules/contact-form/admin.php:198
 #: modules/contact-form/grunion-omnisearch.php:38
 #: modules/omnisearch/omnisearch-posts.php:46
 msgid "Date"
-msgstr "Data"
+msgstr "తేదీ"
 
 #: modules/contact-form/admin.php:268
 msgid "Restore this item from the Trash"
-msgstr "Recuperar do lixo este elemento"
+msgstr ""
 
 #: modules/contact-form/admin.php:270
 msgid "Restore"
-msgstr "Recuperar"
+msgstr "పునరుద్ధరించు"
 
 #: modules/contact-form/admin.php:273 modules/contact-form/admin.php:372
 msgid "Delete this item permanently"
-msgstr "Eliminar este elemento definitivamente"
+msgstr "ఈ అంశాన్ని శాశ్వతంగా తొలగించండి"
 
 #: modules/contact-form/admin.php:275 modules/contact-form/admin.php:374
 msgid "Delete Permanently"
-msgstr "Eliminar definitivamente"
+msgstr "శాశ్వతంగా తొలగించు"
 
 #: modules/contact-form/admin.php:306
 msgid "Mark this message as spam"
-msgstr "Marcar esta mensaxe como spam"
+msgstr ""
 
 #: modules/contact-form/admin.php:313 modules/contact-form/admin.php:315
 #: modules/contact-form/admin.php:612
 #: modules/omnisearch/omnisearch-posts.php:65
 msgid "Trash"
-msgstr "Lixo"
+msgstr "చెత్తబుట్ట"
 
 #: modules/contact-form/admin.php:366
 msgid "Mark this message as NOT spam"
-msgstr "Marcar esta mensaxe como NON spam"
+msgstr ""
 
 #: modules/contact-form/admin.php:406
 #: modules/contact-form/grunion-contact-form.php:1187
@@ -4163,29 +4163,29 @@ msgstr ""
 
 #: modules/contact-form/admin.php:568
 msgid "You are not allowed to move this item out of the Trash."
-msgstr "Non tes permiso para botar este elemento ao lixo,"
+msgstr ""
 
 #: modules/contact-form/admin.php:571
 msgid "Error in restoring from Trash."
-msgstr "Houbo un erro ao recuperar do lixo."
+msgstr ""
 
 #: modules/contact-form/admin.php:575
 msgid "You are not allowed to move this item to the Trash."
-msgstr "Non tes permiso para botar ao lixo este elemento."
+msgstr ""
 
 #: modules/contact-form/admin.php:578
 msgid "Error in moving to Trash."
-msgstr "Houbo un erro ao botar ao lixo."
+msgstr ""
 
 #: modules/contact-form/admin.php:625
 msgid "Spam"
-msgstr ""
+msgstr "అవాంఛితం"
 
 #: modules/contact-form/grunion-contact-form.php:82
 #: modules/contact-form/grunion-contact-form.php:83
 #: modules/contact-form/grunion-form-view.php:136
 msgid "Feedback"
-msgstr ""
+msgstr "ప్రతిస్పందన"
 
 #: modules/contact-form/grunion-contact-form.php:84
 msgid "Search Feedback"
@@ -4209,7 +4209,7 @@ msgstr ""
 #: modules/contact-form/grunion-contact-form.php:200
 #: modules/contact-form/grunion-contact-form.php:853
 msgid "Message Sent"
-msgstr "Mensaxe enviada"
+msgstr "సందేశం పంపబడినది"
 
 #: modules/contact-form/grunion-contact-form.php:358
 msgid "Export feedback as CSV"
@@ -4221,7 +4221,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:366
 msgid "All posts"
-msgstr ""
+msgstr "అన్ని టపాలు"
 
 #: modules/contact-form/grunion-contact-form.php:371
 msgid "Download"
@@ -4230,7 +4230,7 @@ msgstr ""
 #: modules/carousel/jetpack-carousel.php:389
 #: modules/shortcodes/slideshow.php:67
 msgid "Background color"
-msgstr "Cor do fondo"
+msgstr "వెనుతలపు రంగు"
 
 #: modules/carousel/jetpack-carousel.php:392
 msgid "Metadata"
@@ -4247,12 +4247,12 @@ msgstr ""
 #: modules/carousel/jetpack-carousel.php:465
 #: modules/shortcodes/slideshow.php:74
 msgid "Black"
-msgstr "Negro"
+msgstr "నలుపు"
 
 #: modules/carousel/jetpack-carousel.php:465
 #: modules/shortcodes/slideshow.php:75
 msgid "White"
-msgstr "Branco"
+msgstr "తెలుపు"
 
 #: modules/carousel/jetpack-carousel.php:473
 msgid "Display images in full-size carousel slideshow."
@@ -4261,17 +4261,17 @@ msgstr ""
 #: modules/comments/admin.php:50 modules/comments/comments.php:211
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 msgid "Leave a Reply"
-msgstr "Deixar unha resposta"
+msgstr "స్పందించండి"
 
 #: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:156
 #: modules/widgets/twitter-timeline.php:218
 msgid "Light"
-msgstr "Claro"
+msgstr "లేత"
 
 #: modules/comments/admin.php:55 modules/widgets/facebook-likebox.php:157
 #: modules/widgets/twitter-timeline.php:219
 msgid "Dark"
-msgstr "Escuro"
+msgstr "ముదురు"
 
 #: modules/comments/admin.php:56
 msgid "Transparent"
@@ -4288,7 +4288,7 @@ msgstr ""
 #: modules/comments/admin.php:97 modules/comments/admin.php:168
 #: modules/widgets/facebook-likebox.php:154
 msgid "Color Scheme"
-msgstr "Esquema de cores"
+msgstr ""
 
 #: modules/comments/admin.php:118
 msgid "Adjust your Jetpack Comments form with a clever greeting and color-scheme."
@@ -4304,11 +4304,11 @@ msgstr ""
 
 #: modules/comments/base.php:230
 msgid "Error: please fill the required fields (name, email)."
-msgstr "Erro: hai que cubrir os campos obrigatorios (nome, correo electrónico)."
+msgstr "తప్పిదం: అన్ని ఖాళీలూ నింపండి (పేరు, ఈ-మెయిలు)."
 
 #: modules/comments/base.php:232
 msgid "Error: please enter a valid email address."
-msgstr "Erro: escribe un enderezo de correo electrónico válido."
+msgstr "తప్పిదంః సరైన ఈ-మెయిలు ను ఇవ్వండి."
 
 #: modules/comments/comments.php:187
 msgid "You must <a href=\"%s\">log in</a> to post a comment."
@@ -4316,11 +4316,11 @@ msgstr ""
 
 #: modules/comments/comments.php:212
 msgid "Leave a Reply to %s"
-msgstr "Deixa unha resposta a %s"
+msgstr ""
 
 #: modules/comments/comments.php:251
 msgid "Cancel reply"
-msgstr "Cancelar a resposta"
+msgstr "స్పందనను రద్దుచేయి"
 
 #: modules/comments/comments.php:387
 msgid "Invalid security token."
@@ -4332,11 +4332,11 @@ msgstr ""
 
 #: modules/contact-form/admin.php:16
 msgid "Add a custom form"
-msgstr "Engadir un formulario personalizado"
+msgstr ""
 
 #: modules/contact-form/admin.php:21 modules/contact-form/admin.php:22
 msgid "Add Contact Form"
-msgstr "Engadir formulario de contacto"
+msgstr ""
 
 #: modules/contact-form/admin.php:101
 msgid "Mark Spam"
@@ -4344,7 +4344,7 @@ msgstr ""
 
 #: modules/contact-form/admin.php:140 modules/contact-form/admin.php:534
 msgid "You are not allowed to manage this item."
-msgstr "Non tes permiso para administrar este elemento."
+msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:111
 msgid "Please be sure to submit some text with your comment."
@@ -4364,7 +4364,7 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:115
 msgid "Your comment was approved."
-msgstr ""
+msgstr "మీ వ్యాఖ్యను అనుమతించారు."
 
 #: modules/carousel/jetpack-carousel.php:116
 msgid "Your comment is in moderation."
@@ -4372,7 +4372,7 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:117
 msgid "Camera"
-msgstr ""
+msgstr "కెమేరా"
 
 #: modules/carousel/jetpack-carousel.php:118
 msgid "Aperture"
@@ -4396,19 +4396,19 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:135
 msgid "%s (Required)"
-msgstr ""
+msgstr "%s (తప్పనిసరి)"
 
 #: modules/carousel/jetpack-carousel.php:137
 #: modules/contact-form/grunion-contact-form.php:753
 #: modules/contact-form/grunion-form-view.php:155
 msgid "Email"
-msgstr "Correo-e"
+msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:141
 #: modules/contact-form/grunion-contact-form.php:754
 #: modules/contact-form/grunion-form-view.php:160
 msgid "Website"
-msgstr "Sitio web"
+msgstr "వెబ్‌సైటు"
 
 #: modules/carousel/jetpack-carousel.php:266
 msgid "Missing attachment ID."
@@ -4440,7 +4440,7 @@ msgstr ""
 
 #: modules/carousel/jetpack-carousel.php:347
 msgid "Please provide your name."
-msgstr ""
+msgstr "దయచేసి మీ పేరును ఇవ్వండి."
 
 #: modules/carousel/jetpack-carousel.php:350
 msgid "Please provide an email address."
@@ -4460,72 +4460,72 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:95
 msgid "Use automatically detected language to proofread posts and pages"
-msgstr "Use a deteción automática do idioma para revisar artigos e páxinas."
+msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:129
 msgid "Ignored Phrases"
-msgstr "Frases ignoradas"
+msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:131
 msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
-msgstr "Identificar palabras e frases a ignorar mentras se revisan os seus artigos e páxinas:"
+msgstr ""
 
 #: modules/after-the-deadline/config-unignore.php:133
 #: modules/widget-visibility/widget-conditions.php:174
 msgid "Add"
-msgstr "Engadir"
+msgstr "చేర్చు"
 
 #: modules/after-the-deadline/config-unignore.php:138
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
-msgstr "Non esquezas premer \"Actualizar perfil\" ao pé da páxina para gardar os cambios."
+msgstr ""
 
 #: modules/after-the-deadline.php:179
 msgid "Spelling"
-msgstr "Ortografía"
+msgstr "స్పెల్లింగ్"
 
 #: modules/after-the-deadline.php:180
 msgid "Repeated Word"
-msgstr "Palabra repetida"
+msgstr "పునరావృతమైన పదం"
 
 #: modules/after-the-deadline.php:182
 msgid "No suggestions"
-msgstr "Non hai suxestións"
+msgstr "సలహాలు లేవు"
 
 #: modules/after-the-deadline.php:184
 msgid "Explain..."
-msgstr "Explicar..."
+msgstr "వివరించండి..."
 
 #: modules/after-the-deadline.php:185
 msgid "Ignore suggestion"
-msgstr "Ignorar suxestión"
+msgstr ""
 
 #: modules/after-the-deadline.php:186
 msgid "Ignore always"
-msgstr "Ignorar sempre"
+msgstr ""
 
 #: modules/after-the-deadline.php:187
 msgid "Ignore all"
-msgstr "Ignorar todos"
+msgstr "అన్నిటినీ విస్మరించు "
 
 #: modules/after-the-deadline.php:189
 msgid "Edit Selection..."
-msgstr "Editar a selección ..."
+msgstr ""
 
 #: modules/after-the-deadline.php:191
 msgid "proofread"
-msgstr "revisar"
+msgstr ""
 
 #: modules/after-the-deadline.php:192
 msgid "edit text"
-msgstr "editar o texto"
+msgstr ""
 
 #: modules/after-the-deadline.php:193 modules/after-the-deadline.php:268
 msgid "Proofread Writing"
-msgstr "Revisión da escrita"
+msgstr ""
 
 #: modules/after-the-deadline.php:195
 msgid "No writing errors were found."
-msgstr "Non se atoparon erros na escrita."
+msgstr ""
 
 #: modules/after-the-deadline.php:196
 msgid "There was a problem communicating with the Proofreading service. Try again in one minute."
@@ -4533,11 +4533,11 @@ msgstr ""
 
 #: modules/after-the-deadline.php:197
 msgid "There was an error communicating with the proofreading service."
-msgstr "Houbo un erro de comunicación co servizo de revisión."
+msgstr ""
 
 #: modules/after-the-deadline.php:199
 msgid "Replace selection with:"
-msgstr "Substituír a selección con:"
+msgstr ""
 
 #: modules/after-the-deadline.php:200
 msgid ""
@@ -4545,9 +4545,6 @@ msgid ""
 "\n"
 "Press OK to publish your post, or Cancel to view the suggestions and edit your post."
 msgstr ""
-"O revisor ten suxestións para este artigo. Seguro que quere publicar-lo? \n"
-" \n"
-"Prema Aceptar para publicar o seu artigo, ou Cancelar para ler as suxestións e editalo."
 
 #: modules/after-the-deadline.php:201
 msgid ""
@@ -4555,16 +4552,14 @@ msgid ""
 "\n"
 "Press OK to update your post, or Cancel to view the suggestions and edit your post."
 msgstr ""
-"O revisor ten suxerencias para este artigo. Seguro de querer actualiza-lo?\n"
-"Prema Aceptar para actualizar o seu artigo, ou Cancelar para ler as suxestións e editalo."
 
 #: modules/carousel/jetpack-carousel.php:106
 msgid "Comment"
-msgstr "Comentario"
+msgstr "వ్యాఖ్య"
 
 #: modules/carousel/jetpack-carousel.php:107
 msgid "Post Comment"
-msgstr "Enviar o comentario"
+msgstr "వ్యాఖ్యను ప్రచురించండి"
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Write a Comment..."
@@ -4617,75 +4612,75 @@ msgstr ""
 
 #: modules/after-the-deadline/config-options.php:48
 msgid "Proofreading"
-msgstr "Revisando"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:50
 msgid "Automatically proofread content when:"
-msgstr "Revisar automaticamente o contido cando:"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:53
 msgid "a post or page is first published"
-msgstr "un artigo ou páxina é publicado por primeira vez"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:55
 msgid "a post or page is updated"
-msgstr "actualizouse un artigo ou unha páxina"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:58
 msgid "English Options"
-msgstr "Opcións de Inglés"
+msgstr "ఆంగ్ల భాషా ఎంపికలు"
 
 #: modules/after-the-deadline/config-options.php:60
 msgid "Enable proofreading for the following grammar and style rules when writing posts and pages:"
-msgstr "Activar a revisión para a seguinte gramática e regras de estilo ao escribir artigos e páxinas:"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:63
 msgid "Bias Language"
-msgstr "Linguaxe Bias"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:65
 msgid "Clich&eacute;s"
-msgstr "Clichés"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:67
 msgid "Complex Phrases"
-msgstr "Frases complexas"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:69
 msgid "Diacritical Marks"
-msgstr "Sinais diacríticos"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:71
 msgid "Double Negatives"
-msgstr "Dobles negacións"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:73
 msgid "Hidden Verbs"
-msgstr "Verbos ocultos"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:75
 msgid "Jargon"
-msgstr "Xerga"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:77
 msgid "Passive Voice"
-msgstr "Voz pasiva"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:79
 msgid "Phrases to Avoid"
-msgstr "Frases para evitar"
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:81
 msgid "Redundant Phrases"
-msgstr "Frases redundantes "
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:83
 msgid "<a href=\"%s\">Learn more</a> about these options."
-msgstr "<a href=\"%s\">Máis detalles</a> sobre estas opcións."
+msgstr ""
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Language"
-msgstr "Idioma"
+msgstr "భాష"
 
 #: modules/after-the-deadline/config-options.php:89
 msgctxt "%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG"
@@ -4694,7 +4689,7 @@ msgstr ""
 
 #: class.jetpack.php:3178
 msgid "Free"
-msgstr "Gratis"
+msgstr "ఉచితం"
 
 #: class.jetpack.php:3178
 msgid "Purchase"
@@ -4702,7 +4697,7 @@ msgstr ""
 
 #: class.jetpack.php:3186
 msgid "New"
-msgstr ""
+msgstr "కొత్త"
 
 #: class.jetpack.php:3189
 msgid "Updated"
@@ -4710,11 +4705,11 @@ msgstr ""
 
 #: class.jetpack.php:3217
 msgid "Configure"
-msgstr "Configurar"
+msgstr "స్వరూపించు"
 
 #: class.jetpack.php:3255
 msgid "Coming soon&#8230;"
-msgstr "Proximamente..."
+msgstr ""
 
 #: class.jetpack.php:3412
 msgid "Something is being cranky!"
@@ -4782,7 +4777,7 @@ msgstr ""
 
 #: class.json-api-endpoints.php:1174
 msgid "This post is password protected."
-msgstr "Este artigo está protexido con contrasinal."
+msgstr "ఈ టపా సంకేతపదంతో సంరక్షించబడింది."
 
 #: class.json-api-endpoints.php:2865
 msgid "Comment cache problem?"
@@ -4794,11 +4789,11 @@ msgstr ""
 
 #: functions.gallery.php:40
 msgid "Type"
-msgstr ""
+msgstr "రకం"
 
 #: functions.opengraph.php:90
 msgid "(no title)"
-msgstr "(sen título)"
+msgstr "(శీర్షిక లేదు)"
 
 #: class.jetpack.php:2637
 msgctxt "%l = list of Jetpack module/feature names"
@@ -4807,11 +4802,11 @@ msgstr ""
 
 #: class.jetpack.php:2822
 msgid "Connected to WordPress.com"
-msgstr "Conectado a WordPress.com"
+msgstr ""
 
 #: class.jetpack.php:2822
 msgid "Disconnect from WordPress.com"
-msgstr "Desconectar de WordPress.com"
+msgstr ""
 
 #: class.jetpack.php:2827
 msgid "User linked to WordPress.com"
@@ -4831,7 +4826,7 @@ msgstr ""
 
 #: class.jetpack.php:2864
 msgid "To enable all of the Jetpack features you&#8217;ll need to connect your website to WordPress.com using the button to the right. Once you&#8217;ve made the connection you&#8217;ll activate all the delightful features below."
-msgstr "Para activar todos os recursos de Jetpack precisa conectar o seu sitio ao WordPress.com mediante o botón da dereita. Unha vez feita a conexión poderá activar todas as funcionalidades de abaixo."
+msgstr ""
 
 #: class.jetpack.php:2879
 msgid "To enable all of the Jetpack features you&#8217;ll need to link your account here to your WordPress.com account using the button to the right."
@@ -4856,69 +4851,69 @@ msgstr ""
 
 #: class.jetpack.php:2915
 msgid "Checking email updates status&hellip;"
-msgstr "Comprobar actualizacións de estado por correo electrónico..."
+msgstr ""
 
 #: class.jetpack.php:2921
 msgctxt "%s = Unsubscribe link"
 msgid "You are currently subscribed to email updates. %s"
-msgstr "Está subscrito para recibir actualizacións por correo electrónico. %s"
+msgstr ""
 
 #: class.jetpack.php:2922
 msgid "Unsubscribe"
-msgstr "Anular a subscrición"
+msgstr "చందామాను"
 
 #: class.jetpack.php:2926
 msgctxt "%s = Subscribe link"
 msgid "Want to receive updates about Jetpack by email? %s"
-msgstr "Quere recibir actualizacións sobre Jetpack por correo electrónico? %s"
+msgstr ""
 
 #: class.jetpack.php:2927 modules/subscriptions.php:710
 msgid "Subscribe"
-msgstr "Subscrición"
+msgstr ""
 
 #: class.jetpack.php:2934
 msgid "You have been subscribed to receive email updates."
-msgstr "Subscribiuse para recibir actualizacións por correo electrónico."
+msgstr ""
 
 #: class.jetpack.php:2936
 msgid "You will no longer receive email updates about Jetpack."
-msgstr "Non recibirá máis actualizacións por correo electrónico sobre jetpack."
+msgstr ""
 
 #: class.jetpack.php:2948
 msgid "An <span>Automattic</span> Airline"
-msgstr "Unha liña de <span>Automattic</span>"
+msgstr ""
 
 #: class.jetpack.php:2951
 msgid "Privacy Policy"
-msgstr "Privacidade"
+msgstr "గోప్యతా విధానం"
 
 #: class.jetpack.php:2952
 msgid "Terms of Service"
-msgstr "Termos de servizo"
+msgstr "సేవా నిబంధనలు"
 
 #: class.jetpack.php:2954
 msgid "Debug"
-msgstr "Depurar"
+msgstr ""
 
 #: class.jetpack.php:2956 modules/sharedaddy/sharedaddy.php:87
 msgid "Support"
-msgstr "Axuda"
+msgstr "సహాయము"
 
 #: class.jetpack.php:3086
 msgid "Configure %s"
-msgstr "Configurar  %s"
+msgstr ""
 
 #: class.jetpack.php:3145
 msgid "Deactivate"
-msgstr "Desactivar"
+msgstr "అచేతనం చేయు  "
 
 #: class.jetpack.php:3158
 msgid "Activate"
-msgstr "Activar"
+msgstr "చేతనం"
 
 #: class.jetpack.php:2296
 msgid "%s could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr "Non se puido activar %s  porque xerou un <strong>erro grave</strong>. Talvez houbera un conflito con outro engadido instalado?"
+msgstr ""
 
 #: class.jetpack.php:2298
 msgid "Do you still have the %s plugin installed?"
@@ -4926,7 +4921,7 @@ msgstr ""
 
 #: class.jetpack.php:2301
 msgid "Module could not be activated because it triggered a <strong>fatal error</strong>. Perhaps there is a conflict with another plugin you have installed?"
-msgstr "O módulo non pode ser activado porque xerou un <strong>erro grave</strong>. Quizais houbese un conflito con outro engadido que instalou?"
+msgstr ""
 
 #: class.jetpack.php:2319
 msgid "%s was not activated."
@@ -4946,23 +4941,23 @@ msgstr ""
 
 #: class.jetpack.php:2330
 msgid "<strong>Your Jetpack has a glitch.</strong> Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)."
-msgstr "<strong>O seu Jetpack ten un fallo.</strong> A conexión desta web con WordPress.com non é posible. Isto xeralmente significa que o sitio non está accesible publicamente (localhost)."
+msgstr ""
 
 #: class.jetpack.php:2336
 msgid "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later."
-msgstr "WordPress.com está a ter problemas e é incapaz de alimentar o seu Jetpack. Por favor, ténteo de novo máis tarde."
+msgstr ""
 
 #: class.jetpack.php:2340
 msgid "Jetpack could not contact WordPress.com: %s.  This usually means something is incorrectly configured on your web host."
-msgstr "Jetpack non puido contactar con WordPress.com: %s. Isto xeralmente significa que algo está configurado incorrectamente no seu servidor."
+msgstr ""
 
 #: class.jetpack.php:2380
 msgid "<strong>Your Jetpack has a glitch.</strong>  Something went wrong that&#8217;s never supposed to happen.  Guess you&#8217;re just lucky: %s"
-msgstr "<strong>O seu Jetpack ten un fallo.</strong> Algo foi mal e non debería ter acontecido. Creo que é só sorte: %s"
+msgstr ""
 
 #: class.jetpack.php:2383
 msgid "Try connecting again."
-msgstr "Tente conectar de novo."
+msgstr ""
 
 #: class.jetpack.php:2407
 msgid "Welcome to <strong>Jetpack %s</strong>!"
@@ -5001,7 +4996,7 @@ msgstr ""
 
 #: class.jetpack.php:2488
 msgid "The features below are now active. Click the learn more buttons to explore each feature."
-msgstr "Os recursos listados a continuación están activos. Prema o botón aprender máis para explorar cada recurso."
+msgstr ""
 
 #: class.jetpack.php:2499
 msgid "<strong>You have unlinked your account (%s) from WordPress.com.</strong>"
@@ -5016,8 +5011,8 @@ msgstr[1] ""
 #: class.jetpack.php:2533
 msgid "The old version has been deactivated and can be removed from your site."
 msgid_plural "The old versions have been deactivated and can be removed from your site."
-msgstr[0] "Desactivouse a versión vella e pode eliminala do seu sitio."
-msgstr[1] "Desactiváronse as versións vellas e pode eliminalas do seu sitio."
+msgstr[0] ""
+msgstr[1] ""
 
 #: class.jetpack.php:2598
 msgid "Is this site private?"
@@ -5047,7 +5042,7 @@ msgstr ""
 
 #: class.jetpack.php:1894
 msgid "Overview"
-msgstr ""
+msgstr "అవలోకనం"
 
 #: class.jetpack.php:1907
 msgid "Modules"
@@ -5076,7 +5071,7 @@ msgstr ""
 #: class.jetpack.php:2020 modules/publicize/ui.php:677
 #: modules/sharedaddy/sharedaddy.php:79 modules/sharedaddy/sharedaddy.php:86
 msgid "Settings"
-msgstr "Preferencias"
+msgstr "అమరికలు"
 
 #: class.jetpack.php:2037
 msgid "Dismiss this notice and deactivate Jetpack."
@@ -5092,7 +5087,7 @@ msgstr ""
 
 #: class.jetpack.php:2051 class.jetpack.php:2868
 msgid "Connect to WordPress.com"
-msgstr "Conectar a WordPress.com"
+msgstr ""
 
 #: class.jetpack.php:2053 modules/module-info.php:45 modules/module-info.php:81
 #: modules/module-info.php:138 modules/module-info.php:173
@@ -5112,7 +5107,7 @@ msgstr "Conectar a WordPress.com"
 #: modules/module-info.php:896 modules/module-info.php:931
 #: modules/module-info.php:947
 msgid "Learn More"
-msgstr "Aprender máis"
+msgstr "మరింత తెలుసుకోండి"
 
 #: class.jetpack.php:2066
 msgid "<strong>Jetpack is activated!</strong> Each site on your network must be connected individually by an admin on that site."
@@ -5128,27 +5123,27 @@ msgstr ""
 
 #: class.jetpack.php:2274
 msgid "Cheatin&#8217; uh?"
-msgstr ""
+msgstr "మస్కా వేస్తున్నారా?"
 
 #: class.jetpack.php:2277
 msgid "You need to authorize the Jetpack connection between your site and WordPress.com to enable the awesome features."
-msgstr "Debe permitir a conexión entre o seu sitio Jetpack e WordPress.com para activar estos incribles recursos."
+msgstr ""
 
 #: class.jetpack.php:2280
 msgid "Don&#8217;t cross the streams!  You need to stay logged in to your WordPress blog while you authorize Jetpack."
-msgstr "Non cruce os fluxos! Debe permanecer conectado ao seu blogue cando autorice Jetpack."
+msgstr ""
 
 #: class.jetpack.php:2284
 msgid "Return to sender.  Whoops! It looks like you got the wrong Jetpack in the mail; deactivate then reactivate the Jetpack plugin to get a new one."
-msgstr "Devolver ao remitente. Ups! Parece que escolleu o Jetpack incorrecto no correo, desactíveo e a continuación reactive o engadido Jetpack para obter un novo."
+msgstr ""
 
 #: class.jetpack.php:2287
 msgid "Wrong size.  Hm&#8230; it seems your Jetpack doesn&#8217;t quite fit.  Have you lost weight? Click &#8220;Connect to WordPress.com&#8221; again to get your Jetpack adjusted."
-msgstr "Tamaño incorrecto. Parece que o seu Jetpack non encaixa. Perdeu tamaño? Prema en \"Conectarse  a WordPress.com\" para axustar de novo o seu Jetpack."
+msgstr ""
 
 #: class.jetpack.php:2291
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
-msgstr "O seu sitio web ten que ser accesible ao público para usar Jetpack: %s"
+msgstr ""
 
 #: class.jetpack-debugger.php:178
 msgid "Use a valid email address."
@@ -5233,7 +5228,7 @@ msgstr ""
 
 #: class.jetpack.php:1412
 msgid "Jetpack requires WordPress version %s or later."
-msgstr "Jetpack esixe unha versión %s ou posterior de WordPress."
+msgstr ""
 
 #: class.jetpack.php:1661 class.jetpack.php:1677
 msgid "Jetpack contains the most recent version of the old &#8220;%1$s&#8221; plugin."
@@ -5252,11 +5247,11 @@ msgstr ""
 #: class.jetpack.php:1871 class.jetpack.php:1896 class.jetpack.php:1909
 #: class.jetpack.php:2832 class.jetpack.php:3085
 msgid "Jetpack by WordPress.com"
-msgstr "Jetpack por WordPress.com"
+msgstr ""
 
 #: class.jetpack.php:1872 class.jetpack.php:1897 class.jetpack.php:2835
 msgid "Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com."
-msgstr "Jetpack recarga o seu sitio con WordPress co incrible poder da nube de WordPress.com."
+msgstr ""
 
 #: class.jetpack.php:1873 class.jetpack.php:1898
 msgid "On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed."
@@ -5272,11 +5267,11 @@ msgstr ""
 
 #: class.jetpack.php:1876 class.jetpack.php:1923
 msgid "For more information:"
-msgstr "Para máis información:"
+msgstr "మరింత సమాచారం కోసం:"
 
 #: class.jetpack-debugger.php:24
 msgid "You do not have sufficient permissions to access this page."
-msgstr "Non ten permisos suficientes para acceder a esta páxina."
+msgstr "మీకు సరైన అనుమతి లేదు"
 
 #: class.jetpack-debugger.php:68
 msgid "Your site isn’t reaching the Jetpack servers."
@@ -5375,7 +5370,7 @@ msgstr ""
 #: modules/contact-form/grunion-form-view.php:156
 #: modules/custom-post-types/nova.php:740
 msgid "Name"
-msgstr "Nome"
+msgstr "పేరు"
 
 #: class.jetpack-debugger.php:172
 msgid "Let us know your name."
@@ -5383,11 +5378,11 @@ msgstr ""
 
 #: class.jetpack-debugger.php:177
 msgid "E-mail"
-msgstr "Correo-e"
+msgstr "ఈ-మెయిల్"
 
 #: _inc/lib/icalendar-reader.php:701
 msgid "%1$s &ndash; %2$s"
-msgstr ""
+msgstr "%1$s &ndash; %2$s"
 
 #: class.jetpack-cli.php:25
 msgid "Jetpack is currently connected to WordPress.com"
@@ -5451,11 +5446,11 @@ msgstr ""
 
 #: class.jetpack-cli.php:155 modules/vaultpress.php:24
 msgid "Active"
-msgstr "Activo"
+msgstr "సచేతనము గా"
 
 #: class.jetpack-cli.php:155
 msgid "Inactive"
-msgstr "Inactivo"
+msgstr "అచేతన"
 
 #: class.jetpack-cli.php:163
 msgid "%s has been activated."
@@ -5467,18 +5462,18 @@ msgstr ""
 
 #: class.jetpack-client-server.php:141
 msgid "An administrator for this blog must set up the Jetpack connection."
-msgstr "Un/ha administrador/a deste blogue debe configurar a conexión con Jetpack."
+msgstr ""
 
 #: class.jetpack-client-server.php:146
 msgid "You need to register your Jetpack before connecting it."
-msgstr "Debe rexistrar o seu Jetpack antes de conectalo."
+msgstr ""
 
 #: class.jetpack-client-server.php:188 class.jetpack.php:3489
 #: class.jetpack.php:3491 class.jetpack.php:3493 class.jetpack.php:3496
 msgid "Error Details: %s"
-msgstr "Detalles do erro: %s"
+msgstr ""
 
 #: _inc/lib/icalendar-reader.php:699
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:61
 msgid "%1$s at %2$s"
-msgstr "%1$s ás %2$s "
+msgstr "%1$s %2$s"
