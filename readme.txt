@@ -112,6 +112,7 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Enhancement: Shortcode: Google Maps: Update the regex to handle new format for embeds.
 * Enhancement: Likes: Avoid a PHP Notice when $_POST['post_type'] is not set in meta_box_save.
 * Enhancement: Smush images to save on file size.
+* Enhancement: Publicize: Enable opt-in publicizing of custom post types.
 * Bug Fix: Random Redirect: Further namespace to avoid conflicts.
 * Bug Fix: Twitter Timeline: Resolve undefined index notice.
 * Bug Fix: Featured Content: Add extra class_exists() check to be extra careful.
