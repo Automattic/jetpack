@@ -12,7 +12,8 @@
 	4. If you get an error, try doing Mass-creating Translations from the HTTP URL instead of the HTTPS URL.
 	5. Go to https://translate.wordpress.com/projects/jetpack/$subproject and click Project Actions -> Import Originals
 	6. Upload the latest POT file generated above.
-4. Import translations from WordPress.com and/or previous versionsn of Jetpack into the latest Jetpack subproject: OS X (Proxied == Annoying)
+4.1 Validate any good to go pending (waiting for approval) strings on the previous Jetpack subproject.
+4.2 Import translations from WordPress.com and/or previous versions of Jetpack into the latest Jetpack subproject: OS X (Proxied == Annoying)
 	*. php path/to/tools/import-translations.php DESTINATION_URL SOURCE_URL [SOURCE_URL ...]
 	*. Must be proxied.
 	*. E.g., tsocks php path/to/tools/import-translations.php https://translate.wordpress.com/projects/jetpack/$subproject https://translate.wordpress.com/projects/wpcom
