@@ -27,7 +27,12 @@ class Jetpack_Slideshow_Shortcode {
 		if ( $needs_scripts )
 			add_action( 'wp_enqueue_scripts', array( $this, 'maybe_enqueue_scripts' ), 1 );
 
-		add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
+		/**
+		 * For the moment, comment out the setting for v2.8.
+		 * The remainder should work as it always has.
+		 * See: https://github.com/Automattic/jetpack/pull/85/files
+		 */
+		// add_action( 'admin_init', array( $this, 'register_settings' ), 5 );
 	}
 
 	/**
