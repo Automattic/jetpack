@@ -3677,7 +3677,7 @@ p {
 	public static function clean_nonces( $all = false ) {
 		global $wpdb;
 
-		$sql = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
+		$sql = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s ORDER BY ASC";
 		$sql_args = array( like_escape( 'jetpack_nonce_' ) . '%' );
 
 		if ( true !== $all ) {
