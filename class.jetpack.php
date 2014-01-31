@@ -336,6 +336,13 @@ class Jetpack {
 		$_COOKIE = array();
 		remove_all_filters( 'authenticate' );
 
+		/**
+		 * For the moment, remove Limit Login Attempts if its xmlrpc for Jetpack.
+		 * If Limit Login Attempts is installed as a mu-plugin, it can occasionally
+		 * generate false-positives.
+		 */
+		remove_filter( 'wp_login_failed', 'limit_login_failed' );
+
 		if ( Jetpack::is_active() ) {
 			// Allow Jetpack authentication
 			add_filter( 'authenticate', array( $this, 'authenticate_jetpack' ), 10, 3 );
@@ -432,7 +439,7 @@ class Jetpack {
 	}
 	
 	/**
-	 * Get the wpcom email of the current connected user. 
+	 * Get the wpcom email of the current connected user.
 	 */
 	public static function get_connected_user_email() {
 		Jetpack::load_xml_rpc_client();
