@@ -14,7 +14,7 @@
 
 defined( 'JETPACK__API_BASE' ) or define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
 define( 'JETPACK__API_VERSION', 1 );
-define( 'JETPACK__MINIMUM_WP_VERSION', '3.5' );
+define( 'JETPACK__MINIMUM_WP_VERSION', '3.7' );
 defined( 'JETPACK_CLIENT__AUTH_LOCATION' ) or define( 'JETPACK_CLIENT__AUTH_LOCATION', 'header' );
 defined( 'JETPACK_CLIENT__HTTPS' ) or define( 'JETPACK_CLIENT__HTTPS', 'AUTO' );
 define( 'JETPACK__VERSION', '2.8-beta1' );
