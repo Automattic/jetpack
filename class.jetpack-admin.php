@@ -253,76 +253,62 @@ class Jetpack_Admin {
 	}
 
 	function admin_page_modules() {
+		include_once( 'class.jetpack-modules-list-table.php' );
+		$list_table = new Jetpack_Modules_List_Table;
+
 		$this->admin_page_top();
 		?>
-	<div class="clouds-sm"></div>
-	<div class="page-content configure">
-		<div class="frame top">
-			<div class="wrap">
-				<div class="manage-left">
-					<table class="table table-bordered">
-						<thead>
-							<tr>
-								<th class="sm"><input type="checkbox" class="checkall"></th>
-								<th colspan="2">
-									<span class="filter-search">
-										<button type="button" class="btn btn-default">Search/Filter</button>
-									</span>
-									<select>
-										<option>Actions</option>
-										<option>Activate</option>
-										<option>Deactivate</option>
-									</select>
-								</th>
-							</tr>
-						</thead>
-					</table>
-				</div>
-			</div><!-- /.wrap -->
-		</div><!-- /.frame -->
-		<div class="frame bottom">
-			<div class="wrap">
-				<div class="manage-right">
-					<div class="bumper">
-						<form class="navbar-form" role="search">
-							<div class="input-group search-bar">
-								<input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
-							</div>
-							<p>View:</p>
-							<div class="button-group">
-								<button type="button" class="button active">All</button>
-								<button type="button" class="button">Active</button>
-								<button type="button" class="button">Inactive</button>
-							</div>
-							<p>Sort by:</p>
-							<div class="button-group">
-								<button type="button" class="button active">Alphabetical</button>
-								<button type="button" class="button">Newest</button>
-								<button type="button" class="button">Popular</button>
-							</div>
-							<p>Show:</p>
-								<div class="showFilter">
-									<a href="#" data-show="all" class="active">All</a>
-									<a href="#" data-show="appearance">Appearance</a>
-									<a href="#" data-show="mobile">Mobile</a>
-									<a href="#" data-show="photos">Photos and Videos</a>
-									<a href="#" data-show="social">Social</a>
-									<a href="#" data-show="stats">Stats</a>
-									<a href="#" data-show="utilities">Utilities</a>
-									<a href="#" data-show="writing">Writing</a>
-								</div>
-						</form>
+		<div class="clouds-sm"></div>
+		<div class="page-content configure">
+			<div class="frame top">
+				<div class="wrap">
+					<div class="manage-left">
+						<table class="table table-bordered">
+							<thead>
+								<tr>
+									<th class="sm"><input type="checkbox" class="checkall"></th>
+									<th colspan="2">
+										<?php $list_table->display_tablenav( 'top' ); ?>
+									</th>
+								</tr>
+							</thead>
+						</table>
 					</div>
-				</div>
-				<div class="manage-left">
-					<table class="table table-bordered">
-						<tbody></tbody>
-					</table>
-				</div>
-			</div><!-- /.wrap -->
-		</div><!-- /.frame -->
-	</div><!-- /.content -->
-
+				</div><!-- /.wrap -->
+			</div><!-- /.frame -->
+			<div class="frame bottom">
+				<div class="wrap">
+					<div class="manage-right">
+						<div class="bumper">
+							<form class="navbar-form" role="search">
+								<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'srch-term' ); ?>
+								<p><?php esc_html_e( 'View:', 'jetpack' ); ?></p>
+								<div class="button-group">
+									<button type="button" class="button active"><?php esc_html_e( 'All', 'jetpack' ); ?></button>
+									<button type="button" class="button"><?php esc_html_e( 'Active', 'jetpack' ); ?></button>
+									<button type="button" class="button"><?php esc_html_e( 'Inactive', 'jetpack' ); ?></button>
+								</div>
+								<p><?php esc_html_e( 'Sort by:', 'jetpack' ); ?></p>
+								<div class="button-group">
+									<button type="button" class="button active"><?php esc_html_e( 'Alphabetical', 'jetpack' ); ?></button>
+									<button type="button" class="button"><?php esc_html_e( 'Newest', 'jetpack' ); ?></button>
+									<button type="button" class="button"><?php esc_html_e( 'Popular', 'jetpack' ); ?></button>
+								</div>
+								<p><?php esc_html_e( 'Show:', 'jetpack' ); ?></p>
+								<?php $list_table->views(); ?>
+							</form>
+						</div>
+					</div>
+					<div class="manage-left">
+						<table class="table table-bordered <?php echo implode( ' ', $list_table->get_table_classes() ); ?>">
+							<tbody id="the-list">
+								<?php $list_table->display_rows_or_placeholder(); ?>
+							</tbody>
+						</table>
+					</div>
+				</div><!-- /.wrap -->
+			</div><!-- /.frame -->
+		</div><!-- /.content -->
 		<?php
 		$this->admin_page_bottom();
 	}
