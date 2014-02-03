@@ -240,21 +240,21 @@ class Jetpack_Admin {
 		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
 	}
 
+	function admin_page_top() {
+		include_once( JETPACK__PLUGIN_DIR . '_inc/header.php' );
+	}
+
+	function admin_page_bottom() {
+		include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' );
+	}
+
 	function admin_page() {
 		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), func_get_args() );
 	}
 
-	function admin_page_modules() { 
-		global $current_user;
-
-		$is_connected      = Jetpack::is_active();
-		$user_token        = Jetpack_Data::get_access_token( $current_user->ID );
-		$is_user_connected = $user_token && ! is_wp_error( $user_token );
-		$is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
-	?>
-	<?php
-	include_once( '_inc/header.php' );
-	?>
+	function admin_page_modules() {
+		$this->admin_page_top();
+		?>
 	<div class="clouds-sm"></div>
 	<div class="page-content configure">
 		<div class="frame top">
@@ -322,41 +322,9 @@ class Jetpack_Admin {
 			</div><!-- /.wrap -->
 		</div><!-- /.frame -->
 	</div><!-- /.content -->
-	<?php include_once( '_inc/footer.php' ); ?>
-		
-		
-		
-		
-		
-		
-		
-		
-		<?
-		/*add_filter( 'jetpack_short_module_description', 'wpautop' );
-		include_once( JETPACK__PLUGIN_DIR . 'modules/module-info.php' );
-		include_once( 'class.jetpack-modules-list-table.php' );
-		$list_table = new Jetpack_Modules_List_Table;
-		$this->admin_page_top();
-		?>
-
-		<form method="get">
-
-			<input type="hidden" name="page" value="jetpack_modules" />
-			<?php if ( ! empty( $_GET['module_tag'] ) ) : ?>
-				<input type="hidden" name="module_tag" value="<?php echo esc_attr( $_GET['module_tag'] ); ?>" />
-			<?php endif; ?>
-
-			<div class="module-filters">
-				<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'search_modules' ); ?>
-				<?php $list_table->views(); ?>
-			</div>
-
-			<?php $list_table->display(); ?>
-
-		</form>
 
 		<?php
-		$this->admin_page_bottom();*/
+		$this->admin_page_bottom();
 	}
 
 }
