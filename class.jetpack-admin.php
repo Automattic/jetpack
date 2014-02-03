@@ -2,9 +2,18 @@
 
 class Jetpack_Admin {
 
+	static $instance = null;
+
 	var $jetpack;
 
-	function __construct() {
+	function init() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new Jetpack_Admin;
+		}
+		return self::$instance;
+	}
+
+	private function __construct() {
 		$this->jetpack = Jetpack::init();
 		add_action( 'admin_menu',                    array( $this, 'admin_menu' ), 998 );
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_modules' ) );
@@ -348,4 +357,4 @@ class Jetpack_Admin {
 	}
 
 }
-new Jetpack_Admin;
+Jetpack_Admin::init();
