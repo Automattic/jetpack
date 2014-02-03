@@ -2072,6 +2072,10 @@ html {
 	width: 70%;
 }
 
+#adminmenuback {
+	z-index: 5;
+}
+
 .page-content.configure {
 	margin-top: 0;
 }
@@ -2193,6 +2197,7 @@ html {
 }
 
 .wrap {
+	margin: 0;
 	padding: 0 1.5em 1em;
 	overflow: hidden;
 }
@@ -2214,7 +2219,7 @@ html {
 }
 
 .wrap .manage-right {
-	margin: 15px 0 0;
+	margin: 0;
 	padding: 0;
 	position: absolute;
 	right: 0;
@@ -2238,6 +2243,38 @@ html {
 .wrap .manage-right.show {
 	display: block;
 	position: fixed;
+	overflow-y: auto;
+	overflow-x: hidden;
+	position: absolute;
+}
+
+.wrap .manage-right .search-bar {
+	margin-bottom: 18px;
+}
+
+.wrap .manage-right p.search-box {
+	float: none;
+	height: auto;
+	margin-bottom: 0;
+	position: relative;
+}
+
+.wrap .manage-right p.search-box input[type='search'] {
+	padding: 0 8px;
+}
+
+.wrap .manage-right .subsubsub {
+	margin: 0;
+	padding: 0;
+}
+
+.wrap .manage-right .subsubsub a {
+	padding: 0;
+}
+
+.wrap .manage-right .subsubsub li {
+	display: block;
+	text-align: left;
 }
 
 .wrap .manage-right .search-bar {
@@ -2557,6 +2594,10 @@ html {
 		padding: 15px;
 	}
 
+	.page-content.configure {
+		background: #f9f9f9;
+	}
+
 	.masthead h1 {
 		padding-top: 1.83333em;
 		font-size: 2.14286em;
@@ -2717,7 +2758,8 @@ html {
 	#wpcontent,
 	.auto-fold #wpcontent,
 	.auto-fold #wpfooter,
-	.modal {
+	.modal,
+	.configure .frame.top.fixed {
 		margin-left: 36px;
 		padding-left: 0;
 	}
@@ -2824,6 +2866,10 @@ html {
 		margin-left: 0;
 	}
 
+	.configure .frame.top.fixed {
+		padding-left: 0;
+	}
+
 	.masthead h1 {
 		max-width: 600px;
 		font-size: 28px;
@@ -2848,6 +2894,26 @@ html {
 
 	.sidebar {
 		display: none;
+	}
+
+	.frame.top.fixed {
+		border: none;
+		box-shadow: none;
+		padding-top: 1.42857em;
+		position: relative;
+		top: auto;
+	}
+
+	.wrap .manage-right p.search-box input[type='search'] {
+		float: left;
+		padding: 9px 8px;
+		width: auto;
+	}
+}
+
+@media (max-width: 600px) {
+	.configure .frame.top.fixed {
+		top: 0;
 	}
 }
 
