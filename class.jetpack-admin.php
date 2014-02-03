@@ -83,6 +83,13 @@ class Jetpack_Admin {
 		return 0;
 	}
 
+	static function is_module_available( $module ) {
+		if ( ! is_array( $module ) || empty( $module ) )
+			return false;
+
+		return ! ( $module['requires_connection'] && ! Jetpack::is_active() );
+	}
+
 	function handle_unrecognized_action( $action ) {
 		switch( $action ) {
 			case 'bulk-activate' :
