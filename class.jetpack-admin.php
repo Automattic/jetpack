@@ -6,7 +6,7 @@ class Jetpack_Admin {
 
 	var $jetpack;
 
-	function init() {
+	static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Admin;
 		}
