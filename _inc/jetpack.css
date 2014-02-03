@@ -1369,6 +1369,16 @@ html {
 	margin: 0 auto;
 }
 
+.jetpack_page_jetpack_modules .header-nav {
+	max-width: auto;
+	margin: 0;
+}
+
+.jetpack_page_jetpack_modules .page-content {
+	max-width: 1200px;
+	margin: 0;
+}
+
 .page-content.about {
 	margin-top: -60px;
 	position: relative;
@@ -2265,6 +2275,40 @@ html {
 .wrap .manage-right .subsubsub li {
 	display: block;
 	text-align: left;
+}
+
+.wrap .manage-right .search-bar {
+	margin-bottom: 18px;
+}
+
+.wrap .manage-right p.search-box {
+	float: none;
+	height: auto;
+	margin-bottom: 0;
+	position: relative;
+}
+
+.wrap .manage-right p.search-box input[type='search'] {
+	padding: 0 8px;
+}
+
+.wrap .manage-right .subsubsub {
+	margin: 0;
+	padding: 0;
+}
+
+.wrap .manage-right .subsubsub a {
+	padding: 0;
+}
+
+.wrap .manage-right .subsubsub li {
+	display: block;
+	text-align: left;
+}
+
+.jetpack_page_jetpack_modules .wrap .manage-right {
+	position: static;
+	float: right;
 }
 
 .footer {

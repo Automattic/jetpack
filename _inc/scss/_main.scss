@@ -49,7 +49,14 @@ html {
 	max-width: 950px;
 	margin: 0 auto;
 }
-
+.jetpack_page_jetpack_modules .header-nav  {
+	max-width: auto;
+	margin: 0;
+}
+.jetpack_page_jetpack_modules .page-content {
+	max-width: 1200px;
+	margin: 0;
+}
 .page-content.about {
 	margin-top: -60px;
 	position: relative;
@@ -873,7 +880,34 @@ html {
 			display: block;
 			position: fixed;
 		}
+		.search-bar {
+			margin-bottom: 18px;
+		}
+		p.search-box {
+			float: none;
+			height: auto;
+			margin-bottom: 0;
+			position: relative;
+			input[type='search'] {
+				padding: 0 8px;
+			}
+		}
+		.subsubsub {
+			margin: 0;
+			padding: 0;
+			a {
+				padding: 0;
+			}
+			li {
+				display: block;
+				text-align: left;
+			}
+		}
 	}
+}
+.jetpack_page_jetpack_modules .wrap .manage-right {
+	position: static;
+	float: right;
 }
 
 // ==========================================================================

@@ -152,6 +152,17 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		return $views;
 	}
 
+	function views() {
+		$views = $this->get_views();
+
+		echo "<ul class='subsubsub'>\n";
+		foreach ( $views as $class => $view ) {
+			$views[ $class ] = "\t<li class='$class'>$view</li>";
+		}
+		echo implode( "\n", $views ) . "\n";
+		echo "</ul>";
+	}
+
 	function filter_displayed_table_items( $modules ) {
 		return array_filter( $modules, array( $this, 'is_module_displayed' ) );
 	}
