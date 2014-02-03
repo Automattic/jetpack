@@ -2166,6 +2166,10 @@ html {
 	width: 30px;
 }
 
+.table-bordered .jetpack-module .row-actions {
+	float: right;
+}
+
 .showFilter a {
 	display: block;
 	line-height: 24px;
