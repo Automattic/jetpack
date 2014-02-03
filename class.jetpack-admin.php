@@ -14,6 +14,66 @@ class Jetpack_Admin {
 		add_action( 'jetpack_unrecognized_action',   array( $this, 'handle_unrecognized_action' ) );
 	}
 
+	function get_modules() {
+		$available_modules = $this->jetpack->get_available_modules();
+		$active_modules    = $this->jetpack->get_active_modules();
+		$modules           = array();
+
+		foreach ( $available_modules as $module ) {
+			if ( $module_array = $this->jetpack->get_module( $module ) ) {
+				$module_array['module']            = $module;
+				$module_array['activated']         = in_array( $module, $active_modules );
+				$module_array['deactivate_nonce']  = wp_create_nonce( 'jetpack_deactivate-' . $module );
+				$module_array['activate_nonce']    = wp_create_nonce( 'jetpack_activate-' . $module );
+				$module_array['available']         = self::is_module_available( $module_array );
+				$module_array['short_description'] = apply_filters( 'jetpack_short_module_description', $module_array['description'], $module );
+				$module_array['configure_url']     = Jetpack::module_configuration_url( $module );
+
+				ob_start();
+				do_action( 'jetpack_learn_more_button_' . $module );
+				$module_array['learn_more_button'] = ob_get_clean();
+
+				ob_start();
+				if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $module ) ) {
+					do_action( 'jetpack_module_more_info_connected_' . $module );
+				} else {
+					do_action( 'jetpack_module_more_info_' . $module );
+				}
+				$module_array['long_description']  = ob_get_clean();
+
+				$module_array['configurable'] = false;
+				if ( current_user_can( 'manage_options' ) && apply_filters( 'jetpack_module_configurable_' . $module, false ) ) {
+					$module_array['configurable'] = sprintf( '<a href="%1$s">%2$s</a>', esc_url( Jetpack::module_configuration_url( $module ) ), __( 'Configure', 'jetpack' ) );
+				}
+	
+				$modules[ $module ] = $module_array;
+			}
+		}
+
+		if ( isset( $modules['vaultpress'] ) ) {
+			unset( $modules['vaultpress'] );
+		}
+
+		uasort( $modules, array( $this->jetpack, 'sort_modules' ) );
+
+		if ( ! Jetpack::is_active() ) {
+			uasort( $modules, array( __CLASS__, 'sort_requires_connection_last' ) );
+		}
+
+		return $modules;
+	}
+
+	static function sort_requires_connection_last( $module1, $module2 ) {
+		if ( $module1['requires_connection'] == $module2['requires_connection'] )
+			return 0;
+		if ( $module1['requires_connection'] )
+			return 1;
+		if ( $module2['requires_connection'] )
+			return -1;
+
+		return 0;
+	}
+
 	function handle_unrecognized_action( $action ) {
 		switch( $action ) {
 			case 'bulk-activate' :
