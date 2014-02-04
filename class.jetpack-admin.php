@@ -225,7 +225,6 @@ class Jetpack_Admin {
 
 	function admin_styles() {
 		wp_enqueue_style( 'jetpack-google-fonts', 'http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700,600,800' );
-		wp_enqueue_style( 'jetpack', plugins_url( '_inc/jetpack.css', __FILE__ ), false, JETPACK__VERSION . '-20121016' );
 		wp_enqueue_style( 'jetpack-admin', plugins_url( '_inc/jetpack-admin.css', __FILE__ ), false, JETPACK__VERSION . '-20121016' );
 	}
 
