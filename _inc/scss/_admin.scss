@@ -29,11 +29,6 @@
 			width: 100%;
 			z-index: 4;
 			@include box-shadow(0 2px 2px -2px #eee);
-			
-			.wrap {
-				max-width: 950px; 
-				margin: 0 auto;
-			}
 		}
 	}
 }

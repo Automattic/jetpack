@@ -242,6 +242,8 @@ class Jetpack_Admin {
 					'ays_dismiss'    => "This will deactivate Jetpack.\nAre you sure you want to deactivate Jetpack?",
 				)
 			);
+		} else {
+			wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
 		}
 		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
 	}

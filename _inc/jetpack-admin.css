@@ -2346,11 +2346,6 @@ html {
 	box-shadow: 0 2px 2px -2px #eeeeee;
 }
 
-.configure .frame.top.fixed .wrap {
-	max-width: 950px;
-	margin: 0 auto;
-}
-
 .filter-search {
 	display: none;
 	float: right;

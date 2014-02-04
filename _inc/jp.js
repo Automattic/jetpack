@@ -8,10 +8,6 @@
 		initEvents();
 		loadModules();
 		updateModuleCount();
-		
-		if ($('.jetpack_page_jetpack_modules').length !== 0) {
-			configFixedElements();
-		}
 	});
 	
 	///////////////////////////////////////
@@ -24,24 +20,6 @@
 			$('.shade, .modal').hide();
 			$('.manage-right').removeClass('show');
 			return false;
-		});
-	}
-	
-	function configFixedElements() {
-		var jpBottomFrame = $(".frame.bottom"),
-			jpTopFrame = $(".frame.top");
-
-		$('body').scroll(function(e){
-			var frameBottom = jpBottomFrame.offset().top,
-				frameTop = jpTopFrame.offset().top;
-
-			// Top Frame
-			if (frameTop < 33) {
-		    	jpTopFrame.addClass('fixed');
-		    }
-		    if (frameBottom >= 120){
-		    	jpTopFrame.removeClass('fixed');
-		    }
 		});
 	}
 	
