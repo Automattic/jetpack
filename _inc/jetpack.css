@@ -1481,7 +1481,9 @@ html {
 	max-width: 21.94444em;
 	color: #fff;
 	font: 300 2.57143em/1.4em "proxima-nova", "Open Sans", Helvetica, sans-serif;
+	position: relative;
 	text-shadow: 0 1px 1px rgba(0,0,0,0.12);
+	z-index: 3;
 }
 
 .masthead.hasbutton .flyer {

@@ -171,7 +171,9 @@ html {
 		max-width: em(790, 36);
 		color: #fff;
 		font: 300 2.5714285714em/1.4em $proxima; // 36/14 (the em() function breaks in font shorthand)
+		position: relative;
 		text-shadow: 0 1px 1px rgba(0,0,0,.12);
+		z-index: 3;
 	}
 	&.hasbutton {
 		.flyer {
