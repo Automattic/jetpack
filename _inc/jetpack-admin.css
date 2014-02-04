@@ -2346,6 +2346,10 @@ html {
 	box-shadow: 0 2px 2px -2px #eeeeee;
 }
 
+.configure .frame.top .tablenav.top {
+	float: left;
+}
+
 .filter-search {
 	display: none;
 	float: right;
@@ -2524,11 +2528,6 @@ html {
 	text-align: left;
 }
 
-.jetpack_page_jetpack_modules .wrap .manage-right {
-	position: static;
-	float: right;
-}
-
 @media (max-width: 1130px) {
 	.feature,
 	.module {
@@ -2705,11 +2704,13 @@ html {
 
 	.wrap .manage-right {
 		background: #fff;
+		bottom: 0;
 		display: none;
 		min-width: 300px;
+		position: fixed;
 		right: 0;
-		top: 114px;
-		z-index: 10;
+		top: 0;
+		z-index: 13;
 		-webkit-box-shadow: 0 1px 20px 5px rgba(0,0,0,0.1);
 		-moz-box-shadow: 0 1px 20px 5px rgba(0,0,0,0.1);
 		box-shadow: 0 1px 20px 5px rgba(0,0,0,0.1);

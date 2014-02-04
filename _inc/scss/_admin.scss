@@ -30,6 +30,10 @@
 			z-index: 4;
 			@include box-shadow(0 2px 2px -2px #eee);
 		}
+		
+		.tablenav.top {
+			float: left;
+		}
 	}
 }
 .filter-search {
@@ -195,9 +199,4 @@
 			}
 		}
 	}
-}
-
-.jetpack_page_jetpack_modules .wrap .manage-right {
-	position: static;
-	float: right;
 }
