@@ -3,6 +3,7 @@
 $files = array(
 	'jetpack.css',
 	'jetpack-banners.css',
+	'jetpack-admin.css',
 );
 
 require_once( dirname( __FILE__ ) . '/../modules/custom-css/csstidy/class.csstidy.php' );
