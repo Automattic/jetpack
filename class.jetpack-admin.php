@@ -30,12 +30,15 @@ class Jetpack_Admin {
 
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = $this->jetpack->get_module( $module ) ) {
+				$short_desc = apply_filters( 'jetpack_short_module_description', $module_array['description'], $module );
+				$short_desc_trunc = ( strlen( $short_desc ) > 143 ) ? substr( $short_desc ,0 ,140 ) . '...' : $short_desc;
+				
 				$module_array['module']            = $module;
 				$module_array['activated']         = in_array( $module, $active_modules );
 				$module_array['deactivate_nonce']  = wp_create_nonce( 'jetpack_deactivate-' . $module );
 				$module_array['activate_nonce']    = wp_create_nonce( 'jetpack_activate-' . $module );
 				$module_array['available']         = self::is_module_available( $module_array );
-				$module_array['short_description'] = apply_filters( 'jetpack_short_module_description', $module_array['description'], $module );
+				$module_array['short_description'] = $short_desc_trunc;
 				$module_array['configure_url']     = Jetpack::module_configuration_url( $module );
 
 				ob_start();

@@ -48,7 +48,7 @@
 <script id="mod" type="text/html">
 	<div href="{{ url }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
 		<h3>{{ name }}{{#paid}}<span class="paid">Paid</span>{{/paid}}</h3>
-		<p>{{{ description }}}</p>
+		<p>{{{ short_description }}}</p>
 	</div>
 </script>
 <script id="modconfig" type="text/html">
