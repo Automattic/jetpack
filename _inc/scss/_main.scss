@@ -49,14 +49,7 @@ html {
 	max-width: 950px;
 	margin: 0 auto;
 }
-.jetpack_page_jetpack_modules .header-nav  {
-	max-width: auto;
-	margin: 0;
-}
-.jetpack_page_jetpack_modules .page-content {
-	max-width: 1200px;
-	margin: 0;
-}
+
 .page-content.about {
 	margin-top: -60px;
 	position: relative;
@@ -722,6 +715,10 @@ html {
 // Plugin configure page
 // ==========================================================================
 
+#adminmenuback {
+	z-index: 5;
+}
+
 .page-content.configure {
 	margin-top: 0;
 }
@@ -840,6 +837,7 @@ html {
 	}
 }
 .wrap {
+	margin: 0;
 	padding: 0 1.5em 1em;
 	overflow: hidden;
 	
@@ -858,7 +856,7 @@ html {
 		}
 	}
 	.manage-right {
-		margin: 15px 0 0;
+		margin: 0;
 		padding: 0;
 		position: absolute;
 		right: 0;
@@ -879,6 +877,9 @@ html {
 		&.show {
 			display: block;
 			position: fixed;
+			overflow-y: auto;
+			overflow-x: hidden;
+			position: absolute;
 		}
 		.search-bar {
 			margin-bottom: 18px;
@@ -888,6 +889,7 @@ html {
 			height: auto;
 			margin-bottom: 0;
 			position: relative;
+
 			input[type='search'] {
 				padding: 0 8px;
 			}
@@ -895,6 +897,7 @@ html {
 		.subsubsub {
 			margin: 0;
 			padding: 0;
+
 			a {
 				padding: 0;
 			}
@@ -904,10 +907,6 @@ html {
 			}
 		}
 	}
-}
-.jetpack_page_jetpack_modules .wrap .manage-right {
-	position: static;
-	float: right;
 }
 
 // ==========================================================================
