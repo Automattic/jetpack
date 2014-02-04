@@ -47,7 +47,7 @@
 </script>
 <script id="mod" type="text/html">
 	<div href="{{ url }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
-		<h3>{{ name }}{{#paid}}<span class="paid">Paid</span>{{/paid}}</h3>
+		<h3>{{ name }}{{^free}}<span class="paid">Paid</span>{{/free}}</h3>
 		<p>{{{ short_description }}}</p>
 	</div>
 </script>
