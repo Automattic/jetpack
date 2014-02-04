@@ -113,9 +113,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			}
 		}
 
-		if ( isset( $modules['vaultpress'] ) )
-			unset( $modules['vaultpress'] );
-
 		uasort( $modules, array( $this->jetpack, 'sort_modules' ) );
 
 		if ( ! Jetpack::is_active() ) {

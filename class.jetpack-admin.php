@@ -62,10 +62,6 @@ class Jetpack_Admin {
 			}
 		}
 
-		if ( isset( $modules['vaultpress'] ) ) {
-			unset( $modules['vaultpress'] );
-		}
-
 		uasort( $modules, array( $this->jetpack, 'sort_modules' ) );
 
 		if ( ! Jetpack::is_active() ) {
