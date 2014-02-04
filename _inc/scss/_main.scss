@@ -8,6 +8,7 @@
 #adminmenuwrap,
 .sticky-menu #adminmenuwrap {
 	position: absolute;
+	z-index: 6;
 }
 ul#adminmenu a.wp-has-current-submenu:after,
 ul#adminmenu > li.current > a.current:after {
