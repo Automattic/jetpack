@@ -28,7 +28,7 @@
 	</div><!-- .jp-frame -->
 </div><!-- .jp-content -->
 <script>
-	var modules = <?php echo json_encode( array_values( Jetpack_Admin::init()->get_modules() ), JSON_PRETTY_PRINT ); /* Remove JSON_PRETTY_PRINT for production */ ?>;
+	var modules = <?php echo json_encode( array_values( Jetpack_Admin::init()->get_modules() ) ); ?>;
 </script>
 <script id="modalLoading" type="text/html">
 	<div class="loading"><span>loading…</span></div>
