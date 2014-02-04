@@ -1952,7 +1952,7 @@ html {
 	right: 10%;
 	text-align: center;
 	top: 10%;
-	z-index: 10;
+	z-index: 12;
 	-webkit-box-shadow: 0 1px 20px 5px rgba(0,0,0,0.1);
 	-moz-box-shadow: 0 1px 20px 5px rgba(0,0,0,0.1);
 	box-shadow: 0 1px 20px 5px rgba(0,0,0,0.1);
@@ -2044,7 +2044,7 @@ html {
 	position: fixed;
 	right: 0;
 	top: 0;
-	z-index: 9;
+	z-index: 11;
 }
 
 .entry-title,

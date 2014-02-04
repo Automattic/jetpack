@@ -607,7 +607,7 @@ html {
 	right: 10%;
 	text-align: center;
 	top: 10%;
-	z-index: 10;
+	z-index: 12;
 	@include box-shadow(0 1px 20px 5px rgba(0, 0, 0, 0.1));
 	
 	header {
@@ -690,7 +690,7 @@ html {
 	position: fixed;
 	right: 0;
 	top: 0;
-	z-index: 9;
+	z-index: 11;
 }
 
 // ==========================================================================
