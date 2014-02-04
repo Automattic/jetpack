@@ -1601,7 +1601,7 @@ html {
 .module {
 	position: relative;
 	float: left;
-	margin: 0 5px 5px;
+	margin: 0 5px 10px;
 	width: 310px;
 	-webkit-transition: all .2s ease-in-out;
 	-moz-transition: all .2s ease-in-out;
@@ -1820,6 +1820,7 @@ html {
 }
 
 .module {
+	cursor: pointer;
 	display: block;
 	padding: .71429em 1.07143em 1em;
 	text-align: left;

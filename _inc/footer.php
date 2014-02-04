@@ -28,7 +28,8 @@
 	</div><!-- .jp-frame -->
 </div><!-- .jp-content -->
 <script>
-	var modules = <?php echo json_encode( array_values( Jetpack_Admin::init()->get_modules() ) ); ?>;
+	var modules = <?php echo json_encode( array_values( Jetpack_Admin::init()->get_modules() ) ); ?>,
+		currentVersion = '<?php echo JETPACK__VERSION; ?>';
 </script>
 <script id="modalLoading" type="text/html">
 	<div class="loading"><span>loading…</span></div>
@@ -45,10 +46,10 @@
 	
 </script>
 <script id="mod" type="text/html">
-	<a href="{{ url }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
+	<div href="{{ url }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
 		<h3>{{ name }}{{#paid}}<span class="paid">Paid</span>{{/paid}}</h3>
-		<p>{{ description }}</p>
-	</a>
+		<p>{{{ description }}}</p>
+	</div>
 </script>
 <script id="modconfig" type="text/html">
 	<tr class="configs {{#active}}active{{/active}}">
