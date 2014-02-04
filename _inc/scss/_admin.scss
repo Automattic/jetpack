@@ -1,0 +1,208 @@
+// ==========================================================================
+// Plugin configure page
+// ==========================================================================
+
+#adminmenuback {
+	z-index: 5;
+}
+
+.page-content.configure {
+	margin-top: 0;
+}
+
+.configure .frame {
+	
+	&.top {
+		border: none;
+		box-shadow: none;
+		padding-top: em(20);
+		position: relative;
+		top: auto;
+		
+		&.fixed {
+			background: #f9f9f9;
+			border-bottom: 1px solid #e9e9e9;
+			padding-left: 160px;
+			position: fixed;
+			right: 0;
+			top: 32px;
+			width: 100%;
+			z-index: 4;
+			@include box-shadow(0 2px 2px -2px #eee);
+			
+			.wrap {
+				max-width: 950px; 
+				margin: 0 auto;
+			}
+		}
+	}
+}
+.filter-search {
+	display: none;
+	float: right;
+}
+.search-bar {
+	max-width: 300px;
+}
+.table-bordered {
+	margin-bottom: 0;
+	
+	td {
+		border-bottom: 1px solid #eee;
+		line-height: 26px;
+		margin: 0;
+		padding: 6px 10px 10px 10px;
+		
+		&:first-child {
+			border-left: 4px solid #fff;
+		}
+	}
+	th {
+		margin: 0;
+		padding: 6px 10px 10px 10px;
+		text-align: left;
+		
+		&:first-child {
+			border-left: 4px solid #f9f9f9;
+		}
+	}
+	tr {
+		&:hover {
+			.genericon {
+				display: inline-block;
+			}
+		}
+	}
+	tr.active {
+		td {
+			background: #f7fcfe;
+			
+			&:first-child {
+				border-left: 4px solid #2ea2cc;
+			}
+		}
+	}
+	&>thead>tr>th {
+		border: 0;
+		vertical-align: middle;
+		
+		&:last-child {
+			padding-right: 0;
+		}
+	}
+	td {
+		background: #fff;
+	}
+	.genericon {
+		color: #999;
+		display: none;
+		margin: 7px 3px 0;
+	}
+	.med {
+		width: 70px;
+	}
+	.sm {
+		width: 30px;
+	}
+	.jetpack-module {
+		.row-actions {
+			float: right;
+		}
+		&.unavailable {
+			opacity: 0.3;
+			input {
+				display: none;
+			}
+		}
+	}
+}
+.showFilter {
+	a {
+		display: block;
+		line-height: 24px;
+		
+		&.active {
+			color: #333;
+			cursor: default;
+			font-weight: bold;
+			text-decoration: none;
+		}
+	}
+}
+.wrap {
+	margin: 0;
+	padding: 0 1.5em 1em;
+	overflow: hidden;
+	
+	h2 {
+		font-size: 24px;
+		font-weight: 400;
+	}
+	.manage-left {
+		float: left;
+		margin: 0;
+		padding: 0;
+		width: 63%;
+		
+		table {
+			width: 100%;
+		}
+	}
+	.manage-right {
+		margin: 0;
+		padding: 0;
+		position: absolute;
+		right: 0;
+		width: 35%;
+		z-index: 1;
+		
+		p {
+			font-size: 12px;
+			font-weight: bold;
+			color: #bbb;
+			padding-top: 2px;
+			text-transform: uppercase;
+			letter-spacing: 1px;
+		}
+		.bumper {
+			margin-left: 33px;
+		}
+		&.show {
+			display: block;
+			position: fixed;
+			overflow-y: auto;
+			overflow-x: hidden;
+			position: absolute;
+		}
+		.search-bar {
+			margin-bottom: 18px;
+		}
+		p.search-box {
+			float: none;
+			height: auto;
+			margin-bottom: 0;
+			position: relative;
+
+			input[type='search'] {
+				padding: 0 8px;
+			}
+		}
+		.subsubsub {
+			margin: 0;
+			padding: 0;
+
+			a {
+				padding: 0;
+			}
+			li {
+				display: block;
+				text-align: left;
+			}
+		}
+	}
+}
+
+.jetpack_page_jetpack_modules .wrap .manage-right {
+	position: static;
+	float: right;
+}
