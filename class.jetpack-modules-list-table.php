@@ -58,7 +58,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 					</th>
 					<td class='name column-name'>
 						<div class="row-actions">
-							<span class='info'><a href="#"><?php _e( 'Module Info', 'jetpack' ); ?></a></span>
 						<% if ( item.activated ) { %>
 							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module=<%= item.module %>&#038;_wpnonce=<%= item.deactivate_nonce %>"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
 						<% } else if ( item.available ) { %>
@@ -68,7 +67,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 							<span class='configure'><%= item.configurable %></span>
 						<% } %>
 						</div>
-						<%= item.name %>
+						<span class='info'><a href="#"><%= item.name %></a></span>
 					</td>
 				</tr>
 				<%
