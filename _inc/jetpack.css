@@ -2277,35 +2277,6 @@ html {
 	text-align: left;
 }
 
-.wrap .manage-right .search-bar {
-	margin-bottom: 18px;
-}
-
-.wrap .manage-right p.search-box {
-	float: none;
-	height: auto;
-	margin-bottom: 0;
-	position: relative;
-}
-
-.wrap .manage-right p.search-box input[type='search'] {
-	padding: 0 8px;
-}
-
-.wrap .manage-right .subsubsub {
-	margin: 0;
-	padding: 0;
-}
-
-.wrap .manage-right .subsubsub a {
-	padding: 0;
-}
-
-.wrap .manage-right .subsubsub li {
-	display: block;
-	text-align: left;
-}
-
 .jetpack_page_jetpack_modules .wrap .manage-right {
 	position: static;
 	float: right;

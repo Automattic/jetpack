@@ -50,6 +50,17 @@ html {
 	margin: 0 auto;
 }
 
+.jetpack_page_jetpack_modules {
+	.header-nav  {
+		max-width: auto;
+		margin: 0;
+	}
+	.page-content {
+		max-width: 1200px;
+		margin: 0;
+	}
+}
+
 .page-content.about {
 	margin-top: -60px;
 	position: relative;
@@ -907,6 +918,11 @@ html {
 			}
 		}
 	}
+}
+
+.jetpack_page_jetpack_modules .wrap .manage-right {
+	position: static;
+	float: right;
 }
 
 // ==========================================================================
