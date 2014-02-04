@@ -2184,6 +2184,14 @@ html {
 	float: right;
 }
 
+.table-bordered .jetpack-module.unavailable {
+	opacity: .3;
+}
+
+.table-bordered .jetpack-module.unavailable input {
+	display: none;
+}
+
 .showFilter a {
 	display: block;
 	line-height: 24px;

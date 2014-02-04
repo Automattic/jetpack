@@ -832,6 +832,12 @@ html {
 		.row-actions {
 			float: right;
 		}
+		&.unavailable {
+			opacity: 0.3;
+			input {
+				display: none;
+			}
+		}
 	}
 }
 .showFilter {
