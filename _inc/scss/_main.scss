@@ -287,7 +287,7 @@ html {
 .module {
 	position: relative;
 	float: left;
-	margin: 0 5px 5px;
+	margin: 0 5px 10px;
 	width: 310px;
 	@include transition(all .2s ease-in-out);
 }
@@ -485,6 +485,7 @@ html {
 	@extend .features; // Clearfix and margin
 }
 .module {
+	cursor: pointer;
 	display: block;
 	padding: em(10) em(15) em(14);
 	text-align: left;

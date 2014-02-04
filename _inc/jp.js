@@ -226,6 +226,10 @@
 		} else {
 			// About page
 			for (var i=0; i<modules.length; i++) {
+				if (currentVersion.indexOf(modules[i].introduced) != -1) {
+					modules[i].new = true;
+				}
+					
 				html += ich.mod(modules[i], true);
 			}
 			
