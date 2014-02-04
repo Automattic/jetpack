@@ -277,6 +277,9 @@ class Jetpack_Admin {
 									<th class="sm"><input type="checkbox" class="checkall"></th>
 									<th colspan="2">
 										<?php $list_table->display_tablenav( 'top' ); ?>
+										<span class="filter-search">
+											<button type="button" class="button">Filter</button>
+										</span>
 									</th>
 								</tr>
 							</thead>

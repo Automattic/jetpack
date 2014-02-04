@@ -148,11 +148,13 @@
 		}
 	    .manage-right {
 	    	background: #fff;
+	    	bottom: 0;
 	    	display: none;
 	    	min-width: 300px;
+	    	position: fixed;
 	    	right: 0;
-	    	top: 114px;
-	    	z-index: 10;
+	    	top: 0;
+	    	z-index: 13;
 	    	@include box-shadow(0 1px 20px 5px rgba(0, 0, 0, 0.1));
 	    	
 	    	.bumper {

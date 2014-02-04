@@ -129,20 +129,8 @@
 			}
 		};
 		
-		// toggle search and filters at mobile resolution
-			$('.filter-search').on('click', function () {
-				$(this).toggleClass('active');
-				$('.manage-right').toggleClass('show');
-				$('.shade').toggle();
-			});
-		
 		// Close shade toggle
 		closeShadeToggle();
-		
-		// Toggle all checkboxes
-		$('.checkall').on('click', function () {
-	        $('.table-bordered').find(':checkbox').prop('checked', this.checked);
-	    });
 	    
 	    // Show specific category of modules
 	    $('.showFilter a').on('click', function () {
