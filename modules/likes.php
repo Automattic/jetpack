@@ -1096,12 +1096,12 @@ class Jetpack_Likes {
 	}
 
 	/**
-	 * Returns if comment likes are enabled. Defaults to 'on'
+	 * Returns if comment likes are enabled. Defaults to 'off'
 	 * @todo decide what the default should be
 	 * @return boolean true if we should show comment likes, false if not
 	 */
 	function is_comments_enabled() {
-		return (bool) apply_filters( 'jetpack_comment_likes_enabled', get_option( 'jetpack_comment_likes_enabled', true ) );
+		return (bool) apply_filters( 'jetpack_comment_likes_enabled', get_option( 'jetpack_comment_likes_enabled', false ) );
 	}
 
 	function is_admin_bar_button_visible() {
