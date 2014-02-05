@@ -152,7 +152,8 @@ class Jetpack_Carousel {
 			{
 				$msie = strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE' ) + 4;
 				$version = (float) substr( $_SERVER['HTTP_USER_AGENT'], $msie, strpos( $_SERVER['HTTP_USER_AGENT'], ';', $msie ) - $msie );
-				if( $version < 9 )
+				// THis works like string, so make sure we don't apply for 10 and 11.
+				if( $version < 9 && $version > 2)
 					wp_enqueue_style( 'jetpack-carousel-ie8fix', plugins_url( 'jetpack-carousel-ie8fix.css', __FILE__ ), array(), $this->asset_version( '20121024' ) );
 			}
 			do_action( 'jp_carousel_enqueue_assets', $this->first_run, $localize_strings );
