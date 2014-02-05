@@ -71,7 +71,7 @@ add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
  *
  * See: http://jetpack.me/2013/07/11/photon-and-themes/
  */
-if ( Jetpack::init()->is_module_active( 'photon' ) ) {
+if ( Jetpack::is_module_active( 'photon' ) ) {
 	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
 } else {
 	remove_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
