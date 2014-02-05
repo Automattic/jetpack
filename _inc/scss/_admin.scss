@@ -50,13 +50,14 @@
 		border-bottom: 1px solid #eee;
 		line-height: 26px;
 		margin: 0;
-		padding: 6px 10px 10px 10px;
+		padding: 6px 10px 2px;
 		
 		&:first-child {
 			border-left: 4px solid #fff;
 		}
 	}
 	th {
+		border-bottom: 1px solid #eee;
 		margin: 0;
 		padding: 6px 10px 10px 10px;
 		text-align: left;
@@ -75,6 +76,7 @@
 	tr.active {
 		td {
 			background: #f7fcfe;
+			padding: 6px 10px 2px;
 			
 			&:first-child {
 				border-left: 4px solid #2ea2cc;
@@ -91,6 +93,15 @@
 	}
 	td {
 		background: #fff;
+	}
+	#doaction {
+		margin-top: 0;
+	}
+	.checkall {
+		margin-top: 1px;
+	}
+	.filter-search {
+		margin-top: 8px;
 	}
 	.genericon {
 		color: #999;

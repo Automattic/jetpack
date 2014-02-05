@@ -2623,9 +2623,21 @@ html {
 	.table-bordered .genericon {
 		display: inline-block;
 	}
+
+	.tablenav.top .actions {
+		display: block;
+	}
 }
 
 @media (max-width: 782px) {
+	.table-bordered #doaction {
+		padding: 10px 7px;
+	}
+
+	.tablenav.top .actions {
+		margin-top: 6px;
+	}
+
 	#wpcontent,
 	.auto-fold #wpcontent,
 	.auto-fold #wpfooter,
@@ -2640,6 +2652,10 @@ html {
 	.masthead h1 {
 		max-width: 600px;
 		font-size: 28px;
+	}
+
+	.table-bordered th:last-child {
+		padding-left: 0;
 	}
 
 	.featured h2,
@@ -2669,6 +2685,10 @@ html {
 		padding-top: 1.42857em;
 		position: relative;
 		top: auto;
+	}
+
+	.widefat .check-column {
+		width: 50px;
 	}
 
 	.wrap .manage-right p.search-box input[type='search'] {
@@ -2706,6 +2726,10 @@ html {
 
 	.filter a {
 		padding: .6em;
+	}
+
+	.filter-search {
+		display: none;
 	}
 
 	.clouds-sm {
@@ -2868,6 +2892,10 @@ html {
 		position: relative;
 		margin: 0 auto 33px;
 		top: auto;
+	}
+
+	.jetpack-modules .row-actions {
+		display: none;
 	}
 }
 
