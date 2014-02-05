@@ -2367,7 +2367,7 @@ html {
 	border-bottom: 1px solid #eee;
 	line-height: 26px;
 	margin: 0;
-	padding: 6px 10px 10px;
+	padding: 6px 10px 2px;
 }
 
 .table-bordered td:first-child {
@@ -2375,6 +2375,7 @@ html {
 }
 
 .table-bordered th {
+	border-bottom: 1px solid #eee;
 	margin: 0;
 	padding: 6px 10px 10px;
 	text-align: left;
@@ -2390,6 +2391,7 @@ html {
 
 .table-bordered tr.active td {
 	background: #f7fcfe;
+	padding: 6px 10px 2px;
 }
 
 .table-bordered tr.active td:first-child {
@@ -2407,6 +2409,18 @@ html {
 
 .table-bordered td {
 	background: #fff;
+}
+
+.table-bordered #doaction {
+	margin-top: 0;
+}
+
+.table-bordered .checkall {
+	margin-top: 1px;
+}
+
+.table-bordered .filter-search {
+	margin-top: 8px;
 }
 
 .table-bordered .genericon {
@@ -2828,9 +2842,21 @@ html {
 	.table-bordered .genericon {
 		display: inline-block;
 	}
+
+	.tablenav.top .actions {
+		display: block;
+	}
 }
 
 @media (max-width: 782px) {
+	.table-bordered #doaction {
+		padding: 10px 7px;
+	}
+
+	.tablenav.top .actions {
+		margin-top: 6px;
+	}
+
 	#wpcontent,
 	.auto-fold #wpcontent,
 	.auto-fold #wpfooter,
@@ -2845,6 +2871,10 @@ html {
 	.masthead h1 {
 		max-width: 600px;
 		font-size: 28px;
+	}
+
+	.table-bordered th:last-child {
+		padding-left: 0;
 	}
 
 	.featured h2,
@@ -2874,6 +2904,10 @@ html {
 		padding-top: 1.42857em;
 		position: relative;
 		top: auto;
+	}
+
+	.widefat .check-column {
+		width: 50px;
 	}
 
 	.wrap .manage-right p.search-box input[type='search'] {
@@ -2911,6 +2945,10 @@ html {
 
 	.filter a {
 		padding: .6em;
+	}
+
+	.filter-search {
+		display: none;
 	}
 
 	.clouds-sm {
@@ -3073,6 +3111,10 @@ html {
 		position: relative;
 		margin: 0 auto 33px;
 		top: auto;
+	}
+
+	.jetpack-modules .row-actions {
+		display: none;
 	}
 }
 
