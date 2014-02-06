@@ -99,6 +99,7 @@ class WPCom_Markdown {
 		add_action( 'wp_restore_post_revision', array( $this, 'wp_restore_post_revision' ), 10, 2 );
 		add_filter( '_wp_post_revision_fields', array( $this, '_wp_post_revision_fields' ) );
 		add_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
+		add_filter( 'content_save_pre', array( $this, 'preserve_code_blocks' ), 1 );
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
 			$this->check_for_mwgetpost();
 		}
@@ -116,6 +117,7 @@ class WPCom_Markdown {
 		remove_action( 'wp_restore_post_revision', array( $this, 'wp_restore_post_revision' ), 10, 2 );
 		remove_filter( '_wp_post_revision_fields', array( $this, '_wp_post_revision_fields' ) );
 		remove_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
+		remove_filter( 'content_save_pre', array( $this, 'preserve_code_blocks' ), 1 );
 	}
 
 	/**
@@ -192,6 +194,15 @@ class WPCom_Markdown {
 	 */
 	public function o2_unescape_lists( $text ) {
 		return preg_replace( '/^[&]\#042; /um', '* ', $text );
+	}
+
+	/**
+	 * Preserve code blocks from being munged by KSES before they have a chance
+	 * @param  string $text post content
+	 * @return string       post content with code blocks escaped
+	 */
+	public function preserve_code_blocks( $text ) {
+		return $this->get_parser()->codeblock_preserve( $text );
 	}
 
 	/**
@@ -348,8 +359,10 @@ class WPCom_Markdown {
 	public function edit_post_content( $content, $id ) {
 		if ( $this->is_markdown( $id ) ) {
 			$post = get_post( $id );
-			if ( $post && ! empty( $post->post_content_filtered ) )
-				$content = $post->post_content_filtered;
+			if ( $post && ! empty( $post->post_content_filtered ) ) {
+				$post = $this->swap_for_editing( $post );
+				return $post->post_content;
+			}
 		}
 		return $content;
 	}
@@ -462,12 +475,16 @@ class WPCom_Markdown {
 	 * @param  array  $args  Arguments, with keys:
 	 *                       id: provide a string to prefix footnotes with a unique identifier
 	 *                       unslash: when true, expects and returns slashed data
+	 *                       decode_code_blocks: when true, assume that text in fenced code blocks is already
+	 *                         HTML encoded and should be decoded before being passed to Markdown, which does
+	 *                         its own encoding.
 	 * @return string        Markdown-processed content
 	 */
 	public function transform( $text, $args = array() ) {
 		$args = wp_parse_args( $args, array(
 			'id' => false,
-			'unslash' => true
+			'unslash' => true,
+			'decode_code_blocks' => ! $this->get_parser()->use_code_shortcode
 		) );
 		// probably need to unslash
 		if ( $args['unslash'] )
@@ -482,6 +499,10 @@ class WPCom_Markdown {
 		$text = preg_replace( '/^&gt;/m', '>', $text );
 		// prefixes are because we need to namespace footnotes by post_id
 		$this->get_parser()->fn_id_prefix = $args['id'] ? $args['id'] . '-' : '';
+		// If we're not using the code shortcode, prevent over-encoding.
+		if ( $args['decode_code_blocks'] ) {
+			$text = $this->get_parser()->codeblock_restore( $text );
+		}
 		// Transform it!
 		$text = $this->get_parser()->transform( $text );
 		// Fix footnotes - kses doesn't like the : IDs it supplies
@@ -595,9 +616,7 @@ class WPCom_Markdown {
 			$post = get_post( $post_id );
 			if ( ! empty( $post->post_content_filtered ) ) {
 				wp_cache_delete( $post->ID, 'posts' );
-				$markdown = $post->post_content_filtered;
-				$post->post_content_filtered = $post->post_content;
-				$post->post_content = $markdown;
+				$post = $this->swap_for_editing( $post );
 				wp_cache_add( $post->ID, $post, 'posts' );
 				$this->posts_to_uncache[] = $post_id;
 			}
@@ -607,6 +626,23 @@ class WPCom_Markdown {
 			add_action( 'shutdown', array( $this, 'uncache_munged_posts' ) );
 		}
 	}
+
+	/**
+	 * Swaps `post_content_filtered` back to `post_content` for editing purposes.
+	 * @param  object $post WP_Post object
+	 * @return object       WP_Post object with swapped `post_content_filtered` and `post_content`
+	 */
+	protected function swap_for_editing( $post ) {
+		$markdown = $post->post_content_filtered;
+		// unencode encoded code blocks
+		$markdown = $this->get_parser()->codeblock_restore( $markdown );
+		// restore beginning of line blockquotes
+		$markdown = preg_replace( '/^&gt; /m', '> ', $markdown );
+		$post->post_content_filtered = $post->post_content;
+		$post->post_content = $markdown;
+		return $post;
+	}
+
 
 	/**
 	 * We munge the post cache to serve proper markdown content to XML-RPC clients.
