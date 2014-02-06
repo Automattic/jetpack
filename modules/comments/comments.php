@@ -227,6 +227,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				$params['_wp_unfiltered_html_comment'] = wp_create_nonce( 'unfiltered-html-comment_' . get_the_ID() );
 		}
 
+var_dump($params);
 		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack_Options::get_option( 'blog_token' ) );
 		if ( is_wp_error( $signature ) ) {
 			$signature = 'error';
@@ -286,9 +287,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 			tellFrameNewParent = function() {
 				if ( comm_par ) {
-					frame.src = <?php echo json_encode( esc_url_raw( $this->signed_url ) ); ?> + '&replytocom=' + parseInt( comm_par, 10 ).toString();
+					frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>" + '&replytocom=' + parseInt( comm_par, 10 ).toString();
 				} else {
-					frame.src = <?php echo json_encode( esc_url_raw( $this->signed_url ) ); ?>;
+					frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>";
 				}
 			};
 
