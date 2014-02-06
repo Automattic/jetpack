@@ -1,4 +1,4 @@
-/* This file was automatically generated on Jan 14 2014 19:04:19 */
+/* This file was automatically generated on Jan 23 2014 11:00:06 */
 
 /**
  * Styles for Jetpack related posts
@@ -27,6 +27,9 @@ div.jp-relatedposts .jp-relatedposts-headline {
 	margin: 0 0 1em 0;
 	display: inline-block;
 	float: right;
+	font-weight: bold;
+	font-family: inherit;
+	font-size: 9pt;
 }
 
 div.jp-relatedposts .jp-relatedposts-headline em:before {

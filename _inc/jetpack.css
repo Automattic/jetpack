@@ -40,7 +40,9 @@
 .toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu:after,
 .toplevel_page_jetpack ul#adminmenu > li.current > a.current:after,
 .jetpack-pagestyles ul#adminmenu a.wp-has-current-submenu:after,
-.jetpack-pagestyles ul#adminmenu > li.current > a.current:after {
+.jetpack-pagestyles ul#adminmenu > li.current > a.current:after,
+.jetpack_page_jetpack-settings.network-admin ul#adminmenu a.wp-has-current-submenu:after,
+.jetpack_page_jetpack-settings.network-admin ul#adminmenu > li.current > a.current:after {
 	border-right-color:#8fad4b;
 }
 
@@ -65,7 +67,9 @@
 }
 
 .toplevel_page_jetpack.jetpack-connected #wpwrap,
-.jetpack-pagestyles.jetpack-connected #wpwrap {
+.jetpack-pagestyles.jetpack-connected #wpwrap,
+.toplevel_page_jetpack.network-admin #wpwrap,
+.jetpack_page_jetpack-settings.network-admin #wpwrap {
 	background: url(images/header-clouds-small.png) 52px 0 repeat-x;
 }
 
@@ -121,8 +125,16 @@
 	margin: 30px 0 -30px 0;
 }
 
+.network-admin #jp-header {
+	margin-bottom: -50px;
+}
+
 #jp-header.small {
 	margin: 20px 0 50px;
+}
+
+.network-admin #jp-header.small {
+	margin-bottom: 30px;
 }
 
 #jp-header #jp-clouds {
@@ -192,7 +204,9 @@
 	}
 
 	.toplevel_page_jetpack.jetpack-connected #wpwrap,
-	.jetpack-pagestyles.jetpack-connected #wpwrap {
+	.jetpack-pagestyles.jetpack-connected #wpwrap,
+	.toplevel_page_jetpack.network-admin #wpwrap,
+	.jetpack_page_jetpack-settings.network-admin #wpwrap {
 		background-image: url(images/header-clouds-small-2x.png);
 		background-size: 980px 140px;
 	}
@@ -229,6 +243,13 @@
 	top: -35px;
 }
 
+.network-admin #jp-header h3 {
+	background: transparent url(images/logo-small.png) top left no-repeat;
+	width: 150px;
+	height: 120px;
+	left: 18px;
+}
+
 /* Retina Logo */
 @media only screen and (-moz-min-device-pixel-ratio: 1.5),
 	only screen and (-o-min-device-pixel-ratio: 3/2),
@@ -240,7 +261,8 @@
 		background-size: 250px 200px;
 	}
 
-	#jp-header.small h3 {
+	#jp-header.small h3,
+	.network-admin #jp-header h3 {
 		background-image: url(images/logo-small-2x.png);
 		background-size: 150px 120px;
 	}
@@ -355,6 +377,11 @@
 	overflow: hidden;
 }
 
+.jetpack-message h2 {
+	color: #fff;
+	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
+}
+
 .jetpack-message h4 {
 	margin: 0 10px 10px 0;
 	font-size: 18px;
@@ -363,6 +390,10 @@
 	text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4);
 	border-radius: 5px;
 	display: inline-block;
+}
+
+.jetpack-message.jp-multisite h4 {
+	margin-bottom: 0;
 }
 
 .jetpack-message h5 {
@@ -1098,6 +1129,10 @@ p#news-sub {
 	margin: 10px 13px 40px 15px;
 }
 
+.network-admin #jetpack-settings .wrap {
+	margin: 10px 18px 30px 18px;
+}
+
 .jp-survey h4 {
 	margin: 0;
 	font-size: 18px;
@@ -1211,6 +1246,10 @@ p#news-sub {
 	-webkit-transition-duration: 0.3s;
 	transition-duration:         0.3s;
 	cursor: pointer;
+}
+
+.network-admin .jetpack-install-container p a.button-connector {
+	bottom: 15px;
 }
 
 .jetpack-install-container p a.button-connector:hover,

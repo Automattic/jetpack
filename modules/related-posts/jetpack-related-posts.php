@@ -130,7 +130,7 @@ class Jetpack_RelatedPosts {
 
 		if ( $options['show_headline'] ) {
 			$headline = sprintf(
-				'<p class="jp-relatedposts-headline"><em>%s</em></p>',
+				'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
 				esc_html__( 'Related', 'jetpack' )
 			);
 		} else {
@@ -703,8 +703,8 @@ EOT;
 
 		$results = json_decode( wp_remote_retrieve_body( $response ), true );
 		$related_posts = array();
-		if ( is_array( $results ) && !empty( $results['results']['hits'] ) ) {
-			foreach( $results['results']['hits'] as $hit ) {
+		if ( is_array( $results ) && !empty( $results['hits'] ) ) {
+			foreach( $results['hits'] as $hit ) {
 				$related_posts[] = array(
 					'id' => $hit['fields']['post_id'],
 				);

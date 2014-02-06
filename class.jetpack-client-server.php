@@ -9,9 +9,7 @@
 class Jetpack_Client_Server {
 	function authorize() {
 		$data = stripslashes_deep( $_GET );
-
 		$args = array();
-
 		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
 		do {
@@ -136,7 +134,7 @@ class Jetpack_Client_Server {
 	function get_token( $data ) {
 		$jetpack = Jetpack::init();
 		$role = $jetpack->translate_current_user_to_role();
-
+		
 		if ( !$role ) {
 			return new Jetpack_Error( 'role', __( 'An administrator for this blog must set up the Jetpack connection.', 'jetpack' ) );
 		}
