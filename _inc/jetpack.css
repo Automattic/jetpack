@@ -32,10 +32,19 @@
 /* Force the menu not to be sticky, so we can color the arrow. */
 .toplevel_page_jetpack.sticky-menu #adminmenuwrap,
 .jetpack-pagestyles.sticky-menu #adminmenuwrap {
-	position: relative;
+	position: fixed;
 	z-index: auto;
-	top: 0;
 }
+
+/* the arrow disappears under certain conditions involving scrolling */
+
+body.jetpack_scrolled.toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu:after,
+body.jetpack_scrolled.toplevel_page_jetpack ul#adminmenu > li.current > a.current:after,
+body.jetpack_scrolled.jetpack-pagestyles ul#adminmenu a.wp-has-current-submenu:after,
+body.jetpack_scrolled.jetpack-pagestyles ul#adminmenu > li.current > a.current:after {
+	display: none;
+}
+
 
 .toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu:after,
 .toplevel_page_jetpack ul#adminmenu > li.current > a.current:after,
