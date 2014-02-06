@@ -8,8 +8,12 @@
  * Auto Activate: No
  * Module Tags: Social
  */
+
+// @todo: remove this for launch
+add_filter( 'wpl_sharing_2014_1', '__return_false' );
+
 class Jetpack_Likes {
-	var $version = '20140129';
+	var $version = '20140206';
 
 	public static function init() {
 		static $instance = NULL;
@@ -511,7 +515,14 @@ class Jetpack_Likes {
 			wp_enqueue_script( 'postmessage', '/wp-content/js/postmessage.js', array( 'jquery' ), JETPACK__VERSION, false );
 			wp_enqueue_script( 'jquery_inview', '/wp-content/js/jquery/jquery.inview.js', array( 'jquery' ), JETPACK__VERSION, false );
 			wp_enqueue_script( 'jetpack_resize', '/wp-content/js/jquery/jquery.jetpack-resize.js', array( 'jquery' ), JETPACK__VERSION, false );
-			wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
+
+			
+			// @todo: Remove this opt-out filter in the future
+			if ( apply_filters( 'wpl_sharing_2014_1', true ) ) {
+				wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
+			} else {
+				wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes-legacy.css', __FILE__ ), array(), JETPACK__VERSION );
+			}
 		}
 	}
 
@@ -722,7 +733,13 @@ class Jetpack_Likes {
 		}
 
 		$locale = ( '' == get_locale() || 'en' == get_locale() ) ? '' : '&amp;lang=' . strtolower( substr( get_locale(), 0, 2 ) );
-		$src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, apply_filters( 'mp6_enabled', 0 ) );
+
+		// @todo: Remove this opt-out filter in the future
+		if ( apply_filters( 'wpl_sharing_2014_1', true ) ) {
+			$src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, apply_filters( 'mp6_enabled', 0 ) );
+		} else {
+			$src = sprintf( '%1$s://widgets.wp.com/likes/master-legacy.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, apply_filters( 'mp6_enabled', 0 ) );
+		}
 
 		// Tidy up after ourselves.
 		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '>=' ) ) {
