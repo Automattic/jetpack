@@ -479,7 +479,7 @@ class Nova_Restaurant {
 	 */
 	function maybe_reorder_menu_items() {
 		// make sure we clicked our button
-		if ( ! ( isset( $_REQUEST['menu_reorder_submit'] ) && $_REQUEST['menu_reorder_submit'] === __( 'Re-order', 'nova' ) ) )
+		if ( ! ( isset( $_REQUEST['menu_reorder_submit'] ) && $_REQUEST['menu_reorder_submit'] === __( 'Save New Order', 'nova' ) ) )
 			return;
 		;
 
