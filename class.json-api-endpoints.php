@@ -1010,37 +1010,58 @@ EOPHP;
 	}
 
 	/**
+	 * Parses a date string and returns the local and GMT representations
+	 * of that date & time in 'YYYY-MM-DD HH:MM:SS' format without
+	 * timezones or offsets. If the parsed datetime was not localized to a
+	 * particular timezone or offset we will assume it was given in GMT
+	 * relative to now and will convert it to local time using either the
+	 * timezone set in the options table for the blog or the GMT offset.
+	 *
 	 * @param datetime string
 	 *
 	 * @return array( $local_time_string, $gmt_time_string )
 	 */
 	function parse_date( $date_string ) {
-		$time = strtotime( $date_string );
-		if ( !$time ) {
-			$time = time();
+		$date_string_info = date_parse( $date_string );
+		if ( is_array( $date_string_info ) && 0 === $date_string_info['error_count'] ) {
+			// Check if it's already localized. Can't just check is_localtime because date_parse('oppossum') returns true; WTF, PHP.
+			if ( isset( $date_string_info['zone'] ) && true === $date_string_info['is_localtime'] ) {
+				$dt_local = clone $dt_utc = new DateTime( $date_string );
+				$dt_utc->setTimezone( new DateTimeZone( 'UTC' ) );
+				return array(
+					(string) $dt_local->format( 'Y-m-d H:i:s' ),
+					(string) $dt_utc->format( 'Y-m-d H:i:s' ),
+				);
+			}
+
+			// It's parseable but no TZ info so assume UTC
+			$dt_local = clone $dt_utc = new DateTime( $date_string, new DateTimeZone( 'UTC' ) );
+		} else {
+			// Could not parse time, use now in UTC
+			$dt_local = clone $dt_utc = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
 		}
 
-		$datetime        = new DateTime( "@$time" );
-		$gmt             = $datetime->format( 'Y-m-d H:i:s' );
+		// First try to use timezone as it's daylight savings aware.
 		$timezone_string = get_option( 'timezone_string' );
 		if ( $timezone_string ) {
 			$tz = timezone_open( $timezone_string );
 			if ( $tz ) {
-				$datetime->setTimezone( $tz );
-				$local = $datetime->format( 'Y-m-d H:i:s' );
-				return array( (string) $local, (string) $gmt );
+				$dt_local->setTimezone( $tz );
+				return array(
+					(string) $dt_local->format( 'Y-m-d H:i:s' ),
+					(string) $dt_utc->format( 'Y-m-d H:i:s' ),
+				);
 			}
 		}
 
-		$gmt_offset = get_option( 'gmt_offset' );
-		$local_time = $time + $gmt_offset * 3600;
-
-		$date = getdate( ( int ) $local_time );
-		$datetime->setDate( $date['year'], $date['mon'], $date['mday'] );
-		$datetime->setTime( $date['hours'], $date['minutes'], $date['seconds'] );
-
-		$local      = $datetime->format( 'Y-m-d H:i:s' );
-		return array( (string) $local, (string) $gmt );
+		// Fallback to GMT offset (in hours)
+		// NOTE: TZ of $dt_local is still UTC, we simply modified the timestamp with an offset.
+		$gmt_offset_seconds = intval( get_option( 'gmt_offset' ) * 3600 );
+		$dt_local->modify("+{$gmt_offset_seconds} seconds");
+		return array(
+			(string) $dt_local->format( 'Y-m-d H:i:s' ),
+			(string) $dt_utc->format( 'Y-m-d H:i:s' ),
+		);
 	}
 
 	function get_link() {
@@ -1100,13 +1121,14 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'ID'        => '(int) The post ID.',
 		'author'    => '(object>author) The author of the post.',
 		'date'      => "(ISO 8601 datetime) The post's creation time.",
-		'modified'  => "(ISO 8601 datetime) The post's creation time.",
+		'modified'  => "(ISO 8601 datetime) The post's most recent update time.",
 		'title'     => '(HTML) <code>context</code> dependent.',
 		'URL'       => '(URL) The full permalink URL to the post.',
 		'short_URL' => '(URL) The wp.me short URL.',
 		'content'   => '(HTML) <code>context</code> dependent.',
 		'excerpt'   => '(HTML) <code>context</code> dependent.',
-		'slug'      => '(string) The name (slug) for your post, used in URLs.',
+		'slug'      => '(string) The name (slug) for the post, used in URLs.',
+		'guid'      => '(string) The GUID for the post.',
 		'status'    => array(
 			'publish' => 'The post is published.',
 			'draft'   => 'The post is saved as a draft.',
@@ -1308,7 +1330,10 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'slug' :
 				$response[$key] = (string) $post->post_name;
-			break;
+				break;
+			case 'guid' :
+				$response[$key] = (string) $post->guid;
+				break;
 			case 'password' :
 				$response[$key] = (string) $post->post_password;
 				break;
@@ -3220,6 +3245,7 @@ new WPCOM_JSON_API_List_Posts_Endpoint( array(
 			'modified'      => 'Order by the modified time of each post.',
 			'title'         => "Order lexicographically by the posts' titles.",
 			'comment_count' => 'Order by the number of comments for each post.',
+			'ID'            => 'Order by post ID.',
 		),
 		'after'    => '(ISO 8601 datetime) Return posts dated on or after the specified datetime.',
 		'before'   => '(ISO 8601 datetime) Return posts dated on or before the specified datetime.',
@@ -3307,7 +3333,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'title'     => '(HTML) The post title.',
 		'content'   => '(HTML) The post content.',
 		'excerpt'   => '(HTML) An optional post excerpt.',
-		'slug'      => '(string) The name (slug) for your post, used in URLs.',
+		'slug'      => '(string) The name (slug) for the post, used in URLs.',
 		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
 		'publicize_message' => '(string) Custom message to be publicized to external services.',
 		'status'    => array(
@@ -3446,7 +3472,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'title'     => '(HTML) The post title.',
 		'content'   => '(HTML) The post content.',
 		'excerpt'   => '(HTML) An optional post excerpt.',
-		'slug'      => '(string) The name (slug) for your post, used in URLs.',
+		'slug'      => '(string) The name (slug) for the post, used in URLs.',
 		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
 		'publicize_message' => '(string) Custom message to be publicized to external services.',
 		'status'    => array(
