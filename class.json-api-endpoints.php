@@ -943,7 +943,7 @@ EOPHP;
 		);
 
 		if ($site_id > -1) {
-			$author['site_id'] = (int) $site_id;
+			$author['site_ID'] = (int) $site_id;
 		}
 
 		return (object) $author;
