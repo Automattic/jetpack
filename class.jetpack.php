@@ -3531,7 +3531,7 @@ Then in check below (not this one) add the is_network=network_admin
 	 * @since 2.6
 	 * @return array
 	 */
-	public function generate_secrets() {
+	public static function generate_secrets() {
 	    $secrets = array(
 		wp_generate_password( 32, false ), // secret_1
 		wp_generate_password( 32, false ), // secret_2
@@ -3549,7 +3549,7 @@ Then in check below (not this one) add the is_network=network_admin
 	 * @since 2.6
 	 * @return int
 	 **/
-	public function get_remote_query_timeout_limit() {
+	public static function get_remote_query_timeout_limit() {
 	    $timeout = (int) ini_get( 'max_execution_time' ); 
 	    if ( ! $timeout ) // Ensure exec time set in php.ini
 		$timeout = 30; 
@@ -3564,7 +3564,7 @@ Then in check below (not this one) add the is_network=network_admin
 	 * @since 2.6
 	 * @return true or Jetpack_Error
 	 **/
-	public function validate_remote_register_response( $response ) {
+	public static function validate_remote_register_response( $response ) {
 	    	if ( is_wp_error( $response ) ) {
 			return new Jetpack_Error( 'register_http_request_failed', $response->get_error_message() );
 		}
