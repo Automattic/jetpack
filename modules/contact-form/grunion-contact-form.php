@@ -1178,8 +1178,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$reply_to_addr = $comment_author_email;
 		}
 
-		$headers = 	'From: ' . $comment_author  .' <' . $from_email_addr  . ">\r\n" .
-					'Reply-To: ' . $comment_author . ' <' . $reply_to_addr  . ">\r\n" .
+		$headers = 	'From: "' . $comment_author  .'" <' . $from_email_addr  . ">\r\n" .
+					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr  . ">\r\n" .
 					"Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"";
 
 		$subject = apply_filters( 'contact_form_subject', $contact_form_subject );
