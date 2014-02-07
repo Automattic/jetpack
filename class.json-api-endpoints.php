@@ -894,6 +894,7 @@ EOPHP;
 			$URL         = $author->comment_author_url;
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
+			$site_id     = -1;
 		} else {
 			if ( isset( $author->post_author ) ) {
 				if ( 0 == $author->post_author )
@@ -918,9 +919,12 @@ EOPHP;
 			$URL   = $user->user_url;
 			$nice  = $user->user_nicename;
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$active_blog = get_active_blog_for_user( $ID );
+				$site_id     = $active_blog->blog_id;
 				$profile_URL = "http://en.gravatar.com/{$user->user_login}";
 			} else {
 				$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
+				$site_id     = -1;
 			}
 		}
 
@@ -928,7 +932,7 @@ EOPHP;
 
 		$email = $show_email ? (string) $email : false;
 
-		return (object) array(
+		$author = array(
 			'ID'          => (int) $ID,
 			'email'       => $email, // (string|bool)
 			'name'        => (string) $name,
@@ -937,6 +941,12 @@ EOPHP;
 			'avatar_URL'  => (string) esc_url_raw( $avatar_URL ),
 			'profile_URL' => (string) esc_url_raw( $profile_URL ),
 		);
+
+		if ($site_id > -1) {
+			$author['site_id'] = (int) $site_id;
+		}
+
+		return (object) $author;
 	}
 
 	function get_taxonomy( $taxonomy_id, $taxonomy_type, $context ) {
