@@ -112,9 +112,9 @@ class VaultPress_Filesystem {
 			$orig_limit = (int)$limit;
 			$limit = $offset + (int)$limit;
 			foreach ( (array)$this->scan_dir( $path ) as $i ) {
-				$current++;
 				if ( !$full_list && !$this->should_backup_file( $i ) )
 					continue;
+				$current++;
 				if ( $offset >= $current )
 					continue;
 				if ( $limit && $limit < $current )
