@@ -127,7 +127,7 @@ class Sharing_Admin {
 
 	public function output_service( $id, $service, $show_dropdown = false ) {
 ?>
-	<li class="service advanced share-<?php echo $service->get_class(); ?>" id="<?php echo $service->get_id(); ?>">
+	<li class="service advanced share-<?php echo $service->get_class(); ?>" id="<?php echo $service->get_id(); ?>" tabindex="0">
 		<span class="options-left"><?php echo esc_html( $service->get_name() ); ?></span>
 		<?php if ( 0 === strpos( $service->get_id(), 'custom-' ) || $service->has_advanced_options() ) : ?>
 		<span class="close"><a href="#" class="remove">&times;</a></span>
