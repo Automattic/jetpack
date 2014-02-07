@@ -3049,17 +3049,18 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	public static $site_format = array(
- 		'ID'          => '(int) Blog ID',
- 		'name'        => '(string) Title of blog',
- 		'description' => '(string) Tagline or description of blog',
- 		'URL'         => '(string) Full URL to the blog',
- 		'jetpack'     => '(bool)  Whether the blog is a Jetpack blog or not',
- 		'post_count'  => '(int) The number of posts the blog has',
-        'subscribers_count'  => '(int) The number of subscribers the blog has',
-		'lang'        => '(string) Primary language code of the blog',
-		'visible'     => '(bool) If this blog is visible in the user\'s blog list',
-		'is_private'  => '(bool) If the blog is a private blog or not',
-		'meta'        => '(object) Meta data',
+ 		'ID'                => '(int) Site ID',
+ 		'name'              => '(string) Title of site',
+ 		'description'       => '(string) Tagline or description of site',
+ 		'URL'               => '(string) Full URL to the site',
+ 		'jetpack'           => '(bool)  Whether the site is a Jetpack site or not',
+ 		'post_count'        => '(int) The number of posts the site has',
+        'subscribers_count' => '(int) The number of subscribers the site has',
+		'lang'              => '(string) Primary language code of the site',
+		'visible'           => '(bool) If this site is visible in the user\'s site list',
+		'is_private'        => '(bool) If the site is a private site or not',
+		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
+		'meta'              => '(object) Meta data',
 	);
 
 	// /sites/mine
@@ -3170,6 +3171,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = 0; // magic
 				}
                 break;
+			case 'is_following':
+				$response[$key] = (int) $this->api->is_following( $blog_id );
+				break;
 			case 'meta' :
 				$response[$key] = (object) array(
 					'links' => (object) array(
