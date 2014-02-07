@@ -1129,6 +1129,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	var $post_object_format = array(
 		// explicitly document and cast all output
 		'ID'        => '(int) The post ID.',
+		'site_ID'		=> '(int) The site ID.',
 		'author'    => '(object>author) The author of the post.',
 		'date'      => "(ISO 8601 datetime) The post's creation time.",
 		'modified'  => "(ISO 8601 datetime) The post's most recent update time.",
@@ -1292,6 +1293,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'ID' :
 				// explicitly cast all output
 				$response[$key] = (int) $post->ID;
+				break;
+			case 'site_ID' :
+				$response[$key] = (int) $blog_id;
 				break;
 			case 'author' :
 				$response[$key] = (object) $this->get_author( $post, 'edit' === $context && current_user_can( 'edit_post', $post->ID ) );
