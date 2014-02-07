@@ -3085,10 +3085,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		}
 
+		$blog_id = (int) $this->api->get_blog_id_for_output();
+
 		foreach ( array_keys( $response_format ) as $key ) {
 			switch ( $key ) {
 			case 'ID' :
-				$response[$key] = (int) $this->api->get_blog_id_for_output();
+				$response[$key] = $blog_id;
 				break;
 			case 'name' :
 				$response[$key] = (string) get_bloginfo( 'name' );
@@ -3115,7 +3117,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'visible' : 
 				if ( $is_user_logged_in ){
-					$blog_id = $this->api->get_blog_id_for_output();
 					$is_visible = true;
 					if ( isset( $visible[$blog_id] ) ) {
 						$is_visible = $visible[$blog_id];
@@ -3147,10 +3148,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'meta' :
 				$response[$key] = (object) array(
 					'links' => (object) array(
-						'self'     => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
-						'help'     => (string) $this->get_site_link( $this->api->get_blog_id_for_output(), 'help'      ),
-						'posts'    => (string) $this->get_site_link( $this->api->get_blog_id_for_output(), 'posts/'    ),
-						'comments' => (string) $this->get_site_link( $this->api->get_blog_id_for_output(), 'comments/' ),
+						'self'     => (string) $this->get_site_link( $blog_id ),
+						'help'     => (string) $this->get_site_link( $blog_id, 'help'      ),
+						'posts'    => (string) $this->get_site_link( $blog_id, 'posts/'    ),
+						'comments' => (string) $this->get_site_link( $blog_id, 'comments/' ),
 					),
 				);
 				break;
