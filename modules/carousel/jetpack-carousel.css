@@ -184,7 +184,9 @@ div.jp-carousel-buttons a:hover {
 }
 
 .jp-carousel-slide.selected {
-	position: absolute;
+	position: absolute !important;
+	filter: alpha(opacity=100);
+	opacity: 1;
 }
 
 .jp-carousel-slide {
@@ -212,11 +214,6 @@ div.jp-carousel-buttons a:hover {
 	-moz-transition: opacity 400ms linear;
 	-o-transition: opacity 400ms linear;
 	transition: opacity 400ms linear;
-}
-
-.jp-carousel-slide.selected {
-	filter: alpha(opacity=100);
-	opacity: 1;
 }
 
 .jp-carousel-close-hint {
