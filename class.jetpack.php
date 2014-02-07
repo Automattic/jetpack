@@ -3841,7 +3841,7 @@ Then in check below (not this one) add the is_network=network_admin
 			$sql_args[] = time() - 3600;
 		}
 
-		$sql .= ' LIMIT 100';
+		$sql .= ' ORDER BY `option_id` LIMIT 100';
 
 		$sql = $wpdb->prepare( $sql, $sql_args );
 
