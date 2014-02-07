@@ -801,6 +801,11 @@ EOPHP;
 					$type    = array();
 					$default = '';
 
+					if ( 'none' == $types ) {
+						$types = array();
+						$types[]['type'] = 'none';
+					}
+
 					foreach ( $types as $type_array ) {
 						$type[] = $type_array['type'];
 						if ( isset( $type_array['default'] ) ) {
