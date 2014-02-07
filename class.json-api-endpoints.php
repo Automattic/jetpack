@@ -1481,6 +1481,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
+		// WPCOM_JSON_API_Post_Endpoint::find_featured_worthy_media( $post );
+		$response['featured_media'] = self::find_featured_media( $post );
+
 		unset( $GLOBALS['post'] );
 		return $response;
 	}
@@ -1518,6 +1521,26 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		restore_current_blog();
 		return $post;
 	}
+
+	/**
+	 * Supporting featured media in post endpoints. Currently on for wpcom blogs
+	 * since it's calling WPCOM_JSON_API_Read_Endpoint methods which presently
+	 * rely on wpcom specific functionality.
+	 * 
+	 * @param WP_Post $post 
+	 * @return object list of featured media
+	 */
+	public static function find_featured_media( &$post ) {
+
+		if ( class_exists( 'WPCOM_JSON_API_Read_Endpoint' ) ) {
+			return WPCOM_JSON_API_Read_Endpoint::find_featured_worthy_media( (array) $post );
+		} else {
+			return (object) array();
+		}
+
+	}
+
+	
 
 	function win8_gallery_shortcode( $attr ) {
 		global $post;
