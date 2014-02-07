@@ -1956,6 +1956,8 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			if ( 'publish' === $input['status'] && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
 				$input['status'] = 'pending';
 			}
+			$last_status = $post->post_status;
+			$new_status = $input['status'];
 
 			$post_type = get_post_type_object( $post->post_type );
 		}
@@ -2073,6 +2075,16 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		if ( !$post_id || is_wp_error( $post_id ) ) {
 			return $post_id;
+		}
+
+		// WPCOM Specific (Jetpack's will get bumped elsewhere
+		// Tracks how many posts are published and sets meta so we can track some other cool stats (like likes & comments on posts published)
+		if ( ( $new && 'publish' == $input['status'] ) || ( !$new && isset( $last_status ) && 'publish' != $last_status && isset( $new_status ) && 'publish' == $new_status ) ) {
+			if ( function_exists( 'bump_stats_extras' ) ) {
+				bump_stats_extras( 'api-insights-posts', $this->api->token_details['client_id'] );
+				update_post_meta( $post_id, '_rest_api_published', 1 );
+				update_post_meta( $post_id, '_rest_api_client_id', $this->api->token_details['client_id'] );
+			}
 		}
 
 		if ( $publicize === false ) {
