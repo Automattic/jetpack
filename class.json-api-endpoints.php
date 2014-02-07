@@ -1191,7 +1191,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		// if the post type is empty, that's fine, WordPress will default to post
 		if ( empty( $post_type ) )
 			return true;
-	
+
 		// whitelist of post types that can be accessed
  		if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'any' ) ) ) )
 			return true;
@@ -1575,8 +1575,8 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * Supporting featured media in post endpoints. Currently on for wpcom blogs
 	 * since it's calling WPCOM_JSON_API_Read_Endpoint methods which presently
 	 * rely on wpcom specific functionality.
-	 * 
-	 * @param WP_Post $post 
+	 *
+	 * @param WP_Post $post
 	 * @return object list of featured media
 	 */
 	public static function find_featured_media( &$post ) {
@@ -1589,7 +1589,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	}
 
-	
+
 
 	function win8_gallery_shortcode( $attr ) {
 		global $post;
@@ -3122,7 +3122,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Collects the necessary information to return for a site's response. 
+	 * Collects the necessary information to return for a site's response.
 	 *
 	 * @return (array)
 	 */
@@ -3175,7 +3175,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = false; // magic
 				}
 				break;
-			case 'visible' : 
+			case 'visible' :
 				if ( $is_user_logged_in ){
 					$is_visible = true;
 					if ( isset( $visible[$blog_id] ) ) {
