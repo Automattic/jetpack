@@ -94,7 +94,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'example_request'      => '',
 			'example_request_data' => '',
 			'example_response'     => '',
-
+			'required_scope'       => '',
 			'pass_wpcom_user_details' => false,
 			'can_use_user_details_instead_of_blog_membership' => false,
 		);
@@ -117,6 +117,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
 
 		$this->version     = $args['version'];
+
+		$this->required_scope = $args['required_scope'];
 
 		if ( $this->request_format ) {
 			$this->request_format = array_filter( array_merge( $this->request_format, $args['request_format'] ) );
@@ -3020,6 +3022,21 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 }
 
 class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
+
+	public static $site_format = array(
+ 		'ID'          => '(int) Blog ID',
+ 		'name'        => '(string) Title of blog',
+ 		'description' => '(string) Tagline or description of blog',
+ 		'URL'         => '(string) Full URL to the blog',
+ 		'jetpack'     => '(bool)  Whether the blog is a Jetpack blog or not',
+ 		'post_count'  => '(int) The number of posts the blog has',
+        'subscribers_count'  => '(int) The number of subscribers the blog has',
+		'lang'        => '(string) Primary language code of the blog',
+		'visible'     => '(bool) If this blog is visible in the user\'s blog list',
+		'is_private'  => '(bool) If the blog is a private blog or not',
+		'meta'        => '(object) Meta data',
+	);
+
 	// /sites/mine
 	// /sites/%s -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {
@@ -3037,10 +3054,38 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
+		$response = $this->build_current_site_response();
+
+		do_action( 'wpcom_json_api_objects', 'sites' );
+
+		return $response;
+	}
+
+	/**
+	 * Collects the necessary information to return for a site's response. 
+	 *
+	 * @return (array)
+	 */
+	public function build_current_site_response( ) {
+
+		global $wpdb;
+
+		$response_format = self::$site_format;
+
 		$is_user_logged_in = is_user_logged_in();
 
-		$response = array();
-		foreach ( array_keys( $this->response_format ) as $key ) {
+		$visible = array();
+
+		if ( $is_user_logged_in ) {
+			$current_user = wp_get_current_user();
+			$visible = get_user_meta( $current_user->ID, 'blog_visibility', true );
+
+			if ( !is_array( $visible ) )
+				$visible = array();
+
+		}
+
+		foreach ( array_keys( $response_format ) as $key ) {
 			switch ( $key ) {
 			case 'ID' :
 				$response[$key] = (int) $this->api->get_blog_id_for_output();
@@ -3066,6 +3111,17 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$response[$key] = false;
 				} else {
 					$response[$key] = false; // magic
+				}
+				break;
+			case 'visible' : 
+				if ( $is_user_logged_in ){
+					$blog_id = $this->api->get_blog_id_for_output();
+					$is_visible = true;
+					if ( isset( $visible[$blog_id] ) ) {
+						$is_visible = $visible[$blog_id];
+					}
+					// null and true are visible
+					$response[$key] = $is_visible;
 				}
 				break;
 			case 'post_count' :
@@ -3101,13 +3157,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
-		do_action( 'wpcom_json_api_objects', 'sites' );
-
 		return $response;
+
 	}
+
 }
-
-
 
 /*
  * Set up endpoints
@@ -3133,22 +3187,10 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 		'context' => false,
 	),
 
-	'response_format' => array(
- 		'ID'          => '(int) Blog ID',
- 		'name'        => '(string) Title of blog',
- 		'description' => '(string) Tagline or description of blog',
- 		'URL'         => '(string) Full URL to the blog',
- 		'jetpack'     => '(bool)  Whether the blog is a Jetpack blog or not',
- 		'post_count'  => '(int) The number of posts the blog has',
-        'subscribers_count'  => '(int) The number of subscribers the blog has',
-		'lang'        => '(string) Primary language code of the blog',
-		'meta'        => '(object) Meta data',
-		'is_private'  => '(bool) If the blog is a private blog or not',
-	),
+	'response_format' => WPCOM_JSON_API_GET_Site_Endpoint::$site_format,
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/?pretty=1',
 ) );
-
 
 /*
  * Post endpoints
