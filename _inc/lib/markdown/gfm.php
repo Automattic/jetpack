@@ -6,9 +6,7 @@
  * @author Matt Wiebe <wiebe@automattic.com>
  * @link https://github.com/evansolomon/wp-github-flavored-markdown-comments
  *
- * Add a few extras from GitHub's Markdown implementation. Must be used
- * in a WordPress environment if the $preserve_shortcodes member is set to true,
- * which will be auto-detected initially on __construct()
+ * Add a few extras from GitHub's Markdown implementation. Must be used in a WordPress environment.
  */
 
 class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
@@ -100,6 +98,51 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		}
 
 		return $text;
+	}
+
+	/**
+	 * Preserve code block contents by HTML encoding them. Useful before getting to KSES stripping.
+	 * @param  string $text Markdown/HTML content
+	 * @return string       Markdown/HTML content with escaped code blocks
+	 */
+	public function codeblock_preserve( $text ) {
+		$text = preg_replace_callback( "/^(`{3})([^`\n]+)?\n([^`~]+)(`{3})/m", array( $this, 'do_codeblock_preserve' ), $text );
+		$text = preg_replace_callback( "/^(~{3})([^~\n]+)?\n([^~~]+)(~{3})/m", array( $this, 'do_codeblock_preserve' ), $text );
+		return $text;
+	}
+
+	/**
+	 * Regex callback for code block preservation.
+	 * @param  array $matches Regex matches
+	 * @return string         Codeblock with escaped interior
+	 */
+	public function do_codeblock_preserve( $matches ) {
+		$block = stripslashes( $matches[3] );
+		$block = esc_html( $block );
+		$open = $matches[1] . $matches[2] . "\n";
+		return $open . $block . $matches[4];
+	}
+
+	/**
+	 * Restore previously preserved (i.e. escaped) code block contents.
+	 * @param  string $text Markdown/HTML content with escaped code blocks
+	 * @return string       Markdown/HTML content
+	 */
+	public function codeblock_restore( $text ) {
+		$text = preg_replace_callback( "/^(`{3})([^`\n]+)?\n([^`~]+)(`{3})/m", array( $this, 'do_codeblock_restore' ), $text );
+		$text = preg_replace_callback( "/^(~{3})([^~\n]+)?\n([^~~]+)(~{3})/m", array( $this, 'do_codeblock_restore' ), $text );
+		return $text;
+	}
+
+	/**
+	 * Regex callback for code block restoration (unescaping).
+	 * @param  array $matches Regex matches
+	 * @return string         Codeblock with unescaped interior
+	 */
+	public function do_codeblock_restore( $matches ) {
+		$block = html_entity_decode( $matches[3] );
+		$open = $matches[1] . $matches[2] . "\n";
+		return $open . $block . $matches[4];
 	}
 
 	/**
@@ -254,10 +297,15 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 * Overload to support Viper's [code] shortcode. Because awesome.
 	 */
 	public function _doFencedCodeBlocks_callback( $matches ) {
-		// just MarkdownExtra_Parser if we're not going ultra-deluxe, or if
-		// there wasn't a language class passed
-		if ( ! $this->use_code_shortcode || empty( $matches[2] ) )
+		// just MarkdownExtra_Parser if we're not going ultra-deluxe
+		if ( ! $this->use_code_shortcode ) {
 			return parent::_doFencedCodeBlocks_callback( $matches );
+		}
+
+		// default to a "text" class if one wasn't passed. Helps with encoding issues later.
+		if ( empty( $matches[2] ) ) {
+			$matches[2] = 'text';
+		}
 
 		$classname =& $matches[2];
 		$codeblock = preg_replace_callback('/^\n+/', array( $this, '_doFencedCodeBlocks_newlines' ), $matches[4] );
@@ -265,6 +313,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		if ( $classname{0} == '.' )
 			$classname = substr( $classname, 1 );
 
+		$codeblock = esc_html( $codeblock );
 		$codeblock = sprintf( $this->shortcode_start, $classname ) . "\n{$codeblock}" . $this->shortcode_end;
 		return "\n\n" . $this->hashBlock( $codeblock ). "\n\n";
 	}
