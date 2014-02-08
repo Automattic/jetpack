@@ -11,6 +11,9 @@
 function wpcom_twitter_cards_tags( $og_tags ) {
 	global $post;
 
+	if( post_password_required() )
+		return $og_tags;
+
 	if ( apply_filters( 'jetpack_disable_twitter_cards', false ) )
 		return $og_tags;
 

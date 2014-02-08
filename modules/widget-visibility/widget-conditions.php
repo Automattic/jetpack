@@ -248,14 +248,29 @@ class Jetpack_Widget_Conditions {
 
 			foreach ( $widgets as $position => $widget_id ) {
 				// Find the conditions for this widget.
-				list( $basename, $suffix ) = explode( "-", $widget_id, 2 );
+				if ( preg_match( '/^(.+?)-(\d+)$/', $widget_id, $matches ) ) {
+					$id_base = $matches[1];
+					$widget_number = intval( $matches[2] );
+				}
+				else {
+					$id_base = $widget_id;
+					$widget_number = null;
+				}
 
-				if ( ! isset( $settings[$basename] ) )
-					$settings[$basename] = get_option( 'widget_' . $basename );
+				if ( ! isset( $settings[$id_base] ) ) {
+					$settings[$id_base] = get_option( 'widget_' . $id_base );
+				}
 
-				if ( isset( $settings[$basename][$suffix] ) ) {
-					if ( false === self::filter_widget( $settings[$basename][$suffix] ) )
+				// New multi widget (WP_Widget)
+				if ( ! is_null( $widget_number ) ) {
+					if ( isset( $settings[$id_base][$widget_number] ) && false === self::filter_widget( $settings[$id_base][$widget_number] ) ) {
 						unset( $widget_areas[$widget_area][$position] );
+					}
+				}
+
+				// Old single widget
+				else if ( ! empty( $settings[ $id_base ] ) && false === self::filter_widget( $settings[$id_base] ) ) {
+					unset( $widget_areas[$widget_area][$position] );
 				}
 			}
 		}
@@ -319,14 +334,19 @@ class Jetpack_Widget_Conditions {
 							$condition_result = is_home();
 						break;
 						case 'front':
-							$condition_result = is_front_page();
+							if ( current_theme_supports( 'infinite-scroll' ) )
+								$condition_result = is_front_page();
+							else {
+								$condition_result = is_front_page() && !is_paged();
+							}
 						break;
 						default:
 							if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' )
 								$condition_result = is_singular( substr( $rule['minor'], 10 ) );
 							else {
-								// $rule['minor'] is a page ID
-								$condition_result = is_page( $rule['minor'] );
+								// $rule['minor'] is a page ID -- check if we're either looking at that particular page itself OR looking at the posts page, with the correct conditions
+								
+								$condition_result = ( is_page( $rule['minor'] ) || ( get_option( 'show_on_front' ) == 'page' && $wp_query->is_posts_page && get_option( 'page_for_posts' ) == $rule['minor'] ) );
 							}
 						break;
 					}

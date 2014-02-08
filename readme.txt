@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
-Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, lancewillett, martinremy, matt, matveb, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, richardmtl, stephdau, tmoorewp, Viper007Bond, westi, yoavf
+Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, richardmtl, stephdau, tmoorewp, Viper007Bond, westi, yoavf
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow, videopress, monitor, search, omnisearch, sso, jet pack
-Requires at least: 3.6
-Tested up to: 3.8
-Stable tag: 2.7
+Stable tag: 2.8
+Requires at least: 3.7
+Tested up to: 3.8.1
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
 
@@ -44,8 +44,6 @@ Features include:
 * Sign in to your self-hosted WordPress site using your WordPress.com log-in credentials.
 * Jetpack Monitor will keep tabs on your site, and alert you the moment that downtime is detected.
 * and *many* more to come!
-
-Note: The stats portion of Jetpack uses Quantcast to enhance its data.
 
 == Installation ==
 
@@ -88,7 +86,46 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 2.9 =
+* ???
+
 = 2.8 =
+* New Module: Markdown
+* Module Update: Jetpack Monitor
+* Enhancement: Infinite Scroll: Keep track of $current_day between requests so the_date() works well.
+* Enhancement: Embeds: New filter to turn off embeds in comments.
+* Enhancement: Contact Form: Add placeholder support.
+* Enhancement: Widget: Gravatar Profile: Added filters to allow users to customize headings and fixed output of personal links.
+* Enhancement: Facebook OG Tags: Add `published_time`, `modified_time`, and `author` if the post type supports it.
+* Enhancement: Sharing: Display buttons on CPT archive pages.
+* Enhancement: Sharing: Add `get_share_title` function and filter.
+* Enhancement: Sharing: Add filter `sharing_display_link`.
+* Enhancement: Twitter Timeline: Flesh out tweet limit option.
+* Enhancement: Social Links: Add Google+ to the list of supported services.
+* Enhancement: Stats: Improve dashboard styles in 3.8.
+* Enhancement: Stats: No longer use Quantcast.
+* Enhancement: Top Posts: Add `jetpack_top_posts_days` filter.
+* Enhancement: AtD: Add TinyMCE 4 compatability for its pending arrival in WordPress 3.9
+* Enhancement: Genericons: Update to v3.0.3
+* Enhancement: Tiled Galleries: Add alt attributes to images.
+* Enhancement: Shortcode: YouTube: Accept protocol-relative URLs.
+* Enhancement: Shortcode: Slideshow: Add white background option.
+* Enhancement: Shortcode: YouTube: Add support for the two closed-caption arguments.
+* Enhancement: Shortcode: Vimeo: Update the regex to support the new embed code.
+* Enhancement: Shortcode: Google Maps: Update the regex to handle new format for embeds.
+* Enhancement: Likes: Avoid a PHP Notice when $_POST['post_type'] is not set in meta_box_save.
+* Enhancement: Smush images to save on file size.
+* Enhancement: Publicize: Enable opt-in publicizing of custom post types.
+* Bug Fix: Random Redirect: Further namespace to avoid conflicts.
+* Bug Fix: Twitter Timeline: Resolve undefined index notice.
+* Bug Fix: Featured Content: Add extra class_exists() check to be extra careful.
+* Bug Fix: Facebook OG Tags: Change OG type of Home and Front Page to 'website'
+* Bug Fix: Widget Visibility: Add support for old-style single use widgets.
+* Bug Fix: Google Authorship: Support apostrophe in author names.
+* Bug Fix: Media Extractor: Assorted graceful failure caveats.
+* Bug Fix: Carousel: 'Link to None' bug fixed.
+* Bug Fix: Embeds: Bandcamp: Switch escaping function for album and track IDs to handle (int)s greater than PHP_INT_MAX
+* Bug Fix: Some plugins trying to catch brute-force attacks mistakenly flagged the Jetpack connection as one.
 
 = 2.7 =
 * Enhancement: Google+ Publicize

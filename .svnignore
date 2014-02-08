@@ -1,0 +1,8 @@
+.git/
+.gitignore
+.travis.yml
+readme.md
+tests/
+_inc/lib/icalendar-reader.php
+modules/shortcodes/upcoming-events.php
+modules/widgets/upcoming-events.php

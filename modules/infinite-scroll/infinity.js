@@ -26,6 +26,7 @@ Scroller = function( settings ) {
 	this.disabled         = false;
 	this.page             = 1;
 	this.offset           = settings.offset;
+	this.currentday       = settings.currentday;
 	this.order            = settings.order;
 	this.throttle         = false;
 	this.handle           = '<div id="infinite-handle"><span>' + text.replace( '\\', '' ) + '</span></div>';
@@ -108,6 +109,7 @@ Scroller.prototype.render = function( response ) {
 Scroller.prototype.query = function() {
 	return {
 		page           : this.page,
+		currentday     : this.currentday,
 		order          : this.order,
 		scripts        : window.infiniteScroll.settings.scripts,
 		styles         : window.infiniteScroll.settings.styles,
@@ -284,6 +286,10 @@ Scroller.prototype.refresh = function() {
 				// If 'click' type and there are still posts to fetch, add back the handle
 				if ( type == 'click' && !response.lastbatch )
 					self.element.append( self.handle );
+
+				// Update currentday to the latest value returned from the server
+				if (response.currentday)
+					self.currentday = response.currentday;
 
 				// Fire Google Analytics pageview
 				if ( self.google_analytics && 'object' == typeof _gaq )

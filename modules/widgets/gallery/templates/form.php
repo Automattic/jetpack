@@ -36,7 +36,7 @@
 </div>
 
 <p>
-	<a class="button gallery-widget-choose-images" title="Choose Images"><span class="wp-media-buttons-icon"></span> Choose Images</a>
+	<a class="button gallery-widget-choose-images" title="<?php _e( 'Choose Images', 'jetpack' ); ?>"><span class="wp-media-buttons-icon"></span> <?php esc_html_e( 'Choose Images', 'jetpack' ); ?></a>
 </p>
 
 <p class="gallery-widget-link-wrapper">

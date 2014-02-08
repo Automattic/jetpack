@@ -15,7 +15,7 @@ class Jetpack_Debugger {
 	}
 
 	public static function jetpack_increase_timeout($time) {
-		$time = 20; //seconds
+		$time = 30; //seconds
 		return $time;
 	}
 

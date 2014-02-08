@@ -1143,6 +1143,38 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$extra_values[$label] = $value;
 		}
 
+
+		$message_fields = array();
+
+		foreach ( $field_ids['all'] as $field_id ) {
+
+			switch( $field_id ){
+				case "name":
+					$message_fields[$comment_author_label] = $comment_author;
+					break;
+				case "email":
+					$message_fields[$comment_author_email_label] = $comment_author_email;
+					break;
+				case "url":
+					$message_fields[$comment_author_url_label] = $comment_author_url;
+					break;
+				case "textarea":
+					$message_fields[$comment_content_label] = $comment_content;
+					break;
+				case "subject":
+					$field = $this->fields[$field_id];
+					$label = $field->get_attribute( 'label' );
+					$message_fields[$label] = $contact_form_subject;
+					break;
+				default:
+					$field = $this->fields[$field_id];
+					$label = $field->get_attribute( 'label' );
+					$value = $field->value;
+					$message_fields[$label] = $value;
+			}
+
+		}
+
 		$contact_form_subject = trim( $contact_form_subject );
 
 		$comment_author_IP = Grunion_Contact_Form_Plugin::strip_tags( $_SERVER['REMOTE_ADDR'] );
@@ -1188,23 +1220,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$date_time_format = sprintf( $date_time_format, get_option( 'date_format' ), get_option( 'time_format' ) );
 		$time = date_i18n( $date_time_format, current_time( 'timestamp' ) );
 
-		$extra_content = '';
+		$message = '';
 
-		foreach ( $extra_values as $label => $value ) {
-			$extra_content .= $label . ': ' . trim( $value ) . "\n";
+		foreach ( $message_fields as $label => $value ) {
+			$message .= $label . ': ' . trim( $value ) . "\n";
 		}
-
-		$message = "$comment_author_label: $comment_author\n";
-		if ( !empty( $comment_author_email ) ) {
-			$message .= "$comment_author_email_label: $comment_author_email\n";
-		}
-		if ( !empty( $comment_author_url ) ) {
-			$message .= "$comment_author_url_label: $comment_author_url\n";
-		}
-		if ( !empty( $comment_content_label ) ) {
-			$message .= "$comment_content_label: $comment_content\n";
-		}
-		$message .= $extra_content . "\n";
 
 		$message .= __( 'Time:', 'jetpack' ) . ' ' . $time . "\n";
 		$message .= __( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP . "\n";
@@ -1362,13 +1382,13 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 	 */
 	function __construct( $attributes, $content = null, $form = null ) {
 		$attributes = shortcode_atts( array(
-			'label'    => null,
-			'type'     => 'text',
-			'required' => false,
-			'options'  => array(),
-			'id'       => null,
-			'default'  => null,
-            'placeholder'   => null,
+			'label'       => null,
+			'type'        => 'text',
+			'required'    => false,
+			'options'     => array(),
+			'id'          => null,
+			'default'     => null,
+			'placeholder' => null,
 		), $attributes );
 
 		// special default for subject field
@@ -1485,13 +1505,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 		$r = '';
 
-		$field_id        = $this->get_attribute( 'id' );
-		$field_type      = $this->get_attribute( 'type' );
-		$field_label     = $this->get_attribute( 'label' );
-		$field_required  = $this->get_attribute( 'required' );
-       
-		$placeholder = $this->get_attribute( 'placeholder' );
-		$field_placeholder = ( !empty( $placeholder ) )? "placeholder='$placeholder'": '';
+		$field_id          = $this->get_attribute( 'id' );
+		$field_type        = $this->get_attribute( 'type' );
+		$field_label       = $this->get_attribute( 'label' );
+		$field_required    = $this->get_attribute( 'required' );
+		$placeholder       = $this->get_attribute( 'placeholder' );
+		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 
 		if ( isset( $_POST[$field_id] ) ) {
 			$this->value = stripslashes( (string) $_POST[$field_id] );

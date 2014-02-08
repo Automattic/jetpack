@@ -48,7 +48,7 @@ Legacy contributions (that may not be credited properly due to the import from S
 * @xyu
 * @yoavf
 
-Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, and [Deborah Beckett](https://twitter.com/dbeckettnc)
+Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, and @kraftbj
 
 Interested in working on awesome open-source code all day? Join us!
 

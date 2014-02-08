@@ -103,3 +103,20 @@
 {
    outline:none
 }
+
+/* TinyMCE 4.0 */
+div.mce-atd-menu-title.mce-disabled {
+	padding: 3px 12px 0;
+}
+
+div.mce-atd-menu-title.mce-disabled:hover,
+div.mce-atd-menu-title.mce-disabled:hover span.mce-text {
+	background: none;
+	color: #888;
+	cursor: default;
+}
+
+div.mce-atd-menu-title.mce-disabled span.mce-text {
+	font-weight: bold;
+	color: #888;
+}

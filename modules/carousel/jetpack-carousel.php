@@ -53,7 +53,7 @@ class Jetpack_Carousel {
 			$this->prebuilt_widths = apply_filters( 'jp_carousel_widths', $this->prebuilt_widths );
 			add_filter( 'post_gallery', array( $this, 'enqueue_assets' ), 1000, 2 ); // load later than other callbacks hooked it
 			add_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
-			add_filter( 'wp_get_attachment_link', array( $this, 'add_data_to_images' ), 10, 2 );
+			add_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ), 10, 2 );
 		}
 
 		if ( $this->in_jetpack && method_exists( 'Jetpack', 'module_configuration_load' ) ) {
@@ -79,14 +79,14 @@ class Jetpack_Carousel {
 		if ( ! empty( $output ) && ! apply_filters( 'jp_carousel_force_enable', false ) ) {
 			// Bail because someone is overriding the [gallery] shortcode.
 			remove_filter( 'gallery_style', array( $this, 'add_data_to_container' ) );
-			remove_filter( 'wp_get_attachment_link', array( $this, 'add_data_to_images' ) );
+			remove_filter( 'wp_get_attachment_image_attributes', array( $this, 'add_data_to_images' ) );
 			return $output;
 		}
 
 		do_action( 'jp_carousel_thumbnails_shown' );
 
 		if ( $this->first_run ) {
-			wp_enqueue_script( 'jetpack-carousel', plugins_url( 'jetpack-carousel.js', __FILE__ ), array( 'jquery.spin' ), $this->asset_version( '20130109' ), true );
+			wp_enqueue_script( 'jetpack-carousel', plugins_url( 'jetpack-carousel.js', __FILE__ ), array( 'jquery.spin' ), $this->asset_version( '20131218' ), true );
 
 			// Note: using  home_url() instead of admin_url() for ajaxurl to be sure  to get same domain on wpcom when using mapped domains (also works on self-hosted)
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
@@ -163,11 +163,12 @@ class Jetpack_Carousel {
 		return $output;
 	}
 
-	function add_data_to_images( $html, $attachment_id ) {
-		if ( $this->first_run ) // not in a gallery
-			return $html;
+	function add_data_to_images( $attr, $attachment = null ) {
 
-		$attachment_id   = intval( $attachment_id );
+		if ( $this->first_run ) // not in a gallery
+			return $attr;
+
+		$attachment_id   = intval( $attachment->ID );
 		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
 		$orig_file       = isset( $orig_file[0] ) ? $orig_file[0] : wp_get_attachment_url( $attachment_id );
 		$meta            = wp_get_attachment_metadata( $attachment_id );
@@ -175,7 +176,7 @@ class Jetpack_Carousel {
 		$img_meta        = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
 		$comments_opened = intval( comments_open( $attachment_id ) );
 
-		/*
+		 /*
 		 * Note: Cannot generate a filename from the width and height wp_get_attachment_image_src() returns because
 		 * it takes the $content_width global variable themes can set in consideration, therefore returning sizes
 		 * which when used to generate a filename will likely result in a 404 on the image.
@@ -210,26 +211,17 @@ class Jetpack_Carousel {
 
 		$img_meta = json_encode( array_map( 'strval', $img_meta ) );
 
-		$html = str_replace(
-			'<img ',
-			sprintf(
-				'<img data-attachment-id="%1$d" data-orig-file="%2$s" data-orig-size="%3$s" data-comments-opened="%4$s" data-image-meta="%5$s" data-image-title="%6$s" data-image-description="%7$s" data-medium-file="%8$s" data-large-file="%9$s" ',
-				$attachment_id,
-				esc_attr( $orig_file ),
-				$size,
-				$comments_opened,
-				esc_attr( $img_meta ),
-				esc_attr( $attachment_title ),
-				esc_attr( $attachment_desc ),
-				esc_attr( $medium_file ),
-				esc_attr( $large_file )
-			),
-			$html
-		);
+		$attr['data-attachment-id']     = $attachment_id;
+		$attr['data-orig-file']         = esc_attr( $orig_file );
+		$attr['data-orig-size']         = $size;
+		$attr['data-comments-opened']   = $comments_opened;
+		$attr['data-image-meta']        = esc_attr( $img_meta );
+		$attr['data-image-title']       = esc_attr( $attachment_title );
+		$attr['data-image-description'] = esc_attr( $attachment_desc );
+		$attr['data-medium-file']       = esc_attr( $medium_file );
+		$attr['data-large-file']        = esc_attr( $large_file );
 
-		$html = apply_filters( 'jp_carousel_add_data_to_images', $html, $attachment_id );
-
-		return $html;
+		return $attr;
 	}
 
 	function add_data_to_container( $html ) {

@@ -32,6 +32,7 @@ class Jetpack_Sync {
 	 *	post_stati => array( post_status slugs ): The post stati to sync.  Default: publish
 	 */
 	static function sync_posts( $file, array $settings = null ) {
+		if( is_network_admin() ) return;
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
 		return call_user_func_array( array( $jetpack->sync, 'posts' ), $args );
@@ -46,6 +47,7 @@ class Jetpack_Sync {
 	 * 	comment_stati => array( comment_status slugs ): The comment stati to sync.  Default: approved
 	 */
 	static function sync_comments( $file, array $settings = null ) {
+		if( is_network_admin() ) return;
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
 		return call_user_func_array( array( $jetpack->sync, 'comments' ), $args );
@@ -57,6 +59,7 @@ class Jetpack_Sync {
 	 * @param string $option ...
 	 */
 	static function sync_options( $file, $option /*, $option, ... */ ) {
+		if( is_network_admin() ) return;
 		$jetpack = Jetpack::init();
 		$args = func_get_args();
 		return call_user_func_array( array( $jetpack->sync, 'options' ), $args );
@@ -74,7 +77,9 @@ class Jetpack_Sync {
 	function register( $object, $id = false, array $settings = null ) {
 		// Since we've registered something for sync, hook it up to execute on shutdown if we haven't already
 		if ( !$this->sync ) {
-			ignore_user_abort( true );
+			if ( function_exists( 'ignore_user_abort' ) ) {
+				ignore_user_abort( true );
+			}
 			add_action( 'shutdown', array( $this, 'sync' ), 9 ); // Right before async XML-RPC
 		}
 
@@ -467,6 +472,7 @@ class Jetpack_Sync {
 
 		$post['permalink'] = get_permalink( $post_obj->ID );
 		$post['shortlink'] = wp_get_shortlink( $post_obj->ID );
+		$post['module_custom_data'] = apply_filters( 'jetpack_sync_post_module_custom_data', array(), $post_obj );
 		return $post;
 	}
 
@@ -709,5 +715,89 @@ class Jetpack_Sync {
 		} else {
 			wp_schedule_single_event( time(), 'jetpack_sync_all_registered_options', array( $this->sync_options ) );
 		}
+	}
+
+	public function reindex_trigger() {
+		$response = array( 'status' => 'ERROR' );
+
+		Jetpack::load_xml_rpc_client();
+		$client = new Jetpack_IXR_Client( array(
+			'user_id' => JETPACK_MASTER_USER,
+		) );
+
+		$client->query( 'jetpack.reindexTrigger' );
+
+		if ( !$client->isError() ) {
+			$response = $client->getResponse();
+			Jetpack_Options::update_option( 'sync_bulk_reindexing', true );
+		}
+
+		return $response;
+	}
+
+	public function reindex_status() {
+		$response = array( 'status' => 'ERROR' );
+
+		// Assume reindexing is done if it was not triggered in the first place
+		if ( false === Jetpack_Options::get_option( 'sync_bulk_reindexing' ) ) {
+			return array( 'status' => 'DONE' );
+		}
+
+		Jetpack::load_xml_rpc_client();
+		$client = new Jetpack_IXR_Client( array(
+			'user_id' => JETPACK_MASTER_USER,
+		) );
+
+		$client->query( 'jetpack.reindexStatus' );
+
+		if ( !$client->isError() ) {
+			$response = $client->getResponse();
+			if ( 'DONE' == $response['status'] ) {
+				Jetpack_Options::delete_option( 'sync_bulk_reindexing' );
+			}
+		}
+
+		return $response;
+	}
+
+	public function reindex_ui() {
+		$strings = json_encode( array(
+			'WAITING' => array(
+				'action' => __( 'Refresh Status', 'jetpack' ),
+				'status' => __( 'Indexing posts&hellip;', 'jetpack' ),
+			),
+			'INDEXING' => array(
+				'action' => __( 'Refresh Status', 'jetpack' ),
+				'status' => __( 'Indexing posts', 'jetpack' ),
+			),
+			'DONE' => array(
+				'action' => __( 'Reindex Posts', 'jetpack' ),
+				'status' => __( 'Posts indexed.', 'jetpack' ),
+			),
+			'ERROR' => array(
+				'action' => __( 'Refresh Status', 'jetpack' ),
+				'status' => __( 'Status unknown.', 'jetpack' ),
+			),
+		) );
+
+		wp_enqueue_script(
+			'jetpack_sync_reindex_control',
+			plugins_url( '_inc/jquery.jetpack-sync.js', __FILE__ ),
+			array( 'jquery' ),
+			JETPACK__VERSION
+		);
+
+		$template = <<<EOT
+			<p class="jetpack_sync_reindex_control" id="jetpack_sync_reindex_control" data-strings="%s">
+				<input type="submit" class="jetpack_sync_reindex_control_action button" value="%s" disabled />
+				<span class="jetpack_sync_reindex_control_status">&hellip;</span>
+			</p>
+EOT;
+
+		return sprintf(
+			$template,
+			esc_attr( $strings ),
+			esc_attr__( 'Refresh Status', 'jetpack' )
+		);
 	}
 }

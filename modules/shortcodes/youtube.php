@@ -38,7 +38,7 @@ function youtube_embed_to_short_code( $content ) {
 	$old_regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $old_regexp, ENT_NOQUOTES ) );
 
 	//new code
-	$ifr_regexp = '!<iframe((?:\s+\w+="[^"]*")*?)\s+src="https?://(?:www\.)*youtube.com/embed/([^"]+)".*?</iframe>!i';
+	$ifr_regexp = '!<iframe((?:\s+\w+="[^"]*")*?)\s+src="(https?:)?//(?:www\.)*youtube.com/embed/([^"]+)".*?</iframe>!i';
 	$ifr_regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $ifr_regexp, ENT_NOQUOTES ) );
 
 	if ( is_ssl() )
@@ -74,7 +74,7 @@ function youtube_embed_to_short_code( $content ) {
 				if ( $width && $height )
 					$wh = "&w=$width&h=$height";
 
-				$url = esc_url_raw( "$protocol://www.youtube.com/watch?v={$match[2]}{$wh}" );
+				$url = esc_url_raw( "$protocol://www.youtube.com/watch?v={$match[3]}{$wh}" );
 			} else {
 				$match[1] = str_replace( '?', '&', $match[1] );
 
@@ -250,8 +250,11 @@ function youtube_id( $url ) {
 
 	$fmt =    ( isset( $qargs['fmt'] )            && intval( $qargs['fmt'] )       ) ? '&fmt=' . (int) $qargs['fmt']     : '';
 	$start =  ( isset( $qargs['start'] )          && intval( $qargs['start'] )     ) ? '&start=' . (int) $qargs['start'] : '';
-	$end =    ( isset( $qargs['end'] )            && intval( $qargs['end'] )       ) ? '&end=' . (int) $qargs['end'] : '';
+	$end =    ( isset( $qargs['end'] )            && intval( $qargs['end'] )       ) ? '&end=' . (int) $qargs['end']     : '';
 	$hd =     ( isset( $qargs['hd'] )             && intval( $qargs['hd'] )        ) ? '&hd=' . (int) $qargs['hd']       : '';
+
+	$cc = ( isset( $qargs['cc_load_policy'] ) ) ? '&cc_load_policy=1' : '';
+	$cc_lang = ( isset( $qargs['cc_lang_pref'] )   ) ? '&cc_lang_pref=' . preg_replace( '/[^_a-z0-9-]/i', '', $qargs['cc_lang_pref'] ) : '';
 
 	$wmode =  ( isset( $qargs['wmode'] ) && in_array( strtolower( $qargs['wmode'] ), array( 'opaque', 'window', 'transparent' ) ) ) ? $qargs['wmode'] : 'transparent';
 
@@ -279,7 +282,7 @@ function youtube_id( $url ) {
 	if ( ( isset( $url['path'] ) && '/videoseries' == $url['path'] ) || isset( $qargs['list'] ) ) {
 		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "$protocol://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) . "' frameborder='0'></iframe></span>";
 	} else {
-		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "$protocol://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$autoplay" ) . "' frameborder='0'></iframe></span>";
+		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "$protocol://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$autoplay{$cc}{$cc_lang}" ) . "' frameborder='0'></iframe></span>";
 	}
 
 	$html = apply_filters( 'video_embed_html', $html );

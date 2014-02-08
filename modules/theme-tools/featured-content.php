@@ -102,6 +102,7 @@ class Featured_Content {
 		add_action( 'customize_controls_enqueue_scripts', array( __CLASS__, 'enqueue_scripts'    )    );
 		add_action( 'pre_get_posts',                      array( __CLASS__, 'pre_get_posts'      )    );
 		add_action( 'switch_theme',                       array( __CLASS__, 'switch_theme'       )    );
+		add_action( 'switch_theme',                       array( __CLASS__, 'delete_transient'   )    );
 		add_action( 'wp_loaded',                          array( __CLASS__, 'wp_loaded'          )    );
 
 		if ( isset( $theme_support[0]['additional_post_types'] ) ) {
@@ -403,9 +404,7 @@ class Featured_Content {
 		) );
 
 		// Add Featured Content settings.
-		$term = get_term_by( 'id', self::get_setting( 'tag-id' ), 'post_tag' );
 		$wp_customize->add_setting( 'featured-content[tag-name]', array(
-			'default'              => $term ? $term->name : 'featured',
 			'type'                 => 'option',
 			'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
 		) );

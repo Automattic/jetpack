@@ -11,11 +11,14 @@ Plugin URI: http://en.blog.wordpress.com/2010/08/24/more-ways-to-share/
 require_once plugin_dir_path( __FILE__ ).'sharing.php';
 
 function sharing_email_send_post( $data ) {
-	$content  = sprintf( __( '%1$s (%2$s) thinks you may be interested in the following post:'."\n\n", 'jetpack' ), $data['name'], $data['source'] );
+	$content  = sprintf( __( '%1$s (%2$s) thinks you may be interested in the following post:', 'jetpack' ), $data['name'], $data['source'] );
+	$content .= "\n\n";
 	$content .= $data['post']->post_title."\n";
 	$content .= get_permalink( $data['post']->ID )."\n";
 
-	wp_mail( $data['target'], '['.__( 'Shared Post', 'jetpack' ).'] '.$data['post']->post_title, $content );
+	$headers[] = sprintf( 'From: %1$s <%2$s>', $data['name'], $data['source'] );
+
+	wp_mail( $data['target'], '['.__( 'Shared Post', 'jetpack' ).'] '.$data['post']->post_title, $content, $headers );
 }
 
 function sharing_add_meta_box() {

@@ -272,7 +272,7 @@ class Jetpack_PostImages {
 		if ( !$html )
 			return $images;
 
-		preg_match_all( '!<img.*src="([^"]+)".*/?>!iUs', $html, $matches );
+		preg_match_all( '!<img.*src=[\'"]([^"]+)[\'"].*/?>!iUs', $html, $matches );
 		if ( !empty( $matches[1] ) ) {
 			foreach ( $matches[1] as $match ) {
 				if ( stristr( $match, '/smilies/' ) )
@@ -448,5 +448,36 @@ class Jetpack_PostImages {
 		}
 
 		return apply_filters( 'jetpack_images_get_images', $media, $post_id, $args );
+	}
+
+	/**
+	 * Takes an image URL and a pixel dimensions and returns a URL for the
+	 * squared up image if possible.
+	 *
+	 * @param  string $src
+	 * @param  int    $dimension
+	 * @return string            Transformed image URL
+	 */
+	static function square_image_url( $src, $dimension ) {
+		$dimension = (int) $dimension;
+
+		// Umm...
+		if ( $dimension < 1 ) {
+			return $src;
+		}
+
+		// If WPCOM hosted image use native transformations
+		$img_host = parse_url( $src, PHP_URL_HOST );
+		if ( '.files.wordpress.com' == substr( $img_host, -20 ) ) {
+			return add_query_arg( array( 'w' => $dimension, 'h' => $dimension, 'crop' => 1 ), $src );
+		}
+
+		// Use Photon magic
+		if( function_exists( 'jetpack_photon_url' ) ) {
+			return jetpack_photon_url( $src, array( 'resize' => "$dimension,$dimension" ) );
+		}
+
+		// Arg... no way to resize image using WordPress.com infrastructure!
+		return $src;
 	}
 }
