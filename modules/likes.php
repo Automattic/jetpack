@@ -290,6 +290,25 @@ class Jetpack_Likes {
 				<div>
 			</td>
 		</tr>
+		<tr>
+			<th scope="row">
+				<label><?php esc_html_e( 'WordPress.com Reblog Button', 'jetpack' ); ?></label>
+			</th>
+			<td>
+				<div>
+					<label>
+						<input type="radio" class="code" name="jetpack_reblogs_enabled" value="on" <?php checked( $this->reblogs_enabled_sitewide(), true ); ?> />
+						<?php esc_html_e( 'Reblog button enabled', 'jetpack' ); ?>
+					</label>
+				</div>
+				<div>
+					<label>
+						<input type="radio" class="code" name="jetpack_reblogs_enabled" value="off" <?php checked( $this->reblogs_enabled_sitewide(), false ); ?> />
+						<?php esc_html_e( 'Reblog button disabled (others can still quote you and link to you)', 'jetpack' ); ?>
+					</label>
+				<div>
+			</td>
+		</tr>
 		<?php if ( ! $this->in_jetpack && ( is_automattician() || ( defined( 'WPCOM_SANDBOXED' ) && WPCOM_SANDBOXED ) ) ) : ?>
 		<tr>
 			<th scope="row">
@@ -394,6 +413,8 @@ class Jetpack_Likes {
 		$new_state = !empty( $_POST['wpl_default'] ) ? $_POST['wpl_default'] : 'on';
 		$db_state  = $this->is_enabled_sitewide();
 
+		$reblogs_new_state = !empty( $_POST['jetpack_reblogs_enabled'] ) ? $_POST['jetpack_reblogs_enabled'] : 'on';
+		$reblogs_db_state = $this->reblogs_enabled_sitewide();
 		/** Default State *********************************************************/
 
 		// Checked (enabled)
@@ -413,6 +434,21 @@ class Jetpack_Likes {
 				break;
 		}
 
+		switch( $reblogs_new_state ) {
+			case 'off' :
+				if ( true == $reblogs_db_state && ! $this->in_jetpack ) {
+					$g_gif = file_get_contents( 'http://stats.wordpress.com/g.gif?v=wpcom-no-pv&x_reblogs=disabled_reblogs' );
+				}
+				update_option( 'disabled_reblogs', 1 );
+				break;
+			case 'on'  :
+			default:
+				if ( false == $reblogs_db_state && ! $this->in_jetpack ) {
+					$g_gif = file_get_contents( 'http://stats.wordpress.com/g.gif?v=wpcom-no-pv&x_reblogs=reenabled_reblogs' );
+				}
+				delete_option( 'disabled_reblogs' );
+				break;
+		}
 
 		// comment setting
 		$new_comments_state = !empty( $_POST['jetpack_comment_likes_enabled'] ) ? $_POST['jetpack_comment_likes_enabled'] : false;
@@ -1110,6 +1146,14 @@ class Jetpack_Likes {
 	 */
 	function is_enabled_sitewide() {
 		return (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+	}
+
+	/**
+	 * Returns the current state of the "WordPress.com Reblogs are" option.
+	 * @return boolean true if enabled sitewide, false if not
+	 */
+	function reblogs_enabled_sitewide() {
+		return (bool) apply_filters( 'wpl_reblogging_enabled_sitewide', ! get_option( 'disabled_reblogs' ) );
 	}
 
 	/**
