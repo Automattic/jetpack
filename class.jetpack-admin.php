@@ -375,7 +375,7 @@ class Jetpack_Admin {
 						</div>
 					</div>
 					<div class="manage-left">
-						<table class="table table-bordered <?php echo implode( ' ', $list_table->get_table_classes() ); ?>">
+						<table class="table table-bordered wp-list-table <?php echo implode( ' ', $list_table->get_table_classes() ); ?>">
 							<tbody id="the-list">
 								<?php $list_table->display_rows_or_placeholder(); ?>
 							</tbody>
