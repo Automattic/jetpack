@@ -24,14 +24,14 @@
 
 			// Top Frame
 			if (frameTop < 33) {
-		    	jpTopFrame.addClass('fixed');
-		    }
-		    if (frameBottom >= 120){
-		    	jpTopFrame.removeClass('fixed');
-		    }
+				jpTopFrame.addClass('fixed');
+			}
+			if (frameBottom >= 120){
+				jpTopFrame.removeClass('fixed');
+			}
 		});
 	}
-	
+
 	function initEvents() {
 		// toggle search and filters at mobile resolution
 		$('.filter-search').on('click', function () {
@@ -39,13 +39,13 @@
 			$('.manage-right').toggleClass('show');
 			$('.shade').toggle();
 		});
-		
+
 		// Toggle all checkboxes
 		$('.checkall').on('click', function () {
-	        $('.table-bordered').find(':checkbox').prop('checked', this.checked);
-	    });
-	    
-	    // Clicking outside modal, or close X closes modal
+			$('.table-bordered').find(':checkbox').prop('checked', this.checked);
+		});
+
+		// Clicking outside modal, or close X closes modal
 		$('.shade, .modal header .close').on('click', function () {
 			$('.shade, .modal').hide();
 			$('.manage-right').removeClass('show');
