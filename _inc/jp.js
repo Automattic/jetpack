@@ -156,8 +156,10 @@
 			$modal.html(ich.modalLoading({}, true)).fadeIn();
 
 			// Load & populate with content
+		/*	Commenting these out as they're commented out below.
 			var $url = $(this).prop('href'),
 				$name = $(this).data('name');
+		*/
 			//$.get( $url, function( content ) {
 				setTimeout(function() {
 					$modal.html(ich.modalTemplate({}, true));
