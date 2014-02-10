@@ -1,6 +1,6 @@
-/* global modules, ich, currentVersion */
+/* global modules, ich, jetpackL10n, jQuery */
 
-(function($) {
+(function($, nonGlobalModules, currentVersion) {
 
 	///////////////////////////////////////
 	// INIT
@@ -259,4 +259,4 @@
 		$('.load-more').text('View all Jetpack features');
 	}
 
-})(jQuery);
+})(jQuery, jetpackL10n.modules, jetpackL10n.currentVersion);

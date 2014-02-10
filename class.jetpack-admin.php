@@ -240,6 +240,8 @@ class Jetpack_Admin {
 					'ays_disconnect' => __( "This will deactivate all Jetpack modules.\nAre you sure you want to disconnect?", 'jetpack' ),
 					'ays_unlink'     => __( "This will prevent user-specific modules such as Publicize, Notifications and Post By Email from working.\nAre you sure you want to unlink?", 'jetpack' ),
 					'ays_dismiss'    => __( "This will deactivate Jetpack.\nAre you sure you want to deactivate Jetpack?", 'jetpack' ),
+					'modules'        => $this->get_modules(),
+					'currentVersion' => JETPACK__VERSION,
 				)
 			);
 		} else {
