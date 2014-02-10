@@ -41,7 +41,7 @@
 			if ('name' === prop) {
 				val = modules[i][prop].toLowerCase();
 			} else {
-				val = parseInt(modules[i][prop]);
+				val = parseInt(modules[i][prop], 10);
 			}
 
 			map.push({
