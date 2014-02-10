@@ -2,9 +2,10 @@
 ( function( window, $, items, models, views ) {
 	'use strict';
 
-	var modules, list_table, handle_module_tag_click, $the_table;
+	var modules, list_table, handle_module_tag_click, $the_table, $the_filters;
 
 	$the_table = $('.wp-list-table.jetpack-modules');
+	$the_filters = $('.navbar-form');
 
 	modules = new models.Modules( {
 		items : items
@@ -49,6 +50,11 @@
 	$the_table.on( 'click', '.configure a', { modules : modules }, function( event ) {
 		event.preventDefault();
 		alert( 'CONFIGURE LIGHTBOX, GO!' );
+	} );
+
+	$the_filters.on( 'click', '.button-group .button', { modules : modules }, function( event ) {
+		event.preventDefault();
+		$(this).addClass('active').siblings('.active').removeClass('active');
 	} );
 
 } ) ( this, jQuery, window.jetpackModulesData, this.jetpackModules.models, this.jetpackModules.views );
