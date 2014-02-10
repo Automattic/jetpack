@@ -11,7 +11,7 @@ class Jetpack_RelatedPosts {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			if ( method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
+			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
 				$instance = WPCOM_RelatedPosts::init();
 			} else {
 				$instance = new Jetpack_RelatedPosts(
@@ -32,7 +32,7 @@ class Jetpack_RelatedPosts {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			if ( method_exists( 'WPCOM_RelatedPosts', 'init_raw' ) ) {
+			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init_raw' ) ) {
 				$instance = WPCOM_RelatedPosts::init_raw();
 			} else {
 				$instance = new Jetpack_RelatedPosts_Raw(
