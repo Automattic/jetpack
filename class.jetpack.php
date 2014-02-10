@@ -3603,7 +3603,7 @@ Then in check below (not this one) add the is_network=network_admin
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
-		$secrets = self::generate_secrets();
+		$secrets = Jetpack::init()->generate_secrets();
 
 		Jetpack_Options::update_option( 'register', $secrets[0] . ':' . $secrets[1].
 		':' . $secrets[2] );
@@ -3612,7 +3612,7 @@ Then in check below (not this one) add the is_network=network_admin
 		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() )
 			return new Jetpack_Error( 'missing_secrets' );
 
-		$timeout = self::get_remote_query_timeout_limit();
+		$timeout = Jetpack::init()->get_remote_query_timeout_limit();
 
 		$gmt_offset = get_option( 'gmt_offset' );
 		if ( ! $gmt_offset ) {
@@ -3645,7 +3645,7 @@ Then in check below (not this one) add the is_network=network_admin
 
 		
 		// Make sure the response is valid and does not contain any Jetpack errors
-		$valid_response = self::validate_remote_register_response( $response );
+		$valid_response = Jetpack::init()->validate_remote_register_response( $response );
 		if( is_wp_error( $valid_response ) || !$valid_response ) {
 		    return $valid_response;
 		}
