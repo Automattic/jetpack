@@ -1,3 +1,5 @@
+/* global modules, ich, currentVersion */
+
 (function($) {
 
 	///////////////////////////////////////
