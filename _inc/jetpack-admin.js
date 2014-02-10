@@ -17,7 +17,7 @@
 		var jpBottomFrame = $(".frame.bottom"),
 			jpTopFrame = $(".frame.top");
 
-		$('body').scroll(function(e){
+		$('body').scroll(function(){
 
 			var frameBottom = jpBottomFrame.offset().top,
 				frameTop = jpTopFrame.offset().top;
