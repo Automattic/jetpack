@@ -14,15 +14,19 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 			* modules.raw data, as well as any filters or sorting that may be in effect.
 			*/
 			filter_and_sort : function() {
-				var subsubsub = $('.subsubsub .current');
-				if ( subsubsub.closest('li').hasClass( 'all' ) ) {
-					this.set( 'items', this.get( 'raw' ) );
-				} else {
-					var items = _.filter( this.get( 'raw' ), function( item ) {
+				var subsubsub = $('.subsubsub .current'),
+					items = this.get( 'raw' );
+
+				// If a module filter has been selected, filter it!
+				if ( ! subsubsub.closest('li').hasClass( 'all' ) ) {
+					items = _.filter( items, function( item ) {
 						return _.contains( item.module_tags, subsubsub.data( 'title') );
 					} );
-					this.set( 'items', items );
 				}
+
+				// Now shove it back in.
+				this.set( 'items', items );
+
 				return this;
 			},
 
