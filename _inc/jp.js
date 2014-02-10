@@ -241,7 +241,7 @@
 		var html = '';
 		for (var i=0; i<modules.length; i++) {
 			var lowercaseDesc = modules[i].desc.toLowerCase(),
-				lowercaseName = modules[i].name.toLowerCase()
+				lowercaseName = modules[i].name.toLowerCase(),
 				lowercaseTerm = term.toLowerCase();
 			if (lowercaseName.indexOf(lowercaseTerm) !== -1 || lowercaseDesc.indexOf(lowercaseTerm) !== -1) {
 				html += ich.mod(modules[i], true);
