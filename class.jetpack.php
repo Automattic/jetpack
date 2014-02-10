@@ -669,6 +669,7 @@ class Jetpack {
 			'zoltonorg-social-plugin/zosp.php',							// Zolton.org Social Plugin
 			'wp-caregiver/wp-caregiver.php',							// WP Caregiver
 			'facebook-revised-open-graph-meta-tag/index.php',					// Facebook Revised Open Graph Meta Tag
+			'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',	// Fedmich's Facebook Open Graph Meta
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
