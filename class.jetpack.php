@@ -722,7 +722,7 @@ class Jetpack {
 		}
 
 		if ( apply_filters( 'jetpack_disable_twitter_cards', true ) )
-			require_once JETPACK__PLUGIN_DIR . 'functions.twitter-cards.php';
+			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
 	}
 
 /* Jetpack Options API */
