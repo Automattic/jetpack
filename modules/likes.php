@@ -9,9 +9,6 @@
  * Module Tags: Social
  */
 
-// @todo: remove this for launch
-add_filter( 'wpl_sharing_2014_1', '__return_false' );
-
 class Jetpack_Likes {
 	var $version = '20140206';
 
