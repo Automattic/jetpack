@@ -38,12 +38,12 @@
 	$('.subsubsub a').on( 'click', { modules : modules }, handle_module_tag_click );
 	$the_table.on( 'click', '.module_tags a', { modules : modules }, handle_module_tag_click );
 
-	$the_table.on( 'click', '.more-info-link', function( event ) {
+	$the_table.on( 'click', '.info a', { modules : modules }, function( event ) {
 		event.preventDefault();
 		alert( 'INFO LIGHTBOX, GO!' );
 	} );
 
-	$the_table.on( 'click', '.configure', { modules : modules }, function( event ) {
+	$the_table.on( 'click', '.configure a', { modules : modules }, function( event ) {
 		event.preventDefault();
 		alert( 'CONFIGURE LIGHTBOX, GO!' );
 	} );
