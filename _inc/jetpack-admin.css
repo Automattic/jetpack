@@ -1370,6 +1370,7 @@ html {
 
 .jetpack_page_jetpack_modules .page-content {
 	max-width: 1200px;
+	min-height: 500px;
 	margin: 0;
 }
 
