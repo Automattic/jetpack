@@ -123,7 +123,7 @@
 
 		// Debounce the resize event
 		var pauseResize = false;
-		window.onresize = function(event) {
+		window.onresize = function() {
 			if ( !pauseResize ) {
 				pauseResize = true;
 				recalculateModuleHeights();
