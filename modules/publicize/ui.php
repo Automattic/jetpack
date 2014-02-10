@@ -370,7 +370,13 @@ jQuery( function($) {
 		authClick = true;
 		$(this).after( '<img src="images/loading.gif" class="alignleft" style="margin: 0 .5em" />' );
 		$.ajaxSetup( { async: false } );
-		autosave();
+
+		if ( window.wp && window.wp.autosave ) {
+			window.wp.autosave.server.triggerSave();
+		} else {
+			autosave();
+		}
+
 		return true;
 	} );
 
