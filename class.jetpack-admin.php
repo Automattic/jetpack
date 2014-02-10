@@ -292,6 +292,7 @@ class Jetpack_Admin {
 					<div class="manage-right">
 						<div class="bumper">
 							<form class="navbar-form" role="search">
+								<input type="hidden" name="page" value="jetpack_modules" />
 								<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'srch-term' ); ?>
 								<p><?php esc_html_e( 'View:', 'jetpack' ); ?></p>
 								<div class="button-group">
