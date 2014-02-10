@@ -30,10 +30,12 @@
 		// Mapping prior to sorting improves performance by over 50%
 		var map = [],
 			result = [],
-			val = '';
+			val = '',
+			i,
+			length;
 
 		// create the map
-		for (var i=0, length = modules.length; i < length; i++) {
+		for (i=0, length = modules.length; i < length; i++) {
 
 			// Prep value
 			if ('name' === prop) {
@@ -58,7 +60,7 @@
 		});
 
 		// copy values in right order
-		for (var i=0, length = map.length; i < length; i++) {
+		for (i=0, length = map.length; i < length; i++) {
 			result.push(modules[map[i].index]);
 		}
 
@@ -182,18 +184,19 @@
 	}
 
 	function loadModules() {
-		var html = '';	
+		var html = '',
+			i;
 
 		if ($('.configure').length !== 0) {
 			// Config page
-			for (var i=0; i<modules.length; i++) {
+			for (i=0; i<modules.length; i++) {
 				html += ich.modconfig(modules[i], true);
 			}
 
 			$('table tbody').html(html);
 		} else {
 			// About page
-			for (var i=0; i<modules.length; i++) {
+			for (i=0; i<modules.length; i++) {
 				if (currentVersion.indexOf(modules[i].introduced) != -1) {
 					modules[i].new = true;
 				}
