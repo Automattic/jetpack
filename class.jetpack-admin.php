@@ -367,7 +367,7 @@ class Jetpack_Admin {
 								<input type="hidden" name="page" value="jetpack_modules" />
 								<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'srch-term' ); ?>
 								<p><?php esc_html_e( 'View:', 'jetpack' ); ?></p>
-								<div class="button-group filter">
+								<div class="button-group filter-active">
 									<button type="button" class="button active"><?php esc_html_e( 'All', 'jetpack' ); ?></button>
 									<button type="button" class="button" data-filter-by="activated" data-filter-value="true"><?php esc_html_e( 'Active', 'jetpack' ); ?></button>
 									<button type="button" class="button" data-filter-by="activated" data-filter-value="false"><?php esc_html_e( 'Inactive', 'jetpack' ); ?></button>

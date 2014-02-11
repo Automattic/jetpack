@@ -15,13 +15,25 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 			*/
 			filter_and_sort : function() {
 				var subsubsub = $('.subsubsub .current'),
-					items = this.get( 'raw' );
+					items     = this.get( 'raw' ),
+					m_filter  = $('.button-group.filter-active .active'),
+					m_sort    = $('.button-group.sort .active');
 
 				// If a module filter has been selected, filter it!
 				if ( ! subsubsub.closest('li').hasClass( 'all' ) ) {
 					items = _.filter( items, function( item ) {
-						return _.contains( item.module_tags, subsubsub.data( 'title') );
+						return _.contains( item.module_tags, subsubsub.data( 'title' ) );
 					} );
+				}
+
+				if ( m_filter.data('filter-by') ) {
+					items = _.filter( items, function( item ) {
+						return item[ m_filter.data('filter-by') ] == m_filter.data('filter-value');
+					} );
+				}
+
+				if ( m_sort.data('sort-by') ) {
+
 				}
 
 				// Now shove it back in.
