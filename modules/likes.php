@@ -10,7 +10,7 @@
  */
 
 class Jetpack_Likes {
-	var $version = '20140206';
+	var $version = '20140211';
 
 	public static function init() {
 		static $instance = NULL;
