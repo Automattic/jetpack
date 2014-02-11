@@ -33,7 +33,7 @@ class GPlus_Authorship {
 	function show_on_this_post() {
 		global $post;
 		$show = apply_filters( 'gplus_authorship_show', true, $post );
-		if ( !is_main_query() )
+		if ( ! is_main_query() || ! in_the_loop() )
 			$show = false;
 		$author = $this->information( $post->post_author );
 		if ( empty( $author ) )
