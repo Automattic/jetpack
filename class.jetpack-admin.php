@@ -162,7 +162,7 @@ class Jetpack_Admin {
 
 		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
-		add_action( "admin_footer-$hook",        array( $this, 'js_templates'    ) );
+		add_action( "admin_footer-$hook",        array( $this, 'main_page_js_templates' ) );
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
 
@@ -397,7 +397,7 @@ class Jetpack_Admin {
 		$this->admin_page_bottom();
 	}
 
-	function js_templates() {
+	function main_page_js_templates() {
 		?>
 <script id="modalLoading" type="text/html">
 	<div class="loading"><span><?php esc_html_e( 'loading&hellip;', 'jetpack' ); ?></span></div>
