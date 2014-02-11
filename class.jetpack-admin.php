@@ -374,9 +374,9 @@ class Jetpack_Admin {
 								</div>
 								<p><?php esc_html_e( 'Sort by:', 'jetpack' ); ?></p>
 								<div class="button-group sort">
-									<button type="button" class="button active" data-sort-by="alphabetical"><?php esc_html_e( 'Alphabetical', 'jetpack' ); ?></button>
-									<button type="button" class="button" data-sort-by="newest"><?php esc_html_e( 'Newest', 'jetpack' ); ?></button>
-									<button type="button" class="button" data-sort-by="popular"><?php esc_html_e( 'Popular', 'jetpack' ); ?></button>
+									<button type="button" class="button active" data-sort-by="name"><?php esc_html_e( 'Alphabetical', 'jetpack' ); ?></button>
+									<button type="button" class="button" data-sort-by="introduced"><?php esc_html_e( 'Newest', 'jetpack' ); ?></button>
+									<button type="button" class="button" data-sort-by="sort"><?php esc_html_e( 'Popular', 'jetpack' ); ?></button>
 								</div>
 								<p><?php esc_html_e( 'Show:', 'jetpack' ); ?></p>
 								<?php $list_table->views(); ?>
