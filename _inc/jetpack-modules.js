@@ -87,6 +87,7 @@
 	$the_filters.on( 'click', '.button-group .button', { modules : modules }, function( event ) {
 		event.preventDefault();
 		$(this).addClass('active').siblings('.active').removeClass('active');
+		modules.trigger( 'change' );
 	} );
 
 } ) ( this, jQuery, window.jetpackModulesData, this.jetpackModules.models, this.jetpackModules.views, _ );
