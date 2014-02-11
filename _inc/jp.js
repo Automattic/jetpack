@@ -1,6 +1,6 @@
-/* global modules, ich, jetpackL10n, jQuery */
+/* global ich, jetpackL10n, jQuery */
 
-(function($, nonGlobalModules, currentVersion) {
+(function($, modules, currentVersion) {
 
 	///////////////////////////////////////
 	// INIT
