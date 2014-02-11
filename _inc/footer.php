@@ -30,9 +30,6 @@
 
 <?php if ( 'jetpack_modules' == $_GET['page'] ) return; ?>
 
-<script>
-	var modules = <?php echo json_encode( array_values( Jetpack_Admin::init()->get_modules() ) ); ?>;
-</script>
 <script id="modalLoading" type="text/html">
 	<div class="loading"><span>loading…</span></div>
 </script>
