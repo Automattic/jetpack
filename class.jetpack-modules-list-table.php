@@ -50,6 +50,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		?>
 		<script type="text/html" id="Jetpack_Modules_List_Table_Template">
 			<% var i = 0;
+			if ( items.length ) {
 			_.each( items, function( item, key, list ) {
 				%>
 				<tr class="jetpack-module <% if ( ++i % 2 ) { %> alternate<% } %><% if ( item.activated ) { %> active<% } %><% if ( ! item.available ) { %> unavailable<% } %>" id="<%= item.module %>">
@@ -72,6 +73,13 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				</tr>
 				<%
 			});
+			} else {
+				%>
+				<tr class="no-modules-found">
+					<td colspan="2"><?php esc_html_e( 'No Modules Found' ); ?></td>
+				</tr>
+				<%
+			}
 			%>
 		</script>
 		<?php
