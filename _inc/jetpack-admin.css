@@ -2442,6 +2442,10 @@ html {
 	float: right;
 }
 
+.table-bordered .jetpack-module .row-actions span {
+	margin-left: 5px;
+}
+
 .table-bordered .jetpack-module.unavailable {
 	opacity: .3;
 }
@@ -2450,16 +2454,10 @@ html {
 	display: none;
 }
 
-.showFilter a {
-	display: block;
-	line-height: 24px;
-}
-
-.showFilter a.active {
-	color: #333;
-	cursor: default;
-	font-weight: bold;
-	text-decoration: none;
+.table-bordered .jetpack-module.active th,
+.table-bordered .jetpack-module.active td {
+	-webkit-box-shadow: none;
+	box-shadow: none;
 }
 
 .wrap {
@@ -2527,6 +2525,10 @@ html {
 
 .wrap .manage-right p.search-box input[type='search'] {
 	padding: 0 8px;
+}
+
+.wrap .manage-right .button-group .button {
+	outline: none;
 }
 
 .wrap .manage-right .subsubsub {
