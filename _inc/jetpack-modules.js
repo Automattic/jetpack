@@ -26,14 +26,6 @@
 		$('.subsubsub').find('a[data-title="' + $(this).data('title') + '"]').addClass('current')
 			.closest('li').siblings().find('a.current').removeClass('current');
 
-		/**
-		 * If we can, use replaceState to change the URL and indicate the new filtering.
-		 * This will be handy with redirecting back to the same state after activating/deactivating.
-		 */
-		if ( window.history.replaceState ) {
-			window.history.replaceState( {}, $(this).data('title'), $(this).attr('href') );
-		}
-
 		event.preventDefault();
 		modules.trigger( 'change' );
 	}
