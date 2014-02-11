@@ -43,10 +43,6 @@
 	 */
 	// $the_table.on( 'click', '.module_tags a', { modules : modules }, handle_module_tag_click );
 
-	$(document).on('ready', function(){
-		$jp_frame.append( _.template( $('#Modal_Template').html(), {} ) );
-	});
-
 	show_modal = function( module, tab ) {
 		$jp_frame.children('.modal, .shade').show();
 		set_modal_tab( tab );
