@@ -88,8 +88,8 @@ class Jetpack_Media_Meta_Extractor {
 		// Embedded media objects will have already been converted to shortcodes by pre_kses hooks on save.
 
  		if ( self::IMAGES & $what_to_extract ) {
-			// Should've called extract( $blog_id, $post_id ) if you want images
-			return new WP_Error( 'media-extraction-error', "IMAGES extraction not supported in extract_from_content()" );
+			$images = Jetpack_Media_Meta_Extractor::extract_images_from_content( $stripped_content );
+			$extracted = array_merge( $extracted, $images );
 		}
 
 		// ----------------------------------- MENTIONS ------------------------------
@@ -349,6 +349,15 @@ class Jetpack_Media_Meta_Extractor {
 		// @todo Can we check width/height of these efficiently?  Could maybe use query args at least, before we strip them out
 		$image_list = Jetpack_Media_Meta_Extractor::get_images_from_html( $post->post_content, $image_list );
 
+		return Jetpack_Media_Meta_Extractor::build_image_struct( $image_list );
+	}
+
+	public static function extract_images_from_content( $content ) {
+		$image_list = Jetpack_Media_Meta_Extractor::get_images_from_html( $post->post_content, $image_list );
+		return Jetpack_Media_Meta_Extractor::build_image_struct( $image_list );
+	}
+
+	public static function build_image_struct( $image_list ) {
 		if ( ! empty( $image_list ) ) {
 			$retval = array( 'image' => array() );
 			$unique_imgs = array_unique( $image_list );
