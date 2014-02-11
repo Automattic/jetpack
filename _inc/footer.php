@@ -30,33 +30,6 @@
 
 <?php if ( 'jetpack_modules' == $_GET['page'] ) return; ?>
 
-<script id="modalLoading" type="text/html">
-	<div class="loading"><span>loading…</span></div>
-</script>
-<script id="modalTemplate" type="text/html">
-	<header>
-		<a href="#" class="close">x</a>
-		<ul>
-			<li><a href="#" class="active">Learn More</a></li>
-			<li><a href="#">Config</a></li>
-		</ul>
-	</header>
-	<div class="content-container"><div class="content"></div></div>
-	
-</script>
-<script id="mod" type="text/html">
-	<div href="{{ url }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
-		<h3>{{ name }}{{^free}}<span class="paid">Paid</span>{{/free}}</h3>
-		<p>{{{ short_description }}}</p>
-	</div>
-</script>
-<script id="modconfig" type="text/html">
-	<tr class="configs {{#active}}active{{/active}}">
-		<td class="sm"><input type="checkbox"></td>
-		<td><a href="{{ url }}" data-name="{{ name }}">{{ name }}</a></td>
-		<td class="med"><a href="{{ url }}" data-name="{{ name }}"><span class="genericon genericon-help" title="Learn more"></span></a>{{#hasConfig}}<a href="{{ url }}" data-name="{{ name }}"><span class="genericon genericon-cog" title="Configure"></span></a>{{/hasConfig}}</td>
-	</tr>
-</script>
 <script type="text/javascript">
 	var _gaq = _gaq || [];
 	_gaq.push(['_setAccount', 'UA-52447-43']);
