@@ -17,7 +17,8 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 				var subsubsub = $('.subsubsub .current'),
 					items     = this.get( 'raw' ),
 					m_filter  = $('.button-group.filter-active .active'),
-					m_sort    = $('.button-group.sort .active');
+					m_sort    = $('.button-group.sort .active'),
+					groups;
 
 				// If a module filter has been selected, filter it!
 				if ( ! subsubsub.closest('li').hasClass( 'all' ) ) {
@@ -34,6 +35,12 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 
 				if ( m_sort.data('sort-by') ) {
 					items = _.sortBy( items, m_sort.data('sort-by') );
+				}
+
+				// Sort unavailable modules to the end if the user is running in local mode.
+				groups = _.groupBy( items, 'available' );
+				if ( _.has( groups, 'false' ) ) {
+					items = [].concat( groups[true], groups[false] );
 				}
 
 				// Now shove it back in.
