@@ -134,6 +134,7 @@ class Jetpack_SSO {
 		 * Settings > General > Jetpack Single Sign On
 		 * Checkbox for Remove default login form
 		 */
+		 /* Hide in 2.9
 		register_setting(
 			'general',
 			'jetpack_sso_remove_login_form',
@@ -147,6 +148,7 @@ class Jetpack_SSO {
 			'general',
 			'jetpack_sso_settings'
 		);
+		*/
 
 		/*
 		 * Settings > General > Jetpack Single Sign On
@@ -160,8 +162,26 @@ class Jetpack_SSO {
 
 		add_settings_field(
 			'jetpack_sso_require_two_step',
-			__( 'Require Two-Step Authentication?' , 'jetpack' ),
+			__( 'Require Two-Step Authentication' , 'jetpack' ),
 			array( $this, 'render_require_two_step' ),
+			'general',
+			'jetpack_sso_settings'
+		);
+
+
+		/*
+		 * Settings > General > Jetpack Single Sign On
+		 */
+		register_setting(
+			'general',
+			'jetpack_sso_match_by_email',
+			array( $this, 'validate_settings_match_by_email' )
+		);
+
+		add_settings_field(
+			'jetpack_sso_match_by_email',
+			__( 'Match by Email' , 'jetpack' ),
+			array( $this, 'render_match_by_email' ),
 			'general',
 			'jetpack_sso_settings'
 		);
@@ -185,6 +205,26 @@ class Jetpack_SSO {
 	 **/
 	public function validate_settings_require_two_step( $input ) {
 		return ( isset( $input['require_two_step'] ) )? 1: 0;
+	}
+
+	/**
+	 * Builds the display for the checkbox allowing the user to allow matching logins by email
+	 * Displays in Settings > General
+	 *
+	 * @since 2.9
+	 **/
+	public function render_match_by_email() {
+		echo '<input type="checkbox" name="jetpack_sso_match_by_email[match_by_email]"' . checked( 1 == get_option( 'jetpack_sso_match_by_email' ), true, false) . '>';
+	}
+
+	/**
+	 * Validate the match by email check in Settings > General
+	 *
+	 * @since 2.9
+	 * @return boolean
+	 **/
+	public function validate_settings_match_by_email( $input ) {
+		return ( isset( $input['match_by_email'] ) )? 1: 0;
 	}
 
 	/**
@@ -466,32 +506,36 @@ class Jetpack_SSO {
 
 		// If we've still got nothing, create the user.
 		if ( empty( $user ) && ( get_option( 'users_can_register' ) || self::new_user_override() ) ) {
-			$username = $user_data->login;
+			// If not matching by email we still need to verify the email does not exist
+			// or this blows up
+			if( !self::match_by_email() && !get_user_by( 'email', $user_data->email ) ) {
+				$username = $user_data->login;
 
-			if ( username_exists( $username ) ) {
-				$username = $user_data->login . '_' . $user_data->ID;
-			}
-
-			$tries = 0;
-			while ( username_exists( $username ) ) {
-				$username = $user_data->login . '_' . $user_data->ID . '_' . mt_rand();
-				if ( $tries++ >= 5 ) {
-					wp_die( __( "Error: Couldn't create suitable username.", 'jetpack' ) );
+				if ( username_exists( $username ) ) {
+					$username = $user_data->login . '_' . $user_data->ID;
 				}
+
+				$tries = 0;
+				while ( username_exists( $username ) ) {
+					$username = $user_data->login . '_' . $user_data->ID . '_' . mt_rand();
+					if ( $tries++ >= 5 ) {
+						wp_die( __( "Error: Couldn't create suitable username.", 'jetpack' ) );
+					}
+				}
+
+				$password = wp_generate_password( 20 );
+				$user_id  = wp_create_user( $username, $password, $user_data->email );
+				$user     = get_userdata( $user_id );
+				
+				$user->display_name = $user_data->display_name;
+				$user->first_name   = $user_data->first_name;
+				$user->last_name    = $user_data->last_name;
+				$user->url          = $user_data->url;
+				$user->description  = $user_data->description;
+				wp_update_user( $user );
+
+				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
 			}
-
-			$password = wp_generate_password( 20 );
-			$user_id  = wp_create_user( $username, $password, $user_data->email );
-			$user     = get_userdata( $user_id );
-
-			$user->display_name = $user_data->display_name;
-			$user->first_name   = $user_data->first_name;
-			$user->last_name    = $user_data->last_name;
-			$user->url          = $user_data->url;
-			$user->description  = $user_data->description;
-			wp_update_user( $user );
-
-			update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
 		}
 
 		do_action( 'jetpack_sso_handle_login', $user, $user_data );
@@ -523,7 +567,9 @@ class Jetpack_SSO {
 	}
 
 	static function match_by_email() {
-		$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : true;
+		$match_by_email = ( 1 == get_option( 'jetpack_sso_match_by_email', true ) ) ? true: false;
+		$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : $match_by_email;
+
 		return apply_filters( 'jetpack_sso_match_by_email', $match_by_email );
 	}
 
