@@ -35,7 +35,7 @@
 		}
 
 		event.preventDefault();
-		event.data.modules.filter_and_sort();
+		modules.trigger( 'change' );
 	}
 	$('.subsubsub a').on( 'click', { modules : modules }, handle_module_tag_click );
 	/**
