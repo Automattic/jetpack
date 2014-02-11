@@ -50,7 +50,9 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 			},
 
 			initialize : function() {
-				this.set( 'raw', this.get( 'items' ) );
+				var items = this.get( 'items' );
+				delete items.vaultpress;
+				this.set( 'raw', items );
 			}
 
 		});
