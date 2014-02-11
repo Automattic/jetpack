@@ -439,8 +439,8 @@ class Jetpack_Admin {
 		<header>
 			<a href="#" class="close">&times;</a>
 			<ul>
-				<li class="learn-more"><a href="javascript:;"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a></li>
-				<li class="configure"><a href="javascript:;"><?php esc_html_e( 'Config', 'jetpack' ); ?></a></li>
+				<li class="learn-more"><a href="javascript:;" data-tab="learn-more"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a></li>
+				<li class="config"><a href="javascript:;" data-tab="config"><?php esc_html_e( 'Config', 'jetpack' ); ?></a></li>
 			</ul>
 		</header>
 		<div class="content-container"><div class="content"></div></div>
