@@ -295,13 +295,13 @@ class Jetpack_Likes {
 				<div>
 					<label>
 						<input type="radio" class="code" name="jetpack_reblogs_enabled" value="on" <?php checked( $this->reblogs_enabled_sitewide(), true ); ?> />
-						<?php esc_html_e( 'Reblog button enabled', 'jetpack' ); ?>
+						<?php esc_html_e( 'Show the Reblog button on posts', 'jetpack' ); ?>
 					</label>
 				</div>
 				<div>
 					<label>
 						<input type="radio" class="code" name="jetpack_reblogs_enabled" value="off" <?php checked( $this->reblogs_enabled_sitewide(), false ); ?> />
-						<?php esc_html_e( 'Reblog button disabled (others can still quote you and link to you)', 'jetpack' ); ?>
+						<?php esc_html_e( 'Don\'t show the Reblog button on posts', 'jetpack' ); ?>
 					</label>
 				<div>
 			</td>
@@ -549,7 +549,7 @@ class Jetpack_Likes {
 			wp_enqueue_script( 'jquery_inview', '/wp-content/js/jquery/jquery.inview.js', array( 'jquery' ), JETPACK__VERSION, false );
 			wp_enqueue_script( 'jetpack_resize', '/wp-content/js/jquery/jquery.jetpack-resize.js', array( 'jquery' ), JETPACK__VERSION, false );
 
-			
+
 			// @todo: Remove this opt-out filter in the future
 			if ( apply_filters( 'wpl_sharing_2014_1', true ) ) {
 				wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
