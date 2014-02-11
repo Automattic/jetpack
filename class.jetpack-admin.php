@@ -267,6 +267,12 @@ class Jetpack_Admin {
 		$is_user_connected = $user_token && ! is_wp_error( $user_token );
 		$is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 
+		if ( Jetpack::is_development_mode() ) {
+			$is_connected      = true;
+			$is_user_connected = true;
+			$is_master_user    = false;
+		}
+
 		$this->admin_page_top(); ?>
 
 		<div class="masthead <?php if ( ! $is_connected ) echo 'hasbutton'; ?>">
