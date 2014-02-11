@@ -411,7 +411,6 @@ class Jetpack_Admin {
 		</ul>
 	</header>
 	<div class="content-container"><div class="content"></div></div>
-
 </script>
 <script id="mod" type="text/html">
 	<div href="{{ url }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
@@ -427,7 +426,6 @@ class Jetpack_Admin {
 	</tr>
 </script>
 		<?php
-
 	}
 
 }
