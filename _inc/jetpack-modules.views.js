@@ -10,9 +10,41 @@ window.jetpackModules.views = (function( window, $, _, Backbone ) {
 
 			template : _.template( $('#Jetpack_Modules_List_Table_Template').html() ),
 
+			/**
+			 * If we can, use replaceState to change the URL and indicate the new filtering.
+			 * This will be handy with redirecting back to the same state after activating/deactivating.
+			 */
+			updateUrl : function() {
+				if ( ! window.history.replaceState ) {
+					return;
+				}
+
+				var url      = window.location.href.split("?")[0] + '?page=jetpack_modules',
+					m_tag    = $('.subsubsub .current'),
+					m_filter = $('.button-group.filter-active .active'),
+					m_sort   = $('.button-group.sort .active');
+
+				if ( ! m_tag.hasClass('all') ) {
+					url += '&module_tag=' + encodeURIComponent( m_tag.data('title') );
+				}
+
+				if ( m_filter.data('filter-by') ) {
+					url += '&' + encodeURIComponent( m_filter.data('filter-by') ) + '=' + encodeURIComponent( m_filter.data('filter-value') );
+				}
+
+				if ( 'name' !== m_sort.data('sort-by') ) {
+					url += '&sort_by=' + encodeURIComponent( m_sort.data('sort-by') );
+				}
+
+				console.log( url );
+
+				window.history.replaceState( {}, '', url );
+			},
+
 			render : function() {
 				this.model.filter_and_sort();
 				this.$el.html( this.template( this.model.attributes ) );
+				this.updateUrl();
 				return this;
 			},
 
