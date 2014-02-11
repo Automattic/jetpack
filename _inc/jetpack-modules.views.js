@@ -16,7 +16,7 @@ window.jetpackModules.views = (function( window, $, _, Backbone ) {
 				return this;
 			},
 
-			initialize : function( options ) {
+			initialize : function() {
 				this.listenTo( this.model, 'change', this.render );
 			}
 
