@@ -33,7 +33,7 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 				}
 
 				if ( m_sort.data('sort-by') ) {
-
+					items = _.sortBy( items, m_sort.data('sort-by') );
 				}
 
 				// Now shove it back in.
