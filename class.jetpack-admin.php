@@ -162,6 +162,7 @@ class Jetpack_Admin {
 
 		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
+		add_action( "admin_footer-$hook",        array( $this, 'js_templates'    ) );
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
 
@@ -388,6 +389,39 @@ class Jetpack_Admin {
 		</div><!-- /.content -->
 		<?php
 		$this->admin_page_bottom();
+	}
+
+	function js_templates() {
+		?>
+<script id="modalLoading" type="text/html">
+	<div class="loading"><span><?php esc_html_e( 'loading&hellip;', 'jetpack' ); ?></span></div>
+</script>
+<script id="modalTemplate" type="text/html">
+	<header>
+		<a href="#" class="close">&times;</a>
+		<ul>
+			<li><a href="#" class="active"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a></li>
+			<li><a href="#"><?php esc_html_e( 'Config', 'jetpack' ); ?></a></li>
+		</ul>
+	</header>
+	<div class="content-container"><div class="content"></div></div>
+
+</script>
+<script id="mod" type="text/html">
+	<div href="{{ url }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
+		<h3>{{ name }}{{^free}}<span class="paid"><?php esc_html_e( 'Paid', 'jetpack' ); ?></span>{{/free}}</h3>
+		<p>{{{ short_description }}}</p>
+	</div>
+</script>
+<script id="modconfig" type="text/html">
+	<tr class="configs {{#active}}active{{/active}}">
+		<td class="sm"><input type="checkbox"></td>
+		<td><a href="{{ url }}" data-name="{{ name }}">{{ name }}</a></td>
+		<td class="med"><a href="{{ url }}" data-name="{{ name }}"><span class="genericon genericon-help" title="<?php esc_attr_e( 'Learn more', 'jetpack' ); ?>"></span></a>{{#hasConfig}}<a href="{{ url }}" data-name="{{ name }}"><span class="genericon genericon-cog" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></span></a>{{/hasConfig}}</td>
+	</tr>
+</script>
+		<?php
+
 	}
 
 }
