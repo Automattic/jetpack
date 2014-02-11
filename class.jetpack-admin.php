@@ -135,6 +135,8 @@ class Jetpack_Admin {
 		// @todo: Remove in Jetpack class itself.
 		remove_action( 'admin_menu', array( $this->jetpack, 'admin_menu' ), 999 );
 
+		$title = _x( 'Jetpack', 'The menu item label', 'jetpack' );
+
 		list( $jetpack_version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 		if (
 			$jetpack_version
@@ -154,8 +156,6 @@ class Jetpack_Admin {
 			$format         = _x( 'Jetpack %s', 'The menu item label with a new module count as %s', 'jetpack' );
 			$update_markup  = "<span class='update-plugins count-{$new_modules_count}' title='$span_title'><span class='update-count'>$new_count_i18n</span></span>";
 			$title          = sprintf( $format, $update_markup );
-		} else {
-			$title          = _x( 'Jetpack', 'The menu item label', 'jetpack' );
 		}
 
 		$hook = add_menu_page( 'Jetpack', $title, 'read', 'jetpack', array( $this, 'admin_page' ), 'div' );
