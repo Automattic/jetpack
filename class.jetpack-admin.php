@@ -368,15 +368,15 @@ class Jetpack_Admin {
 								<?php $list_table->search_box( __( 'Search', 'jetpack' ), 'srch-term' ); ?>
 								<p><?php esc_html_e( 'View:', 'jetpack' ); ?></p>
 								<div class="button-group filter-active">
-									<button type="button" class="button active"><?php esc_html_e( 'All', 'jetpack' ); ?></button>
-									<button type="button" class="button" data-filter-by="activated" data-filter-value="true"><?php esc_html_e( 'Active', 'jetpack' ); ?></button>
-									<button type="button" class="button" data-filter-by="activated" data-filter-value="false"><?php esc_html_e( 'Inactive', 'jetpack' ); ?></button>
+									<button type="button" class="button <?php if ( empty( $_GET['activated'] ) ) echo 'active'; ?>"><?php esc_html_e( 'All', 'jetpack' ); ?></button>
+									<button type="button" class="button <?php if ( ! empty( $_GET['activated'] ) && 'true' == $_GET['activated'] ) echo 'active'; ?>" data-filter-by="activated" data-filter-value="true"><?php esc_html_e( 'Active', 'jetpack' ); ?></button>
+									<button type="button" class="button <?php if ( ! empty( $_GET['activated'] ) && 'false' == $_GET['activated'] ) echo 'active'; ?>" data-filter-by="activated" data-filter-value="false"><?php esc_html_e( 'Inactive', 'jetpack' ); ?></button>
 								</div>
 								<p><?php esc_html_e( 'Sort by:', 'jetpack' ); ?></p>
 								<div class="button-group sort">
-									<button type="button" class="button active" data-sort-by="name"><?php esc_html_e( 'Alphabetical', 'jetpack' ); ?></button>
-									<button type="button" class="button" data-sort-by="introduced"><?php esc_html_e( 'Newest', 'jetpack' ); ?></button>
-									<button type="button" class="button" data-sort-by="sort"><?php esc_html_e( 'Popular', 'jetpack' ); ?></button>
+									<button type="button" class="button <?php if ( empty( $_GET['sort_by'] ) ) echo 'active'; ?>" data-sort-by="name"><?php esc_html_e( 'Alphabetical', 'jetpack' ); ?></button>
+									<button type="button" class="button <?php if ( ! empty( $_GET['sort_by'] ) && 'introduced' == $_GET['sort_by'] ) echo 'active'; ?>" data-sort-by="introduced"><?php esc_html_e( 'Newest', 'jetpack' ); ?></button>
+									<button type="button" class="button <?php if ( ! empty( $_GET['sort_by'] ) && 'sort' == $_GET['sort_by'] ) echo 'active'; ?>" data-sort-by="sort"><?php esc_html_e( 'Popular', 'jetpack' ); ?></button>
 								</div>
 								<p><?php esc_html_e( 'Show:', 'jetpack' ); ?></p>
 								<?php $list_table->views(); ?>
