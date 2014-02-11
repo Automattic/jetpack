@@ -14,20 +14,18 @@
 	///////////////////////////////////////
 
 	function configFixedElements() {
-		var jpBottomFrame = $(".frame.bottom"),
-			jpTopFrame = $(".frame.top");
+		var jpTopFrame = $(".frame.top"),
+			jpBottomFrame = $(".frame.bottom"),
+			$body = $('body');
 
-		$('body').scroll(function(){
-
-			var frameBottom = jpBottomFrame.offset().top,
-				frameTop = jpTopFrame.offset().top;
-
-			// Top Frame
-			if (frameTop < 33) {
+		$body.scroll(function(){
+			if ( 33 > jpTopFrame.offset().top ) {
 				jpTopFrame.addClass('fixed');
+				$body.addClass('jp-frame-top-fixed');
 			}
-			if (frameBottom >= 120){
+			if ( 120 <= jpBottomFrame.offset().top ) {
 				jpTopFrame.removeClass('fixed');
+				$body.removeClass('jp-frame-top-fixed');
 			}
 		});
 	}
