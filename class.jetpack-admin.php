@@ -177,7 +177,6 @@ class Jetpack_Admin {
 
 		add_action( "load-$hook",                array( $this, 'admin_page_load'   ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'        ) );
-		add_action( "admin_footer-$hook",        array( $this, 'modal_js_template' ) );
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'      ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'     ) );
 	}
@@ -429,25 +428,5 @@ class Jetpack_Admin {
 		<?php
 	}
 
-	/**
-	 * Let's use Underscore/Backbone like core, instead of icanhaz
-	 */
-	function modal_js_template() {
-		?>
-<script id="Modal_Template" type="text/html">
-	<div class="modal">
-		<header>
-			<a href="#" class="close">&times;</a>
-			<ul>
-				<li class="learn-more"><a href="javascript:;" data-tab="learn-more"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a></li>
-				<li class="config"><a href="javascript:;" data-tab="config"><?php esc_html_e( 'Config', 'jetpack' ); ?></a></li>
-			</ul>
-		</header>
-		<div class="content-container"><div class="content"></div></div>
-	</div>
-	<div class="shade" />
-</script>
-		<?php
-	}
 }
 Jetpack_Admin::init();
