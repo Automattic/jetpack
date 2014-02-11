@@ -1,11 +1,12 @@
 
-( function( window, $, items, models, views ) {
+( function( window, $, items, models, views, _ ) {
 	'use strict';
 
-	var modules, list_table, handle_module_tag_click, $the_table, $the_filters;
+	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $jp_frame, show_modal, hide_modal;
 
 	$the_table = $('.wp-list-table.jetpack-modules');
 	$the_filters = $('.navbar-form');
+	$jp_frame = $('.jp-frame');
 
 	modules = new models.Modules( {
 		items : items
@@ -42,14 +43,27 @@
 	 */
 	// $the_table.on( 'click', '.module_tags a', { modules : modules }, handle_module_tag_click );
 
+	$(document).on('ready', function(){
+		$jp_frame.append( _.template( $('#Modal_Template').html(), {} ) );
+	});
+
+	show_modal = function() {
+		$jp_frame.children('.modal, .shade').show();
+	}
+
+	hide_modal = function() {
+		$jp_frame.children('.modal, .shade').hide();
+	}
+	$jp_frame.on( 'click', '.modal header .close, .shade', hide_modal );
+
 	$the_table.on( 'click', '.info a', { modules : modules }, function( event ) {
 		event.preventDefault();
-		alert( 'INFO LIGHTBOX, GO!' );
+		show_modal();
 	} );
 
 	$the_table.on( 'click', '.configure a', { modules : modules }, function( event ) {
 		event.preventDefault();
-		alert( 'CONFIGURE LIGHTBOX, GO!' );
+		show_modal();
 	} );
 
 	$the_filters.on( 'click', '.button-group .button', { modules : modules }, function( event ) {
@@ -57,4 +71,4 @@
 		$(this).addClass('active').siblings('.active').removeClass('active');
 	} );
 
-} ) ( this, jQuery, window.jetpackModulesData, this.jetpackModules.models, this.jetpackModules.views );
+} ) ( this, jQuery, window.jetpackModulesData, this.jetpackModules.models, this.jetpackModules.views, _ );
