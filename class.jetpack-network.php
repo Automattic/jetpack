@@ -162,7 +162,6 @@ class Jetpack_Network {
 	 * @since 2.6
 	 */
 	public function body_class( $classes ) {
-		$classes[] = 'network-admin';
 		return 'network-admin';
 	}
 
@@ -714,13 +713,13 @@ class Jetpack_Network {
 
 		$modules = array();
 		$module_slugs = Jetpack::get_available_modules();
-		usort( $module_slugs, array( 'Jetpack', 'sort_modules' ) );
 		foreach ( $module_slugs as $slug ) {
 			$module = Jetpack::get_module( $slug );
 			$module['module'] = $slug;
 			$modules[] = $module;
 		}
 		
+		usort( $modules, array( 'Jetpack', 'sort_modules' ) );
 
 		if( !isset( $options['modules'] ) ) {
 			$options['modules'] = $modules;

@@ -94,7 +94,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'example_request'      => '',
 			'example_request_data' => '',
 			'example_response'     => '',
-
+			'required_scope'       => '',
 			'pass_wpcom_user_details' => false,
 			'can_use_user_details_instead_of_blog_membership' => false,
 		);
@@ -117,6 +117,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
 
 		$this->version     = $args['version'];
+
+		$this->required_scope = $args['required_scope'];
 
 		if ( $this->request_format ) {
 			$this->request_format = array_filter( array_merge( $this->request_format, $args['request_format'] ) );
@@ -799,6 +801,11 @@ EOPHP;
 					$type    = array();
 					$default = '';
 
+					if ( 'none' == $types ) {
+						$types = array();
+						$types[]['type'] = 'none';
+					}
+
 					foreach ( $types as $type_array ) {
 						$type[] = $type_array['type'];
 						if ( isset( $type_array['default'] ) ) {
@@ -892,6 +899,7 @@ EOPHP;
 			$URL         = $author->comment_author_url;
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
+			$site_id     = -1;
 		} else {
 			if ( isset( $author->post_author ) ) {
 				if ( 0 == $author->post_author )
@@ -916,9 +924,12 @@ EOPHP;
 			$URL   = $user->user_url;
 			$nice  = $user->user_nicename;
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$active_blog = get_active_blog_for_user( $ID );
+				$site_id     = $active_blog->blog_id;
 				$profile_URL = "http://en.gravatar.com/{$user->user_login}";
 			} else {
 				$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
+				$site_id     = -1;
 			}
 		}
 
@@ -926,7 +937,7 @@ EOPHP;
 
 		$email = $show_email ? (string) $email : false;
 
-		return (object) array(
+		$author = array(
 			'ID'          => (int) $ID,
 			'email'       => $email, // (string|bool)
 			'name'        => (string) $name,
@@ -935,6 +946,12 @@ EOPHP;
 			'avatar_URL'  => (string) esc_url_raw( $avatar_URL ),
 			'profile_URL' => (string) esc_url_raw( $profile_URL ),
 		);
+
+		if ($site_id > -1) {
+			$author['site_ID'] = (int) $site_id;
+		}
+
+		return (object) $author;
 	}
 
 	function get_taxonomy( $taxonomy_id, $taxonomy_type, $context ) {
@@ -1008,37 +1025,58 @@ EOPHP;
 	}
 
 	/**
+	 * Parses a date string and returns the local and GMT representations
+	 * of that date & time in 'YYYY-MM-DD HH:MM:SS' format without
+	 * timezones or offsets. If the parsed datetime was not localized to a
+	 * particular timezone or offset we will assume it was given in GMT
+	 * relative to now and will convert it to local time using either the
+	 * timezone set in the options table for the blog or the GMT offset.
+	 *
 	 * @param datetime string
 	 *
 	 * @return array( $local_time_string, $gmt_time_string )
 	 */
 	function parse_date( $date_string ) {
-		$time = strtotime( $date_string );
-		if ( !$time ) {
-			$time = time();
+		$date_string_info = date_parse( $date_string );
+		if ( is_array( $date_string_info ) && 0 === $date_string_info['error_count'] ) {
+			// Check if it's already localized. Can't just check is_localtime because date_parse('oppossum') returns true; WTF, PHP.
+			if ( isset( $date_string_info['zone'] ) && true === $date_string_info['is_localtime'] ) {
+				$dt_local = clone $dt_utc = new DateTime( $date_string );
+				$dt_utc->setTimezone( new DateTimeZone( 'UTC' ) );
+				return array(
+					(string) $dt_local->format( 'Y-m-d H:i:s' ),
+					(string) $dt_utc->format( 'Y-m-d H:i:s' ),
+				);
+			}
+
+			// It's parseable but no TZ info so assume UTC
+			$dt_local = clone $dt_utc = new DateTime( $date_string, new DateTimeZone( 'UTC' ) );
+		} else {
+			// Could not parse time, use now in UTC
+			$dt_local = clone $dt_utc = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
 		}
 
-		$datetime        = new DateTime( "@$time" );
-		$gmt             = $datetime->format( 'Y-m-d H:i:s' );
+		// First try to use timezone as it's daylight savings aware.
 		$timezone_string = get_option( 'timezone_string' );
 		if ( $timezone_string ) {
 			$tz = timezone_open( $timezone_string );
 			if ( $tz ) {
-				$datetime->setTimezone( $tz );
-				$local = $datetime->format( 'Y-m-d H:i:s' );
-				return array( (string) $local, (string) $gmt );
+				$dt_local->setTimezone( $tz );
+				return array(
+					(string) $dt_local->format( 'Y-m-d H:i:s' ),
+					(string) $dt_utc->format( 'Y-m-d H:i:s' ),
+				);
 			}
 		}
 
-		$gmt_offset = get_option( 'gmt_offset' );
-		$local_time = $time + $gmt_offset * 3600;
-
-		$date = getdate( ( int ) $local_time );
-		$datetime->setDate( $date['year'], $date['mon'], $date['mday'] );
-		$datetime->setTime( $date['hours'], $date['minutes'], $date['seconds'] );
-
-		$local      = $datetime->format( 'Y-m-d H:i:s' );
-		return array( (string) $local, (string) $gmt );
+		// Fallback to GMT offset (in hours)
+		// NOTE: TZ of $dt_local is still UTC, we simply modified the timestamp with an offset.
+		$gmt_offset_seconds = intval( get_option( 'gmt_offset' ) * 3600 );
+		$dt_local->modify("+{$gmt_offset_seconds} seconds");
+		return array(
+			(string) $dt_local->format( 'Y-m-d H:i:s' ),
+			(string) $dt_utc->format( 'Y-m-d H:i:s' ),
+		);
 	}
 
 	function get_link() {
@@ -1096,15 +1134,17 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	var $post_object_format = array(
 		// explicitly document and cast all output
 		'ID'        => '(int) The post ID.',
+		'site_ID'		=> '(int) The site ID.',
 		'author'    => '(object>author) The author of the post.',
 		'date'      => "(ISO 8601 datetime) The post's creation time.",
-		'modified'  => "(ISO 8601 datetime) The post's creation time.",
+		'modified'  => "(ISO 8601 datetime) The post's most recent update time.",
 		'title'     => '(HTML) <code>context</code> dependent.',
 		'URL'       => '(URL) The full permalink URL to the post.',
 		'short_URL' => '(URL) The wp.me short URL.',
 		'content'   => '(HTML) <code>context</code> dependent.',
 		'excerpt'   => '(HTML) <code>context</code> dependent.',
-		'slug'      => '(string) The name (slug) for your post, used in URLs.',
+		'slug'      => '(string) The name (slug) for the post, used in URLs.',
+		'guid'      => '(string) The GUID for the post.',
 		'status'    => array(
 			'publish' => 'The post is published.',
 			'draft'   => 'The post is saved as a draft.',
@@ -1130,7 +1170,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'tags'           => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
 		'categories'     => '(object:category) Hash of categories (keyed by category name) applied to the post.',
 		'attachments'	 => '(object:attachment) Hash of post attachments (keyed by attachment ID).',
-		'metadata'	     => '(array) Array of post metadata keys and values. All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
+		'metadata'	     => '(array) Array of post metadata keys and values. All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
 		'meta'           => '(object) API result meta data',
 	);
 
@@ -1163,8 +1203,11 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( empty( $key ) )
 			return false;
 
+		// Default whitelisted meta keys.
+		$whitelisted_meta = array( '_thumbnail_id' );
+
 		// whitelist of metadata that can be accessed
- 		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', array() ) ) )
+ 		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ) ) )
 			return true;
 
  		return false;
@@ -1259,6 +1302,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				// explicitly cast all output
 				$response[$key] = (int) $post->ID;
 				break;
+			case 'site_ID' :
+				$response[$key] = (int) $blog_id;
+				break;
 			case 'author' :
 				$response[$key] = (object) $this->get_author( $post, 'edit' === $context && current_user_can( 'edit_post', $post->ID ) );
 				break;
@@ -1306,7 +1352,10 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'slug' :
 				$response[$key] = (string) $post->post_name;
-			break;
+				break;
+			case 'guid' :
+				$response[$key] = (string) $post->guid;
+				break;
 			case 'password' :
 				$response[$key] = (string) $post->post_password;
 				break;
@@ -1481,6 +1530,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
+		// WPCOM_JSON_API_Post_Endpoint::find_featured_worthy_media( $post );
+		$response['featured_media'] = self::find_featured_media( $post );
+
 		unset( $GLOBALS['post'] );
 		return $response;
 	}
@@ -1518,6 +1570,26 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		restore_current_blog();
 		return $post;
 	}
+
+	/**
+	 * Supporting featured media in post endpoints. Currently on for wpcom blogs
+	 * since it's calling WPCOM_JSON_API_Read_Endpoint methods which presently
+	 * rely on wpcom specific functionality.
+	 *
+	 * @param WP_Post $post
+	 * @return object list of featured media
+	 */
+	public static function find_featured_media( &$post ) {
+
+		if ( class_exists( 'WPCOM_JSON_API_Read_Endpoint' ) ) {
+			return WPCOM_JSON_API_Read_Endpoint::find_featured_worthy_media( (array) $post );
+		} else {
+			return (object) array();
+		}
+
+	}
+
+
 
 	function win8_gallery_shortcode( $attr ) {
 		global $post;
@@ -1884,6 +1956,8 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			if ( 'publish' === $input['status'] && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
 				$input['status'] = 'pending';
 			}
+			$last_status = $post->post_status;
+			$new_status = $input['status'];
 
 			$post_type = get_post_type_object( $post->post_type );
 		}
@@ -2003,6 +2077,16 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			return $post_id;
 		}
 
+		// WPCOM Specific (Jetpack's will get bumped elsewhere
+		// Tracks how many posts are published and sets meta so we can track some other cool stats (like likes & comments on posts published)
+		if ( ( $new && 'publish' == $input['status'] ) || ( !$new && isset( $last_status ) && 'publish' != $last_status && isset( $new_status ) && 'publish' == $new_status ) ) {
+			if ( function_exists( 'bump_stats_extras' ) ) {
+				bump_stats_extras( 'api-insights-posts', $this->api->token_details['client_id'] );
+				update_post_meta( $post_id, '_rest_api_published', 1 );
+				update_post_meta( $post_id, '_rest_api_client_id', $this->api->token_details['client_id'] );
+			}
+		}
+
 		if ( $publicize === false ) {
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name, 1 );
@@ -2063,7 +2147,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 						if ( ! empty( $meta->id ) || ! empty( $meta->previous_value ) ) {
 							continue;
-						} elseif ( ! empty( $meta->key ) && ! empty( $meta->value ) && current_user_can( 'add_post_meta', $post_id, $unslashed_meta_key ) ) {
+						} elseif ( ! empty( $meta->key ) && ! empty( $meta->value ) && ( current_user_can( 'add_post_meta', $post_id, $unslashed_meta_key ) ) || $this->is_metadata_public( $meta->key ) ) {
 							add_post_meta( $post_id, $meta->key, $meta->value );
 						}
 
@@ -2072,11 +2156,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 						if ( ! isset( $meta->value ) ) {
 							continue;
-						} elseif ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && current_user_can( 'edit_post_meta', $post_id, $unslashed_existing_meta_key ) ) {
+						} elseif ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_existing_meta_key ) || $this->is_metadata_public( $meta->key ) ) ) {
 							update_metadata_by_mid( 'post', $meta->id, $meta->value );
-						} elseif ( ! empty( $meta->key ) && ! empty( $meta->previous_value ) && current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) ) {
+						} elseif ( ! empty( $meta->key ) && ! empty( $meta->previous_value ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) || $this->is_metadata_public( $meta->key ) ) ) {
 							update_post_meta( $post_id, $meta->key,$meta->value, $meta->previous_value );
-						} elseif ( ! empty( $meta->key ) && current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) ) {
+						} elseif ( ! empty( $meta->key ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) || $this->is_metadata_public( $meta->key ) ) ) {
 							update_post_meta( $post_id, $meta->key, $meta->value );
 						}
 
@@ -2997,6 +3081,22 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 }
 
 class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
+
+	public static $site_format = array(
+ 		'ID'                => '(int) Site ID',
+ 		'name'              => '(string) Title of site',
+ 		'description'       => '(string) Tagline or description of site',
+ 		'URL'               => '(string) Full URL to the site',
+ 		'jetpack'           => '(bool)  Whether the site is a Jetpack site or not',
+ 		'post_count'        => '(int) The number of posts the site has',
+        'subscribers_count' => '(int) The number of subscribers the site has',
+		'lang'              => '(string) Primary language code of the site',
+		'visible'           => '(bool) If this site is visible in the user\'s site list',
+		'is_private'        => '(bool) If the site is a private site or not',
+		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
+		'meta'              => '(object) Meta data',
+	);
+
 	// /sites/mine
 	// /sites/%s -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {
@@ -3014,13 +3114,43 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
+		$response = $this->build_current_site_response();
+
+		do_action( 'wpcom_json_api_objects', 'sites' );
+
+		return $response;
+	}
+
+	/**
+	 * Collects the necessary information to return for a site's response.
+	 *
+	 * @return (array)
+	 */
+	public function build_current_site_response( ) {
+
+		global $wpdb;
+
+		$response_format = self::$site_format;
+
 		$is_user_logged_in = is_user_logged_in();
 
-		$response = array();
-		foreach ( array_keys( $this->response_format ) as $key ) {
+		$visible = array();
+
+		if ( $is_user_logged_in ) {
+			$current_user = wp_get_current_user();
+			$visible = get_user_meta( $current_user->ID, 'blog_visibility', true );
+
+			if ( !is_array( $visible ) )
+				$visible = array();
+
+		}
+
+		$blog_id = (int) $this->api->get_blog_id_for_output();
+
+		foreach ( array_keys( $response_format ) as $key ) {
 			switch ( $key ) {
 			case 'ID' :
-				$response[$key] = (int) $this->api->get_blog_id_for_output();
+				$response[$key] = $blog_id;
 				break;
 			case 'name' :
 				$response[$key] = (string) get_bloginfo( 'name' );
@@ -3045,6 +3175,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = false; // magic
 				}
 				break;
+			case 'visible' :
+				if ( $is_user_logged_in ){
+					$is_visible = true;
+					if ( isset( $visible[$blog_id] ) ) {
+						$is_visible = $visible[$blog_id];
+					}
+					// null and true are visible
+					$response[$key] = $is_visible;
+				}
+				break;
 			case 'post_count' :
 				if ( $is_user_logged_in )
 					$response[$key] = (int) $wpdb->get_var("SELECT COUNT(*) FROM $wpdb->posts WHERE post_status = 'publish'");
@@ -3065,26 +3205,27 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = 0; // magic
 				}
                 break;
+			case 'is_following':
+				$response[$key] = (int) $this->api->is_following( $blog_id );
+				break;
 			case 'meta' :
 				$response[$key] = (object) array(
 					'links' => (object) array(
-						'self'     => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
-						'help'     => (string) $this->get_site_link( $this->api->get_blog_id_for_output(), 'help'      ),
-						'posts'    => (string) $this->get_site_link( $this->api->get_blog_id_for_output(), 'posts/'    ),
-						'comments' => (string) $this->get_site_link( $this->api->get_blog_id_for_output(), 'comments/' ),
+						'self'     => (string) $this->get_site_link( $blog_id ),
+						'help'     => (string) $this->get_site_link( $blog_id, 'help'      ),
+						'posts'    => (string) $this->get_site_link( $blog_id, 'posts/'    ),
+						'comments' => (string) $this->get_site_link( $blog_id, 'comments/' ),
 					),
 				);
 				break;
 			}
 		}
 
-		do_action( 'wpcom_json_api_objects', 'sites' );
-
 		return $response;
+
 	}
+
 }
-
-
 
 /*
  * Set up endpoints
@@ -3110,22 +3251,10 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 		'context' => false,
 	),
 
-	'response_format' => array(
- 		'ID'          => '(int) Blog ID',
- 		'name'        => '(string) Title of blog',
- 		'description' => '(string) Tagline or description of blog',
- 		'URL'         => '(string) Full URL to the blog',
- 		'jetpack'     => '(bool)  Whether the blog is a Jetpack blog or not',
- 		'post_count'  => '(int) The number of posts the blog has',
-        'subscribers_count'  => '(int) The number of subscribers the blog has',
-		'lang'        => '(string) Primary language code of the blog',
-		'meta'        => '(object) Meta data',
-		'is_private'  => '(bool) If the blog is a private blog or not',
-	),
+	'response_format' => WPCOM_JSON_API_GET_Site_Endpoint::$site_format,
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/?pretty=1',
 ) );
-
 
 /*
  * Post endpoints
@@ -3154,6 +3283,7 @@ new WPCOM_JSON_API_List_Posts_Endpoint( array(
 			'modified'      => 'Order by the modified time of each post.',
 			'title'         => "Order lexicographically by the posts' titles.",
 			'comment_count' => 'Order by the number of comments for each post.',
+			'ID'            => 'Order by post ID.',
 		),
 		'after'    => '(ISO 8601 datetime) Return posts dated on or after the specified datetime.',
 		'before'   => '(ISO 8601 datetime) Return posts dated on or before the specified datetime.',
@@ -3241,7 +3371,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'title'     => '(HTML) The post title.',
 		'content'   => '(HTML) The post content.',
 		'excerpt'   => '(HTML) An optional post excerpt.',
-		'slug'      => '(string) The name (slug) for your post, used in URLs.',
+		'slug'      => '(string) The name (slug) for the post, used in URLs.',
 		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
 		'publicize_message' => '(string) Custom message to be publicized to external services.',
 		'status'    => array(
@@ -3258,7 +3388,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'format'     => get_post_format_strings(),
 		'media'      => "(media) An array of images to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts images (image/gif, image/jpeg, image/png) only.<br /><br /><strong>Example</strong>:<br />" .
 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
-		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
+		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 		'comments_open' => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
 		'pings_open'    => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
 	),
@@ -3380,7 +3510,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'title'     => '(HTML) The post title.',
 		'content'   => '(HTML) The post content.',
 		'excerpt'   => '(HTML) An optional post excerpt.',
-		'slug'      => '(string) The name (slug) for your post, used in URLs.',
+		'slug'      => '(string) The name (slug) for the post, used in URLs.',
 		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
 		'publicize_message' => '(string) Custom message to be publicized to external services.',
 		'status'    => array(
@@ -3396,7 +3526,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'format'     => get_post_format_strings(),
 		'comments_open' => '(bool) Should the post be open to comments?',
 		'pings_open'    => '(bool) Should the post be open to comments?',
-		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
+		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/posts/1222/',

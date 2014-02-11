@@ -279,6 +279,94 @@
 			}
 		} );
 
+		// Accessibility keyboard shortcurts
+		$( '.service' ).on( 'keydown', function ( e ) {
+
+			// Reposition if one of the directional keys is pressed
+		    switch ( e.keyCode ) {
+		        case 13: keyboardDragDrop( $( this ) ); break; // Enter
+		        case 32: keyboardDragDrop( $( this ) ); break; // Space
+		        case 37: keyboardChangeOrder( $( this ), 'left' ); break; // Left
+		        case 39: keyboardChangeOrder( $( this ), 'right' ); break; // Right
+		        default: return true; // Exit and bubble
+		    }
+
+		    e.preventDefault();
+		});
+
+		function keyboardChangeOrder( $this, dir ) {
+
+			var thisParent = $this.parent(),
+				thisParentsChildren = thisParent.find( 'li' ),
+				thisPosition = thisParentsChildren.index( $this ) + 1,
+				totalChildren = thisParentsChildren.length - 1;
+
+			// No need to be able to sort order for the "Available Services" section
+			if ( thisParent.hasClass( 'services-available' ) )
+				return;
+
+			if ( 'left' === dir ) {
+				if ( 1 === thisPosition )
+					return
+
+				// Find service to left
+				var prevSibling = $this.prev();
+
+				// Detach this service from DOM
+				var thisService = $this.detach();
+
+				// Move it to the appropriate area and add focus back to service
+				prevSibling.before( thisService );
+
+				// Add focus
+				prevSibling.prev().focus();
+			}
+
+			if ( 'right' === dir ) {
+				if ( thisPosition === totalChildren )
+					return
+
+				// Find service to left
+				var nextSibling = $this.next();
+
+				// Detach this service from DOM
+				var thisService = $this.detach();
+
+				// Move it to the appropriate area and add focus back to service
+				nextSibling.after( thisService );
+
+				// Add focus
+				nextSibling.next().focus();
+			}
+			
+			//Save changes
+			save_services();
+		}
+
+		function keyboardDragDrop( $this ) {
+
+			var dropzone,
+				thisParent = $this.parent();
+
+			// Rotate through 3 available dropzones
+			if ( thisParent.hasClass( 'services-available' ) ) {
+				dropzone = 'services-enabled';
+			} else if ( thisParent.hasClass( 'services-enabled' ) ) {
+				dropzone = 'services-hidden';
+			} else {
+				dropzone = 'services-available';
+			}
+
+			// Detach this service from DOM
+			var thisService = $this.detach();
+
+			// Move it to the appropriate area and add focus back to service
+			$( '.' + dropzone ).prepend( thisService ).find( 'li:first-child' ).focus();
+			
+			//Save changes
+			save_services();
+		}
+
 		// Live preview 'hidden' button
 		$( '.preview-hidden a' ).click( function() {
 			$( this ).parent().find( '.preview' ).toggle();

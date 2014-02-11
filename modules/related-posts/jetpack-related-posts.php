@@ -11,7 +11,7 @@ class Jetpack_RelatedPosts {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			if ( method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
+			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
 				$instance = WPCOM_RelatedPosts::init();
 			} else {
 				$instance = new Jetpack_RelatedPosts(
@@ -32,7 +32,7 @@ class Jetpack_RelatedPosts {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			if ( method_exists( 'WPCOM_RelatedPosts', 'init_raw' ) ) {
+			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init_raw' ) ) {
 				$instance = WPCOM_RelatedPosts::init_raw();
 			} else {
 				$instance = new Jetpack_RelatedPosts_Raw(
@@ -372,10 +372,7 @@ EOT;
 			'size' => (int)$options['size'],
 			'post_type' => get_post_type( $post_id ),
 			'has_terms' => array(),
-			'date_range' => array(
-				'from' => strtotime( '-2 year' ),
-				'to' => time()
-			),
+			'date_range' => array(),
 			'exclude_post_id' => 0,
 		);
 		$args = wp_parse_args( $args, $defaults );
@@ -440,7 +437,7 @@ EOT;
 		}
 
 		$args['date_range'] = apply_filters( 'jetpack_relatedposts_filter_date_range', $args['date_range'], $post_id );
-		if ( is_array( $args['date_range'] ) ) {
+		if ( is_array( $args['date_range'] ) && ! empty( $args['date_range'] ) ) {
 			$args['date_range'] = array_map( 'intval', $args['date_range'] );
 			if ( !empty( $args['date_range']['from'] ) && !empty( $args['date_range']['to'] ) ) {
 				$filters[] = array(
