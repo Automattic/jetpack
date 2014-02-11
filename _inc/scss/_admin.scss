@@ -117,6 +117,9 @@
 	.jetpack-module {
 		.row-actions {
 			float: right;
+			span {
+				margin-left: 5px;
+			}
 		}
 		&.unavailable {
 			opacity: 0.3;
@@ -124,18 +127,12 @@
 				display: none;
 			}
 		}
-	}
-}
-.showFilter {
-	a {
-		display: block;
-		line-height: 24px;
-		
 		&.active {
-			color: #333;
-			cursor: default;
-			font-weight: bold;
-			text-decoration: none;
+			th,
+			td {
+				-webkit-box-shadow: none;
+				box-shadow: none;
+			}
 		}
 	}
 }
@@ -195,6 +192,11 @@
 
 			input[type='search'] {
 				padding: 0 8px;
+			}
+		}
+		.button-group {
+			.button {
+				outline: none;
 			}
 		}
 		.subsubsub {
