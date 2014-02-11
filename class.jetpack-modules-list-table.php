@@ -19,13 +19,13 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		wp_register_script(
 			'models.jetpack-modules',
 			plugins_url( '_inc/jetpack-modules.models.js', __FILE__ ),
-			array( 'backbone', 'underscore'),
+			array( 'backbone', 'underscore' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
 			'views.jetpack-modules',
 			plugins_url( '_inc/jetpack-modules.views.js', __FILE__ ),
-			array( 'backbone', 'underscore'),
+			array( 'backbone', 'underscore', 'wp-util' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
@@ -48,40 +48,40 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 	function js_templates() {
 		?>
-		<script type="text/html" id="Jetpack_Modules_List_Table_Template">
-			<% var i = 0;
-			if ( items.length ) {
-			_.each( items, function( item, key, list ) {
+		<script type="text/html" id="tmpl-Jetpack_Modules_List_Table_Template">
+			<# var i = 0;
+			if ( data.items.length ) {
+			_.each( data.items, function( item, key, list ) {
 				if ( item === undefined ) return;
-				%>
-				<tr class="jetpack-module <% if ( ++i % 2 ) { %> alternate<% } %><% if ( item.activated ) { %> active<% } %><% if ( ! item.available ) { %> unavailable<% } %>" id="<%= item.module %>">
+				#>
+				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
-						<input type="checkbox" name="modules[]" value="<%= item.module %>" />
+						<input type="checkbox" name="modules[]" value="{{{ item.module }}}" />
 					</th>
 					<td class='name column-name'>
 						<div class="row-actions">
-						<% if ( item.activated ) { %>
-							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module=<%= item.module %>&#038;_wpnonce=<%= item.deactivate_nonce %>"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
-						<% } else if ( item.available ) { %>
-							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module=<%= item.module %>&#038;_wpnonce=<%= item.activate_nonce %>"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
-						<% } %>
-						<% if ( item.configurable ) { %>
-							<span class='configure'><%= item.configurable %></span>
-						<% } %>
+						<# if ( item.activated ) { #>
+							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
+						<# } else if ( item.available ) { #>
+							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
+						<# } #>
+						<# if ( item.configurable ) { #>
+							<span class='configure'>{{{ item.configurable }}}</span>
+						<# } #>
 						</div>
-						<span class='info'><a href="#"><%= item.name %></a></span>
+						<span class='info'><a href="#">{{{ item.name }}}</a></span>
 					</td>
 				</tr>
-				<%
+				<#
 			});
 			} else {
-				%>
+				#>
 				<tr class="no-modules-found">
 					<td colspan="2"><?php esc_html_e( 'No Modules Found' ); ?></td>
 				</tr>
-				<%
+				<#
 			}
-			%>
+			#>
 		</script>
 		<?php
 	}

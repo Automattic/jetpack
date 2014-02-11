@@ -1,14 +1,14 @@
 
 this.jetpackModules = this.jetpackModules || {};
 
-window.jetpackModules.views = (function( window, $, _, Backbone ) {
+window.jetpackModules.views = (function( window, $, _, Backbone, wp ) {
 		'use strict';
 
 		var views = {};
 
 		views.List_Table = Backbone.View.extend({
 
-			template : _.template( $('#Jetpack_Modules_List_Table_Template').html() ),
+			template : wp.template( 'Jetpack_Modules_List_Table_Template' ),
 
 			/**
 			 * If we can, use replaceState to change the URL and indicate the new filtering.
@@ -54,4 +54,4 @@ window.jetpackModules.views = (function( window, $, _, Backbone ) {
 
 		return views;
 
-})( this, jQuery, _, Backbone );
+})( this, jQuery, _, Backbone, wp );
