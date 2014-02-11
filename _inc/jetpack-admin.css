@@ -1634,6 +1634,10 @@ html {
 	width: 30px;
 }
 
+.table-bordered .jetpack-module th {
+	border-left: 4px solid #fff;
+}
+
 .table-bordered .jetpack-module .row-actions {
 	float: right;
 }
