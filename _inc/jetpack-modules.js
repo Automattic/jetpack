@@ -2,7 +2,7 @@
 ( function( window, $, items, models, views, _ ) {
 	'use strict';
 
-	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $jp_frame, show_modal, hide_modal;
+	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $jp_frame, show_modal, hide_modal, set_modal_tab;
 
 	$the_table = $('.wp-list-table.jetpack-modules');
 	$the_filters = $('.navbar-form');
@@ -47,23 +47,45 @@
 		$jp_frame.append( _.template( $('#Modal_Template').html(), {} ) );
 	});
 
-	show_modal = function() {
+	show_modal = function( module, tab ) {
 		$jp_frame.children('.modal, .shade').show();
+		set_modal_tab( tab );
 	}
 
 	hide_modal = function() {
 		$jp_frame.children('.modal, .shade').hide();
+		set_modal_tab( null );
 	}
 	$jp_frame.on( 'click', '.modal header .close, .shade', hide_modal );
 
+	set_modal_tab = function( tab ) {
+		$jp_frame.find('.modal .active').removeClass('active');
+		switch ( tab ) {
+			case 'learn-more':
+				$jp_frame.find('.modal .learn-more a').addClass('active');
+				$jp_frame.children('.modal' ).trigger( 'learn-more' );
+				break;
+			case 'config':
+				$jp_frame.find('.modal .config a').addClass('active');
+				$jp_frame.children('.modal' ).trigger( 'config' );
+				break;
+			default:
+				break;
+		}
+	}
+	$jp_frame.on( 'click', '.modal header ul li a', function( event ){
+		event.preventDefault();
+		set_modal_tab( $(this).data('tab') );
+	} );
+
 	$the_table.on( 'click', '.info a', { modules : modules }, function( event ) {
 		event.preventDefault();
-		show_modal();
+		show_modal( {}, 'learn-more' );
 	} );
 
 	$the_table.on( 'click', '.configure a', { modules : modules }, function( event ) {
 		event.preventDefault();
-		show_modal();
+		show_modal( {}, 'config' );
 	} );
 
 	$the_filters.on( 'click', '.button-group .button', { modules : modules }, function( event ) {
