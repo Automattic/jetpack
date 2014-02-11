@@ -36,8 +36,6 @@ window.jetpackModules.views = (function( window, $, _, Backbone ) {
 					url += '&sort_by=' + encodeURIComponent( m_sort.data('sort-by') );
 				}
 
-				console.log( url );
-
 				window.history.replaceState( {}, '', url );
 			},
 
