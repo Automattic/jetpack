@@ -234,7 +234,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	}
 
 	function get_table_classes() {
-		return array( 'widefat', 'fixed', 'jetpack-modules' );
+		return array( 'table', 'table-bordered', 'wp-list-table', 'widefat', 'fixed', 'jetpack-modules' );
 	}
 
 	function column_cb( $item ) {
