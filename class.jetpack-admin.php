@@ -32,7 +32,7 @@ class Jetpack_Admin {
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = $this->jetpack->get_module( $module ) ) {
 				$short_desc = apply_filters( 'jetpack_short_module_description', $module_array['description'], $module );
-				$short_desc_trunc = ( strlen( $short_desc ) > 143 ) ? substr( $short_desc ,0 ,140 ) . '...' : $short_desc;
+				$short_desc_trunc = ( strlen( $short_desc ) > 143 ) ? substr( $short_desc, 0, 140 ) . '...' : $short_desc;
 
 				$module_array['module']            = $module;
 				$module_array['activated']         = in_array( $module, $active_modules );
