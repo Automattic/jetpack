@@ -1361,7 +1361,13 @@ jQuery(document).ready(function($) {
 		});
 
 		if ( index != -1 )
-			gallery.jp_carousel('open', {start_index: index}); // open method checks if already opened
+            if ( gallery.jp_carousel( 'testIfOpened' ) ){ //moved the test for open here and add a change to slide if users are using the back or forward button
+                var gallery = $('div.jp-carousel');
+                var slides = gallery.jp_carousel('slides'), selected = slides.eq(index);
+                gallery.jp_carousel('selectSlide', selected, false);
+            }else{
+                gallery.jp_carousel('open', {start_index: index});
+            }
 	});
 
 	if ( window.location.hash )
