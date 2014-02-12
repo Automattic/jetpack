@@ -32,7 +32,7 @@ class Jetpack_Admin {
 			if ( $module_array = $this->jetpack->get_module( $module ) ) {
 				$short_desc = apply_filters( 'jetpack_short_module_description', $module_array['description'], $module );
 				$short_desc_trunc = ( strlen( $short_desc ) > 143 ) ? substr( $short_desc ,0 ,140 ) . '...' : $short_desc;
-				
+
 				$module_array['module']            = $module;
 				$module_array['activated']         = in_array( $module, $active_modules );
 				$module_array['deactivate_nonce']  = wp_create_nonce( 'jetpack_deactivate-' . $module );
@@ -57,7 +57,7 @@ class Jetpack_Admin {
 				if ( current_user_can( 'manage_options' ) && apply_filters( 'jetpack_module_configurable_' . $module, false ) ) {
 					$module_array['configurable'] = sprintf( '<a href="%1$s">%2$s</a>', esc_url( Jetpack::module_configuration_url( $module ) ), __( 'Configure', 'jetpack' ) );
 				}
-	
+
 				$modules[ $module ] = $module_array;
 			}
 		}
