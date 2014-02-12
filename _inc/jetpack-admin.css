@@ -1580,7 +1580,7 @@ html {
 	float: right;
 }
 
-@media (max-width: 1130px) {
+@media (max-width: 782px) {
 	.filter-search {
 		display: block;
 	}
@@ -1743,7 +1743,7 @@ html {
 	width: 100%;
 }
 
-@media (max-width: 1130px) {
+@media (max-width: 782px) {
 	.wrap .manage-left {
 		width: 100%;
 	}
@@ -1821,7 +1821,7 @@ html {
 	text-align: left;
 }
 
-@media (max-width: 1130px) {
+@media (max-width: 782px) {
 	.wrap .manage-right {
 		background: #fff;
 		bottom: 0;

@@ -65,7 +65,7 @@
 .filter-search {
 	display: none;
 	float: right;
-	@media (max-width: 1130px) {
+	@media (max-width: 782px) {
 		display: block;
 	}
 	@media (max-width: 530px) {
@@ -202,7 +202,7 @@
 			width: 100%;
 		}
 		
-		@media (max-width: 1130px) {
+		@media (max-width: 782px) {
 			width: 100%;
 		}
 	}
@@ -270,7 +270,7 @@
 			}
 		}
 
-		@media (max-width: 1130px) {
+		@media (max-width: 782px) {
 			background: #fff;
 			bottom: 0;
 			display: none;
