@@ -69,42 +69,55 @@ class Jetpack {
 	 */
 	private $conflicting_plugins = array(
 		'comments'          => array(
-			'Intense Debate'	  => 'intensedebate/intensedebate.php',
-			'Disqus'		  => 'disqus-comment-system/disqus.php',
+			'Intense Debate'                 => 'intensedebate/intensedebate.php',
+			'Disqus'                         => 'disqus-comment-system/disqus.php',
+			'Livefyre'                       => 'livefyre-comments/livefyre.php',
+			'Comments Evolved for WordPress' => 'gplus-comments/comments-evolved.php',
+			'Google+ Comments'               => 'google-plus-comments/google-plus-comments.php',
 		),
 		'contact-form'      => array(
-			'Contact Form 7'	   => 'contact-form-7/wp-contact-form-7.php',
-			'Gravity Forms'		   => 'gravityforms/gravityforms.php',
-			'Contact Form Plugin'	   => 'contact-form-plugin/contact_form.php',
-			'Easy Contact Forms'	   => 'easy-contact-forms/easy-contact-forms.php',
-			'Fast Secure Contact Form' => 'si-contact-form/si-contact-form.php',
+			'Contact Form 7'                 => 'contact-form-7/wp-contact-form-7.php',
+			'Gravity Forms'                  => 'gravityforms/gravityforms.php',
+			'Contact Form Plugin'            => 'contact-form-plugin/contact_form.php',
+			'Easy Contact Forms'             => 'easy-contact-forms/easy-contact-forms.php',
+			'Fast Secure Contact Form'       => 'si-contact-form/si-contact-form.php',
 		),
 		'gplus-authorship'  => array(
-			'WP SEO by Yoast'	  => 'wordpress-seo/wp-seo.php',
+			'WP SEO by Yoast'                => 'wordpress-seo/wp-seo.php',
 		),
 		'minileven'         => array(
-			'WPtouch'		  => 'wptouch/wptouch.php',
+			'WPtouch'                        => 'wptouch/wptouch.php',
 		),
 		'latex'		    => array(
-			'LaTeX for WordPress'	  => 'latex/latex.php',
-			'Youngwhans Simple Latex' => 'youngwhans-simple-latex/yw-latex.php',
-			'Easy WP LaTeX'		  => 'easy-wp-latex-lite/easy-wp-latex-lite.php',
-			'MathJax-LaTeX'		  => 'mathjax-latex/mathjax-latex.php',
-			'Enable Latex'		  => 'enable-latex/enable-latex.php',
-			'WP QuickLaTeX'		  => 'wp-quicklatex/wp-quicklatex.php',
-		),
-		'sharedaddy'        => array(
-			'AddThis'		  => 'addthis/addthis_social_widget.php',
-			'Add To Any'		  => 'add-to-any/add-to-any.php',
-			'ShareThis'		  => 'share-this/sharethis.php',
-			'Shareaholic'		  => 'shareaholic/shareaholic.php',
-		),
-		'widget-visibility' => array(
-			'Widget Logic'		  => 'widget-logic/widget_logic.php',
-			'Dynamic Widgets'	  => 'dynamic-widgets/dynamic-widgets.php',
+			'LaTeX for WordPress'            => 'latex/latex.php',
+			'Youngwhans Simple Latex'        => 'youngwhans-simple-latex/yw-latex.php',
+			'Easy WP LaTeX'                  => 'easy-wp-latex-lite/easy-wp-latex-lite.php',
+			'MathJax-LaTeX'                  => 'mathjax-latex/mathjax-latex.php',
+			'Enable Latex'                   => 'enable-latex/enable-latex.php',
+			'WP QuickLaTeX'                  => 'wp-quicklatex/wp-quicklatex.php',
 		),
 		'random-redirect' => array(
-			'Random Redirect 2'	  => 'random-redirect-2/random-redirect.php',
+			'Random Redirect 2'              => 'random-redirect-2/random-redirect.php',
+		),
+		'related-posts'     => array(
+			'YARPP'                          => 'yet-another-related-posts-plugin/yarpp.php',
+			'WordPress Related Posts'        => 'wordpress-23-related-posts-plugin/wp_related_posts.php',
+			'nrelate Related Content'        => 'nrelate-related-content/nrelate-related.php',
+			'Contextual Related Posts'       => 'contextual-related-posts/contextual-related-posts.php',
+			'Related Posts for WordPress'    => 'microkids-related-posts/microkids-related-posts.php',
+			'outbrain'                       => 'outbrain/outbrain.php',
+			'Shareaholic'                    => 'shareaholic/shareaholic.php',
+			'Sexybookmarks'                  => 'sexybookmarks/shareaholic.php',
+		),
+		'sharedaddy'        => array(
+			'AddThis'                        => 'addthis/addthis_social_widget.php',
+			'Add To Any'                     => 'add-to-any/add-to-any.php',
+			'ShareThis'                      => 'share-this/sharethis.php',
+			'Shareaholic'                    => 'shareaholic/shareaholic.php',
+		),
+		'widget-visibility' => array(
+			'Widget Logic'                   => 'widget-logic/widget_logic.php',
+			'Dynamic Widgets'                => 'dynamic-widgets/dynamic-widgets.php',
 		),
 	);
 
