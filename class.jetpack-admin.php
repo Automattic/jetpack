@@ -24,6 +24,7 @@ class Jetpack_Admin {
 	}
 
 	function get_modules() {
+		include_once( JETPACK__PLUGIN_DIR . 'modules/module-info.php' );
 		$available_modules = $this->jetpack->get_available_modules();
 		$active_modules    = $this->jetpack->get_active_modules();
 		$modules           = array();
