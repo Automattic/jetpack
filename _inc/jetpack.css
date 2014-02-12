@@ -1954,33 +1954,6 @@ html {
 	.filter-search {
 		display: block;
 	}
-
-	.wrap .manage-left {
-		width: 100%;
-	}
-
-	.wrap .manage-right {
-		background: #fff;
-		bottom: 0;
-		display: none;
-		min-width: 300px;
-		position: fixed;
-		right: 0;
-		top: 0;
-		z-index: 13;
-		-webkit-box-shadow: 0 1px 20px 5px rgba(0,0,0,0.1);
-		-moz-box-shadow: 0 1px 20px 5px rgba(0,0,0,0.1);
-		box-shadow: 0 1px 20px 5px rgba(0,0,0,0.1);
-	}
-
-	.wrap .manage-right .bumper {
-		margin: 13px;
-	}
-
-	.wrap .manage-right .navbar-form {
-		margin: 0;
-		padding: 0;
-	}
 }
 
 @media (max-width: 900px) {

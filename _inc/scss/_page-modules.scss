@@ -162,6 +162,10 @@
 		table {
 			width: 100%;
 		}
+		
+		@media (max-width: 1130px) {
+			width: 100%;
+		}
 	}
 	.manage-right {
 		margin: 0;
@@ -170,6 +174,26 @@
 		right: 0;
 		width: 35%;
 		z-index: 1;
+
+		@media (max-width: 1130px) {
+			background: #fff;
+			bottom: 0;
+			display: none;
+			min-width: 300px;
+			position: fixed;
+			right: 0;
+			top: 0;
+			z-index: 13;
+			@include box-shadow(0 1px 20px 5px rgba(0, 0, 0, 0.1));
+
+			.bumper {
+				margin: 13px;
+			}
+			.navbar-form {
+				margin: 0;
+				padding: 0;
+			}
+		}
 
 		p {
 			font-size: 12px;
