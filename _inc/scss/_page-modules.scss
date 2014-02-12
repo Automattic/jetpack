@@ -30,10 +30,30 @@
 			width: 100%;
 			z-index: 4;
 			@include box-shadow(0 2px 2px -2px #eee);
+
+			@media (max-width: 782px) {
+				border: none;
+				box-shadow: none;
+				padding-top: em(20);
+				position: relative;
+				top: auto;
+			}
+			@media (max-width: 600px) {
+				top: 0;
+			}
 		}
 
 		.tablenav.top {
 			float: left;
+
+			.actions {
+				@media (max-width: 900px) {
+					display: block;
+				}
+				@media (max-width: 782px) {
+					margin-top: 6px;
+				}
+			}
 		}
 	}
 }
@@ -45,6 +65,12 @@
 .filter-search {
 	display: none;
 	float: right;
+	@media (max-width: 1130px) {
+		display: block;
+	}
+	@media (max-width: 530px) {
+		display: none;
+	}
 }
 .search-bar {
 	max-width: 300px;
@@ -55,6 +81,29 @@
 		&:hover {
 			.genericon {
 				display: inline-block;
+			}
+		}
+		&.active {
+			th,
+			td {
+				background: #f7fcfe;
+			}
+			th {
+				border-left: 4px solid #2ea2cc;
+				padding-left: 0px;
+			}
+			td {
+				padding: 6px 10px 2px;
+		
+				&:first-child {
+					border-left: 4px solid #2ea2cc;
+				}
+			}
+		}
+		&.unavailable {
+			opacity: 0.3;
+			input {
+				display: none;
 			}
 		}
 		th,
@@ -86,29 +135,10 @@
 				span {
 					margin-left: 5px;
 				}
-			}
-		}
-		&.active {
-			th,
-			td {
-				background: #f7fcfe;
-			}
-			th {
-				border-left: 4px solid #2ea2cc;
-				padding-left: 0px;
-			}
-			td {
-				padding: 6px 10px 2px;
-		
-				&:first-child {
-					border-left: 4px solid #2ea2cc;
+
+				@media (max-width: 530px) {
+					display: none;
 				}
-			}
-		}
-		&.unavailable {
-			opacity: 0.3;
-			input {
-				display: none;
 			}
 		}
 	}
@@ -125,6 +155,10 @@
 	}
 	#doaction {
 		margin-top: 0;
+
+		@media (max-width: 782px) {
+			padding: 10px 7px;
+		}
 	}
 	.checkall {
 		margin-top: 1px;
@@ -142,6 +176,11 @@
 	}
 	.sm {
 		width: 30px;
+	}
+	@media (max-width: 782px) {
+		.check-column {
+			width: 50px;
+		}
 	}
 }
 .wrap {
@@ -175,26 +214,6 @@
 		width: 35%;
 		z-index: 1;
 
-		@media (max-width: 1130px) {
-			background: #fff;
-			bottom: 0;
-			display: none;
-			min-width: 300px;
-			position: fixed;
-			right: 0;
-			top: 0;
-			z-index: 13;
-			@include box-shadow(0 1px 20px 5px rgba(0, 0, 0, 0.1));
-
-			.bumper {
-				margin: 13px;
-			}
-			.navbar-form {
-				margin: 0;
-				padding: 0;
-			}
-		}
-
 		p {
 			font-size: 12px;
 			font-weight: bold;
@@ -224,6 +243,12 @@
 
 			input[type='search'] {
 				padding: 0 8px;
+
+				@media (max-width: 782px) {
+					float: left;
+					padding: 9px 8px;
+					width: auto;
+				}
 			}
 		}
 		.button-group {
@@ -242,6 +267,26 @@
 			li {
 				display: block;
 				text-align: left;
+			}
+		}
+
+		@media (max-width: 1130px) {
+			background: #fff;
+			bottom: 0;
+			display: none;
+			min-width: 300px;
+			position: fixed;
+			right: 0;
+			top: 0;
+			z-index: 13;
+			@include box-shadow(0 1px 20px 5px rgba(0, 0, 0, 0.1));
+		
+			.bumper {
+				margin: 13px;
+			}
+			.navbar-form {
+				margin: 0;
+				padding: 0;
 			}
 		}
 	}

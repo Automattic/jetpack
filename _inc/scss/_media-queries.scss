@@ -139,9 +139,6 @@
 			color: #bbb;
 		}
 	}
-	.filter-search {
-		display: block;
-	}
 }
 @media (max-width: 900px) {
 	// Tablets (iPad)
@@ -227,32 +224,23 @@
 		padding-top: 146px;
 	}
 	.main-nav {
-    	font-size: 13px;
-    	
-    	.jetpack-logo {
+		font-size: 13px;
+
+		.jetpack-logo {
 			font-size: 22px;
 			
 			&:before {
 				font-size: 29px;
 			}
 		}
-    }
-    .table-bordered {
-    	.genericon {
-    		display: inline-block;
-    	}
-    }
-    .tablenav.top .actions {
-    	display: block;
-    }
+	}
+	.table-bordered {
+		.genericon {
+			display: inline-block;
+		}
+	}
 }
 @media (max-width: 782px) {
-	.table-bordered #doaction {
-		padding: 10px 7px;
-	}
-	.tablenav.top .actions {
-		margin-top: 6px;
-	}
 	#wpcontent,
 	.auto-fold #wpcontent, 
 	.auto-fold #wpfooter,
@@ -288,26 +276,6 @@
 	.sidebar {
 		display: none; 
 	}
-	.frame.top.fixed {
-		border: none;
-		box-shadow: none;
-		padding-top: em(20);
-		position: relative;
-		top: auto;
-	}
-	.widefat .check-column {
-		width: 50px;
-	}
-	.wrap .manage-right p.search-box input[type='search'] {
-		float: left;
-		padding: 9px 8px;
-		width: auto;
-	}
-}
-@media (max-width: 600px) {
-	.configure .frame.top.fixed {
-		top: 0;
-	}
 }
 @media (max-width: 530px) {
 	.page-content {
@@ -329,9 +297,6 @@
 		a {
 			padding: 0.6em;
 		}
-	}
-	.filter-search {
-		display: none;
 	}
 	.clouds-sm {
 		height: 90px;
@@ -483,9 +448,6 @@
 				top: auto;
 			}
 		}
-	}
-	.jetpack-modules .row-actions {
-		display: none;
 	}
 }
 @media (max-width: 320px) {
