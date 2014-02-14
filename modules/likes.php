@@ -306,7 +306,7 @@ class Jetpack_Likes {
 				<div>
 			</td>
 		</tr>
-		<?php if ( ! $this->in_jetpack && ( is_automattician() || ( defined( 'WPCOM_SANDBOXED' ) && WPCOM_SANDBOXED ) ) ) : ?>
+		<?php if ( ! $this->in_jetpack ) : ?>
 		<tr>
 			<th scope="row">
 				<label><?php esc_html_e( 'Comment Likes are', 'jetpack' ); ?></label>
