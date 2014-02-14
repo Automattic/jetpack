@@ -2837,6 +2837,10 @@ Then in check below (not this one) add the is_network=network_admin
 
 			$redirect = $redirect ? esc_url_raw( $redirect ) : '';
 
+			if( isset( $_REQUEST['is_multisite'] ) ) {
+				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
+			}
+
 			$args = urlencode_deep(
 				array(
 					'response_type' => 'code',
