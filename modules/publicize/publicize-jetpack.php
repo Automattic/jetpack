@@ -27,6 +27,8 @@ class Publicize extends Publicize_Base {
 
 		add_action( 'transition_post_status', array( $this, 'save_publicized' ), 10, 3 );
 
+		add_filter( 'jetpack_twitter_cards_site_tag', array( $this, 'enhaced_twitter_cards_site_tag' ) );
+
 		include_once ( JETPACK__PLUGIN_DIR . 'modules/publicize/enhanced-open-graph.php' );
 	}
 
@@ -639,4 +641,26 @@ class Publicize extends Publicize_Base {
 
 		return $checked; 
 	}
+
+	/**
+	* If there's only one shared connection to Twitter set it as tiwitter:site tag.
+	*/
+	function enhaced_twitter_cards_site_tag( $tag ) {
+		$custom_site_tag = get_option( 'jetpack-twitter-cards-site-tag' );
+		if( ! empty( $custom_site_tag ) )
+			return $tag;
+		if ( ! $this->is_enabled('twitter') )
+			return $tag;
+		$connections = $this->get_connections( 'twitter' );
+		if ( 1 < sizeof( $connections ) )
+			return $tag;
+		$c = array_pop( $connections );
+		$cmeta = $this->get_connection_meta( $c );
+		if ( 0 != $cmeta['connection_data']['user_id'] ) {
+			// If the connection isn't shared
+			return $tag;
+		}
+		return $this->get_display_name( 'twitter', $c );
+	}
+
 }
