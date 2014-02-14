@@ -343,7 +343,8 @@ class Share_Twitter extends Sharing_Source {
 
 	function sharing_twitter_via( $post ) {
 		// Allow themes to customize the via
-		return apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID );
+		$twitter_site_tag_value = apply_filters( 'jetpack_twitter_cards_site_tag', '' );
+		return apply_filters( 'jetpack_sharing_twitter_via', $twitter_site_tag_value, $post->ID );
 	}
 
 	public function get_related_accounts( $post ) {
