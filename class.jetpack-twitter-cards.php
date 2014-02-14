@@ -23,7 +23,7 @@ class Jetpack_Twitter_Cards {
 		 * These tags apply to any page (home, archives, etc)
 		 */
 
-		$og_tags['twitter:site'] = ( defined('IS_WPCOM') && IS_WPCOM ) ? '@wordpressdotcom' : '@jetpack';
+		$og_tags['twitter:site'] = apply_filters( 'jetpack_twitter_cards_site_tag', self::site_tag() ); 
 
 		if ( ! is_singular() || ! empty( $og_tags['twitter:card'] ) )
 			return $og_tags;
@@ -136,9 +136,41 @@ class Jetpack_Twitter_Cards {
 		return ( false !== strpos( $og_tag, 'twitter:' ) ) ? preg_replace( '/property="([^"]+)"/', 'name="\1"', $og_tag ) : $og_tag;
 	}
 
+	static function settings_init() {
+		add_settings_section( 'jetpack-twitter-cards-settings', 'Twitter Cards', '__return_false', 'sharing' );
+		add_settings_field( 'jetpack-twitter-cards-site-tag',  __( 'Twitter Site Tag', 'jetpack' ), array( __CLASS__, 'settings_field' ), 'sharing', 'jetpack-twitter-cards-settings', array(
+			'label_for' => 'jetpack-twitter-cards-site-tag'
+		) );
+	}
+
+	static function sharing_global_options() {
+		do_settings_fields( 'sharing', 'jetpack-twitter-cards-settings' );
+	}
+
+	static function site_tag() { 
+		return get_option( 'jetpack-twitter-cards-site-tag', ( defined( 'IS_WPCOM' ) && IS_WPCOM )? '@wordpressdotcom' : '@jetpack' ); 
+	} 
+ 
+	static function settings_field() {
+		wp_nonce_field( 'jetpack-twitter-cards-settings', 'jetpack_twitter_cards_nonce', false ); ?>
+		<input type="text" id="jetpack-twitter-cards-site-tag" class="regular-text" name="jetpack-twitter-cards-site-tag" value="<?php echo esc_attr( get_option( 'jetpack-twitter-cards-site-tag' ) ); ?>" />
+		<p class="description" style="width: auto;"><?php _e( 'The Twitter username of the owner of the Twitter card\'s domain.', 'jetpack-twitter-cards-site-tag' ); ?></p>
+		<?php
+	}
+
+	static function settings_validate() {
+		if ( wp_verify_nonce( $_POST['jetpack_twitter_cards_nonce'], 'jetpack-twitter-cards-settings' ) ) {
+			update_option( 'jetpack-twitter-cards-site-tag', trim( ltrim( strip_tags( $_POST['jetpack-twitter-cards-site-tag'] ), '@' ) ) );
+		}
+	}
+
 	static function init() {
 		add_filter( 'jetpack_open_graph_tags', array( __CLASS__, 'twitter_cards_tags' ) );
 		add_filter( 'jetpack_open_graph_output', array( __CLASS__, 'twitter_cards_output' ) );
+		add_filter( 'jetpack_twitter_cards_site_tag', array( __CLASS__, 'site_tag' ), -99 );
+		add_action( 'admin_init', array( __CLASS__, 'settings_init' ) );
+		add_action( 'sharing_global_options', array( __CLASS__, 'sharing_global_options' ) );
+		add_action( 'sharing_admin_update', array( __CLASS__, 'settings_validate' ) );
 	}
 }
 
