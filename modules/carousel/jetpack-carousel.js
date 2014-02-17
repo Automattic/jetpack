@@ -30,6 +30,7 @@ jQuery(document).ready(function($) {
 				gallery.jp_carousel('next');
 				break;
 			case 37: // left
+			case 8: // backspace
 				e.preventDefault();
 				gallery.jp_carousel('clearCommentTextAreaValue');
 				gallery.jp_carousel('previous');

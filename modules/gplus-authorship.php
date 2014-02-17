@@ -14,6 +14,8 @@ add_action( 'init', 'jetpack_init_gplus_authorship' );
 
 class GPlus_Authorship {
 
+	private $byline_displayed = false;
+
 	function __construct() {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 		if ( $this->in_jetpack ) {
@@ -148,6 +150,8 @@ class GPlus_Authorship {
 			return $text;
 		if  ( get_post_type() != 'post' )
 			return $text;
+		if ( true === $this->byline_displayed )
+			return $text;
 		$author = $this->information( $post->post_author );
 		if ( empty( $author ) )
 			return $text;
@@ -174,6 +178,8 @@ class GPlus_Authorship {
 		$output .= $this->follow_button( $post );
 		$output .= '</div>';
 		$output .= '</div>';
+
+		$this->byline_displayed = true;
 
 		if ( $echo )
 			echo $text . $output;

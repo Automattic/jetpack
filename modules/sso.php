@@ -10,11 +10,6 @@
  * Module Tags: Developers
  */
 
-function module_configure_button_clicked() {
-	$sso = Jetpack_SSO::get_instance();
-
-	$sso->module_configure_button_clicked();
-}
 class Jetpack_SSO {
 	static $instance = null;
 
@@ -54,14 +49,28 @@ class Jetpack_SSO {
 	/**
 	 * Add configure button and functionality to the module card on the Jetpack screen
 	 **/
-	public function module_configure_button() {
+	public static function module_configure_button() {
 		Jetpack::enable_module_configurable( __FILE__ );
-		Jetpack::module_configuration_load( __FILE__, 'module_configure_button_clicked' );
+		Jetpack::module_configuration_load( __FILE__, array( __CLASS__, 'module_configuration_load' ) );
+		Jetpack::module_configuration_head( __FILE__, array( __CLASS__, 'module_configuration_head' ) );
+		Jetpack::module_configuration_screen( __FILE__, array( __CLASS__, 'module_configuration_screen' ) );
 	}
 
-	public function module_configure_button_clicked() {
-		wp_safe_redirect( admin_url( 'options-general.php#configure-sso' ) );
-		exit;
+	public static function module_configuration_load() {
+		// wp_safe_redirect( admin_url( 'options-general.php#configure-sso' ) );
+		// exit;
+	}
+
+	public static function module_configuration_head() {}
+
+	public static function module_configuration_screen() {
+		?>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'jetpack-sso' ); ?>
+			<?php do_settings_sections( 'jetpack-sso' ); ?>
+			<?php submit_button(); ?>
+		</form>
+		<?php
 	}
 
 	/**
@@ -127,7 +136,7 @@ class Jetpack_SSO {
 			'jetpack_sso_settings',
 			__( 'Jetpack Single Sign On' , 'jetpack' ),
 			'__return_false',
-			'general'
+			'jetpack-sso'
 		);
 
 		/*
@@ -155,7 +164,7 @@ class Jetpack_SSO {
 		 * Require two step authentication
 		 */
 		register_setting(
-			'general',
+			'jetpack-sso',
 			'jetpack_sso_require_two_step',
 			array( $this, 'validate_settings_require_two_step' )
 		);
@@ -164,7 +173,7 @@ class Jetpack_SSO {
 			'jetpack_sso_require_two_step',
 			__( 'Require Two-Step Authentication' , 'jetpack' ),
 			array( $this, 'render_require_two_step' ),
-			'general',
+			'jetpack-sso',
 			'jetpack_sso_settings'
 		);
 
@@ -173,7 +182,7 @@ class Jetpack_SSO {
 		 * Settings > General > Jetpack Single Sign On
 		 */
 		register_setting(
-			'general',
+			'jetpack-sso',
 			'jetpack_sso_match_by_email',
 			array( $this, 'validate_settings_match_by_email' )
 		);
@@ -182,7 +191,7 @@ class Jetpack_SSO {
 			'jetpack_sso_match_by_email',
 			__( 'Match by Email' , 'jetpack' ),
 			array( $this, 'render_match_by_email' ),
-			'general',
+			'jetpack-sso',
 			'jetpack_sso_settings'
 		);
 	}
