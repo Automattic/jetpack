@@ -686,7 +686,7 @@ class Jetpack_Custom_CSS {
 					<div id="post-body">
 						<div id="post-body-content">
 							<div class="postarea">
-								<textarea id="safecss" name="safecss"<?php if ( SAFECSS_USE_ACE ) echo ' class="hide-if-js"'; ?>><?php echo Jetpack_Custom_CSS::get_css(); ?></textarea>
+								<textarea id="safecss" name="safecss"<?php if ( SAFECSS_USE_ACE ) echo ' class="hide-if-js"'; ?>><?php echo esc_textarea( Jetpack_Custom_CSS::get_css() ); ?></textarea>
 								<div class="clear"></div>
 							</div>
 						</div>
