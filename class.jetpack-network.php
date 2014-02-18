@@ -106,6 +106,9 @@ class Jetpack_Network {
 	 * @param int $blog_id
 	 **/
 	public function render_jetpack_sites_column( $column_name, $blog_id ) {
+	    if( 'jetpack_connection' != $column_name )
+	    	return;
+	    
 	    $jp = Jetpack::init();
 
 		switch_to_blog( $blog_id );
