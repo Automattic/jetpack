@@ -3621,6 +3621,7 @@ Then in check below (not this one) add the is_network=network_admin
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
+		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::init()->generate_secrets();
 
 		Jetpack_Options::update_option( 'register', $secrets[0] . ':' . $secrets[1].
