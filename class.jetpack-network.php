@@ -479,11 +479,6 @@ class Jetpack_Network {
 	     */
 	    switch_to_blog( $site_id );
 	   
-	    // Soooooo..... This does not work. Jetpack thinks it is already active....
-	    // Make sure site is not already registered
-	    //if( Jetpack::is_active() )
-	    //	return
-
 	    // Save the secrets in the subsite so when the wpcom server does a pingback it
 	    // will be able to validate the connection
 	    Jetpack_Options::update_option( 'register', 
