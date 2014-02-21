@@ -21,8 +21,9 @@ class Jetpack_PostImages {
 		if ( !empty( $post->post_password ) )
 			return $images;
 
-		if ( false === strpos( $post->post_content, '[slideshow' ) )
+		if ( false === has_shortcode( $post->post_content, 'slideshow' ) ) {
 			return false; // no slideshow - bail
+		}
 
 		$permalink = get_permalink( $post->ID );
 
@@ -87,8 +88,9 @@ class Jetpack_PostImages {
 		if ( !empty( $post->post_password ) )
 			return $images;
 
-		if ( false === strpos( $post->post_content, '[gallery' ) )
+		if ( false === has_shortcode( $post->post_content, 'gallery' ) ) {
 			return false; // no gallery - bail
+		}
 
 		$permalink = get_permalink( $post->ID );
 

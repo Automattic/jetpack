@@ -483,6 +483,7 @@ function grunion_ajax_shortcode_to_json() {
 
 	// doesn't look like a post with a [contact-form] already.
 	if ( false === strpos( $content, '[contact-form' ) ) {
+	if ( false === has_shortcode( $content, 'contact-form' ) ) {
 		die( '' );
 	}
 
