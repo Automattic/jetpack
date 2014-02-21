@@ -104,14 +104,14 @@ class Jetpack_RelatedPosts {
 			return;
 
 		if ( isset( $_GET['relatedposts_exclude'] ) )
-			$exclude_id = (int)$_GET['relatedposts_exclude'];
+			$excludes = explode( ',', $_GET['relatedposts_exclude'] );
 		else
-			$exclude_id = 0;
+			$excludes = array();
 
 		if ( isset( $_GET['relatedposts_to'] ) )
 			$this->_action_frontend_redirect( $_GET['relatedposts_to'], $_GET['relatedposts_order'] );
 		elseif ( isset( $_GET['relatedposts'] ) )
-			$this->_action_frontend_init_ajax( $exclude_id );
+			$this->_action_frontend_init_ajax( $excludes );
 		else
 			$this->_action_frontend_init_page();
 
@@ -138,6 +138,15 @@ class Jetpack_RelatedPosts {
 		}
 
 		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $headline );
+
+		if ( $options['show_above_content'] ) {
+			return <<<EOT
+<div id='jp-relatedposts' class='jp-relatedposts'>
+	$headline
+</div>
+$content
+EOT;
+		}
 
 		return <<<EOT
 $content
@@ -166,6 +175,8 @@ EOT;
 				$this->_options = array();
 			if ( !isset( $this->_options['enabled'] ) )
 				$this->_options['enabled'] = true;
+			if ( !isset( $this->_options['show_above_content'] ) )
+				$this->_options['show_above_content'] = false;
 			if ( !isset( $this->_options['show_headline'] ) )
 				$this->_options['show_headline'] = true;
 			if ( !isset( $this->_options['show_thumbnails'] ) )
@@ -375,7 +386,7 @@ EOT;
 			'post_type' => get_post_type( $post_id ),
 			'has_terms' => array(),
 			'date_range' => array(),
-			'exclude_post_id' => 0,
+			'exclude_post_ids' => array(),
 		);
 		$args = wp_parse_args( $args, $defaults );
 		$args = apply_filters( 'jetpack_relatedposts_filter_args', $args, $post_id );
@@ -450,9 +461,14 @@ EOT;
 			}
 		}
 
-		$args['exclude_post_id'] = apply_filters( 'jetpack_relatedposts_filter_exclude_post_id', $args['exclude_post_id'], $post_id );
-		if ( !empty( $args['exclude_post_id'] ) ) {
-			$filters[] = array( 'not' => array( 'term' => array( 'post_id' => (int)$args['exclude_post_id'] ) ) );
+		$args['exclude_post_ids'] = apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', $args['exclude_post_ids'], $post_id );
+		if ( !empty( $args['exclude_post_ids'] ) && is_array( $args['exclude_post_ids'] ) ) {
+			foreach ( $args['exclude_post_ids'] as $exclude_post_id) {
+				$exclude_post_id = (int)$exclude_post_id;
+
+				if ( $exclude_post_id > 0 )
+					$filters[] = array( 'not' => array( 'term' => array( 'post_id' => $exclude_post_id ) ) );
+			}
 		}
 
 		return $filters;
@@ -488,17 +504,22 @@ EOT;
 	 * Generate and output ajax response for related posts API call.
 	 * NOTE: Calls exit() to end all further processing after payload has been outputed.
 	 *
-	 * @param int $exclude_id
+	 * @param array $excludes array of post_ids to exclude
 	 * @uses send_nosniff_header, self::get_for_post_id, get_the_ID
 	 * @return null
 	 */
-	protected function _action_frontend_init_ajax( $exclude_id ) {
+	protected function _action_frontend_init_ajax( array $excludes ) {
 		define( 'DOING_AJAX', true );
 
 		header( 'Content-type: application/json; charset=utf-8' ); // JSON can only be UTF-8
 		send_nosniff_header();
 
-		$related_posts = $this->get_for_post_id( get_the_ID(), array( 'exclude_post_id' => $exclude_id ) );
+		$related_posts = $this->get_for_post_id(
+			get_the_ID(),
+			array(
+				'exclude_post_ids' => $excludes,
+			)
+		);
 
 		$options = $this->get_options();
 
@@ -687,11 +708,13 @@ EOT;
 	 * @param int $post_id
 	 * @param int $size
 	 * @param array $filters
-	 * @uses wp_remote_post, is_wp_error, get_option, wp_remote_retrieve_body, get_post, add_query_arg, remove_query_arg, get_permalink, get_post_format
+	 * @uses wp_remote_post, is_wp_error, get_option, wp_remote_retrieve_body, get_post, add_query_arg, remove_query_arg, get_permalink, get_post_format, apply_filters
 	 * @return array
 	 */
 	protected function _get_related_posts( $blog_id, $post_id, $size, array $filters ) {
 		$hits = $this->_get_related_post_ids( $blog_id, $post_id, $size, $filters );
+
+		$hits = apply_filters( 'jetpack_relatedposts_filter_hits', $hits, $post_id );
 
 		$related_posts = array();
 		foreach ( $hits as $i => $hit ) {
