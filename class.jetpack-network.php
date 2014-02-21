@@ -37,7 +37,7 @@ class Jetpack_Network {
 	private $setting_defaults = array(
 		'auto-connect'		=> 0,
 		'sub-site-connection-override'	=> 0,
-		'manage_auto_activated_modules' => 0,
+	//	'manage_auto_activated_modules' => 0,
 	);
 
 	/**
@@ -78,8 +78,9 @@ class Jetpack_Network {
 			add_action( 'wpmu_new_blog', array( $this, 'do_automatically_add_new_site' ) );
 		    }
 		}
-		    
-		add_filter( 'jetpack_get_default_modules', array( $this, 'set_auto_activated_modules' ) );
+
+		// Remove the toggles for 2.9, re-evaluate how they're done and added for a 3.0 release. They don't feel quite right yet.
+		// add_filter( 'jetpack_get_default_modules', array( $this, 'set_auto_activated_modules' ) );
 	}
 
 	/**
@@ -91,11 +92,15 @@ class Jetpack_Network {
 	 * @return array
 	 **/
 	public function set_auto_activated_modules( $modules ) {
+		return $modules;
+
+/* Remove the toggles for 2.9, re-evaluate how they're done and added for a 3.0 release. They don't feel quite right yet.
 		if( 1 == $this->get_option( 'manage_auto_activated_modules' ) ) {
 			return (array) $this->get_option( 'modules' );
 		} else {
 			return $modules;
 		}
+*/
 	}
 
 	/**
@@ -684,7 +689,7 @@ class Jetpack_Network {
 		$sub_site_connection_override = 0;
 		if( isset( $_POST['sub-site-connection-override'] ) )
 			$sub_site_connection_override = 1;
-
+/* Remove the toggles for 2.9, re-evaluate how they're done and added for a 3.0 release. They don't feel quite right yet.
 		$manage_auto_activated_modules = 0;
 		if( isset( $_POST['manage_auto_activated_modules'] ) )
 			$manage_auto_activated_modules = 1;
@@ -692,12 +697,12 @@ class Jetpack_Network {
 		$modules = array();
 		if( isset( $_POST['modules'] ) )
 			$modules = $_POST['modules'];
-
+*/
 		$data = array(
 		    'auto-connect'			=> $auto_connect,
 		    'sub-site-connection-override'	=> $sub_site_connection_override,
-		    'manage_auto_activated_modules'	=> $manage_auto_activated_modules,
-		    'modules'						=> $modules,
+	//	    'manage_auto_activated_modules'	=> $manage_auto_activated_modules,
+	//	    'modules'						=> $modules,
 		);
 
 		update_site_option( $this->settings_name, $data );
