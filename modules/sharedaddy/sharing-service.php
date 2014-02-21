@@ -437,8 +437,11 @@ function sharing_add_header() {
 		$service->display_header();
 	}
 
-	if ( count( $enabled['all'] ) > 0 )
+	if ( count( $enabled['all'] ) > 0 ) {
 		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css', array(), JETPACK__VERSION );
+		wp_enqueue_style( 'genericons' );
+	}
+			
 }
 add_action( 'wp_head', 'sharing_add_header', 1 );
 
