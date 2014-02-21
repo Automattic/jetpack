@@ -19,14 +19,14 @@
 					<label for="sub-site-override">Allow individual site administrators to reconnect with their own Jetpack account.</label>
 				</td>
 			</tr>
-			<tr>
+<!--			<tr>
 				<th scope="row"><label for="manage_auto_activated_modules">Manage modules</label></th>
 				<td>
 					<input type="checkbox" name="manage_auto_activated_modules" id="manage_auto_activated_modules" onclick="jQuery('#jpms_settings_modules').toggle();" value="1" <?php checked( $options['manage_auto_activated_modules'] ); ?>/>
 					<label for="manage_auto_activated_modules">Control which modules are auto-activated</label>
 				</td>
 			</tr>
-
+-->
 		</table>
 		
 		<?php
