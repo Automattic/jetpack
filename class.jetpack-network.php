@@ -706,7 +706,7 @@ class Jetpack_Network {
 		);
 
 		update_site_option( $this->settings_name, $data );
-		wp_redirect(add_query_arg(array('page' => 'jetpack-settings', 'updated' => 'true'), network_admin_url('admin.php')));
+		wp_safe_redirect(add_query_arg(array('page' => 'jetpack-settings', 'updated' => 'true'), network_admin_url('admin.php')));
 		exit();
 	}
 
