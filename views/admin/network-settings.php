@@ -1,8 +1,8 @@
 <div class="wrap">
-	<h2>Network Settings</h2>
+	<h2><?php _e( 'Network Settings', 'jetpack' ); ?></h2>
 	<form action="edit.php?action=jetpack-network-settings" method="POST">
-		<h3>Global</h3>
-		<p>These settings affect all sites on the network.</p>
+		<h3><?php _e( 'Global', 'jetpack' ); ?></h3>
+		<p><?php _e( 'These settings affect all sites on the network.', 'jetpack' ); ?></p>
 		<table class="form-table">
 <?php /*
 			<tr valign="top">
@@ -14,10 +14,10 @@
 			</tr>
 /**/ ?>
 			<tr valign="top">
-				<th scope="row"><label for="sub-site-override">Sub-site override</label></th>
+				<th scope="row"><label for="sub-site-override"><?php _e( 'Sub-site override', 'jetpack' ); ?></label></th>
 				<td>
 					<input type="checkbox" name="sub-site-connection-override" id="sub-site-override" value="1" <?php checked($options['sub-site-connection-override']); ?> />
-					<label for="sub-site-override">Allow individual site administrators to reconnect with their own Jetpack account.</label>
+					<label for="sub-site-override"><?php _e( 'Allow individual site administrators to reconnect with their own Jetpack account.', 'jetpack' ); ?></label>
 				</td>
 			</tr>
 <?php /* Remove the toggles for 2.9, re-evaluate how they're done and added for a 3.0 release. They don't feel quite right yet.
@@ -36,8 +36,8 @@
 			$display_modules = ( 1 == $this->get_option( 'manage_auto_activated_modules' ) )? 'block': 'none';
 		?>
 		<div id="jpms_settings_modules" style="display: <?php echo $display_modules; ?>">
-		<h3>Modules</h3>
-		<p>Modules to be automatically activated when new sites are created.</p>
+		<h3><?php _e( 'Modules', 'jetpack' ); ?></h3>
+		<p><?php _e( 'Modules to be automatically activated when new sites are created.', 'jetpack' ); ?></p>
 		<table>
 			<thead>
 								<!--
