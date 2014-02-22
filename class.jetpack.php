@@ -420,7 +420,9 @@ class Jetpack {
 	 * This improves the resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.
 	 */
 	function devicepx() {
-		wp_enqueue_script( 'devicepx', ( is_ssl() ? 'https' : 'http' ) . '://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
+		if ( Jetpack::is_active() ) {
+			wp_enqueue_script( 'devicepx', set_url_scheme( 'http://s0.wp.com/wp-content/js/devicepx-jetpack.js' ), array(), gmdate( 'oW' ), true );
+		}
 	}
 
 	/*
