@@ -567,7 +567,7 @@ class Share_Digg extends Sharing_Source {
 	var s = document.createElement('SCRIPT'), s1 = document.getElementsByTagName('SCRIPT')[0];
 	s.type = 'text/javascript';
 	s.async = true;
-	s.src = 'http://widgets.digg.com/buttons.js';
+	s.src = '//widgets.digg.com/buttons.js';
 	s1.parentNode.insertBefore(s, s1);
 })();
 </script>
@@ -635,7 +635,7 @@ class Share_LinkedIn extends Sharing_Source {
 		} else {
 			?><script type="text/javascript">
 			jQuery( document ).ready( function() {
-			    jQuery.getScript( 'http://platform.linkedin.com/in.js?async=true', function success() {
+			    jQuery.getScript( '//platform.linkedin.com/in.js?async=true', function success() {
 			        IN.init();
 			    });
 			});
@@ -1095,7 +1095,7 @@ class Share_Tumblr extends Sharing_Source {
 			if ( 'new' == $this->open_links )
 				$target = '_blank';
 
-			return '<a target="' . $target . '" href="http://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'' . $this->http() . '://platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">Share on Tumblr</a>';
+			return '<a target="' . $target . '" href="http://www.tumblr.com/share/link/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&name=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" title="Share on Tumblr" style="display:inline-block; text-indent:-9999px; overflow:hidden; width:62px; height:20px; background:url(\'//platform.tumblr.com/v1/share_2.png\') top left no-repeat transparent;">Share on Tumblr</a>';
 		 } else {
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Tumblr', 'share to', 'jetpack' ), __( 'Click to share on Tumblr', 'jetpack' ), 'share=tumblr' );
 		}
@@ -1113,7 +1113,7 @@ class Share_Tumblr extends Sharing_Source {
 	// http://www.tumblr.com/share?v=3&u=URL&t=TITLE&s=
 	public function display_footer() {
 		if ( $this->smart ) {
-			?><script type="text/javascript" src="http://platform.tumblr.com/v1/share.js"></script><?php
+			?><script type="text/javascript" src="//platform.tumblr.com/v1/share.js"></script><?php 
 		} else {
 			$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
 		}
