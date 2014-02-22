@@ -252,6 +252,13 @@ function youtube_id( $url ) {
 	$start =  ( isset( $qargs['start'] )          && intval( $qargs['start'] )     ) ? '&start=' . (int) $qargs['start'] : '';
 	$end =    ( isset( $qargs['end'] )            && intval( $qargs['end'] )       ) ? '&end=' . (int) $qargs['end']     : '';
 	$hd =     ( isset( $qargs['hd'] )             && intval( $qargs['hd'] )        ) ? '&hd=' . (int) $qargs['hd']       : '';
+	if( isset($qargs['vq']) && ( 'hd1080' == $qargs['vq'] || '1080p' == $qargs['vq'] || '1080' == $qargs['vq'] ) ):
+		$vq = '&vq=hd1080';
+	elseif( isset($qargs['vq']) && ( 'hd720' == $qargs['vq'] || '720p' == $qargs['vq'] || '720' == $qargs['vq'] ) ):
+		$vq = '&vq=hd720';
+	else:
+		$vq = '';
+	endif;
 
 	$cc = ( isset( $qargs['cc_load_policy'] ) ) ? '&cc_load_policy=1' : '';
 	$cc_lang = ( isset( $qargs['cc_lang_pref'] )   ) ? '&cc_lang_pref=' . preg_replace( '/[^_a-z0-9-]/i', '', $qargs['cc_lang_pref'] ) : '';
@@ -282,7 +289,7 @@ function youtube_id( $url ) {
 	if ( ( isset( $url['path'] ) && '/videoseries' == $url['path'] ) || isset( $qargs['list'] ) ) {
 		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "$protocol://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) . "' frameborder='0'></iframe></span>";
 	} else {
-		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "$protocol://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$autoplay{$cc}{$cc_lang}" ) . "' frameborder='0'></iframe></span>";
+		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "$protocol://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$autoplay$vq{$cc}{$cc_lang}" ) . "' frameborder='0'></iframe></span>";
 	}
 
 	$html = apply_filters( 'video_embed_html', $html );
