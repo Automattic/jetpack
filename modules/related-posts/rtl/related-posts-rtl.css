@@ -1,4 +1,4 @@
-/* This file was automatically generated on Feb 21 2014 21:59:26 */
+/* This file was automatically generated on Feb 22 2014 00:07:02 */
 
 /**
  * Styles for Jetpack related posts
@@ -162,6 +162,9 @@ div.jp-relatedposts .jp-relatedposts-post-thumbs .jp-relatedposts-post-excerpt {
 }
 
 /* Behavior when there are no thumbnails in visual mode */
+div.jp-relatedposts .jp-relatedposts-post-nothumbs .jp-relatedposts-post-excerpt {
+	overflow: hidden;
+}
 div.jp-relatedposts .jp-relatedposts-post-nothumbs span {
 	margin-bottom: 1em;
 }
