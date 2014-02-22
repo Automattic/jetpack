@@ -374,7 +374,7 @@ class Jetpack_Network {
 
 	/**
 	 * Provides functionality for the Jetpack > Sites page. 
-	 * Does not does the display!
+	 * Does not do the display!
 	 *
 	 * @since 2.5
 	 */
