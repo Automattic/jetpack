@@ -9,6 +9,8 @@ jetpack = {
 	resizeTimeout: null,
 	resizeTimer: null,
 	shadowTimer: null,
+	scrollTimer: null,
+	scrollFlip: 60,			//how far down the menu must we scroll (in px) before the triangle flips?
 	statusText: null,
 	isRTL: !( 'undefined' == typeof isRtl || !isRtl ),
 	didDebug: false,
@@ -42,6 +44,14 @@ jetpack = {
 
 			clearTimeout( jetpack.shadowTimer );
 			jetpack.shadowTimer = setTimeout( function() { jetpack.show_shadows(); }, 200 );
+		});
+
+		jQuery( window ).bind( 'scroll', function() {
+			
+			if ( !jetpack.scrollTimer ) {
+				jetpack.scrollTimer = setTimeout( function() { jetpack.adjust_triangle(); }, 50 );	
+			}
+
 		});
 
 		jQuery( 'a#jp-debug' ).bind( 'click', function(e) {
@@ -244,6 +254,17 @@ jetpack = {
 	show_shadows: function() {
 		jQuery( 'div.jetpack-module' ).css( { '-webkit-box-shadow': 'inset 0 1px 0 #fff, inset 0 0 20px rgba(0,0,0,0.05), 0 1px 2px rgba( 0,0,0,0.1 )' } );
 		jQuery( 'div.more-info' ).css( { '-webkit-box-shadow': 'inset 0 0 20px rgba(0,0,0,0.05), 0 1px 2px rgba( 0,0,0,0.1 )' } );
+	},
+
+	adjust_triangle: function() { 
+
+		if ( jQuery( window ).scrollTop() > jetpack.scrollFlip ) {
+			jQuery( 'body' ).addClass( 'jetpack_scrolled' );
+		} else {
+			jQuery( 'body' ).removeClass( 'jetpack_scrolled' );
+		}
+		clearTimeout( jetpack.scrollTimer );	
+		jetpack.scrollTimer = null;
 	}
 }
 jQuery( function() { jetpack.init(); } );
