@@ -2794,43 +2794,6 @@ p {
 			    $url = add_query_arg( 'is_multisite', network_admin_url(
 			    'admin.php?page=jetpack-settings' ), $url );
 			}
-		} else if( is_network_admin() ) {
-/***********
-This does not actually work. 
-Need to add a $_GET var to the above if is_network_admin()
-Then in check below (not this one) add the is_network=network_admin
-************/
-			$role = $this->translate_current_user_to_role();
-			$signed_role = $this->sign_role( $role );
-
-			$user = wp_get_current_user();
-
-			$redirect = $redirect ? esc_url_raw( $redirect ) : '';
-
-			$args = urlencode_deep(
-				array(
-					'response_type' => 'code',
-					'client_id'     => Jetpack_Options::get_option( 'id' ),
-					'redirect_uri'  => add_query_arg(
-						array(
-							'action'   => 'authorize',
-							'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-							'redirect' => $redirect ? urlencode( $redirect ) : false,
-						),
-						menu_page_url( 'jetpack', false )
-					),
-					'state'         => $user->ID,
-					'scope'         => $signed_role,
-					'user_email'    => $user->user_email,
-					'user_login'    => $user->user_login,
-					'is_active'     => Jetpack::is_active(),
-					'is_network'	=> 1,
-			        )
-			);
-
-			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
-		
-		
 		} else {
 			$role = $this->translate_current_user_to_role();
 			$signed_role = $this->sign_role( $role );
