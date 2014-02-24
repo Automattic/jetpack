@@ -2949,7 +2949,16 @@ p {
 					</div>
 				</div>
 
-				<?php elseif ( ! $is_user_connected ) : ?>
+				else /* blog and user are connected */ : ?>
+					<?php /* TODO: if not master user, show user disconnect button? */ ?>
+				<?php endif; ?>
+			<?php endif; // ! Jetpack::is_development_mode() ?>
+
+
+
+
+
+			<?php if ( Jetpack::is_active() && !Jetpack::is_development_mode() && ! $is_user_connected ) : ?>
 
 				<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 					<div class="jetpack-wrap-container">
@@ -2964,10 +2973,10 @@ p {
 					</div>
 				</div>
 
-				<?php else /* blog and user are connected */ : ?>
-					<?php /* TODO: if not master user, show user disconnect button? */ ?>
-				<?php endif; ?>
-			<?php endif; // ! Jetpack::is_development_mode() ?>
+			<?php endif; ?>
+
+
+
 
 			<?php
 			if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) ) {
