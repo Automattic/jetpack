@@ -685,6 +685,7 @@ class Jetpack {
 			'wp-caregiver/wp-caregiver.php',							// WP Caregiver
 			'facebook-revised-open-graph-meta-tag/index.php',					// Facebook Revised Open Graph Meta Tag
 			'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',	// Fedmich's Facebook Open Graph Meta
+			'facebook-meta-tags/facebook-metatags.php',						// Facebook Meta Tags
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
