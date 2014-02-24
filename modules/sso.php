@@ -777,6 +777,7 @@ class Jetpack_SSO {
 	}
 
 	function edit_profile_fields( $user ) {
+		wp_enqueue_style( 'genericons' );
 		?>
 
 		<h3><?php _e( 'WordPress.com Single Sign On', 'jetpack' ); ?></h3>
