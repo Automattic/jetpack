@@ -8,14 +8,14 @@
  * DO NOT USE ANY STATIC METHODS IN THIS CLASS!!!!!!
  *
  * @todo Look through todos in Jetpack_Network
- * @since 2.5
+ * @since 2.9
  */
 class Jetpack_Network {
 
 	/**
 	 * Holds a static copy of Jetpack_Network for the singleton
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @var Jetpack_Network
 	 */
 	private static $instance = null;
@@ -23,7 +23,7 @@ class Jetpack_Network {
 	/**
 	 * Name of the network wide settings
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @var string
 	 */
 	private $settings_name = 'jetpack-network-settings';
@@ -31,7 +31,7 @@ class Jetpack_Network {
 	/**
 	 * Defaults for settings found on the Jetpack > Settings page
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @var array
 	 */
 	private $setting_defaults = array(
@@ -43,7 +43,7 @@ class Jetpack_Network {
 	/**
 	 * Constructor
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 */
 	private function __construct() {
 	     require_once( ABSPATH . '/wp-admin/includes/plugin.php' ); // For the is_plugin... check
@@ -87,7 +87,7 @@ class Jetpack_Network {
 	 * Sets which modules get activated by default on subsite connection.
 	 * Modules can be set in Network Admin > Jetpack > Settings
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @param array $modules
 	 * @return array
 	 **/
@@ -143,7 +143,7 @@ class Jetpack_Network {
 	 * Add the column for Jetpack connection status to the
 	 * Network Admin > Sites list
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @param array $columns
 	 * @return array
 	 **/
@@ -155,7 +155,7 @@ class Jetpack_Network {
 	/**
 	 * Registers new sites upon creation
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @uses wpmu_new_blog
 	 * @param int $blog_id
 	 **/
@@ -167,7 +167,7 @@ class Jetpack_Network {
 	 * Adds .network-admin class to the body tag
 	 * Helps distiguish network admin JP styles from regular site JP styles
 	 *
-	 * @since 2.6
+	 * @since 2.9
 	 */
 	public function body_class( $classes ) {
 		return 'network-admin';
@@ -178,7 +178,7 @@ class Jetpack_Network {
 	 *
 	 * This is how the Jetpack_Network object should *always* be accessed
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @return Jetpack_Network
 	 */
 	public static function init() {
@@ -194,7 +194,7 @@ class Jetpack_Network {
 	 * This shortcut helps users quickly and easily navigate to the Jetpack Network Admin
 	 * menu from anywhere in their network.
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 */
 	public function register_menubar() {
 	    add_action( 'wp_before_admin_bar_render', array( $this, 'add_to_menubar' ) );
@@ -207,7 +207,7 @@ class Jetpack_Network {
 	 * on Multisite individually activated plugins are still activated when
 	 * a plugin is deactivated network wide.
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 **/
 	public function deactivate() {
 	    if( !is_network_admin() ) return; // Only fire if in network admin
@@ -234,7 +234,7 @@ class Jetpack_Network {
 	/**
 	 * Adds a link to the Jetpack Network Admin page in the netowrk admin menu bar.
 	 *
-	 * @since 2.6
+	 * @since 2.9
 	 **/
 	 public function add_to_menubar () {
 	    global $wp_admin_bar;
@@ -261,7 +261,7 @@ class Jetpack_Network {
 	 * - network_admin_page: Provides link to /wp-admin/network/JETPACK
 	 * - subsitedisconnect: Pass array( 'name' => 'subsitedisconnect', 'site_id' => SITE_ID )
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @param Mixed $args 
 	 * @return String
 	 **/
@@ -302,7 +302,7 @@ class Jetpack_Network {
 	/**
 	 * Adds the Jetpack  menu item to the Network Admin area
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 */
 	public function add_network_admin_menu() {
 		add_action( 'admin_print_styles', array( $this, 'network_admin_styles' ) );
@@ -328,7 +328,7 @@ class Jetpack_Network {
 	 /**
 	 * Adds JP menu icon
 	 *
-	 * @since 2.6
+	 * @since 2.9
 	 **/
 	 function admin_menu_css() {
 		// Make sure we're working off a clean version.
@@ -376,7 +376,7 @@ class Jetpack_Network {
 	 * Provides functionality for the Jetpack > Sites page. 
 	 * Does not do the display!
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 */
 	public function jetpack_sites_list() {
 	    $jp = Jetpack::init();
@@ -442,7 +442,7 @@ class Jetpack_Network {
 	/**
 	 * Disconnect functionality for an individual site
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @see Jetpack_Network::jetpack_sites_list()
 	 */
 	public function do_subsitedisconnect( $site_id = null ) {
@@ -455,7 +455,7 @@ class Jetpack_Network {
 	/**
 	 * Registers a subsite with the Jetpack servers
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @todo Break apart into easier to manage chunks that can be unit tested
 	 * @see Jetpack_Network::jetpack_sites_list();
 	 */
@@ -605,7 +605,7 @@ class Jetpack_Network {
 	 * Handles the displaying of all sites on the network that are
 	 * dis/connected to Jetpack
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @see Jetpack_Network::jetpack_sites_list()
 	 */
 	function network_admin_page() {
@@ -646,7 +646,7 @@ class Jetpack_Network {
 	/**
 	 * Stylized JP header formatting
 	 *
-	 * @since 2.6
+	 * @since 2.9
 	 */
 	function network_admin_page_header() {
 		global $current_user;
@@ -662,7 +662,7 @@ class Jetpack_Network {
 	/**
 	 * Stylized JP footer formatting
 	 *
-	 * @since 2.6
+	 * @since 2.9
 	 */
 	function network_admin_page_footer() {
 		require_once( 'views/admin/network-admin-footer.php' );
@@ -671,7 +671,7 @@ class Jetpack_Network {
 	/**
 	 * Fires when the Jetpack > Settings page is saved.
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 */
 	public function save_network_settings_page() {
 
@@ -735,7 +735,7 @@ class Jetpack_Network {
 	/**
 	 * Updates a site wide option
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @param string $key
 	 * @param mixed $value
 	 * @return boolean
@@ -749,7 +749,7 @@ class Jetpack_Network {
 	/**
 	 * Retrieves a site wide option
 	 *
-	 * @since 2.5
+	 * @since 2.9
 	 * @param string $name - Name of the option in the database
 	 **/
 	public function get_option( $name ) {
@@ -766,7 +766,7 @@ class Jetpack_Network {
 	 *
 	 *
 	 * @todo REMOVE THIS FUNCTION! This function is moving to core. Use that one in favor of this. WordPress::wp_get_sites(). http://codex.wordpress.org/Function_Reference/wp_get_sites NOTE, This returns an array instead of stdClass. Be sure to update class.network-sites-list-table.php
-	 * @since 2.4.5
+	 * @since 2.9
 	 * @deprecated 2.4.5
 	 * @param array|string $args Optional. Specify the status of the sites to return.
 	 * @return array An array of site data
