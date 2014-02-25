@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 1.5.3
+ * Version: 1.5.4
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -18,7 +18,7 @@ if ( !defined( 'ABSPATH' ) )
 class VaultPress {
 	var $option_name    = 'vaultpress';
 	var $db_version     = 3;
-	var $plugin_version = '1.5.3';
+	var $plugin_version = '1.5.4';
 
 	function __construct() {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
@@ -555,40 +555,7 @@ class VaultPress {
 
 	// file name patterns to ignore
 	function get_should_ignore_files( $return_defaults = false ) {
-		$defaults = array(
-			'@.*/404\.log\.txt$@',
-			'@.*/\.DS_Store$@',
-			'@.*/debug\.log$@',
-			'@.*\.timthumb\.txt$@',
-			'@.*timthumb[A-Za-z0-9]*$@',
-			'@.*wp-content/contents/cache/@',
-			'@.*wp-content/content/cache/@',
-			'@.*wp-content/cache/@',
-			'@.*wp-content/old-cache/@',
-			'@.*wp-content/w3tc/@',
-			'@.*owa/owa-data/caches/@',
-			'@.*gt-cache@',
-			'@.*/wpclicks/tracker/cache/@',
-			'@/wp-content/[^/]+cache.*/@',
-			'@(?<!plugins)\/cache@',
-			'@.*amember/data/new_rewrite@',
-			'@.*sucuri/blocks/@',
-			'@.*/_sucuribackup.*@',
-			'@.*sess_[0-9a-zA-Z]{32,}@',
-			'@.*wp-content/backups.*@',
-			'@.*wp-content/backupwordpress@',
-			'@.*wp-content/backup-[0-9a-zA-Z]+@',
-			'@.*wp-content/[0-9a-zA-Z]+-backups@',
-			'@.*mwp_backups/@',
-			'@.*managewp/backups/@',
-			'@.*wp-snapshots/@',
-			'@.*error_log.*@',
-			'@.*/error-log.*@',
-			'@.*/error\.log$@',
-			'@.*/captcha/tmp.*@',
-			'@.*\.mt_backup_[0-9a-z:_]*$@i',
-			'@.*vp-uploaded-restore-.*@',
-		);
+		$defaults = array();
 		if ( $return_defaults )
 			return $defaults;
 		$ignore_names = (array) $this->get_config( '_vp_config_should_ignore_files' );
