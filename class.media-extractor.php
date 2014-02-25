@@ -23,7 +23,6 @@ class Jetpack_Media_Meta_Extractor {
 		'vimeo',
 		'hulu',
 		'ted',
-		'audio',
 		'wpvideo',
 	);
 
