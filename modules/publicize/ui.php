@@ -554,7 +554,11 @@ jQuery( function($) {
 
 							// Should we be skipping this one?
 							$skip = (
-								get_post_meta( $post->ID, $this->publicize->POST_SKIP . $unique_id, true )
+								(
+									in_array( $post->post_status, array( 'publish', 'draft', 'future' ) )
+									&&
+									get_post_meta( $post->ID, $this->publicize->POST_SKIP . $unique_id, true )
+								)
 								||
 								(
 									is_array( $connection )
