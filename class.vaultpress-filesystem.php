@@ -89,6 +89,7 @@ class VaultPress_Filesystem {
 			array_pop( $dir );
 			$dir = implode( DIRECTORY_SEPARATOR, $dir );
 		}
+		$rval['full_path'] = realpath( $file );
 		$rval['path'] = str_replace( $dir, '', $file );
 		return $rval;
 	}
