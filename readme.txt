@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebens, blobaugh, cfinke, chellycat, danielbachhuber, daniloercoli, designsimply, eoigal, ethitter, gibrown, georgestephanis, hew, hugobaeta, iammattthomas, jblz, jeherve, jkudish, Joen, johnjamesjacoby, jshreve, kraftbj, lancewillett, martinremy, matt, matveb, mcsf, mdawaffe, migueluy, nickmomrik, obenland, pento, richardmtl, stephdau, tmoorewp, Viper007Bond, westi, yoavf
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow, videopress, monitor, search, omnisearch, sso, jet pack
-Stable tag: 2.8
+Stable tag: 2.9
 Requires at least: 3.7
 Tested up to: 3.8.1
 
@@ -87,7 +87,25 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 == Changelog ==
 
 = 2.9 =
-* ???
+* Added Multisite network functionality
+* New Module: Related Posts
+* Enhancement: Single Sign On
+* Enhancement: Mixcloud shortcode and oEmbed
+* Enhancement: Gist shortcode and oEmbed
+* Enhancement: Modify Facebook Like Box widget to support new Facebook parameters
+* Enhancement: Rolled the Push Notifications module into the Notes module
+* Enhancement: Update kses with Markdown
+* Enhancement: Adding keyboard accessibility to sharing buttons config page
+* Enhancement: Pull WordPress testing bits from the new official git mirror at WordPress.org
+* Bugfix: Widget Visibility
+* Bugfix: Revisions box in Custom CSS
+* Bugfix: Fix several bugs in the WordPress Posts Widget so that it correctly updates
+* Bugfix: Limit Login Attempts no longer generates false positives from xmlrpc.
+* Bugfix: Clear max_posts transient on theme switch.
+* Bugfix: Lower priority of sync to allow all CPTs to be registered.
+* Bugfix: Contact form fields emailed in correct order. 
+
+* Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits/2.9
 
 = 2.8 =
 * New Module: Markdown
