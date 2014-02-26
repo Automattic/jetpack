@@ -3781,18 +3781,28 @@ p {
 
 		// This should always have gone through Jetpack_Signature::sign_request() first to check $timestamp an $nonce
 		$timestamp = (int) $timestamp;
-        $nonce       = esc_sql( $nonce );
+		$nonce     = esc_sql( $nonce );
 
 		// Raw query so we can avoid races: add_option will also update
 		$show_errors = $wpdb->show_errors( false );
-		$return = $wpdb->query(
-			$wpdb->prepare(
-				"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
-				"jetpack_nonce_{$timestamp}_{$nonce}",
-				time(),
-				'no'
-			)
+
+		$old_nonce = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM `$wpdb->options` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
 		);
+
+		if ( is_null( $old_nonce ) ) {
+			$return = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
+					"jetpack_nonce_{$timestamp}_{$nonce}",
+					time(),
+					'no'
+				)
+			);
+		} else {
+			$return = false;
+		}
+
 		$wpdb->show_errors( $show_errors );
 
 		$nonces_used_this_request["$timestamp:$nonce"] = $return;
