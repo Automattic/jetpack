@@ -611,7 +611,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		// Wrap the response in a sourcecode shortcode
-		if ( !empty( $response ) ) {
+		if ( !empty( $response ) && !is_wp_error( $response ) ) {
 			$response = '[sourcecode language="php" wraplines="false" light="true" autolink="false" htmlscript="false"]' . $response . '[/sourcecode]';
 			$response = apply_filters( 'the_content', $response );
 			$this->example_response = $response;
