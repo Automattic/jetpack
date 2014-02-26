@@ -615,6 +615,16 @@ class GP_Locales {
 		$fa_af->plural_expression = '0';
 		$fa_af->rtl = true;
 
+		$ff_sn = new GP_Locale();
+		$ff_sn->english_name = 'Fulah';
+		$ff_sn->native_name = 'Pulaar';
+		$ff_sn->lang_code_iso_639_1 = 'ff';
+		$ff_sn->lang_code_iso_639_2 = 'fuc';
+		$ff_sn->country_code = 'sn';
+		$ff_sn->wp_locale = 'fuc';
+		$ff_sn->slug = 'fuc';
+		$ff_sn->plural_expression = 'n!=1';
+
 		$fi = new GP_Locale();
 		$fi->english_name = 'Finnish';
 		$fi->native_name = 'Suomi';
