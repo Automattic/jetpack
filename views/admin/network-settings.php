@@ -17,7 +17,7 @@
 				<th scope="row"><label for="sub-site-override"><?php _e( 'Sub-site override', 'jetpack' ); ?></label></th>
 				<td>
 					<input type="checkbox" name="sub-site-connection-override" id="sub-site-override" value="1" <?php checked($options['sub-site-connection-override']); ?> />
-					<label for="sub-site-override"><?php _e( 'Allow individual site administrators to reconnect with their own Jetpack account.', 'jetpack' ); ?></label>
+					<label for="sub-site-override"><?php _e( 'Allow individual site administrators to manage their own connections (connect and disconnect) to <a href="//wordpress.com">WordPress.com</a>', 'jetpack' ); ?></label>
 				</td>
 			</tr>
 <?php /* Remove the toggles for 2.9, re-evaluate how they're done and added for a 3.0 release. They don't feel quite right yet.
