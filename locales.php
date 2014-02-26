@@ -699,6 +699,7 @@ class GP_Locales {
 		$ga->lang_code_iso_639_2 = 'gle';
 		$ga->country_code = 'ie';
 		$ga->slug = 'ga';
+		$ga->wp_locale = 'ga';
 		$ga->google_code = 'ga';
 		$ga->facebook_locale = 'ga_IE';
 		$ga->nplurals = 5;
