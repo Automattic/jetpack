@@ -1576,6 +1576,17 @@ class GP_Locales {
 		$th->nplurals = 1;
 		$th->plural_expression = '0';
 
+		$tir = new GP_Locale();
+		$tir->english_name = 'Tigrinya';
+		$tir->native_name = 'ትግርኛ';
+		$tir->lang_code_iso_639_1 = 'ti';
+		$tir->lang_code_iso_639_2 = 'tir';
+		$tir->country_code = 'er';
+		$tir->wp_locale = 'tir';
+		$tir->slug = 'tir';
+		$tir->nplurals = 1;
+		$tir->plural_expression = '0';
+
 		$tlh = new GP_Locale();
 		$tlh->english_name = 'Klingon';
 		$tlh->native_name = 'TlhIngan';
