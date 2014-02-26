@@ -36,7 +36,7 @@ class Jetpack_Network {
 	 */
 	private $setting_defaults = array(
 		'auto-connect'		=> 0,
-		'sub-site-connection-override'	=> 0,
+		'sub-site-connection-override'	=> 1,
 	//	'manage_auto_activated_modules' => 0,
 	);
 
@@ -754,6 +754,9 @@ class Jetpack_Network {
 	 **/
 	public function get_option( $name ) {
 		$options = get_site_option( $this->settings_name );
+
+		$options = wp_parse_args( $options, $this->setting_defaults );
+
 		if( !isset( $options[$name] ) )
 			$options[$name] = null;
 
