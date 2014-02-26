@@ -3209,12 +3209,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (int) $this->api->is_following( $blog_id );
 				break;
 			case 'meta' :
+				$xmlrpc_url = site_url( 'xmlrpc.php' );
 				$response[$key] = (object) array(
 					'links' => (object) array(
 						'self'     => (string) $this->get_site_link( $blog_id ),
 						'help'     => (string) $this->get_site_link( $blog_id, 'help'      ),
 						'posts'    => (string) $this->get_site_link( $blog_id, 'posts/'    ),
 						'comments' => (string) $this->get_site_link( $blog_id, 'comments/' ),
+						'xmlrpc'   => (string) $xmlrpc_url,
 					),
 				);
 				break;
