@@ -32,7 +32,7 @@
 			var anchor_title = post.title + "\n\n" + post.excerpt;
 
 		return [
-			'<a href="' + post.url + '" title="' + anchor_title + '" rel="nofollow">',
+			'<a href="' + post.url + '" title="' + anchor_title.replace(/"/g, '&quot;') + '" rel="nofollow">',
 			'</a>'
 		];
 	}
