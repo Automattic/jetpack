@@ -2949,7 +2949,7 @@ p {
 					</div>
 				</div>
 
-				else /* blog and user are connected */ : ?>
+				<?php else /* blog and user are connected */ : ?>
 					<?php /* TODO: if not master user, show user disconnect button? */ ?>
 				<?php endif; ?>
 			<?php endif; // ! Jetpack::is_development_mode() ?>
