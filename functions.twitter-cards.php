@@ -72,8 +72,10 @@ function wpcom_twitter_cards_tags( $og_tags ) {
 	// If we have information on the author/creator, then include that as well
 	if ( ! empty( $post ) && ! empty( $post->post_author ) ) {
 		$handle = apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID );
-		if ( !empty( $handle ) && 'wordpressdotcom' != $handle )
+		if ( !empty( $handle ) && 'wordpressdotcom' != $handle ) {
 			$og_tags['twitter:creator'] = '@' . $handle;
+			$og_tags['twitter:site'] = '@' . $handle;
+		}
 	}
 
 	// Make sure we have a description for Twitter, their validator isn't happy without some content (single space not valid).
