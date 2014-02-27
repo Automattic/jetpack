@@ -201,7 +201,7 @@ class Sharing_Service {
 			'button_style'  => 'icon-text',
 			'sharing_label' => $this->default_sharing_label,
 			'open_links'    => 'same',
-			'show'          => array(),
+			'show'          => array( 'post', 'page' ),
 			'custom'        => isset( $options['global']['custom'] ) ? $options['global']['custom'] : array()
 		);
 
@@ -242,6 +242,8 @@ class Sharing_Service {
 			if ( $data['show'] = array_intersect( $data['show'], $shows ) ) {
 				$options['global']['show'] = $data['show'];
 			}
+		} else {
+			$options['global']['show'] = array();
 		}
 
 		update_option( 'sharing-options', $options );
