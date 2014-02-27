@@ -1,11 +1,13 @@
-/* This file was automatically generated on Oct 08 2013 18:28:14 */
+/* This file was automatically generated on Jan 15 2014 20:27:52 */
 
 div#publicize-services-block {
-	display: inline-block;
+	display: block;
 	clear: both;
 	margin-bottom: 25px;
 	background-color: #fff;
 	padding: 25px 20px 5px 25px;
+	overflow: hidden;
+	max-width: 1200px;
 }
 
 /* Add the logos for the Publicize services */
@@ -19,15 +21,21 @@ span.pub-logos {
 	vertical-align: top;
 }
 
-span#facebook { background: url( ../facebook-logo.png ) 50% 19px no-repeat; background-size: 125px 41px; }
-span#twitter { background: url( ../twitter-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
-span#linkedin { background: url( ../linkedin-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
-span#tumblr { background: url( ../tumblr-logo.png ) 50% 19px no-repeat; background-size: 125px 47px; }
-span#path { background: url( ../path-logo.png ) 50% 19px no-repeat; background-size: 85px 32px; }
-span#google_plus { background: url( ../gplus.png ) 50% 19px no-repeat; background-size: 125px; }
+.left, .right{
+	width: 50%;
+	float: right;
+}
+
+div#facebook { background: url( ../publicize-fb-2x.png ) no-repeat; background-size: 32px 32px; padding-right: 42px;background-position: 0px 0px;padding-top:5px; }
+div#twitter { background: url( ../publicize-twitter-2x.png ) no-repeat; background-size: 32px 32px; padding-right: 42px;background-position: 0px 0px;padding-top:5px;  }
+div#linkedin { background: url( ../publicize-linkedin-2x.png )no-repeat; background-size: 32px 32px; padding-right: 42px;background-position: 0px 0px;padding-top:5px;  }
+div#tumblr { background: url( ../publicize-tumblr-2x.png ) no-repeat; background-size: 32px 32px; padding-right: 42px;background-position: 0px 0px;padding-top:5px;  }
+div#path { background: url( ../publicize-path-2x.png ) no-repeat;  background-size: 32px 32px; padding-right: 42px;background-position: 0px 0px;padding-top:5px;  }
+div#google_plus { background: url( ../publicize-google-2x.png ) no-repeat;  background-size: 32px 32px; padding-right: 42px;background-position: 0px 0px;padding-top:5px;  }
 
 a.publicize-profile-link, a.publicize-profile-link:visited {
 	text-decoration: none;
+	font-weight: bold;
 }
 
 a.publicize-profile-link:hover {
@@ -43,28 +51,40 @@ a.publicize-add-connection:hover {
 }
 
 div.publicize-service-entry {
-	width: 100%;
 	clear: both;
 	margin-bottom: 10px;
+	padding: 10px 0 25px 0;
+	border-bottom: 1px #eee solid;
+	margin-left: 40px;
+	overflow: hidden;
+}
+
+div.publicize-service-entry:last-of-type{
+	border-width: 0px;
 }
 
 div.publicize-service-left {
 	display: inline-block;
 	width: 150px;
 	vertical-align: top;
+	min-height: 35px;
+}
+
+
+div.publicize-service-left a{
+	font-size: 24px;
+	text-decoration: none;
+}
+
+div.publicize-service-left a:hover{
+	text-decoration: underline;
 }
 
 div.publicize-service-right {
 	display: inline-block;
-	margin-right: 5px;
-	margin-top: 5px;
-	width: 300px;
-	padding: 10px;
-	background-color: #f1f1f1;
-	-moz-border-radius: 10px;
-	-webkit-border-radius: 10px;
-	border-radius: 10px;
-	border: 1px solid #e5e5e5;
+	text-align: left;
+	float: left;
+	padding-top:5px;
 }
 
 div.publicize-service-right ul {
@@ -73,6 +93,7 @@ div.publicize-service-right ul {
 
 div.publicize-service-right li {
 	list-style-type: none;
+	font-size: 14px;
 }
 
 .publicize-info {
@@ -82,8 +103,12 @@ div.publicize-service-right li {
 	background-image: url( ../info-2x.png );
 	background-size: 16px 16px;
 	text-indent: -99999px;
-	float: left;
+	float: right;
 	cursor: help;
+	text-decoration: none;
+	margin-left: 10px;
+	margin-top:3px;
+	font-size: 10%;
 }
 
 .pub-disconnect-button {
@@ -104,7 +129,7 @@ div.publicize-service-right li {
 	cursor: auto;
 	display: inline;
 	font-family: sans-serif;
-	font-size: 15px;
+	font-size: 20px;
 	font-style: normal;
 	font-weight: normal;
 	height: auto;
