@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20140117';
+	const VERSION = '20140226';
 
 	/**
 	 * Creates and returns a static instance of Jetpack_RelatedPosts.
@@ -11,7 +11,7 @@ class Jetpack_RelatedPosts {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			if ( method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
+			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
 				$instance = WPCOM_RelatedPosts::init();
 			} else {
 				$instance = new Jetpack_RelatedPosts(
@@ -32,7 +32,7 @@ class Jetpack_RelatedPosts {
 		static $instance = NULL;
 
 		if ( ! $instance ) {
-			if ( method_exists( 'WPCOM_RelatedPosts', 'init_raw' ) ) {
+			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init_raw' ) ) {
 				$instance = WPCOM_RelatedPosts::init_raw();
 			} else {
 				$instance = new Jetpack_RelatedPosts_Raw(
@@ -104,14 +104,14 @@ class Jetpack_RelatedPosts {
 			return;
 
 		if ( isset( $_GET['relatedposts_exclude'] ) )
-			$exclude_id = (int)$_GET['relatedposts_exclude'];
+			$excludes = explode( ',', $_GET['relatedposts_exclude'] );
 		else
-			$exclude_id = 0;
+			$excludes = array();
 
 		if ( isset( $_GET['relatedposts_to'] ) )
 			$this->_action_frontend_redirect( $_GET['relatedposts_to'], $_GET['relatedposts_order'] );
 		elseif ( isset( $_GET['relatedposts'] ) )
-			$this->_action_frontend_init_ajax( $exclude_id );
+			$this->_action_frontend_init_ajax( $excludes );
 		else
 			$this->_action_frontend_init_page();
 
@@ -138,6 +138,15 @@ class Jetpack_RelatedPosts {
 		}
 
 		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $headline );
+
+		if ( $options['show_above_content'] ) {
+			return <<<EOT
+<div id='jp-relatedposts' class='jp-relatedposts'>
+	$headline
+</div>
+$content
+EOT;
+		}
 
 		return <<<EOT
 $content
@@ -166,6 +175,8 @@ EOT;
 				$this->_options = array();
 			if ( !isset( $this->_options['enabled'] ) )
 				$this->_options['enabled'] = true;
+			if ( !isset( $this->_options['show_above_content'] ) )
+				$this->_options['show_above_content'] = false;
 			if ( !isset( $this->_options['show_headline'] ) )
 				$this->_options['show_headline'] = true;
 			if ( !isset( $this->_options['show_thumbnails'] ) )
@@ -236,7 +247,7 @@ EOT;
 			checked( $options['show_headline'], true, false ),
 			esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
 			checked( $options['show_thumbnails'], true, false ),
-			esc_html__( 'Show thumbnails for related posts when available', 'jetpack' ),
+			esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
 			esc_html__( 'Preview:', 'jetpack' )
 		);
 
@@ -283,9 +294,8 @@ EOT;
 			'<p class="jp-relatedposts-headline"><em>%s</em></p>',
 			esc_html__( 'Related', 'jetpack' )
 		);
-		$related_with_images = '<p class="jp-relatedposts-post jp-relatedposts-post0" data-post-format="false"><img width="48" src="http://en.blog.files.wordpress.com/2012/08/1-wpios-ipad-3-1-viewsite.png?w=48&amp;h=48&amp;crop=1" alt="Big iPhone/iPad Update Now&nbsp;Available" scale="0"><strong><a href="#" rel="nofollow">Big iPhone/iPad Update Now Available</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1" data-post-format="false"><img width="48" src="http://en.blog.files.wordpress.com/2013/04/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=48&amp;h=48&amp;crop=1" alt="The WordPress for Android App Gets a Big&nbsp;Facelift" scale="0"><strong><a href="#" rel="nofollow">The WordPress for Android App Gets a Big Facelift</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2" data-post-format="false"><img width="48" src="http://en.blog.files.wordpress.com/2013/01/videopresswedding.jpg?w=48&amp;h=48&amp;crop=1" alt="Upgrade Focus: VideoPress For&nbsp;Weddings" scale="0"><strong><a href="#" rel="nofollow">Upgrade Focus: VideoPress For Weddings</a></strong><br><span>In "Upgrade"</span></p>';
-		$related_without_images = '<p class="jp-relatedposts-post jp-relatedposts-post0" data-post-format="false"><strong><a href="#" rel="nofollow">Big iPhone/iPad Update Now Available</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1" data-post-format="false"><strong><a href="#" rel="nofollow">The WordPress for Android App Gets a Big Facelift</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2" data-post-format="false"><strong><a href="#" rel="nofollow">Upgrade Focus: VideoPress For Weddings</a></strong><br><span>In "Upgrade"</span></p>';
-
+		$related_with_images = '<div class="jp-relatedposts-items jp-relatedposts-items-visual"><p class="jp-relatedposts-post jp-relatedposts-post0 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="false"><a href="#" rel="nofollow"><img src="http://en.blog.files.wordpress.com/2012/08/1-wpios-ipad-3-1-viewsite.png?w=480&amp;h=270&amp;crop=1" width="480" alt="Big iPhone/iPad Update Now&nbsp;Available"></a><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">Big iPhone/iPad Update Now Available</a></span><span class="jp-relatedposts-post-excerpt">Updates</span><span class="jp-relatedposts-post-context">In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="false"><a href="#" rel="nofollow"><img src="http://en.blog.files.wordpress.com/2013/04/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=480&amp;h=270&amp;crop=1" width="480" alt="The WordPress for Android App Gets a Big&nbsp;Facelift"></a><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">The WordPress for Android App Gets a Big Facelift</a></span><span class="jp-relatedposts-post-excerpt">Updates</span><span class="jp-relatedposts-post-context">In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="false"><a href="#" rel="nofollow"><img src="http://en.blog.files.wordpress.com/2013/01/videopresswedding.jpg?w=480&amp;h=270&amp;crop=1" width="480" alt="Upgrade Focus: VideoPress For&nbsp;Weddings"></a><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">Upgrade Focus: VideoPress For Weddings</a></span><span class="jp-relatedposts-post-excerpt">Updates</span><span class="jp-relatedposts-post-context">In "Upgrade"</span></p></div>';
+		$related_without_images = '<div class="jp-relatedposts-items jp-relatedposts-items-minimal"><p class="jp-relatedposts-post jp-relatedposts-post0" data-post-id="0" data-post-format="false"><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">Big iPhone/iPad Update Now Available</a></span><span class="jp-relatedposts-post-context">In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1" data-post-id="0" data-post-format="false"><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">The WordPress for Android App Gets a Big Facelift</a></span><span class="jp-relatedposts-post-context">In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2" data-post-id="0" data-post-format="false"><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">Upgrade Focus: VideoPress For Weddings</a></span><span class="jp-relatedposts-post-context">In "Upgrade"</span></p></div>';
 		if ( $this->_allow_feature_toggle() ) {
 			$extra_css = '#settings-reading-relatedposts-customize { padding-left:2em; margin-top:.5em; }';
 		} else {
@@ -365,18 +375,18 @@ EOT;
 	public function get_for_post_id( $post_id, array $args ) {
 		$options = $this->get_options();
 
-		if ( ! $options['enabled'] || 0 == (int)$post_id )
+		if ( ! empty( $args['size'] ) )
+			$options['size'] = $args['size'];
+
+		if ( ! $options['enabled'] || 0 == (int)$post_id || empty( $options['size'] ) )
 			return array();
 
 		$defaults = array(
 			'size' => (int)$options['size'],
 			'post_type' => get_post_type( $post_id ),
 			'has_terms' => array(),
-			'date_range' => array(
-				'from' => strtotime( '-2 year' ),
-				'to' => time()
-			),
-			'exclude_post_id' => 0,
+			'date_range' => array(),
+			'exclude_post_ids' => array(),
 		);
 		$args = wp_parse_args( $args, $defaults );
 		$args = apply_filters( 'jetpack_relatedposts_filter_args', $args, $post_id );
@@ -440,7 +450,7 @@ EOT;
 		}
 
 		$args['date_range'] = apply_filters( 'jetpack_relatedposts_filter_date_range', $args['date_range'], $post_id );
-		if ( is_array( $args['date_range'] ) ) {
+		if ( is_array( $args['date_range'] ) && ! empty( $args['date_range'] ) ) {
 			$args['date_range'] = array_map( 'intval', $args['date_range'] );
 			if ( !empty( $args['date_range']['from'] ) && !empty( $args['date_range']['to'] ) ) {
 				$filters[] = array(
@@ -451,9 +461,14 @@ EOT;
 			}
 		}
 
-		$args['exclude_post_id'] = apply_filters( 'jetpack_relatedposts_filter_exclude_post_id', $args['exclude_post_id'], $post_id );
-		if ( !empty( $args['exclude_post_id'] ) ) {
-			$filters[] = array( 'not' => array( 'term' => array( 'post_id' => (int)$args['exclude_post_id'] ) ) );
+		$args['exclude_post_ids'] = apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', $args['exclude_post_ids'], $post_id );
+		if ( !empty( $args['exclude_post_ids'] ) && is_array( $args['exclude_post_ids'] ) ) {
+			foreach ( $args['exclude_post_ids'] as $exclude_post_id) {
+				$exclude_post_id = (int)$exclude_post_id;
+
+				if ( $exclude_post_id > 0 )
+					$filters[] = array( 'not' => array( 'term' => array( 'post_id' => $exclude_post_id ) ) );
+			}
 		}
 
 		return $filters;
@@ -489,23 +504,35 @@ EOT;
 	 * Generate and output ajax response for related posts API call.
 	 * NOTE: Calls exit() to end all further processing after payload has been outputed.
 	 *
-	 * @param int $exclude_id
+	 * @param array $excludes array of post_ids to exclude
 	 * @uses send_nosniff_header, self::get_for_post_id, get_the_ID
 	 * @return null
 	 */
-	protected function _action_frontend_init_ajax( $exclude_id ) {
+	protected function _action_frontend_init_ajax( array $excludes ) {
 		define( 'DOING_AJAX', true );
 
 		header( 'Content-type: application/json; charset=utf-8' ); // JSON can only be UTF-8
 		send_nosniff_header();
 
-		$related_posts = $this->get_for_post_id( get_the_ID(), array( 'exclude_post_id' => $exclude_id ) );
+		$related_posts = $this->get_for_post_id(
+			get_the_ID(),
+			array(
+				'exclude_post_ids' => $excludes,
+			)
+		);
 
 		$options = $this->get_options();
-		if ( count( $related_posts ) != $options['size'] )
-			echo '[]';
-		else
-			echo json_encode( $related_posts );
+
+		$response = array(
+			'version' => self::VERSION,
+			'show_thumbnails' => (bool) $options['show_thumbnails'],
+			'items' => array(),
+		);
+
+		if ( count( $related_posts ) == $options['size'] )
+			$response['items'] = $related_posts;
+
+		echo json_encode( $response );
 
 		exit();
 	}
@@ -551,7 +578,7 @@ EOT;
 			'format' => get_post_format( $post->ID ),
 			'excerpt' => $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ),
 			'context' => $this->_to_utf8( $this->_generate_related_post_context( $this->_blog_id, $post->ID ) ),
-			'thumbnail' => $this->_to_utf8( $this->_generate_related_post_image( $this->_blog_id, $post->ID ) ),
+			'img' => $this->_generate_related_post_image_params( $this->_blog_id, $post->ID ),
 		);
 	}
 
@@ -584,49 +611,74 @@ EOT;
 		else
 			$excerpt = $post_excerpt;
 
-		return wp_trim_words( strip_shortcodes( $excerpt ) );
+		return wp_trim_words( strip_shortcodes( $excerpt ), 30 );
 	}
 
 	/**
-	 * Generates the thumbnail image to be used for the post.
-	 * Order of importance:
-	 *   - Image as returned by Jetpack_PostImages::get_image()
-	 *   - Author avatar as fallback
+	 * Generates the thumbnail image to be used for the post. Uses the
+	 * image as returned by Jetpack_PostImages::get_image()
 	 *
 	 * @param int $blog_id
 	 * @param int $post_id
-	 * @uses self::get_options, apply_filters, Jetpack_PostImages::get_image, Jetpack_PostImages::square_image_url, get_the_title, get_post, get_avatar
+	 * @uses self::get_options, apply_filters, Jetpack_PostImages::get_image, Jetpack_PostImages::fit_image_url
 	 * @return string
 	 */
-	protected function _generate_related_post_image( $blog_id, $post_id ) {
+	protected function _generate_related_post_image_params( $blog_id, $post_id ) {
 		$options = $this->get_options();
+		$image_params = array(
+			'src' => '',
+			'width' => 0,
+			'height' => 0,
+		);
 
 		if ( ! $options['show_thumbnails'] ) {
-			return '';
+			return $image_params;
 		}
 
-		$thumbnail_size = apply_filters( 'jetpack_relatedposts_filter_thumbnail_size', 48 );
+		$thumbnail_size = apply_filters(
+			'jetpack_relatedposts_filter_thumbnail_size',
+			array( 'width' => 350, 'height' => 200 )
+		);
+		if ( !is_array( $thumbnail_size ) ) {
+			$thumbnail_size = array(
+				'width' => (int)$thumbnail_size,
+				'height' => (int)$thumbnail_size
+			);
+		}
 
 		// Try to get post image
 		if ( class_exists( 'Jetpack_PostImages' ) ) {
+			$img_url = '';
 			$post_image = Jetpack_PostImages::get_image(
 				$post_id,
-				array( 'width' => $thumbnail_size, 'height' => $thumbnail_size )
+				$thumbnail_size
 			);
 
 			if ( is_array($post_image) ) {
-				return sprintf(
-					'<img width="%u" src="%s" alt="%s" />',
-					$thumbnail_size,
-					Jetpack_PostImages::square_image_url( $post_image['src'], 2 * $thumbnail_size ),
-					get_the_title( $post_id )
+				$img_url = $post_image['src'];
+			} elseif ( class_exists( 'Jetpack_Media_Summary' ) ) {
+				$media = Jetpack_Media_Summary::get(
+					$post_id,
+					$blog_id
+				);
+
+				if ( is_array($media) && !empty( $media['image'] ) ) {
+					$img_url = $media['image'];
+				}
+			}
+
+			if ( !empty( $img_url ) ) {
+				$image_params['width'] = $thumbnail_size['width'];
+				$image_params['height'] = $thumbnail_size['height'];
+				$image_params['src'] = Jetpack_PostImages::fit_image_url(
+					$img_url,
+					$thumbnail_size['width'],
+					$thumbnail_size['height']
 				);
 			}
 		}
 
-		// Use gravatar as final fallback.
-		$post = get_post( $post_id );
-		return get_avatar( $post->post_author, $thumbnail_size );
+		return $image_params;
 	}
 
 	/**
@@ -656,11 +708,13 @@ EOT;
 	 * @param int $post_id
 	 * @param int $size
 	 * @param array $filters
-	 * @uses wp_remote_post, is_wp_error, get_option, wp_remote_retrieve_body, get_post, add_query_arg, remove_query_arg, get_permalink, get_post_format
+	 * @uses wp_remote_post, is_wp_error, get_option, wp_remote_retrieve_body, get_post, add_query_arg, remove_query_arg, get_permalink, get_post_format, apply_filters
 	 * @return array
 	 */
 	protected function _get_related_posts( $blog_id, $post_id, $size, array $filters ) {
 		$hits = $this->_get_related_post_ids( $blog_id, $post_id, $size, $filters );
+
+		$hits = apply_filters( 'jetpack_relatedposts_filter_hits', $hits, $post_id );
 
 		$related_posts = array();
 		foreach ( $hits as $i => $hit ) {

@@ -26,6 +26,7 @@ class Sharing_Admin {
 		wp_enqueue_script( 'sharing-js', WP_SHARING_PLUGIN_URL.'admin-sharing.js', array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ), 2 );
 		wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing.css', false, JETPACK__VERSION );
 		wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing.css', false, JETPACK__VERSION );
+		wp_enqueue_style( 'genericons' );
 		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 3 );
 
 		add_thickbox();
@@ -127,7 +128,7 @@ class Sharing_Admin {
 
 	public function output_service( $id, $service, $show_dropdown = false ) {
 ?>
-	<li class="service advanced share-<?php echo $service->get_class(); ?>" id="<?php echo $service->get_id(); ?>">
+	<li class="service advanced share-<?php echo $service->get_class(); ?>" id="<?php echo $service->get_id(); ?>" tabindex="0">
 		<span class="options-left"><?php echo esc_html( $service->get_name() ); ?></span>
 		<?php if ( 0 === strpos( $service->get_id(), 'custom-' ) || $service->has_advanced_options() ) : ?>
 		<span class="close"><a href="#" class="remove">&times;</a></span>

@@ -615,6 +615,16 @@ class GP_Locales {
 		$fa_af->plural_expression = '0';
 		$fa_af->rtl = true;
 
+		$ff_sn = new GP_Locale();
+		$ff_sn->english_name = 'Fulah';
+		$ff_sn->native_name = 'Pulaar';
+		$ff_sn->lang_code_iso_639_1 = 'ff';
+		$ff_sn->lang_code_iso_639_2 = 'fuc';
+		$ff_sn->country_code = 'sn';
+		$ff_sn->wp_locale = 'fuc';
+		$ff_sn->slug = 'fuc';
+		$ff_sn->plural_expression = 'n!=1';
+
 		$fi = new GP_Locale();
 		$fi->english_name = 'Finnish';
 		$fi->native_name = 'Suomi';
@@ -699,6 +709,7 @@ class GP_Locales {
 		$ga->lang_code_iso_639_2 = 'gle';
 		$ga->country_code = 'ie';
 		$ga->slug = 'ga';
+		$ga->wp_locale = 'ga';
 		$ga->google_code = 'ga';
 		$ga->facebook_locale = 'ga_IE';
 		$ga->nplurals = 5;
@@ -1564,6 +1575,17 @@ class GP_Locales {
 		$th->facebook_locale = 'th_TH';
 		$th->nplurals = 1;
 		$th->plural_expression = '0';
+
+		$tir = new GP_Locale();
+		$tir->english_name = 'Tigrinya';
+		$tir->native_name = 'ትግርኛ';
+		$tir->lang_code_iso_639_1 = 'ti';
+		$tir->lang_code_iso_639_2 = 'tir';
+		$tir->country_code = 'er';
+		$tir->wp_locale = 'tir';
+		$tir->slug = 'tir';
+		$tir->nplurals = 1;
+		$tir->plural_expression = '0';
 
 		$tlh = new GP_Locale();
 		$tlh->english_name = 'Klingon';

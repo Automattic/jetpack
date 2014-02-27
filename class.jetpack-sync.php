@@ -764,7 +764,7 @@ class Jetpack_Sync {
 		$strings = json_encode( array(
 			'WAITING' => array(
 				'action' => __( 'Refresh Status', 'jetpack' ),
-				'status' => __( 'Indexing posts&hellip;', 'jetpack' ),
+				'status' => __( 'Indexing request queued and waiting&hellip;', 'jetpack' ),
 			),
 			'INDEXING' => array(
 				'action' => __( 'Refresh Status', 'jetpack' ),

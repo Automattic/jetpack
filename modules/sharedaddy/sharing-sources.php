@@ -710,6 +710,7 @@ class Share_Facebook extends Sharing_Source {
 			// Locale-specific widths/overrides
 			$widths = array(
 				'bg_BG' => 120,
+				'bn_IN' => 100,
 				'cs_CZ' => 135,
 				'de_DE' => 120,
 				'da_DK' => 120,
@@ -1135,48 +1136,9 @@ class Share_Pinterest extends Sharing_Source {
 		return __( 'Pinterest', 'jetpack' );
 	}
 
-	public function get_post_image( $content ) {
-		$image = '';
-
-		if ( class_exists( 'Jetpack_PostImages' ) ) {
-			// Use the full stack of methods to find an image, except for HTML, which can cause loops
-			$img = Jetpack_PostImages::get_image( $content->ID );
-			if ( !empty( $img['src'] ) )
-				return $img['src'];
-		}
-
-		// If we have to fall back to the following, we only do a few basic image checks
-		$content = $content->post_content;
-		if ( function_exists('has_post_thumbnail') && has_post_thumbnail() ) {
-			$thumb_id = get_post_thumbnail_id();
-			$thumb = wp_get_attachment_image_src( $thumb_id, 'full' );
-
-			// This shouldn't be necessary, since has_post_thumbnail() is true,
-			// but... see http://wordpress.org/support/topic/jetpack-youtube-embeds
-			if ( ! $thumb ) return '';
-
-			$image = remove_query_arg( array('w', 'h'), $thumb[0] );
-		} else if ( preg_match_all('/<img (.+?)>/', $content, $matches) ) {
-			foreach ( $matches[1] as $attrs ) {
-				$media = $img = array();
-				foreach ( wp_kses_hair( $attrs, array( 'http', 'https' ) ) as $attr )
-					$img[$attr['name']] = $attr['value'];
-				if ( !isset( $img['src'] ) || 0 !== strpos( $img['src'], 'http' ) ) {
-					continue;
-				}
-				else {
-					$image = htmlspecialchars_decode( $img['src'] );
-					break;
-				}
-			}
-		}
-
-		return $image;
-	}
-
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url='. rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '&media=' . rawurlencode( esc_url_raw( $this->get_post_image( $post ) ) ) ) . '" class="pin-it-button" count-layout="horizontal"> '. __( 'Pin It', 'jetpack') .'</a></div>';
+			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) ) .'" data-pin-do="buttonBookmark" ><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest' );
 	}
@@ -1187,7 +1149,7 @@ class Share_Pinterest extends Sharing_Source {
 
 		// If we're triggering the multi-select panel, then we don't need to redirect to Pinterest
 		if ( !isset( $_GET['js_only'] ) ) {
-			$pinterest_url = esc_url_raw( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '&media=' . rawurlencode( esc_url_raw( $this->get_post_image( $post ) ) ) );
+			$pinterest_url = esc_url_raw( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $this->get_share_title( $post->ID ) ) );
 			wp_redirect( $pinterest_url );
 		} else {
 			echo '// share count bumped';
