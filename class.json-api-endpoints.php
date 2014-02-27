@@ -1814,6 +1814,17 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		if ( $this->date_range ) {
 			add_filter( 'posts_where', array( $this, 'handle_date_range' ) );
 		}
+
+		/**
+		 * 'column' necessary for the me/posts endpoint (which extends sites/$site/posts). 
+		 * Would need to be added to the sites/$site/posts definition if we ever want to 
+		 * use it there.
+		 */
+		$column_whitelist = array( 'post_modified_gmt' );
+		if ( isset( $args['column'] ) && in_array( $args['column'], $column_whitelist ) ) {
+			$query['column'] = $args['column'];
+		}
+
 		$wp_query = new WP_Query( $query );
 		if ( $this->date_range ) {
 			remove_filter( 'posts_where', array( $this, 'handle_date_range' ) );
