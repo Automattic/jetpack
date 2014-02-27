@@ -1,8 +1,10 @@
-/* This file was automatically generated on Jan 23 2014 11:00:06 */
+/* This file was automatically generated on Feb 22 2014 00:07:02 */
 
 /**
  * Styles for Jetpack related posts
  */
+
+/* Container */
 
 div.jp-relatedposts {
 	display: none;
@@ -11,25 +13,21 @@ div.jp-relatedposts {
 	position: relative;
 }
 
-div.jp-relatedposts p {
-	line-height: 1.2;
-	font-size: 9pt;
-	margin-bottom: 1em;
-}
-
 div.jp-relatedposts:after {
 	content: '';
 	display: block;
 	clear: both;
 }
 
+/* Headline above related posts section, labeled "Related" */
+
 div.jp-relatedposts .jp-relatedposts-headline {
 	margin: 0 0 1em 0;
 	display: inline-block;
 	float: right;
+	font-size: 9pt;
 	font-weight: bold;
 	font-family: inherit;
-	font-size: 9pt;
 }
 
 div.jp-relatedposts .jp-relatedposts-headline em:before {
@@ -47,57 +45,128 @@ div.jp-relatedposts .jp-relatedposts-headline em {
 	font-weight: bold;
 }
 
+/* Related posts items (wrapping items) */
+
+div.jp-relatedposts .jp-relatedposts-items {
+	clear: right;
+}
+
+div.jp-relatedposts-items-visual {
+	margin-left: -20px;
+}
+
+/* Related posts item */
+
 div.jp-relatedposts .jp-relatedposts-post {
 	float: right;
 	width: 33%;
+	margin: 0 0 1em; /* Needs to be same as the main outer wrapper for Related Posts */
 	box-sizing: border-box;
 	-moz-box-sizing:border-box;
 	-webkit-box-sizing:border-box;
 }
 
-div.jp-relatedposts .jp-relatedposts-post.jp-relatedposts-post0 {
-	clear: right;
+div.jp-relatedposts-items-visual .jp-relatedposts-post {
+	padding-left: 20px;
+	/*cursor: pointer;*/
+	filter: alpha(opacity=80);
+	-moz-opacity: .8;
+	opacity: .8;
 }
 
-div.jp-relatedposts .jp-relatedposts-post strong {
-	font-weight: normal;
-}
-
-div.jp-relatedposts .jp-relatedposts-post a {
-	font-weight: normal;
-	text-decoration: none;
-	white-space: nowrap;
-	overflow: hidden;
-	display: inline-block;
-	text-overflow: ellipsis;
-	max-width: 90%;
-	opacity: 1;
-}
-
-div.jp-relatedposts .jp-relatedposts-post img {
-	display: block;
-	width: 48px;
-	float: right;
-	margin: 0 0 0 .5em;
-	border: 0;
-}
-
-div.jp-relatedposts .jp-relatedposts-post a:hover {
+div.jp-relatedposts .jp-relatedposts-post:hover .jp-relatedposts-post-title a {
 	text-decoration: underline;
 }
 
-div.jp-relatedposts .jp-relatedposts-post span {
-	opacity: .4;
+div.jp-relatedposts .jp-relatedposts-post:hover {
+	filter:alpha(opacity=100);
+	-moz-opacity: 1;
+	opacity: 1;
 }
 
-/* Behavior when there are thumbnails */
-div.jp-relatedposts .jp-relatedposts-post img + strong,
-div.jp-relatedposts .jp-relatedposts-post img + strong + br + span {
-	float: right;
-	text-align: right;
-	max-width: 80%;
-	max-width: calc(100% - 60px);
-	width: 100%;
+/* Related posts item content */
+
+div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
+div.jp-relatedposts p {
+	font-size: 14px;
+	line-height: 20px;
+	margin: 0;
+}
+
+div.jp-relatedposts p {
+	margin-bottom: 0;
+}
+
+div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
+	text-transform: none;
+	margin: 0;
+	font-family: inherit;
+	display: block;
+	max-width: 100%;
+}
+
+div.jp-relatedposts .jp-relatedposts-post .jp-relatedposts-post-title a {
+	font-weight: normal;
+	text-decoration: none;
+	filter: alpha(opacity=100);
+	-moz-opacity: 1;
+	opacity: 1;
+}
+
+div.jp-relatedposts .jp-relatedposts-post .jp-relatedposts-post-title a:hover {
+	text-decoration: underline;
+}
+
+/* Don't let thumbnails get too tall and account for portrait pics
+	Todo: replace with single class for the thumbnail anchor only
+	 */
+
+div.jp-relatedposts .jp-relatedposts-post > .jp-relatedposts-post-thumb-wrapper:first-child {
+	display: block;
+	max-height: 96px;
+	overflow: hidden;
+	margin: 0 0 4px;
+	-moz-box-shadow: 0 1px 2px #d9d9d9;
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+	-o-box-shadow: 0 1px 2px #d9d9d9;
+	-o-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+	-webkit-box-shadow: 0 1px 2px #d9d9d9;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+	-ms-box-shadow: 0 1px 2px #d9d9d9;
+	-ms-box-shadow: 0 1px 2px rgba(0,0,0,.15);
+	box-shadow: 0 1px 2px #d9d9d9;
+	box-shadow: 0 1px 2px rgba(0,0,0,.15);
+	background: #eee; /* For overflow in the case of Y > X images, untested */
+}
+
+div.jp-relatedposts .jp-relatedposts-post img,
+div.jp-relatedposts .jp-relatedposts-post span {
+	display: block;
+	max-width: 90%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+div.jp-relatedposts-items-visual .jp-relatedposts-post img,
+div.jp-relatedposts-items-visual .jp-relatedposts-post span {
+	max-width: 100%;
+}
+
+div.jp-relatedposts .jp-relatedposts-post .jp-relatedposts-post-context {
+	opacity: .6;
+}
+
+/* Behavior when there are thumbnails in visual mode */
+div.jp-relatedposts .jp-relatedposts-post-thumbs .jp-relatedposts-post-excerpt {
+	display: none;
+}
+
+/* Behavior when there are no thumbnails in visual mode */
+div.jp-relatedposts .jp-relatedposts-post-nothumbs .jp-relatedposts-post-excerpt {
+	overflow: hidden;
+}
+div.jp-relatedposts .jp-relatedposts-post-nothumbs span {
+	margin-bottom: 1em;
 }
 
 /**
@@ -106,42 +175,22 @@ div.jp-relatedposts .jp-relatedposts-post img + strong + br + span {
 
 @media only screen and (max-width: 640px) {
 
-	/* Show as list */
 	div.jp-relatedposts .jp-relatedposts-post {
-		float: none;
-		width: 100%;
+		width: 50%;
 	}
 
-	div.jp-relatedposts .jp-relatedposts-post.jp-relatedposts-post1 {
-		text-align: right;
+	div.jp-relatedposts .jp-relatedposts-post:nth-child(3n) {
+		clear: right;
 	}
 
-	div.jp-relatedposts .jp-relatedposts-post.jp-relatedposts-post2 {
-		float: none;
-		text-align: right;
-	}
+}
 
-	div.jp-relatedposts .jp-relatedposts-post a {
-		display: inline;
-		white-space: normal;
-		margin-left: 10px;
-	}
+@media only screen and (max-width: 320px) {
 
-	div.jp-relatedposts .jp-relatedposts-post span:before {
-		content: "\2014";
-		margin-left: 5px;
-	}
-
-	div.jp-relatedposts .jp-relatedposts-post br {
-		display: none;
-	}
-
-	/* Behavior when thumbnails */
 	div.jp-relatedposts .jp-relatedposts-post {
+		width: auto;
 		clear: both;
-	}
-	div.jp-relatedposts .jp-relatedposts-post img {
-		margin: 0 0 10px .5em;
+		margin: 0 0 1em;
 	}
 
 }

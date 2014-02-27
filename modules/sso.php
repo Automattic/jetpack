@@ -10,11 +10,6 @@
  * Module Tags: Developers
  */
 
-function module_configure_button_clicked() {
-	$sso = Jetpack_SSO::get_instance();
-
-	$sso->module_configure_button_clicked();
-}
 class Jetpack_SSO {
 	static $instance = null;
 
@@ -54,14 +49,28 @@ class Jetpack_SSO {
 	/**
 	 * Add configure button and functionality to the module card on the Jetpack screen
 	 **/
-	public function module_configure_button() {
+	public static function module_configure_button() {
 		Jetpack::enable_module_configurable( __FILE__ );
-		Jetpack::module_configuration_load( __FILE__, 'module_configure_button_clicked' );
+		Jetpack::module_configuration_load( __FILE__, array( __CLASS__, 'module_configuration_load' ) );
+		Jetpack::module_configuration_head( __FILE__, array( __CLASS__, 'module_configuration_head' ) );
+		Jetpack::module_configuration_screen( __FILE__, array( __CLASS__, 'module_configuration_screen' ) );
 	}
 
-	public function module_configure_button_clicked() {
-		wp_safe_redirect( admin_url( 'options-general.php#configure-sso' ) );
-		exit;
+	public static function module_configuration_load() {
+		// wp_safe_redirect( admin_url( 'options-general.php#configure-sso' ) );
+		// exit;
+	}
+
+	public static function module_configuration_head() {}
+
+	public static function module_configuration_screen() {
+		?>
+		<form method="post" action="options.php">
+			<?php settings_fields( 'jetpack-sso' ); ?>
+			<?php do_settings_sections( 'jetpack-sso' ); ?>
+			<?php submit_button(); ?>
+		</form>
+		<?php
 	}
 
 	/**
@@ -127,13 +136,14 @@ class Jetpack_SSO {
 			'jetpack_sso_settings',
 			__( 'Jetpack Single Sign On' , 'jetpack' ),
 			'__return_false',
-			'general'
+			'jetpack-sso'
 		);
 
 		/*
 		 * Settings > General > Jetpack Single Sign On
 		 * Checkbox for Remove default login form
 		 */
+		 /* Hide in 2.9
 		register_setting(
 			'general',
 			'jetpack_sso_remove_login_form',
@@ -147,22 +157,41 @@ class Jetpack_SSO {
 			'general',
 			'jetpack_sso_settings'
 		);
+		*/
 
 		/*
 		 * Settings > General > Jetpack Single Sign On
 		 * Require two step authentication
 		 */
 		register_setting(
-			'general',
+			'jetpack-sso',
 			'jetpack_sso_require_two_step',
 			array( $this, 'validate_settings_require_two_step' )
 		);
 
 		add_settings_field(
 			'jetpack_sso_require_two_step',
-			__( 'Require Two-Step Authentication?' , 'jetpack' ),
+			__( 'Require Two-Step Authentication' , 'jetpack' ),
 			array( $this, 'render_require_two_step' ),
-			'general',
+			'jetpack-sso',
+			'jetpack_sso_settings'
+		);
+
+
+		/*
+		 * Settings > General > Jetpack Single Sign On
+		 */
+		register_setting(
+			'jetpack-sso',
+			'jetpack_sso_match_by_email',
+			array( $this, 'validate_settings_match_by_email' )
+		);
+
+		add_settings_field(
+			'jetpack_sso_match_by_email',
+			__( 'Match by Email' , 'jetpack' ),
+			array( $this, 'render_match_by_email' ),
+			'jetpack-sso',
 			'jetpack_sso_settings'
 		);
 	}
@@ -185,6 +214,26 @@ class Jetpack_SSO {
 	 **/
 	public function validate_settings_require_two_step( $input ) {
 		return ( isset( $input['require_two_step'] ) )? 1: 0;
+	}
+
+	/**
+	 * Builds the display for the checkbox allowing the user to allow matching logins by email
+	 * Displays in Settings > General
+	 *
+	 * @since 2.9
+	 **/
+	public function render_match_by_email() {
+		echo '<input type="checkbox" name="jetpack_sso_match_by_email[match_by_email]"' . checked( 1 == get_option( 'jetpack_sso_match_by_email' ), true, false) . '>';
+	}
+
+	/**
+	 * Validate the match by email check in Settings > General
+	 *
+	 * @since 2.9
+	 * @return boolean
+	 **/
+	public function validate_settings_match_by_email( $input ) {
+		return ( isset( $input['match_by_email'] ) )? 1: 0;
 	}
 
 	/**
@@ -466,32 +515,36 @@ class Jetpack_SSO {
 
 		// If we've still got nothing, create the user.
 		if ( empty( $user ) && ( get_option( 'users_can_register' ) || self::new_user_override() ) ) {
-			$username = $user_data->login;
+			// If not matching by email we still need to verify the email does not exist
+			// or this blows up
+			if( !self::match_by_email() && !get_user_by( 'email', $user_data->email ) ) {
+				$username = $user_data->login;
 
-			if ( username_exists( $username ) ) {
-				$username = $user_data->login . '_' . $user_data->ID;
-			}
-
-			$tries = 0;
-			while ( username_exists( $username ) ) {
-				$username = $user_data->login . '_' . $user_data->ID . '_' . mt_rand();
-				if ( $tries++ >= 5 ) {
-					wp_die( __( "Error: Couldn't create suitable username.", 'jetpack' ) );
+				if ( username_exists( $username ) ) {
+					$username = $user_data->login . '_' . $user_data->ID;
 				}
+
+				$tries = 0;
+				while ( username_exists( $username ) ) {
+					$username = $user_data->login . '_' . $user_data->ID . '_' . mt_rand();
+					if ( $tries++ >= 5 ) {
+						wp_die( __( "Error: Couldn't create suitable username.", 'jetpack' ) );
+					}
+				}
+
+				$password = wp_generate_password( 20 );
+				$user_id  = wp_create_user( $username, $password, $user_data->email );
+				$user     = get_userdata( $user_id );
+				
+				$user->display_name = $user_data->display_name;
+				$user->first_name   = $user_data->first_name;
+				$user->last_name    = $user_data->last_name;
+				$user->url          = $user_data->url;
+				$user->description  = $user_data->description;
+				wp_update_user( $user );
+
+				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
 			}
-
-			$password = wp_generate_password( 20 );
-			$user_id  = wp_create_user( $username, $password, $user_data->email );
-			$user     = get_userdata( $user_id );
-
-			$user->display_name = $user_data->display_name;
-			$user->first_name   = $user_data->first_name;
-			$user->last_name    = $user_data->last_name;
-			$user->url          = $user_data->url;
-			$user->description  = $user_data->description;
-			wp_update_user( $user );
-
-			update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
 		}
 
 		do_action( 'jetpack_sso_handle_login', $user, $user_data );
@@ -523,7 +576,9 @@ class Jetpack_SSO {
 	}
 
 	static function match_by_email() {
-		$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : true;
+		$match_by_email = ( 1 == get_option( 'jetpack_sso_match_by_email', true ) ) ? true: false;
+		$match_by_email = defined( 'WPCC_MATCH_BY_EMAIL' ) ? WPCC_MATCH_BY_EMAIL : $match_by_email;
+
 		return apply_filters( 'jetpack_sso_match_by_email', $match_by_email );
 	}
 
@@ -722,6 +777,7 @@ class Jetpack_SSO {
 	}
 
 	function edit_profile_fields( $user ) {
+		wp_enqueue_style( 'genericons' );
 		?>
 
 		<h3><?php _e( 'WordPress.com Single Sign On', 'jetpack' ); ?></h3>

@@ -54,7 +54,7 @@ body div.slideshow-window * img {
 }
 
 .slideshow-line-height-hack {
-	overflow: hide;
+	overflow: hidden;
 	width: 0px;
 	font-size: 0px;
 }
