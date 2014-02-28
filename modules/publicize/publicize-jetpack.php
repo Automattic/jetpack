@@ -29,6 +29,10 @@ class Publicize extends Publicize_Base {
 
 		add_filter( 'jetpack_twitter_cards_site_tag', array( $this, 'enhaced_twitter_cards_site_tag' ) );
 
+		add_action( 'publicize_save_meta', array( $this, 'save_publicized_twitter_account' ), 10, 4 );
+
+		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
+
 		include_once ( JETPACK__PLUGIN_DIR . 'modules/publicize/enhanced-open-graph.php' );
 	}
 
@@ -663,4 +667,20 @@ class Publicize extends Publicize_Base {
 		return $this->get_display_name( 'twitter', $c );
 	}
 
+	function save_publicized_twitter_account( $submit_post, $post_id, $service_name, $connection ) {
+		if ( 'twitter' == $service_name && $submit_post ) {
+			update_post_meta( $post_id, 'publicize_twitter_user', $this->get_display_name( 'twitter', $connection ) );
+		}
+	}
+
+	function get_publicized_twitter_account( $account, $post_id ) {
+		if ( ! empty( $account ) ) {
+			return $account;
+		}
+		$account = get_post_meta( $post_id, 'publicize_twitter_user', true );
+		if ( ! empty( $account ) ) {
+			return $account;
+		}
+		return 'jetpack'; // Default 'via' is always us if for some reason we still don't find one.
+	}
 }
