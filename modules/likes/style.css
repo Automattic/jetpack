@@ -114,8 +114,7 @@ div.sd-box {
 .post-likes-widget-placeholder {
 	margin: 0;
 	border-width: 0;
-	position: absolute; /* Need to abs position placeholder and iframe so there isn't a jarring jump */
-	z-index: 0;
+	position: relative;
 }
 
 .post-likes-widget-placeholder .button {
@@ -144,8 +143,8 @@ div.sharedaddy.sd-like-enabled .sd-like h3 {
 div.sharedaddy.sd-like-enabled .sd-like .post-likes-widget {
 	width: 100%;
 	float: none;
-	position: relative;
-	z-index: 1;
+	position: absolute; /* Need to abs position placeholder and iframe so there isn't a jarring jump */
+	top: 0;
 }
 
 .comment-likes-widget {
