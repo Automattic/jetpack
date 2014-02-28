@@ -72,7 +72,6 @@ body.highlander-dark h3.sd-title:before {
 	text-decoration: none !important;
 	display: inline-block;
 	margin: 0 5px 5px 0;
-	line-height: 1;
 	font-size: 12px;
 	font-family: "Open Sans", sans-serif;
 	font-weight: normal;
@@ -82,8 +81,10 @@ body.highlander-dark h3.sd-title:before {
 	border: 1px solid #cccccc;
 	box-shadow: 0 1px 0 rgba(0,0,0,.08);
 	text-shadow: none;
-	/*padding: 6px 8px 2px 5px; padding for inherited fonts */
-	padding: 7px 8px 1px 5px; /* padding for Open Sans */
+	/*line-height: 1;
+	padding: 7px 8px 1px 5px; */
+	line-height: 23px;
+	padding: 1px 8px 0px 5px;
 }
 
 .sd-social-icon .sd-content ul li a.sd-button span,
@@ -105,21 +106,24 @@ body.highlander-dark h3.sd-title:before {
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li>a.sd-button,
 .sd-social-official .sd-content>ul>li .digg_button>a,
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li .digg_button>a {
-	padding: 3px 6px 0px 3px;
+	/*padding: 3px 6px 0px 3px; */
+	line-height: 17px;
 	box-shadow: none; /* No shadow on gray buttons between the official ones */
 	vertical-align: top;
 }
 
 .sd-social-official .sd-content>ul>li>a.sd-button:before,
+.sd-social-official .sd-content>ul>li .digg_button>a:before,
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li>a.sd-button:before,
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li .digg_button>a:before {
 	margin-bottom: -1px;
+	top: 0;
 }
 
-.sd-social-official .sd-content>ul>li.share-custom>a.sd-button,
+/*.sd-social-official .sd-content>ul>li.share-custom>a.sd-button,
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li.share-custom>a.sd-button {
 	padding: 1px 6px 1px 0px;
-}
+}*/
  
 .sd-social-icon .sd-content ul li a.sd-button:hover,
 .sd-social-icon .sd-content ul li a.sd-button:active,
@@ -154,7 +158,8 @@ body.highlander-dark h3.sd-title:before {
 	font: normal 16px/1 'Genericons';
 	vertical-align: top;
 	position: relative;
-	top: -2px;
+	/*top: -2px; */
+	top: 3px;
 	text-align: center;
 }
 
@@ -187,20 +192,24 @@ body .sd-content ul li.share-custom.no-icon a span {
 	height: 0;
 	line-height: inherit;
 }
-.sd-social-text .sd-content ul li a,
+/*.sd-social-text .sd-content ul li a,
 .sd-social-text .sd-content ul li a.sd-button,
 body .sd-content ul li.no-icon div.option a,
 #sharing_email .sharing_send,
 body .sd-content ul li.no-icon a.share-more {
 	padding: 6px 8px 6px 8px;
-}
+}*/
 
 /* Icon only */
-.sd-social-icon .sd-content ul li a {
+/*.sd-social-icon .sd-content ul li a {
 	padding: 6px 5px 2px 5px;
 }
 .sd-social-icon .sd-content ul li a.share-more {
 	padding: 6px 8px 2px 5px;
+}*/
+.sd-social-icon .sd-content ul li a.share-more {
+	position: relative;
+	top: 2px;
 }
 .sd-social-icon .sd-content ul li a.share-more span {
 	margin-left: 3px;
@@ -372,14 +381,14 @@ body .sd-social-official li.share-press-this a
 
 
 /* Custom icons */
-body .sd-social-icon .sd-content li.share-custom a,
+/*body .sd-social-icon .sd-content li.share-custom a,
 body .sd-social-icon-text .sd-content li.share-custom a {
 	padding: 2px 6px 2px 3px;
-}
+}*/
 
-body .sd-content li.share-custom div.option a {
+/*body .sd-content li.share-custom div.option a {
 	padding: 5px 8px 3px 5px;
-}
+}*/
 
 body .sd-social-icon .sd-content li.share-custom>a {
 	padding: 2px 3px 0 3px;
@@ -387,10 +396,10 @@ body .sd-social-icon .sd-content li.share-custom>a {
 	top: 4px;
 }
 
-body .sd-social-icon .sd-content li.share-custom a,
+/*body .sd-social-icon .sd-content li.share-custom a,
 body .sd-social-icon-text .sd-content li.share-custom a {
 	padding: 5px 8px 3px 5px;
-}
+} */
 
 body .sd-social-icon .sd-content li.share-custom a span,
 body .sd-social-icon-text .sd-content li.share-custom a span,
@@ -477,6 +486,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	padding: 8px;
 	position: relative;
 	top: -2px;
+	line-height: 1;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'] a:hover,
@@ -497,6 +507,11 @@ body .sd-social-icon .sd-content li.share-custom a span {
 .sd-social-icon .sd-content ul li a.sd-button.share-more {
 	margin-left: 10px;
 }
+
+.sd-social-icon .sd-content ul li:first-child a.sd-button.share-more {
+	margin-left: 0;
+}
+
 
 .sd-social-icon .sd-button span.share-count {
 	position: absolute;
