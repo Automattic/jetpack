@@ -8,7 +8,7 @@ module.exports = function(grunt) {
       js  : ['_inc/**/*.min.js']
 		},
 		cssmin: {
-			admin: {
+			inc : {
 				expand: true,
 				ext: '.min.css',
 				src: [
@@ -18,7 +18,7 @@ module.exports = function(grunt) {
 			}
 		},
 		uglify: {
-			admin: {
+			inc : {
 				expand: true,
 				ext: '.min.js',
 				src: [
@@ -33,7 +33,7 @@ module.exports = function(grunt) {
             '_inc/**/*.js',
             '!_inc/**/*.min.js'
 				],
-				tasks: ['clean:js', 'uglify'],
+				tasks: ['clean:js', 'uglify:inc'],
 				options: {
 					dot      : false,
 					spawn    : false,
@@ -45,7 +45,7 @@ module.exports = function(grunt) {
           '_inc/**/*.css',
           '!_inc/**/*.min.css'
         ],
-				tasks: ['clean:css', 'cssmin'],
+				tasks: ['clean:css', 'cssmin:inc'],
 				options: {
 					dot      : false,
 					spawn    : false,
@@ -59,7 +59,7 @@ module.exports = function(grunt) {
   require('matchdep').filterDev('grunt-*').forEach( grunt.loadNpmTasks );
 
 	// Register tasks.
-	grunt.registerTask('build', ['clean:admin', 'cssmin:admin','uglify:admin']);
+	grunt.registerTask('build', ['clean', 'cssmin:inc','uglify:inc']);
 
 	// Default task.
 	grunt.registerTask('default', ['build']);
