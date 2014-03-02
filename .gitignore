@@ -1,3 +1,9 @@
 /vendor/
 .DS_Store
 .sass-cache
+node_modules
+_inc/genericons/genericons.min.css
+_inc/genericons/rtl/genericons-rtl.min.css
+_inc/jetpack-icons/jetpack-icons.min.css
+_inc/jetpack-rtl.min.css
+_inc/jetpack.min.css
