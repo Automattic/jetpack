@@ -19,9 +19,9 @@
 		}
 
 		if ( '' == locationObject.search ) {
-			return locationObject.pathname + '?relatedposts';
+			return locationObject.pathname + '?relatedposts=1';
 		} else {
-			return locationObject.pathname + locationObject.search + '&relatedposts';
+			return locationObject.pathname + locationObject.search + '&relatedposts=1';
 		}
 	};
 
