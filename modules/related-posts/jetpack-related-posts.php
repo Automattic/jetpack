@@ -562,7 +562,7 @@ EOT;
 	 * @param int $blog_id
 	 * @param int $post_id
 	 * @param int $position
-	 * @uses get_post, add_query_arg, remove_query_arg, get_post_format
+	 * @uses get_post, add_query_arg, remove_query_arg, get_post_format, apply_filters
 	 * @return array
 	 */
 	protected function _get_related_post_data_for_post( $blog_id, $post_id, $position ) {
@@ -577,7 +577,11 @@ EOT;
 			'title' => $this->_to_utf8( $this->_get_title( $post->post_title, $post->post_content ) ),
 			'format' => get_post_format( $post->ID ),
 			'excerpt' => $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ),
-			'context' => $this->_to_utf8( $this->_generate_related_post_context( $this->_blog_id, $post->ID ) ),
+			'context' => apply_filters(
+				'jetpack_relatedposts_filter_post_context',
+				$this->_to_utf8( $this->_generate_related_post_context( $this->_blog_id, $post->ID ) ),
+				$post->ID
+			),
 			'img' => $this->_generate_related_post_image_params( $this->_blog_id, $post->ID ),
 		);
 	}
