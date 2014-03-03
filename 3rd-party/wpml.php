@@ -18,4 +18,18 @@ function wpml_jetpack_widget_get_top_posts( $posts, $post_ids, $count ) {
 	return $posts;
 }
 
+add_filter( 'grunion_contact_form_field_html', 'grunion_contact_form_field_html_filter', 10, 3 );
+function grunion_contact_form_field_html_filter( $r, $field_label, $id ){
+	global $sitepress;
+
+	if ( function_exists( 'icl_translate' ) ) {
+		if ( $sitepress->get_current_language() !== $sitepress->get_default_language() ) {
+			$label_translation = icl_translate( 'jetpack ', $field_label . '_label', $field_label );
+			$r                 = str_replace( $field_label, $label_translation, $r );
+		}
+	}
+
+	return $r;
+}
+
 endif;
