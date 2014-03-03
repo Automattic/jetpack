@@ -855,11 +855,6 @@ EOT;
 		if ( ! is_single() )
 			return false;
 
-		// Don't run if blog is very sparse
-		$post_count = wp_count_posts();
-		if ( $post_count->publish < 10 )
-			return false;
-
 		return true;
 	}
 
