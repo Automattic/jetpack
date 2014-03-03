@@ -23,7 +23,8 @@ class Jetpack_Twitter_Cards {
 		 * These tags apply to any page (home, archives, etc)
 		 */
 
-		$og_tags['twitter:site'] = apply_filters( 'jetpack_twitter_cards_site_tag', self::site_tag() ); 
+		$site_tag = apply_filters( 'jetpack_twitter_cards_site_tag', self::site_tag() ); 
+		$og_tags['twitter:site'] = self::sanitize_twitter_user ( $site_tag );
 
 		if ( ! is_singular() || ! empty( $og_tags['twitter:card'] ) )
 			return $og_tags;
@@ -74,8 +75,8 @@ class Jetpack_Twitter_Cards {
 		// If we have information on the author/creator, then include that as well
 		if ( ! empty( $post ) && ! empty( $post->post_author ) ) {
 			$handle = apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID );
-			if ( !empty( $handle ) && 'wordpressdotcom' != $handle )
-				$og_tags['twitter:creator'] = '@' . $handle;
+			if ( ! empty( $handle ) && 'wordpressdotcom' != $handle && 'jetpack' != $handle )
+				$og_tags['twitter:creator'] = self::sanitize_twitter_user ( $handle );
 		}
 
 		// Make sure we have a description for Twitter, their validator isn't happy without some content (single space not valid).
@@ -92,6 +93,10 @@ class Jetpack_Twitter_Cards {
 		}
 
 		return $og_tags;
+	}
+
+	static function sanitize_twitter_user( $str ) {
+		return '@' . preg_replace( '/^@/', '', $str );
 	}
 
 	static function twitter_cards_define_type_based_on_image_count( $og_tags, $extract ) {
