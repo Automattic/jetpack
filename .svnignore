@@ -1,6 +1,8 @@
 .git/
 .gitignore
 .travis.yml
+package.json
+Gruntfile.js
 readme.md
 tests/
 _inc/lib/icalendar-reader.php
