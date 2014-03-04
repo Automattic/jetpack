@@ -2048,10 +2048,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$insert["tax_input"]["category"] = $categories;
 
 		$has_media = isset( $input['media'] ) && $input['media'] ? count( $input['media'] ) : false;
+		$has_media_by_url = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
 
 		if ( $new ) {
-			if ( false === strpos( $input['content'], '[gallery' ) && $has_media ) {
-				switch ( $has_media ) {
+			if ( false === strpos( $input['content'], '[gallery' ) && ( $has_media || $has_media_by_url ) ) {
+				switch ( ( $has_media + $has_media_by_url ) ) {
 				case 0 :
 					// No images - do nothing.
 					break;
@@ -2078,6 +2079,12 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$this->api->trap_wp_die( null );
 
 				unset( $_FILES['.api.media.item.'] );
+			}
+
+			if ( $has_media_by_url ) {
+				foreach ( $input['media_urls'] as $url ) {
+					media_sideload_image( esc_url_raw( $url ), $post_id );
+				}
 			}
 		} else {
 			$insert['ID'] = $post->ID;
@@ -3401,6 +3408,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'format'     => get_post_format_strings(),
 		'media'      => "(media) An array of images to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts images (image/gif, image/jpeg, image/png) only.<br /><br /><strong>Example</strong>:<br />" .
 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 		'comments_open' => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
 		'pings_open'    => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
