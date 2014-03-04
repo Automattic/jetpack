@@ -668,7 +668,11 @@ class Publicize extends Publicize_Base {
 
 	function save_publicized_twitter_account( $submit_post, $post_id, $service_name, $connection ) {
 		if ( 'twitter' == $service_name && $submit_post ) {
-			update_post_meta( $post_id, 'publicize_twitter_user', $this->get_display_name( 'twitter', $connection ) );
+			$connection_meta = $this->get_connection_meta( $connection );
+			$publicize_twitter_user = get_post_meta( $post_id, 'publicize_twitter_user' );
+			if ( empty( $publicize_twitter_user ) || 0 != $connection_meta['connection_data']['user_id'] ) {
+				update_post_meta( $post_id, 'publicize_twitter_user', $this->get_display_name( 'twitter', $connection ) );
+			}
 		}
 	}
 
