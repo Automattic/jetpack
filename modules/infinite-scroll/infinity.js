@@ -476,7 +476,6 @@ Scroller.prototype.determineURL = function () {
 
 		self.updateURL( pageNum );
 	}
-	console.timeEnd("determineURL");
 }
 
 /**
