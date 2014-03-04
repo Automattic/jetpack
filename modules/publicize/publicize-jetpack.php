@@ -656,15 +656,14 @@ class Publicize extends Publicize_Base {
 		if ( ! $this->is_enabled('twitter') )
 			return $tag;
 		$connections = $this->get_connections( 'twitter' );
-		if ( 1 < sizeof( $connections ) )
-			return $tag;
-		$c = array_pop( $connections );
-		$cmeta = $this->get_connection_meta( $c );
-		if ( 0 != $cmeta['connection_data']['user_id'] ) {
-			// If the connection isn't shared
-			return $tag;
+		foreach ( $connections as $connection ) {
+			$connection_meta = $this->get_connection_meta( $connection );
+			if ( 0 == $connection_meta['connection_data']['user_id'] ) {
+				// If the connection is shared
+				return $this->get_display_name( 'twitter', $connection );
+			}
 		}
-		return $this->get_display_name( 'twitter', $c );
+		return $tag;
 	}
 
 	function save_publicized_twitter_account( $submit_post, $post_id, $service_name, $connection ) {
