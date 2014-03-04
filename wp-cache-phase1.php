@@ -589,7 +589,7 @@ function get_all_supercache_filenames( $dir = '' ) {
 
 	if ( $dir != '' && isset( $wp_cache_mobile_enabled ) && $wp_cache_mobile_enabled ) {
 		// open directory and look for index-*.html files
-		if ( is_dir( $dir ) && $dh = opendir( $dir ) ) {
+		if ( is_dir( $dir ) && $dh = @opendir( $dir ) ) {
 			while ( ( $file = readdir( $dh ) ) !== false ) {
 				if ( substr( $file, 0, 6 ) == 'index-' && strpos( $file, '.html' ) )
 					$filenames[] = $file;
