@@ -81,19 +81,16 @@ body.highlander-dark h3.sd-title:before {
 	border: 1px solid #cccccc;
 	box-shadow: 0 1px 0 rgba(0,0,0,.08);
 	text-shadow: none;
-	/*line-height: 1;
-	padding: 7px 8px 1px 5px; */
 	line-height: 23px;
 	padding: 1px 8px 0px 5px;
 }
 
-.sd-social-icon .sd-content ul li a.sd-button span,
 .sd-social-text .sd-content ul li a.sd-button span,
-.sd-content ul li a.sd-button span,
+.sd-content ul li a.sd-button>span,
 .sd-content ul li .option a.share-ustom span,	/* Ugh. */
 .sd-content ul li.preview-item div.option.option-smart-off a span,
 .sd-content ul li.advanced a.share-more span,
-.sd-social-icon-text .sd-content ul li a.sd-button span,
+.sd-social-icon-text .sd-content ul li a.sd-button>span,
 .sd-social-official .sd-content>ul>li>a.sd-button span,
 .sd-social-official .sd-content>ul>li .digg_button >a span {		/* official Digg button no longer works, needs cleaning */
 	line-height: 23px;
@@ -106,7 +103,6 @@ body.highlander-dark h3.sd-title:before {
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li>a.sd-button,
 .sd-social-official .sd-content>ul>li .digg_button>a,
 .sd-social-official .sd-content .sharing-hidden .inner>ul>li .digg_button>a {
-	/*padding: 3px 6px 0px 3px; */
 	line-height: 17px;
 	box-shadow: none; /* No shadow on gray buttons between the official ones */
 	vertical-align: top;
@@ -120,11 +116,6 @@ body.highlander-dark h3.sd-title:before {
 	top: 0;
 }
 
-/*.sd-social-official .sd-content>ul>li.share-custom>a.sd-button,
-.sd-social-official .sd-content .sharing-hidden .inner>ul>li.share-custom>a.sd-button {
-	padding: 1px 6px 1px 0px;
-}*/
- 
 .sd-social-icon .sd-content ul li a.sd-button:hover,
 .sd-social-icon .sd-content ul li a.sd-button:active,
 .sd-social-text .sd-content ul li a.sd-button:hover,
@@ -151,14 +142,12 @@ body.highlander-dark h3.sd-title:before {
 
 /* All icons */
 .sd-content ul li a.sd-button:before {
-	/* color: #555; */
 	display: inline-block;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	font: normal 16px/1 'Genericons';
 	vertical-align: top;
 	position: relative;
-	/*top: -2px; */
 	top: 3px;
 	text-align: center;
 }
@@ -192,21 +181,7 @@ body .sd-content ul li.share-custom.no-icon a span {
 	height: 0;
 	line-height: inherit;
 }
-/*.sd-social-text .sd-content ul li a,
-.sd-social-text .sd-content ul li a.sd-button,
-body .sd-content ul li.no-icon div.option a,
-#sharing_email .sharing_send,
-body .sd-content ul li.no-icon a.share-more {
-	padding: 6px 8px 6px 8px;
-}*/
 
-/* Icon only */
-/*.sd-social-icon .sd-content ul li a {
-	padding: 6px 5px 2px 5px;
-}
-.sd-social-icon .sd-content ul li a.share-more {
-	padding: 6px 8px 2px 5px;
-}*/
 .sd-social-icon .sd-content ul li a.share-more {
 	position: relative;
 	top: 2px;
@@ -324,12 +299,17 @@ body .sd-content ul li.no-icon a.share-more {
 	text-align: center;
 	font-size: 10px;
 	padding: 1px 3px;
+	line-height: 1;
 }
 
 
 /* Official buttons */
 .sd-social-official .sd-content ul, .sd-social-official .sd-content ul li {
 	line-height: 25px !important;
+}
+
+.sd-social-official .sd-content>ul>li>a.sd-button span {
+	line-height: 1;
 }
 
 .sd-social-official .sd-content ul:after {
@@ -381,25 +361,11 @@ body .sd-social-official li.share-press-this a
 
 
 /* Custom icons */
-/*body .sd-social-icon .sd-content li.share-custom a,
-body .sd-social-icon-text .sd-content li.share-custom a {
-	padding: 2px 6px 2px 3px;
-}*/
-
-/*body .sd-content li.share-custom div.option a {
-	padding: 5px 8px 3px 5px;
-}*/
-
 body .sd-social-icon .sd-content li.share-custom>a {
 	padding: 2px 3px 0 3px;
 	position: relative;
 	top: 4px;
 }
-
-/*body .sd-social-icon .sd-content li.share-custom a,
-body .sd-social-icon-text .sd-content li.share-custom a {
-	padding: 5px 8px 3px 5px;
-} */
 
 body .sd-social-icon .sd-content li.share-custom a span,
 body .sd-social-icon-text .sd-content li.share-custom a span,
@@ -425,7 +391,6 @@ body .sd-content li.share-custom a:hover span {
 body .sd-social-icon .sd-content li.share-custom a span {
 	padding-left: 16px !important;
 }
-
 
 
 /* Overflow Sharing dialog */
@@ -486,6 +451,11 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	padding: 8px;
 	position: relative;
 	top: -2px;
+	line-height: 1;
+}
+
+.sd-social-icon .sd-content ul li[class*='share-'] a.sd-button>span,
+.sd-social-icon .sd-content ul li[class*='share-'] div.option a span {
 	line-height: 1;
 }
 
