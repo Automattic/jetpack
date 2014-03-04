@@ -96,7 +96,7 @@ body.highlander-dark h3.sd-title:before {
 .sd-social-icon-text .sd-content ul li a.sd-button span,
 .sd-social-official .sd-content>ul>li>a.sd-button span,
 .sd-social-official .sd-content>ul>li .digg_button >a span {		/* official Digg button no longer works, needs cleaning */
-	line-height: 1;
+	line-height: 23px;
 }
 
 
