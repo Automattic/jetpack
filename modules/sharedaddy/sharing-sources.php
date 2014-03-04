@@ -342,8 +342,15 @@ class Share_Twitter extends Sharing_Source {
 	}
 
 	function sharing_twitter_via( $post ) {
+		$options = get_option( 'sharing-options' );
+		if ( isset( $options['global']['twitter_site'] ) ) {
+			$handle = $options['global']['twitter_site'];
+		}
+		if ( empty( $handle ) ) {
+			$handle = "Jetpack";
+		}
 		// Allow themes to customize the via
-		return apply_filters( 'jetpack_sharing_twitter_via', '', $post->ID );
+		return apply_filters( 'jetpack_sharing_twitter_via', $handle, $post->ID );
 	}
 
 	public function get_related_accounts( $post ) {

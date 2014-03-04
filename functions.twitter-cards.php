@@ -10,6 +10,7 @@
  */
 function wpcom_twitter_cards_tags( $og_tags ) {
 	global $post;
+	global $publicize;
 
 	if( post_password_required() )
 		return $og_tags;
@@ -22,6 +23,19 @@ function wpcom_twitter_cards_tags( $og_tags ) {
 	 */
 
 	$og_tags['twitter:site'] = ( defined('IS_WPCOM') && IS_WPCOM ) ? '@wordpressdotcom' : '@jetpack';
+	$options = get_option( 'sharing-options' );
+	if ( Jetpack::is_module_active( 'sharedaddy' ) && isset($options['global']['twitter_site'] ) && !empty($options['global']['twitter_site']) ) {
+		$twitter_handle = esc_attr( $options['global']['twitter_site'] );
+		$og_tags['twitter:site'] = '@' . $twitter_handle;
+	}
+
+	elseif ( Jetpack::is_module_active( 'publicize' ) && $publicize->is_enabled( 'twitter' ) ) {
+		$connections = $publicize->get_connections( 'twitter' );
+		foreach( $connections as $c ) {
+			$twitter_handles[] = $publicize->get_display_name('twitter', $c);
+		}
+		$og_tags['twitter:site'] = ($twitter_handles[0]);
+	}
 
 	if ( ! is_singular() || ! empty( $og_tags['twitter:card'] ) )
 		return $og_tags;
@@ -139,3 +153,19 @@ function wpcom_twitter_cards_output( $og_tag ) {
 }
 
 add_filter( 'jetpack_open_graph_output', 'wpcom_twitter_cards_output' );
+
+function jetpack_twitter_cards_site_setting() {
+	if ( current_user_can( 'manage_options') ) {
+		$options = get_option( 'sharing-options' );
+		$url = 'https://dev.twitter.com/docs/cards';
+		$description = sprintf( __('Set the Twitter handle to be displayed on <a href="%s" target="_blank">Twitter Cards</a> and when sharing posts or pages from this blog.', 'jetpack' ), $url ); ?>
+		<tr valign="top" id="site-twitter">
+			<th scope="row"><label><?php _e( 'Twitter Handle', 'jetpack' ) ?></label></th>
+			<td><input type="text" name="twitter_site" value="<?php echo esc_attr( isset( $options['global']['twitter_site'] ) ? $options['global']['twitter_site'] : '' ); ?>" />
+				<small><em><?php echo $description; ?></em></small>
+			</td>
+		</tr><?php
+	}
+}
+
+add_action( 'sharing_global_options', 'jetpack_twitter_cards_site_setting', 50 );
