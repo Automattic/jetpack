@@ -558,8 +558,8 @@ jQuery(document).ready(function($) {
 				currentWidth = current.width(),
 				previous = gallery.jp_carousel( 'prevSlide' ),
 				next = gallery.jp_carousel( 'nextSlide' ),
-				previous_previous = previous.prev(),
-				next_next = next.next(),
+				previousPrevious = previous.prev(),
+				nextNext = next.next(),
 				left = Math.floor( ( galleryWidth - currentWidth ) * 0.5 );
 
 			current.jp_carousel( 'setSlidePosition', left ).show();
@@ -571,15 +571,17 @@ jQuery(document).ready(function($) {
 			var direction = lastSelectedSlide.is( current.prevAll() ) ? 1 : -1;
 
 			if ( 1 == direction ) {
-				if ( ! next_next.is( previous ) )
-					next_next.jp_carousel( 'setSlidePosition', galleryWidth + next.width() ).show();
+				if ( ! nextNext.is( previous ) ) {
+					nextNext.jp_carousel( 'setSlidePosition', galleryWidth + next.width() ).show();
+				}
 
-				if ( ! previous_previous.is( next ) )
-					previous_previous.jp_carousel( 'setSlidePosition', -previous_previous.width() - currentWidth ).show();
-			}
-			else {
-				if ( ! next_next.is( previous ) )
-					next_next.jp_carousel( 'setSlidePosition', galleryWidth + currentWidth ).show();
+				if ( ! previousPrevious.is( next ) ) {
+					previousPrevious.jp_carousel( 'setSlidePosition', -previousPrevious.width() - currentWidth ).show();
+				}
+			} else {
+				if ( ! nextNext.is( previous ) ) {
+					nextNext.jp_carousel( 'setSlidePosition', galleryWidth + currentWidth ).show();
+				}
 			}
 
 			previous.jp_carousel( 'setSlidePosition', Math.floor( -previous.width() + ( screenPadding * 0.75 ) ) ).show();
