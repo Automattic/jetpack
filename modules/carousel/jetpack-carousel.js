@@ -570,6 +570,15 @@ jQuery(document).ready(function($) {
 			// prep the slides
 			var direction = lastSelectedSlide.is( current.prevAll() ) ? 1 : -1;
 
+			// Since we preload the `previousPrevious` and `nextNext` slides, we need
+			// to make sure they technically visible in the DOM, but invisible to the
+			// user. To hide them from the user, we position them outside the edges
+			// of the window.
+			//
+			// This section of code only applies when there are more than three
+			// slides. Otherwise, the `previousPrevious` and `nextNext` slides will
+			// overlap with the `previous` and `next` slides which must be visible
+			// regardless.
 			if ( 1 == direction ) {
 				if ( ! nextNext.is( previous ) ) {
 					nextNext.jp_carousel( 'setSlidePosition', galleryWidth + next.width() ).show();
