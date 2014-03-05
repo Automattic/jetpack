@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20140303';
+	const VERSION = '20140305';
 
 	/**
 	 * Creates and returns a static instance of Jetpack_RelatedPosts.
@@ -49,6 +49,7 @@ class Jetpack_RelatedPosts {
 	protected $_allow_feature_toggle;
 	protected $_blog_charset;
 	protected $_convert_charset;
+	protected $_previous_post_id;
 
 	/**
 	 * Constructor for Jetpack_RelatedPosts.
@@ -97,23 +98,28 @@ class Jetpack_RelatedPosts {
 	 *
 	 * @global $_GET
 	 * @action wp
+	 * @uses get_the_ID
 	 * @returns null
 	 */
 	public function action_frontend_init() {
 		if ( ! $this->_enabled_for_request( $this->_blog_id ) )
 			return;
 
-		if ( isset( $_GET['relatedposts_exclude'] ) )
-			$excludes = explode( ',', $_GET['relatedposts_exclude'] );
-		else
+		if ( isset( $_GET['relatedposts'] ) ) {
 			$excludes = array();
+			if ( isset( $_GET['relatedposts_exclude'] ) ) {
+				$excludes = explode( ',', $_GET['relatedposts_exclude'] );
+			}
 
-		if ( isset( $_GET['relatedposts_to'] ) )
-			$this->_action_frontend_redirect( $_GET['relatedposts_to'], $_GET['relatedposts_order'] );
-		elseif ( isset( $_GET['relatedposts'] ) )
 			$this->_action_frontend_init_ajax( $excludes );
-		else
+		} else {
+			if ( isset( $_GET['relatedposts_hit'] ) ) {
+				$this->_log_click( $_GET['relatedposts_origin'], get_the_ID(), $_GET['relatedposts_position'] );
+				$this->_previous_post_id = (int) $_GET['relatedposts_origin'];
+			}
+
 			$this->_action_frontend_init_page();
+		}
 
 	}
 
@@ -137,11 +143,17 @@ class Jetpack_RelatedPosts {
 			$headline = '';
 		}
 
+		if ( $this->_previous_post_id ) {
+			$exclude = "data-exclude='{$this->_previous_post_id}'";
+		} else {
+			$exclude = "";
+		}
+
 		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $headline );
 
 		if ( $options['show_above_content'] ) {
 			return <<<EOT
-<div id='jp-relatedposts' class='jp-relatedposts'>
+<div id='jp-relatedposts' class='jp-relatedposts' $exclude>
 	$headline
 </div>
 $content
@@ -150,7 +162,7 @@ EOT;
 
 		return <<<EOT
 $content
-<div id='jp-relatedposts' class='jp-relatedposts'>
+<div id='jp-relatedposts' class='jp-relatedposts' $exclude>
 	$headline
 </div>
 EOT;
@@ -538,42 +550,22 @@ EOT;
 	}
 
 	/**
-	 * Blog reader has clicked on a related link, log this action for future relevance analysis and redirect the user to their post.
-	 * NOTE: Calls exit() to end all further processing after redirect has been outputed.
-	 *
-	 * @param int $to_post_id
-	 * @param int $link_position
-	 * @uses get_the_ID, add_query_arg, get_permalink, wp_safe_redirect
-	 * @return null
-	 */
-	protected function _action_frontend_redirect( $to_post_id, $link_position ) {
-		$post_id = get_the_ID();
-
-		$this->_log_click( $post_id, $to_post_id, $link_position );
-
-		wp_safe_redirect( add_query_arg( array( 'relatedposts_exclude' => $post_id ), get_permalink( $to_post_id ) ) );
-
-		exit();
-	}
-
-	/**
 	 * Returns a UTF-8 encoded array of post information for the given post_id
 	 *
 	 * @param int $blog_id
 	 * @param int $post_id
 	 * @param int $position
-	 * @uses get_post, add_query_arg, remove_query_arg, get_post_format, apply_filters
+	 * @param int $origin The post id that this is related to
+	 * @uses get_post, get_permalink, remove_query_arg, get_post_format, apply_filters
 	 * @return array
 	 */
-	protected function _get_related_post_data_for_post( $blog_id, $post_id, $position ) {
+	protected function _get_related_post_data_for_post( $blog_id, $post_id, $position, $origin ) {
 		$post = get_post( $post_id );
 
 		return array(
 			'id' => $post->ID,
-			'url' => add_query_arg(
-				array( 'relatedposts_to' => $post->ID, 'relatedposts_order' => $position ),
-				remove_query_arg( array( 'relatedposts', 'relatedposts_exclude' ) )
-			),
+			'url' => get_permalink( $post->ID ),
+			'url_meta' => array( 'origin' => $origin, 'position' => $position ),
 			'title' => $this->_to_utf8( $this->_get_title( $post->post_title, $post->post_content ) ),
 			'format' => get_post_format( $post->ID ),
 			'excerpt' => $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ),
@@ -722,7 +714,7 @@ EOT;
 
 		$related_posts = array();
 		foreach ( $hits as $i => $hit ) {
-			$related_posts[] = $this->_get_related_post_data_for_post( $blog_id, $hit['id'], $i );
+			$related_posts[] = $this->_get_related_post_data_for_post( $blog_id, $hit['id'], $i, $post_id );
 		}
 		return $related_posts;
 	}
@@ -857,11 +849,6 @@ EOT;
 
 		// Only run for standalone posts
 		if ( ! is_single() )
-			return false;
-
-		// Don't run if blog is very sparse
-		$post_count = wp_count_posts();
-		if ( $post_count->publish < 10 )
 			return false;
 
 		return true;
