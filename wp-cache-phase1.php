@@ -335,7 +335,7 @@ if ( !isset( $wp_super_cache_late_init ) || ( isset( $wp_super_cache_late_init )
 function wp_cache_postload() {
 	global $cache_enabled, $wp_super_cache_late_init, $wp_super_cache_debug;
 
-	if ( !$cache_enabled || isset( $_GET[ 'preview' ] ) )
+	if ( !$cache_enabled )
 		return true;
 
 	if ( isset( $wp_super_cache_late_init ) && true == $wp_super_cache_late_init ) {
@@ -657,7 +657,7 @@ function get_oc_key( $url = false ) {
 
 function wp_supercache_cache_for_admins() {
 	if ( isset( $_GET[ 'preview' ] ) || function_exists( "is_admin" ) && is_admin() )
-		return $cookies;
+		return true;
 
 	if ( false == do_cacheaction( 'wp_supercache_remove_cookies', true ) )
 		return true;
