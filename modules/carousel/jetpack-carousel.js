@@ -587,86 +587,102 @@ jQuery(document).ready(function($) {
 		},
 
 		selectSlide : function(slide, animate){
-			lastSelectedSlide = this.find('.selected').removeClass('selected');
+			lastSelectedSlide = this.find( '.selected' ).removeClass( 'selected' );
 
-			var slides = gallery.jp_carousel('slides').css({'position': 'fixed'}),
-				current = $(slide).addClass('selected').css({'position': 'relative'}),
+			var slides = gallery.jp_carousel( 'slides' ).css({ 'position': 'fixed' }),
+				current = $( slide ).addClass( 'selected' ).css({ 'position': 'relative' }),
 				attachmentId = current.data( 'attachment-id' ),
 				previous = gallery.jp_carousel( 'prevSlide' ),
 				next = gallery.jp_carousel( 'nextSlide' ),
-				previous_previous = previous.prev(),
-				next_next = next.next(),
-				info_left,
-				method,
+				previousPrevious = previous.prev(),
+				nextNext = next.next(),
 				animated,
-				info_min;
-			// center the main image
+				captionHtml;
 
+			// center the main image
 			gallery.jp_carousel( 'loadFullImage', current );
 
 			caption.hide();
 
-			if ( next.length == 0 && slides.length <= 2 )
+			if ( next.length == 0 && slides.length <= 2 ) {
 				$( '.jp-carousel-next-button' ).hide();
-			else
+			} else {
 				$( '.jp-carousel-next-button' ).show();
+			}
 
-			if ( previous.length == 0 && slides.length <= 2 )
+			if ( previous.length == 0 && slides.length <= 2 ) {
 				$( '.jp-carousel-previous-button' ).hide();
-			else
+			} else {
 				$( '.jp-carousel-previous-button' ).show();
+			}
 
-			method = 'css';
 			animated = current
-				.add(previous)
-				.add(previous_previous)
-				.add(next)
-				.add(next_next)
-				.jp_carousel('loadSlide');
+				.add( previous )
+				.add( previousPrevious )
+				.add( next )
+				.add( nextNext )
+				.jp_carousel( 'loadSlide' );
+
 			// slide the whole view to the x we want
-			slides.not(animated).hide();
+			slides.not( animated ).hide();
 
-			gallery.jp_carousel('updateSlidePositions', animate);
+			gallery.jp_carousel( 'updateSlidePositions', animate );
 
-			gallery.jp_carousel('resetButtons', current);
-			container.trigger('jp_carousel.selectSlide', [current]);
+			gallery.jp_carousel( 'resetButtons', current );
+			container.trigger( 'jp_carousel.selectSlide', [current] );
 
-			gallery.jp_carousel( 'getTitleDesc', { title: current.data( 'title' ), desc: current.data( 'desc' ) } );
+			gallery.jp_carousel( 'getTitleDesc', {
+				title: current.data( 'title' ),
+				desc: current.data( 'desc' )
+			});
 
 			// Lazy-load the Likes iframe for the current, next, and previous slides.
 			gallery.jp_carousel( 'loadLikes', attachmentId );
-			gallery.jp_carousel( 'updateLikesWidgetVisibility', attachmentId )
+			gallery.jp_carousel( 'updateLikesWidgetVisibility', attachmentId );
 
-			if ( next.length > 0 )
+			if ( next.length > 0 ) {
 				gallery.jp_carousel( 'loadLikes', next.data( 'attachment-id' ) );
+			}
 
-			if ( previous.length > 0 )
+			if ( previous.length > 0 ) {
 				gallery.jp_carousel( 'loadLikes', previous.data( 'attachment-id' ) );
+			}
 
 			var imageMeta = current.data( 'image-meta' );
 			gallery.jp_carousel( 'updateExif', imageMeta );
 			gallery.jp_carousel( 'updateFullSizeLink', current );
 			gallery.jp_carousel( 'updateMap', imageMeta );
 			gallery.jp_carousel( 'testCommentsOpened', current.data( 'comments-opened' ) );
-			gallery.jp_carousel( 'getComments', { 'attachment_id': attachmentId, 'offset': 0, 'clear': true } );
-			$('#jp-carousel-comment-post-results').slideUp();
+			gallery.jp_carousel( 'getComments', {
+				'attachment_id': attachmentId,
+				'offset': 0,
+				'clear': true
+			});
+			$( '#jp-carousel-comment-post-results' ).slideUp();
 
-			// $('<div />').text(sometext).html() is a trick to go to HTML to plain text (including HTML entities decode, etc)
-			if ( current.data('caption') ) {
-				if ( $('<div />').text(current.data('caption')).html() == $('<div />').text(current.data('title')).html() )
-					$('.jp-carousel-titleanddesc-title').fadeOut('fast').empty();
-				if ( $('<div />').text(current.data('caption')).html() == $('<div />').text(current.data('desc')).html() )
-					$('.jp-carousel-titleanddesc-desc').fadeOut('fast').empty();
-				caption.html( current.data('caption') ).fadeIn('slow');
+			// $('<div />').text(sometext).html() is a trick to go to HTML to plain
+			// text (including HTML entities decode, etc)
+			if ( current.data( 'caption' ) ) {
+				captionHtml = $( '<div />' ).text( current.data( 'caption' ) ).html();
+
+				if ( captionHtml == $( '<div />' ).text( current.data( 'title' ) ).html() ) {
+					$( '.jp-carousel-titleanddesc-title' ).fadeOut( 'fast' ).empty();
+				}
+
+				if ( captionHtml == $( '<div />' ).text( current.data( 'desc' ) ).html() ) {
+					$( '.jp-carousel-titleanddesc-desc' ).fadeOut( 'fast' ).empty();
+				}
+
+				caption.html( current.data( 'caption' ) ).fadeIn( 'slow' );
 			} else {
-				caption.fadeOut('fast').empty();
+				caption.fadeOut( 'fast' ).empty();
 			}
 
 
 			// Load the images for the next and previous slides.
-			$( next ).add( previous ).each( function () {
+			$( next ).add( previous ).each(function() {
 				gallery.jp_carousel( 'loadFullImage', $( this ) );
-			} );
+			});
 
 			window.location.hash = last_known_location_hash = '#jp-carousel-' + attachmentId;
 		},
