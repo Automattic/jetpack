@@ -303,6 +303,6 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				break; // only need to load and show x number of likes
 		}
 
-		return $posts;
+		return apply_filters( 'jetpack_widget_get_top_posts', $posts, $post_ids, $count );
 	}
 }

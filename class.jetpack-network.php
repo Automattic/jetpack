@@ -807,8 +807,11 @@ class Jetpack_Network {
 		if (isset($args['deleted']))
 			$query .= $wpdb->prepare("AND deleted = %s ", $args['deleted']);
 
+		if( isset( $args['exclude_blogs'] ) ) 
+			$query .= "AND blog_id NOT IN (" . implode( ',', $args['exclude_blogs'] ) . ")";
+		
 		$key = 'wp_get_sites:' . md5($query);
-
+		
 		if (!$site_results = wp_cache_get($key, 'site-id-cache')) {
 			$site_results = (array) $wpdb->get_results($query);
 			wp_cache_set($key, $site_results, 'site-id-cache');
