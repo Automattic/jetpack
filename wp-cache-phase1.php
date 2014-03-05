@@ -234,7 +234,10 @@ function wp_cache_serve_cache_file() {
 					$request = apache_request_headers();
 					$remote_mod_time = $request[ 'If-Modified-Since' ];
 				} else {
-					$remote_mod_time = $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ];
+					if ( isset( $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] ) )
+						$remote_mod_time = $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ];
+					else
+						$remote_mod_time = 0;
 				}
 				$local_mod_time = gmdate("D, d M Y H:i:s",filemtime( $file )).' GMT';
 				if ( $remote_mod_time == $local_mod_time ) {
