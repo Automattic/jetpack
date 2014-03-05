@@ -46,7 +46,7 @@ abstract class Sharing_Source {
 		return false;
 	}
 
-	public function get_link( $url, $text, $title = '', $query = '', $id = false ) {
+	public function get_link( $url, $text, $title, $query = '', $id = false ) {
 		$klasses = array( 'share-'.$this->get_class(), 'sd-button' );
 
 		if ( $this->button_style == 'icon' || $this->button_style == 'icon-text' )
@@ -69,10 +69,11 @@ abstract class Sharing_Source {
 			$klasses[] = 'no-icon';
 
 		return sprintf(
-			'<a rel="nofollow" class="%s" href="%s"%s %s><span>%s</span></a>',
+			'<a rel="nofollow" class="%s" href="%s"%s title="%s"%s><span>%s</span></a>',
 			implode( ' ', $klasses ),
 			$url,
 			( $this->open_links == 'new' ) ? ' target="_blank"' : '',
+			$title,
 			( $id ? ' id="' . esc_attr( $id ) . '"' : '' ),
 			$text
 		);
@@ -109,8 +110,9 @@ abstract class Sharing_Source {
 			$klasses[] = 'no-icon';
 
 		$link = sprintf(
-			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;"><span>%s</span></a>',
+			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;" title="%s"><span>%s</span></a>',
 			implode( ' ', $klasses ),
+			$this->get_name(),
 			$text
 		);
 		?>
@@ -1058,8 +1060,9 @@ class Share_Custom extends Sharing_Advanced_Source {
 			$klasses[] = 'no-icon';
 
 		$link = sprintf(
-			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;"><span style="background-image:url(%s) !important;background-position:left center;background-repeat:no-repeat;">%s</span></a>',
+			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;" title="%s"><span style="background-image:url(%s) !important;background-position:left center;background-repeat:no-repeat;">%s</span></a>',
 			implode( ' ', $klasses ),
+			$this->get_name(),
 			esc_url( $opts['icon'] ),
 			$text
 		);
