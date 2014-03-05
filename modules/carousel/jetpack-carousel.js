@@ -52,9 +52,8 @@ jQuery(document).ready(function($) {
 			gallery
 				.jp_carousel('slides')
 				.jp_carousel('fitSlide', true);
-			gallery
-				.jp_carousel('fitInfo', true)
-				.jp_carousel('fitMeta', true);
+			gallery.jp_carousel('updateSlidePositions', true);
+			gallery.jp_carousel('fitMeta', true);
 		}, 200);
 	};
 
