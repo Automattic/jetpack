@@ -3,7 +3,7 @@ jQuery(document).ready(function($) {
 
 	// gallery faded layer and container elements
 	var overlay, comments, gallery, container, nextButton, previousButton, info, title, transitionBegin,
-	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval,
+	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval, lastSelectedSlide,
 	screenPadding = 110, originalOverflow = $('body').css('overflow'), originalHOverflow = $('html').css('overflow'), proportion = 85,
 	last_known_location_hash = '';
 
@@ -553,19 +553,50 @@ jQuery(document).ready(function($) {
 			});
 		},
 
+		updateSlidePositions : function(animate) {
+			var current = this.jp_carousel( 'selectedSlide' ),
+				galleryWidth = gallery.width(),
+				currentWidth = current.width(),
+				previous = gallery.jp_carousel( 'prevSlide' ),
+				next = gallery.jp_carousel( 'nextSlide' ),
+				previous_previous = previous.prev(),
+				next_next = next.next(),
+				left = Math.floor( ( galleryWidth - currentWidth ) * 0.5 );
+
+			current.jp_carousel( 'setSlidePosition', left ).show();
+
+			// minimum width
+			gallery.jp_carousel( 'fitInfo', animate );
+
+			// prep the slides
+			var direction = lastSelectedSlide.is( current.prevAll() ) ? 1 : -1;
+
+			if ( 1 == direction ) {
+				if ( ! next_next.is( previous ) )
+					next_next.jp_carousel( 'setSlidePosition', galleryWidth + next.width() ).show();
+
+				if ( ! previous_previous.is( next ) )
+					previous_previous.jp_carousel( 'setSlidePosition', -previous_previous.width() - currentWidth ).show();
+			}
+			else {
+				if ( ! next_next.is( previous ) )
+					next_next.jp_carousel( 'setSlidePosition', galleryWidth + currentWidth ).show();
+			}
+
+			previous.jp_carousel( 'setSlidePosition', Math.floor( -previous.width() + ( screenPadding * 0.75 ) ) ).show();
+			next.jp_carousel( 'setSlidePosition', Math.ceil( galleryWidth - ( screenPadding * 0.75 ) ) ).show();
+		},
+
 		selectSlide : function(slide, animate){
-			var last = this.find('.selected').removeClass('selected'),
-				slides = gallery.jp_carousel('slides').css({'position': 'fixed'}),
+			lastSelectedSlide = this.find('.selected').removeClass('selected');
+
+			var slides = gallery.jp_carousel('slides').css({'position': 'fixed'}),
 				current = $(slide).addClass('selected').css({'position': 'relative'}),
 				attachmentId = current.data( 'attachment-id' ),
 				previous = gallery.jp_carousel( 'prevSlide' ),
 				next = gallery.jp_carousel( 'nextSlide' ),
-				width = $(window).width(),
 				previous_previous = previous.prev(),
 				next_next = next.next(),
-				galleryWidth = gallery.width(),
-				currentWidth = current.width(),
-				left = Math.floor( ( galleryWidth - currentWidth ) * 0.5 ),
 				info_left,
 				method,
 				animated,
@@ -596,28 +627,7 @@ jQuery(document).ready(function($) {
 			// slide the whole view to the x we want
 			slides.not(animated).hide();
 
-			current.jp_carousel('setSlidePosition', left).show();
-
-			// minimum width
-			gallery.jp_carousel('fitInfo', animate);
-
-			// prep the slides
-			var direction = last.is(current.prevAll()) ? 1 : -1;
-
-			if ( 1 == direction ) {
-				if ( ! next_next.is( previous ) )
-					next_next.jp_carousel('setSlidePosition', galleryWidth + next.width()).show();
-
-				if ( ! previous_previous.is( next ) )
-					previous_previous.jp_carousel('setSlidePosition', -previous_previous.width() - currentWidth ).show();
-			}
-			else {
-				if ( ! next_next.is( previous ) )
-					next_next.jp_carousel('setSlidePosition', galleryWidth + currentWidth ).show();
-			}
-
-			previous.jp_carousel('setSlidePosition', Math.floor( -previous.width() + (screenPadding * 0.75 ) ) ).show();
-			next.jp_carousel('setSlidePosition', Math.ceil( galleryWidth - (screenPadding * 0.75 ) ) ).show();
+			gallery.jp_carousel('updateSlidePositions', animate);
 
 			gallery.jp_carousel('resetButtons', current);
 			container.trigger('jp_carousel.selectSlide', [current]);
