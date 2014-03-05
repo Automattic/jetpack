@@ -69,42 +69,55 @@ class Jetpack {
 	 */
 	private $conflicting_plugins = array(
 		'comments'          => array(
-			'Intense Debate'	  => 'intensedebate/intensedebate.php',
-			'Disqus'		  => 'disqus-comment-system/disqus.php',
+			'Intense Debate'                 => 'intensedebate/intensedebate.php',
+			'Disqus'                         => 'disqus-comment-system/disqus.php',
+			'Livefyre'                       => 'livefyre-comments/livefyre.php',
+			'Comments Evolved for WordPress' => 'gplus-comments/comments-evolved.php',
+			'Google+ Comments'               => 'google-plus-comments/google-plus-comments.php',
 		),
 		'contact-form'      => array(
-			'Contact Form 7'	   => 'contact-form-7/wp-contact-form-7.php',
-			'Gravity Forms'		   => 'gravityforms/gravityforms.php',
-			'Contact Form Plugin'	   => 'contact-form-plugin/contact_form.php',
-			'Easy Contact Forms'	   => 'easy-contact-forms/easy-contact-forms.php',
-			'Fast Secure Contact Form' => 'si-contact-form/si-contact-form.php',
+			'Contact Form 7'                 => 'contact-form-7/wp-contact-form-7.php',
+			'Gravity Forms'                  => 'gravityforms/gravityforms.php',
+			'Contact Form Plugin'            => 'contact-form-plugin/contact_form.php',
+			'Easy Contact Forms'             => 'easy-contact-forms/easy-contact-forms.php',
+			'Fast Secure Contact Form'       => 'si-contact-form/si-contact-form.php',
 		),
 		'gplus-authorship'  => array(
-			'WP SEO by Yoast'	  => 'wordpress-seo/wp-seo.php',
+			'WP SEO by Yoast'                => 'wordpress-seo/wp-seo.php',
 		),
 		'minileven'         => array(
-			'WPtouch'		  => 'wptouch/wptouch.php',
+			'WPtouch'                        => 'wptouch/wptouch.php',
 		),
 		'latex'		    => array(
-			'LaTeX for WordPress'	  => 'latex/latex.php',
-			'Youngwhans Simple Latex' => 'youngwhans-simple-latex/yw-latex.php',
-			'Easy WP LaTeX'		  => 'easy-wp-latex-lite/easy-wp-latex-lite.php',
-			'MathJax-LaTeX'		  => 'mathjax-latex/mathjax-latex.php',
-			'Enable Latex'		  => 'enable-latex/enable-latex.php',
-			'WP QuickLaTeX'		  => 'wp-quicklatex/wp-quicklatex.php',
-		),
-		'sharedaddy'        => array(
-			'AddThis'		  => 'addthis/addthis_social_widget.php',
-			'Add To Any'		  => 'add-to-any/add-to-any.php',
-			'ShareThis'		  => 'share-this/sharethis.php',
-			'Shareaholic'		  => 'shareaholic/shareaholic.php',
-		),
-		'widget-visibility' => array(
-			'Widget Logic'		  => 'widget-logic/widget_logic.php',
-			'Dynamic Widgets'	  => 'dynamic-widgets/dynamic-widgets.php',
+			'LaTeX for WordPress'            => 'latex/latex.php',
+			'Youngwhans Simple Latex'        => 'youngwhans-simple-latex/yw-latex.php',
+			'Easy WP LaTeX'                  => 'easy-wp-latex-lite/easy-wp-latex-lite.php',
+			'MathJax-LaTeX'                  => 'mathjax-latex/mathjax-latex.php',
+			'Enable Latex'                   => 'enable-latex/enable-latex.php',
+			'WP QuickLaTeX'                  => 'wp-quicklatex/wp-quicklatex.php',
 		),
 		'random-redirect' => array(
-			'Random Redirect 2'	  => 'random-redirect-2/random-redirect.php',
+			'Random Redirect 2'              => 'random-redirect-2/random-redirect.php',
+		),
+		'related-posts'     => array(
+			'YARPP'                          => 'yet-another-related-posts-plugin/yarpp.php',
+			'WordPress Related Posts'        => 'wordpress-23-related-posts-plugin/wp_related_posts.php',
+			'nrelate Related Content'        => 'nrelate-related-content/nrelate-related.php',
+			'Contextual Related Posts'       => 'contextual-related-posts/contextual-related-posts.php',
+			'Related Posts for WordPress'    => 'microkids-related-posts/microkids-related-posts.php',
+			'outbrain'                       => 'outbrain/outbrain.php',
+			'Shareaholic'                    => 'shareaholic/shareaholic.php',
+			'Sexybookmarks'                  => 'sexybookmarks/shareaholic.php',
+		),
+		'sharedaddy'        => array(
+			'AddThis'                        => 'addthis/addthis_social_widget.php',
+			'Add To Any'                     => 'add-to-any/add-to-any.php',
+			'ShareThis'                      => 'share-this/sharethis.php',
+			'Shareaholic'                    => 'shareaholic/shareaholic.php',
+		),
+		'widget-visibility' => array(
+			'Widget Logic'                   => 'widget-logic/widget_logic.php',
+			'Dynamic Widgets'                => 'dynamic-widgets/dynamic-widgets.php',
 		),
 	);
 
@@ -407,7 +420,9 @@ class Jetpack {
 	 * This improves the resolution of gravatars and wordpress.com uploads on hi-res and zoomed browsers.
 	 */
 	function devicepx() {
-		wp_enqueue_script( 'devicepx', ( is_ssl() ? 'https' : 'http' ) . '://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
+		if ( Jetpack::is_active() ) {
+			wp_enqueue_script( 'devicepx', set_url_scheme( 'http://s0.wp.com/wp-content/js/devicepx-jetpack.js' ), array(), gmdate( 'oW' ), true );
+		}
 	}
 
 	/*
@@ -670,6 +685,7 @@ class Jetpack {
 			'wp-caregiver/wp-caregiver.php',							// WP Caregiver
 			'facebook-revised-open-graph-meta-tag/index.php',					// Facebook Revised Open Graph Meta Tag
 			'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',	// Fedmich's Facebook Open Graph Meta
+			'facebook-meta-tags/facebook-metatags.php',						// Facebook Meta Tags
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
@@ -2779,43 +2795,6 @@ p {
 			    $url = add_query_arg( 'is_multisite', network_admin_url(
 			    'admin.php?page=jetpack-settings' ), $url );
 			}
-		} else if( is_network_admin() ) {
-/***********
-This does not actually work. 
-Need to add a $_GET var to the above if is_network_admin()
-Then in check below (not this one) add the is_network=network_admin
-************/
-			$role = $this->translate_current_user_to_role();
-			$signed_role = $this->sign_role( $role );
-
-			$user = wp_get_current_user();
-
-			$redirect = $redirect ? esc_url_raw( $redirect ) : '';
-
-			$args = urlencode_deep(
-				array(
-					'response_type' => 'code',
-					'client_id'     => Jetpack_Options::get_option( 'id' ),
-					'redirect_uri'  => add_query_arg(
-						array(
-							'action'   => 'authorize',
-							'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$redirect}" ),
-							'redirect' => $redirect ? urlencode( $redirect ) : false,
-						),
-						menu_page_url( 'jetpack', false )
-					),
-					'state'         => $user->ID,
-					'scope'         => $signed_role,
-					'user_email'    => $user->user_email,
-					'user_login'    => $user->user_login,
-					'is_active'     => Jetpack::is_active(),
-					'is_network'	=> 1,
-			        )
-			);
-
-			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
-		
-		
 		} else {
 			$role = $this->translate_current_user_to_role();
 			$signed_role = $this->sign_role( $role );
@@ -2823,6 +2802,10 @@ Then in check below (not this one) add the is_network=network_admin
 			$user = wp_get_current_user();
 
 			$redirect = $redirect ? esc_url_raw( $redirect ) : '';
+
+			if( isset( $_REQUEST['is_multisite'] ) ) {
+				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
+			}
 
 			$args = urlencode_deep(
 				array(
@@ -2966,7 +2949,16 @@ Then in check below (not this one) add the is_network=network_admin
 					</div>
 				</div>
 
-				<?php elseif ( ! $is_user_connected ) : ?>
+				<?php else /* blog and user are connected */ : ?>
+					<?php /* TODO: if not master user, show user disconnect button? */ ?>
+				<?php endif; ?>
+			<?php endif; // ! Jetpack::is_development_mode() ?>
+
+
+
+
+
+			<?php if ( Jetpack::is_active() && !Jetpack::is_development_mode() && ! $is_user_connected ) : ?>
 
 				<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 					<div class="jetpack-wrap-container">
@@ -2981,10 +2973,10 @@ Then in check below (not this one) add the is_network=network_admin
 					</div>
 				</div>
 
-				<?php else /* blog and user are connected */ : ?>
-					<?php /* TODO: if not master user, show user disconnect button? */ ?>
-				<?php endif; ?>
-			<?php endif; // ! Jetpack::is_development_mode() ?>
+			<?php endif; ?>
+
+
+
 
 			<?php
 			if ( isset( $_GET['configure'] ) && Jetpack::is_module( $_GET['configure'] ) && current_user_can( 'manage_options' ) ) {
@@ -3604,6 +3596,7 @@ Then in check below (not this one) add the is_network=network_admin
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
+		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::init()->generate_secrets();
 
 		Jetpack_Options::update_option( 'register', $secrets[0] . ':' . $secrets[1].
@@ -3788,18 +3781,28 @@ Then in check below (not this one) add the is_network=network_admin
 
 		// This should always have gone through Jetpack_Signature::sign_request() first to check $timestamp an $nonce
 		$timestamp = (int) $timestamp;
-        $nonce       = esc_sql( $nonce );
+		$nonce     = esc_sql( $nonce );
 
 		// Raw query so we can avoid races: add_option will also update
 		$show_errors = $wpdb->show_errors( false );
-		$return = $wpdb->query(
-			$wpdb->prepare(
-				"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
-				"jetpack_nonce_{$timestamp}_{$nonce}",
-				time(),
-				'no'
-			)
+
+		$old_nonce = $wpdb->get_row(
+			$wpdb->prepare( "SELECT * FROM `$wpdb->options` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
 		);
+
+		if ( is_null( $old_nonce ) ) {
+			$return = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
+					"jetpack_nonce_{$timestamp}_{$nonce}",
+					time(),
+					'no'
+				)
+			);
+		} else {
+			$return = false;
+		}
+
 		$wpdb->show_errors( $show_errors );
 
 		$nonces_used_this_request["$timestamp:$nonce"] = $return;

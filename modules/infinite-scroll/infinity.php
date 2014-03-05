@@ -317,7 +317,7 @@ class The_Neverending_Home_Page {
 		add_filter( 'body_class', array( $this, 'body_class' ) );
 
 		// Add our scripts.
-		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '20131015', true );
+		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '20140125', true );
 
 		// Add our default styles.
 		wp_enqueue_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20120612' );
@@ -423,12 +423,12 @@ class The_Neverending_Home_Page {
 			if ( false == $sort_field )
 				return $where;
 
-			$last_post_date = $_GET['last_post_date'];
+			$last_post_date = $_REQUEST['last_post_date'];
 			// Sanitize timestamp
 			if ( empty( $last_post_date ) || !preg_match( '|\d{4}\-\d{2}\-\d{2}|', $last_post_date ) )
 				return $where;
 
-			$operator = 'ASC' == $_GET['query_args']['order'] ? '>' : '<';
+			$operator = 'ASC' == $_REQUEST['query_args']['order'] ? '>' : '<';
 
 			// Construct the date query using our timestamp
 			$clause = $wpdb->prepare( " AND {$wpdb->posts}.{$sort_field} {$operator} %s", $last_post_date );
@@ -543,8 +543,8 @@ class The_Neverending_Home_Page {
 		);
 
 		// Optional order param
-		if ( isset( $_GET['order'] ) ) {
-			$order = strtoupper( $_GET['order'] );
+		if ( isset( $_REQUEST['order'] ) ) {
+			$order = strtoupper( $_REQUEST['order'] );
 
 			if ( in_array( $order, array( 'ASC', 'DESC' ) ) )
 				$js_settings['order'] = $order;
@@ -594,8 +594,8 @@ class The_Neverending_Home_Page {
 
 			$path = user_trailingslashit( $path );
 		} else {
-			// Clean up raw $_GET input
-			$path = array_map( 'sanitize_text_field', $_GET );
+			// Clean up raw $_REQUEST input
+			$path = array_map( 'sanitize_text_field', $_REQUEST );
 			$path = array_filter( $path );
 
 			$path['paged'] = '%d';
@@ -656,7 +656,7 @@ class The_Neverending_Home_Page {
 			return $results;
 
 		// Parse and sanitize the script handles already output
-		$initial_scripts = isset( $_GET['scripts'] ) && is_array( $_GET['scripts'] ) ? array_map( 'sanitize_text_field', $_GET['scripts'] ) : false;
+		$initial_scripts = isset( $_REQUEST['scripts'] ) && is_array( $_REQUEST['scripts'] ) ? array_map( 'sanitize_text_field', $_REQUEST['scripts'] ) : false;
 
 		if ( is_array( $initial_scripts ) ) {
 			global $wp_scripts;
@@ -715,7 +715,7 @@ class The_Neverending_Home_Page {
 			unset( $results['scripts' ] );
 
 		// Parse and sanitize the style handles already output
-		$initial_styles = isset( $_GET['styles'] ) && is_array( $_GET['styles'] ) ? array_map( 'sanitize_text_field', $_GET['styles'] ) : false;
+		$initial_styles = isset( $_REQUEST['styles'] ) && is_array( $_REQUEST['styles'] ) ? array_map( 'sanitize_text_field', $_REQUEST['styles'] ) : false;
 
 		if ( is_array( $initial_styles ) ) {
 			global $wp_styles;
@@ -812,15 +812,15 @@ class The_Neverending_Home_Page {
 	 * @return string or null
 	 */
 	function query() {
-		if ( ! isset( $_GET['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
+		if ( ! isset( $_REQUEST['page'] ) || ! current_theme_supports( 'infinite-scroll' ) )
 			die;
 
-		$page = (int) $_GET['page'];
+		$page = (int) $_REQUEST['page'];
 
 		// Sanitize and set $previousday. Expected format: dd.mm.yy
-		if ( preg_match( '/^\d{2}\.\d{2}\.\d{2}$/', $_GET['currentday'] ) ) {
+		if ( preg_match( '/^\d{2}\.\d{2}\.\d{2}$/', $_REQUEST['currentday'] ) ) {
 			global $previousday;
-			$previousday = $_GET['currentday'];
+			$previousday = $_REQUEST['currentday'];
 		}
 
 		$sticky = get_option( 'sticky_posts' );
@@ -832,7 +832,7 @@ class The_Neverending_Home_Page {
 		if ( current_user_can( 'read_private_posts' ) )
 			array_push( $post_status, 'private' );
 
-		$order = in_array( $_GET['order'], array( 'ASC', 'DESC' ) ) ? $_GET['order'] : 'DESC';
+		$order = in_array( $_REQUEST['order'], array( 'ASC', 'DESC' ) ) ? $_REQUEST['order'] : 'DESC';
 
 		$query_args = array_merge( self::wp_query()->query_vars, array(
 			'paged'          => $page,
@@ -984,8 +984,8 @@ class The_Neverending_Home_Page {
 			'suppress_filters' => false,
 		) );
 
-		if ( is_array( $_GET[ 'query_args' ] ) ) {
-			foreach ( $_GET[ 'query_args' ] as $var => $value ) {
+		if ( is_array( $_REQUEST[ 'query_args' ] ) ) {
+			foreach ( $_REQUEST[ 'query_args' ] as $var => $value ) {
 				if ( in_array( $var, $allowed_vars ) && ! empty( $value ) )
 					$query_args[ $var ] = $value;
 			}

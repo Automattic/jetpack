@@ -1,0 +1,10 @@
+<wpml-config>
+	<admin-texts>
+		<key name="sharing-options">
+			<key name="global">
+				<key name="sharing_label" />
+			</key>
+		</key>
+		<key name="highlander_comment_form_prompt" />
+	</admin-texts>
+</wpml-config>

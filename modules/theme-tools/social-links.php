@@ -58,7 +58,8 @@ class Social_Links {
 				$theme_support[0]
 			);
 
-			add_action( 'customize_register', array( $this, 'customize_register' ) );
+			add_action( 'admin_init',                      array( $this, 'check_links' ), 20 );
+			add_action( 'customize_register',              array( $this, 'customize_register' ) );
 			add_filter( 'sanitize_option_jetpack_options', array( $this, 'sanitize_link' ) );
 		}
 
@@ -68,6 +69,21 @@ class Social_Links {
 		foreach ( $theme_support[0] as $service ) {
 			add_filter( "pre_option_jetpack-$service", array( $this, 'get_social_link_filter' ) ); // get_option( 'jetpack-service' );
 			add_filter( "theme_mod_jetpack-$service",  array( $this, 'get_social_link_filter' ) ); // get_theme_mod( 'jetpack-service' );
+		}
+	}
+
+	/**
+	 * Compares the currently saved links with the connected services and removes
+	 * links from services that are no longer connected.
+	 *
+	 * @return void
+	 */
+	function check_links() {
+		$active_links = array_intersect_key( $this->links, array_flip( $this->services ) );
+
+		if ( $active_links !== $this->links ) {
+			$this->links = $active_links;
+			Jetpack_Options::update_option( 'social_links', $active_links );
 		}
 	}
 

@@ -105,6 +105,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		if ( isset( $posts_info->error ) && 'jetpack_error' == $posts_info->error ) {
 			echo '<p>' . __( 'We cannot display posts for this blog.', 'jetpack' ) . '</p>';
+			echo '</div><!-- .jetpack-display-remote-posts -->';
 			echo $args['after_widget'];
 			return;
 		}
