@@ -87,7 +87,7 @@
 
 				html += '<div class="' + classes + '" data-post-id="' + post.id + '" data-post-format="' + post.format + '">';
 				if ( '' != post.img.src )
-					html += anchor[0] + '<img src="' + post.img.src + '" width="' + post.img.width + '" alt="' + post.title + '" />' + anchor[1];
+					html += anchor[0] + '<img class="jp-relatedposts-post-img" src="' + post.img.src + '" width="' + post.img.width + '" alt="' + post.title + '" />' + anchor[1];
 				html += '<h4 class="jp-relatedposts-post-title">' + anchor[0] + post.title + anchor[1] + '</h4>';
 				html += '<p class="jp-relatedposts-post-excerpt">' + post.excerpt + '</p>';
 				html += '<p class="jp-relatedposts-post-context">' + post.context + '</p>';

@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20140305';
+	const VERSION = '20140305.1';
 
 	/**
 	 * Creates and returns a static instance of Jetpack_RelatedPosts.
@@ -598,7 +598,7 @@ EOT;
 	 *
 	 * @param string $post_excerpt
 	 * @param string $post_content
-	 * @uses strip_shortcodes, wp_trim_words
+	 * @uses strip_shortcodes, wp_strip_all_tags, wp_trim_words
 	 * @return string
 	 */
 	protected function _get_excerpt( $post_excerpt, $post_content ) {
@@ -607,7 +607,7 @@ EOT;
 		else
 			$excerpt = $post_excerpt;
 
-		return wp_trim_words( strip_shortcodes( $excerpt ), 30 );
+		return wp_trim_words( wp_strip_all_tags( strip_shortcodes( $excerpt ) ), 30 );
 	}
 
 	/**
