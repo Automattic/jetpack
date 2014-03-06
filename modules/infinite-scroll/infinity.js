@@ -398,9 +398,23 @@ Scroller.prototype.determineURL = function () {
 
     $.each(setsHidden, function() {
 		var $set = $('#' + this.id);
-		if( $set.hasClass('is--replaced') ) {
+		if( $set.hasClass('is--replaced') || $set.hasClass('is--ignored') ) {
 			return;
 		}
+
+		// Check the node for <video>, <audio>, <object>, and <iframe> elements. If any
+		// are present, mark the page to be ignored.
+		// We really shouldn't yank these elements from the page, as they may contain
+		// playing media.
+		//
+		// We use the is--ignored class as a shortcut to avoid having to look at all
+		// the elements in the page more than once.
+
+		if ( $set.find('video,audio,object,iframe') ) {
+			$set.addClass('is--ignored');
+			return;
+		}
+
 		var kids = $set[0].childNodes,
 		    fragment = self.pageCache[this.id] = document.createDocumentFragment();
 
