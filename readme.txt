@@ -86,6 +86,10 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 2.9.1 =
+* Bugfix: After the Deadline: Fix a Javascript glitch that could prevent publishing of posts.
+* Bugfix: SSO: Disable the implementation of an option that had been removed before release.  This would have only been an issue if a site administrator had enabled the module during an early beta of 2.9.
+
 = 2.9 =
 * ???
 
