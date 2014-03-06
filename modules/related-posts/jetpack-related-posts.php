@@ -808,7 +808,7 @@ EOT;
 			);
 		}
 
-		return '';
+		return __( 'Similar post', 'jetpack' );
 	}
 
 	/**
