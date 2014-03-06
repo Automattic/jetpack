@@ -197,10 +197,6 @@ var WPCOMSharing = {
 			
 		});
 		
-		$( '.sharedaddy .inner' ).click(function(event) {
-		    event.stopPropagation();
-		});
-
 		// Add click functionality
 		$( '.sharedaddy ul' ).each( function( item ) {
 
