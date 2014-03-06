@@ -168,7 +168,7 @@ div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-no
 @media only screen and (max-width: 320px) {
 
 	div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post {
-		width: auto;
+		width: 100%;
 		clear: both;
 		margin: 0 0 1em;
 	}
