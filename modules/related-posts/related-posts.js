@@ -109,6 +109,10 @@
 		},
 
 		cleanupTrackedUrl: function() {
+			if ( 'function' != typeof history.replaceState ) {
+				return;
+			}
+
 			var cleaned_search = document.location.search.replace( /\brelatedposts_[a-z]+=[0-9]*&?\b/gi, '' );
 			if ( '?' == cleaned_search ) {
 				cleaned_search = '';
