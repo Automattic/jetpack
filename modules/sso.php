@@ -28,7 +28,7 @@ class Jetpack_SSO {
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
 
-		if( $this->should_hide_login_form() && apply_filters( 'jetpack_sso_display_disclaimer', true ) ) {
+		if ( $this->should_hide_login_form() && apply_filters( 'jetpack_sso_display_disclaimer', true ) ) {
 			add_action( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
 		}
 	}
@@ -318,19 +318,16 @@ class Jetpack_SSO {
 
 		add_action( 'login_footer',   array( $this, 'login_form' ) );
 		add_action( 'login_footer', array( $this, 'login_footer' ) );
-
+/*
 		if( get_option( 'jetpack_sso_remove_login_form' ) ) {
-			/*
-	 	 	 * Check to see if the user is attempting to login via the default login form.
-	 	 	 * If so we need to deny it and forward elsewhere.
-	 	 	 **/
-			if( isset( $_REQUEST['wp-submit'] ) && 'Log In' == $_REQUEST['wp-submit']
-	  	  	  ) {
+			// Check to see if the user is attempting to login via the default login form.
+			// If so we need to deny it and forward elsewhere.
+			if( isset( $_REQUEST['wp-submit'] ) && 'Log In' == $_REQUEST['wp-submit'] ) {
 				wp_die( 'Login not permitted by this method. ');
 			}
 			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 		}
-
+*/
 		wp_enqueue_script( 'jquery' );
 		wp_enqueue_style( 'genericons' );
 
@@ -358,6 +355,7 @@ class Jetpack_SSO {
 	 * @return bool
 	 **/
 	private function should_hide_login_form() {
+		return false; /* Until this is implemented properly */
 		return apply_filters( 'jetpack_remove_login_form', get_option( 'jetpack_sso_remove_login_form' ) );
 	}
 
@@ -379,47 +377,38 @@ class Jetpack_SSO {
 				padding-bottom: 26px;
 			}
 			.jetpack-sso-wrap { 
-				<?php 
-				if( $hide_login_form ) {
-				?>
+				<?php if ( $hide_login_form ) : ?>
 					text-align: center;
-				<?php } else {
-				?>
+				<?php else : ?>
 					float: right;
-				<?php } ?>
-				margin:1em 0 0;
+				<?php endif; ?>
+				margin: 1em 0 0;
 				clear: right;
 				display: block;
 			}
 
-			<?php if( $hide_login_form ) { ?>
+			<?php if ( $hide_login_form ) : ?>
 			.forced-sso .jetpack-sso.button {
 				font-size: 16px;
-    			line-height: 27px;
-    			height: 37px;
-    			padding: 5px 12px 6px 47px;
+				line-height: 27px;
+				height: 37px;
+				padding: 5px 12px 6px 47px;
 			}
 			.forced-sso .jetpack-sso.button:before {
-    			font-size: 28px !important;
-    			height: 28px;
-    			padding: 5px 5px 4px;
-    			width: 28px;
+				font-size: 28px !important;
+				height: 28px;
+				padding: 5px 5px 4px;
+				width: 28px;
 			}
-
-			<?php } ?>
+			<?php endif; ?>
 		</style>
 		<script>
 			jQuery(document).ready(function($){
-				<?php
-				if( $hide_login_form ) {
-					echo "jQuery( '#loginform' ).empty();";
-				}
-				?>
-			
+			<?php if ( $hide_login_form ) : ?>
+				$( '#loginform' ).empty();
+			<?php endif; ?>
 				$( '#loginform' ).append( $( '.jetpack-sso-wrap' ) );
 			});
-
-			
 		</script>
 		<?php
 	}
