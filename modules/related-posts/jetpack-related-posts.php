@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20140305.1';
+	const VERSION = '20140306';
 
 	/**
 	 * Creates and returns a static instance of Jetpack_RelatedPosts.
