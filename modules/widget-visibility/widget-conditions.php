@@ -139,6 +139,22 @@ class Jetpack_Widget_Conditions {
 				
 				}
 			break;
+			case 'format':
+				// Make sure the current theme supports post format
+				if ( current_theme_supports( 'post-formats' ) ) {
+					?>
+					<option value="" <?php selected( '', $minor ); ?>><?php _e( 'All Post Formats', 'jetpack' ); ?></option>
+					<?php
+					global $_wp_theme_features;
+					$post_formats = $_wp_theme_features['post-formats'][0];
+
+					foreach ( $post_formats as $post_format ) {
+						?>
+						<option value="<?php echo esc_attr( $post_format ); ?>" <?php selected( $post_format, $minor ); ?>><?php echo esc_html( get_post_format_string( $post_format ) ); ?></option>
+						<?php
+					}
+				}
+			break;
 		}
 	}
 
@@ -193,6 +209,7 @@ class Jetpack_Widget_Conditions {
 									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
 									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
 									<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
+									<option value="format" <?php selected( "format", $rule['major'] ); ?>><?php echo esc_html_e( 'Post Format', 'jetpack' ); ?></option>
 								</select>
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
 								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
@@ -417,6 +434,12 @@ class Jetpack_Widget_Conditions {
 					else if ( is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
 						$condition_result = true;
 					else if ( is_singular() && $terms & !is_wp_error( $terms ) )
+						$condition_result = true;
+				break;
+				case 'format':
+					if ( $rule['minor'] == '' )
+						$condition_result = true;
+					else if ( is_singular() && $rule['minor'] && has_post_format( $rule['minor'], $post->ID ) )
 						$condition_result = true;
 				break;
 			}
