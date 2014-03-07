@@ -1,0 +1,19 @@
+{
+  "name": "Jetpack",
+  "version": "3.0.0-alpha",
+  "description": "[Jetpack](http://jetpack.me/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](http://wordpress.com).",
+  "homepage": "http://jetpack.me",
+  "author": "Automattic",
+  "license": "GPLv2+",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Automattic/jetpack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Automattic/jetpack/issues"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.2",
+    "grunt-shell": "^0.6.4"
+  }
+}
