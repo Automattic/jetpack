@@ -23,7 +23,7 @@ class Jetpack_Twitter_Cards {
 		 * These tags apply to any page (home, archives, etc)
 		 */
 
-		$site_tag = apply_filters( 'jetpack_twitter_cards_site_tag', self::site_tag() ); 
+		$site_tag = apply_filters( 'jetpack_twitter_cards_site_tag', self::site_tag() );
 		$og_tags['twitter:site'] = self::sanitize_twitter_user ( $site_tag );
 
 		if ( ! is_singular() || ! empty( $og_tags['twitter:card'] ) )
@@ -152,14 +152,14 @@ class Jetpack_Twitter_Cards {
 		do_settings_fields( 'sharing', 'jetpack-twitter-cards-settings' );
 	}
 
-	static function site_tag() { 
+	static function site_tag() {
 		$site_tag = get_option( 'jetpack-twitter-cards-site-tag' );
 		if ( empty( $site_tag ) ) {
 			$site_tag = ( defined( 'IS_WPCOM' ) && IS_WPCOM )? '@wordpressdotcom' : '@jetpack';
 		}
 		return $site_tag;
-	} 
- 
+	}
+
 	static function settings_field() {
 		wp_nonce_field( 'jetpack-twitter-cards-settings', 'jetpack_twitter_cards_nonce', false ); ?>
 		<input type="text" id="jetpack-twitter-cards-site-tag" class="regular-text" name="jetpack-twitter-cards-site-tag" value="<?php echo esc_attr( get_option( 'jetpack-twitter-cards-site-tag' ) ); ?>" />
