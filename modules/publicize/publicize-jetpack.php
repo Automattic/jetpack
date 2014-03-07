@@ -647,7 +647,7 @@ class Publicize extends Publicize_Base {
 	}
 
 	/**
-	* If there's only one shared connection to Twitter set it as tiwitter:site tag.
+	* If there's only one shared connection to Twitter set it as twitter:site tag.
 	*/
 	function enhaced_twitter_cards_site_tag( $tag ) {
 		$custom_site_tag = get_option( 'jetpack-twitter-cards-site-tag' );
