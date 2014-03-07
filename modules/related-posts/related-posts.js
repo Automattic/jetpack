@@ -20,7 +20,7 @@
 			}
 
 			var args = 'relatedposts=1';
-			if ( undefined !== $( '#jp-relatedposts' ).data( 'exclude' ) ) {
+			if ( undefined != $( '#jp-relatedposts' ).data( 'exclude' ) ) {
 				args += '&relatedposts_exclude=' + $( '#jp-relatedposts' ).data( 'exclude' );
 			}
 
@@ -127,7 +127,7 @@
 		jprp.cleanupTrackedUrl();
 
 		$.getJSON( jprp.getEndpointURL(), function( response ) {
-			if ( 0 == response.items.length ) {
+			if ( 0 == response.items.length || 0 == $( '#jp-relatedposts' ).length ) {
 				return;
 			}
 

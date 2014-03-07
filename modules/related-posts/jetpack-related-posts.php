@@ -1,6 +1,7 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20140306';
+	const VERSION = '20140307';
+	const SHORTCODE = 'jetpack-related-posts';
 
 	/**
 	 * Creates and returns a static instance of Jetpack_RelatedPosts.
@@ -50,6 +51,7 @@ class Jetpack_RelatedPosts {
 	protected $_blog_charset;
 	protected $_convert_charset;
 	protected $_previous_post_id;
+	protected $_found_shortcode = false;
 
 	/**
 	 * Constructor for Jetpack_RelatedPosts.
@@ -98,10 +100,13 @@ class Jetpack_RelatedPosts {
 	 *
 	 * @global $_GET
 	 * @action wp
-	 * @uses get_the_ID
+	 * @uses add_shortcode, get_the_ID
 	 * @returns null
 	 */
 	public function action_frontend_init() {
+		// Add a shortcode handler that outputs nothing, this gets overridden later if we can display related content
+		add_shortcode( self::SHORTCODE, array( $this, 'get_target_html_unsupported' ) );
+
 		if ( ! $this->_enabled_for_request( $this->_blog_id ) )
 			return;
 
@@ -124,14 +129,41 @@ class Jetpack_RelatedPosts {
 	}
 
 	/**
-	 * Adds a target to the post content to load related posts into.
+	 * Adds a target to the post content to load related posts into if a shortcode for it did not already exist.
 	 *
 	 * @filter the_content
 	 * @param string $content
-	 * @uses esc_html__, apply_filters
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
+		if ( !$this->_found_shortcode ) {
+			$content .= "\n" . $this->get_target_html();
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Looks for our shortcode on the unfiltered content, this has to execute early.
+	 *
+	 * @filter the_content
+	 * @param string $content
+	 * @uses has_shortcode
+	 * @returns string
+	 */
+	public function test_for_shortcode( $content ) {
+		$this->_found_shortcode = has_shortcode( $content, self::SHORTCODE );
+
+		return $content;
+	}
+
+	/**
+	 * Returns the HTML for the related posts section.
+	 *
+	 * @uses esc_html__, apply_filters
+	 * @returns string
+	 */
+	public function get_target_html() {
 		$options = $this->get_options();
 
 		if ( $options['show_headline'] ) {
@@ -143,29 +175,28 @@ class Jetpack_RelatedPosts {
 			$headline = '';
 		}
 
+		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $headline );
+
 		if ( $this->_previous_post_id ) {
 			$exclude = "data-exclude='{$this->_previous_post_id}'";
 		} else {
 			$exclude = "";
 		}
 
-		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $headline );
-
-		if ( $options['show_above_content'] ) {
-			return <<<EOT
-<div id='jp-relatedposts' class='jp-relatedposts' $exclude>
-	$headline
-</div>
-$content
-EOT;
-		}
-
 		return <<<EOT
-$content
 <div id='jp-relatedposts' class='jp-relatedposts' $exclude>
 	$headline
 </div>
 EOT;
+	}
+
+	/**
+	 * Returns the HTML for the related posts section if it's running in the loop or other instances where we don't support related posts.
+	 *
+	 * @returns string
+	 */
+	public function get_target_html_unsupported() {
+		return "\n\n<!-- Jetpack Related Posts is not supported in this context. -->\n\n";
 	}
 
 	/**
@@ -187,8 +218,6 @@ EOT;
 				$this->_options = array();
 			if ( !isset( $this->_options['enabled'] ) )
 				$this->_options['enabled'] = true;
-			if ( !isset( $this->_options['show_above_content'] ) )
-				$this->_options['show_above_content'] = false;
 			if ( !isset( $this->_options['show_headline'] ) )
 				$this->_options['show_headline'] = true;
 			if ( !isset( $this->_options['show_thumbnails'] ) )
@@ -251,7 +280,7 @@ EOT;
 </ul>
 <div id='settings-reading-relatedposts-preview'>
 	%s
-	<div class='jp-relatedposts'></div>
+	<div id="jp-relatedposts" class="jp-relatedposts"></div>
 </div>
 EOT;
 		$ui_settings = sprintf(
@@ -910,11 +939,12 @@ EOT;
 	/**
 	 * Adds filters and enqueues assets.
 	 *
-	 * @uses self::_enqueue_assets, add_filter
+	 * @uses self::_enqueue_assets, self::_setup_shortcode, add_filter
 	 * @return null
 	 */
 	protected function _action_frontend_init_page() {
 		$this->_enqueue_assets( true, true );
+		$this->_setup_shortcode();
 
 		add_filter( 'the_content', array( $this, 'filter_add_target_to_dom' ), 40 );
 	}
@@ -930,6 +960,18 @@ EOT;
 			wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), array( 'jquery' ), self::VERSION );
 		if ( $style )
 			wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
+	}
+
+	/**
+	 * Sets up the shortcode processing.
+	 *
+	 * @uses add_filter, add_shortcode
+	 * @return null
+	 */
+	protected function _setup_shortcode() {
+		add_filter( 'the_content', array( $this, 'test_for_shortcode' ), 0 );
+
+		add_shortcode( self::SHORTCODE, array( $this, 'get_target_html' ) );
 	}
 
 	protected function _allow_feature_toggle() {
