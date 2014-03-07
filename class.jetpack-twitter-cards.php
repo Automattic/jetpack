@@ -155,7 +155,7 @@ class Jetpack_Twitter_Cards {
 	static function site_tag() {
 		$site_tag = get_option( 'jetpack-twitter-cards-site-tag' );
 		if ( empty( $site_tag ) ) {
-			$site_tag = ( defined( 'IS_WPCOM' ) && IS_WPCOM )? '@wordpressdotcom' : '@jetpack';
+			$site_tag = ( defined( 'IS_WPCOM' ) && IS_WPCOM )? 'wordpressdotcom' : 'jetpack';
 		}
 		return $site_tag;
 	}
