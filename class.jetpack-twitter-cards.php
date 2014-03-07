@@ -122,7 +122,7 @@ class Jetpack_Twitter_Cards {
 		} else if ( $img_count >= 4 ) {
 			// >= 4 images = gallery
 			$card_type = 'gallery';
-			$og_tags = self::witter_cards_gallery( $extract, $og_tags );
+			$og_tags = self::twitter_cards_gallery( $extract, $og_tags );
 		}
 
 		return array( $og_tags, $card_type );
