@@ -1,11 +1,8 @@
 <?php
 
-date_default_timezone_set( 'UTC' );
-
 $_inc = realpath( dirname( __FILE__ ) . '/../_inc/' ) . '/';
 $_disclaimer = "/*!
  * Do not modify this file directly.  It is compiled Sass code.
- * Last Modified: " . date( 'r' ) . "
  * @see: %s
  */
 ";
