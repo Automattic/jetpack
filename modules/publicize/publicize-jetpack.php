@@ -19,10 +19,10 @@ class Publicize extends Publicize_Base {
 		add_action( 'wp_ajax_publicize_twitter_options_save', array( $this, 'options_save_twitter' ) );
 		add_action( 'wp_ajax_publicize_linkedin_options_save', array( $this, 'options_save_linkedin' ) );
 		add_action( 'wp_ajax_publicize_path_options_save', array( $this, 'options_save_path' ) );
-		add_action( 'wp_ajax_publicize_google_plus_options_save', array( $this, 'options_save_google_plus' ) ); 
+		add_action( 'wp_ajax_publicize_google_plus_options_save', array( $this, 'options_save_google_plus' ) );
 
 		add_action( 'load-settings_page_sharing', array( $this, 'force_user_connection' ) );
-		
+
 		add_filter( 'publicize_checkbox_default', array( $this, 'publicize_checkbox_default' ), 10, 4 );
 
 		add_action( 'transition_post_status', array( $this, 'save_publicized' ), 10, 3 );
@@ -348,7 +348,7 @@ class Publicize extends Publicize_Base {
 		// Bail if all is well
 		if ( $connection_test_passed ) {
 			return true;
-		} 
+		}
 
 		// Set up refresh if the user can
 		$user_can_refresh = current_user_can( $this->GLOBAL_CAP );
@@ -635,15 +635,15 @@ class Publicize extends Publicize_Base {
 		$this->globalization();
 	}
 
-	/** 
-	* Already-published posts should not be Publicized by default. This filter sets checked to 
-	* false if a post has already been published. 
-	*/ 
-	function publicize_checkbox_default( $checked, $post_id, $name, $connection ) { 
-		if ( 'publish' == get_post_status( $post_id ) ) 
-			return false; 
+	/**
+	* Already-published posts should not be Publicized by default. This filter sets checked to
+	* false if a post has already been published.
+	*/
+	function publicize_checkbox_default( $checked, $post_id, $name, $connection ) {
+		if ( 'publish' == get_post_status( $post_id ) )
+			return false;
 
-		return $checked; 
+		return $checked;
 	}
 
 	/**
