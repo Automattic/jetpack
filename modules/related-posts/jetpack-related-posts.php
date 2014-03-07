@@ -303,11 +303,64 @@ EOT;
 	 */
 	public function print_setting_head() {
 		$related_headline = sprintf(
-			'<p class="jp-relatedposts-headline"><em>%s</em></p>',
+			'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
 			esc_html__( 'Related', 'jetpack' )
 		);
-		$related_with_images = '<div class="jp-relatedposts-items jp-relatedposts-items-visual"><p class="jp-relatedposts-post jp-relatedposts-post0 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="false"><a href="#" rel="nofollow"><img src="http://en.blog.files.wordpress.com/2012/08/1-wpios-ipad-3-1-viewsite.png?w=480&amp;h=270&amp;crop=1" width="480" alt="Big iPhone/iPad Update Now&nbsp;Available"></a><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">Big iPhone/iPad Update Now Available</a></span><span class="jp-relatedposts-post-excerpt">Updates</span><span class="jp-relatedposts-post-context">In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="false"><a href="#" rel="nofollow"><img src="http://en.blog.files.wordpress.com/2013/04/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=480&amp;h=270&amp;crop=1" width="480" alt="The WordPress for Android App Gets a Big&nbsp;Facelift"></a><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">The WordPress for Android App Gets a Big Facelift</a></span><span class="jp-relatedposts-post-excerpt">Updates</span><span class="jp-relatedposts-post-context">In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="false"><a href="#" rel="nofollow"><img src="http://en.blog.files.wordpress.com/2013/01/videopresswedding.jpg?w=480&amp;h=270&amp;crop=1" width="480" alt="Upgrade Focus: VideoPress For&nbsp;Weddings"></a><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">Upgrade Focus: VideoPress For Weddings</a></span><span class="jp-relatedposts-post-excerpt">Updates</span><span class="jp-relatedposts-post-context">In "Upgrade"</span></p></div>';
-		$related_without_images = '<div class="jp-relatedposts-items jp-relatedposts-items-minimal"><p class="jp-relatedposts-post jp-relatedposts-post0" data-post-id="0" data-post-format="false"><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">Big iPhone/iPad Update Now Available</a></span><span class="jp-relatedposts-post-context">In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1" data-post-id="0" data-post-format="false"><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">The WordPress for Android App Gets a Big Facelift</a></span><span class="jp-relatedposts-post-context">In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2" data-post-id="0" data-post-format="false"><span class="jp-relatedposts-post-title"><a href="#" rel="nofollow">Upgrade Focus: VideoPress For Weddings</a></span><span class="jp-relatedposts-post-context">In "Upgrade"</span></p></div>';
+
+		$href_params = 'class="jp-relatedposts-post-a" href="#jetpack_relatedposts" rel="nofollow" data-origin="0" data-position="0"';
+		$related_with_images = <<<EOT
+<div class="jp-relatedposts-items jp-relatedposts-items-visual">
+	<div class="jp-relatedposts-post jp-relatedposts-post0 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
+		<a $href_params>
+			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2012/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
+		</a>
+		<h4 class="jp-relatedposts-post-title">
+			<a $href_params>Big iPhone/iPad Update Now Available</a>
+		</h4>
+		<p class="jp-relatedposts-post-excerpt">Big iPhone/iPad Update Now Available</p>
+		<p class="jp-relatedposts-post-context">In "Mobile"</p>
+	</div>
+	<div class="jp-relatedposts-post jp-relatedposts-post1 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
+		<a $href_params>
+			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2013/04/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
+		</a>
+		<h4 class="jp-relatedposts-post-title">
+			<a $href_params>The WordPress for Android App Gets a Big Facelift</a>
+		</h4>
+		<p class="jp-relatedposts-post-excerpt">The WordPress for Android App Gets a Big Facelift</p>
+		<p class="jp-relatedposts-post-context">In "Mobile"</p>
+	</div>
+	<div class="jp-relatedposts-post jp-relatedposts-post2 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
+		<a $href_params>
+			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2013/01/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
+		</a>
+		<h4 class="jp-relatedposts-post-title">
+			<a $href_params>Upgrade Focus: VideoPress For Weddings</a>
+		</h4>
+		<p class="jp-relatedposts-post-excerpt">Upgrade Focus: VideoPress For Weddings</p>
+		<p class="jp-relatedposts-post-context">In "Upgrade"</p>
+	</div>
+</div>
+EOT;
+		$related_with_images = str_replace( "\n", '', $related_with_images );
+		$related_without_images = <<<EOT
+<div class="jp-relatedposts-items jp-relatedposts-items-minimal">
+	<p class="jp-relatedposts-post jp-relatedposts-post0" data-post-id="0" data-post-format="image">
+		<span class="jp-relatedposts-post-title"><a $href_params>Big iPhone/iPad Update Now Available</a></span>
+		<span class="jp-relatedposts-post-context">In "Mobile"</span>
+	</p>
+	<p class="jp-relatedposts-post jp-relatedposts-post1" data-post-id="0" data-post-format="image">
+		<span class="jp-relatedposts-post-title"><a $href_params>The WordPress for Android App Gets a Big Facelift</a></span>
+		<span class="jp-relatedposts-post-context">In "Mobile"</span>
+	</p>
+	<p class="jp-relatedposts-post jp-relatedposts-post2" data-post-id="0" data-post-format="image">
+		<span class="jp-relatedposts-post-title"><a $href_params>Upgrade Focus: VideoPress For Weddings</a></span>
+		<span class="jp-relatedposts-post-context">In "Upgrade"</span>
+	</p>
+</div>
+EOT;
+		$related_without_images = str_replace( "\n", '', $related_without_images );
+
 		if ( $this->_allow_feature_toggle() ) {
 			$extra_css = '#settings-reading-relatedposts-customize { padding-left:2em; margin-top:.5em; }';
 		} else {
