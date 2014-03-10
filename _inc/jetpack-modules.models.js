@@ -18,6 +18,7 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 					items     = this.get( 'raw' ),
 					m_filter  = $('.button-group.filter-active .active'),
 					m_sort    = $('.button-group.sort .active'),
+					m_search  = $('#srch-term-search-input').val().toLowerCase(),
 					groups;
 
 				// If a module filter has been selected, filter it!
@@ -30,6 +31,13 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 				if ( m_filter.data('filter-by') ) {
 					items = _.filter( items, function( item ) {
 						return item[ m_filter.data('filter-by') ] == m_filter.data('filter-value');
+					} );
+				}
+
+				if ( m_search.length ) {
+					items = _.filter( items, function( item ) {
+						var search_text = item.name + ' ' + item.description;
+						return ( -1 !== search_text.toLowerCase().indexOf( m_search ) );
 					} );
 				}
 

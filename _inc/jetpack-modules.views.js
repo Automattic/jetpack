@@ -22,7 +22,12 @@ window.jetpackModules.views = (function( window, $, _, Backbone, wp ) {
 				var url      = window.location.href.split("?")[0] + '?page=jetpack_modules',
 					m_tag    = $('.subsubsub .current'),
 					m_filter = $('.button-group.filter-active .active'),
-					m_sort   = $('.button-group.sort .active');
+					m_sort   = $('.button-group.sort .active'),
+					m_search = $('#srch-term-search-input').val();
+
+				if ( m_search.length ) {
+					url += '&s=' + encodeURIComponent( m_search );
+				}
 
 				if ( ! m_tag.hasClass('all') ) {
 					url += '&module_tag=' + encodeURIComponent( m_tag.data('title') );

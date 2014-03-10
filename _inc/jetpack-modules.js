@@ -2,10 +2,11 @@
 ( function( window, $, items, models, views, _ ) {
 	'use strict';
 
-	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $jp_frame, show_modal, hide_modal, set_modal_tab;
+	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $the_search, $jp_frame, show_modal, hide_modal, set_modal_tab;
 
 	$the_table   = $('.wp-list-table.jetpack-modules');
 	$the_filters = $('.navbar-form');
+	$the_search  = $('#srch-term-search-input');
 	$jp_frame    = $('.jp-frame');
 
 	modules = new models.Modules( {
@@ -79,6 +80,10 @@
 	$the_filters.on( 'click', '.button-group .button', { modules : modules }, function( event ) {
 		event.preventDefault();
 		$(this).addClass('active').siblings('.active').removeClass('active');
+		modules.trigger( 'change' );
+	} );
+
+	$the_search.on( 'keyup', function( event ) {
 		modules.trigger( 'change' );
 	} );
 
