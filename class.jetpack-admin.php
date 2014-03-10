@@ -285,7 +285,7 @@ class Jetpack_Admin {
 			<?php endif; ?>
 
 			<?php do_action( 'jetpack_notices' ) ?>
-			
+
 			<h1><?php esc_html_e( 'Jetpack supercharges your self-hosted WordPress site with the power of WordPress.com.', 'jetpack' ); ?></h1>
 
 			<?php if ( ! $is_connected || ! $is_user_connected ) : ?>
