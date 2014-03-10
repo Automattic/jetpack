@@ -116,7 +116,7 @@ class Jetpack_Widget_Conditions {
 				<option value=""><?php _e( 'All taxonomy pages', 'jetpack' ); ?></option>
 				<?php
 
-				$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
+				$taxonomies = get_taxonomies( array( '_builtin' => false, 'public' => apply_filters( 'jetpack_widget_visibility_show_public_taxonomies', true ) ), 'objects' );
 				usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
 
 				foreach ( $taxonomies as $taxonomy ) {
