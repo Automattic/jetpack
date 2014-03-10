@@ -1650,10 +1650,6 @@ html {
 
 }
 
-.search-bar {
-	max-width: 300px;
-}
-
 .table-bordered.jetpack-modules {
 	margin-bottom: 0;
 }
@@ -1827,6 +1823,7 @@ html {
 	padding-top: 2px;
 	text-transform: uppercase;
 	letter-spacing: 1px;
+	clear: left;
 }
 
 .wrap .manage-right .bumper {
@@ -1843,6 +1840,7 @@ html {
 
 .wrap .manage-right .search-bar {
 	margin-bottom: 18px;
+	max-width: 300px;
 }
 
 .wrap .manage-right p.search-box {
@@ -1854,15 +1852,20 @@ html {
 
 .wrap .manage-right p.search-box input[type='search'] {
 	padding: 0 8px;
+	width: 90%;
+	line-height: initial;
 }
 
 @media (max-width: 782px) {
 	.wrap .manage-right p.search-box input[type='search'] {
 		float: left;
 		padding: 9px 8px;
-		width: auto;
 	}
 
+}
+
+.wrap .manage-right p.search-box input[type="submit"] {
+	display: none;
 }
 
 .wrap .manage-right .button-group .button {
