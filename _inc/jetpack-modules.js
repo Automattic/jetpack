@@ -4,9 +4,9 @@
 
 	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $jp_frame, show_modal, hide_modal, set_modal_tab;
 
-	$the_table = $('.wp-list-table.jetpack-modules');
+	$the_table   = $('.wp-list-table.jetpack-modules');
 	$the_filters = $('.navbar-form');
-	$jp_frame = $('.jp-frame');
+	$jp_frame    = $('.jp-frame');
 
 	modules = new models.Modules( {
 		items : items
