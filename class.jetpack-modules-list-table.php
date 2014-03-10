@@ -40,7 +40,12 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			true
 		);
 
-		wp_localize_script( 'jetpack-modules-list-table', 'jetpackModulesData', $this->all_items );
+		wp_localize_script( 'jetpack-modules-list-table', 'jetpackModulesData', array(
+			'modules' => $this->all_items,
+			'i18n'    => array(
+				'search_placeholder' => __( 'Search Modules…', 'jetpack' ),
+			),
+		) );
 
 		wp_enqueue_script( 'jetpack-modules-list-table' );
 		add_action( 'admin_footer', array( $this, 'js_templates' ), 9 );

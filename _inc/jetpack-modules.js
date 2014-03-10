@@ -1,5 +1,5 @@
 
-( function( window, $, items, models, views, _ ) {
+( function( window, $, items, models, views, i18n ) {
 	'use strict';
 
 	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $the_search, $jp_frame, show_modal, hide_modal, set_modal_tab;
@@ -87,4 +87,6 @@
 		modules.trigger( 'change' );
 	} );
 
-} ) ( this, jQuery, window.jetpackModulesData, this.jetpackModules.models, this.jetpackModules.views, _ );
+	$the_search.prop( 'placeholder', i18n.search_placeholder );
+
+} ) ( this, jQuery, window.jetpackModulesData.modules, this.jetpackModules.models, this.jetpackModules.views, window.jetpackModulesData.i18n );
