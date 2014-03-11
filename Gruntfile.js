@@ -11,18 +11,13 @@ module.exports = function(grunt) {
 		phplint: {
 			files: [
 				'*.php',
-				'3rd-party/*.php',
 				'_inc/*.php',
-				'_inc/lib/*.php',
-				'_inc/lib/*/*.php',
+				'_inc/**/*.php',
 				'modules/*.php',
-				'modules/*/*.php',
-				'modules/*/*/*.php',
-				'modules/*/*/*/*.php',
-				'modules/*/*/*/*/*.php',
-				'modules/*/*/*/*/*/*.php',
-				// A few php files in minileven go that deep
-				'views/*/*.php'
+				'modules/**/*.php',
+				'views/**/*.php',
+				'views/**/*.php',
+				'3rd-party/*.php'
 			]
 		}
 	};
