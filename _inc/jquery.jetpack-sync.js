@@ -21,6 +21,10 @@ jQuery( document ).ready( function($) {
 			data,
 			function( response ) {
 				var self = $( '.jetpack_sync_reindex_control' );
+
+				if ( 0 == self.length )
+					return;
+
 				var strings = self.data( 'strings' );
 				var status = strings[response.status]['status'];
 
