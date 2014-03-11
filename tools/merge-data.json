@@ -28,10 +28,20 @@
         "jetpack": "1847156",
         "hash": "b0e0188"
     },
+    "class.json-api-endpoints.php": {
+        "wpcom": 92567,
+        "jetpack": "aaf3bed",
+        "hash": "e41b5b3"
+    },
     "class.json-api.php": {
         "wpcom": 90550,
         "jetpack": "8e75c1a",
         "hash": "b83e68a"
+    },
+    "class.media-extractor.php": {
+        "wpcom": 85405,
+        "jetpack": "1c3aa85",
+        "hash": "a9547d6"
     },
     "class.media-summary.php": {
         "wpcom": 91750,
@@ -208,10 +218,25 @@
         "jetpack": "976c5a7",
         "hash": "0226688"
     },
+    "modules/carousel/images/carousel-sprite-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0",
+        "hash": "8116fee"
+    },
+    "modules/carousel/images/carousel-sprite.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0",
+        "hash": "470cd72"
+    },
     "modules/carousel/jetpack-carousel-ie8fix.css": {
         "wpcom": 60632,
         "jetpack": "9031bf5",
         "hash": "89b156d"
+    },
+    "modules/carousel/jetpack-carousel.css": {
+        "wpcom": 90674,
+        "jetpack": "261ba01",
+        "hash": "66d7489"
     },
     "modules/carousel/jetpack-carousel.js": {
         "wpcom": 87275,
@@ -222,6 +247,11 @@
         "wpcom": 87275,
         "jetpack": "8d654cb",
         "hash": "daed919"
+    },
+    "modules/carousel/rtl/jetpack-carousel-rtl.css": {
+        "wpcom": 90674,
+        "jetpack": "414bdcc",
+        "hash": "6680cdd"
     },
     "modules/carousel.php": {
         "wpcom": 86090,
@@ -257,6 +287,11 @@
         "wpcom": 86176,
         "jetpack": "f8054ee",
         "hash": "25daf42"
+    },
+    "modules/contact-form/grunion-contact-form.php": {
+        "wpcom": 87958,
+        "jetpack": "785386e",
+        "hash": "8e374dd"
     },
     "modules/contact-form/grunion-form-view.php": {
         "wpcom": 75356,
@@ -468,6 +503,11 @@
         "jetpack": "56fc6bc",
         "hash": "778e843"
     },
+    "modules/custom-css/custom-css.php": {
+        "wpcom": 82020,
+        "jetpack": "a97fc71",
+        "hash": "703320e"
+    },
     "modules/custom-post-types/comics/admin.css": {
         "wpcom": 86197,
         "jetpack": "34cdfb0",
@@ -488,6 +528,11 @@
         "jetpack": "0647712",
         "hash": "04df3e6"
     },
+    "modules/custom-post-types/comics.php": {
+        "wpcom": 82514,
+        "jetpack": "53ffdac",
+        "hash": "2c92a52"
+    },
     "modules/custom-post-types/css/nova-font.css": {
         "wpcom": 87066,
         "jetpack": "",
@@ -498,6 +543,11 @@
         "jetpack": "",
         "hash": "831011d"
     },
+    "modules/custom-post-types/js/many-items.js": {
+        "wpcom": 58517,
+        "jetpack": "d86cf8a",
+        "hash": "2bd39cf"
+    },
     "modules/custom-post-types/js/menu-checkboxes.js": {
         "wpcom": 58517,
         "jetpack": "d86cf8a",
@@ -507,6 +557,16 @@
         "wpcom": 61999,
         "jetpack": "d86cf8a",
         "hash": "19ed438"
+    },
+    "modules/custom-post-types/nova.php": {
+        "wpcom": 61999,
+        "jetpack": "d86cf8a",
+        "hash": "9957201"
+    },
+    "modules/custom-post-types/testimonial.php": {
+        "wpcom": 81934,
+        "jetpack": "b02f47d",
+        "hash": "f1fd183"
     },
     "modules/gplus-authorship/admin/listener.js": {
         "wpcom": 80389,
@@ -527,6 +587,11 @@
         "wpcom": 79888,
         "jetpack": "298e36c",
         "hash": "8d88734"
+    },
+    "modules/gplus-authorship.php": {
+        "wpcom": 83245,
+        "jetpack": "51930f4",
+        "hash": "a4f975f"
     },
     "modules/infinite-scroll/infinity.css": {
         "wpcom": 71245,
@@ -603,6 +668,16 @@
         "jetpack": "85de5ae",
         "hash": "7784efb"
     },
+    "modules/likes/style.css": {
+        "wpcom": 83349,
+        "jetpack": "87c832a",
+        "hash": "f78e49b"
+    },
+    "modules/likes.php": {
+        "wpcom": 89127,
+        "jetpack": "f55654e",
+        "hash": "7189aca"
+    },
     "modules/minileven/images/wp-app-devices.png": {
         "wpcom": 90090,
         "jetpack": "40ca6a0",
@@ -632,6 +707,11 @@
         "wpcom": 13053,
         "jetpack": "57fcd65",
         "hash": "b2d86b7"
+    },
+    "modules/minileven/theme/pub/minileven/functions.php": {
+        "wpcom": 15464,
+        "jetpack": "7dd9808",
+        "hash": "caf94b4"
     },
     "modules/minileven/theme/pub/minileven/header.php": {
         "wpcom": 15478,
@@ -1273,10 +1353,30 @@
         "jetpack": "6a4af8e",
         "hash": "2d5863e"
     },
+    "modules/sharedaddy/sharing-service.php": {
+        "wpcom": 87991,
+        "jetpack": "79da483",
+        "hash": "1690c8d"
+    },
     "modules/sharedaddy/sharing-sources.php": {
         "wpcom": 91581,
         "jetpack": "30a1cad",
         "hash": "f545703"
+    },
+    "modules/sharedaddy/sharing.css": {
+        "wpcom": 91802,
+        "jetpack": "30a1cad",
+        "hash": "fa91263"
+    },
+    "modules/sharedaddy/sharing.js": {
+        "wpcom": 92094,
+        "jetpack": "b4be798",
+        "hash": "1df91c2"
+    },
+    "modules/sharedaddy/sharing.php": {
+        "wpcom": 78326,
+        "jetpack": "46a1e14",
+        "hash": "7ffa3c2"
     },
     "modules/shortcodes/archives.php": {
         "wpcom": 81092,
@@ -1297,6 +1397,11 @@
         "wpcom": 91149,
         "jetpack": "991d021",
         "hash": "24b6f9f"
+    },
+    "modules/shortcodes/css/slideshow-shortcode.css": {
+        "wpcom": 79069,
+        "jetpack": "ab85ac4",
+        "hash": "69daa44"
     },
     "modules/shortcodes/css/style.css": {
         "wpcom": 80293,
@@ -1448,6 +1553,16 @@
         "jetpack": "393672c",
         "hash": "0ab98e0"
     },
+    "modules/theme-tools/featured-content.php": {
+        "wpcom": 87184,
+        "jetpack": "8885ef3",
+        "hash": "c4473a8"
+    },
+    "modules/theme-tools/random-redirect.php": {
+        "wpcom": 76218,
+        "jetpack": "7a3e6bf",
+        "hash": "827de3e"
+    },
     "modules/theme-tools/social-links.php": {
         "wpcom": 90419,
         "jetpack": "d5ec39b",
@@ -1492,6 +1607,11 @@
         "wpcom": 69545,
         "jetpack": "9cff228",
         "hash": "9b075fa"
+    },
+    "modules/widget-visibility/widget-conditions.php": {
+        "wpcom": 89341,
+        "jetpack": "beaf18b",
+        "hash": "03fb077"
     },
     "modules/widgets/facebook-likebox.php": {
         "wpcom": 90761,
@@ -1572,77 +1692,5 @@
         "wpcom": 91118,
         "jetpack": "3e6ab68",
         "hash": "c49e615"
-    },
-    "class.json-api-endpoints.php": [
-
-    ],
-    "class.media-extractor.php": [
-
-    ],
-    "modules/carousel/images/carousel-sprite-2x.png": [
-
-    ],
-    "modules/carousel/images/carousel-sprite.png": [
-
-    ],
-    "modules/carousel/jetpack-carousel.css": [
-
-    ],
-    "modules/carousel/rtl/jetpack-carousel-rtl.css": [
-
-    ],
-    "modules/contact-form/grunion-contact-form.php": [
-
-    ],
-    "modules/custom-css/custom-css.php": [
-
-    ],
-    "modules/custom-post-types/comics.php": [
-
-    ],
-    "modules/custom-post-types/js/many-items.js": [
-
-    ],
-    "modules/custom-post-types/nova.php": [
-
-    ],
-    "modules/custom-post-types/testimonial.php": [
-
-    ],
-    "modules/gplus-authorship.php": [
-
-    ],
-    "modules/likes/style.css": [
-
-    ],
-    "modules/likes.php": [
-
-    ],
-    "modules/minileven/theme/pub/minileven/functions.php": [
-
-    ],
-    "modules/sharedaddy/sharing-service.php": [
-
-    ],
-    "modules/sharedaddy/sharing.css": [
-
-    ],
-    "modules/sharedaddy/sharing.js": [
-
-    ],
-    "modules/sharedaddy/sharing.php": [
-
-    ],
-    "modules/shortcodes/css/slideshow-shortcode.css": [
-
-    ],
-    "modules/theme-tools/featured-content.php": [
-
-    ],
-    "modules/theme-tools/random-redirect.php": [
-
-    ],
-    "modules/widget-visibility/widget-conditions.php": [
-
-    ]
+    }
 }
