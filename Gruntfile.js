@@ -11,11 +11,14 @@ module.exports = function(grunt) {
 		phplint: {
 			files: [
 				'*.php',
-				'*/*.php',
-				'*/*/*.php',
-				'*/*/*/*.php',
-				'*/*/*/*/*.php',
-				'*/*/*/*/*/*.php',
+				'_inc/*.php',
+				'_inc/lib/*.php',
+				'_inc/lib/*/*.php',
+				'modules/*.php',
+				'modules/*/*.php',
+				'modules/*/*/*.php',
+				'modules/*/*/*/*.php',
+				'modules/*/*/*/*/*.php',
 			]
 		}
 	};
@@ -23,9 +26,11 @@ module.exports = function(grunt) {
 	grunt.initConfig( cfg );
 
 	grunt.loadNpmTasks('grunt-shell');
-	grunt.loadNpmTasks("grunt-phplint");
+	grunt.loadNpmTasks('grunt-phplint');
 
-	grunt.registerTask('default', ['shell']);
-	grunt.registerTask('default', ['phplint']);
+	grunt.registerTask('default', [
+		'shell',
+		'phplint'
+	]);
 
 };
