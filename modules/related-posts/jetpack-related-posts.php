@@ -665,14 +665,18 @@ EOT;
 	 *
 	 * @param string $post_title
 	 * @param string $post_content
-	 * @uses strip_shortcodes, wp_trim_words
+	 * @uses strip_shortcodes, wp_trim_words, __
 	 * @return string
 	 */
 	protected function _get_title( $post_title, $post_content ) {
 		if ( ! empty( $post_title ) )
 			return $post_title;
-		else
-			return wp_trim_words( strip_shortcodes( $post_content ), 5 );
+
+		$post_title = wp_trim_words( strip_shortcodes( $post_content ), 5 );
+		if ( ! empty( $post_title ) )
+			return $post_title;
+
+		return __( 'Untitled Post', 'jetpack' );
 	}
 
 	/**
