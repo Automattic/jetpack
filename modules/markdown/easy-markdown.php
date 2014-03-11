@@ -63,7 +63,9 @@ class WPCom_Markdown {
 	public function load() {
 		$this->add_default_post_type_support();
 		$this->maybe_load_actions_and_filters();
-		add_action( 'switch_blog', array( $this, 'maybe_load_actions_and_filters' ) );
+		if ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) {
+			add_action( 'switch_blog', array( $this, 'maybe_load_actions_and_filters' ), 10, 2 );
+		}
 		add_action( 'admin_init', array( $this, 'register_setting' ) );
 		if ( current_theme_supports( 'o2' ) || class_exists( 'P2' ) ) {
 			$this->add_o2_helpers();
@@ -71,20 +73,29 @@ class WPCom_Markdown {
 	}
 
 	/**
-	 * Called on init and fires on blog_switch to decide if our actions and filters
+	 * Called on init and fires on switch_blog to decide if our actions and filters
 	 * should be running.
+	 * @param int|null $new_blog_id New blog ID
+	 * @param int|null $old_blog_id Old blog ID
 	 * @return null
 	 */
-	public function maybe_load_actions_and_filters() {
-		if ( $this->is_posting_enabled() )
-			$this->load_markdown_for_posts();
-		else
-			$this->unload_markdown_for_posts();
+	public function maybe_load_actions_and_filters( $new_blog_id = null, $old_blog_id = null ) {
+		// If this is a switch_to_blog call, and the blog isn't changing, we'll already be loaded
+		if ( $new_blog_id && $new_blog_id === $old_blog_id ) {
+			return;
+		}
 
-		if ( $this->is_commenting_enabled() )
+		if ( $this->is_posting_enabled() ) {
+			$this->load_markdown_for_posts();
+		} else {
+			$this->unload_markdown_for_posts();
+		}
+
+		if ( $this->is_commenting_enabled() ) {
 			$this->load_markdown_for_comments();
-		else
+		} else {
 			$this->unload_markdown_for_comments();
+		}
 	}
 
 	/**
