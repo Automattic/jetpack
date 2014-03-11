@@ -325,7 +325,7 @@ class WPCom_Markdown {
 	 * instantiating our parser.
 	 * @return object WPCom_GHF_Markdown_Parser instance.
 	 */
-	protected function get_parser() {
+	public function get_parser() {
 
 		if ( ! self::$parser ) {
 			jetpack_require_lib( 'markdown' );
