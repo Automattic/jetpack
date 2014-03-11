@@ -92,7 +92,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	}
 
 	function get_views() {
-		$modules              = $this->get_modules();
+		$modules              = Jetpack_Admin::init()->get_modules();
 		$array_of_module_tags = wp_list_pluck( $modules, 'module_tags' );
 		$module_tags          = call_user_func_array( 'array_merge', $array_of_module_tags );
 		$module_tags_unique   = array_count_values( $module_tags );
