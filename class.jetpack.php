@@ -219,7 +219,7 @@ class Jetpack {
 	 * Constructor.  Initializes WordPress hooks
 	 */
 	private function Jetpack() {
-		
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -230,12 +230,12 @@ class Jetpack {
 		if( is_multisite() ) {
 			$jpms = Jetpack_Network::init();
 
-			if( is_network_admin() ) 
+			if( is_network_admin() )
 			    return; // End here to prevent single site actions from firing
-		}		
-		
-		
-		
+		}
+
+
+
 		$this->sync = new Jetpack_Sync;
 
 		// Modules should do Jetpack_Sync::sync_options( __FILE__, $option, ... ); instead
@@ -454,7 +454,7 @@ class Jetpack {
 		}
 		return (bool) Jetpack_Data::get_access_token( $user_id );
 	}
-	
+
 	/**
 	 * Get the wpcom email of the current connected user.
 	 */
@@ -2033,7 +2033,7 @@ p {
 		wp_enqueue_style( 'jetpack', plugins_url( '_inc/jetpack.css', __FILE__ ), false, JETPACK__VERSION . '-20121016' );
 		$wp_styles->add_data( 'jetpack', 'rtl', true );
 	}
-	
+
 	function admin_banner_styles() {
 		global $wp_styles;
 		wp_enqueue_style( 'jetpack', plugins_url( '_inc/jetpack-banners.css', __FILE__ ), false, JETPACK__VERSION . '-20121016' );
@@ -2788,7 +2788,7 @@ p {
 			}
 		} else if( is_network_admin() ) {
 /***********
-This does not actually work. 
+This does not actually work.
 Need to add a $_GET var to the above if is_network_admin()
 Then in check below (not this one) add the is_network=network_admin
 ************/
@@ -2821,8 +2821,8 @@ Then in check below (not this one) add the is_network=network_admin
 			);
 
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
-		
-		
+
+
 		} else {
 			$role = $this->translate_current_user_to_role();
 			$signed_role = $this->sign_role( $role );
@@ -2891,16 +2891,16 @@ Then in check below (not this one) add the is_network=network_admin
 		$user_token        = Jetpack_Data::get_access_token( $current_user->ID );
 		$is_user_connected = $user_token && ! is_wp_error( $user_token );
 		$is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
-	
+
 		$can_reconnect_jpms = true;
 		if( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 		    $jpms = Jetpack_Network::init();
 		    $can_reconnect_jpms = ( $jpms->get_option( 'sub-site-connection-override' ) )? 1: 0;
 		}
-	
-	
-	
-	
+
+
+
+
 	?>
 	<?php include_once( '_inc/header.php' ); ?>
 			<div class="masthead <?php if ( ! $is_connected ) { ?>hasbutton<?php } ?>">
@@ -3349,15 +3349,15 @@ Then in check below (not this one) add the is_network=network_admin
 	 * @return int
 	 **/
 	public function get_remote_query_timeout_limit() {
-	    $timeout = (int) ini_get( 'max_execution_time' ); 
+	    $timeout = (int) ini_get( 'max_execution_time' );
 	    if ( ! $timeout ) // Ensure exec time set in php.ini
-		$timeout = 30; 
+		$timeout = 30;
 	    return intval( $timeout / 2 );
 	}
 
 
 	/**
-	 * Takes the response from the Jetpack register new site endpoint and 
+	 * Takes the response from the Jetpack register new site endpoint and
 	 * verifies it worked properly.
 	 *
 	 * @since 2.6
@@ -3442,7 +3442,7 @@ Then in check below (not this one) add the is_network=network_admin
 		);
 		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), $args, true );
 
-		
+
 		// Make sure the response is valid and does not contain any Jetpack errors
 		$valid_response = Jetpack::init()->validate_remote_register_response( $response );
 		if( is_wp_error( $valid_response ) || !$valid_response ) {
@@ -3460,7 +3460,7 @@ Then in check below (not this one) add the is_network=network_admin
 			$json = false;
 
 
-			
+
 		if ( empty( $json->jetpack_secret ) || ! is_string( $json->jetpack_secret ) )
 			return new Jetpack_Error( 'jetpack_secret', '', $code );
 
