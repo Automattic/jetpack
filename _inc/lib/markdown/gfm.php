@@ -96,16 +96,19 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		// run through core Markdown
 		$text = parent::transform( $text );
 
+		// Occasionally Markdown Extra chokes on a para structure, producing odd paragraphs.
+		$text = str_replace( "<p>&lt;</p>\n\n<p>p>", '<p>', $text );
+
 		// put start-of-line # chars back in place
 		$text = $this->restore_leading_hash( $text );
-
-		// Restore preserved things like shortcodes/LaTeX
-		$text = $this->do_restore( $text );
 
 		// Strip paras if set
 		if ( $this->strip_paras ) {
 			$text = $this->unp( $text );
 		}
+
+		// Restore preserved things like shortcodes/LaTeX
+		$text = $this->do_restore( $text );
 
 		return $text;
 	}
