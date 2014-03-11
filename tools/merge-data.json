@@ -169,10 +169,6 @@
         "wpcom": 87275,
         "jetpack": "8d654cb"
     },
-    "modules/carousel/patch.diff": {
-        "wpcom": 0,
-        "jetpack": ""
-    },
     "modules/carousel.php": {
         "wpcom": 86090,
         "jetpack": "a67509b"
