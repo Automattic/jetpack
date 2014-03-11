@@ -137,9 +137,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 * @return string       Markdown/HTML content with escaped code blocks
 	 */
 	public function codeblock_preserve( $text ) {
-		$text = preg_replace_callback( "/^(`{3})([^`\n]+)?\n([^`~]+)(`{3})/m", array( $this, 'do_codeblock_preserve' ), $text );
-		$text = preg_replace_callback( "/^(~{3})([^~\n]+)?\n([^~~]+)(~{3})/m", array( $this, 'do_codeblock_preserve' ), $text );
-		return $text;
+		return preg_replace_callback( "/^([`~]{3})([^`\n]+)?\n([^`~]+)(\\1)/m", array( $this, 'do_codeblock_preserve' ), $text );
 	}
 
 	/**
@@ -160,9 +158,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 * @return string       Markdown/HTML content
 	 */
 	public function codeblock_restore( $text ) {
-		$text = preg_replace_callback( "/^(`{3})([^`\n]+)?\n([^`~]+)(`{3})/m", array( $this, 'do_codeblock_restore' ), $text );
-		$text = preg_replace_callback( "/^(~{3})([^~\n]+)?\n([^~~]+)(~{3})/m", array( $this, 'do_codeblock_restore' ), $text );
-		return $text;
+		return preg_replace_callback( "/^([`~]{3})([^`\n]+)?\n([^`~]+)(\\1)/m", array( $this, 'do_codeblock_restore' ), $text );
 	}
 
 	/**
