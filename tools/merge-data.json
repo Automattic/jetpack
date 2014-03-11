@@ -13,6 +13,16 @@
  * file, so it should not be manually modified in the Jetpack repository.
  */
 {
+    "class.jetpack-options.php": {
+        "wpcom": 89323,
+        "jetpack": "3d4f6da",
+        "hash": "8e7a0f0"
+    },
+    "class.jetpack-post-images.php": {
+        "wpcom": 92186,
+        "jetpack": "1e1ecc2",
+        "hash": "238a430"
+    },
     "class.jetpack-user-agent.php": {
         "wpcom": 83186,
         "jetpack": "1847156",
@@ -203,6 +213,11 @@
         "jetpack": "9031bf5",
         "hash": "89b156d"
     },
+    "modules/carousel/jetpack-carousel.js": {
+        "wpcom": 87275,
+        "jetpack": "bdcdb37",
+        "hash": "3927597"
+    },
     "modules/carousel/jetpack-carousel.php": {
         "wpcom": 87275,
         "jetpack": "8d654cb",
@@ -217,6 +232,11 @@
         "wpcom": 80557,
         "jetpack": "0312cf7",
         "hash": "e39e3a2"
+    },
+    "modules/contact-form/admin.php": {
+        "wpcom": 85554,
+        "jetpack": "4626aa4",
+        "hash": "758046f"
     },
     "modules/contact-form/css/grunion.css": {
         "wpcom": 68551,
@@ -438,6 +458,11 @@
         "jetpack": "ff332d9",
         "hash": "1afaddc"
     },
+    "modules/custom-css/custom-css/preprocessors/scss.inc.php": {
+        "wpcom": 78563,
+        "jetpack": "ff332d9",
+        "hash": "a9efc34"
+    },
     "modules/custom-css/custom-css/preprocessors.php": {
         "wpcom": 70918,
         "jetpack": "56fc6bc",
@@ -512,6 +537,11 @@
         "wpcom": 89519,
         "jetpack": "7741a49",
         "hash": "d4a9e7e"
+    },
+    "modules/infinite-scroll/infinity.php": {
+        "wpcom": 89519,
+        "jetpack": "7741a49",
+        "hash": "d53ed86"
     },
     "modules/infinite-scroll/themes/twentyeleven.css": {
         "wpcom": 58712,
@@ -602,6 +632,11 @@
         "wpcom": 13053,
         "jetpack": "57fcd65",
         "hash": "b2d86b7"
+    },
+    "modules/minileven/theme/pub/minileven/header.php": {
+        "wpcom": 15478,
+        "jetpack": "7dd9808",
+        "hash": "01e891d"
     },
     "modules/minileven/theme/pub/minileven/image.php": {
         "wpcom": 15914,
@@ -708,6 +743,11 @@
         "jetpack": "a745147",
         "hash": "bba7024"
     },
+    "modules/omnisearch/omnisearch-posts.php": {
+        "wpcom": 75518,
+        "jetpack": "a6a348c",
+        "hash": "5d57b38"
+    },
     "modules/omnisearch/omnisearch.css": {
         "wpcom": 86184,
         "jetpack": "34cdfb0",
@@ -802,6 +842,16 @@
         "wpcom": 87423,
         "jetpack": "588e992",
         "hash": "6b49c50"
+    },
+    "modules/publicize/publicize.php": {
+        "wpcom": 81817,
+        "jetpack": "3d7403e",
+        "hash": "5ad09e5"
+    },
+    "modules/publicize.php": {
+        "wpcom": 89334,
+        "jetpack": "2abcec5",
+        "hash": "b851551"
     },
     "modules/sharedaddy/admin-sharing.css": {
         "wpcom": 91045,
@@ -1223,6 +1273,11 @@
         "jetpack": "6a4af8e",
         "hash": "2d5863e"
     },
+    "modules/sharedaddy/sharing-sources.php": {
+        "wpcom": 91581,
+        "jetpack": "30a1cad",
+        "hash": "f545703"
+    },
     "modules/shortcodes/archives.php": {
         "wpcom": 81092,
         "jetpack": "b363382",
@@ -1343,10 +1398,20 @@
         "jetpack": "2024d2e",
         "hash": "a8913c3"
     },
+    "modules/shortcodes/presentations.php": {
+        "wpcom": 86092,
+        "jetpack": "f585ec2",
+        "hash": "5cb0254"
+    },
     "modules/shortcodes/scribd.php": {
         "wpcom": 49328,
         "jetpack": "e7ef3e0",
         "hash": "53571e1"
+    },
+    "modules/shortcodes/slideshow.php": {
+        "wpcom": 72744,
+        "jetpack": "5fb89ec",
+        "hash": "69ff3e3"
     },
     "modules/shortcodes/soundcloud.php": {
         "wpcom": 67367,
@@ -1408,6 +1473,11 @@
         "jetpack": "5784e80",
         "hash": "a2ee786"
     },
+    "modules/tiled-gallery/tiled-gallery.php": {
+        "wpcom": 89340,
+        "jetpack": "2322261",
+        "hash": "edf3cba"
+    },
     "modules/widget-visibility/widget-conditions/rtl/widget-conditions-rtl.css": {
         "wpcom": 71467,
         "jetpack": "9cff228",
@@ -1448,6 +1518,11 @@
         "jetpack": "5446d85",
         "hash": "d8b74e1"
     },
+    "modules/widgets/gallery/templates/form.php": {
+        "wpcom": 84703,
+        "jetpack": "72baf73",
+        "hash": "165d07c"
+    },
     "modules/widgets/gallery.php": {
         "wpcom": 86183,
         "jetpack": "9428d4e",
@@ -1468,10 +1543,20 @@
         "jetpack": "2af8fcf",
         "hash": "ea9f54a"
     },
+    "modules/widgets/top-posts.php": {
+        "wpcom": 89324,
+        "jetpack": "20ab43d",
+        "hash": "80badbf"
+    },
     "modules/widgets/twitter-timeline.php": {
         "wpcom": 89339,
         "jetpack": "0c6edd3",
         "hash": "bd5898f"
+    },
+    "modules/widgets/upcoming-events.php": {
+        "wpcom": 88667,
+        "jetpack": "cc0856c",
+        "hash": "c7475b3"
     },
     "modules/widgets/widget-grid-and-list.css": {
         "wpcom": 58572,
@@ -1488,12 +1573,6 @@
         "jetpack": "3e6ab68",
         "hash": "c49e615"
     },
-    "class.jetpack-options.php": [
-
-    ],
-    "class.jetpack-post-images.php": [
-
-    ],
     "class.json-api-endpoints.php": [
 
     ],
@@ -1509,19 +1588,10 @@
     "modules/carousel/jetpack-carousel.css": [
 
     ],
-    "modules/carousel/jetpack-carousel.js": [
-
-    ],
     "modules/carousel/rtl/jetpack-carousel-rtl.css": [
 
     ],
-    "modules/contact-form/admin.php": [
-
-    ],
     "modules/contact-form/grunion-contact-form.php": [
-
-    ],
-    "modules/custom-css/custom-css/preprocessors/scss.inc.php": [
 
     ],
     "modules/custom-css/custom-css.php": [
@@ -1542,9 +1612,6 @@
     "modules/gplus-authorship.php": [
 
     ],
-    "modules/infinite-scroll/infinity.php": [
-
-    ],
     "modules/likes/style.css": [
 
     ],
@@ -1554,22 +1621,7 @@
     "modules/minileven/theme/pub/minileven/functions.php": [
 
     ],
-    "modules/minileven/theme/pub/minileven/header.php": [
-
-    ],
-    "modules/omnisearch/omnisearch-posts.php": [
-
-    ],
-    "modules/publicize/publicize.php": [
-
-    ],
-    "modules/publicize.php": [
-
-    ],
     "modules/sharedaddy/sharing-service.php": [
-
-    ],
-    "modules/sharedaddy/sharing-sources.php": [
 
     ],
     "modules/sharedaddy/sharing.css": [
@@ -1584,31 +1636,13 @@
     "modules/shortcodes/css/slideshow-shortcode.css": [
 
     ],
-    "modules/shortcodes/presentations.php": [
-
-    ],
-    "modules/shortcodes/slideshow.php": [
-
-    ],
     "modules/theme-tools/featured-content.php": [
 
     ],
     "modules/theme-tools/random-redirect.php": [
 
     ],
-    "modules/tiled-gallery/tiled-gallery.php": [
-
-    ],
     "modules/widget-visibility/widget-conditions.php": [
-
-    ],
-    "modules/widgets/gallery/templates/form.php": [
-
-    ],
-    "modules/widgets/top-posts.php": [
-
-    ],
-    "modules/widgets/upcoming-events.php": [
 
     ]
 }
