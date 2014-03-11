@@ -1173,7 +1173,6 @@ jQuery(document).ready(function(){
 			?>
 			<h3><?php _e( 'Recommended Links and Plugins', 'wp-super-cache' ); ?></h3>
 			<p><?php _e( 'Caching is only one part of making a website faster. Here are some other plugins that will help:', 'wp-super-cache' ); ?></p>
-			<ol><li><?php printf( __( '<a href="%s">WPSCMin</a>, a Supercache plugin that minifies cached pages by removing whitespaces and extra characters ', 'wp-super-cache' ), 'http://lyncd.com/wpscmin/' ); ?></li>
 			<li><?php printf( __( '<a href="%s">Yahoo! Yslow</a> is an extension for the Firefox add-on Firebug. It analyzes web pages and suggests ways to improve their performance based on a set of rules for high performance web pages. Also try the performance tools online at <a href="%s">GTMetrix</a>.', 'wp-super-cache' ), 'http://developer.yahoo.com/yslow/', 'http://gtmetrix.com/' ); ?></li>
 			<li><?php printf( __( '<a href="%s">Use Google Libraries</a> allows you to load some commonly used Javascript libraries from Google webservers. Ironically it may reduce your Yslow score.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/use-google-libraries/' ); ?></li>
 			<li><?php printf( __( 'The <a href="%1$s">CDN Sync Tool</a> plugin will help upload files to Amazon S3/Cloudfront if you would rather not depend on origin pull. See the <a href="%2$s">plugin support forum</a> if you have any queries about this plugin.', 'wp-super-cache' ), 'http://wordpress.org/extend/plugins/cdn-sync-tool/', 'http://wordpress.org/tags/cdn-sync-tool?forum_id=10' ); ?></li>
@@ -1338,13 +1337,13 @@ function wsc_mod_rewrite() {
 	} elseif( strpos( $scrules, 'supercache' ) || strpos( $wprules, 'supercache' ) ) { // only write the rules once
 		$dohtaccess = false;
 	}
-	if( $dohtaccess && !$_POST[ 'updatehtaccess' ] ) {
+	if ( $dohtaccess && !isset( $_POST[ 'updatehtaccess' ] ) ){
 		if ( $scrules == '' ) {
 			wpsc_update_htaccess_form( 0 ); // don't hide the update htaccess form
 		} else {
 			wpsc_update_htaccess_form();
 		}
-	} elseif( $valid_nonce && $_POST[ 'updatehtaccess' ] ) {
+	} elseif ( $valid_nonce && isset( $_POST[ 'updatehtaccess' ] ) ) {
 		echo "<div style='padding:0 8px;color:#4f8a10;background-color:#dff2bf;border:1px solid #4f8a10;'>";
 		if( wpsc_update_htaccess() ) {
 			echo "<h4>" . __( 'Mod Rewrite rules updated!', 'wp-super-cache' ) . "</h4>";
@@ -1619,10 +1618,12 @@ function wp_cache_edit_max_time () {
 	} elseif ( $valid_nonce ) { // clock
 		wp_clear_scheduled_hook( 'wp_cache_gc' );
 		$cache_schedule_type = 'time';
-		if ( $_POST[ 'cache_scheduled_time' ] == '' )
+		if ( !isset( $_POST[ 'cache_scheduled_time' ] ) || $_POST[ 'cache_scheduled_time' ] == '' )
 			$_POST[ 'cache_scheduled_time' ] = '00:00';
 		$cache_scheduled_time = $_POST[ 'cache_scheduled_time' ];
 		$schedules = wp_get_schedules();
+		if ( !isset( $cache_schedule_interval ) )
+			$cache_schedule_interval = 'daily';
 		if ( isset( $schedules[ $_POST[ 'cache_schedule_interval' ] ] ) )
 			$cache_schedule_interval = $_POST[ 'cache_schedule_interval' ];
 		wp_cache_replace_line('^ *\$cache_schedule_type', "\$cache_schedule_type = '$cache_schedule_type';", $wp_cache_config_file);
@@ -1842,6 +1843,8 @@ function wp_cache_debug_settings() {
 	if ( false == isset( $wp_super_cache_comments ) )
 		$wp_super_cache_comments = 1;
 	if ( isset( $_POST[ 'wp_cache_debug' ] ) && $valid_nonce ) {
+		if ( !isset( $_POST[ 'wp_super_cache_debug' ] ) )
+			$_POST[ 'wp_super_cache_debug' ] = 0;
 		$wp_super_cache_debug = intval( $_POST[ 'wp_super_cache_debug' ] );
 		wp_cache_replace_line('^ *\$wp_super_cache_debug', "\$wp_super_cache_debug = '$wp_super_cache_debug';", $wp_cache_config_file);
 		if ( $wp_super_cache_debug && ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log == '' ) || !isset( $wp_cache_debug_log ) ) ) {
@@ -1850,19 +1853,19 @@ function wp_cache_debug_settings() {
 			$wp_cache_debug_log = "";
 		}
 		wp_cache_replace_line('^ *\$wp_cache_debug_log', "\$wp_cache_debug_log = '$wp_cache_debug_log';", $wp_cache_config_file);
-		$wp_super_cache_comments = (int)$_POST[ 'wp_super_cache_comments' ];
+		$wp_super_cache_comments = isset( $_POST[ 'wp_super_cache_comments' ] ) ? 1 : 0;
 		wp_cache_replace_line('^ *\$wp_super_cache_comments', "\$wp_super_cache_comments = '$wp_super_cache_comments';", $wp_cache_config_file);
 		$wp_cache_debug_ip = esc_html( $_POST[ 'wp_cache_debug_ip' ] );
 		wp_cache_replace_line('^ *\$wp_cache_debug_ip', "\$wp_cache_debug_ip = '$wp_cache_debug_ip';", $wp_cache_config_file);
-		$wp_super_cache_front_page_check = (int)$_POST[ 'wp_super_cache_front_page_check' ];
+		$wp_super_cache_front_page_check = isset( $_POST[ 'wp_super_cache_front_page_check' ] ) ? 1 : 0;
 		wp_cache_replace_line('^ *\$wp_super_cache_front_page_check', "\$wp_super_cache_front_page_check = '$wp_super_cache_front_page_check';", $wp_cache_config_file);
-		$wp_super_cache_front_page_clear = (int)$_POST[ 'wp_super_cache_front_page_clear' ];
+		$wp_super_cache_front_page_clear = isset( $_POST[ 'wp_super_cache_front_page_clear' ] ) ? 1 : 0;
 		wp_cache_replace_line('^ *\$wp_super_cache_front_page_clear', "\$wp_super_cache_front_page_clear = '$wp_super_cache_front_page_clear';", $wp_cache_config_file);
 		$wp_super_cache_front_page_text = esc_html( $_POST[ 'wp_super_cache_front_page_text' ] );
 		wp_cache_replace_line('^ *\$wp_super_cache_front_page_text', "\$wp_super_cache_front_page_text = '$wp_super_cache_front_page_text';", $wp_cache_config_file);
-		$wp_super_cache_front_page_notification = (int)$_POST[ 'wp_super_cache_front_page_notification' ];
+		$wp_super_cache_front_page_notification = isset( $_POST[ 'wp_super_cache_front_page_notification' ] ) ? 1 : 0;
 		wp_cache_replace_line('^ *\$wp_super_cache_front_page_notification', "\$wp_super_cache_front_page_notification = '$wp_super_cache_front_page_notification';", $wp_cache_config_file);
-		if ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 1 && !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
+		if ( $wp_super_cache_front_page_check == 1 && !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
 			wp_schedule_single_event( time() + 360 , 'wp_cache_check_site_hook' );
 			if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( 'scheduled wp_cache_check_site_hook for 360 seconds time.', 2 );
 		}
@@ -2238,7 +2241,7 @@ function wp_cache_files() {
 					continue; // .meta does not exists
 
 				$age = $now - $mtime;
-				if ( $valid_nonce && $_GET[ 'listfiles' ] ) {
+				if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) ) {
 					$meta = unserialize( file_get_contents( $blog_cache_dir . 'meta/' . $file ) );
 					if ( $deleteuri != '' && $meta[ 'uri' ] == $deleteuri ) {
 						printf( __( "Deleting wp-cache file: <strong>%s</strong><br />", 'wp-super-cache' ), $deleteuri );
@@ -2339,7 +2342,7 @@ function wp_cache_files() {
 		echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ), intval( $cache_stats[ 'supercache' ][ 'expired' ] / $divisor ) ) . "</li></ul>";
 		if ( $valid_nonce && array_key_exists('listfiles', $_GET) && $_GET[ 'listfiles' ] ) {
 			echo "<div style='padding: 10px; border: 1px solid #333; height: 400px; width: 90%; overflow: auto'>";
-			if ( is_array( $cached_list ) && !empty( $cached_list ) ) {
+			if ( isset( $cached_list ) && is_array( $cached_list ) && !empty( $cached_list ) ) {
 				echo "<h4>" . __( 'Fresh WP-Cached Files', 'wp-super-cache' ) . "</h4>";
 				echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Key', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
 				$c = 1;
@@ -2355,7 +2358,7 @@ function wp_cache_files() {
 				}
 				echo "</table>";
 			}
-			if ( is_array( $expired_list ) && !empty( $expired_list ) ) {
+			if ( isset( $expired_list ) && is_array( $expired_list ) && !empty( $expired_list ) ) {
 				echo "<h4>" . __( 'Stale WP-Cached Files', 'wp-super-cache' ) . "</h4>";
 				echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Key', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
 				$c = 1;
