@@ -170,8 +170,8 @@ class Jetpack_Media_Summary {
 				$return['secure']['image'] = self::ssl_img( $return['image'] );
 				$return['count']['image']++;
 
-				if ( $number_of_paragraphs <= 2 ) {
-					// If we have lots of text, let's not treat it as an image post, but return its first image
+				if ( $number_of_paragraphs <= 2 && 1 == count( $extract['image'] ) ) {
+					// If we have lots of text or images, let's not treat it as an image post, but return its first image
 					$return['type']  = 'image';
 				}
 			}
