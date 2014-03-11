@@ -611,7 +611,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		}
 
 		// Wrap the response in a sourcecode shortcode
-		if ( !empty( $response ) ) {
+		if ( !empty( $response ) && !is_wp_error( $response ) ) {
 			$response = '[sourcecode language="php" wraplines="false" light="true" autolink="false" htmlscript="false"]' . $response . '[/sourcecode]';
 			$response = apply_filters( 'the_content', $response );
 			$this->example_response = $response;
@@ -3209,12 +3209,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (int) $this->api->is_following( $blog_id );
 				break;
 			case 'meta' :
+				$xmlrpc_url = site_url( 'xmlrpc.php' );
 				$response[$key] = (object) array(
 					'links' => (object) array(
 						'self'     => (string) $this->get_site_link( $blog_id ),
 						'help'     => (string) $this->get_site_link( $blog_id, 'help'      ),
 						'posts'    => (string) $this->get_site_link( $blog_id, 'posts/'    ),
 						'comments' => (string) $this->get_site_link( $blog_id, 'comments/' ),
+						'xmlrpc'   => (string) $xmlrpc_url,
 					),
 				);
 				break;

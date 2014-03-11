@@ -1,6 +1,7 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20140117';
+	const VERSION = '20140307';
+	const SHORTCODE = 'jetpack-related-posts';
 
 	/**
 	 * Creates and returns a static instance of Jetpack_RelatedPosts.
@@ -49,6 +50,8 @@ class Jetpack_RelatedPosts {
 	protected $_allow_feature_toggle;
 	protected $_blog_charset;
 	protected $_convert_charset;
+	protected $_previous_post_id;
+	protected $_found_shortcode = false;
 
 	/**
 	 * Constructor for Jetpack_RelatedPosts.
@@ -97,35 +100,70 @@ class Jetpack_RelatedPosts {
 	 *
 	 * @global $_GET
 	 * @action wp
+	 * @uses add_shortcode, get_the_ID
 	 * @returns null
 	 */
 	public function action_frontend_init() {
+		// Add a shortcode handler that outputs nothing, this gets overridden later if we can display related content
+		add_shortcode( self::SHORTCODE, array( $this, 'get_target_html_unsupported' ) );
+
 		if ( ! $this->_enabled_for_request( $this->_blog_id ) )
 			return;
 
-		if ( isset( $_GET['relatedposts_exclude'] ) )
-			$exclude_id = (int)$_GET['relatedposts_exclude'];
-		else
-			$exclude_id = 0;
+		if ( isset( $_GET['relatedposts'] ) ) {
+			$excludes = array();
+			if ( isset( $_GET['relatedposts_exclude'] ) ) {
+				$excludes = explode( ',', $_GET['relatedposts_exclude'] );
+			}
 
-		if ( isset( $_GET['relatedposts_to'] ) )
-			$this->_action_frontend_redirect( $_GET['relatedposts_to'], $_GET['relatedposts_order'] );
-		elseif ( isset( $_GET['relatedposts'] ) )
-			$this->_action_frontend_init_ajax( $exclude_id );
-		else
+			$this->_action_frontend_init_ajax( $excludes );
+		} else {
+			if ( isset( $_GET['relatedposts_hit'] ) ) {
+				$this->_log_click( $_GET['relatedposts_origin'], get_the_ID(), $_GET['relatedposts_position'] );
+				$this->_previous_post_id = (int) $_GET['relatedposts_origin'];
+			}
+
 			$this->_action_frontend_init_page();
+		}
 
 	}
 
 	/**
-	 * Adds a target to the post content to load related posts into.
+	 * Adds a target to the post content to load related posts into if a shortcode for it did not already exist.
 	 *
 	 * @filter the_content
 	 * @param string $content
-	 * @uses esc_html__, apply_filters
 	 * @returns string
 	 */
 	public function filter_add_target_to_dom( $content ) {
+		if ( !$this->_found_shortcode ) {
+			$content .= "\n" . $this->get_target_html();
+		}
+
+		return $content;
+	}
+
+	/**
+	 * Looks for our shortcode on the unfiltered content, this has to execute early.
+	 *
+	 * @filter the_content
+	 * @param string $content
+	 * @uses has_shortcode
+	 * @returns string
+	 */
+	public function test_for_shortcode( $content ) {
+		$this->_found_shortcode = has_shortcode( $content, self::SHORTCODE );
+
+		return $content;
+	}
+
+	/**
+	 * Returns the HTML for the related posts section.
+	 *
+	 * @uses esc_html__, apply_filters
+	 * @returns string
+	 */
+	public function get_target_html() {
 		$options = $this->get_options();
 
 		if ( $options['show_headline'] ) {
@@ -139,12 +177,26 @@ class Jetpack_RelatedPosts {
 
 		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $headline );
 
+		if ( $this->_previous_post_id ) {
+			$exclude = "data-exclude='{$this->_previous_post_id}'";
+		} else {
+			$exclude = "";
+		}
+
 		return <<<EOT
-$content
-<div id='jp-relatedposts' class='jp-relatedposts'>
+<div id='jp-relatedposts' class='jp-relatedposts' $exclude>
 	$headline
 </div>
 EOT;
+	}
+
+	/**
+	 * Returns the HTML for the related posts section if it's running in the loop or other instances where we don't support related posts.
+	 *
+	 * @returns string
+	 */
+	public function get_target_html_unsupported() {
+		return "\n\n<!-- Jetpack Related Posts is not supported in this context. -->\n\n";
 	}
 
 	/**
@@ -228,7 +280,7 @@ EOT;
 </ul>
 <div id='settings-reading-relatedposts-preview'>
 	%s
-	<div class='jp-relatedposts'></div>
+	<div id="jp-relatedposts" class="jp-relatedposts"></div>
 </div>
 EOT;
 		$ui_settings = sprintf(
@@ -236,7 +288,7 @@ EOT;
 			checked( $options['show_headline'], true, false ),
 			esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
 			checked( $options['show_thumbnails'], true, false ),
-			esc_html__( 'Show thumbnails for related posts when available', 'jetpack' ),
+			esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
 			esc_html__( 'Preview:', 'jetpack' )
 		);
 
@@ -280,11 +332,63 @@ EOT;
 	 */
 	public function print_setting_head() {
 		$related_headline = sprintf(
-			'<p class="jp-relatedposts-headline"><em>%s</em></p>',
+			'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
 			esc_html__( 'Related', 'jetpack' )
 		);
-		$related_with_images = '<p class="jp-relatedposts-post jp-relatedposts-post0" data-post-format="false"><img width="48" src="http://en.blog.files.wordpress.com/2012/08/1-wpios-ipad-3-1-viewsite.png?w=48&amp;h=48&amp;crop=1" alt="Big iPhone/iPad Update Now&nbsp;Available" scale="0"><strong><a href="#" rel="nofollow">Big iPhone/iPad Update Now Available</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1" data-post-format="false"><img width="48" src="http://en.blog.files.wordpress.com/2013/04/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=48&amp;h=48&amp;crop=1" alt="The WordPress for Android App Gets a Big&nbsp;Facelift" scale="0"><strong><a href="#" rel="nofollow">The WordPress for Android App Gets a Big Facelift</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2" data-post-format="false"><img width="48" src="http://en.blog.files.wordpress.com/2013/01/videopresswedding.jpg?w=48&amp;h=48&amp;crop=1" alt="Upgrade Focus: VideoPress For&nbsp;Weddings" scale="0"><strong><a href="#" rel="nofollow">Upgrade Focus: VideoPress For Weddings</a></strong><br><span>In "Upgrade"</span></p>';
-		$related_without_images = '<p class="jp-relatedposts-post jp-relatedposts-post0" data-post-format="false"><strong><a href="#" rel="nofollow">Big iPhone/iPad Update Now Available</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post1" data-post-format="false"><strong><a href="#" rel="nofollow">The WordPress for Android App Gets a Big Facelift</a></strong><br><span>In "Mobile"</span></p><p class="jp-relatedposts-post jp-relatedposts-post2" data-post-format="false"><strong><a href="#" rel="nofollow">Upgrade Focus: VideoPress For Weddings</a></strong><br><span>In "Upgrade"</span></p>';
+
+		$href_params = 'class="jp-relatedposts-post-a" href="#jetpack_relatedposts" rel="nofollow" data-origin="0" data-position="0"';
+		$related_with_images = <<<EOT
+<div class="jp-relatedposts-items jp-relatedposts-items-visual">
+	<div class="jp-relatedposts-post jp-relatedposts-post0 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
+		<a $href_params>
+			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2012/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
+		</a>
+		<h4 class="jp-relatedposts-post-title">
+			<a $href_params>Big iPhone/iPad Update Now Available</a>
+		</h4>
+		<p class="jp-relatedposts-post-excerpt">Big iPhone/iPad Update Now Available</p>
+		<p class="jp-relatedposts-post-context">In "Mobile"</p>
+	</div>
+	<div class="jp-relatedposts-post jp-relatedposts-post1 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
+		<a $href_params>
+			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2013/04/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
+		</a>
+		<h4 class="jp-relatedposts-post-title">
+			<a $href_params>The WordPress for Android App Gets a Big Facelift</a>
+		</h4>
+		<p class="jp-relatedposts-post-excerpt">The WordPress for Android App Gets a Big Facelift</p>
+		<p class="jp-relatedposts-post-context">In "Mobile"</p>
+	</div>
+	<div class="jp-relatedposts-post jp-relatedposts-post2 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
+		<a $href_params>
+			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2013/01/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
+		</a>
+		<h4 class="jp-relatedposts-post-title">
+			<a $href_params>Upgrade Focus: VideoPress For Weddings</a>
+		</h4>
+		<p class="jp-relatedposts-post-excerpt">Upgrade Focus: VideoPress For Weddings</p>
+		<p class="jp-relatedposts-post-context">In "Upgrade"</p>
+	</div>
+</div>
+EOT;
+		$related_with_images = str_replace( "\n", '', $related_with_images );
+		$related_without_images = <<<EOT
+<div class="jp-relatedposts-items jp-relatedposts-items-minimal">
+	<p class="jp-relatedposts-post jp-relatedposts-post0" data-post-id="0" data-post-format="image">
+		<span class="jp-relatedposts-post-title"><a $href_params>Big iPhone/iPad Update Now Available</a></span>
+		<span class="jp-relatedposts-post-context">In "Mobile"</span>
+	</p>
+	<p class="jp-relatedposts-post jp-relatedposts-post1" data-post-id="0" data-post-format="image">
+		<span class="jp-relatedposts-post-title"><a $href_params>The WordPress for Android App Gets a Big Facelift</a></span>
+		<span class="jp-relatedposts-post-context">In "Mobile"</span>
+	</p>
+	<p class="jp-relatedposts-post jp-relatedposts-post2" data-post-id="0" data-post-format="image">
+		<span class="jp-relatedposts-post-title"><a $href_params>Upgrade Focus: VideoPress For Weddings</a></span>
+		<span class="jp-relatedposts-post-context">In "Upgrade"</span>
+	</p>
+</div>
+EOT;
+		$related_without_images = str_replace( "\n", '', $related_without_images );
 
 		if ( $this->_allow_feature_toggle() ) {
 			$extra_css = '#settings-reading-relatedposts-customize { padding-left:2em; margin-top:.5em; }';
@@ -365,7 +469,10 @@ EOT;
 	public function get_for_post_id( $post_id, array $args ) {
 		$options = $this->get_options();
 
-		if ( ! $options['enabled'] || 0 == (int)$post_id )
+		if ( ! empty( $args['size'] ) )
+			$options['size'] = $args['size'];
+
+		if ( ! $options['enabled'] || 0 == (int)$post_id || empty( $options['size'] ) )
 			return array();
 
 		$defaults = array(
@@ -373,7 +480,7 @@ EOT;
 			'post_type' => get_post_type( $post_id ),
 			'has_terms' => array(),
 			'date_range' => array(),
-			'exclude_post_id' => 0,
+			'exclude_post_ids' => array(),
 		);
 		$args = wp_parse_args( $args, $defaults );
 		$args = apply_filters( 'jetpack_relatedposts_filter_args', $args, $post_id );
@@ -448,9 +555,14 @@ EOT;
 			}
 		}
 
-		$args['exclude_post_id'] = apply_filters( 'jetpack_relatedposts_filter_exclude_post_id', $args['exclude_post_id'], $post_id );
-		if ( !empty( $args['exclude_post_id'] ) ) {
-			$filters[] = array( 'not' => array( 'term' => array( 'post_id' => (int)$args['exclude_post_id'] ) ) );
+		$args['exclude_post_ids'] = apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', $args['exclude_post_ids'], $post_id );
+		if ( !empty( $args['exclude_post_ids'] ) && is_array( $args['exclude_post_ids'] ) ) {
+			foreach ( $args['exclude_post_ids'] as $exclude_post_id) {
+				$exclude_post_id = (int)$exclude_post_id;
+
+				if ( $exclude_post_id > 0 )
+					$filters[] = array( 'not' => array( 'term' => array( 'post_id' => $exclude_post_id ) ) );
+			}
 		}
 
 		return $filters;
@@ -486,42 +598,35 @@ EOT;
 	 * Generate and output ajax response for related posts API call.
 	 * NOTE: Calls exit() to end all further processing after payload has been outputed.
 	 *
-	 * @param int $exclude_id
+	 * @param array $excludes array of post_ids to exclude
 	 * @uses send_nosniff_header, self::get_for_post_id, get_the_ID
 	 * @return null
 	 */
-	protected function _action_frontend_init_ajax( $exclude_id ) {
+	protected function _action_frontend_init_ajax( array $excludes ) {
 		define( 'DOING_AJAX', true );
 
 		header( 'Content-type: application/json; charset=utf-8' ); // JSON can only be UTF-8
 		send_nosniff_header();
 
-		$related_posts = $this->get_for_post_id( get_the_ID(), array( 'exclude_post_id' => $exclude_id ) );
+		$related_posts = $this->get_for_post_id(
+			get_the_ID(),
+			array(
+				'exclude_post_ids' => $excludes,
+			)
+		);
 
 		$options = $this->get_options();
-		if ( count( $related_posts ) != $options['size'] )
-			echo '[]';
-		else
-			echo json_encode( $related_posts );
 
-		exit();
-	}
+		$response = array(
+			'version' => self::VERSION,
+			'show_thumbnails' => (bool) $options['show_thumbnails'],
+			'items' => array(),
+		);
 
-	/**
-	 * Blog reader has clicked on a related link, log this action for future relevance analysis and redirect the user to their post.
-	 * NOTE: Calls exit() to end all further processing after redirect has been outputed.
-	 *
-	 * @param int $to_post_id
-	 * @param int $link_position
-	 * @uses get_the_ID, add_query_arg, get_permalink, wp_safe_redirect
-	 * @return null
-	 */
-	protected function _action_frontend_redirect( $to_post_id, $link_position ) {
-		$post_id = get_the_ID();
+		if ( count( $related_posts ) == $options['size'] )
+			$response['items'] = $related_posts;
 
-		$this->_log_click( $post_id, $to_post_id, $link_position );
-
-		wp_safe_redirect( add_query_arg( array( 'relatedposts_exclude' => $post_id ), get_permalink( $to_post_id ) ) );
+		echo json_encode( $response );
 
 		exit();
 	}
@@ -532,23 +637,26 @@ EOT;
 	 * @param int $blog_id
 	 * @param int $post_id
 	 * @param int $position
-	 * @uses get_post, add_query_arg, remove_query_arg, get_post_format
+	 * @param int $origin The post id that this is related to
+	 * @uses get_post, get_permalink, remove_query_arg, get_post_format, apply_filters
 	 * @return array
 	 */
-	protected function _get_related_post_data_for_post( $blog_id, $post_id, $position ) {
+	protected function _get_related_post_data_for_post( $blog_id, $post_id, $position, $origin ) {
 		$post = get_post( $post_id );
 
 		return array(
 			'id' => $post->ID,
-			'url' => add_query_arg(
-				array( 'relatedposts_to' => $post->ID, 'relatedposts_order' => $position ),
-				remove_query_arg( array( 'relatedposts', 'relatedposts_exclude' ) )
-			),
+			'url' => get_permalink( $post->ID ),
+			'url_meta' => array( 'origin' => $origin, 'position' => $position ),
 			'title' => $this->_to_utf8( $this->_get_title( $post->post_title, $post->post_content ) ),
 			'format' => get_post_format( $post->ID ),
 			'excerpt' => $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ),
-			'context' => $this->_to_utf8( $this->_generate_related_post_context( $this->_blog_id, $post->ID ) ),
-			'thumbnail' => $this->_to_utf8( $this->_generate_related_post_image( $this->_blog_id, $post->ID ) ),
+			'context' => apply_filters(
+				'jetpack_relatedposts_filter_post_context',
+				$this->_to_utf8( $this->_generate_related_post_context( $this->_blog_id, $post->ID ) ),
+				$post->ID
+			),
+			'img' => $this->_generate_related_post_image_params( $this->_blog_id, $post->ID ),
 		);
 	}
 
@@ -557,14 +665,18 @@ EOT;
 	 *
 	 * @param string $post_title
 	 * @param string $post_content
-	 * @uses strip_shortcodes, wp_trim_words
+	 * @uses strip_shortcodes, wp_trim_words, __
 	 * @return string
 	 */
 	protected function _get_title( $post_title, $post_content ) {
 		if ( ! empty( $post_title ) )
 			return $post_title;
-		else
-			return wp_trim_words( strip_shortcodes( $post_content ), 5 );
+
+		$post_title = wp_trim_words( strip_shortcodes( $post_content ), 5 );
+		if ( ! empty( $post_title ) )
+			return $post_title;
+
+		return __( 'Untitled Post', 'jetpack' );
 	}
 
 	/**
@@ -572,7 +684,7 @@ EOT;
 	 *
 	 * @param string $post_excerpt
 	 * @param string $post_content
-	 * @uses strip_shortcodes, wp_trim_words
+	 * @uses strip_shortcodes, wp_strip_all_tags, wp_trim_words
 	 * @return string
 	 */
 	protected function _get_excerpt( $post_excerpt, $post_content ) {
@@ -581,49 +693,74 @@ EOT;
 		else
 			$excerpt = $post_excerpt;
 
-		return wp_trim_words( strip_shortcodes( $excerpt ) );
+		return wp_trim_words( wp_strip_all_tags( strip_shortcodes( $excerpt ) ), 30 );
 	}
 
 	/**
-	 * Generates the thumbnail image to be used for the post.
-	 * Order of importance:
-	 *   - Image as returned by Jetpack_PostImages::get_image()
-	 *   - Author avatar as fallback
+	 * Generates the thumbnail image to be used for the post. Uses the
+	 * image as returned by Jetpack_PostImages::get_image()
 	 *
 	 * @param int $blog_id
 	 * @param int $post_id
-	 * @uses self::get_options, apply_filters, Jetpack_PostImages::get_image, Jetpack_PostImages::square_image_url, get_the_title, get_post, get_avatar
+	 * @uses self::get_options, apply_filters, Jetpack_PostImages::get_image, Jetpack_PostImages::fit_image_url
 	 * @return string
 	 */
-	protected function _generate_related_post_image( $blog_id, $post_id ) {
+	protected function _generate_related_post_image_params( $blog_id, $post_id ) {
 		$options = $this->get_options();
+		$image_params = array(
+			'src' => '',
+			'width' => 0,
+			'height' => 0,
+		);
 
 		if ( ! $options['show_thumbnails'] ) {
-			return '';
+			return $image_params;
 		}
 
-		$thumbnail_size = apply_filters( 'jetpack_relatedposts_filter_thumbnail_size', 48 );
+		$thumbnail_size = apply_filters(
+			'jetpack_relatedposts_filter_thumbnail_size',
+			array( 'width' => 350, 'height' => 200 )
+		);
+		if ( !is_array( $thumbnail_size ) ) {
+			$thumbnail_size = array(
+				'width' => (int)$thumbnail_size,
+				'height' => (int)$thumbnail_size
+			);
+		}
 
 		// Try to get post image
 		if ( class_exists( 'Jetpack_PostImages' ) ) {
+			$img_url = '';
 			$post_image = Jetpack_PostImages::get_image(
 				$post_id,
-				array( 'width' => $thumbnail_size, 'height' => $thumbnail_size )
+				$thumbnail_size
 			);
 
 			if ( is_array($post_image) ) {
-				return sprintf(
-					'<img width="%u" src="%s" alt="%s" />',
-					$thumbnail_size,
-					Jetpack_PostImages::square_image_url( $post_image['src'], 2 * $thumbnail_size ),
-					get_the_title( $post_id )
+				$img_url = $post_image['src'];
+			} elseif ( class_exists( 'Jetpack_Media_Summary' ) ) {
+				$media = Jetpack_Media_Summary::get(
+					$post_id,
+					$blog_id
+				);
+
+				if ( is_array($media) && !empty( $media['image'] ) ) {
+					$img_url = $media['image'];
+				}
+			}
+
+			if ( !empty( $img_url ) ) {
+				$image_params['width'] = $thumbnail_size['width'];
+				$image_params['height'] = $thumbnail_size['height'];
+				$image_params['src'] = Jetpack_PostImages::fit_image_url(
+					$img_url,
+					$thumbnail_size['width'],
+					$thumbnail_size['height']
 				);
 			}
 		}
 
-		// Use gravatar as final fallback.
-		$post = get_post( $post_id );
-		return get_avatar( $post->post_author, $thumbnail_size );
+		return $image_params;
 	}
 
 	/**
@@ -653,15 +790,17 @@ EOT;
 	 * @param int $post_id
 	 * @param int $size
 	 * @param array $filters
-	 * @uses wp_remote_post, is_wp_error, get_option, wp_remote_retrieve_body, get_post, add_query_arg, remove_query_arg, get_permalink, get_post_format
+	 * @uses wp_remote_post, is_wp_error, get_option, wp_remote_retrieve_body, get_post, add_query_arg, remove_query_arg, get_permalink, get_post_format, apply_filters
 	 * @return array
 	 */
 	protected function _get_related_posts( $blog_id, $post_id, $size, array $filters ) {
 		$hits = $this->_get_related_post_ids( $blog_id, $post_id, $size, $filters );
 
+		$hits = apply_filters( 'jetpack_relatedposts_filter_hits', $hits, $post_id );
+
 		$related_posts = array();
 		foreach ( $hits as $i => $hit ) {
-			$related_posts[] = $this->_get_related_post_data_for_post( $blog_id, $hit['id'], $i );
+			$related_posts[] = $this->_get_related_post_data_for_post( $blog_id, $hit['id'], $i, $post_id );
 		}
 		return $related_posts;
 	}
@@ -755,7 +894,7 @@ EOT;
 			);
 		}
 
-		return '';
+		return __( 'Similar post', 'jetpack' );
 	}
 
 	/**
@@ -798,22 +937,18 @@ EOT;
 		if ( ! is_single() )
 			return false;
 
-		// Don't run if blog is very sparse
-		$post_count = wp_count_posts();
-		if ( $post_count->publish < 10 )
-			return false;
-
 		return true;
 	}
 
 	/**
 	 * Adds filters and enqueues assets.
 	 *
-	 * @uses self::_enqueue_assets, add_filter
+	 * @uses self::_enqueue_assets, self::_setup_shortcode, add_filter
 	 * @return null
 	 */
 	protected function _action_frontend_init_page() {
 		$this->_enqueue_assets( true, true );
+		$this->_setup_shortcode();
 
 		add_filter( 'the_content', array( $this, 'filter_add_target_to_dom' ), 40 );
 	}
@@ -829,6 +964,18 @@ EOT;
 			wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), array( 'jquery' ), self::VERSION );
 		if ( $style )
 			wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
+	}
+
+	/**
+	 * Sets up the shortcode processing.
+	 *
+	 * @uses add_filter, add_shortcode
+	 * @return null
+	 */
+	protected function _setup_shortcode() {
+		add_filter( 'the_content', array( $this, 'test_for_shortcode' ), 0 );
+
+		add_shortcode( self::SHORTCODE, array( $this, 'get_target_html' ) );
 	}
 
 	protected function _allow_feature_toggle() {

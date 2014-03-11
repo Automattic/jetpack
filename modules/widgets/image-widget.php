@@ -40,10 +40,10 @@ class Jetpack_Image_Widget extends WP_Widget {
 			$output .= '/>';
 			if ( '' != $instance['link'] )
 				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
-			if ( '' != $instance['caption'] )
+			if ( '' != $instance['caption'] ) {
 				$caption = apply_filters( 'widget_text', $instance['caption'] );
 				$output = '[caption align="align' .  esc_attr( $instance['align'] ) . '" width="' . esc_attr( $instance['img_width'] ) .'"]' . $output . ' ' . $caption . '[/caption]'; // wp_kses_post caption on update 
-
+			}
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
 		}
 

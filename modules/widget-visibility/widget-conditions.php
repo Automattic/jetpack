@@ -86,6 +86,7 @@ class Jetpack_Widget_Conditions {
 				?>
 				<option value="front" <?php selected( 'front', $minor ); ?>><?php _e( 'Front page', 'jetpack' ); ?></option>
 				<option value="posts" <?php selected( 'posts', $minor ); ?>><?php _e( 'Posts page', 'jetpack' ); ?></option>
+				<option value="archive" <?php selected( 'archive', $minor ); ?>><?php _e( 'Archive page', 'jetpack' ); ?></option>
 				<option value="404" <?php selected( '404', $minor ); ?>><?php _e( '404 error page', 'jetpack' ); ?></option>
 				<option value="search" <?php selected( 'search', $minor ); ?>><?php _e( 'Search results', 'jetpack' ); ?></option>
 				<optgroup label="<?php esc_attr_e( 'Post type:', 'jetpack' ); ?>">
@@ -109,6 +110,34 @@ class Jetpack_Widget_Conditions {
 					?>
 				</optgroup>
 				<?php
+			break;
+			case 'taxonomy':
+				?>
+				<option value=""><?php _e( 'All taxonomy pages', 'jetpack' ); ?></option>
+				<?php
+
+				$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
+				usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
+
+				foreach ( $taxonomies as $taxonomy ) {
+					?>
+					<optgroup label="<?php esc_attr_e( $taxonomy->labels->name . ':', 'jetpack' ); ?>">
+						<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $minor ); ?>><?php echo 'All ' . esc_html( $taxonomy->name ) . ' pages'; ?></option>
+						<?php
+						
+						$terms = get_terms( array( $taxonomy->name ), array( 'number' => 1000, 'hide_empty' => false ) );
+						foreach ( $terms as $term ) {
+							?>
+							<option value="<?php echo esc_attr( $taxonomy->name . '_tax_' . $term->term_id ); ?>" <?php selected( $taxonomy->name . '_tax_' . $term->term_id, $minor ); ?>><?php echo esc_html( $term->name ); ?></option>
+							<?php
+						}
+
+						?>
+					</optgroup>
+					<?php
+					
+				
+				}
 			break;
 		}
 	}
@@ -163,6 +192,7 @@ class Jetpack_Widget_Conditions {
 									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
 									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
 									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
+									<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 								</select>
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
 								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
@@ -377,6 +407,16 @@ class Jetpack_Widget_Conditions {
 					else if ( $rule['minor'] && is_author( $rule['minor'] ) )
 						$condition_result = true;
 					else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author )
+						$condition_result = true;
+				break;
+				case 'taxonomy':
+					$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
+					$terms = get_the_terms( $post->ID, $rule['minor'] ); // Does post have terms in taxonomy?
+					if ( is_tax( $term[0], $term[1] ) )
+						$condition_result = true;
+					else if ( is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
+						$condition_result = true;
+					else if ( is_singular() && $terms & !is_wp_error( $terms ) )
 						$condition_result = true;
 				break;
 			}

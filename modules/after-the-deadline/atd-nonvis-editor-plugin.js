@@ -25,8 +25,14 @@ function AtD_restore_text_area()
 	}
 
 	/* restore autosave */
-	if ( AtD.autosave != undefined )
-		autosave = AtD.autosave;
+	if ( AtD.autosave != undefined ) {
+		if ( window.wp && window.wp.autosave && window.wp.autosave.server ) {
+			window.wp.autosave.local.resume();
+			window.wp.autosave.server.resume();
+		} else {
+			autosave = AtD.autosave;
+		}
+	}
 };
 
 // add the AtD button properly to quicktags
@@ -128,7 +134,12 @@ function AtD_check(button) {
 		}
 
 		/* kill autosave... :) */
-		autosave = function() { };
+		if ( window.wp && window.wp.autosave && window.wp.autosave.server ) {
+			window.wp.autosave.local.suspend();
+			window.wp.autosave.server.suspend();
+		} else {
+			autosave = function() { };
+		}
 
 		/* disable the toolbar buttons */
 		jQuery( AtD_qtbutton ).siblings('input').andSelf().attr( 'disabled', true ); // using .arrt instead of .prop so it's compat with older WP and jQuery

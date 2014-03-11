@@ -331,6 +331,9 @@ class WPCOM_JSON_API {
 	}
 
 	function output_error( $error ) {
+		if ( function_exists( 'bump_stats_extra' ) )
+			bump_stats_extra( 'rest-api-errors', $this->token_details['client_id'] );
+
 		$status_code = $error->get_error_data();
 
 		if ( is_array( $status_code ) )

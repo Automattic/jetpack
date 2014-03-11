@@ -26,17 +26,17 @@ function jetpack_matt_random_redirect() {
 	if ( strstr( $_SERVER['HTTP_USER_AGENT'], 'AppEngine-Google' ) )
 		wp_die( 'Please <a href="http://en.support.wordpress.com/contact/">contact support</a>' );
 
-	// Use the post type of the current page as the context for the random lookup.
-	$post_type = get_post_type();
-
 	// /?random should always show a random post, even if the home page is a static page.
-	if ( isset( $_SERVER['DOCUMENT_URI'] ) && '/' == $_SERVER['DOCUMENT_URI'] )
+	if ( is_front_page() ) {
 		$post_type = 'post';
-	else
+	}
+	else {
+		// Use the post type of the current page as the context for the random lookup.
 		$post_type = get_post_type();
 
-	if ( ! $post_type )
-		$post_type = 'post';
+		if ( ! $post_type )
+			$post_type = 'post';
+	}
 
 	global $wpdb;
 	$random_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = %s AND post_password = '' AND post_status = 'publish' ORDER BY RAND() LIMIT 1", $post_type ) );

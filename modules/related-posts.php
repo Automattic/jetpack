@@ -2,7 +2,7 @@
 /**
  * Module Name: Related Posts
  * Module Description: Display links to related site content under your posts.
- * First Introduced: 2.8
+ * First Introduced: 2.9
  * Sort Order: 5
  * Requires Connection: Yes
  * Auto Activate: No
@@ -85,7 +85,7 @@ class Jetpack_RelatedPosts_Module {
 		return (int) $wpdb->get_var(
 			"SELECT count(*)
 				FROM {$wpdb->posts}
-				WHERE post_type = 'post' AND post_status = 'publish' AND post_password = ''"
+				WHERE post_status = 'publish' AND post_password = ''"
 		);
 	}
 

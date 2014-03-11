@@ -26,6 +26,7 @@ class Sharing_Admin {
 		wp_enqueue_script( 'sharing-js', WP_SHARING_PLUGIN_URL.'admin-sharing.js', array( 'jquery-ui-draggable', 'jquery-ui-droppable', 'jquery-ui-sortable', 'jquery-form' ), 2 );
 		wp_enqueue_style( 'sharing-admin', WP_SHARING_PLUGIN_URL.'admin-sharing.css', false, JETPACK__VERSION );
 		wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing.css', false, JETPACK__VERSION );
+		wp_enqueue_style( 'genericons' );
 		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 3 );
 
 		add_thickbox();
@@ -156,6 +157,10 @@ class Sharing_Admin {
 
 		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' )
 			echo '<div class="updated"><p>'.__( 'Settings have been saved', 'jetpack' ).'</p></div>';
+
+		if( !isset( $global['sharing_label'] ) || '' == $global['sharing_label']  ) {
+			$global['sharing_label'] = __( 'Share this:', 'jetpack' );
+		}
 ?>
 
 	<div class="wrap">
@@ -176,7 +181,7 @@ class Sharing_Admin {
 		  			<td class="description">
 		  				<h3><?php _e( 'Available Services', 'jetpack' ); ?></h3>
 		  				<p><?php _e( "Drag and drop the services you'd like to enable into the box below.", 'jetpack' ); ?></p>
-		  				<p><a href="#TB_inline?height=395&amp;width=600&amp;inlineId=new-service" title="<?php echo esc_attr( __( 'Add a new service', 'jetpack' ) ); ?>" class="thickbox" id="add-a-new-service"><?php _e( 'Add a new service', 'jetpack' ); ?></a></p>
+		  				<p><a href="#TB_inline?height=395&amp;width=600&amp;inlineId=new-service" class="thickbox" id="add-a-new-service"><?php _e( 'Add a new service', 'jetpack' ); ?></a></p>
 		  			</td>
 		  			<td class="services">
 		  				<ul class="services-available" style="height: 100px;">

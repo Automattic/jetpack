@@ -964,3 +964,18 @@ function jetpack_markdown_more_link() {
 add_action( 'jetpack_learn_more_button_markdown', 'jetpack_markdown_more_link' );
 // Markdown: STOP
 
+// Site Verification Tools: START
+function jetpack_verification_tools_more_info() { ?>
+	<h4><?php esc_html_e( 'Site Verification Tools' , 'jetpack' ); ?></h4>
+	<p><?php esc_html_e( 'Use these tools to verify that you own/control your website with other external services like Google, Bing and Pinterest.', 'jetpack' ); ?></p>
+	<p><?php printf( __( "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage.", 'jetpack' ), '<code>meta</code>' ); ?></p>
+<?php
+}
+add_action( 'jetpack_module_more_info_verification-tools', 'jetpack_verification_tools_more_info' );
+
+function jetpack_verification_tools_more_link() {
+	echo '<a class="button-secondary more-info-link" href="http://support.wordpress.com/webmaster-tools/">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verification_tools_more_link' );
+// Site Verification Tools: STOP
+

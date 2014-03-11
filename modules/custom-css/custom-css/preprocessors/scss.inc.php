@@ -43,7 +43,7 @@
  * @author Leaf Corcoran <leafot@gmail.com>
  */
 class scssc {
-	static public $VERSION = "v0.0.7";
+	static public $VERSION = "v0.0.9";
 
 	static protected $operatorNames = array(
 		'+' => "add",
@@ -67,7 +67,6 @@ class scssc {
 		"function" => "^",
 	);
 
-	static protected $numberPrecision = 5;
 	static protected $unitTable = array(
 		"in" => array(
 			"in" => 1,
@@ -91,9 +90,11 @@ class scssc {
 
 	protected $userFunctions = array();
 
+	protected $numberPrecision = 5;
+
 	protected $formatter = "scss_formatter_nested";
 
-	function compile($code, $name=null) {
+	public function compile($code, $name=null) {
 		$this->indentLevel = -1;
 		$this->commentsSeen = array();
 		$this->extends = array();
@@ -186,6 +187,13 @@ class scssc {
 			$rem = array_diff($single, $target);
 
 			foreach ($origin as $j => $new) {
+				// prevent infinite loop when target extends itself
+				foreach ($new as $new_selector) {
+					if (!array_diff($single, $new_selector)) {
+						continue 2;
+					}
+				}
+
 				$origin[$j][count($origin[$j]) - 1] = $this->combineSelectorSingle(end($new), $rem);
 			}
 
@@ -732,8 +740,9 @@ class scssc {
 				$this->throwError("Expected @content inside of mixin");
 			}
 
+			$strongTypes = array('include', 'block', 'for', 'while');
 			foreach ($content->children as $child) {
-				$this->storeEnv = ($child[0] == 'include' || $child[0] == 'block')
+				$this->storeEnv = (in_array($child[0], $strongTypes))
 					? null
 					: $content->scope;
 
@@ -1131,7 +1140,7 @@ class scssc {
 		return $this->toBool($left[1] < $right[1]);
 	}
 
-	protected function toBool($thing) {
+	public function toBool($thing) {
 		return $thing ? self::$true : self::$false;
 	}
 
@@ -1179,7 +1188,7 @@ class scssc {
 
 			return $h;
 		case "number":
-			return round($value[1], self::$numberPrecision) . $value[2];
+			return round($value[1], $this->numberPrecision) . $value[2];
 		case "string":
 			return $value[1] . $this->compileStringContent($value) . $value[1];
 		case "function":
@@ -1414,7 +1423,7 @@ class scssc {
 			} elseif (!empty($default)) {
 				$val = $default;
 			} else {
-				$this->throwError("Missing argument $$name");
+				$this->throwError("Missing argument $name");
 			}
 
 			$this->set($name, $this->reduce($val, true), true);
@@ -1450,24 +1459,22 @@ class scssc {
 		}
 	}
 
-	// todo: this is bugged?
 	protected function setExisting($name, $value, $env = null) {
 		if (is_null($env)) $env = $this->getStoreEnv();
 
-		if (isset($env->store[$name])) {
+		if (isset($env->store[$name]) || is_null($env->parent)) {
 			$env->store[$name] = $value;
-		} elseif (!is_null($env->parent)) {
-			$this->setExisting($name, $value, $env->parent);
 		} else {
-			$this->env->store[$name] = $value;
+			$this->setExisting($name, $value, $env->parent);
 		}
 	}
 
 	protected function setRaw($name, $value) {
-		$this->env->store[$name] = $value;
+		$env = $this->getStoreEnv();
+		$env->store[$name] = $value;
 	}
 
-	protected function get($name, $defaultValue = null, $env = null) {
+	public function get($name, $defaultValue = null, $env = null) {
 		$name = $this->normalizeName($name);
 
 		if (is_null($env)) $env = $this->getStoreEnv();
@@ -1498,6 +1505,10 @@ class scssc {
 
 	public function setImportPaths($path) {
 		$this->importPaths = (array)$path;
+	}
+
+	public function setNumberPrecision($numberPrecision) {
+		$this->numberPrecision = $numberPrecision;
 	}
 
 	public function setFormatter($formatterName) {
@@ -1533,7 +1544,7 @@ class scssc {
 	}
 
 	// results the file path for an import url if it exists
-	protected function findImport($url) {
+	public function findImport($url) {
 		$urls = array();
 
 		// for "normal" scss imports (ignore vanilla css and external requests)
@@ -1668,8 +1679,10 @@ class scssc {
 		case "keyword":
 			$name = $value[1];
 			if (isset(self::$cssColors[$name])) {
-				list($r, $g, $b) = explode(',', self::$cssColors[$name]);
-				return array('color', (int) $r, (int) $g, (int) $b);
+				@list($r, $g, $b, $a) = explode(',', self::$cssColors[$name]);
+				return isset($a)
+					? array('color', (int) $r, (int) $g, (int) $b, (int) $a)
+					: array('color', (int) $r, (int) $g, (int) $b);
 			}
 			return null;
 		}
@@ -1687,18 +1700,18 @@ class scssc {
 		return null;
 	}
 
-	protected function assertList($value) {
+	public function assertList($value) {
 		if ($value[0] != "list")
 			$this->throwError("expecting list");
 		return $value;
 	}
 
-	protected function assertColor($value) {
+	public function assertColor($value) {
 		if ($color = $this->coerceColor($value)) return $color;
 		$this->throwError("expecting color");
 	}
 
-	protected function assertNumber($value) {
+	public function assertNumber($value) {
 		if ($value[0] != "number")
 			$this->throwError("expecting number");
 		return $value[1];
@@ -1724,7 +1737,7 @@ class scssc {
 		return $c;
 	}
 
-	function toHSL($red, $green, $blue) {
+	public function toHSL($red, $green, $blue) {
 		$r = $red / 255;
 		$g = $green / 255;
 		$b = $blue / 255;
@@ -1753,7 +1766,7 @@ class scssc {
 		return array('hsl', fmod($h, 360), $s * 100, $l * 100);
 	}
 
-	function hueToRGB($m1, $m2, $h) {
+	public function hueToRGB($m1, $m2, $h) {
 		if ($h < 0)
 			$h += 1;
 		elseif ($h > 1)
@@ -1772,7 +1785,7 @@ class scssc {
 	}
 
 	// H from 0 to 360, S and L from 0 to 100
-	function toRGB($hue, $saturation, $lightness) {
+	public function toRGB($hue, $saturation, $lightness) {
 		if ($hue < 0) {
 			$hue += 360;
 		}
@@ -1930,19 +1943,19 @@ class scssc {
 
 	protected static $lib_red = array("color");
 	protected function lib_red($args) {
-		list($color) = $args;
+		$color = $this->coerceColor($args[0]);
 		return $color[1];
 	}
 
 	protected static $lib_green = array("color");
 	protected function lib_green($args) {
-		list($color) = $args;
+		$color = $this->coerceColor($args[0]);
 		return $color[2];
 	}
 
 	protected static $lib_blue = array("color");
 	protected function lib_blue($args) {
-		list($color) = $args;
+		$color = $this->coerceColor($args[0]);
 		return $color[3];
 	}
 
@@ -2188,8 +2201,8 @@ class scssc {
 		$numbers = $this->getNormalizedNumbers($args);
 		$min = null;
 		foreach ($numbers as $key => $number) {
-			if (null === $min || $number <= $min[1]) {
-				$min = array($key, $number);
+			if (null === $min || $number[1] <= $min[1]) {
+				$min = array($key, $number[1]);
 			}
 		}
 
@@ -2200,8 +2213,8 @@ class scssc {
 		$numbers = $this->getNormalizedNumbers($args);
 		$max = null;
 		foreach ($numbers as $key => $number) {
-			if (null === $max || $number >= $max[1]) {
-				$max = array($key, $number);
+			if (null === $max || $number[1] >= $max[1]) {
+				$max = array($key, $number[1]);
 			}
 		}
 
@@ -2220,12 +2233,12 @@ class scssc {
 
 			if (null === $unit) {
 				$unit = $number[2];
+				$originalUnit = $item[2];
 			} elseif ($unit !== $number[2]) {
 				$this->throwError('Incompatible units: "%s" and "%s".', $originalUnit, $item[2]);
 			}
 
-			$originalUnit = $item[2];
-			$numbers[$key] = $number[1];
+			$numbers[$key] = $number;
 		}
 
 		return $numbers;
@@ -2243,7 +2256,6 @@ class scssc {
 		$n = $this->assertNumber($args[1]) - 1;
 		return isset($list[2][$n]) ? $list[2][$n] : self::$defaultValue;
 	}
-
 
 	protected function listSeparatorForJoin($list1, $sep) {
 		if (is_null($sep)) return $list1[1];
@@ -2343,7 +2355,17 @@ class scssc {
 		return $number1[2] == $number2[2] || $number1[2] == "" || $number2[2] == "";
 	}
 
-	protected function throwError($msg = null) {
+	/**
+	 * Workaround IE7's content counter bug.
+	 *
+	 * @param array $args
+	 */
+	protected function lib_counter($args) {
+		$list = array_map(array($this, 'compileValue'), $args);
+		return array('string', '', array('counter(' . implode(',', $list) . ')'));
+	}
+
+	public function throwError($msg = null) {
 		if (func_num_args() > 1) {
 			$msg = call_user_func_array("sprintf", func_get_args());
 		}
@@ -2355,6 +2377,11 @@ class scssc {
 		throw new Exception($msg);
 	}
 
+	/**
+	 * CSS Colors
+	 *
+	 * @see http://www.w3.org/TR/css3-color
+	 */
 	static protected $cssColors = array(
 		'aliceblue' => '240,248,255',
 		'antiquewhite' => '250,235,215',
@@ -2496,6 +2523,7 @@ class scssc {
 		'teal' => '0,128,128',
 		'thistle' => '216,191,216',
 		'tomato' => '255,99,71',
+		'transparent' => '0,0,0,0',
 		'turquoise' => '64,224,208',
 		'violet' => '238,130,238',
 		'wheat' => '245,222,179',
@@ -2542,7 +2570,7 @@ class scss_parser {
 	static protected $commentMultiLeft = "/*";
 	static protected $commentMultiRight = "*/";
 
-	function __construct($sourceName = null, $rootParser = true) {
+	public function __construct($sourceName = null, $rootParser = true) {
 		$this->sourceName = $sourceName;
 		$this->rootParser = $rootParser;
 
@@ -2562,7 +2590,7 @@ class scss_parser {
 			$operators)).')';
 	}
 
-	function parse($buffer) {
+	public function parse($buffer) {
 		$this->count = 0;
 		$this->env = null;
 		$this->inParens = false;
@@ -3325,7 +3353,7 @@ class scss_parser {
 			$args[] = array("string", "", array(", "));
 		}
 
-		if (!$this->literal(")")) {
+		if (!$this->literal(")") || !count($args)) {
 			$this->seek($s);
 			return false;
 		}
@@ -3893,7 +3921,7 @@ class scss_parser {
 	 *
 	 * {@internal This is a workaround for preg_match's 250K string match limit. }}
 	 *
-	 * @param array $m      Matches (passed by reference)
+	 * @param array  $m     Matches (passed by reference)
 	 * @param string $delim Delimeter
 	 *
 	 * @return boolean True if match; false otherwise
@@ -4208,7 +4236,7 @@ class scss_server {
 	 * @return string
 	 */
 	protected function findInput() {
-		if ($input = $this->inputName()
+		if (($input = $this->inputName())
 			&& strpos($input, '..') === false
 			&& substr($input, -5) === '.scss'
 		) {
@@ -4290,10 +4318,12 @@ class scss_server {
 
 	/**
 	 * Compile requested scss and serve css.  Outputs HTTP response.
+	 *
+	 * @param string $salt Prefix a string to the filename for creating the cache name hash
 	 */
-	public function serve() {
+	public function serve($salt = '') {
 		if ($input = $this->findInput()) {
-			$output = $this->cacheName($input);
+			$output = $this->cacheName($salt . $input);
 			header('Content-type: text/css');
 
 			if ($this->needsCompile($input, $output)) {
@@ -4332,7 +4362,7 @@ class scss_server {
 		}
 
 		$this->cacheDir = $cacheDir;
-		if (!is_dir($this->cacheDir)) mkdir($this->cacheDir);
+		if (!is_dir($this->cacheDir)) mkdir($this->cacheDir, 0755, true);
 
 		if (is_null($scss)) {
 			$scss = new scssc();
