@@ -31,11 +31,6 @@
 		modules.trigger( 'change' );
 	};
 
-
-	/**
-	 * Temporarily comment out, as our table no longer has a tags column.
-	 */
-	// $the_table.on( 'click', '.module_tags a', { modules : modules }, handle_module_tag_click );
 	$( '.subsubsub a' ).on( 'click', { modules : modules }, handle_module_tag_click );
 
 	show_modal = function( module, tab ) {
