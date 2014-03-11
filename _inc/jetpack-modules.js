@@ -66,6 +66,14 @@
 		set_modal_tab( $(this).data('tab') );
 	} );
 
+	$jp_frame.children( '.modal' ).on( 'learn-more', function() {
+		$(this).find('.content').html( items.latex.long_description );
+	} );
+
+	$jp_frame.children( '.modal' ).on( 'config', function() {
+		$(this).find('.content').html( 'config' );
+	} );
+
 	$the_table.on( 'click', '.info a', { modules : modules }, function( event ) {
 		event.preventDefault();
 		show_modal( {}, 'learn-more' );
