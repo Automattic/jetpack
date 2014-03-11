@@ -29,8 +29,10 @@
 
 		event.preventDefault();
 		modules.trigger( 'change' );
-	}
+	};
+
 	$('.subsubsub a').on( 'click', { modules : modules }, handle_module_tag_click );
+
 	/**
 	 * Temporarily comment out, as our table no longer has a tags column.
 	 */
@@ -39,12 +41,13 @@
 	show_modal = function( module, tab ) {
 		$jp_frame.children('.modal, .shade').show();
 		set_modal_tab( tab );
-	}
+	};
 
 	hide_modal = function() {
 		$jp_frame.children('.modal, .shade').hide();
 		set_modal_tab( null );
-	}
+	};
+
 	$jp_frame.on( 'click', '.modal header .close, .shade', hide_modal );
 
 	set_modal_tab = function( tab ) {
@@ -61,7 +64,8 @@
 			default:
 				break;
 		}
-	}
+	};
+
 	$jp_frame.on( 'click', '.modal header ul li a', function( event ){
 		event.preventDefault();
 		set_modal_tab( $(this).data('tab') );
@@ -83,7 +87,7 @@
 		modules.trigger( 'change' );
 	} );
 
-	$the_search.on( 'keyup', function( event ) {
+	$the_search.on( 'keyup', function() {
 		modules.trigger( 'change' );
 	} );
 
