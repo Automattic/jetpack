@@ -1,0 +1,1323 @@
+/**
+ * Some files in Jetpack are also used on WordPress.com.
+ *
+ * This file keeps track of the last revision where each common file was the
+ * same on both sides. Each entry listed specifies both a wpcom revision and
+ * a Jetpack revision; the file was the same in both projects as of those
+ * revisions.
+ *
+ * If a file's entry is an empty array, it means that the files have not yet
+ * reached parity since this JSON array was created.
+ *
+ * This comment is automatically inserted by the script that generates this
+ * file, so it should not be manually modified in the Jetpack repository.
+ */
+{
+    "class.jetpack-user-agent.php": {
+        "wpcom": 83186,
+        "jetpack": "1847156"
+    },
+    "class.json-api.php": {
+        "wpcom": 90550,
+        "jetpack": "8e75c1a"
+    },
+    "class.media-summary.php": {
+        "wpcom": 91750,
+        "jetpack": "782f5f7"
+    },
+    "functions.gallery.php": {
+        "wpcom": 69890,
+        "jetpack": "07f0cd9"
+    },
+    "functions.opengraph.php": {
+        "wpcom": 89169,
+        "jetpack": "9db85ff"
+    },
+    "functions.photon.php": {
+        "wpcom": 76636,
+        "jetpack": "f734ca6"
+    },
+    "functions.twitter-cards.php": {
+        "wpcom": 92129,
+        "jetpack": "eab289b"
+    },
+    "locales.php": {
+        "wpcom": 90457,
+        "jetpack": "22930a0"
+    },
+    "require-lib.php": {
+        "wpcom": 76734,
+        "jetpack": "28fdbcd"
+    },
+    "_inc/gallery-settings.js": {
+        "wpcom": 69887,
+        "jetpack": "fc28da0"
+    },
+    "_inc/genericons/COPYING.txt": {
+        "wpcom": 79693,
+        "jetpack": "61f96b5"
+    },
+    "_inc/genericons/Genericons-Regular.otf": {
+        "wpcom": 88410,
+        "jetpack": "faae7e6"
+    },
+    "_inc/genericons/LICENSE.txt": {
+        "wpcom": 79693,
+        "jetpack": "61f96b5"
+    },
+    "_inc/genericons/README.txt": {
+        "wpcom": 88410,
+        "jetpack": "faae7e6"
+    },
+    "_inc/genericons/example.html": {
+        "wpcom": 88410,
+        "jetpack": "faae7e6"
+    },
+    "_inc/genericons/font/genericons-regular-webfont.eot": {
+        "wpcom": 88410,
+        "jetpack": "faae7e6"
+    },
+    "_inc/genericons/font/genericons-regular-webfont.svg": {
+        "wpcom": 88410,
+        "jetpack": "faae7e6"
+    },
+    "_inc/genericons/font/genericons-regular-webfont.ttf": {
+        "wpcom": 88410,
+        "jetpack": "faae7e6"
+    },
+    "_inc/genericons/font/genericons-regular-webfont.woff": {
+        "wpcom": 88410,
+        "jetpack": "faae7e6"
+    },
+    "_inc/genericons/genericons.css": {
+        "wpcom": 88410,
+        "jetpack": "faae7e6"
+    },
+    "_inc/genericons/rtl/genericons-rtl.css": {
+        "wpcom": 88410,
+        "jetpack": "6c40862"
+    },
+    "_inc/genericons.php": {
+        "wpcom": 88410,
+        "jetpack": "faae7e6"
+    },
+    "_inc/jquery.inview.js": {
+        "wpcom": 71919,
+        "jetpack": "7d9e748"
+    },
+    "_inc/jquery.jetpack-resize.js": {
+        "wpcom": 71919,
+        "jetpack": "7d9e748"
+    },
+    "_inc/jquery.spin.js": {
+        "wpcom": 74686,
+        "jetpack": "c77a615"
+    },
+    "_inc/lib/class.color.php": {
+        "wpcom": 80504,
+        "jetpack": "338fd4b"
+    },
+    "_inc/lib/icalendar-reader.php": {
+        "wpcom": 88998,
+        "jetpack": "c1c58e5"
+    },
+    "_inc/lib/tonesque.php": {
+        "wpcom": 80435,
+        "jetpack": "338fd4b"
+    },
+    "_inc/postmessage.js": {
+        "wpcom": 71920,
+        "jetpack": "7d9e748"
+    },
+    "_inc/spin.js": {
+        "wpcom": 74686,
+        "jetpack": "d00226a"
+    },
+    "modules/carousel/README": {
+        "wpcom": 81441,
+        "jetpack": "bdcdb37"
+    },
+    "modules/carousel/images/arrows-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/carousel/images/arrows.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/carousel/images/carousel-likereblog-2x.png": {
+        "wpcom": 52819,
+        "jetpack": "976c5a7"
+    },
+    "modules/carousel/images/carousel-likereblog.png": {
+        "wpcom": 52819,
+        "jetpack": "976c5a7"
+    },
+    "modules/carousel/images/carousel-link-2x.png": {
+        "wpcom": 51092,
+        "jetpack": "976c5a7"
+    },
+    "modules/carousel/images/carousel-link.png": {
+        "wpcom": 51092,
+        "jetpack": "976c5a7"
+    },
+    "modules/carousel/jetpack-carousel-ie8fix.css": {
+        "wpcom": 60632,
+        "jetpack": "9031bf5"
+    },
+    "modules/carousel/jetpack-carousel.php": {
+        "wpcom": 87275,
+        "jetpack": "8d654cb"
+    },
+    "modules/carousel/patch.diff": {
+        "wpcom": 0,
+        "jetpack": ""
+    },
+    "modules/carousel.php": {
+        "wpcom": 86090,
+        "jetpack": "a67509b"
+    },
+    "modules/comments/base.php": {
+        "wpcom": 80557,
+        "jetpack": "0312cf7"
+    },
+    "modules/contact-form/css/grunion.css": {
+        "wpcom": 68551,
+        "jetpack": "2f6e3fb"
+    },
+    "modules/contact-form/css/menu-alter.css": {
+        "wpcom": 86171,
+        "jetpack": "f0c754c"
+    },
+    "modules/contact-form/css/rtl/grunion-rtl.css": {
+        "wpcom": 68551,
+        "jetpack": "2f6e3fb"
+    },
+    "modules/contact-form/css/rtl/menu-alter-rtl.css": {
+        "wpcom": 86176,
+        "jetpack": "f8054ee"
+    },
+    "modules/contact-form/grunion-form-view.php": {
+        "wpcom": 75356,
+        "jetpack": "989c808"
+    },
+    "modules/contact-form/grunion-omnisearch.php": {
+        "wpcom": 75955,
+        "jetpack": "989c808"
+    },
+    "modules/contact-form/images/blank-screen-akismet.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/contact-form/images/blank-screen-button.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/contact-form/images/grunion-form-2x.png": {
+        "wpcom": 54815,
+        "jetpack": "b8943d7"
+    },
+    "modules/contact-form/images/grunion-form.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/contact-form/images/grunion-menu-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/contact-form/images/grunion-menu-big-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/contact-form/images/grunion-menu-big.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/contact-form/images/grunion-menu-hover-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/contact-form/images/grunion-menu-hover.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/contact-form/images/grunion-menu.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/contact-form/images/grunion-remove-field-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/contact-form/images/grunion-remove-field-hover-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/contact-form/images/grunion-remove-field-hover.gif": {
+        "wpcom": 30509,
+        "jetpack": "e7ef3e0"
+    },
+    "modules/contact-form/images/grunion-remove-field.gif": {
+        "wpcom": 30509,
+        "jetpack": "e7ef3e0"
+    },
+    "modules/contact-form/images/grunion-remove-option-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/contact-form/images/grunion-remove-option-hover-2x.png": {
+        "wpcom": 54815,
+        "jetpack": "b8943d7"
+    },
+    "modules/contact-form/images/grunion-remove-option-hover.gif": {
+        "wpcom": 30509,
+        "jetpack": "e7ef3e0"
+    },
+    "modules/contact-form/images/grunion-remove-option.gif": {
+        "wpcom": 30509,
+        "jetpack": "e7ef3e0"
+    },
+    "modules/contact-form/js/grunion-frontend.js": {
+        "wpcom": 69483,
+        "jetpack": "40e7bbe"
+    },
+    "modules/contact-form/js/grunion.js": {
+        "wpcom": 72962,
+        "jetpack": "970117f"
+    },
+    "modules/contact-form/readme.txt": {
+        "wpcom": 54815,
+        "jetpack": "f701499"
+    },
+    "modules/custom-css/csstidy/class.csstidy.php": {
+        "wpcom": 71910,
+        "jetpack": "53adf94"
+    },
+    "modules/custom-css/csstidy/class.csstidy_ctype.php": {
+        "wpcom": 48198,
+        "jetpack": "4db9a7b"
+    },
+    "modules/custom-css/csstidy/class.csstidy_optimise.php": {
+        "wpcom": 75613,
+        "jetpack": "b75174f"
+    },
+    "modules/custom-css/csstidy/class.csstidy_print.php": {
+        "wpcom": 71910,
+        "jetpack": "7d9e748"
+    },
+    "modules/custom-css/csstidy/cssparse.css": {
+        "wpcom": 48198,
+        "jetpack": "4db9a7b"
+    },
+    "modules/custom-css/csstidy/cssparsed.css": {
+        "wpcom": 48198,
+        "jetpack": "4db9a7b"
+    },
+    "modules/custom-css/csstidy/data-wp.inc.php": {
+        "wpcom": 71654,
+        "jetpack": "2121626"
+    },
+    "modules/custom-css/csstidy/data.inc.php": {
+        "wpcom": 74069,
+        "jetpack": "5b4bc32"
+    },
+    "modules/custom-css/csstidy/lang.inc.php": {
+        "wpcom": 71910,
+        "jetpack": "7d9e748"
+    },
+    "modules/custom-css/csstidy/wordpress-standard.tpl": {
+        "wpcom": 59739,
+        "jetpack": "1ea23f9"
+    },
+    "modules/custom-css/custom-css/css/codemirror.css": {
+        "wpcom": 84059,
+        "jetpack": "1f99a64"
+    },
+    "modules/custom-css/custom-css/css/css-editor.css": {
+        "wpcom": 78723,
+        "jetpack": "0ae7647"
+    },
+    "modules/custom-css/custom-css/css/use-codemirror.css": {
+        "wpcom": 82020,
+        "jetpack": "a97fc71"
+    },
+    "modules/custom-css/custom-css/js/codemirror.min.js": {
+        "wpcom": 84147,
+        "jetpack": "1f99a64"
+    },
+    "modules/custom-css/custom-css/js/css-editor.js": {
+        "wpcom": 70357,
+        "jetpack": "bc9c55d"
+    },
+    "modules/custom-css/custom-css/js/use-codemirror.js": {
+        "wpcom": 82020,
+        "jetpack": "a97fc71"
+    },
+    "modules/custom-css/custom-css/preprocessors/lessc.inc.php": {
+        "wpcom": 78563,
+        "jetpack": "ff332d9"
+    },
+    "modules/custom-css/custom-css/preprocessors.php": {
+        "wpcom": 70918,
+        "jetpack": "56fc6bc"
+    },
+    "modules/custom-post-types/comics/admin.css": {
+        "wpcom": 86197,
+        "jetpack": "34cdfb0"
+    },
+    "modules/custom-post-types/comics/comics.css": {
+        "wpcom": 76496,
+        "jetpack": "0647712"
+    },
+    "modules/custom-post-types/comics/comics.js": {
+        "wpcom": 76494,
+        "jetpack": "0647712"
+    },
+    "modules/custom-post-types/comics/rtl/comics-rtl.css": {
+        "wpcom": 76496,
+        "jetpack": "0647712"
+    },
+    "modules/custom-post-types/css/nova-font.css": {
+        "wpcom": 87066,
+        "jetpack": ""
+    },
+    "modules/custom-post-types/css/nova.css": {
+        "wpcom": 87047,
+        "jetpack": ""
+    },
+    "modules/custom-post-types/js/menu-checkboxes.js": {
+        "wpcom": 58517,
+        "jetpack": "d86cf8a"
+    },
+    "modules/custom-post-types/js/nova-drag-drop.js": {
+        "wpcom": 61999,
+        "jetpack": "d86cf8a"
+    },
+    "modules/gplus-authorship/admin/listener.js": {
+        "wpcom": 80389,
+        "jetpack": "c638c61"
+    },
+    "modules/gplus-authorship/admin/style.css": {
+        "wpcom": 79333,
+        "jetpack": "298e36c"
+    },
+    "modules/gplus-authorship/admin/ui.php": {
+        "wpcom": 80733,
+        "jetpack": "6763861"
+    },
+    "modules/gplus-authorship/style.css": {
+        "wpcom": 79888,
+        "jetpack": "298e36c"
+    },
+    "modules/infinite-scroll/infinity.css": {
+        "wpcom": 71245,
+        "jetpack": "cf4306e"
+    },
+    "modules/infinite-scroll/infinity.js": {
+        "wpcom": 89519,
+        "jetpack": "7741a49"
+    },
+    "modules/infinite-scroll/themes/twentyeleven.css": {
+        "wpcom": 58712,
+        "jetpack": "bc3fe42"
+    },
+    "modules/infinite-scroll/themes/twentyeleven.php": {
+        "wpcom": 83074,
+        "jetpack": "67cf9c6"
+    },
+    "modules/infinite-scroll/themes/twentyfourteen.css": {
+        "wpcom": 84731,
+        "jetpack": "0aa9352"
+    },
+    "modules/infinite-scroll/themes/twentyfourteen.php": {
+        "wpcom": 84731,
+        "jetpack": "0aa9352"
+    },
+    "modules/infinite-scroll/themes/twentyten.css": {
+        "wpcom": 58710,
+        "jetpack": "bc3fe42"
+    },
+    "modules/infinite-scroll/themes/twentyten.php": {
+        "wpcom": 61119,
+        "jetpack": "39ac535"
+    },
+    "modules/infinite-scroll/themes/twentythirteen.css": {
+        "wpcom": 74722,
+        "jetpack": "6f4a236"
+    },
+    "modules/infinite-scroll/themes/twentythirteen.php": {
+        "wpcom": 71378,
+        "jetpack": "c884c9d"
+    },
+    "modules/infinite-scroll/themes/twentytwelve.css": {
+        "wpcom": 60331,
+        "jetpack": "bc3fe42"
+    },
+    "modules/infinite-scroll/themes/twentytwelve.php": {
+        "wpcom": 61119,
+        "jetpack": "39ac535"
+    },
+    "modules/likes/post-count-jetpack.js": {
+        "wpcom": 78911,
+        "jetpack": "85de5ae"
+    },
+    "modules/likes/post-count.js": {
+        "wpcom": 78911,
+        "jetpack": "85de5ae"
+    },
+    "modules/minileven/images/wp-app-devices.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/minileven/minileven.php": {
+        "wpcom": 69229,
+        "jetpack": "0685e8c"
+    },
+    "modules/minileven/theme/pub/minileven/comments.php": {
+        "wpcom": 11007,
+        "jetpack": "eaa90f9"
+    },
+    "modules/minileven/theme/pub/minileven/content-gallery.php": {
+        "wpcom": 15680,
+        "jetpack": "d29f5f1"
+    },
+    "modules/minileven/theme/pub/minileven/content.php": {
+        "wpcom": 14521,
+        "jetpack": "1cee56c"
+    },
+    "modules/minileven/theme/pub/minileven/footer.php": {
+        "wpcom": 13053,
+        "jetpack": "57fcd65"
+    },
+    "modules/minileven/theme/pub/minileven/image.php": {
+        "wpcom": 15914,
+        "jetpack": "f6c261d"
+    },
+    "modules/minileven/theme/pub/minileven/inc/custom-header.php": {
+        "wpcom": 13847,
+        "jetpack": "690b952"
+    },
+    "modules/minileven/theme/pub/minileven/inc/fonts/genericons-regular-webfont.eot": {
+        "wpcom": 13136,
+        "jetpack": "35fc79f"
+    },
+    "modules/minileven/theme/pub/minileven/inc/fonts/genericons-regular-webfont.svg": {
+        "wpcom": 13136,
+        "jetpack": "35fc79f"
+    },
+    "modules/minileven/theme/pub/minileven/inc/fonts/genericons-regular-webfont.ttf": {
+        "wpcom": 13136,
+        "jetpack": "35fc79f"
+    },
+    "modules/minileven/theme/pub/minileven/inc/fonts/genericons-regular-webfont.woff": {
+        "wpcom": 13136,
+        "jetpack": "35fc79f"
+    },
+    "modules/minileven/theme/pub/minileven/inc/template-tags.php": {
+        "wpcom": 13136,
+        "jetpack": "57fcd65"
+    },
+    "modules/minileven/theme/pub/minileven/inc/tweaks.php": {
+        "wpcom": 14158,
+        "jetpack": "add5073"
+    },
+    "modules/minileven/theme/pub/minileven/index.php": {
+        "wpcom": 13136,
+        "jetpack": "57fcd65"
+    },
+    "modules/minileven/theme/pub/minileven/js/small-menu.js": {
+        "wpcom": 13136,
+        "jetpack": "57fcd65"
+    },
+    "modules/minileven/theme/pub/minileven/page.php": {
+        "wpcom": 11007,
+        "jetpack": "eaa90f9"
+    },
+    "modules/minileven/theme/pub/minileven/rtl.css": {
+        "wpcom": 8641,
+        "jetpack": "fe5a2f8"
+    },
+    "modules/minileven/theme/pub/minileven/screenshot.png": {
+        "wpcom": 16374,
+        "jetpack": "40ca6a0"
+    },
+    "modules/minileven/theme/pub/minileven/searchform.php": {
+        "wpcom": 11007,
+        "jetpack": "eaa90f9"
+    },
+    "modules/minileven/theme/pub/minileven/sidebar.php": {
+        "wpcom": 10308,
+        "jetpack": "fe5a2f8"
+    },
+    "modules/minileven/theme/pub/minileven/style.css": {
+        "wpcom": 16165,
+        "jetpack": "0f32a52"
+    },
+    "modules/omnisearch/omnisearch-comments.php": {
+        "wpcom": 75584,
+        "jetpack": "a745147"
+    },
+    "modules/omnisearch/omnisearch-core.php": {
+        "wpcom": 78693,
+        "jetpack": "0238167"
+    },
+    "modules/omnisearch/omnisearch-jetpack.css": {
+        "wpcom": 75380,
+        "jetpack": "e454dcc"
+    },
+    "modules/omnisearch/omnisearch-media.php": {
+        "wpcom": 78693,
+        "jetpack": "0238167"
+    },
+    "modules/omnisearch/omnisearch-plugins.php": {
+        "wpcom": 75584,
+        "jetpack": "a745147"
+    },
+    "modules/omnisearch/omnisearch.css": {
+        "wpcom": 86184,
+        "jetpack": "34cdfb0"
+    },
+    "modules/omnisearch/rtl/omnisearch-jetpack-rtl.css": {
+        "wpcom": 75380,
+        "jetpack": "989c3f3"
+    },
+    "modules/omnisearch/rtl/omnisearch-rtl.css": {
+        "wpcom": 86184,
+        "jetpack": "b52519f"
+    },
+    "modules/omnisearch.php": {
+        "wpcom": 86090,
+        "jetpack": "a67509b"
+    },
+    "modules/publicize/assets/connected.gif": {
+        "wpcom": 51642,
+        "jetpack": "8bfb1d0"
+    },
+    "modules/publicize/assets/facebook-logo.png": {
+        "wpcom": 79732,
+        "jetpack": "cc8b3a6"
+    },
+    "modules/publicize/assets/linkedin-logo.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/publicize/assets/publicize-fb-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/publicize/assets/publicize-linkedin-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/publicize/assets/publicize-path-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/publicize/assets/publicize-tumblr-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/publicize/assets/publicize-twitter-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/publicize/assets/publicize.css": {
+        "wpcom": 88816,
+        "jetpack": "967b009"
+    },
+    "modules/publicize/assets/publicize.js": {
+        "wpcom": 83419,
+        "jetpack": "8abc914"
+    },
+    "modules/publicize/assets/rtl/publicize-rtl.css": {
+        "wpcom": 88816,
+        "jetpack": "967b009"
+    },
+    "modules/publicize/assets/spinner.gif": {
+        "wpcom": 51642,
+        "jetpack": "8bfb1d0"
+    },
+    "modules/publicize/assets/tumblr-logo.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/publicize/assets/twitter-logo.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/publicize/enhanced-open-graph.php": {
+        "wpcom": 87423,
+        "jetpack": "588e992"
+    },
+    "modules/sharedaddy/admin-sharing.css": {
+        "wpcom": 91045,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/admin-sharing.js": {
+        "wpcom": 92096,
+        "jetpack": "bf4b8f1"
+    },
+    "modules/sharedaddy/images/custom.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/custom@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/designfloat.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/digg.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/digg@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/divider.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/divider@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/draggy.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/draggy@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/email.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/email@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/ember.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/facebook.png": {
+        "wpcom": 77274,
+        "jetpack": "4b8c1e2"
+    },
+    "modules/sharedaddy/images/facebook@2x.png": {
+        "wpcom": 77274,
+        "jetpack": "4b8c1e2"
+    },
+    "modules/sharedaddy/images/feed.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/googleplus1.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/googleplus1@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/icon-facebook-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/icon-facebook.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/icon-googleplus-2x.png": {
+        "wpcom": 79152,
+        "jetpack": "c575d3c"
+    },
+    "modules/sharedaddy/images/icon-googleplus.png": {
+        "wpcom": 79136,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/icon-twitter-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/icon-twitter.png": {
+        "wpcom": 54964,
+        "jetpack": "d21268e"
+    },
+    "modules/sharedaddy/images/icon-wordpress-2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/icon-wordpress.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/kindle.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/kindle@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/linkedin-horizontal.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/linkedin-horizontal@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/linkedin-nocount.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/linkedin-nocount@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/linkedin-smart.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/linkedin-smart@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/linkedin-vertical.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/linkedin-vertical@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/linkedin.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/linkedin@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/loading.gif": {
+        "wpcom": 39520,
+        "jetpack": "99e10ba"
+    },
+    "modules/sharedaddy/images/more.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/more@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/pinterest.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/pinterest@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/pocket.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/pocket@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/print.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/print@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/reddit.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/reddit@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/rss.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/rss@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/share-bg.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/sharing-hidden.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/sharing-hidden@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/smart-digg.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/smart-digg@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/smart-facebook.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/smart-facebook@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/smart-googleplus1.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/smart-googleplus1@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/smart-like.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/smart-like@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/smart-pinterest.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/smart-pinterest@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/smart-pocket.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/smart-pocket@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/smart-reddit.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/smart-reddit@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/smart-stumbleupon.png": {
+        "wpcom": 53417,
+        "jetpack": "8112aa0"
+    },
+    "modules/sharedaddy/images/smart-stumbleupon@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/smart-tumblr.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/smart-tumblr@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/smart-twitter.png": {
+        "wpcom": 52433,
+        "jetpack": "8112aa0"
+    },
+    "modules/sharedaddy/images/smart-twitter@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/stumbleupon.png": {
+        "wpcom": 54896,
+        "jetpack": "8112aa0"
+    },
+    "modules/sharedaddy/images/stumbleupon@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/tumblr.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/tumblr@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/twitter.png": {
+        "wpcom": 54896,
+        "jetpack": "8112aa0"
+    },
+    "modules/sharedaddy/images/twitter@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/images/wordpress.png": {
+        "wpcom": 90090,
+        "jetpack": "5502550"
+    },
+    "modules/sharedaddy/images/wordpress@2x.png": {
+        "wpcom": 90090,
+        "jetpack": "30a1cad"
+    },
+    "modules/sharedaddy/recaptchalib.php": {
+        "wpcom": 71922,
+        "jetpack": "6a4af8e"
+    },
+    "modules/shortcodes/archives.php": {
+        "wpcom": 81092,
+        "jetpack": "b363382"
+    },
+    "modules/shortcodes/audio.php": {
+        "wpcom": 73745,
+        "jetpack": "fa71211"
+    },
+    "modules/shortcodes/bandcamp.php": {
+        "wpcom": 89327,
+        "jetpack": "dcb6725"
+    },
+    "modules/shortcodes/css/rtl/slideshow-shortcode-rtl.css": {
+        "wpcom": 91149,
+        "jetpack": "991d021"
+    },
+    "modules/shortcodes/css/style.css": {
+        "wpcom": 80293,
+        "jetpack": "0165a3b"
+    },
+    "modules/shortcodes/dailymotion.php": {
+        "wpcom": 83887,
+        "jetpack": "d812fe7"
+    },
+    "modules/shortcodes/diggthis.php": {
+        "wpcom": 71923,
+        "jetpack": "7d9e748"
+    },
+    "modules/shortcodes/facebook.php": {
+        "wpcom": 85151,
+        "jetpack": "9b9b2eb"
+    },
+    "modules/shortcodes/flickr.php": {
+        "wpcom": 87507,
+        "jetpack": "42b7a9f"
+    },
+    "modules/shortcodes/googlemaps.php": {
+        "wpcom": 87300,
+        "jetpack": "c822753"
+    },
+    "modules/shortcodes/googleplus.php": {
+        "wpcom": 80893,
+        "jetpack": "98b0d6d"
+    },
+    "modules/shortcodes/googlevideo.php": {
+        "wpcom": 71923,
+        "jetpack": "7d9e748"
+    },
+    "modules/shortcodes/images/collapse.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/shortcodes/images/expand.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/shortcodes/images/slide-nav.png": {
+        "wpcom": 90090,
+        "jetpack": "40ca6a0"
+    },
+    "modules/shortcodes/img/slideshow-controls-2x.png": {
+        "wpcom": 64401,
+        "jetpack": "6ec0c8b"
+    },
+    "modules/shortcodes/img/slideshow-controls.png": {
+        "wpcom": 64401,
+        "jetpack": "6ec0c8b"
+    },
+    "modules/shortcodes/img/slideshow-loader.gif": {
+        "wpcom": 64401,
+        "jetpack": "6ec0c8b"
+    },
+    "modules/shortcodes/js/audio-shortcode.js": {
+        "wpcom": 70427,
+        "jetpack": "9bac92c"
+    },
+    "modules/shortcodes/js/jmpress.js": {
+        "wpcom": 76912,
+        "jetpack": "ce610aa"
+    },
+    "modules/shortcodes/js/jmpress.min.js": {
+        "wpcom": 76912,
+        "jetpack": "ce610aa"
+    },
+    "modules/shortcodes/js/jquery.cycle.js": {
+        "wpcom": 71923,
+        "jetpack": "7d9e748"
+    },
+    "modules/shortcodes/js/main.js": {
+        "wpcom": 80296,
+        "jetpack": "2d67a98"
+    },
+    "modules/shortcodes/js/slideshow-shortcode.js": {
+        "wpcom": 64703,
+        "jetpack": "2024d2e"
+    },
+    "modules/shortcodes/scribd.php": {
+        "wpcom": 49328,
+        "jetpack": "e7ef3e0"
+    },
+    "modules/shortcodes/soundcloud.php": {
+        "wpcom": 67367,
+        "jetpack": "33697be"
+    },
+    "modules/shortcodes/ted.php": {
+        "wpcom": 69908,
+        "jetpack": "41b6683"
+    },
+    "modules/shortcodes/twitter-timeline.php": {
+        "wpcom": 87839,
+        "jetpack": "2d37080"
+    },
+    "modules/shortcodes/upcoming-events.php": {
+        "wpcom": 88548,
+        "jetpack": "31c6d94"
+    },
+    "modules/shortcodes/vimeo.php": {
+        "wpcom": 89060,
+        "jetpack": "0f68c04"
+    },
+    "modules/shortcodes/vine.php": {
+        "wpcom": 80993,
+        "jetpack": "e85f307"
+    },
+    "modules/shortcodes/youtube.php": {
+        "wpcom": 89328,
+        "jetpack": "393672c"
+    },
+    "modules/theme-tools/social-links.php": {
+        "wpcom": 90419,
+        "jetpack": "d5ec39b"
+    },
+    "modules/tiled-gallery/math/class-constrained-array-rounding.php": {
+        "wpcom": 71926,
+        "jetpack": "7d9e748"
+    },
+    "modules/tiled-gallery/tiled-gallery/rtl/tiled-gallery-rtl.css": {
+        "wpcom": 77775,
+        "jetpack": "cd9bcd5"
+    },
+    "modules/tiled-gallery/tiled-gallery/tiled-gallery.css": {
+        "wpcom": 77775,
+        "jetpack": "cd9bcd5"
+    },
+    "modules/tiled-gallery/tiled-gallery/tiled-gallery.js": {
+        "wpcom": 76423,
+        "jetpack": "5784e80"
+    },
+    "modules/widget-visibility/widget-conditions/rtl/widget-conditions-rtl.css": {
+        "wpcom": 71467,
+        "jetpack": "9cff228"
+    },
+    "modules/widget-visibility/widget-conditions/widget-conditions.css": {
+        "wpcom": 69545,
+        "jetpack": "9cff228"
+    },
+    "modules/widget-visibility/widget-conditions/widget-conditions.js": {
+        "wpcom": 69545,
+        "jetpack": "9cff228"
+    },
+    "modules/widgets/facebook-likebox.php": {
+        "wpcom": 90761,
+        "jetpack": "c20af5a"
+    },
+    "modules/widgets/gallery/css/admin.css": {
+        "wpcom": 70282,
+        "jetpack": "5446d85"
+    },
+    "modules/widgets/gallery/css/rtl/admin-rtl.css": {
+        "wpcom": 70282,
+        "jetpack": "5446d85"
+    },
+    "modules/widgets/gallery/js/admin.js": {
+        "wpcom": 80180,
+        "jetpack": "5446d85"
+    },
+    "modules/widgets/gallery/js/gallery.js": {
+        "wpcom": 70282,
+        "jetpack": "5446d85"
+    },
+    "modules/widgets/gallery.php": {
+        "wpcom": 86183,
+        "jetpack": "9428d4e"
+    },
+    "modules/widgets/gravatar-profile.css": {
+        "wpcom": 71925,
+        "jetpack": "7d9e748"
+    },
+    "modules/widgets/gravatar-profile.php": {
+        "wpcom": 89336,
+        "jetpack": "e6f8306"
+    },
+    "modules/widgets/readmill.php": {
+        "wpcom": 70980,
+        "jetpack": "2af8fcf"
+    },
+    "modules/widgets/twitter-timeline.php": {
+        "wpcom": 89339,
+        "jetpack": "0c6edd3"
+    },
+    "modules/widgets/widget-grid-and-list.css": {
+        "wpcom": 58572,
+        "jetpack": "141f7b1"
+    },
+    "modules/widgets/wordpress-post-widget/style.css": {
+        "wpcom": 81449,
+        "jetpack": "498fd23"
+    },
+    "modules/widgets/wordpress-post-widget.php": {
+        "wpcom": 91118,
+        "jetpack": "3e6ab68"
+    },
+    "class.jetpack-options.php": [
+
+    ],
+    "class.jetpack-post-images.php": [
+
+    ],
+    "class.json-api-endpoints.php": [
+
+    ],
+    "class.media-extractor.php": [
+
+    ],
+    "modules/carousel/images/carousel-sprite-2x.png": [
+
+    ],
+    "modules/carousel/images/carousel-sprite.png": [
+
+    ],
+    "modules/carousel/jetpack-carousel.css": [
+
+    ],
+    "modules/carousel/jetpack-carousel.js": [
+
+    ],
+    "modules/carousel/rtl/jetpack-carousel-rtl.css": [
+
+    ],
+    "modules/contact-form/admin.php": [
+
+    ],
+    "modules/contact-form/grunion-contact-form.php": [
+
+    ],
+    "modules/custom-css/custom-css/preprocessors/scss.inc.php": [
+
+    ],
+    "modules/custom-css/custom-css.php": [
+
+    ],
+    "modules/custom-post-types/comics.php": [
+
+    ],
+    "modules/custom-post-types/js/many-items.js": [
+
+    ],
+    "modules/custom-post-types/nova.php": [
+
+    ],
+    "modules/custom-post-types/testimonial.php": [
+
+    ],
+    "modules/gplus-authorship.php": [
+
+    ],
+    "modules/infinite-scroll/infinity.php": [
+
+    ],
+    "modules/likes/style.css": [
+
+    ],
+    "modules/likes.php": [
+
+    ],
+    "modules/minileven/theme/pub/minileven/functions.php": [
+
+    ],
+    "modules/minileven/theme/pub/minileven/header.php": [
+
+    ],
+    "modules/omnisearch/omnisearch-posts.php": [
+
+    ],
+    "modules/publicize/publicize.php": [
+
+    ],
+    "modules/publicize.php": [
+
+    ],
+    "modules/sharedaddy/sharing-service.php": [
+
+    ],
+    "modules/sharedaddy/sharing-sources.php": [
+
+    ],
+    "modules/sharedaddy/sharing.css": [
+
+    ],
+    "modules/sharedaddy/sharing.js": [
+
+    ],
+    "modules/sharedaddy/sharing.php": [
+
+    ],
+    "modules/shortcodes/css/slideshow-shortcode.css": [
+
+    ],
+    "modules/shortcodes/presentations.php": [
+
+    ],
+    "modules/shortcodes/slideshow.php": [
+
+    ],
+    "modules/theme-tools/featured-content.php": [
+
+    ],
+    "modules/theme-tools/random-redirect.php": [
+
+    ],
+    "modules/tiled-gallery/tiled-gallery.php": [
+
+    ],
+    "modules/widget-visibility/widget-conditions.php": [
+
+    ],
+    "modules/widgets/gallery/templates/form.php": [
+
+    ],
+    "modules/widgets/top-posts.php": [
+
+    ],
+    "modules/widgets/upcoming-events.php": [
+
+    ]
+}
