@@ -58,7 +58,7 @@ TiledGallery.prototype.Captions = function() {
 };
 
 TiledGallery.prototype.resize = function() {
-	var resizeableElements = '.gallery-row, .gallery-group, .tiled-gallery-item img';
+	var resizeableElements = '.gallery-row, .gallery-group';
 
 	this.gallery.each( function ( galleryIndex, galleryElement ) {
 		var thisGallery = $( galleryElement );
