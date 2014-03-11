@@ -96,9 +96,9 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		// run through core Markdown
 		$text = parent::transform( $text );
 
-		// put start-of-line # chars back in place
-		$text = preg_replace( "/^(<p>)?(&#35;|\\\\#)/um", "$1#", $text );
 
+		// put start-of-line # chars back in place
+		$text = $this->restore_leading_hash( $text );
 
 		// Strip paras if set
 		if ( $this->strip_paras ) {
@@ -270,6 +270,15 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	}
 
 	/**
+	 * Since we escape unspaced #Headings, put things back later.
+	 * @param  string $text text with a leading escaped hash
+	 * @return string       text with leading hashes unescaped
+	 */
+	protected function restore_leading_hash( $text ) {
+		return preg_replace( "/^(<p>)?(&#35;|\\\\#)/um", "$1#", $text );
+	}
+
+	/**
 	 * Overload to support ```-fenced code blocks for pre-Markdown Extra 1.2.8
 	 * https://help.github.com/articles/github-flavored-markdown#fenced-code-blocks
 	 */
@@ -335,6 +344,8 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 * Overload to support Viper's [code] shortcode. Because awesome.
 	 */
 	public function _doFencedCodeBlocks_callback( $matches ) {
+		// in case we have some escaped leading hashes right at the start of the block
+		$matches[4] = $this->restore_leading_hash( $matches[4] );
 		// just MarkdownExtra_Parser if we're not going ultra-deluxe
 		if ( ! $this->use_code_shortcode ) {
 			return parent::_doFencedCodeBlocks_callback( $matches );
