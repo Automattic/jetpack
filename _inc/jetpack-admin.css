@@ -1267,6 +1267,15 @@ html {
 	text-shadow: 0 1px 1px #fff;
 }
 
+.modal .content div.jp-info-img {
+	float: right;
+	margin: 0 0 1em 1em;
+}
+
+.modal .content div.jp-info-img img {
+	border: 1px solid #ddd;
+}
+
 .shade {
 	background: #000;
 	bottom: 0;

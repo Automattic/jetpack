@@ -679,6 +679,15 @@ html {
 			font: 300 1.4em $proxima; // 36/14
 			text-shadow: 0 1px 1px #fff;
 		}
+
+		div.jp-info-img {
+			float: right;
+			margin: 0 0 1em 1em;
+
+			img {
+				border: 1px solid #ddd;
+			}
+		}
 	}
 }
 .shade { 
