@@ -11,6 +11,7 @@ module.exports = function(grunt) {
 		phplint: {
 			files: [
 				'*.php',
+				'3rd-party/*.php',
 				'_inc/*.php',
 				'_inc/lib/*.php',
 				'_inc/lib/*/*.php',
@@ -19,6 +20,9 @@ module.exports = function(grunt) {
 				'modules/*/*/*.php',
 				'modules/*/*/*/*.php',
 				'modules/*/*/*/*/*.php',
+				'modules/*/*/*/*/*/*.php',
+				// A few php files in minileven go that deep
+				'views/*/*.php'
 			]
 		}
 	};
