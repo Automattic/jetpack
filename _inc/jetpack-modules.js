@@ -33,17 +33,21 @@
 
 	$( '.subsubsub a' ).on( 'click', { modules : modules }, handle_module_tag_click );
 
+	/**
+	 * The modal details.
+	 */
+
 	show_modal = function( module, tab ) {
 		$jp_frame.children( '.modal, .shade' ).show();
+		$jp_frame.children( '.modal' ).data( 'current-module', module );
 		set_modal_tab( tab );
 	};
 
 	hide_modal = function() {
 		$jp_frame.children( '.modal, .shade' ).hide();
+		$jp_frame.children( '.modal' ).data( 'current-module', '' );
 		set_modal_tab( null );
 	};
-
-	$jp_frame.on( 'click', '.modal header .close, .shade', hide_modal );
 
 	set_modal_tab = function( tab ) {
 		$jp_frame.find( '.modal .active' ).removeClass( 'active' );
@@ -61,27 +65,31 @@
 		}
 	};
 
+	$jp_frame.on( 'click', '.modal header .close, .shade', hide_modal );
+
 	$jp_frame.on( 'click', '.modal header ul li a', function( event ){
 		event.preventDefault();
 		set_modal_tab( $(this).data('tab') );
 	} );
 
 	$jp_frame.children( '.modal' ).on( 'learn-more', function() {
-		$(this).find('.content').html( items.latex.long_description );
+		var current_module = $jp_frame.children( '.modal' ).data( 'current-module' );
+		$(this).find('.content').html( items[ current_module ].long_description );
 	} );
 
 	$jp_frame.children( '.modal' ).on( 'config', function() {
+//		var current_module = $jp_frame.children( '.modal' ).data( 'current-module' );
 		$(this).find('.content').html( 'config' );
 	} );
 
 	$the_table.on( 'click', '.info a', { modules : modules }, function( event ) {
 		event.preventDefault();
-		show_modal( {}, 'learn-more' );
+		show_modal( $(this).closest('.jetpack-module').attr('id'), 'learn-more' );
 	} );
 
 	$the_table.on( 'click', '.configure a', { modules : modules }, function( event ) {
 		event.preventDefault();
-		show_modal( {}, 'config' );
+		show_modal( $(this).closest('.jetpack-module').attr('id'), 'config' );
 	} );
 
 	$the_filters.on( 'click', '.button-group .button', { modules : modules }, function( event ) {
