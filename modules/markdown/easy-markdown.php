@@ -124,7 +124,7 @@ class WPCom_Markdown {
 		add_action( 'xmlrpc_call', array( $this, 'xmlrpc_actions' ) );
 		add_filter( 'content_save_pre', array( $this, 'preserve_code_blocks' ), 1 );
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
-			$this->check_for_mwgetpost();
+			$this->check_for_early_methods();
 		}
 	}
 
@@ -598,6 +598,7 @@ class WPCom_Markdown {
 		switch ( $xmlrpc_method ) {
 			case 'metaWeblog.getRecentPosts':
 			case 'wp.getPosts':
+			case 'wp.getPages':
 				add_action( 'parse_query', array( $this, 'make_filterable' ), 10, 1 );
 				break;
 			case 'wp.getPost':
@@ -607,19 +608,21 @@ class WPCom_Markdown {
 	}
 
 	/**
-	 * The metaWeblog.getPost xmlrpc_call action fires *after* get_post() is called.
-	 * So, we have to detect that method and prime the post cache early.
+	 * metaWeblog.getPost and wp.getPage fire xmlrpc_call action *after* get_post() is called.
+	 * So, we have to detect those methods and prime the post cache early.
 	 * @return null
 	 */
-	protected function check_for_mwgetpost() {
+	protected function check_for_early_methods() {
 		global $HTTP_RAW_POST_DATA;
-		if ( false === strpos( $HTTP_RAW_POST_DATA, 'metaWeblog.getPost') ) {
+		if ( false === strpos( $HTTP_RAW_POST_DATA, 'metaWeblog.getPost' )
+			&& false === strpos( $HTTP_RAW_POST_DATA, 'wp.getPage' ) ) {
 			return;
 		}
 		include_once( ABSPATH . WPINC . '/class-IXR.php' );
 		$message = new IXR_Message( $HTTP_RAW_POST_DATA );
 		$message->parse();
-		$this->prime_post_cache( $message->params[0] );
+		$post_id_position = 'metaWeblog.getPost' === $message->methodName ?  0 : 1;
+		$this->prime_post_cache( $message->params[ $post_id_position ] );
 	}
 
 	/**
@@ -631,7 +634,7 @@ class WPCom_Markdown {
 	private function prime_post_cache( $post_id = false ) {
 		global $wp_xmlrpc_server;
 		if ( ! $post_id ) {
-			$post_id = $wp_xmlrpc_server->message->params[0];
+			$post_id = $wp_xmlrpc_server->message->params[3];
 		}
 
 		// prime the post cache
