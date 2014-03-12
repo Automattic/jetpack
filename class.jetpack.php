@@ -690,6 +690,7 @@ class Jetpack {
 			'facebook-revised-open-graph-meta-tag/index.php',					// Facebook Revised Open Graph Meta Tag
 			'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',	// Fedmich's Facebook Open Graph Meta
 			'facebook-meta-tags/facebook-metatags.php',						// Facebook Meta Tags
+			'bitly/bitly.php',												// Official Bitly for WordPress
 		);
 
 		foreach ( $conflicting_plugins as $plugin ) {
