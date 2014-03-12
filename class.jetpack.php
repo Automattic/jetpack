@@ -28,21 +28,21 @@ class Jetpack {
 	var $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
 	var $plugins_to_deactivate = array(
-		'stats'              	 => array( 'stats/stats.php', 'WordPress.com Stats' ),
-		'shortlinks'         	 => array( 'stats/stats.php', 'WordPress.com Stats' ),
-		'sharedaddy'         	 => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
-		'twitter-widget'     	 => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
-		'after-the-deadline'	 => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
-		'contact-form'		 => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
-		'custom-css'		 => array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
-		'random-redirect'	 => array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
-		'videopress'		 => array( 'video/video.php', 'VideoPress' ),
-		'widget-visibility'	 => array( 'jetpack-widget-visibility/widget-visibility.php', 'Jetpack Widget Visibility' ),
-		'widget-visibility'	 => array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
-		'sharedaddy'		 => array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
-		'omnisearch'		 => array( 'jetpack-omnisearch/omnisearch.php', 'Jetpack Omnisearch' ),
-		'gravatar-hovercards'	 => array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
-		'latex'			 => array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
+		'stats'               => array( 'stats/stats.php', 'WordPress.com Stats' ),
+		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
+		'sharedaddy'          => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
+		'twitter-widget'      => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
+		'after-the-deadline'  => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
+		'contact-form'        => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
+		'custom-css'          => array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
+		'random-redirect'     => array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
+		'videopress'          => array( 'video/video.php', 'VideoPress' ),
+		'widget-visibility'   => array( 'jetpack-widget-visibility/widget-visibility.php', 'Jetpack Widget Visibility' ),
+		'widget-visibility'   => array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
+		'sharedaddy'          => array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
+		'omnisearch'          => array( 'jetpack-omnisearch/omnisearch.php', 'Jetpack Omnisearch' ),
+		'gravatar-hovercards' => array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
+		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' ),
 	);
 
 	var $capability_translations = array(
@@ -88,7 +88,7 @@ class Jetpack {
 		'minileven'         => array(
 			'WPtouch'                        => 'wptouch/wptouch.php',
 		),
-		'latex'		    => array(
+		'latex'             => array(
 			'LaTeX for WordPress'            => 'latex/latex.php',
 			'Youngwhans Simple Latex'        => 'youngwhans-simple-latex/yw-latex.php',
 			'Easy WP LaTeX'                  => 'easy-wp-latex-lite/easy-wp-latex-lite.php',
@@ -96,7 +96,7 @@ class Jetpack {
 			'Enable Latex'                   => 'enable-latex/enable-latex.php',
 			'WP QuickLaTeX'                  => 'wp-quicklatex/wp-quicklatex.php',
 		),
-		'random-redirect' => array(
+		'random-redirect'   => array(
 			'Random Redirect 2'              => 'random-redirect-2/random-redirect.php',
 		),
 		'related-posts'     => array(
