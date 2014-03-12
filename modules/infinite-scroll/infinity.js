@@ -269,6 +269,9 @@ Scroller.prototype.refresh = function() {
 					} );
 				}
 
+				// stash the response in the page cache
+				self.pageCache[self.page] = response.html;
+
 				// Increment the page number
 				self.page++;
 
@@ -373,7 +376,7 @@ Scroller.prototype.determineURL = function () {
 			setPageNum = $( this ).data( 'page-num' );
 
 		// Account for containers that have no height because their children are floated elements.
-		if ( 0 == setHeight ) {
+		if ( 0 === setHeight ) {
 			$( '> *', this ).each( function() {
 				setHeight += $( this ).outerHeight( false );
 			} );
@@ -415,15 +418,9 @@ Scroller.prototype.determineURL = function () {
 			return;
 		}
 
-		var kids = $set[0].childNodes,
-		    fragment = self.pageCache[this.id] = document.createDocumentFragment();
-
-		$set.css('min-height', ( this.bottom - this.top ) + 'px' );
-		$set.addClass('is--replaced');
-
-		while(kids.length) {
-			fragment.appendChild(kids[0]);
-		}
+		$set.css('min-height', ( this.bottom - this.top ) + 'px' )
+		    .addClass('is--replaced')
+		    .empty();
 	});
 
 	$.each(setsInView, function() {
@@ -431,9 +428,8 @@ Scroller.prototype.determineURL = function () {
 
 		if( $set.hasClass('is--replaced')) {
 			$set.css('min-height', '').removeClass('is--replaced');
-			if( this.id in self.pageCache ) {
-				$set.append(self.pageCache[this.id]);
-				delete self.pageCache[this.id];
+			if( this.pageNum in self.pageCache ) {
+				$set.html(self.pageCache[this.pageNum]);
 			}
 		}
 
