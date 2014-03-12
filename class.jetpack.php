@@ -233,6 +233,12 @@ class Jetpack {
 	 */
 	private function Jetpack() {
 
+		/**
+		 * Do things that should run even in the network admin
+		 * here, before we potentially fail out.
+		 */
+		add_filter( 'jetpack_require_lib_dir', array( $this, 'require_lib_dir' ) );
+
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -319,8 +325,6 @@ class Jetpack {
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'devicepx' ) );
-
-		add_filter( 'jetpack_require_lib_dir', array( $this, 'require_lib_dir' ) );
 
 		// add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_modules' ) );
 
