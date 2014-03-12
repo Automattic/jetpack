@@ -1,4 +1,5 @@
 <?php
+
 /*
 Plugin Name: Easy Markdown
 Plugin URI: http://automattic.com/
@@ -67,8 +68,19 @@ class WPCom_Markdown {
 			add_action( 'switch_blog', array( $this, 'maybe_load_actions_and_filters' ), 10, 2 );
 		}
 		add_action( 'admin_init', array( $this, 'register_setting' ) );
+		add_action( 'admin_init', array( $this, 'maybe_unload_for_bulk_edit' ) );
 		if ( current_theme_supports( 'o2' ) || class_exists( 'P2' ) ) {
 			$this->add_o2_helpers();
+		}
+	}
+
+	/**
+	 * If we're in a bulk edit session, unload so that we don't lose our markdown metadata
+	 * @return null
+	 */
+	public function maybe_unload_for_bulk_edit() {
+		if ( isset( $_REQUEST['bulk_edit'] ) && $this->is_posting_enabled() ) {
+			$this->unload_markdown_for_posts();
 		}
 	}
 
