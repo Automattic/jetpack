@@ -65,13 +65,13 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 					</th>
 					<td class='name column-name'>
 						<div class="row-actions">
+						<# if ( item.configurable ) { #>
+							<span class='configure'>{{{ item.configurable }}}</span>
+						<# } #>
 						<# if ( item.activated ) { #>
 							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
 						<# } else if ( item.available ) { #>
 							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
-						<# } #>
-						<# if ( item.configurable ) { #>
-							<span class='configure'>{{{ item.configurable }}}</span>
 						<# } #>
 						</div>
 						<span class='info'><a href="#">{{{ item.name }}}</a></span>
