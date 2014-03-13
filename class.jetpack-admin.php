@@ -297,7 +297,7 @@ class Jetpack_Admin {
 
 			<h1><?php esc_html_e( 'Jetpack supercharges your self-hosted WordPress site with the power of WordPress.com.', 'jetpack' ); ?></h1>
 
-			<?php if ( ! $is_connected && current_user_can( 'jetpack_connect' ) : ?>
+			<?php if ( ! $is_connected && current_user_can( 'jetpack_connect' ) ) : ?>
 				<a href="<?php echo $this->jetpack->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
 			<?php elseif ( ! $is_user_connected && current_user_can( 'jetpack_connect_user' ) ) : ?>
 				<a href="<?php echo $this->jetpack->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
