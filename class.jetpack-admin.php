@@ -180,7 +180,7 @@ class Jetpack_Admin {
 	}
 
 	function admin_menu_modules() {
-		$hook = add_submenu_page( 'jetpack', __( 'Jetpack Modules', 'jetpack' ), __( 'Modules', 'jetpack' ), 'manage_options', 'jetpack_modules', array( $this, 'admin_page_modules' ) );
+		$hook = add_submenu_page( 'jetpack', __( 'Jetpack Modules', 'jetpack' ), __( 'Modules', 'jetpack' ), 'jetpack_manage_modules', 'jetpack_modules', array( $this, 'admin_page_modules' ) );
 
 		add_action( "load-$hook",                array( $this, 'admin_page_load'   ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'        ) );
