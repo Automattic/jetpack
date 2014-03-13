@@ -41,6 +41,14 @@
 		$jp_frame.children( '.modal, .shade' ).show();
 		$jp_frame.children( '.modal' ).data( 'current-module', module );
 		set_modal_tab( tab );
+
+		/**
+		 * Handle the configure tab. If it shouldn't be there, hide it!
+		 */
+		$jp_frame.find( '.modal header li.config' ).show();
+		if ( ! items[ module ].configurable ) {
+			$jp_frame.find( '.modal header li.config' ).hide();
+		}
 	};
 
 	hide_modal = function() {
