@@ -99,8 +99,9 @@ class Jetpack_Admin {
 	function handle_unrecognized_action( $action ) {
 		switch( $action ) {
 			case 'bulk-activate' :
-				if ( ! current_user_can( 'manage_options' ) )
+				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
 					break;
+				}
 
 				$modules = (array) $_GET['modules'];
 				$modules = array_map( 'sanitize_key', $modules );
@@ -113,8 +114,9 @@ class Jetpack_Admin {
 				wp_safe_redirect( wp_get_referer() );
 				exit;
 			case 'bulk-deactivate' :
-				if ( ! current_user_can( 'manage_options' ) )
+				if ( ! current_user_can( 'jetpack_deactivate_modules' ) ) {
 					break;
+				}
 
 				$modules = (array) $_GET['modules'];
 				$modules = array_map( 'sanitize_key', $modules );

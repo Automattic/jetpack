@@ -2120,7 +2120,7 @@ p {
 		if ( false !== strpos( $_SERVER['QUERY_STRING'], 'page=jetpack' ) )
 			return;
 
-		if ( ! current_user_can( 'manage_options' ) )
+		if ( ! current_user_can( 'jetpack_connect' ) )
 			return;
 		?>
 
@@ -2285,7 +2285,7 @@ p {
 				wp_redirect( $this->build_connect_url( true ) );
 				exit;
 			case 'activate' :
-				if ( ! current_user_can( 'manage_options' ) ) {
+				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
 					$error = 'cheatin';
 					break;
 				}
@@ -2330,7 +2330,7 @@ p {
 				wp_redirect( $this->build_connect_url( true ) );
 				exit;
 			case 'deactivate' :
-				if ( ! current_user_can( 'manage_options' ) ) {
+				if ( ! current_user_can( 'jetpack_deactivate_modules' ) ) {
 					$error = 'cheatin';
 					break;
 				}
