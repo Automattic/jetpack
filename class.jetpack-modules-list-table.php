@@ -224,6 +224,10 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'info' => sprintf( '<a href="%s">%s</a>', esc_url( '#' ), esc_html__( 'Module Info', 'jetpack' ) ),
 		);
 
+		if ( ! empty( $item['configurable'] ) ) {
+			$actions['configure'] = $item['configurable'];
+		}
+
 		if ( empty( $item['activated'] ) && $this->is_module_available( $item ) ) {
 			$url = wp_nonce_url(
 				$this->jetpack->admin_url( array(
@@ -244,9 +248,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				'jetpack_deactivate-' . $item['module']
 			);
 			$actions['delete'] = sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html__( 'Deactivate', 'jetpack' ) );
-		}
-		if ( ! empty( $item['configurable'] ) ) {
-			$actions['configure'] = $item['configurable'];
 		}
 
 		return $this->row_actions( $actions ) . wptexturize( $item['name'] );
