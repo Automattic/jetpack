@@ -25,7 +25,7 @@ ul#adminmenu > li.current > a.current:after {
 	margin: 0;
 	position: absolute;
 	width: 100%;
-	-webkit-font-smoothing: antialiased;	
+	-webkit-font-smoothing: antialiased;
 }
 .jp-frame {
 	position: relative;
@@ -110,7 +110,7 @@ html {
 		height: 46px;
 		margin-top: -2px;
 		padding: 0 em(8) 0 em(6);
-	
+
 		&:before {
 			font-family: 'Jetpack' !important;
 			content: '\e600';
@@ -118,12 +118,13 @@ html {
 			margin-right: 8px;
 			font-size: 31px;
 		}
-		
+
 	}
 }
+
 .main-nav {
 	float: left;
-	
+
 	li {
 		margin: 0;
 	}
@@ -131,13 +132,14 @@ html {
 		font: normal 400 24px/50px $sans;
 		margin-left: 10px;
 		text-shadow: 0 1px 1px rgba(0,0,0,.15);
-		
+
 		span {
 			float: right;
 			margin-top: -3px;
 		}
 	}
 }
+
 .user-nav {
 	float: right;
 
@@ -246,7 +248,7 @@ html {
 .clouds-sm {
 	$start: $green; // top gradient color and fallback
 	$end: lighten($green, 3%); // bottom gradient color
-	
+
 	height: 100px;
 	position: relative;
 	text-align: center;
@@ -258,7 +260,7 @@ html {
 	background-image: -o-linear-gradient(top, $start, $end);
 	background-image: -ms-linear-gradient(top, $start, $end);
 	background-image: linear-gradient(top, $start, $end);
-	
+
 	&:after {
 		content: '';
 		position: absolute;
@@ -289,7 +291,7 @@ html {
 	margin: 0 -5px; // For centering features
 	@extend %clearfix;
 }
-.feature, 
+.feature,
 .module {
 	position: relative;
 	float: left;
@@ -476,7 +478,7 @@ html {
 		-webkit-background-clip: padding-box;
 		-moz-background-clip: padding;
 		background-clip: padding-box;
-		
+
 		&.selected,
 		&:hover,
 		&:focus {
@@ -485,7 +487,7 @@ html {
 			background: #6f7476;
 		}
 	}
-	
+
 }
 .modules {
 	@extend .features; // Clearfix and margin
@@ -561,7 +563,7 @@ html {
 		position: absolute;
 		top: 0;
 		right: 100%;
-		font: normal 14px/14px $g8s; 
+		font: normal 14px/14px $g8s;
 	}
 	&:before {
 		content: '\f503'; // Genericons leftarrow
@@ -597,13 +599,13 @@ html {
 	position: absolute;
 	top: 50%;
 	width: 100%;
-	
+
 	span {
 		color: #999;
 	}
 }
 .modal {
-	background: #fff; 
+	background: #fff;
 	bottom: 10%;
 	display: none;
 	left: 10%;
@@ -614,13 +616,13 @@ html {
 	top: 10%;
 	z-index: 12;
 	@include box-shadow(0 1px 20px 5px rgba(0, 0, 0, 0.1));
-	
+
 	header {
 		border-bottom: 1px solid #ddd;
 		height: 47px;
 		overflow: hidden;
 		text-align: left;
-		
+
 		li {
 			color: #999;
 			display: inline-block;
@@ -629,7 +631,7 @@ html {
 			padding-left: em(10);
 			list-style: none;
 			margin-top: em(5);
-			
+
 			a.active {
 				color: #555;
 				cursor: default;
@@ -648,7 +650,7 @@ html {
 			content: '\f405';
 			display: inline-block;
 			padding: em(4) em(10) em(6);
-			
+
 			&:hover {
 				background: #eee;
 				opacity: 0.8;
@@ -676,7 +678,7 @@ html {
 		margin: 0 auto;
 		max-width: 900px;
 		text-align: left;
-		
+
 		h3, h4 {
 			margin-top: em(22, 36);
 			color: #5d6d74;
@@ -694,7 +696,7 @@ html {
 		}
 	}
 }
-.shade { 
+.shade {
 	background: #000;
 	bottom: 0;
 	cursor: pointer;
@@ -728,7 +730,7 @@ html {
 	text-shadow: 0 1px 1px #fff;
 }
 
-.page-template-default p { 
+.page-template-default p {
 	line-height: em(24);
 }
 
@@ -910,7 +912,7 @@ html {
 	margin-top: 2em;
 	position: relative;
 	z-index: 2;
-	
+
 	h4 {
 		margin-top: 0;
 	}
@@ -922,7 +924,7 @@ html {
 		padding: 23px 23px 23px 97px;
 		position: relative;
 		text-align: left;
-		
+
 		&:before {
 			color: #dd3d36;
 			content: '\f414';
