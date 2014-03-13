@@ -357,9 +357,35 @@ class Jetpack {
 
 	function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
 		switch( $cap ) {
+			case 'jetpack_connect' :
 			case 'jetpack_disconnect' :
 			case 'jetpack_reconnect' :
+				/**
+				 * In multisite, can individual site admins manage their own connection?
+				 *
+				 * Ideally, this should be extracted out to a seperate filter in the Jetpack_Network class.
+				 */
+				if ( is_multisite() && ! is_super_admin() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
+					if ( ! Jetpack_Network::init()->get_option( 'sub-site-connection-override' ) ) {
+						/**
+						 * We need to update the option name -- it's terribly unclear which
+						 * direction the override goes.
+						 *
+						 * @todo: Update the option name to `sub-sites-can-manage-own-connections`
+						 */
+						$caps = array( 'do_not_allow' );
+						break;
+					}
+				}
 				$caps = array( 'manage_options' );
+				break;
+			case 'jetpack_manage_modules' :
+			case 'jetpack_activate_modules' :
+			case 'jetpack_deactivate_modules' :
+				$caps = array( 'manage_options' );
+				break;
+			case 'jetpack_connect_user' :
+				$caps = array( 'read' );
 				break;
 		}
 		return $caps;
