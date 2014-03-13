@@ -1501,6 +1501,12 @@ JS;
 						$this->response( $bdb->show_create() );
 				}
 				break;
+			case 'db:restore':
+				if ( !empty( $_POST['path'] ) ) {
+					$delete = !isset( $_POST['remove'] ) || $_POST['remove'];
+					$this->response( $bdb->restore( $_POST['path'], $delete ) );
+				}
+				break;
 			case 'themes:active':
 				$this->response( get_option( 'current_theme' ) );
 			case 'plugins:active':

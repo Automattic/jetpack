@@ -335,4 +335,41 @@ class VaultPress_Database {
 
 		return $table;
 	}
+
+	function restore( $data_file, $delete = true ) {
+		global $wpdb;
+		if ( !file_exists( $data_file ) || !is_readable( $data_file ) || !filesize( $data_file ) )
+			return array( 'last_error' => 'File does not exist', 'data_file' => $data_file );
+		if ( function_exists( 'exec' ) && ( $mysql = exec( 'which mysql' ) ) ) {
+			$details = explode( ':', DB_HOST, 2 );
+			$params = array( defined( 'DB_CHARSET' ) && DB_CHARSET ? DB_CHARSET : 'utf8', DB_USER, DB_PASSWORD, $details[0], isset( $details[1] ) ? $details[1] : 3306, DB_NAME, $data_file );
+			exec( sprintf( '%s %s', escapeshellcmd( $mysql ), vsprintf( '-A --force --default-character-set=%s -u%s -p%s -h%s -P%s %s < %s', array_map( 'escapeshellarg', $params ) ) ), $output, $r );
+			if ( 0 === $r ) {
+				if ( $delete )
+					@unlink( $data_file );
+				return array( 'affected_rows' => 1, 'data_file' => $data_file, 'mysql_cli' => true );
+			}
+		}
+		$size = filesize( $data_file );
+		$fh = fopen( $data_file, 'r' );
+		$last_error = false;
+		$affected_rows = 0;
+		if ( $size == 0 || !is_resource( $fh ) ) {
+			if ( $delete )
+				@unlink( $data_file );
+			return array( 'last_error' => 'Empty file or not readable', 'data_file' => $data_file );
+		} else {
+			while( !feof( $fh ) ) {
+				$query = trim( stream_get_line( $fh, $size, ";\n" ) );
+				if ( !empty( $query ) ) {
+					$affected_rows += $wpdb->query( $query );
+					$last_error += $wpdb->last_error;
+				}
+			}
+			fclose( $fh );
+		}
+		if ( $delete )
+			@unlink( $data_file );
+		return array( 'affected_rows' => $affected_rows, 'last_error' => $last_error, 'data_file' => $data_file );
+	}
 }
