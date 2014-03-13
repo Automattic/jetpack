@@ -63,7 +63,8 @@ function jetpack_og_tags() {
 		$tags['og:url']         = get_permalink( $data->ID );
 		if ( !post_password_required() )
 			$tags['og:description'] = ! empty( $data->post_excerpt ) ? preg_replace( '@https?://[\S]+@', '', strip_shortcodes( wp_kses( $data->post_excerpt, array() ) ) ): wp_trim_words( preg_replace( '@https?://[\S]+@', '', strip_shortcodes( wp_kses( $data->post_content, array() ) ) ) );
-		$tags['og:description'] = empty( $tags['og:description'] ) ? ' ' : $tags['og:description'];
+		if ( empty( $tags['og:description'] ) ) 
+			$tags['og:description'] = __('Visit the post for more.', 'jetpack');
 		$tags['article:published_time'] = date( 'c', strtotime( $data->post_date_gmt ) );
 		$tags['article:modified_time'] = date( 'c', strtotime( $data->post_modified_gmt ) );
 		if ( post_type_supports( get_post_type( $data ), 'author' ) && isset( $data->post_author ) )
