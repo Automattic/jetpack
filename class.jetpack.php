@@ -643,7 +643,7 @@ class Jetpack {
 		if ( in_array( 'publicize', Jetpack::get_active_modules() ) || in_array( 'sharedaddy', Jetpack::get_active_modules() ) )
 			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
 
-		$active_plugins = get_option( 'active_plugins', array() );
+		$active_plugins = (array) get_option( 'active_plugins', array() );
 
 		if ( is_multisite() ) {
 			// Due to legacy code, active_sitewide_plugins stores them in the keys,
@@ -692,10 +692,12 @@ class Jetpack {
 			'facebook-meta-tags/facebook-metatags.php',						// Facebook Meta Tags
 		);
 
-		foreach ( $conflicting_plugins as $plugin ) {
-			if ( in_array( $plugin, $active_plugins ) ) {
-				add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );
-				break;
+		if ( ! empty( $active_plugins ) ) {
+			foreach ( $conflicting_plugins as $plugin ) {
+				if ( in_array( $plugin, $active_plugins ) ) {
+					add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );
+					break;
+				}
 			}
 		}
 
@@ -713,7 +715,7 @@ class Jetpack {
 	 */
 	public function check_twitter_tags() {
 
-		$active_plugins = get_option( 'active_plugins', array() );
+		$active_plugins = (array) get_option( 'active_plugins', array() );
 
 		if ( is_multisite() ) {
 			// Due to legacy code, active_sitewide_plugins stores them in the keys,
@@ -734,10 +736,12 @@ class Jetpack {
 			'kevinjohn-gallagher-pure-web-brilliants-social-graph-twitter-cards-extention/kevinjohn_gallagher___social_graph_twitter_output.php',	// Pure Web Brilliant's Social Graph Twitter Cards Extention
 		);
 
-		foreach ( $conflicting_plugins as $plugin ) {
-			if ( in_array( $plugin, $active_plugins ) ) {
-				add_filter( 'jetpack_disable_twitter_cards', '__return_true', 99 );
-				break;
+		if ( ! empty( $active_plugins ) ) {
+			foreach ( $conflicting_plugins as $plugin ) {
+				if ( in_array( $plugin, $active_plugins ) ) {
+					add_filter( 'jetpack_disable_twitter_cards', '__return_true', 99 );
+					break;
+				}
 			}
 		}
 
@@ -1039,7 +1043,7 @@ class Jetpack {
 	 * @return array
 	 */
 	function filter_default_modules( $modules ) {
-		$active_plugins = get_option( 'active_plugins', array() );
+		$active_plugins = (array) get_option( 'active_plugins', array() );
 		if ( is_multisite() ) {
 			// Due to legacy code, active_sitewide_plugins stores them in the keys,
 			// whereas active_plugins stores them in the values.
@@ -1048,18 +1052,22 @@ class Jetpack {
 				$active_plugins = array_merge( $active_plugins, $network_plugins );
 			}
 		}
-		sort( $active_plugins );
 
-		// For each module we'd like to auto-activate...
-		foreach ( $modules as $key => $module ) {
-			// If there are potential conflicts for it...
-			if ( ! empty( $this->conflicting_plugins[ $module ] ) ) {
-				// For each potential conflict...
-				foreach ( $this->conflicting_plugins[ $module ] as $title => $plugin ) {
-					// If that conflicting plugin is active...
-					if ( in_array( $plugin, $active_plugins ) ) {
-						// Remove that item from being auto-activated.
-						unset( $modules[ $key ] );
+		if ( ! empty( $active_plugins ) ) {
+
+			sort( $active_plugins );
+
+			// For each module we'd like to auto-activate...
+			foreach ( $modules as $key => $module ) {
+				// If there are potential conflicts for it...
+				if ( ! empty( $this->conflicting_plugins[ $module ] ) ) {
+					// For each potential conflict...
+					foreach ( $this->conflicting_plugins[ $module ] as $title => $plugin ) {
+						// If that conflicting plugin is active...
+						if ( in_array( $plugin, $active_plugins ) ) {
+							// Remove that item from being auto-activated.
+							unset( $modules[ $key ] );
+						}
 					}
 				}
 			}
