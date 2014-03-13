@@ -17,4 +17,3 @@ Contains two libraries:
 	- The `$preserve_latex` member variable will preserve oldskool $latex yer-latex$ codes untouched.
 	- The `$strip_paras` member variable will strip <p> tags because that's what WordPress likes.
 	- See `WPCom_GHF_Markdown_Parser::__construct()` for how the above member variable defaults are set.
-

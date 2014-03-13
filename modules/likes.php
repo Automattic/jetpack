@@ -8,8 +8,9 @@
  * Auto Activate: No
  * Module Tags: Social
  */
+
 class Jetpack_Likes {
-	var $version = '20140110';
+	var $version = '20140227';
 
 	public static function init() {
 		static $instance = NULL;
@@ -285,20 +286,41 @@ class Jetpack_Likes {
 					</label>
 				<div>
 			</td>
-		</tr> <?php /*
+		</tr>
 		<tr>
 			<th scope="row">
-				<label><?php esc_html_e( 'Comment Likes', 'jetpack' ); ?></label>
+				<label><?php esc_html_e( 'WordPress.com Reblog Button', 'jetpack' ); ?></label>
+			</th>
+			<td>
+				<div>
+					<label>
+						<input type="radio" class="code" name="jetpack_reblogs_enabled" value="on" <?php checked( $this->reblogs_enabled_sitewide(), true ); ?> />
+						<?php esc_html_e( 'Show the Reblog button on posts', 'jetpack' ); ?>
+					</label>
+				</div>
+				<div>
+					<label>
+						<input type="radio" class="code" name="jetpack_reblogs_enabled" value="off" <?php checked( $this->reblogs_enabled_sitewide(), false ); ?> />
+						<?php esc_html_e( 'Don\'t show the Reblog button on posts', 'jetpack' ); ?>
+					</label>
+				<div>
+			</td>
+		</tr>
+		<?php if ( ! $this->in_jetpack ) : ?>
+		<tr>
+			<th scope="row">
+				<label><?php esc_html_e( 'Comment Likes are', 'jetpack' ); ?></label>
 			</th>
 			<td>
 				<div>
 					<label>
 						<input type="checkbox" class="code" name="jetpack_comment_likes_enabled" value="1" <?php checked( $this->is_comments_enabled(), true ); ?> />
-						<?php esc_html_e( 'Allow people to like comments', 'jetpack' ); ?>
+						<?php esc_html_e( 'On for all comments', 'jetpack' ); ?>
 					</label>
 				</div>
 			</td>
-		</tr> */ ?>
+		</tr>
+		<?php endif; ?>
 		</tbody> <?php // closes the tbody attached to sharing_show_buttons_on_row_start... ?>
 	<?php }
 
@@ -388,6 +410,8 @@ class Jetpack_Likes {
 		$new_state = !empty( $_POST['wpl_default'] ) ? $_POST['wpl_default'] : 'on';
 		$db_state  = $this->is_enabled_sitewide();
 
+		$reblogs_new_state = !empty( $_POST['jetpack_reblogs_enabled'] ) ? $_POST['jetpack_reblogs_enabled'] : 'on';
+		$reblogs_db_state = $this->reblogs_enabled_sitewide();
 		/** Default State *********************************************************/
 
 		// Checked (enabled)
@@ -407,6 +431,21 @@ class Jetpack_Likes {
 				break;
 		}
 
+		switch( $reblogs_new_state ) {
+			case 'off' :
+				if ( true == $reblogs_db_state && ! $this->in_jetpack ) {
+					$g_gif = file_get_contents( 'http://stats.wordpress.com/g.gif?v=wpcom-no-pv&x_reblogs=disabled_reblogs' );
+				}
+				update_option( 'disabled_reblogs', 1 );
+				break;
+			case 'on'  :
+			default:
+				if ( false == $reblogs_db_state && ! $this->in_jetpack ) {
+					$g_gif = file_get_contents( 'http://stats.wordpress.com/g.gif?v=wpcom-no-pv&x_reblogs=reenabled_reblogs' );
+				}
+				delete_option( 'disabled_reblogs' );
+				break;
+		}
 
 		// comment setting
 		$new_comments_state = !empty( $_POST['jetpack_comment_likes_enabled'] ) ? $_POST['jetpack_comment_likes_enabled'] : false;
@@ -509,7 +548,14 @@ class Jetpack_Likes {
 			wp_enqueue_script( 'postmessage', '/wp-content/js/postmessage.js', array( 'jquery' ), JETPACK__VERSION, false );
 			wp_enqueue_script( 'jquery_inview', '/wp-content/js/jquery/jquery.inview.js', array( 'jquery' ), JETPACK__VERSION, false );
 			wp_enqueue_script( 'jetpack_resize', '/wp-content/js/jquery/jquery.jetpack-resize.js', array( 'jquery' ), JETPACK__VERSION, false );
-			wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
+
+
+			// @todo: Remove this opt-out filter in the future
+			if ( apply_filters( 'wpl_sharing_2014_1', true ) ) {
+				wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes.css', __FILE__ ), array(), JETPACK__VERSION );
+			} else {
+				wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes-legacy.css', __FILE__ ), array(), JETPACK__VERSION );
+			}
 		}
 	}
 
@@ -720,7 +766,13 @@ class Jetpack_Likes {
 		}
 
 		$locale = ( '' == get_locale() || 'en' == get_locale() ) ? '' : '&amp;lang=' . strtolower( substr( get_locale(), 0, 2 ) );
-		$src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, apply_filters( 'mp6_enabled', 0 ) );
+
+		// @todo: Remove this opt-out filter in the future
+		if ( apply_filters( 'wpl_sharing_2014_1', true ) ) {
+			$src = sprintf( '%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, apply_filters( 'mp6_enabled', 0 ) );
+		} else {
+			$src = sprintf( '%1$s://widgets.wp.com/likes/master-legacy.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, apply_filters( 'mp6_enabled', 0 ) );
+		}
 
 		// Tidy up after ourselves.
 		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '>=' ) ) {
@@ -846,6 +898,10 @@ class Jetpack_Likes {
 							JetpackLikespostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, post_id: event.post_id, obj_id: event.obj_id }, window.frames['likes-master'] );
 						});
 					});
+				}
+
+				if ( 'clickReblogFlair' == event.event ) {
+					wpcom_reblog.toggle_reblog_box_flair( event.obj_id );
 				}
 
 				if ( 'showOtherGravatars' == event.event ) {
@@ -1090,12 +1146,20 @@ class Jetpack_Likes {
 	}
 
 	/**
-	 * Returns if comment likes are enabled. Defaults to 'on'
+	 * Returns the current state of the "WordPress.com Reblogs are" option.
+	 * @return boolean true if enabled sitewide, false if not
+	 */
+	function reblogs_enabled_sitewide() {
+		return (bool) apply_filters( 'wpl_reblogging_enabled_sitewide', ! get_option( 'disabled_reblogs' ) );
+	}
+
+	/**
+	 * Returns if comment likes are enabled. Defaults to 'off'
 	 * @todo decide what the default should be
 	 * @return boolean true if we should show comment likes, false if not
 	 */
 	function is_comments_enabled() {
-		return (bool) apply_filters( 'jetpack_comment_likes_enabled', get_option( 'jetpack_comment_likes_enabled', true ) );
+		return (bool) apply_filters( 'jetpack_comment_likes_enabled', get_option( 'jetpack_comment_likes_enabled', false ) );
 	}
 
 	function is_admin_bar_button_visible() {

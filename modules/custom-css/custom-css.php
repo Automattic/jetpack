@@ -60,6 +60,7 @@ class Jetpack_Custom_CSS {
 
 		add_filter( 'jetpack_content_width', array( 'Jetpack_Custom_CSS', 'jetpack_content_width' ) );
 		add_filter( 'editor_max_image_size', array( 'Jetpack_Custom_CSS', 'editor_max_image_size' ), 10, 3 );
+		add_filter( 'undo_switch_theme', array( 'Jetpack_Custom_CSS', 'undo_switch_theme' ), 10, 2 );
 
 		if ( !current_user_can( 'switch_themes' ) && !is_super_admin() )
 			return;
@@ -887,10 +888,13 @@ class Jetpack_Custom_CSS {
 	 * @return string
 	 */
 	static function revisions_meta_box( $safecss_post ) {
+		if ( function_exists( 'wp_revisions_to_keep' ) ) {
+			$max_revisions = wp_revisions_to_keep( (object) $safecss_post );
+		} else {
+			$max_revisions = defined( 'WP_POST_REVISIONS' ) && is_numeric( WP_POST_REVISIONS ) ? (int) WP_POST_REVISIONS : 25;
+		}
 
 		$show_all_revisions = isset( $_GET['show_all_rev'] );
-		
-		$max_revisions = defined( 'WP_POST_REVISIONS' ) && is_numeric( WP_POST_REVISIONS ) ? (int) WP_POST_REVISIONS : 25;
 
 		$posts_per_page = $show_all_revisions ? $max_revisions : 6;
 
@@ -1162,6 +1166,50 @@ class Jetpack_Custom_CSS {
 			$width = Jetpack::get_content_width();
 
 		return array( $width, $height );
+	}
+
+	/**
+	 * Include support for properly reverting when a theme switch is undone.
+	 */
+	static function undo_switch_theme( $undoer, $stylesheet ) {
+		$current_revision = Jetpack_Custom_CSS::get_current_revision();
+
+		if ( ! $current_revision )
+			return $undoer;
+
+		$custom_css_post = Jetpack_Custom_CSS::get_post();
+
+		$is_preview = ( $custom_css_post['date_modified'] < $current_revision['date_modified'] );
+
+		if ( $is_preview && trim( $custom_css_post['post_content'] ) ) {
+			// If the current revision at the time of the theme switch was just a preview,
+			// restore whatever revision was active too.
+			$undoer['functions'][] = array(
+				array( 'Jetpack_Custom_CSS', 'save' ),
+				array(
+					'css' => $custom_css_post['post_content'],
+					'is_preview' => false,
+					'preprocessor' => get_metadata( 'post', $custom_css_post['ID'], 'custom_css_preprocessor', true ),
+					'add_to_existing' => get_metadata( 'post', $custom_css_post['ID'], 'custom_css_add', true ) != 'no',
+					'content_width' => get_metadata( 'post', $custom_css_post['ID'], 'content_width', true ),
+				)
+			);
+		}
+
+		if ( trim( $current_revision['post_content'] ) ) {
+			$undoer['functions'][] = array(
+				array( 'Jetpack_Custom_CSS', 'save' ),
+				array(
+					'css' => $current_revision['post_content'],
+					'is_preview' => $is_preview,
+					'preprocessor' => get_metadata( 'post', $current_revision['ID'], 'custom_css_preprocessor', true ),
+					'add_to_existing' => get_metadata( 'post', $current_revision['ID'], 'custom_css_add', true ) != 'no',
+					'content_width' => get_metadata( 'post', $current_revision['ID'], 'content_width', true ),
+				)
+			);
+		}
+
+		return $undoer;
 	}
 
 	/**

@@ -290,6 +290,16 @@ object {
 	width: auto;
 }
 
+/* Make sure the WordPress Video Shortcode scales on smaller screens */
+video {
+	height: 100% !important;
+	max-width: 100% !important;
+	width: 100% !important;
+}
+.wp-video {
+	width: 100% !important;
+}
+
 
 /* =Header
 ----------------------------------------------- */

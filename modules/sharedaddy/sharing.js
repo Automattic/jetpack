@@ -183,6 +183,20 @@ var WPCOMSharing = {
 			} );
 		}
 
+		$( document ).click(function() {
+		
+			// Click outside 
+			// remove any timer
+			$more_sharing_buttons.each( function() {
+				clearTimeout( $( this ).data( 'timer' ) );
+			} );
+			$more_sharing_buttons.data( 'timer', false );
+			
+			// slide down forcibly
+			$( '.sharedaddy .inner' ).slideUp();
+			
+		});
+		
 		// Add click functionality
 		$( '.sharedaddy ul' ).each( function( item ) {
 
