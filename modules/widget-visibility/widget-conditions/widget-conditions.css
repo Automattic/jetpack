@@ -9,6 +9,9 @@
 	border: 1px solid #DFDFDF;
 	padding: 12px 12px 0;
 }
+.widget-conditional {
+	margin-bottom: 12px;
+}
 .widget-conditional .condition,
 .widget-conditional .condition-top {
 	margin-bottom: 12px;
@@ -36,4 +39,12 @@
 }
 .wp-core-ui .button.display-options:hover {
 	text-decoration: none;
+}
+.wp-customizer .wide-widget-control .widget-conditional {
+	width: 400px;
+}
+.wp-customizer .widget-conditional select {
+	min-width: 0;
+	max-width: none;
+	height: auto;
 }
