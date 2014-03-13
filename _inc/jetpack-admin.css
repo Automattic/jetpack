@@ -668,6 +668,10 @@ html {
 	float: right;
 }
 
+.user-nav li {
+	margin: 0;
+}
+
 .masthead {
 	overflow: hidden;
 	position: relative;
