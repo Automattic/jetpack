@@ -1,11 +1,20 @@
+/* global VideoPressAdminSettings, setUserSetting, console */
+
 /**
  * VideoPress Admin
  *
  * @todo i18n
  */
 (function($) {
-	var media = wp.media;
-	var VideoPress = VideoPress || {};
+	var media      = wp.media,
+		VideoPress = VideoPress || {},
+		attachmentSync,
+		AttachmentDetails,
+		UploaderWindow,
+		AttachmentsBrowser,
+		MediaFrame,
+		VideoPressModalView,
+		VideoPressModal;
 
 	VideoPress.caps = VideoPressAdminSettings.caps;
 	VideoPress.l10n = VideoPressAdminSettings.l10n;
@@ -26,8 +35,9 @@
 		}, media.controller.Library.prototype.defaults ),
 
 		initialize: function() {
-			if ( ! this.get('library') )
+			if ( ! this.get('library') ) {
 				this.set( 'library', media.query({ videopress: true }) );
+			}
 
 			media.controller.Library.prototype.initialize.apply( this, arguments );
 		},
@@ -37,8 +47,9 @@
 		 * so we hi-jack it a little bit.
 		 */
 		saveContentMode: function() {
-			if ( 'videopress' !== this.get('router') )
+			if ( 'videopress' !== this.get('router') ) {
 				return;
+			}
 
 			var mode = this.frame.content.mode(),
 				view = this.frame.router.get();
@@ -46,8 +57,9 @@
 			if ( view && view.get( mode ) ) {
 
 				// Map the Upload a Video back to the regular Upload Files.
-				if ( 'upload_videopress' === mode )
+				if ( 'upload_videopress' === mode ) {
 					mode = 'upload';
+				}
 
 				setUserSetting( 'libraryContent', mode );
 			}
@@ -69,10 +81,11 @@
 		initialize: function() {
 			var that = this;
 
-			if ( ! window.addEventListener )
-				window.attachEvent( "onmessage", function() { return that.messageHandler.apply( that, arguments ); } );
-			else
-				window.addEventListener( "message", function() { return that.messageHandler.apply( that, arguments ); }, false );
+			if ( ! window.addEventListener ) {
+				window.attachEvent( 'onmessage', function() { return that.messageHandler.apply( that, arguments ); } );
+			} else {
+				window.addEventListener( 'message', function() { return that.messageHandler.apply( that, arguments ); }, false );
+			}
 
 			return media.View.prototype.initialize.apply( this, arguments );
 		},
@@ -134,11 +147,15 @@
 		},
 
 		messageHandler: function( event ) {
-			if ( ! event.origin.match( /\.wordpress\.com$/ ) )
+			if ( ! event.origin.match( /\.wordpress\.com$/ ) ) {
 				return;
+			}
 
 			if ( event.data.indexOf && event.data.indexOf( 'vpUploadResult::' ) === 0 ) {
-				var result = JSON.parse( event.data.substr( 16 ) );
+				var result = JSON.parse( event.data.substr( 16 ) ),
+					that,
+					controller,
+					state;
 
 				if ( ! result || ! result.code ) {
 					this.error( VideoPress.l10n.unknownError );
@@ -146,9 +163,10 @@
 					return;
 				}
 
-				if ( 'success' == result.code && result.data ) {
-					var that = this, controller = this.controller,
-					    state = controller.states.get( 'videopress' );
+				if ( 'success' === result.code && result.data ) {
+					that       = this;
+					controller = this.controller;
+					state      = controller.states.get( 'videopress' );
 
 					// Our new video has been added, so we need to reset the library.
 					// Since the Media API caches all queries, we add a random attribute
@@ -177,7 +195,7 @@
 	 * Add a custom sync function that would add a few extra
 	 * options for models which are VideoPress videos.
 	 */
-	var attachmentSync = media.model.Attachment.prototype.sync;
+	attachmentSync = media.model.Attachment.prototype.sync;
 	media.model.Attachment.prototype.sync = function( method, model, options ) {
 		if ( model.get( 'vp_isVideoPress' ) ) {
 			console.log( 'syncing ' + model.get( 'vp_guid' ) );
@@ -195,7 +213,7 @@
 	 * Extend the default Attachment Details view. Check for vp_isVideoPress before
 	 * adding anything to these methods.
 	 */
-	var AttachmentDetails = media.view.Attachment.Details;
+	AttachmentDetails = media.view.Attachment.Details;
 	media.view.Attachment.Details = AttachmentDetails.extend({
 
 		initialize: function() {
@@ -210,10 +228,13 @@
 		},
 
 		render: function() {
-			var r = AttachmentDetails.prototype.render.apply( this, arguments );
+			var r = AttachmentDetails.prototype.render.apply( this, arguments ),
+				template,
+				options;
+
 			if ( this.model.get( 'vp_isVideoPress' ) ) {
-				var template = media.template( 'videopress-attachment' );
-				var options = this.model.toJSON();
+				template = media.template( 'videopress-attachment' );
+				options = this.model.toJSON();
 
 				options.can = {};
 				options.can.save = !! options.nonces.update;
@@ -242,11 +263,12 @@
 	/**
 	 * Don't display the uploader dropzone for the VideoPress router.
 	 */
-	var UploaderWindow = media.view.UploaderWindow;
+	UploaderWindow = media.view.UploaderWindow;
 	media.view.UploaderWindow = UploaderWindow.extend({
 		show: function() {
-			if ( 'videopress' != this.controller.state().get('id') )
+			if ( 'videopress' !== this.controller.state().get('id') ) {
 				UploaderWindow.prototype.show.apply( this, arguments );
+			}
 
 			return this;
 		}
@@ -255,11 +277,12 @@
 	/**
 	 * Don't display the uploader in the attachments browser.
 	 */
-	var AttachmentsBrowser = media.view.AttachmentsBrowser;
+	AttachmentsBrowser = media.view.AttachmentsBrowser;
 	media.view.AttachmentsBrowser = AttachmentsBrowser.extend({
 		createUploader: function() {
-			if ( 'videopress' != this.controller.state().get('id') )
+			if ( 'videopress' !== this.controller.state().get('id') ) {
 				return AttachmentsBrowser.prototype.createUploader.apply( this, arguments );
+			}
 		}
 	});
 
@@ -271,13 +294,21 @@
 		// When the VideoPress router is activated.
 		activate: function() {
 			var view = _.first( this.views.get( '.media-frame-router' ) ),
-			    viewSettings = {};
+				viewSettings = {};
 
-			if ( VideoPress.caps.read_videos )
-				viewSettings.browse = { text: VideoPress.l10n.VideoPressLibraryRouter, priority: 40 };
+			if ( VideoPress.caps.read_videos ) {
+				viewSettings.browse = {
+					text: VideoPress.l10n.VideoPressLibraryRouter,
+					priority: 40
+				};
+			}
 
-			if ( VideoPress.caps.upload_videos )
-				viewSettings.upload_videopress = { text: VideoPress.l10n.uploadVideoRouter, priority: 20 };
+			if ( VideoPress.caps.upload_videos ) {
+				viewSettings.upload_videopress = {
+					text: VideoPress.l10n.uploadVideoRouter,
+					priority: 20
+				};
+			}
 
 			view.set( viewSettings );
 
@@ -285,14 +316,15 @@
 			wp.Uploader.queue.on( 'add', this.VideoPress.disableUpload, this );
 
 			// Map the Upload Files view to the Upload a Video one (upload_videopress vs. upload)
-			if ( 'upload' === this.content.mode() && VideoPress.caps.upload_videos )
+			if ( 'upload' === this.content.mode() && VideoPress.caps.upload_videos ) {
 				this.content.mode( 'upload_videopress' );
-			else
+			} else {
 				this.content.mode( 'browse' );
+			}
 		},
 
 		// When navigated away from the VideoPress router.
-		deactivate: function( view ) {
+		deactivate: function() {
 			wp.Uploader.queue.off( 'add', this.VideoPress.disableUpload );
 		},
 
@@ -320,10 +352,11 @@
 		},
 
 		// Create a custom toolbar
-		createToolbar: function( toolbar ) {
+		createToolbar: function() {
 			// Alow an option to hide the toolbar.
-			if ( this.options.VideoPress && this.options.VideoPress.hideToolbar )
+			if ( this.options.VideoPress && this.options.VideoPress.hideToolbar ) {
 				return this;
+			}
 
 			var controller = this;
 			this.toolbar.set( new media.view.Toolbar({
@@ -351,7 +384,7 @@
 		}
 	}});
 
-	var MediaFrame = {};
+	MediaFrame = {};
 
 	/**
 	 * Extend the selection media frame
@@ -386,7 +419,7 @@
 	 * A VideoPress Modal view that we can use to preview videos.
 	 * Expects a controller object on render.
 	 */
-	var VideoPressModalView = Backbone.View.extend({
+	VideoPressModalView = Backbone.View.extend({
 		'className': 'videopress-modal-container',
 		'template': wp.media.template( 'videopress-media-modal' ),
 
@@ -400,8 +433,9 @@
 			this.model = controller.model;
 			this.guid = this.model.get( 'vp_guid' );
 
-			if ( ! this.$frame )
+			if ( ! this.$frame ) {
 				this.$frame = $( '.media-frame-content' );
+			}
 
 			this.$el.html( this.template( { 'video' : this.model.get( 'vp_embed' ) } ) );
 			this.$modal = this.$( '.videopress-modal' );
@@ -420,25 +454,29 @@
 		}
 	});
 
-	var VideoPressModal = new VideoPressModalView();
+	VideoPressModal = new VideoPressModalView();
 
 	// Configuration screen behavior
 	$(document).on( 'ready', function() {
-		var $form = $( '#videopress-settings' );
+		var $form = $( '#videopress-settings' ),
+			$access,
+			$upload;
 
 		// Not on a configuration screen
-		if ( ! $form.length )
+		if ( ! $form.length ) {
 			return;
+		}
 
-		var $access = $form.find( 'input[name="videopress-access"]' ),
-		    $upload = $form.find( 'input[name="videopress-upload"]' );
+		$access = $form.find( 'input[name="videopress-access"]' ),
+		$upload = $form.find( 'input[name="videopress-upload"]' );
 
 		$access.on( 'change', function() {
 			var access = $access.filter( ':checked' ).val();
 			$upload.attr( 'disabled', ! access );
 
-			if ( ! access )
+			if ( ! access ) {
 				$upload.attr( 'checked', false );
+			}
 		});
 
 		$access.trigger( 'change' );
@@ -447,7 +485,7 @@
 	// Media -> VideoPress menu
 	$(document).on( 'click', '#videopress-browse', function() {
 
-		var frame = wp.media({
+		wp.media({
 			state: 'videopress',
 			states: [ new media.controller.VideoPress() ],
 			VideoPress: { hideToolbar: true }

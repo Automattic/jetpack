@@ -35,6 +35,5 @@ modules/sharedaddy/sharing.js
 modules/shortcodes/js/audio-shortcode.js
 modules/shortcodes/js/main.js
 modules/shortcodes/js/slideshow-shortcode.js
-modules/videopress/videopress-admin.js
 modules/widget-visibility/widget-conditions/widget-conditions.js
 modules/widgets/gallery/js/admin.js
