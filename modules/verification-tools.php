@@ -6,7 +6,7 @@
  * First Introduced: 2.9
  * Sort Order: 55
  * Requires Connection: No
- * Auto Activate: No
+ * Auto Activate: Yes
  */
 
 function jetpack_load_verification_tools() {
