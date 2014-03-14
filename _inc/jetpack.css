@@ -857,7 +857,6 @@ html {
 	margin-top: 0 !important;
 }
 
-.header-nav,
 .wrap.inner,
 .page-content {
 	max-width: 950px;
@@ -1288,7 +1287,6 @@ html {
 	color: #abafb1;
 	text-indent: -9999px;
 	pointer-events: none;
-	background: rgba(255, 255, 255, .85);
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
 	-webkit-background-clip: padding-box;
