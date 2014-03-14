@@ -515,7 +515,6 @@ function grunion_ajax_shortcode_to_json() {
 	die( json_encode( $out ) );
 }
 
-
 add_action( 'wp_ajax_grunion_shortcode', 'grunion_ajax_shortcode' );
 add_action( 'wp_ajax_grunion_shortcode_to_json', 'grunion_ajax_shortcode_to_json' );
 
