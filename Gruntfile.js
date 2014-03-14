@@ -24,7 +24,7 @@ module.exports = function(grunt) {
 			options: grunt.file.readJSON('.jshintrc'),
 			src: [
 				'_inc/*.js',
-			//	'modules/*.js',
+				'modules/*.js',
 			//	'modules/**/*.js'
 			]
 		}

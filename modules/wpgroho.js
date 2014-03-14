@@ -1,3 +1,4 @@
+/* global WPGroHo:true, Gravatar */
 WPGroHo = jQuery.extend( {
 	my_hash: '',
 	data: {},
@@ -5,7 +6,7 @@ WPGroHo = jQuery.extend( {
 	syncProfileData: function( hash, id ) {
 		if ( !WPGroHo.data[hash] ) {
 			WPGroHo.data[hash] = {};
-			a = jQuery( 'div.grofile-hash-map-' + hash + ' span' ).each( function() {
+			jQuery( 'div.grofile-hash-map-' + hash + ' span' ).each( function() {
 				WPGroHo.data[hash][this.className] = jQuery( this ).text();
 			} );
 		}
@@ -23,7 +24,7 @@ WPGroHo = jQuery.extend( {
 	}
 }, WPGroHo );
 
-jQuery( document ).ready( function( $ ) {
+jQuery( document ).ready( function() {
 	Gravatar.profile_cb = function( h, d ) {
 		WPGroHo.syncProfileData( h, d );
 	};
