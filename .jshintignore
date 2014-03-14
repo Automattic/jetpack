@@ -18,7 +18,6 @@ modules/after-the-deadline/jquery.atd.js
 modules/after-the-deadline/tinymce/editor_plugin.js
 modules/after-the-deadline/tinymce/plugin.js
 modules/carousel/jetpack-carousel.js
-modules/contact-form/js/grunion.js
 modules/custom-post-types/comics/comics.js
 modules/custom-post-types/js/many-items.js
 modules/custom-post-types/js/menu-checkboxes.js
