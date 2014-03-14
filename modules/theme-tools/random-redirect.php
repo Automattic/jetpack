@@ -11,8 +11,10 @@ Author URI: http://photomatt.net/
 function jetpack_matt_random_redirect() {
 	// Verify that the Random Redirect plugin this code is from is not active
 	// See http://plugins.trac.wordpress.org/ticket/1898
-	require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
-	if( is_plugin_active( 'random-redirect/random-redirect.php' ) ) return;
+	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		if ( is_plugin_active( 'random-redirect/random-redirect.php' ) ) return;
+	}
 
 	// Acceptables URL formats: /[...]/?random=[post type], /?random, /&random, /&random=1
 	if ( ! isset( $_GET['random'] ) && ! in_array( strtolower( $_SERVER['REQUEST_URI'] ), array( '/&random', '/&random=1' ) ) )
