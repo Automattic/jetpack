@@ -14,8 +14,8 @@
 	///////////////////////////////////////
 
 	function configFixedElements() {
-		var jpTopFrame = $(".frame.top"),
-			jpBottomFrame = $(".frame.bottom"),
+		var jpTopFrame = $('.frame.top'),
+			jpBottomFrame = $('.frame.bottom'),
 			$body = $('body');
 
 		$body.scroll(function(){

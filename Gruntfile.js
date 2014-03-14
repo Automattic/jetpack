@@ -19,6 +19,14 @@ module.exports = function(grunt) {
 				'views/**/*.php',
 				'3rd-party/*.php'
 			]
+		},
+		jshint: {
+			options: grunt.file.readJSON('.jshintrc'),
+			src: [
+				'_inc/*.js',
+			//	'modules/*.js',
+			//	'modules/**/*.js'
+			]
 		}
 	};
 
@@ -26,10 +34,12 @@ module.exports = function(grunt) {
 
 	grunt.loadNpmTasks('grunt-shell');
 	grunt.loadNpmTasks('grunt-phplint');
+	grunt.loadNpmTasks('grunt-contrib-jshint');
 
 	grunt.registerTask('default', [
 		'shell',
-		'phplint'
+		'phplint',
+		'jshint'
 	]);
 
 };

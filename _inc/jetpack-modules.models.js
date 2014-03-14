@@ -30,7 +30,7 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 
 				if ( m_filter.data('filter-by') ) {
 					items = _.filter( items, function( item ) {
-						return item[ m_filter.data('filter-by') ] == m_filter.data('filter-value');
+						return item[ m_filter.data('filter-by') ] === m_filter.data('filter-value');
 					} );
 				}
 

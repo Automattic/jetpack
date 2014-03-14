@@ -71,8 +71,9 @@
 		loadModules();
 
 		// If all modules are already showing, make sure they stay expanded
-		if (!$('.load-more').is(':visible'))
+		if (!$('.load-more').is(':visible')) {
 			$('.module').fadeIn();
+		}
 	}
 
 	function initEvents () {
@@ -199,8 +200,8 @@
 		} else {
 			// About page
 			for (i=0; i<modules.length; i++) {
-				if (currentVersion.indexOf(modules[i].introduced) != -1) {
-					modules[i].new = true;
+				if (currentVersion.indexOf(modules[i].introduced) !== -1) {
+					modules[i]['new'] = true;
 				}
 
 				html += ich.mod(modules[i], true);
@@ -238,11 +239,11 @@
 	}
 
 	function searchModules (term) {
-		var html = '';
-		for (var i=0; i<modules.length; i++) {
-			var lowercaseDesc = modules[i].desc.toLowerCase(),
-				lowercaseName = modules[i].name.toLowerCase(),
-				lowercaseTerm = term.toLowerCase();
+		var html = '', i, lowercaseDesc, lowercaseName, lowercaseTerm;
+		for (i=0; i<modules.length; i++) {
+			lowercaseDesc = modules[i].desc.toLowerCase();
+			lowercaseName = modules[i].name.toLowerCase();
+			lowercaseTerm = term.toLowerCase();
 			if (lowercaseName.indexOf(lowercaseTerm) !== -1 || lowercaseDesc.indexOf(lowercaseTerm) !== -1) {
 				html += ich.mod(modules[i], true);
 			}
