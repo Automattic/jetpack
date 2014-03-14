@@ -4,6 +4,12 @@ module.exports = function(grunt) {
 	var cfg = {
 		pkg: grunt.file.readJSON('package.json'),
 		shell: {
+			checkHooks: {
+				command: 'diff --brief .git/hooks/pre-commit tools/git-hooks/pre-commit',
+				options: {
+					stdout: true
+				}
+			},
 			buildSass: {
 				command: 'php tools/pre-commit-build-scss.php'
 			}
