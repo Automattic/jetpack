@@ -391,6 +391,20 @@ html {
 // Module grid
 // ==========================================================================
 
+.cat {
+	clear: both;
+	margin-bottom: 23px;
+
+	h3 {
+		font-size: 24px;
+		font-weight: 300;
+		margin: 0 0 13px 6px;
+		text-align: left; 
+	}
+	.clear {
+		clear: both;
+	}
+}
 .module-grid {
 	text-align: center;
 

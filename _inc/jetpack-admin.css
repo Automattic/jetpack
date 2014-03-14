@@ -938,6 +938,22 @@ html {
 	transition: all 0.2s ease-in-out;
 }
 
+.cat {
+	clear: both;
+	margin-bottom: 23px;
+}
+
+.cat h3 {
+	font-size: 24px;
+	font-weight: 300;
+	margin: 0 0 13px 6px;
+	text-align: left;
+}
+
+.cat .clear {
+	clear: both;
+}
+
 .module-grid {
 	text-align: center;
 }
@@ -1949,6 +1965,14 @@ html {
 		box-shadow: none;
 	}
 
+	.cat .module:nth-child(3n + 1) {
+		margin: 0.75% 0 0.75% 1.5%;
+	}
+
+	.cat .module:nth-child(3n - 1) {
+		margin-left: 0;
+	}
+
 	.wrap.inner {
 		background: #f9f9f9;
 		padding: 15px;
@@ -2180,6 +2204,18 @@ html {
 		margin-left: 0;
 	}
 
+	.cat .module {
+		margin: 1% 0 1% 2%;
+	}
+
+	.cat .module:nth-child(2n + 1) {
+		margin: 1% 0 1% 2%;
+	}
+
+	.cat .module:nth-child(2n + 0) {
+		margin-left: 0;
+	}
+
 	.footer {
 		padding-top: 146px;
 	}
@@ -2323,6 +2359,18 @@ html {
 	}
 
 	.module:nth-child(2n + 1) {
+		margin-left: 0;
+	}
+
+	.cat .module {
+		margin: 5px 0;
+	}
+
+	.cat .module:nth-child(2n + 1) {
+		margin-left: 0;
+	}
+
+	.cat .module:nth-child(2n + 0) {
 		margin-left: 0;
 	}
 

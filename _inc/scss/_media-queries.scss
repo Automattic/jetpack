@@ -16,6 +16,14 @@
 			@include box-shadow(none);
 		}
 	}
+	.cat .module {
+		&:nth-child(3n + 1) {
+			margin: .75% 0 .75% 1.5%;
+		}
+		&:nth-child(3n - 1) {
+			margin-left: 0;
+		}
+	}
 	.wrap.inner {
 		background: #f9f9f9;
 		padding: 15px; 
@@ -220,6 +228,16 @@
 			margin-left: 0;
 		}
 	}
+	.cat .module {
+		margin: 1% 0 1% 2%;
+		
+		&:nth-child(2n + 1) {
+			margin: 1% 0 1% 2%;
+		}
+		&:nth-child(2n + 0) {
+			margin-left: 0;
+		}
+	}
 	.footer {
 		padding-top: 146px;
 	}
@@ -345,6 +363,16 @@
 			margin-left: 0;
 		}
 		&:nth-child(2n + 1) {
+			margin-left: 0;
+		}
+	}
+	.cat .module {
+		margin: 5px 0;
+		
+		&:nth-child(2n + 1) {
+			margin-left: 0;
+		}
+		&:nth-child(2n + 0) {
 			margin-left: 0;
 		}
 	}

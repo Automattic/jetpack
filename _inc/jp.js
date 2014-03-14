@@ -67,13 +67,37 @@
 		// Replace old object, with newly sorted object
 		modules = result;
 
-		// Reload the DOM based on this new sort order
-		loadModules();
-
 		// If all modules are already showing, make sure they stay expanded
 		if (!$('.load-more').is(':visible')) {
 			$('.module').fadeIn();
 		}
+	}
+
+	function filterModulesByCategory() {
+		var categories,
+			c, i, catId;
+
+		// First alphabatize the modules
+		filterModules('name');
+
+		// Add category containers
+		$('.modules').html(ich.category());
+
+		// Loop through adding sections for each category
+		for (i=0; i<modules.length; i++) {
+			// Get categories
+			categories = modules[i].module_tags;
+
+			// Loop through each individual category
+			for (c=0; c<categories.length; c++) {
+				// Add modules to the correct categories
+				catId = 'category-' + categories[c].toLowerCase().replace('.', '').replace(/ /g, '-');
+				$('.' + catId + ' .clear').before(ich.mod(modules[i], true));
+			}
+		}
+
+		recalculateModuleHeights();
+		initModalEvents();
 	}
 
 	function initEvents () {
@@ -86,13 +110,12 @@
 
 		// Load more
 		$('.load-more').click(function() {
-			$('.module').fadeIn();
-			$('.load-more').hide();
+			showAllModules();
 			return false;
 		});
 
 		// Module filtering
-		$('#newest, #alphabetical, #popular').on('click', function () {
+		$('#newest, #category, #alphabetical').on('click', function () {
 			var $this = $(this),
 				prop = $this.data('filter');
 
@@ -100,8 +123,17 @@
 			$('.jp-filter a').removeClass('selected');
 			$this.addClass('selected');
 
-			// Rearrange modules
-			filterModules(prop);
+			if ('cat' === prop) {
+				filterModulesByCategory();
+			} else {
+				// Rearrange modules
+				filterModules(prop);
+
+				// Reload the DOM based on this new sort order
+				loadModules();
+			}
+
+			showAllModules();
 			return false;
 		});
 
@@ -254,6 +286,11 @@
 		$('.modules').html(html);
 		recalculateModuleHeights();
 		initModalEvents();
+	}
+	
+	function showAllModules() {
+		$('.module').fadeIn();
+		$('.load-more').hide();
 	}
 
 	function updateModuleCount () {
