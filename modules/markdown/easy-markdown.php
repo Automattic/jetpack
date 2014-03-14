@@ -4,7 +4,7 @@
 Plugin Name: Easy Markdown
 Plugin URI: http://automattic.com/
 Description: Write in Markdown, publish in WordPress
-Version: 0.1
+Version: 1.0
 Author: Matt Wiebe
 Author URI: http://automattic.com/
 */
