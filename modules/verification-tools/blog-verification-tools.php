@@ -33,10 +33,14 @@ add_action( 'admin_init', 'jetpack_verification_options_init' );
 function jetpack_verification_print_meta() {
 	$verification_services_codes = get_option( 'verification_services_codes' );
 	if ( is_array( $verification_services_codes ) ) {
+		$ver_output = "\n<!-- Jetpack Site Verification Tags -->\n";
 		foreach ( jetpack_verification_services() as $name => $service ) {
 			if ( is_array( $service ) && !empty( $verification_services_codes["$name"] ) )
-				echo( '<meta name="' . esc_attr( $service["key"] ) . '" content="' . esc_attr( $verification_services_codes["$name"] ) . '" />' . "\n" );
+				$ver_tag = sprintf( '<meta name="%s" content="%s" />', esc_attr( $service["key"] ), esc_attr( $verification_services_codes["$name"] ) );
+				$ver_output .= apply_filters( 'jetpack_site_verification_output', $ver_tag );
+				$ver_output .= "\n";
 		}
+		echo $ver_output;
 	}
 }
 add_action( 'wp_head', 'jetpack_verification_print_meta', 1 );
