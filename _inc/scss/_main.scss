@@ -44,7 +44,6 @@ html {
 	background: $clouds;
 	margin-top: 0 !important;
 }
-.header-nav,
 .wrap.inner,
 .page-content  {
 	max-width: 950px;
@@ -445,7 +444,6 @@ html {
 		color: #abafb1;
 		text-indent: -9999px;
 		pointer-events: none;
-		background: rgba(255,255,255,.85);
 		@include border-radius(3px);
 		@include transition(all .2s ease-in-out);
 
