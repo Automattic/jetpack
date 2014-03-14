@@ -217,19 +217,19 @@ class Nova_Restaurant {
 
 		$messages[self::MENU_ITEM_POST_TYPE] = array(
 			0  => '', // Unused. Messages start at index 1.
-			1  => sprintf( __( 'Menu item updated. <a href="%s">View item</a>', 'nova'), esc_url( get_permalink( $post->ID ) ) ),
-			2  => esc_html__( 'Custom field updated.', 'nova' ),
-			3  => esc_html__( 'Custom field deleted.', 'nova' ),
-			4  => esc_html__( 'Menu item updated.', 'nova' ),
+			1  => sprintf( __( 'Menu item updated. <a href="%s">View item</a>', 'jetpack' ), esc_url( get_permalink( $post->ID ) ) ),
+			2  => esc_html__( 'Custom field updated.', 'jetpack' ),
+			3  => esc_html__( 'Custom field deleted.', 'jetpack' ),
+			4  => esc_html__( 'Menu item updated.', 'jetpack' ),
 			/* translators: %s: date and time of the revision */
-			5  => isset( $_GET['revision'] ) ? sprintf( esc_html__( 'Menu item restored to revision from %s', 'nova'), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
-			6  => sprintf( __( 'Menu item published. <a href="%s">View item</a>', 'nova' ), esc_url( get_permalink( $post->ID ) ) ),
-			7  => esc_html__( 'Menu item saved.', 'nova' ),
-			8  => sprintf( __( 'Menu item submitted. <a target="_blank" href="%s">Preview item</a>', 'nova'), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
-			9  => sprintf( __( 'Menu item scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview item</a>', 'nova' ),
+			5  => isset( $_GET['revision'] ) ? sprintf( esc_html__( 'Menu item restored to revision from %s', 'jetpack' ), wp_post_revision_title( (int) $_GET['revision'], false ) ) : false,
+			6  => sprintf( __( 'Menu item published. <a href="%s">View item</a>', 'jetpack' ), esc_url( get_permalink( $post->ID ) ) ),
+			7  => esc_html__( 'Menu item saved.', 'jetpack' ),
+			8  => sprintf( __( 'Menu item submitted. <a target="_blank" href="%s">Preview item</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
+			9  => sprintf( __( 'Menu item scheduled for: <strong>%1$s</strong>. <a target="_blank" href="%2$s">Preview item</a>', 'jetpack' ),
 			// translators: Publish box date format, see http://php.net/date
 			date_i18n( __( 'M j, Y @ G:i', 'jetpack' ), strtotime( $post->post_date ) ), esc_url( get_permalink($post->ID) ) ),
-			10 => sprintf( __( 'Menu item draft updated. <a target="_blank" href="%s">Preview item</a>', 'nova' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
+			10 => sprintf( __( 'Menu item draft updated. <a target="_blank" href="%s">Preview item</a>', 'jetpack' ), esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) ),
 		);
 
 		return $messages;
@@ -744,7 +744,7 @@ class Nova_Restaurant {
 
 					if ( ! is_wp_error( $term ) ) {
 						echo esc_html( sanitize_term_field( 'name', $term->name, $term->term_id, self::MENU_TAX, 'display' ) );
-						edit_term_link( __( 'edit', 'nova' ), '<span class="edit-nova-section"><span class="dashicon dashicon-edit"></span>', '</span>', $term );
+						edit_term_link( __( 'edit', 'jetpack' ), '<span class="edit-nova-section"><span class="dashicon dashicon-edit"></span>', '</span>', $term );
 
 					} else {
 						_e( 'Uncategorized' );
@@ -841,7 +841,7 @@ class Nova_Restaurant {
 		<p><?php _e( 'Use the <kbd>TAB</kbd> key on your keyboard to move between colums and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next.', 'jetpack' ); ?></p>
 
 		<form method="post" action="" enctype="multipart/form-data">
-			<p><h3><?php esc_html_e( 'Add to section:', 'nova' ); ?> <?php wp_dropdown_categories( array(
+			<p><h3><?php esc_html_e( 'Add to section:', 'jetpack' ); ?> <?php wp_dropdown_categories( array(
 				'id'           => 'nova-menu-tax',
 				'name'         => 'nova_menu_tax',
 				'taxonomy'     => self::MENU_TAX,
