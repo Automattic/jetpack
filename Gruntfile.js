@@ -25,7 +25,7 @@ module.exports = function(grunt) {
 			src: [
 				'_inc/*.js',
 				'modules/*.js',
-			//	'modules/**/*.js'
+				'modules/**/*.js'
 			]
 		}
 	};
