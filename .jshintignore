@@ -21,8 +21,6 @@ modules/carousel/jetpack-carousel.js
 modules/custom-post-types/js/many-items.js
 modules/custom-post-types/js/menu-checkboxes.js
 modules/custom-post-types/js/nova-drag-drop.js
-modules/gplus-authorship/admin/connect.js
-modules/gplus-authorship/admin/listener.js
 modules/infinite-scroll/infinity.js
 modules/likes/post-count-jetpack.js
 modules/likes/post-count.js
