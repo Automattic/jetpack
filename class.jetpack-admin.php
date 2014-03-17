@@ -357,10 +357,10 @@ class Jetpack_Admin {
 			<div class="frame top">
 				<div class="wrap">
 					<div class="manage-left">
-						<table class="table table-bordered">
+						<table class="table table-bordered fixed-top">
 							<thead>
 								<tr>
-									<th class="sm"><input type="checkbox" class="checkall"></th>
+									<th class="check-column"><input type="checkbox" class="checkall"></th>
 									<th colspan="2">
 										<?php $list_table->display_tablenav( 'top' ); ?>
 										<span class="filter-search">
@@ -436,7 +436,7 @@ class Jetpack_Admin {
 	<div class="content-container"><div class="content"></div></div>
 </script>
 <script id="mod" type="text/html">
-	<div href="{{ url }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
+	<div href="{{ url }}" data-index="{{ index }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
 		<h3 class="icon {{ module }}">{{ name }}{{^free}}<span class="paid"><?php esc_html_e( 'Paid', 'jetpack' ); ?></span>{{/free}}</h3>
 		<p>{{{ short_description }}}</p>
 	</div>

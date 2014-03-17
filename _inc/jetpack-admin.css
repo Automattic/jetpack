@@ -1922,6 +1922,11 @@ html {
 
 }
 
+.fixed-top .check-column {
+	padding: 8px 10px 0 10px;
+	width: 2.2em;
+}
+
 .wrap {
 	margin: 0;
 	padding: 0 1.5em 1em;

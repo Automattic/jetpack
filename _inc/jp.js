@@ -189,30 +189,23 @@
 			$modal.html(ich.modalLoading({}, true)).fadeIn();
 
 			// Load & populate with content
-		/*	Commenting these out as they're commented out below.
-			var $url = $(this).prop('href'),
-				$name = $(this).data('name');
-		*/
-			//$.get( $url, function( content ) {
-				setTimeout(function() {
-					$modal.html(ich.modalTemplate({}, true));
-					//$modal.find('header li').first().text($name);
-					$modal.find('.content').html('');
-					//$modal.find('.content').html(content);
+			var $this = $(this),
+				index = $this.data('index'),
+				name = $this.data('name');
 
-					closeShadeToggle();
+			$modal.html(ich.modalTemplate({}, true));
+			$modal.find('header li').first().text(name);
+			$modal.find('.content').html('');
+			$modal.find('.content').html(jetpackL10n.modules[index].long_description);
 
-					// Modal header links
-					$('.modal header li a').on('click', function () {
-						$('.modal header li a').removeClass('active');
-						$(this).addClass('active');
+			closeShadeToggle();
 
-						// TODO Add contents
-
-						return false;
-					});
-				}, 600);
-			//});
+			// Modal header links
+			$('.modal header li a').on('click', function () {
+				$('.modal header li a').removeClass('active');
+				$(this).addClass('active');
+				return false;
+			});
 
 			return false;
 		});
@@ -235,6 +228,8 @@
 				if (currentVersion.indexOf(modules[i].introduced) !== -1) {
 					modules[i]['new'] = true;
 				}
+				
+				modules[i].index = i;
 
 				html += ich.mod(modules[i], true);
 			}
