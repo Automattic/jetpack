@@ -1796,162 +1796,196 @@ html {
 	border-left: 4px solid #dd3d36;
 }
 
-.modules h3.icon {
+.modules h3.icon,
+.jetpack-modules .info a {
 	width: auto;
 }
 
-.modules h3.icon:before {
+.modules h3.icon:before,
+.jetpack-modules .info a:before {
 	display: inline-block;
 	position: relative;
 	top: 1px;
 	left: -3px;
-	margin-right: 4px;
+	margin-right: 2px;
 	font: normal 1.25em/1em 'genericons';
 	vertical-align: top;
 }
 
-.modules .a11s-vaultpress:before {
-	content: 'V';
-	font-family: 'automatticons';
+.jetpack-modules .info a:before {
+	margin-top: 3px;
 }
 
-.latex:before {
+.latex:before,
+.jetpack-modules #latex .info a:before {
 	content: '\f408';
 }
 
-.carousel:before {
+.carousel:before,
+.jetpack-modules #carousel .info a:before {
 	content: '\f102';
 }
 
-.modules h3.contact-form:before {
+.modules h3.contact-form:before,
+.jetpack-modules #contact-form .info a:before {
 	content: '\f175';
 	font: normal 1.25em/1em "dashicons";
 }
 
-.modules h3.custom-css:before {
+.modules h3.custom-css:before,
+.jetpack-modules #custom-css .info a:before {
 	content: '\f100';
 	font: normal 1.25em/1em "dashicons";
 }
 
-.modules h3.enhanced-distribution:before {
+.modules h3.enhanced-distribution:before,
+.jetpack-modules #enhanced-distribution .info a:before {
 	content: '\f237';
 	font: normal 1.25em/1em "dashicons";
 }
 
-.modules h3.widgets:before {
+.modules h3.widgets:before,
+.jetpack-modules #widgets .info a:before {
 	content: '\f116';
 	font: normal 1.25em/1em "dashicons";
 }
 
-.gplus-authorship:before {
+.gplus-authorship:before,
+.jetpack-modules #gplus-authorship .info a:before {
 	content: '\f218';
 }
 
-.modules h3.gravatar-hovercards:before {
+.modules h3.gravatar-hovercards:before,
+.jetpack-modules #gravatar-hovercards .info a:before {
 	content: 'G';
 	font-family: 'automatticons';
 }
 
-.infinite-scroll:before {
+.infinite-scroll:before,
+.jetpack-modules #infinite-scroll .info a:before {
 	content: '\f408';
 }
 
-.comments:before {
+.comments:before,
+.jetpack-modules #comments .info a:before {
 	content: '\f108';
 }
 
-.sso:before {
+.sso:before,
+.jetpack-modules #sso .info a:before {
 	content: '\f205';
 }
 
-.json-api:before {
+.json-api:before,
+.jetpack-modules #json-api .info a:before {
 	content: '\f415';
 }
 
-.likes:before {
+.likes:before,
+.jetpack-modules #likes .info a:before {
 	content: '\f408';
 }
 
-.markdown:before {
+.markdown:before,
+.jetpack-modules #markdown .info a:before {
 	content: '\f462';
 }
 
-.minileven:before {
+.minileven:before,
+.jetpack-modules #minileven .info a:before {
 	content: '\f453';
 }
 
-.monitor:before {
+.monitor:before,
+.jetpack-modules #monitor .info a:before {
 	content: '\f468';
 }
 
-.notes:before {
+.notes:before,
+.jetpack-modules #notes .info a:before {
 	content: '\f300';
 }
 
-.omnisearch:before {
+.omnisearch:before,
+.jetpack-modules #omnisearch .info a:before {
 	content: '\f400';
 }
 
-.photon:before {
+.photon:before,
+.jetpack-modules #photon .info a:before {
 	content: '\f403';
 }
 
-.post-by-email:before {
+.post-by-email:before,
+.jetpack-modules #post-by-email .info a:before {
 	content: '\f410';
 }
 
-.modules h3.publicize:before {
+.modules h3.publicize:before,
+.jetpack-modules #publicize .info a:before {
 	content: '\f237';
 	font: normal 1.25em/1em "dashicons";
 }
 
-.related-posts:before {
+.related-posts:before,
+.jetpack-modules #related-posts .info a:before {
 	content: '\f420';
 }
 
-.sharedaddy:before {
+.sharedaddy:before,
+.jetpack-modules #sharedaddy .info a:before {
 	content: '\f415';
 }
 
-.shortcodes:before {
+.shortcodes:before,
+.jetpack-modules #shortcodes .info a:before {
 	content: '\f100';
 }
 
-.verification-tools:before {
+.verification-tools:before,
+.jetpack-modules #verification-tools .info a:before {
 	content: '\f425';
 }
 
-.after-the-deadline:before {
+.after-the-deadline:before,
+.jetpack-modules #after-the-deadline .info a:before {
 	content: '\f411';
 }
 
-.subscriptions:before {
+.subscriptions:before,
+.jetpack-modules #subscriptions .info a:before {
 	content: '\f410';
 }
 
-.tiled-gallery:before {
+.tiled-gallery:before,
+.jetpack-modules #tiled-gallery .info a:before {
 	content: '\f103';
 }
 
-.modules h3.vaultpress:before {
+.modules h3.vaultpress:before,
+.jetpack-modules #vaultpress .info a:before {
 	content: 'V';
 	font-family: 'automatticons';
 }
 
-.videopress:before {
+.videopress:before,
+.jetpack-modules #videopress .info a:before {
 	content: '\f104';
 }
 
-.modules h3.widget-visibility:before {
+.modules h3.widget-visibility:before,
+.jetpack-modules #widget-visibility .info a:before {
 	content: '\f116';
 	font: normal 1.25em/1em "dashicons";
 }
 
-.stats:before {
+.stats:before,
+.jetpack-modules #stats .info a:before {
 	content: '\f205';
 }
 
-.shortlinks:before {
+.shortlinks:before,
+.jetpack-modules #shortlinks .info a:before {
 	content: '\f107';
 }
 
