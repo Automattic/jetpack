@@ -452,6 +452,8 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	position: relative;
 	top: -2px;
 	line-height: 1;
+	width: auto;
+	height: auto;
 }
 
 .sd-social-icon .sd-content ul li[class*='share-'] a.sd-button>span,
