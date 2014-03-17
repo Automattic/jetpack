@@ -693,7 +693,7 @@ class Publicize extends Publicize_Base {
 			$connection_meta = $this->get_connection_meta( $connection );
 			$publicize_facebook_user = get_post_meta( $post_id, '_publicize_facebook_user' );
 			if ( empty( $publicize_facebook_user ) || 0 != $connection_meta['connection_data']['user_id'] ) {
-				update_post_meta( $post_id, '_publicize_facebook_user', $this->get_display_name( 'facebook', $connection ) );
+				update_post_meta( $post_id, '_publicize_facebook_user', $this->get_profile_link( 'facebook', $connection ) );
 			}
 		}
 	}
