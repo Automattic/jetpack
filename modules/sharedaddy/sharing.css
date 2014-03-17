@@ -443,6 +443,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
  */
 
 .sd-social-icon .sd-content ul li[class*='share-'] a,
+.sd-social-icon .sd-content ul li[class*='share-'] a:hover,
 .sd-social-icon .sd-content ul li[class*='share-'] div.option a {
 	border-radius: 50%;
 	-webkit-border-radius: 50%;
