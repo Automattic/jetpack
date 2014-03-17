@@ -70,7 +70,7 @@ function jetpack_og_tags() {
 		if ( post_type_supports( get_post_type( $data ), 'author' ) && isset( $data->post_author ) ) {
 			$publicize_facebook_user = get_post_meta( $data->ID, '_publicize_facebook_user' );
 			if ( ! empty( $publicize_facebook_user ) ) {
-				$tags['article:author'] = $publicize_facebook_user;
+				$tags['article:author'] = esc_url( $publicize_facebook_user );
 			} else {
 				$tags['article:author'] = get_author_posts_url( $data->post_author );
 			}
