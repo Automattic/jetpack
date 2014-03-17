@@ -67,8 +67,14 @@ function jetpack_og_tags() {
 			$tags['og:description'] = __('Visit the post for more.', 'jetpack');
 		$tags['article:published_time'] = date( 'c', strtotime( $data->post_date_gmt ) );
 		$tags['article:modified_time'] = date( 'c', strtotime( $data->post_modified_gmt ) );
-		if ( post_type_supports( get_post_type( $data ), 'author' ) && isset( $data->post_author ) )
-			$tags['article:author'] = get_author_posts_url( $data->post_author );
+		if ( post_type_supports( get_post_type( $data ), 'author' ) && isset( $data->post_author ) ) {
+			$publicize_facebook_user = get_post_meta( $data->ID, '_publicize_facebook_user' );
+			if ( ! empty( $publicize_facebook_user ) ) {
+				$tags['article:author'] = $publicize_facebook_user;
+			} else {
+				$tags['article:author'] = get_author_posts_url( $data->post_author );
+			}
+		}
 	}
 
 	// Allow plugins to inject additional template-specific open graph tags
