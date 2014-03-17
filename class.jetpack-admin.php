@@ -431,14 +431,13 @@ class Jetpack_Admin {
 		<a href="#" class="close">&times;</a>
 		<ul>
 			<li><a href="#" class="active"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a></li>
-			<li><a href="#"><?php esc_html_e( 'Config', 'jetpack' ); ?></a></li>
 		</ul>
 	</header>
 	<div class="content-container"><div class="content"></div></div>
 </script>
 <script id="mod" type="text/html">
 	<div href="{{ url }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
-		<h3>{{ name }}{{^free}}<span class="paid"><?php esc_html_e( 'Paid', 'jetpack' ); ?></span>{{/free}}</h3>
+		<h3 class="icon {{ module }}">{{ name }}{{^free}}<span class="paid"><?php esc_html_e( 'Paid', 'jetpack' ); ?></span>{{/free}}</h3>
 		<p>{{{ short_description }}}</p>
 	</div>
 </script>

@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Extra Sidebar Widgets
- * Module Description: Easily add images, Twitter updates, and your site's RSS links to your theme's sidebar.
+ * Module Description: Add images, Twitter streams, and your site’s RSS links to your sidebar.
  * Sort Order: 13
  * First Introduced: 1.2
  * Requires Connection: No

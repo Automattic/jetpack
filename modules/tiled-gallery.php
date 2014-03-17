@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Tiled Galleries
- * Module Description: Create elegant magazine-style mosaic layouts for your photos without using an external graphic editor.
+ * Module Description: Display your image galleries in a variety of sleek, graphic arrangements.
  * First Introduced: 2.1
  * Requires Connection: Yes
  * Auto Activate: No

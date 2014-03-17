@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Jetpack Single Sign On
- * Module Description: Let users login with their WordPress.com Credentials
+ * Module Description: Allow your users to log in using their WordPress.com accounts.
  * Sort Order: 50
  * First Introduced: 2.6
  * Requires Connection: Yes

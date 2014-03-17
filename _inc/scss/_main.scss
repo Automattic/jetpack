@@ -337,42 +337,6 @@ html {
 	border: 1px solid #ddd;
 	border-bottom: none;
 }
-.custom-css {
-	background: url('img/custom-css.jpg') no-repeat;
-	background-size: 100% auto;
-
-	@media print,
-	(-webkit-min-device-pixel-ratio: 1.25),
-	(min--moz-device-pixel-ratio: 1.25),
-	(-o-min-device-pixel-ratio: 5/4),
-	(min-resolution: 120dpi) {
-		background-image: url('img/custom-css@2x.jpg');
-	}
-}
-.wordpress-connect {
-	background: url('img/wordpress-connect.jpg') no-repeat;
-	background-size: 100% auto;
-
-	@media print,
-	(-webkit-min-device-pixel-ratio: 1.25),
-	(min--moz-device-pixel-ratio: 1.25),
-	(-o-min-device-pixel-ratio: 5/4),
-	(min-resolution: 120dpi) {
-		background-image: url('img/wordpress-connect@2x.jpg');
-	}
-}
-.wordpress-stats {
-	background: url('img/wordpress-stats.jpg') no-repeat;
-	background-size: 100% auto;
-
-	@media print,
-	(-webkit-min-device-pixel-ratio: 1.25),
-	(min--moz-device-pixel-ratio: 1.25),
-	(-o-min-device-pixel-ratio: 5/4),
-	(min-resolution: 120dpi) {
-		background-image: url('img/wordpress-stats@2x.jpg');
-	}
-}
 .no-border {
 	// For when you have images that look better without a border.
 	// Make those images two pixels wider and one taller.
@@ -960,7 +924,9 @@ html {
 // Icons
 // ==========================================================================
 
-.icon {
+.modules h3.icon {
+	width: auto;
+	
 	&:before {
 		display: inline-block;
 		position: relative;
@@ -971,24 +937,117 @@ html {
 		vertical-align: top;
 	}
 }
-.a11s-vaultpress {
+.modules .a11s-vaultpress {
 	&:before {
 		content: $a11s-vaultpress;
 		font-family: $a11s;
 	}
 }
-.a11s-gravatar {
-	&:before {
-		content: $a11s-gravatar;
-		font-family: $a11s;
-	}
+
+.latex:before {
+	content: '\f408';
 }
-.dashicons {
-	&:before {
-		display: inline-block;
-		position: relative;
-		top: 4px;
-		margin-right: 4px;
-		font: normal 1.25em/1em 'dashicons';
-	}
+.carousel:before {
+	content: '\f102';
+}
+.modules h3.contact-form:before {
+	content: '\f175';
+	font: normal 1.25em/1em "dashicons";
+}
+.modules h3.custom-css:before {
+	content: '\f100';
+	font: normal 1.25em/1em "dashicons";
+}
+.modules h3.enhanced-distribution:before {
+	content: '\f237';
+	font: normal 1.25em/1em "dashicons";
+}
+.modules h3.widgets:before {
+	content: '\f116';
+	font: normal 1.25em/1em "dashicons";
+}
+.gplus-authorship:before {
+	content: '\f218';
+}
+.modules h3.gravatar-hovercards:before {
+	content: 'G';
+	font-family: $a11s;
+}
+.infinite-scroll:before {
+	content: '\f408';
+}
+.comments:before {
+	content: '\f108';
+}
+.sso:before {
+	content: '\f205';
+}
+.json-api:before {
+	content: '\f415';
+}
+.likes:before {
+	content: '\f408';
+}
+.markdown:before {
+	content: '\f462';
+}
+.minileven:before {
+	content: '\f453';
+}
+.monitor:before {
+	content: '\f468';
+}
+.notes:before {
+	content: '\f300';
+}
+.omnisearch:before {
+	content: '\f400';
+}
+.photon:before {
+	content: '\f403';
+}
+.post-by-email:before {
+	content: '\f410';
+}
+.modules h3.publicize:before {
+	content: '\f237';
+	font: normal 1.25em/1em "dashicons";
+}
+.related-posts:before {
+	content: '\f420';
+}
+.sharedaddy:before {
+	content: '\f415';
+}
+.shortcodes:before {
+	content: '\f100';
+}
+.verification-tools:before {
+	content: '\f425';
+}
+.after-the-deadline:before {
+	content: '\f411';
+}
+.subscriptions:before {
+	content: '\f410';
+}
+.tiled-gallery:before {
+	content: '\f103';
+}
+.modules h3.vaultpress:before {
+	content: 'V';
+	font-family: $a11s;
+}
+.videopress:before {
+	content: '\f104';
+}
+.modules h3.widget-visibility:before {
+	content: '\f116';
+	font: normal 1.25em/1em "dashicons";
+}
+.stats:before {
+	content: '\f205';
+}
+.shortlinks:before {
+	content: '\f107';
 }

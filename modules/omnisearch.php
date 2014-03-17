@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Omnisearch
- * Module Description: A single search box, that lets you search many different things.
+ * Module Description: Search your entire database from a single field in your Dashboard.
  * Sort Order: 8
  * First Introduced: 2.3
  * Requires Connection: No

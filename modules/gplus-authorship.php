@@ -1,7 +1,7 @@
 <?php
 /**
 * Module Name: Google+ Profile
-* Module Description: Show a link to your Google+ in the sharing area of your posts and add your blog URL to your Google+ profile.
+* Module Description: Give users the ability to share posts to Google+, and add your site link to your Google+ profile.
 * Sort Order: 10
 * First Introduced: 2.5
 * Requires Connection: Yes
