@@ -600,7 +600,9 @@ class Jetpack_SSO {
 		}
 		.jetpack-sso.button:before {
 			display: block;
-			padding: 3px 4px;
+			box-sizing: border-box;
+			padding: 7px 0 0;
+			text-align: center;
 			position: absolute;
 			top: -1px;
 			left: -1px;
@@ -609,13 +611,16 @@ class Jetpack_SSO {
 			background: #0074a2;
 			color: #fff;
 			-webkit-font-smoothing: antialiased;
-			width: 22px;
-			height: 22px;
+			width: 30px;
+			height: 107%;
+			height: calc( 100% + 2px );
 			font: normal 22px/1 Genericons !important;
 			text-shadow: none;
 		}
-		.jetpack-sso.button:active:before {
-			padding-top: 4px;
+		@media screen and (min-width: 783px) {
+			.jetpack-sso.button:before {
+				padding-top: 3px;
+			}
 		}
 		.jetpack-sso.button:hover {
 			border: 1px solid #aaa;
@@ -624,8 +629,7 @@ class Jetpack_SSO {
 		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '<' ) ) {
 			$css .= "
 			.jetpack-sso.button:before {
-				width: 18px;
-				height: 18px;
+				width: 25px;
 				font-size: 18px !important;
 			}
 			";
