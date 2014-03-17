@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Carousel
- * Module Description: Transform your standard image galleries into an immersive full-screen experience.
+ * Module Description: Transform standard image galleries into full-screen sideshows.
  * Sort Order: 4
  * First Introduced: 1.5
  * Requires Connection: No

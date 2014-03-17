@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Beautiful Math
- * Module Description: Mark up your posts with the latex markup language, perfect for complex mathematical equations and other &#252;ber-geekery.
+ * Module Description: Use LaTeX markup language in posts and pages for complex equations and other geekery.
  * Sort Order: 12
  * First Introduced: 1.1
  * Requires Connection: No

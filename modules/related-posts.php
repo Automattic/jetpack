@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Related Posts
- * Module Description: Display links to related site content under your posts.
+ * Module Description: Display links to your related content under posts and pages.
  * First Introduced: 2.9
  * Sort Order: 5
  * Requires Connection: Yes

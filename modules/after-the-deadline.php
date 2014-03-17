@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Spelling and Grammar
- * Module Description: Improve your spelling, style, and grammar with the <a href="http://www.afterthedeadline.com/">After&nbsp;the&nbsp;Deadline</a> Proofreading service.
+ * Module Description: Check your spelling, style, and grammar with the After the Deadline proofreading service.
  * Sort Order: 6
  * First Introduced: 1.1
  * Requires Connection: Yes

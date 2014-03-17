@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Post by Email
- * Module Description: Publish posts to your blog directly from your personal email account.
+ * Module Description: Publish posts by email, using any device and email client.
  * First Introduced: 2.0
  * Sort Order: 4
  * Requires Connection: Yes

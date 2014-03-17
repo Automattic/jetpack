@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Notifications
- * Module Description: Monitor and manage your site's activity with Notifications in your Toolbar and on WordPress.com.
+ * Module Description: Receive notification of site activity via the admin toolbar and your Apple device.
  * Sort Order: 1
  * First Introduced: 1.9
  * Requires Connection: Yes
