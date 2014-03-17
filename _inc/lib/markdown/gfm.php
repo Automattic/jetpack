@@ -77,6 +77,10 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 * @return string       HTML-transformed text
 	 */
 	public function transform( $text ) {
+		// Preserve anything inside a single-line <code> element
+		if ( $this->preserve_inline_code_blocks ) {
+			$text = $this->single_line_code_preserve( $text );
+		}
 		// Remove all shortcodes so their interiors are left intact
 		if ( $this->preserve_shortcodes ) {
 			$text = $this->shortcode_preserve( $text );
@@ -84,10 +88,6 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 		// Remove legacy LaTeX so it's left intact
 		if ( $this->preserve_latex ) {
 			$text = $this->latex_preserve( $text );
-		}
-		// Preserve anything inside a single-line <code> element
-		if ( $this->preserve_inline_code_blocks ) {
-			$text = $this->single_line_code_preserve( $text );
 		}
 
 		// escape line-beginning # chars that do not have a space after them.
@@ -119,7 +119,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 * @return string       Text that was preserved if needed
 	 */
 	public function single_line_code_preserve( $text ) {
-		return preg_replace_callback( '|<code>(.+)</code>|', array( $this, 'do_single_line_code_preserve' ), $text );
+		return preg_replace_callback( '|<code\b[^>]*>(.*?)</code>|', array( $this, 'do_single_line_code_preserve' ), $text );
 	}
 
 	/**
