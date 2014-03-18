@@ -938,11 +938,12 @@ html {
 	overflow: hidden;
 }
 
-.module-search {
+input[type="text"].module-search {
 	width: 100%;
 	padding: 11px 0 11px 16px;
 	color: #5c6671;
 	border: 1px solid #c9ced0;
+	border-right-width: 2px;
 	background: #fff;
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
@@ -951,33 +952,33 @@ html {
 	background-clip: padding-box;
 }
 
-.module-search:focus {
+input[type="text"].module-search:focus {
 	color: #5c6671;
 	outline: none;
 }
 
-.module-search:focus + label {
+input[type="text"].module-search:focus + label {
 	background: transparent;
 	opacity: 0.3;
 }
 
-.module-search::-webkit-input-placeholder {
+input[type="text"].module-search::-webkit-input-placeholder {
 	color: #a8acae;
 }
 
-.module-search :-moz-placeholder {
+input[type="text"].module-search :-moz-placeholder {
 	color: #a8acae;
 }
 
-.module-search::-moz-placeholder {
+input[type="text"].module-search::-moz-placeholder {
 	color: #a8acae;
 }
 
-.module-search:-ms-input-placeholder {
+input[type="text"].module-search:-ms-input-placeholder {
 	color: #a8acae;
 }
 
-.module-search + label {
+input[type="text"].module-search + label {
 	position: absolute;
 	top: 1px;
 	right: 1px;
@@ -998,7 +999,7 @@ html {
 	transition: all 0.2s ease-in-out;
 }
 
-.module-search + label:after {
+input[type="text"].module-search + label:after {
 	content: '\f400';
 	position: absolute;
 	right: 11px;
@@ -1497,7 +1498,6 @@ html {
 }
 
 .jetpack-message {
-	margin-top: 2em;
 	position: relative;
 	z-index: 2;
 }
@@ -1507,11 +1507,9 @@ html {
 }
 
 .jetpack-message .squeezer {
-	background: #e4f4d5;
-	border-left: 4px solid #e4f4d5;
-	margin: 0 auto;
-	max-width: 906px;
-	padding: 23px 23px 23px 97px;
+	background: #fff;
+	border: 20px solid #81a844;
+	padding: 23px 23px 10px 97px;
 	position: relative;
 	text-align: left;
 }
@@ -1525,10 +1523,6 @@ html {
 	opacity: 0.4;
 	position: absolute;
 	top: 18px;
-}
-
-.jetpack-err .squeezer {
-	border-left: 4px solid #dd3d36;
 }
 
 .modules h3.icon,

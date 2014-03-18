@@ -293,14 +293,6 @@ class Jetpack_Admin {
 
 		<div class="masthead <?php if ( ! $is_connected ) echo 'hasbutton'; ?>">
 
-			<?php if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] ) : ?>
-				<div id="message" class="error">
-					<p><?php esc_html_e( 'Jetpack is network activated and notices can not be dismissed.', 'jetpack' ); ?></p>
-				</div>
-			<?php endif; ?>
-
-			<?php do_action( 'jetpack_notices' ) ?>
-
 			<h1><?php esc_html_e( 'Supercharge your self-hosted site with a suite of the most powerful WordPress.com features.', 'jetpack' ); ?></h1>
 
 			<?php if ( ! $is_connected && current_user_can( 'jetpack_connect' ) ) : ?>

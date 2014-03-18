@@ -398,11 +398,12 @@ html {
 	margin: 0 auto em(15);
 	overflow: hidden;
 }
-.module-search {
+input[type="text"].module-search {
 	width: 100%;
 	padding: 11px 0 11px 16px;
 	color: #5c6671;
 	border: 1px solid #c9ced0;
+	border-right-width: 2px;
 	background: #fff;
 	@include border-radius(3px);
 
@@ -902,7 +903,6 @@ html {
 // ==========================================================================
 
 .jetpack-message {
-	margin-top: 2em;
 	position: relative;
 	z-index: 2;
 
@@ -910,11 +910,9 @@ html {
 		margin-top: 0;
 	}
 	.squeezer {
-		background: #E4F4D5;
-		border-left: 4px solid #E4F4D5;
-		margin: 0 auto;
-		max-width: 906px;
-		padding: 23px 23px 23px 97px;
+		background: #fff;
+		border: 20px solid #81a844;
+		padding: 23px 23px 10px 97px;
 		position: relative;
 		text-align: left;
 
@@ -930,12 +928,6 @@ html {
 		}
 	}
 }
-.jetpack-err {
-	.squeezer {
-		border-left: 4px solid #dd3d36;
-	}
-}
-
 
 // ==========================================================================
 // Icons
