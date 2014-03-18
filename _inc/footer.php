@@ -2,7 +2,7 @@
 				<?php $is_connected = Jetpack::is_active(); ?>
 				<?php if ( ! $is_connected && current_user_can( 'jetpack_connect' ) ) : ?>
 					<a href="<?php echo $this->jetpack->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect to Get Started', 'jetpack' ); ?></a>
-				<?php elseif ( ! $is_user_connected && current_user_can( 'jetpack_connect_user' ) ) : ?>
+				<?php elseif ( ! $is_connected && current_user_can( 'jetpack_connect_user' ) ) : ?>
 					<a href="<?php echo $this->jetpack->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
 				<?php endif; ?>
 
