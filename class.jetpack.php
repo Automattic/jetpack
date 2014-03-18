@@ -775,8 +775,9 @@ class Jetpack {
 			}
 		}
 
-		if ( apply_filters( 'jetpack_enable_open_graph', false ) )
+		if ( apply_filters( 'jetpack_enable_open_graph', false ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
+		}
 	}
 
 	/**
@@ -798,8 +799,9 @@ class Jetpack {
 			}
 		}
 
-		if ( apply_filters( 'jetpack_disable_twitter_cards', true ) )
+		if ( apply_filters( 'jetpack_disable_twitter_cards', true ) ) {
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-twitter-cards.php';
+		}
 	}
 
 /* Jetpack Options API */
