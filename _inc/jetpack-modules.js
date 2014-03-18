@@ -86,8 +86,10 @@
 	} );
 
 	$jp_frame.children( '.modal' ).on( 'config', function() {
-//		var current_module = $jp_frame.children( '.modal' ).data( 'current-module' );
-		$(this).find('.content').html( 'config' );
+		var current_module = $jp_frame.children( '.modal' ).data( 'current-module' );
+		// Hack.  Until we import the form to the modal, just redirect to where it would have gone.
+		window.location.href = items[ current_module ].configure_url;
+		// $(this).find('.content').html( items[ current_module ].configure_form );
 	} );
 
 	$the_table.on( 'click', '.info a', { modules : modules }, function( event ) {
