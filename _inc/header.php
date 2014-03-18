@@ -8,6 +8,13 @@ $is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_u
 ?>
 <div class="jp-content">
 	<div class="jp-frame">
+		<?php if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] ) : ?>
+			<div id="message" class="error">
+				<p><?php esc_html_e( 'Jetpack is network activated and notices can not be dismissed.', 'jetpack' ); ?></p>
+			</div>
+		<?php endif; ?>
+
+		<?php do_action( 'jetpack_notices' ) ?>
 		<div class="header">
 			<nav role="navigation" class="header-nav drawer-nav nav-horizontal">
 
