@@ -384,6 +384,7 @@ class Jetpack {
 			case 'jetpack_deactivate_modules' :
 				$caps = array( 'manage_options' );
 				break;
+			case 'jetpack_admin_page' :
 			case 'jetpack_connect_user' :
 				$caps = array( 'read' );
 				break;

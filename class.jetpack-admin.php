@@ -167,7 +167,7 @@ class Jetpack_Admin {
 			$title          = sprintf( $format, $update_markup );
 		}
 
-		$hook = add_menu_page( 'Jetpack', $title, 'read', 'jetpack', array( $this, 'admin_page' ), 'div' );
+		$hook = add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'admin_page' ), 'div' );
 
 		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
