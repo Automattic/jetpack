@@ -211,8 +211,7 @@ class Jetpack_Admin {
 
 	function admin_page_load() {
 		// This is big.  For the moment, just call the existing one.
-		$args = func_get_args();
-		return call_user_func_array( array( $this->jetpack, __FUNCTION__ ), $args );
+		$this->jetpack->admin_page_load();
 	}
 
 	function admin_head() {
