@@ -957,8 +957,19 @@ html {
 	margin: 0;
 }
 
+.jetpack-pagestyles #screen-meta {
+	border-left: 20px solid #81a844;
+	border-right: 20px solid #81a844;
+	margin: 0 0 -1px;
+}
+
 .jetpack-pagestyles #screen-meta-links .screen-meta-toggle {
 	z-index: 2;
+}
+
+.jetpack-pagestyles #screen-options-link-wrap,
+.jetpack-pagestyles #contextual-help-link-wrap {
+	border: none;
 }
 
 .masthead {
