@@ -115,7 +115,7 @@ class Jetpack_Client_Server {
 			return 1;
 		} else {
 			// If the plugin is not in the usual place, try looking through all active plugins.
-			$active_plugins = get_option( 'active_plugins', array() );
+			$active_plugins = (array) get_option( 'active_plugins', array() );
 			foreach ( $active_plugins as $plugin ) {
 				$data = get_plugin_data( WP_PLUGIN_DIR . '/' . $plugin );
 				if ( $data['Name'] == $probable_title ) {
