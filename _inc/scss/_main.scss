@@ -26,6 +26,7 @@ ul#adminmenu > li.current > a.current:after {
 	position: absolute;
 	width: 100%;
 	-webkit-font-smoothing: antialiased;
+	z-index: -1;
 }
 .jp-frame {
 	position: relative;

@@ -169,6 +169,7 @@ class Jetpack_Admin {
 
 		$hook = add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'admin_page' ), 'div' );
 
+		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
 		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
 		add_action( "admin_footer-$hook",        array( $this, 'main_page_js_templates' ) );
@@ -193,6 +194,10 @@ class Jetpack_Admin {
 	function admin_menu_debugger() {
 		$debugger_hook = add_submenu_page( null, __( 'Jetpack Debugging Center', 'jetpack' ), '', 'manage_options', 'jetpack-debugger', array( $this, 'debugger_page' ) );
 		add_action( "admin_head-$debugger_hook", array( 'Jetpack_Debugger', 'jetpack_debug_admin_head' ) );
+	}
+
+	function admin_help() {
+		$this->jetpack->admin_help();
 	}
 
 	function debugger_page() {
