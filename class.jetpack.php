@@ -721,17 +721,12 @@ class Jetpack {
 	}
 
 	/**
-	 * Check if Jetpack's Open Graph tags should be used.
-	 * If certain plugins are active, Jetpack's og tags are suppressed.
+	 * Gets all plugins currently active in values, regardless of whether they're
+	 * traditionally activated or network activated.
 	 *
-	 * @uses Jetpack::get_active_modules, add_filter, get_option, apply_filters
-	 * @action plugins_loaded
-	 * @return null
+	 * @todo Store the result in core's object cache maybe?
 	 */
-	public function check_open_graph() {
-		if ( in_array( 'publicize', Jetpack::get_active_modules() ) || in_array( 'sharedaddy', Jetpack::get_active_modules() ) )
-			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
-
+	public static function get_active_plugins() {
 		$active_plugins = get_option( 'active_plugins', array() );
 
 		if ( is_multisite() ) {
@@ -743,6 +738,33 @@ class Jetpack {
 			}
 		}
 
+		sort( $active_plugins );
+
+		return $active_plugins;
+	}
+
+	/**
+	 * Checks whether a specific plugin is active.
+	 *
+	 * We don't want to store these in a static variable, in case
+	 * there are switch_to_blog() calls involved.
+	 */
+	public static function is_plugin_active( $plugin = 'jetpack/jetpack.php' ) {
+		return in_array( $plugin, self::get_active_plugins() );
+	}
+
+	/**
+	 * Check if Jetpack's Open Graph tags should be used.
+	 * If certain plugins are active, Jetpack's og tags are suppressed.
+	 *
+	 * @uses Jetpack::get_active_modules, add_filter, get_option, apply_filters
+	 * @action plugins_loaded
+	 * @return null
+	 */
+	public function check_open_graph() {
+		if ( in_array( 'publicize', Jetpack::get_active_modules() ) || in_array( 'sharedaddy', Jetpack::get_active_modules() ) ) {
+			add_filter( 'jetpack_enable_open_graph', '__return_true', 0 );
+		}
 
 		$active_plugins = self::get_active_plugins();
 
@@ -767,16 +789,7 @@ class Jetpack {
 	 */
 	public function check_twitter_tags() {
 
-		$active_plugins = get_option( 'active_plugins', array() );
-
-		if ( is_multisite() ) {
-			// Due to legacy code, active_sitewide_plugins stores them in the keys,
-			// whereas active_plugins stores them in the values.
-			$network_plugins = array_keys( get_site_option( 'active_sitewide_plugins', array() ) );
-			if ( $network_plugins ) {
-				$active_plugins = array_merge( $active_plugins, $network_plugins );
-			}
-		}
+		$active_plugins = self::get_active_plugins();
 
 		foreach ( $this->twitter_cards_conflicting_plugins as $plugin ) {
 			if ( in_array( $plugin, $active_plugins ) ) {
@@ -1083,16 +1096,8 @@ class Jetpack {
 	 * @return array
 	 */
 	function filter_default_modules( $modules ) {
-		$active_plugins = get_option( 'active_plugins', array() );
-		if ( is_multisite() ) {
-			// Due to legacy code, active_sitewide_plugins stores them in the keys,
-			// whereas active_plugins stores them in the values.
-			$network_plugins = array_keys( get_site_option( 'active_sitewide_plugins', array() ) );
-			if ( $network_plugins ) {
-				$active_plugins = array_merge( $active_plugins, $network_plugins );
-			}
-		}
-		sort( $active_plugins );
+
+		$active_plugins = self::get_active_plugins();
 
 		// For each module we'd like to auto-activate...
 		foreach ( $modules as $key => $module ) {
