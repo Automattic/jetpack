@@ -149,10 +149,19 @@ html {
 }
 
 // Help tab
-.jetpack-pagestyles #screen-meta-links .screen-meta-toggle {
-	z-index: 2;
+.jetpack-pagestyles {
+	#screen-meta {
+		border-left: 20px solid #81a844;
+		border-right: 20px solid #81a844;
+		margin: 0 0 -1px;
+	}
+	#screen-meta-links .screen-meta-toggle {
+		z-index: 2;
+	}
+	#screen-options-link-wrap, #contextual-help-link-wrap {
+		border: none;
+	}
 }
-
 // ==========================================================================
 // Masthead
 // ==========================================================================
