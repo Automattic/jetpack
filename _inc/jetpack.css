@@ -841,7 +841,7 @@ ul#adminmenu > li.current > a.current:after {
 	position: absolute;
 	width: 100%;
 	-webkit-font-smoothing: antialiased;
-	z-index: -1;
+	z-index: 1;
 }
 
 .jp-frame {
@@ -955,6 +955,10 @@ html {
 
 .user-nav li {
 	margin: 0;
+}
+
+.jetpack-pagestyles #screen-meta-links .screen-meta-toggle {
+	z-index: 2;
 }
 
 .masthead {
@@ -1611,6 +1615,10 @@ html {
 	background: url('img/the-footcloud.svg') center bottom no-repeat;
 	background-size: auto 45px;
 	z-index: 1;
+}
+
+.footer .download-jetpack {
+	margin-bottom: 33px;
 }
 
 .fly {
