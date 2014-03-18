@@ -1,9 +1,10 @@
 			<div class="footer">
-				<?php /* if ( ! $is_connected || ! $is_user_connected ) : ?>
-				<div class="fly">
-					<a href="<?php echo $this->build_connect_url() ?>" class="download-jetpack"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a>
-				</div>
-				<?php endif; */?>
+				<?php $is_connected = Jetpack::is_active(); ?>
+				<?php if ( ! $is_connected && current_user_can( 'jetpack_connect' ) ) : ?>
+					<a href="<?php echo $this->jetpack->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect to Get Started', 'jetpack' ); ?></a>
+				<?php elseif ( ! $is_user_connected && current_user_can( 'jetpack_connect_user' ) ) : ?>
+					<a href="<?php echo $this->jetpack->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
+				<?php endif; ?>
 
 				<nav class="primary nav-horizontal">
 					<div class="a8c-attribution">
@@ -42,15 +43,3 @@
 </div><!-- .jp-content -->
 
 <?php if ( 'jetpack_modules' == $_GET['page'] ) return; ?>
-
-<script type="text/javascript">
-	var _gaq = _gaq || [];
-	_gaq.push(['_setAccount', 'UA-52447-43']);
-	_gaq.push(['_trackPageview']);
-
-	(function() {
-	var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-	ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-	var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-	})();
-</script>
