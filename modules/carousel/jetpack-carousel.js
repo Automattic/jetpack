@@ -2,10 +2,15 @@
 jQuery(document).ready(function($) {
 
 	// gallery faded layer and container elements
-	var overlay, comments, gallery, container, nextButton, previousButton, info, title, transitionBegin,
-	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval,
-	screenPadding = 110, originalOverflow = $('body').css('overflow'), originalHOverflow = $('html').css('overflow'), proportion = 85,
-	last_known_location_hash = '';
+	var screenPadding = 110,
+		proportion = 85,
+		originalOverflow = $('body').css('overflow'),
+		originalHOverflow = $('html').css('overflow'),
+		last_known_location_hash = '',
+		overlay, comments, gallery, container, nextButton, previousButton, info,
+		title, transitionBegin, caption, resizeTimeout, mouseTimeout, photo_info,
+		close_hint, commentInterval, commentForm, imageMeta, leftColWrapper,
+		titleAndDescription;
 
 	if ( window.innerWidth <= 760 ) {
 		screenPadding = Math.round( ( window.innerWidth / 760 ) * 110 );
@@ -59,6 +64,8 @@ jQuery(document).ready(function($) {
 	};
 
 	var prepareGallery = function( dataCarouselExtra ){
+		var commentsLoading, fadeaway, leftWidth, targetBottomPos;
+
 		if (!overlay) {
 			overlay = $('<div></div>')
 				.addClass('jp-carousel-overlay')
@@ -686,11 +693,12 @@ jQuery(document).ready(function($) {
 		},
 
 		bestFit : function(){
-			var max        = gallery.jp_carousel('slideDimensions'),
-			    orig       = this.jp_carousel('originalDimensions'),
-			    orig_ratio = orig.width / orig.height,
-			    w_ratio    = 1,
-			    h_ratio    = 1;
+			var max      = gallery.jp_carousel('slideDimensions'),
+				orig       = this.jp_carousel('originalDimensions'),
+				orig_ratio = orig.width / orig.height,
+				w_ratio    = 1,
+				h_ratio    = 1,
+				height, width;
 
 			if ( orig.width > max.width )
 				w_ratio = max.width / orig.width;
@@ -777,22 +785,21 @@ jQuery(document).ready(function($) {
 				var src_item  = $(this),
 					orig_size = src_item.data('orig-size') || '',
 					max       = gallery.jp_carousel('slideDimensions'),
-					parts     = orig_size.split(',');
+					parts     = orig_size.split(','),
 					orig_size = {width: parseInt(parts[0], 10), height: parseInt(parts[1], 10)},
+					orig_file = src_item.data('orig-file'),
 					medium_file     = src_item.data('medium-file') || '',
 					large_file      = src_item.data('large-file') || '';
 
-					src = src_item.data('orig-file');
-
-					src = gallery.jp_carousel('selectBestImageSize', {
-						orig_file   : src,
-						orig_width  : orig_size.width,
-						orig_height : orig_size.height,
-						max_width   : max.width,
-						max_height  : max.height,
-						medium_file : medium_file,
-						large_file  : large_file
-					});
+				var src = gallery.jp_carousel('selectBestImageSize', {
+					orig_file   : orig_file,
+					orig_width  : orig_size.width,
+					orig_height : orig_size.height,
+					max_width   : max.width,
+					max_height  : max.height,
+					medium_file : medium_file,
+					large_file  : large_file
+				});
 
 				// Set the final src
 				$(this).data( 'gallery-src', src );
@@ -978,7 +985,7 @@ jQuery(document).ready(function($) {
 				'Screen Shot [0-9]+'      // Mac screenshots
 			])
 			.each(function(key, val){
-				regex = new RegExp('^' + val);
+				var regex = new RegExp('^' + val);
 				if ( regex.test(value) ) {
 					value = '';
 					return;
