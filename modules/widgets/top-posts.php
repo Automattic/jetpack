@@ -124,6 +124,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		if ( $count < 1 || 10 < $count ) {
 			$count = 10;
 		}
+		$count = apply_filters( 'jetpack_top_posts_widget_count', $count );
 
 		if ( isset( $instance['display'] ) && in_array( $instance['display'], array( 'grid', 'list', 'text'  ) ) ) {
 			$display = $instance['display'];
