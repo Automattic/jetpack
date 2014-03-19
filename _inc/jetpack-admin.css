@@ -724,6 +724,11 @@ html {
 	margin-top: 175px;
 }
 
+.jetpack-connected .masthead h1 {
+	margin-bottom: 33px;
+	max-width: 600px;
+}
+
 .flyby {
 	position: relative;
 	max-width: 1200px;
@@ -1498,31 +1503,45 @@ input[type="text"].module-search + label:after {
 }
 
 .jetpack-message {
+	background: #8eb74e;
+	border: 1px solid #73963d;
+	margin: 33px auto 0;
+	max-width: 90%;
 	position: relative;
 	z-index: 2;
 }
 
 .jetpack-message h4 {
-	margin-top: 0;
+	color: #fff;
+	margin: 0;
+}
+
+.jetpack-message p {
+	color: #fff;
+	margin: 0;
+	opacity: 0.7;
 }
 
 .jetpack-message .squeezer {
-	background: #fff;
-	border: 20px solid #81a844;
-	padding: 23px 23px 10px 97px;
+	padding: 23px 23px 23px 80px;
 	position: relative;
 	text-align: left;
 }
 
 .jetpack-message .squeezer:before {
-	color: #dd3d36;
-	content: '\f414';
+	color: #fff;
+	content: '\f418';
 	font-family: 'Genericons';
-	font-size: 50px;
-	left: 23px;
-	opacity: 0.4;
+	font-size: 33px;
+	left: 25px;
+	opacity: 0.6;
 	position: absolute;
-	top: 18px;
+	top: 23px;
+}
+
+.jetpack-message.error .squeezer:before,
+.jetpack-message.jetpack-err .squeezer:before {
+	content: '\f414';
 }
 
 .modules h3.icon,
@@ -2611,11 +2630,7 @@ input[type="text"].module-search + label:after {
 	}
 
 	.jetpack-message .squeezer:before {
-		font-size: 23px;
-		left: auto;
-		position: relative;
-		margin: 0 auto 33px;
-		top: auto;
+		display: none;
 	}
 
 }
