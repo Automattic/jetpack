@@ -469,11 +469,7 @@
 			padding: 23px;
 			
 			&:before {
-				font-size: 23px;
-				left: auto;
-				position: relative;
-				margin: 0 auto 33px;
-				top: auto;
+				display: none;
 			}
 		}
 	}

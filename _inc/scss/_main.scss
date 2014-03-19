@@ -205,6 +205,10 @@ html {
 		}
 	}
 }
+.jetpack-connected .masthead h1 {
+	margin-bottom: 33px;
+	max-width: 600px;
+}
 .flyby {
 	position: relative;
 	max-width: 1200px;
@@ -903,29 +907,41 @@ input[type="text"].module-search {
 // ==========================================================================
 
 .jetpack-message {
+	background: lighten($green, 5%);
+	border: 1px solid darken($green, 5%);
+	margin: 33px auto 0;
+	max-width: 90%;
 	position: relative;
 	z-index: 2;
 
 	h4 {
-		margin-top: 0;
+		color: #fff;
+		margin: 0;
+	}
+	p {
+		color: #fff;
+		margin: 0;
+		opacity: 0.7;
 	}
 	.squeezer {
-		background: #fff;
-		border: 20px solid #81a844;
-		padding: 23px 23px 10px 97px;
+		padding: 23px 23px 23px 80px;
 		position: relative;
 		text-align: left;
-
+		
 		&:before {
-			color: #dd3d36;
-			content: '\f414';
+			color: #fff;
+			content: '\f418';
 			font-family: 'Genericons';
-			font-size: 50px;
-			left: 23px;
-			opacity: 0.4;
+			font-size: 33px;
+			left: 25px;
+			opacity: 0.6;
 			position: absolute;
-			top: 18px;
+			top: 23px;
 		}
+	}
+	&.error .squeezer:before,
+	&.jetpack-err .squeezer:before {
+		content: '\f414';
 	}
 }
 
