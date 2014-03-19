@@ -727,7 +727,7 @@ class Jetpack {
 	 * @todo Store the result in core's object cache maybe?
 	 */
 	public static function get_active_plugins() {
-		$active_plugins = get_option( 'active_plugins', array() );
+		$active_plugins = (array) get_option( 'active_plugins', array() );
 
 		if ( is_multisite() ) {
 			// Due to legacy code, active_sitewide_plugins stores them in the keys,
@@ -768,10 +768,12 @@ class Jetpack {
 
 		$active_plugins = self::get_active_plugins();
 
-		foreach ( $this->open_graph_conflicting_plugins as $plugin ) {
-			if ( in_array( $plugin, $active_plugins ) ) {
-				add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );
-				break;
+		if ( ! empty( $active_plugins ) ) {
+			foreach ( $this->open_graph_conflicting_plugins as $plugin ) {
+				if ( in_array( $plugin, $active_plugins ) ) {
+					add_filter( 'jetpack_enable_open_graph', '__return_false', 99 );
+					break;
+				}
 			}
 		}
 
@@ -792,10 +794,12 @@ class Jetpack {
 
 		$active_plugins = self::get_active_plugins();
 
-		foreach ( $this->twitter_cards_conflicting_plugins as $plugin ) {
-			if ( in_array( $plugin, $active_plugins ) ) {
-				add_filter( 'jetpack_disable_twitter_cards', '__return_true', 99 );
-				break;
+		if ( ! empty( $active_plugins ) ) {
+			foreach ( $this->twitter_cards_conflicting_plugins as $plugin ) {
+				if ( in_array( $plugin, $active_plugins ) ) {
+					add_filter( 'jetpack_disable_twitter_cards', '__return_true', 99 );
+					break;
+				}
 			}
 		}
 
@@ -1101,16 +1105,19 @@ class Jetpack {
 
 		$active_plugins = self::get_active_plugins();
 
-		// For each module we'd like to auto-activate...
-		foreach ( $modules as $key => $module ) {
-			// If there are potential conflicts for it...
-			if ( ! empty( $this->conflicting_plugins[ $module ] ) ) {
-				// For each potential conflict...
-				foreach ( $this->conflicting_plugins[ $module ] as $title => $plugin ) {
-					// If that conflicting plugin is active...
-					if ( in_array( $plugin, $active_plugins ) ) {
-						// Remove that item from being auto-activated.
-						unset( $modules[ $key ] );
+		if ( ! empty( $active_plugins ) ) {
+
+			// For each module we'd like to auto-activate...
+			foreach ( $modules as $key => $module ) {
+				// If there are potential conflicts for it...
+				if ( ! empty( $this->conflicting_plugins[ $module ] ) ) {
+					// For each potential conflict...
+					foreach ( $this->conflicting_plugins[ $module ] as $title => $plugin ) {
+						// If that conflicting plugin is active...
+						if ( in_array( $plugin, $active_plugins ) ) {
+							// Remove that item from being auto-activated.
+							unset( $modules[ $key ] );
+						}
 					}
 				}
 			}

@@ -215,18 +215,18 @@ class Jetpack_Network {
 		$sites = $this->wp_get_sites();
 
 		foreach( $sites AS $s ) {
-		switch_to_blog( $s->blog_id );
-		$plugins = get_option( 'active_plugins' );
+			switch_to_blog( $s->blog_id );
+			$active_plugins = Jetpack::get_active_plugins();
 
-		/*
-		 * If this plugin was activated in the subsite individually
-		 * we do not want to call disconnect. Plugins activated 
-		 * individually (before network activation) stay activated
-		 * when the network deactivation occurs
-		 */
-		if( !in_array( 'jetpack/jetpack.php', $plugins ) ) {
-			Jetpack::disconnect();
-		}
+			/*
+			 * If this plugin was activated in the subsite individually
+			 * we do not want to call disconnect. Plugins activated
+		 	 * individually (before network activation) stay activated
+		 	 * when the network deactivation occurs
+		 	 */
+			if( !in_array( 'jetpack/jetpack.php', $active_plugins ) ) {
+				Jetpack::disconnect();
+			}
 		}
 		restore_current_blog();
 	}

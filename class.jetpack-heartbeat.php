@@ -106,7 +106,8 @@ class Jetpack_Heartbeat {
 			'akismet/akismet.php',
 			'wp-super-cache/wp-cache.php',
 		);
-		$plugins = array_intersect( $plugins_to_check, get_option( 'active_plugins', array() ) );
+		$active_plugins = Jetpack::get_active_plugins();
+		$plugins = array_intersect( $plugins_to_check, $active_plugins );
 		foreach( $plugins as $plugin ) {
 			$jetpack->stat( 'plugins', $plugin );
 		}
