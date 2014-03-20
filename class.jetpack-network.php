@@ -216,7 +216,7 @@ class Jetpack_Network {
 
 		foreach( $sites AS $s ) {
 			switch_to_blog( $s->blog_id );
-			$active_plugins = Jetpack::get_active_plugins();
+			$active_plugins = get_option( 'active_plugins' );
 
 			/*
 			 * If this plugin was activated in the subsite individually
