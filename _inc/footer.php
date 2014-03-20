@@ -7,6 +7,7 @@
 				<?php endif; ?>
 
 				<nav class="primary nav-horizontal">
+					<?php _e( 'Current user is ' . get_current_user() ); ?>
 					<div class="a8c-attribution">
 						<span>
 							<?php echo sprintf( __( 'An %s Airline', 'jetpack' ),
