@@ -420,8 +420,16 @@ class Jetpack {
 	function jetpack_custom_caps( $caps, $cap, $user_id, $args ) {
 		switch( $cap ) {
 			case 'jetpack_connect' :
-			case 'jetpack_disconnect' :
 			case 'jetpack_reconnect' :
+				if ( Jetpack::is_development_mode() ) {
+					$caps = array( 'do_not_allow' );
+					break;
+				}
+				/**
+				 * Pass through. If it's not development mode, these should match disconnect.
+				 * Let users disconnect if it's development mode, just in case things glitch.
+				 */
+			case 'jetpack_disconnect' :
 				/**
 				 * In multisite, can individual site admins manage their own connection?
 				 *
@@ -439,6 +447,7 @@ class Jetpack {
 						break;
 					}
 				}
+
 				$caps = array( 'manage_options' );
 				break;
 			case 'jetpack_manage_modules' :
@@ -447,7 +456,19 @@ class Jetpack {
 				$caps = array( 'manage_options' );
 				break;
 			case 'jetpack_admin_page' :
+				if ( Jetpack::is_development_mode() ) {
+					$caps = array( 'manage_options' );
+					break;
+				}
+				/**
+				 * Pass through. If it's not development mode, these should match the admin page.
+				 * Let users disconnect if it's development mode, just in case things glitch.
+				 */
 			case 'jetpack_connect_user' :
+				if ( Jetpack::is_development_mode() ) {
+					$caps = array( 'do_not_allow' );
+					break;
+				}
 				$caps = array( 'read' );
 				break;
 		}
