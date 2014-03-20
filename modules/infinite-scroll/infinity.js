@@ -83,7 +83,7 @@ Scroller = function( settings ) {
  */
 Scroller.prototype.check = function() {
 	var bottom = this.window.scrollTop() + this.window.height(),
-	    threshold = this.element.offset().top + this.element.outerHeight(false) - (this.window.height() * 2);
+		threshold = this.element.offset().top + this.element.outerHeight(false) - (this.window.height() * 2);
 
 	return bottom > threshold;
 };
