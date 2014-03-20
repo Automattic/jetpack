@@ -151,6 +151,8 @@ class Jetpack_Debugger {
 				<?php if ( self::is_jetpack_support_open() ): ?>
 				<p class="jetpack-show-contact-form"><?php _e( 'If none of these help you find a solution, <a href="#">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ); ?>
 				</p>
+				<p class="jetpack-show-contact-form"><?php echo sprintf( __( 'Current connected user is ' . Jetpack::get_connected_user_email(), 'jetpack' ) ); ?>
+				</p>
 				<?php endif; ?>
 			</div>
 			<div id="contact-message" style="display:none">
