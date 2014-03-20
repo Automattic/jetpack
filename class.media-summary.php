@@ -138,7 +138,7 @@ class Jetpack_Media_Summary {
 
 		// If we don't have any prioritized embed...
 		if ( 'standard' == $return['type'] ) {
-			if ( !empty( $extract['has']['gallery'] ) || $extract['shortcode']['gallery']['count'] > 0 ) {
+			if ( !empty( $extract['has']['gallery'] ) || ! empty( $extract['shortcode']['gallery']['count'] ) ) {
 				//... Then we prioritize galleries first (multiple images returned)
 				$return['type']   = 'gallery';
 				$return['images'] = $extract['image'];
