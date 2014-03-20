@@ -111,7 +111,7 @@ function atd_ignore () {
 
 function atd_ignore_init() {
 	jQuery( '#AtD_message' ).hide();
-	jQuery( '#atd_ignores' ).delegate( 'a', 'click', function() {
+	jQuery( '#atd_ignores' ).on( 'click', 'a', function() {
 		atd_unignore( jQuery(this).data( 'ignored' ) );
 		return false;
 	} );
