@@ -336,14 +336,16 @@ class VaultPress_Database {
 		return $table;
 	}
 
-	function restore( $data_file, $delete = true ) {
+	function restore( $data_file, $md5_sum, $delete = true ) {
 		global $wpdb;
 		if ( !file_exists( $data_file ) || !is_readable( $data_file ) || !filesize( $data_file ) )
 			return array( 'last_error' => 'File does not exist', 'data_file' => $data_file );
+		if ( md5_file( $data_file ) !== $md5_sum )
+			return array( 'last_error' => 'Checksum mistmatch', 'data_file' => $data_file );
 		if ( function_exists( 'exec' ) && ( $mysql = exec( 'which mysql' ) ) ) {
 			$details = explode( ':', DB_HOST, 2 );
 			$params = array( defined( 'DB_CHARSET' ) && DB_CHARSET ? DB_CHARSET : 'utf8', DB_USER, DB_PASSWORD, $details[0], isset( $details[1] ) ? $details[1] : 3306, DB_NAME, $data_file );
-			exec( sprintf( '%s %s', escapeshellcmd( $mysql ), vsprintf( '-A --force --default-character-set=%s -u%s -p%s -h%s -P%s %s < %s', array_map( 'escapeshellarg', $params ) ) ), $output, $r );
+			exec( sprintf( '%s %s', escapeshellcmd( $mysql ), vsprintf( '-A --default-character-set=%s -u%s -p%s -h%s -P%s %s < %s', array_map( 'escapeshellarg', $params ) ) ), $output, $r );
 			if ( 0 === $r ) {
 				if ( $delete )
 					@unlink( $data_file );
@@ -363,7 +365,7 @@ class VaultPress_Database {
 				$query = trim( stream_get_line( $fh, $size, ";\n" ) );
 				if ( !empty( $query ) ) {
 					$affected_rows += $wpdb->query( $query );
-					$last_error += $wpdb->last_error;
+					$last_error = $wpdb->last_error;
 				}
 			}
 			fclose( $fh );

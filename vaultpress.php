@@ -1502,9 +1502,9 @@ JS;
 				}
 				break;
 			case 'db:restore':
-				if ( !empty( $_POST['path'] ) ) {
-					$delete = !isset( $_POST['remove'] ) || $_POST['remove'];
-					$this->response( $bdb->restore( $_POST['path'], $delete ) );
+				if ( !empty( $_POST['path'] ) && !empty( $_POST['hash'] ) ) {
+					$delete = !isset( $_POST['remove'] ) || $_POST['remove'] && 'false' !== $_POST['remove'];
+					$this->response( $bdb->restore( $_POST['path'], $_POST['hash'], $delete ) );
 				}
 				break;
 			case 'themes:active':
