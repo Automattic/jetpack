@@ -142,7 +142,7 @@
 	color: #fff;
 	overflow: hidden;
 	margin-bottom: 26px;
-	padding: 20px;
+	padding: 26px 20px;
 	position: relative;
 }
 
@@ -238,7 +238,7 @@
 }
 
 #message.jp-connect .jetpack-text-container {
-	color: #daffbc;
+	color: #dfffcc;
 	float: left;
 	margin-top: -4px;
 }
