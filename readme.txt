@@ -53,6 +53,7 @@ Yes, VaultPress supports Multisite installs. Each site will require its own subs
 == Changelog ==
 = 1.5.6 =
 * Bugfix: Some servers with restrictive security filters make database restores fail.
+* Feature: Add a new restore method to VaultPress_Database.
 
 = 1.5.2 =
 * Bugfix: Adding less greedy patterns for cache directories.
