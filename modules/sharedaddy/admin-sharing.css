@@ -237,7 +237,11 @@ body.settings_page_sharing .advanced input[type=submit] {
 
 .services li.dropzone {
 	border: 1px dashed #999;
+	border-radius: 3px;
 	background: #e3e3e3;
+	margin-right: 10px;
+	padding: 5px;
+	height: 18px;
 }
 
 .advanced-form .form-table th {
