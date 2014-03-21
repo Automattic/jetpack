@@ -310,8 +310,8 @@ AtD.suggest = function(element) {
 	var width = jQuery(element).width();
 
         /* a sanity check for Internet Explorer--my favorite browser in every possible way */
-        if (width > 100)
-                width = 50;
+	if (width > 100)
+		width = 50;
 
 	jQuery(suggest).css({ left: (pos.left + width) + 'px', top: pos.top + 'px' });
 
