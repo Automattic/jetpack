@@ -384,8 +384,9 @@ class Share_Twitter extends Sharing_Source {
 		if ( $this->smart ) {
 			return '<div class="twitter_button"><iframe allowtransparency="true" frameborder="0" scrolling="no" src="' . esc_url( $this->http() . '://platform.twitter.com/widgets/tweet_button.html?url=' . rawurlencode( $share_url ) . '&counturl=' . rawurlencode( str_replace( 'https://', 'http://', get_permalink( $post->ID ) ) ) . '&count=horizontal&text=' . rawurlencode( $post_title . ':' ) . $via ) . '" style="width:101px; height:20px;"></iframe></div>';
 		} else {
-			if ( 'icon-text' == $this->button_style || 'text' == $this->button_style )
+			if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'twitter' ) ) {
 				sharing_register_post_for_share_counts( $post->ID );
+			}
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Twitter', 'share to', 'jetpack' ), __( 'Click to share on Twitter', 'jetpack' ), 'share=twitter', 'sharing-twitter-' . $post->ID );
 		}
 	}
@@ -605,8 +606,9 @@ class Share_LinkedIn extends Sharing_Source {
 		else
 			$display = $this->get_link( get_permalink( $post->ID ), _x( 'LinkedIn', 'share to', 'jetpack' ), __( 'Click to share on LinkedIn', 'jetpack' ), 'share=linkedin', 'sharing-linkedin-' . $post->ID );
 
-		if ( 'icon-text' == $this->button_style || 'text' == $this->button_style )
+		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'linkedin' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
+		}
 
 		return $display;
 	}
@@ -741,8 +743,9 @@ class Share_Facebook extends Sharing_Source {
 			return '<div class="like_button"><iframe src="'.$url.'" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:'.( $inner_w + 6 ).'px; height:21px;" allowTransparency="true"></iframe></div>';
 		}
 
-		if ( 'icon-text' == $this->button_style || 'text' == $this->button_style )
+		if ( apply_filters( 'jetpack_register_post_for_share_counts', true, $post->ID, 'facebook' ) ) {
 			sharing_register_post_for_share_counts( $post->ID );
+		}
 		return $this->get_link( get_permalink( $post->ID ), _x( 'Facebook', 'share to', 'jetpack' ), __( 'Share on Facebook', 'jetpack' ), 'share=facebook', 'sharing-facebook-' . $post->ID );
 	}
 
