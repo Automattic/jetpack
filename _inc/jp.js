@@ -268,7 +268,7 @@
 	function searchModules (term) {
 		var html = '', i, lowercaseDesc, lowercaseName, lowercaseTerm;
 		for (i=0; i<modules.length; i++) {
-			lowercaseDesc = modules[i].desc.toLowerCase();
+			lowercaseDesc = modules[i].description.toLowerCase();
 			lowercaseName = modules[i].name.toLowerCase();
 			lowercaseTerm = term.toLowerCase();
 			if (lowercaseName.indexOf(lowercaseTerm) !== -1 || lowercaseDesc.indexOf(lowercaseTerm) !== -1) {
@@ -282,7 +282,7 @@
 		recalculateModuleHeights();
 		initModalEvents();
 	}
-	
+
 	function showAllModules() {
 		$('.module').fadeIn();
 		$('.load-more').hide();
