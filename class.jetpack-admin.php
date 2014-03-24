@@ -438,14 +438,14 @@ class Jetpack_Admin {
 	function main_page_js_templates() {
 		?>
 <script id="category" type="text/html">
-	<div class="cat category-appearance"><h3><?php _e( 'Appearance' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-developers"><h3><?php _e( 'Developers' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-mobile"><h3><?php _e( 'Mobile' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-other"><h3><?php _e( 'Other' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-photos-and-videos"><h3><?php _e( 'Photos and Videos' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-social"><h3><?php _e( 'Social' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-wordpresscom-stats"><h3><?php _e( 'WordPress.com Stats' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-writing"><h3><?php _e( 'Writing' ); ?></h3><div class="clear"></div></div>
+	<div class="cat category-appearance"><h3><?php _e( 'Appearance', 'jetpack' ); ?></h3><div class="clear"></div></div>
+	<div class="cat category-developers"><h3><?php _e( 'Developers', 'jetpack' ); ?></h3><div class="clear"></div></div>
+	<div class="cat category-mobile"><h3><?php _e( 'Mobile', 'jetpack' ); ?></h3><div class="clear"></div></div>
+	<div class="cat category-other"><h3><?php _e( 'Other', 'jetpack' ); ?></h3><div class="clear"></div></div>
+	<div class="cat category-photos-and-videos"><h3><?php _e( 'Photos and Videos', 'jetpack' ); ?></h3><div class="clear"></div></div>
+	<div class="cat category-social"><h3><?php _e( 'Social', 'jetpack' ); ?></h3><div class="clear"></div></div>
+	<div class="cat category-wordpresscom-stats"><h3><?php _e( 'WordPress.com Stats', 'jetpack' ); ?></h3><div class="clear"></div></div>
+	<div class="cat category-writing"><h3><?php _e( 'Writing', 'jetpack' ); ?></h3><div class="clear"></div></div>
 </script>
 <script id="modalLoading" type="text/html">
 	<div class="loading"><span><?php esc_html_e( 'loading&hellip;', 'jetpack' ); ?></span></div>
