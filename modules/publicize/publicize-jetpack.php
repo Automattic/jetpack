@@ -49,7 +49,8 @@ class Publicize extends Publicize_Base {
 		global $publicize_ui;
 		remove_action( 'pre_admin_screen_sharing', array( $publicize_ui, 'admin_page' ) );
 
-		Jetpack::init()->admin_styles();
+		// Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
+		// Jetpack::init()->admin_styles();
 		add_action( 'pre_admin_screen_sharing', array( $this, 'admin_page_warning' ), 1 );
 	}
 
@@ -172,11 +173,14 @@ class Publicize extends Publicize_Base {
 			}
 		}
 
+		// Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
 		// Errors encountered on WordPress.com's end are passed back as a code
+		/*
 		if ( isset( $_GET['action'] ) && 'error' == $_GET['action'] ) {
 			// Load Jetpack's styles to handle the box
 			Jetpack::init()->admin_styles();
 		}
+		*/
 	}
 
 	function display_connection_error() {

@@ -67,7 +67,8 @@ class Jetpack_Post_By_Email {
 	function profile_scripts() {
 		wp_enqueue_script( 'post-by-email', plugins_url( 'post-by-email/post-by-email.js', __FILE__ ), array( 'jquery' ) );
 		wp_enqueue_style( 'post-by-email', plugins_url( 'post-by-email/post-by-email.css', __FILE__ ) );
-		Jetpack::init()->admin_styles();
+		// Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
+		// Jetpack::init()->admin_styles();
 	}
 
 	function check_user_connection() {

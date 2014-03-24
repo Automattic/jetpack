@@ -94,7 +94,8 @@ class Jetpack_Likes {
 	 * Loads Jetpack's CSS on the sharing page so we can use .jetpack-targetable
 	 */
 	function load_jp_css() {
-		Jetpack::init()->admin_styles();
+		// Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
+		// Jetpack::init()->admin_styles();
 	}
 
 	/**
