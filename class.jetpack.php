@@ -455,6 +455,9 @@ class Jetpack {
 			case 'jetpack_deactivate_modules' :
 				$caps = array( 'manage_options' );
 				break;
+			case 'jetpack_configure_modules' :
+				$caps = array( 'manage_options' );
+				break;
 			case 'jetpack_admin_page' :
 				if ( Jetpack::is_development_mode() ) {
 					$caps = array( 'manage_options' );
@@ -3161,7 +3164,7 @@ p {
 		exit;
 	}
 
-	function admin_screen_configure_module( $module_id ) {
+	public static function admin_screen_configure_module( $module_id ) {
 		if ( ! in_array( $module_id, Jetpack::get_active_modules() ) || ! current_user_can( 'manage_options' ) )
 			return false; ?>
 

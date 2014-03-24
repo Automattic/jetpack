@@ -167,7 +167,9 @@ class Jetpack_Admin {
 			$title          = sprintf( $format, $update_markup );
 		}
 
-		$hook = add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'admin_page' ), 'div' );
+		$callback = empty( $_GET['configure'] ) ? array( $this, 'admin_page' ) : array( $this, 'admin_page_nojs_configurable' );
+
+		$hook = add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', $callback, 'div' );
 
 		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
 		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
@@ -347,6 +349,24 @@ class Jetpack_Admin {
 		</div><!-- .module-grid --></div><!-- .page -->
 
 		<?php
+		$this->admin_page_bottom();
+	}
+
+	function admin_page_nojs_configurable() {
+		$this->admin_page_top();
+
+		if ( empty( $_GET['configure'] ) ) {
+			$this->admin_page_bottom();
+			return;
+		}
+
+		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
+		if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
+			Jetpack::admin_screen_configure_module( $module_name );
+		} else {
+			echo '<h2>' . esc_html__( 'Error, bad module.', 'jetpack' ) . '</h2>';
+		}
+
 		$this->admin_page_bottom();
 	}
 
