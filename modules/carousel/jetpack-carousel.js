@@ -440,6 +440,20 @@ jQuery(document).ready(function($) {
 			return false;
 		},
 
+		openOrSelectSlide: function( index ) {
+			// The `open` method triggers an asynchronous effect, so we will get an
+			// error if we try to use `open` then `selectSlideAtIndex` immediately
+			// after it. We can only use `selectSlideAtIndex` if the carousel is
+			// already open.
+			if ( ! $( this ).jp_carousel( 'testIfOpened' ) ) {
+				// The `open` method selects the correct slide during the
+				// initialization.
+				$( this ).jp_carousel( 'open', { start_index: index } );
+			} else {
+				gallery.jp_carousel( 'selectSlideAtIndex', index );
+			}
+		},
+
 		open: function(options) {
 			var settings = {
 				'items_selector' : ".gallery-item [data-attachment-id], .tiled-gallery-item [data-attachment-id]",
@@ -484,14 +498,14 @@ jQuery(document).ready(function($) {
 					container.trigger('jp_carousel.afterOpen');
 					gallery
 						.jp_carousel('initSlides', $this.find(settings.items_selector), settings.start_index)
-						.jp_carousel('start', settings.start_index);
+						.jp_carousel('selectSlideAtIndex', settings.start_index);
 				});
 				gallery.html('');
 			});
 		},
 
-		start : function(start_index){
-			var slides = this.jp_carousel('slides'), selected = slides.eq(start_index);
+		selectSlideAtIndex : function(index){
+			var slides = this.jp_carousel('slides'), selected = slides.eq(index);
 
 			if ( 0 === selected.length )
 				selected = slides.eq(0);
@@ -1361,7 +1375,7 @@ jQuery(document).ready(function($) {
 		});
 
 		if ( index != -1 )
-			gallery.jp_carousel('open', {start_index: index}); // open method checks if already opened
+			gallery.jp_carousel('openOrSelectSlide', index);
 	});
 
 	if ( window.location.hash )
