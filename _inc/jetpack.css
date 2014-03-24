@@ -1818,10 +1818,12 @@ input[type="text"].module-search + label:after {
 	content: '\f418';
 	font-family: 'Genericons';
 	font-size: 33px;
+	height: 33px;
 	left: 25px;
 	opacity: 0.6;
 	position: absolute;
 	top: 23px;
+	top: calc(50% - 22px);
 }
 
 .jetpack-message.error .squeezer:before,
