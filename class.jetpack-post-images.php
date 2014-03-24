@@ -237,16 +237,22 @@ class Jetpack_PostImages {
 			if ( !isset( $meta['height'] ) || $meta['height'] < $height )
 				return $images;
 
-			$url = wp_get_attachment_url( $thumb );
-			if ( stristr( $url, '?' ) )
-				$url = substr( $url, 0, strpos( $url, '?' ) );
+			$too_big = ( ( ! empty( $meta['width'] ) && $meta['width'] > 1200 ) || ( ! empty( $meta['height'] ) && $meta['height'] > 1200 ) );
+
+			if ( $too_big ) {
+				$img_src = wp_get_attachment_image_src( $thumb, array( 1200, 1200 ) );
+			} else {
+				$img_src = wp_get_attachment_image_src( $thumb, 'full' );
+			}
+
+			$url = $img_src[0];
 
 			$images = array( array( // Other methods below all return an array of arrays
 				'type'       => 'image',
 				'from'       => 'thumbnail',
 				'src'        => $url,
-				'src_width'  => $meta['width'],
-				'src_height' => $meta['height'],
+				'src_width'  => $img_src[1],
+				'src_height' => $img_src[2],
 				'href'       => get_permalink( $thumb ),
 			) );
 		}
