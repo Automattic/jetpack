@@ -68,28 +68,21 @@
 			var options = this.options;
 
 			this.states.add([
-				new media.controller.WidgetGalleryEdit({
-					library: options.selection,
-					editing: options.editing,
-					menu:    'gallery'
+				new media.controller.CollectionEdit({
+					type:           'image',
+					collectionType: 'gallery',
+					title:           l10n.editGalleryTitle,
+					SettingsView:    media.view.Settings.Gallery,
+					library:         options.selection,
+					editing:         options.editing,
+					menu:           'gallery'
 				}),
-				new media.controller.GalleryAdd({
-
+				new media.controller.CollectionAdd({
+					type:           'image',
+					collectionType: 'gallery',
+					title:          l10n.addToGalleryTitle
 				})
 			]);
-		}
-	});
-
-	/**
-	 * wp.media.controller.WidgetGalleryEdit
-	 *
-	 * Removes the gallery settings sidebar when editing widgets...settings are instead handled
-	 * via the standard widget interface form
-	 *
-	 */
-	media.controller.WidgetGalleryEdit = media.controller.GalleryEdit.extend({
-		gallerySettings: function( browser ) {
-			return;
 		}
 	});
 
