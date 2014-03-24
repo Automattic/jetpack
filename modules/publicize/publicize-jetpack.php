@@ -681,13 +681,12 @@ class Publicize extends Publicize_Base {
 	}
 
 	function get_publicized_twitter_account( $account, $post_id ) {
-		if ( ! empty( $account ) ) {
-			return $account;
-		}
 		$account = get_post_meta( $post_id, 'publicize_twitter_user', true );
 		if ( ! empty( $account ) ) {
-			return $account;
+			return preg_replace( '/^@/', '', $account );
 		}
-		return 'jetpack'; // Default 'via' is always us if for some reason we still don't find one.
+		if ( empty( $account ) ) {
+			return 'jetpack'; // Default 'via' is always us if for some reason we still don't find one.
+		}
 	}
 }
