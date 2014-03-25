@@ -446,7 +446,7 @@ class Grunion_Contact_Form_Plugin {
 		$output = fopen( 'php://output', 'w' );
 
 		// Prints the header
-		fputcsv( $output, $fields );
+		fputcsv( $output, apply_filters( 'grunion_feedback_field_headers', $fields, $feedbacks ) );
 
 		// Create the csv string from the array of post ids
 		foreach ( $feedbacks as $feedback ) {
@@ -531,6 +531,9 @@ class Grunion_Contact_Form_Plugin {
 			else
 				$row_items[] = '';
 		}
+
+		// Allow filtering of feedback form fields
+		$row_items = apply_filters( 'grunion_feedback_fields', $row_items, $post_id, $fields );
 
 		return $row_items;
 	}
