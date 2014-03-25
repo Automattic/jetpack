@@ -29,7 +29,7 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		$hidden = array();
 		$sortable = array();
 		$this->_column_headers = array( $columns, $hidden, $sortable );
-		$this->items = $jpms->wp_get_sites();; 
+		$this->items = $jpms->wp_get_sites( array( 'exclude_blogs' => array( 1 ) ) );
 	}
 
 	public function column_blogname( $item ) {

@@ -1,4 +1,4 @@
-/* This file was automatically generated on Feb 22 2014 00:07:02 */
+/* This file was automatically generated on Mar 07 2014 15:56:55 */
 
 /**
  * Styles for Jetpack related posts
@@ -6,7 +6,7 @@
 
 /* Container */
 
-div.jp-relatedposts {
+div#jp-relatedposts {
 	display: none;
 	padding-top: 1em;
 	margin: 1em 0;
@@ -21,7 +21,7 @@ div.jp-relatedposts:after {
 
 /* Headline above related posts section, labeled "Related" */
 
-div.jp-relatedposts .jp-relatedposts-headline {
+div#jp-relatedposts h3.jp-relatedposts-headline {
 	margin: 0 0 1em 0;
 	display: inline-block;
 	float: right;
@@ -30,7 +30,7 @@ div.jp-relatedposts .jp-relatedposts-headline {
 	font-family: inherit;
 }
 
-div.jp-relatedposts .jp-relatedposts-headline em:before {
+div#jp-relatedposts h3.jp-relatedposts-headline em:before {
 	content: "";
 	display: block;
 	width: 100%;
@@ -40,33 +40,33 @@ div.jp-relatedposts .jp-relatedposts-headline em:before {
 	margin-bottom: 1em;
 }
 
-div.jp-relatedposts .jp-relatedposts-headline em {
+div#jp-relatedposts h3.jp-relatedposts-headline em {
 	font-style: normal;
 	font-weight: bold;
 }
 
 /* Related posts items (wrapping items) */
 
-div.jp-relatedposts .jp-relatedposts-items {
+div#jp-relatedposts div.jp-relatedposts-items {
 	clear: right;
 }
 
-div.jp-relatedposts-items-visual {
+div#jp-relatedposts div.jp-relatedposts-items-visual {
 	margin-left: -20px;
 }
 
 /* Related posts item */
 
-div.jp-relatedposts .jp-relatedposts-post {
+div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post {
 	float: right;
 	width: 33%;
 	margin: 0 0 1em; /* Needs to be same as the main outer wrapper for Related Posts */
 	box-sizing: border-box;
-	-moz-box-sizing:border-box;
-	-webkit-box-sizing:border-box;
+	-moz-box-sizing: border-box;
+	-webkit-box-sizing: border-box;
 }
 
-div.jp-relatedposts-items-visual .jp-relatedposts-post {
+div#jp-relatedposts div.jp-relatedposts-items-visual .jp-relatedposts-post {
 	padding-left: 20px;
 	/*cursor: pointer;*/
 	filter: alpha(opacity=80);
@@ -74,30 +74,30 @@ div.jp-relatedposts-items-visual .jp-relatedposts-post {
 	opacity: .8;
 }
 
-div.jp-relatedposts .jp-relatedposts-post:hover .jp-relatedposts-post-title a {
+div#jp-relatedposts div.jp-relatedposts-items div.jp-relatedposts-post:hover .jp-relatedposts-post-title a {
 	text-decoration: underline;
 }
 
-div.jp-relatedposts .jp-relatedposts-post:hover {
-	filter:alpha(opacity=100);
+div#jp-relatedposts div.jp-relatedposts-items div.jp-relatedposts-post:hover {
+	filter: alpha(opacity=100);
 	-moz-opacity: 1;
 	opacity: 1;
 }
 
 /* Related posts item content */
 
-div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
-div.jp-relatedposts p {
+div#jp-relatedposts div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title,
+div#jp-relatedposts div.jp-relatedposts-items p {
 	font-size: 14px;
 	line-height: 20px;
 	margin: 0;
 }
 
-div.jp-relatedposts p {
+div#jp-relatedposts div.jp-relatedposts-items p {
 	margin-bottom: 0;
 }
 
-div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
+div#jp-relatedposts div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
 	text-transform: none;
 	margin: 0;
 	font-family: inherit;
@@ -105,7 +105,7 @@ div.jp-relatedposts-items-visual h4.jp-relatedposts-post-title {
 	max-width: 100%;
 }
 
-div.jp-relatedposts .jp-relatedposts-post .jp-relatedposts-post-title a {
+div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-title a {
 	font-weight: normal;
 	text-decoration: none;
 	filter: alpha(opacity=100);
@@ -113,59 +113,37 @@ div.jp-relatedposts .jp-relatedposts-post .jp-relatedposts-post-title a {
 	opacity: 1;
 }
 
-div.jp-relatedposts .jp-relatedposts-post .jp-relatedposts-post-title a:hover {
+div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-title a:hover {
 	text-decoration: underline;
 }
 
-/* Don't let thumbnails get too tall and account for portrait pics
-	Todo: replace with single class for the thumbnail anchor only
-	 */
-
-div.jp-relatedposts .jp-relatedposts-post > .jp-relatedposts-post-thumb-wrapper:first-child {
-	display: block;
-	max-height: 96px;
-	overflow: hidden;
-	margin: 0 0 4px;
-	-moz-box-shadow: 0 1px 2px #d9d9d9;
-	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-	-o-box-shadow: 0 1px 2px #d9d9d9;
-	-o-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-	-webkit-box-shadow: 0 1px 2px #d9d9d9;
-	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-	-ms-box-shadow: 0 1px 2px #d9d9d9;
-	-ms-box-shadow: 0 1px 2px rgba(0,0,0,.15);
-	box-shadow: 0 1px 2px #d9d9d9;
-	box-shadow: 0 1px 2px rgba(0,0,0,.15);
-	background: #eee; /* For overflow in the case of Y > X images, untested */
-}
-
-div.jp-relatedposts .jp-relatedposts-post img,
-div.jp-relatedposts .jp-relatedposts-post span {
+div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post img.jp-relatedposts-post-img,
+div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post span {
 	display: block;
 	max-width: 90%;
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
 
-div.jp-relatedposts-items-visual .jp-relatedposts-post img,
-div.jp-relatedposts-items-visual .jp-relatedposts-post span {
+div#jp-relatedposts div.jp-relatedposts-items-visual .jp-relatedposts-post img.jp-relatedposts-post-img,
+div#jp-relatedposts div.jp-relatedposts-items-visual .jp-relatedposts-post span {
 	max-width: 100%;
 }
 
-div.jp-relatedposts .jp-relatedposts-post .jp-relatedposts-post-context {
+div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-context {
 	opacity: .6;
 }
 
 /* Behavior when there are thumbnails in visual mode */
-div.jp-relatedposts .jp-relatedposts-post-thumbs .jp-relatedposts-post-excerpt {
+div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-thumbs p.jp-relatedposts-post-excerpt {
 	display: none;
 }
 
 /* Behavior when there are no thumbnails in visual mode */
-div.jp-relatedposts .jp-relatedposts-post-nothumbs .jp-relatedposts-post-excerpt {
+div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-nothumbs p.jp-relatedposts-post-excerpt {
 	overflow: hidden;
 }
-div.jp-relatedposts .jp-relatedposts-post-nothumbs span {
+div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-nothumbs span {
 	margin-bottom: 1em;
 }
 
@@ -175,20 +153,24 @@ div.jp-relatedposts .jp-relatedposts-post-nothumbs span {
 
 @media only screen and (max-width: 640px) {
 
-	div.jp-relatedposts .jp-relatedposts-post {
+	div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post {
 		width: 50%;
 	}
 
-	div.jp-relatedposts .jp-relatedposts-post:nth-child(3n) {
+	div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post:nth-child(3n) {
 		clear: right;
+	}
+
+	div#jp-relatedposts div.jp-relatedposts-items-visual {
+		margin-left: 20px;
 	}
 
 }
 
 @media only screen and (max-width: 320px) {
 
-	div.jp-relatedposts .jp-relatedposts-post {
-		width: auto;
+	div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post {
+		width: 100%;
 		clear: both;
 		margin: 0 0 1em;
 	}

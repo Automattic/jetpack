@@ -1,0 +1,19 @@
+// ==========================================================================
+// Horizontal menu!
+// ==========================================================================
+
+.nav-horizontal {
+	@extend %clearfix;
+
+	a {
+		display: inline-block;
+	}
+	li {
+		position: relative;
+		float: left;
+	}
+	ul {
+		margin: 0;
+		padding: 0;
+	}
+}

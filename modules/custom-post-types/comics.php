@@ -292,26 +292,42 @@ class Jetpack_Comic {
 	 * Should this Custom Post Type be made available?
 	 */
 	public function site_supports_comics() {
+		/**
+		 * @todo: Extract this out into a wpcom only file.
+		 */
 		if ( 'blog-rss.php' == substr( $_SERVER['PHP_SELF'], -12 ) && count( $_SERVER['argv'] ) > 1 ) {
 			// blog-rss.php isn't run in the context of the target blog when the init action fires,
 			// so check manually whether the target blog supports comics.
 			switch_to_blog( $_SERVER['argv'][1] );
 			// The add_theme_support( 'jetpack-comic' ) won't fire on switch_to_blog, so check for Panel manually.
-			$supports_comics = $this->_site_supports_comics() || get_stylesheet() == 'pub/panel';
+			$supports_comics = ( ( function_exists( 'site_vertical' ) && 'comics' == site_vertical() ) 
+								|| current_theme_supports( self::POST_TYPE ) 
+								|| get_stylesheet() == 'pub/panel' );
 			restore_current_blog();
-			return $supports_comics;
+			return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
 		}
 
-		// If we're on WordPress.com, and it has the menu site vertical.
-		if ( function_exists( 'site_vertical' ) && 'comics' == site_vertical() )
-			return true;
+		$supports_comics = false;
 
-		// Else, if the current theme requests it.
-		if ( current_theme_supports( self::POST_TYPE ) )
-			return true;
+		/**
+		 * If we're on WordPress.com, and it has the menu site vertical.
+		 * @todo: Extract this out into a wpcom only file.
+		 */
+		if ( function_exists( 'site_vertical' ) && 'comics' == site_vertical() ) {
+			$supports_comics = true;
+		}
 
-		// Otherwise, say no unless something wants to filter us to say yes.
-		return (bool) apply_filters( 'jetpack_enable_cpt', false, self::POST_TYPE );
+		/**
+		 * Else, if the current theme requests it.
+		 */
+		if ( current_theme_supports( self::POST_TYPE ) ) {
+			$supports_comics = true;
+		}
+
+		/**
+		 * Filter it in case something else knows better.
+		 */
+		return (bool) apply_filters( 'jetpack_enable_cpt', $supports_comics, self::POST_TYPE );
 	}
 
 	/**

@@ -19,7 +19,7 @@ class GPlus_Authorship {
 	function __construct() {
 		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 		if ( $this->in_jetpack ) {
-			require "gplus-authorship/admin/ui.php";
+			require dirname( __FILE__ ) . "/gplus-authorship/admin/ui.php";
 			$gplus_admin = new GPlus_Authorship_Admin;
 			add_action( 'save_post', array( 'GPlus_Authorship_Admin', 'save_post_meta' ) );
 			add_action( 'wp_ajax_save_gplus_profile_data', array( $this, 'save_profile_data' ) );

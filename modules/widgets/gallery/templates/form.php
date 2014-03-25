@@ -36,7 +36,7 @@
 </div>
 
 <p>
-	<a class="button gallery-widget-choose-images" title="<?php _e( 'Choose Images', 'jetpack' ); ?>"><span class="wp-media-buttons-icon"></span> <?php esc_html_e( 'Choose Images', 'jetpack' ); ?></a>
+	<a class="button gallery-widget-choose-images"><span class="wp-media-buttons-icon"></span> <?php esc_html_e( 'Choose Images', 'jetpack' ); ?></a>
 </p>
 
 <p class="gallery-widget-link-wrapper">
@@ -49,7 +49,7 @@
 				$selected = "selected='selected' ";
 			} ?>
 
-			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php esc_html_e( $label, 'jetpack' ); ?></option>
+			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo esc_html( $label, 'jetpack' ); ?></option>
 		<?php } ?>
 	</select>
 </p>
@@ -75,7 +75,7 @@
 				$selected = "selected='selected' ";
 			} ?>
 
-			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php esc_html_e( $label, 'jetpack' ); ?></option>
+			<option value="<?php echo $key; ?>" <?php echo $selected; ?>><?php echo esc_html( $label, 'jetpack' ); ?></option>
 		<?php } ?>
 	</select>
 </p>

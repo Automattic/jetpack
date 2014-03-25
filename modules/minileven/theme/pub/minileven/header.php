@@ -26,7 +26,7 @@
 				<h3 class="menu-toggle"><?php _e( 'Menu', 'jetpack' ); ?></h3>
 
 				<?php /*  Allow screen readers / text browsers to skip the navigation menu and get right to the good stuff. */ ?>
-				<div class="skip-link"><a class="assistive-text" href="#content" title="<?php esc_attr_e( 'Skip to primary content', 'jetpack' ); ?>"><?php _e( 'Skip to primary content', 'minileven' , 'jetpack'); ?></a></div>
+				<div class="skip-link"><a class="assistive-text" href="#content"><?php _e( 'Skip to primary content', 'minileven' , 'jetpack'); ?></a></div>
 				<?php /* Our navigation menu.  If one isn't filled out, wp_nav_menu falls back to wp_page_menu. The menu assiged to the primary position is the one used. If none is assigned, the menu with the lowest ID is used. */
 					if ( false !== $location ) :
 						$menu_id = array_shift( array_values( $location ) ); // acccess the ID of the menu assigned to that location. Using only the first menu ID returned in the array.
