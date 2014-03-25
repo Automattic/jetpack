@@ -38,9 +38,11 @@ class Jetpack_XMLRPC_Server {
 				$jetpack_methods['metaWeblog.newMediaObject'] = $core_methods['metaWeblog.newMediaObject'];
 				$jetpack_methods['jetpack.updateAttachmentParent'] = array( $this, 'update_attachment_parent' );
 			}
+
+			$jetpack_methods = apply_filters( 'jetpack_xmlrpc_methods', $jetpack_methods, $core_methods, $user );
 		}
 
-		return apply_filters( 'jetpack_xmlrpc_methods', $jetpack_methods, $core_methods, $user );
+		return apply_filters( 'jetpack_xmlrpc_unauthenticated_methods', $jetpack_methods, $core_methods );
 	}
 
 	/**
