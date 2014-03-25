@@ -1,5 +1,9 @@
 jQuery( function( $ ) {
 	function setWidgetMargin( $widget ) {
+		if ( $( 'body' ).hasClass( 'wp-customizer' ) ) {
+			return;
+		}
+
 		if ( $widget.hasClass( 'expanded' ) ) {
 			// The expanded widget must be at least 400px wide in order to
 			// contain the visibility settings. IE wasn't handling the
