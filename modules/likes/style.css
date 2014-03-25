@@ -5,6 +5,12 @@
  */
 
 
+/* Master container */
+#jp-post-flair {
+	padding-top: .5em;
+}
+
+
 /* Toolbar */
 #wpadminbar li#wp-admin-bar-admin-bar-likes-widget {
 	width: 61px;

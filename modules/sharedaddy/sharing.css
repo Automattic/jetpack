@@ -5,6 +5,12 @@
  */
 
 
+/* Master container */
+#jp-post-flair {
+	padding-top: .5em;
+}
+
+
 /* Overall Sharedaddy block title */
 div.sharedaddy,
 #content div.sharedaddy,
