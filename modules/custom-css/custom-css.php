@@ -887,13 +887,14 @@ class Jetpack_Custom_CSS {
 	 * @return string
 	 */
 	static function revisions_meta_box( $safecss_post ) {
+
+		$show_all_revisions = isset( $_GET['show_all_rev'] );
+
 		if ( function_exists( 'wp_revisions_to_keep' ) ) {
 			$max_revisions = wp_revisions_to_keep( (object) $safecss_post );
 		} else {
 			$max_revisions = defined( 'WP_POST_REVISIONS' ) && is_numeric( WP_POST_REVISIONS ) ? (int) WP_POST_REVISIONS : 25;
 		}
-
-		$show_all_revisions = isset( $_GET['show_all_rev'] );
 
 		$posts_per_page = $show_all_revisions ? $max_revisions : 6;
 
