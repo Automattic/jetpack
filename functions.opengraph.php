@@ -49,7 +49,11 @@ function jetpack_og_tags() {
 		$author = get_queried_object();
 
 		$tags['og:title']           = $author->display_name;
-		$tags['og:url']             = get_author_posts_url( $author->ID );
+		if ( ! empty( $author->user_url ) ) {
+			$tags['og:url']     = $author->user_url;
+		} else {
+			$tags['og:url']     = get_author_posts_url( $author->ID );
+		}
 		$tags['og:description']     = $author->description;
 		$tags['profile:first_name'] = get_the_author_meta( 'first_name', $author->ID );
 		$tags['profile:last_name']  = get_the_author_meta( 'last_name', $author->ID );
