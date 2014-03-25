@@ -612,12 +612,13 @@ class Jetpack_Network {
 	 * @see Jetpack_Network::jetpack_sites_list()
 	 */
 	function network_admin_page() {
+		global $current_site;
 		$this->network_admin_page_header();
 	
 			$jp = Jetpack::init();
 
 			// We should be, but ensure we are on the main blog
-			switch_to_blog(1);
+			switch_to_blog( $current_site->blog_id );
 			$main_active = $jp->is_active(); 
 			restore_current_blog();
 	
