@@ -110,22 +110,6 @@ function sharing_disable_js() {
 	return false;
 }
 
-function sharing_global_resources() {
-	$disable = get_option( 'sharedaddy_disable_resources' );
-?>
-<tr valign="top">
-	<th scope="row"><label for="disable_css"><?php _e( 'Disable CSS and JS', 'jetpack' ); ?></label></th>
-	<td>
-		<input id="disable_css" type="checkbox" name="disable_resources" <?php if ( $disable == 1 ) echo ' checked="checked"'; ?>/>  <small><em><?php _e( 'Advanced.  If this option is checked, you must include these files in your theme manually for the sharing links to work.', 'jetpack' ); ?></em></small>
-	</td>
-</tr>
-<?php
-}
-
-function sharing_global_resources_save() {
-	update_option( 'sharedaddy_disable_resources', isset( $_POST['disable_resources'] ) ? 1 : 0 );
-}
-
 function sharing_email_dialog() {
 	echo '<div class="recaptcha" id="sharing_recaptcha"></div><input type="hidden" name="recaptcha_public_key" id="recaptcha_public_key" value="'.(defined( 'RECAPTCHA_PUBLIC_KEY' ) ? esc_attr( RECAPTCHA_PUBLIC_KEY ) : '').'" />';
 }
@@ -142,8 +126,6 @@ add_action( 'init', 'sharing_init' );
 add_action( 'admin_init', 'sharing_add_meta_box' );
 add_action( 'save_post', 'sharing_meta_box_save' );
 add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
-add_action( 'sharing_global_options', 'sharing_global_resources', 30 );
-add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
 add_filter( 'sharing_services', 'sharing_restrict_to_single' );
 add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
 add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
