@@ -506,6 +506,7 @@ class Grunion_Contact_Form_Plugin {
 		$all_values   = array();
 		$post_content = apply_filters( 'the_content', get_post_field( 'post_content', $post_id ) );
 		$content      = explode( '<!--more-->', $post_content );
+		$lines        = array();
 		
 		if ( count( $content ) > 1 ) {
 			$content  = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
