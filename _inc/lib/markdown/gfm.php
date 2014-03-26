@@ -167,7 +167,7 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 * @return string         Codeblock with unescaped interior
 	 */
 	public function do_codeblock_restore( $matches ) {
-		$block = html_entity_decode( $matches[3] );
+		$block = html_entity_decode( $matches[3], ENT_QUOTES );
 		$open = $matches[1] . $matches[2] . "\n";
 		return $open . $block . $matches[4];
 	}
