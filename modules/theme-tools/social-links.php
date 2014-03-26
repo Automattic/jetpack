@@ -36,6 +36,13 @@ class Social_Links {
 	private $services = array();
 
 	/**
+	 * An array of the services the theme supports
+	 *
+	 * @var array
+	 */
+	private $theme_supported_services = array();
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct() {
@@ -44,24 +51,13 @@ class Social_Links {
 		/* An array of named arguments must be passed as the second parameter
 		 * of add_theme_support().
 		 */
-		if ( ! isset( $theme_support[0] ) || empty( $theme_support[0] ) )
+		if ( empty( $theme_support[0] ) )
 			return;
 
+		$this->theme_supported_services = $theme_support[0];
 		$this->links = Jetpack_Options::get_option( 'social_links', array() );
 
-		global $publicize;
-
-		if ( is_a( $publicize, 'Publicize' ) ) {
-			$this->publicize = $publicize;
-			$this->services  = array_intersect(
-				array_keys( $this->publicize->get_services( 'connected' ) ),
-				$theme_support[0]
-			);
-
-			add_action( 'admin_init',                      array( $this, 'check_links' ), 20 );
-			add_action( 'customize_register',              array( $this, 'customize_register' ) );
-			add_filter( 'sanitize_option_jetpack_options', array( $this, 'sanitize_link' ) );
-		}
+		$this->admin_setup();
 
 		add_filter( 'jetpack_has_social_links', array( $this, 'has_social_links' ) );
 		add_filter( 'jetpack_get_social_links', array( $this, 'get_social_links' ) );
@@ -70,6 +66,25 @@ class Social_Links {
 			add_filter( "pre_option_jetpack-$service", array( $this, 'get_social_link_filter' ) ); // get_option( 'jetpack-service' );
 			add_filter( "theme_mod_jetpack-$service",  array( $this, 'get_social_link_filter' ) ); // get_theme_mod( 'jetpack-service' );
 		}
+	}
+
+	function admin_setup() {
+		if ( ! is_admin() || ! current_user_can( 'manage_options' ) )
+			return;
+
+		global $publicize;
+		if ( ! is_a( $publicize, 'Publicize' ) )
+			return;
+
+
+		$this->publicize = $publicize;
+		$publicize_services = $this->publicize->get_services( 'connected' );
+		$this->services  = array_intersect( array_keys( $publicize_services ), $this->theme_supported_services );
+
+		add_action( 'publicize_connected', array( $this, 'check_links' ), 20 );
+		add_action( 'publicize_disconnected', array( $this, 'check_links' ), 20 );
+		add_action( 'customize_register', array( $this, 'customize_register' ) );
+		add_filter( 'sanitize_option_jetpack_options', array( $this, 'sanitize_link' ) );
 	}
 
 	/**
