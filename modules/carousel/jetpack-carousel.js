@@ -1377,11 +1377,13 @@ jQuery(document).ready(function($) {
 		var hashRegExp = /jp-carousel-(\d+)/,
 			matches, attachmentId, galleries, selectedThumbnail;
 
-		if ( ! hashRegExp.test( window.location.hash ) )
+		if ( ! hashRegExp.test( window.location.hash ) ) {
 			return;
+		}
 
-		if ( window.location.hash == last_known_location_hash )
+		if ( window.location.hash == last_known_location_hash ) {
 			return;
+		}
 
 		last_known_location_hash = window.location.hash;
 		matches = window.location.hash.match( hashRegExp );
@@ -1406,8 +1408,9 @@ jQuery(document).ready(function($) {
 		});
 	});
 
-	if ( window.location.hash )
+	if ( window.location.hash ) {
 		$( window ).trigger( 'hashchange' );
+	}
 });
 
 /**
