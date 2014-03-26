@@ -255,14 +255,6 @@ function youtube_id( $url ) {
 	
 	$vq =     ( isset( $gargs['vq'] )             && in_array( $gargs['vq'], array('hd720','hd1080') ) ) ? '&vq=' . $gargs['vq'] : '';
 	
-	if( isset($qargs['vq']) && ( 'hd1080' == $qargs['vq'] || '1080p' == $qargs['vq'] || '1080' == $qargs['vq'] ) ):
-		$vq = '&vq=hd1080';
-	elseif( isset($qargs['vq']) && ( 'hd720' == $qargs['vq'] || '720p' == $qargs['vq'] || '720' == $qargs['vq'] ) ):
-		$vq = '&vq=hd720';
-	else:
-		$vq = '';
-	endif;
-
 	$cc = ( isset( $qargs['cc_load_policy'] ) ) ? '&cc_load_policy=1' : '';
 	$cc_lang = ( isset( $qargs['cc_lang_pref'] )   ) ? '&cc_lang_pref=' . preg_replace( '/[^_a-z0-9-]/i', '', $qargs['cc_lang_pref'] ) : '';
 
