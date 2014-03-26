@@ -30,6 +30,7 @@ class Publicize extends Publicize_Base {
 		add_filter( 'jetpack_twitter_cards_site_tag', array( $this, 'enhaced_twitter_cards_site_tag' ) );
 
 		add_action( 'publicize_save_meta', array( $this, 'save_publicized_twitter_account' ), 10, 4 );
+		add_action( 'publicize_save_meta', array( $this, 'save_publicized_facebook_account' ), 10, 4 );
 
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
@@ -689,5 +690,19 @@ class Publicize extends Publicize_Base {
 			return $account;
 		}
 		return 'jetpack'; // Default 'via' is always us if for some reason we still don't find one.
+	}
+
+	/**
+	* Save the Publicized Facebook account when publishing a post
+	* Use only Personal accounts, not Facebook Pages
+	*/
+	function save_publicized_facebook_account( $submit_post, $post_id, $service_name, $connection ) {
+		$connection_meta = $this->get_connection_meta( $connection );
+		if ( 'facebook' == $service_name && isset( $connection_meta['connection_data']['meta']['facebook_profile'] ) && $submit_post ) {
+			$publicize_facebook_user = get_post_meta( $post_id, '_publicize_facebook_user' );
+			if ( empty( $publicize_facebook_user ) || 0 != $connection_meta['connection_data']['user_id'] ) {
+				update_post_meta( $post_id, '_publicize_facebook_user', $this->get_profile_link( 'facebook', $connection ) );
+			}
+		}
 	}
 }
