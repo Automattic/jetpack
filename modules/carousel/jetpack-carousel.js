@@ -3,7 +3,7 @@ jQuery(document).ready(function($) {
 
 	// gallery faded layer and container elements
 	var overlay, comments, gallery, container, nextButton, previousButton, info, title, transitionBegin,
-	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval,
+	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval, lastSelectedSlide,
 	screenPadding = 110, originalOverflow = $('body').css('overflow'), originalHOverflow = $('html').css('overflow'), proportion = 85,
 	last_known_location_hash = '';
 
@@ -52,9 +52,8 @@ jQuery(document).ready(function($) {
 			gallery
 				.jp_carousel('slides')
 				.jp_carousel('fitSlide', true);
-			gallery
-				.jp_carousel('fitInfo', true)
-				.jp_carousel('fitMeta', true);
+			gallery.jp_carousel('updateSlidePositions', true);
+			gallery.jp_carousel('fitMeta', true);
 		}, 200);
 	};
 
@@ -553,111 +552,148 @@ jQuery(document).ready(function($) {
 			});
 		},
 
+		updateSlidePositions : function(animate) {
+			var current = this.jp_carousel( 'selectedSlide' ),
+				galleryWidth = gallery.width(),
+				currentWidth = current.width(),
+				previous = gallery.jp_carousel( 'prevSlide' ),
+				next = gallery.jp_carousel( 'nextSlide' ),
+				previousPrevious = previous.prev(),
+				nextNext = next.next(),
+				left = Math.floor( ( galleryWidth - currentWidth ) * 0.5 );
+
+			current.jp_carousel( 'setSlidePosition', left ).show();
+
+			// minimum width
+			gallery.jp_carousel( 'fitInfo', animate );
+
+			// prep the slides
+			var direction = lastSelectedSlide.is( current.prevAll() ) ? 1 : -1;
+
+			// Since we preload the `previousPrevious` and `nextNext` slides, we need
+			// to make sure they technically visible in the DOM, but invisible to the
+			// user. To hide them from the user, we position them outside the edges
+			// of the window.
+			//
+			// This section of code only applies when there are more than three
+			// slides. Otherwise, the `previousPrevious` and `nextNext` slides will
+			// overlap with the `previous` and `next` slides which must be visible
+			// regardless.
+			if ( 1 == direction ) {
+				if ( ! nextNext.is( previous ) ) {
+					nextNext.jp_carousel( 'setSlidePosition', galleryWidth + next.width() ).show();
+				}
+
+				if ( ! previousPrevious.is( next ) ) {
+					previousPrevious.jp_carousel( 'setSlidePosition', -previousPrevious.width() - currentWidth ).show();
+				}
+			} else {
+				if ( ! nextNext.is( previous ) ) {
+					nextNext.jp_carousel( 'setSlidePosition', galleryWidth + currentWidth ).show();
+				}
+			}
+
+			previous.jp_carousel( 'setSlidePosition', Math.floor( -previous.width() + ( screenPadding * 0.75 ) ) ).show();
+			next.jp_carousel( 'setSlidePosition', Math.ceil( galleryWidth - ( screenPadding * 0.75 ) ) ).show();
+		},
+
 		selectSlide : function(slide, animate){
-			var last = this.find('.selected').removeClass('selected'),
-				slides = gallery.jp_carousel('slides').css({'position': 'fixed'}),
-				current = $(slide).addClass('selected').css({'position': 'relative'}),
+			lastSelectedSlide = this.find( '.selected' ).removeClass( 'selected' );
+
+			var slides = gallery.jp_carousel( 'slides' ).css({ 'position': 'fixed' }),
+				current = $( slide ).addClass( 'selected' ).css({ 'position': 'relative' }),
 				attachmentId = current.data( 'attachment-id' ),
 				previous = gallery.jp_carousel( 'prevSlide' ),
 				next = gallery.jp_carousel( 'nextSlide' ),
-				width = $(window).width(),
-				previous_previous = previous.prev(),
-				next_next = next.next(),
-				galleryWidth = gallery.width(),
-				currentWidth = current.width(),
-				left = Math.floor( ( galleryWidth - currentWidth ) * 0.5 ),
-				info_left,
-				method,
+				previousPrevious = previous.prev(),
+				nextNext = next.next(),
 				animated,
-				info_min;
-			// center the main image
+				captionHtml;
 
+			// center the main image
 			gallery.jp_carousel( 'loadFullImage', current );
 
 			caption.hide();
 
-			if ( next.length == 0 && slides.length <= 2 )
+			if ( next.length == 0 && slides.length <= 2 ) {
 				$( '.jp-carousel-next-button' ).hide();
-			else
+			} else {
 				$( '.jp-carousel-next-button' ).show();
+			}
 
-			if ( previous.length == 0 && slides.length <= 2 )
+			if ( previous.length == 0 && slides.length <= 2 ) {
 				$( '.jp-carousel-previous-button' ).hide();
-			else
+			} else {
 				$( '.jp-carousel-previous-button' ).show();
+			}
 
-			method = 'css';
 			animated = current
-				.add(previous)
-				.add(previous_previous)
-				.add(next)
-				.add(next_next)
-				.jp_carousel('loadSlide');
+				.add( previous )
+				.add( previousPrevious )
+				.add( next )
+				.add( nextNext )
+				.jp_carousel( 'loadSlide' );
+
 			// slide the whole view to the x we want
-			slides.not(animated).hide();
+			slides.not( animated ).hide();
 
-			current.jp_carousel('setSlidePosition', left).show();
+			gallery.jp_carousel( 'updateSlidePositions', animate );
 
-			// minimum width
-			gallery.jp_carousel('fitInfo', animate);
+			gallery.jp_carousel( 'resetButtons', current );
+			container.trigger( 'jp_carousel.selectSlide', [current] );
 
-			// prep the slides
-			var direction = last.is(current.prevAll()) ? 1 : -1;
-
-			if ( 1 == direction ) {
-				if ( ! next_next.is( previous ) )
-					next_next.jp_carousel('setSlidePosition', galleryWidth + next.width()).show();
-
-				if ( ! previous_previous.is( next ) )
-					previous_previous.jp_carousel('setSlidePosition', -previous_previous.width() - currentWidth ).show();
-			}
-			else {
-				if ( ! next_next.is( previous ) )
-					next_next.jp_carousel('setSlidePosition', galleryWidth + currentWidth ).show();
-			}
-
-			previous.jp_carousel('setSlidePosition', Math.floor( -previous.width() + (screenPadding * 0.75 ) ) ).show();
-			next.jp_carousel('setSlidePosition', Math.ceil( galleryWidth - (screenPadding * 0.75 ) ) ).show();
-
-			gallery.jp_carousel('resetButtons', current);
-			container.trigger('jp_carousel.selectSlide', [current]);
-
-			gallery.jp_carousel( 'getTitleDesc', { title: current.data( 'title' ), desc: current.data( 'desc' ) } );
+			gallery.jp_carousel( 'getTitleDesc', {
+				title: current.data( 'title' ),
+				desc: current.data( 'desc' )
+			});
 
 			// Lazy-load the Likes iframe for the current, next, and previous slides.
 			gallery.jp_carousel( 'loadLikes', attachmentId );
-			gallery.jp_carousel( 'updateLikesWidgetVisibility', attachmentId )
+			gallery.jp_carousel( 'updateLikesWidgetVisibility', attachmentId );
 
-			if ( next.length > 0 )
+			if ( next.length > 0 ) {
 				gallery.jp_carousel( 'loadLikes', next.data( 'attachment-id' ) );
+			}
 
-			if ( previous.length > 0 )
+			if ( previous.length > 0 ) {
 				gallery.jp_carousel( 'loadLikes', previous.data( 'attachment-id' ) );
+			}
 
 			var imageMeta = current.data( 'image-meta' );
 			gallery.jp_carousel( 'updateExif', imageMeta );
 			gallery.jp_carousel( 'updateFullSizeLink', current );
 			gallery.jp_carousel( 'updateMap', imageMeta );
 			gallery.jp_carousel( 'testCommentsOpened', current.data( 'comments-opened' ) );
-			gallery.jp_carousel( 'getComments', { 'attachment_id': attachmentId, 'offset': 0, 'clear': true } );
-			$('#jp-carousel-comment-post-results').slideUp();
+			gallery.jp_carousel( 'getComments', {
+				'attachment_id': attachmentId,
+				'offset': 0,
+				'clear': true
+			});
+			$( '#jp-carousel-comment-post-results' ).slideUp();
 
-			// $('<div />').text(sometext).html() is a trick to go to HTML to plain text (including HTML entities decode, etc)
-			if ( current.data('caption') ) {
-				if ( $('<div />').text(current.data('caption')).html() == $('<div />').text(current.data('title')).html() )
-					$('.jp-carousel-titleanddesc-title').fadeOut('fast').empty();
-				if ( $('<div />').text(current.data('caption')).html() == $('<div />').text(current.data('desc')).html() )
-					$('.jp-carousel-titleanddesc-desc').fadeOut('fast').empty();
-				caption.html( current.data('caption') ).fadeIn('slow');
+			// $('<div />').text(sometext).html() is a trick to go to HTML to plain
+			// text (including HTML entities decode, etc)
+			if ( current.data( 'caption' ) ) {
+				captionHtml = $( '<div />' ).text( current.data( 'caption' ) ).html();
+
+				if ( captionHtml == $( '<div />' ).text( current.data( 'title' ) ).html() ) {
+					$( '.jp-carousel-titleanddesc-title' ).fadeOut( 'fast' ).empty();
+				}
+
+				if ( captionHtml == $( '<div />' ).text( current.data( 'desc' ) ).html() ) {
+					$( '.jp-carousel-titleanddesc-desc' ).fadeOut( 'fast' ).empty();
+				}
+
+				caption.html( current.data( 'caption' ) ).fadeIn( 'slow' );
 			} else {
-				caption.fadeOut('fast').empty();
+				caption.fadeOut( 'fast' ).empty();
 			}
 
 
 			// Load the images for the next and previous slides.
-			$( next ).add( previous ).each( function () {
+			$( next ).add( previous ).each(function() {
 				gallery.jp_carousel( 'loadFullImage', $( this ) );
-			} );
+			});
 
 			window.location.hash = last_known_location_hash = '#jp-carousel-' + attachmentId;
 		},
