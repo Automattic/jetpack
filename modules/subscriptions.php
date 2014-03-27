@@ -572,7 +572,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 	function widget( $args, $instance ) {
 		global $current_user;
 
-		
+
 
 		$source                 = 'widget';
 		$instance            	= wp_parse_args( (array) $instance, $this->defaults() );
@@ -591,7 +591,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		echo $args['before_widget'];
 		echo $args['before_title'] . '<label for="' . esc_attr( $subscribe_field_id ) . '">' . esc_attr( $instance['title'] ) . '</label>' . $args['after_title'] . "\n"; 
 
-		$referer = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		$referer = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 
 		// Check for subscription confirmation.
 		if ( isset( $_GET['subscribe'] ) && 'success' == $_GET['subscribe'] ) : ?>

@@ -466,11 +466,11 @@ class The_Neverending_Home_Page {
 	 * Returns the Ajax url
 	 *
 	 * @global $wp
-	 * @uses home_url, is_ssl, add_query_arg, apply_filters
+	 * @uses home_url, add_query_arg, apply_filters
 	 * @return string
 	 */
 	function ajax_url() {
-		$base_url = home_url( '/', is_ssl() ? 'https' : 'http' );
+		$base_url = home_url( '/' );
 
 		$ajaxurl = add_query_arg( array( 'infinity' => 'scrolling' ), $base_url );
 

@@ -2851,7 +2851,10 @@ p {
 			'rand' => md5( mt_rand( 0, 999 ) . time() ),
 		);
 		$args     = wp_parse_args( $args, $defaults );
-		$base_url = apply_filters( 'jetpack_stats_base_url', ( is_ssl() ? 'https' : 'http' ) . '://stats.wordpress.com/g.gif' );
+		$base_url = apply_filters(
+			'jetpack_stats_base_url',
+			set_url_scheme( 'http://stats.wordpress.com/g.gif' )
+		);
 		$url      = add_query_arg( $args, $base_url );
 		return $url;
 	}

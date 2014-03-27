@@ -64,7 +64,7 @@ class WPCOM_JSON_API {
 			$this->method = strtoupper( $method );
 		}
 		if ( is_null( $url ) ) {
-			$this->url = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+			$this->url = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 		} else {
 			$this->url = $url;
 		}
