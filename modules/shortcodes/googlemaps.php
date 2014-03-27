@@ -45,6 +45,13 @@ function jetpack_googlemaps_embed_to_short_code_callback( $match ) {
 
 add_filter( 'pre_kses', 'jetpack_googlemaps_embed_to_short_code' );
 
+/**
+ * [googlemaps] shortcode
+ *
+ * Example usage:
+ *   [googlemaps http://maps.google.com/maps?f=q&hl=en&geocode=&q=San+Francisco,+CA&sll=43.469466,-83.998504&sspn=0.01115,0.025942&g=San+Francisco,+CA&ie=UTF8&z=12&iwloc=addr&ll=37.808156,-122.402458&output=embed&s=AARTsJp56EajYksz3JXgNCwT3LJnGsqqAQ&w=425&h=350]
+ *   [googlemaps https://maps.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA&w=640&h=480]
+ */
 function jetpack_googlemaps_shortcode( $atts ) {
 	if ( !isset($atts[0]) || apply_filters( 'jetpack_bail_on_shortcode', false, 'googlemaps' ) )
 		return '';
