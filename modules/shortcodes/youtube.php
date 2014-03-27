@@ -41,11 +41,6 @@ function youtube_embed_to_short_code( $content ) {
 	$ifr_regexp = '!<iframe((?:\s+\w+="[^"]*")*?)\s+src="(https?:)?//(?:www\.)*youtube.com/embed/([^"]+)".*?</iframe>!i';
 	$ifr_regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $ifr_regexp, ENT_NOQUOTES ) );
 
-	if ( is_ssl() )
-		$protocol = 'https';
-	else
-		$protocol = 'http';
-
 	foreach ( array( 'regexp', 'regexp_ent', 'old_regexp', 'old_regexp_ent', 'ifr_regexp', 'ifr_regexp_ent' ) as $reg ) {
 		if ( ! preg_match_all( $$reg, $content, $matches, PREG_SET_ORDER ) )
 			continue;
@@ -74,11 +69,11 @@ function youtube_embed_to_short_code( $content ) {
 				if ( $width && $height )
 					$wh = "&w=$width&h=$height";
 
-				$url = esc_url_raw( "$protocol://www.youtube.com/watch?v={$match[3]}{$wh}" );
+				$url = esc_url_raw( set_url_scheme( "http://www.youtube.com/watch?v={$match[3]}{$wh}" ) );
 			} else {
 				$match[1] = str_replace( '?', '&', $match[1] );
 
-				$url = esc_url_raw( "$protocol://www.youtube.com/watch?v=" . html_entity_decode( $match[1] ) );
+				$url = esc_url_raw( set_url_scheme( "http://www.youtube.com/watch?v=" . html_entity_decode( $match[1] ) ) );
 			}
 
 			$content = str_replace( $match[0], "[youtube $url]", $content );
@@ -274,15 +269,10 @@ function youtube_id( $url ) {
 		}
 	}
 
-	if ( is_ssl() )
-		$protocol = 'https';
-	else
-		$protocol = 'http';
-
 	if ( ( isset( $url['path'] ) && '/videoseries' == $url['path'] ) || isset( $qargs['list'] ) ) {
-		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "$protocol://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) . "' frameborder='0'></iframe></span>";
+		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/videoseries?list=$id&hl=en_US" ) ) . "' frameborder='0'></iframe></span>";
 	} else {
-		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( "$protocol://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$autoplay{$cc}{$cc_lang}" ) . "' frameborder='0'></iframe></span>";
+		$html = "<span class='embed-youtube' style='$alignmentcss display: block;'><iframe class='youtube-player' type='text/html' width='$w' height='$h' src='" . esc_url( set_url_scheme( "http://www.youtube.com/embed/$id?version=3&rel=$rel&fs=1$fmt&showsearch=$search&showinfo=$info&iv_load_policy=$iv$start$end$hd&wmode=$wmode$autoplay{$cc}{$cc_lang}" ) ) . "' frameborder='0'></iframe></span>";
 	}
 
 	$html = apply_filters( 'video_embed_html', $html );

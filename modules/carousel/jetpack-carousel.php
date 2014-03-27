@@ -98,7 +98,7 @@ class Jetpack_Carousel {
 				'widths'               => $this->prebuilt_widths,
 				'is_logged_in'         => $is_logged_in,
 				'lang'                 => strtolower( substr( get_locale(), 0, 2 ) ),
-				'ajaxurl'              => admin_url( 'admin-ajax.php', is_ssl() ? 'https' : 'http' ),
+				'ajaxurl'              => admin_url( 'admin-ajax.php' ),
 				'nonce'                => wp_create_nonce( 'carousel_nonce' ),
 				'display_exif'         => $this->test_1or0_option( get_option( 'carousel_display_exif' ), true ),
 				'display_geo'          => $this->test_1or0_option( get_option( 'carousel_display_geo' ), true ),

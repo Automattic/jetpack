@@ -449,7 +449,7 @@ function stats_convert_admin_urls( $html ) {
 }
 
 function stats_convert_image_urls( $html ) {
-	$url = ( is_ssl() ? 'https' : 'http' ) . '://' . STATS_DASHBOARD_SERVER;
+	$url = set_url_scheme( 'http://' . STATS_DASHBOARD_SERVER );
 	$html = preg_replace( '|(["\'])(/i/stats.+)\\1|', '$1' . $url . '$2$1', $html );
 	return $html;
 }
