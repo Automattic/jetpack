@@ -320,9 +320,9 @@ class Grunion_Contact_Form_Plugin {
 		$response = akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
 		$result = false;
 		
-		if ( isset( $response[1] ) && 'true' == trim( $response[1] ) ) // 'true' is spam
-			$result = true;
-		elseif ( isset( $response[0]['x-akismet-pro-tip'] ) && 'discard' === trim( $response[0]['x-akismet-pro-tip'] ) && get_option( 'akismet_strictness' ) === '1' )
+		if ( isset( $response[0]['x-akismet-pro-tip'] ) && 'discard' === trim( $response[0]['x-akismet-pro-tip'] ) && get_option( 'akismet_strictness' ) === '1' )
+			$result = new WP_Error( 'feedback-discarded', __('Feedback discarded.') );
+		elseif ( isset( $response[1] ) && 'true' == trim( $response[1] ) ) // 'true' is spam
 			$result = true;
 			
 		return apply_filters( 'contact_form_is_spam_akismet', $result, $form );
@@ -1217,7 +1217,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$akismet_values = $plugin->prepare_for_akismet( compact( $vars ) );
 
 		// Is it spam?
-		$is_spam = apply_filters( 'contact_form_is_spam', $akismet_values );
+		$is_spam = apply_filters( 'contact_form_is_spam', $akismet_values );		
 		if ( is_wp_error( $is_spam ) ) // WP_Error to abort
 			return $is_spam; // abort
 		elseif ( $is_spam === TRUE )  // TRUE to flag a spam
