@@ -12,8 +12,7 @@ class Jetpack_Widget_Conditions {
 			add_filter( 'widget_update_callback', array( __CLASS__, 'widget_update' ), 10, 3 );
 			add_action( 'in_widget_form', array( __CLASS__, 'widget_conditions_admin' ), 10, 3 );
 			add_action( 'wp_ajax_widget_conditions_options', array( __CLASS__, 'widget_conditions_options' ) );
-		}
-		else {
+		} else {
 			add_action( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
 			add_action( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 		}
@@ -42,7 +41,7 @@ class Jetpack_Widget_Conditions {
 					<option value="<?php echo esc_attr( $category->term_id ); ?>" <?php selected( $category->term_id, $minor ); ?>><?php echo esc_html( $category->name ); ?></option>
 					<?php
 				}
-			break;
+				break;
 			case 'author':
 				?>
 				<option value=""><?php _e( 'All author pages', 'jetpack' ); ?></option>
@@ -53,7 +52,7 @@ class Jetpack_Widget_Conditions {
 					<option value="<?php echo esc_attr( $author->ID ); ?>" <?php selected( $author->ID, $minor ); ?>><?php echo esc_html( $author->display_name ); ?></option>
 					<?php
 				}
-			break;
+				break;
 			case 'tag':
 				?>
 				<option value=""><?php _e( 'All tag pages', 'jetpack' ); ?></option>
@@ -67,7 +66,7 @@ class Jetpack_Widget_Conditions {
 					<option value="<?php echo esc_attr($tag->term_id ); ?>" <?php selected( $tag->term_id, $minor ); ?>><?php echo esc_html( $tag->name ); ?></option>
 					<?php
 				}
-			break;
+				break;
 			case 'date':
 				?>
 				<option value="" <?php selected( '', $minor ); ?>><?php _e( 'All date archives', 'jetpack' ); ?></option>
@@ -75,13 +74,14 @@ class Jetpack_Widget_Conditions {
 				<option value="month"<?php selected( 'month', $minor ); ?>><?php _e( 'Monthly archives', 'jetpack' ); ?></option>
 				<option value="year"<?php selected( 'year', $minor ); ?>><?php _e( 'Yearly archives', 'jetpack' ); ?></option>
 				<?php
-			break;
+				break;
 			case 'page':
 				// Previously hardcoded post type options.
-				if ( ! $minor )
+				if ( ! $minor ) {
 					$minor = 'post_type-page';
-				else if ( 'post' == $minor )
+				} else if ( 'post' == $minor ) {
 					$minor = 'post_type-post';
+				}
 
 				?>
 				<option value="front" <?php selected( 'front', $minor ); ?>><?php _e( 'Front page', 'jetpack' ); ?></option>
@@ -160,14 +160,17 @@ class Jetpack_Widget_Conditions {
 	public static function widget_conditions_admin( $widget, $return, $instance ) {
 		$conditions = array();
 
-		if ( isset( $instance['conditions'] ) )
+		if ( isset( $instance['conditions'] ) ) {
 			$conditions = $instance['conditions'];
+		}
 
-		if ( ! isset( $conditions['action'] ) )
+		if ( ! isset( $conditions['action'] ) ) {
 			$conditions['action'] = 'show';
+		}
 
-		if ( empty( $conditions['rules'] ) )
+		if ( empty( $conditions['rules'] ) ) {
 			$conditions['rules'][] = array( 'major' => '', 'minor' => '' );
+		}
 
 		?>
 		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
@@ -232,8 +235,9 @@ class Jetpack_Widget_Conditions {
 
 		$conditions[ 'active' ] = false;
 		foreach ( $_POST['conditions']['rules_major'] as $index => $major_rule ) {
-			if ( ! $major_rule )
+			if ( ! $major_rule ) {
 				continue;
+			}
 
 			$conditions['rules'][] = array(
 				'major' => $major_rule,
@@ -245,10 +249,11 @@ class Jetpack_Widget_Conditions {
 
 		$conditions = apply_filters( 'widget_conditions_update', $conditions, $instance, $new_instance, $old_instance );
 
-		if ( $conditions[ 'active' ] )
+		if ( $conditions[ 'active' ] ) {
 			$instance['conditions'] = $conditions;
-		else
+		} else {
 			unset( $instance['conditions'] );
+		}
 
 		if (
 				( isset( $instance['conditions'] ) && ! isset( $old_instance['conditions'] ) )
@@ -260,8 +265,7 @@ class Jetpack_Widget_Conditions {
 				)
 			) {
 			do_action( 'widget_conditions_save' );
-		}
-		else if ( ! isset( $instance['conditions'] ) && isset( $old_instance['conditions'] ) ) {
+		} else if ( ! isset( $instance['conditions'] ) && isset( $old_instance['conditions'] ) ) {
 			do_action( 'widget_conditions_delete' );
 		}
 
@@ -278,19 +282,20 @@ class Jetpack_Widget_Conditions {
 		$settings = array();
 
 		foreach ( $widget_areas as $widget_area => $widgets ) {
-			if ( empty( $widgets ) )
+			if ( empty( $widgets ) ) {
 				continue;
+			}
 
-			if ( 'wp_inactive_widgets' == $widget_area )
+			if ( 'wp_inactive_widgets' == $widget_area ) {
 				continue;
+			}
 
 			foreach ( $widgets as $position => $widget_id ) {
 				// Find the conditions for this widget.
 				if ( preg_match( '/^(.+?)-(\d+)$/', $widget_id, $matches ) ) {
 					$id_base = $matches[1];
 					$widget_number = intval( $matches[2] );
-				}
-				else {
+				} else {
 					$id_base = $widget_id;
 					$widget_number = null;
 				}
@@ -299,15 +304,13 @@ class Jetpack_Widget_Conditions {
 					$settings[$id_base] = get_option( 'widget_' . $id_base );
 				}
 
-				// New multi widget (WP_Widget)
 				if ( ! is_null( $widget_number ) ) {
+					// New multi widget (WP_Widget)
 					if ( isset( $settings[$id_base][$widget_number] ) && false === self::filter_widget( $settings[$id_base][$widget_number] ) ) {
 						unset( $widget_areas[$widget_area][$position] );
 					}
-				}
-
-				// Old single widget
-				else if ( ! empty( $settings[ $id_base ] ) && false === self::filter_widget( $settings[$id_base] ) ) {
+				} else if ( ! empty( $settings[ $id_base ] ) && false === self::filter_widget( $settings[$id_base] ) ) {
+					// Old single widget
 					unset( $widget_areas[$widget_area][$position] );
 				}
 			}
@@ -327,112 +330,119 @@ class Jetpack_Widget_Conditions {
 
 		$condition_result = true;
 
-		foreach ( $instance['conditions']['rules'] as $rule ) {
-			switch ( $rule['major'] ) {
-				case 'date':
-					switch ( $rule['minor'] ) {
-						case '':
-							$condition_result = is_date();
+		if ( is_array( $instance['conditions']['rules'] ) ) {
+			foreach ( $instance['conditions']['rules'] as $rule ) {
+				switch ( $rule['major'] ) {
+					case 'date':
+						switch ( $rule['minor'] ) {
+							case '':
+								$condition_result = is_date();
+							break;
+							case 'month':
+								$condition_result = is_month();
+							break;
+							case 'day':
+								$condition_result = is_day();
+							break;
+							case 'year':
+								$condition_result = is_year();
+							break;
+						}
 						break;
-						case 'month':
-							$condition_result = is_month();
-						break;
-						case 'day':
-							$condition_result = is_day();
-						break;
-						case 'year':
-							$condition_result = is_year();
-						break;
-					}
-				break;
-				case 'page':
-					// Previously hardcoded post type options.
-					if ( 'post' == $rule['minor'] )
-						$rule['minor'] = 'post_type-post';
-					else if ( ! $rule['minor'] )
-						$rule['minor'] = 'post_type-page';
+					case 'page':
+						// Previously hardcoded post type options.
+						if ( 'post' == $rule['minor'] ) {
+							$rule['minor'] = 'post_type-post';
+						} else if ( ! $rule['minor'] ) {
+							$rule['minor'] = 'post_type-page';
+						}
 
-					switch ( $rule['minor'] ) {
-						case '404':
-							$condition_result = is_404();
-						break;
-						case 'search':
-							$condition_result = is_search();
-						break;
-						case 'archive':
-							$condition_result = is_archive();
-						break;
-						case 'posts':
-							$condition_result = $wp_query->is_posts_page;
-						break;
-						case 'home':
-							$condition_result = is_home();
-						break;
-						case 'front':
+						switch ( $rule['minor'] ) {
+							case '404':
+								$condition_result = is_404();
+							break;
+							case 'search':
+								$condition_result = is_search();
+							break;
+							case 'archive':
+								$condition_result = is_archive();
+							break;
+							case 'posts':
+								$condition_result = $wp_query->is_posts_page;
+							break;
+							case 'home':
+								$condition_result = is_home();
+							break;
+							case 'front':
 								if ( current_theme_supports( 'infinite-scroll' ) ) {
-								$condition_result = is_front_page();
+									$condition_result = is_front_page();
 								} else {
-								$condition_result = is_front_page() && !is_paged();
-							}
-						break;
-						default:
+									$condition_result = is_front_page() && !is_paged();
+								}
+							break;
+							default:
 								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
-								$condition_result = is_singular( substr( $rule['minor'], 10 ) );
+									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
 								} else {
-								// $rule['minor'] is a page ID -- check if we're either looking at that particular page itself OR looking at the posts page, with the correct conditions
+									// $rule['minor'] is a page ID -- check if we're either looking at that particular page itself OR looking at the posts page, with the correct conditions
 									$condition_result = is_page( $rule['minor'] );
-							}
+								}
+							break;
+						}
 						break;
-					}
-				break;
-				case 'tag':
+					case 'tag':
 						if ( ! $rule['minor'] && is_tag() ) {
-						$condition_result = true;
-						} else if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) ) {
-						$condition_result = true;
-						} else {
-						$tag = get_tag( $rule['minor'] );
-
-						if ( $tag && is_tag( $tag->slug ) )
 							$condition_result = true;
+						} else if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) ) {
+							$condition_result = true;
+						} else {
+							$tag = get_tag( $rule['minor'] );
+
+							if ( $tag && is_tag( $tag->slug ) )
+								$condition_result = true;
 							else
 								$condition_result = false;
-					}
-				break;
-				case 'category':
-					if ( ! $rule['minor'] && is_category() )
-						$condition_result = true;
-					else if ( is_category( $rule['minor'] ) )
-						$condition_result = true;
-					else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
-						$condition_result = true;
-						else
+						}
+						break;
+					case 'category':
+						if ( ! $rule['minor'] && is_category() ) {
+							$condition_result = true;
+						} else if ( is_category( $rule['minor'] ) ) {
+							$condition_result = true;
+						} else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) ) {
+							$condition_result = true;
+						} else {
 							$condition_result = false;
-				break;
-				case 'author':
-					if ( ! $rule['minor'] && is_author() )
-						$condition_result = true;
-					else if ( $rule['minor'] && is_author( $rule['minor'] ) )
-						$condition_result = true;
-					else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author )
-						$condition_result = true;
-						else
+						}
+						break;
+					case 'author':
+						if ( ! $rule['minor'] && is_author() ) {
+							$condition_result = true;
+						} else if ( $rule['minor'] && is_author( $rule['minor'] ) ) {
+							$condition_result = true;
+						} else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author ) {
+							$condition_result = true;
+						} else {
 							$condition_result = false;	
-				break;
-				case 'taxonomy':
-					$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
-					$terms = get_the_terms( $post->ID, $rule['minor'] ); // Does post have terms in taxonomy?
-					if ( is_tax( $term[0], $term[1] ) )
-						$condition_result = true;
-					else if ( is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
-						$condition_result = true;
-					else if ( is_singular() && $terms & !is_wp_error( $terms ) )
-						$condition_result = true;
-				break;
-			}
+						}
+						break;
+					case 'taxonomy':
+						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
+						$terms = get_the_terms( $post->ID, $rule['minor'] ); // Does post have terms in taxonomy?
+						if ( is_tax( $term[0], $term[1] ) ) {
+							$condition_result = true;
+						} else if ( is_singular() && $term[1] && has_term( $term[1], $term[0] ) ) {
+							$condition_result = true;
+						} else if ( is_singular() && $terms & !is_wp_error( $terms ) ) {
+							$condition_result = true;
+						}
+						break;
+				}
 
-			if ( $condition_result )
-				break;
+				if ( $condition_result ) {
+					break;
+				}
+			}
 		}
 
 		// No point filtering if the condition is already false, we don't want someone
@@ -441,8 +451,9 @@ class Jetpack_Widget_Conditions {
 			$condition_result = apply_filters( 'widget_conditions_condition_result', $condition_result, $instance );
 		}
 
-		if ( ( 'show' == $instance['conditions']['action'] && ! $condition_result ) || ( 'hide' == $instance['conditions']['action'] && $condition_result ) )
+		if ( ( 'show' == $instance['conditions']['action'] && ! $condition_result ) || ( 'hide' == $instance['conditions']['action'] && $condition_result ) ) {
 			return false;
+		}
 
 		return $instance;
 	}
