@@ -54,8 +54,11 @@ class Jetpack_Network {
 		if (is_multisite() && is_network_admin()) {
 			add_action('network_admin_menu', array($this, 'add_network_admin_menu'));
 			add_action('network_admin_edit_jetpack-network-settings', array($this, 'save_network_settings_page'), 10, 0);
-			add_action( 'admin_init', array ( $this,  'jetpack_sites_list' ) );
 			add_filter( 'admin_body_class', array( $this, 'body_class' ) );
+			
+			if( isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
+				add_action( 'admin_init', array ( $this,  'jetpack_sites_list' ) );
+			}
 			//add_filter( 'wpmu_blogs_columns', array( $this, 'add_jetpack_sites_column' ) );
 			//add_action( 'manage_sites_custom_column', array( $this, 'render_jetpack_sites_column' ), 10, 2 );
 			//add_action( 'manage_blogs_custom_column', array( $this, 'render_jetpack_sites_column' ), 10, 2 );
