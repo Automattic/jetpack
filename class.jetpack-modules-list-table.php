@@ -45,6 +45,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			'i18n'    => array(
 				'search_placeholder' => __( 'Search Modules…', 'jetpack' ),
 			),
+			'nonces'  => array(
+				'bulk' => wp_create_nonce( 'bulk-jetpack_page_jetpack_modules' ),
+			),
 		) );
 
 		wp_enqueue_script( 'jetpack-modules-list-table' );

@@ -1,13 +1,14 @@
 
-( function( window, $, items, models, views, i18n ) {
+( function( window, $, items, models, views, i18n, nonces ) {
 	'use strict';
 
-	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $the_search, $jp_frame, show_modal, hide_modal, set_modal_tab;
+	var modules, list_table, handle_module_tag_click, $the_table, $the_filters, $the_search, $jp_frame, $bulk_button, show_modal, hide_modal, set_modal_tab;
 
 	$the_table   = $( '.wp-list-table.jetpack-modules' );
 	$the_filters = $( '.navbar-form' );
 	$the_search  = $( '#srch-term-search-input' );
 	$jp_frame    = $( '.jp-frame' );
+	$bulk_button = $( '#doaction' );
 
 	modules = new models.Modules( {
 		items : items
@@ -114,4 +115,22 @@
 
 	$the_search.prop( 'placeholder', i18n.search_placeholder );
 
-} ) ( this, jQuery, window.jetpackModulesData.modules, this.jetpackModules.models, this.jetpackModules.views, window.jetpackModulesData.i18n );
+	$bulk_button.on( 'click', function( event ) {
+		var selectedModules = $('.jetpack-modules-list-table-form').serialize(),
+			selectedAction = $(this).siblings('select').val(),
+			url;
+
+		if ( selectedModules.length && '-1' !== selectedAction ) {
+			url = 'admin.php?page=jetpack&action=' + encodeURIComponent( selectedAction );
+			url += '&' + selectedModules;
+			url += '&_wpnonce=' + encodeURIComponent( nonces.bulk );
+
+			window.location.href = url;
+		} else {
+			// Possibly add in an alert here explaining why nothing's happening?
+		}
+
+		event.preventDefault();
+	} );
+
+} ) ( this, jQuery, window.jetpackModulesData.modules, this.jetpackModules.models, this.jetpackModules.views, window.jetpackModulesData.i18n, window.jetpackModulesData.nonces );

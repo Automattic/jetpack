@@ -378,7 +378,7 @@ class Jetpack_Admin {
 		?>
 		<div class="clouds-sm"></div>
 		<div class="page-content configure">
-			<div class="frame top">
+			<div class="frame top hide-if-no-js">
 				<div class="wrap">
 					<div class="manage-left">
 						<table class="table table-bordered fixed-top">
@@ -422,11 +422,13 @@ class Jetpack_Admin {
 						</div>
 					</div>
 					<div class="manage-left">
+						<form class="jetpack-modules-list-table-form" onsubmit="return false;">
 						<table class="<?php echo implode( ' ', $list_table->get_table_classes() ); ?>">
 							<tbody id="the-list">
 								<?php $list_table->display_rows_or_placeholder(); ?>
 							</tbody>
 						</table>
+						</form>
 					</div>
 				</div><!-- /.wrap -->
 			</div><!-- /.frame -->
