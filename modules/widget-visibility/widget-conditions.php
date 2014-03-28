@@ -325,10 +325,7 @@ class Jetpack_Widget_Conditions {
 	public static function filter_widget( $instance ) {
 		global $post, $wp_query;
 
-		if ( empty( $instance['conditions'] ) || empty( $instance['conditions']['rules'] ) )
-			return $instance;
-
-		$condition_result = false;
+		$condition_result = true;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
 			switch ( $rule['major'] ) {
@@ -372,33 +369,34 @@ class Jetpack_Widget_Conditions {
 							$condition_result = is_home();
 						break;
 						case 'front':
-							if ( current_theme_supports( 'infinite-scroll' ) )
+								if ( current_theme_supports( 'infinite-scroll' ) ) {
 								$condition_result = is_front_page();
-							else {
+								} else {
 								$condition_result = is_front_page() && !is_paged();
 							}
 						break;
 						default:
-							if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' )
+								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
 								$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-							else {
+								} else {
 								// $rule['minor'] is a page ID -- check if we're either looking at that particular page itself OR looking at the posts page, with the correct conditions
-								
-								$condition_result = ( is_page( $rule['minor'] ) || ( get_option( 'show_on_front' ) == 'page' && $wp_query->is_posts_page && get_option( 'page_for_posts' ) == $rule['minor'] ) );
+									$condition_result = is_page( $rule['minor'] );
 							}
 						break;
 					}
 				break;
 				case 'tag':
-					if ( ! $rule['minor'] && is_tag() )
+						if ( ! $rule['minor'] && is_tag() ) {
 						$condition_result = true;
-					else if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) )
+						} else if ( is_singular() && $rule['minor'] && has_tag( $rule['minor'] ) ) {
 						$condition_result = true;
-					else {
+						} else {
 						$tag = get_tag( $rule['minor'] );
 
 						if ( $tag && is_tag( $tag->slug ) )
 							$condition_result = true;
+							else
+								$condition_result = false;
 					}
 				break;
 				case 'category':
@@ -408,6 +406,8 @@ class Jetpack_Widget_Conditions {
 						$condition_result = true;
 					else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
 						$condition_result = true;
+						else
+							$condition_result = false;
 				break;
 				case 'author':
 					if ( ! $rule['minor'] && is_author() )
@@ -416,6 +416,8 @@ class Jetpack_Widget_Conditions {
 						$condition_result = true;
 					else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author )
 						$condition_result = true;
+						else
+							$condition_result = false;	
 				break;
 				case 'taxonomy':
 					$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
@@ -433,7 +435,11 @@ class Jetpack_Widget_Conditions {
 				break;
 		}
 
-		apply_filters( 'widget_conditions_condition_result', $condition_result, $instance );
+		// No point filtering if the condition is already false, we don't want someone
+		// to make it true again.
+		if ( $condition_result ) {
+			$condition_result = apply_filters( 'widget_conditions_condition_result', $condition_result, $instance );
+		}
 
 		if ( ( 'show' == $instance['conditions']['action'] && ! $condition_result ) || ( 'hide' == $instance['conditions']['action'] && $condition_result ) )
 			return false;
