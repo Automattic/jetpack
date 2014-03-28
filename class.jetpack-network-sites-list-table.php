@@ -25,11 +25,24 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		// Deal with bulk actions if any were requested by the user
 		$this->process_bulk_action();
 
+		// Get sites
+		$sites = $jpms->wp_get_sites( array( 'exclude_blogs' => array( 1 ) ) );
+		
+		// Setup pagination
+		$per_page = 40;
+		$current_page = $this->get_pagenum();
+		$total_items = count( $sites );
+		$sites = array_slice( $sites, ( ( $current_page-1 ) * $per_page ), $per_page );
+		$this->set_pagination_args( array(
+			'total_items' => $total_items,
+			'per_page'    => $per_page
+		) );
+
 		$columns = $this->get_columns();
 		$hidden = array();
 		$sortable = array();
 		$this->_column_headers = array( $columns, $hidden, $sortable );
-		$this->items = $jpms->wp_get_sites( array( 'exclude_blogs' => array( 1 ) ) );
+		$this->items = $sites;
 	}
 
 	public function column_blogname( $item ) {
