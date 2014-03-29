@@ -1,3 +1,5 @@
+/* global Jetpack_Comics_Options, alert */
+
 jQuery( function ( $ ) {
 	/**
 	 * Enable front-end uploading of images for Comics users.
@@ -24,12 +26,14 @@ jQuery( function ( $ ) {
 		},
 
 		/**
-	 	 * Only upload image files.
+		 * Only upload image files.
 		 */
 		filterImageFiles : function ( files ) {
-			var validFiles = [];
+			var validFiles = [],
+				i,
+				_len;
 
-			for ( var i = 0, _len = files.length; i < _len; i++ ) {
+			for ( i = 0, _len = files.length; i < _len; i++ ) {
 				if ( files[i].type.match( /^image\//i ) ) {
 					validFiles.push( files[i] );
 				}
@@ -48,7 +52,7 @@ jQuery( function ( $ ) {
 			$( 'body' ).addClass( 'dragging' );
 		},
 
-		onDragLeave: function ( event ) {
+		onDragLeave: function () {
 			clearTimeout( Jetpack_Comics.dragTimeout );
 
 			// In Chrome, the screen flickers because we're moving the drop zone in front of 'body'
@@ -66,20 +70,23 @@ jQuery( function ( $ ) {
 			event.originalEvent.stopPropagation();
 			event.originalEvent.preventDefault();
 
-			var files = Jetpack_Comics.filterImageFiles( event.originalEvent.dataTransfer.files );
+			var files = Jetpack_Comics.filterImageFiles( event.originalEvent.dataTransfer.files ),
+				formData,
+				i,
+				fl;
 
 			$( 'body' ).removeClass( 'dragging' );
 
-			if ( files.length == 0 ) {
+			if ( files.length === 0 ) {
 				alert( Jetpack_Comics_Options.labels.invalidUpload );
 				return;
 			}
 
 			$( 'body' ).addClass( 'uploading' );
 
-			var formData = new FormData();
+			formData = new FormData();
 
-			for ( var i = 0, fl = files.length; i < fl; i++ ) {
+			for ( i = 0, fl = files.length; i < fl; i++ ) {
 				formData.append( 'image_' + i, files[ i ] ); // won't work as image[]
 			}
 
@@ -108,7 +115,7 @@ jQuery( function ( $ ) {
 					$( 'body' ).removeClass( 'uploading' );
 				}
 			} )
-			.fail( function ( req ) {
+			.fail( function () {
 				alert( Jetpack_Comics_Options.labels.error );
 			} );
 		}

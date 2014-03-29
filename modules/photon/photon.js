@@ -18,7 +18,7 @@
 				}
 			}
 			else {
-				$( this ).load( arguments.callee );
+				$( this ).load( arguments.callee ); // jshint ignore:line
 			}
 		} );
 	},
@@ -35,8 +35,9 @@
 	 */
 	$( document ).ready( restore_dims );
 
-	if ( "on" in $.fn )
+	if ( 'on' in $.fn ) {
 		$( document.body ).on( 'post-load', restore_dims );
-	else
+	} else {
 		$( document ).delegate( 'body', 'post-load', restore_dims );
+	}
 })(jQuery);
