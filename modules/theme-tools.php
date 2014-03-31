@@ -22,7 +22,7 @@ add_action( 'init', 'jetpack_load_theme_tools', 30 );
 // This could already be defined by Twenty Fourteen if it's loaded first.
 // Be sure to not load this on the plugin page in case another plugin is activating
 // with the same class name in an attempt to override Jetpack's Featured_Content
-if ( ! class_exists( 'Featured_Content' ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
+if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
 	require_once( JETPACK__PLUGIN_DIR . 'modules/theme-tools/featured-content.php' );
 }
 
