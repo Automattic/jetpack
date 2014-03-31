@@ -282,11 +282,15 @@ class Jetpack_Carousel {
 
 		// Can't just send the results, they contain the commenter's email address.
 		foreach ( $comments as $comment ) {
+			$avatar = '';
+			if (get_avatar( $comment->comment_author_email, 64 )) {
+				$avatar = get_avatar( $comment->comment_author_email, 64 );
+			}
 			$out[] = array(
 				'id'              => $comment->comment_ID,
 				'parent_id'       => $comment->comment_parent,
 				'author_markup'   => get_comment_author_link( $comment->comment_ID ),
-				'gravatar_markup' => get_avatar( $comment->comment_author_email, 64 ),
+				'gravatar_markup' => $avatar,
 				'date_gmt'        => $comment->comment_date_gmt,
 				'content'         => wpautop($comment->comment_content),
 			);
