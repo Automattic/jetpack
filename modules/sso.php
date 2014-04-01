@@ -572,7 +572,7 @@ class Jetpack_SSO {
 			// If we have a saved redirect to request in a cookie
 			if ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
 				// Set that as the requested redirect to
-				$_request_redirect_to = esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] );
+				$redirect_to = $_request_redirect_to = esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] );
 				// And then purge it
 				setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 			}
