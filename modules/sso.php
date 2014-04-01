@@ -568,6 +568,7 @@ class Jetpack_SSO {
 			do_action( 'wp_login', $user->user_login, $user );
 
 			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
+			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
 
 			// If we have a saved redirect to request in a cookie
 			if ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
@@ -577,7 +578,6 @@ class Jetpack_SSO {
 				setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 			}
 
-			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
 			wp_safe_redirect( apply_filters( 'login_redirect', $redirect_to, $_request_redirect_to, $user ) );
 			exit;
 		}
