@@ -1273,11 +1273,14 @@ JS;
 						$http_modules = apache_get_modules();
 					else
 						$http_modules =  null;
-					if ( function_exists( 'apache_get_version' ) )
-						$httpd = array_shift( explode( ' ', apache_get_version() ) );
+					if ( function_exists( 'apache_get_version' ) ) {
+						$version_pieces = explode( ' ', apache_get_version() );
+						$httpd = array_shift( $version_pieces );
+					}
 				}
 				if ( !$httpd && 0 === stripos( $_SERVER['SERVER_SOFTWARE'], 'Apache' ) ) {
-					$httpd = array_shift( explode( ' ', $_SERVER['SERVER_SOFTWARE'] ) );
+					$software_pieces = explode( ' ', $_SERVER['SERVER_SOFTWARE'] );
+					$httpd = array_shift( $software_pieces );
 					if ( isset( $_POST['apache_modules'] ) && $_POST['apache_modules'] == 1 )
 						$http_modules =  'unknown';
 					else
@@ -1465,7 +1468,8 @@ JS;
 					$bdb->attach( base64_decode( $_POST['table'] ), $parse_create_table );
 				}
 
-				switch ( array_pop( explode( ':', $_GET['action'] ) ) ) {
+				$action_pieces = explode( ':', $_GET['action'] );
+				switch ( array_pop( $action_pieces ) ) {
 					case 'diff':
 						if ( !$signatures ) die( 'naughty naughty' );
 						// encoded because mod_security sees this as an SQL injection attack
@@ -1490,7 +1494,8 @@ JS;
 				if ( isset( $_POST['table'] ) )
 					$bdb->attach( base64_decode( $_POST['table'] ) );
 
-				switch ( array_pop( explode( ':', $_GET['action'] ) ) ) {
+				$action_pieces = explode( ':', $_GET['action'] );
+				switch ( array_pop( $action_pieces ) ) {
 					default:
 						die( "naughty naughty" );
 					case 'tables':
@@ -1518,7 +1523,8 @@ JS;
 			case 'plugins:stat':     case 'uploads:stat':     case 'themes:stat':     case 'content:stat':     case 'root:stat':
 			case 'plugins:get':      case 'uploads:get':      case 'themes:get':      case 'content:get':      case 'root:get':
 
-				$bfs->want( array_shift( explode( ':', $_GET['action'] ) ) );
+				$action_pieces = explode( ':', $_GET['action'] );
+				$bfs->want( array_shift( $action_pieces ) );
 
 				if ( isset( $_POST['path'] ) )
 					$path = $_POST['path'];
@@ -1558,7 +1564,8 @@ JS;
 				else
 					$full_list = false;
 
-				switch ( array_pop( explode( ':', $_GET['action'] ) ) ) {
+				$action_pieces = explode( ':', $_GET['action'] );
+				switch ( array_pop( $action_pieces ) ) {
 					default:
 						die( "naughty naughty" );
 					case 'checksum':
