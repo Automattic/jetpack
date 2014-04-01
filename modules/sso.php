@@ -353,8 +353,6 @@ class Jetpack_SSO {
 			return new WP_Error( 'headers_sent', __( 'Cannot deal with cookie redirects, as headers are already sent.', 'jetpack' ) );
 		}
 
-		Jetpack::log( 'save_cookie_redirect' );
-
 		// If we have something to redirect to
 		if ( ! empty( $_GET['redirect_to'] ) ) {
 			$url = esc_url_raw( $_GET['redirect_to'] );
@@ -573,7 +571,6 @@ class Jetpack_SSO {
 
 			// If we have a saved redirect to request in a cookie
 			if ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
-				Jetpack::log( 'found_cookie_redirect', esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] ) );
 				// Set that as the requested redirect to
 				$_request_redirect_to = esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] );
 				// And then purge it
