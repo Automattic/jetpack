@@ -310,7 +310,8 @@ class Jetpack_SSO {
 			$this->wants_to_login()
 			&& apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false ) 
 		) {
-			wp_redirect( $this->build_sso_url() );
+			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+			wp_safe_redirect( $this->build_sso_url() );
 		}
 
 		add_action( 'login_footer',   array( $this, 'login_form' ) );
