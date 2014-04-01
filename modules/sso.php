@@ -310,7 +310,8 @@ class Jetpack_SSO {
 			$this->wants_to_login()
 			&& apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false ) 
 		) {
-			wp_redirect( $this->build_sso_url() );
+			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+			wp_safe_redirect( $this->build_sso_url() );
 		}
 
 		add_action( 'login_footer',   array( $this, 'login_form' ) );
@@ -335,6 +336,7 @@ class Jetpack_SSO {
 				if ( Jetpack::check_identity_crisis() ) {
 					wp_die( __( "Error: This site's Jetpack connection is currently experiencing problems.", 'jetpack' ) );
 				} else {
+					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
 					add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 					wp_safe_redirect( $this->build_sso_url() );
@@ -344,7 +346,26 @@ class Jetpack_SSO {
 	}
 
 	/**
- 	 * Determing if the login form should be hidden or not
+	 * Conditionally save the redirect_to url as a cookie.
+	 */
+	public static function maybe_save_cookie_redirect() {
+		if ( headers_sent() ) {
+			return new WP_Error( 'headers_sent', __( 'Cannot deal with cookie redirects, as headers are already sent.', 'jetpack' ) );
+		}
+
+		// If we have something to redirect to
+		if ( ! empty( $_GET['redirect_to'] ) ) {
+			$url = esc_url_raw( $_GET['redirect_to'] );
+			setcookie( 'jetpack_sso_redirect_to', $url, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+		// Otherwise, if it's already set
+		} elseif ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
+			// Purge it.
+			setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		}
+	}
+
+	/**
+	 * Determine if the login form should be hidden or not
 	 *
 	 * Method is private only because it is only used in this class so far.
 	 * Feel free to change it later
@@ -548,6 +569,15 @@ class Jetpack_SSO {
 
 			$_request_redirect_to = isset( $_REQUEST['redirect_to'] ) ? $_REQUEST['redirect_to'] : '';
 			$redirect_to = user_can( $user, 'edit_posts' ) ? admin_url() : self::profile_page_url();
+
+			// If we have a saved redirect to request in a cookie
+			if ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
+				// Set that as the requested redirect to
+				$redirect_to = $_request_redirect_to = esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] );
+				// And then purge it
+				setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+			}
+
 			wp_safe_redirect( apply_filters( 'login_redirect', $redirect_to, $_request_redirect_to, $user ) );
 			exit;
 		}
@@ -588,6 +618,11 @@ class Jetpack_SSO {
 		);
 
 		$args = wp_parse_args( $args, $defaults );
+
+		if ( ! empty( $_GET['redirect_to'] ) ) {
+			$args['redirect_to'] = esc_url_raw( $_GET['redirect_to'] );
+		}
+
 		$url  = add_query_arg( $args, wp_login_url() );
 
 		$css = "<style>
