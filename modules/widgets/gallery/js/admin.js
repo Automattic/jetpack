@@ -67,22 +67,46 @@
 		createStates: function() {
 			var options = this.options;
 
-			this.states.add([
-				new media.controller.CollectionEdit({
-					type:           'image',
-					collectionType: 'gallery',
-					title:           l10n.editGalleryTitle,
-					SettingsView:    media.view.Settings.Gallery,
-					library:         options.selection,
-					editing:         options.editing,
-					menu:           'gallery'
-				}),
-				new media.controller.CollectionAdd({
-					type:           'image',
-					collectionType: 'gallery',
-					title:          l10n.addToGalleryTitle
-				})
-			]);
+			// `CollectionEdit` and `CollectionAdd` were only introduced in r27214-core,
+			// so they may not be available yet.
+			if ( 'CollectionEdit' in media.controller ) {
+				this.states.add([
+					new media.controller.CollectionEdit({
+						type:           'image',
+						collectionType: 'gallery',
+						title:           l10n.editGalleryTitle,
+						SettingsView:    media.view.Settings.Gallery,
+						library:         options.selection,
+						editing:         options.editing,
+						menu:           'gallery'
+					}),
+					new media.controller.CollectionAdd({
+						type:           'image',
+						collectionType: 'gallery',
+						title:          l10n.addToGalleryTitle
+					})
+				]);
+			} else {
+				// If `CollectionEdit` is not available, then use the old approach.
+
+				if ( ! ( 'WidgetGalleryEdit' in media.controller ) ) {
+					// Remove the gallery settings sidebar when editing widgets.
+					media.controller.WidgetGalleryEdit = media.controller.GalleryEdit.extend({
+						gallerySettings: function( browser ) {
+							return;
+						}
+					});
+				}
+
+				this.states.add([
+					new media.controller.WidgetGalleryEdit({
+						library: options.selection,
+						editing: options.editing,
+						menu:    'gallery'
+					}),
+					new media.controller.GalleryAdd({ })
+				]);
+			}
 		}
 	});
 
