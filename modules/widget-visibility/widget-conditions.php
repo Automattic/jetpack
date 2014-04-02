@@ -77,31 +77,36 @@ class Jetpack_Widget_Conditions {
 				<?php
 			break;
 			case 'page':
+			case 'parent-page':
 				// Previously hardcoded post type options.
 				if ( ! $minor )
 					$minor = 'post_type-page';
 				else if ( 'post' == $minor )
 					$minor = 'post_type-post';
 
-				?>
-				<option value="front" <?php selected( 'front', $minor ); ?>><?php _e( 'Front page', 'jetpack' ); ?></option>
-				<option value="posts" <?php selected( 'posts', $minor ); ?>><?php _e( 'Posts page', 'jetpack' ); ?></option>
-				<option value="archive" <?php selected( 'archive', $minor ); ?>><?php _e( 'Archive page', 'jetpack' ); ?></option>
-				<option value="404" <?php selected( '404', $minor ); ?>><?php _e( '404 error page', 'jetpack' ); ?></option>
-				<option value="search" <?php selected( 'search', $minor ); ?>><?php _e( 'Search results', 'jetpack' ); ?></option>
-				<optgroup label="<?php esc_attr_e( 'Post type:', 'jetpack' ); ?>">
-					<?php
-
-					$post_types = get_post_types( array( 'public' => true ), 'objects' );
-
-					foreach ( $post_types as $post_type ) {
-						?>
-						<option value="<?php echo esc_attr( 'post_type-' . $post_type->name ); ?>" <?php selected( 'post_type-' . $post_type->name, $minor ); ?>><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
-						<?php
-					}
-
+				if ( $major != 'parent-page' ) {
 					?>
-				</optgroup>
+					<option value="front" <?php selected( 'front', $minor ); ?>><?php _e( 'Front page', 'jetpack' ); ?></option>
+					<option value="posts" <?php selected( 'posts', $minor ); ?>><?php _e( 'Posts page', 'jetpack' ); ?></option>
+					<option value="archive" <?php selected( 'archive', $minor ); ?>><?php _e( 'Archive page', 'jetpack' ); ?></option>
+					<option value="404" <?php selected( '404', $minor ); ?>><?php _e( '404 error page', 'jetpack' ); ?></option>
+					<option value="search" <?php selected( 'search', $minor ); ?>><?php _e( 'Search results', 'jetpack' ); ?></option>
+					<optgroup label="<?php esc_attr_e( 'Post type:', 'jetpack' ); ?>">
+						<?php
+
+						$post_types = get_post_types( array( 'public' => true ), 'objects' );
+
+						foreach ( $post_types as $post_type ) {
+							?>
+							<option value="<?php echo esc_attr( 'post_type-' . $post_type->name ); ?>" <?php selected( 'post_type-' . $post_type->name, $minor ); ?>><?php echo esc_html( $post_type->labels->singular_name ); ?></option>
+							<?php
+						}
+
+						?>
+					</optgroup>
+					<?php
+				}
+				?>
 				<optgroup label="<?php esc_attr_e( 'Static page:', 'jetpack' ); ?>">
 					<?php
 
@@ -192,6 +197,7 @@ class Jetpack_Widget_Conditions {
 									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
 									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
 									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
+									<option value="parent-page" <?php selected( "parent-page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page (include children)', 'Example: The user is looking at a page or child of a page.', 'jetpack' ); ?></option>
 									<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 								</select>
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
@@ -341,6 +347,7 @@ class Jetpack_Widget_Conditions {
 					}
 				break;
 				case 'page':
+				case 'parent-page':
 					// Previously hardcoded post type options.
 					if ( 'post' == $rule['minor'] )
 						$rule['minor'] = 'post_type-post';
@@ -376,7 +383,10 @@ class Jetpack_Widget_Conditions {
 							else {
 								// $rule['minor'] is a page ID -- check if we're either looking at that particular page itself OR looking at the posts page, with the correct conditions
 								
-								$condition_result = ( is_page( $rule['minor'] ) || ( get_option( 'show_on_front' ) == 'page' && $wp_query->is_posts_page && get_option( 'page_for_posts' ) == $rule['minor'] ) );
+								if ( $rule['major'] == 'parent-page' )
+									$condition_result = ( is_page( $rule['minor'] ) || in_array( $rule['minor'], get_ancestors( get_the_ID(), 'page' ) ) );
+								else
+									$condition_result = ( is_page( $rule['minor'] ) || ( get_option( 'show_on_front' ) == 'page' && $wp_query->is_posts_page && get_option( 'page_for_posts' ) == $rule['minor'] ) );
 							}
 						break;
 					}
