@@ -384,10 +384,9 @@ class Jetpack_Widget_Conditions {
 								// $rule['minor'] is a page ID -- check if we're either looking at that particular page itself OR looking at the posts page, with the correct conditions
 								
 								if ( $rule['major'] == 'parent-page' )
-									$page_ids = get_ancestors( get_page_by_title( $rule['minor'] ) );
+									$condition_result = ( is_page( $rule['minor'] ) || in_array( $rule['minor'], get_ancestors( get_the_ID(), 'page' ) ) );
 								else
-									$page_ids = $rule['minor'];
-								$condition_result = ( ($page_ids && is_page( $page_ids )) || ( get_option( 'show_on_front' ) == 'page' && $wp_query->is_posts_page && get_option( 'page_for_posts' ) == $rule['minor'] ) );
+									$condition_result = ( is_page( $rule['minor'] ) || ( get_option( 'show_on_front' ) == 'page' && $wp_query->is_posts_page && get_option( 'page_for_posts' ) == $rule['minor'] ) );
 							}
 						break;
 					}
