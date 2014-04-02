@@ -34,16 +34,18 @@ class GPlus_Authorship {
 
 	function show_on_this_post() {
 		global $post;
-		$show = apply_filters( 'gplus_authorship_show', true, $post );
+		if ( ! apply_filters( 'gplus_authorship_show', true, $post ) ) {
+			return false;
+		}
 		if ( ! is_main_query() || ! in_the_loop() )
-			$show = false;
+			return false;
 		$author = $this->information( $post->post_author );
 		if ( empty( $author ) )
-			$show = false;
+			return false;
 		$meta = get_post_meta( $post->ID, 'gplus_authorship_disabled', true );
 		if ( isset( $meta ) && true == $meta )
-			$show = false;
-		return $show;
+			return false;
+		return true;
 	}
 
 	function information( $author ) {
