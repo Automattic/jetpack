@@ -491,7 +491,7 @@ class Grunion_Contact_Form_Plugin {
 
 		foreach ( $posts as $post ){
 			$fields = self::parse_fields_from_content( $post );
-			
+
 			if ( isset( $fields['_feedback_all_fields'] ) ) {
 				$extra_fields = array_keys( $fields['_feedback_all_fields'] );
 				$all_fields = array_merge( $all_fields, $extra_fields );
@@ -511,8 +511,9 @@ class Grunion_Contact_Form_Plugin {
 		if ( count( $content ) > 1 ) {
 			$content  = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
 			$one_line = preg_replace( '/\s+/', ' ', $content );
+			$one_line = preg_replace( '/.*Array \( (.*)/', '$1', $one_line );
 						
-			preg_match_all( '/\[(\w+)\] =\&gt\; ([^\[]+)/', $one_line, $matches );
+			preg_match_all( '/\[([^\]]+)\] =\&gt\; ([^\[]+)/', $one_line, $matches );
 			
 			if ( count( $matches ) > 1 )
 				$all_values = array_combine( array_map('trim', $matches[1]), array_map('trim', $matches[2]) );
