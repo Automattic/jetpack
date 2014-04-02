@@ -283,7 +283,7 @@ class Jetpack_Carousel {
 		// Can't just send the results, they contain the commenter's email address.
 		foreach ( $comments as $comment ) {
 			$avatar = '';
-			if (get_avatar( $comment->comment_author_email, 64 )) {
+			if (get_option( 'show_avatars' )) {
 				$avatar = get_avatar( $comment->comment_author_email, 64 );
 			}
 			$out[] = array(
