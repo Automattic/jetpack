@@ -310,7 +310,6 @@ class Jetpack_SSO {
 			$this->wants_to_login()
 			&& apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false ) 
 		) {
-			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 			wp_safe_redirect( $this->build_sso_url() );
 		}
 
@@ -338,7 +337,6 @@ class Jetpack_SSO {
 				} else {
 					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
-					add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 					wp_safe_redirect( $this->build_sso_url() );
 				}
 			}
@@ -601,15 +599,6 @@ class Jetpack_SSO {
 	static function new_user_override() {
 		$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? WPCC_NEW_USER_OVERRIDE : false;
 		return apply_filters( 'jetpack_sso_new_user_override', $new_user_override );
-	}
-
-	function allowed_redirect_hosts( $hosts ) {
-		if ( empty( $hosts ) ) {
-			$hosts = array();
-		}
-		$hosts[] = 'wordpress.com';
-
-		return array_unique( $hosts );
 	}
 
 	function button( $args = array() ) {

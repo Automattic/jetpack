@@ -295,7 +295,13 @@ class Jetpack {
 	 */
 	private function Jetpack() {
 
-		/**
+		/*
+		 * Load the whitelist of domains that are safe for Jetpack
+		 * to interact with
+		 */
+		add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
+
+		/*
 		 * Do things that should run even in the network admin
 		 * here, before we potentially fail out.
 		 */
@@ -4053,15 +4059,31 @@ p {
 	// If someone logs in to approve API access, store the Access Code in usermeta
 	function store_json_api_authorization_token( $user_login, $user ) {
 		add_filter( 'login_redirect', array( &$this, 'add_token_to_login_redirect_json_api_authorization' ), 10, 3 );
-		add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_public_api_domain' ) );
+		
 		$token = wp_generate_password( 32, false );
 		update_user_meta( $user->ID, 'jetpack_json_api_' . $this->json_api_authorization_request['client_id'], $token );
 	}
 
-	// Add public-api.wordpress.com to the safe redirect whitelist - only added when someone allows API access
-	function allow_wpcom_public_api_domain( $domains ) {
-		$domains[] = 'public-api.wordpress.com';
-		return $domains;
+	/**
+	 * Add safe Jetpack domains to the internal WordPress whitelist of
+	 * domains safe to redirect to. This is the main point to whitelist
+	 * new domains in Jetpack.
+	 *
+	 * Note: function renamed from allow_wpcom_public_api_domain
+	 *
+	 * @uses allowed_redirect_hosts - Filter to tap this function
+	 *
+	 * @return array
+	 **/
+	function allowed_redirect_hosts( $domains ) {
+		if( empty( $domains ) ) {
+			$domains = array();
+		}
+
+		$domains[] = 'public-api.wordpress.com'; // Originally for JSON API calls
+		$domains[] = 'wordpress.com'; // Originally for SSO but useful for anything
+
+		return array_unique( $domains );
 	}
 
 	// Add the Access Code details to the public-api.wordpress.com redirect
