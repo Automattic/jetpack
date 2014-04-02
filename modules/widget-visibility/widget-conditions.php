@@ -387,7 +387,7 @@ class Jetpack_Widget_Conditions {
 									$page_ids = get_ancestors( get_page_by_title( $rule['minor'] ) );
 								else
 									$page_ids = $rule['minor'];
-								$condition_result = ( is_page( $page_ids ) || ( get_option( 'show_on_front' ) == 'page' && $wp_query->is_posts_page && get_option( 'page_for_posts' ) == $rule['minor'] ) );
+								$condition_result = ( ($page_ids && is_page( $page_ids )) || ( get_option( 'show_on_front' ) == 'page' && $wp_query->is_posts_page && get_option( 'page_for_posts' ) == $rule['minor'] ) );
 							}
 						break;
 					}
