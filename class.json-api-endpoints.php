@@ -979,6 +979,7 @@ EOPHP;
 		}
 
 		$response                = array();
+		$response['ID']          = (int) $taxonomy->term_id;
 		$response['name']        = (string) $taxonomy->name;
 		$response['slug']        = (string) $taxonomy_id;
 		$response['description'] = (string) $taxonomy->description;
