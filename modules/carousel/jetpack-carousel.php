@@ -154,8 +154,8 @@ class Jetpack_Carousel {
 					require_once( ABSPATH . '/wp-admin/includes/dashboard.php' );
 				}
 				$browser = wp_check_browser_version();
-				echo '<pre>'; var_dump( $browser ); die();
-				if( $browser['current_version'] < 9 ) {
+				
+				if( !empty( $browser['version'] ) && $browser['version'] < 9 ) {
 					wp_enqueue_style( 'jetpack-carousel-ie8fix', plugins_url( 'jetpack-carousel-ie8fix.css', __FILE__ ), array(), $this->asset_version( '20121024' ) );
 				}
 			}
