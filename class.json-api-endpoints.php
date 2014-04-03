@@ -4190,7 +4190,8 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 	'response_format' => array(
 		'found'      => '(int) The number of categories returned.',
 		'categories' => '(array) Array of category objects.',
-	)
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/categories?pretty=1'
 ) );
 
 new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
@@ -4205,7 +4206,8 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 	'response_format' => array(
 		'found'    => '(int) The number of tags returned.',
 		'tags'     => '(array) Array of tag objects.',
-	)
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/tags?pretty=1'
 ) );
 
 new WPCOM_JSON_API_Get_Taxonomy_Endpoint( array(
