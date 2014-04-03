@@ -3270,6 +3270,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (int) $this->api->is_following( $blog_id );
 				break;
 			case 'options':
+				// Figure out if the blog supports VideoPress, have to do some extra checking for JP blogs
 				$has_videopress = false;
 				if ( get_option( 'video_upgrade' ) == '1' ) {
 					$has_videopress = true;
@@ -3280,6 +3281,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 							$has_videopress = true;
 					}
 				}
+
+				// Get a list of supported post formats
+				$all_formats = get_post_format_strings();
+				$supported = get_theme_support( 'post-formats' );
+				foreach ( $supported[0] as $format ) {
+					$supported_formats[ $format ] = $all_formats[ $format ]; 
+				}
+
 				$response[$key] = array(
 					'videopress_enabled'      => $has_videopress,
 					'login_url'               => wp_login_url(),
@@ -3293,8 +3302,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'image_medium_height'     => (int)  get_option( 'medium_size_h' ),
 					'image_large_width'       => (int)  get_option( 'large_size_w' ),
 					'image_large_height'      => (int) get_option( 'large_size_h' ),
+					'post_formats'            => $supported_formats,
 				);
-
 				if ( !current_user_can( 'manage_options' ) )
 					unset( $response[ $key] );
 				break;
