@@ -51,7 +51,11 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
+= 1.5.7 =
+* Bugfix: Avoid PHP 5.4 warnings due to invalid constructor names.
+
 = 1.5.6 =
+* Bugfix: Avoid PHP 5.4 warnings.
 * Bugfix: Some servers with restrictive security filters make database restores fail.
 * Feature: Add a new restore method to VaultPress_Database.
 
