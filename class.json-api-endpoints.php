@@ -3154,6 +3154,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'visible'           => '(bool) If this site is visible in the user\'s site list',
 		'is_private'        => '(bool) If the site is a private site or not',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
+		'options'           => '(array) An array of options/settings for the blog. Only viewable by users with access to the site.',
 		'meta'              => '(object) Meta data',
 	);
 
@@ -3267,6 +3268,35 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
                 break;
 			case 'is_following':
 				$response[$key] = (int) $this->api->is_following( $blog_id );
+				break;
+			case 'options':
+				$has_videopress = false;
+				if ( get_option( 'video_upgrade' ) == '1' ) {
+					$has_videopress = true;
+				} else {
+					if ( class_exists( 'Jetpack_Options' ) ) {
+						$videopress = Jetpack_Options::get_option( 'videopress', array() );
+						if ( $videopress['blog_id'] > 0 )
+							$has_videopress = true;
+					}
+				}
+				$response[$key] = array(
+					'videopress_enabled'      => $has_videopress,
+					'login_url'               => wp_login_url(),
+					'admin_url'               => get_admin_url(),
+					'featured_images_enabled' => current_theme_supports( 'post-thumbnails' ),
+					'image_default_link_type' => get_option( 'image_default_link_type' ),
+					'image_thumbnail_width'   => (int)  get_option( 'thumbnail_size_w' ),
+					'image_thumbnail_height'  => (int)  get_option( 'thumbnail_size_h' ),
+					'image_thumbnail_crop'    => get_option( 'thumbnail_crop' ),
+					'image_medium_width'      => (int)  get_option( 'medium_size_w' ),
+					'image_medium_height'     => (int)  get_option( 'medium_size_h' ),
+					'image_large_width'       => (int)  get_option( 'large_size_w' ),
+					'image_large_height'      => (int) get_option( 'large_size_h' ),
+				);
+
+				if ( !current_user_can( 'manage_options' ) )
+					unset( $response[ $key] );
 				break;
 			case 'meta' :
 				$xmlrpc_url = site_url( 'xmlrpc.php' );
