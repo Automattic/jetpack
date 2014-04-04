@@ -79,6 +79,21 @@ if ( Jetpack::is_module_active( 'photon' ) ) {
 	add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
 }
 
+// Tell HQ about changed settings
+Jetpack_Sync::sync_options( __FILE__,
+	'stats_options',
+	'home',
+	'siteurl',
+	'blogname',
+	'blogdescription',
+	'gmt_offset',
+	'timezone_string',
+	'page_on_front',
+	'permalink_structure',
+	'category_base',
+	'tag_base'
+);
+
 /*
 if ( is_admin() && ! Jetpack::check_identity_crisis() ) {
 	Jetpack_Sync::sync_options( __FILE__, 'db_version', 'jetpack_active_modules', 'active_plugins' );
