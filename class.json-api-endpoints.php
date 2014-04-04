@@ -3304,7 +3304,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'image_large_height'      => (int) get_option( 'large_size_h' ),
 					'post_formats'            => $supported_formats,
 				);
-				if ( !current_user_can( 'manage_options' ) )
+				if ( !current_user_can( 'publish_posts' ) )
 					unset( $response[ $key] );
 				break;
 			case 'meta' :
