@@ -3407,6 +3407,45 @@ class WPCOM_JSON_API_List_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 }
 
+class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
+	function callback( $path = '', $blog_id = 0 ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		if ( !current_user_can( 'upload_files', $media_id ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot upload media.', 403 );
+		}
+
+		$input = $this->input( true );
+
+		$has_media = isset( $input['media'] ) && $input['media'] ? count( $input['media'] ) : false;
+		$media_ids = $files = array();
+
+		if ( $has_media ) {
+			$this->api->trap_wp_die( 'upload_error' );
+			foreach ( $input['media'] as $media_item ) {
+				$_FILES['.api.media.item.'] = $media_item;
+				// check for WP_Error if we ever actually need $media_id
+				$media_id = media_handle_upload( '.api.media.item.', 0 );
+				$media_ids[] = $media_id;
+				$files[] = $media_item;
+			}
+			$this->api->trap_wp_die( null );
+
+			unset( $_FILES['.api.media.item.'] );
+		}
+
+		$results = array();
+		foreach ( $media_ids as $media_id ) {
+			$results[] = $this->get_media_item( $media_id );
+		}
+
+		return array( 'media' => $results );
+	}
+}
+
 class WPCOM_JSON_API_Get_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 	function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
@@ -4049,8 +4088,6 @@ new WPCOM_JSON_API_Get_Media_Endpoint( array(
 	'example_response'     => '',
 ) );
 
-/*
-
 new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 	'description' => 'Upload a new piece of media',
 	'group'       => 'media',
@@ -4063,13 +4100,16 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 	),
 
 	'request_format' => array(
-		'files'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Accepts images (image/gif, image/jpeg, image/png) only at this time.<br /><br /><strong>Example</strong>:<br />" .
+		'media'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Accepts images (image/gif, image/jpeg, image/png) only at this time.<br /><br /><strong>Example</strong>:<br />" .
 				"<code>curl \<br />--form 'files[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
-		//'urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/media/new/',
-) );*/
+
+	'response_format' => array(
+ 		'media' => '(array) Array of uploaded media',
+	),
+) );
 
 new WPCOM_JSON_API_Update_Media_Endpoint( array(
 	'description' => 'Edit basic information about a media item',
