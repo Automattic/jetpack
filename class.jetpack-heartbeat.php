@@ -116,33 +116,36 @@ class Jetpack_Heartbeat {
 		// In an old version, some sites were inadvertently firing off far more frequently
 		// than weekly and are still polluting the data as it is anonymized.
 
-		// @todo: Set the prefix (Currently v2-) to a variable, or move this into a subfunction
-		// accepting the prefix as an argument, so we can track stats by plugin version.
-
-		$jetpack->stat( 'v2-active',         JETPACK__VERSION                                   );
-		$jetpack->stat( 'v2-wp-version',     get_bloginfo( 'version' )                          );
-		$jetpack->stat( 'v2-php-version',    PHP_VERSION                                        );
-		$jetpack->stat( 'v2-wp-branch',      floatval( get_bloginfo( 'version' ) )              );
-		$jetpack->stat( 'v2-php-branch',     floatval( PHP_VERSION )                            );
-		$jetpack->stat( 'v2-ssl',            $jetpack->permit_ssl()                             );
-		$jetpack->stat( 'v2-language',       get_bloginfo( 'language' )                         );
-		$jetpack->stat( 'v2-charset',        get_bloginfo( 'charset' )                          );
-		$jetpack->stat( 'v2-is-multisite',   is_multisite() ? 'multisite' : 'singlesite'        );
-		$jetpack->stat( 'v2-identitycrisis', Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no' );
-
-		foreach ( $jetpack->get_available_modules() as $slug ) {
-			$jetpack->stat( "v2-module-{$slug}", Jetpack::is_module_active( $slug ) ? 'on' : 'off' );
-		}
-
-		// Get aggregate data about what plugins are used in conjunction with Jetpack, so
-		// we can know what we should spend time testing for compatability with.
-		foreach( Jetpack::get_active_plugins() as $plugin ) {
-			$jetpack->stat( 'v2-plugins', $plugin );
+		foreach ( self::generate_stats_array( 'v2-' ) as $key => $value ) {
+			$jetpack->stat( $key, $value );
 		}
 
 		Jetpack_Options::update_option( 'last_heartbeat', time() );
 
 		$jetpack->do_stats( 'server_side' );
+	}
+
+	public static function generate_stats_array( $prefix = '' ) {
+		$return = array();
+
+		$return["{$prefix}version"]        = JETPACK__VERSION;
+		$return["{$prefix}wp-version"]     = get_bloginfo( 'version' );
+		$return["{$prefix}php-version"]    = PHP_VERSION;
+		$return["{$prefix}branch"]         = floatval( JETPACK__VERSION );
+		$return["{$prefix}wp-branch"]      = floatval( get_bloginfo( 'version' ) );
+		$return["{$prefix}php-branch"]     = floatval( PHP_VERSION );
+		$return["{$prefix}ssl"]            = $jetpack->permit_ssl();
+		$return["{$prefix}language"]       = get_bloginfo( 'language' );
+		$return["{$prefix}charset"]        = get_bloginfo( 'charset' );
+		$return["{$prefix}is-multisite"]   = is_multisite() ? 'multisite' : 'singlesite';
+		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
+		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
+
+		foreach ( $jetpack->get_available_modules() as $slug ) {
+			$return["{$prefix}module-{$slug}"] = Jetpack::is_module_active( $slug ) ? 'on' : 'off';
+		}
+
+		return $return;
 	}
 
 	/**
