@@ -112,6 +112,32 @@ class Jetpack_Heartbeat {
 			$jetpack->stat( 'plugins', $plugin );
 		}
 
+		// New Stats so we don't have old bad data cluttering it...
+		// In an old version, some sites were inadvertently firing off far more frequently
+		// than weekly and are still polluting the data as it is anonymized.
+
+		// @todo: Set the prefix (Currently v2-) to a variable, or move this into a subfunction
+		// accepting the prefix as an argument, so we can track stats by plugin version.
+
+		$jetpack->stat( 'v2-active',         JETPACK__VERSION                                   );
+		$jetpack->stat( 'v2-wp-version',     get_bloginfo( 'version' )                          );
+		$jetpack->stat( 'v2-php-version',    PHP_VERSION                                        );
+		$jetpack->stat( 'v2-ssl',            $jetpack->permit_ssl()                             );
+		$jetpack->stat( 'v2-language',       get_bloginfo( 'language' )                         );
+		$jetpack->stat( 'v2-charset',        get_bloginfo( 'charset' )                          );
+		$jetpack->stat( 'v2-is-multisite',   is_multisite() ? 'multisite' : 'singlesite'        );
+		$jetpack->stat( 'v2-identitycrisis', Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no' );
+
+		foreach ( $jetpack->get_available_modules() as $slug ) {
+			$jetpack->stat( "v2-module-{$slug}", Jetpack::is_module_active( $slug ) ? 'on' : 'off' );
+		}
+
+		// Get aggregate data about what plugins are used in conjunction with Jetpack, so
+		// we can know what we should spend time testing for compatability with.
+		foreach( Jetpack::get_active_plugins() as $plugin ) {
+			$jetpack->stat( 'v2-plugins', $plugin );
+		}
+
 		Jetpack_Options::update_option( 'last_heartbeat', time() );
 
 		$jetpack->do_stats( 'server_side' );
