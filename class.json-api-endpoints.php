@@ -954,6 +954,34 @@ EOPHP;
 		return (object) $author;
 	}
 
+	function get_media_item( $media_id ) {	
+		$media_item = get_post( $media_id );
+
+		if ( !$media_item || is_wp_error( $media_item ) )
+			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
+
+		$response = array(
+			'id'    => strval( $media_item->ID ),
+			'date' =>  (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),
+			'parent'           => $media_item->post_parent,
+			'link'             => wp_get_attachment_url( $media_item->ID ),
+			'title'            => $media_item->post_title,
+			'caption'          => $media_item->post_excerpt,
+			'description'      => $media_item->post_content,
+			'metadata'         => wp_get_attachment_metadata( $media_item->ID ),
+		);
+
+		$response['meta'] = (object) array(
+			'links' => (object) array(
+				'self' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
+				'help' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id, 'help' ),
+				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
+			),
+		);
+
+		return (object) $response;
+	}
+
 	function get_taxonomy( $taxonomy_id, $taxonomy_type, $context ) {
 
 		$taxonomy = get_term_by( 'slug', $taxonomy_id, $taxonomy_type );
@@ -1104,6 +1132,10 @@ EOPHP;
 			return $this->get_link( '/sites/%d/categories/slug:%s', $blog_id, $taxonomy_id, $path );
 		else
 			return $this->get_link( '/sites/%d/tags/slug:%s', $blog_id, $taxonomy_id, $path );
+	}
+
+	function get_media_link( $blog_id, $media_id, $path = '' ) {
+		return $this->get_link( '/sites/%d/media/%d', $blog_id, $media_id, $path );
 	}
 
 	function get_site_link( $blog_id, $path = '' ) {
@@ -3328,6 +3360,131 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 }
 
+class WPCOM_JSON_API_List_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
+
+	function callback( $path = '', $blog_id = 0 ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		//upload_files can probably be used for other endpoints but we want contributors to be able to use media too
+		if ( !current_user_can( 'edit_posts' ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot view media', 403 );
+		}
+
+		$args = $this->query_args();
+
+		if ( $args['number'] < 1 ) {
+			$args['number'] = 20;
+		} elseif ( 100 < $args['number'] ) {
+			return new WP_Error( 'invalid_number',  'The NUMBER parameter must be less than or equal to 100.', 400 );
+		}
+
+		$media = get_posts( array(
+			'post_type' => 'attachment',
+			'post_parent' => $args['parent_id'],
+			'offset' => $args['offset'],
+			'numberposts' => $args['number'],
+			'post_mime_type' => $args['mime_type']
+		) );
+			
+		$response = array();
+		foreach ( $media as $item ) {
+			$response[] = $this->get_media_item( $item->ID );
+		}
+
+		$_num = (array) wp_count_attachments();
+		$_total_media = array_sum( $_num ) - $_num['trash'];
+
+		$return = array(
+			'found' => $_total_media,
+			'media' => $response
+		);
+
+		return $return;
+	}
+
+}
+
+class WPCOM_JSON_API_Get_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
+	function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		//upload_files can probably be used for other endpoints but we want contributors to be able to use media too
+		if ( !current_user_can( 'edit_posts', $media_id ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot view media', 403 );
+		}
+
+		return $this->get_media_item( $media_id );
+	}
+}
+
+class WPCOM_JSON_API_Update_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
+	function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		if ( !current_user_can( 'upload_files', $media_id ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot view media', 403 );
+		}
+
+		$item = $this->get_media_item( $media_id );
+
+		if ( is_wp_error( $item ) ) {
+			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
+		}
+
+		$input = $this->input( true );
+		$insert = array();
+
+		if ( !empty( $input['title'] ) ) {
+			$insert['post_title'] = $input['title'];
+		}
+
+		if ( !empty( $input['caption'] ) )
+			$insert['post_excerpt'] = $input['caption'];
+
+		if ( !empty( $input['description'] ) )
+			$insert['post_content'] = $input['description'];
+
+		$insert['ID'] = $media_id;
+		wp_update_post( (object) $insert );
+
+		$item = $this->get_media_item( $media_id );
+		return $item;
+	}
+}
+
+class WPCOM_JSON_API_Delete_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
+	function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		if ( !current_user_can( 'upload_files', $media_id ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot view media', 403 );
+		}
+
+		$item = $this->get_media_item( $media_id );
+
+		if ( is_wp_error( $item ) ) {
+			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
+		}
+
+		wp_delete_post( $media_id );
+		$item->status = 'deleted';
+		return $item;
+	}
+}
+
+
 /*
  * Set up endpoints
  */
@@ -3836,6 +3993,138 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	}
 }'
 
+) );
+
+/*
+ * Media Endpoints
+ */
+new WPCOM_JSON_API_List_Media_Endpoint( array(
+	'description' => 'Return the media library',
+	'group'       => 'media',
+	'stat'        => 'media',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/media/',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'query_parameters' => array(
+		'number'    => '(int=20) The number of media items to return.  Limit: 100.',
+		'offset'    => '(int=0) 0-indexed offset.',
+		'parent_id' => '(int) Default is nothing. The post where the media item is attached. Passing nothing shows all media items. 0 shows unattached media items.',
+		'mime_type' => "(string) Default is nothing. Filter by mime type (e.g., 'image/jpeg', 'application/pdf'",
+	),
+
+	'response_format' => array(
+ 		'media' => '(array) Array of media',
+ 		'found' => '(int) The number of total results found'
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/media/?pretty=true',
+) );
+
+new WPCOM_JSON_API_Get_Media_Endpoint( array(
+	'description' => 'Return a single media item (by ID)',
+	'group'       => 'media',
+	'stat'        => 'media:1',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/media/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$media_ID' => '(int) The ID of the media item',
+	),
+	'response_format' => array(
+		'id'    => '(int) The ID of the media item',
+		'date' =>  '(ISO 8601 datetime) The date the media was uploaded',
+		'parent'           => '(int) ID of the post this media is attached to',
+		'link'             => '(string) URL to the file',
+		'title'            => '(string) File name',
+		'caption'          => '(string) User provided caption of the file',
+		'description'      => '(string) Description of the file',
+		'metadata'         => '(array) Misc array of information about the file, such as exif data or sizes',
+	),
+
+	'example_response'     => '',
+) );
+
+/*
+
+new WPCOM_JSON_API_Upload_Media_Endpoint( array(
+	'description' => 'Upload a new piece of media',
+	'group'       => 'media',
+	'stat'        => 'media:new',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/new',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'request_format' => array(
+		'files'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Accepts images (image/gif, image/jpeg, image/png) only at this time.<br /><br /><strong>Example</strong>:<br />" .
+				"<code>curl \<br />--form 'files[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
+		//'urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/media/new/',
+) );*/
+
+new WPCOM_JSON_API_Update_Media_Endpoint( array(
+	'description' => 'Edit basic information about a media item',
+	'group'       => 'media',
+	'stat'        => 'media:1:POST',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$media_ID' => '(int) The ID of the media item',
+	),
+
+	'request_format' => array(
+		'title'       => '(string) The file name.',
+		'caption'     => '(string) File caption.',
+		'description' => '(HTML) Description of the file.',
+	),
+
+	'response_format' => array(
+		'id'          => '(int) The ID of the media item',
+		'date'        =>  '(ISO 8601 datetime) The date the media was uploaded',
+		'parent'      => '(int) ID of the post this media is attached to',
+		'link'        => '(string) URL to the file',
+		'title'       => '(string) File name',
+		'caption'     => '(string) User provided caption of the file',
+		'description' => '(string) Description of the file',
+		'metadata'    => '(array) Misc array of information about the file, such as exif data or sizes',
+	)
+) );
+
+
+new WPCOM_JSON_API_Delete_Media_Endpoint( array(
+	'description' => 'Delete a piece of media',
+	'group'       => 'media',
+	'stat'        => 'media:1:delete',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/%d/delete',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$media_ID' => '(int) The media ID',
+	),
+
+	'response_format' => array(
+		'status' => '(string) Returns deleted if the media was successfully deleted',
+		'id'    => '(int) The ID of the media item',
+		'date' =>  '(ISO 8601 datetime) The date the media was uploaded',
+		'parent'           => '(int) ID of the post this media is attached to',
+		'link'             => '(string) URL to the file',
+		'title'            => '(string) File name',
+		'caption'          => '(string) User provided caption of the file',
+		'description'      => '(string) Description of the file',
+		'metadata'         => '(array) Misc array of information about the file, such as exif data or sizes',
+	)
 ) );
 
 /*
