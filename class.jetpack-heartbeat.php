@@ -122,6 +122,8 @@ class Jetpack_Heartbeat {
 		$jetpack->stat( 'v2-active',         JETPACK__VERSION                                   );
 		$jetpack->stat( 'v2-wp-version',     get_bloginfo( 'version' )                          );
 		$jetpack->stat( 'v2-php-version',    PHP_VERSION                                        );
+		$jetpack->stat( 'v2-wp-branch',      floatval( get_bloginfo( 'version' ) )              );
+		$jetpack->stat( 'v2-php-branch',     floatval( PHP_VERSION )                            );
 		$jetpack->stat( 'v2-ssl',            $jetpack->permit_ssl()                             );
 		$jetpack->stat( 'v2-language',       get_bloginfo( 'language' )                         );
 		$jetpack->stat( 'v2-charset',        get_bloginfo( 'charset' )                          );
