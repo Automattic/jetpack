@@ -479,6 +479,16 @@ class WPCOM_JSON_API {
 			$message = "$title: $message";
 		}
 
+		switch ( $this->trapped_error['code'] ) {
+		case 'comment_failure' :
+			if ( did_action( 'comment_duplicate_trigger' ) ) {
+				$this->trapped_error['code'] = 'comment_duplicate';
+			} else if ( did_action( 'comment_flood_trigger' ) ) {
+				$this->trapped_error['code'] = 'comment_flood';
+			}
+			break;
+		}
+
 		$this->trapped_error['status']  = $args['response'];
 		$this->trapped_error['message'] = wp_kses( $message, array() );
 
