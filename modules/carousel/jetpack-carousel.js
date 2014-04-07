@@ -691,7 +691,7 @@ jQuery(document).ready(function($) {
 
 
 			// Load the images for the next and previous slides.
-			$( next ).add( previous ).each(function() {
+			$( next ).add( previous ).each( function() {
 				gallery.jp_carousel( 'loadFullImage', $( this ) );
 			});
 
@@ -947,7 +947,6 @@ jQuery(document).ready(function($) {
 
 			return args.orig_file;
 		},
-
 
 		originalDimensions: function() {
 			var splitted = $(this).data('orig-size').split(',');
