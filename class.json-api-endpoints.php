@@ -2746,6 +2746,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 				'unapproved' => 'Return only comments in the moderation queue.',
 				'spam'       => 'Return only comments marked as spam.',
 				'trash'      => 'Return only comments in the trash.',
+				'all'        => 'Return comments of all statuses.',
 			),
 		) );
 	}
@@ -2802,6 +2803,9 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			if ( 'unapproved' === $args['status'] ) {
 				$status = 'hold';
 				$count_status = 'moderated';
+			} elseif ( 'all' === $args['status'] ) { 
+				$status = 'all';
+				$count_status = 'total_comments';
 			} else {
 				$status = $count_status = $args['status'];
 			}
