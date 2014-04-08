@@ -44,7 +44,34 @@ module.exports = function(grunt) {
 				tasks: ['shell:buildSass'],
 				options: {
 					spawn: false
-				},
+				}
+			},
+			php: {
+				files: [
+					'*.php',
+					'_inc/*.php',
+					'_inc/**/*.php',
+					'modules/*.php',
+					'modules/**/*.php',
+					'views/**/*.php',
+					'views/**/*.php',
+					'3rd-party/*.php'
+				],
+				tasks: ['phplint'],
+				options: {
+					spawn: false
+				}
+			},
+			js: {
+				files: [
+					'_inc/*.js',
+					'modules/*.js',
+					'modules/**/*.js'
+				],
+				tasks: ['jshint'],
+				options: {
+					spawn: false
+				}
 			}
 		}
 	};
