@@ -61,7 +61,7 @@ function jetpack_googlemaps_shortcode( $atts ) {
 	$width = 425;
 	$height = 350;
 
-	if ( preg_match( '!^https?://(maps|mapsengine)\.google(\.co|\.com)?(\.[a-z]+)?/.*?(\?.+)!i', $params, $match ) ) {
+	if ( preg_match( '!^https?://(www|maps|mapsengine)\.google(\.co|\.com)?(\.[a-z]+)?/.*?(\?.+)!i', $params, $match ) ) {
 		$params = str_replace( '&amp;amp;', '&amp;', $params );
 		$params = str_replace( '&amp;', '&', $params );
 		parse_str( $params, $arg );
