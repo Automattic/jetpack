@@ -4064,7 +4064,7 @@ new WPCOM_JSON_API_List_Media_Endpoint( array(
  		'found' => '(int) The number of total results found'
 	),
 
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/media/?pretty=true',
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/media/?pretty=true',
 ) );
 
 new WPCOM_JSON_API_Get_Media_Endpoint( array(
@@ -4089,7 +4089,7 @@ new WPCOM_JSON_API_Get_Media_Endpoint( array(
 		'metadata'         => '(array) Misc array of information about the file, such as exif data or sizes',
 	),
 
-	'example_response'     => '',
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/media/36',
 ) );
 
 new WPCOM_JSON_API_Upload_Media_Endpoint( array(
