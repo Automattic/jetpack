@@ -16,6 +16,7 @@
     "grunt": "^0.4.2",
     "grunt-shell": "^0.6.4",
     "grunt-phplint": "0.0.5",
-    "grunt-contrib-jshint": "^0.9.2"
+    "grunt-contrib-jshint": "^0.9.2",
+    "grunt-contrib-watch": "^0.6.1"
   }
 }

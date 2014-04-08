@@ -34,6 +34,18 @@ module.exports = function(grunt) {
 				'modules/*.js',
 				'modules/**/*.js'
 			]
+		},
+		watch: {
+			sass: {
+				files: [
+					'_inc/*.scss',
+					'_inc/**/*.scss'
+				],
+				tasks: ['shell:buildSass'],
+				options: {
+					spawn: false
+				},
+			}
 		}
 	};
 
@@ -42,6 +54,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-shell');
 	grunt.loadNpmTasks('grunt-phplint');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
+	grunt.loadNpmTasks('grunt-contrib-watch');
 
 	grunt.registerTask('default', [
 		'shell',
