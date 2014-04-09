@@ -134,14 +134,14 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}branch"]         = floatval( JETPACK__VERSION );
 		$return["{$prefix}wp-branch"]      = floatval( get_bloginfo( 'version' ) );
 		$return["{$prefix}php-branch"]     = floatval( PHP_VERSION );
-		$return["{$prefix}ssl"]            = $jetpack->permit_ssl();
+		$return["{$prefix}ssl"]            = Jetpack::permit_ssl();
 		$return["{$prefix}language"]       = get_bloginfo( 'language' );
 		$return["{$prefix}charset"]        = get_bloginfo( 'charset' );
 		$return["{$prefix}is-multisite"]   = is_multisite() ? 'multisite' : 'singlesite';
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
 
-		foreach ( $jetpack->get_available_modules() as $slug ) {
+		foreach ( Jetpack::get_available_modules() as $slug ) {
 			$return["{$prefix}module-{$slug}"] = Jetpack::is_module_active( $slug ) ? 'on' : 'off';
 		}
 
