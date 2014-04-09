@@ -3303,7 +3303,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
                 break;
 			case 'is_following':
-				$response[$key] = (int) $this->api->is_following( $blog_id );
+				$response[$key] = (bool) $this->api->is_following( $blog_id );
 				break;
 			case 'options':
 				// Figure out if the blog supports VideoPress, have to do some extra checking for JP blogs
