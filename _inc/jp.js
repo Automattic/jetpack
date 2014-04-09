@@ -62,6 +62,7 @@
 		// copy values in right order
 		for (i=0, length = map.length; i < length; i++) {
 			result.push(modules[map[i].index]);
+			result[i].index =  i; // make sure we set the index to the right order
 		}
 
 		// Replace old object, with newly sorted object
