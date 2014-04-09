@@ -1507,7 +1507,7 @@ JS;
 				}
 				break;
 			case 'db:restore':
-				if ( !empty( $_POST['path'] ) && !empty( $_POST['hash'] ) ) {
+				if ( !empty( $_POST['path'] ) && isset( $_POST['hash'] ) ) {
 					$delete = !isset( $_POST['remove'] ) || $_POST['remove'] && 'false' !== $_POST['remove'];
 					$this->response( $bdb->restore( $_POST['path'], $_POST['hash'], $delete ) );
 				}

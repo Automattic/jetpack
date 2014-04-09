@@ -340,7 +340,7 @@ class VaultPress_Database {
 		global $wpdb;
 		if ( !file_exists( $data_file ) || !is_readable( $data_file ) || !filesize( $data_file ) )
 			return array( 'last_error' => 'File does not exist', 'data_file' => $data_file );
-		if ( md5_file( $data_file ) !== $md5_sum )
+		if ( $md5_sum && md5_file( $data_file ) !== $md5_sum )
 			return array( 'last_error' => 'Checksum mistmatch', 'data_file' => $data_file );
 		if ( function_exists( 'exec' ) && ( $mysql = exec( 'which mysql' ) ) ) {
 			$details = explode( ':', DB_HOST, 2 );
