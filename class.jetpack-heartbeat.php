@@ -141,6 +141,15 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
 
+		if ( ! empty( $_SERVER['SERVER_ADDR'] ) || ! empty( $_SERVER['LOCAL_ADDR'] ) ) {
+			$ip     = ! empty( $_SERVER['SERVER_ADDR'] ) ? $_SERVER['SERVER_ADDR'] : $_SERVER['LOCAL_ADDR'];
+			$ip_arr = array_map( 'intval', explode( '.', $ip ) );
+			if ( 4 == sizeof( $ip_arr ) ) {
+				$return["{$prefix}ip-2-octets"] = implode( '.', array_slice( $ip_arr, 0, 2 ) );
+				$return["{$prefix}ip-3-octets"] = implode( '.', array_slice( $ip_arr, 0, 3 ) );
+			}
+		}
+
 		foreach ( Jetpack::get_available_modules() as $slug ) {
 			$return["{$prefix}module-{$slug}"] = Jetpack::is_module_active( $slug ) ? 'on' : 'off';
 		}
