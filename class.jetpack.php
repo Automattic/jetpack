@@ -25,6 +25,8 @@ jetpack_do_activate (bool)
 class Jetpack {
 	var $xmlrpc_server = null;
 
+	private $xmlrpc_verification = null;
+
 	var $HTTP_RAW_POST_DATA = null; // copy of $GLOBALS['HTTP_RAW_POST_DATA']
 
 	var $plugins_to_deactivate = array(
@@ -274,8 +276,13 @@ class Jetpack {
 				// Hack to preserve $HTTP_RAW_POST_DATA
 				add_filter( 'xmlrpc_methods', array( $this, 'xmlrpc_methods' ) );
 
-				// The actual API methods.
-				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
+				$signed = $this->verify_xml_rpc_signature();
+				if ( $signed && ! is_wp_error( $signed ) ) {
+					// The actual API methods.
+					add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'xmlrpc_methods' ) );
+				} else {
+					add_filter( 'xmlrpc_methods', '__return_empty_array' );
+				}
 			} else {
 				// The bootstrap API methods.
 				add_filter( 'xmlrpc_methods', array( $this->xmlrpc_server, 'bootstrap_xmlrpc_methods' ) );
@@ -2824,6 +2831,7 @@ p {
 					'user_email'    => $user->user_email,
 					'user_login'    => $user->user_login,
 					'is_active'     => Jetpack::is_active(),
+					'jp_version'    => JETPACK__VERSION,
 				)
 			);
 
@@ -3687,17 +3695,14 @@ p {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-ixr-client.php';
 	}
 
-	/**
-	 * Authenticates XML-RPC and other requests from the Jetpack Server
-	 */
-	function authenticate_jetpack( $user, $username, $password ) {
-		if ( is_a( $user, 'WP_User' ) ) {
-			return $user;
+	function verify_xml_rpc_signature() {
+		if ( $this->xmlrpc_verification ) {
+			return $this->xmlrpc_verification;
 		}
 
 		// It's not for us
 		if ( ! isset( $_GET['token'] ) || empty( $_GET['signature'] ) ) {
-			return $user;
+			return false;
 		}
 
 		@list( $token_key, $version, $user_id ) = explode( ':', $_GET['token'] );
@@ -3705,19 +3710,28 @@ p {
 			empty( $token_key )
 		||
 			empty( $version ) || strval( JETPACK__API_VERSION ) !== $version
-		||
-			empty( $user_id ) || ! ctype_digit( $user_id ) || ! get_userdata( $user_id ) // only handle user_tokens for now, not blog_tokens
 		) {
-			return $user;
+			return false;
+		}
+
+		if ( '0' === $user_id ) {
+			$token_type = 'blog';
+			$user_id = 0;
+		} else {
+			$token_type = 'user';
+			if ( empty( $user_id ) || ! ctype_digit( $user_id ) || ! get_userdata( $user_id ) ) {
+				return false;
+			}
+			$user_id = (int) $user_id;
 		}
 
 		$token = Jetpack_Data::get_access_token( $user_id );
 		if ( ! $token ) {
-			return $user;
+			return false;
 		}
 
 		if ( 0 !== strpos( $token->secret, "$token_key." ) ) {
-			return $user;
+			return false;
 		}
 
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
@@ -3752,23 +3766,53 @@ p {
 		);
 
 		if ( ! $signature ) {
-			return $user;
+			return false;
 		} else if ( is_wp_error( $signature ) ) {
 			return $signature;
 		} else if ( $signature !== $_GET['signature'] ) {
-			return $user;
+			return false;
 		}
 
 		$timestamp = (int) $_GET['timestamp'];
 		$nonce     = stripslashes( (string) $_GET['nonce'] );
 
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
+			return false;
+		}
+
+		$this->xmlrpc_verification = array(
+			'type'    => $token_type,
+			'user_id' => $token->external_user_id,
+		);
+
+		return $this->xmlrpc_verification;
+	}
+
+	/**
+	 * Authenticates XML-RPC and other requests from the Jetpack Server
+	 */
+	function authenticate_jetpack( $user, $username, $password ) {
+		if ( is_a( $user, 'WP_User' ) ) {
+			return $user;
+		}
+
+		$token_details = $this->verify_xml_rpc_signature();
+
+		if ( ! $token_details || is_wp_error( $token_details ) ) {
+			return $user;
+		}
+
+		if ( 'user' !== $token_details['type'] ) {
+			return $user;
+		}
+
+		if ( ! $token_details['user_id'] ) {
 			return $user;
 		}
 
 		nocache_headers();
 
-		return new WP_User( $token->external_user_id );
+		return new WP_User( $token_details['user_id'] );
 	}
 
 	function add_nonce( $timestamp, $nonce ) {
