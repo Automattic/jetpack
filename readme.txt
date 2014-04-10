@@ -86,12 +86,33 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 2.9.2 =
+* Bugfix: Publicize: When publishing from a mobile app or third-party client, Publicize now works again.
+
 = 2.9.1 =
 * Bugfix: After the Deadline: Fix a Javascript glitch that could prevent publishing of posts.
 * Bugfix: SSO: Disable the implementation of an option that had been removed before release.  This would have only been an issue if a site administrator had enabled the module during an early beta of 2.9.
 
 = 2.9 =
-* ???
+* Added Multisite network functionality
+* New Module: Related Posts
+* Enhancement: Single Sign On
+* Enhancement: Mixcloud shortcode and oEmbed
+* Enhancement: Gist shortcode and oEmbed
+* Enhancement: Modify Facebook Like Box widget to support new Facebook parameters
+* Enhancement: Rolled the Push Notifications module into the Notes module
+* Enhancement: Update kses with Markdown
+* Enhancement: Adding keyboard accessibility to sharing buttons config page
+* Enhancement: Pull WordPress testing bits from the new official git mirror at WordPress.org
+* Bugfix: Widget Visibility
+* Bugfix: Revisions box in Custom CSS
+* Bugfix: Fix several bugs in the WordPress Posts Widget so that it correctly updates
+* Bugfix: Limit Login Attempts no longer generates false positives from xmlrpc.
+* Bugfix: Clear max_posts transient on theme switch.
+* Bugfix: Lower priority of sync to allow all CPTs to be registered.
+* Bugfix: Contact form fields emailed in correct order. 
+
+* Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits/2.9
 
 = 2.8 =
 * New Module: Markdown
