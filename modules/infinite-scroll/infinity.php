@@ -470,7 +470,7 @@ class The_Neverending_Home_Page {
 	 * @return string
 	 */
 	function ajax_url() {
-		$base_url = home_url( '/' );
+		$base_url = set_url_scheme( home_url( '/' ) );
 
 		$ajaxurl = add_query_arg( array( 'infinity' => 'scrolling' ), $base_url );
 
