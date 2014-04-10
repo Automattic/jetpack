@@ -51,7 +51,6 @@ class Jetpack_XMLRPC_Server {
 	function bootstrap_xmlrpc_methods() {
 		return array(
 			'jetpack.verifyRegistration' => array( $this, 'verify_registration' ),
-			'jetpack.verifyAction'       => array( $this, 'verify_action' ),
 		);
 	}
 
