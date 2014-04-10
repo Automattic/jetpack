@@ -1,4 +1,4 @@
-/* This file was automatically generated on Mar 14 2013 17:20:54 */
+/* This file was automatically generated on Apr 10 2014 00:39:07 */
 
 .widget-liquid-right .widget.expanded {
 	overflow: visible;
@@ -10,6 +10,9 @@
 	background: #F9F9F9;
 	border: 1px solid #DFDFDF;
 	padding: 12px 12px 0;
+}
+.widget-conditional {
+	margin-bottom: 12px;
 }
 .widget-conditional .condition,
 .widget-conditional .condition-top {
@@ -38,4 +41,12 @@
 }
 .wp-core-ui .button.display-options:hover {
 	text-decoration: none;
+}
+.wp-customizer .wide-widget-control .widget-conditional {
+	width: 400px;
+}
+.wp-customizer .widget-conditional select {
+	min-width: 0;
+	max-width: none;
+	height: auto;
 }
