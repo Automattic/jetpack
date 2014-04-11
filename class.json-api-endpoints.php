@@ -3327,7 +3327,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				$response[$key] = array(
 					'timezone'                => (string) get_option( 'timezone_string' ),
-					'gmt_offset'              => (int) get_option( 'gmt_offset' ),
+					'gmt_offset'              => (float) get_option( 'gmt_offset' ),
 					'videopress_enabled'      => $has_videopress,
 					'login_url'               => wp_login_url(),
 					'admin_url'               => get_admin_url(),
