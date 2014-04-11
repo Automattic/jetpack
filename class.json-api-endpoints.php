@@ -954,7 +954,7 @@ EOPHP;
 		return (object) $author;
 	}
 
-	function get_media_item( $media_id ) {	
+	function get_media_item( $media_id ) {
 		$media_item = get_post( $media_id );
 
 		if ( !$media_item || is_wp_error( $media_item ) )
@@ -1849,8 +1849,8 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		}
 
 		/**
-		 * 'column' necessary for the me/posts endpoint (which extends sites/$site/posts). 
-		 * Would need to be added to the sites/$site/posts definition if we ever want to 
+		 * 'column' necessary for the me/posts endpoint (which extends sites/$site/posts).
+		 * Would need to be added to the sites/$site/posts definition if we ever want to
 		 * use it there.
 		 */
 		$column_whitelist = array( 'post_modified_gmt' );
@@ -2803,7 +2803,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			if ( 'unapproved' === $args['status'] ) {
 				$status = 'hold';
 				$count_status = 'moderated';
-			} elseif ( 'all' === $args['status'] ) { 
+			} elseif ( 'all' === $args['status'] ) {
 				$status = 'all';
 				$count_status = 'total_comments';
 			} else {
@@ -3319,10 +3319,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
 
 				// Get a list of supported post formats
-				$all_formats = get_post_format_strings();
-				$supported = get_theme_support( 'post-formats' );
-				foreach ( $supported[0] as $format ) {
-					$supported_formats[ $format ] = $all_formats[ $format ]; 
+				$all_formats       = get_post_format_strings();
+				$supported         = get_theme_support( 'post-formats' );
+				$supported_formats = array();
+
+				if ( isset( $supported[0] ) ) {
+					foreach ( $supported[0] as $format ) {
+						$supported_formats[ $format ] = $all_formats[ $format ];
+					}
 				}
 
 				$response[$key] = array(
@@ -3394,7 +3398,7 @@ class WPCOM_JSON_API_List_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'numberposts' => $args['number'],
 			'post_mime_type' => $args['mime_type']
 		) );
-			
+
 		$response = array();
 		foreach ( $media as $item ) {
 			$response[] = $this->get_media_item( $item->ID );
