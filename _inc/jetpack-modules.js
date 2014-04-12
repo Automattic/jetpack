@@ -89,6 +89,7 @@
 	$jp_frame.children( '.modal' ).on( 'config', function() {
 		var current_module = $jp_frame.children( '.modal' ).data( 'current-module' );
 		// Hack.  Until we import the form to the modal, just redirect to where it would have gone.
+		hide_modal();
 		window.location.href = items[ current_module ].configure_url;
 		// $(this).find('.content').html( items[ current_module ].configure_form );
 	} );
