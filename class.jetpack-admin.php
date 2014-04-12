@@ -360,12 +360,17 @@ class Jetpack_Admin {
 			return;
 		}
 
+		echo '<div class="clouds-sm"></div>';
+		echo '<div class="wrap configure-module">';
+
 		$module_name = preg_replace( '/[^\da-z\-]+/', '', $_GET['configure'] );
 		if ( Jetpack::is_module( $module_name ) && current_user_can( 'jetpack_configure_modules' ) ) {
 			Jetpack::admin_screen_configure_module( $module_name );
 		} else {
 			echo '<h2>' . esc_html__( 'Error, bad module.', 'jetpack' ) . '</h2>';
 		}
+
+		echo '</div><!-- /wrap -->';
 
 		$this->admin_page_bottom();
 	}
