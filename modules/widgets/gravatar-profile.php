@@ -279,7 +279,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 					$expire = 900; // cache for 15 minutes
 					$profile = $profile['entry'][0];
 				} else {
-					// Something strange happend.  Cache for 5 minutes.
+					// Something strange happened.  Cache for 5 minutes.
 					$profile = array();
 				}
 

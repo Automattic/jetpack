@@ -2592,7 +2592,7 @@ msgid "Google+"
 msgstr ""
 
 #: modules/gplus-authorship/admin/ui.php:191
-msgid "Show Google+ infomation with this post"
+msgid "Show Google+ information with this post"
 msgstr ""
 
 #: modules/gplus-authorship.php:130

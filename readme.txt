@@ -138,7 +138,7 @@ Jetpack 2.9.3 fixes a security bug. Please upgrade immediately.
 * Enhancement: Stats: Improve dashboard styles in 3.8.
 * Enhancement: Stats: No longer use Quantcast.
 * Enhancement: Top Posts: Add `jetpack_top_posts_days` filter.
-* Enhancement: AtD: Add TinyMCE 4 compatability for its pending arrival in WordPress 3.9
+* Enhancement: AtD: Add TinyMCE 4 compatibility for its pending arrival in WordPress 3.9
 * Enhancement: Genericons: Update to v3.0.3
 * Enhancement: Tiled Galleries: Add alt attributes to images.
 * Enhancement: Shortcode: YouTube: Accept protocol-relative URLs.
@@ -177,7 +177,7 @@ Jetpack 2.9.3 fixes a security bug. Please upgrade immediately.
 * Bug Fix: Sharing: Add new translation width for share button, and Google Plus icons
 * Bug Fix: Shortcodes: Support Ineternational Google domains for maps
 * Bug Fix: Shortcodes: Facebook Embeds: Register alternate permalink.php URL for posts
-* Bug Fix: Subscriptions: Moved inline styles from widget email input to seperate css file
+* Bug Fix: Subscriptions: Moved inline styles from widget email input to separate css file
 * Bug Fix: Theme Tools: Fix glitch where random-redirect.php also showed as a plugin being deleted if you were deleting Jetpack
 * Bug Fix: Misc: Internationalization & RTL updates
 * Bug Fix: Misc: Prevent collisions with 'Facebook Featured Image & OG Meta Tags' plugin

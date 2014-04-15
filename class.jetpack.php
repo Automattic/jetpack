@@ -182,7 +182,7 @@ class Jetpack {
 		'wp-twitter-cards/twitter_cards.php',        // WP Twitter Cards
 		'eewee-twitter-card/index.php',              // Eewee Twitter Card
 		'kevinjohn-gallagher-pure-web-brilliants-social-graph-twitter-cards-extention/kevinjohn_gallagher___social_graph_twitter_output.php',
-		                                             // Pure Web Brilliant's Social Graph Twitter Cards Extention
+		                                             // Pure Web Brilliant's Social Graph Twitter Cards Extension
 	);
 
 	/**
@@ -440,7 +440,7 @@ class Jetpack {
 				/**
 				 * In multisite, can individual site admins manage their own connection?
 				 *
-				 * Ideally, this should be extracted out to a seperate filter in the Jetpack_Network class.
+				 * Ideally, this should be extracted out to a separate filter in the Jetpack_Network class.
 				 */
 				if ( is_multisite() && ! is_super_admin() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 					if ( ! Jetpack_Network::init()->get_option( 'sub-site-connection-override' ) ) {
@@ -857,7 +857,7 @@ class Jetpack {
 
 	/**
 	* Stores two secrets and a timestamp so WordPress.com can make a request back and verify an action
-	* Does some extra verification so urls (such as those to public-api, register, etc) cant just be crafted
+	* Does some extra verification so urls (such as those to public-api, register, etc) can't just be crafted
 	* $name must be a registered option name.
 	*/
 	public static function create_nonce( $name ) {

@@ -25,7 +25,7 @@ defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'ht
 
 // Constants for expressing human-readable intervals
 // in their respective number of seconds.
-// Introduced in WordPress 3.5, specified here for backward compatability.
+// Introduced in WordPress 3.5, specified here for backward compatibility.
 defined( 'MINUTE_IN_SECONDS' ) or define( 'MINUTE_IN_SECONDS', 60 );
 defined( 'HOUR_IN_SECONDS' )   or define( 'HOUR_IN_SECONDS',   60 * MINUTE_IN_SECONDS );
 defined( 'DAY_IN_SECONDS' )    or define( 'DAY_IN_SECONDS',    24 * HOUR_IN_SECONDS   );
