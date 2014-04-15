@@ -597,7 +597,7 @@ class iCalendarReader {
 		}
 
 		// Running strip_tags() first with allowed tags to get rid of remaining gallery markup, etc
-		// because wp_kses() would only htmlentity'fy that. Then still runnning wp_kses(), for extra
+		// because wp_kses() would only htmlentity'fy that. Then still running wp_kses(), for extra
 		// safety and good measure.
 		return wp_kses( strip_tags( $string, $allowed_tags ), $allowed_html );
 	}

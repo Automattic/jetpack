@@ -114,7 +114,7 @@ function jetpack_og_tags() {
 	$secure_image_num = 0;
 
 	foreach ( (array) $tags as $tag_property => $tag_content ) {
-		// to accomodate multiple images
+		// to accommodate multiple images
 		$tag_content = (array) $tag_content;
 		$tag_content = array_unique( $tag_content );
 

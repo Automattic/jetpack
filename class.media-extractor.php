@@ -81,7 +81,7 @@ class Jetpack_Media_Meta_Extractor {
 	static public function extract_from_content( $content, $what_to_extract = self::ALL, $already_extracted = array() ) {
 		$stripped_content = self::get_stripped_content( $content );
 
-		// Maybe start wtih some previously extracted things (e.g. images from extract()
+		// Maybe start with some previously extracted things (e.g. images from extract()
 		$extracted = $already_extracted;
 
 		// Embedded media objects will have already been converted to shortcodes by pre_kses hooks on save.

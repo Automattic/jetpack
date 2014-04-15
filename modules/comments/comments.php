@@ -172,7 +172,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	/**
-	 * Noop teh default comment form output, get some options, and output our
+	 * Noop the default comment form output, get some options, and output our
 	 * tricked out totally radical comment form.
 	 *
 	 * @since JetpackComments (1.4)

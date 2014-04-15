@@ -91,7 +91,7 @@ function sharing_add_plugin_settings($links, $file) {
 }
 
 function sharing_restrict_to_single( $services ) {
-	// This removes Press This from non-multisite blogs - doesnt make much sense
+	// This removes Press This from non-multisite blogs - doesn't make much sense
 	if ( is_multisite() === false ) {
 		unset( $services['press-this'] );
 	}

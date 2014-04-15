@@ -179,7 +179,7 @@ class csstidy {
 	 * Example for a subvalue:
 	 * background:url(foo.png) red no-repeat;
 	 * "url(foo.png)", "red", and  "no-repeat" are subvalues,
-	 * seperated by whitespace
+	 * separated by whitespace
 	 * @var string
 	 * @access private
 	 */
