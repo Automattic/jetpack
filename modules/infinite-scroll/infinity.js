@@ -30,6 +30,7 @@ Scroller = function( settings ) {
 	this.order            = settings.order;
 	this.throttle         = false;
 	this.handle           = '<div id="infinite-handle"><span>' + text.replace( '\\', '' ) + '</span></div>';
+	this.click_handle     = settings.click_handle;
 	this.google_analytics = settings.google_analytics;
 	this.history          = settings.history;
 	this.origURL          = window.location.href;
@@ -68,10 +69,16 @@ Scroller = function( settings ) {
 		self.ensureFilledViewport();
 		this.body.bind( 'post-load', { self: self }, self.checkViewportOnLoad );
 	} else if ( type == 'click' ) {
-		this.element.append( self.handle );
-		this.element.delegate( '#infinite-handle', 'click.infinity', function() {
+		if ( this.click_handle ) {
+			this.element.append( this.handle );
+		}
+
+		this.body.delegate( '#infinite-handle', 'click.infinity', function() {
 			// Handle the handle
-			$( '#infinite-handle' ).remove();
+			if ( this.click_handle ) {
+				$( '#infinite-handle' ).remove();
+			}
+
 			// Fire the refresh
 			self.refresh();
 		});
@@ -172,15 +179,17 @@ Scroller.prototype.refresh = function() {
 	this.ready = false;
 
 	// Create a loader element to show it's working.
-	loader = '<span class="infinite-loader"></span>';
-	this.element.append( loader );
+	if ( this.click_handle ) {
+		loader = '<span class="infinite-loader"></span>';
+		this.element.append( loader );
 
-	loader = this.element.find( '.infinite-loader' );
-	color = loader.css( 'color' );
+		loader = this.element.find( '.infinite-loader' );
+		color = loader.css( 'color' );
 
-	try {
-		loader.spin( 'medium-left', color );
-	} catch ( error ) { }
+		try {
+			loader.spin( 'medium-left', color );
+		} catch ( error ) { }
+	}
 
 	// Generate our query vars.
 	query = $.extend({
@@ -192,14 +201,19 @@ Scroller.prototype.refresh = function() {
 
 	// Allow refreshes to occur again if an error is triggered.
 	jqxhr.fail( function() {
-		loader.hide();
+		if ( self.click_handle ) {
+			loader.hide();
+		}
+
 		self.ready = true;
 	});
 
 	// Success handler
 	jqxhr.done( function( response ) {
 			// On success, let's hide the loader circle.
-			loader.hide();
+			if ( self.click_handle ) {
+				loader.hide();
+			}
 
 			// Check for and parse our response.
 			if ( ! response )
@@ -282,8 +296,21 @@ Scroller.prototype.refresh = function() {
 				self.render.apply( self, arguments );
 
 				// If 'click' type and there are still posts to fetch, add back the handle
-				if ( type == 'click' && !response.lastbatch )
-					self.element.append( self.handle );
+				if ( type == 'click' ) {
+					if ( response.lastbatch ) {
+						if ( self.click_handle ) {
+							$( '#infinite-handle' ).remove();
+						} else {
+							self.body.trigger( 'infinite-scroll-posts-end' );
+						}
+					} else {
+						if ( self.click_handle ) {
+							self.element.append( self.handle );
+						} else {
+							self.body.trigger( 'infinite-scroll-posts-more' );
+						}
+					}
+				}
 
 				// Update currentday to the latest value returned from the server
 				if (response.currentday)

@@ -68,7 +68,8 @@ class The_Neverending_Home_Page {
 				'render'          => false, // optional function, otherwise the `content` template part will be used
 				'footer'          => true, // boolean to enable or disable the infinite footer | string to provide an html id to derive footer width from
 				'footer_callback' => false, // function to be called to render the IS footer, in place of the default
-				'posts_per_page'  => false // int | false to set based on IS type
+				'posts_per_page'  => false, // int | false to set based on IS type
+				'click_handle'    => true, // boolean to enable or disable rendering the click handler div. If type is click and this is false, page must include its own trigger with the HTML ID `infinite-handle`.
 			);
 
 			// Validate settings passed through add_theme_support()
@@ -143,6 +144,13 @@ class The_Neverending_Home_Page {
 
 								break;
 
+							case 'click_handle' :
+								if ( is_bool( $value ) ) {
+									$settings[ $key ] = $value;
+								}
+
+								break;
+
 							default:
 								continue;
 
@@ -210,6 +218,11 @@ class The_Neverending_Home_Page {
 			// Backwards compatibility for posts_per_page setting
 			elseif ( false === $settings['posts_per_page'] )
 				$settings['posts_per_page'] = 7;
+
+			// Force display of the click handler and attendant bits when the type isn't `click`
+			if ( 'click' !== $settings['type'] ) {
+				$settings['click_handle'] = true;
+			}
 
 			// Store final settings in a class static to avoid reparsing
 			self::$settings = apply_filters( 'infinite_scroll_settings', $settings );
@@ -317,7 +330,7 @@ class The_Neverending_Home_Page {
 		add_filter( 'body_class', array( $this, 'body_class' ) );
 
 		// Add our scripts.
-		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '20140318', true );
+		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '20140414', true );
 
 		// Add our default styles.
 		wp_enqueue_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20120612' );
@@ -524,6 +537,7 @@ class The_Neverending_Home_Page {
 			'wrapper'          => self::has_wrapper(),
 			'wrapper_class'    => is_string( self::get_settings()->wrapper ) ? esc_js( self::get_settings()->wrapper ) : 'infinite-wrap',
 			'footer'           => is_string( self::get_settings()->footer ) ? esc_js( self::get_settings()->footer ) : self::get_settings()->footer,
+			'click_handle'     => esc_js( self::get_settings()->click_handle ),
 			'text'             => esc_js( __( 'Older posts', 'jetpack' ) ),
 			'totop'            => esc_js( __( 'Scroll back to top', 'jetpack' ) ),
 			'currentday'       => $currentday,
