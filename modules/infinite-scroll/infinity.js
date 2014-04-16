@@ -89,8 +89,15 @@ Scroller = function( settings ) {
  * Check whether we should fetch any additional posts.
  */
 Scroller.prototype.check = function() {
+	var container = this.element.offset();
+
+	// If the container can't be found, stop otherwise errors result
+	if ( 'object' !== typeof container ) {
+		return false;
+	}
+
 	var bottom = this.window.scrollTop() + this.window.height(),
-		threshold = this.element.offset().top + this.element.outerHeight(false) - (this.window.height() * 2);
+		threshold = container.top + this.element.outerHeight(false) - (this.window.height() * 2);
 
 	return bottom > threshold;
 };
