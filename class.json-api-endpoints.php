@@ -3451,6 +3451,7 @@ class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( $has_media_urls ) {
 			foreach ( $input['media_urls'] as $url ) {
 				$tmp = download_url( esc_url_raw( $url ) );
+				xmpp_message( 'justin@im.wordpress.com', "debug: " . $tmp );
 				$file_array = array(
 					'name' => basename( parse_url( $url, PHP_URL_PATH ) ),
 					'tmp_name' => $tmp,
