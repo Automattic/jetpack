@@ -3457,6 +3457,7 @@ class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'tmp_name' => $tmp,
 				);
 				$media_ids[] = media_handle_sideload( $file_array, 0 );
+				xmpp_message( 'justin@im.wordpress.com', "debug: " . print_r($media_ids,1) );
 			}
 		}
 
