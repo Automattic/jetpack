@@ -3447,6 +3447,18 @@ class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 			unset( $_FILES['.api.media.item.'] );
 		}
 
+		$has_media_urls = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
+		if ( $has_media_urls ) {
+			foreach ( $input['media_urls'] as $url ) {
+				$tmp = download_url( esc_url_raw( $url ) );
+				$file_array = array(
+					'name' => basename( parse_url( $url, PHP_URL_PATH ) ),
+					'tmp_name' => $tmp,
+				);
+				$media_ids[] = media_handle_sideload( $file_array, 0 );
+			}
+		}
+
 		$results = array();
 		foreach ( $media_ids as $media_id ) {
 			$results[] = $this->get_media_item( $media_id );
@@ -4112,6 +4124,7 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 	'request_format' => array(
 		'media'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Accepts images (image/gif, image/jpeg, image/png) only at this time.<br /><br /><strong>Example</strong>:<br />" .
 				"<code>curl \<br />--form 'files[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
+		'media_urls' => "(array) An array of URLs to upload to the post."
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/media/new/',
