@@ -529,6 +529,31 @@ class The_Neverending_Home_Page {
 		global $wp_rewrite;
 		global $currentday;
 
+		// Default click handle text
+		$click_handle_text = __( 'Older posts', 'jetpack' );
+
+		// If a single CPT is displayed, use its plural name instead of "posts"
+		// Could be empty (posts) or an array of multiple post types.
+		// In the latter two cases cases, the default text is used, leaving the `infinite_scroll_js_settings` filter for further customization.
+		$post_type = self::wp_query()->get( 'post_type' );
+		if ( is_string( $post_type ) && ! empty( $post_type ) ) {
+			$post_type = get_post_type_object( $post_type );
+
+			if ( is_object( $post_type ) && ! is_wp_error( $post_type ) ) {
+				if ( isset( $post_type->labels->name ) ) {
+					$cpt_text = $post_type->labels->name;
+				} elseif ( isset( $post_type->label ) ) {
+					$cpt_text = $post_type->label;
+				}
+
+				if ( isset( $cpt_text ) ) {
+					$click_handle_text = sprintf( __( 'Older %s', 'jetpack' ), $cpt_text );
+					unset( $cpt_text );
+				}
+			}
+		}
+		unset( $post_type );
+
 		// Base JS settings
 		$js_settings = array(
 			'id'               => self::get_settings()->container,
@@ -538,7 +563,7 @@ class The_Neverending_Home_Page {
 			'wrapper_class'    => is_string( self::get_settings()->wrapper ) ? esc_js( self::get_settings()->wrapper ) : 'infinite-wrap',
 			'footer'           => is_string( self::get_settings()->footer ) ? esc_js( self::get_settings()->footer ) : self::get_settings()->footer,
 			'click_handle'     => esc_js( self::get_settings()->click_handle ),
-			'text'             => esc_js( __( 'Older posts', 'jetpack' ) ),
+			'text'             => esc_js( $click_handle_text ),
 			'totop'            => esc_js( __( 'Scroll back to top', 'jetpack' ) ),
 			'currentday'       => $currentday,
 			'order'            => 'DESC',
