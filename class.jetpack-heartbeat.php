@@ -112,9 +112,49 @@ class Jetpack_Heartbeat {
 			$jetpack->stat( 'plugins', $plugin );
 		}
 
+		// New Stats so we don't have old bad data cluttering it...
+		// In an old version, some sites were inadvertently firing off far more frequently
+		// than weekly and are still polluting the data as it is anonymized.
+
+		foreach ( self::generate_stats_array( 'v2-' ) as $key => $value ) {
+			$jetpack->stat( $key, $value );
+		}
+
 		Jetpack_Options::update_option( 'last_heartbeat', time() );
 
 		$jetpack->do_stats( 'server_side' );
+	}
+
+	public static function generate_stats_array( $prefix = '' ) {
+		$return = array();
+
+		$return["{$prefix}version"]        = JETPACK__VERSION;
+		$return["{$prefix}wp-version"]     = get_bloginfo( 'version' );
+		$return["{$prefix}php-version"]    = PHP_VERSION;
+		$return["{$prefix}branch"]         = floatval( JETPACK__VERSION );
+		$return["{$prefix}wp-branch"]      = floatval( get_bloginfo( 'version' ) );
+		$return["{$prefix}php-branch"]     = floatval( PHP_VERSION );
+		$return["{$prefix}ssl"]            = Jetpack::permit_ssl();
+		$return["{$prefix}language"]       = get_bloginfo( 'language' );
+		$return["{$prefix}charset"]        = get_bloginfo( 'charset' );
+		$return["{$prefix}is-multisite"]   = is_multisite() ? 'multisite' : 'singlesite';
+		$return["{$prefix}identitycrisis"] = Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no';
+		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
+
+		if ( ! empty( $_SERVER['SERVER_ADDR'] ) || ! empty( $_SERVER['LOCAL_ADDR'] ) ) {
+			$ip     = ! empty( $_SERVER['SERVER_ADDR'] ) ? $_SERVER['SERVER_ADDR'] : $_SERVER['LOCAL_ADDR'];
+			$ip_arr = array_map( 'intval', explode( '.', $ip ) );
+			if ( 4 == sizeof( $ip_arr ) ) {
+				$return["{$prefix}ip-2-octets"] = implode( '.', array_slice( $ip_arr, 0, 2 ) );
+				$return["{$prefix}ip-3-octets"] = implode( '.', array_slice( $ip_arr, 0, 3 ) );
+			}
+		}
+
+		foreach ( Jetpack::get_available_modules() as $slug ) {
+			$return["{$prefix}module-{$slug}"] = Jetpack::is_module_active( $slug ) ? 'on' : 'off';
+		}
+
+		return $return;
 	}
 
 	/**
