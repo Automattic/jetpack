@@ -3450,14 +3450,7 @@ class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$has_media_urls = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
 		if ( $has_media_urls ) {
 			foreach ( $input['media_urls'] as $url ) {
-				$tmp = download_url( esc_url_raw( $url ) );
-				xmpp_message( 'justin@im.wordpress.com', "debug: " . $tmp );
-				$file_array = array(
-					'name' => basename( parse_url( $url, PHP_URL_PATH ) ),
-					'tmp_name' => $tmp,
-				);
-				$media_ids[] = media_handle_sideload( $file_array, 0 );
-				xmpp_message( 'justin@im.wordpress.com', "debug: " . print_r($media_ids,1) );
+				media_sideload_image( esc_url_raw( $url ), 0 );
 			}
 		}
 
