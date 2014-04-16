@@ -3724,10 +3724,15 @@ p {
 			$user_id = 0;
 		} else {
 			$token_type = 'user';
-			if ( empty( $user_id ) || ! ctype_digit( $user_id ) || ! get_userdata( $user_id ) ) {
+			if ( empty( $user_id ) || ! ctype_digit( $user_id ) ) {
 				return false;
 			}
 			$user_id = (int) $user_id;
+
+			$user = new WP_User( $user_id );
+			if ( ! $user || ! $user->exists() ) {
+				return false;
+			}
 		}
 
 		$token = Jetpack_Data::get_access_token( $user_id );
