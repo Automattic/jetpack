@@ -75,25 +75,23 @@ TiledGallery.prototype.maybeSetSizeAttributes = function() {
 			var extraWidth = ( parseInt( thisGalleryElement.css( 'marginLeft' ), 10 ) || 0 ) + ( parseInt( thisGalleryElement.css( 'marginRight' ), 10 ) || 0 );
 			var extraHeight = ( parseInt( thisGalleryElement.css( 'marginTop' ), 10 ) || 0 ) + ( parseInt( thisGalleryElement.css( 'marginBottom' ), 10 ) || 0 );
 
+			thisGalleryElement
+				.data( 'extra-width', extraWidth )
+				.data( 'extra-height', extraHeight );
+
 			// In some situations, tiled galleries in Firefox have shown scrollbars on the images because
 			// the .outerWidth() call on the image returns a value larger than the container. Restrict
 				// widths used in the resizing functions to the maximum width of the container.
 			var parentElement = $( thisGalleryElement.parents( self.resizeableElementsSelector ).get( 0 ) );
-
+			var outerWidth = thisGalleryElement.outerWidth( true );
+			var outerHeight = thisGalleryElement.outerHeight( true );
 			if ( parentElement && parentElement.data( 'original-width' ) ) {
-				thisGalleryElement
-					.data( 'original-width', Math.min( parentElement.data( 'original-width' ), thisGalleryElement.outerWidth( true ) ) )
-					.data( 'original-height', Math.min( parentElement.data( 'original-height' ), thisGalleryElement.outerHeight( true ) ) );
+				outerWidth = Math.min( parentElement.data( 'original-width' ), outerWidth );
+				outerHeight = Math.min( parentElement.data( 'original-height' ), outerHeight );
 			}
-			else {
-				thisGalleryElement
-					.data( 'original-width', thisGalleryElement.outerWidth( true ) )
-					.data( 'original-height', thisGalleryElement.outerHeight( true ) );
-			}
-
 			thisGalleryElement
-				.data( 'extra-width', extraWidth )
-				.data( 'extra-height', extraHeight );
+				.data( 'original-width', outerWidth )
+				.data( 'original-height', outerHeight );
 		} );
 	}
 };
