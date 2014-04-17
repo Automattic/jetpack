@@ -11,7 +11,7 @@
 					</li>
 					<?php if ( Jetpack::is_active() || Jetpack::is_development_mode() ) : ?>
 					<li class="jetpack-modules">
-						<a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" <?php if ( 'jetpack_modules' == $current ) { echo 'class="current"'; } ?>><?php esc_html_e( 'Modules', 'jetpack' ); ?></a>
+						<a href="<?php echo Jetpack::admin_url( 'page=jetpack_modules' ); ?>" <?php if ( 'jetpack_modules' == $current ) { echo 'class="current"'; } ?>><?php esc_html_e( 'Settings', 'jetpack' ); ?></a>
 					</li>
 					<?php endif; ?>
 				</ul>
