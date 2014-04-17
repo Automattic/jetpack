@@ -1230,28 +1230,11 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return true;
 
 		// check for allowed types
-		if ( in_array( $post_type, $this->get_post_types_for_any() ) )
+		if ( in_array( $post_type, Jetpack::get_whitelisted_post_types() ) )
 			return true;
 
  		return false;
  	}
-
-	function get_post_types_for_any() {
-		$allowed_types = array();
-
-		// Get all public posts not in the blacklist
-		$public_types = get_post_types( array( 'public' => true ) );
-		$banned_types = apply_filters( 'rest_api_banned_post_types', array() );
-		foreach ( $public_types as $post_type ) {
-			if ( !in_array( $post_type, $banned_types ) )
-				$allowed_types[] = $post_type;
-		}
-
-		// Add in all post types in the whitelist
-		$allowed_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
-
-		return array_unique( $allowed_types );
-	}
 
 	function is_metadata_public( $key ) {
 		if ( empty( $key ) )
@@ -1793,7 +1776,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			'posts_per_page' => $args['number'],
 			'order'          => $args['order'],
 			'orderby'        => $args['order_by'],
-			'post_type'      => ( 'any' == $args['type'] ) ? $this->get_post_types_for_any() : $args['type'],
+			'post_type'      => ( 'any' == $args['type'] ) ? Jetpack::get_whitelisted_post_types() : $args['type'],
 			'post_status'    => $args['status'],
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
 			's'              => isset( $args['search'] ) ? $args['search'] : null,
@@ -3611,7 +3594,7 @@ new WPCOM_JSON_API_List_Posts_Endpoint( array(
 		'before'   => '(ISO 8601 datetime) Return posts dated on or before the specified datetime.',
 		'tag'      => '(string) Specify the tag name or slug.',
 		'category' => '(string) Specify the category name or slug.',
-		'type'     => "(string) Specify the post type. Defaults to 'post', use 'any' to query for posts, pages, and any public post type not blacklisted by the <code>rest_api_banned_post_types</code> filter. Private post types can also be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'type'     => "(string) Specify the post type. Defaults to 'post', use 'any' to query for both posts and pages. Post types besides post and page need to be whitelisted using the <code>jetpack_allowed_post_types</code> filter.",
 		'status'   => array(
 			'publish' => 'Return only published posts.',
 			'private' => 'Return only private posts.',

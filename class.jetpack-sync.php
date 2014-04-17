@@ -489,7 +489,7 @@ class Jetpack_Sync {
 
 		if ( 0 < strlen( $post['post_password'] ) )
 			return false;
-		if ( ! in_array( $post['post_type'], get_post_types( array( 'public' => true ) ) ) )
+		if ( ! in_array( $post['post_type'], Jetpack::get_whitelisted_post_types() ) )
 			return false;
 		$post_status = get_post_status( $post['ID'] ); // Inherited status is resolved here.
 		if ( ! in_array( $post_status, get_post_stati( array( 'public' => true ) ) ) )
