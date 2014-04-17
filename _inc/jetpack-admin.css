@@ -1559,7 +1559,7 @@ input[type="text"].module-search + label:after {
 	left: -3px;
 	margin-right: 2px;
 	opacity: 0.8;
-	font: normal 1.25em/1em 'genericons';
+	font: normal 16px 'genericons';
 	vertical-align: top;
 }
 
