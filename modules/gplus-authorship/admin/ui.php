@@ -28,6 +28,8 @@ class GPlus_Authorship_Admin {
 		add_action( 'pre_admin_screen_sharing', array( $this, 'connection_screen' ), 15 );
 		add_action( 'admin_init', array( $this, 'add_meta_box' ) );
 		add_action( 'do_meta_boxes', array( $this, 'should_we_show_the_meta_box' ) );
+		add_action( 'sharing_global_options', array( $this, 'admin_settings_init' ), 20 );
+		add_action( 'sharing_admin_update',   array( $this, 'admin_settings_callback' ), 20 );
 
 		if ( $this->in_jetpack )
 			add_action( 'pre_admin_screen_sharing', array( $this, 'jetpack_disconnect' ), 10 );
@@ -142,9 +144,40 @@ class GPlus_Authorship_Admin {
 		}
 	}
 
+	function admin_settings_init() { ?>
+		<tr>
+			<th scope="row">
+			<label><?php esc_html_e( 'Google+', 'jetpack' ); ?></label>
+		</th>
+		<td>
+			<div>
+				<label>
+				<input type="checkbox" class="hidegplus" name="hidegplus" value="on" <?php checked( get_option( 'hide_gplus', false ) ); ?> />
+				</label>
+
+				<?php esc_html_e( 'Hide my Google+ profile from displaying in the sharing area of my posts.', 'jetpack' ); ?>
+			</div>		
+		</td>
+		</tr><?php
+	}
+
+	function admin_settings_callback() {
+		$new_state = isset( $_POST['hidegplus'] ) ? $_POST['hidegplus'] : 'off';
+		switch( $new_state ) {
+			case 'on' :
+				update_option( 'hide_gplus', 1 );
+				break;
+			case 'off'  :
+			default:
+				delete_option( 'hide_gplus' );
+				break;
+		}
+	}
+
 	private function connected_message() {
 		$users_gplus_info = GPlus_Authorship_Utils::get_current_users_gplus_info(); ?>
-		<p><?php _e( 'Your Google+ profile name and URL will be displayed in the sharing area of your posts.', 'jetpack' ); ?></p>
+		<p><?php _e( 'Your posts will be associated with your Google+ profile.', 'jetpack' ); ?></p>
+
 		<div id="gplus-connection-details">
 			<div class="gplus-disconnect">
 				<?php $this->disconnect_button(); ?>
@@ -155,6 +188,7 @@ class GPlus_Authorship_Admin {
 				<span class="gplus-connected"><?php esc_html_e( 'Connected', 'jetpack' ); ?></span>
 			</p>
 			<div class="gplus-clear"></div>
+
 		</div><?php
 	}
 
@@ -188,7 +222,7 @@ class GPlus_Authorship_Admin {
 		<p>
 			<label for="gplus_authorship_enable">
 				<input type="checkbox" name="gplus_authorship" id="gplus_authorship_enable" value="1" <?php checked( $enabled_on_post ); ?>>
-				<?php esc_html_e( 'Show Google+ infomation with this post', 'jetpack' ); ?> <br />
+				<?php esc_html_e( 'Associate my Google+ infomation with this post.', 'jetpack' ); ?> <br />
 				<?php if ( !empty( $users_gplus_info ) ) { ?>
 				<div class="gplus-post-meta-box">
 					<img src="<?php echo esc_url( $users_gplus_info['profile_image'] ); ?>?sz=25" alt="" />
