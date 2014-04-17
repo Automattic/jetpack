@@ -80,7 +80,7 @@
 		
 		th {
 			border-left: 0;
-			padding-left: 4px;
+			padding: 14px 4px 0;
 			input {
 				display: block;
 			}
@@ -120,7 +120,7 @@
 
 		}
 		td {
-			padding: 6px 10px 4px;
+			padding: 10px 10px 8px 14px;
 			line-height: 25px;
 
 			&:first-child {

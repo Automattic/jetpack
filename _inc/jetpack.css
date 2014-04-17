@@ -1848,12 +1848,12 @@ input[type="text"].module-search + label:after {
 	left: -3px;
 	margin-right: 2px;
 	opacity: 0.8;
-	font: normal 16px 'genericons';
+	font: normal 20px 'genericons';
 	vertical-align: top;
 }
 
 .jetpack-modules .info a:before {
-	margin-top: 3px;
+	margin-top: 1px;
 }
 
 .latex:before,
@@ -1869,25 +1869,25 @@ input[type="text"].module-search + label:after {
 .modules h3.contact-form:before,
 .jetpack-modules #contact-form .info a:before {
 	content: '\f175';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 
 .modules h3.custom-css:before,
 .jetpack-modules #custom-css .info a:before {
 	content: '\f100';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 
 .modules h3.enhanced-distribution:before,
 .jetpack-modules #enhanced-distribution .info a:before {
 	content: '\f237';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 
 .modules h3.widgets:before,
 .jetpack-modules #widgets .info a:before {
 	content: '\f116';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 
 .gplus-authorship:before,
@@ -1964,7 +1964,7 @@ input[type="text"].module-search + label:after {
 .modules h3.publicize:before,
 .jetpack-modules #publicize .info a:before {
 	content: '\f237';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 
 .related-posts:before,
@@ -2016,7 +2016,7 @@ input[type="text"].module-search + label:after {
 .modules h3.widget-visibility:before,
 .jetpack-modules #widget-visibility .info a:before {
 	content: '\f116';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 
 .stats:before,
