@@ -338,7 +338,7 @@ class Jetpack_Admin {
 			</form>
 
 			<div class="jp-filter" id="jp-filters">
-				<a href="#" id="newest" data-filter="added" class="selected"><?php esc_html_e( 'Newest', 'jetpack' ); ?></a>
+				<a href="#" id="newest" data-filter="introduced" class="selected"><?php esc_html_e( 'Newest', 'jetpack' ); ?></a>
 				<a href="#" id="category" data-filter="cat"><?php _e('Category'); ?></a>
 				<a href="#" id="alphabetical" data-filter="name"><?php esc_html_e( 'Alphabetical', 'jetpack' ); ?></a>
 			</div>
