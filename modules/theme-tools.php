@@ -15,6 +15,10 @@ function jetpack_load_theme_tools() {
 	}
 
 	require_once( JETPACK__PLUGIN_DIR . 'modules/theme-tools/random-redirect.php' );
+
+	if ( current_theme_supports( 'jetpack-responsive-videos' ) ) {
+		require_once( JETPACK__PLUGIN_DIR . 'modules/theme-tools/responsive-videos/responsive-videos.php' );
+	}
 }
 add_action( 'init', 'jetpack_load_theme_tools', 30 );
 
