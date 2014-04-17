@@ -8,6 +8,7 @@
 
 	$(document).ready(function () {
 		initEvents();
+		filterModules('introduced');
 		loadModules();
 		updateModuleCount();
 	});

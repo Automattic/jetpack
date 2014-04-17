@@ -687,6 +687,10 @@ html {
 	border: none;
 }
 
+.jetpack-pagestyles .update-nag {
+	display: none;
+}
+
 .masthead {
 	overflow: hidden;
 	position: relative;
