@@ -23,10 +23,19 @@ function TiledGallery( galleryElem ) {
 
 	this.addCaptionEvents();
 
+	// Set original size information to elements if they haven't been set
+	this.maybeSetSizeAttributes();
+
 	// Resize when initialized so that window dimensions don't affect the
 	// initial gallery dimensions
 	this.resize();
 };
+
+/**
+ * Selector for all resizeable elements inside a Tiled Gallery
+ */
+
+TiledGallery.prototype.resizeableElementsSelector = '.gallery-row, .gallery-group, .tiled-gallery-item img';
 
 /**
  * Story
@@ -43,15 +52,20 @@ TiledGallery.prototype.addCaptionEvents = function() {
 	);
 };
 
-TiledGallery.prototype.resize = function() {
-	var resizeableElements = '.gallery-row, .gallery-group, .tiled-gallery-item img';
+/*
+ * Set original size information to gallery elements to enable dynamic resizing
+ * unless they have already been set.
+ */
+
+TiledGallery.prototype.maybeSetSizeAttributes = function() {
+	var self = this;
 
 	if ( ! this.gallery.data( 'sizes-set' ) ) {
-		// Maintain a record of the original widths and heights of these elements
-		// for proper scaling.
+		// This gallery has it's attributes set. No need to set again if a new instance
+		// is made of an element that already has the attributes
 		this.gallery.data( 'sizes-set', true );
 
-		this.gallery.find( resizeableElements ).each( function () {
+		this.gallery.find( this.resizeableElementsSelector ).each( function () {
 			var thisGalleryElement = $( this );
 
 			// Don't change margins, but remember what they were so they can be
@@ -59,12 +73,12 @@ TiledGallery.prototype.resize = function() {
 			// small enough, ignoring the margins can cause images to overflow
 			// into new rows.
 			var extraWidth = ( parseInt( thisGalleryElement.css( 'marginLeft' ), 10 ) || 0 ) + ( parseInt( thisGalleryElement.css( 'marginRight' ), 10 ) || 0 );
-			var extraHeight = ( parseInt( thisGalleryElement.css( 'marginTop' ), 10 ) || 0 ) + ( parseInt( thisGalleryElement.css( 'marginBottom' ), 10 ) || 0 )
+			var extraHeight = ( parseInt( thisGalleryElement.css( 'marginTop' ), 10 ) || 0 ) + ( parseInt( thisGalleryElement.css( 'marginBottom' ), 10 ) || 0 );
 
 			// In some situations, tiled galleries in Firefox have shown scrollbars on the images because
 			// the .outerWidth() call on the image returns a value larger than the container. Restrict
-			// widths used in the resizing functions to the maximum width of the container.
-			var parentElement = $( thisGalleryElement.parents( resizeableElements ).get( 0 ) );
+				// widths used in the resizing functions to the maximum width of the container.
+			var parentElement = $( thisGalleryElement.parents( self.resizeableElementsSelector ).get( 0 ) );
 
 			if ( parentElement && parentElement.data( 'original-width' ) ) {
 				thisGalleryElement
@@ -82,14 +96,16 @@ TiledGallery.prototype.resize = function() {
 				.data( 'extra-height', extraHeight );
 		} );
 	}
+};
 
+TiledGallery.prototype.resize = function() {
 	// Resize everything in the gallery based on the ratio of the current content width
 	// to the original content width;
 	var originalWidth = this.gallery.data( 'original-width' );
 	var currentWidth = this.gallery.parent().width();
 	var resizeRatio = Math.min( 1, currentWidth / originalWidth );
 
-	this.gallery.find( resizeableElements ).each( function () {
+	this.gallery.find( this.resizeableElementsSelector ).each( function () {
 		var thisGalleryElement = $( this );
 
 		thisGalleryElement
