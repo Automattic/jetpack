@@ -75,7 +75,7 @@ Scroller = function( settings ) {
 
 		this.body.delegate( '#infinite-handle', 'click.infinity', function() {
 			// Handle the handle
-			if ( this.click_handle ) {
+			if ( self.click_handle ) {
 				$( '#infinite-handle' ).remove();
 			}
 
