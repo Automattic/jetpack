@@ -13,7 +13,7 @@ TiledGalleryCollection.prototype.findAndSetupGalleries = function() {
 };
 
 TiledGalleryCollection.prototype.resizeAll = function() {
-	this.galleries.forEach( function(gallery) {
+	$.each(this.galleries, function(i, gallery) {
 		gallery.resize();
 	} );
 };
