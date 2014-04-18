@@ -195,7 +195,7 @@ class Jetpack_Tiled_Gallery {
 			// Grayscale effect
 			if ( $this->atts['grayscale'] == true ) {
 				$src = urlencode( $image->guid );
-				$output .= '<a border="0" href="' . esc_url( $link ) . '"><img ' . $this->generate_carousel_image_args( $image ) . ' class="grayscale" src="' . esc_url( 'http://en.wordpress.com/imgpress?url=' . urlencode( $image->guid ) . '&resize=' . $img_size . ',' . $img_size . '&filter=grayscale' ) . '" width="' . esc_attr( $img_size ) . '" height="' . esc_attr( $img_size ) . '" style=width:' . esc_attr( $img_size ) . 'px; height:' . esc_attr( $img_size ) . 'px; margin=2px;" title="' . esc_attr( $image_title ) . '" /></a>';
+				$output .= '<a border="0" href="' . esc_url( $link ) . '"><img ' . $this->generate_carousel_image_args( $image ) . ' class="grayscale" src="' . esc_url( 'http://en.wordpress.com/imgpress?url=' . urlencode( $image->guid ) . '&resize=' . $img_size . ',' . $img_size . '&filter=grayscale' ) . '" width="' . esc_attr( $img_size ) . '" height="' . esc_attr( $img_size ) . '" style=width:' . esc_attr( $img_size ) . 'px; height:' . esc_attr( $img_size ) . 'px; margin: 2px;" title="' . esc_attr( $image_title ) . '" /></a>';
 			}
 
 			// Captions
