@@ -81,7 +81,7 @@ TiledGallery.prototype.maybeSetSizeAttributes = function() {
 
 			// In some situations, tiled galleries in Firefox have shown scrollbars on the images because
 			// the .outerWidth() call on the image returns a value larger than the container. Restrict
-				// widths used in the resizing functions to the maximum width of the container.
+			// widths used in the resizing functions to the maximum width of the container.
 			var parentElement = $( thisGalleryElement.parents( self.resizeableElementsSelector ).get( 0 ) );
 			var outerWidth = thisGalleryElement.outerWidth( true );
 			var outerHeight = thisGalleryElement.outerHeight( true );
