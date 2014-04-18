@@ -29,7 +29,7 @@ function TiledGallery( galleryElem ) {
 	// Resize when initialized so that window dimensions don't affect the
 	// initial gallery dimensions
 	this.resize();
-};
+}
 
 /**
  * Selector for all resizeable elements inside a Tiled Gallery
