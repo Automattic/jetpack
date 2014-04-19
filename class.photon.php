@@ -299,7 +299,7 @@ class Jetpack_Photon {
 						}
 
 						// Remove the width and height arguments from the tag to prevent distortion
-						$new_tag = preg_replace( '#(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
+						$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
 
 						// Tag an image for dimension checking
 						$new_tag = preg_replace( '#(\s?/)?>(</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
