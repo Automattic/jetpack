@@ -125,11 +125,11 @@ class Jetpack_Tiled_Gallery {
 
 		$output = $this->generate_carousel_container();
 		foreach ( $grouper->grouped_images as $row ) {
-			$orig_dimensions = ' data-orig-wide="' . esc_attr( $row->width ) . '" data-orig-high="' . esc_attr( $row->height ) . '" ';
+			$orig_dimensions = ' data-original-width="' . esc_attr( $row->width ) . '" data-original-height="' . esc_attr( $row->height ) . '" ';
 			$output .= '<div class="gallery-row"' . $orig_dimensions . 'style="' . esc_attr( 'width: ' . $row->width . 'px; height: ' . ( $row->height - 4 ) . 'px;' ) . '">';
 			foreach( $row->groups as $group ) {
 				$count = count( $group->images );
-				$orig_dimensions = ' data-orig-wide="' . esc_attr( $group->width ) . '" data-orig-high="' . esc_attr( $group->height ) . '" ';
+				$orig_dimensions = ' data-original-width="' . esc_attr( $group->width ) . '" data-original-height="' . esc_attr( $group->height ) . '" ';
 				$output .= '<div' . $orig_dimensions . 'class="gallery-group images-' . esc_attr( $count ) . '" style="' . esc_attr( 'width: ' . $group->width . 'px; height: ' . $group->height . 'px;' ) . '">';
 				foreach ( $group->images as $image ) {
 
@@ -145,7 +145,7 @@ class Jetpack_Tiled_Gallery {
 
 					$img_src = add_query_arg( array( 'w' => $image->width, 'h' => $image->height ), $orig_file );
 
-					$orig_dimensions = ' data-orig-wide="' . esc_attr( $image->width ) . '" data-orig-high="' . esc_attr( $image->height ) . '" ';
+					$orig_dimensions = ' data-original-width="' . esc_attr( $image->width ) . '" data-original-height="' . esc_attr( $image->height ) . '" ';
 					$output .= '<div class="tiled-gallery-item tiled-gallery-item-' . esc_attr( $size ) . '"><a href="' . esc_url( $link ) . '"><img ' . $orig_dimensions . $this->generate_carousel_image_args( $image ) . ' src="' . esc_url( $img_src ) . '" width="' . esc_attr( $image->width ) . '" height="' . esc_attr( $image->height ) . '" style="width:' . esc_attr( $image->width ) . 'px; height:' . esc_attr( $image->height ) . 'px;" align="left" title="' . esc_attr( $image_title ) . '" alt="' . esc_attr( $image_alt ) . '" /></a>';
 
 					if ( $this->atts['grayscale'] == true ) {
@@ -192,7 +192,7 @@ class Jetpack_Tiled_Gallery {
 
 			$img_src = add_query_arg( array( 'w' => $img_size, 'h' => $img_size, 'crop' => 1 ), $orig_file );
 
-			$orig_dimensions = ' data-orig-wide="' . esc_attr( $img_size ) . '" data-orig-high="' . esc_attr( $img_size ) . '" ';
+			$orig_dimensions = ' data-original-width="' . esc_attr( $img_size ) . '" data-original-height="' . esc_attr( $img_size ) . '" ';
 			$output .= '<div class="tiled-gallery-item">';
 			$output .= '<a border="0" href="' . esc_url( $link ) . '"><img ' . $orig_dimensions . $this->generate_carousel_image_args( $image ) . '" src="' . esc_url( $img_src ) . '" width="' . esc_attr( $img_size ) . '" height="' . esc_attr( $img_size ) . '" style="width:' . esc_attr( $img_size ) . 'px; height:' . esc_attr( $img_size ) . 'px; margin: ' . esc_attr( $margin ) . 'px;" title="' . esc_attr( $image_title ) . '" /></a>';
 

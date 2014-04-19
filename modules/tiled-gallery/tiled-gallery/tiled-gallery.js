@@ -79,8 +79,8 @@ TiledGallery.prototype.resize = function() {
 		var borderWidth = self.getExtraDimension( thisGalleryElement, 'border', 'horizontal' );
 		var borderHeight = self.getExtraDimension( thisGalleryElement, 'border', 'vertical' );
 
-		var outerWidth = thisGalleryElement.data( 'orig-wide' ) + paddingWidth + borderWidth + marginWidth;
-		var outerHeight = thisGalleryElement.data( 'orig-high' ) + paddingHeight + borderHeight + marginHeight;
+		var outerWidth = thisGalleryElement.data( 'original-width' ) + paddingWidth + borderWidth + marginWidth;
+		var outerHeight = thisGalleryElement.data( 'original-height' ) + paddingHeight + borderHeight + marginHeight;
 		thisGalleryElement
 			.width( Math.floor( resizeRatio * outerWidth ) - marginWidth)
 			.height( Math.floor( resizeRatio * outerHeight ) - marginHeight );
