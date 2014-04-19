@@ -23,9 +23,6 @@ function TiledGallery( galleryElem ) {
 
 	this.addCaptionEvents();
 
-	// Set original size information to elements if they haven't been set
-	this.maybeSetSizeAttributes();
-
 	// Resize when initialized so that window dimensions don't affect the
 	// initial gallery dimensions
 	this.resize();
@@ -52,47 +49,13 @@ TiledGallery.prototype.addCaptionEvents = function() {
 	);
 };
 
-/*
- * Set original size information to gallery elements to enable dynamic resizing
- * unless they have already been set.
- */
-
-TiledGallery.prototype.maybeSetSizeAttributes = function() {
-	var self = this;
-
-	if ( ! this.gallery.data( 'sizes-set' ) ) {
-		// This gallery has it's attributes set. No need to set again if a new instance
-		// is made of an element that already has the attributes
-		this.gallery.data( 'sizes-set', true );
-
-		this.gallery.find( this.resizeableElementsSelector ).each( function () {
-			var thisGalleryElement = $( this );
-
-			// Don't change margins, but remember what they were so they can be
-			// accounted for in size calculations.  When the screen width gets
-			// small enough, ignoring the margins can cause images to overflow
-			// into new rows.
-			var extraWidth = ( parseInt( thisGalleryElement.css( 'marginLeft' ), 10 ) || 0 ) + ( parseInt( thisGalleryElement.css( 'marginRight' ), 10 ) || 0 );
-			var extraHeight = ( parseInt( thisGalleryElement.css( 'marginTop' ), 10 ) || 0 ) + ( parseInt( thisGalleryElement.css( 'marginBottom' ), 10 ) || 0 );
-
-			thisGalleryElement
-				.data( 'extra-width', extraWidth )
-				.data( 'extra-height', extraHeight );
-
-			// In some situations, tiled galleries in Firefox have shown scrollbars on the images because
-			// the .outerWidth() call on the image returns a value larger than the container. Restrict
-			// widths used in the resizing functions to the maximum width of the container.
-			var parentElement = $( thisGalleryElement.parents( self.resizeableElementsSelector ).get( 0 ) );
-			var outerWidth = thisGalleryElement.outerWidth( true );
-			var outerHeight = thisGalleryElement.outerHeight( true );
-			if ( parentElement && parentElement.data( 'original-width' ) ) {
-				outerWidth = Math.min( parentElement.data( 'original-width' ), outerWidth );
-				outerHeight = Math.min( parentElement.data( 'original-height' ), outerHeight );
-			}
-			thisGalleryElement
-				.data( 'original-width', outerWidth )
-				.data( 'original-height', outerHeight );
-		} );
+TiledGallery.prototype.getExtraDimension = function( el, attribute, mode ) {
+	if ( mode === 'horizontal' ) {
+		return ( parseInt( el.css( attribute + 'Left' ), 10 ) || 0 ) +  ( parseInt( el.css( attribute + 'Right' ), 10 ) || 0 );
+	} else if ( mode === 'vertical' ){
+		return ( parseInt( el.css( attribute + 'Top' ), 10 ) || 0 ) + ( parseInt( el.css( attribute + 'Bottom' ), 10 ) || 0 );
+	} else {
+		return 0;
 	}
 };
 
@@ -103,12 +66,24 @@ TiledGallery.prototype.resize = function() {
 	var currentWidth = this.gallery.parent().width();
 	var resizeRatio = Math.min( 1, currentWidth / originalWidth );
 
+	var self = this;
 	this.gallery.find( this.resizeableElementsSelector ).each( function () {
 		var thisGalleryElement = $( this );
 
+		var marginWidth = self.getExtraDimension( thisGalleryElement, 'margin', 'horizontal' );
+		var marginHeight = self.getExtraDimension( thisGalleryElement, 'margin', 'vertical' );
+
+		var paddingWidth = self.getExtraDimension( thisGalleryElement, 'padding', 'horizontal' );
+		var paddingHeight = self.getExtraDimension( thisGalleryElement, 'padding', 'vertical' );
+
+		var borderWidth = self.getExtraDimension( thisGalleryElement, 'border', 'horizontal' );
+		var borderHeight = self.getExtraDimension( thisGalleryElement, 'border', 'vertical' );
+
+		var outerWidth = thisGalleryElement.data( 'orig-wide' ) + paddingWidth + borderWidth + marginWidth;
+		var outerHeight = thisGalleryElement.data( 'orig-high' ) + paddingHeight + borderHeight + marginHeight;
 		thisGalleryElement
-			.width( Math.floor( resizeRatio * thisGalleryElement.data( 'original-width' ) ) - thisGalleryElement.data( 'extra-width' ) )
-			.height( Math.floor( resizeRatio * thisGalleryElement.data( 'original-height' ) ) - thisGalleryElement.data( 'extra-height' ) );
+			.width( Math.floor( resizeRatio * outerWidth ) - marginWidth)
+			.height( Math.floor( resizeRatio * outerHeight ) - marginHeight );
 	} );
 
 	this.gallery.removeClass( 'tiled-gallery-unresized' );
