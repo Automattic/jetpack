@@ -449,6 +449,7 @@ function jetpack_subscriptions_more_info() { ?>
 	if ( 'jetpack_module_more_info_connected_subscriptions' == current_filter() )
 		printf( '<p>' . __( 'To use the Subscriptions widget, go to Appearance &#8594; <a href="%s">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away.', 'jetpack' ) . '</p>', admin_url( 'widgets.php' ) );
 		printf( '<p>' . __( 'You can also make changes to your Subscription settings at the bottom of the <a href="%s">Discussion Settings</a> page.', 'jetpack' ) . '</p>', admin_url( 'options-discussion.php#jetpack-subscriptions-settings' ) );
+		printf( '<p>' . __( 'To customize the emails sent from your blog to your followers, check the settings at the bottom of the <a href="%s">Reading Settings</a> page.', 'jetpack' ) . '</p>', admin_url( 'options-reading.php#follower-settings' ) );
 }
 add_action( 'jetpack_module_more_info_subscriptions', 'jetpack_subscriptions_more_info' );
 add_action( 'jetpack_module_more_info_connected_subscriptions', 'jetpack_subscriptions_more_info' );
