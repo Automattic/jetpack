@@ -26,6 +26,9 @@ function TiledGallery( galleryElem ) {
 	// Resize when initialized so that window dimensions don't affect the
 	// initial gallery dimensions
 	this.resize();
+
+	// Show the tiled gallery if it wasn't shown before
+	this.gallery.removeClass( 'tiled-gallery-unresized' );
 }
 
 /**
@@ -85,8 +88,6 @@ TiledGallery.prototype.resize = function() {
 			.width( Math.floor( resizeRatio * outerWidth ) - marginWidth)
 			.height( Math.floor( resizeRatio * outerHeight ) - marginHeight );
 	} );
-
-	this.gallery.removeClass( 'tiled-gallery-unresized' );
 };
 
 /**
