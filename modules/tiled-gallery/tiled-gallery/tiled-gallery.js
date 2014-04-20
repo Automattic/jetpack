@@ -82,8 +82,12 @@ TiledGallery.prototype.resize = function() {
 		var borderWidth = self.getExtraDimension( thisGalleryElement, 'border', 'horizontal' );
 		var borderHeight = self.getExtraDimension( thisGalleryElement, 'border', 'vertical' );
 
+		// Take all outer dimensions into account when resizing so that images
+		// scale with constant empty space between them
 		var outerWidth = thisGalleryElement.data( 'original-width' ) + paddingWidth + borderWidth + marginWidth;
 		var outerHeight = thisGalleryElement.data( 'original-height' ) + paddingHeight + borderHeight + marginHeight;
+
+		// Subtract margins so that images don't overflow on small browser windows
 		thisGalleryElement
 			.width( Math.floor( resizeRatio * outerWidth ) - marginWidth)
 			.height( Math.floor( resizeRatio * outerHeight ) - marginHeight );
