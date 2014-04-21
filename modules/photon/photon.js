@@ -3,7 +3,7 @@
 	 * For images lacking explicit dimensions and needing them, try to add them.
 	 */
 	var restore_dims = function() {
-		$( 'img[data-recalc-dims]' ).each( function() {
+		$( 'img[data-recalc-dims]' ).each( function recalc() {
 			var $this = $( this );
 			if ( this.complete ) {
 
@@ -11,7 +11,7 @@
 				// attribute and it's value is not the same as the current src we
 				// should wait until the image load event
 				if ( $this.data( 'lazy-src' ) && $this.attr( 'src' ) != $this.data( 'lazy-src' ) ) {
-					$this.load( arguments.callee );
+					$this.load( recalc );
 					return;
 				}
 
@@ -28,7 +28,7 @@
 				}
 			}
 			else {
-				$this.load( arguments.callee );
+				$this.load( recalc );
 			}
 		} );
 	},
