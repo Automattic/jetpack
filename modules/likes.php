@@ -550,6 +550,8 @@ class Jetpack_Likes {
 
 		if ( $this->in_jetpack ) {
 			add_filter( 'the_content', array( &$this, 'post_likes' ), 30, 1 );
+			add_filter( 'the_excerpt', array( &$this, 'post_likes' ), 30, 1 );
+
 			add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts' ) );
 
 		} else {
