@@ -112,30 +112,30 @@ class Jetpack_Widget_Conditions {
 				<?php
 			break;
 			case 'taxonomy':
-				?> 
-				<option value=""><?php _e( 'All taxonomy pages', 'jetpack' ); ?></option> 
-				<?php 
+				?>
+				<option value=""><?php _e( 'All taxonomy pages', 'jetpack' ); ?></option>
+				<?php
 
-				$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' ); 
-				usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) ); 
+				$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
+				usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
 
-				foreach ( $taxonomies as $taxonomy ) { 
-					?> 
-					<optgroup label="<?php esc_attr_e( $taxonomy->labels->name . ':', 'jetpack' ); ?>"> 
-						<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $minor ); ?>><?php echo 'All ' . esc_html( $taxonomy->name ) . ' pages'; ?></option> 
-					<?php 
+				foreach ( $taxonomies as $taxonomy ) {
+					?>
+					<optgroup label="<?php esc_attr_e( $taxonomy->labels->name . ':', 'jetpack' ); ?>">
+						<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $minor ); ?>><?php echo 'All ' . esc_html( $taxonomy->name ) . ' pages'; ?></option>
+					<?php
 
-					$terms = get_terms( array( $taxonomy->name ), array( 'number' => 250, 'hide_empty' => false ) ); 
-					foreach ( $terms as $term ) { 
-						?> 
-						<option value="<?php echo esc_attr( $taxonomy->name . '_tax_' . $term->term_id ); ?>" <?php selected( $taxonomy->name . '_tax_' . $term->term_id, $minor ); ?>><?php echo esc_html( $term->name ); ?></option> 
-						<?php 
-					} 
+					$terms = get_terms( array( $taxonomy->name ), array( 'number' => 250, 'hide_empty' => false ) );
+					foreach ( $terms as $term ) {
+						?>
+						<option value="<?php echo esc_attr( $taxonomy->name . '_tax_' . $term->term_id ); ?>" <?php selected( $taxonomy->name . '_tax_' . $term->term_id, $minor ); ?>><?php echo esc_html( $term->name ); ?></option>
+						<?php
+					}
 
-					?> 
-				</optgroup> 
-				<?php 
-				} 
+					?>
+				</optgroup>
+				<?php
+				}
 			break;
 		}
 	}
@@ -409,14 +409,14 @@ class Jetpack_Widget_Conditions {
 						$condition_result = true;
 				break;
 				case 'taxonomy':
-					$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id 
-					$terms = get_the_terms( $post->ID, $rule['minor'] ); // Does post have terms in taxonomy? 
-					if ( is_tax( $term[0], $term[1] ) ) 
-						$condition_result = true; 
-					else if ( is_singular() && $term[1] && has_term( $term[1], $term[0] ) ) 
-						$condition_result = true; 
-					else if ( is_singular() && $terms & !is_wp_error( $terms ) ) 
-						$condition_result = true; 
+					$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
+					$terms = get_the_terms( $post->ID, $rule['minor'] ); // Does post have terms in taxonomy?
+					if ( is_tax( $term[0], $term[1] ) )
+						$condition_result = true;
+					else if ( is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
+						$condition_result = true;
+					else if ( is_singular() && $terms & !is_wp_error( $terms ) )
+						$condition_result = true;
 				break;
 			}
 
