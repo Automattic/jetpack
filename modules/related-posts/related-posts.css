@@ -104,6 +104,7 @@ div#jp-relatedposts div.jp-relatedposts-items-visual h4.jp-relatedposts-post-tit
 }
 
 div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-title a {
+	font-size: inherit;
 	font-weight: normal;
 	text-decoration: none;
 	filter: alpha(opacity=100);
