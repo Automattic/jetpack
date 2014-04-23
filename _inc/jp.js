@@ -197,7 +197,7 @@
 				index = $this.data('index'),
 				name = $this.data('name');
 
-			$modal.html(ich.modalTemplate({}, true));
+			$modal.html(ich.modalTemplate({'name': name}, true));
 			$modal.find('header li').first().text(name);
 			$modal.find('.content').html('');
 			$modal.find('.content').html(modules[index].long_description);

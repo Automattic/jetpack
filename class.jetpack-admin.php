@@ -495,6 +495,11 @@ class Jetpack_Admin {
 		</ul>
 	</header>
 	<div class="content-container"><div class="content"></div></div>
+	<footer>
+		<a href="#" class="modal-activate button button-primary"><?php _e( 'Activate' ); ?> {{name}}</a>
+		<a href="#" class="modal-deactivate button"><?php _e( 'Deactivate' ); ?></a>
+		<a href="#" class="modal-config button"><?php _e( 'Configure' ); ?></a>
+	</footer>
 </script>
 <script id="mod" type="text/html">
 	<div href="{{ url }}" data-index="{{ index }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
