@@ -329,7 +329,6 @@ class Jetpack_Admin {
 				<h2><?php _e('Once you’ve connected Jetpack, you’ll get access to all the delightful features below.'); ?></h2>
 			</div>
 		</div><!-- .masthead -->
-		<div class="page-content about">
 		<div class="featured">
 			<h2><?php _e('Jetpack team favorites'); ?></h2>
 		
@@ -359,6 +358,7 @@ class Jetpack_Admin {
 				</div>
 			</div>
 		</div><!-- .featured -->
+		<div class="page-content about">
 		<div class="module-grid">
 			<h2><?php esc_html_e( 'Jetpack features', 'jetpack' ); ?></h2>
 
