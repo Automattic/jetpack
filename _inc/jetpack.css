@@ -876,7 +876,6 @@ html {
 }
 
 .page-content.about {
-	margin-top: -60px;
 	position: relative;
 	z-index: 10;
 }
@@ -1058,7 +1057,7 @@ html {
 .subhead {
 	position: relative;
 	margin-top: 105px;
-	padding: 4em 0 3.2em;
+	padding: 4em 0;
 	background: #f9f9f9;
 	z-index: 2;
 }
@@ -1108,6 +1107,26 @@ html {
 	background: url('img/the-cloud-sm.svg') center bottom repeat-x;
 	pointer-events: none;
 	z-index: 2;
+}
+
+.featured {
+	position: relative;
+	padding: 2em 0 4.6em;
+	z-index: 1;
+}
+
+.featured:before {
+	content: "";
+	display: block;
+	position: absolute;
+	top: 0;
+	left: -100%;
+	width: 300%;
+	height: 100%;
+	border-top: 1px solid #d6d6d6;
+	border-bottom: 1px solid #d6d6d6;
+	background: #fff;
+	z-index: -1;
 }
 
 .featured h2,
@@ -1181,6 +1200,54 @@ html {
 	height: auto;
 	border: 1px solid #ddd;
 	border-bottom: none;
+}
+
+.custom-css {
+	background: url('img/custom-css.jpg') no-repeat;
+	background-size: 100% auto;
+}
+
+@media print,
+(-webkit-min-device-pixel-ratio: 1.25),
+(min--moz-device-pixel-ratio: 1.25),
+(-o-min-device-pixel-ratio: 5/4),
+(min-resolution: 120dpi) {
+	.custom-css {
+		background-image: url('img/custom-css@2x.jpg');
+	}
+
+}
+
+.wordpress-connect {
+	background: url('img/wordpress-connect.jpg') no-repeat;
+	background-size: 100% auto;
+}
+
+@media print,
+(-webkit-min-device-pixel-ratio: 1.25),
+(min--moz-device-pixel-ratio: 1.25),
+(-o-min-device-pixel-ratio: 5/4),
+(min-resolution: 120dpi) {
+	.wordpress-connect {
+		background-image: url('img/wordpress-connect@2x.jpg');
+	}
+
+}
+
+.wordpress-stats {
+	background: url('img/wordpress-stats.jpg') no-repeat;
+	background-size: 100% auto;
+}
+
+@media print,
+(-webkit-min-device-pixel-ratio: 1.25),
+(min--moz-device-pixel-ratio: 1.25),
+(-o-min-device-pixel-ratio: 5/4),
+(min-resolution: 120dpi) {
+	.wordpress-stats {
+		background-image: url('img/wordpress-stats@2x.jpg');
+	}
+
 }
 
 .no-border {
@@ -2069,7 +2136,6 @@ input[type="text"].module-search + label:after {
 
 	.page-content.about {
 		background: #f9f9f9;
-		margin-top: -80px;
 		padding: 15px;
 	}
 
@@ -2423,8 +2489,7 @@ input[type="text"].module-search + label:after {
 	}
 
 	.subhead h2 {
-		font-size: 18px;
-		max-width: 380px;
+		display: none;
 	}
 
 	.download-jetpack {
