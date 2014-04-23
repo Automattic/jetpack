@@ -1,13 +1,13 @@
 ( function($) {
 
 	function TiledGalleryCollection() {
-		this.findAndSetupGalleries();
+		this.galleries = [];
+		this.findAndSetupNewGalleries();
 	}
 
-	TiledGalleryCollection.prototype.findAndSetupGalleries = function() {
-		this.galleries = [];
+	TiledGalleryCollection.prototype.findAndSetupNewGalleries = function() {
 		var self = this;
-		$( '.tiled-gallery' ).each( function() {
+		$( '.tiled-gallery.tiled-gallery-unresized' ).each( function() {
 			self.galleries.push( new TiledGallery( $( this ) ) );
 		} );
 	};
@@ -27,7 +27,7 @@
 		// initial gallery dimensions
 		this.resize();
 
-		// Show the tiled gallery if it wasn't shown before
+		// Displays the gallery and stops it from being initialized again
 		this.gallery.removeClass( 'tiled-gallery-unresized' );
 	}
 
@@ -102,10 +102,10 @@
 		var tiledGalleries = new TiledGalleryCollection();
 
 		$( 'body' ).on( 'post-load', function() {
-			tiledGalleries.findAndSetupGalleries();
+			tiledGalleries.findAndSetupNewGalleries();
 		} );
 		$( document ).on( 'page-rendered.wpcom-newdash', function() {
-			tiledGalleries.findAndSetupGalleries();
+			tiledGalleries.findAndSetupNewGalleries();
 		} );
 
 		// Resize all galleries when the window is resized
