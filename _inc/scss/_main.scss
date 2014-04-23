@@ -64,7 +64,6 @@ html {
 }
 
 .page-content.about {
-	margin-top: -60px;
 	position: relative;
 	z-index: 10;
 }
@@ -242,7 +241,7 @@ html {
 .subhead {
 	position: relative;
 	margin-top: 105px;
-	padding: 4em 0 3.2em;
+	padding: 4em 0;
 	background: $clouds;
 	z-index: 2;
 
@@ -299,6 +298,26 @@ html {
 // Featured
 // ==========================================================================
 
+.featured {
+	position: relative;
+	padding: 2.0em 0 4.6em;
+	z-index: 1;
+
+	// Full with bar that breaks out of .page width
+	&:before { 
+		content: "";
+		display: block;
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 300%;
+		height: 100%;
+		border-top: 1px solid #d6d6d6;
+		border-bottom: 1px solid #d6d6d6;
+		background: #fff;
+		z-index: -1;
+	}
+}
 .featured h2,
 .module-grid h2 {
 	margin-top: em(22, 36);
@@ -311,7 +330,7 @@ html {
 	margin: 0 -5px; // For centering features
 	@extend %clearfix;
 }
-.feature,
+.feature, 
 .module {
 	position: relative;
 	float: left;
@@ -357,6 +376,42 @@ html {
 	height: auto;
 	border: 1px solid #ddd;
 	border-bottom: none;
+}
+.custom-css {
+	background: url('img/custom-css.jpg') no-repeat;
+	background-size: 100% auto;
+
+	@media print,
+	(-webkit-min-device-pixel-ratio: 1.25),
+	(min--moz-device-pixel-ratio: 1.25),
+	(-o-min-device-pixel-ratio: 5/4),
+	(min-resolution: 120dpi) {
+		background-image: url('img/custom-css@2x.jpg');
+	}
+}
+.wordpress-connect {
+	background: url('img/wordpress-connect.jpg') no-repeat;
+	background-size: 100% auto;
+
+	@media print,
+	(-webkit-min-device-pixel-ratio: 1.25),
+	(min--moz-device-pixel-ratio: 1.25),
+	(-o-min-device-pixel-ratio: 5/4),
+	(min-resolution: 120dpi) {
+		background-image: url('img/wordpress-connect@2x.jpg');
+	}
+}
+.wordpress-stats {
+	background: url('img/wordpress-stats.jpg') no-repeat;
+	background-size: 100% auto;
+
+	@media print,
+	(-webkit-min-device-pixel-ratio: 1.25),
+	(min--moz-device-pixel-ratio: 1.25),
+	(-o-min-device-pixel-ratio: 5/4),
+	(min-resolution: 120dpi) {
+		background-image: url('img/wordpress-stats@2x.jpg');
+	}
 }
 .no-border {
 	// For when you have images that look better without a border.

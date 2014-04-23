@@ -326,9 +326,39 @@ class Jetpack_Admin {
 				</svg>
 			</div>
 			<div class="subhead">
+				<h2><?php _e('Once you’ve connected Jetpack, you’ll get access to all the delightful features below.'); ?></h2>
 			</div>
 		</div><!-- .masthead -->
 		<div class="page-content about">
+		<div class="featured">
+			<h2><?php _e('Jetpack team favorites'); ?></h2>
+		
+			<div class="features">
+				<div class="feature">
+					<a href="/support/custom-css/" data-name="Custom CSS" class="f-img"><div class="feature-img custom-css"></div></a>
+					<a href="/support/custom-css/" data-name="Custom CSS" class="feature-description">
+						<h3><?php _e('Custom CSS'); ?></h3>
+						<p><?php _e('Customize the look of your site, without modifying your theme.'); ?></p>
+					</a>
+				</div>
+		
+				<div class="feature">
+					<a href="/support/sso/" data-name="Jetpack Single Sign On" class="f-img"><div class="feature-img wordpress-connect no-border"></div></a>
+					<a href="/support/sso/" data-name="Jetpack Single Sign On" class="feature-description">
+						<h3><?php _e('Single Sign On'); ?></h3>
+						<p><?php _e('Let users log in through WordPress.com with one click.'); ?></p>
+					</a>
+				</div>
+		
+				<div class="feature">
+					<a href="/support/wordpress-com-stats/" data-name="WordPress.com Stats" class="f-img"><div class="feature-img wordpress-stats"></div></a>
+					<a href="/support/wordpress-com-stats/" data-name="WordPress.com Stats" class="feature-description">
+						<h3><?php _e('WordPress.com Stats'); ?></h3>
+						<p><?php _e('Simple, concise site stats with no additional load on your server.'); ?></p>
+					</a>
+				</div>
+			</div>
+		</div><!-- .featured -->
 		<div class="module-grid">
 			<h2><?php esc_html_e( 'Jetpack features', 'jetpack' ); ?></h2>
 

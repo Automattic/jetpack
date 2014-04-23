@@ -184,7 +184,9 @@
 
 	function initModalEvents() {
 		var $modal = $('.modal');
-		$('.module, .feature a, .configs a').on('click', function () {
+		$('.module, .feature a, .configs a').on('click', function (e) {
+			e.preventDefault();
+
 			$('.shade').show();
 
 			// Show loading message on init
@@ -208,13 +210,13 @@
 				$(this).addClass('active');
 				return false;
 			});
-
-			return false;
 		});
 	}
 
 	function loadModules() {
 		var html = '',
+			featuredModules = [],
+			featuredModulesIndex,
 			i;
 
 		if ($('.configure').length !== 0) {
@@ -225,10 +227,21 @@
 
 			$('table tbody').html(html);
 		} else {
+			// Array of featured modules
+			$('.feature a.f-img').each(function() {
+				featuredModules.push($( this ).data('name'));
+			});
+			
 			// About page
 			for (i=0; i<modules.length; i++) {
 				if (currentVersion.indexOf(modules[i].introduced) !== -1) {
 					modules[i]['new'] = true;
+				}
+
+				// Add data-index to featured modules
+				featuredModulesIndex = featuredModules.indexOf(modules[i].name);
+				if ( featuredModulesIndex > -1 ) {
+					$('.feature').eq(featuredModulesIndex).find('a').data('index', i);
 				}
 				
 				modules[i].index = i;

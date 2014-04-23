@@ -30,7 +30,6 @@
 	}
 	.page-content.about {
 		background: #f9f9f9;
-		margin-top: -80px;
 		padding: 15px;
 	}
 	.page-content.configure {
@@ -341,8 +340,7 @@
 		padding: 47px 15px 39px;
 
 		h2 {
-			font-size: 18px;
-			max-width: 380px;
+			display: none;
 		}
 	}
 	.download-jetpack {
