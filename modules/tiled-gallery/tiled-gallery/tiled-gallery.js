@@ -23,11 +23,10 @@
 
 		this.addCaptionEvents();
 
-		// Resize when initialized so that window dimensions don't affect the
-		// initial gallery dimensions
+		// Resize when initialized to fit the gallery to window dimensions
 		this.resize();
 
-		// Displays the gallery and stops it from being initialized again
+		// Displays the gallery and prevents it from being initialized again
 		this.gallery.removeClass( 'tiled-gallery-unresized' );
 	}
 
