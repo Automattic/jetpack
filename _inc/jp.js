@@ -140,15 +140,9 @@
 		});
 
 		// Search modules
-		$('#jetpack-search').on('keydown', function (event) {
+		$('#jetpack-search').on('keydown', function () {
 			var term = $(this).val();
-			if (8 === event.keyCode && 1 === term.length) {
-				searchModules('');
-			}
-			if (13 === event.keyCode) {
-				searchModules(term);
-				return false;
-			}
+			searchModules(term);
 		});
 
 		// Modal events
