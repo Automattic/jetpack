@@ -44,7 +44,7 @@ jQuery( function( $ ) {
 
 	} );
 
-	$( "div#widgets-right" ).on( "click", "a.add-condition", function( e ) {
+	$( "div#widgets-right, form#customize-controls" ).on( "click", "a.add-condition", function( e ) {
 		e.preventDefault();
 		var $condition = $( this ).closest( "div.condition" ),
 			$conditionClone = $condition.clone().insertAfter( $condition );
@@ -68,7 +68,7 @@ jQuery( function( $ ) {
 
 	} );
 
-	$( "div#widgets-right" ).on( "click", "a.delete-condition", function( e ) {
+	$( "div#widgets-right, form#customize-controls" ).on( "click", "a.delete-condition", function( e ) {
 		e.preventDefault();
 
 		var $condition = $( this ).closest( "div.condition" );
