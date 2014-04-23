@@ -385,15 +385,13 @@ body .sd-content ul li.share-custom a.share-icon span
 	padding: 0 0 0 19px; 
 	display: inline-block;
 	height: 16px;
+	width: 0;
 	line-height: 16px;
-	-webkit-filter: grayscale(1);
-	filter: grayscale(1);
 }
 
 body .sd-content li.share-custom a:hover span {
-	-webkit-filter: grayscale(0);
-	filter: grayscale(0);
 }
+
 body .sd-social-icon .sd-content li.share-custom a span {
 	padding-left: 16px !important;
 }
