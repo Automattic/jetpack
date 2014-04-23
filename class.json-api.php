@@ -35,10 +35,15 @@ class WPCOM_JSON_API {
 	}
 
 	function add( WPCOM_JSON_API_Endpoint $endpoint ) {
-		if ( !isset( $this->endpoints[$endpoint->path] ) ) {
-			$this->endpoints[$endpoint->path] = array();
+		$path_versions = serialize( array (
+			$endpoint->path,
+			$endpoint->min_version,
+			$endpoint->max_version,
+		) );
+		if ( !isset( $this->endpoints[$path_versions] ) ) {
+			$this->endpoints[$path_versions] = array();
 		}
-		$this->endpoints[$endpoint->path][$endpoint->method] = $endpoint;
+		$this->endpoints[$path_versions][$endpoint->method] = $endpoint;
 	}
 
 	static function is_truthy( $value ) {
@@ -132,7 +137,7 @@ class WPCOM_JSON_API {
 
 		// Normalize path and extract API version
 		$this->path = untrailingslashit( $this->path );
-		preg_match( '#^/rest/v1(\.\d+)*#', $this->path, $matches );
+		preg_match( '#^/rest/v(\d+(\.\d+)*)#', $this->path, $matches );
 		$this->path = substr( $this->path, strlen( $matches[0] ) );
 		$this->version = $matches[1];
 
@@ -169,7 +174,11 @@ class WPCOM_JSON_API {
 
 		// Find which endpoint to serve
 		$found = false;
-		foreach ( $this->endpoints as $endpoint_path => $endpoints_by_method ) {
+		foreach ( $this->endpoints as $endpoint_path_versions => $endpoints_by_method ) {
+			$endpoint_path_versions = unserialize( $endpoint_path_versions );
+			$endpoint_path        = $endpoint_path_versions[0];
+			$endpoint_min_version = $endpoint_path_versions[1];
+			$endpoint_max_version = $endpoint_path_versions[2];
 			foreach ( $methods as $method ) {
 				if ( !isset( $endpoints_by_method[$method] ) ) {
 					continue;
@@ -187,6 +196,11 @@ class WPCOM_JSON_API {
 
 				if ( !preg_match( "#^$endpoint_path_regex\$#", $this->path, $path_pieces ) ) {
 					// This endpoint does not match the requested path.
+					continue;
+				}
+
+				if ( version_compare( $this->version, $endpoint_min_version, '<' ) || version_compare( $this->version, $endpoint_max_version, '>' ) ) {
+					// This endpoint does not match the requested version.
 					continue;
 				}
 
