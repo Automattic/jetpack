@@ -32,6 +32,7 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.getPosts'          => array( $this, 'get_posts' ),
 				'jetpack.getComment'        => array( $this, 'get_comment' ),
 				'jetpack.getComments'       => array( $this, 'get_comments' ),
+				'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
@@ -202,6 +203,17 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		return $user_id;
+	}
+
+	/**
+	* Disconnect this blog from the connected wordpress.com account
+	* @return boolean
+	*/
+	function disconnect_blog() {
+		Jetpack::log( 'disconnect' );
+		Jetpack::disconnect();
+
+		return true;
 	}
 
 	/**
