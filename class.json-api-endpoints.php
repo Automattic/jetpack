@@ -1,5 +1,7 @@
 <?php
 
+define( 'WPCOM_JSON_API__CURRENT_VERSION', '1' );
+
 // Endpoint
 abstract class WPCOM_JSON_API_Endpoint {
 	// The API Object
@@ -19,6 +21,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 	// HTTP Method
 	var $method = 'GET';
+
+	// Minimum version of the api for which to serve this endpoint
+	var $min_version = '0';
+
+	// Maximum version of the api for which to serve this endpoint
+	var $max_version = WPCOM_JSON_API__CURRENT_VERSION;
 
 	// Path at which to serve this endpoint: sprintf() format.
 	var $path = '';
@@ -84,6 +92,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'group'	               => '',
 			'method'               => 'GET',
 			'path'                 => '/',
+			'min_version'          => '0',
+			'max_version'          => WPCOM_JSON_API__CURRENT_VERSION,
 			'force'	               => '',
 			'jp_disabled'          => false,
 			'path_labels'          => array(),
@@ -112,6 +122,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->method      = $args['method'];
 		$this->path        = $args['path'];
 		$this->path_labels = $args['path_labels'];
+		$this->min_version = $args['min_version'];
+		$this->max_version = $args['max_version'];
 
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
@@ -2068,6 +2080,13 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		$publicize_custom_message = $input['publicize_message'];
 		unset( $input['publicize'], $input['publicize_message'] );
 
+		if ( isset( $input['featured_image'] ) ) {
+			$featured_image = trim( $input['featured_image'] );
+			$delete_featured_image = empty( $featured_image );
+			$featured_image = $input['featured_image'];
+			unset( $input['featured_image'] );
+		}
+
 		$metadata = $input['metadata'];
 		unset( $input['metadata'] );
 
@@ -2154,6 +2173,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_MESS, trim( $publicize_custom_message ) );
 
 		set_post_format( $post_id, $insert['post_format'] );
+
+		if ( ! empty( $featured_image ) ) {
+			$this->parse_and_set_featured_image( $post_id, $delete_featured_image, $featured_image );
+		}
 
 		if ( ! empty( $metadata ) ) {
 			foreach ( (array) $metadata as $meta ) {
@@ -2265,6 +2288,53 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		}
 
 		return $this->get_post_by( 'ID', $post->ID, $args['context'] );
+	}
+
+	private function parse_and_set_featured_image( $post_id, $delete_featured_image, $featured_image ) {
+		if ( $delete_featured_image ) {
+			delete_post_thumbnail( $post_id );
+			return;
+		}
+
+		$featured_image = (string) $featured_image;
+
+		// if we got a post ID, we can just set it as the thumbnail
+		if ( ctype_digit( $featured_image ) && 'attachment' == get_post_type( $featured_image ) ) {
+			set_post_thumbnail( $post_id, $featured_image );
+			return $featured_image;
+		}
+
+		// if we didn't get a URL, let's bail
+		$parsed = @parse_url( $featured_image );
+		if ( empty( $parsed ) )
+			return false;
+
+		$tmp = download_url( $featured_image );
+		if ( is_wp_error( $tmp ) ) {
+			return false;
+		}
+
+		if ( ! file_is_displayable_image( $tmp ) ) {
+			@unlink( $tmp );
+			return false;
+		}
+
+		// emulate a $_FILES entry
+		$file_array = array(
+			'name' => basename( parse_url( $featured_image, PHP_URL_PATH ) ),
+			'tmp_name' => $tmp,
+		);
+
+		$id = media_handle_sideload( $file_array, $post_id );
+		@unlink( $tmp );
+
+		if ( ! $id || ! is_int( $id ) ) {
+			return false;
+		}
+
+		set_post_thumbnail( $post_id, $id );
+		return $id;
+
 	}
 }
 
@@ -3700,6 +3770,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'categories' => "(array|string) Comma separated list or array of categories (name or id)",
 		'tags'       => "(array|string) Comma separated list or array of tags (name or id)",
 		'format'     => get_post_format_strings(),
+		'featured_image' => "(string) The post ID of an existing attachment or the URL of an image to set as the featured image.",
 		'media'      => "(media) An array of images to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts images (image/gif, image/jpeg, image/png) only.<br /><br /><strong>Example</strong>:<br />" .
 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
@@ -3841,6 +3912,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'format'     => get_post_format_strings(),
 		'comments_open' => '(bool) Should the post be open to comments?',
 		'pings_open'    => '(bool) Should the post be open to comments?',
+		'featured_image' => "(string) The post ID of an existing attachment or the URL of an image to set as the featured image.",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 	),
 

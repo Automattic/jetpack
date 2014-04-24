@@ -1,18 +1,8 @@
 // ==========================================================================
 // Main Layout
 // ==========================================================================
-
-#adminmenuback {
-	position: fixed;
-}
-#adminmenuwrap,
-.sticky-menu #adminmenuwrap {
-	position: absolute;
-	z-index: 6;
-}
-ul#adminmenu a.wp-has-current-submenu:after,
-ul#adminmenu > li.current > a.current:after {
-	border-right-color: #81a844;
+#wpbody-content {
+	padding-bottom: 0;
 }
 #wpcontent {
 	margin-left: 160px;
@@ -23,7 +13,10 @@ ul#adminmenu > li.current > a.current:after {
 
 .jp-content {
 	margin: 0;
-	position: absolute;
+	height: auto;
+	min-height: 100%;
+	width: 100%;
+	position: relative;
 	width: 100%;
 	-webkit-font-smoothing: antialiased;
 	z-index: 1;
@@ -35,15 +28,8 @@ ul#adminmenu > li.current > a.current:after {
 // ==========================================================================
 // Main author styles
 // ==========================================================================
-
-html,
-body {
-	// Prevents a really wide page because of the full-width bar on .featured
-	overflow-x: hidden;
-}
 html {
 	background: $clouds;
-	margin-top: 0 !important;
 }
 .wrap.inner,
 .page-content  {
@@ -64,7 +50,6 @@ html {
 }
 
 .page-content.about {
-	margin-top: -60px;
 	position: relative;
 	z-index: 10;
 }
@@ -161,6 +146,9 @@ html {
 	#screen-options-link-wrap, #contextual-help-link-wrap {
 		border: none;
 	}
+	.update-nag {
+		display: none;
+	}
 }
 // ==========================================================================
 // Masthead
@@ -239,7 +227,7 @@ html {
 .subhead {
 	position: relative;
 	margin-top: 105px;
-	padding: 4em 0 3.2em;
+	padding: 4em 0;
 	background: $clouds;
 	z-index: 2;
 
@@ -296,6 +284,29 @@ html {
 // Featured
 // ==========================================================================
 
+.featured {
+	border-top: 1px solid #d6d6d6;
+	border-bottom: 1px solid #d6d6d6;
+	background: #fff;
+	position: relative;
+	padding: 2.0em 0 4.6em;
+	text-align: center;
+	z-index: 1;
+
+	// Full with bar that breaks out of .page width
+	&:before { 
+		content: "";
+		display: block;
+		position: absolute;
+		top: 0;
+		height: 100%;
+		z-index: -1;
+	}
+	.features {
+		margin: 0 auto;
+		display: inline-block;
+	}
+}
 .featured h2,
 .module-grid h2 {
 	margin-top: em(22, 36);
@@ -308,7 +319,7 @@ html {
 	margin: 0 -5px; // For centering features
 	@extend %clearfix;
 }
-.feature,
+.feature, 
 .module {
 	position: relative;
 	float: left;
@@ -354,6 +365,42 @@ html {
 	height: auto;
 	border: 1px solid #ddd;
 	border-bottom: none;
+}
+.custom-css {
+	background: url('img/custom-css.jpg') no-repeat;
+	background-size: 100% auto;
+
+	@media print,
+	(-webkit-min-device-pixel-ratio: 1.25),
+	(min--moz-device-pixel-ratio: 1.25),
+	(-o-min-device-pixel-ratio: 5/4),
+	(min-resolution: 120dpi) {
+		background-image: url('img/custom-css@2x.jpg');
+	}
+}
+.wordpress-connect {
+	background: url('img/wordpress-connect.jpg') no-repeat;
+	background-size: 100% auto;
+
+	@media print,
+	(-webkit-min-device-pixel-ratio: 1.25),
+	(min--moz-device-pixel-ratio: 1.25),
+	(-o-min-device-pixel-ratio: 5/4),
+	(min-resolution: 120dpi) {
+		background-image: url('img/wordpress-connect@2x.jpg');
+	}
+}
+.wordpress-stats {
+	background: url('img/wordpress-stats.jpg') no-repeat;
+	background-size: 100% auto;
+
+	@media print,
+	(-webkit-min-device-pixel-ratio: 1.25),
+	(min--moz-device-pixel-ratio: 1.25),
+	(-o-min-device-pixel-ratio: 5/4),
+	(min-resolution: 120dpi) {
+		background-image: url('img/wordpress-stats@2x.jpg');
+	}
 }
 .no-border {
 	// For when you have images that look better without a border.
@@ -962,13 +1009,13 @@ input[type="text"].module-search {
 		left: -3px;
 		margin-right: 2px;
 		opacity: 0.8;
-		font: normal  1.25em/1em $g8s;
+		font: normal 20px $g8s;
 		vertical-align: top;
 	}
 }
 
 .jetpack-modules .info a:before {
-	margin-top: 3px;
+	margin-top: 1px;
 }
 
 .latex:before,
@@ -982,22 +1029,22 @@ input[type="text"].module-search {
 .modules h3.contact-form:before,
 .jetpack-modules #contact-form .info a:before {
 	content: '\f175';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 .modules h3.custom-css:before,
 .jetpack-modules #custom-css .info a:before {
 	content: '\f100';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 .modules h3.enhanced-distribution:before,
 .jetpack-modules #enhanced-distribution .info a:before {
 	content: '\f237';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 .modules h3.widgets:before,
 .jetpack-modules #widgets .info a:before {
 	content: '\f116';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 .gplus-authorship:before,
 .jetpack-modules #gplus-authorship .info a:before {
@@ -1059,7 +1106,7 @@ input[type="text"].module-search {
 .modules h3.publicize:before,
 .jetpack-modules #publicize .info a:before {
 	content: '\f237';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 .related-posts:before,
 .jetpack-modules #related-posts .info a:before {
@@ -1101,7 +1148,7 @@ input[type="text"].module-search {
 .modules h3.widget-visibility:before,
 .jetpack-modules #widget-visibility .info a:before {
 	content: '\f116';
-	font: normal 1.25em/1em "dashicons";
+	font: normal 20px "dashicons";
 }
 .stats:before,
 .jetpack-modules #stats .info a:before {

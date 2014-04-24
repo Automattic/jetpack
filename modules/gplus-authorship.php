@@ -37,8 +37,6 @@ class GPlus_Authorship {
 		if ( ! apply_filters( 'gplus_authorship_show', true, $post ) ) {
 			return false;
 		}
-		if ( ! is_main_query() || ! in_the_loop() )
-			return false;
 		$author = $this->information( $post->post_author );
 		if ( empty( $author ) )
 			return false;
@@ -62,6 +60,8 @@ class GPlus_Authorship {
 		if ( !is_single() ) // don't bother unless we are on a page where the G+ authorship link is actually being displayed
 			return $content;
 		if ( !$this->show_on_this_post() ) // G+ isn't enabled
+			return $content;
+		if ( ! is_main_query() || ! in_the_loop() )
 			return $content;
 		return preg_replace_callback( '#<a\s+[^>]+>#i', array( $this, 'rel_callback' ), $content );
 	}
@@ -110,6 +110,9 @@ class GPlus_Authorship {
 		if ( !$this->show_on_this_post() )
 			return $author_name;
 
+		if ( ! is_main_query() || ! in_the_loop() )
+			return $author_name;
+
 		$author = $this->information( $post->post_author );
 		return esc_html( $author['name'] );
 	}
@@ -147,7 +150,8 @@ class GPlus_Authorship {
 
 	function post_output_wrapper( $text = '', $echo = false ) {
 		global $post, $wp_current_filter;
-
+		if ( true == get_option( 'hide_gplus', false ) )
+			return $text;
 		if ( !is_single() )
 			return $text;
 		if  ( get_post_type() != 'post' )
@@ -170,6 +174,9 @@ class GPlus_Authorship {
 		}
 
 		if ( !$this->show_on_this_post())
+			return $text;
+
+		if ( ! is_main_query() || ! in_the_loop() )
 			return $text;
 
 		$output = '';

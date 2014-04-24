@@ -249,7 +249,9 @@ class Jetpack_Subscriptions {
 	}
 
 	public function reading_section() {
+		echo '<p id="follower-settings">';
 		_e( 'These settings change emails sent from your blog to followers.', 'jetpack' );
+		echo '</p>';
 	}
 
 	public function setting_invitation() {

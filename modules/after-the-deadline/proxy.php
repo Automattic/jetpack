@@ -18,7 +18,10 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 		'httpversion'          => '1.0',
 		'timeout'              => apply_filters( 'atd_http_post_timeout', 15 ),
 	);
-	$AtD_url = "http://{$host}{$path}";
+
+	// Strip any / off the begining so we can add it back and protect against SSRF
+	$path = ltrim( $path, '/' );	
+	$AtD_url = "http://{$host}/{$path}";
 	$response = wp_remote_post( $AtD_url, $http_args );
 	$code = (int) wp_remote_retrieve_response_code( $response );
 
