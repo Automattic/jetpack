@@ -1820,6 +1820,9 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$query['post__not_in'] = $sticky;
 				$query['ignore_sticky_posts'] = 1;
 			}
+		} else {
+				$query['post__not_in'] = $sticky;
+				$query['ignore_sticky_posts'] = 1;
 		}
 
 		if ( isset( $args['category'] ) ) {
