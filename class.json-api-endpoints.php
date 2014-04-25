@@ -907,7 +907,7 @@ EOPHP;
 	function get_author( $author, $show_email = false ) {
 		if ( isset( $author->comment_author_email ) && !$author->user_id ) {
 			$ID          = 0;
-			$login       = 0;
+			$login       = '';
 			$email       = $author->comment_author_email;
 			$name        = $author->comment_author;
 			$URL         = $author->comment_author_url;
