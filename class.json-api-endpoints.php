@@ -3617,6 +3617,84 @@ class WPCOM_JSON_API_Delete_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 }
 
+class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
+
+	var $response_format = array(
+		'found'    => '(int) The total number of authors found that match the request (i
+gnoring limits and offsets).',
+		'users'  => '(array:author) Array of user objects',
+	);
+
+	// /sites/%s/users/ -> $blog_id
+	function callback( $path = '', $blog_id = 0 ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		$args = $this->query_args();
+
+		$authors_only = ( ! empty( $args['authors_only'] ) );
+
+		if ( $args['number'] < 1 ) {
+			$args['number'] = 20;
+		} elseif ( 100 < $args['number'] ) {
+			return new WP_Error( 'invalid_number',  'The NUMBER parameter must be less than or equal to 100.', 400 );
+		}
+
+		if ( $authors_only ) {
+			if ( empty( $args['type'] ) )
+				$args['type'] = 'post';
+
+			if ( ! $this->is_post_type_allowed( $args['type'] ) ) {
+				return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
+			}
+
+			$post_type_object = get_post_type_object( $args['type'] );
+			if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
+				return new WP_Error( 'unauthorized', 'User cannot view authors f
+or specified post type', 403 );
+			}
+		} elseif ( ! current_user_can( 'list_users' ) ) {
+			return new WP_Error( 'unauthorized', 'User cannot view users for specified site', 403 );
+		}
+
+		$query = array(
+			'number'    => $args['number'],
+			'offset'    => $args['offset'],
+			'order'     => $args['order'],
+			'orderby'   => $args['order_by'],
+			'fields'    => 'ID',
+		);
+
+		if ( $authors_only )
+			$query['who'] = 'authors';
+
+		$user_query = new WP_User_Query( $query );
+
+		$return = array();
+		foreach ( array_keys( $this->response_format ) as $key ) {
+			switch ( $key ) {
+				case 'found' :
+					$return[$key] = (int) $user_query->get_total();
+					break;
+				case 'users' :
+					$users = array();
+					foreach ( $user_query->get_results() as $u ) {
+						$the_user = $this->get_author( $u, true );
+						if ( $the_user && ! is_wp_error( $the_user ) ) {
+							$users[] = $the_user;
+						}
+					}
+
+					$return[$key] = $users;
+					break;
+			}
+		}
+
+		return $return;
+	}
+}
 
 /*
  * Set up endpoints
@@ -4878,4 +4956,63 @@ new WPCOM_JSON_API_Update_Taxonomy_Endpoint( array(
 	"slug": "some-tag-name",
 	"success": "true"
 }'
+) );
+
+new WPCOM_JSON_API_List_Users_Endpoint( array(
+	'description' => 'List the Users of a blog',
+	'group'       => 'users',
+	'stat'        => 'users:list',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/users',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'query_parameters' => array(
+		'number'   => '(int=20) Limit the total number of authors returned.',
+		'offset'   => '(int=0) The first n authors to be skipped in the returned array.',
+		'order'    => array(
+			'DESC' => 'Return authors in descending order.',
+			'ASC'  => 'Return authors in ascending order.',
+		),
+		'order_by' => array(
+			'ID'            => 'Order by ID (default).',
+			'login'         => 'Order by username.',
+			'nicename'      => "Order by nicename.",
+			'email'         => 'Order by author email address.',
+			'url'           => 'Order by author URL.',
+			'registered'    => 'Order by registered date.',
+			'display_name'  => 'Order by display name.',
+			'post_count'    => 'Order by number of posts published.',
+		),
+		'authors_only'      => "(bool) Set to true to fetch authors only",
+		'type'              => "(string) Specify the post type to query authors for. Only works when combined with the `authors_only` flag. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+	),
+
+	'response_format' => array(
+		'found'    => '(int) The total number of authors found that match the request (ignoring limits and offsets).',
+		'authors'  => '(array:author) Array of author objects.',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/users',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_response'     => '{
+		"found": 1,
+		"users": [
+			{
+				"ID": 18342963,
+				"login": "binarysmash"
+				"email": false,
+				"name": "binarysmash",
+				"URL": "http:\/\/binarysmash.wordpress.com",
+				"avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+				"profile_URL": "http:\/\/en.gravatar.com\/binarysmash"
+			},
+		]
+	}'
 ) );
