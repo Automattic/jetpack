@@ -1166,6 +1166,19 @@ EOPHP;
 		return $this->get_link( '/sites/%d/comments/%d', $blog_id, $comment_id, $path );
 	}
 
+	function is_post_type_allowed( $post_type ) {
+
+		// if the post type is empty, that's fine, WordPress will default to post
+		if ( empty( $post_type ) )
+			return true;
+
+		// whitelist of post types that can be accessed
+		if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'any' ) ) ) )
+			return true;
+
+		return false;
+	}
+
 	/**
 	 * Return endpoint response
 	 *
@@ -1177,6 +1190,7 @@ EOPHP;
 	 *	$data: HTTP 200, json_encode( $data ) response body
 	 */
 	abstract function callback( $path = '' );
+
 }
 
 abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
@@ -1234,19 +1248,6 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 		parent::__construct( $args );
 	}
-
-	function is_post_type_allowed( $post_type ) {
-
-		// if the post type is empty, that's fine, WordPress will default to post
-		if ( empty( $post_type ) )
-			return true;
-
-		// whitelist of post types that can be accessed
- 		if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'any' ) ) ) )
-			return true;
-
- 		return false;
- 	}
 
 	function is_metadata_public( $key ) {
 		if ( empty( $key ) )
