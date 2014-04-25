@@ -88,7 +88,7 @@
 
 			// Subtract margins so that images don't overflow on small browser windows
 			thisGalleryElement
-				.width( Math.floor( resizeRatio * outerWidth ) - marginWidth)
+				.width( Math.floor( resizeRatio * outerWidth ) - marginWidth )
 				.height( Math.floor( resizeRatio * outerHeight ) - marginHeight );
 		} );
 	};
