@@ -228,7 +228,7 @@ AtDCore.prototype.processXML = function(responseXML) {
 					spellingErrors.push({ word: errorString, pre: errorContext });
 
 				if (errorDescription == 'Cliches')
-					suggestion["description"] = 'Clich&eacute;s'; /* done here for backwards compatability with current user settings */
+					suggestion["description"] = 'Clichés'; /* done here for backwards compatability with current user settings */
 
 				if (errorDescription == "Spelling")
 					suggestion["description"] = this.getLang('menu_title_spelling', 'Spelling');
