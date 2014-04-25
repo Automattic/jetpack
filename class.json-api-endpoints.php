@@ -1989,8 +1989,12 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
 			}
 
+			$author_id = $this->parse_and_set_author( $input, $new );
+			if ( is_wp_error( $author_id ) )
+				return $author_id;
+
 			if ( 'publish' === $input['status'] ) {
-				if ( !current_user_can( $post_type->cap->publish_posts ) ) {
+				if ( ! current_user_can( $post_type->cap->publish_posts ) ) {
 					if ( current_user_can( $post_type->cap->edit_posts ) ) {
 						$input['status'] = 'pending';
 					} else {
@@ -2009,6 +2013,16 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 			}
 
+			// default to post
+			if ( empty( $input['type'] ) )
+				$input['type'] = 'post';
+
+			$author_id = $this->parse_and_set_author( $input );
+			if ( is_wp_error( $author_id ) )
+				return $author_id;
+
+			$post_type = get_post_type_object( $input['type'] );
+
 			$post = get_post( $post_id );
 			if ( !$post || is_wp_error( $post ) ) {
 				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
@@ -2025,6 +2039,14 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$new_status = $input['status'];
 
 			$post_type = get_post_type_object( $post->post_type );
+		}
+
+		if ( get_current_user_id() != $author_id ) {
+			if ( ! current_user_can( $post_type->cap->edit_others_posts ) ) {
+				return new WP_Error( 'unauthorized', "User is not allowed to publish others' posts.", 403 );
+			} elseif ( ! user_can( $author_id, $post_type->cap->edit_posts ) ) {
+				return new WP_Error( 'unauthorized', 'Assigned author cannot publish post.', 403 );
+			}
 		}
 
 		if ( !is_post_type_hierarchical( $post_type->name ) ) {
@@ -2101,6 +2123,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		foreach ( $input as $key => $value ) {
 			$insert["post_$key"] = $value;
+		}
+
+		if ( ! empty( $author_id ) ) {
+			$insert['post_author'] = absint( $author_id );
 		}
 
 		if ( !empty( $tags ) )
@@ -2344,6 +2370,25 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		set_post_thumbnail( $post_id, $id );
 		return $id;
 
+	}
+
+	private function parse_and_set_author( $input, $new = false ) {
+		if ( empty( $input['author'] ) || ! post_type_supports( $input['type'], 'author' ) )
+			return get_current_user_id();
+
+		if ( ctype_digit( $input['author'] ) ) {
+			$_user = get_user_by( 'id', $input['author'] );
+			if ( ! $_user || is_wp_error( $_user ) )
+				return new WP_Error( 'invalid_author', 'Invalid author provided' );
+
+			return $_user->ID;
+		}
+
+		$_user = get_user_by( 'login', $input['author'] );
+		if ( ! $_user || is_wp_error( $_user ) )
+			return new WP_Error( 'invalid_author', 'Invalid author provided' );
+
+		return $_user->ID;
 	}
 }
 
@@ -3654,8 +3699,7 @@ gnoring limits and offsets).',
 
 			$post_type_object = get_post_type_object( $args['type'] );
 			if ( ! $post_type_object || ! current_user_can( $post_type_object->cap->edit_others_posts ) ) {
-				return new WP_Error( 'unauthorized', 'User cannot view authors f
-or specified post type', 403 );
+				return new WP_Error( 'unauthorized', 'User cannot view authors for specified post type', 403 );
 			}
 		} elseif ( ! current_user_can( 'list_users' ) ) {
 			return new WP_Error( 'unauthorized', 'User cannot view users for specified site', 403 );
@@ -3843,6 +3887,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'content'   => '(HTML) The post content.',
 		'excerpt'   => '(HTML) An optional post excerpt.',
 		'slug'      => '(string) The name (slug) for the post, used in URLs.',
+		'author'    => '(string) The username or ID for the user to assign the post to.',
 		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
 		'publicize_message' => '(string) Custom message to be publicized to external services.',
 		'status'    => array(
@@ -3984,6 +4029,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'content'   => '(HTML) The post content.',
 		'excerpt'   => '(HTML) An optional post excerpt.',
 		'slug'      => '(string) The name (slug) for the post, used in URLs.',
+		'author'    => '(string) The username or ID for the user to assign the post to.',
 		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
 		'publicize_message' => '(string) Custom message to be publicized to external services.',
 		'status'    => array(
