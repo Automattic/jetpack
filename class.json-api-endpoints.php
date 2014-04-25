@@ -450,6 +450,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'author' :
 			$docs = array(
 				'ID'          => '(int)',
+				'user_login'  => '(string)',
 				'email'       => '(string|false)',
 				'name'        => '(string)',
 				'URL'         => '(URL)',
@@ -906,6 +907,7 @@ EOPHP;
 	function get_author( $author, $show_email = false ) {
 		if ( isset( $author->comment_author_email ) && !$author->user_id ) {
 			$ID          = 0;
+			$login       = 0;
 			$email       = $author->comment_author_email;
 			$name        = $author->comment_author;
 			$URL         = $author->comment_author_url;
@@ -932,13 +934,14 @@ EOPHP;
 
 			$ID    = $user->ID;
 			$email = $user->user_email;
+			$login = $user->user_login;
 			$name  = $user->display_name;
 			$URL   = $user->user_url;
 			$nice  = $user->user_nicename;
 			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 				$active_blog = get_active_blog_for_user( $ID );
 				$site_id     = $active_blog->blog_id;
-				$profile_URL = "http://en.gravatar.com/{$user->user_login}";
+				$profile_URL = "http://en.gravatar.com/{$login}";
 			} else {
 				$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 				$site_id     = -1;
@@ -951,6 +954,7 @@ EOPHP;
 
 		$author = array(
 			'ID'          => (int) $ID,
+			'login'       => (string) $login,
 			'email'       => $email, // (string|bool)
 			'name'        => (string) $name,
 			'nice_name'   => (string) $nice,
