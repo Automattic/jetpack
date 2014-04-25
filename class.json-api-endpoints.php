@@ -1173,7 +1173,8 @@ EOPHP;
 			return true;
 
 		// whitelist of post types that can be accessed
-		if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'any' ) ) ) )
+		// fte_datalab and features are post types on http://fivethirtyeight.com/
+		if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'any', 'fte_datalab', 'fte_features' ) ) ) )
 			return true;
 
 		return false;
