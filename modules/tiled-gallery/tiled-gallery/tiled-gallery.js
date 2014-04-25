@@ -53,9 +53,13 @@
 
 	TiledGallery.prototype.getExtraDimension = function( el, attribute, mode ) {
 		if ( mode === 'horizontal' ) {
-			return ( parseInt( el.css( attribute + 'Left' ), 10 ) || 0 ) +  ( parseInt( el.css( attribute + 'Right' ), 10 ) || 0 );
-		} else if ( mode === 'vertical' ){
-			return ( parseInt( el.css( attribute + 'Top' ), 10 ) || 0 ) + ( parseInt( el.css( attribute + 'Bottom' ), 10 ) || 0 );
+			var left = ( attribute == 'border' ) ? 'borderLeftWidth' : attribute + 'Left';
+			var right = ( attribute == 'border' ) ? 'borderRightWidth' : attribute + 'Right';
+			return ( parseInt( el.css( left ), 10 ) || 0 ) +  ( parseInt( el.css( right ), 10 ) || 0 );
+		} else if ( mode === 'vertical' ) {
+			var top = ( attribute == 'border' ) ? 'borderTopWidth' : attribute + 'Top';
+			var bottom = ( attribute == 'border' ) ? 'borderBottomWidth' : attribute + 'Bottom';
+			return ( parseInt( el.css( top ), 10 ) || 0 ) + ( parseInt( el.css( bottom ), 10 ) || 0 );
 		} else {
 			return 0;
 		}
