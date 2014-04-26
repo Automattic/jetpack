@@ -173,7 +173,7 @@ class Jetpack_Tiled_Gallery {
 		$remainder = count( $attachments ) % $images_per_row;
 		if ( $remainder > 0 ) {
 			$remainder_space = ( $remainder * $margin ) * 2;
-			$remainder_size = ceil( ( $content_width - $remainder_space - $margin ) / $remainder );
+			$remainder_size = ceil( ( $content_width - $remainder_space ) / $remainder );
 		}
 		$output = $this->generate_carousel_container();
 		$c = 1;
