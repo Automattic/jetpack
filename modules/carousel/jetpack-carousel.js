@@ -1373,34 +1373,43 @@ jQuery(document).ready(function($) {
 
 	// Makes carousel work on page load and when back button leads to same URL with carousel hash (ie: no actual document.ready trigger)
 	$( window ).on( 'hashchange', function () {
-		if ( ! window.location.hash || ! window.location.hash.match(/jp-carousel-(\d+)/) )
-			return;
+		var hashRegExp = /jp-carousel-(\d+)/,
+			matches, attachmentId, galleries, selectedThumbnail;
 
-		if ( window.location.hash == last_known_location_hash )
+		if ( ! hashRegExp.test( window.location.hash ) ) {
 			return;
+		}
+
+		if ( window.location.hash == last_known_location_hash ) {
+			return;
+		}
 
 		last_known_location_hash = window.location.hash;
+		matches = window.location.hash.match( hashRegExp );
+		attachmentId = parseInt( matches[1], 10 );
+		galleries = $( 'div.gallery, div.tiled-gallery' );
 
-		var gallery = $('div.gallery, div.tiled-gallery'), index = -1, n = window.location.hash.match(/jp-carousel-(\d+)/);
+		// Find the first thumbnail that matches the attachment ID in the location
+		// hash, then open the gallery that contains it.
+		galleries.each( function( _, galleryEl ) {
+			$( galleryEl ).find('img').each( function( imageIndex, imageEl ) {
+				if ( $( imageEl ).data( 'attachment-id' ) == attachmentId ) {
+					selectedThumbnail = { index: imageIndex, gallery: galleryEl };
+					return false;
+				}
+			});
 
-		if ( ! $(this).jp_carousel( 'testForData', gallery ) )
-			return;
-
-		n = parseInt(n[1], 10);
-
-		gallery.find('img').each(function(num, el){
-			if ( n && $(el).data('attachment-id') == n ) { // n cannot be 0 (zero)
-				index = num;
+			if ( selectedThumbnail ) {
+				$( selectedThumbnail.gallery )
+					.jp_carousel( 'open', { start_index: selectedThumbnail.index } );
 				return false;
 			}
 		});
-
-		if ( index != -1 )
-			gallery.jp_carousel('open', {start_index: index}); // open method checks if already opened
 	});
 
-	if ( window.location.hash )
+	if ( window.location.hash ) {
 		$( window ).trigger( 'hashchange' );
+	}
 });
 
 /**
