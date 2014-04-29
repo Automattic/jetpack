@@ -1216,6 +1216,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'future'  => 'The post is scheduled for future publishing.',
 			'trash'   => 'The post is in the trash.',
 		),
+		'sticky'   => '(bool) Is the post sticky?',
 		'password' => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'   => "(object>post_reference|false) A reference to the post's parent, if it has one.",
 		'type'     => "(string) The post's post_type. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
@@ -1403,6 +1404,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'status' :
 				$response[$key] = (string) get_post_status( $post->ID );
+				break;
+			case 'sticky' :
+				$response[$key] = (bool) is_sticky( $post->ID );
 				break;
 			case 'slug' :
 				$response[$key] = (string) $post->post_name;
@@ -2167,6 +2171,9 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		unset( $input['sharing_enabled'] );
 		unset( $input['gplusauthorship_enabled'] );
 
+		$sticky = $input['sticky'];
+		unset( $input['sticky'] );
+
 		foreach ( $input as $key => $value ) {
 			$insert["post_$key"] = $value;
 		}
@@ -2290,6 +2297,12 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			} else if ( isset( $sharing ) && false == $sharing ) {
 				update_post_meta( $post_id, 'sharing_disabled', 1 );
 			}
+		}
+
+		if ( true === $sticky ) {
+			stick_post( $post_id );
+		} else {
+			unstick_post( $post_id );
 		}
 
 		// WPCOM Specific (Jetpack's will get bumped elsewhere
@@ -4006,6 +4019,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			'draft'   => 'Save the post as a draft.',
 			'pending' => 'Mark the post as pending editorial approval.',
 		),
+		'sticky'    => '(bool) Mark the post as sticky?',
 		'password'  => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'    => "(int) The post ID of the new post's parent.",
 		'type'      => "(string) The post type. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
@@ -4058,6 +4072,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"content": "<p>Hello. I am a test post. I was created by the API<\/p>\n",
 	"excerpt": "<p>Hello. I am a test post. I was created by the API<\/p>\n",
 	"status": "publish",
+	"sticky": false,
 	"password": "",
 	"parent": false,
 	"type": "post",
@@ -4154,6 +4169,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			'draft'   => 'Save the post as a draft.',
 			'pending' => 'Mark the post as pending editorial approval.',
 		),
+		'sticky'  	 => '(bool) Mark the post as sticky?',
 		'password'   => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'     => "(int) The post ID of the new post's parent.",
 		'categories' => "(string) Comma separated list of categories (name or id)",
@@ -4202,6 +4218,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"content": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
 	"excerpt": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
 	"status": "publish",
+	"sticky": false,
 	"password": "",
 	"parent": false,
 	"type": "post",
@@ -4311,6 +4328,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"content": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
 	"excerpt": "<p>Hello. I am an edited post. I was edited by the API<\/p>\n",
 	"status": "trash",
+	"sticky": false,
 	"password": "",
 	"parent": false,
 	"type": "post",
