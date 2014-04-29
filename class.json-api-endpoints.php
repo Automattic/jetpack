@@ -2013,10 +2013,6 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 			}
 
-			// default to post
-			if ( empty( $input['type'] ) )
-				$input['type'] = 'post';
-
 			$author_id = $this->parse_and_set_author( $input );
 			if ( is_wp_error( $author_id ) )
 				return $author_id;
