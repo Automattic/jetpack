@@ -326,7 +326,11 @@ class Jetpack_Admin {
 				</svg>
 			</div>
 			<div class="subhead">
+				<?php if ( $is_connected ) : ?>
+				<h2><?php _e("You're successfully connected to Jetpack!"); ?></h2>
+				<?php else : ?>
 				<h2><?php _e('Once you’ve connected Jetpack, you’ll get access to all the delightful features below.'); ?></h2>
+				<?php endif; ?>
 			</div>
 		</div><!-- .masthead -->
 		<div class="featured">

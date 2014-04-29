@@ -821,6 +821,10 @@ hr {
 	margin-left: 160px;
 }
 
+.folded #wpcontent {
+	margin-left: 36px;
+}
+
 #wpfooter {
 	display: none;
 }
@@ -1613,6 +1617,7 @@ input[type="text"].module-search + label:after {
 
 .modal .content div.jp-info-img img {
 	border: 1px solid #ddd;
+	max-width: 100%;
 }
 
 .shade {
@@ -2426,9 +2431,24 @@ input[type="text"].module-search + label:after {
 		display: none;
 	}
 
+	.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
+		display: block;
+		padding-left: 10px;
+		visibility: visible;
+	}
+
 }
 
 @media (max-width: 530px) {
+	.footer {
+		margin-top: 0;
+	}
+
+	.masthead.hasbutton .subhead {
+		margin-top: 105px;
+		padding: 0;
+	}
+
 	.page-content {
 		margin-top: 0;
 	}
@@ -2442,6 +2462,10 @@ input[type="text"].module-search + label:after {
 	.single h3,
 	.page-template-default h2 {
 		font-size: 1.4em;
+	}
+
+	.modal .content div.jp-info-img {
+		margin: 0 0 23px;
 	}
 
 	.featured {
