@@ -52,6 +52,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'true'  => 'Output pretty JSON',
 		),
 		'meta' => "(string) Optional. Loads data from the endpoints found in the 'meta' part of the response. Comma separated list. Example: meta=site,likes",
+		'fields' => '(string) Optional. Returns specified fields only. Comma separated list. Example: fields=ID,title',
 		// Parameter name => description (default value is empty)
 		'callback' => '(string) An optional JSONP callback function.',
 	);
@@ -1439,7 +1440,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (bool) pings_open( $post->ID );
 				break;
 			case 'likes_enabled' :
-				$sitewide_likes_enabled = (bool) Jetpack_Likes::is_enabled_sitewide();
+				$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 				$post_likes_switched    = (bool) get_post_meta( $post->ID, 'switch_like_status', true );
 				$post_likes_enabled = $sitewide_likes_enabled;
 				if ( $post_likes_switched ) {
@@ -2236,7 +2237,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		}
 		
 		// Set like status for the post
-		$sitewide_likes_enabled = (bool) Jetpack_Likes::is_enabled_sitewide();
+		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 		if ( $new ) {
 			if ( $sitewide_likes_enabled ) {
 				if ( false === $likes ) {
