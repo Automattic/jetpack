@@ -1221,6 +1221,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'type'     => "(string) The post's post_type. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 		'comments_open'  => '(bool) Is the post open for comments?',
 		'pings_open'     => '(bool) Is the post open for pingbacks, trackbacks?',
+		'likes_enabled' => "(bool) Is the post open to likes?",
+		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
+		'gplusauthorship_enabled' => "(bool) Should a Google+ account be associated with this post?",
 		'comment_count'  => '(int) The number of comments for this post.',
 		'like_count'     => '(int) The number of likes for this post.',
 		'i_like'         => '(bool) Does the current user like this post?',
@@ -1430,6 +1433,45 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'pings_open' :
 				$response[$key] = (bool) pings_open( $post->ID );
+				break;
+			case 'likes_enabled' :
+				$sitewide_likes_enabled = (bool) Jetpack_Likes::is_enabled_sitewide();
+				$post_likes_switched    = (bool) get_post_meta( $post->ID, 'switch_like_status', true );
+				$post_likes_enabled = $sitewide_likes_enabled;
+				if ( $post_likes_switched ) {
+					$post_likes_enabled = ! $post_likes_enabled;
+				}
+				$response[$key] = (bool) $post_likes_enabled;
+				break;
+			case 'sharing_enabled' :
+				$show = true;
+				$show = apply_filters( 'sharing_show', $show, $post );
+				
+				$switched_status = get_post_meta( $post->ID, 'sharing_disabled', false );
+				
+				if ( !empty( $switched_status ) )
+					$show = false;
+				$response[$key] = (bool) $show;
+				break;
+			case 'gplusauthorship_enabled' :
+				$gplus_enabled = true;
+				if ( ! apply_filters( 'gplus_authorship_show', true, $post ) ) {
+					$gplus_enabled = false;
+				}
+
+				$authors = get_option( 'gplus_authors', array() );
+				$author = ( empty( $authors[ $post->post_author ] ) ? array() : $authors[ $post->post_author ] );
+				
+				if ( empty( $author ) ) {
+					$gplus_enabled = false;
+				}
+
+				$meta = get_post_meta( $post->ID, 'gplus_authorship_disabled', true );
+				if ( isset( $meta ) && true == $meta ) {
+					$gplus_enabled = false;
+				}
+			
+				$response[$key] = (bool) $gplus_enabled;
 				break;
 			case 'comment_count' :
 				$response[$key] = (int) $post->comment_count;
@@ -2117,6 +2159,14 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		$metadata = $input['metadata'];
 		unset( $input['metadata'] );
 
+		$likes = $input['likes_enabled'];
+		$sharing = $input['sharing_enabled'];
+		$gplus = $input['gplusauthorship_enabled'];
+
+		unset( $input['likes_enabled'] );
+		unset( $input['sharing_enabled'] );
+		unset( $input['gplusauthorship_enabled'] );
+
 		foreach ( $input as $key => $value ) {
 			$insert["post_$key"] = $value;
 		}
@@ -2176,6 +2226,70 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		if ( !$post_id || is_wp_error( $post_id ) ) {
 			return $post_id;
+		}
+		
+		// Set like status for the post
+		$sitewide_likes_enabled = (bool) Jetpack_Likes::is_enabled_sitewide();
+		if ( $new ) {
+			if ( $sitewide_likes_enabled ) {
+				if ( false === $likes ) {
+					update_post_meta( $post_id, 'switch_like_status', 1 );
+				} else {
+					delete_post_meta( $post_id, 'switch_like_status' );
+				}
+			} else {
+				if ( $likes ) {
+					update_post_meta( $post_id, 'switch_like_status', 1 );
+				} else {
+					delete_post_meta( $post_id, 'switch_like_status' );
+				}
+			}
+		} else {
+			if ( isset( $likes ) ) {
+				if ( $sitewide_likes_enabled ) {
+					if ( false === $likes ) {
+						update_post_meta( $post_id, 'switch_like_status', 1 );
+					} else {
+						delete_post_meta( $post_id, 'switch_like_status' );
+					}
+				} else {
+					if ( true === $likes ) {
+						update_post_meta( $post_id, 'switch_like_status', 1 );
+					} else {
+						delete_post_meta( $post_id, 'switch_like_status' );
+					}
+				}
+			}
+		}
+
+		// Set Google+ authorship status for the post
+		if ( $new ) {
+			$gplus_enabled = isset( $gplus ) ? (bool) $gplus : true;
+			if ( false === $gplus_enabled ) {
+				update_post_meta( $post_id, 'gplus_authorship_disabled', 1 );
+			}
+		}
+		else {
+			if ( isset( $gplus ) && true === $gplus ) {
+				delete_post_meta( $post_id, 'gplus_authorship_disabled' );
+			} else if ( isset( $gplus ) && false == $gplus ) {
+				update_post_meta( $post_id, 'gplus_authorship_disabled', 1 );
+			}
+		}
+
+		// Set sharing status of the post
+		if ( $new ) {
+			$sharing_enabled = isset( $sharing ) ? (bool) $sharing : true;
+			if ( false === $sharing_enabled ) {
+				update_post_meta( $post_id, 'sharing_disabled', 1 );
+			}
+		}
+		else {
+			if ( isset( $sharing ) && true === $sharing ) {
+				delete_post_meta( $post_id, 'sharing_disabled' );
+			} else if ( isset( $sharing ) && false == $sharing ) {
+				update_post_meta( $post_id, 'sharing_disabled', 1 );
+			}
 		}
 
 		// WPCOM Specific (Jetpack's will get bumped elsewhere
@@ -3905,6 +4019,9 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 		'comments_open' => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
 		'pings_open'    => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
+		'likes_enabled' => "(bool) Should the post be open to likes?  Defaults to the blog's preference.",
+		'sharing_enabled' => "(bool) Should sharing buttons show on this post?  Defaults to true.",
+		'gplusauthorship_enabled' => "(bool) Should a Google+ account be associated with this post?  Defaults to true.",
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/posts/new/',
@@ -3946,6 +4063,9 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"type": "post",
 	"comments_open": true,
 	"pings_open": true,
+	"likes_enabled": true,
+	"sharing_enabled": true,
+	"gplusauthorship_enabled": false,
 	"comment_count": 0,
 	"like_count": 0,
 	"i_like": false,
@@ -4041,6 +4161,9 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'format'     => get_post_format_strings(),
 		'comments_open' => '(bool) Should the post be open to comments?',
 		'pings_open'    => '(bool) Should the post be open to comments?',
+		'likes_enabled' => "(bool) Should the post be open to likes?",
+		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
+		'gplusauthorship_enabled' => "(bool) Should a Google+ account be associated with this post?",
 		'featured_image' => "(string) The post ID of an existing attachment or the URL of an image to set as the featured image.",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 	),
@@ -4084,6 +4207,9 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"type": "post",
 	"comments_open": true,
 	"pings_open": true,
+	"likes_enabled": true,
+	"sharing_enabled": true,
+	"gplusauthorship_enabled": false,
 	"comment_count": 5,
 	"like_count": 0,
 	"i_like": false,
@@ -4190,6 +4316,9 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"type": "post",
 	"comments_open": true,
 	"pings_open": true,
+	"likes_enabled": true,
+	"sharing_enabled": true,
+	"gplusauthorship_enabled": false,
 	"comment_count": 5,
 	"like_count": 0,
 	"i_like": false,
