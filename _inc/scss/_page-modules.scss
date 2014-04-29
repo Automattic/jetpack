@@ -61,6 +61,7 @@
 .filter-search {
 	display: none;
 	float: right;
+	margin-top: 10px;
 	@media (max-width: 782px) {
 		display: block;
 	}

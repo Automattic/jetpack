@@ -7,6 +7,9 @@
 #wpcontent {
 	margin-left: 160px;
 }
+.folded #wpcontent {
+	margin-left: 36px;
+}
 #wpfooter {
 	display: none;
 }
@@ -734,6 +737,7 @@ input[type="text"].module-search {
 
 			img {
 				border: 1px solid #ddd;
+				max-width: 100%;
 			}
 		}
 	}

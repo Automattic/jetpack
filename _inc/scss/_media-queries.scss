@@ -293,8 +293,20 @@
 	.sidebar {
 		display: none; 
 	}
+	.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
+		display: block;
+		padding-left: 10px;
+		visibility: visible;
+	}
 }
 @media (max-width: 530px) {
+	.footer {
+		margin-top: 0;
+	}
+	.masthead.hasbutton .subhead {
+		margin-top: 105px;
+		padding: 0;
+	}
 	.page-content {
 		margin-top: 0;
 	}
@@ -306,6 +318,9 @@
 	.single h3,
 	.page-template-default h2 {
 		font-size: 1.4em;
+	}
+	.modal .content div.jp-info-img {
+		margin: 0 0 23px;
 	}
 	.featured {
 		display: none;
