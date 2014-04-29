@@ -306,6 +306,8 @@ class WPCOM_JSON_API {
 			return $content_type;
 		}
 
+		$response = $this->filter_fields( $response );
+
 		if ( isset( $this->query['http_envelope'] ) && self::is_truthy( $this->query['http_envelope'] ) ) {
 			$response = array(
 				'code' => (int) $status_code,
@@ -361,6 +363,56 @@ class WPCOM_JSON_API {
 			'message' => $error->get_error_message(),
 		);
 		return $this->output( $status_code, $response );
+	}
+
+	function filter_fields( $response ) {
+		if ( empty( $this->query['fields'] ) || ! empty( $response['error'] )  )
+			return $response;
+
+		$fields = array_map( 'trim', explode( ',', $this->query['fields'] ) );
+
+		$has_filtered = false;
+		if ( empty( $response['ID'] ) ) {
+			$keys_to_filter = array(
+				'categories',
+				'comments',
+				'connections',
+				'domains',
+				'groups',
+				'likes',
+				'media',
+				'notes',
+				'posts',
+				'services',
+				'sites',
+				'suggestions',
+				'tags',
+				'themes',
+				'topics',
+				'users',
+			);
+
+			foreach ( $keys_to_filter as $key_to_filter ) {
+				if ( empty( $response[ $key_to_filter ] ) || $has_filtered )
+					continue;
+
+				foreach ( $response[ $key_to_filter ] as $key => $values ) {
+					if ( is_object( $values ) ) {
+						$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( (array) $values, array_flip( $fields ) );
+						$has_filtered = true;
+					} elseif ( is_array( $values ) ) {
+						$response[ $key_to_filter ][ $key ] = array_intersect_key( $values, array_flip( $fields ) );
+						$has_filtered = true;
+					}
+				}
+			}
+		}
+
+		if ( ! $has_filtered ) {
+			$response = array_intersect_key( $response, array_flip( $fields ) );
+		}
+
+		return $response;
 	}
 
 	function ensure_http_scheme_of_home_url( $url, $path, $original_scheme ) {
