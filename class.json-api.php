@@ -366,7 +366,7 @@ class WPCOM_JSON_API {
 	}
 
 	function filter_fields( $response ) {
-		if ( empty( $this->query['fields'] ) || ! empty( $response['error'] )  )
+		if ( empty( $this->query['fields'] ) || ! empty( $response['error'] ) || ! empty( $this->endpoint->custom_fields_filtering ) )
 			return $response;
 
 		$fields = array_map( 'trim', explode( ',', $this->query['fields'] ) );
