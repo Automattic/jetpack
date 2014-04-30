@@ -1181,8 +1181,7 @@ EOPHP;
 			return true;
 
 		// whitelist of post types that can be accessed
-		// fte_datalab and features are post types on http://fivethirtyeight.com/
-		if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'any', 'fte_datalab', 'fte_features' ) ) ) )
+		if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'any' ) ) ) )
 			return true;
 
 		return false;
@@ -1328,7 +1327,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
-		if ( ! $this->is_post_type_allowed( $post->post_type ) ) {
+		if ( ! $this->is_post_type_allowed( $post->post_type ) && ! is_post_freshly_pressed( $post->ID ) ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
