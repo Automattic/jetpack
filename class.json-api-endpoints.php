@@ -2323,14 +2323,43 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			}
 		}
 
+		// We ask the user/dev to pass Publicize services he/she wants activated for the post, but Publicize expects us
+		// to instead flag the ones we don't want to be skipped. proceed with said logic.
 		if ( $publicize === false ) {
+			// No publicize at all, skipp all by full service
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
 				update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name, 1 );
 			}
 		} else if ( is_array( $publicize ) && ( count ( $publicize ) > 0 ) ) {
 			foreach ( $GLOBALS['publicize_ui']->publicize->get_services( 'all' ) as $name => $service ) {
-				if ( !in_array( $name, $publicize ) ) {
+				/*
+				 * We support both indexed and associative arrays:
+				 * * indexed are to pass entire services
+				 * * associative are to pass specific connections per service
+				 *
+				 * We do support mixed arrays: mixed integer and string keys (see 3rd example below).
+				 *
+				 * EG: array( 'twitter', 'facebook') will only publicize to those, ignoring the other available services
+				 * 		Form data: publicize[]=twitter&publicize[]=facebook
+				 * EG: array( 'twitter' => '(int) $pub_conn_id_0, (int) $pub_conn_id_3', 'facebook' => (int) $pub_conn_id_7 ) will publicize to two Twitter accounts, and one Facebook connection, of potentially many.
+				 * 		Form data: publicize[twitter]=$pub_conn_id_0,$pub_conn_id_3&publicize[facebook]=$pub_conn_id_7
+				 * EG: array( 'twitter', 'facebook' => '(int) $pub_conn_id_0, (int) $pub_conn_id_3' ) will publicize to all available Twitter accounts, but only 2 of potentially many Facebook connections
+				 * 		Form data: publicize[]=twitter&publicize[facebook]=$pub_conn_id_0,$pub_conn_id_3
+				 */
+				if ( !in_array( $name, $publicize ) && !array_key_exists( $name, $publicize ) ) {
+					// Skip the whole service
 					update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $name, 1 );
+				} else if ( !empty( $publicize[ $name ] ) ) {
+					// Seems we're being asked to only push to [a] specific connection[s].
+					// Explode the list on commas, which will also support a single passed ID
+					$requested_connections = explode( ',', ( preg_replace( '/[\s]*/', '', $publicize[ $name ] ) ) );
+					// Get the user's connections and flag the ones we can't match with the requested list to be skipped.
+					$service_connections   = $GLOBALS['publicize_ui']->publicize->get_connectons( $name );
+					foreach ( $service_connections as $service_connection ) {
+						if ( !in_array( $service_connection->meta['connection_data']->id, $requested_connections ) ) {
+							update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
+						}
+					}
 				}
 			}
 		}
