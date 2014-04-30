@@ -2043,9 +2043,12 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
 			}
 
-			$author_id = $this->parse_and_set_author( $input, $new );
-			if ( is_wp_error( $author_id ) )
-				return $author_id;
+			if ( ! empty( $input['author'] ) ) {
+				$author_id = $this->parse_and_set_author( $input['author'], $input['type'] );
+				unset( $input['author'] );
+				if ( is_wp_error( $author_id ) )
+					return $author_id;
+			}
 
 			if ( 'publish' === $input['status'] ) {
 				if ( ! current_user_can( $post_type->cap->publish_posts ) ) {
@@ -2067,13 +2070,9 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 			}
 
-			$author_id = $this->parse_and_set_author( $input );
-			if ( is_wp_error( $author_id ) )
-				return $author_id;
-
-			$post_type = get_post_type_object( $input['type'] );
-
 			$post = get_post( $post_id );
+			$_post_type = ( ! empty( $input['type'] ) ) ? $input['type'] : $post->post_type;
+			$post_type = get_post_type_object( $_post_type );
 			if ( !$post || is_wp_error( $post ) ) {
 				return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 			}
@@ -2082,16 +2081,21 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
 			}
 
+			if ( ! empty( $input['author'] ) ) {
+				$author_id = $this->parse_and_set_author( $input['author'], $_post_type );
+				unset( $input['author'] );
+				if ( is_wp_error( $author_id ) )
+					return $author_id;
+			}
+
 			if ( 'publish' === $input['status'] && 'publish' !== $post->post_status && !current_user_can( 'publish_post', $post->ID ) ) {
 				$input['status'] = 'pending';
 			}
 			$last_status = $post->post_status;
 			$new_status = $input['status'];
-
-			$post_type = get_post_type_object( $post->post_type );
 		}
 
-		if ( get_current_user_id() != $author_id ) {
+		if ( ! empty( $author_id ) && get_current_user_id() != $author_id ) {
 			if ( ! current_user_can( $post_type->cap->edit_others_posts ) ) {
 				return new WP_Error( 'unauthorized', "User is not allowed to publish others' posts.", 403 );
 			} elseif ( ! user_can( $author_id, $post_type->cap->edit_posts ) ) {
@@ -2532,19 +2536,19 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 	}
 
-	private function parse_and_set_author( $input, $new = false ) {
-		if ( empty( $input['author'] ) || ! post_type_supports( $input['type'], 'author' ) )
+	private function parse_and_set_author( $author = null, $post_type = 'post' ) {
+		if ( empty( $author ) || ! post_type_supports( $post_type, 'author' ) )
 			return get_current_user_id();
 
-		if ( ctype_digit( $input['author'] ) ) {
-			$_user = get_user_by( 'id', $input['author'] );
+		if ( ctype_digit( $author ) ) {
+			$_user = get_user_by( 'id', $author );
 			if ( ! $_user || is_wp_error( $_user ) )
 				return new WP_Error( 'invalid_author', 'Invalid author provided' );
 
 			return $_user->ID;
 		}
 
-		$_user = get_user_by( 'login', $input['author'] );
+		$_user = get_user_by( 'login', $author );
 		if ( ! $_user || is_wp_error( $_user ) )
 			return new WP_Error( 'invalid_author', 'Invalid author provided' );
 
