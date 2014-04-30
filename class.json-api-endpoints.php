@@ -52,6 +52,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'true'  => 'Output pretty JSON',
 		),
 		'meta' => "(string) Optional. Loads data from the endpoints found in the 'meta' part of the response. Comma separated list. Example: meta=site,likes",
+		'fields' => '(string) Optional. Returns specified fields only. Comma separated list. Example: fields=ID,title',
 		// Parameter name => description (default value is empty)
 		'callback' => '(string) An optional JSONP callback function.',
 	);
@@ -85,6 +86,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	var $example_response = '';
 
+	/**
+	 * @var bool Set to true if the endpoint implements its own filtering instead of the standard `fields` query method
+	 */
+	var $custom_fields_filtering = false;
+
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'           => false,
@@ -107,6 +113,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'required_scope'       => '',
 			'pass_wpcom_user_details' => false,
 			'can_use_user_details_instead_of_blog_membership' => false,
+			'custom_fields_filtering' => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -126,6 +133,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->max_version = $args['max_version'];
 
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
+		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
 		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
 
 		$this->version     = $args['version'];
