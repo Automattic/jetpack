@@ -134,19 +134,19 @@ class Jetpack_Likes {
 		if ( defined('DOING_AUTOSAVE') && DOING_AUTOSAVE )
 			return $post_id;
 
+		if ( empty( $_POST['wpl_like_status_hidden'] ) )
+			return $post_id;
+
 		// Record sharing disable. Only needs to be done for WPCOM
 		if ( ! $this->in_jetpack ) {
 			if ( isset( $_POST['post_type'] ) && in_array( $_POST['post_type'], get_post_types( array( 'public' => true ) ) ) ) {
-				if ( isset( $_POST['wpl_sharing_status_hidden'] ) && !isset( $_POST['wpl_enable_post_sharing'] ) ) {
+				if ( ! isset( $_POST['wpl_enable_post_sharing'] ) ) {
 					update_post_meta( $post_id, 'sharing_disabled', 1 );
 				} else {
 					delete_post_meta( $post_id, 'sharing_disabled' );
 				}
 			}
 		}
-
-		if ( empty( $_POST['wpl_like_status_hidden'] ) )
-			return $post_id;
 
 		if ( 'post' == $_POST['post_type'] ) {
 			if ( !current_user_can( 'edit_post', $post_id ) ) {
