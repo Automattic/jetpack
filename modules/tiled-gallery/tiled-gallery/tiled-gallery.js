@@ -1,21 +1,17 @@
 ( function($) {
-var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
 
 var TiledGallery = function() {
+	this.resizeTimeout = null;
+
 	this.populate();
 
 	var self = this;
 
-	// Chrome is a unique snow flake and will start lagging on occasion
-	// It helps if we only resize on animation frames
-	//
-	// For other browsers it seems like there is no lag even if we resize every
-	// time there is an event
-	if ( window.chrome && requestAnimationFrame ) {
-		self.attachResizeInAnimationFrames();
-	} else {
-		self.attachPlainResize();
-	}
+	$( window ).on( 'resize', function () {
+		clearTimeout( self.resizeTimeout );
+
+		self.resizeTimeout = setTimeout( function () { self.resize(); }, 150 );
+	} );
 
     // Make any new galleries loaded by Infinite Scroll flexible
     $( 'body' ).on( 'post-load', $.proxy( self.initialize, self ) );
@@ -24,34 +20,6 @@ var TiledGallery = function() {
 	$( document ).on( 'page-rendered.wpcom-newdash', $.proxy( self.populate, self ) );
 
 	this.resize();
-};
-
-TiledGallery.prototype.attachResizeInAnimationFrames = function() {
-	var self = this;
-	var resizing = false;
-  	var resizeTimeout = null;
-
-	function handleFrame() {
-		self.resize();
-		if ( resizing ) requestAnimationFrame( handleFrame );
-	}
-
-	$( window ).resize( function() {
-		clearTimeout( resizeTimeout );
-
-		if ( ! resizing ) requestAnimationFrame( handleFrame );
-		resizing = true;
-		resizeTimeout = setTimeout( function() {
-			resizing = false;
-		}, 15 );
-	} );
-};
-
-TiledGallery.prototype.attachPlainResize = function () {
-	var self = this;
-	$( window ).resize( function() {
-		self.resize();
-	} );
 };
 
 TiledGallery.prototype.populate = function() {
