@@ -98,6 +98,38 @@
 	};
 
 	/**
+	 * Resizing logic
+	 */
+
+	var requestAnimationFrame = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame;
+
+	function attachResizeInAnimationFrames( tiledGalleries ) {
+		var resizing = false;
+		var resizeTimeout = null;
+
+		function handleFrame() {
+			tiledGalleries.resizeAll();
+			if ( resizing ) requestAnimationFrame( handleFrame );
+		}
+
+		$( window ).resize( function() {
+			clearTimeout( resizeTimeout );
+
+			if ( ! resizing ) requestAnimationFrame( handleFrame );
+			resizing = true;
+			resizeTimeout = setTimeout( function() {
+				resizing = false;
+			}, 15 );
+		} );
+	}
+
+	function attachPlainResize( tiledGalleries ) {
+		$( window ).resize( function() {
+			tiledGalleries.resizeAll();
+		} );
+	}
+
+	/**
 	 * Ready, set...
 	 */
 
@@ -111,18 +143,16 @@
 			tiledGalleries.findAndSetupNewGalleries();
 		} );
 
-		// Resize all galleries when the window is resized
-		var resizeTimeout = null;
-		$( window ).on( 'resize', function() {
-			clearTimeout( resizeTimeout );
-
-			// Events are fired whenever the window changes, so let's just wait
-			// until the resizing is finished and do the resizing of galleries only
-			// once
-			resizeTimeout = setTimeout( function() {
-				tiledGalleries.resizeAll();
-			}, 150 );
-		} );
+		// Chrome is a unique snow flake and will start lagging on occasion
+		// It helps if we only resize on animation frames
+		//
+		// For other browsers it seems like there is no lag even if we resize every
+		// time there is an event
+		if ( window.chrome && requestAnimationFrame ) {
+			attachResizeInAnimationFrames( tiledGalleries );
+		} else {
+			attachPlainResize( tiledGalleries );
+		}
 	});
 
 })(jQuery);
