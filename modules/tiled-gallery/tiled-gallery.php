@@ -232,7 +232,11 @@ class Jetpack_Tiled_Gallery {
 			$likes_blog_id = Jetpack_Options::get_option( 'id' );
 		}
 
-		$extra_data = array( 'data-carousel-extra' => array( 'blog_id' => $blog_id, 'permalink' => get_permalink( isset( $post->ID ) ? $post->ID : 0 ), 'likes_blog_id' => $likes_blog_id ) );
+		if ( in_array( 'carousel', Jetpack::get_active_modules() ) ) {
+			$extra_data = array( 'data-carousel-extra' => array( 'blog_id' => $blog_id, 'permalink' => get_permalink( isset( $post->ID ) ? $post->ID : 0 ), 'likes_blog_id' => $likes_blog_id ) );
+		} else {
+			$extra_data = array();
+		}
 
 		foreach ( (array) $extra_data as $data_key => $data_values ) {
 			$html = str_replace( '<div ', '<div ' . esc_attr( $data_key ) . "='" . json_encode( $data_values ) . "' ", $html );
