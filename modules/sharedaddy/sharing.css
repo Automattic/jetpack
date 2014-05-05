@@ -385,8 +385,11 @@ body .sd-content ul li.share-custom a.share-icon span
 	padding: 0 0 0 19px; 
 	display: inline-block;
 	height: 16px;
-	width: 0;
 	line-height: 16px;
+}
+
+body .sd-social-icon .sd-content li.share-custom a span {
+	width: 0;	
 }
 
 body .sd-content li.share-custom a:hover span {
