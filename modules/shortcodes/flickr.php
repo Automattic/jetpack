@@ -104,18 +104,21 @@ function flickr_shortcode_handler( $atts ) {
 
 	if ( $showing == 'video' ) {
 
-		if ( preg_match( "!photos/(([0-9a-zA-Z-_]+)|([0-9]+@N[0-9]+))/([0-9]+)/?$!", $src, $m ) )
+		if ( preg_match( "!photos/(([0-9a-zA-Z-_]+)|([0-9]+@N[0-9]+))/([0-9]+)/?$!", $src, $m ) ) {
 			$atts['photo_id'] = $m[4];
-		else
+		} else {
 			$atts['photo_id'] = $atts['video'];
+		}
 
-		if ( ! isset( $atts['show_info'] ) || in_array( $atts['show_info'], array('yes', 'true') ) )
+		if ( ! isset( $atts['show_info'] ) || in_array( $atts['show_info'], array('yes', 'true') ) ) {
 			$atts['show_info'] = 'true';
-		elseif ( in_array( $atts['show_info'], array( 'false', 'no' ) ) )
+		} elseif ( in_array( $atts['show_info'], array( 'false', 'no' ) ) ) {
 			$atts['show_info'] = 'false';
+		}
 
-    	if ( isset( $atts['secret'] ) )
+		if ( isset( $atts['secret'] ) ) {
 			$atts['secret'] = preg_replace( '![^\w]+!i', '', $atts['secret'] );
+		}
 
 		return flickr_shortcode_video_markup( $atts );
 	} elseif ( 'photo' == $showing ) {
