@@ -634,7 +634,7 @@ class Crunion_Contact_Form_Shortcode {
 			$this->content = $content;
 		}
 
-		$this->parse_content( $content );
+		$this->parse_content( $this->content );
 	}
 
 	/**
