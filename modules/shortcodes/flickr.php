@@ -102,6 +102,10 @@ function flickr_shortcode_handler( $atts ) {
 		return '';
 	}
 
+	if ( ! preg_match( '~^(https?:)?//([^/]+.)?((static)?flickr.com|flic.kr)/.*~i', $src ) ) {
+		return '';
+	}
+
 	if ( $showing == 'video' ) {
 
 		if ( preg_match( "!photos/(([0-9a-zA-Z-_]+)|([0-9]+@N[0-9]+))/([0-9]+)/?$!", $src, $m ) ) {
