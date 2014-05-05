@@ -169,6 +169,7 @@ class Jetpack {
 		'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',
 		                                                         // Fedmich's Facebook Open Graph Meta
 		'facebook-meta-tags/facebook-metatags.php',              // Facebook Meta Tags
+		'wordpress-seo-premium/wp-seo-premium.php',              // WordPress SEO Premium by Yoast
 	);
 
 	/**
