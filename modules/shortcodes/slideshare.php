@@ -14,7 +14,7 @@ function slideshare_shortcode( $atts ) {
 		return '<!-- SlideShare error: no arguments -->';
 	}
 
-	extract( $arguments );
+	extract( $arguments, EXTR_SKIP );
 
 	$pattern = '/[^-_a-zA-Z0-9]/';
 	if ( empty( $id ) || preg_match( $pattern, $id ) ) {
