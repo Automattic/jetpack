@@ -68,13 +68,14 @@ only screen and (min-device-pixel-ratio: 1.5) {
 }
 
 .jp-carousel-info h2 {
+	height: 1.25em;
 	background: none !important;
 	border: none !important;
 	color: #999;
 	display: block !important;
 	font: normal 13px/1.25em "Helvetica Neue", sans-serif !important;
 	letter-spacing: 0 !important;
-	margin: 7px 0 0 0 !important;
+	margin: 0 !important;
 	padding: 10px 0 0 !important;
 	overflow: hidden;
 	text-align: left;
@@ -1132,5 +1133,16 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	.jp-carousel-photo-info {
 		left: 0 !important;
 		width: 100% !important;
+	}
+}
+
+@media only screen and (device-width: 768px) and (device-height: 1024px) and (orientation: landscape) {
+	.jp-carousel-titleanddesc {
+		margin-top: 12px !important;
+		padding-top: 13px !important;
+	}
+
+	.jp-carousel-left-column-wrapper {
+		margin-top: 12px !important;
 	}
 }

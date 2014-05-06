@@ -5,9 +5,9 @@ jQuery(document).ready(function($) {
 	var overlay, comments, gallery, container, nextButton, previousButton, info, title, transitionBegin,
 	caption, resizeTimeout, mouseTimeout, photo_info, close_hint, commentInterval, lastSelectedSlide,
 	screenPadding = 110, originalOverflow = $('body').css('overflow'), originalHOverflow = $('html').css('overflow'), proportion = 85,
-	last_known_location_hash = '';
+	last_known_location_hash = '', isSmallScreen = (window.innerWidth <= 760);
 
-	if ( window.innerWidth <= 760 ) {
+	if ( isSmallScreen ) {
 		screenPadding = Math.round( ( window.innerWidth / 760 ) * 110 );
 
 		if ( screenPadding < 40 && ( ( 'ontouchstart' in window ) || window.DocumentTouch && document instanceof DocumentTouch ) )
@@ -168,7 +168,7 @@ jQuery(document).ready(function($) {
 				.append(photo_info)
 				.append(imageMeta);
 
-			if ( window.innerWidth <= 760 ) {
+			if ( isSmallScreen ) {
 				photo_info.remove().insertAfter( titleAndDescription );
 				info.prepend( leftColWrapper );
 			}
@@ -777,7 +777,30 @@ jQuery(document).ready(function($) {
 		},
 
 		fitMeta : function(animated){
-			var newInfoTop   = { top: Math.floor( $(window).height() / 100 * proportion + 5 ) + 'px' };
+			var current = this.jp_carousel('selectedSlide'),
+				titleAndDescriptionTitle = titleAndDescription.find('.jp-carousel-titleanddesc-title'),
+				smallScreenPadding = 18,
+				bigScreenPadding = 10,
+				topValue, proportionOffset, edgeOffset;
+
+			var visibleHeight = (
+				parseInt(leftColWrapper.css('margin-top'), 10) +
+				parseInt(titleAndDescription.css('padding-top'), 10) +
+				parseInt(titleAndDescription.css('margin-top'), 10) +
+				parseInt(titleAndDescription.css('border-top-width'), 10) +
+				( titleAndDescriptionTitle ? parseInt(titleAndDescriptionTitle.css('line-height'), 10) : 0 )
+			);
+
+			if ( isSmallScreen ) {
+				topValue = ( $(window).height() - visibleHeight - smallScreenPadding );
+			} else {
+				proportionOffset = Math.floor( $(window).height() / 100 * proportion + 5 );
+				edgeOffset = ( $(window).height() - photo_info.outerHeight() -
+				               visibleHeight - bigScreenPadding );
+				topValue = Math.min( proportionOffset, edgeOffset );
+			}
+
+			var newInfoTop = { top: topValue };
 			var newLeftWidth = { width: ( info.width() - (imageMeta.width() + 80) ) + 'px' };
 
 			if (animated) {
