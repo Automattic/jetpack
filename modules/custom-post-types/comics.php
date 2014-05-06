@@ -22,6 +22,9 @@ class Jetpack_Comic {
 	 * WordPress. We'll just return early instead.
 	 */
 	function __construct() {
+		// Make sure the post types are loaded for imports
+		add_action( 'import_start', array( $this, 'register_post_types' ) );
+
 		// Return early if theme does not support Jetpack Comic.
 		if ( ! ( $this->site_supports_comics() ) )
 			return;
@@ -187,6 +190,10 @@ class Jetpack_Comic {
 	}
 
 	function register_post_types() {
+		if ( post_type_exists( self::POST_TYPE ) ) {
+			return;
+		}
+
 		register_post_type( self::POST_TYPE, array(
 			'description' => __( 'Comics', 'jetpack' ),
 			'labels' => array(
