@@ -470,7 +470,7 @@ class Jetpack_Tiled_Gallery_Grouper {
 		$this->last_shape = '';
 		$this->images = $this->get_images_with_sizes( $attachments );
 		$this->grouped_images = $this->get_grouped_images();
-		$this->apply_content_width( $content_width - 5 ); //reduce the margin hack to 5px. It will be further reduced when we fix more themes and the rounding error.
+		$this->apply_content_width( $content_width );
 	}
 
 	public function get_current_row_size() {
