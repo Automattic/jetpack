@@ -89,11 +89,34 @@
 			// scale with constant empty space between them
 			var outerWidth = thisGalleryElement.data( 'original-width' ) + paddingWidth + borderWidth + marginWidth;
 			var outerHeight = thisGalleryElement.data( 'original-height' ) + paddingHeight + borderHeight + marginHeight;
+			
+			// decide if square images or with different width and height
+			if(thisGalleryElement.is('img') && thisGalleryElement.data( 'original-width' ) == thisGalleryElement.data( 'original-height' )){
+				var imgWidth = thisGalleryElement.data( 'original-width' );
+				var imgHeight = thisGalleryElement.data( 'original-height' );
+				var orginalSize = thisGalleryElement.data('orig-size').split(',');
+				var overflowsize = (orginalSize[0] - orginalSize[1]) > 0 ? "width" : "height";				
 
-			// Subtract margins so that images don't overflow on small browser windows
-			thisGalleryElement
-				.width( Math.floor( resizeRatio * outerWidth ) - marginWidth )
-				.height( Math.floor( resizeRatio * outerHeight ) - marginHeight );
+				// Override css for images with different height and width
+				if(overflowsize == 'width'){
+					var offsetLeft = ((orginalSize[0] / (orginalSize[1] / imgHeight )) - imgWidth) / 2;
+					var dimensions = Math.floor( resizeRatio * outerHeight ) - marginHeight;
+					thisGalleryElement
+						.attr('style', 'width: auto; height:' + dimensions + 'px; max-width: none !important; margin: 0 0 0 -' + offsetLeft + 'px !important;')
+						.closest('div').css({overflow: 'hidden', width: dimensions + 'px', height: dimensions + 'px'});
+				}else if(overflowsize == 'height'){
+					var offsetTop = ((orginalSize[1] / (orginalSize[0] / imgWidth )) - imgHeight) / 2;
+					var dimensions = Math.floor( resizeRatio * outerWidth ) - marginWidth;				
+					thisGalleryElement
+						.attr('style', 'height: auto; margin:-' + offsetTop + 'px 0 0 0 !important;')
+						.closest('div').css({overflow: 'hidden', width: dimensions + 'px', height: dimensions + 'px'})
+				}
+			}else{
+				// Subtract margins so that images don't overflow on small browser windows
+				thisGalleryElement
+					.width( Math.floor( resizeRatio * outerWidth ) - marginWidth )
+					.height( Math.floor( resizeRatio * outerHeight ) - marginHeight );			
+			}
 		} );
 	};
 
