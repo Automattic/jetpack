@@ -333,6 +333,12 @@ class Jetpack_Media_Meta_Extractor {
 		$image_booleans = array();
 		$image_booleans['gallery'] = 0;
 
+		$from_featured_image = Jetpack_PostImages::from_thumbnail( $post->ID, $args['width'], $args['height'] );
+		if ( !empty( $from_featured_image ) ) {
+			$srcs = wp_list_pluck( $from_featured_image, 'src' );
+			$image_list = array_merge( $image_list, $srcs );
+		}
+
 		$from_slideshow = Jetpack_PostImages::from_slideshow( $post->ID, $args['width'], $args['height'] );
 		if ( !empty( $from_slideshow ) ) {
 			$srcs = wp_list_pluck( $from_slideshow, 'src' );
@@ -352,8 +358,8 @@ class Jetpack_Media_Meta_Extractor {
 		return Jetpack_Media_Meta_Extractor::build_image_struct( $image_list );
 	}
 
-	public static function extract_images_from_content( $content ) {
-		$image_list = Jetpack_Media_Meta_Extractor::get_images_from_html( $post->post_content, $image_list );
+	public static function extract_images_from_content( $content, $image_list ) {
+		$image_list = Jetpack_Media_Meta_Extractor::get_images_from_html( $content, $image_list );
 		return Jetpack_Media_Meta_Extractor::build_image_struct( $image_list );
 	}
 
