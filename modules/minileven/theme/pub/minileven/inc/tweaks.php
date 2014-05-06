@@ -96,3 +96,8 @@ function minileven_wp_title( $title, $sep ) {
 	return $title;
 }
 add_filter( 'wp_title', 'minileven_wp_title', 10, 2 );
+
+/**
+ * Add theme support for Responsive Videos.
+ */
+add_theme_support( 'jetpack-responsive-videos' );
