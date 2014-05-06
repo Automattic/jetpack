@@ -40,6 +40,13 @@ class Jetpack_Media_Summary {
 			),
 		);
 
+		if ( empty( $post->post_password ) ) {
+			$return['excerpt']       = self::get_excerpt( $post->post_content, $post->post_excerpt );
+			$return['count']['word'] = self::get_word_count( $post->post_content );
+			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, self::get_excerpt( $post->post_content, $post->post_excerpt ) );
+			$return['count']['link'] = self::get_link_count( $post->post_content );
+		}
+
 		$extract = Jetpack_Media_Meta_Extractor::extract( $blog_id, $post_id, Jetpack_Media_Meta_Extractor::ALL );
 
 		if ( empty( $extract['has'] ) )
@@ -177,13 +184,6 @@ class Jetpack_Media_Summary {
 					$return['type']  = 'image';
 				}
 			}
-		}
-
-		if ( empty( $post->post_password ) ) {
-			$return['excerpt']       = self::get_excerpt( $post->post_content, $post->post_excerpt );
-			$return['count']['word'] = self::get_word_count( $post->post_content );
-			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, self::get_excerpt( $post->post_content, $post->post_excerpt ) );
-			$return['count']['link'] = self::get_link_count( $post->post_content );
 		}
 
 		if ( $switched ) {
