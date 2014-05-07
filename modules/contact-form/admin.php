@@ -204,7 +204,16 @@ function grunion_post_type_columns_filter( $cols ) {
 add_action( 'manage_posts_custom_column', 'grunion_manage_post_columns', 10, 2 );
 function grunion_manage_post_columns( $col, $post_id ) {
 	global $post;
-	
+
+	/**
+	 * parse_fields_from_content() does `apply_filter( 'the_content' )` which, in certain situations,
+	 * can slow down page generation times or cause other odd problems. Only call it if we're dealing
+	 * with a Grunion custom column.
+	 */
+	if ( ! in_array( $col, array( 'feedback_date', 'feedback_from', 'feedback_message' ) ) ) {
+		return;
+	}
+
 	$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post_id );
 
 	switch ( $col ) {
