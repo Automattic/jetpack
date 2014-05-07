@@ -146,7 +146,7 @@ wp_embed_register_handler( 'flickr', '#https?://(www\.)?flickr\.com/.*#i', 'jetp
 function jetpack_flickr_oembed_handler( $matches, $attr, $url ) {
 	// Legacy slideshow embeds end with /show/
 	// e.g. http://www.flickr.com/photos/yarnaholic/sets/72157615194738969/show/
-	if ( '/show/' !== substr( $src, -strlen( '/show/' ) ) ) {			
+	if ( '/show/' !== substr( $url, -strlen( '/show/' ) ) ) {			
 		return _wp_oembed_get_object()->get_html( $url, $attr );
 	}
 
