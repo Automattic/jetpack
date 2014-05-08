@@ -1,71 +1,17 @@
 <?php
 require_once dirname( __FILE__ ) . '/tiled-gallery-layout.php';
 require_once dirname( __FILE__ ) . '/tiled-gallery-shape.php';
+require_once dirname( __FILE__ ) . '/tiled-gallery-item.php';
 
 class Jetpack_Tiled_Gallery_Layout_Rectangular extends Jetpack_Tiled_Gallery_Layout {
 	protected $type = 'rectangular';
 
 	public function HTML() {
-		$grouper = new Jetpack_Tiled_Gallery_Grouper( $attachments );
-
+		$grouper = new Jetpack_Tiled_Gallery_Grouper( $this->attachments );
 		Jetpack_Tiled_Gallery_Shape::reset_last_shape();
 
-		$output = $this->generate_carousel_container();
-		foreach ( $grouper->grouped_images as $row ) {
-			$orig_dimensions = ' data-original-width="' . esc_attr( $row->width ) . '" data-original-height="' . esc_attr( $row->height ) . '" ';
-			$output .= '<div class="gallery-row"' . $orig_dimensions . 'style="' . esc_attr( 'width: ' . $row->width . 'px; height: ' . ( $row->height - 4 ) . 'px;' ) . '">';
-			foreach( $row->groups as $group ) {
-				$count = count( $group->images );
-				$orig_dimensions = ' data-original-width="' . esc_attr( $group->width ) . '" data-original-height="' . esc_attr( $group->height ) . '" ';
-				$output .= '<div' . $orig_dimensions . 'class="gallery-group images-' . esc_attr( $count ) . '" style="' . esc_attr( 'width: ' . $group->width . 'px; height: ' . $group->height . 'px;' ) . '">';
-				foreach ( $group->images as $image ) {
-
-					$size = 'large';
-
-					if ( $image->width < 250 )
-						$size = 'small';
-
-					$image_title = $image->post_title;
-					$image_alt = get_post_meta( $image->ID, '_wp_attachment_image_alt', true );
-					$orig_file = wp_get_attachment_url( $image->ID );
-					$link = $this->get_attachment_link( $image->ID, $orig_file );
-
-					$img_src = add_query_arg( array( 'w' => $image->width, 'h' => $image->height ), $orig_file );
-
-					$orig_dimensions = ' data-original-width="' . esc_attr( $image->width ) . '" data-original-height="' . esc_attr( $image->height ) . '" ';
-					$add_link = 'none' !== $this->atts['link'];
-
-					$output .= '<div class="tiled-gallery-item tiled-gallery-item-' . esc_attr( $size ) . '">';
-					if ( $add_link ) {
-						$output .= '<a href="' . esc_url( $link ) . '">';
-					}
-					$output .= '<img ' . $orig_dimensions . $this->generate_carousel_image_args( $image ) . ' src="' . esc_url( $img_src ) . '" width="' . esc_attr( $image->width ) . '" height="' . esc_attr( $image->height ) . '" style="width:' . esc_attr( $image->width ) . 'px; height:' . esc_attr( $image->height ) . 'px;" align="left" title="' . esc_attr( $image_title ) . '" alt="' . esc_attr( $image_alt ) . '" />';
-					if ( $add_link ) {
-						$output .= '</a>';
-					}
-
-					if ( $this->atts['grayscale'] == true ) {
-						$img_src_grayscale = jetpack_photon_url( $img_src, array( 'filter' => 'grayscale' ) );
-						if ( $add_link ) {
-							$output .= '<a href="'. esc_url( $link ) . '">';
-						}
-						$output .= '<img ' . $orig_dimensions . ' class="grayscale" src="' . esc_url( $img_src_grayscale ) . '" width="' . esc_attr( $image->width ) . '" height="' . esc_attr( $image->height ) . '" style="width:' . esc_attr( $image->width ) . 'px; " height:' . esc_attr( $image->height ) . 'px;" align="left" title="' . esc_attr( $image_title ) . '" alt="' . esc_attr( $image_alt ) . '" />';
-						if ( $add_link ) {
-							$output .= '</a>';
-						}
-					}
-
-					if ( trim( $image->post_excerpt ) )
-						$output .= '<div class="tiled-gallery-caption">' . wptexturize( $image->post_excerpt ) . '</div>';
-
-					$output .= '</div>';
-				}
-				$output .= '</div>';
-			}
-			$output .= '</div>';
-		}
-		$output .= '</div>';
-		return $output;
+		$this->rows = $grouper->grouped_images;
+		return parent::HTML();
 	}
 }
 
@@ -229,6 +175,15 @@ class Jetpack_Tiled_Gallery_Group {
 			return 1;
 
 		return 1/$ratio;
+	}
+
+	public function items( $needs_attachment_link, $grayscale ) {
+		$items = array();
+		foreach ( $this->images as $image ) {
+			$items[] = new Jetpack_Tiled_Gallery_Rectangular_Item( $image, $needs_attachment_link, $grayscale );
+		}
+
+		return $items;
 	}
 }
 ?>
