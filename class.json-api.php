@@ -473,11 +473,11 @@ class WPCOM_JSON_API {
 		return '';
 	}
 
-	function get_avatar_url( $email ) {
+	function get_avatar_url( $email, $avatar_size = 96 ) {
 		add_filter( 'pre_option_show_avatars', '__return_true', 999 );
 		$_SERVER['HTTPS'] = 'off';
 
-		$avatar_img_element = get_avatar( $email, 96, '' );
+		$avatar_img_element = get_avatar( $email, $avatar_size, '' );
 
 		if ( !$avatar_img_element || is_wp_error( $avatar_img_element ) ) {
 			$return = '';
