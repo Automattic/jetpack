@@ -1187,6 +1187,41 @@ EOPHP;
 		return false;
 	}
 
+	function handle_media_sideload( $url, $parent_post_id = 0 ) {
+		if ( ! function_exists( 'download_url' ) || ! function_exists( 'media_handle_sideload' ) )
+			return false;
+
+		// if we didn't get a URL, let's bail
+		$parsed = @parse_url( $url );
+		if ( empty( $parsed ) )
+			return false;
+
+		$tmp = download_url( $url );
+		if ( is_wp_error( $tmp ) ) {
+			return false;
+		}
+
+		if ( ! file_is_displayable_image( $tmp ) ) {
+			@unlink( $tmp );
+			return false;
+		}
+
+		// emulate a $_FILES entry
+		$file_array = array(
+			'name' => basename( parse_url( $url, PHP_URL_PATH ) ),
+			'tmp_name' => $tmp,
+		);
+
+		$id = media_handle_sideload( $file_array, $parent_post_id );
+		@unlink( $tmp );
+
+		if ( ! $id || ! is_int( $id ) ) {
+			return false;
+		}
+
+		return $id;
+	}
+
 	/**
 	 * Return endpoint response
 	 *
@@ -2219,31 +2254,32 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			}
 
 			$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
-
-			if ( $has_media ) {
-				$this->api->trap_wp_die( 'upload_error' );
-				foreach ( $input['media'] as $media_item ) {
-					$_FILES['.api.media.item.'] = $media_item;
-					// check for WP_Error if we ever actually need $media_id
-					$media_id = media_handle_upload( '.api.media.item.', $post_id );
-				}
-				$this->api->trap_wp_die( null );
-
-				unset( $_FILES['.api.media.item.'] );
-			}
-
-			if ( $has_media_by_url ) {
-				foreach ( $input['media_urls'] as $url ) {
-					media_sideload_image( esc_url_raw( $url ), $post_id );
-				}
-			}
 		} else {
 			$insert['ID'] = $post->ID;
 			$post_id = wp_update_post( (object) $insert );
 		}
 
+
 		if ( !$post_id || is_wp_error( $post_id ) ) {
 			return $post_id;
+		}
+
+		if ( $has_media ) {
+			$this->api->trap_wp_die( 'upload_error' );
+			foreach ( $input['media'] as $media_item ) {
+				$_FILES['.api.media.item.'] = $media_item;
+				// check for WP_Error if we ever actually need $media_id
+				$media_id = media_handle_upload( '.api.media.item.', $post_id );
+			}
+			$this->api->trap_wp_die( null );
+
+			unset( $_FILES['.api.media.item.'] );
+		}
+
+		if ( $has_media_by_url ) {
+			foreach ( $input['media_urls'] as $url ) {
+				$this->handle_media_sideload( $url, $post_id );
+			}
 		}
 		
 		// Set like status for the post
@@ -2502,37 +2538,13 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			return $featured_image;
 		}
 
-		// if we didn't get a URL, let's bail
-		$parsed = @parse_url( $featured_image );
-		if ( empty( $parsed ) )
+		$featured_image_id = $this->handle_media_sideload( $featured_image, $post_id );
+
+		if ( empty( $featured_image_id ) || ! is_int( $featured_image_id ) )
 			return false;
 
-		$tmp = download_url( $featured_image );
-		if ( is_wp_error( $tmp ) ) {
-			return false;
-		}
-
-		if ( ! file_is_displayable_image( $tmp ) ) {
-			@unlink( $tmp );
-			return false;
-		}
-
-		// emulate a $_FILES entry
-		$file_array = array(
-			'name' => basename( parse_url( $featured_image, PHP_URL_PATH ) ),
-			'tmp_name' => $tmp,
-		);
-
-		$id = media_handle_sideload( $file_array, $post_id );
-		@unlink( $tmp );
-
-		if ( ! $id || ! is_int( $id ) ) {
-			return false;
-		}
-
-		set_post_thumbnail( $post_id, $id );
-		return $id;
-
+		set_post_thumbnail( $post_id, $featured_image_id );
+		return $featured_image_id;
 	}
 
 	private function parse_and_set_author( $author = null, $post_type = 'post' ) {
@@ -3737,7 +3749,9 @@ class WPCOM_JSON_API_Upload_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$has_media_urls = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
 		if ( $has_media_urls ) {
 			foreach ( $input['media_urls'] as $url ) {
-				media_sideload_image( esc_url_raw( $url ), 0 );
+				$id = $this->handle_media_sideload( $url );
+				if ( ! empty( $id ) )
+					$media_ids[] = $id;
 			}
 		}
 
@@ -4066,7 +4080,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'categories' => "(array|string) Comma separated list or array of categories (name or id)",
 		'tags'       => "(array|string) Comma separated list or array of tags (name or id)",
 		'format'     => get_post_format_strings(),
-		'featured_image' => "(string) The post ID of an existing attachment or the URL of an image to set as the featured image.",
+		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
 		'media'      => "(media) An array of images to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts images (image/gif, image/jpeg, image/png) only.<br /><br /><strong>Example</strong>:<br />" .
 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
@@ -4220,7 +4234,10 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'likes_enabled' => "(bool) Should the post be open to likes?",
 		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
 		'gplusauthorship_enabled' => "(bool) Should a Google+ account be associated with this post?",
-		'featured_image' => "(string) The post ID of an existing attachment or the URL of an image to set as the featured image.",
+		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
+		'media'      => "(media) An array of images to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts images (image/gif, image/jpeg, image/png) only.<br /><br /><strong>Example</strong>:<br />" .
+		                "<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'media_urls' => "(array) An array of URLs for images to attach to the post. Sideloads the media in for the post.",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 	),
 
