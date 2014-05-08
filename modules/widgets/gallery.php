@@ -136,16 +136,11 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			return;
 
 		$widget_tiled_gallery = new Jetpack_Tiled_Gallery();
-
-		$widget_tiled_gallery->set_atts( array(
-			'link' 		=> $instance['link'],
-		) );
-
 		$widget_tiled_gallery->default_scripts_and_styles();
 
-		$html = $widget_tiled_gallery->rectangular_talavera( $instance['attachments'] );
+		$layout = new Jetpack_Tiled_Gallery_Layout_Rectangular( $instance['attachments'], $instance['link'], false );
 
-		return $html;
+		return $layout->HTML();
 	}
 
 	/**
@@ -160,17 +155,11 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			return;
 
 		$widget_tiled_gallery = new Jetpack_Tiled_Gallery();
-
-		$widget_tiled_gallery->set_atts( array(
-			'link' 		=> $instance['link'],
-			//'columns'	=> $instance['columns']
-		) );
-
 		$widget_tiled_gallery->default_scripts_and_styles();
 
-		$html = $widget_tiled_gallery->circle_talavera( $instance['attachments'] );
+		$layout = new Jetpack_Tiled_Gallery_Layout_Square( $instance['attachments'], $instance['link'], false );
 
-		return $html;
+		return $layout->HTML();
 	}
 
 	/**
@@ -185,19 +174,11 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			return;
 
 		$widget_tiled_gallery = new Jetpack_Tiled_Gallery();
-
-		// Tell the Tiled_Gallery what we want the images to link to
-		$widget_tiled_gallery->set_atts( array(
-			'link' 		=> $instance['link'],
-			//'columns'	=> $instance['columns'],
-			'type'		=> 'circle'
-		) );
-
 		$widget_tiled_gallery->default_scripts_and_styles();
 
-		$html = $widget_tiled_gallery->circle_talavera( $instance['attachments'] );
+		$layout = new Jetpack_Tiled_Gallery_Layout_Circle( $instance['attachments'], $instance['link'], false );
 
-		return $html;
+		return $layout->HTML();
 	}
 
 	/**
