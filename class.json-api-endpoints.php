@@ -802,7 +802,7 @@ EOPHP;
 		);
 
 		foreach ( array( 'path_labels' => 'path', 'query' => 'query', 'request_format' => 'body', 'response_format' => 'body' ) as $_property => $doc_item ) {
-			foreach ( $this->$_property as $key => $description ) {
+			foreach ( (array) $this->$_property as $key => $description ) {
 				if ( is_array( $description ) ) {
 					$description_keys = array_keys( $description );
 					if ( $boolean_arg === $description_keys || $naeloob_arg === $description_keys ) {
