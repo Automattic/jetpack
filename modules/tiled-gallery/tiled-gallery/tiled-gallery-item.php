@@ -28,10 +28,14 @@ abstract class Jetpack_Tiled_Gallery_Item {
 		return $img_meta;
 	}
 
-	public function image_dimensions_tuple() {
+	public function meta_width() {
 		$meta = wp_get_attachment_metadata( $this->image->ID );
-		$size = isset( $meta['width'] ) ? intval( $meta['width'] ) . ',' . intval( $meta['height'] ) : '';
-		return $size;
+		return isset( $meta['width'] ) ? intval( $meta['width'] ) : '';
+	}
+
+	public function meta_height() {
+		$meta = wp_get_attachment_metadata( $this->image->ID );
+		return isset( $meta['height'] ) ? intval( $meta['height'] ) : '';
 	}
 
 	public function medium_file() {
