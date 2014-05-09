@@ -33,6 +33,9 @@ class Jetpack_Testimonial {
 	 * WordPress. We'll just return early instead.
 	 */
 	function __construct() {
+		// Make sure the post types are loaded for imports
+		add_action( 'import_start', array( $this, 'register_post_types' ) );
+
 		// Return early if theme does not support Jetpack Testimonial.
 		if ( ! $this->site_supports_testimonial() )
 			return;
@@ -62,6 +65,10 @@ class Jetpack_Testimonial {
 
 	/* Setup */
 	function register_post_types() {
+		if ( post_type_exists( self::TESTIMONIAL_POST_TYPE ) ) {
+			return;
+		}
+
 		register_post_type( self::TESTIMONIAL_POST_TYPE, array(
 			'description' => __( 'Customer Testimonials', 'jetpack' ),
 			'labels' => array(
