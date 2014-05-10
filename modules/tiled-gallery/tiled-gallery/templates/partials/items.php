@@ -1,11 +1,11 @@
 <?php $add_link = 'none' !== $this->link; ?>
-<?php foreach ( $this->items as $item ): ?>
+<?php foreach ( $items as $item ): ?>
 	<div class="tiled-gallery-item<?php if ( isset( $item->size ) ) echo " tiled-gallery-item-$item->size"; ?>">
 		<?php if ( $add_link ): ?>
 		<a href="<?php echo $item->link; ?>" border="0">
 		<?php endif; ?>
 			<img
-				<?php require dirname( __FILE__ ) . '/carousel-image-args.php'; ?>
+				<?php $this->partial( 'carousel-image-args', array( 'item' => $item ) ); ?>
 				src="<?php echo esc_url( $item->img_src ); ?>"
 				width="<?php echo esc_attr( $item->image->width ); ?>"
 				height="<?php echo esc_attr( $item->image->height ); ?>"
