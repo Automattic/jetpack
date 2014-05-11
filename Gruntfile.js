@@ -73,6 +73,36 @@ module.exports = function(grunt) {
 					spawn: false
 				}
 			}
+		},
+		makepot: {
+			target: {
+				options: {
+					domainPath: '/languages',
+					exclude: [
+						'modules/minileven',
+						'node_modules',
+						'tests',
+						'tools'
+					],
+					mainFile: 'jetpack.php',
+					potFilename: 'jetpack.pot'
+				}
+			}
+		},
+		addtextdomain: {
+			target: {
+				options: {
+					textdomain: 'jetpack',
+				},
+				files: [
+					'*.php',
+					'**/*.php',
+					'!modules/minileven/**',
+					'!node_modules/**',
+					'!tests/**',
+					'!tools/**'
+				]
+			}
 		}
 	};
 
@@ -82,6 +112,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-phplint');
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
+	grunt.loadNpmTasks('grunt-wp-i18n');
 
 	grunt.registerTask('default', [
 		'shell',
