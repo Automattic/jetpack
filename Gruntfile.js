@@ -73,7 +73,7 @@ module.exports = function(grunt) {
 			}
 		},
 		makepot: {
-			target: {
+			jetpack: {
 				options: {
 					domainPath: '/languages',
 					exclude: [
@@ -88,7 +88,7 @@ module.exports = function(grunt) {
 			}
 		},
 		addtextdomain: {
-			target: {
+			jetpack: {
 				options: {
 					textdomain: 'jetpack',
 				},
