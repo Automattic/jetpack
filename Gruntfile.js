@@ -23,7 +23,6 @@ module.exports = function(grunt) {
 				'modules/*.php',
 				'modules/**/*.php',
 				'views/**/*.php',
-				'views/**/*.php',
 				'3rd-party/*.php'
 			]
 		},
@@ -53,7 +52,6 @@ module.exports = function(grunt) {
 					'_inc/**/*.php',
 					'modules/*.php',
 					'modules/**/*.php',
-					'views/**/*.php',
 					'views/**/*.php',
 					'3rd-party/*.php'
 				],
