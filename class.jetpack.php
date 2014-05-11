@@ -445,6 +445,8 @@ class Jetpack {
 
 		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
 
+		add_action( 'jetpack_notices', array( $this, 'show_development_mode_notice' ) );
+
 		/**
 		 * These actions run checks to load additional files.
 		 * They check for external files or plugins, so they need to run as late as possible.
@@ -642,6 +644,33 @@ class Jetpack {
 			$development_mode = true;
 		}
 		return apply_filters( 'jetpack_development_mode', $development_mode );
+	}
+
+	/**
+	* Get Jetpack development mode notice text and notice class.
+	*
+	* Mirrors the checks made in Jetpack::is_development_mode
+	*
+	*/
+	public static function show_development_mode_notice() {
+		if ( Jetpack::is_development_mode() ) {
+			if ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) {
+				$notice = __( 'In Development Mode, via wp-config.php or JETPACK_DEV_DEBUG constant being defined elsewhere.', 'jetpack' );
+				$class  = 'error';
+			} elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
+				$notice = __( 'In Development Mode, via site URL lacking a dot (e.g. http://localhost)', 'jetpack' );
+				$class  = 'error';
+			}
+
+			/** This filter should be documented in class.jetpack.php */
+			if ( apply_filters( 'jetpack_development_mode', false ) ) {
+				$notice = __( 'In Development Mode, via an add_filter call in a plugin.', 'jetpack' );
+				$class  = 'error';
+			}
+
+			$output = '<div class="' . $class . '"><p>' . $notice . '</p></div>';
+			echo $output;
+		}
 	}
 
 	/**
