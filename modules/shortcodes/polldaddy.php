@@ -447,3 +447,5 @@ function polldaddy_link( $content ) {
 add_filter( 'the_content', 'polldaddy_link', 1 );
 add_filter( 'the_content_rss', 'polldaddy_link', 1 );
 add_filter( 'comment_text', 'polldaddy_link', 1 );
+
+wp_oembed_add_provider( '#http://poll\.fm/.*#i', 'http://polldaddy.com/oembed/', true );
