@@ -162,7 +162,7 @@ class Jetpack_Tiled_Gallery {
 						if ( $add_link ) {
 							$output .= '<a href="'. esc_url( $link ) . '">';
 						}
-						$output .= '<img ' . $orig_dimensions . $this->generate_carousel_image_args( $image ) . ' class="grayscale" src="' . esc_url( $img_src_grayscale ) . '" width="' . esc_attr( $image->width ) . '" height="' . esc_attr( $image->height ) . '" style="width:' . esc_attr( $image->width ) . 'px; " height:' . esc_attr( $image->height ) . 'px;" align="left" title="' . esc_attr( $image_title ) . '" alt="' . esc_attr( $image_alt ) . '" />';
+						$output .= '<img ' . $orig_dimensions . ' class="grayscale" src="' . esc_url( $img_src_grayscale ) . '" width="' . esc_attr( $image->width ) . '" height="' . esc_attr( $image->height ) . '" style="width:' . esc_attr( $image->width ) . 'px; " height:' . esc_attr( $image->height ) . 'px;" align="left" title="' . esc_attr( $image_title ) . '" alt="' . esc_attr( $image_alt ) . '" />';
 						if ( $add_link ) {
 							$output .= '</a>';
 						}
@@ -226,7 +226,7 @@ class Jetpack_Tiled_Gallery {
 				if ( $add_link ) {
 					$output .= '<a border="0" href="' . esc_url( $link ) . '">';
 				}
-				$output .= '<img ' . $orig_dimensions . $this->generate_carousel_image_args( $image ) . ' class="grayscale" src="' . esc_url( 'http://en.wordpress.com/imgpress?url=' . urlencode( $image->guid ) . '&resize=' . $img_size . ',' . $img_size . '&filter=grayscale' ) . '" width="' . esc_attr( $img_size ) . '" height="' . esc_attr( $img_size ) . '" style=width:' . esc_attr( $img_size ) . 'px; height:' . esc_attr( $img_size ) . 'px; margin: 2px;" title="' . esc_attr( $image_title ) . '" />';
+				$output .= '<img ' . $orig_dimensions . ' class="grayscale" src="' . esc_url( 'http://en.wordpress.com/imgpress?url=' . urlencode( $image->guid ) . '&resize=' . $img_size . ',' . $img_size . '&filter=grayscale' ) . '" width="' . esc_attr( $img_size ) . '" height="' . esc_attr( $img_size ) . '" style=width:' . esc_attr( $img_size ) . 'px; height:' . esc_attr( $img_size ) . 'px; margin: 2px;" title="' . esc_attr( $image_title ) . '" />';
 				if ( $add_link ) {
 					$output .= '</a>';
 				}
