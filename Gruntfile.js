@@ -92,14 +92,16 @@ module.exports = function(grunt) {
 				options: {
 					textdomain: 'jetpack',
 				},
-				files: [
-					'*.php',
-					'**/*.php',
-					'!modules/minileven/**',
-					'!node_modules/**',
-					'!tests/**',
-					'!tools/**'
-				]
+				files: {
+					src: [
+						'*.php',
+						'**/*.php',
+						'!modules/minileven/**',
+						'!node_modules/**',
+						'!tests/**',
+						'!tools/**'
+					]
+				}
 			}
 		}
 	};
