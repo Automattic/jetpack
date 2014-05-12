@@ -87,14 +87,14 @@ function jetpack_verification_options_form() {
 				</td>
 			</tr><tr>
 				<td colspan='2'><small>
-					<label for='verification_services_codes[" . esc_attr( $key ) . "]'>" . esc_html( __( 'Example:' ) ) . " <code>&lt;meta name='" . esc_attr( $service['key'] ) . "' content='<strong>" . esc_attr( $service['format'] ) . "</strong>'&gt;</code></label>
+					<label for='verification_services_codes[" . esc_attr( $key ) . "]'>" . esc_html( __( 'Example:' , 'jetpack' ) ) . " <code>&lt;meta name='" . esc_attr( $service['key'] ) . "' content='<strong>" . esc_attr( $service['format'] ) . "</strong>'&gt;</code></label>
 				</small></td>
 			</tr>";
 	}
 	?>
 	</table>
 	<p class="submit">
-		<input type="submit" class="button-primary" value="<?php _e( 'Save Changes' ); ?>" />
+		<input type="submit" class="button-primary" value="<?php _e( 'Save Changes' , 'jetpack' ); ?>" />
 	</p>
 </form>
 <?php
@@ -113,8 +113,8 @@ function jetpack_verification_tool_box() {
 	$last = array_pop( $list );
 
 	if ( current_user_can( 'manage_options' ) ) {
-		echo '<div class="tool-box"><h3 class="title">' . __( 'Website Verification Services' ) . ' <a href="http://support.wordpress.com/webmaster-tools/" target="_blank">(?)</a></h3>';
-		echo '<p>' . sprintf( esc_html( __( 'Enter your meta key "content" value to verify your blog with %s' ) ), implode( ', ', $list ) ) . ' ' . __( 'and' ) . ' ' . $last . '.</p>';
+		echo '<div class="tool-box"><h3 class="title">' . __( 'Website Verification Services' , 'jetpack' ) . ' <a href="http://support.wordpress.com/webmaster-tools/" target="_blank">(?)</a></h3>';
+		echo '<p>' . sprintf( esc_html( __( 'Enter your meta key "content" value to verify your blog with %s' , 'jetpack' ) ), implode( ', ', $list ) ) . ' ' . __( 'and' , 'jetpack' ) . ' ' . $last . '.</p>';
 		jetpack_verification_options_form();
 		echo '</div>';
 	}

@@ -151,7 +151,7 @@ class Jetpack_Network {
 	 * @return array
 	 **/
 	public function add_jetpack_sites_column( $columns ) {
-		$columns['jetpack_connection'] = __( 'Jetpack' );
+		$columns['jetpack_connection'] = __( 'Jetpack' , 'jetpack' );
 		return $columns;
 	}
 
@@ -248,7 +248,7 @@ class Jetpack_Network {
 		 $wp_admin_bar->add_node( array(
 		'parent' => 'network-admin',
 		'id'     => 'network-admin-jetpack',
-		'title'  => __( 'Jetpack' ),
+		'title'  => __( 'Jetpack' , 'jetpack' ),
 		'href'   => $this->get_url( 'network_admin_page' ),
 		) );
 	 }

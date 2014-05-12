@@ -85,7 +85,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			} else {
 				#>
 				<tr class="no-modules-found">
-					<td colspan="2"><?php esc_html_e( 'No Modules Found' ); ?></td>
+					<td colspan="2"><?php esc_html_e( 'No Modules Found' , 'jetpack' ); ?></td>
 				</tr>
 				<#
 			}

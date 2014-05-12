@@ -321,7 +321,7 @@ class Grunion_Contact_Form_Plugin {
 		$result = false;
 		
 		if ( isset( $response[0]['x-akismet-pro-tip'] ) && 'discard' === trim( $response[0]['x-akismet-pro-tip'] ) && get_option( 'akismet_strictness' ) === '1' )
-			$result = new WP_Error( 'feedback-discarded', __('Feedback discarded.') );
+			$result = new WP_Error( 'feedback-discarded', __('Feedback discarded.', 'jetpack' ) );
 		elseif ( isset( $response[1] ) && 'true' == trim( $response[1] ) ) // 'true' is spam
 			$result = true;
 			
