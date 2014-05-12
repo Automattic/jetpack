@@ -232,7 +232,7 @@ class Jetpack_Tiled_Gallery {
 			$likes_blog_id = Jetpack_Options::get_option( 'id' );
 		}
 
-		if ( in_array( 'carousel', Jetpack::get_active_modules() ) ) {
+		if ( in_array( 'carousel', Jetpack::get_active_modules() ) || 'carousel' == $this->atts['link'] ) {
 			$extra_data = array( 'data-carousel-extra' => array( 'blog_id' => $blog_id, 'permalink' => get_permalink( isset( $post->ID ) ? $post->ID : 0 ), 'likes_blog_id' => $likes_blog_id ) );
 		} else {
 			$extra_data = array();
