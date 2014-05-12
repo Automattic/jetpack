@@ -77,7 +77,6 @@ module.exports = function(grunt) {
 				options: {
 					domainPath: '/languages',
 					exclude: [
-						'modules/minileven',
 						'node_modules',
 						'tests',
 						'tools'
@@ -96,7 +95,6 @@ module.exports = function(grunt) {
 					src: [
 						'*.php',
 						'**/*.php',
-						'!modules/minileven/**',
 						'!node_modules/**',
 						'!tests/**',
 						'!tools/**'
