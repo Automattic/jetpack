@@ -4,7 +4,7 @@
  * Module Name: Tiled Galleries
  * Module Description: Display your image galleries in a variety of sleek, graphic arrangements.
  * First Introduced: 2.1
- * Requires Connection: Yes
+ * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Photos and Videos
  */

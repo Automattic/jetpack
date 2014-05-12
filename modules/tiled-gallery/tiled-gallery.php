@@ -108,7 +108,7 @@ class Jetpack_Tiled_Gallery {
 			if ( $gallery_html && class_exists( 'Jetpack' ) && class_exists( 'Jetpack_Photon' ) ) {
 				// Tiled Galleries in Jetpack require that Photon be active.
 				// If it's not active, run it just on the gallery output.
-				if ( ! in_array( 'photon', Jetpack::get_active_modules() ) )
+				if ( ! in_array( 'photon', Jetpack::get_active_modules() ) && ! Jetpack::is_development_mode() )
 					$gallery_html = Jetpack_Photon::filter_the_content( $gallery_html );
 			}
 
