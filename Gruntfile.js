@@ -1,8 +1,8 @@
 /* global module */
 
 module.exports = function(grunt) {
-
-	var cfg = {
+	var path = require( 'path' ),
+	    cfg = {
 		pkg: grunt.file.readJSON('package.json'),
 		shell: {
 			checkHooks: {
@@ -82,7 +82,8 @@ module.exports = function(grunt) {
 						'tools'
 					],
 					mainFile: 'jetpack.php',
-					potFilename: 'jetpack.pot'
+					potFilename: 'jetpack.pot',
+					i18nToolsPath: path.join( __dirname , '/tools/' )
 				}
 			}
 		},

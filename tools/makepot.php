@@ -6,16 +6,16 @@
  * php makepot DIRECTORY [OUTPUT=jetpack.pot]
  */
 
-function jetpack_make_pot_usage() {
+function jetpack_makepot_usage() {
 	global $argv;
 
 	die( "$argv[0] DIRECTORY [OUTPUT=jetpack.pot]\n" );
 }
 
-defined( 'WORDPRESS_I18N__MAKEPOT_PATH' ) or define( 'WORDPRESS_I18N__MAKEPOT_PATH', dirname( __FILE__ ) . '/wordpress-i18n/makepot.php' );
+defined( 'WORDPRESS_I18N__MAKEPOT_PATH' ) or define( 'WORDPRESS_I18N__MAKEPOT_PATH', dirname( __FILE__ ) . '/../node_modules/grunt-wp-i18n/vendor/wp-i18n-tools/makepot.php' );
 
 if ( !WORDPRESS_I18N__MAKEPOT_PATH || !is_file( WORDPRESS_I18N__MAKEPOT_PATH ) ) {
-	jetpack_make_pot_usage();
+	jetpack_makepot_usage();
 }
 
 require WORDPRESS_I18N__MAKEPOT_PATH;
@@ -49,7 +49,6 @@ class Jetpack_MakePOT extends MakePOT {
 			$potextmeta = new Jetpack_PotExtMeta;
 			$potextmeta->append( $module, $output );
 		}
-
 		/* Adding non-gettexted strings can repeat some phrases */
 		$output_shell = escapeshellarg($output);
 		system( "msguniq $output_shell -o $output_shell" );
@@ -69,16 +68,26 @@ class Jetpack_PotExtMeta extends PotExtMeta {
 // wasn't included
 $included_files = get_included_files();
 if ( __FILE__ == $included_files[0] ) {
-	$makepot = new Jetpack_MakePOT;
+
 	if ( empty( $argv[1] ) ) {
 		jetpack_makepot_usage();
 	}
 
-	if ( ( !$realpath = realpath( $argv[1] ) ) || !is_dir( $realpath ) ) {
+	$path_to_trunk = $argv[1];
+	$path_to_pot_file = isset( $argv[2] )? $argv[2] : 'jetpack.pot';
+	// if called from grunt-wp-i18n
+	if ( sizeof( $argv ) == 4 ) {
+		$path_to_trunk = $path_to_trunk = $argv[2];
+		$path_to_pot_file = $argv[3];
+	}
+	$makepot = new Jetpack_MakePOT;
+
+	if ( ( !$realpath = realpath( $path_to_trunk ) ) || !is_dir( $realpath ) ) {
 		jetpack_makepot_usage();
 	}
 
-	$res = $makepot->jetpack( $realpath, isset( $argv[2] )? $argv[2] : 'jetpack.pot' );
+
+	$res = $makepot->jetpack( $realpath, $path_to_pot_file );
 	if ( false === $res ) {
 		fwrite(STDERR, "Couldn't generate POT file!\n");
 	} 
