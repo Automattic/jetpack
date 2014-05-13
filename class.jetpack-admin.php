@@ -208,7 +208,6 @@ class Jetpack_Admin {
 			die( '-1' );
 		}
 		Jetpack_Debugger::jetpack_debug_display_handler();
-		exit;
 	}
 
 	function admin_page_load() {
