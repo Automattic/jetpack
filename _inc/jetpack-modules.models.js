@@ -43,6 +43,9 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 
 				if ( m_sort.data('sort-by') ) {
 					items = _.sortBy( items, m_sort.data('sort-by') );
+					if ( 'reverse' === m_sort.data('sort-order') ) {
+						items.reverse();
+					}
 				}
 
 				// Sort unavailable modules to the end if the user is running in local mode.
