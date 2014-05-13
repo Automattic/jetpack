@@ -2,7 +2,7 @@
 /**
  * Module Name: Gravatar Hovercards
  * Module Description: Enable pop-up business cards over commenters’ Gravatars.
- * Sort Order: 8
+ * Sort Order: 11
  * First Introduced: 1.1
  * Requires Connection: No
  * Auto Activate: Yes

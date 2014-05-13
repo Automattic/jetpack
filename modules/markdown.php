@@ -3,7 +3,7 @@
 /**
  * Module Name: Markdown
  * Module Description: Write posts or pages in plain-text Markdown syntax.
- * Sort Order: 12
+ * Sort Order: 31
  * First Introduced: 2.8
  * Requires Connection: No
  * Auto Activate: No

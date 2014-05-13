@@ -2,7 +2,7 @@
 /**
  * Module Name: Extra Sidebar Widgets
  * Module Description: Add images, Twitter streams, and your site’s RSS links to your sidebar.
- * Sort Order: 13
+ * Sort Order: 4
  * First Introduced: 1.2
  * Requires Connection: No
  * Auto Activate: Yes

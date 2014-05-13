@@ -4,7 +4,7 @@
  * Module Name: Jetpack Comments
  * Module Description: Let readers comment with WordPress.com, Twitter, or Facebook accounts.
  * First Introduced: 1.4
- * Sort Order: 2
+ * Sort Order: 20
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social

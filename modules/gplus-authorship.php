@@ -2,7 +2,7 @@
 /**
 * Module Name: Google+ Profile
 * Module Description: Give users the ability to share posts to Google+, and add your site link to your Google+ profile.
-* Sort Order: 10
+* Sort Order: 18
 * First Introduced: 2.5
 * Requires Connection: Yes
 * Auto Activate: Yes

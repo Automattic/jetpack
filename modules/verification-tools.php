@@ -4,7 +4,7 @@
  * Module Name: Site Verification
  * Module Description: Verify your site or domain with Google Webmaster Tools, Pinterest, and others.
  * First Introduced: 3.0
- * Sort Order: 55
+ * Sort Order: 33
  * Requires Connection: No
  * Auto Activate: Yes
  */

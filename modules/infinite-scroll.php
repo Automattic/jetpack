@@ -2,7 +2,7 @@
 /**
  * Module Name: Infinite Scroll
  * Module Description: Add support for infinite scroll to your theme.
- * Sort Order: 14
+ * Sort Order: 26
  * First Introduced: 2.0
  * Requires Connection: No
  * Auto Activate: No

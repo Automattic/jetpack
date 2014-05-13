@@ -5,7 +5,7 @@
  * First Introduced: 2.5
  * Free: false
  * Requires Connection: Yes
- * Sort Order: 100
+ * Sort Order: 27
  * Module Tags: Photos and Videos
  */
 

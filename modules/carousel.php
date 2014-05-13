@@ -3,7 +3,7 @@
 /**
  * Module Name: Carousel
  * Module Description: Transform standard image galleries into full-screen sideshows.
- * Sort Order: 4
+ * Sort Order: 22
  * First Introduced: 1.5
  * Requires Connection: No
  * Auto Activate: No

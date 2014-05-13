@@ -7,6 +7,7 @@
  * Requires Connection: No
  * Auto Activate: No
  * Module Tags: Photos and Videos
+ * Sort Order: 24
  */
 
 function jetpack_load_tiled_gallery() {

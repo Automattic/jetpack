@@ -2,7 +2,7 @@
 /**
  * Module Name: Notifications
  * Module Description: Receive notification of site activity via the admin toolbar and your Apple device.
- * Sort Order: 1
+ * Sort Order: 13
  * First Introduced: 1.9
  * Requires Connection: Yes
  * Auto Activate: Yes

@@ -2,7 +2,7 @@
 /**
  * Module Name: Subscriptions
  * Module Description: Allow users to subscribe to your posts and comments and receive notifications via email.
- * Sort Order: 3
+ * Sort Order: 9
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Auto Activate: Yes

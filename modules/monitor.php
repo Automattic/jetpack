@@ -2,7 +2,7 @@
 /**
  * Module Name: Monitor
  * Module Description: Receive notifications from Jetpack if your site goes offline — and when it it returns.
- * Sort Order: 55
+ * Sort Order: 28
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
