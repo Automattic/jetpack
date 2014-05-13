@@ -111,7 +111,7 @@ Scroller.prototype.render = function( response ) {
 	// Check if we can wrap the html
 	this.element.append( response.html );
 
-	this.body.trigger( 'post-load' );
+	this.body.trigger( 'post-load', response );
 	this.ready = true;
 };
 
