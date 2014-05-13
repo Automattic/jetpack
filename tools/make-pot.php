@@ -6,7 +6,7 @@
  * php makepot DIRECTORY [OUTPUT=jetpack.pot]
  */
 
-function jetpack_makepot_usage() {
+function jetpack_make_pot_usage() {
 	global $argv;
 
 	die( "$argv[0] DIRECTORY [OUTPUT=jetpack.pot]\n" );
