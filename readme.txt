@@ -86,10 +86,36 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Upgrade Notice ==
 
-= 2.9.3 =
-Jetpack 2.9.3 fixes a security bug. Please upgrade immediately.
+= 3.0 =
+Jetpack 3.0 is full of enhancements and bug fixes, including a new Administrative User Interface. Upgrade today!
 
 == Changelog ==
+
+= 3.0 =
+* New User Interface for managing modules and settings
+* New Module: Verfication Tools
+* Enhancement: New look for the Sharing module
+* Enhancement: Multiple improvements on which Twitter handle a Twitter card will display
+* Enhancement: Add option to hide Google+ Authorship banner while still receiving the benefits
+* Enhancement: Many Infinite Scroll enhancements to improve performance
+* Enhancement: Infinite Scroll will use your CPT's display name instead of "Older Posts"
+* Enhancement: JSON API added /media/new endpoint
+* Enhancement: Added filter to assign new default image for Open Graph tags
+* Enhancement: New [jetpack-related-posts] shortcode to add Related Posts to page instead of default placement
+* Enhancement: Added SSO option to turn off login form completely, to use WordPress.com login exclusively
+* Enhancement: The [googlemaps] shortcode allows for Google Maps Engine
+* Enhancement: YouTube shortcode allows HD playback
+* Enhancement: Smoother, Faster Tiled Galleries!
+* Enhancement: New languages! Use Jetpack in Irish, Fulah, and Tigrinya
+* Bugfix: Use your browser's Back and Forward buttons when naviagating a Carousel
+* Bugfix: Various Related Posts fixes and improvements for added flexibility
+* Bugfix: WordPress 3.9: Restores ability to edit Contact Forms
+* Bugfix: WordPress 3.9: Restores Gallery Widget compatability
+* Bugfix: Ensure Markdown is kept when Bulk Editing posts
+* Bugfix: Improved Jetpack's Multisite Network Admin page for networks with a large number of sites
+* Bugfix: Ensure Sharing settings persist when Bulk Editing a post
+* Bugfix: Various other shortcode improvements
+
 
 = 2.9.3 =
 * Important security update. CVE-2014-0173
@@ -118,7 +144,7 @@ Jetpack 2.9.3 fixes a security bug. Please upgrade immediately.
 * Bugfix: Limit Login Attempts no longer generates false positives from xmlrpc.
 * Bugfix: Clear max_posts transient on theme switch.
 * Bugfix: Lower priority of sync to allow all CPTs to be registered.
-* Bugfix: Contact form fields emailed in correct order. 
+* Bugfix: Contact form fields emailed in correct order.
 
 * Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits/2.9
 
