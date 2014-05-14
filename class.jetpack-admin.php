@@ -325,7 +325,9 @@ class Jetpack_Admin {
 				</svg>
 			</div>
 			<div class="subhead">
-				<?php if ( $is_connected ) : ?>
+				<?php if ( Jetpack::is_development_mode() ) : ?>
+				<h2><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
+				<?php elseif ( $is_connected ) : ?>
 				<h2><?php _e("You're successfully connected to Jetpack!", 'jetpack' ); ?></h2>
 				<?php else : ?>
 				<h2><?php _e('Once you’ve connected Jetpack, you’ll get access to all the delightful features below.', 'jetpack' ); ?></h2>
