@@ -9,6 +9,11 @@ $tools = array(
 	'theme-tools/social-links.php',
 	'holiday-snow.php', // Happy Holidays!!!
 	'theme-tools/random-redirect.php',
+	'theme-tools/featured-content.php',
+	'theme-tools/infinite-scroll.php',
+	'custom-post-types/comics.php',
+	'custom-post-types/testimonial.php',
+	'custom-post-types/nova.php',
 );
 $jetpack_tools_to_include = apply_filters( 'jetpack-tools-to-include', $tools );
 

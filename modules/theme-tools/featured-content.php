@@ -1,5 +1,7 @@
 <?php
 
+if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
+
 /**
  * Featured Content.
  *
@@ -540,3 +542,5 @@ class Featured_Content {
 }
 
 Featured_Content::setup();
+
+} // end if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
