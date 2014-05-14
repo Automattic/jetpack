@@ -117,6 +117,10 @@ class Jetpack {
 			'ShareThis'                      => 'share-this/sharethis.php',
 			'Shareaholic'                    => 'shareaholic/shareaholic.php',
 		),
+		'verification-tools' => array(
+			'WordPress SEO by Yoast'         => 'wordpress-seo/wp-seo.php',
+			'WordPress SEO Premium by Yoast' => 'wordpress-seo-premium/wp-seo-premium.php',
+		),
 		'widget-visibility' => array(
 			'Widget Logic'                   => 'widget-logic/widget_logic.php',
 			'Dynamic Widgets'                => 'dynamic-widgets/dynamic-widgets.php',
