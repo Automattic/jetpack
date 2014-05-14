@@ -39,6 +39,9 @@ Scroller = function( settings ) {
 	this.footer           = $( '#infinite-footer' );
 	this.footer.wrap      = settings.footer;
 
+	// Core's native MediaElement.js implementation needs special handling
+	this.wpMediaelement   = null;
+
 	// We have two type of infinite scroll
 	// cases 'scroll' and 'click'
 
@@ -243,6 +246,8 @@ Scroller.prototype.refresh = function() {
 				// If additional scripts are required by the incoming set of posts, parse them
 				if ( response.scripts ) {
 					$( response.scripts ).each( function() {
+						var elementToAppendTo = this.footer ? 'body' : 'head';
+
 						// Add script handle to list of those already parsed
 						window.infiniteScroll.settings.scripts.push( this.handle );
 
@@ -262,7 +267,15 @@ Scroller.prototype.refresh = function() {
 						script.type = 'text/javascript';
 						script.src = this.src;
 						script.id = this.handle;
-						document.getElementsByTagName( this.footer ? 'body' : 'head' )[0].appendChild(script);
+
+						if ( 'wp-mediaelement' === this.handle && 'undefined' === typeof mejs ) {
+							self.wpMediaelement = {};
+							self.wpMediaelement.tag = script;
+							self.wpMediaelement.element = elementToAppendTo;
+							setTimeout( self.maybeLoadMejs, 250 );
+						} else {
+							document.getElementsByTagName( elementToAppendTo )[0].appendChild(script);
+						}
 					} );
 				}
 
@@ -330,6 +343,25 @@ Scroller.prototype.refresh = function() {
 		});
 
 	return jqxhr;
+};
+
+/**
+ * Core's native media player uses MediaElement.js
+ * The library's size is sufficient that it may not be loaded in time for Core's helper to invoke it, so we need to delay until `mejs` exists.
+ */
+Scroller.prototype.maybeLoadMejs = function() {
+	var self = window.infiniteScroll.scroller;
+
+	if ( null === self.wpMediaelement ) {
+		return;
+	}
+
+	if ( 'undefined' === typeof mejs ) {
+		setTimeout( self.maybeLoadMejs, 250 );
+	} else {
+		document.getElementsByTagName( self.wpMediaelement.element )[0].appendChild( self.wpMediaelement.tag );
+		self.wpMediaelement = null;
+	}
 };
 
 /**
