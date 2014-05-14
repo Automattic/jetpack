@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Social Links.
  *
@@ -11,6 +10,14 @@
  *     'facebook', 'twitter', 'linkedin', 'tumblr', 'google_plus',
  * ) );
  */
+
+add_action( 'init', function() {
+	if ( current_theme_supports( 'social-links' ) ) {	
+		new Social_Links();
+	}
+} );
+
+
 class Social_Links {
 
 	/**
@@ -196,5 +203,3 @@ class Social_Links {
 		return $choices;
 	}
 }
-
-$jetpack_social_links = new Social_Links;
