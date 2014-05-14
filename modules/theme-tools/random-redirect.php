@@ -1,5 +1,4 @@
 <?php
-die('kjadf');
 /*
 Plugin Name: Random Redirect
 Plugin URI: http://wordpress.org/extend/plugins/random-redirect/

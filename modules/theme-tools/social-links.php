@@ -15,7 +15,7 @@ add_action( 'init', function() {
 	if ( current_theme_supports( 'social-links' ) ) {	
 		new Social_Links();
 	}
-} );
+}, 30 );
 
 
 class Social_Links {
