@@ -116,7 +116,6 @@ Jetpack 3.0 is full of enhancements and bug fixes, including a new Administrativ
 * Bugfix: Ensure Sharing settings persist when Bulk Editing a post
 * Bugfix: Various other shortcode improvements
 
-
 = 2.9.3 =
 * Important security update. CVE-2014-0173
 
