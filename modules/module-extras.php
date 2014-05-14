@@ -8,6 +8,7 @@
 $tools = array( 
 	'theme-tools/social-links.php',
 	'holiday-snow.php', // Happy Holidays!!!
+	'theme-tools/random-redirect.php',
 );
 $jetpack_tools_to_include = apply_filters( 'jetpack-tools-to-include', $tools );
 
