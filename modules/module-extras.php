@@ -14,6 +14,7 @@ $tools = array(
 	'custom-post-types/comics.php',
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',
+	'theme-tools.php',
 );
 $jetpack_tools_to_include = apply_filters( 'jetpack-tools-to-include', $tools );
 
