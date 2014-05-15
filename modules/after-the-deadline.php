@@ -121,7 +121,7 @@ function AtD_change_mce_settings( $init_array ) {
 	$user = wp_get_current_user();
 
 	$init_array['atd_rpc_url']        = admin_url( 'admin-ajax.php?action=proxy_atd&url=' );
-	$init_array['atd_ignore_rpc_url'] = admin_url( 'admin-ajax.php?action=atd_ignore&phrase=' );
+	$init_array['atd_ignore_rpc_url'] = admin_url( 'admin-ajax.php?action=atd_ignore&_wpnonce=' . wp_create_nonce( 'atd_ignore' ) . '&phrase=' );
 	$init_array['atd_rpc_id']         = 'WPORG-' . md5(get_bloginfo('wpurl'));
 	$init_array['atd_theme']          = 'wordpress';
 	$init_array['atd_ignore_enable']  = 'true';
@@ -160,8 +160,9 @@ function AtD_settings() {
 	/* honor the types we want to show */
 	echo "AtD.showTypes(" . json_encode( AtD_get_setting( $user->ID, 'AtD_options' ) ) .");\n";
 
-	echo "AtD.rpc_ignore = " . json_encode( esc_url_raw( admin_url( 'admin-ajax.php?action=atd_ignore&phrase=' ) ) ) . ";\n";
 	/* this is not an AtD/jQuery setting but I'm putting it in AtD to make it easy for the non-viz plugin to find it */
+	$admin_ajax_url = admin_url( 'admin-ajax.php?action=atd_ignore&_wpnonce=' . wp_create_nonce( 'atd_ignore' ) . '&phrase=' );
+	echo "AtD.rpc_ignore = " . json_encode( esc_url_raw( $admin_ajax_url ) ) . ";\n";
 
 	die;
 }

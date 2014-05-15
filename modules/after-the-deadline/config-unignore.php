@@ -12,6 +12,8 @@ function AtD_ignore_call() {
 	if ( ! $user || $user->ID == 0 )
 		return;
 
+	check_admin_referer( 'atd_ignore' );
+
 	$ignores = explode( ',', AtD_get_setting( $user->ID, 'AtD_ignored_phrases') );
 	array_push( $ignores, $_GET['phrase'] );
 
