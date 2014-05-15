@@ -305,7 +305,7 @@ class Jetpack_Tiled_Gallery {
 				esc_url( wp_get_attachment_url( $attachment_id ) ),
 				esc_attr( $size ),
 				esc_attr( $comments_opened ),
-				json_encode( array_map( 'esc_attr', $img_meta ) ),
+				esc_attr( json_encode( array_map( 'esc_attr', $img_meta ) ) ),
 				esc_attr( $attachment_title ),
 				esc_attr( $attachment_desc ),
 				esc_url( $medium_file ),
