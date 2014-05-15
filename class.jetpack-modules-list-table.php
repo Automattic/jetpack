@@ -4,12 +4,11 @@ if ( ! class_exists( 'WP_List_Table' ) )
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
 class Jetpack_Modules_List_Table extends WP_List_Table {
-	var $jetpack;
 
 	function __construct() {
 		parent::__construct();
 
-		$this->jetpack = Jetpack::init();
+		Jetpack::init();
 
 		$this->items = $this->all_items = Jetpack_Admin::init()->get_modules();
 		$this->items = $this->filter_displayed_table_items( $this->items );
