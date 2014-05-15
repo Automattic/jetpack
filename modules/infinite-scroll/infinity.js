@@ -71,6 +71,7 @@ Scroller = function( settings ) {
 		// Ensure that enough posts are loaded to fill the initial viewport, to compensate for short posts and large displays.
 		self.ensureFilledViewport();
 		this.body.bind( 'post-load', { self: self }, self.checkViewportOnLoad );
+		this.body.bind( 'post-load', { self: self }, self.initializeMejs );
 	} else if ( type == 'click' ) {
 		if ( this.click_handle ) {
 			this.element.append( this.handle );
@@ -259,7 +260,7 @@ Scroller.prototype.refresh = function() {
 							data.type = 'text/javascript';
 							data.appendChild( dataContent );
 
-							document.getElementsByTagName( this.footer ? 'body' : 'head' )[0].appendChild(data);
+							document.getElementsByTagName( elementToAppendTo )[0].appendChild(data);
 						}
 
 						// Build script tag and append to DOM in requested location
@@ -267,6 +268,11 @@ Scroller.prototype.refresh = function() {
 						script.type = 'text/javascript';
 						script.src = this.src;
 						script.id = this.handle;
+
+						// If MediaElement.js is loaded in by this set of posts, don't initialize the players a second time as it breaks them all
+						if ( 'wp-mediaelement' === this.handle ) {
+							self.body.unbind( 'post-load', self.initializeMejs );
+						}
 
 						if ( 'wp-mediaelement' === this.handle && 'undefined' === typeof mejs ) {
 							self.wpMediaelement = {};
@@ -342,6 +348,8 @@ Scroller.prototype.refresh = function() {
 			}
 		});
 
+
+
 	return jqxhr;
 };
 
@@ -359,8 +367,47 @@ Scroller.prototype.maybeLoadMejs = function() {
 	} else {
 		document.getElementsByTagName( this.wpMediaelement.element )[0].appendChild( this.wpMediaelement.tag );
 		this.wpMediaelement = null;
+
+		// Ensure any subsequent IS loads initialize the players
+		this.body.bind( 'post-load', { self: this }, this.initializeMejs );
 	}
-};
+}
+
+/**
+ * Initialize the MediaElement.js player for any posts not previously initialized
+ */
+Scroller.prototype.initializeMejs = function( ev, response ) {
+	// Are there media players in the incoming set of posts?
+	if ( -1 === response.html.indexOf( 'wp-audio-shortcode' ) && -1 === response.html.indexOf( 'wp-video-shortcode' ) ) {
+		return;
+	}
+
+	// Don't bother if mejs isn't loaded for some reason
+	if ( 'undefined' === typeof mejs ) {
+		return;
+	}
+
+	// Adapted from wp-includes/js/mediaelement/wp-mediaelement.js
+	// Modified to not initialize already-initialized players, as Mejs doesn't handle that well
+	$(function () {
+		var settings = {};
+
+		if ( typeof _wpmejsSettings !== 'undefined' ) {
+			settings.pluginPath = _wpmejsSettings.pluginPath;
+		}
+
+		settings.success = function (mejs) {
+			var autoplay = mejs.attributes.autoplay && 'false' !== mejs.attributes.autoplay;
+			if ( 'flash' === mejs.pluginType && autoplay ) {
+				mejs.addEventListener( 'canplay', function () {
+					mejs.play();
+				}, false );
+			}
+		};
+
+		$('.wp-audio-shortcode, .wp-video-shortcode').not( '.mejs-container' ).mediaelementplayer( settings );
+	});
+}
 
 /**
  * Trigger IS to load additional posts if the initial posts don't fill the window.
