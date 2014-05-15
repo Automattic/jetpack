@@ -272,7 +272,7 @@ Scroller.prototype.refresh = function() {
 							self.wpMediaelement = {};
 							self.wpMediaelement.tag = script;
 							self.wpMediaelement.element = elementToAppendTo;
-							setTimeout( self.maybeLoadMejs, 250 );
+							setTimeout( self.maybeLoadMejs.bind( self ), 250 );
 						} else {
 							document.getElementsByTagName( elementToAppendTo )[0].appendChild(script);
 						}
@@ -350,17 +350,15 @@ Scroller.prototype.refresh = function() {
  * The library's size is sufficient that it may not be loaded in time for Core's helper to invoke it, so we need to delay until `mejs` exists.
  */
 Scroller.prototype.maybeLoadMejs = function() {
-	var self = window.infiniteScroll.scroller;
-
-	if ( null === self.wpMediaelement ) {
+	if ( null === this.wpMediaelement ) {
 		return;
 	}
 
 	if ( 'undefined' === typeof mejs ) {
-		setTimeout( self.maybeLoadMejs, 250 );
+		setTimeout( this.maybeLoadMejs, 250 );
 	} else {
-		document.getElementsByTagName( self.wpMediaelement.element )[0].appendChild( self.wpMediaelement.tag );
-		self.wpMediaelement = null;
+		document.getElementsByTagName( this.wpMediaelement.element )[0].appendChild( this.wpMediaelement.tag );
+		this.wpMediaelement = null;
 	}
 };
 
