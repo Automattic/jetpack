@@ -144,9 +144,9 @@ function AtD_sanitize( $untrusted ) {
  * AtD HTML Editor Stuff
  */
 function AtD_settings() {
-        $user = wp_get_current_user();
+	$user = wp_get_current_user();
 
-        header( 'Content-Type: text/javascript' );
+	header( 'Content-Type: text/javascript' );
 
 	/* set the RPC URL for AtD */
 	echo "AtD.rpc = " . json_encode( esc_url_raw( admin_url( 'admin-ajax.php?action=proxy_atd&url=' ) ) ) . ";\n";
@@ -154,16 +154,16 @@ function AtD_settings() {
 	/* set the API key for AtD */
 	echo "AtD.api_key = " . json_encode( 'WPORG-' . md5( get_bloginfo( 'wpurl' ) ) ) . ";\n";
 
-        /* set the ignored phrases for AtD */
+	/* set the ignored phrases for AtD */
 	echo "AtD.setIgnoreStrings(" . json_encode( AtD_get_setting( $user->ID, 'AtD_ignored_phrases' ) ) . ");\n";
 
-        /* honor the types we want to show */
-        echo "AtD.showTypes(" . json_encode( AtD_get_setting( $user->ID, 'AtD_options' ) ) .");\n";
+	/* honor the types we want to show */
+	echo "AtD.showTypes(" . json_encode( AtD_get_setting( $user->ID, 'AtD_options' ) ) .");\n";
 
-        /* this is not an AtD/jQuery setting but I'm putting it in AtD to make it easy for the non-viz plugin to find it */
 	echo "AtD.rpc_ignore = " . json_encode( esc_url_raw( admin_url( 'admin-ajax.php?action=atd_ignore&phrase=' ) ) ) . ";\n";
+	/* this is not an AtD/jQuery setting but I'm putting it in AtD to make it easy for the non-viz plugin to find it */
 
-        die;
+	die;
 }
 
 function AtD_load_javascripts() {
