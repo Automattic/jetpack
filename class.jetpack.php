@@ -2908,7 +2908,7 @@ p {
 
 	function build_connect_url( $raw = false, $redirect = false ) {
 		if ( ! Jetpack_Options::get_option( 'blog_token' ) ) {
-			$url = $this->nonce_url_no_esc( $this->admin_url( 'action=register' ), 'jetpack-register' );
+			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
 			if( is_network_admin() ) {
 			    $url = add_query_arg( 'is_multisite', network_admin_url(
 			    'admin.php?page=jetpack-settings' ), $url );
@@ -2953,7 +2953,7 @@ p {
 	}
 
 	function build_reconnect_url( $raw = false ) {
-		$url = wp_nonce_url( $this->admin_url( 'action=reconnect' ), 'jetpack-reconnect' );
+		$url = wp_nonce_url( Jetpack::admin_url( 'action=reconnect' ), 'jetpack-reconnect' );
 		return $raw ? $url : esc_url( $url );
 	}
 
