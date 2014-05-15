@@ -656,6 +656,11 @@ class Jetpack_SSO {
 		}
 		.jetpack-sso.button:hover {
 			border: 1px solid #aaa;
+		}
+		@media screen and (max-width: 782px) {
+			.jetpack-sso.button:before {
+				padding: 7px 5px;
+			}
 		}";
 
 		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '<' ) ) {
