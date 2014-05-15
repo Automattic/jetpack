@@ -301,9 +301,9 @@ class Jetpack_Admin {
 					<p><?php esc_html_e( 'Jetpack is network activated and notices can not be dismissed.', 'jetpack' ); ?></p>
 				</div>
 			<?php endif; ?>
-	
+
 			<?php do_action( 'jetpack_notices' ) ?>
-			
+
 			<h1><?php esc_html_e( 'Supercharge your self-hosted site with a suite of the most powerful WordPress.com features.', 'jetpack' ); ?></h1>
 
 			<?php if ( ! $is_connected && current_user_can( 'jetpack_connect' ) ) : ?>
@@ -338,7 +338,7 @@ class Jetpack_Admin {
 		</div><!-- .masthead -->
 		<div class="featured">
 			<h2><?php _e('Jetpack team favorites', 'jetpack' ); ?></h2>
-		
+
 			<div class="features">
 				<div class="feature">
 					<a href="/support/custom-css/" data-name="Custom CSS" class="f-img"><div class="feature-img custom-css"></div></a>
@@ -347,7 +347,7 @@ class Jetpack_Admin {
 						<p><?php _e('Customize the look of your site, without modifying your theme.', 'jetpack' ); ?></p>
 					</a>
 				</div>
-		
+
 				<div class="feature">
 					<a href="/support/sso/" data-name="Jetpack Single Sign On" class="f-img"><div class="feature-img wordpress-connect no-border"></div></a>
 					<a href="/support/sso/" data-name="Jetpack Single Sign On" class="feature-description">
@@ -355,7 +355,7 @@ class Jetpack_Admin {
 						<p><?php _e('Let users log in through WordPress.com with one click.', 'jetpack' ); ?></p>
 					</a>
 				</div>
-		
+
 				<div class="feature">
 					<a href="/support/wordpress-com-stats/" data-name="WordPress.com Stats" class="f-img"><div class="feature-img wordpress-stats"></div></a>
 					<a href="/support/wordpress-com-stats/" data-name="WordPress.com Stats" class="feature-description">
