@@ -419,6 +419,7 @@ class Jetpack_Admin {
 		$this->admin_page_top();
 		?>
 		<div class="clouds-sm"></div>
+		<?php do_action( 'jetpack_notices' ) ?>
 		<div class="page-content configure">
 			<div class="frame top hide-if-no-js">
 				<div class="wrap">
