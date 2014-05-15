@@ -361,62 +361,64 @@ html {
 			border: 1px solid #ccc;
 		}
 	}
-}
-.feature-img {
-	padding-top: 52%; // For flexible scaling
-	width: 100%;
-	height: auto;
-	border: 1px solid #ddd;
-	border-bottom: none;
-}
-.custom-css {
-	background: url('img/custom-css.jpg') no-repeat;
-	background-size: 100% auto;
 
-	@media print,
-	(-webkit-min-device-pixel-ratio: 1.25),
-	(min--moz-device-pixel-ratio: 1.25),
-	(-o-min-device-pixel-ratio: 5/4),
-	(min-resolution: 120dpi) {
-		background-image: url('img/custom-css@2x.jpg');
-	}
-}
-.wordpress-connect {
-	background: url('img/wordpress-connect.jpg') no-repeat;
-	background-size: 100% auto;
+	.feature-img {
+		padding-top: 52%; // For flexible scaling
+		width: 100%;
+		height: auto;
+		border: 1px solid #ddd;
+		border-bottom: none;
 
-	@media print,
-	(-webkit-min-device-pixel-ratio: 1.25),
-	(min--moz-device-pixel-ratio: 1.25),
-	(-o-min-device-pixel-ratio: 5/4),
-	(min-resolution: 120dpi) {
-		background-image: url('img/wordpress-connect@2x.jpg');
-	}
-}
-.wordpress-stats {
-	background: url('img/wordpress-stats.jpg') no-repeat;
-	background-size: 100% auto;
+		&.custom-css {
+			background: url('img/custom-css.jpg') no-repeat;
+			background-size: 100% auto;
 
-	@media print,
-	(-webkit-min-device-pixel-ratio: 1.25),
-	(min--moz-device-pixel-ratio: 1.25),
-	(-o-min-device-pixel-ratio: 5/4),
-	(min-resolution: 120dpi) {
-		background-image: url('img/wordpress-stats@2x.jpg');
+			@media print,
+			(-webkit-min-device-pixel-ratio: 1.25),
+			(min--moz-device-pixel-ratio: 1.25),
+			(-o-min-device-pixel-ratio: 5/4),
+			(min-resolution: 120dpi) {
+				background-image: url('img/custom-css@2x.jpg');
+			}
+		}
+		&.wordpress-connect {
+			background: url('img/wordpress-connect.jpg') no-repeat;
+			background-size: 100% auto;
+
+			@media print,
+			(-webkit-min-device-pixel-ratio: 1.25),
+			(min--moz-device-pixel-ratio: 1.25),
+			(-o-min-device-pixel-ratio: 5/4),
+			(min-resolution: 120dpi) {
+				background-image: url('img/wordpress-connect@2x.jpg');
+			}
+		}
+		&.wordpress-stats {
+			background: url('img/wordpress-stats.jpg') no-repeat;
+			background-size: 100% auto;
+
+			@media print,
+			(-webkit-min-device-pixel-ratio: 1.25),
+			(min--moz-device-pixel-ratio: 1.25),
+			(-o-min-device-pixel-ratio: 5/4),
+			(min-resolution: 120dpi) {
+				background-image: url('img/wordpress-stats@2x.jpg');
+			}
+		}
+		&.no-border {
+			// For when you have images that look better without a border.
+			// Make those images two pixels wider and one taller.
+			border: none;
+			padding-bottom: 1px; // makes up for lost border pixel
+		}
 	}
-}
-.no-border {
-	// For when you have images that look better without a border.
-	// Make those images two pixels wider and one taller.
-	border: none;
-	padding-bottom: 1px; // makes up for lost border pixel
-}
-.feature-description {
-	display: block;
-	padding: em(14) em(15) em(15);
-	border: 1px solid #ddd;
-	background: #f5f5f5;
-	@include transition(all .2s ease-in-out);
+	.feature-description {
+		display: block;
+		padding: em(14) em(15) em(15);
+		border: 1px solid #ddd;
+		background: #f5f5f5;
+		@include transition(all .2s ease-in-out);
+	}
 }
 
 // ==========================================================================

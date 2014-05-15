@@ -904,7 +904,7 @@ html {
 	border: 1px solid #ccc;
 }
 
-.feature-img {
+.feature .feature-img {
 	padding-top: 52%;
 	width: 100%;
 	height: auto;
@@ -912,7 +912,7 @@ html {
 	border-bottom: none;
 }
 
-.custom-css {
+.feature .feature-img.custom-css {
 	background: url('img/custom-css.jpg') no-repeat;
 	background-size: 100% auto;
 }
@@ -922,13 +922,13 @@ html {
 (min--moz-device-pixel-ratio: 1.25),
 (-o-min-device-pixel-ratio: 5/4),
 (min-resolution: 120dpi) {
-	.custom-css {
+	.feature .feature-img.custom-css {
 		background-image: url('img/custom-css@2x.jpg');
 	}
 
 }
 
-.wordpress-connect {
+.feature .feature-img.wordpress-connect {
 	background: url('img/wordpress-connect.jpg') no-repeat;
 	background-size: 100% auto;
 }
@@ -938,13 +938,13 @@ html {
 (min--moz-device-pixel-ratio: 1.25),
 (-o-min-device-pixel-ratio: 5/4),
 (min-resolution: 120dpi) {
-	.wordpress-connect {
+	.feature .feature-img.wordpress-connect {
 		background-image: url('img/wordpress-connect@2x.jpg');
 	}
 
 }
 
-.wordpress-stats {
+.feature .feature-img.wordpress-stats {
 	background: url('img/wordpress-stats.jpg') no-repeat;
 	background-size: 100% auto;
 }
@@ -954,18 +954,18 @@ html {
 (min--moz-device-pixel-ratio: 1.25),
 (-o-min-device-pixel-ratio: 5/4),
 (min-resolution: 120dpi) {
-	.wordpress-stats {
+	.feature .feature-img.wordpress-stats {
 		background-image: url('img/wordpress-stats@2x.jpg');
 	}
 
 }
 
-.no-border {
+.feature .feature-img.no-border {
 	border: none;
 	padding-bottom: 1px;
 }
 
-.feature-description {
+.feature .feature-description {
 	display: block;
 	padding: 1em 1.07143em 1.07143em;
 	border: 1px solid #ddd;
