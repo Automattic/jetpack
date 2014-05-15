@@ -2194,11 +2194,11 @@ p {
 		if ( ! current_user_can( 'jetpack_connect' ) )
 			return;
 
-		$dismiss_and_deactivate_url = esc_url( wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' ) );
+		$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
 		?>
 		<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 			<div id="jp-dismiss" class="jetpack-close-button-container">
-				<a class="jetpack-close-button" href="<?php echo $dismiss_and_deactivate_url; ?>" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
+				<a class="jetpack-close-button" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
 			</div>
 			<div class="jetpack-wrap-container">
 				<div class="jetpack-install-container">
@@ -3055,11 +3055,11 @@ p {
 			if ( ! Jetpack::is_development_mode() && $can_reconnect_jpms ) :
 			?>
 				<?php if ( ! $is_connected ) :
-					$dismiss_and_deactivate_url = esc_url( wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' ) );
+					$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
 				?>
 				<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 					<div id="jp-dismiss" class="jetpack-close-button-container">
-						<a class="jetpack-close-button" href="<?php echo $dismiss_and_deactivate_url; ?>"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
+						<a class="jetpack-close-button" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
 					</div>
 					<div class="jetpack-wrap-container">
 						<div class="jetpack-text-container">
