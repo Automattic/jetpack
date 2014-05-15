@@ -348,8 +348,6 @@ Scroller.prototype.refresh = function() {
 			}
 		});
 
-
-
 	return jqxhr;
 };
 
