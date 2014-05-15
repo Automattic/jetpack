@@ -2193,11 +2193,12 @@ p {
 
 		if ( ! current_user_can( 'jetpack_connect' ) )
 			return;
-		?>
 
+		$dismiss_and_deactivate_url = esc_url( wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' ) );
+		?>
 		<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 			<div id="jp-dismiss" class="jetpack-close-button-container">
-				<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
+				<a class="jetpack-close-button" href="<?php echo $dismiss_and_deactivate_url; ?>" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
 			</div>
 			<div class="jetpack-wrap-container">
 				<div class="jetpack-install-container">
@@ -2968,7 +2969,7 @@ p {
 	}
 
 	function dismiss_jetpack_notice() {
-		if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
+		if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] && check_admin_referer( 'jetpack-deactivate' ) && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 			deactivate_plugins( JETPACK__PLUGIN_DIR . 'jetpack.php', false, false );
@@ -3053,11 +3054,12 @@ p {
 			}
 			if ( ! Jetpack::is_development_mode() && $can_reconnect_jpms ) :
 			?>
-				<?php if ( ! $is_connected ) : ?>
-
+				<?php if ( ! $is_connected ) :
+					$dismiss_and_deactivate_url = esc_url( wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' ) );
+				?>
 				<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 					<div id="jp-dismiss" class="jetpack-close-button-container">
-						<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
+						<a class="jetpack-close-button" href="<?php echo $dismiss_and_deactivate_url; ?>"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
 					</div>
 					<div class="jetpack-wrap-container">
 						<div class="jetpack-text-container">
