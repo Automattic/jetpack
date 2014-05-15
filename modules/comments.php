@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Jetpack Comments
- * Module Description: Let readers comment with WordPress.com, Twitter, or Facebook accounts.
+ * Module Description: Let readers comment with WordPress.com, Twitter, Facebook, or Google+ accounts.
  * First Introduced: 1.4
  * Sort Order: 20
  * Requires Connection: Yes
