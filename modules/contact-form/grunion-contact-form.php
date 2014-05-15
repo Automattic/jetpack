@@ -498,28 +498,36 @@ class Grunion_Contact_Form_Plugin {
 			}
 		}
 
-		$all_fields = array_unique( $all_fields );
+		$all_fields = array_unique( $all_fields );		
 		return $all_fields;
 	}
 	
-	public static function parse_fields_from_content( $post_id ) {		
+	public static function parse_fields_from_content( $post_id ) {	
+		static $post_fields;
+			
+		if ( !is_array( $post_fields ) )
+			$post_fields = array();
+		
+		if ( isset( $post_fields[$post_id] ) ) 
+			return $post_fields[$post_id];
+			
 		$all_values   = array();
-		$post_content = apply_filters( 'the_content', get_post_field( 'post_content', $post_id ) );
+		$post_content = get_post_field( 'post_content', $post_id );
 		$content      = explode( '<!--more-->', $post_content );
 		$lines        = array();
 		
 		if ( count( $content ) > 1 ) {
 			$content  = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
 			$one_line = preg_replace( '/\s+/', ' ', $content );
-			$one_line = preg_replace( '/.*Array \( (.*)/', '$1', $one_line );
-						
+			$one_line = preg_replace( '/.*Array \( (.*)\)/', '$1', $one_line );
+								
 			preg_match_all( '/\[([^\]]+)\] =\&gt\; ([^\[]+)/', $one_line, $matches );
 			
 			if ( count( $matches ) > 1 )
 				$all_values = array_combine( array_map('trim', $matches[1]), array_map('trim', $matches[2]) );
 			
 			$lines = array_filter( explode( "\n", $content ) );
-		}	
+		}
 		
 		$var_map = array( 
 			'AUTHOR'       => '_feedback_author',
@@ -532,7 +540,7 @@ class Grunion_Contact_Form_Plugin {
 		$fields = array();
 		
 		foreach( $lines as $line ) {
-			$vars = explode( ': ', $line );
+			$vars = explode( ': ', $line, 2 );
 			if ( !empty( $vars ) ) {
 				if ( isset( $var_map[$vars[0]] ) ) {
 					$fields[$var_map[$vars[0]]] = self::strip_tags( trim( $vars[1] ) );
@@ -541,6 +549,8 @@ class Grunion_Contact_Form_Plugin {
 		}
 		
 		$fields['_feedback_all_fields'] = $all_values;
+		
+		$post_fields[$post_id] = $fields;
 		
 		return $fields;
 	}
