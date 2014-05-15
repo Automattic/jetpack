@@ -147,7 +147,18 @@ class WPCOM_JSON_API {
 		$is_help = preg_match( '#/help/?$#i', $this->path );
 		$matching_endpoints = array();
 
+		if ( 'OPTIONS' == $this->method ) {
+			do_action( 'wpcom_json_api_options' );
+			exit;
+		}
+
 		if ( $is_help ) {
+			$origin = get_http_origin();
+
+			if ( !empty( $origin ) && 'GET' == $this->method ) {
+				header( 'Access-Control-Allow-Origin: ' . esc_url_raw( $origin ) );
+			}
+			
 			$this->path = substr( rtrim( $this->path, '/' ), 0, -5 );
 			// Show help for all matching endpoints regardless of method
 			$methods = $allowed_methods;
