@@ -120,7 +120,7 @@ function AtD_change_mce_settings( $init_array ) {
 
 	$user = wp_get_current_user();
 
-	$init_array['atd_rpc_url']        = admin_url( 'admin-ajax.php?action=proxy_atd&url=' );
+	$init_array['atd_rpc_url']        = admin_url( 'admin-ajax.php?action=proxy_atd&_wpnonce=' . wp_create_nonce( 'proxy_atd' ) . '&url=' );
 	$init_array['atd_ignore_rpc_url'] = admin_url( 'admin-ajax.php?action=atd_ignore&_wpnonce=' . wp_create_nonce( 'atd_ignore' ) . '&phrase=' );
 	$init_array['atd_rpc_id']         = 'WPORG-' . md5(get_bloginfo('wpurl'));
 	$init_array['atd_theme']          = 'wordpress';
@@ -149,7 +149,7 @@ function AtD_settings() {
 	header( 'Content-Type: text/javascript' );
 
 	/* set the RPC URL for AtD */
-	echo "AtD.rpc = " . json_encode( esc_url_raw( admin_url( 'admin-ajax.php?action=proxy_atd&url=' ) ) ) . ";\n";
+	echo "AtD.rpc = " . json_encode( esc_url_raw( admin_url( 'admin-ajax.php?action=proxy_atd&_wpnonce=' . wp_create_nonce( 'proxy_atd' ) . '&url=' ) ) ) . ";\n";
 
 	/* set the API key for AtD */
 	echo "AtD.api_key = " . json_encode( 'WPORG-' . md5( get_bloginfo( 'wpurl' ) ) ) . ";\n";
