@@ -299,15 +299,13 @@ class Jetpack_Tiled_Gallery {
             }
         }
 
-		$img_meta = json_encode( array_map( 'strval', $img_meta ) );
-
 		$output = sprintf(
 				'data-attachment-id="%1$d" data-orig-file="%2$s" data-orig-size="%3$s" data-comments-opened="%4$s" data-image-meta="%5$s" data-image-title="%6$s" data-image-description="%7$s" data-medium-file="%8$s" data-large-file="%9$s"',
 				esc_attr( $attachment_id ),
 				esc_url( wp_get_attachment_url( $attachment_id ) ),
 				esc_attr( $size ),
 				esc_attr( $comments_opened ),
-				esc_attr( $img_meta ),
+				json_encode( array_map( 'esc_attr', $img_meta ) ),
 				esc_attr( $attachment_title ),
 				esc_attr( $attachment_desc ),
 				esc_url( $medium_file ),
