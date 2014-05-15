@@ -255,11 +255,13 @@ class Jetpack_Admin {
 				'jetpack-js',
 				'jetpackL10n',
 				array(
-					'ays_disconnect' => __( "This will deactivate all Jetpack modules.\nAre you sure you want to disconnect?", 'jetpack' ),
-					'ays_unlink'     => __( "This will prevent user-specific modules such as Publicize, Notifications and Post By Email from working.\nAre you sure you want to unlink?", 'jetpack' ),
-					'ays_dismiss'    => __( "This will deactivate Jetpack.\nAre you sure you want to deactivate Jetpack?", 'jetpack' ),
-					'modules'        => array_values( $this->get_modules() ),
-					'currentVersion' => JETPACK__VERSION,
+					'ays_disconnect'    => __( "This will deactivate all Jetpack modules.\nAre you sure you want to disconnect?", 'jetpack' ),
+					'ays_unlink'        => __( "This will prevent user-specific modules such as Publicize, Notifications and Post By Email from working.\nAre you sure you want to unlink?", 'jetpack' ),
+					'ays_dismiss'       => __( "This will deactivate Jetpack.\nAre you sure you want to deactivate Jetpack?", 'jetpack' ),
+					'view_all_features' => __( 'View all Jetpack features', 'jetpack' ),
+					'no_modules_found'  => sprintf( __( 'Sorry, no modules were found for the search term "%s"', 'jetpack' ), '{term}' ),
+					'modules'           => array_values( $this->get_modules() ),
+					'currentVersion'    => JETPACK__VERSION,
 				)
 			);
 		} else {

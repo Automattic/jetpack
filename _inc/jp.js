@@ -1,6 +1,6 @@
 /* global ich, jetpackL10n, jQuery */
 
-(function($, modules, currentVersion) {
+(function( $, modules, currentVersion, jetpackL10n ) {
 
 	///////////////////////////////////////
 	// INIT
@@ -285,7 +285,7 @@
 			}
 		}
 		if ('' === html) {
-			html = 'Sorry, no modules were found for the search term "' + term + '".';
+			html = jetpackL10n.no_modules_found.replace( '{term}' , term );
 		}
 		$('.modules').html(html);
 		recalculateModuleHeights();
@@ -298,7 +298,7 @@
 	}
 
 	function updateModuleCount () {
-		$('.load-more').text('View all Jetpack features');
+		$('.load-more').text( jetpackL10n.view_all_features );
 	}
 
-})(jQuery, jetpackL10n.modules, jetpackL10n.currentVersion);
+})( jQuery, jetpackL10n.modules, jetpackL10n.currentVersion, jetpackL10n );
