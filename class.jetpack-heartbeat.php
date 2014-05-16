@@ -48,6 +48,8 @@ class Jetpack_Heartbeat {
 
 			wp_schedule_event( time(), 'daily', $this->cron_name );
 		}
+
+		add_filter( 'jetpack_xmlrpc_methods', array( __CLASS__, 'jetpack_xmlrpc_methods' ) );
 	}
 	
 	/**
@@ -118,6 +120,11 @@ class Jetpack_Heartbeat {
 		}
 
 		return $return;
+	}
+
+	function jetpack_xmlrpc_methods( $methods ) {
+		$methods['jetpack.getHeartbeatData'] = array( __CLASS__, 'generate_stats_array' );
+		return $methods;
 	}
 
 	public function deactivate() {
