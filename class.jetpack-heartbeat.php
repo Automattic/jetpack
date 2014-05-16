@@ -10,7 +10,7 @@ class Jetpack_Heartbeat {
 	 */
 	static $instance = false;
 
-	private $cron_name = 'jetpack_heartbeat';
+	private $cron_name = 'jetpack_v2_heartbeat';
 
 	/**
 	 * Singleton
