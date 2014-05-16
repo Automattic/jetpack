@@ -81,4 +81,5 @@ $GLOBALS['csstidy']['all_properties']['object-position'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['text-overflow'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['zoom'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['pointer-events'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['-moz-osx-font-smoothing'] = 'CSS3.0';
 
