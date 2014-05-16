@@ -195,11 +195,18 @@ class Jetpack_Tiled_Gallery {
 		}
 		$output = $this->generate_carousel_container();
 		$c = 1;
+		$items_in_row = 0;
 		foreach( $attachments as $image ) {
 			if ( $remainder > 0 && $c <= $remainder )
 				$img_size = $remainder_size;
 			else
 				$img_size = $size;
+
+			// Add a row container for all new rows
+			if ( 0 == $items_in_row ) {
+				$original_dimensions = ' data-original-width="' . esc_attr( $content_width ) . '" data-original-height="' . esc_attr( $img_size + $margin * 2 ) . '" ';
+				$output .= '<div' . $original_dimensions . 'class="gallery-row" style="width:' . esc_attr( $content_width ) . 'px; height: ' . esc_attr( $img_size + $margin * 2 ) . 'px;" >';
+			}
 
 			$orig_file = wp_get_attachment_url( $image->ID );
 			$link = $this->get_attachment_link( $image->ID, $orig_file );
@@ -236,7 +243,15 @@ class Jetpack_Tiled_Gallery {
 			if ( trim( $image->post_excerpt ) )
 				$output .= '<div class="tiled-gallery-caption">' . wptexturize( $image->post_excerpt ) . '</div>';
 			$output .= '</div>';
+
 			$c ++;
+			$items_in_row ++;
+
+			// Close the row container for all new rows and remainder area
+			if ( $images_per_row == $items_in_row || $remainder + 1 == $c ) {
+				$output .= '</div>';
+				$items_in_row = 0;
+			}
 		}
 		$output .= '</div>';
 		return $output;
