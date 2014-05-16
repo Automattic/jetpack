@@ -37,14 +37,11 @@ class Jetpack_Heartbeat {
 		if ( ! Jetpack::is_active() )
 			return;
 
-		// Add weekly interval for wp-cron
-		add_filter( 'cron_schedules', array( $this, 'add_cron_intervals' ) );
-
 		// Schedule the task
 		add_action( $this->cron_name, array( $this, 'cron_exec' ) );
 
 		if ( ! wp_next_scheduled( $this->cron_name ) ) {
-			wp_schedule_event( time(), 'jetpack_weekly', $this->cron_name );
+			wp_schedule_event( time(), 'daily', $this->cron_name );
 		}
 	}
 	
@@ -57,13 +54,13 @@ class Jetpack_Heartbeat {
 	public function cron_exec() {
 
 		/*
-		 * This should run weekly.  Figuring in for variances in
-		 * WP_CRON, don't let it run more than every six days at most.
+		 * This should run daily.  Figuring in for variances in
+		 * WP_CRON, don't let it run more than every 23 hours at most.
 		 *
-		 * i.e. if it ran less than six days ago, fail out.
+		 * i.e. if it ran less than 23 hours ago, fail out.
 		 */
 		$last = (int) Jetpack_Options::get_option( 'last_heartbeat' );
-		if ( $last && ( $last + WEEK_IN_SECONDS - DAY_IN_SECONDS > time() ) ) {
+		if ( $last && ( $last + DAY_IN_SECONDS - HOUR_IN_SECONDS > time() ) ) {
 			return;
 		}
 
@@ -75,46 +72,7 @@ class Jetpack_Heartbeat {
 		 * - Email site admin about potential ID crisis
 		 */
 
-
-
-		/**
-		 * Setup an array of items that will eventually be stringified
-		 * and sent off to the Jetpack API
-		 *
-		 * Associative array with format group => values
-		 * - values should be an array that will be imploded to a string
-		 */
-
-		$jetpack = Jetpack::init();
-
-		$jetpack->stat( 'active-modules', implode( ',', $jetpack->get_active_modules() )       );
-		$jetpack->stat( 'active',         JETPACK__VERSION                                     );
-		$jetpack->stat( 'wp-version',     get_bloginfo( 'version' )                            );
-		$jetpack->stat( 'php-version',    PHP_VERSION                                          );
-		$jetpack->stat( 'ssl',            $jetpack->permit_ssl()                               );
-		$jetpack->stat( 'language',       get_bloginfo( 'language' )                           );
-		$jetpack->stat( 'charset',        get_bloginfo( 'charset' )                            );
-		$jetpack->stat( 'qty-posts',      wp_count_posts()->publish                            );
-		$jetpack->stat( 'qty-pages',      wp_count_posts( 'page' )->publish                    );
-		$jetpack->stat( 'qty-comments',   wp_count_comments()->approved                        );
-		$jetpack->stat( 'is-multisite',   is_multisite() ? 'multisite' : 'singlesite'          );
-		$jetpack->stat( 'identitycrisis', Jetpack::check_identity_crisis( 1 ) ? 'yes' : 'no'   );
-
-		// Only check a few plugins, to see if they're currently active.
-		$plugins_to_check = array(
-			'vaultpress/vaultpress.php',
-			'akismet/akismet.php',
-			'wp-super-cache/wp-cache.php',
-		);
-		$active_plugins = Jetpack::get_active_plugins();
-		$plugins = array_intersect( $plugins_to_check, $active_plugins );
-		foreach( $plugins as $plugin ) {
-			$jetpack->stat( 'plugins', $plugin );
-		}
-
-		// New Stats so we don't have old bad data cluttering it...
-		// In an old version, some sites were inadvertently firing off far more frequently
-		// than weekly and are still polluting the data as it is anonymized.
+		// Coming Soon!
 
 		foreach ( self::generate_stats_array( 'v2-' ) as $key => $value ) {
 			$jetpack->stat( $key, $value );
@@ -155,20 +113,6 @@ class Jetpack_Heartbeat {
 		}
 
 		return $return;
-	}
-
-	/**
-	 * Adds additional Jetpack specific intervals to wp-cron
-	 *
-	 * @since 2.3.3
-	 * @return array
-	 */
-	public function add_cron_intervals( $schedules ) {
-		$schedules['jetpack_weekly'] = array(
-		    'interval' => WEEK_IN_SECONDS,
-		    'display' => __( 'Jetpack weekly', 'jetpack' ),
-		);
-		return $schedules;
 	}
 
 	public function deactivate() {
