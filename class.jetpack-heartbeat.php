@@ -41,6 +41,11 @@ class Jetpack_Heartbeat {
 		add_action( $this->cron_name, array( $this, 'cron_exec' ) );
 
 		if ( ! wp_next_scheduled( $this->cron_name ) ) {
+			// Deal with the old pre-3.0 weekly one.
+			if ( $timestamp = wp_next_scheduled( 'jetpack_heartbeat' ) ) {
+				wp_unschedule_event( $timestamp, 'jetpack_heartbeat' );
+			}
+
 			wp_schedule_event( time(), 'daily', $this->cron_name );
 		}
 	}
@@ -116,6 +121,11 @@ class Jetpack_Heartbeat {
 	}
 
 	public function deactivate() {
+		// Deal with the old pre-3.0 weekly one.
+		if ( $timestamp = wp_next_scheduled( 'jetpack_heartbeat' ) ) {
+			wp_unschedule_event( $timestamp, 'jetpack_heartbeat' );
+		}
+
 		$timestamp = wp_next_scheduled( $this->cron_name );
 		wp_unschedule_event( $timestamp, $this->cron_name );
 	}
