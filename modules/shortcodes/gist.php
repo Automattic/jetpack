@@ -16,10 +16,13 @@ function github_gist_embed_handler( $matches, $attr, $url, $rawattr ) {
 
 function github_gist_shortcode( $atts, $content = '' ) {
 
-	if ( empty( $atts[0] ) && empty( $content ) )
-		return '<!-- Missing Gist ID -->';
+    if ( empty( $atts[0] ) && empty( $content ) && empty( $atts[id] ) )
+        return '<!-- Missing Gist ID -->';
 
-	$id = ( ! empty( $content ) ) ? $content : $atts[0];
+	$id = ( ! empty( $content ) ) ? $content
+		: ( ! empty( $atts[0] ) ) ? $atts[0]
+		:                           $atts[id]
+		;
 
 	// Parse a URL
 	if ( ! is_numeric( $id ) )
