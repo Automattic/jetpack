@@ -122,7 +122,7 @@ class Jetpack_Heartbeat {
 		return $return;
 	}
 
-	function jetpack_xmlrpc_methods( $methods ) {
+	public static function jetpack_xmlrpc_methods( $methods ) {
 		$methods['jetpack.getHeartbeatData'] = array( __CLASS__, 'generate_stats_array' );
 		return $methods;
 	}
