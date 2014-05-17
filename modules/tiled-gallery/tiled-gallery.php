@@ -214,9 +214,11 @@ class Jetpack_Tiled_Gallery {
 
 			$img_src = add_query_arg( array( 'w' => $img_size, 'h' => $img_size, 'crop' => 1 ), $orig_file );
 
-			$output .= '<div class="tiled-gallery-item">';
-
 			$add_link = 'none' !== $this->atts['link'];
+			$orig_dimensions = ' data-original-width="' . esc_attr( $img_size + 2 * $margin ) . '" data-original-height="' . esc_attr( $img_size + 2 * $margin ) . '" ';
+
+			$output .= '<div class="gallery-group"' . $orig_dimensions . '><div class="tiled-gallery-item">';
+
 			$orig_dimensions = ' data-original-width="' . esc_attr( $img_size ) . '" data-original-height="' . esc_attr( $img_size ) . '" ';
 
 			if ( $add_link ) {
@@ -242,7 +244,7 @@ class Jetpack_Tiled_Gallery {
 			// Captions
 			if ( trim( $image->post_excerpt ) )
 				$output .= '<div class="tiled-gallery-caption">' . wptexturize( $image->post_excerpt ) . '</div>';
-			$output .= '</div>';
+			$output .= '</div></div>';
 
 			$c ++;
 			$items_in_row ++;
