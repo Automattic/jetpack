@@ -33,6 +33,7 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.getComment'        => array( $this, 'get_comment' ),
 				'jetpack.getComments'       => array( $this, 'get_comments' ),
 				'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
+				'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
@@ -214,6 +215,16 @@ class Jetpack_XMLRPC_Server {
 		Jetpack::disconnect();
 
 		return true;
+	}
+
+	/**
+	 * Unlink a user from WordPress.com
+	 *
+	 * This will fail if called by the Master User.
+	 */
+	function unlink_user() {
+		Jetpack::log( 'unlink' );
+		return Jetpack::unlink_user();
 	}
 
 	/**
