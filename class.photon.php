@@ -462,7 +462,8 @@ class Jetpack_Photon {
 			return false;
 
 		// If we got this far, we should have an acceptable image URL
-		return true;
+		// But let folks filter to decline if they prefer.
+		return apply_filters( 'photon_validate_image_url', true, $url, $parsed_url );
 	}
 
 	/**
