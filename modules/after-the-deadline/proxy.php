@@ -51,16 +51,21 @@ function AtD_redirect_call() {
 	$service = apply_filters( 'atd_service_domain', 'service.afterthedeadline.com' );
 
 	$user = wp_get_current_user();
-	$user_lang = get_user_lang_code( $user->ID );
+	
+	if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		$atd_lang = get_user_lang_code( $user->ID );
+	} else {
+		$atd_lang = WPLANG;
+	}
 
-	if ( ! empty( $user_lang ) ) {
-		if ( strpos($user_lang, 'pt') !== false )
+	if ( ! empty( $atd_lang ) ) {
+		if ( strpos($atd_lang, 'pt') !== false )
 			$service = 'pt.service.afterthedeadline.com';
-		else if ( strpos($user_lang, 'de') !== false )
+		else if ( strpos($atd_lang, 'de') !== false )
 			$service = 'de.service.afterthedeadline.com';
-		else if ( strpos($user_lang, 'es') !== false )
+		else if ( strpos($atd_lang, 'es') !== false )
 			$service = 'es.service.afterthedeadline.com';
-		else if ( strpos($user_lang, 'fr') !== false )
+		else if ( strpos($atd_lang, 'fr') !== false )
 			$service = 'fr.service.afterthedeadline.com';
 	}
 
