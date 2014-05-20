@@ -42,7 +42,7 @@ class Jetpack_Post_By_Email {
 		add_action( 'init', array( &$this, 'action_init' ) );
 	}
 
-	function module_toggle() {
+	static function module_toggle() {
 		$jetpack = Jetpack::init();
 		$jetpack->sync->register( 'noop' );
 	}
