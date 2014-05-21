@@ -915,7 +915,7 @@ EOT;
 		esc_html__( 'Related Posts', 'jetpack' ),
 		esc_html__( '"Related Posts" shows additional relevant links from your site under your posts. If the feature is enabled, links appear underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).', 'jetpack' ),
 		esc_html__( 'More information on using Related Posts.', 'jetpack' ),
-		esc_html__( 'This feature uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only effecting certain posts, request a reindex of your posts.', 'jetpack' ),
+		esc_html__( 'This feature uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, request a reindex of your posts.', 'jetpack' ),
 		Jetpack::init()->sync->reindex_ui()
 	);
 }
@@ -957,4 +957,3 @@ function jetpack_verification_tools_more_link() {
 }
 add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verification_tools_more_link' );
 // Site Verification Tools: STOP
-
