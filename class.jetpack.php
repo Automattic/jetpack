@@ -1858,13 +1858,7 @@ p {
 
 		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
 
-		if ( version_compare( $GLOBALS['wp_version'], '3.3', '<' ) ) {
-			if ( isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
-				add_contextual_help( $hook, $this->jetpack_help() );
-			}
-		} else {
-			add_action( "load-$hook", array( $this, 'admin_help' ) );
-		}
+		add_action( "load-$hook", array( $this, 'admin_help' ) );
 		add_action( "admin_head-$hook", array( $this, 'admin_head' ) );
 		add_filter( 'custom_menu_order', array( $this, 'admin_menu_order' ) );
 		add_filter( 'menu_order', array( $this, 'jetpack_menu_order' ) );
