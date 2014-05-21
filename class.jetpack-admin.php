@@ -188,6 +188,7 @@ class Jetpack_Admin {
 		$hook = add_submenu_page( 'jetpack', __( 'Jetpack Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_manage_modules', 'jetpack_modules', array( $this, 'admin_page_modules' ) );
 
 		add_action( "load-$hook",                array( $this, 'admin_page_load'   ) );
+		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'        ) );
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'      ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'     ) );
