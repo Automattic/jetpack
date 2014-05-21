@@ -2023,12 +2023,12 @@ p {
 		// Overview
 		$current_screen->add_help_tab(
 			array(
-				'id'		=> 'overview',
-				'title'		=> __( 'Overview', 'jetpack' ),
+				'id'		=> 'home',
+				'title'		=> __( 'Home', 'jetpack' ),
 				'content'	=>
 					'<p><strong>' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</strong></p>' .
 					'<p>' . __( 'Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.', 'jetpack' ) . '</p>' .
-					'<p>' . __( 'On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed.', 'jetpack' ) . '</p>',
+					'<p>' . __( 'On this page, you are able to view the modules available within Jetpack and learn more about them.', 'jetpack' ) . '</p>',
 			)
 		);
 
@@ -2036,17 +2036,16 @@ p {
 		if ( current_user_can( 'manage_options' ) ) {
 			$current_screen->add_help_tab(
 				array(
-					'id'		=> 'modules',
-					'title'		=> __( 'Modules', 'jetpack' ),
+					'id'		=> 'settings',
+					'title'		=> __( 'Settings', 'jetpack' ),
 					'content'	=>
 						'<p><strong>' . __( 'Jetpack by WordPress.com',                                              'jetpack' ) . '</strong></p>' .
 						'<p>' . __( 'You can activate or deactivate individual Jetpack modules to suit your needs.', 'jetpack' ) . '</p>' .
 						'<ol>' .
-							'<li>' . __( 'Find the component you want to manage',                            'jetpack' ) . '</li>' .
-							'<li>' . __( 'Click on Learn More',                                              'jetpack' ) . '</li>' .
-							'<li>' . __( 'An Activate or Deactivate button will appear',                     'jetpack' ) . '</li>' .
-							'<li>' . __( 'If additional settings are available, a link to them will appear', 'jetpack' ) . '</li>' .
-						'</ol>',
+							'<li>' . __( 'Each module has an Activate or Deactivate link so you can toggle one individually.',														'jetpack' ) . '</li>' .
+							'<li>' . __( 'Using the checkboxes next to each module, you can select multiple modules to toggle via the Bulk Actions menu at the top of the list.',	'jetpack' ) . '</li>' .
+						'</ol>' .
+						'<p>' . __( 'Using the tools on the right, you can search for specific modules, filter by module categories or which are active, or change the sorting order.', 'jetpack' ) . '</p>'
 				)
 			);
 		}
