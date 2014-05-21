@@ -91,6 +91,9 @@ Jetpack 3.0 is full of enhancements and bug fixes, including a new Administrativ
 
 == Changelog ==
 
+= 3.0.1 =
+* Bugfix: Add static keyword to a function in Post By Email.
+
 = 3.0 =
 * New User Interface for managing modules and settings
 * New Module: Verfication Tools
