@@ -196,7 +196,12 @@ class GPlus_Authorship_Admin {
 		$gplus_connections = GPlus_Authorship_Utils::get_all_gplus_authors();
 		if ( empty( $gplus_connections ) || count( $gplus_connections ) < 1 )
 			return;
-		add_meta_box( 'gplus_authorship', __( 'Google+', 'jetpack' ), array( $this, 'post_screen_meta_box' ), 'post', 'advanced', 'high' );
+
+		$types = array( 'post' );
+		$types = apply_filters( 'gplus_modify_post_types', $types );
+		foreach( $types as $type ) {
+			add_meta_box( 'gplus_authorship', __( 'Google+', 'jetpack' ), array( $this, 'post_screen_meta_box' ), $type, 'advanced', 'high' );
+		}
 	}
 
 	function should_we_show_the_meta_box( $page ) {
