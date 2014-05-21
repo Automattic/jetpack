@@ -689,7 +689,7 @@ class Publicize extends Publicize_Base {
 		if ( ! empty( $account ) ) {
 			return $account;
 		}
-		return 'jetpack'; // Default 'via' is always us if for some reason we still don't find one.
+		return ''; // Default 'via' is always us if for some reason we still don't find one.
 	}
 
 	/**
