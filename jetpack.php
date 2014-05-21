@@ -13,6 +13,7 @@
  */
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.8' );
+
 define( 'JETPACK__VERSION',            '3.1-dev' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
