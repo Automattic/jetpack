@@ -2577,7 +2577,7 @@ p {
 
 		case 'module_activated' :
 			if ( $module = Jetpack::get_module( Jetpack::state( 'module' ) ) ) {
-				$this->message = sprintf( __( '<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card.', 'jetpack' ), $module['name'] );
+				$this->message = sprintf( __( '<strong>%s Activated!</strong> You can deactivate at any time by clicking the Deactivate link next to each module.', 'jetpack' ), $module['name'] );
 				$this->stat( 'module-activated', Jetpack::state( 'module' ) );
 			}
 			break;
@@ -2604,8 +2604,8 @@ p {
 
 			$this->message = wp_sprintf(
 				_nx(
-					'<strong>%l Deactivated!</strong> You can activate it again at any time using the activate button on the module card.',
-					'<strong>%l Deactivated!</strong> You can activate them again at any time using the activate buttons on their module cards.',
+					'<strong>%l Deactivated!</strong> You can activate it again at any time using the activate link next to each module.',
+					'<strong>%l Deactivated!</strong> You can activate them again at any time using the activate links next to each module.',
 					count( $module_names ),
 					'%l = list of Jetpack module/feature names',
 					'jetpack'
