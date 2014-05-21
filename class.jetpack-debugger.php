@@ -152,6 +152,9 @@ class Jetpack_Debugger {
 				<p class="jetpack-show-contact-form"><?php _e( 'If none of these help you find a solution, <a href="#">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ); ?>
 				</p>
 				<?php endif; ?>
+				<hr />
+				<p><?php echo esc_html__( 'Some features of Jetpack uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, please try requesting a reindex of your posts.', 'jetpack' ); ?></p>
+				<?php echo Jetpack::init()->sync->reindex_ui() ?>
 			</div>
 			<div id="contact-message" style="display:none">
 			<?php if ( self::is_jetpack_support_open() ): ?>
