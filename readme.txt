@@ -91,6 +91,8 @@ Jetpack 3.0 is full of enhancements and bug fixes, including a new Administrativ
 
 == Changelog ==
 
+= 3.1 =
+
 = 3.0 =
 * New User Interface for managing modules and settings
 * New Module: Verfication Tools
