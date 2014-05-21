@@ -2014,23 +2014,6 @@ p {
 	/**
 	 * Add help to the Jetpack page
 	 *
-	 * Deprecated.  Remove when Jetpack requires WP 3.3+
-	 */
-	function jetpack_help() {
-		return
-			'<p><strong>' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</strong></p>' .
-			'<p>' . __( 'Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.', 'jetpack' ) . '</p>' .
-			'<p>' . __( 'On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed.', 'jetpack' ) . '</p>' .
-			'<p><strong>' . __( 'Jetpack Module Options', 'jetpack' ) . '</strong></p>' .
-			'<p>' . __( '<strong>To Activate/Deactivate a Module</strong> - Click on Learn More. An Activate or Deactivate button will now appear next to the Learn More button. Click the Activate/Deactivate button.', 'jetpack' ) . '</p>' .
-			'<p><strong>' . __( 'For more information:', 'jetpack' ) . '</strong></p>' .
-			'<p><a href="http://jetpack.me/faq/" target="_blank">'     . __( 'Jetpack FAQ',     'jetpack' ) . '</a></p>' .
-			'<p><a href="http://jetpack.me/support/" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>';
-	}
-
-	/**
-	 * Add help to the Jetpack page
-	 *
 	 * @since Jetpack (1.2.3)
 	 * @return false if not the Jetpack page
 	 */
