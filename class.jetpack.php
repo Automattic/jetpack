@@ -1766,11 +1766,13 @@ p {
 			$classes[] = 'pre-mp6';
 		}
 
-		return implode( ' ', array_unique( $classes ) );
+		$admin_body_class = implode( ' ', array_unique( $classes ) );
+
+		return ' ' . $admin_body_class . ' ';
 	}
 
 	static function add_jetpack_pagestyles( $admin_body_class = '' ) {
-		return $admin_body_class . ' jetpack-pagestyles';
+		return $admin_body_class . ' jetpack-pagestyles ';
 	}
 
 	function prepare_connect_notice() {

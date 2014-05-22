@@ -173,7 +173,7 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function body_class( $classes ) {
-		return 'network-admin';
+		return ' network-admin ';
 	}
 
 	/**
