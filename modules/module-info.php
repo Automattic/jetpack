@@ -904,8 +904,31 @@ function jetpack_related_posts_more_info() {
 		<h4>%s</h4>
 		<p>%s</p>
 		<p>&rarr; <a href="http://jetpack.me/support/related-posts/">%s</a></p>
-		<hr />
+EOT;
+	printf(
+		$template,
+		plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/related-posts.png' ),
+		esc_attr__( 'Related Posts', 'jetpack' ),
+		esc_html__( 'Related Posts', 'jetpack' ),
+		esc_html__( '"Related Posts" shows additional relevant links from your site under your posts. If the feature is enabled, links appear underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).', 'jetpack' ),
+		esc_html__( 'More information on using Related Posts.', 'jetpack' )
+	);
+}
+add_action( 'jetpack_module_more_info_related-posts', 'jetpack_related_posts_more_info' );
+
+function jetpack_related_posts_more_info_connected() {
+	$template = <<<EOT
+		<div class="jp-info-img">
+			<a href="http://jetpack.me/support/related-posts/">
+				<img class="jp-info-img" src="%s" alt="%s" width="300" height="98" />
+			</a>
+		</div>
+
+		<h4>%s</h4>
 		<p>%s</p>
+		<p>&rarr; <a href="http://jetpack.me/support/related-posts/">%s</a></p>
+		<hr />
+		<p><a href="%s#sync-related-posts">%s</a></p>
 EOT;
 	printf(
 		$template,
@@ -914,10 +937,11 @@ EOT;
 		esc_html__( 'Related Posts', 'jetpack' ),
 		esc_html__( '"Related Posts" shows additional relevant links from your site under your posts. If the feature is enabled, links appear underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).', 'jetpack' ),
 		esc_html__( 'More information on using Related Posts.', 'jetpack' ),
-		__( 'This feature uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, please try request a reindex of your posts via the <a href="' . Jetpack::admin_url( array( 'page' => 'jetpack-debugger' ) ) . '">debugger page</a>.', 'jetpack' )
+		esc_url( Jetpack::admin_url( array( 'page' => 'jetpack-debugger' ) ) ),
+		esc_html__( 'This feature uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, request a reindex of your posts.', 'jetpack' )
 	);
 }
-add_action( 'jetpack_module_more_info_related-posts', 'jetpack_related_posts_more_info' );
+add_action( 'jetpack_module_more_info_connected_related-posts', 'vaultpress_jetpack_more_info_connected' );
 
 function jetpack_related_posts_more_button() {
 	echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
