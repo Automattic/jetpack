@@ -60,6 +60,8 @@ class Jetpack_Heartbeat {
 	 */
 	public function cron_exec() {
 
+		$jetpack = Jetpack::init();
+
 		/*
 		 * This should run daily.  Figuring in for variances in
 		 * WP_CRON, don't let it run more than every 23 hours at most.
