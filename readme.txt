@@ -94,7 +94,13 @@ Jetpack 3.0 is full of enhancements and bug fixes, including a new Administrativ
 = 3.1 =
 
 = 3.0.1 =
-* Bugfix: Add static keyword to a function in Post By Email.
+* Bugfix: AtD: A wpcom-only function got synced by mistake and caused a few errors. Fixed.
+* Bugfix: Post By Email: Add static keyword to a function.
+* Bugfix: ShareDaddy: In the admin-side configuration of sharing links, we used a Path icon instead of Pinterest. Oops!
+* Bugfix: ShareDaddy: We inadvertently appended `via @jetpack` to some twitter shares. This is no longer the case.
+* Bugfix: Related Posts: Tidying up and relocation of the `resync` button formerly on the more info modal.
+* Bugfix: Infinite Scroll: Work better with core's MediaElement.js
+* Bugfix: Heartbeat: Undeclared variable fixed.
 
 = 3.0 =
 * New User Interface for managing modules and settings
