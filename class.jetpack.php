@@ -1875,17 +1875,7 @@ p {
 
 		do_action( 'jetpack_admin_menu', $hook );
 	}
-/*
-	function admin_menu_modules() {
-		$hook = add_submenu_page( 'jetpack', __( 'Jetpack Modules', 'jetpack' ), __( 'Modules', 'jetpack' ), 'edit_posts', 'jetpack_modules', array( $this, 'admin_page_modules' ) );
 
-		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
-		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
-		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
-		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
-		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
-	}
-/**/
 	function add_remote_request_handlers() {
 		add_action( 'wp_ajax_nopriv_jetpack_upload_file', array( $this, 'remote_request_handlers' ) );
 	}
