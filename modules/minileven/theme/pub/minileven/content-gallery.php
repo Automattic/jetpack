@@ -68,7 +68,7 @@
 	<footer class="entry-meta">
 		<?php minileven_posted_on(); ?>
 		<?php if ( comments_open() ) : ?>
-		<span class="comments-link"><?php comments_popup_link( '<span class="leave-reply">' . __( 'Leave a Reply', 'jetpack' ) . '</span>', __( '<b>1</b> Reply', 'minileven' , 'jetpack'), __( '<b>%</b> Replies', 'minileven' , 'jetpack') ); ?></span>
+		<span class="comments-link"><?php comments_popup_link( '<span class="leave-reply">' . __( 'Leave a Reply', 'jetpack' ) . '</span>', __( '<b>1</b> Reply', 'jetpack' ), __( '<b>%</b> Replies', 'jetpack' ) ); ?></span>
 		<?php endif; // End if comments_open() ?>
 
 		<?php edit_post_link( __( 'Edit', 'jetpack' ), '<span class="edit-link">', '</span>' ); ?>
