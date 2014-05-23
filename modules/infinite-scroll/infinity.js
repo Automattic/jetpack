@@ -71,7 +71,6 @@ Scroller = function( settings ) {
 		// Ensure that enough posts are loaded to fill the initial viewport, to compensate for short posts and large displays.
 		self.ensureFilledViewport();
 		this.body.bind( 'post-load', { self: self }, self.checkViewportOnLoad );
-		this.body.bind( 'post-load', { self: self }, self.initializeMejs );
 	} else if ( type == 'click' ) {
 		if ( this.click_handle ) {
 			this.element.append( this.handle );
@@ -87,6 +86,9 @@ Scroller = function( settings ) {
 			self.refresh();
 		});
 	}
+
+	// Initialize any Core audio or video players loaded via IS
+	this.body.bind( 'post-load', { self: self }, self.initializeMejs );
 };
 
 /**
