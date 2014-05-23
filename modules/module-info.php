@@ -941,7 +941,7 @@ EOT;
 		esc_html__( 'This feature uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, request a reindex of your posts.', 'jetpack' )
 	);
 }
-add_action( 'jetpack_module_more_info_connected_related-posts', 'vaultpress_jetpack_more_info_connected' );
+add_action( 'jetpack_module_more_info_connected_related-posts', 'jetpack_related_posts_more_info_connected' );
 
 function jetpack_related_posts_more_button() {
 	echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
