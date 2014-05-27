@@ -357,9 +357,7 @@ class WPCOM_JSON_API {
 		return $content_type;
 	}
 
-	function output_error( $error ) {
-		if ( function_exists( 'bump_stats_extra' ) )
-			bump_stats_extra( 'rest-api-errors', $this->token_details['client_id'] );
+	public static function serializable_error ( $error ) {
 
 		$status_code = $error->get_error_data();
 
@@ -373,7 +371,19 @@ class WPCOM_JSON_API {
 			'error'   => $error->get_error_code(),
 			'message' => $error->get_error_message(),
 		);
-		return $this->output( $status_code, $response );
+		return array(
+			'status_code' => $status_code,
+			'errors' => $response
+		);
+	}
+
+	function output_error( $error ) {
+		if ( function_exists( 'bump_stats_extra' ) )
+			bump_stats_extra( 'rest-api-errors', $this->token_details['client_id'] );
+
+		$error_response = $this->serializable_error( $error );
+
+		return $this->output( $error_response[ 'status_code'], $error_response['errors'] );
 	}
 
 	function filter_fields( $response ) {
