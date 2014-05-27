@@ -184,8 +184,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 	// Get POST body data
 	function input( $return_default_values = true, $cast_and_filter = true ) {
 		$input = trim( $this->api->post_body );
-		switch ( $this->api->content_type ) {
-		case 'application/json; charset=utf-8' :
+		$content_type = $this->api->content_type;
+		if ( $content_type ) {
+			list ( $content_type ) = explode( ';', $content_type );
+		}
+		$content_type = trim( $content_type );
+		switch ( $content_type ) {
 		case 'application/json' :
 		case 'application/x-javascript' :
 		case 'text/javascript' :
@@ -209,7 +213,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$return = array_merge( stripslashes_deep( $_POST ), $_FILES );
 			break;
 		case 'application/x-www-form-urlencoded' :
-		case 'application/x-www-form-urlencoded; charset=UTF-8' :
 			//attempt JSON first, since probably a curl command
 			$return = json_decode( $input, true );
 
