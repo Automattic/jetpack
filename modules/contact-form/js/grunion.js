@@ -114,10 +114,7 @@ FB.ContactForm = function() {
 	}
 	function addOption () {
 		try {
-			optionsCount = jQuery( '#fb-new-options .fb-new-fields' ).length;
-			if ( 0 == optionsCount ) {
-				optionsCount = 1;
-			}
+			optionsCount = jQuery( '#fb-new-options .fb-options' ).length;
 			var thisId = jQuery('#fb-field-id').val();
 			var thisType = jQuery('#fb-new-type').val();
 			if (thisType === "radio") {
