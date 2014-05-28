@@ -171,7 +171,7 @@ function soundcloud_iframe_widget($options) {
   ), $options['params']);
 
   // Build URL
-  $url = set_url_scheme( 'http://w.soundcloud.com/player?' . http_build_query($options['params']) );
+  $url = set_url_scheme( 'http://w.soundcloud.com/player/?' . http_build_query($options['params']) );
   // Set default width if not defined
   $width = isset($options['width']) && $options['width'] !== 0 ? $options['width'] : '100%';
   // Set default height if not defined
