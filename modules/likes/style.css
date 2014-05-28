@@ -28,7 +28,7 @@
 
 div.jetpack-likes-widget-wrapper {
 	width: 100%;
-	height: 50px;	/* Previous height, 60px */
+	min-height: 50px;	/* Previous height, 60px */
 	position: relative; /* Need to abs position placeholder and iframe so there isn't a jarring jump */
 }
 
