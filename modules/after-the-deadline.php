@@ -12,15 +12,18 @@
 if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	// This wpcom-specific code should eventually be moved elsewhere.
 
-	add_filter( 'atd_http_post_timeout', function() {
+	function AtD_http_post_timeout_action() {
 		return 5;
-	} );
-	add_action( 'atd_http_post_error', function( $code ) {
+	}
+	add_filter( 'atd_http_post_timeout', 'AtD_http_post_timeout_action' );
+	function AtD_http_post_error_action( $code ) {
 		bump_stats_extras( 'atd-remote-error', $code );
-	} );
-	add_filter( 'atd_service_domain', function() {
+	}
+	add_action( 'atd_http_post_error', 'AtD_http_post_error_action' );
+	function AtD_service_domain_action() {
 		return 'en.service.afterthedeadline.com';
-	} );
+	}
+	add_filter( 'atd_service_domain', 'AtD_service_domain_action' );
 	function AtD_update_setting( $user_id, $name, $value ) {
 		update_user_attribute( $user_id, $name, $value );
 	}
