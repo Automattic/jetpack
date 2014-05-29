@@ -1,4 +1,4 @@
-/* jshint devel: true */
+/* jshint devel: true, onevar: false */
 /* global tinyMCE, AtD_restore_if_proofreading, AtD_check, AtD_unbind_proofreader_listeners,
           AtD, AtD_bind_proofreader_listeners, AtD_check_when
  */
@@ -30,7 +30,7 @@ function AtD_submit_check( e ) {
 
 /* This is the callback function that runs after the publish/update button is pressed */
 function AtD_submit_check_callback(count) {
-	count = Number(count || 0);
+	count = Number( count || 0 );
 	AtD_unbind_proofreader_listeners();
 
 	if ( 0 === count || 1 < AtD_proofread_click_count ) {
