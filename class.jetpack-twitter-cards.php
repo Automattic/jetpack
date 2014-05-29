@@ -174,12 +174,12 @@ class Jetpack_Twitter_Cards {
 	}
 
 	static function init() {
-		add_filter( 'jetpack_open_graph_tags', array( __CLASS__, 'twitter_cards_tags' ) );
-		add_filter( 'jetpack_open_graph_output', array( __CLASS__, 'twitter_cards_output' ) );
+		add_filter( 'jetpack_open_graph_tags',        array( __CLASS__, 'twitter_cards_tags' ) );
+		add_filter( 'jetpack_open_graph_output',      array( __CLASS__, 'twitter_cards_output' ) );
 		add_filter( 'jetpack_twitter_cards_site_tag', array( __CLASS__, 'site_tag' ), -99 );
-		add_action( 'admin_init', array( __CLASS__, 'settings_init' ) );
-		add_action( 'sharing_global_options', array( __CLASS__, 'sharing_global_options' ) );
-		add_action( 'sharing_admin_update', array( __CLASS__, 'settings_validate' ) );
+		add_action( 'admin_init',                     array( __CLASS__, 'settings_init' ) );
+		add_action( 'sharing_global_options',         array( __CLASS__, 'sharing_global_options' ) );
+		add_action( 'sharing_admin_update',           array( __CLASS__, 'settings_validate' ) );
 	}
 }
 
