@@ -195,7 +195,14 @@ function youtube_id( $url ) {
 	if ( ! isset( $url['query'] ) )
 		return false;
 
-	parse_str( $url['query'], $qargs );
+	if ( isset( $url['fragment'] ) ) {
+		wp_parse_str( $url['fragment'], $fargs );
+	} else {
+		$fargs = array();
+	}
+	wp_parse_str( $url['query'], $qargs );
+
+	$qargs = array_merge( $fargs, $qargs );
 
 	// calculate the width and height, taking content_width into consideration
 	global $content_width;
