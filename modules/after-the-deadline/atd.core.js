@@ -211,7 +211,7 @@ AtDCore.prototype.processXML = function(responseXML) {
 
 				this.suggestions.push(suggestion);
 
-				if (errors[i].getElementsByTagName('suggestions').item(0) !== undefined) {
+				if (errors[i].getElementsByTagName('suggestions').item(0) !== null) {
 					var suggestions = errors[i].getElementsByTagName('suggestions').item(0).getElementsByTagName('option');
 					for (var j = 0; j < suggestions.length; j++) {
 						suggestion['suggestions'].push(suggestions[j].firstChild.data);
@@ -219,7 +219,7 @@ AtDCore.prototype.processXML = function(responseXML) {
 				}
 
 				/* setup the more info url */
-				if (errors[i].getElementsByTagName('url').item(0) !== undefined) {
+				if (errors[i].getElementsByTagName('url').item(0) !== null) {
 					var errorUrl = errors[i].getElementsByTagName('url').item(0).firstChild.data;
 					suggestion['moreinfo'] = errorUrl + '&theme=tinymce';
 				}
