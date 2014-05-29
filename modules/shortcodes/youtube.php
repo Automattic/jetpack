@@ -195,7 +195,14 @@ function youtube_id( $url ) {
 	if ( ! isset( $url['query'] ) )
 		return false;
 
-	parse_str( $url['query'], $qargs );
+	if ( isset( $url['fragment'] ) ) {
+		wp_parse_str( $url['fragment'], $fargs );
+	} else {
+		$fargs = array();
+	}
+	wp_parse_str( $url['query'], $qargs );
+
+	$qargs = array_merge( $fargs, $qargs );
 
 	// calculate the width and height, taking content_width into consideration
 	global $content_width;
@@ -244,7 +251,30 @@ function youtube_id( $url ) {
 	$iv =     ( isset( $qargs['iv_load_policy'] ) && 3 == $qargs['iv_load_policy'] ) ? 3 : 1;
 
 	$fmt =    ( isset( $qargs['fmt'] )            && intval( $qargs['fmt'] )       ) ? '&fmt=' . (int) $qargs['fmt']     : '';
-	$start =  ( isset( $qargs['start'] )          && intval( $qargs['start'] )     ) ? '&start=' . (int) $qargs['start'] : '';
+
+	$start = 0;
+	if ( isset( $qargs['start'] ) ) {
+		$start = intval( $qargs['start'] );
+	} else if ( isset( $qargs['t'] ) ) {
+		$time_pieces = preg_split( '/(?<=\D)(?=\d+)/', $qargs['t'] );
+
+		foreach ( $time_pieces as $time_piece ) {
+			$int = (int) $time_piece;
+			switch ( substr( $time_piece, -1 ) ) {
+			case 'h' :
+				$start += $int * 3600;
+				break;
+			case 'm' :
+				$start += $int * 60;
+				break;
+			case 's' :
+				$start += $int;
+				break;
+			}
+		}
+	}
+
+	$start = $start ? '&start=' . $start : '';
 	$end =    ( isset( $qargs['end'] )            && intval( $qargs['end'] )       ) ? '&end=' . (int) $qargs['end']     : '';
 	$hd =     ( isset( $qargs['hd'] )             && intval( $qargs['hd'] )        ) ? '&hd=' . (int) $qargs['hd']       : '';
 	
