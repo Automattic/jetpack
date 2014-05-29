@@ -14,7 +14,7 @@
  * Contact      : willis.rh@gmail.com
  */
 
-/* jshint onevar: false, sub: true */
+/* jshint onevar: false, sub: true, smarttabs: true */
 /* global AtDCore, AtD_proofread_click_count, CSSHttpRequest, ActiveXObject */
 
 var AtD =
@@ -132,7 +132,7 @@ AtD.check = function(container_id, callback_f) {
 
 		error : function(XHR, status, error) {
 			if (AtD.callback_f !== undefined && AtD.callback_f.error !== undefined) {
- 				AtD.callback_f.error(status + ': ' + error);
+				AtD.callback_f.error(status + ': ' + error);
 			}
 		},
 
@@ -378,7 +378,7 @@ AtD.initCoreModule = function() {
 	};
 
 	core.findSpans = function(parent) {
-        	return jQuery.makeArray(parent.find('span'));
+		return jQuery.makeArray(parent.find('span'));
 	};
 
 	core.create = function(string/*, isTextNode*/) {

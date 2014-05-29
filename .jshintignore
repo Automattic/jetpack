@@ -11,10 +11,6 @@ modules/shortcodes/js/jmpress.min.js
 modules/shortcodes/js/jquery.cycle.js
 
 todo:
-modules/after-the-deadline/atd-autoproofread.js
-modules/after-the-deadline/atd-nonvis-editor-plugin.js
-modules/after-the-deadline/atd.core.js
-modules/after-the-deadline/jquery.atd.js
 modules/after-the-deadline/tinymce/editor_plugin.js
 modules/after-the-deadline/tinymce/plugin.js
 modules/carousel/jetpack-carousel.js

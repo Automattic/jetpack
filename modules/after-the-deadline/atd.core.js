@@ -6,7 +6,7 @@
  * Contact     : raffi@automattic.com
  */
 
-/* jshint sub: true, devel: true, onevar: false */
+/* jshint sub: true, devel: true, onevar: false, smarttabs: true */
 /* exported EXPORTED_SYMBOLS, atd_sprintf */
 
 /* EXPORTED_SYMBOLS is set so this file can be a JavaScript Module */

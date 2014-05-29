@@ -1,4 +1,4 @@
-/* jshint devel: true, onevar: false */
+/* jshint devel: true, onevar: false, smarttabs: true */
 /* global AtD, QTags, AtD_l10n_r0ar, edButtons, edButton, switchEditors, AtD_unbind_proofreader_listeners */
 /* exported AtD_unbind_proofreader_listeners */
 
