@@ -181,7 +181,7 @@ class Jetpack_Twitter_Cards {
 		wp_nonce_field( 'jetpack-twitter-cards-settings', 'jetpack_twitter_cards_nonce', false );
 		?>
 		<input type="text" id="jetpack-twitter-cards-site-tag" class="regular-text" name="jetpack-twitter-cards-site-tag" value="<?php echo esc_attr( get_option( 'jetpack-twitter-cards-site-tag' ) ); ?>" />
-		<p class="description" style="width: auto;"><?php _e( 'The Twitter username of the owner of this site\'s domain.', 'jetpack' ); ?></p>
+		<p class="description" style="width: auto;"><?php esc_html_e( 'The Twitter username of the owner of this site\'s domain.', 'jetpack' ); ?></p>
 		<?php
 	}
 
