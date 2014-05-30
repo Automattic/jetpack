@@ -296,7 +296,7 @@ class Jetpack_Admin {
 
 		<div class="masthead <?php if ( ! $is_connected ) echo 'hasbutton'; ?>">
 
-			<?php require_once( 'views/admin/network-activated-notice.php' ); ?>
+			<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
 
 			<?php do_action( 'jetpack_notices' ) ?>
 

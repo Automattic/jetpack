@@ -9,5 +9,5 @@
 			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
 
 			<?php 
-				require_once( 'network-activated-notice.php' );
+				Jetpack::init()->load_view( 'admin/network-activated-notice.php' );
 				do_action( 'jetpack_notices' ); 

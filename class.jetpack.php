@@ -3020,7 +3020,7 @@ p {
 
 			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
 
-			<?php require_once( 'views/admin/network-activated-notice.php' ); ?>
+			<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
 
 			<?php do_action( 'jetpack_notices' ) ?>
 
@@ -4380,5 +4380,24 @@ p {
 		</div>
 
 		<?php
+	}
+
+	/**
+	 * Loads a view file from the views 
+	 *
+	 * @param string $template - Template file to load
+	 * @param array $data - Any data to pass along to the template
+	 * @return boolean - If template file was found
+	 **/
+	public function load_view( $template, $data = array() ) {
+		$views_dir = JETPACK__PLUGIN_DIR . '/views/';
+		
+		if( file_exists( $views_dir . $template ) ) {
+			require_once( $views_dir . $template );
+			return true;
+		}
+
+		error_log( "Jetpack: Unable to find view file $views_dir$template" );
+		return false;
 	}
 }
