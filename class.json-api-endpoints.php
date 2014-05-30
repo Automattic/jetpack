@@ -3527,7 +3527,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 */
 	public function build_current_site_response( ) {
 
-		global $wpdb;
+		global $wpdb, $wp_version;
 
 		$response_format = self::$site_format;
 
@@ -3647,6 +3647,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'image_large_width'       => (int)  get_option( 'large_size_w' ),
 					'image_large_height'      => (int) get_option( 'large_size_h' ),
 					'post_formats'            => $supported_formats,
+					'software_version'        => $wp_version,
 				);
 				if ( !current_user_can( 'publish_posts' ) )
 					unset( $response[ $key] );
