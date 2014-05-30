@@ -100,7 +100,7 @@
       init : function(ed, url)
       {
          if ( typeof(AtDCore) === 'undefined' ) {
-         	return;
+            return;
          }
 
          var plugin  = this;
@@ -175,20 +175,20 @@
          });
 
          /* load cascading style sheet for this plugin */
-     	 editor.onInit.add(function()
+         editor.onInit.add(function()
          {
             /* loading the content.css file, why? I have no clue */
             if (editor.settings.content_css !== false)
             {
                editor.dom.loadCSS(editor.getParam('atd_css_url', url + '/css/content.css'));
             }
-	 });
+         });
 
          /* again showing a menu, I have no clue what */
-	 editor.onClick.add(plugin._showMenu, plugin);
+         editor.onClick.add(plugin._showMenu, plugin);
 
          /* we're showing some sort of menu, no idea what */
-	 editor.onContextMenu.add(plugin._showMenu, plugin);
+         editor.onContextMenu.add(plugin._showMenu, plugin);
 
          /* strip out the markup before the contents is serialized (and do it on a copy of the markup so we don't affect the user experience) */
          editor.onPreProcess.add(function(sender, object)
@@ -205,7 +205,7 @@
          });
 
          /* cleanup the HTML before executing certain commands */
-	 editor.onBeforeExecCommand.add(function(editor, command)
+         editor.onBeforeExecCommand.add(function(editor, command)
          {
             if (command === 'mceCodeEditor')
             {
@@ -322,7 +322,7 @@
                            height : 380,
                            inline : true
                         }, { theme_url : this.url });
-	             }
+                     }
                   });
                })(errorDescription['moreinfo']);
 
@@ -335,7 +335,7 @@
                {
                   dom.remove(e.target, 1);
                   t._checkDone();
-	       }
+               }
             });
 
             if (String(this.editor.getParam('atd_ignore_enable',  'false')) === 'true')
@@ -467,7 +467,7 @@
             success      : success,
             error        : function( type, req, o )
             {
-	       plugin.editor.setProgressState(0);
+               plugin.editor.setProgressState(0);
                alert( type + '\n' + req.status + '\nAt: ' + o.url );
             }
          });
