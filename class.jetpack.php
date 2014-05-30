@@ -4393,7 +4393,7 @@ p {
 	 * @return boolean - If template file was found
 	 **/
 	public function load_view( $template, $data = array() ) {
-		$views_dir = JETPACK__PLUGIN_DIR . '/views/';
+		$views_dir = JETPACK__PLUGIN_DIR . 'views/';
 		
 		if( file_exists( $views_dir . $template ) ) {
 			require_once( $views_dir . $template );
