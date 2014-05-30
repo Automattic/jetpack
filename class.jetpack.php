@@ -3179,7 +3179,7 @@ p {
 			<h3>
 			<?php
 				$module = Jetpack::get_module( $module_id );
-				echo '<a href="' . menu_page_url( 'jetpack', false ) . '">' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</a> &rarr; ';
+				echo '<a href="' . menu_page_url( 'jetpack_modules', false ) . '">' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</a> &rarr; ';
 				printf( __( 'Configure %s', 'jetpack' ), $module['name'] );
 			?>
 			</h3>
