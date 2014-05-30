@@ -296,11 +296,7 @@ class Jetpack_Admin {
 
 		<div class="masthead <?php if ( ! $is_connected ) echo 'hasbutton'; ?>">
 
-			<?php if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] ) : ?>
-				<div id="message" class="error">
-					<p><?php esc_html_e( 'Jetpack is network activated and notices can not be dismissed.', 'jetpack' ); ?></p>
-				</div>
-			<?php endif; ?>
+			<?php require_once( 'views/admin/network-activated-notice.php' ); ?>
 
 			<?php do_action( 'jetpack_notices' ) ?>
 
