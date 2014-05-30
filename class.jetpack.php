@@ -4384,6 +4384,9 @@ p {
 
 	/**
 	 * Loads a view file from the views 
+	 * 
+	 * Data passed in with the $data parameter will be available in the 
+	 * template file as $data['value']
 	 *
 	 * @param string $template - Template file to load
 	 * @param array $data - Any data to pass along to the template
