@@ -4087,12 +4087,15 @@ p {
 			return $url;
 		}
 
-		return "$url?{$_SERVER['QUERY_STRING']}";
+		$parsed_url = parse_url( $url );
+		$url = strtok( $url, '?' );
+		return "$url?{$_SERVER['QUERY_STRING']}&{$parsed_url['query']}";
 	}
 
 	// Make sure the POSTed request is handled by the same action
 	function preserve_action_in_login_form_for_json_api_authorization() {
 		echo "<input type='hidden' name='action' value='jetpack_json_api_authorization' />\n";
+		echo "<input type='hidden' name='jetpack_json_api_original_query' value='" . site_url( stripslashes( $_SERVER['REQUEST_URI'] ) ) . "' />\n";
 	}
 
 	// If someone logs in to approve API access, store the Access Code in usermeta
@@ -4135,7 +4138,13 @@ p {
 		$die_error = __( 'Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
 
 		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
-		$signature = $jetpack_signature->sign_current_request( array( 'body' => null, 'method' => 'GET' ) );
+
+		if ( isset( $_POST['jetpack_json_api_original_query'] ) ) {
+			$signature = $jetpack_signature->sign_request( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], '', 'GET', $_POST['jetpack_json_api_original_query'], null, true );
+		} else {
+			$signature = $jetpack_signature->sign_current_request( array( 'body' => null, 'method' => 'GET' ) );
+		}
+
 		if ( ! $signature ) {
 			wp_die( $die_error );
 		} else if ( is_wp_error( $signature ) ) {
