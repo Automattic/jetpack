@@ -90,7 +90,9 @@ module.exports = function(grunt) {
 			sass: {
 				files: [
 					'_inc/*.scss',
-					'_inc/**/*.scss'
+					'_inc/**/*.scss',
+					'_inc/**/**/*.scss',
+					'_inc/**/**/**/*.scss'
 				],
 				tasks: ['sass', 'autoprefixer', 'jsbeautifier'],
 				options: {
