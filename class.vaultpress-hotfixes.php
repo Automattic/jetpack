@@ -82,6 +82,9 @@ class VaultPress_Hotfixes {
 
 		add_filter( 'jetpack_xmlrpc_methods', array( $this, 'disable_jetpack_xmlrpc_methods_293' ), 20, 3 );
 		add_filter( 'xmlrpc_methods', array( $this, 'disable_xmlrpc_methods_293' ), 20 );
+
+		// Protect All-in-one SEO from non-authorized users making changes, and script injection attacks.          
+		add_action( 'wp_ajax_aioseop_ajax_save_meta', array( $this, 'protect_aioseo_ajax' ), 1 );
 	}
 
 	function disable_jetpack_xmlrpc_methods_293( $jetpack_methods, $core_methods, $user = false ) {
@@ -550,6 +553,26 @@ EOD;
 			return false;
 		else
 			return $value;
+	}
+
+	// Protect All-in-one SEO AJAX calls from script injection and changes without privileges. Affects versions <= 2.1.5
+	function protect_aioseo_ajax() {
+		if ( defined( 'AIOSEOP_VERSION' ) && version_compare( AIOSEOP_VERSION, '2.1.5', '>' ) )
+			return;
+
+		if ( ! isset( $_POST['post_id'] ) || ! isset( $_POST['target_meta'] ) )
+			die();
+
+		// Ensure the current user has permission to write to the post.
+		if ( ! current_user_can( 'edit_post', intval( $_POST['post_id'] ) ) )
+			die();
+
+		// Limit the fields that can be written to
+		if ( ! in_array( $_POST['target_meta'], array( 'title', 'description', 'keywords' ) ) )
+			die();
+
+		// Strip tags from the metadata value.
+		$_POST['new_meta'] = strip_tags( $_POST['new_meta'] );
 	}
 }
 
