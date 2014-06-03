@@ -283,11 +283,11 @@
 			if (lowercaseName.indexOf(lowercaseTerm) !== -1 || lowercaseDesc.indexOf(lowercaseTerm) !== -1) {
 				html += ich.mod(modules[i], true);
 			}
+			$('.modules').html( html );
 		}
-		if ('' === html) {
-			html = jetpackL10n.no_modules_found.replace( '{term}' , term );
+		if ( '' === html ) {
+			$('.modules').text( jetpackL10n.no_modules_found.replace( '{term}', term ) );
 		}
-		$('.modules').html(html);
 		recalculateModuleHeights();
 		initModalEvents();
 	}
