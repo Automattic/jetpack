@@ -110,9 +110,6 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
         	);    
     	}
 
-	/**
-	 * @todo Ensure sites are not in/active before performing action
-	 */
 	public function process_bulk_action() {
 		if( !isset( $_POST['bulk'] ) || empty ( $_POST['bulk'] ) )
 			return; // Thou shall not pass! There is nothing to do
@@ -124,13 +121,13 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 
             		case 'connect':
                 		foreach( $_POST['bulk'] AS $k => $site ) {
-					$jpms->do_subsiteregister( $site );
-				} 
+							$jpms->do_subsiteregister( $site );
+						} 
 				break;
             		case 'disconnect':
                 		foreach( $_POST['bulk'] AS $k => $site ) {
-					$jpms->do_subsitedisconnect( $site );
-				}
+							$jpms->do_subsitedisconnect( $site );
+						}
 				break;
 		}
 	}
