@@ -3632,9 +3632,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
 
 				// determine if sharing buttons should be visible by default
-				$ss = new Sharing_Service();
-				$blog_services = $ss->get_blog_services();
-				$default_sharing_status = ! empty( $blog_services['visible'] );
+				$default_sharing_status = false;
+				if ( class_exists( 'Sharing_Service' ) ) {
+					$ss                     = new Sharing_Service();
+					$blog_services          = $ss->get_blog_services();
+					$default_sharing_status = ! empty( $blog_services['visible'] );
+				}
 
 				$response[$key] = array(
 					'timezone'                => (string) get_option( 'timezone_string' ),
