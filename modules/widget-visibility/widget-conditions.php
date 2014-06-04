@@ -14,8 +14,8 @@ class Jetpack_Widget_Conditions {
 			add_action( 'wp_ajax_widget_conditions_options', array( __CLASS__, 'widget_conditions_options' ) );
 		}
 		else {
-			add_action( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
-			add_action( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
+			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
+			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 		}
 	}
 
