@@ -58,9 +58,6 @@ class Jetpack_Network {
 			if( isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
 				add_action( 'admin_init', array ( $this,  'jetpack_sites_list' ) );
 			}
-			//add_filter( 'wpmu_blogs_columns', array( $this, 'add_jetpack_sites_column' ) );
-			//add_action( 'manage_sites_custom_column', array( $this, 'render_jetpack_sites_column' ), 10, 2 );
-			//add_action( 'manage_blogs_custom_column', array( $this, 'render_jetpack_sites_column' ), 10, 2 );
 		}
 
 		/*
@@ -105,54 +102,6 @@ class Jetpack_Network {
 */
 	}
 
-	/**
-	 * Displays the Jetpack connection status on the Network Admin > Sites
-	 * page.
-	 *
-	 * @param string $column_name
-	 * @param int $blog_id
-	 **/
-	public function render_jetpack_sites_column( $column_name, $blog_id ) {
-		if( 'jetpack_connection' != $column_name )
-			return;
-		
-		$jp = Jetpack::init();
-
-		switch_to_blog( $blog_id );
-		if( $jp->is_active() ) {
-		   // Build url for disconnecting 
-			$url = $this->get_url( array(
-			'name'		=> 'subsitedisconnect',
-			'site_id'   => $blog_id,
-
-			) );
-			restore_current_blog();
-			echo '<a href="' . $url . '">Disconnect</a>';
-			return;
-		}
-		restore_current_blog();
-		
-		// Build URL for connecting
-		$url = $this->get_url( array(
-			'name'	=> 'subsiteregister',
-			'site_id'	=> $blog_id,
-		) );
-		echo '<a href="' . $url . '">Connect</a>';
-		return;
-	}
-
-	/**
-	 * Add the column for Jetpack connection status to the
-	 * Network Admin > Sites list
-	 *
-	 * @since 2.9
-	 * @param array $columns
-	 * @return array
-	 **/
-	public function add_jetpack_sites_column( $columns ) {
-		$columns['jetpack_connection'] = __( 'Jetpack' , 'jetpack' );
-		return $columns;
-	}
 
 	/**
 	 * Registers new sites upon creation
