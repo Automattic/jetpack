@@ -120,12 +120,12 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 		switch ( $action ) {
 
             		case 'connect':
-                		foreach( $_POST['bulk'] AS $k => $site ) {
+                		foreach( $_POST['bulk'] as $k => $site ) {
 							$jpms->do_subsiteregister( $site );
 						} 
 				break;
             		case 'disconnect':
-                		foreach( $_POST['bulk'] AS $k => $site ) {
+                		foreach( $_POST['bulk'] as $k => $site ) {
 							$jpms->do_subsitedisconnect( $site );
 						}
 				break;
