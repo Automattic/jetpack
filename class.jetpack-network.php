@@ -73,8 +73,7 @@ class Jetpack_Network {
 			 * This is a hacky way because xmlrpc is not available on wpmu_new_blog
 			 */
 			if( $this->get_option( 'auto-connect' ) == 1 ) {
-			//add_action( 'admin_init', array( $this, 'do_automatically_add_new_site' ) );
-			add_action( 'wpmu_new_blog', array( $this, 'do_automatically_add_new_site' ) );
+				add_action( 'wpmu_new_blog', array( $this, 'do_automatically_add_new_site' ) );
 			}
 		}
 
