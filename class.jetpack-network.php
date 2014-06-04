@@ -329,7 +329,7 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function jetpack_sites_list() {
-		$jp = Jetpack::init();
+		Jetpack::init();
 
 		if( isset( $_GET['action'] ) ) {
 			switch( $_GET['action'] ) {
@@ -421,9 +421,6 @@ class Jetpack_Network {
 		// Remote query timeout limit
 		$timeout = $jp->get_remote_query_timeout_limit();
 
-		// Get proof the wpcom server can trust you adding this site
-		$network_admin_token = '';
-
 		// The blog id on WordPress.com of the primary network site
 		$network_wpcom_blog_id = Jetpack_Options::get_option( 'id' );
 
@@ -480,7 +477,7 @@ class Jetpack_Network {
 		
 		// Attempt to retrieve shadow blog details
 		$response = Jetpack_Client::_wp_remote_request(
-		Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'subsiteregister' ) ), $args, true 
+			Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'subsiteregister' ) ), $args, true 
 		);
 		
 		/*
@@ -509,9 +506,9 @@ class Jetpack_Network {
 		return new Jetpack_Error( 'jetpack_secret', '', $code );
 
 		if ( isset( $json->jetpack_public ) ) {
-		$jetpack_public = (int) $json->jetpack_public;
+			$jetpack_public = (int) $json->jetpack_public;
 		} else {
-		$jetpack_public = false;
+			$jetpack_public = false;
 		}
 		
 		Jetpack_Options::update_options(
