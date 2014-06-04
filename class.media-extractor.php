@@ -205,6 +205,14 @@ class Jetpack_Media_Meta_Extractor {
 				foreach ( $matches[1] as $link_raw ) {
 					$url = parse_url( $link_raw );
 
+					// Data URI links
+					if ( isset( $url['scheme'] ) && 'data' === $url['scheme'] )
+						continue;
+
+					// Remove large (and likely invalid) links
+					if ( 4096 < strlen( $link_raw ) )
+						continue;
+
 					// Build a simple form of the URL so we can compare it to ones we found in IMAGES or SHORTCODES and exclude those
 					$simple_url = $url['scheme'] . '://' . $url['host'] . ( ! empty( $url['path'] ) ? $url['path'] : '' );
 					if ( isset( $extracted['image']['url'] ) ) {
