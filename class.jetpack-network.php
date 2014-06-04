@@ -164,7 +164,7 @@ class Jetpack_Network {
 
 		$sites = $this->wp_get_sites();
 
-		foreach( $sites AS $s ) {
+		foreach( $sites as $s ) {
 			switch_to_blog( $s->blog_id );
 			$active_plugins = get_option( 'active_plugins' );
 
