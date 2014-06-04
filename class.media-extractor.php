@@ -402,6 +402,11 @@ class Jetpack_Media_Meta_Extractor {
 					$queryless = $image_url;
 				}
 
+				// Discard URLs that are longer then 4KB, these are likely data URIs or malformed HTML.
+				if ( 4096 < strlen( $queryless ) ) {
+					continue;
+				}
+
 				if ( ! in_array( $queryless, $image_list ) ) {
 					$image_list[] = $queryless;
 				}
