@@ -7,7 +7,6 @@
  *
  * DO NOT USE ANY STATIC METHODS IN THIS CLASS!!!!!!
  *
- * @todo Look through todos in Jetpack_Network
  * @since 2.9
  */
 class Jetpack_Network {
