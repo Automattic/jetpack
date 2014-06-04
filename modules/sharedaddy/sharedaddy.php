@@ -51,7 +51,7 @@ function sharing_meta_box_save( $post_id ) {
 		return $post_id;
 
 	// Record sharing disable
-	if ( isset( $_POST['post_type'] ) && ( 'post' == $_POST['post_type'] || 'page' == $_POST['post_type'] ) ) {
+	if ( isset( $_POST['post_type'] ) && ( $post_type_object = get_post_type_object( $_POST['post_type'] ) ) && $post_type_object->public ) {
 		if ( current_user_can( 'edit_post', $post_id ) ) {
 			if ( isset( $_POST['sharing_status_hidden'] ) ) {
 				if ( !isset( $_POST['enable_post_sharing'] ) ) {
