@@ -3631,6 +3631,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 
+				// determine if sharing buttons should be visible by default
+				$ss = new Sharing_Service();
+				$blog_services = $ss->get_blog_services();
+				$default_sharing_status = ! empty( $blog_services['visible'] );
+
 				$response[$key] = array(
 					'timezone'                => (string) get_option( 'timezone_string' ),
 					'gmt_offset'              => (float) get_option( 'gmt_offset' ),
@@ -3647,10 +3652,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'image_large_width'       => (int)  get_option( 'large_size_w' ),
 					'image_large_height'      => (int) get_option( 'large_size_h' ),
 					'post_formats'            => $supported_formats,
+					'default_likes_enabled'   => (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) ),
+					'default_sharing_status'  => (bool) $default_sharing_status,
+					'default_comment_status'  => (bool) get_option( 'default_comment_status' ),
+					'default_ping_status'     => (bool) get_option( 'default_ping_status' ),
 					'software_version'        => $wp_version,
 				);
 				if ( !current_user_can( 'publish_posts' ) )
-					unset( $response[ $key] );
+					unset( $response[$key] );
 				break;
 			case 'meta' :
 				$xmlrpc_url = site_url( 'xmlrpc.php' );
