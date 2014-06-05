@@ -232,7 +232,7 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	static function tokenize_label( $label ) {
-		return '{' . $label . '}';
+		return '{' . trim( $label ) . '}';
 	}
 
 	static function sanitize_value( $value ) {
