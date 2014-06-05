@@ -231,6 +231,14 @@ class Grunion_Contact_Form_Plugin {
 		add_shortcode( 'contact-form', array( 'Grunion_Contact_Form', 'parse' ) );
 	}
 
+	static function tokenize_label( $label ) {
+		return '{' . $label . '}';
+	}
+
+	static function sanitize_value( $value ) {
+		return preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', null, $value );
+	}
+
 	/**
 	 * Replaces tokens like {city} or {City} (case insensitive) with the value
 	 * of an input field of that name
@@ -242,14 +250,9 @@ class Grunion_Contact_Form_Plugin {
 	 */
 	function replace_tokens_with_input( $subject, $field_values ) {
 		// Wrap labels into tokens (inside {})
-		$wrapped_labels = array_map( function( $label ) {
-			return '{' . $label . '}';
-		}, array_keys( $field_values ) );
-
+		$wrapped_labels = array_map( array( 'Grunion_Contact_Form_Plugin', 'tokenize_label' ), array_keys( $field_values ) );
 		// Sanitize all values
-		$sanitized_values = array_map( function( $value ) {
-			return preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', null, $value );
-		}, array_values( $field_values ) );
+		$sanitized_values = array_map( array( 'Grunion_Contact_Form_Plugin', 'sanitize_value' ), array_values( $field_values ) );
 
 		// Search for all valid tokens (based on existing fields) and replace with the field's value
 		$subject = str_ireplace( $wrapped_labels, $sanitized_values, $subject );
