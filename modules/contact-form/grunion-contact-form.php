@@ -236,6 +236,7 @@ class Grunion_Contact_Form_Plugin {
 	 * of an input field of that name
 	 *
 	 * @param string $subject
+	 * @param array $field_values Array with field label => field value associations
 	 *
 	 * @return string The filtered $subject with the tokens replaced
 	 */
