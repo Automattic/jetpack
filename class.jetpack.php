@@ -317,7 +317,7 @@ class Jetpack {
 		 * available
 		 */
 		if( is_multisite() ) {
-			$jpms = Jetpack_Network::init();
+			Jetpack_Network::init();
 
 			if( is_network_admin() )
 			    return; // End here to prevent single site actions from firing
@@ -2984,7 +2984,7 @@ p {
 		$can_reconnect_jpms = true;
 		if( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 		    $jpms = Jetpack_Network::init();
-		    $can_reconnect_jpms = ( $jpms->get_option( 'sub-site-connection-override' ) )? 1: 0;
+		    $can_reconnect_jpms = ( $jpms->get_option( 'sub-site-connection-override' ) ) ? 1: 0;
 		}
 
 
