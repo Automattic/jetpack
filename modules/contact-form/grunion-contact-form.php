@@ -50,7 +50,7 @@ class Grunion_Contact_Form_Plugin {
 		$this->add_shortcode();
 
 		// Add a filter to replace tokens in the subject field with sanitized field values
-		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ) );
+		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
 		// While generating the output of a text widget with a contact-form shortcode, we need to know its widget ID.
 		add_action( 'dynamic_sidebar', array( $this, 'track_current_widget' ) );
@@ -239,7 +239,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @return string The filtered $subject with the tokens replaced
 	 */
-	function replace_tokens_with_input( $subject ) {
+	function replace_tokens_with_input( $subject, $field_values ) {
 		// Find all tokens in the subject of the form {something}
 		$tokens = array();
 		if ( ! preg_match_all( '#\{ \w+ \}#x', $subject, $tokens ) ) {
@@ -247,20 +247,13 @@ class Grunion_Contact_Form_Plugin {
 			return $subject;
 		}
 
-		$form = Grunion_Contact_Form::$last;
-		$field_ids = $form->get_field_ids();
-
 		// Iterate through all found tokens and replace them with a value separately
 		foreach ( $tokens[0] as $token ) {
 			// Find field with that name
-			foreach ( $field_ids['all'] as $field_id ) {
-				$field = $form->fields[$field_id];
-				$label = $field->get_attribute( 'label' );
+			foreach ( $field_values as $label => $value ) {
 				$label = '{' . $label . '}'; // Wrap as token for matching
 
 				if ( 0 == strcasecmp( $label, $token ) ) {
-					$value = $field->value;
-
 					// Sanitize the field's value
 					$value = preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', null, $value );
 
@@ -1299,7 +1292,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr  . ">\r\n" .
 					"Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"";
 
-		$subject = apply_filters( 'contact_form_subject', $contact_form_subject );
+		$subject = apply_filters( 'contact_form_subject', $contact_form_subject, $all_values );
 		$url     = $widget ? home_url( '/' ) : get_permalink( $post->ID );
 
 		$date_time_format = _x( '%1$s \a\t %2$s', '{$date_format} \a\t {$time_format}', 'jetpack' );
