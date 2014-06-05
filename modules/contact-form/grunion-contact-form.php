@@ -240,30 +240,18 @@ class Grunion_Contact_Form_Plugin {
 	 * @return string The filtered $subject with the tokens replaced
 	 */
 	function replace_tokens_with_input( $subject, $field_values ) {
-		// Find all tokens in the subject of the form {something}
-		$tokens = array();
-		if ( ! preg_match_all( '#\{ \w+ \}#x', $subject, $tokens ) ) {
-			// No tokens found
-			return $subject;
-		}
+		// Wrap labels into tokens (inside {})
+		$wrapped_labels = array_map( function( $label ) {
+			return '{' . $label . '}';
+		}, array_keys( $field_values ) );
 
-		// Iterate through all found tokens and replace them with a value separately
-		foreach ( $tokens[0] as $token ) {
-			// Find field with that name
-			foreach ( $field_values as $label => $value ) {
-				$label = '{' . $label . '}'; // Wrap as token for matching
+		// Sanitize all values
+		$sanitized_values = array_map( function( $value ) {
+			return preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', null, $value );
+		}, array_values( $field_values ) );
 
-				if ( 0 == strcasecmp( $label, $token ) ) {
-					// Sanitize the field's value
-					$value = preg_replace( '=((<CR>|<LF>|0x0A/%0A|0x0D/%0D|\\n|\\r)\S).*=i', null, $value );
-
-					// Replace the token with the value
-					$subject = str_replace( $token, $value, $subject );
-					break; // No need to iterate any more fields, we found a match
-				}
-			}
-		}
-
+		// Search for all valid tokens (based on existing fields) and replace with the field's value
+		$subject = str_ireplace( $wrapped_labels, $sanitized_values, $subject );
 		return $subject;
 	}
 
