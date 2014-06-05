@@ -39,17 +39,6 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
     /**
      * @since 2.8
      **/
-    public function test_add_jetpack_sites_column_adds_column() {
-		$jpms = Jetpack_Network::init();
-
-		$columns = $jpms->add_jetpack_sites_column( array() );
-
-		$this->assertTrue( isset( $columns['jetpack_connection'] ) );
-    }
-
-    /**
-     * @since 2.8
-     **/
     public function test_body_class_contains_network_admin() {
 		$jpms = Jetpack_Network::init();
 
