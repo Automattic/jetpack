@@ -4412,4 +4412,18 @@ p {
 		error_log( "Jetpack: Unable to find view file $views_dir$template" );
 		return false;
 	}
+
+	/**
+	 * Sends a ping to the Jetpack servers to toggle on/off remote portions
+	 * required by some modules.
+	 *
+	 * @param string $module_slug
+	 */
+	public function toggle_module_on_wpcom() {
+		Jetpack::init()->sync->register( 'noop' );
+
+		if ( false !== strpos( current_filter(), 'jetpack_activate_module_' ) ) {
+			self::check_privacy( str_replace( 'jetpack_activate_module_', '', current_filter() ) );
+		}
+	}
 }
