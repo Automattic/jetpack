@@ -2,9 +2,9 @@
 * Do not modify this file directly.  It is compiled Sass code.
 * @see: jetpack/_inc/jetpack.scss
 */
-
 .button,
 .download-jetpack {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	-webkit-transition: all 0.1s ease-in-out;
@@ -16,8 +16,14 @@
     -webkit-transition: all 0.1s ease-in-out;
     transition: all 0.1s ease-in-out;
 >>>>>>> 0751769... Changes/additions to gruntfile.js
+=======
+  -webkit-transition: all 0.1s ease-in-out;
+  transition: all 0.1s ease-in-out;
+>>>>>>> 10c5303... Removed jsbeautify
 }
+
 .jp-button {
+<<<<<<< HEAD
 <<<<<<< HEAD
 	display: inline-block;
 	position: relative;
@@ -37,6 +43,8 @@
 }
 
 .jp-button {
+=======
+>>>>>>> 10c5303... Removed jsbeautify
   display: inline-block;
   position: relative;
   padding: 0.76923em 1.46154em;
@@ -47,6 +55,7 @@
   border-radius: 3px;
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
+<<<<<<< HEAD
 >>>>>>> bb6894b... Updates to the RTL styling
 =======
     display: inline-block;
@@ -60,20 +69,23 @@
     -webkit-background-clip: padding-box;
     background-clip: padding-box;
 >>>>>>> 0751769... Changes/additions to gruntfile.js
+=======
+>>>>>>> 10c5303... Removed jsbeautify
 }
 .jp-button:visited {
-    color: #efefef;
+  color: #efefef;
 }
-.jp-button:hover,
-.jp-button:focus {
-    color: #fff;
-    background: #57972d;
+.jp-button:hover, .jp-button:focus {
+  color: #fff;
+  background: #57972d;
 }
 .jp-button:active {
-    background: #57972d;
-    opacity: 0.8;
+  background: #57972d;
+  opacity: 0.8;
 }
+
 .download-jetpack {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	display: inline-block;
@@ -92,6 +104,8 @@
 	-moz-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, .4);
 	box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, .4);
 =======
+=======
+>>>>>>> 10c5303... Removed jsbeautify
   display: inline-block;
   position: relative;
   padding: 0.64286em 0.85714em 0.53571em;
@@ -104,6 +118,7 @@
   background-clip: padding-box;
   -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
+<<<<<<< HEAD
 >>>>>>> bb6894b... Updates to the RTL styling
 =======
     display: inline-block;
@@ -119,10 +134,13 @@
     -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
     box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 >>>>>>> 0751769... Changes/additions to gruntfile.js
+=======
+>>>>>>> 10c5303... Removed jsbeautify
 }
 .download-jetpack:visited {
-    color: #fff;
+  color: #fff;
 }
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 
@@ -134,11 +152,14 @@
 	-moz-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, .4);
 	box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, .4);
 =======
+=======
+>>>>>>> 10c5303... Removed jsbeautify
 .download-jetpack:hover, .download-jetpack:focus {
   color: #fff;
   background: #57972d;
   -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
+<<<<<<< HEAD
 >>>>>>> bb6894b... Updates to the RTL styling
 =======
 .download-jetpack:hover,
@@ -166,11 +187,19 @@
     -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
     box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
 >>>>>>> 0751769... Changes/additions to gruntfile.js
+=======
+}
+.download-jetpack:active {
+  top: 6px;
+  -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
+>>>>>>> 10c5303... Removed jsbeautify
 }
 .download-jetpack:active:after {
-    top: -6px;
+  top: -6px;
 }
 .download-jetpack:before {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	content: '';
@@ -184,6 +213,8 @@
 	background: url('img/connect-plug.svg') center center no-repeat;
 	background-size: 100%;
 =======
+=======
+>>>>>>> 10c5303... Removed jsbeautify
   content: '';
   display: inline-block;
   position: relative;
@@ -195,6 +226,7 @@
   background: url("img/connect-plug.svg") center center no-repeat;
   -webkit-background-size: 100%;
   background-size: 100%;
+<<<<<<< HEAD
 >>>>>>> bb6894b... Updates to the RTL styling
 =======
     content: '';
@@ -209,16 +241,20 @@
     -webkit-background-size: 100%;
     background-size: 100%;
 >>>>>>> 0751769... Changes/additions to gruntfile.js
+=======
+>>>>>>> 10c5303... Removed jsbeautify
 }
 .download-jetpack:after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
+
 #searchsubmit {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	display: inline-block;
@@ -236,6 +272,8 @@
 	-moz-background-clip: padding;
 	background-clip: padding-box;
 =======
+=======
+>>>>>>> 10c5303... Removed jsbeautify
   display: inline-block;
   border: none;
   position: relative;
@@ -248,6 +286,7 @@
   border-radius: 3px;
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
+<<<<<<< HEAD
 >>>>>>> bb6894b... Updates to the RTL styling
 =======
     display: inline-block;
@@ -263,53 +302,56 @@
     -webkit-background-clip: padding-box;
     background-clip: padding-box;
 >>>>>>> 0751769... Changes/additions to gruntfile.js
+=======
+>>>>>>> 10c5303... Removed jsbeautify
 }
 #searchsubmit:visited {
-    color: #efefef;
+  color: #efefef;
 }
-#searchsubmit:hover,
-#searchsubmit:focus {
-    color: #fff;
-    background: #2aa0d5;
+#searchsubmit:hover, #searchsubmit:focus {
+  color: #fff;
+  background: #2aa0d5;
 }
 #searchsubmit:active {
-    opacity: 0.7;
+  opacity: 0.7;
 }
+
 #message.jp-connect {
-    background: #81a844;
-    border: none;
-    color: #fff;
-    overflow: hidden;
-    margin-bottom: 26px;
-    padding: 26px 20px;
-    position: relative;
+  background: #81a844;
+  border: none;
+  color: #fff;
+  overflow: hidden;
+  margin-bottom: 26px;
+  padding: 26px 20px;
+  position: relative;
 }
 #message.jp-connect:after {
-    bottom: 0;
-    content: '';
-    background: url("img/the-footcloud.svg") right bottom no-repeat;
-    height: 50px;
-    pointer-events: none;
-    position: absolute;
-    right: -100px;
-    width: 100%;
-    z-index: 1;
+  bottom: 0;
+  content: '';
+  background: url("img/the-footcloud.svg") right bottom no-repeat;
+  height: 50px;
+  pointer-events: none;
+  position: absolute;
+  right: -100px;
+  width: 100%;
+  z-index: 1;
 }
 #message.jp-connect a {
-    color: #fff;
+  color: #fff;
 }
 #message.jp-connect h4 {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 #message.jp-connect .jetpack-install-container {
-    float: left;
-    overflow: hidden;
+  float: left;
+  overflow: hidden;
 }
 #message.jp-connect .jetpack-install-container .submit {
-    margin: 0;
+  margin: 0;
 }
 #message.jp-connect .jetpack-install-container .download-jetpack {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
 	font-size: 1.5em;
@@ -341,6 +383,8 @@
 	-moz-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, .2);
 	box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, .2);
 =======
+=======
+>>>>>>> 10c5303... Removed jsbeautify
   font-size: 1.5em;
   margin: 0 18px 0 0;
   padding: 0.57143em 0.85714em 0.38095em 0.57143em;
@@ -353,6 +397,7 @@
 #message.jp-connect .jetpack-install-container .download-jetpack:hover, #message.jp-connect .jetpack-install-container .download-jetpack:focus {
   -webkit-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
+<<<<<<< HEAD
 >>>>>>> bb6894b... Updates to the RTL styling
 =======
     -webkit-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
@@ -368,10 +413,15 @@
 	-moz-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, .2);
 	box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, .2);
 =======
+=======
+}
+#message.jp-connect .jetpack-install-container .download-jetpack:active {
+>>>>>>> 10c5303... Removed jsbeautify
   outline: none;
   top: 2px;
   -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
+<<<<<<< HEAD
 >>>>>>> bb6894b... Updates to the RTL styling
 =======
     outline: none;
@@ -379,68 +429,72 @@
     -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
     box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
 >>>>>>> 0751769... Changes/additions to gruntfile.js
+=======
+>>>>>>> 10c5303... Removed jsbeautify
 }
 #message.jp-connect .jetpack-install-container .download-jetpack:active:after {
-    top: -2px;
+  top: -2px;
 }
 #message.jp-connect .jetpack-install-container .download-jetpack:before {
-    top: -2px;
-    margin-right: 13px;
-    width: 22px;
-    height: 22px;
+  top: -2px;
+  margin-right: 13px;
+  width: 22px;
+  height: 22px;
 }
 #message.jp-connect .jetpack-close-button-container {
-    right: 18px;
-    position: absolute;
-    top: 18px;
+  right: 18px;
+  position: absolute;
+  top: 18px;
 }
 #message.jp-connect .jetpack-close-button-container a:before {
-    color: #a7c979;
-    content: '\f158';
-    font: normal 20px/1'dashicons';
+  color: #a7c979;
+  content: '\f158';
+  font: normal 20px/1 'dashicons';
 }
 #message.jp-connect .jetpack-close-button-container a:hover {
-    opacity: 0.8;
+  opacity: 0.8;
 }
 #message.jp-connect .jetpack-close-button-container a:active {
-    opacity: 1;
-    outline: none;
+  opacity: 1;
+  outline: none;
 }
 #message.jp-connect .jetpack-text-container {
-    color: #dfffcc;
-    float: left;
-    margin-top: -4px;
+  color: #dfffcc;
+  float: left;
+  margin-top: -4px;
 }
 #message.jp-connect .jetpack-text-container p {
-    margin: 0;
-    padding: 0;
+  margin: 0;
+  padding: 0;
 }
 #message.jp-connect .jetpack-text-container p strong {
-    color: #fff;
-    display: block;
-    font-size: 170%;
-    font-weight: normal;
+  color: #fff;
+  display: block;
+  font-size: 170%;
+  font-weight: normal;
 }
+
 @media (max-width: 1130px) {
-    #message.jp-connect .jetpack-install-container {
-        float: none;
-    }
-    #message.jp-connect .jetpack-text-container {
-        float: none;
-        margin-top: 18px;
-        padding-right: 30px;
-    }
-    #message.jp-connect .jetpack-text-container p {
-        float: left;
-        font-size: 14px;
-        margin-right: 4px;
-    }
-    #message.jp-connect .jetpack-text-container p strong {
-        font-size: 14px;
-        font-weight: bold;
-    }
+  #message.jp-connect .jetpack-install-container {
+    float: none;
+  }
+  #message.jp-connect .jetpack-text-container {
+    float: none;
+    margin-top: 18px;
+    padding-right: 30px;
+  }
+  #message.jp-connect .jetpack-text-container p {
+    float: left;
+    font-size: 14px;
+    margin-right: 4px;
+  }
+  #message.jp-connect .jetpack-text-container p strong {
+    font-size: 14px;
+    font-weight: bold;
+  }
 }
 @media (max-width: 420px) {
+<<<<<<< HEAD
     #message.jp-connect .jetpack-install-container .download-jetpack {
         font-size: 16px;
         letter-spacing: -0.05em;
@@ -451,4 +505,16 @@
     #message.jp-connect .jetpack-install-container .download-jetpack:before {
         display: none;
     }
+=======
+  #message.jp-connect .jetpack-install-container .download-jetpack {
+    font-size: 16px;
+    letter-spacing: -0.05em;
+    padding: 9px 8px;
+    text-align: center;
+    width: 80%;
+  }
+  #message.jp-connect .jetpack-install-container .download-jetpack:before {
+    display: none;
+  }
+>>>>>>> 10c5303... Removed jsbeautify
 }
