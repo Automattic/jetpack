@@ -4103,7 +4103,11 @@ p {
 
 		$parsed_url = parse_url( $url );
 		$url = strtok( $url, '?' );
-		return "$url?{$_SERVER['QUERY_STRING']}&{$parsed_url['query']}";
+		$url = "$url?{$_SERVER['QUERY_STRING']}";
+		if ( ! empty( $parsed_url['query'] ) )
+			$url = "&{$parsed_url['query']}";
+		
+		return $url;
 	}
 
 	// Make sure the POSTed request is handled by the same action
