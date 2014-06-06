@@ -2929,6 +2929,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'post' :
 				$response[$key] = (object) array(
 					'ID'   => (int) $post->ID,
+					'title' => (string) get_the_title( $post->ID ),
 					'type' => (string) $post->post_type,
 					'link' => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID ),
 				);
