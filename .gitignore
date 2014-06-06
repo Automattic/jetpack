@@ -2,4 +2,3 @@
 /vendor/
 /.sass-cache/
 /node_modules
-*.css.map
