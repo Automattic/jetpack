@@ -4105,7 +4105,7 @@ p {
 		$url = strtok( $url, '?' );
 		$url = "$url?{$_SERVER['QUERY_STRING']}";
 		if ( ! empty( $parsed_url['query'] ) )
-			$url = "&{$parsed_url['query']}";
+			$url .= "&{$parsed_url['query']}";
 		
 		return $url;
 	}
