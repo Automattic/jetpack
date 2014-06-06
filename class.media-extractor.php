@@ -87,7 +87,7 @@ class Jetpack_Media_Meta_Extractor {
 		// Embedded media objects will have already been converted to shortcodes by pre_kses hooks on save.
 
  		if ( self::IMAGES & $what_to_extract ) {
-			$images = Jetpack_Media_Meta_Extractor::extract_images_from_content( $stripped_content );
+			$images = Jetpack_Media_Meta_Extractor::extract_images_from_content( $stripped_content, array() );
 			$extracted = array_merge( $extracted, $images );
 		}
 
