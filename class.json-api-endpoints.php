@@ -1310,6 +1310,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
  		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ) ) )
 			return true;
 
+		if ( 0 === strpos( $key, '_wpas_' ) )
+			return true;
+
  		return false;
  	}
 
