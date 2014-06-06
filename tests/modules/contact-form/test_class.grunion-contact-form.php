@@ -231,4 +231,19 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$form = new Grunion_Contact_Form( array( 'to' => 'mellow@hello.com', 'subject' => 'Hello there!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
 		$form->process_submission();
 	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form::process_submission
+	 */
+	public function test_grunion_delete_old_spam_deletes_a_post_marked_as_spam() {
+		$post_id = $this->factory->post->create( array(
+			'post_type' => 'feedback',
+			'post_status' => 'spam',
+			'post_date_gmt' => '1987-01-01 12:00:00'
+		) );
+
+		grunion_delete_old_spam();
+		$this->assertEquals( null, get_post( $post_id ) );
+	}
 } // end class
