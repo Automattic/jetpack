@@ -111,9 +111,14 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$extra_fields = get_post_meta( $submission->ID, '_feedback_extra_fields', true );
 
 		$this->assertEquals( 3, count( $extra_fields ), 'There should be exactly three extra fields when one of the fields is name, and the others are an extra dropdown, radio button field and text field' );
-		$this->assertEquals( $extra_fields['Dropdown'], 'First option', 'When the first option of a dropdown field with label Dropdown is selected, there should be metadata with that key and value' );
-		$this->assertEquals( $extra_fields['Radio'], 'Second option', 'When the first option of a radio button field with label Radio is selected, there should be metadata with that key and value' );
-		$this->assertEquals( $extra_fields['Text'], 'Texty text', 'When the text field with label Text is filled with the text \'Texty text\', there should be metadata with that key and value' );
+		// Metadata starts counting from 5, because post content has:
+		// 1_Name
+		// 2_Dropdown
+		// 3_Radio
+		// 4_Text
+		$this->assertEquals( $extra_fields['5_Dropdown'], 'First option', 'When the first option of a dropdown field with label Dropdown is selected, there should be metadata with that key and value' );
+		$this->assertEquals( $extra_fields['6_Radio'], 'Second option', 'When the first option of a radio button field with label Radio is selected, there should be metadata with that key and value' );
+		$this->assertEquals( $extra_fields['7_Text'], 'Texty text', 'When the text field with label Text is filled with the text \'Texty text\', there should be metadata with that key and value' );
 	}
 
 	/**
@@ -243,10 +248,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		// Default metadata should be saved
 		$submission = $feedback[0];
 
-		$this->assertContains( '[Name] =&gt; John Doe', $submission->post_content, 'Post content did not contain the name label and/or value' );
-		$this->assertContains( '[Dropdown] =&gt; First option', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
-		$this->assertContains( '[Radio] =&gt; Second option', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
-		$this->assertContains( '[Text] =&gt; Texty text', $submission->post_content, 'Post content did not contain the text field label and/or value' );
+		$this->assertContains( '[1_Name] =&gt; John Doe', $submission->post_content, 'Post content did not contain the name label and/or value' );
+		$this->assertContains( '[2_Dropdown] =&gt; First option', $submission->post_content, 'Post content did not contain the dropdown label and/or value' );
+		$this->assertContains( '[3_Radio] =&gt; Second option', $submission->post_content, 'Post content did not contain the radio button label and/or value' );
+		$this->assertContains( '[4_Text] =&gt; Texty text', $submission->post_content, 'Post content did not contain the text field label and/or value' );
 	}
 
 	/**
