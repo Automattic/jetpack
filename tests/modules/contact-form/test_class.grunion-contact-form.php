@@ -123,8 +123,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * Tests that the submission will store the subject when specified
 	 */
 	public function test_process_submission_will_store_subject_when_specified() {
-		// Initialize a form with name, dropdown and radiobutton (first, second
-		// and third option), text field
 		$form = new Grunion_Contact_Form( array( 'subject' => 'I\'m sorry, but the party\'s over') ); // Default form
 		$result = $form->process_submission();
 
@@ -254,8 +252,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			return new WP_Error( 'spam', 'Message is spam' );
 		}, 11 ); // Run after akismet filter
 
-		// Initialize a form with name, dropdown and radiobutton (first, second
-		// and third option), text field
 		$form = new Grunion_Contact_Form( array() );
 		$result = $form->process_submission();
 
@@ -276,8 +272,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$this->assertTrue( false ); // Fail if trying to send
 		} );
 
-		// Initialize a form with name, dropdown and radiobutton (first, second
-		// and third option), text field
 		$form = new Grunion_Contact_Form( array( 'to' => 'mellow@hello.com' ) );
 		$result = $form->process_submission();
 	}
@@ -299,8 +293,6 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$this->assertContains( '***SPAM***', $args['subject'] );
 		} );
 
-		// Initialize a form with name, dropdown and radiobutton (first, second
-		// and third option), text field
 		$form = new Grunion_Contact_Form( array( 'to' => 'mellow@hello.com' ) );
 		$result = $form->process_submission();
 	}
