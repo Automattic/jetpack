@@ -141,8 +141,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->add_field_values( array(
 			'name'     => 'John Doe',
 			'dropdown' => 'First option',
-			'radio'    =>'Second option',
-			'text'     =>'Texty text'
+			'radio'    => 'Second option',
+			'text'     => 'Texty text'
 		) );
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
@@ -174,8 +174,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->add_field_values( array(
 			'name'     => 'John Doe',
 			'dropdown' => 'First option',
-			'radio'    =>'Second option',
-			'text'     =>'Texty text'
+			'radio'    => 'Second option',
+			'text'     => 'Texty text'
 		) );
 
 		// Initialize a form with name, dropdown and radiobutton (first, second
@@ -212,8 +212,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->add_field_values( array(
 			'name'     => 'John Doe',
 			'dropdown' => 'First option',
-			'radio'    =>'Second option',
-			'text'     =>'Texty text'
+			'radio'    => 'Second option',
+			'text'     => 'Texty text'
 		) );
 
 		add_filter( 'wp_mail', function( $args ) {
@@ -243,8 +243,8 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 */
 	public function test_grunion_delete_old_spam_deletes_a_post_marked_as_spam() {
 		$post_id = $this->factory->post->create( array(
-			'post_type' => 'feedback',
-			'post_status' => 'spam',
+			'post_type'     => 'feedback',
+			'post_status'   => 'spam',
 			'post_date_gmt' => '1987-01-01 12:00:00'
 		) );
 
