@@ -310,7 +310,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @author tonykova
 	 * @covers grunion_delete_old_spam
 	 */
-	public function test_grunion_delete_old_spam_deletes_a_post_marked_as_spam() {
+	public function test_grunion_delete_old_spam_deletes_an_old_post_marked_as_spam() {
 		$post_id = $this->factory->post->create( array(
 			'post_type'     => 'feedback',
 			'post_status'   => 'spam',
@@ -318,6 +318,20 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		) );
 
 		grunion_delete_old_spam();
-		$this->assertEquals( null, get_post( $post_id ) );
+		$this->assertEquals( null, get_post( $post_id ), 'An old spam feedback should be deleted' );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers grunion_delete_old_spam
+	 */
+	public function test_grunion_delete_old_spam_does_not_delete_a_new_post_marked_as_spam() {
+		$post_id = $this->factory->post->create( array(
+			'post_type'     => 'feedback',
+			'post_status'   => 'spam'
+		) );
+
+		grunion_delete_old_spam();
+		$this->assertEquals( $post_id, get_post( $post_id )->ID, 'A new spam feedback should be left intact when deleting old spam' );
 	}
 } // end class
