@@ -203,6 +203,10 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->assertEquals( $expected, $email_body );
 	}
 
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form::process_submission
+	 */
 	public function test_process_submission_sends_correct_email() {
 		// Fill field values
 		$this->add_field_values( array(
@@ -221,6 +225,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 			$expected .= 'Radio: Second option' . PHP_EOL;
 			$expected .= 'Text: Texty text';
 
+			// Divides email by the first empty line
 			$email_body = explode( PHP_EOL . PHP_EOL, $args['message'] )[0];
 
 			$this->assertEquals( $expected, $email_body );
@@ -234,7 +239,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 	/**
 	 * @author tonykova
-	 * @covers Grunion_Contact_Form::process_submission
+	 * @covers grunion_delete_old_spam
 	 */
 	public function test_grunion_delete_old_spam_deletes_a_post_marked_as_spam() {
 		$post_id = $this->factory->post->create( array(
