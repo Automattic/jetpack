@@ -41,6 +41,14 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$this->post = $post;
 	}
 
+	public function tearDown() {
+		parent::tearDown();
+
+		remove_all_filters( 'wp_mail' );
+		remove_all_filters( 'grunion_still_email_spam' );
+		remove_all_filters( 'contact_form_is_spam' );
+	}
+
 	private function add_field_values( $values ) {
 		foreach( $values as $key => $val ) {
 			$_POST['g' . $this->post->ID . '-' . $key] = $val;
@@ -236,6 +244,67 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		$form = new Grunion_Contact_Form( array( 'to' => 'mellow@hello.com', 'subject' => 'Hello there!' ), "[contact-field label='Name' type='name' required='1'/][contact-field label='Dropdown' type='select' options='First option,Second option,Third option'/][contact-field label='Radio' type='radio' options='First option,Second option,Third option'/][contact-field label='Text' type='text'/]" );
 		$form->process_submission();
 	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form::process_submission
+	 */
+	public function test_process_submission_fails_if_spam_marked_with_WP_Error() {
+		add_filter( 'contact_form_is_spam', function() {
+			return new WP_Error( 'spam', 'Message is spam' );
+		}, 11 ); // Run after akismet filter
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field
+		$form = new Grunion_Contact_Form( array() );
+		$result = $form->process_submission();
+
+		$this->assertInstanceOf( 'WP_Error', $result, 'When $is_spam contains a WP_Error, the result of process_submission should be a WP_Error' );
+		$this->assertEquals( 'Message is spam', $result->get_error_message() );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form::process_submission
+	 */
+	public function test_process_submission_wont_send_spam_if_marked_as_spam_with_true() {
+		add_filter( 'contact_form_is_spam', function() {
+			return true;
+		}, 11 ); // Run after akismet filter
+
+		add_filter( 'wp_mail', function( $args ) {
+			$this->assertTrue( false ); // Fail if trying to send
+		} );
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field
+		$form = new Grunion_Contact_Form( array( 'to' => 'mellow@hello.com' ) );
+		$result = $form->process_submission();
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form::process_submission
+	 */
+	public function test_process_submission_labels_message_as_spam_in_subject_if_marked_as_spam_with_true_and_sending_spam() {
+		add_filter( 'contact_form_is_spam', function() {
+			return true;
+		}, 11 ); // Run after akismet filter
+
+		add_filter( 'grunion_still_email_spam', function() {
+			return true;
+		} );
+
+		add_filter( 'wp_mail', function( $args ) {
+			$this->assertContains( '***SPAM***', $args['subject'] );
+		} );
+
+		// Initialize a form with name, dropdown and radiobutton (first, second
+		// and third option), text field
+		$form = new Grunion_Contact_Form( array( 'to' => 'mellow@hello.com' ) );
+		$result = $form->process_submission();
+	}
+
 
 	/**
 	 * @author tonykova
