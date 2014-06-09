@@ -2,7 +2,7 @@
 
 module.exports = function(grunt) {
 	var path = require( 'path' ),
-	    cfg = {
+		cfg = {
 		pkg: grunt.file.readJSON('package.json'),
 		shell: {
 			checkHooks: {
@@ -10,9 +10,6 @@ module.exports = function(grunt) {
 				options: {
 					stdout: true
 				}
-			},
-			buildSass: {
-				command: 'php tools/pre-commit-build-scss.php'
 			}
 		},
 		phplint: {
@@ -34,13 +31,58 @@ module.exports = function(grunt) {
 				'modules/**/*.js'
 			]
 		},
+		sass: {
+			expanded: {
+				options: {
+					style: 'expanded',
+					banner: '/*!\n'+
+							'* Do not modify this file directly.  It is compiled Sass code.\n'+
+							'* @see: jetpack/_inc/jetpack.scss\n'+
+							'*/'
+				},
+				files: [{
+					expand: true,
+					cwd: '_inc',
+					src: ['*.scss'],
+					dest: '_inc',
+					ext: '.css'
+				}]
+			},
+			minified: {
+				options: {
+					style: 'compressed',
+					sourcemap: true
+				},
+				files: [{
+					expand: true,
+					cwd: '_inc',
+					src: ['*.scss'],
+					dest: '_inc',
+					ext: '.min.css'
+				}]
+			}
+		},
+		autoprefixer: {
+			options: {
+				map: true
+			},
+			global: {
+			options: {
+				// Target-specific options go here.
+				// browser-specific info: https://github.com/ai/autoprefixer#browsers
+				// DEFAULT: browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1']
+				browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1', 'ie 8', 'ie 9']
+			},
+				src: '_inc/*.css'
+			},
+		},
 		watch: {
 			sass: {
 				files: [
 					'_inc/*.scss',
 					'_inc/**/*.scss'
 				],
-				tasks: ['shell:buildSass'],
+				tasks: ['sass', 'autoprefixer'],
 				options: {
 					spawn: false
 				}
@@ -112,6 +154,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-watch');
 	grunt.loadNpmTasks('grunt-wp-i18n');
+	grunt.loadNpmTasks('grunt-contrib-sass');
+	grunt.loadNpmTasks('grunt-autoprefixer');
 
 	grunt.registerTask('default', [
 		'shell',
