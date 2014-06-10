@@ -148,8 +148,8 @@ class Jetpack_Media_Summary {
 			if ( !empty( $extract['has']['gallery'] ) || ! empty( $extract['shortcode']['gallery']['count'] ) ) {
 				//... Then we prioritize galleries first (multiple images returned)
 				$return['type']   = 'gallery';
-				$return['images'] = $extract['image'];
-				if ( ! empty( $return['images'] ) ) {
+				if ( isset( $extract['image'] ) || ! empty( $extract['image'] ) ) {
+				$return['images'] = $extract['image'];	
 					foreach ( $return['images'] as $image ) {
 						$return['secure']['images'][] = array( 'url' => self::ssl_img( $image['url'] ) );
 						$return['count']['image']++;
