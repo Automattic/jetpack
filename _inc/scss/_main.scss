@@ -454,9 +454,9 @@ html {
 	margin: 0 auto em(15);
 	overflow: hidden;
 }
-input[type="text"].module-search {
+#jetpack-search {
 	width: 100%;
-	padding: 11px 0 11px 16px;
+	padding: 11px 16px 11px 16px;
 	color: #5c6671;
 	border: 1px solid #c9ced0;
 	border-right-width: 2px;
