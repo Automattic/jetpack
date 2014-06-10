@@ -60,7 +60,7 @@ class Grunion_Contact_Form_Plugin {
 			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
 
 		// Akismet to the rescue
-		if ( function_exists( 'akismet_http_post' ) ) {
+		if ( defined( 'AKISMET_VERSION' ) || function_exists( 'akismet_http_post' ) ) {
 			add_filter( 'contact_form_is_spam', array( $this, 'is_spam_akismet' ), 10 );
 			add_action( 'contact_form_akismet', array( $this, 'akismet_submit' ), 10, 2 );
 		}
@@ -312,12 +312,17 @@ class Grunion_Contact_Form_Plugin {
 	function is_spam_akismet( $form ) {
 		global $akismet_api_host, $akismet_api_port;
 
-		if ( !function_exists( 'akismet_http_post' ) )
+		if ( !function_exists( 'akismet_http_post' ) && !defined( 'AKISMET_VERSION' ) )
 			return false;
 
 		$query_string = http_build_query( $form );
 
-		$response = akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
+		if ( method_exists( 'Akismet', 'http_post' ) ) {
+		    $response = Akismet::http_post( $query_string, 'comment-check' );
+		} else {
+		    $response = akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
+		}
+		
 		$result = false;
 		
 		if ( isset( $response[0]['x-akismet-pro-tip'] ) && 'discard' === trim( $response[0]['x-akismet-pro-tip'] ) && get_option( 'akismet_strictness' ) === '1' )
@@ -343,8 +348,12 @@ class Grunion_Contact_Form_Plugin {
 		$query_string = '';	
 		if ( is_array( $form ) )
 			$query_string = http_build_query( $form );
-
-		$response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
+		if ( method_exists( 'Akismet', 'http_post' ) ) {
+		    $response = Akismet::http_post( $query_string, "submit-{$as}" );
+		} else {
+		    $response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
+		}
+		
 		return trim( $response[1] );
 	}
 
