@@ -244,22 +244,18 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends WPCOM_JSON_API_Endpoint
 
 	protected $network_wide = false;
 
-	protected function success_response() {
-		$plugins = get_plugins();
+	protected static function format_plugin( $plugin_file, $plugin_data ) {
+		$plugin = array();
+		$plugin['id']     = $plugin_file;
+		$plugin['active'] = Jetpack::is_plugin_active( $plugin_file );
+		return array_merge( $plugin, $plugin_data );
+	}
 
-		$response = array();
-
-		$response[ 'found' ]   = count( $plugins );
-
-		foreach ( $plugins as $plugin_file => $plugin_data ) {
-			if ( Jetpack::is_plugin_active( $plugin_file ) ) {
-				$response['plugins_active'][$plugin_file] = $plugin_data;
-			} else {
-				$response['plugins_inactive'][$plugin_file] = $plugin_data;
-			}
-		}
-
-		return $response;
+	protected static function get_plugin( $plugin_file ) {
+		$installed_plugins = get_plugins();
+		if ( ! isset( $installed_plugins[ $plugin_file] ) )
+			return new WP_Error( 'unknown_plugin', __( 'Plugin not found' ) );
+		return self::format_plugin( $plugin_file, $installed_plugins[ $plugin_file] );
 	}
 
 	protected function validate_call( $_blog_id ) {
@@ -325,7 +321,8 @@ class Jetpack_JSON_API_Activate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins
 			return new WP_Error( 'activation_error', $result->get_error_messages(), 404 );
 		}
 
-		return $this->success_response();
+		$result['plugin'] = self::get_plugin( $plugin_file );
+		return $result;
 	}
 
 }
@@ -344,9 +341,7 @@ new Jetpack_JSON_API_Activate_Plugin_Endpoint( array(
 		'network_wide' => '(bool) Do action network wide (default value: false)'
 	),
 	'response_format' => array(
-		'found'           => '(int) The plugin.',
-		'plugins_active' => '(array) An array of theme objects.',
-		'plugins_inactive' => '(array) An array of theme objects.'
+		'plugin' => '(object) The plugin object.',
 	),
 	'example_request_data' => array(
 		'headers' => array(
@@ -395,7 +390,8 @@ class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugi
 			return new WP_Error( 'deactivation_error', $result->get_error_messages(), 404 );
 		}
 
-		return $this->success_response();
+		$result['plugin'] = self::get_plugin( $plugin_file );
+		return $result;
 	}
 
 }
@@ -414,9 +410,7 @@ new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
 		'network_wide' => '(bool) Do action network wide (default value: false)'
 	),
 	'response_format' => array(
-		'found'           => '(int) The plugin.',
-		'plugins_active' => '(array) An array of theme objects.',
-		'plugins_inactive' => '(array) An array of theme objects.'
+		'plugin' => '(object) The plugin object.',
 	),
 	'example_request_data' => array(
 		'headers' => array(
@@ -438,7 +432,17 @@ class Jetpack_JSON_API_List_Plugins_Endpoint extends Jetpack_JSON_API_Plugins_En
 			return $error;
 		}
 
-		return $this->success_response();
+		$installed_plugins = get_plugins();
+
+		$response = array();
+
+		$response[ 'found' ] = count( $plugins );
+
+		foreach ( $installed_plugins as $plugin_file => $plugin_data ) {
+			$response['plugins'][] = self::format_plugin( $plugin_file, $plugin_data );
+		}
+
+		return $response;
 	}
 }
 
@@ -453,8 +457,7 @@ new Jetpack_JSON_API_List_Plugins_Endpoint( array(
 	),
 	'response_format' => array(
 		'found'  => '(int) The total number of plugins found.',
-		'plugins_active' => '(array) An array of plugin objects.',
-		'plugins_inactive' => '(array) An array of plugin objects.'
+		'plugins' => '(array) An array of plugin objects.',
 	),
 	'example_request_data' => array(
 		'headers' => array(
