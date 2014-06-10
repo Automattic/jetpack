@@ -126,7 +126,7 @@ CONTAINER;
 				$permalink = get_permalink( $post->ID );
 
 			$rating    = intval( $rating );
-			$unique_id = wp_strip_all_tags( $unique_id );
+			$unique_id = preg_replace( '/[^_a-z0-9]/i', '', wp_strip_all_tags( $unique_id ) ); 
 			$item_id   = wp_strip_all_tags( $item_id );
 			$item_id   = preg_replace( '/[^_a-z0-9]/i', '', $item_id );
 
@@ -139,6 +139,10 @@ CONTAINER;
 			) );
 
 			$item_id = esc_js( $item_id );
+			if ( is_ssl() )
+				$rating_js_file = "https://polldaddy.com/rating/rating.js";
+			else
+				$rating_js_file = "http://i0.poll.fm/js/rating/rating.js";
 
 			if ( $inline ) {
 				return <<<SCRIPT
@@ -146,7 +150,7 @@ CONTAINER;
 <script type="text/javascript" charset="UTF-8"><!--//--><![CDATA[//><!--
 PDRTJS_settings_{$rating}{$item_id}={$settings};
 //--><!]]></script>
-<script type="text/javascript" charset="UTF-8" src="http://i0.poll.fm/js/rating/rating.js"></script>
+<script type="text/javascript" charset="UTF-8" src="{$rating_js_file}"></script>
 SCRIPT;
 			}
 			else {
@@ -372,12 +376,17 @@ CONTAINER;
 		$script = '';
 
 		if ( is_array( self::$scripts ) ) {
+			if ( is_ssl() )
+				$rating_js_file = "https://polldaddy.com/js/rating/rating.js";
+			else
+				$rating_js_file = "http://i0.poll.fm/js/rating/rating.js";
+
 			if ( isset( self::$scripts['rating'] ) ) {
 				$script = "<script type='text/javascript' charset='UTF-8' id='polldaddyRatings'><!--//--><![CDATA[//><!--\n";
 				foreach( self::$scripts['rating'] as $rating ) {
 					$script .= "PDRTJS_settings_{$rating['id']}{$rating['item_id']}={$rating['settings']}; if ( typeof PDRTJS_RATING !== 'undefined' ){if ( typeof PDRTJS_{$rating['id']}{$rating['item_id']} == 'undefined' ){PDRTJS_{$rating['id']}{$rating['item_id']} = new PDRTJS_RATING( PDRTJS_settings_{$rating['id']}{$rating['item_id']} );}}";
 				}
-				$script .= "\n//--><!]]></script><script type='text/javascript' charset='UTF-8' src='http://i0.poll.fm/js/rating/rating.js'></script>";
+				$script .= "\n//--><!]]></script><script type='text/javascript' charset='UTF-8' src='{$rating_js_file}'></script>";
 
 			}
 
