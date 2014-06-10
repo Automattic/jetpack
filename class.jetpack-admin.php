@@ -371,7 +371,7 @@ class Jetpack_Admin {
 
 			<!-- form with search and filters -->
 			<form id="module-search">
-				<input type="text" id="jetpack-search" class="module-search" placeholder="<?php esc_attr_e( 'Search the Jetpack features', 'jetpack' ); ?>" /><label for="jetpack-search"><?php esc_html_e( 'Search', 'jetpack' ); ?></label>
+				<input type="search" id="jetpack-search" class="module-search" placeholder="<?php esc_attr_e( 'Search the Jetpack features', 'jetpack' ); ?>" /><label for="jetpack-search"><?php esc_html_e( 'Search', 'jetpack' ); ?></label>
 			</form>
 
 			<div class="jp-filter" id="jp-filters">

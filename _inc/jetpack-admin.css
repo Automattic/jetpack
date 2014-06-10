@@ -1009,6 +1009,7 @@ html {
 	overflow: hidden;
 }
 
+<<<<<<< HEAD
 input[type="text"].module-search {
 	width: 100%;
 	padding: 11px 0 11px 16px;
@@ -1079,6 +1080,63 @@ input[type="text"].module-search + label:after {
 	font-size: 1.71429em;
 	font-weight: normal;
 	font-family: 'genericons';
+=======
+#jetpack-search {
+  width: 100%;
+  padding: 11px 16px 11px 16px;
+  color: #5c6671;
+  border: 1px solid #c9ced0;
+  border-right-width: 2px;
+  background: #fff;
+  border-radius: 3px;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+}
+#jetpack-search:focus {
+  color: #5c6671;
+  outline: none;
+}
+#jetpack-search:focus + label {
+  background: transparent;
+  opacity: .3;
+}
+#jetpack-search::-webkit-input-placeholder {
+  color: #a8acae;
+}
+#jetpack-search :-moz-placeholder {
+  color: #a8acae;
+}
+#jetpack-search::-moz-placeholder {
+  color: #a8acae;
+}
+#jetpack-search:-ms-input-placeholder {
+  color: #a8acae;
+}
+#jetpack-search + label {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+  width: 48px;
+  color: #abafb1;
+  text-indent: -9999px;
+  pointer-events: none;
+  border-radius: 3px;
+  -webkit-background-clip: padding-box;
+  background-clip: padding-box;
+  -webkit-transition: all 0.2s ease-in-out;
+  transition: all 0.2s ease-in-out;
+}
+#jetpack-search + label:after {
+  content: '\f400';
+  position: absolute;
+  right: 11px;
+  text-align: right;
+  top: 4px;
+  font-size: 1.71429em;
+  font-weight: normal;
+  font-family: "genericons";
+>>>>>>> 79f9dba... Mirror functionality from settings page
 }
 
 .jp-filter {
