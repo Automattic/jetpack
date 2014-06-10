@@ -14,12 +14,11 @@ function rawurlencode_deep( $value ) {
 }
 endif;
 
-if ( !function_exists( 'get_youtube_id' ) ) :
 /**
 * @param $url Can be just the $url or the whole $atts array
 * @return bool|mixed The Youtube video ID
 */
-function get_youtube_id( $url ) {
+function jetpack_get_youtube_id( $url ) {
 	// Do we have an $atts array?  Get first att
 	if ( is_array( $url ) )
 		$url = $url[0];
@@ -44,7 +43,6 @@ function get_youtube_id( $url ) {
 
 	return $id;
 }
-endif;
 
 if ( !function_exists( 'youtube_sanitize_url' ) ) :
 /**
