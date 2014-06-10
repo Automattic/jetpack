@@ -140,20 +140,13 @@ endif;
  */
 
 /**
- * Same as get_youtube_id(), but with the prefix that function should've had.
- */
-function jetpack_shortcode_get_youtube_id( $url ) {
-	return get_youtube_id( $url );
-}
-
-/**
  * Converts a YouTube URL into an embedded YouTube video.
  */
 function youtube_id( $url ) {
 	if ( apply_filters( 'jetpack_bail_on_shortcode', false, 'youtube' ) )
 		return '';
 
-	if ( ! $id = get_youtube_id( $url ) )
+	if ( ! $id = jetpack_get_youtube_id( $url ) )
 		return '<!--YouTube Error: bad URL entered-->';
 
 	$url = youtube_sanitize_url( $url );

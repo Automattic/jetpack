@@ -104,7 +104,7 @@ class Jetpack_Media_Summary {
 						$return['video']  = 'http://' .  $embed;
 						$return['secure']['video'] = self::https( $return['video'] );
 						if ( strstr( $embed, 'youtube' ) ) {
-							$return['image'] = self::get_video_poster( 'youtube', get_youtube_id( $return['video'] ) );
+							$return['image'] = self::get_video_poster( 'youtube', jetpack_get_youtube_id( $return['video'] ) );
 							$return['secure']['image'] = self::https( $return['image'] );
 						} else if ( strstr( $embed, 'vimeo' ) ) {
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );
