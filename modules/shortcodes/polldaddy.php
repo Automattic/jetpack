@@ -140,7 +140,7 @@ CONTAINER;
 
 			$item_id = esc_js( $item_id );
 			if ( is_ssl() )
-				$rating_js_file = "https://polldaddy.com/rating/rating.js";
+				$rating_js_file = "https://polldaddy.com/js/rating/rating.js";
 			else
 				$rating_js_file = "http://i0.poll.fm/js/rating/rating.js";
 
