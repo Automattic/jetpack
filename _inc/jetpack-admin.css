@@ -746,9 +746,9 @@ html {
   overflow: hidden;
 }
 
-input[type="text"].module-search {
+#jetpack-search {
   width: 100%;
-  padding: 11px 0 11px 16px;
+  padding: 11px 16px 11px 16px;
   color: #5c6671;
   border: 1px solid #c9ced0;
   border-right-width: 2px;
@@ -757,27 +757,27 @@ input[type="text"].module-search {
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
-input[type="text"].module-search:focus {
+#jetpack-search:focus {
   color: #5c6671;
   outline: none;
 }
-input[type="text"].module-search:focus + label {
+#jetpack-search:focus + label {
   background: transparent;
   opacity: .3;
 }
-input[type="text"].module-search::-webkit-input-placeholder {
+#jetpack-search::-webkit-input-placeholder {
   color: #a8acae;
 }
-input[type="text"].module-search :-moz-placeholder {
+#jetpack-search :-moz-placeholder {
   color: #a8acae;
 }
-input[type="text"].module-search::-moz-placeholder {
+#jetpack-search::-moz-placeholder {
   color: #a8acae;
 }
-input[type="text"].module-search:-ms-input-placeholder {
+#jetpack-search:-ms-input-placeholder {
   color: #a8acae;
 }
-input[type="text"].module-search + label {
+#jetpack-search + label {
   position: absolute;
   top: 1px;
   right: 1px;
@@ -792,7 +792,7 @@ input[type="text"].module-search + label {
   -webkit-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
 }
-input[type="text"].module-search + label:after {
+#jetpack-search + label:after {
   content: '\f400';
   position: absolute;
   right: 11px;
