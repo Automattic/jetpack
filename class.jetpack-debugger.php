@@ -7,7 +7,7 @@ class Jetpack_Debugger {
 			$response = wp_remote_request( "http://jetpack.me/is-support-open" );
 			$body = wp_remote_retrieve_body( $response );
 			$json = json_decode( $body );
-			return ( ( bool )$json->is_support_open );
+			return ( ( bool ) $json->is_support_open );
 		}
 		catch ( Exception $e ) {
 			return true;
@@ -84,7 +84,6 @@ class Jetpack_Debugger {
 
 		$self_xml_rpc_url = home_url( 'xmlrpc.php' );
 
-		$args = array();
 		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
 
 		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
