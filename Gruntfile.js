@@ -58,7 +58,7 @@ module.exports = function(grunt) {
 					'_inc/*.scss',
 					'_inc/**/*.scss'
 				],
-				tasks: ['sass', 'autoprefixer' ],
+				tasks: ['sass', 'autoprefixer', 'cssjanus:core', 'cssjanus:min' ],
 				options: {
 					spawn: false
 				}
