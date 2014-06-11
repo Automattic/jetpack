@@ -8,7 +8,7 @@ class Jetpack_Heartbeat {
 	 * @since 2.3.3
 	 * @var Jetpack_Heartbeat
 	 */
-	static $instance = false;
+	private static $instance = false;
 
 	private $cron_name = 'jetpack_v2_heartbeat';
 
