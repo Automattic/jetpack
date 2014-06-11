@@ -2,7 +2,10 @@
 
 class Jetpack_Admin {
 
-	static $instance = null;
+	/**
+	 * @var Jetpack_Admin
+	 **/
+	private static $instance = null;
 
 	var $jetpack;
 
