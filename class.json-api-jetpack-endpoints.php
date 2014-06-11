@@ -436,7 +436,7 @@ class Jetpack_JSON_API_List_Plugins_Endpoint extends Jetpack_JSON_API_Plugins_En
 
 		$response = array();
 
-		$response[ 'found' ] = count( $plugins );
+		$response[ 'found' ] = count( $installed_plugins );
 
 		foreach ( $installed_plugins as $plugin_file => $plugin_data ) {
 			$response['plugins'][] = self::format_plugin( $plugin_file, $plugin_data );
@@ -465,4 +465,199 @@ new Jetpack_JSON_API_List_Plugins_Endpoint( array(
 		),
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/plugins'
+) );
+
+// Jetpack Modules
+
+/**
+ * Base class for working with Jetpack Modules.
+ */
+abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends WPCOM_JSON_API_Endpoint {
+
+	protected $network_wide = false;
+
+	protected static function format_module( $module_slug ) {
+		$module_data = Jetpack::get_module( $module_slug );
+		$module = array();
+		$module['id']     = $module_slug;
+		$module['active'] = Jetpack::is_module_active( $module_slug );
+
+		return array_merge( $module, $module_data );
+	}
+
+	protected static function get_module( $module_slug ) {
+		if ( ! Jetpack::is_module( $module_slug ) )
+			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found'. $module_slug . serialize($modules )) );
+		return self::format_module( $module_slug );
+	}
+
+	protected function validate_call( $_blog_id ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
+		if ( is_wp_error( $blog_id ) )
+			return $blog_id;
+		if ( ! current_user_can( 'jetpack_manage_modules' ) )
+			return new WP_Error( 'unauthorized', 'This user is not authorized to manage modules on this blog', 403 );
+	}
+
+}
+
+
+class Jetpack_JSON_API_Activate_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
+	// POST  /sites/%s/jetpack/modules/%s/activate => activate_module
+	public function callback( $path = '', $blog_id = 0, $module_slug = '' ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id ) ) ) {
+			return $error;
+		}
+		if ( ! Jetpack::is_module( $module_slug ) ) {
+			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found' . $module_slug . serialize( $modules ) ) );
+		}
+		return $this->activate_module( $module_slug );
+	}
+
+	protected function activate_module( $module_slug ) {
+
+		if ( Jetpack::is_module_active( $module_slug ) ) {
+			return new WP_Error( 'jetpack_module_already_active', 'The Module is already active', 404 );
+		}
+
+		$result = Jetpack::activate_module( $module_slug, false, false );
+
+		// TODO return WP_Error instead of bool in order to forward the error message.
+		if ( false === $result ) {
+			return new WP_Error( 'activation_error', 'There was an error while activating the module ' . $module_slug, 404 );
+		}
+
+		if ( ! Jetpack::is_module_active( $module_slug ) ) {
+			return new WP_Error( 'activation_error', $result->get_error_messages(), 404 );
+		}
+
+		$response['module'] = self::get_module( $module_slug );
+		return $response;
+	}
+
+}
+
+new Jetpack_JSON_API_Activate_Module_Endpoint( array(
+	'description'     => 'Activate a Jetpack Module on your Jetpack Site',
+	'group'           => 'manage',
+	'stat'            => 'jetpack-modules:1:activate',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/jetpack/modules/%s/activate/',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+		'$module' => '(string) The module name',
+	),
+	'response_format' => array(
+		'module' => '(object) The module object.',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'module' => 'stats'
+		)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/jetpack/modules/stats/activate'
+) );
+
+class Jetpack_JSON_API_Deactivate_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
+	// POST  /sites/%s/jetpack/modules/%s/deactivate => deactivate_module
+	public function callback( $path = '', $blog_id = 0, $module_slug = '' ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id ) ) ) {
+			return $error;
+		}
+		if ( ! Jetpack::is_module( $module_slug ) ) {
+			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found' . $module_slug . serialize( $modules ) ) );
+		}
+		return $this->deactivate_module( $module_slug );
+	}
+
+	protected function deactivate_module( $module_slug ) {
+
+		if ( ! Jetpack::is_module_active( $module_slug ) ) {
+			return new WP_Error( 'jetpack_module_already_deactivated', 'The Jetpack Module is already deactivated', 404 );
+		}
+
+		$result = Jetpack::deactivate_module( $module_slug );
+
+		if ( false === $result ) {
+			return new WP_Error( 'deactivation_error', 'There was an error while deactivating the module ' . $module_slug, 404 );
+		}
+
+		if ( Jetpack::is_module_active( $module_slug ) ) {
+			return new WP_Error( 'deactivation_error', 'There was an error while deactivating the module ' . $module_slug, 404 );
+		}
+
+		$response['module'] = self::get_module( $module_slug );
+		return $response;
+	}
+
+}
+
+new Jetpack_JSON_API_Deactivate_Module_Endpoint( array(
+	'description'     => 'Deactivate a Jetpack Module on Site',
+	'group'           => 'manage',
+	'stat'            => 'jetpack-modules:1:deactivate',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/jetpack/modules/%s/deactivate/',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+		'$module' => '(string) The module name',
+	),
+	'response_format' => array(
+		'module' => '(object) The module object.',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'module' => 'stats'
+		)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/jetpack/modules/stats/deactivate'
+) );
+
+class Jetpack_JSON_API_List_Modules_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
+
+	// /sites/%s/jetpack/modules
+	public function callback( $path = '', $_blog_id = 0 ) {
+
+		if ( is_wp_error( $error = $this->validate_call( $_blog_id ) ) ) {
+			return $error;
+		}
+
+		$modules = Jetpack::get_available_modules();
+
+		$response = array();
+		$response[ 'found' ] = count( $modules );
+
+		foreach ( $modules as $module_slug ) {
+			$response['modules'][] = self::format_module( $module_slug );
+		}
+
+		return $response;
+	}
+}
+
+new Jetpack_JSON_API_List_Modules_Endpoint( array(
+	'description'     => 'Get the list of available Jetpack modules on your site',
+	'group'           => 'manage',
+	'stat'            => 'jetpack-modules:1',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/jetpack/modules',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'found'  => '(int) The total number of modules found.',
+		'modules' => '(array) An array of module objects.',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/jetpack/modules'
 ) );
