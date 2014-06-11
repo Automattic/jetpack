@@ -623,6 +623,9 @@ html {
 		font-size: 11px;
 	}
 }
+.rtl .paid:before {
+	content: '\f501'; // Genericons leftarrow{
+}
 .load-more {
 	// NOTE: .button styling is in _buttons.scss
 	@extend %clearfix;

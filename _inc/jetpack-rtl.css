@@ -1198,6 +1198,10 @@ input[type="text"].module-search + label:after {
   font-size: 11px;
 }
 
+.rtl .paid:before {
+  content: '\f501';
+}
+
 .load-more {
   margin: 2.71429em 0 6.15385em;
 }
