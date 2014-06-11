@@ -23,6 +23,24 @@ module.exports = function(grunt) {
 				'3rd-party/*.php'
 			]
 		},
+		cssjanus: {
+			core: {
+				options: { 
+					swapLtrRtlInUrl: false 
+				},
+				expand: true,
+				ext: '-rtl.css', 
+				src: ['_inc/*.css','!_inc/*-rtl.css','!_inc/*.min.css'  ]
+			},
+			min: {
+				options: { 
+					swapLtrRtlInUrl: false 
+				},
+				expand: true,
+				ext: '-rtl.min.css', 
+				src: ['_inc/*.min.css','!_inc/*-rtl.min.css' ]
+			}             
+		}, 
 		jshint: {
 			options: grunt.file.readJSON('.jshintrc'),
 			src: [
@@ -82,7 +100,7 @@ module.exports = function(grunt) {
 					'_inc/*.scss',
 					'_inc/**/*.scss'
 				],
-				tasks: ['sass', 'autoprefixer'],
+				tasks: ['sass', 'autoprefixer' ],
 				options: {
 					spawn: false
 				}
@@ -156,11 +174,17 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-wp-i18n');
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.loadNpmTasks('grunt-autoprefixer');
+	grunt.loadNpmTasks('grunt-cssjanus');
 
 	grunt.registerTask('default', [
 		'shell',
 		'phplint',
 		'jshint'
+	]);
+
+	grunt.registerTask('rtl', [
+		'cssjanus:core',
+		'cssjanus:min',
 	]);
 
 };
