@@ -160,7 +160,7 @@ class Jetpack_Debugger {
 					</div>
 				<?php endif; ?>
 			</div>
-			<div id="contact-message" style="display:none">
+			<div id="contact-message" <?php if( ! isset( $_GET['contact'] ) ) {?>  style="display:none" <?php } ?>>
 			<?php if ( self::is_jetpack_support_open() ): ?>
 				<form id="contactme" method="post" action="http://jetpack.me/contact-support/">
 					<input type="hidden" name="action" value="submit">
