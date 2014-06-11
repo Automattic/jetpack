@@ -23,16 +23,11 @@ class Jetpack_Admin {
 		$this->jetpack = Jetpack::init();
 		add_action( 'admin_menu',                    array( $this, 'admin_menu' ), 998 );
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
+		add_action( 'jetpack_admin_menu',        	 array( $this, 'admin_menu_modules' ) );
 		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ) );
 		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ) );
 		add_action( 'jetpack_unrecognized_action',   array( $this, 'handle_unrecognized_action' ) );
 
-		/**
-		 * Don't add in the modules page unless modules are available!
-		 */
-		if ( Jetpack::is_active() || Jetpack::is_development_mode() ) {
-			add_action( 'jetpack_admin_menu',        array( $this, 'admin_menu_modules' ) );
-		}
 	}
 
 	function get_modules() {
@@ -191,6 +186,12 @@ class Jetpack_Admin {
 	}
 
 	function admin_menu_modules() {
+		/**
+		 * Don't add in the modules page unless modules are available!
+		 */
+		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+			return;
+		}
 		$hook = add_submenu_page( 'jetpack', __( 'Jetpack Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_manage_modules', 'jetpack_modules', array( $this, 'admin_page_modules' ) );
 
 		add_action( "load-$hook",                array( $this, 'admin_page_load'   ) );
