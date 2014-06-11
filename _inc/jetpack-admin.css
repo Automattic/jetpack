@@ -1732,6 +1732,7 @@ html {
 }
 .wrap .manage-right .subsubsub .current .count {
   color: #81B1D0;
+  font-weight: 200;
 }
 .wrap .manage-right .subsubsub li {
   display: block;
