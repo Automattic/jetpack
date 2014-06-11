@@ -386,7 +386,7 @@ class Jetpack_Network {
 			$notice = 'Blog connection <strong>failed</strong>';
 		}
 
-		require_once( 'views/admin/network-admin-alert.php' );
+		Jetpack::init()->load_view( 'admin/network-admin-alert.php', array( 'notice' => $notice ) );
 	}
 
 	/**
@@ -578,8 +578,8 @@ class Jetpack_Network {
 				'name'      => 'subsiteregister', 
 				'site_id'   => 1,
 				) );
-				$url = $jp->build_connect_url();
-				require_once( 'views/admin/must-connect-main-blog.php' );
+				$data = array( 'url' => $jp->build_connect_url() );
+				Jetpack::init()->load_view( 'admin/must-connect-main-blog.php', $data );
 				return;
 			}
 			
@@ -603,11 +603,11 @@ class Jetpack_Network {
 		global $current_user;
 
 		$is_connected      = Jetpack::is_active();
-		$user_token        = Jetpack_Data::get_access_token( $current_user->ID );
-		$is_user_connected = $user_token && ! is_wp_error( $user_token );
-		$is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 
-		require_once( 'views/admin/network-admin-header.php' );
+		$data = array(
+			'is_connected' => $is_connected
+		);
+		Jetpack::init()->load_view( 'admin/network-admin-header.php', $data );
 	}
 	
 	/**
@@ -616,7 +616,7 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	function network_admin_page_footer() {
-		require_once( 'views/admin/network-admin-footer.php' );
+		Jetpack::init()->load_view( 'admin/network-admin-footer.php' );
 	}
 
 	/**
@@ -678,8 +678,13 @@ class Jetpack_Network {
 		if( !isset( $options['modules'] ) ) {
 			$options['modules'] = $modules;
 		}
-		
-		require( 'views/admin/network-settings.php' );
+
+		$data = array(
+			'modules' => $modules,
+			'options' => $options
+		);
+	
+		Jetpack::init()->load_view( 'admin/network-settings.php', $data );
 		$this->network_admin_page_footer();
 	}
 

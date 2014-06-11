@@ -1,6 +1,6 @@
 	<div class="wrap" id="jetpack-settings">
 
-			<div id="jp-header"<?php if ( $is_connected ) : ?> class="small"<?php endif; ?>>
+			<div id="jp-header"<?php if ( $data['is_connected'] ) : ?> class="small"<?php endif; ?>>
 				<div id="jp-clouds">
 					<h3><?php _e( 'Jetpack by WordPress.com', 'jetpack' ) ?></h3>
 				</div>

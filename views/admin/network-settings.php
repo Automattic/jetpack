@@ -1,3 +1,7 @@
+<?php
+	extract( $data );
+?>
+
 <div class="wrap">
 	<h2><?php _e( 'Network Settings', 'jetpack' ); ?></h2>
 	<form action="edit.php?action=jetpack-network-settings" method="POST">
