@@ -176,7 +176,7 @@ class Jetpack_Debugger {
 					<div id="name_div" class="formbox">
 						<label class="h" for="your_name"><?php esc_html_e( 'Name', 'jetpack' ); ?></label>
 			  			<span class="errormsg"><?php esc_html_e( 'Let us know your name.', 'jetpack' ); ?></span>
-						<input name="your_name" type="text" id="your_name" value="<?php esc_html_e( $current_user->display_name , 'jetpack'); ?>" size="40">
+						<input name="your_name" type="text" id="your_name" value="<?php esc_html_e( $current_user->display_name, 'jetpack'); ?>" size="40">
 					</div>
 
 					<div id="email_div" class="formbox">
