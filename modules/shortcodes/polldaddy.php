@@ -126,7 +126,7 @@ CONTAINER;
 				$permalink = get_permalink( $post->ID );
 
 			$rating    = intval( $rating );
-			$unique_id = preg_replace( '/[^_a-z0-9]/i', '', wp_strip_all_tags( $unique_id ) ); 
+			$unique_id = preg_replace( '/[^\-_a-z0-9]/i', '', wp_strip_all_tags( $unique_id ) ); 
 			$item_id   = wp_strip_all_tags( $item_id );
 			$item_id   = preg_replace( '/[^_a-z0-9]/i', '', $item_id );
 
