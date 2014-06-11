@@ -1724,14 +1724,14 @@ html {
   line-height: inherit;
 }
 .wrap .manage-right .subsubsub .current {
-  padding: 2px 5px;
+  padding: 1px 5px;
   border-radius: 2px;
   margin-left: -5px;
   background: #0D72B2;
   color: #FFF;
 }
 .wrap .manage-right .subsubsub .current .count {
-  color: #81B1D0;
+  color: #BCD7E7;
   font-weight: 200;
 }
 .wrap .manage-right .subsubsub li {
