@@ -7,7 +7,10 @@ class Jetpack_Admin {
 	 **/
 	private static $instance = null;
 
-	var $jetpack;
+	/**
+	 * @var Jetpack
+	 **/
+	private $jetpack;
 
 	static function init() {
 		if ( is_null( self::$instance ) ) {
