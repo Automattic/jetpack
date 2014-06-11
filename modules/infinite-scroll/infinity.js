@@ -377,11 +377,6 @@ Scroller.prototype.maybeLoadMejs = function() {
  * Initialize the MediaElement.js player for any posts not previously initialized
  */
 Scroller.prototype.initializeMejs = function( ev, response ) {
-	// Test for response before using it
-	if ( ( 'undefined' === typeof response ) || ( 'undefined' === typeof response.html ) ) {
-		return;
-	}
-
 	// Are there media players in the incoming set of posts?
 	if ( -1 === response.html.indexOf( 'wp-audio-shortcode' ) && -1 === response.html.indexOf( 'wp-video-shortcode' ) ) {
 		return;
