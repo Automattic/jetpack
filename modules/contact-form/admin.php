@@ -252,7 +252,6 @@ function grunion_manage_post_columns( $col, $post_id ) {
 			break;
 
 		case 'feedback_message':
-			$post = get_post( $post_id );
 			$post_type_object = get_post_type_object( $post->post_type );
 			echo '<strong>';
 			echo esc_html( $content_fields['_feedback_subject'] );
