@@ -220,6 +220,7 @@ function grunion_manage_post_columns( $col, $post_id ) {
 			$author_email = $content_fields['_feedback_author_email'];
 			$author_url   = $content_fields['_feedback_author_url'];
 			$author_ip    = $content_fields['_feedback_ip'];
+			$form_url     = get_permalink( $post_id );
 
 			$author_name_line = '';
 			if ( !empty( $author_name ) ) {
@@ -247,6 +248,7 @@ function grunion_manage_post_columns( $col, $post_id ) {
 			echo $author_url_line;
 			echo "<a href='edit.php?post_type=feedback&s={$author_ip}";
 			echo "&mode=detail'>{$author_ip}</a><br />";
+			echo "<a href='{$form_url}'>{$form_url}</a>";
 			break;
 
 		case 'feedback_message':
