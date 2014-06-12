@@ -6,6 +6,7 @@ if [ $# -eq 0 ]; then
 fi
 
 JETPACK_GIT_DIR=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )
+JETPACK_SVN_DIR="/tmp/jetpack"
 TAG=$1
 
 cd $JETPACK_GIT_DIR
@@ -27,9 +28,9 @@ fi
 git checkout $TAG
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
-rm -rf /tmp/jetpack
-svn checkout http://plugins.svn.wordpress.org/jetpack/ --depth=empty /tmp/jetpack
-cd /tmp/jetpack
+rm -rf $JETPACK_SVN_DIR
+svn checkout http://plugins.svn.wordpress.org/jetpack/ --depth=empty $JETPACK_SVN_DIR
+cd $JETPACK_SVN_DIR
 svn up trunk
 svn up tags --depth=empty
 
