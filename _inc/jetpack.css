@@ -270,11 +270,16 @@ input[disabled] {
 input[type="checkbox"],
 input[type="radio"] {
 <<<<<<< HEAD
+<<<<<<< HEAD
 	box-sizing: border-box;
 	padding: 0;
 	*height: 13px;
 	*width: 13px;
 =======
+=======
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+>>>>>>> da92e07... Regenerated css, and map files
   box-sizing: border-box;
   padding: 0;
   *height: 13px;
@@ -369,9 +374,6 @@ a {
 =======
   color: #0d72b2;
   -webkit-transition: color 0.2s;
-  -moz-transition: color 0.2s;
-  -ms-transition: color 0.2s;
-  -o-transition: color 0.2s;
   transition: color 0.2s;
   text-decoration: none;
 >>>>>>> bb6894b... Updates to the RTL styling
@@ -456,54 +458,16 @@ hr {
 =======
   0% {
     -webkit-transform: scale(0.3);
-    -moz-transform: scale(0.3);
-    -o-transform: scale(0.3);
     transform: scale(0.3);
   }
 
   60% {
     -webkit-transform: scale(1.15);
-    -moz-transform: scale(1.15);
-    -o-transform: scale(1.15);
     transform: scale(1.15);
   }
 
   100% {
     -webkit-transform: scale(1);
-    -moz-transform: scale(1);
-    -o-transform: scale(1);
-    transform: scale(1);
-  }
-}
-@-moz-keyframes grow {
-  0% {
-    -moz-transform: scale(0.3);
-    transform: scale(0.3);
-  }
-
-  60% {
-    -moz-transform: scale(1.15);
-    transform: scale(1.15);
-  }
-
-  100% {
-    -moz-transform: scale(1);
-    transform: scale(1);
-  }
-}
-@-o-keyframes "grow" {
-  0% {
-    -o-transform: scale(0.3);
-    transform: scale(0.3);
-  }
-
-  60% {
-    -o-transform: scale(1.15);
-    transform: scale(1.15);
-  }
-
-  100% {
-    -o-transform: scale(1);
     transform: scale(1);
   }
 >>>>>>> bb6894b... Updates to the RTL styling
@@ -571,22 +535,16 @@ hr {
 =======
   0% {
     -webkit-transform: scale(0.3);
-    -moz-transform: scale(0.3);
-    -o-transform: scale(0.3);
     transform: scale(0.3);
   }
 
   60% {
     -webkit-transform: scale(1.15);
-    -moz-transform: scale(1.15);
-    -o-transform: scale(1.15);
     transform: scale(1.15);
   }
 
   100% {
     -webkit-transform: scale(1);
-    -moz-transform: scale(1);
-    -o-transform: scale(1);
     transform: scale(1);
   }
 >>>>>>> bb6894b... Updates to the RTL styling
@@ -671,71 +629,21 @@ hr {
 =======
   0% {
     -webkit-transform: scale(1);
-    -moz-transform: scale(1);
-    -o-transform: scale(1);
     transform: scale(1);
   }
 
   20% {
     -webkit-transform: scale(1.15);
-    -moz-transform: scale(1.15);
-    -o-transform: scale(1.15);
     transform: scale(1.15);
   }
 
   60% {
     -webkit-transform: scale(0.95);
-    -moz-transform: scale(0.95);
-    -o-transform: scale(0.95);
     transform: scale(0.95);
   }
 
   100% {
     -webkit-transform: scale(1);
-    -moz-transform: scale(1);
-    -o-transform: scale(1);
-    transform: scale(1);
-  }
-}
-@-moz-keyframes candy {
-  0% {
-    -moz-transform: scale(1);
-    transform: scale(1);
-  }
-
-  20% {
-    -moz-transform: scale(1.15);
-    transform: scale(1.15);
-  }
-
-  60% {
-    -moz-transform: scale(0.95);
-    transform: scale(0.95);
-  }
-
-  100% {
-    -moz-transform: scale(1);
-    transform: scale(1);
-  }
-}
-@-o-keyframes "candy" {
-  0% {
-    -o-transform: scale(1);
-    transform: scale(1);
-  }
-
-  20% {
-    -o-transform: scale(1.15);
-    transform: scale(1.15);
-  }
-
-  60% {
-    -o-transform: scale(0.95);
-    transform: scale(0.95);
-  }
-
-  100% {
-    -o-transform: scale(1);
     transform: scale(1);
   }
 >>>>>>> bb6894b... Updates to the RTL styling
@@ -817,66 +725,32 @@ hr {
 =======
   0% {
     -webkit-transform: scale(1);
-    -moz-transform: scale(1);
-    -o-transform: scale(1);
     transform: scale(1);
   }
 
   20% {
     -webkit-transform: scale(1.15);
-    -moz-transform: scale(1.15);
-    -o-transform: scale(1.15);
     transform: scale(1.15);
   }
 
   60% {
     -webkit-transform: scale(0.95);
-    -moz-transform: scale(0.95);
-    -o-transform: scale(0.95);
     transform: scale(0.95);
   }
 
   100% {
     -webkit-transform: scale(1);
-    -moz-transform: scale(1);
-    -o-transform: scale(1);
     transform: scale(1);
-  }
-}
-@-moz-keyframes flyer {
-  0% {
-    -moz-transform: translate3d(0px, 0px, 0px);
-    transform: translate3d(0px, 0px, 0px);
-  }
-
-  100% {
-    -moz-transform: translate3d(570px, -570px, 0px);
-    transform: translate3d(570px, -570px, 0px);
   }
 }
 @-webkit-keyframes "flyer" {
   0% {
     -webkit-transform: translate3d(0px, 0px, 0px);
-    -moz-transform: translate3d(0px, 0px, 0px);
-    -o-transform: translate3d(0px, 0px, 0px);
     transform: translate3d(0px, 0px, 0px);
   }
 
   100% {
     -webkit-transform: translate3d(570px, -570px, 0px);
-    -moz-transform: translate3d(570px, -570px, 0px);
-    -o-transform: translate3d(570px, -570px, 0px);
-    transform: translate3d(570px, -570px, 0px);
-  }
-}
-@-o-keyframes "flyer" {
-  0% {
-    -o-transform: translate3d(0px, 0px, 0px);
-    transform: translate3d(0px, 0px, 0px);
-  }
-
-  100% {
-    -o-transform: translate3d(570px, -570px, 0px);
     transform: translate3d(570px, -570px, 0px);
   }
 >>>>>>> bb6894b... Updates to the RTL styling
@@ -901,15 +775,11 @@ hr {
 =======
   0% {
     -webkit-transform: translate3d(0px, 0px, 0px);
-    -moz-transform: translate3d(0px, 0px, 0px);
-    -o-transform: translate3d(0px, 0px, 0px);
     transform: translate3d(0px, 0px, 0px);
   }
 
   100% {
     -webkit-transform: translate3d(570px, -570px, 0px);
-    -moz-transform: translate3d(570px, -570px, 0px);
-    -o-transform: translate3d(570px, -570px, 0px);
     transform: translate3d(570px, -570px, 0px);
   }
 >>>>>>> bb6894b... Updates to the RTL styling
@@ -940,9 +810,6 @@ hr {
 	background-clip: padding-box;
 =======
   -webkit-transition: all 0.1s ease-in-out;
-  -moz-transition: all 0.1s ease-in-out;
-  -ms-transition: all 0.1s ease-in-out;
-  -o-transition: all 0.1s ease-in-out;
   transition: all 0.1s ease-in-out;
 }
 
@@ -954,10 +821,8 @@ hr {
   font: 800 0.9285714286em/1 'Open Sans', Helvetica, sans-serif;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   background: #6f7476;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
   background-clip: padding-box;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1002,13 +867,10 @@ hr {
   font: 400 2em/1 "proxima-nova", 'Open Sans', Helvetica, sans-serif;
   background: #518d2a;
   z-index: 3;
-  -webkit-border-radius: 6px;
   border-radius: 6px;
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
   background-clip: padding-box;
   -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1030,7 +892,6 @@ hr {
   color: #fff;
   background: #57972d;
   -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1044,7 +905,6 @@ hr {
 =======
   top: 6px;
   -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1075,6 +935,7 @@ hr {
   height: 30px;
   vertical-align: middle;
   background: url("img/connect-plug.svg") center center no-repeat;
+  -webkit-background-size: 100%;
   background-size: 100%;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1114,10 +975,8 @@ hr {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   background: #6f7476;
   outline: none;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
   background-clip: padding-box;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1323,9 +1182,6 @@ html {
   background-color: #81a844;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#81a844), to(#8eb74e));
   background-image: -webkit-linear-gradient(top, #81a844, #8eb74e);
-  background-image: -moz-linear-gradient(top, #81a844, #8eb74e);
-  background-image: -o-linear-gradient(top, #81a844, #8eb74e);
-  background-image: -ms-linear-gradient(top, #81a844, #8eb74e);
   background-image: linear-gradient(top, #81a844, #8eb74e);
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1380,8 +1236,6 @@ html {
   left: 4%;
   z-index: 1;
   -webkit-animation: flyer 3.4s 2s ease-in-out;
-  -moz-animation: flyer 3.4s 2s ease-in-out;
-  -o-animation: flyer 3.4s 2s ease-in-out;
   animation: flyer 3.4s 2s ease-in-out;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1455,9 +1309,6 @@ html {
   background-color: #81a844;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#81a844), to(#89b348));
   background-image: -webkit-linear-gradient(top, #81a844, #89b348);
-  background-image: -moz-linear-gradient(top, #81a844, #89b348);
-  background-image: -o-linear-gradient(top, #81a844, #89b348);
-  background-image: -ms-linear-gradient(top, #81a844, #89b348);
   background-image: linear-gradient(top, #81a844, #89b348);
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1532,9 +1383,6 @@ html {
   margin: 0 5px 10px;
   width: 310px;
   -webkit-transition: all 0.2s ease-in-out;
-  -moz-transition: all 0.2s ease-in-out;
-  -ms-transition: all 0.2s ease-in-out;
-  -o-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1561,7 +1409,6 @@ html {
 =======
   top: -5px;
   -webkit-box-shadow: 0 5px 0 rgba(0, 0, 0, 0.02);
-  -moz-box-shadow: 0 5px 0 rgba(0, 0, 0, 0.02);
   box-shadow: 0 5px 0 rgba(0, 0, 0, 0.02);
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1598,6 +1445,7 @@ html {
 	background-size: 100% auto;
 =======
   background: url("img/custom-css.jpg") no-repeat;
+  -webkit-background-size: 100% auto;
   background-size: 100% auto;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1619,6 +1467,7 @@ html {
 	background-size: 100% auto;
 =======
   background: url("img/wordpress-connect.jpg") no-repeat;
+  -webkit-background-size: 100% auto;
   background-size: 100% auto;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1640,6 +1489,7 @@ html {
 	background-size: 100% auto;
 =======
   background: url("img/wordpress-stats.jpg") no-repeat;
+  -webkit-background-size: 100% auto;
   background-size: 100% auto;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1677,9 +1527,6 @@ html {
   border: 1px solid #ddd;
   background: #f5f5f5;
   -webkit-transition: all 0.2s ease-in-out;
-  -moz-transition: all 0.2s ease-in-out;
-  -ms-transition: all 0.2s ease-in-out;
-  -o-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1795,10 +1642,8 @@ input[type="text"].module-search + label:after {
   border: 1px solid #c9ced0;
   border-right-width: 2px;
   background: #fff;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
   background-clip: padding-box;
 }
 #jetpack-search:focus {
@@ -1830,15 +1675,10 @@ input[type="text"].module-search + label:after {
   color: #abafb1;
   text-indent: -9999px;
   pointer-events: none;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
   background-clip: padding-box;
   -webkit-transition: all 0.2s ease-in-out;
-  -moz-transition: all 0.2s ease-in-out;
-  -ms-transition: all 0.2s ease-in-out;
-  -o-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
 }
 #jetpack-search + label:after {
@@ -1905,10 +1745,8 @@ input[type="text"].module-search + label:after {
   font: 600 0.92857em/1 "Open Sans", Helvetica, Arial, sans-serif;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
   background: #eee;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
   background-clip: padding-box;
 }
 .jp-filter a.selected, .jp-filter a:hover, .jp-filter a:focus {
@@ -1925,12 +1763,8 @@ input[type="text"].module-search + label:after {
   border: 1px solid #dae0e2;
   background: #fff;
   -webkit-box-shadow: 0 0 0 rgba(0, 0, 0, 0.03);
-  -moz-box-shadow: 0 0 0 rgba(0, 0, 0, 0.03);
   box-shadow: 0 0 0 rgba(0, 0, 0, 0.03);
   -webkit-transition: opacity 2s ease-in;
-  -moz-transition: opacity 2s ease-in;
-  -ms-transition: opacity 2s ease-in;
-  -o-transition: opacity 2s ease-in;
   transition: opacity 2s ease-in;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -1997,11 +1831,10 @@ input[type="text"].module-search + label:after {
   text-align: center;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
   background: url("img/new-badge.svg") center center no-repeat;
+  -webkit-background-size: 100%;
   background-size: 100%;
-  -webkit-border-radius: 50%;
   border-radius: 50%;
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
   background-clip: padding-box;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -2094,7 +1927,6 @@ input[type="text"].module-search + label:after {
   top: 10%;
   z-index: 12;
   -webkit-box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
-  -moz-box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -2257,9 +2089,6 @@ input[type="text"].module-search + label:after {
   background-color: #81a844;
   background-image: -webkit-gradient(linear, left top, left bottom, from(#8eb74e), to(#81a844));
   background-image: -webkit-linear-gradient(top, #8eb74e, #81a844);
-  background-image: -moz-linear-gradient(top, #8eb74e, #81a844);
-  background-image: -o-linear-gradient(top, #8eb74e, #81a844);
-  background-image: -ms-linear-gradient(top, #8eb74e, #81a844);
   background-image: linear-gradient(top, #8eb74e, #81a844);
 }
 .footer:before, .footer:after {
@@ -2291,6 +2120,7 @@ input[type="text"].module-search + label:after {
   width: 100%;
   height: 50px;
   background: url("img/the-footcloud.svg") center bottom no-repeat;
+  -webkit-background-size: auto 45px;
   background-size: auto 45px;
   z-index: 1;
 >>>>>>> bb6894b... Updates to the RTL styling
@@ -2337,14 +2167,9 @@ input[type="text"].module-search + label:after {
   background: url("img/rocketeer.svg") center bottom no-repeat;
   pointer-events: none;
   -webkit-transform: translate3d(0px, 0px, 0px);
-  -moz-transform: translate3d(0px, 0px, 0px);
   -ms-transform: translate3d(0px, 0px, 0px);
-  -o-transform: translate3d(0px, 0px, 0px);
   transform: translate3d(0px, 0px, 0px);
   -webkit-transition: all 4s ease-in-out;
-  -moz-transition: all 4s ease-in-out;
-  -ms-transition: all 4s ease-in-out;
-  -o-transition: all 4s ease-in-out;
   transition: all 4s ease-in-out;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -2358,9 +2183,7 @@ input[type="text"].module-search + label:after {
 	transform: translate3d(0px, -40px, 0px);
 =======
   -webkit-transform: translate3d(0px, -40px, 0px);
-  -moz-transform: translate3d(0px, -40px, 0px);
   -ms-transform: translate3d(0px, -40px, 0px);
-  -o-transform: translate3d(0px, -40px, 0px);
   transform: translate3d(0px, -40px, 0px);
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -2440,8 +2263,6 @@ input[type="text"].module-search + label:after {
 	animation: candy 0.4s ease-in-out;
 =======
   -webkit-animation: candy 0.4s ease-in-out;
-  -moz-animation: candy 0.4s ease-in-out;
-  -o-animation: candy 0.4s ease-in-out;
   animation: candy 0.4s ease-in-out;
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -2534,6 +2355,7 @@ input[type="text"].module-search + label:after {
   opacity: 0.6;
   position: absolute;
   top: 23px;
+  top: -webkit-calc(50% - 22px );
   top: calc(50% - 22px );
 >>>>>>> bb6894b... Updates to the RTL styling
 }
@@ -2918,9 +2740,6 @@ input[type="text"].module-search + label:after {
     margin: .75% 0 .75% 1.5%;
     width: 32.333333%;
     -webkit-transition: none;
-    -moz-transition: none;
-    -ms-transition: none;
-    -o-transition: none;
     transition: none;
   }
   .feature:nth-child(3n + 1),
@@ -2931,7 +2750,6 @@ input[type="text"].module-search + label:after {
   .module:hover {
     top: 0;
     -webkit-box-shadow: none;
-    -moz-box-shadow: none;
     box-shadow: none;
   }
 
@@ -2966,6 +2784,7 @@ input[type="text"].module-search + label:after {
     padding: 70px 0 49px;
   }
   .subhead:after {
+    -webkit-background-size: 160% auto;
     background-size: 160% auto;
   }
 
@@ -2998,6 +2817,7 @@ input[type="text"].module-search + label:after {
     padding-bottom: 0;
   }
   .footer:before {
+    -webkit-background-size: 160% auto;
     background-size: 160% auto;
   }
   .footer:after {
@@ -3012,9 +2832,7 @@ input[type="text"].module-search + label:after {
   }
   .fly:hover:before {
     -webkit-transform: translate3d(0px, 0px, 0px);
-    -moz-transform: translate3d(0px, 0px, 0px);
     -ms-transform: translate3d(0px, 0px, 0px);
-    -o-transform: translate3d(0px, 0px, 0px);
     transform: translate3d(0px, 0px, 0px);
   }
   .fly:before {
@@ -3611,11 +3429,13 @@ input[type="text"].module-search + label:after {
     margin-bottom: 55px;
     height: 225px;
     background: url("img/rocketeer.svg") center bottom no-repeat;
+    -webkit-background-size: 50px auto;
     background-size: 50px auto;
   }
   .footer .a8c-services:after {
     height: 50px;
     background: url("img/the-footcloud.svg") center bottom no-repeat;
+    -webkit-background-size: auto 38px;
     background-size: auto 38px;
   }
 
@@ -3681,9 +3501,11 @@ input[type="text"].module-search + label:after {
 
   .footer .a8c-services:before {
     margin-bottom: 50px;
+    -webkit-background-size: 40px auto;
     background-size: 40px auto;
   }
   .footer .a8c-services:after {
+    -webkit-background-size: auto 25px;
     background-size: auto 25px;
   }
 >>>>>>> bb6894b... Updates to the RTL styling
@@ -3701,8 +3523,6 @@ input[type="text"].module-search + label:after {
 =======
   .filter input[type=radio]:checked:before {
     -webkit-animation: grow 0.2s ease-in-out;
-    -moz-animation: grow 0.2s ease-in-out;
-    -o-animation: grow 0.2s ease-in-out;
     animation: grow 0.2s ease-in-out;
   }
 >>>>>>> bb6894b... Updates to the RTL styling
