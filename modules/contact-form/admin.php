@@ -248,7 +248,9 @@ function grunion_manage_post_columns( $col, $post_id ) {
 			echo $author_url_line;
 			echo "<a href='edit.php?post_type=feedback&s={$author_ip}";
 			echo "&mode=detail'>{$author_ip}</a><br />";
-			echo "<a href='{$form_url}'>{$form_url}</a>";
+			if ( $form_url ) {
+				echo "<a href='{$form_url}'>{$form_url}</a>";
+			}
 			break;
 
 		case 'feedback_message':
