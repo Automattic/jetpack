@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-05-18 23:58:00+0000\n"
+"PO-Revision-Date: 2014-05-31 01:18:13+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,123 +11,123 @@ msgstr ""
 "Project-Id-Version: 3.0\n"
 
 msgid "Add images, Twitter streams, your site’s RSS links, and more to your sidebar."
-msgstr ""
+msgstr "Aggiungi immagini, stream di Twitter, collegamenti RSS del tuo sito, ed altro sulla tua barra laterale."
 
 #: class.jetpack-admin.php:261
 msgid "View all Jetpack features"
-msgstr ""
+msgstr "Vedi tutte le funzionalità di Jetpack"
 
 #: class.jetpack-admin.php:262
 msgid "Sorry, no modules were found for the search term \"%s\""
-msgstr ""
+msgstr "Spiacente, non sono stati trovati moduli per il termine di ricerca \"%s\""
 
 #: class.jetpack-admin.php:331
 msgid "Jetpack is in local development mode."
-msgstr ""
+msgstr "Jetpack è in modalità di sviluppo locale."
 
 msgid "Transform standard image galleries into full-screen slideshows."
-msgstr ""
+msgstr "Trasforma le gallerie fotografiche standard in slideshow a schermo intero."
 
 msgid "Let readers comment with WordPress.com, Twitter, Facebook, or Google+ accounts."
-msgstr ""
+msgstr "Lascia che i tuoi lettori commentino con i loro account WordPress.com, Twitter, Facebook, o Google+."
 
 msgid "Receive notification of site activity via the admin toolbar and your Mobile devices."
-msgstr ""
+msgstr "Ricevi le notifiche dell'attività del sito dalla barra degli strumenti di amministrazione e dai tuoi dispositivi mobili."
 
 #: class.jetpack-debugger.php:141
 msgid "Some themes and plugins have <a href=\"%1$s\">known conflicts</a> with Jetpack – check the <a href=\"%2$s\">list</a>. (You can also browse the <a href=\"%3$s\">Jetpack support pages</a> or <a href=\"%4$s\">Jetpack support forum</a> to see if others have experienced and solved the problem.)"
-msgstr ""
+msgstr "Alcuni temi e plugin hanno delle <a href=\"%1$s\">incompatibilità note</a> con Jetpack – controlla la <a href=\"%2$s\">lista</a>. (Puoi anche sfogliare le <a href=\"%3$s\">pagine di supporto di Jetpack</a> oppure il <a href=\"%4$s\">forum di supporto di Jetpack</a> per vedere se altri hanno riscontrato e risolto lo stesso problema.)"
 
 #: node_modules/grunt-wp-i18n/test/fixtures/basic-theme/exclude/file.php:3
 msgid "Exclude"
-msgstr ""
+msgstr "Escludi"
 
 msgid "Check your spelling, style, and grammar with the After the Deadline proofreading service."
-msgstr ""
+msgstr "Controlla la tua ortografia, il tuo stile e la tua grammatica con il servizio di correzione di bozze After the Deadline."
 
 msgid "Insert a contact form anywhere on your site."
-msgstr ""
+msgstr "Inserisci un modulo di contatto ovunque nel tuo sito."
 
 msgid "Customize your site’s CSS without modifying your theme."
-msgstr ""
+msgstr "Personalizza il CSS del tuo sito senza modificare il tuo tema."
 
 msgid "Share your public posts and comments to search engines and other services."
-msgstr ""
+msgstr "Condividi i tuoi articoli e commenti pubblici con motori di ricerca ed altri servizi."
 
 msgid "Give users the ability to share posts to Google+, and add your site link to your Google+ profile."
-msgstr ""
+msgstr "Dai agli utenti la possibilità di condividere gli articoli su Google+, ed aggiungi un collegamento al tuo sito sul tuo profilo Google+."
 
 msgid "Enable pop-up business cards over commenters’ Gravatars."
-msgstr ""
+msgstr "Abilita le business card a comparsa sui Gravatar degli utenti che hanno commentato."
 
 msgid "Add support for infinite scroll to your theme."
-msgstr ""
+msgstr "Aggiungi al tuo tema il supporto per lo scorrimento infinito."
 
 msgid "Use LaTeX markup language in posts and pages for complex equations and other geekery."
-msgstr ""
+msgstr "Utilizza il linguaggio di markup LaTeX in articoli e pagine per equazioni complesse ed altre cose da secchioni."
 
 msgid "Give visitors an easy way to show their appreciation for your content."
-msgstr ""
+msgstr "Dai agli ospiti un modo semplice per mostrare il loro apprezzamento ai tuoi contenuti."
 
 msgid "Write posts or pages in plain-text Markdown syntax."
-msgstr ""
+msgstr "Scrivi articoli o pagine utilizzando la sintassi Markdown in testo semplice."
 
 msgid "Optimize your site with a mobile-friendly theme for tablets and phones."
-msgstr ""
+msgstr "Ottimizza il tuo sito con un tema mobile-friendly per tablet e telefoni."
 
 msgid "Receive notifications from Jetpack if your site goes offline — and when it it returns."
-msgstr ""
+msgstr "Ricevi le notifiche da Jetpack quando il tuo sito è offline — e quando ritorna."
 
 msgid "Search your entire database from a single field in your Dashboard."
-msgstr ""
+msgstr "Cerca nell'intero Database da un semplice campo nella tua Bacheca."
 
 msgid "Accelerate your site by loading images from the WordPress.com CDN."
-msgstr ""
+msgstr "Accelera il tuo sito caricando le immagini dal CDN WordPress.com."
 
 msgid "Publish posts by email, using any device and email client."
-msgstr ""
+msgstr "Pubblica articoli via e-mail, tramite qualunque dispositivo e client di posta elettronica."
 
 msgid "Share new posts on social media networks automatically."
-msgstr ""
+msgstr "Condividi automaticamente i nuovi articoli su siti mediatici e social network."
 
 msgid "Display links to your related content under posts and pages."
-msgstr ""
+msgstr "Visulizza i collegamenti ai tuoi contenuti correlati in fondo ad articoli e pagine."
 
 msgid "Allow visitors to share your content on Facebook, Twitter, and more with a click."
-msgstr ""
+msgstr "Permetti agli ospiti di condividere i tuoi contenuti su Facebook, Twitter, ed altro con un click."
 
 msgid "Embed content from YouTube, Vimeo, SlideShare, and more, no coding necessary."
-msgstr ""
+msgstr "Includi contenuti da YouTube, Vimeo, SlideShare, ed altri, senza ricorrere al codice."
 
 msgid "Enable WP.me-powered shortlinks for all posts and pages."
-msgstr ""
+msgstr "Abilita l'abbreviazione dei link alimentata da WP.me per ogni articolo e pagina."
 
 msgid "Allow your users to log in using their WordPress.com accounts."
-msgstr ""
+msgstr "Permetti ai tuoi utenti di accedere utilizzando l'account WordPress.com."
 
 msgid "Monitor your stats with clear, concise reports and no additional load on your server."
-msgstr ""
+msgstr "Monitora le tue statistiche con rapporti chiari e precisi, senza ulteriore carico sul tuo server."
 
 msgid "Allow users to subscribe to your posts and comments and receive notifications via email."
-msgstr ""
+msgstr "Permetti agli utenti di iscriversi ai tuoi articoli e commenti e ricevere le notifiche via e-mail."
 
 msgid "Display your image galleries in a variety of sleek, graphic arrangements."
-msgstr ""
+msgstr "Visualizza le tue gallerie fotografiche con diversi arrangiamenti grafici ed eleganti."
 
 msgid "Protect your site with automatic backups and security scans. (Subscription required.)"
-msgstr ""
+msgstr "Proteggi il tuo sito con  le scansioni di sicurezza ed i backup automatici. (Iscrizione necessaria.)"
 
 msgid "Site Verification"
-msgstr ""
+msgstr "Verifica del Sito"
 
 msgid "Verify your site or domain with Google Webmaster Tools, Pinterest, and others."
-msgstr ""
+msgstr "Verifica il tuo sito o il tuo dominio con Google Webmaster Tools, Pinterest, ed altri."
 
 msgid "Upload and host video right on your site. (Subscription required.)"
-msgstr ""
+msgstr "Carica ed ospita i video direttamente nel tuo sito. (Iscrizione necessaria.)"
 
 msgid "Specify which widgets appear on which pages of your site."
-msgstr ""
+msgstr "Determina quali widget appaiono sulle pagine del tuo sito."
 
 #: modules/module-info.php:950
 msgid "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage."
@@ -3774,7 +3774,7 @@ msgstr "<span class=\"meta-nav\">&laquo;</span> Più vecchi"
 #: modules/related-posts/jetpack-related-posts.php:879
 msgctxt "in {category/tag name}"
 msgid "In \"%s\""
-msgstr ""
+msgstr "In \"%s\""
 
 #: modules/widget-visibility/widget-conditions.php:91
 msgid "Search results"

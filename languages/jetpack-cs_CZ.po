@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-05-12 21:31:26+0000\n"
+"PO-Revision-Date: 2014-06-06 14:57:34+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -3010,7 +3010,7 @@ msgstr ""
 
 #: modules/minileven/minileven.php:93
 msgid "View Mobile Site"
-msgstr ""
+msgstr "Zobrazit mobilní verzi"
 
 #: modules/publicize/publicize-jetpack.php:231
 msgid "That connection has been removed."
@@ -3030,7 +3030,7 @@ msgstr "Potvrdit &#187;"
 
 #: modules/minileven/minileven.php:260
 msgid "Mobile-compatible:"
-msgstr ""
+msgstr "Kompatibilní s mobilní verzí:"
 
 #: modules/publicize/publicize-jetpack.php:362
 msgctxt "Refresh connection with {social media service}"
@@ -3076,7 +3076,7 @@ msgstr "Chyba!"
 
 #: modules/minileven/minileven.php:267 modules/minileven/minileven.php:318
 msgid "Include this CSS in the Mobile Theme"
-msgstr ""
+msgstr "Použít toto CSS i v mobilní šabloně"
 
 #: modules/publicize/publicize-jetpack.php:437
 msgid "Facebook Wall"
@@ -3120,7 +3120,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/comments.php:45
 msgid "Comment navigation"
-msgstr ""
+msgstr "Navigace v komentářích"
 
 #: modules/publicize/publicize-jetpack.php:577
 msgid "Tumblr blog"
@@ -3141,7 +3141,7 @@ msgstr "Čas"
 
 #: modules/minileven/theme/pub/minileven/comments.php:46
 msgid "&larr; Older Comments"
-msgstr ""
+msgstr "&larr; Starší komentáře"
 
 #: modules/publicize/publicize.php:373
 msgid "This connection is working correctly."
@@ -3161,7 +3161,7 @@ msgstr "IP Adresa:"
 
 #: modules/minileven/theme/pub/minileven/comments.php:47
 msgid "Newer Comments &rarr;"
-msgstr ""
+msgstr "Novější komentáře &rarr;"
 
 #: modules/publicize/ui.php:76
 msgid "You have successfully connected your blog with your %s account."
@@ -3246,9 +3246,9 @@ msgstr "%s není platná emailová adresa"
 #: modules/minileven/theme/pub/minileven/content-gallery.php:57
 msgid "This gallery contains <a %1$s>%2$s photo</a>."
 msgid_plural "This gallery contains <a %1$s>%2$s photos</a>."
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
+msgstr[0] "Tato galerie obsahuje <a %1$s>%2$s fotografii</a>."
+msgstr[1] "Tato galerie obsahuje <a %1$s>%2$s fotografie</a>."
+msgstr[2] "Tato galerie obsahuje <a %1$s>%2$s fotografií</a>."
 
 #: modules/publicize/ui.php:169
 msgid "Connected as:"
@@ -3299,7 +3299,7 @@ msgstr "(vyžadováno)"
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "<b>1</b> Reply"
-msgstr ""
+msgstr "<b>1</b> komentář"
 
 #: modules/publicize/ui.php:205 modules/theme-tools/social-links.php:112
 msgid "Connect"
@@ -3322,7 +3322,7 @@ msgstr "Ano"
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "<b>%</b> Replies"
-msgstr ""
+msgstr "<b>%</b> komentářů"
 
 #: modules/publicize/ui.php:223
 msgid "Are you sure you want to stop Publicizing posts to this connection?"
@@ -3343,7 +3343,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:19
 msgid "Featured"
-msgstr ""
+msgstr "Zvýrazněno"
 
 #: modules/publicize/ui.php:245
 msgid "Make this connection available to all users of this blog?"
@@ -3364,7 +3364,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:28
 msgid "Posted by "
-msgstr ""
+msgstr "Autor: "
 
 #: modules/publicize/ui.php:253
 msgid "There was a problem connecting to %s. Please disconnect and try again."
@@ -3407,7 +3407,7 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
 msgid "Leave a reply"
-msgstr ""
+msgstr "Napište komentář"
 
 #: modules/publicize/ui.php:521
 msgid "Publicize:"
@@ -3429,7 +3429,7 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/content.php:59
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:19
 msgid "Post navigation"
-msgstr ""
+msgstr "Navigace příspěvku"
 
 #: modules/publicize/ui.php:605
 msgctxt "Service: Account connected as"
@@ -3548,7 +3548,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "Proudly powered by %s"
-msgstr ""
+msgstr "Používáme %s (v češtině)"
 
 #: modules/publicize/ui.php:666
 msgid "Connect and share your posts on %s"
@@ -3569,7 +3569,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/functions.php:59
 msgid "Primary Menu"
-msgstr ""
+msgstr "Hlavní menu"
 
 #: modules/publicize/ui.php:689
 msgid "Show"
@@ -3591,7 +3591,7 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/functions.php:96
 msgctxt "Open Sans font: on or off"
 msgid "on"
-msgstr ""
+msgstr "zapnout"
 
 #: modules/publicize.php:111
 msgctxt "word count: words or characters?"
@@ -3613,7 +3613,7 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/functions.php:102
 msgctxt "Open Sans font: add new subset (greek, cyrillic, vietnamese)"
 msgid "no-subset"
-msgstr ""
+msgstr "žádná podmnožina"
 
 #: modules/related-posts/jetpack-related-posts.php:95
 msgid "Related posts"
@@ -3634,7 +3634,7 @@ msgstr "(povinné)"
 
 #: modules/minileven/theme/pub/minileven/functions.php:126
 msgid "Main Sidebar"
-msgstr ""
+msgstr "Hlavní postranní panel"
 
 #: modules/related-posts/jetpack-related-posts.php:177
 #: modules/related-posts/jetpack-related-posts.php:341
@@ -3675,7 +3675,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/header.php:29
 msgid "Skip to primary content"
-msgstr ""
+msgstr "Přejít na obsah"
 
 #: modules/widget-visibility/widget-conditions.php:76
 msgid "Yearly archives"
@@ -3691,7 +3691,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/image.php:73
 msgid "<span class=\"entry-gallery\">&laquo; <a href=\"%1$s\" title=\"Back to %2$s\" rel=\"gallery\">Back to Gallery</a></span>"
-msgstr ""
+msgstr "<span class=\"entry-gallery\">&laquo; <a href=\"%1$s\" title=\"Back to %2$s\" rel=\"gallery\">Zpět do galerie</a></span>"
 
 #: modules/related-posts/jetpack-related-posts.php:297
 msgid "Preview:"
@@ -3712,7 +3712,7 @@ msgstr ""
 #: modules/minileven/theme/pub/minileven/image.php:87
 msgctxt "next-saturday"
 msgid "Image navigation"
-msgstr ""
+msgstr "Navigace obrázků"
 
 #: modules/related-posts/jetpack-related-posts.php:324
 msgid "Hide related content after posts"
@@ -3732,7 +3732,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/image.php:89
 msgid "Next &raquo; "
-msgstr ""
+msgstr "Další &raquo; "
 
 #: modules/related-posts/jetpack-related-posts.php:326
 msgid "Show related content after posts"
@@ -3752,7 +3752,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:20
 msgid "<span class=\"meta-nav\">&laquo;</span> Older"
-msgstr ""
+msgstr "<span class=\"meta-nav\">&laquo;</span> Starší"
 
 #: modules/related-posts/jetpack-related-posts.php:867
 #: modules/related-posts/jetpack-related-posts.php:879
@@ -3774,7 +3774,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/inc/template-tags.php:21
 msgid "Newer <span class=\"meta-nav\">&raquo;</span>"
-msgstr ""
+msgstr "Novější <span class=\"meta-nav\">&raquo;</span>"
 
 #: modules/related-posts/jetpack-related-posts.php:889
 msgid "With 1 comment"
@@ -3924,7 +3924,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:23
 msgid "Daily Archives: %s"
-msgstr "Denní archívy: %s"
+msgstr "Denní archivy: %s"
 
 #: modules/sharedaddy/sharing-service.php:556
 #: modules/videopress/videopress.php:635
@@ -3969,7 +3969,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:27
 msgid "Yearly Archives: %s"
-msgstr "Roční archívy: %s"
+msgstr "Roční archivy: %s"
 
 #: modules/sharedaddy/sharing-sources.php:250
 msgid "This post has been shared!"
@@ -3990,7 +3990,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:29
 msgid "Posted in %s"
-msgstr "Zasláno do %s"
+msgstr "Kategorie: %s"
 
 #: modules/sharedaddy/sharing-sources.php:251
 msgid "You have shared this post with %s"
@@ -4011,7 +4011,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:31
 msgid "Tagged with %s"
-msgstr ""
+msgstr "Štítky: %s"
 
 #: modules/sharedaddy/sharing-sources.php:252
 #: modules/videopress/videopress.php:676
@@ -4033,7 +4033,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/index.php:33
 msgid "Posted by"
-msgstr "Zasláno"
+msgstr "Autor:"
 
 #: modules/sharedaddy/sharing-sources.php:274
 msgctxt "share to"
@@ -4160,7 +4160,7 @@ msgstr ""
 
 #: modules/minileven.php:51
 msgid "Excerpts"
-msgstr ""
+msgstr "Výtažky"
 
 #: modules/sharedaddy/sharing-sources.php:310
 msgid "Post was not sent - check your email addresses!"
@@ -4180,7 +4180,7 @@ msgstr "Povinné?"
 
 #: modules/minileven.php:55
 msgid "Enable excerpts on front page and on archive pages"
-msgstr ""
+msgstr "Zobrazovat výtažky na domovské stránce a archivech"
 
 #: modules/sharedaddy/sharing-sources.php:314
 msgid "Email check failed, please try again"
@@ -4203,7 +4203,7 @@ msgstr ""
 
 #: modules/minileven.php:60
 msgid "Show full posts on front page and on archive pages"
-msgstr ""
+msgstr "Zobrazovat celé příspěvky na domovské stránce a archivech"
 
 #: modules/sharedaddy/sharing-sources.php:318
 msgid "Sorry, your blog cannot share posts by email."
@@ -4226,7 +4226,7 @@ msgstr ""
 
 #: modules/minileven.php:65
 msgid "Mobile App Promos"
-msgstr ""
+msgstr "Propagace mobilních aplikací"
 
 #: modules/sharedaddy/sharing-sources.php:341
 msgid "Twitter"
@@ -4246,7 +4246,7 @@ msgstr ""
 
 #: modules/minileven.php:69
 msgid "Show a promo for the WordPress mobile apps in the footer of the mobile theme."
-msgstr ""
+msgstr "Zobrazit propagaci mobilních aplikací pro WordPress v patičce mobilní šablony."
 
 #: modules/sharedaddy/sharing-sources.php:393
 msgctxt "share to"
@@ -4271,7 +4271,7 @@ msgstr ""
 
 #: modules/minileven.php:75 modules/stats.php:570
 msgid "Save configuration"
-msgstr ""
+msgstr "Uložit nastavení"
 
 #: modules/sharedaddy/sharing-sources.php:393
 msgid "Click to share on Twitter"
@@ -4295,7 +4295,7 @@ msgstr ""
 
 #: modules/minileven.php:78
 msgid "Mobile Apps"
-msgstr ""
+msgstr "Mobilní aplikace"
 
 #: modules/sharedaddy/sharing-sources.php:468
 msgid "StumbleUpon"
@@ -4316,7 +4316,7 @@ msgstr ""
 
 #: modules/minileven.php:79
 msgid "Take WordPress with you."
-msgstr ""
+msgstr "Vezměte si WordPress s sebou."
 
 #: modules/sharedaddy/sharing-sources.php:479
 msgctxt "share to"
@@ -4337,7 +4337,7 @@ msgstr ""
 
 #: modules/minileven.php:81
 msgid "We have apps for <a href=\"%s\">iOS (iPhone, iPad, iPod Touch)</a>, <a href=\"%s\">Android</a>, <a href=\"%s\">BlackBerry</a>, <a href=\"%s\">Windows Phone</a>, and <a href=\"%s\">more</a>!"
-msgstr ""
+msgstr "Máme aplikace pro <a href=\"%s\">iOS (iPhone, iPad, iPod Touch)</a>, <a href=\"%s\">Android</a>, <a href=\"%s\">BlackBerry</a>, <a href=\"%s\">Windows Phone</a>, a <a href=\"%s\">další</a>!"
 
 #: modules/sharedaddy/sharing-sources.php:479
 msgid "Click to share on StumbleUpon"
@@ -4379,6 +4379,11 @@ msgid ""
 "\n"
 "By default, your stylesheet will be loaded after the theme stylesheets, which means that your rules can take precedence and override the theme CSS rules. Just write here what you want to change, you don't need to copy all your theme's stylesheet content."
 msgstr ""
+"Vítejte v Kustomizovaném CSS!\n"
+"\n"
+"CSS (Cascading Style Sheets) je druh kódu, který určuje, jak má prohlížeč zobrazit webovou stránku. Můžete tento komentář smazat a začít s vašimi vlastními úpravami.\n"
+"\n"
+"Tento CSS soubor bude ve stránce použit až za CSS souborem šablony, takže pravidla použitá zde přepíší ta pravidla, která pocházejí ze šablony. Uveďte zde jen to, co chcete změnit, nemusíte sem kopírovat celé CSS ze šablony."
 
 #: modules/module-info.php:28
 msgid "Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support."
@@ -4529,7 +4534,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:669
 msgid "CSS Revisions"
-msgstr ""
+msgstr "Starší verze"
 
 #: modules/module-info.php:58 modules/module-info.php:73
 msgid "What&#8217;s a Hovercard?"
@@ -4549,7 +4554,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:673
 msgid "CSS Stylesheet Editor"
-msgstr ""
+msgstr "Editor CSS"
 
 #: modules/module-info.php:59
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services they use on the web like Twitter, Facebook, or LinkedIn."
@@ -4572,6 +4577,8 @@ msgid ""
 "New to CSS? Start with a <a href=\"http://www.htmldog.com/guides/cssbeginner/\">beginner tutorial</a>. Questions?\n"
 "\t\tAsk in the <a href=\"http://wordpress.org/support/forum/themes-and-templates\">Themes and Templates forum</a>."
 msgstr ""
+"Jste nováčky v CSS? Přečtěte si <a href=\"http://www.jakpsatweb.cz/css/\">návod</a>. Máte otázky?\n"
+"\t\tZeptejte se v <a href=\"http://www.separatista.net/forum\">diskuzním fóru</a>."
 
 #: modules/module-info.php:60
 msgid "Hovercards offer a great way to show your internet presence and help people find your own blog."
@@ -4592,7 +4599,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:717
 msgid "Content Width:"
-msgstr ""
+msgstr "Šířka obsahu:"
 
 #: modules/module-info.php:74
 msgid "Hovercards enhance plain Gravatar images with information about a person: name, bio, pictures, their contact info, and other services."
@@ -4655,7 +4662,7 @@ msgstr "Zrušit odběr"
 
 #: modules/custom-css/custom-css.php:726
 msgid "Limit width to %1$s pixels for videos, full size images, and other shortcodes. (<a href=\"%2$s\">More info</a>.)"
-msgstr ""
+msgstr "Omezit šířku na %1$s pixelů pro videa, obrázky o plné velikosti a další obsah. (<a href=\"%2$s\">Více informací</a>.)"
 
 #: modules/module-info.php:95 modules/module-info.php:108
 msgid "Shortcodes allow you to easily and safely embed media from other places in your site. With just one simple code, you can tell WordPress to embed YouTube, Flickr, and other media."
@@ -4676,7 +4683,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:742
 msgid "The default content width for the %s theme is %d pixels."
-msgstr ""
+msgstr "Výchozí šířka obsahu pro šablonu %s je %d pixelů."
 
 #: modules/module-info.php:109
 msgid "Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below."
@@ -4785,7 +4792,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:842
 msgid "Mode:"
-msgstr ""
+msgstr "Režim:"
 
 #: modules/module-info.php:177
 msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
@@ -4806,7 +4813,7 @@ msgstr "Podmínky používání služby"
 
 #: modules/custom-css/custom-css.php:843
 msgid "Add-on"
-msgstr ""
+msgstr "Připojení"
 
 #: class.jetpack-admin.php:362 class.jetpack-admin.php:491
 #: modules/module-info.php:192 modules/module-info.php:196
@@ -4829,7 +4836,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:843
 msgid "Replacement"
-msgstr ""
+msgstr "Nahrazení"
 
 #: modules/module-info.php:197 modules/module-info.php:210
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
@@ -4850,7 +4857,7 @@ msgstr "Podpora"
 
 #: modules/custom-css/custom-css.php:850
 msgid "Add-on CSS <b>(Recommended)</b>"
-msgstr ""
+msgstr "Připojí CSS <b>(Doporučeno)</b>"
 
 #: modules/module-info.php:211
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
@@ -4870,7 +4877,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:855
 msgid "Replace <a href=\"%s\">theme's CSS</a> <b>(Advanced)</b>"
-msgstr ""
+msgstr "Nahradí <a href=\"%s\">CSS šablony</a> <b>(Pokročilé)</b>"
 
 #: modules/module-info.php:225 modules/module-info.php:229
 #: modules/publicize/ui.php:95
@@ -4917,7 +4924,7 @@ msgstr "Aktivovat"
 
 #: modules/custom-css/custom-css.php:868
 msgid "Save &amp; Buy Upgrade"
-msgstr ""
+msgstr "Uložit a koupit upgrade"
 
 #: modules/module-info.php:231
 msgid "Publicize allows you to share your posts on Facebook, Twitter, Tumblr, Yahoo!, and Linkedin."
@@ -4937,7 +4944,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:868
 msgid "Save Stylesheet"
-msgstr ""
+msgstr "Uložit CSS"
 
 #: modules/module-info.php:235
 msgid "Manage your <a href=\"%s\">Publicize settings</a>."
@@ -4958,7 +4965,7 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:934
 msgid "Show more"
-msgstr ""
+msgstr "Ukázat další"
 
 #: modules/module-info.php:239 modules/publicize/ui.php:114
 msgid "More information on using Publicize."

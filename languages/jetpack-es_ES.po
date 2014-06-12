@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-05-15 06:08:14+0000\n"
+"PO-Revision-Date: 2014-06-11 14:25:07+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,131 +11,131 @@ msgstr ""
 "Project-Id-Version: 3.0\n"
 
 msgid "Add images, Twitter streams, your site’s RSS links, and more to your sidebar."
-msgstr ""
+msgstr "Añade a tu barra lateral imágenes, flujos de Twitter, el enlace de RSS de tu sitio y más..."
 
 #: class.jetpack-admin.php:261
 msgid "View all Jetpack features"
-msgstr ""
+msgstr "Ver todas las funcionalidades de Jetpack"
 
 #: class.jetpack-admin.php:262
 msgid "Sorry, no modules were found for the search term \"%s\""
-msgstr ""
+msgstr "No se han encontrado modulos para el termino de búsqueda: \"%s\""
 
 #: class.jetpack-admin.php:331
 msgid "Jetpack is in local development mode."
-msgstr ""
+msgstr "Jetpack se encuentra en modo \"desarrollo local\"."
 
 msgid "Transform standard image galleries into full-screen slideshows."
-msgstr ""
+msgstr "Transforma galerías de imagen comunes en presentaciones formato pantalla completa."
 
 msgid "Let readers comment with WordPress.com, Twitter, Facebook, or Google+ accounts."
-msgstr ""
+msgstr "Permite a los lectores comentar con sus cuentas de WordPress.com, Twitter, Facebook o Google+."
 
 msgid "Receive notification of site activity via the admin toolbar and your Mobile devices."
-msgstr ""
+msgstr "Receive notificaciones de la actividad de tu sitio via la barra de administrador o en tus dispositivos móviles."
 
 #: class.jetpack-debugger.php:141
 msgid "Some themes and plugins have <a href=\"%1$s\">known conflicts</a> with Jetpack – check the <a href=\"%2$s\">list</a>. (You can also browse the <a href=\"%3$s\">Jetpack support pages</a> or <a href=\"%4$s\">Jetpack support forum</a> to see if others have experienced and solved the problem.)"
-msgstr ""
+msgstr "Algunos temas y plugins tienen<a href=\"%1$s\">conflictos conocidos </a> con Jetpack – revisa la <a href=\"%2$s\">lista</a>. (Puedes también revisar las <a href=\"%3$s\">páginas de soporte técnico de Jetpack </a> o <a href=\"%4$s\">el foro de soporte técnico de Jetpack</a> para averiguar si otros han pasado por lo mismo y ya han resuelto el problema.)"
 
 #: node_modules/grunt-wp-i18n/test/fixtures/basic-theme/exclude/file.php:3
 msgid "Exclude"
 msgstr "Excluir"
 
 msgid "Check your spelling, style, and grammar with the After the Deadline proofreading service."
-msgstr ""
+msgstr "Revisa tu ortografía, estilo y gramática con el servicio de corrección \"Después de la fecha límite\"."
 
 msgid "Insert a contact form anywhere on your site."
-msgstr ""
+msgstr "Inserta un formulario de contacto en cualquier lugar de tu sitio. "
 
 msgid "Customize your site’s CSS without modifying your theme."
-msgstr ""
+msgstr "Personaliza los CSS de tu sitio sin modificar tu tema. "
 
 msgid "Share your public posts and comments to search engines and other services."
-msgstr ""
+msgstr "Comparte tus entradas públicas y comentarios en motores de búsqueda y otros servicios. "
 
 msgid "Give users the ability to share posts to Google+, and add your site link to your Google+ profile."
-msgstr ""
+msgstr "Ofrece a los usuarios la posibilidad de compartir entradas en Google+ y agrega un enlace a tu sitio a tu perfil de Google+."
 
 msgid "Enable pop-up business cards over commenters’ Gravatars."
-msgstr ""
+msgstr "Permite que aparezcan tarjetas de presentación en ventanas emergentes sobre los Gravatares de quienes te hacen comentarios. "
 
 msgid "Add support for infinite scroll to your theme."
-msgstr ""
+msgstr "Agrega soporte para el scroll infinito en tu tema."
 
 msgid "Use LaTeX markup language in posts and pages for complex equations and other geekery."
-msgstr ""
+msgstr "Usa lenguaje LaTeX en entradas y páginas para realizar complejas ecuaciones y otros artilugios técnicos. "
 
 msgid "Give visitors an easy way to show their appreciation for your content."
-msgstr ""
+msgstr "Proporciona a tus visitantes una manera sencilla de mostrar su aprecio por tus contenidos. "
 
 msgid "Write posts or pages in plain-text Markdown syntax."
-msgstr ""
+msgstr "Escribe entradas o páginas en sintaxis markdown de texto simple. "
 
 msgid "Optimize your site with a mobile-friendly theme for tablets and phones."
-msgstr ""
+msgstr "Optimiza tu sitio con un tema apto para dispositivos móviles como tablets y teléfonos."
 
 msgid "Receive notifications from Jetpack if your site goes offline — and when it it returns."
-msgstr ""
+msgstr "Recibe notificaciones de Jetpack si tu sitio entra en estado de inactividad — y también cuando vuelve a estar activo. "
 
 msgid "Search your entire database from a single field in your Dashboard."
-msgstr ""
+msgstr "Puedes buscar en tu base de datos completa para encontrar un solo campo en tu Escritorio. "
 
 msgid "Accelerate your site by loading images from the WordPress.com CDN."
-msgstr ""
+msgstr "Acelera tu sitio cargando imágenes del CDN de WordPress.com."
 
 msgid "Publish posts by email, using any device and email client."
-msgstr ""
+msgstr "Publica tus entradas por correo electrónico, usando cualquier dispositivo y cliente de correo electrónico. "
 
 msgid "Share new posts on social media networks automatically."
-msgstr ""
+msgstr "Comparte nuevas entradas en las redes de medios sociales automáticamente. "
 
 msgid "Display links to your related content under posts and pages."
-msgstr ""
+msgstr "Muestra enlaces a tu contenido relacionado con las entradas y páginas. "
 
 msgid "Allow visitors to share your content on Facebook, Twitter, and more with a click."
-msgstr ""
+msgstr "Permite a tus visitantes compartir tu contenido en Facebook, Twitter y más con un solo clic. "
 
 msgid "Embed content from YouTube, Vimeo, SlideShare, and more, no coding necessary."
-msgstr ""
+msgstr "Incrusta contenido de YouTube, Vimeo, SlideShare y más, sin necesidad de agregar ningún tipo de código. "
 
 msgid "Enable WP.me-powered shortlinks for all posts and pages."
-msgstr ""
+msgstr "Activa enlaces cortos que funcionan con WP.me para todas las entradas y páginas. "
 
 msgid "Allow your users to log in using their WordPress.com accounts."
-msgstr ""
+msgstr "Permite a tus usuarios acceder usando sus cuentas de WordPress.com."
 
 msgid "Monitor your stats with clear, concise reports and no additional load on your server."
-msgstr ""
+msgstr "Monitorea tus estadísticas con reportes claros y concisos sin agregar carga adicional a tu servidor. "
 
 msgid "Allow users to subscribe to your posts and comments and receive notifications via email."
-msgstr ""
+msgstr "Permite a tus usarios suscribirse a tus entradas y comentarios y recibir notificaciones vía correo electrónico. "
 
 msgid "Display your image galleries in a variety of sleek, graphic arrangements."
-msgstr ""
+msgstr "Despliega tus galerías de imágenes en una variedad de elegantes disposiciones gráficas."
 
 msgid "Protect your site with automatic backups and security scans. (Subscription required.)"
-msgstr ""
+msgstr "Protege tu sitio con respaldos automáticos y revisiones de seguridad (se requiere suscripción)."
 
 msgid "Site Verification"
-msgstr ""
+msgstr "Verificación de sitio. "
 
 msgid "Verify your site or domain with Google Webmaster Tools, Pinterest, and others."
-msgstr ""
+msgstr "Verifica tu sitio o dominio con Google Webmaster Tools, Pinterest y otros."
 
 msgid "Upload and host video right on your site. (Subscription required.)"
-msgstr ""
+msgstr "Sube y aloja video directamente en tu sitio (se requiere suscripción)."
 
 msgid "Specify which widgets appear on which pages of your site."
-msgstr ""
+msgstr "Especifica cuáles widgets van a aparecer en cada página de tu sitio. "
 
 #: modules/module-info.php:950
 msgid "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage."
-msgstr ""
+msgstr "Verificar tu sitio te permite acceder a las funciones avanzadas de esos otros servicios (p.ej. Webmaster tools o conseguir una insignia de verificado). Solo agregaremos una etiqueta invisible al código fuente de tu página principal. "
 
 #: modules/related-posts/jetpack-related-posts.php:296
 msgid "Use a large and visually striking layout"
-msgstr ""
+msgstr "Usa un diseño grande y visualmente atractivo. "
 
 #: modules/related-posts/jetpack-related-posts.php:683
 msgid "Untitled Post"
@@ -143,11 +143,11 @@ msgstr "Entrada sin título"
 
 #: modules/related-posts/jetpack-related-posts.php:894
 msgid "Similar post"
-msgstr ""
+msgstr "Entrada similar "
 
 #: modules/sso.php:353
 msgid "Cannot deal with cookie redirects, as headers are already sent."
-msgstr ""
+msgstr "No se puede negociar con subpeticiones de cookies, ya que los encabezados ya han sido enviados."
 
 #: modules/verification-tools/blog-verification-tools.php:90
 msgid "Example:"
@@ -159,7 +159,7 @@ msgstr "Servicios de Verificación del Sitio Web "
 
 #: modules/verification-tools/blog-verification-tools.php:117
 msgid "Enter your meta key \"content\" value to verify your blog with %s"
-msgstr ""
+msgstr "Escribe el valor de palabra clave \"content\" para verificar tu sitio con nosotros."
 
 #: modules/verification-tools/blog-verification-tools.php:117
 msgid "and"
@@ -171,11 +171,11 @@ msgstr "Página de archivo"
 
 #: modules/widget-visibility/widget-conditions.php:116
 msgid "All taxonomy pages"
-msgstr ""
+msgstr "Todas las páginas de taxonomía "
 
 #: views/admin/network-settings.php:2
 msgid "Network Settings"
-msgstr ""
+msgstr "Ajustes de red "
 
 #: views/admin/network-settings.php:4
 msgid "Global"
@@ -183,15 +183,15 @@ msgstr "Global"
 
 #: views/admin/network-settings.php:5
 msgid "These settings affect all sites on the network."
-msgstr ""
+msgstr "Estos ajustes afectarán a todos los sitios en la red."
 
 #: views/admin/network-settings.php:17
 msgid "Sub-site override"
-msgstr ""
+msgstr "Anulación manual de sub-sitios "
 
 #: views/admin/network-settings.php:20
 msgid "Allow individual site administrators to manage their own connections (connect and disconnect) to <a href=\"//wordpress.com\">WordPress.com</a>"
-msgstr ""
+msgstr "Permite a los administradores de sitio individuales gestionar sus propias conexiones (conectar y desconectar) a <a href=\"//wordpress.com\">WordPress.com</a>"
 
 #: class.jetpack-admin.php:147
 msgctxt "The menu item label"
@@ -210,27 +210,27 @@ msgstr "Taxonomía"
 
 #: class.jetpack-admin.php:335
 msgid "Once you’ve connected Jetpack, you’ll get access to all the delightful features below."
-msgstr ""
+msgstr "Una vez que hayas conectado Jetpack, obtendrás acceso a todas las estupendas características que se listan a continuación."
 
 #: class.jetpack-admin.php:340
 msgid "Jetpack team favorites"
-msgstr ""
+msgstr "Favoritos del equipo Jetpack"
 
 #: class.jetpack-admin.php:347
 msgid "Customize the look of your site, without modifying your theme."
-msgstr ""
+msgstr "Personaliza la apariencia de tu sitio, sin modificar tu tema."
 
 #: class.jetpack-admin.php:355
 msgid "Let users log in through WordPress.com with one click."
-msgstr ""
+msgstr "Permite a los usuarios acceder con WordPress.com con un solo clic."
 
 #: class.jetpack-admin.php:370
 msgid "Jetpack features"
-msgstr ""
+msgstr "Características de Jetpack "
 
 #: class.jetpack-admin.php:374
 msgid "Search the Jetpack features"
-msgstr ""
+msgstr "Hacer una búsqueda en las características de Jetpack "
 
 #: class.jetpack-admin.php:378 class.jetpack-admin.php:458
 msgid "Newest"
@@ -246,7 +246,7 @@ msgstr "Cargar más"
 
 #: class.jetpack-admin.php:407
 msgid "Error, bad module."
-msgstr ""
+msgstr "Error, modulo defectuoso."
 
 #: class.jetpack-admin.php:449
 msgid "View:"
@@ -282,7 +282,7 @@ msgstr "Otro"
 
 #: class.jetpack-admin.php:489
 msgid "Photos and Videos"
-msgstr ""
+msgstr "Fotos y videos"
 
 #: class.jetpack-admin.php:490
 msgid "Social"
@@ -298,7 +298,7 @@ msgstr "cargando&hellip;"
 
 #: class.jetpack-admin.php:508
 msgid "Paid"
-msgstr ""
+msgstr "Pagado"
 
 #: class.jetpack-admin.php:516
 msgid "Learn more"
@@ -306,28 +306,28 @@ msgstr "Aprender más"
 
 #: class.jetpack-modules-list-table.php:46
 msgid "Search Modules…"
-msgstr ""
+msgstr "Buscar módulos…"
 
 #: class.jetpack-modules-list-table.php:88
 msgid "No Modules Found"
-msgstr ""
+msgstr "No se encontraron módulos"
 
 #: class.jetpack-modules-list-table.php:227
 msgid "Module Info"
-msgstr ""
+msgstr "Información de módulo "
 
 #: class.jetpack-network.php:314
 msgid "Jetpack Sites"
-msgstr ""
+msgstr "Sitios de Jetpack "
 
 #: class.jetpack-sync.php:767
 msgid "Indexing request queued and waiting&hellip;"
-msgstr ""
+msgstr "Indexando solicitud en espera y esperando&hellip"
 
 #: class.jetpack-twitter-cards.php:83 class.jetpack-twitter-cards.php:92
 #: functions.opengraph.php:71
 msgid "Visit the post for more."
-msgstr ""
+msgstr "Visita la entrada para saber más "
 
 #: class.jetpack-twitter-cards.php:92
 msgid "Post by %s."
@@ -335,71 +335,71 @@ msgstr "Entrada de %s:"
 
 #: class.jetpack-twitter-cards.php:146
 msgid "Twitter Site Tag"
-msgstr ""
+msgstr "Etiqueta de Sitio de Twitter "
 
 #: class.jetpack-twitter-cards.php:166
 msgid "The Twitter username of the owner of this site's domain."
-msgstr ""
+msgstr "El nombre de usuario de Twitter del dueño del dominio de este sitio. "
 
 #: class.jetpack.php:2212
 msgid "<strong>Your Jetpack is almost ready!</strong>"
-msgstr ""
+msgstr "<strong>¡Tu Jetpack está casi listo!</strong>"
 
 #: class.jetpack.php:2213
 msgid "Connect now to enable features like Stats, Likes, and Social Sharing."
-msgstr ""
+msgstr "Conecta ahora para activar funciones como Estadísticas, \"Me Gusta\" y compartir en medios sociales."
 
 #: class.jetpack.php:2215
 msgid "<strong>Jetpack is installed</strong>"
-msgstr ""
+msgstr "<strong>Jetpack está instalado</strong>"
 
 #: class.jetpack.php:2216
 msgid "It's ready to bring awesome, WordPress.com cloud-powered features to your site."
-msgstr ""
+msgstr "Está listo para dar impresionantes funciones que funcionan a partir de la nube de WordPress.com a tu sitio."
 
 #: class.jetpack.php:2651
 msgid "Jetpack is now active. Browse through each Jetpack feature below. Visit the <a href=\"%s\">settings page</a> to activate/deactivate features."
-msgstr ""
+msgstr "Jetpack está activado ahora. Recorre cada una de las funciones de Jetpack listadas a continuación. Visita la <a href=\"%s\">página de ajustes</a> para activar/desactivar funciones. "
 
 #: modules/contact-form/grunion-contact-form.php:324
 msgid "Feedback discarded."
-msgstr ""
+msgstr "Sugerencias descartadas."
 
 #: modules/contact-form/grunion-form-view.php:143
 msgid "Can I send a notification to more than one person?"
-msgstr ""
+msgstr "¿Puedo enviar una notificación a más de una persona?"
 
 #: modules/contact-form/grunion-form-view.php:144
 msgid "Yep. You can enter multiple email addresses in the Email address field, and separate them with commas. A notification email will then be sent to each email address."
-msgstr ""
+msgstr "Sí. Puedes escribir múltiples direcciones de correo electrónico en el campo de dirección de correo electrónico y separarlas con comas. Se te enviará entonces un correo de verificación a cada una de las direcciones. "
 
 #: modules/custom-post-types/nova.php:134
 msgid "For example, spicy, favorite, etc. <br /> Separate Labels with commas"
-msgstr ""
+msgstr "Por ejemplo picante, favorito, etc. <br /> Separa etiquetas con comas. "
 
 #: modules/custom-post-types/nova.php:145
 msgid "Menu Sections"
-msgstr ""
+msgstr "Secciones del menú"
 
 #: modules/custom-post-types/nova.php:146
 msgid "Menu Section"
-msgstr ""
+msgstr "Sección del menú"
 
 #: modules/custom-post-types/nova.php:147
 msgid "Search Menu Sections"
-msgstr ""
+msgstr "Buscar secciones del menú "
 
 #: modules/custom-post-types/nova.php:148
 msgid "All Menu Sections"
-msgstr ""
+msgstr "Todas las secciones del menú "
 
 #: modules/custom-post-types/nova.php:149
 msgid "Parent Menu Section"
-msgstr ""
+msgstr "Sección superior del menú "
 
 #: modules/custom-post-types/nova.php:150
 msgid "Parent Menu Section:"
-msgstr ""
+msgstr "Sección superior del menú:"
 
 #: modules/custom-post-types/nova.php:151
 msgid "Edit Menu Section"
@@ -439,11 +439,11 @@ msgstr "Elemento de menú restaurado desde la revisión de %s"
 
 #: modules/custom-post-types/nova.php:226
 msgid "Menu item published. <a href=\"%s\">View item</a>"
-msgstr ""
+msgstr "Elemento del menú publicado. <a href=\"%s\">Ver elemento</a>"
 
 #: modules/custom-post-types/nova.php:227
 msgid "Menu item saved."
-msgstr ""
+msgstr "Elemento del menú guardado."
 
 #: modules/custom-post-types/nova.php:228
 msgid "Menu item submitted. <a target=\"_blank\" href=\"%s\">Preview item</a>"
@@ -499,15 +499,15 @@ msgstr "Nueva Fila"
 
 #: modules/gplus-authorship/admin/ui.php:158
 msgid "Hide my Google+ profile from displaying in the sharing area of my posts."
-msgstr ""
+msgstr "Ocultar mi perfil de Google+ para que este no se muestre en el área de compartir de mis entradas. "
 
 #: modules/gplus-authorship/admin/ui.php:179
 msgid "Your posts will be associated with your Google+ profile."
-msgstr ""
+msgstr "Tus entradas se asociarán con tu perfil de Google+."
 
 #: modules/gplus-authorship/admin/ui.php:225
 msgid "Associate my Google+ infomation with this post."
-msgstr ""
+msgstr "Asociar mi información de Google+ con esta entrada."
 
 #: modules/infinite-scroll/infinity.php:550
 msgid "Older %s"
@@ -519,11 +519,11 @@ msgstr "Botón de reblogueo de WordPress.com"
 
 #: modules/likes.php:299
 msgid "Show the Reblog button on posts"
-msgstr ""
+msgstr "Mostrar el botón de re-publicar en las entradas. "
 
 #: modules/likes.php:305
 msgid "Don't show the Reblog button on posts"
-msgstr ""
+msgstr "No mostrar el botón de re-publicar en las entradas. "
 
 #: modules/likes.php:313
 msgid "Comment Likes are"
@@ -531,11 +531,11 @@ msgstr "\"Me gusta\" de comentarios están"
 
 #: modules/likes.php:319
 msgid "On for all comments"
-msgstr ""
+msgstr "Activado para todos los comentarios"
 
 #: modules/module-info.php:452
 msgid "To customize the emails sent from your blog to your followers, check the settings at the bottom of the <a href=\"%s\">Reading Settings</a> page."
-msgstr ""
+msgstr "Para personalizar los correos electrónicos enviados desde tu sitio a tus seguidores, revisa los ajustes en la parte inferior de la página <a href=\"%s\">Ajustes de lectura</a>."
 
 #: modules/module-info.php:948
 msgid "Site Verification Tools"
@@ -543,19 +543,19 @@ msgstr "Herramientas de Verificación del Sitio"
 
 #: modules/module-info.php:949
 msgid "Use these tools to verify that you own/control your website with other external services like Google, Bing and Pinterest."
-msgstr ""
+msgstr "Usa estas herramientas para verificar que tu tienes posesión/control sobre tu sitio web con otros servicios externos como Google, Bing y Pinterest."
 
 #: _inc/footer.php:10 class.jetpack-admin.php:310
 msgid "Connect to Get Started"
-msgstr ""
+msgstr "Conectar con Iniciarse "
 
 #: _inc/footer.php:12 class.jetpack-admin.php:312
 msgid "Link your account to WordPress.com"
-msgstr ""
+msgstr "Enlaza tu cuenta con WordPress.com"
 
 #: _inc/footer.php:18
 msgid "An %s Airline"
-msgstr ""
+msgstr "Una %s Aerolínea"
 
 #: _inc/footer.php:28
 msgid "Terms"
@@ -567,23 +567,23 @@ msgstr "Privacidad"
 
 #: _inc/footer.php:30
 msgid "Test your site&#8217;s compatibility with Jetpack."
-msgstr ""
+msgstr "Pon a prueba la compatibilidad&#8217;s de tu sitio con Jetpack."
 
 #: _inc/footer.php:31
 msgid "Contact the Jetpack Happiness Squad."
-msgstr ""
+msgstr "Contacta con el Jetpack Happiness Squad."
 
 #: _inc/footer.php:32
 msgid "Take a survey.  Tell us how we&#8217;re doing."
-msgstr ""
+msgstr "Contesta una encuesta. Dinos qué tal lo estamos &#8217;re haciendo."
 
 #: _inc/footer.php:32
 msgid "Give Us Feedback"
-msgstr ""
+msgstr "Envíanos tus sugerencias "
 
 #: _inc/footer.php:38
 msgid "Unlink your user account"
-msgstr ""
+msgstr "Desvincula tu cuenta de usuario "
 
 #: _inc/footer.php:51
 msgid "Config"
@@ -595,33 +595,33 @@ msgstr "Inicio"
 
 #: class.jetpack-admin.php:188
 msgid "Jetpack Settings"
-msgstr ""
+msgstr "Ajustes de Jetpack"
 
 #: class.jetpack-admin.php:258
 msgid ""
 "This will deactivate all Jetpack modules.\n"
 "Are you sure you want to disconnect?"
-msgstr ""
+msgstr "Esto desactivará todos los módulos de Jetpack.¿Estás seguro que quieres desconectar? "
 
 #: class.jetpack-admin.php:259
 msgid ""
 "This will prevent user-specific modules such as Publicize, Notifications and Post By Email from working.\n"
 "Are you sure you want to unlink?"
-msgstr ""
+msgstr "Esto evitará que los módulos específicos de usuario, como Publicize, Notificaciones y Publicar por correo electrónico funcionen.¿Estás seguro que deseas desvincular? "
 
 #: class.jetpack-admin.php:260
 msgid ""
 "This will deactivate Jetpack.\n"
 "Are you sure you want to deactivate Jetpack?"
-msgstr ""
+msgstr "Esto desactivará Jetpack.¿Estás seguro que quieres desactivar Jetpack?"
 
 #: class.jetpack-admin.php:307
 msgid "Supercharge your self-hosted site with a suite of the most powerful WordPress.com features."
-msgstr ""
+msgstr "Utiliza todo el poder de tu sitio auto-hospedado con una serie de las más poderosas características de WordPress.com."
 
 #: class.jetpack-admin.php:333
 msgid "You're successfully connected to Jetpack!"
-msgstr ""
+msgstr "¡Te has conectado exitosamente a Jetpack!"
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Language"
@@ -4355,7 +4355,7 @@ msgstr "Mostrar borde"
 
 #: _inc/footer.php:35 class.jetpack.php:3011
 msgid "Disconnect from WordPress.com"
-msgstr "Desconectado de WordPress.com"
+msgstr "Desconectar de WordPress.com"
 
 #: modules/contact-form/grunion-form-view.php:207
 msgid "Save and go back to form builder"
