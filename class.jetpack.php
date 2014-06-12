@@ -3971,7 +3971,10 @@ p {
 		}
 
 		// Set a state variable
-		if ( isset ( $key ) && isset( $value ) && is_string( $value ) ) {
+		if ( isset ( $key ) && isset( $value ) ) {
+			if( is_array( $value ) && isset( $value[0] ) ) {
+				$value = $value[0];
+			}
 			$state[ $key ] = $value;
 			setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
 		}
