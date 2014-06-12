@@ -248,9 +248,13 @@ class Jetpack_Admin {
 
 	function admin_styles() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-
+		
 		wp_enqueue_style( 'jetpack-google-fonts', '//fonts.googleapis.com/css?family=Open+Sans:400italic,400,700,600,800' );
-		wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin{$min}.css", __FILE__ ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
+		if( is_rtl() ) {
+			wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin-rtl{$min}.css", __FILE__ ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
+		} else {
+			wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin{$min}.css", __FILE__ ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );	
+		}
 	}
 
 	function admin_scripts() {
@@ -403,16 +407,14 @@ class Jetpack_Admin {
 	}
 
 	function main_page_js_templates() {
+		$modules = 	array('Appearance', 'Developers', 'Mobile', 'Other', 'Photos and Videos', 'Social', 'WordPress.com Stats', 'Writing' );
 		?>
 <script id="category" type="text/html">
-	<div class="cat category-appearance"><h3><?php _e( 'Appearance', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-developers"><h3><?php _e( 'Developers', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-mobile"><h3><?php _e( 'Mobile', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-other"><h3><?php _e( 'Other', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-photos-and-videos"><h3><?php _e( 'Photos and Videos', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-social"><h3><?php _e( 'Social', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-wordpresscom-stats"><h3><?php _e( 'WordPress.com Stats', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-writing"><h3><?php _e( 'Writing', 'jetpack' ); ?></h3><div class="clear"></div></div>
+	<?php foreach( $modules as $module ){ 
+		$translated_module = Jetpack::translate_module_tag( $module );
+		$module_slug = strtolower ( str_replace( array( ' ', '.' ) , array( '-', '' ) , $translated_module ) ); ?> 
+		<div class="cat category-<?php echo esc_attr( $module_slug  ); ?> "><h3><?php echo esc_html( $translated_module ); ?></h3><div class="clear"></div></div>
+	<?php } ?>
 </script>
 <script id="modalLoading" type="text/html">
 	<div class="loading"><span><?php esc_html_e( 'loading&hellip;', 'jetpack' ); ?></span></div>
