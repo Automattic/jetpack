@@ -44,7 +44,7 @@ rsync -r --exclude='*.git*' $JETPACK_GIT_DIR/* $JETPACK_SVN_DIR/trunk
 
 # check .svnignore
 for file in $( cat "$JETPACK_GIT_DIR/.svnignore" 2>/dev/null ); do
-	rm -rf trunk/$file
+	rm -rf $JETPACK_SVN_DIR/trunk/$file
 done
 
 # Tag the release.
