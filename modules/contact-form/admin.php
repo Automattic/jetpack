@@ -220,7 +220,7 @@ function grunion_manage_post_columns( $col, $post_id ) {
 			$author_email = $content_fields['_feedback_author_email'];
 			$author_url   = $content_fields['_feedback_author_url'];
 			$author_ip    = $content_fields['_feedback_ip'];
-			$form_url     = get_permalink( $post_id );
+			$form_url     = isset( $post->post_parent ) ? get_permalink( $post->post_parent ) : null;
 
 			$author_name_line = '';
 			if ( !empty( $author_name ) ) {
