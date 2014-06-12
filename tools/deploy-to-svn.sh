@@ -17,6 +17,15 @@ if [ -z $( git tag | grep "^$TAG$" ) ]; then
 	exit 1
 fi
 
+# Make sure we don't have uncommitted changes.
+if [ -z $( git status -s ) ]; then
+	echo "Uncommitted changes found."
+	echo "Please deal with them and try again clean."
+	exit 1
+fi
+
+git checkout $TAG
+
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
 rm -rf /tmp/jetpack
 svn checkout http://plugins.svn.wordpress.org/jetpack/ --depth=empty /tmp/jetpack
