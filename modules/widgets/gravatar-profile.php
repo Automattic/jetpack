@@ -266,14 +266,14 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 		$cache_key = 'grofile-' . $hashed_email;
 
 		if( ! $profile = get_transient( $cache_key ) ) {
-			$profile_url = esc_url_raw( sprintf( '%s.gravatar.com/%s.php', ( is_ssl() ? 'https://secure' : 'http://www' ), $hashed_email ), array( 'http', 'https' ) );
+			$profile_url = esc_url_raw( sprintf( '%s.gravatar.com/%s.json', ( is_ssl() ? 'https://secure' : 'http://www' ), $hashed_email ), array( 'http', 'https' ) );
 
 			$expire = 300;
 			$response = wp_remote_get( $profile_url, array( 'User-Agent' => 'WordPress.com Gravatar Profile Widget' ) );
 			$response_code = wp_remote_retrieve_response_code( $response );
 			if ( 200 == $response_code ) {
 				$profile = wp_remote_retrieve_body( $response );
-				$profile = unserialize( $profile );
+				$profile = json_decode( $profile, true );
 
 				if ( is_array( $profile ) && ! empty( $profile['entry'] ) && is_array( $profile['entry'] ) ) {
 					$expire = 900; // cache for 15 minutes
