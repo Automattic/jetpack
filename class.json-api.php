@@ -121,6 +121,8 @@ class WPCOM_JSON_API {
 	}
 
 	function serve( $exit = true ) {
+		ini_set( 'display_errors', false );
+
 		$this->exit = (bool) $exit;
 
 		add_filter( 'home_url', array( $this, 'ensure_http_scheme_of_home_url' ), 10, 3 );
