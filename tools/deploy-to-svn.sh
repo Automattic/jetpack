@@ -6,7 +6,7 @@ if [ $# -eq 0 ]; then
 fi
 
 JETPACK_GIT_DIR=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )
-NEW_VERSION_NUM="3.1-beta1"
+TAG=$1
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
 rm -rf /tmp/jetpack
@@ -42,12 +42,12 @@ rm -rf trunk/.git trunk/.gitignore trunk/.jshintrc trunk/.jshintignore trunk/.sa
 rm -rf trunk/_inc/lib/icalendar-reader.php trunk/modules/shortcodes/upcoming-events.php trunk/modules/widgets/upcoming-events.php
 
 # Tag the release.
-# svn cp trunk tags/$NEW_VERSION_NUM
+# svn cp trunk tags/$TAG
 
 # Change stable tag in the tag itself, and commit (tags shouldn't be modified after comitted)
-# perl -pi -e "s/Stable tag: .*/Stable tag: $NEW_VERSION_NUM/" tags/$NEW_VERSION_NUM/readme.txt
+# perl -pi -e "s/Stable tag: .*/Stable tag: $TAG/" tags/$TAG/readme.txt
 # svn ci
 
 # Update trunk to point to the freshly tagged and shipped release.
-# perl -pi -e "s/Stable tag: .*/Stable tag: $NEW_VERSION_NUM/" trunk/readme.txt
+# perl -pi -e "s/Stable tag: .*/Stable tag: $TAG/" trunk/readme.txt
 # svn ci
