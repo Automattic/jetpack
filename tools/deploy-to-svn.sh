@@ -34,31 +34,18 @@ cd $JETPACK_SVN_DIR
 svn up trunk
 svn up tags --depth=empty
 
-# Delete files in the SVN repo that are no longer in the Git repo.
-SVN_FILES=$( cd trunk && find . -type f )
-GIT_FILES=$( cd $JETPACK_GIT_DIR && find . -type f )
-RM_FILES=$(diff -B <( echo "$SVN_FILES" ) <( echo "$GIT_FILES" ) | grep "^<.*" | cut -d ' ' -f 2 )
-if [ -z "$RM_FILES" ]; then
-	echo "No deleted files."
-else
-	for THIS_FILE in $RM_FILES
-	do
-		( cd trunk && svn rm $THIS_FILE )
-		echo "Removed $THIS_FILE to match source."
-	done
-fi
+# delete everything except .svn dirs
+for file in $(find $JETPACK_SVN_DIR/trunk/* -not -path "*.svn*"); do
+	rm $file 2>/dev/null
+done
 
-# Copy our whole git checkout here recursively.
-cp -rf $JETPACK_GIT_DIR/* trunk
+# copy everything over from git
+rsync -r --exclude='*.git*' $JETPACK_GIT_DIR/* $JETPACK_SVN_DIR/trunk
 
-# Snag the dot-files as well.
-cp -rf $JETPACK_GIT_DIR/.??* trunk
-
-# Delete files that don't need to be deployed with the plugin release.
-rm -rf trunk/.git trunk/.gitignore trunk/.jshintrc trunk/.jshintignore trunk/.sass-cache trunk/Gruntfile.js trunk/_inc/scss trunk/_inc/*.scss trunk/.travis.yml trunk/package.json trunk/languages/jetpack.pot trunk/phpunit.xml.dist trunk/readme.md trunk/node_modules trunk/tests trunk/tools
-
-# Upcoming Events isn't ready for primetime yet.
-rm -rf trunk/_inc/lib/icalendar-reader.php trunk/modules/shortcodes/upcoming-events.php trunk/modules/widgets/upcoming-events.php
+# check .svnignore
+for file in $( cat "$JETPACK_GIT_DIR/.svnignore" 2>/dev/null ); do
+	rm trunk/$file -rf
+done
 
 # Tag the release.
 # svn cp trunk tags/$TAG
