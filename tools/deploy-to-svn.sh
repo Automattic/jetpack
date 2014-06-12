@@ -8,6 +8,15 @@ fi
 JETPACK_GIT_DIR=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )
 TAG=$1
 
+cd $JETPACK_GIT_DIR
+
+# Make sure we're trying to deploy something that's been tagged. Don't deploy non-tagged.
+if [ -z $( git tag | grep "^$TAG$" ) ]; then
+	echo "Tag $TAG not found in git repository."
+	echo "Please try again with a valid tag."
+	exit 1
+fi
+
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
 rm -rf /tmp/jetpack
 svn checkout http://plugins.svn.wordpress.org/jetpack/ --depth=empty /tmp/jetpack
