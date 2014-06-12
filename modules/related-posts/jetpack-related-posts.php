@@ -793,7 +793,13 @@ EOT;
 	 * @return array
 	 */
 	protected function _get_related_posts( $post_id, $size, array $filters ) {
-		$hits = $this->_get_related_post_ids( $post_id, $size, $filters );
+		$hits = $this->_filter_non_public_posts(
+			$this->_get_related_post_ids(
+				$post_id,
+				$size,
+				$filters
+			)
+		);
 
 		$hits = apply_filters( 'jetpack_relatedposts_filter_hits', $hits, $post_id );
 
@@ -880,6 +886,25 @@ EOT;
 		update_post_meta( $post_id, $cache_meta_key, $new_cache );
 
 		return $related_posts;
+	}
+
+	/**
+	 * Filter out any hits that are not public anymore.
+	 *
+	 * @param array $related_posts
+	 * @uses get_post_stati, get_post_status
+	 * @return array
+	 */
+	protected function _filter_non_public_posts( array $related_posts ) {
+		$public_stati = get_post_stati( array( 'public' => true ) );
+
+		$filtered = array();
+		foreach ( $related_posts as $hit ) {
+			if ( in_array( get_post_status( $hit['id'] ), $public_stati ) ) {
+				$filtered[] = $hit;
+			}
+		}
+		return $filtered;
 	}
 
 	/**
@@ -1056,7 +1081,13 @@ class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
 	 * @return array
 	 */
 	protected function _get_related_posts( $post_id, $size, array $filters ) {
-		$hits = $this->_get_related_post_ids( $post_id, $size, $filters );
+		$hits = $this->_filter_non_public_posts(
+			$this->_get_related_post_ids(
+				$post_id,
+				$size,
+				$filters
+			)
+		);
 
 		return $hits;
 	}
