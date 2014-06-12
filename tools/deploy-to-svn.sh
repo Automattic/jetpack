@@ -29,23 +29,39 @@ git checkout $TAG
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
 rm -rf $JETPACK_SVN_DIR
-svn -q checkout http://plugins.svn.wordpress.org/jetpack/ --depth=empty $JETPACK_SVN_DIR
-cd $JETPACK_SVN_DIR
-svn -q up trunk
-svn -q up tags --depth=empty
 
+echo "Checking out SVN shallowly to $JETPACK_SVN_DIR"
+svn -q checkout http://plugins.svn.wordpress.org/jetpack/ --depth=empty $JETPACK_SVN_DIR
+echo "Done!"
+
+cd $JETPACK_SVN_DIR
+
+echo "Checking out SVN trunk to $JETPACK_SVN_DIR/trunk"
+svn -q up trunk
+echo "Done!"
+
+echo "Checking out SVN tags shallowly to $JETPACK_SVN_DIR/tags"
+svn -q up tags --depth=empty
+echo "Done!"
+
+echo "Deleting everything in trunk except for .svn directories"
 # delete everything except .svn dirs
 for file in $(find $JETPACK_SVN_DIR/trunk/* -not -path "*.svn*"); do
 	rm $file 2>/dev/null
 done
+echo "Done!"
 
 # copy everything over from git
+echo "Rsync'ing everything over from Git except for .git stuffs"
 rsync -r --exclude='*.git*' $JETPACK_GIT_DIR/* $JETPACK_SVN_DIR/trunk
+echo "Done!"
 
+echo "Purging paths included in .svnignore"
 # check .svnignore
 for file in $( cat "$JETPACK_GIT_DIR/.svnignore" 2>/dev/null ); do
 	rm -rf $JETPACK_SVN_DIR/trunk/$file
 done
+echo "Done!"
 
 # Tag the release.
 # svn cp trunk tags/$TAG
