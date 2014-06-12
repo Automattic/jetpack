@@ -3076,6 +3076,10 @@ msgstr ""
 msgid "Next &raquo;"
 msgstr ""
 
+#: modules/minileven/theme/pub/minileven/footer.php:24
+msgid "View Full Site"
+msgstr ""
+
 #: modules/minileven/theme/pub/minileven/footer.php:27
 msgid "http://wordpress.org/"
 msgstr ""
