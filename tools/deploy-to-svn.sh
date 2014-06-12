@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ $# -eq 0 ]; then
+	echo 'Usage: `./deploy-to-svn.sh <tag>`'
+	exit 1
+fi
+
 JETPACK_GIT_DIR=$(dirname "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" )
 NEW_VERSION_NUM="3.1-beta1"
 
