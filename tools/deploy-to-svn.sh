@@ -19,7 +19,7 @@ if [ -z $( git tag | grep "^$TAG$" ) ]; then
 fi
 
 # Make sure we don't have uncommitted changes.
-if [ -z $( git status -s ) ]; then
+if [[ -n $( git status -s --porcelain ) ]]; then
 	echo "Uncommitted changes found."
 	echo "Please deal with them and try again clean."
 	exit 1
