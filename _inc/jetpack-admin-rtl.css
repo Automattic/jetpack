@@ -483,7 +483,6 @@ html {
   background-color: #81a844;
   background-image: -webkit-gradient(linear, right top, right bottom, from(#81a844), to(#8eb74e));
   background-image: -webkit-linear-gradient(top, #81a844, #8eb74e);
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#81a844), to(#8eb74e));
   background-image: linear-gradient(top, #81a844, #8eb74e);
 }
 .masthead h1,
@@ -578,7 +577,6 @@ html {
   background-color: #81a844;
   background-image: -webkit-gradient(linear, right top, right bottom, from(#81a844), to(#89b348));
   background-image: -webkit-linear-gradient(top, #81a844, #89b348);
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#81a844), to(#89b348));
   background-image: linear-gradient(top, #81a844, #89b348);
 }
 .clouds-sm:after {
@@ -748,9 +746,9 @@ html {
   overflow: hidden;
 }
 
-input[type="text"].module-search {
+#jetpack-search {
   width: 100%;
-  padding: 11px 16px 11px 0;
+  padding: 11px 16px 11px 16px;
   color: #5c6671;
   border: 1px solid #c9ced0;
   border-left-width: 2px;
@@ -759,27 +757,27 @@ input[type="text"].module-search {
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
-input[type="text"].module-search:focus {
+#jetpack-search:focus {
   color: #5c6671;
   outline: none;
 }
-input[type="text"].module-search:focus + label {
+#jetpack-search:focus + label {
   background: transparent;
   opacity: .3;
 }
-input[type="text"].module-search::-webkit-input-placeholder {
+#jetpack-search::-webkit-input-placeholder {
   color: #a8acae;
 }
-input[type="text"].module-search :-moz-placeholder {
+#jetpack-search :-moz-placeholder {
   color: #a8acae;
 }
-input[type="text"].module-search::-moz-placeholder {
+#jetpack-search::-moz-placeholder {
   color: #a8acae;
 }
-input[type="text"].module-search:-ms-input-placeholder {
+#jetpack-search:-ms-input-placeholder {
   color: #a8acae;
 }
-input[type="text"].module-search + label {
+#jetpack-search + label {
   position: absolute;
   top: 1px;
   left: 1px;
@@ -794,7 +792,7 @@ input[type="text"].module-search + label {
   -webkit-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
 }
-input[type="text"].module-search + label:after {
+#jetpack-search + label:after {
   content: '\f400';
   position: absolute;
   left: 11px;
@@ -1077,7 +1075,6 @@ input[type="text"].module-search + label:after {
   background-color: #81a844;
   background-image: -webkit-gradient(linear, right top, right bottom, from(#8eb74e), to(#81a844));
   background-image: -webkit-linear-gradient(top, #8eb74e, #81a844);
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#8eb74e), to(#81a844));
   background-image: linear-gradient(top, #8eb74e, #81a844);
 }
 .footer:before, .footer:after {
@@ -1725,6 +1722,17 @@ input[type="text"].module-search + label:after {
 .wrap .manage-right .subsubsub a {
   padding: 0;
   line-height: inherit;
+}
+.wrap .manage-right .subsubsub .current {
+  padding: 1px 5px;
+  border-radius: 2px;
+  margin-right: -5px;
+  background: #0D72B2;
+  color: #FFF;
+}
+.wrap .manage-right .subsubsub .current .count {
+  color: #BCD7E7;
+  font-weight: 200;
 }
 .wrap .manage-right .subsubsub li {
   display: block;
