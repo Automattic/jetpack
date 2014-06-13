@@ -224,3 +224,18 @@ function minileven_get_gallery_images() {
 
 	return $images;
 }
+
+/**
+ * Allow plugins to filter where Featured Images are displayed.
+ * Default is to disable Featured Images only on search results.
+ * Display will also rely on the Featured Images setting in the Jetpack Mobile Theme UI.
+ *
+ * @uses is_search()
+ * @uses apply_filters()
+ * @return bool
+ */
+function minileven_show_featured_images() {
+	$enabled = ! is_search(); // Disabled only on search results
+
+	return (bool) apply_filters( 'minileven_show_featured_images', $enabled );
+}
