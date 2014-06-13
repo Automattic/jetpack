@@ -248,6 +248,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends WPCOM_JSON_API_Endpoint
 		$plugin = array();
 		$plugin['id']     = $plugin_file;
 		$plugin['active'] = Jetpack::is_plugin_active( $plugin_file );
+		$current = get_site_transient( 'update_plugins' );
+		$plugin['update'] = ( isset( $current->response[ $plugin_file ] ) ) ? $current->response[ $plugin_file ] : array();
 		return array_merge( $plugin, $plugin_data );
 	}
 
