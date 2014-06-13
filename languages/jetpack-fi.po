@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-05-12 21:14:31+0000\n"
+"PO-Revision-Date: 2014-06-13 07:24:18+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -2255,7 +2255,7 @@ msgstr ""
 
 #: modules/comments/comments.php:448 modules/comments/comments.php:499
 msgid "Submitting Comment%s"
-msgstr ""
+msgstr "Lähetetään kommenttia%s"
 
 #: modules/holiday-snow.php:28
 msgid "Show falling snow on my blog until January 4<sup>th</sup>."

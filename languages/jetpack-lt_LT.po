@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-05-12 21:27:56+0000\n"
+"PO-Revision-Date: 2014-06-13 07:25:39+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1892,7 +1892,7 @@ msgstr ""
 
 #: modules/subscriptions.php:474
 msgid "Notify me of follow-up comments by email."
-msgstr ""
+msgstr "Pranešti apie naujus komentarus elektroniniu paštu."
 
 #: class.jetpack-client-server.php:186 class.jetpack.php:3595
 #: class.jetpack.php:3597 class.jetpack.php:3599 class.jetpack.php:3602
@@ -1913,7 +1913,7 @@ msgstr ""
 
 #: modules/subscriptions.php:481
 msgid "Notify me of new posts by email."
-msgstr ""
+msgstr "Pranešti apie naujus įrašus elektroniniu paštu."
 
 #: class.jetpack-debugger.php:24
 msgid "You do not have sufficient permissions to access this page."
