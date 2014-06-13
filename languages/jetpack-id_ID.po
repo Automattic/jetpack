@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-06-06 02:37:42+0000\n"
+"PO-Revision-Date: 2014-06-13 06:03:19+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -270,7 +270,7 @@ msgstr "Tampilan"
 
 #: class.jetpack-admin.php:486
 msgid "Developers"
-msgstr ""
+msgstr "Pengembang"
 
 #: class.jetpack-admin.php:487
 msgid "Mobile"
