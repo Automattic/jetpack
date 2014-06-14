@@ -224,3 +224,15 @@ function minileven_get_gallery_images() {
 
 	return $images;
 }
+
+/**
+ * Allow plugins to filter where Featured Images are displayed
+ *
+ * @uses get_option( 'wp_mobile_featured_images' ), is_home(), is_search(), is_archive(), apply_filters()
+ * @return string
+ */
+function minileven_supports_post_thumbnails() {
+	$enabled = ( '1' == get_option( 'wp_mobile_featured_images' ) ) && ( is_home() || is_search() || is_archive() );
+
+	return apply_filters( 'minileven_post_thumbnails_supported', $enabled );
+}
