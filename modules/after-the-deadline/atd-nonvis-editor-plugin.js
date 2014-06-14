@@ -27,7 +27,7 @@ function AtD_restore_text_area()
 	/* restore autosave */
 	if ( AtD.autosave != undefined ) {
 		if ( window.wp && window.wp.autosave && window.wp.autosave.server ) {
-			window.wp.autosave.local.resume();
+			if( window.wp.autosave.local ) { window.wp.autosave.local.resume(); }
 			window.wp.autosave.server.resume();
 		} else {
 			autosave = AtD.autosave;
@@ -135,7 +135,7 @@ function AtD_check(button) {
 
 		/* kill autosave... :) */
 		if ( window.wp && window.wp.autosave && window.wp.autosave.server ) {
-			window.wp.autosave.local.suspend();
+			if( window.wp.autosave.local ) { window.wp.autosave.local.suspend(); }
 			window.wp.autosave.server.suspend();
 		} else {
 			autosave = function() { };
