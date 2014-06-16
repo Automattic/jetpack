@@ -30,7 +30,7 @@ module.exports = function(grunt) {
 				},
 				expand: true,
 				ext: '-rtl.css', 
-				src: ['_inc/*.css','!_inc/*-rtl.css','!_inc/*.min.css', '!modules/contact-form/css/rtl/*-rtl.css']
+				src: ['_inc/*.css','!_inc/*-rtl.css','!_inc/*.min.css','!modules/contact-form/css/rtl/*-rtl.css']
 			},
 			min: {
 				options: { 
