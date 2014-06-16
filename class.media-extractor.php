@@ -105,9 +105,11 @@ class Jetpack_Media_Meta_Extractor {
 		}
 
 		// ----------------------------------- HASHTAGS ------------------------------
-/* Some hosts may not compile with --enable-unicode-properties and kick a warning
-	Warning: preg_match_all() [function.preg-match-all]: Compilation failed: support for \P, \p, and \X has not been compiled
-		if ( self::HASHTAGS & $what_to_extract ) {
+		/** Some hosts may not compile with --enable-unicode-properties and kick a warning:
+		  *   Warning: preg_match_all() [function.preg-match-all]: Compilation failed: support for \P, \p, and \X has not been compiled
+		  * Therefore, we only run this code block on wpcom, not in Jetpack.
+		 */
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ( self::HASHTAGS & $what_to_extract ) ) {
 			//This regex does not exactly match Twitter's
 			// if there are problems/complaints we should implement this:
 			//   https://github.com/twitter/twitter-text-java/blob/master/src/com/twitter/Regex.java
@@ -120,7 +122,7 @@ class Jetpack_Media_Meta_Extractor {
 				$extracted['has']['hashtag'] = count( $hashtags );
 			}
 		}
-*/
+
 		// ----------------------------------- SHORTCODES ------------------------------
 
 		// Always look for shortcodes.
