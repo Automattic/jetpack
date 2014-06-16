@@ -69,6 +69,50 @@ class VaultPress_Filesystem {
 		die();
 	}
 
+	function exec_checksum( $file, $method ) {
+		if ( !function_exists( 'exec' ) )
+			return false;
+		$out = array();
+		if ( 'md5' == $method )
+			$method_bin = 'md5sum';
+		if ( 'sha1' == $method )
+			$method_bin = 'sha1sum';
+		$checksum = '';
+		exec( sprintf( '%s %s', escapeshellcmd( $method_bin ), escapeshellarg( $file ) ), $out );
+		if ( !empty( $out ) )
+			$checksum = trim( array_shift( explode( ' ', array_pop( $out ) ) ) );
+		if ( !empty( $checksum ) )
+			return $checksum;
+		return false;
+	}
+
+	function checksum_file( $file, $method ) {
+		$use_exec = false;
+		if ( filesize( $file ) >= 104857600 )
+			$use_exec = true;
+		switch( $method ) {
+			case 'md5':
+			if ( $use_exec ) {
+				$checksum = $this->exec_checksum( $file, $method );
+				if ( !empty( $checksum ) )
+					return $checksum;
+			}
+			return md5_file( $file );
+			break;
+			case 'sha1':
+			if ( $use_exec ) {
+				$checksum = $this->exec_checksum( $file, $method );
+				if ( !empty( $checksum ) )
+					return $checksum;
+			}
+			return sha1_file( $file );
+			break;
+			default:
+			return false;
+			break;
+		}
+	}
+
 	function stat( $file, $md5=true, $sha1=true ) {
 		$rval = array();
 		foreach ( stat( $file ) as $i => $v ) {
@@ -79,9 +123,9 @@ class VaultPress_Filesystem {
 		$rval['type'] = filetype( $file );
 		if ( $rval['type'] == 'file' ) {
 			if ( $md5 )
-				$rval['md5'] = md5_file( $file );
+				$rval['md5'] = $this->checksum_file( $file, 'md5' );
 			if ( $sha1 )
-				$rval['sha1'] = sha1_file( $file );
+				$rval['sha1'] = $this->checksum_file( $file, 'sha1' );
 		}
 		$dir = $this->dir;
 		if ( 0 !== strpos( $file, $dir ) && 'wp-config.php' == basename( $file ) ) {
