@@ -1,4 +1,4 @@
-/* This file was automatically generated on Jun 19 2013 20:14:22 */
+/* This file was automatically generated on Jun 16 2014 06:46:36 */
 
 
 .wp-admin #wpwrap {
@@ -19,17 +19,6 @@ ul#adminmenu a.wp-has-current-submenu:after,
 ul#adminmenu > li.current > a.current:after {
 	border-left-color:#8da94c;
 	display: none;
-}
-
-h2.page-title {
-	color: #fff;
-	text-shadow: 0 1px 1px rgba(0,0,0,0.5);
-}
-
-#results-title,
-.jump-to {
-	color: #fff;
-	text-shadow: 0 1px 1px rgba(0,0,0,0.5);
 }
 
 .omnisearch-results > li:first-child > h2 {
