@@ -1558,7 +1558,14 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 		if ( isset( $_POST[$field_id] ) ) {
 			$this->value = stripslashes( (string) $_POST[$field_id] );
-		} elseif ( is_user_logged_in() ) {
+		} elseif (
+			is_user_logged_in()
+		&&
+			(
+				( defined( 'IS_WPCOM' ) && IS_WPCOM )
+				|| true === apply_filters( 'jetpack_auto_fill_logged_in_user', false )
+			)
+		) {
 			// Special defaults for logged-in users
 			switch ( $this->get_attribute( 'type' ) ) {
 			case 'email';
