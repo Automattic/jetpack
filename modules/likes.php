@@ -288,6 +288,7 @@ class Jetpack_Likes {
 				<div>
 			</td>
 		</tr>
+		<?php if ( ! $this->in_jetpack ) : ?>
 		<tr>
 			<th scope="row">
 				<label><?php esc_html_e( 'WordPress.com Reblog Button', 'jetpack' ); ?></label>
@@ -307,7 +308,6 @@ class Jetpack_Likes {
 				<div>
 			</td>
 		</tr>
-		<?php if ( ! $this->in_jetpack ) : ?>
 		<tr>
 			<th scope="row">
 				<label><?php esc_html_e( 'Comment Likes are', 'jetpack' ); ?></label>
