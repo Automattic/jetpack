@@ -92,6 +92,7 @@ Jetpack 3.0 is full of enhancements and bug fixes, including a new Administrativ
 == Changelog ==
 
 = 3.0.2 =
+* Bug Fix: RTL Jetpack Admin UI
 * Bug Fix: Related Posts link for more info working
 * Bug Fix: Likes button styling
 * Bug Fix: Removed PHP warning when deactivating plugins
@@ -102,8 +103,9 @@ Jetpack 3.0 is full of enhancements and bug fixes, including a new Administrativ
 * Bug Fix: Depreciated Akismet function called
 * Bug Fix: Removed PHP scrict error on the mobile menu
 * Bug Fix: Calling developer mode is easier to do 
-* Bug Fix: RTL Jetpack Admin UI
 * Bug Fix: Categories tab works in languages other then English
+* Bug Fix: Contact form sends email that is not marked as spam
+* Bug Fix: Remove UI for Reblog settings. 
 * Enhancement: Updated Languages Files. 
 * Enhancement: Better settings link
 * Enhancement: Make module categories filter more visible when active
