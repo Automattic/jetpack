@@ -13,7 +13,7 @@
  */
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '3.8' );
-define( 'JETPACK__VERSION',            '3.0.2b2' );
+define( 'JETPACK__VERSION',            '3.0.2' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );
