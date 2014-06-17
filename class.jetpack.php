@@ -4361,11 +4361,7 @@ p {
 	public static function get_whitelisted_post_types() {
 		$allowed_types = array( 'post', 'page' );
 
-		// Backwards compatibility filter -- this filter is deprecated
 		$allowed_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
-
-		// Add in all post types in the global jetpack whitelist
-		$allowed_types = apply_filters( 'jetpack_allowed_post_types', $allowed_types );
 
 		return array_unique( $allowed_types );
 	}
