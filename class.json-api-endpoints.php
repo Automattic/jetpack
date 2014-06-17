@@ -1772,11 +1772,19 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
 		}
 
+		// Normalize post_type
+		if ( 'any' == $args['type'] ) {
+			if ( '' == $this->api->version )
+				$args['type'] = array( 'post', 'page' );
+			else
+				$args['type'] = Jetpack::get_whitelisted_post_types();
+		}
+
 		$query = array(
 			'posts_per_page' => $args['number'],
 			'order'          => $args['order'],
 			'orderby'        => $args['order_by'],
-			'post_type'      => ( 'any' == $args['type'] ) ? Jetpack::get_whitelisted_post_types() : $args['type'],
+			'post_type'      => $args['type'],
 			'post_status'    => $args['status'],
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
 			's'              => isset( $args['search'] ) ? $args['search'] : null,
@@ -3566,6 +3574,9 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
  */
 new WPCOM_JSON_API_List_Posts_Endpoint( array(
 	'description' => 'Return matching Posts',
+	'min_version' => '0',
+	'max_version' => '1.1',
+
 	'group'       => 'posts',
 	'stat'        => 'posts',
 
