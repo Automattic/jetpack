@@ -578,7 +578,7 @@ function grunion_ajax_spam() {
 		$email = get_post_meta( $post_id, '_feedback_email', TRUE );
 		$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post_id );
 		
-		if ( !empty( $emails ) && !empty( $content_fields ) ) {
+		if ( !empty( $email ) && !empty( $content_fields ) ) {
 			if ( isset( $content_fields['_feedback_author_email'] ) )
 				$comment_author_email = $content_fields['_feedback_author_email'];
 				
