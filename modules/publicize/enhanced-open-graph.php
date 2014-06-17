@@ -45,7 +45,7 @@ function enhanced_og_gallery( $tags ) {
 	if ( 'gallery' != $summary['type'] )
 		return $tags;
 
-	if( !isset( $summary['images'] ) || !is_array( $summary['images'] ) || empty( $summary['images'] ) )
+	if( ! isset( $summary['images'] ) || ! is_array( $summary['images'] ) || empty( $summary['images'] ) )
 		return $tags;
 
 	$images = $secures = array();
