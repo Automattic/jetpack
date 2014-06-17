@@ -213,7 +213,7 @@ function stats_upgrade_options( $options ) {
 		'count_roles'  => array(),
 		'blog_id'      => Jetpack_Options::get_option( 'id' ),
 		'do_not_track' => true, // @todo
-		'hide_smile'   => true,
+		'hide_smile'   => false,
 	);
 
 	if ( isset( $options['reg_users'] ) ) {
