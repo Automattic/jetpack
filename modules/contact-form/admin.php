@@ -25,9 +25,9 @@ function grunion_media_button( ) {
 	<?php
 }
 
-add_action( 'wp_ajax_grunion_form_builder', 'display_form_view' );
+add_action( 'wp_ajax_grunion_form_builder', 'grunion_display_form_view' );
 
-function display_form_view() {
+function grunion_display_form_view() {
 	require_once GRUNION_PLUGIN_DIR . 'grunion-form-view.php';
 	exit;
 }
