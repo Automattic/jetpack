@@ -395,6 +395,9 @@ class Featured_Content {
 	 */
 	public static function register_setting() {
 		add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __class__, 'render_form' ), 'reading' );
+		
+		// Register sanitization callback for the Customizer.
+		register_setting( 'featured-content', 'featured-content', array( __class__, 'validate_settings' ) );
 	}
 
 	/**
@@ -410,7 +413,11 @@ class Featured_Content {
 			'theme_supports' => 'featured-content',
 		) );
 
-		// Add Featured Content settings.
+		/* Add Featured Content settings.
+		 *
+		 * Sanitization callback registered in Featured_Content::validate_settings().
+		 * See http://themeshaper.com/2013/04/29/validation-sanitization-in-customizer/comment-page-1/#comment-12374
+		 */
 		$wp_customize->add_setting( 'featured-content[tag-name]', array(
 			'type'                 => 'option',
 			'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
