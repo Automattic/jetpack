@@ -27,7 +27,7 @@ class VaultPress_Database {
 		global $wpdb;
 		if ( !$this->table )
 			return false;
-		$table = $wpdb->escape( $this->table );
+		$table = esc_sql( $this->table );
 		$results = $wpdb->get_row( "SHOW CREATE TABLE `$table`" );
 		$want = 'Create Table';
 		if ( $results )
@@ -39,7 +39,7 @@ class VaultPress_Database {
 		global $wpdb;
 		if ( !$this->table )
 			return false;
-		$table = $wpdb->escape( $this->table );
+		$table = esc_sql( $this->table );
 		return $wpdb->get_results( "EXPLAIN `$table`" );
 	}
 
@@ -49,7 +49,7 @@ class VaultPress_Database {
 			return false;
 		if ( !$this->table )
 			return false;
-		$table = $wpdb->escape( $this->table );
+		$table = esc_sql( $this->table );
 		$diff = array();
 		foreach ( $signatures as $where => $signature ) {
 			$pksig = md5( $where );
@@ -73,8 +73,8 @@ class VaultPress_Database {
 			return false;
 		if ( !$this->table )
 			return false;
-		$table = $wpdb->escape( $this->table );
-		$column = $wpdb->escape( array_shift( $columns ) );
+		$table = esc_sql( $this->table );
+		$column = esc_sql( array_shift( $columns ) );
 		return $wpdb->get_var( "SELECT COUNT( $column ) FROM `$table`" );
 	}
 
@@ -108,7 +108,7 @@ class VaultPress_Database {
 			return false;
 		if ( !$this->table )
 			return false;
-		$table = $wpdb->escape( $this->table );
+		$table = esc_sql( $this->table );
 		$limitsql = '';
 		$offsetsql = '';
 		$wheresql = '';
@@ -135,8 +135,8 @@ class VaultPress_Database {
 				$keys = array();
 				$vals = array();
 				foreach ( get_object_vars( $row ) as $i => $v ) {
-					$keys[] = sprintf( "`%s`", $wpdb->escape( $i ) );
-					$vals[] = sprintf( "'%s'", $wpdb->escape( $v ) );
+					$keys[] = sprintf( "`%s`", esc_sql( $i ) );
+					$vals[] = sprintf( "'%s'", esc_sql( $v ) );
 					if ( !in_array( $i, $columns ) )
 						unset( $row->$i );
 				}
@@ -156,7 +156,7 @@ class VaultPress_Database {
 			return false;
 
 		foreach ( array_keys( (array)$data ) as $key )
-			$keys[] = sprintf( "`%s`", $wpdb->escape( $key ) );
+			$keys[] = sprintf( "`%s`", esc_sql( $key ) );
 		foreach ( (array)$data as $key => $val ) {
 			if ( null === $val ) {
 				$vals[] = 'NULL';
@@ -172,8 +172,8 @@ class VaultPress_Database {
 				// do not add quotes to numeric types.
 				$vals[] = $val;
 			} else {
-				$val = $wpdb->escape( $val );
-				// Escape characters that aren't escaped by $wpdb->escape(): \n, \r, etc.
+				$val = esc_sql( $val );
+				// Escape characters that aren't escaped by esc_sql(): \n, \r, etc.
 				$val = str_replace( array( "\x0a", "\x0d", "\x1a" ), array( '\n', '\r', '\Z' ), $val );
 				$vals[] = sprintf( "'%s'", $val );
 			}
