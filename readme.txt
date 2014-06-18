@@ -95,25 +95,24 @@ Jetpack 3.0 is full of enhancements and bug fixes, including a new Administrativ
 = 3.1 =
 
 = 3.0.2 =
-* Bug Fix: Related Posts link for more info working
-* Bug Fix: Likes button styling
-* Bug Fix: Removed PHP warning when deactivating plugins
-* Bug Fix: Removed un neccesery description
-* Bug Fix: Removed the SSL error on Jetpack Admin UI
-* Bug Fix: WP Engine oauth error
-* Bug Fix: Removed PHP warning on open graph gallery pages
-* Bug Fix: Depreciated Akismet function called
-* Bug Fix: Removed PHP scrict error on the mobile menu
-* Bug Fix: Calling developer mode is easier to do 
-* Bug Fix: RTL Jetpack Admin UI
-* Bug Fix: Categories tab works in languages other then English
-* Enhancement: Updated Languages Files. 
-* Enhancement: Better settings link
-* Enhancement: Make module categories filter more visible when active
-* Enhancement: Link to the contact form
-* Enhancement: Stats Smiley doesn't show by default
-
-
+* Enhancement: General: Make module categories filter more visible when active.
+* Enhancement: General: Updated translation files with more strings added since the last release.
+* Enhancement: General: Allow deep-linking to the Contact Support form.
+* Bug Fix: General: RTL Jetpack Admin UI looks better.
+* Bug Fix: General: Fixed PHP warning when bulk deactivating modules.
+* Bug Fix: General: Removed an unnecessary description.
+* Bug Fix: General: Resolved an SSL error on Jetpack Admin UI.
+* Bug Fix: General: Fix error comparing signatures when the WordPress installation is using site_url filters (applied mostly to WPEngine sites).
+* Bug Fix: General: Resolved PHP strict error on the mobile menu.
+* Bug Fix: General: Fix timing of conditional checks, so that calling developer mode via a plugin works again.
+* Bug Fix: General: Main page categories tab now properly translates module names.
+* Bug Fix: Related Posts: Fix a typo, the "more info" link now works.
+* Bug Fix: Likes: Improve button styling.
+* Bug Fix: Likes: Remove unused UI for Reblog settings on social settings page.
+* Bug Fix: Contact Form: Updated to no longer use a deprecated Akismet function.
+* Bug Fix: Contact Form: Sends email to the administrator that is not marked as spam again.
+* Bug Fix: Open Graph: Resolved PHP warning on open graph gallery pages when the gallery is empty.
+ 
 = 3.0.1 =
 * Bugfix: AtD: A wpcom-only function got synced by mistake and caused a few errors. Fixed.
 * Bugfix: Post By Email: Add static keyword to a function.
