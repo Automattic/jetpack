@@ -1177,14 +1177,18 @@ EOPHP;
 		return $this->get_link( '/sites/%d/comments/%d', $blog_id, $comment_id, $path );
 	}
 
-	function is_post_type_allowed( $post_type ) {
 
+	function is_post_type_allowed( $post_type ) {
 		// if the post type is empty, that's fine, WordPress will default to post
 		if ( empty( $post_type ) )
 			return true;
 
-		// whitelist of post types that can be accessed
-		if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'any' ) ) ) )
+		// allow special 'any' type
+		if ( 'any' == $post_type )
+			return true;
+
+		// check for allowed types
+		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) )
 			return true;
 
 		return false;
@@ -1195,7 +1199,7 @@ EOPHP;
 	 *
 	 * @return array Whitelisted post types.
 	 */
-	function get_whitelisted_post_types() {
+	protected function _get_whitelisted_post_types() {
 		$allowed_types = array( 'post', 'page' );
 
 		$allowed_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
@@ -1311,23 +1315,6 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 		parent::__construct( $args );
 	}
-
-	function is_post_type_allowed( $post_type ) {
-
-		// if the post type is empty, that's fine, WordPress will default to post
-		if ( empty( $post_type ) )
-			return true;
-
-		// allow special 'any' type
-		if ( 'any' == $post_type )
-			return true;
-
-		// check for allowed types
-		if ( in_array( $post_type, $this->get_whitelisted_post_types() ) )
-			return true;
-
- 		return false;
- 	}
 
 	function is_metadata_public( $key ) {
 		if ( empty( $key ) )
@@ -1915,7 +1902,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			if ( version_compare( $this->api->version, '1.1', '<' ) )
 				$args['type'] = array( 'post', 'page' );
 			else // 1.1+
-				$args['type'] = $this->get_whitelisted_post_types();
+				$args['type'] = $this->_get_whitelisted_post_types();
 		}
 
 		$query = array(
