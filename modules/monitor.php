@@ -2,7 +2,7 @@
 /**
  * Module Name: Monitor
  * Module Description: Receive notifications from Jetpack if your site goes offline — and when it it returns.
- * Sort Order: 55
+ * Sort Order: 28
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
@@ -59,7 +59,7 @@ class Jetpack_Monitor {
 
 	public function jetpack_configuration_screen() {
 		?>
-		<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
+		<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
 		<p><?php esc_html_e( 'We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime.', 'jetpack'); ?></p>
 		<div class="narrow">
 		<?php if ( Jetpack::is_user_connected() && current_user_can( 'manage_options' ) ) : ?>

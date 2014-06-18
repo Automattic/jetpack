@@ -1607,7 +1607,7 @@
 			current = eventData.current,
 			jmpress = $(this);
 
-		// tabindex make it focusable so that it can recieve key events
+		// tabindex make it focusable so that it can receive key events
 		if(!settings.fullscreen) {
 			jmpress.attr("tabindex", 0);
 		}

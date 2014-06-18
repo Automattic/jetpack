@@ -1,4 +1,8 @@
-var AtD_qtbutton;
+/* jshint devel: true, onevar: false, smarttabs: true */
+/* global AtD, QTags, AtD_l10n_r0ar, edButtons, edButton, switchEditors, AtD_unbind_proofreader_listeners */
+/* exported AtD_unbind_proofreader_listeners */
+
+var AtD_qtbutton, autosave;
 /* convienence method to restore the text area from the preview div */
 function AtD_restore_text_area()
 {
@@ -8,8 +12,9 @@ function AtD_restore_text_area()
 	/* swap the preview div for the textarea, notice how I have to restore the appropriate class/id/style attributes */
     var content = jQuery('#content').html();
 
-	if ( navigator.appName == 'Microsoft Internet Explorer' )
-		content = content.replace(/<BR.*?class.*?atd_remove_me.*?>/gi, "\n");
+	if ( navigator.appName === 'Microsoft Internet Explorer' ) {
+		content = content.replace(/<BR.*?class.*?atd_remove_me.*?>/gi, '\n');
+	}
 
 	jQuery('#content').replaceWith( AtD.content_canvas );
 	jQuery('#content').val( content.replace(/\&lt\;/g, '<').replace(/\&gt\;/g, '>').replace(/\&amp;/g, '&') );
@@ -25,19 +30,19 @@ function AtD_restore_text_area()
 	}
 
 	/* restore autosave */
-	if ( AtD.autosave != undefined ) {
+	if ( AtD.autosave !== undefined ) {
 		if ( window.wp && window.wp.autosave && window.wp.autosave.server ) {
-			window.wp.autosave.local.resume();
+			if( window.wp.autosave.local ) { window.wp.autosave.local.resume(); }
 			window.wp.autosave.server.resume();
 		} else {
 			autosave = AtD.autosave;
 		}
 	}
-};
+}
 
 // add the AtD button properly to quicktags
-if ( typeof(QTags) != 'undefined' && QTags.addButton ) {
-	jQuery(document).ready(function($){
+if ( typeof(QTags) !== 'undefined' && QTags.addButton ) {
+	jQuery(document).ready(function(){
 		QTags.addButton( 'AtD', AtD_l10n_r0ar.button_proofread, AtD_check );
 	});
 } else {
@@ -48,8 +53,9 @@ if ( typeof(QTags) != 'undefined' && QTags.addButton ) {
 }
 
 function AtD_restore_if_proofreading() {
-	if ( AtD_qtbutton && jQuery(AtD_qtbutton).val() == AtD.getLang('button_edit_text', 'edit text') )
+	if ( AtD_qtbutton && jQuery(AtD_qtbutton).val() === AtD.getLang('button_edit_text', 'edit text') ) {
 		AtD_restore_text_area();
+	}
 }
 
 function AtD_unbind_proofreader_listeners() {
@@ -74,8 +80,9 @@ function AtD_check(button) {
 			AtD_qtbutton = jQuery( '#qt_content_AtD, #ed_AtD' ).get( 0 );
 		}
 	} else {
-		if ( !button.id )
+		if ( !button.id ) {
 			button = button[0];
+		}
 
 		AtD_qtbutton = button;
 	}
@@ -90,7 +97,7 @@ function AtD_check(button) {
 
 	/* If the text of the link says edit comment, then restore the textarea so the user can edit the text */
 
-	if ( jQuery(AtD_qtbutton).val() == AtD.getLang('button_edit_text', 'edit text') ) {
+	if ( jQuery(AtD_qtbutton).val() === AtD.getLang('button_edit_text', 'edit text') ) {
 		AtD_restore_text_area();
 	} else {
 		/* initialize some of the stuff related to this plugin */
@@ -120,9 +127,9 @@ function AtD_check(button) {
 		jQuery(AtD_qtbutton).css({ 'color' : 'red' }).val( AtD.getLang('button_edit_text', 'edit text') ).attr('disabled', true);
 
 		/* replace the div */
-		var text = jQuery('#content').val().replace(/\&/g, '&amp;').replace(/\</g, '&lt;').replace(/\>/g, '&gt;');
+		var text = jQuery('#content').val().replace(/\&/g, '&amp;').replace(/</g, '&lt;').replace(/\>/g, '&gt;');
 
-		if (navigator.appName == 'Microsoft Internet Explorer') {
+		if (navigator.appName === 'Microsoft Internet Explorer') {
 			text = text.replace(/[\n\r\f]/gm, '<BR class="atd_remove_me">');
 			var node = jQuery('<div class="input" id="content" style="height: 170px">' + text + '</div>');
 			jQuery('#content').replaceWith(node);
@@ -135,7 +142,7 @@ function AtD_check(button) {
 
 		/* kill autosave... :) */
 		if ( window.wp && window.wp.autosave && window.wp.autosave.server ) {
-			window.wp.autosave.local.suspend();
+			if( window.wp.autosave.local ) { window.wp.autosave.local.suspend(); }
 			window.wp.autosave.server.suspend();
 		} else {
 			autosave = function() { };
@@ -147,25 +154,28 @@ function AtD_check(button) {
 		/* check the writing in the textarea */
 		AtD.check('content', {
 			success: function(errorCount) {
-				if ( errorCount == 0 && typeof callback !== 'function' )
+				if ( Number( errorCount ) === 0 && typeof callback !== 'function' ) {
 					alert( AtD.getLang('message_no_errors_found', 'No writing errors were found') );
+				}
 				AtD_restore_if_proofreading();
 			},
 
 			ready: function(errorCount) {
 				jQuery(AtD_qtbutton).attr('disabled', false);
 
-				if ( typeof callback === 'function' )
+				if ( typeof callback === 'function' ) {
 					callback( errorCount );
+				}
 			},
 
-			error: function(reason) {
+			error: function() {
 				jQuery(AtD_qtbutton).attr('disabled', false);
 
-				if ( typeof callback === 'function' )
+				if ( typeof callback === 'function' ) {
 					callback( -1 );
-				else
+				} else {
 					alert( AtD.getLang('message_server_error', 'There was a problem communicating with the Proofreading service. Try again in one minute.') );
+				}
 
 				AtD_restore_if_proofreading();
 			},
@@ -173,8 +183,9 @@ function AtD_check(button) {
 			editSelection: function(element) {
 				var text = prompt( AtD.getLang('dialog_replace_selection', 'Replace selection with:'), element.text() );
 
-				if ( text != null )
+				if ( text != null ) {
 					element.replaceWith( text );
+				}
 			},
 
 			explain: function(url) {
@@ -189,8 +200,9 @@ function AtD_check(button) {
 					url : AtD.rpc_ignore + encodeURI( word ).replace( /&/g, '%26'),
 					format : 'raw',
 					error : function(XHR, status, error) {
-						if ( AtD.callback_f != undefined && AtD.callback_f.error != undefined )
-							AtD.callback_f.error(status + ": " + error);
+						if ( AtD.callback_f !== undefined && AtD.callback_f.error !== undefined ) {
+							AtD.callback_f.error(status + ': ' + error);
+						}
 					}
 				});
 			}

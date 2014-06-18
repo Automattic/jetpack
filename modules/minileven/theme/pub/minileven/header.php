@@ -15,6 +15,7 @@
 <link rel="profile" href="http://gmpg.org/xfn/11" />
 <link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
 <?php wp_head(); ?>
+</head>
 
 <body <?php body_class(); ?>>
 <div id="wrapper">
@@ -26,10 +27,11 @@
 				<h3 class="menu-toggle"><?php _e( 'Menu', 'jetpack' ); ?></h3>
 
 				<?php /*  Allow screen readers / text browsers to skip the navigation menu and get right to the good stuff. */ ?>
-				<div class="skip-link"><a class="assistive-text" href="#content"><?php _e( 'Skip to primary content', 'minileven' , 'jetpack'); ?></a></div>
+				<div class="skip-link"><a class="assistive-text" href="#content"><?php _e( 'Skip to primary content', 'jetpack' ); ?></a></div>
 				<?php /* Our navigation menu.  If one isn't filled out, wp_nav_menu falls back to wp_page_menu. The menu assiged to the primary position is the one used. If none is assigned, the menu with the lowest ID is used. */
 					if ( false !== $location ) :
-						$menu_id = array_shift( array_values( $location ) ); // acccess the ID of the menu assigned to that location. Using only the first menu ID returned in the array.
+						$location_values = array_values( $location );
+						$menu_id = array_shift( $location_values ); // acccess the ID of the menu assigned to that location. Using only the first menu ID returned in the array.
 						wp_nav_menu( array( 'theme_location' => 'primary', 'container_class' => '', 'menu_class' => 'nav-menu', 'menu' => $menu_id ) );
 					else: // if the $location variable is false, wp_page_menu() is shown instead.
 						wp_nav_menu( array( 'theme_location' => 'primary', 'container_class' => '', 'menu_class' => 'nav-menu' ) );

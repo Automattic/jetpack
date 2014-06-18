@@ -72,7 +72,9 @@ function vimeo_shortcode( $atts ) {
 	if ( ! $height )
 		$height = round( ( $width / 640 ) * 360 );
 
-	$html = "<div class='embed-vimeo' style='text-align:center;'><iframe src='http://player.vimeo.com/video/$id' width='$width' height='$height' frameborder='0'></iframe></div>";
+	$url = esc_url( set_url_scheme( "http://player.vimeo.com/video/$id" ) );
+
+	$html = "<div class='embed-vimeo' style='text-align:center;'><iframe src='$url' width='$width' height='$height' frameborder='0'></iframe></div>";
 	$html = apply_filters( 'video_embed_html', $html );
 	return $html;
 }

@@ -36,6 +36,7 @@ class Jetpack {
 		'twitter-widget'      => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
 		'after-the-deadline'  => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
 		'contact-form'        => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
+		'contact-form'        => array( 'mullet/mullet-contact-form.php', 'Mullet Contact Form' ),
 		'custom-css'          => array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
 		'random-redirect'     => array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
 		'videopress'          => array( 'video/video.php', 'VideoPress' ),
@@ -117,6 +118,11 @@ class Jetpack {
 			'ShareThis'                      => 'share-this/sharethis.php',
 			'Shareaholic'                    => 'shareaholic/shareaholic.php',
 		),
+		'verification-tools' => array(
+			'WordPress SEO by Yoast'         => 'wordpress-seo/wp-seo.php',
+			'WordPress SEO Premium by Yoast' => 'wordpress-seo-premium/wp-seo-premium.php',
+			'All in One SEO Pack'            => 'all-in-one-seo-pack/all_in_one_seo_pack.php',
+		),
 		'widget-visibility' => array(
 			'Widget Logic'                   => 'widget-logic/widget_logic.php',
 			'Dynamic Widgets'                => 'dynamic-widgets/dynamic-widgets.php',
@@ -169,6 +175,7 @@ class Jetpack {
 		'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',
 		                                                         // Fedmich's Facebook Open Graph Meta
 		'facebook-meta-tags/facebook-metatags.php',              // Facebook Meta Tags
+		'wordpress-seo-premium/wp-seo-premium.php',              // WordPress SEO Premium by Yoast
 	);
 
 	/**
@@ -182,7 +189,7 @@ class Jetpack {
 		'wp-twitter-cards/twitter_cards.php',        // WP Twitter Cards
 		'eewee-twitter-card/index.php',              // Eewee Twitter Card
 		'kevinjohn-gallagher-pure-web-brilliants-social-graph-twitter-cards-extention/kevinjohn_gallagher___social_graph_twitter_output.php',
-		                                             // Pure Web Brilliant's Social Graph Twitter Cards Extention
+		                                             // Pure Web Brilliant's Social Graph Twitter Cards Extension
 	);
 
 	/**
@@ -311,7 +318,7 @@ class Jetpack {
 		 * available
 		 */
 		if( is_multisite() ) {
-			$jpms = Jetpack_Network::init();
+			Jetpack_Network::init();
 
 			if( is_network_admin() )
 			    return; // End here to prevent single site actions from firing
@@ -440,7 +447,7 @@ class Jetpack {
 				/**
 				 * In multisite, can individual site admins manage their own connection?
 				 *
-				 * Ideally, this should be extracted out to a seperate filter in the Jetpack_Network class.
+				 * Ideally, this should be extracted out to a separate filter in the Jetpack_Network class.
 				 */
 				if ( is_multisite() && ! is_super_admin() && is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 					if ( ! Jetpack_Network::init()->get_option( 'sub-site-connection-override' ) ) {
@@ -857,7 +864,7 @@ class Jetpack {
 
 	/**
 	* Stores two secrets and a timestamp so WordPress.com can make a request back and verify an action
-	* Does some extra verification so urls (such as those to public-api, register, etc) cant just be crafted
+	* Does some extra verification so urls (such as those to public-api, register, etc) can't just be crafted
 	* $name must be a registered option name.
 	*/
 	public static function create_nonce( $name ) {
@@ -1577,13 +1584,13 @@ p {
 	 * @static
 	 */
 	public static function plugin_deactivation( ) {
-	    require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
-	    if( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
-		Jetpack_Network::init()->deactivate();
-	    } else {
-		Jetpack::disconnect( false );
-		//Jetpack_Heartbeat::init()->deactivate();
-	    }
+		require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+		if( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
+			Jetpack_Network::init()->deactivate();
+		} else {
+			Jetpack::disconnect( false );
+			//Jetpack_Heartbeat::init()->deactivate();
+		}
 	}
 
 	/**
@@ -1662,7 +1669,7 @@ p {
 	/**
 	 * Tracking an internal event log. Try not to put too much chaff in here.
 	 *
-	 * [Everyone Loves a Log!](http://www.youtube.com/watch?v=8L6Dpq5kY_A)
+	 * [Everyone Loves a Log!](https://www.youtube.com/watch?v=2C7mNr5WMjA)
 	 */
 	public static function log( $code, $data = null ) {
 		$log = Jetpack_Options::get_option( 'log', array() );
@@ -1685,6 +1692,8 @@ p {
 		if ( ! add_option( 'jetpack_log', $log, null, 'no' ) ) {
 			Jetpack_Options::update_option( 'log', $log );
 		}
+
+		do_action( 'jetpack_log_entry', $log_entry );
 	}
 
 	/**
@@ -1867,17 +1876,7 @@ p {
 
 		do_action( 'jetpack_admin_menu', $hook );
 	}
-/*
-	function admin_menu_modules() {
-		$hook = add_submenu_page( 'jetpack', __( 'Jetpack Modules', 'jetpack' ), __( 'Modules', 'jetpack' ), 'edit_posts', 'jetpack_modules', array( $this, 'admin_page_modules' ) );
 
-		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
-		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
-		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
-		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
-		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
-	}
-/**/
 	function add_remote_request_handlers() {
 		add_action( 'wp_ajax_nopriv_jetpack_upload_file', array( $this, 'remote_request_handlers' ) );
 	}
@@ -2185,11 +2184,12 @@ p {
 
 		if ( ! current_user_can( 'jetpack_connect' ) )
 			return;
-		?>
 
+		$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
+		?>
 		<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 			<div id="jp-dismiss" class="jetpack-close-button-container">
-				<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
+				<a class="jetpack-close-button" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>" title="<?php _e( 'Dismiss this notice and deactivate Jetpack.', 'jetpack' ); ?>"></a>
 			</div>
 			<div class="jetpack-wrap-container">
 				<div class="jetpack-install-container">
@@ -2640,7 +2640,7 @@ p {
 		case 'authorized' :
 			$this->message  = __( '<strong>You&#8217;re fueled up and ready to go.</strong> ', 'jetpack' );
 			$this->message .= "<br />\n";
-			$this->message .= __( 'The features below are now active. Click the learn more buttons to explore each feature.', 'jetpack' );
+			$this->message .= sprintf( __( 'Jetpack is now active. Browse through each Jetpack feature below. Visit the <a href="%s">settings page</a> to activate/deactivate features.', 'jetpack' ), admin_url( 'admin.php?page=jetpack_modules' ) );
 			$this->message .= Jetpack::jetpack_comment_notice();
 			break;
 
@@ -2899,7 +2899,7 @@ p {
 
 	function build_connect_url( $raw = false, $redirect = false ) {
 		if ( ! Jetpack_Options::get_option( 'blog_token' ) ) {
-			$url = $this->nonce_url_no_esc( $this->admin_url( 'action=register' ), 'jetpack-register' );
+			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
 			if( is_network_admin() ) {
 			    $url = add_query_arg( 'is_multisite', network_admin_url(
 			    'admin.php?page=jetpack-settings' ), $url );
@@ -2944,7 +2944,7 @@ p {
 	}
 
 	function build_reconnect_url( $raw = false ) {
-		$url = wp_nonce_url( $this->admin_url( 'action=reconnect' ), 'jetpack-reconnect' );
+		$url = wp_nonce_url( Jetpack::admin_url( 'action=reconnect' ), 'jetpack-reconnect' );
 		return $raw ? $url : esc_url( $url );
 	}
 
@@ -2960,7 +2960,7 @@ p {
 	}
 
 	function dismiss_jetpack_notice() {
-		if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
+		if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] && check_admin_referer( 'jetpack-deactivate' ) && ! is_plugin_active_for_network( plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ) ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 
 			deactivate_plugins( JETPACK__PLUGIN_DIR . 'jetpack.php', false, false );
@@ -2985,7 +2985,7 @@ p {
 		$can_reconnect_jpms = true;
 		if( is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
 		    $jpms = Jetpack_Network::init();
-		    $can_reconnect_jpms = ( $jpms->get_option( 'sub-site-connection-override' ) )? 1: 0;
+		    $can_reconnect_jpms = ( $jpms->get_option( 'sub-site-connection-override' ) ) ? 1: 0;
 		}
 
 
@@ -3021,11 +3021,7 @@ p {
 
 			<h2 style="display: none"></h2> <!-- For WP JS message relocation -->
 
-			<?php if ( isset( $_GET['jetpack-notice'] ) && 'dismiss' == $_GET['jetpack-notice'] ) : ?>
-				<div id="message" class="error">
-					<p><?php _e( 'Jetpack is network activated. Notices cannot be dismissed.', 'jetpack' ); ?></p>
-				</div>
-			<?php endif; ?>
+			<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
 
 			<?php do_action( 'jetpack_notices' ) ?>
 
@@ -3045,11 +3041,12 @@ p {
 			}
 			if ( ! Jetpack::is_development_mode() && $can_reconnect_jpms ) :
 			?>
-				<?php if ( ! $is_connected ) : ?>
-
+				<?php if ( ! $is_connected ) :
+					$dismiss_and_deactivate_url = wp_nonce_url( Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ), 'jetpack-deactivate' );
+				?>
 				<div id="message" class="updated jetpack-message jp-connect" style="display:block !important;">
 					<div id="jp-dismiss" class="jetpack-close-button-container">
-						<a class="jetpack-close-button" href="?page=jetpack&jetpack-notice=dismiss"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
+						<a class="jetpack-close-button" href="<?php echo esc_url( $dismiss_and_deactivate_url ); ?>"><?php _e( 'Dismiss this notice.', 'jetpack' ); ?></a>
 					</div>
 					<div class="jetpack-wrap-container">
 						<div class="jetpack-text-container">
@@ -3183,7 +3180,7 @@ p {
 			<h3>
 			<?php
 				$module = Jetpack::get_module( $module_id );
-				echo '<a href="' . menu_page_url( 'jetpack', false ) . '">' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</a> &rarr; ';
+				echo '<a href="' . Jetpack::admin_url( 'page=jetpack_modules' ) . '">' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</a> &rarr; ';
 				printf( __( 'Configure %s', 'jetpack' ), $module['name'] );
 			?>
 			</h3>
@@ -3724,10 +3721,15 @@ p {
 			$user_id = 0;
 		} else {
 			$token_type = 'user';
-			if ( empty( $user_id ) || ! ctype_digit( $user_id ) || ! get_userdata( $user_id ) ) {
+			if ( empty( $user_id ) || ! ctype_digit( $user_id ) ) {
 				return false;
 			}
 			$user_id = (int) $user_id;
+
+			$user = new WP_User( $user_id );
+			if ( ! $user || ! $user->exists() ) {
+				return false;
+			}
 		}
 
 		$token = Jetpack_Data::get_access_token( $user_id );
@@ -3887,7 +3889,11 @@ p {
 		global $wpdb;
 
 		$sql = "DELETE FROM `$wpdb->options` WHERE `option_name` LIKE %s";
-		$sql_args = array( like_escape( 'jetpack_nonce_' ) . '%' );
+		if ( method_exists ( $wpdb , 'esc_like' ) ) {
+			$sql_args = array( $wpdb->esc_like( 'jetpack_nonce_' ) . '%' );
+		} else {
+			$sql_args = array( like_escape( 'jetpack_nonce_' ) . '%' );
+		}
 
 		if ( true !== $all ) {
 			$sql .= ' AND CAST( `option_value` AS UNSIGNED ) < %d';
@@ -3957,6 +3963,9 @@ p {
 
 		// Set a state variable
 		if ( isset ( $key ) && isset( $value ) ) {
+			if( is_array( $value ) && isset( $value[0] ) ) {
+				$value = $value[0];
+			}
 			$state[ $key ] = $value;
 			setcookie( "jetpackState[$key]", $value, 0, $path, $domain );
 		}
@@ -4086,12 +4095,19 @@ p {
 			return $url;
 		}
 
-		return "$url?{$_SERVER['QUERY_STRING']}";
+		$parsed_url = parse_url( $url );
+		$url = strtok( $url, '?' );
+		$url = "$url?{$_SERVER['QUERY_STRING']}";
+		if ( ! empty( $parsed_url['query'] ) )
+			$url .= "&{$parsed_url['query']}";
+		
+		return $url;
 	}
 
 	// Make sure the POSTed request is handled by the same action
 	function preserve_action_in_login_form_for_json_api_authorization() {
 		echo "<input type='hidden' name='action' value='jetpack_json_api_authorization' />\n";
+		echo "<input type='hidden' name='jetpack_json_api_original_query' value='" . site_url( stripslashes( $_SERVER['REQUEST_URI'] ) ) . "' />\n";
 	}
 
 	// If someone logs in to approve API access, store the Access Code in usermeta
@@ -4134,7 +4150,13 @@ p {
 		$die_error = __( 'Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
 
 		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
-		$signature = $jetpack_signature->sign_current_request( array( 'body' => null, 'method' => 'GET' ) );
+
+		if ( isset( $_POST['jetpack_json_api_original_query'] ) ) {
+			$signature = $jetpack_signature->sign_request( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], '', 'GET', $_POST['jetpack_json_api_original_query'], null, true );
+		} else {
+			$signature = $jetpack_signature->sign_current_request( array( 'body' => null, 'method' => 'GET' ) );
+		}
+
 		if ( ! $signature ) {
 			wp_die( $die_error );
 		} else if ( is_wp_error( $signature ) ) {
@@ -4392,5 +4414,27 @@ p {
 		</div>
 
 		<?php
+	}
+
+	/**
+	 * Loads a view file from the views 
+	 * 
+	 * Data passed in with the $data parameter will be available in the 
+	 * template file as $data['value']
+	 *
+	 * @param string $template - Template file to load
+	 * @param array $data - Any data to pass along to the template
+	 * @return boolean - If template file was found
+	 **/
+	public function load_view( $template, $data = array() ) {
+		$views_dir = JETPACK__PLUGIN_DIR . 'views/';
+		
+		if( file_exists( $views_dir . $template ) ) {
+			require_once( $views_dir . $template );
+			return true;
+		}
+
+		error_log( "Jetpack: Unable to find view file $views_dir$template" );
+		return false;
 	}
 }

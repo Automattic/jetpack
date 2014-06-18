@@ -60,7 +60,7 @@ class Grunion_Contact_Form_Plugin {
 			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
 
 		// Akismet to the rescue
-		if ( function_exists( 'akismet_http_post' ) ) {
+		if ( defined( 'AKISMET_VERSION' ) || function_exists( 'akismet_http_post' ) ) {
 			add_filter( 'contact_form_is_spam', array( $this, 'is_spam_akismet' ), 10 );
 			add_action( 'contact_form_akismet', array( $this, 'akismet_submit' ), 10, 2 );
 		}
@@ -312,16 +312,21 @@ class Grunion_Contact_Form_Plugin {
 	function is_spam_akismet( $form ) {
 		global $akismet_api_host, $akismet_api_port;
 
-		if ( !function_exists( 'akismet_http_post' ) )
+		if ( !function_exists( 'akismet_http_post' ) && !defined( 'AKISMET_VERSION' ) )
 			return false;
 
 		$query_string = http_build_query( $form );
 
-		$response = akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
+		if ( method_exists( 'Akismet', 'http_post' ) ) {
+		    $response = Akismet::http_post( $query_string, 'comment-check' );
+		} else {
+		    $response = akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
+		}
+		
 		$result = false;
 		
 		if ( isset( $response[0]['x-akismet-pro-tip'] ) && 'discard' === trim( $response[0]['x-akismet-pro-tip'] ) && get_option( 'akismet_strictness' ) === '1' )
-			$result = new WP_Error( 'feedback-discarded', __('Feedback discarded.') );
+			$result = new WP_Error( 'feedback-discarded', __('Feedback discarded.', 'jetpack' ) );
 		elseif ( isset( $response[1] ) && 'true' == trim( $response[1] ) ) // 'true' is spam
 			$result = true;
 			
@@ -343,8 +348,12 @@ class Grunion_Contact_Form_Plugin {
 		$query_string = '';	
 		if ( is_array( $form ) )
 			$query_string = http_build_query( $form );
-
-		$response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
+		if ( method_exists( 'Akismet', 'http_post' ) ) {
+		    $response = Akismet::http_post( $query_string, "submit-{$as}" );
+		} else {
+		    $response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
+		}
+		
 		return trim( $response[1] );
 	}
 
@@ -498,28 +507,36 @@ class Grunion_Contact_Form_Plugin {
 			}
 		}
 
-		$all_fields = array_unique( $all_fields );
+		$all_fields = array_unique( $all_fields );		
 		return $all_fields;
 	}
 	
-	public static function parse_fields_from_content( $post_id ) {		
+	public static function parse_fields_from_content( $post_id ) {	
+		static $post_fields;
+			
+		if ( !is_array( $post_fields ) )
+			$post_fields = array();
+		
+		if ( isset( $post_fields[$post_id] ) ) 
+			return $post_fields[$post_id];
+			
 		$all_values   = array();
-		$post_content = apply_filters( 'the_content', get_post_field( 'post_content', $post_id ) );
+		$post_content = get_post_field( 'post_content', $post_id );
 		$content      = explode( '<!--more-->', $post_content );
 		$lines        = array();
 		
 		if ( count( $content ) > 1 ) {
 			$content  = str_ireplace( array( '<br />', ')</p>' ), '', $content[1] );
 			$one_line = preg_replace( '/\s+/', ' ', $content );
-			$one_line = preg_replace( '/.*Array \( (.*)/', '$1', $one_line );
-						
+			$one_line = preg_replace( '/.*Array \( (.*)\)/', '$1', $one_line );
+								
 			preg_match_all( '/\[([^\]]+)\] =\&gt\; ([^\[]+)/', $one_line, $matches );
 			
 			if ( count( $matches ) > 1 )
 				$all_values = array_combine( array_map('trim', $matches[1]), array_map('trim', $matches[2]) );
 			
 			$lines = array_filter( explode( "\n", $content ) );
-		}	
+		}
 		
 		$var_map = array( 
 			'AUTHOR'       => '_feedback_author',
@@ -532,7 +549,7 @@ class Grunion_Contact_Form_Plugin {
 		$fields = array();
 		
 		foreach( $lines as $line ) {
-			$vars = explode( ': ', $line );
+			$vars = explode( ': ', $line, 2 );
 			if ( !empty( $vars ) ) {
 				if ( isset( $var_map[$vars[0]] ) ) {
 					$fields[$var_map[$vars[0]]] = self::strip_tags( trim( $vars[1] ) );
@@ -541,6 +558,8 @@ class Grunion_Contact_Form_Plugin {
 		}
 		
 		$fields['_feedback_all_fields'] = $all_values;
+		
+		$post_fields[$post_id] = $fields;
 		
 		return $fields;
 	}
@@ -634,7 +653,7 @@ class Crunion_Contact_Form_Shortcode {
 			$this->content = $content;
 		}
 
-		$this->parse_content( $content );
+		$this->parse_content( $this->content );
 	}
 
 	/**
@@ -1571,7 +1590,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		case 'textarea' :
 			$r .= "\n<div>\n";
 			$r .= "\t\t<label for='contact-form-comment-" . esc_attr( $field_id ) . "' class='grunion-field-label textarea" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . __( "(required)", 'jetpack' ) . '</span>' : '' ) . "</label>\n";
-			$r .= "\t\t<textarea name='" . esc_attr( $field_id ) . "' id='contact-form-comment-" . esc_attr( $field_id ) . "' rows='20'>" . esc_textarea( $field_value ) . "</textarea>\n";
+			$r .= "\t\t<textarea name='" . esc_attr( $field_id ) . "' id='contact-form-comment-" . esc_attr( $field_id ) . "' rows='20' " . $field_placeholder . ">" . esc_textarea( $field_value ) . "</textarea>\n";
 			$r .= "\t</div>\n";
 			break;
 		case 'radio' :

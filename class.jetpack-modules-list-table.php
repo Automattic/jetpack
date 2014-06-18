@@ -4,12 +4,11 @@ if ( ! class_exists( 'WP_List_Table' ) )
 	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
 
 class Jetpack_Modules_List_Table extends WP_List_Table {
-	var $jetpack;
 
 	function __construct() {
 		parent::__construct();
 
-		$this->jetpack = Jetpack::init();
+		Jetpack::init();
 
 		$this->items = $this->all_items = Jetpack_Admin::init()->get_modules();
 		$this->items = $this->filter_displayed_table_items( $this->items );
@@ -85,7 +84,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			} else {
 				#>
 				<tr class="no-modules-found">
-					<td colspan="2"><?php esc_html_e( 'No Modules Found' ); ?></td>
+					<td colspan="2"><?php esc_html_e( 'No Modules Found' , 'jetpack' ); ?></td>
 				</tr>
 				<#
 			}
@@ -233,7 +232,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		if ( empty( $item['activated'] ) && $this->is_module_available( $item ) ) {
 			$url = wp_nonce_url(
-				$this->jetpack->admin_url( array(
+				Jetpack::admin_url( array(
 					'page'   => 'jetpack',
 					'action' => 'activate',
 					'module' => $item['module'],
@@ -243,7 +242,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			$actions['activate'] = sprintf( '<a href="%s">%s</a>', esc_url( $url ), esc_html__( 'Activate', 'jetpack' ) );
 		} elseif ( ! empty( $item['activated'] ) ) {
 			$url = wp_nonce_url(
-				$this->jetpack->admin_url( array(
+				Jetpack::admin_url( array(
 					'page'   => 'jetpack',
 					'action' => 'deactivate',
 					'module' => $item['module'],
@@ -261,7 +260,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		echo apply_filters( 'jetpack_short_module_description', $item['description'], $item['module'] );
 		do_action( 'jetpack_learn_more_button_' . $item['module'] );
 		echo '<div id="more-info-' . $item['module'] . '" class="more-info">';
-		if ( $this->jetpack->is_active() && has_action( 'jetpack_module_more_info_connected_' . $item['module'] ) ) {
+		if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $item['module'] ) ) {
 			do_action( 'jetpack_module_more_info_connected_' . $item['module'] );
 		} else {
 			do_action( 'jetpack_module_more_info_' . $item['module'] );

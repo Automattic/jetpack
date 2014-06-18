@@ -6,7 +6,7 @@
  * php export-translations.php DIRECTORY SOURCE_URL
  */
 
-require dirname( dirname( __FILE__ ) ) . '/trunk/locales.php';
+require dirname( dirname( __FILE__ ) ) . '/locales.php';
 
 /**
  * Terminates script.  Prints help and message to STDERR

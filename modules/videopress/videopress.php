@@ -124,7 +124,7 @@ class Jetpack_VideoPress {
 
 		// Ask WordPress.com for a list of VideoPress blogs
 		$result = $this->query( 'jetpack.vpGetBlogs' );
-		if ( ! is_wp_error() )
+		if ( ! is_wp_error( $result ) )
 			$options['blogs'] = $result;
 
 		// If there's at least one available blog, let's use it.

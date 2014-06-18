@@ -2,7 +2,7 @@
 /**
  * Module Name: Subscriptions
  * Module Description: Allow users to subscribe to your posts and comments and receive notifications via email.
- * Sort Order: 3
+ * Sort Order: 9
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Auto Activate: Yes
@@ -249,18 +249,20 @@ class Jetpack_Subscriptions {
 	}
 
 	public function reading_section() {
+		echo '<p id="follower-settings">';
 		_e( 'These settings change emails sent from your blog to followers.', 'jetpack' );
+		echo '</p>';
 	}
 
 	public function setting_invitation() {
 		$settings = $this->get_settings();
-		echo '<textarea name="subscription_options[invitation]" class="large-text" cols="50" rows="5">'.$settings['invitation'].'</textarea>';
+		echo '<textarea name="subscription_options[invitation]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['invitation'] ) . '</textarea>';
 		echo '<p><span class="description">'.__( 'Introduction text sent when someone follows your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ).'</span></p>';
 	}
 
 	public function setting_comment_follow() {
 		$settings = $this->get_settings();
-		echo '<textarea name="subscription_options[comment_follow]" class="large-text" cols="50" rows="5">'.$settings['comment_follow'].'</textarea>';
+		echo '<textarea name="subscription_options[comment_follow]" class="large-text" cols="50" rows="5">' . esc_textarea( $settings['comment_follow'] ) . '</textarea>';
 		echo '<p><span class="description">'.__( 'Introduction text sent when someone follows a post on your blog. (Site and confirmation details will be automatically added for you.)', 'jetpack' ).'</span></p>';
 	}
 

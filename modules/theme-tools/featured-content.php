@@ -395,7 +395,6 @@ class Featured_Content {
 	 */
 	public static function register_setting() {
 		add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __class__, 'render_form' ), 'reading' );
-		register_setting( 'reading', 'featured-content', array( __class__, 'validate_settings' ) );
 	}
 
 	/**

@@ -31,8 +31,14 @@ function archives_shortcode( $attr ) {
 	if ( !in_array( $format, array( 'html', 'option', 'custom' ) ) )
 		$format =  'html';
 
-	if ( '' != $limit )
+	if ( '' != $limit ) {
 		$limit = (int)$limit;
+		// A Limit of 0 makes no sense so revert back to the default.
+		if ( 0 == $limit ) {
+			$limit = '';
+		}
+	}
+
 
 	$showcount = (bool)$showcount;
 	$before = wp_kses( $before, $allowedposttags );

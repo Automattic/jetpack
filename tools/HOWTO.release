@@ -1,3 +1,9 @@
+This document is being migrated to:
+
+https://github.com/automattic/jetpack/wiki/Shipping-a-Release
+
+Some or all of the content below may be out of date.
+
 1. Add 'jetpack' textdomain to all i18n strings: SANDBOX
 	1. path/to/tools/add-textdomain.sh path/to/trunk
 	2. Make sure everything looks right

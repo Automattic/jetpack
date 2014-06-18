@@ -300,8 +300,11 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		foreach ( $instance as $key => $value ) {
 			$value = trim( $value );
 
-			if ( isset( $allowed_values[ $key ] ) && $allowed_values[ $key ] && ! array_key_exists( $value, $allowed_values[ $key ] ) )
+			if ( isset( $allowed_values[ $key ] ) && $allowed_values[ $key ] && ! array_key_exists( $value, $allowed_values[ $key ] ) ) {
 				$instance[ $key ] = $defaults[ $key ];
+			} else {
+				$instance[ $key ] = sanitize_text_field( $value );
+			}
 		}
 
 		return $instance;

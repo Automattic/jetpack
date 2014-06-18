@@ -6,6 +6,7 @@
  * First Introduced: 2.4
  * Requires Connection: No
  * Auto Activate: Yes
+ * Sort Order: 17
  * Module Tags: Appearance
  */
 

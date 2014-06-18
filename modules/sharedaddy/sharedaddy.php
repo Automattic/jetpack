@@ -51,7 +51,7 @@ function sharing_meta_box_save( $post_id ) {
 		return $post_id;
 
 	// Record sharing disable
-	if ( isset( $_POST['post_type'] ) && ( 'post' == $_POST['post_type'] || 'page' == $_POST['post_type'] ) ) {
+	if ( isset( $_POST['post_type'] ) && ( $post_type_object = get_post_type_object( $_POST['post_type'] ) ) && $post_type_object->public ) {
 		if ( current_user_can( 'edit_post', $post_id ) ) {
 			if ( isset( $_POST['sharing_status_hidden'] ) ) {
 				if ( !isset( $_POST['enable_post_sharing'] ) ) {
@@ -91,7 +91,7 @@ function sharing_add_plugin_settings($links, $file) {
 }
 
 function sharing_restrict_to_single( $services ) {
-	// This removes Press This from non-multisite blogs - doesnt make much sense
+	// This removes Press This from non-multisite blogs - doesn't make much sense
 	if ( is_multisite() === false ) {
 		unset( $services['press-this'] );
 	}

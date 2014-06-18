@@ -418,10 +418,10 @@ function jetpack_widgets_more_info_connected() { ?>
 	<p><strong><?php esc_html_e( 'The Facebook Like Box Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'shows your Facebook Like Box within a sidebar on your theme.', 'jetpack' ) ?></p>
 	<p><strong><?php esc_html_e( 'The Image Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'lets you easily add images to a sidebar on your theme.', 'jetpack' ) ?></p>
 	<p><strong><?php esc_html_e( 'The Gravatar Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'allows you to pull in your Gravatar image along with some of your Gravatar profile data.', 'jetpack' ) ?></p>
-	<p><strong><?php esc_html_e( 'The Gallery Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'provides you with a simple way to display a photo gallery or slideshow in your blog’s sidebar.', 'jetpack' ) ?></p>
+	<p><strong><?php esc_html_e( 'The Gallery Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'provides you with a simple way to display a photo gallery or slideshow in your blog’s sidebar. Requires the Tiled Gallery module.', 'jetpack' ) ?></p>
 	<p><strong><?php esc_html_e( 'The Display WordPress Posts Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'lets you display up to ten recent posts from another WordPress.com blog, or a self-hosted WordPress site with Jetpack enabled.', 'jetpack' ) ?></p>
 	<p><strong><?php esc_html_e( 'The Readmill Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'allows your readers to send a book to their device with one click.', 'jetpack' ) ?></p>
-	<p><strong><?php esc_html_e( 'The Upcoming Events Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'allows you to use an iCalendar link to display a list of events on your site.', 'jetpack' ) ?></p>
+	<!--<p><strong><?php esc_html_e( 'The Upcoming Events Widget', 'jetpack' ); ?></strong> <?php esc_html_e( 'allows you to use an iCalendar link to display a list of events on your site.', 'jetpack' ) ?></p>-->
 
 	<p><?php esc_html_e( 'Each of these widgets has a number of customization options.', 'jetpack' ); ?>  <?php printf( __( 'To use the widgets, go to Appearance &#8594; <a href="%s">Widgets</a>. Drag them into one of your sidebars and configure away.', 'jetpack' ), admin_url( 'widgets.php' ) ); ?></p>
 <?php
@@ -449,6 +449,7 @@ function jetpack_subscriptions_more_info() { ?>
 	if ( 'jetpack_module_more_info_connected_subscriptions' == current_filter() )
 		printf( '<p>' . __( 'To use the Subscriptions widget, go to Appearance &#8594; <a href="%s">Widgets</a>. Drag the widget labeled &#8220;Blog Subscriptions (Jetpack)&#8221; into one of your sidebars and configure away.', 'jetpack' ) . '</p>', admin_url( 'widgets.php' ) );
 		printf( '<p>' . __( 'You can also make changes to your Subscription settings at the bottom of the <a href="%s">Discussion Settings</a> page.', 'jetpack' ) . '</p>', admin_url( 'options-discussion.php#jetpack-subscriptions-settings' ) );
+		printf( '<p>' . __( 'To customize the emails sent from your blog to your followers, check the settings at the bottom of the <a href="%s">Reading Settings</a> page.', 'jetpack' ) . '</p>', admin_url( 'options-reading.php#follower-settings' ) );
 }
 add_action( 'jetpack_module_more_info_subscriptions', 'jetpack_subscriptions_more_info' );
 add_action( 'jetpack_module_more_info_connected_subscriptions', 'jetpack_subscriptions_more_info' );
@@ -877,7 +878,7 @@ add_action( 'jetpack_learn_more_button_sso', 'jetpack_sso_more_link' );
 function jetpack_monitor_more_info() { ?>
 	<h4><?php esc_html_e( 'Monitor' , 'jetpack' ); ?></h4>
 
-	<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
+	<p><?php esc_html_e( 'Nobody likes downtime, and that\'s why Jetpack Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!', 'jetpack' ); ?>
 
 	<p><?php esc_html_e( 'We’ll also let you know as soon as your site is up and running, so you can keep an eye on total downtime.', 'jetpack'); ?></p>
 
@@ -903,9 +904,31 @@ function jetpack_related_posts_more_info() {
 		<h4>%s</h4>
 		<p>%s</p>
 		<p>&rarr; <a href="http://jetpack.me/support/related-posts/">%s</a></p>
-		<hr />
+EOT;
+	printf(
+		$template,
+		plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/related-posts.png' ),
+		esc_attr__( 'Related Posts', 'jetpack' ),
+		esc_html__( 'Related Posts', 'jetpack' ),
+		esc_html__( '"Related Posts" shows additional relevant links from your site under your posts. If the feature is enabled, links appear underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).', 'jetpack' ),
+		esc_html__( 'More information on using Related Posts.', 'jetpack' )
+	);
+}
+add_action( 'jetpack_module_more_info_related-posts', 'jetpack_related_posts_more_info' );
+
+function jetpack_related_posts_more_info_connected() {
+	$template = <<<EOT
+		<div class="jp-info-img">
+			<a href="http://jetpack.me/support/related-posts/">
+				<img class="jp-info-img" src="%s" alt="%s" width="300" height="98" />
+			</a>
+		</div>
+
+		<h4>%s</h4>
 		<p>%s</p>
-		%s
+		<p>&rarr; <a href="http://jetpack.me/support/related-posts/">%s</a></p>
+		<hr />
+		<p><a href="%s#sync-related-posts">%s</a></p>
 EOT;
 	printf(
 		$template,
@@ -914,11 +937,11 @@ EOT;
 		esc_html__( 'Related Posts', 'jetpack' ),
 		esc_html__( '"Related Posts" shows additional relevant links from your site under your posts. If the feature is enabled, links appear underneath your Sharing Buttons and WordPress.com Likes (if you’ve turned these on).', 'jetpack' ),
 		esc_html__( 'More information on using Related Posts.', 'jetpack' ),
-		esc_html__( 'This feature uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only effecting certain posts, request a reindex of your posts.', 'jetpack' ),
-		Jetpack::init()->sync->reindex_ui()
+		esc_url( Jetpack::admin_url( array( 'page' => 'jetpack-debugger' ) ) ),
+		esc_html__( 'This feature uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, request a reindex of your posts.', 'jetpack' )
 	);
 }
-add_action( 'jetpack_module_more_info_related-posts', 'jetpack_related_posts_more_info' );
+add_action( 'jetpack_module_more_info_connected_related-posts', 'jetpack_related_posts_more_info_connected' );
 
 function jetpack_related_posts_more_button() {
 	echo '<a class="button more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
@@ -956,4 +979,3 @@ function jetpack_verification_tools_more_link() {
 }
 add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verification_tools_more_link' );
 // Site Verification Tools: STOP
-

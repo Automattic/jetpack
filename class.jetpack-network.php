@@ -7,7 +7,6 @@
  *
  * DO NOT USE ANY STATIC METHODS IN THIS CLASS!!!!!!
  *
- * @todo Look through todos in Jetpack_Network
  * @since 2.9
  */
 class Jetpack_Network {
@@ -59,9 +58,6 @@ class Jetpack_Network {
 			if( isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
 				add_action( 'admin_init', array ( $this,  'jetpack_sites_list' ) );
 			}
-			//add_filter( 'wpmu_blogs_columns', array( $this, 'add_jetpack_sites_column' ) );
-			//add_action( 'manage_sites_custom_column', array( $this, 'render_jetpack_sites_column' ), 10, 2 );
-			//add_action( 'manage_blogs_custom_column', array( $this, 'render_jetpack_sites_column' ), 10, 2 );
 		}
 
 		/*
@@ -77,8 +73,7 @@ class Jetpack_Network {
 			 * This is a hacky way because xmlrpc is not available on wpmu_new_blog
 			 */
 			if( $this->get_option( 'auto-connect' ) == 1 ) {
-			//add_action( 'admin_init', array( $this, 'do_automatically_add_new_site' ) );
-			add_action( 'wpmu_new_blog', array( $this, 'do_automatically_add_new_site' ) );
+				add_action( 'wpmu_new_blog', array( $this, 'do_automatically_add_new_site' ) );
 			}
 		}
 
@@ -106,54 +101,6 @@ class Jetpack_Network {
 */
 	}
 
-	/**
-	 * Displays the Jetpack connection status on the Network Admin > Sites
-	 * page.
-	 *
-	 * @param string $column_name
-	 * @param int $blog_id
-	 **/
-	public function render_jetpack_sites_column( $column_name, $blog_id ) {
-		if( 'jetpack_connection' != $column_name )
-			return;
-		
-		$jp = Jetpack::init();
-
-		switch_to_blog( $blog_id );
-		if( $jp->is_active() ) {
-		   // Build url for disconnecting 
-			$url = $this->get_url( array(
-			'name'		=> 'subsitedisconnect',
-			'site_id'   => $blog_id,
-
-			) );
-			restore_current_blog();
-			echo '<a href="' . $url . '">Disconnect</a>';
-			return;
-		}
-		restore_current_blog();
-		
-		// Build URL for connecting
-		$url = $this->get_url( array(
-			'name'	=> 'subsiteregister',
-			'site_id'	=> $blog_id,
-		) );
-		echo '<a href="' . $url . '">Connect</a>';
-		return;
-	}
-
-	/**
-	 * Add the column for Jetpack connection status to the
-	 * Network Admin > Sites list
-	 *
-	 * @since 2.9
-	 * @param array $columns
-	 * @return array
-	 **/
-	public function add_jetpack_sites_column( $columns ) {
-		$columns['jetpack_connection'] = __( 'Jetpack' );
-		return $columns;
-	}
 
 	/**
 	 * Registers new sites upon creation
@@ -217,7 +164,7 @@ class Jetpack_Network {
 
 		$sites = $this->wp_get_sites();
 
-		foreach( $sites AS $s ) {
+		foreach( $sites as $s ) {
 			switch_to_blog( $s->blog_id );
 			$active_plugins = get_option( 'active_plugins' );
 
@@ -248,7 +195,7 @@ class Jetpack_Network {
 		 $wp_admin_bar->add_node( array(
 		'parent' => 'network-admin',
 		'id'     => 'network-admin-jetpack',
-		'title'  => __( 'Jetpack' ),
+		'title'  => __( 'Jetpack' , 'jetpack' ),
 		'href'   => $this->get_url( 'network_admin_page' ),
 		) );
 	 }
@@ -382,7 +329,7 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function jetpack_sites_list() {
-		$jp = Jetpack::init();
+		Jetpack::init();
 
 		if( isset( $_GET['action'] ) ) {
 			switch( $_GET['action'] ) {
@@ -439,7 +386,7 @@ class Jetpack_Network {
 			$notice = 'Blog connection <strong>failed</strong>';
 		}
 
-		require_once( 'views/admin/network-admin-alert.php' );
+		Jetpack::init()->load_view( 'admin/network-admin-alert.php', array( 'notice' => $notice ) );
 	}
 
 	/**
@@ -473,9 +420,6 @@ class Jetpack_Network {
 		
 		// Remote query timeout limit
 		$timeout = $jp->get_remote_query_timeout_limit();
-
-		// Get proof the wpcom server can trust you adding this site
-		$network_admin_token = '';
 
 		// The blog id on WordPress.com of the primary network site
 		$network_wpcom_blog_id = Jetpack_Options::get_option( 'id' );
@@ -533,7 +477,7 @@ class Jetpack_Network {
 		
 		// Attempt to retrieve shadow blog details
 		$response = Jetpack_Client::_wp_remote_request(
-		Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'subsiteregister' ) ), $args, true 
+			Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'subsiteregister' ) ), $args, true 
 		);
 		
 		/*
@@ -562,9 +506,9 @@ class Jetpack_Network {
 		return new Jetpack_Error( 'jetpack_secret', '', $code );
 
 		if ( isset( $json->jetpack_public ) ) {
-		$jetpack_public = (int) $json->jetpack_public;
+			$jetpack_public = (int) $json->jetpack_public;
 		} else {
-		$jetpack_public = false;
+			$jetpack_public = false;
 		}
 		
 		Jetpack_Options::update_options(
@@ -634,8 +578,8 @@ class Jetpack_Network {
 				'name'      => 'subsiteregister', 
 				'site_id'   => 1,
 				) );
-				$url = $jp->build_connect_url();
-				require_once( 'views/admin/must-connect-main-blog.php' );
+				$data = array( 'url' => $jp->build_connect_url() );
+				Jetpack::init()->load_view( 'admin/must-connect-main-blog.php', $data );
 				return;
 			}
 			
@@ -659,11 +603,11 @@ class Jetpack_Network {
 		global $current_user;
 
 		$is_connected      = Jetpack::is_active();
-		$user_token        = Jetpack_Data::get_access_token( $current_user->ID );
-		$is_user_connected = $user_token && ! is_wp_error( $user_token );
-		$is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 
-		require_once( 'views/admin/network-admin-header.php' );
+		$data = array(
+			'is_connected' => $is_connected
+		);
+		Jetpack::init()->load_view( 'admin/network-admin-header.php', $data );
 	}
 	
 	/**
@@ -672,7 +616,7 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	function network_admin_page_footer() {
-		require_once( 'views/admin/network-admin-footer.php' );
+		Jetpack::init()->load_view( 'admin/network-admin-footer.php' );
 	}
 
 	/**
@@ -734,8 +678,13 @@ class Jetpack_Network {
 		if( !isset( $options['modules'] ) ) {
 			$options['modules'] = $modules;
 		}
-		
-		require( 'views/admin/network-settings.php' );
+
+		$data = array(
+			'modules' => $modules,
+			'options' => $options
+		);
+	
+		Jetpack::init()->load_view( 'admin/network-settings.php', $data );
 		$this->network_admin_page_footer();
 	}
 

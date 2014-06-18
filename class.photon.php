@@ -299,7 +299,7 @@ class Jetpack_Photon {
 						}
 
 						// Remove the width and height arguments from the tag to prevent distortion
-						$new_tag = preg_replace( '#(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
+						$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
 
 						// Tag an image for dimension checking
 						$new_tag = preg_replace( '#(\s?/)?>(</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
@@ -462,7 +462,8 @@ class Jetpack_Photon {
 			return false;
 
 		// If we got this far, we should have an acceptable image URL
-		return true;
+		// But let folks filter to decline if they prefer.
+		return apply_filters( 'photon_validate_image_url', true, $url, $parsed_url );
 	}
 
 	/**

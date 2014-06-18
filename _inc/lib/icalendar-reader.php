@@ -597,7 +597,7 @@ class iCalendarReader {
 		}
 
 		// Running strip_tags() first with allowed tags to get rid of remaining gallery markup, etc
-		// because wp_kses() would only htmlentity'fy that. Then still runnning wp_kses(), for extra
+		// because wp_kses() would only htmlentity'fy that. Then still running wp_kses(), for extra
 		// safety and good measure.
 		return wp_kses( strip_tags( $string, $allowed_tags ), $allowed_html );
 	}
@@ -696,9 +696,9 @@ class iCalendarReader {
 		$single_day = $end ? ( $end - $start ) <= DAY_IN_SECONDS : true;
 
 		/* Translators: Date and time */
-		$date_with_time = __( '%1$s at %2$s' );
+		$date_with_time = __( '%1$s at %2$s' , 'jetpack' );
 		/* Translators: Two dates with a separator */
-		$two_dates = __( '%1$s &ndash; %2$s' );
+		$two_dates = __( '%1$s &ndash; %2$s' , 'jetpack' );
 
 		// we'll always have the start date. Maybe with time
 		if ( $all_day )

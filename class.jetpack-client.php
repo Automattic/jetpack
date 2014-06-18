@@ -72,8 +72,8 @@ class Jetpack_Client {
 
 		if ( false !== strpos( $args['url'], 'xmlrpc.php' ) ) {
 			$url_args = array(
-				'for'     => 'jetpack',
-				'blog_id' => $args['blog_id'],
+				'for'           => 'jetpack',
+				'wpcom_blog_id' => Jetpack_Options::get_option( 'id' ),
 			);
 		} else {
 			$url_args = array();
@@ -121,7 +121,6 @@ class Jetpack_Client {
 	 * The option is checked on each request.
 	 *
 	 * @internal
-	 * @todo: Better fallbacks (bundled certs?), feedback, UI, ....
 	 * @see Jetpack::fix_url_for_bad_hosts()
 	 *
 	 * @return array|WP_Error WP HTTP response on success

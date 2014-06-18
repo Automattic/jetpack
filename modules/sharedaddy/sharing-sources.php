@@ -344,6 +344,16 @@ class Share_Twitter extends Sharing_Source {
 	function sharing_twitter_via( $post ) {
 		// Allow themes to customize the via
 		$twitter_site_tag_value = apply_filters( 'jetpack_twitter_cards_site_tag', '' );
+
+		/*
+		 * Hack to remove the unwanted behavior of adding 'via @jetpack' which
+		 * was introduced with the adding of the Twitter cards. 
+		 * This should be a temporary solution until a better method is setup.
+		 */
+		if( 'jetpack' == $twitter_site_tag_value ) {
+			$twitter_site_tag_value = '';
+		}
+
 		// Strip out anything other than a letter, number, or underscore.
 		// This will prevent the inadvertent inclusion of an extra @, as well as normalizing the handle.
 		$twitter_site_tag_value = preg_replace( '/[^\da-z_]+/i', '', $twitter_site_tag_value );

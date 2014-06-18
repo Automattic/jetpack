@@ -14,14 +14,14 @@ class Jetpack_Widget_Conditions {
 			add_action( 'wp_ajax_widget_conditions_options', array( __CLASS__, 'widget_conditions_options' ) );
 		}
 		else {
-			add_action( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
-			add_action( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
+			add_filter( 'widget_display_callback', array( __CLASS__, 'filter_widget' ) );
+			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 		}
 	}
 
 	public static function widget_admin_setup() {
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
-		wp_enqueue_script( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.js', __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20130129, true );
+		wp_enqueue_script( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.js', __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20140422, true );
 	}
 
 	/**
@@ -123,20 +123,18 @@ class Jetpack_Widget_Conditions {
 					?>
 					<optgroup label="<?php esc_attr_e( $taxonomy->labels->name . ':', 'jetpack' ); ?>">
 						<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $minor ); ?>><?php echo 'All ' . esc_html( $taxonomy->name ) . ' pages'; ?></option>
-						<?php
-						
-						$terms = get_terms( array( $taxonomy->name ), array( 'number' => 1000, 'hide_empty' => false ) );
-						foreach ( $terms as $term ) {
-							?>
-							<option value="<?php echo esc_attr( $taxonomy->name . '_tax_' . $term->term_id ); ?>" <?php selected( $taxonomy->name . '_tax_' . $term->term_id, $minor ); ?>><?php echo esc_html( $term->name ); ?></option>
-							<?php
-						}
-
-						?>
-					</optgroup>
 					<?php
-					
-				
+
+					$terms = get_terms( array( $taxonomy->name ), array( 'number' => 250, 'hide_empty' => false ) );
+					foreach ( $terms as $term ) {
+						?>
+						<option value="<?php echo esc_attr( $taxonomy->name . '_tax_' . $term->term_id ); ?>" <?php selected( $taxonomy->name . '_tax_' . $term->term_id, $minor ); ?>><?php echo esc_html( $term->name ); ?></option>
+						<?php
+					}
+
+					?>
+				</optgroup>
+				<?php
 				}
 			break;
 		}
@@ -192,7 +190,9 @@ class Jetpack_Widget_Conditions {
 									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
 									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
 									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
+									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
 									<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
+									<?php endif; ?>
 								</select>
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
 								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
@@ -374,9 +374,8 @@ class Jetpack_Widget_Conditions {
 							if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' )
 								$condition_result = is_singular( substr( $rule['minor'], 10 ) );
 							else {
-								// $rule['minor'] is a page ID -- check if we're either looking at that particular page itself OR looking at the posts page, with the correct conditions
-								
-								$condition_result = ( is_page( $rule['minor'] ) || ( get_option( 'show_on_front' ) == 'page' && $wp_query->is_posts_page && get_option( 'page_for_posts' ) == $rule['minor'] ) );
+								// $rule['minor'] is a page ID
+								$condition_result = is_page( $rule['minor'] );
 							}
 						break;
 					}

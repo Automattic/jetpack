@@ -438,8 +438,13 @@ function sharing_add_header() {
 	}
 
 	if ( count( $enabled['all'] ) > 0 ) {
-		wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css', array(), JETPACK__VERSION );
-		wp_enqueue_style( 'genericons' );
+		// @todo: Remove this opt-out filter in the future
+		if ( ( ! defined( 'IS_WPCOM' ) ) || ( ! IS_WPCOM ) || apply_filters( 'wpl_sharing_2014_1', true ) ) {
+			wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css', array(), JETPACK__VERSION );
+			wp_enqueue_style( 'genericons' );
+		} else {
+			wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing-legacy.css', array(), JETPACK__VERSION );
+		}
 	}
 			
 }

@@ -2,7 +2,7 @@
 /**
  * Module Name: Publicize
  * Module Description: Share new posts on social media networks automatically.
- * Sort Order: 1
+ * Sort Order: 10
  * First Introduced: 2.0
  * Requires Connection: Yes
  * Auto Activate: Yes

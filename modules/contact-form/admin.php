@@ -25,9 +25,9 @@ function grunion_media_button( ) {
 	<?php
 }
 
-add_action( 'wp_ajax_grunion_form_builder', 'display_form_view' );
+add_action( 'wp_ajax_grunion_form_builder', 'grunion_display_form_view' );
 
-function display_form_view() {
+function grunion_display_form_view() {
 	require_once GRUNION_PLUGIN_DIR . 'grunion-form-view.php';
 	exit;
 }
@@ -205,15 +205,22 @@ add_action( 'manage_posts_custom_column', 'grunion_manage_post_columns', 10, 2 )
 function grunion_manage_post_columns( $col, $post_id ) {
 	global $post;
 	
-	$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post_id );
+	/**
+	 * Only call parse_fields_from_content if we're dealing with a Grunion custom column.
+	 */
+	if ( ! in_array( $col, array( 'feedback_date', 'feedback_from', 'feedback_message' ) ) ) {
+		return;
+	}
 
+	$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post_id );	
+	
 	switch ( $col ) {
 		case 'feedback_from':
 			$author_name  = $content_fields['_feedback_author'];
 			$author_email = $content_fields['_feedback_author_email'];
 			$author_url   = $content_fields['_feedback_author_url'];
 			$author_ip    = $content_fields['_feedback_ip'];
-			$form_url     = get_permalink( $post_id );
+			$form_url     = isset( $post->post_parent ) ? get_permalink( $post->post_parent ) : null;
 
 			$author_name_line = '';
 			if ( !empty( $author_name ) ) {
@@ -241,11 +248,12 @@ function grunion_manage_post_columns( $col, $post_id ) {
 			echo $author_url_line;
 			echo "<a href='edit.php?post_type=feedback&s={$author_ip}";
 			echo "&mode=detail'>{$author_ip}</a><br />";
-			echo "<a href='{$form_url}'>{$form_url}</a>";
+			if ( $form_url ) {
+				echo '<a href="' . esc_url( $form_url ) . '">' . esc_html( $form_url ) . '</a>';
+			}
 			break;
 
 		case 'feedback_message':
-			$post = get_post( $post_id );
 			$post_type_object = get_post_type_object( $post->post_type );
 			echo '<strong>';
 			echo esc_html( $content_fields['_feedback_subject'] );
@@ -569,7 +577,7 @@ function grunion_ajax_spam() {
 		$email = get_post_meta( $post_id, '_feedback_email', TRUE );
 		$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post_id );
 		
-		if ( !empty( $emails ) && !empty( $content_fields ) ) {
+		if ( !empty( $email ) && !empty( $content_fields ) ) {
 			if ( isset( $content_fields['_feedback_author_email'] ) )
 				$comment_author_email = $content_fields['_feedback_author_email'];
 				

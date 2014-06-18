@@ -45,6 +45,9 @@ function enhanced_og_gallery( $tags ) {
 	if ( 'gallery' != $summary['type'] )
 		return $tags;
 
+	if( !isset( $summary['images'] ) || !is_array( $summary['images'] ) || empty( $summary['images'] ) )
+		return $tags;
+
 	$images = $secures = array();
 	foreach ( $summary['images'] as $i => $image ) {
 		$images[] = $image['url'];
@@ -90,7 +93,7 @@ function enhanced_og_video( $tags ) {
 
 	if ( preg_match( '/((youtube|vimeo)\.com|youtu.be)/', $video_url ) ) {
 		if ( strstr( $video_url, 'youtube' ) ) {
-			$id = get_youtube_id( $video_url );
+			$id = jetpack_get_youtube_id( $video_url );
 			$video_url = 'http://www.youtube.com/v/' . $id . '?version=3&autohide=1';
 			$secure_video_url = 'https://www.youtube.com/v/' . $id . '?version=3&autohide=1';
 		} else if ( strstr( $video_url, 'vimeo' ) ) {

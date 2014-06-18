@@ -4,7 +4,7 @@
  * Module Name: Post by Email
  * Module Description: Publish posts by email, using any device and email client.
  * First Introduced: 2.0
- * Sort Order: 4
+ * Sort Order: 14
  * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: Writing
@@ -42,7 +42,7 @@ class Jetpack_Post_By_Email {
 		add_action( 'init', array( &$this, 'action_init' ) );
 	}
 
-	function module_toggle() {
+	static function module_toggle() {
 		$jetpack = Jetpack::init();
 		$jetpack->sync->register( 'noop' );
 	}

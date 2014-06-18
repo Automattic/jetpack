@@ -30,6 +30,7 @@ Scroller = function( settings ) {
 	this.order            = settings.order;
 	this.throttle         = false;
 	this.handle           = '<div id="infinite-handle"><span>' + text.replace( '\\', '' ) + '</span></div>';
+	this.click_handle     = settings.click_handle;
 	this.google_analytics = settings.google_analytics;
 	this.history          = settings.history;
 	this.origURL          = window.location.href;
@@ -37,6 +38,9 @@ Scroller = function( settings ) {
 	// Footer settings
 	this.footer           = $( '#infinite-footer' );
 	this.footer.wrap      = settings.footer;
+
+	// Core's native MediaElement.js implementation needs special handling
+	this.wpMediaelement   = null;
 
 	// We have two type of infinite scroll
 	// cases 'scroll' and 'click'
@@ -68,22 +72,38 @@ Scroller = function( settings ) {
 		self.ensureFilledViewport();
 		this.body.bind( 'post-load', { self: self }, self.checkViewportOnLoad );
 	} else if ( type == 'click' ) {
-		this.element.append( self.handle );
-		this.element.delegate( '#infinite-handle', 'click.infinity', function() {
+		if ( this.click_handle ) {
+			this.element.append( this.handle );
+		}
+
+		this.body.delegate( '#infinite-handle', 'click.infinity', function() {
 			// Handle the handle
-			$( '#infinite-handle' ).remove();
+			if ( self.click_handle ) {
+				$( '#infinite-handle' ).remove();
+			}
+
 			// Fire the refresh
 			self.refresh();
 		});
 	}
+
+	// Initialize any Core audio or video players loaded via IS
+	this.body.bind( 'post-load', { self: self }, self.initializeMejs );
 };
 
 /**
  * Check whether we should fetch any additional posts.
  */
 Scroller.prototype.check = function() {
+	var container = this.element.offset();
+
+	// If the container can't be found, stop otherwise errors result
+	if ( 'object' !== typeof container ) {
+		return false;
+	}
+
 	var bottom = this.window.scrollTop() + this.window.height(),
-		threshold = this.element.offset().top + this.element.outerHeight(false) - (this.window.height() * 2);
+		threshold = container.top + this.element.outerHeight(false) - (this.window.height() * 2);
 
 	return bottom > threshold;
 };
@@ -97,7 +117,7 @@ Scroller.prototype.render = function( response ) {
 	// Check if we can wrap the html
 	this.element.append( response.html );
 
-	this.body.trigger( 'post-load' );
+	this.body.trigger( 'post-load', response );
 	this.ready = true;
 };
 
@@ -172,15 +192,17 @@ Scroller.prototype.refresh = function() {
 	this.ready = false;
 
 	// Create a loader element to show it's working.
-	loader = '<span class="infinite-loader"></span>';
-	this.element.append( loader );
+	if ( this.click_handle ) {
+		loader = '<span class="infinite-loader"></span>';
+		this.element.append( loader );
 
-	loader = this.element.find( '.infinite-loader' );
-	color = loader.css( 'color' );
+		loader = this.element.find( '.infinite-loader' );
+		color = loader.css( 'color' );
 
-	try {
-		loader.spin( 'medium-left', color );
-	} catch ( error ) { }
+		try {
+			loader.spin( 'medium-left', color );
+		} catch ( error ) { }
+	}
 
 	// Generate our query vars.
 	query = $.extend({
@@ -192,14 +214,19 @@ Scroller.prototype.refresh = function() {
 
 	// Allow refreshes to occur again if an error is triggered.
 	jqxhr.fail( function() {
-		loader.hide();
+		if ( self.click_handle ) {
+			loader.hide();
+		}
+
 		self.ready = true;
 	});
 
 	// Success handler
 	jqxhr.done( function( response ) {
 			// On success, let's hide the loader circle.
-			loader.hide();
+			if ( self.click_handle ) {
+				loader.hide();
+			}
 
 			// Check for and parse our response.
 			if ( ! response )
@@ -222,6 +249,8 @@ Scroller.prototype.refresh = function() {
 				// If additional scripts are required by the incoming set of posts, parse them
 				if ( response.scripts ) {
 					$( response.scripts ).each( function() {
+						var elementToAppendTo = this.footer ? 'body' : 'head';
+
 						// Add script handle to list of those already parsed
 						window.infiniteScroll.settings.scripts.push( this.handle );
 
@@ -233,7 +262,7 @@ Scroller.prototype.refresh = function() {
 							data.type = 'text/javascript';
 							data.appendChild( dataContent );
 
-							document.getElementsByTagName( this.footer ? 'body' : 'head' )[0].appendChild(data);
+							document.getElementsByTagName( elementToAppendTo )[0].appendChild(data);
 						}
 
 						// Build script tag and append to DOM in requested location
@@ -241,7 +270,20 @@ Scroller.prototype.refresh = function() {
 						script.type = 'text/javascript';
 						script.src = this.src;
 						script.id = this.handle;
-						document.getElementsByTagName( this.footer ? 'body' : 'head' )[0].appendChild(script);
+
+						// If MediaElement.js is loaded in by this set of posts, don't initialize the players a second time as it breaks them all
+						if ( 'wp-mediaelement' === this.handle ) {
+							self.body.unbind( 'post-load', self.initializeMejs );
+						}
+
+						if ( 'wp-mediaelement' === this.handle && 'undefined' === typeof mejs ) {
+							self.wpMediaelement = {};
+							self.wpMediaelement.tag = script;
+							self.wpMediaelement.element = elementToAppendTo;
+							setTimeout( self.maybeLoadMejs.bind( self ), 250 );
+						} else {
+							document.getElementsByTagName( elementToAppendTo )[0].appendChild(script);
+						}
 					} );
 				}
 
@@ -282,8 +324,21 @@ Scroller.prototype.refresh = function() {
 				self.render.apply( self, arguments );
 
 				// If 'click' type and there are still posts to fetch, add back the handle
-				if ( type == 'click' && !response.lastbatch )
-					self.element.append( self.handle );
+				if ( type == 'click' ) {
+					if ( response.lastbatch ) {
+						if ( self.click_handle ) {
+							$( '#infinite-handle' ).remove();
+						} else {
+							self.body.trigger( 'infinite-scroll-posts-end' );
+						}
+					} else {
+						if ( self.click_handle ) {
+							self.element.append( self.handle );
+						} else {
+							self.body.trigger( 'infinite-scroll-posts-more' );
+						}
+					}
+				}
 
 				// Update currentday to the latest value returned from the server
 				if (response.currentday)
@@ -297,6 +352,62 @@ Scroller.prototype.refresh = function() {
 
 	return jqxhr;
 };
+
+/**
+ * Core's native media player uses MediaElement.js
+ * The library's size is sufficient that it may not be loaded in time for Core's helper to invoke it, so we need to delay until `mejs` exists.
+ */
+Scroller.prototype.maybeLoadMejs = function() {
+	if ( null === this.wpMediaelement ) {
+		return;
+	}
+
+	if ( 'undefined' === typeof mejs ) {
+		setTimeout( this.maybeLoadMejs, 250 );
+	} else {
+		document.getElementsByTagName( this.wpMediaelement.element )[0].appendChild( this.wpMediaelement.tag );
+		this.wpMediaelement = null;
+
+		// Ensure any subsequent IS loads initialize the players
+		this.body.bind( 'post-load', { self: this }, this.initializeMejs );
+	}
+}
+
+/**
+ * Initialize the MediaElement.js player for any posts not previously initialized
+ */
+Scroller.prototype.initializeMejs = function( ev, response ) {
+	// Are there media players in the incoming set of posts?
+	if ( -1 === response.html.indexOf( 'wp-audio-shortcode' ) && -1 === response.html.indexOf( 'wp-video-shortcode' ) ) {
+		return;
+	}
+
+	// Don't bother if mejs isn't loaded for some reason
+	if ( 'undefined' === typeof mejs ) {
+		return;
+	}
+
+	// Adapted from wp-includes/js/mediaelement/wp-mediaelement.js
+	// Modified to not initialize already-initialized players, as Mejs doesn't handle that well
+	$(function () {
+		var settings = {};
+
+		if ( typeof _wpmejsSettings !== 'undefined' ) {
+			settings.pluginPath = _wpmejsSettings.pluginPath;
+		}
+
+		settings.success = function (mejs) {
+			var autoplay = mejs.attributes.autoplay && 'false' !== mejs.attributes.autoplay;
+			if ( 'flash' === mejs.pluginType && autoplay ) {
+				mejs.addEventListener( 'canplay', function () {
+					mejs.play();
+				}, false );
+			}
+		};
+
+		$('.wp-audio-shortcode, .wp-video-shortcode').not( '.mejs-container' ).mediaelementplayer( settings );
+	});
+}
 
 /**
  * Trigger IS to load additional posts if the initial posts don't fill the window.
