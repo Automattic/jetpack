@@ -142,6 +142,84 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @author tonykova
 	 * @covers Grunion_Contact_Form::process_submission
 	 */
+	public function test_process_submission_will_store_subject_with_token_replaced_from_name_and_text_field() {
+		// Fill field values
+		$this->add_field_values( array(
+			'name'     => 'John Doe',
+			'state'     =>'Kansas'
+		) );
+
+		$form = new Grunion_Contact_Form( array( 'subject' => 'Hello {name} from {state}!'), "[contact-field label='Name' type='name' required='1'/][contact-field label='State' type='text'/]" );
+		$result = $form->process_submission();
+
+		// Processing should be successful and produce the success message
+		$this->assertTrue( is_string( $result ) );
+
+		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+
+		// Default metadata should be saved
+		$submission = $feedback[0];
+
+		$this->assertContains( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form::process_submission
+	 */
+	public function test_process_submission_will_store_subject_with_token_replaced_from_radio_button_field() {
+		// Fill field values
+		$this->add_field_values( array(
+			'name'     => 'John Doe',
+			'state'     =>'Kansas'
+		) );
+
+		$form = new Grunion_Contact_Form( array( 'subject' => 'Hello {name} from {state}!'), "[contact-field label='Name' type='name' required='1'/][contact-field label='State' type='radio' options='Kansas,California'/]" );
+		$result = $form->process_submission();
+
+		// Processing should be successful and produce the success message
+		$this->assertTrue( is_string( $result ) );
+
+		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+
+		// Default metadata should be saved
+		$submission = $feedback[0];
+
+		$this->assertContains( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form::process_submission
+	 */
+	public function test_process_submission_will_store_subject_with_token_replaced_from_dropdown_field() {
+		// Fill field values
+		$this->add_field_values( array(
+			'name'     => 'John Doe',
+			'state'     =>'Kansas'
+		) );
+
+		$form = new Grunion_Contact_Form( array( 'subject' => 'Hello {name} from {state}!'), "[contact-field label='Name' type='name' required='1'/][contact-field label='State' type='select' options='Kansas,California'/]" );
+		$result = $form->process_submission();
+
+		// Processing should be successful and produce the success message
+		$this->assertTrue( is_string( $result ) );
+
+		$feedback = get_posts( array( 'post_type' => 'feedback' ) );
+		$this->assertEquals( 1, count( $feedback ), 'There should be one feedback after process_submission' );
+
+		// Default metadata should be saved
+		$submission = $feedback[0];
+
+		$this->assertContains( 'SUBJECT: Hello John Doe from Kansas!', $submission->post_content, 'The stored subject didn\'t match the given' );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form::process_submission
+	 */
 	public function test_process_submission_will_store_fields_and_their_values_to_post_content() {
 		// Fill field values
 		$this->add_field_values( array(
@@ -325,5 +403,61 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		grunion_delete_old_spam();
 		$this->assertEquals( $post_id, get_post( $post_id )->ID, 'A new spam feedback should be left intact when deleting old spam' );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
+	 */
+	public function test_token_left_intact_when_no_matching_field() {
+		$plugin = new Grunion_Contact_Form_Plugin();
+		$subject = 'Hello {name}!';
+		$field_values = array(
+			'City' => 'Chicago'
+		);
+
+		$this->assertEquals( 'Hello {name}!', $plugin->replace_tokens_with_input( $subject, $field_values ) );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
+	 */
+	public function test_replaced_with_empty_string_when_no_value_in_field() {
+		$plugin = new Grunion_Contact_Form_Plugin();
+		$subject = 'Hello {name}!';
+		$field_values = array(
+			'Name' => null
+		);
+
+		$this->assertEquals( 'Hello !', $plugin->replace_tokens_with_input( $subject, $field_values ) );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
+	 */
+	public function test_token_can_replace_entire_subject_with_token_field_whose_name_has_whitespace() {
+		$plugin = new Grunion_Contact_Form_Plugin();
+		$subject = '{subject token}';
+		$field_values = array(
+			'Subject Token' => 'Chicago'
+		);
+
+		$this->assertEquals( 'Chicago', $plugin->replace_tokens_with_input( $subject, $field_values ) );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form_Plugin::replace_tokens_with_input
+	 */
+	public function test_token_with_curly_brackets_can_be_replaced() {
+		$plugin = new Grunion_Contact_Form_Plugin();
+		$subject = '{subject {token}}';
+		$field_values = array(
+			'Subject {Token}' => 'Chicago'
+		);
+
+		$this->assertEquals( 'Chicago', $plugin->replace_tokens_with_input( $subject, $field_values ) );
 	}
 } // end class
