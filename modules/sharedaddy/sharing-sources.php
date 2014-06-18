@@ -1155,7 +1155,7 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) ) .'" data-pin-do="buttonBookmark" ><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>';
+			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) ) .'" data-pin-do="buttonBookmark" data-pin-config="beside" ><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest' );
 	}
