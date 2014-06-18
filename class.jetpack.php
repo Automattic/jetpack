@@ -1669,7 +1669,7 @@ p {
 	/**
 	 * Tracking an internal event log. Try not to put too much chaff in here.
 	 *
-	 * [Everyone Loves a Log!](http://www.youtube.com/watch?v=8L6Dpq5kY_A)
+	 * [Everyone Loves a Log!](https://www.youtube.com/watch?v=2C7mNr5WMjA)
 	 */
 	public static function log( $code, $data = null ) {
 		$log = Jetpack_Options::get_option( 'log', array() );
