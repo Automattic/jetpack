@@ -1190,6 +1190,19 @@ EOPHP;
 		return false;
 	}
 
+	/**
+	 * Gets the whitelisted post types that JP should allow access to.
+	 *
+	 * @return array Whitelisted post types.
+	 */
+	function get_whitelisted_post_types() {
+		$allowed_types = array( 'post', 'page' );
+
+		$allowed_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
+
+		return array_unique( $allowed_types );
+	}
+
 	function handle_media_sideload( $url, $parent_post_id = 0 ) {
 		if ( ! function_exists( 'download_url' ) || ! function_exists( 'media_handle_sideload' ) )
 			return false;
@@ -1310,7 +1323,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return true;
 
 		// check for allowed types
-		if ( in_array( $post_type, Jetpack::get_whitelisted_post_types() ) )
+		if ( in_array( $post_type, $this->get_whitelisted_post_types() ) )
 			return true;
 
  		return false;
@@ -1902,7 +1915,7 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			if ( version_compare( $this->api->version, '1.1', '<' ) )
 				$args['type'] = array( 'post', 'page' );
 			else // 1.1+
-				$args['type'] = Jetpack::get_whitelisted_post_types();
+				$args['type'] = $this->get_whitelisted_post_types();
 		}
 
 		$query = array(

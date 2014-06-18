@@ -4376,19 +4376,6 @@ p {
 	}
 
 	/**
-	 * Gets the whitelisted post types that JP should allow access to.
-	 *
-	 * @return array Whitelisted post types.
-	 */
-	public static function get_whitelisted_post_types() {
-		$allowed_types = array( 'post', 'page' );
-
-		$allowed_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
-
-		return array_unique( $allowed_types );
-	}
-
-	/**
 	 * Displays an admin_notice, alerting the user to an identity crisis.
 	 */
 	public function alert_identity_crisis() {
