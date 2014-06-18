@@ -165,7 +165,7 @@ class Jetpack_User_Agent_Info {
 	   	elseif ( $this->is_ipad( 'ipad-not-safari' ) )
 	   		return 'ipad-unknown';
 	   	elseif ( $this->is_Nintendo_3DS() )
-	   	  return 'nintendo-3ds';
+	   		return 'nintendo-3ds';
 	   	else {
 	   		$agent = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 	   		$dumb_agents = $this->dumb_agents;
@@ -1344,8 +1344,9 @@ class Jetpack_User_Agent_Info {
 	 * can differ in language, version and region
 	 */
 	static function is_Nintendo_3DS() {
-	 	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) )
+	 	if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
 			return false;
+		}
 
 		$ua = strtolower( $_SERVER['HTTP_USER_AGENT'] );
 		if ( strpos( $ua, 'nintendo 3ds' ) !== false ) {
