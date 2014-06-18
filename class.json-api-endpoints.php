@@ -1899,9 +1899,9 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		// Normalize post_type
 		if ( 'any' == $args['type'] ) {
-			if ( '' == $this->api->version )
+			if ( version_compare( $this->api->version, '1.1', '<' ) )
 				$args['type'] = array( 'post', 'page' );
-			else
+			else // 1.1+
 				$args['type'] = Jetpack::get_whitelisted_post_types();
 		}
 
