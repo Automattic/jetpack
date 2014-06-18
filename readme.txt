@@ -51,6 +51,9 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
+= 1.6 =
+* Bugfix: Do not use the deprecated wpdb::escape() method.
+
 = 1.5.9 =
 * Feature: If available, use command line md5sum and sha1sum to get checksums for large files.
 
