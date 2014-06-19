@@ -133,6 +133,17 @@ class Jetpack_Debugger {
 			$debug_info .= "\r\n\r\nRAW TEST RESULTS:" . $debug_raw_info ."\r\n";
 			?>
 			</div>
+			<p>
+				<?php 
+				$user_email = Jetpack::get_connected_user_email();
+				if ( Jetpack::is_user_connected() ) {
+					echo sprintf( __( 'Current connected user is %s.', 'jetpack' ), $user_email );
+				}
+				else {
+					echo sprintf( __( 'No user connected.', 'jetpack' ) );
+				}
+				?>
+			</p>
 			<div class="entry-content">
 				<h3><?php esc_html_e( 'Trouble with Jetpack?', 'jetpack' ); ?></h3>
 				<h4><?php esc_html_e( 'It may be caused by one of these issues, which you can diagnose yourself:', 'jetpack' ); ?></h4>
@@ -147,6 +158,7 @@ class Jetpack_Debugger {
 						</ul>
 					</li>
 				</ol>
+				
 				<?php if ( self::is_jetpack_support_open() ): ?>
 				<p class="jetpack-show-contact-form"><?php echo sprintf( __( 'If none of these help you find a solution, <a href="%s">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ), Jetpack::admin_url( array( 'page' => 'jetpack-debugger', 'contact' => true ) ) ); ?>
 				</p>
