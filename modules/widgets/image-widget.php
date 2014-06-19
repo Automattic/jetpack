@@ -92,7 +92,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$img_height = esc_attr( $instance['img_height'] );
 
 		if ( !empty( $instance['img_url'] ) ) {
-			// Download the url to a local temp file and then process it with getimagesize so we can filter out domains which are blocking us
+			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
 			$tmp_file = download_url( $instance['img_url'], 10 );
 			if ( ! is_wp_error( $tmp_file ) ) {
 				$size = getimagesize( $tmp_file );
