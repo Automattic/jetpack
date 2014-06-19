@@ -697,7 +697,7 @@ class Jetpack_Network {
 	 * @return boolean
 	 **/
 	public function update_option( $key, $value ) {
-		$options = get_site_option( $this->settings_name );
+		$options = get_site_option( $this->settings_name, $this->setting_defaults );
 		$options[$key] = $value;
 		return update_site_option( $this->settings_name, $options );
 	}
@@ -709,7 +709,7 @@ class Jetpack_Network {
 	 * @param string $name - Name of the option in the database
 	 **/
 	public function get_option( $name ) {
-		$options = get_site_option( $this->settings_name );
+		$options = get_site_option( $this->settings_name, $this->setting_defaults );
 
 		$options = wp_parse_args( $options, $this->setting_defaults );
 
