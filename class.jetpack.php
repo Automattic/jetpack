@@ -544,7 +544,7 @@ class Jetpack {
 		jetpack_register_genericons();
 
 		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) )
-			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons/jetpack-icons.css', __FILE__ ), false, JETPACK__VERSION );
+			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons.css', __FILE__ ), false, JETPACK__VERSION );
 	}
 
 	/**
@@ -2077,7 +2077,7 @@ p {
 			$css = "
 				#toplevel_page_jetpack .wp-menu-image:before {
 					font-family: 'Jetpack' !important;
-					content: '\\e600';
+					content: '\\f102';
 				}
 				#toplevel_page_jetpack .wp-menu-image {
 					background-repeat: no-repeat;
@@ -4101,7 +4101,7 @@ p {
 		$url = "$url?{$_SERVER['QUERY_STRING']}";
 		if ( ! empty( $parsed_url['query'] ) )
 			$url .= "&{$parsed_url['query']}";
-		
+
 		return $url;
 	}
 
@@ -4405,9 +4405,9 @@ p {
 	}
 
 	/**
-	 * Loads a view file from the views 
-	 * 
-	 * Data passed in with the $data parameter will be available in the 
+	 * Loads a view file from the views
+	 *
+	 * Data passed in with the $data parameter will be available in the
 	 * template file as $data['value']
 	 *
 	 * @param string $template - Template file to load
@@ -4416,7 +4416,7 @@ p {
 	 **/
 	public function load_view( $template, $data = array() ) {
 		$views_dir = JETPACK__PLUGIN_DIR . 'views/';
-		
+
 		if( file_exists( $views_dir . $template ) ) {
 			require_once( $views_dir . $template );
 			return true;

@@ -93,18 +93,20 @@ html {
 	}
 	.jetpack-logo {
 		color: #fff;
-		line-height: 50px;
 		font-weight: normal;
 		height: 46px;
-		margin-top: -2px;
-		padding: 0 em(8) 0 em(6);
+		padding: em(7,24) em(8) 0 em(6);
+		overflow: hidden;
 
 		&:before {
-			font-family: 'Jetpack' !important;
-			content: '\e600';
+			display: block;
+			font-family: 'jetpack';
+			content: '\f103';
+			width: em(183,32);
 			position: relative;
 			margin-right: 8px;
-			font-size: 31px;
+			font-size: 32px;
+			line-height: 1;
 		}
 
 	}
@@ -297,7 +299,7 @@ html {
 	z-index: 1;
 
 	// Full with bar that breaks out of .page width
-	&:before { 
+	&:before {
 		content: "";
 		display: block;
 		position: absolute;
@@ -322,7 +324,7 @@ html {
 	margin: 0 -5px; // For centering features
 	@extend %clearfix;
 }
-.feature, 
+.feature,
 .module {
 	position: relative;
 	float: left;
@@ -433,7 +435,7 @@ html {
 		font-size: 24px;
 		font-weight: 300;
 		margin: 0 0 13px 6px;
-		text-align: left; 
+		text-align: left;
 	}
 	.clear {
 		clear: both;
@@ -984,7 +986,7 @@ html {
 		padding: 23px 23px 23px 80px;
 		position: relative;
 		text-align: left;
-		
+
 		&:before {
 			color: #fff;
 			content: '\f418';
@@ -1011,7 +1013,7 @@ html {
 .modules h3.icon,
 .jetpack-modules .info a {
 	width: auto;
-	
+
 	&:before {
 		display: inline-block;
 		position: relative;

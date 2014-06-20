@@ -710,18 +710,20 @@ html {
 }
 .header-nav .jetpack-logo {
   color: #fff;
-  line-height: 50px;
   font-weight: normal;
   height: 46px;
-  margin-top: -2px;
-  padding: 0 0.42857em 0 0.57143em;
+  padding: 0.29167em 0.42857em 0 0.57143em;
+  overflow: hidden;
 }
 .header-nav .jetpack-logo:before {
-  font-family: 'Jetpack' !important;
-  content: '\e600';
+  display: block;
+  font-family: 'jetpack';
+  content: '\f103';
+  width: 5.71875em;
   position: relative;
   margin-left: 8px;
-  font-size: 31px;
+  font-size: 32px;
+  line-height: 1;
 }
 
 .main-nav {
@@ -1549,7 +1551,6 @@ html {
   opacity: 0.6;
   position: absolute;
   top: 23px;
-  top: -webkit-calc(50% - 22px );
   top: calc(50% - 22px );
 }
 .jetpack-message.error .squeezer:before, .jetpack-message.jetpack-err .squeezer:before {
@@ -1996,12 +1997,6 @@ html {
 
   .main-nav {
     font-size: 13px;
-  }
-  .main-nav .jetpack-logo {
-    font-size: 22px;
-  }
-  .main-nav .jetpack-logo:before {
-    font-size: 29px;
   }
 
   .table-bordered .genericon {
