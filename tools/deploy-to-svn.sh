@@ -45,13 +45,11 @@ svn -q up tags --depth=empty
 echo "Done!"
 
 echo "Deleting everything in trunk except for .svn directories"
-# delete everything except .svn dirs
 for file in $(find $JETPACK_SVN_DIR/trunk/* -not -path "*.svn*"); do
 	rm $file 2>/dev/null
 done
 echo "Done!"
 
-# copy everything over from git
 echo "Rsync'ing everything over from Git except for .git stuffs"
 rsync -r --exclude='*.git*' $JETPACK_GIT_DIR/* $JETPACK_SVN_DIR/trunk
 echo "Done!"
