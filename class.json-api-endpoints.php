@@ -1178,16 +1178,32 @@ EOPHP;
 	}
 
 	function is_post_type_allowed( $post_type ) {
-
 		// if the post type is empty, that's fine, WordPress will default to post
 		if ( empty( $post_type ) )
 			return true;
 
-		// whitelist of post types that can be accessed
-		if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'any' ) ) ) )
+		// allow special 'any' type
+		if ( 'any' == $post_type )
+			return true;
+
+		// check for allowed types
+		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) )
 			return true;
 
 		return false;
+	}
+
+	/**
+	 * Gets the whitelisted post types that JP should allow access to.
+	 *
+	 * @return array Whitelisted post types.
+	 */
+	protected function _get_whitelisted_post_types() {
+		$allowed_types = array( 'post', 'page' );
+
+		$allowed_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
+
+		return array_unique( $allowed_types );
 	}
 
 	function handle_media_sideload( $url, $parent_post_id = 0 ) {
@@ -1880,11 +1896,20 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
 		}
 
+		// Normalize post_type
+		if ( 'any' == $args['type'] ) {
+			if ( version_compare( $this->api->version, '1.1', '<' ) ) {
+				$args['type'] = array( 'post', 'page' );
+			} else { // 1.1+
+				$args['type'] = $this->_get_whitelisted_post_types();
+			}
+		}
+
 		$query = array(
 			'posts_per_page' => $args['number'],
 			'order'          => $args['order'],
 			'orderby'        => $args['order_by'],
-			'post_type'      => ( 'any' == $args['type'] ) ? array( 'post', 'page' ) : $args['type'],
+			'post_type'      => $args['type'],
 			'post_status'    => $args['status'],
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
 			's'              => isset( $args['search'] ) ? $args['search'] : null,
@@ -3973,6 +3998,9 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
  */
 new WPCOM_JSON_API_List_Posts_Endpoint( array(
 	'description' => 'Return matching Posts',
+	'min_version' => '0',
+	'max_version' => '1.1',
+
 	'group'       => 'posts',
 	'stat'        => 'posts',
 
