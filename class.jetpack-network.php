@@ -268,58 +268,6 @@ class Jetpack_Network {
 		 */
 		require_once( JETPACK__PLUGIN_DIR . '_inc/genericons.php' );
 		jetpack_register_genericons();
-
-		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) )
-			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons.css', __FILE__ ), false, JETPACK__VERSION );
-
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
-	}
-
-	 /**
-	 * Adds JP menu icon
-	 *
-	 * @since 2.9
-	 **/
-	 function admin_menu_css() {
-		// Make sure we're working off a clean version.
-		include( ABSPATH . WPINC . '/version.php' );
-		if ( version_compare( $wp_version, '3.8-alpha', '>=' ) ) {
-			wp_enqueue_style( 'jetpack-icons' );
-			$css = "
-				#toplevel_page_jetpack .wp-menu-image:before {
-					font-family: 'Jetpack' !important;
-					content: '\\f102';
-				}
-				#menu-posts-feedback .wp-menu-image:before {
-					font-family: dashicons !important;
-					content: '\\f175';
-				}
-				#adminmenu #menu-posts-feedback div.wp-menu-image {
-					background: none !important;
-					background-repeat: no-repeat;
-				}";
-		} else {
-			$css = "
-				#toplevel_page_jetpack .wp-menu-image {
-					background: url( " . plugins_url( '_inc/images/menuicon-sprite.png', __FILE__ ) . " ) 0 90% no-repeat;
-				}
-				/* Retina Jetpack Menu Icon */
-				@media  only screen and (-moz-min-device-pixel-ratio: 1.5),
-						only screen and (-o-min-device-pixel-ratio: 3/2),
-						only screen and (-webkit-min-device-pixel-ratio: 1.5),
-						only screen and (min-device-pixel-ratio: 1.5) {
-					#toplevel_page_jetpack .wp-menu-image {
-						background: url( " . plugins_url( '_inc/images/menuicon-sprite-2x.png', __FILE__ ) . " ) 0 90% no-repeat;
-						background-size:30px 64px;
-					}
-				}
-				#toplevel_page_jetpack.current .wp-menu-image,
-				#toplevel_page_jetpack.wp-has-current-submenu .wp-menu-image,
-				#toplevel_page_jetpack:hover .wp-menu-image {
-					background-position: top left;
-				}";
-		}
-		wp_add_inline_style( 'wp-admin', $css );
 	}
 
 	/**

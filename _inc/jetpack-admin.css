@@ -1505,6 +1505,21 @@ html {
   content: '\f107';
 }
 
+#toplevel_page_jetpack .wp-menu-image:before {
+  font-family: 'Jetpack' !important;
+  content: '\f102';
+}
+
+#menu-posts-feedback .wp-menu-image:before {
+  font-family: dashicons !important;
+  content: '\f175';
+}
+
+#adminmenu #menu-posts-feedback div.wp-menu-image {
+  background: none !important;
+  background-repeat: no-repeat;
+}
+
 .page-content.configure {
   margin-top: 0;
 }
