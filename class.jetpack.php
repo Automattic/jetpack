@@ -76,11 +76,19 @@ class Jetpack {
 			'Google+ Comments'               => 'google-plus-comments/google-plus-comments.php',
 		),
 		'contact-form'      => array(
+<<<<<<< HEAD
 			'Contact Form 7'                 => 'contact-form-7/wp-contact-form-7.php',
 			'Gravity Forms'                  => 'gravityforms/gravityforms.php',
 			'Contact Form Plugin'            => 'contact-form-plugin/contact_form.php',
 			'Easy Contact Forms'             => 'easy-contact-forms/easy-contact-forms.php',
 			'Fast Secure Contact Form'       => 'si-contact-form/si-contact-form.php',
+=======
+			'Contact Form 7'	   => 'contact-form-7/wp-contact-form-7.php',
+			'Gravity Forms'		   => 'gravityforms/gravityforms.php',
+			'Contact Form Plugin'	   => 'contact-form-plugin/contact_form.php',
+			'Easy Contact Forms'	   => 'easy-contact-forms/easy-contact-forms.php',
+			'Fast Secure Contact Form' => 'si-contact-form/si-contact-form.php',
+>>>>>>> FETCH_HEAD
 		),
 		'gplus-authorship'  => array(
 			'WP SEO by Yoast'                => 'wordpress-seo/wp-seo.php',

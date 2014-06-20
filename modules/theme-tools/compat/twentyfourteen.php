@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 /**
  * A last try to show posts, in case the Featured Content plugin returns no IDs.
  *
@@ -55,3 +56,5 @@ function twentyfourteen_mute_content_filters( $show, $post ) {
 	return $show;
 }
 add_filter( 'sharing_show', 'twentyfourteen_mute_content_filters', 10, 2 );
+=======
+>>>>>>> FETCH_HEAD

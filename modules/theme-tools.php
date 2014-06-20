@@ -20,9 +20,13 @@ add_action( 'init', 'jetpack_load_theme_tools', 30 );
 
 // Featured Content has an internal check for theme support in the constructor.
 // This could already be defined by Twenty Fourteen if it's loaded first.
+<<<<<<< HEAD
 // Be sure to not load this on the plugin page in case another plugin is activating
 // with the same class name in an attempt to override Jetpack's Featured_Content
 if ( ! class_exists( 'Featured_Content' ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
+=======
+if ( ! class_exists( 'Featured_Content' ) ) {
+>>>>>>> FETCH_HEAD
 	require_once( JETPACK__PLUGIN_DIR . 'modules/theme-tools/featured-content.php' );
 }
 
@@ -91,10 +95,22 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/custom-post-types/nova.php' );
  * }
  */
 function jetpack_load_theme_compat() {
+<<<<<<< HEAD
+=======
+	$found = 0;
+	$theme = wp_get_theme();
+	$to_check = array(
+		'stylesheet' => $theme->stylesheet,
+		'template'   => $theme->template,
+	);
+
+	// Filter to let other plugins or themes add or remove compat files on their own if they like.
+>>>>>>> FETCH_HEAD
 	$compat_files = apply_filters( 'jetpack_theme_compat_files', array(
 		'twentyfourteen' => JETPACK__PLUGIN_DIR . 'modules/theme-tools/compat/twentyfourteen.php',
 	) );
 
+<<<<<<< HEAD
 	_jetpack_require_compat_file( get_stylesheet(), $compat_files );
 
 	if ( is_child_theme() ) {
@@ -117,3 +133,23 @@ function _jetpack_require_compat_file( $key, $files ) {
 		require_once $files[ $key ];
 	}
 }
+=======
+	foreach ( $compat_files as $theme_slug => $file ) {
+		// If we're expecting a compat file,
+		if ( in_array( $theme_slug, $compat_files ) ) {
+			// And the compat file that we're expecting is actually there,
+			if ( is_readable( $file ) ) {
+				// Use it!
+				require_once( $file );
+				$found++;
+			} else {
+				// Otherwise wtf^^?
+				return false;
+			}
+		}
+	}
+
+	return $found;
+}
+add_action( 'after_setup_theme', 'jetpack_load_theme_compat', -1 );
+>>>>>>> FETCH_HEAD

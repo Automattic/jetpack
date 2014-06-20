@@ -11,10 +11,15 @@ Author URI: http://photomatt.net/
 function jetpack_matt_random_redirect() {
 	// Verify that the Random Redirect plugin this code is from is not active
 	// See http://plugins.trac.wordpress.org/ticket/1898
+<<<<<<< HEAD
 	if ( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
 		require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		if ( is_plugin_active( 'random-redirect/random-redirect.php' ) ) return;
 	}
+=======
+	require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+	if( is_plugin_active( 'random-redirect/random-redirect.php' ) ) return;
+>>>>>>> FETCH_HEAD
 
 	// Acceptables URL formats: /[...]/?random=[post type], /?random, /&random, /&random=1
 	if ( ! isset( $_GET['random'] ) && ! in_array( strtolower( $_SERVER['REQUEST_URI'] ), array( '/&random', '/&random=1' ) ) )
@@ -29,7 +34,11 @@ function jetpack_matt_random_redirect() {
 		wp_die( 'Please <a href="http://en.support.wordpress.com/contact/">contact support</a>' );
 
 	// /?random should always show a random post, even if the home page is a static page.
+<<<<<<< HEAD
 	if ( is_front_page() ) {
+=======
+	if ( isset( $_SERVER['DOCUMENT_URI'] ) && '/' == $_SERVER['DOCUMENT_URI'] )
+>>>>>>> FETCH_HEAD
 		$post_type = 'post';
 	}
 	else {
