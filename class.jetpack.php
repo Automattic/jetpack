@@ -168,10 +168,10 @@ class Jetpack {
 		'easy-facebook-share-thumbnails/esft.php',               // Easy Facebook Share Thumbnail
 		'2-click-socialmedia-buttons/2-click-socialmedia-buttons.php',
 		                                                         // 2 Click Social Media Buttons
-		'facebook-thumb-fixer/_facebook-thumb-fixer.php',	 // Facebook Thumb Fixer
+		'facebook-thumb-fixer/_facebook-thumb-fixer.php',        // Facebook Thumb Fixer
 		'zoltonorg-social-plugin/zosp.php',                      // Zolton.org Social Plugin
 		'wp-caregiver/wp-caregiver.php',                         // WP Caregiver
-		'facebook-revised-open-graph-meta-tag/index.php',	 // Facebook Revised Open Graph Meta Tag
+		'facebook-revised-open-graph-meta-tag/index.php',        // Facebook Revised Open Graph Meta Tag
 		'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',
 		                                                         // Fedmich's Facebook Open Graph Meta
 		'facebook-meta-tags/facebook-metatags.php',              // Facebook Meta Tags
