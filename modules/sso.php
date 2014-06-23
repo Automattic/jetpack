@@ -37,7 +37,7 @@ class Jetpack_SSO {
 	 * @return Jetpack_SSO
 	 **/
 	public static function get_instance() {
-		if( !is_null( self::$instance ) ) 
+		if( !is_null( self::$instance ) )
 			return self::$instance;
 
 		return self::$instance = new Jetpack_SSO;
@@ -146,7 +146,7 @@ class Jetpack_SSO {
 			'jetpack_sso_remove_login_form',
 			array( $this, 'validate_settings_remove_login_form_checkbox' )
 		);
-		
+
 		add_settings_field(
 			'jetpack_sso_remove_login_form',
 			__( 'Remove default login form?' , 'jetpack' ),
@@ -261,7 +261,7 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Removes 'Lost your password?' text from the login form if user 
+	 * Removes 'Lost your password?' text from the login form if user
 	 * does not want to show the login form
 	 *
 	 * @since 2.7
@@ -276,7 +276,7 @@ class Jetpack_SSO {
 	/**
 	 * Checks to determine if the user wants to login on wp-login
 	 *
-	 * This function mostly exists to cover the exceptions to login 
+	 * This function mostly exists to cover the exceptions to login
 	 * that may exist as other parameters to $_GET[action] as $_GET[action]
 	 * does not have to exist. By default WordPress assumes login if an action
 	 * is not set, however this may not be true, as in the case of logout
@@ -306,9 +306,9 @@ class Jetpack_SSO {
 		 * to the WordPress.com login page AND  that the request to wp-login.php
 		 * is not something other than login (Like logout!)
 		 */
-		if( 
+		if(
 			$this->wants_to_login()
-			&& apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false ) 
+			&& apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false )
 		) {
 			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 			wp_safe_redirect( $this->build_sso_url() );
@@ -379,7 +379,7 @@ class Jetpack_SSO {
 
 	function login_form() {
 		$classes = '';
-		
+
 		if( $this->should_hide_login_form() ) {
 			$classes .= ' forced-sso';
 		}
@@ -394,7 +394,7 @@ class Jetpack_SSO {
 				overflow: hidden;
 				padding-bottom: 26px;
 			}
-			.jetpack-sso-wrap { 
+			.jetpack-sso-wrap {
 				<?php if ( $hide_login_form ) : ?>
 					text-align: center;
 				<?php else : ?>
@@ -542,7 +542,7 @@ class Jetpack_SSO {
 				$password = wp_generate_password( 20 );
 				$user_id  = wp_create_user( $username, $password, $user_data->email );
 				$user     = get_userdata( $user_id );
-				
+
 				$user->display_name = $user_data->display_name;
 				$user->first_name   = $user_data->first_name;
 				$user->last_name    = $user_data->last_name;
@@ -559,7 +559,7 @@ class Jetpack_SSO {
 		if ( $user ) {
 			// Cache the user's details, so we can present it back to them on their user screen.
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
-			
+
 			// Set remember me value
 			$remember = apply_filters( 'jetpack_remember_login', false );
 			wp_set_auth_cookie( $user->ID, $remember );
@@ -669,7 +669,7 @@ class Jetpack_SSO {
 
 		$css .= "</style>";
 
-		$button = sprintf( '<a href="%1$s" class="jetpack-sso button">%2$s</a>', esc_url( $url ), esc_html__( 'Log in with WordPress.com', 'jetpack' ) ); 
+		$button = sprintf( '<a href="%1$s" class="jetpack-sso button">%2$s</a>', esc_url( $url ), esc_html__( 'Log in with WordPress.com', 'jetpack' ) );
 		return $button . $css;
 	}
 
@@ -702,7 +702,7 @@ class Jetpack_SSO {
 	}
 
 	/**
-	 * Error message displayed on the login form when two step is required and 
+	 * Error message displayed on the login form when two step is required and
 	 * the user's account on WordPress.com does not have two step enabled.
 	 *
 	 * @since 2.7
@@ -713,7 +713,7 @@ class Jetpack_SSO {
 		$err = __( sprintf( 'This site requires two step authentication be enabled for your user account on WordPress.com. Please visit the <a href="%1$s"> Security Settings</a> page to enable two step', 'https://wordpress.com/settings/security/' ) , 'jetpack' );
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
-		
+
 		return $message;
 	}
 
@@ -726,7 +726,7 @@ class Jetpack_SSO {
 	 * @return string
 	 **/
 	public function msg_login_by_jetpack( $message ) {
-		
+
 		$msg = __( sprintf( 'Jetpack authenticates through WordPress.com — to log in, enter your WordPress.com username and password, or <a href="%1$s">visit WordPress.com</a> to create a free account now.', 'http://wordpress.com/signup' ) , 'jetpack' );
 
 		$msg = apply_filters( 'jetpack_sso_disclaimer_message', $msg );
@@ -746,7 +746,7 @@ class Jetpack_SSO {
 	public function error_msg_login_method_not_allowed( $message ) {
 		$err = __( 'Login method not allowed' , 'jetpack' );
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
-		
+
 		return $message;
 	}
 	function cant_find_user( $message ) {
@@ -819,7 +819,7 @@ class Jetpack_SSO {
 								<p class="connected"><strong><?php _e( 'Connected', 'jetpack' ); ?></strong></p>
 								<p><?php echo esc_html( $user_data->login ); ?></p>
 								<span class="two_step">
-									<?php 
+									<?php
 										if( $user_data->two_step_enabled ) {
 											?> <p class="enabled"><a href="https://wordpress.com/settings/security/"><?php _e( 'Two step Enabled', 'jetpack' ); ?></a></p> <?php
 										} else {
