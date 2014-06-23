@@ -371,6 +371,7 @@ class Jetpack_XMLRPC_Server {
 		$api = WPCOM_JSON_API::init( $method, $url, $post_body );
 		$api->token_details['user'] = $user_details;
 		require_once dirname( __FILE__ ) . '/class.json-api-endpoints.php';
+		require_once dirname( __FILE__ ) . '/class.json-api-jetpack-endpoints.php';
 
 		$display_errors = ini_set( 'display_errors', 0 );
 		ob_start();

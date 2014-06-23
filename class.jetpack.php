@@ -1397,15 +1397,15 @@ class Jetpack {
 		do_action( 'jetpack_activate_default_modules', $min_version, $max_version, $other_modules );
 	}
 
-	public static function activate_module( $module, $exit = true ) {
+	public static function activate_module( $module, $exit = true, $redirect = true ) {
 		do_action( 'jetpack_pre_activate_module', $module, $exit );
 
 		$jetpack = Jetpack::init();
 
-		if ( ! strlen( $module ) )
+		if ( !strlen( $module ) )
 			return false;
 
-		if ( ! Jetpack::is_module( $module ) )
+		if ( !Jetpack::is_module( $module ) )
 			return false;
 
 		// If it's already active, then don't do it again
@@ -1417,19 +1417,19 @@ class Jetpack {
 
 		$module_data = Jetpack::get_module( $module );
 
-		if ( ! Jetpack::is_active() ) {
-			if ( ! Jetpack::is_development_mode() )
+		if ( !Jetpack::is_active() ) {
+			if ( !Jetpack::is_development_mode() )
 				return false;
 
 			// If we're not connected but in development mode, make sure the module doesn't require a connection
 			if ( Jetpack::is_development_mode() && $module_data['requires_connection'] )
-					return false;
+				return false;
 		}
 
 		// Check and see if the old plugin is active
-		if ( isset( $jetpack->plugins_to_deactivate[$module] ) ) {
+		if ( isset( $jetpack->plugins_to_deactivate[ $module ] ) ) {
 			// Deactivate the old plugin
-			if ( Jetpack_Client_Server::deactivate_plugin( $jetpack->plugins_to_deactivate[$module][0], $jetpack->plugins_to_deactivate[$module][1] ) ) {
+			if ( Jetpack_Client_Server::deactivate_plugin( $jetpack->plugins_to_deactivate[ $module ][0], $jetpack->plugins_to_deactivate[ $module ][1] ) ) {
 				// If we deactivated the old plugin, remembere that with ::state() and redirect back to this page to activate the module
 				// We can't activate the module on this page load since the newly deactivated old plugin is still loaded on this page load.
 				Jetpack::state( 'deactivated_plugins', $module );
@@ -1441,7 +1441,6 @@ class Jetpack {
 		// Check the file for fatal errors, a la wp-admin/plugins.php::activate
 		Jetpack::state( 'module', $module );
 		Jetpack::state( 'error', 'module_activation_failed' ); // we'll override this later if the plugin can be included without fatal error
-		wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 
 		Jetpack::catch_errors( true );
 		ob_start();
@@ -1455,6 +1454,9 @@ class Jetpack {
 		ob_end_clean();
 		Jetpack::catch_errors( false );
 
+		if ( $redirect ) {
+			wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
+		}
 		if ( $exit ) {
 			exit;
 		}
