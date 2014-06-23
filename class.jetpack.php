@@ -1402,10 +1402,10 @@ class Jetpack {
 
 		$jetpack = Jetpack::init();
 
-		if ( !strlen( $module ) )
+		if ( ! strlen( $module ) )
 			return false;
 
-		if ( !Jetpack::is_module( $module ) )
+		if ( ! Jetpack::is_module( $module ) )
 			return false;
 
 		// If it's already active, then don't do it again
@@ -1417,7 +1417,7 @@ class Jetpack {
 
 		$module_data = Jetpack::get_module( $module );
 
-		if ( !Jetpack::is_active() ) {
+		if ( ! Jetpack::is_active() ) {
 			if ( !Jetpack::is_development_mode() )
 				return false;
 
