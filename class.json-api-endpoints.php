@@ -3686,8 +3686,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'post_formats'            => $supported_formats,
 					'default_likes_enabled'   => (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) ),
 					'default_sharing_status'  => (bool) $default_sharing_status,
-					'default_comment_status'  => (bool) get_option( 'default_comment_status' ),
-					'default_ping_status'     => (bool) get_option( 'default_ping_status' ),
+					'default_comment_status'  => ( 'closed' == get_option( 'default_comment_status' ) ? false : true ),
+					'default_ping_status'     => ( 'closed' == get_option( 'default_ping_status' ) ? false : true ),
 					'software_version'        => $wp_version,
 				);
 				if ( !current_user_can( 'publish_posts' ) )
