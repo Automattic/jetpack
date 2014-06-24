@@ -446,6 +446,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$docs = array(
 				'ID'   => '(int)',
 				'type' => '(string)',
+				'title' => '(string)',
 				'link' => '(URL)',
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
