@@ -154,7 +154,21 @@ function jetpack_flickr_oembed_handler( $matches, $attr, $url ) {
 	// Legacy slideshow embeds end with /show/
 	// e.g. http://www.flickr.com/photos/yarnaholic/sets/72157615194738969/show/
 	if ( '/show/' !== substr( $url, -strlen( '/show/' ) ) ) {			
-		return _wp_oembed_get_object()->get_html( $url, $attr );
+		// These lookups need cached, as they don't use WP_Embed (which caches)
+		$found;
+
+		$cache_key 		= md5( $url . serialize( $attr ) );
+		$cache_group 	= 'oembed_flickr';
+
+		$html = wp_cache_get( $cache_key, $cache_group, null, $found );
+
+		if ( false === $found ) {
+			$html = _wp_oembed_get_object()->get_html( $url, $attr );
+
+			wp_cache_set( $cache_key, $html, $cache_group, 60 * MINUTE_IN_SECONDS );
+		}
+
+		return $html;
 	}
 
 	return flickr_shortcode_handler( array( 'photo' => $url ) );
