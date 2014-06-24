@@ -1295,6 +1295,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$blog_url = parse_url( site_url() );
 		$from_email_addr = 'wordpress@' . $blog_url['host'];
+		$from_email_addr = apply_filters( 'jetpack_contact_form_from', $from_email_addr );
 
 		$reply_to_addr = $to[0];
 		if ( ! empty( $comment_author_email ) ) {
