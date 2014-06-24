@@ -50,8 +50,7 @@ class Jetpack_Omnisearch {
 			$deps = array( 'genericons' );
 		}
 
-		wp_register_style( 'omnisearch-admin',   plugins_url( 'omnisearch.css',         __FILE__ ), $deps );
-		wp_register_style( 'omnisearch-jetpack', plugins_url( 'omnisearch-jetpack.css', __FILE__ ) );
+		wp_register_style( 'omnisearch-admin', plugins_url( 'omnisearch.css', __FILE__ ), $deps );
 	}
 
 	function jetpack_admin_menu() {
