@@ -296,7 +296,8 @@ function grunion_manage_post_columns( $col, $post_id ) {
 				echo '<br /><hr />';
 				echo '<table cellspacing="0" cellpadding="0" style="">' . "\n";
 				foreach ( (array) $extra_fields as $k => $v ) {
-					echo "<tr><td align='right'><b>". esc_html( $k ) ."</b></td><td>". sanitize_text_field( $v ) ."</td></tr>\n";
+					// Remove prefix from exta fields
+					echo "<tr><td align='right'><b>". esc_html( preg_replace( '#^\d+_#', '', $k ) ) ."</b></td><td>". sanitize_text_field( $v ) ."</td></tr>\n";
 				}
 				echo '</table>';
 			}

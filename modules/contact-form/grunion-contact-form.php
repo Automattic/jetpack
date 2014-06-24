@@ -232,7 +232,7 @@ class Grunion_Contact_Form_Plugin {
 	}
 
 	static function tokenize_label( $label ) {
-		return '{' . trim( $label ) . '}';
+		return '{' . trim( preg_replace( '#^\d+_#', '', $label ) ) . '}';
 	}
 
 	static function sanitize_value( $value ) {
@@ -352,7 +352,7 @@ class Grunion_Contact_Form_Plugin {
 		} else {
 		    $response = akismet_http_post( $query_string, $akismet_api_host, '/1.1/comment-check', $akismet_api_port );
 		}
-		
+
 		$result = false;
 
 		if ( isset( $response[0]['x-akismet-pro-tip'] ) && 'discard' === trim( $response[0]['x-akismet-pro-tip'] ) && get_option( 'akismet_strictness' ) === '1' )
@@ -383,7 +383,7 @@ class Grunion_Contact_Form_Plugin {
 		} else {
 		    $response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
 		}
-		
+
 		return trim( $response[1] );
 	}
 
@@ -1043,6 +1043,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 		}
 
+		// Extra fields' prefixes start counting after all_fields
+		$i = count( $content_fields['_feedback_all_fields'] ) + 1;
+
 		// "Non-standard" fields
 		if ( $field_ids['extra'] ) {
 			// array indexed by field label (not field id)
@@ -1050,12 +1053,15 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 			foreach ( $field_ids['extra'] as $field_id ) {
 				$field = $form->fields[$field_id];
+
 				$label = $field->get_attribute( 'label' );
 				$contact_form_message .= sprintf(
 					_x( '%1$s: %2$s', '%1$s = form field label, %2$s = form field value', 'jetpack' ),
 					wp_kses( $label, array() ),
-					wp_kses( $extra_fields[$label], array() )
+					wp_kses( $extra_fields[$i . '_' . $label], array() )
 				) . '<br />';
+
+				$i++; // Increment prefix counter
 			}
 		}
 
@@ -1237,21 +1243,27 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 
 		$all_values = $extra_values = array();
+		$i = 1; // Prefix counter for stored metadata
 
 		// For all fields, grab label and value
 		foreach ( $field_ids['all'] as $field_id ) {
 			$field = $this->fields[$field_id];
-			$label = $field->get_attribute( 'label' );
+			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
+
 			$all_values[$label] = $value;
+			$i++; // Increment prefix counter for the next field
 		}
 
 		// For the "non-standard" fields, grab label and value
+		// Extra fields have their prefix starting from count( $all_values ) + 1
 		foreach ( $field_ids['extra'] as $field_id ) {
 			$field = $this->fields[$field_id];
-			$label = $field->get_attribute( 'label' );
+			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
+
 			$extra_values[$label] = $value;
+			$i++; // Increment prefix counter for the next extra field
 		}
 
 		$contact_form_subject = trim( $contact_form_subject );
@@ -1312,7 +1324,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		}
 		if ( !empty( $extra_values ) ) {
 			foreach ( $extra_values as $label => $value ) {
-				$message .= $label . ': ' . trim( $value ) . "\n";
+				$message .= preg_replace( '#^\d+_#i', '', $label ) . ': ' . trim( $value ) . "\n";
 			}
 		}
 		$message .= "\n";
