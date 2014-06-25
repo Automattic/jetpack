@@ -5313,3 +5313,6 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 		]
 	}'
 ) );
+
+// Jetpack Only Endpoints
+require_once dirname( __FILE__ ) . '/class.json-api-jetpack-endpoints.php';
