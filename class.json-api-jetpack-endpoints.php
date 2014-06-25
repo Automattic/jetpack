@@ -244,6 +244,19 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends WPCOM_JSON_API_Endpoint
 
 	protected $network_wide = false;
 
+	static $_response_format	= array(
+		'id'          => '(string)  The plugin\'s ID',
+		'active'      => '(boolean) The plugin status.',
+		'update'      => '(array)   The plugin update info.',
+		'Name'        => '(string)  The name of the plugin.',
+		'PluginURI'   => '(string)  Link to the plugin\'s web site.',
+		'Version'     => '(string)  The plugin version number.',
+		'Description' => '(string)  Description of what the plugin does and/or notes from the author',
+		'Author'      => '(string)  The author\'s name',
+		'AuthorURI'   => '(string)  The authors web site address',
+		'Network'     => '(boolean) Whether the plugin can only be activated network wide.',
+	);
+
 	protected static function format_plugin( $plugin_file, $plugin_data ) {
 		$plugin = array();
 		$plugin['id']     = $plugin_file;
@@ -323,7 +336,7 @@ class Jetpack_JSON_API_Activate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins
 			return new WP_Error( 'activation_error', $result->get_error_messages(), 404 );
 		}
 
-		$result['plugin'] = self::get_plugin( $plugin_file );
+		$result = self::get_plugin( $plugin_file );
 		return $result;
 	}
 
@@ -342,9 +355,7 @@ new Jetpack_JSON_API_Activate_Plugin_Endpoint( array(
 	'query_parameters' => array(
 		'network_wide' => '(bool) Do action network wide (default value: false)'
 	),
-	'response_format' => array(
-		'plugin' => '(object) The plugin object.',
-	),
+	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
@@ -363,7 +374,7 @@ class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugi
 			return $error;
 		}
 
-		$plugin_file = $plugin_slug . '.php';
+		$plugin_file = urldecode( $plugin_slug ) . '.php';
 
 		if ( is_wp_error( $error = $this->validate_plugin( $plugin_file ) ) ) {
 			return $error;
@@ -392,7 +403,7 @@ class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugi
 			return new WP_Error( 'deactivation_error', $result->get_error_messages(), 404 );
 		}
 
-		$result['plugin'] = self::get_plugin( $plugin_file );
+		$result = self::get_plugin( $plugin_file );
 		return $result;
 	}
 
@@ -411,9 +422,7 @@ new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
 	'query_parameters' => array(
 		'network_wide' => '(bool) Do action network wide (default value: false)'
 	),
-	'response_format' => array(
-		'plugin' => '(object) The plugin object.',
-	),
+	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
@@ -429,7 +438,6 @@ class Jetpack_JSON_API_List_Plugins_Endpoint extends Jetpack_JSON_API_Plugins_En
 
 	// /sites/%s/plugins
 	public function callback( $path = '', $_blog_id = 0 ) {
-
 		if ( is_wp_error( $error = $this->validate_call( $_blog_id ) ) ) {
 			return $error;
 		}
