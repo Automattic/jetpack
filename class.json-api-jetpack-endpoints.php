@@ -671,3 +671,51 @@ new Jetpack_JSON_API_List_Modules_Endpoint( array(
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/jetpack/modules'
 ) );
+
+class Jetpack_JSON_API_GET_Update_Data extends WPCOM_JSON_API_Endpoint {
+
+	protected function validate_call( $_blog_id ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
+		if ( is_wp_error( $blog_id ) )
+			return $blog_id;
+		if ( ! current_user_can( 'manage_options' ) )
+			return new WP_Error( 'unauthorized', 'This user is not authorized to manage options on this blog', 403 );
+	}
+
+	// GET /sites/%s/core/updates
+	public function callback( $path = '', $_blog_id = 0 ) {
+		error_log( print_r( wp_get_update_data(), 1 ) );
+		if ( is_wp_error( $error = $this->validate_call( $_blog_id ) ) ) {
+			return $error;
+		}
+		$update_data = wp_get_update_data();
+		if ( !  isset( $update_data['counts'] ) ) {
+			return new WP_Error( 'get_update_data_error', 'There was an error while getting the update data for this site', 404 );
+		}
+		return $update_data['counts'];
+	}
+}
+
+new Jetpack_JSON_API_GET_Update_Data( array(
+	'description'     => 'Get counts for available updates',
+	'group'           => 'manage',
+	'stat'            => 'core-updates:1',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/core/updates',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'plugins'      => '(int) The total number of plugins updates.',
+		'themes'       => '(int) The total number of themes updates.',
+		'wordpress'    => '(int) The total number of core updates.',
+		'translations' => '(int) The total number of translation updates.',
+		'total'        => '(int) The total number of updates.',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/core/updates'
+) );
