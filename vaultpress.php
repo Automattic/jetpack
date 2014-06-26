@@ -1317,7 +1317,7 @@ JS;
 							continue;
 					}
 
-					$table = str_replace( $wpdb->prefix, '', $row->Name );
+					$table = preg_replace( '/^' . preg_quote( $wpdb->prefix ) . '/', '', $row->Name );
 
 					if ( !$this->is_main_site() && $tprefix == $wpdb->prefix ) {
 						if ( in_array( $table, $ms_global_tables ) )
@@ -1335,10 +1335,10 @@ JS;
 
 				if ( $this->is_main_site() ) {
 					foreach ( (array) $ms_global_tables as $ms_global_table ) {
-						$ms_table_status = $wpdb->get_row( $wpdb->prepare( "SHOW TABLE STATUS LIKE %s", $tprefix . $ms_global_table ) );
+						$ms_table_status = $wpdb->get_row( $wpdb->prepare( "SHOW TABLE STATUS LIKE %s", $wpdb->base_prefix . $ms_global_table ) );
 						if ( !$ms_table_status )
 							continue;
-						$table = substr( $ms_table_status->Name, strlen( $tprefix ) );
+						$table = substr( $ms_table_status->Name, strlen( $wpdb->base_prefix ) );
 						$tinfo[$table] = array();
 						foreach ( (array) $ms_table_status as $i => $v )
 							$tinfo[$table][$i] = $v;
