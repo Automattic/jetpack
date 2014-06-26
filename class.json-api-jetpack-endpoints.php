@@ -682,7 +682,7 @@ class Jetpack_JSON_API_GET_Update_Data extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'unauthorized', 'This user is not authorized to manage options on this blog', 403 );
 	}
 
-	// GET /sites/%s/core/updates
+	// GET /sites/%s/updates
 	public function callback( $path = '', $_blog_id = 0 ) {
 		error_log( print_r( wp_get_update_data(), 1 ) );
 		if ( is_wp_error( $error = $this->validate_call( $_blog_id ) ) ) {
@@ -701,7 +701,7 @@ new Jetpack_JSON_API_GET_Update_Data( array(
 	'group'           => 'manage',
 	'stat'            => 'core-updates:1',
 	'method'          => 'GET',
-	'path'            => '/sites/%s/core/updates',
+	'path'            => '/sites/%s/updates',
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
@@ -717,5 +717,5 @@ new Jetpack_JSON_API_GET_Update_Data( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/core/updates'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/wordpress.org/updates'
 ) );
