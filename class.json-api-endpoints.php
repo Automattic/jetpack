@@ -446,6 +446,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$docs = array(
 				'ID'   => '(int)',
 				'type' => '(string)',
+				'title' => '(string)',
 				'link' => '(URL)',
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
@@ -5313,4 +5314,5 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 	}'
 ) );
 
+// Jetpack Only Endpoints
 require_once dirname( __FILE__ ) . '/class.json-api-jetpack-endpoints.php';
