@@ -132,7 +132,7 @@ new Jetpack_JSON_API_Active_Theme_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/themes/mine'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/mine'
 ) );
 
 new Jetpack_JSON_API_Active_Theme_Endpoint( array(
@@ -165,7 +165,7 @@ new Jetpack_JSON_API_Active_Theme_Endpoint( array(
 			'theme' => 'twentytwelve'
 		)
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/themes/mine'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/mine'
 ) );
 
 class Jetpack_JSON_API_List_Themes_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
@@ -232,7 +232,7 @@ new Jetpack_JSON_API_List_Themes_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/themes'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
 ) );
 
 // PLUGINS
@@ -364,7 +364,7 @@ new Jetpack_JSON_API_Activate_Plugin_Endpoint( array(
 			'plugin' => 'hello'
 		)
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/plugins/hello/activate'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello/activate'
 ) );
 
 class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
@@ -431,7 +431,7 @@ new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
 			'plugin' => 'hello'
 		)
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/plugins/hello/deactivate'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello/deactivate'
 ) );
 
 class Jetpack_JSON_API_List_Plugins_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
@@ -474,7 +474,7 @@ new Jetpack_JSON_API_List_Plugins_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/plugins'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
 ) );
 
 // Jetpack Modules
@@ -568,7 +568,7 @@ new Jetpack_JSON_API_Activate_Module_Endpoint( array(
 			'module' => 'stats'
 		)
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/jetpack/modules/stats/activate'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules/stats/activate'
 ) );
 
 class Jetpack_JSON_API_Deactivate_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
@@ -626,7 +626,7 @@ new Jetpack_JSON_API_Deactivate_Module_Endpoint( array(
 			'module' => 'stats'
 		)
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/jetpack/modules/stats/deactivate'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules/stats/deactivate'
 ) );
 
 class Jetpack_JSON_API_List_Modules_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
@@ -669,7 +669,7 @@ new Jetpack_JSON_API_List_Modules_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/jetpack/modules'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules'
 ) );
 
 class Jetpack_JSON_API_GET_Update_Data extends WPCOM_JSON_API_Endpoint {
@@ -717,5 +717,5 @@ new Jetpack_JSON_API_GET_Update_Data( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/wordpress.org/updates'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/updates'
 ) );
