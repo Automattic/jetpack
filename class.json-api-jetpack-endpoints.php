@@ -277,7 +277,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends WPCOM_JSON_API_Endpoint
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
 		if ( is_wp_error( $blog_id ) )
 			return $blog_id;
-		if ( ! current_user_can( 'activate_plugins' ) )
+		if ( ! current_user_can( 'activate_plugins' ) ) //update_plugins
 			return new WP_Error( 'unauthorized', 'This user is not authorized to activate plugins on this blog', 403 );
 	}
 
@@ -718,4 +718,59 @@ new Jetpack_JSON_API_GET_Update_Data( array(
 		),
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/updates'
+) );
+
+class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
+	// GET  /sites/%s/plugins/%s/update => upgrade_plugin
+	public function callback( $path = '', $blog_id = 0, $plugin_slug = '' ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id ) ) ) {
+			return $error;
+		}
+
+		$plugin_file = urldecode( $plugin_slug ) . '.php';
+
+		if ( is_wp_error( $error = $this->validate_plugin( $plugin_file ) ) ) {
+			return $error;
+		}
+		return $this->upgrade_plugin( $plugin_file );
+	}
+
+	protected function upgrade_plugin( $plugin_file ) {
+
+		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+		$skin = new Automatic_Upgrader_Skin();
+		$upgrader = new Plugin_Upgrader( $skin );
+
+		$result = $upgrader->upgrade( $plugin_file );
+
+		if ( ! $result ) {
+			return new WP_Error( 'plugin_active', 'The Plugin is already up to date', 404 );
+		}
+		if ( is_wp_error( $result) ) {
+			return $result;
+		}
+
+		return self::get_plugin( $plugin_file );
+	}
+
+}
+
+new Jetpack_JSON_API_Update_Plugin_Endpoint( array(
+	'description'     => 'Update a Plugin on your Jetpack Site',
+	'group'           => 'manage',
+	'stat'            => 'plugins:1:update',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/plugins/%s/update/',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+		'$plugin' => '(string) The plugin file name',
+	),
+	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello/update'
 ) );
