@@ -417,6 +417,8 @@ class Jetpack {
 		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ),     999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
+		add_filter( 'plugins_url', array( 'Jetpack', 'maybe_min_asset' ), 1, 3 );
+
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
@@ -4404,6 +4406,47 @@ p {
 		</div>
 
 		<?php
+	}
+
+	/**
+	 * Maybe Use a .min.css stylesheet, maybe not.
+	 *
+	 * Hooks onto `plugins_url` filter at priority 1, and accepts all 3 args.
+	 */
+	public static function maybe_min_asset( $url, $path, $plugin ) {
+		// Short out on things trying to find actual paths.
+		if ( ! $path ) {
+			return $url;
+		}
+
+		// Strip out the abspath.
+		$base = dirname( plugin_basename( $plugin ) );
+
+		// Short out on non-Jetpack assets.
+		if ( 'jetpack/' !== substr( $base, 0, 8 ) ) {
+			return $url;
+		}
+
+		// File name parsing.
+		$file              = "{$base}/{$path}";
+		$full_path         = JETPACK__PLUGIN_DIR . substr( $file, 8 );
+		$file_name         = substr( $full_path, strrpos( $full_path, '/' ) + 1 );
+		$file_name_parts_r = array_reverse( explode( '.', $file_name ) );
+		$extension         = array_shift( $file_name_parts_r );
+
+		if ( in_array( strtolower( $extension ), array( 'css', 'js' ) ) ) {
+			// Already pointing at the minified version.
+			if ( 'min' === $file_name_parts_r[0] ) {
+				return $url;
+			}
+
+			$min_full_path = preg_replace( "#\.{$extension}$#", ".min.{$extension}", $full_path );
+			if ( file_exists( $min_full_path ) ) {
+				$url = preg_replace( "#\.{$extension}$#", ".min.{$extension}", $url );
+			}
+		}
+
+		return $url;
 	}
 
 	/**
