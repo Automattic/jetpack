@@ -11,7 +11,7 @@
  */
 
 /*
- * Put the following code in your themee's Food Menu Page Template to customize the markup of the menu.
+ * Put the following code in your theme's Food Menu Page Template to customize the markup of the menu.
 
 if ( class_exists( 'Nova_Restaurant' ) ) {
 	Nova_Restaurant::init( array(
