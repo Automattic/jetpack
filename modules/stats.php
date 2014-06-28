@@ -66,7 +66,32 @@ function stats_load() {
 	add_filter( 'map_meta_cap', 'stats_map_meta_caps', 10, 4 );
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
+
+	// Temp endpoint for the admin bar stats until a REST API client is built
+	add_action( 'wp_ajax_jetpack_admin_bar_stats', 'jetpack_stats_admin_bar_stats_chart' );
+	add_action( 'wp_ajax_nopriv_jetpack_admin_bar_stas', 'jetpack_stats_admin_bar_stats_chart' );
 }
+
+
+function jetpack_stats_admin_bar_stats_chart() {
+	error_log( 'Hit ajax stats' );
+	Jetpack::load_xml_rpc_client();
+	$xml = new Jetpack_IXR_Client();
+	$xml->query( 'jetpack.stats.adminBarChart' );
+	if( $xml->isError() ) {
+		error_log( 'xmlrpc error' );
+		error_log( $xml->get_jetpack_error()->get_error_message() );
+		return array();
+	} else {
+		error_log( $xml->getResponse() );
+		echo $xml->getResponse();
+	}
+	error_log( 'Did query to wpcom: ' . JETPACK__API_BASE );
+
+	die();
+}
+
+
 
 /**
  * Prevent sparkline img requests being redirected to upgrade.php.
@@ -407,7 +432,6 @@ function stats_reports_page() {
 				$q[$var] = $_REQUEST[$var];
 		}
 	}
-
 	if ( isset( $_GET['chart'] ) ) {
 		if ( preg_match( '/^[a-z0-9-]+$/', $_GET['chart'] ) ) {
 			$chart = sanitize_title( $_GET['chart'] );
@@ -416,229 +440,301 @@ function stats_reports_page() {
 	} else {
 		$url = 'http://' . STATS_DASHBOARD_SERVER . "/wp-admin/index.php";
 	}
-
 	$url = add_query_arg( $q, $url );
 	$method = 'GET';
 	$timeout = 90;
 	$user_id = JETPACK_MASTER_USER; // means send the wp.com user_id
 
-	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
-	$get_code = wp_remote_retrieve_response_code( $get );
-	if ( is_wp_error( $get ) || ( 2 != intval( $get_code / 100 ) && 304 != $get_code ) || empty( $get['body'] ) ) {
-		stats_print_wp_remote_error( $get, $url );
-	} else {
-		if ( !empty( $get['headers']['content-type'] ) ) {
-			$type = $get['headers']['content-type'];
-			if ( substr( $type, 0, 5 ) == 'image' ) {
-				$img = $get['body'];
-				header( 'Content-Type: ' . $type );
-				header( 'Content-Length: ' . strlen( $img ) );
-				echo $img;
-				die();
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client();
+		$xml->query( 'jetpack.stats.adminBarChart' );
+		if( $xml->isError() ) {
+			error_log( 'xmlrpc error' );
+			error_log( $xml->get_jetpack_error()->get_error_message() );
+		} else {
+			error_log( $xml->getResponse() );
+		}
+		error_log( 'Did query to wpcom: ' . JETPACK__API_BASE );
+	return;
+
+		if( !file_exists( JETPACK__PLUGIN_DIR . 'stats.png' ) ) {
+			$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
+			$get_code = wp_remote_retrieve_response_code( $get );
+			if ( is_wp_error( $get ) || ( 2 != intval( $get_code / 100 ) && 304 != $get_code ) || empty( $get['body'] ) ) {
+				stats_print_wp_remote_error( $get, $url );
+			} else {
+				if ( !empty( $get['headers']['content-type'] ) ) {
+					$type = $get['headers']['content-type'];
+					if ( substr( $type, 0, 5 ) == 'image' ) {
+						$img = $get['body'];
+						header( 'Content-Type: ' . $type );
+						header( 'Content-Length: ' . strlen( $img ) );
+						file_put_contents( JETPACK__PLUGIN_DIR . 'stats.png', $img );
+						echo $img;
+						error_log( 'Show img: ' . $img );
+						die();
+					}
+				}
+				error_log( 'Got to converts' );
+				$body = stats_convert_post_titles( $get['body'] );
+				$body = stats_convert_chart_urls( $body );
+				$body = stats_convert_image_urls( $body );
+				$body = stats_convert_admin_urls( $body );
+				echo $body;
 			}
+		} else {
+			$img = JETPACK__PLUGIN_DIR . 'stats.png';
+			error_log( 'From transient: ' . $img );
+						header( 'Content-Type: image/png'  );
+						header( 'Content-Length: ' .filesize( $img ) );
+						readfile( $img );
 		}
-		$body = stats_convert_post_titles( $get['body'] );
-		$body = stats_convert_chart_urls( $body );
-		$body = stats_convert_image_urls( $body );
-		$body = stats_convert_admin_urls( $body );
-		echo $body;
+		if ( isset( $_GET['noheader'] ) )
+			die;
 	}
-	if ( isset( $_GET['noheader'] ) )
-		die;
-}
 
-function stats_convert_admin_urls( $html ) {
-	return str_replace( 'index.php?page=stats', 'admin.php?page=stats', $html );
-}
+	function stats_convert_admin_urls( $html ) {
+		return str_replace( 'index.php?page=stats', 'admin.php?page=stats', $html );
+	}
 
-function stats_convert_image_urls( $html ) {
-	$url = set_url_scheme( 'http://' . STATS_DASHBOARD_SERVER );
-	$html = preg_replace( '|(["\'])(/i/stats.+)\\1|', '$1' . $url . '$2$1', $html );
-	return $html;
-}
-
-function stats_convert_chart_urls( $html ) {
-	$html = preg_replace_callback( '|https?://[-.a-z0-9]+/wp-includes/charts/([-.a-z0-9]+).php(\??)|',
-			create_function(
-				'$matches',
-				// If there is a query string, change the beginning '?' to a '&' so it fits into the middle of this query string
-				'return "admin.php?page=stats&noheader&chart=" . $matches[1] . str_replace( "?", "&", $matches[2] );'
-			),
-			$html );
-	return $html;
-}
-
-function stats_convert_post_titles( $html ) {
-	global $wpdb, $stats_posts;
-	$pattern = "<span class='post-(\d+)-link'>.*?</span>";
-	if ( !preg_match_all( "!$pattern!", $html, $matches ) )
+	function stats_convert_image_urls( $html ) {
+		$url = set_url_scheme( 'http://' . STATS_DASHBOARD_SERVER );
+		$html = preg_replace( '|(["\'])(/i/stats.+)\\1|', '$1' . $url . '$2$1', $html );
 		return $html;
-	$posts = get_posts( array(
-		'include' => implode( ',', $matches[1] ),
-		'post_type' => 'any',
-		'post_status' => 'any',
-		'numberposts' => -1,
-	));
-	foreach ( $posts as $post )
-		$stats_posts[$post->ID] = $post;
-	$html = preg_replace_callback( "!$pattern!", 'stats_convert_post_title', $html );
-	return $html;
-}
-
-function stats_convert_post_title( $matches ) {
-	global $stats_posts;
-	$post_id = $matches[1];
-	if ( isset( $stats_posts[$post_id] ) )
-		return '<a href="' . get_permalink( $post_id ) . '" target="_blank">' . get_the_title( $post_id ) . '</a>';
-	return $matches[0];
-}
-
-function stats_configuration_load() {
-	if ( isset( $_POST['action'] ) && $_POST['action'] == 'save_options' && $_POST['_wpnonce'] == wp_create_nonce( 'stats' ) ) {
-		$options = stats_get_options();
-		$options['admin_bar']  = isset( $_POST['admin_bar']  ) && $_POST['admin_bar'];
-		$options['hide_smile'] = isset( $_POST['hide_smile'] ) && $_POST['hide_smile'];
-
-		$options['roles'] = array( 'administrator' );
-		foreach ( get_editable_roles() as $role => $details )
-			if ( isset( $_POST["role_$role"] ) && $_POST["role_$role"] )
-				$options['roles'][] = $role;
-
-		$options['count_roles'] = array();
-		foreach ( get_editable_roles() as $role => $details )
-			if ( isset( $_POST["count_role_$role"] ) && $_POST["count_role_$role"] )
-				$options['count_roles'][] = $role;
-
-		stats_set_options( $options );
-		stats_update_blog();
-		Jetpack::state( 'message', 'module_configured' );
-		wp_safe_redirect( Jetpack::module_configuration_url( 'stats' ) );
-		exit;
 	}
-}
 
-function stats_configuration_head() {
-	?>
-	<style type="text/css">
-		#statserror {
-			border: 1px solid #766;
-			background-color: #d22;
-			padding: 1em 3em;
+	function stats_convert_chart_urls( $html ) {
+		$html = preg_replace_callback( '|https?://[-.a-z0-9]+/wp-includes/charts/([-.a-z0-9]+).php(\??)|',
+				create_function(
+					'$matches',
+					// If there is a query string, change the beginning '?' to a '&' so it fits into the middle of this query string
+					'return "admin.php?page=stats&noheader&chart=" . $matches[1] . str_replace( "?", "&", $matches[2] );'
+				),
+				$html );
+		return $html;
+	}
+
+	function stats_convert_post_titles( $html ) {
+		global $wpdb, $stats_posts;
+		$pattern = "<span class='post-(\d+)-link'>.*?</span>";
+		if ( !preg_match_all( "!$pattern!", $html, $matches ) )
+			return $html;
+		$posts = get_posts( array(
+			'include' => implode( ',', $matches[1] ),
+			'post_type' => 'any',
+			'post_status' => 'any',
+			'numberposts' => -1,
+		));
+		foreach ( $posts as $post )
+			$stats_posts[$post->ID] = $post;
+		$html = preg_replace_callback( "!$pattern!", 'stats_convert_post_title', $html );
+		return $html;
+	}
+
+	function stats_convert_post_title( $matches ) {
+		global $stats_posts;
+		$post_id = $matches[1];
+		if ( isset( $stats_posts[$post_id] ) )
+			return '<a href="' . get_permalink( $post_id ) . '" target="_blank">' . get_the_title( $post_id ) . '</a>';
+		return $matches[0];
+	}
+
+	function stats_configuration_load() {
+		if ( isset( $_POST['action'] ) && $_POST['action'] == 'save_options' && $_POST['_wpnonce'] == wp_create_nonce( 'stats' ) ) {
+			$options = stats_get_options();
+			$options['admin_bar']  = isset( $_POST['admin_bar']  ) && $_POST['admin_bar'];
+			$options['hide_smile'] = isset( $_POST['hide_smile'] ) && $_POST['hide_smile'];
+
+			$options['roles'] = array( 'administrator' );
+			foreach ( get_editable_roles() as $role => $details )
+				if ( isset( $_POST["role_$role"] ) && $_POST["role_$role"] )
+					$options['roles'][] = $role;
+
+			$options['count_roles'] = array();
+			foreach ( get_editable_roles() as $role => $details )
+				if ( isset( $_POST["count_role_$role"] ) && $_POST["count_role_$role"] )
+					$options['count_roles'][] = $role;
+
+			stats_set_options( $options );
+			stats_update_blog();
+			Jetpack::state( 'message', 'module_configured' );
+			wp_safe_redirect( Jetpack::module_configuration_url( 'stats' ) );
+			exit;
 		}
-		.stats-smiley {
-			vertical-align: 1px;
+	}
+
+	function stats_configuration_head() {
+		?>
+		<style type="text/css">
+			#statserror {
+				border: 1px solid #766;
+				background-color: #d22;
+				padding: 1em 3em;
+			}
+			.stats-smiley {
+				vertical-align: 1px;
+			}
+		</style>
+		<?php
+	}
+
+	function stats_configuration_screen() {
+		$options = stats_get_options();
+		?>
+		<div class="narrow">
+			<p><?php printf( __( 'Visit <a href="%s">Site Stats</a> to see your stats.', 'jetpack' ), esc_url( menu_page_url( 'stats', false ) ) ); ?></p>
+			<form method="post">
+			<input type='hidden' name='action' value='save_options' />
+			<?php wp_nonce_field( 'stats' ); ?>
+			<table id="menu" class="form-table">
+			<tr valign="top"><th scope="row"><label for="admin_bar"><?php _e( 'Admin bar' , 'jetpack' ); ?></label></th>
+			<td><label><input type='checkbox'<?php checked( $options['admin_bar'] ); ?> name='admin_bar' id='admin_bar' /> <?php _e( "Put a chart showing 48 hours of views in the admin bar.", 'jetpack' ); ?></label></td></tr>
+			<tr valign="top"><th scope="row"><?php _e( 'Registered users', 'jetpack' ); ?></th>
+			<td>
+				<?php _e( "Count the page views of registered users who are logged in.", 'jetpack' ); ?><br/>
+				<?php
+				$count_roles = stats_get_option( 'count_roles' );
+				foreach ( get_editable_roles() as $role => $details ) {
+					?>
+					<label><input type='checkbox' name='count_role_<?php echo $role; ?>'<?php checked( in_array( $role, $count_roles ) ); ?> /> <?php echo translate_user_role( $details['name'] ); ?></label><br/>
+					<?php
+				}
+				?>
+			</td></tr>
+			<tr valign="top"><th scope="row"><?php _e( 'Smiley' , 'jetpack' ); ?></th>
+			<td><label><input type='checkbox'<?php checked( isset( $options['hide_smile'] ) && $options['hide_smile'] ); ?> name='hide_smile' id='hide_smile' /> <?php _e( 'Hide the stats smiley face image.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden', 'jetpack' ); ?> <img class="stats-smiley" alt="<?php esc_attr_e( 'Smiley face', 'jetpack' ); ?>" src="<?php echo esc_url( plugins_url( '_inc/images/stats-smiley.gif', dirname( __FILE__ ) ) ); ?>" width="6" height="5" /></span></td></tr>
+			<tr valign="top"><th scope="row"><?php _e( 'Report visibility' , 'jetpack' ); ?></th>
+			<td>
+				<?php _e( 'Select the roles that will be able to view stats reports.', 'jetpack' ); ?><br/>
+				<?php
+				$stats_roles = stats_get_option( 'roles' );
+				foreach ( get_editable_roles() as $role => $details ) {
+					?>
+					<label><input type='checkbox' <?php if ( $role == 'administrator' ) echo "disabled='disabled' "; ?>name='role_<?php echo $role; ?>'<?php checked( $role == 'administrator' || in_array( $role, $stats_roles ) ); ?> /> <?php echo translate_user_role( $details['name'] ); ?></label><br/>
+					<?php
+				}
+				?>
+			</td></tr>
+			</table>
+			<p class="submit"><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save configuration', 'jetpack' ) ); ?>' /></p>
+			</form>
+		</div>
+		<?php
+	}
+
+	function stats_hide_smile_css() {
+		$options = stats_get_options();
+		if ( isset( $options['hide_smile'] ) && $options['hide_smile'] ) {
+		?>
+	<style type='text/css'>img#wpstats{display:none}</style><?php
 		}
+	}
+
+	function stats_admin_bar_head() {
+		if ( !stats_get_option( 'admin_bar' ) )
+			return;
+
+		if ( !current_user_can( 'view_stats' ) )
+			return;
+
+		if ( function_exists( 'is_admin_bar_showing' ) && !is_admin_bar_showing() ) {
+			return;
+		}
+
+		add_action( 'admin_bar_menu', 'stats_admin_bar_menu', 100 );
+		?>
+
+	<style type='text/css'>
+#wpadminbar .quicklinks li#wp-admin-bar-stats {
+		height: 28px;
+	}
+#wpadminbar .quicklinks li#wp-admin-bar-stats a {
+		height: 28px;
+		padding: 0;
+	}
+#wpadminbar .quicklinks li#wp-admin-bar-stats a div {
+		height: 28px;
+		width: 95px;
+		overflow: hidden;
+		margin: 0 10px;
+	}
+#wpadminbar .quicklinks li#wp-admin-bar-stats a:hover div {
+		width: auto;
+		margin: 0 8px 0 10px;
+	}
+#wpadminbar .quicklinks li#wp-admin-bar-stats a img {
+		height: 24px;
+		padding: 2px 0;
+		max-width: none;
+		border: none;
+	}
 	</style>
 	<?php
-}
-
-function stats_configuration_screen() {
-	$options = stats_get_options();
-	?>
-	<div class="narrow">
-		<p><?php printf( __( 'Visit <a href="%s">Site Stats</a> to see your stats.', 'jetpack' ), esc_url( menu_page_url( 'stats', false ) ) ); ?></p>
-		<form method="post">
-		<input type='hidden' name='action' value='save_options' />
-		<?php wp_nonce_field( 'stats' ); ?>
-		<table id="menu" class="form-table">
-		<tr valign="top"><th scope="row"><label for="admin_bar"><?php _e( 'Admin bar' , 'jetpack' ); ?></label></th>
-		<td><label><input type='checkbox'<?php checked( $options['admin_bar'] ); ?> name='admin_bar' id='admin_bar' /> <?php _e( "Put a chart showing 48 hours of views in the admin bar.", 'jetpack' ); ?></label></td></tr>
-		<tr valign="top"><th scope="row"><?php _e( 'Registered users', 'jetpack' ); ?></th>
-		<td>
-			<?php _e( "Count the page views of registered users who are logged in.", 'jetpack' ); ?><br/>
-			<?php
-			$count_roles = stats_get_option( 'count_roles' );
-			foreach ( get_editable_roles() as $role => $details ) {
-				?>
-				<label><input type='checkbox' name='count_role_<?php echo $role; ?>'<?php checked( in_array( $role, $count_roles ) ); ?> /> <?php echo translate_user_role( $details['name'] ); ?></label><br/>
-				<?php
-			}
-			?>
-		</td></tr>
-		<tr valign="top"><th scope="row"><?php _e( 'Smiley' , 'jetpack' ); ?></th>
-		<td><label><input type='checkbox'<?php checked( isset( $options['hide_smile'] ) && $options['hide_smile'] ); ?> name='hide_smile' id='hide_smile' /> <?php _e( 'Hide the stats smiley face image.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden', 'jetpack' ); ?> <img class="stats-smiley" alt="<?php esc_attr_e( 'Smiley face', 'jetpack' ); ?>" src="<?php echo esc_url( plugins_url( '_inc/images/stats-smiley.gif', dirname( __FILE__ ) ) ); ?>" width="6" height="5" /></span></td></tr>
-		<tr valign="top"><th scope="row"><?php _e( 'Report visibility' , 'jetpack' ); ?></th>
-		<td>
-			<?php _e( 'Select the roles that will be able to view stats reports.', 'jetpack' ); ?><br/>
-			<?php
-			$stats_roles = stats_get_option( 'roles' );
-			foreach ( get_editable_roles() as $role => $details ) {
-				?>
-				<label><input type='checkbox' <?php if ( $role == 'administrator' ) echo "disabled='disabled' "; ?>name='role_<?php echo $role; ?>'<?php checked( $role == 'administrator' || in_array( $role, $stats_roles ) ); ?> /> <?php echo translate_user_role( $details['name'] ); ?></label><br/>
-				<?php
-			}
-			?>
-		</td></tr>
-		</table>
-		<p class="submit"><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save configuration', 'jetpack' ) ); ?>' /></p>
-		</form>
-	</div>
-	<?php
-}
-
-function stats_hide_smile_css() {
-	$options = stats_get_options();
-	if ( isset( $options['hide_smile'] ) && $options['hide_smile'] ) {
-	?>
-<style type='text/css'>img#wpstats{display:none}</style><?php
-	}
-}
-
-function stats_admin_bar_head() {
-	if ( !stats_get_option( 'admin_bar' ) )
-		return;
-
-	if ( !current_user_can( 'view_stats' ) )
-		return;
-
-	if ( function_exists( 'is_admin_bar_showing' ) && !is_admin_bar_showing() ) {
-		return;
 	}
 
-	add_action( 'admin_bar_menu', 'stats_admin_bar_menu', 100 );
-	?>
+	function stats_admin_bar_menu( &$wp_admin_bar ) {
+		$blog_id = stats_get_option( 'blog_id' );
 
-<style type='text/css'>
-#wpadminbar .quicklinks li#wp-admin-bar-stats {
-	height: 28px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a {
-	height: 28px;
-	padding: 0;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a div {
-	height: 28px;
-	width: 95px;
-	overflow: hidden;
-	margin: 0 10px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a:hover div {
-	width: auto;
-	margin: 0 8px 0 10px;
-}
-#wpadminbar .quicklinks li#wp-admin-bar-stats a img {
-	height: 24px;
-	padding: 2px 0;
-	max-width: none;
-	border: none;
-}
-</style>
-<?php
-}
+		$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ); // no menu_page_url() blog-side.
 
-function stats_admin_bar_menu( &$wp_admin_bar ) {
-	$blog_id = stats_get_option( 'blog_id' );
+		$img_src = esc_attr( add_query_arg( array( 'noheader'=>'', 'proxy'=>'', 'chart'=>'admin-bar-hours-scale' ), $url ) );
+		$img_src_2x = esc_attr( add_query_arg( array( 'noheader'=>'', 'proxy'=>'', 'chart'=>'admin-bar-hours-scale-2x' ), $url ) );
 
-	$url = add_query_arg( 'page', 'stats', admin_url( 'admin.php' ) ); // no menu_page_url() blog-side.
+		$alt = esc_attr( __( 'Stats', 'jetpack' ) );
 
-	$img_src = esc_attr( add_query_arg( array( 'noheader'=>'', 'proxy'=>'', 'chart'=>'admin-bar-hours-scale' ), $url ) );
-	$img_src_2x = esc_attr( add_query_arg( array( 'noheader'=>'', 'proxy'=>'', 'chart'=>'admin-bar-hours-scale-2x' ), $url ) );
+		$title = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
 
-	$alt = esc_attr( __( 'Stats', 'jetpack' ) );
+		$js = "<script type='text/javascript'>
 
-	$title = esc_attr( __( 'Views over 48 hours. Click for more Site Stats.', 'jetpack' ) );
+	(function($) {
+	function drawStats(ctx, width, height, data) {
+		console.log(data);
+  	  // Fill bg
+  	  ctx.fillStyle = '#222222';
+  	  ctx.fillRect(0, 0, width, height);
+  	 
+  	  // Draw bars (one every other pixel)
+  	  ctx.fillStyle = '#ccc';
+  	  var barWidth = 1; // px
+  	  for (var i = 0; i < width; i += barWidth + 2) {
+    	if (data[i] === 0) data[i] = 1;
+    	ctx.fillRect(i, height - data[i], barWidth, data[i]);
+  	  }
+	}
 
-	$menu = array( 'id' => 'stats', 'title' => "<div><script type='text/javascript'>var src;if(typeof(window.devicePixelRatio)=='undefined'||window.devicePixelRatio<2){src='$img_src';}else{src='$img_src_2x';}document.write('<img src=\''+src+'\' alt=\'$alt\' title=\'$title\' />');</script></div>", 'href' => $url );
+	// Placeholder
+	function filterData(raw, width, height) {
+		var maxViews = raw.reduce(function(acc, el) {
+			if (el > acc) return el;
+			return acc;
+		}, 0);
+		
+		var scale = height / maxViews;
+		if (scale > 1) scale = Math.min(scale, height / 4);
+		return raw.map(function(el) {
+			return el * scale;
+		});
+	}
+
+	jQuery(document).ready(function(){
+  	  var ctx = $('#canvas')[0].getContext('2d');
+  	  var width = $('#canvas').width();
+  	  var height = $('#canvas').height();
+
+  	  var data = [];
+  	  // Placeholder for handling actual data
+  	  $.getJSON('". admin_url( 'admin-ajax.php' ) . "', { action: 'jetpack_admin_bar_stats' }, function(json) {
+  	  for (var date in json) {
+		data.push(json[date]);
+  	  }
+  		drawStats(ctx, width, height, filterData(data, width, height)); 
+  	  });
+});
+
+})(jQuery);
+	</script>";
+
+	$menu = array( 'id' => 'stats', 'title' => $js . '<canvas id="canvas" width="106" height="24">', 'href' => $url );
 
 	$wp_admin_bar->add_menu( $menu );
 }
