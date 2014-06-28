@@ -2270,6 +2270,21 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		if ( $new ) {
 			if ( false === strpos( $input['content'], '[gallery' ) && ( $has_media || $has_media_by_url ) ) {
+
+				// if we're posting a post, there's no title set, and there is media, use the content to set the title
+				if ( ( empty( $insert['post_type'] ) || 'post' == $insert['post_type'] ) && ! isset( $insert['post_title'] ) ) {
+					$lines = explode( "\n", trim( $insert['post_content'] ) );
+					$first_line = trim( $lines[0] );
+					$to_title = wp_strip_all_tags( strip_shortcodes( $first_line ) );
+					if ( ! empty( $to_title ) && strlen( $to_title ) > 3 ) {
+						if ( strlen( $to_title ) > 75 ) {
+							$insert['post_title'] = wp_trim_words( $to_title, 10, '…' );
+						} else {
+							$insert['post_title'] = $to_title;
+						}
+					}
+				}
+
 				switch ( ( $has_media + $has_media_by_url ) ) {
 				case 0 :
 					// No images - do nothing.
