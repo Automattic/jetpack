@@ -1436,7 +1436,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'title' :
 				if ( 'display' === $context ) {
-					$response[$key] = (string) get_the_title( $post->ID );
+					$response[$key] = (string) html_entity_decode( get_the_title( $post->ID ) );
 				} else {
 					$response[$key] = (string) $post->post_title;
 				}
