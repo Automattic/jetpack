@@ -653,6 +653,7 @@ EOT;
 			'url' => get_permalink( $post->ID ),
 			'url_meta' => array( 'origin' => $origin, 'position' => $position ),
 			'title' => $this->_to_utf8( $this->_get_title( $post->post_title, $post->post_content ) ),
+			'date' => get_the_date( '', $post->ID ),
 			'format' => get_post_format( $post->ID ),
 			'excerpt' => $this->_to_utf8( $this->_get_excerpt( $post->post_excerpt, $post->post_content ) ),
 			'context' => apply_filters(
