@@ -687,51 +687,46 @@ function stats_reports_page() {
 		$js = "<script type='text/javascript'>
 
 	(function($) {
-	function drawStats(ctx, width, height, data) {
-		console.log(data);
+	function drawStats( ctx, width, height, data ) {
   	  // Fill bg
   	  ctx.fillStyle = '#222222';
-  	  ctx.fillRect(0, 0, width, height);
-  	 
+  	  ctx.fillRect( 0, 0, width, height );
+
   	  // Draw bars (one every other pixel)
   	  ctx.fillStyle = '#ccc';
-  	  var barWidth = 1; // px
-  	  for (var i = 0; i < width; i += barWidth + 2) {
-    	if (data[i] === 0) data[i] = 1;
-    	ctx.fillRect(i, height - data[i], barWidth, data[i]);
-  	  }
+	  var barWidth = 1; // px
+	  for ( var i = 0, j = 0; i < data.length; i++, j += barWidth + 1 ) {
+		  ctx.fillRect( j, height - data[i] - 1, barWidth, data[i] + 1 );
+		}
 	}
 
 	// Placeholder
-	function filterData(raw, width, height) {
-		var maxViews = raw.reduce(function(acc, el) {
-			if (el > acc) return el;
-			return acc;
-		}, 0);
-		
+	function filterData( raw, width, height ) {
+		var maxViews = Math.max.apply( null, raw );
+
 		var scale = height / maxViews;
-		if (scale > 1) scale = Math.min(scale, height / 4);
-		return raw.map(function(el) {
+		if ( scale > 1 ) scale = Math.min( scale, height / 4 );
+		return $.map( raw, function( el ) {
 			return el * scale;
 		});
 	}
 
-	jQuery(document).ready(function(){
-  	  var ctx = $('#canvas')[0].getContext('2d');
-  	  var width = $('#canvas').width();
-  	  var height = $('#canvas').height();
+	jQuery( document ).ready( function() {
+  	  var ctx = $( '#canvas' )[0].getContext( '2d' );
+  	  var width = $( '#canvas' ).width();
+  	  var height = $( '#canvas' ).height();
 
   	  var data = [];
   	  // Placeholder for handling actual data
-  	  $.getJSON('". admin_url( 'admin-ajax.php' ) . "', { action: 'jetpack_admin_bar_stats' }, function(json) {
-  	  for (var date in json) {
-		data.push(json[date]);
+  	  $.getJSON( '". admin_url( 'admin-ajax.php' ) . "', { action: 'jetpack_admin_bar_stats' }, function( json ) {
+  	  for ( var date in json ) {
+		data.push( json[date] );
   	  }
-  		drawStats(ctx, width, height, filterData(data, width, height)); 
+  		drawStats( ctx, width, height, filterData( data, width, height ) );
   	  });
 });
 
-})(jQuery);
+})( jQuery );
 	</script>";
 
 	$menu = array( 'id' => 'stats', 'title' => $js . '<canvas id="canvas" width="106" height="24">', 'href' => $url );
@@ -899,7 +894,7 @@ jQuery(window).load( function() {
 			resizeChart();
 		}, 100) );
 	} );
-	
+
 	function resizeChart() {
 		var dashStats = jQuery( '#dashboard_stats.postbox div.inside' );
 
