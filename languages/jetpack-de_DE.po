@@ -112,7 +112,7 @@ msgid "Allow users to subscribe to your posts and comments and receive notificat
 msgstr "Ermögliche deinen Nutzern deine Beiträge und Kommentare zu abonnieren, um E-Mail-Benachrichtigungen zu erhalten. "
 
 msgid "Display your image galleries in a variety of sleek, graphic arrangements."
-msgstr "Stelle deine Bildergalerien in verschiedenen eleganten graphischen Ausgestaltungen dar. "
+msgstr "Stelle deine Bildergalerien in verschiedenen eleganten grafischen Ausgestaltungen dar. "
 
 msgid "Protect your site with automatic backups and security scans. (Subscription required.)"
 msgstr "Schütze deine Seite mit automatischen Backups und Sicherheitsscans (setzt ein Abonnement voraus). "
