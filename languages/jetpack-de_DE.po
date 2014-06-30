@@ -3053,7 +3053,7 @@ msgstr "Mobil-kompatibel:"
 #: modules/publicize/publicize-jetpack.php:362
 msgctxt "Refresh connection with {social media service}"
 msgid "Refresh connection with %s"
-msgstr "Akutalisiere die Verbindung mit %s"
+msgstr "Aktualisiere die Verbindung mit %s"
 
 #: modules/videopress/videopress.php:308
 msgid "Ogg file container with Theora video and Vorbis audio. Note that some browsers are unable to play free software video formats, including Internet Explorer and Safari."
