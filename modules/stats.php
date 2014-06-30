@@ -74,20 +74,22 @@ function stats_load() {
 
 
 function jetpack_stats_admin_bar_stats_chart() {
-	error_log( 'Hit ajax stats' );
-	Jetpack::load_xml_rpc_client();
-	$xml = new Jetpack_IXR_Client();
-	$xml->query( 'jetpack.stats.adminBarChart' );
-	if( $xml->isError() ) {
-		error_log( 'xmlrpc error' );
-		error_log( $xml->get_jetpack_error()->get_error_message() );
-		return array();
-	} else {
-		error_log( $xml->getResponse() );
-		echo $xml->getResponse();
-	}
-	error_log( 'Did query to wpcom: ' . JETPACK__API_BASE );
+	$stats = get_transient( 'jetpack_stats_admin_bar_chart' );
 
+	if( false === $stats ) {
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client();
+		$xml->query( 'jetpack.stats.adminBarChart' );
+		if( $xml->isError() ) {
+			error_log( "Error getting Jetpack Admin Bar Stats: " . $xml->get_jetpack_error()->get_error_message() );
+			echo array();
+		} else {
+			set_transient( 'jetpack_stats_admin_bar_chart', $xml->getResponse(), HOUR_IN_SECONDS );
+			$stats = $xml->getResponse();
+		}
+	}
+	
+	echo $stats;
 	die();
 }
 
