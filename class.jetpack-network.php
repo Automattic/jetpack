@@ -268,6 +268,20 @@ class Jetpack_Network {
 		 */
 		require_once( JETPACK__PLUGIN_DIR . '_inc/genericons.php' );
 		jetpack_register_genericons();
+
+		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) )
+			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons.min.css', __FILE__ ), false, JETPACK__VERSION );
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
+	}
+
+	 /**
+	 * Adds JP menu icon
+	 *
+	 * @since 2.9
+	 **/
+	 function admin_menu_css() {
+		wp_enqueue_style( 'jetpack-icons' );
 	}
 
 	/**

@@ -337,35 +337,6 @@ hr {
     src: font-url("fonts/jetpack.svg#jetpack") format("svg");
   }
 }
-[data-icon]:before {
-  content: attr(data-icon);
-}
-
-[data-icon]:before,
-.jetpack-icon-20:before,
-.jetpack-logo-32:before {
-  display: inline-block;
-  font-family: "jetpack";
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  line-height: 1;
-  text-decoration: inherit;
-  text-rendering: optimizeLegibility;
-  text-transform: none;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  font-smoothing: antialiased;
-}
-
-.jetpack-icon-20:before {
-  content: "\f102";
-}
-
-.jetpack-logo-32:before {
-  content: "\f103";
-}
-
 .nav-horizontal a {
   display: inline-block;
 }
@@ -1503,21 +1474,6 @@ html {
 .shortlinks:before,
 .jetpack-modules #shortlinks .info a:before {
   content: '\f107';
-}
-
-#toplevel_page_jetpack .wp-menu-image:before {
-  font-family: 'Jetpack' !important;
-  content: '\f102';
-}
-
-#menu-posts-feedback .wp-menu-image:before {
-  font-family: dashicons !important;
-  content: '\f175';
-}
-
-#adminmenu #menu-posts-feedback div.wp-menu-image {
-  background: none !important;
-  background-repeat: no-repeat;
 }
 
 .page-content.configure {

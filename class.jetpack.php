@@ -543,6 +543,8 @@ class Jetpack {
 		require_once( JETPACK__PLUGIN_DIR . '_inc/genericons.php' );
 		jetpack_register_genericons();
 
+		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) )
+			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons.min.css', __FILE__ ), false, JETPACK__VERSION );
 	}
 
 	/**
@@ -1743,6 +1745,7 @@ p {
 		}
 
 		add_action( 'load-plugins.php', array( $this, 'intercept_plugin_error_scrape_init' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 		add_filter( 'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_DIR . 'jetpack.php' ), array( $this, 'plugin_action_links' ) );
 
 		if ( Jetpack::is_active() || Jetpack::is_development_mode() ) {
@@ -2064,6 +2067,10 @@ p {
 			'<p><a href="http://jetpack.me/support/" target="_blank">' . __( 'Jetpack Support', 'jetpack' ) . '</a></p>' .
 			'<p><a href="' . Jetpack::admin_url( array( 'page' => 'jetpack-debugger' )  ) .'">' . __( 'Jetpack Debugging Center', 'jetpack' ) . '</a></p>'
 		);
+	}
+
+	function admin_menu_css() {
+		wp_enqueue_style( 'jetpack-icons' );
 	}
 
 	function admin_menu_order() {
