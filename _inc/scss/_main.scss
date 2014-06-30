@@ -92,23 +92,15 @@ html {
 		}
 	}
 	.jetpack-logo {
+		position: relative;
 		color: #fff;
 		font-weight: normal;
 		height: 46px;
-		padding: em(7,24) em(8) 0 em(6);
-		overflow: hidden;
-
-		&:before {
-			display: block;
-			font-family: 'jetpack';
-			content: '\f103';
-			width: em(183,32);
-			position: relative;
-			margin-right: 8px;
-			font-size: 32px;
-			line-height: 1;
-		}
-
+		width: em(183,24);
+		margin-right: 8px;
+		background: url(images/jetpack-logo.png) center center no-repeat;
+		background: url(images/jetpack-logo.svg) center center no-repeat, none;
+		text-indent: -9999px;
 	}
 }
 
