@@ -324,6 +324,23 @@ hr {
   opacity: 0.7;
 }
 
+@font-face {
+  font-family: "jetpack";
+  src: font-url("jetpack.eot");
+  src: font-url("jetpack.eot?#iefix") format("embedded-opentype"), font-url("jetpack.woff") format("woff"), font-url("jetpack.ttf") format("truetype"), font-url("jetpack.svg#jetpack") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  @font-face {
+    font-family: "jetpack";
+    src: font-url("jetpack.svg#jetpack") format("svg");
+  }
+}
+.jetpack-icon-20:before {
+  content: "\f102";
+}
+
 .nav-horizontal a {
   display: inline-block;
 }
@@ -422,19 +439,15 @@ html {
   background: #81a844;
 }
 .header-nav .jetpack-logo {
+  position: relative;
   color: #fff;
-  line-height: 50px;
   font-weight: normal;
   height: 46px;
-  margin-top: -2px;
-  padding: 0 0.57143em 0 0.42857em;
-}
-.header-nav .jetpack-logo:before {
-  font-family: 'Jetpack' !important;
-  content: '\e600';
-  position: relative;
+  width: 7.625em;
   margin-right: 8px;
-  font-size: 31px;
+  background: url(images/jetpack-logo.png) center center no-repeat;
+  background: url(images/jetpack-logo.svg) center center no-repeat, none;
+  text-indent: -9999px;
 }
 
 .main-nav {
@@ -1262,7 +1275,6 @@ html {
   opacity: 0.6;
   position: absolute;
   top: 23px;
-  top: -webkit-calc(50% - 22px );
   top: calc(50% - 22px );
 }
 .jetpack-message.error .squeezer:before, .jetpack-message.jetpack-err .squeezer:before {
@@ -2008,12 +2020,6 @@ html {
 
   .main-nav {
     font-size: 13px;
-  }
-  .main-nav .jetpack-logo {
-    font-size: 22px;
-  }
-  .main-nav .jetpack-logo:before {
-    font-size: 29px;
   }
 
   .table-bordered .genericon {

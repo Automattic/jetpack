@@ -1,0 +1,23 @@
+//
+// Icon Font: jetpack
+//
+
+@font-face {
+  font-family: "jetpack";
+  src: font-url("jetpack.eot");
+  src: font-url("jetpack.eot?#iefix") format("embedded-opentype"),
+       font-url("jetpack.woff") format("woff"),
+       font-url("jetpack.ttf") format("truetype"),
+       font-url("jetpack.svg#jetpack") format("svg");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+  @font-face {
+    font-family: "jetpack";
+    src: font-url("jetpack.svg#jetpack") format("svg");
+  }
+}
+
+.jetpack-icon-20:before { content: "\f102"; }

@@ -54,7 +54,7 @@ class Jetpack_Network {
 			add_action('network_admin_menu', array($this, 'add_network_admin_menu'));
 			add_action('network_admin_edit_jetpack-network-settings', array($this, 'save_network_settings_page'), 10, 0);
 			add_filter( 'admin_body_class', array( $this, 'body_class' ) );
-			
+
 			if( isset( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
 				add_action( 'admin_init', array ( $this,  'jetpack_sites_list' ) );
 			}
@@ -112,7 +112,7 @@ class Jetpack_Network {
 	public function do_automatically_add_new_site( $blog_id ) {
 		$this->do_subsiteregister( $blog_id );
 	}
-	
+
 	/**
 	 * Adds .network-admin class to the body tag
 	 * Helps distiguish network admin JP styles from regular site JP styles
@@ -203,7 +203,7 @@ class Jetpack_Network {
 	/**
 	 * Returns various URL strings. Factory like
 	 *
-	 * $args can be a string or an array. 
+	 * $args can be a string or an array.
 	 * If $args is an array there must be an element called name for the switch statement
 	 *
 	 * Currently supports:
@@ -212,13 +212,13 @@ class Jetpack_Network {
 	 * - subsitedisconnect: Pass array( 'name' => 'subsitedisconnect', 'site_id' => SITE_ID )
 	 *
 	 * @since 2.9
-	 * @param Mixed $args 
+	 * @param Mixed $args
 	 * @return String
 	 **/
 	public function get_url( $args ) {
 		$url = null; // Default url value
 
-		if( is_string( $args ) ) 
+		if( is_string( $args ) )
 		$name = $args;
 		else
 		$name = $args['name'];
@@ -239,11 +239,11 @@ class Jetpack_Network {
 			break;
 		case 'subsitedisconnect':
 			if( !isset( $args['site_id'] ) ) {
-			break; // If there is not a site id present we cannot go further      
+			break; // If there is not a site id present we cannot go further
 			}
-			$url = network_admin_url(  
-			'admin.php?page=jetpack&action=subsitedisconnect&site_id='   
-			. $args['site_id'] ); 
+			$url = network_admin_url(
+			'admin.php?page=jetpack&action=subsitedisconnect&site_id='
+			. $args['site_id'] );
 			break;
 		}
 		return $url;
@@ -256,11 +256,11 @@ class Jetpack_Network {
 	 */
 	public function add_network_admin_menu() {
 		add_action( 'admin_print_styles', array( $this, 'network_admin_styles' ) );
-		
+
 		add_menu_page(__('Jetpack', 'jetpack'), __('Jetpack', 'jetpack'), 'read', 'jetpack', array($this, 'network_admin_page'), 'div', 3);
 		add_submenu_page('jetpack', __('Jetpack Sites', 'jetpack'), __('Sites', 'jetpack'), 'manage_options', 'jetpack', array($this, 'network_admin_page'));
 		add_submenu_page('jetpack', __('Settings', 'jetpack'), __('Settings', 'jetpack'), 'read', 'jetpack-settings', array($this, 'render_network_admin_settings_page'));
-		
+
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
 		 * the hook may have already fired by this point.
@@ -270,60 +270,22 @@ class Jetpack_Network {
 		jetpack_register_genericons();
 
 		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) )
-			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons/jetpack-icons.css', __FILE__ ), false, JETPACK__VERSION );
-		
+			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons.min.css', __FILE__ ), false, JETPACK__VERSION );
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 	}
-	
+
 	 /**
 	 * Adds JP menu icon
 	 *
 	 * @since 2.9
 	 **/
 	 function admin_menu_css() {
-		// Make sure we're working off a clean version.
-		include( ABSPATH . WPINC . '/version.php' );
-		if ( version_compare( $wp_version, '3.8-alpha', '>=' ) ) {
-			wp_enqueue_style( 'jetpack-icons' );
-			$css = "
-				#toplevel_page_jetpack .wp-menu-image:before {
-					font-family: 'Jetpack' !important;
-					content: '\\e600';
-				}
-				#menu-posts-feedback .wp-menu-image:before {
-					font-family: dashicons !important;
-					content: '\\f175';
-				}
-				#adminmenu #menu-posts-feedback div.wp-menu-image {
-					background: none !important;
-					background-repeat: no-repeat;
-				}";
-		} else {
-			$css = "
-				#toplevel_page_jetpack .wp-menu-image {
-					background: url( " . plugins_url( '_inc/images/menuicon-sprite.png', __FILE__ ) . " ) 0 90% no-repeat;
-				}
-				/* Retina Jetpack Menu Icon */
-				@media  only screen and (-moz-min-device-pixel-ratio: 1.5),
-						only screen and (-o-min-device-pixel-ratio: 3/2),
-						only screen and (-webkit-min-device-pixel-ratio: 1.5),
-						only screen and (min-device-pixel-ratio: 1.5) {
-					#toplevel_page_jetpack .wp-menu-image {
-						background: url( " . plugins_url( '_inc/images/menuicon-sprite-2x.png', __FILE__ ) . " ) 0 90% no-repeat;
-						background-size:30px 64px;
-					}
-				}
-				#toplevel_page_jetpack.current .wp-menu-image,
-				#toplevel_page_jetpack.wp-has-current-submenu .wp-menu-image,
-				#toplevel_page_jetpack:hover .wp-menu-image {
-					background-position: top left;
-				}";
-		}
-		wp_add_inline_style( 'wp-admin', $css );
+		wp_enqueue_style( 'jetpack-icons' );
 	}
 
 	/**
-	 * Provides functionality for the Jetpack > Sites page. 
+	 * Provides functionality for the Jetpack > Sites page.
 	 * Does not do the display!
 	 *
 	 * @since 2.9
@@ -338,7 +300,7 @@ class Jetpack_Network {
 					 * @todo check_admin_referer( 'jetpack-subsite-register' );
 					 */
 					Jetpack::log( 'subsiteregister' );
-					 
+
 					// If !$_GET['site_id'] stop registration and error
 					if( !isset( $_GET['site_id'] ) || empty( $_GET['site_id'] ) ) {
 					   // Log error to state cookie for display later
@@ -352,19 +314,19 @@ class Jetpack_Network {
 					// Send data to register endpoint and retrieve shadow blog details
 					$result = $this->do_subsiteregister();
 					$url = $this->get_url( 'network_admin_page' );
-					if( is_wp_error( $result ) ) {		
+					if( is_wp_error( $result ) ) {
 						$url = add_query_arg( 'action', 'connection_failed', $url );
 					} else {
 						$url = add_query_arg( 'action', 'connected', $url );
 					}
-					
+
 					wp_safe_redirect( $url );
 					break;
 				case 'subsitedisconnect':
 					Jetpack::log( 'subsitedisconnect' );
 
-					if( !isset( $_GET['site_id'] ) || empty( $_GET['site_id'] ) ) {    
-						Jetpack::state( 'missing_site_id', 'Site ID must be provided to disconnect a sub-site' );   
+					if( !isset( $_GET['site_id'] ) || empty( $_GET['site_id'] ) ) {
+						Jetpack::state( 'missing_site_id', 'Site ID must be provided to disconnect a sub-site' );
 						break;
 					}
 
@@ -379,7 +341,7 @@ class Jetpack_Network {
 	}
 
 	public function show_jetpack_notice() {
-		
+
 		if( isset( $_GET['action'] ) && 'connected' == $_GET['action'] ) {
 			$notice = 'Blog successfully connected';
 		} else if( isset( $_GET['action'] ) && 'connection_failed' == $_GET['action'] )	{
@@ -413,11 +375,11 @@ class Jetpack_Network {
 		$jp = Jetpack::init();
 
 		// Figure out what site we are working on
-		$site_id = ( is_null( $site_id ) ) ? $_GET['site_id']: $site_id; 
+		$site_id = ( is_null( $site_id ) ) ? $_GET['site_id']: $site_id;
 
 		// Build secrets to sent to wpcom for verification
 		$secrets = $jp->generate_secrets();
-		
+
 		// Remote query timeout limit
 		$timeout = $jp->get_remote_query_timeout_limit();
 
@@ -430,21 +392,21 @@ class Jetpack_Network {
 		 * works for an idividual site and pass in some extra data here
 		 */
 		switch_to_blog( $site_id );
-	   
+
 		// Save the secrets in the subsite so when the wpcom server does a pingback it
 		// will be able to validate the connection
-		Jetpack_Options::update_option( 'register', 
-		$secrets[0] . ':' .$secrets[1]. ':' . $secrets[2] 
+		Jetpack_Options::update_option( 'register',
+		$secrets[0] . ':' .$secrets[1]. ':' . $secrets[2]
 		);
 
 		// Gra info for gmt offset
-		$gmt_offset = get_option( 'gmt_offset' ); 
-		if ( ! $gmt_offset ) { 
+		$gmt_offset = get_option( 'gmt_offset' );
+		if ( ! $gmt_offset ) {
 		$gmt_offset = 0;
 		}
 
 		/*
-		 * Get the stats_option option from the db. 
+		 * Get the stats_option option from the db.
 		 * It looks like the server strips this out so maybe it is not necessary?
 		 * Does it match the Jetpack site with the old stats plugin id?
 		 *
@@ -456,7 +418,7 @@ class Jetpack_Network {
 		'method'  => 'POST',
 		'body'    => array(
 			'network_url'     => $this->get_url( 'network_admin_page' ),
-			'network_wpcom_blog_id' => $network_wpcom_blog_id, 
+			'network_wpcom_blog_id' => $network_wpcom_blog_id,
 			'siteurl'         => site_url(),
 			'home'            => home_url(),
 			'gmt_offset'      => $gmt_offset,
@@ -474,26 +436,26 @@ class Jetpack_Network {
 		),
 		'timeout' => $timeout,
 		);
-		
+
 		// Attempt to retrieve shadow blog details
 		$response = Jetpack_Client::_wp_remote_request(
-			Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'subsiteregister' ) ), $args, true 
+			Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'subsiteregister' ) ), $args, true
 		);
-		
+
 		/*
 		 * $response should either be invalid or contain:
 		 * - jetpack_id	=> id
 		 * - jetpack_secret => blog_token
-		 * - jetpack_public 
+		 * - jetpack_public
 		 *
 		 * Store the wpcom site details
 		 */
 		$valid_response = $jp->validate_remote_register_response( $response );
-		
+
 		if( is_wp_error( $valid_response ) || !$valid_response ) {
 			return $valid_response;
 		}
-		
+
 		// Grab the response values to work with
 		$code   = wp_remote_retrieve_response_code( $response );
 		$entity = wp_remote_retrieve_body( $response );
@@ -501,7 +463,7 @@ class Jetpack_Network {
 			$json = json_decode( $entity );
 		else
 			$json = false;
-		
+
 		if ( empty( $json->jetpack_secret ) || ! is_string( $json->jetpack_secret ) )
 		return new Jetpack_Error( 'jetpack_secret', '', $code );
 
@@ -510,7 +472,7 @@ class Jetpack_Network {
 		} else {
 			$jetpack_public = false;
 		}
-		
+
 		Jetpack_Options::update_options(
 		array(
 			'id'         => (int)    $json->jetpack_id,
@@ -518,20 +480,20 @@ class Jetpack_Network {
 			'public'     => $jetpack_public,
 		)
 		);
-		
+
 		/*
 		 * Update the subsiteregister method on wpcom so that it also sends back the
 		 * token in this same request
 		 */
-		$is_master_user = ! Jetpack::is_active(); 
-		Jetpack::update_user_token( 
-			get_current_user_id(), 
-			sprintf( 
-			'%s.%d', 
-			$json->token->secret, 
-			get_current_user_id() 
-			), 
-			$is_master_user 
+		$is_master_user = ! Jetpack::is_active();
+		Jetpack::update_user_token(
+			get_current_user_id(),
+			sprintf(
+			'%s.%d',
+			$json->token->secret,
+			get_current_user_id()
+			),
+			$is_master_user
 		);
 
 		Jetpack::activate_default_modules();
@@ -561,28 +523,28 @@ class Jetpack_Network {
 	function network_admin_page() {
 		global $current_site;
 		$this->network_admin_page_header();
-	
+
 			$jp = Jetpack::init();
 
 			// We should be, but ensure we are on the main blog
 			switch_to_blog( $current_site->blog_id );
-			$main_active = $jp->is_active(); 
+			$main_active = $jp->is_active();
 			restore_current_blog();
-	
+
 			/*
-			 * Ensure the main blog is connected as all other subsite blog 
+			 * Ensure the main blog is connected as all other subsite blog
 			 * connections will feed off this one
 			 */
-			if( !$main_active ) { 
+			if( !$main_active ) {
 				$url = $this->get_url( array(
-				'name'      => 'subsiteregister', 
+				'name'      => 'subsiteregister',
 				'site_id'   => 1,
 				) );
 				$data = array( 'url' => $jp->build_connect_url() );
 				Jetpack::init()->load_view( 'admin/must-connect-main-blog.php', $data );
 				return;
 			}
-			
+
 			require_once( 'class.jetpack-network-sites-list-table.php' );
 			$myListTable = new Jetpack_Network_Sites_List_Table();
 			echo '<div class="wrap"><h2>' . __('Sites', 'jetpack') . '</h2>';
@@ -590,10 +552,10 @@ class Jetpack_Network {
 			$myListTable->prepare_items();
 			$myListTable->display();
 			echo '</form></div>';
-		
+
 		$this->network_admin_page_footer();
 	}
-	
+
 	/**
 	 * Stylized JP header formatting
 	 *
@@ -609,7 +571,7 @@ class Jetpack_Network {
 		);
 		Jetpack::init()->load_view( 'admin/network-admin-header.php', $data );
 	}
-	
+
 	/**
 	 * Stylized JP footer formatting
 	 *
@@ -672,7 +634,7 @@ class Jetpack_Network {
 			$module['module'] = $slug;
 			$modules[] = $module;
 		}
-		
+
 		usort( $modules, array( 'Jetpack', 'sort_modules' ) );
 
 		if( !isset( $options['modules'] ) ) {
@@ -683,7 +645,7 @@ class Jetpack_Network {
 			'modules' => $modules,
 			'options' => $options
 		);
-	
+
 		Jetpack::init()->load_view( 'admin/network-settings.php', $data );
 		$this->network_admin_page_footer();
 	}
@@ -763,11 +725,11 @@ class Jetpack_Network {
 		if (isset($args['deleted']))
 			$query .= $wpdb->prepare("AND deleted = %s ", $args['deleted']);
 
-		if( isset( $args['exclude_blogs'] ) ) 
+		if( isset( $args['exclude_blogs'] ) )
 			$query .= "AND blog_id NOT IN (" . implode( ',', $args['exclude_blogs'] ) . ")";
-		
+
 		$key = 'wp_get_sites:' . md5($query);
-		
+
 		if (!$site_results = wp_cache_get($key, 'site-id-cache')) {
 			$site_results = (array) $wpdb->get_results($query);
 			wp_cache_set($key, $site_results, 'site-id-cache');
