@@ -127,7 +127,7 @@ msgid "Upload and host video right on your site. (Subscription required.)"
 msgstr "Lade Videos hoch und hoste sie auf deiner Seite (Abonnement erforderlich). "
 
 msgid "Specify which widgets appear on which pages of your site."
-msgstr "Lege fest welche Widgets auf welcher Seite deiner Website eingeblendet werden."
+msgstr "Lege fest welche Widgets auf welcher Seite deiner Webseite eingeblendet werden."
 
 #: modules/module-info.php:950
 msgid "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage."
@@ -155,7 +155,7 @@ msgstr "Beispiel:"
 
 #: modules/verification-tools/blog-verification-tools.php:116
 msgid "Website Verification Services"
-msgstr "Website Verifizierungsdienste"
+msgstr "Webseiten-Verifizierungsdienste"
 
 #: modules/verification-tools/blog-verification-tools.php:117
 msgid "Enter your meta key \"content\" value to verify your blog with %s"
@@ -187,7 +187,7 @@ msgstr "Diese Einstellungen betreffen alle Seiten des Netzwerks."
 
 #: views/admin/network-settings.php:17
 msgid "Sub-site override"
-msgstr "Sub-Site überschreiben"
+msgstr "Unterseiten überschreiben"
 
 #: views/admin/network-settings.php:20
 msgid "Allow individual site administrators to manage their own connections (connect and disconnect) to <a href=\"//wordpress.com\">WordPress.com</a>"
@@ -543,7 +543,7 @@ msgstr "Tools zur Seitenverifizierung"
 
 #: modules/module-info.php:949
 msgid "Use these tools to verify that you own/control your website with other external services like Google, Bing and Pinterest."
-msgstr "Verwende diese Tools, um mit anderen externen Diensten wie Google, Bing und Pinterest zu bestätigen, dass die Website dir gehört/du die sie kontrollierst."
+msgstr "Verwende diese Tools, um mit anderen externen Diensten wie Google, Bing und Pinterest zu bestätigen, dass die Webseite dir gehört/du die sie kontrollierst."
 
 #: _inc/footer.php:10 class.jetpack-admin.php:310
 msgid "Connect to Get Started"
