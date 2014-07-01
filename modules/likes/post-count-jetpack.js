@@ -7,7 +7,7 @@ var wpPostLikeCount = wpPostLikeCount || {};
 			return $.ajax( {
 				type: 'GET',
 				url: wpPostLikeCount.jsonAPIbase + options.path,
-				dataType : "jsonp",
+				dataType : 'jsonp',
 				data: options.data,
 				success: function( response ) { options.success( response ); },
 				error: function( response ) { options.error( response ); }
