@@ -1,3 +1,6 @@
+/* jshint onevar: false, smarttabs: true, devel: true */
+/* global Jetpack_Comics_Options */
+
 jQuery( function ( $ ) {
 	/**
 	 * Enable front-end uploading of images for Comics users.
@@ -48,7 +51,7 @@ jQuery( function ( $ ) {
 			$( 'body' ).addClass( 'dragging' );
 		},
 
-		onDragLeave: function ( event ) {
+		onDragLeave: function ( /*event*/ ) {
 			clearTimeout( Jetpack_Comics.dragTimeout );
 
 			// In Chrome, the screen flickers because we're moving the drop zone in front of 'body'
@@ -70,7 +73,7 @@ jQuery( function ( $ ) {
 
 			$( 'body' ).removeClass( 'dragging' );
 
-			if ( files.length == 0 ) {
+			if ( files.length === 0 ) {
 				alert( Jetpack_Comics_Options.labels.invalidUpload );
 				return;
 			}
@@ -108,7 +111,7 @@ jQuery( function ( $ ) {
 					$( 'body' ).removeClass( 'uploading' );
 				}
 			} )
-			.fail( function ( req ) {
+			.fail( function ( /*req*/ ) {
 				alert( Jetpack_Comics_Options.labels.error );
 			} );
 		}
