@@ -91,6 +91,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	var $custom_fields_filtering = false;
 
+	/**
+	 * @var bool Set to true if the endpoint accepts all cross origin requests
+	 *    You probably should not set this flag. If you are thinking of setting it, 
+	 *    then discuss it with someone: 
+	 *       http://operationapi.wordpress.com/2014/06/25/patch-allowing-endpoints-to-do-cross-origin-requests/
+	 */
+	var $allow_cross_origin_request = false;
+
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'           => false,
@@ -114,6 +122,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'pass_wpcom_user_details' => false,
 			'can_use_user_details_instead_of_blog_membership' => false,
 			'custom_fields_filtering' => false,
+			'allow_cross_origin_request' => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -135,6 +144,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
 		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
+
+		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
 
 		$this->version     = $args['version'];
 
