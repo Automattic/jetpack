@@ -390,7 +390,7 @@ function stats_reports_page() {
 <a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without Javascript', 'jetpack' ); ?></a>.</p>
 </div>
 <?php
-		return;
+			return;
 	}
 
 	$day = isset( $_GET['day'] ) && preg_match( '/^\d{4}-\d{2}-\d{2}$/', $_GET['day'] ) ? $_GET['day'] : false;
@@ -443,7 +443,7 @@ function stats_reports_page() {
 		} elseif ( $vals == 'data' ) {
 			if ( substr( $_REQUEST[$var], 0, 9 ) == 'index.php' )
 				$q[$var] = $_REQUEST[$var];
-		}
+			}
 	}
 
 	if ( isset( $_GET['chart'] ) ) {
@@ -459,55 +459,32 @@ function stats_reports_page() {
 	$timeout = 90;
 	$user_id = JETPACK_MASTER_USER; // means send the wp.com user_id
 
-		Jetpack::load_xml_rpc_client();
-		$xml = new Jetpack_IXR_Client();
-		$xml->query( 'jetpack.stats.adminBarChart' );
-		if( $xml->isError() ) {
-			error_log( 'xmlrpc error' );
-			error_log( $xml->get_jetpack_error()->get_error_message() );
-		} else {
-			error_log( $xml->getResponse() );
-		}
-		error_log( 'Did query to wpcom: ' . JETPACK__API_BASE );
-	return;
-
-		if( !file_exists( JETPACK__PLUGIN_DIR . 'stats.png' ) ) {
-			$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
-			$get_code = wp_remote_retrieve_response_code( $get );
-			if ( is_wp_error( $get ) || ( 2 != intval( $get_code / 100 ) && 304 != $get_code ) || empty( $get['body'] ) ) {
-				stats_print_wp_remote_error( $get, $url );
-			} else {
-				if ( !empty( $get['headers']['content-type'] ) ) {
-					$type = $get['headers']['content-type'];
-					if ( substr( $type, 0, 5 ) == 'image' ) {
-						$img = $get['body'];
-						header( 'Content-Type: ' . $type );
-						header( 'Content-Length: ' . strlen( $img ) );
-						file_put_contents( JETPACK__PLUGIN_DIR . 'stats.png', $img );
-						echo $img;
-						error_log( 'Show img: ' . $img );
-						die();
-					}
-				}
-				error_log( 'Got to converts' );
-				$body = stats_convert_post_titles( $get['body'] );
-				$body = stats_convert_chart_urls( $body );
-				$body = stats_convert_image_urls( $body );
-				$body = stats_convert_admin_urls( $body );
-				echo $body;
+	$get = Jetpack_Client::remote_request( compact( 'url', 'method', 'timeout', 'user_id' ) );
+	$get_code = wp_remote_retrieve_response_code( $get );
+	if ( is_wp_error( $get ) || ( 2 != intval( $get_code / 100 ) && 304 != $get_code ) || empty( $get['body'] ) ) {
+		stats_print_wp_remote_error( $get, $url );
+	} else {
+		if ( !empty( $get['headers']['content-type'] ) ) {
+			$type = $get['headers']['content-type'];
+			if ( substr( $type, 0, 5 ) == 'image' ) {
+				$img = $get['body'];
+				header( 'Content-Type: ' . $type );
+				header( 'Content-Length: ' . strlen( $img ) );
+				echo $img;
+				die();
 			}
-
-		} else {
-			$img = JETPACK__PLUGIN_DIR . 'stats.png';
-			error_log( 'From transient: ' . $img );
-						header( 'Content-Type: image/png'  );
-						header( 'Content-Length: ' .filesize( $img ) );
-						readfile( $img );
 		}
 
-		if ( isset( $_GET['noheader'] ) )
-			die;
+		$body = stats_convert_post_titles( $get['body'] );
+		$body = stats_convert_chart_urls( $body );
+		$body = stats_convert_image_urls( $body );
+		$body = stats_convert_admin_urls( $body );
+		echo $body;
 	}
+
+	if ( isset( $_GET['noheader'] ) )
+		die;
+}
 
 	function stats_convert_admin_urls( $html ) {
 		return str_replace( 'index.php?page=stats', 'admin.php?page=stats', $html );
