@@ -3520,6 +3520,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
  		'post_count'        => '(int) The number of posts the site has',
         'subscribers_count' => '(int) The number of subscribers the site has',
 		'lang'              => '(string) Primary language code of the site',
+		'icon'              => '(array) An array of icon formats for the site',
 		'visible'           => '(bool) If this site is visible in the user\'s site list',
 		'is_private'        => '(bool) If the site is a private site or not',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
@@ -3622,6 +3623,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'lang' :
 				if ( $is_user_logged_in )
 					$response[$key] = (string) get_bloginfo( 'language' );
+				break;
+			case 'icon' :
+				if ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
+					$domain = blavatar_domain( home_url() );
+					if ( blavatar_exists( $domain ) )
+						$response[$key] = array(
+							'img' => (string) remove_query_arg( 's', blavatar_url( $domain, 'img' ) ),
+							'ico' => (string) remove_query_arg( 's', blavatar_url( $domain, 'ico' ) ),
+						);
+				}
 				break;
             case 'subscribers_count' :
 				if ( function_exists( 'wpcom_subs_total_wpcom_subscribers' ) ) {
