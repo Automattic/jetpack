@@ -85,6 +85,9 @@ class VaultPress_Hotfixes {
 
 		// Protect All-in-one SEO from non-authorized users making changes, and script injection attacks.          
 		add_action( 'wp_ajax_aioseop_ajax_save_meta', array( $this, 'protect_aioseo_ajax' ), 1 );
+
+		// Protect The MailPoet plugin (wysija-newsletters) from remote file upload. Affects versions <= 2.6.6
+		add_action( 'admin_init', array( $this , 'protect_wysija_newsletters_verify_capability' ), 1 );
 	}
 
 	function disable_jetpack_xmlrpc_methods_293( $jetpack_methods, $core_methods, $user = false ) {
@@ -574,6 +577,45 @@ EOD;
 		// Strip tags from the metadata value.
 		$_POST['new_meta'] = strip_tags( $_POST['new_meta'] );
 	}
+
+	// Protect The MailPoet plugin (wysija-newsletters) from remote file upload. Affects versions <= 2.6.6
+	function protect_wysija_newsletters_verify_capability() {
+		if ( !class_exists( 'WYSIJA_object' ) )
+			return true;
+		if ( version_compare( WYSIJA::get_version(), '2.6.7', '>=' ) )
+			return true;
+		if ( !defined( 'DOING_AJAX' ) && !defined( 'WYSIJA_ITF' ) )
+			return true;
+        if( isset( $_REQUEST['page'] ) && substr( $_REQUEST['page'] ,0 ,7 ) == 'wysija_' ){
+
+            switch( $_REQUEST['page'] ){
+                case 'wysija_campaigns':
+                    $role_needed = 'wysija_newsletters';
+                    break;
+                case 'wysija_subscribers':
+                    $role_needed = 'wysija_subscribers';
+                    break;
+                case 'wysija_config':
+                    $role_needed = 'wysija_config';
+                    break;
+                case 'wysija_statistics':
+                    $role_needed = 'wysija_stats_dashboard';
+                    break;
+                default:
+                    $role_needed = 'switch_themes';
+            }
+
+            if( current_user_can( $role_needed ) ){
+                return true;
+            } else{
+                die( 'You are not allowed here.' );
+            }
+
+        }else{
+            // this is not a wysija interface/action we can let it pass
+            return true;
+        }
+    }
 }
 
 global $wp_version;
