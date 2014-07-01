@@ -684,7 +684,6 @@ class Jetpack_JSON_API_GET_Update_Data extends WPCOM_JSON_API_Endpoint {
 
 	// GET /sites/%s/updates
 	public function callback( $path = '', $_blog_id = 0 ) {
-		error_log( print_r( wp_get_update_data(), 1 ) );
 		if ( is_wp_error( $error = $this->validate_call( $_blog_id ) ) ) {
 			return $error;
 		}
