@@ -27,7 +27,7 @@ jQuery( function ( $ ) {
 		},
 
 		/**
-	 	 * Only upload image files.
+		 * Only upload image files.
 		 */
 		filterImageFiles : function ( files ) {
 			var validFiles = [];
