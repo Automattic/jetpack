@@ -13,5 +13,4 @@ modules/shortcodes/js/jquery.cycle.js
 todo:
 modules/gplus-authorship/admin/connect.js
 modules/infinite-scroll/infinity.js
-modules/sharedaddy/admin-sharing.js
 modules/sharedaddy/sharing.js
