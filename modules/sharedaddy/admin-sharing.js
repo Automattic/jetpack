@@ -1,6 +1,5 @@
 /* jshint onevar: false, smarttabs: true */
 /* global sharing_loading_icon */
-/* exported sharing_option_changed */
 
 (function($) {
 	$( document ).ready(function() {
@@ -134,7 +133,7 @@
 
 		}
 
-		function sharing_option_changed() { // jshint ignore:line
+		window.sharing_option_changed = function() {
 			var item = this;
 
 			// Loading icon
@@ -166,7 +165,7 @@
 				return false;
 			}
 			return true;
-		}
+		};
 
 		function showExtraOptions( service ) {
 			jQuery( '.' + service + '-extra-options' ).css( { backgroundColor: '#ffffcc' } ).fadeIn();

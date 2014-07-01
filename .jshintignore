@@ -10,7 +10,9 @@ modules/shortcodes/js/jmpress.js
 modules/shortcodes/js/jmpress.min.js
 modules/shortcodes/js/jquery.cycle.js
 
-todo:
+needs to be merged first:
 modules/gplus-authorship/admin/connect.js
+
+todo:
 modules/infinite-scroll/infinity.js
 modules/sharedaddy/sharing.js
