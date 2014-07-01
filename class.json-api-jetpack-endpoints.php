@@ -738,13 +738,24 @@ class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_E
 
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
+		// clear cache
+		wp_clean_plugins_cache();
+		wp_update_plugins(); // Check for Plugin updates
+
 		$skin = new Automatic_Upgrader_Skin();
+		// The Automatic_Upgrader_Skin skin shouldn't output anything.
 		$upgrader = new Plugin_Upgrader( $skin );
+		$upgrader->init();
+
+		// unhook this functions that output things before we send our response header.
+		remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
+		remove_action( 'upgrader_process_complete', 'wp_version_check' );
+		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
 		$result = $upgrader->upgrade( $plugin_file );
 
 		if ( ! $result ) {
-			return new WP_Error( 'plugin_active', 'The Plugin is already up to date', 404 );
+			return new WP_Error( 'plugin_up_to_date', 'The Plugin is already up to date', 404 );
 		}
 		if ( is_wp_error( $result) ) {
 			return $result;
