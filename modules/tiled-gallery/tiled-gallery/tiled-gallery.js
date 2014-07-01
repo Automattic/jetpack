@@ -1,3 +1,5 @@
+/* jshint onevar:false, smarttabs:true */
+
 ( function($) {
 
 	function TiledGalleryCollection() {
@@ -53,12 +55,12 @@
 
 	TiledGallery.prototype.getExtraDimension = function( el, attribute, mode ) {
 		if ( mode === 'horizontal' ) {
-			var left = ( attribute == 'border' ) ? 'borderLeftWidth' : attribute + 'Left';
-			var right = ( attribute == 'border' ) ? 'borderRightWidth' : attribute + 'Right';
+			var left = ( attribute === 'border' ) ? 'borderLeftWidth' : attribute + 'Left';
+			var right = ( attribute === 'border' ) ? 'borderRightWidth' : attribute + 'Right';
 			return ( parseInt( el.css( left ), 10 ) || 0 ) +  ( parseInt( el.css( right ), 10 ) || 0 );
 		} else if ( mode === 'vertical' ) {
-			var top = ( attribute == 'border' ) ? 'borderTopWidth' : attribute + 'Top';
-			var bottom = ( attribute == 'border' ) ? 'borderBottomWidth' : attribute + 'Bottom';
+			var top = ( attribute === 'border' ) ? 'borderTopWidth' : attribute + 'Top';
+			var bottom = ( attribute === 'border' ) ? 'borderBottomWidth' : attribute + 'Bottom';
 			return ( parseInt( el.css( top ), 10 ) || 0 ) + ( parseInt( el.css( bottom ), 10 ) || 0 );
 		} else {
 			return 0;
@@ -109,13 +111,17 @@
 
 		function handleFrame() {
 			tiledGalleries.resizeAll();
-			if ( resizing ) requestAnimationFrame( handleFrame );
+			if ( resizing ) {
+				requestAnimationFrame( handleFrame );
+			}
 		}
 
 		$( window ).resize( function() {
 			clearTimeout( resizeTimeout );
 
-			if ( ! resizing ) requestAnimationFrame( handleFrame );
+			if ( ! resizing ) {
+				requestAnimationFrame( handleFrame );
+			}
 			resizing = true;
 			resizeTimeout = setTimeout( function() {
 				resizing = false;

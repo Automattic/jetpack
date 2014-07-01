@@ -13,10 +13,7 @@ modules/shortcodes/js/jquery.cycle.js
 todo:
 modules/gplus-authorship/admin/connect.js
 modules/infinite-scroll/infinity.js
-modules/publicize/assets/publicize.js
 modules/sharedaddy/admin-sharing.js
 modules/sharedaddy/sharing.js
-modules/shortcodes/js/main.js
-modules/tiled-gallery/tiled-gallery/tiled-gallery.js
 modules/videopress/videopress-admin.js
 modules/widgets/gallery/js/admin.js
