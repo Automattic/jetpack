@@ -91,6 +91,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	var $custom_fields_filtering = false;
 
+	/**
+	 * @var bool Set to true if the endpoint accepts all cross origin requests
+	 *    You probably should not set this flag. If you are thinking of setting it, 
+	 *    then discuss it with someone: 
+	 *       http://operationapi.wordpress.com/2014/06/25/patch-allowing-endpoints-to-do-cross-origin-requests/
+	 */
+	var $allow_cross_origin_request = false;
+
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'           => false,
@@ -114,6 +122,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'pass_wpcom_user_details' => false,
 			'can_use_user_details_instead_of_blog_membership' => false,
 			'custom_fields_filtering' => false,
+			'allow_cross_origin_request' => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -135,6 +144,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
 		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
+
+		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
 
 		$this->version     = $args['version'];
 
@@ -3520,6 +3531,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
  		'post_count'        => '(int) The number of posts the site has',
         'subscribers_count' => '(int) The number of subscribers the site has',
 		'lang'              => '(string) Primary language code of the site',
+		'icon'              => '(array) An array of icon formats for the site',
 		'visible'           => '(bool) If this site is visible in the user\'s site list',
 		'is_private'        => '(bool) If the site is a private site or not',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
@@ -3622,6 +3634,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'lang' :
 				if ( $is_user_logged_in )
 					$response[$key] = (string) get_bloginfo( 'language' );
+				break;
+			case 'icon' :
+				if ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
+					$domain = blavatar_domain( home_url() );
+					if ( blavatar_exists( $domain ) )
+						$response[$key] = array(
+							'img' => (string) remove_query_arg( 's', blavatar_url( $domain, 'img' ) ),
+							'ico' => (string) remove_query_arg( 's', blavatar_url( $domain, 'ico' ) ),
+						);
+				}
 				break;
             case 'subscribers_count' :
 				if ( function_exists( 'wpcom_subs_total_wpcom_subscribers' ) ) {
