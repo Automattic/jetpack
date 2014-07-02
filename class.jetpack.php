@@ -304,8 +304,12 @@ class Jetpack {
 	 * Constructor.  Initializes WordPress hooks
 	 */
 	private function Jetpack() {
+		/*
+		 * Check for and alert any deprecated hooks
+		 */
+		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-		/**
+		/*
 		 * Do things that should run even in the network admin
 		 * here, before we potentially fail out.
 		 */
@@ -4404,5 +4408,34 @@ p {
 
 		error_log( "Jetpack: Unable to find view file $views_dir$template" );
 		return false;
+	}
+
+	/**
+	 * Throws warnings for deprecated hooks to be removed from Jetpack
+	 */
+	public function deprecated_hooks() {
+		global $wp_filter;
+
+		/*
+		 * Format:
+		 * deprecated_filter_name => replacement_name
+		 *
+		 * If there is no replacement us null for replacement_name
+		 */
+		$deprecated_list = array(
+			'jetpack_bail_on_shortcode' => 'jetpack_shortcodes_to_include',
+		);
+		
+		// This is a silly loop depth. Better way?
+		foreach( $deprecated_list AS $hook => $hook_alt ) {
+			if( in_array( $hook, array_keys( $wp_filter ) ) ) {
+				foreach( $wp_filter[$hook] AS $func => $values ) {
+					foreach( $values AS $hooked ) {
+						_deprecated_function( $hook . ' used for ' . $hooked['function'], null, $hook_alt );
+					}
+				}
+			}
+		}
+
 	}
 }
