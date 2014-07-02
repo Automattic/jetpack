@@ -1267,6 +1267,15 @@ EOPHP;
 
 }
 
+//Temp code while refactoring endpoints
+// production is fun!
+if ( defined( 'REST_API_RESTRUCTURE_ENDPOINTS' ) ) {
+	require_once( __DIR__ . '/json-endpoints.php' );
+}
+
+if ( !defined( 'REST_API_RESTRUCTURE_ENDPOINTS' ) ) {
+
+
 abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	var $post_object_format = array(
 		// explicitly document and cast all output
@@ -5339,3 +5348,5 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 
 // Jetpack Only Endpoints
 require_once dirname( __FILE__ ) . '/class.json-api-jetpack-endpoints.php';
+
+}
