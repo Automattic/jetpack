@@ -296,11 +296,24 @@ class Jetpack_SSO {
 		if( 'login' == $action ) {
 			$wants_to_login = true;
 		}
-
+		
 		return $wants_to_login;
 	}
 
+	private function bypass_login_forward_wpcom() {
+		return apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false );
+	}
+
 	function login_init() {
+		/*
+ 		 * If the user is attempting to logout AND the auto-forward to WordPress.com
+ 		 * login is set then we need to ensure we do not auto-forward the user and get
+ 		 * them stuck in an infinite logout loop.
+ 		 */
+ 		if( isset( $_GET['loggedout'] ) && $this->bypass_login_forward_wpcom() ) {
+ 			add_filter( 'jetpack_remove_login_form', '__return_true' );
+		}
+
 		/*
 		 * Check to see if the site admin wants to automagically forward the user
 		 * to the WordPress.com login page AND  that the request to wp-login.php
@@ -308,7 +321,7 @@ class Jetpack_SSO {
 		 */
 		if(
 			$this->wants_to_login()
-			&& apply_filters( 'jetpack_sso_bypass_login_forward_wpcom', false )
+			&& $this->bypass_login_forward_wpcom()
 		) {
 			add_filter( 'allowed_redirect_hosts', array( $this, 'allowed_redirect_hosts' ) );
 			wp_safe_redirect( $this->build_sso_url() );
@@ -373,8 +386,7 @@ class Jetpack_SSO {
 	 * @return bool
 	 **/
 	private function should_hide_login_form() {
-		return false; /* Until this is implemented properly */
-		return apply_filters( 'jetpack_remove_login_form', get_option( 'jetpack_sso_remove_login_form' ) );
+		return apply_filters( 'jetpack_remove_login_form', get_option( 'jetpack_sso_remove_login_form', false ) );
 	}
 
 	function login_form() {
