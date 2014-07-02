@@ -916,7 +916,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			return '[contact-form]';
 		}
 
-		if ( apply_filters( 'jetpack_bail_on_shortcode', false, 'contact-form' ) || is_feed() ) {
+		if ( is_feed() ) {
 			return '[contact-form]';
 		}
 

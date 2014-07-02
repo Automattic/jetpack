@@ -53,7 +53,7 @@ add_filter( 'pre_kses', 'jetpack_googlemaps_embed_to_short_code' );
  *   [googlemaps https://mapsengine.google.com/map/embed?mid=zbBhkou4wwtE.kUmp8K6QJ7SA&w=640&h=480]
  */
 function jetpack_googlemaps_shortcode( $atts ) {
-	if ( !isset($atts[0]) || apply_filters( 'jetpack_bail_on_shortcode', false, 'googlemaps' ) )
+	if ( !isset($atts[0]) )
 		return '';
 
 	$params = ltrim( $atts[0], '=' );
