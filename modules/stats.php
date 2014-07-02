@@ -1125,6 +1125,10 @@ function stats_get_remote_csv( $url ) {
 
 // rather than parsing the csv and its special cases, we create a new file and do fgetcsv on it.
 function stats_str_getcsv( $csv ) {
+	if ( function_exists( 'str_getcsv' ) ) {
+		$lines = str_getcsv( $csv, "\n" );
+		return array_map( 'str_getcsv', $lines );
+	}
 	if ( !$temp = tmpfile() ) // tmpfile() automatically unlinks
 		return false;
 
