@@ -312,6 +312,7 @@ class Jetpack_SSO {
  		 */
  		if( isset( $_GET['loggedout'] ) && $this->bypass_login_forward_wpcom() ) {
  			add_filter( 'jetpack_remove_login_form', '__return_true' );
+ 			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 		}
 
 		/*
