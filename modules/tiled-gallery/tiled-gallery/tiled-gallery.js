@@ -48,8 +48,8 @@
 
 		// Add hover effects to bring the caption up and down for each item
 		this.gallery.find( '.tiled-gallery-item' ).hover(
-			function() { $( this ).find( '.tiled-gallery-caption' ).slideDown( 'fast' ); },
-			function() { $( this ).find( '.tiled-gallery-caption' ).slideUp( 'fast' ); }
+			function() { $( this ).find( '.tiled-gallery-caption' ).stop(true, true).slideDown( 'fast' ); },
+			function() { $( this ).find( '.tiled-gallery-caption' ).stop(true, true).slideUp( 'fast' ); }
 		);
 	};
 
