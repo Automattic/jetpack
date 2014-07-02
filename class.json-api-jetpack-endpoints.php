@@ -1,11 +1,31 @@
 <?php
 
+/**
+ * Base class for Jetpack Endpoints, has the validate_call helper function.
+ */
+abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
+
+	/**
+	 * Switches to the blog and checks current user capabilities.
+	 * @return bool|WP_Error a WP_Error object or true if things are good.
+	 */
+	protected function validate_call( $_blog_id, $capability ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
+		if ( is_wp_error( $blog_id ) )
+			return $blog_id;
+		if ( ! current_user_can( $capability ) )
+			return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog', 'jetpack' ), $capability ), 403 );
+		return true;
+	}
+
+}
+
 // THEMES
 
 /**
  * Base class for working with themes, has useful helper functions.
  */
-abstract class Jetpack_JSON_API_Themes_Endpoint extends WPCOM_JSON_API_Endpoint {
+abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 
 	/**
@@ -70,11 +90,11 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends WPCOM_JSON_API_Endpoint 
 class Jetpack_JSON_API_Active_Theme_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 	// GET  /sites/%s/themes/mine => current theme
 	// POST /sites/%s/themes/mine => switch theme
-	public function callback( $path = '', $_blog_id = 0  ) {
-		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
+	public function callback( $path = '', $blog_id = 0  ) {
 
-		if ( ! current_user_can( 'switch_themes' ) )
-			return new WP_Error( 'unauthorized', 'This user is not authorized to switch themes on this blog', 403 );
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'switch_themes' ) ) ) {
+			return $error;
+		}
 
 		if ( 'POST' === $this->api->method )
 			return $this->switch_theme();
@@ -177,17 +197,14 @@ class Jetpack_JSON_API_List_Themes_Endpoint extends Jetpack_JSON_API_Themes_Endp
 	protected $show_preview_urls = true;
 
 	// /sites/%s/themes
-	public function callback( $path = '', $_blog_id = 0 ) {
+	public function callback( $path = '', $blog_id = 0 ) {
 		$check = $this->check_query_args();
 		if ( is_wp_error( $check ) )
 			return $check;
 
-		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
-
-		if ( ! current_user_can( 'switch_themes' ) )
-			return new WP_Error( 'unauthorized', 'Only users authorized to switch themes may see this blog\'s themes', 403 );
-		if ( is_wp_error( $blog_id ) )
-			return $blog_id;
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_themes' ) ) ) {
+			return $error;
+		}
 
 		$args = $this->query_args();
 		$themes = wp_get_themes( array(
@@ -240,7 +257,7 @@ new Jetpack_JSON_API_List_Themes_Endpoint( array(
 /**
  * Base class for working with plugins.
  */
-abstract class Jetpack_JSON_API_Plugins_Endpoint extends WPCOM_JSON_API_Endpoint {
+abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected $network_wide = false;
 
@@ -273,14 +290,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends WPCOM_JSON_API_Endpoint
 		return self::format_plugin( $plugin_file, $installed_plugins[ $plugin_file] );
 	}
 
-	protected function validate_call( $_blog_id ) {
-		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
-		if ( is_wp_error( $blog_id ) )
-			return $blog_id;
-		if ( ! current_user_can( 'activate_plugins' ) ) //update_plugins
-			return new WP_Error( 'unauthorized', 'This user is not authorized to activate plugins on this blog', 403 );
-	}
-
 	protected function validate_plugin( $plugin_file ) {
 		if ( is_wp_error( $error = validate_plugin( $plugin_file ) ) ) {
 			return new WP_Error( 'unknown_plugin', $error->get_error_messages(), 404 );
@@ -303,7 +312,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends WPCOM_JSON_API_Endpoint
 class Jetpack_JSON_API_Activate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// POST  /sites/%s/plugins/%s/activate => activate_plugin
 	public function callback( $path = '', $blog_id = 0, $plugin_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'activate_plugins' ) ) ) {
 			return $error;
 		}
 
@@ -370,7 +379,7 @@ new Jetpack_JSON_API_Activate_Plugin_Endpoint( array(
 class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// POST  /sites/%s/plugins/%s/deactivate => deactivate_plugin
 	public function callback( $path = '', $blog_id = 0, $plugin_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'activate_plugins' ) ) ) {
 			return $error;
 		}
 
@@ -438,7 +447,7 @@ class Jetpack_JSON_API_List_Plugins_Endpoint extends Jetpack_JSON_API_Plugins_En
 
 	// /sites/%s/plugins
 	public function callback( $path = '', $_blog_id = 0 ) {
-		if ( is_wp_error( $error = $this->validate_call( $_blog_id ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'update_plugins' ) ) ) {
 			return $error;
 		}
 
@@ -482,7 +491,7 @@ new Jetpack_JSON_API_List_Plugins_Endpoint( array(
 /**
  * Base class for working with Jetpack Modules.
  */
-abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends WPCOM_JSON_API_Endpoint {
+abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected $network_wide = false;
 
@@ -497,29 +506,20 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends WPCOM_JSON_API_
 
 	protected static function get_module( $module_slug ) {
 		if ( ! Jetpack::is_module( $module_slug ) )
-			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found'. $module_slug . serialize($modules )) );
+			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found'. $module_slug ) );
 		return self::format_module( $module_slug );
 	}
-
-	protected function validate_call( $_blog_id ) {
-		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
-		if ( is_wp_error( $blog_id ) )
-			return $blog_id;
-		if ( ! current_user_can( 'jetpack_manage_modules' ) )
-			return new WP_Error( 'unauthorized', 'This user is not authorized to manage modules on this blog', 403 );
-	}
-
 }
 
 
 class Jetpack_JSON_API_Activate_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
 	// POST  /sites/%s/jetpack/modules/%s/activate => activate_module
 	public function callback( $path = '', $blog_id = 0, $module_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'jetpack_manage_modules' ) ) ) {
 			return $error;
 		}
 		if ( ! Jetpack::is_module( $module_slug ) ) {
-			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found' . $module_slug . serialize( $modules ) ) );
+			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found' . $module_slug ) );
 		}
 		return $this->activate_module( $module_slug );
 	}
@@ -574,11 +574,11 @@ new Jetpack_JSON_API_Activate_Module_Endpoint( array(
 class Jetpack_JSON_API_Deactivate_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
 	// POST  /sites/%s/jetpack/modules/%s/deactivate => deactivate_module
 	public function callback( $path = '', $blog_id = 0, $module_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'jetpack_manage_modules' ) ) ) {
 			return $error;
 		}
 		if ( ! Jetpack::is_module( $module_slug ) ) {
-			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found' . $module_slug . serialize( $modules ) ) );
+			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found' . $module_slug ) );
 		}
 		return $this->deactivate_module( $module_slug );
 	}
@@ -634,7 +634,7 @@ class Jetpack_JSON_API_List_Modules_Endpoint extends Jetpack_JSON_API_Jetpack_Mo
 	// /sites/%s/jetpack/modules
 	public function callback( $path = '', $_blog_id = 0 ) {
 
-		if ( is_wp_error( $error = $this->validate_call( $_blog_id ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'jetpack_manage_modules' ) ) ) {
 			return $error;
 		}
 
@@ -672,19 +672,11 @@ new Jetpack_JSON_API_List_Modules_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules'
 ) );
 
-class Jetpack_JSON_API_GET_Update_Data extends WPCOM_JSON_API_Endpoint {
-
-	protected function validate_call( $_blog_id ) {
-		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
-		if ( is_wp_error( $blog_id ) )
-			return $blog_id;
-		if ( ! current_user_can( 'manage_options' ) )
-			return new WP_Error( 'unauthorized', 'This user is not authorized to manage options on this blog', 403 );
-	}
+class Jetpack_JSON_API_GET_Update_Data extends Jetpack_JSON_API_Endpoint {
 
 	// GET /sites/%s/updates
 	public function callback( $path = '', $_blog_id = 0 ) {
-		if ( is_wp_error( $error = $this->validate_call( $_blog_id ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'manage_options' ) ) ) {
 			return $error;
 		}
 		$update_data = wp_get_update_data();
@@ -722,7 +714,7 @@ new Jetpack_JSON_API_GET_Update_Data( array(
 class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// GET  /sites/%s/plugins/%s/update => upgrade_plugin
 	public function callback( $path = '', $blog_id = 0, $plugin_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_plugins' ) ) ) {
 			return $error;
 		}
 
