@@ -1469,7 +1469,7 @@ class Jetpack {
 	}
 
 	function activate_module_actions( $module ) {
-		do_action( "jetpack_activate_module_$module" );
+		do_action( "jetpack_activate_module_$module", $module );
 
 		$this->sync->sync_all_module_options( $module );
 	}
@@ -1480,7 +1480,7 @@ class Jetpack {
 		$active = Jetpack::get_active_modules();
 		$new    = array_filter( array_diff( $active, (array) $module ) );
 
-		do_action( "jetpack_deactivate_module_$module" );
+		do_action( "jetpack_deactivate_module_$module", $module );
 		return Jetpack_Options::update_option( 'active_modules', array_unique( $new ) );
 	}
 
@@ -4411,6 +4411,21 @@ p {
 	}
 
 	/**
+	 * Sends a ping to the Jetpack servers to toggle on/off remote portions
+	 * required by some modules.
+	 *
+	 * @param string $module_slug
+	 */
+	public function toggle_module_on_wpcom( $module_slug ) {
+		Jetpack::init()->sync->register( 'noop' );
+
+		if ( false !== strpos( current_filter(), 'jetpack_activate_module_' ) ) {
+			self::check_privacy( $module_slug );
+		}
+	 
+	}
+
+	/**
 	 * Throws warnings for deprecated hooks to be removed from Jetpack
 	 */
 	public function deprecated_hooks() {
@@ -4436,6 +4451,5 @@ p {
 				}
 			}
 		}
-
 	}
 }

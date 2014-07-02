@@ -9,14 +9,5 @@
  * Module Tags: Writing, Developers
  */
 
-function jetpack_json_api_toggle() {
-	$jetpack = Jetpack::init();
-	$jetpack->sync->register( 'noop' );
-
-	if ( false !== strpos( current_filter(), 'jetpack_activate_module_' ) ) {
-		Jetpack::check_privacy( __FILE__ );
-	}
-}
-
-add_action( 'jetpack_activate_module_json-api',   'jetpack_json_api_toggle' );
-add_action( 'jetpack_deactivate_module_json-api', 'jetpack_json_api_toggle' );
+add_action( 'jetpack_activate_module_json-api',   array( Jetpack::init(), 'toggle_module_on_wpcom' ) );
+add_action( 'jetpack_deactivate_module_json-api', array( Jetpack::init(), 'toggle_module_on_wpcom' ) );
