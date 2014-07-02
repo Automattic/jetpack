@@ -182,7 +182,7 @@ class Jetpack_Widget_Conditions {
 					foreach ( $conditions['rules'] as $rule ) {
 						?>
 						<div class="condition">
-							<div class="alignleft">
+							<div class="selection alignleft">
 								<select class="conditions-rule-major" name="conditions[rules_major][]">
 									<option value="" <?php selected( "", $rule['major'] ); ?>><?php echo esc_html_x( '-- Select --', 'Used as the default option in a dropdown list', 'jetpack' ); ?></option>
 									<option value="category" <?php selected( "category", $rule['major'] ); ?>><?php esc_html_e( 'Category', 'jetpack' ); ?></option>
@@ -198,12 +198,15 @@ class Jetpack_Widget_Conditions {
 								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
 									<?php self::widget_conditions_options_echo( $rule['major'], $rule['minor'] ); ?>
 								</select>
-								<span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
+								
 							</div>
-							<div class="condition-control alignright">
+							<div class="condition-control">
+							 <span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
+							 <div class="actions alignright">
 								<a href="#" class="delete-condition"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a> | <a href="#" class="add-condition"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
+							 </div>
 							</div>
-							<br class="clear" />
+							
 						</div><!-- .condition -->
 						<?php
 					}

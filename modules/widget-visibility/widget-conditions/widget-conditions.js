@@ -2,8 +2,18 @@
 /* global ajaxurl */
 
 jQuery( function( $ ) {
+	var widgets_shell = $( 'div#widgets-right' );
+
+	if( ! widgets_shell.length ) {
+		var widgets_shell = $( 'form#customize-controls' );
+	}
+
 	function setWidgetMargin( $widget ) {
+
 		if ( $( 'body' ).hasClass( 'wp-customizer' ) ) {
+			// set the inside widget 2 top this way we can see the widget settings
+			$widget.find('.widget-inside').css( 'top', 0 );
+		
 			return;
 		}
 
@@ -48,13 +58,15 @@ jQuery( function( $ ) {
 
 	} );
 
-	$( 'div#widgets-right, form#customize-controls' ).on( 'click', 'a.add-condition', function( e ) {
+	widgets_shell.on( 'click', 'a.add-condition', function( e ) {
 		e.preventDefault();
 		var $condition = $( this ).closest( 'div.condition' ),
 			$conditionClone = $condition.clone().insertAfter( $condition );
 		$conditionClone.find( 'select.conditions-rule-major' ).val( '' );
 		$conditionClone.find( 'select.conditions-rule-minor' ).html( '' ).attr( 'disabled' );
-	} ).on( 'click', 'a.display-options', function ( e ) {
+	} );
+
+	widgets_shell.on( 'click', 'a.display-options', function ( e ) {
 		e.preventDefault();
 
 		var $displayOptionsButton = $( this ),
@@ -73,7 +85,7 @@ jQuery( function( $ ) {
 
 	} );
 
-	$( 'div#widgets-right, form#customize-controls' ).on( 'click', 'a.delete-condition', function( e ) {
+	widgets_shell.on( 'click', 'a.delete-condition', function( e ) {
 		e.preventDefault();
 
 		var $condition = $( this ).closest( 'div.condition' );
@@ -84,7 +96,9 @@ jQuery( function( $ ) {
 		} else {
 			$condition.detach();
 		}
-	} ).on( 'click', 'div.widget-top', function() {
+	} )
+
+	widgets_shell.on( 'click', 'div.widget-top', function() {
 		var $widget = $( this ).closest( 'div.widget' ),
 			$displayOptionsButton = $widget.find( 'a.display-options' );
 
