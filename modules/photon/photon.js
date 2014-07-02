@@ -1,3 +1,5 @@
+/* jshint onevar: false */
+
 (function($){
 	/**
 	 * For images lacking explicit dimensions and needing them, try to add them.
@@ -10,7 +12,7 @@
 				// Support for lazy loading: if there is a lazy-src
 				// attribute and it's value is not the same as the current src we
 				// should wait until the image load event
-				if ( $this.data( 'lazy-src' ) && $this.attr( 'src' ) != $this.data( 'lazy-src' ) ) {
+				if ( $this.data( 'lazy-src' ) && $this.attr( 'src' ) !== $this.data( 'lazy-src' ) ) {
 					$this.load( recalc );
 					return;
 				}
@@ -45,8 +47,9 @@
 	 */
 	$( document ).ready( restore_dims );
 
-	if ( "on" in $.fn )
+	if ( 'on' in $.fn ) {
 		$( document.body ).on( 'post-load', restore_dims );
-	else
+	} else {
 		$( document ).delegate( 'body', 'post-load', restore_dims );
+	}
 })(jQuery);

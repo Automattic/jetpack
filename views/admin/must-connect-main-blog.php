@@ -8,7 +8,7 @@
 				</h4>
 			</div>
 			<div class="jetpack-install-container">
-				<p class="submit"><a href="<?php echo $url; ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
+				<p class="submit"><a href="<?php echo $data['url']; ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
 			</div>
 		</div>
 	</div>

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-05-15 06:23:35+0000\n"
+"PO-Revision-Date: 2014-06-12 05:46:28+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,28 +11,28 @@ msgstr ""
 "Project-Id-Version: 3.0\n"
 
 msgid "Add images, Twitter streams, your site’s RSS links, and more to your sidebar."
-msgstr ""
+msgstr "تصاویر، جریان‌های توییتر، پیوندهای آراِس‌اِس وب‌گاهتان و چیزهای دیگر را به نوار کناریتان بیفزایید."
 
 #: class.jetpack-admin.php:261
 msgid "View all Jetpack features"
-msgstr ""
+msgstr "دیدن همهٔ ویژگی‌های جت‌پک"
 
 #: class.jetpack-admin.php:262
 msgid "Sorry, no modules were found for the search term \"%s\""
-msgstr ""
+msgstr "پوزش، هیچ پودمانی برای برای جستجوی عبارت «%s» یافت نشد"
 
 #: class.jetpack-admin.php:331
 msgid "Jetpack is in local development mode."
-msgstr ""
+msgstr "جت‌پک در وضعیت توسعهٔ محلی است."
 
 msgid "Transform standard image galleries into full-screen slideshows."
-msgstr ""
+msgstr "تبدیل گالری‌های تصویر استاندارد به نمایش‌های تمام‌پرده."
 
 msgid "Let readers comment with WordPress.com, Twitter, Facebook, or Google+ accounts."
-msgstr ""
+msgstr "به خوانندگان اجازه دهید با حساب‌های وردپرس.کام، توییتر، فیسبوک یا گوگل+ دیدگاهشان را بیان کنند."
 
 msgid "Receive notification of site activity via the admin toolbar and your Mobile devices."
-msgstr ""
+msgstr "دریافت آگاه‌سازی دربارهٔ فعالیت وب‌گاه از راه نوار مدیریت و دستگاه‌های همراهتان."
 
 #: class.jetpack-debugger.php:141
 msgid "Some themes and plugins have <a href=\"%1$s\">known conflicts</a> with Jetpack – check the <a href=\"%2$s\">list</a>. (You can also browse the <a href=\"%3$s\">Jetpack support pages</a> or <a href=\"%4$s\">Jetpack support forum</a> to see if others have experienced and solved the problem.)"
@@ -40,7 +40,7 @@ msgstr "برخی از افزونه‌ها و پوسته‌ها <a href=\"%1$s\">
 
 #: node_modules/grunt-wp-i18n/test/fixtures/basic-theme/exclude/file.php:3
 msgid "Exclude"
-msgstr ""
+msgstr "مگر"
 
 msgid "Check your spelling, style, and grammar with the After the Deadline proofreading service."
 msgstr "املا،‌ سبک و دستور زبان را به کمک خدمت نمونه‌خوانی After the Deadline بررسی کنید."
@@ -70,72 +70,72 @@ msgid "Give visitors an easy way to show their appreciation for your content."
 msgstr "فراهم‌آوردن راهی ساده برای بازدیدکنندگانتان تا بتوانند قدردانی خود را از مطلب شما نشان دهند."
 
 msgid "Write posts or pages in plain-text Markdown syntax."
-msgstr ""
+msgstr "نوشتن نوشته‌ها یا صفحه‌ها در قالب نشانه‌گذاری متن ساده."
 
 msgid "Optimize your site with a mobile-friendly theme for tablets and phones."
-msgstr ""
+msgstr "وب‌گاهتان را با یک پوستهٔ مناسب همراه برای تب‌لت‌ها و تلفن‌ها بهینه سازید."
 
 msgid "Receive notifications from Jetpack if your site goes offline — and when it it returns."
-msgstr ""
+msgstr "هنگام از دسترس خارج شدن وب‌گاهتان — و هنگام بازگشتش — آگاه‌سازی‌هایی از جانب جت‌پک دریافت کنید."
 
 msgid "Search your entire database from a single field in your Dashboard."
-msgstr ""
+msgstr "کل داده‌گان خود را از راه تنها یک زمینه در پیش‌خوانتان جست‌وجو کنید."
 
 msgid "Accelerate your site by loading images from the WordPress.com CDN."
-msgstr ""
+msgstr "وب‌گاه خود را با بارگیری تصاویر از شبکهٔ تحویل محتوای WordPress.com شتاب ببخشید."
 
 msgid "Publish posts by email, using any device and email client."
-msgstr ""
+msgstr "نوشته‌هایتان را از راه رایانامه، با استفاده از هر افزاره و کارخواه رانامهٔ دلخواهتان، منتشر کنید."
 
 msgid "Share new posts on social media networks automatically."
-msgstr ""
+msgstr "نوشته‌های تازهٔ خود را از راه شبکه‌های اجتماعی به صورت خودکار به اشتراک بگذارید."
 
 msgid "Display links to your related content under posts and pages."
-msgstr ""
+msgstr "پیوندهای مطالب مرتبط را در زیر نوشته‌ها و صفحه‌هایتان به نمایش بگذارید."
 
 msgid "Allow visitors to share your content on Facebook, Twitter, and more with a click."
-msgstr ""
+msgstr "به بازدیدکنندگانتان اجازه دهید با یک کلیک مطالبتان را روی فیسبوک، توییتر و جاهای دیگر به اشتراک بگذارند."
 
 msgid "Embed content from YouTube, Vimeo, SlideShare, and more, no coding necessary."
-msgstr ""
+msgstr "جاسازی محتوای یوتیوب، ویمئو، اسلایدشیر، و ...، بدون اینکه نیازی به کدنویسی باشد."
 
 msgid "Enable WP.me-powered shortlinks for all posts and pages."
-msgstr ""
+msgstr "فعال‌سازی پیوندهای کوتاه‌شدهٔ WP.me برای همهٔ‌نوشته‌ها و صفحه‌ها"
 
 msgid "Allow your users to log in using their WordPress.com accounts."
-msgstr ""
+msgstr "به کاربران خود اجازه دهید با حساب وردپرس.کامشان ثبت ورود کنند."
 
 msgid "Monitor your stats with clear, concise reports and no additional load on your server."
-msgstr ""
+msgstr "آمار خود را با گزارش‌هایی شفاف و موجز، بدون اینکه باری بر اضافی دوش کارسازتان باشد نظارت کنید."
 
 msgid "Allow users to subscribe to your posts and comments and receive notifications via email."
-msgstr ""
+msgstr "به کاربرانتان اجازه دهید در نوشته‌ها و دیدگاه‌هایتان مشترک شوند و از راه رایانامه آگاه شوند."
 
 msgid "Display your image galleries in a variety of sleek, graphic arrangements."
-msgstr ""
+msgstr "گالری‌های تصاویر خود را با چیدمان‌های خوش‌فرم متنوع به نمایش بگذارید."
 
 msgid "Protect your site with automatic backups and security scans. (Subscription required.)"
-msgstr ""
+msgstr "وب‌گاه خود را با پشتیبان‌گیری و پویش‌های امنیتی خودکار محافظت کنید. (نیازمند اشتراک.)"
 
 msgid "Site Verification"
-msgstr ""
+msgstr "تأیید وب‌گاه"
 
 msgid "Verify your site or domain with Google Webmaster Tools, Pinterest, and others."
-msgstr ""
+msgstr "وب‌گاه یا دامنهٔ خود را در ابزارهای مدیر وب‌گاه گوگل، پینترست و... تأیید کنید."
 
 msgid "Upload and host video right on your site. (Subscription required.)"
-msgstr ""
+msgstr "فیلم‌ها را یک‌راست روی وب‌گاه خودتان بارگذاری و میزبانی کنید. (نیازمند اشتراک.)"
 
 msgid "Specify which widgets appear on which pages of your site."
-msgstr ""
+msgstr "مشخص کنید که کدام ابزارک‌ها در کدام صفحه‌های وب‌گاهتان به نمایش درمی‌آیند."
 
 #: modules/module-info.php:950
 msgid "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage."
-msgstr ""
+msgstr "تأیید وب‌گاهتان به شما اجازه می‌دهد از ویژگی‌های پیشرفتهٔ این خدمات و خدمات دیگر بهره‌مند شوند (مانند ابزارهای وب‌مستر یا گرفتن نشان تأییدشده). ما تنها یک برچسب نامرئی %s به متن کدهای آغازهٔ شما خواهیم افزود."
 
 #: modules/related-posts/jetpack-related-posts.php:296
 msgid "Use a large and visually striking layout"
-msgstr ""
+msgstr "از یک چیدمان بزرگ و از نظر دیداری برجسته استفاده کنید"
 
 #: modules/related-posts/jetpack-related-posts.php:683
 msgid "Untitled Post"
@@ -143,11 +143,11 @@ msgstr "نوشتهٔ بی‌عنوان"
 
 #: modules/related-posts/jetpack-related-posts.php:894
 msgid "Similar post"
-msgstr ""
+msgstr "نوشته‌های مشابه"
 
 #: modules/sso.php:353
 msgid "Cannot deal with cookie redirects, as headers are already sent."
-msgstr ""
+msgstr "امکان کنارآ«دن با کلوچک‌های تغییرمسیر وجود ندارد زیرا سرایندها از پیش فرستاده شده‌اند."
 
 #: modules/verification-tools/blog-verification-tools.php:90
 msgid "Example:"
@@ -5802,7 +5802,7 @@ msgstr ""
 
 #: modules/shortcodes/slideshow.php:70
 msgid "Image Gallery Slideshow"
-msgstr ""
+msgstr "نمایش پرده‌ای تصاویر گالری"
 
 #: modules/widgets/rsslinks-widget.php:117
 msgid "Purple"

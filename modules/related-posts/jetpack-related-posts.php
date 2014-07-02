@@ -1,6 +1,6 @@
 <?php
 class Jetpack_RelatedPosts {
-	const VERSION = '20140307';
+	const VERSION = '20140611';
 	const SHORTCODE = 'jetpack-related-posts';
 
 	/**
@@ -793,7 +793,13 @@ EOT;
 	 * @return array
 	 */
 	protected function _get_related_posts( $post_id, $size, array $filters ) {
-		$hits = $this->_get_related_post_ids( $post_id, $size, $filters );
+		$hits = $this->_filter_non_public_posts(
+			$this->_get_related_post_ids(
+				$post_id,
+				$size,
+				$filters
+			)
+		);
 
 		$hits = apply_filters( 'jetpack_relatedposts_filter_hits', $hits, $post_id );
 
@@ -810,16 +816,32 @@ EOT;
 	 * @param int $post_id
 	 * @param int $size
 	 * @param array $filters
-	 * @uses wp_remote_post, is_wp_error, wp_remote_retrieve_body
+	 * @uses wp_remote_post, is_wp_error, wp_remote_retrieve_body, get_post_meta, update_post_meta
 	 * @return array
 	 */
 	protected function _get_related_post_ids( $post_id, $size, array $filters ) {
+		$now_ts = time();
+		$cache_meta_key = '_jetpack_related_posts_cache';
+
 		$body = array(
 			'size' => (int) $size,
 		);
 
 		if ( !empty( $filters ) )
 			$body['filter'] = array( 'and' => $filters );
+
+		// Load all cached values
+		$cache = get_post_meta( $post_id, $cache_meta_key, true );
+		if ( empty( $cache ) )
+			$cache = array();
+
+		// Build cache key
+		$cache_key = md5( serialize( $body ) );
+
+		// Cache is valid! Return cacheed value.
+		if ( is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
+			return $cache[ $cache_key ][ 'payload' ];
+		}
 
 		$response = wp_remote_post(
 			"https://public-api.wordpress.com/rest/v1/sites/{$this->_blog_id_wpcom}/posts/$post_id/related/",
@@ -831,6 +853,7 @@ EOT;
 			)
 		);
 
+		// Oh no... return nothing don't cache errors.
 		if ( is_wp_error( $response ) ) {
 			return array();
 		}
@@ -844,7 +867,44 @@ EOT;
 				);
 			}
 		}
+
+		// Copy all valid cache values
+		$new_cache = array();
+		foreach ( $cache as $k => $v ) {
+			if ( is_array( $v ) && $v[ 'expires' ] > $now_ts ) {
+				$new_cache[ $k ] = $v;
+			}
+		}
+
+		// Set new cache value
+		$new_cache[ $cache_key ] = array(
+			'expires' => 12 * HOUR_IN_SECONDS + $now_ts,
+			'payload' => $related_posts,
+		);
+
+		// Update cache
+		update_post_meta( $post_id, $cache_meta_key, $new_cache );
+
 		return $related_posts;
+	}
+
+	/**
+	 * Filter out any hits that are not public anymore.
+	 *
+	 * @param array $related_posts
+	 * @uses get_post_stati, get_post_status
+	 * @return array
+	 */
+	protected function _filter_non_public_posts( array $related_posts ) {
+		$public_stati = get_post_stati( array( 'public' => true ) );
+
+		$filtered = array();
+		foreach ( $related_posts as $hit ) {
+			if ( in_array( get_post_status( $hit['id'] ), $public_stati ) ) {
+				$filtered[] = $hit;
+			}
+		}
+		return $filtered;
 	}
 
 	/**
@@ -1021,7 +1081,13 @@ class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
 	 * @return array
 	 */
 	protected function _get_related_posts( $post_id, $size, array $filters ) {
-		$hits = $this->_get_related_post_ids( $post_id, $size, $filters );
+		$hits = $this->_filter_non_public_posts(
+			$this->_get_related_post_ids(
+				$post_id,
+				$size,
+				$filters
+			)
+		);
 
 		return $hits;
 	}

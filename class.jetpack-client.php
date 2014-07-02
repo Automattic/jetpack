@@ -121,7 +121,6 @@ class Jetpack_Client {
 	 * The option is checked on each request.
 	 *
 	 * @internal
-	 * @todo: Better fallbacks (bundled certs?), feedback, UI, ....
 	 * @see Jetpack::fix_url_for_bad_hosts()
 	 *
 	 * @return array|WP_Error WP HTTP response on success

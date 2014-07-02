@@ -91,6 +91,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 	 */
 	var $custom_fields_filtering = false;
 
+	/**
+	 * @var bool Set to true if the endpoint accepts all cross origin requests
+	 *    You probably should not set this flag. If you are thinking of setting it, 
+	 *    then discuss it with someone: 
+	 *       http://operationapi.wordpress.com/2014/06/25/patch-allowing-endpoints-to-do-cross-origin-requests/
+	 */
+	var $allow_cross_origin_request = false;
+
 	function __construct( $args ) {
 		$defaults = array(
 			'in_testing'           => false,
@@ -114,6 +122,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'pass_wpcom_user_details' => false,
 			'can_use_user_details_instead_of_blog_membership' => false,
 			'custom_fields_filtering' => false,
+			'allow_cross_origin_request' => false,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -135,6 +144,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
 		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
+
+		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
 
 		$this->version     = $args['version'];
 
@@ -446,6 +457,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$docs = array(
 				'ID'   => '(int)',
 				'type' => '(string)',
+				'title' => '(string)',
 				'link' => '(URL)',
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
@@ -1178,16 +1190,32 @@ EOPHP;
 	}
 
 	function is_post_type_allowed( $post_type ) {
-
 		// if the post type is empty, that's fine, WordPress will default to post
 		if ( empty( $post_type ) )
 			return true;
 
-		// whitelist of post types that can be accessed
-		if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'any' ) ) ) )
+		// allow special 'any' type
+		if ( 'any' == $post_type )
+			return true;
+
+		// check for allowed types
+		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) )
 			return true;
 
 		return false;
+	}
+
+	/**
+	 * Gets the whitelisted post types that JP should allow access to.
+	 *
+	 * @return array Whitelisted post types.
+	 */
+	protected function _get_whitelisted_post_types() {
+		$allowed_types = array( 'post', 'page' );
+
+		$allowed_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
+
+		return array_unique( $allowed_types );
 	}
 
 	function handle_media_sideload( $url, $parent_post_id = 0 ) {
@@ -1310,6 +1338,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
  		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ) ) )
 			return true;
 
+		if ( 0 === strpos( $key, '_wpas_' ) )
+			return true;
+
  		return false;
  	}
 
@@ -1416,9 +1447,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'title' :
 				if ( 'display' === $context ) {
-					$response[$key] = (string) get_the_title( $post->ID );
+					$response[$key] = (string) html_entity_decode( get_the_title( $post->ID ) );
 				} else {
-					$response[$key] = (string) $post->post_title;
+					$response[$key] = (string) htmlspecialchars_decode( $post->post_title, ENT_QUOTES );
 				}
 				break;
 			case 'URL' :
@@ -1877,11 +1908,20 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
 		}
 
+		// Normalize post_type
+		if ( 'any' == $args['type'] ) {
+			if ( version_compare( $this->api->version, '1.1', '<' ) ) {
+				$args['type'] = array( 'post', 'page' );
+			} else { // 1.1+
+				$args['type'] = $this->_get_whitelisted_post_types();
+			}
+		}
+
 		$query = array(
 			'posts_per_page' => $args['number'],
 			'order'          => $args['order'],
 			'orderby'        => $args['order_by'],
-			'post_type'      => ( 'any' == $args['type'] ) ? array( 'post', 'page' ) : $args['type'],
+			'post_type'      => $args['type'],
 			'post_status'    => $args['status'],
 			'author'         => isset( $args['author'] ) && 0 < $args['author'] ? $args['author'] : null,
 			's'              => isset( $args['search'] ) ? $args['search'] : null,
@@ -2240,6 +2280,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		$has_media_by_url = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
 
 		if ( $new ) {
+
 			if ( false === strpos( $input['content'], '[gallery' ) && ( $has_media || $has_media_by_url ) ) {
 				switch ( ( $has_media + $has_media_by_url ) ) {
 				case 0 :
@@ -2396,7 +2437,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					// Explode the list on commas, which will also support a single passed ID
 					$requested_connections = explode( ',', ( preg_replace( '/[\s]*/', '', $publicize[ $name ] ) ) );
 					// Get the user's connections and flag the ones we can't match with the requested list to be skipped.
-					$service_connections   = $GLOBALS['publicize_ui']->publicize->get_connectons( $name );
+					$service_connections   = $GLOBALS['publicize_ui']->publicize->get_connections( $name );
 					foreach ( $service_connections as $service_connection ) {
 						if ( !in_array( $service_connection->meta['connection_data']->id, $requested_connections ) ) {
 							update_post_meta( $post_id, $GLOBALS['publicize_ui']->publicize->POST_SKIP . $service_connection->unique_id, 1 );
@@ -2929,6 +2970,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'post' :
 				$response[$key] = (object) array(
 					'ID'   => (int) $post->ID,
+					'title' => (string) get_the_title( $post->ID ),
 					'type' => (string) $post->post_type,
 					'link' => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID ),
 				);
@@ -3489,6 +3531,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
  		'post_count'        => '(int) The number of posts the site has',
         'subscribers_count' => '(int) The number of subscribers the site has',
 		'lang'              => '(string) Primary language code of the site',
+		'icon'              => '(array) An array of icon formats for the site',
 		'visible'           => '(bool) If this site is visible in the user\'s site list',
 		'is_private'        => '(bool) If the site is a private site or not',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
@@ -3592,6 +3635,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( $is_user_logged_in )
 					$response[$key] = (string) get_bloginfo( 'language' );
 				break;
+			case 'icon' :
+				if ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
+					$domain = blavatar_domain( home_url() );
+					if ( blavatar_exists( $domain ) )
+						$response[$key] = array(
+							'img' => (string) remove_query_arg( 's', blavatar_url( $domain, 'img' ) ),
+							'ico' => (string) remove_query_arg( 's', blavatar_url( $domain, 'ico' ) ),
+						);
+				}
+				break;
             case 'subscribers_count' :
 				if ( function_exists( 'wpcom_subs_total_wpcom_subscribers' ) ) {
 					$total_wpcom_subs = wpcom_subs_total_wpcom_subscribers(
@@ -3657,8 +3710,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'post_formats'            => $supported_formats,
 					'default_likes_enabled'   => (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) ),
 					'default_sharing_status'  => (bool) $default_sharing_status,
-					'default_comment_status'  => (bool) get_option( 'default_comment_status' ),
-					'default_ping_status'     => (bool) get_option( 'default_ping_status' ),
+					'default_comment_status'  => ( 'closed' == get_option( 'default_comment_status' ) ? false : true ),
+					'default_ping_status'     => ( 'closed' == get_option( 'default_ping_status' ) ? false : true ),
 					'software_version'        => $wp_version,
 				);
 				if ( !current_user_can( 'publish_posts' ) )
@@ -3969,6 +4022,9 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
  */
 new WPCOM_JSON_API_List_Posts_Endpoint( array(
 	'description' => 'Return matching Posts',
+	'min_version' => '0',
+	'max_version' => '1.1',
+
 	'group'       => 'posts',
 	'stat'        => 'posts',
 
@@ -5280,3 +5336,6 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 		]
 	}'
 ) );
+
+// Jetpack Only Endpoints
+require_once dirname( __FILE__ ) . '/class.json-api-jetpack-endpoints.php';

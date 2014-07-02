@@ -257,9 +257,10 @@ class Jetpack_Photon {
 					if ( ! $fullsize_url && preg_match_all( '#-e[a-z0-9]+(-\d+x\d+)?\.(' . implode('|', self::$extensions ) . '){1}$#i', basename( $src ), $filename ) )
 						$fullsize_url = true;
 
-					// Build URL, first removing WP's resized string so we pass the original image to Photon
-					if ( ! $fullsize_url && preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) )
-						$src = str_replace( $src_parts[1], '', $src );
+					// Build URL, first maybe removing WP's resized string so we pass the original image to Photon
+					if ( ! $fullsize_url ) {
+						$src = self::strip_image_dimensions_maybe( $src );
+					}
 
 					// Build array of Photon args and expose to filter before passing to Photon URL function
 					$args = array();
@@ -376,7 +377,18 @@ class Jetpack_Photon {
 					elseif ( 0 == $image_args['height'] && 0 < $image_args['width'] )
 						$photon_args['w'] = $image_args['width'];
 				} else {
-					$photon_args[ $transform ] = $image_args['width'] . ',' . $image_args['height'];
+					if( 'resize' == $transform ) {
+						// Lets make sure that we don't upscale images since wp never upscales them as well
+						$image_meta = wp_get_attachment_metadata( $attachment_id );
+						
+						$smaller_width  = ( ( $image_meta['width']  < $image_args['width']  ) ? $image_meta['width']  : $image_args['width']  );
+						$smaller_height = ( ( $image_meta['height'] < $image_args['height'] ) ? $image_meta['height'] : $image_args['height'] );
+						
+						$photon_args[ $transform ] = $smaller_width . ',' . $smaller_height;
+					} else {
+						$photon_args[ $transform ] = $image_args['width'] . ',' . $image_args['height'];
+					}
+					
 				}
 
 				$photon_args = apply_filters( 'jetpack_photon_image_downsize_string', $photon_args, compact( 'image_args', 'image_url', 'attachment_id', 'size', 'transform' ) );
@@ -464,6 +476,30 @@ class Jetpack_Photon {
 		// If we got this far, we should have an acceptable image URL
 		// But let folks filter to decline if they prefer.
 		return apply_filters( 'photon_validate_image_url', true, $url, $parsed_url );
+	}
+
+	/** 
+	 * Checks if the file exists before it passes the file to photon
+	 *  
+	 * @param string $src The image URL
+	 * @return string
+	 **/
+	protected static function strip_image_dimensions_maybe( $src ){
+		$stripped_src = $src;
+
+		// Build URL, first removing WP's resized string so we pass the original image to Photon
+		if ( preg_match( '#(-\d+x\d+)\.(' . implode('|', self::$extensions ) . '){1}$#i', $src, $src_parts ) ) {
+			$stripped_src = str_replace( $src_parts[1], '', $src );
+			$upload_dir = wp_upload_dir();
+
+			// Extracts the file path to the image minus the base url 
+			$file_path = substr( $stripped_src, strlen ( $upload_dir['baseurl'] ) ); 
+			
+			if( file_exists( $upload_dir["basedir"] . $file_path ) )
+				$src = $stripped_src;
+		}
+
+		return $src;
 	}
 
 	/**

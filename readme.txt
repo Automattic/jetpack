@@ -3,7 +3,7 @@ Contributors: automattic, alternatekev, andy, apeatling, azaozz, barry, beaulebe
 Tags: WordPress.com, statistics, stats, views, tweets, twitter, widget, gravatar, hovercards, profile, equations, latex, math, maths, youtube, shortcode, archives, audio, blip, bliptv, dailymotion, digg, flickr, googlevideo, google, googlemaps, kyte, kytetv, livevideo, redlasso, rockyou, rss, scribd, slide, slideshare, soundcloud, vimeo, shortlinks, wp.me, subscriptions, notifications, notes, json, api, rest, mosaic, gallery, slideshow, videopress, monitor, search, omnisearch, sso, jet pack
 Stable tag: 3.0
 Requires at least: 3.8
-Tested up to: 3.9.1
+Tested up to: 3.9.2
 
 Supercharge your WordPress site with powerful features previously only available to WordPress.com users.
 
@@ -91,7 +91,36 @@ Jetpack 3.0 is full of enhancements and bug fixes, including a new Administrativ
 
 == Changelog ==
 
+
 = 3.1 =
+
+= 3.0.2 =
+* Enhancement: General: Make module categories filter more visible when active.
+* Enhancement: General: Updated translation files with more strings added since the last release.
+* Enhancement: General: Allow deep-linking to the Contact Support form.
+* Bug Fix: General: RTL Jetpack Admin UI looks better.
+* Bug Fix: General: Fixed PHP warning when bulk deactivating modules.
+* Bug Fix: General: Removed an unnecessary description.
+* Bug Fix: General: Resolved an SSL error on Jetpack Admin UI.
+* Bug Fix: General: Fix error comparing signatures when the WordPress installation is using site_url filters (applied mostly to WPEngine sites).
+* Bug Fix: General: Resolved PHP strict error on the mobile menu.
+* Bug Fix: General: Fix timing of conditional checks, so that calling developer mode via a plugin works again.
+* Bug Fix: General: Main page categories tab now properly translates module names.
+* Bug Fix: Related Posts: Fix a typo, the "more info" link now works.
+* Bug Fix: Likes: Improve button styling.
+* Bug Fix: Likes: Remove unused UI for Reblog settings on social settings page.
+* Bug Fix: Contact Form: Updated to no longer use a deprecated Akismet function.
+* Bug Fix: Contact Form: Sends email to the administrator that is not marked as spam again.
+* Bug Fix: Open Graph: Resolved PHP warning on open graph gallery pages when the gallery is empty.
+ 
+= 3.0.1 =
+* Bugfix: AtD: A wpcom-only function got synced by mistake and caused a few errors. Fixed.
+* Bugfix: Post By Email: Add static keyword to a function.
+* Bugfix: ShareDaddy: In the admin-side configuration of sharing links, we used a Path icon instead of Pinterest. Oops!
+* Bugfix: ShareDaddy: We inadvertently appended `via @jetpack` to some twitter shares. This is no longer the case.
+* Bugfix: Related Posts: Tidying up and relocation of the `resync` button formerly on the more info modal.
+* Bugfix: Infinite Scroll: Work better with core's MediaElement.js
+* Bugfix: Heartbeat: Undeclared variable fixed.
 
 = 3.0 =
 * New User Interface for managing modules and settings

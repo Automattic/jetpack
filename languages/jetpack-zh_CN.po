@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-05-13 09:22:45+0000\n"
+"PO-Revision-Date: 2014-06-13 07:24:52+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -15,7 +15,7 @@ msgstr ""
 
 #: class.jetpack-admin.php:261
 msgid "View all Jetpack features"
-msgstr ""
+msgstr "查看所有Jetpack特性"
 
 #: class.jetpack-admin.php:262
 msgid "Sorry, no modules were found for the search term \"%s\""
@@ -118,10 +118,10 @@ msgid "Protect your site with automatic backups and security scans. (Subscriptio
 msgstr ""
 
 msgid "Site Verification"
-msgstr ""
+msgstr "网站认证"
 
 msgid "Verify your site or domain with Google Webmaster Tools, Pinterest, and others."
-msgstr ""
+msgstr "在Google站长工具，Pinterest等网站上面认证你的网站或者域名"
 
 msgid "Upload and host video right on your site. (Subscription required.)"
 msgstr ""
@@ -151,11 +151,11 @@ msgstr ""
 
 #: modules/verification-tools/blog-verification-tools.php:90
 msgid "Example:"
-msgstr ""
+msgstr "示例："
 
 #: modules/verification-tools/blog-verification-tools.php:116
 msgid "Website Verification Services"
-msgstr ""
+msgstr "网站认证服务"
 
 #: modules/verification-tools/blog-verification-tools.php:117
 msgid "Enter your meta key \"content\" value to verify your blog with %s"
@@ -238,15 +238,15 @@ msgstr "最新"
 
 #: class.jetpack-admin.php:380 class.jetpack-admin.php:457
 msgid "Alphabetical"
-msgstr ""
+msgstr "按字母顺序"
 
 #: class.jetpack-admin.php:385
 msgid "Load more"
-msgstr ""
+msgstr "加载更多内容"
 
 #: class.jetpack-admin.php:407
 msgid "Error, bad module."
-msgstr ""
+msgstr "错误，模块错误"
 
 #: class.jetpack-admin.php:449
 msgid "View:"
@@ -254,11 +254,11 @@ msgstr ""
 
 #: class.jetpack-admin.php:455
 msgid "Sort by:"
-msgstr "排序："
+msgstr "排序方式："
 
 #: class.jetpack-admin.php:459
 msgid "Popular"
-msgstr ""
+msgstr "流行"
 
 #: class.jetpack-admin.php:461
 msgid "Show:"
@@ -274,11 +274,11 @@ msgstr ""
 
 #: class.jetpack-admin.php:487
 msgid "Mobile"
-msgstr ""
+msgstr "移动"
 
 #: class.jetpack-admin.php:488
 msgid "Other"
-msgstr ""
+msgstr "其他"
 
 #: class.jetpack-admin.php:489
 msgid "Photos and Videos"
@@ -302,7 +302,7 @@ msgstr ""
 
 #: class.jetpack-admin.php:516
 msgid "Learn more"
-msgstr ""
+msgstr "了解更多"
 
 #: class.jetpack-modules-list-table.php:46
 msgid "Search Modules…"
@@ -310,11 +310,11 @@ msgstr ""
 
 #: class.jetpack-modules-list-table.php:88
 msgid "No Modules Found"
-msgstr ""
+msgstr "模块未找到"
 
 #: class.jetpack-modules-list-table.php:227
 msgid "Module Info"
-msgstr ""
+msgstr "模块信息"
 
 #: class.jetpack-network.php:314
 msgid "Jetpack Sites"
@@ -636,7 +636,7 @@ msgstr ""
 
 #: modules/widgets/top-posts.php:86
 msgid "Image List"
-msgstr ""
+msgstr "图片列表"
 
 #: modules/after-the-deadline/config-options.php:89
 msgctxt "%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG"
@@ -649,11 +649,11 @@ msgstr ""
 
 #: modules/sso.php:483
 msgid "Error, invalid response data."
-msgstr ""
+msgstr "错误，无效的响应信息"
 
 #: modules/widgets/top-posts.php:87
 msgid "Image Grid"
-msgstr ""
+msgstr "图片格栅"
 
 #: modules/after-the-deadline/config-options.php:95
 msgid "Use automatically detected language to proofread posts and pages"
@@ -669,7 +669,7 @@ msgstr ""
 
 #: modules/widgets/top-posts.php:91
 msgid "Top Posts &amp; Pages by views are calculated from 24-48 hours of stats. They take a while to change."
-msgstr ""
+msgstr "根据 24-48 小时的统计资料计算依查看次数排序的热门文章和页面。其变化需要一会儿时间。"
 
 #: modules/after-the-deadline/config-unignore.php:129
 msgid "Ignored Phrases"
@@ -681,11 +681,11 @@ msgstr ""
 
 #: modules/sso.php:672
 msgid "Log in with WordPress.com"
-msgstr ""
+msgstr "以WordPress.com账户登录"
 
 #: modules/widgets/top-posts.php:164
 msgid "There are no posts to display. <a href=\"%s\">Want more traffic?</a>"
-msgstr ""
+msgstr "没有要显示的文章。<a href=\"%s\">希望提高浏览量？</a>"
 
 #: modules/after-the-deadline/config-unignore.php:131
 msgid "Identify words and phrases to ignore while proofreading your posts and pages:"
@@ -1025,11 +1025,11 @@ msgstr ""
 #: modules/custom-post-types/nova.php:901
 #: modules/custom-post-types/nova.php:907
 msgid "Price"
-msgstr ""
+msgstr "价格"
 
 #: modules/module-info.php:610
 msgid "Jetpack's mobile theme is optimized for small screens. It uses the header image, background, and widgets from your current theme for a great custom look. Post format support is included, so your photos and galleries will look fantastic on a smartphone."
-msgstr ""
+msgstr "Jetpack移动主题专为小屏幕优化，使用您当前主题图片背景和挂件更加好看。同时支持多种发布格式，使得您的照片和图片集看起来更赞"
 
 #: modules/stats.php:555
 msgid "Smiley"
@@ -1099,7 +1099,7 @@ msgstr "发表评论"
 
 #: modules/custom-post-types/nova.php:756
 msgid "UP"
-msgstr ""
+msgstr "向上"
 
 #: modules/module-info.php:628
 msgid "If you are a theme author, you can learn about adding support for Infinite Scroll at <a href=\"%1$s\">%1$s</a>."
@@ -1123,7 +1123,7 @@ msgstr ""
 
 #: modules/module-info.php:631
 msgid "Infinite Scroll"
-msgstr ""
+msgstr "无限加载"
 
 #: modules/stats.php:559
 msgid "Select the roles that will be able to view stats reports."
@@ -1140,7 +1140,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:758
 msgid "DOWN"
-msgstr ""
+msgstr "向下"
 
 #: modules/module-info.php:634
 msgid "When you write great content, all you really want is people to find it, right?"
@@ -1252,7 +1252,7 @@ msgstr "上个日"
 
 #: modules/widgets/wordpress-post-widget.php:173
 msgid "Blog URL:"
-msgstr ""
+msgstr "博客 URL："
 
 #: modules/carousel/jetpack-carousel.php:115
 msgid "Your comment was approved."
@@ -1335,7 +1335,7 @@ msgstr ""
 
 #: modules/widgets/wordpress-post-widget.php:194
 msgid "Show Excerpts:"
-msgstr ""
+msgstr "显示摘要："
 
 #: modules/carousel/jetpack-carousel.php:119
 msgid "Shutter Speed"
@@ -1599,7 +1599,7 @@ msgstr ""
 #: modules/omnisearch/omnisearch-core.php:64
 #: modules/omnisearch/omnisearch-core.php:85
 msgid "Omnisearch"
-msgstr ""
+msgstr "Omnisearch"
 
 #: modules/subscriptions.php:132
 msgid "Follow Blog"
@@ -1691,7 +1691,7 @@ msgstr "%s 模块无效"
 
 #: modules/carousel/jetpack-carousel.php:353
 msgid "Please provide a valid email address."
-msgstr ""
+msgstr "请提供一个有效的邮件地址"
 
 #: modules/custom-post-types/testimonial.php:148
 msgid "Testimonial scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview testimonial</a>"
@@ -1753,11 +1753,11 @@ msgstr "已激活"
 #: modules/carousel/jetpack-carousel.php:389
 #: modules/shortcodes/slideshow.php:72
 msgid "Background color"
-msgstr ""
+msgstr "背景颜色"
 
 #: modules/custom-post-types/testimonial.php:188
 msgid "Customize"
-msgstr ""
+msgstr "定制"
 
 #: modules/module-info.php:847 modules/videopress/videopress.php:330
 msgid "VideoPress"
@@ -1882,7 +1882,7 @@ msgstr "白色"
 #: modules/module-info.php:349 modules/publicize/ui.php:35
 #: modules/sharedaddy/sharedaddy.php:26 modules/sharedaddy/sharing.php:58
 msgid "Sharing"
-msgstr ""
+msgstr "共享"
 
 #: modules/module-info.php:879
 msgid "Monitor"
@@ -1988,7 +1988,7 @@ msgstr ""
 #: modules/gplus-authorship/admin/ui.php:127 modules/publicize/ui.php:182
 #: modules/publicize/ui.php:186
 msgid "Disconnect"
-msgstr ""
+msgstr "断开连接"
 
 #: modules/module-info.php:917
 msgid "More information on using Related Posts."
@@ -2028,7 +2028,7 @@ msgstr ""
 
 #: modules/gplus-authorship/admin/ui.php:133
 msgid "Need help?"
-msgstr ""
+msgstr "需要帮助？"
 
 #: modules/module-info.php:934
 msgid "Markdown lets you compose posts and comments with links, lists, and other styles using regular characters and punctuation marks. Markdown is used by writers and bloggers who want a quick and easy way to write rich text, without having to take their hands off the keyboard, and without learning a lot of complicated codes and shortcuts."
@@ -2046,7 +2046,7 @@ msgstr "Jetpack Debug 中心"
 #: modules/comments/admin.php:97 modules/comments/admin.php:168
 #: modules/widgets/facebook-likebox.php:157
 msgid "Color Scheme"
-msgstr ""
+msgstr "配色方案"
 
 #: modules/gplus-authorship/admin/ui.php:140
 msgid "Your Google+ profile and WordPress.com accounts have been disconnected, including your Publicize connections. If you no longer wish to be associated with this blog on Google we recommend that you also remove the blog URL from your <a href='%s' target='_blank'>Google+ profile</a>."
@@ -2103,7 +2103,7 @@ msgstr ""
 
 #: modules/comments/base.php:83
 msgid "Invalid request"
-msgstr ""
+msgstr "无效请求"
 
 #: modules/gplus-authorship/admin/ui.php:150
 #: modules/gplus-authorship/admin/ui.php:199 modules/gplus-authorship.php:184
@@ -2229,7 +2229,7 @@ msgstr ""
 
 #: modules/holiday-snow.php:19
 msgid "Snow"
-msgstr ""
+msgstr "雪"
 
 #: modules/omnisearch/omnisearch-core.php:154
 msgid "Search Everything"
@@ -2352,7 +2352,7 @@ msgstr ""
 
 #: modules/infinite-scroll/infinity.php:533
 msgid "Older posts"
-msgstr ""
+msgstr "较旧的文章"
 
 #: modules/omnisearch/omnisearch-posts.php:50
 #: modules/widgets/facebook-likebox.php:127
@@ -2504,7 +2504,7 @@ msgstr "永久删除该条目"
 #: modules/likes.php:127 modules/likes.php:640 modules/module-info.php:753
 #: modules/module-info.php:757
 msgid "Likes"
-msgstr ""
+msgstr "喜欢"
 
 #: modules/omnisearch/omnisearch-posts.php:102
 msgid "Missed schedule"
@@ -2602,7 +2602,7 @@ msgstr ""
 #: class.jetpack-network-sites-list-table.php:16
 #: modules/gplus-authorship/admin/ui.php:188 modules/sso.php:819
 msgid "Connected"
-msgstr ""
+msgstr "已连接"
 
 #: modules/contact-form/admin.php:417
 #: modules/contact-form/grunion-contact-form.php:1250
@@ -2826,7 +2826,7 @@ msgstr ""
 
 #: modules/likes.php:676
 msgid "Like"
-msgstr ""
+msgstr "赞"
 
 #: modules/publicize/publicize-jetpack.php:191
 msgid "There was a problem connecting to %s to create an authorized connection. Please try again in a moment."
@@ -3291,7 +3291,7 @@ msgstr ""
 
 #: modules/publicize/ui.php:205 modules/theme-tools/social-links.php:112
 msgid "Connect"
-msgstr ""
+msgstr "连接"
 
 #: modules/videopress/videopress.php:594
 msgid "Upload a Video"
@@ -3331,7 +3331,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:19
 msgid "Featured"
-msgstr ""
+msgstr "推荐"
 
 #: modules/publicize/ui.php:245
 msgid "Make this connection available to all users of this blog?"
@@ -3373,7 +3373,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/content.php:30
 msgid "%s"
-msgstr ""
+msgstr "%s"
 
 #: modules/publicize/ui.php:433
 msgid "Before you hit Publish, please refresh the following connection(s) to make sure we can Publicize your post:"
@@ -3480,7 +3480,7 @@ msgstr ""
 
 #: modules/publicize/ui.php:654
 msgid "Not Connected"
-msgstr ""
+msgstr "未连接"
 
 #: modules/videopress/videopress.php:707
 msgid "Use the form below to upload a video to your VideoPress Library. The following video formats are supported: %s. Maximum upload file size is %d%s."
@@ -3557,7 +3557,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/functions.php:59
 msgid "Primary Menu"
-msgstr ""
+msgstr "主要菜单"
 
 #: modules/publicize/ui.php:689
 msgid "Show"
@@ -3695,7 +3695,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:121
 msgid "Email notifications"
-msgstr ""
+msgstr "电子邮件通知"
 
 #: modules/minileven/theme/pub/minileven/image.php:87
 msgctxt "next-saturday"
@@ -4108,7 +4108,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:298
 msgid "Your Email Address"
-msgstr ""
+msgstr "您的邮件地址"
 
 #: modules/widgets/facebook-likebox.php:34
 msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
@@ -4396,11 +4396,11 @@ msgstr ""
 
 #: modules/custom-css/custom-css.php:605
 msgid "Edit CSS"
-msgstr ""
+msgstr "编辑CSS"
 
 #: modules/module-info.php:29
 msgid "VaultPress dashboard"
-msgstr ""
+msgstr "VaultPress控制面板"
 
 #: modules/sharedaddy/sharing-sources.php:540
 msgid "Digg"
@@ -4492,7 +4492,7 @@ msgstr ""
 #: modules/sharedaddy/sharing-sources.php:610
 msgctxt "share to"
 msgid "LinkedIn"
-msgstr ""
+msgstr "领英"
 
 #: modules/widgets/gallery/templates/form.php:58
 msgid "Random Order:"
@@ -4627,7 +4627,7 @@ msgstr "个人全球统一标识档案"
 
 #: class.jetpack.php:3132
 msgid "Unsubscribe"
-msgstr ""
+msgstr "退订"
 
 #: modules/custom-css/custom-css.php:726
 msgid "Limit width to %1$s pixels for videos, full size images, and other shortcodes. (<a href=\"%2$s\">More info</a>.)"
@@ -4668,7 +4668,7 @@ msgstr ""
 
 #: class.jetpack.php:3137 modules/subscriptions.php:712
 msgid "Subscribe"
-msgstr ""
+msgstr "订阅"
 
 #: modules/custom-css/custom-css.php:747 modules/custom-css/custom-css.php:829
 #: modules/custom-css/custom-css.php:858 modules/minileven/minileven.php:270
@@ -4788,7 +4788,7 @@ msgstr ""
 #: modules/module-info.php:192 modules/module-info.php:196
 #: modules/module-info.php:205 modules/module-info.php:209
 msgid "WordPress.com Stats"
-msgstr ""
+msgstr "WordPress.com统计"
 
 #: modules/sharedaddy/sharing-sources.php:949
 msgid "Click to share"
@@ -4822,7 +4822,7 @@ msgstr "自定义"
 #: _inc/footer.php:31 class.jetpack.php:3166
 #: modules/sharedaddy/sharedaddy.php:87 views/admin/network-admin-footer.php:23
 msgid "Support"
-msgstr ""
+msgstr "支持"
 
 #: modules/custom-css/custom-css.php:850
 msgid "Add-on CSS <b>(Recommended)</b>"
@@ -4879,7 +4879,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1017
 msgid "Remove Service"
-msgstr ""
+msgstr "移除服务"
 
 #: modules/widgets/gravatar-profile.php:207
 msgid "Links to your websites, blogs, or any other sites that help describe who you are."
@@ -4901,7 +4901,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing-sources.php:1096
 msgid "Tumblr"
-msgstr ""
+msgstr "Tumblr"
 
 #: modules/widgets/gravatar-profile.php:214
 msgid "Show Account Links"
@@ -4909,11 +4909,11 @@ msgstr "显示账户链接"
 
 #: class.jetpack.php:3287
 msgid "Free"
-msgstr ""
+msgstr "免费"
 
 #: modules/custom-css/custom-css.php:868
 msgid "Save Stylesheet"
-msgstr ""
+msgstr "保存样式表"
 
 #: modules/module-info.php:235
 msgid "Manage your <a href=\"%s\">Publicize settings</a>."
@@ -4930,11 +4930,11 @@ msgstr ""
 
 #: class.jetpack.php:3287
 msgid "Purchase"
-msgstr ""
+msgstr "购买"
 
 #: modules/custom-css/custom-css.php:934
 msgid "Show more"
-msgstr ""
+msgstr "显示更多"
 
 #: modules/module-info.php:239 modules/publicize/ui.php:114
 msgid "More information on using Publicize."
@@ -4960,7 +4960,7 @@ msgstr ""
 #: modules/module-info.php:268 modules/module-info.php:272
 #: modules/monitor.php:74 modules/notes.php:159
 msgid "Notifications"
-msgstr ""
+msgstr "通知"
 
 #: modules/sharedaddy/sharing-sources.php:1143
 msgid "Pinterest"
@@ -5019,11 +5019,11 @@ msgstr[0] ""
 
 #: modules/module-info.php:289 modules/module-info.php:304
 msgid "LaTeX"
-msgstr ""
+msgstr "LaTeX"
 
 #: modules/sharedaddy/sharing-sources.php:1150
 msgid "Click to share on Pinterest"
-msgstr ""
+msgstr "点击分享至Pinterest"
 
 #: modules/widgets/image-widget.php:14
 msgid "Image (Jetpack)"
@@ -5133,11 +5133,11 @@ msgstr "左"
 
 #: class.jetpack.php:3886
 msgid "Jetpack Plugin Version"
-msgstr ""
+msgstr "Jetpack插件版本"
 
 #: modules/custom-post-types/comics.php:181
 msgid "Your upload didn't complete; try again later or cross your fingers and try again right now."
-msgstr ""
+msgstr "上传未完成；请稍后重试"
 
 #: modules/module-info.php:333
 msgid "The following services are included: Twitter, Facebook, Reddit, StumbleUpon, PressThis, Digg, LinkedIn, Google +1, Print, and Email."
@@ -5167,7 +5167,7 @@ msgstr ""
 
 #: modules/sharedaddy/sharing.php:182
 msgid "Available Services"
-msgstr ""
+msgstr "可用的服务"
 
 #: modules/widgets/image-widget.php:140
 msgid "Right"
@@ -5175,7 +5175,7 @@ msgstr "右"
 
 #: class.jetpack.php:4144
 msgid "You must connect your Jetpack plugin to WordPress.com to use this feature."
-msgstr ""
+msgstr "您必须使您的Jetpack连接到WordPress.com以启用该功能"
 
 #: modules/custom-post-types/comics.php:201
 msgid "Comic"
@@ -5937,7 +5937,7 @@ msgstr ""
 
 #: modules/widgets/top-posts.php:78
 msgid "Maximum number of posts to show (no more than 10):"
-msgstr ""
+msgstr "要显示的文章的最多数目（不超过 10 个）："
 
 #: modules/after-the-deadline/config-options.php:81
 msgid "Redundant Phrases"
@@ -5949,11 +5949,11 @@ msgstr ""
 
 #: modules/sso.php:171
 msgid "Require Two-Step Authentication"
-msgstr ""
+msgstr "需要两步认证"
 
 #: modules/widgets/top-posts.php:83
 msgid "Display as:"
-msgstr ""
+msgstr "显示为："
 
 #: modules/after-the-deadline/config-options.php:83
 msgid "<a href=\"%s\">Learn more</a> about these options."
@@ -5969,4 +5969,4 @@ msgstr ""
 
 #: modules/widgets/top-posts.php:85
 msgid "Text List"
-msgstr ""
+msgstr "文本列表"

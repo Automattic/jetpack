@@ -489,7 +489,7 @@ class Jetpack_Tiled_Gallery_Symmetric_Row extends Jetpack_Tiled_Gallery_Shape {
 
 	public function is_possible() {
 		return $this->is_not_as_previous() && $this->images_left >= 3 && $this->images_left != 5 &&
-			$this->images[0]->ratio < 0.8 && $this->images[0]->ratio == $this->images[3]->ratio;
+			$this->images[0]->ratio < 0.8 && isset( $this->images[3] ) && $this->images[0]->ratio == $this->images[3]->ratio;
 	}
 }
 

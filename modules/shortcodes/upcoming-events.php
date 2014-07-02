@@ -26,4 +26,4 @@ class Upcoming_Events_Shortcode {
 	}
 }
 
-add_action( 'plugins_loaded', array( 'Upcoming_Events_Shortcode', 'init' ) );
+add_action( 'plugins_loaded', array( 'Upcoming_Events_Shortcode', 'init' ), 100 );

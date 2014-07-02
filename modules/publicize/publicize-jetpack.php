@@ -68,7 +68,7 @@ class Publicize extends Publicize_Base {
 				<div class="jetpack-text-container">
 					<h4>
 					<p><?php printf(
-						esc_html( wptexturize( __( "To use Publicize, you'll need to link your %s account to your WordPress.com account using the button to the right.", 'jetpack' ) ) ),
+						esc_html( wptexturize( __( "To use Publicize, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack' ) ) ),
 						'<strong>' . esc_html( $blog_name ) . '</strong>'
 					); ?></p>
 					<p><?php echo esc_html( wptexturize( __( "If you don't have a WordPress.com account yet, you can sign up for free in just a few seconds.", 'jetpack' ) ) ); ?></p>

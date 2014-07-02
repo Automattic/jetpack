@@ -2,9 +2,15 @@
 
 class Jetpack_Admin {
 
-	static $instance = null;
+	/**
+	 * @var Jetpack_Admin
+	 **/
+	private static $instance = null;
 
-	var $jetpack;
+	/**
+	 * @var Jetpack
+	 **/
+	private $jetpack;
 
 	static function init() {
 		if ( is_null( self::$instance ) ) {
@@ -17,16 +23,11 @@ class Jetpack_Admin {
 		$this->jetpack = Jetpack::init();
 		add_action( 'admin_menu',                    array( $this, 'admin_menu' ), 998 );
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
+		add_action( 'jetpack_admin_menu',        	 array( $this, 'admin_menu_modules' ) );
 		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ) );
 		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ) );
 		add_action( 'jetpack_unrecognized_action',   array( $this, 'handle_unrecognized_action' ) );
 
-		/**
-		 * Don't add in the modules page unless modules are available!
-		 */
-		if ( Jetpack::is_active() || Jetpack::is_development_mode() ) {
-			add_action( 'jetpack_admin_menu',        array( $this, 'admin_menu_modules' ) );
-		}
 	}
 
 	function get_modules() {
@@ -185,9 +186,16 @@ class Jetpack_Admin {
 	}
 
 	function admin_menu_modules() {
+		/**
+		 * Don't add in the modules page unless modules are available!
+		 */
+		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+			return;
+		}
 		$hook = add_submenu_page( 'jetpack', __( 'Jetpack Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_manage_modules', 'jetpack_modules', array( $this, 'admin_page_modules' ) );
 
 		add_action( "load-$hook",                array( $this, 'admin_page_load'   ) );
+		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'        ) );
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'      ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'     ) );
@@ -241,9 +249,13 @@ class Jetpack_Admin {
 
 	function admin_styles() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-
-		wp_enqueue_style( 'jetpack-google-fonts', 'http://fonts.googleapis.com/css?family=Open+Sans:400italic,400,700,600,800' );
-		wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin{$min}.css", __FILE__ ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
+		
+		wp_enqueue_style( 'jetpack-google-fonts', '//fonts.googleapis.com/css?family=Open+Sans:400italic,400,700,600,800' );
+		if( is_rtl() ) {
+			wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin-rtl{$min}.css", __FILE__ ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
+		} else {
+			wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin{$min}.css", __FILE__ ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );	
+		}
 	}
 
 	function admin_scripts() {
@@ -292,96 +304,15 @@ class Jetpack_Admin {
 			$is_master_user    = false;
 		}
 
-		$this->admin_page_top(); ?>
+		$this->admin_page_top(); 
 
-		<div class="masthead <?php if ( ! $is_connected ) echo 'hasbutton'; ?>">
-
-			<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
-
-			<?php do_action( 'jetpack_notices' ) ?>
-
-			<h1><?php esc_html_e( 'Supercharge your self-hosted site with a suite of the most powerful WordPress.com features.', 'jetpack' ); ?></h1>
-
-			<?php if ( ! $is_connected && current_user_can( 'jetpack_connect' ) ) : ?>
-				<a href="<?php echo $this->jetpack->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Connect to Get Started', 'jetpack' ); ?></a>
-			<?php elseif ( ! $is_user_connected && current_user_can( 'jetpack_connect_user' ) ) : ?>
-				<a href="<?php echo $this->jetpack->build_connect_url() ?>" class="download-jetpack"><?php esc_html_e( 'Link your account to WordPress.com', 'jetpack' ); ?></a>
-			<?php endif; ?>
-
-			<div class="flyby">
-				<svg class="flyer" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="80px" height="87px" viewBox="0 0 80 87" enable-background="new 0 0 80 87" xml:space="preserve">
-					<polygon class="eye" fill="#518d2a" points="41.187,17.081 46.769,11.292 50.984,15.306"/>
-					<path class="body" fill="#518d2a" d="M38.032,47.3l4.973-5.157l7.597,1.996l0.878-0.91l0.761-0.789l-0.688-2.838l-0.972-0.926l-1.858,1.926 l-2.206-2.1l3.803-3.944l0.09-3.872L80,0L61.201,10.382L60.2,15.976l-5.674,1.145l-8.09-7.702L34.282,22.024l8.828-1.109 l2.068,2.929l-4.996,0.655l-3.467,3.595l0.166-4.469l-4.486,0.355L21.248,35.539l-0.441,4.206l-2.282,2.366l-2.04,6.961 L27.69,37.453l4.693,1.442l-2.223,2.306l-4.912,0.095l-7.39,22.292l-8.06,3.848l-2.408,9.811l-3.343-0.739L0,86.739l30.601-31.733 l8.867,2.507l-7.782,8.07l-1.496-0.616l-0.317-2.623l-7.197,7.463l11.445-2.604l16.413-7.999L38.032,47.3z M42.774,16.143 l3.774-3.914l2.85,2.713L42.774,16.143z"/>
-				</svg>
-				<svg class="flyer" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="80px" height="87px" viewBox="0 0 80 87" enable-background="new 0 0 80 87" xml:space="preserve">
-					<polygon class="eye" fill="#518d2a" points="41.187,17.081 46.769,11.292 50.984,15.306   "/>
-					<path class="body" fill="#518d2a" d="M38.032,47.3l4.973-5.157l7.597,1.996l0.878-0.91l0.761-0.789l-0.688-2.838l-0.972-0.926l-1.858,1.926 l-2.206-2.1l3.803-3.944l0.09-3.872L80,0L61.201,10.382L60.2,15.976l-5.674,1.145l-8.09-7.702L34.282,22.024l8.828-1.109 l2.068,2.929l-4.996,0.655l-3.467,3.595l0.166-4.469l-4.486,0.355L21.248,35.539l-0.441,4.206l-2.282,2.366l-2.04,6.961 L27.69,37.453l4.693,1.442l-2.223,2.306l-4.912,0.095l-7.39,22.292l-8.06,3.848l-2.408,9.811l-3.343-0.739L0,86.739l30.601-31.733 l8.867,2.507l-7.782,8.07l-1.496-0.616l-0.317-2.623l-7.197,7.463l11.445-2.604l16.413-7.999L38.032,47.3z M42.774,16.143 l3.774-3.914l2.85,2.713L42.774,16.143z"/>
-				</svg>
-				<svg class="flyer" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="80px" height="87px" viewBox="0 0 80 87" enable-background="new 0 0 80 87" xml:space="preserve">
-					<polygon class="eye" fill="#518d2a" points="41.187,17.081 46.769,11.292 50.984,15.306   "/>
-					<path class="body" fill="#518d2a" d="M38.032,47.3l4.973-5.157l7.597,1.996l0.878-0.91l0.761-0.789l-0.688-2.838l-0.972-0.926l-1.858,1.926 l-2.206-2.1l3.803-3.944l0.09-3.872L80,0L61.201,10.382L60.2,15.976l-5.674,1.145l-8.09-7.702L34.282,22.024l8.828-1.109 l2.068,2.929l-4.996,0.655l-3.467,3.595l0.166-4.469l-4.486,0.355L21.248,35.539l-0.441,4.206l-2.282,2.366l-2.04,6.961 L27.69,37.453l4.693,1.442l-2.223,2.306l-4.912,0.095l-7.39,22.292l-8.06,3.848l-2.408,9.811l-3.343-0.739L0,86.739l30.601-31.733 l8.867,2.507l-7.782,8.07l-1.496-0.616l-0.317-2.623l-7.197,7.463l11.445-2.604l16.413-7.999L38.032,47.3z M42.774,16.143 l3.774-3.914l2.85,2.713L42.774,16.143z"/>
-				</svg>
-			</div>
-			<div class="subhead">
-				<?php if ( Jetpack::is_development_mode() ) : ?>
-				<h2><?php _e('Jetpack is in local development mode.', 'jetpack' ); ?></h2>
-				<?php elseif ( $is_connected ) : ?>
-				<h2><?php _e("You're successfully connected to Jetpack!", 'jetpack' ); ?></h2>
-				<?php else : ?>
-				<h2><?php _e('Once you’ve connected Jetpack, you’ll get access to all the delightful features below.', 'jetpack' ); ?></h2>
-				<?php endif; ?>
-			</div>
-		</div><!-- .masthead -->
-		<div class="featured">
-			<h2><?php _e('Jetpack team favorites', 'jetpack' ); ?></h2>
-
-			<div class="features">
-				<div class="feature">
-					<a href="http://jetpack.me/support/custom-css/" data-name="Custom CSS" class="f-img"><div class="feature-img custom-css"></div></a>
-					<a href="http://jetpack.me/support/custom-css/" data-name="Custom CSS" class="feature-description">
-						<h3><?php _e('Custom CSS', 'jetpack' ); ?></h3>
-						<p><?php _e('Customize the look of your site, without modifying your theme.', 'jetpack' ); ?></p>
-					</a>
-				</div>
-
-				<div class="feature">
-					<a href="http://jetpack.me/support/sso/" data-name="Jetpack Single Sign On" class="f-img"><div class="feature-img wordpress-connect no-border"></div></a>
-					<a href="http://jetpack.me/support/sso/" data-name="Jetpack Single Sign On" class="feature-description">
-						<h3><?php _e('Single Sign On', 'jetpack' ); ?></h3>
-						<p><?php _e('Let users log in through WordPress.com with one click.', 'jetpack' ); ?></p>
-					</a>
-				</div>
-
-				<div class="feature">
-					<a href="http://jetpack.me/support/wordpress-com-stats/" data-name="WordPress.com Stats" class="f-img"><div class="feature-img wordpress-stats"></div></a>
-					<a href="http://jetpack.me/support/wordpress-com-stats/" data-name="WordPress.com Stats" class="feature-description">
-						<h3><?php _e('WordPress.com Stats', 'jetpack' ); ?></h3>
-						<p><?php _e('Simple, concise site stats with no additional load on your server.', 'jetpack' ); ?></p>
-					</a>
-				</div>
-			</div>
-		</div><!-- .featured -->
-		<div class="page-content about">
-		<div class="module-grid">
-			<h2><?php esc_html_e( 'Jetpack features', 'jetpack' ); ?></h2>
-
-			<!-- form with search and filters -->
-			<form id="module-search">
-				<input type="text" id="jetpack-search" class="module-search" placeholder="<?php esc_attr_e( 'Search the Jetpack features', 'jetpack' ); ?>" /><label for="jetpack-search"><?php esc_html_e( 'Search', 'jetpack' ); ?></label>
-			</form>
-
-			<div class="jp-filter" id="jp-filters">
-				<a href="#" id="newest" data-filter="introduced" class="selected"><?php esc_html_e( 'Newest', 'jetpack' ); ?></a>
-				<a href="#" id="category" data-filter="cat"><?php _e('Category', 'jetpack' ); ?></a>
-				<a href="#" id="alphabetical" data-filter="name"><?php esc_html_e( 'Alphabetical', 'jetpack' ); ?></a>
-			</div>
-
-			<div class="modules"></div>
-
-			<a href="#" class="load-more jp-button"><?php esc_html_e( 'Load more', 'jetpack' ); ?></a>
-		</div><!-- .module-grid --></div><!-- .page -->
-
-		<?php
+		$data = array(
+			'is_connected' => $is_connected,
+			'is_user_connected' => $is_user_connected,
+			'is_master_user' => $is_master_user
+		);
+		Jetpack::init()->load_view( 'admin/admin-page.php', $data );
+		
 		$this->admin_page_bottom();
 	}
 
@@ -477,16 +408,14 @@ class Jetpack_Admin {
 	}
 
 	function main_page_js_templates() {
+		$modules = 	array('Appearance', 'Developers', 'Mobile', 'Other', 'Photos and Videos', 'Social', 'WordPress.com Stats', 'Writing' );
 		?>
 <script id="category" type="text/html">
-	<div class="cat category-appearance"><h3><?php _e( 'Appearance', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-developers"><h3><?php _e( 'Developers', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-mobile"><h3><?php _e( 'Mobile', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-other"><h3><?php _e( 'Other', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-photos-and-videos"><h3><?php _e( 'Photos and Videos', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-social"><h3><?php _e( 'Social', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-wordpresscom-stats"><h3><?php _e( 'WordPress.com Stats', 'jetpack' ); ?></h3><div class="clear"></div></div>
-	<div class="cat category-writing"><h3><?php _e( 'Writing', 'jetpack' ); ?></h3><div class="clear"></div></div>
+	<?php foreach( $modules as $module ){ 
+		$translated_module = Jetpack::translate_module_tag( $module );
+		$module_slug = strtolower ( str_replace( array( ' ', '.' ) , array( '-', '' ) , $translated_module ) ); ?> 
+		<div class="cat category-<?php echo esc_attr( $module_slug  ); ?> "><h3><?php echo esc_html( $translated_module ); ?></h3><div class="clear"></div></div>
+	<?php } ?>
 </script>
 <script id="modalLoading" type="text/html">
 	<div class="loading"><span><?php esc_html_e( 'loading&hellip;', 'jetpack' ); ?></span></div>

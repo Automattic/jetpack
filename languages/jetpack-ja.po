@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-05-16 00:53:40+0000\n"
+"PO-Revision-Date: 2014-05-22 04:03:01+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -222,7 +222,7 @@ msgstr "テーマを変更することなくサイトの外観をカスタマイ
 
 #: class.jetpack-admin.php:355
 msgid "Let users log in through WordPress.com with one click."
-msgstr "ユーザーによる WrodPress.com のアカウントを通じたワンクリックログインを可能にします。"
+msgstr "ユーザーが WrodPress.com アカウントを通じてワンクリックログインできるようにします。"
 
 #: class.jetpack-admin.php:370
 msgid "Jetpack features"
@@ -2181,7 +2181,7 @@ msgstr "ウィジェット名:"
 
 #: class.jetpack-admin.php:363
 msgid "Simple, concise site stats with no additional load on your server."
-msgstr "サーバーに余計な負担をかけない、シンプルで簡潔なサイト統計情報ツールです。"
+msgstr "サーバーに余計な負担をかけない、シンプルで分かりやすいサイト統計情報ツールです。"
 
 #: class.jetpack-debugger.php:141
 msgid "A known issue."
@@ -2684,7 +2684,7 @@ msgstr "ゴミ箱からの復元中にエラーが発生しました。"
 
 #: modules/likes.php:280
 msgid "On for all posts"
-msgstr "すべての投稿に対して有効化"
+msgstr "すべての投稿で有効化"
 
 #: modules/post-by-email.php:119
 msgid "Disable Post By Email"

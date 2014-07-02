@@ -140,53 +140,10 @@ endif;
  */
 
 /**
- * Same as get_youtube_id(), but with the prefix that function should've had.
- */
-function jetpack_shortcode_get_youtube_id( $url ) {
-	return get_youtube_id( $url );
-}
-
-/**
- * @param $url Can be just the $url or the whole $atts array
- * @return bool|mixed The Youtube video ID
- */
-if ( !function_exists( 'get_youtube_id' ) ) :
-function get_youtube_id( $url ) {
-
-	// Do we have an $atts array?  Get first att
-	if ( is_array( $url ) )
-		$url = $url[0];
-
-	$url = youtube_sanitize_url( $url );
-	$url = parse_url( $url );
-	$id  = false;
-
-	if ( ! isset( $url['query'] ) )
-		return false;
-
-	parse_str( $url['query'], $qargs );
-
-	if ( ! isset( $qargs['v'] ) && ! isset( $qargs['list'] ) )
-		return false;
-
-	if ( isset( $qargs['list'] ) )
-		$id = preg_replace( '|[^_a-z0-9-]|i', '', $qargs['list'] );
-
-	if ( empty( $id ) )
-		$id = preg_replace( '|[^_a-z0-9-]|i', '', $qargs['v'] );
-
-	return $id;
-}
-endif;
-
-/**
  * Converts a YouTube URL into an embedded YouTube video.
  */
 function youtube_id( $url ) {
-	if ( apply_filters( 'jetpack_bail_on_shortcode', false, 'youtube' ) )
-		return '';
-
-	if ( ! $id = get_youtube_id( $url ) )
+	if ( ! $id = jetpack_get_youtube_id( $url ) )
 		return '<!--YouTube Error: bad URL entered-->';
 
 	$url = youtube_sanitize_url( $url );
@@ -332,7 +289,10 @@ function wpcom_youtube_embed_crazy_url_init() {
 
 add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
 
-// higher priority because we need it before auto-link and autop get to it
 if ( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls') ) ) {
-	add_filter( 'comment_text', 'youtube_link', 1 );
+	// We attach wp_kses_post to comment_text in default-filters.php with priority of 10 anyway, so the iframe gets filtered out.
+	if ( ! is_admin() ) {
+		// Higher priority because we need it before auto-link and autop get to it
+		add_filter( 'comment_text', 'youtube_link', 1 );
+	}
 }

@@ -92,21 +92,15 @@ html {
 		}
 	}
 	.jetpack-logo {
+		position: relative;
 		color: #fff;
-		line-height: 50px;
 		font-weight: normal;
 		height: 46px;
-		margin-top: -2px;
-		padding: 0 em(8) 0 em(6);
-
-		&:before {
-			font-family: 'Jetpack' !important;
-			content: '\e600';
-			position: relative;
-			margin-right: 8px;
-			font-size: 31px;
-		}
-
+		width: em(183,24);
+		margin-right: 8px;
+		background: url(images/jetpack-logo.png) center center no-repeat;
+		background: url(images/jetpack-logo.svg) center center no-repeat, none;
+		text-indent: -9999px;
 	}
 }
 
@@ -297,7 +291,7 @@ html {
 	z-index: 1;
 
 	// Full with bar that breaks out of .page width
-	&:before { 
+	&:before {
 		content: "";
 		display: block;
 		position: absolute;
@@ -322,7 +316,7 @@ html {
 	margin: 0 -5px; // For centering features
 	@extend %clearfix;
 }
-.feature, 
+.feature,
 .module {
 	position: relative;
 	float: left;
@@ -433,7 +427,7 @@ html {
 		font-size: 24px;
 		font-weight: 300;
 		margin: 0 0 13px 6px;
-		text-align: left; 
+		text-align: left;
 	}
 	.clear {
 		clear: both;
@@ -454,13 +448,14 @@ html {
 	margin: 0 auto em(15);
 	overflow: hidden;
 }
-input[type="text"].module-search {
+#jetpack-search {
 	width: 100%;
-	padding: 11px 0 11px 16px;
+	padding: 11px 16px 11px 16px;
 	color: #5c6671;
 	border: 1px solid #c9ced0;
 	border-right-width: 2px;
 	background: #fff;
+	line-height:1.3;
 	@include border-radius(3px);
 
 	&:focus {
@@ -622,6 +617,9 @@ input[type="text"].module-search {
 		margin-right: -5px;
 		font-size: 11px;
 	}
+}
+.rtl .paid:before {
+	content: '\f501'; // Genericons leftarrow{
 }
 .load-more {
 	// NOTE: .button styling is in _buttons.scss
@@ -980,7 +978,7 @@ input[type="text"].module-search {
 		padding: 23px 23px 23px 80px;
 		position: relative;
 		text-align: left;
-		
+
 		&:before {
 			color: #fff;
 			content: '\f418';
@@ -1007,7 +1005,7 @@ input[type="text"].module-search {
 .modules h3.icon,
 .jetpack-modules .info a {
 	width: auto;
-	
+
 	&:before {
 		display: inline-block;
 		position: relative;

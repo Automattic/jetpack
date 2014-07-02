@@ -121,6 +121,8 @@ class WPCOM_JSON_API {
 	}
 
 	function serve( $exit = true ) {
+		ini_set( 'display_errors', false );
+
 		$this->exit = (bool) $exit;
 
 		add_filter( 'home_url', array( $this, 'ensure_http_scheme_of_home_url' ), 10, 3 );
@@ -267,8 +269,8 @@ class WPCOM_JSON_API {
 		do_action( 'wpcom_json_api_output', $endpoint->stat );
 
 		$response = $this->process_request( $endpoint, $path_pieces );
-
-		if ( !$response ) {
+		
+		if ( !$response && !is_array( $response ) ) {
 			return $this->output( 500, '', 'text/plain' );
 		} elseif ( is_wp_error( $response ) ) {
 			return $this->output_error( $response );

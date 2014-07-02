@@ -7,7 +7,7 @@ class Jetpack_Debugger {
 			$response = wp_remote_request( "http://jetpack.me/is-support-open" );
 			$body = wp_remote_retrieve_body( $response );
 			$json = json_decode( $body );
-			return ( ( bool )$json->is_support_open );
+			return ( ( bool ) $json->is_support_open );
 		}
 		catch ( Exception $e ) {
 			return true;
@@ -84,7 +84,6 @@ class Jetpack_Debugger {
 
 		$self_xml_rpc_url = home_url( 'xmlrpc.php' );
 
-		$args = array();
 		$testsite_url = Jetpack::fix_url_for_bad_hosts( JETPACK__API_BASE . 'testsite/1/?url=' );
 
 		add_filter( 'http_request_timeout', array( 'Jetpack_Debugger', 'jetpack_increase_timeout' ) );
@@ -149,7 +148,7 @@ class Jetpack_Debugger {
 					</li>
 				</ol>
 				<?php if ( self::is_jetpack_support_open() ): ?>
-				<p class="jetpack-show-contact-form"><?php _e( 'If none of these help you find a solution, <a href="#">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ); ?>
+				<p class="jetpack-show-contact-form"><?php echo sprintf( __( 'If none of these help you find a solution, <a href="%s">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you\'ve tried to resolve it, and one of our Happiness Engineers will be in touch to help.', 'jetpack' ), Jetpack::admin_url( array( 'page' => 'jetpack-debugger', 'contact' => true ) ) ); ?>
 				</p>
 				<?php endif; ?>
 				<?php if ( Jetpack::is_active() ) : ?>
@@ -160,7 +159,7 @@ class Jetpack_Debugger {
 					</div>
 				<?php endif; ?>
 			</div>
-			<div id="contact-message" style="display:none">
+			<div id="contact-message" <?php if( ! isset( $_GET['contact'] ) ) {?>  style="display:none" <?php } ?>>
 			<?php if ( self::is_jetpack_support_open() ): ?>
 				<form id="contactme" method="post" action="http://jetpack.me/contact-support/">
 					<input type="hidden" name="action" value="submit">
@@ -177,13 +176,13 @@ class Jetpack_Debugger {
 					<div id="name_div" class="formbox">
 						<label class="h" for="your_name"><?php esc_html_e( 'Name', 'jetpack' ); ?></label>
 			  			<span class="errormsg"><?php esc_html_e( 'Let us know your name.', 'jetpack' ); ?></span>
-						<input name="your_name" type="text" id="your_name" value="<?php esc_html_e( $current_user->display_name , 'jetpack'); ?>" size="40">
+						<input name="your_name" type="text" id="your_name" value="<?php esc_html_e( $current_user->display_name, 'jetpack'); ?>" size="40">
 					</div>
 
 					<div id="email_div" class="formbox">
 						<label class="h" for="your_email"><?php esc_html_e( 'E-mail', 'jetpack' ); ?></label>
 			  			<span class="errormsg"><?php esc_html_e( 'Use a valid email address.', 'jetpack' ); ?></span>
-						<input name="your_email" type="text" id="your_email" value="<?php esc_html_e( $current_user->user_email , 'jetpack'); ?>" size="40">
+						<input name="your_email" type="text" id="your_email" value="<?php esc_html_e( $current_user->user_email, 'jetpack'); ?>" size="40">
 					</div>
 
 					<div id="toggle_debug_info" class="formbox">

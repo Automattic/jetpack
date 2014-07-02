@@ -26,7 +26,7 @@
 	}
 	.wrap.inner {
 		background: #f9f9f9;
-		padding: 15px; 
+		padding: 15px;
 	}
 	.page-content.about {
 		background: #f9f9f9;
@@ -150,7 +150,7 @@
 @media (max-width: 900px) {
 	// Tablets (iPad)
 	#wpcontent,
-	.auto-fold #wpcontent, 
+	.auto-fold #wpcontent,
 	.auto-fold #wpfooter,
 	.modal,
 	.configure .frame.top.fixed {
@@ -169,7 +169,7 @@
 		left: 10%;
 		right: 10%;
 		top: 80px;
-		
+
 		header {
 			height: 38px;
 		}
@@ -229,7 +229,7 @@
 	}
 	.cat .module {
 		margin: 1% 0 1% 2%;
-		
+
 		&:nth-child(2n + 1) {
 			margin: 1% 0 1% 2%;
 		}
@@ -243,13 +243,13 @@
 	.main-nav {
 		font-size: 13px;
 
-		.jetpack-logo {
-			font-size: 22px;
-			
-			&:before {
-				font-size: 29px;
-			}
-		}
+		// .jetpack-logo {
+		// 	font-size: 22px;
+		//
+		// 	&:before {
+		// 		font-size: 29px;
+		// 	}
+		// }
 	}
 	.table-bordered {
 		.genericon {
@@ -259,7 +259,7 @@
 }
 @media (max-width: 782px) {
 	#wpcontent,
-	.auto-fold #wpcontent, 
+	.auto-fold #wpcontent,
 	.auto-fold #wpfooter,
 	.modal {
 		margin-left: 0;
@@ -291,7 +291,7 @@
 		width: 100%;
 	}
 	.sidebar {
-		display: none; 
+		display: none;
 	}
 	.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
 		display: block;
@@ -310,7 +310,7 @@
 	.page-content {
 		margin-top: 0;
 	}
-	.entry-title, 
+	.entry-title,
 	.page-template-default h1 {
 		font-size: 2em;
 	}
@@ -381,7 +381,7 @@
 	}
 	.cat .module {
 		margin: 5px 0;
-		
+
 		&:nth-child(2n + 1) {
 			margin-left: 0;
 		}
@@ -466,7 +466,7 @@
 	.wrap.inner.jp-support {
 		.jp-support-column-left {
 			width: 100%;
-			
+
 			.widget-text {
 				margin-right: 0;
 				width: 100%;
@@ -475,12 +475,12 @@
 		.jp-support-column-right {
 			width: 100%;
 		}
-		
+
 	}
 	.jetpack-message {
 		.squeezer {
 			padding: 23px;
-			
+
 			&:before {
 				display: none;
 			}

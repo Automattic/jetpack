@@ -1,3 +1,6 @@
+/* jshint onevar: false, smarttabs: true */
+/* global sharing_loading_icon */
+
 (function($) {
 	$( document ).ready(function() {
 		function enable_share_button() {
@@ -36,7 +39,7 @@
 						var handler_item_enter = function() {
 							$( original ).data( 'hasitem', true );
 							clearTimeout( $( original ).data( 'timer2' ) );
-						}
+						};
 
 						var handler_original_leave = function() {
 							$( original ).data( 'hasoriginal', false );
@@ -75,15 +78,15 @@
 		}
 
 		function update_preview() {
-			var item;
 			var button_style = $( '#button_style' ).val();
 
 			// Clear the live preview
 			$( '#live-preview ul.preview li' ).remove();
 
 			// Add label
-			if ( $( '#save-enabled-shares input[name=visible]' ).val() != '' || $( '#save-enabled-shares input[name=hidden]' ).val() != '' )
+			if ( $( '#save-enabled-shares input[name=visible]' ).val() || $( '#save-enabled-shares input[name=hidden]' ).val() ) {
 				$( '#live-preview ul.preview' ).append( $( '#live-preview ul.archive .sharing-label' ).clone() );
+			}
 
 			// Re-insert all the enabled items
 			$( 'ul.services-enabled li' ).each( function() {
@@ -94,14 +97,14 @@
 			} );
 
 			// Add any hidden items
-			if ( $( '#save-enabled-shares input[name=hidden]' ).val() != '' ) {
+			if ( $( '#save-enabled-shares input[name=hidden]' ).val() ) {
 				// Add share button
 				$( '#live-preview ul.preview' ).append( $( '#live-preview ul.archive .share-more' ).parent().clone() );
 
 				$( '.sharing-hidden ul li' ).remove();
 
 				// Add hidden items into the inner panel
-				$( 'ul.services-hidden li' ).each( function( pos, item ) {
+				$( 'ul.services-hidden li' ).each( function( /*pos, item*/ ) {
 					if ( $( this ).hasClass( 'service' ) ) {
 						var service = $( this ).attr( 'id' );
 						$( '.sharing-hidden .inner ul' ).append( $( '#live-preview ul.archive .preview-' + service ).clone() );
@@ -115,22 +118,22 @@
 			$( '#live-preview li.advanced' ).removeClass( 'no-icon' );
 
 			// Button style
-			if ( 'icon' == button_style ) {
+			if ( 'icon' === button_style ) {
 				$( '#live-preview ul.preview div span' ).html( '&nbsp;' ).parent().addClass( 'no-text' ); // Remove text label
 				$( '#live-preview div.sharedaddy' ).addClass( 'sd-social-icon' );
-			} else if ( 'official' == button_style ) {
-				$( '#live-preview ul.preview .advanced' ).each( function( i ) {
+			} else if ( 'official' === button_style ) {
+				$( '#live-preview ul.preview .advanced' ).each( function( /*i*/ ) {
 					if ( !$( this ).hasClass( 'preview-press-this' ) && !$( this ).hasClass( 'preview-email' ) && !$( this ).hasClass( 'preview-print' ) && !$( this ).hasClass( 'share-custom' ) ) {
 						$( this ).find( '.option a span' ).html( '' ).parent().removeClass( 'sd-button' ).parent().attr( 'class', 'option option-smart-on' );
 					}
 				} );
-			} else if ( 'text' == button_style ) {
+			} else if ( 'text' === button_style ) {
 				$( '#live-preview li.advanced' ).addClass( 'no-icon' );
 			}
 
 		}
 
-		function sharing_option_changed() {
+		window.sharing_option_changed = function() {
 			var item = this;
 
 			// Loading icon
@@ -158,10 +161,11 @@
 				$( item ).parents( 'li:first' ).removeAttr( 'style' );
 			} );
 
-			if ( $( item ).is( ':submit' ) === true )
+			if ( $( item ).is( ':submit' ) === true ) {
 				return false;
+			}
 			return true;
-		}
+		};
 
 		function showExtraOptions( service ) {
 			jQuery( '.' + service + '-extra-options' ).css( { backgroundColor: '#ffffcc' } ).fadeIn();
@@ -227,25 +231,25 @@
 		}
 
 		$( '#enabled-services .services ul' ).sortable( {
-			receive: function( event, ui ) {
+			receive: function( /*event, ui*/ ) {
 				save_services();
 			},
 			stop: function() {
 				save_services();
 				$( 'li.service' ).enableSelection();   // Fixes a problem with Chrome
 			},
-			over: function( event, ui ) {
+			over: function( /*event, ui*/ ) {
 				$( this ).find( 'ul' ).addClass( 'dropping' );
 
 				// Ensure the 'end-fix' is at the end
-				$( '#enabled-services li.end-fix' ).remove()
+				$( '#enabled-services li.end-fix' ).remove();
 				$( '#enabled-services ul' ).append( '<li class="end-fix"></li>' );
 			},
-			out: function( event, ui ) {
+			out: function( /*event, ui*/ ) {
 				$( this ).find( 'ul' ).removeClass( 'dropping' );
 
 				// Ensure the 'end-fix' is at the end
-				$( '#enabled-services li.end-fix' ).remove()
+				$( '#enabled-services li.end-fix' ).remove();
 				$( '#enabled-services ul' ).append( '<li class="end-fix"></li>' );
 			},
 			helper: function( event, ui ) {
@@ -253,7 +257,7 @@
 
 				return ui.clone();
 			},
-			start: function( event, ui ) {
+			start: function( /*event, ui*/ ) {
 				// Make sure that the advanced section is closed
 				$( '.advanced-form' ).hide();
 				$( 'li.service' ).disableSelection();   // Fixes a problem with Chrome
@@ -299,21 +303,24 @@
 			var thisParent = $this.parent(),
 				thisParentsChildren = thisParent.find( 'li' ),
 				thisPosition = thisParentsChildren.index( $this ) + 1,
-				totalChildren = thisParentsChildren.length - 1;
+				totalChildren = thisParentsChildren.length - 1,
+				thisService;
 
 			// No need to be able to sort order for the "Available Services" section
-			if ( thisParent.hasClass( 'services-available' ) )
+			if ( thisParent.hasClass( 'services-available' ) ) {
 				return;
+			}
 
 			if ( 'left' === dir ) {
-				if ( 1 === thisPosition )
-					return
+				if ( 1 === thisPosition ) {
+					return;
+				}
 
 				// Find service to left
 				var prevSibling = $this.prev();
 
 				// Detach this service from DOM
-				var thisService = $this.detach();
+				thisService = $this.detach();
 
 				// Move it to the appropriate area and add focus back to service
 				prevSibling.before( thisService );
@@ -323,14 +330,15 @@
 			}
 
 			if ( 'right' === dir ) {
-				if ( thisPosition === totalChildren )
-					return
+				if ( thisPosition === totalChildren ) {
+					return;
+				}
 
 				// Find service to left
 				var nextSibling = $this.next();
 
 				// Detach this service from DOM
-				var thisService = $this.detach();
+				thisService = $this.detach();
 
 				// Move it to the appropriate area and add focus back to service
 				nextSibling.after( thisService );
@@ -383,7 +391,7 @@
 				success: function( response ) {
 					$( '#new-service-form img' ).hide();
 
-					if ( response == '1' ) {
+					if ( ( '' + response ) === '1' ) {
 						$( '#new-service-form .inerror' ).removeClass( 'inerror' ).addClass( 'error' );
 						$( '#new-service-form .error' ).show();
 						$( '#new-service-form input[type=submit]' ).prop( 'disabled', false );
@@ -403,7 +411,7 @@
 				$( this ).parents( 'li:first' ).css( 'backgroundImage', 'url("' + sharing_loading_icon + '")' );
 
 				// Save
-				form.ajaxSubmit( function( response ) {
+				form.ajaxSubmit( function( /*response*/ ) {
 					// Remove the item
 					form.parents( 'li:first' ).fadeOut( function() {
 						$( this ).remove();

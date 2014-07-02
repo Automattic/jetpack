@@ -1,3 +1,5 @@
+/* jshint onevar: false, smarttabs: true */
+
 var wpPostLikeCount = wpPostLikeCount || {};
 
 (function($) {
@@ -28,21 +30,22 @@ var wpPostLikeCount = wpPostLikeCount || {};
 				data:    '',
 				success: function( response ) {
 					for ( var path in response ) {
-						if ( ! response[path]['error_data'] ) {
+						if ( ! response[path].error_data ) {
 							var urlPieces = path.split( '/' ); // pieces[4] = post id;
 							var post_id = urlPieces[4];
 							wpPostLikeCount.showCount( post_id, response[path].found );
 						}
 					}
 				},
-				error: function( response ) {
+				error: function( /*response*/ ) {
 				}
 			};
 
 			var amp = '';
 			for( var i = 0; i < wpPostLikeCount.APIqueue.length; i++ ) {
-				if ( i > 0 )
+				if ( i > 0 ) {
 					amp = '&';
+				}
 				batchRequest.data += amp + 'urls[]=' + wpPostLikeCount.APIqueue[i];
 			}
 
@@ -52,6 +55,6 @@ var wpPostLikeCount = wpPostLikeCount || {};
 
 })(jQuery);
 
-jQuery(document).ready(function($) {
+jQuery(document).ready(function(/*$*/) {
 	wpPostLikeCount.wpPostLikeCount();
 });

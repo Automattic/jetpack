@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-05-12 20:56:10+0000\n"
+"PO-Revision-Date: 2014-05-31 09:11:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,19 +11,19 @@ msgstr ""
 "Project-Id-Version: 3.0\n"
 
 msgid "Add images, Twitter streams, your site’s RSS links, and more to your sidebar."
-msgstr ""
+msgstr "Yan meyunuza şəkilləri,Twitter axınlarını, saytınızın RSS bağlantılarını və daha çoxunu əlavə edin."
 
 #: class.jetpack-admin.php:261
 msgid "View all Jetpack features"
-msgstr ""
+msgstr "Bütün Jetpack xüsusiyyətlərinə bax"
 
 #: class.jetpack-admin.php:262
 msgid "Sorry, no modules were found for the search term \"%s\""
-msgstr ""
+msgstr "Bağışlayın, \"%s\" üçün heç bir axtarış modulu tapılmadı"
 
 #: class.jetpack-admin.php:331
 msgid "Jetpack is in local development mode."
-msgstr ""
+msgstr "Jetpack yerli inkişaf rejimindədir."
 
 msgid "Transform standard image galleries into full-screen slideshows."
 msgstr ""
@@ -175,7 +175,7 @@ msgstr "Bütün taksonomiya səhifələri"
 
 #: views/admin/network-settings.php:2
 msgid "Network Settings"
-msgstr ""
+msgstr "Şəbəkə Parametrləri"
 
 #: views/admin/network-settings.php:4
 msgid "Global"
@@ -196,12 +196,12 @@ msgstr ""
 #: class.jetpack-admin.php:147
 msgctxt "The menu item label"
 msgid "Jetpack"
-msgstr ""
+msgstr "Jetpack"
 
 #: class.jetpack-admin.php:165
 msgctxt "The menu item label with a new module count as %s"
 msgid "Jetpack %s"
-msgstr ""
+msgstr "Jetpack %s"
 
 #: modules/widget-visibility/widget-conditions.php:194
 msgctxt "Noun, as in: \"This post has one taxonomy.\""
@@ -230,7 +230,7 @@ msgstr ""
 
 #: class.jetpack-admin.php:374
 msgid "Search the Jetpack features"
-msgstr ""
+msgstr "Jetpack xüsusiyyətlərini axtar"
 
 #: class.jetpack-admin.php:378 class.jetpack-admin.php:458
 msgid "Newest"
@@ -246,11 +246,11 @@ msgstr "Daha çox yüklə"
 
 #: class.jetpack-admin.php:407
 msgid "Error, bad module."
-msgstr ""
+msgstr "Xəta, yararsız modul."
 
 #: class.jetpack-admin.php:449
 msgid "View:"
-msgstr ""
+msgstr "Bax:"
 
 #: class.jetpack-admin.php:455
 msgid "Sort by:"
@@ -282,7 +282,7 @@ msgstr "Digər"
 
 #: class.jetpack-admin.php:489
 msgid "Photos and Videos"
-msgstr ""
+msgstr "Fotolar and Videolar"
 
 #: class.jetpack-admin.php:490
 msgid "Social"
@@ -294,11 +294,11 @@ msgstr "Yazma"
 
 #: class.jetpack-admin.php:495
 msgid "loading&hellip;"
-msgstr ""
+msgstr "yüklənir&hellip;"
 
 #: class.jetpack-admin.php:508
 msgid "Paid"
-msgstr ""
+msgstr "Odənişli"
 
 #: class.jetpack-admin.php:516
 msgid "Learn more"
@@ -306,19 +306,19 @@ msgstr "Daha ətraflı"
 
 #: class.jetpack-modules-list-table.php:46
 msgid "Search Modules…"
-msgstr ""
+msgstr "Modulları Axtar…"
 
 #: class.jetpack-modules-list-table.php:88
 msgid "No Modules Found"
-msgstr ""
+msgstr "Heç bir modul tapılmadı"
 
 #: class.jetpack-modules-list-table.php:227
 msgid "Module Info"
-msgstr ""
+msgstr "Modul haqqında məlumat"
 
 #: class.jetpack-network.php:314
 msgid "Jetpack Sites"
-msgstr ""
+msgstr "Jetpack Saytları"
 
 #: class.jetpack-sync.php:767
 msgid "Indexing request queued and waiting&hellip;"
@@ -587,7 +587,7 @@ msgstr ""
 
 #: _inc/footer.php:51
 msgid "Config"
-msgstr ""
+msgstr "Konfiqurasiya"
 
 #: _inc/header.php:10
 msgid "Home"
@@ -595,7 +595,7 @@ msgstr "Əsas səhifə"
 
 #: class.jetpack-admin.php:188
 msgid "Jetpack Settings"
-msgstr ""
+msgstr "Jetpack Parametrləri"
 
 #: class.jetpack-admin.php:258
 msgid ""
@@ -888,7 +888,7 @@ msgstr "Karusel"
 
 #: modules/stats.php:353
 msgid "Your Site Stats work better with Javascript enabled."
-msgstr ""
+msgstr "Sizin Sayt Statistikanız qoşulmuş Javascript ilə daha yaxşı işləyir."
 
 #: modules/widgets/twitter-timeline.php:219
 msgid "No Header"
@@ -949,7 +949,7 @@ msgstr ""
 
 #: modules/stats.php:541
 msgid "Admin bar"
-msgstr ""
+msgstr "Nəzarətçi çubuğu"
 
 #: modules/widgets/twitter-timeline.php:222
 msgid "No Scrollbar"
@@ -967,7 +967,7 @@ msgstr "Bir çox maddələr əlavə et"
 
 #: modules/module-info.php:588
 msgid "To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
-msgstr ""
+msgstr "CSS redaktorundan istifadə etmək üçün, Görünüş &#8594; <a href=\"%s\">CSS Redaktə et </a> bölməsinə gedin."
 
 #: modules/stats.php:542
 msgid "Put a chart showing 48 hours of views in the admin bar."
@@ -1226,7 +1226,7 @@ msgstr "Şərh etmək üçün adnızı təqdim edin."
 
 #: modules/custom-post-types/nova.php:888
 msgid "Add These New Menu Items"
-msgstr ""
+msgstr "Bu Yeni Menyu maddələrini əlavə et"
 
 #: modules/module-info.php:651
 msgid "There is an update available for your theme. You may wish to check if this update adds Infinite Scroll support by visiting the <a href=\"%s\">WordPress Updates</a> page."
@@ -1945,7 +1945,7 @@ msgstr ""
 
 #: class.jetpack-debugger.php:68
 msgid "Your site isn’t reaching the Jetpack servers."
-msgstr ""
+msgstr "Sizin sayt Jetpack serverləri üçün əlçatan deyil."
 
 #: modules/comments/admin.php:54 modules/widgets/facebook-likebox.php:159
 #: modules/widgets/twitter-timeline.php:239
@@ -3707,7 +3707,7 @@ msgstr "Ön səhifə"
 
 #: class.jetpack.php:2454
 msgid "Your website needs to be publicly accessible to use Jetpack: %s"
-msgstr ""
+msgstr "Sizin veb Jetpack istifadəsi üçün açıq və ictimaiyyətə əlçatan olmalıdır: %s"
 
 #: modules/contact-form/grunion-form-view.php:121
 msgid "Email notifications"
@@ -4385,7 +4385,7 @@ msgstr ""
 
 #: modules/module-info.php:28
 msgid "Your WordPress installation is currently being protected with the world&#8217;s best security, backup, and support."
-msgstr ""
+msgstr "Sizin WordPress qurulumunuz hazırda dünyanın ən yaxşı təhlükəsizlik, bərpa və ən çevik dəstəyi ilə mühafizə olunur."
 
 #: modules/sharedaddy/sharing-sources.php:513
 msgctxt "share to"
@@ -4809,7 +4809,7 @@ msgstr "Xidmət Şərtləri"
 
 #: modules/custom-css/custom-css.php:843
 msgid "Add-on"
-msgstr ""
+msgstr "Add-on"
 
 #: class.jetpack-admin.php:362 class.jetpack-admin.php:491
 #: modules/module-info.php:192 modules/module-info.php:196
@@ -4853,7 +4853,7 @@ msgstr "Dəstək"
 
 #: modules/custom-css/custom-css.php:850
 msgid "Add-on CSS <b>(Recommended)</b>"
-msgstr ""
+msgstr "Add-on CSS <b>(Məsləhət bilinən)</b>"
 
 #: modules/module-info.php:211
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
@@ -5231,7 +5231,7 @@ msgstr "Bütün Komikslər"
 
 #: modules/module-info.php:354
 msgid "To configure your sharing settings, go to the Settings &rarr; <a href=\"%s\">Sharing</a> menu."
-msgstr ""
+msgstr "Paylaşma parametrlərinizi konfiqurasiya etmək üçün, Parametrlər &rarr; <a href=\"%s\">Paylaşma</a> menyusu bölməsinə gedin."
 
 #: modules/sharedaddy/sharing.php:184
 msgid "Add a new service"

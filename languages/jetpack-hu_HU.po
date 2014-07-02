@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.0 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-05-16 06:16:44+0000\n"
+"PO-Revision-Date: 2014-06-13 07:04:37+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -11,123 +11,123 @@ msgstr ""
 "Project-Id-Version: 3.0\n"
 
 msgid "Add images, Twitter streams, your site’s RSS links, and more to your sidebar."
-msgstr ""
+msgstr "Képek, Twitter folyamok, saját webhely RSS hivatkozások, és még sok egyéb funkció adható hozzá a sablon oldalsávjához."
 
 #: class.jetpack-admin.php:261
 msgid "View all Jetpack features"
-msgstr ""
+msgstr "Minden Jetpack modul megtekintése"
 
 #: class.jetpack-admin.php:262
 msgid "Sorry, no modules were found for the search term \"%s\""
-msgstr ""
+msgstr "Sajnáljuk, a \\\"%s\\\" keresési feltételre modult nem találtunk."
 
 #: class.jetpack-admin.php:331
 msgid "Jetpack is in local development mode."
-msgstr ""
+msgstr "Jetpack helyi fejlesztési mód."
 
 msgid "Transform standard image galleries into full-screen slideshows."
-msgstr ""
+msgstr "Normál képgalériák átalakítása teljes képernyős diavetítésre."
 
 msgid "Let readers comment with WordPress.com, Twitter, Facebook, or Google+ accounts."
-msgstr ""
+msgstr "Lehetőséget ad az olvasóknak hozzászólást beküldeni a WordPress.com, a Twitter, a Facebook, vagy a Google+ fiókjaik segítségével."
 
 msgid "Receive notification of site activity via the admin toolbar and your Mobile devices."
-msgstr ""
+msgstr "Értesítést kap a látogatottságáról az adminisztrátori rész eszköztárából, és a mobil eszközeiről."
 
 #: class.jetpack-debugger.php:141
 msgid "Some themes and plugins have <a href=\"%1$s\">known conflicts</a> with Jetpack – check the <a href=\"%2$s\">list</a>. (You can also browse the <a href=\"%3$s\">Jetpack support pages</a> or <a href=\"%4$s\">Jetpack support forum</a> to see if others have experienced and solved the problem.)"
-msgstr ""
+msgstr "Egyes sablonok és bővítmények <a href=\"%1$s\">ismert konfliktusokat</a> produkálnak a Jetpack-el – ellenőrizze a <a href=\"%2$s\">listát</a> ezekről. (Megteheti, hogy böngészi a <a href=\"%3$s\">Jetpack támogatási oldalát</a> vagy a <a href=\"%4$s\">Jetpack támogatás fórumát</a> hátha mások is tapasztalták, és megoldotték már a problémát.)"
 
 #: node_modules/grunt-wp-i18n/test/fixtures/basic-theme/exclude/file.php:3
 msgid "Exclude"
-msgstr ""
+msgstr "Kizárás"
 
 msgid "Check your spelling, style, and grammar with the After the Deadline proofreading service."
-msgstr ""
+msgstr "Ellenőrizze a helyesírást, a stílust és a nyelvtant a begépelés utáni lektorálás szolgáltatással."
 
 msgid "Insert a contact form anywhere on your site."
-msgstr ""
+msgstr "Kapcsolatfelvételi űrlap bárhol elhelyezhető segítségével a webhelyen."
 
 msgid "Customize your site’s CSS without modifying your theme."
-msgstr ""
+msgstr "Webhely testreszabása CSS segítségével, a sablon módosítása nélkül."
 
 msgid "Share your public posts and comments to search engines and other services."
-msgstr ""
+msgstr "Nyilvános bejegyzések és hozzászólások megosztása a keresőmotorok, és egyéb szolgáltatások számára."
 
 msgid "Give users the ability to share posts to Google+, and add your site link to your Google+ profile."
-msgstr ""
+msgstr "A felhasználók ezzel megoszthatják bejegyzéseit a Google+ oldalaikon, és webhelye hivatkozása is megosztható a saját Google+ oldalán."
 
 msgid "Enable pop-up business cards over commenters’ Gravatars."
-msgstr ""
+msgstr "Engedélyezze a felugró névjegykártyákat a hozzászóló Gravatarjával."
 
 msgid "Add support for infinite scroll to your theme."
-msgstr ""
+msgstr "Adjunk hozzá a végtelen görgetés támogatást a sablonhoz."
 
 msgid "Use LaTeX markup language in posts and pages for complex equations and other geekery."
-msgstr ""
+msgstr "Használja a LaTeX jelölőnyelvet a bejegyzésekben, oldalakon komplex egyenletek és egyéb stréber dolgok megjelenítéséhez."
 
 msgid "Give visitors an easy way to show their appreciation for your content."
-msgstr ""
+msgstr "A látogatók számára egy egyszerű mód arra, hogy megmutassák elismerésüket a tartalommal kapcsolatban."
 
 msgid "Write posts or pages in plain-text Markdown syntax."
-msgstr ""
+msgstr "A bejegyzések és oldalak egyszerű szöveges Markdown szintaxis segítségével is megírhatóak."
 
 msgid "Optimize your site with a mobile-friendly theme for tablets and phones."
-msgstr ""
+msgstr "Webhelyét optimalizálja mobilbarát sablonnal tablettek és telefonok számára."
 
 msgid "Receive notifications from Jetpack if your site goes offline — and when it it returns."
-msgstr ""
+msgstr "A Jetpack értesítést küld, ha a webhelye nem elérhető állapotba kerül, és akkor is, amikor újra elérhető."
 
 msgid "Search your entire database from a single field in your Dashboard."
-msgstr ""
+msgstr "Keresés a teljes adatbázisban egy mező segítségével a műszerfalon."
 
 msgid "Accelerate your site by loading images from the WordPress.com CDN."
-msgstr ""
+msgstr "Gyorsítsa a webhely képeinek betöltési sebességét a WordPress.com CDN segtségével."
 
 msgid "Publish posts by email, using any device and email client."
-msgstr ""
+msgstr "Bejegyzések közzététele e-mailben, bármilyen eszközzel és e-mail klienssel."
 
 msgid "Share new posts on social media networks automatically."
-msgstr ""
+msgstr "Az új bejegyzéseket ossza meg a közösségi hálózatokon automatikusan."
 
 msgid "Display links to your related content under posts and pages."
-msgstr ""
+msgstr "Megjeleníti azokat a hivatkozásokat a bejegyzések és oldalak alatt, amelyek kapcsolódnak tartalmukban azokhoz."
 
 msgid "Allow visitors to share your content on Facebook, Twitter, and more with a click."
-msgstr ""
+msgstr "A látogatók megoszthatnak tartalmat egy kattintással a Facebookon, Twitteren, és még pár helyen."
 
 msgid "Embed content from YouTube, Vimeo, SlideShare, and more, no coding necessary."
-msgstr ""
+msgstr "YouTube, Vimeo, SlideShare, tartalmak beágyazásának engedélyezése, és még kódolás sem szükséges."
 
 msgid "Enable WP.me-powered shortlinks for all posts and pages."
-msgstr ""
+msgstr "Engedélyezze WP.me​​-támogatású rövidített hivatkozásokat az összes bejegyzésen és oldalon."
 
 msgid "Allow your users to log in using their WordPress.com accounts."
-msgstr ""
+msgstr "Lehetővé teszi a felhasználók számára, hogy a WordPress.com felhasználói fiókjuk segítségével jelentkezzenek be."
 
 msgid "Monitor your stats with clear, concise reports and no additional load on your server."
-msgstr ""
+msgstr "Figyelemmel kísérheti az egyszerű, lényegre törő webhelystatisztikát, ahol nincs további terhelés a szerveren."
 
 msgid "Allow users to subscribe to your posts and comments and receive notifications via email."
-msgstr ""
+msgstr "A felhasználók feliratkozhatnak a bejegyzésekre és hozzászólásokra, és értesítést kaphatnak e-mailben azokról."
 
 msgid "Display your image galleries in a variety of sleek, graphic arrangements."
-msgstr ""
+msgstr "Különböző karcsú, grafikus beállításokkal jelenítheti meg képeit, galériáit."
 
 msgid "Protect your site with automatic backups and security scans. (Subscription required.)"
-msgstr ""
+msgstr "Védje webhelyét automatikus biztonsági mentésekkel és a biztonsági ellenőrzésekkel. (Előfizetés szükséges.)"
 
 msgid "Site Verification"
-msgstr ""
+msgstr "Weboldal ellenőrzés"
 
 msgid "Verify your site or domain with Google Webmaster Tools, Pinterest, and others."
-msgstr ""
+msgstr "A weboldal ellenőrzésének a beállítása a Google Webmestereszközökkel, a Pinteresttel és a többi szolgáltatással."
 
 msgid "Upload and host video right on your site. (Subscription required.)"
-msgstr ""
+msgstr "Videók feltöltése és tárolása közvetlenül a webhelyen. (Előfizetés szükséges.)"
 
 msgid "Specify which widgets appear on which pages of your site."
-msgstr ""
+msgstr "Megadható, hogy mely oldalakon jelenjenek meg a widgettek a weboldalán."
 
 #: modules/module-info.php:950
 msgid "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage."
@@ -135,15 +135,15 @@ msgstr ""
 
 #: modules/related-posts/jetpack-related-posts.php:296
 msgid "Use a large and visually striking layout"
-msgstr ""
+msgstr "Használjunk nagy és vizuálisan lenyűgöző elrendezést"
 
 #: modules/related-posts/jetpack-related-posts.php:683
 msgid "Untitled Post"
-msgstr ""
+msgstr "Névtelen bejegyzés"
 
 #: modules/related-posts/jetpack-related-posts.php:894
 msgid "Similar post"
-msgstr ""
+msgstr "Hasonló bejegyzés"
 
 #: modules/sso.php:353
 msgid "Cannot deal with cookie redirects, as headers are already sent."
@@ -167,27 +167,27 @@ msgstr "és"
 
 #: modules/widget-visibility/widget-conditions.php:89
 msgid "Archive page"
-msgstr ""
+msgstr "Összes bejegyzés"
 
 #: modules/widget-visibility/widget-conditions.php:116
 msgid "All taxonomy pages"
-msgstr ""
+msgstr "Összes taxonómia oldal"
 
 #: views/admin/network-settings.php:2
 msgid "Network Settings"
-msgstr ""
+msgstr "Hálózati beállítások"
 
 #: views/admin/network-settings.php:4
 msgid "Global"
-msgstr ""
+msgstr "Globális"
 
 #: views/admin/network-settings.php:5
 msgid "These settings affect all sites on the network."
-msgstr ""
+msgstr "Ezek a beállítások hatással vannak minden honlapon a hálózaton belül."
 
 #: views/admin/network-settings.php:17
 msgid "Sub-site override"
-msgstr ""
+msgstr "Al-honlap felülbírálás"
 
 #: views/admin/network-settings.php:20
 msgid "Allow individual site administrators to manage their own connections (connect and disconnect) to <a href=\"//wordpress.com\">WordPress.com</a>"
@@ -210,27 +210,27 @@ msgstr "Taxonomy"
 
 #: class.jetpack-admin.php:335
 msgid "Once you’ve connected Jetpack, you’ll get access to all the delightful features below."
-msgstr ""
+msgstr "Miután csatlakozott a Jetpack, az alábbi modulok összes csodálatos funkciói elérhetővé válnak."
 
 #: class.jetpack-admin.php:340
 msgid "Jetpack team favorites"
-msgstr ""
+msgstr "Jetpack csapat kedvencei"
 
 #: class.jetpack-admin.php:347
 msgid "Customize the look of your site, without modifying your theme."
-msgstr ""
+msgstr "Módosítható a weboldal megjelenése a sablon szerkesztése nélkül."
 
 #: class.jetpack-admin.php:355
 msgid "Let users log in through WordPress.com with one click."
-msgstr ""
+msgstr "Segítségével a WordPress.com felhasználók egy kattintással bejelentkezhetnek."
 
 #: class.jetpack-admin.php:370
 msgid "Jetpack features"
-msgstr ""
+msgstr "Jetpack modulok"
 
 #: class.jetpack-admin.php:374
 msgid "Search the Jetpack features"
-msgstr ""
+msgstr "Jetpack modulok keresése"
 
 #: class.jetpack-admin.php:378 class.jetpack-admin.php:458
 msgid "Newest"
@@ -242,15 +242,15 @@ msgstr "Betűrendben"
 
 #: class.jetpack-admin.php:385
 msgid "Load more"
-msgstr ""
+msgstr "További modulok"
 
 #: class.jetpack-admin.php:407
 msgid "Error, bad module."
-msgstr ""
+msgstr "Hiba, rossz modul."
 
 #: class.jetpack-admin.php:449
 msgid "View:"
-msgstr ""
+msgstr "Megtekintés:"
 
 #: class.jetpack-admin.php:455
 msgid "Sort by:"
@@ -282,11 +282,11 @@ msgstr "Egyéb"
 
 #: class.jetpack-admin.php:489
 msgid "Photos and Videos"
-msgstr ""
+msgstr "Képek és videók"
 
 #: class.jetpack-admin.php:490
 msgid "Social"
-msgstr ""
+msgstr "Közösségi"
 
 #: class.jetpack-admin.php:492
 msgid "Writing"
@@ -294,11 +294,11 @@ msgstr "Írás"
 
 #: class.jetpack-admin.php:495
 msgid "loading&hellip;"
-msgstr ""
+msgstr "betöltés&hellip;"
 
 #: class.jetpack-admin.php:508
 msgid "Paid"
-msgstr ""
+msgstr "Fizetős"
 
 #: class.jetpack-admin.php:516
 msgid "Learn more"
@@ -306,56 +306,56 @@ msgstr "További információk"
 
 #: class.jetpack-modules-list-table.php:46
 msgid "Search Modules…"
-msgstr ""
+msgstr "Modulok keresése..."
 
 #: class.jetpack-modules-list-table.php:88
 msgid "No Modules Found"
-msgstr ""
+msgstr "A modul nem található"
 
 #: class.jetpack-modules-list-table.php:227
 msgid "Module Info"
-msgstr ""
+msgstr "Modul információ"
 
 #: class.jetpack-network.php:314
 msgid "Jetpack Sites"
-msgstr ""
+msgstr "Jetpack oldalak"
 
 #: class.jetpack-sync.php:767
 msgid "Indexing request queued and waiting&hellip;"
-msgstr ""
+msgstr "Az indexelés kérés sorban áll. Várjunk&hellip;"
 
 #: class.jetpack-twitter-cards.php:83 class.jetpack-twitter-cards.php:92
 #: functions.opengraph.php:71
 msgid "Visit the post for more."
-msgstr ""
+msgstr "Tekintsük meg a teljes bejegyzést."
 
 #: class.jetpack-twitter-cards.php:92
 msgid "Post by %s."
-msgstr ""
+msgstr "Bejegyzést készítette: %s."
 
 #: class.jetpack-twitter-cards.php:146
 msgid "Twitter Site Tag"
-msgstr ""
+msgstr "Twitter honlap címke"
 
 #: class.jetpack-twitter-cards.php:166
 msgid "The Twitter username of the owner of this site's domain."
-msgstr ""
+msgstr "Twitter felhasználónév. A honlap domain név tulajdonos."
 
 #: class.jetpack.php:2212
 msgid "<strong>Your Jetpack is almost ready!</strong>"
-msgstr ""
+msgstr "<strong>A Jetpack már majdnem készen áll a használatra!</strong>"
 
 #: class.jetpack.php:2213
 msgid "Connect now to enable features like Stats, Likes, and Social Sharing."
-msgstr ""
+msgstr "Csatlakozzon most, hogy a modulok funkciói elérhetőek legyenek, mint például a statisztika, a tetszik és a közösségi megosztások."
 
 #: class.jetpack.php:2215
 msgid "<strong>Jetpack is installed</strong>"
-msgstr ""
+msgstr "<strong>Jetpack telepítve</strong>"
 
 #: class.jetpack.php:2216
 msgid "It's ready to bring awesome, WordPress.com cloud-powered features to your site."
-msgstr ""
+msgstr "WordPress.com felhő-alapú szolgáltatások a honlapra."
 
 #: class.jetpack.php:2651
 msgid "Jetpack is now active. Browse through each Jetpack feature below. Visit the <a href=\"%s\">settings page</a> to activate/deactivate features."
@@ -363,7 +363,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-contact-form.php:324
 msgid "Feedback discarded."
-msgstr ""
+msgstr "Visszajelzés eldobva."
 
 #: modules/contact-form/grunion-form-view.php:143
 msgid "Can I send a notification to more than one person?"
@@ -375,55 +375,55 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:134
 msgid "For example, spicy, favorite, etc. <br /> Separate Labels with commas"
-msgstr ""
+msgstr "Például, fűszeres, kedvenc, stb. <br /> Vesszővel válasszuk el a szavakat"
 
 #: modules/custom-post-types/nova.php:145
 msgid "Menu Sections"
-msgstr ""
+msgstr "Menü szekciók"
 
 #: modules/custom-post-types/nova.php:146
 msgid "Menu Section"
-msgstr ""
+msgstr "Menü szekció"
 
 #: modules/custom-post-types/nova.php:147
 msgid "Search Menu Sections"
-msgstr ""
+msgstr "Menü szekció keresés"
 
 #: modules/custom-post-types/nova.php:148
 msgid "All Menu Sections"
-msgstr ""
+msgstr "Összes menü szekció"
 
 #: modules/custom-post-types/nova.php:149
 msgid "Parent Menu Section"
-msgstr ""
+msgstr "Szülő menü szekció"
 
 #: modules/custom-post-types/nova.php:150
 msgid "Parent Menu Section:"
-msgstr ""
+msgstr "Szülő menü szekció:"
 
 #: modules/custom-post-types/nova.php:151
 msgid "Edit Menu Section"
-msgstr ""
+msgstr "Menü szekció szerkesztés"
 
 #: modules/custom-post-types/nova.php:152
 msgid "View Menu Section"
-msgstr ""
+msgstr "Menü szekció megtekintés"
 
 #: modules/custom-post-types/nova.php:153
 msgid "Update Menu Section"
-msgstr ""
+msgstr "Menü szekció frissítés"
 
 #: modules/custom-post-types/nova.php:154
 msgid "Add New Menu Section"
-msgstr ""
+msgstr "Új menü szekció"
 
 #: modules/custom-post-types/nova.php:155
 msgid "New Menu Sections Name"
-msgstr ""
+msgstr "Új menü szekció név"
 
 #: modules/custom-post-types/nova.php:179
 msgid "Add Menu Item"
-msgstr ""
+msgstr "Új menü"
 
 #: modules/custom-post-types/nova.php:220
 msgid "Menu item updated. <a href=\"%s\">View item</a>"
@@ -431,7 +431,7 @@ msgstr "A fórum frissítésre került. <a href=\"%s\">Fórum megtekintése</a>"
 
 #: modules/custom-post-types/nova.php:223
 msgid "Menu item updated."
-msgstr ""
+msgstr "Menü tétel frissítve."
 
 #: modules/custom-post-types/nova.php:225
 msgid "Menu item restored to revision from %s"
@@ -439,34 +439,34 @@ msgstr "Fórum visszaállítása %s időpontú állapotból"
 
 #: modules/custom-post-types/nova.php:226
 msgid "Menu item published. <a href=\"%s\">View item</a>"
-msgstr ""
+msgstr "Menü tétel közzétéve. <a href=\"%s\">Megtekintés</a>"
 
 #: modules/custom-post-types/nova.php:227
 msgid "Menu item saved."
-msgstr ""
+msgstr "Menü tétel mentve."
 
 #: modules/custom-post-types/nova.php:228
 msgid "Menu item submitted. <a target=\"_blank\" href=\"%s\">Preview item</a>"
-msgstr ""
+msgstr "Menü tétel hozzáadva. <a target=\"_blank\" href=\"%s\">Előnézet</a>"
 
 #: modules/custom-post-types/nova.php:229
 msgid "Menu item scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview item</a>"
-msgstr ""
+msgstr "Tervezett menüpont: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Előnézet</a>"
 
 #: modules/custom-post-types/nova.php:232
 msgid "Menu item draft updated. <a target=\"_blank\" href=\"%s\">Preview item</a>"
-msgstr ""
+msgstr "Menüpont vázlat frissítve. <a target=\"_blank\" href=\"%s\">Előnézet</a>"
 
 #: modules/custom-post-types/nova.php:261
 msgid "Enter the menu item's name here"
-msgstr ""
+msgstr "Adjuk meg a menüpont nevét"
 
 #: modules/custom-post-types/nova.php:274
 #: modules/custom-post-types/nova.php:281
 msgid "Food Menu Item"
 msgid_plural "Food Menu Items"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Étel menü tétel"
+msgstr[1] "Étel menü tétel"
 
 #: modules/custom-post-types/nova.php:436
 msgid "Thumbnail"
@@ -475,7 +475,7 @@ msgstr "Bélyegkép"
 #: modules/custom-post-types/nova.php:502
 #: modules/custom-post-types/nova.php:553
 msgid "Save New Order"
-msgstr ""
+msgstr "Új rendelés mentése"
 
 #: modules/custom-post-types/nova.php:747
 msgid "edit"
@@ -487,23 +487,23 @@ msgstr "Egyéb"
 
 #: modules/custom-post-types/nova.php:844
 msgid "Add to section:"
-msgstr ""
+msgstr "Szekció hozzáadás:"
 
 #: modules/custom-post-types/nova.php:857
 msgid "Labels: <small>spicy, favorite, etc. <em>Separate Labels with commas</em></small>"
-msgstr ""
+msgstr "Mezők: <small>fűszeres, kedvenc, stb. <em>Vesszővel elválasztva</em></small>"
 
 #: modules/custom-post-types/nova.php:879
 msgid "New Row"
-msgstr ""
+msgstr "Új sor"
 
 #: modules/gplus-authorship/admin/ui.php:158
 msgid "Hide my Google+ profile from displaying in the sharing area of my posts."
-msgstr ""
+msgstr "Google+ adatlap elrejtése a megosztott bejegyzéseknél-"
 
 #: modules/gplus-authorship/admin/ui.php:179
 msgid "Your posts will be associated with your Google+ profile."
-msgstr ""
+msgstr "A bejegyzés megosztásra került a Google+ adatlapon."
 
 #: modules/gplus-authorship/admin/ui.php:225
 msgid "Associate my Google+ infomation with this post."
@@ -515,15 +515,15 @@ msgstr "Régebbi: %s"
 
 #: modules/likes.php:293
 msgid "WordPress.com Reblog Button"
-msgstr ""
+msgstr "WordPress.com reblog gomb"
 
 #: modules/likes.php:299
 msgid "Show the Reblog button on posts"
-msgstr ""
+msgstr "Reblog gomb megjelenítése a bejegyzéseknél"
 
 #: modules/likes.php:305
 msgid "Don't show the Reblog button on posts"
-msgstr ""
+msgstr "Ne jelenítsük meg a reblog gombot a bejegyzéseknél"
 
 #: modules/likes.php:313
 msgid "Comment Likes are"
@@ -531,15 +531,15 @@ msgstr ""
 
 #: modules/likes.php:319
 msgid "On for all comments"
-msgstr ""
+msgstr "Az összes hozzászólás"
 
 #: modules/module-info.php:452
 msgid "To customize the emails sent from your blog to your followers, check the settings at the bottom of the <a href=\"%s\">Reading Settings</a> page."
-msgstr ""
+msgstr "A küldött követéssel kapcsolatos e-mailek testreszabásához, ellenőrizze a beállításokat az <a href=\"%s\">Olvasási beállítások</a> oldal alján."
 
 #: modules/module-info.php:948
 msgid "Site Verification Tools"
-msgstr ""
+msgstr "Weboldal ellenőrző eszközök"
 
 #: modules/module-info.php:949
 msgid "Use these tools to verify that you own/control your website with other external services like Google, Bing and Pinterest."
@@ -547,19 +547,19 @@ msgstr ""
 
 #: _inc/footer.php:10 class.jetpack-admin.php:310
 msgid "Connect to Get Started"
-msgstr ""
+msgstr "Csatlakozás az indításukhoz"
 
 #: _inc/footer.php:12 class.jetpack-admin.php:312
 msgid "Link your account to WordPress.com"
-msgstr ""
+msgstr "Kapcsoljuk fiókunkat a WordPress.com szolgáltatáshoz"
 
 #: _inc/footer.php:18
 msgid "An %s Airline"
-msgstr ""
+msgstr "Az %s társaságtól"
 
 #: _inc/footer.php:28
 msgid "Terms"
-msgstr ""
+msgstr "Felhasználási feltételek"
 
 #: _inc/footer.php:29
 msgid "Privacy"
@@ -567,27 +567,27 @@ msgstr "Adatvédelem"
 
 #: _inc/footer.php:30
 msgid "Test your site&#8217;s compatibility with Jetpack."
-msgstr ""
+msgstr "Tesztelhető a weboldal, hogy kompatibilitás-e a Jetpackel."
 
 #: _inc/footer.php:31
 msgid "Contact the Jetpack Happiness Squad."
-msgstr ""
+msgstr "Kapcsolatfelvétel a Jetpack boldog csapatával."
 
 #: _inc/footer.php:32
 msgid "Take a survey.  Tell us how we&#8217;re doing."
-msgstr ""
+msgstr "Felmérés kitöltése. Segítségével elmondhatja, hogyan csináljuk."
 
 #: _inc/footer.php:32
 msgid "Give Us Feedback"
-msgstr ""
+msgstr "Visszajelzés küldése"
 
 #: _inc/footer.php:38
 msgid "Unlink your user account"
-msgstr ""
+msgstr "Felhasználói fiók leválasztása"
 
 #: _inc/footer.php:51
 msgid "Config"
-msgstr ""
+msgstr "Beállítás"
 
 #: _inc/header.php:10
 msgid "Home"
@@ -595,13 +595,15 @@ msgstr "Kezdőlap"
 
 #: class.jetpack-admin.php:188
 msgid "Jetpack Settings"
-msgstr ""
+msgstr "Jetpack beállítás"
 
 #: class.jetpack-admin.php:258
 msgid ""
 "This will deactivate all Jetpack modules.\n"
 "Are you sure you want to disconnect?"
 msgstr ""
+"A jetpack modulok kikapcsolására készül.\n"
+"Biztos kikapcsoljuk a jetpack összes modulját? "
 
 #: class.jetpack-admin.php:259
 msgid ""
@@ -614,14 +616,16 @@ msgid ""
 "This will deactivate Jetpack.\n"
 "Are you sure you want to deactivate Jetpack?"
 msgstr ""
+"A jetpack kikapcsolására készül.\n"
+"Biztos kikapcsoljuk a jetpack-et?"
 
 #: class.jetpack-admin.php:307
 msgid "Supercharge your self-hosted site with a suite of the most powerful WordPress.com features."
-msgstr ""
+msgstr "A weboldal feltölthető a WordPress.com legjobb és leghasznosabb funkcióival."
 
 #: class.jetpack-admin.php:333
 msgid "You're successfully connected to Jetpack!"
-msgstr ""
+msgstr "A Jetpack csatlakozás sikeres volt!"
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Language"
@@ -678,7 +682,7 @@ msgstr "Mellőzött kifejezések"
 
 #: modules/module-info.php:465
 msgid "Enhanced Distribution"
-msgstr "Továbbfejlesztett Megosztás"
+msgstr "Továbbfejlesztett megosztás"
 
 #: modules/sso.php:672
 msgid "Log in with WordPress.com"
@@ -780,11 +784,11 @@ msgstr "Nincsenek javaslatok"
 #: modules/custom-post-types/nova.php:174
 #: modules/custom-post-types/nova.php:177
 msgid "Menu Items"
-msgstr "Menü elemek"
+msgstr "Menü tételek"
 
 #: modules/module-info.php:517
 msgid "Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href=\"http://akismet.com/\">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area."
-msgstr "Minden űrlap könnyen testreszabható, hogy megfeleljen az Ön igényeinek. Amikor a felhasználó elküldi az űrlapot, a visszajelzés majd egy szűrőn keresztül jut el Önhöz. Ennek a neve <a href=\"http://akismet.com/\">Akismet</a> (ha be van kapcsolva a honlapján), ami arra szolgál, hogy megbizonyosodjon arról, hogy ez nem spam üzenet, amit Önnek küldenek. Minden törvényes visszajelzés ez után kerül csak elküldésre e-mailben, valamint jelenik meg a visszajelzés-menedzsment területén."
+msgstr "Minden kapcsolatfelvételi űrlap könnyen testreszabható, hogy megfeleljen az Ön igényeinek. Amikor a felhasználó elküldi a kitöltött űrlapot, az egy szűrőn keresztül jut el Önhöz. Ennek a neve <a href=\"http://akismet.com/\">Akismet</a> (ha be van kapcsolva a honlapján), ami arra szolgál, hogy megbizonyosodjon arról, hogy ez nem spam üzenet, amit Önnek küldenek. Minden jogos visszajelzés ez után kerül csak elküldésre e-mailben, valamint jelenik meg a visszajelzés-menedzsment területén."
 
 #: modules/sso.php:824
 msgid "Two step Enabled"
@@ -820,7 +824,7 @@ msgstr "Figyelmen kívül hagyás a ajavasoltaknak"
 
 #: modules/custom-post-types/nova.php:178
 msgid "Add One Item"
-msgstr "Egy elem hozzáadása"
+msgstr "Egy új tétel hozzáadás"
 
 #: modules/module-info.php:539
 msgid "Jetpack Comments enables your visitors to use their WordPress.com, Twitter, or Facebook accounts when commenting on your site."
@@ -860,7 +864,7 @@ msgstr "Mindet mellőz"
 
 #: modules/custom-post-types/nova.php:181
 msgid "New Menu Item"
-msgstr "Új menü elem"
+msgstr "Új menü tétel"
 
 #: modules/module-info.php:565
 msgid "Gallery Carousel Screenshot"
@@ -880,11 +884,11 @@ msgstr "Kijelölés Szerkesztése..."
 
 #: modules/custom-post-types/nova.php:182
 msgid "View Menu Item"
-msgstr "Menü elem megtekintése"
+msgstr "Menü tétel megtekintés"
 
 #: modules/module-info.php:568 modules/widgets/gallery.php:334
 msgid "Carousel"
-msgstr "Körhinta Galéria"
+msgstr "Körhinta galéria"
 
 #: modules/stats.php:353
 msgid "Your Site Stats work better with Javascript enabled."
@@ -963,7 +967,7 @@ msgstr "Nem írásban észlelt hibát."
 #: modules/custom-post-types/nova.php:368
 #: modules/custom-post-types/nova.php:839
 msgid "Add Many Items"
-msgstr "Menü elemek hozzáadása"
+msgstr "Új menü tétel"
 
 #: modules/module-info.php:588
 msgid "To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
@@ -983,11 +987,11 @@ msgstr "Volt egy kis probléma a kommunikációval a lektorálás szolgáltatás
 
 #: modules/custom-post-types/nova.php:417
 msgid "Menu Items re-ordered."
-msgstr "Menü elemek újrarendezve"
+msgstr "Menü tételek újrarendezve"
 
 #: modules/module-info.php:605 modules/module-info.php:608
 msgid "Mobile Theme"
-msgstr "Mobil Sablon"
+msgstr "Mobil sablon"
 
 #: modules/stats.php:543
 msgid "Registered users"
@@ -1112,7 +1116,7 @@ msgstr "Jelentések láthatósága"
 
 #: modules/widgets/upcoming-events.php:50
 msgid "Items to show:"
-msgstr "Megjelenítendő elemek:"
+msgstr "Megjelenítendő tételek:"
 
 #: modules/carousel/jetpack-carousel.php:108
 msgid "Write a Comment..."
@@ -1128,7 +1132,7 @@ msgstr "Végtelen görgetés"
 
 #: modules/stats.php:559
 msgid "Select the roles that will be able to view stats reports."
-msgstr "Válassza ki azokat a szerepeket, amiknek a jelentéseit figyelemmel szeretné kísérni."
+msgstr "Válasszuk ki azokat a szerepeket, amiknek a jelentéseit figyelemmel szeretnénk kísérni."
 
 #: class.jetpack-admin.php:451 class.jetpack-modules-list-table.php:105
 #: modules/widgets/upcoming-events.php:56
@@ -1173,7 +1177,7 @@ msgstr "Nézettség az elmúlt 48 óra alatt. Kattintson ide több statisztikai 
 
 #: modules/widgets/wordpress-post-widget.php:27
 msgid "Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog."
-msgstr "Jelenítsünk meg friss bejegyzéseket másik WordPress.com, vagy Jetpackkel rendelkező blogokban."
+msgstr "Jelenítsünk meg friss bejegyzéseket másik WordPress.com, vagy Jetpackkel rendelkező honlapokon."
 
 #: modules/carousel/jetpack-carousel.php:111
 msgid "Please be sure to submit some text with your comment."
@@ -1369,7 +1373,7 @@ msgstr "Új vélemény hozzáadása"
 #: modules/module-info.php:729 modules/module-info.php:732
 #: modules/tiled-gallery/tiled-gallery.php:382
 msgid "Tiled Galleries"
-msgstr "Csempe Galériák"
+msgstr "Csempe galériák"
 
 #: modules/stats.php:765
 msgid "Show top posts over"
@@ -1456,7 +1460,7 @@ msgstr "Vélemények keresése"
 
 #: modules/module-info.php:759
 msgid "Likes allow your readers to show their appreciation for your posts and other published content using their WordPress.com accounts. Your readers will then be able to review their liked posts from WordPress.com."
-msgstr "A tetszikelés lehetővé teszi az olvasók számára, hogy megmutassák elismerésüket, tetszésüket a bejegyzések és egyéb közzétett tartalmaknál a WordPress.com fiókjuk segítségével. Az olvasóknak lehetőségük nyílik arra, hogy felülvizsgálhassák kedvelt bejegyzéseiket a WordPress.com oldalon."
+msgstr "A funkció lehetővé teszi az olvasók számára, hogy megmutassák elismerésüket, tetszésüket a bejegyzéseknél és egyéb közzétett tartalmaknál a WordPress.com fiókjuk segítségével. Az olvasóknak lehetőségük nyílik arra, hogy felülvizsgálhassák kedvelt bejegyzéseiket a WordPress.com oldalon."
 
 #: modules/stats.php:969
 msgid "Top Posts"
@@ -1660,7 +1664,7 @@ msgstr "Vélemény mentve."
 
 #: modules/module-info.php:827
 msgid "Widget Visibility"
-msgstr "Widget Láthatóság"
+msgstr "Widget láthatóság"
 
 #: modules/subscriptions.php:175
 msgid "Blog follow email text"
@@ -1676,11 +1680,11 @@ msgstr "Kérjük, add meg az email címed."
 
 #: modules/custom-post-types/testimonial.php:147
 msgid "Testimonial submitted. <a target=\"_blank\" href=\"%s\">Preview testimonial</a>"
-msgstr ""
+msgstr "Vélemény beküldésre került. <a target=\"_blank\" href=\"%s\">Előnézet</a>"
 
 #: modules/module-info.php:829
 msgid "Control which pages your widgets appear on with Widget Visibility."
-msgstr "A Widget Láthatóság segítségével meghatározhatod, hogy az egyes widgetek melyik oldalakon jelenjenek meg."
+msgstr "A Widget láthatóság segítségével meghatározható, hogy az egyes widgetek melyik oldalakon jelenjenek meg."
 
 #: modules/subscriptions.php:183
 msgid "Comment follow email text"
@@ -1696,7 +1700,7 @@ msgstr "Kérem adjon meg egy érvényes e-mail címet."
 
 #: modules/custom-post-types/testimonial.php:148
 msgid "Testimonial scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview testimonial</a>"
-msgstr ""
+msgstr "Vélemény vázlat: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Előnézet</a>"
 
 #: modules/module-info.php:830
 msgid "To control visibility, expand the widget and click the Visibility button next to the Save button, and then, choose a set of visibility options."
@@ -1716,7 +1720,7 @@ msgstr "Körhinta Kép Galéria"
 
 #: modules/custom-post-types/testimonial.php:151
 msgid "Testimonial draft updated. <a target=\"_blank\" href=\"%s\">Preview testimonial</a>"
-msgstr ""
+msgstr "Vélemény vázlat frissítve. <a target=\"_blank\" href=\"%s\">Előnézet</a>"
 
 #: modules/module-info.php:831
 msgid "For example, if you wanted the Archives widget to only appear on category archives and error pages, choose \"Show\" from the first dropdown and then add two rules: \"Page is 404 Error Page\" and \"Category is All Category Pages.\""
@@ -1736,7 +1740,7 @@ msgstr "Körhinta Galéria Engedélyezése"
 
 #: modules/custom-post-types/testimonial.php:187
 msgid "Customize Testimonials Archive"
-msgstr "Vélemények archívum oldalának a testreszabása"
+msgstr "Összes vélemény oldalának a testreszabása"
 
 #: modules/module-info.php:832
 msgid "You can also hide widgets based on the current page. For example, if you don't want the Archives widget to appear on search results pages, choose \"Hide\" and \"Page is Search results.\""
@@ -1812,7 +1816,7 @@ msgid "Introduction text sent when someone follows a post on your blog. (Site an
 msgstr "A bemutatkozó szöveg akkor kerül elküldésre, amikor valaki követi egy bejegyzésünket, vagy a blogunkat. (Honlap és megerősítő részletek kerülnek még hozzáadásra.)"
 
 msgid "Beautiful Math"
-msgstr "Csodálatos Matematika"
+msgstr "Csodálatos matematika"
 
 #: class.jetpack-cli.php:169
 msgid "%s has been deactivated."
@@ -2015,7 +2019,7 @@ msgstr "Valami összekeveredett a Jetpack kapcsolatban!"
 
 #: modules/comments/admin.php:72 modules/module-info.php:537
 msgid "Jetpack Comments"
-msgstr "Jetpack Hozzászólások"
+msgstr "Jetpack hozzászólások"
 
 #: modules/gplus-authorship/admin/ui.php:131
 msgid "Connect your WordPress account to Google+ to add this blog to your Google+ profile and improve the visibility of your blog posts on Google."
@@ -2171,7 +2175,7 @@ msgstr "Widget név:"
 
 #: class.jetpack-admin.php:363
 msgid "Simple, concise site stats with no additional load on your server."
-msgstr "Egyszerű, tömör honlap statisztika és terhelés ellenőrzés a szerveren."
+msgstr "Egyszerű, lényegre törő webhelystatisztika, ahol nincs további terhelés a szerveren."
 
 #: class.jetpack-debugger.php:141
 msgid "A known issue."
@@ -2234,7 +2238,7 @@ msgstr[1] "Feliratkozások kijelzése (%s feliratkozó)"
 
 #: class.jetpack-debugger.php:142
 msgid "Find out by disabling all plugins except Jetpack. If the problem persists, it's not a plugin issue. If the problem is solved, turn your plugins on one by one until the problem pops up again – there's the culprit! Let us know, and we'll try to help."
-msgstr ""
+msgstr "Keresse meg a hibásan működő bővítményt azok egyenkénti leállításukkal, kivéve Jetpack bővítményét. Ha a probléma továbbra is fennáll, a hibát nem egy bővítmény okozza. Ha a probléma megoldódott, akkor a bővítményeket egyesével kapcsoljuk be, folyamatosan ellenőrizve, mindegyiknél, hogy a hiba nem jelentkezik újra. Ha a hiba újra jelentkezik akkor - ott a bűnös! Tudassa velünk észrevételét, és mi megpróbálunk segíteni."
 
 #: modules/comments/comments.php:387
 msgid "Invalid security token."
@@ -2255,7 +2259,7 @@ msgstr "Kiemelt tartalom"
 
 #: class.jetpack-debugger.php:143
 msgid "A theme conflict."
-msgstr "Sablon összeütközés."
+msgstr "Sablon ütközés."
 
 #: modules/comments/comments.php:448 modules/comments/comments.php:499
 msgid "Submitting Comment%s"
@@ -2337,11 +2341,11 @@ msgstr "A tartalom kiemeléssel kapcsolatos beállítások <a href=\"%s\">áthel
 
 #: class.jetpack-debugger.php:146
 msgid "If it's not by itself, a theme or plugin is displaying extra characters. Try steps 2 and 3."
-msgstr "Ha nem pontos a válasz, akkor egy bővítény vagy a sablon további karakterejet jelenít meg. Próbáljuk meg a 2. és 3. lépést."
+msgstr "Ha nem pontos a válasz, akkor egy bővítmény vagy a sablon további karakterejét jelenít meg. Próbáljuk meg a 2. és 3. lépést."
 
 #: modules/contact-form/admin.php:140 modules/contact-form/admin.php:545
 msgid "You are not allowed to manage this item."
-msgstr "Nincs jogosultság az elem módosításhoz."
+msgstr "Nincs jogosultság a tétel módosításhoz."
 
 #: modules/infinite-scroll/infinity.php:303
 msgid "(Shows %s posts on each load)"
@@ -2379,7 +2383,7 @@ msgstr "Mozaik Galéria"
 
 #: class.jetpack-debugger.php:152
 msgid "If none of these help you find a solution, <a href=\"#\">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you've tried to resolve it, and one of our Happiness Engineers will be in touch to help."
-msgstr ""
+msgstr "Ha ezek egyike sem segített megoldást találni a problémára, akkor <a href=\"#\">kattintson ide, hogy kapcsolatba léphessen a Jetpack támogatással</a>. Mondja el, amennyit csak tud a problémáról, és milyen lépéseket próbált megtenni, és az egyik boldog mérnökünk kapcsolatba lép Önnel, hogy segítsen."
 
 #: modules/contact-form/admin.php:187 modules/contact-form/admin.php:647
 msgid "Messages"
@@ -2784,7 +2788,7 @@ msgstr ""
 
 #: modules/videopress/videopress.php:264
 msgid "Please note that the VideoPress module requires a WordPress.com account with an active <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress subscription</a>."
-msgstr "Kérjük, vegye figyelembe, hogy a VideoPress modul működéséhez szükséges aktív WordPress.com fiók és egy <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress előfizetés</a>."
+msgstr "Vegyük figyelembe, hogy a VideoPress modul működéséhez szükséges aktív WordPress.com fiók és egy <a href=\"http://store.wordpress.com/premium-upgrades/videopress/\" target=\"_blank\">VideoPress előfizetés</a>."
 
 #: class.jetpack-sync.php:774
 msgid "Reindex Posts"
@@ -2853,7 +2857,7 @@ msgstr "A lista frissítéséhez kattintsunk <a href=\"%s\">ide</a>."
 #: class.jetpack.php:1235
 msgctxt "Module Tag"
 msgid "Photos and Videos"
-msgstr "Képek és Videók"
+msgstr "Képek és videók"
 
 #: modules/contact-form/grunion-contact-form.php:200
 #: modules/contact-form/grunion-contact-form.php:914
@@ -2875,7 +2879,7 @@ msgstr "Video könyvtár hozzáférés"
 #: class.jetpack.php:1236
 msgctxt "Module Tag"
 msgid "Social"
-msgstr "Közösség"
+msgstr "Közösségi"
 
 #: modules/contact-form/grunion-contact-form.php:364
 msgid "Export feedback as CSV"
@@ -2896,7 +2900,7 @@ msgstr "Nem engedélyezem más felhasználóknak, hogy hozzáférjenek a VideoPr
 #: class.jetpack.php:1237
 msgctxt "Module Tag"
 msgid "WordPress.com Stats"
-msgstr "WordPress.com Statisztika"
+msgstr "WordPress.com statisztika"
 
 #: modules/contact-form/grunion-contact-form.php:370
 msgid "Select feedback to download"
@@ -2968,7 +2972,7 @@ msgstr "Fejlesztők"
 #: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:507
 #: modules/module-info.php:511
 msgid "Contact Form"
-msgstr "Kapcsolati űrlap"
+msgstr "Kapcsolatfelvételi űrlap"
 
 #: modules/markdown/easy-markdown.php:286
 msgid "Use Markdown for comments."
@@ -3182,7 +3186,7 @@ msgstr "<strong>Egy modul bekapcsolásához vagy kikapcsolásához</strong> - ka
 
 #: modules/contact-form/grunion-contact-form.php:1272
 msgid "Contact Form URL:"
-msgstr "Kapcsolat form URL:"
+msgstr "Kapcsolatfelvételi űrlap URL:"
 
 #: modules/minileven/theme/pub/minileven/content-gallery.php:58
 #: modules/minileven/theme/pub/minileven/content.php:13
@@ -3315,7 +3319,7 @@ msgstr "Video feltöltés"
 
 #: class.jetpack.php:2060
 msgid "You can activate or deactivate individual Jetpack modules to suit your needs."
-msgstr "Aktiválhatja vagy kikapcsolhatja az egyes modulokat a Jetpackban, az Ön igényeinek megfelelően."
+msgstr "Bekapcsolhatja vagy kikapcsolhatja az egyes modulokat a Jetpackban, az igényeinek megfelelően."
 
 #: modules/contact-form/grunion-contact-form.php:1591
 #: modules/minileven/minileven.php:261
@@ -3338,7 +3342,7 @@ msgstr "Videó beszúrása"
 
 #: class.jetpack.php:2062
 msgid "Find the component you want to manage"
-msgstr "Keresse meg a kezelni kívánt komponenst"
+msgstr "Keresse meg a használni kívánt modult."
 
 #: modules/contact-form/grunion-form-view.php:8
 msgctxt "Label for HTML form \"Name\" field in contact form builder"
@@ -3359,7 +3363,7 @@ msgstr "OGG Fájl URL"
 
 #: class.jetpack.php:2063
 msgid "Click on Learn More"
-msgstr "További információkért kattintson ide"
+msgstr "További információkért kattintson ide."
 
 #: modules/contact-form/grunion-form-view.php:9
 msgctxt "Label for HTML form \"Email\" field in contact form builder"
@@ -3380,7 +3384,7 @@ msgstr "Ogg videó fájl helye."
 
 #: class.jetpack.php:2064
 msgid "An Activate or Deactivate button will appear"
-msgstr "A be-vagy kikapcsolása gomb jelenik meg"
+msgstr "A bekapcsol vagy kikapcsol gomb megjelenik."
 
 #: modules/contact-form/grunion-form-view.php:10
 msgctxt "Label for HTML form \"URL/Website\" field in contact form builder"
@@ -3401,12 +3405,12 @@ msgstr "Jelenítsük meg a megosztás menüt, és engedélyezzük a felhasznál�
 
 #: class.jetpack.php:2065
 msgid "If additional settings are available, a link to them will appear"
-msgstr "Ha további beállítások állnak rendelkezésre, egy újabb link jelenik meg"
+msgstr "Ha további beállítások állnak rendelkezésre, egy újabb hivatkozás jelenik meg."
 
 #: modules/contact-form/grunion-form-view.php:11
 msgctxt "Label for HTML form \"Comment/Response\" field in contact form builder"
 msgid "Comment"
-msgstr "Megjegyzés"
+msgstr "Üzenet szövege"
 
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
@@ -4112,7 +4116,7 @@ msgstr "Név"
 
 #: modules/widgets/facebook-likebox.php:31
 msgid "Facebook Like Box"
-msgstr "Facebook Like Box"
+msgstr "Facebook Tetszik doboz"
 
 #: class.jetpack.php:2645
 msgid "<strong>Your Jetpack is already connected.</strong> "
@@ -4132,7 +4136,7 @@ msgstr "E-mail címed"
 
 #: modules/widgets/facebook-likebox.php:34
 msgid "Display a Facebook Like Box to connect visitors to your Facebook Page"
-msgstr "Facebook kedvelés doboz megjelenítése, hogy összekapcsoljuk a weboldalunk látogatóit a Facebook oldalunkkal."
+msgstr "Facebook Tetszik doboz megjelenítése, hogy összekapcsoljuk a weboldalunk látogatóit a Facebook oldalunkkal."
 
 #: class.jetpack.php:2649 class.jetpack.php:2656
 msgid "<strong>You&#8217;re fueled up and ready to go.</strong> "
@@ -4416,7 +4420,7 @@ msgstr "Helyek oldal falának mutatása az ismerősök frissítései helyett."
 
 #: class.jetpack.php:3034
 msgid "Jetpack is network activated. Notices cannot be dismissed."
-msgstr ""
+msgstr "Jetpack aktiválva a hálózatban. Értesítéseket nem lehet elnémítani."
 
 #: modules/custom-css/custom-css.php:605
 msgid "Edit CSS"
@@ -4448,7 +4452,7 @@ msgstr "CSS"
 
 #: modules/module-info.php:31
 msgid "With a monthly subscription, the VaultPress plugin will backup your site&#8217;s content, themes, and plugins in real-time, as well as perform regular security scans for common threats and attacks."
-msgstr "Havi előfizetéssel a VaultPress plugin a webhely tartalmát, témák és pluginek valós idejű mentését, valamint a rendszeres biztonsági vizsgálatokat a fenyegetések és támadások megelőzésére végzi el."
+msgstr "Havi előfizetéssel a VaultPress bővítmény a webhely tartalom, sablonok és bővítmények valós idejű mentését, valamint a rendszeres biztonsági vizsgálatokat, a fenyegetések és támadások megelőzésére végzi el."
 
 #: modules/sharedaddy/sharing-sources.php:549
 #: modules/sharedaddy/sharing-sources.php:552
@@ -4533,7 +4537,7 @@ msgstr "CSS állapotok"
 
 #: modules/module-info.php:58 modules/module-info.php:73
 msgid "What&#8217;s a Hovercard?"
-msgstr "Mi is az a lebegő névjegykártya?"
+msgstr "Mi is az a Gravatar névjegykártya?"
 
 #: modules/sharedaddy/sharing-sources.php:610
 msgid "Click to share on LinkedIn"
@@ -4640,7 +4644,7 @@ msgstr "%s px"
 #: modules/module-info.php:90 modules/module-info.php:94
 #: modules/module-info.php:103 modules/module-info.php:107
 msgid "Shortcode Embeds"
-msgstr "Rövid Kód Beágyazások"
+msgstr "Rövid kód beágyazások"
 
 #: modules/sharedaddy/sharing-sources.php:787
 msgctxt "share to"
@@ -4729,7 +4733,7 @@ msgstr "Megszakítás"
 #: modules/module-info.php:157 modules/module-info.php:161
 #: modules/module-info.php:171 modules/module-info.php:175
 msgid "WP.me Shortlinks"
-msgstr "WP.me Rövid Linkek"
+msgstr "WP.me rövidített hivatkozások"
 
 #: modules/sharedaddy/sharing-sources.php:831
 msgid "Click to Press This!"
@@ -4749,7 +4753,7 @@ msgstr "Előfeldolgozó:"
 
 #: modules/module-info.php:162 modules/module-info.php:176
 msgid "Instead of typing or copy-pasting long URLs, you can now get a short and simple link to your posts and pages. This uses the super compact wp.me domain name, and gives you a unique URL you can use that will be safe and reliable."
-msgstr "Ahelyett, hogy hosszú webcímeket gépel be, vagy illeszt be hosszú URL-et, most kap egy rövid és egyszerű linket a bejegyzések és az oldalak linkjeinek hosszú karakterlánca helyett. Ez a kompakt rövid link a wp.me domain nevet adja át a valódi linkünknek és egy egyedi URL-t generál, ami biztonságos, megbízható és tényleg rövid, kezelhetőbb."
+msgstr "Ahelyett, hogy hosszú webcímeket gépel be, vagy hosszú URL-et illeszt be, most kap egy rövid és egyszerű hivatkozást a bejegyzések és az oldalak hosszú hivatkozása helyett. Ez a kompakt rövid hivatkozás a wp.me domain nevet adja át a valódi hivatkozásunknak és egy egyedi URL-t generál, ami biztonságos, megbízható és tényleg rövid, kezelhetőbb."
 
 #: modules/sharedaddy/sharing-sources.php:849
 msgid "Google"
@@ -4770,7 +4774,7 @@ msgstr "Egyik sem"
 
 #: modules/module-info.php:163
 msgid "It&#8217;s perfect for use on Twitter, Facebook, and cell phone text messages where every character counts."
-msgstr ""
+msgstr "Ez tökéletesen használható a Twitter, Facebook, és a mobiltelefon szöveges üzeneteihez, ahol minden karakter számít."
 
 #: modules/sharedaddy/sharing-sources.php:862
 msgctxt "share to"
@@ -4791,7 +4795,7 @@ msgstr "Mód:"
 
 #: modules/module-info.php:177
 msgid "To use shortlinks, go to any already published post (or publish something new!). A &#8220;Get Shortlink&#8221; button will be visible under the Post title. When you click it, a dialog box will appear with the shortlink and you can copy and paste to Twitter, Facebook or wherever your heart desires."
-msgstr "Ahhoz, hogy használhassa, nyisson meg egy bejegyzést, vagy oldalt (vagy tegyen közzé valami újat!). A &#8220;Rövidített URL&#8221; gomb a bejegyzés címe mellett lesz. Ha kattint rá, egy párbeszédablak jelenik meg, amiben már benne is lesz a rövid link elérése. Ezután másolja be a Twitter, Facebook vagy bárhová ahová szíve vágya készteti."
+msgstr "Ahhoz, hogy használhassa, nyisson meg egy bejegyzést, vagy oldalt (vagy tegyen közzé valami újat!). A &#8220;Rövidített URL&#8221; gomb a bejegyzés címe mellett lesz. Ha kattint rá, egy párbeszédablak jelenik meg, amiben már benne is lesz a rövidített hivatkozás elérése. Ezután másolja be a Twitter, Facebook vagy bárhová ahová szíve vágya készteti."
 
 #: modules/sharedaddy/sharing-sources.php:862
 msgid "Click to share on Google+"
@@ -4814,7 +4818,7 @@ msgstr "Bővítmény"
 #: modules/module-info.php:192 modules/module-info.php:196
 #: modules/module-info.php:205 modules/module-info.php:209
 msgid "WordPress.com Stats"
-msgstr "WordPress.com Statisztika"
+msgstr "WordPress.com statisztika"
 
 #: modules/sharedaddy/sharing-sources.php:949
 msgid "Click to share"
@@ -4835,7 +4839,7 @@ msgstr "Csere"
 
 #: modules/module-info.php:197 modules/module-info.php:210
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
-msgstr "Sok plugin és szolgáltatás létezik, amelyek statisztikát szolgáltatnak, de nem mind tud egyéb adatokkal szolgálni. A WordPress.com Stats a legnépszerűbb metriáit könnyű megérteni és egy világos és vonzó felülettel jelentkezik."
+msgstr "Sok bővtmény és szolgáltatás létezik, amelyek statisztikát szolgáltatnak, de nem mind tud egyéb adatokkal szolgálni. A WordPress.com stats a legnépszerűbb metriáit könnyű megérteni és egy világos és vonzó felülettel rendelkezik."
 
 #: modules/sharedaddy/sharing-sources.php:1004
 msgid "URL"
@@ -4915,7 +4919,7 @@ msgstr "Hivatkozások a weboldalaidra, blogjaidra vagy bármely más oldalra, am
 #: class.jetpack-modules-list-table.php:179
 #: class.jetpack-modules-list-table.php:243 class.jetpack.php:3267
 msgid "Activate"
-msgstr "Bekapcsolás"
+msgstr "Bekapcsol"
 
 #: modules/custom-css/custom-css.php:868
 msgid "Save &amp; Buy Upgrade"
@@ -5087,7 +5091,7 @@ msgstr "Feltőltés..."
 
 #: modules/module-info.php:295
 msgid "Jetpack combines the power of %s and the simplicity of WordPress to give you the ultimate in math blogging platforms."
-msgstr ""
+msgstr "Jetpack egyesíti a %s bonyolultságát és a WordPress egyszerűségének erejét, hogy megadja a végső matematikai blog platformot számunkra."
 
 #: modules/sharedaddy/sharing-sources.php:1244
 msgctxt "share to"
@@ -5100,7 +5104,7 @@ msgstr "Alternatív szöveg:"
 
 #: class.jetpack.php:3607
 msgid "Error Details: Jetpack ID is empty. Do not publicly post this error message! %s"
-msgstr ""
+msgstr "Hiba részletek: Jetpack ID üres. Ne tegyük közzé ezt a hibaüzenetet! %s"
 
 #: modules/custom-post-types/comics.php:178
 msgid "Processing..."
@@ -5120,7 +5124,7 @@ msgstr "Kép címe:"
 
 #: class.jetpack.php:3609
 msgid "Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s"
-msgstr ""
+msgstr "Hiba részletek: Jetpack ID nem lépcsőzetes. Ne tegyük közzé ezt a hibaüzenetet! %s"
 
 #: modules/custom-post-types/comics.php:179
 msgid "Sorry, your browser isn't supported. Upgrade at browsehappy.com."
@@ -5140,7 +5144,7 @@ msgstr "Képaláírás:"
 
 #: class.jetpack.php:3611
 msgid "Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s"
-msgstr ""
+msgstr "Hiba részletek: Jetpack ID számmal kezdődik. Ne tegyük közzé ezt a hibaüzenetet! %s"
 
 #: modules/custom-post-types/comics.php:180
 msgid "Only images can be uploaded here."
@@ -5180,7 +5184,7 @@ msgstr "Közép"
 
 #: class.jetpack.php:3892
 msgid "The Client ID/WP.com Blog ID of this site"
-msgstr ""
+msgstr "ID/WP.com Blog ID a honlapon"
 
 #: modules/custom-post-types/comics.php:198
 #: modules/custom-post-types/comics.php:200
@@ -5222,7 +5226,7 @@ msgstr "Kép igazítás:"
 
 #: class.jetpack.php:4147
 msgid "Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window."
-msgstr ""
+msgstr "Valaki hozzá szeretne férni a honlaphoz vagy lehet csak találkozott egy hibával. :) Zárjuk be ezt az ablakot."
 
 #: modules/custom-post-types/comics.php:203
 msgid "All Comics"
@@ -5263,7 +5267,7 @@ msgstr "Magasság:"
 
 #: class.jetpack.php:4215
 msgid "%s wants to access your site&#8217;s data.  Log in to authorize that access."
-msgstr ""
+msgstr "%s hozzá szeretne férni a honlap adataihoz. A hozzáférés megadásához jelentkezzünk be."
 
 #: modules/custom-post-types/comics.php:205
 msgid "Add New Comic"
@@ -5291,7 +5295,7 @@ msgstr "Képregény szerkesztése"
 
 #: modules/module-info.php:376 modules/module-info.php:380
 msgid "Spelling and Grammar"
-msgstr "Helyesírás És Nyelvhelyesség"
+msgstr "Helyesírás és nyelvhelyesség"
 
 #: modules/sharedaddy/sharing.php:211
 msgid "Services dragged here will appear individually."
@@ -5371,7 +5375,7 @@ msgstr "Nem találhatóak képregények"
 
 #: modules/module-info.php:400 modules/module-info.php:414
 msgid "Extra Sidebar Widgets"
-msgstr "Extra Oldalsáv Widgetek"
+msgstr "Extra oldalsáv widgetek"
 
 #: modules/sharedaddy/sharing.php:243
 msgid "Sharing is off. Add services above to enable."
@@ -5391,7 +5395,7 @@ msgstr "Nincsenek képregények a Lomtárban."
 
 #: modules/module-info.php:402
 msgid "The RSS Links Widget "
-msgstr "RSS hiatkozások widget "
+msgstr "Az RSS hiatkozások widget "
 
 #: modules/sharedaddy/sharing.php:309
 msgid "Button style"
@@ -5411,7 +5415,7 @@ msgstr "Tréfa frissítve. <a href=\"%s\">Tréfa megtekintése</a>"
 
 #: modules/module-info.php:402
 msgid "allows you to add links to your blog&#8217;s post and comment RSS feeds in your sidebar. This makes it easy for your readers to stay updated when you post new content or receive new comments."
-msgstr ""
+msgstr "lehetővé teszi az RSS hivatkozások hozzáadását a blog bejegyzésekkel, és hozzászólásokkal kapcsolatban a sablon oldalsávján. Ez lehetővé teszi, hogy az olvasók naprakészek legyenek, ha új bejegyzések, hozzászólások, válaszok érkeznek az oldalra."
 
 #: modules/sharedaddy/sharing.php:312
 msgid "Icon + text"
@@ -5455,7 +5459,7 @@ msgstr "Egyedi mező törölve."
 
 #: modules/module-info.php:403
 msgid "shows your latest tweets within a sidebar on your theme. It&#8217;s an easy way to add more activity to your site. There are also a number of customization options."
-msgstr "egy oldalsávban mutatja a legutóbbi bejegyzéseket a sablonban. Ez egy egyszerű módja annak, hogy több tevékenységet csatoljunk az oldalunkhoz. Ugyanakkor még számos testreszabási lehetőséggel rendelkezik."
+msgstr "megmutatja a csatolt Twitter legújabb bejegyzéseit a sablon oldalsávján. Ez egyszerű módja annak, hogy több aktív tevékenységi felületet adhassunk webhelyünkhöz. Számos testreszabási lehetőséggel rendelkezik."
 
 #: modules/sharedaddy/sharing.php:314
 msgid "Text only"
@@ -5475,7 +5479,7 @@ msgstr "Képregény frissítve."
 
 #: modules/module-info.php:403
 msgid "The Facebook Like Box Widget "
-msgstr "Facebook Like Doboz Widget "
+msgstr "A Facebook Tetszik doboz Widget"
 
 #: modules/sharedaddy/sharing.php:315
 msgid "Official buttons"
@@ -5495,7 +5499,7 @@ msgstr ""
 
 #: modules/module-info.php:403
 msgid "shows your Facebook Like Box within a sidebar on your theme. It&#8217;s a great way to let your readers show their support."
-msgstr ""
+msgstr "megmutatja a Facebook Tetszik dobozt a sablon oldalsávján. Ez egy nagyszerű lehetőség arra, hogy az olvasók megmutathassák támogatásukat."
 
 #: modules/sharedaddy/sharing.php:320
 msgid "Sharing label"
@@ -5630,7 +5634,7 @@ msgstr "Hibás, vagy lejárt munkamenet"
 
 #: modules/module-info.php:418
 msgid "The Facebook Like Box Widget"
-msgstr "A Facebook Like Doboz Widget"
+msgstr "A Facebook Tetszik doboz Widget"
 
 #: modules/sharedaddy/sharing.php:383
 msgid "Icon URL"
@@ -5659,7 +5663,7 @@ msgstr ""
 
 #: modules/module-info.php:418
 msgid "shows your Facebook Like Box within a sidebar on your theme."
-msgstr "megjeleníti a Facebook Like Dobozt a sablon oldalsávján."
+msgstr "megjeleníti a Facebook Tetszik dobozt a sablon oldalsávján."
 
 #: modules/sharedaddy/sharing.php:386
 msgid "Enter the URL of a 16x16px icon you want to use for this service."
