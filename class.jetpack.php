@@ -244,7 +244,7 @@ class Jetpack {
 			if ( did_action( 'plugins_loaded' ) )
 				self::plugin_textdomain();
 			else
-				add_action( 'plugins_loaded', array( __CLASS__, 'plugin_textdomain' ) );
+				add_action( 'plugins_loaded', array( __CLASS__, 'plugin_textdomain' ), 99 );
 
 			self::$instance = new Jetpack;
 
@@ -407,7 +407,7 @@ class Jetpack {
 
 		add_action( 'jetpack_activate_module', array( $this, 'activate_module_actions' ) );
 
-		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ) );
+		add_action( 'plugins_loaded', array( $this, 'extra_oembed_providers' ), 100 );
 
 		/**
 		 * These actions run checks to load additional files.
