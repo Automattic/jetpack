@@ -422,10 +422,10 @@ class Jetpack_Admin {
 	<header>
 		<a href="#" class="close">&times;</a>
 		<ul>
-			<li><a href="#" class="active"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a></li>
+			<li><a href="#" class="active">{{ data.name }}</a></li>
 		</ul>
 	</header>
-	<div class="content-container"><div class="content"></div></div>
+	<div class="content-container"><div class="content">{{{ data.description }}}</div></div>
 </script>
 <script id="tmpl-mod" type="text/html">
 	<div href="{{ data.url }}" data-index="{{ data.index }}" data-name="{{ data.name }}" class="module{{ ( data.new ) ? ' new' : '' }}">

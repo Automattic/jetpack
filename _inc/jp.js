@@ -195,10 +195,10 @@
 				index = $this.data( 'index' ),
 				name = $this.data( 'name' );
 
-			$modal.html( wp.template( 'modal' )( {} ) );
-			$modal.find( 'header li').first().text( name );
-			$modal.find( '.content' ).html( '' );
-			$modal.find( '.content' ).html( modules[index].long_description );
+			$modal.empty().html( wp.template( 'modal' )({
+				name: name,
+				description: modules[index].long_description
+			}));
 
 			closeShadeToggle();
 
