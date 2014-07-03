@@ -835,7 +835,6 @@ class Jetpack_Likes {
 	 */
 	function is_likes_visible() {
 
-		global $wp_current_filter; // Used to check 'get_the_excerpt' filter
 		global $post;              // Used to apply 'sharing_show' filter
 
 		// Never show on feeds or previews
