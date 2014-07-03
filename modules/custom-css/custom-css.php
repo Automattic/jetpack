@@ -596,16 +596,16 @@ class Jetpack_Custom_CSS {
 		$message = apply_filters( 'safecss_preview_message', $message );
 
 		$preview_flag_js = "var flag = document.createElement('div');
-	flag.innerHTML = " . json_encode( $message ) . ";
-	flag.style.background = '#FF6600';
-	flag.style.color = 'white';
-	flag.style.textAlign = 'center';
-	flag.style.fontSize = '15px';
-	flag.style.padding = '2px';
-	flag.style.fontFamily = 'sans-serif'; 
-	document.body.style.paddingTop = '0px';
-	document.body.insertBefore(flag, document.body.childNodes[0]);
-	";
+		flag.innerHTML = " . json_encode( $message ) . ";
+		flag.style.background = '#FF6600';
+		flag.style.color = 'white';
+		flag.style.textAlign = 'center';
+		flag.style.fontSize = '15px';
+		flag.style.padding = '2px';
+		flag.style.fontFamily = 'sans-serif'; 
+		document.body.style.paddingTop = '0px';
+		document.body.insertBefore(flag, document.body.childNodes[0]);
+		";
 
 		$preview_flag_js = apply_filters( 'safecss_preview_flag_js', $preview_flag_js );
 		if ( $preview_flag_js ) {
