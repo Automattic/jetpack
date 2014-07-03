@@ -597,12 +597,13 @@ class Jetpack_Custom_CSS {
 
 		$preview_flag_js = "var flag = document.createElement('div');
 	flag.innerHTML = " . json_encode( $message ) . ";
-	flag.style.background = 'black';
+	flag.style.background = '#FF6600';
 	flag.style.color = 'white';
 	flag.style.textAlign = 'center';
 	flag.style.fontSize = '15px';
-	flag.style.padding = '1px';
-	document.body.style.paddingTop = '32px';
+	flag.style.padding = '2px';
+	flag.style.fontFamily = 'sans-serif'; 
+	document.body.style.paddingTop = '0px';
 	document.body.insertBefore(flag, document.body.childNodes[0]);
 	";
 
