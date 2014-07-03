@@ -856,36 +856,29 @@ class Jetpack_Likes {
 			if ( post_password_required() )
 				$enabled = false;
 
-			/** Other Checks ******************************************************/
-
-			// Do not show on excerpts
-			if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
-				$enabled = false;
-
 			// Sharing Setting Overrides ****************************************
-			} else {
-				// Single post
-				if ( is_singular( 'post' ) ) {
-					if ( ! $this->is_single_post_enabled() ) {
-						$enabled = false;
-					}
 
-				// Single page
-				} elseif ( is_page() ) {
-					if ( ! $this->is_single_page_enabled() ) {
-						$enabled = false;
-					}
-
-				// Attachment
-				} elseif ( is_attachment() ) {
-					if ( ! $this->is_attachment_enabled() ) {
-						$enabled = false;
-					}
-
-				// All other loops
-				} elseif ( ! $this->is_index_enabled() ) {
+			// Single post
+			if ( is_singular( 'post' ) ) {
+				if ( ! $this->is_single_post_enabled() ) {
 					$enabled = false;
 				}
+
+			// Single page
+			} elseif ( is_page() ) {
+				if ( ! $this->is_single_page_enabled() ) {
+					$enabled = false;
+				}
+
+			// Attachment
+			} elseif ( is_attachment() ) {
+				if ( ! $this->is_attachment_enabled() ) {
+					$enabled = false;
+				}
+
+			// All other loops
+			} elseif ( ! $this->is_index_enabled() ) {
+				$enabled = false;
 			}
 		}
 
