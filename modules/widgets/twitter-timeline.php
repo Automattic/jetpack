@@ -32,7 +32,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 			add_action( 'wp_footer', array( $this, 'library' ) );
 		}
 	}
-	
+
 	/**
         * Enqueue Twitter's widget library
         */
