@@ -11,6 +11,10 @@ class Jetpack_Custom_CSS {
 		// Override the edit link, the default link causes a redirect loop
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'revision_post_link' ), 10, 3 );
 
+		// Overwrite the content width global variable if one is set in the custom css 
+		add_action( 'template_redirect', array( __CLASS__, 'set_content_width' ) );
+		add_action( 'admin_init', array( __CLASS__, 'set_content_width' ) );
+
 		if ( ! is_admin() )
 			add_filter( 'stylesheet_uri', array( __CLASS__, 'style_filter' ) );
 
@@ -400,6 +404,20 @@ class Jetpack_Custom_CSS {
 
 	static function is_preview() {
 		return isset( $_GET['csspreview'] ) && $_GET['csspreview'] === 'true';
+	}
+
+	/**
+	 * Currently this filter function gets called on 
+	 * 'template_redirect' action and
+	 * 'admin_init' action
+	 */
+	static function set_content_width(){
+		// Don't apply this filter on the Edit CSS page
+		if ( isset( $_GET ) && isset( $_GET['page'] ) &&  'editcss' == $_GET['page'] && is_admin() ) {
+			return;
+		}
+
+		$GLOBALS['content_width'] = Jetpack::get_content_width();
 	}
 
 	/*
