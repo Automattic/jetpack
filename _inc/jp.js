@@ -1,4 +1,4 @@
-/* global ich, jetpackL10n, jQuery */
+/* global wp, jetpackL10n, jQuery */
 
 (function( $, modules, currentVersion, jetpackL10n ) {
 
@@ -83,7 +83,7 @@
 		filterModules('name');
 
 		// Add category containers
-		$('.modules').html(ich.category());
+		$( '.modules' ).html( wp.template( 'category' )( {} ) );
 
 		// Loop through adding sections for each category
 		for (i=0; i<modules.length; i++) {
@@ -94,7 +94,7 @@
 			for (c=0; c<categories.length; c++) {
 				// Add modules to the correct categories
 				catId = 'category-' + categories[c].toLowerCase().replace('.', '').replace(/ /g, '-');
-				$('.' + catId + ' .clear').before(ich.mod(modules[i], true));
+				$('.' + catId + ' .clear').before( wp.template( 'mod' )( modules[i] ) );
 			}
 		}
 
@@ -144,7 +144,7 @@
 			var term = $(this).val();
 			searchModules(term);
 		});
-		// prevent the form from 
+		// prevent the form from
 		$('#module-search').on('submit', function( event ) {
 			event.preventDefault();
 		});
@@ -188,14 +188,14 @@
 			$('.shade').show();
 
 			// Show loading message on init
-			$modal.html(ich.modalLoading({}, true)).fadeIn();
+			$modal.html( wp.template( 'modalLoading' )( {} ) ).fadeIn();
 
 			// Load & populate with content
 			var $this = $(this),
 				index = $this.data('index'),
 				name = $this.data('name');
 
-			$modal.html(ich.modalTemplate({}, true));
+			$modal.html( wp.template( 'modal' )( {} ) );
 			$modal.find('header li').first().text(name);
 			$modal.find('.content').html('');
 			$modal.find('.content').html(modules[index].long_description);
@@ -220,7 +220,7 @@
 		if ($('.configure').length !== 0) {
 			// Config page
 			for (i=0; i<modules.length; i++) {
-				html += ich.modconfig(modules[i], true);
+				html += wp.template( 'modconfig' )( modules[i] );
 			}
 
 			$('table tbody').html(html);
@@ -229,7 +229,7 @@
 			$('.feature a.f-img').each(function() {
 				featuredModules.push($( this ).data('name'));
 			});
-			
+
 			// About page
 			for (i=0; i<modules.length; i++) {
 				if (currentVersion.indexOf(modules[i].introduced) !== -1) {
@@ -241,10 +241,10 @@
 				if ( featuredModulesIndex > -1 ) {
 					$('.feature').eq(featuredModulesIndex).find('a').data('index', i);
 				}
-				
+
 				modules[i].index = i;
 
-				html += ich.mod(modules[i], true);
+				html += wp.template( 'mod' )( modules[i] );
 			}
 
 			$('.modules').html(html);
@@ -285,7 +285,7 @@
 			lowercaseName = modules[i].name.toLowerCase();
 			lowercaseTerm = term.toLowerCase();
 			if (lowercaseName.indexOf(lowercaseTerm) !== -1 || lowercaseDesc.indexOf(lowercaseTerm) !== -1) {
-				html += ich.mod(modules[i], true);
+				html += wp.template( 'mod' )( modules[i] );
 			}
 			$('.modules').html( html );
 		}
