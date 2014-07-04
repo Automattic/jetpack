@@ -346,13 +346,14 @@ Scroller.prototype.refresh = function() {
 				}
 
 				// Fire Google Analytics pageview
-				if ( self.google_analytics && 'object' == typeof _gaq ) {
-					_gaq.push(['_trackPageview', self.history.path.replace( /%d/, self.page ) ]);
-				}
-
-				// Fire Google Universal Analytics pageview
-				if ( self.google_analytics && 'function' == typeof ga ) {
-					ga( 'send', 'pageview', self.history.path.replace( /%d/, self.page ) );
+				if ( self.google_analytics ) {
+					var ga_url = self.history.path.replace( /%d/, self.page );
+					if ( 'object' === typeof _gaq ) {
+						_gaq.push( [ '_trackPageview', ga_url ] );
+					}
+					if ( 'function' === typeof ga ) {
+						ga( 'send', 'pageview', ga_url );
+					}
 				}
 			}
 		});
