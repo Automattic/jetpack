@@ -341,7 +341,7 @@ Scroller.prototype.refresh = function() {
 				}
 
 				// Update currentday to the latest value returned from the server
-				if (response.currentday) {
+				if ( response.currentday ) {
 					self.currentday = response.currentday;
 				}
 
