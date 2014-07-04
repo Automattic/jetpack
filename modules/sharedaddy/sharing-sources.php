@@ -944,8 +944,18 @@ class Share_Custom extends Sharing_Advanced_Source {
 			$this->shortname = preg_replace( '/[^a-z0-9]*/', '', $settings['name'] );
 		}
 
-		if ( isset( $settings['icon'] ) )
+		if ( isset( $settings['icon'] ) ) {
 			$this->icon = $settings['icon'];
+
+			for ( $i = 0, $new_icon = wp_specialchars_decode( $this->icon, ENT_QUOTES ); $new_icon != $this->icon; $i++ ) {
+				if ( $i > 5 ) {
+					$this->icon = false;
+					break;
+				} else {
+					$this->icon = $new_icon;
+				}
+			}
+		}
 
 		if ( isset( $settings['url'] ) )
 			$this->url = $settings['url'];
@@ -1078,10 +1088,10 @@ class Share_Custom extends Sharing_Advanced_Source {
 			$klasses[] = 'no-icon';
 
 		$link = sprintf(
-			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;" title="%s"><span style="background-image:url(%s) !important;background-position:left center;background-repeat:no-repeat;">%s</span></a>',
+			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;" title="%s"><span style="background-image:url(&quot;%s&quot;) !important;background-position:left center;background-repeat:no-repeat;">%s</span></a>',
 			implode( ' ', $klasses ),
 			$this->get_name(),
-			esc_url( $opts['icon'] ),
+			addcslashes( esc_url_raw( $opts['icon'] ), '"' ),
 			$text
 		);
 		?>
