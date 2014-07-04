@@ -380,12 +380,13 @@ class The_Neverending_Home_Page {
 		$post = end( self::wp_query()->posts );
 		$orderby = isset( self::wp_query()->query_vars['orderby'] ) ?
 			self::wp_query()->query_vars['orderby'] : '';
+		$post_date = ( ! empty( $post->post_date ) ? $post->post_date : false );
 		switch ( $orderby ) {
 			case 'modified':
 				return $post->post_modified;
 			case 'date':
 			case '':
-				return $post->post_date;
+				return $post_date;
 			default:
 				return false;
 		}
