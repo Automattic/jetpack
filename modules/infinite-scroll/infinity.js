@@ -352,7 +352,7 @@ Scroller.prototype.refresh = function() {
 
 				// Fire Google Universal Analytics pageview
 				if ( self.google_analytics && 'function' == typeof ga ) {
-					ga('send', 'pageview', self.history.path.replace( /%d/, self.page ) ]);
+					ga( 'send', 'pageview', self.history.path.replace( /%d/, self.page ) );
 				}
 			}
 		});
