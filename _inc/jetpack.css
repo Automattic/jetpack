@@ -873,7 +873,7 @@ html {
   border-bottom: 1px solid #d6d6d6;
   background: #fff;
   position: relative;
-  padding: 2.0em 0 4.6em;
+  padding: 2.0em 1em 4.6em 1em;
   text-align: center;
   z-index: 1;
 }
