@@ -440,13 +440,15 @@ html {
 }
 .header-nav .jetpack-logo {
   position: relative;
-  color: #fff;
-  font-weight: normal;
-  height: 46px;
-  width: 7.625em;
+  width: 15.28571em;
+  height: 3.28571em;
   margin-left: 8px;
   background: url(images/jetpack-logo.png) center center no-repeat;
   background: url(images/jetpack-logo.svg) center center no-repeat, none;
+  -webkit-background-size: 183px 32px;
+  background-size: 183px 32px;
+  color: #fff;
+  font-weight: normal;
   text-indent: -9999px;
 }
 
@@ -455,15 +457,6 @@ html {
 }
 .main-nav li {
   margin: 0;
-}
-.main-nav .jetpack-logo {
-  font: normal 400 24px/50px "Open Sans", Helvetica, sans-serif;
-  margin-right: 10px;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.15);
-}
-.main-nav .jetpack-logo span {
-  float: left;
-  margin-top: -3px;
 }
 
 .user-nav {

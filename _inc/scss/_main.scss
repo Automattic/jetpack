@@ -93,13 +93,14 @@ html {
 	}
 	.jetpack-logo {
 		position: relative;
-		color: #fff;
-		font-weight: normal;
-		height: 46px;
-		width: em(183,24);
+		width: em(214,14);
+		height: em(46,14);
 		margin-right: 8px;
 		background: url(images/jetpack-logo.png) center center no-repeat;
 		background: url(images/jetpack-logo.svg) center center no-repeat, none;
+		background-size: 183px 32px;
+		color: #fff;
+		font-weight: normal;
 		text-indent: -9999px;
 	}
 }
@@ -109,16 +110,6 @@ html {
 
 	li {
 		margin: 0;
-	}
-	.jetpack-logo {
-		font: normal 400 24px/50px $sans;
-		margin-left: 10px;
-		text-shadow: 0 1px 1px rgba(0,0,0,.15);
-
-		span {
-			float: right;
-			margin-top: -3px;
-		}
 	}
 }
 
