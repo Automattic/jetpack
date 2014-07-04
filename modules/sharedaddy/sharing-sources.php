@@ -947,13 +947,17 @@ class Share_Custom extends Sharing_Advanced_Source {
 		if ( isset( $settings['icon'] ) ) {
 			$this->icon = $settings['icon'];
 
-			for ( $i = 0, $new_icon = wp_specialchars_decode( $this->icon, ENT_QUOTES ); $new_icon != $this->icon; $i++ ) {
+			$new_icon = esc_url_raw( wp_specialchars_decode( $this->icon, ENT_QUOTES ) );
+			$i = 0;
+			while ( $new_icon != $this->icon ) {
 				if ( $i > 5 ) {
 					$this->icon = false;
 					break;
 				} else {
 					$this->icon = $new_icon;
+					$new_icon = esc_url_raw( wp_specialchars_decode( $this->icon, ENT_QUOTES ) );
 				}
+				$i++;
 			}
 		}
 
