@@ -1,4 +1,4 @@
-* {
+.jp-carousel-wrap * {
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
 }
 
