@@ -215,7 +215,7 @@ class Jetpack_Tiled_Gallery {
 			if ( $add_link ) {
 				$output .= '<a border="0" href="' . esc_url( $link ) . '">';
 			}
-			$output .= '<img ' . $orig_dimensions . $this->generate_carousel_image_args( $image ) . '" src="' . esc_url( $img_src ) . '" width="' . esc_attr( $img_size ) . '" height="' . esc_attr( $img_size ) . '" style="width:' . esc_attr( $img_size ) . 'px; height:' . esc_attr( $img_size ) . 'px; margin: ' . esc_attr( $margin ) . 'px;" title="' . esc_attr( $image_title ) . '" />';
+			$output .= '<img ' . $orig_dimensions . $this->generate_carousel_image_args( $image ) . ' src="' . esc_url( $img_src ) . '" width="' . esc_attr( $img_size ) . '" height="' . esc_attr( $img_size ) . '" style="width:' . esc_attr( $img_size ) . 'px; height:' . esc_attr( $img_size ) . 'px; margin: ' . esc_attr( $margin ) . 'px;" title="' . esc_attr( $image_title ) . '" />';
 			if ( $add_link ) {
 				$output .= '</a>';
 			}
