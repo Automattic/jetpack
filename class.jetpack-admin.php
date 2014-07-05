@@ -249,20 +249,19 @@ class Jetpack_Admin {
 
 	function admin_styles() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-		
+
 		wp_enqueue_style( 'jetpack-google-fonts', '//fonts.googleapis.com/css?family=Open+Sans:400italic,400,700,600,800' );
 		if( is_rtl() ) {
 			wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin-rtl{$min}.css", __FILE__ ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
 		} else {
-			wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin{$min}.css", __FILE__ ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );	
+			wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin{$min}.css", __FILE__ ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
 		}
 	}
 
 	function admin_scripts() {
 		// Let's only do this stuff for the main page.
 		if ( ! empty( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
-			wp_enqueue_script( 'jetpack-icanhaz', plugins_url( '_inc/icanhaz.js', __FILE__ ), array( ), JETPACK__VERSION . '-20121111' );
-			wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
+			wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', __FILE__ ), array( 'jquery', 'wp-util' ), JETPACK__VERSION . '-20121111' );
 			wp_localize_script(
 				'jetpack-js',
 				'jetpackL10n',
@@ -304,7 +303,7 @@ class Jetpack_Admin {
 			$is_master_user    = false;
 		}
 
-		$this->admin_page_top(); 
+		$this->admin_page_top();
 
 		$data = array(
 			'is_connected' => $is_connected,
@@ -312,7 +311,7 @@ class Jetpack_Admin {
 			'is_master_user' => $is_master_user
 		);
 		Jetpack::init()->load_view( 'admin/admin-page.php', $data );
-		
+
 		$this->admin_page_bottom();
 	}
 
@@ -410,36 +409,48 @@ class Jetpack_Admin {
 	function main_page_js_templates() {
 		$modules = 	array('Appearance', 'Developers', 'Mobile', 'Other', 'Photos and Videos', 'Social', 'WordPress.com Stats', 'Writing' );
 		?>
-<script id="category" type="text/html">
-	<?php foreach( $modules as $module ){ 
+<script id="tmpl-category" type="text/html">
+	<?php foreach( $modules as $module ){
 		$translated_module = Jetpack::translate_module_tag( $module );
-		$module_slug = strtolower ( str_replace( array( ' ', '.' ) , array( '-', '' ) , $translated_module ) ); ?> 
+		$module_slug = strtolower ( str_replace( array( ' ', '.' ) , array( '-', '' ) , $translated_module ) ); ?>
 		<div class="cat category-<?php echo esc_attr( $module_slug  ); ?> "><h3><?php echo esc_html( $translated_module ); ?></h3><div class="clear"></div></div>
 	<?php } ?>
 </script>
-<script id="modalLoading" type="text/html">
+<script id="tmpl-modalLoading" type="text/html">
 	<div class="loading"><span><?php esc_html_e( 'loading&hellip;', 'jetpack' ); ?></span></div>
 </script>
-<script id="modalTemplate" type="text/html">
+<script id="tmpl-modal" type="text/html">
 	<header>
 		<a href="#" class="close">&times;</a>
 		<ul>
-			<li><a href="#" class="active"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a></li>
+			<li><a href="#" class="active title">{{ data.name }}</a></li>
+			<li class="module-actions landing-page">
+				<# if ( data.activated ) { #>
+					<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ data.module }}}&#038;_wpnonce={{{ data.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
+				<# } else if ( data.available ) { #>
+					<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ data.module }}}&#038;_wpnonce={{{ data.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
+				<# } #>
+			</li>
+			<li class="module-actions landing-page">
+				<# if ( data.configurable ) { #> <a href="{{ data.configure_url }}">Configure</a> <# } #>
+			</li>
 		</ul>
 	</header>
-	<div class="content-container"><div class="content"></div></div>
-</script>
-<script id="mod" type="text/html">
-	<div href="{{ url }}" data-index="{{ index }}" data-name="{{ name }}" class="module{{#new}} new{{/new}}">
-		<h3 class="icon {{ module }}">{{ name }}{{^free}}<span class="paid"><?php esc_html_e( 'Paid', 'jetpack' ); ?></span>{{/free}}</h3>
-		<p>{{{ short_description }}}</p>
+	<div class="content-container">
+		<div class="content">{{{ data.long_description }}}</div>
 	</div>
 </script>
-<script id="modconfig" type="text/html">
-	<tr class="configs {{#active}}active{{/active}}">
+<script id="tmpl-mod" type="text/html">
+	<div href="{{ data.url }}" data-index="{{ data.index }}" data-name="{{ data.name }}" class="module{{ ( data.new ) ? ' new' : '' }}">
+		<h3 class="icon {{ data.module }}">{{ data.name }}<# if ( ! data.free ) { #><span class="paid"><?php esc_html_e( 'Paid', 'jetpack' ); ?></span><# } #></h3>
+		<p>{{{ data.short_description }}}</p>
+	</div>
+</script>
+<script id="tmpl-modconfig" type="text/html">
+	<tr class="configs{{ ( data.active ) ? ' active' : '' }}">
 		<td class="sm"><input type="checkbox"></td>
-		<td><a href="{{ url }}" data-name="{{ name }}">{{ name }}</a></td>
-		<td class="med"><a href="{{ url }}" data-name="{{ name }}"><span class="genericon genericon-help" title="<?php esc_attr_e( 'Learn more', 'jetpack' ); ?>"></span></a>{{#hasConfig}}<a href="{{ url }}" data-name="{{ name }}"><span class="genericon genericon-cog" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></span></a>{{/hasConfig}}</td>
+		<td><a href="{{ data.url }}" data-name="{{ data.name }}">{{ data.name }}</a></td>
+		<td class="med"><a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-help" title="<?php esc_attr_e( 'Learn more', 'jetpack' ); ?>"></span></a>{{#hasConfig}}<a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-cog" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></span></a>{{/hasConfig}}</td>
 	</tr>
 </script>
 		<?php

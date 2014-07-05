@@ -2099,8 +2099,7 @@ p {
 	}
 
 	function admin_scripts() {
-		wp_enqueue_script( 'jetpack-icanhaz', plugins_url( '_inc/icanhaz.js', __FILE__ ), array( ), JETPACK__VERSION . '-20121111' );
-		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
+		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', __FILE__ ), array( 'jquery', 'wp-util' ), JETPACK__VERSION . '-20121111' );
 		wp_localize_script(
 			'jetpack-js',
 			'jetpackL10n',
