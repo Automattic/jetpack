@@ -260,7 +260,7 @@ class Jetpack_Admin {
 	function admin_scripts() {
 		// Let's only do this stuff for the main page.
 		if ( ! empty( $_GET['page'] ) && 'jetpack' == $_GET['page'] ) {
-			wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', __FILE__ ), array( 'jquery', 'backbone', 'underscore', 'wp-util' ), JETPACK__VERSION . '-20121111' );
+			wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', __FILE__ ), array( 'jquery', 'wp-util' ), JETPACK__VERSION . '-20121111' );
 			wp_localize_script(
 				'jetpack-js',
 				'jetpackL10n',
