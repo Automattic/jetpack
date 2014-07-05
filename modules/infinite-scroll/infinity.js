@@ -341,12 +341,20 @@ Scroller.prototype.refresh = function() {
 				}
 
 				// Update currentday to the latest value returned from the server
-				if (response.currentday)
+				if ( response.currentday ) {
 					self.currentday = response.currentday;
+				}
 
 				// Fire Google Analytics pageview
-				if ( self.google_analytics && 'object' == typeof _gaq )
-					_gaq.push(['_trackPageview', self.history.path.replace( /%d/, self.page ) ]);
+				if ( self.google_analytics ) {
+					var ga_url = self.history.path.replace( /%d/, self.page );
+					if ( 'object' === typeof _gaq ) {
+						_gaq.push( [ '_trackPageview', ga_url ] );
+					}
+					if ( 'function' === typeof ga ) {
+						ga( 'send', 'pageview', ga_url );
+					}
+				}
 			}
 		});
 
