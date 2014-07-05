@@ -1019,8 +1019,7 @@ html {
   text-align: center;
   top: 47px;
 }
-.modal .content,
-.modal .controls {
+.modal .content {
   margin: 0 auto;
   max-width: 900px;
   text-align: right;

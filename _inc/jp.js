@@ -200,8 +200,8 @@
 			closeShadeToggle();
 
 			// Modal header links
-			$( '.modal header li a' ).on( 'click', function () {
-				$( '.modal header li a' ).removeClass( 'active' );
+			$( '.modal header li a.title' ).on( 'click', function () {
+				$( '.modal header li a.title' ).removeClass( 'active' );
 				$( this ).addClass( 'active' );
 				return false;
 			});
