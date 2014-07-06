@@ -606,7 +606,6 @@ html {
   margin-right: 8px;
   background: url(images/jetpack-logo.png) center center no-repeat;
   background: url(images/jetpack-logo.svg) center center no-repeat, none;
-  -webkit-background-size: 183px 32px;
   background-size: 183px 32px;
   color: #fff;
   font-weight: normal;

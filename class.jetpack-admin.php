@@ -423,7 +423,7 @@ class Jetpack_Admin {
 	<header>
 		<a href="#" class="close">&times;</a>
 		<ul>
-			<li><a href="#" class="active title">{{ data.name }}</a></li>
+			<li><a href="#" class="active title"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a></li>
 			<li class="module-actions landing-page">
 				<# if ( data.activated ) { #>
 					<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ data.module }}}&#038;_wpnonce={{{ data.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
