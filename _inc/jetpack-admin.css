@@ -9,7 +9,6 @@
   font-weight: normal;
   font-style: normal;
 }
-
 @font-face {
   font-family: 'Jetpack';
   src: url("fonts/jetpack.eot");
@@ -17,7 +16,6 @@
   font-weight: normal;
   font-style: normal;
 }
-
 *,
 *:before,
 *:after {
@@ -147,7 +145,6 @@ hr {
     transform: scale(1);
   }
 }
-
 @-moz-keyframes grow {
   0% {
     -moz-transform: scale(0.3);
@@ -164,7 +161,6 @@ hr {
     transform: scale(1);
   }
 }
-
 @-o-keyframes "grow" {
   0% {
     -o-transform: scale(0.3);
@@ -181,7 +177,6 @@ hr {
     transform: scale(1);
   }
 }
-
 @keyframes "grow" {
   0% {
     -webkit-transform: scale(0.3);
@@ -204,7 +199,6 @@ hr {
     transform: scale(1);
   }
 }
-
 @-webkit-keyframes "candy" {
   0% {
     -webkit-transform: scale(1);
@@ -234,7 +228,6 @@ hr {
     transform: scale(1);
   }
 }
-
 @-moz-keyframes candy {
   0% {
     -moz-transform: scale(1);
@@ -256,7 +249,6 @@ hr {
     transform: scale(1);
   }
 }
-
 @-o-keyframes "candy" {
   0% {
     -o-transform: scale(1);
@@ -278,7 +270,6 @@ hr {
     transform: scale(1);
   }
 }
-
 @keyframes "candy" {
   0% {
     -webkit-transform: scale(1);
@@ -308,7 +299,6 @@ hr {
     transform: scale(1);
   }
 }
-
 @-moz-keyframes flyer {
   0% {
     -moz-transform: translate3d(0px, 0px, 0px);
@@ -320,7 +310,6 @@ hr {
     transform: translate3d(570px, -570px, 0px);
   }
 }
-
 @-webkit-keyframes "flyer" {
   0% {
     -webkit-transform: translate3d(0px, 0px, 0px);
@@ -336,7 +325,6 @@ hr {
     transform: translate3d(570px, -570px, 0px);
   }
 }
-
 @-o-keyframes "flyer" {
   0% {
     -o-transform: translate3d(0px, 0px, 0px);
@@ -348,7 +336,6 @@ hr {
     transform: translate3d(570px, -570px, 0px);
   }
 }
-
 @keyframes "flyer" {
   0% {
     -webkit-transform: translate3d(0px, 0px, 0px);
@@ -364,7 +351,6 @@ hr {
     transform: translate3d(570px, -570px, 0px);
   }
 }
-
 .button,
 .download-jetpack {
   -webkit-transition: all 0.1s ease-in-out;
@@ -491,12 +477,11 @@ hr {
   font-weight: normal;
   font-style: normal;
 }
-
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   @font-face {
     font-family: "jetpack";
     src: font-url("jetpack.svg#jetpack") format("svg");
-}
+  }
 }
 .jetpack-icon-20:before {
   content: "\f102";

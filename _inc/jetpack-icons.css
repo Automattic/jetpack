@@ -9,7 +9,6 @@
   font-weight: normal;
   font-style: normal;
 }
-
 @font-face {
   font-family: 'Jetpack';
   src: url("fonts/jetpack.eot");
@@ -17,7 +16,6 @@
   font-weight: normal;
   font-style: normal;
 }
-
 @font-face {
   font-family: "jetpack";
   src: font-url("jetpack.eot");
@@ -25,12 +23,11 @@
   font-weight: normal;
   font-style: normal;
 }
-
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   @font-face {
     font-family: "jetpack";
     src: font-url("jetpack.svg#jetpack") format("svg");
-}
+  }
 }
 .jetpack-icon-20:before {
   content: "\f102";
