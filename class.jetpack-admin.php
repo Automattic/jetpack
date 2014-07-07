@@ -176,6 +176,7 @@ class Jetpack_Admin {
 		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
 		add_action( "admin_footer-$hook",        array( $this, 'main_page_js_templates' ) );
+		add_action( "admin_footer-$hook",        array( $this, 'module_modal_js_template' ) );
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
 
@@ -197,6 +198,7 @@ class Jetpack_Admin {
 		add_action( "load-$hook",                array( $this, 'admin_page_load'   ) );
 		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'        ) );
+		add_action( "admin_footer-$hook",        array( $this, 'module_modal_js_template' ) );
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'      ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'     ) );
 	}
@@ -419,30 +421,6 @@ class Jetpack_Admin {
 <script id="tmpl-modalLoading" type="text/html">
 	<div class="loading"><span><?php esc_html_e( 'loading&hellip;', 'jetpack' ); ?></span></div>
 </script>
-<script id="tmpl-modal" type="text/html">
-	<header>
-		<a href="#" class="close">&times;</a>
-	</header>
-	<div class="content-container <# if ( data.available) { #>modal-footer<# } #>">
-		<div class="content">{{{ data.long_description }}}</div>
-	</div>
-	<# if ( data.available) { #>
-		<footer>
-			<ul>
-				<li>
-					<# if ( data.activated ) { #>
-						<span class='delete'><a class="button-secondary"href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ data.module }}}&#038;_wpnonce={{{ data.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
-					<# } else if ( data.available ) { #>
-						<span class='activate'><a class="button-primary"href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ data.module }}}&#038;_wpnonce={{{ data.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
-					<# } #>
-				</li>
-				<li>
-					<# if ( data.configurable ) { #> <a class="button-primary" href="{{ data.configure_url }}">Configure</a> <# } #>
-				</li>
-			</ul>
-		</footer>
-	<# } #>
-</script>
 <script id="tmpl-mod" type="text/html">
 	<div href="{{ data.url }}" data-index="{{ data.index }}" data-name="{{ data.name }}" class="module{{ ( data.new ) ? ' new' : '' }}">
 		<h3 class="icon {{ data.module }}">{{ data.name }}<# if ( ! data.free ) { #><span class="paid"><?php esc_html_e( 'Paid', 'jetpack' ); ?></span><# } #></h3>
@@ -457,6 +435,10 @@ class Jetpack_Admin {
 	</tr>
 </script>
 		<?php
+	}
+
+	function module_modal_js_template() {
+		include( JETPACK__PLUGIN_DIR . 'views/admin/module-modal-template.php' );
 	}
 
 }

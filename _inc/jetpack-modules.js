@@ -40,16 +40,7 @@
 
 	show_modal = function( module, tab ) {
 		$jp_frame.children( '.modal, .shade' ).show();
-		$jp_frame.children( '.modal' ).data( 'current-module', module );
-		set_modal_tab( tab );
-
-		/**
-		 * Handle the configure tab. If it shouldn't be there, hide it!
-		 */
-		$jp_frame.find( '.modal header li.config' ).show();
-		if ( ! items[ module ].configurable ) {
-			$jp_frame.find( '.modal header li.config' ).hide();
-		}
+		$( '.modal ').empty().html( wp.template( 'modal' )( $.extend( items[ module ], { name: module } ) ) );
 	};
 
 	hide_modal = function() {
@@ -75,11 +66,6 @@
 	};
 
 	$jp_frame.on( 'click', '.modal header .close, .shade', hide_modal );
-
-	$jp_frame.on( 'click', '.modal header ul li a', function( event ){
-		event.preventDefault();
-		set_modal_tab( $(this).data('tab') );
-	} );
 
 	$jp_frame.children( '.modal' ).on( 'learn-more', function() {
 		var current_module = $jp_frame.children( '.modal' ).data( 'current-module' );
