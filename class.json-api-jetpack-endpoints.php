@@ -9,12 +9,14 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * Switches to the blog and checks current user capabilities.
 	 * @return bool|WP_Error a WP_Error object or true if things are good.
 	 */
-	protected function validate_call( $_blog_id, $capability ) {
+	protected function validate_call( $_blog_id, $capability, $check_full_write = false ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
 		if ( is_wp_error( $blog_id ) )
 			return $blog_id;
-		if ( ! current_user_can( $capability ) )
+
+		if ( ! current_user_can( $capability ) || ( $check_full_write && ! Jetpack_Options::get_option( 'json_api_full_write' ) ) ) {
 			return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog', 'jetpack' ), $capability ), 403 );
+		}
 		return true;
 	}
 
@@ -714,7 +716,8 @@ new Jetpack_JSON_API_GET_Update_Data( array(
 class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// GET  /sites/%s/plugins/%s/update => upgrade_plugin
 	public function callback( $path = '', $blog_id = 0, $plugin_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_plugins' ) ) ) {
+
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_plugins', true ) ) ) {
 			return $error;
 		}
 
