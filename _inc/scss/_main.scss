@@ -642,44 +642,25 @@ html {
 }
 .modal {
 	background: #fff;
-	bottom: 10%;
-	display: none;
-	left: 10%;
-	margin-left: 160px;
 	position: fixed;
-	right: 10%;
+	top: 52px;
+	bottom: 20px;
+	right: 20px;
+	left: 20px;
+	margin-left: 160px;
+	display: none;
 	text-align: center;
-	top: 10%;
 	z-index: 12;
 	@include box-shadow(0 1px 20px 5px rgba(0, 0, 0, 0.1));
 
 	header {
-		border-bottom: 1px solid #ddd;
+		position: relative;
 		height: 47px;
-		overflow: hidden;
 		text-align: left;
+		overflow: hidden;
+		z-index: 1;
 
-		li {
-			color: #999;
-			display: inline-block;
-			font-size: em(22);
-			font-weight: normal;
-			padding-left: em(10);
-			list-style: none;
-			margin-top: em(5);
-
-			a.active {
-				color: #555;
-				cursor: default;
-				text-decoration: none;
-			}
-		}
-		ul {
-			margin: 0;
-			padding: 0;
-		}
 		.close {
-			border-left: 1px solid #ddd;
 			float: right;
 			font: 300 em(24) 'genericons' !important;
 			color: #777;
@@ -701,36 +682,73 @@ html {
 		display: none;
 	}
 	.content-container {
+		position: absolute;
+		top: 0;
+		right: 0;
 		bottom: 0;
 		left: 0;
 		overflow: auto;
-		padding: 0 em(20) em(10);
-		position: absolute;
-		right: 0;
+		padding: em(47) em(30) em(30);
 		text-align: center;
-		top: 47px;
 	}
 	.content {
 		margin: 0 auto;
 		max-width: 900px;
 		text-align: left;
+	}
+	h3,
+	h4 {
+		margin-top: em(22, 32);
+		color: #5d6d74;
+		font: 300 32px $proxima; // 36/14
+		text-shadow: 0 1px 1px #fff;
+		// overflow: hidden;
+	}
+	p {
+		font-size: em(16, 13);
+	}
+	footer {
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 100%;
+		padding: 12px 20px;
+		border-top: 1px solid #ddd;
+		background: #fff;
+		text-align: right;
 
-		h3, h4 {
-			margin-top: em(22, 36);
-			color: #5d6d74;
-			font: 300 1.4em $proxima; // 36/14
-			text-shadow: 0 1px 1px #fff;
+		ul {
+			margin: 0;
 		}
-
-		div.jp-info-img {
-			float: right;
-			margin: 0 0 1em 1em;
-
-			img {
-				border: 1px solid #ddd;
-				max-width: 100%;
-			}
+		li {
+			display: inline-block;
+			margin: 0;
 		}
+	}
+	.button-secondary {
+		vertical-align: baseline;
+	}
+}
+.jp-info-img {
+	float: right;
+	margin: 0 0 30px 30px;
+
+	&:first-child {
+		margin-top: 85px;
+	}
+	img {
+		border: 1px solid #ddd;
+		max-width: 100%;
+		height: auto;
+
+		&:first-child {
+			margin-top: 0;
+		}
+	}
+}
+.modal-footer {
+	.content-container {
+		bottom: 53px;
 	}
 }
 .shade {

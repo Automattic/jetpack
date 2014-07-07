@@ -166,9 +166,6 @@
 	.modal {
 		bottom: 5%;
 		font-size: 80%;
-		left: 10%;
-		right: 10%;
-		top: 80px;
 
 		header {
 			height: 38px;
@@ -264,6 +261,14 @@
 	.modal {
 		margin-left: 0;
 	}
+	.modal {
+		top: 66px;
+	}
+	.jp-info-img,
+	.jp-info-img:first-child {
+		float: none;
+		margin: 0;
+	}
 	.configure .frame.top.fixed {
 		padding-left: 0;
 	}
@@ -299,6 +304,14 @@
 		visibility: visible;
 	}
 }
+@media (max-width: 600px) {
+	.modal {
+		top: 10px;
+		right: 10px;
+		bottom: 10px;
+		left: 10px;
+	}
+}
 @media (max-width: 530px) {
 	.footer {
 		margin-top: 0;
@@ -322,6 +335,10 @@
 	.modal .content div.jp-info-img {
 		margin: 0 0 23px;
 	}
+	.modal h3,
+	.modal h4 {
+		font-size: 26px;
+	}
 	.featured {
 		display: none;
 	}
@@ -343,12 +360,6 @@
 			font-size: 21px;
 			font-weight: 400;
 		}
-	}
-	.modal {
-		bottom: 5%;
-		left: 5%;
-		right: 5%;
-		top: 80px;
 	}
 	.subhead {
 		margin-top: 83px;

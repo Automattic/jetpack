@@ -946,44 +946,26 @@ html {
 
 .modal {
   background: #fff;
-  bottom: 10%;
-  display: none;
-  right: 10%;
-  margin-right: 160px;
   position: fixed;
-  left: 10%;
+  top: 52px;
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+  margin-right: 160px;
+  display: none;
   text-align: center;
-  top: 10%;
   z-index: 12;
   -webkit-box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
 }
 .modal header {
-  border-bottom: 1px solid #ddd;
+  position: relative;
   height: 47px;
-  overflow: hidden;
   text-align: right;
-}
-.modal header li {
-  color: #999;
-  display: inline-block;
-  font-size: 1.57143em;
-  font-weight: normal;
-  padding-right: 0.71429em;
-  list-style: none;
-  margin-top: 0.35714em;
-}
-.modal header li a.active {
-  color: #555;
-  cursor: default;
-  text-decoration: none;
-}
-.modal header ul {
-  margin: 0;
-  padding: 0;
+  overflow: hidden;
+  z-index: 1;
 }
 .modal header .close {
-  border-right: 1px solid #ddd;
   float: left;
   font: 300 1.71429em "genericons" !important;
   color: #777;
@@ -1003,34 +985,69 @@ html {
   display: none;
 }
 .modal .content-container {
+  position: absolute;
+  top: 0;
+  left: 0;
   bottom: 0;
   right: 0;
   overflow: auto;
-  padding: 0 1.42857em 0.71429em;
-  position: absolute;
-  left: 0;
+  padding: 3.35714em 2.14286em 2.14286em;
   text-align: center;
-  top: 47px;
 }
 .modal .content {
   margin: 0 auto;
   max-width: 900px;
   text-align: right;
 }
-
-.modal .content h3, .modal .content h4 {
-  margin-top: 0.61111em;
+.modal h3,
+.modal h4 {
+  margin-top: 0.6875em;
   color: #5d6d74;
-  font: 300 1.4em "proxima-nova", "Open Sans", Helvetica, sans-serif;
+  font: 300 32px "proxima-nova", "Open Sans", Helvetica, sans-serif;
   text-shadow: 0 1px 1px #fff;
 }
-.modal .content div.jp-info-img {
-  float: left;
-  margin: 0 1em 1em 0;
+.modal p {
+  font-size: 1.23077em;
 }
-.modal .content div.jp-info-img img {
+.modal footer {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  padding: 12px 20px;
+  border-top: 1px solid #ddd;
+  background: #fff;
+  text-align: left;
+}
+.modal footer ul {
+  margin: 0;
+}
+.modal footer li {
+  display: inline-block;
+  margin: 0;
+}
+.modal .button-secondary {
+  vertical-align: baseline;
+}
+
+.jp-info-img {
+  float: left;
+  margin: 0 30px 30px 0;
+}
+.jp-info-img:first-child {
+  margin-top: 85px;
+}
+.jp-info-img img {
   border: 1px solid #ddd;
   max-width: 100%;
+  height: auto;
+}
+.jp-info-img img:first-child {
+  margin-top: 0;
+}
+
+.modal-footer .content-container {
+  bottom: 53px;
 }
 
 .shade {
@@ -1542,6 +1559,14 @@ html {
   }
 }
 
+.module-actions.landing-page {
+  float: left;
+  margin-left: 15px;
+}
+.module-actions.landing-page a {
+  font-size: 0.6em;
+}
+
 .table-bordered.jetpack-modules {
   border: none;
   margin-bottom: 0;
@@ -1941,9 +1966,6 @@ html {
   .modal {
     bottom: 5%;
     font-size: 80%;
-    right: 10%;
-    left: 10%;
-    top: 80px;
   }
   .modal header {
     height: 38px;
@@ -2028,6 +2050,16 @@ html {
     margin-right: 0;
   }
 
+  .modal {
+    top: 66px;
+  }
+
+  .jp-info-img,
+  .jp-info-img:first-child {
+    float: none;
+    margin: 0;
+  }
+
   .configure .frame.top.fixed {
     padding-right: 0;
   }
@@ -2068,6 +2100,14 @@ html {
     visibility: visible;
   }
 }
+@media (max-width: 600px) {
+  .modal {
+    top: 10px;
+    left: 10px;
+    bottom: 10px;
+    right: 10px;
+  }
+}
 @media (max-width: 530px) {
   .footer {
     margin-top: 0;
@@ -2097,6 +2137,11 @@ html {
     margin: 0 0 23px;
   }
 
+  .modal h3,
+  .modal h4 {
+    font-size: 26px;
+  }
+
   .featured {
     display: none;
   }
@@ -2118,13 +2163,6 @@ html {
     padding: 31px 0 15px 0;
     font-size: 21px;
     font-weight: 400;
-  }
-
-  .modal {
-    bottom: 5%;
-    right: 5%;
-    left: 5%;
-    top: 80px;
   }
 
   .subhead {
