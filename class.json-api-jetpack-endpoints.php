@@ -276,7 +276,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	protected static function format_plugin( $plugin_file, $plugin_data ) {
 		$plugin = array();
-		$plugin['id']     = $plugin_file;
+		$plugin['id']     = urlencode( rtrim( $plugin_file, ".php" ) );
 		$plugin['active'] = Jetpack::is_plugin_active( $plugin_file );
 		$current = get_site_transient( 'update_plugins' );
 		$plugin['update'] = ( isset( $current->response[ $plugin_file ] ) ) ? $current->response[ $plugin_file ] : array();
