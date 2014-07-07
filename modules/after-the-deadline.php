@@ -264,8 +264,15 @@ function AtD_is_allowed() {
 }
 
 function AtD_load_css() {
-	if ( AtD_should_load_on_page() )
-		wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/atd.css', __FILE__ ), null, ATD_VERSION, 'screen' );
+	if ( AtD_should_load_on_page() ) {
+		if( is_rtl() ) {
+			wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/atd.css', __FILE__ ), null, ATD_VERSION, 'screen' );
+		} else {
+			wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/rtl/atd-rtl.css', __FILE__ ), null, ATD_VERSION, 'screen' );
+		}
+		
+			
+	}
 }
 
 /* Helper used to check if javascript should be added to page. Helps avoid bloat in admin */
