@@ -113,7 +113,8 @@ class Jetpack_Network_Sites_List_Table extends WP_List_Table {
 	public function process_bulk_action() {
 		if( !isset( $_POST['bulk'] ) || empty ( $_POST['bulk'] ) )
 			return; // Thou shall not pass! There is nothing to do
-		
+
+
 		$jpms = Jetpack_Network::init();
 
 		$action = $this->current_action();

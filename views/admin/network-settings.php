@@ -1,5 +1,14 @@
 <?php
 	extract( $data );
+
+
+if( isset( $_GET['updated'] ) && 'true' == $_GET['updated'] ) {
+?>
+
+<div class="updated">Jetpack Network Settings Updated!</div>
+
+<?php
+}
 ?>
 
 <div class="wrap">
