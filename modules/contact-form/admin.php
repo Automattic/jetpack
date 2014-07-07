@@ -1,7 +1,11 @@
 <?php
 
 function grunion_menu_alter() {
-	wp_enqueue_style( 'grunion-menu-alter', plugins_url( 'css/menu-alter.css', __FILE__ ) );
+	if( is_rtl() ){
+		wp_enqueue_style( 'grunion-menu-alter', plugins_url( 'css/rtl/menu-alter-rtl.css', __FILE__ ) );
+	} else {
+		wp_enqueue_style( 'grunion-menu-alter', plugins_url( 'css/menu-alter.css', __FILE__ ) );
+	}
 }
 
 add_action( 'admin_enqueue_scripts', 'grunion_menu_alter' );
