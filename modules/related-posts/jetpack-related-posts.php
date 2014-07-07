@@ -336,6 +336,12 @@ EOT;
 	 * @returns null
 	 */
 	public function print_setting_head() {
+
+		// only dislay the Related Posts JavaScript on the Reading Settings Admin Page
+		$current_screen =  get_current_screen();
+		if( 'options-reading' != $current_screen->id )
+			return;
+
 		$related_headline = sprintf(
 			'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
 			esc_html__( 'Related', 'jetpack' )
