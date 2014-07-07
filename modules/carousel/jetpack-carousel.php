@@ -146,7 +146,11 @@ class Jetpack_Carousel {
 
 			$localize_strings = apply_filters( 'jp_carousel_localize_strings', $localize_strings );
 			wp_localize_script( 'jetpack-carousel', 'jetpackCarouselStrings', $localize_strings );
-			wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( '20120629' ) );
+			if( is_rtl() ) {
+				wp_enqueue_style( 'jetpack-carousel', plugins_url( '/rtl/jetpack-carousel-rtl.css', __FILE__ ), array(), $this->asset_version( '20120629' ) );				
+			} else {
+				wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ), array(), $this->asset_version( '20120629' ) );				
+			}
 			global $is_IE;
 			if( $is_IE )
 			{
