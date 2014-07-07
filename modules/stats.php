@@ -347,6 +347,9 @@ function stats_reports_page() {
 		// Loading message
 		// No JS fallback message
 ?>
+<div class="wrap">
+	<h2><?php esc_html_e( 'Site Stats', 'jetpack'); ?> <a style="font-size:13px;" href="<?php echo esc_url( admin_url('admin.php?page=jetpack&configure=stats') ); ?>"><?php esc_html_e( 'Configure', 'jetpack'); ?></a></h2>
+</div>
 <div id="stats-loading-wrap" class="wrap">
 <p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" ) ); ?>" /></p>
 <p style="font-size: 11pt; margin: 0;"><a href="http://wordpress.com/my-stats/?blog=<?php echo $blog_id; ?>"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
