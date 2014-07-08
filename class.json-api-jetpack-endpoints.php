@@ -266,14 +266,14 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	static $_response_format	= array(
 		'id'          => '(string)  The plugin\'s ID',
 		'active'      => '(boolean) The plugin status.',
-		'update'      => '(array)   The plugin update info.',
-		'Name'        => '(string)  The name of the plugin.',
-		'PluginURI'   => '(string)  Link to the plugin\'s web site.',
-		'Version'     => '(string)  The plugin version number.',
-		'Description' => '(string)  Description of what the plugin does and/or notes from the author',
-		'Author'      => '(string)  The author\'s name',
-		'AuthorURI'   => '(string)  The authors web site address',
-		'Network'     => '(boolean) Whether the plugin can only be activated network wide.',
+		'update'      => '(object)  The plugin update info.',
+		'name'        => '(string)  The name of the plugin.',
+		'plugin_url'  => '(string)  Link to the plugin\'s web site.',
+		'version'     => '(string)  The plugin version number.',
+		'description' => '(string)  Description of what the plugin does and/or notes from the author',
+		'author'      => '(string)  The author\'s name',
+		'author_url'  => '(string)  The authors web site address',
+		'network'     => '(boolean) Whether the plugin can only be activated network wide.',
 	);
 
 	protected static function format_plugin( $plugin_file, $plugin_data ) {
@@ -282,7 +282,16 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['active'] = Jetpack::is_plugin_active( $plugin_file );
 		$current = get_site_transient( 'update_plugins' );
 		$plugin['update'] = ( isset( $current->response[ $plugin_file ] ) ) ? $current->response[ $plugin_file ] : array();
-		return array_merge( $plugin, $plugin_data );
+
+		$plugin['name'] = $plugin_data['Name'];
+		$plugin['plugin_url'] = $plugin_data['PluginURI'];
+		$plugin['version'] = $plugin_data['Version'];
+		$plugin['description'] = $plugin_data['Description'];
+		$plugin['author'] = $plugin_data['Author'];
+		$plugin['author_url'] = $plugin_data['AuthorURI'];
+		$plugin['network'] = $plugin_data['Network'];
+
+		return $plugin;
 	}
 
 	protected static function get_plugin( $plugin_file ) {
