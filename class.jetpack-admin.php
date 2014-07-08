@@ -27,14 +27,20 @@ class Jetpack_Admin {
 		jetpack_require_lib( 'admin-pages/class.jetpack-landing-page' );
 		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
 
+		// Initialize objects building landing and settings pages
 		$this->landing_page = new Jetpack_Landing_Page;
 		$this->settings_page = new Jetpack_Settings_Page;
 
+		// Add hooks for admin menus
 		add_action( 'admin_menu',                    array( $this->landing_page, 'add_actions' ), 998 );
 		add_action( 'jetpack_admin_menu',            array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu',        	 array( $this->settings_page, 'add_actions' ) );
+
+		// Add redirect to current page for activation/deactivation of modules
 		add_action( 'jetpack_pre_activate_module',   array( $this, 'fix_redirect' ) );
 		add_action( 'jetpack_pre_deactivate_module', array( $this, 'fix_redirect' ) );
+
+		// Add module bulk actions handler
 		add_action( 'jetpack_unrecognized_action',   array( $this, 'handle_unrecognized_action' ) );
 	}
 
@@ -49,6 +55,8 @@ class Jetpack_Admin {
 		return 0;
 	}
 
+	// Produce JS understandable objects of modules containing information for
+	// presentation like description, name, configuration url, etc.
 	function get_modules() {
 		include_once( JETPACK__PLUGIN_DIR . 'modules/module-info.php' );
 		$available_modules = $this->jetpack->get_available_modules();

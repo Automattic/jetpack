@@ -32,13 +32,18 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			$title          = sprintf( $format, $update_markup );
 		}
 
+		// Add the main admin Jetpack menu with possible information about new
+		// modules
 		return add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
 	}
 
 	function add_page_actions( $hook ) {
+		// Add landing page specific underscore templates
 		add_action( "admin_footer-$hook",        array( $this, 'js_templates' ) );
 		do_action( 'jetpack_admin_menu', $hook );
 
+		// Place the Jetpack menu item on top and others in the order they
+		// appear
 		add_filter( 'custom_menu_order',         '__return_true' );
 		add_filter( 'menu_order',                array( $this, 'jetpack_menu_order' ) );
 	}
@@ -62,6 +67,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_render() {
+		// Handle redirects to configuration pages
 		if ( ! empty( $_GET['configure'] ) ) {
 			return $this->render_nojs_configurable();
 		}
@@ -79,6 +85,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 			$is_master_user    = false;
 		}
 
+		// Set template data for the admin page template
 		$data = array(
 			'is_connected' => $is_connected,
 			'is_user_connected' => $is_user_connected,
@@ -87,6 +94,8 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 		Jetpack::init()->load_view( 'admin/admin-page.php', $data );
 	}
 
+	// Render the configuration page for the module if it exists and an error
+	// screen if the module is not configurable
 	function render_nojs_configurable() {
 		echo '<div class="clouds-sm"></div>';
 		echo '<div class="wrap configure-module">';
@@ -102,6 +111,7 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 	}
 
 	function page_admin_scripts() {
+		// Enqueue jp.js and localize it
 		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', JETPACK__PLUGIN_FILE ),
 			array( 'jquery', 'wp-util' ), JETPACK__VERSION . '-20121111' );
 		wp_localize_script(

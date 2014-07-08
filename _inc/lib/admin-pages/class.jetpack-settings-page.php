@@ -4,13 +4,17 @@ include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
 
 // Builds the settings page and its menu
 class Jetpack_Settings_Page extends Jetpack_Admin_Page {
+	// Show the settings page only when Jetpack is connected or in dev mode
 	protected $dont_show_if_not_active = true;
-	function add_page_actions( $hook ) {}
+	function add_page_actions( $hook ) {} // There are no page specific actions to attach to the menu
 
+	// Adds the Settings sub menu
 	function get_page_hook() {
 		return add_submenu_page( 'jetpack', __( 'Jetpack Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_manage_modules', 'jetpack_modules', array( $this, 'render' ) );
 	}
 
+	// Renders the module list table where you can use bulk action or row
+	// actions to activate/deactivate and configure modules
 	function page_render() {
 		$list_table = new Jetpack_Modules_List_Table;
 		?>
@@ -75,6 +79,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		<?php
 	}
 
+	// Javascript logic specific to the list table
 	function page_admin_scripts() {
 		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION . '-20121111' );
 	}

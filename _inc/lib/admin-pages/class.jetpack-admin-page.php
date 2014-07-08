@@ -2,9 +2,16 @@
 
 // Shared logic between Jetpack admin pages
 abstract class Jetpack_Admin_Page {
+	// Add page specific actions given the page hook
 	abstract function add_page_actions( $hook );
+
+	// Create a menu item for the page and returns the hook
 	abstract function get_page_hook();
+
+	// Enqueue and localize page specific scripts
 	abstract function page_admin_scripts();
+
+	// Render page specific HTML
 	abstract function page_render();
 
 	function __construct() {
@@ -19,8 +26,11 @@ abstract class Jetpack_Admin_Page {
 			return;
 		}
 
+		// Initialize menu item for the page in the admin
 		$hook = $this->get_page_hook();
 
+		// Attach hooks common to all Jetpack admin pages based on the created
+		// hook
 		add_action( "load-$hook",                array( $this, 'admin_help'      ) );
 		add_action( "load-$hook",                array( $this, 'admin_page_load' ) );
 		add_action( "admin_head-$hook",          array( $this, 'admin_head'      ) );
@@ -30,6 +40,7 @@ abstract class Jetpack_Admin_Page {
 		add_action( "admin_print_styles-$hook",  array( $this, 'admin_styles'    ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts'   ) );
 
+		// Attach page specific actions in addition to the above
 		$this->add_page_actions( $hook );
 	}
 
@@ -39,6 +50,8 @@ abstract class Jetpack_Admin_Page {
 		}
 	}
 
+	// Render the page with a common top and bottom part, and page specific
+	// content
 	function render() {
 		$this->admin_page_top();
 		$this->page_render();
@@ -54,6 +67,7 @@ abstract class Jetpack_Admin_Page {
 		$this->jetpack->admin_page_load();
 	}
 
+	// Load underscore template for the landing page and settings page modal
 	function module_modal_js_template() {
 		Jetpack::init()->load_view( 'admin/module-modal-template.php' );
 	}
@@ -66,11 +80,13 @@ abstract class Jetpack_Admin_Page {
 		include_once( JETPACK__PLUGIN_DIR . '_inc/footer.php' );
 	}
 
+	// Add page specific scripts and jetpack stats for all menu pages
 	function admin_scripts() {
 		$this->page_admin_scripts(); // Delegate to inheriting class
 		add_action( 'admin_footer', array( $this->jetpack, 'do_stats' ) );
 	}
 
+	// Enqueue the Jetpack admin stylesheet
 	function admin_styles() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
