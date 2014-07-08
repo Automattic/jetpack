@@ -381,8 +381,11 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			);
 
 			wp_localize_script( 'gallery-widget-admin', '_wpGalleryWidgetAdminSettings', $js_settings );
-
-			wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/admin.css', __FILE__ ) );
+			if( is_rtl() ) {
+				wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/rtl/admin-rtl.css', __FILE__ ) );	
+			} else {
+				wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/admin.css', __FILE__ ) );	
+			}
 		}
 	}
 }
