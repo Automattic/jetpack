@@ -1316,7 +1316,7 @@ html {
   margin-top: 0;
 }
 
-.modal-footer .content-container {
+.content-container.modal-footer {
   bottom: 53px;
 }
 
@@ -2015,6 +2015,10 @@ html {
 
   .modal {
     top: 66px;
+  }
+  .modal h3,
+  .modal h4 {
+    margin-top: 0;
   }
 
   .jp-info-img,

@@ -263,6 +263,11 @@
 	}
 	.modal {
 		top: 66px;
+
+		h3,
+		h4 {
+			margin-top: 0;
+		}
 	}
 	.jp-info-img,
 	.jp-info-img:first-child {

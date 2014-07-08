@@ -746,10 +746,8 @@ html {
 		}
 	}
 }
-.modal-footer {
-	.content-container {
-		bottom: 53px;
-	}
+.content-container.modal-footer {
+	bottom: 53px;
 }
 .shade {
 	background: #000;
