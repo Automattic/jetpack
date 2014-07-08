@@ -1,5 +1,5 @@
 <?php
-include_once( JETPACK__PLUGIN_DIR . '/pages/page.php' );
+include_once( JETPACK__PLUGIN_DIR . '/pages/class.jetpack-admin-page.php' );
 
 // Builds the landing page and its menu
 class Jetpack_Landing_Page extends Jetpack_Admin_Page {

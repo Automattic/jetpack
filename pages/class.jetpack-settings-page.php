@@ -1,5 +1,5 @@
 <?php
-include_once( JETPACK__PLUGIN_DIR . '/pages/page.php' );
+include_once( JETPACK__PLUGIN_DIR . '/pages/class.jetpack-admin-page.php' );
 include_once( JETPACK__PLUGIN_DIR . 'class.jetpack-modules-list-table.php' );
 
 // Builds the settings page and its menu

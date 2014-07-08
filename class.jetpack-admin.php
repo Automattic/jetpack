@@ -1,7 +1,7 @@
 <?php
 
-include_once( JETPACK__PLUGIN_DIR . 'pages/landing.php' );
-include_once( JETPACK__PLUGIN_DIR . 'pages/settings.php' );
+include_once( JETPACK__PLUGIN_DIR . 'pages/class.jetpack-landing-page.php' );
+include_once( JETPACK__PLUGIN_DIR . 'pages/class.jetpack-settings-page.php' );
 
 // Build the Jetpack admin menu as a whole
 class Jetpack_Admin {
