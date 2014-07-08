@@ -364,7 +364,7 @@ class Jetpack_JSON_API_Activate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins
 
 new Jetpack_JSON_API_Activate_Plugin_Endpoint( array(
 	'description'     => 'Activate a Plugin on your Jetpack Site',
-	'group'           => 'manage',
+	'group'           => 'plugins',
 	'stat'            => 'plugins:1:activate',
 	'method'          => 'GET',
 	'path'            => '/sites/%s/plugins/%s/activate/',
@@ -431,7 +431,7 @@ class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugi
 
 new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
 	'description'     => 'Deactivate a Plugin on your Jetpack Site',
-	'group'           => 'manage',
+	'group'           => 'plugins',
 	'stat'            => 'plugins:1:deactivate',
 	'method'          => 'GET',
 	'path'            => '/sites/%s/plugins/%s/deactivate/',
@@ -478,8 +478,8 @@ class Jetpack_JSON_API_List_Plugins_Endpoint extends Jetpack_JSON_API_Plugins_En
 
 new Jetpack_JSON_API_List_Plugins_Endpoint( array(
 	'description'     => 'Get installed Plugins on your blog',
-	'group'           => 'manage',
 	'stat'            => 'plugins:1',
+	'group'           => 'plugins',
 	'method'          => 'GET',
 	'path'            => '/sites/%s/plugins',
 	'path_labels' => array(
@@ -772,7 +772,7 @@ class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_E
 
 new Jetpack_JSON_API_Update_Plugin_Endpoint( array(
 	'description'     => 'Update a Plugin on your Jetpack Site',
-	'group'           => 'manage',
+	'group'           => 'plugins',
 	'stat'            => 'plugins:1:update',
 	'method'          => 'GET',
 	'path'            => '/sites/%s/plugins/%s/update/',
