@@ -25,22 +25,29 @@ module.exports = function(grunt) {
 		},
 		cssjanus: {
 			core: {
-				options: { 
-					swapLtrRtlInUrl: false 
+				options: {
+					swapLtrRtlInUrl: false
 				},
 				expand: true,
-				ext: '-rtl.css', 
-				src: ['_inc/*.css','!_inc/*-rtl.css','!_inc/*.min.css'  ]
+				ext: '-rtl.css',
+				src: [
+					'_inc/*.css',
+					'!_inc/*-rtl.css',
+					'!_inc/*.min.css'
+				]
 			},
 			min: {
-				options: { 
-					swapLtrRtlInUrl: false 
+				options: {
+					swapLtrRtlInUrl: false
 				},
 				expand: true,
-				ext: '-rtl.min.css', 
-				src: ['_inc/*.min.css','!_inc/*-rtl.min.css' ]
-			}             
-		}, 
+				ext: '-rtl.min.css',
+				src: [
+					'_inc/*.min.css',
+					'!_inc/*-rtl.min.css'
+				]
+			}
+		},
 		jshint: {
 			options: grunt.file.readJSON('.jshintrc'),
 			src: [
@@ -85,12 +92,19 @@ module.exports = function(grunt) {
 				map: true
 			},
 			global: {
-			options: {
-				// Target-specific options go here.
-				// browser-specific info: https://github.com/ai/autoprefixer#browsers
-				// DEFAULT: browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1']
-				browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1', 'ie 8', 'ie 9']
-			},
+				options: {
+					// Target-specific options go here.
+					// browser-specific info: https://github.com/ai/autoprefixer#browsers
+					// DEFAULT: browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1']
+					browsers: [
+						'> 1%',
+						'last 2 versions',
+						'ff 17',
+						'opera 12.1',
+						'ie 8',
+						'ie 9'
+					]
+				},
 				src: '_inc/*.css'
 			},
 		},
@@ -100,7 +114,12 @@ module.exports = function(grunt) {
 					'_inc/*.scss',
 					'_inc/**/*.scss'
 				],
-				tasks: ['sass', 'autoprefixer', 'cssjanus:core', 'cssjanus:min' ],
+				tasks: [
+					'sass',
+					'autoprefixer',
+					'cssjanus:core',
+					'cssjanus:min'
+				],
 				options: {
 					spawn: false
 				}
