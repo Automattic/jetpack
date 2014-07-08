@@ -649,33 +649,27 @@ html {
 	left: 20px;
 	margin-left: 160px;
 	display: none;
-	text-align: center;
-	z-index: 12;
 	@include box-shadow(0 1px 20px 5px rgba(0, 0, 0, 0.1));
+	z-index: 500;
 
-	header {
-		position: relative;
-		height: 47px;
-		text-align: left;
-		overflow: hidden;
-		z-index: 1;
+	.close {
+		position: absolute;
+		top: 0;
+		right: 0;
+		font: 300 em(24) 'genericons' !important;
+		color: #777;
+		content: '\f405';
+		display: inline-block;
+		padding: em(4) em(10) em(6);
+		z-index: 5;
 
-		.close {
-			float: right;
-			font: 300 em(24) 'genericons' !important;
-			color: #777;
-			content: '\f405';
-			display: inline-block;
-			padding: em(4) em(10) em(6);
-
-			&:hover {
-				background: #eee;
-				opacity: 0.8;
-			}
-			&:active {
-				background: #eee;
-				opacity: 0.4;
-			}
+		&:hover {
+			background: #eee;
+			opacity: 0.8;
+		}
+		&:active {
+			background: #eee;
+			opacity: 0.4;
 		}
 	}
 	#jp-post-flair {
@@ -688,21 +682,19 @@ html {
 		bottom: 0;
 		left: 0;
 		overflow: auto;
-		padding: em(47) em(30) em(30);
-		text-align: center;
+		padding: em(30, 14);
 	}
 	.content {
 		margin: 0 auto;
 		max-width: 900px;
 		text-align: left;
 	}
-	h3,
-	h4 {
-		margin-top: em(22, 32);
+	h2 {
+		text-align: left;
+		margin-top: 0;
 		color: #5d6d74;
 		font: 300 32px $proxima; // 36/14
 		text-shadow: 0 1px 1px #fff;
-		// overflow: hidden;
 	}
 	p {
 		font-size: em(16, 13);
@@ -733,9 +725,6 @@ html {
 	float: right;
 	margin: 0 0 30px 30px;
 
-	&:first-child {
-		margin-top: 85px;
-	}
 	img {
 		border: 1px solid #ddd;
 		max-width: 100%;

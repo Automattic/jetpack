@@ -77,7 +77,7 @@
 		}
 	};
 
-	$jp_frame.on( 'click', '.modal header .close, .shade', hide_modal );
+	$jp_frame.on( 'click', '.modal .close, .shade', hide_modal );
 
 	$jp_frame.children( '.modal' ).on( 'learn-more', function() {
 		var current_module = $jp_frame.children( '.modal' ).data( 'current-module' );

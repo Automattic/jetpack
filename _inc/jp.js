@@ -19,7 +19,7 @@
 
 	function closeShadeToggle() {
 		// Clicking outside modal, or close X closes modal
-		$( '.shade, .modal header .close' ).on( 'click', function () {
+		$( '.shade, .modal .close' ).on( 'click', function () {
 			$( '.shade, .modal' ).hide();
 			$( '.manage-right' ).removeClass( 'show' );
 			return false;

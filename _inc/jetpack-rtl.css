@@ -1223,31 +1223,26 @@ html {
   right: 20px;
   margin-right: 160px;
   display: none;
-  text-align: center;
-  z-index: 12;
   -webkit-box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
+  z-index: 500;
 }
-.modal header {
-  position: relative;
-  height: 47px;
-  text-align: right;
-  overflow: hidden;
-  z-index: 1;
-}
-.modal header .close {
-  float: left;
+.modal .close {
+  position: absolute;
+  top: 0;
+  left: 0;
   font: 300 1.71429em "genericons" !important;
   color: #777;
   content: '\f405';
   display: inline-block;
   padding: 0.28571em 0.71429em 0.42857em;
+  z-index: 5;
 }
-.modal header .close:hover {
+.modal .close:hover {
   background: #eee;
   opacity: 0.8;
 }
-.modal header .close:active {
+.modal .close:active {
   background: #eee;
   opacity: 0.4;
 }
@@ -1261,17 +1256,16 @@ html {
   bottom: 0;
   right: 0;
   overflow: auto;
-  padding: 3.35714em 2.14286em 2.14286em;
-  text-align: center;
+  padding: 2.14286em;
 }
 .modal .content {
   margin: 0 auto;
   max-width: 900px;
   text-align: right;
 }
-.modal h3,
-.modal h4 {
-  margin-top: 0.6875em;
+.modal h2 {
+  text-align: right;
+  margin-top: 0;
   color: #5d6d74;
   font: 300 32px "proxima-nova", "Open Sans", Helvetica, sans-serif;
   text-shadow: 0 1px 1px #fff;
@@ -1303,9 +1297,6 @@ html {
 .jp-info-img {
   float: left;
   margin: 0 30px 30px 0;
-}
-.jp-info-img:first-child {
-  margin-top: 85px;
 }
 .jp-info-img img {
   border: 1px solid #ddd;
@@ -1930,9 +1921,6 @@ html {
     bottom: 5%;
     font-size: 80%;
   }
-  .modal header {
-    height: 38px;
-  }
   .modal .content {
     top: 38px;
   }
@@ -2016,15 +2004,10 @@ html {
   .modal {
     top: 66px;
   }
-  .modal h3,
-  .modal h4 {
-    margin-top: 0;
-  }
 
-  .jp-info-img,
-  .jp-info-img:first-child {
+  .jp-info-img {
     float: none;
-    margin: 0;
+    margin: 0 0 15px;
   }
 
   .configure .frame.top.fixed {
@@ -2068,6 +2051,11 @@ html {
   }
 }
 @media (max-width: 600px) {
+  .jp-content,
+  .jp-frame {
+    position: static;
+  }
+
   .modal {
     top: 10px;
     left: 10px;
@@ -2100,12 +2088,7 @@ html {
     font-size: 1.4em;
   }
 
-  .modal .content div.jp-info-img {
-    margin: 0 0 23px;
-  }
-
-  .modal h3,
-  .modal h4 {
+  .modal h2 {
     font-size: 26px;
   }
 
