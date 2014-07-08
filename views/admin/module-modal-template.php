@@ -16,7 +16,7 @@
 					<# } #>
 				</li>
 				<li>
-					<# if ( data.configurable ) { #> <a class="button-primary" href="{{ data.configure_url }}">Configure</a> <# } #>
+					<# if ( data.configurable ) { #> <a class="button-primary" href="{{ data.configure_url }}"><?php _e( 'Configure', 'jetpack' ); ?></a> <# } #>
 				</li>
 			</ul>
 		</footer>
