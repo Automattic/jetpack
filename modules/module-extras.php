@@ -11,7 +11,7 @@ $tools = array(
 	'theme-tools/random-redirect.php',
 	'theme-tools/featured-content.php',
 	'theme-tools/infinite-scroll.php',
-	'theme-tools/responsive-videos.php'
+	'theme-tools/responsive-videos.php',
 	'custom-post-types/comics.php',
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',

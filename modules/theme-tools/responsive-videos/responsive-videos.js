@@ -38,10 +38,11 @@
 	 * A function to resize videos.
 	 */
 	function responsive_videos() {
-
+		
 		$( '.jetpack-video-wrapper' ).find( 'embed, iframe, object' ).each( function() {
-
-			var video_element = $( this );
+			var video_element, video_width, video_height, video_ratio, video_wrapper, container_width;
+			
+			video_element = $( this );
 
 			if ( ! video_element.attr( 'data-ratio' ) ) {
 				video_element
@@ -54,13 +55,13 @@
 					} );
 			}
 
-			var video_width     = video_element.attr( 'data-width' ),
-			    video_height    = video_element.attr( 'data-height' ),
-			    video_ratio     = video_element.attr( 'data-ratio' ),
-			    video_wrapper   = video_element.parent(),
-			    container_width = video_wrapper.width();
+			video_width     = video_element.attr( 'data-width' );
+			video_height    = video_element.attr( 'data-height' );
+			video_ratio     = video_element.attr( 'data-ratio' );
+			video_wrapper   = video_element.parent();
+			container_width = video_wrapper.width();
 
-			if ( video_ratio == 'Infinity' ) {
+			if ( video_ratio === 'Infinity' ) {
 				video_width = '100%';
 			}
 
