@@ -322,9 +322,9 @@ class Jetpack_Tiled_Gallery {
 	public static function gallery_already_redefined() {
 		global $shortcode_tags;
 		$redefined = false;
-		if ( ! isset( $shortcode_tags[ 'gallery' ] ) || $shortcode_tags[ 'gallery' ] !== 'gallery_shortcode' )
+		if ( ! isset( $shortcode_tags[ 'gallery' ] ) || $shortcode_tags[ 'gallery' ] !== 'gallery_shortcode' ) {
 			$redefined = true;
-
+		}
 		return apply_filters( 'jetpack_tiled_gallery_shortcode_redefined', $redefined );
 	}
 
