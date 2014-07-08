@@ -2,7 +2,7 @@
 	<a href="#" class="close">&times;</a>
 	<div class="content-container <# if ( data.available) { #>modal-footer<# } #>">
 		<div class="content">
-			<h2>{{ data.name }}</h2>
+			<h2>{{{ data.name }}}</h2>
 			{{{ data.long_description }}}
 		</div>
 	</div>
