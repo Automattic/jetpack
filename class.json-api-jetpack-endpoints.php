@@ -136,7 +136,7 @@ class Jetpack_JSON_API_Active_Theme_Endpoint extends Jetpack_JSON_API_Themes_End
 new Jetpack_JSON_API_Active_Theme_Endpoint( array(
 	'description'     => 'Get the active theme of your blog',
 	'group'           => 'themes',
-	'stat'            => 'themes:1:mine',
+	'stat'            => 'themes:mine',
 	'method'          => 'GET',
 	'path'            => '/sites/%s/themes/mine',
 	'path_labels' => array(
@@ -160,7 +160,7 @@ new Jetpack_JSON_API_Active_Theme_Endpoint( array(
 new Jetpack_JSON_API_Active_Theme_Endpoint( array(
 	'description'     => 'Change the active theme of your blog',
 	'group'           => 'themes',
-	'stat'            => 'themes:1:mine:update',
+	'stat'            => 'themes:mine:POST',
 	'method'          => 'POST',
 	'path'            => '/sites/%s/themes/mine',
 	'path_labels' => array(
@@ -231,7 +231,7 @@ class Jetpack_JSON_API_List_Themes_Endpoint extends Jetpack_JSON_API_Themes_Endp
 new Jetpack_JSON_API_List_Themes_Endpoint( array(
 	'description'     => 'Get WordPress.com Themes allowed on your blog',
 	'group'           => '__do_not_document',
-	'stat'            => 'themes:1',
+	'stat'            => 'themes',
 	'method'          => 'GET',
 	'path'            => '/sites/%s/themes',
 	'path_labels' => array(
@@ -478,8 +478,8 @@ class Jetpack_JSON_API_List_Plugins_Endpoint extends Jetpack_JSON_API_Plugins_En
 
 new Jetpack_JSON_API_List_Plugins_Endpoint( array(
 	'description'     => 'Get installed Plugins on your blog',
-	'stat'            => 'plugins:1',
 	'group'           => 'plugins',
+	'stat'            => 'plugins',
 	'method'          => 'GET',
 	'path'            => '/sites/%s/plugins',
 	'path_labels' => array(
@@ -560,8 +560,8 @@ class Jetpack_JSON_API_Activate_Module_Endpoint extends Jetpack_JSON_API_Jetpack
 
 new Jetpack_JSON_API_Activate_Module_Endpoint( array(
 	'description'     => 'Activate a Jetpack Module on your Jetpack Site',
-	'group'           => 'manage',
-	'stat'            => 'jetpack-modules:1:activate',
+	'group'           => 'jetpack',
+	'stat'            => 'jetpack:modules:1:activate',
 	'method'          => 'GET',
 	'path'            => '/sites/%s/jetpack/modules/%s/activate/',
 	'path_labels' => array(
@@ -618,8 +618,8 @@ class Jetpack_JSON_API_Deactivate_Module_Endpoint extends Jetpack_JSON_API_Jetpa
 
 new Jetpack_JSON_API_Deactivate_Module_Endpoint( array(
 	'description'     => 'Deactivate a Jetpack Module on Site',
-	'group'           => 'manage',
-	'stat'            => 'jetpack-modules:1:deactivate',
+	'group'           => 'jetpack',
+	'stat'            => 'jetpack:modules:1:deactivate',
 	'method'          => 'GET',
 	'path'            => '/sites/%s/jetpack/modules/%s/deactivate/',
 	'path_labels' => array(
@@ -664,8 +664,8 @@ class Jetpack_JSON_API_List_Modules_Endpoint extends Jetpack_JSON_API_Jetpack_Mo
 
 new Jetpack_JSON_API_List_Modules_Endpoint( array(
 	'description'     => 'Get the list of available Jetpack modules on your site',
-	'group'           => 'manage',
-	'stat'            => 'jetpack-modules:1',
+	'group'           => 'jetpack',
+	'stat'            => 'jetpack:modules',
 	'method'          => 'GET',
 	'path'            => '/sites/%s/jetpack/modules',
 	'path_labels' => array(
@@ -700,8 +700,8 @@ class Jetpack_JSON_API_GET_Update_Data extends Jetpack_JSON_API_Endpoint {
 
 new Jetpack_JSON_API_GET_Update_Data( array(
 	'description'     => 'Get counts for available updates',
-	'group'           => 'manage',
-	'stat'            => 'core-updates:1',
+	'group'           => 'jetpack',
+	'stat'            => 'updates',
 	'method'          => 'GET',
 	'path'            => '/sites/%s/updates',
 	'path_labels' => array(
