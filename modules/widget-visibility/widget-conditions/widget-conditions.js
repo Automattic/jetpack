@@ -30,7 +30,12 @@ jQuery( function( $ ) {
 
 			if ( currentWidth < 400 ) {
 				var extra = 400 - currentWidth;
-				$widget.css( 'position', 'relative' ).css( 'left', '-' + extra + 'px' ).css( 'width', '400px' );
+				if( isRtl ) {
+					$widget.css( 'position', 'relative' ).css( 'right', '-' + extra + 'px' ).css( 'width', '400px' );
+				} else {
+					$widget.css( 'position', 'relative' ).css( 'left', '-' + extra + 'px' ).css( 'width', '400px' );
+				}
+				
 			}
 		}
 		else if ( $widget.data( 'original-style' ) ) {
