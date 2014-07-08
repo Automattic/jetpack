@@ -5,7 +5,7 @@ jQuery( function( $ ) {
 	var widgets_shell = $( 'div#widgets-right' );
 
 	if( ! widgets_shell.length ) {
-		var widgets_shell = $( 'form#customize-controls' );
+		widgets_shell = $( 'form#customize-controls' );
 	}
 
 	function setWidgetMargin( $widget ) {
@@ -96,7 +96,7 @@ jQuery( function( $ ) {
 		} else {
 			$condition.detach();
 		}
-	} )
+	} );
 
 	widgets_shell.on( 'click', 'div.widget-top', function() {
 		var $widget = $( this ).closest( 'div.widget' ),
