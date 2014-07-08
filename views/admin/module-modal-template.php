@@ -3,6 +3,7 @@
 		<a href="#" class="close">&times;</a>
 	</header>
 	<div class="content-container <# if ( data.available) { #>modal-footer<# } #>">
+		<h2>{{ data.name }}</h2>
 		<div class="content">{{{ data.long_description }}}</div>
 	</div>
 	<# if ( data.available) { #>

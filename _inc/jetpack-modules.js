@@ -52,7 +52,7 @@
 
 	show_modal = function( module, tab ) {
 		$jp_frame.children( '.modal, .shade' ).show();
-		$( '.modal ').empty().html( wp.template( 'modal' )( $.extend( items[ module ], { name: module } ) ) );
+		$( '.modal ').empty().html( wp.template( 'modal' )( items[ module ] ) );
 	};
 
 	hide_modal = function() {
