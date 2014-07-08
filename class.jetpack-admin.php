@@ -1,7 +1,5 @@
 <?php
 
-include_once( JETPACK__PLUGIN_DIR . 'pages/class.jetpack-landing-page.php' );
-include_once( JETPACK__PLUGIN_DIR . 'pages/class.jetpack-settings-page.php' );
 
 // Build the Jetpack admin menu as a whole
 class Jetpack_Admin {
@@ -25,6 +23,10 @@ class Jetpack_Admin {
 
 	private function __construct() {
 		$this->jetpack = Jetpack::init();
+
+		jetpack_require_lib( 'admin-pages/class.jetpack-landing-page' );
+		jetpack_require_lib( 'admin-pages/class.jetpack-settings-page' );
+
 		$this->landing_page = new Jetpack_Landing_Page;
 		$this->settings_page = new Jetpack_Settings_Page;
 
