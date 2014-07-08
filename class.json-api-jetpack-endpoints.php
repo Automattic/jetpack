@@ -297,7 +297,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	protected static function get_plugin( $plugin_file ) {
 		$installed_plugins = get_plugins();
 		if ( ! isset( $installed_plugins[ $plugin_file] ) )
-			return new WP_Error( 'unknown_plugin', __( 'Plugin not found' ) );
+			return new WP_Error( 'unknown_plugin', __( 'Plugin not found', 'jetpack' ) );
 		return self::format_plugin( $plugin_file, $installed_plugins[ $plugin_file] );
 	}
 
@@ -313,7 +313,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		}
 
 		if ( $this->network_wide && ! current_user_can( 'manage_network_plugins' ) ) {
-			return new WP_Error( 'unauthorized', 'This user is not authorized to manage plugins network wide', 403 );
+			return new WP_Error( 'unauthorized', __( 'This user is not authorized to manage plugins network wide', 'jetpack' ), 403 );
 		}
 	}
 
@@ -511,7 +511,7 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_AP
 
 	protected static function get_module( $module_slug ) {
 		if ( ! Jetpack::is_module( $module_slug ) )
-			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found'. $module_slug ) );
+			return new WP_Error( 'unknown_jetpack_module', sprintf( __( 'Module not found: `%s`', 'jetpack' ), $module_slug ) );
 		return self::format_module( $module_slug );
 	}
 }
@@ -524,7 +524,7 @@ class Jetpack_JSON_API_Activate_Module_Endpoint extends Jetpack_JSON_API_Jetpack
 			return $error;
 		}
 		if ( ! Jetpack::is_module( $module_slug ) ) {
-			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found' . $module_slug ) );
+			return new WP_Error( 'unknown_jetpack_module', sprintf( __( 'Module not found: `%s`', 'jetpack' ), $module_slug ) );
 		}
 		return $this->activate_module( $module_slug );
 	}
@@ -583,7 +583,7 @@ class Jetpack_JSON_API_Deactivate_Module_Endpoint extends Jetpack_JSON_API_Jetpa
 			return $error;
 		}
 		if ( ! Jetpack::is_module( $module_slug ) ) {
-			return new WP_Error( 'unknown_jetpack_module', __( 'Module not found' . $module_slug ) );
+			return new WP_Error( 'unknown_jetpack_module', sprintf( __( 'Module not found: `%s`', 'jetpack' ), $module_slug ) );
 		}
 		return $this->deactivate_module( $module_slug );
 	}
