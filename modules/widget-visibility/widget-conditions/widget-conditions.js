@@ -1,5 +1,6 @@
 /* jshint onevar: false, smarttabs: true */
 /* global ajaxurl */
+/* global isRtl */
 
 jQuery( function( $ ) {
 	var widgets_shell = $( 'div#widgets-right' );
