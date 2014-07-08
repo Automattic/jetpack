@@ -24,3 +24,4 @@
 		<td class="med"><a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-help" title="<?php esc_attr_e( 'Learn more', 'jetpack' ); ?>"></span></a>{{#hasConfig}}<a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-cog" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></span></a>{{/hasConfig}}</td>
 	</tr>
 </script>
+
