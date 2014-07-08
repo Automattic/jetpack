@@ -21,7 +21,7 @@
 	<tr class="configs{{ ( data.active ) ? ' active' : '' }}">
 		<td class="sm"><input type="checkbox"></td>
 		<td><a href="{{ data.url }}" data-name="{{ data.name }}">{{ data.name }}</a></td>
-		<td class="med"><a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-help" title="<?php esc_attr_e( 'Learn more', 'jetpack' ); ?>"></span></a>{{#hasConfig}}<a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-cog" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></span></a>{{/hasConfig}}</td>
+		<td class="med"><a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-help" title="<?php esc_attr_e( 'Learn more', 'jetpack' ); ?>"></span></a><# if ( data.hasConfig ) { #><a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-cog" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></span></a><# } #></td>
 	</tr>
 </script>
 
