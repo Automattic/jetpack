@@ -380,9 +380,6 @@ new Jetpack_JSON_API_Activate_Plugin_Endpoint( array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
-		'body' => array(
-			'plugin' => 'hello'
-		)
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello/activate'
 ) );
@@ -447,9 +444,6 @@ new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
-		'body' => array(
-			'plugin' => 'hello'
-		)
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello/deactivate'
 ) );
