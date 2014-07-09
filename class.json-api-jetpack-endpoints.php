@@ -14,8 +14,11 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( is_wp_error( $blog_id ) )
 			return $blog_id;
 
-		if ( ! current_user_can( $capability ) || ( $check_full_write && ! Jetpack_Options::get_option( 'json_api_full_write' ) ) ) {
-			return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.', 'jetpack' ), $capability ), 403 );
+		if ( ! current_user_can( $capability ) ) {
+			return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.' , 'jetpack' ), $capability ), 403 );
+		}
+		if ( $check_full_write && ! Jetpack_Options::get_option( 'json_api_full_management' ) ) {
+			return new WP_Error( 'unauthorized_full_access', sprintf( __( 'Full management mode is off for this site.' , 'jetpack' ), $capability ), 403 );
 		}
 		return true;
 	}
