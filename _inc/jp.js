@@ -224,7 +224,7 @@
 		} else {
 			// Array of featured modules
 			$( '.feature a.f-img' ).each(function() {
-				featuredModules.push($( this ).data( 'name' ));
+				featuredModules.push($( this ).data( 'module' ));
 			});
 
 			// About page
@@ -234,7 +234,7 @@
 				}
 
 				// Add data-index to featured modules
-				featuredModulesIndex = featuredModules.indexOf( modules[i].name );
+				featuredModulesIndex = featuredModules.indexOf( modules[i].module );
 				if ( featuredModulesIndex > -1 ) {
 					$( '.feature' ).eq( featuredModulesIndex ).find( 'a' ).data( 'index', i );
 				}
