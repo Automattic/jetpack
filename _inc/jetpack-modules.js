@@ -35,6 +35,18 @@
 	$( '.subsubsub a' ).on( 'click', { modules : modules }, handle_module_tag_click );
 
 	/**
+	 * Attach event listener for ESC key to close modal
+	 */
+
+	$( window ).on( 'keydown', function( e ) {
+		// If pressing ESC close the modal
+		if ( 27 === e.keyCode ) {
+			$( '.shade, .modal' ).hide();
+			$( '.manage-right' ).removeClass( 'show' );
+		}
+	});
+
+	/**
 	 * The modal details.
 	 */
 
