@@ -4050,7 +4050,7 @@ p {
 	// Make sure the POSTed request is handled by the same action
 	function preserve_action_in_login_form_for_json_api_authorization() {
 		echo "<input type='hidden' name='action' value='jetpack_json_api_authorization' />\n";
-		echo "<input type='hidden' name='jetpack_json_api_original_query' value='" . site_url( stripslashes( $_SERVER['REQUEST_URI'] ) ) . "' />\n";
+		echo "<input type='hidden' name='jetpack_json_api_original_query' value='" . esc_url( 'http' . ( isset($_SERVER['HTTPS'] ) ? 's' : '') . "://{$_SERVER['HTTP_HOST']}{$_SERVER['REQUEST_URI']}" ) . "' />\n";
 	}
 
 	// If someone logs in to approve API access, store the Access Code in usermeta
