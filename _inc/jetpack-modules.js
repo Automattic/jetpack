@@ -52,7 +52,7 @@
 
 	show_modal = function( module, tab ) {
 		$jp_frame.children( '.modal, .shade' ).show();
-		$( '.modal ').empty().html( wp.template( 'modal' )( $.extend( items[ module ], { name: module } ) ) );
+		$( '.modal ').empty().html( wp.template( 'modal' )( items[ module ] ) );
 	};
 
 	hide_modal = function() {
@@ -77,7 +77,7 @@
 		}
 	};
 
-	$jp_frame.on( 'click', '.modal header .close, .shade', hide_modal );
+	$jp_frame.on( 'click', '.modal .close, .shade', hide_modal );
 
 	$jp_frame.children( '.modal' ).on( 'learn-more', function() {
 		var current_module = $jp_frame.children( '.modal' ).data( 'current-module' );

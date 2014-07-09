@@ -1,9 +1,10 @@
 <script id="tmpl-modal" type="text/html">
-	<header>
-		<a href="#" class="close">&times;</a>
-	</header>
+	<a href="#" class="close">&times;</a>
 	<div class="content-container <# if ( data.available) { #>modal-footer<# } #>">
-		<div class="content">{{{ data.long_description }}}</div>
+		<div class="content">
+			<h2>{{{ data.name }}}</h2>
+			{{{ data.long_description }}}
+		</div>
 	</div>
 	<# if ( data.available) { #>
 		<footer>
@@ -22,4 +23,3 @@
 		</footer>
 	<# } #>
 </script>
-

@@ -2,10 +2,6 @@
 * Do not modify this file directly.  It is compiled Sass code.
 * @see: jetpack/_inc/jetpack.scss
 */
-/*!
-* Do not modify this file directly.  It is compiled Sass code.
-* @see: jetpack/_inc/jetpack.scss
-*/
 @font-face {
   font-family: 'automatticons';
   src: url("fonts/automatticons-regular-webfont-webfont.eot");
@@ -378,14 +374,8 @@ hr {
   height: auto;
   min-height: 100%;
   width: 100%;
-  position: relative;
   width: 100%;
   -webkit-font-smoothing: antialiased;
-  z-index: 1;
-}
-
-.jp-frame {
-  position: relative;
 }
 
 html {
@@ -426,9 +416,7 @@ html {
 .header {
   background: #31621b;
   left: 0;
-  position: relative;
   right: 0;
-  z-index: 2;
 }
 
 .header-nav .current {
@@ -471,9 +459,7 @@ html {
 }
 
 .jetpack-pagestyles #screen-meta {
-  border-left: 20px solid #81a844;
-  border-right: 20px solid #81a844;
-  margin: 0 0 -1px;
+  margin: 0;
 }
 .jetpack-pagestyles #screen-meta-links .screen-meta-toggle {
   z-index: 2;
@@ -957,31 +943,26 @@ html {
   left: 20px;
   margin-left: 160px;
   display: none;
-  text-align: center;
-  z-index: 12;
   -webkit-box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
+  z-index: 500;
 }
-.modal header {
-  position: relative;
-  height: 47px;
-  text-align: left;
-  overflow: hidden;
-  z-index: 1;
-}
-.modal header .close {
-  float: right;
+.modal .close {
+  position: absolute;
+  top: 0;
+  right: 0;
   font: 300 1.71429em "genericons" !important;
   color: #777;
   content: '\f405';
   display: inline-block;
   padding: 0.28571em 0.71429em 0.42857em;
+  z-index: 5;
 }
-.modal header .close:hover {
+.modal .close:hover {
   background: #eee;
   opacity: 0.8;
 }
-.modal header .close:active {
+.modal .close:active {
   background: #eee;
   opacity: 0.4;
 }
@@ -995,17 +976,16 @@ html {
   bottom: 0;
   left: 0;
   overflow: auto;
-  padding: 3.35714em 2.14286em 2.14286em;
-  text-align: center;
+  padding: 2.14286em;
 }
 .modal .content {
   margin: 0 auto;
   max-width: 900px;
   text-align: left;
 }
-.modal h3,
-.modal h4 {
-  margin-top: 0.6875em;
+.modal h2 {
+  text-align: left;
+  margin-top: 0;
   color: #5d6d74;
   font: 300 32px "proxima-nova", "Open Sans", Helvetica, sans-serif;
   text-shadow: 0 1px 1px #fff;
@@ -1037,9 +1017,6 @@ html {
 .jp-info-img {
   float: right;
   margin: 0 0 30px 30px;
-}
-.jp-info-img:first-child {
-  margin-top: 85px;
 }
 .jp-info-img img {
   border: 1px solid #ddd;
@@ -1971,9 +1948,6 @@ html {
     bottom: 5%;
     font-size: 80%;
   }
-  .modal header {
-    height: 38px;
-  }
   .modal .content {
     top: 38px;
   }
@@ -2002,10 +1976,6 @@ html {
   .featured h2,
   .module-grid h2 {
     font-size: 30px;
-  }
-
-  .feature h3 {
-    font-size: 11px;
   }
 
   .filter label {
@@ -2057,15 +2027,10 @@ html {
   .modal {
     top: 66px;
   }
-  .modal h3,
-  .modal h4 {
-    margin-top: 0;
-  }
 
-  .jp-info-img,
-  .jp-info-img:first-child {
+  .jp-info-img {
     float: none;
-    margin: 0;
+    margin: 0 0 15px;
   }
 
   .configure .frame.top.fixed {
@@ -2141,12 +2106,7 @@ html {
     font-size: 1.4em;
   }
 
-  .modal .content div.jp-info-img {
-    margin: 0 0 23px;
-  }
-
-  .modal h3,
-  .modal h4 {
+  .modal h2 {
     font-size: 26px;
   }
 

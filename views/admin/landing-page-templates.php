@@ -13,15 +13,15 @@
 </script>
 <script id="tmpl-mod" type="text/html">
 	<div href="{{ data.url }}" data-index="{{ data.index }}" data-name="{{ data.name }}" class="module{{ ( data.new ) ? ' new' : '' }}">
-		<h3 class="icon {{ data.module }}">{{ data.name }}<# if ( ! data.free ) { #><span class="paid"><?php esc_html_e( 'Paid', 'jetpack' ); ?></span><# } #></h3>
+		<h3 class="icon {{ data.module }}">{{{ data.name }}}<# if ( ! data.free ) { #><span class="paid"><?php esc_html_e( 'Paid', 'jetpack' ); ?></span><# } #></h3>
 		<p>{{{ data.short_description }}}</p>
 	</div>
 </script>
 <script id="tmpl-modconfig" type="text/html">
 	<tr class="configs{{ ( data.active ) ? ' active' : '' }}">
 		<td class="sm"><input type="checkbox"></td>
-		<td><a href="{{ data.url }}" data-name="{{ data.name }}">{{ data.name }}</a></td>
-		<td class="med"><a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-help" title="<?php esc_attr_e( 'Learn more', 'jetpack' ); ?>"></span></a><# if ( data.hasConfig ) { #><a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-cog" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></span></a><# } #></td>
+		<td><a href="{{ data.url }}" data-name="{{ data.name }}">{{{ data.name }}}</a></td>
+		<td class="med"><a href="{{ data.url }}" data-name="{{{ data.name }}}"><span class="genericon genericon-help" title="<?php esc_attr_e( 'Learn more', 'jetpack' ); ?>"></span></a><# if ( data.hasConfig ) { #><a href="{{ data.url }}" data-name="{{ data.name }}"><span class="genericon genericon-cog" title="<?php esc_attr_e( 'Configure', 'jetpack' ); ?>"></span></a><# } #></td>
 	</tr>
 </script>
 

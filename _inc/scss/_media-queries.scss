@@ -167,9 +167,6 @@
 		bottom: 5%;
 		font-size: 80%;
 
-		header {
-			height: 38px;
-		}
 		.content {
 			top: 38px;
 		}
@@ -204,9 +201,6 @@
 	.module-grid h2 {
 		font-size: 30px;
 	}
-	.feature h3 {
-		font-size: 11px;
-	}
 	.filter {
 		label {
 			display: inline-block;
@@ -239,14 +233,6 @@
 	}
 	.main-nav {
 		font-size: 13px;
-
-		// .jetpack-logo {
-		// 	font-size: 22px;
-		//
-		// 	&:before {
-		// 		font-size: 29px;
-		// 	}
-		// }
 	}
 	.table-bordered {
 		.genericon {
@@ -263,16 +249,10 @@
 	}
 	.modal {
 		top: 66px;
-
-		h3,
-		h4 {
-			margin-top: 0;
-		}
 	}
-	.jp-info-img,
-	.jp-info-img:first-child {
+	.jp-info-img {
 		float: none;
-		margin: 0;
+		margin: 0 0 15px;
 	}
 	.configure .frame.top.fixed {
 		padding-left: 0;
@@ -337,11 +317,7 @@
 	.page-template-default h2 {
 		font-size: 1.4em;
 	}
-	.modal .content div.jp-info-img {
-		margin: 0 0 23px;
-	}
-	.modal h3,
-	.modal h4 {
+	.modal h2 {
 		font-size: 26px;
 	}
 	.featured {
