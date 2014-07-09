@@ -398,13 +398,13 @@ class WPCOM_JSON_API {
 	}
 
 	function filter_fields( $response ) {
-		if ( empty( $this->query['fields'] ) || ! empty( $response['error'] ) || ! empty( $this->endpoint->custom_fields_filtering ) )
+		if ( empty( $this->query['fields'] ) || ( is_array( $response ) && ! empty( $response['error'] ) ) || ! empty( $this->endpoint->custom_fields_filtering ) )
 			return $response;
 
 		$fields = array_map( 'trim', explode( ',', $this->query['fields'] ) );
 
 		$has_filtered = false;
-		if ( empty( $response['ID'] ) ) {
+		if ( is_array( $response ) && empty( $response['ID'] ) ) {
 			$keys_to_filter = array(
 				'categories',
 				'comments',
@@ -441,7 +441,11 @@ class WPCOM_JSON_API {
 		}
 
 		if ( ! $has_filtered ) {
-			$response = array_intersect_key( $response, array_flip( $fields ) );
+			if ( is_object( $response ) ) {
+				$response = (object) array_intersect_key( (array) $response, array_flip( $fields ) );
+			} else if ( is_array( $response ) ) {
+				$response = array_intersect_key( $response, array_flip( $fields ) );
+			}
 		}
 
 		return $response;
