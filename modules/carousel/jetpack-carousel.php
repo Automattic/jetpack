@@ -154,10 +154,14 @@ class Jetpack_Carousel {
 			global $is_IE;
 			if( $is_IE )
 			{
-				$msie = strpos( $_SERVER['HTTP_USER_AGENT'], 'MSIE' ) + 4;
-				$version = (float) substr( $_SERVER['HTTP_USER_AGENT'], $msie, strpos( $_SERVER['HTTP_USER_AGENT'], ';', $msie ) - $msie );
-				if( $version < 9 )
+				if( !function_exists( 'wp_check_browser_version' ) ) {
+					require_once( ABSPATH . '/wp-admin/includes/dashboard.php' );
+				}
+				$browser = wp_check_browser_version();
+				
+				if( !empty( $browser['version'] ) && $browser['version'] < 9 ) {
 					wp_enqueue_style( 'jetpack-carousel-ie8fix', plugins_url( 'jetpack-carousel-ie8fix.css', __FILE__ ), array(), $this->asset_version( '20121024' ) );
+				}
 			}
 			do_action( 'jp_carousel_enqueue_assets', $this->first_run, $localize_strings );
 
