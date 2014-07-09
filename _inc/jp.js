@@ -24,6 +24,14 @@
 			$( '.manage-right' ).removeClass( 'show' );
 			return false;
 		});
+
+		$( window ).on( 'keydown', function( e ) {
+			// If pressing ESC close the modal
+			if ( 27 === e.keyCode ) {
+				$( '.shade, .modal' ).hide();
+				$( '.manage-right' ).removeClass( 'show' );
+			}
+		});
 	}
 
 	function filterModules( prop ) {
