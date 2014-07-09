@@ -644,14 +644,8 @@ hr {
   height: auto;
   min-height: 100%;
   width: 100%;
-  position: relative;
   width: 100%;
   -webkit-font-smoothing: antialiased;
-  z-index: 1;
-}
-
-.jp-frame {
-  position: relative;
 }
 
 html {
@@ -692,9 +686,7 @@ html {
 .header {
   background: #31621b;
   left: 0;
-  position: relative;
   right: 0;
-  z-index: 2;
 }
 
 .header-nav .current {
@@ -737,9 +729,7 @@ html {
 }
 
 .jetpack-pagestyles #screen-meta {
-  border-left: 20px solid #81a844;
-  border-right: 20px solid #81a844;
-  margin: 0 0 -1px;
+  margin: 0;
 }
 .jetpack-pagestyles #screen-meta-links .screen-meta-toggle {
   z-index: 2;
@@ -2047,11 +2037,6 @@ html {
   }
 }
 @media (max-width: 600px) {
-  .jp-content,
-  .jp-frame {
-    position: static;
-  }
-
   .modal {
     top: 10px;
     right: 10px;
