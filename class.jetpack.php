@@ -2803,7 +2803,7 @@ p {
 		$args     = wp_parse_args( $args, $defaults );
 		$base_url = apply_filters(
 			'jetpack_stats_base_url',
-			set_url_scheme( 'http://stats.wordpress.com/g.gif' )
+			set_url_scheme( 'http://pixel.wp.com/g.gif' )
 		);
 		$url      = add_query_arg( $args, $base_url );
 		return $url;

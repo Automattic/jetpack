@@ -152,7 +152,7 @@ function stats_template_redirect() {
 
 	$stats_footer = <<<END
 
-	<script src="$http://stats.wordpress.com/e-$week.js" type="text/javascript"></script>
+	<script src="$http://stats.wp.com/e-$week.js" type="text/javascript"></script>
 	<script type="text/javascript">
 	st_go({{$data}});
 	var load_cmc = function(){linktracker_init($blog,$post,2);};

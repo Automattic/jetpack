@@ -314,7 +314,7 @@ Scroller.prototype.refresh = function() {
 
 				// Record pageview in WP Stats, if available.
 				if ( stats )
-					new Image().src = document.location.protocol + '//stats.wordpress.com/g.gif?' + stats + '&post=0&baba=' + Math.random();
+					new Image().src = document.location.protocol + '//pixel.wp.com/g.gif?' + stats + '&post=0&baba=' + Math.random();
 
 				// Add new posts to the postflair object
 				if ( 'object' == typeof response.postflair && 'object' == typeof WPCOM_sharing_counts )
