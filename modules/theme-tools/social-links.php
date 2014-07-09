@@ -11,12 +11,12 @@
  * ) );
  */
 
-add_action( 'init', function() {
-	if ( current_theme_supports( 'social-links' ) ) {	
+function jetpack_theme_supports_social_links() {
+	if ( current_theme_supports( 'social-links' ) ) {
 		new Social_Links();
 	}
-}, 30 );
-
+}
+add_action( 'init', 'jetpack_theme_supports_social_links', 30 );
 
 class Social_Links {
 
