@@ -85,11 +85,6 @@
 		show_modal( $(this).closest('.jetpack-module').attr('id'), 'learn-more' );
 	} );
 
-	$the_table.on( 'click', '.configure a', { modules : modules }, function( event ) {
-		event.preventDefault();
-		show_modal( $(this).closest('.jetpack-module').attr('id'), 'config' );
-	} );
-
 	$the_filters.on( 'click', '.button-group .button', { modules : modules }, function( event ) {
 		event.preventDefault();
 		$(this).addClass('active').siblings('.active').removeClass('active');
