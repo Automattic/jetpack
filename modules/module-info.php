@@ -979,3 +979,23 @@ function jetpack_verification_tools_more_link() {
 }
 add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verification_tools_more_link' );
 // Site Verification Tools: STOP
+
+// Custom Content Types: START
+function jetpack_custom_content_types_more_info() { ?>
+	<h4><?php esc_html_e( 'Custom Content Types' , 'jetpack' ); ?></h4>
+
+	<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/custom-content-types.png' ) ?>" alt="<?php esc_attr_e( 'Tiled Galleries', 'jetpack' ) ?>" width="300" height="150" />
+	</div>
+
+	<p><?php esc_html_e( 'Organize and display different types of content on your site, separate from posts and pages.', 'jetpack' ); ?></p>
+	<p><?php printf( __( 'To enable the Portfolio content type, head over to <a href="%s">Settings &rarr; Writing &rarr; Your Custom Content Types</a> and make sure that "Portfolio Projects" is checked. You can now add projects under the new "Portfolio" menu item in your sidebar. After you\'ve added some projects, they\'ll be visible on your website at http://<strong>yourgroovysite.com</strong>/portfolio/.', 'jetpack' ), admin_url( 'options-writing.php#cpt-options' ) ); ?></p>
+<?php
+}
+add_action( 'jetpack_module_more_info_custom-content-types', 'jetpack_custom_content_types_more_info' );
+
+function jetpack_custom_content_types_more_link() {
+	echo '<a class="button-secondary more-info-link" href="http://support.wordpress.com/portfolios/">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_action( 'jetpack_learn_more_button_custom-content-types', 'jetpack_custom_content_types_more_link' );
+// Custom Content Types: STOP
