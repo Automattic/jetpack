@@ -160,7 +160,7 @@ JetpackSlideshow.prototype.onCyclePrevNextClick_ = function( isNext, i/*, slideE
 	var postid = this.images[i].id;
 	var stats = new Image();
 	stats.src = document.location.protocol +
-		'//stats.wordpress.com/g.gif?host=' +
+		'//pixel.wp.com/g.gif?host=' +
 		escape( document.location.host ) +
 		'&rand=' + Math.random() +
 		'&blog=' + jetpackSlideshowSettings.blog_id +
