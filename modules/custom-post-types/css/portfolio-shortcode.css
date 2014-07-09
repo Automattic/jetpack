@@ -1,0 +1,137 @@
+.jetpack-portfolio-shortcode {
+	clear: both;
+	margin: 0;
+	overflow: hidden;
+	padding: 0;
+}
+
+.portfolio-entry {
+	float: left;
+	margin: 0 0 3em;
+	padding: 0;
+	width: 100%;
+}
+
+.portfolio-entry.first-item-row {
+	clear: both;
+}
+
+.jetpack-portfolio-shortcode .portfolio-entry.last-item-row {
+	margin-right: 0;
+}
+
+/* Column setting */
+.column-1 .portfolio-entry {
+	width: 100%;
+}
+
+.column-2 .portfolio-entry {
+	margin-right: 4%;
+	width: 48%;
+}
+
+.column-3 .portfolio-entry {
+	margin-right: 3.5%;
+	width: 31%;
+}
+
+.column-4 .portfolio-entry {
+	margin-right: 3%;
+	width: 22%;
+}
+
+.column-5 .portfolio-entry {
+	margin-right: 2.5%;
+	width: 18%;
+}
+
+.column-6 .portfolio-entry {
+	margin-right: 2%;
+	width: 15%;
+}
+
+/* Entry Header */
+.portfolio-entry-header {
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+.portfolio-featured-image {
+	margin: 0;
+	padding: 0;
+}
+
+.portfolio-featured-image img {
+	border: 0;
+	height: auto;
+	max-width: 100%;
+	vertical-align: middle;
+}
+
+.portfolio-entry-title {
+	font-weight: 700;
+	margin: 0;
+	padding: 0;
+}
+
+.portfolio-featured-image + .portfolio-entry-title {
+	margin-top: 1.0em;
+}
+
+.portfolio-entry-title a {
+	border: 0;
+	text-decoration: none;
+}
+
+/* Entry Meta */
+.portfolio-entry-meta {
+	margin: 0;
+	padding: 0;
+}
+
+.portfolio-entry-title + .portfolio-entry-meta {
+	margin-top: 0.75em;
+}
+
+.portfolio-entry-title + .portfolio-entry-meta:empty {
+	margin: 0;
+}
+
+.portfolio-entry-meta span,
+.portfolio-entry-meta a {
+	display: inline-block;
+	font-size: 0.9em;
+	margin: 0 0.25em 0 0;
+	padding: 0;
+}
+
+.portfolio-entry-meta a {
+	border: 0;
+	text-decoration: none;
+}
+
+.project-types span:after,
+.project-tags span:after {
+	content: ":";
+}
+
+.project-types a:after,
+.project-tags a:after {
+	content: ",";
+}
+
+.project-types a:last-child:after,
+.project-tags a:last-child:after {
+	content: "";
+}
+
+/* Entry Content */
+.portfolio-entry-content {
+	margin: 0.75em 0 0;
+	padding: 0;
+}
+
+.portfolio-entry-content > :last-child {
+	margin: 0;
+}

@@ -449,7 +449,7 @@ class Jetpack_Portfolio {
 		$atts['showposts'] = intval( $atts['showposts'] );
 
 		// enqueue shortcode styles when shortcode is used
-		wp_enqueue_style( 'jetpack-portfolio-style', plugins_url( 'portfolio-shortcode.css', __FILE__ ), array(), '20140326' );
+		wp_enqueue_style( 'jetpack-portfolio-style', plugins_url( 'css/portfolio-shortcode.css', __FILE__ ), array(), '20140326' );
 
 		return self::portfolio_shortcode_html( $atts );
 	}
