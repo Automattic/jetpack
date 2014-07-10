@@ -294,7 +294,7 @@ class The_Neverending_Home_Page {
 	 * for the infinite_scroll setting.
 	 */
 	function infinite_setting_html() {
-		$notice = '<em>' . __( "We've disabled this option for you since you have footer widgets in Appearance &rarr; Widgets, or because your theme does not support infinite scroll.", 'jetpack' ) . '</em>';
+		$notice = '<em>' . __( 'We&rsquo;ve changed this option to a click-to-scroll version for you since you have footer widgets in Appearance &rarr; Widgets, or your theme uses click-to-scroll as the default behavior.', 'jetpack' ) . '</em>';
 
 		// If the blog has footer widgets, show a notice instead of the checkbox
 		if ( self::get_settings()->footer_widgets || 'click' == self::get_settings()->requested_type ) {
