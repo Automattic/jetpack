@@ -1,4 +1,4 @@
-/* This file was automatically generated on Feb 12 2014 23:46:31 */
+/* This file was automatically generated on Jul 10 2014 07:37:31 */
 
 .slideshow-window {
 	background-color: #222;
@@ -9,6 +9,12 @@
 	-khtml-border-radius: 11px;
 	margin-bottom: 20px;
 	height: 410px;
+	z-index: 1;
+}
+
+.slideshow-window.slideshow-white {
+	background-color: #fff;
+	border-color: #fff;
 }
 
 .slideshow-window, .slideshow-window * {
