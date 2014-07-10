@@ -110,7 +110,11 @@ class Jetpack_Admin {
 		if ( ! is_array( $module ) || empty( $module ) )
 			return false;
 
-		return ! ( $module['requires_connection'] && ! Jetpack::is_active() );
+		if ( Jetpack::is_development_mode() ) {
+			return ! ( $module['requires_connection'] && ! Jetpack::is_active() );
+		} else {
+			return Jetpack::is_active();
+		}
 	}
 
 	function handle_unrecognized_action( $action ) {
