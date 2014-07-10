@@ -720,6 +720,9 @@ class Jetpack_Sync {
 	public function reindex_trigger() {
 		$response = array( 'status' => 'ERROR' );
 
+		// Force a privacy check
+		Jetpack::check_privacy( __FILE__ );
+
 		Jetpack::load_xml_rpc_client();
 		$client = new Jetpack_IXR_Client( array(
 			'user_id' => JETPACK_MASTER_USER,
