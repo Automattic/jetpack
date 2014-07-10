@@ -2022,7 +2022,7 @@ p {
 				'content'	=>
 					'<p><strong>' . __( 'Jetpack by WordPress.com', 'jetpack' ) . '</strong></p>' .
 					'<p>' . __( 'Jetpack supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.', 'jetpack' ) . '</p>' .
-					'<p>' . __( 'On this page, you are able to view the modules available within Jetpack and learn more about them.', 'jetpack' ) . '</p>',
+					'<p>' . __( 'On this page, you are able to view the modules available within Jetpack, learn more about them, and activate or deactivate them as needed.', 'jetpack' ) . '</p>',
 			)
 		);
 
