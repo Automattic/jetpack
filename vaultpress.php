@@ -252,9 +252,8 @@ class VaultPress {
 				$count = number_format( $count, 0 );
 				$wp_admin_bar->add_node( array(
 					'id' => 'vp-notice',
-					'title' => '<strong><span class="ab-icon"></span>' .
-						sprintf( _n( '%s Security Threat', '%s Security Threats', $count , 'vaultpress'), $count ) .
-					' </strong>',
+					'title' => '<span class="ab-icon"></span>' .
+						sprintf( _n( '%s Security Threat', '%s Security Threats', $count , 'vaultpress'), $count ),
 					'parent' => 'top-secondary',
 					'href' => sprintf( 'https://dashboard.vaultpress.com/%d/security/', $messages['site_id'] ),
 					'meta'  => array(
@@ -382,7 +381,23 @@ class VaultPress {
 			// reset the connection info so messages don't cross
 			$this->clear_connection();
 
+			// if registering via Jetpack, get a key...
+			if ( isset( $_POST['key_source'] ) && 'jetpack' === $_POST['key_source'] ) {
+				$registration_key = $this->register_via_jetpack();
+				if ( is_wp_error( $registration_key ) ) {
+					$this->update_option( 'connection_error_code', -2 );
+					$this->update_option(
+						'connection_error_message',
+						sprintf( __('<strong>Failed to register VaultPress via Jetpack</strong>: %s. If you&rsquo;re still having issues please <a href="%1$s">contact the VaultPress&nbsp;Safekeepers</a>.', 'vaultpress' ),
+							esc_html( $registration_key->get_error_message() ), 'http://vaultpress.com/contact/' )
+					);
+					wp_redirect( admin_url( 'admin.php?page=vaultpress&error=true' ) );
+					exit();
+				}
+			} else {
 			$registration_key = trim( $_POST[ 'registration_key' ] );
+			}
+
 			if ( empty( $registration_key ) ) {
 				$this->update_option( 'connection_error_code', 1 );
 				$this->update_option(
@@ -434,39 +449,60 @@ class VaultPress {
 	}
 
 	function ui_register() {
+		$jetpack_email = $this->get_jetpack_email();
+		$jetpack_available = ! empty( $jetpack_email ) && ! is_wp_error( $jetpack_email );
+
 ?>
 	<div id="vp-wrap" class="wrap">
 		<div id="vp-head">
-			<h2>VaultPress<a href="https://dashboard.vaultpress.com/" class="vp-visit-dashboard" target="_blank"><?php _e( 'Visit Dashboard', 'vaultpress' ); ?></a></h2>
+			<h2>VaultPress <a href="https://dashboard.vaultpress.com/" class="button-secondary" target="_blank"><?php _e( 'Visit Dashboard', 'vaultpress' ); ?></a></h2>
 		</div>
 
-		<div id="vp_registration">
-			<div class="vp_view-plans">
-				<h1><?php _e( 'The VaultPress plugin <strong>requires a monthly&nbsp;subscription</strong>.', 'vaultpress' ); ?></h1>
-				<p><?php _e( 'Get realtime backups, automated security scanning, and support from WordPress&nbsp;experts.', 'vaultpress' ); ?></p>
-				<p class="vp_plans-btn"><a href="https://vaultpress.com/plugin/?utm_source=plugin-unregistered&amp;utm_medium=view-plans-and-pricing&amp;utm_campaign=1.0-plugin"><strong><?php _e( 'View plans and pricing&nbsp;&raquo;', 'vaultpress' ); ?></strong></a></p>
+		<div id="vp_registration" <?php if ( $jetpack_available ) { echo 'class="jetpack-available"'; } ?>>
+
+			<div class="grid">
+				<div class="vp_card-dark half">
+					<h2><?php _e( 'The VaultPress plugin <strong>requires a subscription</strong>.', 'vaultpress' ); ?></h2>
+					<p class="vp_card-description"><?php _e( 'Get realtime backups, automated security scanning, and support from WordPress&nbsp;experts.', 'vaultpress' ); ?></p>
+					<a class="vp_button-mega" href="https://vaultpress.com/plugin/?utm_source=plugin-unregistered&amp;utm_medium=view-plans-and-pricing&amp;utm_campaign=1.0-plugin"><?php _e( 'View plans and pricing&nbsp;&raquo;', 'vaultpress' ); ?></a>
 			</div>
 
-			<div class="vp_register-plugin">
-				<h3><?php _e( 'Already have a VaultPress&nbsp;account?', 'vaultpress' ); ?></h3>
-				<p><?php _e( 'Paste your registration key&nbsp;below:', 'vaultpress' ); ?></p>
+				<?php if ( $jetpack_available ): ?>
+					<div class="vp_card half connect-via-jetpack">
+						<h2><?php _e( 'Instantly connect through Jetpack', 'vaultpress' ); ?></h2>
+						<p class="vp_card-description"><?php printf( __( 'Start a <strong>free</strong> five-day trial of VaultPress Lite. Registering will create a VaultPress account for %s.', 'vaultpress' ), $jetpack_email); ?></p>
 				<form method="post" action="">
 					<fieldset>
-						<textarea placeholder="<?php echo esc_attr( __( 'Enter your key here...', 'vaultpress' ) ); ?>" name="registration_key"></textarea>
-						<button><strong><?php _e( 'Register ', 'vaultpress' ); ?></strong></button>
+								<button class="vp_button-mega"><?php _e( 'Start free trial', 'vaultpress' ); ?></button>
 						<input type="hidden" name="action" value="register" />
+								<input type="hidden" name="key_source" value="jetpack" />
 						<?php wp_nonce_field( 'vaultpress_register' ); ?>
 					</fieldset>
 				</form>
 			</div>
+				<?php endif ?>
+
+				<div class="vp_card half">
+					<h2><?php _e( 'Already have a VaultPress&nbsp;account?', 'vaultpress' ); ?></h2>
+					<p class="vp_card-description"><?php _e( 'Paste your registration key&nbsp;below:', 'vaultpress' ); ?></p>
+					<form method="post" action="">
+						<fieldset>
+							<textarea class="vp_input-register" placeholder="<?php echo esc_attr( __( 'Enter your key here...', 'vaultpress' ) ); ?>" name="registration_key"></textarea>
+							<button class="vp_button-secondary"><?php _e( 'Register ', 'vaultpress' ); ?></button>
+							<input type="hidden" name="action" value="register" />
+							<?php wp_nonce_field( 'vaultpress_register' ); ?>
+						</fieldset>
+					</form>
 		</div>
-	</div>
+			</div><!-- .card-grid -->
+		</div><!-- #vp_registration -->
+	</div><!-- #vp-head -->
 <?php
 	}
 
 	function ui_main() {
 ?>
-	<div id="vp-wrap" class="wrap">
+	<div id="vp-wrap" class="vp-wrap">
 		<?php
 			$response = base64_decode( $this->contact_service( 'plugin_ui' ) );
 			echo $response;
@@ -477,7 +513,7 @@ class VaultPress {
 
 	function ui_fatal_error() {
 	?>
-		<div id="vp-wrap" class="wrap">
+		<div id="vp-wrap" class="vp-wrap">
 			<h2>VaultPress</h2>
 
 			<p><?php printf( __( 'Yikes! We&rsquo;ve run into a serious issue and can&rsquo;t connect to %1$s.', 'vaultpress' ), esc_html( $this->get_option( 'hostname' ) ) ); ?></p>
@@ -503,7 +539,7 @@ class VaultPress {
 			}
 		}
 ?>
-		<div id="vp-notice" class="vp-<?php echo $type; ?> updated">
+		<div id="vp-notice" class="vp-notice vp-<?php echo $type; ?> wrap clearfix">
 			<div class="vp-message">
 				<h3><?php echo $heading; ?></h3>
 				<p><?php echo $message; ?></p>
@@ -2164,6 +2200,34 @@ JS;
 
 		// VaultPress likes being first in line
 		add_filter( 'pre_update_option_active_plugins', array( $this, 'load_first' ) );
+	}
+	
+	function get_jetpack_email() {
+		if ( !class_exists('Jetpack') )
+			return false;
+
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+		$xml->query( 'wpcom.getUserEmail' );
+		if ( ! $xml->isError() ) {
+			return $xml->getResponse();
+		}
+
+		return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage() );
+	}
+
+	function register_via_jetpack() {
+		if ( !class_exists('Jetpack') )
+			return false;
+
+		Jetpack::load_xml_rpc_client();
+		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+		$xml->query( 'vaultpress.registerSite' );
+		if ( ! $xml->isError() ) {
+			return $xml->getResponse();
+		}
+
+		return new WP_Error( $xml->getErrorCode(), $xml->getErrorMessage() );
 	}
 }
 
