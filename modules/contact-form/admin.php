@@ -638,7 +638,7 @@ function grunion_ajax_spam() {
 				$headers .= "Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"";
 			}
 
-			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'] );
+			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
 
 			wp_mail( $to, $subject, $message, $headers );
 		}
