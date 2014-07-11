@@ -30,7 +30,11 @@ get_header(); ?>
 						<?php elseif ( is_tag() ) : ?>
 							<?php printf( __( 'Tagged with %s', 'jetpack' ), '<span>' . single_tag_title( '', false ) . '</span>' ); ?>
 						<?php elseif( is_author() ) : ?>
-							<?php if ( function_exists( 'get_coauthors' ) ) { printf( __( 'Posted by %s', 'jetpack' ), '<span>' . coauthors(null,null,null,null,false) . '</span>' ); } else { printf( __( 'Posted by %s', 'jetpack' ), '<span>' . get_the_author() . '</span>' ); } ?>
+							<?php if ( function_exists( 'get_coauthors' ) ) : ?>
+								<?php printf( __( 'Posted by %s', 'jetpack' ), '<span>' . coauthors(null,null,null,null,false) . '</span>' ); ?>
+							<?php else : ?>
+								<?php printf( __( 'Posted by %s', 'jetpack' ), '<span>' . get_the_author() . '</span>' ); ?>
+							<?php endif; ?>
 						<?php else : ?>
 							<?php _e( 'Blog Archives', 'jetpack' ); ?>
 						<?php endif; ?>
