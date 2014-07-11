@@ -39,6 +39,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// Make the global post (used by contact forms) accessbile to tests
 		$this->post = $post;
+
+		// Initialize plugin
+		$this->plugin = new Grunion_Contact_Form_Plugin;
+		// Call to add tokenization hook
+		$this->plugin->process_form_submission();
 	}
 
 	public function tearDown() {
@@ -155,6 +160,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		) );
 
 		$form = new Grunion_Contact_Form( array( 'subject' => 'Hello {name} from {state}!'), "[contact-field label='Name' type='name' required='1'/][contact-field label='State' type='text'/]" );
+
 		$result = $form->process_submission();
 
 		// Processing should be successful and produce the success message
