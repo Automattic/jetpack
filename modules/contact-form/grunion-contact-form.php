@@ -49,9 +49,6 @@ class Grunion_Contact_Form_Plugin {
 	function __construct() {
 		$this->add_shortcode();
 
-		// Add a filter to replace tokens in the subject field with sanitized field values
-		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
-
 		// While generating the output of a text widget with a contact-form shortcode, we need to know its widget ID.
 		add_action( 'dynamic_sidebar', array( $this, 'track_current_widget' ) );
 
@@ -139,6 +136,9 @@ class Grunion_Contact_Form_Plugin {
 	 * Conditionally attached to `template_redirect`
 	 */
 	function process_form_submission() {
+		// Add a filter to replace tokens in the subject field with sanitized field values
+		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
+
 		$id = stripslashes( $_POST['contact-form-id'] );
 
 		if ( is_user_logged_in() ) {
