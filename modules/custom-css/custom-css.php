@@ -1046,6 +1046,10 @@ class Jetpack_Custom_CSS {
 	static function upgrade() {
 		$css = get_option( 'safecss' );
 
+		if ( get_option( 'safecss_revision_migrated' ) ) {
+			return false;
+		}
+
 		// Check if CSS is stored in wp_options
 		if ( $css ) {
 			// Remove the async actions from publish_post
