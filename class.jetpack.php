@@ -1019,7 +1019,13 @@ class Jetpack {
 
 		Jetpack::state( 'message', 'modules_activated' );
 		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules );
-		wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
+		
+		$page = 'jetpack'; // make sure we redirect to either settings or the jetpack page
+		if( isset( $_GET['page'] ) && in_array( $_GET['page'] , array( 'jetpack', 'jetpack_modules' ) ) ) {
+			$page = $_GET['page'];
+		}
+
+		wp_safe_redirect( Jetpack::admin_url( 'page='.$page ) );
 		exit;
 	}
 
