@@ -26,9 +26,9 @@
 				<?php if ( is_singular() && is_multi_author() ) : ?>
 					<span class="author-link">
 						<?php if ( function_exists( 'coauthors_posts_links' ) ) : ?>
-							<?php printf( __( 'Posted by %s', 'jetpack' ), coauthors_posts_links(); ); ?>
+							<?php printf( __( 'Posted by %s', 'jetpack' ), coauthors_posts_links() ); ?>
 						<?php else : ?>
-							<?php printf( __( 'Posted by %s', 'jetpack' ), the_author_posts_link(); ); ?>
+							<?php printf( __( 'Posted by %s', 'jetpack' ), the_author_posts_link() ); ?>
 						<?php endif; ?>
 					</span><!-- .author-link -->
 				<?php endif; ?>
