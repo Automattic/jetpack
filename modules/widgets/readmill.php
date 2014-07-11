@@ -10,7 +10,7 @@ class Jetpack_Readmill_Widget extends WP_Widget {
 	 		'jetpack_readmill_widget', // Base ID
 	 		apply_filters( 'jetpack_widget_name', esc_html__( 'Retired:', 'jetpack' ). ' '. esc_html__( 'Send To Readmill', 'jetpack' ) ),
 			array(
-				'description' => esc_html__( 'Readmill has close it\'s doors. http://readmill.com/', 'jetpack' ),
+				'description' => esc_html__( 'Readmill has closed its doors. http://readmill.com/', 'jetpack' ),
 			)
 		);
 	}
