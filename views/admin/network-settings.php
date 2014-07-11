@@ -5,7 +5,7 @@
 if( isset( $_GET['updated'] ) && 'true' == $_GET['updated'] ) {
 ?>
 
-<div class="updated">Jetpack Network Settings Updated!</div>
+<div class="updated"><?php esc_html_e( 'Jetpack Network Settings Updated!', 'jetpack' ); ?></div>
 
 <?php
 }
