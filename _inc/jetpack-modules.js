@@ -50,7 +50,7 @@
 	 * The modal details.
 	 */
 
-	show_modal = function( module, tab ) {
+	show_modal = function( module ) {
 		$jp_frame.children( '.modal, .shade' ).show();
 		$( '.modal ').empty().html( wp.template( 'modal' )( items[ module ] ) );
 	};

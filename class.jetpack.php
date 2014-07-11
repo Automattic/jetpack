@@ -2281,6 +2281,7 @@ p {
 			case 'register' :
 				check_admin_referer( 'jetpack-register' );
 				Jetpack::log( 'register' );
+				Jetpack::maybe_set_version_option();
 				$registered = Jetpack::try_registration();
 				if ( is_wp_error( $registered ) ) {
 					$error = $registered->get_error_code();
@@ -3552,12 +3553,12 @@ p {
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::init()->generate_secrets();
 
-		Jetpack_Options::update_option( 'register', $secrets[0] . ':' . $secrets[1].
-		':' . $secrets[2] );
+		Jetpack_Options::update_option( 'register', $secrets[0] . ':' . $secrets[1] . ':' . $secrets[2] );
 
 		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', Jetpack_Options::get_option( 'register' ) );
-		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() )
+		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
 			return new Jetpack_Error( 'missing_secrets' );
+		}
 
 		$timeout = Jetpack::init()->get_remote_query_timeout_limit();
 
@@ -3607,8 +3608,6 @@ p {
 		else
 			$json = false;
 
-
-
 		if ( empty( $json->jetpack_secret ) || ! is_string( $json->jetpack_secret ) )
 			return new Jetpack_Error( 'jetpack_secret', '', $code );
 
@@ -3629,6 +3628,19 @@ p {
 		return true;
 	}
 
+	/**
+	 * If the db version is showing something other that what we've got now, bump it to current.
+	 *
+	 * @return bool: True if the option was incorrect and updated, false if nothing happened.
+	 */
+	public static function maybe_set_version_option() {
+		list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
+		if ( JETPACK__VERSION != $version ) {
+			Jetpack_Options::update_option( 'version', JETPACK__VERSION . ':' . time() );
+			return true;
+		}
+		return false;
+	}
 
 /* Client Server API */
 
