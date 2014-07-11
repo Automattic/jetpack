@@ -182,14 +182,14 @@ class Jetpack {
 	 * Plugins for which we turn off our Twitter Cards Tags implementation.
 	 */
 	private $twitter_cards_conflicting_plugins = array(
-		'twitter-cards/twitter-cards.php',           // Twitter Cards
-		'twitter-cards-meta/twitter-cards-meta.php', // Twitter Cards Meta
+		'eewee-twitter-card/index.php',              // Eewee Twitter Card
 		'ig-twitter-cards/ig-twitter-cards.php',     // IG:Twitter Cards
 		'jm-twitter-cards/jm-twitter-cards.php',     // JM Twitter Cards
-		'wp-twitter-cards/twitter_cards.php',        // WP Twitter Cards
-		'eewee-twitter-card/index.php',              // Eewee Twitter Card
 		'kevinjohn-gallagher-pure-web-brilliants-social-graph-twitter-cards-extention/kevinjohn_gallagher___social_graph_twitter_output.php',
 		                                             // Pure Web Brilliant's Social Graph Twitter Cards Extension
+		'twitter-cards/twitter-cards.php',           // Twitter Cards
+		'twitter-cards-meta/twitter-cards-meta.php', // Twitter Cards Meta
+		'wp-twitter-cards/twitter_cards.php',        // WP Twitter Cards
 	);
 
 	/**
