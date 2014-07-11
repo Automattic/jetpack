@@ -48,6 +48,12 @@ class Jetpack_Widget_Conditions {
 					<?php
 				}
 			break;
+			case 'loggedin':
+				?>
+				<option value="yes" <?php selected( 'yes', $minor ); ?>><?php _e( 'Yes', 'jetpack' ); ?></option>
+				<option value="no" <?php selected( 'no', $minor ); ?>><?php _e( 'No', 'jetpack' ); ?></option>
+				<?php
+			break;
 			case 'author':
 				?>
 				<option value=""><?php _e( 'All author pages', 'jetpack' ); ?></option>
@@ -203,6 +209,7 @@ class Jetpack_Widget_Conditions {
 								<select class="conditions-rule-major" name="conditions[rules_major][]">
 									<option value="" <?php selected( "", $rule['major'] ); ?>><?php echo esc_html_x( '-- Select --', 'Used as the default option in a dropdown list', 'jetpack' ); ?></option>
 									<option value="category" <?php selected( "category", $rule['major'] ); ?>><?php esc_html_e( 'Category', 'jetpack' ); ?></option>
+									<option value="loggedin" <?php selected( "loggedin", $rule['major'] ); ?>><?php echo esc_html_x( 'User Loggedin', 'Noun, as in: "The loggedin status of this post is..."', 'jetpack' ); ?></option>
 									<option value="author" <?php selected( "author", $rule['major'] ); ?>><?php echo esc_html_x( 'Author', 'Noun, as in: "The author of this post is..."', 'jetpack' ); ?></option>
 									<option value="role" <?php selected( "role", $rule['major'] ); ?>><?php echo esc_html_x( 'Role', 'Noun, as in: "The role of this post is..."', 'jetpack' ); ?></option>
 									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
@@ -421,6 +428,21 @@ class Jetpack_Widget_Conditions {
 					else if ( is_singular() && $rule['minor'] && in_array( 'category', get_post_taxonomies() ) &&  has_category( $rule['minor'] ) )
 						$condition_result = true;
 				break;
+				case 'loggedin':
+					if( $rule['minor'] == 'yes' ) {
+						if( is_user_logged_in() ) {
+							$condition_result = true;
+						} else {
+							$condition_result = false;
+						}
+					} else { 
+						if( is_user_logged_in() ) {
+							$condition_result = false;
+						} else {
+							$condition_result = true;
+						}
+					}
+				break;
 				case 'author':
 					if ( ! $rule['minor'] && is_author() )
 						$condition_result = true;
@@ -430,19 +452,19 @@ class Jetpack_Widget_Conditions {
 						$condition_result = true;
 				break;
 				case 'role':
-					if(is_user_logged_in()){
+					if( is_user_logged_in() ) {
 						global $current_user;
 						get_currentuserinfo();
     					$user_roles = $current_user->roles;
     					
-    					if(in_array($rule['minor'], $user_roles)){
+    					if( in_array( $rule['minor'], $user_roles ) ) {
     						$condition_result = true;
-    					} else{
+    					} else {
     						$condition_result = false;
     					}
-					}
-					else 
+					} else {
 						$condition_result = false;
+					}
 				break;
 				case 'taxonomy':
 					$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
