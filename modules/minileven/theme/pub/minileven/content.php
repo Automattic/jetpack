@@ -25,11 +25,7 @@
 			<div class="entry-meta">
 				<?php if ( is_singular() && is_multi_author() ) : ?>
 					<span class="author-link">
-						<?php if ( function_exists( 'coauthors_posts_links' ) ) : ?>
-							<?php printf( __( 'Posted by %s', 'jetpack' ), coauthors_posts_links() ); ?>
-						<?php else : ?>
-							<?php printf( __( 'Posted by %s', 'jetpack' ), the_author_posts_link() ); ?>
-						<?php endif; ?>
+						<?php the_author_posts_link() ?>
 					</span><!-- .author-link -->
 				<?php endif; ?>
 			</div><!-- .entry-meta -->
