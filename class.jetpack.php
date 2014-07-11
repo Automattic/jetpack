@@ -131,6 +131,12 @@ class Jetpack {
 
 	/**
 	 * Plugins for which we turn off our Facebook OG Tags implementation.
+	 * 
+	 * Note: WordPress SEO by Yoast, WordPress SEO Premium by Yoast, All in One SEO Pack and All in One SEO Pack Pro automatically deactivate
+	 * Jetpack's Open Graph tags via filter when their Social Meta modules are active.
+	 *
+	 * Plugin authors: If you'd like to prevent Jetpack's Open Graph tag generation in your plugin, you can do so via this filter:
+	 * add_filter( 'jetpack_enable_open_graph', '__return_false' );
 	 */
 	private $open_graph_conflicting_plugins = array(
 		'2-click-socialmedia-buttons/2-click-socialmedia-buttons.php',
@@ -168,8 +174,6 @@ class Jetpack {
 		                                                         // Tweet, Like, Google +1 and Share
 		'wordbooker/wordbooker.php',                             // Wordbooker
 		'wpsso/wpsso.php',                                       // WordPress Social Sharing Optimization
-		'wordpress-seo/wp-seo.php',                              // WordPress SEO by Yoast
-		'wordpress-seo-premium/wp-seo-premium.php',              // WordPress SEO Premium by Yoast
 		'wp-caregiver/wp-caregiver.php',                         // WP Caregiver
 		'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',
 		                                                         // WP Facebook Like Send & Open Graph Meta
