@@ -25,7 +25,8 @@
 			<div class="entry-meta">
 				<?php if ( is_singular() && is_multi_author() ) : ?>
 					<span class="author-link">
-						<?php printf( __( 'Posted by %s', 'jetpack' ), the_author_posts_link() ); ?>
+						<?php _e( 'Posted by ', 'jetpack' ); ?>
+						<?php the_author_posts_link(); ?>
 					</span><!-- .author-link -->
 				<?php endif; ?>
 			</div><!-- .entry-meta -->
