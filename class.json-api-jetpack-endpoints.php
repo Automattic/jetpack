@@ -741,7 +741,9 @@ class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_E
 
 		// clear cache
 		wp_clean_plugins_cache();
+		ob_start();
 		wp_update_plugins(); // Check for Plugin updates
+		ob_end_clean();
 
 		$skin = new Automatic_Upgrader_Skin();
 		// The Automatic_Upgrader_Skin skin shouldn't output anything.
@@ -753,10 +755,16 @@ class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_E
 		remove_action( 'upgrader_process_complete', 'wp_version_check' );
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
+		ob_start();
 		$result = $upgrader->upgrade( $plugin_file );
+		$output = ob_get_contents();
+		ob_end_clean();
 
-		if ( ! $result ) {
+		if ( false === $result ) {
 			return new WP_Error( 'plugin_up_to_date', __( 'The Plugin is already up to date.', 'jetpack' ), 404 );
+		}
+		if ( empty( $result ) && ! empty( $output ) ) {
+			return new WP_Error( 'unknown_error', __( 'There was an error while trying to upgrade.', 'jetpack' ), 404 );
 		}
 		if ( is_wp_error( $result) ) {
 			return $result;
