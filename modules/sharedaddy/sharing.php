@@ -166,7 +166,7 @@ class Sharing_Admin {
 		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' )
 			echo '<div class="updated"><p>'.__( 'Settings have been saved', 'jetpack' ).'</p></div>';
 
-		if( !isset( $global['sharing_label'] ) ) {
+		if( ! isset( $global['sharing_label'] ) ) {
 			$global['sharing_label'] = __( 'Share this:', 'jetpack' );
 		}
 ?>
