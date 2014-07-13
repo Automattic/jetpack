@@ -62,6 +62,7 @@ class Jetpack_Likes {
 			Jetpack_Sync::sync_options( __FILE__, 'social_notifications_like' );
 
 		} else { // wpcom
+			add_action( 'wpmu_new_blog', array( $this, 'enable_comment_likes' ), 10, 1 );
 			add_action( 'admin_init', array( $this, 'add_meta_box' ) );
 			add_action( 'end_likes_meta_box_content', array( $this, 'sharing_meta_box_content' ) );
 			add_filter( 'likes_meta_box_title', array( $this, 'add_likes_to_sharing_meta_box_title' ) );
@@ -459,6 +460,16 @@ class Jetpack_Likes {
 				update_option( 'jetpack_comment_likes_enabled', 0 );
 			break;
 		}
+	}
+
+	/**
+	 * Force comment likes on for a blog
+	 * Used when a new blog is created
+	 */
+	function enable_comment_likes( $blog_id ) {
+		switch_to_blog( $blog_id );
+		update_option( 'jetpack_comment_likes_enabled', 1 );
+		restore_current_blog();
 	}
 
 	/**
