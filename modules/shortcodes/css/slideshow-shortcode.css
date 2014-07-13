@@ -7,6 +7,7 @@
 	-khtml-border-radius: 11px;
 	margin-bottom: 20px;
 	height: 410px;
+	z-index: 1;
 }
 
 .slideshow-window.slideshow-white {
