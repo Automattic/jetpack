@@ -67,8 +67,8 @@ class Jetpack_Readmill_Widget extends WP_Widget {
 	 			<?php if( !defined( 'IS_WPCOM' ) || false == IS_WPCOM ) { ?>
 				<p><?php esc_html_e( 'The Send to Readmill widget is no longer working and will be removed completely from Jetpack.', 'jetpack' ); ?></p>
 	 			<?php } else { ?>
-				<p><?php esc_html_e( 'The Send to Readmill widget is no longer working and will be removed completely.', 'jetpack' ); } ?></p>
-	 			} ?>
+				<p><?php esc_html_e( 'The Send to Readmill widget is no longer working and will be removed completely.', 'jetpack' ); ?></p>
+	 			<?php } ?>
 	 			<p><?php printf( __( "You can visit <a href=\"%s\" title=\"Appearance > Widgets\">Appearance > Widgets </a> to remove it from this sidebar.", 'jetpack' ) , esc_url( admin_url( 'widgets.php' ) ) ) ; ?></p>
 	 			<p><?php esc_html_e( 'This notice is only visible to logged in users that can manage widgets', 'jetpack' ); ?>.</p>
 	 		</div>
