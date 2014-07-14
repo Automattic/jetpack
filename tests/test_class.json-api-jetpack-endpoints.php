@@ -59,30 +59,55 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 		$upgrade_plugin_method = $class->getMethod( 'upgrade_plugin' );
 		$upgrade_plugin_method->setAccessible( true );
 
-		$plugin_file = 'hello-dolly/hello.php';
+		$the_plugin_file = 'the/the.php';
+		$the_real_folder = WP_PLUGIN_DIR . '/the';
+		$the_real_file = WP_PLUGIN_DIR . '/' . $the_plugin_file;
 
-		$real_file = WP_PLUGIN_DIR . '/' . $plugin_file;
-
-		/**
-		 * Downgrade Hello Dolly to version 1.5
+		/*
+		 * Create an oudated version of 'The' plugin
 		 */
-		file_put_contents( $real_file, implode('',
-			array_map( function( $data ) {
-				return stristr($data,'Version: ') ? "Version: 1.5\n" : $data;
-			}, file( $real_file ) )
-		));
 
-		$result = $upgrade_plugin_method->invokeArgs( $endpoint, array( $plugin_file ) );
+		// Check if 'The' plugin folder is already there.
+		if ( ! file_exists( $the_real_folder ) ) {
+			mkdir( $the_real_folder );
+			$clean = true;
+		}
+
+		file_put_contents( $the_real_file,
+			'<?php
+			/*
+			 * Plugin Name: The
+			 * Version: 1.0
+			 */'
+		);
+
+		// Invoke the upgrade_plugin method.
+		$result = $upgrade_plugin_method->invokeArgs( $endpoint, array( $the_plugin_file ) );
 
 		$this->assertArrayHasKey( 'id', $result );
 
-		$this->assertEquals( urlencode( 'hello-dolly/hello' ), $result['id'] );
+		$this->assertEquals( urlencode( 'the/the' ), $result['id'] );
+
+		if ( isset( $clean ) ) {
+			$this->rmdir( $the_real_folder );
+		}
 
 	}
 
 	function filesystem_method_direct( $method ) {
 
 		return 'direct';
+
+	}
+
+	function rmdir( $dir ) {
+
+		foreach ( scandir( $dir ) as $file ) {
+			if ( is_dir( $file ) )
+				continue;
+			else unlink( "$dir/$file" );
+		}
+		rmdir( $dir );
 
 	}
 
