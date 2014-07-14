@@ -29,7 +29,7 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) ) {
-			wp_enqueue_script( 'twitter-widgets', '//platform.twitter.com/widgets.js', '', '', true );
+			add_action( 'wp_footer', array( $this, 'library' ) );
 		}
 	}
 
