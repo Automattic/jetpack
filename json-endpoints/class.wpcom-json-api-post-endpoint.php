@@ -1,1270 +1,586 @@
 <?php
 
-define( 'WPCOM_JSON_API__CURRENT_VERSION', '1' );
-
-// Endpoint
-abstract class WPCOM_JSON_API_Endpoint {
-	// The API Object
-	var $api;
-
-	var $pass_wpcom_user_details = false;
-	var $can_use_user_details_instead_of_blog_membership = false;
-
-	// One liner.
-	var $description;
-
-	// Object Grouping For Documentation (Users, Posts, Comments)
-	var $group;
-
-	// Stats extra value to bump
-	var $stat;
-
-	// HTTP Method
-	var $method = 'GET';
-
-	// Minimum version of the api for which to serve this endpoint
-	var $min_version = '0';
-
-	// Maximum version of the api for which to serve this endpoint
-	var $max_version = WPCOM_JSON_API__CURRENT_VERSION;
-
-	// Path at which to serve this endpoint: sprintf() format.
-	var $path = '';
-
-	// Identifiers to fill sprintf() formatted $path
-	var $path_labels = array();
-
-	// Accepted query parameters
-	var $query = array(
-		// Parameter name
-		'context' => array(
-			// Default value => description
-			'display' => 'Formats the output as HTML for display.  Shortcodes are parsed, paragraph tags are added, etc..',
-			// Other possible values => description
-			'edit'    => 'Formats the output for editing.  Shortcodes are left unparsed, significant whitespace is kept, etc..',
+abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
+	var $post_object_format = array(
+		// explicitly document and cast all output
+		'ID'        => '(int) The post ID.',
+		'site_ID'		=> '(int) The site ID.',
+		'author'    => '(object>author) The author of the post.',
+		'date'      => "(ISO 8601 datetime) The post's creation time.",
+		'modified'  => "(ISO 8601 datetime) The post's most recent update time.",
+		'title'     => '(HTML) <code>context</code> dependent.',
+		'URL'       => '(URL) The full permalink URL to the post.',
+		'short_URL' => '(URL) The wp.me short URL.',
+		'content'   => '(HTML) <code>context</code> dependent.',
+		'excerpt'   => '(HTML) <code>context</code> dependent.',
+		'slug'      => '(string) The name (slug) for the post, used in URLs.',
+		'guid'      => '(string) The GUID for the post.',
+		'status'    => array(
+			'publish' => 'The post is published.',
+			'draft'   => 'The post is saved as a draft.',
+			'pending' => 'The post is pending editorial approval.',
+			'future'  => 'The post is scheduled for future publishing.',
+			'trash'   => 'The post is in the trash.',
 		),
-		'http_envelope' => array(
-			'false' => '',
-			'true'  => 'Some environments (like in-browser Javascript or Flash) block or divert responses with a non-200 HTTP status code.  Setting this parameter will force the HTTP status code to always be 200.  The JSON response is wrapped in an "envelope" containing the "real" HTTP status code and headers.',
-		),
-		'pretty' => array(
-			'false' => '',
-			'true'  => 'Output pretty JSON',
-		),
-		'meta' => "(string) Optional. Loads data from the endpoints found in the 'meta' part of the response. Comma separated list. Example: meta=site,likes",
-		'fields' => '(string) Optional. Returns specified fields only. Comma separated list. Example: fields=ID,title',
-		// Parameter name => description (default value is empty)
-		'callback' => '(string) An optional JSONP callback function.',
+		'sticky'   => '(bool) Is the post sticky?',
+		'password' => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
+		'parent'   => "(object>post_reference|false) A reference to the post's parent, if it has one.",
+		'type'     => "(string) The post's post_type. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'comments_open'  => '(bool) Is the post open for comments?',
+		'pings_open'     => '(bool) Is the post open for pingbacks, trackbacks?',
+		'likes_enabled' => "(bool) Is the post open to likes?",
+		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
+		'gplusauthorship_enabled' => "(bool) Should a Google+ account be associated with this post?",
+		'comment_count'  => '(int) The number of comments for this post.',
+		'like_count'     => '(int) The number of likes for this post.',
+		'i_like'         => '(bool) Does the current user like this post?',
+		'is_reblogged'   => '(bool) Did the current user reblog this post?',
+		'is_following'   => '(bool) Is the current user following this blog?',
+		'global_ID'      => '(string) A unique WordPress.com-wide representation of a post.',
+		'featured_image' => '(URL) The URL to the featured image for this post if it has one.',
+		'format'         => array(), // see constructor
+		'geo'            => '(object>geo|false)',
+		'publicize_URLs' => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
+		'tags'           => '(object:tag) Hash of tags (keyed by tag name) applied to the post.',
+		'categories'     => '(object:category) Hash of categories (keyed by category name) applied to the post.',
+		'attachments'	 => '(object:attachment) Hash of post attachments (keyed by attachment ID).',
+		'metadata'	     => '(array) Array of post metadata keys and values. All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with access. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.',
+		'meta'           => '(object) API result meta data',
 	);
 
-	// Response format
-	var $response_format = array();
-
-	// Request format
-	var $request_format = array();
-
-	// Is this endpoint still in testing phase?  If so, not available to the public.
-	var $in_testing = false;
-
-	/**
-	 * @var string Version of the API
-	 */
-	var $version = '';
-
-	/**
-	 * @var string Example request to make
-	 */
-	var $example_request = '';
-
-	/**
-	 * @var string Example request data (for POST methods)
-	 */
-	var $example_request_data = '';
-
-	/**
-	 * @var string Example response from $example_request
-	 */
-	var $example_response = '';
-
-	/**
-	 * @var bool Set to true if the endpoint implements its own filtering instead of the standard `fields` query method
-	 */
-	var $custom_fields_filtering = false;
-
-	/**
-	 * @var bool Set to true if the endpoint accepts all cross origin requests
-	 *    You probably should not set this flag. If you are thinking of setting it, 
-	 *    then discuss it with someone: 
-	 *       http://operationapi.wordpress.com/2014/06/25/patch-allowing-endpoints-to-do-cross-origin-requests/
-	 */
-	var $allow_cross_origin_request = false;
+	// var $response_format =& $this->post_object_format;
 
 	function __construct( $args ) {
-		$defaults = array(
-			'in_testing'           => false,
-			'description'          => '',
-			'group'	               => '',
-			'method'               => 'GET',
-			'path'                 => '/',
-			'min_version'          => '0',
-			'max_version'          => WPCOM_JSON_API__CURRENT_VERSION,
-			'force'	               => '',
-			'jp_disabled'          => false,
-			'path_labels'          => array(),
-			'request_format'       => array(),
-			'response_format'      => array(),
-			'query_parameters'     => array(),
-			'version'              => 'v1',
-			'example_request'      => '',
-			'example_request_data' => '',
-			'example_response'     => '',
-			'required_scope'       => '',
-			'pass_wpcom_user_details' => false,
-			'can_use_user_details_instead_of_blog_membership' => false,
-			'custom_fields_filtering' => false,
-			'allow_cross_origin_request' => false,
-		);
-
-		$args = wp_parse_args( $args, $defaults );
-
-		$this->in_testing  = $args['in_testing'];
-
-		$this->description = $args['description'];
-		$this->group       = $args['group'];
-		$this->stat        = $args['stat'];
-		$this->force	   = $args['force'];
-		$this->jp_disabled = $args['jp_disabled'];
-
-		$this->method      = $args['method'];
-		$this->path        = $args['path'];
-		$this->path_labels = $args['path_labels'];
-		$this->min_version = $args['min_version'];
-		$this->max_version = $args['max_version'];
-
-		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
-		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
-		$this->can_use_user_details_instead_of_blog_membership = $args['can_use_user_details_instead_of_blog_membership'];
-
-		$this->allow_cross_origin_request = (bool) $args['allow_cross_origin_request'];
-
-		$this->version     = $args['version'];
-
-		$this->required_scope = $args['required_scope'];
-
-		if ( $this->request_format ) {
-			$this->request_format = array_filter( array_merge( $this->request_format, $args['request_format'] ) );
-		} else {
-			$this->request_format = $args['request_format'];
+		if ( is_array( $this->post_object_format ) && isset( $this->post_object_format['format'] ) ) {
+			$this->post_object_format['format'] = get_post_format_strings();
 		}
-
-		if ( $this->response_format ) {
-			$this->response_format = array_filter( array_merge( $this->response_format, $args['response_format'] ) );
-		} else {
-			$this->response_format = $args['response_format'];
+		if ( !$this->response_format ) {
+			$this->response_format =& $this->post_object_format;
 		}
-
-		if ( false === $args['query_parameters'] ) {
-			$this->query = array();
-		} elseif ( is_array( $args['query_parameters'] ) ) {
-			$this->query = array_filter( array_merge( $this->query, $args['query_parameters'] ) );
-		}
-
-		$this->api = WPCOM_JSON_API::init(); // Auto-add to WPCOM_JSON_API
-
-		/** Example Request/Response ******************************************/
-
-		// Examples for endpoint documentation request
-		$this->example_request      = $args['example_request'];
-		$this->example_request_data = $args['example_request_data'];
-		$this->example_response     = $args['example_response'];
-
-		$this->api->add( $this );
+		parent::__construct( $args );
 	}
 
-	// Get all query args.  Prefill with defaults
-	function query_args( $return_default_values = true, $cast_and_filter = true ) {
-		$args = array_intersect_key( $this->api->query, $this->query );
+	function is_metadata_public( $key ) {
+		if ( empty( $key ) )
+			return false;
 
-		if ( !$cast_and_filter ) {
-			return $args;
-		}
+		// Default whitelisted meta keys.
+		$whitelisted_meta = array( '_thumbnail_id' );
 
-		return $this->cast_and_filter( $args, $this->query, $return_default_values );
+		// whitelist of metadata that can be accessed
+ 		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ) ) )
+			return true;
+
+		if ( 0 === strpos( $key, '_wpas_' ) )
+			return true;
+
+ 		return false;
+ 	}
+
+	function the_password_form() {
+		return __( 'This post is password protected.', 'jetpack' );
 	}
 
-	// Get POST body data
-	function input( $return_default_values = true, $cast_and_filter = true ) {
-		$input = trim( $this->api->post_body );
-		$content_type = $this->api->content_type;
-		if ( $content_type ) {
-			list ( $content_type ) = explode( ';', $content_type );
-		}
-		$content_type = trim( $content_type );
-		switch ( $content_type ) {
-		case 'application/json' :
-		case 'application/x-javascript' :
-		case 'text/javascript' :
-		case 'text/x-javascript' :
-		case 'text/x-json' :
-		case 'text/json' :
-			$return = json_decode( $input, true );
+	function get_post_by( $field, $post_id, $context = 'display' ) {
+		global $blog_id;
 
-			if ( function_exists( 'json_last_error' ) ) {
-				if ( JSON_ERROR_NONE !== json_last_error() ) {
-					return null;
-				}
+		if ( defined( 'GEO_LOCATION__CLASS' ) && class_exists( GEO_LOCATION__CLASS ) ) {
+			$geo = call_user_func( array( GEO_LOCATION__CLASS, 'init' ) );
+		} else {
+			$geo = false;
+		}
+
+		if ( 'display' === $context ) {
+			$args = $this->query_args();
+			if ( isset( $args['content_width'] ) && $args['content_width'] ) {
+				$GLOBALS['content_width'] = (int) $args['content_width'];
+			}
+		}
+
+		if ( strpos( $_SERVER['HTTP_USER_AGENT'], 'wp-windows8' ) ) {
+			remove_shortcode( 'gallery', 'gallery_shortcode' );
+			add_shortcode( 'gallery', array( &$this, 'win8_gallery_shortcode' ) );
+		}
+
+		switch ( $field ) {
+		case 'name' :
+			$post_id = sanitize_title( $post_id );
+			if ( !$post_id ) {
+				return new WP_Error( 'invalid_post', 'Invalid post', 400 );
+			}
+
+			$posts = get_posts( array( 'name' => $post_id ) );
+			if ( !$posts || !isset( $posts[0]->ID ) || !$posts[0]->ID ) {
+				$page = get_page_by_path( $post_id );
+				if ( !$page )
+					return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+				$post_id = $page->ID;
 			} else {
-				if ( is_null( $return ) && json_encode( null ) !== $input ) {
-					return null;
-				}
+				$post_id = (int) $posts[0]->ID;
 			}
-
-			break;
-		case 'multipart/form-data' :
-			$return = array_merge( stripslashes_deep( $_POST ), $_FILES );
-			break;
-		case 'application/x-www-form-urlencoded' :
-			//attempt JSON first, since probably a curl command
-			$return = json_decode( $input, true );
-
-			if ( is_null( $return ) ) {
-				wp_parse_str( $input, $return );
-			}
-
 			break;
 		default :
-			wp_parse_str( $input, $return );
+			$post_id = (int) $post_id;
 			break;
 		}
 
-		if ( !$cast_and_filter ) {
-			return $return;
-		}
-
-		return $this->cast_and_filter( $return, $this->request_format, $return_default_values );
-	}
-
-	function cast_and_filter( $data, $documentation, $return_default_values = false, $for_output = false ) {
-		$return_as_object = false;
-		if ( is_object( $data ) ) {
-			// @todo this should probably be a deep copy if $data can ever have nested objects
-			$data = (array) $data;
-			$return_as_object = true;
-		} elseif ( !is_array( $data ) ) {
-			return $data;
-		}
-
-		$boolean_arg = array( 'false', 'true' );
-		$naeloob_arg = array( 'true', 'false' );
-
-		$return = array();
-
-		foreach ( $documentation as $key => $description ) {
-			if ( is_array( $description ) ) {
-				// String or boolean array keys only
-				$whitelist = array_keys( $description );
-				if ( isset( $data[$key] ) && isset( $description[$data[$key]] ) ) {
-					$return[$key] = (string) $data[$key];
-				} elseif ( $return_default_values ) {
-					$return[$key] = (string) current( $whitelist );
-				} else {
-					continue;
-				}
-
-				// Truthiness
-				if ( $whitelist === $boolean_arg || $whitelist === $naeloob_arg ) {
-					$return[$key] = (bool) WPCOM_JSON_API::is_truthy( $return[$key] );
-				}
-
-				continue;
-			}
-
-			$types = $this->parse_types( $description );
-			$type = array_shift( $types );
-
-			// Explicit default - string and int only for now.  Always set these reguardless of $return_default_values
-			if ( isset( $type['default'] ) ) {
-				if ( !isset( $data[$key] ) ) {
-					$data[$key] = $type['default'];
-				}
-			}
-
-			if ( !isset( $data[$key] ) ) {
-				continue;
-			}
-
-			$this->cast_and_filter_item( $return, $type, $key, $data[$key], $types, $for_output );
-		}
-
-		if ( $return_as_object ) {
-			return (object) $return;
-		}
-
-		return $return;
-	}
-
-	/**
-	 * Casts $value according to $type.
-	 * Handles fallbacks for certain values of $type when $value is not that $type
-	 * Currently, only handles fallback between string <-> array (two way), from string -> false (one way), and from object -> false (one way)
-	 *
-	 * Handles "child types" - array:URL, object:category
-	 * array:URL means an array of URLs
-	 * object:category means a hash of categories
-	 *
-	 * Handles object typing - object>post means an object of type post
-	 */
-	function cast_and_filter_item( &$return, $type, $key, $value, $types = array(), $for_output = false ) {
-		if ( is_string( $type ) ) {
-			$type = compact( 'type' );
-		}
-
-		switch ( $type['type'] ) {
-		case 'false' :
-			$return[$key] = false;
-			break;
-		case 'url' :
-			$return[$key] = (string) esc_url_raw( $value );
-			break;
-		case 'string' :
-			// Fallback string -> array
-			if ( is_array( $value ) ) {
-				if ( !empty( $types[0] ) ) {
-					$next_type = array_shift( $types );
-					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
-				}
-			}
-
-			// Fallback string -> false
-			if ( !is_string( $value ) ) {
-				if ( !empty( $types[0] ) && 'false' === $types[0]['type'] ) {
-					$next_type = array_shift( $types );
-					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
-				}
-			}
-			$return[$key] = (string) $value;
-			break;
-		case 'html' :
-			$return[$key] = (string) $value;
-			break;
-		case 'media' :
-			if ( is_array( $value ) ) {
-				if ( isset( $value['name'] ) ) {
-					// It's a $_FILES array
-					// Reformat into array of $_FILES items
-
-					$files = array();
-					foreach ( $value['name'] as $k => $v ) {
-						$files[$k] = array();
-						foreach ( array_keys( $value ) as $file_key ) {
-							$files[$k][$file_key] = $value[$file_key][$k];
-						}
-					}
-
-					$return[$key] = $files;
-				}
-				break;
-			} else {
-				// no break - treat as 'array'
-			}
-			// nobreak
-		case 'array' :
-			// Fallback array -> string
-			if ( is_string( $value ) ) {
-				if ( !empty( $types[0] ) ) {
-					$next_type = array_shift( $types );
-					return $this->cast_and_filter_item( $return, $next_type, $key, $value, $types, $for_output );
-				}
-			}
-
-			if ( isset( $type['children'] ) ) {
-				$children = array();
-				foreach ( (array) $value as $k => $child ) {
-					$this->cast_and_filter_item( $children, $type['children'], $k, $child, array(), $for_output );
-				}
-				$return[$key] = (array) $children;
-				break;
-			}
-
-			$return[$key] = (array) $value;
-			break;
-		case 'iso 8601 datetime' :
-		case 'datetime' :
-			// (string)s
-			$dates = $this->parse_date( (string) $value );
-			if ( $for_output ) {
-				$return[$key] = $this->format_date( $dates[1], $dates[0] );
-			} else {
-				list( $return[$key], $return["{$key}_gmt"] ) = $dates;
-			}
-			break;
-		case 'float' :
-			$return[$key] = (float) $value;
-			break;
-		case 'int' :
-		case 'integer' :
-			$return[$key] = (int) $value;
-			break;
-		case 'bool' :
-		case 'boolean' :
-			$return[$key] = (bool) WPCOM_JSON_API::is_truthy( $value );
-			break;
-		case 'object' :
-			// Fallback object -> false
-			if ( is_scalar( $value ) || is_null( $value ) ) {
-				if ( !empty( $types[0] ) && 'false' === $types[0]['type'] ) {
-					return $this->cast_and_filter_item( $return, 'false', $key, $value, $types, $for_output );
-				}
-			}
-
-			if ( isset( $type['children'] ) ) {
-				$children = array();
-				foreach ( (array) $value as $k => $child ) {
-					$this->cast_and_filter_item( $children, $type['children'], $k, $child, array(), $for_output );
-				}
-				$return[$key] = (object) $children;
-				break;
-			}
-
-			if ( isset( $type['subtype'] ) ) {
-				return $this->cast_and_filter_item( $return, $type['subtype'], $key, $value, $types, $for_output );
-			}
-
-			$return[$key] = (object) $value;
-			break;
-		case 'post' :
-			$return[$key] = (object) $this->cast_and_filter( $value, $this->post_object_format, false, $for_output );
-			break;
-		case 'comment' :
-			$return[$key] = (object) $this->cast_and_filter( $value, $this->comment_object_format, false, $for_output );
-			break;
-		case 'tag' :
-		case 'category' :
-			$docs = array(
-				'name'        => '(string)',
-				'slug'        => '(string)',
-				'description' => '(HTML)',
-				'post_count'  => '(int)',
-				'meta'        => '(object)',
-			);
-			if ( 'category' === $type ) {
-				$docs['parent'] = '(int)';
-			}
-			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
-			break;
-		case 'post_reference' :
-		case 'comment_reference' :
-			$docs = array(
-				'ID'   => '(int)',
-				'type' => '(string)',
-				'title' => '(string)',
-				'link' => '(URL)',
-			);
-			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
-			break;
-		case 'geo' :
-			$docs = array(
-				'latitude'  => '(float)',
-				'longitude' => '(float)',
-				'address'   => '(string)',
-			);
-			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
-			break;
-		case 'author' :
-			$docs = array(
-				'ID'          => '(int)',
-				'user_login'  => '(string)',
-				'email'       => '(string|false)',
-				'name'        => '(string)',
-				'URL'         => '(URL)',
-				'avatar_URL'  => '(URL)',
-				'profile_URL' => '(URL)',
-			);
-			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
-			break;
-		case 'attachment' :
-			$docs = array(
-				'ID'        => '(int)',
-				'URL'       => '(URL)',
-				'guid'      => '(string)',
-				'mime_type' => '(string)',
-				'width'     => '(int)',
-				'height'    => '(int)',
-				'duration'  => '(int)',
-			);
-			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_attachment_cast_and_filter', $docs ), false, $for_output );
-			break;
-		case 'metadata' :
-			$docs = array(
-				'id'       => '(int)',
-				'key'       => '(string)',
-				'value'     => '(string|false|float|int|array|object)',
-				'previous_value' => '(string)',
-				'operation'  => '(string)',
-			);
-			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_attachment_cast_and_filter', $docs ), false, $for_output );
-			break;
-		default :
-			trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
-		}
-	}
-
-	function parse_types( $text ) {
-		if ( !preg_match( '#^\(([^)]+)\)#', ltrim( $text ), $matches ) ) {
-			return 'none';
-		}
-
-		$types = explode( '|', strtolower( $matches[1] ) );
-		$return = array();
-		foreach ( $types as $type ) {
-			foreach ( array( ':' => 'children', '>' => 'subtype', '=' => 'default' ) as $operator => $meaning ) {
-				if ( false !== strpos( $type, $operator ) ) {
-					$item = explode( $operator, $type, 2 );
-					$return[] = array( 'type' => $item[0], $meaning => $item[1] );
-					continue 2;
-				}
-			}
-			$return[] = compact( 'type' );
-		}
-
-		return $return;
-	}
-
-	/**
-	 * Auto generates documentation based on description, method, path, path_labels, and query parameters.
-	 * Echoes HTML.
-	 */
-	function document( $show_description = true ) {
-		$original_post = isset( $GLOBALS['post'] ) ? $GLOBALS['post'] : 'unset';
-		unset( $GLOBALS['post'] );
-
-		$doc = $this->generate_documentation();
-
-		if ( $show_description ) :
-?>
-<caption>
-	<h1><?php echo wp_kses_post( $doc['method'] ); ?> <?php echo wp_kses_post( $doc['path_labeled'] ); ?></h1>
-	<p><?php echo wp_kses_post( $doc['description'] ); ?></p>
-</caption>
-
-<?php endif; ?>
-
-<section class="resource-url">
-	<h2 id="apidoc-resource-url">Resource URL</h2>
-	<table class="api-doc api-doc-resource-parameters api-doc-resource">
-		<thead>
-			<tr>
-				<th class="api-index-title" scope="column">Type</th>
-				<th class="api-index-title" scope="column">URL and Format</th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr class="api-index-item">
-				<th scope="row" class="parameter api-index-item-title"><?php echo wp_kses_post( $doc['method'] ); ?></th>
-				<td class="type api-index-item-title" style="white-space: nowrap;">https://public-api.wordpress.com/rest/v1<?php echo wp_kses_post( $doc['path_labeled'] ); ?></td>
-			</tr>
-		</tbody>
-	</table>
-</section>
-
-<?php
-
-		foreach ( array(
-			'path'     => 'Method Parameters',
-			'query'    => 'Query Parameters',
-			'body'     => 'Request Parameters',
-			'response' => 'Response Parameters',
-		) as $doc_section_key => $label ) :
-			$doc_section = 'response' === $doc_section_key ? $doc['response']['body'] : $doc['request'][$doc_section_key];
-			if ( !$doc_section ) {
-				continue;
-			}
-
-			$param_label = strtolower( str_replace( ' ', '-', $label ) );
-?>
-
-<section class="<?php echo $param_label; ?>">
-
-<h2 id="apidoc-<?php echo esc_attr( $doc_section_key ); ?>"><?php echo wp_kses_post( $label ); ?></h2>
-
-<table class="api-doc api-doc-<?php echo $param_label; ?>-parameters api-doc-<?php echo strtolower( str_replace( ' ', '-', $doc['group'] ) ); ?>">
-
-<thead>
-	<tr>
-		<th class="api-index-title" scope="column">Parameter</th>
-		<th class="api-index-title" scope="column">Type</th>
-		<th class="api-index-title" scope="column">Description</th>
-	</tr>
-</thead>
-<tbody>
-
-<?php foreach ( $doc_section as $key => $item ) : ?>
-
-	<tr class="api-index-item">
-		<th scope="row" class="parameter api-index-item-title"><?php echo wp_kses_post( $key ); ?></th>
-		<td class="type api-index-item-title"><?php echo wp_kses_post( $item['type'] ); // @todo auto-link? ?></td>
-		<td class="description api-index-item-body"><?php
-
-		$this->generate_doc_description( $item['description'] );
-
-		?></td>
-	</tr>
-
-<?php endforeach; ?>
-</tbody>
-</table>
-</section>
-<?php endforeach; ?>
-
-<?php
-		// If no example was hardcoded in the doc, try to get some
-		if ( empty( $this->example_response ) ) {
-
-			// Examples for endpoint documentation response
-			$response_key  = 'dev_example_response_' . $this->version . '_' . $this->method . '_' . sanitize_key( $this->path );
-			$response_body = wp_cache_get( $response_key );
-
-			// Response doesn't exist, so run the request
-			if ( false === $response_body ) {
-
-				// Only trust GET request
-				if ( 'GET' === $this->method ) {
-					$response      = wp_remote_get( $this->example_request );
-					$response_body = wp_remote_retrieve_body( $response );
-
-					// Only cache if there's a result
-					if ( ! is_wp_error( $response ) && strlen( $response_body ) ) {
-						wp_cache_set( $response_key, $response_body );
-					} else {
-						wp_cache_delete( $response_key );
-					}
-				}
-			}
-
-		// Example response was passed into the constructor via params
-		} else {
-			$response_body = $this->example_response;
-		}
-
-		// Wrap the response in a sourcecode shortcode
-		if ( !empty( $response_body ) && !is_wp_error( $response ) ) {
-			$response_body = '[sourcecode language="javascript" wraplines="false" light="true" autolink="false" htmlscript="false"]' . $response_body . '[/sourcecode]';
-			$response_body = apply_filters( 'the_content', $response_body );
-			$this->example_response = $response_body;
-		}
-
-		$curl = 'curl';
-
-		$php_opts = array( 'ignore_errors' => true );
-
-		if ( 'GET' !== $this->method ) {
-			$php_opts['method'] = $this->method;
-		}
-
-		if ( $this->example_request_data ) {
-			if ( isset( $this->example_request_data['headers'] ) && is_array( $this->example_request_data['headers'] ) ) {
-				$php_opts['header'] = array();
-				foreach ( $this->example_request_data['headers'] as $header => $value ) {
-					$curl .= " \\\n -H " . escapeshellarg( "$header: $value" );
-					$php_opts['header'][] = "$header: $value";
-				}
-			}
-
-			if ( isset( $this->example_request_data['body'] ) && is_array( $this->example_request_data['body'] ) ) {
-				$php_opts['content'] = $this->example_request_data['body'];
-				$php_opts['header'][] = 'Content-Type: application/x-www-form-urlencoded';
-				foreach ( $this->example_request_data['body'] as $key => $value ) {
-					$curl .= " \\\n --data-urlencode " . escapeshellarg( "$key=$value" );
-				}
-			}
-		}
-
-		if ( $php_opts ) {
-			$php_opts_exported = var_export( array( 'http' => $php_opts ), true );
-			if ( !empty( $php_opts['content'] ) ) {
-				$content_exported = preg_quote( var_export( $php_opts['content'], true ), '/' );
-				$content_exported = '\\s*' . str_replace( "\n", "\n\\s*", $content_exported ) . '\\s*';
-				$php_opts_exported = preg_replace_callback( "/$content_exported/", array( $this, 'add_http_build_query_to_php_content_example' ), $php_opts_exported );
-			}
-			$php = <<<EOPHP
-<?php
-
-\$options  = $php_opts_exported;
-
-\$context  = stream_context_create( \$options );
-\$response = file_get_contents(
-  '$this->example_request',
-  false,
-  \$context
-);
-\$response = json_decode( \$response );
-
-?>
-EOPHP;
-		} else {
-			$php = <<<EOPHP
-<?php
-
-\$response = file_get_contents( '$this->example_request' );
-\$response = json_decode( \$response );
-
-?>
-EOPHP;
-		}
-
-		if ( false !== strpos( $curl, "\n" ) ) {
-			$curl .= " \\\n";
-		}
-
-		$curl .= ' ' . escapeshellarg( $this->example_request );
-
-		$curl = '[sourcecode language="bash" wraplines="false" light="true" autolink="false" htmlscript="false"]' . $curl . '[/sourcecode]';
-		$curl = apply_filters( 'the_content', $curl );
-
-		$php = '[sourcecode language="php" wraplines="false" light="true" autolink="false" htmlscript="false"]' . $php . '[/sourcecode]';
-		$php = apply_filters( 'the_content', $php );
-?>
-
-<?php if ( ! empty( $this->example_request ) || ! empty( $this->example_request_data ) || ! empty( $this->example_response ) ) : ?>
-
-	<section class="example-response">
-		<h2 id="apidoc-example">Example</h2>
-
-		<section>
-			<h3>cURL</h3>
-			<?php echo wp_kses_post( $curl ); ?>
-		</section>
-
-		<section>
-			<h3>PHP</h3>
-			<?php echo wp_kses_post( $php ); ?>
-		</section>
-
-		<?php if ( ! empty( $this->example_response ) ) : ?>
-
-			<section>
-				<h3>Response Body</h3>
-				<?php echo $this->example_response; ?>
-			</section>
-
-		<?php endif; ?>
-
-	</section>
-
-<?php endif; ?>
-
-<?php
-		if ( 'unset' !== $original_post ) {
-			$GLOBALS['post'] = $original_post;
-		}
-	}
-
-	function add_http_build_query_to_php_content_example( $matches ) {
-		$trimmed_match = ltrim( $matches[0] );
-		$pad = substr( $matches[0], 0, -1 * strlen( $trimmed_match ) );
-		$pad = ltrim( $pad, ' ' );
-		$return = '  ' . str_replace( "\n", "\n  ", $matches[0] );
-		return " http_build_query({$return}{$pad})";
-	}
-
-	/**
-	 * Recursively generates the <dl>'s to document item descriptions.
-	 * Echoes HTML.
-	 */
-	function generate_doc_description( $item ) {
-		if ( is_array( $item ) ) : ?>
-
-		<dl>
-<?php			foreach ( $item as $description_key => $description_value ) : ?>
-
-			<dt><?php echo wp_kses_post( $description_key . ':' ); ?></dt>
-			<dd><?php $this->generate_doc_description( $description_value ); ?></dd>
-
-<?php			endforeach; ?>
-
-		</dl>
-
-<?php
-		else :
-			echo wp_kses_post( $item );
-		endif;
-	}
-
-	/**
-	 * Auto generates documentation based on description, method, path, path_labels, and query parameters.
-	 * Echoes HTML.
-	 */
-	function generate_documentation() {
-		$format       = str_replace( '%d', '%s', $this->path );
-		$path_labeled = vsprintf( $format, array_keys( $this->path_labels ) );
-		$boolean_arg  = array( 'false', 'true' );
-		$naeloob_arg  = array( 'true', 'false' );
-
-		$doc = array(
-			'description'  => $this->description,
-			'method'       => $this->method,
-			'path_format'  => $this->path,
-			'path_labeled' => $path_labeled,
-			'group'        => $this->group,
-			'request' => array(
-				'path'  => array(),
-				'query' => array(),
-				'body'  => array(),
-			),
-			'response' => array(
-				'body' => array(),
-			)
-		);
-
-		foreach ( array( 'path_labels' => 'path', 'query' => 'query', 'request_format' => 'body', 'response_format' => 'body' ) as $_property => $doc_item ) {
-			foreach ( (array) $this->$_property as $key => $description ) {
-				if ( is_array( $description ) ) {
-					$description_keys = array_keys( $description );
-					if ( $boolean_arg === $description_keys || $naeloob_arg === $description_keys ) {
-						$type = '(bool)';
-					} else {
-						$type = '(string)';
-					}
-
-					if ( 'response_format' !== $_property ) {
-						// hack - don't show "(default)" in response format
-						reset( $description );
-						$description_key = key( $description );
-						$description[$description_key] = "(default) {$description[$description_key]}";
-					}
-				} else {
-					$types   = $this->parse_types( $description );
-					$type    = array();
-					$default = '';
-
-					if ( 'none' == $types ) {
-						$types = array();
-						$types[]['type'] = 'none';
-					}
-
-					foreach ( $types as $type_array ) {
-						$type[] = $type_array['type'];
-						if ( isset( $type_array['default'] ) ) {
-							$default = $type_array['default'];
-							if ( 'string' === $type_array['type'] ) {
-								$default = "'$default'";
-							}
-						}
-					}
-					$type = '(' . join( '|', $type ) . ')';
-					$noop = ''; // skip an index in list below
-					list( $noop, $description ) = explode( ')', $description, 2 );
-					$description = trim( $description );
-					if ( $default ) {
-						$description .= " Default: $default.";
-					}
-				}
-
-				$item = compact( 'type', 'description' );
-
-				if ( 'response_format' === $_property ) {
-					$doc['response'][$doc_item][$key] = $item;
-				} else {
-					$doc['request'][$doc_item][$key] = $item;
-				}
-			}
-		}
-
-		return $doc;
-	}
-
-	function user_can_view_post( $post_id ) {
 		$post = get_post( $post_id );
 		if ( !$post || is_wp_error( $post ) ) {
-			return false;
+			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
-		if ( 'inherit' === $post->post_status ) {
-			$parent_post = get_post( $post->post_parent );
-			$post_status_obj = get_post_status_object( $parent_post->post_status );
-		} else {
-			$post_status_obj = get_post_status_object( $post->post_status );
-		}
-
-		if ( !$post_status_obj->public ) {
-			if ( is_user_logged_in() ) {
-				if ( $post_status_obj->protected ) {
-					if ( !current_user_can( 'edit_post', $post->ID ) ) {
-						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
-					}
-				} elseif ( $post_status_obj->private ) {
-					if ( !current_user_can( 'read_post', $post->ID ) ) {
-						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
-					}
-				} elseif ( 'trash' === $post->post_status ) {
-					if ( !current_user_can( 'edit_post', $post->ID ) ) {
-						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
-					}
-				} else {
-					return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
-				}
-			} else {
-				return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
-			}
-		}
-
-		if ( -1 == get_option( 'blog_public' ) && !current_user_can( 'read_post', $post->ID ) ) {
-			return new WP_Error( 'unauthorized', 'User cannot view post', array( 'status_code' => 403, 'error' => 'private_blog' ) );
-		}
-
-		if ( strlen( $post->post_password ) && !current_user_can( 'edit_post', $post->ID ) ) {
-			return new WP_Error( 'unauthorized', 'User cannot view password protected post', array( 'status_code' => 403, 'error' => 'password_protected' ) );
-		}
-
-		return true;
-	}
-
-	/**
-	 * Returns author object.
-	 *
-	 * @param $author user ID, user row, WP_User object, comment row, post row
-	 * @param $show_email output the author's email address?
-	 *
-	 * @return (object)
-	 */
-	function get_author( $author, $show_email = false ) {
-		if ( isset( $author->comment_author_email ) && !$author->user_id ) {
-			$ID          = 0;
-			$login       = '';
-			$email       = $author->comment_author_email;
-			$name        = $author->comment_author;
-			$URL         = $author->comment_author_url;
-			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
-			$nice        = '';
-			$site_id     = -1;
-		} else {
-			if ( isset( $author->post_author ) ) {
-				if ( 0 == $author->post_author )
-					return null;
-
-				$author = $author->post_author;
-			} elseif ( isset( $author->user_id ) && $author->user_id ) {
-				$author = $author->user_id;
-			} elseif ( isset( $author->user_email ) ) {
-				$author = $author->ID;
-			}
-
-			$user = get_user_by( 'id', $author );
-			if ( !$user || is_wp_error( $user ) ) {
-				trigger_error( 'Unknown user', E_USER_WARNING );
-				return null;
-			}
-
-			$ID    = $user->ID;
-			$email = $user->user_email;
-			$login = $user->user_login;
-			$name  = $user->display_name;
-			$URL   = $user->user_url;
-			$nice  = $user->user_nicename;
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				$active_blog = get_active_blog_for_user( $ID );
-				$site_id     = $active_blog->blog_id;
-				$profile_URL = "http://en.gravatar.com/{$login}";
-			} else {
-				$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
-				$site_id     = -1;
-			}
-		}
-
-		$avatar_URL = $this->api->get_avatar_url( $email );
-
-		$email = $show_email ? (string) $email : false;
-
-		$author = array(
-			'ID'          => (int) $ID,
-			'login'       => (string) $login,
-			'email'       => $email, // (string|bool)
-			'name'        => (string) $name,
-			'nice_name'   => (string) $nice,
-			'URL'         => (string) esc_url_raw( $URL ),
-			'avatar_URL'  => (string) esc_url_raw( $avatar_URL ),
-			'profile_URL' => (string) esc_url_raw( $profile_URL ),
-		);
-
-		if ($site_id > -1) {
-			$author['site_ID'] = (int) $site_id;
-		}
-
-		return (object) $author;
-	}
-
-	function get_media_item( $media_id ) {
-		$media_item = get_post( $media_id );
-
-		if ( !$media_item || is_wp_error( $media_item ) )
-			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
-
-		$response = array(
-			'id'    => strval( $media_item->ID ),
-			'date' =>  (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),
-			'parent'           => $media_item->post_parent,
-			'link'             => wp_get_attachment_url( $media_item->ID ),
-			'title'            => $media_item->post_title,
-			'caption'          => $media_item->post_excerpt,
-			'description'      => $media_item->post_content,
-			'metadata'         => wp_get_attachment_metadata( $media_item->ID ),
-		);
-
-		$response['meta'] = (object) array(
-			'links' => (object) array(
-				'self' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
-				'help' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id, 'help' ),
-				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
-			),
-		);
-
-		return (object) $response;
-	}
-
-	function get_taxonomy( $taxonomy_id, $taxonomy_type, $context ) {
-
-		$taxonomy = get_term_by( 'slug', $taxonomy_id, $taxonomy_type );
-		/// keep updating this function
-		if ( !$taxonomy || is_wp_error( $taxonomy ) ) {
-			return new WP_Error( 'unknown_taxonomy', 'Unknown taxonomy', 404 );
+		if ( ! $this->is_post_type_allowed( $post->post_type ) && ! is_post_freshly_pressed( $post->ID ) ) {
+			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
 		// Permissions
 		switch ( $context ) {
 		case 'edit' :
-			$tax = get_taxonomy( $taxonomy_type );
-			if ( !current_user_can( $tax->cap->edit_terms ) )
-				return new WP_Error( 'unauthorized', 'User cannot edit taxonomy', 403 );
+			if ( !current_user_can( 'edit_post', $post->ID ) ) {
+				return new WP_Error( 'unauthorized', 'User cannot edit post', 403 );
+			}
 			break;
 		case 'display' :
-			if ( -1 == get_option( 'blog_public' ) ) {
-				return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
-			}
 			break;
 		default :
 			return new WP_Error( 'invalid_context', 'Invalid API CONTEXT', 400 );
 		}
 
-		$response                = array();
-		$response['ID']          = (int) $taxonomy->term_id;
-		$response['name']        = (string) $taxonomy->name;
-		$response['slug']        = (string) $taxonomy_id;
-		$response['description'] = (string) $taxonomy->description;
-		$response['post_count']  = (int) $taxonomy->count;
-
-		if ( 'category' === $taxonomy_type )
-			$response['parent'] = (int) $taxonomy->parent;
-
-		$response['meta'] = (object) array(
-			'links' => (object) array(
-				'self' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy_id, $taxonomy_type ),
-				'help' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy_id, $taxonomy_type, 'help' ),
-				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
-			),
-		);
-
-		return (object) $response;
-	}
-
-	/**
-	 * Returns ISO 8601 formatted datetime: 2011-12-08T01:15:36-08:00
-	 *
-	 * @param $date_gmt (string) GMT datetime string.
-	 * @param $date (string) Optional.  Used to calculate the offset from GMT.
-	 *
-	 * @return string
-	 */
-	function format_date( $date_gmt, $date = null ) {
-		$timestamp_gmt = strtotime( "$date_gmt+0000" );
-		if ( null === $date ) {
-			$timestamp = $timestamp_gmt;
-			$hours     = $minutes = $west = 0;
-		} else {
-			$timestamp = strtotime( "$date+0000" );
-			$offset    = $timestamp - $timestamp_gmt;
-			$west      = $offset < 0;
-			$offset    = abs( $offset );
-			$hours     = (int) floor( $offset / 3600 );
-			$offset   -= $hours * 3600;
-			$minutes   = (int) floor( $offset / 60 );
+		$can_view = $this->user_can_view_post( $post->ID );
+		if ( !$can_view || is_wp_error( $can_view ) ) {
+			return $can_view;
 		}
 
-		return (string) gmdate( 'Y-m-d\\TH:i:s', $timestamp ) . sprintf( '%s%02d:%02d', $west ? '-' : '+', $hours, $minutes );
-	}
+		// Re-get post according to the correct $context
+		$post            = get_post( $post->ID, OBJECT, $context );
+		$GLOBALS['post'] = $post;
 
-	/**
-	 * Parses a date string and returns the local and GMT representations
-	 * of that date & time in 'YYYY-MM-DD HH:MM:SS' format without
-	 * timezones or offsets. If the parsed datetime was not localized to a
-	 * particular timezone or offset we will assume it was given in GMT
-	 * relative to now and will convert it to local time using either the
-	 * timezone set in the options table for the blog or the GMT offset.
-	 *
-	 * @param datetime string
-	 *
-	 * @return array( $local_time_string, $gmt_time_string )
-	 */
-	function parse_date( $date_string ) {
-		$date_string_info = date_parse( $date_string );
-		if ( is_array( $date_string_info ) && 0 === $date_string_info['error_count'] ) {
-			// Check if it's already localized. Can't just check is_localtime because date_parse('oppossum') returns true; WTF, PHP.
-			if ( isset( $date_string_info['zone'] ) && true === $date_string_info['is_localtime'] ) {
-				$dt_local = clone $dt_utc = new DateTime( $date_string );
-				$dt_utc->setTimezone( new DateTimeZone( 'UTC' ) );
-				return array(
-					(string) $dt_local->format( 'Y-m-d H:i:s' ),
-					(string) $dt_utc->format( 'Y-m-d H:i:s' ),
+		if ( 'display' === $context ) {
+			setup_postdata( $post );
+		}
+
+		$response = array();
+		foreach ( array_keys( $this->post_object_format ) as $key ) {
+			switch ( $key ) {
+			case 'ID' :
+				// explicitly cast all output
+				$response[$key] = (int) $post->ID;
+				break;
+			case 'site_ID' :
+				$response[$key] = (int) $blog_id;
+				break;
+			case 'author' :
+				$response[$key] = (object) $this->get_author( $post, 'edit' === $context && current_user_can( 'edit_post', $post->ID ) );
+				break;
+			case 'date' :
+				$response[$key] = (string) $this->format_date( $post->post_date_gmt, $post->post_date );
+				break;
+			case 'modified' :
+				$response[$key] = (string) $this->format_date( $post->post_modified_gmt, $post->post_modified );
+				break;
+			case 'title' :
+				if ( 'display' === $context ) {
+					$response[$key] = (string) html_entity_decode( get_the_title( $post->ID ) );
+				} else {
+					$response[$key] = (string) htmlspecialchars_decode( $post->post_title, ENT_QUOTES );
+				}
+				break;
+			case 'URL' :
+				$response[$key] = (string) esc_url_raw( get_permalink( $post->ID ) );
+				break;
+			case 'short_URL' :
+				$response[$key] = (string) esc_url_raw( wp_get_shortlink( $post->ID ) );
+				break;
+			case 'content' :
+				if ( 'display' === $context ) {
+					add_filter( 'the_password_form', array( $this, 'the_password_form' ) );
+					$response[$key] = (string) $this->get_the_post_content_for_display();
+					remove_filter( 'the_password_form', array( $this, 'the_password_form' ) );
+				} else {
+					$response[$key] = (string) $post->post_content;
+				}
+				break;
+			case 'excerpt' :
+				if ( 'display' === $context ) {
+					add_filter( 'the_password_form', array( $this, 'the_password_form' ) );
+					ob_start();
+					the_excerpt();
+					$response[$key] = (string) ob_get_clean();
+					remove_filter( 'the_password_form', array( $this, 'the_password_form' ) );
+				} else {
+					$response[$key] = (string) $post->post_excerpt;
+				}
+				break;
+			case 'status' :
+				$response[$key] = (string) get_post_status( $post->ID );
+				break;
+			case 'sticky' :
+				$response[$key] = (bool) is_sticky( $post->ID );
+				break;
+			case 'slug' :
+				$response[$key] = (string) $post->post_name;
+				break;
+			case 'guid' :
+				$response[$key] = (string) $post->guid;
+				break;
+			case 'password' :
+				$response[$key] = (string) $post->post_password;
+				break;
+			case 'parent' : // (object|false)
+				if ( $post->post_parent ) {
+					$parent         = get_post( $post->post_parent );
+					$response[$key] = (object) array(
+						'ID'   => (int) $parent->ID,
+						'type' => (string) $parent->post_type,
+						'link' => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $parent->ID ),
+					);
+				} else {
+					$response[$key] = false;
+				}
+				break;
+			case 'type' :
+				$response[$key] = (string) $post->post_type;
+				break;
+			case 'comments_open' :
+				$response[$key] = (bool) comments_open( $post->ID );
+				break;
+			case 'pings_open' :
+				$response[$key] = (bool) pings_open( $post->ID );
+				break;
+			case 'likes_enabled' :
+				$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
+				$post_likes_switched    = (bool) get_post_meta( $post->ID, 'switch_like_status', true );
+				$post_likes_enabled = $sitewide_likes_enabled;
+				if ( $post_likes_switched ) {
+					$post_likes_enabled = ! $post_likes_enabled;
+				}
+				$response[$key] = (bool) $post_likes_enabled;
+				break;
+			case 'sharing_enabled' :
+				$show = true;
+				$show = apply_filters( 'sharing_show', $show, $post );
+				
+				$switched_status = get_post_meta( $post->ID, 'sharing_disabled', false );
+				
+				if ( !empty( $switched_status ) )
+					$show = false;
+				$response[$key] = (bool) $show;
+				break;
+			case 'gplusauthorship_enabled' :
+				$gplus_enabled = true;
+				if ( ! apply_filters( 'gplus_authorship_show', true, $post ) ) {
+					$gplus_enabled = false;
+				}
+
+				$authors = get_option( 'gplus_authors', array() );
+				$author = ( empty( $authors[ $post->post_author ] ) ? array() : $authors[ $post->post_author ] );
+				
+				if ( empty( $author ) ) {
+					$gplus_enabled = false;
+				}
+
+				$meta = get_post_meta( $post->ID, 'gplus_authorship_disabled', true );
+				if ( isset( $meta ) && true == $meta ) {
+					$gplus_enabled = false;
+				}
+			
+				$response[$key] = (bool) $gplus_enabled;
+				break;
+			case 'comment_count' :
+				$response[$key] = (int) $post->comment_count;
+				break;
+			case 'like_count' :
+				$response[$key] = (int) $this->api->post_like_count( $blog_id, $post->ID );
+				break;
+			case 'i_like'     :
+				$response[$key] = (int) $this->api->is_liked( $blog_id, $post->ID );
+				break;
+			case 'is_reblogged':
+				$response[$key] = (int) $this->api->is_reblogged( $blog_id, $post->ID );
+				break;
+			case 'is_following':
+				$response[$key] = (int) $this->api->is_following( $blog_id );
+				break;
+			case 'global_ID':
+				$response[$key] = (string) $this->api->add_global_ID( $blog_id, $post->ID );
+				break;
+			case 'featured_image' :
+				$image_attributes = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), 'full' );
+				if ( is_array( $image_attributes ) && isset( $image_attributes[0] ) )
+					$response[$key] = (string) $image_attributes[0];
+				else
+					$response[$key] = '';
+				break;
+			case 'format' :
+				$response[$key] = (string) get_post_format( $post->ID );
+				if ( !$response[$key] ) {
+					$response[$key] = 'standard';
+				}
+				break;
+			case 'geo' : // (object|false)
+				if ( !$geo ) {
+					$response[$key] = false;
+				} else {
+					$geo_data       = $geo->get_geo( 'post', $post->ID );
+					$response[$key] = false;
+					if ( $geo_data ) {
+						$geo_data = array_intersect_key( $geo_data, array( 'latitude' => true, 'longitude' => true, 'address' => true, 'public' => true ) );
+						if ( $geo_data ) {
+							$response[$key] = (object) array(
+								'latitude'  => isset( $geo_data['latitude']  ) ? (float)  $geo_data['latitude']  : 0,
+								'longitude' => isset( $geo_data['longitude'] ) ? (float)  $geo_data['longitude'] : 0,
+								'address'   => isset( $geo_data['address'] )   ? (string) $geo_data['address']   : '',
+							);
+						} else {
+							$response[$key] = false;
+						}
+						// Private
+						if ( !isset( $geo_data['public'] ) || !$geo_data['public'] ) {
+							if ( 'edit' !== $context || !current_user_can( 'edit_post', $post->ID ) ) {
+								// user can't access
+								$response[$key] = false;
+							}
+						}
+					}
+				}
+				break;
+			case 'publicize_URLs' :
+				$publicize_URLs = array();
+				$publicize      = get_post_meta( $post->ID, 'publicize_results', true );
+				if ( $publicize ) {
+					foreach ( $publicize as $service => $data ) {
+						switch ( $service ) {
+						case 'twitter' :
+							foreach ( $data as $datum ) {
+								$publicize_URLs[] = esc_url_raw( "https://twitter.com/{$datum['user_id']}/status/{$datum['post_id']}" );
+							}
+							break;
+						case 'fb' :
+							foreach ( $data as $datum ) {
+								$publicize_URLs[] = esc_url_raw( "https://www.facebook.com/permalink.php?story_fbid={$datum['post_id']}&id={$datum['user_id']}" );
+							}
+							break;
+						}
+					}
+				}
+				$response[$key] = (array) $publicize_URLs;
+				break;
+			case 'tags' :
+				$response[$key] = array();
+				$terms = wp_get_post_tags( $post->ID );
+				foreach ( $terms as $term ) {
+					if ( !empty( $term->name ) ) {
+						$response[$key][$term->name] = $this->get_taxonomy( $term->slug, 'post_tag', $context );
+					}
+				}
+				$response[$key] = (object) $response[$key];
+				break;
+			case 'categories':
+				$response[$key] = array();
+				$terms = wp_get_post_categories( $post->ID );
+				foreach ( $terms as $term ) {
+					$category = $taxonomy = get_term_by( 'id', $term, 'category' );
+					if ( !empty( $category->name ) ) {
+						$response[$key][$category->name] = $this->get_taxonomy( $category->slug, 'category', $context );
+					}
+				}
+				$response[$key] = (object) $response[$key];
+				break;
+			case 'attachments':
+				$response[$key] = array();
+				$_attachments = get_posts( array( 'post_parent' => $post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment' ) );
+				foreach ( $_attachments as $attachment ) {
+					$response[$key][$attachment->ID] = $this->get_attachment( $attachment );
+				}
+				$response[$key] = (object) $response[$key];
+				break;
+			case 'metadata' : // (array|false)
+				$metadata = array();
+				foreach ( (array) has_meta( $post_id ) as $meta ) {
+					// Don't expose protected fields.
+					$show = false;
+					if ( $this->is_metadata_public( $meta['meta_key'] ) )
+						$show = true;
+					if ( current_user_can( 'edit_post_meta', $post_id , $meta['meta_key'] ) )
+						$show = true;
+
+					if ( !$show )
+						continue;
+
+					$metadata[] = array(
+						'id'    => $meta['meta_id'],
+						'key'   => $meta['meta_key'],
+						'value' => maybe_unserialize( $meta['meta_value'] ),
+					);
+				}
+
+				if ( ! empty( $metadata ) ) {
+					$response[$key] = $metadata;
+				} else {
+					$response[$key] = false;
+				}
+				break;
+			case 'meta' :
+				$response[$key] = (object) array(
+					'links' => (object) array(
+						'self'    => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID ),
+						'help'    => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID, 'help' ),
+						'site'    => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
+//						'author'  => (string) $this->get_user_link( $post->post_author ),
+//						'via'     => (string) $this->get_post_link( $reblog_origin_blog_id, $reblog_origin_post_id ),
+						'replies' => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID, 'replies/' ),
+						'likes'   => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID, 'likes/' ),
+					),
 				);
+				break;
 			}
+		}
 
-			// It's parseable but no TZ info so assume UTC
-			$dt_local = clone $dt_utc = new DateTime( $date_string, new DateTimeZone( 'UTC' ) );
+		// WPCOM_JSON_API_Post_Endpoint::find_featured_worthy_media( $post );
+		$response['featured_media'] = self::find_featured_media( $post );
+
+		unset( $GLOBALS['post'] );
+		return $response;
+	}
+
+	// No Blog ID parameter.  No Post ID parameter.  Depends on globals.
+	// Expects setup_postdata() to already have been run
+	function get_the_post_content_for_display() {
+		global $pages, $page;
+
+		$old_pages = $pages;
+		$old_page  = $page;
+
+		$content = join( "\n\n", $pages );
+		$content = preg_replace( '/<!--more(.*?)?-->/', '', $content );
+		$pages   = array( $content );
+		$page    = 1;
+
+		ob_start();
+		the_content();
+		$return = ob_get_clean();
+
+		$pages = $old_pages;
+		$page  = $old_page;
+
+		return $return;
+	}
+
+	function get_blog_post( $blog_id, $post_id, $context = 'display' ) {
+		$blog_id = $this->api->get_blog_id( $blog_id );
+		if ( !$blog_id || is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+		switch_to_blog( $blog_id );
+		$post = $this->get_post_by( 'ID', $post_id, $context );
+		restore_current_blog();
+		return $post;
+	}
+
+	/**
+	 * Supporting featured media in post endpoints. Currently on for wpcom blogs
+	 * since it's calling WPCOM_JSON_API_Read_Endpoint methods which presently
+	 * rely on wpcom specific functionality.
+	 *
+	 * @param WP_Post $post
+	 * @return object list of featured media
+	 */
+	public static function find_featured_media( &$post ) {
+
+		if ( class_exists( 'WPCOM_JSON_API_Read_Endpoint' ) ) {
+			return WPCOM_JSON_API_Read_Endpoint::find_featured_worthy_media( (array) $post );
 		} else {
-			// Could not parse time, use now in UTC
-			$dt_local = clone $dt_utc = new DateTime( 'now', new DateTimeZone( 'UTC' ) );
+			return (object) array();
 		}
 
-		// First try to use timezone as it's daylight savings aware.
-		$timezone_string = get_option( 'timezone_string' );
-		if ( $timezone_string ) {
-			$tz = timezone_open( $timezone_string );
-			if ( $tz ) {
-				$dt_local->setTimezone( $tz );
-				return array(
-					(string) $dt_local->format( 'Y-m-d H:i:s' ),
-					(string) $dt_utc->format( 'Y-m-d H:i:s' ),
-				);
+	}
+
+
+
+	function win8_gallery_shortcode( $attr ) {
+		global $post;
+
+		static $instance = 0;
+		$instance++;
+
+		$output = '';
+
+		// We're trusting author input, so let's at least make sure it looks like a valid orderby statement
+		if ( isset( $attr['orderby'] ) ) {
+			$attr['orderby'] = sanitize_sql_orderby( $attr['orderby'] );
+			if ( !$attr['orderby'] )
+				unset( $attr['orderby'] );
+		}
+
+		extract( shortcode_atts( array(
+			'order'     => 'ASC',
+			'orderby'   => 'menu_order ID',
+			'id'        => $post->ID,
+			'include'   => '',
+			'exclude'   => '',
+			'slideshow' => false
+		), $attr ) );
+
+		// Custom image size and always use it
+		add_image_size( 'win8app-column', 480 );
+		$size = 'win8app-column';
+
+		$id = intval( $id );
+		if ( 'RAND' === $order )
+			$orderby = 'none';
+
+		if ( !empty( $include ) ) {
+			$include      = preg_replace( '/[^0-9,]+/', '', $include );
+			$_attachments = get_posts( array( 'include' => $include, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby ) );
+			$attachments  = array();
+			foreach ( $_attachments as $key => $val ) {
+				$attachments[$val->ID] = $_attachments[$key];
+			}
+		} elseif ( !empty( $exclude ) ) {
+			$exclude     = preg_replace( '/[^0-9,]+/', '', $exclude );
+			$attachments = get_children( array( 'post_parent' => $id, 'exclude' => $exclude, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby ) );
+		} else {
+			$attachments = get_children( array( 'post_parent' => $id, 'post_status' => 'inherit', 'post_type' => 'attachment', 'post_mime_type' => 'image', 'order' => $order, 'orderby' => $orderby ) );
+		}
+
+		if ( ! empty( $attachments ) ) {
+			foreach ( $attachments as $id => $attachment ) {
+				$link = isset( $attr['link'] ) && 'file' === $attr['link'] ? wp_get_attachment_link( $id, $size, false, false ) : wp_get_attachment_link( $id, $size, true, false );
+
+				if ( $captiontag && trim($attachment->post_excerpt) ) {
+					$output .= "<div class='wp-caption aligncenter'>$link
+						<p class='wp-caption-text'>" . wptexturize($attachment->post_excerpt) . "</p>
+						</div>";
+				} else {
+					$output .= $link . ' ';
+				}
 			}
 		}
-
-		// Fallback to GMT offset (in hours)
-		// NOTE: TZ of $dt_local is still UTC, we simply modified the timestamp with an offset.
-		$gmt_offset_seconds = intval( get_option( 'gmt_offset' ) * 3600 );
-		$dt_local->modify("+{$gmt_offset_seconds} seconds");
-		return array(
-			(string) $dt_local->format( 'Y-m-d H:i:s' ),
-			(string) $dt_utc->format( 'Y-m-d H:i:s' ),
-		);
-	}
-
-	function get_link() {
-		$args   = func_get_args();
-		$format = array_shift( $args );
-		array_unshift( $args, $this->api->public_api_scheme, WPCOM_JSON_API__BASE );
-		$path = array_pop( $args );
-		if ( $path ) {
-			$path = '/' . ltrim( $path, '/' );
-		}
-		$args[] = $path;
-
-		// http, WPCOM_JSON_API__BASE, ...    , path
-		// %s  , %s                  , $format, %s
-		return esc_url_raw( vsprintf( "%s://%s$format%s", $args ) );
-	}
-
-	function get_me_link( $path = '' ) {
-		return $this->get_link( '/me', $path );
-	}
-
-	function get_taxonomy_link( $blog_id, $taxonomy_id, $taxonomy_type, $path = '' ) {
-		if ( 'category' === $taxonomy_type )
-			return $this->get_link( '/sites/%d/categories/slug:%s', $blog_id, $taxonomy_id, $path );
-		else
-			return $this->get_link( '/sites/%d/tags/slug:%s', $blog_id, $taxonomy_id, $path );
-	}
-
-	function get_media_link( $blog_id, $media_id, $path = '' ) {
-		return $this->get_link( '/sites/%d/media/%d', $blog_id, $media_id, $path );
-	}
-
-	function get_site_link( $blog_id, $path = '' ) {
-		return $this->get_link( '/sites/%d', $blog_id, $path );
-	}
-
-	function get_post_link( $blog_id, $post_id, $path = '' ) {
-		return $this->get_link( '/sites/%d/posts/%d', $blog_id, $post_id, $path );
-	}
-
-	function get_comment_link( $blog_id, $comment_id, $path = '' ) {
-		return $this->get_link( '/sites/%d/comments/%d', $blog_id, $comment_id, $path );
-	}
-
-	function is_post_type_allowed( $post_type ) {
-		// if the post type is empty, that's fine, WordPress will default to post
-		if ( empty( $post_type ) )
-			return true;
-
-		// allow special 'any' type
-		if ( 'any' == $post_type )
-			return true;
-
-		// check for allowed types
-		if ( in_array( $post_type, $this->_get_whitelisted_post_types() ) )
-			return true;
-
-		return false;
 	}
 
 	/**
-	 * Gets the whitelisted post types that JP should allow access to.
+	 * Returns attachment object.
 	 *
-	 * @return array Whitelisted post types.
+	 * @param $attachment attachment row
+	 *
+	 * @return (object)
 	 */
-	protected function _get_whitelisted_post_types() {
-		$allowed_types = array( 'post', 'page' );
+	function get_attachment( $attachment ) {
+		$metadata = wp_get_attachment_metadata( $attachment->ID );
 
-		$allowed_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
-
-		return array_unique( $allowed_types );
-	}
-
-	function handle_media_sideload( $url, $parent_post_id = 0 ) {
-		if ( ! function_exists( 'download_url' ) || ! function_exists( 'media_handle_sideload' ) )
-			return false;
-
-		// if we didn't get a URL, let's bail
-		$parsed = @parse_url( $url );
-		if ( empty( $parsed ) )
-			return false;
-
-		$tmp = download_url( $url );
-		if ( is_wp_error( $tmp ) ) {
-			return false;
-		}
-
-		if ( ! file_is_displayable_image( $tmp ) ) {
-			@unlink( $tmp );
-			return false;
-		}
-
-		// emulate a $_FILES entry
-		$file_array = array(
-			'name' => basename( parse_url( $url, PHP_URL_PATH ) ),
-			'tmp_name' => $tmp,
+		$result = array(
+			'ID'		=> (int) $attachment->ID,
+			'URL'           => (string) wp_get_attachment_url( $attachment->ID ),
+			'guid'		=> (string) $attachment->guid,
+			'mime_type'	=> (string) $attachment->post_mime_type,
+			'width'		=> (int) isset( $metadata['width']  ) ? $metadata['width']  : 0,
+			'height'	=> (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
 		);
 
-		$id = media_handle_sideload( $file_array, $parent_post_id );
-		@unlink( $tmp );
-
-		if ( ! $id || ! is_int( $id ) ) {
-			return false;
+		if ( isset( $metadata['duration'] ) ) {
+			$result['duration'] = (int) $metadata['duration'];
 		}
 
-		return $id;
+		return (object) apply_filters( 'get_attachment', $result );
 	}
-
-	/**
-	 * Return endpoint response
-	 *
-	 * @param ... determined by ->$path
-	 *
-	 * @return
-	 * 	falsy: HTTP 500, no response body
-	 *	WP_Error( $error_code, $error_message, $http_status_code ): HTTP $status_code, json_encode( array( 'error' => $error_code, 'message' => $error_message ) ) response body
-	 *	$data: HTTP 200, json_encode( $data ) response body
-	 */
-	abstract function callback( $path = '' );
-
 }
-
-require_once( __DIR__ . '/json-endpoints.php' );
