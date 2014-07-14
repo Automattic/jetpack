@@ -1,4 +1,4 @@
-/* This file was automatically generated on Feb 27 2014 11:42:58 */
+/* This file was automatically generated on Jul 14 2014 00:33:37 */
 
 .jp-carousel-wrap * {
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
@@ -308,6 +308,9 @@ div.jp-carousel-buttons a.jp-carousel-reblog.reblogged:hover {
 div.jp-carousel-buttons a.jp-carousel-commentlink {
 	background-position: 0px -156px;
 	padding-right: 19px !important;
+}
+.rtl div.jp-carousel-buttons a.jp-carousel-commentlink{
+	background-position: 100% -156px;
 }
 
 .rtl div.jp-carousel-buttons a.jp-carousel-commentlink{
