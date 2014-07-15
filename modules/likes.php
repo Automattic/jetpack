@@ -242,9 +242,9 @@ class Jetpack_Likes {
 
 	function admin_likes_get_option( $option ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$option_setting = get_blog_option( get_current_blog_id(), $option );
+			$option_setting = get_blog_option( get_current_blog_id(), $option, 'on' );
 		} else {
-			$option_setting = get_option( $option );
+			$option_setting = get_option( $option, 'on' );
 		}
 
 		return intval( 'on' == $option_setting );
