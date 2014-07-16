@@ -298,7 +298,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	protected function validate_plugin( $plugin_file ) {
 		if ( is_wp_error( $error = validate_plugin( $plugin_file ) ) ) {
-			return new WP_Error( 'unknown_plugin', $error->get_error_messages(), 404 );
+			return new WP_Error( 'unknown_plugin', $error->get_error_messages(), 500 );
 		}
 
 		$args = $this->input();
