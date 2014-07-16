@@ -211,10 +211,7 @@ class Jetpack_JSON_API_List_Themes_Endpoint extends Jetpack_JSON_API_Themes_Endp
 			return $error;
 		}
 
-		$args = $this->query_args();
-		$themes = wp_get_themes( array(
-			'sort' => $args['sort']
-		) );
+		$themes = wp_get_themes();
 
 		$response = array();
 		foreach( $this->response_format as $key => $val ) {
@@ -239,11 +236,6 @@ new Jetpack_JSON_API_List_Themes_Endpoint( array(
 	'path'            => '/sites/%s/themes',
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'query_parameters' => array(
-		'sort'   => '(string=trending) Sort themes by trending, newest, or popular',
-		'limit'  => '(int=0) Limit the number of themes returned. 0 for no limits.',
-		'offset' => '(int=0) 0-indexed offset. Useful for pagination.'
 	),
 	'response_format' => array(
 		'found'  => '(int) The total number of themes found.',
