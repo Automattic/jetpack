@@ -292,7 +292,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	protected static function get_plugin( $plugin_file ) {
 		$installed_plugins = get_plugins();
 		if ( ! isset( $installed_plugins[ $plugin_file] ) )
-			return new WP_Error( 'unknown_plugin', __( 'Plugin not found.', 'jetpack' ) );
+			return new WP_Error( 'unknown_plugin', __( 'Plugin not found.', 'jetpack' ), 404 );
 		return self::format_plugin( $plugin_file, $installed_plugins[ $plugin_file] );
 	}
 
