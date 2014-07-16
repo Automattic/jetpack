@@ -333,7 +333,7 @@ class Jetpack_JSON_API_Activate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins
 	protected function activate_plugin( $plugin_file ) {
 
 		if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $plugin_file ) ) || is_plugin_active_for_network( $plugin_file ) ) {
-			return new WP_Error( 'plugin_active', __( 'The Plugin is already active.', 'jetpack' ), 404 );
+			return new WP_Error( 'plugin_active', __( 'The Plugin is already active.', 'jetpack' ), 400 );
 		}
 
 		$result = activate_plugin( $plugin_file, '', $this->network_wide );
@@ -397,7 +397,7 @@ class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugi
 	protected function deactivate_plugin( $plugin_file ) {
 
 		if ( ! Jetpack::is_plugin_active( $plugin_file ) ) {
-			return new WP_Error( 'plugin_active', __( 'The Plugin is already deactivated.', 'jetpack' ), 404 );
+			return new WP_Error( 'plugin_active', __( 'The Plugin is already deactivated.', 'jetpack' ), 400 );
 		}
 
 		$result = deactivate_plugins( $plugin_file, false, $this->network_wide );
@@ -527,7 +527,7 @@ class Jetpack_JSON_API_Activate_Module_Endpoint extends Jetpack_JSON_API_Jetpack
 	protected function activate_module( $module_slug ) {
 
 		if ( Jetpack::is_module_active( $module_slug ) ) {
-			return new WP_Error( 'jetpack_module_already_active', __( 'The Module is already active.', 'jetpack' ), 404 );
+			return new WP_Error( 'jetpack_module_already_active', __( 'The Module is already active.', 'jetpack' ), 400 );
 		}
 
 		$result = Jetpack::activate_module( $module_slug, false, false );
@@ -586,7 +586,7 @@ class Jetpack_JSON_API_Deactivate_Module_Endpoint extends Jetpack_JSON_API_Jetpa
 	protected function deactivate_module( $module_slug ) {
 
 		if ( ! Jetpack::is_module_active( $module_slug ) ) {
-			return new WP_Error( 'jetpack_module_already_deactivated', __( 'The Jetpack Module is already deactivated.', 'jetpack' ), 404 );
+			return new WP_Error( 'jetpack_module_already_deactivated', __( 'The Jetpack Module is already deactivated.', 'jetpack' ), 400 );
 		}
 
 		$result = Jetpack::deactivate_module( $module_slug );
@@ -753,7 +753,7 @@ class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_E
 		ob_end_clean();
 
 		if ( false === $result ) {
-			return new WP_Error( 'plugin_up_to_date', __( 'The Plugin is already up to date.', 'jetpack' ), 404 );
+			return new WP_Error( 'plugin_up_to_date', __( 'The Plugin is already up to date.', 'jetpack' ), 400 );
 		}
 		if ( empty( $result ) && ! empty( $output ) ) {
 			return new WP_Error( 'unknown_error', __( 'There was an error while trying to upgrade.', 'jetpack' ), 500 );
