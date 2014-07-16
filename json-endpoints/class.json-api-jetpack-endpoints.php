@@ -49,7 +49,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 
 		$formatted_theme = array(
 			'id'          => $theme->get_stylesheet(),
-			'screenshot'  => jetpack_photon_url( $theme->get_screenshot() )
+			'screenshot'  => jetpack_photon_url( $theme->get_screenshot(), array(), 'network_path' )
 		);
 
 		foreach( $fields as $key => $field )
