@@ -14,9 +14,34 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( is_wp_error( $blog_id ) )
 			return $blog_id;
 
-		if ( ! current_user_can( $capability ) ) {
-			return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.' , 'jetpack' ), $capability ), 403 );
+		if( is_array ( $capability ) ) {
+			// the idea is that the we can pass in an array of capabilitie that the user needs to have before we allowing them to do something
+			$capabilities = ( isset( $capability['capabilities'] ) ? $capability['capabilities'] : $capability );
+			
+			// We can pass in the number of conditions we must pass by default it is all. 
+			$must_pass = ( isset( $capability['must_pass'] ) && is_int( $capability['must_pass'] ) ? $capability['must_pass'] : count( $capabilities ) );
+			
+			$failed = array(); // store the failed capabilities
+			$passed = 0; // 
+			
+			foreach( $capabilities as $cap ) {
+				if( current_user_can( $capability ) ) {
+					$failed[] = $cap;
+				} else {
+					$passed++;
+				}
+			}
+			// Check that must have conditions is less then 
+			if( $passed < $must_pass ) {
+				return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.' , 'jetpack' ), explode( ', ', $failed ), 403 );
+			}
+
+		} else {
+			if ( ! current_user_can( $capability ) ) {
+				return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.' , 'jetpack' ), $capability ), 403 );
+			}
 		}
+		
 		if ( $check_full_management && ! Jetpack_Options::get_option( 'json_api_full_management' ) ) {
 			return new WP_Error( 'unauthorized_full_access', sprintf( __( 'Full management mode is off for this site.' , 'jetpack' ), $capability ), 403 );
 		}
@@ -680,7 +705,17 @@ class Jetpack_JSON_API_GET_Update_Data extends Jetpack_JSON_API_Endpoint {
 
 	// GET /sites/%s/updates
 	public function callback( $path = '', $_blog_id = 0 ) {
-		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'manage_options', false ) ) ) {
+
+		$error = $this->validate_call( $_blog_id, array(
+													'must_pass'    => 1, // must meet at least one condition
+													'capabilities' => array( 
+														'update_plugins',
+														'update_themes', 
+														'update_core'
+													)
+												  ), false );
+
+		if ( is_wp_error( $error )  {
 			return $error;
 		}
 		$update_data = wp_get_update_data();
