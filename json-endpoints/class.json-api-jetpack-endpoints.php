@@ -211,7 +211,7 @@ class Jetpack_JSON_API_List_Themes_Endpoint extends Jetpack_JSON_API_Themes_Endp
 			return $error;
 		}
 
-		$themes = wp_get_themes();
+		$themes = wp_get_themes( array( 'allowed' => true ) );
 
 		$response = array();
 		foreach( $this->response_format as $key => $val ) {
