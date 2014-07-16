@@ -34,7 +34,9 @@ class Jetpack_Landing_Page extends Jetpack_Admin_Page {
 
 		// Add the main admin Jetpack menu with possible information about new
 		// modules
-		return add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
+		add_menu_page( 'Jetpack', $title, 'jetpack_admin_page', 'jetpack', array( $this, 'render' ), 'div' );
+		// also create the submenu 
+		return add_submenu_page( 'jetpack', $title, $title, 'jetpack_admin_page', 'jetpack' );
 	}
 
 	function add_page_actions( $hook ) {
