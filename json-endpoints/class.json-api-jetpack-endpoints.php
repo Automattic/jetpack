@@ -9,7 +9,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * Switches to the blog and checks current user capabilities.
 	 * @return bool|WP_Error a WP_Error object or true if things are good.
 	 */
-	protected function validate_call( $_blog_id, $capability, $check_full_write = false ) {
+	protected function validate_call( $_blog_id, $capability, $check_full_management = true ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
 		if ( is_wp_error( $blog_id ) )
 			return $blog_id;
@@ -17,7 +17,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( ! current_user_can( $capability ) ) {
 			return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.' , 'jetpack' ), $capability ), 403 );
 		}
-		if ( $check_full_write && ! Jetpack_Options::get_option( 'json_api_full_management' ) ) {
+		if ( $check_full_management && ! Jetpack_Options::get_option( 'json_api_full_management' ) ) {
 			return new WP_Error( 'unauthorized_full_access', sprintf( __( 'Full management mode is off for this site.' , 'jetpack' ), $capability ), 403 );
 		}
 		return true;
@@ -49,7 +49,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 
 		$formatted_theme = array(
 			'id'          => $theme->get_stylesheet(),
-			'screenshot'  => jetpack_photon_url( $theme->get_screenshot() )
+			'screenshot'  => jetpack_photon_url( $theme->get_screenshot(), array(), 'network_path' )
 		);
 
 		foreach( $fields as $key => $field )
@@ -97,7 +97,7 @@ class Jetpack_JSON_API_Active_Theme_Endpoint extends Jetpack_JSON_API_Themes_End
 	// POST /sites/%s/themes/mine => switch theme
 	public function callback( $path = '', $blog_id = 0  ) {
 
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'switch_themes' ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'switch_themes', true ) ) ) {
 			return $error;
 		}
 
@@ -207,14 +207,11 @@ class Jetpack_JSON_API_List_Themes_Endpoint extends Jetpack_JSON_API_Themes_Endp
 		if ( is_wp_error( $check ) )
 			return $check;
 
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_themes' ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_themes', false ) ) ) {
 			return $error;
 		}
 
-		$args = $this->query_args();
-		$themes = wp_get_themes( array(
-			'sort' => $args['sort']
-		) );
+		$themes = wp_get_themes();
 
 		$response = array();
 		foreach( $this->response_format as $key => $val ) {
@@ -239,11 +236,6 @@ new Jetpack_JSON_API_List_Themes_Endpoint( array(
 	'path'            => '/sites/%s/themes',
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'query_parameters' => array(
-		'sort'   => '(string=trending) Sort themes by trending, newest, or popular',
-		'limit'  => '(int=0) Limit the number of themes returned. 0 for no limits.',
-		'offset' => '(int=0) 0-indexed offset. Useful for pagination.'
 	),
 	'response_format' => array(
 		'found'  => '(int) The total number of themes found.',
@@ -326,7 +318,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 class Jetpack_JSON_API_Activate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// POST  /sites/%s/plugins/%s/activate => activate_plugin
 	public function callback( $path = '', $blog_id = 0, $plugin_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'activate_plugins' ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'activate_plugins', true ) ) ) {
 			return $error;
 		}
 
@@ -390,7 +382,7 @@ new Jetpack_JSON_API_Activate_Plugin_Endpoint( array(
 class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// POST  /sites/%s/plugins/%s/deactivate => deactivate_plugin
 	public function callback( $path = '', $blog_id = 0, $plugin_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'activate_plugins' ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'activate_plugins', true ) ) ) {
 			return $error;
 		}
 
@@ -455,7 +447,7 @@ class Jetpack_JSON_API_List_Plugins_Endpoint extends Jetpack_JSON_API_Plugins_En
 
 	// /sites/%s/plugins
 	public function callback( $path = '', $_blog_id = 0 ) {
-		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'update_plugins' ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'update_plugins', false ) ) ) {
 			return $error;
 		}
 
@@ -523,7 +515,7 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_AP
 class Jetpack_JSON_API_Activate_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
 	// POST  /sites/%s/jetpack/modules/%s/activate => activate_module
 	public function callback( $path = '', $blog_id = 0, $module_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'jetpack_manage_modules' ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'jetpack_manage_modules', true ) ) ) {
 			return $error;
 		}
 		if ( ! Jetpack::is_module( $module_slug ) ) {
@@ -582,7 +574,7 @@ new Jetpack_JSON_API_Activate_Module_Endpoint( array(
 class Jetpack_JSON_API_Deactivate_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
 	// POST  /sites/%s/jetpack/modules/%s/deactivate => deactivate_module
 	public function callback( $path = '', $blog_id = 0, $module_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'jetpack_manage_modules' ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'jetpack_manage_modules', true ) ) ) {
 			return $error;
 		}
 		if ( ! Jetpack::is_module( $module_slug ) ) {
@@ -642,7 +634,7 @@ class Jetpack_JSON_API_List_Modules_Endpoint extends Jetpack_JSON_API_Jetpack_Mo
 	// /sites/%s/jetpack/modules
 	public function callback( $path = '', $_blog_id = 0 ) {
 
-		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'jetpack_manage_modules' ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'jetpack_manage_modules', false ) ) ) {
 			return $error;
 		}
 
@@ -684,7 +676,7 @@ class Jetpack_JSON_API_GET_Update_Data extends Jetpack_JSON_API_Endpoint {
 
 	// GET /sites/%s/updates
 	public function callback( $path = '', $_blog_id = 0 ) {
-		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'manage_options' ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'manage_options', false ) ) ) {
 			return $error;
 		}
 		$update_data = wp_get_update_data();

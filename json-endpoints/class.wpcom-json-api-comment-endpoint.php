@@ -162,10 +162,14 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) ( $comment->comment_type ? $comment->comment_type : 'comment' );
 				break;
 			case 'like_count' :
-				$return[$key] = (int) $this->api->comment_like_count( $blog_id, $post->ID, $comment->comment_ID );
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					$return[ $key ] = (int) $this->api->comment_like_count( $blog_id, $post->ID, $comment->comment_ID );
+				}
 				break;
 			case 'i_like' :
-				$return[$key] = (bool) Likes::comment_like_current_user_likes( $blog_id, $comment->comment_ID );
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					$return[ $key ] = (bool) Likes::comment_like_current_user_likes( $blog_id, $comment->comment_ID );
+				}
 				break;
 			case 'meta' :
 				$response[$key] = (object) array(
