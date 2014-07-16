@@ -339,7 +339,7 @@ class Jetpack_JSON_API_Activate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins
 		$result = activate_plugin( $plugin_file, '', $this->network_wide );
 
 		if ( is_wp_error( $result ) ) {
-			return new WP_Error( 'activation_error', $result->get_error_messages(), 404 );
+			return new WP_Error( 'activation_error', $result->get_error_messages(), 500 );
 		}
 
 		$success = Jetpack::is_plugin_active( $plugin_file );
@@ -348,7 +348,7 @@ class Jetpack_JSON_API_Activate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins
 		}
 
 		if ( ! $success ) {
-			return new WP_Error( 'activation_error', $result->get_error_messages(), 404 );
+			return new WP_Error( 'activation_error', $result->get_error_messages(), 500 );
 		}
 
 		$result = self::get_plugin( $plugin_file );
@@ -403,7 +403,7 @@ class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugi
 		$result = deactivate_plugins( $plugin_file, false, $this->network_wide );
 
 		if ( is_wp_error( $result ) ) {
-			return new WP_Error( 'deactivation_error', $result->get_error_messages(), 404 );
+			return new WP_Error( 'deactivation_error', $result->get_error_messages(), 500 );
 		}
 
 		$success = ! Jetpack::is_plugin_active( $plugin_file );
@@ -412,7 +412,7 @@ class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugi
 		}
 
 		if ( ! $success ) {
-			return new WP_Error( 'deactivation_error', $result->get_error_messages(), 404 );
+			return new WP_Error( 'deactivation_error', $result->get_error_messages(), 500 );
 		}
 
 		$result = self::get_plugin( $plugin_file );
@@ -534,11 +534,11 @@ class Jetpack_JSON_API_Activate_Module_Endpoint extends Jetpack_JSON_API_Jetpack
 
 		// TODO return WP_Error instead of bool in order to forward the error message.
 		if ( false === $result ) {
-			return new WP_Error( 'activation_error', sprintf( __( 'There was an error while activating the module `%s`.', 'jetpack' ), $module_slug ), 404 );
+			return new WP_Error( 'activation_error', sprintf( __( 'There was an error while activating the module `%s`.', 'jetpack' ), $module_slug ), 500 );
 		}
 
 		if ( ! Jetpack::is_module_active( $module_slug ) ) {
-			return new WP_Error( 'activation_error', $result->get_error_messages(), 404 );
+			return new WP_Error( 'activation_error', $result->get_error_messages(), 500 );
 		}
 
 		$response['module'] = self::get_module( $module_slug );
@@ -592,11 +592,11 @@ class Jetpack_JSON_API_Deactivate_Module_Endpoint extends Jetpack_JSON_API_Jetpa
 		$result = Jetpack::deactivate_module( $module_slug );
 
 		if ( false === $result ) {
-			return new WP_Error( 'deactivation_error', sprintf( __( 'There was an error while deactivating the module `%s`.', 'jetpack' ), $module_slug ), 404 );
+			return new WP_Error( 'deactivation_error', sprintf( __( 'There was an error while deactivating the module `%s`.', 'jetpack' ), $module_slug ), 500 );
 		}
 
 		if ( Jetpack::is_module_active( $module_slug ) ) {
-			return new WP_Error( 'deactivation_error', sprintf( __( 'There was an error while deactivating the module `%s`.', 'jetpack' ), $module_slug ), 404 );
+			return new WP_Error( 'deactivation_error', sprintf( __( 'There was an error while deactivating the module `%s`.', 'jetpack' ), $module_slug ), 500 );
 		}
 
 		$response['module'] = self::get_module( $module_slug );
@@ -681,7 +681,7 @@ class Jetpack_JSON_API_GET_Update_Data extends Jetpack_JSON_API_Endpoint {
 		}
 		$update_data = wp_get_update_data();
 		if ( !  isset( $update_data['counts'] ) ) {
-			return new WP_Error( 'get_update_data_error', __( 'There was an error while getting the update data for this site.', 'jetpack' ), 404 );
+			return new WP_Error( 'get_update_data_error', __( 'There was an error while getting the update data for this site.', 'jetpack' ), 500 );
 		}
 		return $update_data['counts'];
 	}
@@ -756,7 +756,7 @@ class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_E
 			return new WP_Error( 'plugin_up_to_date', __( 'The Plugin is already up to date.', 'jetpack' ), 404 );
 		}
 		if ( empty( $result ) && ! empty( $output ) ) {
-			return new WP_Error( 'unknown_error', __( 'There was an error while trying to upgrade.', 'jetpack' ), 404 );
+			return new WP_Error( 'unknown_error', __( 'There was an error while trying to upgrade.', 'jetpack' ), 500 );
 		}
 		if ( is_wp_error( $result) ) {
 			return $result;
