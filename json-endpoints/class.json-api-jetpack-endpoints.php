@@ -126,6 +126,10 @@ class Jetpack_JSON_API_Active_Theme_Endpoint extends Jetpack_JSON_API_Themes_End
 			return new WP_Error( 'theme_not_found', __( 'The specified theme was not found.', 'jetpack' ), 404 );
 		}
 
+		if ( ! $theme->is_allowed() ) {
+			return new WP_Error( 'theme_not_found', __( 'You are not allowed to switch to this theme', 'jetpack' ), 400 );
+		}
+		
 		switch_theme( $theme_slug );
 
 		return $this->get_current_theme();
