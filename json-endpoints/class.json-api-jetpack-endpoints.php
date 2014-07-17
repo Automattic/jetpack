@@ -715,7 +715,7 @@ class Jetpack_JSON_API_GET_Update_Data extends Jetpack_JSON_API_Endpoint {
 													)
 												  ), false );
 
-		if ( is_wp_error( $error )  {
+		if ( is_wp_error( $error ) ) {
 			return $error;
 		}
 		$update_data = wp_get_update_data();
