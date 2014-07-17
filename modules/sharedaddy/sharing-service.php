@@ -44,7 +44,6 @@ class Sharing_Service {
 		$services = array(
 			'email'         => 'Share_Email',
 			'print'         => 'Share_Print',
-			'digg'          => 'Share_Digg',
 			'facebook'      => 'Share_Facebook',
 			'linkedin'      => 'Share_LinkedIn',
 			'reddit'        => 'Share_Reddit',
