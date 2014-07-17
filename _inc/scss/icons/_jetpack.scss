@@ -3,21 +3,21 @@
 //
 
 @font-face {
-  font-family: "jetpack";
-  src: font-url("jetpack.eot");
-  src: font-url("jetpack.eot?#iefix") format("embedded-opentype"),
-       font-url("jetpack.woff") format("woff"),
-       font-url("jetpack.ttf") format("truetype"),
-       font-url("jetpack.svg#jetpack") format("svg");
-  font-weight: normal;
-  font-style: normal;
+	font-family: "jetpack";
+	src: url("fonts/jetpack.eot");
+	src: url("fonts/jetpack.eot?#iefix") format("embedded-opentype"),
+		url("fonts/jetpack.woff") format("woff"),
+		url("fonts/jetpack.ttf") format("truetype"),
+		url("fonts/jetpack.svg#jetpack") format("svg");
+	font-weight: normal;
+	font-style: normal;
 }
 
 @media screen and (-webkit-min-device-pixel-ratio:0) {
-  @font-face {
-    font-family: "jetpack";
-    src: font-url("jetpack.svg#jetpack") format("svg");
-  }
+	@font-face {
+		font-family: "jetpack";
+		src: url("fonts/jetpack.svg#jetpack") format("svg");
+	}
 }
 
-.jetpack-icon-20:before { content: "\f102"; }
+// .jetpack-icon-20:before { content: "\f102"; }
