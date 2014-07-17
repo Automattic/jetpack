@@ -535,62 +535,6 @@ class Share_Reddit extends Sharing_Source {
 	}
 }
 
-class Share_Digg extends Sharing_Source {
-	var $shortname = 'digg';
-	public function __construct( $id, array $settings ) {
-		parent::__construct( $id, $settings );
-
-		if ( 'official' == $this->button_style )
-			$this->smart = true;
-		else
-			$this->smart = false;
-	}
-
-	public function get_name() {
-		return __( 'Digg', 'jetpack' );
-	}
-
-	public function has_custom_button_style() {
-		return $this->smart;
-	}
-
-	public function get_display( $post ) {
-		if ( $this->smart ) {
-			$url = $this->get_link( 'http://digg.com/submit?url='. rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ), 'Digg', __( 'Click to Digg this post', 'jetpack' ) );
-			return '<div class="digg_button">' . str_replace( 'class="', 'class="DiggThisButton DiggCompact ', $url ) . '</div>';
-		} else {
-			return $this->get_link( get_permalink( $post->ID ), _x( 'Digg', 'share to', 'jetpack' ), __( 'Click to Digg this post', 'jetpack' ), 'share=digg' );
-		}
-	}
-
-	public function process_request( $post, array $post_data ) {
-		$digg_url = 'http://digg.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) );
-
-		// Record stats
-		parent::process_request( $post, $post_data );
-
-		// Redirect to Digg
-		wp_redirect( $digg_url );
-		die();
-	}
-
-	public function display_header() {
-		if ( $this->smart ) {
-?>
-<script type="text/javascript">
-(function() {
-	var s = document.createElement('SCRIPT'), s1 = document.getElementsByTagName('SCRIPT')[0];
-	s.type = 'text/javascript';
-	s.async = true;
-	s.src = '//widgets.digg.com/buttons.js';
-	s1.parentNode.insertBefore(s, s1);
-})();
-</script>
-<?php
-		}
-	}
-}
-
 class Share_LinkedIn extends Sharing_Source {
 	var $shortname = 'linkedin';
 	public function __construct( $id, array $settings ) {
@@ -1169,7 +1113,7 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) ) .'" data-pin-do="buttonBookmark" data-pin-config="beside" ><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>';
+			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) ) .'" data-pin-do="buttonBookmark" ><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest' );
 	}
