@@ -32,7 +32,14 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		if ( $new ) {
 			$input = $this->input( true );
 
-			if ( !isset( $input['title'] ) && !isset( $input['content'] ) && !isset( $input['excerpt'] ) ) {
+			if ( 'revision' === $input['type'] ) {
+				if ( ! isset( $input['parent'] ) ) {
+					return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
+				}
+				$input['status'] = 'inherit'; // force inherit for revision type
+				$input['slug'] = $input['parent'] . '-autosave-v1';
+			}
+			elseif ( !isset( $input['title'] ) && !isset( $input['content'] ) && !isset( $input['excerpt'] ) ) {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 			}
 
@@ -106,7 +113,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			}
 		}
 
-		if ( !is_post_type_hierarchical( $post_type->name ) ) {
+		if ( !is_post_type_hierarchical( $post_type->name ) && 'revision' !== $post_type->name ) {
 			unset( $input['parent'] );
 		}
 
@@ -453,6 +460,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		$return = $this->get_post_by( 'ID', $post_id, $args['context'] );
 		if ( !$return || is_wp_error( $return ) ) {
 			return $return;
+		}
+
+		if ( 'revision' === $input['type'] ) {
+			$return['preview_nonce'] = wp_create_nonce( 'post_preview_' . $input['parent'] );
 		}
 
 		do_action( 'wpcom_json_api_objects', 'posts' );

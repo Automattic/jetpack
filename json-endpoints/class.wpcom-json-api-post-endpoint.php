@@ -25,7 +25,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'sticky'   => '(bool) Is the post sticky?',
 		'password' => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'   => "(object>post_reference|false) A reference to the post's parent, if it has one.",
-		'type'     => "(string) The post's post_type. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'type'     => "(string) The post's post_type. Post types besides post, page and revision need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
 		'comments_open'  => '(bool) Is the post open for comments?',
 		'pings_open'     => '(bool) Is the post open for pingbacks, trackbacks?',
 		'likes_enabled' => "(bool) Is the post open to likes?",
@@ -186,7 +186,11 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
 				break;
 			case 'URL' :
-				$response[$key] = (string) esc_url_raw( get_permalink( $post->ID ) );
+				if ( 'revision' === $post->post_type ) {
+					$response[$key] = (string) esc_url_raw( get_permalink( $post->post_parent ) );
+				} else {
+					$response[$key] = (string) esc_url_raw( get_permalink( $post->ID ) );
+				}
 				break;
 			case 'short_URL' :
 				$response[$key] = (string) esc_url_raw( wp_get_shortlink( $post->ID ) );

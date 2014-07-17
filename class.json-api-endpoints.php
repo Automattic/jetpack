@@ -1211,7 +1211,7 @@ EOPHP;
 	 * @return array Whitelisted post types.
 	 */
 	protected function _get_whitelisted_post_types() {
-		$allowed_types = array( 'post', 'page' );
+		$allowed_types = array( 'post', 'page', 'revision' );
 
 		$allowed_types = apply_filters( 'rest_api_allowed_post_types', $allowed_types );
 
