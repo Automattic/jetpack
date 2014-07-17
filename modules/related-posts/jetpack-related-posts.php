@@ -88,16 +88,16 @@ class Jetpack_RelatedPosts {
 	 * @return null
 	 */
 	public function action_admin_init() {
-		if ( ! $this->_show_config_in_admin() )
-			return;
 
 		// Add the setting field [jetpack_relatedposts] and place it in Settings > Reading
 		add_settings_field( 'jetpack_relatedposts', '<span id="jetpack_relatedposts">' . __( 'Related posts', 'jetpack' ) . '</span>', array( $this, 'print_setting_html' ), 'reading' );
 		register_setting( 'reading', 'jetpack_relatedposts', array( $this, 'parse_options' ) );
 		add_action('admin_head', array( $this, 'print_setting_head' ) );
 
-		// Enqueue style for live preview
-		$this->_enqueue_assets( false, true );
+		if( 'options-reading.php' == $GLOBALS['pagenow'] ) {
+			// Enqueue style for live preview on the reading settings page
+			$this->_enqueue_assets( false, true );
+		}
 	}
 
 	/**
@@ -967,15 +967,6 @@ EOT;
 	 */
 	protected function _log_click( $post_id, $to_post_id, $link_position ) {
 
-	}
-
-	/**
-	 * Determines if we should show config in admin dashboard to turn on related posts.
-	 *
-	 * @return bool
-	 */
-	protected function _show_config_in_admin() {
-		return true;
 	}
 
 	/**
