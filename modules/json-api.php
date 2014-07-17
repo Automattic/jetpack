@@ -37,8 +37,9 @@ function jetpack_json_api_configuration_screen() {
 			<input type='hidden' name='action' value='save_options' />
 			<?php wp_nonce_field( 'json-api' ); ?>
 			<table id="menu" class="form-table">
-				<tr valign="top"><th scope="row"><label for="json_api_full_management"><?php _e( 'Allow full management' , 'jetpack' ); ?></label></th>
-					<td><label><input type='checkbox'<?php checked( Jetpack_Options::get_option( 'json_api_full_management' ) ); ?> name='json_api_full_management' id='json_api_full_management' /> <?php _e( "Allow Activation, Deactivation and Upgrade of plugins via the JSON API.", 'jetpack' ); ?></label></td></tr>
+				<tr valign="top"><th scope="row"><label for="json_api_full_management"><?php _e( 'Allow management' , 'jetpack' ); ?></label></th>
+					<td><label><input type='checkbox'<?php checked( Jetpack_Options::get_option( 'json_api_full_management' ) ); ?> name='json_api_full_management' id='json_api_full_management' /> <?php printf( __( 'Allow remote management of themes, plugins, and WordPress via the JSON API. <a href="%s" title="Learn more about JSON API">More info</a>', 'jetpack') , '//jetpack.me/support/json-api'  ); ?></label></td></tr>
+				
 			</table>
 			<p class="submit"><input type='submit' class='button-primary' value='<?php echo esc_attr( __( 'Save configuration', 'jetpack' ) ); ?>' /></p>
 		</form>
