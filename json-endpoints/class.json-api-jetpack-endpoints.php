@@ -33,7 +33,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 			// Check that must have conditions is less then 
 			if( $passed < $must_pass ) {
-				return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.' , 'jetpack' ), explode( ', ', $failed ), 403 );
+				return new WP_Error( 'unauthorized', sprintf( __( 'This user is not authorized to %s on this blog.' , 'jetpack' ), explode( ', ', $failed ), 403 ) );
 			}
 
 		} else {
