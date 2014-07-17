@@ -99,8 +99,8 @@ class Publicize_Util {
 	 * @param int $length
 	 * @return string
 	 */
-	function crop_str( $string, $length = 256 ) {
-		$string = wp_strip_all_tags( (string) $string, true ); // true: collapse Linear Whitespace into " "
+	public static function crop_str( $string, $length = 256 ) {
+		$string = Publicize_Util::sanitize_message( $string );
 		$length = absint( $length );
 
 		if ( mb_strlen( $string, 'UTF-8' ) <= $length ) {
@@ -303,5 +303,14 @@ class Publicize_Util {
 			$replace[] = "%$k\$s";
 		}
 		return str_replace( $search, $replace, $string );
+	}
+
+	public static function sanitize_message( $message ) {
+		$message = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', '', $message );
+		$message = wp_kses( $message, array() );
+		$message = preg_replace('/[\r\n\t ]+/', ' ', $message);
+		$message = trim( $message );
+		$message = htmlspecialchars_decode( $message, ENT_QUOTES );
+		return $message;
 	}
 }
