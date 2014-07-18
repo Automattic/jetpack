@@ -51,9 +51,12 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
+= 1.6.3 =
+* Bugfix: Make sure existing empty key and secret options are always strings.  This fixes an error when run with HHVM.
+
 = 1.6.2 =
-* Bugfix: Make sure the key and secret options are always strings.  This fixes an error when run with HHVM.
 * Feature: Instantly register for a VaultPress trial via Jetpack.
+* Bugfix: Make sure the key and secret options are always strings.  This fixes an error when run with HHVM.
 
 = 1.6.1 =
 * Security: Add a new security hotfix.
