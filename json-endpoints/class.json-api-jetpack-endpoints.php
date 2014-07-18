@@ -810,7 +810,7 @@ new Jetpack_JSON_API_Update_Plugin_Endpoint( array(
 	'description'     => 'Update a Plugin on your Jetpack Site',
 	'group'           => 'plugins',
 	'stat'            => 'plugins:1:update',
-	'method'          => 'GET',
+	'method'          => 'POST',
 	'path'            => '/sites/%s/plugins/%s/update/',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
