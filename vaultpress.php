@@ -141,11 +141,7 @@ class VaultPress {
 				return false;
 		}
 
-		if ( 'key' == $key && !isset( $this->options[$key] ) ) {
-			return '';
-		}
-
-		if ( 'secret' == $key && !isset( $this->options[$key] ) ) {
+		if ( ( 'key' == $key || 'secret' == $key ) && empty( $this->options[$key] ) ) {
 			return '';
 		}
 
