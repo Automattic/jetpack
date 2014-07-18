@@ -390,7 +390,7 @@ new Jetpack_JSON_API_Activate_Plugin_Endpoint( array(
 	'description'     => 'Activate a Plugin on your Jetpack Site',
 	'group'           => 'plugins',
 	'stat'            => 'plugins:1:activate',
-	'method'          => 'GET',
+	'method'          => 'POST',
 	'path'            => '/sites/%s/plugins/%s/activate/',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
@@ -454,7 +454,7 @@ new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
 	'description'     => 'Deactivate a Plugin on your Jetpack Site',
 	'group'           => 'plugins',
 	'stat'            => 'plugins:1:deactivate',
-	'method'          => 'GET',
+	'method'          => 'POST',
 	'path'            => '/sites/%s/plugins/%s/deactivate/',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
@@ -580,7 +580,7 @@ new Jetpack_JSON_API_Activate_Module_Endpoint( array(
 	'description'     => 'Activate a Jetpack Module on your Jetpack Site',
 	'group'           => 'jetpack',
 	'stat'            => 'jetpack:modules:1:activate',
-	'method'          => 'GET',
+	'method'          => 'POST',
 	'path'            => '/sites/%s/jetpack/modules/%s/activate/',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
@@ -638,7 +638,7 @@ new Jetpack_JSON_API_Deactivate_Module_Endpoint( array(
 	'description'     => 'Deactivate a Jetpack Module on Site',
 	'group'           => 'jetpack',
 	'stat'            => 'jetpack:modules:1:deactivate',
-	'method'          => 'GET',
+	'method'          => 'POST',
 	'path'            => '/sites/%s/jetpack/modules/%s/deactivate/',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
