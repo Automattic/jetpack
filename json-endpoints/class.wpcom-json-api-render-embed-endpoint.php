@@ -1,5 +1,5 @@
 <?php
-class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Endpoint {
+class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Render_Endpoint {
 	// /sites/%s/embeds/render -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
@@ -37,16 +37,25 @@ class WPCOM_JSON_API_Render_Embed_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		global $wp_embed;
-		$maybe_embed = $wp_embed->shortcode( array(), $embed_url );
-		$is_an_embed = ( $embed_url != $maybe_embed && $wp_embed->maybe_make_link( $embed_url ) != $maybe_embed );
-		if ( $is_an_embed ) {
-			return array(
-				'embed_url' => $embed_url,
-				'result' => $maybe_embed,
-			);
-		} else {
+		$render = $this->process_render( array( $this, 'do_embed' ), $embed_url );
+
+		// if nothing happened, then the shortcode does not exist.
+		$is_an_embed = ( $embed_url != $render['result'] && $wp_embed->maybe_make_link( $embed_url ) != $render['result'] );
+		if ( ! $is_an_embed ) {
 			return new WP_Error( 'invalid_embed',  'The requested URL is not an embed.', 400 );
 		}
 
+		// our output for this endpoint..
+		$return['embed_url'] = $embed_url;
+		$return['result'] = $render['result'];
+
+		$return = $this->add_assets( $return, $render['loaded_scripts'], $render['loaded_styles'] );
+
+		return $return;
+	}
+
+	function do_embed( $embed_url ) {
+		global $wp_embed;
+		return $wp_embed->shortcode( array(), $embed_url );
 	}
 }

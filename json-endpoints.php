@@ -15,6 +15,7 @@ require_once( __DIR__ . '/json-endpoints/class.wpcom-json-api-delete-media-endpo
 require_once( __DIR__ . '/json-endpoints/class.wpcom-json-api-get-comment-endpoint.php' );
 require_once( __DIR__ . '/json-endpoints/class.wpcom-json-api-get-media-endpoint.php' );
 require_once( __DIR__ . '/json-endpoints/class.wpcom-json-api-get-post-endpoint.php' );
+require_once( __DIR__ . '/json-endpoints/class.wpcom-json-api-render-endpoint.php' );
 require_once( __DIR__ . '/json-endpoints/class.wpcom-json-api-render-shortcode-endpoint.php' );
 require_once( __DIR__ . '/json-endpoints/class.wpcom-json-api-list-shortcodes-endpoint.php' );
 require_once( __DIR__ . '/json-endpoints/class.wpcom-json-api-render-embed-endpoint.php' );
