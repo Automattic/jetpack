@@ -286,6 +286,7 @@ new Jetpack_JSON_API_List_Themes_Endpoint( array(
 abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected $network_wide = false;
+	protected $plugin;
 
 	static $_response_format	= array(
 		'id'          => '(string)  The plugin\'s ID',
@@ -300,9 +301,23 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		'network'     => '(boolean) Whether the plugin can only be activated network wide.',
 	);
 
+	public function callback( $path = '', $blog_id = 0 ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, $this->needed_capabilities, true ) ) ) {
+			return $error;
+		}
+		if ( is_wp_error( $error = $this->validate_plugin() ) ) {
+			return $error;
+		}
+		if ( is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
+			return $error;
+		}
+
+		return self::get_plugin( $this->plugin );
+	}
+
 	protected static function format_plugin( $plugin_file, $plugin_data ) {
 		$plugin = array();
-		$plugin['id']     = urlencode( rtrim( $plugin_file, ".php" ) );
+		$plugin['id']     = $plugin_file;
 		$plugin['active'] = Jetpack::is_plugin_active( $plugin_file );
 		$current = get_site_transient( 'update_plugins' );
 		$plugin['update'] = ( isset( $current->response[ $plugin_file ] ) ) ? $current->response[ $plugin_file ] : array();
@@ -318,18 +333,14 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return $plugin;
 	}
 
-	protected static function get_plugin( $plugin_file ) {
+	protected function get_plugin() {
 		$installed_plugins = get_plugins();
-		if ( ! isset( $installed_plugins[ $plugin_file] ) )
+		if ( ! isset( $installed_plugins[ $this->plugin ] ) )
 			return new WP_Error( 'unknown_plugin', __( 'Plugin not found.', 'jetpack' ), 404 );
-		return self::format_plugin( $plugin_file, $installed_plugins[ $plugin_file] );
+		return self::format_plugin( $this->plugin, $installed_plugins[ $this->plugin ] );
 	}
 
-	protected function validate_plugin( $plugin_file ) {
-		if ( is_wp_error( $error = validate_plugin( $plugin_file ) ) ) {
-			return new WP_Error( 'unknown_plugin', $error->get_error_messages(), 500 );
-		}
-
+	protected function validate_plugin() {
 		$args = $this->input();
 
 		if ( isset( $args['network_wide'] ) && $args['network_wide'] ) {
@@ -339,49 +350,51 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		if ( $this->network_wide && ! current_user_can( 'manage_network_plugins' ) ) {
 			return new WP_Error( 'unauthorized', __( 'This user is not authorized to manage plugins network wide.', 'jetpack' ), 403 );
 		}
+
+		if ( ! isset( $args['plugin'] ) || empty( $args['plugin'] ) ) {
+			return new WP_Error( 'missing_plugin', __( 'You are required to specify a plugin to activate.', 'jetpack' ), 400 );
+		}
+
+		$this->plugin = $args['plugin'];
+
+		if ( is_wp_error( $error = validate_plugin( $this->plugin ) ) ) {
+			return new WP_Error( 'unknown_plugin', $error->get_error_messages() , 500 );
+		}
+
+		return true;
 	}
 
 }
 
 
 class Jetpack_JSON_API_Activate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
-	// POST  /sites/%s/plugins/%s/activate => activate_plugin
-	public function callback( $path = '', $blog_id = 0, $plugin_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'activate_plugins', true ) ) ) {
-			return $error;
-		}
+	// POST  /sites/%s/plugins/activate => activate_plugin
 
-		$plugin_file = urldecode( $plugin_slug ) . '.php';
+	protected $action = 'activate_plugin';
+	protected $needed_capabilities = 'activate_plugins';
 
-		if ( is_wp_error( $error = $this->validate_plugin( $plugin_file ) ) ) {
-			return $error;
-		}
-		return $this->activate_plugin( $plugin_file );
-	}
+	protected function activate_plugin() {
 
-	protected function activate_plugin( $plugin_file ) {
-
-		if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $plugin_file ) ) || is_plugin_active_for_network( $plugin_file ) ) {
+		if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $this->plugin ) ) || is_plugin_active_for_network( $this->plugin ) ) {
 			return new WP_Error( 'plugin_active', __( 'The Plugin is already active.', 'jetpack' ), 400 );
 		}
 
-		$result = activate_plugin( $plugin_file, '', $this->network_wide );
+		$result = activate_plugin( $this->plugin, '', $this->network_wide );
 
 		if ( is_wp_error( $result ) ) {
 			return new WP_Error( 'activation_error', $result->get_error_messages(), 500 );
 		}
 
-		$success = Jetpack::is_plugin_active( $plugin_file );
+		$success = Jetpack::is_plugin_active( $this->plugin );
 		if ( $success &&  $this->network_wide ) {
-			$success &= is_plugin_active_for_network( $plugin_file );
+			$success &= is_plugin_active_for_network( $this->plugin );
 		}
 
 		if ( ! $success ) {
 			return new WP_Error( 'activation_error', $result->get_error_messages(), 500 );
 		}
 
-		$result = self::get_plugin( $plugin_file );
-		return $result;
+		return true;
 	}
 
 }
@@ -391,12 +404,12 @@ new Jetpack_JSON_API_Activate_Plugin_Endpoint( array(
 	'group'           => 'plugins',
 	'stat'            => 'plugins:1:activate',
 	'method'          => 'POST',
-	'path'            => '/sites/%s/plugins/%s/activate/',
+	'path'            => '/sites/%s/plugins/activate/',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
-		'$plugin' => '(string) The plugin file name',
 	),
-	'query_parameters' => array(
+	'request_format' => array(
+		'plugin'   => '(string) The ID of the plugin that should be activated',
 		'network_wide' => '(bool) Do action network wide (default value: false)'
 	),
 	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
@@ -404,48 +417,40 @@ new Jetpack_JSON_API_Activate_Plugin_Endpoint( array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
+		'body' => array(
+			'plugin' => 'hello-dolly/hello.php'
+		)
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello/activate'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/activate'
 ) );
 
 class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
-	// POST  /sites/%s/plugins/%s/deactivate => deactivate_plugin
-	public function callback( $path = '', $blog_id = 0, $plugin_slug = '' ) {
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'activate_plugins', true ) ) ) {
-			return $error;
-		}
+	// POST  /sites/%s/plugins/deactivate => deactivate_plugin
+	protected $action = 'deactivate_plugin';
+	protected $needed_capabilities = 'activate_plugins';
 
-		$plugin_file = urldecode( $plugin_slug ) . '.php';
+	protected function deactivate_plugin() {
 
-		if ( is_wp_error( $error = $this->validate_plugin( $plugin_file ) ) ) {
-			return $error;
-		}
-		return $this->deactivate_plugin( $plugin_file );
-	}
-
-	protected function deactivate_plugin( $plugin_file ) {
-
-		if ( ! Jetpack::is_plugin_active( $plugin_file ) ) {
+		if ( ! Jetpack::is_plugin_active( $this->plugin ) ) {
 			return new WP_Error( 'plugin_active', __( 'The Plugin is already deactivated.', 'jetpack' ), 400 );
 		}
 
-		$result = deactivate_plugins( $plugin_file, false, $this->network_wide );
+		$result = deactivate_plugins( $this->plugin, false, $this->network_wide );
 
 		if ( is_wp_error( $result ) ) {
 			return new WP_Error( 'deactivation_error', $result->get_error_messages(), 500 );
 		}
 
-		$success = ! Jetpack::is_plugin_active( $plugin_file );
+		$success = ! Jetpack::is_plugin_active( $this->plugin );
 		if ( $success &&  $this->network_wide ) {
-			$success &= ! is_plugin_active_for_network( $plugin_file );
+			$success &= ! is_plugin_active_for_network( $this->plugin );
 		}
 
 		if ( ! $success ) {
 			return new WP_Error( 'deactivation_error', $result->get_error_messages(), 500 );
 		}
 
-		$result = self::get_plugin( $plugin_file );
-		return $result;
+		return true;
 	}
 
 }
@@ -455,12 +460,12 @@ new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
 	'group'           => 'plugins',
 	'stat'            => 'plugins:1:deactivate',
 	'method'          => 'POST',
-	'path'            => '/sites/%s/plugins/%s/deactivate/',
+	'path'            => '/sites/%s/plugins/deactivate/',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
-		'$plugin' => '(string) The plugin file name',
 	),
-	'query_parameters' => array(
+	'request_format' => array(
+		'plugin'   => '(string) The ID of the plugin that should be activated',
 		'network_wide' => '(bool) Do action network wide (default value: false)'
 	),
 	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
@@ -468,8 +473,81 @@ new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
+		'body' => array(
+			'plugin' => 'hello-dolly/hello.php'
+		)
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello/deactivate'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/deactivate'
+) );
+
+class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
+	// GET  /sites/%s/plugins/update => upgrade_plugin
+	protected $action = 'deactivate_plugin';
+	protected $needed_capabilities = 'update_plugins';
+
+	protected function upgrade_plugin() {
+
+		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+		// clear cache
+		wp_clean_plugins_cache();
+		ob_start();
+		wp_update_plugins(); // Check for Plugin updates
+		ob_end_clean();
+
+		$skin = new Automatic_Upgrader_Skin();
+		// The Automatic_Upgrader_Skin skin shouldn't output anything.
+		$upgrader = new Plugin_Upgrader( $skin );
+		$upgrader->init();
+
+		// unhook this functions that output things before we send our response header.
+		remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
+		remove_action( 'upgrader_process_complete', 'wp_version_check' );
+		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
+
+		ob_start();
+		$result = $upgrader->upgrade( $this->plugin );
+		$output = ob_get_contents();
+		ob_end_clean();
+
+		if ( false === $result ) {
+			return new WP_Error( 'plugin_up_to_date', __( 'The Plugin is already up to date.', 'jetpack' ), 400 );
+		}
+		if ( empty( $result ) && ! empty( $output ) ) {
+			return new WP_Error( 'unknown_error', __( 'There was an error while trying to upgrade.', 'jetpack' ), 500 );
+		}
+		if ( is_wp_error( $result) ) {
+			return $result;
+		}
+
+		return true;
+	}
+
+}
+
+new Jetpack_JSON_API_Update_Plugin_Endpoint( array(
+	'description'     => 'Update a Plugin on your Jetpack Site',
+	'group'           => 'plugins',
+	'stat'            => 'plugins:1:update',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/plugins/update/',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+	),
+	'request_format' => array(
+		'plugin'   => '(string) The ID of the plugin that should be activated',
+		'network_wide' => '(bool) Do action network wide (default value: false)'
+	),
+	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'plugin' => 'hello-dolly/hello.php'
+		)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/update'
 ) );
 
 class Jetpack_JSON_API_List_Plugins_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
@@ -748,79 +826,4 @@ new Jetpack_JSON_API_GET_Update_Data( array(
 		),
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/updates'
-) );
-
-class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
-	// GET  /sites/%s/plugins/%s/update => upgrade_plugin
-	public function callback( $path = '', $blog_id = 0, $plugin_slug = '' ) {
-
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_plugins', true ) ) ) {
-			return $error;
-		}
-
-		$plugin_file = urldecode( $plugin_slug ) . '.php';
-
-		if ( is_wp_error( $error = $this->validate_plugin( $plugin_file ) ) ) {
-			return $error;
-		}
-		return $this->upgrade_plugin( $plugin_file );
-	}
-
-	protected function upgrade_plugin( $plugin_file ) {
-
-		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-
-		// clear cache
-		wp_clean_plugins_cache();
-		ob_start();
-		wp_update_plugins(); // Check for Plugin updates
-		ob_end_clean();
-
-		$skin = new Automatic_Upgrader_Skin();
-		// The Automatic_Upgrader_Skin skin shouldn't output anything.
-		$upgrader = new Plugin_Upgrader( $skin );
-		$upgrader->init();
-
-		// unhook this functions that output things before we send our response header.
-		remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
-		remove_action( 'upgrader_process_complete', 'wp_version_check' );
-		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
-
-		ob_start();
-		$result = $upgrader->upgrade( $plugin_file );
-		$output = ob_get_contents();
-		ob_end_clean();
-
-		if ( false === $result ) {
-			return new WP_Error( 'plugin_up_to_date', __( 'The Plugin is already up to date.', 'jetpack' ), 400 );
-		}
-		if ( empty( $result ) && ! empty( $output ) ) {
-			return new WP_Error( 'unknown_error', __( 'There was an error while trying to upgrade.', 'jetpack' ), 500 );
-		}
-		if ( is_wp_error( $result) ) {
-			return $result;
-		}
-
-		return self::get_plugin( $plugin_file );
-	}
-
-}
-
-new Jetpack_JSON_API_Update_Plugin_Endpoint( array(
-	'description'     => 'Update a Plugin on your Jetpack Site',
-	'group'           => 'plugins',
-	'stat'            => 'plugins:1:update',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/plugins/%s/update/',
-	'path_labels' => array(
-		'$site'   => '(int|string) The site ID, The site domain',
-		'$plugin' => '(string) The plugin file name',
-	),
-	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello/update'
 ) );
