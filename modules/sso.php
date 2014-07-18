@@ -296,7 +296,7 @@ class Jetpack_SSO {
 		if( 'login' == $action ) {
 			$wants_to_login = true;
 		}
-		
+
 		return $wants_to_login;
 	}
 

@@ -269,7 +269,7 @@ function AtD_load_css() {
 			wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/rtl/atd-rtl.css', __FILE__ ), null, ATD_VERSION, 'screen' );
 		} else {
 			wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/atd.css', __FILE__ ), null, ATD_VERSION, 'screen' );
-		}	
+		}
 	}
 }
 
