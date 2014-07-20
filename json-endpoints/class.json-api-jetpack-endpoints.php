@@ -602,13 +602,33 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_AP
 
 	protected $network_wide = false;
 
+	static $_response_format	= array(
+		'id'          => '(string)  The module\'s ID',
+		'active'      => '(boolean) The module\'s status.',
+		'name'        => '(string)  The module\'s name.',
+		'description' => '(string)  The module\'s description.',
+		'sort'        => '(int)     The module\'s display order.',
+		'introduced'  => '(string)  The Jetpack version when the module was introduced.',
+		'changed'     => '(string)  The Jetpack version when the module was changed.',
+		'free'        => '(boolean) The module\'s Free or Paid status.',
+		'module_tags' => '(array)   The module\'s tags.'
+	);
+
 	protected static function format_module( $module_slug ) {
 		$module_data = Jetpack::get_module( $module_slug );
+
 		$module = array();
 		$module['id']     = $module_slug;
 		$module['active'] = Jetpack::is_module_active( $module_slug );
+		$module['name'] = $module_data['name'];
+		$module['description'] = $module_data['description'];
+		$module['sort'] = $module_data['sort'];
+		$module['introduced'] = $module_data['introduced'];
+		$module['changed'] = $module_data['changed'];
+		$module['free'] = $module_data['free'];
+		$module['module_tags'] = $module_data['module_tags'];
 
-		return array_merge( $module, $module_data );
+		return $module;
 	}
 
 	protected static function get_module( $module_slug ) {
@@ -648,8 +668,7 @@ class Jetpack_JSON_API_Activate_Module_Endpoint extends Jetpack_JSON_API_Jetpack
 			return new WP_Error( 'activation_error', $result->get_error_messages(), 500 );
 		}
 
-		$response['module'] = self::get_module( $module_slug );
-		return $response;
+		return self::get_module( $module_slug );
 	}
 
 }
@@ -664,9 +683,7 @@ new Jetpack_JSON_API_Activate_Module_Endpoint( array(
 		'$site'   => '(int|string) The site ID, The site domain',
 		'$module' => '(string) The module name',
 	),
-	'response_format' => array(
-		'module' => '(object) The module object.',
-	),
+	'response_format' => $this->_response_format,
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
@@ -706,8 +723,7 @@ class Jetpack_JSON_API_Deactivate_Module_Endpoint extends Jetpack_JSON_API_Jetpa
 			return new WP_Error( 'deactivation_error', sprintf( __( 'There was an error while deactivating the module `%s`.', 'jetpack' ), $module_slug ), 500 );
 		}
 
-		$response['module'] = self::get_module( $module_slug );
-		return $response;
+		return self::get_module( $module_slug );
 	}
 
 }
@@ -722,9 +738,7 @@ new Jetpack_JSON_API_Deactivate_Module_Endpoint( array(
 		'$site'   => '(int|string) The site ID, The site domain',
 		'$module' => '(string) The module name',
 	),
-	'response_format' => array(
-		'module' => '(object) The module object.',
-	),
+	'response_format' => $this->_response_format,
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
