@@ -481,7 +481,7 @@ new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
 ) );
 
 class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
-	// GET  /sites/%s/plugins/update => upgrade_plugin
+	// POST /sites/%s/plugins/update => upgrade_plugin
 	protected $action = 'deactivate_plugin';
 	protected $needed_capabilities = 'update_plugins';
 
@@ -552,7 +552,7 @@ new Jetpack_JSON_API_Update_Plugin_Endpoint( array(
 
 class Jetpack_JSON_API_List_Plugins_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 
-	// /sites/%s/plugins
+	// GET /sites/%s/plugins
 	public function callback( $path = '', $_blog_id = 0 ) {
 		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'update_plugins', false ) ) ) {
 			return $error;
@@ -737,8 +737,7 @@ new Jetpack_JSON_API_Deactivate_Module_Endpoint( array(
 ) );
 
 class Jetpack_JSON_API_List_Modules_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
-
-	// /sites/%s/jetpack/modules
+	// GET /sites/%s/jetpack/modules
 	public function callback( $path = '', $_blog_id = 0 ) {
 
 		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'jetpack_manage_modules', false ) ) ) {
