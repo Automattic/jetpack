@@ -688,9 +688,6 @@ new Jetpack_JSON_API_Activate_Module_Endpoint( array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
-		'body' => array(
-			'module' => 'stats'
-		)
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules/stats/activate'
 ) );
@@ -743,9 +740,6 @@ new Jetpack_JSON_API_Deactivate_Module_Endpoint( array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
-		'body' => array(
-			'module' => 'stats'
-		)
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules/stats/deactivate'
 ) );
