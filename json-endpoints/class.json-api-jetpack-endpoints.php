@@ -175,7 +175,7 @@ new Jetpack_JSON_API_Active_Theme_Endpoint( array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
 	'response_format' => array(
-		'id'           => '(string) The theme\'s ID.</code>.',
+		'id'           => '(string) The theme\'s ID.',
 		'screenshot'   => '(string) A theme screenshot URL',
 		'name'         => '(string) The name of the theme.',
 		'description'  => '(string) A description of the theme.',
