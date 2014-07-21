@@ -59,6 +59,10 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 		$upgrade_plugin_method = $class->getMethod( 'upgrade_plugin' );
 		$upgrade_plugin_method->setAccessible( true );
 
+		$plugin_property = $class->getProperty( 'plugin' );
+		$plugin_property->setAccessible( true );
+		$plugin_property->setValue ( $endpoint , 'the/the.php' );
+
 		$the_plugin_file = 'the/the.php';
 		$the_real_folder = WP_PLUGIN_DIR . '/the';
 		$the_real_file = WP_PLUGIN_DIR . '/' . $the_plugin_file;
@@ -84,9 +88,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 		// Invoke the upgrade_plugin method.
 		$result = $upgrade_plugin_method->invokeArgs( $endpoint, array( $the_plugin_file ) );
 
-		$this->assertArrayHasKey( 'id', $result );
-
-		$this->assertEquals( urlencode( 'the/the' ), $result['id'] );
+		$this->assertTrue( $result );
 
 		if ( isset( $clean ) ) {
 			$this->rmdir( $the_real_folder );
