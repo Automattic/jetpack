@@ -336,6 +336,14 @@ class VaultPress {
 	}
 
 	function ui() {
+		if ( $this->is_localhost() ) {
+			$this->update_option( 'connection', time() );
+			$this->update_option( 'connection_error_code', 'error_localhost' );
+			$this->update_option( 'connection_error_message', 'Hostnames such as localhost or 127.0.0.1 can not be reached by vaultpress.com and will not work with the service. Sites must be publicly accessible in order to work with VaultPress.' );
+			$this->error_notice();
+			return;
+		}
+
 		if ( !empty( $_GET['error'] ) ) {
 			$this->error_notice();
 			$this->clear_connection();
@@ -1658,6 +1666,16 @@ JS;
 		else
 			return null == $args ? '' : $args;
 		return $args;
+	}
+
+	function is_localhost() {
+		$site_url = $this->site_url();
+		if ( empty( $site_url ) )
+			return false;
+		$parts = parse_url( $site_url() );
+		if ( !empty( $parts['host'] ) && in_array( $parts['host'], array( 'localhost', '127.0.0.1' ) ) )
+			return true;
+		return false;
 	}
 
 	function contact_service( $action, $args = array() ) {
