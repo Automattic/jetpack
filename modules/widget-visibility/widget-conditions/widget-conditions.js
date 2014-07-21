@@ -5,7 +5,7 @@
 jQuery( function( $ ) {
 	var widgets_shell = $( 'div#widgets-right' );
 
-	if( ! widgets_shell.length ) {
+	if ( ! widgets_shell.length || ! $( widgets_shell ).find( '.widget-control-actions' ).length ) {
 		widgets_shell = $( 'form#customize-controls' );
 	}
 
@@ -64,7 +64,7 @@ jQuery( function( $ ) {
 
 	} );
 
-	widgets_shell.on( 'click', 'a.add-condition', function( e ) {
+	widgets_shell.on( 'click.widgetconditions', 'a.add-condition', function( e ) {
 		e.preventDefault();
 		var $condition = $( this ).closest( 'div.condition' ),
 			$conditionClone = $condition.clone().insertAfter( $condition );
@@ -72,7 +72,7 @@ jQuery( function( $ ) {
 		$conditionClone.find( 'select.conditions-rule-minor' ).html( '' ).attr( 'disabled' );
 	} );
 
-	widgets_shell.on( 'click', 'a.display-options', function ( e ) {
+	widgets_shell.on( 'click.widgetconditions', 'a.display-options', function ( e ) {
 		e.preventDefault();
 
 		var $displayOptionsButton = $( this ),
@@ -91,7 +91,7 @@ jQuery( function( $ ) {
 
 	} );
 
-	widgets_shell.on( 'click', 'a.delete-condition', function( e ) {
+	widgets_shell.on( 'click.widgetconditions', 'a.delete-condition', function( e ) {
 		e.preventDefault();
 
 		var $condition = $( this ).closest( 'div.condition' );
@@ -104,7 +104,7 @@ jQuery( function( $ ) {
 		}
 	} );
 
-	widgets_shell.on( 'click', 'div.widget-top', function() {
+	widgets_shell.on( 'click.widgetconditions', 'div.widget-top', function() {
 		var $widget = $( this ).closest( 'div.widget' ),
 			$displayOptionsButton = $widget.find( 'a.display-options' );
 
@@ -119,7 +119,7 @@ jQuery( function( $ ) {
 		}
 	} );
 
-	$( document ).on( 'change', 'select.conditions-rule-major', function() {
+	$( document ).on( 'change.widgetconditions', 'select.conditions-rule-major', function() {
 		var $conditionsRuleMajor = $ ( this );
 		var $conditionsRuleMinor = $conditionsRuleMajor.siblings( 'select.conditions-rule-minor:first' );
 

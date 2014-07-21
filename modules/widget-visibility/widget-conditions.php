@@ -26,7 +26,7 @@ class Jetpack_Widget_Conditions {
 			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );	
 		}
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
-		wp_enqueue_script( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.js', __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20140422, true );
+		wp_enqueue_script( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.js', __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20140721, true );
 	}
 
 	/**
