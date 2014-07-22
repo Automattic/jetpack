@@ -319,16 +319,17 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin = array();
 		$plugin['id']     = $plugin_file;
 		$plugin['active'] = Jetpack::is_plugin_active( $plugin_file );
-		$current = get_site_transient( 'update_plugins' );
+
+		$current          = get_site_transient( 'update_plugins' );
 		$plugin['update'] = ( isset( $current->response[ $plugin_file ] ) ) ? $current->response[ $plugin_file ] : array();
 
-		$plugin['name'] = $plugin_data['Name'];
-		$plugin['plugin_url'] = $plugin_data['PluginURI'];
-		$plugin['version'] = $plugin_data['Version'];
+		$plugin['name']        = $plugin_data['Name'];
+		$plugin['plugin_url']  = $plugin_data['PluginURI'];
+		$plugin['version']     = $plugin_data['Version'];
 		$plugin['description'] = $plugin_data['Description'];
-		$plugin['author'] = $plugin_data['Author'];
-		$plugin['author_url'] = $plugin_data['AuthorURI'];
-		$plugin['network'] = $plugin_data['Network'];
+		$plugin['author']      = $plugin_data['Author'];
+		$plugin['author_url']  = $plugin_data['AuthorURI'];
+		$plugin['network']     = $plugin_data['Network'];
 
 		return $plugin;
 	}
