@@ -1267,4 +1267,4 @@ EOPHP;
 
 }
 
-require_once( __DIR__ . '/json-endpoints.php' );
+require_once( JETPACK__PLUGIN_DIR . 'json-endpoints.php' );
