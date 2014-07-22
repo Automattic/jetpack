@@ -482,7 +482,7 @@ new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
 
 class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// POST /sites/%s/plugins/update => upgrade_plugin
-	protected $action = 'deactivate_plugin';
+	protected $action = 'upgrade_plugin';
 	protected $needed_capabilities = 'update_plugins';
 
 	protected function upgrade_plugin() {
