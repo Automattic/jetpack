@@ -2123,7 +2123,7 @@ p {
 
 	function plugin_action_links( $actions ) {
 		return array_merge(
-			array( 'settings' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url(), __( 'Settings', 'jetpack' ) ) ),
+			array( 'settings' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack_modules' ), __( 'Settings', 'jetpack' ) ) ),
 			$actions
 		);
 		return $actions;
