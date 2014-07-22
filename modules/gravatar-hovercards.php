@@ -27,7 +27,7 @@ function grofiles_hovercards_init() {
 }
 
 function gravatar_hovercards_configuration_load() {
-	wp_safe_redirect( admin_url( 'options-discussion.php#gravatar-hovercard-options' ) );
+	wp_safe_redirect( admin_url( 'options-discussion.php#show_avatars' ) );
 	exit;
 }
 
