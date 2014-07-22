@@ -29,7 +29,7 @@ function jetpack_custom_post_types_configuration_load() {
 function jetpack_cpt_settings_api_init() {
 	add_settings_section(
 		'jetpack_cpt_section',
-		'<span id="cpt-options">' . __( 'Your Custom Content Types' ) . '</span>',
+		'<span id="cpt-options">' . __( 'Your Custom Content Types', 'jetpack' ) . '</span>',
 		'jetpack_cpt_section_callback',
 		'writing'
 	);

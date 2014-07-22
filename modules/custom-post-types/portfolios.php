@@ -98,7 +98,7 @@ class Jetpack_Portfolio {
 	function settings_api_init() {
 		add_settings_section(
 			'jetpack_cpt_section',
-			'<span id="cpt-options">' . __( 'Your Custom Content Types' ) . '</span>',
+			'<span id="cpt-options">' . __( 'Your Custom Content Types', 'jetpack' ) . '</span>',
 			array( $this, 'jetpack_cpt_section_callback' ),
 			'writing'
 		);
@@ -563,7 +563,7 @@ class Jetpack_Portfolio {
 			$html .= '</div>'; // close .jetpack-portfolio
 		}
 		else {
-			$html .= '<p><em>' . __( 'Your Portfolio Archive currently has no entries. You can start creating them on your dashboard.' ) . '</p></em>';
+			$html .= '<p><em>' . __( 'Your Portfolio Archive currently has no entries. You can start creating them on your dashboard.', 'jetpack' ) . '</p></em>';
 		}
 
 		// If there is a [portfolio] within a [portfolio], remove the shortcode
