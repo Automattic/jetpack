@@ -882,6 +882,11 @@ class The_Neverending_Home_Page {
 			'order'          => $order
 		) );
 
+		// 4.0 ?s= compatibility, see https://core.trac.wordpress.org/ticket/11330#comment:50
+		if ( empty( $query_args['s'] ) && ! isset( self::wp_query()->query['s'] ) ) {
+			unset( $query_args['s'] );
+		}
+
 		// By default, don't query for a specific page of a paged post object.
 		// This argument can come from merging self::wp_query() into $query_args above.
 		// Since IS is only used on archives, we should always display the first page of any paged content.
