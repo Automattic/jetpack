@@ -5,40 +5,40 @@
  *   file ordering matters
  */
 
-$json_endpoints_dir = dirname( __FILE__ );
+$json_endpoints_dir = dirname( __FILE__ ) . '/json-endpoints/';
 
 //abstract endpoints
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-post-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-comment-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-taxonomy-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-post-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-comment-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-taxonomy-endpoint.php' );
 
 
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-delete-media-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-get-comment-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-get-media-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-get-post-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-render-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-render-shortcode-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-list-shortcodes-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-render-embed-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-list-embeds-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-get-site-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-get-taxonomies-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-get-taxonomy-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-list-comments-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-list-media-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-list-posts-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-list-users-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-update-comment-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-update-media-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-update-post-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-update-taxonomy-endpoint.php' );
-require_once( $json_endpoints_dir . '/json-endpoints/class.wpcom-json-api-upload-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-delete-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-comment-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-shortcode-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-shortcodes-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-embed-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-embeds-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomies-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-users-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
 
 
 // Jetpack Only Endpoints
 //  TODO: move instantiations into this file?
-require_once( $json_endpoints_dir . '/json-endpoints/class.json-api-jetpack-endpoints.php' );
+require_once( $json_endpoints_dir . 'class.json-api-jetpack-endpoints.php' );
 
 
 /*
