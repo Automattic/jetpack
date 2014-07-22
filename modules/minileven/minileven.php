@@ -198,34 +198,6 @@ if (isset($_COOKIE['akm_mobile']) && $_COOKIE['akm_mobile'] == 'false') {
 	add_action('wp_footer', 'jetpack_mobile_available');
 }
 
-add_action( 'wp_footer', 'mobile_admin_bar', 20 );
-function mobile_admin_bar() {
-	global $wp_version;
-
-	if ( jetpack_is_mobile() && 1 != version_compare( $wp_version, '3.5-beta3-22631' ) ) :
-		// This fix was made unnecessary in http://core.trac.wordpress.org/changeset/22636
-	?>
-	<script type="text/javascript" id='mobile-admin-bar'>
-		jQuery( function( $ ) {
-			var menupop = $( '#wpadminbar .ab-top-menu > li.menupop' )
-				.unbind( 'mouseover' )
-				.unbind( 'mouseout' )
-				.click( function ( e ) {
-					$( this ).toggleClass( 'hover' );
-					$( '#wpadminbar .menupop' ).not( this ).removeClass( 'hover' );
-				} )
-				.children( 'a' )
-					.click( function( e ) {
-						e.preventDefault();
-					} );
-			$( '#wpadminbar' ).css( 'position', 'absolute' );
-			$( '#ab-reblog-box' ).css( 'position', 'absolute' );
-		} );
-	</script>
-	<?php
-	endif;
-}
-
 function jetpack_mobile_app_promo()  {
 	?>
 	<script type="text/javascript">
