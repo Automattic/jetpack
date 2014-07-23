@@ -468,7 +468,6 @@ html {
   background-color: #81a844;
   background-image: -webkit-gradient(linear, right top, right bottom, from(#81a844), to(#8eb74e));
   background-image: -webkit-linear-gradient(top, #81a844, #8eb74e);
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#81a844), to(#8eb74e));
   background-image: linear-gradient(top, #81a844, #8eb74e);
 }
 .masthead h1,
@@ -563,7 +562,6 @@ html {
   background-color: #81a844;
   background-image: -webkit-gradient(linear, right top, right bottom, from(#81a844), to(#89b348));
   background-image: -webkit-linear-gradient(top, #81a844, #89b348);
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#81a844), to(#89b348));
   background-image: linear-gradient(top, #81a844, #89b348);
 }
 .clouds-sm:after {
@@ -1072,7 +1070,6 @@ html {
   background-color: #81a844;
   background-image: -webkit-gradient(linear, right top, right bottom, from(#8eb74e), to(#81a844));
   background-image: -webkit-linear-gradient(top, #8eb74e, #81a844);
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#8eb74e), to(#81a844));
   background-image: linear-gradient(top, #8eb74e, #81a844);
 }
 .footer:before, .footer:after {
@@ -1457,6 +1454,12 @@ html {
 .shortlinks:before,
 .jetpack-modules #shortlinks .info a:before {
   content: '\f107';
+}
+
+.modules h3.custom-content-types:before,
+.jetpack-modules #custom-content-types .info a:before {
+  content: '\f498';
+  font: normal 20px "dashicons";
 }
 
 .page-content.configure {
