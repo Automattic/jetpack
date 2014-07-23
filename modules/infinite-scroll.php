@@ -148,7 +148,7 @@ class Jetpack_Infinite_Scroll_Extras {
 		// Abort if Stats module isn't active
 		if ( in_array( 'stats', Jetpack::get_active_modules() ) ) {
 			// Abort if user is logged in but logged-in users shouldn't be tracked.
-			if ( is_user_logged_in() ) {
+			if ( is_user_logged_in() && function_exists( 'stats_get_options' ) ) {
 				$stats_options = stats_get_options();
 				$track_loggedin_users = isset( $stats_options['reg_users'] ) ? (bool) $stats_options['reg_users'] : false;
 
