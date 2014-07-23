@@ -316,7 +316,7 @@ class Jetpack_Portfolio {
 				'search_items'               => esc_html__( 'Search Project Tags',            'jetpack' ),
 				'popular_items'              => esc_html__( 'Popular Project Tags',           'jetpack' ),
 				'separate_items_with_commas' => esc_html__( 'Separate tags with commas',      'jetpack' ),
-				'add_or_remove_items'        => esc_html__('Add or remove tags',              'jetpack' ),
+				'add_or_remove_items'        => esc_html__( 'Add or remove tags',             'jetpack' ),
 				'choose_from_most_used'      => esc_html__( 'Choose from the most used tags', 'jetpack' ),
 				'not_found'                  => esc_html__( 'No tags found.',                 'jetpack' ),
 			),
