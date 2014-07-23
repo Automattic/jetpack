@@ -524,7 +524,7 @@ class Jetpack_Portfolio {
 				$query->the_post();
 				$post_id = get_the_ID();
 
-				$html .= '<div class="portfolio-entry' . self::get_project_class( $i, $atts['columns'] ) . '">'; // open .portfolio-entry
+				$html .= '<div class="portfolio-entry' . esc_attr( self::get_project_class( $i, $atts['columns'] ) ) . '">'; // open .portfolio-entry
 
 				$html .= '<header class="portfolio-entry-header">';
 
@@ -596,7 +596,7 @@ class Jetpack_Portfolio {
 			$class .= ' last-item-row';
 		}
 
-		return esc_attr( $class );
+		return $class;
 	}
 
 	/**
