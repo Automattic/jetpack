@@ -37,11 +37,9 @@ function jetpack_cpt_settings_api_init() {
 add_action( 'admin_init', 'jetpack_cpt_settings_api_init' );
 
 function jetpack_cpt_section_callback() {
-	printf( '<p>%s</p>',
-    	sprintf( __( 'Use these settings to display different types of content on your site. <a target="_blank" href="%s">Learn more</a>.' , 'jetpack' ),
-    		esc_url( 'http://en.support.wordpress.com/portfolios/' )
-    	)
-    );
+	
+   	echo '<p>' . sprintf( __( 'Use these settings to display different types of content on your site. <a target="_blank" href="%s">Learn more</a>.' , 'jetpack' ), esc_url( 'http://en.support.wordpress.com/portfolios/' ) ) . "</p>";
+  
 }
 
 jetpack_load_custom_post_types();
