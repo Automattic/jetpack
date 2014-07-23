@@ -398,7 +398,7 @@ class Jetpack_Portfolio {
 	function query_reading_setting( $query ) {
 		if ( ! is_admin() &&
 			$query->is_main_query() &&
-			( $query->is_post_type_archive( 'jetpack-portfolio' ) || $query->is_tax( 'jetpack-portfolio-type' ) || $query->is_tax( 'jetpack-portfolio-tag' ) )
+			( $query->is_post_type_archive( self::CUSTOM_POST_TYPE ) || $query->is_tax( self::CUSTOM_TAXONOMY_TYPE ) || $query->is_tax( self::CUSTOM_TAXONOMY_TAG ) )
 		) {
 			$query->set( 'posts_per_page', get_option( self::OPTION_READING_SETTING, '10' ) );
 		}
