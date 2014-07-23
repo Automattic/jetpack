@@ -595,8 +595,15 @@ class Jetpack_Portfolio {
 		} elseif ( ($i % $columns) == ( $columns - 1 ) ) {
 			$class .= ' last-item-row';
 		}
-
-		return $class;
+		/**
+		 * Filter the class applied to project div in the portfolio 
+		 *
+		 * @param string $class class name of the div.
+		 * @param int $i iterator count the number of columns up starting from 0.
+		 * @param int $column number of columns to display the content in.
+		 * 
+		 */
+		return apply_filters( 'portfolio-project-post-class', $class, $i, $column );
 	}
 
 	/**
