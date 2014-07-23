@@ -130,11 +130,12 @@ class Jetpack_Portfolio {
 	 * @todo add link to CPT support docs
 	 */
 	function jetpack_cpt_section_callback() {
-		printf( '<p>%s</p>',
-        	sprintf( __( 'Use these settings to display different types of content on your site. <a target="_blank" href="%s">Learn more</a>.' , 'jetpack' ),
-        		esc_url( 'http://en.support.wordpress.com/portfolios/' )
-        	)
-        );
+		?>
+		<p>
+			<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack' ); ?>
+			<a target="_blank" href="http://en.support.wordpress.com/portfolios/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
+		</p>
+		<?php
 	}
 
 	/**
