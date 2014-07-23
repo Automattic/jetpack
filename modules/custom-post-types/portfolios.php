@@ -145,11 +145,17 @@ class Jetpack_Portfolio {
 	 * @return html
 	 */
 	function setting_html() {
-		printf( '<label for="%1$s"><input name="%1$s" id="%1$s" type="checkbox" value="1" %2$s/>%3$s</label>',
-			esc_attr( self::OPTION_NAME ),
-			checked( get_option( self::OPTION_NAME, '0' ), true, false ),
-			__( 'Enable', 'jetpack' )
-		);
+		
+		if( current_theme_supports( self::CUSTOM_POST_TYPE ) ) { ?>
+			<p><?php printf( __( 'Your theme supports <strong>%s</strong>', 'jetpack' ), self::CUSTOM_POST_TYPE ); ?></p>
+		<?php } else { ?>
+		<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
+			<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
+			<?php esc_html_e('Enable', 'jetpack' ); ?>
+		</label>
+		<?php
+		}
+
 
 		printf( '<p><label for="%1$s">%2$s</label></p>',
 			esc_attr( self::OPTION_READING_SETTING ),
@@ -160,6 +166,7 @@ class Jetpack_Portfolio {
 				)
 			)
 		);
+		
 	}
 
 	/*
