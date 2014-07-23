@@ -30,7 +30,6 @@ function jetpack_json_api_configuration_load() {
 }
 
 function jetpack_json_api_configuration_screen() {
-	$options = stats_get_options();
 	?>
 	<div class="narrow">
 		<form method="post">
