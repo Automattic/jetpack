@@ -489,6 +489,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"is_reblogged": false,
 	"is_following": false,
 	"featured_image": "",
+	"post_thumbnail": "",
 	"format": "standard",
 	"geo": false,
 	"publicize_URLs": [
@@ -599,6 +600,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"is_reblogged": false,
 	"is_following": false,
 	"featured_image": "",
+	"post_thumbnail": "",
 	"format": "standard",
 	"geo": false,
 	"publicize_URLs": [
