@@ -73,7 +73,7 @@
   height: 30px;
   vertical-align: middle;
   background: url("img/connect-plug.svg") center center no-repeat;
-  -webkit-background-size: 100%;
+  -webkit-background-size: 100% 100%;
   background-size: 100%;
 }
 .download-jetpack:after {
