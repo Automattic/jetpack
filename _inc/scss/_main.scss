@@ -1149,3 +1149,8 @@ html {
 .jetpack-modules #shortlinks .info a:before {
 	content: '\f107';
 }
+.modules h3.custom-content-types:before,
+.jetpack-modules #custom-content-types .info a:before {
+	content: '\f498';
+	font: normal 20px "dashicons";
+}
