@@ -347,6 +347,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'html' :
 			$return[$key] = (string) $value;
 			break;
+		case 'safehtml' :
+			$return[$key] = wp_kses( (string) $value, wp_kses_allowed_html() );
+			break;
 		case 'media' :
 			if ( is_array( $value ) ) {
 				if ( isset( $value['name'] ) ) {
@@ -504,6 +507,22 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_attachment_cast_and_filter', $docs ), false, $for_output );
 			break;
+		case 'plugin' :
+			$docs = array(
+				'id'          => '(string)   The plugin\'s ID',
+				'active'      => '(boolean)  The plugin status.',
+				'update'      => '(object)   The plugin update info.',
+				'name'        => '(string)   The name of the plugin.',
+				'plugin_url'  => '(url)      Link to the plugin\'s web site.',
+				'version'     => '(string)   The plugin version number.',
+				'description' => '(safehtml) Description of what the plugin does and/or notes from the author',
+				'author'      => '(string)   The plugin author\'s name',
+				'author_url'  => '(url)      The plugin author web site address',
+				'network'     => '(boolean)  Whether the plugin can only be activated network wide.',
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+			break;
+
 		default :
 			trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
 		}
