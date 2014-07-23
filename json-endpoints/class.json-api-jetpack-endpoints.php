@@ -863,11 +863,13 @@ class Jetpack_Check_Capabilities_Endpoint extends Jetpack_JSON_API_Jetpack_Modul
 			return new WP_Error( 'missing_capability', __( 'You are required to specify a capability to check.', 'jetpack' ), 400 );
 		}
 
-		if ( is_wp_error( $this->check_capability( $args['capability'] ) ) ){
-			return false;
+		$capability = $args['capability'];
+		if ( is_array( $capability ) ) {
+			$results = array_map( 'current_user_can', $capability );
+			return array_combine( $capability, $results );
+		} else {
+			return current_user_can( $capability );
 		}
-
-		return true;
 	}
 }
 
@@ -886,10 +888,7 @@ new Jetpack_Check_Capabilities_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 		'body' => array(
-			'capability' => array(
-				'capabilities' => array( 'manage_options', 'read' ),
-				'must_pass' => 'The number of capabilities needed to return True'
-			)
+			'capability' => 'A single capability or an array of capabilities'
 		)
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/me/capability'
