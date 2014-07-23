@@ -363,9 +363,10 @@ class Jetpack_Portfolio {
 	function edit_admin_columns( $columns ) {
 		// change 'Title' to 'Project'
 		$columns['title'] = __( 'Project', 'jetpack' );
-
-		// add featured image before 'Project'
-		$columns = array_slice( $columns, 0, 1, true ) + array( 'thumbnail' => '' ) + array_slice( $columns, 1, NULL, true );
+		if( current_theme_supports( 'post-thumbnails' ) ) {
+			// add featured image before 'Project'
+			$columns = array_slice( $columns, 0, 1, true ) + array( 'thumbnail' => '' ) + array_slice( $columns, 1, NULL, true );
+		}
 
 		return $columns;
 	}
