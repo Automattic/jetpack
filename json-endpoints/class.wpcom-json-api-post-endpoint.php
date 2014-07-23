@@ -38,6 +38,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_following'   => '(bool) Is the current user following this blog?',
 		'global_ID'      => '(string) A unique WordPress.com-wide representation of a post.',
 		'featured_image' => '(URL) The URL to the featured image for this post if it has one.',
+		'post_thumbnail' => '(object:attachment) The attachment object for the featured image if it has one.',
 		'format'         => array(), // see constructor
 		'geo'            => '(object>geo|false)',
 		'publicize_URLs' => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
@@ -314,6 +315,20 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = (string) $image_attributes[0];
 				else
 					$response[$key] = '';
+				break;
+			case 'post_thumbnail' :
+				$response[$key] = '';
+
+				$thumb_id = get_post_thumbnail_id( $post->ID );
+				if ( ! empty( $thumb_id ) ) {
+					$attachment = get_post( $thumb_id );
+					if ( ! empty( $attachment ) )
+						$featured_image_object = $this->get_attachment( $attachment );
+
+					if ( ! empty( $featured_image_object ) ) {
+						$response[$key] = (object) $featured_image_object;
+					}
+				}
 				break;
 			case 'format' :
 				$response[$key] = (string) get_post_format( $post->ID );
