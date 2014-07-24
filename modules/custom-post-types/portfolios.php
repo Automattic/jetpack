@@ -260,6 +260,8 @@ class Jetpack_Portfolio {
 				'editor',
 				'thumbnail',
 				'post-formats',
+				'publicize',
+				'wpcom-markdown',
 			),
 			'rewrite' => array(
 				'slug'       => 'portfolio',
