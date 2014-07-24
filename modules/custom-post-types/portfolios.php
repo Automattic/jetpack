@@ -632,10 +632,10 @@ class Jetpack_Portfolio {
 		 *
 		 * @param string $class class name of the div.
 		 * @param int $i iterator count the number of columns up starting from 0.
-		 * @param int $column number of columns to display the content in.
+		 * @param int $columns number of columns to display the content in.
 		 * 
 		 */
-		return apply_filters( 'portfolio-project-post-class', $class, $i, $column );
+		return apply_filters( 'portfolio-project-post-class', $class, $i, $columns );
 	}
 
 	/**
