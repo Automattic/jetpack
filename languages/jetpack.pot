@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack by WordPress.com 3.1-dev\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/jetpack\n"
-"POT-Creation-Date: 2014-07-24 15:41:38+00:00\n"
+"POT-Creation-Date: 2014-07-24 16:32:29+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -69,7 +69,8 @@ msgid "Unlink your user account"
 msgstr ""
 
 #: _inc/footer.php:50 class.jetpack.php:2151
-#: modules/custom-content-types.php:43 modules/module-info.php:44
+#: modules/custom-content-types.php:43
+#: modules/custom-post-types/portfolios.php:152 modules/module-info.php:44
 #: modules/module-info.php:78 modules/module-info.php:143
 #: modules/module-info.php:176 modules/module-info.php:208
 #: modules/module-info.php:237 modules/module-info.php:268
@@ -1056,90 +1057,94 @@ msgstr ""
 msgid "(no title)"
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:36
-#: json-endpoints/class.json-api-jetpack-endpoints.php:41
-msgid "This user is not authorized to %s on this blog."
-msgstr ""
-
-#: json-endpoints/class.json-api-jetpack-endpoints.php:46
+#: json-endpoints/class.json-api-jetpack-endpoints.php:23
 msgid "Full management mode is off for this site."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:93
+#: json-endpoints/class.json-api-jetpack-endpoints.php:53
+#: json-endpoints/class.json-api-jetpack-endpoints.php:58
+msgid "This user is not authorized to %s on this blog."
+msgstr ""
+
+#: json-endpoints/class.json-api-jetpack-endpoints.php:107
 msgid "Offset must be greater than or equal to 0."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:95
+#: json-endpoints/class.json-api-jetpack-endpoints.php:109
 msgid "Limit must be greater than or equal to 0."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:139
+#: json-endpoints/class.json-api-jetpack-endpoints.php:153
 msgid "You are required to specify a theme to switch to."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:145
+#: json-endpoints/class.json-api-jetpack-endpoints.php:159
 msgid "Theme is empty."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:151
+#: json-endpoints/class.json-api-jetpack-endpoints.php:165
 msgid "The specified theme was not found."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:155
+#: json-endpoints/class.json-api-jetpack-endpoints.php:169
 msgid "You are not allowed to switch to this theme"
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:340
+#: json-endpoints/class.json-api-jetpack-endpoints.php:354
 msgid "Plugin not found."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:352
+#: json-endpoints/class.json-api-jetpack-endpoints.php:366
 msgid "This user is not authorized to manage plugins network wide."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:356
+#: json-endpoints/class.json-api-jetpack-endpoints.php:370
 msgid "You are required to specify a plugin to activate."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:380
+#: json-endpoints/class.json-api-jetpack-endpoints.php:394
 msgid "The Plugin is already active."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:436
+#: json-endpoints/class.json-api-jetpack-endpoints.php:450
 msgid "The Plugin is already deactivated."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:515
+#: json-endpoints/class.json-api-jetpack-endpoints.php:529
 msgid "The Plugin is already up to date."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:518
+#: json-endpoints/class.json-api-jetpack-endpoints.php:532
 msgid "There was an error while trying to upgrade."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:640
 #: json-endpoints/class.json-api-jetpack-endpoints.php:654
+#: json-endpoints/class.json-api-jetpack-endpoints.php:668
 msgid "Module not found: `%s`."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:668
+#: json-endpoints/class.json-api-jetpack-endpoints.php:682
 msgid "The Module is already active."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:675
+#: json-endpoints/class.json-api-jetpack-endpoints.php:689
 msgid "There was an error while activating the module `%s`."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:710
+#: json-endpoints/class.json-api-jetpack-endpoints.php:724
 msgid "The Jetpack Module is already deactivated."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:716
+#: json-endpoints/class.json-api-jetpack-endpoints.php:730
 msgid "There was an error while deactivating the module `%s`."
 msgstr ""
 
-#: json-endpoints/class.json-api-jetpack-endpoints.php:804
+#: json-endpoints/class.json-api-jetpack-endpoints.php:818
 msgid "There was an error while getting the update data for this site."
+msgstr ""
+
+#: json-endpoints/class.json-api-jetpack-endpoints.php:863
+msgid "You are required to specify a capability to check."
 msgstr ""
 
 #: json-endpoints/class.wpcom-json-api-post-endpoint.php:81
@@ -1952,11 +1957,13 @@ msgid "Save and go back to form builder"
 msgstr ""
 
 #: modules/custom-content-types.php:32
-#: modules/custom-post-types/portfolios.php:101
+#: modules/custom-post-types/portfolios.php:102
+#: modules/custom-post-types/portfolios.php:123
 msgid "Your Custom Content Types"
 msgstr ""
 
 #: modules/custom-content-types.php:42
+#: modules/custom-post-types/portfolios.php:151
 msgid "Use these settings to display different types of content on your site."
 msgstr ""
 
@@ -2157,7 +2164,7 @@ msgid "All Comics"
 msgstr ""
 
 #: modules/custom-post-types/comics.php:209
-#: modules/custom-post-types/portfolios.php:248
+#: modules/custom-post-types/portfolios.php:277
 #: modules/custom-post-types/testimonial.php:79 modules/publicize/ui.php:206
 msgid "Add New"
 msgstr ""
@@ -2196,14 +2203,14 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:286
 #: modules/custom-post-types/nova.php:221
-#: modules/custom-post-types/portfolios.php:341
+#: modules/custom-post-types/portfolios.php:372
 #: modules/custom-post-types/testimonial.php:140
 msgid "Custom field updated."
 msgstr ""
 
 #: modules/custom-post-types/comics.php:287
 #: modules/custom-post-types/nova.php:222
-#: modules/custom-post-types/portfolios.php:342
+#: modules/custom-post-types/portfolios.php:373
 #: modules/custom-post-types/testimonial.php:141
 msgid "Custom field deleted."
 msgstr ""
@@ -2237,7 +2244,7 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:296
 #: modules/custom-post-types/nova.php:231
-#: modules/custom-post-types/portfolios.php:351
+#: modules/custom-post-types/portfolios.php:382
 #: modules/custom-post-types/testimonial.php:150
 #. translators: Publish box date format, see http:php.net/date
 msgid "M j, Y @ G:i"
@@ -2557,223 +2564,228 @@ msgstr ""
 msgid "No Labels"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:108
+#: modules/custom-post-types/portfolios.php:109
+#: modules/custom-post-types/portfolios.php:130
 msgid "Portfolio Projects"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:134
-msgid ""
-"Use these settings to display different types of content on your site. <a "
-"target=\"_blank\" href=\"%s\">Learn more</a>."
+#: modules/custom-post-types/portfolios.php:166
+msgid "Your theme supports <strong>%s</strong>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:150
+#: modules/custom-post-types/portfolios.php:170
 msgid "Enable"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:155
+#: modules/custom-post-types/portfolios.php:181
 msgid "Portfolio pages display at most %1$s projects"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:242
+#: modules/custom-post-types/portfolios.php:189
+msgid ""
+"You need to <a href=\"%s\">enable portfolio</a> custom post type before you "
+"can update it's settings."
+msgstr ""
+
+#: modules/custom-post-types/portfolios.php:271
 msgid "Portfolio Items"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:244
+#: modules/custom-post-types/portfolios.php:273
 msgid "Projects"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:245
-#: modules/custom-post-types/portfolios.php:364
+#: modules/custom-post-types/portfolios.php:274
+#: modules/custom-post-types/portfolios.php:395
 msgid "Project"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:246
+#: modules/custom-post-types/portfolios.php:275
 msgid "Portfolio"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:247
+#: modules/custom-post-types/portfolios.php:276
 msgid "All Projects"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:249
+#: modules/custom-post-types/portfolios.php:278
 msgid "Add New Project"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:250
+#: modules/custom-post-types/portfolios.php:279
 msgid "Edit Project"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:251
+#: modules/custom-post-types/portfolios.php:280
 msgid "New Project"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:252
+#: modules/custom-post-types/portfolios.php:281
 msgid "View Project"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:253
+#: modules/custom-post-types/portfolios.php:282
 msgid "Search Projects"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:254
+#: modules/custom-post-types/portfolios.php:283
 msgid "No Projects found"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:255
+#: modules/custom-post-types/portfolios.php:284
 msgid "No Projects found in Trash"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:283
-#: modules/custom-post-types/portfolios.php:285
+#: modules/custom-post-types/portfolios.php:314
+#: modules/custom-post-types/portfolios.php:316
 msgid "Project Types"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:284
+#: modules/custom-post-types/portfolios.php:315
 msgid "Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:286
+#: modules/custom-post-types/portfolios.php:317
 msgid "All Project Types"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:287
+#: modules/custom-post-types/portfolios.php:318
 msgid "Edit Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:288
+#: modules/custom-post-types/portfolios.php:319
 msgid "View Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:289
+#: modules/custom-post-types/portfolios.php:320
 msgid "Update Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:290
+#: modules/custom-post-types/portfolios.php:321
 msgid "Add New Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:291
+#: modules/custom-post-types/portfolios.php:322
 msgid "New Project Type Name"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:292
+#: modules/custom-post-types/portfolios.php:323
 msgid "Parent Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:293
+#: modules/custom-post-types/portfolios.php:324
 msgid "Parent Project Type:"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:294
+#: modules/custom-post-types/portfolios.php:325
 msgid "Search Project Types"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:307
-#: modules/custom-post-types/portfolios.php:309
+#: modules/custom-post-types/portfolios.php:338
+#: modules/custom-post-types/portfolios.php:340
 msgid "Project Tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:308
+#: modules/custom-post-types/portfolios.php:339
 msgid "Project Tag"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:310
+#: modules/custom-post-types/portfolios.php:341
 msgid "All Project Tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:311
+#: modules/custom-post-types/portfolios.php:342
 msgid "Edit Project Tag"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:312
+#: modules/custom-post-types/portfolios.php:343
 msgid "View Project Tag"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:313
+#: modules/custom-post-types/portfolios.php:344
 msgid "Update Project Tag"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:314
+#: modules/custom-post-types/portfolios.php:345
 msgid "Add New Project Tag"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:315
+#: modules/custom-post-types/portfolios.php:346
 msgid "New Project Tag Name"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:316
+#: modules/custom-post-types/portfolios.php:347
 msgid "Search Project Tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:317
+#: modules/custom-post-types/portfolios.php:348
 msgid "Popular Project Tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:318
+#: modules/custom-post-types/portfolios.php:349
 msgid "Separate tags with commas"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:319
+#: modules/custom-post-types/portfolios.php:350
 msgid "Add or remove tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:320
+#: modules/custom-post-types/portfolios.php:351
 msgid "Choose from the most used tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:321
+#: modules/custom-post-types/portfolios.php:352
 msgid "No tags found."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:340
+#: modules/custom-post-types/portfolios.php:371
 msgid "Project updated. <a href=\"%s\">View item</a>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:343
+#: modules/custom-post-types/portfolios.php:374
 msgid "Project updated."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:345
+#: modules/custom-post-types/portfolios.php:376
 #. translators: %s: date and time of the revision
 msgid "Project restored to revision from %s"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:346
+#: modules/custom-post-types/portfolios.php:377
 msgid "Project published. <a href=\"%s\">View project</a>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:347
+#: modules/custom-post-types/portfolios.php:378
 msgid "Project saved."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:348
+#: modules/custom-post-types/portfolios.php:379
 msgid "Project submitted. <a target=\"_blank\" href=\"%s\">Preview project</a>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:349
+#: modules/custom-post-types/portfolios.php:380
 msgid ""
 "Project scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" "
 "href=\"%2$s\">Preview project</a>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:352
+#: modules/custom-post-types/portfolios.php:383
 msgid ""
 "Project item draft updated. <a target=\"_blank\" href=\"%s\">Preview "
 "project</a>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:566
+#: modules/custom-post-types/portfolios.php:598
 msgid ""
 "Your Portfolio Archive currently has no entries. You can start creating "
 "them on your dashboard."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:622
+#: modules/custom-post-types/portfolios.php:654
 msgid "Types"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:653
+#: modules/custom-post-types/portfolios.php:685
 msgid "Tags"
 msgstr ""
 
@@ -3048,17 +3060,17 @@ msgid ""
 "will be recorded as a page view in Google Analytics."
 msgstr ""
 
-#: modules/json-api.php:40
+#: modules/json-api.php:39
 msgid "Allow management"
 msgstr ""
 
-#: modules/json-api.php:41
+#: modules/json-api.php:40
 msgid ""
 "Allow remote management of themes, plugins, and WordPress via the JSON API. "
 "(<a href=\"%s\" title=\"Learn more about JSON API\">More info</a>)."
 msgstr ""
 
-#: modules/json-api.php:44 modules/minileven.php:75 modules/stats.php:573
+#: modules/json-api.php:43 modules/minileven.php:75 modules/stats.php:573
 msgid "Save configuration"
 msgstr ""
 
