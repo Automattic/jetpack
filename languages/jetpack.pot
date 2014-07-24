@@ -4,13 +4,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack by WordPress.com 3.1-dev\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/jetpack\n"
-"POT-Creation-Date: 2014-07-22 18:29:24+00:00\n"
+"POT-Creation-Date: 2014-07-24 15:41:38+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "PO-Revision-Date: 2014-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Generator: grunt-wp-i18n 0.4.6\n"
 
 #: _inc/footer.php:10 views/admin/admin-page.php:10
 msgid "Connect to Get Started"
@@ -46,7 +47,8 @@ msgid "Contact the Jetpack Happiness Squad."
 msgstr ""
 
 #: _inc/footer.php:31 class.jetpack.php:3108
-#: modules/sharedaddy/sharedaddy.php:87 views/admin/network-admin-footer.php:23
+#: modules/sharedaddy/sharedaddy.php:87
+#: views/admin/network-admin-footer.php:23
 msgid "Support"
 msgstr ""
 
@@ -66,7 +68,8 @@ msgstr ""
 msgid "Unlink your user account"
 msgstr ""
 
-#: _inc/footer.php:50 class.jetpack.php:2151 modules/module-info.php:44
+#: _inc/footer.php:50 class.jetpack.php:2151
+#: modules/custom-content-types.php:43 modules/module-info.php:44
 #: modules/module-info.php:78 modules/module-info.php:143
 #: modules/module-info.php:176 modules/module-info.php:208
 #: modules/module-info.php:237 modules/module-info.php:268
@@ -592,6 +595,9 @@ msgid ""
 "plugin."
 msgstr ""
 
+#: class.jetpack.php:2032 class.jetpack.php:2045 class.jetpack.php:2966
+#: class.jetpack.php:3136 views/admin/network-admin-header.php:5
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Plugin Name of the plugin/theme
 msgid "Jetpack by WordPress.com"
 msgstr ""
@@ -1519,6 +1525,8 @@ msgstr ""
 msgid "Transparent"
 msgstr ""
 
+#: modules/comments/admin.php:72
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Jetpack Comments"
 msgstr ""
@@ -1717,6 +1725,10 @@ msgstr ""
 msgid "Download"
 msgstr ""
 
+#: modules/contact-form/grunion-contact-form.php:466
+#: modules/contact-form/grunion-contact-form.php:619
+#: modules/contact-form/grunion-form-view.php:30 modules/module-info.php:478
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Contact Form"
 msgstr ""
@@ -1944,11 +1956,8 @@ msgstr ""
 msgid "Your Custom Content Types"
 msgstr ""
 
-#: modules/custom-content-types.php:41
-#: modules/custom-post-types/portfolios.php:134
-msgid ""
-"Use these settings to display different types of content on your site. <a "
-"target=\"_blank\" href=\"%s\">Learn more</a>."
+#: modules/custom-content-types.php:42
+msgid "Use these settings to display different types of content on your site."
 msgstr ""
 
 #: modules/custom-css/custom-css.php:475
@@ -2552,6 +2561,12 @@ msgstr ""
 msgid "Portfolio Projects"
 msgstr ""
 
+#: modules/custom-post-types/portfolios.php:134
+msgid ""
+"Use these settings to display different types of content on your site. <a "
+"target=\"_blank\" href=\"%s\">Learn more</a>."
+msgstr ""
+
 #: modules/custom-post-types/portfolios.php:150
 msgid "Enable"
 msgstr ""
@@ -2754,11 +2769,11 @@ msgid ""
 "them on your dashboard."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:615
+#: modules/custom-post-types/portfolios.php:622
 msgid "Types"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:646
+#: modules/custom-post-types/portfolios.php:653
 msgid "Tags"
 msgstr ""
 
@@ -2884,6 +2899,10 @@ msgstr ""
 msgid "Sharing Settings"
 msgstr ""
 
+#: modules/gplus-authorship/admin/ui.php:56 modules/likes.php:480
+#: modules/module-info.php:311 modules/publicize/ui.php:35
+#: modules/sharedaddy/sharedaddy.php:26 modules/sharedaddy/sharing.php:66
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Sharing"
 msgstr ""
@@ -2900,6 +2919,8 @@ msgstr ""
 msgid "You must click 'Accept' in the Google+ dialog to connect your account."
 msgstr ""
 
+#: modules/gplus-authorship/admin/ui.php:115 modules/module-info.php:733
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Google+ Profile"
 msgstr ""
@@ -2956,6 +2977,8 @@ msgstr ""
 msgid "on Google+"
 msgstr ""
 
+#: modules/gravatar-hovercards.php:47
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Gravatar Hovercards"
 msgstr ""
@@ -3043,6 +3066,8 @@ msgstr ""
 msgid "Likes and Shares"
 msgstr ""
 
+#: modules/likes.php:128 modules/likes.php:651 modules/module-info.php:709
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Likes"
 msgstr ""
@@ -3136,6 +3161,9 @@ msgstr ""
 msgid "<span>%d</span> bloggers like this:"
 msgstr ""
 
+#: modules/markdown/easy-markdown.php:246
+#: modules/markdown/easy-markdown.php:248
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Markdown"
 msgstr ""
@@ -3417,6 +3445,8 @@ msgid ""
 "href=\"%s\">Windows Phone</a>, and <a href=\"%s\">more</a>!"
 msgstr ""
 
+#: modules/module-info.php:22
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "VaultPress"
 msgstr ""
@@ -3477,6 +3507,8 @@ msgid ""
 "the Deactivate button above."
 msgstr ""
 
+#: modules/module-info.php:87 modules/module-info.php:99
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Shortcode Embeds"
 msgstr ""
@@ -3498,6 +3530,8 @@ msgstr ""
 msgid "Available shortcodes are: %l."
 msgstr ""
 
+#: modules/module-info.php:152 modules/module-info.php:165
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "WP.me Shortlinks"
 msgstr ""
@@ -3524,6 +3558,9 @@ msgid ""
 "you can copy and paste to Twitter, Facebook or wherever your heart desires."
 msgstr ""
 
+#: modules/module-info.php:185 modules/module-info.php:197
+#: views/admin/admin-page.php:62
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "WordPress.com Stats"
 msgstr ""
@@ -3539,6 +3576,8 @@ msgstr ""
 msgid "You can <a href=\"%s\">view your stats dashboard here</a>."
 msgstr ""
 
+#: modules/module-info.php:216 modules/publicize/ui.php:94
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Publicize"
 msgstr ""
@@ -3564,6 +3603,9 @@ msgstr ""
 msgid "More information on using Publicize."
 msgstr ""
 
+#: modules/module-info.php:245 modules/module-info.php:257
+#: modules/monitor.php:64 modules/notes.php:159
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Notifications"
 msgstr ""
@@ -3651,6 +3693,8 @@ msgid ""
 "Watch it in HD for extra snazz!"
 msgstr ""
 
+#: modules/module-info.php:360
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Spelling and Grammar"
 msgstr ""
@@ -3876,6 +3920,8 @@ msgid ""
 "with comments and EXIF metadata."
 msgstr ""
 
+#: modules/module-info.php:548 views/admin/admin-page.php:46
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Custom CSS"
 msgstr ""
@@ -3891,6 +3937,8 @@ msgstr ""
 msgid "To use the CSS editor, go to Appearance &#8594; <a href=\"%s\">Edit CSS</a>."
 msgstr ""
 
+#: modules/module-info.php:569
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Mobile Theme"
 msgstr ""
@@ -3960,6 +4008,8 @@ msgid ""
 "href=\"%s\">WordPress Updates</a> page."
 msgstr ""
 
+#: modules/module-info.php:637 modules/post-by-email.php:93
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Post by Email"
 msgstr ""
@@ -3989,6 +4039,9 @@ msgid ""
 "a button."
 msgstr ""
 
+#: modules/module-info.php:688 modules/module-info.php:926
+#: modules/tiled-gallery/tiled-gallery.php:387
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Tiled Galleries"
 msgstr ""
@@ -4124,6 +4177,8 @@ msgid ""
 "keep an eye on total downtime."
 msgstr ""
 
+#: modules/module-info.php:855 modules/module-info.php:878
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Related Posts"
 msgstr ""
@@ -4168,10 +4223,14 @@ msgid ""
 "add an invisible %s tag to the source code of your homepage."
 msgstr ""
 
+#: modules/module-info.php:923
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Custom Content Types"
 msgstr ""
 
+#: modules/module-info.php:929
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Description of the plugin/theme
 msgid ""
 "Organize and display different types of content on your site, separate from "
@@ -4211,6 +4270,10 @@ msgstr ""
 msgid "Comments"
 msgstr ""
 
+#: modules/omnisearch/omnisearch-core.php:62
+#: modules/omnisearch/omnisearch-core.php:67
+#: modules/omnisearch/omnisearch-core.php:88
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Omnisearch"
 msgstr ""
@@ -4572,7 +4635,8 @@ msgid ""
 "theme manually for the sharing links to work."
 msgstr ""
 
-#: modules/sharedaddy/sharing-service.php:12 modules/sharedaddy/sharing.php:170
+#: modules/sharedaddy/sharing-service.php:12
+#: modules/sharedaddy/sharing.php:170
 msgid "Share this:"
 msgstr ""
 
@@ -4916,6 +4980,8 @@ msgstr ""
 msgid "No upcoming events"
 msgstr ""
 
+#: modules/sso.php:134
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Jetpack Single Sign On"
 msgstr ""
@@ -5496,6 +5562,8 @@ msgstr ""
 msgid "VideoPress Library"
 msgstr ""
 
+#: modules/videopress/videopress.php:330
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "VideoPress"
 msgstr ""
@@ -5753,6 +5821,8 @@ msgstr ""
 msgid "Tiles"
 msgstr ""
 
+#: modules/widgets/gallery.php:337
+#. #-#-#-#-#  jetpack.pot (Jetpack by WordPress.com 3.1-dev)  #-#-#-#-#
 #. Module Name of the plugin/theme
 msgid "Carousel"
 msgstr ""
@@ -6150,7 +6220,8 @@ msgstr ""
 msgid "Timeline Theme:"
 msgstr ""
 
-#: modules/widgets/upcoming-events.php:7 modules/widgets/upcoming-events.php:32
+#: modules/widgets/upcoming-events.php:7
+#: modules/widgets/upcoming-events.php:32
 msgid "Upcoming Events"
 msgstr ""
 
