@@ -96,6 +96,7 @@ class Jetpack_Portfolio {
 	 * @return null
 	 */
 	function settings_api_init() {
+		/* Writing settings */
 		add_settings_section(
 			'jetpack_cpt_section',
 			'<span id="cpt-options">' . __( 'Your Custom Content Types', 'jetpack' ) . '</span>',
@@ -110,15 +111,30 @@ class Jetpack_Portfolio {
 			'writing',
 			'jetpack_cpt_section'
 		);
-
 		register_setting(
 			'writing',
 			self::OPTION_NAME,
 			'intval'
 		);
 
+		/* Reading settings */
+		add_settings_section(
+			'jetpack_portfolio_project_reading',
+			'<span id="cpt-options">' . __( 'Your Custom Content Types', 'jetpack' ) . '</span>',
+			array( $this, 'jetpack_cpt_section_callback' ),
+			'reading'
+		);
+
+		add_settings_field( 
+			'jetpack_portfolio_project_reading',  
+			__( 'Portfolio Projects', 'jetpack' ), 
+			array( $this, 'jetpack_cpt_section_reading' ),
+			'reading',
+			'jetpack_portfolio_project_reading'
+		);
+		
 		register_setting(
-			'writing',
+			'reading',
 			self::OPTION_READING_SETTING,
 			'intval'
 		);
@@ -145,21 +161,33 @@ class Jetpack_Portfolio {
 	 * @return html
 	 */
 	function setting_html() {
-		printf( '<label for="%1$s"><input name="%1$s" id="%1$s" type="checkbox" value="1" %2$s/>%3$s</label>',
-			esc_attr( self::OPTION_NAME ),
-			checked( get_option( self::OPTION_NAME, '0' ), true, false ),
-			__( 'Enable', 'jetpack' )
-		);
+		
+		if( current_theme_supports( self::CUSTOM_POST_TYPE ) ) { ?>
+			<p><?php printf( __( 'Your theme supports <strong>%s</strong>', 'jetpack' ), self::CUSTOM_POST_TYPE ); ?></p>
+		<?php } else { ?>
+		<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
+			<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
+			<?php esc_html_e('Enable', 'jetpack' ); ?>
+		</label>
+		<?php
+		}
+	}
 
-		printf( '<p><label for="%1$s">%2$s</label></p>',
-			esc_attr( self::OPTION_READING_SETTING ),
-			sprintf( __( 'Portfolio pages display at most %1$s projects', 'jetpack' ),
-				sprintf( '<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
-					esc_attr( self::OPTION_READING_SETTING ),
-					esc_attr( get_option( self::OPTION_READING_SETTING, '10' ), true, false )
+	function jetpack_cpt_section_reading(){
+
+		if( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
+			printf( '<p><label for="%1$s">%2$s</label></p>',
+				esc_attr( self::OPTION_READING_SETTING ),
+				sprintf( __( 'Portfolio pages display at most %1$s projects', 'jetpack' ),
+					sprintf( '<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
+						esc_attr( self::OPTION_READING_SETTING ),
+						esc_attr( get_option( self::OPTION_READING_SETTING, '10' ), true, false )
+					)
 				)
-			)
-		);
+			);
+		} else {
+			printf( __( 'You need to <a href="%s">enable portfolio</a> custom post type before you can update it\'s settings.' , 'jetpack' ), admin_url( 'options-writing.php#jetpack_portfolio' ) ); 
+		}
 	}
 
 	/*
