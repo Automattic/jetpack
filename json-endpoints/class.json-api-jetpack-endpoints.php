@@ -640,14 +640,14 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_AP
 		$module_data = Jetpack::get_module( $module_slug );
 
 		$module = array();
-		$module['id']     = $module_slug;
-		$module['active'] = Jetpack::is_module_active( $module_slug );
-		$module['name'] = $module_data['name'];
+		$module['id']          = $module_slug;
+		$module['active']      = Jetpack::is_module_active( $module_slug );
+		$module['name']        = $module_data['name'];
 		$module['description'] = $module_data['description'];
-		$module['sort'] = $module_data['sort'];
-		$module['introduced'] = $module_data['introduced'];
-		$module['changed'] = $module_data['changed'];
-		$module['free'] = $module_data['free'];
+		$module['sort']        = $module_data['sort'];
+		$module['introduced']  = $module_data['introduced'];
+		$module['changed']     = $module_data['changed'];
+		$module['free']        = $module_data['free'];
 		$module['module_tags'] = $module_data['module_tags'];
 
 		return $module;
