@@ -302,6 +302,9 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	protected $network_wide = false;
 	protected $plugin;
 
+	protected $action;
+	protected $needed_capabilities;
+
 	static $_response_format	= array(
 		'id'          => '(string)  The plugin\'s ID',
 		'active'      => '(boolean) The plugin status.',
@@ -397,7 +400,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 class Jetpack_JSON_API_Get_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// GET  /sites/%s/plugins/%s
-	protected $action;
 	protected $needed_capabilities = 'activate_plugins';
 }
 
