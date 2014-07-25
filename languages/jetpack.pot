@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack by WordPress.com 3.1-beta2\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/jetpack\n"
-"POT-Creation-Date: 2014-07-24 17:25:24+00:00\n"
+"POT-Creation-Date: 2014-07-25 14:28:05+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -70,7 +70,7 @@ msgstr ""
 
 #: _inc/footer.php:50 class.jetpack.php:2151
 #: modules/custom-content-types.php:43
-#: modules/custom-post-types/portfolios.php:152 modules/module-info.php:44
+#: modules/custom-post-types/portfolios.php:169 modules/module-info.php:44
 #: modules/module-info.php:78 modules/module-info.php:143
 #: modules/module-info.php:176 modules/module-info.php:208
 #: modules/module-info.php:237 modules/module-info.php:268
@@ -2164,7 +2164,7 @@ msgid "All Comics"
 msgstr ""
 
 #: modules/custom-post-types/comics.php:209
-#: modules/custom-post-types/portfolios.php:277
+#: modules/custom-post-types/portfolios.php:275
 #: modules/custom-post-types/testimonial.php:79 modules/publicize/ui.php:206
 msgid "Add New"
 msgstr ""
@@ -2203,14 +2203,14 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:286
 #: modules/custom-post-types/nova.php:221
-#: modules/custom-post-types/portfolios.php:372
+#: modules/custom-post-types/portfolios.php:370
 #: modules/custom-post-types/testimonial.php:140
 msgid "Custom field updated."
 msgstr ""
 
 #: modules/custom-post-types/comics.php:287
 #: modules/custom-post-types/nova.php:222
-#: modules/custom-post-types/portfolios.php:373
+#: modules/custom-post-types/portfolios.php:371
 #: modules/custom-post-types/testimonial.php:141
 msgid "Custom field deleted."
 msgstr ""
@@ -2244,7 +2244,7 @@ msgstr ""
 
 #: modules/custom-post-types/comics.php:296
 #: modules/custom-post-types/nova.php:231
-#: modules/custom-post-types/portfolios.php:382
+#: modules/custom-post-types/portfolios.php:380
 #: modules/custom-post-types/testimonial.php:150
 #. translators: Publish box date format, see http:php.net/date
 msgid "M j, Y @ G:i"
@@ -2569,223 +2569,223 @@ msgstr ""
 msgid "Portfolio Projects"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:166
+#: modules/custom-post-types/portfolios.php:164
 msgid "Your theme supports <strong>%s</strong>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:170
-msgid "Enable"
+#: modules/custom-post-types/portfolios.php:168
+msgid "Enable Portfolio Projects for this site."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:181
+#: modules/custom-post-types/portfolios.php:179
 msgid "Portfolio pages display at most %1$s projects"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:189
+#: modules/custom-post-types/portfolios.php:187
 msgid ""
 "You need to <a href=\"%s\">enable portfolio</a> custom post type before you "
 "can update it's settings."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:271
+#: modules/custom-post-types/portfolios.php:269
 msgid "Portfolio Items"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:273
+#: modules/custom-post-types/portfolios.php:271
 msgid "Projects"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:274
-#: modules/custom-post-types/portfolios.php:395
+#: modules/custom-post-types/portfolios.php:272
+#: modules/custom-post-types/portfolios.php:393
 msgid "Project"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:275
+#: modules/custom-post-types/portfolios.php:273
 msgid "Portfolio"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:276
+#: modules/custom-post-types/portfolios.php:274
 msgid "All Projects"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:278
+#: modules/custom-post-types/portfolios.php:276
 msgid "Add New Project"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:279
+#: modules/custom-post-types/portfolios.php:277
 msgid "Edit Project"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:280
+#: modules/custom-post-types/portfolios.php:278
 msgid "New Project"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:281
+#: modules/custom-post-types/portfolios.php:279
 msgid "View Project"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:282
+#: modules/custom-post-types/portfolios.php:280
 msgid "Search Projects"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:283
+#: modules/custom-post-types/portfolios.php:281
 msgid "No Projects found"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:284
+#: modules/custom-post-types/portfolios.php:282
 msgid "No Projects found in Trash"
 msgstr ""
 
+#: modules/custom-post-types/portfolios.php:312
 #: modules/custom-post-types/portfolios.php:314
-#: modules/custom-post-types/portfolios.php:316
 msgid "Project Types"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:315
+#: modules/custom-post-types/portfolios.php:313
 msgid "Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:317
+#: modules/custom-post-types/portfolios.php:315
 msgid "All Project Types"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:318
+#: modules/custom-post-types/portfolios.php:316
 msgid "Edit Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:319
+#: modules/custom-post-types/portfolios.php:317
 msgid "View Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:320
+#: modules/custom-post-types/portfolios.php:318
 msgid "Update Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:321
+#: modules/custom-post-types/portfolios.php:319
 msgid "Add New Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:322
+#: modules/custom-post-types/portfolios.php:320
 msgid "New Project Type Name"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:323
+#: modules/custom-post-types/portfolios.php:321
 msgid "Parent Project Type"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:324
+#: modules/custom-post-types/portfolios.php:322
 msgid "Parent Project Type:"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:325
+#: modules/custom-post-types/portfolios.php:323
 msgid "Search Project Types"
 msgstr ""
 
+#: modules/custom-post-types/portfolios.php:336
 #: modules/custom-post-types/portfolios.php:338
-#: modules/custom-post-types/portfolios.php:340
 msgid "Project Tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:339
+#: modules/custom-post-types/portfolios.php:337
 msgid "Project Tag"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:341
+#: modules/custom-post-types/portfolios.php:339
 msgid "All Project Tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:342
+#: modules/custom-post-types/portfolios.php:340
 msgid "Edit Project Tag"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:343
+#: modules/custom-post-types/portfolios.php:341
 msgid "View Project Tag"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:344
+#: modules/custom-post-types/portfolios.php:342
 msgid "Update Project Tag"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:345
+#: modules/custom-post-types/portfolios.php:343
 msgid "Add New Project Tag"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:346
+#: modules/custom-post-types/portfolios.php:344
 msgid "New Project Tag Name"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:347
+#: modules/custom-post-types/portfolios.php:345
 msgid "Search Project Tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:348
+#: modules/custom-post-types/portfolios.php:346
 msgid "Popular Project Tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:349
+#: modules/custom-post-types/portfolios.php:347
 msgid "Separate tags with commas"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:350
+#: modules/custom-post-types/portfolios.php:348
 msgid "Add or remove tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:351
+#: modules/custom-post-types/portfolios.php:349
 msgid "Choose from the most used tags"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:352
+#: modules/custom-post-types/portfolios.php:350
 msgid "No tags found."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:371
+#: modules/custom-post-types/portfolios.php:369
 msgid "Project updated. <a href=\"%s\">View item</a>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:374
+#: modules/custom-post-types/portfolios.php:372
 msgid "Project updated."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:376
+#: modules/custom-post-types/portfolios.php:374
 #. translators: %s: date and time of the revision
 msgid "Project restored to revision from %s"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:377
+#: modules/custom-post-types/portfolios.php:375
 msgid "Project published. <a href=\"%s\">View project</a>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:378
+#: modules/custom-post-types/portfolios.php:376
 msgid "Project saved."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:379
+#: modules/custom-post-types/portfolios.php:377
 msgid "Project submitted. <a target=\"_blank\" href=\"%s\">Preview project</a>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:380
+#: modules/custom-post-types/portfolios.php:378
 msgid ""
 "Project scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" "
 "href=\"%2$s\">Preview project</a>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:383
+#: modules/custom-post-types/portfolios.php:381
 msgid ""
 "Project item draft updated. <a target=\"_blank\" href=\"%s\">Preview "
 "project</a>"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:598
+#: modules/custom-post-types/portfolios.php:596
 msgid ""
 "Your Portfolio Archive currently has no entries. You can start creating "
 "them on your dashboard."
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:654
+#: modules/custom-post-types/portfolios.php:652
 msgid "Types"
 msgstr ""
 
-#: modules/custom-post-types/portfolios.php:685
+#: modules/custom-post-types/portfolios.php:683
 msgid "Tags"
 msgstr ""
 
