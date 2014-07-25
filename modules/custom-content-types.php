@@ -5,7 +5,7 @@
  * Module Description: Organize and display different types of content on your site, separate from posts and pages.
  * First Introduced: 3.1
  * Requires Connection: No
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Writing
  * Sort Order: 34
  */
