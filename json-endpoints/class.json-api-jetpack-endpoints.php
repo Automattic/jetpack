@@ -624,16 +624,16 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_AP
 	protected $module_slug;
 	protected $action;
 
-	static $_response_format	= array(
-		'id'          => '(string)  The module\'s ID',
-		'active'      => '(boolean) The module\'s status.',
-		'name'        => '(string)  The module\'s name.',
-		'description' => '(string)  The module\'s description.',
-		'sort'        => '(int)     The module\'s display order.',
-		'introduced'  => '(string)  The Jetpack version when the module was introduced.',
-		'changed'     => '(string)  The Jetpack version when the module was changed.',
-		'free'        => '(boolean) The module\'s Free or Paid status.',
-		'module_tags' => '(array)   The module\'s tags.'
+	static $_response_format = array(
+		'id'          => '(string)   The module\'s ID',
+		'active'      => '(boolean)  The module\'s status.',
+		'name'        => '(string)   The module\'s name.',
+		'description' => '(safehtml) The module\'s description.',
+		'sort'        => '(int)      The module\'s display order.',
+		'introduced'  => '(string)   The Jetpack version when the module was introduced.',
+		'changed'     => '(string)   The Jetpack version when the module was changed.',
+		'free'        => '(boolean)  The module\'s Free or Paid status.',
+		'module_tags' => '(array)    The module\'s tags.'
 	);
 
 	protected static function format_module( $module_slug ) {
