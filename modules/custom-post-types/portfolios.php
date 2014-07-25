@@ -149,7 +149,6 @@ class Jetpack_Portfolio {
 		?>
 		<p>
 			<?php esc_html_e( 'Use these settings to display different types of content on your site.', 'jetpack' ); ?>
-			<a target="_blank" href="http://en.support.wordpress.com/portfolios/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
 		</p>
 		<?php
 	}
@@ -167,6 +166,7 @@ class Jetpack_Portfolio {
 			<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
 				<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
 				<?php esc_html_e( 'Enable Portfolio Projects for this site.', 'jetpack' ); ?>
+				<a target="_blank" href="http://en.support.wordpress.com/portfolios/"><?php esc_html_e( 'Learn More', 'jetpack' ); ?></a>
 			</label>
 		<?php endif;
 	}
