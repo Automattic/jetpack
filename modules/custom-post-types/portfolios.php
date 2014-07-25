@@ -161,16 +161,14 @@ class Jetpack_Portfolio {
 	 * @return html
 	 */
 	function setting_html() {
-		
-		if( current_theme_supports( self::CUSTOM_POST_TYPE ) ) { ?>
+		if( current_theme_supports( self::CUSTOM_POST_TYPE ) ) : ?>
 			<p><?php printf( __( 'Your theme supports <strong>%s</strong>', 'jetpack' ), self::CUSTOM_POST_TYPE ); ?></p>
-		<?php } else { ?>
-		<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
-			<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
-			<?php esc_html_e('Enable', 'jetpack' ); ?>
-		</label>
-		<?php
-		}
+		<?php else : ?>
+			<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
+				<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
+				<?php esc_html_e( 'Enable Portfolio Projects for this site.', 'jetpack' ); ?>
+			</label>
+		<?php endif;
 	}
 
 	function jetpack_cpt_section_reading(){
