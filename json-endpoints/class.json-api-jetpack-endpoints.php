@@ -663,7 +663,7 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_AP
 
 		$this->module_slug = $module_slug;
 
-		if ( is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
+		if ( ! empty( $this->action ) &&  is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
 			return $error;
 		}
 
@@ -677,6 +677,29 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_AP
 	}
 }
 
+class Jetpack_JSON_API_Get_Module_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
+	// GET  /sites/%s/jetpack/modules/%s
+	protected $action;
+}
+
+new Jetpack_JSON_API_Get_Module_Endpoint( array(
+	'description'     => 'Modify the status of a Jetpack Module on your Jetpack Site',
+	'group'           => 'jetpack',
+	'stat'            => 'jetpack:modules:1',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/jetpack/modules/%s/',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+		'$module' => '(string) The module name',
+	),
+	'response_format' => Jetpack_JSON_API_Jetpack_Modules_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules/stats'
+) );
 
 class Jetpack_JSON_API_Modify_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
 	// POST  /sites/%s/jetpack/modules/%s/activate
