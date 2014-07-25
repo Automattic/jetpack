@@ -77,6 +77,7 @@ class Jetpack {
 			'Livefyre'                       => 'livefyre-comments/livefyre.php',
 			'Comments Evolved for WordPress' => 'gplus-comments/comments-evolved.php',
 			'Google+ Comments'               => 'google-plus-comments/google-plus-comments.php',
+			'WP-SpamShield Anti-Spam'        => 'wp-spamshield/wp-spamshield.php',
 		),
 		'contact-form'      => array(
 			'Contact Form 7'                 => 'contact-form-7/wp-contact-form-7.php',
