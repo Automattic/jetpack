@@ -437,7 +437,7 @@ class Jetpack_JSON_API_Modify_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_E
 
 	protected function activate_plugin() {
 		if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $this->plugin ) ) || is_plugin_active_for_network( $this->plugin ) ) {
-			return new WP_Error( 'plugin_active', __( 'The Plugin is already active.', 'jetpack' ), 400 );
+			return new WP_Error( 'plugin_already_active', __( 'The Plugin is already active.', 'jetpack' ), 400 );
 		}
 
 		$result = activate_plugin( $this->plugin, '', $this->network_wide );
@@ -461,7 +461,7 @@ class Jetpack_JSON_API_Modify_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_E
 	protected function deactivate_plugin() {
 
 		if ( ! Jetpack::is_plugin_active( $this->plugin ) ) {
-			return new WP_Error( 'plugin_deactivated', __( 'The Plugin is already deactivated.', 'jetpack' ), 400 );
+			return new WP_Error( 'plugin_already_deactivated', __( 'The Plugin is already deactivated.', 'jetpack' ), 400 );
 		}
 
 		$result = deactivate_plugins( $this->plugin, false, $this->network_wide );
