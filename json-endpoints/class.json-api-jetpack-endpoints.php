@@ -390,7 +390,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$this->plugin = urldecode( $plugin ) . '.php';
 
 		if ( is_wp_error( $error = validate_plugin( $this->plugin ) ) ) {
-			return new WP_Error( 'unknown_plugin', $error->get_error_messages() , 500 );
+			return new WP_Error( 'unknown_plugin', $error->get_error_messages() , 404 );
 		}
 
 		return true;
