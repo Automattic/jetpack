@@ -679,7 +679,7 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_AP
 	}
 }
 
-class Jetpack_JSON_API_Get_Module_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
+class Jetpack_JSON_API_Get_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
 	// GET  /sites/%s/jetpack/modules/%s
 	protected $action;
 }
