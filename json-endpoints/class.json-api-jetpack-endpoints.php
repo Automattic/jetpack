@@ -757,6 +757,9 @@ new Jetpack_JSON_API_Modify_Module_Endpoint( array(
 		'$site'   => '(int|string) The site ID, The site domain',
 		'$module' => '(string) The module name',
 	),
+	'request_format' => array(
+		'active'   => '(bool) The module activation status',
+	),
 	'response_format' => Jetpack_JSON_API_Jetpack_Modules_Endpoint::$_response_format,
 	'example_request_data' => array(
 		'headers' => array(
