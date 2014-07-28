@@ -302,28 +302,40 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	protected $network_wide = false;
 	protected $plugin;
 
+	protected $action;
+	protected $needed_capabilities;
+
 	static $_response_format	= array(
 		'id'          => '(string)  The plugin\'s ID',
 		'active'      => '(boolean) The plugin status.',
 		'update'      => '(object)  The plugin update info.',
 		'name'        => '(string)  The name of the plugin.',
-		'plugin_url'  => '(string)  Link to the plugin\'s web site.',
+		'plugin_url'  => '(url)  Link to the plugin\'s web site.',
 		'version'     => '(string)  The plugin version number.',
-		'description' => '(string)  Description of what the plugin does and/or notes from the author',
+		'description' => '(safehtml)  Description of what the plugin does and/or notes from the author',
 		'author'      => '(string)  The author\'s name',
-		'author_url'  => '(string)  The authors web site address',
+		'author_url'  => '(url)  The authors web site address',
 		'network'     => '(boolean) Whether the plugin can only be activated network wide.',
 	);
 
-	public function callback( $path = '', $blog_id = 0 ) {
+	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
+
 		if ( is_wp_error( $error = $this->validate_call( $blog_id, $this->needed_capabilities, true ) ) ) {
 			return $error;
 		}
-		if ( is_wp_error( $error = $this->validate_plugin() ) ) {
+
+		if ( is_wp_error( $error = $this->validate_network_wide() ) ) {
 			return $error;
 		}
-		if ( is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
+
+		if ( is_wp_error( $error = $this->validate_plugin( $plugin ) ) ) {
 			return $error;
+		}
+
+		if ( ! empty( $this->action ) ) {
+			if ( is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
+				return $error;
+			}
 		}
 
 		return self::get_plugin( $this->plugin );
@@ -331,7 +343,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	protected static function format_plugin( $plugin_file, $plugin_data ) {
 		$plugin = array();
-		$plugin['id']     = $plugin_file;
+		$plugin['id']     = preg_replace("/(.+)\.php$/", "$1", urlencode( $plugin_file ) );
 		$plugin['active'] = Jetpack::is_plugin_active( $plugin_file );
 
 		$current          = get_site_transient( 'update_plugins' );
@@ -355,7 +367,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return self::format_plugin( $this->plugin, $installed_plugins[ $this->plugin ] );
 	}
 
-	protected function validate_plugin() {
+	protected function validate_network_wide() {
 		$args = $this->input();
 
 		if ( isset( $args['network_wide'] ) && $args['network_wide'] ) {
@@ -366,14 +378,19 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			return new WP_Error( 'unauthorized', __( 'This user is not authorized to manage plugins network wide.', 'jetpack' ), 403 );
 		}
 
-		if ( ! isset( $args['plugin'] ) || empty( $args['plugin'] ) ) {
+		return true;
+	}
+
+	protected function validate_plugin( $plugin ) {
+
+		if ( ! isset( $plugin) || empty( $plugin ) ) {
 			return new WP_Error( 'missing_plugin', __( 'You are required to specify a plugin to activate.', 'jetpack' ), 400 );
 		}
 
-		$this->plugin = $args['plugin'];
+		$this->plugin = urldecode( $plugin ) . '.php';
 
 		if ( is_wp_error( $error = validate_plugin( $this->plugin ) ) ) {
-			return new WP_Error( 'unknown_plugin', $error->get_error_messages() , 500 );
+			return new WP_Error( 'unknown_plugin', $error->get_error_messages() , 404 );
 		}
 
 		return true;
@@ -381,17 +398,46 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 }
 
+class Jetpack_JSON_API_Get_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
+	// GET  /sites/%s/plugins/%s
+	protected $needed_capabilities = 'activate_plugins';
+}
 
-class Jetpack_JSON_API_Activate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
-	// POST  /sites/%s/plugins/activate => activate_plugin
+new Jetpack_JSON_API_Get_Plugin_Endpoint( array(
+	'description'     => 'Get the Plugin data.',
+	'group'           => 'plugins',
+	'stat'            => 'plugins:1',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/plugins/%s/',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+		'$plugin'   => '(string) The plugin ID',
+	),
+	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello'
+) );
 
-	protected $action = 'activate_plugin';
+
+class Jetpack_JSON_API_Modify_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
+	// POST  /sites/%s/plugins/%s
 	protected $needed_capabilities = 'activate_plugins';
 
-	protected function activate_plugin() {
+	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
+		$args = $this->input();
+		if ( isset( $args[ 'active' ] ) ) {
+			$this->action = $args[ 'active' ] ? 'activate_plugin' : 'deactivate_plugin';
+		}
+		return parent::callback( $path, $blog_id, $plugin );
+	}
 
+	protected function activate_plugin() {
 		if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $this->plugin ) ) || is_plugin_active_for_network( $this->plugin ) ) {
-			return new WP_Error( 'plugin_active', __( 'The Plugin is already active.', 'jetpack' ), 400 );
+			return new WP_Error( 'plugin_already_active', __( 'The Plugin is already active.', 'jetpack' ), 400 );
 		}
 
 		$result = activate_plugin( $this->plugin, '', $this->network_wide );
@@ -412,42 +458,10 @@ class Jetpack_JSON_API_Activate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins
 		return true;
 	}
 
-}
-
-new Jetpack_JSON_API_Activate_Plugin_Endpoint( array(
-	'description'     => 'Activate a Plugin on your Jetpack Site',
-	'group'           => 'plugins',
-	'stat'            => 'plugins:1:activate',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/plugins/activate/',
-	'path_labels' => array(
-		'$site'   => '(int|string) The site ID, The site domain',
-	),
-	'request_format' => array(
-		'plugin'   => '(string) The ID of the plugin that should be activated',
-		'network_wide' => '(bool) Do action network wide (default value: false)'
-	),
-	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-		'body' => array(
-			'plugin' => 'hello-dolly/hello.php'
-		)
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/activate'
-) );
-
-class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
-	// POST  /sites/%s/plugins/deactivate => deactivate_plugin
-	protected $action = 'deactivate_plugin';
-	protected $needed_capabilities = 'activate_plugins';
-
 	protected function deactivate_plugin() {
 
 		if ( ! Jetpack::is_plugin_active( $this->plugin ) ) {
-			return new WP_Error( 'plugin_active', __( 'The Plugin is already deactivated.', 'jetpack' ), 400 );
+			return new WP_Error( 'plugin_already_deactivated', __( 'The Plugin is already deactivated.', 'jetpack' ), 400 );
 		}
 
 		$result = deactivate_plugins( $this->plugin, false, $this->network_wide );
@@ -467,20 +481,20 @@ class Jetpack_JSON_API_Deactivate_Plugin_Endpoint extends Jetpack_JSON_API_Plugi
 
 		return true;
 	}
-
 }
 
-new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
-	'description'     => 'Deactivate a Plugin on your Jetpack Site',
+new Jetpack_JSON_API_Modify_Plugin_Endpoint( array(
+	'description'     => 'Modify a Plugin on your Jetpack Site',
 	'group'           => 'plugins',
-	'stat'            => 'plugins:1:deactivate',
+	'stat'            => 'plugins:1',
 	'method'          => 'POST',
-	'path'            => '/sites/%s/plugins/deactivate/',
+	'path'            => '/sites/%s/plugins/%s/',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
+		'$plugin'   => '(string) The plugin ID',
 	),
 	'request_format' => array(
-		'plugin'   => '(string) The ID of the plugin that should be activated',
+		'active'   => '(bool) The module activation status',
 		'network_wide' => '(bool) Do action network wide (default value: false)'
 	),
 	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
@@ -489,10 +503,10 @@ new Jetpack_JSON_API_Deactivate_Plugin_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 		'body' => array(
-			'plugin' => 'hello-dolly/hello.php'
+			'active' => true,
 		)
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/deactivate'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello'
 ) );
 
 class Jetpack_JSON_API_Update_Plugin_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
@@ -545,22 +559,16 @@ new Jetpack_JSON_API_Update_Plugin_Endpoint( array(
 	'group'           => 'plugins',
 	'stat'            => 'plugins:1:update',
 	'method'          => 'POST',
-	'path'            => '/sites/%s/plugins/update/',
+	'path'            => '/sites/%s/plugins/%s/update/',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
-	),
-	'request_format' => array(
-		'plugin'   => '(string) The ID of the plugin that should be activated',
-		'network_wide' => '(bool) Do action network wide (default value: false)'
+		'$plugin'   => '(string) The plugin ID',
 	),
 	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
-		'body' => array(
-			'plugin' => 'hello-dolly/hello.php'
-		)
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/update'
 ) );
@@ -569,7 +577,7 @@ class Jetpack_JSON_API_List_Plugins_Endpoint extends Jetpack_JSON_API_Plugins_En
 
 	// GET /sites/%s/plugins
 	public function callback( $path = '', $_blog_id = 0 ) {
-		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'update_plugins', false ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'activate_plugins', false ) ) ) {
 			return $error;
 		}
 
@@ -616,31 +624,32 @@ new Jetpack_JSON_API_List_Plugins_Endpoint( array(
 abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected $module_slug;
+	protected $action;
 
-	static $_response_format	= array(
-		'id'          => '(string)  The module\'s ID',
-		'active'      => '(boolean) The module\'s status.',
-		'name'        => '(string)  The module\'s name.',
-		'description' => '(string)  The module\'s description.',
-		'sort'        => '(int)     The module\'s display order.',
-		'introduced'  => '(string)  The Jetpack version when the module was introduced.',
-		'changed'     => '(string)  The Jetpack version when the module was changed.',
-		'free'        => '(boolean) The module\'s Free or Paid status.',
-		'module_tags' => '(array)   The module\'s tags.'
+	static $_response_format = array(
+		'id'          => '(string)   The module\'s ID',
+		'active'      => '(boolean)  The module\'s status.',
+		'name'        => '(string)   The module\'s name.',
+		'description' => '(safehtml) The module\'s description.',
+		'sort'        => '(int)      The module\'s display order.',
+		'introduced'  => '(string)   The Jetpack version when the module was introduced.',
+		'changed'     => '(string)   The Jetpack version when the module was changed.',
+		'free'        => '(boolean)  The module\'s Free or Paid status.',
+		'module_tags' => '(array)    The module\'s tags.'
 	);
 
 	protected static function format_module( $module_slug ) {
 		$module_data = Jetpack::get_module( $module_slug );
 
 		$module = array();
-		$module['id']     = $module_slug;
-		$module['active'] = Jetpack::is_module_active( $module_slug );
-		$module['name'] = $module_data['name'];
+		$module['id']          = $module_slug;
+		$module['active']      = Jetpack::is_module_active( $module_slug );
+		$module['name']        = $module_data['name'];
 		$module['description'] = $module_data['description'];
-		$module['sort'] = $module_data['sort'];
-		$module['introduced'] = $module_data['introduced'];
-		$module['changed'] = $module_data['changed'];
-		$module['free'] = $module_data['free'];
+		$module['sort']        = $module_data['sort'];
+		$module['introduced']  = $module_data['introduced'];
+		$module['changed']     = $module_data['changed'];
+		$module['free']        = $module_data['free'];
 		$module['module_tags'] = $module_data['module_tags'];
 
 		return $module;
@@ -656,7 +665,7 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_AP
 
 		$this->module_slug = $module_slug;
 
-		if ( is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
+		if ( ! empty( $this->action ) &&  is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
 			return $error;
 		}
 
@@ -670,11 +679,40 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_AP
 	}
 }
 
+class Jetpack_JSON_API_Get_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
+	// GET  /sites/%s/jetpack/modules/%s
+	protected $action;
+}
 
-class Jetpack_JSON_API_Activate_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
-	// POST  /sites/%s/jetpack/modules/%s/activate => activate_module
+new Jetpack_JSON_API_Get_Module_Endpoint( array(
+	'description'     => 'Modify the status of a Jetpack Module on your Jetpack Site',
+	'group'           => 'jetpack',
+	'stat'            => 'jetpack:modules:1',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/jetpack/modules/%s/',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+		'$module' => '(string) The module name',
+	),
+	'response_format' => Jetpack_JSON_API_Jetpack_Modules_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules/stats'
+) );
 
-	protected $action = 'activate_module';
+class Jetpack_JSON_API_Modify_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
+	// POST  /sites/%s/jetpack/modules/%s/activate
+
+	public function callback( $path = '', $blog_id = 0, $module_slug = '' ) {
+		$args = $this->input();
+		if ( isset( $args[ 'active' ] ) ) {
+			$this->action = $args[ 'active' ] ? 'activate_module' : 'deactivate_module';
+		}
+		return parent::callback( $path, $blog_id, $module_slug );
+	}
 
 	protected function activate_module() {
 
@@ -691,32 +729,6 @@ class Jetpack_JSON_API_Activate_Module_Endpoint extends Jetpack_JSON_API_Jetpack
 
 		return true;
 	}
-
-}
-
-new Jetpack_JSON_API_Activate_Module_Endpoint( array(
-	'description'     => 'Activate a Jetpack Module on your Jetpack Site',
-	'group'           => 'jetpack',
-	'stat'            => 'jetpack:modules:1:activate',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/jetpack/modules/%s/activate/',
-	'path_labels' => array(
-		'$site'   => '(int|string) The site ID, The site domain',
-		'$module' => '(string) The module name',
-	),
-	'response_format' => Jetpack_JSON_API_Jetpack_Modules_Endpoint::$_response_format,
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules/stats/activate'
-) );
-
-class Jetpack_JSON_API_Deactivate_Module_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
-	// POST  /sites/%s/jetpack/modules/%s/deactivate => deactivate_module
-
-	protected $action = 'deactivate_module';
 
 	protected function deactivate_module() {
 
@@ -735,23 +747,29 @@ class Jetpack_JSON_API_Deactivate_Module_Endpoint extends Jetpack_JSON_API_Jetpa
 
 }
 
-new Jetpack_JSON_API_Deactivate_Module_Endpoint( array(
-	'description'     => 'Deactivate a Jetpack Module on Site',
+new Jetpack_JSON_API_Modify_Module_Endpoint( array(
+	'description'     => 'Modify the status of a Jetpack Module on your Jetpack Site',
 	'group'           => 'jetpack',
-	'stat'            => 'jetpack:modules:1:deactivate',
+	'stat'            => 'jetpack:modules:1',
 	'method'          => 'POST',
-	'path'            => '/sites/%s/jetpack/modules/%s/deactivate/',
+	'path'            => '/sites/%s/jetpack/modules/%s/',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
 		'$module' => '(string) The module name',
+	),
+	'request_format' => array(
+		'active'   => '(bool) The module activation status',
 	),
 	'response_format' => Jetpack_JSON_API_Jetpack_Modules_Endpoint::$_response_format,
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
+		'body' => array(
+			'active' => true,
+		)
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules/stats/deactivate'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/jetpack/modules/stats'
 ) );
 
 class Jetpack_JSON_API_List_Modules_Endpoint extends Jetpack_JSON_API_Jetpack_Modules_Endpoint {
