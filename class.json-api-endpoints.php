@@ -522,6 +522,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
 			break;
+		case 'jetpackmodule' :
+			$docs = array(
+				'id'          => '(string)   The module\'s ID',
+				'active'      => '(boolean)  The module\'s status.',
+				'name'        => '(string)   The module\'s name.',
+				'description' => '(safehtml) The module\'s description.',
+				'sort'        => '(int)      The module\'s display order.',
+				'introduced'  => '(string)   The Jetpack version when the module was introduced.',
+				'changed'     => '(string)   The Jetpack version when the module was changed.',
+				'free'        => '(boolean)  The module\'s Free or Paid status.',
+				'module_tags' => '(array)    The module\'s tags.'
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+			break;
 
 		default :
 			trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
