@@ -1557,6 +1557,9 @@ html {
 .table-bordered.jetpack-modules tr.jetpack-module:hover .genericon {
   display: inline-block;
 }
+.table-bordered.jetpack-modules tr.jetpack-module:hover td .row-actions span a {
+  opacity: 1;
+}
 .table-bordered.jetpack-modules tr.jetpack-module.active th,
 .table-bordered.jetpack-modules tr.jetpack-module.active td {
   background: #f7fcfe;
@@ -1591,9 +1594,16 @@ html {
 .table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
   float: right;
   padding: 0 0 1px;
+  visibility: visible;
 }
 .table-bordered.jetpack-modules tr.jetpack-module td .row-actions span {
   margin-left: 5px;
+}
+.table-bordered.jetpack-modules tr.jetpack-module td .row-actions span a {
+  opacity: 0;
+}
+.table-bordered.jetpack-modules tr.jetpack-module td .row-actions span a:focus {
+  opacity: 1;
 }
 @media (max-width: 530px) {
   .table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
