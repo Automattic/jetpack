@@ -713,6 +713,4 @@ class Jetpack_Portfolio {
 add_action( 'init', array( 'Jetpack_Portfolio', 'init' ) );
 
 // Check on plugin activation if theme supports CPT
-add_action( 'jetpack_activate_module_custom-content-types',
-            array( 'Jetpack_Portfolio',
-                   'plugin_activation_post_type_support' ) );
+add_action( 'jetpack_activate_module_custom-content-types', array( 'Jetpack_Portfolio', 'plugin_activation_post_type_support' ) );
