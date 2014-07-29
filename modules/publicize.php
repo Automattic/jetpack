@@ -314,3 +314,21 @@ class Publicize_Util {
 		return $message;
 	}
 }
+
+/**
+ * Helper for grabbing a Publicize object from the "front-end" (non-admin) of
+ * a site. Normally Publicize is only loaded in wp-admin, so there's a little
+ * set up that you might need to do if you want to use it on the front end.
+ * Just call this function and it returns a Publicize object.
+ *
+ * @return Publicize Object
+ */
+function publicize_init() {
+	global $publicize;
+
+	if ( ! class_exists( 'Publicize' ) ) {
+		require_once dirname( __FILE__ ) . '/publicize/publicize.php';
+	}
+
+	return $publicize;
+}
