@@ -117,7 +117,6 @@ Buttons
 .vp-botton-secondary:hover,
 .vp-botton-secondary:focus {
 	position: relative;
-	top: 1px;
 	background: #ccc;
 }
 

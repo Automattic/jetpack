@@ -54,6 +54,7 @@ Yes, VaultPress supports Multisite installs. Each site will require its own subs
 = 1.6.3 =
 * Bugfix: Make sure existing empty key and secret options are always strings.  This fixes an error when run with HHVM.
 * Bugfix: Detect if the plugin has been installed on localhost and show an error.
+* CSS Fix: Stop the "Register" button from bouncing around when clicked.
 
 = 1.6.2 =
 * Feature: Instantly register for a VaultPress trial via Jetpack.
