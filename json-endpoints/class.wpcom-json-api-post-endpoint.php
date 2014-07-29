@@ -317,7 +317,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = '';
 				break;
 			case 'post_thumbnail' :
-				$response[$key] = '';
+				$response[$key] = null;
 
 				$thumb_id = get_post_thumbnail_id( $post->ID );
 				if ( ! empty( $thumb_id ) ) {
