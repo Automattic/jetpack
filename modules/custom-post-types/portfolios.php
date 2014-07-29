@@ -214,7 +214,7 @@ class Jetpack_Portfolio {
 	/**
 	 * On plugin activation, check if current theme supports CPT
 	 */
-	function plugin_activation_post_type_support() {
+	static function plugin_activation_post_type_support() {
 		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 			update_option( self::OPTION_NAME, '1' );
 		}
@@ -713,4 +713,6 @@ class Jetpack_Portfolio {
 add_action( 'init', array( 'Jetpack_Portfolio', 'init' ) );
 
 // Check on plugin activation if theme supports CPT
-register_activation_hook( __FILE__, array( 'Jetpack_Portfolio', 'plugin_activation_post_type_support' ) );
+add_action( 'jetpack_activate_module_custom-content-types',
+            array( 'Jetpack_Portfolio',
+                   'plugin_activation_post_type_support' ) );
