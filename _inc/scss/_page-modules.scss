@@ -95,6 +95,9 @@
 			.genericon {
 				display: inline-block;
 			}
+			td .row-actions span a {
+				opacity: 1;
+			}
 		}
 		&.active {
 			th,
@@ -135,8 +138,16 @@
 			.row-actions {
 				float: right;
 				padding: 0 0 1px;
+				visibility: visible;
+
 				span {
 					margin-left: 5px;
+					a {
+						opacity: 0;
+						&:focus {
+							opacity: 1;
+						}
+					}
 				}
 
 				@media (max-width: 530px) {
