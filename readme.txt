@@ -88,10 +88,39 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 = 3.1 =
 * Enhancement: New Custom Content Types module.
+* Enhancement: New Jetpack Logo.
 * Enhancement: New optional JSON API endpoints for viewing updates and managing plugins and themes.
 * Enhancement: New Custom Post Type: Portfolio!
 * Enhancement: Rearranged buttons on the modules modals for easier management.
-* ???
+* Enhancement: Jetpack Settings have improved keyboard accessibility. 
+* Enhancement: Improved RTL support for After the Deadline, Carousel, Contact Form, Comics CPT, Custom CSS, Omnisearch, Publicize, Related Posts, Slideshow short code, Tiled Gallery, Widget-Visibility and Widgets Gallery.
+* Enhancement: Contact Form: Add an "Empty Spam" option.
+* Enhancement: i18n: Change the priority of where plugin_textdomain is hooked that the plugins can better translate Jetpack.
+* Enhancement: Monitor: Displays how often the site is checked for downtime. 
+* Enhancement: Shortcode: Added Mixcoud shortcode and oEmbed support. 
+* Enhancement: Social Links: Improved handling of customizer hooks in non-admin context.
+* Enhancement: Stats: The smiley image is gone by default. 
+* Enhancement: Stats: Added link to the configure page for stats so that it is stats settings page is easier to find.
+* Enhancement: Theme Tools: Added the responsive videos to theme tools so that themes can easier support responsive videos. 
+* Bugfix: Contact Form: Prefix function to avoid conflicts with other plugins. 
+* Bugfix: Custom CSS: Admin UI has a responsive layout.
+* Bugfix: Custom CSS: Custom $content_width value doesn't overwrite theme's $content_width.
+* Bugfix: Contact Form: Feedback link takes you to the form page.
+* Bugfix: Carousel: Confirms an avatar is returned by get_avatar before displaying.
+* Bugfix: Featured Content: Don't remove setting validation.
+* Bugfix: Infinite Scroll: Google Universal Analytics support added.
+* Bugfix: Multisite: Add message when updating multisite settings.
+* Bugfix: Photon: Behaves more closely to when photon is disabled. No more upsizing images.
+* Bugfix: Photon: Checks to see if an image actually exists before passing it on to photon service.
+* Bugfix: Sharing: Pinterest adds attribute to display share count.
+* Bugfix: Sharing: Respect an empty sharing title.
+* Bugfix: Sharing: Share buttons now appear in the bbPress forms.
+* Bugfix: Sharing: Support for multiple meta html tag og:image values.
+* Bugfix: Single Sign On: Logout allows override of forcing Single Sign On.
+* Bugfix: Single Sign On: Remove the lost password link on auto-forward logout.
+* Bugfix: Social Links: Do not use anonymous function for compatibility with PHP 5.2.
+* Bugfix: Tiled Galleries: Update jQuery mouseover caption effect to reduce flickering.
+* Bugfix: Widgets Visibility: Works better in the customizer admin view.
 
 = 3.0.2 =
 * Enhancement: General: Make module categories filter more visible when active.
