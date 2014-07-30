@@ -208,7 +208,7 @@ hr {
   transition: all 0.1s ease-in-out;
 }
 
-.jp-button {
+.jp-button, .jp-button--settings {
   display: inline-block;
   position: relative;
   padding: 0.76923em 1.46154em;
@@ -220,16 +220,31 @@ hr {
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
-.jp-button:visited {
+.jp-button:visited, .jp-button--settings:visited {
   color: #efefef;
 }
-.jp-button:hover, .jp-button:focus {
+.jp-button:hover, .jp-button--settings:hover, .jp-button:focus, .jp-button--settings:focus {
   color: #fff;
   background: #57972d;
 }
-.jp-button:active {
+.jp-button:active, .jp-button--settings:active {
   background: #57972d;
   opacity: 0.8;
+}
+
+.jp-button--settings {
+  background: #31621b;
+  color: #e8eedf;
+}
+.jp-button--settings:visited {
+  color: #e8eedf;
+}
+.jp-button--settings:hover, .jp-button--settings:focus {
+  color: #fff;
+}
+.jp-button--settings.current {
+  background: #57972d;
+  color: #fff;
 }
 
 .download-jetpack {
@@ -273,7 +288,7 @@ hr {
   height: 30px;
   vertical-align: middle;
   background: url("img/connect-plug.svg") center center no-repeat;
-  -webkit-background-size: 100%;
+  -webkit-background-size: 100% 100%;
   background-size: 100%;
 }
 .download-jetpack:after {
@@ -403,34 +418,41 @@ html {
 }
 
 .header {
-  background: #31621b;
+  background: #81a844;
   right: 0;
   left: 0;
 }
 
-.header-nav .current {
-  background: #81a844;
+.header-nav li {
+  line-height: 60px;
 }
 .header-nav a {
   padding: 0 1.07143em;
   color: #fff;
-  line-height: 46px;
+  line-height: 32px;
 }
-.header-nav a:hover {
-  background: #81a844;
-}
-.header-nav .jetpack-logo {
+.header-nav .jetpack-logo a {
+  display: inline-block;
   position: relative;
-  width: 15.28571em;
-  height: 3.28571em;
-  margin-left: 8px;
-  background: url(images/jetpack-logo.png) center center no-repeat;
-  background: url(images/jetpack-logo.svg) center center no-repeat, none;
+  width: 214px;
+  margin-left: 6px;
   -webkit-background-size: 183px 32px;
   background-size: 183px 32px;
   color: #fff;
   font-weight: normal;
   text-indent: -9999px;
+}
+.header-nav .jetpack-logo a:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  background: url(images/jetpack-logo.png) center center no-repeat;
+  background: url(images/jetpack-logo.svg) center center no-repeat, none;
+  -webkit-background-size: 183px 32px;
+  background-size: 183px 32px;
 }
 
 .main-nav {
@@ -860,7 +882,7 @@ html {
   text-align: center;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
   background: url("img/new-badge.svg") center center no-repeat;
-  -webkit-background-size: 100%;
+  -webkit-background-size: 100% 100%;
   background-size: 100%;
   border-radius: 50%;
   -webkit-background-clip: padding-box;

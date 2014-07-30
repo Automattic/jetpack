@@ -8,7 +8,7 @@
   transition: all 0.1s ease-in-out;
 }
 
-.jp-button {
+.jp-button, .jp-button--settings {
   display: inline-block;
   position: relative;
   padding: 0.76923em 1.46154em;
@@ -20,16 +20,31 @@
   -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
-.jp-button:visited {
+.jp-button:visited, .jp-button--settings:visited {
   color: #efefef;
 }
-.jp-button:hover, .jp-button:focus {
+.jp-button:hover, .jp-button--settings:hover, .jp-button:focus, .jp-button--settings:focus {
   color: #fff;
   background: #57972d;
 }
-.jp-button:active {
+.jp-button:active, .jp-button--settings:active {
   background: #57972d;
   opacity: 0.8;
+}
+
+.jp-button--settings {
+  background: #31621b;
+  color: #e8eedf;
+}
+.jp-button--settings:visited {
+  color: #e8eedf;
+}
+.jp-button--settings:hover, .jp-button--settings:focus {
+  color: #fff;
+}
+.jp-button--settings.current {
+  background: #57972d;
+  color: #fff;
 }
 
 .download-jetpack {
@@ -73,7 +88,7 @@
   height: 30px;
   vertical-align: middle;
   background: url("img/connect-plug.svg") center center no-repeat;
-  -webkit-background-size: 100%;
+  -webkit-background-size: 100% 100%;
   background-size: 100%;
 }
 .download-jetpack:after {
