@@ -102,25 +102,26 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Enhancement: Stats: The smiley image is gone by default. 
 * Enhancement: Stats: Added link to the configure page for stats so that it is stats settings page is easier to find.
 * Enhancement: Theme Tools: Added the responsive videos to theme tools so that themes can easier support responsive videos. 
-* Bugfix: Contact Form: Prefix function to avoid conflicts with other plugins. 
-* Bugfix: Custom CSS: Admin UI has a responsive layout.
-* Bugfix: Custom CSS: Custom $content_width value doesn't overwrite theme's $content_width.
-* Bugfix: Contact Form: Feedback link takes you to the form page.
-* Bugfix: Carousel: Confirms an avatar is returned by get_avatar before displaying.
-* Bugfix: Featured Content: Don't remove setting validation.
-* Bugfix: Infinite Scroll: Google Universal Analytics support added.
-* Bugfix: Multisite: Add message when updating multisite settings.
-* Bugfix: Photon: Behaves more closely to when photon is disabled. No more upsizing images.
-* Bugfix: Photon: Checks to see if an image actually exists before passing it on to photon service.
-* Bugfix: Sharing: Pinterest adds attribute to display share count.
-* Bugfix: Sharing: Respect an empty sharing title.
-* Bugfix: Sharing: Share buttons now appear in the bbPress forms.
-* Bugfix: Sharing: Support for multiple meta html tag og:image values.
-* Bugfix: Single Sign On: Logout allows override of forcing Single Sign On.
-* Bugfix: Single Sign On: Remove the lost password link on auto-forward logout.
-* Bugfix: Social Links: Do not use anonymous function for compatibility with PHP 5.2.
-* Bugfix: Tiled Galleries: Update jQuery mouseover caption effect to reduce flickering.
-* Bugfix: Widgets Visibility: Works better in the customizer admin view.
+* Update: Updated Genericons to version 3.1, new icons for website, ellipsis, foursquare, x-post, sitemap, hierarchy and paintbrush.
+* Bug Fix: Contact Form: Prefix function to avoid conflicts with other plugins. 
+* Bug Fix: Custom CSS: Admin UI has a responsive layout.
+* Bug Fix: Custom CSS: Custom $content_width value doesn't overwrite theme's $content_width.
+* Bug Fix: Contact Form: Feedback link takes you to the form page.
+* Bug Fix: Carousel: Confirms an avatar is returned by get_avatar before displaying.
+* Bug Fix: Featured Content: Don't remove setting validation.
+* Bug Fix: Infinite Scroll: Google Universal Analytics support added.
+* Bug Fix: Multisite: Add message when updating multisite settings.
+* Bug Fix: Photon: Behaves more closely to when photon is disabled. No more upsizing images.
+* Bug Fix: Photon: Checks to see if an image actually exists before passing it on to photon service.
+* Bug Fix: Sharing: Pinterest adds attribute to display share count.
+* Bug Fix: Sharing: Respect an empty sharing title.
+* Bug Fix: Sharing: Share buttons now appear in the bbPress forms.
+* Bug Fix: Sharing: Support for multiple meta html tag og:image values.
+* Bug Fix: Single Sign On: Logout allows override of forcing Single Sign On.
+* Bug Fix: Single Sign On: Remove the lost password link on auto-forward logout.
+* Bug Fix: Social Links: Do not use anonymous function for compatibility with PHP 5.2.
+* Bug Fix: Tiled Galleries: Update jQuery mouseover caption effect to reduce flickering.
+* Bug Fix: Widgets Visibility: Works better in the customizer admin view.
 
 = 3.0.2 =
 * Enhancement: General: Make module categories filter more visible when active.
@@ -142,13 +143,13 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Bug Fix: Open Graph: Resolved PHP warning on open graph gallery pages when the gallery is empty.
  
 = 3.0.1 =
-* Bugfix: AtD: A wpcom-only function got synced by mistake and caused a few errors. Fixed.
-* Bugfix: Post By Email: Add static keyword to a function.
-* Bugfix: ShareDaddy: In the admin-side configuration of sharing links, we used a Path icon instead of Pinterest. Oops!
-* Bugfix: ShareDaddy: We inadvertently appended `via @jetpack` to some twitter shares. This is no longer the case.
-* Bugfix: Related Posts: Tidying up and relocation of the `resync` button formerly on the more info modal.
-* Bugfix: Infinite Scroll: Work better with core's MediaElement.js
-* Bugfix: Heartbeat: Undeclared variable fixed.
+* Bug Fix: AtD: A wpcom-only function got synced by mistake and caused a few errors. Fixed.
+* Bug Fix: Post By Email: Add static keyword to a function.
+* Bug Fix: ShareDaddy: In the admin-side configuration of sharing links, we used a Path icon instead of Pinterest. Oops!
+* Bug Fix: ShareDaddy: We inadvertently appended `via @jetpack` to some twitter shares. This is no longer the case.
+* Bug Fix: Related Posts: Tidying up and relocation of the `resync` button formerly on the more info modal.
+* Bug Fix: Infinite Scroll: Work better with core's MediaElement.js
+* Bug Fix: Heartbeat: Undeclared variable fixed.
 
 = 3.0 =
 * New User Interface for managing modules and settings
@@ -166,24 +167,24 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Enhancement: YouTube shortcode allows HD playback
 * Enhancement: Smoother, Faster Tiled Galleries!
 * Enhancement: New languages! Use Jetpack in Irish, Fulah, and Tigrinya
-* Bugfix: Use your browser's Back and Forward buttons when naviagating a Carousel
-* Bugfix: Various Related Posts fixes and improvements for added flexibility
-* Bugfix: WordPress 3.9: Restores ability to edit Contact Forms
-* Bugfix: WordPress 3.9: Restores Gallery Widget compatability
-* Bugfix: Ensure Markdown is kept when Bulk Editing posts
-* Bugfix: Improved Jetpack's Multisite Network Admin page for networks with a large number of sites
-* Bugfix: Ensure Sharing settings persist when Bulk Editing a post
-* Bugfix: Various other shortcode improvements
+* Bug Fix: Use your browser's Back and Forward buttons when naviagating a Carousel
+* Bug Fix: Various Related Posts fixes and improvements for added flexibility
+* Bug Fix: WordPress 3.9: Restores ability to edit Contact Forms
+* Bug Fix: WordPress 3.9: Restores Gallery Widget compatability
+* Bug Fix: Ensure Markdown is kept when Bulk Editing posts
+* Bug Fix: Improved Jetpack's Multisite Network Admin page for networks with a large number of sites
+* Bug Fix: Ensure Sharing settings persist when Bulk Editing a post
+* Bug Fix: Various other shortcode improvements
 
 = 2.9.3 =
 * Important security update. CVE-2014-0173
 
 = 2.9.2 =
-* Bugfix: Publicize: When publishing from a mobile app or third-party client, Publicize now works again.
+* Bug Fix: Publicize: When publishing from a mobile app or third-party client, Publicize now works again.
 
 = 2.9.1 =
-* Bugfix: After the Deadline: Fix a Javascript glitch that could prevent publishing of posts.
-* Bugfix: SSO: Disable the implementation of an option that had been removed before release.  This would have only been an issue if a site administrator had enabled the module during an early beta of 2.9.
+* Bug Fix: After the Deadline: Fix a Javascript glitch that could prevent publishing of posts.
+* Bug Fix: SSO: Disable the implementation of an option that had been removed before release.  This would have only been an issue if a site administrator had enabled the module during an early beta of 2.9.
 
 = 2.9 =
 * Added Multisite network functionality
@@ -196,13 +197,13 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Enhancement: Update kses with Markdown
 * Enhancement: Adding keyboard accessibility to sharing buttons config page
 * Enhancement: Pull WordPress testing bits from the new official git mirror at WordPress.org
-* Bugfix: Widget Visibility
-* Bugfix: Revisions box in Custom CSS
-* Bugfix: Fix several bugs in the WordPress Posts Widget so that it correctly updates
-* Bugfix: Limit Login Attempts no longer generates false positives from xmlrpc.
-* Bugfix: Clear max_posts transient on theme switch.
-* Bugfix: Lower priority of sync to allow all CPTs to be registered.
-* Bugfix: Contact form fields emailed in correct order.
+* Bug Fix: Widget Visibility
+* Bug Fix: Revisions box in Custom CSS
+* Bug Fix: Fix several bugs in the WordPress Posts Widget so that it correctly updates
+* Bug Fix: Limit Login Attempts no longer generates false positives from xmlrpc.
+* Bug Fix: Clear max_posts transient on theme switch.
+* Bug Fix: Lower priority of sync to allow all CPTs to be registered.
+* Bug Fix: Contact form fields emailed in correct order.
 
 * Other bugfixes and enhancements at https://github.com/Automattic/jetpack/commits/2.9
 
