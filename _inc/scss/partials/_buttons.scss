@@ -29,6 +29,23 @@
 		opacity: 0.8;
 	}
 }
+.jp-button--settings {
+	@extend .jp-button;
+	background: #31621b;
+	color: #e8eedf;
+
+	&:visited {
+		color: #e8eedf
+	}
+	&:hover,
+	&:focus {
+		color: #fff;
+	}
+	&.current {
+		background: #57972d;
+		color: #fff;
+	}
+}
 .download-jetpack {
 	display: inline-block;
 	position: relative;
