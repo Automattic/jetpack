@@ -400,7 +400,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				foreach ( $terms as $term ) {
 					$category = $taxonomy = get_term_by( 'id', $term, 'category' );
 					if ( !empty( $category->name ) ) {
-						$response[$key][$category->name] = $this->get_taxonomy( $category->slug, 'category', $context );
+						$response[$key][$category->name] = $this->format_taxonomy( $category, 'category', $context );
 					}
 				}
 				$response[$key] = (object) $response[$key];
