@@ -1062,6 +1062,10 @@ EOPHP;
 			return new WP_Error( 'unknown_taxonomy', 'Unknown taxonomy', 404 );
 		}
 
+		return $this->format_taxonomy( $taxonomy, $taxonomy_type, $context );
+	}
+
+	function format_taxonomy( $taxonomy, $taxonomy_type, $context ) {
 		// Permissions
 		switch ( $context ) {
 		case 'edit' :
@@ -1081,7 +1085,7 @@ EOPHP;
 		$response                = array();
 		$response['ID']          = (int) $taxonomy->term_id;
 		$response['name']        = (string) $taxonomy->name;
-		$response['slug']        = (string) $taxonomy_id;
+		$response['slug']        = (string) $taxonomy->slug;
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
 
@@ -1090,8 +1094,8 @@ EOPHP;
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy_id, $taxonomy_type ),
-				'help' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy_id, $taxonomy_type, 'help' ),
+				'self' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type ),
+				'help' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type, 'help' ),
 				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
 			),
 		);
