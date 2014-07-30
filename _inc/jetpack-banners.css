@@ -33,17 +33,18 @@
 }
 
 .jp-button--settings {
-  background: #31621b;
+  background: #93b45f;
   color: #e8eedf;
 }
 .jp-button--settings:visited {
   color: #e8eedf;
 }
 .jp-button--settings:hover, .jp-button--settings:focus {
+  background: #9fbd72;
   color: #fff;
 }
 .jp-button--settings.current {
-  background: #57972d;
+  background: #3c6621;
   color: #fff;
 }
 
