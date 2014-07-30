@@ -432,6 +432,10 @@ html {
   font-weight: normal;
   text-indent: -9999px;
 }
+.header-nav .jetpack-logo a {
+  display: block;
+  background: transparent;
+}
 
 .main-nav {
   float: left;

@@ -95,6 +95,11 @@ html {
 		color: #fff;
 		font-weight: normal;
 		text-indent: -9999px;
+
+		a {
+			display: block;
+			background: transparent;
+		}
 	}
 }
 
