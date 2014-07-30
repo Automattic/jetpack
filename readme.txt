@@ -95,13 +95,13 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Enhancement: Jetpack Settings have improved keyboard accessibility. 
 * Enhancement: Improved RTL support for After the Deadline, Carousel, Contact Form, Comics CPT, Custom CSS, Omnisearch, Publicize, Related Posts, Slideshow short code, Tiled Gallery, Widget-Visibility and Widgets Gallery.
 * Enhancement: Contact Form: Add an "Empty Spam" option.
-* Enhancement: i18n: Change the priority of where plugin_textdomain is hooked that the plugins can better translate Jetpack.
+* Enhancement: i18n: Change the priority of where plugin_textdomain is hooked so that the plugins can better translate Jetpack.
 * Enhancement: Monitor: Displays how often the site is checked for downtime. 
-* Enhancement: Shortcode: Added Mixcoud shortcode and oEmbed support. 
+* Enhancement: Shortcode: Added Mixcloud shortcode and oEmbed support. 
 * Enhancement: Social Links: Improved handling of customizer hooks in non-admin context.
 * Enhancement: Stats: The smiley image is gone by default. 
-* Enhancement: Stats: Added link to the configure page for stats so that it is stats settings page is easier to find.
-* Enhancement: Theme Tools: Added the responsive videos to theme tools so that themes can easier support responsive videos. 
+* Enhancement: Stats: Added link to the configure page for stats so that the stats settings page is easier to find.
+* Enhancement: Theme Tools: Added the responsive videos to theme tools so that themes can support responsive videos more easily.
 * Update: Updated Genericons to version 3.1, new icons for website, ellipsis, foursquare, x-post, sitemap, hierarchy and paintbrush.
 * Bug Fix: Contact Form: Prefix function to avoid conflicts with other plugins. 
 * Bug Fix: Custom CSS: Admin UI has a responsive layout.
@@ -111,8 +111,8 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 * Bug Fix: Featured Content: Don't remove setting validation.
 * Bug Fix: Infinite Scroll: Google Universal Analytics support added.
 * Bug Fix: Multisite: Add message when updating multisite settings.
-* Bug Fix: Photon: Behaves more closely to when photon is disabled. No more upsizing images.
-* Bug Fix: Photon: Checks to see if an image actually exists before passing it on to photon service.
+* Bug Fix: Photon: Photon will no longer upscale images larger than the original size.
+* Bug Fix: Photon: Check that the image exists before rewriting the image URL to utilize Photon.
 * Bug Fix: Sharing: Pinterest adds attribute to display share count.
 * Bug Fix: Sharing: Respect an empty sharing title.
 * Bug Fix: Sharing: Share buttons now appear in the bbPress forms.
