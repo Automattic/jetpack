@@ -560,7 +560,7 @@ hr {
   height: 30px;
   vertical-align: middle;
   background: url("img/connect-plug.svg") center center no-repeat;
-  -webkit-background-size: 100% 100%;
+  -webkit-background-size: 100%;
   background-size: 100%;
 }
 .download-jetpack:after {
@@ -1134,7 +1134,7 @@ html {
   text-align: center;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
   background: url("img/new-badge.svg") center center no-repeat;
-  -webkit-background-size: 100% 100%;
+  -webkit-background-size: 100%;
   background-size: 100%;
   border-radius: 50%;
   -webkit-background-clip: padding-box;
