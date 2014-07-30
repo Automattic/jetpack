@@ -520,17 +520,18 @@ hr {
 }
 
 .jp-button--settings {
-  background: #31621b;
+  background: #93b45f;
   color: #e8eedf;
 }
 .jp-button--settings:visited {
   color: #e8eedf;
 }
 .jp-button--settings:hover, .jp-button--settings:focus {
+  background: #9fbd72;
   color: #fff;
 }
 .jp-button--settings.current {
-  background: #57972d;
+  background: #3c6621;
   color: #fff;
 }
 
@@ -701,9 +702,8 @@ html {
   line-height: 60px;
 }
 .header-nav a {
-  padding: 0 1.07143em;
-  color: #fff;
-  line-height: 32px;
+  padding: 0 0.71429em;
+  line-height: 24px;
 }
 .header-nav .jetpack-logo a {
   display: inline-block;
@@ -713,6 +713,7 @@ html {
   -webkit-background-size: 183px 32px;
   background-size: 183px 32px;
   color: #fff;
+  line-height: 60px;
   font-weight: normal;
   text-indent: -9999px;
 }

@@ -31,7 +31,7 @@
 }
 .jp-button--settings {
 	@extend .jp-button;
-	background: #31621b;
+	background: #93b45f;
 	color: #e8eedf;
 
 	&:visited {
@@ -39,10 +39,11 @@
 	}
 	&:hover,
 	&:focus {
+		background: #9fbd72;
 		color: #fff;
 	}
 	&.current {
-		background: #57972d;
+		background: #3c6621;
 		color: #fff;
 	}
 }
