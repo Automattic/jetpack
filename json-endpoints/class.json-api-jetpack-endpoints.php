@@ -1,5 +1,7 @@
 <?php
 
+include JETPACK__PLUGIN_DIR . '/modules/module-info.php';
+
 /**
  * Base class for Jetpack Endpoints, has the validate_call helper function.
  */
@@ -168,7 +170,7 @@ class Jetpack_JSON_API_Active_Theme_Endpoint extends Jetpack_JSON_API_Themes_End
 		if ( ! $theme->is_allowed() ) {
 			return new WP_Error( 'theme_not_found', __( 'You are not allowed to switch to this theme', 'jetpack' ), 403 );
 		}
-		
+
 		switch_theme( $theme_slug );
 
 		return $this->get_current_theme();
@@ -641,16 +643,26 @@ abstract class Jetpack_JSON_API_Jetpack_Modules_Endpoint extends Jetpack_JSON_AP
 	protected static function format_module( $module_slug ) {
 		$module_data = Jetpack::get_module( $module_slug );
 
+
 		$module = array();
-		$module['id']          = $module_slug;
-		$module['active']      = Jetpack::is_module_active( $module_slug );
-		$module['name']        = $module_data['name'];
-		$module['description'] = $module_data['description'];
-		$module['sort']        = $module_data['sort'];
-		$module['introduced']  = $module_data['introduced'];
-		$module['changed']     = $module_data['changed'];
-		$module['free']        = $module_data['free'];
-		$module['module_tags'] = $module_data['module_tags'];
+		$module['id']                = $module_slug;
+		$module['active']            = Jetpack::is_module_active( $module_slug );
+		$module['name']              = $module_data['name'];
+		$module['short_description'] = $module_data['description'];
+		$module['sort']              = $module_data['sort'];
+		$module['introduced']        = $module_data['introduced'];
+		$module['changed']           = $module_data['changed'];
+		$module['free']              = $module_data['free'];
+		$module['module_tags']       = $module_data['module_tags'];
+
+		// Fetch the HTML formatted long description
+		ob_start();
+		if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $module_slug ) ) {
+			do_action( 'jetpack_module_more_info_connected_' . $module_slug );
+		} else {
+			do_action( 'jetpack_module_more_info_' . $module_slug );
+		}
+		$module['description']  = ob_get_clean();
 
 		return $module;
 	}
@@ -821,9 +833,9 @@ class Jetpack_JSON_API_GET_Update_Data extends Jetpack_JSON_API_Endpoint {
 
 		$error = $this->validate_call( $_blog_id, array(
 													'must_pass'    => 1, // must meet at least one condition
-													'capabilities' => array( 
+													'capabilities' => array(
 														'update_plugins',
-														'update_themes', 
+														'update_themes',
 														'update_core'
 													)
 												  ), false );
