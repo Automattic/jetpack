@@ -19,6 +19,10 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 		'timeout'              => apply_filters( 'atd_http_post_timeout', 15 ),
 	);
 
+	// Handle non-standard ports being passed in.
+	if ( ( 80 !== $port ) && is_numeric( $port ) && ( intval( $port ) > 0 ) ) {
+		$host .= ':' . intval( $port );
+	}
 	// Strip any / off the begining so we can add it back and protect against SSRF
 	$path     = ltrim( $path, '/' );
 	$AtD_url  = "http://{$host}/{$path}";
