@@ -206,7 +206,7 @@ class Jetpack_Portfolio {
 			$projects = (int) wp_count_posts( self::CUSTOM_POST_TYPE )->publish;
 
 			if ( ! empty( $projects ) ) {
-				set_transient( 'jetpack-portfolio-count-cache', $projects, 60*60*12 );
+				set_transient( 'jetpack-portfolio-count-cache', $projects, HOUR_IN_SECONDS * 12 );
 			}
 		}
 	}
