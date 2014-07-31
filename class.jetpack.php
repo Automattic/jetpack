@@ -132,7 +132,7 @@ class Jetpack {
 
 	/**
 	 * Plugins for which we turn off our Facebook OG Tags implementation.
-	 * 
+	 *
 	 * Note: WordPress SEO by Yoast, WordPress SEO Premium by Yoast, All in One SEO Pack and All in One SEO Pack Pro automatically deactivate
 	 * Jetpack's Open Graph tags via filter when their Social Meta modules are active.
 	 *
@@ -1025,7 +1025,7 @@ class Jetpack {
 
 		Jetpack::state( 'message', 'modules_activated' );
 		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules );
-		
+
 		$page = 'jetpack'; // make sure we redirect to either settings or the jetpack page
 		if( isset( $_GET['page'] ) && in_array( $_GET['page'] , array( 'jetpack', 'jetpack_modules' ) ) ) {
 			$page = $_GET['page'];
@@ -4445,7 +4445,7 @@ p {
 		if ( false !== strpos( current_filter(), 'jetpack_activate_module_' ) ) {
 			self::check_privacy( $module_slug );
 		}
-	 
+
 	}
 
 	/**
@@ -4463,7 +4463,7 @@ p {
 		$deprecated_list = array(
 			'jetpack_bail_on_shortcode' => 'jetpack_shortcodes_to_include',
 		);
-		
+
 		// This is a silly loop depth. Better way?
 		foreach( $deprecated_list AS $hook => $hook_alt ) {
 			if( in_array( $hook, array_keys( $wp_filter ) ) ) {
