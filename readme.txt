@@ -460,9 +460,9 @@ The only real limit are limits defined by your server. For example, EXT2 and EXT
 = How do I serve cached mobile pages to clients on small screens like phones and tablets? =
 
 You'll have to use a separate mobile plugin to render a page formatted for those visitors. The following plugins have been tested but YMMV depending on mobile client.
-* [WPTouch] (http://wordpress.org/extend/plugins/wptouch/)
-* [WordPress Mobile Edition] (http://wordpress.org/extend/plugins/wordpress-mobile-edition/)
-* [WordPress Mobile Pack] (http://wordpress.org/extend/plugins/wordpress-mobile-pack/) (can't have "Don't cache pages for known users." enabled)
+* [WPTouch] (http://wordpress.org/plugins/wptouch/)
+* [WordPress Mobile Edition] (http://wordpress.org/plugins/wordpress-mobile-edition/)
+* [WordPress Mobile Pack] (http://wordpress.org/plugins/wordpress-mobile-pack/) (can't have "Don't cache pages for known users." enabled)
 
 
 = Troubleshooting =
@@ -508,7 +508,7 @@ If that doesn't work, add this line to your wp-config.php:
 26. If certain characters do not appear correctly on your website your server may not be configured correctly. You need to tell visitors what character set is used. Go to Settings->Reading and copy the 'Encoding for pages and feeds' value. Edit the .htaccess file with all your Supercache and WordPress rewrite rules and add this at the top, replacing CHARSET with the copied value. (for example, 'UTF-8')
 
 	`AddDefaultCharset CHARSET`
-27. Use [Cron View](http://wordpress.org/extend/plugins/cron-view/) to help diagnose garbage collection and preload problems. Use the plugin to make sure jobs are scheduled and for what time. Look for the wp_cache_gc and wp_cache_full_preload_hook jobs.
+27. Use [Cron View](http://wordpress.org/plugins/cron-view/) to help diagnose garbage collection and preload problems. Use the plugin to make sure jobs are scheduled and for what time. Look for the wp_cache_gc and wp_cache_full_preload_hook jobs.
 18. The error message, "WP Super Cache is installed but broken. The constant WPCACHEHOME must be set in the file wp-config.php and point at the WP Super Cache plugin directory." appears at the end of every page. You can delete wp-content/advanced-cache.php and reload the plugin settings page or edit wp-config.php and look for WPCACHEHOME and make sure it points at the wp-super-cache folder. This will normally be wp-content/plugins/wp-super-cache/ but you'll likely need the full path to that file (so it's easier to let the settings page fix it). If it is not correct the caching engine will not load.
 
 
@@ -516,7 +516,7 @@ If that doesn't work, add this line to your wp-config.php:
 
 A Content Delivery Network (CDN) is usually a network of computers situated around the world that will serve the content of your website faster by using servers close to you. Static files like images, Javascript and CSS files can be served through these networks to speed up how fast your site loads. You can also create a "poor man's CDN" by using a sub domain of your domain to serve static files too.
 
-[OSSDL CDN off-linker](http://wordpress.org/extend/plugins/ossdl-cdn-off-linker/) has been integrated into WP Super Cache to provide basic CDN support. It works by rewriting the URLs of files (excluding .php files) in wp-content and wp-includes on your server so they point at a different hostname. Many CDNs support [origin pull](http://www.google.com/search?hl=en&q=%22origin+pull%22). This means the CDN will download the file automatically from your server when it's first requested, and will continue to serve it for a configurable length of time before downloading it again from your server.
+[OSSDL CDN off-linker](http://wordpress.org/plugins/ossdl-cdn-off-linker/) has been integrated into WP Super Cache to provide basic CDN support. It works by rewriting the URLs of files (excluding .php files) in wp-content and wp-includes on your server so they point at a different hostname. Many CDNs support [origin pull](http://www.google.com/search?hl=en&q=%22origin+pull%22). This means the CDN will download the file automatically from your server when it's first requested, and will continue to serve it for a configurable length of time before downloading it again from your server.
 
 Configure this on the "CDN" tab of the plugin settings page. This is an advanced technique and requires a basic understanding of how your webserver or CDNs work. Please be sure to clear the file cache after you configure the CDN.
 
@@ -536,7 +536,7 @@ The output of WP-Cache's wp_cache_get_cookies_values() function.
 See plugins/searchengine.php as an example I use for my [No Adverts for Friends](http://ocaoimh.ie/no-adverts-for-friends/) plugin.
 
 == Links ==
-[WP Widget Cache](http://wordpress.org/extend/plugins/wp-widget-cache/) is another caching plugin for WordPress. This plugin caches the output of widgets and may significantly speed up dynamic page generation times.
+[WP Widget Cache](http://wordpress.org/plugins/wp-widget-cache/) is another caching plugin for WordPress. This plugin caches the output of widgets and may significantly speed up dynamic page generation times.
 
 == Updates ==
 Updates to the plugin will be posted here, to [Holy Shmoly!](http://ocaoimh.ie/) and the [WP Super Cache homepage](http://ocaoimh.ie/wp-super-cache/) will always link to the newest version.
