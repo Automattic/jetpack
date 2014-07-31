@@ -174,8 +174,10 @@ class Jetpack_Carousel {
 
 	function add_data_to_images( $attr, $attachment = null ) {
 
-		if ( $this->in_gallery ) // not in a gallery
+		// not in a gallery?
+		if ( ! $this->in_gallery ) {
 			return $attr;
+		}
 
 		$attachment_id   = intval( $attachment->ID );
 		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
