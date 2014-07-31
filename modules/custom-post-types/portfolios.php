@@ -184,7 +184,8 @@ class Jetpack_Portfolio {
 				)
 			);
 		} else {
-			printf( __( 'You need to <a href="%s">enable portfolio</a> custom post type before you can update it\'s settings.' , 'jetpack' ), admin_url( 'options-writing.php#jetpack_portfolio' ) ); 
+			// Temporary Fix for 3.1 so we don't break a translation string before release.
+			printf( str_replace( 'update it\'s settings.', 'update its settings.', __( 'You need to <a href="%s">enable portfolio</a> custom post type before you can update it\'s settings.', 'jetpack' ) ), admin_url( 'options-writing.php#jetpack_portfolio' ) ); 
 		}
 	}
 
