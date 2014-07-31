@@ -239,7 +239,7 @@ function wp_super_cache_query_vars() {
 }
 
 function wp_cache_ob_callback( $buffer ) {
-	global $wp_cache_pages, $wp_query, $wp_super_cache_query;
+	global $wp_cache_pages, $wp_query, $wp_super_cache_query, $cache_acceptable_files;
 	$buffer = apply_filters( 'wp_cache_ob_callback_filter', $buffer );
 
 	$script = basename($_SERVER['PHP_SELF']);
@@ -1031,7 +1031,7 @@ function wpsc_post_transition( $new_status, $old_status, $post ) {
 
 /* check if we want to clear out all cached files on post updates, otherwise call standard wp_cache_post_change() */
 function wp_cache_post_edit($post_id) {
-	global $wp_cache_clear_on_post_edit, $cache_path, $blog_cache_dir;
+	global $wp_cache_clear_on_post_edit, $cache_path, $blog_cache_dir, $wp_cache_object_cache;
 	static $last_post_edited = -1;
 
 	if ( $post_id == $last_post_edited ) {
