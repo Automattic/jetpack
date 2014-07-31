@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-07-31 13:24:08+0000\n"
+"PO-Revision-Date: 2014-07-31 14:31:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -283,7 +283,7 @@ msgstr "Supprimé&nbsp;: Envoyer à Readmill"
 
 #: modules/widgets/readmill.php:27
 msgid "<strong>The Readmill reading service has shut down</strong><br /> <a taget=\"_blank\" href=\"%s\">Learn More</a>"
-msgstr "<strong>Le service de lecture Readmill a fermé ses portes</strong><br /> <a taget=\"_blank\" href=\"%s\">En savoir plus</a>"
+msgstr "<strong>Le service de lecture Readmill a fermé ses portes</strong><br /> <a target=\"_blank\" href=\"%s\">En savoir plus</a>"
 
 #: modules/widgets/readmill.php:66
 msgid "Notice to Administrators:<br /> <strong>The Readmill reading service has shut down</strong> <a taget=\"_blank\" href=\"%s\">learn more</a>."
@@ -291,7 +291,7 @@ msgstr "Note aux adminstrateurs&nbsp;:<br /> <strong>Le service de lecture Readm
 
 #: modules/widgets/readmill.php:72
 msgid "You can visit <a href=\"%s\" title=\"Appearance > Widgets\">Appearance > Widgets </a> to remove it from this sidebar."
-msgstr ""
+msgstr "Vous pouvez vous rendre dans <a href=\"%s\" title=\"Apparence > Widgets\">Apparence > Widgets </a> pour le retirer de votre barre latérale."
 
 #: views/admin/landing-page-templates.php:12
 msgid "loading&hellip;"
@@ -299,31 +299,31 @@ msgstr "Chargement&#8230;"
 
 #: modules/module-info.php:398
 msgid "<strong>The Gallery Widget</strong> provides you with a simple way to display a photo gallery or slideshow in your blog’s sidebar. Requires the Tiled Gallery module."
-msgstr ""
+msgstr "<strong>Le Widget de Galeries</strong> vous offre un moyen simple d&rsquo;afficher une galerie d&rsquo;images ou un diaporama dans la barre latérale de votre blog. Requiert le module de mosaïque de galeries."
 
 #: modules/module-info.php:399
 msgid "<strong>The Display WordPress Posts Widget</strong> lets you display up to ten recent posts from another WordPress.com blog, or a self-hosted WordPress site with Jetpack enabled."
-msgstr ""
+msgstr "<strong>Le Widget d’affichage d’articles WordPress</strong> vous permet, comme son nom l’indique, d’afficher jusqu’à 10 articles provenant d’un autre blog hébergé sur WordPress.com ou utilisant Jetpack."
 
 #: modules/module-info.php:400
 msgid "<strong>Retired: The Readmill Widget</strong> allows your readers to send a book to their device with one click."
-msgstr ""
+msgstr "<strong>Supprimé&nbsp;: Le Widget Readmill</strong> permettait à vos lecteurs d’envoyer un ebook vers leur liseuse en un seul clic. Readmill a maintenant fermé ses portes et le widget n&rsquo;est donc plus disponible."
 
 #: modules/module-info.php:394
 msgid "<strong>The Twitter Widget</strong> shows your latest tweets within a sidebar on your theme."
-msgstr ""
+msgstr "<strong>Le widget Twitter</strong> affiche vos derniers tweets dans l’une des colonnes latérales de votre thème."
 
 #: modules/module-info.php:395
 msgid "<strong>The Facebook Like Box Widget</strong> shows your Facebook Like Box within a sidebar on your theme."
-msgstr ""
+msgstr "<strong>Le Widget Like Box Facebook</strong> affiche une Like Box Facebook dans l’une des colonnes latérales de votre thème."
 
 #: modules/module-info.php:396
 msgid "<strong>The Image Widget</strong> lets you easily add images to a sidebar on your theme."
-msgstr ""
+msgstr "<strong>Le widget Image</strong> vous permet d’ajouter facilement des images dans l’une des colonnes latérales de votre thème."
 
 #: modules/module-info.php:397
 msgid "<strong>The Gravatar Widget</strong> allows you to pull in your Gravatar image along with some of your Gravatar profile data."
-msgstr ""
+msgstr "<strong>Le Widget Gravatar</strong> vous permet d’afficher votre image Gravatar ainsi que d’autres informations provenant de votre profil Gravatar."
 
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
@@ -336,15 +336,15 @@ msgstr "Suivant &raquo;"
 
 #: modules/infinite-scroll/infinity.php:297
 msgid "We&rsquo;ve changed this option to a click-to-scroll version for you since you have footer widgets in Appearance &rarr; Widgets, or your theme uses click-to-scroll as the default behavior."
-msgstr ""
+msgstr "Nous avons changé cette option pour vous. Votre site utilise maintenant une version où les lecteurs doivent cliquer pour charger une nouvelle série d&rsquo;articles, puisque vous avez ajouté des widgets dans le pied de page de votre site, ou parce que votre thème utilise cette option par défaut."
 
 #: modules/json-api.php:39
 msgid "Allow management"
-msgstr ""
+msgstr "Autoriser la gestion"
 
 #: modules/json-api.php:40
 msgid "Allow remote management of themes, plugins, and WordPress via the JSON API. (<a href=\"%s\" title=\"Learn more about JSON API\">More info</a>)."
-msgstr ""
+msgstr "Autoriser la gestion à distance des thèmes, extensions, et de WordPress via l&rsquo;API JSON. (<a href=\"%s\" title=\"En savoir plus sur l&rsquo;API JSON\">Plus d&rsquo;infos</a>)."
 
 #: modules/minileven/theme/pub/minileven/content.php:28
 msgid "Posted by "
@@ -352,11 +352,11 @@ msgstr "Publié par"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:169
 msgid "You are not allowed to switch to this theme"
-msgstr ""
+msgstr "Vous n&rsquo;êtes pas autorisé à activer ce thème"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:532
 msgid "There was an error while trying to upgrade."
-msgstr ""
+msgstr "Une erreur a empêché cette mise à jour."
 
 #: modules/contact-form/grunion-form-view.php:131
 msgid "Click here"
@@ -4602,7 +4602,7 @@ msgstr "Image (Jetpack)"
 
 #: modules/custom-post-types/portfolios.php:347
 msgid "Separate tags with commas"
-msgstr ""
+msgstr "Séparer les tags avec des virgules"
 
 #: class.jetpack.php:3067
 msgid "Checking email updates status&hellip;"
