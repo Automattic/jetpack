@@ -86,6 +86,9 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 3.2 =
+* ???
+
 = 3.1 =
 * Enhancement: New Custom Content Types module.
 * Enhancement: New Jetpack Logo.
