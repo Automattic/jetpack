@@ -214,7 +214,7 @@ class Jetpack_Portfolio {
 	/**
 	 * On plugin activation, check if current theme supports CPT
 	 */
-	function plugin_activation_post_type_support() {
+	static function plugin_activation_post_type_support() {
 		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 			update_option( self::OPTION_NAME, '1' );
 		}
@@ -226,7 +226,7 @@ class Jetpack_Portfolio {
 	 *
 	 * Plugin activation is for backwards compatibility with old CPT theme support
 	 */
-	function theme_activation_post_type_support() {
+	static function theme_activation_post_type_support() {
 		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 			update_option( self::OPTION_NAME, '1' );
 		}
