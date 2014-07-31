@@ -29,8 +29,8 @@ class Jetpack_Readmill_Widget extends WP_Widget {
  			<?php if( !defined( 'IS_WPCOM' ) || false == IS_WPCOM ) { ?>
 				<p><?php esc_html_e( 'The Send to Readmill widget is no longer working and will be removed completely from Jetpack.', 'jetpack' ); ?></p>
 	 			<?php } else { ?>
-				<p><?php esc_html_e( 'The Send to Readmill widget is no longer working and will be removed completely.', 'jetpack' ); } ?></p>
-	 			} ?>
+				<p><?php esc_html_e( 'The Send to Readmill widget is no longer working and will be removed completely.', 'jetpack' );  ?></p>
+	 			<?php } ?>
 	 		<em><?php esc_html_e( 'You can remove it yourself now.', 'jetpack' ); ?></em> 
  			<?php esc_html_e( 'No content is displayed to users who can\'t manage widgets' , 'jetpack' ); ?>
  		</p><?php
