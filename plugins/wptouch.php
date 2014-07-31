@@ -2,7 +2,7 @@
 
 function wp_super_cache_wptouch_admin() {
 	global $cache_wptouch, $wp_cache_config_file, $valid_nonce;
-	
+
 	$cache_wptouch = $cache_wptouch == '' ? '0' : $cache_wptouch;
 
 	if(isset($_POST['cache_wptouch']) && $valid_nonce) {
@@ -16,7 +16,7 @@ function wp_super_cache_wptouch_admin() {
 	}
 	$id = 'wptouch-section';
 	?>
-		<fieldset id="<?php echo $id; ?>" class="options"> 
+		<fieldset id="<?php echo $id; ?>" class="options">
 		<h4><?php _e( 'WPTouch', 'wp-super-cache' ); ?></h4>
 		<form name="wp_manager" action="" method="post">
 		<label><input type="radio" name="cache_wptouch" value="1" <?php if( $cache_wptouch ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
@@ -57,7 +57,7 @@ if ( isset( $_GET[ 'page' ] ) && $_GET[ 'page' ] == 'wpsupercache' ) {
 	add_cacheaction( 'add_cacheaction', 'wp_super_cache_wptouch_exists' );
 }
 
-// disable mobile checking if 
+// disable mobile checking if
 function wp_super_cache_maybe_disable_wptouch( $t ) {
 	global $cache_wptouch, $wptouch_exclude_ua;
 	if ( $cache_wptouch != 1 )
@@ -96,7 +96,7 @@ function wp_super_cache_wptouch_browsers( $browsers ) {
 
 function wp_super_cache_wptouch_prefixes( $prefixes ) {
 	return array(); // wptouch doesn't support UA prefixes
-} 
+}
 
 function wp_super_cache_wptouch_cookie_check( $cache_key ) {
 	if ( false == isset( $_COOKIE[ 'wptouch_switch_toggle' ] ) )

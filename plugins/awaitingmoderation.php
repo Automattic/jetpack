@@ -16,7 +16,7 @@ add_cacheaction( 'add_cacheaction', 'awaitingmoderation_actions' );
 //Your comment is awaiting moderation.
 function wp_supercache_awaitingmoderation_admin() {
 	global $cache_awaitingmoderation, $wp_cache_config_file, $valid_nonce;
-	
+
 	$cache_awaitingmoderation = $cache_awaitingmoderation == '' ? '0' : $cache_awaitingmoderation;
 
 	if(isset($_POST['cache_awaitingmoderation']) && $valid_nonce) {
@@ -28,7 +28,7 @@ function wp_supercache_awaitingmoderation_admin() {
 	}
 	$id = 'awaitingmoderation-section';
 	?>
-		<fieldset id="<?php echo $id; ?>" class="options"> 
+		<fieldset id="<?php echo $id; ?>" class="options">
 		<h4><?php _e( 'Awaiting Moderation', 'wp-super-cache' ); ?></h4>
 		<form name="wp_manager" action="" method="post">
 		<label><input type="radio" name="cache_awaitingmoderation" value="1" <?php if( $cache_awaitingmoderation ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>

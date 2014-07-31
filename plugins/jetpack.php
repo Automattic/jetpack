@@ -2,7 +2,7 @@
 
 function wp_super_cache_jetpack_admin() {
 	global $cache_jetpack, $wp_cache_config_file, $valid_nonce;
-	
+
 	$cache_jetpack = $cache_jetpack == '' ? '0' : $cache_jetpack;
 
 	if(isset($_POST['cache_jetpack']) && $valid_nonce) {
@@ -21,7 +21,7 @@ function wp_super_cache_jetpack_admin() {
 	}
 	$id = 'jetpack-section';
 	?>
-	<fieldset id="<?php echo $id; ?>" class="options"> 
+	<fieldset id="<?php echo $id; ?>" class="options">
 	<h4><?php _e( 'Jetpack Mobile Theme', 'wp-super-cache' ); ?></h4>
 	<?php
 	if ( false == file_exists( dirname( WPCACHEHOME ) . '/jetpack/class.jetpack-user-agent.php' ) ) {

@@ -54,7 +54,7 @@ add_cacheaction( 'add_cacheaction', 'searchengine_phase2_actions' );
 
 function wp_supercache_searchengine_admin() {
 	global $cache_no_adverts_for_friends, $wp_cache_config_file, $valid_nonce;
-	
+
 	$cache_no_adverts_for_friends = $cache_no_adverts_for_friends == '' ? 'no' : $cache_no_adverts_for_friends;
 
 	if(isset($_POST['cache_no_adverts_for_friends']) && $valid_nonce) {
@@ -63,7 +63,7 @@ function wp_supercache_searchengine_admin() {
 	}
 	$id = 'no_adverts_for_friends-section';
 	?>
-		<fieldset id="<?php echo $id; ?>" class="options"> 
+		<fieldset id="<?php echo $id; ?>" class="options">
 		<h4><?php _e( 'No Adverts for Friends', 'wp-super-cache' ); ?></h4>
 		<form name="wp_manager" action="" method="post">
 		<label><input type="radio" name="cache_no_adverts_for_friends" value="1" <?php if( $cache_no_adverts_for_friends == 'yes' ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>

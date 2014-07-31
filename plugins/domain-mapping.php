@@ -22,8 +22,8 @@ function domain_mapping_gc_cache( $function, $directory ) {
 			@wp_cache_rebuild_or_delete( $cache_path . 'supercache/' . $siteurl . $directory . 'index.html.gz' );
 		break;
 		case "prune":
-			prune_super_cache( $cache_path . 'supercache/' . $siteurl . $directory . 'index.html', true, true ); 
-			prune_super_cache( $cache_path . 'supercache/' . $siteurl . $directory . 'index.html.gz', true, true ); 
+			prune_super_cache( $cache_path . 'supercache/' . $siteurl . $directory . 'index.html', true, true );
+			prune_super_cache( $cache_path . 'supercache/' . $siteurl . $directory . 'index.html.gz', true, true );
 		break;
 	}
 
@@ -55,7 +55,7 @@ add_cacheaction( 'add_cacheaction', 'domain_mapping_actions' );
 
 function wp_supercache_domain_mapping_admin() {
 	global $cache_domain_mapping, $wp_cache_config_file, $valid_nonce;
-	
+
 	$cache_domain_mapping = $cache_domain_mapping == '' ? '0' : $cache_domain_mapping;
 
 	if(isset($_POST['cache_domain_mapping']) && $valid_nonce) {
@@ -69,7 +69,7 @@ function wp_supercache_domain_mapping_admin() {
 	}
 	$id = 'domain_mapping-section';
 	?>
-		<fieldset id="<?php echo $id; ?>" class="options"> 
+		<fieldset id="<?php echo $id; ?>" class="options">
 		<h4><?php _e( 'Domain Mapping', 'wp-super-cache' ); ?></h4>
 		<form name="wp_manager" action="" method="post">
 		<label><input type="radio" name="cache_domain_mapping" value="1" <?php if( $cache_domain_mapping ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>

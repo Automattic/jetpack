@@ -33,7 +33,7 @@ function get_bb_file_loc() {
 
 function wp_supercache_badbehaviour_admin() {
 	global $cache_badbehaviour, $wp_cache_config_file, $valid_nonce;
-	
+
 	$cache_badbehaviour = $cache_badbehaviour == '' ? 0 : $cache_badbehaviour;
 	if ( $cache_badbehaviour == 'no' )
 		$cache_badbehaviour = 0;
@@ -59,7 +59,7 @@ function wp_supercache_badbehaviour_admin() {
 	}
 	$id = 'badbehavior-section';
 	?>
-		<fieldset id="<?php echo $id; ?>" class="options"> 
+		<fieldset id="<?php echo $id; ?>" class="options">
 		<h4><?php _e( 'Bad Behavior', 'wp-super-cache' ); ?></h4>
 		<form name="wp_manager" action="" method="post">
 		<label><input type="radio" name="cache_badbehaviour" value="1" <?php if( $cache_badbehaviour ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
