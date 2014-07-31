@@ -23,16 +23,15 @@ class Jetpack_Readmill_Widget extends WP_Widget {
 	 * @param array $instance Previously saved values from database.
 	 */
 	function form( $instance ) {
-		// Temporary Fix for 3.1 so we don't break a translation string before release.
 		?>
-		<p><?php printf( str_replace( ' taget="', ' target="', __( "<strong>The Readmill reading service has shut down</strong><br /> <a taget=\"_blank\" href=\"%s\">Learn More</a>", 'jetpack' ) ), 'http://readmill.com' ); ?>. </p>
+		<p><?php printf( __( "<strong>The Readmill reading service has shut down</strong><br /> <a target=\"_blank\" href=\"%s\">Learn More</a>", 'jetpack' ), 'http://readmill.com' ); ?>. </p>
 		<p style="color:#A00; ">
 			<?php if ( ! defined( 'IS_WPCOM' ) || false == IS_WPCOM ) : ?>
 				<p><?php esc_html_e( 'The Send to Readmill widget is no longer working and will be removed completely from Jetpack.', 'jetpack' ); ?></p>
 			<?php else : ?>
 				<p><?php esc_html_e( 'The Send to Readmill widget is no longer working and will be removed completely.', 'jetpack' );  ?></p>
 			<?php endif; ?>
-			<em><?php esc_html_e( 'You can remove it yourself now.', 'jetpack' ); ?></em> 
+			<em><?php esc_html_e( 'You can remove it yourself now.', 'jetpack' ); ?></em>
 			<?php esc_html_e( 'No content is displayed to users who can\'t manage widgets' , 'jetpack' ); ?>
 		</p><?php
 	}
@@ -64,8 +63,7 @@ class Jetpack_Readmill_Widget extends WP_Widget {
 		if( current_user_can( 'edit_theme_options' ) ) { ?>
 
 			<div style="border:1px solid #A00; padding:10px; margin:10px 0;color:#A00; background:#FFF; ">
-				<?php /* Temporary Fix for 3.1 so we don't break a translation string before release. */ ?>
-				<p><?php printf( str_replace( ' taget="', ' target="', __( "Notice to Administrators:<br /> <strong>The Readmill reading service has shut down</strong> <a taget=\"_blank\" href=\"%s\">learn more</a>.", 'jetpack' ) ), 'http://readmill.com/' );  ?></p>
+				<p><?php printf( __( "Notice to Administrators:<br /> <strong>The Readmill reading service has shut down</strong> <a target=\"_blank\" href=\"%s\">learn more</a>.", 'jetpack' ), 'http://readmill.com/' );  ?></p>
 				<?php if ( ! defined( 'IS_WPCOM' ) || false == IS_WPCOM ) : ?>
 					<p><?php esc_html_e( 'The Send to Readmill widget is no longer working and will be removed completely from Jetpack.', 'jetpack' ); ?></p>
 				<?php else : ?>
