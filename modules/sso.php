@@ -140,9 +140,8 @@ class Jetpack_SSO {
 		 * Settings > General > Jetpack Single Sign On
 		 * Checkbox for Remove default login form
 		 */
-		 /* Hide in 2.9
 		register_setting(
-			'general',
+			'jetpack-sso',
 			'jetpack_sso_remove_login_form',
 			array( $this, 'validate_settings_remove_login_form_checkbox' )
 		);
@@ -151,10 +150,9 @@ class Jetpack_SSO {
 			'jetpack_sso_remove_login_form',
 			__( 'Remove default login form?' , 'jetpack' ),
 			array( $this, 'render_remove_login_form_checkbox' ),
-			'general',
+			'jetpack-sso',
 			'jetpack_sso_settings'
 		);
-		*/
 
 		/*
 		 * Settings > General > Jetpack Single Sign On
