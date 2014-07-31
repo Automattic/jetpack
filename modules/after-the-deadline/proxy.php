@@ -20,10 +20,10 @@ function AtD_http_post( $request, $host, $path, $port = 80 ) {
 	);
 
 	// Strip any / off the begining so we can add it back and protect against SSRF
-	$path = ltrim( $path, '/' );
-	$AtD_url = "http://{$host}/{$path}";
+	$path     = ltrim( $path, '/' );
+	$AtD_url  = "http://{$host}/{$path}";
 	$response = wp_remote_post( $AtD_url, $http_args );
-	$code = (int) wp_remote_retrieve_response_code( $response );
+	$code     = (int) wp_remote_retrieve_response_code( $response );
 
 	if ( is_wp_error( $response ) ) {
 		do_action( 'atd_http_post_error', 'http-error' );
