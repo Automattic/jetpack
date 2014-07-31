@@ -125,14 +125,14 @@ class Jetpack_Portfolio {
 			'reading'
 		);
 
-		add_settings_field( 
-			'jetpack_portfolio_project_reading',  
-			__( 'Portfolio Projects', 'jetpack' ), 
+		add_settings_field(
+			'jetpack_portfolio_project_reading',
+			__( 'Portfolio Projects', 'jetpack' ),
 			array( $this, 'jetpack_cpt_section_reading' ),
 			'reading',
 			'jetpack_portfolio_project_reading'
 		);
-		
+
 		register_setting(
 			'reading',
 			self::OPTION_READING_SETTING,
@@ -184,8 +184,7 @@ class Jetpack_Portfolio {
 				)
 			);
 		} else {
-			// Temporary Fix for 3.1 so we don't break a translation string before release.
-			printf( str_replace( 'update it\'s settings.', 'update its settings.', __( 'You need to <a href="%s">enable portfolio</a> custom post type before you can update it\'s settings.', 'jetpack' ) ), admin_url( 'options-writing.php#jetpack_portfolio' ) ); 
+			printf( __( 'You need to <a href="%s">enable portfolio</a> custom post type before you can update its settings.', 'jetpack' ), admin_url( 'options-writing.php#jetpack_portfolio' ) );
 		}
 	}
 
@@ -627,22 +626,22 @@ class Jetpack_Portfolio {
 				$class[] = 'portfolio-entry-mobile-last-item-row';
 			}
 		}
-		
+
 		// add first and last classes to first and last items in a row
 		if ( ($i % $columns) == 0 ) {
 			$class[] = 'portfolio-entry-first-item-row';
 		} elseif ( ($i % $columns) == ( $columns - 1 ) ) {
 			$class[] = 'portfolio-entry-last-item-row';
 		}
-		
+
 
 		/**
-		 * Filter the class applied to project div in the portfolio 
+		 * Filter the class applied to project div in the portfolio
 		 *
 		 * @param string $class class name of the div.
 		 * @param int $i iterator count the number of columns up starting from 0.
 		 * @param int $columns number of columns to display the content in.
-		 * 
+		 *
 		 */
 		return apply_filters( 'portfolio-project-post-class', implode( " ", $class) , $i, $columns );
 	}
