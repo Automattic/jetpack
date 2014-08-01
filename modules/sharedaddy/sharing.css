@@ -660,7 +660,7 @@ div.sharedaddy.sharedaddy-dark #sharing_email {
 	max-width: none;
 	padding: 1px 3px;
 }
-#jetpack-source_f_name{ display: none; }
+#jetpack-source_f_name{ display: none!important; position: absolute !important; left: -9000px; }
 
 #sharing_email .sharing_cancel {
 	padding: 0 0 0 1em;
