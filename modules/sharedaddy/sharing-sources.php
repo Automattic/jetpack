@@ -246,8 +246,11 @@ class Share_Email extends Sharing_Source {
 		if ( isset( $post_data['target_email'] ) && is_email( $post_data['target_email'] ) )
 			$target_email = $post_data['target_email'];
 
-		if ( isset( $post_data['source_name'] ) )
+		if ( isset( $post_data['source_name'] ) && strlen( $post_data['source_name'] ) < 200 ) {
 			$source_name = $post_data['source_name'];
+		} else {
+			$source_name = substr( $post_data['source_name'], 0, 200 );
+		}
 
 		// Test email
 		$error = 1;   // Failure in data
