@@ -20,6 +20,14 @@ class Jetpack_Network {
 	private static $instance = null;
 
 	/**
+	 * Network Admin Page Hooks
+	 *
+	 * @since 2.9
+	 * @var array
+	 */
+	public $hooks =  array();
+
+	/**
 	 * Name of the network wide settings
 	 *
 	 * @since 2.9
@@ -255,9 +263,11 @@ class Jetpack_Network {
 	 * @since 2.9
 	 */
 	public function add_network_admin_menu() {
-		add_menu_page( __('Jetpack', 'jetpack'), __('Jetpack', 'jetpack'), 'read', 'jetpack', array($this, 'network_admin_page'), 'div', 3);
-		add_submenu_page('jetpack', __('Jetpack Sites', 'jetpack'), __('Sites', 'jetpack'), 'manage_options', 'jetpack', array($this, 'network_admin_page'));
-		add_submenu_page('jetpack', __('Settings', 'jetpack'), __('Settings', 'jetpack'), 'read', 'jetpack-settings', array($this, 'render_network_admin_settings_page'));
+		$this->hooks[] = add_menu_page(__('Jetpack', 'jetpack'), __('Jetpack', 'jetpack'), 'read', 'jetpack', array($this, 'network_admin_page'), 'div', 3);
+		$this->hooks[] = add_submenu_page('jetpack', __('Jetpack Sites', 'jetpack'), __('Sites', 'jetpack'), 'manage_options', 'jetpack', array($this, 'network_admin_page'));
+		$this->hooks[] = add_submenu_page('jetpack', __('Settings', 'jetpack'), __('Settings', 'jetpack'), 'read', 'jetpack-settings', array($this, 'render_network_admin_settings_page'));
+
+		add_action( 'admin_enqueue_scripts', array( $this, 'network_admin_styles' ) );
 
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
@@ -500,6 +510,21 @@ class Jetpack_Network {
 	}
 
 	/**
+	 * Add css styles needed for the Network Admin area
+	 **/
+	function network_admin_styles($hook) {
+		if(!in_array($hook, $this->hooks)) return;
+
+		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
+		if( is_rtl() ) {
+			wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin-rtl{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
+		} else {
+			wp_enqueue_style( 'jetpack-admin', plugins_url( "_inc/jetpack-admin{$min}.css", JETPACK__PLUGIN_FILE ), array( 'genericons' ), JETPACK__VERSION . '-20121016' );
+		}
+	}
+
+	/**
 	 * Handles the displaying of all sites on the network that are
 	 * dis/connected to Jetpack
 	 *
@@ -510,34 +535,79 @@ class Jetpack_Network {
 		global $current_site;
 		$this->network_admin_page_header();
 
-			$jp = Jetpack::init();
+		$jp = Jetpack::init();
 
-			// We should be, but ensure we are on the main blog
-			switch_to_blog( $current_site->blog_id );
-			$main_active = $jp->is_active();
-			restore_current_blog();
+		// We should be, but ensure we are on the main blog
+		switch_to_blog( $current_site->blog_id );
+		$main_active = $jp->is_active();
+		restore_current_blog();
 
-			/*
-			 * Ensure the main blog is connected as all other subsite blog
-			 * connections will feed off this one
-			 */
-			if( !$main_active ) {
-				$url = $this->get_url( array(
-				'name'      => 'subsiteregister',
-				'site_id'   => 1,
-				) );
-				$data = array( 'url' => $jp->build_connect_url() );
-				Jetpack::init()->load_view( 'admin/must-connect-main-blog.php', $data );
-				return;
-			}
+		/*
+		 * Ensure the main blog is connected as all other subsite blog
+		 * connections will feed off this one
+		 */
+		if( !$main_active ) {
+			$url = $this->get_url( array(
+			'name'      => 'subsiteregister',
+			'site_id'   => 1,
+			) );
+			$data = array( 'url' => $jp->build_connect_url() );
+			Jetpack::init()->load_view( 'admin/must-connect-main-blog.php', $data );
+			return;
+		}
 
-			require_once( 'class.jetpack-network-sites-list-table.php' );
-			$myListTable = new Jetpack_Network_Sites_List_Table();
-			echo '<div class="wrap"><h2>' . __('Sites', 'jetpack') . '</h2>';
-			echo '<form method="post">';
-			$myListTable->prepare_items();
-			$myListTable->display();
-			echo '</form></div>';
+		require_once( 'class.jetpack-network-sites-list-table.php' );
+		$list_table = new Jetpack_Network_Sites_List_Table();
+		$list_table->prepare_items();
+		?>
+		<div class="clouds-sm"></div>
+		<?php 
+			Jetpack::init()->load_view( 'admin/network-activated-notice.php' );
+			do_action( 'jetpack_notices' ); 
+		?>
+		<div class="page-content configure">
+			<div class="frame top hide-if-no-js">
+				<div class="wrap">
+					<table class="table table-bordered fixed-top">
+						<thead>
+							<tr>
+								<th class="check-column"><input type="checkbox" class="checkall"></th>
+								<th colspan="2">
+									<?php $list_table->display_tablenav( 'top' ); ?>
+									<span class="filter-search">
+										<button type="button" class="button">Filter</button>
+									</span>
+								</th>
+							</tr>
+						</thead>
+					</table>
+				</div><!-- /.wrap -->
+			</div><!-- /.frame -->
+			<div class="frame bottom">
+				<div class="wrap">
+					<form class="jetpack-modules-list-table-form" onsubmit="return false;">
+						<table class="<?php echo implode( ' ', $list_table->get_table_classes() ); ?>">
+							<thead>
+								<tr>
+									<?php $list_table->print_column_headers(); ?>
+								</tr>
+							</thead>
+
+							<tbody id="the-list">
+								<?php $list_table->display_rows_or_placeholder(); ?>
+							</tbody>
+
+							<tfoot>
+								<tr>
+									<?php $list_table->print_column_headers( false ); ?>
+								</tr>
+							</tfoot>
+						</table>
+					</form>
+				</div><!-- /.wrap -->
+			</div><!-- /.frame -->
+		</div><!-- /.content -->
+		<?php
 
 		$this->network_admin_page_footer();
 	}
@@ -722,6 +792,12 @@ class Jetpack_Network {
 		}
 
 		return $site_results;
+	}
+
+	public static function network_admin_url( $args = null ) {
+		$args = wp_parse_args( $args, array( 'page' => 'jetpack' ) );
+		$url = add_query_arg( $args, network_admin_url( 'admin.php' ) );
+		return $url;
 	}
 }
 
