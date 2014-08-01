@@ -4466,7 +4466,7 @@ p {
 
 		// This is a silly loop depth. Better way?
 		foreach( $deprecated_list AS $hook => $hook_alt ) {
-			if( in_array( $hook, array_keys( $wp_filter ) ) ) {
+			if( isset( $wp_filter[ $hook ] ) && is_array( $wp_filter[ $hook ] ) ) {
 				foreach( $wp_filter[$hook] AS $func => $values ) {
 					foreach( $values AS $hooked ) {
 						_deprecated_function( $hook . ' used for ' . $hooked['function'], null, $hook_alt );
