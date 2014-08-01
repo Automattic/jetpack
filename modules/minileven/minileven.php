@@ -167,10 +167,6 @@ function jetpack_mobile_theme_setup() {
 					header( 'Location: http://blackberry.wordpress.org/download/' );
 					exit;
 				break;
-				case 'nokia':
-					header( 'Location: http://nokia.wordpress.org/download/' );
-					exit;
-				break;
 				case 'windowsphone':
 					header( 'Location: http://social.zune.net/redirect?type=phoneApp&id=5f64ad85-f801-e011-9264-00237de2db9e' );
 					exit;
@@ -210,8 +206,6 @@ function jetpack_mobile_app_promo()  {
 			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=blackberry">Download WordPress for BlackBerry</a></span><br /><br />' );
 			else if ( ( navigator.userAgent.match( /windows phone os/i ) ) )
 			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px; line-height: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=windowsphone">Download WordPress for <br />Windows Phone</a></span><br /><br />' );
-			else if ( ( navigator.userAgent.match( /nokia/i ) ) )
-			   document.write( '<span id="wpcom-mobile-app-promo" style="margin-top: 10px; font-size: 13px;"><strong>Now Available!</strong> <a href="/index.php?app-download=nokia">Download WordPress for Nokia</a></span><br /><br />' );
 		}
 	</script>
 	<?php
