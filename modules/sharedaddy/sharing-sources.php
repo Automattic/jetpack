@@ -254,7 +254,7 @@ class Share_Email extends Sharing_Source {
 
 		// Test email
 		$error = 1;   // Failure in data
-		if ( $source_email && $target_email && $source_name ) {
+		if ( empty( $post_data['source_f_name'] ) && $source_email && $target_email && $source_name ) {
 			if ( apply_filters( 'sharing_email_check', true, $post, $post_data ) ) {
 				$data = array(
 					'post'   => $post,
@@ -326,7 +326,8 @@ class Share_Email extends Sharing_Source {
 				<input type="email" name="source_email" id="source_email" value="" />
 
 			<?php endif; ?>
-
+			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="hello" size="25" autocomplete="off" />
+			<script> document.getElementById('jetpack-source_f_name').value = ''; </script>
 			<?php do_action( 'sharing_email_dialog', 'jetpack' ); ?>
 
 			<img style="float: right; display: none" class="loading" src="<?php 
