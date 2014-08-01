@@ -792,7 +792,11 @@ add_action( 'jetpack_learn_more_button_widget-visibility', 'jetpack_widget_visib
 // VideoPress: START
 function jetpack_videopress_more_info() {
 	?>
-	<p><?php _e( 'With the VideoPress module you can easily upload videos to your WordPress site and embed them in your posts and pages. This module requires a WordPress.com account with an active <a href="http://store.wordpress.com/premium-upgrades/videopress/" target="_blank">VideoPress subscription</a>.', 'jetpack' ); ?></p>
+	<p><?php printf(
+		__( 'With the VideoPress module you can easily upload videos to your WordPress site and embed them in your posts and pages. This module requires a WordPress.com account with an active <a href="%1$s" target="_blank">VideoPress subscription</a>. Once you have purchased a VideoPress subscription, <a href="%1$s">click here to configure VideoPress</a>.', 'jetpack' ),
+		'http://store.wordpress.com/premium-upgrades/videopress/',
+		Jetpack::admin_url( 'page=jetpack&configure=videopress' )
+	); ?></p>
 	<?php
 }
 add_action( 'jetpack_module_more_info_videopress', 'jetpack_videopress_more_info' );
