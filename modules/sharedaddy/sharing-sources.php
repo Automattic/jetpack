@@ -262,7 +262,7 @@ class Share_Email extends Sharing_Source {
 					'target' => $target_email,
 					'name'   => $source_name
 				);
-
+				// todo: implement an error message when email doesn't get sent. 
 				if ( ( $data = apply_filters( 'sharing_email_can_send', $data ) ) !== false ) {
 					// Record stats
 					parent::process_request( $data['post'], $post_data );
