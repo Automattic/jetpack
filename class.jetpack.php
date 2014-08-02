@@ -132,8 +132,8 @@ class Jetpack {
 
 	/**
 	 * Plugins for which we turn off our Facebook OG Tags implementation.
-	 * 
-	 * Note: WordPress SEO by Yoast, WordPress SEO Premium by Yoast, All in One SEO Pack and All in One SEO Pack Pro automatically deactivate
+	 *
+	 * Note: All in One SEO Pack and All in One SEO Pack Pro automatically deactivate
 	 * Jetpack's Open Graph tags via filter when their Social Meta modules are active.
 	 *
 	 * Plugin authors: If you'd like to prevent Jetpack's Open Graph tag generation in your plugin, you can do so via this filter:
@@ -174,6 +174,8 @@ class Jetpack {
 		'only-tweet-like-share-and-google-1/tweet-like-plusone.php',
 		                                                         // Tweet, Like, Google +1 and Share
 		'wordbooker/wordbooker.php',                             // Wordbooker
+		'wordpress-seo/wp-seo.php',                              // WordPress SEO by Yoast
+		'wordpress-seo-premium/wp-seo-premium.php',              // WordPress SEO Premium by Yoast
 		'wpsso/wpsso.php',                                       // WordPress Social Sharing Optimization
 		'wp-caregiver/wp-caregiver.php',                         // WP Caregiver
 		'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',
@@ -1025,7 +1027,7 @@ class Jetpack {
 
 		Jetpack::state( 'message', 'modules_activated' );
 		Jetpack::activate_default_modules( $jetpack_version, JETPACK__VERSION, $reactivate_modules );
-		
+
 		$page = 'jetpack'; // make sure we redirect to either settings or the jetpack page
 		if( isset( $_GET['page'] ) && in_array( $_GET['page'] , array( 'jetpack', 'jetpack_modules' ) ) ) {
 			$page = $_GET['page'];
@@ -4445,7 +4447,7 @@ p {
 		if ( false !== strpos( current_filter(), 'jetpack_activate_module_' ) ) {
 			self::check_privacy( $module_slug );
 		}
-	 
+
 	}
 
 	/**
@@ -4463,7 +4465,7 @@ p {
 		$deprecated_list = array(
 			'jetpack_bail_on_shortcode' => 'jetpack_shortcodes_to_include',
 		);
-		
+
 		// This is a silly loop depth. Better way?
 		foreach( $deprecated_list AS $hook => $hook_alt ) {
 			if( isset( $wp_filter[ $hook ] ) && is_array( $wp_filter[ $hook ] ) ) {
