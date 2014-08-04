@@ -143,7 +143,7 @@ endif;
  * Converts a YouTube URL into an embedded YouTube video.
  */
 function youtube_id( $url ) {
-	if ( ! $id = jetpack_shortcode_get_youtube_id( $url ) )
+	if ( ! $id = jetpack_get_youtube_id( $url ) )
 		return '<!--YouTube Error: bad URL entered-->';
 
 	$url = youtube_sanitize_url( $url );
