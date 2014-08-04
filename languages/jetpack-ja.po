@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-07-26 00:05:20+0000\n"
+"PO-Revision-Date: 2014-08-01 01:13:17+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -782,7 +782,7 @@ msgstr "投稿設定"
 
 #: views/admin/landing-page-templates.php:16
 msgid "Paid"
-msgstr "支払済"
+msgstr "有料"
 
 #: class.jetpack-modules-list-table.php:45
 msgid "Search Modules…"

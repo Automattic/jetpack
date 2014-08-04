@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-07-29 05:33:33+0000\n"
+"PO-Revision-Date: 2014-08-04 08:22:06+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,23 +12,23 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:168
 msgid "Enable Portfolio Projects for this site."
-msgstr ""
+msgstr "Activa Proyectos de Porfolio para este sitio."
 
 #: modules/module-info.php:930
 msgid "To enable the Portfolio content type, head over to <a href=\"%s\">Settings &rarr; Writing &rarr; Your Custom Content Types</a> and make sure that \"Portfolio Projects\" is checked. You can now add projects under the new \"Portfolio\" menu item in your sidebar. After you've added some projects, they'll be visible on your website at http://<strong>yourgroovysite.com</strong>/portfolio/."
-msgstr ""
+msgstr "Para activar el tipo de contenido \"Porfolio\", ve a <a href=\"%s\">Ajustes &rarr; Escritura &rarr; Tus tipos de contenidos personalizados</a> y asegúrate de que \"Proyectos de Porfolio\" está marcada. Si es así, ya puedes añadir proyectos con el elemento \"Porfolio\" de la barra lateral. Cuando hayas añadido algunos proyectos, serán visibles en tu sitio web en http://<strong>tunombrededominio.es</strong>/portfolio/."
 
 #: modules/widgets/readmill.php:30 modules/widgets/readmill.php:68
 msgid "The Send to Readmill widget is no longer working and will be removed completely from Jetpack."
-msgstr ""
+msgstr "El widget de \"Enviar a Redmill\" no funciona más y será eliminado completamente de Jetpack."
 
 #: modules/module-info.php:923
 msgid "Custom Content Types"
-msgstr ""
+msgstr "Tipos de contenidos personalizados"
 
 #: modules/module-info.php:929
 msgid "Organize and display different types of content on your site, separate from posts and pages."
-msgstr ""
+msgstr "Organiza y muestra distintos tipos de contenido en tu sitio, aparte de las entradas y páginas."
 
 #: modules/custom-post-types/portfolios.php:683
 msgid "Tags"
@@ -36,7 +36,7 @@ msgstr "Etiquetas"
 
 #: modules/custom-post-types/portfolios.php:596
 msgid "Your Portfolio Archive currently has no entries. You can start creating them on your dashboard."
-msgstr ""
+msgstr "Tu archivo de Porfolio no tiene entradas todavía. Puedes empezar a crearlas en tu escritorio."
 
 #: modules/custom-post-types/portfolios.php:652
 msgid "Types"
@@ -64,7 +64,7 @@ msgstr "Proyecto restaurado a la revisión de %s"
 
 #: modules/custom-post-types/portfolios.php:375
 msgid "Project published. <a href=\"%s\">View project</a>"
-msgstr ""
+msgstr "Proyecto publicado. <a href=\"%s\">Ver proyecto</a>"
 
 #: modules/custom-post-types/portfolios.php:369
 msgid "Project updated. <a href=\"%s\">View item</a>"
@@ -116,16 +116,16 @@ msgstr "Todas las etiquetas de proyecto"
 
 #: modules/custom-post-types/portfolios.php:340
 msgid "Edit Project Tag"
-msgstr ""
+msgstr "Editar etiqueta de proyecto"
 
 #: modules/custom-post-types/portfolios.php:323
 msgid "Search Project Types"
-msgstr ""
+msgstr "Buscar tipos de proyectos"
 
 #: modules/custom-post-types/portfolios.php:336
 #: modules/custom-post-types/portfolios.php:338
 msgid "Project Tags"
-msgstr ""
+msgstr "Etiquetas de proyecto"
 
 #: modules/custom-post-types/portfolios.php:337
 msgid "Project Tag"
@@ -133,40 +133,40 @@ msgstr "Etiqueta de proyecto"
 
 #: modules/custom-post-types/portfolios.php:320
 msgid "New Project Type Name"
-msgstr ""
+msgstr "Nombre del nuevo tipo de proyecto"
 
 #: modules/custom-post-types/portfolios.php:321
 msgid "Parent Project Type"
-msgstr ""
+msgstr "Tipo de proyecto superior"
 
 #: modules/custom-post-types/portfolios.php:322
 msgid "Parent Project Type:"
-msgstr ""
+msgstr "Tipo de proyecto superior:"
 
 #: modules/custom-post-types/portfolios.php:317
 msgid "View Project Type"
-msgstr ""
+msgstr "Ver tipo de proyecto"
 
 #: modules/custom-post-types/portfolios.php:318
 msgid "Update Project Type"
-msgstr ""
+msgstr "Actualizar tipo de proyecto"
 
 #: modules/custom-post-types/portfolios.php:319
 msgid "Add New Project Type"
-msgstr ""
+msgstr "Añadir nuevo tipo de proyecto"
 
 #: modules/custom-post-types/portfolios.php:315
 msgid "All Project Types"
-msgstr ""
+msgstr "Todos los tipos de proyecto"
 
 #: modules/custom-post-types/portfolios.php:316
 msgid "Edit Project Type"
-msgstr ""
+msgstr "Edita el tipo de proyecto"
 
 #: modules/custom-post-types/portfolios.php:312
 #: modules/custom-post-types/portfolios.php:314
 msgid "Project Types"
-msgstr ""
+msgstr "Tipos de proyectos"
 
 #: modules/custom-post-types/portfolios.php:313
 msgid "Project Type"
@@ -174,19 +174,19 @@ msgstr "Tipo de proyecto"
 
 #: modules/custom-post-types/portfolios.php:280
 msgid "Search Projects"
-msgstr ""
+msgstr "Buscar proyecto"
 
 #: modules/custom-post-types/portfolios.php:281
 msgid "No Projects found"
-msgstr ""
+msgstr "No se encontró ningún proyecto"
 
 #: modules/custom-post-types/portfolios.php:282
 msgid "No Projects found in Trash"
-msgstr ""
+msgstr "No se encontró ningún proyecto en la papelera"
 
 #: modules/custom-post-types/portfolios.php:278
 msgid "New Project"
-msgstr ""
+msgstr "Nuevo proyecto"
 
 #: modules/custom-post-types/portfolios.php:279
 msgid "View Project"
@@ -194,7 +194,7 @@ msgstr "Ver proyecto"
 
 #: modules/custom-post-types/portfolios.php:276
 msgid "Add New Project"
-msgstr ""
+msgstr "Añadir nuevo proyecto"
 
 #: modules/custom-post-types/portfolios.php:277
 msgid "Edit Project"
@@ -207,19 +207,19 @@ msgstr "Todos los proyectos"
 #: modules/custom-post-types/portfolios.php:272
 #: modules/custom-post-types/portfolios.php:393
 msgid "Project"
-msgstr ""
+msgstr "Proyecto"
 
 #: modules/custom-post-types/portfolios.php:273
 msgid "Portfolio"
-msgstr "Carpeta"
+msgstr "Porfolio"
 
 #: modules/custom-post-types/portfolios.php:187
 msgid "You need to <a href=\"%s\">enable portfolio</a> custom post type before you can update it's settings."
-msgstr ""
+msgstr "Tienes que  <a href=\"%s\">activar proyectos de porfolio</a> antes de actualizar sus ajustes"
 
 #: modules/custom-post-types/portfolios.php:269
 msgid "Portfolio Items"
-msgstr "Elementos de portafolio"
+msgstr "Elementos de porfolio"
 
 #: modules/custom-post-types/portfolios.php:271
 msgid "Projects"
@@ -227,35 +227,35 @@ msgstr "Proyectos"
 
 #: modules/custom-post-types/portfolios.php:179
 msgid "Portfolio pages display at most %1$s projects"
-msgstr ""
+msgstr "Las páginas de porfolio mostrarán, como máximo, %1$s proyectos"
 
 #: modules/custom-post-types/portfolios.php:109
 #: modules/custom-post-types/portfolios.php:130
 msgid "Portfolio Projects"
-msgstr ""
+msgstr "Proyectos de porfolio"
 
 #: modules/custom-post-types/portfolios.php:164
 msgid "Your theme supports <strong>%s</strong>"
-msgstr ""
+msgstr "Tu tema permite <strong>%s</strong>"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:370
 msgid "You are required to specify a plugin to activate."
-msgstr ""
+msgstr "Tienes que especificar un plugin para que sea activado."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:863
 msgid "You are required to specify a capability to check."
-msgstr ""
+msgstr "Necesitas especificar unos permisos para asegurarte."
 
 #: modules/custom-content-types.php:32
 #: modules/custom-post-types/portfolios.php:102
 #: modules/custom-post-types/portfolios.php:123
 msgid "Your Custom Content Types"
-msgstr ""
+msgstr "Tus tipos de contenidos personalizados"
 
 #: modules/custom-content-types.php:42
 #: modules/custom-post-types/portfolios.php:151
 msgid "Use these settings to display different types of content on your site."
-msgstr ""
+msgstr "Utiliza estos ajustes para mostrar diferentes tipos de contenidos en tu sitio."
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
@@ -263,11 +263,11 @@ msgstr "Más Información"
 
 #: views/admin/network-settings.php:8
 msgid "Jetpack Network Settings Updated!"
-msgstr ""
+msgstr "¡Actualizados los ajustes de red de Jetpack!"
 
 #: modules/module-info.php:401
 msgid "<strong>The Upcoming Events Widget</strong> allows you to use an iCalendar link to display a list of events on your site."
-msgstr ""
+msgstr "<strong>El widget de próximos eventos</strong> te permite usar un enlace de iCalendar para mostar una lista de eventos en tu sitio."
 
 #: modules/module-info.php:855 modules/module-info.php:878
 msgid "Related Posts"
@@ -279,7 +279,7 @@ msgstr "Buscar todo"
 
 #: modules/widgets/readmill.php:11
 msgid "Retired: Send To Readmill"
-msgstr ""
+msgstr "Retirado: Enviar a Readmill"
 
 #: modules/widgets/readmill.php:27
 msgid "<strong>The Readmill reading service has shut down</strong><br /> <a taget=\"_blank\" href=\"%s\">Learn More</a>"
@@ -340,11 +340,11 @@ msgstr ""
 
 #: modules/json-api.php:39
 msgid "Allow management"
-msgstr ""
+msgstr "Permitir la gestión"
 
 #: modules/json-api.php:40
 msgid "Allow remote management of themes, plugins, and WordPress via the JSON API. (<a href=\"%s\" title=\"Learn more about JSON API\">More info</a>)."
-msgstr ""
+msgstr "Permitir las gestión remota de temas, plugins y de WordPress vía la API de JSON. (<a href=\"%s\" title=\"Aprende más sobre la API de JSON\">Más información</a>)."
 
 #: modules/minileven/theme/pub/minileven/content.php:28
 msgid "Posted by "
@@ -352,11 +352,11 @@ msgstr "Publicado por"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:169
 msgid "You are not allowed to switch to this theme"
-msgstr ""
+msgstr "No se te permite cambiar a este tema"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:532
 msgid "There was an error while trying to upgrade."
-msgstr ""
+msgstr "Hubo un error mientas se intentaba actualizar."
 
 #: modules/contact-form/grunion-form-view.php:131
 msgid "Click here"
@@ -376,15 +376,15 @@ msgstr ""
 
 #: modules/widgets/readmill.php:34
 msgid "You can remove it yourself now."
-msgstr ""
+msgstr "Puedes borrarlo tú mismo ahora."
 
 #: modules/widgets/readmill.php:35
 msgid "No content is displayed to users who can't manage widgets"
-msgstr ""
+msgstr "El contenido no se muestra a los usuarios que no pueden gestionar widgets"
 
 #: modules/stats.php:355
 msgid "View stats on WordPress.com right now"
-msgstr ""
+msgstr "Mira las estadísticas en WordPress.com ahora."
 
 #: modules/widgets/readmill.php:13
 msgid "Readmill has closed its doors. http://readmill.com/"
@@ -400,7 +400,7 @@ msgstr "Ver sitio completo"
 
 #: modules/after-the-deadline/config-options.php:89
 msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your user interface language (see above) is the default proofreading language."
-msgstr ""
+msgstr "El corrector funciona para inglés, francés, alemán, portugués y español. Se considera el lenguaje del corrector por defecto el lenguaje de la administración (ver arriba)"
 
 #: modules/contact-form/admin.php:133
 msgid "Empty Spam"
@@ -412,15 +412,15 @@ msgstr "El tema está vacío."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:165
 msgid "The specified theme was not found."
-msgstr ""
+msgstr "No se encontró el tema especificado."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:354
 msgid "Plugin not found."
-msgstr ""
+msgstr "Plugin no encontrado."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:366
 msgid "This user is not authorized to manage plugins network wide."
-msgstr ""
+msgstr "Este usuario no está autorizado para gestionar los plugins de la red."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:394
 msgid "The Plugin is already active."
@@ -428,7 +428,7 @@ msgstr "El pluging ya estaba activado."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:450
 msgid "The Plugin is already deactivated."
-msgstr ""
+msgstr "Este plugin ya está desactivado."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:654
 #: json-endpoints/class.json-api-jetpack-endpoints.php:668
@@ -441,7 +441,7 @@ msgstr "El módulo ya está activo."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:689
 msgid "There was an error while activating the module `%s`."
-msgstr ""
+msgstr "Hubo un error mientras se activaba el módulo `%s`."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:724
 msgid "The Jetpack Module is already deactivated."
@@ -449,11 +449,11 @@ msgstr "El módulo de Jetpack ya estaba desactivado. "
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:730
 msgid "There was an error while deactivating the module `%s`."
-msgstr ""
+msgstr "Hubo un error mientras se desactivaba el módulo `%s`."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:818
 msgid "There was an error while getting the update data for this site."
-msgstr ""
+msgstr "Hubo un error mientras se estaban actualizando los datos de este sitio."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:529
 msgid "The Plugin is already up to date."
@@ -474,7 +474,7 @@ msgstr ""
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:23
 msgid "Full management mode is off for this site."
-msgstr ""
+msgstr "El modo de gestión completa de este sitio está apagado."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:107
 msgid "Offset must be greater than or equal to 0."
@@ -522,7 +522,7 @@ msgstr "Receive notificaciones de la actividad de tu sitio via la barra de admin
 
 #: class.jetpack-debugger.php:140
 msgid "Some themes and plugins have <a href=\"%1$s\">known conflicts</a> with Jetpack – check the <a href=\"%2$s\">list</a>. (You can also browse the <a href=\"%3$s\">Jetpack support pages</a> or <a href=\"%4$s\">Jetpack support forum</a> to see if others have experienced and solved the problem.)"
-msgstr "Algunos temas y plugins tienen<a href=\"%1$s\">conflictos conocidos </a> con Jetpack – revisa la <a href=\"%2$s\">lista</a>. (Puedes también revisar las <a href=\"%3$s\">páginas de soporte técnico de Jetpack </a> o <a href=\"%4$s\">el foro de soporte técnico de Jetpack</a> para averiguar si otros han pasado por lo mismo y ya han resuelto el problema.)"
+msgstr "Algunos temas y plugins tienen <a href=\"%1$s\">conflictos conocidos</a> con Jetpack – revisa la <a href=\"%2$s\">lista</a>. (Puedes también revisar las <a href=\"%3$s\">páginas de soporte técnico de Jetpack </a> o <a href=\"%4$s\">el foro de soporte técnico de Jetpack</a> para averiguar si otros han pasado por lo mismo y ya han resuelto el problema.)"
 
 #: node_modules/grunt-wp-i18n/test/fixtures/basic-theme/exclude/file.php:3
 msgid "Exclude"
@@ -802,7 +802,7 @@ msgstr "Sitios de Jetpack "
 
 #: class.jetpack-sync.php:770
 msgid "Indexing request queued and waiting&hellip;"
-msgstr "Indexando solicitud en espera y esperando&hellip"
+msgstr "Indexando solicitud en espera y esperando&hellip;"
 
 #: class.jetpack-twitter-cards.php:90 class.jetpack-twitter-cards.php:99
 #: functions.opengraph.php:71
@@ -1031,7 +1031,7 @@ msgstr "Enlaza tu cuenta con WordPress.com"
 
 #: _inc/footer.php:18
 msgid "An %s Airline"
-msgstr "Una %s Aerolínea"
+msgstr "Una Aerolínea de %"
 
 #: _inc/footer.php:28
 msgid "Terms"
@@ -1097,7 +1097,7 @@ msgstr "Utiliza todo el poder de tu sitio auto-hospedado con una serie de las m�
 
 #: views/admin/admin-page.php:33
 msgid "You're successfully connected to Jetpack!"
-msgstr "¡Te has conectado exitosamente a Jetpack!"
+msgstr "¡Te has conectado con éxito a Jetpack!"
 
 #: modules/after-the-deadline.php:223
 msgid ""
@@ -1510,7 +1510,7 @@ msgstr "Contenido de paginas de testimonios"
 
 #: modules/module-info.php:881 modules/monitor.php:62
 msgid "Nobody likes downtime, and that's why Jetpack Monitor is on the job, keeping tabs on your site. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!"
-msgstr "A nadie le gusta el tiempo de inactividad, esta es la razón por la cual Jetpack Monitor se encarga de mantener las pestañas en tu sitio. Al momento de detectarse la pausa en el servicio, tu recibirás una notificación por correo electrónico avisandote del problema. De esta manera, ¡tu podrás actuar rápidamente y hacer que tu sitio funcione de nuevo!"
+msgstr "A nadie le gusta las caídas de actividad, esta es la razón por la cual Jetpack Monitor está alerta por ti sobre tu sitio. En el momento en que se reciba una pausa en el servicio, recibirás una notificación por correo electrónico avisándote del problema. De esta manera, podrás actuar rápidamente y hacer que tu sitio funcione de nuevo."
 
 #: modules/subscriptions.php:562
 msgid "Blog Subscriptions (Jetpack)"
@@ -1617,7 +1617,7 @@ msgstr "Hubo un problema al conectar tu cuenta de Google+. Por favor, intenta de
 
 #: class.jetpack-debugger.php:157
 msgid "Some features of Jetpack uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, please try requesting a reindex of your posts."
-msgstr ""
+msgstr "Esta opción usa la infraestructura de WordPress.com y requiere que tu contenido público se sincronice allí. Si te encuentras con problemas intermitentes que sólo afectan algunas entradas, solicita que se vuelvan a indexar tus entradas."
 
 #: modules/subscriptions.php:633
 msgid "Join %s other subscriber"
@@ -2371,7 +2371,7 @@ msgstr "Solamente los videos del blog seleccionados estarán disponibles en tu l
 
 #: class.jetpack-debugger.php:151
 msgid "If none of these help you find a solution, <a href=\"%s\">click here to contact Jetpack support</a>. Tell us as much as you can about the issue and what steps you've tried to resolve it, and one of our Happiness Engineers will be in touch to help."
-msgstr ""
+msgstr "SI nada de esto te ha ayudado a encontrar una solución, <a href=\"%s\">haz clic aquí para contactar con el soporte de Jetpack</a>. Dinos todo lo que puedas sobre el problema que tienes y los pasos que has intentado para resolverlo, y uno de nuestos ingenieros se pondrá en contacto para ayudarte. "
 
 #: class.jetpack-debugger.php:143
 msgid "A problem with your XMLRPC file."
@@ -2822,7 +2822,7 @@ msgstr "Puedes crear una conexión solo para ti mismo o para todos los usuarios 
 
 #: modules/videopress/videopress.php:592
 msgid "Your video has successfully been uploaded. It will appear in your VideoPress Library shortly."
-msgstr "Tu video ha sigo cargado exitosamente. Este aparecerá en tu Librería VideoPress en breve."
+msgstr "Tu video ha sigo cargado con éxito. Este aparecerá en tu Librería VideoPress en breve."
 
 #: class.jetpack-sync.php:774
 msgid "Indexing posts"
@@ -4004,8 +4004,8 @@ msgstr "Imágenes:"
 msgctxt "%l = list of Jetpack module/feature names"
 msgid "<strong>%l Deactivated!</strong> You can activate it again at any time using the activate link next to each module."
 msgid_plural "<strong>%l Deactivated!</strong> You can activate them again at any time using the activate links next to each module."
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "<strong>¡ %l Desactivado!</strong> Puedes activarlo de nuevo en cualquier momento utilizando el enlace de activación que hay junto a cada módulo."
+msgstr[1] "<strong>¡ %l Desactivados!</strong> Puedes activarlos de nuevo en cualquier momento utilizando el enlace de activación que hay junto a cada módulo."
 
 #: class.jetpack.php:2515
 msgid "Welcome to <strong>Jetpack %s</strong>!"
@@ -4435,7 +4435,7 @@ msgstr "Hoja de estilos guardada"
 #: modules/module-info.php:185 modules/module-info.php:197
 #: views/admin/admin-page.php:62
 msgid "WordPress.com Stats"
-msgstr "Estad&#237;sticas de WordPress.com"
+msgstr "Estadísticas de WordPress.com"
 
 #: modules/sharedaddy/sharing-sources.php:984
 msgid "Save"
@@ -4455,7 +4455,7 @@ msgstr "Publicar"
 
 #: modules/module-info.php:189 modules/module-info.php:201
 msgid "There are many plugins and services that provide statistics, but data can be overwhelming. WordPress.com Stats makes the most popular metrics easy to understand through a clear and attractive interface."
-msgstr "Hay muchos plugins y servicios que ofrecen estad&#237;sticas, pero la cantidad de informaci&#243;n que ofrecen puede ser abrumadora. Las estad&#237;sticas de WordPress.com hacen f&#225;ciles de entender las m&#233;tricas m&#225;s populares gracias a su interfaz clara y atractiva."
+msgstr "Hay muchos plugins y servicios que ofrecen estadísticasticas, pero la cantidad de información que ofrecen puede ser abrumadora. Las estadísticas de WordPress.com hacen fáciles de entender las métricas máss populares gracias a su interfaz clara y atractiva."
 
 #: modules/sharedaddy/sharing-sources.php:985
 msgid "Remove Service"
@@ -4594,7 +4594,7 @@ msgstr "Imagen (Jetpack)"
 
 #: modules/custom-post-types/portfolios.php:347
 msgid "Separate tags with commas"
-msgstr ""
+msgstr "Separa las etiquetas con comas"
 
 #: class.jetpack.php:3067
 msgid "Checking email updates status&hellip;"
@@ -5215,7 +5215,7 @@ msgstr "Editar Comic"
 
 #: modules/module-info.php:383
 msgid "The Twitter Widget "
-msgstr ""
+msgstr "El widget de Twitter"
 
 #: modules/sharedaddy/sharing.php:400
 msgid "Create Share Button"

@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-07-25 11:52:23+0000\n"
+"PO-Revision-Date: 2014-08-03 20:00:08+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -64,7 +64,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:375
 msgid "Project published. <a href=\"%s\">View project</a>"
-msgstr ""
+msgstr "Proje yayınlandı. <a href=\"%s\">Projeyi görüntüle</a>"
 
 #: modules/custom-post-types/portfolios.php:369
 msgid "Project updated. <a href=\"%s\">View item</a>"
@@ -92,7 +92,7 @@ msgstr "Proje Etiketlerini Ara"
 
 #: modules/custom-post-types/portfolios.php:346
 msgid "Popular Project Tags"
-msgstr ""
+msgstr "Popüler Proje Etiketleri"
 
 #: modules/custom-post-types/portfolios.php:343
 msgid "Add New Project Tag"
@@ -104,7 +104,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:341
 msgid "View Project Tag"
-msgstr ""
+msgstr "Proje Tipini Görüntüle"
 
 #: modules/custom-post-types/portfolios.php:342
 msgid "Update Project Tag"
@@ -112,15 +112,15 @@ msgstr "Proje Etiketini Güncelle"
 
 #: modules/custom-post-types/portfolios.php:339
 msgid "All Project Tags"
-msgstr ""
+msgstr "Bütün Proje Etiketleri"
 
 #: modules/custom-post-types/portfolios.php:340
 msgid "Edit Project Tag"
-msgstr ""
+msgstr "Proje Etiketini Düzenle"
 
 #: modules/custom-post-types/portfolios.php:323
 msgid "Search Project Types"
-msgstr ""
+msgstr "Proje Tiplerini Ara"
 
 #: modules/custom-post-types/portfolios.php:336
 #: modules/custom-post-types/portfolios.php:338
@@ -133,7 +133,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:320
 msgid "New Project Type Name"
-msgstr ""
+msgstr "Yeni Proje Tipi Adı"
 
 #: modules/custom-post-types/portfolios.php:321
 msgid "Parent Project Type"
@@ -145,23 +145,23 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:317
 msgid "View Project Type"
-msgstr ""
+msgstr "Proje Tipini Görüntüle"
 
 #: modules/custom-post-types/portfolios.php:318
 msgid "Update Project Type"
-msgstr ""
+msgstr "Proje Tipini Güncelle"
 
 #: modules/custom-post-types/portfolios.php:319
 msgid "Add New Project Type"
-msgstr ""
+msgstr "Yeni Proje Tipi Ekle"
 
 #: modules/custom-post-types/portfolios.php:315
 msgid "All Project Types"
-msgstr ""
+msgstr "Tüm Proje Tipleri"
 
 #: modules/custom-post-types/portfolios.php:316
 msgid "Edit Project Type"
-msgstr ""
+msgstr "Proje Tipini Düzenle"
 
 #: modules/custom-post-types/portfolios.php:312
 #: modules/custom-post-types/portfolios.php:314
@@ -227,12 +227,12 @@ msgstr "Projeler"
 
 #: modules/custom-post-types/portfolios.php:179
 msgid "Portfolio pages display at most %1$s projects"
-msgstr ""
+msgstr "Portfolyo sayfaları en fazla %1$s proje gösterir"
 
 #: modules/custom-post-types/portfolios.php:109
 #: modules/custom-post-types/portfolios.php:130
 msgid "Portfolio Projects"
-msgstr ""
+msgstr "Portfolyo Projeleri"
 
 #: modules/custom-post-types/portfolios.php:164
 msgid "Your theme supports <strong>%s</strong>"
@@ -625,7 +625,7 @@ msgstr ""
 
 #: modules/related-posts/jetpack-related-posts.php:689
 msgid "Untitled Post"
-msgstr ""
+msgstr "Başlıksız Yazı"
 
 #: modules/related-posts/jetpack-related-posts.php:960
 msgid "Similar post"
@@ -999,7 +999,7 @@ msgstr ""
 
 #: modules/likes.php:307
 msgid "Don't show the Reblog button on posts"
-msgstr ""
+msgstr "Yazılarda Reblog düğmesini gösterme"
 
 #: modules/likes.php:314
 msgid "Comment Likes are"

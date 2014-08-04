@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-07-25 12:03:42+0000\n"
+"PO-Revision-Date: 2014-08-01 02:10:22+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -967,7 +967,7 @@ msgstr "Dem Abschnitt hinzufügen:"
 
 #: modules/gplus-authorship/admin/ui.php:230
 msgid "Associate my Google+ information with this post."
-msgstr ""
+msgstr "Meine Google+ Angaben mit diesem Beitrag verknüpfen."
 
 #: modules/custom-post-types/nova.php:857
 msgid "Labels: <small>spicy, favorite, etc. <em>Separate Labels with commas</em></small>"
@@ -4600,7 +4600,7 @@ msgstr "Jetpack: Bild"
 
 #: modules/custom-post-types/portfolios.php:347
 msgid "Separate tags with commas"
-msgstr ""
+msgstr "Trenne Schlagwörter durch Kommas"
 
 #: class.jetpack.php:3067
 msgid "Checking email updates status&hellip;"
