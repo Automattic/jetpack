@@ -49,6 +49,7 @@ foreach ( $GLOBALS['csstidy']['multiple_properties'] as $property ) {
 $GLOBALS['csstidy']['at_rules']['-webkit-keyframes'] = 'at';
 $GLOBALS['csstidy']['at_rules']['-moz-keyframes'] = 'at';
 $GLOBALS['csstidy']['at_rules']['-ms-keyframes'] = 'at';
+$GLOBALS['csstidy']['at_rules']['-o-keyframes'] = 'at';
 
 /**
  * Non-standard viewport rule.
