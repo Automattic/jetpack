@@ -4,7 +4,7 @@
 * @param $url Can be just the $url or the whole $atts array
 * @return bool|mixed The Youtube video ID
 */
-function jetpack_get_youtube_id( $url ) {
+function jetpack_shortcode_get_youtube_id( $url ) {
 	// Do we have an $atts array?  Get first att
 	if ( is_array( $url ) )
 		$url = $url[0];
