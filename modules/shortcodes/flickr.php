@@ -160,7 +160,7 @@ function jetpack_flickr_oembed_handler( $matches, $attr, $url ) {
 	// e.g. http://www.flickr.com/photos/yarnaholic/sets/72157615194738969/show/
 	if ( '/show/' !== substr( $url, -strlen( '/show/' ) ) ) {			
 		// These lookups need cached, as they don't use WP_Embed (which caches)
-		$found;
+		$found = false;
 
 		$cache_key 		= md5( $url . serialize( $attr ) );
 		$cache_group 	= 'oembed_flickr';
