@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-07-25 11:45:21+0000\n"
+"PO-Revision-Date: 2014-07-31 22:23:35+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,23 +12,23 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:168
 msgid "Enable Portfolio Projects for this site."
-msgstr ""
+msgstr "이 사이트의 포트폴리오 프로젝트 활성화."
 
 #: modules/module-info.php:930
 msgid "To enable the Portfolio content type, head over to <a href=\"%s\">Settings &rarr; Writing &rarr; Your Custom Content Types</a> and make sure that \"Portfolio Projects\" is checked. You can now add projects under the new \"Portfolio\" menu item in your sidebar. After you've added some projects, they'll be visible on your website at http://<strong>yourgroovysite.com</strong>/portfolio/."
-msgstr ""
+msgstr "포트폴리오 콘텐츠 타입을 활성화 하려면 <a href=\"%s\">설정 &rarr; 쓰기 &rarr; 사용자 정의 콘텐츠 형식</a>으로 가서 \"포트폴리오 프로젝트\"에 체크됐는지 확인하세요. 이제부터는 사이드바에서 새로운 포트폴리오 메뉴 아이템에서 프로젝트를 추가할 수 있습니다. 프로젝트를 추가한 이후에는 사이트의 http://<strong>yourgroovysite.com</strong>/포트폴리오/에서 볼 수 있습니다."
 
 #: modules/widgets/readmill.php:30 modules/widgets/readmill.php:68
 msgid "The Send to Readmill widget is no longer working and will be removed completely from Jetpack."
-msgstr ""
+msgstr "리드밀 위젯으로 보내기가 더 이상 작동하지 않으며 젯팩에서 완전히 제거될 것입니다."
 
 #: modules/module-info.php:923
 msgid "Custom Content Types"
-msgstr ""
+msgstr "사용자 정의 콘텐츠 형식"
 
 #: modules/module-info.php:929
 msgid "Organize and display different types of content on your site, separate from posts and pages."
-msgstr ""
+msgstr "글이나 페이지와 분리해서 사이트에서 다른 형식의 콘텐츠를 구성하고 표현하세요."
 
 #: modules/custom-post-types/portfolios.php:683
 msgid "Tags"
@@ -36,7 +36,7 @@ msgstr "태그"
 
 #: modules/custom-post-types/portfolios.php:596
 msgid "Your Portfolio Archive currently has no entries. You can start creating them on your dashboard."
-msgstr ""
+msgstr "포트폴리오 보관함이 현재 비어있습니다. 관리자 화면에서 만들기를 시작할 수 있습니다."
 
 #: modules/custom-post-types/portfolios.php:652
 msgid "Types"
@@ -44,11 +44,11 @@ msgstr "타입"
 
 #: modules/custom-post-types/portfolios.php:378
 msgid "Project scheduled for: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">Preview project</a>"
-msgstr ""
+msgstr "프로젝트 예약: <strong>%1$s</strong>. <a target=\"_blank\" href=\"%2$s\">프로젝트 미리보기</a>"
 
 #: modules/custom-post-types/portfolios.php:381
 msgid "Project item draft updated. <a target=\"_blank\" href=\"%s\">Preview project</a>"
-msgstr ""
+msgstr "프로젝트 아이템 임시글 업데이트 됨. <a target=\"_blank\" href=\"%s\">프로젝트 미리보기</a>"
 
 #: modules/custom-post-types/portfolios.php:376
 msgid "Project saved."
@@ -56,23 +56,23 @@ msgstr "프로젝트가 저장되었습니다."
 
 #: modules/custom-post-types/portfolios.php:377
 msgid "Project submitted. <a target=\"_blank\" href=\"%s\">Preview project</a>"
-msgstr ""
+msgstr "프로젝트 제출됨. <a target=\"_blank\" href=\"%s\">프로젝트 미리보기</a>"
 
 #: modules/custom-post-types/portfolios.php:374
 msgid "Project restored to revision from %s"
-msgstr ""
+msgstr "프로젝트가 리비전 %s에서 복구됐습니다."
 
 #: modules/custom-post-types/portfolios.php:375
 msgid "Project published. <a href=\"%s\">View project</a>"
-msgstr ""
+msgstr "프로젝트가 발행됐습니다. <a href=\"%s\">프로젝트 보기</a>"
 
 #: modules/custom-post-types/portfolios.php:369
 msgid "Project updated. <a href=\"%s\">View item</a>"
-msgstr ""
+msgstr "프로젝트가 업데이트 됐습니다. <a href=\"%s\">아이템 보기</a>"
 
 #: modules/custom-post-types/portfolios.php:372
 msgid "Project updated."
-msgstr ""
+msgstr "프로젝트가 업데이트 됐습니다."
 
 #: modules/custom-post-types/portfolios.php:350
 msgid "No tags found."
@@ -88,105 +88,105 @@ msgstr "새로운 태그 추가/제거"
 
 #: modules/custom-post-types/portfolios.php:345
 msgid "Search Project Tags"
-msgstr ""
+msgstr "프로젝트 태그 검색"
 
 #: modules/custom-post-types/portfolios.php:346
 msgid "Popular Project Tags"
-msgstr ""
+msgstr "인기 프로젝트 태그"
 
 #: modules/custom-post-types/portfolios.php:343
 msgid "Add New Project Tag"
-msgstr ""
+msgstr "새 프로젝트 태그 추가"
 
 #: modules/custom-post-types/portfolios.php:344
 msgid "New Project Tag Name"
-msgstr ""
+msgstr "새 프로젝트 태그 이름"
 
 #: modules/custom-post-types/portfolios.php:341
 msgid "View Project Tag"
-msgstr ""
+msgstr "프로젝트 태그 보기"
 
 #: modules/custom-post-types/portfolios.php:342
 msgid "Update Project Tag"
-msgstr ""
+msgstr "프로젝트 태그 업데이트"
 
 #: modules/custom-post-types/portfolios.php:339
 msgid "All Project Tags"
-msgstr ""
+msgstr "모든 프로젝트 태그"
 
 #: modules/custom-post-types/portfolios.php:340
 msgid "Edit Project Tag"
-msgstr ""
+msgstr "프로젝트 태그 편집"
 
 #: modules/custom-post-types/portfolios.php:323
 msgid "Search Project Types"
-msgstr ""
+msgstr "프로젝트 형식 검색"
 
 #: modules/custom-post-types/portfolios.php:336
 #: modules/custom-post-types/portfolios.php:338
 msgid "Project Tags"
-msgstr ""
+msgstr "프로젝트 태그"
 
 #: modules/custom-post-types/portfolios.php:337
 msgid "Project Tag"
-msgstr ""
+msgstr "프로젝트 태그"
 
 #: modules/custom-post-types/portfolios.php:320
 msgid "New Project Type Name"
-msgstr ""
+msgstr "새 프로젝트 형식 이름"
 
 #: modules/custom-post-types/portfolios.php:321
 msgid "Parent Project Type"
-msgstr ""
+msgstr "부모 프로젝트 형식"
 
 #: modules/custom-post-types/portfolios.php:322
 msgid "Parent Project Type:"
-msgstr ""
+msgstr "부모 프로젝트 형식:"
 
 #: modules/custom-post-types/portfolios.php:317
 msgid "View Project Type"
-msgstr ""
+msgstr "프로젝트 형식 보기"
 
 #: modules/custom-post-types/portfolios.php:318
 msgid "Update Project Type"
-msgstr ""
+msgstr "프로젝트 형식 업데이트"
 
 #: modules/custom-post-types/portfolios.php:319
 msgid "Add New Project Type"
-msgstr ""
+msgstr "새 프로젝트 형식 추가"
 
 #: modules/custom-post-types/portfolios.php:315
 msgid "All Project Types"
-msgstr ""
+msgstr "모든 프로젝트 형식"
 
 #: modules/custom-post-types/portfolios.php:316
 msgid "Edit Project Type"
-msgstr ""
+msgstr "프로젝트 형식 편집"
 
 #: modules/custom-post-types/portfolios.php:312
 #: modules/custom-post-types/portfolios.php:314
 msgid "Project Types"
-msgstr ""
+msgstr "프로젝트 형식"
 
 #: modules/custom-post-types/portfolios.php:313
 msgid "Project Type"
-msgstr ""
+msgstr "프로젝트 형식"
 
 #: modules/custom-post-types/portfolios.php:280
 msgid "Search Projects"
-msgstr ""
+msgstr "프로젝트 검색"
 
 #: modules/custom-post-types/portfolios.php:281
 msgid "No Projects found"
-msgstr ""
+msgstr "프로젝트를 찾을 수 없습니다"
 
 #: modules/custom-post-types/portfolios.php:282
 msgid "No Projects found in Trash"
-msgstr ""
+msgstr "휴지통에서 프로젝트를 찾을 수 없습니다"
 
 #: modules/custom-post-types/portfolios.php:278
 msgid "New Project"
-msgstr ""
+msgstr "새 프로젝트"
 
 #: modules/custom-post-types/portfolios.php:279
 msgid "View Project"
@@ -194,20 +194,20 @@ msgstr "프로젝트 보기"
 
 #: modules/custom-post-types/portfolios.php:276
 msgid "Add New Project"
-msgstr ""
+msgstr "새 프로젝트 추가"
 
 #: modules/custom-post-types/portfolios.php:277
 msgid "Edit Project"
-msgstr ""
+msgstr "프로젝트 편집"
 
 #: modules/custom-post-types/portfolios.php:274
 msgid "All Projects"
-msgstr ""
+msgstr "모든 프로젝트"
 
 #: modules/custom-post-types/portfolios.php:272
 #: modules/custom-post-types/portfolios.php:393
 msgid "Project"
-msgstr ""
+msgstr "프로젝트"
 
 #: modules/custom-post-types/portfolios.php:273
 msgid "Portfolio"
@@ -215,11 +215,11 @@ msgstr "포트폴리오"
 
 #: modules/custom-post-types/portfolios.php:187
 msgid "You need to <a href=\"%s\">enable portfolio</a> custom post type before you can update it's settings."
-msgstr ""
+msgstr "설정을 업데이트 하려면 포트폴리오 사용자 정의 글 형식을 <a href=\"%s\">활성화</a> 해야 합니다."
 
 #: modules/custom-post-types/portfolios.php:269
 msgid "Portfolio Items"
-msgstr ""
+msgstr "포트폴리오 아이템"
 
 #: modules/custom-post-types/portfolios.php:271
 msgid "Projects"
@@ -227,35 +227,35 @@ msgstr "프로젝트"
 
 #: modules/custom-post-types/portfolios.php:179
 msgid "Portfolio pages display at most %1$s projects"
-msgstr ""
+msgstr "포트폴리오 페이지는 최대 %1$s 프로젝트를 표시합니다"
 
 #: modules/custom-post-types/portfolios.php:109
 #: modules/custom-post-types/portfolios.php:130
 msgid "Portfolio Projects"
-msgstr ""
+msgstr "포트폴리오 프로젝트"
 
 #: modules/custom-post-types/portfolios.php:164
 msgid "Your theme supports <strong>%s</strong>"
-msgstr ""
+msgstr "테마가 <strong>%s</strong>를 지원합니다"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:370
 msgid "You are required to specify a plugin to activate."
-msgstr ""
+msgstr "활성화 할 플러그인을 특정해야 합니다."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:863
 msgid "You are required to specify a capability to check."
-msgstr ""
+msgstr "점검할 수 있는 권한을 특정해야 합니다."
 
 #: modules/custom-content-types.php:32
 #: modules/custom-post-types/portfolios.php:102
 #: modules/custom-post-types/portfolios.php:123
 msgid "Your Custom Content Types"
-msgstr ""
+msgstr "사용자 정의 콘텐츠 형식"
 
 #: modules/custom-content-types.php:42
 #: modules/custom-post-types/portfolios.php:151
 msgid "Use these settings to display different types of content on your site."
-msgstr ""
+msgstr "사이트에서 다른 형식의 콘텐츠를 표시 하려면 이 설정을 사용하세요."
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
@@ -263,11 +263,11 @@ msgstr "더 알아보기"
 
 #: views/admin/network-settings.php:8
 msgid "Jetpack Network Settings Updated!"
-msgstr ""
+msgstr "젯팩 네트워크 설정이 업데이트 됐습니다!"
 
 #: modules/module-info.php:401
 msgid "<strong>The Upcoming Events Widget</strong> allows you to use an iCalendar link to display a list of events on your site."
-msgstr ""
+msgstr "<strong>출시 예정인 이벤트 위젯</strong>은 사이트에서 이벤트 목록을 표시하기 위해  iCalendar 링크를 사용할 수 있습니다."
 
 #: modules/module-info.php:855 modules/module-info.php:878
 msgid "Related Posts"
@@ -279,19 +279,19 @@ msgstr "모두 검색"
 
 #: modules/widgets/readmill.php:11
 msgid "Retired: Send To Readmill"
-msgstr ""
+msgstr "기능 제거: 리드밀로 보내기"
 
 #: modules/widgets/readmill.php:27
 msgid "<strong>The Readmill reading service has shut down</strong><br /> <a taget=\"_blank\" href=\"%s\">Learn More</a>"
-msgstr ""
+msgstr "<strong>리드밀 읽기 서비스는 문을 내립니다</strong><br /> <a taget=\"_blank\" href=\"%s\">더 알아보기</a>"
 
 #: modules/widgets/readmill.php:66
 msgid "Notice to Administrators:<br /> <strong>The Readmill reading service has shut down</strong> <a taget=\"_blank\" href=\"%s\">learn more</a>."
-msgstr ""
+msgstr "관리자에게 알림:<br /> <strong>리드밀 읽기 서비스는 종료됐습니다</strong> <a taget=\"_blank\" href=\"%s\">더 알아보기</a>."
 
 #: modules/widgets/readmill.php:72
 msgid "You can visit <a href=\"%s\" title=\"Appearance > Widgets\">Appearance > Widgets </a> to remove it from this sidebar."
-msgstr ""
+msgstr "이 사이드바에서 제거하려면 <a href=\"%s\" title=\"외모 > 위젯\">외모 > 위젯 </a>으로 가세요."
 
 #: views/admin/landing-page-templates.php:12
 msgid "loading&hellip;"
@@ -299,31 +299,31 @@ msgstr "로딩 중&hellip;"
 
 #: modules/module-info.php:398
 msgid "<strong>The Gallery Widget</strong> provides you with a simple way to display a photo gallery or slideshow in your blog’s sidebar. Requires the Tiled Gallery module."
-msgstr ""
+msgstr "<strong>갤러리 위젯</strong>은 블로그 사이드바에서 사진 갤러리나 슬라이드쇼를 표시할 수 있는 간단한 방법을 제공합니다. 타일 갤러리 모듈이 필요합니다."
 
 #: modules/module-info.php:399
 msgid "<strong>The Display WordPress Posts Widget</strong> lets you display up to ten recent posts from another WordPress.com blog, or a self-hosted WordPress site with Jetpack enabled."
-msgstr ""
+msgstr "<strong>워드프레스 글 표시 위젯</strong>은 다른 워드프레스닷컴 블로그 또는 젯팩이 활성화 된 워드프레스 사이트로부터 최대 10개의 최근 글을 표시할 수 있습니다.."
 
 #: modules/module-info.php:400
 msgid "<strong>Retired: The Readmill Widget</strong> allows your readers to send a book to their device with one click."
-msgstr ""
+msgstr "<strong>기능 제거: 리드밀 위젯</strong>은 한번의 독자가 클릭으로 책을 자신의 기기로 보낼 수 있습니다.."
 
 #: modules/module-info.php:394
 msgid "<strong>The Twitter Widget</strong> shows your latest tweets within a sidebar on your theme."
-msgstr ""
+msgstr "<strong>트위터 위젯</strong>은 테마의 사이드바에서 최근 트윗을 표시합니다."
 
 #: modules/module-info.php:395
 msgid "<strong>The Facebook Like Box Widget</strong> shows your Facebook Like Box within a sidebar on your theme."
-msgstr ""
+msgstr "<strong>페이스북 좋아요 박스 위젯</strong>은 테마의 사이드바에서 페이스북 좋아요 박스를 표시합니다."
 
 #: modules/module-info.php:396
 msgid "<strong>The Image Widget</strong> lets you easily add images to a sidebar on your theme."
-msgstr ""
+msgstr "<strong>이미지 위젯</strong>은 테마의 사이드바에서 이미지를 쉽게 추가할 수 있습니다."
 
 #: modules/module-info.php:397
 msgid "<strong>The Gravatar Widget</strong> allows you to pull in your Gravatar image along with some of your Gravatar profile data."
-msgstr ""
+msgstr "<strong>그라바타 위젯</strong>은 일부 그라바타 프로필 데이터를 포함한 그라바타 이미지를 끌어옵니다."
 
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
@@ -336,31 +336,31 @@ msgstr "다음 &raquo;"
 
 #: modules/infinite-scroll/infinity.php:297
 msgid "We&rsquo;ve changed this option to a click-to-scroll version for you since you have footer widgets in Appearance &rarr; Widgets, or your theme uses click-to-scroll as the default behavior."
-msgstr ""
+msgstr "이 옵션을 클릭 스크롤 버전으로 변경했습니다. 외모 &rarr; 위젯에 푸터 위젯이 있거나 테마가 기본으로 클릭 스크롤을 사용하고 있기 때문입니다."
 
 #: modules/json-api.php:39
 msgid "Allow management"
-msgstr ""
+msgstr "관리 허용하기"
 
 #: modules/json-api.php:40
 msgid "Allow remote management of themes, plugins, and WordPress via the JSON API. (<a href=\"%s\" title=\"Learn more about JSON API\">More info</a>)."
-msgstr ""
+msgstr "JSON API를 통해 테마, 플러그인, 워드프레스 원격 관리 허용하기. (<a href=\"%s\" title=\"JSON API에 대해 더 알아보기\">더 많은 정보</a>)."
 
 #: modules/minileven/theme/pub/minileven/content.php:28
 msgid "Posted by "
-msgstr "게시자:"
+msgstr "글쓴이:"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:169
 msgid "You are not allowed to switch to this theme"
-msgstr ""
+msgstr "이 테마를 변경할 권한이 없습니다"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:532
 msgid "There was an error while trying to upgrade."
-msgstr ""
+msgstr "업그레이드 시도 중 에러가 발생했습니다."
 
 #: modules/contact-form/grunion-form-view.php:131
 msgid "Click here"
-msgstr ""
+msgstr "여기를 클릭하세요"
 
 #: modules/custom-post-types/nova.php:747
 msgid "edit"
@@ -372,7 +372,7 @@ msgstr "이 알림은 위젯을 관리할 수 있는 로그인 사용자에게�
 
 #: modules/widgets/readmill.php:32 modules/widgets/readmill.php:70
 msgid "The Send to Readmill widget is no longer working and will be removed completely."
-msgstr ""
+msgstr "리드밀 위젯으로 보내기는 더 이상 작동하지 않으며 완전히 제거될 것입니다."
 
 #: modules/widgets/readmill.php:34
 msgid "You can remove it yourself now."
@@ -388,7 +388,7 @@ msgstr "워드프레스닷컴 사이트 현황에서 통계 보기"
 
 #: modules/widgets/readmill.php:13
 msgid "Readmill has closed its doors. http://readmill.com/"
-msgstr ""
+msgstr "리드밀은 종료됐습니다. http://readmill.com/"
 
 #: modules/module-info.php:826 modules/monitor.php:52
 msgid "Nobody likes downtime, and that's why Jetpack Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!"
@@ -4588,7 +4588,7 @@ msgstr "이미지(젯팩)"
 
 #: modules/custom-post-types/portfolios.php:347
 msgid "Separate tags with commas"
-msgstr ""
+msgstr "태그를 콤마로 분리"
 
 #: class.jetpack.php:3067
 msgid "Checking email updates status&hellip;"
