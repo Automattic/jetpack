@@ -935,7 +935,7 @@ jQuery(document).ready(function(){
 		case 'settings':
 		if ( isset( $wp_cache_front_page_checks ) == false )
 			$wp_cache_front_page_checks = true;
-		echo '<form name="wp_manager" action="' . add_query_arg( array( 'page' => 'wpsupercache', 'tab' => 'settings' ) ) . '" method="post">';
+		echo '<form name="wp_manager" action="' . esc_url( add_query_arg( array( 'page' => 'wpsupercache', 'tab' => 'settings' ) ) ) . '" method="post">';
 		wp_nonce_field('wp-cache');
 		echo '<input type="hidden" name="action" value="scupdates" />';
 		?><table class="form-table">
