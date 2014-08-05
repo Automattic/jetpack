@@ -461,16 +461,22 @@ The only real limit are limits defined by your server. For example, EXT2 and EXT
 
 You'll have to use a separate mobile plugin to render a page formatted for those visitors. The following plugins have been tested but YMMV depending on mobile client.
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Add Jetpack to mobile FAQ.
 
 * [Jetpack's Mobile Theme Module](http://wordpress.org/plugins/jetpack)
 * [WPTouch](http://wordpress.org/plugins/wptouch/)
 * [WordPress Mobile Edition](http://wordpress.org/plugins/wordpress-mobile-edition/)
 * [WordPress Mobile Pack](http://wordpress.org/plugins/wordpress-mobile-pack/) (can't have "Don't cache pages for known users." enabled)
+<<<<<<< HEAD
 =======
 * [WPTouch] (http://wordpress.org/plugins/wptouch/)
 * [WordPress Mobile Edition] (http://wordpress.org/plugins/wordpress-mobile-edition/)
 * [WordPress Mobile Pack] (http://wordpress.org/plugins/wordpress-mobile-pack/) (can't have "Don't cache pages for known users." enabled)
 >>>>>>> Update wordpress.org/extend URLs
+=======
+>>>>>>> Add Jetpack to mobile FAQ.
 
 
 = Troubleshooting =
