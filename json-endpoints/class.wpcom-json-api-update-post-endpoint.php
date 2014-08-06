@@ -121,38 +121,65 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			unset( $input['parent'] );
 		}
 
-		$categories = null;
-		$tags       = null;
+		$tax_input = array( 'post_tag' => array(), 'category' => array() );
 
-		if ( !empty( $input['categories'] )) {
-			if ( is_array( $input['categories'] ) ) {
-				$_categories = $input['categories'];
+		foreach ( array( 'categories' => 'category', 'tags' => 'post_tag' ) as $key => $taxonomy ) {
+			if ( empty( $input[$key] ) ) {
+				unset( $tax_input[$taxonomy] );
+				continue;
+			}
+
+			$is_hierarchical = is_taxonomy_hierarchical( $taxonomy );
+
+			if ( is_array( $input[$key] ) ) {
+				$terms = $input[$key];
 			} else {
-				foreach ( explode( ',', $input['categories'] ) as $category ) {
-					$_categories[] = $category;
+				$terms = explode( ',', $input[$key] );
+			}
+
+			foreach ( $terms as $term ) {
+				/**
+				 * `curl --data 'category[]=123'` should be interpreted as a category ID,
+				 * not a category whose name is '123'.
+				 *
+				 * Consequence: To add a category/tag whose name is '123', the client must
+				 * first look up its ID.
+				 */
+				if ( ctype_digit( $term ) ) {
+					$term = (int) $term;
 				}
- 			}
-			foreach ( $_categories as $category ) {
-				if ( !$category_info = term_exists( $category, 'category' ) ) {
-					if ( is_int( $category ) )
+
+				$term_info = term_exists( $term, $taxonomy );
+
+				if ( ! $term_info ) {
+					// A term ID that doesn't already exist. Ignore it: we don't know what name to give it.
+					if ( is_int( $term ) ){
 						continue;
-					$category_info = wp_insert_term( $category, 'category' );
+					}
+
+					$term_info = wp_insert_term( $term, $taxonomy );
 				}
-				if ( !is_wp_error( $category_info ) )
-					$categories[] = (int) $category_info['term_id'];
+
+				if ( ! is_wp_error( $term_info ) ) {
+					if ( $is_hierarchical ) {
+						// Categories must be added by ID
+						$tax_input[$taxonomy][] = (int) $term_info['term_id'];
+					} else {
+						// Tags must be added by name
+						if ( is_int( $term ) ) {
+							$term = get_term( $term, $taxonomy );
+							$tax_input[$taxonomy][] = $term->name;
+						} else {
+							$tax_input[$taxonomy][] = $term;
+						}
+					}
+				}
+			}
+
+			if ( empty( $tax_input[$taxonomy] ) ) {
+				unset( $tax_input[$taxonomy] );
 			}
 		}
-
-		if ( !empty( $input['tags'] ) ) {
-			if ( is_array( $input['tags'] ) ) {
-				$tags = $input['tags'];
-			} else {
-				foreach ( explode( ',', $input['tags'] ) as $tag ) {
-					$tags[] = $tag;
-				}
- 			}
-			$tags_string = implode( ',', $tags );
- 		}
 
 		unset( $input['tags'], $input['categories'] );
 
@@ -208,10 +235,9 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$insert['post_author'] = absint( $author_id );
 		}
 
-		if ( !empty( $tags ) )
-			$insert["tax_input"]["post_tag"] = $tags;
-		if ( !empty( $categories ) )
-			$insert["tax_input"]["category"] = $categories;
+		if ( ! empty( $tax_input ) ) {
+			$insert['tax_input'] = $tax_input;
+		}
 
 		$has_media = isset( $input['media'] ) && $input['media'] ? count( $input['media'] ) : false;
 		$has_media_by_url = isset( $input['media_urls'] ) && $input['media_urls'] ? count( $input['media_urls'] ) : false;
