@@ -8,7 +8,7 @@
 
 	<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 		<header class="entry-header">
-			<?php if ( '1' == get_option( 'wp_mobile_featured_images' ) && is_home() || is_search() || is_archive() ) : ?>
+			<?php if ( '1' == get_option( 'wp_mobile_featured_images' ) && minileven_show_featured_images() ) : ?>
 				<div class="entry-thumbnail">
 					<a href="<?php the_permalink(); ?>" title="<?php echo esc_attr( sprintf( __( 'Permalink to %s', 'jetpack' ), the_title_attribute( 'echo=0' ) ) ); ?>" rel="<?php the_ID(); ?>" class="minileven-featured-thumbnail"><?php the_post_thumbnail(); ?></a>
 				</div><!-- .entry-thumbnail -->
