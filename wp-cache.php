@@ -278,7 +278,7 @@ function wp_cache_manager_error_checks() {
 				<input type="hidden" name="action" value="dismiss_gc_warning" />
 				<input type="hidden" name="page" value="wpsupercache" />
 				<?php wp_nonce_field( 'wp-cache' ); ?>
-				<input type='submit' value='<?php _e( 'Dismiss', 'wp-super-cache' ); ?>' />
+				<input class='button-secondary' type='submit' value='<?php _e( 'Dismiss', 'wp-super-cache' ); ?>' />
 				</form>
 				<br />
 				</div>
@@ -306,7 +306,7 @@ function wp_cache_manager_error_checks() {
 			<input type="hidden" name="action" value="dismiss_readable_warning" />
 			<input type="hidden" name="page" value="wpsupercache" />
 			<?php wp_nonce_field( 'wp-cache' ); ?>
-			<input type='submit' value='<?php _e( 'Dismiss', 'wp-super-cache' ); ?>' />
+			<input class='button-secondary' type='submit' value='<?php _e( 'Dismiss', 'wp-super-cache' ); ?>' />
 			</form>
 			<br />
 			</div>
@@ -378,7 +378,7 @@ function wp_cache_manager_error_checks() {
 		<input type="hidden" name="action" value="dismiss_htaccess_warning" />
 		<input type="hidden" name="page" value="wpsupercache" />
 		<?php wp_nonce_field( 'wp-cache' ); ?>
-		<input type='submit' value='<?php _e( 'Dismiss', 'wp-super-cache' ); ?>' />
+		<input class='button-secondary' type='submit' value='<?php _e( 'Dismiss', 'wp-super-cache' ); ?>' />
 		</form>
 		<br />
 		</div><?php
@@ -915,9 +915,9 @@ jQuery(document).ready(function(){
 					echo "<p>" . sprintf( __( "<strong>Page last cached:</strong> %s", 'wp-super-cache' ), $url ) . "</p>";
 				}
 			}
-			echo '<div class="submit"><input type="submit" name="preload" value="' . __( 'Update Settings', 'wp-super-cache' ) . '" />&nbsp;<input type="submit" name="preload" value="' . __( 'Preload Cache Now', 'wp-super-cache' ) . '" />';
+			echo '<div class="submit"><input class="button-primary" type="submit" name="preload" value="' . __( 'Update Settings', 'wp-super-cache' ) . '" />&nbsp;<input class="button-secondary" type="submit" name="preload" value="' . __( 'Preload Cache Now', 'wp-super-cache' ) . '" />';
 			if ( $currently_preloading ) {
-				echo '&nbsp;<input type="submit" name="preload" value="' . __( 'Cancel Cache Preload', 'wp-super-cache' ) . '" />';
+				echo '&nbsp;<input class="button-primary" type="submit" name="preload" value="' . __( 'Cancel Cache Preload', 'wp-super-cache' ) . '" />';
 			}
 			echo '</div>';
 			wp_nonce_field('wp-cache');
@@ -1023,7 +1023,7 @@ jQuery(document).ready(function(){
 		echo "<li><em>" . sprintf( __( 'Need help? Check the <a href="%1$s">Super Cache readme file</a>. It includes installation documentation, a FAQ and Troubleshooting tips. The <a href="%2$s">support forum</a> is also available. Your question may already have been answered.', 'wp-super-cache' ), 'http://wordpress.org/plugins/wp-super-cache/', 'http://wordpress.org/tags/wp-super-cache?forum_id=10' ) . "</em></li>";
 		echo "</ol>";
 
-		echo "<div class='submit'><input class='button-primary' type='submit' " . SUBMITDISABLED . " value='" . __( 'Update Status', 'wp-super-cache' ) . " &raquo;' /></div>";
+		echo "<div class='submit'><input class='button-primary' type='submit' " . SUBMITDISABLED . " value='" . __( 'Update Status', 'wp-super-cache' ) . "' /></div>";
 		wp_nonce_field('wp-cache');
 		?> </form> <?php
 		wsc_mod_rewrite();
@@ -1070,7 +1070,7 @@ jQuery(document).ready(function(){
 					echo "<p><strong>" . __( 'Notice: PHP caching enabled but Supercache mod_rewrite rules detected. Cached files will be served using those rules. If your site is working ok please ignore this message or you can edit the .htaccess file in the root of your install and remove the SuperCache rules.', 'wp-super-cache' ) . '</strong></p>';
 				}
 			}
-			echo "<div class='submit'><input class='button-primary' type='submit' " . SUBMITDISABLED . " value='" . __( 'Update Status', 'wp-super-cache' ) . " &raquo;' /></div></form>";
+			echo "<div class='submit'><input class='button-primary' type='submit' " . SUBMITDISABLED . " value='" . __( 'Update Status', 'wp-super-cache' ) . "' /></div></form>";
 			if ( $cache_enabled ) {
 				echo "<h3>" . __( 'Cache Tester', 'wp-super-cache' ) . "</h3>";
 				echo '<p>' . __( 'Test your cached website by clicking the test button below.', 'wp-super-cache' ) . '</p>';
@@ -1151,7 +1151,7 @@ jQuery(document).ready(function(){
 				echo '<input type="hidden" name="action" value="test" />';
 				if ( isset( $_SERVER['HTTPS' ] ) && 'on' == strtolower( $_SERVER['HTTPS' ] ) )
 					echo "<input type='checkbox' name='httponly' checked='checked' value='1' /> " . __( 'Send non-secure (non https) request for homepage', 'wp-super-cache' );
-				echo '<div class="submit"><input type="submit" name="test" value="' . __( 'Test Cache', 'wp-super-cache' ) . '" /></div>';
+				echo '<div class="submit"><input class="button-secondary" type="submit" name="test" value="' . __( 'Test Cache', 'wp-super-cache' ) . '" /></div>';
 				wp_nonce_field('wp-cache');
 				echo '</form>';
 			}
@@ -1159,14 +1159,14 @@ jQuery(document).ready(function(){
 			echo "<p>" . __( "Cached pages are stored on your server as html and PHP files. If you need to delete them use the button below.", 'wp-super-cache' ) . "</p>";
 			echo '<form name="wp_cache_content_delete" action="?page=wpsupercache&tab=contents" method="post">';
 			echo '<input type="hidden" name="wp_delete_cache" />';
-			echo '<div class="submit" style="float:left;margin-left:10px"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . ' &raquo;" /></div>';
+			echo '<div class="submit"><input id="deletepost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . ' " /></div>';
 			wp_nonce_field('wp-cache');
 			echo "</form>\n";
 
 			if ( ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && wpsupercache_site_admin() ) {
 				echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 				echo '<input type="hidden" name="wp_delete_all_cache" />';
-				echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . ' &raquo;" />';
+				echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" />';
 				wp_nonce_field('wp-cache');
 				echo "</form><br />\n";
 			}
@@ -1382,7 +1382,7 @@ function wp_cache_restore() {
 	echo '<fieldset class="options"><h3>' . __( 'Fix Configuration', 'wp-super-cache' ) . '</h3>';
 	echo '<form name="wp_restore" action="#top" method="post">';
 	echo '<input type="hidden" name="wp_restore_config" />';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="deletepost" value="' . __( 'Restore Default Configuration', 'wp-super-cache' ) . ' &raquo;" /></div>';
+	echo '<div class="submit"><input class="button-secondary" type="submit" ' . SUBMITDISABLED . 'id="deletepost" value="' . __( 'Restore Default Configuration', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	echo '</fieldset>';
@@ -1431,7 +1431,7 @@ function wp_lock_down() {
 	$new_lockdown_desc =  $wp_lock_down == '1' ? __( 'Disable', 'wp-super-cache' ) : __( 'Enable', 'wp-super-cache' );
 	echo '<form name="wp_lock_down" action="#lockdown" method="post">';
 	echo "<input type='hidden' name='wp_lock_down' value='{$new_lockdown}' />";
-	echo "<div class='submit'><input type='submit' " . SUBMITDISABLED . " value='{$new_lockdown_desc} " . __( 'Lock Down', 'wp-super-cache' ) . " &raquo;' /></div>";
+	echo "<div class='submit'><input class='button-primary' type='submit' " . SUBMITDISABLED . " value='{$new_lockdown_desc} " . __( 'Lock Down', 'wp-super-cache' ) . "' /></div>";
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
@@ -1521,7 +1521,7 @@ function wp_lock_down() {
 				continue;
 			$generated = '';
 			if( is_file( ABSPATH . $page . '/index.html' ) )
-				$generated = '<input type="Submit" name="deletepage" value="' . $page . '">';
+				$generated = '<input class="button-secondary" type="Submit" name="deletepage" value="' . $page . '">';
 			$out .= "<tr><td><input type='text' $readonly name='direct_pages[]' size='30' value='$page' /></td><td>$generated</td></tr>";
 		}
 		if( $out != '' ) {
@@ -1540,7 +1540,7 @@ function wp_lock_down() {
 
 	wp_nonce_field('wp-cache');
 	if( $readonly != 'READONLY' )
-		echo "<div class='submit'><input type='submit' ' . SUBMITDISABLED . 'value='" . __( 'Update Direct Pages', 'wp-super-cache' ) . " &raquo;' /></div>";
+		echo "<div class='submit'><input class='button-primary' type='submit' ' . SUBMITDISABLED . 'value='" . __( 'Update Direct Pages', 'wp-super-cache' ) . "' /></div>";
 	echo "</form>\n";
 	?></fieldset><?php
 	} // if $super_cache_enabled
@@ -1696,7 +1696,7 @@ function wp_cache_edit_max_time () {
 	echo "</ol>";
 	echo "<p>" . __( 'Checking for and deleting expired files is expensive, but it&#8217;s expensive leaving them there too. On a very busy site you should set the expiry time to <em>600 seconds</em>. Experiment with different values and visit this page to see how many expired files remain at different times during the day. If you are using legacy caching aim to have less than 500 cached files if possible. You can have many times more cached files when using mod_rewrite or PHP caching.', 'wp-super-cache' ) . "</p>";
 	echo "<p>" . __( 'Set the expiry time to 0 seconds to disable garbage collection.', 'wp-super-cache' ) . "</p>";
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Change Expiration', 'wp-super-cache' ) . ' &raquo;" /></div>';
+	echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Change Expiration', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	?></fieldset><?php
@@ -1748,7 +1748,7 @@ function wp_cache_edit_rejected_ua() {
 		echo esc_html( $ua ) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save UA Strings', 'wp-super-cache' ) . ' &raquo;" /></div>';
+	echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save UA Strings', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	echo '</form>';
 	echo "</fieldset>\n";
@@ -1785,7 +1785,7 @@ function wp_cache_edit_rejected_pages() {
 	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[search]" ' . checked( 1, $wp_cache_pages[ 'search' ], false ) . ' /> ' . __( 'Search Pages', 'wp-super-cache' ) . ' (is_search)</label><br />';
 	echo '<label><input type="checkbox" value="1" name="wp_cache_pages[author]" ' . checked( 1, $wp_cache_pages[ 'author' ], false ) . ' /> ' . __( 'Author Pages', 'wp-super-cache' ) . ' (is_author)</label><br />';
 
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save' ) . ' &raquo;" /></div>';
+	echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
@@ -1808,7 +1808,7 @@ function wp_cache_edit_rejected() {
 		echo esc_html( $file ) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save Strings', 'wp-super-cache' ) . ' &raquo;" /></div>';
+	echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save Strings', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 }
@@ -1830,7 +1830,7 @@ function wp_cache_edit_accepted() {
 		echo esc_html($file) . "\n";
 	}
 	echo '</textarea> ';
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save Files', 'wp-super-cache' ) . ' &raquo;" /></div>';
+	echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save Files', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 }
@@ -1899,7 +1899,7 @@ function wp_cache_debug_settings() {
 
 	echo "</table>\n";
 	}
-	echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save', 'wp-super-cache' ) . ' &raquo;" /></div>';
+	echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Save', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	echo '</fieldset>';
@@ -2424,19 +2424,19 @@ function wp_cache_delete_buttons() {
 
 	echo '<form name="wp_cache_content_expired" action="#listfiles" method="post">';
 	echo '<input type="hidden" name="wp_delete_expired" />';
-	echo '<div class="submit" style="float:left"><input type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Expired', 'wp-super-cache' ) . ' &raquo;" /></div>';
+	echo '<div class="submit" style="float:left"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Expired', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 
 	echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 	echo '<input type="hidden" name="wp_delete_cache" />';
-	echo '<div class="submit" style="float:left;margin-left:10px"><input id="deletepost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . ' &raquo;" /></div>';
+	echo '<div class="submit" style="float:left;margin-left:10px"><input id="deletepost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
 	if ( ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && wpsupercache_site_admin() ) {
 		echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 		echo '<input type="hidden" name="wp_delete_all_cache" />';
-		echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . ' &raquo;" />';
+		echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" />';
 		wp_nonce_field('wp-cache');
 		echo "</form>\n";
 	}
@@ -2744,7 +2744,7 @@ function wpsc_update_htaccess_form( $short_form = true ) {
 		if ( !isset( $wpmu_version ) || $wpmu_version == '' ) {
 			echo '<form name="updatehtaccess" action="#modrewrite" method="post">';
 			echo '<input type="hidden" name="updatehtaccess" value="1" />';
-			echo '<div class="submit"><input type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="' . __( 'Update Mod_Rewrite Rules', 'wp-super-cache' ) . ' &raquo;" /></div>';
+			echo '<div class="submit"><input class="button-primary" type="submit" ' . SUBMITDISABLED . 'id="updatehtaccess" value="' . __( 'Update Mod_Rewrite Rules', 'wp-super-cache' ) . '" /></div>';
 			wp_nonce_field('wp-cache');
 			echo "</form></div>\n";
 		}

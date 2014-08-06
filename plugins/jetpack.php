@@ -39,7 +39,7 @@ function wp_super_cache_jetpack_admin() {
 				$status = __( "disabled" );
 			echo "<p><strong>" . sprintf( __( "Jetpack Mobile Theme support is now %s", 'wp-super-cache' ), $status ) . "</strong></p>";
 		}
-		echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
+		echo '<div class="submit"><input class="button-primary" ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
 		wp_nonce_field('wp-cache');
 		?>
 		</form>

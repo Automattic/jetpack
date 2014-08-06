@@ -77,7 +77,7 @@ function wp_supercache_searchengine_admin() {
 				$status = __( "disabled" );
 			echo "<p><strong>" . sprintf( __( "No Adverts for Friends support is now %s", 'wp-super-cache' ), $status ) . "</strong></p>";
 		}
-	echo '<div class="submit"><input ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
+	echo '<div class="submit"><input class="button-primary" ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	?>
 	</form>
