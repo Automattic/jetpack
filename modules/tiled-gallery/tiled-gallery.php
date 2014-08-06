@@ -199,11 +199,18 @@ class Jetpack_Tiled_Gallery {
 		}
 		$output = $this->generate_carousel_container();
 		$c = 1;
+		$items_in_row = 0;
 		foreach( $attachments as $image ) {
 			if ( $remainder > 0 && $c <= $remainder )
 				$img_size = $remainder_size;
 			else
 				$img_size = $size;
+
+			// Add a row container for all new rows
+			if ( 0 == $items_in_row ) {
+				$original_dimensions = ' data-original-width="' . esc_attr( $content_width ) . '" data-original-height="' . esc_attr( $img_size + $margin * 2 ) . '" ';
+				$output .= '<div' . $original_dimensions . 'class="gallery-row" style="width:' . esc_attr( $content_width ) . 'px; height: ' . esc_attr( $img_size + $margin * 2 ) . 'px;" >';
+			}
 
 			$orig_file = wp_get_attachment_url( $image->ID );
 			$link = $this->get_attachment_link( $image->ID, $orig_file );
@@ -211,9 +218,11 @@ class Jetpack_Tiled_Gallery {
 
 			$img_src = add_query_arg( array( 'w' => $img_size, 'h' => $img_size, 'crop' => 1 ), $orig_file );
 
-			$output .= '<div class="tiled-gallery-item">';
-
 			$add_link = 'none' !== $this->atts['link'];
+			$orig_dimensions = ' data-original-width="' . esc_attr( $img_size + 2 * $margin ) . '" data-original-height="' . esc_attr( $img_size + 2 * $margin ) . '" ';
+
+			$output .= '<div class="gallery-group"' . $orig_dimensions . '><div class="tiled-gallery-item">';
+
 			$orig_dimensions = ' data-original-width="' . esc_attr( $img_size ) . '" data-original-height="' . esc_attr( $img_size ) . '" ';
 
 			if ( $add_link ) {
@@ -239,8 +248,16 @@ class Jetpack_Tiled_Gallery {
 			// Captions
 			if ( trim( $image->post_excerpt ) )
 				$output .= '<div class="tiled-gallery-caption">' . wptexturize( $image->post_excerpt ) . '</div>';
-			$output .= '</div>';
+			$output .= '</div></div>';
+
 			$c ++;
+			$items_in_row ++;
+
+			// Close the row container for all new rows and remainder area
+			if ( $images_per_row == $items_in_row || $remainder + 1 == $c ) {
+				$output .= '</div>';
+				$items_in_row = 0;
+			}
 		}
 		$output .= '</div>';
 		return $output;
@@ -281,7 +298,9 @@ class Jetpack_Tiled_Gallery {
 
 	function generate_carousel_image_args( $image ) {
 		$attachment_id = $image->ID;
-		$orig_file       = wp_get_attachment_url( $attachment_id );
+		$orig_file       = wp_get_attachment_image_src( $attachment_id, 'full' );
+		$orig_file       = isset( $orig_file[0] ) ? $orig_file[0] : wp_get_attachment_url( $attachment_id );
+
 		$meta            = wp_get_attachment_metadata( $attachment_id );
 		$size            = isset( $meta['width'] ) ? intval( $meta['width'] ) . ',' . intval( $meta['height'] ) : '';
 		$img_meta        = ( ! empty( $meta['image_meta'] ) ) ? (array) $meta['image_meta'] : array();
@@ -306,7 +325,7 @@ class Jetpack_Tiled_Gallery {
 		$output = sprintf(
 				'data-attachment-id="%1$d" data-orig-file="%2$s" data-orig-size="%3$s" data-comments-opened="%4$s" data-image-meta="%5$s" data-image-title="%6$s" data-image-description="%7$s" data-medium-file="%8$s" data-large-file="%9$s"',
 				esc_attr( $attachment_id ),
-				esc_url( wp_get_attachment_url( $attachment_id ) ),
+				esc_url( $orig_file ),
 				esc_attr( $size ),
 				esc_attr( $comments_opened ),
 				esc_attr( json_encode( array_map( 'esc_attr', $img_meta ) ) ),
