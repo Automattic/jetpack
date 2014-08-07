@@ -1221,8 +1221,6 @@ class Jetpack {
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
-		if ( ! file_exists( $file ) )
-			return false;
 
 		$mod = get_file_data( $file, $headers );
 		if ( empty( $mod['name'] ) )
