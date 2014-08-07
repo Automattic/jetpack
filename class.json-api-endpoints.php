@@ -263,17 +263,19 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( is_array( $description ) ) {
 				// String or boolean array keys only
 				$whitelist = array_keys( $description );
-				if ( isset( $data[$key] ) && isset( $description[$data[$key]] ) ) {
+
+				if ( $whitelist === $boolean_arg ) {
+					// Truthiness: default=false
+					$return[$key] = isset( $data[$key] ) ? (bool) WPCOM_JSON_API::is_truthy( $data[$key] ) : false;
+				} elseif ( $whitelist === $naeloob_arg ) {
+					// Truthiness: default=true
+					$return[$key] = isset( $data[$key] ) ? (bool) WPCOM_JSON_API::is_truthy( $data[$key] ) : true;
+				} elseif ( isset( $data[$key] ) && isset( $description[$data[$key]] ) ) {
+					// String Key
 					$return[$key] = (string) $data[$key];
 				} elseif ( $return_default_values ) {
+					// Default value
 					$return[$key] = (string) current( $whitelist );
-				} else {
-					continue;
-				}
-
-				// Truthiness
-				if ( $whitelist === $boolean_arg || $whitelist === $naeloob_arg ) {
-					$return[$key] = (bool) WPCOM_JSON_API::is_truthy( $return[$key] );
 				}
 
 				continue;
