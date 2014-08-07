@@ -599,7 +599,6 @@ class Jetpack {
 		elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
 			$development_mode = true;
 		}
-
 		return apply_filters( 'jetpack_development_mode', $development_mode );
 	}
 
@@ -1000,6 +999,7 @@ class Jetpack {
 			return;
 		}
 
+		Jetpack_Options::delete_option( 'available_modules' );
 		$active_modules     = Jetpack::get_active_modules();
 		$reactivate_modules = array();
 		foreach ( $active_modules as $active_module ) {
@@ -1047,16 +1047,23 @@ class Jetpack {
 		static $modules = null;
 
 		if ( ! isset( $modules ) ) {
-			$files = Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules' );
+			$should_use_cache = ! self::is_development_mode() && ! is_admin();
+			if ( $should_use_cache ) {
+				$modules = Jetpack_Options::get_option( 'available_modules' );
+			}
+			if ( $modules === null ) {
+				$files = Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules' );
 
-			$modules = array();
+				$modules = array();
 
-			foreach ( $files as $file ) {
-				if ( ! $headers = Jetpack::get_module( $file ) ) {
-					continue;
+				foreach ( $files as $file ) {
+					if ( ! $headers = Jetpack::get_module( $file ) ) {
+						continue;
+					}
+
+					$modules[ Jetpack::get_module_slug( $file ) ] = $headers['introduced'];
 				}
-
-				$modules[ Jetpack::get_module_slug( $file ) ] = $headers['introduced'];
+				Jetpack_Options::update_option( 'available_modules', $modules );
 			}
 		}
 
