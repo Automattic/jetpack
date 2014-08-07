@@ -400,13 +400,13 @@ function sharing_register_post_for_share_counts( $post_id ) {
 }
 
 function sharing_maybe_enqueue_scripts() {
-	$sharer      = new Sharing_Service();
-	$global      = $sharer->get_global_options();
+	$sharer          = new Sharing_Service();
+	$global_options  = $sharer->get_global_options();
 
-	$enqueue     = false;
-	if ( is_singular() && in_array( get_post_type(), $global['show'] ) ) {
+	$enqueue         = false;
+	if ( is_singular() && in_array( get_post_type(), $global_options['show'] ) ) {
 		$enqueue = true;
-	} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_archive() || is_search() || in_array( get_post_type(), $global['show'] ) ) ) {
+	} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_archive() || is_search() || in_array( get_post_type(), $global_options['show'] ) ) ) {
 		$enqueue = true;
 	}
 
