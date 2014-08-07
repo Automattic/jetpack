@@ -86,6 +86,14 @@ Learn more (and get detailed instructions) in our [contribute guide](http://jetp
 
 == Changelog ==
 
+= 3.1.1 =
+* Enhancement: Update translation files for strings that had been submitted/approved since release.
+* Bug Fix: Social Links: Add a function check to better degrade if Publicize isn't around.
+* Bug Fix: Open Graph: Add WordPress SEO back to the blacklist, until they update how they opt us out.
+* Bug Fix: Asset Minification: Add another caveat ( empty $plugin ) to short out on.
+* Bug Fix: Deprecated Hooks: Fixing our expectations where something that should be an array occasionally wasn't.
+* Bug Fix: Custom CSS: Add extra whitelist rule for -o-keyframe rules.
+
 = 3.1 =
 * Enhancement: New Custom Content Types module.
 * Enhancement: New Jetpack Logo.
