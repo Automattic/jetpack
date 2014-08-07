@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha, automattic
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 3.9
-Stable tag: 1.4
+Tested up to: 3.9.2
+Stable tag: 1.4.1
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -56,10 +56,15 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.4 =
-Dynamic cached content now disabled by default. mfunc replaced by wpsc_cachedata filter. Read http://ocaoimh.ie/y/6j before updating if you use mfunc/mclude/dynamic-cached-content.
+= 1.4.1 =
+Fix for XSS in settings page. 
 
 == Changelog ==
+= 1.4.1 =
+* Fixed XSS in settings page. Props Simon Waters, Surevine Limited.
+* Fix to object cache so entries may now be deleted when posts updated. (object cache still experimental)
+* Documentation updates and cleanup of settings page.
+
 = 1.4 =
 * Replace legacy mfunc/mnclude/dynamic-cached-content functionality with a "wpsc_cachedata" cacheaction filter.
 * Added dynamic-cache-test.php plugin example wpsc_cachedata filter plugin.

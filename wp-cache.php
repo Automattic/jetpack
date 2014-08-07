@@ -1,15 +1,17 @@
 <?php
 /*
 Plugin Name: WP Super Cache
-Plugin URI: http://ocaoimh.ie/wp-super-cache/
+Plugin URI: http://wordpress.org/plugins/wp-super-cache/
 Description: Very fast caching plugin for WordPress.
-Version: 1.4
-Author: Donncha O Caoimh
-Author URI: http://ocaoimh.ie/
+Version: 1.4.1
+Author: Automattic
+Author URI: http://automattic.com/
+License: GPL2+
+Text Domain: wp-super-cache
 */
 
-/*  Copyright 2005-2006  Ricardo Galli Granada  (email : gallir@uib.es)
-    Copyright 2007-2013 Donncha Ó Caoimh (http://ocaoimh.ie/) and many others.
+/*
+    Copyright Automattic and many other contributors.
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by

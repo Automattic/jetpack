@@ -1,3 +1,80 @@
+2014-08-07 12:45  donncha
+
+	* wp-cache.php: Removed author information
+
+2014-08-06 12:41  kraftbj
+
+	* plugins/awaitingmoderation.php, plugins/badbehaviour.php,
+	  plugins/domain-mapping.php, plugins/jetpack.php,
+	  plugins/searchengine.php, plugins/wptouch.php, wp-cache.php: PR
+	  #13: Added .button-primary and .button-secondary classes to and
+	  removed &raquo's from buttons throughout the admin for
+	  consistency. Ref:
+	  https://github.com/Automattic/wp-super-cache/pull/13 Props:
+	  rcowles
+
+2014-08-05 20:00  kraftbj
+
+	* ossdl-cdn.php, readme.txt, wp-cache.php: Fix bad merge.
+
+2014-08-05 19:56  kraftbj
+
+	* readme.txt: Add Jetpack to mobile FAQ.
+
+2014-08-05 19:56  kraftbj
+
+	* wp-cache.php: Remove CDN Sync Tools. No longer in WP.org repo
+
+2014-08-05 19:55  kraftbj
+
+	* ossdl-cdn.php, readme.txt, wp-cache.php: Update
+	  wordpress.org/extend URLs
+
+2014-08-05 12:42  donncha
+
+	* wp-cache.php: Fix to avoid an XSS in the settings page. Props
+	  Simon Waters, Surevine Limited.
+
+2014-08-04 22:04  kraftbj
+
+	* ossdl-cdn.php: Remove reference to CDN Sync. Plugin no longer in
+	  repo.
+
+2014-07-31 21:09  kraftbj
+
+	* readme.txt: Add Jetpack to mobile FAQ.
+
+2014-07-31 21:09  kraftbj
+
+	* wp-cache.php: Remove CDN Sync Tools. No longer in WP.org repo
+
+2014-07-31 21:08  kraftbj
+
+	* ossdl-cdn.php, readme.txt, wp-cache-phase1.php, wp-cache.php:
+	  Update wordpress.org/extend URLs
+
+2014-07-31 21:08  kraftbj
+
+	* plugins/awaitingmoderation.php, plugins/badbehaviour.php,
+	  plugins/domain-mapping.php, plugins/dynamic-cache-test.php,
+	  plugins/jetpack.php, plugins/searchengine.php,
+	  plugins/wptouch.php: Trim whitespace
+
+2014-07-31 21:07  kraftbj
+
+	* wp-cache-config-sample.php, wp-cache-phase1.php, wp-cache.php:
+	  Trim whitespace
+
+2014-07-31 21:06  kraftbj
+
+	* wp-cache.php: Admin: Add clear to h3 to pretify Recommended Links
+	  title
+
+2014-07-31 20:51  donncha
+
+	* wp-cache-phase2.php: Make sure these are global so the function
+	  knows about them. Props JoHenton and richardmtl
+	  http://wordpress.org/support/topic/notices-appearing-above-site-pages-how-do-i-get-rid-of-them?replies=2
 2013-10-23 10:49  donncha
 
 	* wp-super-cache.pot: Updated translation file
