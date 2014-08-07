@@ -408,8 +408,6 @@ function sharing_maybe_enqueue_scripts() {
 		$enqueue = true;
 	} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_archive() || is_search() || in_array( get_post_type(), $global['show'] ) ) ) {
 		$enqueue = true;
-	} elseif ( is_home() && current_theme_supports( 'infinite-scroll' ) && Jetpack::is_module_active( 'infinite-scroll' ) ) {
-		$enqueue = true;
 	}
 
 	return (bool) apply_filters( 'sharing_enqueue_scripts', $enqueue );
