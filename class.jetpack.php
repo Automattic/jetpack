@@ -4379,7 +4379,7 @@ p {
 	 */
 	public static function maybe_min_asset( $url, $path, $plugin ) {
 		// Short out on things trying to find actual paths.
-		if ( ! $path ) {
+		if ( ! $path || empty( $plugin ) ) {
 			return $url;
 		}
 
