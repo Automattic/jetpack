@@ -18,6 +18,7 @@ class Jetpack_Options {
 				'widget_twitter',
 				'wpcc_options',
 				'relatedposts',
+				'file_data',
 			);
 		}
 

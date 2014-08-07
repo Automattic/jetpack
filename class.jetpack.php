@@ -957,6 +957,10 @@ class Jetpack {
 	 * @return array Array of absolute paths to the PHP files.
 	 */
 	public static function glob_php( $absolute_path ) {
+		if ( function_exists( 'glob' ) ) {
+			return glob( "$absolute_path/*.php" );
+		}
+
 		$absolute_path = untrailingslashit( $absolute_path );
 		$files = array();
 		if ( ! $dir = @opendir( $absolute_path ) ) {
@@ -1229,9 +1233,10 @@ class Jetpack {
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
 
-		$mod = get_file_data( $file, $headers );
-		if ( empty( $mod['name'] ) )
+		$mod = Jetpack::get_file_data( $file, $headers );
+		if ( empty( $mod['name'] ) ) {
 			return false;
+		}
 
 		$mod['name']                = translate( $mod['name'], 'jetpack' );
 		$mod['description']         = translate( $mod['description'], 'jetpack' );
@@ -1255,6 +1260,28 @@ class Jetpack {
 		}
 
 		return $mod;
+	}
+
+	/**
+	 * Like core's get_file_data implementation, but caches the result.
+	 */
+	public static function get_file_data( $file, $headers ) {
+		$file_data_option = Jetpack_Options::get_option( 'file_data', array() );
+		$key = md5( $file . serialize( $headers ) );
+
+		// If we already have it, short-circuit!
+		if ( isset( $file_data_option[ JETPACK__VERSION ][ $key ] ) ) {
+			return $file_data_option[ JETPACK__VERSION ][ $key ];
+		}
+
+		$data = get_file_data( $file, $headers );
+
+		// Strip out any old Jetpack versions that are cluttering the option.
+		$file_data_option = array_intersect_key( $file_data_option, array( JETPACK__VERSION => null ) );
+		$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
+		Jetpack_Options::update_option( 'file_data', $file_data_option );
+
+		return $data;
 	}
 
 	public static function translate_module_tag( $untranslated_tag ) {
