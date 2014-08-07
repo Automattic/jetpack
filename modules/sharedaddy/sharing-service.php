@@ -412,7 +412,7 @@ function sharing_maybe_enqueue_scripts() {
 		$enqueue = true;
 	}
 
-	return $enqueue;
+	return (bool) apply_filters( 'sharing_enqueue_scripts', $enqueue );
 }
 
 function sharing_add_footer() {
