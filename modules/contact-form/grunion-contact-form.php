@@ -1266,44 +1266,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field = $this->fields[$field_id];
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
-<<<<<<< HEAD
-=======
-			$extra_values[$label] = $value;
-		}
-
-
-		$message_fields = array();
-
-		foreach ( $field_ids['all'] as $field_id ) {
-
-			switch( $field_id ){
-				case "name":
-					$message_fields[$comment_author_label] = $comment_author;
-					break;
-				case "email":
-					$message_fields[$comment_author_email_label] = $comment_author_email;
-					break;
-				case "telephone":
-					$message_fields[$comment_author_telephone_label] = $comment_author_telephone;
-					break;
-				case "url":
-					$message_fields[$comment_author_url_label] = $comment_author_url;
-					break;
-				case "textarea":
-					$message_fields[$comment_content_label] = $comment_content;
-					break;
-				case "subject":
-					$field = $this->fields[$field_id];
-					$label = $field->get_attribute( 'label' );
-					$message_fields[$label] = $contact_form_subject;
-					break;
-				default:
-					$field = $this->fields[$field_id];
-					$label = $field->get_attribute( 'label' );
-					$value = $field->value;
-					$message_fields[$label] = $value;
-			}
->>>>>>> c615c98... Add telephone to contact form
 
 			$extra_values[$label] = $value;
 			$i++; // Increment prefix counter for the next extra field
