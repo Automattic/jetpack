@@ -1136,6 +1136,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 			switch ( $type ) {
 			case 'email' :
+			case 'telephone' :
 			case 'name' :
 			case 'url' :
 			case 'subject' :
@@ -1205,6 +1206,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		// Initialize all these "standard" fields to null
 		$comment_author_email = $comment_author_email_label = // v
+		$comment_author_telephone = $comment_author_telephone_label = // v
 		$comment_author       = $comment_author_label       = // v
 		$comment_author_url   = $comment_author_url_label   = // v
 		$comment_content      = $comment_content_label      = null;
@@ -1264,6 +1266,44 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$field = $this->fields[$field_id];
 			$label = $i . '_' . $field->get_attribute( 'label' );
 			$value = $field->value;
+<<<<<<< HEAD
+=======
+			$extra_values[$label] = $value;
+		}
+
+
+		$message_fields = array();
+
+		foreach ( $field_ids['all'] as $field_id ) {
+
+			switch( $field_id ){
+				case "name":
+					$message_fields[$comment_author_label] = $comment_author;
+					break;
+				case "email":
+					$message_fields[$comment_author_email_label] = $comment_author_email;
+					break;
+				case "telephone":
+					$message_fields[$comment_author_telephone_label] = $comment_author_telephone;
+					break;
+				case "url":
+					$message_fields[$comment_author_url_label] = $comment_author_url;
+					break;
+				case "textarea":
+					$message_fields[$comment_content_label] = $comment_content;
+					break;
+				case "subject":
+					$field = $this->fields[$field_id];
+					$label = $field->get_attribute( 'label' );
+					$message_fields[$label] = $contact_form_subject;
+					break;
+				default:
+					$field = $this->fields[$field_id];
+					$label = $field->get_attribute( 'label' );
+					$value = $field->value;
+					$message_fields[$label] = $value;
+			}
+>>>>>>> c615c98... Add telephone to contact form
 
 			$extra_values[$label] = $value;
 			$i++; // Increment prefix counter for the next extra field
@@ -1609,6 +1649,9 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			case 'email';
 				$this->value = $current_user->data->user_email;
 				break;
+			case 'telephone';
+				$this->value = $current_user->data->user_telephone;
+				break;
 			case 'name' :
 				$this->value = $user_identity;
 				break;
@@ -1630,6 +1673,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			$r .= "\n<div>\n";
 			$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label email" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . __( "(required)", 'jetpack' ) . '</span>' : '' ) . "</label>\n";
 			$r .= "\t\t<input type='email' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' class='email' " . $field_placeholder . "/>\n";
+			$r .= "\t</div>\n";
+			break;
+		case 'telephone' :
+			$r .= "\n<div>\n";
+			$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label telephone" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . __( "(required)", 'jetpack' ) . '</span>' : '' ) . "</label>\n";
+			$r .= "\t\t<input type='tel' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' class='email' " . $field_placeholder . "/>\n";
 			$r .= "\t</div>\n";
 			break;
 		case 'textarea' :
