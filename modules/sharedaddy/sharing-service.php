@@ -399,21 +399,24 @@ function sharing_register_post_for_share_counts( $post_id ) {
 	$jetpack_sharing_counts[ (int) $post_id ] = get_permalink( $post_id );
 }
 
+function sharing_maybe_enqueue_scripts() {
+	$sharer = new Sharing_Service();
+	$global  = $sharer->get_global_options();
+
+	$enqueue = false;
+	if ( is_singular() && in_array( get_post_type(), $global['show'] ) ) {
+		$enqueue = true;
+	} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_archive() || is_search() || in_array( get_post_type(), $global['show'] ) ) ) {
+		$enqueue = true;
+	}
+
+	return $enqueue;
+}
+
 function sharing_add_footer() {
 	global $jetpack_sharing_counts;
 
-	$sharer = new Sharing_Service();
-	$enabled = $sharer->get_blog_services();
-	$global  = $sharer->get_global_options();
-
-	$show = false;
-	if ( is_singular() && in_array( get_post_type(), $global['show'] ) ) {
-		$show = true;
-	} elseif ( in_array( 'index', $global['show'] ) && ( is_home() || is_archive() || is_search() || in_array( get_post_type(), $global['show'] ) ) ) {
-		$show = true;
-	}
-
-	if ( apply_filters( 'sharing_js', true ) && apply_filters( 'enqueue_sharing_js', $show ) ) {
+	if ( apply_filters( 'sharing_js', true ) && sharing_maybe_enqueue_scripts() ) {
 
 		if ( is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
 			$sharing_post_urls = array_filter( $jetpack_sharing_counts );
@@ -432,6 +435,8 @@ function sharing_add_footer() {
 		wp_localize_script('sharing-js', 'recaptcha_options', $recaptcha__options);
 	}
 
+	$sharer = new Sharing_Service();
+	$enabled = $sharer->get_blog_services();
 	foreach ( array_merge( $enabled['visible'], $enabled['hidden'] ) AS $service ) {
 		$service->display_footer();
 	}
