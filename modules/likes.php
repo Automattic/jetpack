@@ -920,7 +920,7 @@ class Jetpack_Likes {
 		}
 
 		// Run through the sharing filters
-		//$enabled = apply_filters( 'sharing_show', $enabled, $post );
+		$enabled = apply_filters( 'sharing_show', $enabled, $post );
 
 		return (bool) apply_filters( 'wpl_is_likes_visible', $enabled );
 	}
