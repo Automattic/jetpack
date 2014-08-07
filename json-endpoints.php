@@ -180,6 +180,8 @@ new WPCOM_JSON_API_List_Posts_Endpoint( array(
 		),
 		'after'    => '(ISO 8601 datetime) Return posts dated on or after the specified datetime.',
 		'before'   => '(ISO 8601 datetime) Return posts dated on or before the specified datetime.',
+		'modified_after'  => '(ISO 8601 datetime) Return posts modified on or after the specified datetime.',
+		'modified_before' => '(ISO 8601 datetime) Return posts modified on or before the specified datetime.',
 		'tag'      => '(string) Specify the tag name or slug.',
 		'category' => '(string) Specify the category name or slug.',
 		'type'     => "(string) Specify the post type. Defaults to 'post', use 'any' to query for both posts and pages. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",

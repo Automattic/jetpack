@@ -119,6 +119,17 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			add_filter( 'posts_where', array( $this, 'handle_date_range' ) );
 		}
 
+		if ( isset( $args['modified_before'] ) ) {
+			$this->modified_date_range['before'] = $args['modified_before'];
+		}
+		if ( isset( $args['modified_after'] ) ) {
+			$this->modified_date_range['after'] = $args['modified_after'];
+		}
+
+		if ( $this->modified_date_range ) {
+			add_filter( 'posts_where', array( $this, 'handle_modified_date_range' ) );
+		}
+
 		/**
 		 * 'column' necessary for the me/posts endpoint (which extends sites/$site/posts).
 		 * Would need to be added to the sites/$site/posts definition if we ever want to
@@ -133,6 +144,10 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		if ( $this->date_range ) {
 			remove_filter( 'posts_where', array( $this, 'handle_date_range' ) );
 			$this->date_range = array();
+		}
+		if ( $this->modified_date_range ) {
+			remove_filter( 'posts_where', array( $this, 'handle_modified_date_range' ) );
+			$this->modified_date_range = array();
 		}
 
 		$return = array();
@@ -183,6 +198,35 @@ class WPCOM_JSON_API_List_Posts_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$where .= $wpdb->prepare(
 					" AND `$wpdb->posts`.post_date >= CAST( %s AS DATETIME ) ",
 					$this->date_range['after']
+				);
+			}
+			break;
+		}
+
+		return $where;
+	}
+
+	function handle_modified_date_range( $where ) {
+		global $wpdb;
+
+		switch ( count( $this->modified_date_range ) ) {
+		case 2 :
+			$where .= $wpdb->prepare(
+				" AND `$wpdb->posts`.post_modified BETWEEN CAST( %s AS DATETIME ) AND CAST( %s AS DATETIME ) ",
+				$this->modified_date_range['after'],
+				$this->modified_date_range['before']
+			);
+			break;
+		case 1 :
+			if ( isset( $this->modified_date_range['before'] ) ) {
+				$where .= $wpdb->prepare(
+					" AND `$wpdb->posts`.post_modified <= CAST( %s AS DATETIME ) ",
+					$this->modified_date_range['before']
+				);
+			} else {
+				$where .= $wpdb->prepare(
+					" AND `$wpdb->posts`.post_modified >= CAST( %s AS DATETIME ) ",
+					$this->modified_date_range['after']
 				);
 			}
 			break;
