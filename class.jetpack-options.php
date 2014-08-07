@@ -10,6 +10,7 @@ class Jetpack_Options {
 				'register',
 				'activated',
 				'active_modules',
+				'available_modules',
 				'do_activate',
 				'log',
 				'publicize',
