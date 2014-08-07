@@ -200,6 +200,7 @@ class Jetpack_Testimonial {
 		$wp_customize->add_section( 'jetpack_testimonials', array(
 			'title'          => esc_html__( 'Testimonials', 'jetpack' ),
 			'theme_supports' => 'jetpack-testimonial',
+			'priority'       => 130,
 		) );
 
 		$wp_customize->add_setting( 'jetpack_testimonials[page-title]', array(
