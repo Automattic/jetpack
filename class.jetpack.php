@@ -730,9 +730,11 @@ class Jetpack {
 			$modules = array_diff( $modules, $updated_modules );
 		}
 
+		$is_development_mode = Jetpack::is_development_mode();
+
 		foreach ( $modules as $module ) {
 			// If we're in dev mode, disable modules requiring a connection
-			if ( Jetpack::is_development_mode() ) {
+			if ( $is_development_mode ) {
 				// Prime the pump if we need to
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = Jetpack::get_module( $module );
