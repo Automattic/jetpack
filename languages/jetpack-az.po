@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-07-24 18:13:51+0000\n"
+"PO-Revision-Date: 2014-08-07 09:05:05+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,7 +12,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:168
 msgid "Enable Portfolio Projects for this site."
-msgstr ""
+msgstr "Bu sayt üçün Portfolio Layihələrini aktivləşdir."
 
 #: modules/module-info.php:930
 msgid "To enable the Portfolio content type, head over to <a href=\"%s\">Settings &rarr; Writing &rarr; Your Custom Content Types</a> and make sure that \"Portfolio Projects\" is checked. You can now add projects under the new \"Portfolio\" menu item in your sidebar. After you've added some projects, they'll be visible on your website at http://<strong>yourgroovysite.com</strong>/portfolio/."
@@ -24,7 +24,7 @@ msgstr ""
 
 #: modules/module-info.php:923
 msgid "Custom Content Types"
-msgstr ""
+msgstr "Xüsusi İçərik Növləri"
 
 #: modules/module-info.php:929
 msgid "Organize and display different types of content on your site, separate from posts and pages."
@@ -190,7 +190,7 @@ msgstr "Yeni Layihə"
 
 #: modules/custom-post-types/portfolios.php:279
 msgid "View Project"
-msgstr "Layihəyə bax"
+msgstr "Layihəyə Bax"
 
 #: modules/custom-post-types/portfolios.php:276
 msgid "Add New Project"
@@ -219,7 +219,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:269
 msgid "Portfolio Items"
-msgstr "Portfel maddələri"
+msgstr "Portfel Maddələri"
 
 #: modules/custom-post-types/portfolios.php:271
 msgid "Projects"
@@ -259,7 +259,7 @@ msgstr "Saytınızdakı fərqli mühtəviyyat növlərini göstərmək üçün b
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
-msgstr "Daha çox məlumat"
+msgstr "Daha ətraflı"
 
 #: views/admin/network-settings.php:8
 msgid "Jetpack Network Settings Updated!"
@@ -364,7 +364,7 @@ msgstr "Buraya tıklayın"
 
 #: modules/custom-post-types/nova.php:747
 msgid "edit"
-msgstr "Redaktə et"
+msgstr "redaktə et"
 
 #: modules/widgets/readmill.php:73
 msgid "This notice is only visible to logged in users that can manage widgets"
@@ -408,15 +408,15 @@ msgstr "Spamı boşalt"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:159
 msgid "Theme is empty."
-msgstr ""
+msgstr "Mövzu boşdur."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:165
 msgid "The specified theme was not found."
-msgstr ""
+msgstr "Göstərilən mövzu tapılmadı."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:354
 msgid "Plugin not found."
-msgstr ""
+msgstr "Qoşma tapılmadı."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:366
 msgid "This user is not authorized to manage plugins network wide."
@@ -424,20 +424,20 @@ msgstr ""
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:394
 msgid "The Plugin is already active."
-msgstr ""
+msgstr "Bu qoşma artıq aktivdir."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:450
 msgid "The Plugin is already deactivated."
-msgstr ""
+msgstr "Bu qoşma artıq deaktivasiya edilmişdir."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:654
 #: json-endpoints/class.json-api-jetpack-endpoints.php:668
 msgid "Module not found: `%s`."
-msgstr ""
+msgstr "Modul tapılmadı: `%s`."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:682
 msgid "The Module is already active."
-msgstr ""
+msgstr "Modul artıq aktivdir."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:689
 msgid "There was an error while activating the module `%s`."
@@ -445,7 +445,7 @@ msgstr ""
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:724
 msgid "The Jetpack Module is already deactivated."
-msgstr ""
+msgstr "Jetpack Modulu artıq deaktivasiya edilmişdir."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:730
 msgid "There was an error while deactivating the module `%s`."
@@ -665,7 +665,7 @@ msgstr "Şəbəkə Parametrləri"
 
 #: views/admin/network-settings.php:17
 msgid "Global"
-msgstr ""
+msgstr "Qlobal"
 
 #: views/admin/network-settings.php:18
 msgid "These settings affect all sites on the network."
@@ -712,7 +712,7 @@ msgstr ""
 
 #: views/admin/admin-page.php:70
 msgid "Jetpack features"
-msgstr ""
+msgstr "Jetpack xüsusiyyətləri"
 
 #: views/admin/admin-page.php:74
 msgid "Search the Jetpack features"
@@ -802,7 +802,7 @@ msgstr "Jetpack Saytları"
 
 #: class.jetpack-sync.php:770
 msgid "Indexing request queued and waiting&hellip;"
-msgstr ""
+msgstr "İndeksləmə İstəyiniz növbəyə alınmış və gözləmədədir&hellip;"
 
 #: class.jetpack-twitter-cards.php:90 class.jetpack-twitter-cards.php:99
 #: functions.opengraph.php:71
@@ -1903,7 +1903,7 @@ msgstr "Yanvar ayının <sup>4</sup>-nə qədər bloqumda yağan qar göstər."
 
 #: modules/omnisearch/omnisearch-plugins.php:20
 msgid "Search Plugins"
-msgstr "Plaqinlərdə axtar"
+msgstr "Qoşmaları axtar"
 
 #: modules/theme-tools/social-links.php:195
 msgid "&mdash; Select &mdash;"
@@ -1925,7 +1925,7 @@ msgstr ""
 #: modules/omnisearch/omnisearch-plugins.php:21
 #: modules/omnisearch/omnisearch-plugins.php:26
 msgid "Plugins"
-msgstr "Plaqinlər"
+msgstr "Qoşmalar"
 
 #: modules/tiled-gallery/tiled-gallery.php:363
 msgid "Tiled Mosaic"
@@ -2069,7 +2069,7 @@ msgstr "İl/ay/gün"
 
 #: modules/videopress/class.videopress-player.php:280
 msgid "Submit"
-msgstr "Dəstək"
+msgstr "Göndər"
 
 #: class.jetpack-debugger.php:76
 msgid "Your `%1$s` option is set up as `%2$s`, but your WordPress.com connection lists it as `%3$s`!"
@@ -3194,7 +3194,7 @@ msgstr "%s hazırkı e-poçt ünvanı tələb olunur"
 #: modules/minileven/theme/pub/minileven/functions.php:98
 msgctxt "Open Sans font: on or off"
 msgid "on"
-msgstr "on"
+msgstr "açıq"
 
 #: modules/related-posts/jetpack-related-posts.php:177
 #: modules/related-posts/jetpack-related-posts.php:347
@@ -3254,7 +3254,7 @@ msgstr "Yazı səhifəsi"
 
 #: class.jetpack.php:2058
 msgid "For more information:"
-msgstr "Daha ətraflı məlumat:"
+msgstr "Daha çox məlumat:"
 
 #: modules/contact-form/grunion-contact-form.php:1655
 #: modules/minileven/minileven.php:233
@@ -3319,7 +3319,7 @@ msgstr "Yazı növü:"
 
 #: class.jetpack.php:2044
 msgid "Overview"
-msgstr "Baxış"
+msgstr "Əsas Görünüş"
 
 #: modules/contact-form/grunion-form-view.php:10
 msgctxt "Label for HTML form \"URL/Website\" field in contact form builder"
@@ -4584,7 +4584,7 @@ msgstr "Təsvir (Jetpack)"
 
 #: modules/custom-post-types/portfolios.php:347
 msgid "Separate tags with commas"
-msgstr ""
+msgstr "Etiketləri vergül ilə ayırın"
 
 #: class.jetpack.php:3067
 msgid "Checking email updates status&hellip;"
@@ -5205,7 +5205,7 @@ msgstr "Komiksi redaktə et"
 
 #: modules/module-info.php:383
 msgid "The Twitter Widget "
-msgstr ""
+msgstr "Twitter Vidceti"
 
 #: modules/sharedaddy/sharing.php:400
 msgid "Create Share Button"
@@ -5241,7 +5241,7 @@ msgstr "Komiksə Bax"
 
 #: modules/module-info.php:383
 msgid "The Facebook Like Box Widget "
-msgstr ""
+msgstr "Facebook Bəyənmə Qutusu Vidceti"
 
 #: modules/shortcodes/archives.php:64
 msgid "Your blog does not currently have any published posts."

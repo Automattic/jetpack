@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-07-24 18:13:50+0000\n"
+"PO-Revision-Date: 2014-08-07 11:31:48+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1881,7 +1881,7 @@ msgstr "Aktív"
 #: modules/comments/admin.php:50 modules/comments/comments.php:211
 #: modules/minileven/theme/pub/minileven/content-gallery.php:71
 msgid "Leave a Reply"
-msgstr "MINDEN VÉLEMÉNY SZÁMÍT!"
+msgstr "Hozzászólás"
 
 #: modules/holiday-snow.php:19
 msgid "Snow"
@@ -5211,7 +5211,7 @@ msgstr "Képregény szerkesztése"
 
 #: modules/module-info.php:383
 msgid "The Twitter Widget "
-msgstr ""
+msgstr "A Twitter Widget"
 
 #: modules/sharedaddy/sharing.php:400
 msgid "Create Share Button"
@@ -5247,7 +5247,7 @@ msgstr "Képregény megtekintése"
 
 #: modules/module-info.php:383
 msgid "The Facebook Like Box Widget "
-msgstr ""
+msgstr "A Facebook Tetszik doboz Widget"
 
 #: modules/shortcodes/archives.php:64
 msgid "Your blog does not currently have any published posts."
