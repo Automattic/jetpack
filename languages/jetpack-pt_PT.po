@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-07-24 18:13:51+0000\n"
+"PO-Revision-Date: 2014-08-07 11:49:07+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -92,64 +92,64 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:346
 msgid "Popular Project Tags"
-msgstr ""
+msgstr "Etiquetas Populares de Projecto"
 
 #: modules/custom-post-types/portfolios.php:343
 msgid "Add New Project Tag"
-msgstr ""
+msgstr "Adicionar Nova Etiqueta de Projecto"
 
 #: modules/custom-post-types/portfolios.php:344
 msgid "New Project Tag Name"
-msgstr ""
+msgstr "Novo Nome de Etiqueta de Projecto"
 
 #: modules/custom-post-types/portfolios.php:341
 msgid "View Project Tag"
-msgstr ""
+msgstr "Ver Etiqueta de Projecto"
 
 #: modules/custom-post-types/portfolios.php:342
 msgid "Update Project Tag"
-msgstr ""
+msgstr "Actualizar Etiqueta de Projecto"
 
 #: modules/custom-post-types/portfolios.php:339
 msgid "All Project Tags"
-msgstr ""
+msgstr "Todas as Etiquetas de Projecto"
 
 #: modules/custom-post-types/portfolios.php:340
 msgid "Edit Project Tag"
-msgstr ""
+msgstr "Editar Etiqueta de Projecto"
 
 #: modules/custom-post-types/portfolios.php:323
 msgid "Search Project Types"
-msgstr ""
+msgstr "Pesquisar Tipos de Projecto"
 
 #: modules/custom-post-types/portfolios.php:336
 #: modules/custom-post-types/portfolios.php:338
 msgid "Project Tags"
-msgstr ""
+msgstr "Etiquetas de Projecto"
 
 #: modules/custom-post-types/portfolios.php:337
 msgid "Project Tag"
-msgstr ""
+msgstr "Etiqueta de Projecto"
 
 #: modules/custom-post-types/portfolios.php:320
 msgid "New Project Type Name"
-msgstr ""
+msgstr "Novo Nome de Tipo de Projecto"
 
 #: modules/custom-post-types/portfolios.php:321
 msgid "Parent Project Type"
-msgstr ""
+msgstr "Tipo de Projecto Pai"
 
 #: modules/custom-post-types/portfolios.php:322
 msgid "Parent Project Type:"
-msgstr ""
+msgstr "Tipo de Projecto Pai:"
 
 #: modules/custom-post-types/portfolios.php:317
 msgid "View Project Type"
-msgstr ""
+msgstr "Ver Tipo de Projecto"
 
 #: modules/custom-post-types/portfolios.php:318
 msgid "Update Project Type"
-msgstr ""
+msgstr "Actualizar Tipo de Projecto"
 
 #: modules/custom-post-types/portfolios.php:319
 msgid "Add New Project Type"
@@ -215,11 +215,11 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:187
 msgid "You need to <a href=\"%s\">enable portfolio</a> custom post type before you can update it's settings."
-msgstr ""
+msgstr "Você necesita de <a href=\"%s\">activar tipo de campo personalizado portfolio</a> antes de actualizar as suas definições."
 
 #: modules/custom-post-types/portfolios.php:269
 msgid "Portfolio Items"
-msgstr ""
+msgstr "Items de Portfolio"
 
 #: modules/custom-post-types/portfolios.php:271
 msgid "Projects"
@@ -227,35 +227,35 @@ msgstr "Projectos"
 
 #: modules/custom-post-types/portfolios.php:179
 msgid "Portfolio pages display at most %1$s projects"
-msgstr ""
+msgstr "As páginas de Portfolio mostram no máximo %1$s projectos"
 
 #: modules/custom-post-types/portfolios.php:109
 #: modules/custom-post-types/portfolios.php:130
 msgid "Portfolio Projects"
-msgstr ""
+msgstr "Projectos de Portfolio"
 
 #: modules/custom-post-types/portfolios.php:164
 msgid "Your theme supports <strong>%s</strong>"
-msgstr ""
+msgstr "O seu tema suporta <strong>%s</strong>"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:370
 msgid "You are required to specify a plugin to activate."
-msgstr ""
+msgstr "É necessário que especifique um plugin para activar."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:863
 msgid "You are required to specify a capability to check."
-msgstr ""
+msgstr "É necessário que especifique uma capacidade para verificar."
 
 #: modules/custom-content-types.php:32
 #: modules/custom-post-types/portfolios.php:102
 #: modules/custom-post-types/portfolios.php:123
 msgid "Your Custom Content Types"
-msgstr ""
+msgstr "Os seus Tipos Personalizados de Conteúdo"
 
 #: modules/custom-content-types.php:42
 #: modules/custom-post-types/portfolios.php:151
 msgid "Use these settings to display different types of content on your site."
-msgstr ""
+msgstr "Utilize estas definições para mostrar diferentes tipos de conteúdo no seu site."
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
@@ -263,27 +263,27 @@ msgstr "Saber Mais"
 
 #: views/admin/network-settings.php:8
 msgid "Jetpack Network Settings Updated!"
-msgstr ""
+msgstr "Definições da Rede Jetpack actualizadas!"
 
 #: modules/module-info.php:401
 msgid "<strong>The Upcoming Events Widget</strong> allows you to use an iCalendar link to display a list of events on your site."
-msgstr ""
+msgstr "<strong>O widget de Próximos Eventos</strong> permite-lhe utilizar um link de iCalendar para mostrar uma lista de eventos no seu site."
 
 #: modules/module-info.php:855 modules/module-info.php:878
 msgid "Related Posts"
-msgstr ""
+msgstr "Artigos Relacionados"
 
 #: modules/omnisearch/omnisearch-core.php:88
 msgid "search everything"
-msgstr ""
+msgstr "pesquisar tudo"
 
 #: modules/widgets/readmill.php:11
 msgid "Retired: Send To Readmill"
-msgstr ""
+msgstr "Retirado: Enviar para Lista de Leitura"
 
 #: modules/widgets/readmill.php:27
 msgid "<strong>The Readmill reading service has shut down</strong><br /> <a taget=\"_blank\" href=\"%s\">Learn More</a>"
-msgstr ""
+msgstr "<strong>O serviço de Lista de Leitura foi descontinuado</strong><br /> <a taget=\"_blank\" href=\"%s\">Saiba mais</a>"
 
 #: modules/widgets/readmill.php:66
 msgid "Notice to Administrators:<br /> <strong>The Readmill reading service has shut down</strong> <a taget=\"_blank\" href=\"%s\">learn more</a>."
@@ -368,35 +368,35 @@ msgstr "Editar"
 
 #: modules/widgets/readmill.php:73
 msgid "This notice is only visible to logged in users that can manage widgets"
-msgstr ""
+msgstr "Este aviso apenas é visível para utilizadores com sessão iniciada e que possam gerir widgets"
 
 #: modules/widgets/readmill.php:32 modules/widgets/readmill.php:70
 msgid "The Send to Readmill widget is no longer working and will be removed completely."
-msgstr ""
+msgstr "O widget Enviar para Lista de Leitura já não funciona e será removido completamente."
 
 #: modules/widgets/readmill.php:34
 msgid "You can remove it yourself now."
-msgstr ""
+msgstr "Você pode removê-lo agora."
 
 #: modules/widgets/readmill.php:35
 msgid "No content is displayed to users who can't manage widgets"
-msgstr ""
+msgstr "Nenhum conteúdo é mostrado a utilizadores que não possam gerir widgets"
 
 #: modules/stats.php:355
 msgid "View stats on WordPress.com right now"
-msgstr ""
+msgstr "Ver estatísticas no WordPress.com agora"
 
 #: modules/widgets/readmill.php:13
 msgid "Readmill has closed its doors. http://readmill.com/"
-msgstr ""
+msgstr "Lista de Leitura fechou as portas. http://readmill.com/"
 
 #: modules/module-info.php:826 modules/monitor.php:52
 msgid "Nobody likes downtime, and that's why Jetpack Monitor is on the job, keeping tabs on your site by checking it every five minutes. As soon as any downtime is detected, you will receive an email notification alerting you to the issue. That way you can act quickly, to get your site back online again!"
-msgstr ""
+msgstr "Ninguém gosta de servidores em baixo, e é por isso que o Monitor do Jetpack está em cima do assunto, mantendo um controlo no estado do seu site a cada 5 minutos. Assim que é detectado que o servidor está em baixo, você irá receber um email com uma notificação alertando da ocorrência. Dessa forma você poderá agir rapidamente, para poder ter o seu site activo novamente!"
 
 #: modules/minileven/theme/pub/minileven/footer.php:24
 msgid "View Full Site"
-msgstr ""
+msgstr "Ver Site Completo"
 
 #: modules/after-the-deadline/config-options.php:89
 msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your user interface language (see above) is the default proofreading language."
@@ -408,27 +408,27 @@ msgstr "Esvaziar Spam"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:159
 msgid "Theme is empty."
-msgstr ""
+msgstr "O Tema está vazio"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:165
 msgid "The specified theme was not found."
-msgstr ""
+msgstr "O tema escolhido não foi encontrado."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:354
 msgid "Plugin not found."
-msgstr ""
+msgstr "O Plugin não foi encontrado."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:366
 msgid "This user is not authorized to manage plugins network wide."
-msgstr ""
+msgstr "Este utilizador não está autorizado a gerir a rede de plugins."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:394
 msgid "The Plugin is already active."
-msgstr ""
+msgstr "O Plugin já se encontra activo."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:450
 msgid "The Plugin is already deactivated."
-msgstr ""
+msgstr "O Plugin já se encontra desactivado."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:654
 #: json-endpoints/class.json-api-jetpack-endpoints.php:668
@@ -490,55 +490,55 @@ msgstr ""
 
 #: class.jetpack.php:2048
 msgid "Each module has an Activate or Deactivate link so you can toggle one individually."
-msgstr ""
+msgstr "Cada módulo tem um link para Activar ou Desactivar para que possa gerir cada um individualmente."
 
 #: class.jetpack.php:2049
 msgid "Using the checkboxes next to each module, you can select multiple modules to toggle via the Bulk Actions menu at the top of the list."
-msgstr ""
+msgstr "Utilizando as caixas de selecção junto a cada módulo, você pode seleccionar múltiplos módulos para activar ou desactivar através do menu de acções múltiplas no topo da lista."
 
 msgid "Add images, Twitter streams, your site’s RSS links, and more to your sidebar."
-msgstr ""
+msgstr "Adicione images, streams de Twitter, os links RSS do seu site, e ainda mais na sua barra lateral."
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:126
 msgid "View all Jetpack features"
-msgstr ""
+msgstr "Ver todas as funcionalidades do Jetpack"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:127
 msgid "Sorry, no modules were found for the search term \"%s\""
-msgstr ""
+msgstr "Desculpe, não foram encontrados módulos com os termos de pesquisa \"%s\""
 
 #: views/admin/admin-page.php:31
 msgid "Jetpack is in local development mode."
-msgstr ""
+msgstr "O Jetpack encontra-se modo de desenvolvimento local."
 
 msgid "Transform standard image galleries into full-screen slideshows."
-msgstr ""
+msgstr "Transforme galerias de imagens comuns em apresentações de ecrã completo."
 
 msgid "Let readers comment with WordPress.com, Twitter, Facebook, or Google+ accounts."
-msgstr ""
+msgstr "Deixe os seus leitores comentar com as suas contas de WordPress.com, Twitter, Facebook ou Google+."
 
 msgid "Receive notification of site activity via the admin toolbar and your Mobile devices."
-msgstr ""
+msgstr "Receba uma notificação da actividade do site através da barra de administração ou através dos seus aparelhos móveis."
 
 #: class.jetpack-debugger.php:140
 msgid "Some themes and plugins have <a href=\"%1$s\">known conflicts</a> with Jetpack – check the <a href=\"%2$s\">list</a>. (You can also browse the <a href=\"%3$s\">Jetpack support pages</a> or <a href=\"%4$s\">Jetpack support forum</a> to see if others have experienced and solved the problem.)"
-msgstr ""
+msgstr "Alguns temas e plugins têm <a href=\"%1$s\">conflitos conhecidos</a> com o Jetpack – verifique a <a href=\"%2$s\">lista</a>. (Você também pode pesquisar nas <a href=\"%3$s\">páginas de suporte do Jetpack</a> ou <a href=\"%4$s\">fórum de suporte Jetpack</a> para verificar se outras pessoas têm os mesmos problemas ou se encontraram soluções para o problema.)"
 
 #: node_modules/grunt-wp-i18n/test/fixtures/basic-theme/exclude/file.php:3
 msgid "Exclude"
-msgstr ""
+msgstr "Excluir"
 
 msgid "Check your spelling, style, and grammar with the After the Deadline proofreading service."
 msgstr ""
 
 msgid "Insert a contact form anywhere on your site."
-msgstr ""
+msgstr "Insira um formulário de contacto em qualquer parte do seu site."
 
 msgid "Customize your site’s CSS without modifying your theme."
-msgstr ""
+msgstr "Personalize o CSS do seu site sem ter de modificar o tema."
 
 msgid "Share your public posts and comments to search engines and other services."
-msgstr ""
+msgstr "Partilhe os seus artigos públicos e comentários com os motores de busca e outros serviços."
 
 msgid "Give users the ability to share posts to Google+, and add your site link to your Google+ profile."
 msgstr ""
@@ -583,53 +583,53 @@ msgid "Allow visitors to share your content on Facebook, Twitter, and more with 
 msgstr ""
 
 msgid "Embed content from YouTube, Vimeo, SlideShare, and more, no coding necessary."
-msgstr ""
+msgstr "Insira conteúdo do YouTube, SlideShare, e mais, sem necessitar de código de programação."
 
 msgid "Enable WP.me-powered shortlinks for all posts and pages."
-msgstr ""
+msgstr "Activar links curtos do WP.me para todos os artigos e páginas."
 
 msgid "Allow your users to log in using their WordPress.com accounts."
-msgstr ""
+msgstr "Permita que os seus utilizadores possam iniciar sessão com as suas contas WordPress.com."
 
 msgid "Monitor your stats with clear, concise reports and no additional load on your server."
-msgstr ""
+msgstr "Monitorize as suas estatísticas com claros, e concisos relatórios e sem carga adicional no seu servidor."
 
 msgid "Allow users to subscribe to your posts and comments and receive notifications via email."
-msgstr ""
+msgstr "Permita que os utilizadores subscrevam os seus artigos e comentários e recebam notificações via email."
 
 msgid "Display your image galleries in a variety of sleek, graphic arrangements."
-msgstr ""
+msgstr "Mostre as suas galerias de imagem numa variedade de estilo, e arranjos gráficos."
 
 msgid "Protect your site with automatic backups and security scans. (Subscription required.)"
-msgstr ""
+msgstr "Proteja o seu site com cópias de segurança automáticas e verificações de segurança. (Subscrição necessária.)"
 
 msgid "Site Verification"
-msgstr ""
+msgstr "Verificação de Site"
 
 msgid "Verify your site or domain with Google Webmaster Tools, Pinterest, and others."
-msgstr ""
+msgstr "Verifique o seu site ou domínio com as Ferramentas de Webmaster do Google, Pinterest, e outras."
 
 msgid "Upload and host video right on your site. (Subscription required.)"
-msgstr ""
+msgstr "Envie e aloje um video no seu site já. (Subscrição necessária.)"
 
 msgid "Specify which widgets appear on which pages of your site."
-msgstr ""
+msgstr "Especifique quais os widgets que vão aparecer em determinadas páginas do seu site."
 
 #: modules/module-info.php:910
 msgid "Verifying your site allows you to access advanced features on these other services (e.g. Webmaster tools, or getting a verified badge). We'll just add an invisible %s tag to the source code of your homepage."
-msgstr ""
+msgstr "Verificando o seu site permite-lhe que algumas funcionalidades avançadas nestes outros serviços (ex: Ferramentas de Webmaster, ou ganhando um emblema de certificação). Iremos apenas adicionar uma etiqueta invisível %s ao código-fonte da sua página inicial."
 
 #: modules/related-posts/jetpack-related-posts.php:296
 msgid "Use a large and visually striking layout"
-msgstr ""
+msgstr "Utilize um visual de layout largo e apelativo"
 
 #: modules/related-posts/jetpack-related-posts.php:689
 msgid "Untitled Post"
-msgstr ""
+msgstr "Artigo sem Título"
 
 #: modules/related-posts/jetpack-related-posts.php:960
 msgid "Similar post"
-msgstr ""
+msgstr "Artigo parecido"
 
 #: modules/sso.php:367
 msgid "Cannot deal with cookie redirects, as headers are already sent."
@@ -704,24 +704,24 @@ msgstr ""
 
 #: views/admin/admin-page.php:47
 msgid "Customize the look of your site, without modifying your theme."
-msgstr ""
+msgstr "Personalize o aspecto do seu site, sem modificar o seu tema."
 
 #: views/admin/admin-page.php:55
 msgid "Let users log in through WordPress.com with one click."
-msgstr ""
+msgstr "Deixe que os utilizadores iniciem sessão com um clique através do WordPress.com."
 
 #: views/admin/admin-page.php:70
 msgid "Jetpack features"
-msgstr ""
+msgstr "Funcionalidades do Jetpack"
 
 #: views/admin/admin-page.php:74
 msgid "Search the Jetpack features"
-msgstr ""
+msgstr "Pesquisar as funcionalidades do Jetpack"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:59
 #: views/admin/admin-page.php:78
 msgid "Newest"
-msgstr ""
+msgstr "Mais recentes"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:58
 #: views/admin/admin-page.php:80
@@ -730,15 +730,15 @@ msgstr "Alfabética"
 
 #: views/admin/admin-page.php:85
 msgid "Load more"
-msgstr ""
+msgstr "Carregar mais"
 
 #: _inc/lib/admin-pages/class.jetpack-landing-page.php:109
 msgid "Error, bad module."
-msgstr ""
+msgstr "Erro, módulo com defeito."
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:50
 msgid "View:"
-msgstr ""
+msgstr "Ver:"
 
 #: _inc/lib/admin-pages/class.jetpack-settings-page.php:56
 msgid "Sort by:"
@@ -758,7 +758,7 @@ msgstr "Apresentação"
 
 #: class.jetpack-admin.php:486
 msgid "Developers"
-msgstr ""
+msgstr "Programadores"
 
 #: class.jetpack-admin.php:487
 msgid "Mobile"
@@ -770,11 +770,11 @@ msgstr "Outro"
 
 #: class.jetpack-admin.php:489
 msgid "Photos and Videos"
-msgstr ""
+msgstr "Imagens e Vídeos"
 
 #: class.jetpack-admin.php:490
 msgid "Social"
-msgstr ""
+msgstr "Social"
 
 #: class.jetpack-admin.php:492
 msgid "Writing"
@@ -782,19 +782,19 @@ msgstr "Escrita"
 
 #: views/admin/landing-page-templates.php:16
 msgid "Paid"
-msgstr ""
+msgstr "Pago"
 
 #: class.jetpack-modules-list-table.php:45
 msgid "Search Modules…"
-msgstr ""
+msgstr "Pesquisar Módulos..."
 
 #: class.jetpack-modules-list-table.php:87
 msgid "No Modules Found"
-msgstr ""
+msgstr "Não foram encontrados Módulos"
 
 #: class.jetpack-modules-list-table.php:226
 msgid "Module Info"
-msgstr ""
+msgstr "Informação do Módulo"
 
 #: class.jetpack-network.php:261
 msgid "Jetpack Sites"
@@ -859,63 +859,63 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:145
 msgid "Menu Sections"
-msgstr ""
+msgstr "Secções de Menu"
 
 #: modules/custom-post-types/nova.php:146
 msgid "Menu Section"
-msgstr ""
+msgstr "Secção de Menu"
 
 #: modules/custom-post-types/nova.php:147
 msgid "Search Menu Sections"
-msgstr ""
+msgstr "Pesquisar Secções de Menu"
 
 #: modules/custom-post-types/nova.php:148
 msgid "All Menu Sections"
-msgstr ""
+msgstr "Todas as Secções de Menu"
 
 #: modules/custom-post-types/nova.php:149
 msgid "Parent Menu Section"
-msgstr ""
+msgstr "Secção de Menu Pai"
 
 #: modules/custom-post-types/nova.php:150
 msgid "Parent Menu Section:"
-msgstr ""
+msgstr "Secção de Menu Pai:"
 
 #: modules/custom-post-types/nova.php:151
 msgid "Edit Menu Section"
-msgstr ""
+msgstr "Editar Secção de Menu"
 
 #: modules/custom-post-types/nova.php:152
 msgid "View Menu Section"
-msgstr ""
+msgstr "Ver Secção de Menu"
 
 #: modules/custom-post-types/nova.php:153
 msgid "Update Menu Section"
-msgstr ""
+msgstr "Actualizar Secção de Menu"
 
 #: modules/custom-post-types/nova.php:154
 msgid "Add New Menu Section"
-msgstr ""
+msgstr "Adicionar Nova Secção de Menu"
 
 #: modules/custom-post-types/nova.php:155
 msgid "New Menu Sections Name"
-msgstr ""
+msgstr "Novo Nome de Secções de Menu"
 
 #: modules/custom-post-types/nova.php:179
 msgid "Add Menu Item"
-msgstr ""
+msgstr "Adicionar Item de Menu"
 
 #: modules/custom-post-types/nova.php:220
 msgid "Menu item updated. <a href=\"%s\">View item</a>"
-msgstr ""
+msgstr "Item de Menu actualizado. <a href=\"%s\">Ver item</a>"
 
 #: modules/custom-post-types/nova.php:223
 msgid "Menu item updated."
-msgstr ""
+msgstr "Item de Menu actualizado."
 
 #: modules/custom-post-types/nova.php:225
 msgid "Menu item restored to revision from %s"
-msgstr ""
+msgstr "Item de Menu restaurado para revisão de %s"
 
 #: modules/custom-post-types/nova.php:226
 msgid "Menu item published. <a href=\"%s\">View item</a>"
@@ -991,43 +991,43 @@ msgstr ""
 
 #: modules/likes.php:295
 msgid "WordPress.com Reblog Button"
-msgstr ""
+msgstr "Butão para Reblog do WordPress.com"
 
 #: modules/likes.php:301
 msgid "Show the Reblog button on posts"
-msgstr ""
+msgstr "Mostrar o botão de Reblog nos artigos"
 
 #: modules/likes.php:307
 msgid "Don't show the Reblog button on posts"
-msgstr ""
+msgstr "Não mostrar o botão de Reblog nos artigos"
 
 #: modules/likes.php:314
 msgid "Comment Likes are"
-msgstr ""
+msgstr "Comentários de Gosto são"
 
 #: modules/likes.php:320
 msgid "On for all comments"
-msgstr ""
+msgstr "Activo para todos os comentários"
 
 #: modules/module-info.php:427
 msgid "To customize the emails sent from your blog to your followers, check the settings at the bottom of the <a href=\"%s\">Reading Settings</a> page."
-msgstr ""
+msgstr "Para personalizar os emails enviados do seu blog para os seus seguidores, verifique as definições no final da <a href=\"%s\">página de Definições de Leitura</a>."
 
 #: modules/module-info.php:948
 msgid "Site Verification Tools"
-msgstr ""
+msgstr "Ferramentas de Verificação de Site"
 
 #: modules/module-info.php:909
 msgid "Use these tools to verify that you own/control your website with other external services like Google, Bing and Pinterest."
-msgstr ""
+msgstr "Utilize estas ferramentas para verificar que é dono/controla o seu website com outros serviços externos como o Google, Bing e Pinterest."
 
 #: _inc/footer.php:10 views/admin/admin-page.php:10
 msgid "Connect to Get Started"
-msgstr ""
+msgstr "Ligue-se para Iniciar"
 
 #: _inc/footer.php:12 views/admin/admin-page.php:12
 msgid "Link your account to WordPress.com"
-msgstr ""
+msgstr "Ligue a sua conta ao WordPress.com"
 
 #: _inc/footer.php:18
 msgid "An %s Airline"
@@ -1035,7 +1035,7 @@ msgstr ""
 
 #: _inc/footer.php:28
 msgid "Terms"
-msgstr ""
+msgstr "Termos"
 
 #: _inc/footer.php:29
 msgid "Privacy"
@@ -1043,15 +1043,15 @@ msgstr "Privacidade"
 
 #: _inc/footer.php:30
 msgid "Test your site&#8217;s compatibility with Jetpack."
-msgstr ""
+msgstr "Teste a compatibilidade do seu site com o Jetpack."
 
 #: _inc/footer.php:31
 msgid "Contact the Jetpack Happiness Squad."
-msgstr ""
+msgstr "Entre em contacto com o Esquadrão de Alegria do Jetpack"
 
 #: _inc/footer.php:32
 msgid "Take a survey.  Tell us how we&#8217;re doing."
-msgstr ""
+msgstr "Responda a um inquérito. Diga-nos como nos estamos a portar."
 
 #: _inc/footer.php:32
 msgid "Give Us Feedback"
@@ -5861,7 +5861,7 @@ msgstr "Item do menu"
 
 #: modules/widgets/gallery.php:337
 msgid "Carousel"
-msgstr ""
+msgstr "Carrossel"
 
 #: modules/stats.php:545
 msgid "Put a chart showing 48 hours of views in the admin bar."
@@ -5869,7 +5869,7 @@ msgstr "Mostrar um gráfico que mostra 48 horas de visualizações na barra de a
 
 #: modules/widgets/twitter-timeline.php:223
 msgid "Transparent Background"
-msgstr ""
+msgstr "Fundo Transparente"
 
 #: modules/after-the-deadline/config-options.php:86
 msgid "Language"
@@ -5877,11 +5877,11 @@ msgstr "Idioma"
 
 #: modules/custom-post-types/nova.php:178
 msgid "Add One Item"
-msgstr ""
+msgstr "Adicionar Um Item"
 
 #: modules/module-info.php:535
 msgid "With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata."
-msgstr ""
+msgstr "Com o Carrossel activo, quaisquer galerias WordPress que estejam nos seus artigos ou páginas serão lançadas numa experiência de ecrã completo com comentários e com a EXIF metadata."
 
 #: modules/stats.php:546
 msgid "Registered users"
@@ -5889,7 +5889,7 @@ msgstr "Utilizadores Registados"
 
 #: modules/widgets/twitter-timeline.php:227
 msgid "Link Color (hex):"
-msgstr ""
+msgstr "Côr do Link (hex):"
 
 #: modules/after-the-deadline/config-options.php:89
 msgctxt "%1$s = http://codex.wordpress.org/Installing_WordPress_in_Your_Language, %2$s = WPLANG"
@@ -5983,7 +5983,7 @@ msgstr ""
 
 #: modules/module-info.php:572
 msgid "There's a good chance that visitors to your site will be using a smartphone, and it's important to provide them with a great reading experience while on the small screen."
-msgstr ""
+msgstr "Existe uma boa probabilidade de que os visitantes do seu site estejam a utilizar um smartphone, e é importante para eles que tenham uma boa experiência a ver o seu site no ecrã com dimensões reduzidas."
 
 #: modules/stats.php:559
 msgid "Smiley face"
@@ -5991,7 +5991,7 @@ msgstr "<em>Smiley</em>"
 
 #: modules/widgets/upcoming-events.php:45
 msgid "iCalendar Feed URL:"
-msgstr ""
+msgstr "URL do iCalendar"
 
 #: modules/after-the-deadline/config-unignore.php:140
 msgid "Be sure to click \"Update Profile\" at the bottom of the screen to save your changes."
@@ -5999,11 +5999,11 @@ msgstr "Não se esqueça de clicar em \"Actualizar Perfil\" no final da página 
 
 #: modules/custom-post-types/nova.php:185
 msgid "No Menu Items found in Trash"
-msgstr ""
+msgstr "Não foram encontrados Items de Menu no Lixo"
 
 #: modules/module-info.php:573
 msgid "Jetpack's mobile theme is optimized for small screens. It uses the header image, background, and widgets from your current theme for a great custom look. Post format support is included, so your photos and galleries will look fantastic on a smartphone."
-msgstr ""
+msgstr "O tema móvel do Jetpack está optimizado para ecrãs de pequenas dimensões. Utiliza a imagem do cabeçalho, fundo, e widgets do seu tema actual para mostrar correctamente. O suporte aos formatos de artigos estão incluídos, para que as suas imagens e galerias pareçam fantásticas num smartphone."
 
 #: modules/stats.php:560
 msgid "Report visibility"
@@ -6011,7 +6011,7 @@ msgstr "Visibilidade do relatório"
 
 #: modules/widgets/upcoming-events.php:50
 msgid "Items to show:"
-msgstr ""
+msgstr "Items a mostrar:"
 
 #: modules/after-the-deadline.php:201
 msgid "Spelling"
@@ -6021,11 +6021,11 @@ msgstr "Ortografia"
 #: modules/custom-post-types/nova.php:368
 #: modules/custom-post-types/nova.php:839
 msgid "Add Many Items"
-msgstr ""
+msgstr "Adicionar Muitos Items"
 
 #: modules/module-info.php:574
 msgid "Visitors on iPhone, Android, Windows Phone, and other mobile devices will automatically see the mobile theme, with the option to view the full site. You can enable or disable the mobile theme by clicking the \"Activate\" or \"Deactive\" button above."
-msgstr ""
+msgstr "Visitantes que utilizem iPhone, Android, Windows Phone, e outros dispositivos móveis irão ver automaticamente o tema móvel, com a opção de poder ver o site completo. Você pode activar ou desactivar o tema móvel clicando no botão \"Activar\" ou \"Desactivar\" acima."
 
 #: modules/stats.php:562
 msgid "Select the roles that will be able to view stats reports."
@@ -6043,11 +6043,11 @@ msgstr "Palavra Repetida"
 
 #: modules/custom-post-types/nova.php:417
 msgid "Menu Items re-ordered."
-msgstr ""
+msgstr "Itens de Menu re-ordenados."
 
 #: modules/module-info.php:591
 msgid "If you are a theme author, you can learn about adding support for Infinite Scroll at <a href=\"%1$s\">%1$s</a>."
-msgstr ""
+msgstr "Se você um autor de temas, pode saber sobre adicionar suporte ao Scroll Infinito em <a href=\"%1$s\">%1$s</a>."
 
 #: modules/stats.php:637
 msgid "Stats"
@@ -6055,7 +6055,7 @@ msgstr "Estatísticas"
 
 #: modules/widgets/wordpress-post-widget.php:25
 msgid "Display WordPress Posts"
-msgstr ""
+msgstr "Mostrar Artigos WordPress"
 
 #: modules/after-the-deadline.php:204
 msgid "No suggestions"
@@ -6063,10 +6063,10 @@ msgstr "Nenhuma sugestão"
 
 #: modules/custom-post-types/nova.php:437
 msgid "Labels"
-msgstr ""
+msgstr "Etiquetas"
 
 msgid "Infinite Scroll"
-msgstr ""
+msgstr "Scroll Infinito"
 
 #: modules/stats.php:639
 msgid "Views over 48 hours. Click for more Site Stats."
@@ -6074,7 +6074,7 @@ msgstr "Vistas nas últimas 48 horas. Clique para mais estatísticas do site."
 
 #: modules/widgets/wordpress-post-widget.php:27
 msgid "Displays a list of recent posts from another WordPress.com or Jetpack-enabled blog."
-msgstr ""
+msgstr "Mostrar uma lista de artigos recentes de outro blog WordPress.com ou Jetpack compatível."
 
 #: modules/after-the-deadline.php:206
 msgid "Explain..."
@@ -6085,11 +6085,11 @@ msgstr "Explicar..."
 #: modules/custom-post-types/nova.php:901
 #: modules/custom-post-types/nova.php:907
 msgid "Price"
-msgstr ""
+msgstr "Preço"
 
 #: modules/module-info.php:596
 msgid "When you write great content, all you really want is people to find it, right?"
-msgstr ""
+msgstr "Quando você escreve bom conteúdo, tudo o que você quer é que as pessoas o encontrem, certo?"
 
 #: modules/stats.php:724
 msgid "day"
@@ -6098,7 +6098,7 @@ msgstr "dia"
 #: modules/widgets/wordpress-post-widget.php:76
 #: modules/widgets/wordpress-post-widget.php:97
 msgid "We cannot load blog data at this time."
-msgstr ""
+msgstr "Não podemos carregar dados do blog nesta altura."
 
 #: modules/after-the-deadline.php:207
 msgid "Ignore suggestion"
@@ -6110,7 +6110,7 @@ msgstr "Ordem"
 
 #: modules/module-info.php:598
 msgid "With the Infinite Scroll module and a supported theme, that's exactly what happens. Instead of the old way of navigating down a page by scrolling and then clicking a link to get to the next page, waiting for a page refresh&mdash;the document model of the web&mdash;infinite scrolling pulls the next set of posts automatically into view when the reader approaches the bottom of the page, more like an application."
-msgstr ""
+msgstr "Com o módulo de Scroll Infinito e com um tema que o suporte, é exactamente o que acontece. Em vez de navegar na página com o scroll para baixo e depois clicar num link para ir para a próxima página, e esperar que actualize &mdash; o normal na web &mdash; o scroll infinito carrega os próximos artigos automaticamente na mesma janela quando o leitor se aproxima do final da página, tal como se fosse uma aplicação informática."
 
 #: modules/stats.php:725
 msgid "week"
@@ -6118,7 +6118,7 @@ msgstr "semana"
 
 #: modules/widgets/wordpress-post-widget.php:107
 msgid "We cannot display posts for this blog."
-msgstr ""
+msgstr "Não podemos mostrar artigos para este blog."
 
 #: modules/after-the-deadline.php:208
 msgid "Ignore always"
@@ -6126,11 +6126,11 @@ msgstr "Ignorar sempre"
 
 #: modules/custom-post-types/nova.php:756
 msgid "Move menu section up"
-msgstr ""
+msgstr "Mover a secção de menu para cima"
 
 #: modules/module-info.php:601
 msgid "At this time, your theme, %s, doesn't support Infinite Scroll. Unlike other Jetpack modules, Infinite Scroll needs information from your theme to function properly."
-msgstr ""
+msgstr "Nesta altura, o seu tema, %s não suporte scroll infinito. Ao contrário dos outros módulos Jetpack, o Scroll Infinito necessita de informação do seu tema para funcionar correctamente."
 
 #: modules/stats.php:726
 msgid "month"
@@ -6146,11 +6146,11 @@ msgstr "Ignorar todas"
 
 #: modules/custom-post-types/nova.php:756
 msgid "UP"
-msgstr ""
+msgstr "EM CIMA"
 
 #: modules/module-info.php:603
 msgid "Until your theme supports Infinite Scroll, you won't be able to activate this module."
-msgstr ""
+msgstr "Enquanto o seu tema não suporte o Scroll Infinito, não poderá activar este módulo."
 
 #: modules/stats.php:729
 msgid "the past day"
@@ -6166,11 +6166,11 @@ msgstr "Editar Selecção..."
 
 #: modules/custom-post-types/nova.php:758
 msgid "Move menu section down"
-msgstr ""
+msgstr "Mover secção de menu para baixo"
 
 #: modules/module-info.php:613
 msgid "There is an update available for your theme. You may wish to check if this update adds Infinite Scroll support by visiting the <a href=\"%s\">WordPress Updates</a> page."
-msgstr ""
+msgstr "Existe uma actualização disponível para o seu tema. Poderá verificar se esta actualização adiciona o suporte ao Scroll Infinito visitando a página de <a href=\"%s\">Actualizações do WordPress</a>."
 
 #: modules/stats.php:730
 msgid "the past week"
@@ -6178,7 +6178,7 @@ msgstr "na semana passada"
 
 #: modules/widgets/wordpress-post-widget.php:176
 msgid "Enter a WordPress.com or Jetpack WordPress site URL."
-msgstr ""
+msgstr "Introduza um URL do WordPress.com ou Jetpack"
 
 #: modules/after-the-deadline.php:213
 msgid "proofread"
@@ -6186,11 +6186,11 @@ msgstr "rever"
 
 #: modules/custom-post-types/nova.php:758
 msgid "DOWN"
-msgstr ""
+msgstr "EM BAIXO"
 
 #: modules/module-info.php:637 modules/post-by-email.php:93
 msgid "Post by Email"
-msgstr ""
+msgstr "Postar por Email"
 
 #: modules/stats.php:731
 msgid "the past month"
@@ -6198,7 +6198,7 @@ msgstr "no mês passado"
 
 #: modules/widgets/wordpress-post-widget.php:180
 msgid "Number of Posts to Display:"
-msgstr ""
+msgstr "Número de artigos a mostrar:"
 
 #: modules/after-the-deadline.php:214
 msgid "edit text"
@@ -6206,11 +6206,11 @@ msgstr "editar texto"
 
 #: modules/custom-post-types/nova.php:841
 msgid "Use the <kbd>TAB</kbd> key on your keyboard to move between colums and the <kbd>ENTER</kbd> or <kbd>RETURN</kbd> key to save each row and move on to the next."
-msgstr ""
+msgstr "Utilize a tecla <kbd>TAB</kbd> para se mover entre colunas e a tecla <kbd>ENTER</kbd> ou <kbd>RETURN</kbd> para gravar cada linha e seguir para a próxima."
 
 #: modules/module-info.php:640
 msgid "Post by Email is a way of publishing posts on your blog by email. Any email client can be used to send the email, allowing you to publish quickly and easily from devices such as cell phones."
-msgstr ""
+msgstr "Postar por Email é uma forma de publicar artigos no seu blog por email. Qualquer cliente de email pode ser utilizado para enviar email, permitindo-lhe publicar fácil e rapidamente através de aparelhos tais como smartphones."
 
 #: modules/stats.php:732
 msgid "the past quarter"
@@ -6218,7 +6218,7 @@ msgstr "no trimestre passado"
 
 #: modules/widgets/wordpress-post-widget.php:190
 msgid "Show Featured Image:"
-msgstr ""
+msgstr "Mostrar Imagem de Destaque:"
 
 #: modules/after-the-deadline.php:215 modules/after-the-deadline.php:297
 msgid "Proofread Writing"
@@ -6230,7 +6230,7 @@ msgstr "Descrição"
 
 #: modules/module-info.php:644
 msgid "Manage your Post By Email address from your <a href=\"%s\">profile settings</a>."
-msgstr ""
+msgstr "Controle o seu endereço para Postar por Email através das <a href=\"%s\">definições de perfil</a>."
 
 #: modules/stats.php:733
 msgid "the past year"
@@ -6238,7 +6238,7 @@ msgstr "no ano passado"
 
 #: modules/widgets/wordpress-post-widget.php:194
 msgid "Show Excerpts:"
-msgstr ""
+msgstr "Mostrar Excertos:"
 
 #: modules/after-the-deadline.php:217
 msgid "No writing errors were found."
@@ -6246,11 +6246,11 @@ msgstr "Não foi encontrado nenhum erro de escrita."
 
 #: modules/custom-post-types/nova.php:888
 msgid "Add These New Menu Items"
-msgstr ""
+msgstr "Adicionar Estes Novos Itens de Menu"
 
 #: modules/module-info.php:648
 msgid "More information on sending emails, attachments, and customizing your posts."
-msgstr ""
+msgstr "Mais informação sobre enviar emails, anexos, e personalizar os seus artigos."
 
 #: modules/stats.php:755
 msgid "Chart stats by"
@@ -6258,7 +6258,7 @@ msgstr "Estatísticas do quadro por"
 
 #: modules/widgets.php:50
 msgid "%s (Jetpack)"
-msgstr ""
+msgstr "%s (Jetpack)"
 
 #: modules/after-the-deadline.php:218
 msgid "There was a problem communicating with the Proofreading service. Try again in one minute."
@@ -6268,10 +6268,10 @@ msgstr "Ocorreu um problema ao comunicar com o serviço de verificação. Tente 
 #: modules/custom-post-types/nova.php:989
 msgctxt "Nova label separator"
 msgid ", "
-msgstr ""
+msgstr ", "
 
 msgid "Photon"
-msgstr ""
+msgstr "Photon"
 
 #: modules/stats.php:768
 msgid "Show top posts over"
@@ -6279,7 +6279,7 @@ msgstr "Mostrar artigos populares"
 
 #: views/admin/must-connect-main-blog.php:5
 msgid "Get started with Jetpack Multisite"
-msgstr ""
+msgstr "Começe já com o Jetpack Multisite"
 
 #: modules/after-the-deadline.php:219
 msgid "There was an error communicating with the proofreading service."
@@ -6287,11 +6287,11 @@ msgstr "Ocorreu um erro ao comunicar com o serviço de revisão."
 
 #: modules/custom-post-types/nova.php:991
 msgid "No Labels"
-msgstr ""
+msgstr "Sem Legendas"
 
 #: modules/module-info.php:668
 msgid "Give your site a boost by loading images in posts from the WordPress.com content delivery network. We cache your images and serve them from our super-fast network, reducing the burden on your Web host with the click of a button."
-msgstr ""
+msgstr "Dê ao seu site uma ajuda carregando as imagens nos artigos através da rede de conteúdos do WordPress.com. Nós criamos cópias das suas imagens e disponibilizamos-as através da nossa rede super-rápida, reduzindo a carga no seu alojamento com um simples clique de botão."
 
 #: modules/stats.php:781
 msgid "Show top search terms over"
@@ -6299,7 +6299,7 @@ msgstr "Mostrar termos de pesquisa populares"
 
 #: views/admin/must-connect-main-blog.php:7
 msgid "Get started managing your Multisite install of Jetpack by connecting."
-msgstr ""
+msgstr "Começe a gerir a sua instalação Multisite do Jetpack ligando as contas."
 
 #: modules/after-the-deadline.php:221
 msgid "Replace selection with:"
@@ -6307,12 +6307,12 @@ msgstr "Substituir a selecção com:"
 
 #: modules/custom-post-types/testimonial.php:73
 msgid "Customer Testimonials"
-msgstr ""
+msgstr "Testemunhos de Clientes"
 
 #: modules/module-info.php:688 modules/module-info.php:926
 #: modules/tiled-gallery/tiled-gallery.php:387
 msgid "Tiled Galleries"
-msgstr ""
+msgstr "Galerias em Esquemas"
 
 #: modules/stats.php:947
 msgid "%1$s %2$s Views"
@@ -6320,7 +6320,7 @@ msgstr "%1$s %2$s Visualizações"
 
 #: views/admin/network-activated-notice.php:3
 msgid "Jetpack is network activated and notices can not be dismissed."
-msgstr ""
+msgstr "A rede Jetpack está activa e as notificações não podem ser ignoradas."
 
 #: modules/after-the-deadline.php:222
 msgid ""
@@ -6341,7 +6341,7 @@ msgstr "Testemunhos"
 
 #: modules/module-info.php:691
 msgid "Create elegant magazine-style mosaic layouts for your photos without having to use an external graphic editor."
-msgstr ""
+msgstr "Crie esquemas elegantes ao estilo de mosaico de revista para as suas imagens sem ter de utilizar um editor de imagem."
 
 #: modules/stats.php:968
 msgid "View All"
