@@ -1270,9 +1270,10 @@ class Jetpack {
 	public static function get_file_data( $file, $headers ) {
 		$file_data_option = Jetpack_Options::get_option( 'file_data', array() );
 		$key              = md5( $file . serialize( $headers ) );
+		$refresh_cache    = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 );
 
-		// If we already have it, short-circuit!
-		if ( isset( $file_data_option[ JETPACK__VERSION ][ $key ] ) ) {
+		// If we don't need to refresh the cache, and already have the value, short-circuit!
+		if ( ! $refresh_cache && isset( $file_data_option[ JETPACK__VERSION ][ $key ] ) ) {
 			return $file_data_option[ JETPACK__VERSION ][ $key ];
 		}
 
