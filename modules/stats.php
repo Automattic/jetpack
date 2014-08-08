@@ -100,7 +100,7 @@ function jetpack_stats_admin_bar_stats_chart() {
 			$stats = $xml->getResponse();
 		}
 	}
-	
+
 	echo $stats;
 	die();
 }
@@ -478,7 +478,7 @@ function stats_reports_page() {
 				die();
 			}
 		}
-			
+
 		$body = stats_convert_post_titles( $get['body'] );
 		$body = stats_convert_chart_urls( $body );
 		$body = stats_convert_image_urls( $body );
@@ -684,17 +684,46 @@ function stats_reports_page() {
 		$js = "<script type='text/javascript'>
 
 	(function($) {
-	function drawStats( ctx, width, height, data ) {
+
+	function SparklineBar( x, y, width, height, views ) {
+		this.x = x;
+		this.y = y;
+		this.width = width;
+		this.height = height;
+		this.views = views;
+	}
+
+	SparklineBar.prototype.hasPoint = function( x, y ) {
+		return this.x <= x && x <= this.x + this.width;
+	};
+
+	function drawBars( ctx, width, height, data, rawData ) {
   	  // Fill bg
-  	  ctx.fillStyle = '#222222';
+  	  ctx.fillStyle = 'rgba(255, 255, 255, 0.0)';
   	  ctx.fillRect( 0, 0, width, height );
 
-  	  // Draw bars (one every other pixel)
+  	  // Draw bars (one every other pixel), starting from 5 px
   	  ctx.fillStyle = '#ccc';
 	  var barWidth = 1; // px
-	  for ( var i = 0, j = 0; i < data.length; i++, j += barWidth + 1 ) {
+	  var bars = [];
+	  for ( var i = 0, j = 5; i < data.length; i++, j += barWidth + 1 ) {
 		  ctx.fillRect( j, height - data[i] - 1, barWidth, data[i] + 1 );
+		bars.push( new SparklineBar( j, height - data[i] - 1, barWidth, data[i] + 1, rawData[i] ) );
 		}
+		return bars;
+	}
+
+	function drawBar( ctx, sparklineBar, width, height ) {
+		// Clear bar
+	  	ctx.clearRect( sparklineBar.x, 0, sparklineBar.width, height );
+
+		// Fill bg
+  	  	ctx.fillStyle = 'rgba(255, 255, 255, 0.0)';
+	  	ctx.fillRect( sparklineBar.x, 0, sparklineBar.width, height );
+
+		// Fill bar
+		ctx.fillStyle = '#ccc';
+		ctx.fillRect( sparklineBar.x, sparklineBar.y, sparklineBar.width, sparklineBar.height );
 	}
 
 	// Placeholder
@@ -719,14 +748,53 @@ function stats_reports_page() {
   	  for ( var date in json ) {
 		data.push( json[date] );
   	  }
-  		drawStats( ctx, width, height, filterData( data, width, height ) );
+		var bars = drawBars( ctx, width, height, filterData( data, width, height ), data );
+
+		var selected = -1;
+		canvas.addEventListener( 'mousemove', function( e ) {
+			var canvasOffset = $( '#canvas' ).offset();
+			var relativeX = e.pageX - canvasOffset.left;
+			var relativeY = e.pageY - canvasOffset.top;
+
+			for ( var i = 0; i < bars.length; i++ ) {
+				if ( bars[i].hasPoint( relativeX, relativeY ) ) {
+					// Overwrite old selector bar if such exists
+					if ( selected >= 0 ) {
+						drawBar( ctx, bars[selected], width, height );
+					}
+
+					selected = i; // Update current selector bar index
+
+					// Draw new selector bar
+					ctx.fillStyle = '#ccc';
+					ctx.fillRect( bars[selected].x, 0, bars[selected].width, height );
+
+					// Draw views
+					$( '#stats-views-amount' ).text( bars[selected].views );
+					$( '#stats-views' ).removeClass( 'none-selected' );
+
+					return;
+				}
+			}
+
+			// Overwrite old selector bar if such exists
+			if ( selected >= 0 ) {
+				drawBar( ctx, bars[selected], width, height );
+				$( '#stats-views' ).addClass( 'none-selected' );
+			}
+		});
   	  });
 });
 
 })( jQuery );
-	</script>";
+	</script>
+<style>
+#stats-views.none-selected {
+	display: none;
+}
+</style>";
 
-	$menu = array( 'id' => 'stats', 'title' => $js . '<canvas id="canvas" width="106" height="24">', 'href' => $url );
+	$menu = array( 'id' => 'stats', 'title' => $js . '<canvas id="canvas" width="106" height="24"></canvas><span id="stats-views" class="none-selected"><span id="stats-views-amount"></span> ' . __( 'views', 'jetpack' ) . '</span>', 'href' => $url );
 
 	$wp_admin_bar->add_menu( $menu );
 }
@@ -757,7 +825,7 @@ function stats_get_blog() {
 	return stats_esc_html_deep( $blog );
 }
 
-/**
+/**0
  * Modified from stripslashes_deep()
  */
 function stats_esc_html_deep( $value ) {
