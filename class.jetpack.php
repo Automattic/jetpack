@@ -961,15 +961,11 @@ class Jetpack {
 		$glob_cache = Jetpack_Options::get_option( 'glob_cache' );
 		if ( ! is_admin() && ! empty( $glob_cache[ JETPACK__VERSION ][ $relative_path ] ) ) {
 			$relative_files = $glob_cache[ JETPACK__VERSION ][ $relative_path ];
-			$files = array_map( function( $path ) {
-				return path_join( JETPACK__PLUGIN_DIR, $path );
-			}, $relative_files);
+			$files = array_map( array( 'Jetpack', 'absolutize_path' ), $relative_files );
 			return $files;
 		} else {
 			$files = Jetpack::glob_php( $absolute_path );
-			$relative_files = array_map( function ($path) {
-				return str_replace( JETPACK__PLUGIN_DIR, '', $path);
-			}, $files);
+			$relative_files = array_map( array( 'Jetpack', 'relativize_path' ), $files);
 			if ( ! $glob_cache ) {
 				$glob_cache = array( JETPACK__VERSION => array() );
 			}
@@ -978,6 +974,15 @@ class Jetpack {
 		}
 		return $files;
 	}
+	
+	private static function relativize_path( $path ) {
+		return str_replace( JETPACK__PLUGIN_DIR, '', $path);
+	}
+	
+	private static function absolutize_path( $path ) {
+		return path_join( JETPACK__PLUGIN_DIR, $path );
+	}
+	
 	/**
 	 * Returns an array of all PHP files in the specified absolute path.
 	 * Equivalent to glob( "$absolute_path/*.php" ).
