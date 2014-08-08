@@ -41,9 +41,9 @@ function jetpack_load_shortcodes() {
 	global $wp_version;
 
 	$abspath = dirname( __FILE__ ) . '/shortcodes';
-	$shortcodes_transient = Jetpack_Options::get_option( 'available_shortcodes' );
-	if ( !is_admin() && !empty( $shortcodes_transient[ JETPACK__VERSION ] ) ) {
-		$relative_shortcodes = $shortcodes_transient[ JETPACK__VERSION ];
+	$shortcodes_option = Jetpack_Options::get_option( 'available_shortcodes' );
+	if ( !is_admin() && !empty( $shortcodes_option[ JETPACK__VERSION ] ) ) {
+		$relative_shortcodes = $shortcodes_option[ JETPACK__VERSION ];
 		$shortcode_includes = array();
 		foreach ( $relative_shortcodes as $shortcode ) {
 			$shortcode_includes[] = path_join( $abspath, $shortcode );
