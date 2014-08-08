@@ -5,9 +5,6 @@
 .button,
 .download-jetpack {
   -webkit-transition: all 0.1s ease-in-out;
-  -moz-transition: all 0.1s ease-in-out;
-  -ms-transition: all 0.1s ease-in-out;
-  -o-transition: all 0.1s ease-in-out;
   transition: all 0.1s ease-in-out;
 }
 
@@ -19,10 +16,8 @@
   font: 800 0.9285714286em/1 'Open Sans', Helvetica, sans-serif;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   background: #6f7476;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
   background-clip: padding-box;
 }
 .jp-button:visited, .jp-button--settings:visited {
@@ -61,13 +56,10 @@
   font: 400 2em/1 "proxima-nova", 'Open Sans', Helvetica, sans-serif;
   background: #518d2a;
   z-index: 3;
-  -webkit-border-radius: 6px;
   border-radius: 6px;
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
   background-clip: padding-box;
   -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:visited {
@@ -77,13 +69,11 @@
   color: #fff;
   background: #57972d;
   -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:active {
   top: 6px;
   -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:active:after {
@@ -98,7 +88,8 @@
   width: 30px;
   height: 30px;
   vertical-align: middle;
-  background: url("../img/connect-plug.svg") center center no-repeat;
+  background: url("../images/connect-plug.svg") center center no-repeat;
+  -webkit-background-size: 100% 100%;
   background-size: 100%;
 }
 .download-jetpack:after {
@@ -120,10 +111,8 @@
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   background: #6f7476;
   outline: none;
-  -webkit-border-radius: 3px;
   border-radius: 3px;
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
   background-clip: padding-box;
 }
 #searchsubmit:visited {
@@ -149,7 +138,7 @@
 #message.jp-connect:after {
   bottom: 0;
   content: '';
-  background: url("../img/the-footcloud.svg") left bottom no-repeat;
+  background: url("../images/the-footcloud.svg") left bottom no-repeat;
   height: 50px;
   pointer-events: none;
   position: absolute;
@@ -175,25 +164,20 @@
   font-size: 1.5em;
   margin: 0 0 0 18px;
   padding: 0.57143em 0.57143em 0.38095em 0.85714em;
-  -webkit-border-radius: 0;
   border-radius: 0;
   -webkit-background-clip: padding-box;
-  -moz-background-clip: padding;
   background-clip: padding-box;
   -webkit-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
 #message.jp-connect .jetpack-install-container .download-jetpack:hover, #message.jp-connect .jetpack-install-container .download-jetpack:focus {
   -webkit-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
 #message.jp-connect .jetpack-install-container .download-jetpack:active {
   outline: none;
   top: 2px;
   -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
-  -moz-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
 }
 #message.jp-connect .jetpack-install-container .download-jetpack:active:after {

@@ -4,7 +4,7 @@
  * Module Description: Monitor your stats with clear, concise reports and no additional load on your server.
  * Sort Order: 1
  * First Introduced: 1.1
- * Requires Connection: Yes
+ * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: WordPress.com Stats
  */
@@ -556,7 +556,7 @@ function stats_configuration_screen() {
 			?>
 		</td></tr>
 		<tr valign="top"><th scope="row"><?php _e( 'Smiley' , 'jetpack' ); ?></th>
-		<td><label><input type='checkbox'<?php checked( isset( $options['hide_smile'] ) && $options['hide_smile'] ); ?> name='hide_smile' id='hide_smile' /> <?php _e( 'Hide the stats smiley face image.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden', 'jetpack' ); ?> <img class="stats-smiley" alt="<?php esc_attr_e( 'Smiley face', 'jetpack' ); ?>" src="<?php echo esc_url( plugins_url( '_inc/images/stats-smiley.gif', dirname( __FILE__ ) ) ); ?>" width="6" height="5" /></span></td></tr>
+		<td><label><input type='checkbox'<?php checked( isset( $options['hide_smile'] ) && $options['hide_smile'] ); ?> name='hide_smile' id='hide_smile' /> <?php _e( 'Hide the stats smiley face image.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden', 'jetpack' ); ?> <img class="stats-smiley" alt="<?php esc_attr_e( 'Smiley face', 'jetpack' ); ?>" src="<?php echo esc_url( plugins_url( 'images/stats-smiley.gif', dirname( __FILE__ ) ) ); ?>" width="6" height="5" /></span></td></tr>
 		<tr valign="top"><th scope="row"><?php _e( 'Report visibility' , 'jetpack' ); ?></th>
 		<td>
 			<?php _e( 'Select the roles that will be able to view stats reports.', 'jetpack' ); ?><br/>
@@ -803,7 +803,7 @@ jQuery(window).load( function() {
 			resizeChart();
 		}, 100) );
 	} );
-	
+
 	function resizeChart() {
 		var dashStats = jQuery( '#dashboard_stats.postbox div.inside' );
 
@@ -1145,4 +1145,3 @@ function stats_str_getcsv( $csv ) {
 
 	return $data;
 }
-

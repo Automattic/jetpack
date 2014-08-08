@@ -142,7 +142,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		$link_item = '';
 		$format = $args['format'];
 		if ( 'image' == $format || 'text-image' == $format )
-			$link_item = '<a href="' . get_bloginfo($rss_type) . '" title="' . esc_attr( $subscribe_to ) . '"><img src="' . esc_url( plugins_url( '_inc/images/rss/' . $args['imagecolor'] . '-' . $args['imagesize'] . '.png', dirname( dirname( __FILE__ ) ) ) ) . '" alt="RSS Feed" /></a>';
+			$link_item = '<a href="' . get_bloginfo($rss_type) . '" title="' . esc_attr( $subscribe_to ) . '"><img src="' . esc_url( plugins_url( 'images/rss/' . $args['imagecolor'] . '-' . $args['imagesize'] . '.png', dirname( dirname( __FILE__ ) ) ) ) . '" alt="RSS Feed" /></a>';
 		if ( 'text-image' == $format )
 			$link_item .= '&nbsp;<a href="' . get_bloginfo($rss_type) . '" title="' . esc_attr( $subscribe_to ) . '">' . esc_html__('RSS - ' . $type_text, 'jetpack'). '</a>';
 		if ( 'text' == $format )
