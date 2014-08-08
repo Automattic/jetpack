@@ -347,7 +347,7 @@ class Share_Twitter extends Sharing_Source {
 
 		/*
 		 * Hack to remove the unwanted behavior of adding 'via @jetpack' which
-		 * was introduced with the adding of the Twitter cards. 
+		 * was introduced with the adding of the Twitter cards.
 		 * This should be a temporary solution until a better method is setup.
 		 */
 		if( 'jetpack' == $twitter_site_tag_value ) {
@@ -575,11 +575,11 @@ class Share_LinkedIn extends Sharing_Source {
 		$post_link = $this->get_share_url( $post->ID );
 
 		// Using the same URL as the official button, which is *not* LinkedIn's documented sharing link
-		// http://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
+		// https://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
 
 		$linkedin_url = add_query_arg( array(
 			'url' => rawurlencode( $post_link ),
-		), 'http://www.linkedin.com/cws/share?token=&isFramed=false' );
+		), 'https://www.linkedin.com/cws/share?token=&isFramed=false' );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -1088,7 +1088,7 @@ class Share_Tumblr extends Sharing_Source {
 	// http://www.tumblr.com/share?v=3&u=URL&t=TITLE&s=
 	public function display_footer() {
 		if ( $this->smart ) {
-			?><script type="text/javascript" src="//platform.tumblr.com/v1/share.js"></script><?php 
+			?><script type="text/javascript" src="//platform.tumblr.com/v1/share.js"></script><?php
 		} else {
 			$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
 		}
