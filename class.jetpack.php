@@ -2099,7 +2099,7 @@ p {
 
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
-		wp_enqueue_style( 'jetpack', plugins_url( "_inc/jetpack-banners{$min}.css", __FILE__ ), false, JETPACK__VERSION . '-20121016' );
+		wp_enqueue_style( 'jetpack', plugins_url( "css/jetpack-banners{$min}.css", __FILE__ ), false, JETPACK__VERSION . '-20121016' );
 		$wp_styles->add_data( 'jetpack', 'rtl', true );
 	}
 

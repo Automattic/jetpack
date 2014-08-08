@@ -288,7 +288,7 @@ hr {
   width: 30px;
   height: 30px;
   vertical-align: middle;
-  background: url("img/connect-plug.svg") center center no-repeat;
+  background: url("../img/connect-plug.svg") center center no-repeat;
   -webkit-background-size: 100% 100%;
   background-size: 100%;
 }
@@ -450,8 +450,8 @@ html {
   left: 0;
   width: 100%;
   height: 100%;
-  background: url(images/jetpack-logo.png) center center no-repeat;
-  background: url(images/jetpack-logo.svg) center center no-repeat, none;
+  background: url(../img/jetpack-logo.png) center center no-repeat;
+  background: url(../img/jetpack-logo.svg) center center no-repeat, none;
   -webkit-background-size: 183px 32px;
   background-size: 183px 32px;
 }
@@ -572,7 +572,7 @@ html {
   margin-bottom: -1px;
   width: 100%;
   height: 228px;
-  background: url("img/the-cloud.svg") center bottom repeat-x;
+  background: url("../img/the-cloud.svg") center bottom repeat-x;
   pointer-events: none;
   z-index: -1;
 }
@@ -595,7 +595,7 @@ html {
   margin-bottom: -1px;
   width: 100%;
   height: 137px;
-  background: url("img/the-cloud-sm.svg") center bottom repeat-x;
+  background: url("../img/the-cloud-sm.svg") center bottom repeat-x;
   pointer-events: none;
   z-index: 2;
 }
@@ -683,33 +683,33 @@ html {
   border-bottom: none;
 }
 .feature .feature-img.custom-css {
-  background: url("img/custom-css.jpg") no-repeat;
+  background: url("../img/custom-css.jpg") no-repeat;
   -webkit-background-size: 100% auto;
   background-size: 100% auto;
 }
 @media print, (-webkit-min-device-pixel-ratio: 1.25), (min--moz-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 5 / 4), (min-resolution: 120dpi) {
   .feature .feature-img.custom-css {
-    background-image: url("img/custom-css@2x.jpg");
+    background-image: url("../img/custom-css@2x.jpg");
   }
 }
 .feature .feature-img.wordpress-connect {
-  background: url("img/wordpress-connect.jpg") no-repeat;
+  background: url("../img/wordpress-connect.jpg") no-repeat;
   -webkit-background-size: 100% auto;
   background-size: 100% auto;
 }
 @media print, (-webkit-min-device-pixel-ratio: 1.25), (min--moz-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 5 / 4), (min-resolution: 120dpi) {
   .feature .feature-img.wordpress-connect {
-    background-image: url("img/wordpress-connect@2x.jpg");
+    background-image: url("../img/wordpress-connect@2x.jpg");
   }
 }
 .feature .feature-img.wordpress-stats {
-  background: url("img/wordpress-stats.jpg") no-repeat;
+  background: url("../img/wordpress-stats.jpg") no-repeat;
   -webkit-background-size: 100% auto;
   background-size: 100% auto;
 }
 @media print, (-webkit-min-device-pixel-ratio: 1.25), (min--moz-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 5 / 4), (min-resolution: 120dpi) {
   .feature .feature-img.wordpress-stats {
-    background-image: url("img/wordpress-stats@2x.jpg");
+    background-image: url("../img/wordpress-stats@2x.jpg");
   }
 }
 .feature .feature-img.no-border {
@@ -882,7 +882,7 @@ html {
   font-weight: 800;
   text-align: center;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
-  background: url("img/new-badge.svg") center center no-repeat;
+  background: url("../img/new-badge.svg") center center no-repeat;
   -webkit-background-size: 100% 100%;
   background-size: 100%;
   border-radius: 50%;
@@ -1106,13 +1106,13 @@ html {
   margin-top: -1px;
   width: 100%;
   height: 195px;
-  background: url("img/the-undercloud.svg") center top repeat-x;
+  background: url("../img/the-undercloud.svg") center top repeat-x;
 }
 .footer:after {
   bottom: 0;
   width: 100%;
   height: 50px;
-  background: url("img/the-footcloud.svg") center bottom no-repeat;
+  background: url("../img/the-footcloud.svg") center bottom no-repeat;
   -webkit-background-size: auto 45px;
   background-size: auto 45px;
   z-index: 1;
@@ -1133,7 +1133,7 @@ html {
   left: 0;
   width: 100%;
   height: 225px;
-  background: url("img/rocketeer.svg") center bottom no-repeat;
+  background: url("../img/rocketeer.svg") center bottom no-repeat;
   pointer-events: none;
   -webkit-transform: translate3d(0px, 0px, 0px);
   -ms-transform: translate3d(0px, 0px, 0px);
@@ -2261,13 +2261,13 @@ html {
   .footer .a8c-services:before {
     margin-bottom: 55px;
     height: 225px;
-    background: url("img/rocketeer.svg") center bottom no-repeat;
+    background: url("../img/rocketeer.svg") center bottom no-repeat;
     -webkit-background-size: 50px auto;
     background-size: 50px auto;
   }
   .footer .a8c-services:after {
     height: 50px;
-    background: url("img/the-footcloud.svg") center bottom no-repeat;
+    background: url("../img/the-footcloud.svg") center bottom no-repeat;
     -webkit-background-size: auto 38px;
     background-size: auto 38px;
   }

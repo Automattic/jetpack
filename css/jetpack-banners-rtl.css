@@ -88,7 +88,7 @@
   width: 30px;
   height: 30px;
   vertical-align: middle;
-  background: url("img/connect-plug.svg") center center no-repeat;
+  background: url("../img/connect-plug.svg") center center no-repeat;
   -webkit-background-size: 100% 100%;
   background-size: 100%;
 }
@@ -138,7 +138,7 @@
 #message.jp-connect:after {
   bottom: 0;
   content: '';
-  background: url("img/the-footcloud.svg") left bottom no-repeat;
+  background: url("../img/the-footcloud.svg") left bottom no-repeat;
   height: 50px;
   pointer-events: none;
   position: absolute;
