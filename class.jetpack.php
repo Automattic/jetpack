@@ -1003,7 +1003,6 @@ class Jetpack {
 			return;
 		}
 
-		Jetpack_Options::delete_option( 'available_modules' );
 		$active_modules     = Jetpack::get_active_modules();
 		$reactivate_modules = array();
 		foreach ( $active_modules as $active_module ) {
@@ -1051,11 +1050,11 @@ class Jetpack {
 		static $modules = null;
 
 		if ( ! isset( $modules ) ) {
-			$should_use_cache = ! self::is_development_mode() && ! is_admin();
-			if ( $should_use_cache ) {
-				$modules = Jetpack_Options::get_option( 'available_modules' );
-			}
-			if ( $modules === null ) {
+			$available_modules_option = Jetpack_Options::get_option( 'available_modules', array() );
+			// Use the cache if we're on the front-end and it's available...
+			if ( ! is_admin() && ! empty( $available_modules_option[ JETPACK__VERSION ] ) ) {
+				$modules = $available_modules_option[ JETPACK__VERSION ];
+			} else {
 				$files = Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules' );
 
 				$modules = array();
@@ -1067,7 +1066,10 @@ class Jetpack {
 
 					$modules[ Jetpack::get_module_slug( $file ) ] = $headers['introduced'];
 				}
-				Jetpack_Options::update_option( 'available_modules', $modules );
+
+				Jetpack_Options::update_option( 'available_modules', array(
+					JETPACK__VERSION => $modules,
+				) );
 			}
 		}
 
