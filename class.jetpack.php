@@ -1269,7 +1269,7 @@ class Jetpack {
 	 */
 	public static function get_file_data( $file, $headers ) {
 		$file_data_option = Jetpack_Options::get_option( 'file_data', array() );
-		$key = md5( $file . serialize( $headers ) );
+		$key              = md5( $file . serialize( $headers ) );
 
 		// If we already have it, short-circuit!
 		if ( isset( $file_data_option[ JETPACK__VERSION ][ $key ] ) ) {
