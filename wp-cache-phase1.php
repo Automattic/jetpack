@@ -240,7 +240,7 @@ function wp_cache_serve_cache_file() {
 						$remote_mod_time = 0;
 				}
 				$local_mod_time = gmdate("D, d M Y H:i:s",filemtime( $file )).' GMT';
-				if ( $remote_mod_time == $local_mod_time ) {
+				if ( $remote_mod_time != 0 && $remote_mod_time == $local_mod_time ) {
 					header("HTTP/1.0 304 Not Modified");
 					exit();
 				}
