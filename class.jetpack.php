@@ -560,9 +560,8 @@ class Jetpack {
 		require_once( JETPACK__PLUGIN_DIR . '_inc/genericons.php' );
 		jetpack_register_genericons();
 
-		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) ) {
-			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
-		}
+		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) )
+			wp_register_style( 'jetpack-icons', plugins_url( 'css/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
 	}
 
 	/**
