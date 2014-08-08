@@ -502,18 +502,6 @@ class Jetpack_Network {
 	}
 
 	/**
-	 * Add css styles needed for the Network Admin area
-	 **/
-	function network_admin_styles() {
-		global $wp_styles;
-
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-
-		wp_enqueue_style( 'jetpack', plugins_url( "_inc/jetpack-network{$min}.css", __FILE__ ), false, JETPACK__VERSION . '-20121016' );
-		$wp_styles->add_data( 'jetpack', 'rtl', true );
-	}
-
-	/**
 	 * Handles the displaying of all sites on the network that are
 	 * dis/connected to Jetpack
 	 *
