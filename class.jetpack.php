@@ -3106,7 +3106,7 @@ p {
 			</div>
 
 			<div id="jetpack-configuration" style="display:none;">
-				<p><img width="16" src="<?php echo esc_url( plugins_url( '_inc/images/wpspin_light-2x.gif', __FILE__ ) ); ?>" alt="Loading ..." /></p>
+				<p><img width="16" src="<?php echo esc_url( plugins_url( 'images/wpspin_light-2x.gif', __FILE__ ) ); ?>" alt="Loading ..." /></p>
 			</div>
 		</div>
 	<?php
