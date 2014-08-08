@@ -270,7 +270,7 @@ class Jetpack_Network {
 		jetpack_register_genericons();
 
 		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) )
-			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons.min.css', __FILE__ ), false, JETPACK__VERSION );
+			wp_register_style( 'jetpack-icons', plugins_url( 'css/jetpack-icons.min.css', __FILE__ ), false, JETPACK__VERSION );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 	}
