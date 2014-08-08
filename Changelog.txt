@@ -1,3 +1,29 @@
+2014-08-08 13:07  donncha
+
+	* wp-cache-phase1.php: Just in case the local modified time of a
+	  file is 0, disable the "last modified time" check.
+
+2014-08-08 11:32  donncha
+
+	* plugins/domain-mapping.php: Check if HTTPS exists before checking
+	  it's value to avoid warnings
+
+2014-08-08 11:24  donncha
+
+	* wp-cache.php: Replace wpdb->escape with esc_sql() as it's
+	  deprecated.
+
+2014-08-08 11:21  donncha
+
+	* wp-cache-phase2.php: Make sure $wp_cache_no_cache_for_get,
+	  $wp_cache_object_cache, $wp_cache_request_uri are visible to the
+	  OB callback to avoid warnings and fix functionality
+
+2014-08-07 14:00  donncha
+
+	* Changelog.txt, readme.txt, wp-cache.php: Updated changelog,
+	  documentation, bumped version number to 1.4.1 and tested version.
+
 2014-08-07 12:45  donncha
 
 	* wp-cache.php: Removed author information
