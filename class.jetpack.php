@@ -950,6 +950,35 @@ class Jetpack {
 	}
 
 	/**
+	 * Returns an array of all PHP files in the specified path, relative to the Jetpack directory.
+	 * It caches results unless visiting an admin page.
+	 * 
+	 * @param string $relative_path The path of the directory to search relative to JETPACK__PLUGIN_DIR.
+	 * @return array Array of absolute paths to the PHP files.
+	 */
+	public static function glob_relative_php( $relative_path ) {
+		$absolute_path = path_join( JETPACK__PLUGIN_DIR, $relative_path );
+		$glob_cache = Jetpack_Options::get_option( 'glob_cache' );
+		if ( ! is_admin() && ! empty( $glob_cache[ JETPACK__VERSION ][ $relative_path ] ) ) {
+			$relative_files = $glob_cache[ JETPACK__VERSION ][ $relative_path ];
+			$files = array_map( function( $path ) {
+				return path_join( JETPACK__PLUGIN_DIR, $path );
+			}, $relative_files);
+			return $files;
+		} else {
+			$files = Jetpack::glob_php( $absolute_path );
+			$relative_files = array_map( function ($path) {
+				return str_replace( JETPACK__PLUGIN_DIR, '', $path);
+			}, $files);
+			if ( ! $glob_cache ) {
+				$glob_cache = array( JETPACK__VERSION => array() );
+			}
+			$glob_cache[ JETPACK__VERSION ][ $relative_path ] = $relative_files;
+			Jetpack_Options::update_option( 'glob_cache', $glob_cache );
+		}
+		return $files;
+	}
+	/**
 	 * Returns an array of all PHP files in the specified absolute path.
 	 * Equivalent to glob( "$absolute_path/*.php" ).
 	 *
@@ -1050,26 +1079,16 @@ class Jetpack {
 		static $modules = null;
 
 		if ( ! isset( $modules ) ) {
-			$available_modules_option = Jetpack_Options::get_option( 'available_modules', array() );
-			// Use the cache if we're on the front-end and it's available...
-			if ( ! is_admin() && ! empty( $available_modules_option[ JETPACK__VERSION ] ) ) {
-				$modules = $available_modules_option[ JETPACK__VERSION ];
-			} else {
-				$files = Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules' );
+			$files = Jetpack::glob_relative_php( 'modules' );
 
-				$modules = array();
+			$modules = array();
 
-				foreach ( $files as $file ) {
-					if ( ! $headers = Jetpack::get_module( $file ) ) {
-						continue;
-					}
-
-					$modules[ Jetpack::get_module_slug( $file ) ] = $headers['introduced'];
+			foreach ( $files as $file ) {
+				if ( ! $headers = Jetpack::get_module( $file ) ) {
+					continue;
 				}
 
-				Jetpack_Options::update_option( 'available_modules', array(
-					JETPACK__VERSION => $modules,
-				) );
+				$modules[ Jetpack::get_module_slug( $file ) ] = $headers['introduced'];
 			}
 		}
 

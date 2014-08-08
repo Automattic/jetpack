@@ -10,7 +10,6 @@ class Jetpack_Options {
 				'register',
 				'activated',
 				'active_modules',
-				'available_modules',
 				'do_activate',
 				'log',
 				'publicize',
@@ -19,6 +18,7 @@ class Jetpack_Options {
 				'wpcc_options',
 				'relatedposts',
 				'file_data',
+				'glob_cache',
 			);
 		}
 
@@ -42,7 +42,6 @@ class Jetpack_Options {
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
 			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
 			'json_api_full_management',     // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
-			'available_shortcodes',		// (array)  The list of shortcode files to include.
 		);
 	}
 

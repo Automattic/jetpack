@@ -40,24 +40,8 @@ function shortcode_new_to_old_params( $params, $old_format_support = false ) {
 function jetpack_load_shortcodes() {
 	global $wp_version;
 
-	$abspath = dirname( __FILE__ ) . '/shortcodes';
-	$shortcodes_option = Jetpack_Options::get_option( 'available_shortcodes' );
-	if ( !is_admin() && !empty( $shortcodes_option[ JETPACK__VERSION ] ) ) {
-		$relative_shortcodes = $shortcodes_option[ JETPACK__VERSION ];
-		$shortcode_includes = array();
-		foreach ( $relative_shortcodes as $shortcode ) {
-			$shortcode_includes[] = path_join( $abspath, $shortcode );
-		}
-	} else {
-		$shortcode_includes = array();
-		$relative_shortcodes = array();
-		
-		foreach ( Jetpack::glob_php( $abspath ) as $file ) {
-			$relative_file = str_replace( "$abspath/", '', $file);
-			$shortcode_includes[] = $file;
-			$relative_shortcodes[] = $relative_file;
-		}
-		Jetpack_Options::update_option( 'available_shortcodes', array( JETPACK__VERSION => $relative_shortcodes) );
+	foreach ( Jetpack::glob_relative_php( 'modules/shortcodes' ) as $file ) {
+		$shortcode_includes[] = $file;
 	}
 
 	$shortcode_includes = apply_filters( 'jetpack_shortcodes_to_include', $shortcode_includes );

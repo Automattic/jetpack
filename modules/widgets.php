@@ -12,7 +12,7 @@
 function jetpack_load_widgets() {
 	$widgets_include = array();
 
-	foreach ( Jetpack::glob_php( dirname( __FILE__ ) . '/widgets' ) as $file ) {
+	foreach ( Jetpack::glob_relative_php( 'modules/widgets' ) as $file ) {
 		$widgets_include[] = $file;
 	}
 
