@@ -98,7 +98,7 @@
   width: 30px;
   height: 30px;
   vertical-align: middle;
-  background: url("img/connect-plug.svg") center center no-repeat;
+  background: url("../img/connect-plug.svg") center center no-repeat;
   background-size: 100%;
 }
 .download-jetpack:after {
@@ -149,7 +149,7 @@
 #message.jp-connect:after {
   bottom: 0;
   content: '';
-  background: url("img/the-footcloud.svg") right bottom no-repeat;
+  background: url("../img/the-footcloud.svg") right bottom no-repeat;
   height: 50px;
   pointer-events: none;
   position: absolute;

@@ -39,9 +39,9 @@ module.exports = function(grunt) {
 				expand: true,
 				ext: '-rtl.css',
 				src: [
-					'_inc/*.css',
-					'!_inc/*-rtl.css',
-					'!_inc/*.min.css'
+					'css/*.css',
+					'!css/*-rtl.css',
+					'!css/*.min.css'
 				]
 			},
 			min: {
@@ -51,8 +51,8 @@ module.exports = function(grunt) {
 				expand: true,
 				ext: '-rtl.min.css',
 				src: [
-					'_inc/*.min.css',
-					'!_inc/*-rtl.min.css'
+					'css/*.min.css',
+					'!css/*-rtl.min.css'
 				]
 			}
 		},
@@ -75,9 +75,9 @@ module.exports = function(grunt) {
 				},
 				files: [{
 					expand: true,
-					cwd: '_inc',
+					cwd: 'scss',
 					src: ['*.scss'],
-					dest: '_inc',
+					dest: 'css',
 					ext: '.css'
 				}]
 			},
@@ -88,9 +88,9 @@ module.exports = function(grunt) {
 				},
 				files: [{
 					expand: true,
-					cwd: '_inc',
+					cwd: 'scss',
 					src: ['*.scss'],
-					dest: '_inc',
+					dest: 'css',
 					ext: '.min.css'
 				}]
 			}
@@ -113,14 +113,14 @@ module.exports = function(grunt) {
 						'ie 9'
 					]
 				},
-				src: '_inc/*.css'
+				src: 'css/*.css'
 			},
 		},
 		watch: {
 			sass: {
 				files: [
-					'_inc/*.scss',
-					'_inc/**/*.scss'
+					'scss/*.scss',
+					'scss/**/*.scss'
 				],
 				tasks: [
 					'sass',

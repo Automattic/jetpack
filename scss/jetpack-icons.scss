@@ -1,9 +1,9 @@
 // Imported styles
-@import "scss/_variables"; // Global variables including colors and font sets
-@import "scss/_mixins"; // Contains all the variables, mixins and MORE!
+@import "_variables"; // Global variables including colors and font sets
+@import "_mixins"; // Contains all the variables, mixins and MORE!
 
 // Begin partials
-@import "scss/icons/_jetpack"; // Jetpack logo and icons
+@import "icons/_jetpack"; // Jetpack logo and icons
 
 // ==========================================================================
 // Admin nav iconx

@@ -1,7 +1,7 @@
 {
 "version": 3,
 "mappings": "AAIA,UASC,CARA,WAAW,CAAE,SAAS,CACtB,GAAG,CAAE,wBAAwB,CAC7B,GAAG,CAAE,+LAA2D,CAIhE,WAAW,CAAE,MAAM,CACnB,UAAU,CAAE,MAAM,CAGnB,qDAAqD,CACpD,UAGC,CAFA,WAAW,CAAE,SAAS,CACtB,GAAG,CAAE,8CAA8C,ECPrD,4CAA6C,CAC5C,WAAW,CAAE,oBAAoB,CACjC,OAAO,CAAE,OAAO,CAEjB,0CAA2C,CAC1C,WAAW,CAAE,oBAAoB,CACjC,OAAO,CAAE,OAAO,CAEjB,iDAAkD,CACjD,UAAU,CAAE,eAAe,CAC3B,iBAAiB,CAAE,SAAS,CAE7B,yBAAyB,CACxB,6CAA8C,CAC7C,MAAM,CAAE,IAAI",
-"sources": ["scss/icons/_jetpack.scss","jetpack-icons.scss"],
+"sources": ["../scss/icons/_jetpack.scss","../scss/jetpack-icons.scss"],
 "names": [],
 "file": "jetpack-icons.min.css"
 }

@@ -10,7 +10,7 @@
 	&:after {
 		bottom: 0;
 		content: '';
-		background: url('img/the-footcloud.svg') right bottom no-repeat;
+		background: url('../img/the-footcloud.svg') right bottom no-repeat;
 		height: 50px;
 		pointer-events: none;
 		position: absolute;
@@ -18,7 +18,7 @@
 		width: 100%;
 		z-index: 1;
 	}
-	
+
 	a {
 		color: #fff;
 	}
@@ -30,7 +30,7 @@
 	.jetpack-install-container {
 		float: left;
 		overflow: hidden;
-		
+
 		.submit {
 			margin: 0;
 		}
@@ -43,7 +43,7 @@
 				0 4px 0 #3e6c20,
 				0 2px 3px rgba(0,0,0,.2)
 			);
-	
+
 			&:hover,
 			&:focus {
 				@include box-shadow(
@@ -58,7 +58,7 @@
 					0 0px 0 #3e6c20,
 					0 0 0 rgba(0,0,0,.2)
 				);
-		
+
 				&:after {
 					// fixes buggy clicks
 					top: -2px;
@@ -76,7 +76,7 @@
 		right: 18px;
 		position: absolute;
 		top: 18px;
-		
+
 		a {
 			&:before {
 				color: #a7c979;
@@ -96,11 +96,11 @@
 		color: #dfffcc;
 		float: left;
 		margin-top: -4px;
-		
+
 		p {
 			margin: 0;
 			padding: 0;
-			
+
 			strong {
 				color: #fff;
 				display: block;
@@ -119,12 +119,12 @@
 			float: none;
 			margin-top: 18px;
 			padding-right: 30px;
-			
+
 			p {
 				float: left;
 				font-size: 14px;
 				margin-right: 4px;
-				
+
 				strong {
 					font-size: 14px;
 					font-weight: bold;
@@ -142,7 +142,7 @@
 			padding: 9px 8px;
 			text-align: center;
 			width: 80%;
-			
+
 			&:before {
 				display: none;
 			}
