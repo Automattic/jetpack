@@ -1,33 +1,23 @@
 // ==========================================================================
-//  Base styles: opinionated defaults
+// Typography
 // ==========================================================================
 
-// Sets box-sizing default to border-box on all elements
-*,
-*:before,
-*:after {
-	@include box-sizing();
-}
+@import
+	"variables",
+	"functions";
 
-html,
+body,
 button,
 input,
 select,
 textarea {
-	color: #222;
+	color: map-get($root-font, color);
 	font-family: $sans;
-	font-weight: 400;
+	font-size: map-get($root-font, font-size);
+	line-height: map-get($root-font, line-height);
 	-webkit-font-smoothing: antialiased;
 }
 
-body {
-	font-size: 1em;
-	font-size: $root-font-size * 1px;
-	line-height: 1.4;
-}
-
-// (highlight color, text color)
-@include selection(#91bd51);
 
 // ==========================================================================
 // Headings
@@ -40,8 +30,9 @@ h4,
 h5,
 h6 {
 	color: #222;
-	font-weight: $bold;
+	clear: both;
 }
+
 
 // ==========================================================================
 // Links
@@ -49,7 +40,7 @@ h6 {
 
 a {
 	color: #0d72b2;
-	@include transition(color .2s);
+	transition: color .2s;
 	text-decoration: none;
 
 	&:visited {
@@ -62,6 +53,7 @@ a {
 		outline: thin dotted;
 	}
 }
+
 
 // ==========================================================================
 // Basic block-level elements
@@ -83,15 +75,6 @@ acronym {
 ins {
 	background: #eee;
 	text-decoration: none;
-}
-
-// ==========================================================================
-// Media elements
-// ==========================================================================
-
-// Remove the gap between images and the bottom of their containers: h5bp.com/i/440
-img {
-	vertical-align: middle;
 }
 
 // ==========================================================================

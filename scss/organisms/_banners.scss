@@ -37,27 +37,27 @@
 		.download-jetpack {
 			font-size: 1.5em;
 			margin: 0 18px 0 0;
-			padding: em(12, 21) em(18, 21) em(8, 21) em(12, 21);
-			@include border-radius(0);
-			@include box-shadow(
+			padding: em(12px, 21px) em(18px, 21px) em(8px, 21px) em(12px, 21px);
+			border-radius: 0;
+			box-shadow:
 				0 4px 0 #3e6c20,
 				0 2px 3px rgba(0,0,0,.2)
-			);
+			;
 
 			&:hover,
 			&:focus {
-				@include box-shadow(
+				box-shadow:
 					0 4px 0 #3e6c20,
 					0 2px 3px rgba(0,0,0,.2)
-				);
+				;
 			}
 			&:active {
 				outline: none;
 				top: 2px;
-				@include box-shadow(
+				box-shadow:
 					0 0px 0 #3e6c20,
 					0 0 0 rgba(0,0,0,.2)
-				);
+				;
 
 				&:after {
 					// fixes buggy clicks

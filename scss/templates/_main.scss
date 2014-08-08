@@ -1,3 +1,18 @@
+
+// Sets box-sizing default to border-box on all elements
+*,
+*:before,
+*:after {
+	box-sizing: border-box;
+}
+
+// (highlight color, text color)
+::selection {
+	background: #91bd51;
+	color: #fff;
+	text-shadow: none;
+}
+
 // ==========================================================================
 // Main Layout
 // ==========================================================================
@@ -23,6 +38,26 @@
 	-webkit-font-smoothing: antialiased;
 }
 
+#wpcontent,
+.auto-fold #wpcontent,
+.auto-fold #wpfooter,
+.modal,
+.configure .frame.top.fixed {
+	@include breakpoint(desktop){
+		margin-left: 36px;
+		padding-left: 0;
+	};
+	@include breakpoint(tablet){
+		margin-left: 0;
+	};
+}
+
+.configure .frame.top.fixed {
+	@include breakpoint(tablet){
+		padding-left: 0;
+	};
+}
+
 // ==========================================================================
 // Main author styles
 // ==========================================================================
@@ -33,6 +68,26 @@ html {
 .page-content  {
 	max-width: 950px;
 	margin: 0 auto;
+
+	li {
+		line-height: 23px;
+	}
+}
+
+.page-content {
+	@include breakpoint(large-phone){
+		margin-top: 0;
+	};
+}
+
+.wrap.inner {
+	@include breakpoint(large-desktop) {
+		background: #f9f9f9;
+		padding: 15px;
+	};
+	@include breakpoint(large-phone) {
+		margin-top: em(24px);
+	};
 }
 
 .jetpack_page_jetpack_modules {
@@ -50,6 +105,17 @@ html {
 .page-content.about {
 	position: relative;
 	z-index: 10;
+
+	@include breakpoint(large-desktop){
+		background: #f9f9f9;
+		padding: 15px;
+	};
+}
+
+.page-content.configure {
+	@include breakpoint(large-desktop){
+		background: #f9f9f9;
+	};
 }
 
 .footer nav {
@@ -57,10 +123,6 @@ html {
 	margin: 0 auto;
 }
 
-.wrap.inner li,
-.page-content li {
-	line-height: 23px;
-}
 
 // ==========================================================================
 // Main navigation
@@ -76,7 +138,7 @@ html {
 		line-height: 60px;
 	}
 	a {
-		padding: 0 em(10);
+		padding: 0 em(10px);
 		line-height: 24px;
 	}
 	.jetpack-logo {
@@ -112,6 +174,9 @@ html {
 	li {
 		margin: 0;
 	}
+	@include breakpoint(desktop){
+		font-size: 13px;
+	};
 }
 
 .user-nav {
@@ -151,33 +216,48 @@ html {
 	text-align: center;
 	z-index: 1;
 	background-color: $start;
-	background-image: -webkit-gradient(linear, left top, left bottom, from($start),to($end));
-	background-image: -webkit-linear-gradient(top, $start, $end);
-	background-image: -moz-linear-gradient(top, $start, $end);
-	background-image: -o-linear-gradient(top, $start, $end);
-	background-image: -ms-linear-gradient(top, $start, $end);
 	background-image: linear-gradient(top, $start, $end);
 
-	h1,
-	h2 {
-		margin: 0 auto;
-	}
-	h1 {
-		padding: em(90, 36) 0 em(40, 36);
-		max-width: em(790, 36);
-		color: #fff;
-		font: 300 2.5714285714em/1.4em $proxima; // 36/14 (the em() function breaks in font shorthand)
-		position: relative;
-		text-shadow: 0 1px 1px rgba(0,0,0,.12);
-		z-index: 3;
-	}
 	&.hasbutton {
 		.flyer {
 			bottom: -270px;
 		}
 		.subhead {
 			margin-top: 175px;
+
+			@include breakpoint(large-phone){
+				margin-top: 105px;
+				padding: 0;
+			};
 		}
+	}
+	h1,
+	h2 {
+		margin: 0 auto;
+	}
+	h1 {
+		padding: em(90px, 36px) 0 em(40px, 36px);
+		max-width: em(790px, 36px);
+		color: #fff;
+		font: 300 2.5714285714em/1.4em $proxima; // 36/14 (the em() function breaks in font shorthand)
+		position: relative;
+		text-shadow: 0 1px 1px rgba(0,0,0,.12);
+		z-index: 3;
+
+		@include breakpoint(large-desktop){
+			padding-top: em(55px, 30px);
+			font-size: em(30px);
+		};
+		@include breakpoint(tablet){
+			max-width: 600px;
+			font-size: 28px;
+		};
+		@include breakpoint(large-phone){
+			margin: 0 15px;
+			padding: 31px 0 15px 0;
+			font-size: 21px;
+			font-weight: 400;
+		};
 	}
 }
 .jetpack-connected .masthead h1 {
@@ -188,27 +268,31 @@ html {
 	position: relative;
 	max-width: 1200px;
 	margin: 0 auto;
+
+	@include breakpoint(desktop){
+		display: none;
+	};
 }
 .flyer {
 	position: absolute;
 	bottom: -200px;
 	left: 4%;
 	z-index: 1;
-	@include animation(flyer 3.4s 2s ease-in-out);
+	animation: flyer 3.4s 2s ease-in-out;
 
 	&:nth-child(2) {
 		left: 49%;
 		width: 120px;
 		height: 131px;
-		@include animation-delay(4.6s);
-		@include animation-duration(2.4s);
+		animation-delay: 4.6s;
+		animation-duration: 2.4s;
 	}
 	&:nth-child(3) {
 		left: 23%;
 		width: 60px;
 		height: 66px;
-		@include animation-delay(5.8s);
-		@include animation-duration(4.5s);
+		animation-delay: 5.8s;
+		animation-duration: 4.5s;
 	}
 }
 .subhead {
@@ -223,6 +307,14 @@ html {
 		color: #5d6d74;
 		font: 400 1.5714285714em/1.4em $proxima; // 22/14
 		text-shadow: 0 1px 1px #fff;
+
+		@include breakpoint(desktop) {
+			max-width: 428px;
+			font-size: 20px;
+		};
+		@include breakpoint(large-phone){
+			display: none;
+		};
 	}
 	&:after {
 		content: '';
@@ -236,6 +328,22 @@ html {
 		pointer-events: none;
 		z-index: -1;
 	}
+	@include breakpoint(large-desktop){
+		margin-top: 122px;
+		padding: 70px 0 49px;
+
+		&:after {
+			background-size: 160% auto;
+		}
+	};
+	@include breakpoint(desktop){
+		margin-top: 122px;
+		padding: 70px 0 49px;
+	};
+	@include breakpoint(large-phone){
+		margin-top: 83px;
+		padding: 47px 15px 39px;
+	};
 }
 .clouds-sm {
 	$start: $green; // top gradient color and fallback
@@ -265,6 +373,9 @@ html {
 		pointer-events: none;
 		z-index: 2;
 	}
+	@include breakpoint(large-phone){
+		height: 90;
+	};
 }
 
 // ==========================================================================
@@ -293,14 +404,24 @@ html {
 		margin: 0 auto;
 		display: inline-block;
 	}
+	@include breakpoint(large-phone){
+		display: none;
+	};
 }
 .featured h2,
 .module-grid h2 {
-	margin-top: em(22, 36);
+	margin-top: em(22px, 36px);
 	color: #5d6d74;
 	font: 300 2.5714285714em/1.4em $proxima; // 36/14
 	text-align: center;
 	text-shadow: 0 1px 1px #fff;
+
+	@include breakpoint(desktop){
+		font-size: 30px;
+	};
+	@include breakpoint(tablet){
+		font-size: 28px;
+	};
 }
 .features {
 	margin: 0 -5px; // For centering features
@@ -312,13 +433,27 @@ html {
 	float: left;
 	margin: 0 5px 10px;
 	width: 310px;
-	@include transition(all .2s ease-in-out);
+	transition: all .2s ease-in-out;
+
+	@include breakpoint(large-desktop){
+		margin: .75% 0 .75% 1.5%;
+		width: 32.333333%;
+		transition: none;
+
+		&:nth-child(3n + 1) {
+			margin-left: 0;
+		}
+		&:hover {
+			top: 0;
+			box-shadow: none;
+		}
+	};
 }
 .feature {
 	h3 {
-		margin: 0 0 em(10, 17);
+		margin: 0 0 em(10px, 17px);
 		color: #697b84;
-		font-size: em(17);
+		font-size: em(17px);
 		line-height: 1em;
 		font-weight: 800;
 	}
@@ -328,7 +463,7 @@ html {
 	}
 	&:hover {
 		top: -5px;
-		@include box-shadow(0 5px 0 rgba(0,0,0,.02));
+		box-shadow: 0 5px 0 rgba(0,0,0,.02);
 
 		h3 {
 			color: #1a8dba;
@@ -343,6 +478,22 @@ html {
 		.feature-description {
 			background: #fff;
 			border: 1px solid #ccc;
+		}
+		@include breakpoint(large-desktop) {
+			h3 {
+				color: #6e818a;
+			}
+			.feature-img {
+				border: 1px solid #ddd;
+				border-bottom: none;
+			}
+			.no-border {
+				border: none;
+			}
+			.feature-description {
+				border: 1px solid #ddd;
+				background: #f5f5f5;
+			}
 		}
 	}
 
@@ -396,13 +547,17 @@ html {
 			padding-bottom: 1px; // makes up for lost border pixel
 		}
 	}
-	.feature-description {
-		display: block;
-		padding: em(14) em(15) em(15);
-		border: 1px solid #ddd;
-		background: #f5f5f5;
-		@include transition(all .2s ease-in-out);
-	}
+}
+.feature-description {
+	display: block;
+	padding: em(14px) em(15px) em(15px);
+	border: 1px solid #ddd;
+	background: #f5f5f5;
+	transition: all .2s ease-in-out;
+
+	@include breakpoint(desktop){
+		min-height: 115px;
+	};
 }
 
 // ==========================================================================
@@ -428,14 +583,19 @@ html {
 
 	h2 {
 		// Font size is 36
-		margin: em(45, 36) 0 em(25, 36);
+		margin: em(45px, 36px) 0 em(25px, 36px);
+
+		@include breakpoint(large-phone){
+			margin-top: 16px;
+			font-size: 25px;
+		};
 	}
 }
 #module-search {
 	position: relative;
 	width: 100%;
-	max-width: em(570);
-	margin: 0 auto em(15);
+	max-width: em(570px);
+	margin: 0 auto em(15px);
 	overflow: hidden;
 }
 #jetpack-search {
@@ -446,7 +606,7 @@ html {
 	border-right-width: 2px;
 	background: #fff;
 	line-height:1.3;
-	@include border-radius(3px);
+	border-radius: 3px;
 
 	&:focus {
 		color: #5c6671;
@@ -478,8 +638,8 @@ html {
 		color: #abafb1;
 		text-indent: -9999px;
 		pointer-events: none;
-		@include border-radius(3px);
-		@include transition(all .2s ease-in-out);
+		border-radius: 3px;
+		transition: all .2s ease-in-out;
 
 		&:after {
 			content: '\f400';
@@ -487,14 +647,14 @@ html {
 			right: 11px;
 			text-align: right;
 			top: 4px;
-			font-size: em(24);
+			font-size: em(24px);
 			font-weight: normal;
 			font-family: $g8s;
 		}
 	}
 }
 .jp-filter {
-	margin-bottom: em(40);
+	margin-bottom: em(40px);
 	color: #6f7476;
 
 	a {
@@ -518,6 +678,9 @@ html {
 			text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 			background: #6f7476;
 		}
+		@include breakpoint(large-phone){
+			padding: 0.76em 1em;
+		};
 	}
 
 }
@@ -527,24 +690,31 @@ html {
 .module {
 	cursor: pointer;
 	display: block;
-	padding: em(10) em(15) em(14);
+	padding: em(10px) em(15px) em(14px);
 	text-align: left;
 	border: 1px solid #dae0e2;
 	background: #fff;
-	@include box-shadow(0 0 0 rgba(0,0,0,.03));
-	@include transition(opacity 2s ease-in);
+	box-shadow: 0 0 0 rgba(0,0,0,.03);
+	transition: opacity 2s ease-in;
 
+	&:hover {
+		border-color: #8ac9e8;
+		background: #f8fcfe;
+	}
+	&:nth-of-type(n+10) {
+		display: none;
+	}
 	h3 {
-		margin: 0 0 em(7);
+		margin: 0 0 em(7px);
 		color: #1a8dba;
-		font-size: em(16);
+		font-size: em(16px);
 		line-height: 1.4em;
 		font-weight: 700;
 	}
 	p {
 		margin: 0;
 		color: #686f72;
-		font-size: em(12);
+		font-size: em(12px);
 	}
 	&:hover, &:focus {
 		border-color: #8ac9e8;
@@ -553,6 +723,59 @@ html {
 	&:nth-of-type(n+10) {
 		display: none;
 	}
+
+	.cat & {
+		@include breakpoint(large-desktop){
+			&:nth-child(3n + 1) {
+				margin: .75% 0 .75% 1.5%;
+			}
+			&:nth-child(3n - 1) {
+				margin-left: 0;
+			}
+		};
+		@include breakpoint(desktop){
+			margin: 1% 0 1% 2%;
+
+			&:nth-child(2n + 1) {
+				margin: 1% 0 1% 2%;
+			}
+			&:nth-child(2n + 0) {
+				margin-left: 0;
+			}
+		};
+		@include breakpoint(large-phone){
+			margin: 5px 0;
+
+			&:nth-child(2n + 1) {
+				margin-left: 0;
+			}
+			&:nth-child(2n + 0) {
+				margin-left: 0;
+			}
+		};
+	} 
+	@include breakpoint(desktop){
+		margin: 1% 0 1% 2%;
+		width: 49%;
+
+		&:nth-child(3n + 1) {
+			margin-left: 2%;
+		}
+		&:nth-child(2n + 1) {
+			margin-left: 0;
+		}
+	};
+	@include breakpoint(large-phone){
+		margin: 5px 0;
+		width: 100%;
+
+		&:nth-child(3n + 1) {
+			margin-left: 0;
+		}
+		&:nth-child(2n + 1) {
+			margin-left: 0;
+		}
+	};
 }
 .new {
 	$size: 32px; // 'NEW' badge size
@@ -574,7 +797,7 @@ html {
 		text-shadow: 0 -1px 0 rgba(0,0,0,.2);
 		background: url('../images/new-badge.svg') center center no-repeat;
 		background-size: 100%;
-		@include border-radius(50%);
+		border-radius: 50%;
 	}
 }
 .paid { // 'Paid' label
@@ -614,7 +837,7 @@ html {
 .load-more {
 	// NOTE: .button styling is in _buttons.scss
 	@extend %clearfix;
-	margin: em(38) 0 em(80, 13);
+	margin: em(38px) 0 em(80px, 13px);
 }
 
 // The show/hide CSS to fake loading more modules
@@ -648,18 +871,18 @@ html {
 	left: 20px;
 	margin-left: 160px;
 	display: none;
-	@include box-shadow(0 1px 20px 5px rgba(0, 0, 0, 0.1));
+	box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
 	z-index: 500;
 
 	.close {
 		position: absolute;
 		top: 0;
 		right: 0;
-		font: 300 em(24) 'genericons' !important;
+		font: 300 em(24px) 'genericons' !important;
 		color: #777;
 		content: '\f405';
 		display: inline-block;
-		padding: em(4) em(10) em(6);
+		padding: em(4px) em(10px) em(6px);
 		z-index: 5;
 
 		&:hover {
@@ -681,7 +904,7 @@ html {
 		bottom: 0;
 		left: 0;
 		overflow: auto;
-		padding: em(30, 14);
+		padding: em(30px, 14px);
 	}
 	.content {
 		margin: 0 auto;
@@ -694,9 +917,13 @@ html {
 		color: #5d6d74;
 		font: 300 32px $proxima; // 36/14
 		text-shadow: 0 1px 1px #fff;
+
+		@include breakpoint(large-phone){
+			font-size: 26px;
+		};
 	}
 	p {
-		font-size: em(16, 13);
+		font-size: em(16px, 13px);
 	}
 	footer {
 		position: absolute;
@@ -719,6 +946,25 @@ html {
 	.button-secondary {
 		vertical-align: baseline;
 	}
+	@include breakpoint(desktop){
+		bottom: 5%;
+		margin-left: 36px;
+		font-size: 80%;
+
+		.content {
+			top: 38px;
+		}
+	};
+	@include breakpoint(tablet){
+		top: 66px;
+		margin-left: 0;
+	};
+	@include breakpoint(phablet){
+		top: 10px;
+		right: 10px;
+		bottom: 10px;
+		left: 10px;
+	}
 }
 .jp-info-img {
 	float: right;
@@ -733,6 +979,10 @@ html {
 			margin-top: 0;
 		}
 	}
+	@include breakpoint(tablet){
+		float: none;
+		margin: 0 0 15px;
+	};
 }
 .content-container.modal-footer {
 	bottom: 53px;
@@ -756,23 +1006,31 @@ html {
 
 .entry-title,
 .page-template-default h1 {
-	margin-top: em(22, 36);
+	margin-top: em(22px, 36px);
 	color: #5d6d74;
 	font: 300 2.5714285714em/1.4em $proxima; // 36/14
 	text-shadow: 0 1px 1px #fff;
+
+	@include breakpoint(large-phone){
+		font-size: 2em;
+	};
 }
 
 .blog h3,
 .single h3,
 .page-template-default h2 {
-	margin-top: em(22, 36);
+	margin-top: em(22px, 36px);
 	color: #5d6d74;
 	font: 300 1.9em $proxima; // 36/14
 	text-shadow: 0 1px 1px #fff;
+
+	@include breakpoint(large-phone){
+		font-size: 1.4em;
+	}
 }
 
 .page-template-default p {
-	line-height: em(24);
+	line-height: em(24px);
 }
 
 .blog .type-post,
@@ -789,11 +1047,11 @@ html {
 
 // NOTE: .download-jetpack is in _buttons.scss
 .footer {
-	margin-top: em(20);
+	margin-top: em(20px);
 	position: relative;
-	padding: em(140) 0 em(60);
+	padding: em(140px) 0 em(60px);
 	text-align: center;
-	@include gradient(lighten($green, 5%), $green);
+	@include gradient--vertical(lighten($green, 5%), $green);
 
 	&:before,
 	&:after {
@@ -820,33 +1078,37 @@ html {
 	.download-jetpack {
 		margin-bottom: 33px;
 	}
-}
-.fly {
-	position: relative;
-	margin: 5em 0 5em;
+	@include breakpoint(large-desktop) {
+		padding-top: 165px;
+		padding-bottom: 0;
 
-	&:before {
-		$height: 225px;
-
-		content: '';
-		display: none;
-		position: absolute;
-		bottom: $height * -1 - 50;
-		left: 0;
-		width: 100%;
-		height: $height;
-		background: url('../images/rocketeer.svg') center bottom no-repeat;
-		pointer-events: none;
-		@include transform(translate3d(0px, 0px, 0px));
-		@include transition(all 4s ease-in-out);
-	}
-	&:hover {
 		&:before {
-			@include transform(translate3d(0px, -40px, 0px));
+			background-size: 160% auto;
 		}
-	}
+		&:after {
+			display: none;
+		}
+		ul {
+			float: none;
+			overflow: hidden; // Clears the float
+		}
+	};
+	@include breakpoint(desktop){
+		padding-top: 146px;
+	};
+	@include breakpoint(tablet){
+		margin-top: 0;
+	};
+	@include breakpoint(large-phone){
+		margin-top: 0;
+		padding-top: 135px;
+	};
+	@include breakpoint(phone){
+		padding-top: 76px;
+	};
 }
 .footer nav {
+	max-width: 100%;
 	color: #c8e3a2;
 
 	a,
@@ -859,28 +1121,61 @@ html {
 			color: #fff;
 		}
 	}
+	@include breakpoint(large-desktop){
+		border: none;
+		padding: 0;
+
+		a,
+		a:visited {
+			&:hover,
+			&:focus {
+				color: #fff;
+			}
+		}
+	};
+	@include breakpoint(large-phone){
+		li {
+			display: block;
+			float: none;
+			margin: 0;
+			text-align: left;
+		}
+		a {
+			display: block;
+			padding: 0 16px;
+			line-height: 44px;
+		}
+	};
 }
 .primary {
 	padding: 25px 15px 10px 15px;
 	border-bottom: 1px solid #6c954d;
 }
-.primary-footer,
-.secondary-footer,
-.footer-links {
+.secondary-footer {
 	margin: 0 auto;
 
 	li {
 		margin-right: 5px;
 	}
-}
-.a8c-attribution,
-.a8c-services {
-	margin: 0 auto;
+	@include breakpoint(large-desktop){
+		margin: 0 30px;
+		padding: 8px 15px 30px;
+	};
+	@include breakpoint(large-phone){
+		margin: 0;
+		padding: 0;
+		border: none;
+		font-weight: 400;
+
+		a {
+			border-top: 1px solid darken($green, 2%);
+		}
+	};
 }
 .footer .a8c-attribution {
-	margin-top: 6px;
+	margin-top: 6px auto 0;
 	padding: 0 6px;
-	font-size: em(11);
+	font-size: em(11px);
 	font-family: $gill;
 	text-transform: uppercase;
 
@@ -901,52 +1196,25 @@ html {
 			right: -9999px;
 			height: 100%;
 			color: #fff;
-			font-size: em(17, 11);
+			font-size: em(17px, 11px);
 			font-family: $a11s;
 			text-align: center;
 		}
 		&:hover {
 			&:after {
-				@include animation(candy .4s ease-in-out);
+				animation: candy .4s ease-in-out;
 			}
 		}
 	}
-}
-.primary-footer {
-	font-size: em(15);
-	font-weight: 600;
+	@include breakpoint(large-desktop){
+		display: none;
+	};
 }
 .secondary {
 	padding: 14px 15px 0 15px;
 	border-top: 1px solid #8eb345;
 }
-.a8c-services {
-	font-size: em(13);
-	font-family: $calluna;
 
-	a {
-		&:before {
-			display: inline-block;
-			position: relative;
-			top: -2px;
-			margin-right: 6px;
-			font: normal 16px/1 $a11s;
-			vertical-align: middle;
-		}
-		&[href*='wordpress.com']:before {
-			content: $a11s-wordpress;
-		}
-		&[href*='vaultpress.com']:before {
-			content: $a11s-vaultpress;
-		}
-		&[href*='akismet.com']:before {
-			content: $a11s-akismet;
-		}
-		&[href*='polldaddy.com']:before {
-			content: $a11s-polldaddy;
-		}
-	}
-}
 
 // ==========================================================================
 // Messages & Errors
@@ -985,6 +1253,13 @@ html {
 			position: absolute;
 			top: 23px;
 			top: calc( 50% - 22px );
+		}
+		@include breakpoint(large-phone){
+			padding: 23px;
+
+			&:before {
+				display: none;
+			}
 		}
 	}
 	&.error .squeezer:before,
@@ -1162,3 +1437,69 @@ html {
 	content: '\f498';
 	font: normal 20px "dashicons";
 }
+
+
+// ==========================================================================
+// Settings Template
+// ==========================================================================
+
+.jetpack_page_jetpack_modules {
+	.wrap {
+		@include breakpoint(phone){
+			padding: 0 0 1em;
+		}
+	}
+}
+
+.table-bordered {
+	.genericon {
+		@include breakpoint(desktop){
+			display: inline-block;
+		};
+	}
+	th {
+		&:last-child {
+			@include breakpoint(tablet){
+				padding-left: 0;
+			}
+		}
+	}
+}
+
+@include breakpoint(tablet){
+	.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
+		display: block;
+		padding-left: 10px;
+		visibility: visible;
+	}
+};
+
+
+// ==========================================================================
+// Uncategorized
+// ==========================================================================
+
+@include breakpoint(tablet){
+	.blog .type-post,
+	.page-template-default .type-page,
+	.single .type-post,
+	.single .type-jetpack_support {
+		width: 100%;
+	}
+};
+
+@include breakpoint(large-phone){
+	.wrap.inner.jp-support { // Used anywhere?
+		.jp-support-column-left {
+			width: 100%;
+
+			.widget-text {
+				margin-right: 0;
+				width: 100%;
+			}
+		}
+		.jp-support-column-right {
+			width: 100%;
+		}
+	}
+};

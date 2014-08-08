@@ -11,7 +11,7 @@
 	&.top {
 		border: none;
 		box-shadow: none;
-		padding-top: em(20);
+		padding-top: em(20px);
 		position: relative;
 		top: auto;
 
@@ -25,12 +25,12 @@
 			top: 32px;
 			width: 100%;
 			z-index: 4;
-			@include box-shadow(0 2px 2px -2px #eee);
+			box-shadow: 0 2px 2px -2px #eee;
 
 			@media (max-width: 782px) {
 				border: none;
 				box-shadow: none;
-				padding-top: em(20);
+				padding-top: em(20px);
 				position: relative;
 				top: auto;
 			}
@@ -83,7 +83,7 @@
 	border: none;
 	margin-bottom: 0;
 	tr.jetpack-module {
-		
+
 		th {
 			border-left: 0;
 			padding: 14px 4px 0;
@@ -300,7 +300,7 @@
 					font-weight:200;
 				}
 			}
-			
+
 			li {
 				display: block;
 				text-align: left;
@@ -316,7 +316,7 @@
 			right: 0;
 			top: 0;
 			z-index: 13;
-			@include box-shadow(0 1px 20px 5px rgba(0, 0, 0, 0.1));
+			box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
 
 			.bumper {
 				margin: 13px;
