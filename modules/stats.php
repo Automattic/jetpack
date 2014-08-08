@@ -4,7 +4,7 @@
  * Module Description: Monitor your stats with clear, concise reports and no additional load on your server.
  * Sort Order: 1
  * First Introduced: 1.1
- * Requires Connection: No
+ * Requires Connection: Yes
  * Auto Activate: Yes
  * Module Tags: WordPress.com Stats
  */

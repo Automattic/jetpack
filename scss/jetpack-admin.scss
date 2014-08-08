@@ -1,19 +1,12 @@
-// Imported styles
-@import "_variables"; // Global variables including colors and font sets
-@import "_mixins"; // Contains all the variables, mixins and MORE!
-// @import "_normalize"; // Normalize.css + a goody or two
-@import "_base"; // Contains base element styling
-
-// Begin partials
-@import "partials/_animations"; // All the keyframe animations
-@import "partials/_buttons"; // Fun button styles
-@import "icons/_automatticons"; // A list of the icons available
-@import "icons/_jetpack"; // Jetpack logo and icons
-@import "partials/_nav-horizontal"; // Horizontal menus
-// End partials
-
-@import "_main"; // Main styles go here
-@import "_page-modules"; // Modules page styles
-@import "_media-queries"; // Contains media query styles. Break up into _tablet, _phone, etc if necessary.
-@import "_helper"; // Some fun helper classes
-@import "_ie"; // IE specific styling
+@import "atoms/colors/colors", // Color variables
+	"_mixins/mixins", // Mixins
+	"atoms/typography/typography",
+	"atoms/media",
+	"atoms/animations",
+	"atoms/buttons",
+	"atoms/icons/automatticons",
+	"atoms/icons/jetpack",
+	"molecules/nav-horizontal",
+	"templates/main", // Main styles go here
+	"templates/page-modules", // Modules page styles
+	"_utilities/clearings";

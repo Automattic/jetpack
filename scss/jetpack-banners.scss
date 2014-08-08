@@ -1,5 +1,5 @@
-@import "_mixins"; // Contains all the variables, mixins and MORE!
+@import "_mixins/mixins"; // Contains all the variables, mixins and MORE!
 
-@import "partials/_buttons"; // Fun button styles
+@import "atoms/buttons"; // Fun button styles
 
-@import "_banners"; // banner elements
+@import "organisms/banners"; // banner elements

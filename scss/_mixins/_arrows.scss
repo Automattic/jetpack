@@ -1,0 +1,50 @@
+// ==========================================================================
+// Arrows
+// ==========================================================================
+
+@mixin arrow--base(){
+	position: absolute;
+	content: '';
+	width: 0;
+	height: 0;
+}
+
+@mixin arrow--top($size: 10px, $color: #ccc){
+	@include arrow--base;
+	bottom: 100%;
+	border-left: $size solid transparent;
+	border-right: $size solid transparent;
+	border-bottom: $size solid $color;
+}
+
+@mixin arrow--up($size: 10px, $color: #ccc){
+	@include arrow--top($size, $color);
+}
+
+@mixin arrow--right($size: 10px, $color: #ccc){
+	@include arrow--base;
+	left: 100%;
+	border-top: $size solid transparent;
+	border-bottom: $size solid transparent;
+	border-left: $size solid $color;
+}
+
+@mixin arrow--bottom($size: 10px, $color: #ccc){
+	@include arrow--base;
+	top: 100%;
+	border-left: $size solid transparent;
+	border-right: $size solid transparent;
+	border-top: $size solid $color;
+}
+
+@mixin arrow--down($size: 10px, $color: #ccc){
+	@include arrow--bottom($size, $color);
+}
+
+@mixin arrow--left($size: 10px, $color: #ccc){
+	@include arrow--base;
+	right: 100%;
+	border-top: $size solid transparent;
+	border-bottom: $size solid transparent;
+	border-right:$size solid $color;
+}
