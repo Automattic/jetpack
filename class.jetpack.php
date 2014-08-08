@@ -599,7 +599,6 @@ class Jetpack {
 		elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
 			$development_mode = true;
 		}
-
 		return apply_filters( 'jetpack_development_mode', $development_mode );
 	}
 
@@ -730,9 +729,11 @@ class Jetpack {
 			$modules = array_diff( $modules, $updated_modules );
 		}
 
+		$is_development_mode = Jetpack::is_development_mode();
+
 		foreach ( $modules as $module ) {
 			// If we're in dev mode, disable modules requiring a connection
-			if ( Jetpack::is_development_mode() ) {
+			if ( $is_development_mode ) {
 				// Prime the pump if we need to
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = Jetpack::get_module( $module );
@@ -956,6 +957,10 @@ class Jetpack {
 	 * @return array Array of absolute paths to the PHP files.
 	 */
 	public static function glob_php( $absolute_path ) {
+		if ( function_exists( 'glob' ) ) {
+			return glob( "$absolute_path/*.php" );
+		}
+
 		$absolute_path = untrailingslashit( $absolute_path );
 		$files = array();
 		if ( ! $dir = @opendir( $absolute_path ) ) {
@@ -1045,16 +1050,26 @@ class Jetpack {
 		static $modules = null;
 
 		if ( ! isset( $modules ) ) {
-			$files = Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules' );
+			$available_modules_option = Jetpack_Options::get_option( 'available_modules', array() );
+			// Use the cache if we're on the front-end and it's available...
+			if ( ! is_admin() && ! empty( $available_modules_option[ JETPACK__VERSION ] ) ) {
+				$modules = $available_modules_option[ JETPACK__VERSION ];
+			} else {
+				$files = Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules' );
 
-			$modules = array();
+				$modules = array();
 
-			foreach ( $files as $file ) {
-				if ( ! $headers = Jetpack::get_module( $file ) ) {
-					continue;
+				foreach ( $files as $file ) {
+					if ( ! $headers = Jetpack::get_module( $file ) ) {
+						continue;
+					}
+
+					$modules[ Jetpack::get_module_slug( $file ) ] = $headers['introduced'];
 				}
 
-				$modules[ Jetpack::get_module_slug( $file ) ] = $headers['introduced'];
+				Jetpack_Options::update_option( 'available_modules', array(
+					JETPACK__VERSION => $modules,
+				) );
 			}
 		}
 
@@ -1219,12 +1234,11 @@ class Jetpack {
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
-		if ( ! file_exists( $file ) )
-			return false;
 
-		$mod = get_file_data( $file, $headers );
-		if ( empty( $mod['name'] ) )
+		$mod = Jetpack::get_file_data( $file, $headers );
+		if ( empty( $mod['name'] ) ) {
 			return false;
+		}
 
 		$mod['name']                = translate( $mod['name'], 'jetpack' );
 		$mod['description']         = translate( $mod['description'], 'jetpack' );
@@ -1248,6 +1262,29 @@ class Jetpack {
 		}
 
 		return $mod;
+	}
+
+	/**
+	 * Like core's get_file_data implementation, but caches the result.
+	 */
+	public static function get_file_data( $file, $headers ) {
+		$file_data_option = Jetpack_Options::get_option( 'file_data', array() );
+		$key              = md5( $file . serialize( $headers ) );
+		$refresh_cache    = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 );
+
+		// If we don't need to refresh the cache, and already have the value, short-circuit!
+		if ( ! $refresh_cache && isset( $file_data_option[ JETPACK__VERSION ][ $key ] ) ) {
+			return $file_data_option[ JETPACK__VERSION ][ $key ];
+		}
+
+		$data = get_file_data( $file, $headers );
+
+		// Strip out any old Jetpack versions that are cluttering the option.
+		$file_data_option = array_intersect_key( $file_data_option, array( JETPACK__VERSION => null ) );
+		$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
+		Jetpack_Options::update_option( 'file_data', $file_data_option );
+
+		return $data;
 	}
 
 	public static function translate_module_tag( $untranslated_tag ) {

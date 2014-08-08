@@ -10,6 +10,7 @@ class Jetpack_Options {
 				'register',
 				'activated',
 				'active_modules',
+				'available_modules',
 				'do_activate',
 				'log',
 				'publicize',
@@ -17,6 +18,7 @@ class Jetpack_Options {
 				'widget_twitter',
 				'wpcc_options',
 				'relatedposts',
+				'file_data',
 			);
 		}
 
