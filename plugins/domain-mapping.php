@@ -10,7 +10,7 @@ function domain_mapping_gc_cache( $function, $directory ) {
 	if ( !$siteurl )
 		return false;
 
-	$protocol = ( 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
+	$protocol = ( isset( $_SERVER['HTTPS' ] ) && 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
 	$siteurl = trailingslashit( str_replace( $protocol, '', $siteurl ) );
 
 	if ( $directory == 'homepage' )
@@ -39,7 +39,7 @@ function domain_mapping_supercachedir( $dir ) {
 	if ( !$siteurl )
 		return $dir;
 
-	$protocol = ( 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
+	$protocol = ( isset( $_SERVER['HTTPS' ] ) && 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
 	$siteurl = str_replace( $protocol, '', $siteurl );
 	return $cache_path . 'supercache/' . $siteurl;
 }
