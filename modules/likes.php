@@ -533,26 +533,24 @@ class Jetpack_Likes {
 	}
 
 	function action_init() {
-		if ( is_admin() )
+		if ( is_admin() ) {
 			return;
+		}
 
 		if ( ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) ||
 			 ( defined( 'APP_REQUEST' ) && APP_REQUEST ) ||
 			 ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) ||
 			 ( defined( 'COOKIE_AUTH_REQUEST' ) && COOKIE_AUTH_REQUEST ) ||
-			 ( defined( 'JABBER_SERVER' ) && JABBER_SERVER ) )
+			 ( defined( 'JABBER_SERVER' ) && JABBER_SERVER ) ) {
 			return;
+		}
 
 		// Comment Likes widget has been disabled, pending performance improvements.
 		// add_filter( 'comment_text', array( &$this, 'comment_likes' ), 10, 2 );
 
 		if ( $this->in_jetpack ) {
 			add_filter( 'the_content', array( &$this, 'post_likes' ), 30, 1 );
-			wp_enqueue_script( 'postmessage', plugins_url( '_inc/postmessage.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
-			wp_enqueue_script( 'jquery_inview', plugins_url( '_inc/jquery.inview.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
-			wp_enqueue_script( 'jetpack_resize', plugins_url( '_inc/jquery.jetpack-resize.js' , dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
-			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
-			wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery' ), JETPACK__VERSION, true );
+			add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts' ) );
 
 		} else {
 			add_filter( 'post_flair', array( &$this, 'post_likes' ), 30, 1 );
@@ -569,6 +567,19 @@ class Jetpack_Likes {
 			} else {
 				wp_enqueue_style( 'jetpack_likes', plugins_url( 'jetpack-likes-legacy.css', __FILE__ ), array(), JETPACK__VERSION );
 			}
+		}
+	}
+
+	/**
+	* Enqueue scripts
+	*/
+	function enqueue_scripts() {
+		if ( $this->is_likes_visible() ) {
+			wp_enqueue_script( 'postmessage', plugins_url( '_inc/postmessage.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
+			wp_enqueue_script( 'jquery_inview', plugins_url( '_inc/jquery.inview.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
+			wp_enqueue_script( 'jetpack_resize', plugins_url( '_inc/jquery.jetpack-resize.js' , dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
+			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
+			wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery' ), JETPACK__VERSION, true );
 		}
 	}
 
