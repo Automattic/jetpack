@@ -1444,7 +1444,7 @@ function wp_lock_down() {
 		$expiredfiles = array_diff( $cached_direct_pages, $_POST[ 'direct_pages' ] );
 		unset( $cached_direct_pages );
 		foreach( $_POST[ 'direct_pages' ] as $page ) {
-			$page = $wpdb->escape( $page );
+			$page = esc_sql( $page );
 			if( $page != '' ) {
 				$cached_direct_pages[] = $page;
 				$out .= "'$page', ";
@@ -1458,7 +1458,7 @@ function wp_lock_down() {
 		$page = str_replace( get_option( 'siteurl' ), '', $_POST[ 'new_direct_page' ] );
 		if( substr( $page, 0, 1 ) != '/' )
 			$page = '/' . $page;
-		$page = $wpdb->escape( $page );
+		$page = esc_sql( $page );
 		if( in_array( $page, $cached_direct_pages ) == false ) {
 			$cached_direct_pages[] = $page;
 			$out .= "'$page', ";
