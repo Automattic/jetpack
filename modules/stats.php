@@ -815,7 +815,6 @@ function stats_reports_page() {
 	});
 })( jQuery );
 </script>
-</script>
 <style>
 #stats-views.none-selected {
 	display: none;
