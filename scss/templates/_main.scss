@@ -1440,42 +1440,6 @@ html {
 
 
 // ==========================================================================
-// Settings Template
-// ==========================================================================
-
-.jetpack_page_jetpack_modules {
-	.wrap {
-		@include breakpoint(phone){
-			padding: 0 0 1em;
-		}
-	}
-}
-
-.table-bordered {
-	.genericon {
-		@include breakpoint(desktop){
-			display: inline-block;
-		};
-	}
-	th {
-		&:last-child {
-			@include breakpoint(tablet){
-				padding-left: 0;
-			}
-		}
-	}
-}
-
-@include breakpoint(tablet){
-	.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
-		display: block;
-		padding-left: 10px;
-		visibility: visible;
-	}
-};
-
-
-// ==========================================================================
 // Uncategorized
 // ==========================================================================
 
