@@ -1,6 +1,14 @@
 // ==========================================================================
-// Plugin configure page
+// Settings
 // ==========================================================================
+
+.jetpack_page_jetpack_modules {
+	.wrap {
+		@include breakpoint(phone){
+			padding: 0 0 1em;
+		}
+	}
+}
 
 .page-content.configure {
 	margin-top: 0;
@@ -153,6 +161,12 @@
 				@media (max-width: 530px) {
 					display: none;
 				}
+				@include breakpoint(tablet){
+					display: block;
+					padding-left: 10px;
+					visibility: visible;
+				};
+
 			}
 		}
 	}
@@ -162,6 +176,10 @@
 
 		&:last-child {
 			padding-right: 0;
+
+			@include breakpoint(tablet){
+				padding-left: 0;
+			}
 		}
 	}
 	td {
@@ -184,6 +202,10 @@
 		color: #999;
 		display: none;
 		margin: 7px 3px 0;
+
+		@include breakpoint(desktop){
+			display: inline-block;
+		};
 	}
 	.med {
 		width: 70px;
