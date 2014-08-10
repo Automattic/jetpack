@@ -62,7 +62,9 @@ function JetpackLikesMessageListener( event ) {
 
 			var stylesData = {
 					event: 'injectStyles'
-			};
+				},
+				$sdTextColor = jQuery( '.sd-text-color' ),
+				$sdLinkColor = jQuery( '.sd-link-color' );
 
 			if ( jQuery( 'iframe.admin-bar-likes-widget' ).length > 0 ) {
 				JetpackLikespostMessage( { event: 'adminBarEnabled' }, window.frames[ 'likes-master' ] );
@@ -77,22 +79,22 @@ function JetpackLikesMessageListener( event ) {
 				jQuery( '#wp-admin-bar-admin-bar-likes-widget' ).hide();
 
 			stylesData.textStyles = {
-				color: jQuery( '.sd-text-color').css( 'color' ),
-				fontFamily: jQuery( '.sd-text-color' ).css( 'font-family' ),
-				fontSize: jQuery( '.sd-text-color' ).css( 'font-size' ),
-				direction: jQuery( '.sd-text-color' ).css( 'direction' ),
-				fontWeight: jQuery( '.sd-text-color' ).css( 'font-weight' ),
-				fontStyle: jQuery( '.sd-text-color' ).css( 'font-style' ),
-				textDecoration: jQuery( '.sd-text-color' ).css('text-decoration')
+				color:          $sdTextColor.css( 'color' ),
+				fontFamily:     $sdTextColor.css( 'font-family' ),
+				fontSize:       $sdTextColor.css( 'font-size' ),
+				direction:      $sdTextColor.css( 'direction' ),
+				fontWeight:     $sdTextColor.css( 'font-weight' ),
+				fontStyle:      $sdTextColor.css( 'font-style' ),
+				textDecoration: $sdTextColor.css('text-decoration')
 			};
 
 			stylesData.linkStyles = {
-				color: jQuery( '.sd-link-color' ).css('color'),
-				fontFamily: jQuery( '.sd-link-color' ).css('font-family'),
-				fontSize: jQuery( '.sd-link-color' ).css('font-size'),
-				textDecoration: jQuery( '.sd-link-color' ).css('text-decoration'),
-				fontWeight: jQuery( '.sd-link-color' ).css( 'font-weight' ),
-				fontStyle: jQuery( '.sd-link-color' ).css( 'font-style' )
+				color:          $sdLinkColor.css('color'),
+				fontFamily:     $sdLinkColor.css('font-family'),
+				fontSize:       $sdLinkColor.css('font-size'),
+				textDecoration: $sdLinkColor.css('text-decoration'),
+				fontWeight:     $sdLinkColor.css( 'font-weight' ),
+				fontStyle:      $sdLinkColor.css( 'font-style' )
 			};
 
 			JetpackLikespostMessage( stylesData, window.frames[ 'likes-master' ] );
