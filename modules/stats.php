@@ -638,15 +638,10 @@ function stats_reports_page() {
 		?>
 
 	<style type='text/css'>
-#wpadminbar .quicklinks li#wp-admin-bar-stats {
-		height: 28px;
-	}
 #wpadminbar .quicklinks li#wp-admin-bar-stats a {
-		height: 28px;
 		padding: 0;
 	}
 #wpadminbar .quicklinks li#wp-admin-bar-stats a div {
-		height: 28px;
 		width: 95px;
 		overflow: hidden;
 		margin: 0 10px;
@@ -656,7 +651,6 @@ function stats_reports_page() {
 		margin: 0 8px 0 10px;
 	}
 #wpadminbar .quicklinks li#wp-admin-bar-stats a img {
-		height: 24px;
 		padding: 2px 0;
 		max-width: none;
 		border: none;
