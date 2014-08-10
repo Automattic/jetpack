@@ -717,7 +717,7 @@ function stats_reports_page() {
 	  	ctx.fillRect( sparklineBar.x, 0, sparklineBar.width, height );
 
 		// Fill bar
-		ctx.fillStyle = '#ccc';
+		ctx.fillStyle = '#999';
 		ctx.fillRect( sparklineBar.x, sparklineBar.y, sparklineBar.width, sparklineBar.height );
 	}
 
@@ -764,7 +764,7 @@ function stats_reports_page() {
 					selected = bars[i]; // Update current bar
 
 					// Draw new selected bar
-					ctx.fillStyle = '#ccc';
+					ctx.fillStyle = '#fff';
 					ctx.fillRect( selected.x, 0, selected.width, height );
 
 					// Draw views
