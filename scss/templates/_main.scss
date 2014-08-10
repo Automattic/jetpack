@@ -649,7 +649,7 @@ html {
 			top: 4px;
 			font-size: em(24px);
 			font-weight: normal;
-			font-family: $g8s;
+			font-family: $genericons;
 		}
 	}
 }
@@ -818,7 +818,7 @@ html {
 		position: absolute;
 		top: 0;
 		right: 100%;
-		font: normal 14px/14px $g8s;
+		font: normal 14px/14px $genericons;
 	}
 	&:before {
 		content: '\f503'; // Genericons leftarrow
@@ -1190,14 +1190,14 @@ html {
 		outline: 0;
 
 		&:after {
-			content: $a11s-automattic;
+			content: 'A';
 			position: absolute;
 			top: 2px;
 			right: -9999px;
 			height: 100%;
 			color: #fff;
 			font-size: em(17px, 11px);
-			font-family: $a11s;
+			font-family: $automatticons;
 			text-align: center;
 		}
 		&:hover {
@@ -1283,7 +1283,7 @@ html {
 		left: -3px;
 		margin-right: 2px;
 		opacity: 0.8;
-		font: normal 20px $g8s;
+		font: normal 20px $genericons;
 		vertical-align: top;
 	}
 }
@@ -1327,7 +1327,7 @@ html {
 .modules h3.gravatar-hovercards:before,
 .jetpack-modules #gravatar-hovercards .info a:before {
 	content: 'G';
-	font-family: $a11s;
+	font-family: $automatticons;
 }
 .infinite-scroll:before,
 .jetpack-modules #infinite-scroll .info a:before {
@@ -1413,7 +1413,7 @@ html {
 .modules h3.vaultpress:before,
 .jetpack-modules #vaultpress .info a:before {
 	content: 'V';
-	font-family: $a11s;
+	font-family: $automatticons;
 }
 .videopress:before,
 .jetpack-modules #videopress .info a:before {

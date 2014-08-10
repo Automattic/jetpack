@@ -1552,7 +1552,7 @@ html {
   outline: 0;
 }
 .footer .a8c-attribution a:after {
-  content: "A";
+  content: 'A';
   position: absolute;
   top: 2px;
   right: -9999px;
