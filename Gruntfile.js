@@ -45,19 +45,18 @@ module.exports = function(grunt) {
 					'modules/gplus-authorship/style.css',
 					'modules/infinite-scroll/infinity.css',
 					'modules/likes/style.css',
-					// 'modules/markdown/easy-markdown.css', // Don't think it's used
-					// 'modules/post-by-email/post-by-email.css', // TODO: Inline this sucker
+					// 'modules/post-by-email/post-by-email.css', // TODO Inline this sucker
 					'modules/related-posts/related-posts.css',
 					'modules/sharedaddy/sharing.css',
 					'modules/shortcodes/css/slideshow-shortcode.css',
-					'modules/shortcodes/css/style.css',
+					'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
 					'modules/subscriptions/subscriptions.css',
 					'modules/tiled-gallery/tiled-gallery.css',
 					'modules/widget-visibility/widget-conditions/widget-conditions.css',
 					'modules/widgets/wordpress-post-widget/style.css',
 					'modules/widgets/gravatar-profile.css',
 					'modules/widgets/widget-grid-and-list.css',
-					'modules/widgets/widgets.css', // Moved to image-widget/style.css
+					'modules/widgets/widgets.css', // TODO Moved to image-widget/style.css
 				],
 				dest: "css/jetpack.css"
 			},
