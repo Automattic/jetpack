@@ -31,6 +31,53 @@ module.exports = function(grunt) {
 				'3rd-party/*.php'
 			]
 		},
+		concat: {
+			options: {
+				// banner: '/*!\n'+
+				// 		'* Do not modify this file directly.  It is concatenated from individual module CSS.\n'+
+				// 		'*/'
+			},
+			modules: {
+				src: [
+					'modules/**/*.css',
+					'!modules/**/*rtl*.css',  // omit rtl files
+					'!modules/**/rtl/**/*.css',  // omit rtl files
+					'!modules/after-the-deadline/**/*.css',
+					'!modules/contact-form/**/menu-alter*.css',
+					'!modules/custom-css/**/*.css',
+					// '!modules/custom-post-types/**/*.css', // front-end or admin?
+					'!modules/gplus-authorship/admin/*.css',
+					'!modules/infinite-scroll/themes/*.css',
+					'!modules/minileven/**/*.css',
+					'!modules/omnisearch/**/*.css',
+					// '!modules/post-by-email/**/*.css', // front-end or admin?
+					'!modules/publicize/**/*.css', // front-end or admin?
+					// '!modules/sharedaddy/**/*.css', // front-end or admin?
+					// '!modules/shortcodes/**/*.css', // front-end or admin?
+					'!modules/videopress/**/*.css',
+					// '!modules/widget-visibility/**/*.css', // front-end or admin?
+					'!modules/widgets/gallery/**/*.css',
+					// '!modules/widgets/widget-grid-and-list.css', // used?
+					// '!modules/widgets/widgets.css', // used? It's a clearfix and nothing else
+				],
+				dest: "css/jetpack.css"
+			},
+		},
+		cssmin: {
+			options: {
+			},
+			modules: {
+				options: {
+					banner: '/*!\n'+
+							'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n'+
+							'*/'
+				},
+				src: [
+					'css/jetpack.css'
+				],
+				dest: "css/jetpack.css"
+			},
+		},
 		cssjanus: {
 			core: {
 				options: {
@@ -41,10 +88,12 @@ module.exports = function(grunt) {
 				src: [
 					'css/*.css',
 					'!css/*-rtl.css',
-					'!css/*.min.css'
+					'!css/*.min.css',
+					'!css/jetpack.css',
+					'!css/jetpack-rtl.css',
 				]
 			},
-			min: {
+			coreMin: {
 				options: {
 					swapLtrRtlInUrl: false
 				},
@@ -52,7 +101,20 @@ module.exports = function(grunt) {
 				ext: '-rtl.min.css',
 				src: [
 					'css/*.min.css',
-					'!css/*-rtl.min.css'
+					'!css/*-rtl.min.css',
+					'!css/jetpack.css',
+					'!css/jetpack-rtl.css',
+				]
+			},
+			modules: {
+				options: {
+					swapLtrRtlInUrl: false
+				},
+				expand: true,
+				ext: '-rtl.min.css',
+				src: [
+					'css/jetpack.css',
+					'!css/jetpack-rtl.min.css'
 				]
 			}
 		},
@@ -97,9 +159,30 @@ module.exports = function(grunt) {
 		},
 		autoprefixer: {
 			options: {
-				map: true
+				// map: true
 			},
-			global: {
+			core: {
+				options: {
+					// Target-specific options go here.
+					// browser-specific info: https://github.com/ai/autoprefixer#browsers
+					// DEFAULT: browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1']
+					map: true,
+					browsers: [
+						'> 1%',
+						'last 2 versions',
+						'ff 17',
+						'opera 12.1',
+						'ie 8',
+						'ie 9'
+					]
+				},
+				src: [
+					'css/*.css',
+					'!css/jetpack.css',
+					'!css/jetpack-rtl.css',
+				],
+			},
+			modules: {
 				options: {
 					// Target-specific options go here.
 					// browser-specific info: https://github.com/ai/autoprefixer#browsers
@@ -113,7 +196,7 @@ module.exports = function(grunt) {
 						'ie 9'
 					]
 				},
-				src: 'css/*.css'
+				src: 'css/jetpack.css'
 			},
 		},
 		watch: {
@@ -124,10 +207,25 @@ module.exports = function(grunt) {
 				],
 				tasks: [
 					'sass',
-					'autoprefixer',
+					'autoprefixer:core',
 					'cssjanus:core',
 					'cssjanus:min',
 					'notify:watch_sass'
+					'cssjanus:coreMin'
+				],
+				options: {
+					spawn: false
+				}
+			},
+			css: { // concatenates modules CSS into css/jetpack.css
+				files: [
+					'modules/**/*.css',
+				],
+				tasks: [
+					'concat:modules',
+					'autoprefixer:modules',
+					'cssmin:modules',
+					'cssjanus:modules',
 				],
 				options: {
 					spawn: false
@@ -204,6 +302,8 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-autoprefixer');
 	grunt.loadNpmTasks('grunt-cssjanus');
 	grunt.loadNpmTasks('grunt-notify');
+	grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-contrib-cssmin');
 
 	grunt.registerTask('default', [
 		'shell',
