@@ -678,6 +678,7 @@ function stats_reports_page() {
 		$js = "<script type='text/javascript'>
 
 	(function($) {
+	var translations = { view: '" . __( 'view', 'jetpack' ) . "', views: '" . __( 'views', 'jetpack' ) . "' };
 
 	function SparklineBar( x, y, width, height, views ) {
 		this.x = x;
@@ -762,7 +763,7 @@ function stats_reports_page() {
 					ctx.fillRect( selected.x, 0, selected.width, height );
 
 					// Draw views
-					$( '#stats-views-amount' ).text( selected.views );
+					$( '#stats-views-amount' ).text( selected.views + ' ' + ( 1 === selected.views ? translations.view : translations.views ) );
 					$( '#stats-views' ).removeClass( 'none-selected' );
 
 					return;
@@ -823,7 +824,7 @@ function stats_reports_page() {
 
 </style>";
 
-	$menu = array( 'id' => 'stats', 'title' => $js . '<canvas id="canvas" width="106" height="24"></canvas><div id="stats-views" class="none-selected"><span id="stats-views-amount"></span> ' . __( 'views', 'jetpack' ) . '</div>', 'href' => $url );
+	$menu = array( 'id' => 'stats', 'title' => $js . '<canvas id="canvas" width="106" height="24"></canvas><div id="stats-views" class="none-selected"><span id="stats-views-amount"></span></div>', 'href' => $url );
 
 	$wp_admin_bar->add_menu( $menu );
 }
