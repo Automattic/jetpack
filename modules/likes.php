@@ -594,19 +594,6 @@ class Jetpack_Likes {
 			.fixed .column-likes .post-com-count { background-image: none; }
 			.fixed .column-likes .comment-count { background-color: #888; }
 			.fixed .column-likes .comment-count:hover { background-color: #D54E21; }
-		<?php if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '>=' ) ) : ?>
-			.fixed .column-likes .post-com-count::after { border: none !important; }
-			.fixed .column-likes .comment-count { background-color: #bbb; }
-			.fixed .column-likes .comment-count:hover { background-color: #2ea2cc; }
-			.fixed .column-likes .vers img { display: none; }
-			.fixed .column-likes .vers:before {
-				font: normal 20px/1 dashicons;
-				content: '\f155';
-				speak: none;
-				-webkit-font-smoothing: antialiased;
-				-moz-osx-font-smoothing: grayscale;
-			}
-		<?php endif; ?>
 		</style>
 		<?php
 	}
