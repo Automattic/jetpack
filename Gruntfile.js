@@ -312,7 +312,14 @@ module.exports = function(grunt) {
 
 	grunt.registerTask('rtl', [
 		'cssjanus:core',
-		'cssjanus:min',
+		'cssjanus:coreMin',
+	]);
+
+	grunt.registerTask('concatenate', [
+		'concat:modules',
+		'autoprefixer:modules',
+		'cssmin:modules',
+		'cssjanus:modules',
 	]);
 
 };
