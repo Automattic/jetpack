@@ -575,11 +575,11 @@ class Share_LinkedIn extends Sharing_Source {
 		$post_link = $this->get_share_url( $post->ID );
 
 		// Using the same URL as the official button, which is *not* LinkedIn's documented sharing link
-		// https://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
+		// http://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
 
 		$linkedin_url = add_query_arg( array(
 			'url' => rawurlencode( $post_link ),
-		), 'https://www.linkedin.com/cws/share?token=&isFramed=false' );
+		), $this->http() . '://www.linkedin.com/cws/share?token=&isFramed=false' );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
