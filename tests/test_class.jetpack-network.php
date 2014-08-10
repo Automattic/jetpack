@@ -10,7 +10,9 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since 2.5
+	 * @author enkrates
+	 * @covers Jetpack_Network::get_url
+	 * @since 3.2
 	 */
 	public function test_get_url_returns_correct_string_for_network_admin_page() {
 		$jpms = Jetpack_Network::init();
@@ -24,7 +26,9 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since 2.5
+	 * @author enkrates
+	 * @covers Jetpack_Network::get_url
+	 * @since 3.2
 	 */
 	public function test_get_url_returns_null_for_invalid_input() {
 		$jpms = Jetpack_Network::init();
@@ -33,7 +37,9 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since 2.5
+	 * @author enkrates
+	 * @covers Jetpack_Network::get_url
+	 * @since 3.2
 	 */
 	public function test_get_url_returns_correct_string_for_subsiteregister() {
 		$jpms = Jetpack_Network::init();
@@ -47,7 +53,9 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since 2.5
+	 * @author enkrates
+	 * @covers Jetpack_Network::get_url
+	 * @since 3.2
 	 */
 	public function test_get_url_returns_null_for_underspecified_subsiteregister() {
 		$jpms = Jetpack_Network::init();
@@ -56,7 +64,9 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since 2.5
+	 * @author enkrates
+	 * @covers Jetpack_Network::get_url
+	 * @since 3.2
 	 */
 	public function test_get_url_returns_correct_string_for_subsitedisconnect() {
 		$jpms = Jetpack_Network::init();
@@ -70,7 +80,9 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @since 2.5
+	 * @author enkrates
+	 * @covers Jetpack_Network::get_url
+	 * @since 3.2
 	 */
 	public function test_get_url_returns_null_for_underspecified_subsitedisconnect() {
 		$jpms = Jetpack_Network::init();

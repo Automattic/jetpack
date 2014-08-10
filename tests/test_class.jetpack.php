@@ -13,6 +13,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers Jetpack::sort_modules
+	 * @since 3.2
 	 */
 	public function test_sort_modules_with_equal_sort_values() {
 
@@ -26,6 +27,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers Jetpack::sort_modules
+	 * @since 3.2
 	 */
 	public function test_sort_modules_with_different_sort_values() {
 

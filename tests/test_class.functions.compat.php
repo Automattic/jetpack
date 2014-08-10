@@ -5,6 +5,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
+	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_valid_url() {
 
@@ -18,6 +19,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
+	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_shortened_url() {
 
@@ -32,6 +34,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
+	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_slash_v_slash() {
 
@@ -46,6 +49,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
+	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_hashbang() {
 
@@ -60,6 +64,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
+	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_amp_ampersand() {
 
@@ -74,6 +79,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
+	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_encoded_ampersand() {
 
@@ -88,6 +94,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
+	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_playlist() {
 
@@ -102,6 +109,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
+	 * @since 3.2
 	 */
 	public function test_youtube_sanitize_url_with_extra_question_mark() {
 
@@ -116,6 +124,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers jetpack_get_youtube_id
+	 * @since 3.2
 	 */
 	public function test_jetpack_get_youtube_id_with_single_video_url() {
 
@@ -130,6 +139,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		/**
 	 * @author enkrates
 	 * @covers jetpack_get_youtube_id
+	 * @since 3.2
 	 */
 	public function test_jetpack_get_youtube_id_with_playlist_url() {
 
