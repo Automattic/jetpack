@@ -13,7 +13,7 @@
 </script>
 <script id="tmpl-mod" type="text/html">
 	<div href="{{ data.url }}" data-index="{{ data.index }}" data-name="{{ data.name }}" class="module{{ ( data.new ) ? ' new' : '' }}">
-		<h3 class="icon {{ data.module }}">{{{ data.name }}}<# if ( ! data.free ) { #><span class="paid"><?php esc_html_e( 'Paid', 'jetpack' ); ?></span><# } #></h3>
+		<h3 class="icon {{ data.module }}">{{{ data.name }}}<# if ( ! data.free ) { #><span class="paid"><?php echo esc_html_x( 'Paid', 'As in Premium. Premium module description', 'jetpack' ); ?></span><# } #></h3>
 		<p>{{{ data.short_description }}}</p>
 	</div>
 </script>
