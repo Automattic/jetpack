@@ -693,21 +693,16 @@ function stats_reports_page() {
 		this.views = views;
 	}
 
-	SparklineBar.prototype.hasPoint = function( x, y ) {
+	SparklineBar.prototype.containsX = function( x, y ) {
 		return this.x <= x && x <= this.x + this.width;
 	};
 
-	function drawBars( ctx, width, height, data, rawData ) {
-  	  // Fill bg
-  	  ctx.fillStyle = 'rgba(255, 255, 255, 0.0)';
-  	  ctx.fillRect( 0, 0, width, height );
-
+	function createBars( ctx, width, height, data, rawData ) {
   	  // Draw bars (one every other pixel), starting from 5 px
   	  ctx.fillStyle = '#ccc';
 	  var barWidth = 1; // px
 	  var bars = [];
 	  for ( var i = 0, j = 5; i < data.length; i++, j += barWidth + 1 ) {
-		  ctx.fillRect( j, height - data[i] - 1, barWidth, data[i] + 1 );
 		bars.push( new SparklineBar( j, height - data[i] - 1, barWidth, data[i] + 1, rawData[i] ) );
 		}
 		return bars;
@@ -727,7 +722,7 @@ function stats_reports_page() {
 	}
 
 	// Placeholder
-	function filterData( raw, width, height ) {
+	function scaleDatapoints( raw, width, height ) {
 		var maxViews = Math.max.apply( null, raw );
 
 		var scale = height / maxViews;
@@ -748,38 +743,41 @@ function stats_reports_page() {
   	  for ( var date in json ) {
 		data.push( json[date] );
   	  }
-		var bars = drawBars( ctx, width, height, filterData( data, width, height ), data );
+		var bars = createBars( ctx, width, height, scaleDatapoints( data, width, height ), data );
+		$.each( bars, function( i, el ) {
+			drawBar( ctx, el, width, height );
+		});
 
-		var selected = -1;
+		var selected;
 		canvas.addEventListener( 'mousemove', function( e ) {
 			var canvasOffset = $( '#canvas' ).offset();
 			var relativeX = e.pageX - canvasOffset.left;
 			var relativeY = e.pageY - canvasOffset.top;
 
 			for ( var i = 0; i < bars.length; i++ ) {
-				if ( bars[i].hasPoint( relativeX, relativeY ) ) {
+				if ( bars[i].containsX( relativeX, relativeY ) ) {
 					// Overwrite old selector bar if such exists
-					if ( selected >= 0 ) {
-						drawBar( ctx, bars[selected], width, height );
+					if ( selected ) {
+						drawBar( ctx, selected, width, height );
 					}
 
-					selected = i; // Update current selector bar index
+					selected = bars[i]; // Update current bar
 
-					// Draw new selector bar
+					// Draw new selected bar
 					ctx.fillStyle = '#ccc';
-					ctx.fillRect( bars[selected].x, 0, bars[selected].width, height );
+					ctx.fillRect( selected.x, 0, selected.width, height );
 
 					// Draw views
-					$( '#stats-views-amount' ).text( bars[selected].views );
+					$( '#stats-views-amount' ).text( selected.views );
 					$( '#stats-views' ).removeClass( 'none-selected' );
 
 					return;
 				}
 			}
 
-			// Overwrite old selector bar if such exists
-			if ( selected >= 0 ) {
-				drawBar( ctx, bars[selected], width, height );
+			// Overwrite old selected bar if such exists
+			if ( selected ) {
+				drawBar( ctx, selected, width, height );
 				$( '#stats-views' ).addClass( 'none-selected' );
 			}
 		});
@@ -794,7 +792,7 @@ function stats_reports_page() {
 }
 </style>";
 
-	$menu = array( 'id' => 'stats', 'title' => $js . '<canvas id="canvas" width="106" height="24"></canvas><span id="stats-views" class="none-selected"><span id="stats-views-amount"></span> ' . __( 'views', 'jetpack' ) . '</span>', 'href' => $url );
+	$menu = array( 'id' => 'stats', 'title' => $js . '<canvas id="canvas" width="106" height="24"></canvas><span width="106" height="24" id="stats-views" class="none-selected"><span id="stats-views-amount"></span> ' . __( 'views', 'jetpack' ) . '</span>', 'href' => $url );
 
 	$wp_admin_bar->add_menu( $menu );
 }
