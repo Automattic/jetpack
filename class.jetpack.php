@@ -4704,7 +4704,7 @@ p {
 
 		$do_implode = apply_filters( 'jetpack_implode_frontend_css', true );
 
-		if( Jetpack::is_development_mode() ) {
+		if( Jetpack::is_development_mode() || ! $do_implode ) {
 			// We do not want to use the imploded file in dev mode
 			return;
 		}
