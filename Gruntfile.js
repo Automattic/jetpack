@@ -33,9 +33,6 @@ module.exports = function(grunt) {
 		},
 		concat: {
 			options: {
-				// banner: '/*!\n'+
-				// 		'* Do not modify this file directly.  It is concatenated from individual module CSS.\n'+
-				// 		'*/'
 			},
 			modules: {
 				src: [
