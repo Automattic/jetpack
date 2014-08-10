@@ -39,26 +39,27 @@ module.exports = function(grunt) {
 			},
 			modules: {
 				src: [
-					'modules/**/*.css',
-					'!modules/**/*rtl*.css',  // omit rtl files
-					'!modules/**/rtl/**/*.css',  // omit rtl files
-					'!modules/after-the-deadline/**/*.css',
-					'!modules/contact-form/**/menu-alter*.css',
-					'!modules/custom-css/**/*.css',
-					// '!modules/custom-post-types/**/*.css', // front-end or admin?
-					'!modules/gplus-authorship/admin/*.css',
-					'!modules/infinite-scroll/themes/*.css',
-					'!modules/minileven/**/*.css',
-					'!modules/omnisearch/**/*.css',
-					// '!modules/post-by-email/**/*.css', // front-end or admin?
-					'!modules/publicize/**/*.css', // front-end or admin?
-					// '!modules/sharedaddy/**/*.css', // front-end or admin?
-					// '!modules/shortcodes/**/*.css', // front-end or admin?
-					'!modules/videopress/**/*.css',
-					// '!modules/widget-visibility/**/*.css', // front-end or admin?
-					'!modules/widgets/gallery/**/*.css',
-					// '!modules/widgets/widget-grid-and-list.css', // used?
-					// '!modules/widgets/widgets.css', // used? It's a clearfix and nothing else
+					'modules/carousel/jetpack-carousel.css',
+					'modules/carousel/jetpack-carousel-ie8fix.css',
+					'modules/contact-form/css/grunion.css',
+					'modules/custom-post-types/*.css', // Front-end or admin?
+					'modules/gplus-authorship/style.css',
+					'modules/infinite-scroll/infinity.css',
+					'modules/likes/style.css',
+					'modules/markdown/easy-markdown.css', // Used? Front-end or admin?
+					// 'modules/post-by-email/post-by-email.css', // Front-end or admin?
+					// 'modules/publicize/assets/publicize.css', // Front-end or admin?
+					'modules/related-posts/related-posts.css',
+					'modules/sharedaddy/sharing.css',
+					// 'modules/shortcodes/css/slideshow-shortcode.css', // Front-end or admin?
+					// 'modules/shortcodes/css/style.css', // Front-end or admin?
+					'modules/subscriptions/subscriptions.css',
+					'modules/tiled-gallery/tiled-gallery.css',
+					'modules/widget-visibility/widget-conditions/widget-conditions.css',
+					// 'modules/widgets/wordpress-post-widget/style.css', // Front-end or admin?
+					'modules/widgets/gravatar-profile.css', // Front-end or admin?
+					// 'modules/widgets/widget-grid-and-list.css', // Front-end or admin?
+					'modules/widgets/widgets.css', // Needed? It's just a clearfix.
 				],
 				dest: "css/jetpack.css"
 			},
@@ -111,10 +112,10 @@ module.exports = function(grunt) {
 					swapLtrRtlInUrl: false
 				},
 				expand: true,
-				ext: '-rtl.min.css',
+				ext: '-rtl.css',
 				src: [
 					'css/jetpack.css',
-					'!css/jetpack-rtl.min.css'
+					'!css/jetpack-rtl.css'
 				]
 			}
 		},
