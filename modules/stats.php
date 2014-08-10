@@ -781,6 +781,17 @@ function stats_reports_page() {
 				$( '#stats-views' ).addClass( 'none-selected' );
 			}
 		});
+
+		canvas.addEventListener( 'mouseout', function( e ) {
+			// Overwrite old selected bar if such exists
+			if ( selected ) {
+				drawBar( ctx, selected, width, height );
+				$( '#stats-views' ).addClass( 'none-selected' );
+			}
+
+			// Hide views
+			$( '#stats-views' ).addClass( 'none-selected' );
+		});
   	  });
 });
 
