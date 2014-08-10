@@ -2722,6 +2722,7 @@ p {
 			$module_names = $module_slugs = array();
 
 			$privacy_checks = explode( ',', $this->privacy_checks );
+			$privacy_checks = array_filter( $privacy_checks, array( 'Jetpack', 'is_module' ) );
 			foreach ( $privacy_checks as $module_slug ) {
 				$module = Jetpack::get_module( $module_slug );
 				if ( ! $module ) {
