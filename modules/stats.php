@@ -790,9 +790,34 @@ function stats_reports_page() {
 #stats-views.none-selected {
 	display: none;
 }
+
+#stats-views {
+	display: inline-block;
+	position: relative;
+	background: #333;
+	padding: 0 12px;
+	line-height: 13px;
+	overflow: visible !important;
+	white-space: nowrap;
+	position: absolute;
+}
+
+#stats-views:before {
+	content: '';
+	position: absolute;
+	top: 50%;
+	right: 100%;
+	width: 0;
+	height: 0;
+	margin-top: -7px;
+	border-top: 7px solid transparent;
+	border-bottom: 7px solid transparent;
+	border-right: 7px solid #333;
+}
+
 </style>";
 
-	$menu = array( 'id' => 'stats', 'title' => $js . '<canvas id="canvas" width="106" height="24"></canvas><span width="106" height="24" id="stats-views" class="none-selected"><span id="stats-views-amount"></span> ' . __( 'views', 'jetpack' ) . '</span>', 'href' => $url );
+	$menu = array( 'id' => 'stats', 'title' => $js . '<canvas id="canvas" width="106" height="24"></canvas><div id="stats-views" class="none-selected"><span id="stats-views-amount"></span> ' . __( 'views', 'jetpack' ) . '</div>', 'href' => $url );
 
 	$wp_admin_bar->add_menu( $menu );
 }
