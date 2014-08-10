@@ -45,7 +45,7 @@ class Jetpack_Client {
 
 		$token_key = sprintf( '%s:%d:%d', $token_key, JETPACK__API_VERSION, $token->external_user_id );
 
-		require_once dirname( __FILE__ ) . '/class.jetpack-signature.php';
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
 
 		$time_diff = (int) Jetpack_Options::get_option( 'time_diff' );
 		$jetpack_signature = new Jetpack_Signature( $token->secret, $time_diff );

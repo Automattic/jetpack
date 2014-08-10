@@ -257,7 +257,7 @@ class Jetpack_Network {
 	public function add_network_admin_menu() {
 		add_action( 'admin_print_styles', array( $this, 'network_admin_styles' ) );
 
-		add_menu_page(__('Jetpack', 'jetpack'), __('Jetpack', 'jetpack'), 'read', 'jetpack', array($this, 'network_admin_page'), 'div', 3);
+		add_menu_page( __('Jetpack', 'jetpack'), __('Jetpack', 'jetpack'), 'read', 'jetpack', array($this, 'network_admin_page'), 'div', 3);
 		add_submenu_page('jetpack', __('Jetpack Sites', 'jetpack'), __('Sites', 'jetpack'), 'manage_options', 'jetpack', array($this, 'network_admin_page'));
 		add_submenu_page('jetpack', __('Settings', 'jetpack'), __('Settings', 'jetpack'), 'read', 'jetpack-settings', array($this, 'render_network_admin_settings_page'));
 
@@ -269,8 +269,9 @@ class Jetpack_Network {
 		require_once( JETPACK__PLUGIN_DIR . '_inc/genericons.php' );
 		jetpack_register_genericons();
 
-		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) )
-			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons.min.css', __FILE__ ), false, JETPACK__VERSION );
+		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) ) {
+			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
+		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_menu_css' ) );
 	}
