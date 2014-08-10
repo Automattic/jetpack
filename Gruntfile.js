@@ -42,24 +42,22 @@ module.exports = function(grunt) {
 					'modules/carousel/jetpack-carousel.css',
 					'modules/carousel/jetpack-carousel-ie8fix.css',
 					'modules/contact-form/css/grunion.css',
-					'modules/custom-post-types/*.css', // Front-end or admin?
 					'modules/gplus-authorship/style.css',
 					'modules/infinite-scroll/infinity.css',
 					'modules/likes/style.css',
-					'modules/markdown/easy-markdown.css', // Used? Front-end or admin?
-					// 'modules/post-by-email/post-by-email.css', // Front-end or admin?
-					// 'modules/publicize/assets/publicize.css', // Front-end or admin?
+					// 'modules/markdown/easy-markdown.css', // Don't think it's used
+					// 'modules/post-by-email/post-by-email.css', // TODO: Inline this sucker
 					'modules/related-posts/related-posts.css',
 					'modules/sharedaddy/sharing.css',
-					// 'modules/shortcodes/css/slideshow-shortcode.css', // Front-end or admin?
-					// 'modules/shortcodes/css/style.css', // Front-end or admin?
+					'modules/shortcodes/css/slideshow-shortcode.css',
+					'modules/shortcodes/css/style.css',
 					'modules/subscriptions/subscriptions.css',
 					'modules/tiled-gallery/tiled-gallery.css',
 					'modules/widget-visibility/widget-conditions/widget-conditions.css',
-					// 'modules/widgets/wordpress-post-widget/style.css', // Front-end or admin?
-					'modules/widgets/gravatar-profile.css', // Front-end or admin?
-					// 'modules/widgets/widget-grid-and-list.css', // Front-end or admin?
-					'modules/widgets/widgets.css', // Needed? It's just a clearfix.
+					'modules/widgets/wordpress-post-widget/style.css',
+					'modules/widgets/gravatar-profile.css',
+					'modules/widgets/widget-grid-and-list.css',
+					'modules/widgets/widgets.css', // Moved to image-widget/style.css
 				],
 				dest: "css/jetpack.css"
 			},
