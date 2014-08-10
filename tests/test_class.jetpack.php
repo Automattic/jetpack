@@ -58,7 +58,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 		$seen_bundle = false;
 		foreach ( $wp_styles->registered as $handle => $handle_obj ) {
 			$this->assertNotEquals( $style_handle, $handle );
-			if ( $handle === 'jetpack_css' ) {
+			if ( 'jetpack_css' === $handle ) {
 				$seen_bundle = true;
 			}
 		}
@@ -85,7 +85,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 		$seen_orig = false;
 		foreach ( $wp_styles->registered as $handle => $handle_obj ) {
 			$this->assertNotEquals( 'jetpack_css', $handle );
-			if ( $handle === 'jetpack-carousel' ) {
+			if ( 'jetpack-carousel' === $handle ) {
 				$seen_orig = true;
 			}
 		}
