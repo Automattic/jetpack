@@ -10,7 +10,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	public function test_init() {
 		$this->assertInstanceOf( 'Jetpack', Jetpack::init() );
 	}
-		/**
+	/**
 	 * @author enkrates
 	 * @covers Jetpack::sort_modules
 	 */
@@ -23,7 +23,7 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 		$this->assertEquals( 0, $sort_value );
 	}
-		/**
+	/**
 	 * @author enkrates
 	 * @covers Jetpack::sort_modules
 	 */
@@ -37,5 +37,59 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 
 		$this->assertEquals( 1, $sort_value );
 		$this->assertEquals( -1, $reversed_sort_value );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Jetpack::implode_frontend_css
+	 */
+	public function test_implode_frontend_css_enqueues_bundle_file_handle() {
+		global $wp_styles;
+		$wp_styles = new WP_styles();
+
+		add_filter( 'jetpack_implode_frontend_css', '__return_true' );
+
+		// Enqueue some script on the $to_dequeue list
+		$style_handle = 'jetpack-carousel';
+		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) );
+
+		Jetpack::init()->implode_frontend_css();
+
+		$seen_bundle = false;
+		foreach ( $wp_styles->registered as $handle => $handle_obj ) {
+			$this->assertNotEquals( $style_handle, $handle );
+			if ( $handle === 'jetpack_css' ) {
+				$seen_bundle = true;
+			}
+		}
+
+		$this->assertTrue( $seen_bundle );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Jetpack::implode_frontend_css
+	 */
+	public function test_implode_frontend_css_does_not_enqueue_bundle_when_disabled_through_filter() {
+		global $wp_styles;
+		$wp_styles = new WP_styles();
+
+		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
+
+		// Enqueue some script on the $to_dequeue list
+		$style_handle = 'jetpack-carousel';
+		wp_enqueue_style( 'jetpack-carousel', plugins_url( 'jetpack-carousel.css', __FILE__ ) );
+
+		Jetpack::init()->implode_frontend_css();
+
+		$seen_orig = false;
+		foreach ( $wp_styles->registered as $handle => $handle_obj ) {
+			$this->assertNotEquals( 'jetpack_css', $handle );
+			if ( $handle === 'jetpack-carousel' ) {
+				$seen_orig = true;
+			}
+		}
+
+		$this->assertTrue( $seen_orig );
 	}
 } // end class
