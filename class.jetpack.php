@@ -435,7 +435,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		/**
-		 * This is the hack to concatinate all css files into one. 
+		 * This is the hack to concatinate all css files into one.
 		 * For description and reasoning see the implode_frontend_css method
 		 *
 		 * Super late priority so we catch all the registered styles
@@ -4491,12 +4491,12 @@ p {
 	 * - Reduces time to first painted byte
 	 *
 	 * Cons:
-	 * - Loads css for ALL modules. However all selectors are prefixed so it 
+	 * - Loads css for ALL modules. However all selectors are prefixed so it
 	 *		should not cause any issues with themes.
-	 * - Plugins/themes dequeuing styles no longer do anything. See 
+	 * - Plugins/themes dequeuing styles no longer do anything. See
 	 *		jetpack_implode_frontend_css filter for a workaround
 	 *
-	 * For some situations developers may wish to disable css imploding and 
+	 * For some situations developers may wish to disable css imploding and
 	 * instead operate in legacy mode where each file loads seperately and
 	 * can be edited individually or dequeued. This can be accomplished with
 	 * the following line:
@@ -4506,17 +4506,17 @@ p {
 	 * @since 3.2
 	 **/
 	public function implode_frontend_css() {
-		
+
 		$do_implode = apply_filters( 'jetpack_implode_frontend_css', true );
 
 		if( Jetpack::is_development_mode() || ! $do_implode ) {
 			// We do not want to use the imploded file in dev mode
 			return;
-		} 
+		}
 
 		/*
 		 * Now we assume Jetpack is connected and able to serve the single
-		 * file. 
+		 * file.
 		 *
 		 * In the future there will be a check here to serve the file locally
 		 * or potentially from the Jetpack CDN
@@ -4527,7 +4527,23 @@ p {
 		 * - Be happy, drink scotch
 		 */
 		$to_dequeue = array(
-
+			'jetpack-carousel',
+			'jetpack-carousel-ie8fix',
+			'grunion.css',
+			'gplus',
+			'the-neverending-homepage',
+			'jetpack_likes',
+			'jetpack_related-posts',
+			'sharing',
+			'jetpack-slideshow',
+			'presentations',
+			'jetpack-subscriptions',
+			'tiled-gallery',
+			'widget-conditions',
+			'jetpack_display_posts_widget',
+			'gravatar-profile-widget',
+			'widget-grid-and-list',
+			'jetpack-widgets'
 		);
 
 		foreach( $to_dequeue AS $f ) {
