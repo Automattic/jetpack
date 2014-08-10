@@ -799,12 +799,13 @@ function stats_reports_page() {
 #stats-views {
 	display: inline-block;
 	position: relative;
-	background: #333;
+	background: #0074a2;
 	padding: 0 12px;
 	line-height: 13px;
 	overflow: visible !important;
 	white-space: nowrap;
 	position: absolute;
+	color: white;
 }
 
 #stats-views:before {
@@ -817,7 +818,7 @@ function stats_reports_page() {
 	margin-top: -7px;
 	border-top: 7px solid transparent;
 	border-bottom: 7px solid transparent;
-	border-right: 7px solid #333;
+	border-right: 7px solid #0074a2;
 }
 
 </style>";
