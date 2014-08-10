@@ -4722,7 +4722,23 @@ p {
 		 * - Be happy, drink scotch
 		 */
 		$to_dequeue = array(
-
+			'jetpack-carousel',
+			'jetpack-carousel-ie8fix',
+			'grunion.css',
+			'gplus',
+			'the-neverending-homepage',
+			'jetpack_likes',
+			'jetpack_related-posts',
+			'sharing',
+			'jetpack-slideshow',
+			'presentations',
+			'jetpack-subscriptions',
+			'tiled-gallery',
+			'widget-conditions',
+			'jetpack_display_posts_widget',
+			'gravatar-profile-widget',
+			'widget-grid-and-list',
+			'jetpack-widgets'
 		);
 
 		foreach( $to_dequeue AS $f ) {
