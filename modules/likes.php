@@ -781,11 +781,6 @@ class Jetpack_Likes {
 			$src = sprintf( '%1$s://widgets.wp.com/likes/master-legacy.html?ver=%2$s#ver=%2$s%3$s&amp;mp6=%4$d', $protocol, $this->version, $locale, apply_filters( 'mp6_enabled', 0 ) );
 		}
 
-		// Tidy up after ourselves.
-		if ( version_compare( $GLOBALS['wp_version'], '3.8-alpha', '>=' ) ) {
-			remove_filter( 'mp6_enabled', '__return_true', 97 );
-		}
-
 		$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 ?>
 		<iframe src='<?php echo $src; ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
