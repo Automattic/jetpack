@@ -434,6 +434,16 @@ class Jetpack {
 
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
+
+		/**
+		 * This is the hack to concatinate all css files into one.
+		 * For description and reasoning see the implode_frontend_css method
+		 *
+		 * Super late priority so we catch all the registered styles
+		 */
+		if( !is_admin() ) {
+			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), 10000 );
+		}
 	}
 
 	/**
@@ -4663,4 +4673,66 @@ p {
 		}
 		return $ssl;
 	}
-} // end class Jetpack
+
+	/**
+	 * This methods removes all of the registered css files on the frontend
+	 * from Jetpack in favor of using a single file. In effect "imploding"
+	 * all the files into one file.
+	 *
+	 * Pros:
+	 * - Uses only ONE css asset connection instead of 15
+	 * - Saves a minimum of 56k
+	 * - Reduces server load
+	 * - Reduces time to first painted byte
+	 *
+	 * Cons:
+	 * - Loads css for ALL modules. However all selectors are prefixed so it
+	 *		should not cause any issues with themes.
+	 * - Plugins/themes dequeuing styles no longer do anything. See
+	 *		jetpack_implode_frontend_css filter for a workaround
+	 *
+	 * For some situations developers may wish to disable css imploding and
+	 * instead operate in legacy mode where each file loads seperately and
+	 * can be edited individually or dequeued. This can be accomplished with
+	 * the following line:
+	 *
+	 * add_filter( 'jetpack_implode_frontend_css', '__return_false' );
+	 *
+	 * @since 3.2
+	 **/
+	public function implode_frontend_css() {
+
+		$do_implode = apply_filters( 'jetpack_implode_frontend_css', true );
+
+		if( Jetpack::is_development_mode() ) {
+			// We do not want to use the imploded file in dev mode
+			return;
+		}
+
+		/*
+		 * Now we assume Jetpack is connected and able to serve the single
+		 * file.
+		 *
+		 * In the future there will be a check here to serve the file locally
+		 * or potentially from the Jetpack CDN
+		 *
+		 * For now:
+		 * - Dequeue ALL of the frontend css files
+		 * - Enqueue a single imploded css file
+		 * - Be happy, drink scotch
+		 */
+		$to_dequeue = array(
+
+		);
+
+		foreach( $to_dequeue AS $f ) {
+			wp_deregister_style( $f );
+		}
+
+		if( is_rtl() ) {
+			wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack-rtl.css', __FILE__ ) );
+		} else {
+			wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack.css', __FILE__ ) );
+		}
+	}
+}
