@@ -67,7 +67,8 @@ function stats_load() {
 	// Generate the tracking code after wp() has queried for posts.
 	add_action( 'template_redirect', 'stats_template_redirect', 1 );
 
-	add_action( 'wp_head', 'stats_admin_bar_head', 100 );
+	add_action( 'wp_head',    'stats_admin_bar_head', 100 );
+	add_action( 'admin_head', 'stats_admin_bar_head', 100 );
 
 	add_action( 'wp_head', 'stats_hide_smile_css' );
 
