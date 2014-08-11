@@ -6,7 +6,7 @@
  * into the [googlemaps http://...] shortcode format
  */
 function jetpack_googlemaps_embed_to_short_code( $content ) {
-	if ( false === strpos( $content, 'maps.google.' ) && false === preg_match( '@google\.[^/]+/maps@', $content ) )
+	if ( false === strpos( $content, 'maps.google.' ) && 1 !== preg_match( '@google\.[^/]+/maps@', $content ) )
 		return $content;
 
 	// IE and TinyMCE format things differently
