@@ -1,5 +1,19 @@
 // ==========================================================================
 // Arrows
+//
+// Use this to generate most of the code for your CSS arrows.
+//
+//
+// EXAMPLE
+//
+// .tooltip {
+// 	&:before {
+// 		@include arrow--up(7px, #333);
+// 		left: 50%;
+// 		margin-left: -7px;
+// 	}
+// }
+//
 // ==========================================================================
 
 @mixin arrow--base(){

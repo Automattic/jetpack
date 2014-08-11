@@ -163,8 +163,8 @@ img {
   }
 
   100% {
-    -webkit-transform: translate3d(570px, -570px, 0px);
-    transform: translate3d(570px, -570px, 0px);
+    -webkit-transform: translate3d(680px, -680px, 0px);
+    transform: translate3d(680px, -680px, 0px);
   }
 }
 @keyframes "flyer" {
@@ -174,8 +174,8 @@ img {
   }
 
   100% {
-    -webkit-transform: translate3d(570px, -570px, 0px);
-    transform: translate3d(570px, -570px, 0px);
+    -webkit-transform: translate3d(680px, -680px, 0px);
+    transform: translate3d(680px, -680px, 0px);
   }
 }
 .button,
@@ -220,6 +220,8 @@ img {
 .jp-button--settings.current {
   background: #3c6621;
   color: #fff;
+  -webkit-box-shadow: inset 0 2px 0 #365A1F, inset 0 1px 3px #3c6621;
+  box-shadow: inset 0 2px 0 #365A1F, inset 0 1px 3px #3c6621;
 }
 
 .download-jetpack {
@@ -391,12 +393,16 @@ img {
 }
 
 .jp-content {
+  background: #81a844;
   margin: 0;
   height: auto;
   min-height: 100%;
   width: 100%;
   width: 100%;
   -webkit-font-smoothing: antialiased;
+}
+.jp-content .wrapper {
+  background: #f9f9f9;
 }
 
 @media (max-width: 900px) {
@@ -423,10 +429,6 @@ img {
   .configure .frame.top.fixed {
     padding-left: 0;
   }
-}
-
-html {
-  background: #f9f9f9;
 }
 
 .wrap.inner,
@@ -490,7 +492,6 @@ html {
 }
 
 .header {
-  background: #81a844;
   left: 0;
   right: 0;
 }
@@ -560,7 +561,6 @@ html {
 }
 
 .masthead {
-  overflow: hidden;
   position: relative;
   text-align: center;
   z-index: 1;
@@ -593,6 +593,9 @@ html {
   position: relative;
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.12);
   z-index: 3;
+}
+.masthead h1 + .flyby {
+  margin-top: 180px;
 }
 @media (max-width: 1147px) {
   .masthead h1 {
