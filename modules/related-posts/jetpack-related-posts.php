@@ -931,10 +931,11 @@ EOT;
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
 				if ( 'uncategorized' != $category->slug && '' != trim( $category->name ) ) {
-					return sprintf(
+					$post_cat_context = sprintf(
 						_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
 						$category->name
 					);
+					return apply_filters( 'jetpack_relatedposts_post_category_context', $post_cat_context, $category );
 				}
 			}
 		}
@@ -943,10 +944,11 @@ EOT;
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
 				if ( '' != trim( $tag->name ) ) {
-					return sprintf(
+					$post_tag_context = sprintf(
 						_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
 						$tag->name
 					);
+					return apply_filters( 'jetpack_relatedposts_post_tag_context', $post_tag_context, $tag );
 				}
 			}
 		}
