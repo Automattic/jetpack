@@ -579,7 +579,7 @@ class Share_LinkedIn extends Sharing_Source {
 
 		$linkedin_url = add_query_arg( array(
 			'url' => rawurlencode( $post_link ),
-		), 'http://www.linkedin.com/cws/share?token=&isFramed=false' );
+		), $this->http() . '://www.linkedin.com/cws/share?token=&isFramed=false' );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
