@@ -92,7 +92,7 @@ class Jetpack_Testimonial {
 				'page-attributes',
 			),
 			'rewrite' => array(
-				'slug'       => 'testimonial',
+				'slug'       => _x( 'testimonial', 'custom post type slug', 'jetpack' ),
 				'with_front' => false,
 				'feeds'      => false,
 				'pages'      => false,

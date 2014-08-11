@@ -155,7 +155,7 @@ class Nova_Restaurant {
 				'new_item_name'      => __( 'New Menu Sections Name', 'jetpack' ),
 			),
 			'rewrite' => array(
-				'slug'         => 'menu',
+				'slug'         => _x( 'menu', 'custom taxonomy slug', 'jetpack' ),
 				'with_front'   => false,
 				'hierarchical' => true,
 			),
@@ -191,7 +191,7 @@ class Nova_Restaurant {
 				'excerpt',
 			),
 			'rewrite' => array(
-				'slug'       => 'item',
+				'slug'       => _x( 'item', 'custom post type slug', 'jetpack' ),
 				'with_front' => false,
 				'feeds'      => false,
 				'pages'      => false,

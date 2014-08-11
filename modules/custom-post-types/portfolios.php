@@ -290,7 +290,7 @@ class Jetpack_Portfolio {
 				'wpcom-markdown',
 			),
 			'rewrite' => array(
-				'slug'       => 'portfolio',
+				'slug'       => _x( 'portfolio', 'custom post type slug', 'jetpack' ),
 				'with_front' => false,
 				'feeds'      => true,
 				'pages'      => true,
@@ -327,7 +327,7 @@ class Jetpack_Portfolio {
 			'show_in_nav_menus' => true,
 			'show_admin_column' => true,
 			'query_var'         => true,
-			'rewrite'           => array( 'slug' => 'project-type' ),
+			'rewrite'           => array( 'slug' => _x( 'project-type', 'custom taxonomy slug', 'jetpack' ) ),
 		) );
 
 		register_taxonomy( self::CUSTOM_TAXONOMY_TAG, self::CUSTOM_POST_TYPE, array(
@@ -354,7 +354,7 @@ class Jetpack_Portfolio {
 			'show_in_nav_menus' => true,
 			'show_admin_column' => true,
 			'query_var'         => true,
-			'rewrite'           => array( 'slug' => 'project-tag' ),
+			'rewrite'           => array( 'slug' => _x( 'project-tag', 'custom taxonomy slug', 'jetpack' ) ),
 		) );
 	}
 
