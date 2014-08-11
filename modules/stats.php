@@ -677,7 +677,7 @@ function stats_reports_page() {
 
 		$js = "<script type='text/javascript'>
 
-	(function($) {
+(function( $ ) {
 	var translations = { view: '" . __( 'view', 'jetpack' ) . "', views: '" . __( 'views', 'jetpack' ) . "' };
 
 	function SparklineBar( x, y, width, height, views ) {
@@ -688,39 +688,41 @@ function stats_reports_page() {
 		this.views = views;
 	}
 
-	SparklineBar.prototype.containsX = function( x, y ) {
+	// Checks whether the given x coordinate lies inside the bar
+	SparklineBar.prototype.containsX = function( x ) {
 		return this.x <= x && x <= this.x + this.width;
 	};
 
-	function createBars( ctx, width, height, data, rawData ) {
-  	  // Draw bars (one every other pixel), starting from 5 px
-  	  ctx.fillStyle = '#ccc';
-	  var barWidth = 1; // px
-	  var bars = [];
-	  for ( var i = 0, j = 5; i < data.length; i++, j += barWidth + 1 ) {
-		bars.push( new SparklineBar( j, height - data[i] - 1, barWidth, data[i] + 1, rawData[i] ) );
+	// Creates bars of appropriate size to appropriate points in the canvas
+	function createBars( ctx, width, height, scaledData, rawViewData ) {
+		var barWidth = 1,
+			bars = [];
+
+		// Starting from 5 pixels in, start to create bars for every other pixel
+		// of the height of the scaled data
+		for ( var i = 0, j = 5; i < scaledData.length; i++, j += barWidth + 1 ) {
+			bars.push( new SparklineBar( j, height - scaledData[i] - 1, barWidth, scaledData[i] + 1, rawViewData[i] ) );
 		}
 		return bars;
 	}
 
 	function drawBar( ctx, sparklineBar, width, height ) {
-		// Clear bar
-	  	ctx.clearRect( sparklineBar.x, 0, sparklineBar.width, height );
+		// Clear bar area in canvas
+		ctx.clearRect( sparklineBar.x, 0, sparklineBar.width, height );
 
-		// Fill bg
-  	  	ctx.fillStyle = 'rgba(255, 255, 255, 0.0)';
-	  	ctx.fillRect( sparklineBar.x, 0, sparklineBar.width, height );
+		// Fill background of color for the bar
+		ctx.fillStyle = 'rgba(255, 255, 255, 0.0)';
+		ctx.fillRect( sparklineBar.x, 0, sparklineBar.width, height );
 
-		// Fill bar
+		// Fill the actual bar
 		ctx.fillStyle = '#999';
 		ctx.fillRect( sparklineBar.x, sparklineBar.y, sparklineBar.width, sparklineBar.height );
 	}
 
-	// Placeholder
 	function scaleDatapoints( raw, width, height ) {
-		var maxViews = Math.max.apply( null, raw );
+		var maxViews = Math.max.apply( null, raw ),
+			scale = height / maxViews;
 
-		var scale = height / maxViews;
 		if ( scale > 1 ) scale = Math.min( scale, height / 4 );
 		return $.map( raw, function( el ) {
 			return el * scale;
@@ -728,70 +730,73 @@ function stats_reports_page() {
 	}
 
 	jQuery( document ).ready( function() {
-  	  var ctx = $( '#canvas' )[0].getContext( '2d' );
-  	  var width = $( '#canvas' ).width();
-  	  var height = $( '#canvas' ).height();
+		var ctx = $( '#canvas' )[0].getContext( '2d' ),
+			width = $( '#canvas' ).width(),
+			height = $( '#canvas' ).height();
 
-  	  var data = [];
-  	  // Placeholder for handling actual data
-  	  $.getJSON( '". admin_url( 'admin-ajax.php' ) . "', { action: 'jetpack_admin_bar_stats' }, function( json ) {
-  	  for ( var date in json ) {
-		data.push( json[date] );
-  	  }
-		var bars = createBars( ctx, width, height, scaleDatapoints( data, width, height ), data );
-		$.each( bars, function( i, el ) {
-			drawBar( ctx, el, width, height );
-		});
+		$.getJSON( '". admin_url( 'admin-ajax.php' ) . "', { action: 'jetpack_admin_bar_stats' }, function( json ) {
+			var data = [],
+				bars;
 
-		var selected;
-		canvas.addEventListener( 'mousemove', function( e ) {
-			var canvasOffset = $( '#canvas' ).offset();
-			var relativeX = e.pageX - canvasOffset.left;
-			var relativeY = e.pageY - canvasOffset.top;
+			for ( var date in json ) {
+				data.push( json[date] );
+			}
 
-			for ( var i = 0; i < bars.length; i++ ) {
-				if ( bars[i].containsX( relativeX, relativeY ) ) {
-					// Overwrite old selector bar if such exists
-					if ( selected ) {
-						drawBar( ctx, selected, width, height );
+			// Draw all the bars initially
+			bars = createBars( ctx, width, height, scaleDatapoints( data, width, height ), data );
+			$.each( bars, function( i, el ) {
+				drawBar( ctx, el, width, height );
+			});
+
+			var selected;
+			$( '#canvas' ).mousemove(function( e ) {
+				var canvasOffset = $( '#canvas' ).offset(),
+					relativeX = e.pageX - canvasOffset.left,
+					relativeY = e.pageY - canvasOffset.top;
+
+				for ( var i = 0; i < bars.length; i++ ) {
+					if ( bars[i].containsX( relativeX ) ) {
+						// Overwrite old selector bar if such exists
+						if ( selected ) {
+							drawBar( ctx, selected, width, height );
+						}
+
+						selected = bars[i]; // Update current bar
+
+						// Draw new selected bar
+						ctx.fillStyle = '#fff';
+						ctx.fillRect( selected.x, 0, selected.width, height );
+
+						// Draw views
+						$( '#stats-views-amount' ).text( selected.views + ' ' + ( 1 === selected.views ? translations.view : translations.views ) );
+						$( '#stats-views' ).removeClass( 'none-selected' );
+
+						return;
 					}
-
-					selected = bars[i]; // Update current bar
-
-					// Draw new selected bar
-					ctx.fillStyle = '#fff';
-					ctx.fillRect( selected.x, 0, selected.width, height );
-
-					// Draw views
-					$( '#stats-views-amount' ).text( selected.views + ' ' + ( 1 === selected.views ? translations.view : translations.views ) );
-					$( '#stats-views' ).removeClass( 'none-selected' );
-
-					return;
 				}
-			}
 
-			// Overwrite old selected bar if such exists
-			if ( selected ) {
-				drawBar( ctx, selected, width, height );
+				// Overwrite old selected bar if such exists
+				if ( selected ) {
+					drawBar( ctx, selected, width, height );
+					$( '#stats-views' ).addClass( 'none-selected' );
+				}
+			});
+
+			// Make the selected normal when moving out of the canvas
+			$( '#canvas' ).mouseout(function( e ) {
+				// Overwrite old selected bar if such exists
+				if ( selected ) {
+					drawBar( ctx, selected, width, height );
+					$( '#stats-views' ).addClass( 'none-selected' );
+				}
+
+				// Hide views
 				$( '#stats-views' ).addClass( 'none-selected' );
-			}
+			});
 		});
-
-		canvas.addEventListener( 'mouseout', function( e ) {
-			// Overwrite old selected bar if such exists
-			if ( selected ) {
-				drawBar( ctx, selected, width, height );
-				$( '#stats-views' ).addClass( 'none-selected' );
-			}
-
-			// Hide views
-			$( '#stats-views' ).addClass( 'none-selected' );
-		});
-  	  });
-});
-
+	});
 })( jQuery );
-	</script>
+</script>
 <style>
 #stats-views.none-selected {
 	display: none;
