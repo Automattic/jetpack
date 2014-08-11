@@ -4519,7 +4519,7 @@ p {
 	 * @param $css string: The raw CSS -- should be read in directly from the file.
 	 * @param $css_file_url: The URL that the file can be accessed at, for calculating paths from.
 	 */
-	function absolutize_css_urls( $css, $css_file_url ) {
+	public static function absolutize_css_urls( $css, $css_file_url ) {
 		$pattern = '#url\((?P<path>[^)]*)\)#i';
 		$css_dir = dirname( $css_file_url );
 		$p       = parse_url( $css_dir );
