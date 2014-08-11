@@ -4461,13 +4461,27 @@ p {
 			return $tag;
 		}
 
+		if ( preg_match( '# href=\'([^\']+)\' #i', $tag, $matches ) ) {
+			$href = $matches[1];
+			// Strip off query string
+			if ( $pos = strpos( $href, '?' ) ) {
+				$href = substr( $href, 0, $pos );
+			}
+			// Strip off fragment
+			if ( $pos = strpos( $href, '#' ) ) {
+				$href = substr( $href, 0, $pos );
+			}
+		} else {
+			return $tag;
+		}
+
 		$plugins_dir = plugin_dir_url( JETPACK__PLUGIN_FILE );
-		if ( $plugins_dir !== substr( $item->src, 0, strlen( $plugins_dir ) ) ) {
+		if ( $plugins_dir !== substr( $href, 0, strlen( $plugins_dir ) ) ) {
 			return $tag;
 		}
 
 		// If this stylesheet has a RTL version, and the RTL version replaces normal...
-		if ( isset( $item->extra['rtl'] ) && 'replace' === $item->extra['rtl'] ) {
+		if ( isset( $item->extra['rtl'] ) && 'replace' === $item->extra['rtl'] && is_rtl() ) {
 			// And this isn't the pass that actually deals with the RTL version...
 			if ( false === strpos( $tag, " id='$handle-rtl-css' " ) ) {
 				// Short out, as the RTL version will deal with it in a moment.
@@ -4475,8 +4489,8 @@ p {
 			}
 		}
 
-		$file = JETPACK__PLUGIN_DIR . substr( $item->src, strlen( $plugins_dir ) );
-		$css  = Jetpack::absolutize_css_urls( file_get_contents( $file ), $item->src );
+		$file = JETPACK__PLUGIN_DIR . substr( $href, strlen( $plugins_dir ) );
+		$css  = Jetpack::absolutize_css_urls( file_get_contents( $file ), $href );
 		if ( $css ) {
 			$tag = "<!-- Inline {$item->handle} -->\r\n";
 			if ( empty( $item->extra['after'] ) ) {
