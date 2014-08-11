@@ -60,8 +60,7 @@ if ( DYNAMIC_CACHE_TEST_TAG != '' ) {
 	function dynamic_cache_test_safety( $safety ) {
 		return 1;
 	}
-	add_cacheaction( 'wpsc_cachedata_safety', 'dynamic_output_buffer_test_safety' );
-
+	add_cacheaction( 'wpsc_cachedata_safety', 'dynamic_cache_test_safety' );
 
 	function dynamic_cache_test_filter( &$cachedata) {
 		return str_replace( DYNAMIC_CACHE_TEST_TAG, "<!-- Hello world at " . date( 'H:i:s' ) . " -->", $cachedata );
