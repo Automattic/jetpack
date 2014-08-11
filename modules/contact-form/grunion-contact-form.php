@@ -851,7 +851,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'submit_button_text' => __( 'Submit &#187;', 'jetpack' ),
 		);
 
-		$attributes = shortcode_atts( $this->defaults, $attributes );
+		$attributes = shortcode_atts( $this->defaults, $attributes, 'contact-form' );
 
 		// We only add the contact-field shortcode temporarily while processing the contact-form shortcode
 		add_shortcode( 'contact-field', array( $this, 'parse_contact_field' ) );
@@ -1478,7 +1478,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			'id'          => null,
 			'default'     => null,
 			'placeholder' => null,
-		), $attributes );
+		), $attributes, 'contact-field' );
 
 		// special default for subject field
 		if ( 'subject' == $attributes['type'] && is_null( $attributes['default'] ) && !is_null( $form ) ) {

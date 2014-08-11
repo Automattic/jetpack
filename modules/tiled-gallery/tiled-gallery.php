@@ -29,7 +29,7 @@ class Jetpack_Tiled_Gallery {
 			'type'       => '',
 			'grayscale'  => false,
 			'link'       => '',
-		), $atts );
+		), $atts, 'gallery' );
 
 		$this->atts['id'] = (int) $this->atts['id'];
 		$this->float = is_rtl() ? 'right' : 'left';

@@ -23,7 +23,7 @@ function archives_shortcode( $attr ) {
 		'after'     => '',
 		'order'     => 'desc',
 	);
-	extract( shortcode_atts( $default_atts, $attr ) );
+	extract( shortcode_atts( $default_atts, $attr, 'archives' ) );
 
 	if ( !in_array( $type, array( 'yearly', 'monthly', 'daily', 'weekly', 'postbypost' ) ) )
 		$type = 'postbypost';

@@ -12,7 +12,7 @@ class Upcoming_Events_Shortcode {
 
 	public static function shortcode( $atts = array() ) {
 		jetpack_require_lib( 'icalendar-reader' );
-		$atts = shortcode_atts( array( 'url' => '', 'number' => 0 ), $atts );
+		$atts = shortcode_atts( array( 'url' => '', 'number' => 0 ), $atts, 'upcomingevents' );
 		$args = array(
 			'context' => 'shortcode',
 			'number' => absint( $atts['number'] )

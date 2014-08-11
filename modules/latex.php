@@ -85,7 +85,7 @@ function latex_shortcode( $atts, $content = '' ) {
 		's' => 0,
 		'bg' => latex_get_default_color( 'bg' ),
 		'fg' => latex_get_default_color( 'text', '000' )
-	), $atts ) );
+	), $atts, 'latex' ) );
 
 	return latex_render( latex_entity_decode( $content ), $fg, $bg, $s );
 }
