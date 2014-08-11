@@ -538,7 +538,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'include'   => '',
 			'exclude'   => '',
 			'slideshow' => false
-		), $attr ) );
+		), $attr, 'gallery' ) );
 
 		// Custom image size and always use it
 		add_image_size( 'win8app-column', 480 );

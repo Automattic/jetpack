@@ -90,7 +90,7 @@ function flickr_shortcode_handler( $atts ) {
 		'h'         => 300,
 		'secret'    => 0,
 		'size'      => 0,
-	), $atts );
+	), $atts, 'flickr' );
 
 	if ( ! empty( $atts['video'] ) ) {
 		$showing = 'video';

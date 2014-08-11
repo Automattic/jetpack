@@ -117,7 +117,7 @@ class Jetpack_Slideshow_Shortcode {
 			'id'        => $post->ID,
 			'include'   => '',
 			'exclude'   => '',
-		), $attr );
+		), $attr, 'slideshow' );
 
 		if ( 'rand' == strtolower( $attr['order'] ) )
 			$attr['orderby'] = 'none';

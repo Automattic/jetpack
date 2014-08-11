@@ -759,7 +759,7 @@ add_shortcode( 'jetpack_subscription_form', 'jetpack_do_subscription_form' );
 
 function jetpack_do_subscription_form( $args ) {
 	$args['show_subscribers_total'] = empty( $args['show_subscribers_total'] ) ? false : true;
-	$args = shortcode_atts( Jetpack_Subscriptions_Widget::defaults(), $args );
+	$args = shortcode_atts( Jetpack_Subscriptions_Widget::defaults(), $args, 'jetpack_subscription_form' );
 	ob_start();
 	the_widget( 'Jetpack_Subscriptions_Widget', $args );
 	$output = ob_get_clean();

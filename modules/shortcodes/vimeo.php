@@ -36,7 +36,7 @@ function vimeo_shortcode( $atts ) {
 		'id'     => 0,
 		'width'  => 400,
 		'height' => 300
-	), $atts ) ) );
+	), $atts, 'vimeo' ) ) );
 
 	if ( isset( $atts[0] ) )
 		$id = jetpack_shortcode_get_vimeo_id( $atts );

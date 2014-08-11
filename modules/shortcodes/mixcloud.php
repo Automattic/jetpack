@@ -38,7 +38,7 @@ function mixcloud_shortcode( $atts, $content = null ) {
 	$atts = shortcode_atts( array(
 		'width'    => 300,
 		'height'   => 300,
-	), $atts );
+	), $atts, 'mixcloud' );
 
 
 	// Build URL
