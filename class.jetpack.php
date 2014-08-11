@@ -4505,4 +4505,62 @@ p {
 			}
 		}
 	}
+
+	/**
+	 * Converts any url in a stylesheet, to the correct absolute url.
+	 *
+	 * Considerations:
+	 *  - Normal, relative URLs     `feh.png`
+	 *  - Data URLs                 `data:image/gif;base64,eh129ehiuehjdhsa==`
+	 *  - Schema-agnostic URLs      `//domain.com/feh.png`
+	 *  - Absolute URLs             `http://domain.com/feh.png`
+	 *  - Domain root relative URLs `/feh.png`
+	 *
+	 * @param $css string: The raw CSS -- should be read in directly from the file.
+	 * @param $css_file_url: The URL that the file can be accessed at, for calculating paths from.
+	 */
+	function absolutize_css_urls( $css, $css_file_url ) {
+		$pattern = '#url\((?P<path>[^)]*)\)#i';
+		$css_dir = dirname( $css_file_url );
+		$p       = parse_url( $css_dir );
+		$domain  = sprintf(
+					'%1$s//%2$s%3$s%4$s',
+					isset( $p['scheme'] )           ? "{$p['scheme']}:" : '',
+					isset( $p['user'], $p['pass'] ) ? "{$p['user']}:{$p['pass']}@" : '',
+					$p['host'],
+					isset( $p['port'] )             ? ":{$p['port']}" : ''
+				);
+
+		if ( preg_match_all( $pattern, $css, $matches, PREG_SET_ORDER ) ) {
+			$find = $replace = array();
+			foreach ( $matches as $match ) {
+				$url = trim( $match['path'], "'\" \t" );
+
+				// If this is a data url, we don't want to mess with it.
+				if ( 'data:' === substr( $url, 0, 5 ) ) {
+					continue;
+				}
+
+				// If this is an absolute or protocol-agnostic url,
+				// we don't want to mess with it.
+				if ( preg_match( '#^(https?:)?//#i', $url ) ) {
+					continue;
+				}
+
+				switch ( substr( $url, 0, 1 ) ) {
+					case '/':
+						$absolute = $domain . $url;
+						break;
+					default:
+						$absolute = $css_dir . '/' . $url;
+				}
+
+				$find[]    = $match[0];
+				$replace[] = sprintf( 'url("%s")', $absolute );
+			}
+			$css = str_replace( $find, $replace, $css );
+		}
+
+		return $css;
+	}
 }
