@@ -14,7 +14,7 @@
  * @return mixed The URL or ID of our site logo, false if not set
  * @since 1.0
  */
-function get_site_logo( $show = 'url' ) {
+function jetpack_get_site_logo( $show = 'url' ) {
 	$logo = site_logo()->logo;
 
 	// Return false if no logo is set
@@ -36,7 +36,7 @@ function get_site_logo( $show = 'url' ) {
  * @uses get_option
  * @return boolean True if there is an active logo, false otherwise
  */
-function has_site_logo() {
+function jetpack_has_site_logo() {
 	return site_logo()->has_site_logo();
 }
 
@@ -54,13 +54,13 @@ function has_site_logo() {
  * @uses wp_get_attachment_image()
  * @since 1.0
  */
-function the_site_logo() {
+function jetpack_the_site_logo() {
 	$logo = site_logo()->logo;
 	$size = site_logo()->theme_size();
 
 	// Bail if no logo is set. Leave a placeholder if we're in the Customizer, though (needed for the live preview).
-	if ( ! has_site_logo() ) {
-		if ( site_logo_is_customize_preview() ) {
+	if ( ! jetpack_has_site_logo() ) {
+		if ( jetpack_is_customize_preview() ) {
 			printf( '<a href="%1$s" class="site-logo-anchor" style="display:none;"><img class="site-logo" data-size="%2$s" /></a>',
 				esc_url( home_url( '/' ) ),
 				esc_attr( $size )
@@ -83,7 +83,7 @@ function the_site_logo() {
 		)
 	);
 
-	echo apply_filters( 'the_site_logo', $html, $logo, $size );
+	echo apply_filters( 'jetpack_the_site_logo', $html, $logo, $size );
 }
 
 /**
@@ -93,7 +93,7 @@ function the_site_logo() {
  * @global WP_Customize_Manager $wp_customize Customizer instance.
  * @return bool True if the site is being previewed in the Customizer, false otherwise.
  */
-function site_logo_is_customize_preview() {
+function jetpack_is_customize_preview() {
 	global $wp_customize;
 
 	return is_a( $wp_customize, 'WP_Customize_Manager' ) && $wp_customize->is_preview();
