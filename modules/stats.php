@@ -829,9 +829,13 @@ function stats_reports_page() {
 
 </style>";
 
-	$menu = array( 'id' => 'stats', 'title' => $js . '<canvas id="canvas" width="106" height="24"></canvas><div id="stats-views" class="none-selected"><span id="stats-views-amount"></span></div>', 'href' => $url );
-
-	$wp_admin_bar->add_menu( $menu );
+	$args = array(
+		'id'    => 'stats',
+		'title' => $js . '<canvas id="canvas" width="106" height="24"></canvas><div id="stats-views" class="none-selected"><span id="stats-views-amount"></span></div>',
+		'href'  => $url,
+		'meta'  => array( 'class' => 'admin-bar-stats' )
+	);
+	$wp_admin_bar->add_node( $args );
 }
 
 function stats_update_blog() {
