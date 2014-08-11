@@ -4466,6 +4466,15 @@ p {
 			return $tag;
 		}
 
+		// If this stylesheet has a RTL version, and the RTL version replaces normal...
+		if ( isset( $item->extra['rtl'] ) && 'replace' === $item->extra['rtl'] ) {
+			// And this isn't the pass that actually deals with the RTL version...
+			if ( false === strpos( $tag, " id='$handle-rtl-css' " ) ) {
+				// Short out, as the RTL version will deal with it in a moment.
+				return $tag;
+			}
+		}
+
 		$file = JETPACK__PLUGIN_DIR . substr( $item->src, strlen( $plugins_dir ) );
 		$css  = Jetpack::absolutize_css_urls( file_get_contents( $file ), $item->src );
 		if ( $css ) {
