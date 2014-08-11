@@ -4464,7 +4464,7 @@ p {
 		$file = JETPACK__PLUGIN_DIR . substr( $item->src, strlen( $plugins_dir ) );
 		$css  = Jetpack::absolutize_css_urls( file_get_contents( $file ), $item->src );
 		if ( $css ) {
-			$tag = "<!-- Inline {$item->handle} -->";
+			$tag = "<!-- Inline {$item->handle} -->\r\n";
 			wp_add_inline_style( $handle, $css );
 		}
 
