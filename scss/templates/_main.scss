@@ -30,12 +30,17 @@
 }
 
 .jp-content {
+	background: $green;
 	margin: 0;
 	height: auto;
 	min-height: 100%;
 	width: 100%;
 	width: 100%;
 	-webkit-font-smoothing: antialiased;
+
+	.wrapper {
+		background: $clouds;
+	}
 }
 
 #wpcontent,
@@ -61,8 +66,8 @@
 // ==========================================================================
 // Main author styles
 // ==========================================================================
-html {
-	background: $clouds;
+body {
+	// background: $green;
 }
 .wrap.inner,
 .page-content  {
@@ -129,7 +134,6 @@ html {
 // ==========================================================================
 
 .header {
-	background: $green;
 	left: 0;
 	right: 0;
 }
@@ -211,7 +215,7 @@ html {
 	$start: $green; // top gradient color and fallback
 	$end: lighten($green, 5%); // bottom gradient color
 
-	overflow: hidden;
+	// overflow: hidden;
 	position: relative;
 	text-align: center;
 	z-index: 1;
@@ -244,6 +248,9 @@ html {
 		text-shadow: 0 1px 1px rgba(0,0,0,.12);
 		z-index: 3;
 
+		+ .flyby {
+			margin-top: 180px;
+		}
 		@include breakpoint(large-desktop){
 			padding-top: em(55px, 30px);
 			font-size: em(30px);

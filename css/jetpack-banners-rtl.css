@@ -44,6 +44,8 @@
 .jp-button--settings.current {
   background: #3c6621;
   color: #fff;
+  -webkit-box-shadow: inset 0 2px 0 #365A1F, inset 0 1px 3px #3c6621;
+  box-shadow: inset 0 2px 0 #365A1F, inset 0 1px 3px #3c6621;
 }
 
 .download-jetpack {
