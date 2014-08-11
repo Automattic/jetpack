@@ -54,7 +54,7 @@
  * the cached page this time will change. View the page source to examine
  * this text.
  *
- * Cronology of a request:
+ * Chronology of a request:
  * 1. dynamic_cache_test_init() hooks dynamic_cache_test_template_tag() on
  *    to the wp_footer action. dynamic_cache_test_filter() is hooked on to
  *    the wpsc_cachedata filter.
