@@ -427,7 +427,8 @@ class Jetpack {
 		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ),     999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
-		add_filter( 'plugins_url', array( 'Jetpack', 'maybe_min_asset' ), 1, 3 );
+		add_filter( 'plugins_url',      array( 'Jetpack', 'maybe_min_asset' ),     1, 3 );
+		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 
@@ -4439,6 +4440,35 @@ p {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Maybe inlines a stylesheet.
+	 *
+	 * If you'd like to inline a stylesheet instead of printing a link to it,
+	 * wp_style_add_data( 'handle', 'jetpack-inline', true );
+	 */
+	public static function maybe_inline_style( $tag, $handle ) {
+		global $wp_styles;
+		$item = $wp_styles->registered[ $handle ];
+
+		if ( ! isset( $item->extra['jetpack-inline'] ) || ! $item->extra['jetpack-inline'] ) {
+			return $tag;
+		}
+
+		$plugins_dir = plugin_dir_url( JETPACK__PLUGIN_FILE );
+		if ( $plugins_dir !== substr( $item->src, 0, strlen( $plugins_dir ) ) ) {
+			return $tag;
+		}
+
+		$file = JETPACK__PLUGIN_DIR . substr( $item->src, strlen( $plugins_dir ) );
+		$css  = Jetpack::absolutize_css_urls( file_get_contents( $file ), $item->src );
+		if ( $css ) {
+			$tag = "<!-- Inline {$item->handle} -->";
+			wp_add_inline_style( $handle, $css );
+		}
+
+		return $tag;
 	}
 
 	/**
