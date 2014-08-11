@@ -2,7 +2,7 @@
 
 class WP_Test_Functions_Compat extends WP_UnitTestCase {
 
-		/**
+	/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
 	 * @since 3.2
@@ -16,7 +16,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		$this->assertEquals( $valid_url, $sanitized_url );
 	}
 
-		/**
+	/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
 	 * @since 3.2
@@ -31,7 +31,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		$this->assertEquals( $expected_sanitized_url, $sanitized_url );
 	}
 
-		/**
+	/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
 	 * @since 3.2
@@ -46,7 +46,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		$this->assertEquals( $expected_sanitized_url, $sanitized_url );
 	}
 
-		/**
+	/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
 	 * @since 3.2
@@ -61,7 +61,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		$this->assertEquals( $expected_sanitized_url, $sanitized_url );
 	}
 
-		/**
+	/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
 	 * @since 3.2
@@ -76,7 +76,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		$this->assertEquals( $expected_sanitized_url, $sanitized_url );
 	}
 
-		/**
+	/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
 	 * @since 3.2
@@ -91,7 +91,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		$this->assertEquals( $expected_sanitized_url, $sanitized_url );
 	}
 
-		/**
+	/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
 	 * @since 3.2
@@ -106,7 +106,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		$this->assertEquals( $expected_sanitized_url, $sanitized_url );
 	}
 
-		/**
+	/**
 	 * @author enkrates
 	 * @covers youtube_sanitize_url
 	 * @since 3.2
@@ -121,7 +121,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		$this->assertEquals( $expected_sanitized_url, $sanitized_url );
 	}
 
-		/**
+	/**
 	 * @author enkrates
 	 * @covers jetpack_get_youtube_id
 	 * @since 3.2
@@ -136,7 +136,7 @@ class WP_Test_Functions_Compat extends WP_UnitTestCase {
 		$this->assertEquals( $expected_id, $youtube_id );
 	}
 
-		/**
+	/**
 	 * @author enkrates
 	 * @covers jetpack_get_youtube_id
 	 * @since 3.2
