@@ -4470,7 +4470,12 @@ p {
 		$css  = Jetpack::absolutize_css_urls( file_get_contents( $file ), $item->src );
 		if ( $css ) {
 			$tag = "<!-- Inline {$item->handle} -->\r\n";
-			wp_add_inline_style( $handle, $css );
+			if ( empty( $item->extra['after'] ) ) {
+				wp_add_inline_style( $handle, $css );
+			} else {
+				array_unshift( $item->extra['after'], $css );
+				wp_style_add_data( $handle, 'after', $item->extra['after'] );
+			}
 		}
 
 		return $tag;
