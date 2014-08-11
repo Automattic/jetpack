@@ -4447,6 +4447,11 @@ p {
 	 *
 	 * If you'd like to inline a stylesheet instead of printing a link to it,
 	 * wp_style_add_data( 'handle', 'jetpack-inline', true );
+	 *
+	 * Attached to `style_loader_tag` filter.
+	 *
+	 * @param string $tag    The tag that would link to the external asset.
+	 * @param string $handle The registered handle of the script in question.
 	 */
 	public static function maybe_inline_style( $tag, $handle ) {
 		global $wp_styles;
