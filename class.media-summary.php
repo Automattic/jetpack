@@ -81,7 +81,7 @@ class Jetpack_Media_Summary {
 							$return['type'] = 'video';
 							$return['video'] = esc_url_raw( 'http://vimeo.com/' . $extract['shortcode']['vimeo']['id'][0] );
 							$return['secure']['video'] = self::https( $return['video'] );
-						
+
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );
 							if ( !empty( $poster_image ) ) {
 								$return['image'] = $poster_image;
@@ -155,7 +155,7 @@ class Jetpack_Media_Summary {
 				//... Then we prioritize galleries first (multiple images returned)
 				$return['type']   = 'gallery';
 				if ( isset( $extract['image'] ) || ! empty( $extract['image'] ) ) {
-				$return['images'] = $extract['image'];	
+				$return['images'] = $extract['image'];
 					foreach ( $return['images'] as $image ) {
 						$return['secure']['images'][] = array( 'url' => self::ssl_img( $image['url'] ) );
 						$return['count']['image']++;
