@@ -415,7 +415,7 @@ module.exports = function(grunt) {
 		'sass',
 		'autoprefixer:core',
 		'cssjanus:core',
-		'cssjanus:coreMin'
+		'cssjanus:coreMin',
 
 		// Front-end module css (jetpack.css)
 		'concat:frontEndModules',
@@ -443,7 +443,7 @@ module.exports = function(grunt) {
 		'sass',
 		'autoprefixer:core',
 		'cssjanus:core',
-		'cssjanus:coreMin'
+		'cssjanus:coreMin',
 
 		// Front-end module css (jetpack.css)
 		'concat:frontEndModules',
