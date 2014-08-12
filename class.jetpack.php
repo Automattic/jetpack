@@ -4729,7 +4729,7 @@ p {
 			'the-neverending-homepage',
 			'jetpack_likes',
 			'jetpack_related-posts',
-			'sharing',
+			'sharedaddy',
 			'jetpack-slideshow',
 			'presentations',
 			'jetpack-subscriptions',
