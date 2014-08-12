@@ -4704,8 +4704,18 @@ p {
 
 		$do_implode = apply_filters( 'jetpack_implode_frontend_css', true );
 
-		if( Jetpack::is_development_mode() || ! $do_implode ) {
-			// We do not want to use the imploded file in dev mode
+		// Do not use the imploded file when default behaviour was altered through the filter
+		if ( ! $do_implode ) {
+			return;
+		}
+
+		// We do not want to use the imploded file in dev mode
+		if ( Jetpack::is_development_mode() ) {
+			return;
+		}
+
+		// Do not use the imploded file if sharing css was dequeued via the sharing settings screen
+		if ( get_option( 'sharedaddy_disable_resources' ) ) {
 			return;
 		}
 
