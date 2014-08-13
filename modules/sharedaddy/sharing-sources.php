@@ -760,7 +760,24 @@ class Share_PressThis extends Sharing_Source {
 	public function process_request( $post, array $post_data ) {
 		global $current_user;
 
-		$blogs = get_blogs_of_user( $current_user->ID );
+		$primary_blog = (int) get_user_meta( $current_user->ID, 'primary_blog', true );
+		if ( $primary_blog ) {
+			$primary_blog_details = get_blog_details( $primary_blog );
+		} else {
+			$primary_blog_details = false;
+		}
+
+		if ( $primary_blog_details ) {
+			$blogs = array( $primary_blog_details );
+		} elseif ( function_exists( 'get_active_blogs_for_user' ) ) {
+			$blogs = get_active_blogs_for_user();
+			if ( empty( $blogs ) ) {
+				$blogs = get_blogs_of_user( $current_user->ID );
+			}
+		} else {
+			$blogs = get_blogs_of_user( $current_user->ID );
+		}
+
 		if ( empty( $blogs ) ) {
 			wp_safe_redirect( get_permalink( $post->ID ) );
 			die();
