@@ -44,14 +44,15 @@ function jetpack_has_site_logo() {
  * Output an <img> tag of the site logo, at the size specified
  * in the theme's add_theme_support() declaration.
  *
- * @uses current_theme_supports()
- * @uses get_option()
- * @uses site_logo_theme_size()
- * @uses site_logo_is_customize_preview()
+ * @uses Site_Logo::logo
+ * @uses Site_Logo::theme_size()
+ * @uses jetpack_has_site_logo()
+ * @uses jetpack_is_customize_preview()
  * @uses esc_url()
  * @uses home_url()
  * @uses esc_attr()
  * @uses wp_get_attachment_image()
+ * @uses apply_filters()
  * @since 1.0
  */
 function jetpack_the_site_logo() {
