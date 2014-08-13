@@ -25,7 +25,7 @@ function shortcode_handler_bandcamp( $atts ) {
 		'theme'			=> null,		// may be theme identifier string ("light"|"dark" so far)
 		'package'		=> null,		// integer package id
 		't'				=> null			// integer track number
-	), $atts );
+	), $atts, 'bandcamp' );
 
 	$sizes = array(
 		'venti'			=> array( 'width' => 400, 'height' => 100 ),

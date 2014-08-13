@@ -1,7 +1,11 @@
 <?php
 
 function grunion_menu_alter() {
-	wp_enqueue_style( 'grunion-menu-alter', plugins_url( 'css/menu-alter.css', __FILE__ ) );
+	if( is_rtl() ){
+		wp_enqueue_style( 'grunion-menu-alter', plugins_url( 'css/rtl/menu-alter-rtl.css', __FILE__ ) );
+	} else {
+		wp_enqueue_style( 'grunion-menu-alter', plugins_url( 'css/menu-alter.css', __FILE__ ) );
+	}
 }
 
 add_action( 'admin_enqueue_scripts', 'grunion_menu_alter' );
@@ -25,9 +29,9 @@ function grunion_media_button( ) {
 	<?php
 }
 
-add_action( 'wp_ajax_grunion_form_builder', 'display_form_view' );
+add_action( 'wp_ajax_grunion_form_builder', 'grunion_display_form_view' );
 
-function display_form_view() {
+function grunion_display_form_view() {
 	require_once GRUNION_PLUGIN_DIR . 'grunion-form-view.php';
 	exit;
 }
@@ -103,6 +107,36 @@ function grunion_add_bulk_edit_option() {
 		<script type="text/javascript">
 			jQuery(document).ready(function($) {
 				$('#posts-filter .actions select[name=action] option:first-child').after('<option value="spam"><?php echo esc_attr( $spam_text ); ?></option>' );
+			})
+		</script>
+	<?php
+}
+
+/**
+ * Hack an 'Empty Spam' button to spam view
+ *
+ * Leverages core's delete_all functionality
+ */
+add_action( 'admin_head', 'grunion_add_empty_spam_button' );
+function grunion_add_empty_spam_button() {
+	$screen = get_current_screen();
+
+	// Only add to feedback, only to spam view
+	if ( 'edit-feedback' != $screen->id
+	|| empty( $_GET['post_status'] )
+	|| 'spam' !== $_GET['post_status'] ) {
+		return;
+	}
+
+	// Get HTML for the button
+	$button_html = wp_nonce_field( 'bulk-destroy', '_destroy_nonce', true, false );
+	$button_html .= get_submit_button( __( 'Empty Spam', 'jetpack' ), 'apply', 'delete_all', false );
+
+	// Add the button next to the filter button via js
+	?>
+		<script type="text/javascript">
+			jQuery(document).ready(function($) {
+				$('#posts-filter #post-query-submit').after('<?php echo $button_html; ?>' );
 			})
 		</script>
 	<?php
@@ -204,7 +238,14 @@ function grunion_post_type_columns_filter( $cols ) {
 add_action( 'manage_posts_custom_column', 'grunion_manage_post_columns', 10, 2 );
 function grunion_manage_post_columns( $col, $post_id ) {
 	global $post;
-	
+
+	/**
+	 * Only call parse_fields_from_content if we're dealing with a Grunion custom column.
+	 */
+	if ( ! in_array( $col, array( 'feedback_date', 'feedback_from', 'feedback_message' ) ) ) {
+		return;
+	}
+
 	$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post_id );
 
 	switch ( $col ) {
@@ -213,7 +254,7 @@ function grunion_manage_post_columns( $col, $post_id ) {
 			$author_email = $content_fields['_feedback_author_email'];
 			$author_url   = $content_fields['_feedback_author_url'];
 			$author_ip    = $content_fields['_feedback_ip'];
-			$form_url     = get_permalink( $post_id );
+			$form_url     = isset( $post->post_parent ) ? get_permalink( $post->post_parent ) : null;
 
 			$author_name_line = '';
 			if ( !empty( $author_name ) ) {
@@ -241,11 +282,12 @@ function grunion_manage_post_columns( $col, $post_id ) {
 			echo $author_url_line;
 			echo "<a href='edit.php?post_type=feedback&s={$author_ip}";
 			echo "&mode=detail'>{$author_ip}</a><br />";
-			echo "<a href='{$form_url}'>{$form_url}</a>";
+			if ( $form_url ) {
+				echo '<a href="' . esc_url( $form_url ) . '">' . esc_html( $form_url ) . '</a>';
+			}
 			break;
 
 		case 'feedback_message':
-			$post = get_post( $post_id );
 			$post_type_object = get_post_type_object( $post->post_type );
 			echo '<strong>';
 			echo esc_html( $content_fields['_feedback_subject'] );
@@ -258,7 +300,8 @@ function grunion_manage_post_columns( $col, $post_id ) {
 				echo '<br /><hr />';
 				echo '<table cellspacing="0" cellpadding="0" style="">' . "\n";
 				foreach ( (array) $extra_fields as $k => $v ) {
-					echo "<tr><td align='right'><b>". esc_html( $k ) ."</b></td><td>". sanitize_text_field( $v ) ."</td></tr>\n";
+					// Remove prefix from exta fields
+					echo "<tr><td align='right'><b>". esc_html( preg_replace( '#^\d+_#', '', $k ) ) ."</b></td><td>". sanitize_text_field( $v ) ."</td></tr>\n";
 				}
 				echo '</table>';
 			}
@@ -561,44 +604,44 @@ function grunion_ajax_spam() {
 		$status = wp_insert_post( $post );
 		wp_transition_post_status( 'publish', 'spam', $post );
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
-		
+
 		$comment_author_email = $reply_to_addr = $message = $to = $headers = false;
 		$blog_url = parse_url( site_url() );
-		
+
 		// resend the original email
 		$email = get_post_meta( $post_id, '_feedback_email', TRUE );
 		$content_fields = Grunion_Contact_Form_Plugin::parse_fields_from_content( $post_id );
-		
-		if ( !empty( $emails ) && !empty( $content_fields ) ) {
+
+		if ( !empty( $email ) && !empty( $content_fields ) ) {
 			if ( isset( $content_fields['_feedback_author_email'] ) )
 				$comment_author_email = $content_fields['_feedback_author_email'];
-				
+
 			if ( isset( $email['to'] ) )
 				$to = $email['to'];
-			
+
 			if ( isset( $email['message'] ) )
 				$message = $email['message'];
-				
+
 			if ( isset( $email['headers'] ) )
 				$headers = $email['headers'];
 			else {
 				$headers = 'From: "' . $content_fields['_feedback_author'] .'" <wordpress@' . $blog_url['host']  . ">\r\n";
-				
+
 				if ( !empty( $comment_author_email ) )
 					$reply_to_addr = $comment_author_email;
 				elseif ( is_array( $to ) )
 					$reply_to_addr = $to[0];
-					
+
 				if ( $reply_to_addr )
 					$headers .= 'Reply-To: "' . $content_fields['_feedback_author'] .'" <' . $reply_to_addr . ">\r\n";
-					
-				$headers .= "Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"";					
-			}	
-				
-			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'] );
-			
+
+				$headers .= "Content-Type: text/plain; charset=\"" . get_option('blog_charset') . "\"";
+			}
+
+			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
+
 			wp_mail( $to, $subject, $message, $headers );
-		}	
+		}
 	} elseif( $_POST['make_it'] == 'publish' ) {
 		if ( !current_user_can($post_type_object->cap->delete_post, $post_id) )
 			wp_die( __( 'You are not allowed to move this item out of the Trash.', 'jetpack' ) );

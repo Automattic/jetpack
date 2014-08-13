@@ -160,7 +160,7 @@ tinymce.PluginManager.add( 'AtD', function( editor ) {
 		});
 	}
 
-	function storeIgnoredStrings( text ) {
+	function storeIgnoredStrings( /*text*/ ) {
 		// Store in sessionStorage?
 	}
 

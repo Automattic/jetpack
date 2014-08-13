@@ -44,7 +44,7 @@
 		});
 
 		// Clicking outside modal, or close X closes modal
-		$('.shade, .modal header .close').on('click', function ( event ) {
+		$('.shade, .modal .close').on('click', function ( event ) {
 			$('.shade, .modal').hide();
 			$('.manage-right').removeClass('show');
 			event.preventDefault();

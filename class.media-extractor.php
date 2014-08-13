@@ -87,7 +87,7 @@ class Jetpack_Media_Meta_Extractor {
 		// Embedded media objects will have already been converted to shortcodes by pre_kses hooks on save.
 
  		if ( self::IMAGES & $what_to_extract ) {
-			$images = Jetpack_Media_Meta_Extractor::extract_images_from_content( $stripped_content );
+			$images = Jetpack_Media_Meta_Extractor::extract_images_from_content( $stripped_content, array() );
 			$extracted = array_merge( $extracted, $images );
 		}
 
@@ -105,9 +105,11 @@ class Jetpack_Media_Meta_Extractor {
 		}
 
 		// ----------------------------------- HASHTAGS ------------------------------
-/* Some hosts may not compile with --enable-unicode-properties and kick a warning
-	Warning: preg_match_all() [function.preg-match-all]: Compilation failed: support for \P, \p, and \X has not been compiled
-		if ( self::HASHTAGS & $what_to_extract ) {
+		/** Some hosts may not compile with --enable-unicode-properties and kick a warning:
+		  *   Warning: preg_match_all() [function.preg-match-all]: Compilation failed: support for \P, \p, and \X has not been compiled
+		  * Therefore, we only run this code block on wpcom, not in Jetpack.
+		 */
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ( self::HASHTAGS & $what_to_extract ) ) {
 			//This regex does not exactly match Twitter's
 			// if there are problems/complaints we should implement this:
 			//   https://github.com/twitter/twitter-text-java/blob/master/src/com/twitter/Regex.java
@@ -120,7 +122,7 @@ class Jetpack_Media_Meta_Extractor {
 				$extracted['has']['hashtag'] = count( $hashtags );
 			}
 		}
-*/
+
 		// ----------------------------------- SHORTCODES ------------------------------
 
 		// Always look for shortcodes.
@@ -204,6 +206,14 @@ class Jetpack_Media_Meta_Extractor {
 
 				foreach ( $matches[1] as $link_raw ) {
 					$url = parse_url( $link_raw );
+
+					// Data URI links
+					if ( isset( $url['scheme'] ) && 'data' === $url['scheme'] )
+						continue;
+
+					// Remove large (and likely invalid) links
+					if ( 4096 < strlen( $link_raw ) )
+						continue;
 
 					// Build a simple form of the URL so we can compare it to ones we found in IMAGES or SHORTCODES and exclude those
 					$simple_url = $url['scheme'] . '://' . $url['host'] . ( ! empty( $url['path'] ) ? $url['path'] : '' );
@@ -333,6 +343,12 @@ class Jetpack_Media_Meta_Extractor {
 		$image_booleans = array();
 		$image_booleans['gallery'] = 0;
 
+		$from_featured_image = Jetpack_PostImages::from_thumbnail( $post->ID, $args['width'], $args['height'] );
+		if ( !empty( $from_featured_image ) ) {
+			$srcs = wp_list_pluck( $from_featured_image, 'src' );
+			$image_list = array_merge( $image_list, $srcs );
+		}
+
 		$from_slideshow = Jetpack_PostImages::from_slideshow( $post->ID, $args['width'], $args['height'] );
 		if ( !empty( $from_slideshow ) ) {
 			$srcs = wp_list_pluck( $from_slideshow, 'src' );
@@ -352,8 +368,8 @@ class Jetpack_Media_Meta_Extractor {
 		return Jetpack_Media_Meta_Extractor::build_image_struct( $image_list );
 	}
 
-	public static function extract_images_from_content( $content ) {
-		$image_list = Jetpack_Media_Meta_Extractor::get_images_from_html( $post->post_content, $image_list );
+	public static function extract_images_from_content( $content, $image_list ) {
+		$image_list = Jetpack_Media_Meta_Extractor::get_images_from_html( $content, $image_list );
 		return Jetpack_Media_Meta_Extractor::build_image_struct( $image_list );
 	}
 
@@ -394,6 +410,11 @@ class Jetpack_Media_Meta_Extractor {
 				} else {
 					// Failing that, there was no spoon! Err ... query string!
 					$queryless = $image_url;
+				}
+
+				// Discard URLs that are longer then 4KB, these are likely data URIs or malformed HTML.
+				if ( 4096 < strlen( $queryless ) ) {
+					continue;
 				}
 
 				if ( ! in_array( $queryless, $image_list ) ) {

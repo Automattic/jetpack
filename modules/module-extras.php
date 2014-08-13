@@ -4,11 +4,20 @@
  * For example, if a module shouldn't be activatable unless certain conditions are met, the code belongs in this file.
  */
 
-// Happy Holidays!
-require_once( dirname( __FILE__ ) . '/holiday-snow.php' );
-
 // Include extra tools that aren't modules, in a filterable way
-$jetpack_tools_to_include = apply_filters( 'jetpack-tools-to-include', array( 'theme-tools.php' ) );
+$tools = array(
+	'theme-tools/social-links.php',
+	'holiday-snow.php', // Happy Holidays!!!
+	'theme-tools/random-redirect.php',
+	'theme-tools/featured-content.php',
+	'theme-tools/infinite-scroll.php',
+	'theme-tools/responsive-videos.php',
+	'custom-post-types/comics.php',
+	'custom-post-types/testimonial.php',
+	'custom-post-types/nova.php',
+	'theme-tools.php',
+);
+$jetpack_tools_to_include = apply_filters( 'jetpack-tools-to-include', $tools );
 
 if ( ! empty( $jetpack_tools_to_include ) ) {
 	foreach ( $jetpack_tools_to_include as $tool ) {

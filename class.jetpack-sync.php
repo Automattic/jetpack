@@ -720,6 +720,9 @@ class Jetpack_Sync {
 	public function reindex_trigger() {
 		$response = array( 'status' => 'ERROR' );
 
+		// Force a privacy check
+		Jetpack::check_privacy( JETPACK__PLUGIN_FILE );
+
 		Jetpack::load_xml_rpc_client();
 		$client = new Jetpack_IXR_Client( array(
 			'user_id' => JETPACK_MASTER_USER,
@@ -782,7 +785,7 @@ class Jetpack_Sync {
 
 		wp_enqueue_script(
 			'jetpack_sync_reindex_control',
-			plugins_url( '_inc/jquery.jetpack-sync.js', __FILE__ ),
+			plugins_url( '_inc/jquery.jetpack-sync.js', JETPACK__PLUGIN_FILE ),
 			array( 'jquery' ),
 			JETPACK__VERSION
 		);

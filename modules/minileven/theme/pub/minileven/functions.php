@@ -50,7 +50,9 @@ function minileven_setup() {
 	 * If you're building a theme based on Minileven, use a find and replace
 	 * to change 'minileven' to the name of your theme in all the template files.
 	 */
+/*	Don't load a minileven textdomain, as it uses the Jetpack textdomain.
 	load_theme_textdomain( 'minileven', get_template_directory() . '/languages' );
+*/
 
 	// Add default posts and comments RSS feed links to <head>.
 	add_theme_support( 'automatic-feed-links' );
@@ -62,10 +64,7 @@ function minileven_setup() {
 	add_theme_support( 'post-formats', array( 'gallery' ) );
 
 	// Add support for custom backgrounds
-	if ( version_compare( $wp_version, '3.4', '>=' ) )
-		add_theme_support( 'custom-background' );
-	else
-		add_custom_background();
+	add_custom_background();
 
 	// Add support for post thumbnails
 	add_theme_support( 'post-thumbnails' );
@@ -221,4 +220,18 @@ function minileven_get_gallery_images() {
 	}
 
 	return $images;
+}
+
+/**
+ * Allow plugins to filter where Featured Images are displayed.
+ * Default has Featured Images disabled on single view and pages.
+ *
+ * @uses is_search()
+ * @uses apply_filters()
+ * @return bool
+ */
+function minileven_show_featured_images() {
+	$enabled = ( is_home() || is_search() || is_archive() ) ? true : false;
+
+	return (bool) apply_filters( 'minileven_show_featured_images', $enabled );
 }

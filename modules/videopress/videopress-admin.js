@@ -1,3 +1,6 @@
+/* jshint onevar: false, smarttabs: true, devel: true */
+/* global VideoPressAdminSettings, setUserSetting */
+
 /**
  * VideoPress Admin
  *
@@ -26,8 +29,9 @@
 		}, media.controller.Library.prototype.defaults ),
 
 		initialize: function() {
-			if ( ! this.get('library') )
+			if ( ! this.get('library') ) {
 				this.set( 'library', media.query({ videopress: true }) );
+			}
 
 			media.controller.Library.prototype.initialize.apply( this, arguments );
 		},
@@ -37,8 +41,9 @@
 		 * so we hi-jack it a little bit.
 		 */
 		saveContentMode: function() {
-			if ( 'videopress' !== this.get('router') )
+			if ( 'videopress' !== this.get('router') ) {
 				return;
+			}
 
 			var mode = this.frame.content.mode(),
 				view = this.frame.router.get();
@@ -46,8 +51,9 @@
 			if ( view && view.get( mode ) ) {
 
 				// Map the Upload a Video back to the regular Upload Files.
-				if ( 'upload_videopress' === mode )
+				if ( 'upload_videopress' === mode ) {
 					mode = 'upload';
+				}
 
 				setUserSetting( 'libraryContent', mode );
 			}
@@ -69,10 +75,11 @@
 		initialize: function() {
 			var that = this;
 
-			if ( ! window.addEventListener )
-				window.attachEvent( "onmessage", function() { return that.messageHandler.apply( that, arguments ); } );
-			else
-				window.addEventListener( "message", function() { return that.messageHandler.apply( that, arguments ); }, false );
+			if ( ! window.addEventListener ) {
+				window.attachEvent( 'onmessage', function() { return that.messageHandler.apply( that, arguments ); } );
+			} else {
+				window.addEventListener( 'message', function() { return that.messageHandler.apply( that, arguments ); }, false );
+			}
 
 			return media.View.prototype.initialize.apply( this, arguments );
 		},
@@ -134,8 +141,9 @@
 		},
 
 		messageHandler: function( event ) {
-			if ( ! event.origin.match( /\.wordpress\.com$/ ) )
+			if ( ! event.origin.match( /\.wordpress\.com$/ ) ) {
 				return;
+			}
 
 			if ( event.data.indexOf && event.data.indexOf( 'vpUploadResult::' ) === 0 ) {
 				var result = JSON.parse( event.data.substr( 16 ) );
@@ -146,7 +154,7 @@
 					return;
 				}
 
-				if ( 'success' == result.code && result.data ) {
+				if ( 'success' === result.code && result.data ) {
 					var that = this, controller = this.controller,
 					    state = controller.states.get( 'videopress' );
 
@@ -245,8 +253,9 @@
 	var UploaderWindow = media.view.UploaderWindow;
 	media.view.UploaderWindow = UploaderWindow.extend({
 		show: function() {
-			if ( 'videopress' != this.controller.state().get('id') )
+			if ( 'videopress' !== this.controller.state().get('id') ) {
 				UploaderWindow.prototype.show.apply( this, arguments );
+			}
 
 			return this;
 		}
@@ -258,8 +267,9 @@
 	var AttachmentsBrowser = media.view.AttachmentsBrowser;
 	media.view.AttachmentsBrowser = AttachmentsBrowser.extend({
 		createUploader: function() {
-			if ( 'videopress' != this.controller.state().get('id') )
+			if ( 'videopress' !== this.controller.state().get('id') ) {
 				return AttachmentsBrowser.prototype.createUploader.apply( this, arguments );
+			}
 		}
 	});
 
@@ -273,11 +283,13 @@
 			var view = _.first( this.views.get( '.media-frame-router' ) ),
 			    viewSettings = {};
 
-			if ( VideoPress.caps.read_videos )
+			if ( VideoPress.caps.read_videos ) {
 				viewSettings.browse = { text: VideoPress.l10n.VideoPressLibraryRouter, priority: 40 };
+			}
 
-			if ( VideoPress.caps.upload_videos )
+			if ( VideoPress.caps.upload_videos ) {
 				viewSettings.upload_videopress = { text: VideoPress.l10n.uploadVideoRouter, priority: 20 };
+			}
 
 			view.set( viewSettings );
 
@@ -285,14 +297,15 @@
 			wp.Uploader.queue.on( 'add', this.VideoPress.disableUpload, this );
 
 			// Map the Upload Files view to the Upload a Video one (upload_videopress vs. upload)
-			if ( 'upload' === this.content.mode() && VideoPress.caps.upload_videos )
+			if ( 'upload' === this.content.mode() && VideoPress.caps.upload_videos ) {
 				this.content.mode( 'upload_videopress' );
-			else
+			} else {
 				this.content.mode( 'browse' );
+			}
 		},
 
 		// When navigated away from the VideoPress router.
-		deactivate: function( view ) {
+		deactivate: function( /*view*/ ) {
 			wp.Uploader.queue.off( 'add', this.VideoPress.disableUpload );
 		},
 
@@ -320,10 +333,11 @@
 		},
 
 		// Create a custom toolbar
-		createToolbar: function( toolbar ) {
+		createToolbar: function( /*toolbar*/ ) {
 			// Alow an option to hide the toolbar.
-			if ( this.options.VideoPress && this.options.VideoPress.hideToolbar )
+			if ( this.options.VideoPress && this.options.VideoPress.hideToolbar ) {
 				return this;
+			}
 
 			var controller = this;
 			this.toolbar.set( new media.view.Toolbar({
@@ -400,8 +414,9 @@
 			this.model = controller.model;
 			this.guid = this.model.get( 'vp_guid' );
 
-			if ( ! this.$frame )
+			if ( ! this.$frame ) {
 				this.$frame = $( '.media-frame-content' );
+			}
 
 			this.$el.html( this.template( { 'video' : this.model.get( 'vp_embed' ) } ) );
 			this.$modal = this.$( '.videopress-modal' );
@@ -427,8 +442,9 @@
 		var $form = $( '#videopress-settings' );
 
 		// Not on a configuration screen
-		if ( ! $form.length )
+		if ( ! $form.length ) {
 			return;
+		}
 
 		var $access = $form.find( 'input[name="videopress-access"]' ),
 		    $upload = $form.find( 'input[name="videopress-upload"]' );
@@ -437,8 +453,9 @@
 			var access = $access.filter( ':checked' ).val();
 			$upload.attr( 'disabled', ! access );
 
-			if ( ! access )
+			if ( ! access ) {
 				$upload.attr( 'checked', false );
+			}
 		});
 
 		$access.trigger( 'change' );
@@ -447,7 +464,7 @@
 	// Media -> VideoPress menu
 	$(document).on( 'click', '#videopress-browse', function() {
 
-		var frame = wp.media({
+		wp.media({
 			state: 'videopress',
 			states: [ new media.controller.VideoPress() ],
 			VideoPress: { hideToolbar: true }

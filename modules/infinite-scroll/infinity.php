@@ -294,7 +294,7 @@ class The_Neverending_Home_Page {
 	 * for the infinite_scroll setting.
 	 */
 	function infinite_setting_html() {
-		$notice = '<em>' . __( "We've disabled this option for you since you have footer widgets in Appearance &rarr; Widgets, or because your theme does not support infinite scroll.", 'jetpack' ) . '</em>';
+		$notice = '<em>' . __( 'We&rsquo;ve changed this option to a click-to-scroll version for you since you have footer widgets in Appearance &rarr; Widgets, or your theme uses click-to-scroll as the default behavior.', 'jetpack' ) . '</em>';
 
 		// If the blog has footer widgets, show a notice instead of the checkbox
 		if ( self::get_settings()->footer_widgets || 'click' == self::get_settings()->requested_type ) {
@@ -330,16 +330,16 @@ class The_Neverending_Home_Page {
 		add_filter( 'body_class', array( $this, 'body_class' ) );
 
 		// Add our scripts.
-		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '20140416', true );
+		wp_enqueue_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), 20140523, true );
 
 		// Add our default styles.
-		wp_enqueue_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20120612' );
+		wp_enqueue_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20140422' );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_spinner_scripts' ) );
 
 		add_action( 'wp_footer', array( $this, 'action_wp_footer_settings' ), 2 );
 
-		add_action( 'wp_footer', array( $this, 'action_wp_footer' ), 99999999 );
+		add_action( 'wp_footer', array( $this, 'action_wp_footer' ), 21 ); // Core prints footer scripts at priority 20, so we just need to be one later than that
 
 		add_filter( 'infinite_scroll_results', array( $this, 'filter_infinite_scroll_results' ), 10, 3 );
 	}
@@ -380,12 +380,13 @@ class The_Neverending_Home_Page {
 		$post = end( self::wp_query()->posts );
 		$orderby = isset( self::wp_query()->query_vars['orderby'] ) ?
 			self::wp_query()->query_vars['orderby'] : '';
+		$post_date = ( ! empty( $post->post_date ) ? $post->post_date : false );
 		switch ( $orderby ) {
 			case 'modified':
 				return $post->post_modified;
 			case 'date':
 			case '':
-				return $post->post_date;
+				return $post_date;
 			default:
 				return false;
 		}
@@ -880,6 +881,11 @@ class The_Neverending_Home_Page {
 			'post__not_in'   => ( array ) $sticky,
 			'order'          => $order
 		) );
+
+		// 4.0 ?s= compatibility, see https://core.trac.wordpress.org/ticket/11330#comment:50
+		if ( empty( $query_args['s'] ) && ! isset( self::wp_query()->query['s'] ) ) {
+			unset( $query_args['s'] );
+		}
 
 		// By default, don't query for a specific page of a paged post object.
 		// This argument can come from merging self::wp_query() into $query_args above.

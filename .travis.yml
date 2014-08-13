@@ -54,3 +54,7 @@ script: phpunit
 notifications:
    email:
        - blobaugh@automattic.com
+       - enej.bajgoric@automattic.com
+       - georgestephanis@automattic.com
+       - jeremy@automattic.com
+       - miguel@automattic.com

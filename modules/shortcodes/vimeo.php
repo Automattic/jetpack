@@ -36,7 +36,7 @@ function vimeo_shortcode( $atts ) {
 		'id'     => 0,
 		'width'  => 400,
 		'height' => 300
-	), $atts ) ) );
+	), $atts, 'vimeo' ) ) );
 
 	if ( isset( $atts[0] ) )
 		$id = jetpack_shortcode_get_vimeo_id( $atts );
@@ -72,7 +72,9 @@ function vimeo_shortcode( $atts ) {
 	if ( ! $height )
 		$height = round( ( $width / 640 ) * 360 );
 
-	$html = "<div class='embed-vimeo' style='text-align:center;'><iframe src='http://player.vimeo.com/video/$id' width='$width' height='$height' frameborder='0'></iframe></div>";
+	$url = esc_url( set_url_scheme( "http://player.vimeo.com/video/$id" ) );
+
+	$html = "<div class='embed-vimeo' style='text-align:center;'><iframe src='$url' width='$width' height='$height' frameborder='0'></iframe></div>";
 	$html = apply_filters( 'video_embed_html', $html );
 	return $html;
 }

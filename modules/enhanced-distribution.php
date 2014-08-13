@@ -2,7 +2,7 @@
 /**
  * Module Name: Enhanced Distribution
  * Module Description: Share your public posts and comments to search engines and other services.
- * Sort Order: 100
+ * Sort Order: 5
  * First Introduced: 1.2
  * Requires Connection: Yes
  * Auto Activate: Public

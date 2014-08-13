@@ -138,7 +138,7 @@ li.service.share-pocket span:before {
 	content: '\f224';
 }
 li.service.share-pinterest span:before {
-	content: '\f219';
+	content: '\f209';
 }
 li.service.share-google-plus-1 span:before {
 	content: '\f218';
@@ -338,15 +338,8 @@ body.settings_page_sharing .advanced input[type=submit] {
 
 .preview-pinterest .option-smart-on {
 	background: url(images/smart-pinterest.png) no-repeat top left;
-	background-size: 58px 20px;
-	width: 58px;
-	height: 20px;
-}
-
-.preview-pinterest .option-smart-on {
-	background: url(images/smart-pinterest.png) no-repeat top left;
-	background-size: 58px 20px;
-	width: 58px;
+	background-size: 39px 20px;
+	width: 39px;
 	height: 20px;
 }
 

@@ -1,25 +1,21 @@
 <?php
 
-if ( !function_exists( 'rawurlencode_deep' ) ) :
 /**
- * Navigates through an array and raw encodes the values to be used in a URL.
- *
- * @since WordPress 3.4.0
- *
- * @param array|string $value The array or string to be encoded.
- * @return array|string $value The encoded array (or string from the callback).
- */
-function rawurlencode_deep( $value ) {
-	return is_array( $value ) ? array_map( 'rawurlencode_deep', $value ) : rawurlencode( $value );
-}
-endif;
+* Required for class.media-extractor.php to match expected function naming convention.
+*
+* @param $url Can be just the $url or the whole $atts array
+* @return bool|mixed The Youtube video ID via jetpack_get_youtube_id
+*/
 
-if ( !function_exists( 'get_youtube_id' ) ) :
+function jetpack_shortcode_get_youtube_id( $url ) {
+    return jetpack_get_youtube_id( $url );
+}
+
 /**
 * @param $url Can be just the $url or the whole $atts array
 * @return bool|mixed The Youtube video ID
 */
-function get_youtube_id( $url ) {
+function jetpack_get_youtube_id( $url ) {
 	// Do we have an $atts array?  Get first att
 	if ( is_array( $url ) )
 		$url = $url[0];
@@ -44,7 +40,6 @@ function get_youtube_id( $url ) {
 
 	return $id;
 }
-endif;
 
 if ( !function_exists( 'youtube_sanitize_url' ) ) :
 /**

@@ -2,10 +2,6 @@
 // Plugin configure page
 // ==========================================================================
 
-#adminmenuback {
-	z-index: 5;
-}
-
 .page-content.configure {
 	margin-top: 0;
 }
@@ -65,11 +61,21 @@
 .filter-search {
 	display: none;
 	float: right;
+	margin-top: 10px;
 	@media (max-width: 782px) {
 		display: block;
 	}
 	@media (max-width: 530px) {
 		display: none;
+	}
+}
+
+.module-actions.landing-page {
+	float: right;
+	margin-right: 15px;
+
+	a {
+		font-size: 0.6em;
 	}
 }
 
@@ -88,6 +94,9 @@
 		&:hover {
 			.genericon {
 				display: inline-block;
+			}
+			td .row-actions span a {
+				opacity: 1;
 			}
 		}
 		&.active {
@@ -129,8 +138,16 @@
 			.row-actions {
 				float: right;
 				padding: 0 0 1px;
+				visibility: visible;
+
 				span {
 					margin-left: 5px;
+					a {
+						opacity: 0;
+						&:focus {
+							opacity: 1;
+						}
+					}
 				}
 
 				@media (max-width: 530px) {
@@ -271,6 +288,19 @@
 				padding: 0;
 				line-height: inherit;
 			}
+			.current{
+				padding:1px 5px;
+				border-radius:2px;
+				margin-left:-5px;
+				background: #0D72B2;
+				color:#FFF;
+
+				.count{
+					color:#BCD7E7;
+					font-weight:200;
+				}
+			}
+			
 			li {
 				display: block;
 				text-align: left;

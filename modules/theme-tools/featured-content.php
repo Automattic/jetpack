@@ -1,5 +1,7 @@
 <?php
 
+if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
+
 /**
  * Featured Content.
  *
@@ -129,7 +131,7 @@ class Featured_Content {
 	 */
 	public static function wp_loaded() {
 		if ( self::get_setting( 'hide-tag' ) ) {
-			add_filter( 'get_terms',     array( __CLASS__, 'hide_featured_term'     ), 10, 2 );
+			add_filter( 'get_terms',     array( __CLASS__, 'hide_featured_term'     ), 10, 3 );
 			add_filter( 'get_the_terms', array( __CLASS__, 'hide_the_featured_term' ), 10, 3 );
 		}
 	}
@@ -312,7 +314,7 @@ class Featured_Content {
 	 * @param array $taxonomies An array of taxonomy slugs.
 	 * @return array $terms
 	 */
-	public static function hide_featured_term( $terms, $taxonomies ) {
+	public static function hide_featured_term( $terms, $taxonomies, $args ) {
 
 		// This filter is only appropriate on the front-end.
 		if ( is_admin() ) {
@@ -329,11 +331,17 @@ class Featured_Content {
 			return $terms;
 		}
 
-		$tag = get_term_by( 'name', self::get_setting( 'tag-name' ), 'post_tag' );
+		// Bail if term objects are unavailable.
+		if ( 'all' != $args['fields'] ) {
+			return $terms;
+		}
+
+		$settings = self::get_setting();
+		$tag = get_term_by( 'name', $settings['tag-name'], 'post_tag' );
 
 		if ( false !== $tag ) {
 			foreach ( $terms as $order => $term ) {
-				if ( is_object( $term ) && $tag->term_id == $term->term_id && 'post_tag' == $term->taxonomy ) {
+				if ( is_object( $term ) && ( $settings['tag-id'] === $term->term_id || $settings['tag-name'] === $term->name ) ) {
 					unset( $terms[ $order ] );
 				}
 			}
@@ -372,12 +380,13 @@ class Featured_Content {
 			return $terms;
 		}
 
-		$tag = get_term_by( 'name', self::get_setting( 'tag-name' ), 'post_tag' );
+		$settings = self::get_setting();
+		$tag = get_term_by( 'name', $settings['tag-name'], 'post_tag' );
 
 		if ( false !== $tag ) {
-			foreach ( $terms as $term ) {
-				if ( $tag->term_id == $term->term_id ) {
-					unset( $terms[ $term->term_id ] );
+			foreach ( $terms as $order => $term ) {
+				if ( $settings['tag-id'] === $term->term_id || $settings['tag-name'] === $term->name ) {
+					unset( $terms[ $order ] );
 				}
 			}
 		}
@@ -395,7 +404,9 @@ class Featured_Content {
 	 */
 	public static function register_setting() {
 		add_settings_field( 'featured-content', __( 'Featured Content', 'jetpack' ), array( __class__, 'render_form' ), 'reading' );
-		register_setting( 'reading', 'featured-content', array( __class__, 'validate_settings' ) );
+		
+		// Register sanitization callback for the Customizer.
+		register_setting( 'featured-content', 'featured-content', array( __class__, 'validate_settings' ) );
 	}
 
 	/**
@@ -411,7 +422,11 @@ class Featured_Content {
 			'theme_supports' => 'featured-content',
 		) );
 
-		// Add Featured Content settings.
+		/* Add Featured Content settings.
+		 *
+		 * Sanitization callback registered in Featured_Content::validate_settings().
+		 * See http://themeshaper.com/2013/04/29/validation-sanitization-in-customizer/comment-page-1/#comment-12374
+		 */
 		$wp_customize->add_setting( 'featured-content[tag-name]', array(
 			'type'                 => 'option',
 			'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
@@ -540,3 +555,5 @@ class Featured_Content {
 }
 
 Featured_Content::setup();
+
+} // end if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {

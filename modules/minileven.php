@@ -3,7 +3,7 @@
 /**
  * Module Name: Mobile Theme
  * Module Description: Optimize your site with a mobile-friendly theme for tablets and phones.
- * Sort Order: 11
+ * Sort Order: 21
  * First Introduced: 1.8
  * Requires Connection: No
  * Auto Activate: No
@@ -27,8 +27,13 @@ function minileven_loaded() {
 
 function minileven_configuration_load() {
 	if ( isset( $_POST['action'] ) && $_POST['action'] == 'save_options' && $_POST['_wpnonce'] == wp_create_nonce( 'minileven' ) ) {
-		if ( isset( $_POST['wp_mobile_excerpt'] ) )
+		if ( isset( $_POST['wp_mobile_excerpt'] ) ) {
 			update_option( 'wp_mobile_excerpt', '1' == $_POST['wp_mobile_excerpt'] ? '1' : '0' );
+		}
+
+		if ( isset( $_POST['wp_mobile_featured_images'] ) ) {
+			update_option( 'wp_mobile_featured_images', '1' == $_POST['wp_mobile_featured_images'] ? '1' : '0' );
+		}
 
 		update_option( 'wp_mobile_app_promos', ( isset( $_POST['wp_mobile_app_promos'] ) ) ? '1' : '0' );
 
@@ -40,6 +45,7 @@ function minileven_configuration_load() {
 
 function minileven_configuration_screen() {
 	$excerpts = ( 0 == get_option( 'wp_mobile_excerpt' ) ) ? 0 : 1;
+	$featured_images = ( 0 == get_option( 'wp_mobile_featured_images' ) ) ? 0 : 1;
 	$promos = ( '1' == get_option( 'wp_mobile_app_promos' ) ) ? 1 : 0;
 
 	?>
@@ -58,6 +64,20 @@ function minileven_configuration_screen() {
 					<label>
 						<input name="wp_mobile_excerpt" type="radio" value="0" class="code" <?php checked( 0, $excerpts, true ); ?> />
 						<?php _e( 'Show full posts on front page and on archive pages', 'jetpack' ); ?>
+					</label>
+				</td>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><?php _e( 'Featured Images', 'jetpack' ); ?></th>
+				<td>
+					<label>
+						<input name="wp_mobile_featured_images" type="radio" value="0" class="code" <?php checked( 0, $featured_images, true ); ?> />
+						<?php _e( 'Hide all featured images', 'jetpack' ); ?>
+					</label>
+					<br />
+					<label>
+						<input name="wp_mobile_featured_images" type="radio" value="1" class="code" <?php checked( 1, $featured_images, true ); ?> />
+						<?php _e( 'Display featured images', 'jetpack' ); ?>
 					</label>
 				</td>
 			</tr>

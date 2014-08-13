@@ -22,8 +22,9 @@ class Jetpack_Gallery_Settings {
 	 * Registers/enqueues the gallery settings admin js.
 	 */
 	function wp_enqueue_media() {
-		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) )
-			wp_register_script( 'jetpack-gallery-settings', plugins_url( 'gallery-settings/gallery-settings.js', __FILE__ ), array( 'media-views' ), '20121225' );
+		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) ) {
+			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/gallery-settings.js', JETPACK__PLUGIN_FILE ), array( 'media-views' ), '20121225' );
+		}
 
 		wp_enqueue_script( 'jetpack-gallery-settings' );
 	}

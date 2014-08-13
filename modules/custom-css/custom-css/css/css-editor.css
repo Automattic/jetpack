@@ -25,3 +25,8 @@
 #safecss-ace .ace_gutter {
 	z-index: 1;
 }
+
+#post-body-content{
+	margin-bottom: 20px;
+}
+

@@ -18,3 +18,7 @@
 	line-height: 1.4em !important;
 	font-size: 90%;
 }
+
+.jetpack-display-remote-posts img {
+	max-width: 100%;
+}

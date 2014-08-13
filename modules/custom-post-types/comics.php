@@ -22,6 +22,9 @@ class Jetpack_Comic {
 	 * WordPress. We'll just return early instead.
 	 */
 	function __construct() {
+		// Make sure the post types are loaded for imports
+		add_action( 'import_start', array( $this, 'register_post_types' ) );
+
 		// Return early if theme does not support Jetpack Comic.
 		if ( ! ( $this->site_supports_comics() ) )
 			return;
@@ -163,7 +166,12 @@ class Jetpack_Comic {
 	}
 
 	public function register_scripts() {
-		wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ) );
+		if( is_rtl() ) {
+			wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/rtl/comics-rtl.css', __FILE__ ) );
+		} else {
+			wp_enqueue_style( 'jetpack-comics-style', plugins_url( 'comics/comics.css', __FILE__ ) );
+		}
+		
 		wp_enqueue_script( 'jetpack-comics', plugins_url( 'comics/comics.js', __FILE__ ), array( 'jquery', 'jquery.spin' ) );
 
 		$options = array(
@@ -187,6 +195,10 @@ class Jetpack_Comic {
 	}
 
 	function register_post_types() {
+		if ( post_type_exists( self::POST_TYPE ) ) {
+			return;
+		}
+
 		register_post_type( self::POST_TYPE, array(
 			'description' => __( 'Comics', 'jetpack' ),
 			'labels' => array(

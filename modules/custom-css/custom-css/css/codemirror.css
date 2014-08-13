@@ -1,5 +1,7 @@
 /* NOAUTORTL */
-
+.rtl .CodeMirror {
+  direction: ltr; /* code should always be written left to right */
+}
 /* BASICS */
 .CodeMirror {
   /* Set height, width, borders, and global font properties here */

@@ -40,6 +40,13 @@ class Jetpack_Media_Summary {
 			),
 		);
 
+		if ( empty( $post->post_password ) ) {
+			$return['excerpt']       = self::get_excerpt( $post->post_content, $post->post_excerpt );
+			$return['count']['word'] = self::get_word_count( $post->post_content );
+			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, self::get_excerpt( $post->post_content, $post->post_excerpt ) );
+			$return['count']['link'] = self::get_link_count( $post->post_content );
+		}
+
 		$extract = Jetpack_Media_Meta_Extractor::extract( $blog_id, $post_id, Jetpack_Media_Meta_Extractor::ALL );
 
 		if ( empty( $extract['has'] ) )
@@ -74,7 +81,7 @@ class Jetpack_Media_Summary {
 							$return['type'] = 'video';
 							$return['video'] = esc_url_raw( 'http://vimeo.com/' . $extract['shortcode']['vimeo']['id'][0] );
 							$return['secure']['video'] = self::https( $return['video'] );
-						
+
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );
 							if ( !empty( $poster_image ) ) {
 								$return['image'] = $poster_image;
@@ -97,7 +104,13 @@ class Jetpack_Media_Summary {
 						$return['video']  = 'http://' .  $embed;
 						$return['secure']['video'] = self::https( $return['video'] );
 						if ( strstr( $embed, 'youtube' ) ) {
-							$return['image'] = self::get_video_poster( 'youtube', get_youtube_id( $return['video'] ) );
+							$return['image'] = self::get_video_poster( 'youtube', jetpack_get_youtube_id( $return['video'] ) );
+							$return['secure']['image'] = self::https( $return['image'] );
+						} else if ( strstr( $embed, 'youtu.be' ) ) {
+							$youtube_id = jetpack_get_youtube_id( $return['video'] );
+							$return['video'] = 'http://youtube.com/watch?v=' . $youtube_id . '&feature=youtu.be';
+							$return['secure']['video'] = self::https( $return['video'] );
+							$return['image'] = self::get_video_poster( 'youtube', jetpack_get_youtube_id( $return['video'] ) );
 							$return['secure']['image'] = self::https( $return['image'] );
 						} else if ( strstr( $embed, 'vimeo' ) ) {
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );
@@ -141,8 +154,8 @@ class Jetpack_Media_Summary {
 			if ( !empty( $extract['has']['gallery'] ) || ! empty( $extract['shortcode']['gallery']['count'] ) ) {
 				//... Then we prioritize galleries first (multiple images returned)
 				$return['type']   = 'gallery';
+				if ( isset( $extract['image'] ) || ! empty( $extract['image'] ) ) {
 				$return['images'] = $extract['image'];
-				if ( ! empty( $return['images'] ) ) {
 					foreach ( $return['images'] as $image ) {
 						$return['secure']['images'][] = array( 'url' => self::ssl_img( $image['url'] ) );
 						$return['count']['image']++;
@@ -177,13 +190,6 @@ class Jetpack_Media_Summary {
 					$return['type']  = 'image';
 				}
 			}
-		}
-
-		if ( empty( $post->post_password ) ) {
-			$return['excerpt']       = self::get_excerpt( $post->post_content, $post->post_excerpt );
-			$return['count']['word'] = self::get_word_count( $post->post_content );
-			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, self::get_excerpt( $post->post_content, $post->post_excerpt ) );
-			$return['count']['link'] = self::get_link_count( $post->post_content );
 		}
 
 		if ( $switched ) {

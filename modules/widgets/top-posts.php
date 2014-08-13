@@ -212,7 +212,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		default :
 			echo '<ul>';
 			foreach ( $posts as $post ) {
-				echo '<li><a href="' . esc_url( $post['permalink'] ) . '" class="bump-view" data-bump-view="tp">' . esc_html( $post['title'] ) . "</a></li>\n";
+				echo '<li><a href="' . esc_url( $post['permalink'] ) . '" class="bump-view" data-bump-view="tp">' . esc_html( wp_kses( $post['title'], array() ) ) . "</a></li>\n";
 			}
 			echo '</ul>';
 		}

@@ -11,7 +11,7 @@
  */
 
 /*
- * Put the following code in your themee's Food Menu Page Template to customize the markup of the menu.
+ * Put the following code in your theme's Food Menu Page Template to customize the markup of the menu.
 
 if ( class_exists( 'Nova_Restaurant' ) ) {
 	Nova_Restaurant::init( array(
@@ -747,7 +747,7 @@ class Nova_Restaurant {
 						edit_term_link( __( 'edit', 'jetpack' ), '<span class="edit-nova-section"><span class="dashicon dashicon-edit"></span>', '</span>', $term );
 
 					} else {
-						_e( 'Uncategorized' );
+						_e( 'Uncategorized' , 'jetpack' );
 					}
 				?></h3>
 			</td>
@@ -876,7 +876,7 @@ class Nova_Restaurant {
 				</tbody>
 				<tfoot>
 					<tr>
-						<th><a class="button button-secondary nova-new-row"><span class="dashicon dashicon-plus"></span> <?php esc_html_e( 'New Row' ); ?></a></th>
+						<th><a class="button button-secondary nova-new-row"><span class="dashicon dashicon-plus"></span> <?php esc_html_e( 'New Row' , 'jetpack' ); ?></a></th>
 						<th class="nova-price"></th>
 						<th></th>
 						<th></th>

@@ -344,6 +344,16 @@ class Share_Twitter extends Sharing_Source {
 	function sharing_twitter_via( $post ) {
 		// Allow themes to customize the via
 		$twitter_site_tag_value = apply_filters( 'jetpack_twitter_cards_site_tag', '' );
+
+		/*
+		 * Hack to remove the unwanted behavior of adding 'via @jetpack' which
+		 * was introduced with the adding of the Twitter cards. 
+		 * This should be a temporary solution until a better method is setup.
+		 */
+		if( 'jetpack' == $twitter_site_tag_value ) {
+			$twitter_site_tag_value = '';
+		}
+
 		// Strip out anything other than a letter, number, or underscore.
 		// This will prevent the inadvertent inclusion of an extra @, as well as normalizing the handle.
 		$twitter_site_tag_value = preg_replace( '/[^\da-z_]+/i', '', $twitter_site_tag_value );
@@ -508,13 +518,13 @@ class Share_Reddit extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="reddit_button"><iframe src="http://www.reddit.com/static/button/button1.html?width=120&amp;url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
+			return '<div class="reddit_button"><iframe src="' . $this->http() . '://www.reddit.com/static/button/button1.html?width=120&amp;url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Reddit', 'share to', 'jetpack' ), __( 'Click to share on Reddit', 'jetpack' ), 'share=reddit' );
 	}
 
 	public function process_request( $post, array $post_data ) {
-		$reddit_url = 'http://reddit.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) );
+		$reddit_url = $this->http() . '://reddit.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -522,62 +532,6 @@ class Share_Reddit extends Sharing_Source {
 		// Redirect to Reddit
 		wp_redirect( $reddit_url );
 		die();
-	}
-}
-
-class Share_Digg extends Sharing_Source {
-	var $shortname = 'digg';
-	public function __construct( $id, array $settings ) {
-		parent::__construct( $id, $settings );
-
-		if ( 'official' == $this->button_style )
-			$this->smart = true;
-		else
-			$this->smart = false;
-	}
-
-	public function get_name() {
-		return __( 'Digg', 'jetpack' );
-	}
-
-	public function has_custom_button_style() {
-		return $this->smart;
-	}
-
-	public function get_display( $post ) {
-		if ( $this->smart ) {
-			$url = $this->get_link( 'http://digg.com/submit?url='. rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ), 'Digg', __( 'Click to Digg this post', 'jetpack' ) );
-			return '<div class="digg_button">' . str_replace( 'class="', 'class="DiggThisButton DiggCompact ', $url ) . '</div>';
-		} else {
-			return $this->get_link( get_permalink( $post->ID ), _x( 'Digg', 'share to', 'jetpack' ), __( 'Click to Digg this post', 'jetpack' ), 'share=digg' );
-		}
-	}
-
-	public function process_request( $post, array $post_data ) {
-		$digg_url = 'http://digg.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) );
-
-		// Record stats
-		parent::process_request( $post, $post_data );
-
-		// Redirect to Digg
-		wp_redirect( $digg_url );
-		die();
-	}
-
-	public function display_header() {
-		if ( $this->smart ) {
-?>
-<script type="text/javascript">
-(function() {
-	var s = document.createElement('SCRIPT'), s1 = document.getElementsByTagName('SCRIPT')[0];
-	s.type = 'text/javascript';
-	s.async = true;
-	s.src = '//widgets.digg.com/buttons.js';
-	s1.parentNode.insertBefore(s, s1);
-})();
-</script>
-<?php
-		}
 	}
 }
 
@@ -625,7 +579,7 @@ class Share_LinkedIn extends Sharing_Source {
 
 		$linkedin_url = add_query_arg( array(
 			'url' => rawurlencode( $post_link ),
-		), 'http://www.linkedin.com/cws/share?token=&isFramed=false' );
+		), $this->http() . '://www.linkedin.com/cws/share?token=&isFramed=false' );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -934,8 +888,22 @@ class Share_Custom extends Sharing_Advanced_Source {
 			$this->shortname = preg_replace( '/[^a-z0-9]*/', '', $settings['name'] );
 		}
 
-		if ( isset( $settings['icon'] ) )
+		if ( isset( $settings['icon'] ) ) {
 			$this->icon = $settings['icon'];
+
+			$new_icon = esc_url_raw( wp_specialchars_decode( $this->icon, ENT_QUOTES ) );
+			$i = 0;
+			while ( $new_icon != $this->icon ) {
+				if ( $i > 5 ) {
+					$this->icon = false;
+					break;
+				} else {
+					$this->icon = $new_icon;
+					$new_icon = esc_url_raw( wp_specialchars_decode( $this->icon, ENT_QUOTES ) );
+				}
+				$i++;
+			}
+		}
 
 		if ( isset( $settings['url'] ) )
 			$this->url = $settings['url'];
@@ -1068,10 +1036,10 @@ class Share_Custom extends Sharing_Advanced_Source {
 			$klasses[] = 'no-icon';
 
 		$link = sprintf(
-			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;" title="%s"><span style="background-image:url(%s) !important;background-position:left center;background-repeat:no-repeat;">%s</span></a>',
+			'<a rel="nofollow" class="%s" href="javascript:void(0);return false;" title="%s"><span style="background-image:url(&quot;%s&quot;) !important;background-position:left center;background-repeat:no-repeat;">%s</span></a>',
 			implode( ' ', $klasses ),
 			$this->get_name(),
-			esc_url( $opts['icon'] ),
+			addcslashes( esc_url_raw( $opts['icon'] ), '"' ),
 			$text
 		);
 		?>

@@ -32,6 +32,8 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.getPosts'          => array( $this, 'get_posts' ),
 				'jetpack.getComment'        => array( $this, 'get_comment' ),
 				'jetpack.getComments'       => array( $this, 'get_comments' ),
+				'jetpack.disconnectBlog'    => array( $this, 'disconnect_blog' ),
+				'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
@@ -205,6 +207,27 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	/**
+	* Disconnect this blog from the connected wordpress.com account
+	* @return boolean
+	*/
+	function disconnect_blog() {
+		Jetpack::log( 'disconnect' );
+		Jetpack::disconnect();
+
+		return true;
+	}
+
+	/**
+	 * Unlink a user from WordPress.com
+	 *
+	 * This will fail if called by the Master User.
+	 */
+	function unlink_user() {
+		Jetpack::log( 'unlink' );
+		return Jetpack::unlink_user();
+	}
+
+	/**
 	 * Returns what features are available. Uses the slug of the module files.
 	 *
 	 * @return array|IXR_Error
@@ -344,10 +367,10 @@ class Jetpack_XMLRPC_Server {
 		// needed?
 		require_once ABSPATH . 'wp-admin/includes/admin.php';
 
-		require_once dirname( __FILE__ ) . '/class.json-api.php';
+		require_once JETPACK__PLUGIN_DIR . 'class.json-api.php';
 		$api = WPCOM_JSON_API::init( $method, $url, $post_body );
 		$api->token_details['user'] = $user_details;
-		require_once dirname( __FILE__ ) . '/class.json-api-endpoints.php';
+		require_once JETPACK__PLUGIN_DIR . 'class.json-api-endpoints.php';
 
 		$display_errors = ini_set( 'display_errors', 0 );
 		ob_start();

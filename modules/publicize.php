@@ -2,7 +2,7 @@
 /**
  * Module Name: Publicize
  * Module Description: Share new posts on social media networks automatically.
- * Sort Order: 1
+ * Sort Order: 10
  * First Introduced: 2.0
  * Requires Connection: Yes
  * Auto Activate: Yes
@@ -99,8 +99,8 @@ class Publicize_Util {
 	 * @param int $length
 	 * @return string
 	 */
-	function crop_str( $string, $length = 256 ) {
-		$string = wp_strip_all_tags( (string) $string, true ); // true: collapse Linear Whitespace into " "
+	public static function crop_str( $string, $length = 256 ) {
+		$string = Publicize_Util::sanitize_message( $string );
 		$length = absint( $length );
 
 		if ( mb_strlen( $string, 'UTF-8' ) <= $length ) {
@@ -304,6 +304,33 @@ class Publicize_Util {
 		}
 		return str_replace( $search, $replace, $string );
 	}
+
+	public static function sanitize_message( $message ) {
+		$message = preg_replace( '@<(script|style)[^>]*?>.*?</\\1>@si', '', $message );
+		$message = wp_kses( $message, array() );
+		$message = preg_replace('/[\r\n\t ]+/', ' ', $message);
+		$message = trim( $message );
+		$message = htmlspecialchars_decode( $message, ENT_QUOTES );
+		return $message;
+	}
+}
+
+/**
+ * Helper for grabbing a Publicize object from the "front-end" (non-admin) of
+ * a site. Normally Publicize is only loaded in wp-admin, so there's a little
+ * set up that you might need to do if you want to use it on the front end.
+ * Just call this function and it returns a Publicize object.
+ *
+ * @return Publicize Object
+ */
+function publicize_init() {
+	global $publicize;
+
+	if ( ! class_exists( 'Publicize' ) ) {
+		require_once dirname( __FILE__ ) . '/publicize/publicize.php';
+	}
+
+	return $publicize;
 }
 
 /**

@@ -11,7 +11,7 @@ class WP_Test_Jetpack_Photon extends PHPUnit_Framework_TestCase {
 	 * @pre-2.3.3
 	 */
 	function test_parse_images_from_html() {
-		$directory = __DIR__ . '/modules/photon/sample-content';
+		$directory = dirname( __FILE__ ) . '/modules/photon/sample-content';
 
 		$files = glob( $directory . '/' . '*.html' );
 

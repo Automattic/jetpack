@@ -152,7 +152,7 @@ function stats_template_redirect() {
 
 	$stats_footer = <<<END
 
-	<script src="$http://stats.wordpress.com/e-$week.js" type="text/javascript"></script>
+	<script src="$http://stats.wp.com/e-$week.js" type="text/javascript"></script>
 	<script type="text/javascript">
 	st_go({{$data}});
 	var load_cmc = function(){linktracker_init($blog,$post,2);};
@@ -213,7 +213,7 @@ function stats_upgrade_options( $options ) {
 		'count_roles'  => array(),
 		'blog_id'      => Jetpack_Options::get_option( 'id' ),
 		'do_not_track' => true, // @todo
-		'hide_smile'   => false,
+		'hide_smile'   => true,
 	);
 
 	if ( isset( $options['reg_users'] ) ) {
@@ -347,9 +347,12 @@ function stats_reports_page() {
 		// Loading message
 		// No JS fallback message
 ?>
+<div class="wrap">
+	<h2><?php esc_html_e( 'Site Stats', 'jetpack'); ?> <a style="font-size:13px;" href="<?php echo esc_url( admin_url('admin.php?page=jetpack&configure=stats') ); ?>"><?php esc_html_e( 'Configure', 'jetpack'); ?></a></h2>
+</div>
 <div id="stats-loading-wrap" class="wrap">
 <p class="hide-if-no-js"><img width="32" height="32" alt="<?php esc_attr_e( 'Loading&hellip;', 'jetpack' ); ?>" src="<?php echo esc_url( apply_filters( 'jetpack_static_url', "{$http}://en.wordpress.com/i/loading/loading-64.gif" ) ); ?>" /></p>
-<p style="font-size: 11pt; margin: 0;"><a href="http://wordpress.com/my-stats/?blog=<?php echo $blog_id; ?>">View stats on WordPress.com right now</a></p>
+<p style="font-size: 11pt; margin: 0;"><a href="http://wordpress.com/my-stats/?blog=<?php echo $blog_id; ?>"><?php esc_html_e( 'View stats on WordPress.com right now', 'jetpack' ); ?></a></p>
 <p class="hide-if-js"><?php esc_html_e( 'Your Site Stats work better with Javascript enabled.', 'jetpack' ); ?><br />
 <a href="<?php echo esc_url( $nojs_url ); ?>"><?php esc_html_e( 'View Site Stats without Javascript', 'jetpack' ); ?></a>.</p>
 </div>
@@ -1125,6 +1128,10 @@ function stats_get_remote_csv( $url ) {
 
 // rather than parsing the csv and its special cases, we create a new file and do fgetcsv on it.
 function stats_str_getcsv( $csv ) {
+	if ( function_exists( 'str_getcsv' ) ) {
+		$lines = str_getcsv( $csv, "\n" );
+		return array_map( 'str_getcsv', $lines );
+	}
 	if ( !$temp = tmpfile() ) // tmpfile() automatically unlinks
 		return false;
 

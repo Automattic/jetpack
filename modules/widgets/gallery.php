@@ -300,8 +300,11 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		foreach ( $instance as $key => $value ) {
 			$value = trim( $value );
 
-			if ( isset( $allowed_values[ $key ] ) && $allowed_values[ $key ] && ! array_key_exists( $value, $allowed_values[ $key ] ) )
+			if ( isset( $allowed_values[ $key ] ) && $allowed_values[ $key ] && ! array_key_exists( $value, $allowed_values[ $key ] ) ) {
 				$instance[ $key ] = $defaults[ $key ];
+			} else {
+				$instance[ $key ] = sanitize_text_field( $value );
+			}
 		}
 
 		return $instance;
@@ -378,8 +381,11 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			);
 
 			wp_localize_script( 'gallery-widget-admin', '_wpGalleryWidgetAdminSettings', $js_settings );
-
-			wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/admin.css', __FILE__ ) );
+			if( is_rtl() ) {
+				wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/rtl/admin-rtl.css', __FILE__ ) );	
+			} else {
+				wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/admin.css', __FILE__ ) );	
+			}
 		}
 	}
 }

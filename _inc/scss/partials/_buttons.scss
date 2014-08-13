@@ -29,6 +29,24 @@
 		opacity: 0.8;
 	}
 }
+.jp-button--settings {
+	@extend .jp-button;
+	background: #93b45f;
+	color: #e8eedf;
+
+	&:visited {
+		color: #e8eedf
+	}
+	&:hover,
+	&:focus {
+		background: #9fbd72;
+		color: #fff;
+	}
+	&.current {
+		background: #3c6621;
+		color: #fff;
+	}
+}
 .download-jetpack {
 	display: inline-block;
 	position: relative;
@@ -89,7 +107,7 @@
 		height: 100%;
 	}
 }
-#searchsubmit { 
+#searchsubmit {
 	display: inline-block;
 	border: none;
 	position: relative;

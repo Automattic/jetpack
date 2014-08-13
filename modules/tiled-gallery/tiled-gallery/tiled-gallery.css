@@ -21,7 +21,6 @@
 }
 .tiled-gallery .gallery-row {
 	 overflow: hidden;
-	 margin-bottom: 2px;
 }
 .tiled-gallery .tiled-gallery-item a { /* Needs to reset some properties for theme compatibility */
 	background: transparent;

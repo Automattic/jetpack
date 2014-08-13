@@ -27,7 +27,7 @@ function shortcode_ted( $atts, $content = '' ) {
 			'height'      => '',
 			'lang'        => 'eng',
 		);
-	$atts = shortcode_atts( $defaults, $atts );
+	$atts = shortcode_atts( $defaults, $atts, 'ted' );
 
 	if ( empty( $atts['id'] ) )
 		return '<!-- Missing TED ID -->';

@@ -1,7 +1,7 @@
 // ==========================================================================
 // Media Queries
 // ==========================================================================
-@media (max-width: 1130px) {
+@media (max-width: 1147px) {
 	.feature,
 	.module {
 		margin: .75% 0 .75% 1.5%;
@@ -26,11 +26,10 @@
 	}
 	.wrap.inner {
 		background: #f9f9f9;
-		padding: 15px; 
+		padding: 15px;
 	}
 	.page-content.about {
 		background: #f9f9f9;
-		margin-top: -80px;
 		padding: 15px;
 	}
 	.page-content.configure {
@@ -151,7 +150,7 @@
 @media (max-width: 900px) {
 	// Tablets (iPad)
 	#wpcontent,
-	.auto-fold #wpcontent, 
+	.auto-fold #wpcontent,
 	.auto-fold #wpfooter,
 	.modal,
 	.configure .frame.top.fixed {
@@ -167,13 +166,7 @@
 	.modal {
 		bottom: 5%;
 		font-size: 80%;
-		left: 10%;
-		right: 10%;
-		top: 80px;
-		
-		header {
-			height: 38px;
-		}
+
 		.content {
 			top: 38px;
 		}
@@ -208,9 +201,6 @@
 	.module-grid h2 {
 		font-size: 30px;
 	}
-	.feature h3 {
-		font-size: 11px;
-	}
 	.filter {
 		label {
 			display: inline-block;
@@ -230,7 +220,7 @@
 	}
 	.cat .module {
 		margin: 1% 0 1% 2%;
-		
+
 		&:nth-child(2n + 1) {
 			margin: 1% 0 1% 2%;
 		}
@@ -243,14 +233,6 @@
 	}
 	.main-nav {
 		font-size: 13px;
-
-		.jetpack-logo {
-			font-size: 22px;
-			
-			&:before {
-				font-size: 29px;
-			}
-		}
 	}
 	.table-bordered {
 		.genericon {
@@ -260,10 +242,17 @@
 }
 @media (max-width: 782px) {
 	#wpcontent,
-	.auto-fold #wpcontent, 
+	.auto-fold #wpcontent,
 	.auto-fold #wpfooter,
 	.modal {
 		margin-left: 0;
+	}
+	.modal {
+		top: 66px;
+	}
+	.jp-info-img {
+		float: none;
+		margin: 0 0 15px;
 	}
 	.configure .frame.top.fixed {
 		padding-left: 0;
@@ -292,14 +281,34 @@
 		width: 100%;
 	}
 	.sidebar {
-		display: none; 
+		display: none;
+	}
+	.table-bordered.jetpack-modules tr.jetpack-module td .row-actions {
+		display: block;
+		padding-left: 10px;
+		visibility: visible;
+	}
+}
+@media (max-width: 600px) {
+	.modal {
+		top: 10px;
+		right: 10px;
+		bottom: 10px;
+		left: 10px;
 	}
 }
 @media (max-width: 530px) {
+	.footer {
+		margin-top: 0;
+	}
+	.masthead.hasbutton .subhead {
+		margin-top: 105px;
+		padding: 0;
+	}
 	.page-content {
 		margin-top: 0;
 	}
-	.entry-title, 
+	.entry-title,
 	.page-template-default h1 {
 		font-size: 2em;
 	}
@@ -307,6 +316,9 @@
 	.single h3,
 	.page-template-default h2 {
 		font-size: 1.4em;
+	}
+	.modal h2 {
+		font-size: 26px;
 	}
 	.featured {
 		display: none;
@@ -330,19 +342,12 @@
 			font-weight: 400;
 		}
 	}
-	.modal {
-		bottom: 5%;
-		left: 5%;
-		right: 5%;
-		top: 80px;
-	}
 	.subhead {
 		margin-top: 83px;
 		padding: 47px 15px 39px;
 
 		h2 {
-			font-size: 18px;
-			max-width: 380px;
+			display: none;
 		}
 	}
 	.download-jetpack {
@@ -368,7 +373,7 @@
 	}
 	.cat .module {
 		margin: 5px 0;
-		
+
 		&:nth-child(2n + 1) {
 			margin-left: 0;
 		}
@@ -453,7 +458,7 @@
 	.wrap.inner.jp-support {
 		.jp-support-column-left {
 			width: 100%;
-			
+
 			.widget-text {
 				margin-right: 0;
 				width: 100%;
@@ -462,12 +467,12 @@
 		.jp-support-column-right {
 			width: 100%;
 		}
-		
+
 	}
 	.jetpack-message {
 		.squeezer {
 			padding: 23px;
-			
+
 			&:before {
 				display: none;
 			}

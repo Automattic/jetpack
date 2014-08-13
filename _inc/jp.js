@@ -1,14 +1,14 @@
-/* global ich, jetpackL10n, jQuery */
+/* global wp, jetpackL10n, jQuery */
 
-(function($, modules, currentVersion) {
+(function( $, modules, currentVersion, jetpackL10n ) {
 
 	///////////////////////////////////////
 	// INIT
 	///////////////////////////////////////
 
-	$(document).ready(function () {
+	$( document ).ready(function () {
 		initEvents();
-		filterModules('introduced');
+		filterModules( 'introduced' );
 		loadModules();
 		updateModuleCount();
 	});
@@ -19,14 +19,22 @@
 
 	function closeShadeToggle() {
 		// Clicking outside modal, or close X closes modal
-		$('.shade, .modal header .close').on('click', function () {
-			$('.shade, .modal').hide();
-			$('.manage-right').removeClass('show');
+		$( '.shade, .modal .close' ).on( 'click', function () {
+			$( '.shade, .modal' ).hide();
+			$( '.manage-right' ).removeClass( 'show' );
 			return false;
+		});
+
+		$( window ).on( 'keydown', function( e ) {
+			// If pressing ESC close the modal
+			if ( 27 === e.keyCode ) {
+				$( '.shade, .modal' ).hide();
+				$( '.manage-right' ).removeClass( 'show' );
+			}
 		});
 	}
 
-	function filterModules(prop) {
+	function filterModules( prop ) {
 
 		// Mapping prior to sorting improves performance by over 50%
 		var map = [],
@@ -36,24 +44,24 @@
 			length;
 
 		// create the map
-		for (i=0, length = modules.length; i < length; i++) {
+		for ( i = 0, length = modules.length; i < length; i++ ) {
 
 			// Prep value
-			if ('name' === prop) {
+			if ( 'name' === prop ) {
 				val = modules[i][prop].toLowerCase();
 			} else {
-				val = parseInt(modules[i][prop].replace('0:', '') * 10, 10);
+				val = parseInt( modules[i][prop].replace( '0:', '' ) * 10, 10 );
 			}
 
-			map.push({
+			map.push( {
 				index: i,
 				value: val
 			});
 		}
 
 		// sort the map
-		map.sort(function(a, b) {
-			if ('name' === prop) {
+		map.sort(function( a, b ) {
+			if ( 'name' === prop ) {
 				return a.value > b.value ? 1 : -1;
 			} else {
 				return b.value > a.value ? 1 : -1;
@@ -61,8 +69,8 @@
 		});
 
 		// copy values in right order
-		for (i=0, length = map.length; i < length; i++) {
-			result.push(modules[map[i].index]);
+		for ( i = 0, length = map.length; i < length; i++ ) {
+			result.push( modules[map[i].index] );
 			result[i].index =  i; // make sure we set the index to the right order
 		}
 
@@ -70,8 +78,8 @@
 		modules = result;
 
 		// If all modules are already showing, make sure they stay expanded
-		if (!$('.load-more').is(':visible')) {
-			$('.module').fadeIn();
+		if ( ! $( '.load-more' ).is( ':visible' ) ) {
+			$( '.module' ).fadeIn();
 		}
 	}
 
@@ -80,21 +88,21 @@
 			c, i, catId;
 
 		// First alphabatize the modules
-		filterModules('name');
+		filterModules( 'name' );
 
 		// Add category containers
-		$('.modules').html(ich.category());
+		$( '.modules' ).html( wp.template( 'category' )( {} ) );
 
 		// Loop through adding sections for each category
-		for (i=0; i<modules.length; i++) {
+		for ( i = 0; i < modules.length; i++ ) {
 			// Get categories
 			categories = modules[i].module_tags;
 
 			// Loop through each individual category
-			for (c=0; c<categories.length; c++) {
+			for ( c = 0; c < categories.length; c++ ) {
 				// Add modules to the correct categories
-				catId = 'category-' + categories[c].toLowerCase().replace('.', '').replace(/ /g, '-');
-				$('.' + catId + ' .clear').before(ich.mod(modules[i], true));
+				catId = 'category-' + categories[c].toLowerCase().replace( '.', '' ).replace( / /g, '-' );
+				$( '.' + catId + ' .clear' ).before( wp.template( 'mod' )( modules[i] ) );
 			}
 		}
 
@@ -104,32 +112,32 @@
 
 	function initEvents () {
 		// DOPS toggle
-		$('#a8c-service-toggle, .dops-close').click(function() {
-			$('.a8c-dops').toggleClass('show');
-			$('#a8c-service-toggle .genericon').toggleClass('genericon-downarrow').toggleClass('genericon-uparrow');
+		$( '#a8c-service-toggle, .dops-close' ).click(function() {
+			$( '.a8c-dops' ).toggleClass( 'show' );
+			$( '#a8c-service-toggle .genericon' ).toggleClass( 'genericon-downarrow' ).toggleClass( 'genericon-uparrow' );
 			return false;
 		});
 
 		// Load more
-		$('.load-more').click(function() {
+		$( '.load-more' ).click(function() {
 			showAllModules();
 			return false;
 		});
 
 		// Module filtering
-		$('#newest, #category, #alphabetical').on('click', function () {
-			var $this = $(this),
-				prop = $this.data('filter');
+		$( '#newest, #category, #alphabetical' ).on( 'click', function () {
+			var $this = $( this ),
+				prop = $this.data( 'filter' );
 
 			// Reset selected filter
-			$('.jp-filter a').removeClass('selected');
-			$this.addClass('selected');
+			$( '.jp-filter a' ).removeClass( 'selected' );
+			$this.addClass( 'selected' );
 
-			if ('cat' === prop) {
+			if ( 'cat' === prop ) {
 				filterModulesByCategory();
 			} else {
 				// Rearrange modules
-				filterModules(prop);
+				filterModules( prop );
 
 				// Reload the DOM based on this new sort order
 				loadModules();
@@ -140,19 +148,17 @@
 		});
 
 		// Search modules
-		$('#jetpack-search').on('keydown', function (event) {
-			var term = $(this).val();
-			if (8 === event.keyCode && 1 === term.length) {
-				searchModules('');
-			}
-			if (13 === event.keyCode) {
-				searchModules(term);
-				return false;
-			}
+		$( '#jetpack-search' ).on( 'keyup search', function() {
+			var term = $( this ).val();
+			searchModules( term );
+		});
+		// prevent the form from
+		$( '#module-search' ).on( 'submit', function( event ) {
+			event.preventDefault();
 		});
 
 		// Modal events
-		$(document).ready(function () {
+		$( document ).ready(function () {
 			initModalEvents();
 		});
 
@@ -164,7 +170,7 @@
 				recalculateModuleHeights();
 				setTimeout(function () {
 					pauseResize = false;
-				},100);
+				}, 100 );
 			}
 		};
 
@@ -172,9 +178,9 @@
 		closeShadeToggle();
 
 		// Show specific category of modules
-		$('.showFilter a').on('click', function () {
-			$('.showFilter a').removeClass('active');
-			$(this).addClass('active');
+		$( '.showFilter a' ).on( 'click', function () {
+			$( '.showFilter a' ).removeClass( 'active' );
+			$( this ).addClass( 'active' );
 
 			// TODO Do sorting here
 
@@ -183,60 +189,70 @@
 	}
 
 	function initModalEvents() {
-		var $modal = $('.modal');
-		$('.module, .feature a, .configs a').on('click', function () {
-			$('.shade').show();
+		var $modal = $( '.modal' );
+		$( '.module, .feature a, .configs a' ).on( 'click', function (e) {
+			e.preventDefault();
+
+			$( '.shade' ).show();
 
 			// Show loading message on init
-			$modal.html(ich.modalLoading({}, true)).fadeIn();
+			$modal.html( wp.template( 'modalLoading' )( {} ) ).fadeIn();
 
 			// Load & populate with content
-			var $this = $(this),
-				index = $this.data('index'),
-				name = $this.data('name');
+			var $this = $( this ),
+				index = $this.data( 'index' ),
+				name = $this.data( 'name' );
 
-			$modal.html(ich.modalTemplate({}, true));
-			$modal.find('header li').first().text(name);
-			$modal.find('.content').html('');
-			$modal.find('.content').html(modules[index].long_description);
+			$modal.empty().html( wp.template( 'modal' )( $.extend( modules[index], { name: name } ) ) );
 
 			closeShadeToggle();
 
 			// Modal header links
-			$('.modal header li a').on('click', function () {
-				$('.modal header li a').removeClass('active');
-				$(this).addClass('active');
+			$( '.modal header li a.title' ).on( 'click', function () {
+				$( '.modal header li a.title' ).removeClass( 'active' );
+				$( this ).addClass( 'active' );
 				return false;
 			});
-
-			return false;
 		});
 	}
 
 	function loadModules() {
 		var html = '',
+			featuredModules = [],
+			featuredModulesIndex,
 			i;
 
-		if ($('.configure').length !== 0) {
+		if ( $( '.configure' ).length !== 0 ) {
 			// Config page
-			for (i=0; i<modules.length; i++) {
-				html += ich.modconfig(modules[i], true);
+			for ( i = 0; i < modules.length; i++ ) {
+				html += wp.template( 'modconfig' )( modules[i] );
 			}
 
-			$('table tbody').html(html);
+			$( 'table tbody' ).html( html );
 		} else {
+			// Array of featured modules
+			$( '.feature a.f-img' ).each(function() {
+				featuredModules.push($( this ).data( 'module' ));
+			});
+
 			// About page
-			for (i=0; i<modules.length; i++) {
-				if (currentVersion.indexOf(modules[i].introduced) !== -1) {
+			for ( i = 0; i < modules.length; i++ ) {
+				if ( currentVersion.indexOf( modules[i].introduced ) !== -1 ) {
 					modules[i]['new'] = true;
 				}
-				
+
+				// Add data-index to featured modules
+				featuredModulesIndex = featuredModules.indexOf( modules[i].module );
+				if ( featuredModulesIndex > -1 ) {
+					$( '.feature' ).eq( featuredModulesIndex ).find( 'a' ).data( 'index', i );
+				}
+
 				modules[i].index = i;
 
-				html += ich.mod(modules[i], true);
+				html += wp.template( 'mod' )( modules[i] );
 			}
 
-			$('.modules').html(html);
+			$( '.modules' ).html( html );
 
 			recalculateModuleHeights();
 			initModalEvents();
@@ -246,52 +262,52 @@
 	function recalculateModuleHeights () {
 
 		// Resize module heights based on screen resolution
-		var module = $('.module, .jp-support-column-left .widget-text'),
+		var module = $( '.module, .jp-support-column-left .widget-text' ),
 			tallest = 0,
 			thisHeight;
 
 		// Remove heights
-		module.css('height', 'auto');
+		module.css( 'height', 'auto' );
 
 		// Determine new height
 		module.each(function() {
 
-			thisHeight = $(this).outerHeight();
+			thisHeight = $( this ).outerHeight();
 
-			if (thisHeight > tallest) {
+			if ( thisHeight > tallest ) {
 				tallest = thisHeight;
 			}
 		});
 
 		// Apply new height
-		module.css('height', tallest + 'px');
+		module.css( 'height', tallest + 'px' );
 	}
 
-	function searchModules (term) {
+	function searchModules( term ) {
 		var html = '', i, lowercaseDesc, lowercaseName, lowercaseTerm;
-		for (i=0; i<modules.length; i++) {
+		for ( i = 0; i < modules.length; i++ ) {
 			lowercaseDesc = modules[i].description.toLowerCase();
 			lowercaseName = modules[i].name.toLowerCase();
 			lowercaseTerm = term.toLowerCase();
-			if (lowercaseName.indexOf(lowercaseTerm) !== -1 || lowercaseDesc.indexOf(lowercaseTerm) !== -1) {
-				html += ich.mod(modules[i], true);
+			if ( lowercaseName.indexOf( lowercaseTerm ) !== -1 || lowercaseDesc.indexOf( lowercaseTerm ) !== -1 ) {
+				html += wp.template( 'mod' )( modules[i] );
 			}
+			$( '.modules' ).html( html );
 		}
-		if ('' === html) {
-			html = 'Sorry, no modules were found for the search term "' + term + '".';
+		if ( '' === html ) {
+			$( '.modules' ).text( jetpackL10n.no_modules_found.replace( '{term}', term ) );
 		}
-		$('.modules').html(html);
 		recalculateModuleHeights();
 		initModalEvents();
 	}
 
 	function showAllModules() {
-		$('.module').fadeIn();
-		$('.load-more').hide();
+		$( '.module' ).fadeIn();
+		$( '.load-more' ).hide();
 	}
 
 	function updateModuleCount () {
-		$('.load-more').text('View all Jetpack features');
+		$( '.load-more' ).text( jetpackL10n.view_all_features );
 	}
 
-})(jQuery, jetpackL10n.modules, jetpackL10n.currentVersion);
+})( jQuery, jetpackL10n.modules, jetpackL10n.currentVersion, jetpackL10n );

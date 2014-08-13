@@ -8,7 +8,7 @@
 
 	<article id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 		<header class="entry-header">
-			<?php if ( '1' == get_option( 'wp_mobile_featured_images' ) && is_home() || is_search() || is_archive() ) : ?>
+			<?php if ( '1' == get_option( 'wp_mobile_featured_images' ) && minileven_show_featured_images() ) : ?>
 				<div class="entry-thumbnail">
 					<a href="<?php the_permalink(); ?>" title="<?php echo esc_attr( sprintf( __( 'Permalink to %s', 'jetpack' ), the_title_attribute( 'echo=0' ) ) ); ?>" rel="<?php the_ID(); ?>" class="minileven-featured-thumbnail"><?php the_post_thumbnail(); ?></a>
 				</div><!-- .entry-thumbnail -->
@@ -48,7 +48,7 @@
 				<?php minileven_posted_on(); ?>
 			<?php endif; ?>
 			<?php if ( comments_open() ) : ?>
-			<span class="comments-link"><?php comments_popup_link( '<span class="leave-reply">' . __( 'Leave a reply', 'jetpack' ) . '</span>', __( '<b>1</b> Reply', 'minileven' , 'jetpack'), __( '<b>%</b> Replies', 'minileven' , 'jetpack') ); ?></span>
+			<span class="comments-link"><?php comments_popup_link( '<span class="leave-reply">' . __( 'Leave a reply', 'jetpack' ) . '</span>', __( '<b>1</b> Reply', 'jetpack' ), __( '<b>%</b> Replies', 'jetpack' ) ); ?></span>
 			<?php endif; // End if comments_open() ?>
 			<?php edit_post_link( __( 'Edit', 'jetpack' ), '<span class="edit-link">', '</span>' ); ?>
 		</footer><!-- #entry-meta -->

@@ -11,6 +11,10 @@ class Jetpack_Custom_CSS {
 		// Override the edit link, the default link causes a redirect loop
 		add_filter( 'get_edit_post_link', array( __CLASS__, 'revision_post_link' ), 10, 3 );
 
+		// Overwrite the content width global variable if one is set in the custom css 
+		add_action( 'template_redirect', array( __CLASS__, 'set_content_width' ) );
+		add_action( 'admin_init', array( __CLASS__, 'set_content_width' ) );
+
 		if ( ! is_admin() )
 			add_filter( 'stylesheet_uri', array( __CLASS__, 'style_filter' ) );
 
@@ -402,6 +406,20 @@ class Jetpack_Custom_CSS {
 		return isset( $_GET['csspreview'] ) && $_GET['csspreview'] === 'true';
 	}
 
+	/**
+	 * Currently this filter function gets called on 
+	 * 'template_redirect' action and
+	 * 'admin_init' action
+	 */
+	static function set_content_width(){
+		// Don't apply this filter on the Edit CSS page
+		if ( isset( $_GET ) && isset( $_GET['page'] ) &&  'editcss' == $_GET['page'] && is_admin() ) {
+			return;
+		}
+
+		$GLOBALS['content_width'] = Jetpack::get_content_width();
+	}
+
 	/*
 	 * False when the site has the Custom Design upgrade.
 	 * Used only on WordPress.com.
@@ -419,7 +437,8 @@ class Jetpack_Custom_CSS {
 		$option = ( Jetpack_Custom_CSS::is_preview() || Jetpack_Custom_CSS::is_freetrial() ) ? 'safecss_preview' : 'safecss';
 
 		if ( 'safecss' == $option ) {
-			if ( get_option( 'safecss_revision_migrated' ) ) {
+			// Don't bother checking for a migrated 'safecss' option if it never existed.
+			if ( false === get_option( 'safecss' ) || get_option( 'safecss_revision_migrated' ) ) {
 				$safecss_post = Jetpack_Custom_CSS::get_post();
 				$css = ( $compressed && $safecss_post['post_content_filtered'] ) ? $safecss_post['post_content_filtered'] : $safecss_post['post_content'];
 			} else {
@@ -578,15 +597,16 @@ class Jetpack_Custom_CSS {
 		$message = apply_filters( 'safecss_preview_message', $message );
 
 		$preview_flag_js = "var flag = document.createElement('div');
-	flag.innerHTML = " . json_encode( $message ) . ";
-	flag.style.background = 'black';
-	flag.style.color = 'white';
-	flag.style.textAlign = 'center';
-	flag.style.fontSize = '15px';
-	flag.style.padding = '1px';
-	document.body.style.paddingTop = '32px';
-	document.body.insertBefore(flag, document.body.childNodes[0]);
-	";
+		flag.innerHTML = " . json_encode( $message ) . ";
+		flag.style.background = '#FF6600';
+		flag.style.color = 'white';
+		flag.style.textAlign = 'center';
+		flag.style.fontSize = '15px';
+		flag.style.padding = '2px';
+		flag.style.fontFamily = 'sans-serif'; 
+		document.body.style.paddingTop = '0px';
+		document.body.insertBefore(flag, document.body.childNodes[0]);
+		";
 
 		$preview_flag_js = apply_filters( 'safecss_preview_flag_js', $preview_flag_js );
 		if ( $preview_flag_js ) {
@@ -668,7 +688,7 @@ class Jetpack_Custom_CSS {
 		if ( ! empty( $safecss_post ) && 0 < $safecss_post['ID'] && wp_get_post_revisions( $safecss_post['ID'] ) )
 			add_meta_box( 'revisionsdiv', __( 'CSS Revisions', 'jetpack' ), array( __CLASS__, 'revisions_meta_box' ), 'editcss', 'side' );
 		?>
-		<div class="wrap columns-2">
+		<div class="wrap">
 			<?php do_action( 'custom_design_header' ); ?>
 			<h2><?php _e( 'CSS Stylesheet Editor', 'jetpack' ); ?></h2>
 			<form id="safecssform" action="" method="post">
@@ -676,19 +696,20 @@ class Jetpack_Custom_CSS {
 				<?php wp_nonce_field( 'meta-box-order', 'meta-box-order-nonce', false ); ?>
 				<?php wp_nonce_field( 'closedpostboxes', 'closedpostboxesnonce', false ); ?>
 				<input type="hidden" name="action" value="save" />
-				<div id="poststuff" class="metabox-holder has-right-sidebar">
+				<div id="poststuff">
 					<p class="css-support"><?php echo apply_filters( 'safecss_intro_text', __( 'New to CSS? Start with a <a href="http://www.htmldog.com/guides/cssbeginner/">beginner tutorial</a>. Questions?
 		Ask in the <a href="http://wordpress.org/support/forum/themes-and-templates">Themes and Templates forum</a>.', 'jetpack' ) ); ?></p>
-					<div id="postbox-container-1" class="inner-sidebar">
-						<?php do_meta_boxes( 'editcss', 'side', $safecss_post ); ?>
-					</div>
-					<div id="post-body">
+					
+					<div id="post-body" class="metabox-holder columns-2">
 						<div id="post-body-content">
 							<div class="postarea">
 								<textarea id="safecss" name="safecss"<?php if ( SAFECSS_USE_ACE ) echo ' class="hide-if-js"'; ?>><?php echo esc_textarea( Jetpack_Custom_CSS::get_css() ); ?></textarea>
 								<div class="clear"></div>
 							</div>
 						</div>
+						<div id="postbox-container-1" class="postbox-container">
+						<?php do_meta_boxes( 'editcss', 'side', $safecss_post ); ?>
+					</div>
 					</div>
 					<br class="clear" />
 				</div>
@@ -1044,6 +1065,10 @@ class Jetpack_Custom_CSS {
 	 */
 	static function upgrade() {
 		$css = get_option( 'safecss' );
+
+		if ( get_option( 'safecss_revision_migrated' ) ) {
+			return false;
+		}
 
 		// Check if CSS is stored in wp_options
 		if ( $css ) {

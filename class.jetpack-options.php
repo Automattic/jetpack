@@ -10,6 +10,7 @@ class Jetpack_Options {
 				'register',
 				'activated',
 				'active_modules',
+				'available_modules',
 				'do_activate',
 				'log',
 				'publicize',
@@ -17,6 +18,7 @@ class Jetpack_Options {
 				'widget_twitter',
 				'wpcc_options',
 				'relatedposts',
+				'file_data',
 			);
 		}
 
@@ -39,6 +41,7 @@ class Jetpack_Options {
 			'gplus_authors',                // (array)  The Google+ authorship information for connected users.
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
 			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
+			'json_api_full_management',     // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
 		);
 	}
 
@@ -50,7 +53,7 @@ class Jetpack_Options {
 	 */
 	public static function get_option( $name, $default = false ) {
 		if ( in_array( $name, self::get_option_names( 'non_compact' ) ) ) {
-			return get_option( "jetpack_$name" );
+			return get_option( "jetpack_$name", $default );
 		} else if ( !in_array( $name, self::get_option_names() ) ) {
 			trigger_error( sprintf( 'Invalid Jetpack option name: %s', $name ), E_USER_WARNING );
 			return false;

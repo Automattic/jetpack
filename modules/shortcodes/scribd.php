@@ -16,7 +16,7 @@ function scribd_shortcode_handler( $atts ) {
 		'id'   => 0,
 		'key'  => 0,
 		'mode' => "",
-	), $atts );
+	), $atts, 'scribd' );
 
 	$modes = array( 'list', 'book', 'slide', 'slideshow', 'tile' );
 

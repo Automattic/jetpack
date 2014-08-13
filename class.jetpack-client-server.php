@@ -3,8 +3,6 @@
 /**
  * Client = Plugin
  * Client Server = API Methods the Plugin must respond to
- *
- * @todo Roll this into Jetpack?  There's only one 'public' method now: ::authorize().
  */
 class Jetpack_Client_Server {
 	function authorize() {
