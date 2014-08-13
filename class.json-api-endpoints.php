@@ -522,6 +522,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
 			break;
+		case 'jetpackmodule' :
+			$docs = array(
+				'id'          => '(string)   The module\'s ID',
+				'active'      => '(boolean)  The module\'s status.',
+				'name'        => '(string)   The module\'s name.',
+				'description' => '(safehtml) The module\'s description.',
+				'sort'        => '(int)      The module\'s display order.',
+				'introduced'  => '(string)   The Jetpack version when the module was introduced.',
+				'changed'     => '(string)   The Jetpack version when the module was changed.',
+				'free'        => '(boolean)  The module\'s Free or Paid status.',
+				'module_tags' => '(array)    The module\'s tags.'
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+			break;
 
 		default :
 			trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
@@ -1048,6 +1062,10 @@ EOPHP;
 			return new WP_Error( 'unknown_taxonomy', 'Unknown taxonomy', 404 );
 		}
 
+		return $this->format_taxonomy( $taxonomy, $taxonomy_type, $context );
+	}
+
+	function format_taxonomy( $taxonomy, $taxonomy_type, $context ) {
 		// Permissions
 		switch ( $context ) {
 		case 'edit' :
@@ -1067,7 +1085,7 @@ EOPHP;
 		$response                = array();
 		$response['ID']          = (int) $taxonomy->term_id;
 		$response['name']        = (string) $taxonomy->name;
-		$response['slug']        = (string) $taxonomy_id;
+		$response['slug']        = (string) $taxonomy->slug;
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
 
@@ -1076,8 +1094,8 @@ EOPHP;
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy_id, $taxonomy_type ),
-				'help' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy_id, $taxonomy_type, 'help' ),
+				'self' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type ),
+				'help' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type, 'help' ),
 				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
 			),
 		);
