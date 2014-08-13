@@ -150,6 +150,8 @@ class Jetpack {
 		'facebook-featured-image-and-open-graph-meta-tags/fb-featured-image.php',
 		                                                         // Facebook Featured Image & OG Meta Tags
 		'facebook-meta-tags/facebook-metatags.php',              // Facebook Meta Tags
+		'wonderm00ns-simple-facebook-open-graph-tags/wonderm00n-open-graph.php',
+		                                                         // Facebook Open Graph Meta Tags for WordPress
 		'facebook-revised-open-graph-meta-tag/index.php',        // Facebook Revised Open Graph Meta Tag
 		'facebook-thumb-fixer/_facebook-thumb-fixer.php',        // Facebook Thumb Fixer
 		'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',
