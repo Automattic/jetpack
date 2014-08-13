@@ -108,13 +108,14 @@
 		 */
 		render: function() {
 			var value = this.setting();
-			var size = 'medium';
 
 			if ( value && value.url ) {
-				if ( ! value.sizes.medium )
-					size = 'full';
 				this.$placeholder.hide();
-				this.$img.attr( 'src', value.sizes[ size ].url );
+				if ( ! value.sizes || ! value.sizes.medium ) {
+					this.$img.attr( 'src', value.url );
+				} else {
+					this.$img.attr( 'src', value.sizes.medium.url );
+				}
 				this.$img.show();
 				this.$btnRemove.show();
 				this.$btnChange.show();
