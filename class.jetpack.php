@@ -2155,11 +2155,18 @@ p {
 	}
 
 	function plugin_action_links( $actions ) {
-		return array_merge(
-			array( 'settings' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack_modules' ), __( 'Settings', 'jetpack' ) ) ),
-			$actions
-		);
-		return $actions;
+
+		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack' ), __( 'Jetpack', 'jetpack' ) ) );
+		
+		if( current_user_can( 'jetpack_manage_modules' ) && ( Jetpack::is_active() || Jetpack::is_development_mode() ) ) {
+			return array_merge(
+				$jetpack_home,
+				array( 'settings' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack_modules' ), __( 'Settings', 'jetpack' ) ) ),
+				$actions
+				);
+			} 
+		
+		return array_merge( $jetpack_home, $actions );
 	}
 
 	function admin_connect_notice() {
