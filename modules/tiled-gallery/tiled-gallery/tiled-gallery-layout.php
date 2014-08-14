@@ -3,7 +3,7 @@
 abstract class Jetpack_Tiled_Gallery_Layout {
 	// Template whitelist
 	private static $templates = array( 'carousel-container', 'circle-layout', 'rectangular-layout', 'square-layout' );
-	private static $partials = array( 'carousel-image-args', 'items' );
+	private static $partials = array( 'carousel-image-args', 'item' );
 
 	protected $type; // Defined in child classes
 	public $attachments;

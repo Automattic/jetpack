@@ -13,7 +13,9 @@
 			data-original-width="<?php echo esc_attr( $group->width ); ?>"
 			data-original-height="<?php echo esc_attr( $group->height ); ?>"
 		>
-			<?php $this->partial( 'items', array( 'items' => $group->items( $this->needs_attachment_link, $this->grayscale ) ) ); ?>
+			<?php foreach( $group->items( $this->needs_attachment_link, $this->grayscale ) as $item ): ?>
+				<?php $this->partial( 'item', array( 'item' => $item ) ); ?>
+			<?php endforeach; ?>
 		</div> <!-- close group -->
 	<?php endforeach; ?>
 	</div> <!-- close row -->
