@@ -4346,8 +4346,6 @@ p {
 						if( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
 							&& ( substr( $cloud_value, 0, 8 ) == "https://" )
 							&& $this->is_ssl_required_to_visit_site() ) {
-
-						} {
 							// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
 							continue;
 						}
