@@ -10,8 +10,7 @@ class Jetpack_Tiled_Gallery_Layout_Rectangular extends Jetpack_Tiled_Gallery_Lay
 		$grouper = new Jetpack_Tiled_Gallery_Grouper( $this->attachments );
 		Jetpack_Tiled_Gallery_Shape::reset_last_shape();
 
-		$this->rows = $grouper->grouped_images;
-		return parent::HTML();
+		return parent::HTML( array( 'rows'  => $grouper->grouped_images ) );
 	}
 }
 

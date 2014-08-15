@@ -6,5 +6,5 @@
 	data-carousel-extra='<?php echo json_encode( $extra ); ?>'
 	<?php endif; ?>
 >
-	<?php $this->template( "$this->type-layout" ); ?>
+	<?php $this->template( "$this->type-layout", $context ); ?>
 </div>

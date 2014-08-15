@@ -17,11 +17,16 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 		$this->grayscale = $grayscale;
 	}
 
-	public function HTML() {
+	public function HTML( $context ) {
 		// Render the carousel container template, which will take the
 		// appropriate strategy to fill it
 		ob_start();
-		$this->template( 'carousel-container' );
+		$this->template( 'carousel-container', array_merge( $context, array(
+			'attachments' => $this->attachments,
+			'link' => $this->link,
+			'needs_attachment_link' => $this->needs_attachment_link,
+			'graysale' => $this->grayscale
+		) ) );
 		$html = ob_get_clean();
 
 		return $html;

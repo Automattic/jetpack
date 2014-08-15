@@ -1,4 +1,4 @@
-<?php foreach ( $this->rows as $row ): ?>
+<?php foreach ( $rows as $row ): ?>
 	<div
 		class="gallery-row"
 		style="width: <?php echo esc_attr( $row->width ); ?>px; height: <?php echo esc_attr( $row->height ); ?>px;"
@@ -13,8 +13,8 @@
 			data-original-width="<?php echo esc_attr( $group->width ); ?>"
 			data-original-height="<?php echo esc_attr( $group->height ); ?>"
 		>
-			<?php foreach( $group->items( $this->needs_attachment_link, $this->grayscale ) as $item ): ?>
-				<?php $this->partial( 'item', array( 'item' => $item ) ); ?>
+			<?php foreach( $group->items( $needs_attachment_link, $grayscale ) as $item ): ?>
+				<?php $this->partial( 'item', array( 'item' => $item, 'link' => $link ) ); ?>
 			<?php endforeach; ?>
 		</div> <!-- close group -->
 	<?php endforeach; ?>

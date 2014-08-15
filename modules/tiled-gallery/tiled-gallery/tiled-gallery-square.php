@@ -53,8 +53,7 @@ class Jetpack_Tiled_Gallery_Layout_Square extends Jetpack_Tiled_Gallery_Layout {
 	}
 
 	public function HTML() {
-		$this->rows = $this->compute_items();
-		return parent::HTML();
+		return parent::HTML( array( 'rows' => $this->compute_items() ) );
 	}
 }
 ?>
