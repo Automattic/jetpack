@@ -89,7 +89,9 @@ color: #D98500;
 }
 
 /**
- * Hack a 'Bulk Spam' option for bulk edit
+ * Hack a 'Bulk Spam' option for bulk edit in other than spam view
+ * Hack a 'Bulk Delete' option for bulk edit in spam view
+ *
  * There isn't a better way to do this until
  * http://core.trac.wordpress.org/changeset/17297 is resolved
  */
@@ -98,15 +100,29 @@ function grunion_add_bulk_edit_option() {
 
 	$screen = get_current_screen();
 
-	if ( 'edit-feedback' != $screen->id
-	|| ( ! empty( $_GET['post_status'] ) && 'spam' == $_GET['post_status'] ) )
+	if ( 'edit-feedback' != $screen->id ) {
 		return;
+	}
 
-	$spam_text = __( 'Mark Spam', 'jetpack' );
+	// When viewing spam we want to be able to be able to bulk delete
+	// When viewing anything we want to be able to bulk move to spam
+	if ( isset( $_GET['post_status'] ) && 'spam' == $_GET['post_status'] ) {
+		// Create Delete Permanently bulk item
+		$option_val = 'delete';
+		$option_txt = __( 'Delete permantently', 'jetpack' );
+		$pseudo_selector = 'last-child';
+
+	} else {
+		// Create Mark Spam bulk item
+		$option_val = 'spam';
+		$option_txt = __( 'Mark Spam', 'jetpack' );
+		$pseudo_selector = 'first-child';
+	}
+
 	?>
 		<script type="text/javascript">
 			jQuery(document).ready(function($) {
-				$('#posts-filter .actions select[name=action] option:first-child').after('<option value="spam"><?php echo esc_attr( $spam_text ); ?></option>' );
+				$('#posts-filter .actions select[name=action] option:<?php echo $pseudo_selector; ?>').after('<option value="<?php echo $option_val; ?>"><?php echo esc_attr( $option_txt ); ?></option>' );
 			})
 		</script>
 	<?php
