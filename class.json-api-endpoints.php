@@ -973,6 +973,12 @@ EOPHP;
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
 			$site_id     = -1;
+
+			// Comment author URLs and Emails are sent through wp_kses() on save, which replaces "&" with "&amp;"
+			// "&" is the only email/URL character altered by wp_kses()
+			foreach ( array( 'email', 'URL' ) as $field ) {
+				$$field = str_replace( '&amp;', '&', $$field );
+			}
 		} else {
 			if ( isset( $author->post_author ) ) {
 				if ( 0 == $author->post_author )
