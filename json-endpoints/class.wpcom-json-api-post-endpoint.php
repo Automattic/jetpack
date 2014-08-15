@@ -213,7 +213,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = (string) ob_get_clean();
 					remove_filter( 'the_password_form', array( $this, 'the_password_form' ) );
 				} else {
-					$response[$key] = (string) $post->post_excerpt;
+					$response[$key] = htmlspecialchars_decode( (string) $post->post_excerpt, ENT_QUOTES );
 				}
 				break;
 			case 'status' :
@@ -230,6 +230,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'password' :
 				$response[$key] = (string) $post->post_password;
+				if ( 'edit' === $context ) {
+					$response[$key] = htmlspecialchars_decode( (string) $response[$key], ENT_QUOTES );
+				}
 				break;
 			case 'parent' : // (object|false)
 				if ( $post->post_parent ) {
