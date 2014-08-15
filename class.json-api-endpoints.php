@@ -1076,7 +1076,8 @@ EOPHP;
 				return new WP_Error( 'unauthorized', 'User cannot edit taxonomy', 403 );
 			break;
 		case 'display' :
-			if ( -1 == get_option( 'blog_public' ) ) {
+			$tax = get_taxonomy( $taxonomy_type );
+			if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
 			}
 			break;
