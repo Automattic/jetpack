@@ -4332,6 +4332,27 @@ p {
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
 					// And it's not been added to the whitelist...
 					if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
+						/*
+						 * This should be a temporary hack until a cleaner solution is found.
+						 * 
+						 * The siteurl and home can be set to use http in General > Settings
+						 * however some constants can be defined that can force https in wp-admin
+						 * when this happens wpcom can confuse wporg with a fake identity
+						 * crisis with a mismatch of http vs https when it should be allowed.
+						 * we need to check that here.
+						 *
+						 * @see https://github.com/Automattic/jetpack/issues/1006
+						 */
+						if( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
+							&& ( substr( $cloud_value, 0, 8 ) == "https://" )
+							&& $this->is_ssl_required_to_visit_site() ) {
+
+						} {
+							// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
+							continue;
+						}
+
+
 						// Then kick an error!
 						$errors[ $cloud_key ] = $cloud_value;
 					}
@@ -4633,4 +4654,23 @@ p {
 
 		return $css;
 	}
-}
+
+	/**
+	 * This method checks to see if SSL is required by the site in
+	 * order to visit it in some way other than only setting the
+	 * https value in the home or siteurl values.
+	 *
+	 * @since 3.2
+	 * @return boolean
+	 **/
+	private function is_ssl_required_to_visit_site() {
+		$ssl = is_ssl();
+
+		if ( is_defined( 'FORCE_SSL_LOGIN' ) && FORCE_SSL_LOGIN ) {
+			$ssl = true;
+		} else if ( is_defined( 'FORCE_SSL_ADMIN' ) && FORCE_SSL_ADMIN ) {
+			$ssl = true;
+		}
+		return $ssl;
+	}
+} // end class Jetpack
