@@ -1,11 +1,11 @@
 <?php foreach ( $rows as $row ): ?>
-	<div class="tiled-gallery-row"
+	<div class="gallery-row"
 		data-original-width="<?php echo esc_attr( $row->width ); ?>"
 		data-original-height="<?php echo esc_attr( $row->height ); ?>"
 	>
 		<?php $add_link = 'none' !== $link; ?>
 		<?php foreach ( $row->images as $item ): ?>
-			<div class="tiled-gallery-group"
+			<div class="gallery-group"
 				data-original-width="<?php echo esc_attr( $row->group_size ); ?>"
 				data-original-height="<?php echo esc_attr( $row->group_size ); ?>"
 			>
