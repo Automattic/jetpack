@@ -53,6 +53,14 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		parent::__construct();
 
 		// Jetpack Comments is loaded
+
+		/**
+		 * `Fires after the Jetpack_Comments object has been instantiated
+		 *
+		 * @since ?
+		 * @module Jetpack_Comments
+		 * @param array $jetpack_comments - First element in array of type Jetpack_Comments
+		 **/
 		do_action_ref_array( 'jetpack_comments_loaded', array( $this ) );
 		add_action( 'after_setup_theme', array( $this, 'set_default_color_theme_based_on_theme_settings' ), 100 );
 	}
