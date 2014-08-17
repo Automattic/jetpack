@@ -6,7 +6,7 @@ require_once dirname( __FILE__ ) . '/tiled-gallery-item.php';
 class Jetpack_Tiled_Gallery_Layout_Rectangular extends Jetpack_Tiled_Gallery_Layout {
 	protected $type = 'rectangular';
 
-	public function HTML() {
+	public function HTML( $context = array() ) {
 		$grouper = new Jetpack_Tiled_Gallery_Grouper( $this->attachments );
 		Jetpack_Tiled_Gallery_Shape::reset_last_shape();
 

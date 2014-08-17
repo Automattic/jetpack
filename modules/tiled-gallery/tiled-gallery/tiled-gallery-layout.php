@@ -17,7 +17,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 		$this->grayscale = $grayscale;
 	}
 
-	public function HTML( $context ) {
+	public function HTML( $context = array() ) {
 		// Render the carousel container template, which will take the
 		// appropriate strategy to fill it
 		ob_start();
@@ -25,7 +25,7 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 			'attachments' => $this->attachments,
 			'link' => $this->link,
 			'needs_attachment_link' => $this->needs_attachment_link,
-			'graysale' => $this->grayscale
+			'grayscale' => $this->grayscale
 		) ) );
 		$html = ob_get_clean();
 
