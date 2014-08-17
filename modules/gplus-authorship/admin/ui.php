@@ -65,7 +65,17 @@ class GPlus_Authorship_Admin {
 		<div class="wrap">
 			<div class="icon32" id="icon-options-general"><br /></div>
 			<h2><?php esc_html_e( 'Sharing Settings', 'jetpack' ); ?></h2>
-			<?php do_action( 'pre_admin_screen_sharing' ) ?>
+			<?php 
+			
+			/**
+			 * Allows for addition of items to the beginning of the sharing page
+			 *
+			 * @since ?
+			 * @module Sharing
+			 **/
+			do_action( 'pre_admin_screen_sharing' ) 
+			
+			?>
 		</div><?php
 	}
 
