@@ -20,6 +20,12 @@ function AtD_restore_text_area()
 	jQuery('#content').val( content.replace(/\&lt\;/g, '<').replace(/\&gt\;/g, '>').replace(/\&amp;/g, '&') );
 	jQuery('#content').height(AtD.height);
 
+	// Make sure that the editorExpand doesn't break the editor
+	if( typeof window.editorExpand != 'undefined' ){
+		window.editorExpand.on();
+	}
+	
+
 	if ( AtD_qtbutton ) {
 		/* change the link text back to its original label */
 		jQuery(AtD_qtbutton).val( AtD.getLang('button_proofread', 'proofread') );
@@ -138,6 +144,10 @@ function AtD_check(button) {
 			jQuery('#content').replaceWith('<div class="input" id="content">' + text + '</div>');
 			jQuery('#content').css( { 'overflow' : 'auto', 'background-color' : 'white', 'color' : 'black', 'white-space' : 'pre-wrap' } );
 			jQuery('#content').height(AtD.height);
+		}
+		// Make sure that the editorExpand doesn't break the editor
+		if( typeof window.editorExpand != 'undefined' ){
+			window.editorExpand.off();
 		}
 
 		/* kill autosave... :) */
