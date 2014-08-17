@@ -179,6 +179,16 @@ function grunion_handle_bulk_spam() {
 			);
 		$akismet_values = get_post_meta( $post_id, '_feedback_akismet_values', true );
 		wp_update_post( $post );
+
+		/**
+		 * Fires after a comment has been marked by Akismet. Typically this
+		 * means the comment is spam.
+		 *
+		 * @duplicate yes
+		 * @since ?
+		 * @param string $comment_status - Usually 'spam'
+		 * @param array $akismet_values - From '_feedback_akismet_values' in comment meta
+		 **/
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 	}
 
@@ -598,11 +608,25 @@ function grunion_ajax_spam() {
 		$post->post_status = 'spam';
 		$status = wp_insert_post( $post );
 		wp_transition_post_status( 'spam', 'publish', $post );
+		
+		/**
+		 * @duplicate yes
+		 * @since ?
+		 * @param string $comment_status - Usually 'spam'
+		 * @param array $akismet_values - From '_feedback_akismet_values' in comment meta
+		 **/
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 	} elseif ( $_POST['make_it'] == 'ham' ) {
 		$post->post_status = 'publish';
 		$status = wp_insert_post( $post );
 		wp_transition_post_status( 'publish', 'spam', $post );
+		
+		/**
+		 * @duplicate yes
+		 * @since ?
+		 * @param string $comment_status - Usually 'spam'
+		 * @param array $akismet_values - From '_feedback_akismet_values' in comment meta
+		 **/
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 
 		$comment_author_email = $reply_to_addr = $message = $to = $headers = false;
