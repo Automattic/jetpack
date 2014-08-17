@@ -6,19 +6,25 @@ var AtD_qtbutton, autosave;
 /* convienence method to restore the text area from the preview div */
 function AtD_restore_text_area()
 {
-	/* clear the error HTML out of the preview div */
-	AtD.remove('content');
-
+	var content;
 	/* swap the preview div for the textarea, notice how I have to restore the appropriate class/id/style attributes */
-    var content = jQuery('#content').html();
+	if( jQuery('#atd-content').get(0) ) {
+		AtD.remove('atd-content');
+		content = jQuery('#atd-content').html();
+	} else {
+		AtD.remove('content');
+		content = jQuery('#content').html();
+	}
 
 	if ( navigator.appName === 'Microsoft Internet Explorer' ) {
 		content = content.replace(/<BR.*?class.*?atd_remove_me.*?>/gi, '\n');
 	}
 
-	jQuery('#content').replaceWith( AtD.content_canvas );
-	jQuery('#content').val( content.replace(/\&lt\;/g, '<').replace(/\&gt\;/g, '>').replace(/\&amp;/g, '&') );
-	jQuery('#content').height(AtD.height);
+	// jQuery('#content').replaceWith( AtD.content_canvas );
+	jQuery('#content').val( content.replace(/\&lt\;/g, '<').replace(/\&gt\;/g, '>').replace(/\&amp;/g, '&') )
+	.height(AtD.height)
+	.show();
+	jQuery('#atd-content').remove();
 
 	if ( AtD_qtbutton ) {
 		/* change the link text back to its original label */
@@ -37,11 +43,6 @@ function AtD_restore_text_area()
 		} else {
 			autosave = AtD.autosave;
 		}
-	}
-
-	// Re-enable editor expand/scroll
-	if ( AtD.wpEditorExpand && window.editorExpand ) {
-		 window.editorExpand.on && window.editorExpand.on();
 	}
 };
 
@@ -109,7 +110,7 @@ function AtD_check(button) {
 		// Disable editor expand/scroll
 		if ( window.editorExpand && jQuery( '#postdivrich' ).hasClass( 'wp-editor-expand' ) ) {
 			AtD.wpEditorExpand = true;
-			window.editorExpand.off && window.editorExpand.off();
+			// window.editorExpand.off && window.editorExpand.off();
 		} else {
 			AtD.wpEditorExpand = false;
 		}
@@ -155,8 +156,8 @@ function AtD_check(button) {
 			text = text.replace( /[\n\r\f]/gm, '<BR class="atd_remove_me">' );
 		}
 
-		$replacement = jQuery( '<div class="input" id="content">' + text + '</div>' );
-		$textarea.replaceWith( $replacement );
+		$replacement = jQuery( '<div class="input" id="atd-content">' + text + '</div>' );
+		$textarea.after( $replacement ).hide();
 
 		divHeight = AtD.height;
 		// AtD disables resizing of the Text editor, normalize the size of the replacement div.
@@ -165,7 +166,7 @@ function AtD_check(button) {
 		} else if ( divHeight > 1000 ) {
 			divHeight = 1000;
 		}
-
+		var toolBarHeight = jQuery("#ed_toolbar").height();
 		$replacement.css( {
 			overflow: 'auto',
 			'background-color': 'white',
@@ -175,7 +176,8 @@ function AtD_check(button) {
 			'font-family': fontFamily || 'Consolas, Monaco, monospace',
 			'font-size': fontSize || '13px',
 			'line-height': lineHeight || '1.5',
-			height: divHeight
+			height: divHeight,
+			'margin-top': toolBarHeight+7+'px'
 		} );
 
 		/* kill autosave... :) */
@@ -190,7 +192,7 @@ function AtD_check(button) {
 		jQuery( AtD_qtbutton ).siblings('input').andSelf().attr( 'disabled', true ); // using .arrt instead of .prop so it's compat with older WP and jQuery
 
 		/* check the writing in the textarea */
-		AtD.check('content', {
+		AtD.check('atd-content', {
 			success: function(errorCount) {
 				if ( Number( errorCount ) === 0 && typeof callback !== 'function' ) {
 					alert( AtD.getLang('message_no_errors_found', 'No writing errors were found') );
