@@ -1392,6 +1392,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		update_post_meta( $post_id, '_feedback_akismet_values', $this->addslashes_deep( $akismet_values ) );
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
+		/**
+		 * Fires right before the contact form message is sent via email to
+		 * the recipient specified in the contact form.
+		 *
+		 * @since ?
+		 * @module Contact_Forms
+		 * @param integer $post_id - Post contact form lives on
+		 * @param array $all_values - Contact form fields
+		 * @param array $extra_values - Contact form fields not included in $all_values
+		 **/
 		do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
 
 		// schedule deletes of old spam feedbacks
