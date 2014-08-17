@@ -33,14 +33,26 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 	}
 
 	private function template( $name, $context = null ) {
-		if ( ! in_array( $name, self::$templates ) ) return;
-		if ( isset( $context ) ) extract( $context );
+		if ( ! in_array( $name, self::$templates ) ) {
+			return;
+		}
+
+		if ( isset( $context ) ) {
+			extract( $context );
+		}
+
 		require dirname( __FILE__ ) . "/templates/$name.php";
 	}
 
 	private function partial( $name, $context = null ) {
-		if ( ! in_array( $name, self::$partials ) ) return;
-		if ( isset( $context ) ) extract( $context );
+		if ( ! in_array( $name, self::$partials ) ) {
+			return;
+		}
+
+		if ( isset( $context ) ) {
+			extract( $context );
+		}
+
 		require dirname( __FILE__ ) . "/templates/partials/$name.php";
 	}
 
