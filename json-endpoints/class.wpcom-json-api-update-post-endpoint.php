@@ -109,6 +109,15 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$new_status = $input['status'];
 		}
 
+		// Fix for https://iorequests.wordpress.com/2014/08/13/scheduled-posts-made-in-the/
+		// See: https://a8c.slack.com/archives/io/p1408047082000273
+		// If date was set, $this->input will set date_gmt, date still needs to be adjusted for the blog's offset
+		if ( isset( $input['date_gmt'] ) ) {
+			$gmt_offset = get_option( 'gmt_offset' );
+			$time_with_offset = strtotime( $input['date_gmt'] ) + $gmt_offset * HOUR_IN_SECONDS;
+			$input['date'] = date( 'Y-m-d H:i:s', $time_with_offset );
+		}
+
 		if ( ! empty( $author_id ) && get_current_user_id() != $author_id ) {
 			if ( ! current_user_can( $post_type->cap->edit_others_posts ) ) {
 				return new WP_Error( 'unauthorized', "User is not allowed to publish others' posts.", 403 );
