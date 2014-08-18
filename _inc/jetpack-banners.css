@@ -17,7 +17,6 @@
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   background: #6f7476;
   border-radius: 3px;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
 .jp-button:visited, .jp-button--settings:visited {
@@ -57,9 +56,7 @@
   background: #518d2a;
   z-index: 3;
   border-radius: 6px;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
-  -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:visited {
@@ -68,12 +65,10 @@
 .download-jetpack:hover, .download-jetpack:focus {
   color: #fff;
   background: #57972d;
-  -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:active {
   top: 6px;
-  -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:active:after {
@@ -89,7 +84,6 @@
   height: 30px;
   vertical-align: middle;
   background: url("img/connect-plug.svg") center center no-repeat;
-  -webkit-background-size: 100% 100%;
   background-size: 100%;
 }
 .download-jetpack:after {
@@ -112,7 +106,6 @@
   background: #6f7476;
   outline: none;
   border-radius: 3px;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
 #searchsubmit:visited {
@@ -165,19 +158,15 @@
   margin: 0 18px 0 0;
   padding: 0.57143em 0.85714em 0.38095em 0.57143em;
   border-radius: 0;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
-  -webkit-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
 #message.jp-connect .jetpack-install-container .download-jetpack:hover, #message.jp-connect .jetpack-install-container .download-jetpack:focus {
-  -webkit-box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
   box-shadow: 0 4px 0 #3e6c20, 0 2px 3px rgba(0, 0, 0, 0.2);
 }
 #message.jp-connect .jetpack-install-container .download-jetpack:active {
   outline: none;
   top: 2px;
-  -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.2);
 }
 #message.jp-connect .jetpack-install-container .download-jetpack:active:after {

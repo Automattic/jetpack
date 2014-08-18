@@ -546,7 +546,7 @@ html {
 		color: #686f72;
 		font-size: em(12);
 	}
-	&:hover {
+	&:hover, &:focus {
 		border-color: #8ac9e8;
 		background: #f8fcfe;
 	}

@@ -5,7 +5,6 @@
 *,
 *:before,
 *:after {
-  -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
@@ -217,7 +216,6 @@ hr {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
   background: #6f7476;
   border-radius: 3px;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
 .jp-button:visited, .jp-button--settings:visited {
@@ -257,9 +255,7 @@ hr {
   background: #518d2a;
   z-index: 3;
   border-radius: 6px;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
-  -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:visited {
@@ -268,12 +264,10 @@ hr {
 .download-jetpack:hover, .download-jetpack:focus {
   color: #fff;
   background: #57972d;
-  -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:active {
   top: 6px;
-  -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:active:after {
@@ -289,7 +283,6 @@ hr {
   height: 30px;
   vertical-align: middle;
   background: url("img/connect-plug.svg") center center no-repeat;
-  -webkit-background-size: 100% 100%;
   background-size: 100%;
 }
 .download-jetpack:after {
@@ -312,7 +305,6 @@ hr {
   background: #6f7476;
   outline: none;
   border-radius: 3px;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
 #searchsubmit:visited {
@@ -436,7 +428,6 @@ html {
   position: relative;
   width: 214px;
   margin-right: 6px;
-  -webkit-background-size: 183px 32px;
   background-size: 183px 32px;
   color: #fff;
   line-height: 60px;
@@ -452,7 +443,6 @@ html {
   height: 100%;
   background: url(images/jetpack-logo.png) center center no-repeat;
   background: url(images/jetpack-logo.svg) center center no-repeat, none;
-  -webkit-background-size: 183px 32px;
   background-size: 183px 32px;
 }
 
@@ -658,7 +648,6 @@ html {
 }
 .feature:hover {
   top: -5px;
-  -webkit-box-shadow: 0 5px 0 rgba(0, 0, 0, 0.02);
   box-shadow: 0 5px 0 rgba(0, 0, 0, 0.02);
 }
 .feature:hover h3 {
@@ -684,7 +673,6 @@ html {
 }
 .feature .feature-img.custom-css {
   background: url("img/custom-css.jpg") no-repeat;
-  -webkit-background-size: 100% auto;
   background-size: 100% auto;
 }
 @media print, (-webkit-min-device-pixel-ratio: 1.25), (min--moz-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 5 / 4), (min-resolution: 120dpi) {
@@ -694,7 +682,6 @@ html {
 }
 .feature .feature-img.wordpress-connect {
   background: url("img/wordpress-connect.jpg") no-repeat;
-  -webkit-background-size: 100% auto;
   background-size: 100% auto;
 }
 @media print, (-webkit-min-device-pixel-ratio: 1.25), (min--moz-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 5 / 4), (min-resolution: 120dpi) {
@@ -704,7 +691,6 @@ html {
 }
 .feature .feature-img.wordpress-stats {
   background: url("img/wordpress-stats.jpg") no-repeat;
-  -webkit-background-size: 100% auto;
   background-size: 100% auto;
 }
 @media print, (-webkit-min-device-pixel-ratio: 1.25), (min--moz-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 5 / 4), (min-resolution: 120dpi) {
@@ -763,7 +749,6 @@ html {
   background: #fff;
   line-height: 1.3;
   border-radius: 3px;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
 #jetpack-search:focus {
@@ -796,7 +781,6 @@ html {
   text-indent: -9999px;
   pointer-events: none;
   border-radius: 3px;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
   -webkit-transition: all 0.2s ease-in-out;
   transition: all 0.2s ease-in-out;
@@ -825,7 +809,6 @@ html {
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
   background: #eee;
   border-radius: 3px;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
 .jp-filter a.selected, .jp-filter a:hover, .jp-filter a:focus {
@@ -841,7 +824,6 @@ html {
   text-align: left;
   border: 1px solid #dae0e2;
   background: #fff;
-  -webkit-box-shadow: 0 0 0 rgba(0, 0, 0, 0.03);
   box-shadow: 0 0 0 rgba(0, 0, 0, 0.03);
   -webkit-transition: opacity 2s ease-in;
   transition: opacity 2s ease-in;
@@ -858,7 +840,7 @@ html {
   color: #686f72;
   font-size: 0.85714em;
 }
-.module:hover {
+.module:hover, .module:focus {
   border-color: #8ac9e8;
   background: #f8fcfe;
 }
@@ -883,10 +865,8 @@ html {
   text-align: center;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
   background: url("img/new-badge.svg") center center no-repeat;
-  -webkit-background-size: 100% 100%;
   background-size: 100%;
   border-radius: 50%;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
 
@@ -955,7 +935,6 @@ html {
   left: 20px;
   margin-left: 160px;
   display: none;
-  -webkit-box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   z-index: 500;
 }
@@ -1113,7 +1092,6 @@ html {
   width: 100%;
   height: 50px;
   background: url("img/the-footcloud.svg") center bottom no-repeat;
-  -webkit-background-size: auto 45px;
   background-size: auto 45px;
   z-index: 1;
 }
@@ -1490,7 +1468,6 @@ html {
 
 .configure .frame.top {
   border: none;
-  -webkit-box-shadow: none;
   box-shadow: none;
   padding-top: 1.42857em;
   position: relative;
@@ -1506,13 +1483,11 @@ html {
   top: 32px;
   width: 100%;
   z-index: 4;
-  -webkit-box-shadow: 0 2px 2px -2px #eeeeee;
   box-shadow: 0 2px 2px -2px #eeeeee;
 }
 @media (max-width: 782px) {
   .configure .frame.top.fixed {
     border: none;
-    -webkit-box-shadow: none;
     box-shadow: none;
     padding-top: 1.42857em;
     position: relative;
@@ -1604,7 +1579,6 @@ html {
 .table-bordered.jetpack-modules tr.jetpack-module td {
   background: #fff;
   margin: 0;
-  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 .table-bordered.jetpack-modules tr.jetpack-module td {
@@ -1789,7 +1763,6 @@ html {
     right: 0;
     top: 0;
     z-index: 13;
-    -webkit-box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
     box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   }
   .wrap .manage-right .bumper {
@@ -1816,7 +1789,6 @@ html {
   .feature:hover,
   .module:hover {
     top: 0;
-    -webkit-box-shadow: none;
     box-shadow: none;
   }
 
@@ -1851,7 +1823,6 @@ html {
     padding: 70px 0 49px;
   }
   .subhead:after {
-    -webkit-background-size: 160% auto;
     background-size: 160% auto;
   }
 
@@ -1884,7 +1855,6 @@ html {
     padding-bottom: 0;
   }
   .footer:before {
-    -webkit-background-size: 160% auto;
     background-size: 160% auto;
   }
   .footer:after {
@@ -2262,13 +2232,11 @@ html {
     margin-bottom: 55px;
     height: 225px;
     background: url("img/rocketeer.svg") center bottom no-repeat;
-    -webkit-background-size: 50px auto;
     background-size: 50px auto;
   }
   .footer .a8c-services:after {
     height: 50px;
     background: url("img/the-footcloud.svg") center bottom no-repeat;
-    -webkit-background-size: auto 38px;
     background-size: auto 38px;
   }
 
@@ -2309,11 +2277,9 @@ html {
 
   .footer .a8c-services:before {
     margin-bottom: 50px;
-    -webkit-background-size: 40px auto;
     background-size: 40px auto;
   }
   .footer .a8c-services:after {
-    -webkit-background-size: auto 25px;
     background-size: auto 25px;
   }
 }
