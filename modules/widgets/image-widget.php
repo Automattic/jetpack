@@ -18,6 +18,11 @@ class Jetpack_Image_Widget extends WP_Widget {
 		extract( $args );
 
 		echo $before_widget;
+		
+		$instance = wp_parse_args( $instance, array(
+			'title' => '',
+			'img_url' => ''
+		) );
 
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
