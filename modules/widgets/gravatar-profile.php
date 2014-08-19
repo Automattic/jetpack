@@ -31,6 +31,12 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
+		
+		$instance = wp_parse_args( $instance, array(
+			'title' => '',
+			'email' => ''
+		) );
+		
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		if ( !$instance['email'] ) {
