@@ -352,6 +352,10 @@ class Jetpack_Blavatar {
 			return $image_edit;
 		}
 
+		// Delete the previous blavatar
+    	$previous_blavatar_id =  get_option( 'blavatar_id' );
+    	self::delete_blavatar( $previous_blavatar_id );
+
 		// crop the image
 		$image_edit->crop( $crop_data['crop_x'], $crop_data['crop_y'],$crop_data['crop_width'], $crop_data['crop_height'], self::$min_size, self::$min_size );
 		
@@ -360,6 +364,7 @@ class Jetpack_Blavatar {
 		$image_edit->save( $blavatar_filename );
 		
 		add_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Blavatar', 'additional_sizes' ) );
+
 		$blavatar_id = self::save_attachment( 
     		__( 'Large Blog Image', 'jetpack' ) , 
     		$blavatar_filename, 
@@ -368,9 +373,7 @@ class Jetpack_Blavatar {
 
     	remove_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Blavatar', 'additional_sizes' ) );
     	
-    	// delete the previous blavatar
-    	$previous_blavatar_id =  get_option( 'blavatar_id' );
-    	self::delete_blavatar( $previous_blavatar_id );
+    	
 
 		// Save the blavatar data into option
 		update_option( 'blavatar_id', $blavatar_id );
