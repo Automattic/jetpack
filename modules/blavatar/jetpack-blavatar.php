@@ -57,9 +57,9 @@ class Jetpack_Blavatar {
 
 		add_action( 'wp_head', array( $this, 'blavatar_add_meta' ) );
 		add_action( 'admin_head', array( $this, 'blavatar_add_meta' ) );
-		add_action( 'delete_option', array( $this, 'delete_temp_data' ), 10, 1); // used to clean up after itself. 
-		add_action( 'delete_attachment', array( $this, 'delete_attachment_data' ), 10, 1); // in case user deletes the attachment via 
-
+		add_action( 'delete_option', array( 'Jetpack_Blavatar', 'delete_temp_data' ), 10, 1); // used to clean up after itself. 
+		add_action( 'delete_attachment', array( 'Jetpack_Blavatar', 'delete_attachment_data' ), 10, 1); // in case user deletes the attachment via 
+		add_filter( "get_post_metadata", array( 'Jetpack_Blavatar', 'delete_attachment_images'), 10, 4 );
 	}
 
 	/**
@@ -188,6 +188,9 @@ class Jetpack_Blavatar {
 		$upload_blovatar_url = admin_url( 'options-general.php?page=jetpack-blavatar-upload' );
 		
 		wp_enqueue_script( 'blavatar-admin' );
+
+		// lets delete the temp data that we might he holding on to
+		self::delete_temporay_data();
 		
 		?>
 		<div id="blavatar" class="blavatar-shell">
@@ -440,20 +443,41 @@ class Jetpack_Blavatar {
 	 * @param  string $option description of the 
 	 * @return null;
 	 */
- 	function delete_temp_data( $option ) {
+ 	static function delete_temp_data( $option ) {
 
 		if( 'blavatar_temp_data' == $option ) {
 			$temp_image_data = get_option( 'blavatar_temp_data' );
+			
+			remove_action( 'delete_attachment', array( 'Jetpack_Blavatar', 'delete_attachment_data' ), 10, 1);
+
 			wp_delete_attachment( $temp_image_data['large_image_attachment_id'] , true );
 	        wp_delete_attachment( $temp_image_data['resized_image_attacment_id'] , true );
 		}
 		return null;
 	}
 
-	function delete_attachment_data( $post_id ) {
-		// The user could be deleting the blavatar image
+	static function delete_attachment_data( $post_id ) {
 		
+		// The user could be deleting the blavatar image
+		$blavatar_id = get_option( 'blavatar_id' );
+		if( $blavatar_id &&  $post_id == $blavatar_id ) {
+			delete_option( 'blavatar_id' );
+		}
 		// The user could be deleteing the temporary images
+	}
+	/**
+	 * 
+	 * @param  [type] $check    [description]
+	 * @param  [type] $post_id  [description]
+	 * @param  [type] $meta_key [description]
+	 * @param  [type] $single   [description]
+	 * @return [type]           [description]
+	 */
+	static function delete_attachment_images( $check, $post_id, $meta_key, $single ) {
+		$blavatar_id = get_option( 'blavatar_id' );
+		if( $post_id == $blavatar_id && '_wp_attachment_backup_sizes' == $meta_key && true == $single ) 
+			add_filter( 'intermediate_image_sizes', array( 'Jetpack_Blavatar', 'intermediate_image_sizes' ) );
+		return $check;
 	}
 
 	/**
