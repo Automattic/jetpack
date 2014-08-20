@@ -550,6 +550,8 @@ class Jetpack_Likes {
 
 		if ( $this->in_jetpack ) {
 			add_filter( 'the_content', array( &$this, 'post_likes' ), 30, 1 );
+			add_filter( 'the_excerpt', array( &$this, 'post_likes' ), 30, 1 );
+
 			add_action( 'wp_enqueue_scripts', array( &$this, 'enqueue_scripts' ) );
 
 		} else {
@@ -833,7 +835,6 @@ class Jetpack_Likes {
 	 */
 	function is_likes_visible() {
 
-		global $wp_current_filter; // Used to check 'get_the_excerpt' filter
 		global $post;              // Used to apply 'sharing_show' filter
 
 		// Never show on feeds or previews
@@ -854,36 +855,29 @@ class Jetpack_Likes {
 			if ( post_password_required() )
 				$enabled = false;
 
-			/** Other Checks ******************************************************/
-
-			// Do not show on excerpts
-			if ( in_array( 'get_the_excerpt', (array) $wp_current_filter ) ) {
-				$enabled = false;
-
 			// Sharing Setting Overrides ****************************************
-			} else {
-				// Single post
-				if ( is_singular( 'post' ) ) {
-					if ( ! $this->is_single_post_enabled() ) {
-						$enabled = false;
-					}
 
-				// Single page
-				} elseif ( is_page() ) {
-					if ( ! $this->is_single_page_enabled() ) {
-						$enabled = false;
-					}
-
-				// Attachment
-				} elseif ( is_attachment() ) {
-					if ( ! $this->is_attachment_enabled() ) {
-						$enabled = false;
-					}
-
-				// All other loops
-				} elseif ( ! $this->is_index_enabled() ) {
+			// Single post
+			if ( is_singular( 'post' ) ) {
+				if ( ! $this->is_single_post_enabled() ) {
 					$enabled = false;
 				}
+
+			// Single page
+			} elseif ( is_page() ) {
+				if ( ! $this->is_single_page_enabled() ) {
+					$enabled = false;
+				}
+
+			// Attachment
+			} elseif ( is_attachment() ) {
+				if ( ! $this->is_attachment_enabled() ) {
+					$enabled = false;
+				}
+
+			// All other loops
+			} elseif ( ! $this->is_index_enabled() ) {
+				$enabled = false;
 			}
 		}
 
