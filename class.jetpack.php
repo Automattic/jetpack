@@ -1408,13 +1408,16 @@ class Jetpack {
 		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating
 		Jetpack::restate();
 		Jetpack::catch_errors( true );
+
+		$active = Jetpack::get_active_modules();
+		
 		foreach ( $modules as $module ) {
 			if ( did_action( "jetpack_module_loaded_$module" ) ) {
 				$active[] = $module;
 				Jetpack_Options::update_option( 'active_modules', array_unique( $active ) );
 				continue;
 			}
-			$active = Jetpack::get_active_modules();
+			
 			if ( in_array( $module, $active ) ) {
 				$module_info = Jetpack::get_module( $module );
 				if ( ! $module_info['deactivate'] ) {
