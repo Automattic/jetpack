@@ -33,33 +33,38 @@ class Jetpack_Blavatar {
 
 	public static $blavatar_sizes = array( 256, 128, 64, 32, 16 );
 
+	static $instance = false; 
+
 	/**
 	 * Singleton
 	 */
 	public static function init() {
-		static $instance = false;
+		if ( ! self::$instance )
+			self::$instance = new Jetpack_Blavatar;
 
-		if ( ! $instance )
-			$instance = new Jetpack_Blavatar;
-
-		return $instance;
+		return self::$instance;
 	}
 
 	function __construct() {
 		self::$min_size = ( defined( 'BLAVATAR_MIN_SIZE' ) && is_int( BLAVATAR_MIN_SIZE ) ? BLAVATAR_MIN_SIZE : self::$min_size );
 		
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
-		add_action( 'jetpack_activate_module_blavatar', array( $this, 'jetpack_module_activated' ) );
-		add_action( 'jetpack_deactivate_module_blavatar', array( $this, 'jetpack_module_deactivated' ) );
+		// add_action( 'jetpack_activate_module_blavatar', array( $this, 'jetpack_module_activated' ) );
+		// add_action( 'jetpack_deactivate_module_blavatar', array( $this, 'jetpack_module_deactivated' ) );
+
 		add_action( 'admin_menu',            array( $this, 'admin_menu_upload_blavatar' ) );
+
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		
 		add_action( 'admin_print_styles-options-general.php', array( $this, 'add_admin_styles' ) );
 
+		// add the favicon to the front end
 		add_action( 'wp_head', array( $this, 'blavatar_add_meta' ) );
 		add_action( 'admin_head', array( $this, 'blavatar_add_meta' ) );
+		
 		add_action( 'delete_option', array( 'Jetpack_Blavatar', 'delete_temp_data' ), 10, 1); // used to clean up after itself. 
 		add_action( 'delete_attachment', array( 'Jetpack_Blavatar', 'delete_attachment_data' ), 10, 1); // in case user deletes the attachment via 
-		add_filter( "get_post_metadata", array( 'Jetpack_Blavatar', 'delete_attachment_images'), 10, 4 );
+		add_filter( 'get_post_metadata', array( 'Jetpack_Blavatar', 'delete_attachment_images'), 10, 4 );
 	}
 
 	/**
@@ -155,10 +160,11 @@ class Jetpack_Blavatar {
 	 * Load on when the admin is initialized
 	 * 
 	 */
-	function admin_init(){
-		/* regsiter the styles and scripts */
+	function admin_init() {
+		/* register the styles and scripts */
 		wp_register_style( 'blavatar-admin' , plugin_dir_url( __FILE__ ). "css/blavatar-admin.css", array(), $this->version );
 		
+		// register the settings
 		add_settings_section(
 		  $this->module,
 		  '',
@@ -166,6 +172,7 @@ class Jetpack_Blavatar {
 		  'general'
 		);
 
+		// Delete  the blavatar 
 		if( isset( $GLOBALS['plugin_page'] ) && 'jetpack-blavatar-upload' == $GLOBALS['plugin_page'] ) {
 			if( isset( $_GET['action'] ) 
 			&& 'remove' == $_GET['action'] 
@@ -216,8 +223,7 @@ class Jetpack_Blavatar {
 				<?php } ?>
 				
 					<div class="blavatar-info">
-					<p><?php echo esc_html_e( 'Site Image or Blavatar is used to create a icon for your site or blog.', 'jetpack' ); ?>
-					</p>
+						<p><?php echo esc_html_e( 'Site Image or Blavatar is used to create a icon for your site or blog.', 'jetpack' ); ?></p>
 					</div>
 
 				</div>
@@ -242,8 +248,6 @@ class Jetpack_Blavatar {
 	 * 
 	 */
 	static function select_page() {
-
-		//self::delete_temporay_data();
 		// Display the blavatar form to upload the image
 		 ?>
 		<form action="<?php echo esc_url( admin_url( 'options-general.php?page=jetpack-blavatar-upload' ) ); ?>" method="post" enctype="multipart/form-data">
@@ -255,7 +259,7 @@ class Jetpack_Blavatar {
 			<p><input name="blavatarfile" id="blavatarfile" type="file" /></p>
 			<p><?php esc_html_e( 'The image needs to be at least', 'jetpack' ); ?> <strong><?php echo self::$min_size; ?>px</strong> <?php esc_html_e( 'in both width and height.', 'jetpack' ); ?></p>
 			<p class="submit">
-				<input name="submit" value="<?php esc_attr_e( 'Upload Image' , 'jetpack' ); ?>" type="submit" class="button button-primary button-large" /> or <a href="#">Cancel</a> and go back to the settings.
+				<input name="submit" value="<?php esc_attr_e( 'Upload Image' , 'jetpack' ); ?>" type="submit" class="button button-primary button-large" /><?php printf( __( ' or <a href="%s">Cancel</a> and go back to the settings.', 'jetpack' ), admin_url(  ) );
 				<input name="step" value="2" type="hidden" />
 			
 				<?php wp_nonce_field( 'update-blavatar-2', '_nonce' ); ?>
@@ -269,7 +273,6 @@ class Jetpack_Blavatar {
 	 * Crop a the image admin view
 	 */
 	static function crop_page() { 
-		
 		// handle the uploaded image
 		$image = self::handle_file_upload( $_FILES['blavatarfile'] );
 
@@ -338,7 +341,7 @@ class Jetpack_Blavatar {
 
 		$temp_image_data = get_option( 'blavatar_temp_data' );
 		if( ! $temp_image_data ) {
-
+			// start again 
 			self::select_page();
 			return;
 		}
@@ -373,12 +376,8 @@ class Jetpack_Blavatar {
 
     	remove_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Blavatar', 'additional_sizes' ) );
     	
-    	
-
 		// Save the blavatar data into option
 		update_option( 'blavatar_id', $blavatar_id );
-	
-    	
 
 		?>
 		<h2 class="blavatar-title"><?php esc_html_e( 'Update Site Image', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'All Done', 'jetpack' ); ?></span></h2>
