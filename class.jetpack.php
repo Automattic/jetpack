@@ -2160,15 +2160,15 @@ p {
 	function plugin_action_links( $actions ) {
 
 		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack' ), __( 'Jetpack', 'jetpack' ) ) );
-		
+
 		if( current_user_can( 'jetpack_manage_modules' ) && ( Jetpack::is_active() || Jetpack::is_development_mode() ) ) {
 			return array_merge(
 				$jetpack_home,
 				array( 'settings' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack_modules' ), __( 'Settings', 'jetpack' ) ) ),
 				$actions
 				);
-			} 
-		
+			}
+
 		return array_merge( $jetpack_home, $actions );
 	}
 
@@ -4288,7 +4288,7 @@ p {
 	 *
 	 * @return array An associative array of the option values as stored in the WordPress.com Mirror Site
 	 */
-	public static function get_cloud_site_options( $option_names ) {
+	public function get_cloud_site_options( $option_names ) {
 		$option_names = array_filter( (array) $option_names, 'is_string' );
 
 		Jetpack::load_xml_rpc_client();
@@ -4328,13 +4328,32 @@ p {
 
 		if ( $force_recheck || false === ( $errors = get_transient( 'jetpack_has_identity_crisis' ) ) ) {
 			$options_to_check = self::identity_crisis_options_to_check();
-			$cloud_options = self::get_cloud_site_options( $options_to_check );
+			$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
 			$errors        = array();
 			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
 					// And it's not been added to the whitelist...
 					if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
+						/*
+						 * This should be a temporary hack until a cleaner solution is found.
+						 *
+						 * The siteurl and home can be set to use http in General > Settings
+						 * however some constants can be defined that can force https in wp-admin
+						 * when this happens wpcom can confuse wporg with a fake identity
+						 * crisis with a mismatch of http vs https when it should be allowed.
+						 * we need to check that here.
+						 *
+						 * @see https://github.com/Automattic/jetpack/issues/1006
+						 */
+						if( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
+							&& ( substr( $cloud_value, 0, 8 ) == "https://" )
+							&& Jetpack::init()->is_ssl_required_to_visit_site() ) {
+							// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
+							continue;
+						}
+
+
 						// Then kick an error!
 						$errors[ $cloud_key ] = $cloud_value;
 					}
@@ -4636,4 +4655,23 @@ p {
 
 		return $css;
 	}
-}
+
+	/**
+	 * This method checks to see if SSL is required by the site in
+	 * order to visit it in some way other than only setting the
+	 * https value in the home or siteurl values.
+	 *
+	 * @since 3.2
+	 * @return boolean
+	 **/
+	private function is_ssl_required_to_visit_site() {
+		$ssl = is_ssl();
+
+		if ( defined( 'FORCE_SSL_LOGIN' ) && FORCE_SSL_LOGIN ) {
+			$ssl = true;
+		} else if ( defined( 'FORCE_SSL_ADMIN' ) && FORCE_SSL_ADMIN ) {
+			$ssl = true;
+		}
+		return $ssl;
+	}
+} // end class Jetpack

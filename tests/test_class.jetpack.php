@@ -1,5 +1,11 @@
 <?php
 
+// Extend with a public constructor so that can be mocked in tests
+class MockJetpack extends Jetpack {
+	public function __construct() {
+	}
+}
+
 class WP_Test_Jetpack extends WP_UnitTestCase {
 
 	/**
@@ -97,4 +103,122 @@ EXPECTED;
 		$this->assertEquals( $expected, $result );
 
 	}
+
+	/**
+	 * @author tonykova
+	 * @covers Jetpack::check_identity_crisis
+	 * @since 3.2.0
+	 */
+	public function test_check_identity_crisis_will_report_crisis_if_an_http_site_and_siteurl_mismatch() {
+		// Store master user data
+		Jetpack::update_option( 'master_user', 'test' );
+		Jetpack::update_option( 'user_tokens', array( 'test' => 'herp.derp.test' ) );
+		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
+
+		// Mock get_cloud_site_options
+		$jp	= $this->getMock(
+			'MockJetpack',
+			array( 'get_cloud_site_options' )
+		);
+
+		$jp->init();
+		Jetpack::$instance = $jp;
+
+		$jp->expects( $this->any() )
+			->method( 'get_cloud_site_options' )
+			->will( $this->returnValue( array( 'siteurl' => 'https://test.site.com' ) ) );
+
+		// Save the mismatching option for comparison
+		update_option( 'siteurl', 'http://test.site.com' );
+
+		// Attach hook for checking the errors
+		$cb = function( $errors ) {
+			$this->assertCount( 1, $errors );
+		};
+
+		add_filter( 'jetpack_has_identity_crisis', $cb );
+
+		$this->assertTrue( false !== MockJetpack::check_identity_crisis( true ) );
+		remove_filter( 'jetpack_has_identity_crisis', $cb );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Jetpack::check_identity_crisis
+	 * @since 3.2.0
+	 */
+	public function test_check_identity_crisis_will_not_report_crisis_if_matching_siteurl() {
+		// Store master user data
+		Jetpack::update_option( 'master_user', 'test' );
+		Jetpack::update_option( 'user_tokens', array( 'test' => 'herp.derp.test' ) );
+		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
+
+		// Mock get_cloud_site_options
+		$jp	= $this->getMock(
+			'MockJetpack',
+			array( 'get_cloud_site_options' )
+		);
+
+		$jp->init();
+		Jetpack::$instance = $jp;
+
+		$jp->expects( $this->any() )
+			->method( 'get_cloud_site_options' )
+			->will( $this->returnValue( array( 'siteurl' => 'https://test.site.com' ) ) );
+
+		// Save the mismatching option for comparison
+		update_option( 'siteurl', 'https://test.site.com' );
+
+		// Attach hook for checking the errors
+		$cb = function( $errors ) {
+			$this->assertCount( 0, $errors );
+		};
+
+		add_filter( 'jetpack_has_identity_crisis', $cb );
+
+		$this->assertTrue( false !== MockJetpack::check_identity_crisis( true ) );
+		remove_filter( 'jetpack_has_identity_crisis', $cb );
+	}
+
+
+	/**
+	 * @author tonykova
+	 * @covers Jetpack::check_identity_crisis
+	 * @since 3.2.0
+	 */
+	public function test_check_identity_crisis_will_not_report_crisis_if_a_siteurl_mismatch_when_forcing_ssl() {
+		// Kick in with force ssl and store master user data
+		define( 'FORCE_SSL_LOGIN', true );
+		Jetpack::update_option( 'master_user', 'test' );
+		Jetpack::update_option( 'user_tokens', array( 'test' => 'herp.derp.test' ) );
+		add_filter( 'jetpack_development_mode', '__return_false', 1, 1 );
+
+		// Mock get_cloud_site_options
+		$jp = $this->getMock(
+			'MockJetpack',
+			array( 'get_cloud_site_options' )
+		);
+
+		$jp->init();
+		Jetpack::$instance = $jp;
+
+		$jp->expects( $this->any() )
+			->method( 'get_cloud_site_options' )
+			->will( $this->returnValue( array( 'siteurl' => 'https://test.site.com' ) ) );
+
+		// Save the mismatching option for comparison
+		update_option( 'siteurl', 'http://test.site.com' );
+
+		// Attach hook for checking the errors
+		$cb = function( $errors ) {
+			$this->assertCount( 0, $errors );
+		};
+
+		add_filter( 'jetpack_has_identity_crisis', $cb );
+
+		$this->assertTrue( false !== MockJetpack::check_identity_crisis( true ) );
+		remove_filter( 'jetpack_has_identity_crisis', $cb );
+	}
+
+
 } // end class
