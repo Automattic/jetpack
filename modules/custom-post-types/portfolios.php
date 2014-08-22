@@ -87,6 +87,9 @@ class Jetpack_Portfolio {
 		// Adjust CPT archive and custom taxonomies to obey CPT reading setting
 		add_filter( 'pre_get_posts',                                                   array( $this, 'query_reading_setting' ) );
 
+		// Add to Dotcom XML sitemaps
+		add_filter( 'wpcom_sitemap_post_types',                                        array( $this, 'add_to_sitemap' ) );
+
 		// If CPT was enabled programatically and no CPT items exist when user switches away, disable
 		if ( $setting && current_theme_supports( self::CUSTOM_POST_TYPE ) ) {
 			add_action( 'switch_theme',                                                array( $this, 'deactivation_post_type_support' ) );
@@ -433,6 +436,15 @@ class Jetpack_Portfolio {
 		) {
 			$query->set( 'posts_per_page', get_option( self::OPTION_READING_SETTING, '10' ) );
 		}
+	}
+
+	/**
+	 * Add Projects to Dotcom sitemap
+	 */
+	function add_to_sitemap( $post_types ) {
+		$post_types[] = self::CUSTOM_POST_TYPE;
+
+		return $post_types;
 	}
 
 	/**
