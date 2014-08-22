@@ -95,10 +95,10 @@ class Jetpack_Testimonial {
 				'slug'       => 'testimonial',
 				'with_front' => false,
 				'feeds'      => false,
-				'pages'      => false,
+				'pages'      => true,
 			),
 			'public'          => true,
-			'show_ui'         => true, // set to false to replace with custom UI
+			'show_ui'         => true,
 			'menu_position'   => 20, // below Pages
 			'capability_type' => 'page',
 			'map_meta_cap'    => true,
