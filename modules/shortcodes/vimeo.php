@@ -33,9 +33,10 @@ function vimeo_shortcode( $atts ) {
 	global $content_width;
 
 	extract( array_map( 'intval', shortcode_atts( array(
-		'id'     => 0,
-		'width'  => 400,
-		'height' => 300
+		'id'       => 0,
+		'width'    => 400,
+		'height'   => 300,
+		'autoplay' => 0
 	), $atts, 'vimeo' ) ) );
 
 	if ( isset( $atts[0] ) )
@@ -66,6 +67,8 @@ function vimeo_shortcode( $atts ) {
 		}
 	}
 
+	$autoplay = ( ! empty( $args['autoplay'] ) ) ? 1 : 0;
+
 	if ( ! $width )
 		$width = absint( $content_width );
 
@@ -74,7 +77,7 @@ function vimeo_shortcode( $atts ) {
 
 	$url = esc_url( set_url_scheme( "http://player.vimeo.com/video/$id" ) );
 
-	$html = "<div class='embed-vimeo' style='text-align:center;'><iframe src='$url' width='$width' height='$height' frameborder='0'></iframe></div>";
+	$html = "<div class='embed-vimeo' style='text-align:center;'><iframe src='$url?autoplay=$autoplay' width='$width' height='$height' frameborder='0'></iframe></div>";
 	$html = apply_filters( 'video_embed_html', $html );
 	return $html;
 }
