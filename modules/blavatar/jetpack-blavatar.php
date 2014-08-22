@@ -259,7 +259,7 @@ class Jetpack_Blavatar {
 			<p><input name="blavatarfile" id="blavatarfile" type="file" /></p>
 			<p><?php esc_html_e( 'The image needs to be at least', 'jetpack' ); ?> <strong><?php echo self::$min_size; ?>px</strong> <?php esc_html_e( 'in both width and height.', 'jetpack' ); ?></p>
 			<p class="submit">
-				<input name="submit" value="<?php esc_attr_e( 'Upload Image' , 'jetpack' ); ?>" type="submit" class="button button-primary button-large" /><?php printf( __( ' or <a href="%s">Cancel</a> and go back to the settings.', 'jetpack' ), admin_url(  ) );
+				<input name="submit" value="<?php esc_attr_e( 'Upload Image' , 'jetpack' ); ?>" type="submit" class="button button-primary button-large" /><?php printf( __( ' or <a href="%s">Cancel</a> and go back to the settings.' , 'jetpack' ), esc_url( admin_url( 'options-general.php' ) ) ); ?>
 				<input name="step" value="2" type="hidden" />
 			
 				<?php wp_nonce_field( 'update-blavatar-2', '_nonce' ); ?>
@@ -378,7 +378,7 @@ class Jetpack_Blavatar {
     	
 		// Save the blavatar data into option
 		update_option( 'blavatar_id', $blavatar_id );
-
+		
 		?>
 		<h2 class="blavatar-title"><?php esc_html_e( 'Update Site Image', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'All Done', 'jetpack' ); ?></span></h2>
 		
@@ -434,7 +434,7 @@ class Jetpack_Blavatar {
 
 	/**
 	 * Delete the temporary created data and attachments
-	 * @return [type] [description]
+	 * @return null
 	 */
 	static function delete_temporay_data() {
 		// This should autimatically delete the temporary files as well
