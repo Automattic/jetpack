@@ -11,3 +11,4 @@
  */
 
 include dirname( __FILE__ ) . '/blavatar/jetpack-blavatar.php';
+include dirname( __FILE__ ) . '/blavatar/blavatar-functions.php';

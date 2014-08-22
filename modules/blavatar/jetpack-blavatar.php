@@ -39,32 +39,48 @@ class Jetpack_Blavatar {
 	 * Singleton
 	 */
 	public static function init() {
-		if ( ! self::$instance )
+		if ( ! self::$instance ){
 			self::$instance = new Jetpack_Blavatar;
+			self::$instance->register_hooks();
+		}
 
 		return self::$instance;
 	}
 
-	function __construct() {
+	private function __construct() {
 		self::$min_size = ( defined( 'BLAVATAR_MIN_SIZE' ) && is_int( BLAVATAR_MIN_SIZE ) ? BLAVATAR_MIN_SIZE : self::$min_size );
-		
+	}
+
+	/**
+	 * Register our actions and filters
+	 * @return null
+	 */
+	public function register_hooks(){
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
-		// add_action( 'jetpack_activate_module_blavatar', array( $this, 'jetpack_module_activated' ) );
-		// add_action( 'jetpack_deactivate_module_blavatar', array( $this, 'jetpack_module_deactivated' ) );
 
 		add_action( 'admin_menu',            array( $this, 'admin_menu_upload_blavatar' ) );
-
-		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		
-		add_action( 'admin_print_styles-options-general.php', array( $this, 'add_admin_styles' ) );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'admin_init', array( $this, 'delete_blavatar_hook' ) );
 
-		// add the favicon to the front end
+		add_action( 'admin_print_styles-options-general.php', array( $this, 'add_general_options_styles' ) );
+		
+		// Add the favicon to the front end and backend 
 		add_action( 'wp_head', array( $this, 'blavatar_add_meta' ) );
 		add_action( 'admin_head', array( $this, 'blavatar_add_meta' ) );
 		
-		add_action( 'delete_option', array( 'Jetpack_Blavatar', 'delete_temp_data' ), 10, 1); // used to clean up after itself. 
+		add_action( 'delete_option', 	 array( 'Jetpack_Blavatar', 'delete_temp_data' ), 10, 1); // used to clean up after itself. 
 		add_action( 'delete_attachment', array( 'Jetpack_Blavatar', 'delete_attachment_data' ), 10, 1); // in case user deletes the attachment via 
 		add_filter( 'get_post_metadata', array( 'Jetpack_Blavatar', 'delete_attachment_images'), 10, 4 );
+	}
+	/**
+	 * After all modules have been loaded.
+	 */
+	public function jetpack_modules_loaded() {
+
+		Jetpack::enable_module_configurable( $this->module );
+		Jetpack::module_configuration_load( $this->module, array( $this, 'jetpack_configuration_load' ) );
+
 	}
 
 	/**
@@ -73,24 +89,27 @@ class Jetpack_Blavatar {
 	 * @todo change Blavatar ico sizes once all Blavatars have been backfilled to new code
 	 * @todo update apple-touch-icon to support retina display 114px and iPad 72px
 	 */
-	function blavatar_add_meta() {
+	public function blavatar_add_meta() {
 
 		if ( apply_filters( 'blavatar_has_favicon', false ) )
 			return;
 
 		$url_114 = blavatar_url( null,  114 );
-		echo '<link rel="icon" href="'.esc_url( blavatar_url( null,  32 ) ) .'" sizes="32x32" />' . "\n";
-		echo '<link rel="apple-touch-icon-precomposed" href="'. esc_url( $url_114 ) .'">' . "\n";
-		// windows tiles
-		echo '<meta name="msapplication-TileImage" content="' . esc_url( $url_114 ) . '"/>' . "\n";
+		$url_72  = blavatar_url( null,  72 );
+		$url_32  = blavatar_url( null,  32 );
+		if( $url_32 ) {
+			echo '<link rel="icon" href="'.esc_url( $url_32 ) .'" sizes="32x32" />' . "\n";
+			echo '<link rel="apple-touch-icon-precomposed" href="'. esc_url( $url_114 ) .'">' . "\n";
+			// windows tiles
+			echo '<meta name="msapplication-TileImage" content="' . esc_url( $url_114 ) . '"/>' . "\n";
+		}
 
 	}
 
-
 	/**
-	 * Add a hidden upload page for people that don't like modal windows
+	 * Add a hidden upload page from people 
 	 */
-	function admin_menu_upload_blavatar() {
+	public function admin_menu_upload_blavatar() {
  		$page_hook = add_submenu_page( 
  			null, 
  			__( 'Blavatar Upload', 'jetpack' ), 
@@ -103,27 +122,18 @@ class Jetpack_Blavatar {
  		add_action( "admin_head-$page_hook", array( $this, 'upload_balavatar_head' ) );
 	}
 
+	
 	/**
-	 * After all modules have been loaded.
+	 * Add styles to the General Settings Screen
 	 */
-	function jetpack_modules_loaded() {
-
-		Jetpack::enable_module_configurable( $this->module );
-		Jetpack::module_configuration_load( $this->module, array( $this, 'jetpack_configuration_load' ) );
-
-	}
-	/**
-	 * Add styles to the General Settings 
-	 */
-	function add_admin_styles(){
-		wp_register_script( 'blavatar-admin', plugin_dir_url( __FILE__ ). "js/blavatar-admin.js" , array( 'jquery' ) , $this->version, true );
+	public function add_general_options_styles(){
 		wp_enqueue_style( 'blavatar-admin' );
 	}
 	/**
 	 * Add Styles to the Upload UI Page
 	 *
 	 */
-	function upload_balavatar_head(){
+	public function upload_balavatar_head(){
 
 		wp_register_script( 'blavatar-crop',  plugin_dir_url( __FILE__ ). "js/blavatar-crop.js"  , array( 'jquery', 'jcrop' ) , $this->version, false);
 		if( isset( $_REQUEST['step'] )  && $_REQUEST['step'] == 2 ){
@@ -134,24 +144,9 @@ class Jetpack_Blavatar {
 	}
 	
 	/**
-	 * Runs when the Blavatar module is activated.
-	 */
-	function jetpack_module_activated() {
-		// not sure yet what is suppoed to go here!
-	}
-
-	/**
-	 * Runs when the Blavatar module is deactivated.
-	 */
-	function jetpack_module_deactivated() {
-		// there are no options that need to be deleted One option that I see we could have is the default blavatar that is defined on per network
-		// Jetpack_Options::delete_option( $this->option_name );
-	}
-
-	/**
 	 * Direct the user to the Settings -> General
 	 */
-	function jetpack_configuration_load() {
+	private function jetpack_configuration_load() {
 		wp_safe_redirect( admin_url( 'options-general.php#blavatar' ) );
 		exit;
 	}
@@ -160,10 +155,10 @@ class Jetpack_Blavatar {
 	 * Load on when the admin is initialized
 	 * 
 	 */
-	function admin_init() {
+	private function admin_init() {
 		/* register the styles and scripts */
 		wp_register_style( 'blavatar-admin' , plugin_dir_url( __FILE__ ). "css/blavatar-admin.css", array(), $this->version );
-		
+		wp_register_script( 'blavatar-admin', plugin_dir_url( __FILE__ ). "js/blavatar-admin.js" , array( 'jquery' ) , $this->version, true );
 		// register the settings
 		add_settings_section(
 		  $this->module,
@@ -171,7 +166,12 @@ class Jetpack_Blavatar {
 		  array( $this, 'blavatar_settings'),
 		  'general'
 		);
-
+	}
+	/**
+	 * Checks for permission to delete the blavatar
+	 * @return 
+	 */
+	public function delete_blavatar_hook() {
 		// Delete  the blavatar 
 		if( isset( $GLOBALS['plugin_page'] ) && 'jetpack-blavatar-upload' == $GLOBALS['plugin_page'] ) {
 			if( isset( $_GET['action'] ) 
@@ -186,14 +186,16 @@ class Jetpack_Blavatar {
 			}
 		}
 	}
+
 	/**
 	 * Add HTML to the General Settings
 	 * 
 	 */
-	function blavatar_settings() { 
+	public function blavatar_settings() { 
 		
 		$upload_blovatar_url = admin_url( 'options-general.php?page=jetpack-blavatar-upload' );
 		
+		// only load the 
 		wp_enqueue_script( 'blavatar-admin' );
 
 		// lets delete the temp data that we might he holding on to
@@ -235,19 +237,18 @@ class Jetpack_Blavatar {
 	/**
 	 * Hidden Upload Blavatar page for people that don't like modals
 	 */
-	function upload_blavatar_page() { ?>
+	public function upload_blavatar_page() { ?>
 		<div class="wrap">
 			<?php require_once( dirname( __FILE__ ) . '/upload-blavatar.php' ); ?>
 		</div>
 		<?php
 	}
 
-
 	/**
 	 * Select a file admin view
 	 * 
 	 */
-	static function select_page() {
+	public static function select_page() {
 		// Display the blavatar form to upload the image
 		 ?>
 		<form action="<?php echo esc_url( admin_url( 'options-general.php?page=jetpack-blavatar-upload' ) ); ?>" method="post" enctype="multipart/form-data">
@@ -272,7 +273,7 @@ class Jetpack_Blavatar {
 	/**
 	 * Crop a the image admin view
 	 */
-	static function crop_page() { 
+	public static function crop_page() { 
 		// handle the uploaded image
 		$image = self::handle_file_upload( $_FILES['blavatarfile'] );
 
@@ -337,7 +338,7 @@ class Jetpack_Blavatar {
 	 * All done page admin view
 	 * 
 	 */
-	static function all_done_page() { 
+	public static function all_done_page() { 
 
 		$temp_image_data = get_option( 'blavatar_temp_data' );
 		if( ! $temp_image_data ) {
@@ -398,7 +399,7 @@ class Jetpack_Blavatar {
 	 * @param  int $resized_height 
 	 * @return array                 
 	 */
-	static function initial_crop_data( $large_width, $large_height, $resized_width, $resized_height ) {
+	public static function initial_crop_data( $large_width, $large_height, $resized_width, $resized_height ) {
 		
 		$init_x = 0;
 		$init_y = 0;
@@ -410,7 +411,6 @@ class Jetpack_Blavatar {
 		if( $resized_width > $resized_height ) {
 			$init_x = ( self::$page_crop - $resized_height ) / 2;
 			$init_size = $resized_height;
-			
 		}
 
 		// Portrate format ( height > width )
@@ -436,16 +436,17 @@ class Jetpack_Blavatar {
 	 * Delete the temporary created data and attachments
 	 * @return null
 	 */
-	static function delete_temporay_data() {
+	public static function delete_temporay_data() {
 		// This should autimatically delete the temporary files as well
 		delete_option( 'blavatar_temp_data' ); 
 	}
+
 	/**
 	 * Function gets fired when delete_option( 'blavatar_temp_data' ) is run.
 	 * @param  string $option description of the 
 	 * @return null;
 	 */
- 	static function delete_temp_data( $option ) {
+ 	public static function delete_temp_data( $option ) {
 
 		if( 'blavatar_temp_data' == $option ) {
 			$temp_image_data = get_option( 'blavatar_temp_data' );
@@ -458,7 +459,7 @@ class Jetpack_Blavatar {
 		return null;
 	}
 
-	static function delete_attachment_data( $post_id ) {
+	public static function delete_attachment_data( $post_id ) {
 		
 		// The user could be deleting the blavatar image
 		$blavatar_id = get_option( 'blavatar_id' );
@@ -475,7 +476,7 @@ class Jetpack_Blavatar {
 	 * @param  [type] $single   [description]
 	 * @return [type]           [description]
 	 */
-	static function delete_attachment_images( $check, $post_id, $meta_key, $single ) {
+	public static function delete_attachment_images( $check, $post_id, $meta_key, $single ) {
 		$blavatar_id = get_option( 'blavatar_id' );
 		if( $post_id == $blavatar_id && '_wp_attachment_backup_sizes' == $meta_key && true == $single ) 
 			add_filter( 'intermediate_image_sizes', array( 'Jetpack_Blavatar', 'intermediate_image_sizes' ) );
@@ -488,7 +489,7 @@ class Jetpack_Blavatar {
 	 * @param  boolean $delete_data [description]
 	 * @return [type]               [description]
 	 */
-	static function delete_blavatar( $id ) {
+	public static function delete_blavatar( $id ) {
 
 		// We add the filter to make sure that we also delete all the added images
 		add_filter( 'intermediate_image_sizes', 	array( 'Jetpack_Blavatar', 'intermediate_image_sizes' ) );
@@ -500,7 +501,7 @@ class Jetpack_Blavatar {
 
 	}
 	
-	static function convert_coodiantes_from_resized_to_full( $crop_x, $crop_y, $crop_width, $crop_height, $ratio ) {
+	public static function convert_coodiantes_from_resized_to_full( $crop_x, $crop_y, $crop_width, $crop_height, $ratio ) {
 
 		return array(  
 			'crop_x' 	  => floor( $crop_x * $ratio ),
@@ -513,7 +514,7 @@ class Jetpack_Blavatar {
 	/**
 	 * Handle the uploaded image
 	 */
-	static function handle_file_upload( $uploaded_file ) {
+	public static function handle_file_upload( $uploaded_file ) {
 		
 		// check that the image accuallt is a file with size
 		if( !isset( $uploaded_file ) || ($uploaded_file['size'] <= 0 ) ) {
@@ -601,7 +602,7 @@ class Jetpack_Blavatar {
 	 * @param  boolean 	$generate_meta
 	 * @return int 		$attactment_id                 
 	 */
-	static function save_attachment( $title, $filename, $file_type, $generate_meta = true ) {
+	public static function save_attachment( $title, $filename, $file_type, $generate_meta = true ) {
 		$wp_upload_dir = wp_upload_dir();
 		$attachment = array(
 		 	'guid'           => $wp_upload_dir['url'] . '/' . basename( $filename ), 
@@ -635,7 +636,7 @@ class Jetpack_Blavatar {
 	 * @param  array $sizes
 	 * @return array       
 	 */
-	static function additional_sizes( $sizes ) {
+	public static function additional_sizes( $sizes ) {
 		/**
 		 * blavatar_image_sizes
 		 * filter the different dimentions that the image should be saved in
@@ -665,8 +666,12 @@ class Jetpack_Blavatar {
 
 		return $only_crop_sizes;
 	}
-
-	static function intermediate_image_sizes( $sizes ) {
+	/**
+	 * Helps us delete blavatar images that 
+	 * @param  [type] $sizes [description]
+	 * @return [type]        [description]
+	 */
+	public static function intermediate_image_sizes( $sizes ) {
 
 		self::$blavatar_sizes = apply_filters( 'blavatar_image_sizes', self::$blavatar_sizes );
 		foreach( self::$blavatar_sizes as $size ) {
@@ -680,7 +685,7 @@ class Jetpack_Blavatar {
 	 * @param  array $sizes
 	 * @return array
 	 */
-	static function only_thumbnail_size( $sizes ){
+	private static function only_thumbnail_size( $sizes ){
 		foreach( $sizes as $name => $size_array ) {
 			if( 'thumbnail' == $name)
 				$only_thumb['thumbnail'] = $size_array;
@@ -691,60 +696,3 @@ class Jetpack_Blavatar {
 
 
 Jetpack_Blavatar::init();
-
-if( ! function_exists( 'has_blavatar' ) ) :
-function has_blavatar( $blog_id = null ) {
-
-	if( ! is_int( $blog_id ) )
-		$blog_id = get_current_blog_id();
-
-	if( blavatar_url( $blog_id, 96, '' ) ) {
-		return true;
-	}
-
-	return false;
-}
-endif;
-
-if( ! function_exists( 'get_blavatar' ) ) :
-function get_blavatar( $blog_id = null, $size = '96', $default = '', $alt = false ) {
-
-	if( ! is_int( $blog_id ) )
-		$blog_id = get_current_blog_id();
-
-	$size  = esc_attr( $size );
-	$class = "avatar avatar-$size";
-	$alt = ( $alt ? esc_attr( $alt ) : __( 'Blog Image', 'jetpack' ) );
-	$src = esc_url( blavatar_url( $blog_id, $size, $default ) );
-	$avatar = "<img alt='{$alt}' src='{$src}' class='$class' height='{$size}' width='{$size}' />";
-
-	return apply_filters( 'get_blavatar', $avatar, $blog_id, $size, $default, $alt );
-}
-endif; 
-
-if( ! function_exists( 'blavatar_url' ) ) :
-function blavatar_url( $blog_id = null, $size = '96', $default = false ) {
-	$url = '';
-	if( ! is_int( $blog_id ) )
-		$blog_id = get_current_blog_id();
-
-	if( function_exists( 'get_blog_option' ) ) {
-		$blavatar_id = get_blog_option( $blog_id, 'blavatar_id' );
-	} else {
-		$blavatar_id = get_option( 'blavatar_id' );
-	}
-	
-	if( ! $blavatar_id  ) {
-		if( $default === false && defined( 'BLAVATAR_DEFAULT_URL' ) )
-			$url =  BLAVATAR_DEFAULT_URL;
-		else
-			$url = $default;
-	} else {
-
-		$url_data = wp_get_attachment_image_src( $blavatar_id, array( $size, $size ) );
-		$url = $url_data[0];
-	}
-
-	return $url;
-}
-endif; 
