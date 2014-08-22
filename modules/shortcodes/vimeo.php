@@ -67,7 +67,7 @@ function vimeo_shortcode( $atts ) {
 		}
 	}
 
-	$autoplay = ( isset( $args['autoplay'] ) && 1 == $args['autoplay'] ) ? 1 : 0;
+	$autoplay = ( ! empty( $args['autoplay'] ) ) ? 1 : 0;
 
 	if ( ! $width )
 		$width = absint( $content_width );
