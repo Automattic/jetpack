@@ -237,7 +237,7 @@
 
 			// About page
 			for ( i = 0; i < modules.length; i++ ) {
-				if ( currentVersion.indexOf( modules[i].introduced ) !== -1 ) {
+				if ( currentVersion.indexOf( modules[i].introduced ) === 0 ) {
 					modules[i]['new'] = true;
 				}
 
