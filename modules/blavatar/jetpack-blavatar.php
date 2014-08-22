@@ -155,7 +155,7 @@ class Jetpack_Blavatar {
 	 * Load on when the admin is initialized
 	 * 
 	 */
-	private function admin_init() {
+	public function admin_init() {
 		/* register the styles and scripts */
 		wp_register_style( 'blavatar-admin' , plugin_dir_url( __FILE__ ). "css/blavatar-admin.css", array(), $this->version );
 		wp_register_script( 'blavatar-admin', plugin_dir_url( __FILE__ ). "js/blavatar-admin.js" , array( 'jquery' ) , $this->version, true );
