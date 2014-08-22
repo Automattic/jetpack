@@ -34,7 +34,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	/**
 	 * @author scotchfield
 	 * @covers Jetpack_PostImages::from_slideshow
-	 * @since 3.1
+	 * @since 3.2
 	 */
 	public function test_from_slideshow_is_array() {
 		require_once plugin_dir_path( realpath( dirname( __FILE__ ) . '/../modules/shortcodes/slideshow.php' ) ) . 'slideshow.php';
@@ -53,7 +53,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	/**
 	 * @author scotchfield
 	 * @covers Jetpack_PostImages::from_gallery
-	 * @since 3.1
+	 * @since 3.2
 	 */
 	public function test_from_gallery_is_array() {
 		$post_id = $this->factory->post->create( array(
@@ -68,7 +68,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	/**
 	 * @author scotchfield
 	 * @covers Jetpack_PostImages::from_attachment
-	 * @since 3.1
+	 * @since 3.2
 	 */
 	public function test_from_attachment_is_correct_array() {
 		$img_name = 'image.jpg';
