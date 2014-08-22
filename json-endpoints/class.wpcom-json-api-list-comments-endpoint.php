@@ -1,5 +1,18 @@
 <?php
 
+class WPCOM_JSON_API_List_Comments_Walker extends Walker {
+	public $tree_type = 'comment';
+
+	public $db_fields = array(
+		'parent' => 'comment_parent',
+		'id'     => 'comment_ID'
+	);
+
+	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
+		$output[] = $object->comment_ID;
+	}
+}
+
 // @todo permissions
 class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpoint {
 	var $date_range = array();
@@ -12,15 +25,19 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 	function __construct( $args ) {
 		parent::__construct( $args );
 		$this->query = array_merge( $this->query, array(
-			'number'   => '(int=20) The number of comments to return.  Limit: 100.',
-			'offset'   => '(int=0) 0-indexed offset.',
-			'page'     => '(int) Return the Nth 1-indexed page of comments.  Takes precedence over the <code>offset</code> parameter.',
+			'number'   => '(int=20) The number of comments to return.  Limit: 100. When using hierarchical=1, number refers to the number of top-level comments returned.',
+			'offset'   => '(int=0) 0-indexed offset. Not available if using hierarchical=1.',
+			'page'     => '(int) Return the Nth 1-indexed page of comments.  Takes precedence over the <code>offset</code> parameter. When using hierarchical=1, pagination is a bit different.  See the note on the number parameter.',
 			'order'    => array(
 				'DESC' => 'Return comments in descending order from newest to oldest.',
 				'ASC'  => 'Return comments in ascending order from oldest to newest.',
 			),
-			'after'    => '(ISO 8601 datetime) Return comments dated on or after the specified datetime.',
-			'before'   => '(ISO 8601 datetime) Return comments dated on or before the specified datetime.',
+			'hierarchical' => array(
+				'false' => '',
+				'true' => '(BETA) Order the comment list hierarchically.',
+			),
+			'after'    => '(ISO 8601 datetime) Return comments dated on or after the specified datetime. Not available if using hierarchical=1.',
+			'before'   => '(ISO 8601 datetime) Return comments dated on or before the specified datetime. Not available if using hierarchical=1.',
 			'type'     => array(
 				'any'       => 'Return all comments regardless of type.',
 				'comment'   => 'Return only regular comments.',
@@ -102,11 +119,37 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 		}
 
 		$query = array(
-			'number' => $args['number'],
 			'order'  => $args['order'],
 			'type'   => 'any' === $args['type'] ? false : $args['type'],
 			'status' => $status,
 		);
+
+		if ( isset( $args['page'] ) ) {
+			if ( $args['page'] < 1 ) {
+				$args['page'] = 1;
+			}
+		} else {
+			if ( $args['offset'] < 0 ) {
+				$args['offset'] = 0;
+			}
+		}
+
+		if ( ! $args['hierarchical'] ) {
+			$query['number'] = $args['number'];
+
+			if ( isset( $args['page'] ) ) {
+				$query['offset'] = ( $args['page'] - 1 ) * $args['number'];
+			} else {
+				$query['offset'] = $args['offset'];
+			}
+
+			if ( isset( $args['before_gmt'] ) ) {
+				$this->date_range['before_gmt'] = $args['before_gmt'];
+			}
+			if ( isset( $args['after_gmt'] ) ) {
+				$this->date_range['after_gmt'] = $args['after_gmt'];
+			}
+		}
 
 		if ( $post_id ) {
 			$post = get_post( $post_id );
@@ -125,27 +168,6 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			$query['parent'] = $comment_id;
 		}
 
-		if ( isset( $args['page'] ) ) {
-			if ( $args['page'] < 1 ) {
-				$args['page'] = 1;
-			}
-
-			$query['offset'] = ( $args['page'] - 1 ) * $args['number'];
-		} else {
-			if ( $args['offset'] < 0 ) {
-				$args['offset'] = 0;
-			}
-
-			$query['offset'] = $args['offset'];
-		}
-
-		if ( isset( $args['before_gmt'] ) ) {
-			$this->date_range['before_gmt'] = $args['before_gmt'];
-		}
-		if ( isset( $args['after_gmt'] ) ) {
-			$this->date_range['after_gmt'] = $args['after_gmt'];
-		}
-
 		if ( $this->date_range ) {
 			add_filter( 'comments_clauses', array( $this, 'handle_date_range' ) );
 		}
@@ -153,6 +175,14 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 		if ( $this->date_range ) {
 			remove_filter( 'comments_clauses', array( $this, 'handle_date_range' ) );
 			$this->date_range = array();
+		}
+
+		update_comment_cache( $comments );
+
+		if ( $args['hierarchical'] ) {
+			$walker = new WPCOM_JSON_API_List_Comments_Walker;
+			$comment_ids = $walker->paged_walk( $comments, get_option( 'thread_comments_depth', -1 ), isset( $args['page'] ) ? $args['page'] : 1 , $args['number'] );
+			$comments = array_map( 'get_comment', $comment_ids );
 		}
 
 		$return = array();

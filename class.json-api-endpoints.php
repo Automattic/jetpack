@@ -263,17 +263,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 			if ( is_array( $description ) ) {
 				// String or boolean array keys only
 				$whitelist = array_keys( $description );
-				if ( isset( $data[$key] ) && isset( $description[$data[$key]] ) ) {
+
+				if ( $whitelist === $boolean_arg || $whitelist === $naeloob_arg ) {
+					// Truthiness
+					if ( isset( $data[$key] ) ) {
+						$return[$key] = (bool) WPCOM_JSON_API::is_truthy( $data[$key] );
+					} elseif ( $return_default_values ) {
+						$return[$key] = $whitelist === $naeloob_arg; // Default to true for naeloob_arg and false for boolean_arg.
+					}
+				} elseif ( isset( $data[$key] ) && isset( $description[$data[$key]] ) ) {
+					// String Key
 					$return[$key] = (string) $data[$key];
 				} elseif ( $return_default_values ) {
+					// Default value
 					$return[$key] = (string) current( $whitelist );
-				} else {
-					continue;
-				}
-
-				// Truthiness
-				if ( $whitelist === $boolean_arg || $whitelist === $naeloob_arg ) {
-					$return[$key] = (bool) WPCOM_JSON_API::is_truthy( $return[$key] );
 				}
 
 				continue;
@@ -522,7 +525,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
 			break;
-
+		case 'jetpackmodule' :
+			$docs = array(
+				'id'          => '(string)   The module\'s ID',
+				'active'      => '(boolean)  The module\'s status.',
+				'name'        => '(string)   The module\'s name.',
+				'description' => '(safehtml) The module\'s description.',
+				'sort'        => '(int)      The module\'s display order.',
+				'introduced'  => '(string)   The Jetpack version when the module was introduced.',
+				'changed'     => '(string)   The Jetpack version when the module was changed.',
+				'free'        => '(boolean)  The module\'s Free or Paid status.',
+				'module_tags' => '(array)    The module\'s tags.'
+			);
+			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
+			break;
 		default :
 			trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
 		}
@@ -956,6 +972,12 @@ EOPHP;
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
 			$site_id     = -1;
+
+			// Comment author URLs and Emails are sent through wp_kses() on save, which replaces "&" with "&amp;"
+			// "&" is the only email/URL character altered by wp_kses()
+			foreach ( array( 'email', 'URL' ) as $field ) {
+				$$field = str_replace( '&amp;', '&', $$field );
+			}
 		} else {
 			if ( isset( $author->post_author ) ) {
 				if ( 0 == $author->post_author )
@@ -1048,6 +1070,10 @@ EOPHP;
 			return new WP_Error( 'unknown_taxonomy', 'Unknown taxonomy', 404 );
 		}
 
+		return $this->format_taxonomy( $taxonomy, $taxonomy_type, $context );
+	}
+
+	function format_taxonomy( $taxonomy, $taxonomy_type, $context ) {
 		// Permissions
 		switch ( $context ) {
 		case 'edit' :
@@ -1056,7 +1082,8 @@ EOPHP;
 				return new WP_Error( 'unauthorized', 'User cannot edit taxonomy', 403 );
 			break;
 		case 'display' :
-			if ( -1 == get_option( 'blog_public' ) ) {
+			$tax = get_taxonomy( $taxonomy_type );
+			if ( -1 == get_option( 'blog_public' ) && ! current_user_can( 'read' ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot view taxonomy', 403 );
 			}
 			break;
@@ -1067,7 +1094,7 @@ EOPHP;
 		$response                = array();
 		$response['ID']          = (int) $taxonomy->term_id;
 		$response['name']        = (string) $taxonomy->name;
-		$response['slug']        = (string) $taxonomy_id;
+		$response['slug']        = (string) $taxonomy->slug;
 		$response['description'] = (string) $taxonomy->description;
 		$response['post_count']  = (int) $taxonomy->count;
 
@@ -1076,8 +1103,8 @@ EOPHP;
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy_id, $taxonomy_type ),
-				'help' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy_id, $taxonomy_type, 'help' ),
+				'self' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type ),
+				'help' => (string) $this->get_taxonomy_link( $this->api->get_blog_id_for_output(), $taxonomy->slug, $taxonomy_type, 'help' ),
 				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
 			),
 		);
@@ -1095,12 +1122,38 @@ EOPHP;
 	 */
 	function format_date( $date_gmt, $date = null ) {
 		$timestamp_gmt = strtotime( "$date_gmt+0000" );
+
 		if ( null === $date ) {
 			$timestamp = $timestamp_gmt;
 			$hours     = $minutes = $west = 0;
 		} else {
-			$timestamp = strtotime( "$date+0000" );
-			$offset    = $timestamp - $timestamp_gmt;
+			$date_time = date_create( "$date+0000" );
+			if ( $date_time ) {
+				$timestamp = $date_time->getTimestamp();
+			} else {
+				$timestamp = 0;
+			}
+
+			// "0000-00-00 00:00:00" == -62169984000
+			if ( -62169984000 == $timestamp_gmt ) {
+				// WordPress sets post_date=now, post_date_gmt="0000-00-00 00:00:00" for all drafts
+				// WordPress sets post_modified=now, post_modified_gmt="0000-00-00 00:00:00" for new drafts
+
+				// Try to guess the correct offset from the blog's options.
+				$timezone_string = get_option( 'timezone_string' );
+
+				if ( $timezone_string && $date_time ) {
+					$timezone = timezone_open( $timezone_string );
+					if ( $timezone ) {
+						$offset = $timezone->getOffset( $date_time );
+					}
+				} else {
+					$offset = 3600 * get_option( 'gmt_offset' );
+				}
+			} else {
+				$offset = $timestamp - $timestamp_gmt;
+			}
+
 			$west      = $offset < 0;
 			$offset    = abs( $offset );
 			$hours     = (int) floor( $offset / 3600 );
