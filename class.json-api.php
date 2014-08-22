@@ -304,8 +304,8 @@ class WPCOM_JSON_API {
 		}
 		$this->did_output = true;
 
-		// 404s are allowed for all origins
-		if ( 404 == $status_code )
+		// 400s and 404s are allowed for all origins
+		if ( 404 == $status_code || 400 == $status_code )
 			header( 'Access-Control-Allow-Origin: *' );
 
 		if ( is_null( $response ) ) {
