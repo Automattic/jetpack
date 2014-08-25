@@ -36,7 +36,8 @@ function vimeo_shortcode( $atts ) {
 		'id'       => 0,
 		'width'    => 400,
 		'height'   => 300,
-		'autoplay' => 0
+		'autoplay' => 0,
+		'loop'     => 0,
 	), $atts, 'vimeo' ) ) );
 
 	if ( isset( $atts[0] ) )
@@ -82,6 +83,10 @@ function vimeo_shortcode( $atts ) {
 	// in_array( 'autoplay', $atts ) catches the argument passed without a value.
 	if ( ! empty( $args['autoplay'] ) || ! empty( $autoplay ) || in_array( 'autoplay', $atts ) ) {
 		$url = add_query_arg( 'autoplay', 1, $url );
+	}
+
+	if ( ! empty( $args['loop'] ) || ! empty( $loop ) || in_array( 'loop', $atts ) ) {
+		$url = add_query_arg( 'loop', 1, $url );
 	}
 
 	$html = sprintf( '<div class="embed-vimeo" style="text-align:center;"><iframe src="%1$s" width="%2$u" height="%3$u" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>', esc_url( $url ), $width, $height );
