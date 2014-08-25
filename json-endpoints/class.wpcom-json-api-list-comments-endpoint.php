@@ -11,6 +11,50 @@ class WPCOM_JSON_API_List_Comments_Walker extends Walker {
 	public function start_el( &$output, $object, $depth = 0, $args = array(), $current_object_id = 0 ) {
 		$output[] = $object->comment_ID;
 	}
+
+	/**
+	 * Taken from WordPress's Walker_Comment::display_element()
+	 *
+	 * This function is designed to enhance Walker::display_element() to
+	 * display children of higher nesting levels than selected inline on
+	 * the highest depth level displayed. This prevents them being orphaned
+	 * at the end of the comment list.
+	 *
+	 * Example: max_depth = 2, with 5 levels of nested content.
+	 * 1
+	 *  1.1
+	 *    1.1.1
+	 *    1.1.1.1
+	 *    1.1.1.1.1
+	 *    1.1.2
+	 *    1.1.2.1
+	 * 2
+	 *  2.2
+	 *
+	 * @see Walker_Comment::display_element()
+	 * @see Walker::display_element()
+	 * @see wp_list_comments()
+	 */
+	public function display_element( $element, &$children_elements, $max_depth, $depth, $args, &$output ) {
+
+		if ( !$element )
+			return;
+
+		$id_field = $this->db_fields['id'];
+		$id = $element->$id_field;
+
+		parent::display_element( $element, $children_elements, $max_depth, $depth, $args, $output );
+
+		// If we're at the max depth, and the current element still has children, loop over those and display them at this level
+		// This is to prevent them being orphaned to the end of the list.
+		if ( $max_depth <= $depth + 1 && isset( $children_elements[$id]) ) {
+			foreach ( $children_elements[ $id ] as $child )
+				$this->display_element( $child, $children_elements, $max_depth, $depth, $args, $output );
+
+			unset( $children_elements[ $id ] );
+		}
+
+	}
 }
 
 // @todo permissions
