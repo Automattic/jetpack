@@ -743,6 +743,7 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 
 	'response_format' => array(
  		'media' => '(array) Array of uploaded media',
+		'errors' => '(array) Array of error messages of uploading media failures'
 	),
 ) );
 
