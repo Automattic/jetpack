@@ -67,8 +67,6 @@ function vimeo_shortcode( $atts ) {
 		}
 	}
 
-	$autoplay = ( ! empty( $args['autoplay'] ) ) ? 1 : 0;
-
 	if ( ! $width ) {
 		$width = absint( $content_width );
 	}
@@ -79,8 +77,11 @@ function vimeo_shortcode( $atts ) {
 
 	$url = esc_url( set_url_scheme( "http://player.vimeo.com/video/$id" ) );
 
-	if ( $autoplay ) {
-		$url = add_query_arg( 'autoplay', $autoplay, $url );
+	// $args['autoplay'] is parsed from the embedded url.
+	// $autoplay is parsed from shortcode arguments.
+	// in_array( 'autoplay', $atts ) catches the argument passed without a value.
+	if ( ! empty( $args['autoplay'] ) || ! empty( $autoplay ) || in_array( 'autoplay', $atts ) ) {
+		$url = add_query_arg( 'autoplay', 1, $url );
 	}
 
 	$html = "<div class='embed-vimeo' style='text-align:center;'><iframe src='$url' width='$width' height='$height' frameborder='0'></iframe></div>";
