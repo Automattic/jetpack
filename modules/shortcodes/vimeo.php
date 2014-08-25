@@ -40,8 +40,9 @@ function vimeo_shortcode( $atts ) {
 		'loop'     => 0,
 	), $atts, 'vimeo' ) ) );
 
-	if ( isset( $atts[0] ) )
+	if ( isset( $atts[0] ) ) {
 		$id = jetpack_shortcode_get_vimeo_id( $atts );
+	}
 
 	if ( ! $id ) return "<!-- vimeo error: not a vimeo video -->";
 
