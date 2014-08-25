@@ -220,7 +220,6 @@ img {
 .jp-button--settings.current {
   background: #3c6621;
   color: #fff;
-  -webkit-box-shadow: inset 0 2px 0 #365A1F, inset 0 1px 3px #3c6621;
   box-shadow: inset 0 2px 0 #365A1F, inset 0 1px 3px #3c6621;
 }
 
@@ -233,7 +232,6 @@ img {
   background: #518d2a;
   z-index: 3;
   border-radius: 6px;
-  -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:visited {
@@ -242,12 +240,10 @@ img {
 .download-jetpack:hover, .download-jetpack:focus {
   color: #fff;
   background: #57972d;
-  -webkit-box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
   box-shadow: 0 6px 0 #3e6c20, 0 6px 3px rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:active {
   top: 6px;
-  -webkit-box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
   box-shadow: 0 0px 0 #3e6c20, 0 0 0 rgba(0, 0, 0, 0.4);
 }
 .download-jetpack:active:after {
@@ -263,7 +259,6 @@ img {
   height: 30px;
   vertical-align: middle;
   background: url("../images/connect-plug.svg") center center no-repeat;
-  -webkit-background-size: 100% 100%;
   background-size: 100%;
 }
 .download-jetpack:after {
@@ -359,7 +354,6 @@ img {
 *,
 *:before,
 *:after {
-  -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
@@ -508,7 +502,6 @@ img {
   position: relative;
   width: 214px;
   margin-right: 6px;
-  -webkit-background-size: 183px 32px;
   background-size: 183px 32px;
   color: #fff;
   line-height: 60px;
@@ -524,7 +517,6 @@ img {
   height: 100%;
   background: url(../images/jetpack-logo.png) center center no-repeat;
   background: url(../images/jetpack-logo.svg) center center no-repeat, none;
-  -webkit-background-size: 183px 32px;
   background-size: 183px 32px;
 }
 
@@ -565,7 +557,6 @@ img {
   text-align: center;
   z-index: 1;
   background-color: #81a844;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#81a844), to(#8eb74e));
   background-image: -webkit-linear-gradient(top, #81a844, #8eb74e);
   background-image: linear-gradient(top, #81a844, #8eb74e);
 }
@@ -703,7 +694,6 @@ img {
     padding: 70px 0 49px;
   }
   .subhead:after {
-    -webkit-background-size: 160% auto;
     background-size: 160% auto;
   }
 }
@@ -824,7 +814,6 @@ img {
   .feature:hover,
   .module:hover {
     top: 0;
-    -webkit-box-shadow: none;
     box-shadow: none;
   }
 }
@@ -899,7 +888,6 @@ img {
 }
 .feature .feature-img.custom-css {
   background: url("../images/custom-css.jpg") no-repeat;
-  -webkit-background-size: 100% auto;
   background-size: 100% auto;
 }
 @media print, (-webkit-min-device-pixel-ratio: 1.25), (min--moz-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 5 / 4), (min-resolution: 120dpi) {
@@ -909,7 +897,6 @@ img {
 }
 .feature .feature-img.wordpress-connect {
   background: url("../images/wordpress-connect.jpg") no-repeat;
-  -webkit-background-size: 100% auto;
   background-size: 100% auto;
 }
 @media print, (-webkit-min-device-pixel-ratio: 1.25), (min--moz-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 5 / 4), (min-resolution: 120dpi) {
@@ -919,7 +906,6 @@ img {
 }
 .feature .feature-img.wordpress-stats {
   background: url("../images/wordpress-stats.jpg") no-repeat;
-  -webkit-background-size: 100% auto;
   background-size: 100% auto;
 }
 @media print, (-webkit-min-device-pixel-ratio: 1.25), (min--moz-device-pixel-ratio: 1.25), (-o-min-device-pixel-ratio: 5 / 4), (min-resolution: 120dpi) {
@@ -1056,7 +1042,6 @@ img {
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.2);
   background: #eee;
   border-radius: 3px;
-  -webkit-background-clip: padding-box;
   background-clip: padding-box;
 }
 .jp-filter a.selected, .jp-filter a:hover, .jp-filter a:focus {
@@ -1077,7 +1062,6 @@ img {
   text-align: left;
   border: 1px solid #dae0e2;
   background: #fff;
-  -webkit-box-shadow: 0 0 0 rgba(0, 0, 0, 0.03);
   box-shadow: 0 0 0 rgba(0, 0, 0, 0.03);
   -webkit-transition: opacity 2s ease-in;
   transition: opacity 2s ease-in;
@@ -1173,7 +1157,6 @@ img {
   text-align: center;
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
   background: url("../images/new-badge.svg") center center no-repeat;
-  -webkit-background-size: 100% 100%;
   background-size: 100%;
   border-radius: 50%;
 }
@@ -1243,7 +1226,6 @@ img {
   left: 20px;
   margin-left: 160px;
   display: none;
-  -webkit-box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   z-index: 500;
 }
@@ -1427,7 +1409,6 @@ img {
   padding: 10em 0 4.28571em;
   text-align: center;
   background-color: #81a844;
-  background-image: -webkit-gradient(linear, left top, left bottom, from(#8eb74e), to(#81a844));
   background-image: -webkit-linear-gradient(top, #8eb74e, #81a844);
   background-image: linear-gradient(top, #8eb74e, #81a844);
 }
@@ -1449,7 +1430,6 @@ img {
   width: 100%;
   height: 50px;
   background: url("../images/the-footcloud.svg") center bottom no-repeat;
-  -webkit-background-size: auto 45px;
   background-size: auto 45px;
   z-index: 1;
 }
@@ -1462,7 +1442,6 @@ img {
     padding-bottom: 0;
   }
   .footer:before {
-    -webkit-background-size: 160% auto;
     background-size: 160% auto;
   }
   .footer:after {
@@ -1880,7 +1859,6 @@ img {
 
 .configure .frame.top {
   border: none;
-  -webkit-box-shadow: none;
   box-shadow: none;
   padding-top: 1.42857em;
   position: relative;
@@ -1896,13 +1874,11 @@ img {
   top: 32px;
   width: 100%;
   z-index: 4;
-  -webkit-box-shadow: 0 2px 2px -2px #eee;
   box-shadow: 0 2px 2px -2px #eee;
 }
 @media (max-width: 782px) {
   .configure .frame.top.fixed {
     border: none;
-    -webkit-box-shadow: none;
     box-shadow: none;
     padding-top: 1.42857em;
     position: relative;
@@ -1994,7 +1970,6 @@ img {
 .table-bordered.jetpack-modules tr.jetpack-module td {
   background: #fff;
   margin: 0;
-  -webkit-box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
   box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 }
 .table-bordered.jetpack-modules tr.jetpack-module td {
@@ -2196,7 +2171,6 @@ img {
     right: 0;
     top: 0;
     z-index: 13;
-    -webkit-box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
     box-shadow: 0 1px 20px 5px rgba(0, 0, 0, 0.1);
   }
   .wrap .manage-right .bumper {

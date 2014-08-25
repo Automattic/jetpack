@@ -1,5 +1,45 @@
 /* global module */
 
+/* Admin CSS to be minified, autoprefixed, rtl */
+var admincss = [
+	'modules/after-the-deadline/atd',
+	'modules/after-the-deadline/tinymce/css/content',
+	'modules/contact-form/css/menu-alter',
+	'modules/custom-css/csstidy/cssparse',
+	'modules/custom-css/csstidy/cssparsed',
+	'modules/custom-css/custom-css/css/codemirror',
+	'modules/custom-css/custom-css/css/css-editor',
+	'modules/custom-css/custom-css/css/use-codemirror',
+	'modules/omnisearch/omnisearch',
+	'modules/omnisearch/omnisearch-jetpack',
+	'modules/post-by-email/post-by-email',
+	'modules/publicize/assets/publicize',
+	'modules/sharedaddy/admin-sharing',
+	'modules/videopress/videopress-admin',
+	'modules/widget-visibility/widget-conditions/widget-conditions',
+	'modules/widgets/gallery/css/admin',
+];
+
+/* Front-end CSS to be concatenated */
+var frontendcss = [
+	'modules/carousel/jetpack-carousel.css',
+	'modules/carousel/jetpack-carousel-ie8fix.css',
+	'modules/contact-form/css/grunion.css',
+	'modules/gplus-authorship/style.css',
+	'modules/infinite-scroll/infinity.css',
+	'modules/likes/style.css',
+	'modules/related-posts/related-posts.css',
+	'modules/sharedaddy/sharing.css',
+	'modules/shortcodes/css/slideshow-shortcode.css',
+	'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
+	'modules/subscriptions/subscriptions.css',
+	'modules/tiled-gallery/tiled-gallery.css',
+	'modules/widgets/wordpress-post-widget/style.css',
+	'modules/widgets/gravatar-profile.css',
+	'modules/widgets/widget-grid-and-list.css',
+	'modules/widgets/widgets.css', // TODO Moved to image-widget/style.css
+];
+
 module.exports = function(grunt) {
 	var path = require( 'path' ),
 		cfg = {
@@ -31,28 +71,70 @@ module.exports = function(grunt) {
 				'3rd-party/*.php'
 			]
 		},
+		autoprefixer: {
+			options: {
+			},
+			core: {
+				options: {
+					// Target-specific options go here.
+					// browser-specific info: https://github.com/ai/autoprefixer#browsers
+					// DEFAULT: browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1']
+					map: true,
+					browsers: [
+						'> 1%',
+						'last 2 versions',
+						'ff 17',
+						'opera 12.1',
+						'ie 8',
+						'ie 9'
+					]
+				},
+				src: [
+					'css/*.css',
+					'!css/*-rtl.min.css',
+					'!css/*-rtl*.css',
+					'!css/jetpack.css',
+					'!css/jetpack-rtl.css',
+				],
+			},
+			frontEndModules: {
+				options: {
+					// Target-specific options go here.
+					// browser-specific info: https://github.com/ai/autoprefixer#browsers
+					// DEFAULT: browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1']
+					browsers: [
+						'> 1%',
+						'last 2 versions',
+						'ff 17',
+						'opera 12.1',
+						'ie 8',
+						'ie 9'
+					]
+				},
+				src: 'css/jetpack.css'
+			},
+			adminModules: {
+				options: {
+					// Target-specific options go here.
+					// browser-specific info: https://github.com/ai/autoprefixer#browsers
+					// DEFAULT: browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1']
+					browsers: [
+						'> 1%',
+						'last 2 versions',
+						'ff 17',
+						'opera 12.1',
+						'ie 8',
+						'ie 9'
+					]
+				},
+				src: admincss.map( function( file ) { return file + '.min.css'; } ),
+			},
+		},
 		concat: {
 			options: {
 			},
 			frontEndModules: {
-				src: [
-					'modules/carousel/jetpack-carousel.css',
-					'modules/carousel/jetpack-carousel-ie8fix.css',
-					'modules/contact-form/css/grunion.css',
-					'modules/gplus-authorship/style.css',
-					'modules/infinite-scroll/infinity.css',
-					'modules/likes/style.css',
-					'modules/related-posts/related-posts.css',
-					'modules/sharedaddy/sharing.css',
-					'modules/shortcodes/css/slideshow-shortcode.css',
-					'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
-					'modules/subscriptions/subscriptions.css',
-					'modules/tiled-gallery/tiled-gallery.css',
-					'modules/widgets/wordpress-post-widget/style.css',
-					'modules/widgets/gravatar-profile.css',
-					'modules/widgets/widget-grid-and-list.css',
-					'modules/widgets/widgets.css', // TODO Moved to image-widget/style.css
-				],
+				src: frontendcss.map( function( file ) { return file; } ),
 				dest: "css/jetpack.css"
 			}
 		},
@@ -73,24 +155,9 @@ module.exports = function(grunt) {
 			adminModules: {
 				options: {
 				},
-				files: {
-					'modules/after-the-deadline/atd.min.css': 'modules/after-the-deadline/atd.css',
-					'modules/after-the-deadline/tinymce/css/content.min.css': 'modules/after-the-deadline/tinymce/css/content.css',
-					'modules/contact-form/css/menu-alter.min.css': 'modules/contact-form/css/menu-alter.css',
-					'modules/custom-css/csstidy/cssparse.min.css': 'modules/custom-css/csstidy/cssparse.css',
-					'modules/custom-css/csstidy/cssparsed.min.css': 'modules/custom-css/csstidy/cssparsed.css',
-					'modules/custom-css/custom-css/css/codemirror.min.css': 'modules/custom-css/custom-css/css/codemirror.css',
-					'modules/custom-css/custom-css/css/css-editor.min.css': 'modules/custom-css/custom-css/css/css-editor.css',
-					'modules/custom-css/custom-css/css/use-codemirror.min.css': 'modules/custom-css/custom-css/css/use-codemirror.css',
-					'modules/omnisearch/omnisearch.min.css': 'modules/omnisearch/omnisearch.css',
-					'modules/omnisearch/omnisearch-jetpack.min.css': 'modules/omnisearch/omnisearch-jetpack.css',
-					'modules/post-by-email/post-by-email.min.css': 'modules/post-by-email/post-by-email.css',
-					'modules/publicize/assets/publicize.min.css': 'modules/publicize/assets/publicize.css',
-					'modules/sharedaddy/admin-sharing.min.css': 'modules/sharedaddy/admin-sharing.css',
-					'modules/videopress/videopress-admin.min.css': 'modules/videopress/videopress-admin.css',
-					'modules/widget-visibility/widget-conditions/widget-conditions.min.css': 'modules/widget-visibility/widget-conditions/widget-conditions.css',
-					'modules/widgets/gallery/css/admin.min.css': 'modules/widgets/gallery/css/admin.css',
-				}
+				expand: true,
+				ext: '.min.css',
+				src: admincss.map( function( file ) { return file + '.css'; } ),
 			},
 		},
 		cssjanus: {
@@ -102,21 +169,7 @@ module.exports = function(grunt) {
 				ext: '-rtl.css',
 				src: [
 					'css/*.css',
-					'!css/*-rtl.css',
-					'!css/*.min.css',
-					'!css/jetpack.css',
-					'!css/jetpack-rtl.css',
-				]
-			},
-			coreMin: {
-				options: {
-					swapLtrRtlInUrl: false
-				},
-				expand: true,
-				ext: '-rtl.min.css',
-				src: [
-					'css/*.min.css',
-					'!css/*-rtl.min.css',
+					'!css/*-rtl*.css',
 					'!css/jetpack.css',
 					'!css/jetpack-rtl.css',
 				]
@@ -138,49 +191,14 @@ module.exports = function(grunt) {
 				},
 				expand: true,
 				ext: '-rtl.min.css',
-				src: [
-					'modules/after-the-deadline/atd.min.css',
-					'modules/after-the-deadline/tinymce/css/content.min.css',
-					'modules/contact-form/css/menu-alter.min.css',
-					'modules/custom-css/csstidy/cssparse.min.css',
-					'modules/custom-css/csstidy/cssparsed.min.css',
-					'modules/custom-css/custom-css/css/codemirror.min.css',
-					'modules/custom-css/custom-css/css/css-editor.min.css',
-					'modules/custom-css/custom-css/css/use-codemirror.min.css',
-					'modules/omnisearch/omnisearch.min.css',
-					'modules/omnisearch/omnisearch-jetpack.min.css',
-					'modules/post-by-email/post-by-email.min.css',
-					'modules/publicize/assets/publicize.min.css',
-					'modules/sharedaddy/admin-sharing.min.css',
-					'modules/videopress/videopress-admin.min.css',
-					'modules/widget-visibility/widget-conditions/widget-conditions.min.css',
-					'modules/widgets/gallery/css/admin.min.css',
-				],
-			},
+				src: admincss.map( function( file ) { return file + '.min.css'; } ),			},
 			adminModulesExpanded: {
 				options: {
 					swapLtrRtlInUrl: false
 				},
 				expand: true,
 				ext: '-rtl.css',
-				src: [
-					'modules/after-the-deadline/atd.css',
-					'modules/after-the-deadline/tinymce/css/content.css',
-					'modules/contact-form/css/menu-alter.css',
-					'modules/custom-css/csstidy/cssparse.css',
-					'modules/custom-css/csstidy/cssparsed.css',
-					'modules/custom-css/custom-css/css/codemirror.css',
-					'modules/custom-css/custom-css/css/css-editor.css',
-					'modules/custom-css/custom-css/css/use-codemirror.css',
-					'modules/omnisearch/omnisearch.css',
-					'modules/omnisearch/omnisearch-jetpack.css',
-					'modules/post-by-email/post-by-email.css',
-					'modules/publicize/assets/publicize.css',
-					'modules/sharedaddy/admin-sharing.css',
-					'modules/videopress/videopress-admin.css',
-					'modules/widget-visibility/widget-conditions/widget-conditions.css',
-					'modules/widgets/gallery/css/admin.css',
-				],
+				src: admincss.map( function( file ) { return file + '.css'; } ),
 			}
 		},
 		jshint: {
@@ -221,81 +239,6 @@ module.exports = function(grunt) {
 					ext: '.min.css'
 				}]
 			}
-		},
-		autoprefixer: {
-			options: {
-				// map: true
-			},
-			core: {
-				options: {
-					// Target-specific options go here.
-					// browser-specific info: https://github.com/ai/autoprefixer#browsers
-					// DEFAULT: browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1']
-					map: true,
-					browsers: [
-						'> 1%',
-						'last 2 versions',
-						'ff 17',
-						'opera 12.1',
-						'ie 8',
-						'ie 9'
-					]
-				},
-				src: [
-					'css/*.css',
-					'!css/jetpack.css',
-					'!css/jetpack-rtl.css',
-				],
-			},
-			frontEndModules: {
-				options: {
-					// Target-specific options go here.
-					// browser-specific info: https://github.com/ai/autoprefixer#browsers
-					// DEFAULT: browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1']
-					browsers: [
-						'> 1%',
-						'last 2 versions',
-						'ff 17',
-						'opera 12.1',
-						'ie 8',
-						'ie 9'
-					]
-				},
-				src: 'css/jetpack.css'
-			},
-			adminModules: {
-				options: {
-					// Target-specific options go here.
-					// browser-specific info: https://github.com/ai/autoprefixer#browsers
-					// DEFAULT: browsers: ['> 1%', 'last 2 versions', 'ff 17', 'opera 12.1']
-					browsers: [
-						'> 1%',
-						'last 2 versions',
-						'ff 17',
-						'opera 12.1',
-						'ie 8',
-						'ie 9'
-					]
-				},
-				src: [
-					'modules/after-the-deadline/atd.min.css',
-					'modules/after-the-deadline/tinymce/css/content.min.css',
-					'modules/contact-form/css/menu-alter.min.css',
-					'modules/custom-css/csstidy/cssparse.min.css',
-					'modules/custom-css/csstidy/cssparsed.min.css',
-					'modules/custom-css/custom-css/css/codemirror.min.css',
-					'modules/custom-css/custom-css/css/css-editor.min.css',
-					'modules/custom-css/custom-css/css/use-codemirror.min.css',
-					'modules/omnisearch/omnisearch.min.css',
-					'modules/omnisearch/omnisearch-jetpack.min.css',
-					'modules/post-by-email/post-by-email.min.css',
-					'modules/publicize/assets/publicize.min.css',
-					'modules/sharedaddy/admin-sharing.min.css',
-					'modules/videopress/videopress-admin.min.css',
-					'modules/widget-visibility/widget-conditions/widget-conditions.min.css',
-					'modules/widgets/gallery/css/admin.min.css',
-				]
-			},
 		},
 		watch: {
 			sass: {
@@ -411,23 +354,12 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-cssmin');
 
 	grunt.registerTask('default', [
-		// Admin css
+		// CSS
 		'sass',
-		'autoprefixer:core',
-		'cssjanus:core',
-		'cssjanus:coreMin',
-
-		// Front-end module css (jetpack.css)
-		'concat:frontEndModules',
-		'autoprefixer:frontEndModules',
-		'cssmin:frontEndModules',
-		'cssjanus:frontEndModules',
-
-		// Admin module css
-		'cssmin:adminModules',
-		'autoprefixer:adminModules',
-		'cssjanus:adminModules',
-		'cssjanus:adminModulesExpanded',
+		'concat',
+		'autoprefixer',
+		'cssmin',
+		'cssjanus',
 
 		// Precommit stuff
 		'shell',
@@ -439,28 +371,12 @@ module.exports = function(grunt) {
 	]);
 
 	grunt.registerTask('precommit', [
-		// Admin css
+		// CSS
 		'sass',
-		'autoprefixer:core',
-		'cssjanus:core',
-		'cssjanus:coreMin',
-
-		// Front-end module css (jetpack.css)
-		'concat:frontEndModules',
-		'autoprefixer:frontEndModules',
-		'cssmin:frontEndModules',
-		'cssjanus:frontEndModules',
-
-		// Admin module css
-		'cssmin:adminModules',
-		'autoprefixer:adminModules',
-		'cssjanus:adminModules',
-		'cssjanus:adminModulesExpanded',
-
-		// Precommit stuff
-		'shell',
-		'phplint',
-		'jshint',
+		'concat',
+		'autoprefixer',
+		'cssmin',
+		'cssjanus',
 
 		// Precommit stuff
 		'shell',
