@@ -84,7 +84,7 @@ function vimeo_shortcode( $atts ) {
 		$url = add_query_arg( 'autoplay', 1, $url );
 	}
 
-	$html = "<div class='embed-vimeo' style='text-align:center;'><iframe src='$url' width='$width' height='$height' frameborder='0'></iframe></div>";
+	$html = sprintf( '<div class="embed-vimeo" style="text-align:center;"><iframe src="%1$s" width="%2$u" height="%3$u" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>', esc_url( $url ), $width, $height );
 	$html = apply_filters( 'video_embed_html', $html );
 	return $html;
 }
