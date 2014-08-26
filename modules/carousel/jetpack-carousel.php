@@ -87,6 +87,7 @@ class Jetpack_Carousel {
 		 * Fires when thumbnails are shown in Carousel.
 		 *
 		 * @since ?
+		 * @module Carousel
 		 **/
 		do_action( 'jp_carousel_thumbnails_shown' );
 
@@ -407,7 +408,7 @@ class Jetpack_Carousel {
 		 * ajax endpoint
 		 *
 		 * @since ?
-		 * @module
+		 * @module Carousel
 		 **/
 		do_action( 'jp_carousel_post_attachment_comment' );
 		$comment_status = wp_get_comment_status( $comment_id );

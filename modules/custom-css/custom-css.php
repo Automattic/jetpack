@@ -61,7 +61,7 @@ class Jetpack_Custom_CSS {
 			 * Allows additional work when migrating safecss from wp_options to wp_post.
 			 *
 			 * @since ?
-			 * @ module Custom_CSS
+			 * @module Custom_CSS
 			 **/
 			do_action( 'safecss_migrate_post' );
 		}
