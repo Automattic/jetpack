@@ -28,14 +28,14 @@ function jetpack_googlemaps_embed_to_short_code_callback( $match ) {
 
 	if ( preg_match( '/\bwidth=[\'"](\d+)(%)?/', $match[0], $width ) ) {
 		$percent = ! empty( $width[2] ) ? '%' : '';
-		$width = $width[1] . $percent;
+		$width = (int)$width[1] . $percent;
 	} else {
 		$width = 425;
 	}
 
 	if ( preg_match( '/\bheight=[\'"](\d+)(%)?/', $match[0], $height ) ) {
 		$percent = ! empty( $height[2] ) ? '%' : '';
-		$height = $height[1] . $percent;
+		$height = (int)$height[1] . $percent;
 	} else {
 		$height = 350;
 	}
