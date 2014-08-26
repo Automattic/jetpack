@@ -1410,14 +1410,14 @@ class Jetpack {
 		Jetpack::catch_errors( true );
 
 		$active = Jetpack::get_active_modules();
-		
+
 		foreach ( $modules as $module ) {
 			if ( did_action( "jetpack_module_loaded_$module" ) ) {
 				$active[] = $module;
 				Jetpack_Options::update_option( 'active_modules', array_unique( $active ) );
 				continue;
 			}
-			
+
 			if ( in_array( $module, $active ) ) {
 				$module_info = Jetpack::get_module( $module );
 				if ( ! $module_info['deactivate'] ) {
@@ -4667,9 +4667,9 @@ p {
 	private function is_ssl_required_to_visit_site() {
 		$ssl = is_ssl();
 
-		if ( defined( 'FORCE_SSL_LOGIN' ) && FORCE_SSL_LOGIN ) {
+		if ( force_ssl_login() ) {
 			$ssl = true;
-		} else if ( defined( 'FORCE_SSL_ADMIN' ) && FORCE_SSL_ADMIN ) {
+		} else if ( force_ssl_admin() ) {
 			$ssl = true;
 		}
 		return $ssl;
