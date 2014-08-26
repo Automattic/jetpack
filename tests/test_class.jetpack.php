@@ -129,7 +129,8 @@ EXPECTED;
 			->will( $this->returnValue( array( 'siteurl' => 'https://test.site.com' ) ) );
 
 		// Save the mismatching option for comparison
-		update_option( 'siteurl', 'http://test.site.com' );
+		// Using @ to prevent throwing an error on a bug in WP core when attempting to change .htaccess
+		@update_option( 'siteurl', 'http://test.site.com' );
 
 		// Attach hook for checking the errors
 		$cb = function( $errors ) {
@@ -167,7 +168,8 @@ EXPECTED;
 			->will( $this->returnValue( array( 'siteurl' => 'https://test.site.com' ) ) );
 
 		// Save the mismatching option for comparison
-		update_option( 'siteurl', 'https://test.site.com' );
+		// Using @ to prevent throwing an error on a bug in WP core when attempting to change .htaccess
+		@update_option( 'siteurl', 'https://test.site.com' );
 
 		// Attach hook for checking the errors
 		$cb = function( $errors ) {
@@ -207,7 +209,8 @@ EXPECTED;
 			->will( $this->returnValue( array( 'siteurl' => 'https://test.site.com' ) ) );
 
 		// Save the mismatching option for comparison
-		update_option( 'siteurl', 'http://test.site.com' );
+		// Using @ to prevent throwing an error on a bug in WP core when attempting to change .htaccess
+		@update_option( 'siteurl', 'http://test.site.com' );
 
 		// Attach hook for checking the errors
 		$cb = function( $errors ) {
