@@ -186,8 +186,8 @@ function grunion_handle_bulk_spam() {
 		 *
 		 * @duplicate yes
 		 * @since ?
-		 * @param string $comment_status - Usually 'spam'
-		 * @param array $akismet_values - From '_feedback_akismet_values' in comment meta
+		 * @param string $comment_status Usually 'spam'
+		 * @param array $akismet_values From '_feedback_akismet_values' in comment meta
 		 **/
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 	}
@@ -612,8 +612,8 @@ function grunion_ajax_spam() {
 		/**
 		 * @duplicate yes
 		 * @since ?
-		 * @param string $comment_status - Usually 'spam'
-		 * @param array $akismet_values - From '_feedback_akismet_values' in comment meta
+		 * @param string $comment_status Usually 'spam'
+		 * @param array $akismet_values From '_feedback_akismet_values' in comment meta
 		 **/
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 	} elseif ( $_POST['make_it'] == 'ham' ) {
@@ -624,8 +624,8 @@ function grunion_ajax_spam() {
 		/**
 		 * @duplicate yes
 		 * @since ?
-		 * @param string $comment_status - Usually 'spam'
-		 * @param array $akismet_values - From '_feedback_akismet_values' in comment meta
+		 * @param string $comment_status Usually 'spam'
+		 * @param array $akismet_values From '_feedback_akismet_values' in comment meta
 		 **/
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 

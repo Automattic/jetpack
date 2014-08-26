@@ -1398,9 +1398,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 *
 		 * @since ?
 		 * @module Contact_Forms
-		 * @param integer $post_id - Post contact form lives on
-		 * @param array $all_values - Contact form fields
-		 * @param array $extra_values - Contact form fields not included in $all_values
+		 * @param integer $post_id Post contact form lives on
+		 * @param array $all_values Contact form fields
+		 * @param array $extra_values Contact form fields not included in $all_values
 		 **/
 		do_action( 'grunion_pre_message_sent', $post_id, $all_values, $extra_values );
 

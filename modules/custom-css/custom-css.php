@@ -143,7 +143,7 @@ class Jetpack_Custom_CSS {
 		 * @since ?
 		 * @module Custom_CSS
 		 * @see self::save() for proper $args fields
-		 * @param array $args - See Jetpack_Custom_CSS::save() docblock for more
+		 * @param array $args See Jetpack_Custom_CSS::save() docblock for more
 		 **/
 		do_action( 'safecss_save_pre', $args );
 
@@ -191,7 +191,7 @@ class Jetpack_Custom_CSS {
 			 *
 			 * @since ?
 			 * @module Custom_CSS
-			 * @param csstidy - the csstidy object
+			 * @param csstidy The csstidy object
 			 * @param string $css
 			 * @param array $args. See self::save() docblock for proper $args fields
 			 **/
@@ -205,7 +205,7 @@ class Jetpack_Custom_CSS {
 			 *
 			 * @since ?
 			 * @module Custom_CSS
-			 * @param csstidy $csstidy - the csstidy object
+			 * @param csstidy $csstidy  The csstidy object
 			 * @param array $warnings
 			 * @param array $args - See self::save() docblock for proper $args fields
 			 **/
