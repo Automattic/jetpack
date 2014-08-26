@@ -121,7 +121,7 @@ class Site_Logo {
 
 		// Don't bother passing in header text classes if the theme supports custom headers.
 		if ( ! current_theme_supports( 'custom-header' ) ) {
-			$classes = $this->header_text_classes();
+			$classes = jetpack_sanitize_header_text_classes( $this->header_text_classes() );
 			wp_enqueue_script( 'site-logo-header-text', plugins_url( '../js/site-logo-header-text.js', __FILE__ ), array( 'media-views' ), '', true );
 			wp_localize_script( 'site-logo-header-text', 'site_logo_header_classes', $classes );
 		}
@@ -177,7 +177,7 @@ class Site_Logo {
 			?>
 			<!-- Site Logo: hide header text -->
 			<style type="text/css">
-			<?php echo esc_html( $classes ); ?> {
+			<?php echo jetpack_sanitize_header_text_classes( $classes ); ?> {
 				position: absolute;
 				clip: rect(1px, 1px, 1px, 1px);
 			}

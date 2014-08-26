@@ -99,3 +99,15 @@ function jetpack_is_customize_preview() {
 
 	return is_a( $wp_customize, 'WP_Customize_Manager' ) && $wp_customize->is_preview();
 }
+
+/**
+ * Sanitize the string of classes used for header text.
+ * Limit to A-Z,a-z,0-9,(space),(comma),_,-
+ *
+ * @return string Sanitized string of CSS classes.
+ */
+function jetpack_sanitize_header_text_classes( $classes ) {
+	$classes = preg_replace( '/[^A-Za-z0-9\,\ ._-]/', '', $classes );
+
+	return $classes;
+}
