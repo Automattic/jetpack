@@ -141,7 +141,7 @@ class Jetpack_Slideshow_Shortcode {
 			'exclude'        => $attr['exclude'],
 		) );
 
-		if ( count( $attachments ) < 2 )
+		if ( count( $attachments ) < 1 )
 			return;
 
 		$gallery_instance = sprintf( "gallery-%d-%d", $attr['id'], ++$this->instance_count );
