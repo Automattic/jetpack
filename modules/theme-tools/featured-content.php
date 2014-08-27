@@ -235,13 +235,15 @@ class Featured_Content {
 	}
 
 	/**
-	 * Exclude featured posts from the blog query when the blog is the front-page.
+	 * Exclude featured posts from the blog query when the blog is the front-page,
+	 * and user has not checked the "Display tag content in all listings" checkbox.
 	 *
 	 * Filter the home page posts, and remove any featured post ID's from it.
 	 * Hooked onto the 'pre_get_posts' action, this changes the parameters of the
 	 * query before it gets any posts.
 	 *
 	 * @uses Featured_Content::get_featured_post_ids();
+	 * @uses Featured_Content::get_setting();
 	 * @param WP_Query $query
 	 * @return WP_Query Possibly modified WP_Query
 	 */
@@ -263,6 +265,13 @@ class Featured_Content {
 
 		// Bail if no featured posts.
 		if ( ! $featured ) {
+			return;
+		}
+
+		$settings = self::get_setting();
+
+		// Bail if the user wants featured posts always displayed.
+		if ( true == $settings['show-all'] ) {
 			return;
 		}
 
@@ -436,6 +445,11 @@ class Featured_Content {
 			'type'                 => 'option',
 			'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
 		) );
+		$wp_customize->add_setting( 'featured-content[show-all]', array(
+			'default'              => false,
+			'type'                 => 'option',
+			'sanitize_js_callback' => array( __CLASS__, 'delete_transient' ),
+		) );
 
 		// Add Featured Content controls.
 		$wp_customize->add_control( 'featured-content[tag-name]', array(
@@ -450,6 +464,13 @@ class Featured_Content {
 			'theme_supports' => 'featured-content',
 			'type'           => 'checkbox',
 			'priority'       => 30,
+		) );
+		$wp_customize->add_control( 'featured-content[show-all]', array(
+			'label'          => __( 'Display tag content in all listings.', 'jetpack' ),
+			'section'        => 'featured_content',
+			'theme_supports' => 'featured-content',
+			'type'           => 'checkbox',
+			'priority'       => 40,
 		) );
 	}
 
@@ -487,6 +508,7 @@ class Featured_Content {
 			'hide-tag' => 1,
 			'tag-id'   => 0,
 			'tag-name' => '',
+			'show-all' => 0,
 		) );
 
 		$options = wp_parse_args( $saved, $defaults );
