@@ -2079,6 +2079,9 @@ img {
 .wrap .manage-left table {
   width: 100%;
 }
+.wrap .manage-left th {
+  font-weight: 400;
+}
 @media (max-width: 782px) {
   .wrap .manage-left {
     width: 100%;
