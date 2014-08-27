@@ -21,7 +21,13 @@
 }
 #wpcontent {
 	margin-left: 160px;
+	padding: 0;
 }
+
+ul#adminmenu a.toplevel_page_jetpack:after {
+	border-right-color: $green;
+}
+
 .folded #wpcontent {
 	margin-left: 36px;
 }
