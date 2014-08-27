@@ -129,7 +129,8 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 			controls.fadeOut();
 		} );
 	} else {
-		this.element.children(":first").show();
+		this.element.children( ':first' ).show();
+		this.element.css( 'position', 'relative' );
 	}
 	this.initialized_ = true;
 };
