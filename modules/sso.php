@@ -168,7 +168,7 @@ class Jetpack_SSO {
 
 		add_settings_field(
 			'jetpack_sso_require_two_step',
-			__( 'Require Two-Step Authentication' , 'jetpack' ),
+			'', // __( 'Require Two-Step Authentication' , 'jetpack' ),
 			array( $this, 'render_require_two_step' ),
 			'jetpack-sso',
 			'jetpack_sso_settings'
@@ -186,7 +186,7 @@ class Jetpack_SSO {
 
 		add_settings_field(
 			'jetpack_sso_match_by_email',
-			__( 'Match by Email' , 'jetpack' ),
+			'', // __( 'Match by Email' , 'jetpack' ),
 			array( $this, 'render_match_by_email' ),
 			'jetpack-sso',
 			'jetpack_sso_settings'
@@ -200,7 +200,10 @@ class Jetpack_SSO {
 	 * @since 2.7
 	 **/
 	public function render_require_two_step() {
-		echo '<input type="checkbox" name="jetpack_sso_require_two_step[require_two_step]" ' . checked( 1 == get_option( 'jetpack_sso_require_two_step' ), true, false ) . '>';
+		echo '<label>';
+		echo '<input type="checkbox" name="jetpack_sso_require_two_step[require_two_step]" ' . checked( 1 == get_option( 'jetpack_sso_require_two_step' ), true, false ) . '> ';
+		esc_html_e( 'Require Two-Step Authentication' , 'jetpack' );
+		echo '</label>';
 	}
 
 	/**
@@ -210,7 +213,7 @@ class Jetpack_SSO {
 	 * @return boolean
 	 **/
 	public function validate_settings_require_two_step( $input ) {
-		return ( isset( $input['require_two_step'] ) )? 1: 0;
+		return ( isset( $input['require_two_step'] ) ) ? 1 : 0;
 	}
 
 	/**
@@ -220,7 +223,10 @@ class Jetpack_SSO {
 	 * @since 2.9
 	 **/
 	public function render_match_by_email() {
-		echo '<input type="checkbox" name="jetpack_sso_match_by_email[match_by_email]"' . checked( 1 == get_option( 'jetpack_sso_match_by_email' ), true, false) . '>';
+		echo '<label>';
+		echo '<input type="checkbox" name="jetpack_sso_match_by_email[match_by_email]"' . checked( 1 == get_option( 'jetpack_sso_match_by_email' ), true, false) . '> ';
+		esc_html_e( 'Match by Email', 'jetpack' );
+		echo '</label>';
 	}
 
 	/**
@@ -230,7 +236,7 @@ class Jetpack_SSO {
 	 * @return boolean
 	 **/
 	public function validate_settings_match_by_email( $input ) {
-		return ( isset( $input['match_by_email'] ) )? 1: 0;
+		return ( isset( $input['match_by_email'] ) ) ? 1 : 0;
 	}
 
 	/**
