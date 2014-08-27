@@ -103,16 +103,16 @@ class Jetpack_Media_Summary {
 						$return['type']   = 'video';
 						$return['video']  = 'http://' .  $embed;
 						$return['secure']['video'] = self::https( $return['video'] );
-						if ( strpos( $embed, 'youtube' ) ) {
+						if ( false !== strpos( $embed, 'youtube' ) ) {
 							$return['image'] = self::get_video_poster( 'youtube', jetpack_get_youtube_id( $return['video'] ) );
 							$return['secure']['image'] = self::https( $return['image'] );
-						} else if ( strpos( $embed, 'youtu.be' ) ) {
+						} else if ( false !== strpos( $embed, 'youtu.be' ) ) {
 							$youtube_id = jetpack_get_youtube_id( $return['video'] );
 							$return['video'] = 'http://youtube.com/watch?v=' . $youtube_id . '&feature=youtu.be';
 							$return['secure']['video'] = self::https( $return['video'] );
 							$return['image'] = self::get_video_poster( 'youtube', jetpack_get_youtube_id( $return['video'] ) );
 							$return['secure']['image'] = self::https( $return['image'] );
-						} else if ( strpos( $embed, 'vimeo' ) ) {
+						} else if ( false !== strpos( $embed, 'vimeo' ) ) {
 							$poster_image = get_post_meta( $post_id, 'vimeo_poster_image', true );
 							if ( !empty( $poster_image ) ) {
 								$return['image'] = $poster_image;
@@ -204,7 +204,7 @@ class Jetpack_Media_Summary {
 	}
 
 	static function ssl_img( $url ) {
-		if ( strpos( $url, 'files.wordpress.com' ) ) {
+		if ( false !== strpos( $url, 'files.wordpress.com' ) ) {
 			return self::https( $url );
 		} else {
 			return self::https( jetpack_photon_url( $url ) );
