@@ -887,11 +887,13 @@ EOT;
 			}
 		}
 
-		// Set new cache value
-		$new_cache[ $cache_key ] = array(
-			'expires' => 12 * HOUR_IN_SECONDS + $now_ts,
-			'payload' => $related_posts,
-		);
+		// Set new cache value if valid
+		if ( !empty( $related_posts ) ) {
+			$new_cache[ $cache_key ] = array(
+				'expires' => 12 * HOUR_IN_SECONDS + $now_ts,
+				'payload' => $related_posts,
+			);
+		}
 
 		// Update cache
 		update_post_meta( $post_id, $cache_meta_key, $new_cache );
