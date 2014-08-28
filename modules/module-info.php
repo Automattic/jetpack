@@ -947,7 +947,7 @@ function jetpack_protect_more_info() { ?>
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/protect.png' ) ?>" alt="<?php esc_attr_e( 'Protect', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><?php esc_html_e( 'Foo', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'Jetpack Protect is a cloud-powered, brute force attack prevention module. We leverage all sites using the module to identify and block malicious IPs and track failed login attempts.  If any single IP has too many failed attempts in a short period of time, they’re blocked from logging in to any site with this module installed. Jetpack Protect allows you to protect yourself against traditional brute force attacks AND distributed brute force attacks that use many servers and many IPs – it even supports Multisite Networks.', 'jetpack' ); ?></p>
 	<?php
 }
 add_action( 'jetpack_module_more_info_protect', 'jetpack_protect_more_info' );
