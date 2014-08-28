@@ -66,6 +66,7 @@ class Jetpack_Custom_CSS {
 			do_action( 'safecss_migrate_post' );
 		}
 
+		add_filter( 'safecss_embed_style', array( 'Jetpack_Custom_CSS', 'should_we_inline_custom_css' ), 10, 2 );
 		add_action( 'wp_head', array( 'Jetpack_Custom_CSS', 'link_tag' ), 101 );
 
 		add_filter( 'jetpack_content_width', array( 'Jetpack_Custom_CSS', 'jetpack_content_width' ) );
@@ -541,6 +542,11 @@ class Jetpack_Custom_CSS {
 		echo Jetpack_Custom_CSS::get_css( true );
 	}
 
+	static function should_we_inline_custom_css( $should_we, $css ) {
+		// If the CSS is less than 2,000 characters, inline it! otherwise return what was passed in.
+		return ( strlen( $css ) < 2000 ) ? true : $should_we;
+	}
+
 	static function link_tag() {
 		global $blog_id, $current_blog;
 
@@ -593,20 +599,28 @@ class Jetpack_Custom_CSS {
 		if ( $css == '' )
 			return;
 
-		$href = home_url( '/' );
-		$href = add_query_arg( 'custom-css', 1, $href );
-		$href = add_query_arg( 'csblog', $blog_id, $href );
-		$href = add_query_arg( 'cscache', 6, $href );
-		$href = add_query_arg( 'csrev', (int) get_option( $option . '_rev' ), $href );
+		if ( apply_filters( 'safecss_embed_style', false, $css ) ) {
 
-		$href = apply_filters( 'safecss_href', $href, $blog_id );
+			echo "\r\n" . '<style id="custom-css-css">' . Jetpack_Custom_CSS::get_css( true ) . "</style>\r\n";
 
-		if ( Jetpack_Custom_CSS::is_preview() )
-			$href = add_query_arg( 'csspreview', 'true', $href );
+		} else {
 
-		?>
-		<link rel="stylesheet" id="custom-css-css" type="text/css" href="<?php echo esc_url( $href ); ?>" />
-		<?php
+			$href = home_url( '/' );
+			$href = add_query_arg( 'custom-css', 1, $href );
+			$href = add_query_arg( 'csblog', $blog_id, $href );
+			$href = add_query_arg( 'cscache', 6, $href );
+			$href = add_query_arg( 'csrev', (int) get_option( $option . '_rev' ), $href );
+
+			$href = apply_filters( 'safecss_href', $href, $blog_id );
+
+			if ( Jetpack_Custom_CSS::is_preview() )
+				$href = add_query_arg( 'csspreview', 'true', $href );
+
+			?>
+			<link rel="stylesheet" id="custom-css-css" type="text/css" href="<?php echo esc_url( $href ); ?>" />
+			<?php
+
+		}
 
 		/**
 		 * Fires after creating the <link> in the <head> element
