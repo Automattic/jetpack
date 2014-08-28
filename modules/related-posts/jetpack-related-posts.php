@@ -863,7 +863,10 @@ EOT;
 
 		// Oh no... return nothing don't cache errors.
 		if ( is_wp_error( $response ) ) {
-			return array();
+			if ( is_array( $cache[ $cache_key ] ) )
+				return $cache[ $cache_key ][ 'payload' ]; // return stale
+			else
+				return array();
 		}
 
 		$results = json_decode( wp_remote_retrieve_body( $response ), true );
