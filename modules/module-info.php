@@ -937,3 +937,25 @@ function jetpack_custom_content_types_more_link() {
 }
 add_action( 'jetpack_learn_more_button_custom-content-types', 'jetpack_custom_content_types_more_link' );
 // Custom Content Types: STOP
+
+
+// Protect: START
+function jetpack_protect_more_info() { ?>
+	<h4><?php esc_html_e( 'Protect' , 'jetpack' ); ?></h4>
+
+	<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/_inc/images/screenshots/protect.png' ) ?>" alt="<?php esc_attr_e( 'Protect', 'jetpack' ) ?>" width="300" height="150" />
+	</div>
+
+	<p><?php esc_html_e( 'Foo', 'jetpack' ); ?></p>
+	<?php
+}
+add_action( 'jetpack_module_more_info_protect', 'jetpack_protect_more_info' );
+
+function jetpack_protect_more_link() {
+	echo '<a class="button-secondary more-info-link" href="http://bruteprotect.com/">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_action( 'jetpack_learn_more_button_protect', 'jetpack_protect_more_link' );
+// Protect: STOP
+
+
