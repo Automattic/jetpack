@@ -109,6 +109,12 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			'comment_type'         => '',
 		);
 
+		if ( $comment_parent_id ) {
+			if ( $comment_parent->comment_approved === '0' && current_user_can( 'edit_comment', $comment_parent->comment_ID ) ) {
+				wp_set_comment_status( $comment_parent->comment_ID, 'approve' );
+			}
+		}
+
 		$this->api->trap_wp_die( 'comment_failure' );
 		$comment_id = wp_new_comment( add_magic_quotes( $insert ) );
 		$this->api->trap_wp_die( null );
