@@ -698,12 +698,9 @@ class Jetpack {
 	 * Loads the currently active modules.
 	 */
 	public static function load_modules() {
-
-		/*
-		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+		if( !self::is_active() && !self::is_development_mode() ) {
 			return;
 		}
-		*/
 
 		$version = Jetpack_Options::get_option( 'version' );
 		if ( ! $version ) {
