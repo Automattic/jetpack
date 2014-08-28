@@ -698,7 +698,7 @@ class Jetpack {
 	 * Loads the currently active modules.
 	 */
 	public static function load_modules() {
-		if( !self::is_active() ) {
+		if( !self::is_active() && !self::is_development_mode() ) {
 			return;
 		}
 
