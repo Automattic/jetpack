@@ -530,6 +530,8 @@ class Jetpack_Likes {
 		add_action( 'manage_pages_custom_column', array( $this, 'likes_edit_column' ), 10, 2 );
 		add_action( 'admin_print_styles-edit.php', array( $this, 'load_admin_css' ) );
 		add_action( "admin_print_scripts-edit.php", array( $this, 'enqueue_admin_scripts' ) );
+
+		Jetpack_Sync::sync_posts( __FILE__ );
 	}
 
 	function action_init() {
