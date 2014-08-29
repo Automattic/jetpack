@@ -29,6 +29,7 @@ class Jetpack_Likes {
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
 		if ( $this->in_jetpack ) {
+			add_action( 'jetpack_activate_module_likes',   array( $this, 'maybe_sync_content' ) );
 			add_action( 'jetpack_activate_module_likes',   array( $this, 'module_toggle' ) );
 			add_action( 'jetpack_deactivate_module_likes', array( $this, 'module_toggle' ) );
 
@@ -76,6 +77,12 @@ class Jetpack_Likes {
 		add_action( 'edit_attachment', array( $this, 'meta_box_save' ) );
 		add_action( 'sharing_global_options', array( $this, 'admin_settings_init' ), 20 );
 		add_action( 'sharing_admin_update',   array( $this, 'admin_settings_callback' ), 20 );
+	}
+
+	function maybe_sync_content() {
+		if ( Jetpack::init()->sync->reindex_needed() ) {
+			Jetpack::init()->sync->reindex_trigger();
+		}
 	}
 
 	function module_toggle() {
@@ -530,6 +537,10 @@ class Jetpack_Likes {
 		add_action( 'manage_pages_custom_column', array( $this, 'likes_edit_column' ), 10, 2 );
 		add_action( 'admin_print_styles-edit.php', array( $this, 'load_admin_css' ) );
 		add_action( "admin_print_scripts-edit.php", array( $this, 'enqueue_admin_scripts' ) );
+
+		if ( $this->in_jetpack ) {
+			Jetpack_Sync::sync_posts( __FILE__ );
+		}
 	}
 
 	function action_init() {
