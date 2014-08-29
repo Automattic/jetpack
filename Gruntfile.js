@@ -10,6 +10,9 @@ module.exports = function(grunt) {
 				options: {
 					stdout: true
 				}
+			},
+			notifyCompilation: {
+				command: 'osascript -e \'display notification "Generated files have been rebuilt." with title "Jetpack"\''
 			}
 		},
 		phplint: {
@@ -118,7 +121,8 @@ module.exports = function(grunt) {
 					'sass',
 					'autoprefixer',
 					'cssjanus:core',
-					'cssjanus:min'
+					'cssjanus:min',
+					'shell:notifyCompilation'
 				],
 				options: {
 					spawn: false
