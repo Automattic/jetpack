@@ -781,6 +781,10 @@ class Jetpack_Sync {
 				'action' => __( 'Refresh Status', 'jetpack' ),
 				'status' => __( 'Status unknown.', 'jetpack' ),
 			),
+			'ERROR:LARGE' => array(
+				'action' => __( 'Refresh Status', 'jetpack' ),
+				'status' => __( 'This site is too large, please contact Jetpack support to sync.', 'jetpack' ),
+			),
 		) );
 
 		wp_enqueue_script(
