@@ -1152,6 +1152,19 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 	'path_labels' => array(
 		'$site'     => '(int|string) The site ID, The site domain'
 	),
+	'query_parameters' => array(
+		'number'   => '(int=100) The number of categories to return.  Limit: 1000.',
+		'offset'   => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of categories.  Takes precedence over the <code>offset</code> parameter.',
+		'order'    => array(
+			'ASC'  => 'Return categories in ascending order.',
+			'DESC' => 'Return categories in decending order.',
+		),
+		'order_by' => array(
+			'name'  => 'Order by the name of each category.',
+			'count' => 'Order by the number of posts in each category.',
+		),
+	),
 	'response_format' => array(
 		'found'      => '(int) The number of categories returned.',
 		'categories' => '(array) Array of category objects.',
@@ -1167,6 +1180,19 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 	'path'        => '/sites/%s/tags',
 	'path_labels' => array(
 		'$site'     => '(int|string) The site ID, The site domain'
+	),
+	'query_parameters' => array(
+		'number'   => '(int=100) The number of tags to return.  Limit: 1000.',
+		'offset'   => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of tags.  Takes precedence over the <code>offset</code> parameter.',
+		'order'    => array(
+			'ASC'  => 'Return tags in ascending order.',
+			'DESC' => 'Return tags in decending order.',
+		),
+		'order_by' => array(
+			'name'  => 'Order by the name of each tag.',
+			'count' => 'Order by the number of posts in each tag.',
+		),
 	),
 	'response_format' => array(
 		'found'    => '(int) The number of tags returned.',
