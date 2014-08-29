@@ -3433,7 +3433,7 @@ p {
 			case 'ALWAYS' :
 				return $url;
 			case 'NEVER' :
-				return set_url_scheme( $url, 'http' );
+				return self::force_url_to_non_ssl( $url );
 			// default : case 'AUTO' :
 		}
 
@@ -3443,7 +3443,7 @@ p {
 		}
 
 		// Boo! Your host is bad and makes Jetpack cry!
-		return set_url_scheme( $url, 'http' );
+		return self::force_url_to_non_ssl( $url );
 	}
 
 	/**
@@ -3481,6 +3481,13 @@ p {
 		}
 
 		return (bool) $ssl;
+	}
+
+	/**
+	 * Take any URL, and if it starts with https:// change it to http://
+	 */
+	public static function force_url_to_non_ssl( $url ) {
+		return preg_replace( '#^https://#i', 'http://', $url );
 	}
 
 	/*
