@@ -11,8 +11,13 @@ module.exports = function(grunt) {
 					stdout: true
 				}
 			},
-			notifyCompilation: {
-				command: 'osascript -e \'display notification "Generated files have been rebuilt." with title "Jetpack"\''
+		},
+		notify: {
+			watch_sass: {
+				options: {
+					title: 'Compilation done!',
+					message: 'Sass, Autoprefixer, and Janus have finished running.'
+				}
 			}
 		},
 		phplint: {
@@ -122,7 +127,7 @@ module.exports = function(grunt) {
 					'autoprefixer',
 					'cssjanus:core',
 					'cssjanus:min',
-					'shell:notifyCompilation'
+					'notify:watch_sass'
 				],
 				options: {
 					spawn: false
@@ -198,6 +203,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.loadNpmTasks('grunt-autoprefixer');
 	grunt.loadNpmTasks('grunt-cssjanus');
+	grunt.loadNpmTasks('grunt-notify');
 
 	grunt.registerTask('default', [
 		'shell',
