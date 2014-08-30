@@ -85,7 +85,7 @@ class Grunion_Contact_Form_Plugin {
 				'not_found'          => __( 'No feedback found', 'jetpack' ),
 				'not_found_in_trash' => __( 'No feedback found', 'jetpack' )
 			),
-			'menu_icon'         => GRUNION_PLUGIN_URL . '/images/grunion-menu.png',
+			'menu_icon'         => 'dashicons-feedback',
 			'show_ui'           => TRUE,
 			'show_in_admin_bar' => FALSE,
 			'public'            => FALSE,
