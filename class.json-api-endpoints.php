@@ -539,6 +539,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ), false, $for_output );
 			break;
+
 		default :
 			trigger_error( "Unknown API casting type {$type['type']}", E_USER_WARNING );
 		}
@@ -1219,6 +1220,89 @@ EOPHP;
 		);
 	}
 
+	// cleanup before we try to load the functions for the current theme (since we do a switch_to_blog in the api, a default
+	// theme (twentyeleven) gets loaded and we don't want to load it's setup functions too)
+	function pre_load_theme_functions() {
+		remove_action( 'after_setup_theme', 'twentyeleven_setup' );
+		remove_action( 'after_setup_theme', 'twentyeleven_wpcom_setup' );
+		remove_theme_support( 'post-formats' );
+	}
+
+	// loads the functions.php file for the current theme to get its post formats, CPTs, etc
+	function load_theme_functions() {
+		// Is this a child theme? We'll load both
+		if ( get_stylesheet_directory() <> get_template_directory() ) {
+			
+			// Don't bother loading if we can't find anything
+			if ( ! file_exists( get_template_directory() . '/functions.php' ) && ! file_exists( get_stylesheet_directory() . '/functions.php' ) ) {
+				return;
+			}
+			
+			if ( file_exists( get_stylesheet_directory() . '/functions.php' ) ) {
+				require_once( get_stylesheet_directory() . '/functions.php' );
+			}
+
+			if ( file_exists( get_template_directory() . '/functions.php' ) ) {
+				require_once( get_template_directory() . '/functions.php' );
+			}
+
+		} else {
+				if ( ! file_exists( get_template_directory() . '/functions.php' ) ) {
+					return;
+				}
+
+				require_once( get_template_directory() . '/functions.php' );
+		}
+
+		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
+		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', WP_CONTENT_DIR . '/themes' );
+		do_action( 'restapi_theme_after_setup_theme' );
+		$this->copy_hooks( 'init', 'restapi_theme_init', WP_CONTENT_DIR . '/themes' );
+		do_action( 'restapi_theme_init' );
+	}
+
+	function copy_hooks( $from_hook, $to_hook, $base_path = '' ) {
+		global $wp_filter;
+		foreach ( $wp_filter as $hook => $actions ) {
+			if ( $from_hook <> $hook )
+				continue;
+			foreach ( (array) $actions as $priority => $callbacks ) {
+				foreach( $callbacks as $callback_key => $callback_data ) {
+					$callback = $callback_data['function'];
+					$reflection = $this->get_reflection( $callback ); // use reflection api to determine filename where function is defined
+					if ( false !== $reflection ) {
+						$file_name = $reflection->getFileName();
+						if ( 0 === strpos( $file_name, $base_path ) ) { // only copy hooks with functions which are part of VIP (the theme, parent theme, or VIP plugins)
+							$wp_filter[$to_hook][$priority][ 'cph' . $callback_key ] = $callback_data;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	function get_reflection( $callback ) {
+		if ( is_array( $callback ) ) {
+			list( $class, $method ) = $callback;
+			return new ReflectionMethod( $class, $method );
+		}
+
+		if ( is_string( $callback ) && strpos( $callback, "::" ) !== false ) {
+			list( $class, $method ) = explode( "::", $callback );
+			return new ReflectionMethod( $class, $method );
+		}
+
+		if ( version_compare( PHP_VERSION, "5.3.0", ">=" ) && method_exists( $callback, "__invoke" ) ) {
+			return new ReflectionMethod( $callback, "__invoke" );
+		}
+
+		if ( is_string( $callback ) && strpos( $callback, "::" ) == false && function_exists( $callback ) ) {
+			return new ReflectionFunction( $callback );
+		}
+
+		return false;
+	}
+
 	function get_link() {
 		$args   = func_get_args();
 		$format = array_shift( $args );
@@ -1339,4 +1423,4 @@ EOPHP;
 
 }
 
-require_once( JETPACK__PLUGIN_DIR . 'json-endpoints.php' );
+require_once( __DIR__ . '/json-endpoints.php' );
