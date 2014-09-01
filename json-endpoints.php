@@ -68,7 +68,7 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 
 new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
 	'description' => 'A list of post formats supported by a site.',
-	'group'	      => 'sites',
+	'group'       => '__do_not_document',
 	'stat'        => 'sites:X:post-formats',
 
 	'method'      => 'GET',
