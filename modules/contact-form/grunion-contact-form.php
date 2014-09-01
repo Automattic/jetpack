@@ -569,6 +569,12 @@ class Grunion_Contact_Form_Plugin {
 		if ( isset( $content_fields['_feedback_all_fields'] ) ) 
 			$all_fields = $content_fields['_feedback_all_fields'];
 
+		// Overwrite the parsed content with the content we stored in post_meta in a better format.
+		$extra_fields   = get_post_meta( $post_id, '_feedback_extra_fields', true );
+		foreach ( $extra_fields as $extra_field => $extra_value ) {
+			$all_fields[$extra_field] = $extra_value;
+		}
+
 		// The first element in all of the exports will be the subject
 		$row_items[] = $content_fields['_feedback_subject'];
 
