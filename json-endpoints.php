@@ -66,6 +66,26 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/?pretty=1',
 ) );
 
+new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
+	'description' => 'A list of post formats supported by a site.',
+	'group'	      => 'sites',
+	'stat'        => 'sites:X:post-formats',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/post-formats',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'query_parameters' => array(
+		'context' => false,
+	),
+
+	'response_format' => array(
+		'formats' => '(array) A list of supported post formats. id => label.',
+	)
+) );
+
 /*
  * Shortcode endpoints
  */
