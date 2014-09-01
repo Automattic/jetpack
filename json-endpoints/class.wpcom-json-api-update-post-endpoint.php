@@ -272,6 +272,14 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			$post_id = wp_insert_post( add_magic_quotes( $insert ), true );
 		} else {
 			$insert['ID'] = $post->ID;
+
+			// wp_update_post ignores date unless edit_date is set
+			// See: http://codex.wordpress.org/Function_Reference/wp_update_post#Scheduling_posts
+			// See: https://core.trac.wordpress.org/browser/tags/3.9.2/src/wp-includes/post.php#L3302
+			if ( isset( $input['date_gmt'] ) || isset( $input['date'] ) ) {
+				$insert['edit_date'] = true;
+			}
+
 			$post_id = wp_update_post( (object) $insert );
 		}
 
@@ -297,7 +305,7 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$this->handle_media_sideload( $url, $post_id );
 			}
 		}
-		
+
 		// Set like status for the post
 		$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
 		if ( $new ) {
