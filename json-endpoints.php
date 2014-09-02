@@ -102,7 +102,7 @@ new WPCOM_JSON_API_Render_Shortcode_Endpoint( array(
 		'shortcode' => '(string) The shortcode that was passed in for rendering.',
 		'result'    => '(html) The rendered HTML result of the shortcode.',
 		'scripts'   => '(array) An array of JavaScript files needed to render the shortcode. Returned in the format of <code>{ "script-slug" : { "src": "http://example.com/file.js", "extra" : "" } }</code> where extra contains any neccessary extra JS for initializing the source file and src contains the script to load. Omitted if no scripts are neccessary.',
-		'styles'    => '(array) An array of CSS files needed to render the shortcode. Returned in the format of <code>{ "style-slug" : { "src": "http://example.com/file.css", "media" : "all" } }</code>. Omitted if no styles are neccessary.',	
+		'styles'    => '(array) An array of CSS files needed to render the shortcode. Returned in the format of <code>{ "style-slug" : { "src": "http://example.com/file.css", "media" : "all" } }</code>. Omitted if no styles are neccessary.',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/shortcodes/render?shortcode=%5Bgallery%20ids%3D%22729%2C732%2C731%2C720%22%5D'
 ) );
@@ -289,7 +289,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'format'     => get_post_format_strings(),
 		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
 		'media'      => "(media) An array of images to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts images (image/gif, image/jpeg, image/png) only.<br /><br /><strong>Example</strong>:<br />" .
-				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+						"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 		'comments_open' => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
@@ -690,8 +690,8 @@ new WPCOM_JSON_API_List_Media_Endpoint( array(
 	),
 
 	'response_format' => array(
- 		'media' => '(array) Array of media',
- 		'found' => '(int) The number of total results found'
+		'media' => '(array) Array of media',
+		'found' => '(int) The number of total results found'
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/media/?pretty=true',
@@ -735,14 +735,14 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 
 	'request_format' => array(
 		'media'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Accepts images (image/gif, image/jpeg, image/png) only at this time.<br /><br /><strong>Example</strong>:<br />" .
-				"<code>curl \<br />--form 'files[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
+		                "<code>curl \<br />--form 'files[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
 		'media_urls' => "(array) An array of URLs to upload to the post."
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/media/new/',
 
 	'response_format' => array(
- 		'media' => '(array) Array of uploaded media',
+		'media' => '(array) Array of uploaded media',
 		'errors' => '(array) Array of error messages of uploading media failures'
 	),
 ) );
