@@ -832,13 +832,13 @@ class Jetpack_JSON_API_GET_Update_Data extends Jetpack_JSON_API_Endpoint {
 	public function callback( $path = '', $_blog_id = 0 ) {
 
 		$error = $this->validate_call( $_blog_id, array(
-													'must_pass'    => 1, // must meet at least one condition
-													'capabilities' => array(
-														'update_plugins',
-														'update_themes',
-														'update_core'
-													)
-												  ), false );
+			'must_pass'    => 1, // must meet at least one condition
+			'capabilities' => array(
+				'update_plugins',
+				'update_themes',
+				'update_core'
+			)
+		), false );
 
 		if ( is_wp_error( $error ) ) {
 			return $error;
