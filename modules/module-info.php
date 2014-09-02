@@ -104,12 +104,12 @@ function jetpack_shortcodes_more_info_connected() { ?>
 	<p><?php esc_html_e( 'Enter a shortcode directly into the Post/Page editor to embed media. For specific instructions follow the links below.', 'jetpack' ) ?></p>
 	<?php
 	$codes = array( 'archives' => 'http://support.wordpress.com/archives-shortcode/',
-		'audio' => 'http://support.wordpress.com/audio/',
 		'bandcamp' => 'http://en.support.wordpress.com/audio/bandcamp/',
 		'blip.tv' => 'http://support.wordpress.com/videos/bliptv/',
 		'dailymotion' => 'http://support.wordpress.com/videos/dailymotion/',
 		'facebook' => 'http://en.support.wordpress.com/facebook-integration/facebook-embeds/',
 		'flickr' => 'http://support.wordpress.com/videos/flickr-video/',
+		'gist' => 'http://en.support.wordpress.com/gist/',
 		'googlemaps' => 'http://support.wordpress.com/google-maps/',
 		'jetpack_subscription_form' => 'http://jetpack.me/support/subscriptions/#display',
 		'polldaddy' => 'http://support.polldaddy.com/wordpress-shortcodes/',
@@ -120,7 +120,7 @@ function jetpack_shortcodes_more_info_connected() { ?>
 		'soundcloud' => 'http://support.wordpress.com/audio/soundcloud-audio-player/',
 		'ted' => 'http://en.support.wordpress.com/videos/ted-talks/',
 		'twitter-timeline' => 'http://en.support.wordpress.com/widgets/twitter-timeline-widget/#embedding-with-a-shortcode',
-		'upcomingevents' => 'http://en.support.wordpress.com/widgets/upcoming-events/#events-list-shortcode',
+		// 'upcomingevents' => 'http://en.support.wordpress.com/widgets/upcoming-events/#events-list-shortcode',
 		'vimeo' => 'http://support.wordpress.com/videos/vimeo/',
 		'vine' => 'http://en.support.wordpress.com/videos/vine/',
 		'youtube' => 'http://support.wordpress.com/videos/youtube/',

@@ -1,7 +1,6 @@
 (function($){ // Open closure
-
 // Local vars
-var Scroller, ajaxurl, stats, type, text, totop, timer;
+var Scroller, ajaxurl, stats, type, text, totop;
 
 // IE requires special handling
 var isIE = ( -1 != navigator.userAgent.search( 'MSIE' ) );
@@ -39,6 +38,7 @@ Scroller = function( settings ) {
 	this.google_analytics = settings.google_analytics;
 	this.history          = settings.history;
 	this.origURL          = window.location.href;
+	this.pageCache        = {};
 
 	// Footer settings
 	this.footer           = $( '#infinite-footer' );
@@ -314,6 +314,9 @@ Scroller.prototype.refresh = function() {
 					} );
 				}
 
+				// stash the response in the page cache
+				self.pageCache[self.page] = response.html;
+
 				// Increment the page number
 				self.page++;
 
@@ -429,7 +432,7 @@ Scroller.prototype.initializeMejs = function( ev, response ) {
 Scroller.prototype.ensureFilledViewport = function() {
 	var	self = this,
 	   	windowHeight = self.window.height(),
-	   	postsHeight = self.element.height()
+	   	postsHeight = self.element.height(),
 	   	aveSetHeight = 0,
 	   	wrapperQty = 0;
 
@@ -478,11 +481,12 @@ Scroller.prototype.checkViewportOnLoad = function( ev ) {
  * Identify archive page that corresponds to majority of posts shown in the current browser window.
  */
 Scroller.prototype.determineURL = function () {
-	var self         = window.infiniteScroll.scroller,
+	var self         = this,
 		windowTop    = $( window ).scrollTop(),
 		windowBottom = windowTop + $( window ).height(),
 		windowSize   = windowBottom - windowTop,
 		setsInView   = [],
+		setsHidden   = [],
 		pageNum      = false;
 
 	// Find out which sets are in view
@@ -494,7 +498,7 @@ Scroller.prototype.determineURL = function () {
 			setPageNum = $( this ).data( 'page-num' );
 
 		// Account for containers that have no height because their children are floated elements.
-		if ( 0 == setHeight ) {
+		if ( 0 === setHeight ) {
 			$( '> *', this ).each( function() {
 				setHeight += $( this ).outerHeight( false );
 			} );
@@ -512,8 +516,33 @@ Scroller.prototype.determineURL = function () {
 		}
 		else if( setBottom > windowTop && setBottom < windowBottom ) { // bottom of set is between top (gt) and bottom (lt)
 			setsInView.push({'id': id, 'top': setTop, 'bottom': setBottom, 'pageNum': setPageNum });
+		} else {
+			setsHidden.push({'id': id, 'top': setTop, 'bottom': setBottom, 'pageNum': setPageNum });
 		}
 	} );
+
+    $.each(setsHidden, function() {
+		var $set = $('#' + this.id);
+		if( $set.hasClass( 'is--replaced' ) ) {
+			return;
+		}
+
+		$set.css('min-height', ( this.bottom - this.top ) + 'px' )
+		    .addClass('is--replaced')
+		    .empty();
+	});
+
+	$.each(setsInView, function() {
+		var $set = $('#' + this.id);
+
+		if( $set.hasClass('is--replaced')) {
+			$set.css('min-height', '').removeClass('is--replaced');
+			if( this.pageNum in self.pageCache ) {
+				$set.html(self.pageCache[this.pageNum]);
+			}
+		}
+
+	});
 
 	// Parse number of sets found in view in an attempt to update the URL to match the set that comprises the majority of the window.
 	if ( 0 == setsInView.length ) {
@@ -573,6 +602,10 @@ Scroller.prototype.determineURL = function () {
  * Checks if URL is different to prevent pollution of browser history.
  */
 Scroller.prototype.updateURL = function( page ) {
+	// IE only supports pushState() in v10 and above, so don't bother if those conditions aren't met.
+	if ( ! window.history.pushState ) {
+		return;
+	}
 	var self = this,
 		offset = self.offset > 0 ? self.offset - 1 : 0,
 		pageSlug = -1 == page ? self.origURL : window.location.protocol + '//' + self.history.host + self.history.path.replace( /%d/, page + offset ) + self.history.parameters;
@@ -606,14 +639,17 @@ $( document ).ready( function() {
 
 	/**
 	 * Monitor user scroll activity to update URL to correspond to archive page for current set of IS posts
-	 * IE only supports pushState() in v10 and above, so don't bother if those conditions aren't met.
 	 */
-	if ( ! isIE || ( isIE && IEVersion >= 10 ) ) {
-		$( window ).bind( 'scroll', function() {
-			clearTimeout( timer );
-			timer = setTimeout( infiniteScroll.scroller.determineURL , 100 );
-		});
-	}
+	var timer = null;
+	$( window ).bind( 'scroll', function() {
+		// run the real scroll handler once every 250 ms.
+		if ( timer ) { return; }
+		timer = setTimeout( function() {
+			infiniteScroll.scroller.determineURL();
+			timer = null;
+		} , 250 );
+	});
+
 });
 
 

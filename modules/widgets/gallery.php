@@ -215,6 +215,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		if ( ! class_exists( 'Jetpack_Slideshow_Shortcode' ) )
 			return;
 
+		if ( count( $instance['attachments'] ) < 1 )
+			return;
+
 		$slideshow = new Jetpack_Slideshow_Shortcode();
 
 		$slideshow->enqueue_scripts();

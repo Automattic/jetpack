@@ -12,6 +12,10 @@
 function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	$image_url = trim( $image_url );
 
+	if ( false !== apply_filters( 'jetpack_photon_skip_for_url', false, $image_url, $args, $scheme ) ) {
+		return $image_url;
+	}
+
 	$image_url = apply_filters( 'jetpack_photon_pre_image_url', $image_url, $args,      $scheme );
 	$args      = apply_filters( 'jetpack_photon_pre_args',      $args,      $image_url, $scheme );
 

@@ -96,7 +96,7 @@ class Jetpack_Debugger {
 		?>
 		<div class="wrap">
 			<h2><?php esc_html_e( 'Jetpack Debugging Center', 'jetpack' ); ?></h2>
-			<h3><?php _e( "Testing your site's compatibily with Jetpack...", 'jetpack' ); ?></h3>
+			<h3><?php _e( "Testing your site's compatibility with Jetpack...", 'jetpack' ); ?></h3>
 			<div class="jetpack-debug-test-container">
 			<?php
 			ob_start();

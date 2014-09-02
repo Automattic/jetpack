@@ -89,7 +89,9 @@ color: #D98500;
 }
 
 /**
- * Hack a 'Bulk Spam' option for bulk edit
+ * Hack a 'Bulk Spam' option for bulk edit in other than spam view
+ * Hack a 'Bulk Delete' option for bulk edit in spam view
+ *
  * There isn't a better way to do this until
  * http://core.trac.wordpress.org/changeset/17297 is resolved
  */
@@ -98,15 +100,29 @@ function grunion_add_bulk_edit_option() {
 
 	$screen = get_current_screen();
 
-	if ( 'edit-feedback' != $screen->id
-	|| ( ! empty( $_GET['post_status'] ) && 'spam' == $_GET['post_status'] ) )
+	if ( 'edit-feedback' != $screen->id ) {
 		return;
+	}
 
-	$spam_text = __( 'Mark Spam', 'jetpack' );
+	// When viewing spam we want to be able to be able to bulk delete
+	// When viewing anything we want to be able to bulk move to spam
+	if ( isset( $_GET['post_status'] ) && 'spam' == $_GET['post_status'] ) {
+		// Create Delete Permanently bulk item
+		$option_val = 'delete';
+		$option_txt = __( 'Delete permantently', 'jetpack' );
+		$pseudo_selector = 'last-child';
+
+	} else {
+		// Create Mark Spam bulk item
+		$option_val = 'spam';
+		$option_txt = __( 'Mark Spam', 'jetpack' );
+		$pseudo_selector = 'first-child';
+	}
+
 	?>
 		<script type="text/javascript">
 			jQuery(document).ready(function($) {
-				$('#posts-filter .actions select[name=action] option:first-child').after('<option value="spam"><?php echo esc_attr( $spam_text ); ?></option>' );
+				$('#posts-filter .actions select[name=action] option:<?php echo $pseudo_selector; ?>').after('<option value="<?php echo $option_val; ?>"><?php echo esc_attr( $option_txt ); ?></option>' );
 			})
 		</script>
 	<?php
@@ -179,6 +195,16 @@ function grunion_handle_bulk_spam() {
 			);
 		$akismet_values = get_post_meta( $post_id, '_feedback_akismet_values', true );
 		wp_update_post( $post );
+
+		/**
+		 * Fires after a comment has been marked by Akismet. Typically this
+		 * means the comment is spam.
+		 *
+		 * @duplicate yes
+		 * @since ?
+		 * @param string $comment_status Usually 'spam'
+		 * @param array $akismet_values From '_feedback_akismet_values' in comment meta
+		 **/
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 	}
 
@@ -598,11 +624,25 @@ function grunion_ajax_spam() {
 		$post->post_status = 'spam';
 		$status = wp_insert_post( $post );
 		wp_transition_post_status( 'spam', 'publish', $post );
+		
+		/**
+		 * @duplicate yes
+		 * @since ?
+		 * @param string $comment_status Usually 'spam'
+		 * @param array $akismet_values From '_feedback_akismet_values' in comment meta
+		 **/
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 	} elseif ( $_POST['make_it'] == 'ham' ) {
 		$post->post_status = 'publish';
 		$status = wp_insert_post( $post );
 		wp_transition_post_status( 'publish', 'spam', $post );
+		
+		/**
+		 * @duplicate yes
+		 * @since ?
+		 * @param string $comment_status Usually 'spam'
+		 * @param array $akismet_values From '_feedback_akismet_values' in comment meta
+		 **/
 		do_action( 'contact_form_akismet', 'spam', $akismet_values );
 
 		$comment_author_email = $reply_to_addr = $message = $to = $headers = false;

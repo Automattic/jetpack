@@ -192,7 +192,10 @@ new WPCOM_JSON_API_List_Posts_Endpoint( array(
 			'trash'   => 'Return only posts in the trash.',
 			'any'     => 'Return all posts regardless of status.',
 		),
-		'sticky'   => '(bool) Specify the stickiness.',
+		'sticky'    => array(
+			'false'   => 'Post is not marked as sticky.',
+			'true'    => 'Stick the post to the front page.',
+		),
 		'author'   => "(int) Author's user ID",
 		'search'   => '(string) Search query',
 		'meta_key'   => '(string) Metadata key that the post should contain',
@@ -274,7 +277,10 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			'draft'   => 'Save the post as a draft.',
 			'pending' => 'Mark the post as pending editorial approval.',
 		),
-		'sticky'    => '(bool) Mark the post as sticky?',
+		'sticky'    => array(
+			'false'   => 'Post is not marked as sticky.',
+			'true'    => 'Stick the post to the front page.',
+		),
 		'password'  => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'    => "(int) The post ID of the new post's parent.",
 		'type'      => "(string) The post type. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
@@ -424,11 +430,14 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			'draft'   => 'Save the post as a draft.',
 			'pending' => 'Mark the post as pending editorial approval.',
 		),
-		'sticky'  	 => '(bool) Mark the post as sticky?',
+		'sticky'    => array(
+			'false'   => 'Post is not marked as sticky.',
+			'true'    => 'Stick the post to the front page.',
+		),
 		'password'   => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
 		'parent'     => "(int) The post ID of the new post's parent.",
-		'categories' => "(string) Comma separated list of categories (name or id)",
-		'tags'       => "(string) Comma separated list of tags (name or id)",
+		'categories' => "(array|string) Comma separated list or array of categories (name or id)",
+		'tags'       => "(array|string) Comma separated list or array of tags (name or id)",
 		'format'     => get_post_format_strings(),
 		'comments_open' => '(bool) Should the post be open to comments?',
 		'pings_open'    => '(bool) Should the post be open to comments?',
@@ -491,7 +500,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"is_reblogged": false,
 	"is_following": false,
 	"featured_image": "",
-	"post_thumbnail": "",
+	"post_thumbnail": null,
 	"format": "standard",
 	"geo": false,
 	"publicize_URLs": [
@@ -602,7 +611,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 	"is_reblogged": false,
 	"is_following": false,
 	"featured_image": "",
-	"post_thumbnail": "",
+	"post_thumbnail": null,
 	"format": "standard",
 	"geo": false,
 	"publicize_URLs": [
@@ -734,6 +743,7 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 
 	'response_format' => array(
  		'media' => '(array) Array of uploaded media',
+		'errors' => '(array) Array of error messages of uploading media failures'
 	),
 ) );
 
@@ -1142,6 +1152,19 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 	'path_labels' => array(
 		'$site'     => '(int|string) The site ID, The site domain'
 	),
+	'query_parameters' => array(
+		'number'   => '(int=100) The number of categories to return.  Limit: 1000.',
+		'offset'   => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of categories.  Takes precedence over the <code>offset</code> parameter.',
+		'order'    => array(
+			'ASC'  => 'Return categories in ascending order.',
+			'DESC' => 'Return categories in decending order.',
+		),
+		'order_by' => array(
+			'name'  => 'Order by the name of each category.',
+			'count' => 'Order by the number of posts in each category.',
+		),
+	),
 	'response_format' => array(
 		'found'      => '(int) The number of categories returned.',
 		'categories' => '(array) Array of category objects.',
@@ -1157,6 +1180,19 @@ new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
 	'path'        => '/sites/%s/tags',
 	'path_labels' => array(
 		'$site'     => '(int|string) The site ID, The site domain'
+	),
+	'query_parameters' => array(
+		'number'   => '(int=100) The number of tags to return.  Limit: 1000.',
+		'offset'   => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of tags.  Takes precedence over the <code>offset</code> parameter.',
+		'order'    => array(
+			'ASC'  => 'Return tags in ascending order.',
+			'DESC' => 'Return tags in decending order.',
+		),
+		'order_by' => array(
+			'name'  => 'Order by the name of each tag.',
+			'count' => 'Order by the number of posts in each tag.',
+		),
 	),
 	'response_format' => array(
 		'found'    => '(int) The number of tags returned.',

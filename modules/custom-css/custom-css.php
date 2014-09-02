@@ -57,6 +57,12 @@ class Jetpack_Custom_CSS {
 			// Do migration routine if necessary
 			Jetpack_Custom_CSS::upgrade();
 
+			/**
+			 * Allows additional work when migrating safecss from wp_options to wp_post.
+			 *
+			 * @since ?
+			 * @module Custom_CSS
+			 **/
 			do_action( 'safecss_migrate_post' );
 		}
 
@@ -128,6 +134,17 @@ class Jetpack_Custom_CSS {
 		remove_filter( 'content_filtered_save_pre', 'wp_filter_post_kses' );
 		remove_all_filters( 'content_save_pre' );
 
+		/**
+		 * Fires prior to saving custom css values. Necessitated because the
+		 * core WordPress save_pre filters were removed:
+		 * - content_save_pre
+		 * - content_filtered_save_pre
+		 *
+		 * @since ?
+		 * @module Custom_CSS
+		 * @see self::save() for proper $args fields
+		 * @param array $args See Jetpack_Custom_CSS::save() docblock for more
+		 **/
 		do_action( 'safecss_save_pre', $args );
 
 		$warnings = array();
@@ -167,10 +184,31 @@ class Jetpack_Custom_CSS {
 
 		// if we're not using a preprocessor
 		if ( ! $args['preprocessor'] ) {
+
+			/**
+			 * Fires before parsing the css with CSSTidy, but only if
+			 * the preprocessor is not configured for use
+			 *
+			 * @since ?
+			 * @module Custom_CSS
+			 * @param csstidy The csstidy object
+			 * @param string $css
+			 * @param array $args. See self::save() docblock for proper $args fields
+			 **/
 			do_action( 'safecss_parse_pre', $csstidy, $css, $args );
 
 			$csstidy->parse( $css );
 
+			/**
+			 * Fires after parsing the css with CSSTidy, but only if 
+			 * the preprocessor is not cinfigured for use
+			 *
+			 * @since ?
+			 * @module Custom_CSS
+			 * @param csstidy $csstidy  The csstidy object
+			 * @param array $warnings
+			 * @param array $args - See self::save() docblock for proper $args fields
+			 **/
 			do_action( 'safecss_parse_post', $csstidy, $warnings, $args );
 
 			$css = $csstidy->print->plain();
@@ -200,6 +238,10 @@ class Jetpack_Custom_CSS {
 			}
 
 			// Freetrial only.
+
+			/**
+			 * @todo figure out what this is
+			 **/
 			do_action( 'safecss_save_preview_post' );
 		}
 
@@ -487,6 +529,13 @@ class Jetpack_Custom_CSS {
 	}
 
 	static function print_css() {
+		
+		/**
+		 * Fires right before printing the custom CSS inside the <head> element
+		 *
+		 * @since ?
+		 * @module Custom_CSS
+		 **/
 		do_action( 'safecss_print_pre' );
 
 		echo Jetpack_Custom_CSS::get_css( true );
@@ -559,6 +608,13 @@ class Jetpack_Custom_CSS {
 		<link rel="stylesheet" id="custom-css-css" type="text/css" href="<?php echo esc_url( $href ); ?>" />
 		<?php
 
+		/**
+		 * Fires after creating the <link> in the <head> element
+		 * for the custom css stylesheet
+		 *
+		 * @since ?
+		 * @module Custom_CSS
+		 **/
 		do_action( 'safecss_link_tag_post' );
 	}
 
@@ -689,7 +745,17 @@ class Jetpack_Custom_CSS {
 			add_meta_box( 'revisionsdiv', __( 'CSS Revisions', 'jetpack' ), array( __CLASS__, 'revisions_meta_box' ), 'editcss', 'side' );
 		?>
 		<div class="wrap">
-			<?php do_action( 'custom_design_header' ); ?>
+			<?php 
+			
+			/**
+			 * Fire right before the custom css page begins
+			 *
+			 * @since ?
+			 * @module Custom_CSS
+			 **/
+			do_action( 'custom_design_header' ); 
+			
+			?>
 			<h2><?php _e( 'CSS Stylesheet Editor', 'jetpack' ); ?></h2>
 			<form id="safecssform" action="" method="post">
 				<?php wp_nonce_field( 'safecss' ) ?>
@@ -880,7 +946,18 @@ class Jetpack_Custom_CSS {
 						<a class="cancel-css-mode hide-if-no-js" href="#css-mode"><?php esc_html_e( 'Cancel', 'jetpack' ); ?></a>
 					</div>
 				</div>
-				<?php do_action( 'custom_css_submitbox_misc_actions' ); ?>
+				<?php 
+				
+				/**
+				 * Allows addition of elements to the submit box for custom css
+				 * on the wp-admin side
+				 *
+				 * @since ?
+				 * @module Custom_CSS
+				 **/
+				do_action( 'custom_css_submitbox_misc_actions' ); 
+				
+				?>
 			</div>
 		</div>
 		<div id="major-publishing-actions">
@@ -1463,12 +1540,28 @@ function safecss_class() {
 		}
 
 		function postparse() {
+			
+			/**
+			 * Do actions after parsing the css
+			 *
+			 * @since ?
+			 * @module Custom_CSS
+			 * @param safecss $obj
+			 **/
 			do_action( 'csstidy_optimize_postparse', $this );
 
 			return parent::postparse();
 		}
 
 		function subvalue() {
+
+			/**
+			 * Do action before optimizing the subvalue
+			 *
+			 * @since ?
+			 * @module Custom_CSS
+			 * @param safecss $obj
+			 **/
 			do_action( 'csstidy_optimize_subvalue', $this );
 
 			return parent::subvalue();

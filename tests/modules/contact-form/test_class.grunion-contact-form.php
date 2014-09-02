@@ -6,6 +6,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 		define( 'DOING_AJAX', true ); // Defined so that 'exit' is not called in process_submission
+
+		// Remove any relevant filters that might exist before running the tests
+		remove_all_filters( 'grunion_still_email_spam' );
+		remove_all_filters( 'contact_form_is_spam' );
+		remove_all_filters( 'wp_mail' );
 	}
 
 	/**
@@ -49,6 +54,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public function tearDown() {
 		parent::tearDown();
 
+		// Remove filters after running tests
 		remove_all_filters( 'wp_mail' );
 		remove_all_filters( 'grunion_still_email_spam' );
 		remove_all_filters( 'contact_form_is_spam' );

@@ -518,13 +518,13 @@ class Share_Reddit extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="reddit_button"><iframe src="http://www.reddit.com/static/button/button1.html?width=120&amp;url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
+			return '<div class="reddit_button"><iframe src="' . $this->http() . '://www.reddit.com/static/button/button1.html?width=120&amp;url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Reddit', 'share to', 'jetpack' ), __( 'Click to share on Reddit', 'jetpack' ), 'share=reddit' );
 	}
 
 	public function process_request( $post, array $post_data ) {
-		$reddit_url = 'http://reddit.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) );
+		$reddit_url = $this->http() . '://reddit.com/submit?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&title=' . rawurlencode( $this->get_share_title( $post->ID ) );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -579,7 +579,7 @@ class Share_LinkedIn extends Sharing_Source {
 
 		$linkedin_url = add_query_arg( array(
 			'url' => rawurlencode( $post_link ),
-		), 'http://www.linkedin.com/cws/share?token=&isFramed=false' );
+		), $this->http() . '://www.linkedin.com/cws/share?token=&isFramed=false' );
 
 		// Record stats
 		parent::process_request( $post, $post_data );
@@ -760,7 +760,24 @@ class Share_PressThis extends Sharing_Source {
 	public function process_request( $post, array $post_data ) {
 		global $current_user;
 
-		$blogs = get_blogs_of_user( $current_user->ID );
+		$primary_blog = (int) get_user_meta( $current_user->ID, 'primary_blog', true );
+		if ( $primary_blog ) {
+			$primary_blog_details = get_blog_details( $primary_blog );
+		} else {
+			$primary_blog_details = false;
+		}
+
+		if ( $primary_blog_details ) {
+			$blogs = array( $primary_blog_details );
+		} elseif ( function_exists( 'get_active_blogs_for_user' ) ) {
+			$blogs = get_active_blogs_for_user();
+			if ( empty( $blogs ) ) {
+				$blogs = get_blogs_of_user( $current_user->ID );
+			}
+		} else {
+			$blogs = get_blogs_of_user( $current_user->ID );
+		}
+
 		if ( empty( $blogs ) ) {
 			wp_safe_redirect( get_permalink( $post->ID ) );
 			die();
@@ -1113,7 +1130,7 @@ class Share_Pinterest extends Sharing_Source {
 
 	public function get_display( $post ) {
 		if ( $this->smart )
-			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) ) .'" data-pin-do="buttonBookmark" ><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>';
+			return '<div class="pinterest_button"><a href="' . esc_url( 'http://pinterest.com/pin/create/button/?url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&description=' . rawurlencode( $post->post_title ) ) .'" data-pin-do="buttonBookmark" data-pin-config="beside"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_rect_gray_20.png" /></a></div>';
 		else
 			return $this->get_link( get_permalink( $post->ID ), _x( 'Pinterest', 'share to', 'jetpack' ), __( 'Click to share on Pinterest', 'jetpack' ), 'share=pinterest' );
 	}

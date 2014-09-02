@@ -10,6 +10,14 @@ module.exports = function(grunt) {
 				options: {
 					stdout: true
 				}
+			},
+		},
+		notify: {
+			watch_sass: {
+				options: {
+					title: 'Compilation done!',
+					message: 'Sass, Autoprefixer, and Janus have finished running.'
+				}
 			}
 		},
 		phplint: {
@@ -118,7 +126,8 @@ module.exports = function(grunt) {
 					'sass',
 					'autoprefixer',
 					'cssjanus:core',
-					'cssjanus:min'
+					'cssjanus:min',
+					'notify:watch_sass'
 				],
 				options: {
 					spawn: false
@@ -194,6 +203,7 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-contrib-sass');
 	grunt.loadNpmTasks('grunt-autoprefixer');
 	grunt.loadNpmTasks('grunt-cssjanus');
+	grunt.loadNpmTasks('grunt-notify');
 
 	grunt.registerTask('default', [
 		'shell',

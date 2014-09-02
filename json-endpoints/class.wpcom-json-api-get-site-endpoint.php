@@ -195,11 +195,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'default_ping_status'     => ( 'closed' == get_option( 'default_ping_status' ) ? false : true ),
 					'software_version'        => $wp_version,
 				);
-				if ( !current_user_can( 'publish_posts' ) )
+				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );
 				break;
 			case 'meta' :
-				$xmlrpc_url = site_url( 'xmlrpc.php' );
+				$xmlrpc_scheme = apply_filters( 'wpcom_json_api_xmlrpc_scheme', parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
+				$xmlrpc_url = site_url( 'xmlrpc.php', $xmlrpc_scheme );
 				$response[$key] = (object) array(
 					'links' => (object) array(
 						'self'     => (string) $this->get_site_link( $blog_id ),

@@ -399,10 +399,24 @@ function sharing_register_post_for_share_counts( $post_id ) {
 	$jetpack_sharing_counts[ (int) $post_id ] = get_permalink( $post_id );
 }
 
+function sharing_maybe_enqueue_scripts() {
+	$sharer          = new Sharing_Service();
+	$global_options  = $sharer->get_global_options();
+
+	$enqueue         = false;
+	if ( is_singular() && in_array( get_post_type(), $global_options['show'] ) ) {
+		$enqueue = true;
+	} elseif ( in_array( 'index', $global_options['show'] ) && ( is_home() || is_archive() || is_search() || in_array( get_post_type(), $global_options['show'] ) ) ) {
+		$enqueue = true;
+	}
+
+	return (bool) apply_filters( 'sharing_enqueue_scripts', $enqueue );
+}
+
 function sharing_add_footer() {
 	global $jetpack_sharing_counts;
 
-	if ( apply_filters( 'sharing_js', true ) ) {
+	if ( apply_filters( 'sharing_js', true ) && sharing_maybe_enqueue_scripts() ) {
 
 		if ( is_array( $jetpack_sharing_counts ) && count( $jetpack_sharing_counts ) ) :
 			$sharing_post_urls = array_filter( $jetpack_sharing_counts );
@@ -436,7 +450,7 @@ function sharing_add_header() {
 		$service->display_header();
 	}
 
-	if ( count( $enabled['all'] ) > 0 ) {
+	if ( count( $enabled['all'] ) > 0 && sharing_maybe_enqueue_scripts() ) {
 		// @todo: Remove this opt-out filter in the future
 		if ( ( ! defined( 'IS_WPCOM' ) ) || ( ! IS_WPCOM ) || apply_filters( 'wpl_sharing_2014_1', true ) ) {
 			wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing.css', array(), JETPACK__VERSION );
@@ -445,7 +459,7 @@ function sharing_add_header() {
 			wp_enqueue_style( 'sharedaddy', plugin_dir_url( __FILE__ ) .'sharing-legacy.css', array(), JETPACK__VERSION );
 		}
 	}
-			
+
 }
 add_action( 'wp_head', 'sharing_add_header', 1 );
 
