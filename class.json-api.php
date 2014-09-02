@@ -106,7 +106,7 @@ class WPCOM_JSON_API {
 				}
 			} else {
 				$this->post_body = $post_body;
-				$this->content_type = '{' === $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
+				$this->content_type = '{' === isset( $this->post_body[0] ) && $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
 			}
 		} else {
 			$this->post_body = null;
