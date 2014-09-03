@@ -34,6 +34,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
 
 
 // Jetpack Only Endpoints
@@ -1504,3 +1505,74 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 	}'
 ) );
 
+new WPCOM_JSON_API_Site_Settings_Endpoint( array(
+	'description' => 'Detailed settings information about a site ID/domain',
+	'group'	      => '__do_not_document',
+	'stat'        => 'sites:X',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/settings',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'query_parameters' => array(
+		'context' => false,
+	),
+
+	'response_format' => WPCOM_JSON_API_Site_Settings_Endpoint::$site_format,
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
+) );
+
+new WPCOM_JSON_API_Site_Settings_Endpoint( array(
+	'description' => 'Update settings information for a site ID/domain',
+	'group'       => '__do_not_document',
+	'stat'        => 'sites:X',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/settings',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'request_format'  => array(
+		'blogname'                     => '(string) blog name',
+		'blogdescription'              => '(string) blog description',
+		'default_pingback_flag'        => '(bool) notify blogs linked from article',
+		'default_ping_status'          => '(bool) allow link notifications from other blogs',
+		'default_comment_status'       => '(bool) allow comments on new articles',
+		'blog_public'                  => '(string) site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
+		'jetpack_relatedposts_enabled' => '(bool) enable related posts',
+		'jetpack_relatedposts_show_headline' => '(bool) show headline in related posts',
+		'jetpack_relatedposts_show_thumbnails' => '(bool) show thumbnails in related posts',
+		'infinite_scroll'              => '(bool) support infinite scroll of posts',
+		'default_category'             => '(int) default post category',
+		'default_post_format'          => '(string) default post format',
+		'require_name_email'           => '(bool) comment author must fill out name and email',
+		'comment_registration'         => '(bool) user must be registered and logged in to comment',
+		'close_comments_for_old_posts' => '(bool) automatically close comments on old posts',
+		'close_comments_days_old'      => '(int) age at which to close comments',
+		'thread_comments'              => '(bool) enable threaded comments',
+		'thread_comments_depth'        => '(int) depth to thread comments',
+		'page_comments'                => '(bool) break comments into pages',
+		'comments_per_page'            => '(int) number of comments to display per page',
+		'default_comments_page'        => '(string) newest|oldest which page of comments to display first',
+		'comment_order'                => '(string) asc|desc order to display comments within page',
+		'comments_notify'              => '(bool) email me when someone comments',
+		'moderation_notify'            => '(bool) email me when a comment is helf for moderation',
+		'social_notifications_like'    => '(bool) email me when someone likes my post',
+		'social_notifications_reblog'  => '(bool) email me when someone reblogs my post',
+		'social_notifications_subscribe' => '(bool) email me when someone follows my blog',
+		'comment_moderation'           => '(bool) comments must be manually approved',
+		'comment_whitelist'            => '(bool) comment author must have a previously approved comment',
+		'comment_max_links'            => '(int) hold comment if it contains X or more links',
+		'moderation_keys'              => '(string) words or phrases that trigger comment moderation, one per line',
+		'blacklist_keys'               => '(string) words or phrases that mark comment spam, one per line',
+		'lang_id'                      => '(int) ID for language blog is written in',
+	),
+
+	'response_format' => WPCOM_JSON_API_Site_Settings_Endpoint::$site_format,
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
+) );
