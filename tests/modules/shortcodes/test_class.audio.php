@@ -1,7 +1,5 @@
 <?php
 
-require dirname( __FILE__ ) . '/../../../modules/shortcodes/audio.php';
-
 class WP_Test_Jetpack_Shortcodes_Audio extends WP_UnitTestCase {
 
 	/**

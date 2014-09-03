@@ -81,7 +81,10 @@ function dailymotion_shortcode( $atts ) {
 		$atts['id'] = $id;
 	} else {
 		$params = shortcode_new_to_old_params( $atts );
-		parse_str( $params, $atts );
+		parse_str( $params, $atts_new );
+		foreach( $atts_new as $k => $v ) {
+			$attr[ $k ] = $v;
+		}
 	}
 
 	if ( isset( $atts['id'] ) )

@@ -96,19 +96,19 @@ function soundcloud_shortcode($atts, $content = null) {
   if (isset($options['height']) && !preg_match('/^\d+$/', $options['height'])) { unset($options['height']); }
 
   // The "iframe" option must be true to load the iframe widget
-  $iframe = soundcloud_booleanize($options['iframe'])
+  if ( isset( $options[ 'iframe' ] ) ) {
+    $iframe = soundcloud_booleanize($options['iframe'])
     // Default to flash widget for permalink urls (e.g. http://soundcloud.com/{username})
     // because HTML5 widget doesn’t support those yet
     ? preg_match('/api.soundcloud.com/i', $options['url'])
     : false;
 
-  // Return html embed code
-  if ($iframe) {
-    return soundcloud_iframe_widget($options);
-  } else {
-    return soundcloud_flash_widget($options);
+    if ( $iframe ) {
+      return soundcloud_iframe_widget( $options );
+    }
   }
 
+  return soundcloud_flash_widget( $options );
 }
 
 /**

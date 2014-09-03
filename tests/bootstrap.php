@@ -21,3 +21,8 @@ if( false !== getenv( 'WP_DEVELOP_DIR' ) ) {
 } else {
 	require '../../../../tests/phpunit/includes/bootstrap.php';
 }
+
+// Load the shortcodes module to test properly.
+if ( ! function_exists( 'shortcode_new_to_old_params' ) ) {
+	require dirname( __FILE__ ) . '/../modules/shortcodes.php';
+}

@@ -1,7 +1,5 @@
 <?php
 
-require dirname( __FILE__ ) . '/../../../modules/shortcodes/archives.php';
-
 class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
