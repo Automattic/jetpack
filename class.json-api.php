@@ -402,6 +402,10 @@ class WPCOM_JSON_API {
 
 		$fields = array_map( 'trim', explode( ',', $this->query['fields'] ) );
 
+		if ( is_object( $response ) ) {
+			$response = (array) $response;
+		}
+
 		$has_filtered = false;
 		if ( is_array( $response ) && empty( $response['ID'] ) ) {
 			$keys_to_filter = array(
