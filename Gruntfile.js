@@ -252,7 +252,6 @@ module.exports = function(grunt) {
 					'cssjanus:core',
 					'cssjanus:min',
 					'notify:watch_sass'
-					'cssjanus:coreMin'
 				],
 				options: {
 					spawn: false
