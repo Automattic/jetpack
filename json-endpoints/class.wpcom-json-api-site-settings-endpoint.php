@@ -203,27 +203,25 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'jetpack_relatedposts_enabled':
-					if ( method_exists( 'Jetpack', 'is_module_active' ) && $this->jetpack_relatedposts_supported() ) {
-						if ( $value ) {
-							Jetpack::activate_module( 'related-posts', false, false );
-						} else {
-							Jetpack::deactivate_module( 'related-posts' );
-						}
-						$updated[ $key ] = $value;
-						unset( $jetpack_relatedposts_options[ 'enabled' ] );
-						break;
-					}
 				case 'jetpack_relatedposts_show_thumbnails':
 				case 'jetpack_relatedposts_show_headline':
 					if ( ! $this->jetpack_relatedposts_supported() ) {
 						break;
 					}
-					$jetpack_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
+					if ( 'jetpack_relatedposts_enabled' === $key && method_exists( 'Jetpack', 'is_module_active' ) && $this->jetpack_relatedposts_supported() ) {
+						$before_action = Jetpack::is_module_active('related-posts');
+						if ( $value ) {
+							Jetpack::activate_module( 'related-posts', false, false );
+						} else {
+							Jetpack::deactivate_module( 'related-posts' );
+						}
+						$after_action = Jetpack::is_module_active('related-posts');
+						if ( $after_action == $before_action ) {
+							break;
+						}
+					}
 					$just_the_key = substr( $key, 21 );
 					$jetpack_relatedposts_options[ $just_the_key ] = $value;
-					if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
-						$updated[ $key ] = $value;
-					}
 				break;
 
 				case 'social_notifications_like':
@@ -242,6 +240,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $value;
 					}
 
+			}
+		}
+
+		if ( count( $jetpack_relatedposts_options ) ) {
+			// track new jetpack_relatedposts options against old
+			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
+			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
+				foreach( $jetpack_relatedposts_options as $key => $value ) {
+					if ( $value !== $old_relatedposts_options[ $key ] ) {
+						$updated[ 'jetpack_relatedposts_' . $key ] = $value;
+					}
+				}
 			}
 		}
 
