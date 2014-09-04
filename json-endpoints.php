@@ -297,6 +297,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			'private' => 'Privately publish the post.',
 			'draft'   => 'Save the post as a draft.',
 			'pending' => 'Mark the post as pending editorial approval.',
+			'auto-draft' => 'Save a placeholder for a newly created post, with no content.',
 		),
 		'sticky'    => array(
 			'false'   => 'Post is not marked as sticky.',
