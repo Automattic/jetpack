@@ -52,7 +52,7 @@ Yes, VaultPress supports Multisite installs. Each site will require its own subs
 
 == Changelog ==
 = 1.6.5 =
-* Security: Add a new security hotfix.
+* Security: Hotfix for the Slider Revolution plugin.
 
 = 1.6.4 =
 * Bumping the "Tested up to" tag to 4.0
