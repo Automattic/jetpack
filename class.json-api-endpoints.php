@@ -936,6 +936,8 @@ EOPHP;
 					if ( !current_user_can( 'edit_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
+				} elseif ( 'auto-draft' === $post->post_status ) {
+					//allow auto-drafts
 				} else {
 					return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 				}
