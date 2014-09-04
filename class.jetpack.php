@@ -442,7 +442,8 @@ class Jetpack {
 		 * Super late priority so we catch all the registered styles
 		 */
 		if( !is_admin() ) {
-			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), 10000 );
+			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
+			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
 	}
 
@@ -4701,6 +4702,7 @@ p {
 	 * @since 3.2
 	 **/
 	public function implode_frontend_css() {
+		global $wp_styles;
 
 		$do_implode = apply_filters( 'jetpack_implode_frontend_css', true );
 
@@ -4751,9 +4753,7 @@ p {
 			'jetpack-widgets'
 		);
 
-		foreach( $to_dequeue AS $f ) {
-			wp_deregister_style( $f );
-		}
+		$wp_styles->remove( $to_dequeue );
 
 		if( is_rtl() ) {
 			wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack-rtl.css', __FILE__ ) );
