@@ -1052,9 +1052,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 		}
 
-		// Extra fields' prefixes start counting after all_fields
-		$i = count( $content_fields['_feedback_all_fields'] ) + 1;
-
 		// "Non-standard" fields
 		if ( $field_ids['extra'] ) {
 			// array indexed by field label (not field id)
@@ -1064,13 +1061,20 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				$field = $form->fields[$field_id];
 
 				$label = $field->get_attribute( 'label' );
+
+				// Find the correct extra field label
+				foreach ( $extra_fields as $extra_field => $val ) {
+					if ( false !== strpos( $extra_field, $label  ) ) {
+						$key = $extra_field;
+						break;
+					}
+				}
+
 				$contact_form_message .= sprintf(
 					_x( '%1$s: %2$s', '%1$s = form field label, %2$s = form field value', 'jetpack' ),
 					wp_kses( $label, array() ),
-					wp_kses( $extra_fields[$i . '_' . $label], array() )
+					wp_kses( $extra_fields[$key], array() )
 				) . '<br />';
-
-				$i++; // Increment prefix counter
 			}
 		}
 
