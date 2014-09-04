@@ -88,6 +88,9 @@ class VaultPress_Hotfixes {
 
 		// Protect The MailPoet plugin (wysija-newsletters) from remote file upload. Affects versions <= 2.6.6
 		add_action( 'admin_init', array( $this , 'protect_wysija_newsletters_verify_capability' ), 1 );
+
+		// Protect the Revolution Slider plugin (revslider) from local file inclusion. Affects versions < 4.2
+		add_action( 'init', array( $this , 'protect_revslider_lfi' ), 1 );
 	}
 
 	function disable_jetpack_xmlrpc_methods_293( $jetpack_methods, $core_methods, $user = false ) {
@@ -616,6 +619,22 @@ EOD;
             return true;
         }
     }
+
+	// Protect the Revolution Slider plugin (revslider) from local file inclusion. Affects versions < 4.2
+	function protect_revslider_lfi() {
+		if ( isset( $_GET['action'] ) && 'revslider_show_image' == $_GET['action'] ) {
+			$img = '';
+			if ( isset( $_GET['img'] ) )
+				$img = $_GET['img'];
+			if ( is_numeric( $img ) )
+				return;
+			$validate = validate_file( $img );
+			if ( 0 !== $validate )
+				die( 'invalid file' );
+			if ( !file_exists( $img ) )
+				die( 'file does not exist' );
+		}
+	}
 }
 
 global $wp_version;
