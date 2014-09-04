@@ -482,7 +482,7 @@ class Jetpack_PostImages {
 		}
 
 		// Use Photon magic
-		if( function_exists( 'jetpack_photon_url' ) ) {
+		if ( Jetpack::is_module_active( 'photon' ) ) {
 			return jetpack_photon_url( $src, array( 'resize' => "$width,$height" ) );
 		}
 
