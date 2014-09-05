@@ -55,7 +55,7 @@ class WPCOM_JSON_API_Get_Taxonomies_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$cats_obj = array();
 		foreach ( $cats as $cat ) {
-			$cats_obj[] = $this->get_taxonomy( $cat->slug, 'category', 'display' );
+			$cats_obj[] = $this->format_taxonomy( $cat, 'category', 'display' );
 		}
 
 		return array(
@@ -73,7 +73,7 @@ class WPCOM_JSON_API_Get_Taxonomies_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$tags_obj = array();
 		foreach ( $tags as $tag ) {
-			$tags_obj[] = $this->get_taxonomy( $tag->slug, 'post_tag', 'display' );
+			$tags_obj[] = $this->format_taxonomy( $tag, 'post_tag', 'display' );
 		}
 
 		return array(
