@@ -18,7 +18,7 @@ div.jp-carousel-fadeaway {
 
 .jp-carousel-next-button span,
 .jp-carousel-previous-button span {
-	background: url(./images/arrows.png) no-repeat center center;
+	background: url('../modules/carousel/images/arrows.png') no-repeat center center;
 	background-size: 200px 126px;
 }
 
@@ -29,7 +29,7 @@ only screen and (min--moz-device-pixel-ratio: 1.5),
 only screen and (min-device-pixel-ratio: 1.5) {
 	.jp-carousel-next-button span,
 	.jp-carousel-previous-button span {
-		background-image: url(./images/arrows-2x.png);
+		background-image: url('../modules/carousel/images/arrows-2x.png');
 	}
 }
 
@@ -270,7 +270,7 @@ div.jp-carousel-buttons a.jp-carousel-like,
 div.jp-carousel-buttons a.jp-carousel-reblog,
 div.jp-carousel-buttons a.jp-carousel-commentlink,
 a.jp-carousel-image-download {
-	background: url(./images/carousel-sprite.png?5) no-repeat;
+	background: url('../modules/carousel/images/carousel-sprite.png?5') no-repeat;
 	background-size: 16px 200px;
 }
 
@@ -338,7 +338,7 @@ only screen and (min-device-pixel-ratio: 1.5) {
 	div.jp-carousel-buttons a.jp-carousel-reblog,
 	div.jp-carousel-buttons a.jp-carousel-commentlink,
 	a.jp-carousel-image-download {
-		background-image: url(./images/carousel-sprite-2x.png?5);
+		background-image: url('../modules/carousel/images/carousel-sprite-2x.png?5');
 	}
 }
 
@@ -2471,7 +2471,7 @@ body div div.slideshow-controls a:hover {
 	border:2px solid rgba(255,255,255,0.1) !important;
 	background-color: #000 !important;
 	background-color: rgba(0,0,0,0.6) !important;
-	background-image: url('../img/slideshow-controls.png') !important;
+	background-image: url('../modules/shortcodes/img/slideshow-controls.png') !important;
 	background-repeat: no-repeat;
 	background-size: 142px 16px !important;
 	background-position: -34px 8px !important;
@@ -2498,7 +2498,7 @@ body div div.slideshow-controls a:hover {
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5) {
 	body div div.slideshow-controls a,
 	body div div.slideshow-controls a:hover {
-		background-image: url('../img/slideshow-controls-2x.png') !important;
+		background-image: url('../modules/shortcodes/img/slideshow-controls-2x.png') !important;
 	}
 }
 
@@ -2621,7 +2621,7 @@ body.presentation-wrapper-fullscreen-parent {
 .presentation .nav-arrow-left,
 .presentation .nav-arrow-right {
 	height: 100%;
-	background-image: url(../images/slide-nav.png);
+	background-image: url('../modules/shortcodes/images/slide-nav.png');
 	background-size: 450% 61px;
 }
 
@@ -2642,7 +2642,7 @@ body.presentation-wrapper-fullscreen-parent {
 	bottom: 0;
 	right: 0;
 	z-index: 3;
-	background-image: url(../images/expand.png);
+	background-image: url('../modules/shortcodes/images/expand.png');
 	background-size: 100% 100%;
 }
 
@@ -2656,7 +2656,7 @@ body.presentation-wrapper-fullscreen-parent {
 }
 
 .presentation-wrapper-fullscreen .nav-fullscreen-button {
-	background-image: url(../images/collapse.png);
+	background-image: url('../modules/shortcodes/images/collapse.png');
 }
 
 /**
