@@ -998,11 +998,11 @@ jQuery(document).ready(function($) {
 
 		shutterSpeed: function(d) {
 			if (d >= 1) {
-				return Math.round(d) + 's';
+				return Math.round(d*10)/10 + 's';
 			}
 			var df = 1, top = 1, bot = 1;
-			var limit = 1e3;
-			while (df !== d && limit-- > 0) {
+			var tol = 1e-8;
+			while (df !== d && Math.abs(df-d) > tol) {
 				if (df < d) {
 					top += 1;
 				} else {
