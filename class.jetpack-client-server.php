@@ -215,7 +215,7 @@ class Jetpack_Client_Server {
 		return (string) $json->access_token;
 	}
 
-	static public function get_jetpack() {
+	public function get_jetpack() {
 		return Jetpack::init();
 	}
 
