@@ -499,8 +499,6 @@ class The_Neverending_Home_Page {
 		if ( ! self::got_infinity() )
 			return false;
 
-		define( 'DOING_AJAX', true );
-
 		@header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
 		send_nosniff_header();
 
@@ -1170,5 +1168,9 @@ add_action( 'after_setup_theme', 'the_neverending_home_page_theme_support', 5 );
  * Don't load the admin bar when doing the AJAX response.
  */
 if ( The_Neverending_Home_Page::got_infinity() ) {
+	if ( ! defined( 'DOING_AJAX' ) ) {
+		define( 'DOING_AJAX', true );
+	}
+
 	show_admin_bar( false );
 }
