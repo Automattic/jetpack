@@ -2,6 +2,12 @@
 
 class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
+	public function setUp() {
+		self::$ignore_files = TRUE;
+
+		parent::setUp();
+	}
+
 	/**
 	 * @author scotchfield
 	 * @since 3.2
