@@ -20,8 +20,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
-		if ( ! is_user_logged_in() || ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'authorization_required', 'You do not have the capability to manage_options for this site.', 403 );
+		if ( ! is_user_logged_in() ) {
+			return new WP_Error( 'Unauthorized', 'You must be logged-in to manage settings.', 401 );
+		} else if ( ! current_user_can( 'manage_options' ) ) {
+			return new WP_Error( 'Forbidden', 'You do not have the capability to manage settings for this site.', 403 );
 		}
 
 		if ( 'GET' === $this->api->method ) {
