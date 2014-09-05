@@ -1012,6 +1012,13 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   color: #686f72;
   font-size: 0.85714em;
 }
+.module:hover, .module:focus {
+  border-color: #8ac9e8;
+  background: #f8fcfe;
+}
+.module:nth-of-type(n+10) {
+  display: none;
+}
 @media (max-width: 1147px) {
   .cat .module:nth-child(3n + 1) {
     margin: .75% 0 .75% 1.5%;
