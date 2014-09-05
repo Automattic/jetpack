@@ -14,11 +14,11 @@ class WP_Test_Jetpack_Client_Server extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers Jetpack_Client_Server::jetpack
+	 * @covers Jetpack_Client_Server::get_jetpack
 	 * @since 2.3.3
 	 */
-	public function test_jetpack_client_server_jetpack() {
-		$this->assertInstanceOf( 'Jetpack', Jetpack_Client_Server::jetpack() );
+	public function test_jetpack_client_server_get_jetpack() {
+		$this->assertInstanceOf( 'Jetpack', Jetpack_Client_Server::get_jetpack() );
 	}
 
 	/**

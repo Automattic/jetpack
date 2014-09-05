@@ -12,7 +12,7 @@ class Jetpack_Client_Server {
 		$redirect = isset( $data['redirect'] ) ? esc_url_raw( (string) $data['redirect'] ) : '';
 
 		do {
-			$jetpack = $this->jetpack();
+			$jetpack = $this->get_jetpack();
 			$role = $jetpack->translate_current_user_to_role();
 
 			if ( !$role ) {
@@ -132,7 +132,7 @@ class Jetpack_Client_Server {
 	 * @return object|WP_Error
 	 */
 	function get_token( $data ) {
-		$jetpack = $this->jetpack();
+		$jetpack = $this->get_jetpack();
 		$role = $jetpack->translate_current_user_to_role();
 
 		if ( !$role ) {
@@ -215,16 +215,16 @@ class Jetpack_Client_Server {
 		return (string) $json->access_token;
 	}
 
-	static public function jetpack() {
+	static public function get_jetpack() {
 		return Jetpack::init();
 	}
 
 	public function check_admin_referer( $action ) {
-		check_admin_referer( $action );
+		return check_admin_referer( $action );
 	}
 
 	public function wp_safe_redirect( $redirect ) {
-		wp_safe_redirect( $redirect );
+		return wp_safe_redirect( $redirect );
 	}
 
 	public function do_exit() {
