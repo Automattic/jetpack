@@ -1155,19 +1155,6 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	}
 }
 
-.jp-carousel .jp-carousel-slide {
-    display: none !important;
-}
-.jp-carousel {
-	text-align: center!important;
-	width:100%!important;
-}
-.jp-carousel .selected {
-	margin: 0 auto;
-	display: block !important;
-	width: auto;
-	position: relative!important;
-}
 .contact-form .clear-form { clear: both; }
 .contact-form input[type='text'], .contact-form input[type='email'] { width: 300px; max-width: 98%; margin-bottom: 13px; }
 .contact-form select { margin-bottom: 13px; }

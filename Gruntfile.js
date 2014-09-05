@@ -55,7 +55,6 @@ var admincss = [
 /* Front-end CSS to be concatenated */
 var frontendcss = [
 	'modules/carousel/jetpack-carousel.css',
-	'modules/carousel/jetpack-carousel-ie8fix.css',
 	'modules/contact-form/css/grunion.css',
 	'modules/gplus-authorship/style.css',
 	'modules/infinite-scroll/infinity.css',

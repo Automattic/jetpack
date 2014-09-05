@@ -4735,7 +4735,6 @@ p {
 		 */
 		$to_dequeue = array(
 			'jetpack-carousel',
-			'jetpack-carousel-ie8fix',
 			'grunion.css',
 			'gplus',
 			'the-neverending-homepage',
