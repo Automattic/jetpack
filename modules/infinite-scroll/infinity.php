@@ -499,6 +499,11 @@ class The_Neverending_Home_Page {
 		if ( ! self::got_infinity() )
 			return false;
 
+		// This should already be defined below, but make sure.
+		if ( ! defined( 'DOING_AJAX' ) ) {
+			define( 'DOING_AJAX', true );
+		}
+
 		@header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
 		send_nosniff_header();
 
@@ -1165,12 +1170,20 @@ function the_neverending_home_page_theme_support() {
 add_action( 'after_setup_theme', 'the_neverending_home_page_theme_support', 5 );
 
 /**
- * Don't load the admin bar when doing the AJAX response.
+ * Early accommodation of the Infinite Scroll AJAX request
  */
 if ( The_Neverending_Home_Page::got_infinity() ) {
-	if ( ! defined( 'DOING_AJAX' ) ) {
+	/**
+	 * If we're sure this is an AJAX request (i.e. the HTTP_X_REQUESTED_WITH header says so),
+	 * indicate it as early as possible for actions like init
+	 */
+	if ( ! defined( 'DOING_AJAX' ) &&
+		isset( $_SERVER['HTTP_X_REQUESTED_WITH'] ) &&
+		strtoupper( $_SERVER['HTTP_X_REQUESTED_WITH'] ) == 'XMLHTTPREQUEST'
+	) {
 		define( 'DOING_AJAX', true );
 	}
 
+	// Don't load the admin bar when doing the AJAX response.
 	show_admin_bar( false );
 }
