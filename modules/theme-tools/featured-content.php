@@ -554,6 +554,8 @@ class Featured_Content {
 
 		$output['hide-tag'] = isset( $input['hide-tag'] ) && $input['hide-tag'] ? 1 : 0;
 
+		$output['show-all'] = isset( $input['show-all'] ) && $input['show-all'] ? 1 : 0;
+
 		self::delete_transient();
 
 		return $output;
