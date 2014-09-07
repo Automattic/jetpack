@@ -45,10 +45,9 @@ class Jetpack_Twitter_Cards {
 			$featured = Jetpack_PostImages::from_thumbnail( $post->ID, 240, 240 );
 			if ( !empty( $featured ) && count( $featured ) > 0 ) {
 				if ( (int) $featured[0]['src_width'] >= 280 && (int) $featured[0]['src_height'] >= 150 ) {
-					if ( get_post_format( $post->ID ) == 'image' ) {
+					if ( 'image' === get_post_format( $post->ID ) ) {
 						$card_type = 'photo';
-					}
-					else {
+					} else {
 						$card_type = 'summary_large_image';
 					}
 					$og_tags['twitter:image:src'] = add_query_arg( 'w', 640, $featured[0]['src'] );
