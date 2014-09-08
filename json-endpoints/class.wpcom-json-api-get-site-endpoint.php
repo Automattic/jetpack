@@ -224,12 +224,6 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint {
 	// /sites/%s/post-formats -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {
-
-		// we don't need to do the extra functions.php / loading magic for jetpack blogs
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$this->pre_load_theme_functions();
-		}
-		
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -239,9 +233,9 @@ class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint 
 			$this->load_theme_functions();
 		}
 
-		// Get a list of supported post formats
-		$all_formats       = get_post_format_strings();
-		$supported         = get_theme_support( 'post-formats' );
+		// Get a list of supported post formats.
+		$all_formats = get_post_format_strings();
+		$supported   = get_theme_support( 'post-formats' );
 
 		$supported_formats = $response['formats'] = array();
 

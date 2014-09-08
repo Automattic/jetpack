@@ -1222,15 +1222,7 @@ EOPHP;
 		);
 	}
 
-	// cleanup before we try to load the functions for the current theme (since we do a switch_to_blog in the api, a default
-	// theme (twentyeleven) gets loaded and we don't want to load it's setup functions too)
-	function pre_load_theme_functions() {
-		remove_action( 'after_setup_theme', 'twentyeleven_setup' );
-		remove_action( 'after_setup_theme', 'twentyeleven_wpcom_setup' );
-		remove_theme_support( 'post-formats' );
-	}
-
-	// loads the functions.php file for the current theme to get its post formats, CPTs, etc
+	// Load the functions.php file for the current theme to get its post formats, CPTs, etc.
 	function load_theme_functions() {
 		// Is this a child theme? Load the child theme's functions file.
 		if ( get_stylesheet_directory() !== get_template_directory() && wpcom_is_child_theme() ) {
