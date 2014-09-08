@@ -1232,29 +1232,16 @@ EOPHP;
 
 	// loads the functions.php file for the current theme to get its post formats, CPTs, etc
 	function load_theme_functions() {
-		// Is this a child theme? We'll load both
-		if ( get_stylesheet_directory() <> get_template_directory() ) {
-			
-			// Don't bother loading if we can't find anything
-			if ( ! file_exists( get_template_directory() . '/functions.php' ) && ! file_exists( get_stylesheet_directory() . '/functions.php' ) ) {
-				return;
-			}
-			
+		// Is this a child theme? Load the child theme's functions file.
+		if ( get_stylesheet_directory() !== get_template_directory() && wpcom_is_child_theme() ) {
 			if ( file_exists( get_stylesheet_directory() . '/functions.php' ) ) {
 				require_once( get_stylesheet_directory() . '/functions.php' );
 			}
-
-			if ( file_exists( get_template_directory() . '/functions.php' ) ) {
-				require_once( get_template_directory() . '/functions.php' );
-			}
-
-		} else {
-				if ( ! file_exists( get_template_directory() . '/functions.php' ) ) {
-					return;
-				}
-
-				require_once( get_template_directory() . '/functions.php' );
 		}
+		if ( ! file_exists( get_template_directory() . '/functions.php' ) ) {
+			return;
+		}
+		require_once( get_template_directory() . '/functions.php' );
 
 		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
 		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', WP_CONTENT_DIR . '/themes' );
