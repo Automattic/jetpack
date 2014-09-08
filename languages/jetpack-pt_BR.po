@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-09-02 18:09-0300\n"
+"PO-Revision-Date: 2014-09-08 16:55-0300\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -39,6 +39,8 @@ msgid ""
 "The Send to Readmill widget is no longer working and will be removed "
 "completely from Jetpack."
 msgstr ""
+"Enviar para o Widget do Readmill não está mais funcionando e será removido "
+"completamente do Jetpack."
 
 #: modules/module-info.php:923
 msgid "Custom Content Types"
@@ -49,6 +51,8 @@ msgid ""
 "Organize and display different types of content on your site, separate from "
 "posts and pages."
 msgstr ""
+"Organize e mostre diferentes tipos de conteúdo em seu site, separado de "
+"posts e páginas."
 
 #: modules/custom-post-types/portfolios.php:683
 msgid "Tags"
@@ -59,6 +63,8 @@ msgid ""
 "Your Portfolio Archive currently has no entries. You can start creating them "
 "on your dashboard."
 msgstr ""
+"Seu Portfolio atualmente não tem cadastros. Você pode começar a cadastrá-los "
+"em seu dashboard."
 
 #: modules/custom-post-types/portfolios.php:652
 msgid "Types"
@@ -123,7 +129,7 @@ msgstr "Pesquisar Tags de Projeto"
 
 #: modules/custom-post-types/portfolios.php:346
 msgid "Popular Project Tags"
-msgstr ""
+msgstr "Tags Populares do Projeto"
 
 #: modules/custom-post-types/portfolios.php:343
 msgid "Add New Project Tag"
@@ -156,7 +162,7 @@ msgstr "Pesquisar tipos de projetos"
 #: modules/custom-post-types/portfolios.php:336
 #: modules/custom-post-types/portfolios.php:338
 msgid "Project Tags"
-msgstr ""
+msgstr "Tags dos Projetos"
 
 #: modules/custom-post-types/portfolios.php:337
 msgid "Project Tag"
@@ -249,6 +255,8 @@ msgid ""
 "You need to <a href=\"%s\">enable portfolio</a> custom post type before you "
 "can update it's settings."
 msgstr ""
+"Você precisa <a href=\"%s\"> ativar o post type portfolio </a>antes de "
+"atualizar suas configurações."
 
 #: modules/custom-post-types/portfolios.php:269
 msgid "Portfolio Items"
@@ -260,24 +268,24 @@ msgstr "Projetos"
 
 #: modules/custom-post-types/portfolios.php:179
 msgid "Portfolio pages display at most %1$s projects"
-msgstr ""
+msgstr "Páginas do Portfolio mostram no máximo %1$s projetos"
 
 #: modules/custom-post-types/portfolios.php:109
 #: modules/custom-post-types/portfolios.php:130
 msgid "Portfolio Projects"
-msgstr ""
+msgstr "Projetos do Portfolio"
 
 #: modules/custom-post-types/portfolios.php:164
 msgid "Your theme supports <strong>%s</strong>"
-msgstr ""
+msgstr "Seu tema suporta <strong>%s</strong>"
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:370
 msgid "You are required to specify a plugin to activate."
-msgstr ""
+msgstr "Você é obrigado a especificar um plugin para ativar."
 
 #: json-endpoints/class.json-api-jetpack-endpoints.php:863
 msgid "You are required to specify a capability to check."
-msgstr ""
+msgstr "Você é obrigado a especificar a capacidade de verificar."
 
 #: modules/custom-content-types.php:32
 #: modules/custom-post-types/portfolios.php:102
@@ -289,6 +297,7 @@ msgstr "Seus tipos de posts personalizados"
 #: modules/custom-post-types/portfolios.php:151
 msgid "Use these settings to display different types of content on your site."
 msgstr ""
+"Use essas configurações para exibir diferentes tipos de conteúdo em seu site."
 
 #: views/admin/landing-page-templates.php:24
 msgid "Learn more"
@@ -296,13 +305,15 @@ msgstr "Saiba mais"
 
 #: views/admin/network-settings.php:8
 msgid "Jetpack Network Settings Updated!"
-msgstr ""
+msgstr "Configurações de Rede do Jetpack Atualizado!"
 
 #: modules/module-info.php:401
 msgid ""
 "<strong>The Upcoming Events Widget</strong> allows you to use an iCalendar "
 "link to display a list of events on your site."
 msgstr ""
+"<strong>Widget de Próximos Eventos</strong> permite a utilização de um link "
+"do iCalendar para exibir uma lista de eventos em seu site."
 
 #: modules/module-info.php:855 modules/module-info.php:878
 msgid "Related Posts"
@@ -314,25 +325,31 @@ msgstr "pesquise tudo"
 
 #: modules/widgets/readmill.php:11
 msgid "Retired: Send To Readmill"
-msgstr ""
+msgstr "Retirado: Enviar para Readmill"
 
 #: modules/widgets/readmill.php:27
 msgid ""
 "<strong>The Readmill reading service has shut down</strong><br /> <a taget="
 "\"_blank\" href=\"%s\">Learn More</a>"
 msgstr ""
+"<strong>O serviço de leitura Readmill foi encerrado</strong><br /> <a target="
+"\"_blank\" href=\"%s\">Leia Mais</a>."
 
 #: modules/widgets/readmill.php:66
 msgid ""
 "Notice to Administrators:<br /> <strong>The Readmill reading service has "
 "shut down</strong> <a taget=\"_blank\" href=\"%s\">learn more</a>."
 msgstr ""
+"Aviso aos administradores:<br /> <strong>O serviço de leitura Readmill foi "
+"encerrado</strong> <a taget=\"_blank\" href=\"%s\">leia mais</a>."
 
 #: modules/widgets/readmill.php:72
 msgid ""
 "You can visit <a href=\"%s\" title=\"Appearance > Widgets\">Appearance > "
 "Widgets </a> to remove it from this sidebar."
 msgstr ""
+"Você pode visitar <a href=\"%s\" title=\"Aparência > Widgets\">Aparência > "
+"Widgets </a>para removê-lo da sidebar."
 
 #: views/admin/landing-page-templates.php:12
 msgid "loading&hellip;"
@@ -344,6 +361,9 @@ msgid ""
 "display a photo gallery or slideshow in your blog’s sidebar. Requires the "
 "Tiled Gallery module."
 msgstr ""
+"<strong>Widget de Galeria</strong> fornece uma maneira simples de exibir uma "
+"galeria de fotos ou apresentação de slides na sidebar do seu blog. Requer o "
+"plugin Galeria de Mosaico."
 
 #: modules/module-info.php:399
 msgid ""
@@ -351,36 +371,49 @@ msgid ""
 "ten recent posts from another WordPress.com blog, or a self-hosted WordPress "
 "site with Jetpack enabled."
 msgstr ""
+"<strong>Widget de Posts WordPress</strong> permite exibir até dez posts "
+"recentes de outro blog WordPress.com ou um site WordPress hospedado com "
+"Jetpack habilitado."
 
 #: modules/module-info.php:400
 msgid ""
 "<strong>Retired: The Readmill Widget</strong> allows your readers to send a "
 "book to their device with one click."
 msgstr ""
+"<strong>Retirado: Readmill Widget</strong> permite que os seus leitores a "
+"enviem um livro para o seu dispositivo com um clique."
 
 #: modules/module-info.php:394
 msgid ""
 "<strong>The Twitter Widget</strong> shows your latest tweets within a "
 "sidebar on your theme."
 msgstr ""
+"<strong>Widget Twitter</strong> mostra os últimos tweets dentro da sidebar "
+"do seu tema."
 
 #: modules/module-info.php:395
 msgid ""
 "<strong>The Facebook Like Box Widget</strong> shows your Facebook Like Box "
 "within a sidebar on your theme."
 msgstr ""
+"<strong>Widget do Facebook Like Box </strong> mostra o seu Facebook Like Box "
+"dentro da sidebar do seu tema."
 
 #: modules/module-info.php:396
 msgid ""
 "<strong>The Image Widget</strong> lets you easily add images to a sidebar on "
 "your theme."
 msgstr ""
+"<strong>Widget de Imagem</strong> permite que você adicione facilmente "
+"imagens na sidebar do seu tema."
 
 #: modules/module-info.php:397
 msgid ""
 "<strong>The Gravatar Widget</strong> allows you to pull in your Gravatar "
 "image along with some of your Gravatar profile data."
 msgstr ""
+"<strong>Widget do Gravatar</strong> permite você puxar sua imagem do "
+"Gravatar juntamente com alguns dos seus dados do perfil."
 
 #: modules/minileven/theme/pub/minileven/content.php:51
 #: modules/minileven/theme/pub/minileven/image.php:80
