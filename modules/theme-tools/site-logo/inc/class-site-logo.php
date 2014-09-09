@@ -197,15 +197,13 @@ class Site_Logo {
 	 * @return string Size specified in add_theme_support declaration, or 'thumbnail' default
 	 */
 	public function theme_size() {
-		$valid_sizes = array( 'thumbnail', 'medium', 'large', 'full' );
-
-		global $_wp_additional_image_sizes;
-		if ( isset( $_wp_additional_image_sizes ) ) {
-			$valid_sizes = array_merge( $valid_sizes, array_keys( $_wp_additional_image_sizes ) );
-		}
-
 		$args = get_theme_support( 'site-logo' );
+		$valid_sizes = get_intermediate_image_sizes();
 
+		// Add 'full' to the list of accepted values.
+		$valid_sizes[] = 'full';
+
+		// If the size declared in add_theme_support is valid, use it; otherwise, just go with 'thumbnail'.
 		$size = ( isset( $args[0]['size'] ) && in_array( $args[0]['size'], $valid_sizes ) ) ? $args[0]['size'] : 'thumbnail';
 
 		return $size;
