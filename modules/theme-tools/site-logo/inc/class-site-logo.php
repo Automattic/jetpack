@@ -56,6 +56,7 @@ class Site_Logo {
 		add_action( 'customize_preview_init', array( $this, 'preview_enqueue' ) );
 		add_filter( 'body_class', array( $this, 'body_classes' ) );
 		add_filter( 'image_size_names_choose', array( $this, 'media_manager_image_sizes' ) );
+		add_filter( 'display_media_states', array( $this, 'add_media_state' ) );
 	}
 
 	/**
@@ -224,6 +225,25 @@ class Site_Logo {
 		}
 
 		return $sizes;
+	}
+
+	/**
+	 * Add site logos to media states in the Media Manager.
+	 *
+	 * @return array The current attachment's media states.
+	 */
+	public function add_media_state( $media_states ) {
+		// Only bother testing if we have a site logo set.
+		if ( $this->has_site_logo() ) {
+			global $post;
+
+			// If our attachment ID and the site logo ID match, this image is the site logo.
+			if ( $post->ID == $this->logo['id'] ) {
+				$media_states[] = __( 'Site Logo', 'jetpack' );
+			}
+		}
+
+		return $media_states;
 	}
 
 	/**
