@@ -130,13 +130,14 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			unset( $input['parent'] );
 		}
 
-		$tax_input = array( 'post_tag' => array(), 'category' => array() );
+		$tax_input = array();
 
 		foreach ( array( 'categories' => 'category', 'tags' => 'post_tag' ) as $key => $taxonomy ) {
-			if ( empty( $input[$key] ) ) {
-				unset( $tax_input[$taxonomy] );
+			if ( ! isset( $input[ $key ] ) ) {
 				continue;
 			}
+
+			$tax_input[ $taxonomy ] = array();
 
 			$is_hierarchical = is_taxonomy_hierarchical( $taxonomy );
 
@@ -184,10 +185,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 					}
 				}
 			}
+		}
 
-			if ( empty( $tax_input[$taxonomy] ) ) {
-				unset( $tax_input[$taxonomy] );
-			}
+		if ( isset( $input['categories'] ) && empty( $tax_input['category'] ) && 'revision' !== $post_type->name ) {
+			$tax_input['category'][] = get_option( 'default_category' );
 		}
 
 		unset( $input['tags'], $input['categories'] );
