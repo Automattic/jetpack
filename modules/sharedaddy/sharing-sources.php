@@ -57,7 +57,7 @@ abstract class Sharing_Source {
 			$klasses[] = 'no-text';
 
 			if ( $this->open_links == 'new' )
-				$text .= ' (Opens in new window)';
+				$text .= __( ' (Opens in new window)', 'jetpack' );
 		}
 
 		$url = apply_filters( 'sharing_display_link', $url );
