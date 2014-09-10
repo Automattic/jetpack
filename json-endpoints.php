@@ -1572,7 +1572,9 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'lang_id'                      => '(int) ID for language blog is written in',
 	),
 
-	'response_format' => WPCOM_JSON_API_Site_Settings_Endpoint::$site_format,
+	'response_format' => array(
+		'updated' => '(array)'
+	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
 ) );
