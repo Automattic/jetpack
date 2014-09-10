@@ -14,12 +14,15 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	// GET /sites/%s/settings
 	// POST /sites/%s/settings
 	function callback( $path = '', $blog_id = 0 ) {
-
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
 		}
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+		
 		if ( ! is_user_logged_in() ) {
 			return new WP_Error( 'Unauthorized', 'You must be logged-in to manage settings.', 401 );
 		} else if ( ! current_user_can( 'manage_options' ) ) {
