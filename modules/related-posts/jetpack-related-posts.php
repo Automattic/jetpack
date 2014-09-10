@@ -863,7 +863,10 @@ EOT;
 
 		// Oh no... return nothing don't cache errors.
 		if ( is_wp_error( $response ) ) {
-			return array();
+			if ( is_array( $cache[ $cache_key ] ) )
+				return $cache[ $cache_key ][ 'payload' ]; // return stale
+			else
+				return array();
 		}
 
 		$results = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -884,11 +887,13 @@ EOT;
 			}
 		}
 
-		// Set new cache value
-		$new_cache[ $cache_key ] = array(
-			'expires' => 12 * HOUR_IN_SECONDS + $now_ts,
-			'payload' => $related_posts,
-		);
+		// Set new cache value if valid
+		if ( !empty( $related_posts ) ) {
+			$new_cache[ $cache_key ] = array(
+				'expires' => 12 * HOUR_IN_SECONDS + $now_ts,
+				'payload' => $related_posts,
+			);
+		}
 
 		// Update cache
 		update_post_meta( $post_id, $cache_meta_key, $new_cache );
