@@ -6,7 +6,7 @@ For more information, check out [Jetpack.me](http://jetpack.me/).
 
 ## Team
 
-The Jetpack Pit Crew is comprised of @georgestephanis, @blobaugh, @cathyjf, @enejb, @koke, @lezama, @MichaelArestad, @rase-, and @richardmuscat
+The Jetpack Pit Crew is comprised of @georgestephanis, @enejb, @koke, @lezama, @MichaelArestad, @rase-, and @richardmuscat
 
 Legacy contributions (that may not be credited properly due to the import from SVN) have been made by dozens of other Automatticians, like:
 
@@ -44,7 +44,7 @@ Legacy contributions (that may not be credited properly due to the import from S
 * @xyu
 * @yoavf
 
-Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, @kraftbj, and @lettergrade
+Our _awesome_ happiness engineers are @jeherve, @richardmtl, @csonnek, @rcowles, and @kraftbj
 
 Interested in working on awesome open-source code all day? Join us!
 
