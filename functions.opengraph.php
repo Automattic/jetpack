@@ -145,7 +145,7 @@ function jetpack_og_tags() {
 function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { // Facebook requires thumbnails to be a minimum of 200x200
 	$image = '';
 
-	if ( is_singular() && !is_home() && !is_front_page() ) {
+	if ( is_singular() && !is_home() ) {
 		global $post;
 		$image = '';
 
