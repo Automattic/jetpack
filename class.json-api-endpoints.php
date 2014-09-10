@@ -1224,16 +1224,23 @@ EOPHP;
 
 	// Load the functions.php file for the current theme to get its post formats, CPTs, etc.
 	function load_theme_functions() {
+		// the theme info we care about is found either within functions.php or one of the jetpack files. it might also make sense to load inc/wpcom.php and includes/wpcom.php if there is a need for it
+		$function_files = array( '/functions.php', '/inc/jetpack.compat.php', '/inc/jetpack.php', '/includes/jetpack.compat.php' );
+
 		// Is this a child theme? Load the child theme's functions file.
 		if ( get_stylesheet_directory() !== get_template_directory() && wpcom_is_child_theme() ) {
-			if ( file_exists( get_stylesheet_directory() . '/functions.php' ) ) {
-				require_once( get_stylesheet_directory() . '/functions.php' );
+			foreach ( $function_files as $function_file ) {
+				if ( file_exists( get_stylesheet_directory() . $function_file ) ) {
+					require_once(  get_stylesheet_directory() . $function_file );
+				}
 			}
 		}
-		if ( ! file_exists( get_template_directory() . '/functions.php' ) ) {
-			return;
+
+		foreach ( $function_files as $function_file ) {
+			if ( file_exists( get_template_directory() . $function_file ) ) {
+				require_once(  get_template_directory() . $function_file );
+			}
 		}
-		require_once( get_template_directory() . '/functions.php' );
 
 		// since the stuff we care about (CPTS, post formats, are usually on setup or init hooks, we want to load those)
 		$this->copy_hooks( 'after_setup_theme', 'restapi_theme_after_setup_theme', WP_CONTENT_DIR . '/themes' );
