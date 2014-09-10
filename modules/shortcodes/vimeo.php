@@ -12,6 +12,7 @@
 function jetpack_shortcode_get_vimeo_id( $atts ) {
 	if ( isset( $atts[0] ) ) {
 		$atts[0] = trim( $atts[0] , '=' );
+		$id = false;
 		if ( is_numeric( $atts[0] ) )
 			$id = (int) $atts[0];
 		elseif ( preg_match( '|vimeo\.com/(\d+)/?$|i', $atts[0], $match ) )
