@@ -51,62 +51,62 @@ A VaultPress subscription is for a single WordPress site. You can purchase addit
 Yes, VaultPress supports Multisite installs. Each site will require its own subscription.
 
 == Changelog ==
-= 1.6.5 =
+= 1.6.5 - 4 Sep 2014 =
 * Security: Hotfix for the Slider Revolution plugin.
 
-= 1.6.4 =
+= 1.6.4 - 3 Sep 2014 =
 * Bumping the "Tested up to" tag to 4.0
 
-= 1.6.3 =
+= 1.6.3 - 30 Jul 2014 =
 * Bugfix: Make sure existing empty key and secret options are always strings.  This fixes an error when run with HHVM.
 * Bugfix: Detect if the plugin has been installed on localhost and show an error.
 * CSS Fix: Stop the "Register" button from bouncing around when clicked.
 
-= 1.6.2 =
+= 1.6.2 - 10 Jul 2014 =
 * Feature: Instantly register for a VaultPress trial via Jetpack.
 * Bugfix: Make sure the key and secret options are always strings.  This fixes an error when run with HHVM.
 
-= 1.6.1 =
+= 1.6.1 - 1 Jul 2014 =
 * Security: Add a new security hotfix.
 
-= 1.6 =
+= 1.6 - 27 Jun 2014 =
 * Bugfix: Better handling for Multisite table prefixes.
 * Bugfix: Do not use the deprecated wpdb::escape() method.
 
-= 1.5.9 =
+= 1.5.9 - 16 Jun 2014 =
 * Feature: If available, use command line md5sum and sha1sum to get checksums for large files.
 
-= 1.5.8 =
+= 1.5.8 - 3 Jun 2014 =
 * Security: Add a new security hotfix.
 
-= 1.5.7 =
+= 1.5.7 - 11 Apr 2014 =
 * Bugfix: Avoid PHP 5.4 warnings due to invalid constructor names.
 * Security: Add a new security hotfix.
 
-= 1.5.6 =
+= 1.5.6 - 1 Apr 2014 =
 * Bugfix: Avoid PHP 5.4 warnings.
 * Bugfix: Some servers with restrictive security filters make database restores fail.
 * Feature: Add a new restore method to VaultPress_Database.
 
-= 1.5.2 =
+= 1.5.2 - 26 Dec 2013 =
 * Bugfix: Adding less greedy patterns for cache directories.
 
-= 1.5.1 =
+= 1.5.1 - 16 Dec 2013 =
 * Feature: Adding file exclusion patterns to avoid backing up cache and backup directories.
 
-= 1.5 =
+= 1.5 - 11 Dec 2013 =
 * Bugfix: Don't show admin notices on the about page.
 
-= 1.4.9 =
+= 1.4.9 - 10 Oct 2013 =
 * Bugfix: Clean up PHP5 strict warnings.
 
-= 1.4.8 =
+= 1.4.8 - 15 Jul 2013 =
 * Feature: Include styles and images with the plugin instead of loading them externally.
 
-= 1.4.7 =
+= 1.4.7 - 2 Jul 2013 =
 * Bugfix: Some servers have SSL configuration problems, which breaks the plugin when SSL verification is enforced.
 
-= 1.4.6 =
+= 1.4.6 - 26 Jun 2013 =
 * Bugfix: PHP 5.4 notices
 * Feature: Add the possibility to ignore frequent updates on some postmeta keys.
 
