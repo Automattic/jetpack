@@ -434,6 +434,17 @@ class Jetpack {
 
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
+
+		/**
+		 * This is the hack to concatinate all css files into one.
+		 * For description and reasoning see the implode_frontend_css method
+		 *
+		 * Super late priority so we catch all the registered styles
+		 */
+		if( !is_admin() ) {
+			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
+			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
+		}
 	}
 
 	/**
@@ -560,9 +571,8 @@ class Jetpack {
 		require_once( JETPACK__PLUGIN_DIR . '_inc/genericons.php' );
 		jetpack_register_genericons();
 
-		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) ) {
-			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
-		}
+		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) )
+			wp_register_style( 'jetpack-icons', plugins_url( 'css/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
 	}
 
 	/**
@@ -2136,7 +2146,7 @@ p {
 
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
-		wp_enqueue_style( 'jetpack', plugins_url( "_inc/jetpack-banners{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-20121016' );
+		wp_enqueue_style( 'jetpack', plugins_url( "css/jetpack-banners{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-20121016' );
 		$wp_styles->add_data( 'jetpack', 'rtl', true );
 	}
 
@@ -3151,7 +3161,7 @@ p {
 			</div>
 
 			<div id="jetpack-configuration" style="display:none;">
-				<p><img width="16" src="<?php echo esc_url( plugins_url( '_inc/images/wpspin_light-2x.gif', JETPACK__PLUGIN_FILE ) ); ?>" alt="Loading ..." /></p>
+				<p><img width="16" src="<?php echo esc_url( plugins_url( 'images/wpspin_light-2x.gif', JETPACK__PLUGIN_FILE) ); ?>" alt="Loading ..." /></p>
 			</div>
 		</div>
 	<?php
@@ -4664,4 +4674,90 @@ p {
 		}
 		return $ssl;
 	}
-} // end class Jetpack
+
+	/**
+	 * This methods removes all of the registered css files on the frontend
+	 * from Jetpack in favor of using a single file. In effect "imploding"
+	 * all the files into one file.
+	 *
+	 * Pros:
+	 * - Uses only ONE css asset connection instead of 15
+	 * - Saves a minimum of 56k
+	 * - Reduces server load
+	 * - Reduces time to first painted byte
+	 *
+	 * Cons:
+	 * - Loads css for ALL modules. However all selectors are prefixed so it
+	 *		should not cause any issues with themes.
+	 * - Plugins/themes dequeuing styles no longer do anything. See
+	 *		jetpack_implode_frontend_css filter for a workaround
+	 *
+	 * For some situations developers may wish to disable css imploding and
+	 * instead operate in legacy mode where each file loads seperately and
+	 * can be edited individually or dequeued. This can be accomplished with
+	 * the following line:
+	 *
+	 * add_filter( 'jetpack_implode_frontend_css', '__return_false' );
+	 *
+	 * @since 3.2
+	 **/
+	public function implode_frontend_css() {
+		global $wp_styles;
+
+		$do_implode = apply_filters( 'jetpack_implode_frontend_css', true );
+
+		// Do not use the imploded file when default behaviour was altered through the filter
+		if ( ! $do_implode ) {
+			return;
+		}
+
+		// We do not want to use the imploded file in dev mode
+		if ( Jetpack::is_development_mode() ) {
+			return;
+		}
+
+		// Do not use the imploded file if sharing css was dequeued via the sharing settings screen
+		if ( get_option( 'sharedaddy_disable_resources' ) ) {
+			return;
+		}
+
+		/*
+		 * Now we assume Jetpack is connected and able to serve the single
+		 * file.
+		 *
+		 * In the future there will be a check here to serve the file locally
+		 * or potentially from the Jetpack CDN
+		 *
+		 * For now:
+		 * - Dequeue ALL of the frontend css files
+		 * - Enqueue a single imploded css file
+		 * - Be happy, drink scotch
+		 */
+		$to_dequeue = array(
+			'jetpack-carousel',
+			'grunion.css',
+			'gplus',
+			'the-neverending-homepage',
+			'jetpack_likes',
+			'jetpack_related-posts',
+			'sharedaddy',
+			'jetpack-slideshow',
+			'presentations',
+			'jetpack-subscriptions',
+			'tiled-gallery',
+			'widget-conditions',
+			'jetpack_display_posts_widget',
+			'gravatar-profile-widget',
+			'widget-grid-and-list',
+			'jetpack-widgets'
+		);
+
+		$wp_styles->remove( $to_dequeue );
+
+		if( is_rtl() ) {
+			wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack-rtl.css', __FILE__ ) );
+		} else {
+			wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack.css', __FILE__ ) );
+		}
+	}
+}

@@ -1,0 +1,25 @@
+// ==========================================================================
+// Retina background
+// ==========================================================================
+
+@mixin section($section, $sub: false) {
+	// Creates value to be used as section numbers
+	@if variable-exists(toc-value){} @else {
+		$toc-value: 0 !global;
+	}
+
+	// Sets index numbering
+	@if $sub == false { // increments by 1 (rounding down)
+		$toc-value: floor($toc-value) + 1 !global;
+	} @else { // increments by .1
+		$toc-value: $toc-value + .1  !global;
+	}
+
+	$spacing: ' ';
+	@for $i from 1 to (6 - str-length('#{$toc-value}')) {
+		$spacing: $spacing + ' ';
+	}
+	/*--------------------------------------------------------------
+	#{$toc-value}#{$spacing}#{$section}
+	--------------------------------------------------------------*/
+}
