@@ -205,12 +205,12 @@ Release Date: April 10, 2014
 * Important security update. CVE-2014-0173
 
 = 2.9.2 =
-Release Date: Mars 17, 2014
+Release Date: March 17, 2014
 
 * Bug Fix: Publicize: When publishing from a mobile app or third-party client, Publicize now works again.
 
 = 2.9.1 =
-Release Date: Mars 6, 2014
+Release Date: March 6, 2014
 
 * Bug Fix: After the Deadline: Fix a Javascript glitch that could prevent publishing of posts.
 * Bug Fix: SSO: Disable the implementation of an option that had been removed before release.  This would have only been an issue if a site administrator had enabled the module during an early beta of 2.9.
@@ -606,7 +606,7 @@ Release Date: April 5, 2013
 * Bug Fix: Jetpack Post Images security fixes.
 
 = 2.2.1 =
-Release Date: Mars 28, 2013
+Release Date: March 28, 2013
 
 * Enhancement: Development Mode: Define the `JETPACK_DEV_DEBUG` constant to `true` to enable an offline mode for localhost development. Only modules that don't require a WordPress.com connection can be enabled in this mode.
 * Enhancement: Likes: Added the number of likes to the wp-admin/edit.php screens.
@@ -1080,7 +1080,7 @@ Release Date: July 6, 2011
 * Enhancement: Gravatar Hovercards: Improved experience for Windows browsers.
 
 = 1.1.1 =
-Release Date: Mars 19, 2011
+Release Date: March 19, 2011
 * Bug Fix: Improve experience on hosts capable of making outgoing HTTPS requests but incapable of verifying SSL certificates. Fixes most "Your Jetpack has a glitch. Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost)." errors.
 * Bug Fix: Sharedaddy: Fatal error under PHP4.  Disable on PHP4 hosts.
 * Bug Fix: Stats: Fatal error under PHP4.  Rewrite to be PHP4 compatible.
@@ -1099,6 +1099,6 @@ Release Date: Mars 19, 2011
 * Enhancement: Improve performance of LaTeX URLs be using cookieless CDN.
 
 = 1.1 =
-Release Date: Mars 9, 2011
+Release Date: March 9, 2011
 
 * Initial release
