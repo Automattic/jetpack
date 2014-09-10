@@ -484,7 +484,7 @@ function sharing_display( $text = '', $echo = false ) {
 	if ( empty( $post ) )
 		return $text;
 
-	if ( is_preview() ) {
+	if ( is_preview() || is_admin() ) {
 		return $text;
 	}
 
