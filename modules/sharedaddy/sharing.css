@@ -568,7 +568,7 @@ body .sd-social-icon .sd-content li.share-custom a span {
  * Screen Reader Text for "Icon Only" option
  */
 
-.screen-reader-text {
+.sharing-screen-reader-text {
 	clip: rect(1px, 1px, 1px, 1px);
 	position: absolute !important;
 	height: 1px;
@@ -576,9 +576,9 @@ body .sd-social-icon .sd-content li.share-custom a span {
 	overflow: hidden;
 }
 
-.screen-reader-text:hover,
-.screen-reader-text:active,
-.screen-reader-text:focus {
+.sharing-screen-reader-text:hover,
+.sharing-screen-reader-text:active,
+.sharing-screen-reader-text:focus {
 	background-color: #f1f1f1;
 	border-radius: 3px;
 	box-shadow: 0 0 2px 2px rgba(0, 0, 0, 0.6);
