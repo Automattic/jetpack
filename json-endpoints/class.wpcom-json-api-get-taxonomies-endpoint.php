@@ -42,7 +42,7 @@ class WPCOM_JSON_API_Get_Taxonomies_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$args['orderby'] = $args['order_by'];
 		unset( $args['order_by'] );
 
-		unset( $args['context'], $args['pretty'], $args['http_envelope'] );
+		unset( $args['context'], $args['pretty'], $args['http_envelope'], $args['fields'] );
 		return $args;
 	}
 
