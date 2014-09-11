@@ -96,12 +96,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'settings':
 
-				if ( class_exists( 'The_Neverending_Home_Page' ) ) {
-					$infinity = new The_Neverending_Home_Page();
-					$infinity_settings = $infinity->get_settings();
-					$infinity_posts_per_page = $infinity_settings->posts_per_page;
-				}
-
 				$jetpack_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
 
 				if ( method_exists( 'Jetpack', 'is_module_active' ) ) {
@@ -129,9 +123,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
 					'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
 					'jetpack_relatedposts_show_thumbnails' => (bool) $jetpack_relatedposts_options[ 'show_thumbnails' ],
-					'infinite_scroll_supported' => (bool) current_theme_supports( 'infinite-scroll' ),
-					'infinite_scroll'         => (bool) get_option( 'infinite_scroll' ),
-					'posts_per_page'          => (int) $infinity_posts_per_page,
 					'default_category'        => get_option('default_category'),
 					'post_categories'         => (array) $post_categories,
 					'default_post_format'     => get_option( 'default_post_format' ),
@@ -196,15 +187,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( update_option( $key, $coerce_value ) ) {
 						$updated[ $key ] = $value;
 					};
-					break;
-
-				case 'infinite_scroll':
-					if ( ! current_theme_supports( 'infinite-scroll' ) ) {
-						continue;
-					}
-					if ( update_option( $key, $value ) ) {
-						$updated[ $key ] = $value;
-					}
 					break;
 
 				case 'jetpack_relatedposts_enabled':
