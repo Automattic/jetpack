@@ -114,6 +114,7 @@ function jetpack_shortcodes_more_info_connected() { ?>
 		'jetpack_subscription_form' => 'http://jetpack.me/support/subscriptions/#display',
 		'polldaddy' => 'http://support.polldaddy.com/wordpress-shortcodes/',
 		'presentation' => 'http://en.support.wordpress.com/presentations/',
+		'recipes' => 'http://en.support.wordpress.com/recipes/',
 		'scribd' => 'http://support.wordpress.com/scribd/',
 		'slideshare' => 'http://support.wordpress.com/slideshows/slideshare/',
 		'slideshow' => 'http://en.support.wordpress.com/slideshows/',
