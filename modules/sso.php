@@ -318,7 +318,7 @@ class Jetpack_SSO {
 			return;
 		}
 
-		/*
+		/**
  		 * If the user is attempting to logout AND the auto-forward to WordPress.com
  		 * login is set then we need to ensure we do not auto-forward the user and get
  		 * them stuck in an infinite logout loop.
@@ -328,12 +328,12 @@ class Jetpack_SSO {
  			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 		}
 
-		/*
+		/**
 		 * Check to see if the site admin wants to automagically forward the user
 		 * to the WordPress.com login page AND  that the request to wp-login.php
 		 * is not something other than login (Like logout!)
 		 */
-		if(
+		if (
 			$this->wants_to_login()
 			&& $this->bypass_login_forward_wpcom()
 		) {
@@ -344,7 +344,7 @@ class Jetpack_SSO {
 		add_action( 'login_footer', array( $this, 'login_form' ) );
 		add_action( 'login_footer', array( $this, 'login_footer' ) );
 /*
-		if( get_option( 'jetpack_sso_remove_login_form' ) ) {
+		if ( get_option( 'jetpack_sso_remove_login_form' ) ) {
 			// Check to see if the user is attempting to login via the default login form.
 			// If so we need to deny it and forward elsewhere.
 			if( isset( $_REQUEST['wp-submit'] ) && 'Log In' == $_REQUEST['wp-submit'] ) {
