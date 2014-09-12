@@ -311,6 +311,13 @@ class Jetpack_SSO {
 	}
 
 	function login_init() {
+		/**
+		 * If they've clicked on the 'Lost Password' link, don't add our button to the page.
+		 */
+		if ( isset( $_GET['action'] ) && 'lostpassword' === $_GET['action'] ) {
+			return;
+		}
+
 		/*
  		 * If the user is attempting to logout AND the auto-forward to WordPress.com
  		 * login is set then we need to ensure we do not auto-forward the user and get
@@ -334,7 +341,7 @@ class Jetpack_SSO {
 			wp_safe_redirect( $this->build_sso_url() );
 		}
 
-		add_action( 'login_footer',   array( $this, 'login_form' ) );
+		add_action( 'login_footer', array( $this, 'login_form' ) );
 		add_action( 'login_footer', array( $this, 'login_footer' ) );
 /*
 		if( get_option( 'jetpack_sso_remove_login_form' ) ) {
