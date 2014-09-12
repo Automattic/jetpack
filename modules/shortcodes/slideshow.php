@@ -209,7 +209,14 @@ class Jetpack_Slideshow_Shortcode {
 		$output = '';
 
 		$output .= '<p class="jetpack-slideshow-noscript robots-nocontent">' . esc_html__( 'This slideshow requires JavaScript.', 'jetpack' ) . '</p>';
-		$output .= '<div id="' . esc_attr( $attr['selector'] . '-slideshow' ) . '"  class="slideshow-window jetpack-slideshow slideshow-' . esc_attr( $attr['color'] ) . '" data-width="' . esc_attr( $attr['width'] ) . '" data-height="' . esc_attr( $attr['height'] ) . '" data-trans="' . esc_attr( $attr['trans'] ) . '" data-gallery="' . esc_attr( json_encode( $attr['gallery'] ) ) . '"></div>';
+		$output .= sprintf( '<div id="%s" class="slideshow-window jetpack-slideshow slideshow-%s" data-width="%s" data-height="%s" data-trans="%s" data-gallery="%s"></div>',
+			esc_attr( $attr['selector'] . '-slideshow' ),
+			esc_attr( $attr['color'] ),
+			esc_attr( $attr['width'] ),
+			esc_attr( $attr['height'] ),
+			esc_attr( $attr['trans'] ),
+			esc_attr( json_encode( $attr['gallery'] ) )
+		);
 
 		$output .= "
 		<style>
