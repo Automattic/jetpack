@@ -6,7 +6,9 @@
 	// INIT
 	///////////////////////////////////////
 
-	$( document ).ready(function () {
+	var originPoint;
+
+	$( document ).ready(function () {	
 		initEvents();
 		filterModules( 'introduced' );
 		loadModules();
@@ -22,6 +24,8 @@
 		$( '.shade, .modal .close' ).on( 'click', function () {
 			$( '.shade, .modal' ).hide();
 			$( '.manage-right' ).removeClass( 'show' );
+			originPoint.focus();
+			$( '.modal' )[0].removeAttribute( 'tabindex' );
 			return false;
 		});
 
@@ -30,6 +34,8 @@
 			if ( 27 === e.keyCode ) {
 				$( '.shade, .modal' ).hide();
 				$( '.manage-right' ).removeClass( 'show' );
+				originPoint.focus();
+				$( '.modal' )[0].removeAttribute( 'tabindex' );
 			}
 		});
 	}
@@ -191,7 +197,7 @@
 	function initModalEvents() {
 		var $modal = $( '.modal' );
 		$( '.module, .feature a, .configs a' ).on( 'click keypress', function (e) {
-			// Only show modal on enter when keypress recorded (accessibility)
+			// Only show modal on enter when keypress recorded (accessibility)		
 			if ( e.keyCode && 13 !== e.keyCode ) {
 				return;
 			}
@@ -209,6 +215,11 @@
 				name = $this.data( 'name' );
 
 			$modal.empty().html( wp.template( 'modal' )( $.extend( modules[index], { name: name } ) ) );
+
+			// Save the focused element, then shift focus to the modal window.
+			originPoint = this;
+			$modal[0].setAttribute( 'tabindex', '0' );
+			$modal.focus();
 
 			closeShadeToggle();
 

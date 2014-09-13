@@ -43,7 +43,7 @@ $is_master_user    = $current_user->ID == Jetpack_Options::get_option( 'master_u
 			</div><!-- .footer -->
 		</div><!-- .wrapper -->
 
-		<div class="modal">
+		<div class="modal" aria-labelledby="modal-label">
 			<header>
 				<a href="#" class="close">&times;</a>
 				<ul>
