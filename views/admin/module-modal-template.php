@@ -1,5 +1,6 @@
 <script id="tmpl-modal" type="text/html">
-	<a href="#" class="close">&times;</a>
+	<span id="modal-label" class="screen-reader-text">Modal window. Press escape to close.</span>
+	<a href="#" class="close" aria-label="Close modal window">&times;</a>
 	<div class="content-container <# if ( data.available) { #>modal-footer<# } #>">
 		<div class="content">
 			<h2>{{{ data.name }}}</h2>
