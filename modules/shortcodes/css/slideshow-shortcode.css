@@ -83,7 +83,7 @@ body div.slideshow-window * img {
         margin: auto;
 	text-align: center;
 	width: 100%;
-	display: none;
+	opacity: 0.5;
 	direction:ltr;
 }
 
