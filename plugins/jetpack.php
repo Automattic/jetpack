@@ -59,7 +59,7 @@ function wp_super_cache_jetpack_cookie_check( $cache_key ) {
 		else
 			return 'normal';
 	} else {
-		if ( isset( $GLOBALS[ 'wp_super_cache_debug' ] ) && $GLOBALS[ 'wp_super_cache_debug' ] ) wp_cache_debug( "wp_super_cache_jetpack_cookie_check: jetpack UA file not found." );
+		wp_cache_debug( "wp_super_cache_jetpack_cookie_check: jetpack UA file not found." );
 		return "normal";
 	}
 }
