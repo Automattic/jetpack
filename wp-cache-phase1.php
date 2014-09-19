@@ -480,21 +480,38 @@ function wp_cache_check_mobile( $cache_key ) {
 	return $cache_key;
 }
 
+/**
+ * Add a log message to the file, if debugging is turned on
+ *
+ * @param $message string The message that should be added to the log
+ * @param $level   int
+ */
 function wp_cache_debug( $message, $level = 1 ) {
 	global $wp_cache_debug_log, $cache_path, $wp_cache_debug_ip, $wp_super_cache_debug;
 
-	if ( isset( $wp_super_cache_debug ) && $wp_super_cache_debug == false )
+	// If either of the debug or log globals aren't set, then we can stop
+	if ( !isset($wp_super_cache_debug)
+		 || !isset($wp_cache_debug_log) )
 		return false;
 
-	if ( isset( $wp_cache_debug_log ) == false )
+	// If either the debug or log globals are false or empty, we can stop
+	if ( $wp_super_cache_debug == false
+		 || $wp_cache_debug_log == '' )
 		return false;
 
-	if ( isset( $wp_cache_debug_ip ) && $wp_cache_debug_ip != '' && $wp_cache_debug_ip != $_SERVER[ 'REMOTE_ADDR' ] )
+	// If the debug_ip has been set, but it doesn't match the ip of the requester
+	// then we can stop.
+	if ( isset($wp_cache_debug_ip)
+		 && $wp_cache_debug_ip != ''
+		 && $wp_cache_debug_ip != $_SERVER[ 'REMOTE_ADDR' ] )
 		return false;
 
-	if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) {
-		error_log( date( 'H:i:s' ) . " " . $_SERVER[ 'REQUEST_URI' ] . " " . $message . "\n", 3, $cache_path . str_replace( '/', '', str_replace( '..', '', $wp_cache_debug_log ) ) );
-	}
+	// Log message: Date URI Message
+	$log_messasge = date('H:i:s') . " {$_SERVER['REQUEST_URI']} {$message}\n";
+	// path to the log file in the cache folder
+	$log_file = $cache_path . str_replace('/', '', str_replace('..', '', $wp_cache_debug_log));
+
+	error_log($message, 3, $log_file);
 }
 
 function wp_cache_user_agent_is_rejected() {
