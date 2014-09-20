@@ -185,6 +185,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'admin_url'               => get_admin_url(),
 					'featured_images_enabled' => current_theme_supports( 'post-thumbnails' ),
 					'header_image'            => get_theme_mod( 'header_image_data' ),
+					'background_color'        => get_theme_mod( 'background_color' ),
 					'image_default_link_type' => get_option( 'image_default_link_type' ),
 					'image_thumbnail_width'   => (int)  get_option( 'thumbnail_size_w' ),
 					'image_thumbnail_height'  => (int)  get_option( 'thumbnail_size_h' ),
