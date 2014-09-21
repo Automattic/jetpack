@@ -12,8 +12,10 @@ class PolldaddyShortcode {
 	 * Add all the actions & resgister the shortcode
 	 */
 	function __construct() {
-		if ( defined( 'GLOBAL_TAGS' ) == false )
+		if ( defined( 'GLOBAL_TAGS' ) == false ) {
 			add_shortcode( 'polldaddy', array( $this, 'polldaddy_shortcode' ) );
+			add_filter( 'pre_kses', array( $this, 'polldaddy_embed_to_shortcode' ) );
+		}
 		add_action( 'wp_enqueue_scripts', array( $this, 'check_infinite' ) );
 		add_action( 'infinite_scroll_render', array( $this, 'polldaddy_shortcode_infinite' ), 11 );
 	}
@@ -56,6 +58,42 @@ CONTAINER;
 		$js = str_replace( array( "\n", "\t", "\r" ), '', $js );
 		$js = preg_replace( '/\s*([,:\?\{;\-=\(\)])\s*/', '$1', $js );
 		return $js;
+	}
+	
+	/*
+	 * Polldaddy Poll Embed script - transforms code that looks like that:
+	 * <script type="text/javascript" charset="utf-8" src="http://static.polldaddy.com/p/123456.js"></script>
+	<noscript><a href="http://polldaddy.com/poll/123456/">What is your favourite color?</a></noscript>
+	 * into the [polldaddy poll=...] shortcode format
+	 */
+	function polldaddy_embed_to_shortcode( $content ) {
+		if ( ! is_automattician() )
+			return $content;
+			
+		if ( false === strpos( $content, 'polldaddy.com/p/' ) )
+			return $content;
+			
+		$regexp = '#<script[^>]+?src="(http://static|https://secure)\.polldaddy\.com/p/([0-9]+).js"[^>]*+>\s*?</script>\r?\n?(<noscript>.*</noscript>)?#i';	
+		$regexp_ent = htmlspecialchars( $regexp, ENT_NOQUOTES );
+		
+		foreach ( compact( 'regexp', 'regexp_ent' ) as $regex ) {
+			if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) )
+				continue;
+				
+			foreach ( $matches as $match ) {
+				if (!isset( $match[2] ) )
+					continue;
+					
+				$id = (int) $match[2];
+				
+				if ( $id > 0 ) {
+					$content = str_replace( $match[0], "[polldaddy poll=$id]", $content );
+					do_action( 'jetpack_embed_to_shortcode', 'polldaddy', $url );
+				}
+			}
+		}
+		
+		return $content;
 	}
 
 	/**
@@ -446,6 +484,7 @@ SCRIPT;
 
 // kick it all off
 new PolldaddyShortcode();
+
 
 // http://polldaddy.com/poll/1562975/?view=results&msg=voted
 function polldaddy_link( $content ) {
