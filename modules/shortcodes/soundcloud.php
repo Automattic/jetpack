@@ -207,8 +207,48 @@ function soundcloud_flash_widget($options) {
 }
 
 
+/**
+ * SoundCloud Embed Reversal
+ *
+ * Converts a generic HTML embed code from SoundClound into a
+ * WordPress.com-compatibly shortcode.
+ */
+function jetpack_soundcloud_embed_reversal( $content ) {
+	if ( ! is_automattician() )
+		return $content;
 
-/* Settings
-   -------------------------------------------------------------------------- */
+	if ( false === stripos( $content, 'w.soundcloud.com/player' ) )
+		return $content;
 
-/* A8C: no user-defined options, KISS */
+	/* Sample embed code:
+
+		<iframe width="100%" height="450" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/150745932&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;visual=true"></iframe>
+	*/
+
+	$regexes = array();
+
+	$regexes[] = '#<iframe[^>]+?src="((?:https?:)?//w\.soundcloud\.com/player/[^"\']++)"[^>]*+>\s*?</iframe>#i';
+	$regexes[] = '#&lt;iframe(?:[^&]|&(?!gt;))+?src="((?:https?:)?//w\.soundcloud\.com/player/[^"\']++)"(?:[^&]|&(?!gt;))*+&gt;\s*?&lt;/iframe&gt;#i';
+
+	foreach ( $regexes as $regex ) {
+		if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) )
+			continue;
+
+		foreach ( $matches as $match ) {
+			$args = parse_url( html_entity_decode( $match[1] ), PHP_URL_QUERY );
+			$args = wp_parse_args( $args );
+
+			if ( ! preg_match( '#^(?:https?:)?//api\.soundcloud\.com/.+$#i', $args['url'], $url_matches ) )
+				continue;
+
+			$shortcode = sprintf( '[soundcloud url="%s"]', esc_url( $url_matches[0] ) );
+			$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $match[0], '#' ) );
+			$content = preg_replace( $replace_regex, sprintf( "\n\n%s\n\n", $shortcode ), $content );
+			do_action( 'jetpack_embed_to_shortcode', 'soundcloud', $url_matches[0] );
+		}
+	}
+
+	return $content;
+}
+
+add_filter( 'pre_kses', 'jetpack_soundcloud_embed_reversal' );
