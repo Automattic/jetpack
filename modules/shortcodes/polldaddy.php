@@ -73,7 +73,7 @@ CONTAINER;
 		if ( false === strpos( $content, 'polldaddy.com/p/' ) )
 			return $content;
 			
-		$regexp = '#<script[^>]+?src="(http://static|https://secure)\.polldaddy\.com/p/([0-9]+).js"[^>]*+>\s*?</script>\r?\n?(<noscript>.*</noscript>)?#i';	
+		$regexp = '#<script[^>]+?src="http(s)?://(secure|static)\.polldaddy\.com/p/([0-9]+).js"[^>]*+>\s*?</script>\r?\n?(<noscript>.*</noscript>)?#i';
 		$regexp_ent = htmlspecialchars( $regexp, ENT_NOQUOTES );
 		
 		foreach ( compact( 'regexp', 'regexp_ent' ) as $regex ) {
@@ -81,10 +81,10 @@ CONTAINER;
 				continue;
 				
 			foreach ( $matches as $match ) {
-				if (!isset( $match[2] ) )
+				if (!isset( $match[3] ) )
 					continue;
 					
-				$id = (int) $match[2];
+				$id = (int) $match[3];
 				
 				if ( $id > 0 ) {
 					$content = str_replace( $match[0], "[polldaddy poll=$id]", $content );
