@@ -482,6 +482,10 @@ class Jetpack_Portfolio {
 		if ( $atts['order'] && 'desc' != $atts['order'] ) {
 			$atts['order'] = 'asc';
 		}
+		
+		if ( $atts['orderby'] ) {
+			$atts['orderby'] = explode( ',', str_replace( ' ', '', $atts['orderby'] ) );
+		}
 
 		// enqueue shortcode styles when shortcode is used
 		wp_enqueue_style( 'jetpack-portfolio-style', plugins_url( 'css/portfolio-shortcode.css', __FILE__ ), array(), '20140326' );
