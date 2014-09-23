@@ -450,6 +450,8 @@ class Jetpack_Portfolio {
 			'include_tag'     => false,
 			'columns'         => 2,
 			'showposts'       => -1,
+			'order'           => 'asc',
+			'orderby'         => 'date',
 		), $atts, 'portfolio' );
 
 		// A little sanitization
@@ -476,6 +478,10 @@ class Jetpack_Portfolio {
 		$atts['columns'] = absint( $atts['columns'] );
 
 		$atts['showposts'] = intval( $atts['showposts'] );
+		
+		if ( $atts['order'] && 'desc' != $atts['order'] ) {
+			$atts['order'] = 'asc';
+		}
 
 		// enqueue shortcode styles when shortcode is used
 		wp_enqueue_style( 'jetpack-portfolio-style', plugins_url( 'css/portfolio-shortcode.css', __FILE__ ), array(), '20140326' );
@@ -492,7 +498,8 @@ class Jetpack_Portfolio {
 		// Default query arguments
 		$args = array(
 			'post_type'      => self::CUSTOM_POST_TYPE,
-			'order'          => 'ASC',
+			'order'          => $atts['order'],
+			'orderby'        => $atts['orderby'],
 			'posts_per_page' => $atts['showposts'],
 		);
 
