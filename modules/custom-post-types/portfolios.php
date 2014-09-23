@@ -484,7 +484,7 @@ class Jetpack_Portfolio {
 		}
 		
 		if ( $atts['orderby'] ) {
-			$atts['orderby'] = explode( ',', str_replace( ' ', '', $atts['orderby'] ) );
+			$atts['orderby'] = str_replace( ',', ' ', $atts['orderby'] );
 		}
 
 		// enqueue shortcode styles when shortcode is used
