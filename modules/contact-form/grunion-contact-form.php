@@ -231,7 +231,8 @@ class Grunion_Contact_Form_Plugin {
 	 * The "child" contact-field shortcode is added as needed by the contact-form shortcode handler
 	 */
 	function add_shortcode() {
-		add_shortcode( 'contact-form', array( 'Grunion_Contact_Form', 'parse' ) );
+		add_shortcode( 'contact-form',         array( 'Grunion_Contact_Form', 'parse' ) );
+		add_filter( 'no_texturize_shortcodes', array( 'Grunion_Contact_Form', 'no_texturize' ) );
 	}
 
 	static function tokenize_label( $label ) {
@@ -906,6 +907,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 */
 	static function _style_on() {
 		return self::style( true );
+	}
+
+	/**
+	 * Do not run the Contact form shortcode through wptexturize()
+	 *
+	 * @param array $shortcodes Key => An array of shortcodes to exempt from texturizations
+	 * @return array Contact Form shortcode
+	 */
+	static function no_texturize( $shortcodes ) {
+		$shortcodes[] = 'contact-form';
+		return $shortcodes;
 	}
 
 	/**
