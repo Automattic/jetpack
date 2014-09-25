@@ -1109,21 +1109,21 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$att_strs = array();
 			foreach ( $attributes as $att => $val ) {
 				if ( is_numeric( $att ) ) { // Is a valueless attribute
-					$att_strs[] = $val;
+					$att_strs[] = esc_html( $val );
 				} else if ( isset( $val ) ) { // A regular attr - value pair
-					$att_strs[] = $att . '=\'' . $val . '\'';
+					$att_strs[] = esc_html( $att ) . '=\'' . esc_html( $val ) . '\'';
 				}
 			}
 
 			$html = '[contact-field ' . implode( ' ', $att_strs );
 
 			if ( isset( $content ) && ! empty( $content ) ) { // If there is content, let's add a closing tag
-				$html .=  ']' . $content . '[/contact-field]';
+				$html .=  ']' . esc_html( $content ) . '[/contact-field]';
 			} else { // Otherwise let's add a closing slash in the first tag
 				$html .= '/]';
 			}
 
-			return esc_html( $html );
+			return $html;
 		}
 
 		$form = Grunion_Contact_Form::$current_form;
