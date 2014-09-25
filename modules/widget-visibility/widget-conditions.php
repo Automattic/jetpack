@@ -67,10 +67,7 @@ class Jetpack_Widget_Conditions {
 			break;
 			case 'role':
 				global $wp_roles;
-				?>
-				<option value=""><?php _e( 'All roles', 'jetpack' ); ?></option>
-				<?php
-
+				
 				foreach ( $wp_roles->roles as $role_key => $role ) {
 					?>
 					<option value="<?php echo esc_attr( $role_key ); ?>" <?php selected( $role_key, $minor ); ?> ><?php echo esc_html( $role['name'] ); ?></option>
