@@ -69,6 +69,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$blog_id = (int) $this->api->get_blog_id_for_output();
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+
 		foreach ( array_keys( $response_format ) as $key ) {
 			switch ( $key ) {
 			case 'ID' :
