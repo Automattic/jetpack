@@ -1106,7 +1106,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	static function parse_contact_field( $attributes, $content ) {
 		// Don't try to parse contact form fields if not inside a contact form
 		if ( ! Grunion_Contact_Form_Plugin::$using_contact_form_field ) {
-			return '';
+			$att_strs = array();
+			foreach ( $attributes as $att => $val ) {
+				$att_strs[] = $att . '=\'' . $val . '\'';
+			}
+			return '[contact-field ' . implode( ' ', $att_strs ) . ']' . $content . '[/contact-field]';
 		}
 
 		$form = Grunion_Contact_Form::$current_form;
