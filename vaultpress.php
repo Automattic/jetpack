@@ -1927,6 +1927,8 @@ JS;
 		global $vaultpress_pings;
 		if ( defined( 'WP_IMPORTING' ) && constant( 'WP_IMPORTING' ) )
 			return;
+		if ( isset( $_GET ) && isset( $_GET['comment_status'] ) && isset( $_GET['delete_all'] ) && 'spam' == $_GET['comment_status'] )
+			return;	// Skip pings from mass spam delete.
 		if ( !array_key_exists( $type, $vaultpress_pings ) )
 			return;
 
