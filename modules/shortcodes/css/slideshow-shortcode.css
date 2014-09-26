@@ -83,6 +83,7 @@ body div.slideshow-window * img {
         margin: auto;
 	text-align: center;
 	width: 100%;
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
 	opacity: 0.5;
 	direction:ltr;
 }
