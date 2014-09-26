@@ -6,15 +6,51 @@
  * First Introduced: 1.2
  */
 
-class Jetpack_Image_Widget extends WP_Widget {
+/**
+* Register the widget for use in Appearance -> Widgets
+*/
+add_action( 'widgets_init', 'jetpack_image_widget_init' );
+function jetpack_image_widget_init() {
+	register_widget( 'Jetpack_Image_Widget' );
+}
 
-	function Jetpack_Image_Widget() {
-		$widget_ops = array( 'classname' => 'widget_image', 'description' => __( "Display an image in your sidebar", 'jetpack' ) );
-		$control_ops = array( 'width' => 400 );
-		$this->WP_Widget( 'image', __( 'Image (Jetpack)', 'jetpack' ), $widget_ops, $control_ops );
+class Jetpack_Image_Widget extends WP_Widget {
+	/**
+	* Register widget with WordPress.
+	*/
+	public function __construct() {
+		parent::__construct(
+			'image',
+			apply_filters( 'jetpack_widget_name', esc_html__( 'Image', 'jetpack' ) ),
+			array(
+				'classname' => 'widget_image',
+				'description' => __( 'Display an image in your sidebar', 'jetpack' )
+			)
+		);
+
+		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
+		}
 	}
 
-	function widget( $args, $instance ) {
+	/**
+	* Loads file for front-end widget style.
+	*
+	* @uses wp_enqueue_style(), plugins_url()
+	*/
+	public function enqueue_style() {
+		wp_enqueue_style( 'jetpack_image_widget', plugins_url( 'image-widget/style.css', __FILE__ ), array(), '20140808' );
+	}
+
+	/**
+	* Front-end display of widget.
+	*
+	* @see WP_Widget::widget()
+	*
+	* @param array $args     Widget arguments.
+	* @param array $instance Saved values from database.
+	*/
+	public function widget( $args, $instance ) {
 		extract( $args );
 
 		echo $before_widget;
@@ -42,7 +78,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
 			if ( '' != $instance['caption'] ) {
 				$caption = apply_filters( 'widget_text', $instance['caption'] );
-				$output = '[caption align="align' .  esc_attr( $instance['align'] ) . '" width="' . esc_attr( $instance['img_width'] ) .'"]' . $output . ' ' . $caption . '[/caption]'; // wp_kses_post caption on update 
+				$output = '[caption align="align' .  esc_attr( $instance['align'] ) . '" width="' . esc_attr( $instance['img_width'] ) .'"]' . $output . ' ' . $caption . '[/caption]'; // wp_kses_post caption on update
 			}
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
 		}
@@ -50,17 +86,27 @@ class Jetpack_Image_Widget extends WP_Widget {
 		echo "\n" . $after_widget;
 	}
 
-	function update( $new_instance, $old_instance ) {
-		 $allowed_caption_html = array( 
-		 	'a' => array( 
-		 		'href' => array(), 
+	/**
+	* Sanitize widget form values as they are saved.
+	*
+	* @see WP_Widget::update()
+	*
+	* @param array $new_instance Values just sent to be saved.
+	* @param array $old_instance Previously saved values from database.
+	*
+	* @return array Updated safe values to be saved.
+	*/
+	public function update( $new_instance, $old_instance ) {
+		 $allowed_caption_html = array(
+		 	'a' => array(
+		 		'href' => array(),
 		 		'title' => array(),
-		 		), 
-		 	'b' => array(), 
-		 	'em' => array(), 
-		 	'i' => array(), 
-		 	'p' => array(), 
-		 	'strong' => array() 
+		 		),
+		 	'b' => array(),
+		 	'em' => array(),
+		 	'i' => array(),
+		 	'p' => array(),
+		 	'strong' => array()
 		 	);
 
 		$instance = $old_instance;
@@ -69,7 +115,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$instance['img_url']    = esc_url( $new_instance['img_url'], null, 'display' );
 		$instance['alt_text']   = strip_tags( $new_instance['alt_text'] );
 		$instance['img_title']  = strip_tags( $new_instance['img_title'] );
-		$instance['caption']    = wp_kses( stripslashes($new_instance['caption'] ), $allowed_caption_html ); 
+		$instance['caption']    = wp_kses( stripslashes($new_instance['caption'] ), $allowed_caption_html );
 		$instance['align']      = $new_instance['align'];
 		$instance['img_width']  = absint( $new_instance['img_width'] );
 		$instance['img_height'] = absint( $new_instance['img_height'] );
@@ -78,7 +124,14 @@ class Jetpack_Image_Widget extends WP_Widget {
 		return $instance;
 	}
 
-	function form( $instance ) {
+	/**
+	* Back-end widget form.
+	*
+	* @see WP_Widget::form()
+	*
+	* @param array $instance Previously saved values from database.
+	*/
+	public function form( $instance ) {
 		// Defaults
 		$instance = wp_parse_args( (array) $instance, array( 'title' => '', 'img_url' => '', 'alt_text' => '', 'img_title' => '', 'caption' => '', 'align' => 'none', 'img_width' => '', 'img_height' => '', 'link' => '' ) );
 
@@ -130,7 +183,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 			<input class="widefat" id="' . $this->get_field_id( 'img_title' ) . '" name="' . $this->get_field_name( 'img_title' ) . '" type="text" value="' . $img_title . '" />
 			</label></p>
 			<p><label for="' . $this->get_field_id( 'caption' ) . '">' . esc_html__( 'Caption:', 'jetpack' ) . ' <a href="http://support.wordpress.com/widgets/image-widget/#image-widget-caption" target="_blank">( ? )</a>
-			<textarea class="widefat" id="' . $this->get_field_id( 'caption' ) . '" name="' . $this->get_field_name( 'caption' ) . '" rows="2" cols="20">' . $caption . '</textarea> 
+			<textarea class="widefat" id="' . $this->get_field_id( 'caption' ) . '" name="' . $this->get_field_name( 'caption' ) . '" rows="2" cols="20">' . $caption . '</textarea>
 			</label></p>';
 
 		$alignments = array(
@@ -160,10 +213,4 @@ class Jetpack_Image_Widget extends WP_Widget {
 		<input class="widefat" id="' . $this->get_field_id( 'link' ) . '" name="' . $this->get_field_name( 'link' ) . '" type="text" value="' . $link . '" />
 		</label></p>';
 	}
-
-} //Class Jetpack_Image_Widget
-
-function jetpack_image_widget_init() {
-	register_widget( 'Jetpack_Image_Widget' );
-}
-add_action( 'widgets_init', 'jetpack_image_widget_init' );
+} // Class Jetpack_Image_Widget

@@ -25,6 +25,9 @@ class Jetpack_SSO {
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
 
+		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
+		add_action( 'login_form_jetpack-sso', '__return_true' );
+
 		if ( $this->should_hide_login_form() && apply_filters( 'jetpack_sso_display_disclaimer', true ) ) {
 			add_action( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
 		}
@@ -168,7 +171,7 @@ class Jetpack_SSO {
 
 		add_settings_field(
 			'jetpack_sso_require_two_step',
-			__( 'Require Two-Step Authentication' , 'jetpack' ),
+			'', // __( 'Require Two-Step Authentication' , 'jetpack' ),
 			array( $this, 'render_require_two_step' ),
 			'jetpack-sso',
 			'jetpack_sso_settings'
@@ -186,7 +189,7 @@ class Jetpack_SSO {
 
 		add_settings_field(
 			'jetpack_sso_match_by_email',
-			__( 'Match by Email' , 'jetpack' ),
+			'', // __( 'Match by Email' , 'jetpack' ),
 			array( $this, 'render_match_by_email' ),
 			'jetpack-sso',
 			'jetpack_sso_settings'
@@ -200,7 +203,10 @@ class Jetpack_SSO {
 	 * @since 2.7
 	 **/
 	public function render_require_two_step() {
-		echo '<input type="checkbox" name="jetpack_sso_require_two_step[require_two_step]" ' . checked( 1 == get_option( 'jetpack_sso_require_two_step' ), true, false ) . '>';
+		echo '<label>';
+		echo '<input type="checkbox" name="jetpack_sso_require_two_step[require_two_step]" ' . checked( 1 == get_option( 'jetpack_sso_require_two_step' ), true, false ) . '> ';
+		esc_html_e( 'Require Two-Step Authentication' , 'jetpack' );
+		echo '</label>';
 	}
 
 	/**
@@ -210,7 +216,7 @@ class Jetpack_SSO {
 	 * @return boolean
 	 **/
 	public function validate_settings_require_two_step( $input ) {
-		return ( isset( $input['require_two_step'] ) )? 1: 0;
+		return ( isset( $input['require_two_step'] ) ) ? 1 : 0;
 	}
 
 	/**
@@ -220,7 +226,10 @@ class Jetpack_SSO {
 	 * @since 2.9
 	 **/
 	public function render_match_by_email() {
-		echo '<input type="checkbox" name="jetpack_sso_match_by_email[match_by_email]"' . checked( 1 == get_option( 'jetpack_sso_match_by_email' ), true, false) . '>';
+		echo '<label>';
+		echo '<input type="checkbox" name="jetpack_sso_match_by_email[match_by_email]"' . checked( 1 == get_option( 'jetpack_sso_match_by_email' ), true, false) . '> ';
+		esc_html_e( 'Match by Email', 'jetpack' );
+		echo '</label>';
 	}
 
 	/**
@@ -230,7 +239,7 @@ class Jetpack_SSO {
 	 * @return boolean
 	 **/
 	public function validate_settings_match_by_email( $input ) {
-		return ( isset( $input['match_by_email'] ) )? 1: 0;
+		return ( isset( $input['match_by_email'] ) ) ? 1 : 0;
 	}
 
 	/**
@@ -305,7 +314,9 @@ class Jetpack_SSO {
 	}
 
 	function login_init() {
-		/*
+		global $action;
+
+		/**
  		 * If the user is attempting to logout AND the auto-forward to WordPress.com
  		 * login is set then we need to ensure we do not auto-forward the user and get
  		 * them stuck in an infinite logout loop.
@@ -315,12 +326,12 @@ class Jetpack_SSO {
  			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 		}
 
-		/*
+		/**
 		 * Check to see if the site admin wants to automagically forward the user
 		 * to the WordPress.com login page AND  that the request to wp-login.php
 		 * is not something other than login (Like logout!)
 		 */
-		if(
+		if (
 			$this->wants_to_login()
 			&& $this->bypass_login_forward_wpcom()
 		) {
@@ -328,22 +339,22 @@ class Jetpack_SSO {
 			wp_safe_redirect( $this->build_sso_url() );
 		}
 
-		add_action( 'login_footer',   array( $this, 'login_form' ) );
-		add_action( 'login_footer', array( $this, 'login_footer' ) );
+		if ( 'login' === $action ) {
+			wp_enqueue_script( 'jquery' );
+			wp_enqueue_style( 'genericons' );
+			add_action( 'login_footer', array( $this, 'login_form' ) );
+			add_action( 'login_footer', array( $this, 'login_footer' ) );
 /*
-		if( get_option( 'jetpack_sso_remove_login_form' ) ) {
-			// Check to see if the user is attempting to login via the default login form.
-			// If so we need to deny it and forward elsewhere.
-			if( isset( $_REQUEST['wp-submit'] ) && 'Log In' == $_REQUEST['wp-submit'] ) {
-				wp_die( 'Login not permitted by this method. ');
+			if ( get_option( 'jetpack_sso_remove_login_form' ) ) {
+				// Check to see if the user is attempting to login via the default login form.
+				// If so we need to deny it and forward elsewhere.
+				if( isset( $_REQUEST['wp-submit'] ) && 'Log In' == $_REQUEST['wp-submit'] ) {
+					wp_die( 'Login not permitted by this method. ');
+				}
+				add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 			}
-			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
-		}
 */
-		wp_enqueue_script( 'jquery' );
-		wp_enqueue_style( 'genericons' );
-
-		if ( isset( $_GET['action'] ) && 'jetpack-sso' == $_GET['action'] ) {
+		} elseif ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
 				$this->handle_login();
 			} else {

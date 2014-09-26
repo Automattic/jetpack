@@ -422,6 +422,9 @@ class WPCom_Markdown {
 			if ( $this->is_markdown( $post_id ) && ! empty( $post_data['post_content_filtered'] ) ) {
 				$post_data['post_content_filtered'] = '';
 			}
+			// we have no context to determine supported post types in the `post_content_pre` hook,
+			// which already ran to sanitize code blocks. Undo that.
+			$post_data['post_content'] = $this->get_parser()->codeblock_restore( $post_data['post_content'] );
 			return $post_data;
 		}
 		// rejigger post_content and post_content_filtered

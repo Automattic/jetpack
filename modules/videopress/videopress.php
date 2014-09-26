@@ -473,7 +473,7 @@ class Jetpack_VideoPress {
 			'order' => 'desc',
 			'paged' => 1,
 			's' => '',
-		), (array) $args );
+		), (array) $args, 'wpvideo' );
 
 		$args['posts_per_page'] = absint( $args['posts_per_page'] );
 
@@ -516,7 +516,7 @@ class Jetpack_VideoPress {
 
 			'vp_share' => null,
 			'vp_rating' => null,
-		), $changes );
+		), $changes, 'wpvideo' );
 
 		if ( ! is_null( $changes['vp_share'] ) )
 			$changes['vp_share'] = (bool) $changes['vp_share'];

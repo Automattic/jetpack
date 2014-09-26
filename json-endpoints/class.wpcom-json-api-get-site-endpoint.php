@@ -15,7 +15,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'visible'           => '(bool) If this site is visible in the user\'s site list',
 		'is_private'        => '(bool) If the site is a private site or not',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
-		'options'           => '(array) An array of options/settings for the blog. Only viewable by users with access to the site.',
+		'options'           => '(array) An array of options/settings for the blog. Only viewable by users with access to the site. Note: Post formats is deprecated, please see /sites/$id/post-formats/',
 		'meta'              => '(object) Meta data',
 	);
 
@@ -153,9 +153,10 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 
-				// Get a list of supported post formats
+				// deprecated - see separate endpoint. get a list of supported post formats
 				$all_formats       = get_post_format_strings();
 				$supported         = get_theme_support( 'post-formats' );
+
 				$supported_formats = array();
 
 				if ( isset( $supported[0] ) ) {
@@ -195,11 +196,12 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'default_ping_status'     => ( 'closed' == get_option( 'default_ping_status' ) ? false : true ),
 					'software_version'        => $wp_version,
 				);
-				if ( !current_user_can( 'publish_posts' ) )
+				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );
 				break;
 			case 'meta' :
-				$xmlrpc_url = site_url( 'xmlrpc.php' );
+				$xmlrpc_scheme = apply_filters( 'wpcom_json_api_xmlrpc_scheme', parse_url( get_option( 'home' ), PHP_URL_SCHEME ) );
+				$xmlrpc_url = site_url( 'xmlrpc.php', $xmlrpc_scheme );
 				$response[$key] = (object) array(
 					'links' => (object) array(
 						'self'     => (string) $this->get_site_link( $blog_id ),
@@ -218,3 +220,34 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 }
+
+class WPCOM_JSON_API_List_Post_Formats_Endpoint extends WPCOM_JSON_API_Endpoint {
+	// /sites/%s/post-formats -> $blog_id
+	function callback( $path = '', $blog_id = 0 ) {
+		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
+		if ( is_wp_error( $blog_id ) ) {
+			return $blog_id;
+		}
+
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$this->load_theme_functions();
+		}
+
+		// Get a list of supported post formats.
+		$all_formats = get_post_format_strings();
+		$supported   = get_theme_support( 'post-formats' );
+
+		$supported_formats = $response['formats'] = array();
+
+		if ( isset( $supported[0] ) ) {
+			foreach ( $supported[0] as $format ) {
+				$supported_formats[ $format ] = $all_formats[ $format ];
+			}
+		}
+
+		$response['formats'] = $supported_formats;
+
+		return $response;
+	}
+}
+

@@ -352,7 +352,7 @@ EOT;
 <div class="jp-relatedposts-items jp-relatedposts-items-visual">
 	<div class="jp-relatedposts-post jp-relatedposts-post0 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2012/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
+			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Big iPhone/iPad Update Now Available</a>
@@ -362,7 +362,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post1 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2013/04/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
+			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>The WordPress for Android App Gets a Big Facelift</a>
@@ -372,7 +372,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post2 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://en.blog.files.wordpress.com/2013/01/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
+			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Upgrade Focus: VideoPress For Weddings</a>
@@ -679,12 +679,14 @@ EOT;
 	 * @return string
 	 */
 	protected function _get_title( $post_title, $post_content ) {
-		if ( ! empty( $post_title ) )
-			return $post_title;
+		if ( ! empty( $post_title ) ) {
+			return wp_strip_all_tags( $post_title );
+		}
 
-		$post_title = wp_trim_words( strip_shortcodes( $post_content ), 5 );
-		if ( ! empty( $post_title ) )
+		$post_title = wp_trim_words( wp_strip_all_tags( strip_shortcodes( $post_content ) ), 5 );
+		if ( ! empty( $post_title ) ) {
 			return $post_title;
+		}
 
 		return __( 'Untitled Post', 'jetpack' );
 	}
@@ -861,7 +863,10 @@ EOT;
 
 		// Oh no... return nothing don't cache errors.
 		if ( is_wp_error( $response ) ) {
-			return array();
+			if ( is_array( $cache[ $cache_key ] ) )
+				return $cache[ $cache_key ][ 'payload' ]; // return stale
+			else
+				return array();
 		}
 
 		$results = json_decode( wp_remote_retrieve_body( $response ), true );
@@ -882,11 +887,13 @@ EOT;
 			}
 		}
 
-		// Set new cache value
-		$new_cache[ $cache_key ] = array(
-			'expires' => 12 * HOUR_IN_SECONDS + $now_ts,
-			'payload' => $related_posts,
-		);
+		// Set new cache value if valid
+		if ( !empty( $related_posts ) ) {
+			$new_cache[ $cache_key ] = array(
+				'expires' => 12 * HOUR_IN_SECONDS + $now_ts,
+				'payload' => $related_posts,
+			);
+		}
 
 		// Update cache
 		update_post_meta( $post_id, $cache_meta_key, $new_cache );
@@ -929,10 +936,11 @@ EOT;
 		if ( is_array( $categories ) ) {
 			foreach ( $categories as $category ) {
 				if ( 'uncategorized' != $category->slug && '' != trim( $category->name ) ) {
-					return sprintf(
+					$post_cat_context = sprintf(
 						_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
 						$category->name
 					);
+					return apply_filters( 'jetpack_relatedposts_post_category_context', $post_cat_context, $category );
 				}
 			}
 		}
@@ -941,10 +949,11 @@ EOT;
 		if ( is_array( $tags ) ) {
 			foreach ( $tags as $tag ) {
 				if ( '' != trim( $tag->name ) ) {
-					return sprintf(
+					$post_tag_context = sprintf(
 						_x( 'In "%s"', 'in {category/tag name}', 'jetpack' ),
 						$tag->name
 					);
+					return apply_filters( 'jetpack_relatedposts_post_tag_context', $post_tag_context, $tag );
 				}
 			}
 		}

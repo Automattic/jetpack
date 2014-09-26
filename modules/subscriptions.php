@@ -560,15 +560,6 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		$control_ops = array( 'width' => 300 );
 
 		$this->WP_Widget( 'blog_subscription', __( 'Blog Subscriptions (Jetpack)', 'jetpack' ), $widget_ops, $control_ops );
-
-		add_action( 'init', array( $this, 'maybe_add_style' ) );
-	}
-
-	function maybe_add_style() {
-	    //if ( is_active_widget( false, false, $this->id_base, true ) ) {
-		wp_register_style( 'jetpack-subscriptions', plugins_url( 'subscriptions/subscriptions.css', __FILE__ ) );
-		wp_enqueue_style( 'jetpack-subscriptions' );
-	    //}
 	}
 
 	function widget( $args, $instance ) {
@@ -587,11 +578,16 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		if ( ! is_array( $subscribers_total ) )
 			$show_subscribers_total = FALSE;
 
-		// Give the input element a unique ID  
-		$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id ); 
+		// Give the input element a unique ID
+		$subscribe_field_id = apply_filters( 'subscribe_field_id', 'subscribe-field', $widget_id );
 
+		// Enqueue the form's CSS
+		wp_register_style( 'jetpack-subscriptions', plugins_url( 'subscriptions/subscriptions.css', __FILE__ ) );
+		wp_enqueue_style( 'jetpack-subscriptions' );
+
+		// Display the subscription form
 		echo $args['before_widget'];
-		echo $args['before_title'] . '<label for="' . esc_attr( $subscribe_field_id ) . '">' . esc_attr( $instance['title'] ) . '</label>' . $args['after_title'] . "\n"; 
+		echo $args['before_title'] . '<label for="' . esc_attr( $subscribe_field_id ) . '">' . esc_attr( $instance['title'] ) . '</label>' . $args['after_title'] . "\n";
 
 		$referer = set_url_scheme( 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
 
@@ -763,7 +759,7 @@ add_shortcode( 'jetpack_subscription_form', 'jetpack_do_subscription_form' );
 
 function jetpack_do_subscription_form( $args ) {
 	$args['show_subscribers_total'] = empty( $args['show_subscribers_total'] ) ? false : true;
-	$args = shortcode_atts( Jetpack_Subscriptions_Widget::defaults(), $args );
+	$args = shortcode_atts( Jetpack_Subscriptions_Widget::defaults(), $args, 'jetpack_subscription_form' );
 	ob_start();
 	the_widget( 'Jetpack_Subscriptions_Widget', $args );
 	$output = ob_get_clean();

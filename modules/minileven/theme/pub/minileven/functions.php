@@ -64,10 +64,7 @@ function minileven_setup() {
 	add_theme_support( 'post-formats', array( 'gallery' ) );
 
 	// Add support for custom backgrounds
-	if ( version_compare( $wp_version, '3.4', '>=' ) )
-		add_theme_support( 'custom-background' );
-	else
-		add_custom_background();
+	add_custom_background();
 
 	// Add support for post thumbnails
 	add_theme_support( 'post-thumbnails' );

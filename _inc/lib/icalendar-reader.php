@@ -314,7 +314,7 @@ class iCalendarReader {
 								}
 								$byday_event_start = strtotime( $byday_event_date_start );
 								$byday_event_end = strtotime( $byday_event_date_end );
-								
+
 							}
 
 						} elseif ( isset( $rrule_array['BYDAY'] ) && $frequency === 'month' ) {
@@ -541,7 +541,7 @@ class iCalendarReader {
 			}
 		}
 
-		if ( stristr( $keyword, 'DTSTART' ) || stristr( $keyword, 'DTEND' ) ) {
+		if ( strpos( $keyword, ';' ) && ( stristr( $keyword, 'DTSTART' ) || stristr( $keyword, 'DTEND' ) ) ) {
 			$keyword = explode( ';', $keyword );
 
 			/*

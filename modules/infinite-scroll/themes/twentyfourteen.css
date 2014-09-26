@@ -88,6 +88,11 @@
 	display: block;
 }
 
+/* Reset top margin adjustment for subsequent posts added by Infinite Scroll */
+.full-width .site-content .infinite-wrap .hentry.has-post-thumbnail:first-child {
+	margin-top: 0;
+}
+
 @media screen and (min-width: 401px) {
 	.infinite-loader,
 	#infinite-handle {
