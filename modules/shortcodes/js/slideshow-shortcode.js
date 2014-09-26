@@ -123,17 +123,16 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 
 		var controls = jQuery( this.controlsDiv_ );
 		slideshow.on( 'mouseenter focusin', function() {
-			controls.stop( true, false );
-			controls.fadeTo( 400, 1 );
+			controls.stop( true, false ).fadeTo( 200, 1 );
 		} );
 		slideshow.on( 'mouseleave', function() {
 			if ( 'slideshow-controls' !== document.activeElement.parentNode.className ) {
-				controls.fadeTo( 400, 0.5 );
+				controls.fadeTo( 200, 0.5 );
 			}
 		} );
 		slideshow.on( 'focusout', function() {
 			if ( ! slideshow.is( ':hover' ) ) {
-				controls.fadeTo( 400, 0.5 );
+				controls.fadeTo( 200, 0.5 );
 			}
 		} );
 	} else {
