@@ -38,9 +38,10 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint
 
 
 // Jetpack Only Endpoints
-//  TODO: move instantiations into this file?
-require_once( $json_endpoints_dir . 'class.json-api-jetpack-endpoints.php' );
+$json_jetpack_endpoints_dir = dirname( __FILE__ ) . '/json-endpoints/jetpack/';
 
+// This files instantiates the endpoints
+require_once( $json_jetpack_endpoints_dir . 'json-api-jetpack-endpoints.php' );
 
 /*
  * Endpoint instantiations
