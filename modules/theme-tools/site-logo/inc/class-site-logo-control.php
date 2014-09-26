@@ -43,11 +43,6 @@ class Site_Logo_Image_Control extends WP_Customize_Control {
 	public $mime_type = 'image';
 
 	/**
-	 * Allow for custom control descriptions.
-	 */
-	public $description = '';
-
-	/**
 	 * Enqueue our media manager resources, scripts, and styles.
 	 *
 	 * @uses wp_enqueue_media()
