@@ -62,7 +62,7 @@ function jetpack_the_site_logo() {
 	// Bail if no logo is set. Leave a placeholder if we're in the Customizer, though (needed for the live preview).
 	if ( ! jetpack_has_site_logo() ) {
 		if ( jetpack_is_customize_preview() ) {
-			printf( '<a href="%1$s" class="site-logo-anchor" style="display:none;"><img class="site-logo" data-size="%2$s" /></a>',
+			printf( '<a href="%1$s" class="site-logo-link" style="display:none;"><img class="site-logo" data-size="%2$s" /></a>',
 				esc_url( home_url( '/' ) ),
 				esc_attr( $size )
 			);
@@ -71,7 +71,7 @@ function jetpack_the_site_logo() {
 	}
 
 	// We have a logo. Logo is go.
-	$html = sprintf( '<a href="%1$s" class="site-logo-anchor" rel="home">%2$s</a>',
+	$html = sprintf( '<a href="%1$s" class="site-logo-link" rel="home">%2$s</a>',
 		esc_url( home_url( '/' ) ),
 		wp_get_attachment_image(
 			$logo['id'],

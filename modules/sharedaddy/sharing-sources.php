@@ -53,8 +53,11 @@ abstract class Sharing_Source {
 			$klasses[] = 'share-icon';
 
 		if ( $this->button_style == 'icon' ) {
-			$text = '';
+			$text = $title;
 			$klasses[] = 'no-text';
+
+			if ( $this->open_links == 'new' )
+				$text .= __( ' (Opens in new window)', 'jetpack' );
 		}
 
 		$url = apply_filters( 'sharing_display_link', $url );
@@ -69,12 +72,13 @@ abstract class Sharing_Source {
 			$klasses[] = 'no-icon';
 
 		return sprintf(
-			'<a rel="nofollow" class="%s" href="%s"%s title="%s"%s><span>%s</span></a>',
+			'<a rel="nofollow" class="%s" href="%s"%s title="%s"%s><span%s>%s</span></a>',
 			implode( ' ', $klasses ),
 			$url,
 			( $this->open_links == 'new' ) ? ' target="_blank"' : '',
 			$title,
 			( $id ? ' id="' . esc_attr( $id ) . '"' : '' ),
+			( $this->button_style == 'icon' ) ? ' class="sharing-screen-reader-text"' : '',
 			$text
 		);
 	}
@@ -575,11 +579,11 @@ class Share_LinkedIn extends Sharing_Source {
 		$post_link = $this->get_share_url( $post->ID );
 
 		// Using the same URL as the official button, which is *not* LinkedIn's documented sharing link
-		// http://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
+		// https://www.linkedin.com/cws/share?url={url}&token=&isFramed=false
 
 		$linkedin_url = add_query_arg( array(
 			'url' => rawurlencode( $post_link ),
-		), $this->http() . '://www.linkedin.com/cws/share?token=&isFramed=false' );
+		), 'https://www.linkedin.com/cws/share?token=&isFramed=false' );
 
 		// Record stats
 		parent::process_request( $post, $post_data );

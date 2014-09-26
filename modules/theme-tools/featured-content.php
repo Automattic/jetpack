@@ -254,10 +254,8 @@ class Featured_Content {
 			return;
 		}
 
-		$page_on_front = get_option( 'page_on_front' );
-
 		// Bail if the blog page is not the front page.
-		if ( ! empty( $page_on_front ) ) {
+		if ( 'posts' !== get_option( 'show_on_front' ) ) {
 			return;
 		}
 
@@ -555,6 +553,8 @@ class Featured_Content {
 		}
 
 		$output['hide-tag'] = isset( $input['hide-tag'] ) && $input['hide-tag'] ? 1 : 0;
+
+		$output['show-all'] = isset( $input['show-all'] ) && $input['show-all'] ? 1 : 0;
 
 		self::delete_transient();
 

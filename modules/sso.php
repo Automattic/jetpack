@@ -25,6 +25,9 @@ class Jetpack_SSO {
 		add_action( 'init', array( $this, 'maybe_logout_user' ), 5 );
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
 
+		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
+		add_action( 'login_form_jetpack-sso', '__return_true' );
+
 		if ( $this->should_hide_login_form() && apply_filters( 'jetpack_sso_display_disclaimer', true ) ) {
 			add_action( 'login_message', array( $this, 'msg_login_by_jetpack' ) );
 		}
@@ -311,7 +314,9 @@ class Jetpack_SSO {
 	}
 
 	function login_init() {
-		/*
+		global $action;
+
+		/**
  		 * If the user is attempting to logout AND the auto-forward to WordPress.com
  		 * login is set then we need to ensure we do not auto-forward the user and get
  		 * them stuck in an infinite logout loop.
@@ -321,12 +326,12 @@ class Jetpack_SSO {
  			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 		}
 
-		/*
+		/**
 		 * Check to see if the site admin wants to automagically forward the user
 		 * to the WordPress.com login page AND  that the request to wp-login.php
 		 * is not something other than login (Like logout!)
 		 */
-		if(
+		if (
 			$this->wants_to_login()
 			&& $this->bypass_login_forward_wpcom()
 		) {
@@ -334,22 +339,22 @@ class Jetpack_SSO {
 			wp_safe_redirect( $this->build_sso_url() );
 		}
 
-		add_action( 'login_footer',   array( $this, 'login_form' ) );
-		add_action( 'login_footer', array( $this, 'login_footer' ) );
+		if ( 'login' === $action ) {
+			wp_enqueue_script( 'jquery' );
+			wp_enqueue_style( 'genericons' );
+			add_action( 'login_footer', array( $this, 'login_form' ) );
+			add_action( 'login_footer', array( $this, 'login_footer' ) );
 /*
-		if( get_option( 'jetpack_sso_remove_login_form' ) ) {
-			// Check to see if the user is attempting to login via the default login form.
-			// If so we need to deny it and forward elsewhere.
-			if( isset( $_REQUEST['wp-submit'] ) && 'Log In' == $_REQUEST['wp-submit'] ) {
-				wp_die( 'Login not permitted by this method. ');
+			if ( get_option( 'jetpack_sso_remove_login_form' ) ) {
+				// Check to see if the user is attempting to login via the default login form.
+				// If so we need to deny it and forward elsewhere.
+				if( isset( $_REQUEST['wp-submit'] ) && 'Log In' == $_REQUEST['wp-submit'] ) {
+					wp_die( 'Login not permitted by this method. ');
+				}
+				add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
 			}
-			add_filter( 'gettext', array( $this, 'remove_lost_password_text' ) );
-		}
 */
-		wp_enqueue_script( 'jquery' );
-		wp_enqueue_style( 'genericons' );
-
-		if ( isset( $_GET['action'] ) && 'jetpack-sso' == $_GET['action'] ) {
+		} elseif ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
 				$this->handle_login();
 			} else {

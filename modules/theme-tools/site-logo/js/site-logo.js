@@ -6,7 +6,7 @@
 	api( 'site_logo', function( value ){
 		value.bind( function( newVal, oldVal ){
 			$body   = $( 'body' );
-			$anchor = $( '.site-logo-anchor' );
+			$anchor = $( '.site-logo-link' );
 			$logo   = $( '.site-logo' );
 			$size   = $logo.attr( 'data-size' );
 

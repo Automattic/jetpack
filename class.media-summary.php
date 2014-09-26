@@ -8,7 +8,8 @@ class Jetpack_Media_Summary {
 
 	static function get( $post_id, $blog_id = 0, $args = array() ) {
 		$defaults = array(
-			'trigger_mshot' => false
+			'max_words' => 16,
+			'max_chars' => 256,
 		);
 		$args = wp_parse_args( $args, $defaults );
 
@@ -41,9 +42,9 @@ class Jetpack_Media_Summary {
 		);
 
 		if ( empty( $post->post_password ) ) {
-			$return['excerpt']       = self::get_excerpt( $post->post_content, $post->post_excerpt );
+			$return['excerpt']       = self::get_excerpt( $post->post_content, $post->post_excerpt, $args['max_words'], $args['max_chars'] );
 			$return['count']['word'] = self::get_word_count( $post->post_content );
-			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, self::get_excerpt( $post->post_content, $post->post_excerpt ) );
+			$return['count']['word_remaining'] = self::get_word_remaining_count( $post->post_content, $return['excerpt'] );
 			$return['count']['link'] = self::get_link_count( $post->post_content );
 		}
 
@@ -242,14 +243,14 @@ class Jetpack_Media_Summary {
 		);
 	}
 
-	static function get_excerpt( $post_content, $post_excerpt ) {
+	static function get_excerpt( $post_content, $post_excerpt, $max_words = 16, $max_chars = 256 ) {
 		if ( function_exists( 'wpcom_enhanced_excerpt_extract_excerpt' ) ) {
 			return self::clean_text( wpcom_enhanced_excerpt_extract_excerpt( array(
 				'text'           => $post_content,
 				'excerpt_only'   => true,
 				'show_read_more' => false,
-				'max_words'      => 16,
-				'max_chars'      => 100,
+				'max_words'      => $max_words,
+				'max_chars'      => $max_chars,
 			) ) );
 		} else {
 			$post_excerpt = apply_filters( 'get_the_excerpt', $post_excerpt );

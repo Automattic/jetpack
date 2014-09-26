@@ -34,6 +34,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
 
 
 // Jetpack Only Endpoints
@@ -63,6 +64,26 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'response_format' => WPCOM_JSON_API_GET_Site_Endpoint::$site_format,
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/?pretty=1',
+) );
+
+new WPCOM_JSON_API_List_Post_Formats_Endpoint( array(
+	'description' => 'A list of post formats supported by a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'sites:X:post-formats',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/post-formats',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'query_parameters' => array(
+		'context' => false,
+	),
+
+	'response_format' => array(
+		'formats' => '(array) A list of supported post formats. id => label.',
+	)
 ) );
 
 /*
@@ -102,7 +123,7 @@ new WPCOM_JSON_API_Render_Shortcode_Endpoint( array(
 		'shortcode' => '(string) The shortcode that was passed in for rendering.',
 		'result'    => '(html) The rendered HTML result of the shortcode.',
 		'scripts'   => '(array) An array of JavaScript files needed to render the shortcode. Returned in the format of <code>{ "script-slug" : { "src": "http://example.com/file.js", "extra" : "" } }</code> where extra contains any neccessary extra JS for initializing the source file and src contains the script to load. Omitted if no scripts are neccessary.',
-		'styles'    => '(array) An array of CSS files needed to render the shortcode. Returned in the format of <code>{ "style-slug" : { "src": "http://example.com/file.css", "media" : "all" } }</code>. Omitted if no styles are neccessary.',	
+		'styles'    => '(array) An array of CSS files needed to render the shortcode. Returned in the format of <code>{ "style-slug" : { "src": "http://example.com/file.css", "media" : "all" } }</code>. Omitted if no styles are neccessary.',
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/shortcodes/render?shortcode=%5Bgallery%20ids%3D%22729%2C732%2C731%2C720%22%5D'
 ) );
@@ -276,6 +297,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 			'private' => 'Privately publish the post.',
 			'draft'   => 'Save the post as a draft.',
 			'pending' => 'Mark the post as pending editorial approval.',
+			'auto-draft' => 'Save a placeholder for a newly created post, with no content.',
 		),
 		'sticky'    => array(
 			'false'   => 'Post is not marked as sticky.',
@@ -289,7 +311,7 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'format'     => get_post_format_strings(),
 		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
 		'media'      => "(media) An array of images to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts images (image/gif, image/jpeg, image/png) only.<br /><br /><strong>Example</strong>:<br />" .
-				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+						"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 		'comments_open' => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
@@ -690,8 +712,8 @@ new WPCOM_JSON_API_List_Media_Endpoint( array(
 	),
 
 	'response_format' => array(
- 		'media' => '(array) Array of media',
- 		'found' => '(int) The number of total results found'
+		'media' => '(array) Array of media',
+		'found' => '(int) The number of total results found'
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/media/?pretty=true',
@@ -735,14 +757,14 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 
 	'request_format' => array(
 		'media'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Accepts images (image/gif, image/jpeg, image/png) only at this time.<br /><br /><strong>Example</strong>:<br />" .
-				"<code>curl \<br />--form 'files[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
+		                "<code>curl \<br />--form 'files[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
 		'media_urls' => "(array) An array of URLs to upload to the post."
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/media/new/',
 
 	'response_format' => array(
- 		'media' => '(array) Array of uploaded media',
+		'media' => '(array) Array of uploaded media',
 		'errors' => '(array) Array of error messages of uploading media failures'
 	),
 ) );
@@ -1504,3 +1526,76 @@ new WPCOM_JSON_API_List_Users_Endpoint( array(
 	}'
 ) );
 
+new WPCOM_JSON_API_Site_Settings_Endpoint( array(
+	'description' => 'Detailed settings information about a site ID/domain',
+	'group'	      => '__do_not_document',
+	'stat'        => 'sites:X',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/settings',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'query_parameters' => array(
+		'context' => false,
+	),
+
+	'response_format' => WPCOM_JSON_API_Site_Settings_Endpoint::$site_format,
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
+) );
+
+new WPCOM_JSON_API_Site_Settings_Endpoint( array(
+	'description' => 'Update settings information for a site ID/domain',
+	'group'       => '__do_not_document',
+	'stat'        => 'sites:X',
+
+	'method'      => 'POST',
+	'path'        => '/sites/%s/settings',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'request_format'  => array(
+		'blogname'                     => '(string) blog name',
+		'blogdescription'              => '(string) blog description',
+		'default_pingback_flag'        => '(bool) notify blogs linked from article',
+		'default_ping_status'          => '(bool) allow link notifications from other blogs',
+		'default_comment_status'       => '(bool) allow comments on new articles',
+		'blog_public'                  => '(string) site visibility; -1: private, 0: discourage search engines, 1: allow search engines',
+		'jetpack_relatedposts_enabled' => '(bool) enable related posts',
+		'jetpack_relatedposts_show_headline' => '(bool) show headline in related posts',
+		'jetpack_relatedposts_show_thumbnails' => '(bool) show thumbnails in related posts',
+		'infinite_scroll'              => '(bool) support infinite scroll of posts',
+		'default_category'             => '(int) default post category',
+		'default_post_format'          => '(string) default post format',
+		'require_name_email'           => '(bool) comment author must fill out name and email',
+		'comment_registration'         => '(bool) user must be registered and logged in to comment',
+		'close_comments_for_old_posts' => '(bool) automatically close comments on old posts',
+		'close_comments_days_old'      => '(int) age at which to close comments',
+		'thread_comments'              => '(bool) enable threaded comments',
+		'thread_comments_depth'        => '(int) depth to thread comments',
+		'page_comments'                => '(bool) break comments into pages',
+		'comments_per_page'            => '(int) number of comments to display per page',
+		'default_comments_page'        => '(string) newest|oldest which page of comments to display first',
+		'comment_order'                => '(string) asc|desc order to display comments within page',
+		'comments_notify'              => '(bool) email me when someone comments',
+		'moderation_notify'            => '(bool) email me when a comment is helf for moderation',
+		'social_notifications_like'    => '(bool) email me when someone likes my post',
+		'social_notifications_reblog'  => '(bool) email me when someone reblogs my post',
+		'social_notifications_subscribe' => '(bool) email me when someone follows my blog',
+		'comment_moderation'           => '(bool) comments must be manually approved',
+		'comment_whitelist'            => '(bool) comment author must have a previously approved comment',
+		'comment_max_links'            => '(int) hold comment if it contains X or more links',
+		'moderation_keys'              => '(string) words or phrases that trigger comment moderation, one per line',
+		'blacklist_keys'               => '(string) words or phrases that mark comment spam, one per line',
+		'lang_id'                      => '(int) ID for language blog is written in',
+	),
+
+	'response_format' => array(
+		'updated' => '(array)'
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
+) );

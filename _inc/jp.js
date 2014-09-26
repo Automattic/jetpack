@@ -190,7 +190,12 @@
 
 	function initModalEvents() {
 		var $modal = $( '.modal' );
-		$( '.module, .feature a, .configs a' ).on( 'click', function (e) {
+		$( '.module, .feature a, .configs a' ).on( 'click keypress', function (e) {
+			// Only show modal on enter when keypress recorded (accessibility)
+			if ( e.keyCode && 13 !== e.keyCode ) {
+				return;
+			}
+
 			e.preventDefault();
 
 			$( '.shade' ).show();

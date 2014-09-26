@@ -484,7 +484,7 @@ function sharing_display( $text = '', $echo = false ) {
 	if ( empty( $post ) )
 		return $text;
 
-	if ( is_preview() ) {
+	if ( is_preview() || is_admin() ) {
 		return $text;
 	}
 
@@ -614,7 +614,7 @@ function sharing_display( $text = '', $echo = false ) {
 			$sharing_content .= '</div></div></div>';
 
 			// Register our JS
-			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), '20121205' );
+			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), '20140910' );
 			add_action( 'wp_footer', 'sharing_add_footer' );
 		}
 	}
