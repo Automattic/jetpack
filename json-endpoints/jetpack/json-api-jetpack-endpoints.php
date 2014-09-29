@@ -369,7 +369,7 @@ new Jetpack_JSON_API_Core_Update_Endpoint( array(
 		'version'   => '(string) The core version to update',
 	),
 	'response_format' => array(
-		'version' => '(array) An array of updated theme stylesheets.',
+		'version' => '(string) The core version after the upgrade has run.',
 		'log'     => '(array:safehtml) An array of log strings.',
 	),
 	'example_request_data' => array(
@@ -377,5 +377,5 @@ new Jetpack_JSON_API_Core_Update_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core/update'
 ) );
