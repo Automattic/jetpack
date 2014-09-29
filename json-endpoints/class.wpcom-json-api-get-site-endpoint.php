@@ -177,12 +177,23 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$default_sharing_status = ! empty( $blog_services['visible'] );
 				}
 
+				$is_mapped_domain = false;
+
+				if ( function_exists( 'get_primary_redirect' ) ) {
+					$primary_redirect = strtolower( get_primary_redirect() );
+					if ( false === strpos( $primary_redirect, '.wordpress.com' ) ) {
+						$is_mapped_domain = true;
+					}
+				}
+
 				$response[$key] = array(
 					'timezone'                => (string) get_option( 'timezone_string' ),
 					'gmt_offset'              => (float) get_option( 'gmt_offset' ),
 					'videopress_enabled'      => $has_videopress,
 					'login_url'               => wp_login_url(),
 					'admin_url'               => get_admin_url(),
+					'is_mapped_domain'        => $is_mapped_domain,
+					'unmapped_url'            => get_site_url( $blog_id ),
 					'featured_images_enabled' => current_theme_supports( 'post-thumbnails' ),
 					'header_image'            => get_theme_mod( 'header_image_data' ),
 					'background_color'        => get_theme_mod( 'background_color' ),
@@ -201,6 +212,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'default_ping_status'     => ( 'closed' == get_option( 'default_ping_status' ) ? false : true ),
 					'software_version'        => $wp_version,
 				);
+
 				if ( ! current_user_can( 'edit_posts' ) )
 					unset( $response[$key] );
 				break;
