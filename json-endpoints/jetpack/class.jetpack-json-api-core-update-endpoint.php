@@ -28,7 +28,17 @@ class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Endpoint {
 	}
 
 	private function update_core( $version, $locale ) {
-		$update   = find_core_update( $version, $locale );
+
+		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+		delete_site_transient( 'update_core' );
+		wp_version_check( array(), true );
+
+		if ( $version ) {
+			$update = find_core_update( $version, $locale );
+		} else {
+			$update = $this->find_latest_core_version();
+		}
 
 		$skin     = new Automatic_Upgrader_Skin();
 		$upgrader = new Core_Upgrader( $skin );
@@ -39,4 +49,20 @@ class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		return $result;
 	}
+
+	private function find_latest_core_version() {
+		// Select the latest update.
+		// Remove filters to bypass automattic updates.
+		add_filter( 'request_filesystem_credentials',      '__return_true'  );
+		add_filter( 'automatic_updates_is_vcs_checkout',   '__return_false' );
+		add_filter( 'allow_major_auto_core_updates',       '__return_true'  );
+		add_filter( 'send_core_update_notification_email', '__return_false' );
+		$update = find_core_auto_update();
+		remove_filter( 'request_filesystem_credentials',      '__return_true'  );
+		remove_filter( 'automatic_updates_is_vcs_checkout',   '__return_false' );
+		remove_filter( 'allow_major_auto_core_updates',       '__return_true'  );
+		remove_filter( 'send_core_update_notification_email', '__return_false' );
+		return $update;
+	}
+
 }
