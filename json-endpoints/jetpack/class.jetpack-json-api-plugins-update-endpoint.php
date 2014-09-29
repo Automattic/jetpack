@@ -26,7 +26,7 @@ class Jetpack_JSON_API_Plugins_Update_Endpoint extends Jetpack_JSON_API_Plugins_
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
 		ob_start();
-		$result = $upgrader->bulk_upgrade( $this->plugin );
+		$result = $upgrader->upgrade( $this->plugin );
 		$output = ob_get_contents();
 		ob_end_clean();
 
