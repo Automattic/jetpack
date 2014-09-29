@@ -372,18 +372,18 @@ class Jetpack_Photon {
 
 				// Check specified image dimensions and account for possible zero values; photon fails to resize if a dimension is zero.
 				if ( 0 == $image_args['width'] || 0 == $image_args['height'] ) {
-					if ( 0 == $image_args['width'] && 0 < $image_args['height'] )
+					if ( 0 == $image_args['width'] && 0 < $image_args['height'] ) {
 						$photon_args['h'] = $image_args['height'];
-					elseif ( 0 == $image_args['height'] && 0 < $image_args['width'] )
+					} elseif ( 0 == $image_args['height'] && 0 < $image_args['width'] ) {
 						$photon_args['w'] = $image_args['width'];
+					}
 				} else {
 					if( 'resize' == $transform ) {
 						// Lets make sure that we don't upscale images since wp never upscales them as well
 						$image_meta = wp_get_attachment_metadata( $attachment_id );
-						
 						$smaller_width  = ( ( $image_meta['width']  < $image_args['width']  ) ? $image_meta['width']  : $image_args['width']  );
 						$smaller_height = ( ( $image_meta['height'] < $image_args['height'] ) ? $image_meta['height'] : $image_args['height'] );
-						
+
 						$photon_args[ $transform ] = $smaller_width . ',' . $smaller_height;
 					} else {
 						$photon_args[ $transform ] = $image_args['width'] . ',' . $image_args['height'];
