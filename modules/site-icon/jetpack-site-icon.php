@@ -58,7 +58,9 @@ class Jetpack_Site_Icon {
 	public function register_hooks(){
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
 
-		add_action( 'admin_menu',            array( $this, 'admin_menu_upload_site_icon' ) );
+		add_action( 'admin_menu',             array( $this, 'admin_menu_upload_site_icon' ) );
+
+		add_filter( 'display_media_states',   array( $this, 'add_media_state' ) );
 		
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'delete_site_icon_hook' ) );
@@ -141,6 +143,19 @@ class Jetpack_Site_Icon {
 			wp_enqueue_style( 'jcrop' );
 		}
 		wp_enqueue_style( 'site-icon-admin' );
+	}
+
+	public function add_media_state( $media_states ) {
+
+		if( jetpack_has_site_icon() ){
+			global $post;
+		
+			if( $post->ID == get_option( 'site_icon_id' ) ) {
+				$media_states[] = __( 'Site Icon', 'jetpack' );
+			}
+
+		}
+		return $media_states; 
 	}
 	
 	/**
