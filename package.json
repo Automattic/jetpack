@@ -20,7 +20,7 @@
     "grunt-contrib-jshint": "^0.9.2",
     "grunt-contrib-sass": "^0.7.3",
     "grunt-contrib-watch": "^0.6.1",
-    "grunt-cssjanus": "~0.1.0",
+    "grunt-cssjanus": "~0.2.2",
     "grunt-notify": "^0.3.1",
     "grunt-phplint": "0.0.5",
     "grunt-shell": "^0.6.4",
