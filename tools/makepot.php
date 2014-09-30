@@ -43,26 +43,28 @@ class Jetpack_MakePOT extends MakePOT {
 
 		$potextmeta = new PotExtMeta;
 		$res = $potextmeta->append( $main_file, $output );
-
-		$modules = glob( "$dir/modules/*.php" ); /* */
+/*
+		$modules = glob( "$dir/modules/*.php" );
 		foreach ( $modules as $module ) {
 			$potextmeta = new Jetpack_PotExtMeta;
 			$potextmeta->append( $module, $output );
 		}
-		/* Adding non-gettexted strings can repeat some phrases */
+		// Adding non-gettexted strings can repeat some phrases
 		$output_shell = escapeshellarg($output);
 		system( "msguniq $output_shell -o $output_shell" );
+*/
 		return $res;
 	}
 }
 
+/*
 class Jetpack_PotExtMeta extends PotExtMeta {
 	var $headers = array(
 		'Module Name',
 		'Module Description',
 	);
 }
-
+*/
 
 // run the CLI only if the file
 // wasn't included

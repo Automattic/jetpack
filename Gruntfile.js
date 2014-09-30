@@ -366,8 +366,7 @@ module.exports = function(grunt) {
 						'tools'
 					],
 					mainFile: 'jetpack.php',
-					potFilename: 'jetpack.pot',
-					i18nToolsPath: path.join( __dirname , '/tools/' )
+					potFilename: 'jetpack.pot'
 				}
 			}
 		},
