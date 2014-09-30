@@ -12,10 +12,6 @@
 _x( 'Spelling and Grammar', 'Module Name', 'jetpack' );
 _x( 'Check your spelling, style, and grammar with the After the Deadline proofreading service.', 'Module Description', 'jetpack' );
 
-// modules/blavatar.php
-_x( 'Blavatar', 'Module Name', 'jetpack' );
-_x( 'Add an avatar to your site.', 'Module Description', 'jetpack' );
-
 // modules/carousel.php
 _x( 'Carousel', 'Module Name', 'jetpack' );
 _x( 'Transform standard image galleries into full-screen slideshows.', 'Module Description', 'jetpack' );
@@ -111,6 +107,10 @@ _x( 'Embed content from YouTube, Vimeo, SlideShare, and more, no coding necessar
 // modules/shortlinks.php
 _x( 'WP.me Shortlinks', 'Module Name', 'jetpack' );
 _x( 'Enable WP.me-powered shortlinks for all posts and pages.', 'Module Description', 'jetpack' );
+
+// modules/site-icon.php
+_x( 'Site Icon', 'Module Name', 'jetpack' );
+_x( 'Add an site icon to your site.', 'Module Description', 'jetpack' );
 
 // modules/sso.php
 _x( 'Jetpack Single Sign On', 'Module Name', 'jetpack' );

@@ -165,7 +165,8 @@ body.settings_page_sharing ul.preview li.preview-item, body.settings_page_sharin
 	text-decoration: none;
 }
 
-div.sd-social-icon ul.preview li.preview-item a span {
+div.sd-social-icon ul.preview li.preview-item a span,
+div.sd-social-icon .inner li.preview-item a span {
 	display: none;
 }
 
