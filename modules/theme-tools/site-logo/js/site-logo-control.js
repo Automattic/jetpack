@@ -1,3 +1,6 @@
+/**
+ * JS for handling the Site Logo Customizer control.
+ */
 (function( wp, $ ){
 	// nice shortcut
 	var api = wp.customize;

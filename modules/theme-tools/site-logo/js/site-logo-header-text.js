@@ -1,3 +1,6 @@
+/**
+ * JS for handling the "Display Header Text" setting's realtime preview.
+ */
 (function($){
 	var api = wp.customize,
 		$classes = site_logo_header_classes;
