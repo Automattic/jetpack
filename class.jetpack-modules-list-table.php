@@ -298,7 +298,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 	 *
 	 * @return mixed
 	 */
-	function unprotected_display_tableav( $which = 'top' ) {
+	function unprotected_display_tablenav( $which = 'top' ) {
 		return $this->display_tablenav( $which );
 	}
 
