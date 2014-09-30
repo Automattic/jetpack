@@ -1,7 +1,8 @@
 /* global Site_Icon_Crop_Data, jQuery */
 (function($) {
-	var jcrop_api = {};
-	var Site_Icon_Crop = {
+	var jcrop_api, Site_Icon_Crop;
+	jcrop_api = {};
+	Site_Icon_Crop = {
 
 		updateCoords : function ( coords ) {
 			
@@ -9,24 +10,25 @@
 			$('#crop-y').val( coords.y );
 			$('#crop-width').val( coords.w );
 			$('#crop-height').val( coords.h );
-			console.log('updating the coodrinated');
+
 			Site_Icon_Crop.showPreview( coords );
 		},
 
 		showPreview : function( coords ){
-			var rx = 64 / coords.w;
-			var ry = 64 / coords.h;
-			var crop_image = $('#crop-image');
-			var home_icon = $('#preview-homeicon');
+			var rx, ry, crop_image, home_icon, preview_rx, preview_ry, favicon;
+			rx = 64 / coords.w;
+			ry = 64 / coords.h;
+			crop_image = $('#crop-image');
+			home_icon = $('#preview-homeicon');
 			home_icon.css({
 				width: Math.round(rx * crop_image.attr( 'width' ) ) + 'px',
 				height: Math.round(ry * crop_image.attr( 'height' ) ) + 'px',
 				marginLeft: '-' + Math.round(rx * coords.x) + 'px',
 				marginTop: '-' + Math.round(ry * coords.y) + 'px'
 			});
-			var preview_rx = 16 / coords.w;
-			var preview_ry = 16 / coords.h;
-			var favicon = $('#preview-favicon');
+			preview_rx = 16 / coords.w;
+			preview_ry = 16 / coords.h;
+			favicon = $('#preview-favicon');
 			favicon.css({
 				width: Math.round( preview_rx *  crop_image.attr( 'width' ) ) + 'px',
 				height: Math.round( preview_ry * crop_image.attr( 'height' ) ) + 'px',
