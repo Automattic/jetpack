@@ -173,7 +173,7 @@ class Jetpack_Site_Icon {
 	public function admin_init() {
 		/* register the styles and scripts */
 		wp_register_style( 'site-icon-admin' , plugin_dir_url( __FILE__ ). "css/site-icon-admin.css", array(), $this->version );
-		wp_register_script( 'site-icon-admin', plugin_dir_url( __FILE__ ). "js/site-icon-admin.js" , array( 'jquery' ) , $this->version, true );
+		//wp_register_script( 'site-icon-admin', plugin_dir_url( __FILE__ ). "js/site-icon-admin.js" , array( 'jquery' ) , $this->version, true );
 		// register the settings
 		add_settings_section(
 		  $this->module,
@@ -211,7 +211,7 @@ class Jetpack_Site_Icon {
 		$upload_blovatar_url = admin_url( 'options-general.php?page=jetpack-site_icon-upload' );
 		
 		// only load the 
-		wp_enqueue_script( 'site-icon-admin' );
+		// wp_enqueue_script( 'site-icon-admin' );
 
 		// lets delete the temp data that we might he holding on to
 		self::delete_temporay_data();
