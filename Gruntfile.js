@@ -82,6 +82,12 @@ module.exports = function(grunt) {
 					stdout: true
 				}
 			},
+			buildModuleHeadingsTranslations: {
+				command: 'php tools/build-module-headings-translations.php',
+				options: {
+					stdout: true
+				}
+			}
 		},
 		notify: {
 			watch_sass: {
@@ -339,7 +345,10 @@ module.exports = function(grunt) {
 					'views/**/*.php',
 					'3rd-party/*.php'
 				],
-				tasks: ['phplint'],
+				tasks: [
+					'phplint',
+					'shell:buildModuleHeadingsTranslations'
+				],
 				options: {
 					spawn: false
 				}
