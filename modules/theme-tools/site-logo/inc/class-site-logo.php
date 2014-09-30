@@ -54,6 +54,7 @@ class Site_Logo {
 		add_action( 'wp_head', array( $this, 'head_text_styles' ) );
 		add_action( 'customize_register', array( $this, 'customize_register' ) );
 		add_action( 'customize_preview_init', array( $this, 'preview_enqueue' ) );
+		add_action( 'delete_attachment', array( $this, 'reset_on_attachment_delete' ) );
 		add_filter( 'body_class', array( $this, 'body_classes' ) );
 		add_filter( 'image_size_names_choose', array( $this, 'media_manager_image_sizes' ) );
 		add_filter( 'display_media_states', array( $this, 'add_media_state' ) );
@@ -248,6 +249,18 @@ class Site_Logo {
 	}
 
 	/**
+	 * Reset the site logo if the current logo is deleted in the media manager.
+	 *
+	 * @param int $site_id
+	 * @uses Site_Logo::remove_site_logo()
+	 */
+	public function reset_on_attachment_delete( $post_id ) {
+		if ( $this->logo['id'] == $post_id ) {
+			$this->remove_site_logo();
+		}
+	}
+
+	/**
 	 * Determine if a site logo is assigned or not.
 	 *
 	 * @uses Site_Logo::$logo
@@ -255,6 +268,19 @@ class Site_Logo {
 	 */
 	public function has_site_logo() {
 		return ( isset( $this->logo['id'] ) && 0 !== $this->logo['id'] ) ? true : false;
+	}
+
+	/**
+	 * Reset the site logo option to zero (empty).
+	 *
+	 * @uses update_option()
+	 */
+	public function remove_site_logo() {
+		update_option( 'site_logo', array(
+			'id' => (int) 0,
+			'sizes' => array(),
+			'url' => '',
+		) );
 	}
 
 	/**
