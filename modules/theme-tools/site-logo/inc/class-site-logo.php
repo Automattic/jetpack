@@ -95,13 +95,15 @@ class Site_Logo {
 
 		// Add the setting for our logo value.
 		$wp_customize->add_setting( 'site_logo', array(
-			'default' => array(
-				'url' => false,
-				'id' => 0,
+			'capability'        => 'manage_options',
+			'default'           => array(
+				'id'    => 0,
+				'sizes' => array(),
+				'url'   => false,
 			),
-			'type'       => 'option',
-			'capability' => 'manage_options',
-			'transport'  => 'postMessage',
+			'sanitize_callback' => array( $this, 'sanitize_logo_setting' ),
+			'transport'         => 'postMessage',
+			'type'              => 'option',
 		) );
 
 		// Add our image uploader.
@@ -306,6 +308,28 @@ class Site_Logo {
 	 */
 	public function sanitize_checkbox( $input ) {
 		return ( 1 == $input ) ? 1 : '';
+	}
+
+	/**
+	 * Validate and sanitize a new site logo setting.
+	 *
+	 * @param $input
+	 * @return mixed 1 if checked, empty string if not checked.
+	 */
+	public function sanitize_logo_setting( $input ) {
+		$input['id']  = absint( $input['id'] );
+		$input['url'] = esc_url_raw( $input['url'] );
+
+		// If the new setting doesn't point to a valid attachment, just reset the whole thing.
+		if ( false == wp_get_attachment_image_src( $input['id'] ) ) {
+			$input = array(
+				'id'    => (int) 0,
+				'sizes' => array(),
+				'url'   => '',
+			);
+		}
+
+		return $input;
 	}
 }
 
