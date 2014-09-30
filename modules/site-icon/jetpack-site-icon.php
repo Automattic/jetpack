@@ -225,7 +225,7 @@ class Jetpack_Site_Icon {
 				<?php } ?>
 				
 					<div class="site-icon-info">
-						<p><?php echo esc_html_e( 'Site Icon create a favicon for your site and more.', 'jetpack' ); ?></p>
+						<p><?php echo esc_html_e( 'Site Icon creates a favicon for your site and more.', 'jetpack' ); ?></p>
 					</div>
 
 				</div>
@@ -253,8 +253,13 @@ class Jetpack_Site_Icon {
 		 ?>
 		<form action="<?php echo esc_url( admin_url( 'options-general.php?page=jetpack-site_icon-upload' ) ); ?>" method="post" enctype="multipart/form-data">
 
-			<h2 class="site-icon-title"><?php esc_html_e( 'Update Site Icon', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'select a file', 'jetpack'); ?></span></h2>
-			<p><?php esc_html_e( 'Upload a image to be used as your site icon. We will let you crop it after you upload.', 'jetpack' ); ?></p>
+			<h2 class="site-icon-title">
+			<?php if( jetpack_has_site_icon() ) { 
+				esc_html_e( 'Update Site Icon', 'jetpack');
+			} else {
+				esc_html_e( 'Add Site Icon', 'jetpack');
+			} ?> <span class="small"><?php esc_html_e( 'select a file', 'jetpack'); ?></span></h2>
+			<p><?php esc_html_e( 'Upload a image that you want to use as your site icon. You will be asked to crop it in the next step.', 'jetpack' ); ?></p>
 
 			
 			<p><input name="site-iconfile" id="site-iconfile" type="file" /></p>
@@ -295,7 +300,7 @@ class Jetpack_Site_Icon {
 		wp_localize_script( 'site-icon-crop', 'Blavatar_Crop_Data', self::initial_crop_data( $crop_data['large_image_data'][0] , $crop_data['large_image_data'][1], $crop_data['resized_image_data'][0], $crop_data['resized_image_data'][1] ) ); 
 		?>
 
-		<h2 class="site-icon-title"><?php esc_html_e( 'Update Site Image', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'crop the image', 'jetpack' ); ?></span></h2>
+		<h2 class="site-icon-title"><?php esc_html_e( 'Site Icon', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'crop the image', 'jetpack' ); ?></span></h2>
 		<div class="site-icon-crop-shell">
 			<form action="" method="post" enctype="multipart/form-data">
 			<p><input name="submit" value="<?php esc_attr_e( 'Crop Image', 'jetpack' ); ?>" type="submit" class="button button-primary button-large" /><?php printf( __( ' or <a href="%s">Cancel</a> and go back to the settings.' , 'jetpack' ), esc_url( admin_url( 'options-general.php' ) ) ); ?></p>
@@ -381,7 +386,7 @@ class Jetpack_Site_Icon {
 		update_option( 'site_icon_id', $site_icon_id );
 		
 		?>
-		<h2 class="site-icon-title"><?php esc_html_e( 'Update Site Image', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'All Done', 'jetpack' ); ?></span></h2>
+		<h2 class="site-icon-title"><?php esc_html_e( 'Site Icon', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'All Done', 'jetpack' ); ?></span></h2>
 		<div id="message" class="updated below-h2"><p><?php esc_html_e( 'Your site icon has been uploaded!', 'jetpack' ); ?> <a href="<?php echo esc_url( admin_url( 'options-general.php' ) ); ?>" ><?php esc_html_e( 'Back to General Settings' , 'jetpack' ); ?></a></p></div>
 		<?php echo jetpack_get_site_icon( null, $size = '128' ); ?>
 		<?php echo jetpack_get_site_icon( null, $size = '48' ); ?> 
