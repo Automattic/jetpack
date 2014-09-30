@@ -1468,6 +1468,12 @@ body {
 	font: normal 20px "dashicons";
 }
 
+.modules h3.site-icon:before,
+.jetpack-modules #site-icon .info a:before {
+	content: '\f475';
+}
+
+
 
 // ==========================================================================
 // Uncategorized
