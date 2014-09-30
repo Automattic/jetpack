@@ -287,4 +287,19 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				return print_r( $item, true );
 		}
 	}
+
+	/**
+	 * Core switched their `display_tablenav()` method to protected, so we can't access it directly.
+	 * Instead, let's include an access function to make it doable without errors!
+	 *
+	 * @see https://github.com/WordPress/WordPress/commit/d28f6344de97616de8ece543ed290c4ba2383622
+	 *
+	 * @param string $which
+	 *
+	 * @return mixed
+	 */
+	function unprotected_display_tableav( $which = 'top' ) {
+		return $this->display_tablenav( $which );
+	}
+
 }
