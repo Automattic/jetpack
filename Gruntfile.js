@@ -306,7 +306,6 @@ module.exports = function(grunt) {
 					'sass',
 					'autoprefixer:core',
 					'cssjanus:core',
-					'cssjanus:min',
 					'notify:watch_sass',
 					'cssjanus:coreMin',
 				],
