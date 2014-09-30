@@ -921,10 +921,9 @@ add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verificatio
 
 // Custom Content Types: START
 function jetpack_custom_content_types_more_info() { ?>
-	<h4><?php esc_html_e( 'Custom Content Types' , 'jetpack' ); ?></h4>
 
 	<div class="jp-info-img">
-		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/custom-content-types.png' ) ?>" alt="<?php esc_attr_e( 'Tiled Galleries', 'jetpack' ) ?>" width="300" height="150" />
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/custom-content-types.png' ) ?>" alt="<?php esc_attr_e( 'Custom Content Type', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
 	<p><?php esc_html_e( 'Organize and display different types of content on your site, separate from posts and pages.', 'jetpack' ); ?></p>
@@ -938,3 +937,23 @@ function jetpack_custom_content_types_more_link() {
 }
 add_action( 'jetpack_learn_more_button_custom-content-types', 'jetpack_custom_content_types_more_link' );
 // Custom Content Types: STOP
+
+// Site Icon: START
+function jetpack_custom_site_icon() { ?>
+
+
+	<div class="jp-info-img">
+		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/site-icon.png' ) ?>" alt="<?php esc_attr_e( 'Site Icon', 'jetpack' ) ?>" width="300" height="150" />
+	</div>
+
+	<p><?php esc_html_e( 'Site Icon lets you create an icon for your site which is display as a favicon.', 'jetpack' ); ?></p>
+	
+<?php
+}
+add_action( 'jetpack_module_more_info_site-icon', 'jetpack_custom_site_icon' );
+
+function jetpack_site_icon_more_link() {
+	echo '<a class="button-secondary more-info-link" href="http://jetpack.me/support/site-icon">' . __( 'Learn More', 'jetpack' ) . '</a>';
+}
+add_action( 'jetpack_learn_more_button_site-icon', 'jetpack_site_icon_more_link' );
+// Site Icon: STOP
