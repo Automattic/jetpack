@@ -78,7 +78,7 @@ abstract class Sharing_Source {
 			( $this->open_links == 'new' ) ? ' target="_blank"' : '',
 			$title,
 			( $id ? ' id="' . esc_attr( $id ) . '"' : '' ),
-			( $this->button_style == 'icon' ) ? ' class="sharing-screen-reader-text"' : '',
+			( $this->button_style == 'icon' ) ? '></span><span class="sharing-screen-reader-text"' : '',
 			$text
 		);
 	}
