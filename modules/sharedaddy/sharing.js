@@ -31,7 +31,7 @@ var WPCOMSharing = {
 		}
 	},
 	inject_share_count : function( dom_id, count ) {
-		jQuery( '#' + dom_id + ' span' ).append( '<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>' );
+		jQuery( '#' + dom_id + ' span:first').append( '<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>' );
 	},
 	format_count : function( count ) {
 		if ( count < 1000 )
