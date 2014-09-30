@@ -6,7 +6,7 @@ class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Endpoint {
 	public function callback( $path = '', $blog_id = 0 ) {
 
 
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_core', false ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_core' ) ) ) {
 			return $error;
 		}
 

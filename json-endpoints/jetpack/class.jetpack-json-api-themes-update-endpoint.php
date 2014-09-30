@@ -9,7 +9,7 @@ class Jetpack_JSON_API_Themes_Update_Endpoint extends Jetpack_JSON_API_Themes_En
 
 	public function callback( $path = '', $blog_id = 0, $theme = null ) {
 
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_themes', false ) ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_themes' ) ) ) {
 			return $error;
 		}
 
