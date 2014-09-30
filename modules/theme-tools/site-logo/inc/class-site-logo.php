@@ -216,15 +216,20 @@ class Site_Logo {
 	 * Make custom image sizes available to the media manager.
 	 *
 	 * @param array $sizes
-	 * @global array $_wp_additional_image_sizes
+	 * @uses get_intermediate_image_sizes()
 	 * @return array All default and registered custom image sizes.
 	 */
 	public function media_manager_image_sizes( $sizes ) {
-		global $_wp_additional_image_sizes;
+		// Get an array of all registered image sizes.
+		$intermediate = get_intermediate_image_sizes();
 
-		if ( isset( $_wp_additional_image_sizes ) ) {
-			foreach ( $_wp_additional_image_sizes as $size => $value ) {
-				$sizes[ $size ] = '';
+		// Have we got anything fun to work with?
+		if ( is_array( $intermediate ) && ! empty( $intermediate ) ) {
+			foreach ( $intermediate as $key => $size ) {
+				// If the size isn't already in the $sizes array, add it.
+				if ( ! array_key_exists( $size, $sizes ) ) {
+					$sizes[ $size ] = $size;
+				}
 			}
 		}
 
