@@ -1,0 +1,16 @@
+/**
+ * RTL styles for the Site Logo control. Just swaps the button sides.
+ *
+ * @param
+ * @uses
+ * @return
+ */
+#customize-control-site_logo .remove {
+	float: right;
+	margin-left: 3px;
+}
+
+#customize-control-site_logo .new,
+#customize-control-site_logo .change {
+	float: left;
+}
