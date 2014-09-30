@@ -486,6 +486,9 @@ class Jetpack_SSO {
 		return $xml->getResponse();
 	}
 
+	/**
+	 * The function that actually handles the login!
+	 */
 	function handle_login() {
 		$wpcom_nonce   = sanitize_key( $_GET['sso_nonce'] );
 		$wpcom_user_id = (int) $_GET['user_id'];
@@ -548,7 +551,12 @@ class Jetpack_SSO {
 		if ( empty( $user ) && ( get_option( 'users_can_register' ) || self::new_user_override() ) ) {
 			// If not matching by email we still need to verify the email does not exist
 			// or this blows up
-			if( !self::match_by_email() && !get_user_by( 'email', $user_data->email ) ) {
+			/**
+			 * If match_by_email is true, we know the email doesn't exist, as it would have
+			 * been found in the first pass.  If get_user_by( 'email' ) doesn't find the
+			 * user, then we know that email is unused, so it's safe to add.
+			 */
+			if ( self::match_by_email() || ! get_user_by( 'email', $user_data->email ) ) {
 				$username = $user_data->login;
 
 				if ( username_exists( $username ) ) {
@@ -575,6 +583,11 @@ class Jetpack_SSO {
 				wp_update_user( $user );
 
 				update_user_meta( $user->ID, 'wpcom_user_id', $user_data->ID );
+			} else {
+				$this->user_data = $user_data;
+				// do_action( 'wp_login_failed', $user_data->login );
+				add_action( 'login_message', array( $this, 'error_msg_email_already_exists' ) );
+				return;
 			}
 		}
 
@@ -735,6 +748,22 @@ class Jetpack_SSO {
 	 **/
 	public function error_msg_enable_two_step( $message ) {
 		$err = __( sprintf( 'This site requires two step authentication be enabled for your user account on WordPress.com. Please visit the <a href="%1$s"> Security Settings</a> page to enable two step', 'https://wordpress.com/settings/security/' ) , 'jetpack' );
+
+		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
+
+		return $message;
+	}
+
+	/**
+	 * Error message displayed when the user tries to SSO, but match by email
+	 * is off and they already have an account with their email address on
+	 * this site.
+	 *
+	 * @param string $message
+	 * @return string
+	 */
+	public function error_msg_email_already_exists( $message ) {
+		$err = __( sprintf( 'You already have an account on this site. Please visit your <a href="%1$s">profile page</a> page to link your account to WordPress.com!', admin_url( 'profile.php' ) ) , 'jetpack' );
 
 		$message .= sprintf( '<p class="message" id="login_error">%s</p>', $err );
 
