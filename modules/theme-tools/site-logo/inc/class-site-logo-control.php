@@ -43,16 +43,9 @@ class Site_Logo_Image_Control extends WP_Customize_Control {
 	public $mime_type = 'image';
 
 	/**
-	 * Allow for custom control descriptions.
-	 */
-	public $description = '';
-
-	/**
 	 * Enqueue our media manager resources, scripts, and styles.
 	 *
 	 * @uses wp_enqueue_media()
-	 * @uses has_action()
-	 * @uses add_action()
 	 * @uses wp_enqueue_style()
 	 * @uses wp_enqueue_script()
 	 * @uses plugins_url()
@@ -60,8 +53,6 @@ class Site_Logo_Image_Control extends WP_Customize_Control {
 	public function enqueue() {
 		// Enqueues all needed media resources.
 		wp_enqueue_media();
-		if ( ! has_action( 'customize_controls_print_footer_scripts', 'wp_print_media_templates' ) )
-			add_action( 'customize_controls_print_footer_scripts', 'wp_print_media_templates' );
 
 		// Enqueue our control script and styles.
 		wp_enqueue_style( 'site-logo-control', plugins_url( '../css/site-logo-control.css', __FILE__ ) );
