@@ -126,7 +126,7 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 			controls.stop( true, false ).fadeTo( 200, 1 );
 		} );
 		slideshow.on( 'mouseleave', function() {
-			if ( 'slideshow-controls' !== document.activeElement.parentNode.className ) {
+			if ( ! jQuery( document.activeElement.parentNode ).hasClass( 'slideshow-controls' ) ) {
 				controls.fadeTo( 200, 0.5 );
 			}
 		} );
