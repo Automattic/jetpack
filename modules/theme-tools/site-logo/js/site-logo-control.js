@@ -28,7 +28,7 @@
 			this.$imgContainer = $( '#customize-control-site_logo .current' );
 			this.$btnContainer = $( '#customize-control-site_logo .actions' );
 			this.$img = $( '<img class="site-logo-thumbnail" />' ).prependTo( this.$imgContainer );
-			this.$placeholder = $( '<span>' + this.l10n.placeholder + '</span>' ).prependTo( this.$imgContainer ); 
+			this.$placeholder = $( '<span>' + this.l10n.placeholder + '</span>' ).prependTo( this.$imgContainer );
 			this.$btnAdd = $( '<button type="button" class="button new">' + this.l10n.upload + '</button>' ).prependTo( this.$btnContainer );
 			this.$btnChange = $( '<button type="button" class="button change">' + this.l10n.change + '</button>' ).prependTo( this.$btnContainer );
 			this.$btnRemove = $( '<button type="button" class="button remove">' + this.l10n.remove + '</button>' ).prependTo( this.$btnContainer );
@@ -52,8 +52,9 @@
 		upload: function( event ) {
 			event.preventDefault();
 
-			if ( ! this.frame )
+			if ( ! this.frame ) {
 				this.initFrame();
+			}
 
 			this.frame.open();
 		},
@@ -98,8 +99,12 @@
 		 * @return {object}            A reduced media object.
 		 */
 		reduceMembers: function( attachment ) {
-			var desired = [ 'id', 'sizes', 'url' ];
-			var output = {};
+			var desired = [
+					'id',
+					'sizes',
+					'url'
+				],
+				output = {};
 			$.each( desired, function( i, key ){
 				output[key] = attachment[key];
 			});

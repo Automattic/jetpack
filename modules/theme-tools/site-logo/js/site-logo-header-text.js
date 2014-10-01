@@ -1,3 +1,4 @@
+/* global site_logo_header_classes */
 /**
  * JS for handling the "Display Header Text" setting's realtime preview.
  */
@@ -7,7 +8,7 @@
 
 	api( 'site_logo_header_text', function( value ) {
 		value.bind( function( to ) {
-			if ( 1 == to ) {
+			if ( 1 === parseInt( to, 10 ) ) {
 				$( $classes ).css({
 					'position': 'static',
 					'clip': 'auto'
@@ -17,7 +18,7 @@
 					'position': 'absolute',
 					'clip': 'rect(1px 1px 1px 1px)'
 				});
-			};
+			}
 		});
 	});
 })(jQuery);
