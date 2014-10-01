@@ -44,7 +44,7 @@ function AtD_restore_text_area()
 			autosave = AtD.autosave;
 		}
 	}
-};
+}
 
 // add the AtD button properly to quicktags
 if ( typeof(QTags) !== 'undefined' && QTags.addButton ) {
@@ -146,10 +146,10 @@ function AtD_check(button) {
 
 		/* replace the div */
 		var $replacement,
-			$textarea = jQuery('#content'),
-			text = $textarea.val().replace( /\&/g, '&amp;' ).replace( /\</g, '&lt;' ).replace( /\>/g, '&gt;' ),
+			$textarea  = jQuery('#content'),
+			text       = $textarea.val().replace( /\&/g, '&amp;' ).replace( /</g, '&lt;' ).replace( /\>/g, '&gt;' ),
 			fontFamily = $textarea.css('font-family'),
-			fontSize = $textarea.css('font-size'),
+			fontSize   = $textarea.css('font-size'),
 			lineHeight = $textarea.css('line-height');
 
 		if ( navigator.appName === 'Microsoft Internet Explorer' ) {
@@ -166,18 +166,18 @@ function AtD_check(button) {
 		} else if ( divHeight > 1000 ) {
 			divHeight = 1000;
 		}
-		var toolBarHeight = jQuery("#ed_toolbar").height();
+		var toolBarHeight = jQuery('#ed_toolbar').height();
 		$replacement.css( {
-			overflow: 'auto',
+			overflow:           'auto',
 			'background-color': 'white',
-			color: 'black',
-			'white-space': 'pre-wrap',
-			padding: '10px',
-			'font-family': fontFamily || 'Consolas, Monaco, monospace',
-			'font-size': fontSize || '13px',
-			'line-height': lineHeight || '1.5',
-			height: divHeight,
-			'margin-top': toolBarHeight+7+'px'
+			color:              'black',
+			'white-space':      'pre-wrap',
+			padding:            '10px',
+			'font-family':      fontFamily || 'Consolas, Monaco, monospace',
+			'font-size':        fontSize || '13px',
+			'line-height':      lineHeight || '1.5',
+			height:             divHeight,
+			'margin-top':       toolBarHeight+7+'px'
 		} );
 
 		/* kill autosave... :) */
