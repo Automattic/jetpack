@@ -262,7 +262,10 @@ module.exports = function(grunt) {
 			src: [
 				'_inc/*.js',
 				'modules/*.js',
-				'modules/**/*.js'
+				'modules/**/*.js',
+				'!_inc/*.min.js',
+				'!modules/*.min.',
+				'!modules/**/*.min.js'
 			]
 		},
 		sass: {
