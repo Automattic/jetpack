@@ -107,8 +107,8 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 
 		$classes = $jpms->body_class( '' );
 
-		//$this->assertTrue( in_array( 'network-admin', $classes ) );
 		$this->assertInternalType( 'string', $classes );
+		$this->assertContains( 'network-admin', $classes );
 	}
 
 
