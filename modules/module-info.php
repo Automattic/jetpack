@@ -946,8 +946,8 @@ function jetpack_custom_site_icon() { ?>
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/site-icon.png' ) ?>" alt="<?php esc_attr_e( 'Site Icon', 'jetpack' ) ?>" width="300" height="150" />
 	</div>
 
-	<p><?php esc_html_e( 'Site Icon lets you create an icon for your site which is display as a favicon.', 'jetpack' ); ?></p>
-	
+	<p><?php esc_html_e( 'Site Icon lets you create an icon for your site which is displayed as a favicon.', 'jetpack' ); ?></p>
+
 <?php
 }
 add_action( 'jetpack_module_more_info_site-icon', 'jetpack_custom_site_icon' );
