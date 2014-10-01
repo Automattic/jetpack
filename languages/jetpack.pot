@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Jetpack by WordPress.com 3.2-dev\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/jetpack\n"
-"POT-Creation-Date: 2014-10-01 01:47:39+00:00\n"
+"POT-Creation-Date: 2014-10-01 01:54:42+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -5560,7 +5560,7 @@ msgid "No logo set"
 msgstr ""
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:78
-msgid "Site Title, Tagline, & Logo"
+msgid "Site Title, Tagline, and Logo"
 msgstr ""
 
 #: modules/theme-tools/site-logo/inc/class-site-logo.php:89
