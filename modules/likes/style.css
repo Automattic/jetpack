@@ -137,6 +137,7 @@ div.sd-box {
 .comment-likes-widget {
 	margin: 0;
 	border-width: 0;
+	display: block;
 }
 
 
