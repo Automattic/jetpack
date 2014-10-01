@@ -2196,14 +2196,14 @@ p {
 			</div>
 			<div class="jetpack-wrap-container">
 				<div class="jetpack-install-container">
-					<?php if ( 1 == Jetpack_Options::get_option( 'activated' ) ) : ?>
+					<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
 						<p class="submit"><a href="<?php echo $this->build_connect_url() ?>" class="download-jetpack" id="wpcom-connect"><?php _e( 'Connect to WordPress.com', 'jetpack' ); ?></a></p>
 					<?php else : ?>
 						<p class="submit"><a href="<?php echo Jetpack::admin_url() ?>" class="button-connector" id="wpcom-connect"><?php _e( 'Learn More', 'jetpack' ); ?></a></p>
 					<?php endif; ?>
 				</div>
 				<div class="jetpack-text-container">
-					<?php if ( 1 == Jetpack_Options::get_option( 'activated' ) ) : ?>
+					<?php if ( in_array( Jetpack_Options::get_option( 'activated' ) , array( 1, 2, 3 ) ) ) : ?>
 						<p><?php _e( '<strong>Your Jetpack is almost ready!</strong>', 'jetpack' ); ?></p>
 						<p><?php _e( 'Connect now to enable features like Stats, Likes, and Social Sharing.', 'jetpack' ); ?></p>
 					<?php else : ?>
