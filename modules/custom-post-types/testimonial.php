@@ -200,6 +200,7 @@ class Jetpack_Testimonial {
 		$wp_customize->add_section( 'jetpack_testimonials', array(
 			'title'          => esc_html__( 'Testimonials', 'jetpack' ),
 			'theme_supports' => 'jetpack-testimonial',
+			'priority'       => 130,
 		) );
 
 		$wp_customize->add_setting( 'jetpack_testimonials[page-title]', array(
@@ -224,17 +225,16 @@ class Jetpack_Testimonial {
 			'label'    => esc_html__( 'Testimonial Page Content', 'jetpack' ),
 		) ) );
 
-		if ( current_theme_supports( 'post-thumbnails' ) ) {
-			$wp_customize->add_setting( 'jetpack_testimonials[featured-image]', array(
-				'default'              => '',
-				'sanitize_callback'    => array( 'Jetpack_Testimonial_Image_Control', 'attachment_guid_to_id' ),
-				'sanitize_js_callback' => array( 'Jetpack_Testimonial_Image_Control', 'attachment_guid_to_id' ),
-			) );
-			$wp_customize->add_control( new Jetpack_Testimonial_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
-				'section' => 'jetpack_testimonials',
-				'label'   => esc_html__( 'Testimonial Page Featured Image', 'jetpack' ),
-			) ) );
-		}
+		$wp_customize->add_setting( 'jetpack_testimonials[featured-image]', array(
+			'default'              => '',
+			'sanitize_callback'    => array( 'Jetpack_Testimonial_Image_Control', 'attachment_guid_to_id' ),
+			'sanitize_js_callback' => array( 'Jetpack_Testimonial_Image_Control', 'attachment_guid_to_id' ),
+			'theme_supports'       => 'post-thumbnails',
+		) );
+		$wp_customize->add_control( new Jetpack_Testimonial_Image_Control( $wp_customize, 'jetpack_testimonials[featured-image]', array(
+			'section' => 'jetpack_testimonials',
+			'label'   => esc_html__( 'Testimonial Page Featured Image', 'jetpack' ),
+		) ) );
 	}
 }
 
