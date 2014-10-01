@@ -19,6 +19,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'publish' => 'The post is published.',
 			'draft'   => 'The post is saved as a draft.',
 			'pending' => 'The post is pending editorial approval.',
+			'private' => 'The post is published privately',
 			'future'  => 'The post is scheduled for future publishing.',
 			'trash'   => 'The post is in the trash.',
 			'auto-draft' => 'The post is a placeholder for a new post.',
