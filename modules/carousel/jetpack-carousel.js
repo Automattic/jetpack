@@ -1448,7 +1448,7 @@ jQuery(document).ready(function($) {
 		// hash, then open the gallery that contains it.
 		galleries.each( function( _, galleryEl ) {
 			$( galleryEl ).find('img').each( function( imageIndex, imageEl ) {
-				if ( $( imageEl ).data( 'attachment-id' ) == attachmentId ) {
+				if ( $( imageEl ).data( 'attachment-id' ) === parseInt( attachmentId, 10 ) ) {
 					selectedThumbnail = { index: imageIndex, gallery: galleryEl };
 					return false;
 				}
