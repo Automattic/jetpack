@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 	public function test_body_class_contains_network_admin() {
 		$jpms = Jetpack_Network::init();
 
-		$classes = $jpms->body_class( array() );
+		$classes = $jpms->body_class( '' );
 
 		//$this->assertTrue( in_array( 'network-admin', $classes ) );
 		$this->assertInternalType( 'string', $classes );
