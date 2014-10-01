@@ -1,4 +1,4 @@
-/* global module */
+/* global module, require */
 
 
 /* Replace relative paths with new paths */
@@ -15,8 +15,8 @@ function transformRelativePath( relPath, filepath ) {
 
 	// The concat file is in jetpack/css/jetpack.css, so to get to the root we
 	// have to go back one dir
-	var relPieces = relPath.split( '/' );
-	var filePieces = filepath.split( '/' );
+	var relPieces = relPath.split( '/' ),
+		filePieces = filepath.split( '/' );
 
 	filePieces.pop(); // Pop the css file name
 
@@ -49,7 +49,7 @@ var admincss = [
 	'modules/sharedaddy/admin-sharing',
 	'modules/videopress/videopress-admin',
 	'modules/widget-visibility/widget-conditions/widget-conditions',
-	'modules/widgets/gallery/css/admin',
+	'modules/widgets/gallery/css/admin'
 ];
 
 /* Front-end CSS to be concatenated */
@@ -68,7 +68,7 @@ var frontendcss = [
 	'modules/widgets/wordpress-post-widget/style.css',
 	'modules/widgets/gravatar-profile.css',
 	'modules/widgets/widget-grid-and-list.css',
-	'modules/widgets/widgets.css', // TODO Moved to image-widget/style.css
+	'modules/widgets/widgets.css' // TODO Moved to image-widget/style.css
 ];
 
 module.exports = function(grunt) {
@@ -131,8 +131,8 @@ module.exports = function(grunt) {
 					'!css/*-rtl.min.css',
 					'!css/*-rtl*.css',
 					'!css/jetpack.css',
-					'!css/jetpack-rtl.css',
-				],
+					'!css/jetpack-rtl.css'
+				]
 			},
 			frontEndModules: {
 				options: {
@@ -164,8 +164,8 @@ module.exports = function(grunt) {
 						'ie 9'
 					]
 				},
-				src: admincss.map( function( file ) { return file + '.min.css'; } ),
-			},
+				src: admincss.map( function( file ) { return file + '.min.css'; } )
+			}
 		},
 		concat: {
 			options: {
@@ -178,7 +178,7 @@ module.exports = function(grunt) {
 			},
 			frontEndModules: {
 				src: frontendcss.map( function( file ) { return file; } ),
-				dest: "css/jetpack.css"
+				dest: 'css/jetpack.css'
 			}
 		},
 		cssmin: {
@@ -193,15 +193,14 @@ module.exports = function(grunt) {
 				src: [
 					'css/jetpack.css'
 				],
-				dest: "css/jetpack.css"
+				dest: 'css/jetpack.css'
 			},
 			adminModules: {
-				options: {
-				},
+				options: {},
 				expand: true,
 				ext: '.min.css',
-				src: admincss.map( function( file ) { return file + '.css'; } ),
-			},
+				src: admincss.map( function( file ) { return file + '.css'; } )
+			}
 		},
 		cssjanus: {
 			core: {
@@ -214,7 +213,7 @@ module.exports = function(grunt) {
 					'css/*.css',
 					'!css/*-rtl*.css',
 					'!css/jetpack.css',
-					'!css/jetpack-rtl.css',
+					'!css/jetpack-rtl.css'
 				]
 			},
 			coreMin: {
@@ -227,7 +226,7 @@ module.exports = function(grunt) {
 					'css/*.min.css',
 					'!css/*-rtl*.css',
 					'!css/jetpack.css',
-					'!css/jetpack-rtl.css',
+					'!css/jetpack-rtl.css'
 				]
 			},
 			frontEndModules: {
@@ -247,14 +246,15 @@ module.exports = function(grunt) {
 				},
 				expand: true,
 				ext: '-rtl.min.css',
-				src: admincss.map( function( file ) { return file + '.min.css'; } ),			},
+				src: admincss.map( function( file ) { return file + '.min.css'; } )
+			},
 			adminModulesExpanded: {
 				options: {
 					swapLtrRtlInUrl: false
 				},
 				expand: true,
 				ext: '-rtl.css',
-				src: admincss.map( function( file ) { return file + '.css'; } ),
+				src: admincss.map( function( file ) { return file + '.css'; } )
 			}
 		},
 		jshint: {
@@ -268,7 +268,7 @@ module.exports = function(grunt) {
 		sass: {
 			expanded: {
 				options: {
-					style: 'expanded',
+					style:  'expanded',
 					banner: '/*!\n'+
 							'* Do not modify this file directly.  It is compiled Sass code.\n'+
 							'* @see: jetpack/_inc/jetpack.scss\n'+
@@ -276,23 +276,27 @@ module.exports = function(grunt) {
 				},
 				files: [{
 					expand: true,
-					cwd: 'scss',
-					src: ['*.scss'],
-					dest: 'css',
-					ext: '.css'
+					cwd:    'scss',
+					src: [
+						'*.scss'
+					],
+					dest:   'css',
+					ext:    '.css'
 				}]
 			},
 			minified: {
 				options: {
-					style: 'compressed',
+					style:     'compressed',
 					sourcemap: true
 				},
 				files: [{
 					expand: true,
-					cwd: 'scss',
-					src: ['*.scss'],
-					dest: 'css',
-					ext: '.min.css'
+					cwd:    'scss',
+					src: [
+						'*.scss'
+					],
+					dest:   'css',
+					ext:    '.min.css'
 				}]
 			}
 		},
@@ -307,7 +311,7 @@ module.exports = function(grunt) {
 					'autoprefixer:core',
 					'cssjanus:core',
 					'notify:watch_sass',
-					'cssjanus:coreMin',
+					'cssjanus:coreMin'
 				],
 				options: {
 					spawn: false
@@ -315,7 +319,7 @@ module.exports = function(grunt) {
 			},
 			css: { // concatenates modules CSS into css/jetpack.css
 				files: [
-					'modules/**/*.css',
+					'modules/**/*.css'
 				],
 				tasks: [
 					// Front-end module css (jetpack.css)
@@ -328,7 +332,7 @@ module.exports = function(grunt) {
 					'cssmin:adminModules',
 					'autoprefixer:adminModules',
 					'cssjanus:adminModules',
-					'cssjanus:adminModulesExpanded',
+					'cssjanus:adminModulesExpanded'
 				],
 				options: {
 					spawn: false
@@ -358,7 +362,9 @@ module.exports = function(grunt) {
 					'modules/*.js',
 					'modules/**/*.js'
 				],
-				tasks: ['jshint'],
+				tasks: [
+					'jshint'
+				],
 				options: {
 					spawn: false
 				}
@@ -373,7 +379,7 @@ module.exports = function(grunt) {
 						'tests',
 						'tools'
 					],
-					mainFile: 'jetpack.php',
+					mainFile:    'jetpack.php',
 					potFilename: 'jetpack.pot'
 				}
 			}
@@ -381,7 +387,7 @@ module.exports = function(grunt) {
 		addtextdomain: {
 			jetpack: {
 				options: {
-					textdomain: 'jetpack',
+					textdomain: 'jetpack'
 				},
 				files: {
 					src: [
@@ -438,6 +444,6 @@ module.exports = function(grunt) {
 		// Precommit stuff
 		'shell',
 		'phplint',
-		'jshint',
+		'jshint'
 	]);
 };
