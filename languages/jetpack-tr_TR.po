@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-08-03 20:00:08+0000\n"
+"PO-Revision-Date: 2014-08-06 09:35:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -96,7 +96,7 @@ msgstr "Popüler Proje Etiketleri"
 
 #: modules/custom-post-types/portfolios.php:343
 msgid "Add New Project Tag"
-msgstr ""
+msgstr "Yeni Proje Etiketi Ekle"
 
 #: modules/custom-post-types/portfolios.php:344
 msgid "New Project Tag Name"
@@ -125,7 +125,7 @@ msgstr "Proje Tiplerini Ara"
 #: modules/custom-post-types/portfolios.php:336
 #: modules/custom-post-types/portfolios.php:338
 msgid "Project Tags"
-msgstr ""
+msgstr "Proje Etiketleri"
 
 #: modules/custom-post-types/portfolios.php:337
 msgid "Project Tag"
@@ -186,7 +186,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:278
 msgid "New Project"
-msgstr ""
+msgstr "Yeni Proje"
 
 #: modules/custom-post-types/portfolios.php:279
 msgid "View Project"
@@ -198,7 +198,7 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:277
 msgid "Edit Project"
-msgstr ""
+msgstr "Projeyi Düzenle"
 
 #: modules/custom-post-types/portfolios.php:274
 msgid "All Projects"
@@ -396,7 +396,7 @@ msgstr ""
 
 #: modules/minileven/theme/pub/minileven/footer.php:24
 msgid "View Full Site"
-msgstr ""
+msgstr "Tam Siteyi Görüntüle"
 
 #: modules/after-the-deadline/config-options.php:89
 msgid "The proofreader supports English, French, German, Portuguese, and Spanish. Your user interface language (see above) is the default proofreading language."
@@ -559,7 +559,7 @@ msgid "Write posts or pages in plain-text Markdown syntax."
 msgstr ""
 
 msgid "Optimize your site with a mobile-friendly theme for tablets and phones."
-msgstr ""
+msgstr "Sitenizi tablet ve telefonlar için hazırlanmış mobil bir tema ile her platforma uyumlu hale getirin."
 
 msgid "Receive notifications from Jetpack if your site goes offline — and when it it returns."
 msgstr ""
@@ -851,7 +851,7 @@ msgstr ""
 
 #: modules/contact-form/grunion-form-view.php:144
 msgid "Yep. You can enter multiple email addresses in the Email address field, and separate them with commas. A notification email will then be sent to each email address."
-msgstr ""
+msgstr "Evet. E-posta adresi alanına birden fazla e-posta adresi girebilirsiniz ancak virgüllerle ayırmalısınız. Bir bildirim e-postası her e-posta adresine gönderilecektir."
 
 #: modules/custom-post-types/nova.php:134
 msgid "For example, spicy, favorite, etc. <br /> Separate Labels with commas"
@@ -859,7 +859,7 @@ msgstr ""
 
 #: modules/custom-post-types/nova.php:145
 msgid "Menu Sections"
-msgstr ""
+msgstr "Menü Bölümleri"
 
 #: modules/custom-post-types/nova.php:146
 msgid "Menu Section"
@@ -1786,7 +1786,7 @@ msgstr "Kullanılabilir olduğunda karusel içinde fotoğrafın konum haritasın
 
 #: modules/gplus-authorship.php:137
 msgid "on Google+"
-msgstr ""
+msgstr "Google+ 'da"
 
 #: modules/omnisearch/omnisearch-core.php:99
 msgid "Jump to:"
@@ -2715,7 +2715,7 @@ msgstr " \tBu yazı şifre korumalıdır. Yorumları görmek için şifreyi giri
 
 #: modules/publicize/publicize.php:373
 msgid "This connection is working correctly."
-msgstr ""
+msgstr "Bu bağlantı doğru şekilde çalışıyor."
 
 #: modules/videopress/videopress.php:342
 msgid "Please enable JavaScript support in your browser to use VideoPress."
@@ -2922,7 +2922,7 @@ msgstr "Bu blogun tüm kullanıcıları için bu bağlantı kullanılabilir olsu
 
 #: modules/videopress/videopress.php:638
 msgid "Display share menu and allow viewers to embed or download this video"
-msgstr ""
+msgstr "Paylaş menüsünü göster ve izleyicilerin bu videoyu gömmesine ve indirmesine izin ver."
 
 #: class.jetpack.php:1253
 msgctxt "Module Tag"
@@ -4043,7 +4043,7 @@ msgstr "LinkedIn"
 
 #: modules/widgets/gallery/templates/form.php:58
 msgid "Random Order:"
-msgstr ""
+msgstr "Rastgele Sıralama:"
 
 #: class.jetpack.php:2603
 msgid "<strong>%s Activated!</strong> You can deactivate at any time by clicking Learn More and then Deactivate on the module card."
@@ -6067,7 +6067,7 @@ msgstr "İstatistikler"
 
 #: modules/widgets/wordpress-post-widget.php:25
 msgid "Display WordPress Posts"
-msgstr ""
+msgstr "WordPress Yazılarını Göster"
 
 #: modules/after-the-deadline.php:204
 msgid "No suggestions"

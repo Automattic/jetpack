@@ -19,10 +19,6 @@ input.omnisearch {
 	width: 100%;
 }
 
-.pre-mp6 input.omnisearch {
-	line-height: 1.25;
-}
-
 input.omnisearch::-webkit-search-cancel-button {
 	display: none;
 }
@@ -38,10 +34,6 @@ button.omnisearch-submit {
 	position: absolute;
 	right: 0;
 	bottom: 0;
-}
-
-.pre-mp6 button.omnisearch-submit {
-	padding: 0.25em 0.5em 0;
 }
 
 button.omnisearch-submit::before {
@@ -90,7 +82,7 @@ button.omnisearch-submit span {
 }
 
 .omnisearch-results {
-	
+
 }
 
 .omnisearch-results > li {
@@ -136,4 +128,3 @@ button.omnisearch-submit span {
 .omnisearch-results .tablenav.top {
 	margin: 5px 0;
 }
-

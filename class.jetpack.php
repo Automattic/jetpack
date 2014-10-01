@@ -133,7 +133,7 @@ class Jetpack {
 	/**
 	 * Plugins for which we turn off our Facebook OG Tags implementation.
 	 *
-	 * Note: All in One SEO Pack and All in One SEO Pack Pro automatically deactivate
+	 * Note: WordPress SEO by Yoast, WordPress SEO Premium by Yoast, All in One SEO Pack and All in One SEO Pack Pro automatically deactivate
 	 * Jetpack's Open Graph tags via filter when their Social Meta modules are active.
 	 *
 	 * Plugin authors: If you'd like to prevent Jetpack's Open Graph tag generation in your plugin, you can do so via this filter:
@@ -150,6 +150,8 @@ class Jetpack {
 		'facebook-featured-image-and-open-graph-meta-tags/fb-featured-image.php',
 		                                                         // Facebook Featured Image & OG Meta Tags
 		'facebook-meta-tags/facebook-metatags.php',              // Facebook Meta Tags
+		'wonderm00ns-simple-facebook-open-graph-tags/wonderm00n-open-graph.php',
+		                                                         // Facebook Open Graph Meta Tags for WordPress
 		'facebook-revised-open-graph-meta-tag/index.php',        // Facebook Revised Open Graph Meta Tag
 		'facebook-thumb-fixer/_facebook-thumb-fixer.php',        // Facebook Thumb Fixer
 		'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',
@@ -174,8 +176,6 @@ class Jetpack {
 		'only-tweet-like-share-and-google-1/tweet-like-plusone.php',
 		                                                         // Tweet, Like, Google +1 and Share
 		'wordbooker/wordbooker.php',                             // Wordbooker
-		'wordpress-seo/wp-seo.php',                              // WordPress SEO by Yoast
-		'wordpress-seo-premium/wp-seo-premium.php',              // WordPress SEO Premium by Yoast
 		'wpsso/wpsso.php',                                       // WordPress Social Sharing Optimization
 		'wp-caregiver/wp-caregiver.php',                         // WP Caregiver
 		'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',
@@ -427,12 +427,24 @@ class Jetpack {
 		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ),     999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
-		add_filter( 'plugins_url', array( 'Jetpack', 'maybe_min_asset' ), 1, 3 );
+		add_filter( 'plugins_url',      array( 'Jetpack', 'maybe_min_asset' ),     1, 3 );
+		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 
 		add_filter( 'jetpack_get_default_modules', array( $this, 'filter_default_modules' ) );
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
+
+		/**
+		 * This is the hack to concatinate all css files into one.
+		 * For description and reasoning see the implode_frontend_css method
+		 *
+		 * Super late priority so we catch all the registered styles
+		 */
+		if( !is_admin() ) {
+			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
+			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
+		}
 	}
 
 	/**
@@ -527,7 +539,8 @@ class Jetpack {
 	 * Load language files
 	 */
 	public static function plugin_textdomain() {
-		load_plugin_textdomain( 'jetpack', false, dirname( plugin_basename( __FILE__ ) ) . '/languages/' );
+		// Note to self, the third argument must not be hardcoded, to account for relocated folders.
+		load_plugin_textdomain( 'jetpack', false, dirname( plugin_basename( JETPACK__PLUGIN_FILE ) ) . '/languages/' );
 	}
 
 	/**
@@ -538,14 +551,17 @@ class Jetpack {
 	 * @return null
 	 */
 	public function register_assets() {
-		if ( ! wp_script_is( 'spin', 'registered' ) )
-			wp_register_script( 'spin', plugins_url( '_inc/spin.js', __FILE__ ), false, '1.3' );
+		if ( ! wp_script_is( 'spin', 'registered' ) ) {
+			wp_register_script( 'spin', plugins_url( '_inc/spin.js', JETPACK__PLUGIN_FILE ), false, '1.3' );
+		}
 
-		if ( ! wp_script_is( 'jquery.spin', 'registered' ) )
-			wp_register_script( 'jquery.spin', plugins_url( '_inc/jquery.spin.js', __FILE__ ) , array( 'jquery', 'spin' ), '1.3' );
+		if ( ! wp_script_is( 'jquery.spin', 'registered' ) ) {
+			wp_register_script( 'jquery.spin', plugins_url( '_inc/jquery.spin.js', JETPACK__PLUGIN_FILE ) , array( 'jquery', 'spin' ), '1.3' );
+		}
 
-		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) )
-			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/gallery-settings.js', __FILE__ ), array( 'media-views' ), '20121225' );
+		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) ) {
+			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/gallery-settings.js', JETPACK__PLUGIN_FILE ), array( 'media-views' ), '20121225' );
+		}
 
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
@@ -556,7 +572,7 @@ class Jetpack {
 		jetpack_register_genericons();
 
 		if ( ! wp_style_is( 'jetpack-icons', 'registered' ) )
-			wp_register_style( 'jetpack-icons', plugins_url( '_inc/jetpack-icons.min.css', __FILE__ ), false, JETPACK__VERSION );
+			wp_register_style( 'jetpack-icons', plugins_url( 'css/jetpack-icons.min.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
 	}
 
 	/**
@@ -599,7 +615,6 @@ class Jetpack {
 		elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
 			$development_mode = true;
 		}
-
 		return apply_filters( 'jetpack_development_mode', $development_mode );
 	}
 
@@ -693,12 +708,9 @@ class Jetpack {
 	 * Loads the currently active modules.
 	 */
 	public static function load_modules() {
-
-		/*
-		if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+		if( !self::is_active() && !self::is_development_mode() ) {
 			return;
 		}
-		*/
 
 		$version = Jetpack_Options::get_option( 'version' );
 		if ( ! $version ) {
@@ -730,9 +742,11 @@ class Jetpack {
 			$modules = array_diff( $modules, $updated_modules );
 		}
 
+		$is_development_mode = Jetpack::is_development_mode();
+
 		foreach ( $modules as $module ) {
 			// If we're in dev mode, disable modules requiring a connection
-			if ( Jetpack::is_development_mode() ) {
+			if ( $is_development_mode ) {
 				// Prime the pump if we need to
 				if ( empty( $modules_data[ $module ] ) ) {
 					$modules_data[ $module ] = Jetpack::get_module( $module );
@@ -956,6 +970,10 @@ class Jetpack {
 	 * @return array Array of absolute paths to the PHP files.
 	 */
 	public static function glob_php( $absolute_path ) {
+		if ( function_exists( 'glob' ) ) {
+			return glob( "$absolute_path/*.php" );
+		}
+
 		$absolute_path = untrailingslashit( $absolute_path );
 		$files = array();
 		if ( ! $dir = @opendir( $absolute_path ) ) {
@@ -1045,16 +1063,26 @@ class Jetpack {
 		static $modules = null;
 
 		if ( ! isset( $modules ) ) {
-			$files = Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules' );
+			$available_modules_option = Jetpack_Options::get_option( 'available_modules', array() );
+			// Use the cache if we're on the front-end and it's available...
+			if ( ! is_admin() && ! empty( $available_modules_option[ JETPACK__VERSION ] ) ) {
+				$modules = $available_modules_option[ JETPACK__VERSION ];
+			} else {
+				$files = Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules' );
 
-			$modules = array();
+				$modules = array();
 
-			foreach ( $files as $file ) {
-				if ( ! $headers = Jetpack::get_module( $file ) ) {
-					continue;
+				foreach ( $files as $file ) {
+					if ( ! $headers = Jetpack::get_module( $file ) ) {
+						continue;
+					}
+
+					$modules[ Jetpack::get_module_slug( $file ) ] = $headers['introduced'];
 				}
 
-				$modules[ Jetpack::get_module_slug( $file ) ] = $headers['introduced'];
+				Jetpack_Options::update_option( 'available_modules', array(
+					JETPACK__VERSION => $modules,
+				) );
 			}
 		}
 
@@ -1219,12 +1247,11 @@ class Jetpack {
 		);
 
 		$file = Jetpack::get_module_path( Jetpack::get_module_slug( $module ) );
-		if ( ! file_exists( $file ) )
-			return false;
 
-		$mod = get_file_data( $file, $headers );
-		if ( empty( $mod['name'] ) )
+		$mod = Jetpack::get_file_data( $file, $headers );
+		if ( empty( $mod['name'] ) ) {
 			return false;
+		}
 
 		$mod['name']                = translate( $mod['name'], 'jetpack' );
 		$mod['description']         = translate( $mod['description'], 'jetpack' );
@@ -1248,6 +1275,29 @@ class Jetpack {
 		}
 
 		return $mod;
+	}
+
+	/**
+	 * Like core's get_file_data implementation, but caches the result.
+	 */
+	public static function get_file_data( $file, $headers ) {
+		$file_data_option = Jetpack_Options::get_option( 'file_data', array() );
+		$key              = md5( $file . serialize( $headers ) );
+		$refresh_cache    = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 );
+
+		// If we don't need to refresh the cache, and already have the value, short-circuit!
+		if ( ! $refresh_cache && isset( $file_data_option[ JETPACK__VERSION ][ $key ] ) ) {
+			return $file_data_option[ JETPACK__VERSION ][ $key ];
+		}
+
+		$data = get_file_data( $file, $headers );
+
+		// Strip out any old Jetpack versions that are cluttering the option.
+		$file_data_option = array_intersect_key( $file_data_option, array( JETPACK__VERSION => null ) );
+		$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
+		Jetpack_Options::update_option( 'file_data', $file_data_option );
+
+		return $data;
 	}
 
 	public static function translate_module_tag( $untranslated_tag ) {
@@ -1365,13 +1415,16 @@ class Jetpack {
 		// Check each module for fatal errors, a la wp-admin/plugins.php::activate before activating
 		Jetpack::restate();
 		Jetpack::catch_errors( true );
+
+		$active = Jetpack::get_active_modules();
+
 		foreach ( $modules as $module ) {
 			if ( did_action( "jetpack_module_loaded_$module" ) ) {
 				$active[] = $module;
 				Jetpack_Options::update_option( 'active_modules', array_unique( $active ) );
 				continue;
 			}
-			$active = Jetpack::get_active_modules();
+
 			if ( in_array( $module, $active ) ) {
 				$module_info = Jetpack::get_module( $module );
 				if ( ! $module_info['deactivate'] ) {
@@ -1784,12 +1837,6 @@ p {
 
 		$classes[] = self::is_active() ? 'jetpack-connected' : 'jetpack-disconnected';
 
-		// Handle pre-mp6 styling by adding a 'pre-mp6' body class.
-		include( ABSPATH . WPINC . '/version.php' );
-		if ( version_compare( $wp_version, '3.8-alpha', '<' ) ) {
-			$classes[] = 'pre-mp6';
-		}
-
 		return implode( ' ', array_unique( $classes ) );
 	}
 
@@ -2094,26 +2141,17 @@ p {
 			do_action( 'jetpack_module_configuration_head_' . $_GET['configure'] );
 	}
 
-	function admin_styles() {
-		global $wp_styles;
-
-		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-
-		wp_enqueue_style( 'jetpack', plugins_url( "_inc/jetpack{$min}.css", __FILE__ ), false, JETPACK__VERSION . '-20121016' );
-		$wp_styles->add_data( 'jetpack', 'rtl', true );
-	}
-
 	function admin_banner_styles() {
 		global $wp_styles;
 
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 
-		wp_enqueue_style( 'jetpack', plugins_url( "_inc/jetpack-banners{$min}.css", __FILE__ ), false, JETPACK__VERSION . '-20121016' );
+		wp_enqueue_style( 'jetpack', plugins_url( "css/jetpack-banners{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-20121016' );
 		$wp_styles->add_data( 'jetpack', 'rtl', true );
 	}
 
 	function admin_scripts() {
-		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', __FILE__ ), array( 'jquery', 'wp-util' ), JETPACK__VERSION . '-20121111' );
+		wp_enqueue_script( 'jetpack-js', plugins_url( '_inc/jp.js', JETPACK__PLUGIN_FILE ), array( 'jquery', 'wp-util' ), JETPACK__VERSION . '-20121111' );
 		wp_localize_script(
 			'jetpack-js',
 			'jetpackL10n',
@@ -2127,11 +2165,18 @@ p {
 	}
 
 	function plugin_action_links( $actions ) {
-		return array_merge(
-			array( 'settings' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack_modules' ), __( 'Settings', 'jetpack' ) ) ),
-			$actions
-		);
-		return $actions;
+
+		$jetpack_home = array( 'jetpack-home' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack' ), __( 'Jetpack', 'jetpack' ) ) );
+
+		if( current_user_can( 'jetpack_manage_modules' ) && ( Jetpack::is_active() || Jetpack::is_development_mode() ) ) {
+			return array_merge(
+				$jetpack_home,
+				array( 'settings' => sprintf( '<a href="%s">%s</a>', Jetpack::admin_url( 'page=jetpack_modules' ), __( 'Settings', 'jetpack' ) ) ),
+				$actions
+				);
+			}
+
+		return array_merge( $jetpack_home, $actions );
 	}
 
 	function admin_connect_notice() {
@@ -2694,6 +2739,7 @@ p {
 			$module_names = $module_slugs = array();
 
 			$privacy_checks = explode( ',', $this->privacy_checks );
+			$privacy_checks = array_filter( $privacy_checks, array( 'Jetpack', 'is_module' ) );
 			foreach ( $privacy_checks as $module_slug ) {
 				$module = Jetpack::get_module( $module_slug );
 				if ( ! $module ) {
@@ -3115,7 +3161,7 @@ p {
 			</div>
 
 			<div id="jetpack-configuration" style="display:none;">
-				<p><img width="16" src="<?php echo esc_url( plugins_url( '_inc/images/wpspin_light-2x.gif', __FILE__ ) ); ?>" alt="Loading ..." /></p>
+				<p><img width="16" src="<?php echo esc_url( plugins_url( 'images/wpspin_light-2x.gif', JETPACK__PLUGIN_FILE) ); ?>" alt="Loading ..." /></p>
 			</div>
 		</div>
 	<?php
@@ -3397,7 +3443,7 @@ p {
 			case 'ALWAYS' :
 				return $url;
 			case 'NEVER' :
-				return self::force_url_to_non_ssl( $url );
+				return set_url_scheme( $url, 'http' );
 			// default : case 'AUTO' :
 		}
 
@@ -3407,7 +3453,7 @@ p {
 		}
 
 		// Boo! Your host is bad and makes Jetpack cry!
-		return self::force_url_to_non_ssl( $url );
+		return set_url_scheme( $url, 'http' );
 	}
 
 	/**
@@ -3445,13 +3491,6 @@ p {
 		}
 
 		return (bool) $ssl;
-	}
-
-	/**
-	 * Take any URL, and if it starts with https:// change it to http://
-	 */
-	public static function force_url_to_non_ssl( $url ) {
-		return preg_replace( '#^https://#i', 'http://', $url );
 	}
 
 	/*
@@ -4249,7 +4288,7 @@ p {
 	 *
 	 * @return array An associative array of the option values as stored in the WordPress.com Mirror Site
 	 */
-	public static function get_cloud_site_options( $option_names ) {
+	public function get_cloud_site_options( $option_names ) {
 		$option_names = array_filter( (array) $option_names, 'is_string' );
 
 		Jetpack::load_xml_rpc_client();
@@ -4289,13 +4328,32 @@ p {
 
 		if ( $force_recheck || false === ( $errors = get_transient( 'jetpack_has_identity_crisis' ) ) ) {
 			$options_to_check = self::identity_crisis_options_to_check();
-			$cloud_options = self::get_cloud_site_options( $options_to_check );
+			$cloud_options = Jetpack::init()->get_cloud_site_options( $options_to_check );
 			$errors        = array();
 			foreach ( $cloud_options as $cloud_key => $cloud_value ) {
 				// If it's not the same as the local value...
 				if ( $cloud_value !== get_option( $cloud_key ) ) {
 					// And it's not been added to the whitelist...
 					if ( ! self::is_identity_crisis_value_whitelisted( $cloud_key, $cloud_value ) ) {
+						/*
+						 * This should be a temporary hack until a cleaner solution is found.
+						 *
+						 * The siteurl and home can be set to use http in General > Settings
+						 * however some constants can be defined that can force https in wp-admin
+						 * when this happens wpcom can confuse wporg with a fake identity
+						 * crisis with a mismatch of http vs https when it should be allowed.
+						 * we need to check that here.
+						 *
+						 * @see https://github.com/Automattic/jetpack/issues/1006
+						 */
+						if( ( 'home' == $cloud_key || 'siteurl' == $cloud_key )
+							&& ( substr( $cloud_value, 0, 8 ) == "https://" )
+							&& Jetpack::init()->is_ssl_required_to_visit_site() ) {
+							// Ok, we found a mismatch of http and https because of wp-config, not an invalid url
+							continue;
+						}
+
+
 						// Then kick an error!
 						$errors[ $cloud_key ] = $cloud_value;
 					}
@@ -4379,7 +4437,7 @@ p {
 	 */
 	public static function maybe_min_asset( $url, $path, $plugin ) {
 		// Short out on things trying to find actual paths.
-		if ( ! $path ) {
+		if ( ! $path || empty( $plugin ) ) {
 			return $url;
 		}
 
@@ -4411,6 +4469,68 @@ p {
 		}
 
 		return $url;
+	}
+
+	/**
+	 * Maybe inlines a stylesheet.
+	 *
+	 * If you'd like to inline a stylesheet instead of printing a link to it,
+	 * wp_style_add_data( 'handle', 'jetpack-inline', true );
+	 *
+	 * Attached to `style_loader_tag` filter.
+	 *
+	 * @param string $tag    The tag that would link to the external asset.
+	 * @param string $handle The registered handle of the script in question.
+	 */
+	public static function maybe_inline_style( $tag, $handle ) {
+		global $wp_styles;
+		$item = $wp_styles->registered[ $handle ];
+
+		if ( ! isset( $item->extra['jetpack-inline'] ) || ! $item->extra['jetpack-inline'] ) {
+			return $tag;
+		}
+
+		if ( preg_match( '# href=\'([^\']+)\' #i', $tag, $matches ) ) {
+			$href = $matches[1];
+			// Strip off query string
+			if ( $pos = strpos( $href, '?' ) ) {
+				$href = substr( $href, 0, $pos );
+			}
+			// Strip off fragment
+			if ( $pos = strpos( $href, '#' ) ) {
+				$href = substr( $href, 0, $pos );
+			}
+		} else {
+			return $tag;
+		}
+
+		$plugins_dir = plugin_dir_url( JETPACK__PLUGIN_FILE );
+		if ( $plugins_dir !== substr( $href, 0, strlen( $plugins_dir ) ) ) {
+			return $tag;
+		}
+
+		// If this stylesheet has a RTL version, and the RTL version replaces normal...
+		if ( isset( $item->extra['rtl'] ) && 'replace' === $item->extra['rtl'] && is_rtl() ) {
+			// And this isn't the pass that actually deals with the RTL version...
+			if ( false === strpos( $tag, " id='$handle-rtl-css' " ) ) {
+				// Short out, as the RTL version will deal with it in a moment.
+				return $tag;
+			}
+		}
+
+		$file = JETPACK__PLUGIN_DIR . substr( $href, strlen( $plugins_dir ) );
+		$css  = Jetpack::absolutize_css_urls( file_get_contents( $file ), $href );
+		if ( $css ) {
+			$tag = "<!-- Inline {$item->handle} -->\r\n";
+			if ( empty( $item->extra['after'] ) ) {
+				wp_add_inline_style( $handle, $css );
+			} else {
+				array_unshift( $item->extra['after'], $css );
+				wp_style_add_data( $handle, 'after', $item->extra['after'] );
+			}
+		}
+
+		return $tag;
 	}
 
 	/**
@@ -4475,6 +4595,169 @@ p {
 					}
 				}
 			}
+		}
+	}
+
+	/**
+	 * Converts any url in a stylesheet, to the correct absolute url.
+	 *
+	 * Considerations:
+	 *  - Normal, relative URLs     `feh.png`
+	 *  - Data URLs                 `data:image/gif;base64,eh129ehiuehjdhsa==`
+	 *  - Schema-agnostic URLs      `//domain.com/feh.png`
+	 *  - Absolute URLs             `http://domain.com/feh.png`
+	 *  - Domain root relative URLs `/feh.png`
+	 *
+	 * @param $css string: The raw CSS -- should be read in directly from the file.
+	 * @param $css_file_url: The URL that the file can be accessed at, for calculating paths from.
+	 */
+	public static function absolutize_css_urls( $css, $css_file_url ) {
+		$pattern = '#url\((?P<path>[^)]*)\)#i';
+		$css_dir = dirname( $css_file_url );
+		$p       = parse_url( $css_dir );
+		$domain  = sprintf(
+					'%1$s//%2$s%3$s%4$s',
+					isset( $p['scheme'] )           ? "{$p['scheme']}:" : '',
+					isset( $p['user'], $p['pass'] ) ? "{$p['user']}:{$p['pass']}@" : '',
+					$p['host'],
+					isset( $p['port'] )             ? ":{$p['port']}" : ''
+				);
+
+		if ( preg_match_all( $pattern, $css, $matches, PREG_SET_ORDER ) ) {
+			$find = $replace = array();
+			foreach ( $matches as $match ) {
+				$url = trim( $match['path'], "'\" \t" );
+
+				// If this is a data url, we don't want to mess with it.
+				if ( 'data:' === substr( $url, 0, 5 ) ) {
+					continue;
+				}
+
+				// If this is an absolute or protocol-agnostic url,
+				// we don't want to mess with it.
+				if ( preg_match( '#^(https?:)?//#i', $url ) ) {
+					continue;
+				}
+
+				switch ( substr( $url, 0, 1 ) ) {
+					case '/':
+						$absolute = $domain . $url;
+						break;
+					default:
+						$absolute = $css_dir . '/' . $url;
+				}
+
+				$find[]    = $match[0];
+				$replace[] = sprintf( 'url("%s")', $absolute );
+			}
+			$css = str_replace( $find, $replace, $css );
+		}
+
+		return $css;
+	}
+
+	/**
+	 * This method checks to see if SSL is required by the site in
+	 * order to visit it in some way other than only setting the
+	 * https value in the home or siteurl values.
+	 *
+	 * @since 3.2
+	 * @return boolean
+	 **/
+	private function is_ssl_required_to_visit_site() {
+		$ssl = is_ssl();
+
+		if ( force_ssl_login() ) {
+			$ssl = true;
+		} else if ( force_ssl_admin() ) {
+			$ssl = true;
+		}
+		return $ssl;
+	}
+
+	/**
+	 * This methods removes all of the registered css files on the frontend
+	 * from Jetpack in favor of using a single file. In effect "imploding"
+	 * all the files into one file.
+	 *
+	 * Pros:
+	 * - Uses only ONE css asset connection instead of 15
+	 * - Saves a minimum of 56k
+	 * - Reduces server load
+	 * - Reduces time to first painted byte
+	 *
+	 * Cons:
+	 * - Loads css for ALL modules. However all selectors are prefixed so it
+	 *		should not cause any issues with themes.
+	 * - Plugins/themes dequeuing styles no longer do anything. See
+	 *		jetpack_implode_frontend_css filter for a workaround
+	 *
+	 * For some situations developers may wish to disable css imploding and
+	 * instead operate in legacy mode where each file loads seperately and
+	 * can be edited individually or dequeued. This can be accomplished with
+	 * the following line:
+	 *
+	 * add_filter( 'jetpack_implode_frontend_css', '__return_false' );
+	 *
+	 * @since 3.2
+	 **/
+	public function implode_frontend_css() {
+		global $wp_styles;
+
+		$do_implode = apply_filters( 'jetpack_implode_frontend_css', true );
+
+		// Do not use the imploded file when default behaviour was altered through the filter
+		if ( ! $do_implode ) {
+			return;
+		}
+
+		// We do not want to use the imploded file in dev mode
+		if ( Jetpack::is_development_mode() ) {
+			return;
+		}
+
+		// Do not use the imploded file if sharing css was dequeued via the sharing settings screen
+		if ( get_option( 'sharedaddy_disable_resources' ) ) {
+			return;
+		}
+
+		/*
+		 * Now we assume Jetpack is connected and able to serve the single
+		 * file.
+		 *
+		 * In the future there will be a check here to serve the file locally
+		 * or potentially from the Jetpack CDN
+		 *
+		 * For now:
+		 * - Dequeue ALL of the frontend css files
+		 * - Enqueue a single imploded css file
+		 * - Be happy, drink scotch
+		 */
+		$to_dequeue = array(
+			'jetpack-carousel',
+			'grunion.css',
+			'gplus',
+			'the-neverending-homepage',
+			'jetpack_likes',
+			'jetpack_related-posts',
+			'sharedaddy',
+			'jetpack-slideshow',
+			'presentations',
+			'jetpack-subscriptions',
+			'tiled-gallery',
+			'widget-conditions',
+			'jetpack_display_posts_widget',
+			'gravatar-profile-widget',
+			'widget-grid-and-list',
+			'jetpack-widgets'
+		);
+
+		$wp_styles->remove( $to_dequeue );
+
+		if( is_rtl() ) {
+			wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack-rtl.css', __FILE__ ) );
+		} else {
+			wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack.css', __FILE__ ) );
 		}
 	}
 }

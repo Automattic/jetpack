@@ -1,0 +1,17 @@
+// ==========================================================================
+// Retina background
+// ==========================================================================
+
+@mixin retina-background ($url, $file-type, $width: auto, $repeat: repeat, $ratio: 1.5, $suffix: "@2x") {
+	background: url($url + "." + $file-type);
+	background-repeat: $repeat;
+	// Media queries from http://git.io/k-x0wA
+	@media only screen and (-webkit-min-device-pixel-ratio: $ratio),
+		only screen and (min--moz-device-pixel-ratio: $ratio),
+		only screen and (-o-min-device-pixel-ratio: #{$ratio}/1),
+		only screen and (min-resolution: #{round($ratio*96)}dpi),
+		only screen and (min-resolution: #{$ratio}dppx) {
+		background: url($url + $suffix + "." + $file-type);
+		background-size: $width auto;
+	}
+}

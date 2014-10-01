@@ -17,19 +17,19 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		wp_register_script(
 			'models.jetpack-modules',
-			plugins_url( '_inc/jetpack-modules.models.js', __FILE__ ),
+			plugins_url( '_inc/jetpack-modules.models.js', JETPACK__PLUGIN_FILE ),
 			array( 'backbone', 'underscore' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
 			'views.jetpack-modules',
-			plugins_url( '_inc/jetpack-modules.views.js', __FILE__ ),
+			plugins_url( '_inc/jetpack-modules.views.js', JETPACK__PLUGIN_FILE ),
 			array( 'backbone', 'underscore', 'wp-util' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
 			'jetpack-modules-list-table',
-			plugins_url( '_inc/jetpack-modules.js', __FILE__ ),
+			plugins_url( '_inc/jetpack-modules.js', JETPACK__PLUGIN_FILE ),
 			array(
 				'views.jetpack-modules',
 				'models.jetpack-modules',
@@ -287,4 +287,19 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 				return print_r( $item, true );
 		}
 	}
+
+	/**
+	 * Core switched their `display_tablenav()` method to protected, so we can't access it directly.
+	 * Instead, let's include an access function to make it doable without errors!
+	 *
+	 * @see https://github.com/WordPress/WordPress/commit/d28f6344de97616de8ece543ed290c4ba2383622
+	 *
+	 * @param string $which
+	 *
+	 * @return mixed
+	 */
+	function unprotected_display_tablenav( $which = 'top' ) {
+		return $this->display_tablenav( $which );
+	}
+
 }

@@ -106,7 +106,7 @@ class WPCOM_JSON_API {
 				}
 			} else {
 				$this->post_body = $post_body;
-				$this->content_type = '{' === $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
+				$this->content_type = '{' === isset( $this->post_body[0] ) && $this->post_body[0] ? 'application/json' : 'application/x-www-form-urlencoded';
 			}
 		} else {
 			$this->post_body = null;
@@ -304,8 +304,8 @@ class WPCOM_JSON_API {
 		}
 		$this->did_output = true;
 
-		// 404s are allowed for all origins
-		if ( 404 == $status_code )
+		// 400s and 404s are allowed for all origins
+		if ( 404 == $status_code || 400 == $status_code )
 			header( 'Access-Control-Allow-Origin: *' );
 
 		if ( is_null( $response ) ) {
@@ -402,6 +402,10 @@ class WPCOM_JSON_API {
 
 		$fields = array_map( 'trim', explode( ',', $this->query['fields'] ) );
 
+		if ( is_object( $response ) ) {
+			$response = (array) $response;
+		}
+
 		$has_filtered = false;
 		if ( is_array( $response ) && empty( $response['ID'] ) ) {
 			$keys_to_filter = array(
@@ -424,18 +428,18 @@ class WPCOM_JSON_API {
 			);
 
 			foreach ( $keys_to_filter as $key_to_filter ) {
-				if ( empty( $response[ $key_to_filter ] ) || $has_filtered )
+				if ( ! isset( $response[ $key_to_filter ] ) || $has_filtered )
 					continue;
 
 				foreach ( $response[ $key_to_filter ] as $key => $values ) {
 					if ( is_object( $values ) ) {
 						$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( (array) $values, array_flip( $fields ) );
-						$has_filtered = true;
 					} elseif ( is_array( $values ) ) {
 						$response[ $key_to_filter ][ $key ] = array_intersect_key( $values, array_flip( $fields ) );
-						$has_filtered = true;
 					}
 				}
+
+				$has_filtered = true;
 			}
 		}
 

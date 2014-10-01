@@ -11,7 +11,7 @@ function twitter_timeline_shortcode( $attr ) {
 
 	);
 
-	$attr = shortcode_atts( $default_atts, $attr );
+	$attr = shortcode_atts( $default_atts, $attr, 'twitter-timeline' );
 
 	if ( $attr['username'] != preg_replace( '/[^A-Za-z0-9_]+/', '', $attr['username'] ) )
 		return '<!--' . __( 'Invalid username', 'jetpack' ) . '-->';

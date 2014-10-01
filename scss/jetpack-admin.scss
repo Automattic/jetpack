@@ -1,0 +1,12 @@
+@import "atoms/colors/colors", // Color variables
+	"_utilities/mixins/mixins", // Mixins
+	"atoms/typography/typography",
+	"atoms/media",
+	"atoms/animations",
+	"atoms/buttons",
+	"atoms/icons/automatticons",
+	"atoms/icons/jetpack",
+	"molecules/nav-horizontal",
+	"templates/main", // Main template
+	"templates/settings", // Settings page
+	"_utilities/clearings";

@@ -153,7 +153,7 @@ class Presentations {
 			'rotate'      => '',
 			'fade'        => '',
 			'fadebullets' => '',
-		), $atts );
+		), $atts, 'presentation' );
 
 		$this->presentation_settings = array(
 			'transition'  => 'down',
@@ -266,7 +266,7 @@ class Presentations {
 			'fadebullets'=> '',
 			'bgcolor'    => '',
 			'bgimg'      => '',
-		), $atts );
+		), $atts, 'slide' );
 
 		// Determine positioning based on transition
 		if ( '' == trim( $atts['transition'] ) )

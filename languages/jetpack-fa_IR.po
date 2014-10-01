@@ -2,7 +2,7 @@
 # This file is distributed under the same license as the 3.1 package.
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2014-07-24 18:13:51+0000\n"
+"PO-Revision-Date: 2014-08-07 05:28:12+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -12,11 +12,11 @@ msgstr ""
 
 #: modules/custom-post-types/portfolios.php:168
 msgid "Enable Portfolio Projects for this site."
-msgstr ""
+msgstr "فعال‌سازی پروژه‌های نمونه‌کار برای این وب‌گاه."
 
 #: modules/module-info.php:930
 msgid "To enable the Portfolio content type, head over to <a href=\"%s\">Settings &rarr; Writing &rarr; Your Custom Content Types</a> and make sure that \"Portfolio Projects\" is checked. You can now add projects under the new \"Portfolio\" menu item in your sidebar. After you've added some projects, they'll be visible on your website at http://<strong>yourgroovysite.com</strong>/portfolio/."
-msgstr ""
+msgstr "برای فعال‌سازی نوع محتوای نمونه‌کار، به <a href=\"%s\">تنظیمات &rarr; نوشتن &rarr; نوع محتوای سفارشی شما</a> و مطمئن شوید که «پروژه‌های نمونه‌کار» انتخاب شده است. حال می‌توانید پروژه‌ها را از زیر گزینگان «نمونه‌کار» در نوار کناری‌تان بارگیری کنید. پس از آنکه چند پروژه افزودید، روی وب‌گاهتان در http://<strong>yourgroovysite.com</strong>/portfolio/ نمایان خواهند شد."
 
 #: modules/widgets/readmill.php:30 modules/widgets/readmill.php:68
 msgid "The Send to Readmill widget is no longer working and will be removed completely from Jetpack."

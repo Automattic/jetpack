@@ -12,6 +12,7 @@
 function jetpack_shortcode_get_vimeo_id( $atts ) {
 	if ( isset( $atts[0] ) ) {
 		$atts[0] = trim( $atts[0] , '=' );
+		$id = false;
 		if ( is_numeric( $atts[0] ) )
 			$id = (int) $atts[0];
 		elseif ( preg_match( '|vimeo\.com/(\d+)/?$|i', $atts[0], $match ) )
@@ -33,13 +34,16 @@ function vimeo_shortcode( $atts ) {
 	global $content_width;
 
 	extract( array_map( 'intval', shortcode_atts( array(
-		'id'     => 0,
-		'width'  => 400,
-		'height' => 300
-	), $atts ) ) );
+		'id'       => 0,
+		'width'    => 400,
+		'height'   => 300,
+		'autoplay' => 0,
+		'loop'     => 0,
+	), $atts, 'vimeo' ) ) );
 
-	if ( isset( $atts[0] ) )
+	if ( isset( $atts[0] ) ) {
 		$id = jetpack_shortcode_get_vimeo_id( $atts );
+	}
 
 	if ( ! $id ) return "<!-- vimeo error: not a vimeo video -->";
 
@@ -66,15 +70,28 @@ function vimeo_shortcode( $atts ) {
 		}
 	}
 
-	if ( ! $width )
+	if ( ! $width ) {
 		$width = absint( $content_width );
+	}
 
-	if ( ! $height )
+	if ( ! $height ) {
 		$height = round( ( $width / 640 ) * 360 );
+	}
 
 	$url = esc_url( set_url_scheme( "http://player.vimeo.com/video/$id" ) );
 
-	$html = "<div class='embed-vimeo' style='text-align:center;'><iframe src='$url' width='$width' height='$height' frameborder='0'></iframe></div>";
+	// $args['autoplay'] is parsed from the embedded url.
+	// $autoplay is parsed from shortcode arguments.
+	// in_array( 'autoplay', $atts ) catches the argument passed without a value.
+	if ( ! empty( $args['autoplay'] ) || ! empty( $autoplay ) || in_array( 'autoplay', $atts ) ) {
+		$url = add_query_arg( 'autoplay', 1, $url );
+	}
+
+	if ( ! empty( $args['loop'] ) || ! empty( $loop ) || in_array( 'loop', $atts ) ) {
+		$url = add_query_arg( 'loop', 1, $url );
+	}
+
+	$html = sprintf( '<div class="embed-vimeo" style="text-align:center;"><iframe src="%1$s" width="%2$u" height="%3$u" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div>', esc_url( $url ), $width, $height );
 	$html = apply_filters( 'video_embed_html', $html );
 	return $html;
 }

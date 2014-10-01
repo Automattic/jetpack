@@ -190,7 +190,12 @@
 
 	function initModalEvents() {
 		var $modal = $( '.modal' );
-		$( '.module, .feature a, .configs a' ).on( 'click', function (e) {
+		$( '.module, .feature a, .configs a' ).on( 'click keypress', function (e) {
+			// Only show modal on enter when keypress recorded (accessibility)
+			if ( e.keyCode && 13 !== e.keyCode ) {
+				return;
+			}
+
 			e.preventDefault();
 
 			$( '.shade' ).show();
@@ -237,7 +242,7 @@
 
 			// About page
 			for ( i = 0; i < modules.length; i++ ) {
-				if ( currentVersion.indexOf( modules[i].introduced ) !== -1 ) {
+				if ( currentVersion.indexOf( modules[i].introduced ) === 0 ) {
 					modules[i]['new'] = true;
 				}
 

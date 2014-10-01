@@ -59,7 +59,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 				'urls'         => array(),
 				'accounts'     => array(),
 			) );
-			$gravatar_url = add_query_arg( 's', 200, $profile['thumbnailUrl'] ); // the default grav returned by grofiles is super small
+			$gravatar_url = add_query_arg( 's', 320, $profile['thumbnailUrl'] ); // the default grav returned by grofiles is super small
 
 			wp_enqueue_style(
 				'gravatar-profile-widget',
@@ -92,7 +92,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 			?>
 
-			<h4><a href="<?php echo esc_url( $profile['profileUrl'] ); ?>" class="grofile-full-link"><?php echo esc_html( apply_filters( 'jetpack_gravatar_full_profile_title', __( 'View Full Profile &rarr;', 'jetpack' ) ) ); ?></a></h4>
+			<p><a href="<?php echo esc_url( $profile['profileUrl'] ); ?>" class="grofile-full-link"><?php echo esc_html( apply_filters( 'jetpack_gravatar_full_profile_title', __( 'View Full Profile &rarr;', 'jetpack' ) ) ); ?></a></p>
 
 			<?php
 

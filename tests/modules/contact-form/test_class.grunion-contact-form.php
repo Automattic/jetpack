@@ -6,6 +6,11 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 		define( 'DOING_AJAX', true ); // Defined so that 'exit' is not called in process_submission
+
+		// Remove any relevant filters that might exist before running the tests
+		remove_all_filters( 'grunion_still_email_spam' );
+		remove_all_filters( 'contact_form_is_spam' );
+		remove_all_filters( 'wp_mail' );
 	}
 
 	/**
@@ -49,6 +54,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	public function tearDown() {
 		parent::tearDown();
 
+		// Remove filters after running tests
 		remove_all_filters( 'wp_mail' );
 		remove_all_filters( 'grunion_still_email_spam' );
 		remove_all_filters( 'contact_form_is_spam' );
@@ -470,5 +476,33 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 		);
 
 		$this->assertEquals( 'Chicago', $plugin->replace_tokens_with_input( $subject, $field_values ) );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form::parse_contact_field
+	 */
+	public function test_parse_contact_field_keeps_string_unchaned_when_no_escaping_necesssary() {
+		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+
+		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type='email' required='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required derp herp asd lkj]adsasd[/contact-field]";
+		$html = do_shortcode( $shortcode );
+
+		$this->assertEquals( $shortcode, $html );
+	}
+
+	/**
+	 * @author tonykova
+	 * @covers Grunion_Contact_Form::parse_contact_field
+	 */
+	public function test_parse_contact_field_escapes_things_inside_a_value_and_attribute_and_the_content() {
+		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
+
+		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=''email'' req'uired='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required 'derp' herp asd lkj]adsasd[/contact-field]";
+		$html = do_shortcode( $shortcode );
+
+		// The expected string has some quotes escaped, since we want to make
+		// sure we don't output anything harmful
+		$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required &#039;derp&#039; herp asd lkj]adsasd[/contact-field]", $html );
 	}
 } // end class

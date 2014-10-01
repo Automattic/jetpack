@@ -717,11 +717,15 @@ class Jetpack_Sync {
 		}
 	}
 
+	public function reindex_needed() {
+		return ( $this->_get_post_count_local() != $this->_get_post_count_cloud() );
+	}
+
 	public function reindex_trigger() {
 		$response = array( 'status' => 'ERROR' );
 
 		// Force a privacy check
-		Jetpack::check_privacy( __FILE__ );
+		Jetpack::check_privacy( JETPACK__PLUGIN_FILE );
 
 		Jetpack::load_xml_rpc_client();
 		$client = new Jetpack_IXR_Client( array(
@@ -781,11 +785,15 @@ class Jetpack_Sync {
 				'action' => __( 'Refresh Status', 'jetpack' ),
 				'status' => __( 'Status unknown.', 'jetpack' ),
 			),
+			'ERROR:LARGE' => array(
+				'action' => __( 'Refresh Status', 'jetpack' ),
+				'status' => __( 'This site is too large, please contact Jetpack support to sync.', 'jetpack' ),
+			),
 		) );
 
 		wp_enqueue_script(
 			'jetpack_sync_reindex_control',
-			plugins_url( '_inc/jquery.jetpack-sync.js', __FILE__ ),
+			plugins_url( '_inc/jquery.jetpack-sync.js', JETPACK__PLUGIN_FILE ),
 			array( 'jquery' ),
 			JETPACK__VERSION
 		);
@@ -803,4 +811,40 @@ EOT;
 			esc_attr__( 'Refresh Status', 'jetpack' )
 		);
 	}
+
+	private function _get_post_count_local() {
+		global $wpdb;
+		return (int) $wpdb->get_var(
+			"SELECT count(*)
+				FROM {$wpdb->posts}
+				WHERE post_status = 'publish' AND post_password = ''"
+		);
+	}
+
+	private function _get_post_count_cloud() {
+		$blog_id = Jetpack::init()->get_option( 'id' );
+
+		$body = array(
+			'size' => 1,
+		);
+
+		$response = wp_remote_post(
+			"https://public-api.wordpress.com/rest/v1/sites/$blog_id/search",
+			array(
+				'timeout' => 10,
+				'user-agent' => 'jetpack_related_posts',
+				'sslverify' => true,
+				'body' => $body,
+			)
+		);
+
+		if ( is_wp_error( $response ) ) {
+			return 0;
+		}
+
+		$results = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		return (int) $results['results']['total'];
+	}
+
 }

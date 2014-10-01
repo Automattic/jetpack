@@ -8,7 +8,7 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 	'nameLabel' => esc_attr( _x( 'Name', 'Label for HTML form "Name" field in contact form builder', 'jetpack' ) ),
 	'emailLabel' => esc_attr( _x( 'Email', 'Label for HTML form "Email" field in contact form builder', 'jetpack' ) ),
 	'urlLabel' => esc_attr( _x( 'Website', 'Label for HTML form "URL/Website" field in contact form builder', 'jetpack' ) ),
-	'commentLabel' => esc_attr( _x( 'Comment', 'Label for HTML form "Comment/Response" field in contact form builder', 'jetpack' ) ),
+	'commentLabel' => esc_attr( _x( 'Comment', 'noun', 'jetpack' ) ),
 	'newLabel' => esc_attr( _x( 'New Field', 'Default label for new HTML form field in contact form builder', 'jetpack' ) ),
 	'optionsLabel' => esc_attr( _x( 'Options', 'Label for the set of options to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),
 	'optionsLabel' => esc_attr( _x( 'Option', 'Label for an option to be included in a user-created dropdown in contact form builder', 'jetpack' ) ),

@@ -21,6 +21,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'pending' => 'The post is pending editorial approval.',
 			'future'  => 'The post is scheduled for future publishing.',
 			'trash'   => 'The post is in the trash.',
+			'auto-draft' => 'The post is a placeholder for a new post.',
 		),
 		'sticky'   => '(bool) Is the post sticky?',
 		'password' => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
@@ -181,7 +182,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'title' :
 				if ( 'display' === $context ) {
-					$response[$key] = (string) html_entity_decode( get_the_title( $post->ID ) );
+					$response[$key] = (string) get_the_title( $post->ID );
 				} else {
 					$response[$key] = (string) htmlspecialchars_decode( $post->post_title, ENT_QUOTES );
 				}
@@ -213,7 +214,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = (string) ob_get_clean();
 					remove_filter( 'the_password_form', array( $this, 'the_password_form' ) );
 				} else {
-					$response[$key] = (string) $post->post_excerpt;
+					$response[$key] = htmlspecialchars_decode( (string) $post->post_excerpt, ENT_QUOTES );
 				}
 				break;
 			case 'status' :
@@ -230,6 +231,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'password' :
 				$response[$key] = (string) $post->post_password;
+				if ( 'edit' === $context ) {
+					$response[$key] = htmlspecialchars_decode( (string) $response[$key], ENT_QUOTES );
+				}
 				break;
 			case 'parent' : // (object|false)
 				if ( $post->post_parent ) {
@@ -317,7 +321,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = '';
 				break;
 			case 'post_thumbnail' :
-				$response[$key] = '';
+				$response[$key] = null;
 
 				$thumb_id = get_post_thumbnail_id( $post->ID );
 				if ( ! empty( $thumb_id ) ) {
@@ -389,18 +393,17 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$terms = wp_get_post_tags( $post->ID );
 				foreach ( $terms as $term ) {
 					if ( !empty( $term->name ) ) {
-						$response[$key][$term->name] = $this->get_taxonomy( $term->slug, 'post_tag', $context );
+						$response[$key][$term->name] = $this->format_taxonomy( $term, 'post_tag', $context );
 					}
 				}
 				$response[$key] = (object) $response[$key];
 				break;
 			case 'categories':
 				$response[$key] = array();
-				$terms = wp_get_post_categories( $post->ID );
+				$terms = wp_get_object_terms( $post->ID, 'category', array( 'fields' => 'all' ) );
 				foreach ( $terms as $term ) {
-					$category = $taxonomy = get_term_by( 'id', $term, 'category' );
-					if ( !empty( $category->name ) ) {
-						$response[$key][$category->name] = $this->get_taxonomy( $category->slug, 'category', $context );
+					if ( !empty( $term->name ) ) {
+						$response[$key][$term->name] = $this->format_taxonomy( $term, 'category', $context );
 					}
 				}
 				$response[$key] = (object) $response[$key];
@@ -538,7 +541,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'include'   => '',
 			'exclude'   => '',
 			'slideshow' => false
-		), $attr ) );
+		), $attr, 'gallery' ) );
 
 		// Custom image size and always use it
 		add_image_size( 'win8app-column', 480 );

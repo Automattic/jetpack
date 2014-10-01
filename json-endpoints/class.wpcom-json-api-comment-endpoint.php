@@ -66,6 +66,9 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 			$GLOBALS['post'] = $post;
 			$comment         = get_comment_to_edit( $comment->comment_ID );
+			foreach ( array( 'comment_author', 'comment_author_email', 'comment_author_url' ) as $field ) {
+				$comment->$field = htmlspecialchars_decode( $comment->$field, ENT_QUOTES );
+			}
 			break;
 		case 'display' :
 			if ( 'approved' !== $status ) {

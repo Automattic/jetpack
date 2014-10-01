@@ -1,0 +1,55 @@
+/**
+ * Blavatar Module for Jetpack
+ */
+
+.site-icon-image{
+	margin: 0 20px 0 0;
+	float: left;
+}
+.site-icon-content{
+	padding: 10px;
+	position: relative;
+	overflow: hidden;
+}
+.site-icon-crop-shell {
+	max-width: 720px;
+}
+
+.site-icon-crop-preview-shell {
+	float: right;
+	width: 172px;
+	overflow: hidden;
+}
+.site-icon-crop-preview-shell h3{
+	margin-top: 0;
+}
+.site-icon-crop-favicon-preview-shell{
+	position: relative;
+	margin-bottom: 20px;
+}
+.site-icon-crop-preview-favicon{
+	width:16px;
+	height:16px;
+	overflow:hidden;
+	position: absolute;
+	top:23px;
+	left:102px;
+}
+.site-icon-browser-title{
+	position: absolute;
+	top:23px;
+	left:128px;
+	width:100px;
+	overflow: hidden;
+	height:16px; 
+}
+.site-icon-crop-preview-homeicon {
+	width:64px;
+	height:64px;
+	overflow:hidden;
+	border-radius: 16px;
+}
+.site-icon-title .small{
+	color:#999;
+	font-size: 16px;
+}
