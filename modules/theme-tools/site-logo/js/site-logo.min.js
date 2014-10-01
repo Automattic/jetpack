@@ -1,0 +1,1 @@
+(function(d){var e=wp.customize,c,f,g,a;e("site_logo",function(e){e.bind(function(b){c||(c=d("body"),f=d(".site-logo-link"),g=d(".site-logo"),a=g.attr("data-size"));b&&b.url?(b.sizes[a]||(a="full"),g.attr({height:b.sizes[a].height,width:b.sizes[a].width,src:b.sizes[a].url}),f.show(),c.addClass("has-site-logo")):(f.hide(),c.removeClass("has-site-logo"))})})})(jQuery);

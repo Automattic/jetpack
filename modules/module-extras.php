@@ -12,6 +12,7 @@ $tools = array(
 	'theme-tools/featured-content.php',
 	'theme-tools/infinite-scroll.php',
 	'theme-tools/responsive-videos.php',
+	'theme-tools/site-logo.php',
 	'custom-post-types/comics.php',
 	'custom-post-types/testimonial.php',
 	'custom-post-types/nova.php',
