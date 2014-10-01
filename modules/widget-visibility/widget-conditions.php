@@ -157,6 +157,13 @@ class Jetpack_Widget_Conditions {
 				<?php
 				}
 			break;
+			case 'device':
+				?>
+				<option value="desktop" <?php selected( 'desktop', $minor ); ?>><?php _e( 'Desktop', 'jetpack' ); ?></option>
+				<option value="mobile" <?php selected( 'mobile', $minor ); ?>><?php _e( 'Mobile Phone', 'jetpack' ); ?></option>
+				<option value="tablet" <?php selected( 'tablet', $minor ); ?>><?php _e( 'Tablet', 'jetpack' ); ?></option>
+				<?php
+			break;
 		}
 	}
 
@@ -215,6 +222,7 @@ class Jetpack_Widget_Conditions {
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
 									<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 									<?php endif; ?>
+									<option value="device" <?php selected( "device", $rule['major'] ); ?>><?php echo esc_html_x( 'Device', 'Show/Hide if on certain device"', 'jetpack' ); ?></option>
 								</select>
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
 								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
@@ -464,6 +472,19 @@ class Jetpack_Widget_Conditions {
 						$condition_result = true;
 					else if ( is_singular() && $terms & !is_wp_error( $terms ) )
 						$condition_result = true;
+				break;
+				case 'device':
+					switch ( $rule['minor'] ) {
+						case 'desktop':
+							$condition_result = !wp_is_mobile();
+						break;
+						case 'mobile':
+							$condition_result = jetpack_is_mobile();
+						break;
+						case 'tablet':
+							$condition_result = Jetpack_User_Agent_Info::is_tablet();
+						break;
+					}
 				break;
 			}
 
