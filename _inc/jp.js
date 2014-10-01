@@ -8,7 +8,7 @@
 
 	var originPoint;
 
-	$( document ).ready(function () {	
+	$( document ).ready(function () {
 		initEvents();
 		filterModules( 'introduced' );
 		loadModules();
