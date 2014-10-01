@@ -84,7 +84,11 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) home_url();
 				break;
 			case 'jetpack' :
-				$response[$key] = false; // magic
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					$response[$key] = (bool) is_jetpack_site( $blog_id );
+				} else {
+					$response[$key] = false; // jetpack magic affects this value
+				}
 				break;
 			case 'is_private' :
 				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
