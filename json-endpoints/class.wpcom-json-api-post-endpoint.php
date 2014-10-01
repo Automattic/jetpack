@@ -39,7 +39,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_following'   => '(bool) Is the current user following this blog?',
 		'global_ID'      => '(string) A unique WordPress.com-wide representation of a post.',
 		'featured_image' => '(URL) The URL to the featured image for this post if it has one.',
-		'post_thumbnail' => '(object:attachment) The attachment object for the featured image if it has one.',
+		'post_thumbnail' => '(object>attachment) The attachment object for the featured image if it has one.',
 		'format'         => array(), // see constructor
 		'geo'            => '(object>geo|false)',
 		'publicize_URLs' => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
