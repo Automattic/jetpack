@@ -303,7 +303,7 @@ class Jetpack_Photon {
 						$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
 
 						// Tag an image for dimension checking
-						$new_tag = preg_replace( '#(\s?/)?>(</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
+						$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
 
 						// Replace original tag with modified version
 						$content = str_replace( $tag, $new_tag, $content );
