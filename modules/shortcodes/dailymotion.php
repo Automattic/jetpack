@@ -123,9 +123,6 @@ add_shortcode( 'dailymotion', 'dailymotion_shortcode' );
  */
 
 function jetpack_dailymotion_embed_reversal( $content ) {
-	if ( ! is_automattician() )
-		return $content;
-
 	if ( false === stripos( $content, 'dailymotion.com/embed' ) )
 		return $content;
 
