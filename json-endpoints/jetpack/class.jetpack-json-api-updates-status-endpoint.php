@@ -25,6 +25,12 @@ class Jetpack_JSON_API_Updates_Status extends Jetpack_JSON_API_Endpoint {
 			return new WP_Error( 'get_update_data_error', __( 'There was an error while getting the update data for this site.', 'jetpack' ), 500 );
 		}
 
-		return $update_data['counts'];
+		$result = $update_data['counts'];
+
+		include( ABSPATH . WPINC . '/version.php' ); // $wp_version;
+		$result['wp_version'] = isset( $wp_version ) ? $wp_version : null;
+
+		return $result;
+
 	}
 }
