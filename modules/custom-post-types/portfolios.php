@@ -285,6 +285,7 @@ class Jetpack_Portfolio {
 				'title',
 				'editor',
 				'thumbnail',
+				'comments',
 				'publicize',
 				'wpcom-markdown',
 			),
