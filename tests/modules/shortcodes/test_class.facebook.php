@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers jetpack_facebook_shortcode_handler
+	 * @covers ::jetpack_facebook_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_facebook_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Facebook extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers jetpack_facebook_shortcode_handler
+	 * @covers ::jetpack_facebook_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_facebook() {

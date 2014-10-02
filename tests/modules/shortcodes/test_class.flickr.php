@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers flickr_shortcode_handler
+	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers flickr_shortcode_handler
+	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr() {
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers flickr_shortcode_handler
+	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_video_http() {
@@ -41,7 +41,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers flickr_shortcode_handler
+	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_video_id() {
@@ -55,7 +55,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers flickr_shortcode_handler
+	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_video_id_show_info() {
@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers flickr_shortcode_handler
+	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_video_id_width_height() {
@@ -88,7 +88,7 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers flickr_shortcode_handler
+	 * @covers ::flickr_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_video_id_show_info_secret() {

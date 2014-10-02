@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vimeo_shortcode
+	 * @covers ::vimeo_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vimeo_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vimeo_shortcode
+	 * @covers ::vimeo_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vimeo() {
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vimeo_shortcode
+	 * @covers ::vimeo_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vimeo_id() {
@@ -40,7 +40,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vimeo_shortcode
+	 * @covers ::vimeo_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vimeo_url() {
@@ -55,7 +55,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vimeo_shortcode
+	 * @covers ::vimeo_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_w_h() {
@@ -73,7 +73,7 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vimeo_shortcode
+	 * @covers ::vimeo_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_width_height() {

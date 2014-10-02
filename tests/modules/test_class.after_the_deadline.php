@@ -15,7 +15,7 @@ class WP_Test_Jetpack_Modules_After_The_Deadline extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers AtD_change_mce_settings
+	 * @covers ::AtD_change_mce_settings
 	 * @since 3.2
 	 */
 	public function test_change_mce_settings_array() {
@@ -28,7 +28,7 @@ class WP_Test_Jetpack_Modules_After_The_Deadline extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers AtD_change_mce_settings
+	 * @covers ::AtD_change_mce_settings
 	 * @since 3.2
 	 */
 	public function test_change_mce_settings_invalid_string() {
