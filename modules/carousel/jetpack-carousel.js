@@ -998,11 +998,13 @@ jQuery(document).ready(function($) {
 
 		shutterSpeed: function(d) {
 			if (d >= 1) {
-				return Math.round(d) + 's';
+				return Math.round(d*10)/10 + 's'; // round to one decimal if value > 1s by multiplying it by 10, rounding, then dividing by 10 again
 			}
 			var df = 1, top = 1, bot = 1;
-			var limit = 1e3;
-			while (df !== d && limit-- > 0) {
+			var tol = 1e-8;
+			// iterate while value not reached and difference (positive or negative, hence the Math.abs) between value 
+			// and approximated value greater than given tolerance
+			while (df !== d && Math.abs(df-d) > tol) {
 				if (df < d) {
 					top += 1;
 				} else {
