@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers shortcode_ted
+	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers shortcode_ted
+	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted() {
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers shortcode_ted
+	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_id() {
@@ -48,7 +48,7 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers shortcode_ted
+	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_width_height() {
@@ -72,7 +72,7 @@ class WP_Test_Jetpack_Shortcodes_Ted extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers shortcode_ted
+	 * @covers ::shortcode_ted
 	 * @since 3.2
 	 */
 	public function test_shortcodes_ted_lang() {

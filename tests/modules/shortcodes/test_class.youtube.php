@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers youtube_shortcode
+	 * @covers ::youtube_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_youtube_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers youtube_shortcode
+	 * @covers ::youtube_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_youtube() {
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Shortcodes_Youtube extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers youtube_shortcode
+	 * @covers ::youtube_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_youtube_url() {

@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Bandcamp extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers shortcode_handler_bandcamp
+	 * @covers ::shortcode_handler_bandcamp
 	 * @since 3.2
 	 */
 	public function test_shortcodes_bandcamp_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Bandcamp extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers shortcode_handler_bandcamp
+	 * @covers ::shortcode_handler_bandcamp
 	 * @since 3.2
 	 */
 	public function test_shortcodes_bandcamp() {

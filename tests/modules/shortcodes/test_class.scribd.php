@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Scribd extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers scribd_shortcode_handler
+	 * @covers ::scribd_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_scribd_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Scribd extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers scribd_shortcode_handler
+	 * @covers ::scribd_shortcode_handler
 	 * @since 3.2
 	 */
 	public function test_shortcodes_scribd() {

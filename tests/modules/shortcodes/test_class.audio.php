@@ -4,7 +4,6 @@ class WP_Test_Jetpack_Shortcodes_Audio extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers AudioShortcode::__construct
 	 * @since 3.2
 	 */
 	public function test_shortcodes_audio_exists() {
@@ -13,7 +12,6 @@ class WP_Test_Jetpack_Shortcodes_Audio extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers AudioShortcode::audio_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_audio() {
@@ -26,7 +24,6 @@ class WP_Test_Jetpack_Shortcodes_Audio extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers AudioShortcode::audio_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_audio_single_file() {

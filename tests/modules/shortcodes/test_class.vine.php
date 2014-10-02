@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Vine extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vine_shortcode
+	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Vine extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vine_shortcode
+	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine() {
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Shortcodes_Vine extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vine_shortcode
+	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine_url() {
@@ -40,7 +40,7 @@ class WP_Test_Jetpack_Shortcodes_Vine extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vine_shortcode
+	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine_inappropriate_url() {
@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Shortcodes_Vine extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vine_shortcode
+	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine_url_width_height() {
@@ -72,7 +72,7 @@ class WP_Test_Jetpack_Shortcodes_Vine extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers vine_shortcode
+	 * @covers ::vine_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_vine_url_postcard() {

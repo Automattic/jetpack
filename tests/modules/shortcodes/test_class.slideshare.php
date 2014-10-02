@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshare extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers slideshare_shortcode
+	 * @covers ::slideshare_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_slideshare_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshare extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers slideshare_shortcode
+	 * @covers ::slideshare_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_slideshare() {

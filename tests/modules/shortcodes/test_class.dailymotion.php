@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers dailymotion_shortcode
+	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers dailymotion_shortcode
+	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion() {
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers dailymotion_shortcode
+	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_id() {
@@ -40,7 +40,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers dailymotion_shortcode
+	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_missing_id() {
@@ -53,7 +53,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers dailymotion_shortcode
+	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_title() {
@@ -68,7 +68,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers dailymotion_shortcode
+	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_user() {
@@ -83,7 +83,7 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers dailymotion_shortcode
+	 * @covers ::dailymotion_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_dailymotion_video() {

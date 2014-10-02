@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers twitter_timeline_shortcode
+	 * @covers ::twitter_timeline_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_twitter_timeline_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers twitter_timeline_shortcode
+	 * @covers ::twitter_timeline_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_twitter_timeline() {

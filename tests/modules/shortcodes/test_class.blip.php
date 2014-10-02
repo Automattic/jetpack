@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Blip extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers blip_shortcode
+	 * @covers ::blip_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_blip_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Blip extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers blip_shortcode
+	 * @covers ::blip_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_blip() {
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Shortcodes_Blip extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers blip_shortcode
+	 * @covers ::blip_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_blip_empty() {
@@ -39,7 +39,7 @@ class WP_Test_Jetpack_Shortcodes_Blip extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers blip_shortcode
+	 * @covers ::blip_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_blip_posts_id_and_dest() {
@@ -55,7 +55,7 @@ class WP_Test_Jetpack_Shortcodes_Blip extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers blip_shortcode
+	 * @covers ::blip_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_blip_http_url() {

@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Googlemaps extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers jetpack_googlemaps_shortcode
+	 * @covers ::jetpack_googlemaps_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_googlemaps_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Googlemaps extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers jetpack_googlemaps_shortcode
+	 * @covers ::jetpack_googlemaps_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_googlemaps() {

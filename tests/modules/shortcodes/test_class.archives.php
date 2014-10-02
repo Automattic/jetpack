@@ -4,7 +4,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_exists() {
@@ -13,7 +13,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives() {
@@ -26,7 +26,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_default() {
@@ -37,7 +37,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_format_option() {
@@ -53,7 +53,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_format_html() {
@@ -69,7 +69,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_yearly() {
@@ -87,7 +87,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_monthly() {
@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_weekly() {
@@ -123,7 +123,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_type_daily() {
@@ -141,7 +141,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_limit_one() {
@@ -159,7 +159,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_limit_zero_is_all() {
@@ -177,7 +177,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_showcount() {
@@ -199,7 +199,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_before() {
@@ -218,7 +218,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_after() {
@@ -237,7 +237,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_order_asc() {
@@ -260,7 +260,7 @@ class WP_Test_Jetpack_Shortcodes_Archives extends WP_UnitTestCase {
 
 	/**
 	 * @author scotchfield
-	 * @covers archives_shortcode
+	 * @covers ::archives_shortcode
 	 * @since 3.2
 	 */
 	public function test_shortcodes_archives_order_desc() {
