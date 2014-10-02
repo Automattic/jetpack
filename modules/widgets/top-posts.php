@@ -201,7 +201,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				foreach ( $posts as $post ) :
 				?>
 					<li>
-						<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" />
+						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp"><img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" /></a>
 						<div class="widgets-list-layout-links"><a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp"><?php echo esc_html( wp_kses( $post['title'], array() ) ); ?></a></div>
 					</li>
 				<?php
