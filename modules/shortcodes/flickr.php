@@ -5,11 +5,11 @@
  Author: kellan
  License: BSD/GPL/public domain (take your pick)
 
-[flickr video=http://flickr.com/photos/revdancatt/2345938910/]
-[flickr video=2345938910]
-[flickr video=2345938910 show_info=true w=400 h=300]
-[flickr video=2345938910 show_info=true w=400 h=300 secret=846d9c1be9]
-
+[flickr video=http://www.flickr.com/photos/chaddles/2402990826]
+[flickr video=2402990826]
+[flickr video=2402990826 show_info=no]
+[flickr video=2402990826 w=200 h=150]
+[flickr video=2402990826 secret=846d9c1b39]
 */
 
 /*
@@ -106,7 +106,7 @@ function flickr_shortcode_handler( $atts ) {
 		$src = str_replace( 'http://', 'https://', $src );
 	}
 
-	if ( ! preg_match( '~^(https?:)?//([^/]+.)?((static)?flickr.com|flic.kr)/.*~i', $src ) ) {
+	if ( ! is_numeric( $src ) && ! preg_match( '~^(https?:)?//([^/]+.)?((static)?flickr.com|flic.kr)/.*~i', $src ) ) {
 		return '';
 	}
 

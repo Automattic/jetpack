@@ -36,6 +36,7 @@ class AudioShortcode {
 	function audio_shortcode( $atts ) {
 		global $ap_playerID;
 		global $post;
+
 		if ( ! is_array( $atts ) ) {
 			return '<!-- Audio shortcode passed invalid attributes -->';
 		}
@@ -47,6 +48,11 @@ class AudioShortcode {
 			} else {
 				return '<!-- Audio shortcode source not set -->';
 			}
+		}
+
+		$post_id = 0;
+		if ( isset( $post ) ) {
+		    $post_id = $post->ID;
 		}
 
 		// add the special .js
@@ -227,9 +233,9 @@ class AudioShortcode {
 
 			if ( 0 == $i ) { // only need one player
 				$html5_audio .= <<<AUDIO
-				<span id="wp-as-{$post->ID}_{$ap_playerID}-container">
-					<audio id='wp-as-{$post->ID}_{$ap_playerID}' controls preload='none' $loop style='background-color:$bgcolor;width:{$width}px;'>
-						<span id="wp-as-{$post->ID}_{$ap_playerID}-nope">$not_supported</span>
+				<span id="wp-as-{$post_id}_{$ap_playerID}-container">
+					<audio id='wp-as-{$post_id}_{$ap_playerID}' controls preload='none' $loop style='background-color:$bgcolor;width:{$width}px;'>
+						<span id="wp-as-{$post_id}_{$ap_playerID}-nope">$not_supported</span>
 					</audio>
 				</span>
 				<br />
@@ -241,18 +247,18 @@ AUDIO;
 		// player controls, if needed
 		if ( 1 < $num_files ) {
 			$html5_audio .= <<<CONTROLS
-				<span id='wp-as-{$post->ID}_{$ap_playerID}-controls' style='display:none;'>
-					<a id='wp-as-{$post->ID}_{$ap_playerID}-prev'
-						href='javascript:audioshortcode.prev_track( "{$post->ID}_{$ap_playerID}" );'
+				<span id='wp-as-{$post_id}_{$ap_playerID}-controls' style='display:none;'>
+					<a id='wp-as-{$post_id}_{$ap_playerID}-prev'
+						href='javascript:audioshortcode.prev_track( "{$post_id}_{$ap_playerID}" );'
 						style='font-size:1.5em;'>&laquo;</a>
 					|
-					<a id='wp-as-{$post->ID}_{$ap_playerID}-next'
-						href='javascript:audioshortcode.next_track( "{$post->ID}_{$ap_playerID}", true, $script_loop );'
+					<a id='wp-as-{$post_id}_{$ap_playerID}-next'
+						href='javascript:audioshortcode.next_track( "{$post_id}_{$ap_playerID}", true, $script_loop );'
 						style='font-size:1.5em;'>&raquo;</a>
 				</span>
 CONTROLS;
 		}
-		$html5_audio .= "<span id='wp-as-{$post->ID}_{$ap_playerID}-playing'></span>";
+		$html5_audio .= "<span id='wp-as-{$post_id}_{$ap_playerID}-playing'></span>";
 
 		$swfurl = apply_filters(
 			'jetpack_static_url',
@@ -268,7 +274,7 @@ CONTROLS;
 		if ( $all_mp3 ) {
 			// process regular flash player, inserting HTML5 tags into object as fallback
 			$audio_tags = <<<FLASH
-				<object id='wp-as-{$post->ID}_{$ap_playerID}-flash' type='application/x-shockwave-flash' data='$swfurl' width='$width' height='24'>
+				<object id='wp-as-{$post_id}_{$ap_playerID}-flash' type='application/x-shockwave-flash' data='$swfurl' width='$width' height='24'>
 					<param name='movie' value='$swfurl' />
 					<param name='FlashVars' value='{$flash_vars}' />
 					<param name='quality' value='high' />
@@ -292,8 +298,9 @@ FLASH;
 		// mashup the artist/titles for the script
 		$script_titles = array();
 		for ( $i = 0; $i < $num_files; $i++ ) {
-			$script_titles[] = $file_artists[$i] . $file_titles[$i];
-
+			if ( isset( $file_artists[ $i ] ) && isset( $file_titles[ $i ] ) ) {
+				$script_titles[] = $file_artists[ $i ] . $file_titles[ $i ];
+			}
 		}
 
 		// javacript to control audio
@@ -306,7 +313,7 @@ FLASH;
 				var prep = function() {
 					if ( 'undefined' === typeof window.audioshortcode ) { return; }
 					audioshortcode.prep(
-						'{$post->ID}_{$ap_playerID}',
+						'{$post_id}_{$ap_playerID}',
 						$script_files,
 						$script_titles,
 						$volume,
