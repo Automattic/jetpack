@@ -214,9 +214,6 @@ function soundcloud_flash_widget($options) {
  * WordPress.com-compatibly shortcode.
  */
 function jetpack_soundcloud_embed_reversal( $content ) {
-	if ( ! is_automattician() )
-		return $content;
-
 	if ( false === stripos( $content, 'w.soundcloud.com/player' ) )
 		return $content;
 
