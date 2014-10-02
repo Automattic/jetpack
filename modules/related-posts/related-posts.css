@@ -134,6 +134,11 @@ div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedp
 	opacity: .6;
 }
 
+/* Hide the date by default, but leave the element there if a theme wants to use css to make it visible. */
+.jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-date {
+    display: none;
+}
+
 /* Behavior when there are thumbnails in visual mode */
 div#jp-relatedposts div.jp-relatedposts-items-visual div.jp-relatedposts-post-thumbs p.jp-relatedposts-post-excerpt {
 	display: none;
