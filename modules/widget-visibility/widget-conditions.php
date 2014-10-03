@@ -464,14 +464,18 @@ class Jetpack_Widget_Conditions {
 				break;
 				case 'taxonomy':
 					$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
-					$terms = get_the_terms( $post->ID, $rule['minor'] ); // Does post have terms in taxonomy?
 					
 					if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
 						$condition_result = true;
 					else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
 						$condition_result = true;
-					else if ( is_singular() && $terms & !is_wp_error( $terms ) )
-						$condition_result = true;
+					else if ( is_singular() ){
+						$terms = get_the_terms( $post->ID, $rule['minor'] ); // Does post have terms in taxonomy?
+						if( $terms & !is_wp_error( $terms ) ){
+							$condition_result = true;
+						}
+						
+					}
 				break;
 			}
 
