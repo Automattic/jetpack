@@ -12,6 +12,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
         'subscribers_count' => '(int) The number of subscribers the site has',
 		'lang'              => '(string) Primary language code of the site',
 		'icon'              => '(array) An array of icon formats for the site',
+		'logo'              => '(array) The site logo, set in the Customizer',
 		'visible'           => '(bool) If this site is visible in the user\'s site list',
 		'is_private'        => '(bool) If the site is a private site or not',
 		'is_following'      => '(bool) If the current user is subscribed to this site in the reader',
@@ -127,6 +128,27 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 							'img' => (string) remove_query_arg( 's', blavatar_url( $domain, 'img' ) ),
 							'ico' => (string) remove_query_arg( 's', blavatar_url( $domain, 'ico' ) ),
 						);
+				}
+				break;
+			case 'logo' :
+				// Set an empty response array.
+				$response[$key] = array(
+					'id'  => (int) 0,
+					'sizes' => array(),
+					'url' => '',
+				);
+
+				// Get current site logo values.
+				$logo = get_option( 'site_logo' );
+
+				// Update the response array if there's a site logo currenty active.
+				if ( $logo && 0 != $logo['id'] ) {
+					$response[$key]['id']  = $logo['id'];
+					$response[$key]['url'] = $logo['url'];
+
+					foreach ( $logo['sizes'] as $size => $properties ) {
+						$response[$key]['sizes'][$size] = $properties;
+					}
 				}
 				break;
             case 'subscribers_count' :
