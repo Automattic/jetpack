@@ -109,7 +109,7 @@ new Jetpack_JSON_API_Themes_Update_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/update'
 ) );
 
 new Jetpack_JSON_API_Themes_Update_Endpoint( array(
@@ -134,7 +134,7 @@ new Jetpack_JSON_API_Themes_Update_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentytwelve/update'
 ) );
 
 // PLUGINS
@@ -188,6 +188,8 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello'
 ) );
 
+
+
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-update-endpoint.php' );
 
 new Jetpack_JSON_API_Plugins_Update_Endpoint( array(
@@ -205,7 +207,7 @@ new Jetpack_JSON_API_Plugins_Update_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/update'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello/update'
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-list-endpoint.php' );
@@ -379,4 +381,36 @@ new Jetpack_JSON_API_Core_Update_Endpoint( array(
 		),
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core/update'
+) );
+
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-autoupdate-endpoint.php' );
+// POST /sites/%s/autoupdate
+new Jetpack_JSON_API_Autoupdate_Endpoint( array(
+    'description'     => 'Flag a Jetpack blog for automatic updates',
+    'group'           => '__do_not_document',
+    'method'          => 'POST',
+    'path'            => '/sites/%s/autoupdate',
+    'path_labels' => array(
+        '$site' => '(int|string) The site ID, The site domain'
+    ),
+    'request_format' => array(
+        'plugins'   => '(array) The list of plugin ids to flag for automatic update',
+    ),
+    'response_format' => array(
+        'updated' => '(array) An array of updated plugin ids',
+        'errors'  => '(array) An array of not updated plugin ids',
+    ),
+    'example_request_data' => array(
+        'headers' => array(
+            'authorization' => 'Bearer YOUR_API_TOKEN',
+        ),
+        'body'    => array(
+            'plugins'       => array(
+                'hello',
+                'jetpack/jetpack'
+            ),
+        ),
+    ),
+    'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/autoupdate'
 ) );
