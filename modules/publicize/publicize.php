@@ -84,6 +84,7 @@ abstract class Publicize_Base {
 	abstract function get_connection( $service, $id, $_blog_id = false, $_user_id = false );
 	abstract function flag_post_for_publicize( $new_status, $old_status, $post );
 	abstract function test_connection( $service_name, $connection );
+	abstract function disconnect( $service, $connection_id, $_blog_id = false, $_user_id = false, $force_delete = false );
 
 	/**
 	* Shared Functions
