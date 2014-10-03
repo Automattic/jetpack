@@ -256,6 +256,9 @@ function AtD_load_submit_check_javascripts() {
  * Check if a user is allowed to use AtD
  */
 function AtD_is_allowed() {
+	if ( ( defined( 'AtD_FORCED_ON' ) && AtD_FORCED_ON ) ) {
+		return true;
+	}
 	$user = wp_get_current_user();
 	if ( ! $user || $user->ID == 0 )
 		return;

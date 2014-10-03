@@ -682,6 +682,7 @@ class GP_Locales {
 	 	$fr_ca->lang_code_iso_639_2 = 'fra';
 	 	$fr_ca->country_code = 'ca';
 	 	$fr_ca->facebook_locale = 'fr_CA';
+	 	$fr_ca->wp_locale = 'fr_CA';
 	 	$fr_ca->slug = 'fr-ca';
 
 		$fr_ch = new GP_Locale();
