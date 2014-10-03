@@ -391,11 +391,13 @@ new Jetpack_JSON_API_Autoupdate_Plugins_Endpoint( array(
     'group'           => '__do_not_document',
     'method'          => 'POST',
     'path'            => '/sites/%s/autoupdate/plugins',
+    'stat'            => 'plugins:autoupdate',
     'path_labels' => array(
         '$site' => '(int|string) The site ID, The site domain'
     ),
     'request_format' => array(
         'plugins'    => '(array) The list of plugin ids to flag for automatic update',
+        'autoupdate' => '(bool) Autoupdates on or off',
     ),
     'response_format' => array(
         'updated' => '(array) An array of updated plugin ids',
