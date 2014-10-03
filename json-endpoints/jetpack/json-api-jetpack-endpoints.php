@@ -384,18 +384,18 @@ new Jetpack_JSON_API_Core_Update_Endpoint( array(
 ) );
 
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-autoupdate-endpoint.php' );
-// POST /sites/%s/autoupdate
-new Jetpack_JSON_API_Autoupdate_Endpoint( array(
-    'description'     => 'Flag a Jetpack blog for automatic updates',
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-autoupdate-plugins-endpoint.php' );
+// POST /sites/%s/autoupdate/plugins
+new Jetpack_JSON_API_Autoupdate_Plugins_Endpoint( array(
+    'description'     => 'Flag a Jetpack blog for automatic plugin updates',
     'group'           => '__do_not_document',
     'method'          => 'POST',
-    'path'            => '/sites/%s/autoupdate',
+    'path'            => '/sites/%s/autoupdate/plugins',
     'path_labels' => array(
         '$site' => '(int|string) The site ID, The site domain'
     ),
     'request_format' => array(
-        'plugins'   => '(array) The list of plugin ids to flag for automatic update',
+        'plugins'    => '(array) The list of plugin ids to flag for automatic update',
     ),
     'response_format' => array(
         'updated' => '(array) An array of updated plugin ids',
@@ -406,11 +406,12 @@ new Jetpack_JSON_API_Autoupdate_Endpoint( array(
             'authorization' => 'Bearer YOUR_API_TOKEN',
         ),
         'body'    => array(
-            'plugins'       => array(
+            'plugins' => array(
                 'hello',
                 'jetpack/jetpack'
             ),
+            'autoupdate' => true,
         ),
     ),
-    'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/autoupdate'
+    'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/autoupdate/plugins'
 ) );
