@@ -22,7 +22,7 @@
 	right: 50%;
 	margin-right: -220px;
 	z-index: 101;
-	box-shadow: 2px 2px 5px 2px rgba( 0, 0, 0, 0.5 );
+	box-shadow: -2px 2px 5px 2px rgba( 0, 0, 0, 0.5 );
 	-webkit-border-bottom-left-radius: 2px;
 	-webkit-border-bottom-right-radius: 2px;
 	border-bottom-left-radius: 2px;
