@@ -16,11 +16,11 @@ if ( !function_exists( 'sharing_init' ) )
 add_action( 'jetpack_modules_loaded', 'sharedaddy_loaded' );
 
 function sharedaddy_loaded() {
-        Jetpack::enable_module_configurable( __FILE__ );
-        Jetpack::module_configuration_load( __FILE__, 'sharedaddy_configuration_load' );
+	Jetpack::enable_module_configurable( __FILE__ );
+	Jetpack::module_configuration_load( __FILE__, 'sharedaddy_configuration_load' );
 }
 
 function sharedaddy_configuration_load() {
-        wp_safe_redirect( menu_page_url( 'sharing', false ) . "#sharing-buttons" );
-        exit;
+	wp_safe_redirect( menu_page_url( 'sharing', false ) . "#sharing-buttons" );
+	exit;
 }

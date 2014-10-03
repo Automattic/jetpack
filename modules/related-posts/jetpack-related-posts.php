@@ -310,10 +310,10 @@ EOT;
 			$template = <<<EOT
 <ul id="settings-reading-relatedposts">
 	<li>
-        <label><input type="radio" name="jetpack_relatedposts[enabled]" value="0" class="tog" %s /> %s</label>
+		<label><input type="radio" name="jetpack_relatedposts[enabled]" value="0" class="tog" %s /> %s</label>
 	</li>
 	<li>
-        <label><input type="radio" name="jetpack_relatedposts[enabled]" value="1" class="tog" %s /> %s</label>
+		<label><input type="radio" name="jetpack_relatedposts[enabled]" value="1" class="tog" %s /> %s</label>
 		%s
 	</li>
 </ul>

@@ -26,19 +26,16 @@
   * @author Brett Zamir (brettz9 at yahoo dot com) 2007
  */
 
-
-if(isset($_GET['lang'])) {
-    $l = $_GET['lang'];
-}
-else if(isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-    $l = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
-    $l = strtolower(substr($l, 0, 2));
-}
-else {
-    $l = '';
+if ( isset( $_GET['lang'] ) ) {
+	$l = $_GET['lang'];
+} elseif ( isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) {
+	$l = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
+	$l = strtolower( substr( $l, 0, 2 ) );
+} else {
+	$l = '';
 }
 
-$l = (in_array($l, array('de', 'fr', 'zh'))) ? $l : 'en';
+$l = ( in_array( $l, array( 'de', 'fr', 'zh' ) ) ) ? $l : 'en';
 
 // note 5 in all but French, and 40 in all are orphaned
 

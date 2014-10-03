@@ -196,7 +196,7 @@ class Jetpack_Site_Icon {
 
 				$site_icon_id = get_option( 'site_icon_id' );
 				// Delete the previous Blavatar
-        		self::delete_site_icon( $site_icon_id, true );
+				self::delete_site_icon( $site_icon_id, true );
 				wp_safe_redirect( admin_url( 'options-general.php#site_icon' ) );
 			}
 		}
@@ -377,37 +377,36 @@ class Jetpack_Site_Icon {
 		}
 
 		// Delete the previous site_icon
-    	$previous_site_icon_id =  get_option( 'site_icon_id' );
-    	self::delete_site_icon( $previous_site_icon_id );
+		$previous_site_icon_id =  get_option( 'site_icon_id' );
+		self::delete_site_icon( $previous_site_icon_id );
 
 		// crop the image
 		$image_edit->crop( $crop_data['crop_x'], $crop_data['crop_y'],$crop_data['crop_width'], $crop_data['crop_height'], self::$min_size, self::$min_size );
 		
 		$dir = wp_upload_dir();
-    	$site_icon_filename = $image_edit->generate_filename( 'site_icon',  $dir['path'] , 'png' );
+		$site_icon_filename = $image_edit->generate_filename( 'site_icon',  $dir['path'] , 'png' );
 		$image_edit->save( $site_icon_filename );
 		
 		add_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'additional_sizes' ) );
 
 		$site_icon_id = self::save_attachment( 
-    		__( 'Large Blog Image', 'jetpack' ) , 
-    		$site_icon_filename, 
-    		'image/png'
-    	); 
+			__( 'Large Blog Image', 'jetpack' ) ,
+			$site_icon_filename,
+			'image/png'
+		);
 
-    	remove_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'additional_sizes' ) );
-    	
+		remove_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'additional_sizes' ) );
+
 		// Save the site_icon data into option
 		update_option( 'site_icon_id', $site_icon_id );
-		
+
 		?>
 		<h2 class="site-icon-title"><?php esc_html_e( 'Site Icon', 'jetpack'); ?> <span class="small"><?php esc_html_e( 'All Done', 'jetpack' ); ?></span></h2>
 		<div id="message" class="updated below-h2"><p><?php esc_html_e( 'Your site icon has been uploaded!', 'jetpack' ); ?> <a href="<?php echo esc_url( admin_url( 'options-general.php' ) ); ?>" ><?php esc_html_e( 'Back to General Settings' , 'jetpack' ); ?></a></p></div>
 		<?php echo jetpack_get_site_icon( null, $size = '128' ); ?>
 		<?php echo jetpack_get_site_icon( null, $size = '48' ); ?> 
-		<?php echo jetpack_get_site_icon( null, $size = '16' ); ?> 
-		
-		
+		<?php echo jetpack_get_site_icon( null, $size = '16' ); ?>
+
 		<?php
 	}
 
@@ -474,7 +473,7 @@ class Jetpack_Site_Icon {
 			remove_action( 'delete_attachment', array( 'Jetpack_Site_Icon', 'delete_attachment_data' ), 10, 1);
 
 			wp_delete_attachment( $temp_image_data['large_image_attachment_id'] , true );
-	        wp_delete_attachment( $temp_image_data['resized_image_attacment_id'] , true );
+			wp_delete_attachment( $temp_image_data['resized_image_attacment_id'] , true );
 		}
 		return null;
 	}
@@ -548,70 +547,68 @@ class Jetpack_Site_Icon {
 			return new WP_Error( 'broke', __( "The file that you uploaded is not an accepted file type. Please try again.", 'jetpack' ) );
 		}
 
-        $image = wp_handle_upload( $uploaded_file, array( 'test_form' => false ) );
+		$image = wp_handle_upload( $uploaded_file, array( 'test_form' => false ) );
 
-        if(  is_wp_error( $image ) ) {
+		if(  is_wp_error( $image ) ) {
   			// this should contain the error message returned from wp_handle_upload
   			unlink( $image['file'] ); // Lets delete the file since we are not going to be using it
-        	return $image;
-        }
-        
-        // Lets try to crop the image into smaller files. 
-        // We will be doing this later so it is better if it fails now.
-        $image_edit = wp_get_image_editor( $image['file'] );
-        if ( is_wp_error( $image_edit ) ) {
-        	// this should contain the error message from WP_Image_Editor 
-        	unlink( $image['file'] ); // lets delete the file since we are not going to be using it
-        	return $image_edit;
-        }
+			return $image;
+		}
 
-        $image_size = getimagesize( $image['file'] );
-        
-        if( $image_size[0] < self::$min_size || $image_size[1] < self::$min_size ) {
-        
-        	
-        	if( $image_size[0] < self::$min_size ) {
-        		return new WP_Error( 'broke', __( sprintf( "The image that you uploaded is smalled then %spx in width", self::$min_size ) , 'jetpack' ) );
-        	}
+		// Lets try to crop the image into smaller files.
+		// We will be doing this later so it is better if it fails now.
+		$image_edit = wp_get_image_editor( $image['file'] );
+		if ( is_wp_error( $image_edit ) ) {
+			// this should contain the error message from WP_Image_Editor
+			unlink( $image['file'] ); // lets delete the file since we are not going to be using it
+			return $image_edit;
+		}
 
-        	if( $image_size[1] < self::$min_size ) {
-        		return new WP_Error( 'broke', __( sprintf( "The image that you uploaded is smalled then %spx in height", self::$min_size ) , 'jetpack' ) );
-        	}
-        }
+		$image_size = getimagesize( $image['file'] );
 
-     	// Save the image as an attachment for later use. 
-        $large_attachment_id = self::save_attachment( 
-        	__( 'Temporary Large Image for Blog Image', 'jetpack' ) , 
-        	$image['file'], 
-        	$uploaded_file_type,
-        	false
-        ); 
-        
-		// Let's resize the image so that the user can easier crop a image that in the admin view 
-        $image_edit->resize( self::$page_crop, self::$page_crop, false );
-        $dir = wp_upload_dir();
-        
-        $resized_filename = $image_edit->generate_filename( 'temp',  $dir['path'] , null );
-        $image_edit->save( $resized_filename );
+		if( $image_size[0] < self::$min_size || $image_size[1] < self::$min_size ) {
 
-       	
-       	$resized_attach_id = self::save_attachment( 
-        	__( 'Temporary Resized Image for Blog Image', 'jetpack' ), 
-        	$resized_filename, 
-        	$uploaded_file_type,
-        	false
-        ); 
+			if( $image_size[0] < self::$min_size ) {
+				return new WP_Error( 'broke', __( sprintf( "The image that you uploaded is smalled then %spx in width", self::$min_size ) , 'jetpack' ) );
+			}
 
-        $resized_image_size = getimagesize( $resized_filename ); 
-        // Save all of this into the the database for that we can work with it later.
-        update_option( 'site_icon_temp_data', array( 
-        		'large_image_attachment_id'  => $large_attachment_id,
-        		'large_image_data'			 => $image_size,
-        		'resized_image_attacment_id' => $resized_attach_id,
-        		'resized_image_data'		 => $resized_image_size
-        		) );
-        
-        return wp_get_attachment_image_src( $resized_attach_id, 'full' );
+			if( $image_size[1] < self::$min_size ) {
+				return new WP_Error( 'broke', __( sprintf( "The image that you uploaded is smalled then %spx in height", self::$min_size ) , 'jetpack' ) );
+			}
+		}
+
+		// Save the image as an attachment for later use.
+		$large_attachment_id = self::save_attachment(
+			__( 'Temporary Large Image for Blog Image', 'jetpack' ) ,
+			$image['file'],
+			$uploaded_file_type,
+			false
+		);
+
+		// Let's resize the image so that the user can easier crop a image that in the admin view
+		$image_edit->resize( self::$page_crop, self::$page_crop, false );
+		$dir = wp_upload_dir();
+
+		$resized_filename = $image_edit->generate_filename( 'temp',  $dir['path'] , null );
+		$image_edit->save( $resized_filename );
+
+		$resized_attach_id = self::save_attachment(
+			__( 'Temporary Resized Image for Blog Image', 'jetpack' ),
+			$resized_filename,
+			$uploaded_file_type,
+			false
+		);
+
+		$resized_image_size = getimagesize( $resized_filename );
+		// Save all of this into the the database for that we can work with it later.
+		update_option( 'site_icon_temp_data', array(
+			'large_image_attachment_id'  => $large_attachment_id,
+			'large_image_data'           => $image_size,
+			'resized_image_attacment_id' => $resized_attach_id,
+			'resized_image_data'         => $resized_image_size
+		) );
+
+		return wp_get_attachment_image_src( $resized_attach_id, 'full' );
 	}
 
 	/**
@@ -626,11 +623,11 @@ class Jetpack_Site_Icon {
 		$wp_upload_dir = wp_upload_dir();
 		$attachment = array(
 		 	'guid'           => $wp_upload_dir['url'] . '/' . basename( $filename ), 
-            'post_mime_type' => $file_type,
-            'post_title' 	 => $title,
-            'post_content' 	 => '',
-            'post_status' 	 => 'inherit'
-        );
+			'post_mime_type' => $file_type,
+			'post_title' 	 => $title,
+			'post_content' 	 => '',
+			'post_status' 	 => 'inherit'
+		);
 		$attachment_id = wp_insert_attachment( $attachment, $filename);
 
 		if( ! function_exists( 'wp_generate_attachment_metadata') )  {
@@ -648,7 +645,7 @@ class Jetpack_Site_Icon {
 			remove_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'only_thumbnail_size' ) );
 		}
 
-        return $attachment_id;
+		return $attachment_id;
 	}
 
 	/**
@@ -662,27 +659,27 @@ class Jetpack_Site_Icon {
 		 * filter the different dimentions that the image should be saved in
 		 */
 		self::$site_icon_sizes = apply_filters( 'site_icon_image_sizes', self::$site_icon_sizes );
-  		// use a natular sort of numbers
-		natsort( self::$site_icon_sizes ); 
-  		self::$site_icon_sizes = array_reverse ( self::$site_icon_sizes );
-    	
-    	// ensure that we only resize the image into 
-    	foreach( $sizes as $name => $size_array ) {
-    		if( $size_array['crop'] ){
-    			$only_crop_sizes[ $name ] = $size_array;
-    		}
-    	}
+		// use a natular sort of numbers
+		natsort( self::$site_icon_sizes );
+		self::$site_icon_sizes = array_reverse ( self::$site_icon_sizes );
 
-    	foreach( self::$site_icon_sizes as $size ) {
-    		if( $size < self::$min_size ) {
-    			
-  	 			$only_crop_sizes['site_icon-'.$size] =  array( 
-						    				"width" => $size,
-						    				"height"=> $size,
-						    				"crop"  => true
-						    				);
-    		}
-    	}
+		// ensure that we only resize the image into
+		foreach( $sizes as $name => $size_array ) {
+			if( $size_array['crop'] ){
+				$only_crop_sizes[ $name ] = $size_array;
+			}
+		}
+
+		foreach( self::$site_icon_sizes as $size ) {
+			if( $size < self::$min_size ) {
+
+				$only_crop_sizes['site_icon-'.$size] =  array(
+					"width" => $size,
+					"height"=> $size,
+					"crop"  => true,
+				);
+			}
+		}
 
 		return $only_crop_sizes;
 	}
@@ -713,6 +710,5 @@ class Jetpack_Site_Icon {
 		return $only_thumb;
 	}
 }
-
 
 Jetpack_Site_Icon::init();

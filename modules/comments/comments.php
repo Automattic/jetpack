@@ -504,7 +504,7 @@ h1 span {
 </style>
 </head>
 <body>
-        <h1><?php printf( __( 'Submitting Comment%s', 'jetpack' ), '<span id="ellipsis" class="hidden">&hellip;</span>' ); ?></h1>
+	<h1><?php printf( __( 'Submitting Comment%s', 'jetpack' ), '<span id="ellipsis" class="hidden">&hellip;</span>' ); ?></h1>
 <script type="text/javascript">
 try {
 	window.parent.location = <?php echo json_encode( $url ); ?>;
@@ -515,7 +515,7 @@ try {
 }
 ellipsis = document.getElementById( 'ellipsis' );
 function toggleEllipsis() {
-        ellipsis.className = ellipsis.className ? '' : 'hidden';
+	ellipsis.className = ellipsis.className ? '' : 'hidden';
 }
 setInterval( toggleEllipsis, 1200 );
 </script>

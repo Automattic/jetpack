@@ -361,13 +361,13 @@ body.settings_page_sharing .advanced input[type=submit] {
 }
 
 .sharing-hidden li.share-end {
-    clear: both;
-    height: 0;
-    padding: 0px !important;
-    margin: 0px !important;
-    width: 0;
-    visibility: hidden;
-    float: none;
+	clear: both;
+	height: 0;
+	padding: 0px !important;
+	margin: 0px !important;
+	width: 0;
+	visibility: hidden;
+	float: none;
 }
 
 .preview .sharing-label {

@@ -39,7 +39,7 @@ function jetpack_widgets_configuration_load() {
  * Add the "(Jetpack)" suffix to the widget names
  */
 function jetpack_widgets_add_suffix( $widget_name ) {
-    return sprintf( __( '%s (Jetpack)', 'jetpack' ), $widget_name );
+	return sprintf( __( '%s (Jetpack)', 'jetpack' ), $widget_name );
 }
 add_filter( 'jetpack_widget_name', 'jetpack_widgets_add_suffix' );
 

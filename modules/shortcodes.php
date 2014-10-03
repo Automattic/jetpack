@@ -49,8 +49,9 @@ function jetpack_load_shortcodes() {
 	$shortcode_includes = apply_filters( 'jetpack_shortcodes_to_include', $shortcode_includes );
 
 	foreach ( $shortcode_includes as $include ) {
-                if ( version_compare( $wp_version, '3.6-z', '>=' ) && stristr( $include, 'audio.php' ) )
+		if ( version_compare( $wp_version, '3.6-z', '>=' ) && stristr( $include, 'audio.php' ) ) {
 			continue;
+		}
 
 		include $include;
 	}

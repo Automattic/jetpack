@@ -136,7 +136,7 @@ div#jp-relatedposts div.jp-relatedposts-items .jp-relatedposts-post .jp-relatedp
 
 /* Hide the date by default, but leave the element there if a theme wants to use css to make it visible. */
 .jp-relatedposts-items .jp-relatedposts-post .jp-relatedposts-post-date {
-    display: none;
+	display: none;
 }
 
 /* Behavior when there are thumbnails in visual mode */
