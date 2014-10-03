@@ -9,7 +9,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
  		'URL'               => '(string) Full URL to the site',
  		'jetpack'           => '(bool)  Whether the site is a Jetpack site or not',
  		'post_count'        => '(int) The number of posts the site has',
-        'subscribers_count' => '(int) The number of subscribers the site has',
+		'subscribers_count' => '(int) The number of subscribers the site has',
 		'lang'              => '(string) Primary language code of the site',
 		'icon'              => '(array) An array of icon formats for the site',
 		'logo'              => '(array) The site logo, set in the Customizer',
@@ -151,7 +151,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 				break;
-            case 'subscribers_count' :
+			case 'subscribers_count' :
 				if ( function_exists( 'wpcom_subs_total_wpcom_subscribers' ) ) {
 					$total_wpcom_subs = wpcom_subs_total_wpcom_subscribers(
 						array(
@@ -162,7 +162,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				} else {
 					$response[$key] = 0; // magic
 				}
-                break;
+				break;
 			case 'is_following':
 				$response[$key] = (bool) $this->api->is_following( $blog_id );
 				break;
