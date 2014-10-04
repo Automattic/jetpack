@@ -319,11 +319,11 @@ body .sd-content ul li.share-custom.no-icon a span {
 }
 
 .sd-social-official .sd-content ul:after {
-    content: ".";
-    display: block;
-    height: 0;
-    clear: both;
-    visibility: hidden;
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
 }
 
 .sd-social-official .sd-content li.share-press-this a {

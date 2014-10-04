@@ -447,13 +447,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 		case 'tag' :
 		case 'category' :
 			$docs = array(
+				'ID'					=> '(int)',
 				'name'        => '(string)',
 				'slug'        => '(string)',
 				'description' => '(HTML)',
 				'post_count'  => '(int)',
 				'meta'        => '(object)',
 			);
-			if ( 'category' === $type ) {
+			if ( 'category' === $type['type'] ) {
 				$docs['parent'] = '(int)';
 			}
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );

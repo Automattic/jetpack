@@ -208,8 +208,15 @@ class Jetpack_Widget_Conditions {
 									<option value="category" <?php selected( "category", $rule['major'] ); ?>><?php esc_html_e( 'Category', 'jetpack' ); ?></option>
 									<option value="loggedin" <?php selected( "loggedin", $rule['major'] ); ?>><?php echo esc_html_x( 'User Loggedin', 'Noun, as in: "The Logged In status of this widget is..."', 'jetpack' ); ?></option>
 									<option value="author" <?php selected( "author", $rule['major'] ); ?>><?php echo esc_html_x( 'Author', 'Noun, as in: "The author of this post is..."', 'jetpack' ); ?></option>
+                                    <?php
+                                    // this doesn't work on .com because of caching
+                                    if( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
+                                    ?>
+                                    <option value="loggedin" <?php selected( "loggedin", $rule['major'] ); ?>><?php echo esc_html_x( 'User Loggedin', 'Noun, as in: "The Logged In status of this widget is..."', 'jetpack' ); ?></option>
 									<option value="role" <?php selected( "role", $rule['major'] ); ?>><?php echo esc_html_x( 'Role', 'Noun, as in: "The user role of that can access this widget is..."', 'jetpack' ); ?></option>
-									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
+									<?php } ?>
+                                    <option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
+
 									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
 									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
@@ -443,27 +450,32 @@ class Jetpack_Widget_Conditions {
 					if( is_user_logged_in() ) {
 						global $current_user;
 						get_currentuserinfo();
-    					$user_roles = $current_user->roles;
+
+    						$user_roles = $current_user->roles;
     					
-    					if( in_array( $rule['minor'], $user_roles ) ) {
-    						$condition_result = true;
-    					} else {
-    						$condition_result = false;
-    					}
+    						if( in_array( $rule['minor'], $user_roles ) ) {
+    							$condition_result = true;
+    						} else {
+    							$condition_result = false;
+    						}
 					} else {
 						$condition_result = false;
 					}
 				break;
 				case 'taxonomy':
 					$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
-					$terms = get_the_terms( $post->ID, $rule['minor'] ); // Does post have terms in taxonomy?
 					
 					if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
 						$condition_result = true;
 					else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
 						$condition_result = true;
-					else if ( is_singular() && $terms & !is_wp_error( $terms ) )
-						$condition_result = true;
+					else if ( is_singular() ){
+						$terms = get_the_terms( $post->ID, $rule['minor'] ); // Does post have terms in taxonomy?
+						if( $terms & !is_wp_error( $terms ) ){
+							$condition_result = true;
+						}
+						
+					}
 				break;
 			}
 

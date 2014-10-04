@@ -391,12 +391,12 @@ class Nova_Restaurant {
 	 */
 	function set_custom_font_icon() {
 	?>
-        <style type="text/css">
-            #menu-posts-nova_menu_item .wp-menu-image:before {
-                font-family: 'nova-font' !important;
-                content: '\e603' !important;
-            }
-        </style>
+	<style type="text/css">
+	#menu-posts-nova_menu_item .wp-menu-image:before {
+		font-family: 'nova-font' !important;
+		content: '\e603' !important;
+	}
+	</style>
 	<?php
 	}
 

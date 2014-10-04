@@ -19,6 +19,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'publish' => 'The post is published.',
 			'draft'   => 'The post is saved as a draft.',
 			'pending' => 'The post is pending editorial approval.',
+			'private' => 'The post is published privately',
 			'future'  => 'The post is scheduled for future publishing.',
 			'trash'   => 'The post is in the trash.',
 			'auto-draft' => 'The post is a placeholder for a new post.',
@@ -39,7 +40,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_following'   => '(bool) Is the current user following this blog?',
 		'global_ID'      => '(string) A unique WordPress.com-wide representation of a post.',
 		'featured_image' => '(URL) The URL to the featured image for this post if it has one.',
-		'post_thumbnail' => '(object:attachment) The attachment object for the featured image if it has one.',
+		'post_thumbnail' => '(object>attachment) The attachment object for the featured image if it has one.',
 		'format'         => array(), // see constructor
 		'geo'            => '(object>geo|false)',
 		'publicize_URLs' => '(array:URL) Array of Twitter and Facebook URLs published by this post.',
@@ -71,6 +72,9 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		// whitelist of metadata that can be accessed
  		if ( in_array( $key, apply_filters( 'rest_api_allowed_public_metadata', $whitelisted_meta ) ) )
+			return true;
+
+		if ( 0 === strpos( $key, 'geo_' ) )
 			return true;
 
 		if ( 0 === strpos( $key, '_wpas_' ) )
@@ -410,7 +414,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'attachments':
 				$response[$key] = array();
-				$_attachments = get_posts( array( 'post_parent' => $post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment', 'posts_per_page' => -1 ) );
+				$_attachments = get_posts( array( 'post_parent' => $post->ID, 'post_status' => 'inherit', 'post_type' => 'attachment' ) );
 				foreach ( $_attachments as $attachment ) {
 					$response[$key][$attachment->ID] = $this->get_attachment( $attachment );
 				}

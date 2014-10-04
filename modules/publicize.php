@@ -315,6 +315,7 @@ class Publicize_Util {
 	}
 }
 
+if( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) && ! function_exists( 'publicize_init' ) ) {
 /**
  * Helper for grabbing a Publicize object from the "front-end" (non-admin) of
  * a site. Normally Publicize is only loaded in wp-admin, so there's a little
@@ -332,3 +333,6 @@ function publicize_init() {
 
 	return $publicize;
 }
+
+}
+

@@ -474,18 +474,19 @@ function jetpack_contact_form_learn_more_button() {
 }
 
 function jetpack_contact_form_more_info() {
-    echo '<div class="jp-info-img">';
-    echo '<a href="http://support.wordpress.com/contact-form/">';
-    echo '<img class="jp-info-img" src="' . plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/contactform.png' ) . '" alt="' . esc_attr__( 'Contact Form', 'jetpack' ) . '" width="300" height="150" />';
-    echo '</a>';
-    echo '</div>';
+	echo '<div class="jp-info-img">';
+	echo '<a href="http://support.wordpress.com/contact-form/">';
+	echo '<img class="jp-info-img" src="' . plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/contactform.png' ) . '" alt="' . esc_attr__( 'Contact Form', 'jetpack' ) . '" width="300" height="150" />';
+	echo '</a>';
+	echo '</div>';
 
-    echo '<p>';
-    _e( 'A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address.', 'jetpack' );
-    echo '</p>';
+	echo '<p>';
+	_e( 'A contact form is a great way to offer your readers the ability to get in touch, without giving out your personal email address.', 'jetpack' );
+	echo '</p>';
 
-    echo '<p>';    _e( 'Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href="http://akismet.com/">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area.', 'jetpack' );
-    echo '</p>';
+	echo '<p>';
+	_e( 'Each contact form can easily be customized to fit your needs. When a user submits your contact form, the feedback will be filtered through <a href="http://akismet.com/">Akismet</a> (if it is active on your site) to make sure it’s not spam. Any legitimate feedback will then be emailed to you, and added to your feedback management area.', 'jetpack' );
+	echo '</p>';
 }
 
 add_action( 'jetpack_learn_more_button_contact-form', 'jetpack_contact_form_learn_more_button' );
@@ -524,7 +525,7 @@ add_action( 'jetpack_module_more_info_connected_comments', 'jetpack_comments_mor
 
 // Gallery Carousel: START
 function jetpack_carousel_learn_more_button() {
-    echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
+	echo '<a class="button-secondary more-info-link" href="#">' . __( 'Learn More', 'jetpack' ) . '</a>';
 }
 
 function jetpack_carousel_more_info() {
@@ -533,7 +534,7 @@ function jetpack_carousel_more_info() {
 		<img class="jp-info-img" src="<?php echo plugins_url( basename( dirname( dirname( __FILE__ ) ) ) . '/images/screenshots/carousel.png' ) ?>" alt="<?php esc_attr_e( 'Gallery Carousel Screenshot', 'jetpack' ) ?>" width="300" height="188" />
 	</div>
 
-    <p><?php esc_html_e( 'With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'With Carousel active, any standard WordPress galleries you have embedded in posts or pages will launch a gorgeous full-screen photo browsing experience with comments and EXIF metadata.', 'jetpack' ); ?></p>
 <?php
 }
 

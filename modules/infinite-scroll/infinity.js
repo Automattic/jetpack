@@ -521,7 +521,7 @@ Scroller.prototype.determineURL = function () {
 		}
 	} );
 
-    $.each(setsHidden, function() {
+	$.each(setsHidden, function() {
 		var $set = $('#' + this.id);
 		if( $set.hasClass( 'is--replaced' ) ) {
 			return;

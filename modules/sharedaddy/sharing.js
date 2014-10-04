@@ -5,7 +5,7 @@ var WPCOMSharing = {
 			return;
 
 		if ( jQuery( '#sharing-facebook-' + WPCOM_sharing_counts[ url ] ).length )
-			jQuery.getScript( 'https://api.facebook.com/method/fql.query?query=' + encodeURIComponent( "SELECT total_count, url FROM link_stat WHERE url='" + url + "'" ) + '&format=json&callback=WPCOMSharing.update_facebook_count' );
+			jQuery.getScript( 'https://graph.facebook.com/?ids=' + encodeURIComponent( url ) + '&format=json&callback=WPCOMSharing.update_facebook_count' );
 		if ( jQuery( '#sharing-twitter-' + WPCOM_sharing_counts[ url ] ).length )
 			jQuery.getScript( window.location.protocol + '//cdn.api.twitter.com/1/urls/count.json?callback=WPCOMSharing.update_twitter_count&url=' + encodeURIComponent( url ) );
 		if ( jQuery( '#sharing-linkedin-' + WPCOM_sharing_counts[ url ] ).length )
@@ -14,8 +14,8 @@ var WPCOMSharing = {
 		WPCOMSharing.done_urls[ WPCOM_sharing_counts[ url ] ] = true;
 	},
 	update_facebook_count : function( data ) {
-		if ( 'undefined' != typeof data[0].total_count && ( data[0].total_count * 1 ) > 0 ) {
-			WPCOMSharing.inject_share_count( 'sharing-facebook-' + WPCOM_sharing_counts[ data[0].url ], data[0].total_count );
+		if ( 'undefined' != typeof data && 'undefined' != typeof Object.keys(data) && Object.keys(data).length > 0 && 'undefined' != typeof data[Object.keys(data)[0]].shares ) {
+			WPCOMSharing.inject_share_count( 'sharing-facebook-' + WPCOM_sharing_counts[ Object.keys(data)[0] ], data[Object.keys(data)[0]].shares );
 		}
 	},
 	update_twitter_count : function( data ) {
@@ -31,7 +31,7 @@ var WPCOMSharing = {
 		}
 	},
 	inject_share_count : function( dom_id, count ) {
-		jQuery( '#' + dom_id + ' span' ).append( '<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>' );
+		jQuery( '#' + dom_id + ' span:first').append( '<span class="share-count">' + WPCOMSharing.format_count( count ) + '</span>' );
 	},
 	format_count : function( count ) {
 		if ( count < 1000 )

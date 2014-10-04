@@ -14,6 +14,13 @@ add_action( 'jetpack_deactivate_module_json-api', array( Jetpack::init(), 'toggl
 
 add_action( 'jetpack_modules_loaded', 'jetpack_json_api_load_module' );
 
+$theme_slug = get_option( 'stylesheet' );
+
+Jetpack_Sync::sync_options( __FILE__,
+	'stylesheet',
+	"theme_mods_{$theme_slug}"
+);
+
 function jetpack_json_api_load_module() {
 	Jetpack::enable_module_configurable( __FILE__ );
 	Jetpack::module_configuration_load( __FILE__, 'jetpack_json_api_configuration_load' );

@@ -17,13 +17,13 @@ function jetpack_load_custom_css() {
 add_action( 'jetpack_modules_loaded', 'custom_css_loaded' );
 
 function custom_css_loaded() {
-        Jetpack::enable_module_configurable( __FILE__ );
-        Jetpack::module_configuration_load( __FILE__, 'custom_css_configuration_load' );
+	Jetpack::enable_module_configurable( __FILE__ );
+	Jetpack::module_configuration_load( __FILE__, 'custom_css_configuration_load' );
 }
 
 function custom_css_configuration_load() {
-        wp_safe_redirect( admin_url( 'themes.php?page=editcss#settingsdiv' ) );
-        exit;
+	wp_safe_redirect( admin_url( 'themes.php?page=editcss#settingsdiv' ) );
+	exit;
 }
 
 jetpack_load_custom_css();

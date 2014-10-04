@@ -664,18 +664,18 @@ class VideoPress_Player {
 		return <<<OBJECT
 <script type="text/javascript">if(typeof swfobject!=="undefined"){swfobject.registerObject("{$this->video_id}", "{$this->video->players->swf->version}");}</script>
 <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="{$this->video->calculated_width}" height="{$this->video->calculated_height}" id="{$this->video_id}"{$standby}>
-  <param name="movie" value="{$flash_player_url}" />
-  {$flash_params}
-  <param name="flashvars" value="{$flash_vars}" />
-  <!--[if !IE]>-->
-  <object type="application/x-shockwave-flash" data="{$flash_player_url}" width="{$this->video->calculated_width}" height="{$this->video->calculated_height}"{$standby}>
-    {$flash_params}
-    <param name="flashvars" value="{$flash_vars}" />
-  <!--<![endif]-->
-  {$thumbnail_html}{$description}<p class="robots-nocontent">{$flash_help}</p>
-  <!--[if !IE]>-->
-  </object>
-  <!--<![endif]-->
+	<param name="movie" value="{$flash_player_url}" />
+	{$flash_params}
+	<param name="flashvars" value="{$flash_vars}" />
+	<!--[if !IE]>-->
+	<object type="application/x-shockwave-flash" data="{$flash_player_url}" width="{$this->video->calculated_width}" height="{$this->video->calculated_height}"{$standby}>
+		{$flash_params}
+		<param name="flashvars" value="{$flash_vars}" />
+	<!--<![endif]-->
+	{$thumbnail_html}{$description}<p class="robots-nocontent">{$flash_help}</p>
+	<!--[if !IE]>-->
+	</object>
+	<!--<![endif]-->
 </object>
 OBJECT;
 	}

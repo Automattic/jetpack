@@ -891,15 +891,17 @@ class Jetpack_Likes {
 				$enabled = false;
 			}
 		}
-
-		// Check that the post is a public, published post.
-		if ( 'attachment' == $post->post_type ) {
-			$post_status = get_post_status( $post->post_parent );
-		} else {
-			$post_status = $post->post_status;
-		}
-		if ( 'publish' != $post_status ) {
-			$enabled = false;
+		
+		if( is_object( $post ) ) {
+			// Check that the post is a public, published post.
+			if ( 'attachment' == $post->post_type ) {
+				$post_status = get_post_status( $post->post_parent );
+			} else {
+				$post_status = $post->post_status;
+			}
+			if ( 'publish' != $post_status ) {
+				$enabled = false;
+			}
 		}
 
 		// Run through the sharing filters

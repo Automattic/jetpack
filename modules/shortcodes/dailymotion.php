@@ -16,6 +16,8 @@
  * Code as of 01.01.11:
  * <object width="560" height="421"><param name="movie" value="http://www.dailymotion.com/swf/video/xaose5?width=560&theme=denim&foreground=%2392ADE0&highlight=%23A2ACBF&background=%23202226&start=&animatedTitle=&iframe=0&additionalInfos=0&autoPlay=0&hideInfos=0"></param><param name="allowFullScreen" value="true"></param><param name="allowScriptAccess" value="always"></param><embed type="application/x-shockwave-flash" src="http://www.dailymotion.com/swf/video/xaose5?width=560&theme=denim&foreground=%2392ADE0&highlight=%23A2ACBF&background=%23202226&start=&animatedTitle=&iframe=0&additionalInfos=0&autoPlay=0&hideInfos=0" width="560" height="421" allowfullscreen="true" allowscriptaccess="always"></embed></object><br /><b><a href="http://www.dailymotion.com/video/xaose5_sexy-surprise_na">Sexy Surprise</a></b><br /><i>Uploaded by <a href="http://www.dailymotion.com/GilLavie">GilLavie</a>. - <a target="_self" href="http://www.dailymotion.com/channel/sexy/featured/1">Find more steamy, sexy videos.</a></i>
  * movie param enforces anti-xss protection
+ *
+ * Scroll down for the new <iframe> embed code handler.
  */
 
 function dailymotion_embed_to_shortcode( $content ) {
@@ -115,3 +117,47 @@ function dailymotion_shortcode( $atts ) {
 }
 
 add_shortcode( 'dailymotion', 'dailymotion_shortcode' );
+
+/**
+ * Dailymotion Embed Reversal (with new iframe code as of 17.09.2014)
+ *
+ * Converts a generic HTML embed code from Dailymotion into an
+ * oEmbeddable URL.
+ */
+
+function jetpack_dailymotion_embed_reversal( $content ) {
+	if ( false === stripos( $content, 'dailymotion.com/embed' ) )
+		return $content;
+
+	/* Sample embed code as of Sep 17th 2014:
+
+		<iframe frameborder="0" width="480" height="270" src="//www.dailymotion.com/embed/video/x25x71x" allowfullscreen></iframe><br /><a href="http://www.dailymotion.com/video/x25x71x_dog-with-legs-in-casts-learns-how-to-enter-the-front-door_animals" target="_blank">Dog with legs in casts learns how to enter the...</a> <i>by <a href="http://www.dailymotion.com/videobash" target="_blank">videobash</a></i>
+	*/
+
+	$regexes = array();
+
+	// I'm Konstantin and I love regex.
+	$regexes[] = '#<iframe[^>]+?src=" (?:https?:)?//(?:www\.)?dailymotion\.com/embed/video/([^"\'/]++) "[^>]*+>\s*+</iframe>\s*+(?:<br\s*+/>)?\s*+
+	(?: <a[^>]+?href=" (?:https?:)?//(?:www\.)?dailymotion\.com/[^"\']++ "[^>]*+>.+?</a>\s*+ )?
+	(?: <i>.*?<a[^>]+?href=" (?:https?:)?//(?:www\.)?dailymotion\.com/[^"\']++ "[^>]*+>.+?</a>\s*+</i> )?#ix';
+
+	$regexes[] = '#&lt;iframe(?:[^&]|&(?!gt;))+?src=" (?:https?:)?//(?:www\.)?dailymotion\.com/embed/video/([^"\'/]++) "(?:[^&]|&(?!gt;))*+&gt;\s*+&lt;/iframe&gt;\s*+(?:&lt;br\s*+/&gt;)?\s*+
+	(?: &lt;a(?:[^&]|&(?!gt;))+?href=" (?:https?:)?//(?:www\.)?dailymotion\.com/[^"\']++ "(?:[^&]|&(?!gt;))*+&gt;.+?&lt;/a&gt;\s*+ )?
+	(?: &lt;i&gt;.*?&lt;a(?:[^&]|&(?!gt;))+?href=" (?:https?:)?//(?:www\.)?dailymotion\.com/[^"\']++ "(?:[^&]|&(?!gt;))*+&gt;.+?&lt;/a&gt;\s*+&lt;/i&gt; )?#ix';
+
+	foreach ( $regexes as $regex ) {
+		if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) )
+			continue;
+
+		foreach ( $matches as $match ) {
+			$url = esc_url( sprintf( 'https://dailymotion.com/video/%s', $match[1] ) );
+			$replace_regex = sprintf( '#\s*%s\s*#', preg_quote( $match[0], '#' ) );
+			$content = preg_replace( $replace_regex, sprintf( "\n\n%s\n\n", $url ), $content );
+			do_action( 'jetpack_embed_to_shortcode', 'dailymotion', $url );
+		}
+	}
+
+	return $content;
+}
+
+add_filter( 'pre_kses', 'jetpack_dailymotion_embed_reversal' );

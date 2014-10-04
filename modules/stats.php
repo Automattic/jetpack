@@ -250,7 +250,7 @@ function stats_array( $kvs ) {
  * Admin Pages
  */
 function stats_admin_menu() {
-        global $pagenow;
+	global $pagenow;
 
 	// If we're at an old Stats URL, redirect to the new one.
 	// Don't even bother with caps, menu_page_url(), etc.  Just do it.

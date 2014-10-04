@@ -111,13 +111,11 @@ class Jetpack_Twitter_Cards {
 		return '@' . preg_replace( '/^@/', '', $str );
 	}
 
-	static function prioritize_creator_over_default_site( $site_tag, $og_tags ) {
-		if ( ! empty($og_tags['twitter:creator']) && ( '@wordpressdotcom' == $site_tag || '@jetpack' == $site_tag ) ) {
-			$twitter_site = $og_tags['twitter:creator'];
-		} else {
-			$twitter_site = $site_tag;
+	static function prioritize_creator_over_default_site( $site_tag, $og_tags = array() ) {
+		if ( ! empty( $og_tags['twitter:creator'] ) && in_array( $site_tag, array( '@wordpressdotcom', '@jetpack' ) ) ) {
+			$site_tag = $og_tags['twitter:creator'];
 		}
-		return $twitter_site;
+		return $site_tag;
 	}
 
 	static function twitter_cards_define_type_based_on_image_count( $og_tags, $extract ) {

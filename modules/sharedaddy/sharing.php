@@ -35,7 +35,7 @@ class Sharing_Admin {
 			wp_enqueue_style( 'sharing', WP_SHARING_PLUGIN_URL.'sharing-legacy.css', false, JETPACK__VERSION );
 		}
 
-		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 3 );
+		wp_enqueue_script( 'sharing-js-fe', WP_SHARING_PLUGIN_URL . 'sharing.js', array( ), 4 );
 
 		add_thickbox();
 	}
