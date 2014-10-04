@@ -400,8 +400,8 @@ new Jetpack_JSON_API_Autoupdate_Plugins_Endpoint( array(
         'autoupdate' => '(bool) Autoupdates on or off',
     ),
     'response_format' => array(
-        'updated' => '(array) An array of updated plugin ids',
-        'errors'  => '(array) An array of not updated plugin ids',
+        'plugins'    => '(array) An array of plugin ids that were flagged for automatic updates',
+        'autoupdate' => '(bool) Autoupdates on or off',
     ),
     'example_request_data' => array(
         'headers' => array(
