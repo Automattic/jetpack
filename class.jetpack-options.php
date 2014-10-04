@@ -19,6 +19,7 @@ class Jetpack_Options {
 				'wpcc_options',
 				'relatedposts',
 				'file_data',
+                'autoupdate_plugins',
 			);
 		}
 
@@ -42,6 +43,7 @@ class Jetpack_Options {
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
 			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
 			'json_api_full_management',     // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
+            'autoupdate_plugins',           // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
 		);
 	}
 
