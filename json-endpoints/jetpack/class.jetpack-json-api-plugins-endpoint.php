@@ -117,10 +117,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
         if( empty( $this->plugins ) || ! is_array( $this->plugins ) ) {
             return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ));
         }
-        foreach( $this->plugins as $p ) {
+        foreach( $this->plugins as $k => $p ) {
             if( is_wp_error( $error = $this->validate_plugin( $p ) ) ) {
                 return $error;
             }
+            $this->plugins[$k] = $p . '.php';
         }
         return true;
     }
