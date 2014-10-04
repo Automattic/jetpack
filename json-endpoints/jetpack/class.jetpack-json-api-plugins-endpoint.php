@@ -24,6 +24,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		'author'      => '(string)  The author\'s name',
 		'author_url'  => '(url)  The authors web site address',
 		'network'     => '(boolean) Whether the plugin can only be activated network wide.',
+		'autoupdate'  => '(boolean) Whether the plugin is automatically updated',
 		'log'         => '(array:safehtml) An array of update log strings.',
 	);
 
@@ -37,13 +38,19 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			return $error;
 		}
 
-		if ( is_wp_error( $error = $this->validate_plugin( $plugin ) ) ) {
+		if ( is_wp_error( $error = $this->validate_input( $plugin ) ) ) {
+			return $error;
+		}
+
+		if ( is_wp_error( $error = $this->validate_plugins( ) ) ) {
 			return $error;
 		}
 
 		if ( ! empty( $this->action ) ) {
-			if ( is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
-				return $error;
+			foreach( $this->action as $a ) {
+				if ( is_wp_error( $error = call_user_func( array( $this, $a ) ) ) ) {
+					return $error;
+				}
 			}
 		}
 
@@ -70,6 +77,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
     }
 
 	protected function format_plugin( $plugin_file, $plugin_data ) {
+		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		$plugin = array();
 		$plugin['id']     = preg_replace("/(.+)\.php$/", "$1", urlencode( $plugin_file ) );
 		$plugin['active'] = Jetpack::is_plugin_active( $plugin_file );
@@ -84,6 +92,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['author']      = $plugin_data['Author'];
 		$plugin['author_url']  = $plugin_data['AuthorURI'];
 		$plugin['network']     = $plugin_data['Network'];
+		$plugin['autoupdate']  = ( in_array( $plugin_file, $autoupdate_plugins ) ) ? true : false;
 
 		if ( ! empty ( $this->log ) ) {
 			$plugin['log'] = $this->log;
