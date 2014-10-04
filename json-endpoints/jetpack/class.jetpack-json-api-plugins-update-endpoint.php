@@ -2,7 +2,7 @@
 
 class Jetpack_JSON_API_Plugins_Update_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// POST /sites/%s/plugins/%s/update => upgrade_plugin
-	protected $action = 'upgrade_plugin';
+	protected $action = array( 'upgrade_plugin' );
 	protected $needed_capabilities = 'update_plugins';
 
 	protected function upgrade_plugin() {

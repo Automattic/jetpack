@@ -164,7 +164,7 @@ new Jetpack_JSON_API_Plugins_Get_Endpoint( array(
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modify-endpoint.php' );
 
 new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
-	'description'     => 'Activate/Deactivate a Plugin on your Jetpack Site',
+	'description'     => 'Activate/Deactivate a Plugin on your Jetpack Site, or set automatic updates',
 	'method'          => 'POST',
 	'path'            => '/sites/%s/plugins/%s/',
 	'stat'            => 'plugins:1',
@@ -173,7 +173,8 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 		'$plugin'   => '(string) The plugin ID',
 	),
 	'request_format' => array(
-		'active'   => '(bool) The module activation status',
+		'active'       => '(bool) The module activation status',
+		'autoupdate'   => '(bool) Set auto updates on or off',
 		'network_wide' => '(bool) Do action network wide (default value: false)'
 	),
 	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
@@ -381,39 +382,4 @@ new Jetpack_JSON_API_Core_Update_Endpoint( array(
 		),
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core/update'
-) );
-
-
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-autoupdate-plugins-endpoint.php' );
-// POST /sites/%s/autoupdate/plugins
-new Jetpack_JSON_API_Autoupdate_Plugins_Endpoint( array(
-    'description'     => 'Flag a Jetpack blog for automatic plugin updates',
-    'group'           => '__do_not_document',
-    'method'          => 'POST',
-    'path'            => '/sites/%s/autoupdate/plugins',
-    'stat'            => 'plugins:autoupdate',
-    'path_labels' => array(
-        '$site' => '(int|string) The site ID, The site domain'
-    ),
-    'request_format' => array(
-        'plugins'    => '(array) The list of plugin ids to flag for automatic update',
-        'autoupdate' => '(bool) Autoupdates on or off',
-    ),
-    'response_format' => array(
-        'plugins'    => '(array) An array of plugin ids that were flagged for automatic updates',
-        'autoupdate' => '(bool) Autoupdates on or off',
-    ),
-    'example_request_data' => array(
-        'headers' => array(
-            'authorization' => 'Bearer YOUR_API_TOKEN',
-        ),
-        'body'    => array(
-            'plugins' => array(
-                'hello',
-                'jetpack/jetpack'
-            ),
-            'autoupdate' => true,
-        ),
-    ),
-    'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/autoupdate/plugins'
 ) );
