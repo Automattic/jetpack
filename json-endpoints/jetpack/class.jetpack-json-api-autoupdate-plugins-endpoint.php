@@ -52,7 +52,8 @@ class Jetpack_JSON_API_Autoupdate_Plugins_Endpoint extends Jetpack_JSON_API_Plug
                 unset( $this->autoupdate_plugins[$k] );
             }
         }
-        $this->jetpack_options->update_option( 'autoupdate_plugins', $this->autoupdate_plugins );
+        $rekeyed = array_values( $this->autoupdate_plugins );
+        $this->jetpack_options->update_option( 'autoupdate_plugins', $rekeyed );
     }
 
     protected function validate_autoupdate() {
