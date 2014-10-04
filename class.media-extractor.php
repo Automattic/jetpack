@@ -21,9 +21,9 @@ class Jetpack_Media_Meta_Extractor {
 	private static $KEEPER_SHORTCODES = array(
 		'youtube',
 		'vimeo',
-		'hulu',
 		'ted',
 		'wpvideo',
+		'audio',
 	);
 
 	/**
