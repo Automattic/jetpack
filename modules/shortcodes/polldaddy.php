@@ -67,9 +67,7 @@ CONTAINER;
 	 * into the [polldaddy poll=...] shortcode format
 	 */
 	function polldaddy_embed_to_shortcode( $content ) {
-		if ( ! is_automattician() )
-			return $content;
-			
+				
 		if ( false === strpos( $content, 'polldaddy.com/p/' ) )
 			return $content;
 
