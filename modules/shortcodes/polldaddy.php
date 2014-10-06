@@ -72,14 +72,17 @@ CONTAINER;
 			
 		if ( false === strpos( $content, 'polldaddy.com/p/' ) )
 			return $content;
-			
-		$regexp = '#<script[^>]+?src="http(s)?://(secure|static)\.polldaddy\.com/p/([0-9]+).js"[^>]*+>\s*?</script>\r?\n?(<noscript>.*</noscript>)?#i';
-		$regexp_ent = htmlspecialchars( $regexp, ENT_NOQUOTES );
-		
-		foreach ( compact( 'regexp', 'regexp_ent' ) as $regex ) {
+
+		$regexes = array();
+
+		$regexes[] = '#<script[^>]+?src="http(s)?://(secure|static)\.polldaddy\.com/p/([0-9]+).js"[^>]*+>\s*?</script>\r?\n?(<noscript>.*</noscript>)?#i';
+	
+		$regexes[] = '#&lt;script[^&]+?src="http(s)?://(secure|static)\.polldaddy\.com/p/([0-9]+).js"[^&]*+&gt;\s*?&lt;/script&gt;\r?\n?(&lt;noscript&gt;.*&lt;/noscript&gt;)?#i';
+	
+		foreach ( $regexes as $regex ) {
 			if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) )
-				continue;
-				
+		 		continue;
+	
 			foreach ( $matches as $match ) {
 				if (!isset( $match[3] ) )
 					continue;
