@@ -41,5 +41,13 @@ EOD;
 
 	return $markup;
 }
-
 add_shortcode( 'scribd', 'scribd_shortcode_handler' );
+
+// Scribd supports HTTPS, so use that endpoint to get HTTPS-compatible embeds
+function scribd_https_oembed( $providers ) {
+	if ( isset( $providers['#https?://(www\.)?scribd\.com/doc/.*#i'] ) ) {
+		$providers['#https?://(www\.)?scribd\.com/doc/.*#i'][0] = 'https://www.scribd.com/services/oembed';
+	}
+	return $providers;
+}
+add_filter( 'oembed_providers', 'scribd_https_oembed' );
