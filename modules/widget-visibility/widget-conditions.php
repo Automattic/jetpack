@@ -452,6 +452,7 @@ class Jetpack_Widget_Conditions {
 						global $current_user;
 						get_currentuserinfo();
 
+<<<<<<< HEAD
 						$user_roles = $current_user->roles;
 
 						if ( in_array( $rule['minor'], $user_roles ) ) {
@@ -459,6 +460,15 @@ class Jetpack_Widget_Conditions {
 						} else {
 							$condition_result = false;
 						}
+=======
+    						$user_roles = $current_user->roles;
+    					
+    						if( in_array( $rule['minor'], $user_roles ) ) {
+    							$condition_result = true;
+    						} else {
+    							$condition_result = false;
+    						}
+>>>>>>> Resolve divergence from Jetpack - Big Whitespace Fix.
 					} else {
 						$condition_result = false;
 					}
