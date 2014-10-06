@@ -79,6 +79,7 @@ abstract class Sharing_Source {
 			$title,
 			( $id ? ' id="' . esc_attr( $id ) . '"' : '' ),
 			( $this->button_style == 'icon' ) ? '></span><span class="sharing-screen-reader-text"' : '',
+
 			$text
 		);
 	}
