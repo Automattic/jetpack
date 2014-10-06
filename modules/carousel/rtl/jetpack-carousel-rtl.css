@@ -1,4 +1,4 @@
-/* This file was automatically generated on Jul 14 2014 00:33:37 */
+/* This file was automatically generated on Oct 06 2014 18:02:19 */
 
 .jp-carousel-wrap * {
 	line-height:inherit; /* prevent declarations of line-height in the universal selector */
@@ -309,10 +309,6 @@ div.jp-carousel-buttons a.jp-carousel-commentlink {
 	background-position: 0px -156px;
 	padding-right: 19px !important;
 }
-.rtl div.jp-carousel-buttons a.jp-carousel-commentlink{
-	background-position: 100% -156px;
-}
-
 .rtl div.jp-carousel-buttons a.jp-carousel-commentlink{
 	background-position: 100% -156px;
 }
@@ -849,8 +845,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 	border-radius: 2px;
 	font: 13px/1.4 "Helvetica Neue", sans-serif !important;
 	border: 1px solid rgba( 255, 255, 255, 0.17 );
-    -webkit-box-shadow: inset 0px 5px 5px 0px rgba(0, 0, 0, 1);
-            box-shadow: inset 0px 5px 5px 0px rgba(0, 0, 0, 1);
+	-webkit-box-shadow: inset 0px 5px 5px 0px rgba(0, 0, 0, 1);
+	        box-shadow: inset 0px 5px 5px 0px rgba(0, 0, 0, 1);
 }
 
 .jp-carousel-comment-post-error {
@@ -1078,8 +1074,8 @@ textarea#jp-carousel-comment-form-comment-field:focus::-webkit-input-placeholder
 .jp-carousel-light  #jp-carousel-comment-post-results span {
 	background: #f7f7f7;
 	border:1px solid #dfdfdf;
-    -webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
-            box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
+	-webkit-box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
+	        box-shadow: inset 0px 0px 5px rgba(0, 0, 0, 0.05);
 }
 
 .jp-carousel-light .jp-carousel-slide {

@@ -1,4 +1,4 @@
-/* This file was automatically generated on Jul 10 2014 07:37:31 */
+/* This file was automatically generated on Oct 06 2014 18:02:19 */
 
 .slideshow-window {
 	background-color: #222;
@@ -30,14 +30,14 @@
 }
 
 body div.slideshow-window * img {
-    /* Override any styles that might be present in the page stylesheet */
-    border-width: 0 !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    padding: 0 !important;
-    background-color: transparent !important;
-    background-image: none !important;
-    max-width: 100%;
+	/* Override any styles that might be present in the page stylesheet */
+	border-width: 0 !important;
+	margin-left: auto !important;
+	margin-right: auto !important;
+	padding: 0 !important;
+	background-color: transparent !important;
+	background-image: none !important;
+	max-width: 100%;
 }
 
 .slideshow-loading img {
@@ -80,12 +80,13 @@ body div.slideshow-window * img {
 /* @noflip */
 .slideshow-controls {
 	z-index: 1000;
-        position: absolute;
-        bottom: 30px;
-        margin: auto;
+		position: absolute;
+		bottom: 30px;
+		margin: auto;
 	text-align: center;
 	width: 100%;
-	display: none;
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	opacity: 0.5;
 	direction:ltr;
 }
 
