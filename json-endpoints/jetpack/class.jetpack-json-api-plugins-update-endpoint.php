@@ -30,7 +30,8 @@ class Jetpack_JSON_API_Plugins_Update_Endpoint extends Jetpack_JSON_API_Plugins_
 		$output = ob_get_contents();
 		ob_end_clean();
 
-		$this->log = $upgrader->skin->get_upgrade_messages();
+		$p = $this->plugin;
+		$this->log[ $p ] = $upgrader->skin->get_upgrade_messages();
 
 		if ( false === $result ) {
 			return new WP_Error( 'plugin_up_to_date', __( 'The Plugin is already up to date.', 'jetpack' ), 400 );

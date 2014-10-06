@@ -54,7 +54,12 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			}
 		}
 
-		return self::get_plugin( $this->plugin );
+		if( count( $this->plugins ) === 1 ) {
+			return self::get_plugin( $this->plugin );
+		} else {
+			return self::get_plugins();
+		}
+
 	}
 
     protected function validate_input( $plugin ) {
@@ -93,12 +98,20 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['author_url']  = $plugin_data['AuthorURI'];
 		$plugin['network']     = $plugin_data['Network'];
 		$plugin['autoupdate']  = ( in_array( $plugin_file, $autoupdate_plugins ) ) ? true : false;
-
-		if ( ! empty ( $this->log ) ) {
-			$plugin['log'] = $this->log;
+		if ( ! empty ( $this->log[ $plugin_file ] ) ) {
+			$plugin['log'] = $this->log[ $plugin_file ];
 		}
-
 		return $plugin;
+	}
+
+	protected function get_plugins() {
+		$installed_plugins = get_plugins();
+		foreach( $this->plugins as $p ) {
+			if ( ! isset( $installed_plugins[ $this->plugin ] ) )
+				continue;
+			$response['plugins'][] = $this->format_plugin( $p, $installed_plugins[ $this->plugin ] );
+		}
+		return $response;
 	}
 
 	protected function get_plugin() {
