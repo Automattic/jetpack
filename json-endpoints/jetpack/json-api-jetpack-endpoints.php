@@ -189,6 +189,38 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello'
 ) );
 
+new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
+	'description'     => 'Activate/Deactivate a list of plugins on your Jetpack Site, or set automatic updates',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/plugins',
+	'stat'            => 'plugins:1',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+	),
+	'request_format' => array(
+		'active'       => '(bool) The module activation status',
+		'autoupdate'   => '(bool) Set auto updates on or off',
+		'plugins'      => '(array) A list of plugin ids to modify',
+		'network_wide' => '(bool) Do action network wide (default value: false)'
+	),
+	'response_format' => array(
+		'plugins' => '(array) A list of plugins that were modified',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'active'  => true,
+			'plugins' => array(
+				'jetpack/jetpack',
+				'akismet/akismet',
+			),
+		)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
+) );
+
 
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-update-endpoint.php' );
