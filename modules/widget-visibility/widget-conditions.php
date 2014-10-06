@@ -347,7 +347,7 @@ class Jetpack_Widget_Conditions {
 	 * @return array Settings to display or bool false to hide.
 	 */
 	public static function filter_widget( $instance ) {
-		global $post, $wp_query;
+		global $wp_query;
 
 		if ( empty( $instance['conditions'] ) || empty( $instance['conditions']['rules'] ) )
 			return $instance;
@@ -439,6 +439,7 @@ class Jetpack_Widget_Conditions {
 					}
 				break;
 				case 'author':
+					$post = get_post();
 					if ( ! $rule['minor'] && is_author() )
 						$condition_result = true;
 					else if ( $rule['minor'] && is_author( $rule['minor'] ) )
@@ -469,12 +470,11 @@ class Jetpack_Widget_Conditions {
 						$condition_result = true;
 					else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
 						$condition_result = true;
-					else if ( is_singular() ){
-						$terms = get_the_terms( $post->ID, $rule['minor'] ); // Does post have terms in taxonomy?
-						if( $terms & !is_wp_error( $terms ) ){
+					else if ( is_singular() && $post_id = get_the_ID() ){
+						$terms = get_the_terms( $post_id, $rule['minor'] ); // Does post have terms in taxonomy?
+						if( $terms & ! is_wp_error( $terms ) ) {
 							$condition_result = true;
 						}
-						
 					}
 				break;
 			}
