@@ -187,7 +187,6 @@ class Jetpack_Site_Icon {
 
 	/**
 	 * Checks for permission to delete the site_icon
-	 * @return 
 	 */
 	public function delete_site_icon_hook() {
 		// Delete the site_icon
@@ -465,8 +464,9 @@ class Jetpack_Site_Icon {
 
 	/**
 	 * Function gets fired when delete_option( 'site_icon_temp_data' ) is run.
-	 * @param  string $option description of the 
-	 * @return null;
+	 *
+	 * @param  $option string
+	 * @return null
 	 */
  	public static function delete_temp_data( $option ) {
 
@@ -481,6 +481,9 @@ class Jetpack_Site_Icon {
 		return null;
 	}
 
+	/**
+	 * @param $post_id
+	 */
 	public static function delete_attachment_data( $post_id ) {
 		
 		// The user could be deleting the site_icon image
@@ -491,12 +494,12 @@ class Jetpack_Site_Icon {
 		// The user could be deleting the temporary images
 	}
 	/**
-	 * 
-	 * @param  [type] $check    [description]
-	 * @param  [type] $post_id  [description]
-	 * @param  [type] $meta_key [description]
-	 * @param  [type] $single   [description]
-	 * @return [type]           [description]
+	 * @param $check
+	 * @param $post_id
+	 * @param $meta_key
+	 * @param $single
+	 *
+	 * @return mixed
 	 */
 	public static function delete_attachment_images( $check, $post_id, $meta_key, $single ) {
 		$site_icon_id = get_option( 'site_icon_id' );
@@ -525,6 +528,15 @@ class Jetpack_Site_Icon {
 	
 	public static function convert_coodiantes_from_resized_to_full( $crop_x, $crop_y, $crop_width, $crop_height, $ratio ) {
 
+	/**
+	 * @param $crop_x
+	 * @param $crop_y
+	 * @param $crop_width
+	 * @param $crop_height
+	 * @param $ratio
+	 *
+	 * @return array
+	 */
 		return array(  
 			'crop_x' 	  => floor( $crop_x * $ratio ),
 			'crop_y' 	  => floor( $crop_y * $ratio ), 
@@ -535,6 +547,10 @@ class Jetpack_Site_Icon {
 
 	/**
 	 * Handle the uploaded image
+	 *
+	 * @param $uploaded_file
+	 *
+	 * @return mixed
 	 */
 	public static function handle_file_upload( $uploaded_file ) {
 		
@@ -693,7 +709,8 @@ class Jetpack_Site_Icon {
 	 * Helps us delete site_icon images that
 	 *
 	 * @param  [type] $sizes [description]
-	 * @return [type]        [description]
+	 *
+	 * @return array
 	 */
 	public static function intermediate_image_sizes( $sizes ) {
 
