@@ -267,6 +267,6 @@ class Jetpack_Media_Summary {
 	}
 
 	static function get_link_count( $post_content ) {
-		return preg_match_all( '/\<a[\> ]/', $post_content );
+		return preg_match_all( '/\<a[\> ]/', $post_content, $matches );
 	}
 }
