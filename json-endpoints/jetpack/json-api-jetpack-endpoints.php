@@ -166,8 +166,8 @@ require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modi
 new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 	'description'     => 'Activate/Deactivate a Plugin on your Jetpack Site, or set automatic updates',
 	'method'          => 'POST',
-	'path'            => '/sites/%s/plugins/%s/',
-	'stat'            => 'plugins:1',
+	'path'            => '/sites/%s/plugins/%s',
+	'stat'            => 'plugins:1:modify',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
 		'$plugin'   => '(string) The plugin ID',
@@ -193,7 +193,7 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 	'description'     => 'Activate/Deactivate a list of plugins on your Jetpack Site, or set automatic updates',
 	'method'          => 'POST',
 	'path'            => '/sites/%s/plugins',
-	'stat'            => 'plugins:1',
+	'stat'            => 'plugins:modify',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
 	),
@@ -241,6 +241,36 @@ new Jetpack_JSON_API_Plugins_Update_Endpoint( array(
 		),
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello/update'
+) );
+
+new Jetpack_JSON_API_Plugins_Update_Endpoint( array(
+	'description'     => 'Update a list of plugins on your Jetpack Site',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/plugins/update/bulk/',
+	'stat'            => 'plugins:update',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+	),
+	'request_format' => array(
+		'plugins'      => '(array) A list of plugin ids to modify',
+	),
+	'response_format' => array(
+		'updated' => '(array) An array of updated plugins',
+		'errors'  => '(array) An array of not plugins',
+		'log'     => '(array:safehtml) An array of log strings.',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body'    => array(
+			'plugins' => array(
+				'akismet/akismet',
+				'jetpack/jetpack',
+			),
+		)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/update'
 ) );
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-list-endpoint.php' );
