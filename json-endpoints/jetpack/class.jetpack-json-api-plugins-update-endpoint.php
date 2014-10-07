@@ -1,11 +1,24 @@
 <?php
 
 class Jetpack_JSON_API_Plugins_Update_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
-	// POST /sites/%s/plugins/%s/update => upgrade_plugin
+	// POST /sites/%s/plugins/%s/update
+	// POST /sites/%s/plugins/update
 	protected $action = array( 'upgrade_plugin' );
 	protected $needed_capabilities = 'update_plugins';
 
-	protected function upgrade_plugin() {
+	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
+		// validates
+		$error = parent::callback( $path, $blog_id, null );
+
+		if( is_wp_error( $error ) ) {
+			return $error;
+		}
+
+		return $this->upgrade_plugins();
+
+	}
+
+	protected function upgrade_plugins() {
 
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
@@ -25,25 +38,30 @@ class Jetpack_JSON_API_Plugins_Update_Endpoint extends Jetpack_JSON_API_Plugins_
 		remove_action( 'upgrader_process_complete', 'wp_version_check' );
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
-		ob_start();
-		$result = $upgrader->upgrade( $this->plugin );
-		$output = ob_get_contents();
-		ob_end_clean();
 
-		$p = $this->plugin;
-		$this->log[ $p ] = $upgrader->skin->get_upgrade_messages();
+		$results   = $upgrader->bulk_upgrade( $this->plugins );
+		$log       = $upgrader->skin->get_upgrade_messages();
 
-		if ( false === $result ) {
-			return new WP_Error( 'plugin_up_to_date', __( 'The Plugin is already up to date.', 'jetpack' ), 400 );
-		}
-		if ( empty( $result ) && ! empty( $output ) ) {
-			return new WP_Error( 'unknown_error', __( 'There was an error while trying to upgrade.', 'jetpack' ), 500 );
-		}
-		if ( is_wp_error( $result) ) {
-			return $result;
+		$updated   = array();
+		$errors    = array();
+		$installed_plugins = get_plugins();
+		foreach ( $results as $path => $result ) {
+			if ( is_array( $result ) ) {
+				$updated[ $path ] = $this->format_plugin( $path, $installed_plugins[ $path ] );
+			} else {
+				$errors[] = $path;
+			}
 		}
 
-		return true;
+		if ( 0 === count( $updated ) && 1 === count( $this->plugins ) ) {
+			return new WP_Error( 'update_fail', $log, 400 );
+		}
+
+		return array(
+			'updated' => $updated,
+			'errors'  => $errors,
+			'log'     => $log
+		);
 	}
 
 }
