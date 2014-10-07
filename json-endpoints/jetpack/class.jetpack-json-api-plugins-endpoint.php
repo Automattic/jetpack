@@ -136,7 +136,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function validate_plugins() {
-		error_log( print_r( $this->plugins, true), 1, 'rocco@a8c.com' );
 		if( empty( $this->plugins ) || ! is_array( $this->plugins ) ) {
 			return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ));
 		}
