@@ -585,11 +585,11 @@ class Jetpack_Site_Icon {
 		if( $image_size[0] < self::$min_size || $image_size[1] < self::$min_size ) {
 
 			if( $image_size[0] < self::$min_size ) {
-				return new WP_Error( 'broke', __( sprintf( "The image that you uploaded is smalled then %spx in width", self::$min_size ) , 'jetpack' ) );
+				return new WP_Error( 'broke', sprintf( __( 'The image that you uploaded is smaller than %upx in width.', 'jetpack' ), self::$min_size ) );
 			}
 
 			if( $image_size[1] < self::$min_size ) {
-				return new WP_Error( 'broke', __( sprintf( "The image that you uploaded is smalled then %spx in height", self::$min_size ) , 'jetpack' ) );
+				return new WP_Error( 'broke', sprintf( __( 'The image that you uploaded is smaller than %upx in height.', 'jetpack' ), self::$min_size ) );
 			}
 		}
 
