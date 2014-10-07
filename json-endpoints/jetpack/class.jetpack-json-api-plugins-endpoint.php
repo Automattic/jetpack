@@ -8,7 +8,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	protected $network_wide = false;
 	protected $plugin;
 	protected $log;
-    protected $plugins;
+	protected $plugins;
 
 	protected $action;
 	protected $needed_capabilities;
@@ -62,24 +62,24 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	}
 
-    protected function validate_input( $plugin ) {
+	protected function validate_input( $plugin ) {
 
-        if ( ! isset( $plugin ) || empty( $plugin ) ) {
-            $args = $this->input();
-            if ( ! $args['plugins'] || empty( $args['plugins'] ) ) {
-                return new WP_Error( 'missing_plugin', __( 'You are required to specify a plugin.', 'jetpack' ), 400 );
-            }
-            if ( is_array( $args['plugins'] ) ) {
-                $this->plugins = $args['plugins'];
-            } else {
-                $this->plugins[] = $plugin;
-            }
-        } else {
-            $this->plugins[] = urldecode( $plugin );
-        }
+		if ( ! isset( $plugin ) || empty( $plugin ) ) {
+			$args = $this->input();
+			if ( ! $args['plugins'] || empty( $args['plugins'] ) ) {
+				return new WP_Error( 'missing_plugin', __( 'You are required to specify a plugin.', 'jetpack' ), 400 );
+			}
+			if ( is_array( $args['plugins'] ) ) {
+				$this->plugins = $args['plugins'];
+			} else {
+				$this->plugins[] = $plugin;
+			}
+		} else {
+			$this->plugins[] = urldecode( $plugin );
+		}
 
-        return true;
-    }
+		return true;
+	}
 
 	protected function format_plugin( $plugin_file, $plugin_data ) {
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
@@ -106,10 +106,10 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	protected function get_plugins() {
 		$installed_plugins = get_plugins();
-		foreach( $this->plugins as $p ) {
-			if ( ! isset( $installed_plugins[ $this->plugin ] ) )
+		foreach( $this->plugins as $plugin ) {
+			if ( ! isset( $installed_plugins[ $plugin ] ) )
 				continue;
-			$response['plugins'][] = $this->format_plugin( $p, $installed_plugins[ $this->plugin ] );
+			$response['plugins'][] = $this->format_plugin( $plugin, $installed_plugins[ $plugin ] );
 		}
 		return $response;
 	}
@@ -135,18 +135,18 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return true;
 	}
 
-    protected function validate_plugins() {
-        if( empty( $this->plugins ) || ! is_array( $this->plugins ) ) {
-            return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ));
-        }
-        foreach( $this->plugins as $k => $p ) {
-            if( is_wp_error( $error = $this->validate_plugin( $p ) ) ) {
-                return $error;
-            }
-            $this->plugins[$k] = $p . '.php';
-        }
-        return true;
-    }
+	protected function validate_plugins() {
+		if( empty( $this->plugins ) || ! is_array( $this->plugins ) ) {
+			return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ));
+		}
+		foreach( $this->plugins as $index => $plugin ) {
+			if( is_wp_error( $error = $this->validate_plugin( $plugin ) ) ) {
+				return $error;
+			}
+			$this->plugins[ $index ] = $plugin . '.php';
+		}
+		return true;
+	}
 
 	protected function validate_plugin( $plugin ) {
 
