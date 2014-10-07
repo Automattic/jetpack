@@ -20,7 +20,8 @@ GrunionFB_i18n = jQuery.extend( {
 	editLabel: 'edit',
 	savedMessage: 'Saved successfully',
 	requiredLabel: '(required)',
-	exitConfirmMessage: 'Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost.'
+	exitConfirmMessage: 'Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost.',
+	maxNewFields: 5
 }, GrunionFB_i18n );
 
 GrunionFB_i18n.moveInstructions = GrunionFB_i18n.moveInstructions.replace( '\n', '<br />' );
@@ -75,7 +76,7 @@ FB.ContactForm = (function() {
 	};
 	var debug = false; // will print errors to log if true
 	var grunionNewCount = 0; // increment for new fields
-	var maxNewFields = 5;  // Limits number of new fields available
+	var maxNewFields = GrunionFB_i18n.maxNewFields;  // See filter in ../grunion-form-view.php
 	var optionsCache = {};
 	var optionsCount = 0; // increment for options
 	var shortcode;
