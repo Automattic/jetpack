@@ -95,8 +95,9 @@ class Jetpack_Site_Icon {
 	 */
 	public function site_icon_add_meta() {
 
-		if ( apply_filters( 'site_icon_has_favicon', false ) )
+		if ( apply_filters( 'site_icon_has_favicon', false ) ) {
 			return;
+		}
 
 		$url_114 = jetpack_site_icon_url( null,  114 );
 		$url_72  = jetpack_site_icon_url( null,  72 );
@@ -711,8 +712,9 @@ class Jetpack_Site_Icon {
 	 */
 	public static function only_thumbnail_size( $sizes ){
 		foreach( $sizes as $name => $size_array ) {
-			if( 'thumbnail' == $name)
+			if( 'thumbnail' == $name ) {
 				$only_thumb['thumbnail'] = $size_array;
+			}
 		}
 		return $only_thumb;
 	}
