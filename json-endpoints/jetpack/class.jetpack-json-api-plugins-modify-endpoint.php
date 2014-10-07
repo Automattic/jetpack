@@ -33,69 +33,82 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	protected function unflag_autoupdate_plugins() {
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
-		foreach( $autoupdate_plugins as $k => $v ) {
-			if( in_array( $v, $this->plugins ) ) {
-				unset( $autoupdate_plugins[$k] );
-				$this->log[ $v ][] = 'This plugin is has been set to manually update.';
+		foreach( $autoupdate_plugins as $index => $plugin ) {
+			if( in_array( $plugin, $this->plugins ) ) {
+				unset( $autoupdate_plugins[ $index ] );
+				$this->log[ $plugin ][] = 'This plugin is has been set to manually update.';
 			} else {
-				$this->log[ $v ][] = 'This plugin is already set to manually update.';
+				$this->log[ $plugin ][] = 'This plugin is already set to manually update.';
 			}
 		}
-		$rekeyed = array_values( $autoupdate_plugins );
-		Jetpack_Options::update_option( 'autoupdate_plugins', $rekeyed);
+		$reindexed = array_values( $autoupdate_plugins );
+		Jetpack_Options::update_option( 'autoupdate_plugins', $reindexed );
 	}
 
 	protected function activate_plugins() {
-		foreach( $this->plugins as $p ) {
-			if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $p ) ) || is_plugin_active_for_network( $p ) ) {
-				$this->log[ $p ]['error'] = true;
-				$this->log[ $p ]['error_message'] =  __( 'The Plugin is already active.', 'jetpack' );
+		foreach( $this->plugins as $plugin ) {
+			if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $plugin ) ) || is_plugin_active_for_network( $plugin ) ) {
+				$this->log[ $plugin ]['error'] = true;
+				$this->log[ $plugin ]['error_message'] =  __( 'The Plugin is already active.', 'jetpack' );
+				$has_errors = true;
 				continue;
 			}
 
-			$result = activate_plugin( $p, '', $this->network_wide );
+			$result = activate_plugin( $plugin, '', $this->network_wide );
 
 			if ( is_wp_error( $result ) ) {
-				$this->log[ $p ]['error'] = true;
-				$this->log[ $p ]['error_message'] =  $result->get_error_messages();
+				$this->log[ $plugin ]['error'] = true;
+				$this->log[ $plugin ]['error_message'] =  $result->get_error_messages();
+				$has_errors = true;
 				continue;
 			}
 
-			$success = Jetpack::is_plugin_active( $p );
+			$success = Jetpack::is_plugin_active( $plugin );
 			if ( $success &&  $this->network_wide ) {
-				$success &= is_plugin_active_for_network( $p );
+				$success &= is_plugin_active_for_network( $plugin );
 			}
 
 			if ( ! $success ) {
-				$this->log[ $p ]['error'] = true;
-				$this->log[ $p ]['error_message'] =  $result->get_error_messages;
+				$this->log[ $plugin ]['error'] = true;
+				$this->log[ $plugin ]['error_message'] =  $result->get_error_messages;
+				$has_errors = true;
 				continue;
 			}
-			$this->log[ $p ][] = __( 'Plugin activated.' );
+			$this->log[ $plugin ][] = __( 'Plugin activated.', 'jetpack' );
+		}
+		if( isset( $has_errors ) && count( $this->plugins ) === 1 ) {
+			$plugin = $this->plugins[0];
+			return new WP_Error( 'activation_error', $this->log[ $plugin ]['error_message'] );
 		}
 	}
 
 	protected function deactivate_plugins() {
-		foreach( $this->plugins as $p ) {
-			if ( ! Jetpack::is_plugin_active( $p ) ) {
-				$this->log[ $p ]['error'] = true;
-				$this->log[ $p ]['error_message'] =  __( 'The Plugin is already deactivated.', 'jetpack' );
+		foreach( $this->plugins as $plugin ) {
+			if ( ! Jetpack::is_plugin_active( $plugin ) ) {
+				$this->log[ $plugin ]['error'] = true;
+				$this->log[ $plugin ]['error_message'] =  __( 'The Plugin is already deactivated.', 'jetpack' );
+				$has_errors = true;
 				continue;
 			}
 
-			deactivate_plugins( $p, false, $this->network_wide );
+			deactivate_plugins( $plugin, false, $this->network_wide );
 
-			$success = ! Jetpack::is_plugin_active( $p );
+			$success = ! Jetpack::is_plugin_active( $plugin );
 			if ( $success &&  $this->network_wide ) {
-				$success &= ! is_plugin_active_for_network( $p );
+				$success &= ! is_plugin_active_for_network( $plugin );
 			}
 
 			if ( ! $success ) {
-				$this->log[ $p ]['error'] = true;
-				$this->log[ $p ]['error_message'] =  __( 'There was an error deactivating your plugin' );
+				$this->log[ $plugin ]['error'] = true;
+				$this->log[ $plugin ]['error_message'] =  __( 'There was an error deactivating your plugin', 'jetpack' );
+				$has_errors = true;
 				continue;
 			}
-			$this->log[ $p ][] = __( 'Plugin deactivated.' );
+			$this->log[ $plugin ][] = __( 'Plugin deactivated.', 'jetpack' );
+		}
+		if( isset( $has_errors ) && count( $this->plugins ) === 1 ) {
+			$plugin = $this->plugins[0];
+			return new WP_Error( 'deactivation_error', $this->log[ $plugin ]['error_message'] );
 		}
 	}
 }
