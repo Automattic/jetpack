@@ -18,8 +18,8 @@ GNU General Public License for more details.
 class Jetpack_Site_Icon {
 
 	public $option_name = 'site_icon';
-	public $module 		= 'site_icon';
-	public $version 	= 1;
+	public $module      = 'site_icon';
+	public $version     = 1;
 
 	public static $min_size = 512; //  the minimum size of the blvatar, 512 is the same as wp.com can be over writtern by SITE_ICON_MIN_SIZE
 	public static $page_crop = 512; // the size to which to crop the image so that we can dispay it in the UI nicely
@@ -31,7 +31,13 @@ class Jetpack_Site_Icon {
 		'image/png' 
 	);
 
-	public static $site_icon_sizes = array( 256, 128, 64, 32, 16 );
+	public static $site_icon_sizes = array(
+		256,
+		128,
+		64,
+		32,
+		16,
+	);
 
 	static $instance = false; 
 
@@ -57,32 +63,28 @@ class Jetpack_Site_Icon {
 	 */
 	public function register_hooks(){
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
-
 		add_action( 'admin_menu',             array( $this, 'admin_menu_upload_site_icon' ) );
-
 		add_filter( 'display_media_states',   array( $this, 'add_media_state' ) );
-		
-		add_action( 'admin_init', array( $this, 'admin_init' ) );
-		add_action( 'admin_init', array( $this, 'delete_site_icon_hook' ) );
+		add_action( 'admin_init',             array( $this, 'admin_init' ) );
+		add_action( 'admin_init',             array( $this, 'delete_site_icon_hook' ) );
 
 		add_action( 'admin_print_styles-options-general.php', array( $this, 'add_general_options_styles' ) );
-		
+
 		// Add the favicon to the front end and backend 
-		add_action( 'wp_head', array( $this, 'site_icon_add_meta' ) );
-		add_action( 'admin_head', array( $this, 'site_icon_add_meta' ) );
-		
-		add_action( 'delete_option', 	 array( 'Jetpack_Site_Icon', 'delete_temp_data' ), 10, 1); // used to clean up after itself. 
+		add_action( 'wp_head',           array( $this, 'site_icon_add_meta' ) );
+		add_action( 'admin_head',        array( $this, 'site_icon_add_meta' ) );
+
+		add_action( 'delete_option',     array( 'Jetpack_Site_Icon', 'delete_temp_data' ), 10, 1); // used to clean up after itself.
 		add_action( 'delete_attachment', array( 'Jetpack_Site_Icon', 'delete_attachment_data' ), 10, 1); // in case user deletes the attachment via 
 		add_filter( 'get_post_metadata', array( 'Jetpack_Site_Icon', 'delete_attachment_images'), 10, 4 );
 	}
+
 	/**
 	 * After all modules have been loaded.
 	 */
 	public function jetpack_modules_loaded() {
-
 		Jetpack::enable_module_configurable( $this->module );
 		Jetpack::module_configuration_load( $this->module, array( $this, 'jetpack_configuration_load' ) );
-
 	}
 
 	/**
@@ -128,17 +130,17 @@ class Jetpack_Site_Icon {
 	/**
 	 * Add styles to the General Settings Screen
 	 */
-	public function add_general_options_styles(){
+	public function add_general_options_styles() {
 		wp_enqueue_style( 'site-icon-admin' );
 	}
 	/**
 	 * Add Styles to the Upload UI Page
 	 *
 	 */
-	public function upload_balavatar_head(){
+	public function upload_balavatar_head() {
 
 		wp_register_script( 'site-icon-crop',  plugin_dir_url( __FILE__ ). "js/site-icon-crop.js"  , array( 'jquery', 'jcrop' ) , $this->version, false);
-		if( isset( $_REQUEST['step'] )  && $_REQUEST['step'] == 2 ){
+		if ( isset( $_REQUEST['step'] )  && $_REQUEST['step'] == 2 ) {
 			wp_enqueue_script( 'site-icon-crop' );
 			wp_enqueue_style( 'jcrop' );
 		}
@@ -147,7 +149,7 @@ class Jetpack_Site_Icon {
 
 	public function add_media_state( $media_states ) {
 
-		if( jetpack_has_site_icon() ){
+		if ( jetpack_has_site_icon() ) {
 			global $post;
 		
 			if( $post->ID == get_option( 'site_icon_id' ) ) {
@@ -168,7 +170,6 @@ class Jetpack_Site_Icon {
 
 	/**
 	 * Load on when the admin is initialized
-	 * 
 	 */
 	public function admin_init() {
 		/* register the styles and scripts */
@@ -182,17 +183,18 @@ class Jetpack_Site_Icon {
 		  'general'
 		);
 	}
+
 	/**
 	 * Checks for permission to delete the site_icon
 	 * @return 
 	 */
 	public function delete_site_icon_hook() {
-		// Delete  the site_icon 
-		if( isset( $GLOBALS['plugin_page'] ) && 'jetpack-site_icon-upload' == $GLOBALS['plugin_page'] ) {
-			if( isset( $_GET['action'] ) 
-			&& 'remove' == $_GET['action'] 
-			&& isset( $_GET['nonce'] ) 
-			&&  wp_verify_nonce( $_GET['nonce'], 'remove_site_icon' ) ) {
+		// Delete the site_icon
+		if ( isset( $GLOBALS['plugin_page'] ) && 'jetpack-site_icon-upload' == $GLOBALS['plugin_page'] ) {
+			if ( isset( $_GET['action'] )
+					&& 'remove' == $_GET['action']
+					&& isset( $_GET['nonce'] )
+					&& wp_verify_nonce( $_GET['nonce'], 'remove_site_icon' ) ) {
 
 				$site_icon_id = get_option( 'site_icon_id' );
 				// Delete the previous Blavatar
@@ -204,18 +206,16 @@ class Jetpack_Site_Icon {
 
 	/**
 	 * Add HTML to the General Settings
-	 * 
 	 */
-	public function site_icon_settings() { 
-		
-		$upload_blovatar_url = admin_url( 'options-general.php?page=jetpack-site_icon-upload' );
-		
+	public function site_icon_settings() {
+		$upload_blavatar_url = admin_url( 'options-general.php?page=jetpack-site_icon-upload' );
+
 		// only load the 
 		// wp_enqueue_script( 'site-icon-admin' );
 
 		// lets delete the temp data that we might he holding on to
 		self::delete_temporay_data();
-		
+
 		?>
 		<div id="site-icon" class="site-icon-shell">
 			<h3><?php echo esc_html_e( 'Site Icon', 'jetpack'  ); ?></h3>
@@ -227,15 +227,15 @@ class Jetpack_Site_Icon {
 				</div>
 				<div class="site-icon-meta">
 
-				<?php if( jetpack_has_site_icon() ) { 
-					$remove_blovatar_url = admin_url( 'options-general.php?page=jetpack-site_icon-upload' )."&action=remove&nonce=".wp_create_nonce( 'remove_site_icon' ); // this could be an ajax url 
+				<?php if ( jetpack_has_site_icon() ) {
+					$remove_blavatar_url = admin_url( 'options-general.php?page=jetpack-site_icon-upload' )."&action=remove&nonce=".wp_create_nonce( 'remove_site_icon' ); // this could be an ajax url
 					?>
-					<p><a href="<?php echo esc_url( $upload_blovatar_url ); ?>" id="site-icon-update" class="button"><?php echo esc_html_e( 'Update Site Icon', 'jetpack'  ); ?></a>
-					<a href="<?php echo esc_url( $remove_blovatar_url ); ?>" id="site-icon-remove" ><?php echo esc_html_e( 'Remove Icon', 'jetpack'  ); ?></a> </p>
+					<p><a href="<?php echo esc_url( $upload_blavatar_url ); ?>" id="site-icon-update" class="button"><?php echo esc_html_e( 'Update Site Icon', 'jetpack'  ); ?></a>
+					<a href="<?php echo esc_url( $remove_blavatar_url ); ?>" id="site-icon-remove" ><?php echo esc_html_e( 'Remove Icon', 'jetpack'  ); ?></a> </p>
 
 				<?php } else { ?>
 				
-					<a href="<?php echo esc_url( $upload_blovatar_url ); ?>" id="site-icon-update" class="button"><?php echo esc_html_e( 'Add a Site Icon', 'jetpack' ); ?></a>
+					<a href="<?php echo esc_url( $upload_blavatar_url ); ?>" id="site-icon-update" class="button"><?php echo esc_html_e( 'Add a Site Icon', 'jetpack' ); ?></a>
 				
 				<?php } ?>
 				
@@ -246,7 +246,7 @@ class Jetpack_Site_Icon {
 				</div>
 			</div>
 		</div>
-		<?php 	
+		<?php
 	}
 
 	/**
@@ -261,7 +261,6 @@ class Jetpack_Site_Icon {
 
 	/**
 	 * Select a file admin view
-	 * 
 	 */
 	public static function select_page() {
 		// Display the site_icon form to upload the image
@@ -299,7 +298,7 @@ class Jetpack_Site_Icon {
 
 		// display the image image croppping funcunality
 		if( is_wp_error( $image ) ) { ?>
-			<div id="message" class="updated error below-h2"><p> <?php echo esc_html( $image->get_error_message() ); ?> </p></div> 
+			<div id="message" class="updated error below-h2"><p><?php echo esc_html( $image->get_error_message() ); ?></p></div>
 			<?php
 			// back to step one
 			$_POST = array();
@@ -411,18 +410,20 @@ class Jetpack_Site_Icon {
 	}
 
 	/**
-	 * This function is used to pass data to the localize scipt so that we can center the copper and also set the minimum cropper if we still want to show the 
-	 * @param  int $large_width    
+	 * This function is used to pass data to the localize script
+	 * so that we can center the cropper and also set the minimum
+	 * cropper if we still want to show the
+	 *
+	 * @param  int $large_width
 	 * @param  int $large_height   
 	 * @param  int $resized_width  
 	 * @param  int $resized_height 
 	 * @return array                 
 	 */
 	public static function initial_crop_data( $large_width, $large_height, $resized_width, $resized_height ) {
-		
 		$init_x = 0;
 		$init_y = 0;
-		
+
 		$ration = $large_width / $resized_width;
 		$min_crop_size = ( self::$min_size / $ration );
 
@@ -444,15 +445,16 @@ class Jetpack_Site_Icon {
 		}
 
 		return array( 
-			'init_x' => $init_x,
-			'init_y' => $init_y,
+			'init_x'    => $init_x,
+			'init_y'    => $init_y,
 			'init_size' => $init_size,
-			'min_size' 	=> $min_crop_size
+			'min_size'  => $min_crop_size
 		);
 	}
 
 	/**
 	 * Delete the temporary created data and attachments
+	 *
 	 * @return null
 	 */
 	public static function delete_temporay_data() {
@@ -509,7 +511,6 @@ class Jetpack_Site_Icon {
 	 * @return [type]               [description]
 	 */
 	public static function delete_site_icon( $id ) {
-
 		// We add the filter to make sure that we also delete all the added images
 		add_filter( 'intermediate_image_sizes', 	array( 'Jetpack_Site_Icon', 'intermediate_image_sizes' ) );
 		wp_delete_attachment( $id , true );
@@ -525,8 +526,8 @@ class Jetpack_Site_Icon {
 		return array(  
 			'crop_x' 	  => floor( $crop_x * $ratio ),
 			'crop_y' 	  => floor( $crop_y * $ratio ), 
-			'crop_width'  => floor($crop_width * $ratio), 
-			'crop_height' => floor($crop_height * $ratio)
+			'crop_width'  => floor( $crop_width * $ratio ),
+			'crop_height' => floor( $crop_height * $ratio ),
 			);
 	}
 
@@ -613,6 +614,7 @@ class Jetpack_Site_Icon {
 
 	/**
 	 * Save Blavatar files to Media Library
+	 *
 	 * @param  string  	$title         
 	 * @param  string  	$filename      
 	 * @param  string  	$file_type     
@@ -650,6 +652,7 @@ class Jetpack_Site_Icon {
 
 	/**
 	 * Add additional sizes to be made when creating the site_icon images
+	 *
 	 * @param  array $sizes
 	 * @return array       
 	 */
@@ -683,8 +686,10 @@ class Jetpack_Site_Icon {
 
 		return $only_crop_sizes;
 	}
+
 	/**
-	 * Helps us delete site_icon images that 
+	 * Helps us delete site_icon images that
+	 *
 	 * @param  [type] $sizes [description]
 	 * @return [type]        [description]
 	 */
@@ -698,7 +703,8 @@ class Jetpack_Site_Icon {
 	}
 	/**
 	 * Only resize the image to thumbnail so we can use 
-	 * Use when resizing temporary images. This way we can see the temp image in Media Gallery. 
+	 * Use when resizing temporary images. This way we can see the temp image in Media Gallery.
+	 *
 	 * @param  array $sizes
 	 * @return array
 	 */
