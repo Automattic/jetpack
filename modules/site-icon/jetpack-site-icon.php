@@ -54,7 +54,7 @@ class Jetpack_Site_Icon {
 	}
 
 	private function __construct() {
-		self::$min_size = ( defined( 'SITE_ICON_MIN_SIZE' ) && is_int( SITE_ICON_MIN_SIZE ) ? SITE_ICON_MIN_SIZE : self::$min_size );
+		self::$min_size = ( defined( 'SITE_ICON_MIN_SIZE' ) && is_int( SITE_ICON_MIN_SIZE ) ) ? SITE_ICON_MIN_SIZE : self::$min_size;
 	}
 
 	/**
