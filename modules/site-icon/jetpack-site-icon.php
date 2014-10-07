@@ -469,7 +469,6 @@ class Jetpack_Site_Icon {
 	 * @return null
 	 */
  	public static function delete_temp_data( $option ) {
-
 		if( 'site_icon_temp_data' == $option ) {
 			$temp_image_data = get_option( 'site_icon_temp_data' );
 			
@@ -485,7 +484,6 @@ class Jetpack_Site_Icon {
 	 * @param $post_id
 	 */
 	public static function delete_attachment_data( $post_id ) {
-		
 		// The user could be deleting the site_icon image
 		$site_icon_id = get_option( 'site_icon_id' );
 		if( $site_icon_id &&  $post_id == $site_icon_id ) {
@@ -493,6 +491,7 @@ class Jetpack_Site_Icon {
 		}
 		// The user could be deleting the temporary images
 	}
+
 	/**
 	 * @param $check
 	 * @param $post_id
