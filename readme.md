@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/Automattic/Jetpack.png?label=ready&title=Ready)](https://waffle.io/Automattic/Jetpack)
 ## Jetpack
 
 [Jetpack](http://jetpack.me/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
