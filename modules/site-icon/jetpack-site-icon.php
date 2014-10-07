@@ -21,8 +21,8 @@ class Jetpack_Site_Icon {
 	public $module      = 'site_icon';
 	public $version     = 1;
 
-	public static $min_size = 512; //  the minimum size of the blvatar, 512 is the same as wp.com can be over writtern by SITE_ICON_MIN_SIZE
-	public static $page_crop = 512; // the size to which to crop the image so that we can dispay it in the UI nicely
+	public static $min_size  = 512; // the minimum size of the blavatar, 512 is the same as wp.com can be overwritten by SITE_ICON_MIN_SIZE
+	public static $page_crop = 512; // the size to which to crop the image so that we can display it in the UI nicely
 
 	public static $accepted_file_types = array( 
 		'image/jpg', 
@@ -433,13 +433,13 @@ class Jetpack_Site_Icon {
 			$init_size = $resized_height;
 		}
 
-		// Portrate format ( height > width )
+		// Portrait format ( height > width )
 		if( $resized_width < $resized_height ) {
 			$init_y = ( self::$page_crop - $resized_width ) / 2;
 			$init_size = $resized_height;
 		}
 
-		// Squere height == width
+		// Square height == width
 		if( $resized_width = $resized_height ) {
 			$init_size = $resized_height;
 		}
@@ -487,7 +487,7 @@ class Jetpack_Site_Icon {
 		if( $site_icon_id &&  $post_id == $site_icon_id ) {
 			delete_option( 'site_icon_id' );
 		}
-		// The user could be deleteing the temporary images
+		// The user could be deleting the temporary images
 	}
 	/**
 	 * 
@@ -505,10 +505,11 @@ class Jetpack_Site_Icon {
 	}
 
 	/**
-	 * Delete the balvatar and all the attacted data 
-	 * @param  [type]  $id          [description]
-	 * @param  boolean $delete_data [description]
-	 * @return [type]               [description]
+	 * Delete the blavatar and all the attached data
+	 *
+	 * @param $id
+	 *
+	 * @return mixed
 	 */
 	public static function delete_site_icon( $id ) {
 		// We add the filter to make sure that we also delete all the added images
@@ -662,7 +663,7 @@ class Jetpack_Site_Icon {
 		 * filter the different dimentions that the image should be saved in
 		 */
 		self::$site_icon_sizes = apply_filters( 'site_icon_image_sizes', self::$site_icon_sizes );
-		// use a natular sort of numbers
+		// use a natural sort of numbers
 		natsort( self::$site_icon_sizes );
 		self::$site_icon_sizes = array_reverse ( self::$site_icon_sizes );
 
