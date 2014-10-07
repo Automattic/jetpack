@@ -14,11 +14,11 @@ class Jetpack_JSON_API_Plugins_Update_Endpoint extends Jetpack_JSON_API_Plugins_
 			return $error;
 		}
 
-		return $this->upgrade_plugins();
+		return $this->upgrade_plugin();
 
 	}
 
-	protected function upgrade_plugins() {
+	protected function upgrade_plugin() {
 
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
