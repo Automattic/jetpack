@@ -73,19 +73,19 @@ CONTAINER;
 
 		$regexes = array();
 
-		$regexes[] = '#<script[^>]+?src="http(s)?://(secure|static)\.polldaddy\.com/p/([0-9]+).js"[^>]*+>\s*?</script>\r?\n?(<noscript>.*</noscript>)?#i';
-	
-		$regexes[] = '#&lt;script[^&]+?src="http(s)?://(secure|static)\.polldaddy\.com/p/([0-9]+).js"[^&]*+&gt;\s*?&lt;/script&gt;\r?\n?(&lt;noscript&gt;.*&lt;/noscript&gt;)?#i';
+		$regexes[] = '#<script[^>]+?src="https?://(secure|static)\.polldaddy\.com/p/([0-9]+)\.js"[^>]*+>\s*?</script>\r?\n?(<noscript>.*?</noscript>)?#i';
+
+		$regexes[] = '#&lt;script(?:[^&]|&(?!gt;))+?src="https?://(secure|static)\.polldaddy\.com/p/([0-9]+)\.js"(?:[^&]|&(?!gt;))*+&gt;\s*?&lt;/script&gt;\r?\n?(&lt;noscript&gt;.*?&lt;/noscript&gt;)?#i';
 	
 		foreach ( $regexes as $regex ) {
 			if ( ! preg_match_all( $regex, $content, $matches, PREG_SET_ORDER ) )
 		 		continue;
 	
 			foreach ( $matches as $match ) {
-				if (!isset( $match[3] ) )
+				if (!isset( $match[2] ) )
 					continue;
 					
-				$id = (int) $match[3];
+				$id = (int) $match[2];
 				
 				if ( $id > 0 ) {
 					$content = str_replace( $match[0], "[polldaddy poll=$id]", $content );
