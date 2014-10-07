@@ -521,8 +521,7 @@ class Jetpack_Site_Icon {
 		remove_filter( 'intermediate_image_sizes', 	array( 'Jetpack_Site_Icon', 'intermediate_image_sizes' ) );
 		// for good measure also 
 		self::delete_temporay_data();
-		delete_option( 'site_icon_id' );
-
+		return delete_option( 'site_icon_id' );
 	}
 	
 	public static function convert_coodiantes_from_resized_to_full( $crop_x, $crop_y, $crop_width, $crop_height, $ratio ) {
