@@ -117,7 +117,7 @@ class Jetpack_Site_Icon {
 	public function admin_menu_upload_site_icon() {
  		$page_hook = add_submenu_page( 
  			null, 
- 			__( 'Blavatar Upload', 'jetpack' ), 
+ 			__( 'Site Icon Upload', 'jetpack' ),
  			'', 
  			'manage_options', 
  			'jetpack-site_icon-upload', 
