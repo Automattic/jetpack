@@ -553,14 +553,14 @@ class Jetpack_Site_Icon {
 		
 		// check that the image accuallt is a file with size
 		if( !isset( $uploaded_file ) || ($uploaded_file['size'] <= 0 ) ) {
-			return new WP_Error( 'broke', __( "Please upload a file.", 'jetpack' ) );
+			return new WP_Error( 'broke', __( 'Please upload a file.', 'jetpack' ) );
 		} 
 
 		$arr_file_type = wp_check_filetype( basename( $uploaded_file['name'] ) );
 		$uploaded_file_type = $arr_file_type['type'];
 		if( ! in_array( $uploaded_file_type, self::$accepted_file_types ) ) {
 			// Create a temp file which should be deleted at when the scipt stops
-			return new WP_Error( 'broke', __( "The file that you uploaded is not an accepted file type. Please try again.", 'jetpack' ) );
+			return new WP_Error( 'broke', __( 'The file that you uploaded is not an accepted file type. Please try again.', 'jetpack' ) );
 		}
 
 		$image = wp_handle_upload( $uploaded_file, array( 'test_form' => false ) );
