@@ -523,8 +523,6 @@ class Jetpack_Site_Icon {
 		self::delete_temporay_data();
 		return delete_option( 'site_icon_id' );
 	}
-	
-	public static function convert_coodiantes_from_resized_to_full( $crop_x, $crop_y, $crop_width, $crop_height, $ratio ) {
 
 	/**
 	 * @param $crop_x
@@ -535,6 +533,7 @@ class Jetpack_Site_Icon {
 	 *
 	 * @return array
 	 */
+	public static function convert_coodiantes_from_resized_to_full( $crop_x, $crop_y, $crop_width, $crop_height, $ratio ) {
 		return array(  
 			'crop_x' 	  => floor( $crop_x * $ratio ),
 			'crop_y' 	  => floor( $crop_y * $ratio ), 
