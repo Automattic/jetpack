@@ -66,7 +66,8 @@ class Jetpack_Tiled_Gallery_Rectangular_Item extends Jetpack_Tiled_Gallery_Item 
 class Jetpack_Tiled_Gallery_Square_Item extends Jetpack_Tiled_Gallery_Item {
 	public function __construct( $attachment_image, $needs_attachment_link, $grayscale ) {
 		parent::__construct( $attachment_image, $needs_attachment_link, $grayscale );
-		$this->img_src_grayscale = 'http://en.wordpress.com/imgpress?url=' . urlencode( $this->image->guid ) . '&resize=' . $this->image->width . ',' . $this->image->height . '&filter=grayscale';
+		$this->img_src_grayscale = jetpack_photon_url( $this->img_src, array( 'filter' => 'grayscale', 'resize' => array( $this->image->width, $this->image->height ) ) ); 
+		// 'http://en.wordpress.com/imgpress?url=' . urlencode( $this->image->guid ) . '&resize=' . $this->image->width . ',' . $this->image->height . '&filter=grayscale';
 	}
 }
 
