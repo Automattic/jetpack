@@ -35,6 +35,7 @@ class Jetpack_Tiled_Gallery {
 			'type'       => '',
 			'grayscale'  => false,
 			'link'       => '',
+			'columns'	 => 3
 		), $atts, 'gallery' );
 
 		$this->atts['id'] = (int) $this->atts['id'];
@@ -52,6 +53,10 @@ class Jetpack_Tiled_Gallery {
 
 		if ( 'RAND' == $this->atts['order'] )
 			$this->atts['orderby'] = 'none';
+
+		if( !is_numeric( $this->atts['columns'] ) || 20 < $this->atts['columns'] ) { // we shouldn't have more then 30 columns 
+			$this->atts['columns'] = 3; 
+		}
 	}
 
 	public function get_attachments() {
@@ -109,7 +114,7 @@ class Jetpack_Tiled_Gallery {
 
 			// Generate gallery HTML
 			$gallery_class = 'Jetpack_Tiled_Gallery_Layout_' . ucfirst( $this->atts['type'] );
-			$gallery = new $gallery_class( $attachments, $this->atts['link'], $this->atts['grayscale'] );
+			$gallery = new $gallery_class( $attachments, $this->atts['link'], $this->atts['grayscale'], (int) $this->atts['columns'] );
 			$gallery_html = $gallery->HTML();
 
 			if ( $gallery_html && class_exists( 'Jetpack' ) && class_exists( 'Jetpack_Photon' ) ) {
