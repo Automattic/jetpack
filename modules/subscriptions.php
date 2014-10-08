@@ -84,6 +84,11 @@ class Jetpack_Subscriptions {
 
 		// Catch comment posts and check for subscriptions.
 		add_action( 'comment_post', array( $this, 'comment_subscribe_submit' ), 50, 2 );
+
+        // Adds post meta checkbox in the post submit metabox
+        add_action( 'post_submitbox_misc_actions', array( &$this, 'subscription_post_page_metabox' ) );
+        add_action( 'save_post', array( &$this, 'save_subscribe_meta' ) );
+        add_action( 'wp_head', array( &$this, 'subscribe_meta_enforce' ) );
 	}
 
 	function post_is_public( $the_post ) {
@@ -193,11 +198,62 @@ class Jetpack_Subscriptions {
 	 */
 	function subscriptions_settings_section() {
 	?>
-
 		<p id="jetpack-subscriptions-settings"><?php _e( 'Change whether your visitors can subscribe to your posts or comments or both.', 'jetpack' ); ?></p>
-
 	<?php
 	}
+
+    /*
+     * Register post meta
+     *
+     * @since 3.3
+     *
+     */
+    function subscription_post_page_metabox() {
+        global $post;
+        $custom = get_post_custom( $post->ID );
+        $subscribe_per_post = $custom[ 'disable_subscribe' ][0];
+        $disable_subscribe_value = get_post_meta( $post->ID, 'disable_subscribe', true );
+        if ( $disable_subscribe_value == '1' ) {
+            $disable_subscribe_checked = 'checked="checked"';
+        }
+        ?>
+        <p class="misc-pub-section">
+            <input type="checkbox" name="disable_subscribe" id="jetpack-per-post-subscribe" value="1" <?php echo $disable_subscribe_checked; ?> />
+            <?php _e( 'Disable subscriptions on this post', 'jetpack' ); ?>
+        </p>
+    <?php }
+
+
+    /*
+     * Save the meta
+     *
+     * @since 3.3
+     */
+    function save_subscribe_meta(){
+        global $post;
+        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+            return $post->ID;
+        }
+
+        return update_post_meta( $post->ID, 'disable_subscribe', $_POST[ 'disable_subscribe' ] );
+    }
+
+
+    /*
+     * Suppress the ability to subscribe to this post, if meta is unchecked
+     *
+     * @since 3.3
+     *
+     */
+    function subscribe_meta_enforce() {
+        global $post;
+        $current_page = $post->ID;
+        $disable_subscribe = get_post_meta( get_the_ID(), 'disable_subscribe', true );
+
+        if ( $disable_subscribe == 1 ) {
+            echo "NO SUBSCRIBING HERE BOY";
+        }
+    }
 
 	/**
 	 * Post Subscriptions Toggle
@@ -545,6 +601,7 @@ class Jetpack_Subscriptions {
 		else
 			setcookie( 'jetpack_blog_subscribe_' . self::$hash, '', time() - 3600, $cookie_path, $cookie_domain );
 	}
+
 }
 
 Jetpack_Subscriptions::init();
@@ -789,3 +846,4 @@ function jetpack_do_subscription_form( $args ) {
 	$output = ob_get_clean();
 	return $output;
 }
+
