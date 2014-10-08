@@ -6,8 +6,9 @@ class Jetpack_Tiled_Gallery_Layout_Square extends Jetpack_Tiled_Gallery_Layout {
 	protected $type = 'square';
 
 	private function compute_items() {
+		
 		$content_width = Jetpack_Tiled_Gallery::get_content_width();
-		$images_per_row = 3;
+		$images_per_row = $this->columns;
 		$margin = 2;
 
 		$margin_space = ( $images_per_row * $margin ) * 2;

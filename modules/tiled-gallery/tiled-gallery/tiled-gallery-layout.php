@@ -9,12 +9,14 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 	public $attachments;
 	public $link;
 	public $grayscale;
+	public $columns;
+	public function __construct( $attachments, $link, $grayscale, $columns ) {
 
-	public function __construct( $attachments, $link, $grayscale ) {
 		$this->attachments = $attachments;
 		$this->link = $link;
 		$this->needs_attachment_link = ! ( isset( $link ) && $link == 'file' );
 		$this->grayscale = $grayscale;
+		$this->columns = $columns;
 	}
 
 	public function HTML( $context = array() ) {
