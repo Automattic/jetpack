@@ -85,10 +85,9 @@ class Jetpack_Subscriptions {
 		// Catch comment posts and check for subscriptions.
 		add_action( 'comment_post', array( $this, 'comment_subscribe_submit' ), 50, 2 );
 
-        // Adds post meta checkbox in the post submit metabox
-        add_action( 'post_submitbox_misc_actions', array( &$this, 'subscription_post_page_metabox' ) );
-        add_action( 'save_post', array( &$this, 'save_subscribe_meta' ) );
-        add_action( 'wp_head', array( &$this, 'subscribe_meta_enforce' ) );
+		// Adds post meta checkbox in the post submit metabox
+		add_action( 'post_submitbox_misc_actions', array( $this, 'subscription_post_page_metabox' ) );
+		add_action( 'save_post', array( $this, 'save_subscribe_meta' ) );
 	}
 
 	function post_is_public( $the_post ) {
@@ -202,58 +201,40 @@ class Jetpack_Subscriptions {
 	<?php
 	}
 
-    /*
-     * Register post meta
-     *
-     * @since 3.3
-     *
-     */
-    function subscription_post_page_metabox() {
-        global $post;
-        $custom = get_post_custom( $post->ID );
-        $subscribe_per_post = $custom[ 'disable_subscribe' ][0];
-        $disable_subscribe_value = get_post_meta( $post->ID, 'disable_subscribe', true );
-        if ( $disable_subscribe_value == '1' ) {
-            $disable_subscribe_checked = 'checked="checked"';
-        }
-        ?>
-        <p class="misc-pub-section">
-            <input type="checkbox" name="disable_subscribe" id="jetpack-per-post-subscribe" value="1" <?php echo $disable_subscribe_checked; ?> />
-            <?php _e( 'Disable subscriptions on this post', 'jetpack' ); ?>
-        </p>
-    <?php }
+	/*
+	 * Disable Subscribe on Single Post
+	 * Register post meta
+	 *
+	 * @since 3.3
+	 */
+	function subscription_post_page_metabox() {
+		global $post;
+
+		// Get an array of options from the database.
+		$disable_subscribe_value = get_post_meta( $post->ID, 'disable_subscribe', true );
+
+		?>
+		<p class="misc-pub-section">
+			<input type="checkbox" name="disable_subscribe" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
+			<?php _e( 'Disable subscriptions on this post', 'jetpack' ); ?>
+		</p>
+	<?php }
 
 
-    /*
-     * Save the meta
-     *
-     * @since 3.3
-     */
-    function save_subscribe_meta(){
-        global $post;
-        if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-            return $post->ID;
-        }
+	/*
+	 * Disable Subscribe on Single Post
+	 * Save the meta
+	 *
+	 * @since 3.3
+	 */
+	function save_subscribe_meta(){
+		global $post;
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return $post->ID;
+		}
 
-        return update_post_meta( $post->ID, 'disable_subscribe', $_POST[ 'disable_subscribe' ] );
-    }
-
-
-    /*
-     * Suppress the ability to subscribe to this post, if meta is unchecked
-     *
-     * @since 3.3
-     *
-     */
-    function subscribe_meta_enforce() {
-        global $post;
-        $current_page = $post->ID;
-        $disable_subscribe = get_post_meta( get_the_ID(), 'disable_subscribe', true );
-
-        if ( $disable_subscribe == 1 ) {
-            echo "NO SUBSCRIBING HERE BOY";
-        }
-    }
+		return update_post_meta( $post->ID, 'disable_subscribe', $_POST['disable_subscribe'] );
+	}
 
 	/**
 	 * Post Subscriptions Toggle
@@ -456,15 +437,15 @@ class Jetpack_Subscriptions {
 		}
 
 		$subscribe = Jetpack_Subscriptions::subscribe(
-												$_REQUEST['email'],
-												0,
-												false,
-												array(
-													'source'         => 'widget',
-													'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
-													'comment_status' => '',
-													'server_data'    => $_SERVER,
-												)
+			$_REQUEST['email'],
+			0,
+			false,
+			array(
+				'source'         => 'widget',
+				'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
+				'comment_status' => '',
+				'server_data'    => $_SERVER,
+			)
 		);
 
 		if ( is_wp_error( $subscribe ) ) {
@@ -567,15 +548,15 @@ class Jetpack_Subscriptions {
 			$post_ids[] = 0;
 
 		Jetpack_Subscriptions::subscribe(
-									$comment->comment_author_email,
-									$post_ids,
-									true,
-									array(
-										'source'         => 'comment-form',
-										'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
-										'comment_status' => $approved,
-										'server_data'    => $_SERVER,
-									)
+			$comment->comment_author_email,
+			$post_ids,
+			true,
+			array(
+				'source'         => 'comment-form',
+				'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
+				'comment_status' => $approved,
+				'server_data'    => $_SERVER,
+			)
 		);
 	}
 
