@@ -1,5 +1,7 @@
 <?php
 
+require_once ABSPATH . 'wp-content/lib/statsd-client.php';
+
 defined( 'WPCOM_JSON_API__DEBUG' ) or define( 'WPCOM_JSON_API__DEBUG', false );
 
 class WPCOM_JSON_API {
@@ -268,13 +270,24 @@ class WPCOM_JSON_API {
 
 		do_action( 'wpcom_json_api_output', $endpoint->stat );
 
+		// Process API request and time it
+		$api_timer = microtime( true );
 		$response = $this->process_request( $endpoint, $path_pieces );
-		
+		$api_timer = 1000 * ( microtime( true ) - $api_timer );
+
+		// Don't track API timings per node / DC for now, maybe in the future
+		$statsd = new StatsD();
+		$statsd_prefix = 'com.wordpress.web.ALL.ALL.rest_api.method.' . str_replace( ':', '.', $endpoint->stat );
+
 		if ( !$response && !is_array( $response ) ) {
+			$statsd->timing( $statsd_prefix . '.error', $api_timer );
 			return $this->output( 500, '', 'text/plain' );
 		} elseif ( is_wp_error( $response ) ) {
+			$statsd->timing( $statsd_prefix . '.error', $api_timer );
 			return $this->output_error( $response );
 		}
+
+		$statsd->timing( $statsd_prefix . '.ok', $api_timer );
 
 		return $this->output( 200, $response );
 	}
