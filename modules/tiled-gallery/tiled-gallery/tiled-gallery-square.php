@@ -25,27 +25,38 @@ class Jetpack_Tiled_Gallery_Layout_Square extends Jetpack_Tiled_Gallery_Layout {
 		$row = new stdClass;
 		$row->images = array();
 		foreach( $this->attachments as $image ) {
-			if ( $remainder > 0 && $c <= $remainder )
+			if ( $remainder > 0 && $c <= $remainder ) {
 				$img_size = $remainder_size;
-			else
+			} else {
 				$img_size = $size;
-
-			if (3 === $items_in_row ) {
-				$rows[] = $row;
 			}
 
 			$image->width = $image->height = $img_size;
 
 			$item = new Jetpack_Tiled_Gallery_Square_Item( $image, $this->needs_attachment_link, $this->grayscale );
 
+			$row->images[] = $item;
+			$c ++;
+			$items_in_row++;
+
+			if ( $images_per_row === $items_in_row || $remainder + 1 == $c ) {
+				$rows[] = $row;
+				$items_in_row = 0;
+
+				$row->height = $img_size + $margin * 2;
+				$row->width = $content_width;
+				$row->group_size = $img_size + 2 * $margin;
+
+				$row = new stdClass;
+				$row->images = array();
+			}
+		}
+
+		if ( ! empty( $row->images ) ) {
 			$row->height = $img_size + $margin * 2;
 			$row->width = $content_width;
 			$row->group_size = $img_size + 2 * $margin;
-			$row->images[] = $item;
-			$c ++;
-		}
 
-		if ( ! empty( $row ) ) {
 			$rows[] = $row;
 		}
 
