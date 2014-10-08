@@ -277,17 +277,18 @@ class WPCOM_JSON_API {
 
 		// Don't track API timings per node / DC for now, maybe in the future
 		$statsd = new StatsD();
-		$statsd_prefix = 'com.wordpress.web.ALL.ALL.rest_api.method.' . str_replace( ':', '.', $endpoint->stat );
+		$statsd_prefix = 'com.wordpress.web.ALL.ALL.rest_api.method';
+		$statsd_name = str_replace( ':', '.', $endpoint->stat );
 
 		if ( !$response && !is_array( $response ) ) {
-			$statsd->timing( $statsd_prefix . '.error', $api_timer );
+			$statsd->timing( "{$statsd_prefix}.error.{$statsd_name}", $api_timer );
 			return $this->output( 500, '', 'text/plain' );
 		} elseif ( is_wp_error( $response ) ) {
-			$statsd->timing( $statsd_prefix . '.error', $api_timer );
+			$statsd->timing( "{$statsd_prefix}.error.{$statsd_name}", $api_timer );
 			return $this->output_error( $response );
 		}
 
-		$statsd->timing( $statsd_prefix . '.ok', $api_timer );
+		$statsd->timing( "{$statsd_prefix}.ok.{$statsd_name}", $api_timer );
 
 		return $this->output( 200, $response );
 	}
