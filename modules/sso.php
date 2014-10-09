@@ -438,9 +438,9 @@ class Jetpack_SSO {
 			}
 			.forced-sso .jetpack-sso.button:before {
 				font-size: 28px !important;
-				height: 28px;
+				height: 37px;
 				padding: 5px 5px 4px;
-				width: 28px;
+				width: 37px;
 			}
 			<?php endif; ?>
 		</style>
