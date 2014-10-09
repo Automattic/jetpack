@@ -115,6 +115,47 @@ class Jetpack_Subscriptions {
 		);
 	}
 
+	/*
+	 * Disable Subscribe on Single Post
+	 * Register post meta
+	 *
+	 * @since 3.3
+	 */
+	function subscription_post_page_metabox() {
+		global $post;
+		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_disable_subscribe', true );
+		?>
+		<p class="misc-pub-section">
+			<input type="checkbox" name="_jetpack_disable_subscribe" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
+			<?php _e( 'Disable subscriptions on this post', 'jetpack' ); ?>
+		</p>
+	<?php }
+
+
+	/*
+	 * Disable Subscribe on Single Post
+	 * Save the meta
+	 *
+	 * @since 3.3
+	 */
+	function save_subscribe_meta(){
+		global $post;
+
+		if ( !is_object( $post ) )
+			return;
+
+		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
+			return $post->ID;
+		}
+
+		if ( isset( $_POST['_jetpack_disable_subscribe'] ) ) {
+			update_post_meta( $post->ID, '_jetpack_disable_subscribe', $_POST['_jetpack_disable_subscribe'] );
+		} else {
+			delete_post_meta( $post->ID, '_jetpack_disable_subscribe' );
+		}
+		return $post;
+	}
+
 	/**
 	 * Jetpack_Subscriptions::configure()
 	 *
@@ -199,41 +240,6 @@ class Jetpack_Subscriptions {
 	?>
 		<p id="jetpack-subscriptions-settings"><?php _e( 'Change whether your visitors can subscribe to your posts or comments or both.', 'jetpack' ); ?></p>
 	<?php
-	}
-
-	/*
-	 * Disable Subscribe on Single Post
-	 * Register post meta
-	 *
-	 * @since 3.3
-	 */
-	function subscription_post_page_metabox() {
-		global $post;
-
-		// Get an array of options from the database.
-		$disable_subscribe_value = get_post_meta( $post->ID, 'disable_subscribe', true );
-
-		?>
-		<p class="misc-pub-section">
-			<input type="checkbox" name="disable_subscribe" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
-			<?php _e( 'Disable subscriptions on this post', 'jetpack' ); ?>
-		</p>
-	<?php }
-
-
-	/*
-	 * Disable Subscribe on Single Post
-	 * Save the meta
-	 *
-	 * @since 3.3
-	 */
-	function save_subscribe_meta(){
-		global $post;
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-			return $post->ID;
-		}
-
-		return update_post_meta( $post->ID, 'disable_subscribe', $_POST['disable_subscribe'] );
 	}
 
 	/**
