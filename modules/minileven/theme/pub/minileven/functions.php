@@ -64,7 +64,7 @@ function minileven_setup() {
 	add_theme_support( 'post-formats', array( 'gallery' ) );
 
 	// Add support for custom backgrounds
-	add_custom_background();
+	add_theme_support( 'custom-background' );
 
 	// Add support for post thumbnails
 	add_theme_support( 'post-thumbnails' );
