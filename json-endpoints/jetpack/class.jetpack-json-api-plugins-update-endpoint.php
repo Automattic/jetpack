@@ -3,12 +3,11 @@
 class Jetpack_JSON_API_Plugins_Update_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 	// POST /sites/%s/plugins/%s/update
 	// POST /sites/%s/plugins/update
-	protected $action = array( 'upgrade_plugin' );
 	protected $needed_capabilities = 'update_plugins';
 
 	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
 		// validates
-		$error = parent::callback( $path, $blog_id, null );
+		$error = parent::callback( $path, $blog_id, $plugin );
 
 		if( is_wp_error( $error ) ) {
 			return $error;
