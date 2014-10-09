@@ -209,10 +209,6 @@ class WPCOM_JSON_API {
 				// Generate regular expression from sprintf()
 				$endpoint_path_regex = str_replace( array( '%s', '%d' ), array( '([^/?&]+)', '(\d+)' ), $endpoint_path );
 
-				if ( '__do_not_document' === $endpoints_by_method[$method]->group ) {
-					continue;
-				}
-
 				if ( !preg_match( "#^$endpoint_path_regex\$#", $this->path, $path_pieces ) ) {
 					// This endpoint does not match the requested path.
 					continue;
