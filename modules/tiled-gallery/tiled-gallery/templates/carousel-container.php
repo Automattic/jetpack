@@ -1,5 +1,5 @@
 <?php 
-	if ( defined( 'JSON_HEX_AMP' ) ) { 
+if ( defined( 'JSON_HEX_AMP' ) ) { 
 	// see shortcodes/slideshow.php 
 	// This is nice to have, but not strictly necessary since we use _wp_specialchars() below 
 	$extra = json_encode( $this->get_container_extra_data(), JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT ); 
