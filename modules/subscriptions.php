@@ -124,11 +124,14 @@ class Jetpack_Subscriptions {
 	function subscription_post_page_metabox() {
 		global $post;
 		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_disable_subscribe', true );
-		?>
-		<p class="misc-pub-section">
-			<input type="checkbox" name="_jetpack_disable_subscribe" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
-			<?php _e( 'Disable subscriptions on this post', 'jetpack' ); ?>
-		</p>
+
+		//only show checkbox if post hasn't been published
+		if ( get_post_status( $post->ID ) !== 'publish' ) : ?>
+			<p class="misc-pub-section">
+				<input type="checkbox" name="_jetpack_disable_subscribe" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
+				<?php _e( 'Don\'t send to subscribers', 'jetpack' ); ?>
+			</p>
+		<?php endif; ?>
 	<?php }
 
 

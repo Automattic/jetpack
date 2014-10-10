@@ -209,14 +209,6 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$stc_enabled = 0;
 		}
 
-		// If subscribes turned off per post
-		$disable_subscribe = get_post_meta( $post->ID, '_jetpack_disable_subscribe', true );
-
-		if ( $disable_subscribe == 1 ) {
-			$stb_enabled = 0;
-			$stc_enabled = 0;
-		}
-
 		$params  = array(
 			'blogid'               => Jetpack_Options::get_option( 'id' ),
 			'postid'               => get_the_ID(),
