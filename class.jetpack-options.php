@@ -20,6 +20,7 @@ class Jetpack_Options {
 				'relatedposts',
 				'file_data',
                 'autoupdate_plugins',
+				'autoupdate_themes',
 			);
 		}
 
@@ -44,6 +45,7 @@ class Jetpack_Options {
 			'sync_bulk_reindexing',         // (bool)   If a bulk reindex is currently underway.
 			'json_api_full_management',     // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
             'autoupdate_plugins',           // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
+			'autoupdate_themes',            // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
 		);
 	}
 

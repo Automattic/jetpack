@@ -86,6 +86,39 @@ new Jetpack_JSON_API_Themes_List_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
 ) );
 
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-modify-endpoint.php' );
+new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
+	'description'     => 'Toggle autoupdates for a theme',
+	'group'           => '__do_not_document',
+	'stat'            => 'themes:modify:1',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/themes/%s/modify',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+		'$theme'  => '(string) The theme slug',
+	),
+	'request_format' => array(
+		'autoupdate'   => '(bool) Set autoupdates on or off',
+	),
+	'response_format' => array(
+		'id'           => '(string) The theme\'s ID.',
+		'screenshot'   => '(string) A theme screenshot URL',
+		'name'         => '(string) The name of the theme.',
+		'description'  => '(string) A description of the theme.',
+		'tags'         => '(array) Tags indicating styles and features of the theme.',
+		'log'          => '(array) An array of log strings',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'autoupdate' => true,
+		)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen/modify'
+) );
+
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-update-endpoint.php' );
 
 new Jetpack_JSON_API_Themes_Update_Endpoint( array(
