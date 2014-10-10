@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: VideoPress
- * Module Description: Upload and host video right on your site. (Subscription required.)
+ * Module Description: Upload and embed videos right on your site. (Subscription required.)
  * First Introduced: 2.5
  * Free: false
  * Requires Connection: Yes
