@@ -8,6 +8,45 @@
  */
 abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoint {
 
+	protected $themes = array();
+	/**
+	 * Walks through submitted themes to make sure they are valid
+	 * @return bool|WP_Error
+	 */
+	protected function validate_themes() {
+		foreach ( $this->themes as $theme ) {
+			if ( is_wp_error( $error = wp_get_theme( $theme )->errors() ) ) {
+				return $error;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Walks through either the submitted theme or list of themes and creates the global array
+	 * @param $theme
+	 *
+	 * @return bool
+	 */
+	protected function validate_input( $theme ) {
+
+		if ( ! isset( $theme ) || empty( $theme ) ) {
+			$args = $this->input();
+
+			if ( ! $args['themes'] || empty( $args['themes'] ) ) {
+				return new WP_Error( 'missing_theme', __( 'You are required to specify a theme to update.', 'jetpack' ), 400 );
+			}
+			if ( is_array( $args['themes'] ) ) {
+				$this->themes = $args['themes'];
+			} else {
+				$this->themes[] = $theme;
+			}
+		} else {
+			$this->themes[] = urldecode( $theme );
+		}
+
+		return true;
+	}
 
 	/**
 	 * Format a theme for the public API
