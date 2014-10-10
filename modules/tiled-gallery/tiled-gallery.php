@@ -11,6 +11,10 @@ include_once dirname( __FILE__ ) . '/tiled-gallery/tiled-gallery-circle.php';
 
 class Jetpack_Tiled_Gallery {
 	private static $talaveras = array( 'rectangular', 'square', 'circle', 'rectangle' );
+<<<<<<< HEAD
+=======
+
+>>>>>>> Tiled Galleries: Merged changes from Jetpack for tiled and widget galleries
 
 	public function __construct() {
 		add_action( 'admin_init', array( $this, 'settings_api_init' ) );
@@ -54,8 +58,13 @@ class Jetpack_Tiled_Gallery {
 		if ( 'RAND' == $this->atts['order'] )
 			$this->atts['orderby'] = 'none';
 
+<<<<<<< HEAD
 		if( !is_numeric( $this->atts['columns'] ) || 20 < $this->atts['columns'] ) { // we shouldn't have more then 30 columns 
 			$this->atts['columns'] = 3; 
+=======
+		if( !is_numeric( $this->atts['columns'] ) || 20 < $this->atts['columns'] ) { // we shouldn't have more then 30 columns
+			$this->atts['columns'] = 3;
+>>>>>>> Tiled Galleries: Merged changes from Jetpack for tiled and widget galleries
 		}
 	}
 
@@ -176,6 +185,10 @@ class Jetpack_Tiled_Gallery {
 
 	function jetpack_default_gallery_type( $default ) {
 		return ( get_option( 'tiled_galleries' ) ? 'rectangular' : 'default' );
+	}
+
+	static function get_talaveras() {
+		return self::$talaveras;
 	}
 
 	/**
