@@ -119,6 +119,37 @@ new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen/modify'
 ) );
 
+new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
+	'description'     => 'Toggle autoupdates for a list of themes',
+	'group'           => '__do_not_document',
+	'stat'            => 'themes:modify',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/themes/modify/bulk',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+	),
+	'request_format' => array(
+		'autoupdate'   => '(bool) Set autoupdates on or off',
+		'themes'       => '(array) A list of theme slugs',
+	),
+	'response_format' => array(
+		'themes' => '(array) a list of theme objects',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'autoupdate' => true,
+			'themes'     => array(
+				'twentytwelve',
+				'twentyfourteen',
+			),
+		)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/modify/bulk'
+) );
+
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-update-endpoint.php' );
 
 new Jetpack_JSON_API_Themes_Update_Endpoint( array(
