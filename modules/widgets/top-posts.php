@@ -190,9 +190,12 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				foreach ( $posts as $post ) :
 				?>
 					<div class="widget-grid-view-image">
-						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp"><img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" /></a>
+						<?php do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] ); ?>
+						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
+							<img src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" />
+						</a>
+						<?php do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] ); ?>
 					</div>
-
 				<?php
 				endforeach;
 				echo "</div>\n";
@@ -201,8 +204,16 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				foreach ( $posts as $post ) :
 				?>
 					<li>
-						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp"><img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" /></a>
-						<div class="widgets-list-layout-links"><a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp"><?php echo esc_html( wp_kses( $post['title'], array() ) ); ?></a></div>
+						<?php do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] ); ?>
+						<a href="<?php echo esc_url( $post['permalink'] ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
+							<img src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" />
+						</a>
+						<div class="widgets-list-layout-links">
+							<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
+								<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
+							</a>
+						</div>
+						<?php do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] ); ?>
 					</li>
 				<?php
 				endforeach;
@@ -211,9 +222,17 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			break;
 		default :
 			echo '<ul>';
-			foreach ( $posts as $post ) {
-				echo '<li><a href="' . esc_url( $post['permalink'] ) . '" class="bump-view" data-bump-view="tp">' . esc_html( wp_kses( $post['title'], array() ) ) . "</a></li>\n";
-			}
+			foreach ( $posts as $post ) :
+			?>
+				<li>
+					<?php do_action( 'jetpack_widget_top_posts_before_post', $post['post_id'] ); ?>
+					<a href="<?php echo esc_url( $post['permalink'] ); ?>" class="bump-view" data-bump-view="tp">
+						<?php echo esc_html( wp_kses( $post['title'], array() ) ); ?>
+					</a>
+					<?php do_action( 'jetpack_widget_top_posts_after_post', $post['post_id'] ); ?>
+				</li>
+			<?php
+			endforeach;
 			echo '</ul>';
 		}
 
