@@ -5,8 +5,6 @@ class Jetpack_JSON_API_Themes_Update_Endpoint extends Jetpack_JSON_API_Themes_En
 	// POST /sites/%s/themes/%s/update
 	// POST /sites/%s/themes/update
 
-	protected $themes = array();
-
 	public function callback( $path = '', $blog_id = 0, $theme = null ) {
 
 		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_themes' ) ) ) {
@@ -32,35 +30,6 @@ class Jetpack_JSON_API_Themes_Update_Endpoint extends Jetpack_JSON_API_Themes_En
 		}
 
 		return $result;
-	}
-
-	protected function validate_themes() {
-		foreach ( $this->themes as $theme ) {
-			if ( is_wp_error( $error = wp_get_theme( $theme )->errors() ) ) {
-				return $error;
-			}
-		}
-		return true;
-	}
-
-	protected function validate_input( $theme ) {
-
-		if ( ! isset( $theme ) || empty( $theme ) ) {
-			$args = $this->input();
-
-			if ( ! $args['themes'] || empty( $args['themes'] ) ) {
-				return new WP_Error( 'missing_theme', __( 'You are required to specify a theme to update.', 'jetpack' ), 400 );
-			}
-			if ( is_array( $args['themes'] ) ) {
-				$this->themes = $args['themes'];
-			} else {
-				$this->themes[] = $theme;
-			}
-		} else {
-			$this->themes[] = urldecode( $theme );
-		}
-
-		return true;
 	}
 
 	function update_themes() {
