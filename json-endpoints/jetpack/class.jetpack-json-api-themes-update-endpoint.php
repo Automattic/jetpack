@@ -60,6 +60,7 @@ class Jetpack_JSON_API_Themes_Update_Endpoint extends Jetpack_JSON_API_Themes_En
 			return new WP_Error( 'update_fail', $log, 400 );
 		}
 
+		// TODO: updated and errors are getting stripped out of the response on .com
 		return array(
 			'updated' => $updated,
 			'errors'  => $errors,
