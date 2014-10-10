@@ -387,6 +387,12 @@ class Jetpack_SSO {
 			// Purge it.
 			setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 		}
+
+		if ( ! empty( $_GET['rememberme'] ) ) {
+			setcookie( 'jetpack_sso_remember_me', '1', time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
+		} elseif ( ! empty( $_COOKIE['jetpack_sso_remember_me'] ) ) {
+			setcookie( 'jetpack_sso_remember_me', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		}
 	}
 
 	/**
@@ -450,6 +456,23 @@ class Jetpack_SSO {
 				$( '#loginform' ).empty();
 			<?php endif; ?>
 				$( '#loginform' ).append( $( '.jetpack-sso-wrap' ) );
+
+				var $rememberme = $( '#rememberme' ),
+					$ssoButton  = $( 'a.jetpack-sso.button' );
+
+				$rememberme.on( 'change', function() {
+					var url       = $ssoButton.prop( 'href' ),
+						isChecked = $rememberme.prop( 'checked' ) ? 1 : 0;
+
+					if ( url.match( /&rememberme=\d/ ) ) {
+						url = url.replace( /&rememberme=\d/, '&rememberme=' + isChecked );
+					} else {
+						url += '&rememberme=' + isChecked;
+					}
+
+					$ssoButton.prop( 'href', url );
+				} ).change();
+
 			});
 		</script>
 		<?php
@@ -597,8 +620,14 @@ class Jetpack_SSO {
 			// Cache the user's details, so we can present it back to them on their user screen.
 			update_user_meta( $user->ID, 'wpcom_user_data', $user_data );
 
+			$remember = false;
+			if ( ! empty( $_COOKIE['jetpack_sso_remember_me'] ) ) {
+				$remember = true;
+				// And then purge it
+				setcookie( 'jetpack_sso_remember_me', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+			}
 			// Set remember me value
-			$remember = apply_filters( 'jetpack_remember_login', false );
+			$remember = apply_filters( 'jetpack_remember_login', $remember );
 			wp_set_auth_cookie( $user->ID, $remember );
 
 			// Run the WP core login action
