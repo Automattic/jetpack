@@ -50,8 +50,8 @@ class Jetpack_Widget_Conditions {
 			break;
 			case 'loggedin':
 				?>
-				<option value="yes" <?php selected( 'yes', $minor ); ?>><?php _e( 'Yes', 'jetpack' ); ?></option>
-				<option value="no" <?php selected( 'no', $minor ); ?>><?php _e( 'No', 'jetpack' ); ?></option>
+				<option value="loggedin" <?php selected( 'loggedin', $minor ); ?>><?php _e( 'Logged In', 'jetpack' ); ?></option>
+				<option value="loggedout" <?php selected( 'loggedout', $minor ); ?>><?php _e( 'Logged Out', 'jetpack' ); ?></option>
 				<?php
 			break;
 			case 'author':
@@ -67,7 +67,7 @@ class Jetpack_Widget_Conditions {
 			break;
 			case 'role':
 				global $wp_roles;
-				
+
 				foreach ( $wp_roles->roles as $role_key => $role ) {
 					?>
 					<option value="<?php echo esc_attr( $role_key ); ?>" <?php selected( $role_key, $minor ); ?> ><?php echo esc_html( $role['name'] ); ?></option>
@@ -212,7 +212,7 @@ class Jetpack_Widget_Conditions {
                                     // this doesn't work on .com because of caching
                                     if( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
                                     ?>
-                                    <option value="loggedin" <?php selected( "loggedin", $rule['major'] ); ?>><?php echo esc_html_x( 'User Loggedin', 'Noun, as in: "The Logged In status of this widget is..."', 'jetpack' ); ?></option>
+                                    <option value="loggedin" <?php selected( "loggedin", $rule['major'] ); ?>><?php echo esc_html_x( 'User', 'Noun', 'jetpack' ); ?></option>
 									<option value="role" <?php selected( "role", $rule['major'] ); ?>><?php echo esc_html_x( 'Role', 'Noun, as in: "The user role of that can access this widget is..."', 'jetpack' ); ?></option>
 									<?php } ?>
                                     <option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
@@ -227,7 +227,7 @@ class Jetpack_Widget_Conditions {
 								<select class="conditions-rule-minor" name="conditions[rules_minor][]" <?php if ( ! $rule['major'] ) { ?> disabled="disabled"<?php } ?> data-loading-text="<?php esc_attr_e( 'Loading...', 'jetpack' ); ?>">
 									<?php self::widget_conditions_options_echo( $rule['major'], $rule['minor'] ); ?>
 								</select>
-								
+
 							</div>
 							<div class="condition-control">
 							 <span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
@@ -235,7 +235,7 @@ class Jetpack_Widget_Conditions {
 								<a href="#" class="delete-condition"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a> | <a href="#" class="add-condition"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
 							 </div>
 							</div>
-							
+
 						</div><!-- .condition -->
 						<?php
 					}
@@ -434,7 +434,7 @@ class Jetpack_Widget_Conditions {
 				break;
 				case 'loggedin':
 					$condition_result = is_user_logged_in();
-					if ( 'yes' !== $rule['minor'] ) {
+					if ( 'loggedin' !== $rule['minor'] ) {
 					    $condition_result = ! $condition_result;
 					}
 				break;
@@ -453,7 +453,7 @@ class Jetpack_Widget_Conditions {
 						get_currentuserinfo();
 
 						$user_roles = $current_user->roles;
-					
+
 						if( in_array( $rule['minor'], $user_roles ) ) {
 							$condition_result = true;
 						} else {
@@ -466,7 +466,7 @@ class Jetpack_Widget_Conditions {
 				break;
 				case 'taxonomy':
 					$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
-					
+
 					if ( isset( $term[1] ) && is_tax( $term[0], $term[1] ) )
 						$condition_result = true;
 					else if ( isset( $term[1] ) && is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
