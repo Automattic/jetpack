@@ -132,13 +132,23 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 * @return string String of HTML representing a rectangular gallery
 	 */
 	public function rectangular_widget( $args, $instance ) {
-		if ( ! class_exists( 'Jetpack_Tiled_Gallery' ) )
+		if ( ! class_exists( 'Jetpack_Tiled_Gallery' )
+			&& ! class_exists( 'Jetpack_Tiled_Gallery_Layout_Rectangular') ) {
 			return;
+		}
 
+<<<<<<< HEAD
 		$widget_tiled_gallery = new Jetpack_Tiled_Gallery();
 		$widget_tiled_gallery->default_scripts_and_styles();
 
 		$layout = new Jetpack_Tiled_Gallery_Layout_Rectangular( $instance['attachments'], $instance['link'], false, 3);
+=======
+
+		$widget_tiled_gallery = new Jetpack_Tiled_Gallery();
+		$widget_tiled_gallery->default_scripts_and_styles();
+
+		$layout = new Jetpack_Tiled_Gallery_Layout_Rectangular( $instance['attachments'], $instance['link'], false, 3 );
+>>>>>>> Tiled Galleries: Merged changes from Jetpack for tiled and widget galleries
 
 		return $layout->HTML();
 	}
@@ -151,14 +161,19 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 * @return string String of HTML representing a square gallery
 	 */
 	public function square_widget( $args, $instance ) {
-		if ( ! class_exists( 'Jetpack_Tiled_Gallery' ) )
+		if ( ! class_exists( 'Jetpack_Tiled_Gallery' )
+			&& ! class_exists( 'Jetpack_Tiled_Gallery_Layout_Square') ) {
 			return;
+		}
 
 		$widget_tiled_gallery = new Jetpack_Tiled_Gallery();
 		$widget_tiled_gallery->default_scripts_and_styles();
 
 		$layout = new Jetpack_Tiled_Gallery_Layout_Square( $instance['attachments'], $instance['link'], false, 3 );
+<<<<<<< HEAD
 
+=======
+>>>>>>> Tiled Galleries: Merged changes from Jetpack for tiled and widget galleries
 		return $layout->HTML();
 	}
 
@@ -170,14 +185,19 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 	 * @return string String of HTML representing a circular gallery
 	 */
 	public function circle_widget( $args, $instance ) {
-		if ( ! class_exists( 'Jetpack_Tiled_Gallery' ) )
+		if ( ! class_exists( 'Jetpack_Tiled_Gallery' )
+			&& ! class_exists( 'Jetpack_Tiled_Gallery_Layout_Circle') ) {
 			return;
+		}
 
 		$widget_tiled_gallery = new Jetpack_Tiled_Gallery();
 		$widget_tiled_gallery->default_scripts_and_styles();
 
 		$layout = new Jetpack_Tiled_Gallery_Layout_Circle( $instance['attachments'], $instance['link'], false, 3 );
+<<<<<<< HEAD
 
+=======
+>>>>>>> Tiled Galleries: Merged changes from Jetpack for tiled and widget galleries
 		return $layout->HTML();
 	}
 
