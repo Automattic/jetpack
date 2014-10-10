@@ -158,8 +158,11 @@ new Jetpack_JSON_API_Themes_Update_Endpoint( array(
 		'themes'   => '(array) The list of themes to update',
 	),
 	'response_format' => array(
-		'updated' => '(array) An array of updated theme stylesheets.',
-		'errors'  => '(array) An array of not updated stylesheets.',
+		'id'           => '(string) The theme\'s ID.',
+		'screenshot'   => '(string) A theme screenshot URL',
+		'name'         => '(string) The name of the theme.',
+		'description'  => '(string) A description of the theme.',
+		'tags'         => '(array) Tags indicating styles and features of the theme.',
 		'log'     => '(array:safehtml) An array of log strings.',
 	),
 	'example_request_data' => array(
