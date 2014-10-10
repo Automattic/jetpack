@@ -20,12 +20,12 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	protected function flag_autoupdate_plugins() {
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
-		foreach( $this->plugins as $p ) {
-			if( ! in_array( $p, $autoupdate_plugins ) ) {
+		foreach( $this->plugins as $plugin ) {
+			if( ! in_array( $plugin, $autoupdate_plugins ) ) {
 				$autoupdate_plugins[] = $p;
-				$this->log[ $p ][] = 'This plugin is has been set to automatically update.';
+				$this->log[ $plugin ][] = 'This plugin has been set to automatically update.';
 			} else {
-				$this->log[ $p ][] = 'This plugin is already set to automatically update.';
+				$this->log[ $plugin ][] = 'This plugin is already set to automatically update.';
 			}
 		}
 		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
@@ -36,7 +36,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		foreach( $autoupdate_plugins as $index => $plugin ) {
 			if( in_array( $plugin, $this->plugins ) ) {
 				unset( $autoupdate_plugins[ $index ] );
-				$this->log[ $plugin ][] = 'This plugin is has been set to manually update.';
+				$this->log[ $plugin ][] = 'This plugin has been set to manually update.';
 			} else {
 				$this->log[ $plugin ][] = 'This plugin is already set to manually update.';
 			}
