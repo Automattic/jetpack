@@ -176,7 +176,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		foreach ( $input as $key => $value ) {
 
-			$value = wp_unslash( trim( $value ) );
+			if ( ! is_array( $value ) ) {
+				$value = trim( $value );
+			}
+			$value = wp_unslash( $value );
 
 			switch ( $key ) {
 
