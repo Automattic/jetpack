@@ -1588,6 +1588,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'moderation_keys'              => '(string) words or phrases that trigger comment moderation, one per line',
 		'blacklist_keys'               => '(string) words or phrases that mark comment spam, one per line',
 		'lang_id'                      => '(int) ID for language blog is written in',
+		'wga'                          => '(array) Google Analytics Settings',
 	),
 
 	'response_format' => array(
