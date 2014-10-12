@@ -148,6 +148,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'moderation_keys'         => get_option( 'moderation_keys' ),
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
 					'lang_id'                 => get_option( 'lang_id' ),
+					'wga'                     => get_option( 'wga' ),
 
 				);
 				if ( ! current_user_can( 'edit_posts' ) )
@@ -223,7 +224,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$updated[ $key ] = $value;
 					}
 					break;
-
+				case 'wga':
+					if ( ! isset( $value['code'] ) || ! preg_match( '/^UA-[\d-]+$/', $value['code'] ) ) {
+						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
+					}
+					$wga = get_option( 'wga', array() );
+					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics
+					if ( update_option( 'wga', $wga ) ) {
+						$updated[ $key ] = $value;
+					}
+					break;
 				// no worries, we've already whitelisted and casted arguments above
 				default:
 					if ( update_option( $key, $value ) ) {
