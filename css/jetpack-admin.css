@@ -1086,19 +1086,12 @@ ul#adminmenu a.toplevel_page_jetpack:after {
   display: none;
 }
 .module.active {
-  padding-left: 0.85714em;
-  border-left-width: 0.28571em;
-  border-color: #81a844;
-}
-.module.active h3 {
-  color: #81a844;
+  border-color: #2ea2cc;
+  box-shadow: inset 4px 0 0 #2ea2cc;
 }
 .module.active:hover {
-  border-color: #a5c672;
-  background-color: #f6faf1;
-}
-.module.active:hover h3 {
-  color: #81a844;
+  border-color: #69bedd;
+  box-shadow: inset 4px 0 0 #69bedd;
 }
 @media (max-width: 1147px) {
   .cat .module:nth-child(3n + 1) {

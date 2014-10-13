@@ -755,20 +755,12 @@ body {
 	}
 
 	&.active {
-		padding-left: em(12px);
-		border-left-width: em(4px);
-		border-color: $green;
+		border-color: $lightblue;
+		box-shadow: inset 4px 0 0 $lightblue;
 
-		h3 {
-			color: $green;
-		}
 		&:hover {
-			border-color: lighten( $green, 15% );
-			background-color: lighten( $green, 50% );
-
-			h3 {
-				color: $green;
-			}
+			border-color: lighten( $lightblue, 15% );
+			box-shadow: inset 4px 0 0 lighten( $lightblue, 15% );
 		}
 	}
 
