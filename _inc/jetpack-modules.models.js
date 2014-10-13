@@ -62,7 +62,6 @@ window.jetpackModules.models = (function( window, $, _, Backbone ) {
 
 			initialize : function() {
 				var items = this.get( 'items' );
-				delete items.vaultpress;
 				this.set( 'raw', items );
 			}
 
