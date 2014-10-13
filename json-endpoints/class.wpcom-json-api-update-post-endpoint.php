@@ -230,11 +230,9 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 
 		$likes = $input['likes_enabled'];
 		$sharing = $input['sharing_enabled'];
-		$gplus = $input['gplusauthorship_enabled'];
 
 		unset( $input['likes_enabled'] );
 		unset( $input['sharing_enabled'] );
-		unset( $input['gplusauthorship_enabled'] );
 
 		$sticky = $input['sticky'];
 		unset( $input['sticky'] );
@@ -340,21 +338,6 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 						delete_post_meta( $post_id, 'switch_like_status' );
 					}
 				}
-			}
-		}
-
-		// Set Google+ authorship status for the post
-		if ( $new ) {
-			$gplus_enabled = isset( $gplus ) ? (bool) $gplus : true;
-			if ( false === $gplus_enabled ) {
-				update_post_meta( $post_id, 'gplus_authorship_disabled', 1 );
-			}
-		}
-		else {
-			if ( isset( $gplus ) && true === $gplus ) {
-				delete_post_meta( $post_id, 'gplus_authorship_disabled' );
-			} else if ( isset( $gplus ) && false == $gplus ) {
-				update_post_meta( $post_id, 'gplus_authorship_disabled', 1 );
 			}
 		}
 

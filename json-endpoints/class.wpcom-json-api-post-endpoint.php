@@ -32,7 +32,6 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'pings_open'     => '(bool) Is the post open for pingbacks, trackbacks?',
 		'likes_enabled' => "(bool) Is the post open to likes?",
 		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
-		'gplusauthorship_enabled' => "(bool) Should a Google+ account be associated with this post?",
 		'comment_count'  => '(int) The number of comments for this post.',
 		'like_count'     => '(int) The number of likes for this post.',
 		'i_like'         => '(bool) Does the current user like this post?',
@@ -278,26 +277,6 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( !empty( $switched_status ) )
 					$show = false;
 				$response[$key] = (bool) $show;
-				break;
-			case 'gplusauthorship_enabled' :
-				$gplus_enabled = true;
-				if ( ! apply_filters( 'gplus_authorship_show', true, $post ) ) {
-					$gplus_enabled = false;
-				}
-
-				$authors = get_option( 'gplus_authors', array() );
-				$author = ( empty( $authors[ $post->post_author ] ) ? array() : $authors[ $post->post_author ] );
-				
-				if ( empty( $author ) ) {
-					$gplus_enabled = false;
-				}
-
-				$meta = get_post_meta( $post->ID, 'gplus_authorship_disabled', true );
-				if ( isset( $meta ) && true == $meta ) {
-					$gplus_enabled = false;
-				}
-			
-				$response[$key] = (bool) $gplus_enabled;
 				break;
 			case 'comment_count' :
 				$response[$key] = (int) $post->comment_count;
