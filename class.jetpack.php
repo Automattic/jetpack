@@ -86,9 +86,6 @@ class Jetpack {
 			'Easy Contact Forms'             => 'easy-contact-forms/easy-contact-forms.php',
 			'Fast Secure Contact Form'       => 'si-contact-form/si-contact-form.php',
 		),
-		'gplus-authorship'  => array(
-			'WP SEO by Yoast'                => 'wordpress-seo/wp-seo.php',
-		),
 		'minileven'         => array(
 			'WPtouch'                        => 'wptouch/wptouch.php',
 		),
@@ -303,6 +300,13 @@ class Jetpack {
 					trigger_error( sprintf( 'Jetpack::plugin_upgrade found no user_id in user_token "%s"', $user_token ), E_USER_WARNING );
 				}
 			}
+		}
+
+		// Clean up legacy G+ Authorship data.
+		if ( get_option( 'gplus_authors' ) ) {
+			delete_option( 'gplus_authors' );
+			delete_option( 'hide_gplus' );
+			delete_metadata( 'post', 0, 'gplus_authorship_disabled', null, true );
 		}
 	}
 
@@ -1153,8 +1157,9 @@ class Jetpack {
 	 */
 	function handle_deprecated_modules( $modules ) {
 		$deprecated_modules = array(
-			'debug' => null,  // Closed out and moved to ./class.jetpack-debugger.php
-			'wpcc'  => 'sso', // Closed out in 2.6 -- SSO provides the same functionality.
+			'debug'            => null,  // Closed out and moved to ./class.jetpack-debugger.php
+			'wpcc'             => 'sso', // Closed out in 2.6 -- SSO provides the same functionality.
+			'gplus-authorship' => null,  // Closed out in 3.2 -- Google dropped support.
 		);
 
 		// Don't activate SSO if they never completed activating WPCC.
@@ -4737,7 +4742,6 @@ p {
 		$to_dequeue = array(
 			'jetpack-carousel',
 			'grunion.css',
-			'gplus',
 			'the-neverending-homepage',
 			'jetpack_likes',
 			'jetpack_related-posts',
