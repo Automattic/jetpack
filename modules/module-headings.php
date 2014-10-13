@@ -36,10 +36,6 @@ _x( 'Customize your site’s CSS without modifying your theme.', 'Module Descrip
 _x( 'Enhanced Distribution', 'Module Name', 'jetpack' );
 _x( 'Share your public posts and comments to search engines and other services.', 'Module Description', 'jetpack' );
 
-// modules/gplus-authorship.php
-_x( 'Google+ Profile', 'Module Name', 'jetpack' );
-_x( 'Give users the ability to share posts to Google+, and add your site link to your Google+ profile.', 'Module Description', 'jetpack' );
-
 // modules/gravatar-hovercards.php
 _x( 'Gravatar Hovercards', 'Module Name', 'jetpack' );
 _x( 'Enable pop-up business cards over commenters’ Gravatars.', 'Module Description', 'jetpack' );
