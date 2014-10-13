@@ -207,20 +207,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		return sprintf( '<input type="checkbox" name="modules[]" value="%s" />', $item['module'] );
 	}
 
-	function column_icon( $item ) {
-		$badge_text = $free_text = '';
-		ob_start();
-		?>
-		<a href="#TB_inline?width=600&height=550&inlineId=more-info-module-settings-modal" class="thickbox">
-			<div class="module-image">
-				<p><span class="module-image-badge"><?php echo $badge_text; ?></span><span class="module-image-free" style="display: none"><?php echo $free_text; ?></span></p>
-			</div>
-		</a>
-		<?php
-		return ob_get_clean();
-
-	}
-
 	function column_name( $item ) {
 		$actions = array(
 			'info' => sprintf( '<a href="%s">%s</a>', esc_url( '#' ), esc_html__( 'Module Info', 'jetpack' ) ),
@@ -253,20 +239,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 		}
 
 		return $this->row_actions( $actions ) . wptexturize( $item['name'] );
-	}
-
-	function column_description( $item ) {
-		ob_start();
-		echo apply_filters( 'jetpack_short_module_description', $item['description'], $item['module'] );
-		do_action( 'jetpack_learn_more_button_' . $item['module'] );
-		echo '<div id="more-info-' . $item['module'] . '" class="more-info">';
-		if ( Jetpack::is_active() && has_action( 'jetpack_module_more_info_connected_' . $item['module'] ) ) {
-			do_action( 'jetpack_module_more_info_connected_' . $item['module'] );
-		} else {
-			do_action( 'jetpack_module_more_info_' . $item['module'] );
-		}
-		echo '</div>';
-		return ob_get_clean();
 	}
 
 	function column_module_tags( $item ) {
