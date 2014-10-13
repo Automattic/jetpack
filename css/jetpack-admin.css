@@ -1966,6 +1966,9 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .table-bordered.jetpack-modules tr.jetpack-module.unavailable input {
   display: none;
 }
+.table-bordered.jetpack-modules tr.jetpack-module#vaultpress {
+  opacity: 1;
+}
 .table-bordered.jetpack-modules tr.jetpack-module th,
 .table-bordered.jetpack-modules tr.jetpack-module td {
   background: #fff;

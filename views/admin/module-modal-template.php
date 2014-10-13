@@ -7,7 +7,7 @@
 			{{{ data.long_description }}}
 		</div>
 	</div>
-	<# if ( data.available) { #>
+	<# if ( data.available ) { #>
 		<footer>
 			<ul>
 				<li>
