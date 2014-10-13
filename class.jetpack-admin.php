@@ -110,6 +110,13 @@ class Jetpack_Admin {
 		if ( ! is_array( $module ) || empty( $module ) )
 			return false;
 
+		/**
+		 * We never want to show VaultPress as activate-able through Jetpack.
+		 */
+		if ( 'vaultpress' === $module['module'] ) {
+			return false;
+		}
+
 		if ( Jetpack::is_development_mode() ) {
 			return ! ( $module['requires_connection'] && ! Jetpack::is_active() );
 		} else {
