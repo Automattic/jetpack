@@ -34,6 +34,7 @@ class Jetpack_Site_Icon {
 	public static $site_icon_sizes = array(
 		256,
 		128,
+		80,
 		64,
 		32,
 		16,
@@ -383,7 +384,8 @@ class Jetpack_Site_Icon {
 		$image_edit->crop( $crop_data['crop_x'], $crop_data['crop_y'],$crop_data['crop_width'], $crop_data['crop_height'], self::$min_size, self::$min_size );
 		
 		$dir = wp_upload_dir();
-		$site_icon_filename = $image_edit->generate_filename( 'site_icon',  $dir['path'] , 'png' );
+
+		$site_icon_filename = $image_edit->generate_filename( dechex ( time() ). '_site_icon',  $dir['path'] , 'png' );
 		$image_edit->save( $site_icon_filename );
 		
 		add_filter( 'intermediate_image_sizes_advanced', array( 'Jetpack_Site_Icon', 'additional_sizes' ) );
