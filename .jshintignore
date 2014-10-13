@@ -10,9 +10,6 @@ modules/shortcodes/js/jmpress.min.js
 modules/shortcodes/js/jquery.cycle.js
 modules/theme-tools/responsive-videos/responsive-videos.min.js
 
-needs to be merged first:
-modules/gplus-authorship/admin/connect.js
-
 todo:
 modules/infinite-scroll/infinity.js
 modules/sharedaddy/sharing.js
