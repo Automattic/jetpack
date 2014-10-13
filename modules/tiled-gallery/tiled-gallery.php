@@ -133,7 +133,7 @@ class Jetpack_Tiled_Gallery {
 					$gallery_html = Jetpack_Photon::filter_the_content( $gallery_html );
 			}
 
-			return $gallery_html;
+			return trim( preg_replace( '/\s+/', ' ', $gallery_html ) ); // remove any new lines from the output so that the reader parses it better
 		}
 
 		return '';
