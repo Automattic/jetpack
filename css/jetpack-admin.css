@@ -1085,6 +1085,21 @@ ul#adminmenu a.toplevel_page_jetpack:after {
 .module:nth-of-type(n+10) {
   display: none;
 }
+.module.active {
+  padding-left: 0.85714em;
+  border-left-width: 0.28571em;
+  border-color: #81a844;
+}
+.module.active h3 {
+  color: #81a844;
+}
+.module.active:hover {
+  border-color: #a5c672;
+  background-color: #f6faf1;
+}
+.module.active:hover h3 {
+  color: #81a844;
+}
 @media (max-width: 1147px) {
   .cat .module:nth-child(3n + 1) {
     margin: .75% 0 .75% 1.5%;
