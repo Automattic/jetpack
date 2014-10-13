@@ -754,6 +754,24 @@ body {
 		display: none;
 	}
 
+	&.active {
+		padding-left: em(12px);
+		border-left-width: em(4px);
+		border-color: $green;
+
+		h3 {
+			color: $green;
+		}
+		&:hover {
+			border-color: lighten( $green, 15% );
+			background-color: lighten( $green, 50% );
+
+			h3 {
+				color: $green;
+			}
+		}
+	}
+
 	.cat & {
 		@include breakpoint(large-desktop){
 			&:nth-child(3n + 1) {
