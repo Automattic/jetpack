@@ -17,9 +17,9 @@
 						<span class='activate'><a class="button-primary"href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ data.module }}}&#038;_wpnonce={{{ data.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
 					<# } #>
 				</li>
-				<li>
-					<# if ( data.configurable ) { #> <a class="button-primary" href="{{ data.configure_url }}"><?php _e( 'Configure', 'jetpack' ); ?></a> <# } #>
-				</li>
+				<# if ( data.configurable ) { #>
+					<li><a class="button-primary" href="{{ data.configure_url }}"><?php _e( 'Configure', 'jetpack' ); ?></a></li>
+				<# } #>
 			</ul>
 		</footer>
 	<# } #>
