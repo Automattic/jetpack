@@ -70,8 +70,9 @@ Scroller = function( settings ) {
 				self.thefooter();
 				// Fire the refresh
 				self.refresh();
+                self.determineURL(); // determine the url 
 			}
-		}, 300 );
+		}, 250 );
 
 		// Ensure that enough posts are loaded to fill the initial viewport, to compensate for short posts and large displays.
 		self.ensureFilledViewport();
@@ -121,7 +122,6 @@ Scroller.prototype.render = function( response ) {
 
 	// Check if we can wrap the html
 	this.element.append( response.html );
-
 	this.body.trigger( 'post-load', response );
 	this.ready = true;
 };
@@ -315,7 +315,11 @@ Scroller.prototype.refresh = function() {
 				}
 
 				// stash the response in the page cache
+<<<<<<< HEAD
 				self.pageCache[self.page] = response.html;
+=======
+                self.pageCache[self.page] = response;
+>>>>>>> infinity.js : Resolve Divergence from Jetpack
 
 				// Increment the page number
 				self.page++;
@@ -521,12 +525,21 @@ Scroller.prototype.determineURL = function () {
 		}
 	} );
 
+<<<<<<< HEAD
 	$.each(setsHidden, function() {
+=======
+    $.each(setsHidden, function() {
+>>>>>>> infinity.js : Resolve Divergence from Jetpack
 		var $set = $('#' + this.id);
 		if( $set.hasClass( 'is--replaced' ) ) {
 			return;
 		}
 
+<<<<<<< HEAD
+=======
+        self.pageCache[ this.pageNum].html = $set.html();
+
+>>>>>>> infinity.js : Resolve Divergence from Jetpack
 		$set.css('min-height', ( this.bottom - this.top ) + 'px' )
 		    .addClass('is--replaced')
 		    .empty();
@@ -535,10 +548,19 @@ Scroller.prototype.determineURL = function () {
 	$.each(setsInView, function() {
 		var $set = $('#' + this.id);
 
+<<<<<<< HEAD
 		if( $set.hasClass('is--replaced')) {
 			$set.css('min-height', '').removeClass('is--replaced');
 			if( this.pageNum in self.pageCache ) {
 				$set.html(self.pageCache[this.pageNum]);
+=======
+		if( $set.hasClass('is--replaced') ) {
+			$set.css('min-height', '').removeClass('is--replaced');
+			if( this.pageNum in self.pageCache ) {
+				$set.html( self.pageCache[this.pageNum].html );
+                self.body.trigger( 'post-load', self.pageCache[this.pageNum] );
+
+>>>>>>> infinity.js : Resolve Divergence from Jetpack
 			}
 		}
 
@@ -639,6 +661,7 @@ $( document ).ready( function() {
 
 	/**
 	 * Monitor user scroll activity to update URL to correspond to archive page for current set of IS posts
+<<<<<<< HEAD
 	 */
 	var timer = null;
 	$( window ).bind( 'scroll', function() {
@@ -650,6 +673,20 @@ $( document ).ready( function() {
 		} , 250 );
 	});
 
+=======
+     */
+    if( type == 'click' ) {
+        var timer = null;
+        $( window ).bind( 'scroll', function() {
+            // run the real scroll handler once every 250 ms.
+            if ( timer ) { return; }
+            timer = setTimeout( function() {
+                infiniteScroll.scroller.determineURL();
+                timer = null;
+            } , 250 );
+        });
+    }
+>>>>>>> infinity.js : Resolve Divergence from Jetpack
 });
 
 
