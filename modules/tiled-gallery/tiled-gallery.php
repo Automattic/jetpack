@@ -54,8 +54,8 @@ class Jetpack_Tiled_Gallery {
 		if ( 'RAND' == $this->atts['order'] )
 			$this->atts['orderby'] = 'none';
 
-		if( !is_numeric( $this->atts['columns'] ) || 20 < $this->atts['columns'] ) { // we shouldn't have more then 30 columns 
-			$this->atts['columns'] = 3; 
+		if( !is_numeric( $this->atts['columns'] ) || 20 < $this->atts['columns'] ) { // we shouldn't have more then 30 columns
+			$this->atts['columns'] = 3;
 		}
 	}
 
@@ -124,7 +124,7 @@ class Jetpack_Tiled_Gallery {
 					$gallery_html = Jetpack_Photon::filter_the_content( $gallery_html );
 			}
 
-			return $gallery_html;
+			return trim( preg_replace( '/\s+/', ' ', $gallery_html ) ); // remove any new lines from the output so that the reader parses it better
 		}
 
 		return '';
@@ -176,6 +176,10 @@ class Jetpack_Tiled_Gallery {
 
 	function jetpack_default_gallery_type( $default ) {
 		return ( get_option( 'tiled_galleries' ) ? 'rectangular' : 'default' );
+	}
+
+	static function get_talaveras() {
+		return self::$talaveras;
 	}
 
 	/**
