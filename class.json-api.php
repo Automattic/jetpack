@@ -1,6 +1,6 @@
 <?php
 defined( 'WPCOM_JSON_API__DEBUG' ) or define( 'WPCOM_JSON_API__DEBUG', false );
-if( WPCOM_JSON_API__DEBUG )
+if( defined( 'WPCOM_JSON_API__DEBUG' ) && WPCOM_JSON_API__DEBUG )
 	require_once ABSPATH . 'wp-content/lib/statsd-client.php';
 
 
@@ -289,18 +289,18 @@ class WPCOM_JSON_API {
 		$api_timer = microtime( true );
 		$response = call_user_func_array( array( $endpoint, 'callback' ), $path_pieces );
 		$api_timer = 1000 * ( microtime( true ) - $api_timer );
+		if( defined( 'WPCOM_JSON_API__DEBUG' ) && WPCOM_JSON_API__DEBUG ) {
+			// Don't track API timings per node / DC for now, maybe in the future
+			$statsd = new StatsD();
+			$statsd_prefix = 'com.wordpress.web.ALL.ALL.rest_api.method';
+			$statsd_name = str_replace( ':', '.', $endpoint->stat );
 
-		// Don't track API timings per node / DC for now, maybe in the future
-		$statsd = new StatsD();
-		$statsd_prefix = 'com.wordpress.web.ALL.ALL.rest_api.method';
-		$statsd_name = str_replace( ':', '.', $endpoint->stat );
-
-		if ( ( !$response && !is_array( $response ) ) || is_wp_error( $response ) ) {
-			$statsd->timing( "{$statsd_prefix}.error.{$statsd_name}", $api_timer );
-		} else {
-			$statsd->timing( "{$statsd_prefix}.ok.{$statsd_name}", $api_timer );
+			if ( ( !$response && !is_array( $response ) ) || is_wp_error( $response ) ) {
+				$statsd->timing( "{$statsd_prefix}.error.{$statsd_name}", $api_timer );
+			} else {
+				$statsd->timing( "{$statsd_prefix}.ok.{$statsd_name}", $api_timer );
+			}
 		}
-
 		return $response;
 	}
 
