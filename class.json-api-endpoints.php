@@ -1073,6 +1073,81 @@ EOPHP;
 		return (object) $response;
 	}
 
+	function get_media_item_v1_1( $media_id ) {
+		$media_item = get_post( $media_id );
+
+		if ( ! $media_item || is_wp_error( $media_item ) )
+			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
+
+		$file = basename( wp_get_attachment_url( $media_item->ID ) );
+		$file_info = pathinfo( $file );
+		$ext  = $file_info['extension'];
+
+		$response = array(
+			'ID'           => strval( $media_item->ID ),
+			'URL'          => wp_get_attachment_url( $media_item->ID ),
+			'guid'         => $media_item->guid,
+			'date'         => (string) $this->format_date( $media_item->post_date_gmt, $media_item->post_date ),
+			'post_ID'      => $media_item->post_parent,
+			'file'         => $file,
+			'mime_type'    => $media_item->post_mime_type,
+			'extension'    => $ext,
+			'title'        => $media_item->post_title,
+			'caption'      => $media_item->post_excerpt,
+			'description'  => $media_item->post_content,
+		);
+
+		if ( in_array( $ext, array( 'jpg', 'jpeg', 'png', 'gif' ) ) ) {			
+			$metadata = wp_get_attachment_metadata( $media_item->ID );
+			$response['height'] = $metadata['height'];
+			$response['width']  = $metadata['width'];
+			$response['exif']   = $metadata['image_meta'];
+		}
+
+		if ( in_array( $ext, array( 'mp3', 'm4a', 'wav', 'ogg' ) ) ) {			
+			$metadata = wp_get_attachment_metadata( $media_item->ID );
+			$response['exif']   = $metadata;
+		}
+
+		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
+			$metadata = wp_get_attachment_metadata( $media_item->ID );
+			$response['height'] = $metadata['height'];
+			$response['width']  = $metadata['width'];
+
+			// add VideoPress info
+			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
+				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_id );
+				
+				$response['videopress_guid'] = $info->guid;
+				$response['videopress_processing_done'] = true;
+				if ( '0000-00-00 00:00:00' == $info->finish_date_gmt ) {
+					$response['videopress_processing_done'] = false;
+				} 
+			}
+		}
+
+		$response['meta'] = (object) array(
+			'links' => (object) array(
+				'self' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
+				'help' => (string) $this->get_media_link( $this->api->get_blog_id_for_output(), $media_id, 'help' ),
+				'site' => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
+			),
+		);
+
+		// add VideoPress link to the meta
+		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
+			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
+				$response['meta']->links->videopress = (string) $this->get_link( '/videos/%s', $response['videopress_guid'], '' );
+			}
+		}
+
+		if ( $media_item->post_parent > 0 ) {
+			$response['meta']->links->parent = (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $media_item->post_parent );
+		}
+
+		return (object) $response;
+	}
+
 	function get_taxonomy( $taxonomy_id, $taxonomy_type, $context ) {
 
 		$taxonomy = get_term_by( 'slug', $taxonomy_id, $taxonomy_type );
