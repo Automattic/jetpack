@@ -754,7 +754,7 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 
 	'request_format' => array(
 		'media'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Accepts images (image/gif, image/jpeg, image/png) only at this time.<br /><br /><strong>Example</strong>:<br />" .
-		                "<code>curl \<br />--form 'files[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
+		                "<code>curl \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
 		'media_urls' => "(array) An array of URLs to upload to the post."
 	),
 
@@ -1588,6 +1588,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'moderation_keys'              => '(string) words or phrases that trigger comment moderation, one per line',
 		'blacklist_keys'               => '(string) words or phrases that mark comment spam, one per line',
 		'lang_id'                      => '(int) ID for language blog is written in',
+		'wga'                          => '(array) Google Analytics Settings',
 	),
 
 	'response_format' => array(
@@ -1664,3 +1665,4 @@ new WPCOM_JSON_API_Delete_Connection_Endpoint( array(
 		'deleted' => '(bool) Confirmation that the connection has been removed'
 	)
 ) );
+
