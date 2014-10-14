@@ -14,8 +14,10 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-taxonomy-endpoint.php'
 
 
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-delete-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-delete-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-shortcode-endpoint.php' );
@@ -27,13 +29,16 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomies-endpoin
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-users-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php' );
 
@@ -312,8 +317,8 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'tags'       => "(array|string) Comma separated list or array of tags (name or id)",
 		'format'     => get_post_format_strings(),
 		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
-		'media'      => "(media) An array of images to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts images (image/gif, image/jpeg, image/png) only.<br /><br /><strong>Example</strong>:<br />" .
-						"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options resposne of the site endpoint. <br /><br /><strong>Example</strong>:<br />" .
+		 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 		'comments_open' => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
@@ -466,9 +471,9 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'likes_enabled' => "(bool) Should the post be open to likes?",
 		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
 		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
-		'media'      => "(media) An array of images to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts images (image/gif, image/jpeg, image/png) only.<br /><br /><strong>Example</strong>:<br />" .
-		                "<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
-		'media_urls' => "(array) An array of URLs for images to attach to the post. Sideloads the media in for the post.",
+		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options resposne of the site endpoint. <br /><br /><strong>Example</strong>:<br />" .
+		 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 	),
 
@@ -716,11 +721,37 @@ new WPCOM_JSON_API_List_Media_Endpoint( array(
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/media/?pretty=true',
 ) );
 
+new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
+	'description' => 'Return the media library',
+	'group'       => 'media',
+	'stat'        => 'media',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/media/',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'query_parameters' => array(
+		'number'    => '(int=20) The number of media items to return.  Limit: 100.',
+		'offset'    => '(int=0) 0-indexed offset.',
+		'post_ID'   => '(int) Default is all media items. Searching with a post ID will show media attached to a specific post. Passing 0 shows unattached media items.',
+		'mime_type' => "(string) Default is nothing. Filter by mime type (e.g., 'image/jpeg', 'application/pdf'",
+	),
+
+	'response_format' => array(
+		'media' => '(array) Array of media objects',
+		'found' => '(int) The number of total results found'
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/media/?pretty=true',
+) );
+
 new WPCOM_JSON_API_Get_Media_Endpoint( array(
 	'description' => 'Return a single media item (by ID)',
 	'group'       => 'media',
 	'stat'        => 'media:1',
-
 	'method'      => 'GET',
 	'path'        => '/sites/%s/media/%d',
 	'path_labels' => array(
@@ -741,11 +772,44 @@ new WPCOM_JSON_API_Get_Media_Endpoint( array(
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/media/36',
 ) );
 
+new WPCOM_JSON_API_Get_Media_v1_1_Endpoint( array(
+	'description' => 'Return a single media item (by ID)',
+	'group'       => 'media',
+	'stat'        => 'media:1',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/media/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$media_ID' => '(int) The ID of the media item',
+	),
+	'response_format' => array(
+		'ID'               => '(int) The ID of the media item',
+		'date'             => '(ISO 8601 datetime) The date the media was uploaded',
+		'post_ID'          => '(int) ID of the post this media is attached to',
+		'URL'              => '(string) URL to the file',
+		'guid'             => '(string) Unique Identifier',
+		'file'			   => '(string) File name',
+		'extension'        => '(string) File extension',
+		'mime_type'        => '(string) File mime type',
+		'title'            => '(string) File name',
+		'caption'          => '(string) User provided caption of the file',
+		'description'      => '(string) Description of the file',
+		'height'           => '(int) (Image & Video Only) Height of the media item',
+		'width'            => '(int) (Image & Video Only) Width of the media item',
+		'exif'             => '(array) (Image & Audio Only) Exif (meta) information about the media item',
+		'videopress_guid'  => '(string) (Video Only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
+		'videopress_processing_done'  => '(bool) (Video Only) If the video is Uuploaded on a blog with VideoPress, this will return the status of processing on the Video'
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/media/36',
+) );
+
 new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 	'description' => 'Upload a new piece of media',
 	'group'       => 'media',
 	'stat'        => 'media:new',
-
 	'method'      => 'POST',
 	'path'        => '/sites/%s/media/new',
 	'path_labels' => array(
@@ -766,11 +830,37 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 	),
 ) );
 
+new WPCOM_JSON_API_Upload_Media_v1_1_Endpoint( array(
+	'description' => 'Upload a new piece of media',
+	'group'       => 'media',
+	'stat'        => 'media:new',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/new',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'request_format' => array(
+		'media'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options resposne of the site endpoint.<br /><br /><strong>Example</strong>:<br />" .
+		                "<code>curl \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
+		'media_urls' => "(array) An array of URLs to upload to the post.",
+		'attrs'      => "(array) An array of extra information (title, description, caption, parent) to associate with uploaded files. Should be keyed with the same name as the files. attrs[0][title] = My PDF",
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/media/new/',
+
+	'response_format' => array(
+		'media' => '(array) Array of uploaded media objects',
+		'errors' => '(array) Array of error messages of uploading media failures'
+	),
+) );
+
 new WPCOM_JSON_API_Update_Media_Endpoint( array(
 	'description' => 'Edit basic information about a media item',
 	'group'       => 'media',
 	'stat'        => 'media:1:POST',
-
 	'method'      => 'POST',
 	'path'        => '/sites/%s/media/%d',
 	'path_labels' => array(
@@ -796,12 +886,51 @@ new WPCOM_JSON_API_Update_Media_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
+	'description' => 'Edit basic information about a media item',
+	'group'       => 'media',
+	'stat'        => 'media:1:POST',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$media_ID' => '(int) The ID of the media item',
+	),
+
+	'request_format' => array(
+		'post_ID'      => '(int)  ID of the post this media is attached to',
+		'title'       => '(string) The file name.',
+		'caption'     => '(string) File caption.',
+		'description' => '(HTML) Description of the file.',
+	),
+
+	'response_format' => array(
+		'ID'               => '(int) The ID of the media item',
+		'date'             => '(ISO 8601 datetime) The date the media was uploaded',
+		'post_ID'          => '(int) ID of the post this media is attached to',
+		'URL'              => '(string) URL to the file',
+		'guid'             => '(string) Unique Identifier',
+		'file'			   => '(string) File name',
+		'extension'        => '(string) File extension',
+		'mime_type'        => '(string) File mime type',
+		'title'            => '(string) File name',
+		'caption'          => '(string) User provided caption of the file',
+		'description'      => '(string) Description of the file',
+		'height'           => '(int) (Image & Video Only) Height of the media item',
+		'width'            => '(int) (Image & Video Only) Width of the media item',
+		'exif'             => '(array) (Image & Audio Only) Exif (meta) information about the media item',
+		'videopress_guid'  => '(string) (Video Only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
+		'videopress_processing_done'  => '(bool) (Video Only) If the video is Uuploaded on a blog with VideoPress, this will return the status of processing on the Video'
+	)
+) );
+
 
 new WPCOM_JSON_API_Delete_Media_Endpoint( array(
 	'description' => 'Delete a piece of media',
 	'group'       => 'media',
 	'stat'        => 'media:1:delete',
-
 	'method'      => 'POST',
 	'path'        => '/sites/%s/media/%d/delete',
 	'path_labels' => array(
@@ -819,6 +948,40 @@ new WPCOM_JSON_API_Delete_Media_Endpoint( array(
 		'caption'          => '(string) User provided caption of the file',
 		'description'      => '(string) Description of the file',
 		'metadata'         => '(array) Misc array of information about the file, such as exif data or sizes',
+	)
+) );
+
+new WPCOM_JSON_API_Delete_Media_v1_1_Endpoint( array(
+	'description' => 'Delete a piece of media. Media is deleted and not trashed.',
+	'group'       => 'media',
+	'stat'        => 'media:1:delete',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/%d/delete',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$media_ID' => '(int) The media ID',
+	),
+
+	'response_format' => array(
+		'status'           => '(string) Returns deleted if the media was successfully deleted',
+		'ID'               => '(int) The ID of the media item',
+		'date'             => '(ISO 8601 datetime) The date the media was uploaded',
+		'post_ID'          => '(int) ID of the post this media is attached to',
+		'URL'              => '(string) URL to the file',
+		'guid'             => '(string) Unique Identifier',
+		'file'			   => '(string) File name',
+		'extension'        => '(string) File extension',
+		'mime_type'        => '(string) File mime type',
+		'title'            => '(string) File name',
+		'caption'          => '(string) User provided caption of the file',
+		'description'      => '(string) Description of the file',
+		'height'           => '(int) (Image & Video Only) Height of the media item',
+		'width'            => '(int) (Image & Video Only) Width of the media item',
+		'exif'             => '(array) (Image & Audio Only) Exif (meta) information about the media item',
+		'videopress_guid'  => '(string) (Video Only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
+		'videopress_processing_done'  => '(bool) (Video Only) If the video is Uuploaded on a blog with VideoPress, this will return the status of processing on the Video'
 	)
 ) );
 
