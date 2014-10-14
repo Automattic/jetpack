@@ -1,8 +1,9 @@
 <?php
-
-require_once ABSPATH . 'wp-content/lib/statsd-client.php';
-
 defined( 'WPCOM_JSON_API__DEBUG' ) or define( 'WPCOM_JSON_API__DEBUG', false );
+if( WPCOM_JSON_API__DEBUG )
+	require_once ABSPATH . 'wp-content/lib/statsd-client.php';
+
+
 
 class WPCOM_JSON_API {
 	static $self = null;
