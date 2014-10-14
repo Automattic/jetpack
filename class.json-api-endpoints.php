@@ -568,6 +568,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+ 	 * Checks if the endpoint is publicly displayable
+ 	 */
+	function is_publicly_documentable() {
+		return '__do_not_document' !== $this->group && true !== $this->in_testing;
+	}
+
+	/**
 	 * Auto generates documentation based on description, method, path, path_labels, and query parameters.
 	 * Echoes HTML.
 	 */
