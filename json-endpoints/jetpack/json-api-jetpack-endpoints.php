@@ -260,7 +260,7 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 		'$plugin'   => '(string) The plugin ID',
 	),
 	'request_format' => array(
-		'action'       => '(string) Possible values are update, activate, deactivate, autoupdate_on, autoupdate_off',
+		'action'       => '(string) Possible values are upgrade, activate, deactivate, autoupdate_on, autoupdate_off',
 		'network_wide' => '(bool) Do action network wide (default value: false)'
 	),
 	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
@@ -284,12 +284,15 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 		'$site'   => '(int|string) The site ID, The site domain',
 	),
 	'request_format' => array(
-		'action'       => '(string) Possible values are update, activate, deactivate, autoupdate_on, autoupdate_off',
+		'action'       => '(string) Possible values are upgrade, activate, deactivate, autoupdate_on, autoupdate_off',
 		'network_wide' => '(bool) Do action network wide (default value: false)',
 		'plugins'      => '(array) A list of plugin ids to modify',
 	),
 	'response_format' => array(
-		'plugins' => '(array) A list of plugins that were modified',
+		'plugins'       => '(array:plugin) An array of plugin objects.',
+		'upgraded'      => '(array) A list of plugin ids that were upgraded. Only present if action is upgrade.',
+		'not_upgraded'  => '(array) A list of plugin ids that were not upgraded. Only present if action is upgrade.',
+		'log'           => '(array) Upgrade log. Only present if action is upgrade.',
 	),
 	'example_request_data' => array(
 		'headers' => array(

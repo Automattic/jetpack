@@ -109,6 +109,15 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 				continue;
 			$response['plugins'][] = $this->format_plugin( $plugin, $installed_plugins[ $plugin ] );
 		}
+		if( ! empty( $this->upgraded ) ) {
+			$response['upgraded'] = $this->upgraded;
+		}
+		if( ! empty( $this->not_upgraded ) ) {
+			$response['not_upgraded'] = $this->not_upgraded;
+		}
+		if( ! empty( $this->upgrade_log ) ) {
+			$response['log'] = $this->upgrade_log;
+		}
 		return $response;
 	}
 
@@ -116,7 +125,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$installed_plugins = get_plugins();
 		if ( ! isset( $installed_plugins[ $this->plugin ] ) )
 			return new WP_Error( 'unknown_plugin', __( 'Plugin not found.', 'jetpack' ), 404 );
-		return $this->format_plugin( $this->plugin, $installed_plugins[ $this->plugin ] );
+		$plugin = $this->format_plugin( $this->plugin, $installed_plugins[ $this->plugin ] );
+		if( ! empty( $this->upgrade_log ) ) {
+			$plugin['log'] = $this->upgrade_log;
+		}
+		return $plugin;
 	}
 
 	protected function validate_network_wide() {
