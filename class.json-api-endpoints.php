@@ -109,6 +109,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'min_version'          => '0',
 			'max_version'          => WPCOM_JSON_API__CURRENT_VERSION,
 			'force'	               => '',
+			'deprecated'           => false,
+			'new_version'          => WPCOM_JSON_API__CURRENT_VERSION,
 			'jp_disabled'          => false,
 			'path_labels'          => array(),
 			'request_format'       => array(),
@@ -140,6 +142,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 		$this->path_labels = $args['path_labels'];
 		$this->min_version = $args['min_version'];
 		$this->max_version = $args['max_version'];
+		$this->deprecated  = $args['deprecated'];
+		$this->new_version = $args['new_version'];
 
 		$this->pass_wpcom_user_details = $args['pass_wpcom_user_details'];
 		$this->custom_fields_filtering = (bool) $args['custom_fields_filtering'];
@@ -593,6 +597,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 <?php endif; ?>
 
+<?php if ( true === $this->deprecated ) { ?>
+<p><strong>This endpoint is deprecated in favor of version <?php echo floatval( $this->new_version ); ?></strong></p>
+<?php } ?>
+
 <section class="resource-url">
 	<h2 id="apidoc-resource-url">Resource URL</h2>
 	<table class="api-doc api-doc-resource-parameters api-doc-resource">
@@ -605,7 +613,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 		<tbody>
 			<tr class="api-index-item">
 				<th scope="row" class="parameter api-index-item-title"><?php echo wp_kses_post( $doc['method'] ); ?></th>
-				<td class="type api-index-item-title" style="white-space: nowrap;">https://public-api.wordpress.com/rest/v1<?php echo wp_kses_post( $doc['path_labeled'] ); ?></td>
+				<?php
+				$version = WPCOM_JSON_API__CURRENT_VERSION;
+				if ( !empty( $this->max_version ) ) {
+					$version = $this->max_version;
+				}
+				?>
+				<td class="type api-index-item-title" style="white-space: nowrap;">https://public-api.wordpress.com/rest/v<?php echo floatval( $version ); ?><?php echo wp_kses_post( $doc['path_labeled'] ); ?></td>
 			</tr>
 		</tbody>
 	</table>
