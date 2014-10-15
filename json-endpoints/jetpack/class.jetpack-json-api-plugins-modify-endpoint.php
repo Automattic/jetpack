@@ -7,6 +7,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected $update_log;
 	protected $updated;
 	protected $not_updated;
+	protected $autoupdate = null;
+	protected $active = null;
 
 	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
 
@@ -20,16 +22,13 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected function validate_action() {
 		$expected_actions = array(
 			'update',
-			'activate',
-			'deactivate',
-			'autoupdate_on',
-			'autoupdate_off',
 		);
 		$args = $this->input();
-		if( empty( $args['action'] ) || ! in_array( $args['action'], $expected_actions ) ) {
-			return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ));
+		if( ! empty( $args['action'] ) ) {
+			if( ! in_array( $args['action'], $expected_actions ) )
+				return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ));
+			$this->action =  $args['action'];
 		}
-		$this->action =  $args['action'];
 	}
 
 	protected function autoupdate_on() {
