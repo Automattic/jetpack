@@ -787,8 +787,8 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 	            },
 	            "meta": {
 	                "links": {
-	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880165",
-	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880165\/help",
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165\/help",
 	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183"
 	                }
 	            }
@@ -822,8 +822,8 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 	            },
 	            "meta": {
 	                "links": {
-	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880156",
-	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880156\/help",
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880156",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880156\/help",
 	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
 	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/880155"
 	                }
@@ -858,8 +858,8 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 	            },
 	            "meta": {
 	                "links": {
-	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880150",
-	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880150\/help",
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880150",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880150\/help",
 	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
 	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/1"
 	                }
@@ -894,8 +894,8 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 	            },
 	            "meta": {
 	                "links": {
-	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880152",
-	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880152\/help",
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880152",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880152\/help",
 	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
 	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/880142"
 	                }
@@ -930,8 +930,8 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 	            },
 	            "meta": {
 	                "links": {
-	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880143",
-	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880143\/help",
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880143",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880143\/help",
 	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
 	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/880142"
 	                }
@@ -966,8 +966,8 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 	            },
 	            "meta": {
 	                "links": {
-	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880135",
-	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880135\/help",
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880135",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880135\/help",
 	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
 	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/880134"
 	                }
@@ -1002,8 +1002,8 @@ new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
 	            },
 	            "meta": {
 	                "links": {
-	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880023",
-	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880023\/help",
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880023",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880023\/help",
 	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
 	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/880022"
 	                }
@@ -1107,8 +1107,8 @@ new WPCOM_JSON_API_Get_Media_v1_1_Endpoint( array(
 	    },
 	    "meta": {
 	        "links": {
-	            "self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880165",
-	            "help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880165\/help",
+	            "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165",
+	            "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165\/help",
 	            "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183"
 	        }
 	    }
@@ -1277,8 +1277,8 @@ new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
 	    },
 	    "meta": {
 	        "links": {
-	            "self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880165",
-	            "help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880165\/help",
+	            "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165",
+	            "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165\/help",
 	            "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183"
 	        }
 	    }
@@ -1384,8 +1384,8 @@ new WPCOM_JSON_API_Delete_Media_v1_1_Endpoint( array(
 	    },
 	    "meta": {
 	        "links": {
-	            "self": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880165",
-	            "help": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/media\/880165\/help",
+	            "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165",
+	            "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165\/help",
 	            "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183"
 	        }
 	    }
