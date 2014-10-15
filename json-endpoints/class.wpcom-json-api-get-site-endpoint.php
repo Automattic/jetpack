@@ -158,6 +158,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
 				break;
 			case 'subscribers_count' :
+
 				if ( function_exists( 'wpcom_subs_total_wpcom_subscribers' ) ) {
 					$total_wpcom_subs = wpcom_subs_total_wpcom_subscribers(
 						array(
