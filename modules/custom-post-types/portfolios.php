@@ -479,8 +479,12 @@ class Jetpack_Portfolio {
 
 		$atts['showposts'] = intval( $atts['showposts'] );
 		
-		if ( $atts['order'] && 'desc' != $atts['order'] ) {
-			$atts['order'] = 'asc';
+		
+		if ( $atts['order'] ) {
+			$atts['order'] = strtoupper( $atts['order'] );
+			if ( 'DESC' != $atts['order'] ) {
+				$atts['order'] = 'ASC';
+			}
 		}
 		
 		if ( $atts['orderby'] ) {
