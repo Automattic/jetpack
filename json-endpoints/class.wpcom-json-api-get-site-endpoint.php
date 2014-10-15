@@ -123,16 +123,17 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'icon' :
 				if ( function_exists( 'blavatar_domain' ) && function_exists( 'blavatar_exists' ) && function_exists( 'blavatar_url' ) ) {
 					$domain = blavatar_domain( home_url() );
-					if ( blavatar_exists( $domain ) )
-						$response[$key] = array(
+					if ( blavatar_exists( $domain ) ) {
+						$response[ $key ] = array(
 							'img' => (string) remove_query_arg( 's', blavatar_url( $domain, 'img' ) ),
 							'ico' => (string) remove_query_arg( 's', blavatar_url( $domain, 'ico' ) ),
 						);
-				}  elseif( function_exists( 'jetpack_site_icon_url' ) && function_exists( 'jetpack_photon_url' ) ) {
-                    $response[$key] = array(
-                        'img' => (string) jetpack_photon_url( jetpack_site_icon_url( get_current_blog_id() , 80 ), array( 'w' => 80 ), 'https' ),
-                        'ico' => (string) jetpack_photon_url( jetpack_site_icon_url( get_current_blog_id() , 16 ), array( 'w' => 16 ), 'https' ),
-						);
+					}
+				} elseif ( function_exists( 'jetpack_site_icon_url' ) && function_exists( 'jetpack_photon_url' ) ) {
+					$response[ $key ] = array(
+						'img' => (string) jetpack_photon_url( jetpack_site_icon_url( get_current_blog_id() , 80 ), array( 'w' => 80 ), 'https' ),
+						'ico' => (string) jetpack_photon_url( jetpack_site_icon_url( get_current_blog_id() , 16 ), array( 'w' => 16 ), 'https' ),
+					);
 				}
 				break;
 			case 'logo' :
