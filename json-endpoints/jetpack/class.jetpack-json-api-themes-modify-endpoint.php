@@ -2,9 +2,13 @@
 
 class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 
-	protected $autoupdate;
+	protected $action;
 
 	public function callback( $path = '', $blog_id = 0, $theme = null ) {
+
+		if( is_wp_error( $error = $this->validate_action() ) ) {
+			return $error;
+		}
 
 		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_themes' ) ) ) {
 			return $error;
@@ -18,14 +22,10 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 			return new WP_Error( 'unknown_theme', $error->get_error_messages() , 404 );
 		}
 
-		if( is_wp_error( $error = $this->validate_autoupdate() ) ) {
-			return $error;
-		}
-
-		if( true === $this->autoupdate ) {
-			$result = $this->flag_autoupdates();
-		} else {
-			$result = $this->unflag_autoupdates();
+		if ( ! empty( $this->action ) ) {
+			if ( is_wp_error( $result = call_user_func( array( $this, $this->action ) ) ) ) {
+				return $result;
+			}
 		}
 
 		if ( 1 === count( $this->themes ) ) {
@@ -33,20 +33,25 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 			return $theme;
 		}
 
-		return array(
-			'themes' => $result
+		$response['themes'] = $result;
+
+		return $response;
+	}
+
+	protected function validate_action() {
+		$expected_actions = array(
+			'update',
+			'autoupdate_on',
+			'autoupdate_off',
 		);
-	}
-
-	function validate_autoupdate() {
 		$args = $this->input();
-		if( ! isset( $args['autoupdate'] ) || ! is_bool( $args['autoupdate'] ) ) {
-			return new WP_Error( 'invalid_parameter', __( 'Autoupdate must be true or false.', 'jetpack' ), 400 );
+		if( empty( $args['action'] ) || ! in_array( $args['action'], $expected_actions ) ) {
+			return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ));
 		}
-		$this->autoupdate = $args['autoupdate'];
+		$this->action =  $args['action'];
 	}
 
-	function flag_autoupdates() {
+	function autoupdate_on() {
 		$autoupdate_themes = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 		foreach( $this->themes as $index => $theme ) {
 			$result[ $index ] = $this->format_theme( wp_get_theme( $theme ) );
@@ -61,7 +66,7 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 		return $result;
 	}
 
-	function unflag_autoupdates() {
+	function autoupdate_off() {
 		$autoupdate_themes = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 
 		foreach( $this->themes as $index => $theme ) {
