@@ -136,6 +136,7 @@ class Jetpack_Sync {
 		$sync_data = array(
 			'modules' => $modules,
 			'version' => JETPACK__VERSION,
+			'is_multisite' => is_multisite(),
 		);
 
 		return $sync_data;
