@@ -4,6 +4,9 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	// POST  /sites/%s/plugins/%s
 	// POST  /sites/%s/plugins
 	protected $needed_capabilities = 'activate_plugins';
+	protected $upgrade_log;
+	protected $upgraded;
+	protected $not_upgraded;
 
 	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
 		$args = $this->input();
@@ -17,7 +20,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	protected function validate_action() {
 		$expected_actions = array(
-			'update',
+			'upgrade',
 			'activate',
 			'deactivate',
 			'autoupdate_on',
@@ -121,6 +124,46 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		if( isset( $has_errors ) && count( $this->plugins ) === 1 ) {
 			$plugin = $this->plugins[0];
 			return new WP_Error( 'deactivation_error', $this->log[ $plugin ]['error_message'] );
+		}
+	}
+
+	protected function upgrade() {
+
+		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+		// clear cache
+		wp_clean_plugins_cache();
+		ob_start();
+		wp_update_plugins(); // Check for Plugin updates
+		ob_end_clean();
+
+		$skin = new Automatic_Upgrader_Skin();
+		// The Automatic_Upgrader_Skin skin shouldn't output anything.
+		$upgrader = new Plugin_Upgrader( $skin );
+		$upgrader->init();
+
+		// unhook this functions that output things before we send our response header.
+		remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
+		remove_action( 'upgrader_process_complete', 'wp_version_check' );
+		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
+
+
+		$results           = $upgrader->bulk_upgrade( $this->plugins );
+		$this->upgrade_log = $upgrader->skin->get_upgrade_messages();
+
+		$installed_plugins = get_plugins();
+		foreach ( $results as $path => $result ) {
+			if ( is_array( $result ) ) {
+				$this->log[ $path ] = 'Plugin upgraded';
+				$this->upgraded[] = $path;
+			} else {
+				$this->log[ $path ] = 'Plugin not upgraded';
+				$this->not_upgraded[] = $path;
+			}
+		}
+
+		if ( 0 === count( $this->upgraded ) && 1 === count( $this->plugins ) ) {
+			return new WP_Error( 'update_fail', $this->upgrade_log, 400 );
 		}
 	}
 }
