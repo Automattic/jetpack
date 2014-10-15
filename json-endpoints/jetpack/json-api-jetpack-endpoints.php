@@ -207,8 +207,28 @@ new Jetpack_JSON_API_Themes_Update_Endpoint( array(
 // PLUGINS
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-endpoint.php' );
-
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-get-endpoint.php' );
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-list-endpoint.php' );
+
+new Jetpack_JSON_API_Plugins_List_Endpoint( array(
+	'description'     => 'Get installed Plugins on your blog',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/plugins',
+	'stat'            => 'plugins',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'found'  => '(int) The total number of plugins found.',
+		'plugins' => '(array) An array of plugin objects.',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
+) );
 
 new Jetpack_JSON_API_Plugins_Get_Endpoint( array(
 	'description'     => 'Get the Plugin data.',
@@ -240,8 +260,7 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 		'$plugin'   => '(string) The plugin ID',
 	),
 	'request_format' => array(
-		'active'       => '(bool) The module activation status',
-		'autoupdate'   => '(bool) Set auto updates on or off',
+		'action'       => '(string) Possible values are update, activate, deactivate, autoupdate_on, autoupdate_off',
 		'network_wide' => '(bool) Do action network wide (default value: false)'
 	),
 	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
@@ -265,10 +284,9 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 		'$site'   => '(int|string) The site ID, The site domain',
 	),
 	'request_format' => array(
-		'active'       => '(bool) The module activation status',
-		'autoupdate'   => '(bool) Set auto updates on or off',
+		'action'       => '(string) Possible values are update, activate, deactivate, autoupdate_on, autoupdate_off',
+		'network_wide' => '(bool) Do action network wide (default value: false)',
 		'plugins'      => '(array) A list of plugin ids to modify',
-		'network_wide' => '(bool) Do action network wide (default value: false)'
 	),
 	'response_format' => array(
 		'plugins' => '(array) A list of plugins that were modified',
@@ -284,80 +302,6 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 				'akismet/akismet',
 			),
 		)
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
-) );
-
-
-
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-update-endpoint.php' );
-
-new Jetpack_JSON_API_Plugins_Update_Endpoint( array(
-	'description'     => 'Update a Plugin on your Jetpack Site',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/plugins/%s/update/',
-	'stat'            => 'plugins:1:update',
-	'path_labels' => array(
-		'$site'   => '(int|string) The site ID, The site domain',
-		'$plugin'   => '(string) The plugin ID',
-	),
-	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello/update'
-) );
-
-new Jetpack_JSON_API_Plugins_Update_Endpoint( array(
-	'description'     => 'Update a list of plugins on your Jetpack Site',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/plugins/update/bulk/',
-	'stat'            => 'plugins:update',
-	'path_labels' => array(
-		'$site'   => '(int|string) The site ID, The site domain',
-	),
-	'request_format' => array(
-		'plugins'      => '(array) A list of plugin ids to modify',
-	),
-	'response_format' => array(
-		'updated' => '(array) An array of updated plugins',
-		'errors'  => '(array) An array of not plugins',
-		'log'     => '(array:safehtml) An array of log strings.',
-	),
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-		'body'    => array(
-			'plugins' => array(
-				'akismet/akismet',
-				'jetpack/jetpack',
-			),
-		)
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/update'
-) );
-
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-list-endpoint.php' );
-
-new Jetpack_JSON_API_Plugins_List_Endpoint( array(
-	'description'     => 'Get installed Plugins on your blog',
-	'method'          => 'GET',
-	'path'            => '/sites/%s/plugins',
-	'stat'            => 'plugins',
-	'path_labels' => array(
-		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'response_format' => array(
-		'found'  => '(int) The total number of plugins found.',
-		'plugins' => '(array) An array of plugin objects.',
-	),
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
 ) );
