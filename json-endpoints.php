@@ -14,12 +14,15 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-taxonomy-endpoint.php'
 
 
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-delete-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-delete-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-shortcode-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-shortcodes-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-embed-reversal-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-embed-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-embeds-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-site-endpoint.php' );
@@ -27,13 +30,16 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomies-endpoin
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-comments-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-posts-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-users-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-taxonomy-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php' );
 
@@ -168,6 +174,47 @@ new WPCOM_JSON_API_Render_Embed_Endpoint( array(
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/embeds/render?embed_url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3DSQEQr7c0-dw'
 ) );
+
+new WPCOM_JSON_API_Render_Embed_Reversal_Endpoint( array(
+	'description' => "Determines if the given embed code can be reversed into a single line embed or a shortcode, and if so returns the embed or shortcode. Only for users with publishing access.",
+	//'group'       => 'sites',
+	'group'       => '__do_not_document',
+	'stat'        => 'embeds:reversal',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/embeds/reversal',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+	),
+	'request_format' => array(
+		'maybe_embed' => '(string) The embed code to reverse. Required. Only accepts one at a time.',
+	),
+	'response_format' => array(
+		'maybe_embed' => '(string) The original embed code that was passed in for rendering.',
+		'reversal_type' => '(string) The type of reversal. Either an embed or a shortcode.',
+		'render_result' => '(html) The rendered HTML result of the embed or shortcode.',
+		'result' => '(string) The reversed content. Either a single line embed or a shortcode.',
+		'scripts'   => '(array) An array of JavaScript files needed to render the embed or shortcode. Returned in the format of <code>{ "script-slug" : { "src": "http://example.com/file.js", "extra" : "" } }</code> where extra contains any neccessary extra JS for initializing the source file and src contains the script to load. Omitted if no scripts are neccessary.',
+		'styles'    => '(array) An array of CSS files needed to render the embed or shortcode. Returned in the format of <code>{ "style-slug" : { "src": "http://example.com/file.css", "media" : "all" } }</code>. Omitted if no styles are neccessary.',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/30434183/shortcode-reversals/render/',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+
+		'body' => array(
+			'maybe_embed' => '<iframe width="480" height="302" src="http://www.ustream.tv/embed/recorded/26370522/highlight/299667?v=3&amp;wmode=direct" scrolling="no" frameborder="0"></iframe>',
+		)
+	),
+
+	'example_response' => array(
+		'maybe_embed' => '<iframe width="480" height="302" src="http://www.ustream.tv/embed/recorded/26370522/highlight/299667?v=3&amp;wmode=direct" scrolling="no" frameborder="0"></iframe>',
+		'render_result' => '<iframe src="https://www.ustream.tv/embed/recorded/26370522/highlight/299667?v=3&#038;wmode=direct" width="480" height="302" scrolling="no" frameborder="0" style="border: 0px none transparent;"></iframe>',
+		'reversal_type' => 'shortcode',
+		'result' => '[ustream id=26370522 highlight=299667 hwaccel=1 version=3 width=480 height=302]',
+	),
+) );
+
 
 /*
  * Post endpoints
@@ -312,8 +359,8 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'tags'       => "(array|string) Comma separated list or array of tags (name or id)",
 		'format'     => get_post_format_strings(),
 		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
-		'media'      => "(media) An array of images to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts images (image/gif, image/jpeg, image/png) only.<br /><br /><strong>Example</strong>:<br />" .
-						"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint. <br /><br /><strong>Example</strong>:<br />" .
+		 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
 		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 		'comments_open' => "(bool) Should the post be open to comments?  Defaults to the blog's preference.",
@@ -466,9 +513,9 @@ new WPCOM_JSON_API_Update_Post_Endpoint( array(
 		'likes_enabled' => "(bool) Should the post be open to likes?",
 		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
 		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
-		'media'      => "(media) An array of images to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts images (image/gif, image/jpeg, image/png) only.<br /><br /><strong>Example</strong>:<br />" .
-		                "<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
-		'media_urls' => "(array) An array of URLs for images to attach to the post. Sideloads the media in for the post.",
+		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Multiple media items will be displayed in a gallery.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options resposne of the site endpoint. <br /><br /><strong>Example</strong>:<br />" .
+		 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
 		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
 	),
 
@@ -697,6 +744,8 @@ new WPCOM_JSON_API_List_Media_Endpoint( array(
 
 	'method'      => 'GET',
 	'path'        => '/sites/%s/media/',
+	'deprecated'  => true,
+	'new_version' => '1.1',
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain',
 	),
@@ -716,13 +765,304 @@ new WPCOM_JSON_API_List_Media_Endpoint( array(
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/media/?pretty=true',
 ) );
 
+new WPCOM_JSON_API_List_Media_v1_1_Endpoint( array(
+	'description' => 'Return the media library',
+	'group'       => 'media',
+	'stat'        => 'media',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/media/',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'query_parameters' => array(
+		'number'    => '(int=20) The number of media items to return.  Limit: 100.',
+		'offset'    => '(int=0) 0-indexed offset.',
+		'post_ID'   => '(int) Default is all media items. Searching with a post ID will show media attached to a specific post. Passing 0 shows unattached media items.',
+		'mime_type' => "(string) Default is nothing. Filter by mime type (e.g., 'image/jpeg', 'application/pdf'",
+	),
+
+	'response_format' => array(
+		'media' => '(array) Array of media objects',
+		'found' => '(int) The number of total results found'
+	),
+
+		'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/opossumapi.wordpress.com/media',
+		'example_request_data' =>  array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN'
+			)
+		),
+
+		'example_response'     => '
+	{
+	    "found": 5549,
+	    "media": [
+	        {
+	            "ID": "880165",
+	            "URL": "https:\/\/opossumapi.files.wordpress.com\/2014\/10\/screen-shot-2014-10-14-at-3-22-19-pm.png",
+	            "guid": "http:\/\/opossumapi.files.wordpress.com\/2014\/10\/screen-shot-2014-10-14-at-3-22-19-pm.png",
+	            "date": "2014-10-14T22:22:41+00:00",
+	            "post_ID": 0,
+	            "file": "screen-shot-2014-10-14-at-3-22-19-pm.png",
+	            "mime_type": "image\/png",
+	            "extension": "png",
+	            "title": "Screen Shot 2014-10-14 at 3.22.19 PM",
+	            "caption": "",
+	            "description": "",
+	            "height": 602,
+	            "width": 764,
+	            "exif": {
+	                "aperture": 0,
+	                "credit": "",
+	                "camera": "",
+	                "caption": "",
+	                "created_timestamp": 0,
+	                "copyright": "",
+	                "focal_length": 0,
+	                "iso": 0,
+	                "shutter_speed": 0,
+	                "title": "",
+	                "orientation": 0
+	            },
+	            "meta": {
+	                "links": {
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165\/help",
+	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183"
+	                }
+	            }
+	        },
+	        {
+	            "ID": "880156",
+	            "URL": "https:\/\/opossumapi.files.wordpress.com\/2014\/10\/encdrtnnuk-3000x30001530.jpeg",
+	            "guid": "http:\/\/opossumapi.files.wordpress.com\/2014\/10\/encdrtnnuk-3000x30001530.jpeg",
+	            "date": "2014-10-14T22:08:30+00:00",
+	            "post_ID": 880155,
+	            "file": "encdrtnnuk-3000x30001530.jpeg",
+	            "mime_type": "image\/jpeg",
+	            "extension": "jpeg",
+	            "title": "encdrtnnuk-3000x30001530",
+	            "caption": "",
+	            "description": "",
+	            "height": 1536,
+	            "width": 2048,
+	            "exif": {
+	                "aperture": 0,
+	                "credit": "",
+	                "camera": "",
+	                "caption": "",
+	                "created_timestamp": 0,
+	                "copyright": "",
+	                "focal_length": 0,
+	                "iso": 0,
+	                "shutter_speed": 0,
+	                "title": "",
+	                "orientation": 0
+	            },
+	            "meta": {
+	                "links": {
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880156",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880156\/help",
+	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
+	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/880155"
+	                }
+	            }
+	        },
+	        {
+	            "ID": "880150",
+	            "URL": "https:\/\/opossumapi.files.wordpress.com\/2011\/12\/encdrtnnuk-3000x30001860.jpeg",
+	            "guid": "http:\/\/opossumapi.files.wordpress.com\/2011\/12\/encdrtnnuk-3000x30001860.jpeg",
+	            "date": "2014-10-14T22:08:24+00:00",
+	            "post_ID": 1,
+	            "file": "encdrtnnuk-3000x30001860.jpeg",
+	            "mime_type": "image\/jpeg",
+	            "extension": "jpeg",
+	            "title": "encdrtnnuk-3000x30001860",
+	            "caption": "",
+	            "description": "",
+	            "height": 1536,
+	            "width": 2048,
+	            "exif": {
+	                "aperture": 0,
+	                "credit": "",
+	                "camera": "",
+	                "caption": "",
+	                "created_timestamp": 0,
+	                "copyright": "",
+	                "focal_length": 0,
+	                "iso": 0,
+	                "shutter_speed": 0,
+	                "title": "",
+	                "orientation": 0
+	            },
+	            "meta": {
+	                "links": {
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880150",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880150\/help",
+	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
+	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/1"
+	                }
+	            }
+	        },
+	        {
+	            "ID": "880152",
+	            "URL": "https:\/\/opossumapi.files.wordpress.com\/2014\/10\/wordpress-logo-hoz-rgb1576.png",
+	            "guid": "http:\/\/opossumapi.files.wordpress.com\/2014\/10\/wordpress-logo-hoz-rgb1576.png",
+	            "date": "2014-10-14T22:07:49+00:00",
+	            "post_ID": 880142,
+	            "file": "wordpress-logo-hoz-rgb1576.png",
+	            "mime_type": "image\/png",
+	            "extension": "png",
+	            "title": "wordpress-logo-hoz-rgb",
+	            "caption": "",
+	            "description": "",
+	            "height": 113,
+	            "width": 498,
+	            "exif": {
+	                "aperture": 0,
+	                "credit": "",
+	                "camera": "",
+	                "caption": "",
+	                "created_timestamp": 0,
+	                "copyright": "",
+	                "focal_length": 0,
+	                "iso": 0,
+	                "shutter_speed": 0,
+	                "title": "",
+	                "orientation": 0
+	            },
+	            "meta": {
+	                "links": {
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880152",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880152\/help",
+	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
+	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/880142"
+	                }
+	            }
+	        },
+	        {
+	            "ID": "880143",
+	            "URL": "https:\/\/opossumapi.files.wordpress.com\/2014\/10\/wordpress-logo-notext-rgb1586.png",
+	            "guid": "http:\/\/opossumapi.files.wordpress.com\/2014\/10\/wordpress-logo-notext-rgb1586.png",
+	            "date": "2014-10-14T22:06:16+00:00",
+	            "post_ID": 880142,
+	            "file": "wordpress-logo-notext-rgb1586.png",
+	            "mime_type": "image\/png",
+	            "extension": "png",
+	            "title": "wordpress-logo-notext-rgb",
+	            "caption": "",
+	            "description": "",
+	            "height": 500,
+	            "width": 500,
+	            "exif": {
+	                "aperture": 0,
+	                "credit": "",
+	                "camera": "",
+	                "caption": "",
+	                "created_timestamp": 0,
+	                "copyright": "",
+	                "focal_length": 0,
+	                "iso": 0,
+	                "shutter_speed": 0,
+	                "title": "",
+	                "orientation": 0
+	            },
+	            "meta": {
+	                "links": {
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880143",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880143\/help",
+	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
+	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/880142"
+	                }
+	            }
+	        },
+	        {
+	            "ID": "880135",
+	            "URL": "https:\/\/opossumapi.files.wordpress.com\/2014\/10\/encdrtnnuk-3000x30001527.jpeg",
+	            "guid": "http:\/\/opossumapi.files.wordpress.com\/2014\/10\/encdrtnnuk-3000x30001527.jpeg",
+	            "date": "2014-10-14T22:05:48+00:00",
+	            "post_ID": 880134,
+	            "file": "encdrtnnuk-3000x30001527.jpeg",
+	            "mime_type": "image\/jpeg",
+	            "extension": "jpeg",
+	            "title": "encdrtnnuk-3000x30001527",
+	            "caption": "",
+	            "description": "",
+	            "height": 1536,
+	            "width": 2048,
+	            "exif": {
+	                "aperture": 0,
+	                "credit": "",
+	                "camera": "",
+	                "caption": "",
+	                "created_timestamp": 0,
+	                "copyright": "",
+	                "focal_length": 0,
+	                "iso": 0,
+	                "shutter_speed": 0,
+	                "title": "",
+	                "orientation": 0
+	            },
+	            "meta": {
+	                "links": {
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880135",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880135\/help",
+	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
+	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/880134"
+	                }
+	            }
+	        },
+	        {
+	            "ID": "880023",
+	            "URL": "https:\/\/opossumapi.files.wordpress.com\/2014\/10\/encdrtnnuk-3000x30001526.jpeg",
+	            "guid": "http:\/\/opossumapi.files.wordpress.com\/2014\/10\/encdrtnnuk-3000x30001526.jpeg",
+	            "date": "2014-10-14T21:25:22+00:00",
+	            "post_ID": 880022,
+	            "file": "encdrtnnuk-3000x30001526.jpeg",
+	            "mime_type": "image\/jpeg",
+	            "extension": "jpeg",
+	            "title": "encdrtnnuk-3000x30001526",
+	            "caption": "",
+	            "description": "",
+	            "height": 1536,
+	            "width": 2048,
+	            "exif": {
+	                "aperture": 0,
+	                "credit": "",
+	                "camera": "",
+	                "caption": "",
+	                "created_timestamp": 0,
+	                "copyright": "",
+	                "focal_length": 0,
+	                "iso": 0,
+	                "shutter_speed": 0,
+	                "title": "",
+	                "orientation": 0
+	            },
+	            "meta": {
+	                "links": {
+	                    "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880023",
+	                    "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880023\/help",
+	                    "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183",
+	                    "parent": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183\/posts\/880022"
+	                }
+	            }
+	        }
+	    ]
+	}',
+) );
+
 new WPCOM_JSON_API_Get_Media_Endpoint( array(
 	'description' => 'Return a single media item (by ID)',
 	'group'       => 'media',
 	'stat'        => 'media:1',
-
 	'method'      => 'GET',
 	'path'        => '/sites/%s/media/%d',
+	'deprecated'  => true,
+	'new_version' => '1.1',
 	'path_labels' => array(
 		'$site'    => '(int|string) The site ID, The site domain',
 		'$media_ID' => '(int) The ID of the media item',
@@ -741,13 +1081,91 @@ new WPCOM_JSON_API_Get_Media_Endpoint( array(
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/media/36',
 ) );
 
+new WPCOM_JSON_API_Get_Media_v1_1_Endpoint( array(
+	'description' => 'Return a single media item (by ID)',
+	'group'       => 'media',
+	'stat'        => 'media:1',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/media/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$media_ID' => '(int) The ID of the media item',
+	),
+	'response_format' => array(
+		'ID'               => '(int) The ID of the media item',
+		'date'             => '(ISO 8601 datetime) The date the media was uploaded',
+		'post_ID'          => '(int) ID of the post this media is attached to',
+		'URL'              => '(string) URL to the file',
+		'guid'             => '(string) Unique Identifier',
+		'file'			   => '(string) File name',
+		'extension'        => '(string) File extension',
+		'mime_type'        => '(string) File mime type',
+		'title'            => '(string) File name',
+		'caption'          => '(string) User provided caption of the file',
+		'description'      => '(string) Description of the file',
+		'height'           => '(int) (Image & Video Only) Height of the media item',
+		'width'            => '(int) (Image & Video Only) Width of the media item',
+		'exif'             => '(array) (Image & Audio Only) Exif (meta) information about the media item',
+		'videopress_guid'  => '(string) (Video Only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
+		'videopress_processing_done'  => '(bool) (Video Only) If the video is Uuploaded on a blog with VideoPress, this will return the status of processing on the Video'
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/opossumapi.wordpress.com/media/880165',
+	'example_request_data' =>  array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	),
+
+	'example_response'     => '
+	{
+	    "ID": "880165",
+	    "URL": "https:\/\/opossumapi.files.wordpress.com\/2014\/10\/screen-shot-2014-10-14-at-3-22-19-pm.png",
+	    "guid": "http:\/\/opossumapi.files.wordpress.com\/2014\/10\/screen-shot-2014-10-14-at-3-22-19-pm.png",
+	    "date": "2014-10-14T22:22:41+00:00",
+	    "post_ID": 0,
+	    "file": "screen-shot-2014-10-14-at-3-22-19-pm.png",
+	    "mime_type": "image\/png",
+	    "extension": "png",
+	    "title": "Screen Shot 2014-10-14 at 3.22.19 PM",
+	    "caption": "",
+	    "description": "",
+	    "height": 602,
+	    "width": 764,
+	    "exif": {
+	        "aperture": 0,
+	        "credit": "",
+	        "camera": "",
+	        "caption": "",
+	        "created_timestamp": 0,
+	        "copyright": "",
+	        "focal_length": 0,
+	        "iso": 0,
+	        "shutter_speed": 0,
+	        "title": "",
+	        "orientation": 0
+	    },
+	    "meta": {
+	        "links": {
+	            "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165",
+	            "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165\/help",
+	            "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183"
+	        }
+	    }
+	}
+',
+) );
+
 new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 	'description' => 'Upload a new piece of media',
 	'group'       => 'media',
 	'stat'        => 'media:new',
-
 	'method'      => 'POST',
 	'path'        => '/sites/%s/media/new',
+	'deprecated'  => true,
+	'new_version' => '1.1',
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain',
 	),
@@ -766,13 +1184,39 @@ new WPCOM_JSON_API_Upload_Media_Endpoint( array(
 	),
 ) );
 
+new WPCOM_JSON_API_Upload_Media_v1_1_Endpoint( array(
+	'description' => 'Upload a new piece of media',
+	'group'       => 'media',
+	'stat'        => 'media:new',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/new',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+
+	'request_format' => array(
+		'media'      => "(media) An array of media to attach to the post. To upload media, the entire request should be multipart/form-data encoded.  Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint.<br /><br /><strong>Example</strong>:<br />" .
+		                "<code>curl \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/media/new'</code>",
+		'media_urls' => "(array) An array of URLs to upload to the post.",
+		'attrs'      => "(array) An array of extra information (title, description, caption, parent) to associate with uploaded files. Should be keyed with the same name as the files. attrs[0][title] = My PDF",
+	),
+
+	'response_format' => array(
+		'media' => '(array) Array of uploaded media objects',
+		'errors' => '(array) Array of error messages of uploading media failures'
+	),
+) );
+
 new WPCOM_JSON_API_Update_Media_Endpoint( array(
 	'description' => 'Edit basic information about a media item',
 	'group'       => 'media',
 	'stat'        => 'media:1:POST',
-
 	'method'      => 'POST',
 	'path'        => '/sites/%s/media/%d',
+	'deprecated'  => true,
+	'new_version' => '1.1',
 	'path_labels' => array(
 		'$site'    => '(int|string) The site ID, The site domain',
 		'$media_ID' => '(int) The ID of the media item',
@@ -796,14 +1240,103 @@ new WPCOM_JSON_API_Update_Media_Endpoint( array(
 	)
 ) );
 
+new WPCOM_JSON_API_Update_Media_v1_1_Endpoint( array(
+	'description' => 'Edit basic information about a media item',
+	'group'       => 'media',
+	'stat'        => 'media:1:POST',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$media_ID' => '(int) The ID of the media item',
+	),
+
+	'request_format' => array(
+		'post_ID'      => '(int)  ID of the post this media is attached to',
+		'title'       => '(string) The file name.',
+		'caption'     => '(string) File caption.',
+		'description' => '(HTML) Description of the file.',
+	),
+
+	'response_format' => array(
+		'ID'               => '(int) The ID of the media item',
+		'date'             => '(ISO 8601 datetime) The date the media was uploaded',
+		'post_ID'          => '(int) ID of the post this media is attached to',
+		'URL'              => '(string) URL to the file',
+		'guid'             => '(string) Unique Identifier',
+		'file'			   => '(string) File name',
+		'extension'        => '(string) File extension',
+		'mime_type'        => '(string) File mime type',
+		'title'            => '(string) File name',
+		'caption'          => '(string) User provided caption of the file',
+		'description'      => '(string) Description of the file',
+		'height'           => '(int) (Image & Video Only) Height of the media item',
+		'width'            => '(int) (Image & Video Only) Width of the media item',
+		'exif'             => '(array) (Image & Audio Only) Exif (meta) information about the media item',
+		'videopress_guid'  => '(string) (Video Only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
+		'videopress_processing_done'  => '(bool) (Video Only) If the video is Uuploaded on a blog with VideoPress, this will return the status of processing on the Video'
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/opossumapi.wordpress.com/media/880165',
+	'example_request_data' =>  array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'title' => 'Updated Title'
+		)
+	),
+
+	'example_response'     => '
+	{
+	    "ID": "880165",
+	    "URL": "https:\/\/opossumapi.files.wordpress.com\/2014\/10\/screen-shot-2014-10-14-at-3-22-19-pm.png",
+	    "guid": "http:\/\/opossumapi.files.wordpress.com\/2014\/10\/screen-shot-2014-10-14-at-3-22-19-pm.png",
+	    "date": "2014-10-14T22:22:41+00:00",
+	    "post_ID": 0,
+	    "file": "screen-shot-2014-10-14-at-3-22-19-pm.png",
+	    "mime_type": "image\/png",
+	    "extension": "png",
+	    "title": "Updated Title",
+	    "caption": "",
+	    "description": "",
+	    "height": 602,
+	    "width": 764,
+	    "exif": {
+	        "aperture": 0,
+	        "credit": "",
+	        "camera": "",
+	        "caption": "",
+	        "created_timestamp": 0,
+	        "copyright": "",
+	        "focal_length": 0,
+	        "iso": 0,
+	        "shutter_speed": 0,
+	        "title": "",
+	        "orientation": 0
+	    },
+	    "meta": {
+	        "links": {
+	            "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165",
+	            "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165\/help",
+	            "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183"
+	        }
+	    }
+	}
+',
+) );
+
 
 new WPCOM_JSON_API_Delete_Media_Endpoint( array(
 	'description' => 'Delete a piece of media',
 	'group'       => 'media',
 	'stat'        => 'media:1:delete',
-
 	'method'      => 'POST',
 	'path'        => '/sites/%s/media/%d/delete',
+	'deprecated'  => true,
+	'new_version' => '1.1',
 	'path_labels' => array(
 		'$site'    => '(int|string) The site ID, The site domain',
 		'$media_ID' => '(int) The media ID',
@@ -820,6 +1353,86 @@ new WPCOM_JSON_API_Delete_Media_Endpoint( array(
 		'description'      => '(string) Description of the file',
 		'metadata'         => '(array) Misc array of information about the file, such as exif data or sizes',
 	)
+) );
+
+new WPCOM_JSON_API_Delete_Media_v1_1_Endpoint( array(
+	'description' => 'Delete a piece of media. Media is deleted and not trashed.',
+	'group'       => 'media',
+	'stat'        => 'media:1:delete',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/%d/delete',
+	'path_labels' => array(
+		'$site'    => '(int|string) The site ID, The site domain',
+		'$media_ID' => '(int) The media ID',
+	),
+
+	'response_format' => array(
+		'status'           => '(string) Returns deleted if the media was successfully deleted',
+		'ID'               => '(int) The ID of the media item',
+		'date'             => '(ISO 8601 datetime) The date the media was uploaded',
+		'post_ID'          => '(int) ID of the post this media is attached to',
+		'URL'              => '(string) URL to the file',
+		'guid'             => '(string) Unique Identifier',
+		'file'			   => '(string) File name',
+		'extension'        => '(string) File extension',
+		'mime_type'        => '(string) File mime type',
+		'title'            => '(string) File name',
+		'caption'          => '(string) User provided caption of the file',
+		'description'      => '(string) Description of the file',
+		'height'           => '(int) (Image & Video Only) Height of the media item',
+		'width'            => '(int) (Image & Video Only) Width of the media item',
+		'exif'             => '(array) (Image & Audio Only) Exif (meta) information about the media item',
+		'videopress_guid'  => '(string) (Video Only) VideoPress GUID of the video when uploaded on a blog with VideoPress',
+		'videopress_processing_done'  => '(bool) (Video Only) If the video is Uuploaded on a blog with VideoPress, this will return the status of processing on the Video'
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/opossumapi.wordpress.com/media/880165/delete',
+	'example_request_data' =>  array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	),
+
+	'example_response'     => '
+	{
+		"status": "deleted",
+	    "ID": "880165",
+	    "URL": "https:\/\/opossumapi.files.wordpress.com\/2014\/10\/screen-shot-2014-10-14-at-3-22-19-pm.png",
+	    "guid": "http:\/\/opossumapi.files.wordpress.com\/2014\/10\/screen-shot-2014-10-14-at-3-22-19-pm.png",
+	    "date": "2014-10-14T22:22:41+00:00",
+	    "post_ID": 0,
+	    "file": "screen-shot-2014-10-14-at-3-22-19-pm.png",
+	    "mime_type": "image\/png",
+	    "extension": "png",
+	    "title": "Screen Shot 2014-10-14 at 3.22.19 PM",
+	    "caption": "",
+	    "description": "",
+	    "height": 602,
+	    "width": 764,
+	    "exif": {
+	        "aperture": 0,
+	        "credit": "",
+	        "camera": "",
+	        "caption": "",
+	        "created_timestamp": 0,
+	        "copyright": "",
+	        "focal_length": 0,
+	        "iso": 0,
+	        "shutter_speed": 0,
+	        "title": "",
+	        "orientation": 0
+	    },
+	    "meta": {
+	        "links": {
+	            "self": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165",
+	            "help": "https:\/\/public-api.wordpress.com\/rest\/v1.1\/sites\/30434183\/media\/880165\/help",
+	            "site": "https:\/\/public-api.wordpress.com\/rest\/v1\/sites\/30434183"
+	        }
+	    }
+	}
+',
 ) );
 
 /*
