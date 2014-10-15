@@ -35,7 +35,7 @@ class Jetpack_Autoupdate {
 
 	function autoupdate_theme( $update, $item ) {
 		$autoupdate_theme_list = Jetpack_Options::get_option( 'autoupdate_themes', array() );
-		if( in_array( $item['theme'] , $autoupdate_theme_list) ) {
+		if( in_array( $item->theme , $autoupdate_theme_list) ) {
 			return true;
 		}
 		return $update;
