@@ -88,17 +88,17 @@ new Jetpack_JSON_API_Themes_List_Endpoint( array(
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-modify-endpoint.php' );
 new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
-	'description'     => 'Toggle autoupdates for a theme',
+	'description'     => 'Modify a single theme on a jetpack blog',
 	'group'           => '__do_not_document',
 	'stat'            => 'themes:modify:1',
 	'method'          => 'POST',
-	'path'            => '/sites/%s/themes/%s/modify',
+	'path'            => '/sites/%s/themes/%s',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
 		'$theme'  => '(string) The theme slug',
 	),
 	'request_format' => array(
-		'autoupdate'   => '(bool) Set autoupdates on or off',
+		'action'   => '(string) Possible values are update, autoupdate_on, autoupdate_off',
 	),
 	'response_format' => array(
 		'id'           => '(string) The theme\'s ID.',
@@ -113,95 +113,44 @@ new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 		'body' => array(
-			'autoupdate' => true,
+			'action' => 'update',
 		)
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen/modify'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen'
 ) );
 
 new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
-	'description'     => 'Toggle autoupdates for a list of themes',
+	'description'     => 'Modify a list of themes on a jetpack blog',
 	'group'           => '__do_not_document',
 	'stat'            => 'themes:modify',
 	'method'          => 'POST',
-	'path'            => '/sites/%s/themes/modify/bulk',
+	'path'            => '/sites/%s/themes',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
 	),
 	'request_format' => array(
-		'autoupdate'   => '(bool) Set autoupdates on or off',
+		'action'   => '(string) Possible values are update, autoupdate_on, autoupdate_off',
 		'themes'       => '(array) A list of theme slugs',
 	),
 	'response_format' => array(
-		'themes' => '(array) a list of theme objects',
+		'themes' => '(array) A list of theme objects',
+		'updated' => '(array) A list of theme slugs that were updated. Only present if action is update',
+		'not_updated' => '(array) A list of theme slugs that were not updated. Only present if action is update',
+		'log' => '(array:safehtml) Update log. Only present if action is update',
 	),
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 		'body' => array(
-			'autoupdate' => true,
+			'action' => 'autoupdate_on',
 			'themes'     => array(
 				'twentytwelve',
 				'twentyfourteen',
 			),
 		)
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/modify/bulk'
-) );
-
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-update-endpoint.php' );
-
-new Jetpack_JSON_API_Themes_Update_Endpoint( array(
-	'description'     => 'Update Themes on a Jetpack blog',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/themes/update',
-	'stat'            => 'themes:update',
-	'path_labels' => array(
-		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'request_format' => array(
-		'themes'   => '(array) The list of themes to update',
-	),
-	'response_format' => array(
-		'updated' => '(array) An array of updated theme stylesheets.',
-		'errors'  => '(array) An array of not updated stylesheets.',
-		'log'     => '(array:safehtml) An array of log strings.',
-	),
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/update'
-) );
-
-new Jetpack_JSON_API_Themes_Update_Endpoint( array(
-	'description'     => 'Update Themes on a Jetpack blog',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/themes/%s/update',
-	'stat'            => 'themes:1:update',
-	'path_labels' => array(
-		'$site'   => '(int|string) The site ID, The site domain',
-		'$theme' => '(string) The theme stylesheet',
-	),
-	'request_format' => array(
-		'themes'   => '(array) The list of themes to update',
-	),
-	'response_format' => array(
-		'id'           => '(string) The theme\'s ID.',
-		'screenshot'   => '(string) A theme screenshot URL',
-		'name'         => '(string) The name of the theme.',
-		'description'  => '(string) A description of the theme.',
-		'tags'         => '(array) Tags indicating styles and features of the theme.',
-		'log'     => '(array:safehtml) An array of log strings.',
-	),
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentytwelve/update'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
 ) );
 
 // PLUGINS
