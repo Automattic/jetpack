@@ -4,12 +4,11 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	// POST  /sites/%s/plugins/%s
 	// POST  /sites/%s/plugins
 	protected $needed_capabilities = 'activate_plugins';
-	protected $upgrade_log;
-	protected $upgraded;
-	protected $not_upgraded;
+	protected $update_log;
+	protected $updated;
+	protected $not_updated;
 
 	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
-		$args = $this->input();
 
 		if( is_wp_error( $error = $this->validate_action() ) ) {
 			return $error;
@@ -20,7 +19,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	protected function validate_action() {
 		$expected_actions = array(
-			'upgrade',
+			'update',
 			'activate',
 			'deactivate',
 			'autoupdate_on',
@@ -127,7 +126,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		}
 	}
 
-	protected function upgrade() {
+	protected function update() {
 
 		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
@@ -149,21 +148,20 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 
 		$results           = $upgrader->bulk_upgrade( $this->plugins );
-		$this->upgrade_log = $upgrader->skin->get_upgrade_messages();
+		$this->update_log  = $upgrader->skin->get_upgrade_messages();
 
-		$installed_plugins = get_plugins();
 		foreach ( $results as $path => $result ) {
 			if ( is_array( $result ) ) {
-				$this->log[ $path ] = 'Plugin upgraded';
-				$this->upgraded[] = $path;
+				$this->log[ $path ] = 'Plugin updated';
+				$this->updated[] = $path;
 			} else {
-				$this->log[ $path ] = 'Plugin not upgraded';
-				$this->not_upgraded[] = $path;
+				$this->log[ $path ] = 'Plugin not updated';
+				$this->not_updated[] = $path;
 			}
 		}
 
-		if ( 0 === count( $this->upgraded ) && 1 === count( $this->plugins ) ) {
-			return new WP_Error( 'update_fail', $this->upgrade_log, 400 );
+		if ( 0 === count( $this->updated ) && 1 === count( $this->plugins ) ) {
+			return new WP_Error( 'update_fail', $this->update, 400 );
 		}
 	}
 }
