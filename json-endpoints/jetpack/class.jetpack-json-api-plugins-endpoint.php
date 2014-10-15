@@ -47,9 +47,21 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		}
 
 		if ( ! empty( $this->action ) ) {
-			if ( is_wp_error( $error = call_user_func( array( $this, $this->action ) ) ) ) {
-				return $error;
-			}
+			$result = call_user_func( array( $this, $this->action ) );
+			if( is_wp_error($result) )
+				return $result;
+		}
+
+		if( ! is_null( $this->autoupdate ) ) {
+			$autoupdate_action = ( $this->autoupdate ) ? 'autoupdate_on' : 'autoupdate_off';
+			call_user_func( array( $this, $autoupdate_action ) );
+		}
+
+		if( ! is_null( $this->active ) ) {
+			$active_action = ( $this->active ) ? 'activate' : 'deactivate';
+			$result = call_user_func( array( $this, $active_action ) );
+			if( is_wp_error( $result ) )
+				return $result;
 		}
 
 		if( count( $this->plugins ) === 1 ) {
@@ -61,9 +73,10 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function validate_input( $plugin ) {
-
+		$args = $this->input();
+		// find out what plugin, or plugins we are dealing with
+		// validate the requested plugins
 		if ( ! isset( $plugin ) || empty( $plugin ) ) {
-			$args = $this->input();
 			if ( ! $args['plugins'] || empty( $args['plugins'] ) ) {
 				return new WP_Error( 'missing_plugin', __( 'You are required to specify a plugin.', 'jetpack' ), 400 );
 			}
@@ -75,6 +88,12 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		} else {
 			$this->plugins[] = urldecode( $plugin );
 		}
+
+		// find out if we need to activate, or autoupdate any plugins
+		if( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) )
+			$this->autoupdate = $args['autoupdate'];
+		if( isset( $args['active'] ) && is_bool( $args['active'] ) )
+			$this->active = $args['active'];
 
 		return true;
 	}
@@ -112,12 +131,13 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		if( ! empty( $this->updated ) ) {
 			$response['updated'] = $this->updated;
 		}
-		if( ! empty( $this->updated ) ) {
+		if( ! empty( $this->not_updated ) ) {
 			$response['not_updated'] = $this->not_updated;
 		}
 		if( ! empty( $this->update_log ) ) {
 			$response['log'] = $this->update_log;
 		}
+		error_log( print_r( $response, true ), 1, 'rocco@a8c.com' );
 		return $response;
 	}
 
