@@ -9,6 +9,8 @@
 abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected $themes = array();
+	protected $theme;
+
 	/**
 	 * Walks through submitted themes to make sure they are valid
 	 * @return bool|WP_Error
@@ -66,13 +68,18 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 			'version'     => 'Version'
 		);
 
+		$id = $theme->get_stylesheet();
 		$formatted_theme = array(
-			'id'          => $theme->get_stylesheet(),
+			'id'          => $id,
 			'screenshot'  => jetpack_photon_url( $theme->get_screenshot(), array(), 'network_path' )
 		);
 
 		foreach( $fields as $key => $field )
 			$formatted_theme[ $key ] = $theme->get( $field );
+
+		if( isset( $this->log[ $id ] ) ) {
+			$formatted_theme['log'] = $this->log[ $id ];
+		}
 
 		return $formatted_theme;
 	}
@@ -108,5 +115,30 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 			$themes = array_slice( $themes, 0, $args['limit'] );
 
 		return array_map( array( $this, 'format_theme' ), $themes );
+	}
+
+	protected function get_theme() {
+		$theme = $this->format_theme( $this->themes[0] );
+		if( ! empty( $this->update_log ) ) {
+			$theme['log'] = $this->update_log;
+		}
+
+		return $theme;
+	}
+
+	protected function get_themes() {
+		foreach( $this->themes as $theme ) {
+			$response['themes'][] = $this->format_theme( $theme );
+		}
+		if( ! empty( $this->updated ) ) {
+			$response['updated'] = $this->updated;
+		}
+		if( ! empty( $this->not_updated ) ) {
+			$response['not_updated'] = $this->not_updated;
+		}
+		if( ! empty( $this->update_log ) ) {
+			$response['log'] = $this->update_log;
+		}
+		return $response;
 	}
 }
