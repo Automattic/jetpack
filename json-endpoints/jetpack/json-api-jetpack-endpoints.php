@@ -107,6 +107,7 @@ new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
 		'description'  => '(string) A description of the theme.',
 		'tags'         => '(array) Tags indicating styles and features of the theme.',
 		'log'          => '(array) An array of log strings',
+		'autoupdate'   => '(bool) Whether the theme is automatically updated',
 	),
 	'example_request_data' => array(
 		'headers' => array(
