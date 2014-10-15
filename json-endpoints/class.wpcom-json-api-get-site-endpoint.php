@@ -213,6 +213,19 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 				}
 
+				if ( function_exists( 'get_mime_types' ) ) {
+					$allowed_file_types = get_mime_types();
+				} else {
+					// http://codex.wordpress.org/Uploading_Files
+					$mime_types = get_allowed_mime_types();
+					foreach ( $mime_types as $type => $mime_type ) {
+						$extras = explode( '|', $type );
+						foreach ( $extras as $extra ) {
+							$allowed_file_types[] = $extra;
+						}
+					}
+				}
+
 				$response[$key] = array(
 					'timezone'                => (string) get_option( 'timezone_string' ),
 					'gmt_offset'              => (float) get_option( 'gmt_offset' ),
@@ -233,6 +246,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'image_large_width'       => (int)  get_option( 'large_size_w' ),
 					'image_large_height'      => (int) get_option( 'large_size_h' ),
 					'post_formats'            => $supported_formats,
+					'allowed_file_types'      => $allowed_file_types,
 					'default_likes_enabled'   => (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) ),
 					'default_sharing_status'  => (bool) $default_sharing_status,
 					'default_comment_status'  => ( 'closed' == get_option( 'default_comment_status' ) ? false : true ),
