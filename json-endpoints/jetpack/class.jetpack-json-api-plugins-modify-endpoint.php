@@ -8,21 +8,33 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
 		$args = $this->input();
 
-		if ( isset( $args[ 'active' ] ) ) {
-			$this->action[] = $args[ 'active' ] ? 'activate_plugins' : 'deactivate_plugins';
+		if( is_wp_error( $error = $this->validate_action() ) ) {
+			return $error;
 		}
 
-		if( isset( $args['autoupdate'] ) ) {
-			$this->action[] = $args[ 'autoupdate' ] ? 'flag_autoupdate_plugins' : 'unflag_autoupdate_plugins';
-		}
 		return parent::callback( $path, $blog_id, $plugin );
 	}
 
-	protected function flag_autoupdate_plugins() {
+	protected function validate_action() {
+		$expected_actions = array(
+			'update',
+			'activate',
+			'deactivate',
+			'autoupdate_on',
+			'autoupdate_off',
+		);
+		$args = $this->input();
+		if( empty( $args['action'] ) || ! in_array( $args['action'], $expected_actions ) ) {
+			return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ));
+		}
+		$this->action =  $args['action'];
+	}
+
+	protected function autoupdate_on() {
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		foreach( $this->plugins as $plugin ) {
 			if( ! in_array( $plugin, $autoupdate_plugins ) ) {
-				$autoupdate_plugins[] = $p;
+				$autoupdate_plugins[] = $plugin;
 				$this->log[ $plugin ][] = 'This plugin has been set to automatically update.';
 			} else {
 				$this->log[ $plugin ][] = 'This plugin is already set to automatically update.';
@@ -31,7 +43,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
 	}
 
-	protected function unflag_autoupdate_plugins() {
+	protected function autoupdate_off() {
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
 		foreach( $autoupdate_plugins as $index => $plugin ) {
 			if( in_array( $plugin, $this->plugins ) ) {
@@ -45,7 +57,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		Jetpack_Options::update_option( 'autoupdate_plugins', $reindexed );
 	}
 
-	protected function activate_plugins() {
+	protected function activate() {
 		foreach( $this->plugins as $plugin ) {
 			if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $plugin ) ) || is_plugin_active_for_network( $plugin ) ) {
 				$this->log[ $plugin ]['error'] = true;
@@ -82,7 +94,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		}
 	}
 
-	protected function deactivate_plugins() {
+	protected function deactivate() {
 		foreach( $this->plugins as $plugin ) {
 			if ( ! Jetpack::is_plugin_active( $plugin ) ) {
 				$this->log[ $plugin ]['error'] = true;
