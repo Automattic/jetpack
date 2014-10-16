@@ -91,21 +91,13 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 		// Clear the cache.
 		wp_update_themes();
 
-
-		$skin      = new Automatic_Upgrader_Skin();
-		$upgrader  = new Theme_Upgrader( $skin );
-
-		$results   = $upgrader->bulk_upgrade( $this->themes );
-		$this->update_log       = $upgrader->skin->get_upgrade_messages();
-
-		foreach ( $results as $path => $result ) {
-			if ( is_array( $result ) ) {
-				$this->log[ $path ][] = 'Theme updated';
-				$this->updated[] = $path;
-			} else {
-				$this->log[ $path ][] = 'Theme not updated';
-				$this->not_updated[] = $path;
-			}
+		foreach ( $this->themes as $theme ) {
+			// Objects created inside the for loop to clean the messages for each theme
+			$skin = new Automatic_Upgrader_Skin();
+			$upgrader = new Theme_Upgrader( $skin );
+			$upgrader->init();
+			$result   = $upgrader->upgrade( $theme );
+			$this->log[ $theme ][] = $upgrader->skin->get_upgrade_messages();
 		}
 
 		if ( 0 === count( $this->updated ) && 1 === count( $this->themes ) ) {

@@ -112,10 +112,6 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		wp_update_plugins(); // Check for Plugin updates
 		ob_end_clean();
 
-		$skin = new Automatic_Upgrader_Skin();
-		// The Automatic_Upgrader_Skin skin shouldn't output anything.
-		$upgrader = new Plugin_Upgrader( $skin );
-		$upgrader->init();
 
 		// unhook this functions that output things before we send our response header.
 		remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
@@ -123,6 +119,11 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
 		foreach ( $this->plugins as $plugin ) {
+			// Object created inside the for loop to clean the messages for each plugin
+			$skin = new Automatic_Upgrader_Skin();
+			// The Automatic_Upgrader_Skin skin shouldn't output anything.
+			$upgrader = new Plugin_Upgrader( $skin );
+			$upgrader->init();
 			$result = $upgrader->upgrade( $plugin );
 			$this->log[ $plugin ][]  = $upgrader->skin->get_upgrade_messages();
 		}
