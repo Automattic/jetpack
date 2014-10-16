@@ -21,7 +21,6 @@ class Jetpack_JSON_API_Core_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		return array(
 			'version'    => $wp_version,
-			'latest'     => '',
 			'autoupdate' => $autoupdate,
 		);
 	}
