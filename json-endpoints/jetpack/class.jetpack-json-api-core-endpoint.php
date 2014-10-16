@@ -11,11 +11,23 @@ class Jetpack_JSON_API_Core_Endpoint extends Jetpack_JSON_API_Endpoint {
 			return $error;
 		}
 
+		$args = $this->input();
+
+		if ( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) ) {
+			$this->set_autoupdate( $args['autoupdate'] );
+		}
+
+		$autoupdate = Jetpack_Options::get_option( 'autoupdate_core', false );
+
 		return array(
 			'version' => $wp_version,
 			'latest'     => $this->find_latest_core_version(),
-			'autoupdate' => true,
+			'autoupdate' => $autoupdate,
 		);
+	}
+
+	protected function set_autoupdate( $autoupdate ) {
+		Jetpack_Options::update_option( 'autoupdate_core', $autoupdate );
 	}
 
 	protected function find_latest_core_version() {
