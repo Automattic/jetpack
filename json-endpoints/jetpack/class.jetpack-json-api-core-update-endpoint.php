@@ -2,6 +2,8 @@
 
 class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Core_Endpoint {
 
+	protected $log;
+	
 	// POST /sites/%s/core/update
 	public function callback( $path = '', $blog_id = 0 ) {
 
