@@ -12,7 +12,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
 
-		if( is_wp_error( $error = $this->validate_action() ) ) {
+		if ( is_wp_error( $error = $this->validate_action() ) ) {
 			return $error;
 		}
 
@@ -24,8 +24,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			'update',
 		);
 		$args = $this->input();
-		if( ! empty( $args['action'] ) ) {
-			if( ! in_array( $args['action'], $expected_actions ) )
+		if ( ! empty( $args['action'] ) ) {
+			if ( ! in_array( $args['action'], $expected_actions ) )
 				return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ));
 			$this->action =  $args['action'];
 		}
@@ -44,7 +44,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	}
 
 	protected function activate() {
-		foreach( $this->plugins as $plugin ) {
+		foreach ( $this->plugins as $plugin ) {
 			if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $plugin ) ) || is_plugin_active_for_network( $plugin ) ) {
 				$this->log[ $plugin ]['error'] = true;
 				$this->log[ $plugin ]['error_message'] =  __( 'The Plugin is already active.', 'jetpack' );
@@ -104,7 +104,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 			$this->log[ $plugin ][] = __( 'Plugin deactivated.', 'jetpack' );
 		}
-		if( isset( $has_errors ) && count( $this->plugins ) === 1 ) {
+		if ( isset( $has_errors ) && count( $this->plugins ) === 1 ) {
 			$plugin = $this->plugins[0];
 			return new WP_Error( 'deactivation_error', $this->log[ $plugin ]['error_message'] );
 		}
