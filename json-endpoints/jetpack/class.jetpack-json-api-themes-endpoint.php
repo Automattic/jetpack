@@ -77,8 +77,9 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 			'screenshot'  => jetpack_photon_url( $theme->get_screenshot(), array(), 'network_path' )
 		);
 
-		foreach( $fields as $key => $field )
+		foreach( $fields as $key => $field ) {
 			$formatted_theme[ $key ] = $theme->get( $field );
+		}
 
 		$autoupdate_themes = Jetpack_Options::get_option('autoupdate_themes', array() );
 
