@@ -71,7 +71,9 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			return array_pop( $plugins );
 		}
 
-		return $plugins;
+		$response['plugins'] = $plugins;
+
+		return $response;
 
 	}
 
@@ -129,8 +131,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		foreach( $this->plugins as $plugin ) {
 			if ( ! isset( $installed_plugins[ $plugin ] ) )
 				continue;
-			$response['plugins'][] = $this->format_plugin( $plugin, $installed_plugins[ $plugin ] );
-		}
+			$response[] = $this->format_plugin( $plugin, $installed_plugins[ $plugin ] );
 		}
 		return $response;
 	}
