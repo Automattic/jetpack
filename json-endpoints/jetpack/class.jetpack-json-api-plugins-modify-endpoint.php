@@ -7,7 +7,6 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected $update_log;
 	protected $updated;
 	protected $not_updated;
-	protected $active = null;
 
 	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
 
