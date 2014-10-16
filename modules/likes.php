@@ -605,6 +605,11 @@ class Jetpack_Likes {
 				-webkit-font-smoothing: antialiased;
 				-moz-osx-font-smoothing: grayscale;
 			}
+			@media screen and (max-width: 782px) {
+				.fixed .column-likes {
+					display: none;
+				}
+			}
 		<?php endif; ?>
 		</style>
 		<?php
