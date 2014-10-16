@@ -115,7 +115,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['author']      = $plugin_data['Author'];
 		$plugin['author_url']  = $plugin_data['AuthorURI'];
 		$plugin['network']     = $plugin_data['Network'];
-		$plugin['autoupdate']  = ( in_array( $plugin_file, $autoupdate_plugins ) ) ? true : false;
+		$plugin['autoupdate']  = in_array( $plugin_file, $autoupdate_plugins );
 		if ( ! empty ( $this->log[ $plugin_file ] ) ) {
 			$plugin['log'] = $this->log[ $plugin_file ];
 		}
