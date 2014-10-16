@@ -131,11 +131,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 				continue;
 			$response['plugins'][] = $this->format_plugin( $plugin, $installed_plugins[ $plugin ] );
 		}
-		if ( ! empty( $this->updated ) ) {
-			$response['updated'] = $this->updated;
-		}
-		if ( ! empty( $this->not_updated ) ) {
-			$response['not_updated'] = $this->not_updated;
 		}
 		return $response;
 	}
