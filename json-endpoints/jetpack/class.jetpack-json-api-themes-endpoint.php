@@ -82,6 +82,9 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 			$formatted_theme[ $key ] = $theme->get( $field );
 		}
 
+		$update_themes = get_site_transient( 'update_themes' );
+		$formatted_theme['update'] = ( isset( $update_themes->response[ $id ] ) ) ? $update_themes->response[ $id ] : null;
+
 		$autoupdate_themes = Jetpack_Options::get_option( 'autoupdate_themes', array() );
 
 		$autoupdate = in_array( $id, $autoupdate_themes );
