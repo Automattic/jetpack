@@ -122,18 +122,9 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		remove_action( 'upgrader_process_complete', 'wp_version_check' );
 		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
 
-
-		$results           = $upgrader->bulk_upgrade( $this->plugins );
-		$this->update_log  = $upgrader->skin->get_upgrade_messages();
-
-		foreach ( $results as $path => $result ) {
-			if ( is_array( $result ) ) {
-				$this->log[ $path ] = 'Plugin updated';
-				$this->updated[] = $path;
-			} else {
-				$this->log[ $path ] = 'Plugin not updated';
-				$this->not_updated[] = $path;
-			}
+		foreach ( $this->plugins as $plugin ) {
+			$result = $upgrader->upgrade( $plugin );
+			$this->log[ $plugin ][]  = $upgrader->skin->get_upgrade_messages();
 		}
 
 		if ( 0 === count( $this->updated ) && 1 === count( $this->plugins ) ) {
