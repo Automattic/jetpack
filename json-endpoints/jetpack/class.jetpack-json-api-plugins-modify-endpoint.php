@@ -33,29 +33,14 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 	protected function autoupdate_on() {
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
-		foreach( $this->plugins as $plugin ) {
-			if( ! in_array( $plugin, $autoupdate_plugins ) ) {
-				$autoupdate_plugins[] = $plugin;
-				$this->log[ $plugin ][] = 'This plugin has been set to automatically update.';
-			} else {
-				$this->log[ $plugin ][] = 'This plugin is already set to automatically update.';
-			}
-		}
+		$autoupdate_plugins = array_unique( array_merge( $autoupdate_plugins, $this->plugins) );
 		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
 	}
 
 	protected function autoupdate_off() {
 		$autoupdate_plugins = Jetpack_Options::get_option( 'autoupdate_plugins', array() );
-		foreach( $autoupdate_plugins as $index => $plugin ) {
-			if( in_array( $plugin, $this->plugins ) ) {
-				unset( $autoupdate_plugins[ $index ] );
-				$this->log[ $plugin ][] = 'This plugin has been set to manually update.';
-			} else {
-				$this->log[ $plugin ][] = 'This plugin is already set to manually update.';
-			}
-		}
-		$reindexed = array_values( $autoupdate_plugins );
-		Jetpack_Options::update_option( 'autoupdate_plugins', $reindexed );
+		$autoupdate_plugins = array_diff( $autoupdate_plugins, $this->plugins );
+		Jetpack_Options::update_option( 'autoupdate_plugins', $autoupdate_plugins );
 	}
 
 	protected function activate() {
