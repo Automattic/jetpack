@@ -90,7 +90,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 				$this->plugins[] = $plugin;
 			}
 		} else {
-			$this->$bulk = false;
+			$this->bulk = false;
 			$this->plugins[] = urldecode( $plugin );
 		}
 
