@@ -79,8 +79,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected function deactivate() {
 		foreach( $this->plugins as $plugin ) {
 			if ( ! Jetpack::is_plugin_active( $plugin ) ) {
-				$this->log[ $plugin ]['error'] = __( 'The Plugin is already deactivated.', 'jetpack' );
-				$has_errors = true;
+				$error = $this->log[ $plugin ]['error'] = __( 'The Plugin is already deactivated.', 'jetpack' );
 				continue;
 			}
 
@@ -92,15 +91,13 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 
 			if ( ! $success ) {
-				$this->log[ $plugin ]['error'] = __( 'There was an error deactivating your plugin', 'jetpack' );
-				$has_errors = true;
+				$error = $this->log[ $plugin ]['error'] = __( 'There was an error deactivating your plugin', 'jetpack' );
 				continue;
 			}
 			$this->log[ $plugin ][] = __( 'Plugin deactivated.', 'jetpack' );
 		}
-		if ( isset( $has_errors ) && count( $this->plugins ) === 1 ) {
-			$plugin = $this->plugins[0];
-			return new WP_Error( 'deactivation_error', $this->log[ $plugin ]['error_message'] );
+		if ( count( $this->plugins ) === 1 && isset( $error ) ) {
+			return new WP_Error( 'deactivation_error', $error );
 		}
 	}
 
