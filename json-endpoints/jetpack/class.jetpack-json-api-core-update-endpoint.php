@@ -37,7 +37,7 @@ class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Core_Endpoi
 		if ( $version ) {
 			$update = find_core_update( $version, $locale );
 		} else {
-			$update = $this->find_latest_core_version();
+			$update = $this->find_latest_update_offer();
 		}
 
 		$skin     = new Automatic_Upgrader_Skin();
@@ -48,6 +48,21 @@ class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Core_Endpoi
 		$this->log = $upgrader->skin->get_upgrade_messages();
 
 		return $result;
+	}
+
+	protected function find_latest_update_offer() {
+		// Select the latest update.
+		// Remove filters to bypass automattic updates.
+		add_filter( 'request_filesystem_credentials',      '__return_true'  );
+		add_filter( 'automatic_updates_is_vcs_checkout',   '__return_false' );
+		add_filter( 'allow_major_auto_core_updates',       '__return_true'  );
+		add_filter( 'send_core_update_notification_email', '__return_false' );
+		$update = find_core_auto_update();
+		remove_filter( 'request_filesystem_credentials',      '__return_true'  );
+		remove_filter( 'automatic_updates_is_vcs_checkout',   '__return_false' );
+		remove_filter( 'allow_major_auto_core_updates',       '__return_true'  );
+		remove_filter( 'send_core_update_notification_email', '__return_false' );
+		return $update;
 	}
 
 }
