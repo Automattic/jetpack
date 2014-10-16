@@ -444,7 +444,6 @@ new Jetpack_JSON_API_Core_Endpoint( array(
 	),
 	'response_format' => array(
 		'version' => '(string) The current version',
-		'latest'  => '(string) The latest version',
 		'autoupdate' => '(bool) Whether or not we automatically update core'
 	),
 	'example_request_data' => array(
@@ -469,7 +468,6 @@ new Jetpack_JSON_API_Core_Endpoint( array(
 	),
 	'response_format' => array(
 		'version' => '(string) The current version',
-		'latest'  => '(string) The latest version',
 		'autoupdate' => '(bool) Whether or not we automatically update core'
 	),
 	'example_request_data' => array(
