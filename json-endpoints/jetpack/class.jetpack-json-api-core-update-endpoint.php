@@ -5,7 +5,6 @@ class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Core_Endpoi
 	// POST /sites/%s/core/update
 	public function callback( $path = '', $blog_id = 0 ) {
 
-
 		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_core' ) ) ) {
 			return $error;
 		}
@@ -16,13 +15,14 @@ class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Core_Endpoi
 		$version    = isset( $args['version'] ) ? $args['version'] : false;
 		$locale     = isset( $args['locale'] ) ? $args['locale'] : get_locale();
 
-		if ( is_wp_error( $error = $this->update_core( $version, $locale ) ) ) {
-			return $error;
+		$new_version = $this->update_core( $version, $locale );
+
+		if ( is_wp_error( $new_version ) ) {
+			return $new_version;
 		}
 
-		global $wp_version;
 		return array(
-			'version' => $wp_version,
+			'version' => $new_version,
 			'log'     => $this->log,
 		);
 	}
