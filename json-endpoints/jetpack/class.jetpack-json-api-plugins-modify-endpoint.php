@@ -136,7 +136,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		}
 
 		if ( 0 === count( $this->updated ) && 1 === count( $this->plugins ) ) {
-			return new WP_Error( 'update_fail', $this->update, 400 );
+			return new WP_Error( 'update_fail', __( 'There was an error updating your plugin', 'jetpack' ), 400 );
 		}
 	}
 }
