@@ -109,8 +109,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['id']     = preg_replace("/(.+)\.php$/", "$1", urlencode( $plugin_file ) );
 		$plugin['active'] = Jetpack::is_plugin_active( $plugin_file );
 
-		$current          = get_site_transient( 'update_plugins' );
-		$plugin['update'] = ( isset( $current->response[ $plugin_file ] ) ) ? $current->response[ $plugin_file ] : null;
+		$update_plugins   = get_site_transient( 'update_plugins' );
+		$plugin['update'] = ( isset( $update_plugins->response[ $plugin_file ] ) ) ? $update_plugins->response[ $plugin_file ] : null;
 
 		$plugin['name']        = $plugin_data['Name'];
 		$plugin['plugin_url']  = $plugin_data['PluginURI'];
