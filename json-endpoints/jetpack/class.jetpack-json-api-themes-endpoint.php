@@ -9,7 +9,6 @@
 abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected $themes = array();
-	protected $theme;
 
 	/**
 	 * Walks through submitted themes to make sure they are valid
@@ -127,28 +126,4 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		return array_map( array( $this, 'format_theme' ), $themes );
 	}
 
-	protected function get_theme() {
-		$theme = $this->format_theme( $this->themes[0] );
-		if( ! empty( $this->update_log ) ) {
-			$theme['log'] = $this->update_log;
-		}
-
-		return $theme;
-	}
-
-	protected function get_themes() {
-		foreach( $this->themes as $theme ) {
-			$response['themes'][] = $this->format_theme( $theme );
-		}
-		if( ! empty( $this->updated ) ) {
-			$response['updated'] = $this->updated;
-		}
-		if( ! empty( $this->not_updated ) ) {
-			$response['not_updated'] = $this->not_updated;
-		}
-		if( ! empty( $this->update_log ) ) {
-			$response['log'] = $this->update_log;
-		}
-		return $response;
-	}
 }
