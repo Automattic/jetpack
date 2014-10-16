@@ -7,6 +7,7 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 	protected $updated;
 	protected $not_updated;
 	protected $log;
+	protected $autoupdate = null;
 
 	public function callback( $path = '', $blog_id = 0, $theme = null ) {
 
@@ -32,6 +33,11 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 			}
 		}
 
+		if( ! is_null( $this->autoupdate ) ) {
+			$autoupdate_action = ( $this->autoupdate ) ? 'autoupdate_on' : 'autoupdate_off';
+			call_user_func( array( $this, $autoupdate_action ) );
+		}
+
 		if ( 1 === count( $this->themes ) ) {
 			return self::get_theme();
 		}
@@ -41,14 +47,13 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 	protected function validate_action() {
 		$expected_actions = array(
 			'update',
-			'autoupdate_on',
-			'autoupdate_off',
 		);
 		$args = $this->input();
-		if( empty( $args['action'] ) || ! in_array( $args['action'], $expected_actions ) ) {
-			return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ));
+		if( ! empty( $args['action'] ) ) {
+			if( ! in_array( $args['action'], $expected_actions ) )
+				return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ));
+			$this->action =  $args['action'];
 		}
-		$this->action =  $args['action'];
 	}
 
 	function autoupdate_on() {

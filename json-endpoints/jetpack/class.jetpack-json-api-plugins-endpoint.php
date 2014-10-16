@@ -137,7 +137,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		if( ! empty( $this->update_log ) ) {
 			$response['log'] = $this->update_log;
 		}
-		error_log( print_r( $response, true ), 1, 'rocco@a8c.com' );
 		return $response;
 	}
 

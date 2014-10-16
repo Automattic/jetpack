@@ -98,7 +98,8 @@ new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
 		'$theme'  => '(string) The theme slug',
 	),
 	'request_format' => array(
-		'action'   => '(string) Possible values are update, autoupdate_on, autoupdate_off',
+		'action'       => '(string) Only possible value is \'update\'. More to follow.',
+		'autoupdate'   => '(bool) Whether or not to automatically update the theme.',
 	),
 	'response_format' => array(
 		'id'           => '(string) The theme\'s ID.',
@@ -130,7 +131,8 @@ new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
 		'$site'   => '(int|string) The site ID, The site domain',
 	),
 	'request_format' => array(
-		'action'   => '(string) Possible values are update, autoupdate_on, autoupdate_off',
+		'action'       => '(string) Only possible value is \'update\'. More to follow.',
+		'autoupdate'   => '(bool) Whether or not to automatically update the theme.',
 		'themes'       => '(array) A list of theme slugs',
 	),
 	'response_format' => array(
@@ -221,7 +223,7 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 		'body' => array(
-			'active' => true,
+			'action' => 'update',
 		)
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello'
