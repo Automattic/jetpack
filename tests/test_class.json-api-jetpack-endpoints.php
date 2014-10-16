@@ -29,11 +29,11 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 
 	/**
 	 * @author lezama
-	 * @covers Jetpack_JSON_API_Plugins_Update_Endpoint
+	 * @covers Jetpack_JSON_API_Plugins_Modify_Endpoint
 	 */
-	public function test_Jetpack_JSON_API_Plugins_Update_Endpoint() {
+	public function test_Jetpack_JSON_API_Plugins_Modify_Endpoint() {
 
-		$endpoint = new Jetpack_JSON_API_Plugins_Update_Endpoint( array(
+		$endpoint = new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 			'description'     => 'Update a Plugin on your Jetpack Site',
 			'group'           => 'plugins',
 			'stat'            => 'plugins:1:update',
@@ -55,13 +55,13 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 		/**
 		 * Changes the Accessibility of the protected upgrade_plugin method.
 		 */
-		$class = new ReflectionClass('Jetpack_JSON_API_Plugins_Update_Endpoint');
-		$upgrade_plugin_method = $class->getMethod( 'upgrade_plugin' );
-		$upgrade_plugin_method->setAccessible( true );
+		$class = new ReflectionClass('Jetpack_JSON_API_Plugins_Modify_Endpoint');
+		$update_plugin_method = $class->getMethod( 'update' );
+		$update_plugin_method->setAccessible( true );
 
-		$plugin_property = $class->getProperty( 'plugin' );
+		$plugin_property = $class->getProperty( 'plugins' );
 		$plugin_property->setAccessible( true );
-		$plugin_property->setValue ( $endpoint , 'the/the.php' );
+		$plugin_property->setValue ( $endpoint , array( 'the/the.php' ) );
 
 		$the_plugin_file = 'the/the.php';
 		$the_real_folder = WP_PLUGIN_DIR . '/the';
@@ -86,7 +86,7 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 		);
 
 		// Invoke the upgrade_plugin method.
-		$result = $upgrade_plugin_method->invokeArgs( $endpoint, array( $the_plugin_file ) );
+		$result = $update_plugin_method->invoke( $endpoint );
 
 		$this->assertTrue( $result );
 
