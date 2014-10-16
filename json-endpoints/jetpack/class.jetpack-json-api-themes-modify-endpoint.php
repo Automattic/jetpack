@@ -3,19 +3,17 @@
 class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 
 	protected $action;
-	protected $update_log;
-	protected $updated;
-	protected $not_updated;
+
 	protected $log;
 	protected $autoupdate = null;
 
 	public function callback( $path = '', $blog_id = 0, $theme = null ) {
 
-		if( is_wp_error( $error = $this->validate_action() ) ) {
+		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_themes' ) ) ) {
 			return $error;
 		}
 
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_themes' ) ) ) {
+		if( is_wp_error( $error = $this->validate_action() ) ) {
 			return $error;
 		}
 
@@ -38,10 +36,14 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 			call_user_func( array( $this, $autoupdate_action ) );
 		}
 
-		if ( 1 === count( $this->themes ) ) {
-			return self::get_theme();
+		$themes = $this->format_themes( $this->themes );
+
+		if ( ! $this->bulk && ! empty( $themes ) ) {
+			return array_pop( $themes );
 		}
-		return self::get_themes();
+
+		return array( 'themes' => $themes );
+
 	}
 
 	protected function validate_action() {
@@ -58,31 +60,14 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 
 	function autoupdate_on() {
 		$autoupdate_themes = Jetpack_Options::get_option( 'autoupdate_themes', array() );
-		foreach( $this->themes as $index => $theme ) {
-			if( ! in_array( $theme, $autoupdate_themes ) ) {
-				$autoupdate_themes[] = $theme;
-				$this->log[ $theme ][] = 'This theme has been set to automatically update.';
-			} else {
-				$this->log[ $theme ][] = 'This theme is already set to automatically update.';
-			}
-		}
+		$autoupdate_themes = array_unique( array_merge( $autoupdate_themes, $this->themes ) );
 		Jetpack_Options::update_option( 'autoupdate_themes', $autoupdate_themes );
 	}
 
 	function autoupdate_off() {
 		$autoupdate_themes = Jetpack_Options::get_option( 'autoupdate_themes', array() );
-
-		foreach( $this->themes as $index => $theme ) {
-			$found = array_search( $theme, $autoupdate_themes );
-			if( $found !== false ) {
-				unset( $autoupdate_themes[ $found ] );
-				$this->log[ $theme ][] = 'This theme has been set to manually update.';
-			} else {
-				$this->log[ $theme ][] = 'This theme is already set to manually update.';
-			}
-		}
-		$reindexed = array_values( $autoupdate_themes );
-		Jetpack_Options::update_option( 'autoupdate_themes', $reindexed );
+		$autoupdate_themes = array_diff( $autoupdate_themes, $this->themes );
+		Jetpack_Options::update_option( 'autoupdate_themes', $autoupdate_themes );
 	}
 
 	function update() {
@@ -100,9 +85,11 @@ class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_En
 			$this->log[ $theme ][] = $upgrader->skin->get_upgrade_messages();
 		}
 
-		if ( 0 === count( $this->updated ) && 1 === count( $this->themes ) ) {
-			return new WP_Error( 'update_fail', $this->update_log, 400 );
+		if ( ! $this->bulk && ! $result ) {
+			return new WP_Error( 'update_fail', __( 'There was an error updating your theme', 'jetpack' ), 400 );
 		}
+
+		return true;
 	}
 
 }

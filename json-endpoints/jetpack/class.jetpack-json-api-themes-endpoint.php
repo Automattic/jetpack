@@ -9,6 +9,7 @@
 abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected $themes = array();
+	protected $bulk = true;
 
 	/**
 	 * Walks through submitted themes to make sure they are valid
@@ -44,6 +45,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 			}
 		} else {
 			$this->themes[] = urldecode( $theme );
+			$this->bulk = false;
 		}
 		// find out if we need to autoupdate any themes
 		if( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) )
