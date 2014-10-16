@@ -10,6 +10,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	protected $plugins;
 
 	protected $action;
+	protected $active;
+	protected $autoupdate;
 	protected $needed_capabilities;
 
 	static $_response_format	= array(
