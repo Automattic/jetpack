@@ -408,7 +408,7 @@ new Jetpack_JSON_API_Check_Capabilities_Endpoint( array(
 
 
 // CORE
-
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-core-endpoint.php' );
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-core-update-endpoint.php' );
 
 new Jetpack_JSON_API_Core_Update_Endpoint( array(
@@ -432,4 +432,53 @@ new Jetpack_JSON_API_Core_Update_Endpoint( array(
 		),
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core/update'
+) );
+
+new Jetpack_JSON_API_Core_Endpoint( array(
+	'description'     => 'Gets info about a Jetpack blog\'s core installation',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/core',
+	'stat'            => 'core',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'version' => '(string) The current version',
+		'latest'  => '(string) The latest version',
+		'autoupdate' => '(bool) Whether or not we automatically update core'
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core'
+) );
+
+
+new Jetpack_JSON_API_Core_Endpoint( array(
+	'description'     => 'Toggle automatic core updates for a Jetpack blog',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/core',
+	'stat'            => 'core',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'autoupdate'   => '(bool) Whether or not we automatically update core',
+	),
+	'response_format' => array(
+		'version' => '(string) The current version',
+		'latest'  => '(string) The latest version',
+		'autoupdate' => '(bool) Whether or not we automatically update core'
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'autoupdate' => true,
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core'
 ) );
