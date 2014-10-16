@@ -8,6 +8,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	protected $network_wide = false;
 	protected $log;
 	protected $plugins;
+	protected $bulk = true;
 
 	protected $action;
 	protected $active;
@@ -67,7 +68,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 		$plugins = self::get_plugins();
 
-		if ( ! empty( $plugin ) && ! empty( $plugins ) ) {
+		if ( ! $this->bulk && ! empty( $plugins ) ) {
 			return array_pop( $plugins );
 		}
 
@@ -91,6 +92,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 				$this->plugins[] = $plugin;
 			}
 		} else {
+			$this->$bulk = false;
 			$this->plugins[] = urldecode( $plugin );
 		}
 
