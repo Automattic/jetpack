@@ -97,7 +97,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 			$this->log[ $plugin ][] = __( 'Plugin deactivated.', 'jetpack' );
 		}
-		if ( count( $this->plugins ) === 1 && isset( $error ) ) {
+		if ( ! $this->bulk && isset( $error ) ) {
 			return new WP_Error( 'deactivation_error', $error );
 		}
 	}
