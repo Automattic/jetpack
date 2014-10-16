@@ -6,7 +6,6 @@
 abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected $network_wide = false;
-	protected $plugin;
 	protected $log;
 	protected $plugins;
 
@@ -64,11 +63,13 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 				return $result;
 		}
 
-		if( count( $this->plugins ) === 1 ) {
-			return self::get_plugin( $this->plugin );
-		} else {
-			return self::get_plugins();
+		$plugins = self::get_plugins();
+
+		if ( ! empty( $plugin ) && ! empty( $plugins ) ) {
+			return array_pop( $plugin );
 		}
+
+		return $plugins;
 
 	}
 
@@ -140,17 +141,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return $response;
 	}
 
-	protected function get_plugin() {
-		$installed_plugins = get_plugins();
-		if ( ! isset( $installed_plugins[ $this->plugin ] ) )
-			return new WP_Error( 'unknown_plugin', __( 'Plugin not found.', 'jetpack' ), 404 );
-		$plugin = $this->format_plugin( $this->plugin, $installed_plugins[ $this->plugin ] );
-		if( ! empty( $this->update_log ) ) {
-			$plugin['log'] = $this->update_log;
-		}
-		return $plugin;
-	}
-
 	protected function validate_network_wide() {
 		$args = $this->input();
 
@@ -183,9 +173,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			return new WP_Error( 'missing_plugin', __( 'You are required to specify a plugin to activate.', 'jetpack' ), 400 );
 		}
 
-		$this->plugin = urldecode( $plugin ) . '.php';
-
-		if ( is_wp_error( $error = validate_plugin( $this->plugin ) ) ) {
 			return new WP_Error( 'unknown_plugin', $error->get_error_messages() , 404 );
 		}
 
