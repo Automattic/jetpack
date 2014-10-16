@@ -127,7 +127,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$this->log[ $plugin ][]  = $upgrader->skin->get_upgrade_messages();
 		}
 
-		if ( 0 === count( $this->updated ) && 1 === count( $this->plugins ) ) {
+		if ( ! $this->bulk && ! $result ) {
 			return new WP_Error( 'update_fail', __( 'There was an error updating your plugin', 'jetpack' ), 400 );
 		}
 
