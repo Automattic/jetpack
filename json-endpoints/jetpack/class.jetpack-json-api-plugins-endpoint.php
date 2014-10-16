@@ -72,9 +72,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			return array_pop( $plugins );
 		}
 
-		$response['plugins'] = $plugins;
-
-		return $response;
+		return $plugins;
 
 	}
 
