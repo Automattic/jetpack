@@ -46,8 +46,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected function activate() {
 		foreach ( $this->plugins as $plugin ) {
 			if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $plugin ) ) || is_plugin_active_for_network( $plugin ) ) {
-				$this->log[ $plugin ]['error'] = true;
-				$this->log[ $plugin ]['error_message'] =  __( 'The Plugin is already active.', 'jetpack' );
+				$this->log[ $plugin ]['error'] = __( 'The Plugin is already active.', 'jetpack' );
 				$has_errors = true;
 				continue;
 			}
@@ -55,8 +54,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$result = activate_plugin( $plugin, '', $this->network_wide );
 
 			if ( is_wp_error( $result ) ) {
-				$this->log[ $plugin ]['error'] = true;
-				$this->log[ $plugin ]['error_message'] =  $result->get_error_messages();
+				$this->log[ $plugin ]['error'] = $result->get_error_messages();
 				$has_errors = true;
 				continue;
 			}
@@ -67,8 +65,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 
 			if ( ! $success ) {
-				$this->log[ $plugin ]['error'] = true;
-				$this->log[ $plugin ]['error_message'] =  $result->get_error_messages;
+				$this->log[ $plugin ]['error'] = $result->get_error_messages;
 				$has_errors = true;
 				continue;
 			}
@@ -83,8 +80,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected function deactivate() {
 		foreach( $this->plugins as $plugin ) {
 			if ( ! Jetpack::is_plugin_active( $plugin ) ) {
-				$this->log[ $plugin ]['error'] = true;
-				$this->log[ $plugin ]['error_message'] =  __( 'The Plugin is already deactivated.', 'jetpack' );
+				$this->log[ $plugin ]['error'] = __( 'The Plugin is already deactivated.', 'jetpack' );
 				$has_errors = true;
 				continue;
 			}
@@ -97,8 +93,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 
 			if ( ! $success ) {
-				$this->log[ $plugin ]['error'] = true;
-				$this->log[ $plugin ]['error_message'] =  __( 'There was an error deactivating your plugin', 'jetpack' );
+				$this->log[ $plugin ]['error'] = __( 'There was an error deactivating your plugin', 'jetpack' );
 				$has_errors = true;
 				continue;
 			}
