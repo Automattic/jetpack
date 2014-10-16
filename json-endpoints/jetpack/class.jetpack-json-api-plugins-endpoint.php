@@ -66,7 +66,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugins = self::get_plugins();
 
 		if ( ! empty( $plugin ) && ! empty( $plugins ) ) {
-			return array_pop( $plugin );
+			return array_pop( $plugins );
 		}
 
 		return $plugins;
