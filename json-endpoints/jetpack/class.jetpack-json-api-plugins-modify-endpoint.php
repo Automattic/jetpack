@@ -7,7 +7,6 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected $update_log;
 	protected $updated;
 	protected $not_updated;
-	protected $active = null;
 
 	public function callback( $path = '', $blog_id = 0, $plugin = null ) {
 
@@ -27,6 +26,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			if ( ! in_array( $args['action'], $expected_actions ) )
 				return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ));
 			$this->action =  $args['action'];
+		} elseif ( preg_match( "/\/update\/?$/", $this->path ) ) {
+			$this->action = 'update';
 		}
 	}
 
@@ -136,7 +137,9 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		}
 
 		if ( 0 === count( $this->updated ) && 1 === count( $this->plugins ) ) {
-			return new WP_Error( 'update_fail', $this->update, 400 );
+			return new WP_Error( 'update_fail', __( 'There was an error updating your plugin', 'jetpack' ), 400 );
 		}
+
+		return true;
 	}
 }
