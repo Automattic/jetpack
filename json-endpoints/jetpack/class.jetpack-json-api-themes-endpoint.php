@@ -31,9 +31,9 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 	 * @return bool
 	 */
 	protected function validate_input( $theme ) {
-
+		$args = $this->input();
+		// lets set what themes were requested, and validate them
 		if ( ! isset( $theme ) || empty( $theme ) ) {
-			$args = $this->input();
 
 			if ( ! $args['themes'] || empty( $args['themes'] ) ) {
 				return new WP_Error( 'missing_theme', __( 'You are required to specify a theme to update.', 'jetpack' ), 400 );
@@ -46,6 +46,9 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		} else {
 			$this->themes[] = urldecode( $theme );
 		}
+		// find out if we need to autoupdate any themes
+		if( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) )
+			$this->autoupdate = $args['autoupdate'];
 
 		return true;
 	}
