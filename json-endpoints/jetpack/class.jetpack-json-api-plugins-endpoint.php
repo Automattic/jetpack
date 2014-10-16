@@ -51,12 +51,12 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 				return $result;
 		}
 
-		if( ! is_null( $this->autoupdate ) ) {
+		if ( ! is_null( $this->autoupdate ) ) {
 			$autoupdate_action = ( $this->autoupdate ) ? 'autoupdate_on' : 'autoupdate_off';
 			call_user_func( array( $this, $autoupdate_action ) );
 		}
 
-		if( ! is_null( $this->active ) ) {
+		if ( ! is_null( $this->active ) ) {
 			$active_action = ( $this->active ) ? 'activate' : 'deactivate';
 			$result = call_user_func( array( $this, $active_action ) );
 			if( is_wp_error( $result ) )
@@ -91,9 +91,9 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		}
 
 		// find out if we need to activate, or autoupdate any plugins
-		if( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) )
+		if ( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) )
 			$this->autoupdate = $args['autoupdate'];
-		if( isset( $args['active'] ) && is_bool( $args['active'] ) )
+		if ( isset( $args['active'] ) && is_bool( $args['active'] ) )
 			$this->active = $args['active'];
 
 		return true;
@@ -129,14 +129,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 				continue;
 			$response['plugins'][] = $this->format_plugin( $plugin, $installed_plugins[ $plugin ] );
 		}
-		if( ! empty( $this->updated ) ) {
+		if ( ! empty( $this->updated ) ) {
 			$response['updated'] = $this->updated;
 		}
-		if( ! empty( $this->not_updated ) ) {
+		if ( ! empty( $this->not_updated ) ) {
 			$response['not_updated'] = $this->not_updated;
-		}
-		if( ! empty( $this->update_log ) ) {
-			$response['log'] = $this->update_log;
 		}
 		return $response;
 	}
@@ -156,11 +153,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function validate_plugins() {
-		if( empty( $this->plugins ) || ! is_array( $this->plugins ) ) {
+		if ( empty( $this->plugins ) || ! is_array( $this->plugins ) ) {
 			return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ));
 		}
 		foreach( $this->plugins as $index => $plugin ) {
-			if( is_wp_error( $error = $this->validate_plugin( $plugin ) ) ) {
+			if ( is_wp_error( $error = $this->validate_plugin( $plugin ) ) ) {
 				return $error;
 			}
 			$this->plugins[ $index ] = $plugin . '.php';
@@ -173,6 +170,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			return new WP_Error( 'missing_plugin', __( 'You are required to specify a plugin to activate.', 'jetpack' ), 400 );
 		}
 
+		if ( is_wp_error( $error = validate_plugin( urldecode( $plugin ) . '.php' ) ) ) {
 			return new WP_Error( 'unknown_plugin', $error->get_error_messages() , 404 );
 		}
 
