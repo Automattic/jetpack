@@ -265,6 +265,24 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
 ) );
 
+new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
+	'description'     => 'Update a Plugin on your Jetpack Site',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/plugins/%s/update/',
+	'stat'            => 'plugins:1:update',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+		'$plugin'   => '(string) The plugin ID',
+	),
+	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello/update'
+) );
+
 // Jetpack Modules
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-modules-endpoint.php' );

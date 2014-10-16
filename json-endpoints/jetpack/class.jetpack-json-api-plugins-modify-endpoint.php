@@ -26,6 +26,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			if ( ! in_array( $args['action'], $expected_actions ) )
 				return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ));
 			$this->action =  $args['action'];
+		} elseif ( preg_match( "/\/update\/?$/", $this->path ) ) {
+			$this->action = 'update';
 		}
 	}
 
