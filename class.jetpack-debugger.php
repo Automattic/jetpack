@@ -153,6 +153,10 @@ class Jetpack_Debugger {
 				<?php endif; ?>
 				<?php if ( Jetpack::is_active() ) : ?>
 					<hr />
+					<div id="connected-user-details">
+						<p><?php printf( __( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ), esc_html( Jetpack::get_master_user_email() ) ); ?></p>
+					</div>
+					<hr />
 					<div id="sync-related-posts">
 						<p><?php echo esc_html__( 'Some features of Jetpack uses the WordPress.com infrastructure and requires that your public content be mirrored there. If you see intermittent issues only affecting certain posts, please try requesting a reindex of your posts.', 'jetpack' ); ?></p>
 						<?php echo Jetpack::init()->sync->reindex_ui() ?>
