@@ -477,12 +477,15 @@ class Jetpack_Custom_CSS {
 			return $default_css;
 
 		$option = ( Jetpack_Custom_CSS::is_preview() || Jetpack_Custom_CSS::is_freetrial() ) ? 'safecss_preview' : 'safecss';
+		$css = '';
 
 		if ( 'safecss' == $option ) {
 			// Don't bother checking for a migrated 'safecss' option if it never existed.
 			if ( false === get_option( 'safecss' ) || get_option( 'safecss_revision_migrated' ) ) {
 				$safecss_post = Jetpack_Custom_CSS::get_post();
-				$css = ( $compressed && $safecss_post['post_content_filtered'] ) ? $safecss_post['post_content_filtered'] : $safecss_post['post_content'];
+				if ( ! empty( $safecss_post ) ) {
+					$css = ( $compressed && $safecss_post['post_content_filtered'] ) ? $safecss_post['post_content_filtered'] : $safecss_post['post_content'];
+				}
 			} else {
 				$current_revision = Jetpack_Custom_CSS::get_current_revision();
 				if ( false === $current_revision ) {
