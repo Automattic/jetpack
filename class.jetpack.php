@@ -634,18 +634,32 @@ class Jetpack {
 	}
 
 	/**
-	 * Get the wpcom email of the current connected user.
+	 * Get the wpcom email of the current|specified connected user.
 	 */
-	public static function get_connected_user_email() {
+	public static function get_connected_user_email( $user_id = null ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
-			'user_id' => get_current_user_id()
+			'user_id' => $user_id,
 		) );
 		$xml->query( 'wpcom.getUserEmail' );
 		if ( ! $xml->isError() ) {
 			return $xml->getResponse();
 		}
 		return false;
+	}
+
+	/**
+	 * Get the wpcom email of the master user.
+	 */
+	public static function get_master_user_email() {
+		$master_user_id = Jetpack_Options::get_option( 'master_user' );
+		if ( $master_user_id ) {
+			return self::get_connected_user_email( $master_user_id );
+		}
+		return '';
 	}
 
 	function current_user_is_connection_owner() {
