@@ -19,6 +19,9 @@ class Jetpack_Options {
 				'wpcc_options',
 				'relatedposts',
 				'file_data',
+				'autoupdate_plugins',          // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
+				'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
+				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
 			);
 		}
 

@@ -1,28 +1,28 @@
 <?php
 
-class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Endpoint {
+class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Core_Endpoint {
+
+	protected $log;
 
 	// POST /sites/%s/core/update
 	public function callback( $path = '', $blog_id = 0 ) {
-
 
 		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_core' ) ) ) {
 			return $error;
 		}
 
-		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
-
 		$args = $this->input();
 		$version    = isset( $args['version'] ) ? $args['version'] : false;
 		$locale     = isset( $args['locale'] ) ? $args['locale'] : get_locale();
 
-		if ( is_wp_error( $error = $this->update_core( $version, $locale ) ) ) {
-			return $error;
+		$new_version = $this->update_core( $version, $locale );
+
+		if ( is_wp_error( $new_version ) ) {
+			return $new_version;
 		}
 
-		global $wp_version;
 		return array(
-			'version' => $wp_version,
+			'version' => $new_version,
 			'log'     => $this->log,
 		);
 	}
@@ -37,7 +37,7 @@ class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Endpoint {
 		if ( $version ) {
 			$update = find_core_update( $version, $locale );
 		} else {
-			$update = $this->find_latest_core_version();
+			$update = $this->find_latest_update_offer();
 		}
 
 		$skin     = new Automatic_Upgrader_Skin();
@@ -50,7 +50,7 @@ class Jetpack_JSON_API_Core_Update_Endpoint extends Jetpack_JSON_API_Endpoint {
 		return $result;
 	}
 
-	private function find_latest_core_version() {
+	protected function find_latest_update_offer() {
 		// Select the latest update.
 		// Remove filters to bypass automattic updates.
 		add_filter( 'request_filesystem_credentials',      '__return_true'  );

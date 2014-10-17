@@ -86,53 +86,72 @@ new Jetpack_JSON_API_Themes_List_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-update-endpoint.php' );
-
-new Jetpack_JSON_API_Themes_Update_Endpoint( array(
-	'description'     => 'Update Themes on a Jetpack blog',
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-themes-modify-endpoint.php' );
+new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
+	'description'     => 'Modify a single theme on a jetpack blog',
+	'group'           => '__do_not_document',
+	'stat'            => 'themes:modify:1',
 	'method'          => 'POST',
-	'path'            => '/sites/%s/themes/update',
-	'stat'            => 'themes:update',
-	'path_labels' => array(
-		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'request_format' => array(
-		'themes'   => '(array) The list of themes to update',
-	),
-	'response_format' => array(
-		'updated' => '(array) An array of updated theme stylesheets.',
-		'errors'  => '(array) An array of not updated stylesheets.',
-		'log'     => '(array:safehtml) An array of log strings.',
-	),
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
-) );
-
-new Jetpack_JSON_API_Themes_Update_Endpoint( array(
-	'description'     => 'Update Themes on a Jetpack blog',
-	'method'          => 'POST',
-	'path'            => '/sites/%s/themes/%s/update',
-	'stat'            => 'themes:1:update',
+	'path'            => '/sites/%s/themes/%s',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
-		'$theme' => '(string) The theme stylesheet',
+		'$theme'  => '(string) The theme slug',
 	),
 	'request_format' => array(
-		'themes'   => '(array) The list of themes to update',
+		'action'       => '(string) Only possible value is \'update\'. More to follow.',
+		'autoupdate'   => '(bool) Whether or not to automatically update the theme.',
 	),
 	'response_format' => array(
-		'updated' => '(array) An array of updated theme stylesheets.',
-		'errors'  => '(array) An array of not updated stylesheets.',
-		'log'     => '(array:safehtml) An array of log strings.',
+		'id'           => '(string) The theme\'s ID.',
+		'screenshot'   => '(string) A theme screenshot URL',
+		'name'         => '(string) The name of the theme.',
+		'description'  => '(string) A description of the theme.',
+		'tags'         => '(array) Tags indicating styles and features of the theme.',
+		'log'          => '(array) An array of log strings',
+		'autoupdate'   => '(bool) Whether the theme is automatically updated',
 	),
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
+		'body' => array(
+			'action' => 'update',
+		)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes/twentyfourteen'
+) );
+
+new Jetpack_JSON_API_Themes_Modify_Endpoint( array(
+	'description'     => 'Modify a list of themes on a jetpack blog',
+	'group'           => '__do_not_document',
+	'stat'            => 'themes:modify',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/themes',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+	),
+	'request_format' => array(
+		'action'       => '(string) Only possible value is \'update\'. More to follow.',
+		'autoupdate'   => '(bool) Whether or not to automatically update the theme.',
+		'themes'       => '(array) A list of theme slugs',
+	),
+	'response_format' => array(
+		'themes' => '(array) A list of theme objects',
+		'updated' => '(array) A list of theme slugs that were updated. Only present if action is update',
+		'not_updated' => '(array) A list of theme slugs that were not updated. Only present if action is update',
+		'log' => '(array:safehtml) Update log. Only present if action is update',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'action' => 'autoupdate_on',
+			'themes'     => array(
+				'twentytwelve',
+				'twentyfourteen',
+			),
+		)
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/themes'
 ) );
@@ -140,8 +159,28 @@ new Jetpack_JSON_API_Themes_Update_Endpoint( array(
 // PLUGINS
 
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-endpoint.php' );
-
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-get-endpoint.php' );
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-list-endpoint.php' );
+
+new Jetpack_JSON_API_Plugins_List_Endpoint( array(
+	'description'     => 'Get installed Plugins on your blog',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/plugins',
+	'stat'            => 'plugins',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'found'  => '(int) The total number of plugins found.',
+		'plugins' => '(array) An array of plugin objects.',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
+) );
 
 new Jetpack_JSON_API_Plugins_Get_Endpoint( array(
 	'description'     => 'Get the Plugin data.',
@@ -164,17 +203,19 @@ new Jetpack_JSON_API_Plugins_Get_Endpoint( array(
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modify-endpoint.php' );
 
 new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
-	'description'     => 'Activate/Deactivate a Plugin on your Jetpack Site',
+	'description'     => 'Activate/Deactivate a Plugin on your Jetpack Site, or set automatic updates',
 	'method'          => 'POST',
-	'path'            => '/sites/%s/plugins/%s/',
-	'stat'            => 'plugins:1',
+	'path'            => '/sites/%s/plugins/%s',
+	'stat'            => 'plugins:1:modify',
 	'path_labels' => array(
 		'$site'   => '(int|string) The site ID, The site domain',
 		'$plugin'   => '(string) The plugin ID',
 	),
 	'request_format' => array(
-		'active'   => '(bool) The module activation status',
-		'network_wide' => '(bool) Do action network wide (default value: false)'
+		'action'       => '(string) Only possible value is \'update\'. More to follow',
+		'autoupdate'   => '(bool) Whether or not to automatically update the plugin',
+		'active'       => '(bool) Activate or deactivate the plugin',
+		'network_wide' => '(bool) Do action network wide (default value: false)',
 	),
 	'response_format' => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
 	'example_request_data' => array(
@@ -182,15 +223,49 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 		'body' => array(
-			'active' => true,
+			'action' => 'update',
 		)
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello'
 ) );
 
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-update-endpoint.php' );
+new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
+	'description'     => 'Activate/Deactivate a list of plugins on your Jetpack Site, or set automatic updates',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/plugins',
+	'stat'            => 'plugins:modify',
+	'path_labels' => array(
+		'$site'   => '(int|string) The site ID, The site domain',
+	),
+	'request_format' => array(
+		'action'       => '(string) Only possible value is \'update\'. More to follow',
+		'autoupdate'   => '(bool) Whether or not to automatically update the plugin',
+		'active'       => '(bool) Activate or deactivate the plugin',
+		'network_wide' => '(bool) Do action network wide (default value: false)',
+		'plugins'      => '(array) A list of plugin ids to modify',
+	),
+	'response_format' => array(
+		'plugins'       => '(array:plugin) An array of plugin objects.',
+		'updated'       => '(array) A list of plugin ids that were updated. Only present if action is update.',
+		'not_updated'   => '(array) A list of plugin ids that were not updated. Only present if action is update.',
+		'log'           => '(array) Update log. Only present if action is update.',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'active'  => true,
+			'plugins' => array(
+				'jetpack/jetpack',
+				'akismet/akismet',
+			),
+		)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
+) );
 
-new Jetpack_JSON_API_Plugins_Update_Endpoint( array(
+new Jetpack_JSON_API_Plugins_Modify_Endpoint( array(
 	'description'     => 'Update a Plugin on your Jetpack Site',
 	'method'          => 'POST',
 	'path'            => '/sites/%s/plugins/%s/update/',
@@ -205,29 +280,7 @@ new Jetpack_JSON_API_Plugins_Update_Endpoint( array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
 		),
 	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/update'
-) );
-
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-list-endpoint.php' );
-
-new Jetpack_JSON_API_Plugins_List_Endpoint( array(
-	'description'     => 'Get installed Plugins on your blog',
-	'method'          => 'GET',
-	'path'            => '/sites/%s/plugins',
-	'stat'            => 'plugins',
-	'path_labels' => array(
-		'$site' => '(int|string) The site ID, The site domain'
-	),
-	'response_format' => array(
-		'found'  => '(int) The total number of plugins found.',
-		'plugins' => '(array) An array of plugin objects.',
-	),
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/hello-dolly%20hello/update'
 ) );
 
 // Jetpack Modules
@@ -355,7 +408,7 @@ new Jetpack_JSON_API_Check_Capabilities_Endpoint( array(
 
 
 // CORE
-
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-core-endpoint.php' );
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-core-update-endpoint.php' );
 
 new Jetpack_JSON_API_Core_Update_Endpoint( array(
@@ -379,4 +432,51 @@ new Jetpack_JSON_API_Core_Update_Endpoint( array(
 		),
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core/update'
+) );
+
+new Jetpack_JSON_API_Core_Endpoint( array(
+	'description'     => 'Gets info about a Jetpack blog\'s core installation',
+	'method'          => 'GET',
+	'path'            => '/sites/%s/core',
+	'stat'            => 'core',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'response_format' => array(
+		'version' => '(string) The current version',
+		'autoupdate' => '(bool) Whether or not we automatically update core'
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core'
+) );
+
+
+new Jetpack_JSON_API_Core_Endpoint( array(
+	'description'     => 'Toggle automatic core updates for a Jetpack blog',
+	'method'          => 'POST',
+	'path'            => '/sites/%s/core',
+	'stat'            => 'core',
+	'path_labels' => array(
+		'$site' => '(int|string) The site ID, The site domain'
+	),
+	'request_format' => array(
+		'autoupdate'   => '(bool) Whether or not we automatically update core',
+	),
+	'response_format' => array(
+		'version' => '(string) The current version',
+		'autoupdate' => '(bool) Whether or not we automatically update core'
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'autoupdate' => true,
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/core'
 ) );
