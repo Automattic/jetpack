@@ -483,7 +483,6 @@ class Jetpack_Custom_CSS {
 			// Don't bother checking for a migrated 'safecss' option if it never existed.
 			if ( false === get_option( 'safecss' ) || get_option( 'safecss_revision_migrated' ) ) {
 				$safecss_post = Jetpack_Custom_CSS::get_post();
-                
 				if ( ! empty( $safecss_post ) ) {
 					$css = ( $compressed && $safecss_post['post_content_filtered'] ) ? $safecss_post['post_content_filtered'] : $safecss_post['post_content'];
 				}
