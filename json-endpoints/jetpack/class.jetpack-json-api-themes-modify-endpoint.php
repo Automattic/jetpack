@@ -1,61 +1,24 @@
 <?php
 
 class Jetpack_JSON_API_Themes_Modify_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
+	// POST  /sites/%s/themes/%s
+	// POST  /sites/%s/themes
 
-	protected $action;
+	protected $needed_capabilities = 'update_themes';
+	protected $action              = 'default_action';
+	protected $expected_actions    = array( 'update' );
 
-	protected $log;
-	protected $autoupdate = null;
-
-	public function callback( $path = '', $blog_id = 0, $theme = null ) {
-
-		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'update_themes' ) ) ) {
-			return $error;
-		}
-
-		if( is_wp_error( $error = $this->validate_action() ) ) {
-			return $error;
-		}
-
-		if ( is_wp_error( $error = $this->validate_input( $theme ) ) ) {
-			return $error;
-		}
-
-		if ( is_wp_error( $error = $this->validate_themes() ) ) {
-			return new WP_Error( 'unknown_theme', $error->get_error_messages() , 404 );
-		}
-
-		if ( ! empty( $this->action ) ) {
-			if ( is_wp_error( $result = call_user_func( array( $this, $this->action ) ) ) ) {
-				return $result;
+	public function default_action() {
+		$args = $this->input();
+		if ( isset( $args['autoupdate'] ) && is_bool( $args['autoupdate'] ) ) {
+			if ( $args['autoupdate'] ) {
+				$this->autoupdate_on();
+			} else {
+				$this->autoupdate_off();
 			}
 		}
 
-		if( ! is_null( $this->autoupdate ) ) {
-			$autoupdate_action = ( $this->autoupdate ) ? 'autoupdate_on' : 'autoupdate_off';
-			call_user_func( array( $this, $autoupdate_action ) );
-		}
-
-		$themes = $this->format_themes( $this->themes );
-
-		if ( ! $this->bulk && ! empty( $themes ) ) {
-			return array_pop( $themes );
-		}
-
-		return array( 'themes' => $themes );
-
-	}
-
-	protected function validate_action() {
-		$expected_actions = array(
-			'update',
-		);
-		$args = $this->input();
-		if( ! empty( $args['action'] ) ) {
-			if( ! in_array( $args['action'], $expected_actions ) )
-				return new WP_Error( 'invalid_action', __( 'You must specify a valid action', 'jetpack' ));
-			$this->action =  $args['action'];
-		}
+		return true;
 	}
 
 	function autoupdate_on() {
